@@ -1,0 +1,72 @@
+This is Einstein Platform source code.
+
+This file describes how to compile Einstein.
+
+#### On MacOS X, for MacOS X, using Xcode ####
+
+1/ Get latest Xcode from Apple Connection website and install it with 10.3.9 and 10.4u cross-SDKs (this is the default).
+
+2/ Get K (preferably from CVS) at:
+http://sourceforge.net/projects/KLibs/
+
+3/ Tell Xcode where to find K by defining a K source tree (in the preferences). On my system, K is set to /Users/paul/Bibliotheques/K/ and I did a cvs co inside /Users/paul/Bibliotheques/
+
+4/ Open the Einstein Xcode project.
+
+5/ Choose your target (I suggest Einstein.app)
+
+6/ Click build.
+
+#### On Unix (including MacOS X), as a native build, using Jam ####
+
+1/ Install Jam 2.5. Not btjam, not ftjam, regular jam. You can get it from MacPorts on MacOS X. On Ubuntu, the debian package jam is fine. You can also compile it from source:
+http://public.perforce.com/public/jam/index.html
+
+2/ Get K (preferably from CVS) at:
+http://sourceforge.net/projects/KLibs/
+
+3/ Compile K with Jam with:
+cd <path_to_K>/_Build_/Jam/ && jam
+
+4/ Get libffi. On MacOS X, I suggest getting with MacPorts.
+
+5/ Compile Einstein with Jam with:
+cd <path_to_einstein>/_Build_/Jam/ && jam -sK=<path_to_K>
+
+or
+
+cd <path_to_einstein>/_Build_/Jam/ && jam -sK=<path_to_K> -sC++FLAGS=-I/path/to/libffi/include -sCCFLAGS=-I/path/to/libffi/include -sLINKFLAGS=-I/path/to/libffi/include
+
+if libffi isn't installed in a standard path that the compiler will find.
+
+If you got libffi with MacPorts as suggested, you don't need to specify its path on the command line.
+
+Note: you might need to edit the Jamfile to cope with your target. 
+
+#### On Unix (including MacOS X), as cross build, using Jam ####
+
+The general method is the following:
+
+1/ Install Jam 2.5. Not btjam, not ftjam, regular jam. You can get it from MacPorts on MacOS X. On Ubuntu, the debian package jam is fine. You can also compile it from source:
+http://public.perforce.com/public/jam/index.html
+
+2/ Get K (preferably from CVS) at:
+http://sourceforge.net/projects/KLibs/
+
+3/ Compile K with Jam with:
+cd <path_to_K>/_Build_/Jam/ && jam -starget=<cross_target>
+
+4/ Edit the Jamfile so it will work with your setup.
+
+5/ Compile Einstein with Jam with:
+cd <path_to_einstein>/_Build_/Jam/ && jam -sK=<path_to_K> -starget=<cross_target>
+
+# How I built cross-binaries:
+- OpenZaurus 3.4.5: with crosstool compilers.
+- Nokia 770 OS 2005: with crosstool compilers.
+- Debian x86: with crosstool compilers.
+- Nokia 770/880 OS 2006: Under VMWare Fusion with the image for maemo development. I installed libffi with apt-get.
+
+#### Contact
+
+If you have any question, feel free to contact me at pguyot@kallisys.net.

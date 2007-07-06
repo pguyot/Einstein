@@ -1,0 +1,803 @@
+#  ==============================
+#  File:			Jamfile
+#  Project:			Einstein
+# 
+#  Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+# 
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+# 
+#  You should have received a copy of the GNU General Public License along
+#  with this program; if not, write to the Free Software Foundation, Inc.,
+#  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#  ==============================
+#  $Id$
+#  ==============================
+
+# Determine the compiler used here.
+# We know: gcc and xlc
+
+# OpenZaurus 3.4.5
+if $(target:E="unknown") = "arm-linux"
+{
+	compiler = $(compiler:E="gcc") ;
+	CC = "/opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-gcc" ;
+	C++ = "/opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-g++" ;
+	AR = /opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-ar ru ;
+	RANLIB = /opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-ranlib ;
+	LINK = /opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-g++ ;
+	OS = "ARM-LINUX" ;
+	C++FLAGS += -I/usr/X11R6/include/ ;
+	X11LibsPrefix = openzaurus/usr/lib/ ;
+	LIBFFIPrefix = libffi-armlinux/ ;
+	JITTARGET = "ARMLE" ;
+	CROSS = "yes" ;
+}
+# Nokia 770
+if $(target:E="unknown") = "nokia"
+{
+	compiler = $(compiler:E="gcc") ;
+	CC = "/opt/crosstool/gcc-3.3.6-glibc-2.3.2/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-gcc" ;
+	C++ = "/opt/crosstool/gcc-3.3.6-glibc-2.3.2/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-g++" ;
+	AR = /opt/crosstool/gcc-3.3.6-glibc-2.3.2/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-ar ru ;
+	RANLIB = /opt/crosstool/gcc-3.3.6-glibc-2.3.2/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-ranlib ;
+	LINK = /opt/crosstool/gcc-3.3.6-glibc-2.3.2/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-g++ ;
+	OS = "ARM-LINUX" ;
+	C++FLAGS += -I/usr/X11R6/include/ ;
+	SUBTARGET = "-770" ;
+	X11LibsPrefix = maemo/usr/lib/ ;
+	LIBFFIPrefix = libffi-nokia/ ;
+	JITTARGET = "ARMLE" ;
+	CROSS = "yes" ;
+}
+# Nokia OS2006, using scratchbox compilers.
+if $(target:E="unknown") = "nokia2006"
+{
+	compiler = $(compiler:E="gcc") ;
+	CC = "/scratchbox/compilers/cs2005q3.2-glibc-arm/arm-none-linux-gnueabi/bin/gcc" ;
+	C++ = "/scratchbox/compilers/cs2005q3.2-glibc-arm/arm-none-linux-gnueabi/bin/g++" ;
+	AR = /scratchbox/compilers/cs2005q3.2-glibc-arm/arm-none-linux-gnueabi/bin/ar ru ;
+	RANLIB = /scratchbox/compilers/cs2005q3.2-glibc-arm/arm-none-linux-gnueabi/bin/ranlib ;
+	LINK = /scratchbox/compilers/cs2005q3.2-glibc-arm/arm-none-linux-gnueabi/bin/g++ -L/scratchbox/compilers/cs2005q3.2-glibc-arm/arm-none-linux-gnueabi/lib ;
+	OS = "ARM-LINUX" ;
+	SUBTARGET = "-Nokia2006" ;
+	EXPAT = $(EXPAT:E="/scratchbox/users/maemo/targets/SDK_ARMEL/usr") ;
+	C++FLAGS += -I/scratchbox/users/maemo/targets/SDK_ARMEL/usr/include/ ;
+	LIBFFIPrefix = libffi-nokia2006/ ;
+	X11LibsPrefix = maemo2006/usr/lib/ ;
+	JITTARGET = "ARMLE" ;
+	CROSS = "yes" ;
+}
+# Debian x86
+if $(target:E="unknown") = "linux-2.3.2"
+{
+	compiler = $(compiler:E="gcc") ;
+	CC = "/opt/crosstool/gcc-3.3.5-glibc-2.3.2/i386-unknown-linux-gnu/bin/i386-unknown-linux-gnu-gcc" ;
+	C++ = "/opt/crosstool/gcc-3.3.5-glibc-2.3.2/i386-unknown-linux-gnu/bin/i386-unknown-linux-gnu-g++" ;
+	AR = /opt/crosstool/gcc-3.3.5-glibc-2.3.2/i386-unknown-linux-gnu/bin/i386-unknown-linux-gnu-ar ru ;
+	RANLIB = /opt/crosstool/gcc-3.3.5-glibc-2.3.2/i386-unknown-linux-gnu/bin/i386-unknown-linux-gnu-ranlib ;
+	LINK = /opt/crosstool/gcc-3.3.5-glibc-2.3.2/i386-unknown-linux-gnu/bin/i386-unknown-linux-gnu-g++ ;
+	OS = "LINUX" ;
+	LIBFFIPrefix = libffi-linux/ ;
+	C++FLAGS += -I/usr/X11R6/include/ ;
+	SUBTARGET = "-2.3.2" ;
+	X11LibsPrefix = debian-x86/usr/lib/ ;
+	CROSS = "yes" ;
+}
+
+compiler = $(compiler:E="unknown") ;
+
+if $(compiler) = "unknown"
+{
+	if $(C++) = "xlc++" || $(C++) = "xlC" || $(C++) = "xlC_r" || $(C++) = "xlc++_r" || $(CC) = "xlc" || $(CC) = "xlc_r"
+	{
+		compiler = "xlc" ;
+	} else if $(C++) = "g++" || $(C++) = "gcc" || $(CC) = "gcc" {
+		compiler = "gcc" ;
+	}
+} else if $(compiler) = xlc {
+	if $(C++) = "c++" || $(C++) = "cc"
+	{
+		C++ = "xlc++" ;
+	}
+	if $(CC) = "cc"
+	{
+		CC = "xlc" ;
+	}
+	if $(LINK) = "cc"
+	{
+		LINK = "xlc" ;
+	}
+} else if $(compiler) = "gcc" {
+	if $(C++) = "c++" || $(C++) = "cc"
+	{
+		C++ = "g++" ;
+	}
+	if $(CC) = "cc"
+	{
+		CC = "gcc" ;
+	}
+}
+
+# Default compiler: assume gcc
+if $(compiler) = "unknown"
+{
+	compiler = "gcc" ;
+}
+
+if $(compiler) = "gcc"
+{
+	if $(profile:E=no) = "yes"
+	{
+		C++FLAGS += -g ;
+		CFLAGS += -g ;
+	}
+}
+
+# --------------------------------------------------------------------------------------- #
+
+# Configuration pour jam.
+# On garde les .o
+KEEPOBJS = 1 ;
+
+# Répertoire pour les binaires et les objets.
+LOCATE_TARGET = "build.$(OS)$(SUBTARGET:E=)" ;
+
+# Compilateur ObjC++
+OBJC++ = $(C++) ;
+
+# --------------------------------------------------------------------------------------- #
+
+# Source (ensemble)
+BASE = "../../" ;
+KLIBS_BASE = $(K:E="../../../../../Bibliotheques/K/") ;
+PORTAUDIO_BASE = $(PA:E="$(BASE)portaudio/") ;
+SubDirHdrs "$(KLIBS_BASE)" ;
+SubDirHdrs "$(PORTAUDIO_BASE)/pa_common/" ;
+
+SubDirHdrs "$(BASE)" ;
+SubDirHdrs "$(BASE)Emulator/" ;
+SubDirHdrs "$(BASE)Emulator/JIT/" ;
+SubDirHdrs "$(BASE)Emulator/JIT/Generic/" ;
+SubDirHdrs "$(BASE)Emulator/ROM/" ;
+SubDirHdrs "$(BASE)Emulator/Screen/" ;
+SubDirHdrs "$(BASE)Emulator/Serial/" ;
+SubDirHdrs "$(BASE)Emulator/Sound/" ;
+SubDirHdrs "$(BASE)Monitor/" ;
+
+COMMON_CPP_SOURCES = ;
+
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/TARMProcessor.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/TEmulator.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/TDMAManager.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/TFlash.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/TInterruptManager.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/TMemory.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/TMMU.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/TNativePrimitives.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Host/THostInfo.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/TJIT.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/TJITCache.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/TJITPage.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGenericPage.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Multiply.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_MultiplyAndAccumulate.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Other.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Other.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Test.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Log/TFileLog.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Log/TLog.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Log/TStdOutLog.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Log/TBufferLog.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/NativeCalls/TNativeCalls.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/NativeCalls/TVirtualizedCalls.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/PCMCIA/TLinearCard.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/PCMCIA/TPCMCIACard.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/PCMCIA/TPCMCIAController.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Platform/TPlatformManager.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/ROM/TAIFFile.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/ROM/TAIFROMImageWithREXes.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/ROM/TFlatROMImage.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/ROM/TFlatROMImageWithREX.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/ROM/TROMImage.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Serial/TVoyagerSerialPort.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Sound/TSoundManager.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Sound/TBufferedSoundManager.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Sound/TPortAudioSoundManager.cp" ;
+MACOSX_CPP_SOURCES	+= "$(BASE)Emulator/Sound/TCoreAudioSoundManager.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Sound/TNullSoundManager.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Screen/TScreenManager.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Monitor/TMonitor.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Monitor/TSymbolList.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Monitor/UDisasm.cp" ;
+
+COMMON_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_common/pa_allocation.c" ;
+COMMON_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_common/pa_converters.c" ;
+COMMON_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_common/pa_cpuload.c" ;
+COMMON_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_common/pa_dither.c" ;
+COMMON_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_common/pa_front.c" ;
+COMMON_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_common/pa_process.c" ;
+COMMON_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_common/pa_skeleton.c" ;
+COMMON_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_common/pa_stream.c" ;
+COMMON_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_common/pa_trace.c" ;
+
+MACOSX_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_mac/pa_mac_hostapis.c" ;
+MACOSX_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_mac_core/pa_mac_core.c" ;
+
+X11_CPP_SOURCES		+= "$(BASE)Emulator/Screen/TX11ScreenManager.cp" ;
+FBDEV_CPP_SOURCES	+= "$(BASE)Emulator/Screen/TFBScreenManager.cp" ;
+
+POSIX_C_SOURCES		+= "$(PORTAUDIO_BASE)/pa_unix/pa_unix_util.c" ;
+LINUX_C_SOURCES		+= "$(PORTAUDIO_BASE)/pa_unix/pa_unix_hostapis.c" ;
+
+CPP_SOURCES = $(COMMON_CPP_SOURCES) ;
+
+C_SOURCES = $(COMMON_C_SOURCES) ;
+
+OBJC_SOURCES = $(COMMON_OBJC_SOURCES) ;
+
+# --------------------------------------------------------------------------------------- #
+
+# Source (tests)
+TESTS_BASE			= "$(BASE)_Tests_/" ;
+
+SubDirHdrs "$(TESTS_BASE)" ;
+
+TESTS_SOURCES		+= "$(TESTS_BASE)tests.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)UMemoryTests.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)UProcessorTests.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)UScreenTests.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)UHostInfoTests.cp" ;
+
+# --------------------------------------------------------------------------------------- #
+
+# Source (app)
+APP_BASE			= "$(BASE)app/" ;
+
+SubDirHdrs "$(APP_BASE)" ;
+
+APP_SOURCES			= ;
+APP_SOURCES			+= "$(APP_BASE)einstein.cp" ;
+APP_SOURCES			+= "$(APP_BASE)TCLIApp.cp" ;
+
+# --------------------------------------------------------------------------------------- #
+
+# Préfixe, inclusions additionelles et paramètres supplémentaires.
+
+if $(OS) = "MACOSX"
+{
+	# Spécificités OS X
+	# use g++ 4.0 for both compiling and linking
+	if $(compiler) = "gcc"
+	{
+		C++ = g++-4.0 ;
+		LINK = g++-4.0 ;
+	}
+
+	local _frameworks ;
+	if $(compiler) = "xlc"
+	{
+		underscoreFOption = "-qframeworkdir=" ;		
+	} else {
+		underscoreFOption = "-F" ;
+	}
+	_frameworks += "$(underscoreFOption)/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks" ;
+	_frameworks += "$(underscoreFOption)/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks" ;
+	_frameworks += "$(underscoreFOption)/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks" ;
+	
+	local _link_frameworks ;
+	_link_frameworks += -framework CoreServices ;
+	_link_frameworks += -framework IOKit ;
+	_link_frameworks += -framework AppleTalk ;
+	_link_frameworks += -framework Cocoa ;
+	_link_frameworks += -framework Carbon ;
+	_link_frameworks += -framework CoreAudio ;
+	_link_frameworks += -framework AudioToolbox ;
+	_link_frameworks += -framework AudioUnit ;
+	_link_frameworks += -framework AddressBook ;
+
+	# Drapeaux pour gcc/g++
+	local _commonflags ;
+	_commonflags += -DTARGET_OS_OPENSTEP=1 ;
+	_commonflags += -D__CF_USE_FRAMEWORK_INCLUDES__ ;
+	_commonflags += $(_frameworks) ;
+	if $(compiler) = "gcc"
+	{
+		_commonflags += -fpascal-strings ;
+		C++FLAGS += -fno-rtti ;
+		_commonflags += -fno-exceptions ;
+		_commonflags += -Wall ;
+		_commonflags += -Wno-four-char-constants ;
+		_commonflags += -Wno-unknown-pragmas ;
+		_commonflags += -W ;
+		_commonflags += -Wfloat-equal ;
+		_commonflags += -Wshadow ;
+		_commonflags += -Wpointer-arith ;
+		_commonflags += -Wwrite-strings ;
+		_commonflags += -Wconversion ;
+		_commonflags += -mdynamic-no-pic ;
+		if $(debug:E=no) = "yes"
+		{
+			_commonflags += -g ;
+		}
+	}
+	
+	if $(debug:E=no) = "no"
+	{
+		_commonflags += -DRELEASE=1 ;
+	}
+	if $(compiler) = "xlc"
+	{
+		# Use xlc headers and wrappers around system's headers
+		_commonflags += -I/opt/ibmcmp/vacpp/6.0/include/ ;
+		_commonflags += -I/opt/ibmcmp/vac/6.0/include/ ;
+
+		# Define CPU
+		_commonflags += -DTARGET_CPU_PPC=1 ;
+		
+		# Define architecture.
+		_commonflags += -DTARGET_RT_MAC_MACHO ;
+
+		# Define Endianness
+		_commonflags += -DTARGET_RT_BIG_ENDIAN=1 ;
+		_commonflags += -DTARGET_RT_LITTLE_ENDIAN=0 ;
+		
+		# We don't use exceptions or rtti.
+		_commonflags += -qnounwind ;
+		_commonflags += -qnoeh ;
+		_commonflags += -qnortti ;
+		
+		_commonflags += -qnopic ;
+	}
+	
+	if $(optimize:E=no) = "yes"
+	{
+		if $(compiler) = "xlc"
+		{
+			_commonflags += -O5 ;
+		} else if $(compiler) = "gcc" {
+			_commonflags += -O3 ;
+			_commonflags += -falign-loops=16 ;
+		}
+	}
+
+	# flags for portaudio.
+	_commonflags += -DPA_USE_COREAUDIO=1 ;
+	_commonflags += -DPA_BIG_ENDIAN=1 ;
+	_commonflags += -DWORDS_BIGENDIAN=1 ;
+	_commonflags += -DSIZEOF_SHORT=2 ;
+	_commonflags += -DSIZEOF_INT=4 ;
+	_commonflags += -DSIZEOF_LONG=4 ;
+
+	# darwinports (ffi)
+	_commonflags += -I/opt/local/include ;
+	
+	local _linkflags ;
+	_linkflags += -L/usr/X11R6/lib/ ;
+	_linkflags += -L/opt/local/lib/ ;
+	_linkflags += -prebind ;
+	LINKLIBS += $(KLIBS_BASE)/_Build_/Jam/$(LOCATE_TARGET)/libk.a -lstdc++ -lm -lpthread -lX11 -lffi ;
+	if $(compiler) = "xlc"
+	{
+		LINKLIBS += -libmc++ ;
+	}
+
+	if $(compiler) = "xlc"
+	{
+		if $(pdf:E=no) = "1"
+		{
+			_commonflags += "-qpdf1" ;
+			LINKLIBS += "-lpdf" ;
+		} else if $(pdf:E=no) = "2" {
+			_commonflags += "-qpdf2" ;
+		}
+	}
+
+	CCFLAGS += $(_commonflags) ;
+	if $(compiler) = "gcc"
+	{
+		CCFLAGS += -Wmissing-declarations ;
+	}
+	C++FLAGS += $(_commonflags) ;
+	OBJC++FLAGS += $(_commonflags) ;
+	LINKFLAGS += $(_frameworks) $(_link_frameworks) $(_linkflags) ;
+
+	# Fichiers source spécifiques à OS X
+	CPP_SOURCES += $(MACOS_CPP_SOURCES) ;
+	CPP_SOURCES += $(MACOSX_CPP_SOURCES) ;
+	CPP_SOURCES += $(X11_CPP_SOURCES) ;
+	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
+
+	OBJC_SOURCES += $(MACOSX_OBJC_SOURCES) ;
+
+	C_SOURCES += $(MACOSX_C_SOURCES) ;
+	C_SOURCES += $(POSIX_C_SOURCES) ;
+
+} else if $(OS) = "LINUX" {
+
+	# Specificite Linux
+
+	# Drapeaux pour gcc/g++
+	local _commonflags ;
+	_commonflags += -DTARGET_OS_LINUX=1 ;
+	_commonflags += -Wall ;
+	_commonflags += -Wno-multichar ;
+	_commonflags += -Wno-unknown-pragmas ;
+	_commonflags += -W ;
+	_commonflags += -Wshadow ;
+	_commonflags += -Wpointer-arith ;
+	_commonflags += -Wwrite-strings ;
+	_commonflags += -Wconversion ;
+
+	if $(debug:E=no) = "no"
+	{
+		_commonflags += -DRELEASE=1 ;
+	} else {
+		if $(compiler) = "gcc"
+		{
+			_commonflags += -g ;
+		}		
+	}
+	if $(optimize:E=no) = "yes"
+	{
+		if $(compiler) = "gcc"
+		{
+			_commonflags += -O3 ;
+		}
+	}
+
+	# flags for portaudio.
+	_commonflags += -DPA_USE_COREAUDIO=0 ;
+	_commonflags += -DPA_LITTLE_ENDIAN=1 ;
+	_commonflags += -DWORDS_LITTLEENDIAN=1 ;
+	_commonflags += -DSIZEOF_SHORT=2 ;
+	_commonflags += -DSIZEOF_INT=4 ;
+	_commonflags += -DSIZEOF_LONG=4 ;
+
+	# libffi & X11
+	if $(CROSS:E=no) = "yes" {
+		_commonflags += -I$(BASE)$(LIBFFIPrefix)include ;
+		LibFFI = $(BASE)$(LIBFFIPrefix)lib/libffi.a ;
+		X11Libs = $(BASE)$(X11LibsPrefix)libX11.so.6 ;
+		X11Libs += $(BASE)$(X11LibsPrefix)libXau.so.6 ;
+		X11Libs += $(BASE)$(X11LibsPrefix)libXdmcp.so.6 ;
+	} else {
+		LINKFLAGS += -L/usr/X11R6/lib/ ;
+		LibFFI = -lffi ;
+		X11Libs = -lX11 -lXau ;
+	}
+	LINKLIBS += $(KLIBS_BASE)/_Build_/Jam/$(LOCATE_TARGET)/libk.a -lstdc++ -lm -lpthread $(LibFFI) $(X11Libs) ;
+
+	CCFLAGS += $(_commonflags) ;
+	CCFLAGS += -Wmissing-declarations ;
+	C++FLAGS += $(_commonflags) ;
+
+	# Fichiers specifiques a Linux
+	CPP_SOURCES += $(LINUX_CPP_SOURCES) ;
+	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
+	CPP_SOURCES += $(X11_CPP_SOURCES) ;
+	C_SOURCES += $(LINUX_C_SOURCES) ;
+	C_SOURCES += $(POSIX_C_SOURCES) ;
+
+} else if $(OS) = "ARM-LINUX" {
+
+	# Specificite Linux
+
+	# Drapeaux pour gcc/g++
+	local _commonflags ;
+	_commonflags += -DTARGET_OS_LINUX=1 ;
+	_commonflags += -Wall ;
+	_commonflags += -Wno-multichar ;
+	_commonflags += -Wno-unknown-pragmas ;
+	_commonflags += -W ;
+	_commonflags += -Wshadow ;
+	_commonflags += -Wpointer-arith ;
+	_commonflags += -Wwrite-strings ;
+	_commonflags += -Wconversion ;
+
+#	_commonflags += -DNOX11=1 ;
+
+	if $(debug:E=no) = "no"
+	{
+		_commonflags += -DRELEASE=1 ;
+	} else {
+		_commonflags += -DRELEASE=1 ;
+		if $(compiler) = "gcc"
+		{
+			_commonflags += -g ;
+		}		
+	}
+	if $(optimize:E=no) = "yes"
+	{
+		if $(compiler) = "gcc"
+		{
+			_commonflags += -O3 ;
+		}
+	}
+	if $(size:E=no) = "yes"
+	{
+		if $(compiler) = "gcc"
+		{
+			_commonflags += -Os ;
+		}
+	}
+
+	# flags for portaudio.
+	_commonflags += -DPA_USE_COREAUDIO=0 ;
+	_commonflags += -DPA_LITTLE_ENDIAN=1 ;
+	_commonflags += -DWORDS_LITTLEENDIAN=1 ;
+	_commonflags += -DSIZEOF_SHORT=2 ;
+	_commonflags += -DSIZEOF_INT=4 ;
+	_commonflags += -DSIZEOF_LONG=4 ;
+	
+	# identify this target for jit
+#	_commonflags += -DJITTARGET=$(JITTARGET:E="GENERIC") ;
+
+	local _linkflags ;
+
+	# libffi
+	_commonflags += -I$(BASE)$(LIBFFIPrefix)include ;
+	LibFFI += $(BASE)$(LIBFFIPrefix)lib/libffi.a ;
+
+	# X11
+	X11Libs = $(BASE)$(X11LibsPrefix)libX11.so.6 $(BASE)$(X11LibsPrefix)libXau.so.0 ;
+
+	LINKLIBS += $(KLIBS_BASE)/_Build_/Jam/$(LOCATE_TARGET)/libk.a -lstdc++ -lm $(X11Libs) $(LibFFI) -lpthread ;
+
+	CCFLAGS += $(_commonflags) ;
+	CCFLAGS += -Wmissing-declarations ;
+	C++FLAGS += $(_commonflags) ;
+	LINKFLAGS += $(_linkflags) ;
+
+	# Fichiers specifiques a Linux
+	CPP_SOURCES += $(LINUX_CPP_SOURCES) ;
+	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
+	CPP_SOURCES += $(X11_CPP_SOURCES) ;
+#	CPP_SOURCES += $(FBDEV_CPP_SOURCES) ;
+	C_SOURCES += $(LINUX_C_SOURCES) ;
+	C_SOURCES += $(POSIX_C_SOURCES) ;
+
+} else if $(OS) = "NETBSD" || $(OS) = "FREEBSD" {
+
+	# Spécificité *BSD
+
+	# Drapeaux pour gcc/g++
+	local _commonflags ;
+	_commonflags += -DTARGET_OS_BSD=1 ;
+	_commonflags += -Wall ;
+	_commonflags += -Wno-multichar ;
+	_commonflags += -Wno-unknown-pragmas ;
+	_commonflags += -W ;
+	_commonflags += -Wshadow ;
+	_commonflags += -Wpointer-arith ;
+	_commonflags += -Wwrite-strings ;
+	_commonflags += -Wconversion ;
+
+	local _linkflags ;
+	_linkflags += -L/usr/X11R6/lib/ ;
+	LINKLIBS += $(KLIBS_BASE)/_Build_/Jam/$(LOCATE_TARGET)/libk.a -lstdc++ -lm -lpthread -lX11 ;
+
+	CCFLAGS += $(_commonflags) ;
+	CCFLAGS += -Wmissing-declarations ;
+	C++FLAGS += $(_commonflags) ;
+	LINKFLAGS += $(_linkflags) ;
+
+	# Fichiers specifiques a *BSD
+	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
+	CPP_SOURCES += $(X11_CPP_SOURCES) ;
+
+} else if $(OS) = "CYGWIN" {
+
+	# Specificite Cygwin/Win32
+
+	# use g++ for both compiling and linking
+	C++ = g++ ;
+	LINK = g++ ;
+	local _commonflags ;
+	_commonflags += -DTARGET_OS_CYGWIN=1 ;
+	_commonflags += -Wall ;
+	_commonflags += -Wno-multichar ;
+	_commonflags += -Wno-unknown-pragmas ;
+	_commonflags += -W ;
+	_commonflags += -Wshadow ;
+	_commonflags += -Wpointer-arith ;
+	_commonflags += -Wwrite-strings ;
+	_commonflags += -Wconversion ;
+	_commonflags += -ggdb -O0 ;
+#	_commonflags += -I"$(DCL_BASE)DCL/Interfaces/POSIX/Compat/" ;
+
+	local _linkflags ;
+	_linkflags += -Wl,--warn-once ; 
+	_linkflags += -L/usr/X11R6/lib/ ;
+	LINKLIBS += $(KLIBS_BASE)/_Build_/Jam/$(LOCATE_TARGET)/libk.a -lstdc++ -lm -lpthread -lX11 ;
+
+	CCFLAGS += $(_commonflags) ;
+	CCFLAGS += -Wmissing-declarations ;
+	C++FLAGS += $(_commonflags) ;
+	LINKFLAGS += $(_linkflags) ;
+
+	# add sources specific to cygwin / POSIX
+	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
+	CPP_SOURCES += $(CYGWIN_CPP_SOURCES) ;
+	CPP_SOURCES += $(X11_CPP_SOURCES) ;
+
+} else {
+
+	Exit "You need to define the prefix & specific stuff for your OS $(OS)" ;
+
+}
+
+# --------------------------------------------------------------------------------------- #
+
+SOURCES = $(CPP_SOURCES) $(C_SOURCES) $(OBJC_SOURCES) ;
+
+# --------------------------------------------------------------------------------------- #
+
+# ==== Correction des règles de Jam pour s'adapter aux conventions de la DCL ====
+
+# L'idée est: (a) de gérer les espaces dans les noms et (b) de rajouter un suffixe
+# au lieu de juste le remplacer.
+
+# Correction de la règle Library.
+rule Library
+{
+	local _source ;
+	local _objects = ;
+
+	for _source in [ FGristFiles $(>) ]
+	{
+		_objects += $(_source:B)$(_source:S)$(SUFOBJ) ;
+	}
+	
+	LibraryFromObjects $(<) : $(_objects) ;
+	Objects $(>) ;
+}
+
+# Idem pour la règle Main.
+rule Main
+{
+	MainFromObjects $(<) : [ FGristObjectFiles $(>) ] ;
+	Objects $(>) ;
+}
+
+rule ObjectCcFlags
+{
+	CCFLAGS on [ FGristObjectFiles $(>) ] += $(>) ;
+}
+
+rule ObjectC++Flags
+{
+	C++FLAGS on [ FGristObjectFiles $(>) ] += $(>) ;
+}
+
+rule ObjectDefines
+{
+	# must reformat CCDEFS according to current defines
+
+	local s = [ FGristObjectFiles $(>) ] ;
+
+	DEFINES on $(s) += $(>) ;
+	CCDEFS on $(s) = [ on $(s) FDefines $(DEFINES) ] ;
+}
+
+rule ObjectHdrs
+{
+	# Add to HDRS for HdrScan's benefit.
+	# must reformat CCHDRS according to headers
+
+	local s = [ FGristObjectFiles $(>) ] ;
+
+	HDRS on $(s) += $(>) ;
+	CCHDRS on $(s) = [ on $(s) FIncludes $(HDRS) ] ;
+}
+
+# Correction de la règle Objects pour ajouter un suffixe (au lieu d'en remplacer un)
+# et pour gérer un chemin relatif (qui descend)
+rule Objects
+{
+	local _source ;
+
+	for _source in [ FGristFiles $(1) ]
+	{
+		local _object = "$(_source:B)$(_source:S)$(SUFOBJ)" ;
+		Object "$(_object)" : "$(_source)" ;
+		Depends obj : "$(_object)" ;
+	}
+}
+
+# Guillements pour la règle FIncludes
+if $(UNIX)
+{
+	rule FIncludes { return -I\"$(<)\" ; }
+}
+if $(NT)
+{
+	rule FIncludes { return -I\"$(<)\" ; }
+}
+
+# Récupère les fichiers objets.
+rule FGristObjectFiles
+{
+	local _source ;
+	local _objects = ;
+
+	for _source in [ FGristFiles $(<) ]
+	{
+		_objects += $(_source:B)$(_source:S)$(SUFOBJ) ;
+	}
+
+	return $(_objects) ;
+}
+
+# Définition de la règle pour .cp et pour .mm
+rule UserObject
+{
+	switch $(>:S)
+	{
+		case .cp : C++ $(<) : $(>) ;
+		case .mm : ObjC++ $(<) : $(>) ;
+		case * : Exit "Unknown suffix : $(>:S)" ;
+	}
+}
+
+# Correction de la règle C++ (ajout de guillemets)
+actions C++
+{
+	$(C++) -c -o "$(<)" $(C++FLAGS) $(CCDEFS) $(CCHDRS) "$(>)"
+}
+
+# Nouvelle règle pour ObjC++.
+rule ObjC++
+{
+	Depends $(<) : $(>) ;
+
+	if $(RELOCATE)
+	{
+	    CcMv $(<) : $(>) ;
+	}
+
+	OBJC++FLAGS on $(<) += $(OBJC++FLAGS) $(SUBDIROBJC++FLAGS) $(OPTIM) ;
+
+	CCHDRS on $(<) = [ on $(<) FIncludes $(HDRS) ] ;
+	CCDEFS on $(<) = [ on $(<) FDefines $(DEFINES) ] ;
+}
+
+actions ObjC++
+{
+	$(OBJC++) -c -o "$(<)" $(OBJC++FLAGS) $(CCDEFS) $(CCHDRS) "$(>)"
+}
+
+
+# --------------------------------------------------------------------------------------- #
+
+# ==== Bibliotheque avec le code en commun ====
+
+Library libeinstein : $(SOURCES) ;
+
+# ==== Construction des tests ====
+
+LinkLibraries EinsteinTests einstein : libeinstein ;
+Main EinsteinTests : $(TESTS_SOURCES) ;
+Main einstein : $(APP_SOURCES) ;
+
+## ========================== ##
+## This login session: $13.99 ##
+## ========================== ##

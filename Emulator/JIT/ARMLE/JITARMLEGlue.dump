@@ -1,0 +1,49 @@
+
+JITARMLEGlue.o:     file format elf32-littlearm
+
+Disassembly of section .text:
+
+00000000 <EnterJITGlue>:
+   0:	e10f1000 	mrs	r1, CPSR
+   4:	e92d5ff2 	stmdb	sp!, {r1, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
+   8:	e580d040 	str	sp, [r0, #64]
+   c:	e590103c 	ldr	r1, [r0, #60]
+  10:	e128f001 	msr	CPSR_f, r1
+  14:	e9907ffe 	ldmib	r0, {r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, sp, lr}
+  18:	e5900000 	ldr	r0, [r0]
+Disassembly of section .data:
+
+00000000 <ExitJITNativeSequence>:
+   0:	e58fe00c 	str	lr, [pc, #12]	; 14 <save_lr>
+   4:	e1a0e00f 	mov	lr, pc
+   8:	e59ff000 	ldr	pc, [pc, #0]	; 10 <exit_jit_glue>
+
+0000000c <return_value>:
+   c:	00000000 	andeq	r0, r0, r0
+
+00000010 <exit_jit_glue>:
+  10:	00000000 	andeq	r0, r0, r0
+
+00000014 <save_lr>:
+  14:	00000000 	andeq	r0, r0, r0
+
+00000018 <ExitJITGlue>:
+  18:	e58fe02c 	str	lr, [pc, #44]	; 4c <save_lr2>
+  1c:	e59ee008 	ldr	lr, [lr, #8]
+  20:	e8ae3fff 	stmia	lr!, {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, sp}
+  24:	e59f0020 	ldr	r0, [pc, #32]	; 4c <save_lr2>
+  28:	e5901004 	ldr	r1, [r0, #4]
+  2c:	e5ae1000 	str	r1, [lr]!
+  30:	e10f1000 	mrs	r1, CPSR
+  34:	e5ae1000 	str	r1, [lr]!
+  38:	e59ed000 	ldr	sp, [lr]
+  3c:	e8bd5ff2 	ldmia	sp!, {r1, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
+  40:	e128f001 	msr	CPSR_f, r1
+  44:	e5900000 	ldr	r0, [r0]
+  48:	e1a0f00e 	mov	pc, lr
+
+0000004c <save_lr2>:
+  4c:	00000000 	andeq	r0, r0, r0
+
+00000050 <exit_jit_zone>:
+  50:	00000000 	andeq	r0, r0, r0

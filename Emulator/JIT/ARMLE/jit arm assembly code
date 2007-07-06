@@ -1,0 +1,64 @@
+; What to expect:
+; r4-r8, r10-r11, r13 (stack)
+; What to save:
+; r4-r11, r13, cpsr
+; zone:
+;	jit_registers[0-14]
+;	jit_cpsr
+;	saved sp
+
+; Actual enter function.
+; EnterJITGlue(JITZone* inZone)
+.section EnterJITGlue,"x"
+		b 		cont_enter_jit
+; save all registers to the stack, with the cpsr
+		mrs		r1, cpsr
+		stmfd	sp!, {r1,r4-r14}
+; save the stack register into the zone.
+		str		sp, [r0, #64]
+; load the jit cpsr
+		ldr		r1, [r0, #60]
+		msr		r1, cpsr
+; load the registers
+		ldmib	r0, {r1-r14}
+		ldr		r0, [r0]
+
+
+; The following bits go into the native code:
+.section ExitJITNativeSequence,"xw"
+exit_jit:
+		str		lr, save_lr
+		bl		ExitJITGlue
+return_value:
+		dl		0x0
+save_lr:
+		dl		0x0
+		
+
+; Actual exit function.
+.section ExitJITGlue,"xw"
+; save lr next to pc
+		str		lr, save_lr2
+; save all jit registers
+		ldr		lr, exit_jit_zone
+		ldr		lr, [lr]
+		stmia	lr!, {r0-r13}
+		ldr		r0, save_lr2
+		ldr		r1, [r0, #4]
+		str		r1, [lr]!
+; save jit cpsr
+		mrs		r1, cpsr
+		str		r1, [lr]!
+; restore caller sp
+		ldr		sp, [lr]
+; restore registers from the stack
+		ldmfd	sp!, {r1,r4-r14}
+		msr		r1, cpsr
+; return the pre-defined return value.
+		ldr		r0, [r0]
+; return
+		mov		pc, lr
+save_lr2:
+		dl		0x0
+exit_jit_zone:
+		dl		0x0

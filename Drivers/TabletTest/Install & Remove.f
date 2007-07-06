@@ -1,0 +1,1 @@
+/*	Install & Remove.f*/installScript := func( installFrame )begin	GetRoot().Notify := func(x,y,z) begin end;	AddDeferredCall(		func()			AddDelayedCall(func() begin GetRoot().(kAppSymbol):Open() end, [], 101),		[]);end;removeScript := func( removePart )beginend;

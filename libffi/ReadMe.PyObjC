@@ -1,0 +1,18 @@
+This tree contains a snapshot of the libffi part of GCC. The snapshot
+was created from the CVS HEAD branch on Sunday Sep 21 2003. 
+
+There have been some minor changes to the makefiles and configure make it 
+possible to build libffi outside of the GCC tree. Furthermore some files have
+been copied from the GCC tree for the same purpose (files like config.sub and
+install-sh).
+
+There is 1 change to the actual sources: the 2 darwin-specific assembler files
+in src/powerpc contain a data-segment that enables C++ exception rollbacks. As 
+the compiler/linker on MacOS X doesn't support that feature that part of the
+'code' has been disabled.
+
+Ronald Oussoren <oussoren@cistron.nl>
+
+P.S.: This is not an official release of libffi. If something doesn't work, 
+please check if you can reproduce your problem using the version of libffi in 
+the GCC tree before asking for help on the libffi or GCC mailing list.

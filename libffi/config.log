@@ -1,0 +1,33 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:550: checking for Cygwin environment
+configure:566: cc -c   conftest.c 1>&5
+configure: In function 'main':
+configure:562: error: '__CYGWIN32__' undeclared (first use in this function)
+configure:562: error: (Each undeclared identifier is reported only once
+configure:562: error: for each function it appears in.)
+configure: failed program was:
+#line 555 "configure"
+#include "confdefs.h"
+
+int main() {
+
+#ifndef __CYGWIN__
+#define __CYGWIN__ __CYGWIN32__
+#endif
+return __CYGWIN__;
+; return 0; }
+configure:583: checking for mingw32 environment
+configure:595: cc -c   conftest.c 1>&5
+configure: In function 'main':
+configure:591: error: '__MINGW32__' undeclared (first use in this function)
+configure:591: error: (Each undeclared identifier is reported only once
+configure:591: error: for each function it appears in.)
+configure: failed program was:
+#line 588 "configure"
+#include "confdefs.h"
+
+int main() {
+return __MINGW32__;
+; return 0; }

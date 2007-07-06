@@ -1,0 +1,37 @@
+/LICENSE.txt/1.1/Tue Feb 19 20:04:26 2002//Tv19-devel
+/README.txt/1.1.2.1/Fri Jun  7 21:19:59 2002//Tv19-devel
+/V19-devel-readme.txt/1.1.2.7/Wed Sep 10 09:08:37 2003//Tv19-devel
+/aclocal.m4/1.1.2.1/Mon Jan 13 07:58:04 2003//Tv19-devel
+/config.doxy/1.1.2.5/Sat Sep 20 21:03:56 2003//Tv19-devel
+/config.guess/1.1.2.1/Mon Jan 13 07:58:04 2003//Tv19-devel
+/fixdir.bat/1.1.1.1/Tue Jan 22 00:51:50 2002//Tv19-devel
+/fixfile.bat/1.1/Tue Feb 19 20:04:47 2002//Tv19-devel
+/index.html/1.1/Mon May  6 16:49:10 2002//Tv19-devel
+/install-sh/1.1.2.1/Mon Jan 13 07:58:29 2003//Tv19-devel
+D/docs////
+D/pa_asio////
+D/pa_beos////
+D/pa_common////
+D/pa_dll_switch////
+D/pa_jack////
+D/pa_linux_alsa////
+D/pa_mac////
+D/pa_mac_core////
+D/pa_mac_sm////
+D/pa_sgi////
+D/pa_tests////
+D/pa_unix////
+D/pa_unix_oss////
+D/pa_win////
+D/pa_win_ds////
+D/pa_win_wdmks////
+D/pa_win_wmme////
+D/pablio////
+D/testcvs////
+/Makefile.in/1.4.2.24/Thu May 25 07:22:05 2006//Tv19-devel
+/SConscript/1.1.2.5/Mon Feb 20 15:17:26 2006//Tv19-devel
+/SConstruct/1.1.2.4/Wed Nov  9 16:43:46 2005//Tv19-devel
+/config.sub/1.1.4.2/Thu May 25 07:22:05 2006//Tv19-devel
+/configure/1.4.2.27/Thu May 25 07:22:06 2006//Tv19-devel
+/configure.in/1.4.2.28/Thu May 25 07:22:06 2006//Tv19-devel
+/portaudio-2.0.pc.in/1.1.2.1/Sun Mar 19 13:02:36 2006//Tv19-devel

@@ -1,0 +1,1 @@
+/*	Constants.*/begin	local theRefNum := OpenResFileX(Home & "ColorBitmap.rsrc");	DefConst('kColorBitmap, GetNamedResource("PICT", "ColorBitmap", 'picture));	CloseResFileX(theRefNum);end;

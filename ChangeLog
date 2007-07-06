@@ -1,0 +1,24 @@
+* Einstein 2007 (2007/7/9)
+- New version of the emulator module, which uses less RAM and is PC-agnostic.
+- Fixed the emulation of several instructions (and wrote regression tests).
+- Compilation for Nokia OS 2006.
+- Now open source!
+
+* Einstein 2006.6 (2006/5/31)
+Features:
+- Initial release of Relativity for Einstein.
+- Accelerated some transfers between Einstein and Host.
+- Included several keyboard mappings.
+- Update of PortAudio (from CVS).
+- Included a new set of icons by Michael Vacík. The toolbar icons reflect the state of Einstein.
+- Fixed an endianess problem with the Cocoa screen manager on Intel machines.
+- The state is now shown on the screen (instead of just: screen is off).
+- Improved the Cocoa preferences panel.
+- Included AppleScript support to evaluate newton script code and to install packages.
+
+Bug fixes:
+- Fixed a bad bug in the memory emulation that caused crashes, especially with the JIT page cache.
+- Fixed a bug yielding to an abort when the platform was quitted.
+- Fixed a bug with CoreAudio sound on Intel machine.
+- PortAudio sound driver now reverts samples an little endian targets.
+- The tablet region was incorrectly limited to 1023x1023. It's now set to NewtonOS size (2047x2047).

@@ -1,0 +1,1321 @@
+// ==============================
+// File:			TMonitor.cp
+// Project:			Einstein
+//
+// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// ==============================
+// $Id$
+// ==============================
+
+#include <K/Defines/KDefinitions.h>
+#include "TMonitor.h"
+
+// ANSI C & POSIX
+#include <stdio.h>
+#include <stdlib.h>
+#include <strings.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/uio.h>
+#include <unistd.h>
+
+// Einstein
+#include "Emulator/TEmulator.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TInterruptManager.h"
+#include "Emulator/Log/TBufferLog.h"
+#include "Monitor/TSymbolList.h"
+#include "Monitor/UDisasm.h"
+
+// -------------------------------------------------------------------------- //
+// Constants
+// -------------------------------------------------------------------------- //
+const char* TMonitor::kEraseLine = "\033[K";
+const char* const TMonitor::kRegisterNames[16] = {
+		"R0 ",
+		"R1 ",
+		"R2 ",
+		"R3 ",
+		"R4 ",
+		"R5 ",
+		"R6 ",
+		"R7 ",
+		"R8 ",
+		"R9 ",
+		"R10",
+		"R11",
+		"R12",
+		"R13",
+		"LR ",
+		"PC "};
+
+const char* const TMonitor::kModesNames[32] = {
+		"?00", "?01", "?02", "?03", "?04", "?05", "?06", "?07",
+		"?08", "?09", "?0A", "?0B", "?0C", "?0D", "?0E", "?0F",
+		"usr", "fiq", "irq", "svc", "?14", "?15", "?16", "abt",
+		"?18", "?19", "?1A", "und", "?1C", "?1D", "?1E", "sys" };
+
+// -------------------------------------------------------------------------- //
+//  * TMonitor( TBufferLog*, TEmulator*, TSymbolList* )
+// -------------------------------------------------------------------------- //
+TMonitor::TMonitor(
+		TBufferLog* inLog,
+		TEmulator* inEmulator,
+		TSymbolList* inSymbolList )
+	:
+		mEmulator( inEmulator ),
+		mMemory( inEmulator->GetMemory() ),
+		mProcessor( inEmulator->GetProcessor() ),
+		mInterruptManager( inEmulator->GetInterruptManager() ),
+		mLog( inLog ),
+		mSymbolList( inSymbolList ),
+		mHalted( true ),
+		mCommand( kNop ),
+		mLastScreenHalted( true )
+{
+	if (::socketpair( AF_UNIX, SOCK_STREAM, PF_UNSPEC, mSocketPair ) != 0)
+	{
+		(void) ::fprintf( stderr, "Error with socketpair: %i\n", errno );
+		::abort();
+	}
+	
+	mLog->BindWithRefreshSocket( mSocketPair[1] );
+	
+	CreateCondVarAndMutex();
+
+	// Clear the terminal and go to the uppermost position.
+	(void) ::printf( "\033[1;1H" );
+	(void) ::printf( "\033[2J" );
+	
+	// Tell the emulator it's being monitored.
+	inEmulator->SetMonitor( this );
+}
+
+// -------------------------------------------------------------------------- //
+//  * ~TMonitor( void )
+// -------------------------------------------------------------------------- //
+TMonitor::~TMonitor( void )
+{
+	DeleteCondVarAndMutex();
+
+	// Clear the terminal and go to the uppermost position.
+	(void) ::printf( "\033[1;1H" );
+	(void) ::printf( "\033[2J" );
+}
+
+// -------------------------------------------------------------------------- //
+// Run( void )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::Run( void )
+{
+	// Acquire the mutex.
+	AcquireMutex();
+	
+	// At first, we're halted.
+	mHalted = true;
+		
+	Boolean loop = true;
+	while (loop)
+	{
+		// Wait forever for a command.
+		WaitOnCondVar();
+		
+		switch (mCommand)
+		{
+			case kNop:
+				break;
+
+			case kRun:
+				RunEmulator();
+				break;
+			
+			case kStep:
+				StepEmulator();
+				break;
+			
+			case kExit:
+				loop = false;
+				break;
+		}
+	}
+	
+	// Release the mutex.
+	ReleaseMutex();
+}
+
+// -------------------------------------------------------------------------- //
+// RunEmulator( void )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::RunEmulator( void )
+{
+	// We aren't stopped.
+	mHalted = false;
+	char someByte = 0;
+	// Write a byte to the socket pair.
+	(void) ::write( mSocketPair[1], &someByte, 1 );
+
+	// Get the PC.
+	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
+	
+	// Get the instruction.
+	KUInt32 instruction;
+	Boolean instructionIsBP = false;
+	if (!mMemory->Read((TMemory::VAddr) realPC, instruction ))
+	{
+		if ((instruction & 0xFFF000F0) == 0xE1200070)
+		{
+			instructionIsBP = true;
+		}
+	}
+	
+	while (true)
+	{
+		if (instructionIsBP)
+		{
+			// Disable, step, enable, run.
+			(void) mMemory->DisableBreakpoint(realPC);
+			mEmulator->Step();
+			(void) mMemory->EnableBreakpoint(realPC);
+			mEmulator->Run();
+		} else {
+			// Just run.
+			mEmulator->Run();
+		}
+		
+		// We're halted now. Check if it was because of a BP.
+		if (mEmulator->IsBPHalted())
+		{
+			// Get back one instruction.
+			realPC = mProcessor->GetRegister(15) - 4;
+			mProcessor->SetRegister(15, realPC);
+			realPC -= 4;
+			instructionIsBP = true;
+			
+			// Process the breakpoint.
+			if (ProcessBreakpoint(mEmulator->GetBPID(), realPC))
+			{
+				mLog->LogLine("break from breakpoint");
+				break;
+			}
+		} else {
+			break;
+		}
+	}
+	
+	mHalted = true;
+	// Write a byte to the socket pair.
+	(void) ::write( mSocketPair[1], &someByte, 1 );
+}
+
+// -------------------------------------------------------------------------- //
+// StepEmulator( void )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::StepEmulator( void )
+{
+	char someByte = 0;
+
+	// Get the PC.
+	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
+	
+	// Get the instruction.
+	KUInt32 instruction;
+	Boolean instructionIsBP = false;
+	if (!mMemory->Read((TMemory::VAddr) realPC, instruction ))
+	{
+		if ((instruction & 0xFFF000F0) == 0xE1200070)
+		{
+			instructionIsBP = true;
+		}
+	}
+	
+	if (instructionIsBP)
+	{
+		// Disable, step, enable.
+		(void) mMemory->DisableBreakpoint(realPC);
+		mEmulator->Step();
+		(void) mMemory->EnableBreakpoint(realPC);
+	} else {
+		// Just step.
+		mEmulator->Step();
+	}
+
+	// Write a byte to the socket pair.
+	(void) ::write( mSocketPair[1], &someByte, 1 );
+}
+
+// -------------------------------------------------------------------------- //
+// ProcessBreakpoint( KUInt16, KUInt32 )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr )
+{
+	Boolean stop = true;
+
+	switch (inBPID)
+	{
+		case 0:
+			// Permanent, loggable breakpoint.
+			{
+				char theLine[256];
+				(void) ::sprintf( theLine, "Break at %.8X", (int) (inBPAddr) );
+				PrintLine( theLine );
+			}
+			break;
+		
+		case 1:
+			// Temporary breakpoint.
+			(void) mMemory->ClearBreakpoint(inBPAddr);
+			break;
+		
+		case 2:
+			// Watch pc without any parameter.
+			{
+				char theLine[256];
+				(void) ::sprintf( theLine, "Watch at %.8X", (int) (inBPAddr) );
+				PrintLine( theLine );
+			}
+			stop = false;
+			break;
+
+		case 3:
+			// Watch pc with 1 parameter.
+			{
+				char theLine[256];
+				(void) ::sprintf(
+					theLine,
+					"Watch at %.8X [R0=%.8X]",
+					(int) (inBPAddr),
+					(unsigned int) mProcessor->GetRegister(0) );
+				PrintLine( theLine );
+			}
+			stop = false;
+			break;
+
+		case 4:
+			// Watch pc with 2 parameters.
+			{
+				char theLine[256];
+				(void) ::sprintf(
+					theLine,
+					"Watch at %.8X [R0=%.8X,R1=%.8X]",
+					(int) (inBPAddr),
+					(unsigned int) mProcessor->GetRegister(0),
+					(unsigned int) mProcessor->GetRegister(1) );
+				PrintLine( theLine );
+			}
+			stop = false;
+			break;
+
+		case 5:
+			// Watch pc with 3 parameters.
+			{
+				char theLine[256];
+				(void) ::sprintf(
+					theLine,
+					"Watch at %.8X [R0=%.8X,R1=%.8X,R2=%.8X]",
+					(int) (inBPAddr),
+					(unsigned int) mProcessor->GetRegister(0),
+					(unsigned int) mProcessor->GetRegister(1),
+					(unsigned int) mProcessor->GetRegister(2) );
+				PrintLine( theLine );
+			}
+			stop = false;
+			break;
+	}
+	
+	return stop;
+}
+
+// -------------------------------------------------------------------------- //
+// Stop( void )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::Stop( void )
+{
+	mCommand = kExit;
+	
+	while (!mHalted)
+	{
+		mEmulator->Stop();
+	}
+
+	AcquireMutex();
+	// I have the mutex, so the loop is waiting.
+	
+	SignalCondVar();
+	
+	ReleaseMutex();
+}
+
+// -------------------------------------------------------------------------- //
+// ExecuteCommand( const char* inCommand )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::ExecuteCommand( const char* inCommand )
+{
+	Boolean theResult = true;
+	int theArgInt, theArgInt2;
+	char theLine[256];
+	
+	// commands when the emulator is halted.
+	if ((::strcmp(inCommand, "run") == 0)
+		|| (::strcmp(inCommand, "g") == 0))
+	{
+		if (mHalted)
+		{
+			mCommand = kRun;
+			SignalCondVar();
+		} else {
+			PrintLine("The emulator is already running");
+		}
+	} else if ((::strcmp(inCommand, "step") == 0)
+			|| (::strcmp(inCommand, "") == 0)) {
+		if (mHalted)
+		{
+			// Print the current instruction.
+			PrintCurrentInstruction();
+
+			mCommand = kStep;
+			SignalCondVar();
+		} else if (::strcmp(inCommand, "") != 0) {
+			PrintLine("The emulator is already running");
+		}
+	} else if ((::strcmp(inCommand, "t") == 0)
+		|| (::strcmp(inCommand, "trace") == 0)) {
+		// Is it a jump?
+		Boolean putBPAndRun = false;
+		
+		KUInt32 instruction;
+		KUInt32 realPC = mProcessor->GetRegister(15) - 4;
+		if (!mMemory->Read((TMemory::VAddr) realPC, instruction ))
+		{
+			if ((instruction & 0x0F000000) == 0x0B000000)
+			{
+				putBPAndRun = true;
+			}
+		}
+
+		// Print the first instruction.
+		PrintCurrentInstruction();
+
+		if (putBPAndRun)
+		{
+			// Run until we reach the breakpoint.
+			(void) mMemory->SetBreakpoint( realPC + 4, kTemporaryBP );
+			mCommand = kRun;
+			SignalCondVar();
+		} else {
+			// Step.
+			mCommand = kStep;
+			SignalCondVar();
+		}
+	} else if (::strcmp(inCommand, "mr") == 0) {
+		if (mHalted)
+		{
+			(void) mMemory->SetBreakpoint( mProcessor->GetRegister(14), kTemporaryBP );
+			mCommand = kRun;
+			SignalCondVar();
+		} else {
+			PrintLine("The emulator is already running");
+		}
+	} else if (::sscanf(inCommand, "pc=%X", &theArgInt) == 1) {
+		if (mHalted)
+		{
+			mProcessor->SetRegister(15, theArgInt);
+			(void) ::sprintf(
+				theLine, "pc <- %.8X",
+				(unsigned int) theArgInt );
+			PrintLine(theLine);
+		} else {
+			PrintLine("Cannot change register, the emulator is running");
+		}
+	} else if (::sscanf(inCommand, "r%i=%X", &theArgInt, &theArgInt2) == 2) {
+		if (mHalted)
+		{
+			if ((theArgInt >= 0) && (theArgInt <= 15))
+			{
+				mProcessor->SetRegister(theArgInt, theArgInt2);
+				(void) ::sprintf(
+					theLine, "r%i <- %.8X",
+					(int) theArgInt,
+					(unsigned int) theArgInt2 );
+			} else {
+				(void) ::sprintf(
+					theLine, "Unknown register r%i",
+					(int) theArgInt );
+			}
+			PrintLine(theLine);
+		} else {
+			PrintLine("Cannot change register, the emulator is running");
+		}
+	} else if (::strcmp(inCommand, "mmu") == 0) {
+		if (mHalted)
+		{
+			if (mMemory->IsMMUEnabled())
+			{
+				(void) ::sprintf(
+					theLine, "TT = %.8X, AC = %.8X, FSR = %.8X, FAR = %.8X, AP = %s%s%s",
+					(unsigned int) mMemory->GetTranslationTableBase(),
+					(unsigned int) mMemory->GetDomainAccessControl(),
+					(unsigned int) mMemory->GetFaultStatusRegister(),
+					(unsigned int) mMemory->GetFaultAddressRegister(),
+					mMemory->GetSystemProtection() ? "S" : "s",
+					mMemory->GetROMProtection() ? "R" : "r",
+					mMemory->GetPrivilege() ? "P" : "p" );
+				PrintLine(theLine);
+			} else {
+				PrintLine("MMU is disabled");
+			}
+		} else {
+			PrintLine("Cannot play with MMU, the emulator is running");
+		}
+	} else if (::sscanf(inCommand, "mmu %X", &theArgInt) == 1) {
+		if (mHalted)
+		{
+			if (mMemory->IsMMUEnabled())
+			{
+				TMemory::PAddr physAddr;
+				if (mMemory->TranslateR(
+						(TMemory::VAddr) theArgInt,
+						physAddr))
+				{
+					(void) ::sprintf(
+						theLine, "An error occurred resolving V0x%.8X [%.8X]",
+						(unsigned int) theArgInt,
+						(unsigned int) mMemory->GetFaultStatusRegister() );
+					PrintLine(theLine);
+				} else {
+					(void) ::sprintf(
+						theLine, "V0x%.8X = P0x%.8X",
+						(unsigned int) theArgInt,
+						(unsigned int) physAddr );
+					PrintLine(theLine);
+				}
+			} else {
+				PrintLine( "MMU is currently disabled" );
+			}
+		} else {
+			PrintLine("Cannot play with MMU, the emulator is running");
+		}
+	// commands when the emulator is running
+	} else if (::strcmp(inCommand, "stop") == 0) {
+		if (!mHalted)
+		{
+			(void) ::fprintf( stderr, "doing stop\n" );
+			mEmulator->Stop();
+		} else {
+			PrintLine("Emulator is not running");
+		}
+	// commands always available.
+	} else if ((::sscanf(inCommand, "break %X", &theArgInt) == 1)
+		|| (::sscanf(inCommand, "bp %X", &theArgInt) == 1)) {
+		if (mMemory->SetBreakpoint( theArgInt, kPermanentBP ))
+		{
+			(void) ::sprintf(
+				theLine, "Setting breakpoint at %.8X failed",
+				(unsigned int) theArgInt );
+		} else {
+			(void) ::sprintf(
+				theLine, "Breakpoint set at %.8X",
+				(unsigned int) theArgInt );
+		}
+		PrintLine(theLine);
+	} else if (::sscanf(inCommand, "bc %X", &theArgInt) == 1) {
+		if (mMemory->ClearBreakpoint( theArgInt ))
+		{
+			(void) ::sprintf(
+				theLine, "Clearing breakpoint at %.8X failed",
+				(unsigned int) theArgInt );
+		} else {
+			(void) ::sprintf(
+				theLine, "Breakpoint cleared at %.8X",
+				(unsigned int) theArgInt );
+		}
+		PrintLine(theLine);
+	} else if (::sscanf(inCommand, "dl P%X", &theArgInt) == 1) {
+		Boolean fault = false;
+		KUInt32 theData = mMemory->ReadP(
+				(TMemory::VAddr) theArgInt, fault );
+		if (fault)
+		{
+			(void) ::sprintf(
+				theLine, "Memory error when accessing %.8X [%.8X]",
+				(unsigned int) theArgInt,
+				(unsigned int) mMemory->GetFaultStatusRegister() );
+			fault = false;
+		} else {
+			(void) ::sprintf(
+				theLine, "P%.8X: %.8X",
+				(unsigned int) theArgInt,
+				(unsigned int) theData );
+		}
+		PrintLine(theLine);
+	} else if (::sscanf(inCommand, "dl %X", &theArgInt) == 1) {
+		KUInt32 theData;
+		if (mMemory->Read(
+				(TMemory::VAddr) theArgInt, theData ))
+		{
+			(void) ::sprintf(
+				theLine, "Memory error when accessing %.8X [%.8X]",
+				(unsigned int) theArgInt,
+				(unsigned int) mMemory->GetFaultStatusRegister() );
+		} else {
+			(void) ::sprintf(
+				theLine, "%.8X: %.8X",
+				(unsigned int) theArgInt,
+				(unsigned int) theData );
+		}
+		PrintLine(theLine);
+	} else if (::sscanf(inCommand, "dm %X-%X", &theArgInt, &theArgInt2) == 2) {
+		KUInt32 theData[4];
+		while (((KUInt32) theArgInt) < ((KUInt32) theArgInt2))
+		{
+			if (mMemory->Read(
+					(TMemory::VAddr) theArgInt, theData[0] )
+				|| mMemory->Read(
+					(TMemory::VAddr) theArgInt + 4, theData[1] )
+				|| mMemory->Read(
+					(TMemory::VAddr) theArgInt + 8, theData[2] )
+				|| mMemory->Read(
+					(TMemory::VAddr) theArgInt + 12, theData[3] ))
+			{
+				(void) ::sprintf(
+					theLine, "Memory error when accessing %.8X [%.8X]",
+					(unsigned int) theArgInt,
+					(unsigned int) mMemory->GetFaultStatusRegister() );
+			} else {
+				(void) ::sprintf(
+					theLine, "%.8X: %.8X %.8X %.8X %.8X",
+					(unsigned int) theArgInt,
+					(unsigned int) theData[0],
+					(unsigned int) theData[1],
+					(unsigned int) theData[2],
+					(unsigned int) theData[3] );
+			}
+			PrintLine(theLine);
+			theArgInt += 16;
+		}
+	} else if (::sscanf(inCommand, "dm %X", &theArgInt) == 1) {
+		KUInt32 theData[4];
+		KUInt32 last;
+		for (last = theArgInt + 64; ((KUInt32) theArgInt) < last; theArgInt += 16)
+		{
+			if (mMemory->Read(
+					(TMemory::VAddr) theArgInt, theData[0] )
+				|| mMemory->Read(
+					(TMemory::VAddr) theArgInt + 4, theData[1] )
+				|| mMemory->Read(
+					(TMemory::VAddr) theArgInt + 8, theData[2] )
+				|| mMemory->Read(
+					(TMemory::VAddr) theArgInt + 12, theData[3] ))
+			{
+				(void) ::sprintf(
+					theLine, "Memory error when accessing %.8X [%.8X]",
+					(unsigned int) theArgInt,
+					(unsigned int) mMemory->GetFaultStatusRegister() );
+			} else {
+				(void) ::sprintf(
+					theLine, "%.8X: %.8X %.8X %.8X %.8X",
+					(unsigned int) theArgInt,
+					(unsigned int) theData[0],
+					(unsigned int) theData[1],
+					(unsigned int) theData[2],
+					(unsigned int) theData[3] );
+			}
+			PrintLine(theLine);
+		}
+	} else if (::sscanf(inCommand, "dm P%X-%X", &theArgInt, &theArgInt2) == 2) {
+		KUInt32 theData[4];
+		Boolean fault = false;
+		while (((KUInt32) theArgInt) < ((KUInt32) theArgInt2))
+		{
+			theData[0] = mMemory->ReadP(
+				(TMemory::VAddr) theArgInt, fault );
+			theData[1] = mMemory->ReadP(
+				(TMemory::VAddr) theArgInt + 4, fault );
+			theData[2] = mMemory->ReadP(
+				(TMemory::VAddr) theArgInt + 8, fault );
+			theData[3] = mMemory->ReadP(
+				(TMemory::VAddr) theArgInt + 12, fault );
+			if (fault)
+			{
+				(void) ::sprintf(
+					theLine, "Memory error when accessing P%.8X [%.8X]",
+					(unsigned int) theArgInt,
+					(unsigned int) mMemory->GetFaultStatusRegister() );
+			} else {
+				(void) ::sprintf(
+					theLine, "P%.8X: %.8X %.8X %.8X %.8X",
+					(unsigned int) theArgInt,
+					(unsigned int) theData[0],
+					(unsigned int) theData[1],
+					(unsigned int) theData[2],
+					(unsigned int) theData[3] );
+			}
+			PrintLine(theLine);
+			theArgInt += 16;
+		}
+	} else if (::sscanf(inCommand, "dm P%X", &theArgInt) == 1) {
+		KUInt32 theData[4];
+		KUInt32 last;
+		Boolean fault = false;
+		for (last = theArgInt + 64; ((KUInt32) theArgInt) < last; theArgInt += 16)
+		{
+			theData[0] = mMemory->ReadP(
+				(TMemory::VAddr) theArgInt, fault );
+			theData[1] = mMemory->ReadP(
+				(TMemory::VAddr) theArgInt + 4, fault );
+			theData[2] = mMemory->ReadP(
+				(TMemory::VAddr) theArgInt + 8, fault );
+			theData[3] = mMemory->ReadP(
+				(TMemory::VAddr) theArgInt + 12, fault );
+			if (fault)
+			{
+				(void) ::sprintf(
+					theLine, "Memory error when accessing P%.8X [%.8X]",
+					(unsigned int) theArgInt,
+					(unsigned int) mMemory->GetFaultStatusRegister() );
+				fault = false;
+			} else {
+				(void) ::sprintf(
+					theLine, "P%.8X: %.8X %.8X %.8X %.8X",
+					(unsigned int) theArgInt,
+					(unsigned int) theData[0],
+					(unsigned int) theData[1],
+					(unsigned int) theData[2],
+					(unsigned int) theData[3] );
+			}
+			PrintLine(theLine);
+		}
+	} else if (::sscanf(inCommand, "sl %X %X", &theArgInt, &theArgInt2) == 2) {
+		if (mMemory->Write(
+				(TMemory::VAddr) theArgInt, theArgInt2 ))
+		{
+			(void) ::sprintf(
+				theLine, "Memory error when writing at %.8X [%.8X]",
+				(unsigned int) theArgInt,
+				(unsigned int) mMemory->GetFaultStatusRegister() );
+		} else {
+			(void) ::sprintf(
+				theLine, "%.8X <- %.8X",
+				(unsigned int) theArgInt,
+				(unsigned int) theArgInt2 );
+		}
+		PrintLine(theLine);
+	} else if (::sscanf(inCommand, "sl P%X %X", &theArgInt, &theArgInt2) == 2) {
+		if (mMemory->WriteP(
+				(TMemory::VAddr) theArgInt, theArgInt2 ))
+		{
+			(void) ::sprintf(
+				theLine, "Memory error when writing at %.8X [%.8X]",
+				(unsigned int) theArgInt,
+				(unsigned int) mMemory->GetFaultStatusRegister() );
+		} else {
+			(void) ::sprintf(
+				theLine, "P%.8X <- %.8X",
+				(unsigned int) theArgInt,
+				(unsigned int) theArgInt2 );
+		}
+		PrintLine(theLine);
+	} else if (::sscanf(inCommand, "raise %X", &theArgInt) == 1) {
+		mInterruptManager->RaiseInterrupt(theArgInt);
+		(void) ::sprintf(
+			theLine, "IR |= %.8X",
+			(int) theArgInt );
+		PrintLine(theLine);
+	} else if (::sscanf(inCommand, "gpio %X", &theArgInt) == 1) {
+		mInterruptManager->RaiseGPIO(theArgInt);
+		(void) ::sprintf(
+			theLine, "RaiseGPIO %.8X",
+			(int) theArgInt );
+		PrintLine(theLine);
+	} else if (::sscanf(inCommand, "watch %i %X", &theArgInt2, &theArgInt) == 2) {
+		if ((theArgInt2 >= 0) && (theArgInt2 <= 3))
+		{
+			if (mMemory->SetBreakpoint( theArgInt, kWatch0BP + theArgInt2 ))
+			{
+				(void) ::sprintf(
+					theLine, "Setting breakpoint at %.8X failed",
+					(unsigned int) theArgInt );
+			} else {
+				(void) ::sprintf(
+					theLine, "Watching execution at %.8X with %i parameters",
+					(unsigned int) theArgInt,
+					(int) theArgInt2 );
+			}
+		} else {
+			(void) ::sprintf(
+				theLine, "Cannot watch %i parameters (proper range: 0..3)",
+				(int) theArgInt2 );
+		}
+		PrintLine(theLine);
+	} else if (::strcmp(inCommand, "log") == 0) {
+		mLog->CloseLog();
+	} else if (::sscanf(inCommand, "log %s", theLine) == 1) {
+		mLog->OpenLog(theLine);
+	} else if (::strcmp(inCommand, "disable log") == 0) {
+		mLog->Disable();
+	} else if (::strcmp(inCommand, "enable log") == 0) {
+		mLog->Enable();
+	} else {
+		theResult = false;
+	}
+	return theResult;
+}
+
+// -------------------------------------------------------------------------- //
+// PrintHelp( void )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::PrintHelp( void )
+{
+	PrintLine("Monitor commands available when the machine is halted:");
+	PrintLine(" <return>|step      step once");
+//	PrintLine(" step <count>       step for count steps");
+	PrintLine(" t|trace            step over");
+	PrintLine(" g|run              run");
+	PrintLine(" mmu                display mmu registers");
+	PrintLine(" mmu <address>      mmu lookup address");
+	PrintLine(" mr                 magic return (relies on lr)");
+	PrintLine(" r<i>=<val>         set ith register");
+	PrintLine(" pc=<val>           set pc");
+	PrintLine("Monitor commands available when the machine is running:");
+	PrintLine(" stop               interrupt the machine");
+	PrintLine("Monitor commands always available:");
+	PrintLine(" break|bp <address> set breakpoint at address");
+	PrintLine(" watch <x> <addr>   set watchpoint with x params at address");
+	PrintLine(" bc <address>       clear breakpoint at address");
+	PrintLine(" log path           start logging to file");
+	PrintLine(" log                stop logging to file");
+	PrintLine(" disable log        disable the log");
+	PrintLine(" enable log         enable the log");
+	PrintLine(" dl <address>       display long at address");
+	PrintLine(" dl P<address>      display long at physical address");
+	PrintLine(" dm <addr>[-<addr>] display memory at address/between addresses");
+	PrintLine(" dm P<addr>[-<add>] display memory at physical address(es)");
+	PrintLine(" sl <address> <val> set long at address");
+	PrintLine(" sl P<addr> <val>   set long at physical address");
+	PrintLine(" raise <val>        raise the interrupts");
+	PrintLine(" gpio <val>         raise the gpio interrupts");
+}
+
+// -------------------------------------------------------------------------- //
+// DrawScreen( void )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::DrawScreen( void )
+{
+	Boolean theResult = false;
+	if (mHalted)
+	{
+		if (!mLastScreenHalted)
+		{
+			// Clear the terminal.
+			(void) ::printf( "\033[2J" );
+			theResult = true;
+		}
+		mLastScreenHalted = true;
+		DrawScreenHalted();
+	} else {
+		if (mLastScreenHalted)
+		{
+			// Clear the terminal.
+			(void) ::printf( "\033[2J" );			
+			theResult = true;
+		}
+		mLastScreenHalted = false;
+		DrawScreenRunning();
+	}
+	
+	return theResult;
+}
+
+// -------------------------------------------------------------------------- //
+// DrawScreenHalted( void )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::DrawScreenHalted( void )
+{
+	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
+
+	// Go to the uppermost position.
+	(void) ::printf( "\033[1;1H" );
+	int indexRegisters;
+	for (indexRegisters = 0; indexRegisters < 16; indexRegisters++)
+	{
+		(void) ::printf( "%s%s= %.8X | %s\n",
+				kEraseLine,
+				kRegisterNames[indexRegisters],
+				(unsigned int) mProcessor->GetRegister(indexRegisters),
+				mLog->GetLine(indexRegisters) );
+	}
+	KUInt32 theCPSR = mProcessor->GetCPSR();
+	KUInt32 theMode = theCPSR & TARMProcessor::kPSR_ModeMask;
+	(void) ::printf( "%s%c%c%c%c %c%c%c %s  | %s\n",
+				kEraseLine,
+				theCPSR & TARMProcessor::kPSR_NBit ? 'N' : 'n',
+				theCPSR & TARMProcessor::kPSR_ZBit ? 'Z' : 'z',
+				theCPSR & TARMProcessor::kPSR_CBit ? 'C' : 'c',
+				theCPSR & TARMProcessor::kPSR_VBit ? 'V' : 'v',
+				theCPSR & TARMProcessor::kPSR_IBit ? 'I' : 'i',
+				theCPSR & TARMProcessor::kPSR_FBit ? 'F' : 'f',
+				theCPSR & TARMProcessor::kPSR_TBit ? 'T' : 't',
+				kModesNames[theMode],
+				mLog->GetLine(16) );
+	KUInt32 theSPSR = 0;
+	if ((theMode != TARMProcessor::kSystemMode)
+		&& (theMode != TARMProcessor::kUserMode))
+	{
+		theSPSR = mProcessor->GetSPSR();
+	}
+	if (theSPSR == 0)
+	{
+		(void) ::printf( "%s---- --- ---  | %s\n",
+					kEraseLine,
+					mLog->GetLine(17) );
+	} else {
+		(void) ::printf( "%s%c%c%c%c %c%c%c %s  | %s\n",
+					kEraseLine,
+					theSPSR & TARMProcessor::kPSR_NBit ? 'N' : 'n',
+					theSPSR & TARMProcessor::kPSR_ZBit ? 'Z' : 'z',
+					theSPSR & TARMProcessor::kPSR_CBit ? 'C' : 'c',
+					theSPSR & TARMProcessor::kPSR_VBit ? 'V' : 'v',
+					theSPSR & TARMProcessor::kPSR_IBit ? 'I' : 'i',
+					theSPSR & TARMProcessor::kPSR_FBit ? 'F' : 'f',
+					theSPSR & TARMProcessor::kPSR_TBit ? 'T' : 't',
+					kModesNames[theSPSR & TARMProcessor::kPSR_ModeMask],
+					mLog->GetLine(17) );
+	}
+
+	(void) ::printf( "%s==============| %s\n",
+				kEraseLine,
+				mLog->GetLine(18) );
+	
+	(void) ::printf( "%sTmr= %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetFrozenTimer(),
+				mLog->GetLine(19) );
+	
+	(void) ::printf( "%sTM0= %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetTimerMatchRegister(0),
+				mLog->GetLine(20) );
+	
+	(void) ::printf( "%sTM1= %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetTimerMatchRegister(1),
+				mLog->GetLine(21) );
+	
+	(void) ::printf( "%sTM2= %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetTimerMatchRegister(2),
+				mLog->GetLine(22) );
+	
+	(void) ::printf( "%sTM3= %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetTimerMatchRegister(3),
+				mLog->GetLine(23) );
+	
+	(void) ::printf( "%sRTC= %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetRealTimeClock(),
+				mLog->GetLine(24) );
+	
+	(void) ::printf( "%sAlm= %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetAlarm(),
+				mLog->GetLine(25) );
+	
+	(void) ::printf( "%sIR = %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetIntRaised(),
+				mLog->GetLine(26) );
+	
+	(void) ::printf( "%sICR= %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetIntCtrlReg(),
+				mLog->GetLine(27) );
+	
+	(void) ::printf( "%sFM = %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetFIQMask(),
+				mLog->GetLine(28) );
+	
+	(void) ::printf( "%sIC1= %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetIntEDReg1(),
+				mLog->GetLine(29) );
+	
+	(void) ::printf( "%sIC2= %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetIntEDReg2(),
+				mLog->GetLine(30) );
+	
+	(void) ::printf( "%sIC3= %.8X | %s\n",
+				kEraseLine,
+				(unsigned int) mInterruptManager->GetIntEDReg3(),
+				mLog->GetLine(31) );
+	
+	(void) ::printf( "%s-------------------------------------------------------------------------------\n", kEraseLine );
+
+	char theInstr[512];
+	theInstr[0] = 0;
+	
+	char theSymbol[512];
+	char theComment[512];
+	int theOffset;
+	char theLine[512];
+
+	// Get the symbol.
+	mSymbolList->GetSymbol(
+					realPC,
+					theSymbol,
+					theComment,
+					&theOffset );
+
+	(void) ::printf(
+		"%s%s+%X\n",
+		kEraseLine, theSymbol, theOffset );
+	
+	KUInt32 instruction;
+	
+	// Write 5 lines.
+	int indexLines;
+	for (indexLines = 0; indexLines < 20; indexLines += 4)
+	{
+		if (mMemory->Read(
+				(TMemory::VAddr) realPC + indexLines, instruction ))
+		{
+			(void) ::printf(
+				"%s%.8X Memory Error [%.8X]\n",
+				kEraseLine,
+				(unsigned int) realPC + indexLines,
+				(unsigned int) mMemory->GetFaultStatusRegister() );
+		} else {
+			Boolean instIsBP = false;
+			if ((instruction & 0xFFF000F0) == 0xE1200070)
+			{
+				if (!mMemory->ReadBreakpoint(
+						(TMemory::VAddr) realPC + indexLines, instruction ))
+				{
+					instIsBP = true;
+				}
+			}
+			UDisasm::Disasm(
+						theInstr,
+						sizeof(theInstr),
+						realPC + indexLines,
+						instruction,
+						mSymbolList );
+
+			char status[32];
+			status[0] = '\0';
+			if (indexLines == 0)
+			{
+				if (instruction >> 28 != 0xE)
+				{
+					KUInt32 skip = 0;
+					switch (instruction >> 28)
+					{
+							// 0000 = EQ - Z set (equal)
+						case 0x0:
+							skip = !(theCPSR & TARMProcessor::kPSR_ZBit);
+							break;
+							
+							// 0001 = NE - Z clear (not equal)
+						case 0x1:
+							skip = theCPSR & TARMProcessor::kPSR_ZBit;
+							break;
+							// 0010 = CS - C set (unsigned higher or same)
+						case 0x2:
+							skip = !(theCPSR & TARMProcessor::kPSR_CBit);
+							break;
+							
+							// 0011 = CC - C clear (unsigned lower)
+						case 0x3:
+							skip = theCPSR & TARMProcessor::kPSR_CBit;
+							break;
+							
+							// 0100 = MI - N set (negative)
+						case 0x4:
+							skip = !(theCPSR & TARMProcessor::kPSR_NBit);
+							break;
+							
+							// 0101 = PL - N clear (positive or zero)
+						case 0x5:
+							skip = theCPSR & TARMProcessor::kPSR_NBit;
+							break;
+							
+							// 0110 = VS - V set (overflow)
+						case 0x6:
+							skip = !(theCPSR & TARMProcessor::kPSR_VBit);
+							break;
+							
+							// 0111 = VC - V clear (no overflow)
+						case 0x7:
+							skip = theCPSR & TARMProcessor::kPSR_VBit;
+							break;
+							
+							// 1000 = HI - C set and Z clear (unsigned higher)
+						case 0x8:
+							skip = !(theCPSR & TARMProcessor::kPSR_CBit)
+								|| (theCPSR & TARMProcessor::kPSR_ZBit);
+							break;
+							
+							// 1001 = LS - C clear or Z set (unsigned lower or same)
+						case 0x9:
+							skip = (theCPSR & TARMProcessor::kPSR_CBit)
+								&& !(theCPSR & TARMProcessor::kPSR_ZBit);
+							break;
+							
+							// 1010 = GE - N set and V set, or N clear and V clear (greater or equal)
+						case 0xA:
+							skip = ((theCPSR & TARMProcessor::kPSR_NBit) != 0)
+								!= ((theCPSR & TARMProcessor::kPSR_VBit) != 0);
+							break;
+							
+							// 1011 = LT - N set and V clear, or N clear and V set (less than)
+						case 0xB:
+							skip = ((theCPSR & TARMProcessor::kPSR_NBit) != 0)
+								== ((theCPSR & TARMProcessor::kPSR_VBit) != 0);
+							break;
+							
+							// 1100 = GT - Z clear, and either N set and V set, or N clear and V clear (greater than)
+						case 0xC:
+							skip = (theCPSR & TARMProcessor::kPSR_ZBit) ||
+								(((theCPSR & TARMProcessor::kPSR_NBit) != 0)
+									!= ((theCPSR & TARMProcessor::kPSR_VBit) != 0));
+							break;
+							
+							// 1101 = LE - Z set, or N set and V clear, or N clear and V set (less than or equal)
+						case 0xD:
+							skip = (!(theCPSR & TARMProcessor::kPSR_ZBit))
+								&& (((theCPSR & TARMProcessor::kPSR_NBit) != 0)
+									== ((theCPSR & TARMProcessor::kPSR_VBit) != 0));
+							break;
+							
+							// 1111 = NV - never
+						case 0xF:
+						default:
+							skip = 1;
+					}
+					
+					if (skip)
+					{
+						(void) ::sprintf( status, " (will skip)" );
+					} else {
+						(void) ::sprintf( status, " (will do it)" );
+					}
+				}
+			}
+			if (instIsBP)
+			{
+				(void) ::sprintf( theLine, "%.8X * %s",
+							(unsigned int) realPC + indexLines,
+							theInstr );
+			} else {
+				(void) ::sprintf( theLine, "%.8X   %s",
+							(unsigned int) realPC + indexLines,
+							theInstr );
+			} // if (indexLines == 0)
+			(void) ::printf( "%s%s%s\n",
+						kEraseLine,
+						theLine,
+						status );
+		}
+	}
+
+	// Footer.
+	(void) ::printf( "%s-------------------------------------------------------------------------------\n", kEraseLine );
+}
+
+// -------------------------------------------------------------------------- //
+// DrawScreenRunning( void )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::DrawScreenRunning( void )
+{
+	// Go to the uppermost position.
+	(void) ::printf( "\033[1;1H" );
+	
+	(void) ::printf( "%sMachine is running. Use stop to halt it.\n", kEraseLine );
+	(void) ::printf( "%s-------------------------------------------------------------------------------\n", kEraseLine );
+	int indexLog;
+	for (indexLog = 0; indexLog < 32; indexLog++)
+	{
+		(void) ::printf( "%s%s\n", kEraseLine, mLog->GetLine(indexLog) );
+	}
+	(void) ::printf( "%s-------------------------------------------------------------------------------\n", kEraseLine );
+}
+
+// -------------------------------------------------------------------------- //
+// PrintCurrentInstruction( void )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::PrintCurrentInstruction( void )
+{
+	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
+	PrintInstruction( realPC );
+}
+
+// -------------------------------------------------------------------------- //
+// PrintInstruction( KUInt32 )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::PrintInstruction( KUInt32 inAddress )
+{
+	char theSymbol[512];
+	char theComment[512];
+	int theOffset;
+	char theLine[512];
+	// If instruction is at the top of a function, print its name.
+	mSymbolList->GetSymbol( inAddress, theSymbol, theComment, &theOffset );
+	if (theOffset == 0)
+	{
+		(void) ::sprintf(
+			theLine,
+			"%s\t; %s",
+			theSymbol,
+			theComment );
+		PrintLine( theLine );
+	}
+
+	KUInt32 instruction;
+		
+	if (mMemory->Read((TMemory::VAddr) inAddress, instruction ))
+	{
+		(void) ::sprintf(
+			theLine,
+			"Memory error while reading %.8X\n",
+			(unsigned int) inAddress );
+	} else {
+		theLine[0] = 0;
+		(void) ::sprintf( theLine, "%.8X: ", (int) inAddress );
+		if ((instruction & 0xFFF000F0) == 0xE1200070)
+		{
+			(void) mMemory->ReadBreakpoint(
+					(TMemory::VAddr) inAddress, instruction );
+		}
+		UDisasm::Disasm(
+					&theLine[10],
+					sizeof(theLine) - 10,
+					inAddress,
+					instruction,
+					mSymbolList );
+	}
+	PrintLine(theLine);
+}
+
+// -------------------------------------------------------------------------- //
+//  * CreateCondVarAndMutex( void )
+// -------------------------------------------------------------------------- //
+inline void
+TMonitor::CreateCondVarAndMutex( void )
+{
+	// Create the condition variable.
+	int theErr = ::pthread_cond_init( &mCondVar, NULL );
+	if (theErr)
+	{
+		(void) ::fprintf( stderr, "Error with pthread_cond_init" );
+		::abort();
+	}
+	
+	// Create the mutex.
+	theErr = ::pthread_mutex_init( &mMutex, NULL );
+	if (theErr)
+	{
+		(void) ::fprintf( stderr, "Error with pthread_mutex_init" );
+		::abort();
+	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * DeleteCondVarAndMutex( void )
+// -------------------------------------------------------------------------- //
+inline void
+TMonitor::DeleteCondVarAndMutex( void )
+{
+	(void) ::pthread_mutex_destroy( &mMutex );
+	(void) ::pthread_cond_destroy( &mCondVar );
+}
+
+// -------------------------------------------------------------------------- //
+//  * SignalCondVar( void )
+// -------------------------------------------------------------------------- //
+inline void
+TMonitor::SignalCondVar( void )
+{
+	int theErr = ::pthread_cond_signal( &mCondVar );
+	if (theErr)
+	{
+		(void) ::fprintf( stderr, "Error with pthread_cond_signal" );
+		::abort();
+	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * WaitOnCondVar( void )
+// -------------------------------------------------------------------------- //
+inline void
+TMonitor::WaitOnCondVar( void )
+{
+	int theErr = ::pthread_cond_wait( &mCondVar, &mMutex );
+	if (theErr)
+	{
+		(void) ::fprintf( stderr, "Error with pthread_cond_wait" );
+		::abort();
+	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * AcquireMutex( void )
+// -------------------------------------------------------------------------- //
+inline void
+TMonitor::AcquireMutex( void )
+{
+	int theErr = ::pthread_mutex_lock( &mMutex );
+	if (theErr)
+	{
+		(void) ::fprintf( stderr, "Error with pthread_mutex_lock" );
+		::abort();
+	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * ReleaseMutex( void )
+// -------------------------------------------------------------------------- //
+inline void
+TMonitor::ReleaseMutex( void )
+{
+	int theErr = ::pthread_mutex_unlock( &mMutex );
+	if (theErr)
+	{
+		(void) ::fprintf( stderr, "Error with pthread_mutex_unlock" );
+		::abort();
+	}
+}
+
+// ==================================================================== //
+// I am not now, nor have I ever been, a member of the demigodic party. //
+//                 -- Dennis Ritchie                                    //
+// ==================================================================== //

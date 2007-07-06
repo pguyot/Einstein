@@ -1,0 +1,70 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:550: checking for Cygwin environment
+configure:583: checking for mingw32 environment
+configure:693: checking host system type
+configure:714: checking target system type
+configure:732: checking build system type
+configure:828: checking for gcc
+configure:941: checking whether the C compiler (gcc  ) works
+configure:957: gcc -o conftest    conftest.c  1>&5
+configure:983: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:988: checking whether we are using GNU C
+configure:1016: checking whether gcc accepts -g
+configure:1059: checking for ld used by GCC
+configure:1127: checking if the linker (/usr/bin/ld) is GNU ld
+configure:1144: checking for /usr/bin/ld option to reload object files
+configure:1156: checking for BSD-compatible nm
+configure:1194: checking whether ln -s works
+configure:1215: checking how to recognise dependant libraries
+configure:1388: checking for object suffix
+configure:1414: checking for executable suffix
+configure:1590: checking for ranlib
+configure:1657: checking for strip
+ltconfig:678:checking for gcc option to produce PIC
+ltconfig:687:checking that gcc PIC flag   -DPIC works.
+ltconfig:749: checking if gcc static flag  works
+ltconfig:780: finding the maximum length of command line arguments
+ltconfig:@lineno@: result: 98305
+ltconfig:887: checking if gcc supports -fno-rtti -fno-exceptions
+ltconfig:888: gcc -c -g -O2 -fno-rtti -fno-exceptions -c conftest.c  conftest.c 1>&5
+ltconfig:1431: checking if global_symbol_pipe works
+ltconfig:1432: gcc -c -g -O2  conftest.c 1>&5
+ltconfig:1435: eval "/usr/bin/nm -p conftest.o | sed -n -e 's/^.*[ 	]\([BCDEGRST][BCDEGRST]*\)[ 	][ 	]*\(\)\([_A-Za-z][_A-Za-z0-9]*\)$/\1 \2\3 \3/p' > conftest.nm"
+cannot find nm_test_var in conftest.nm
+ltconfig:1431: checking if global_symbol_pipe works
+ltconfig:1432: gcc -c -g -O2  conftest.c 1>&5
+ltconfig:1435: eval "/usr/bin/nm -p conftest.o | sed -n -e 's/^.*[ 	]\([BCDEGRST][BCDEGRST]*\)[ 	][ 	]*\(_\)\([_A-Za-z][_A-Za-z0-9]*\)$/\1 \2\3 \3/p' > conftest.nm"
+ltconfig:1487: gcc -o conftest -g -O2 -fno-builtin   conftest.c conftstm.o 1>&5
+configure:1998: checking for a BSD compatible install
+configure:2051: checking whether build environment is sane
+configure:2108: checking whether make sets ${MAKE}
+configure:2147: checking for working aclocal
+configure:2160: checking for working autoconf
+configure:2173: checking for working automake
+configure:2186: checking for working autoheader
+configure:2199: checking for working makeinfo
+configure:2216: checking for executable suffix
+configure:2247: checking whether to enable maintainer-specific portions of Makefiles
+configure:2273: checking for gcc
+configure:2386: checking whether the C compiler (gcc -g -O2 ) works
+configure:2402: gcc -o conftest -g -O2   conftest.c  1>&5
+configure:2428: checking whether the C compiler (gcc -g -O2 ) is a cross-compiler
+configure:2433: checking whether we are using GNU C
+configure:2461: checking whether gcc accepts -g
+configure:2709: checking how to run the C preprocessor
+configure:2789: checking for ANSI C header files
+configure:2895: checking for memcpy
+configure:2950: checking for working alloca.h
+configure:2983: checking for alloca
+configure:3183: checking size of short
+configure:3222: checking size of int
+configure:3261: checking size of long
+configure:3300: checking size of long long
+configure:3339: checking size of float
+configure:3378: checking size of double
+configure:3417: checking size of long double
+configure:3457: checking size of void *
+configure:3496: checking whether byte ordering is bigendian
+configure:3712: checking whether .eh_frame section should be read-only

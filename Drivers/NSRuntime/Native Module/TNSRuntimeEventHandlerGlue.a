@@ -1,0 +1,45 @@
+; Glue to avoid using a VTABLE (and hence to avoid relocation).
+        AREA __ct__22TNSRuntimeEventHandlerFv, CODE, READONLY
+		EXPORT	__ct__22TNSRuntimeEventHandlerFv
+        IMPORT	__nw__FUi
+        IMPORT	__ct__14TAEventHandlerFv
+		IMPORT	Init__14TAEventHandlerFUlT1
+		IMPORT	__dt__14TAEventHandlerFv
+		IMPORT	AETestEvent__14TAEventHandlerFP7TAEvent
+        IMPORT	AEHandlerProc__22TNSRuntimeEventHandlerFP10TUMsgTokenPUlP7TAEvent
+        IMPORT	AECompletionProc__14TAEventHandlerFP10TUMsgTokenPUlP7TAEvent
+        IMPORT	IdleProc__14TAEventHandlerFP10TUMsgTokenPUlP7TAEvent
+
+        MOV      ip,sp
+        STMDB    sp!,{v1,fp,ip,lr,pc}
+        SUB      fp,ip,#4
+        MOVS     v1,a1
+        BNE      |L000024.J4.__ct__22TNSRuntimeEventHandlerFv|
+        MOV      a1,#&14
+        BL       __nw__FUi
+        MOVS     v1,a1
+        BEQ      |L000044.J7.__ct__22TNSRuntimeEventHandlerFv|
+|L000024.J4.__ct__22TNSRuntimeEventHandlerFv|
+        MOV      a1,v1
+        BL       __ct__14TAEventHandlerFv
+        ADD      a1,pc,#VTable-.-8
+        STR      a1,[v1,#0]
+        MOV      a1,v1
+        LDR      a3,[pc, #EventClass-.-8]
+        LDR      a2,[pc, #EventID-.-8]
+        BL       Init__14TAEventHandlerFUlT1
+|L000044.J7.__ct__22TNSRuntimeEventHandlerFv|
+        MOV      a1,v1
+        LDMDB    fp,{v1,fp,sp,pc}
+EventClass
+        DCD     0x65696e73	; eins
+EventID
+        DCD     0x6e737274	; nsrt
+VTable
+        B        __dt__14TAEventHandlerFv
+        B        AETestEvent__14TAEventHandlerFP7TAEvent
+        B        AEHandlerProc__22TNSRuntimeEventHandlerFP10TUMsgTokenPUlP7TAEvent
+        B        AECompletionProc__14TAEventHandlerFP10TUMsgTokenPUlP7TAEvent
+        B        IdleProc__14TAEventHandlerFP10TUMsgTokenPUlP7TAEvent
+
+		END
