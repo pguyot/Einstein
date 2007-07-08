@@ -28,7 +28,7 @@
 
 // POSIX & ANSI C
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 
 // STL
 #include <utility>

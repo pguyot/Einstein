@@ -3,14 +3,27 @@ JITARMLEGlue.o:     file format elf32-littlearm
 
 Disassembly of section .text:
 
-00000000 <EnterJITGlue>:
+00000000 <_Z12EnterJITGlueP7JITZone>:
    0:	e10f1000 	mrs	r1, CPSR
    4:	e92d5ff2 	stmdb	sp!, {r1, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
    8:	e580d040 	str	sp, [r0, #64]
-   c:	e590103c 	ldr	r1, [r0, #60]
-  10:	e128f001 	msr	CPSR_f, r1
-  14:	e9907ffe 	ldmib	r0, {r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, sp, lr}
-  18:	e5900000 	ldr	r0, [r0]
+   c:	e59f1018 	ldr	r1, [pc, #24]	; 2c <EnterZoneGlue_1>
+  10:	e59f2018 	ldr	r2, [pc, #24]	; 30 <EnterZoneGlue_2>
+  14:	e5801044 	str	r1, [r0, #68]
+  18:	e5802048 	str	r2, [r0, #72]
+  1c:	e590103c 	ldr	r1, [r0, #60]
+  20:	e128f001 	msr	CPSR_f, r1
+  24:	e9907ffe 	ldmib	r0, {r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, sp, lr}
+  28:	e280f044 	add	pc, r0, #68	; 0x44
+
+0000002c <EnterZoneGlue_1>:
+  2c:	e5900000 	ldr	r0, [r0]
+
+00000030 <EnterZoneGlue_2>:
+  30:	e51ff004 	ldr	pc, [pc, #-4]	; 34 <JumpAddr>
+
+00000034 <JumpAddr>:
+  34:	00000000 	andeq	r0, r0, r0
 Disassembly of section .data:
 
 00000000 <ExitJITNativeSequence>:
@@ -29,13 +42,13 @@ Disassembly of section .data:
 
 00000018 <ExitJITGlue>:
   18:	e58fe02c 	str	lr, [pc, #44]	; 4c <save_lr2>
-  1c:	e59ee008 	ldr	lr, [lr, #8]
+  1c:	e59fe02c 	ldr	lr, [pc, #44]	; 50 <exit_jit_zone>
   20:	e8ae3fff 	stmia	lr!, {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, sp}
   24:	e59f0020 	ldr	r0, [pc, #32]	; 4c <save_lr2>
-  28:	e5901004 	ldr	r1, [r0, #4]
-  2c:	e5ae1000 	str	r1, [lr]!
+  28:	e5901008 	ldr	r1, [r0, #8]
+  2c:	e8ae0002 	stmia	lr!, {r1}
   30:	e10f1000 	mrs	r1, CPSR
-  34:	e5ae1000 	str	r1, [lr]!
+  34:	e8ae0002 	stmia	lr!, {r1}
   38:	e59ed000 	ldr	sp, [lr]
   3c:	e8bd5ff2 	ldmia	sp!, {r1, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
   40:	e128f001 	msr	CPSR_f, r1

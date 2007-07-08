@@ -25,7 +25,7 @@
 #define _TJITGENERIC_TEST_H
 
 #include <K/Defines/KDefinitions.h>
-#include "TJITGenericPage.h"
+#include "JIT.h"
 
 // Einstein
 #include "TARMProcessor.h"

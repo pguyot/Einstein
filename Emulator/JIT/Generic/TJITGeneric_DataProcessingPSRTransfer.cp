@@ -22,7 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "TJITGenericPage.h"
+#include "JIT.h"
 
 // Einstein
 #include "TARMProcessor.h"
@@ -235,7 +235,7 @@ def_array_mode_s_rd(MVN);
 
 void
 Translate_DataProcessingPSRTransfer(
-					TJITGenericPage* inPage,
+					JITPageClass* inPage,
 					KUInt16* ioUnitCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr )

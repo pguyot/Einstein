@@ -23,7 +23,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include <K/Tests/KDebug.h>
-#include "TJITGenericPage.h"
+#include "JIT.h"
 
 // Einstein
 #include "TARMProcessor.h"

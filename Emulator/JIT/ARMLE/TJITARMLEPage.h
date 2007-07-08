@@ -42,12 +42,16 @@ typedef union JITUnit {
 
 // Native jit zone.
 typedef struct JITZone {
-	KUInt32		fJITRegisters[14];
+	KUInt32		fJITRegisters[15];
 	KUInt32		fJITCPSR;
 	KUInt32		fSavedSP;
+	KUInt32		fEnterGlue1;
+	KUInt32		fEnterGlue2;
+	KUInt32		fNativeAddr;
 } JITZone;
 
-typedef JITUnit* (*EnterJITGlueFuncPtr)(JITZone* ioZone);
+// This glue is available as an assembly function.
+JITUnit*		EnterJITGlue(JITZone* ioZone);
 
 ///
 /// Class for a JIT page for ARM (little endian) emulation/native execution.
@@ -194,9 +198,12 @@ private:
 	/// \param inInstruction	instruction to translate.
 	/// \param ioUnitCrsr		cursor in the unit table.
 	/// \param ioUnit			unit to fill.
+	/// \return <code>true</code> if the instruction was translated to native
+	/// code, <code>false</code> otherwise.
 	///
-	void DoTranslate_00(
+	Boolean DoTranslate_00(
 					KUInt16* ioUnitCrsr,
+					KUInt16* ioNativeCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr );
 
@@ -207,9 +214,12 @@ private:
 	/// \param inInstruction	instruction to translate.
 	/// \param ioUnitCrsr		cursor in the unit table.
 	/// \param ioUnit			unit to fill.
+	/// \return <code>true</code> if the instruction was translated to native
+	/// code, <code>false</code> otherwise.
 	///
-	void DoTranslate_01(
+	Boolean DoTranslate_01(
 					KUInt16* ioUnitCrsr,
+					KUInt16* ioNativeCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr );
 
@@ -220,9 +230,12 @@ private:
 	/// \param inInstruction	instruction to translate.
 	/// \param ioUnitCrsr		cursor in the unit table.
 	/// \param ioUnit			unit to fill.
+	/// \return <code>true</code> if the instruction was translated to native
+	/// code, <code>false</code> otherwise.
 	///
-	void DoTranslate_10(
+	Boolean DoTranslate_10(
 					KUInt16* ioUnitCrsr,
+					KUInt16* ioNativeCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr );
 
@@ -260,8 +273,7 @@ private:
 	KUInt32			mNativeCount;	///< Number of native instructions for this
 									///< page.
 	KUInt32*		mNativeCode;	///< Native code.
-	EnterJITGlueFuncPtr
-					mExitJITGlue;	///< Sequence for exiting the native code.
+	KUInt32*		mExitJITGlue;	///< Sequence for entering the native code.
 	JITZone			mZone;			///< JIT zone.
 };
 

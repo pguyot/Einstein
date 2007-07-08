@@ -50,14 +50,14 @@ static const KUInt32 ExitJITNativeSequence_Code[] = {
 };
 
 static const KUInt32 ExitJITGlue[] = {
-	0xe58fe02c,	// str		lr, [pc, #44]	; 54 <exit_jit_zone+0xc>
-	0xe59ee008,	// ldr		lr, [lr, #8]
+	0xe58fe02c,	// str		lr, [pc, #44]	; 54 <save_lr2>
+	0xe59fe02c,	// ldr		lr, [pc, #44]	; 50 <exit_jit_zone>
 	0xe8ae3fff,	// stmia	lr!, {r0-r9, sl, fp, ip, sp}
-	0xe59f0020,	// ldr		r0, [pc, #32]	; 54 <exit_jit_zone+0xc>
-	0xe5901004,	// ldr		r1, [r0, #4]
-	0xe5ae1000,	// str		r1, [lr]!
+	0xe59f0020,	// ldr		r0, [pc, #32]	; 54 <save_lr2>
+	0xe5901008,	// ldr		r1, [r0, #8]
+	0xe8ae0002,	// stmia	lr!, {r1}
 	0xe10f1000,	// mrs		r1, CPSR
-	0xe5ae1000,	// str		r1, [lr]!
+	0xe8ae0002,	// stmia	lr!, {r1}
 	0xe59ed000,	// ldr		sp, [lr]
 	0xe8bd5ff2,	// ldmia	sp!, {r1-r9, sl, fp, ip, lr}
 	0xe128f001,	// msr		CPSR_f, r1
@@ -88,8 +88,9 @@ TJITARMLEPage::TJITARMLEPage( void )
 	mNativeCount = kDefaultNativeCount;
 	
 	// Create the exit sequence.
-	mExitJITGlue = (EnterJITGlueFuncPtr) ::malloc(sizeof(ExitJITGlue));
+	mExitJITGlue = (KUInt32*) ::malloc(sizeof(ExitJITGlue));
 	::memmove((void*) mExitJITGlue, (const void*) ExitJITGlue, sizeof(ExitJITGlue));
+	mExitJITGlue[14] = (KUInt32) &mZone;
 }
 
 // -------------------------------------------------------------------------- //
@@ -237,6 +238,7 @@ TJITARMLEPage::Translate(
 				KUInt32 inInstruction,
 				KUInt32 inVAddr )
 {
+	Boolean isNative = false;
 	int theTestKind = inInstruction >> 28;
 	KUInt16 testUnitCrsr = *ioUnitCrsr;
 	if ((theTestKind != kTestAL) && (theTestKind != kTestNV))
@@ -251,22 +253,25 @@ TJITARMLEPage::Translate(
 		switch ((inInstruction >> 26) & 0x3)				// 27 & 26
 		{
 			case 0x0:	// 00
-				DoTranslate_00(
+				isNative = DoTranslate_00(
 					ioUnitCrsr,
+					ioNativeCrsr,
 					inInstruction,
 					inVAddr);
 				break;
 					
 			case 0x1:	// 01
-				DoTranslate_01(
+				isNative = DoTranslate_01(
 					ioUnitCrsr,
+					ioNativeCrsr,
 					inInstruction,
 					inVAddr);
 				break;
 					
 			case 0x2:	// 10
-				DoTranslate_10(
+				isNative = DoTranslate_10(
 					ioUnitCrsr,
+					ioNativeCrsr,
 					inInstruction,
 					inVAddr);
 				break;
@@ -284,12 +289,18 @@ TJITARMLEPage::Translate(
 	// Finally put the test, based on the current unit crsr.
 	if ((theTestKind != kTestAL) && (theTestKind != kTestNV))
 	{
-		KUInt16 nextInstrCrsr = *ioUnitCrsr;
-		PutTest(testUnitCrsr, nextInstrCrsr - testUnitCrsr, theTestKind);
+		if (isNative) {
+			// Do not put the test since the function is native, and
+			// revert the cursor.
+			*ioUnitCrsr = testUnitCrsr;
+		} else {
+			KUInt16 nextInstrCrsr = *ioUnitCrsr;
+			PutTest(testUnitCrsr, nextInstrCrsr - testUnitCrsr, theTestKind);
+		}
 	}
 	
 	// For now, we don't have any native instruction.
-	return false;
+	return isNative;
 }
 
 // -------------------------------------------------------------------------- //
@@ -407,12 +418,16 @@ TJITARMLEPage::PutTest(
 // -------------------------------------------------------------------------- //
 //  * DoTranslate_00( KUInt32, JITFuncPtr*, JITUnit* )
 // -------------------------------------------------------------------------- //
-void
+inline
+Boolean
 TJITARMLEPage::DoTranslate_00(
 					KUInt16* ioUnitCrsr,
+					KUInt16* ioNativeCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr )
 {
+	Boolean isNative = false;
+	
 	// 31 - 28 27 26 25 24 23 22 21 20 19 - 16 15 - 12 11 - 08 07 06 05 04 03 - 00
 	// -Cond-- 0  0  I  --Opcode--- S  --Rn--- --Rd--- ----------Operand 2-------- Data Processing PSR Transfer
 	// -Cond-- 0  0  0  0  0  0  A  S  --Rd--- --Rn--- --Rs--- 1  0  0  1  --Rm--- Multiply
@@ -428,21 +443,9 @@ TJITARMLEPage::DoTranslate_00(
 					inInstruction,
 					inVAddr );
 		} else {
-			// Multiply
-			if (inInstruction & 0x00200000)
-			{
-				Translate_MultiplyAndAccumulate(
-					this,
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr);
-			} else {
-				Translate_Multiply(
-					this,
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr);
-			}
+			// Multiply and multiply and accumulate are native.
+			PushNative(ioNativeCrsr, inInstruction);
+			isNative = true;
 		}
 	} else {
 		Translate_DataProcessingPSRTransfer(
@@ -451,15 +454,18 @@ TJITARMLEPage::DoTranslate_00(
 					inInstruction,
 					inVAddr );
 	}
+
+	return isNative;
 }
 
 // -------------------------------------------------------------------------- //
 //  * DoTranslate_01( JITUnit*, KUInt32, KUInt32, KUInt32, JITFuncPtr* )
 // -------------------------------------------------------------------------- //
 inline
-void
+Boolean
 TJITARMLEPage::DoTranslate_01(
 					KUInt16* ioUnitCrsr,
+					KUInt16* ioNativeCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr )
 {
@@ -481,14 +487,18 @@ TJITARMLEPage::DoTranslate_01(
 // -Cond-- 0  1  I  P  U  B  W  L  --Rn--- --Rd--- -----------offset----------
 		Translate_SingleDataTransfer(this, ioUnitCrsr, inInstruction, inVAddr);
 	}
+
+	// No native instruction here.
+	return false;
 }
 
 // -------------------------------------------------------------------------- //
 //  * DoTranslate_10( JITUnit*, KUInt32, KUInt32, JITFuncPtr* )
 // -------------------------------------------------------------------------- //
-inline void
+inline Boolean
 TJITARMLEPage::DoTranslate_10(
 					KUInt16* ioUnitCrsr,
+					KUInt16* ioNativeCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr )
 {
@@ -503,6 +513,9 @@ TJITARMLEPage::DoTranslate_10(
 		// Block Data Transfer.
 		Translate_BlockDataTransfer(this, ioUnitCrsr, inInstruction, inVAddr);
 	}
+	
+	// No native instruction here.
+	return false;
 }
 
 // -------------------------------------------------------------------------- //
@@ -545,13 +558,14 @@ TJITARMLEPage::EnterNative(
 {
 	// We enter native code here.
 	// Pop the address of the native instruction.
-	KUIntPtr theNativeFuncPtr;
+	KUInt32 theNativeFuncPtr;
 	POPVALUE(theNativeFuncPtr);
 	KUIntPtr theZonePtr;
 	POPVALUE(theZonePtr);
 	JITZone* theZone = (JITZone*) theZonePtr;
 	
 	// Setup the zone.
+	// Hopefully, gcc will optimize this with a series of ldm/stm.
 	theZone->fJITRegisters[0] = ioCPU->mCurrentRegisters[0];
 	theZone->fJITRegisters[1] = ioCPU->mCurrentRegisters[1];
 	theZone->fJITRegisters[2] = ioCPU->mCurrentRegisters[2];
@@ -568,7 +582,11 @@ TJITARMLEPage::EnterNative(
 	theZone->fJITRegisters[13] = ioCPU->mCurrentRegisters[13];
 	theZone->fJITRegisters[14] = ioCPU->mCurrentRegisters[14];
 	theZone->fJITCPSR = ioCPU->GetCPSR();
-	JITUnit* theUnit = (*mExitJITGlue)(theZone);
+
+	// Enter the magic!
+	theZone->fNativeAddr = theNativeFuncPtr;
+	JITUnit* theUnit = EnterJITGlue(theZone);
+
 	ioCPU->mCurrentRegisters[0] = theZone->fJITRegisters[0];
 	ioCPU->mCurrentRegisters[1] = theZone->fJITRegisters[1];
 	ioCPU->mCurrentRegisters[2] = theZone->fJITRegisters[2];
@@ -592,6 +610,8 @@ TJITARMLEPage::EnterNative(
 	ioCPU->mCPSR_F = (theZone->fJITCPSR & TARMProcessor::kPSR_FBit) != 0;
 	ioCPU->mCPSR_T = (theZone->fJITCPSR & TARMProcessor::kPSR_TBit) != 0;
 	
+	// The PC is incorrect now, so we cannot return to the loop.
+	// Let's call the next non-native function.
 	return theUnit->fFuncPtr(theUnit, ioCPU);
 }
 

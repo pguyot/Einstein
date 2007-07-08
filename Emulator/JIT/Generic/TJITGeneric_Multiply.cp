@@ -23,7 +23,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include <K/Tests/KDebug.h>
-#include "TJITGenericPage.h"
+#include "JIT.h"
 
 // Einstein
 #include "TARMProcessor.h"
@@ -43,7 +43,7 @@ static JITFuncPtr Multiply_Funcs[] = {
 
 void
 Translate_Multiply(
-					TJITGenericPage* inPage,
+					JITPageClass* inPage,
 					KUInt16* ioUnitCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr )

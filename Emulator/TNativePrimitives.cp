@@ -610,7 +610,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 				if (theSubsystem == 0x1D)
 				{
 					mMemory->PowerOnFlash();
-					mEmulator->BreakInMonitor();
+//					mEmulator->BreakInMonitor();
 				}
 				mProcessor->SetRegister( 0, 0 );
 			}

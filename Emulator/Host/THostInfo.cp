@@ -222,8 +222,10 @@ THostInfo::GetHostTimeZone( void ) const
 	return (int) theDelta;
 #else
 	// Use gettimeofday.
+	// Cygwin crashes if we give NULL for first parameter.
+	struct timeval theTime;
 	struct timezone theTZ;
-	if (::gettimeofday(NULL, &theTZ) == 0)
+	if (::gettimeofday(&theTime, &theTZ) == 0)
 	{
 		return theTZ.tz_minuteswest * 60;
 	} else {

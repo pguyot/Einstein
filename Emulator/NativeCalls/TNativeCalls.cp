@@ -47,6 +47,8 @@
 		#define DYLIBSUFFIX ".so"
 	#elif TARGET_OS_BSD
 		#define DYLIBSUFFIX ".so"
+	#elif TARGET_OS_CYGWIN
+		#define DYLIBSUFFIX ".dll"
 	#else
 		#error Please define DYLIBSUFFIX
 	#endif

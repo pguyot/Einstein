@@ -85,8 +85,8 @@
 /*
 #define FURTHERCALLNEXT(pc) \
 	KUInt32 currentPC = pc;									\
-	if (((savedPC - 8) & TJITGenericPage::kPageMask)		\
-		== ((currentPC - 4) & TJITGenericPage::kPageMask))	\
+	if (((savedPC - 8) & JITPageClass::kPageMask)		\
+		== ((currentPC - 4) & JITPageClass::kPageMask))	\
 	{														\
 		KSInt32 delta = currentPC - savedPC;				\
 		KSInt32 delta4 = delta / 4;							\

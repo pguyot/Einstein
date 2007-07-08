@@ -26,20 +26,14 @@
 
 #include <K/Defines/KDefinitions.h>
 
-// Auto-set the JITTARGET.
-#ifndef JITTARGET
-	#if defined (TARGET_RT_MAC_MACHO) && TARGET_RT_MAC_MACHO
-		#define JITTARGET PPCMACHO
-	#endif
-#endif
-
 // Includes the proper header depending on the platform and define the JIT
 // class accordingly.
-#if JITTARGET == ARMLE
+#if JITTARGET_ARMLE
 	#include "TJITARMLE.h"
 	#define JITClass		TJITARMLE
 	#define JITPageClass	TJITARMLEPage
 #else
+	// Default case.
 	#include "TJITGeneric.h"
 	#define	JITClass		TJITGeneric
 	#define	JITPageClass	TJITGenericPage

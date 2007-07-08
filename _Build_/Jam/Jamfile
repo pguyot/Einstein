@@ -31,6 +31,7 @@ if $(target:E="unknown") = "arm-linux"
 	CC = "/opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-gcc" ;
 	C++ = "/opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-g++" ;
 	AR = /opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-ar ru ;
+	AS = /opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-as -mfloat-abi=soft ;
 	RANLIB = /opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-ranlib ;
 	LINK = /opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-g++ ;
 	OS = "ARM-LINUX" ;
@@ -166,6 +167,7 @@ SubDirHdrs "$(BASE)" ;
 SubDirHdrs "$(BASE)Emulator/" ;
 SubDirHdrs "$(BASE)Emulator/JIT/" ;
 SubDirHdrs "$(BASE)Emulator/JIT/Generic/" ;
+SubDirHdrs "$(BASE)Emulator/JIT/ARMLE/" ;
 SubDirHdrs "$(BASE)Emulator/ROM/" ;
 SubDirHdrs "$(BASE)Emulator/Screen/" ;
 SubDirHdrs "$(BASE)Emulator/Serial/" ;
@@ -186,23 +188,6 @@ COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Host/THostInfo.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/TJIT.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/TJITCache.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/TJITPage.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGenericPage.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Multiply.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_MultiplyAndAccumulate.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Other.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Other.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Test.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Log/TFileLog.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Log/TLog.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Log/TStdOutLog.cp" ;
@@ -229,6 +214,41 @@ COMMON_CPP_SOURCES	+= "$(BASE)Monitor/TMonitor.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Monitor/TSymbolList.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Monitor/UDisasm.cp" ;
 
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGenericPage.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Multiply.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_MultiplyAndAccumulate.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Other.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Other.cp" ;
+JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Test.cp" ;
+
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/ARMLE/TJITARMLE.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/ARMLE/TJITARMLEPage.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Other.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Other.cp" ;
+JITARMLE_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric_Test.cp" ;
+JITARMLE_ASM_SOURCES	+= "$(BASE)Emulator/JIT/ARMLE/JITARMLEGlue.s" ;
+
 COMMON_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_common/pa_allocation.c" ;
 COMMON_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_common/pa_converters.c" ;
 COMMON_C_SOURCES	+= "$(PORTAUDIO_BASE)/pa_common/pa_cpuload.c" ;
@@ -253,6 +273,8 @@ CPP_SOURCES = $(COMMON_CPP_SOURCES) ;
 C_SOURCES = $(COMMON_C_SOURCES) ;
 
 OBJC_SOURCES = $(COMMON_OBJC_SOURCES) ;
+
+ASM_SOURCES = ;
 
 # --------------------------------------------------------------------------------------- #
 
@@ -425,6 +447,7 @@ if $(OS) = "MACOSX"
 	CPP_SOURCES += $(MACOSX_CPP_SOURCES) ;
 	CPP_SOURCES += $(X11_CPP_SOURCES) ;
 	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
+	CPP_SOURCES += $(JITGENERIC_CPP_SOURCES) ;
 
 	OBJC_SOURCES += $(MACOSX_OBJC_SOURCES) ;
 
@@ -494,6 +517,7 @@ if $(OS) = "MACOSX"
 	CPP_SOURCES += $(LINUX_CPP_SOURCES) ;
 	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
 	CPP_SOURCES += $(X11_CPP_SOURCES) ;
+	CPP_SOURCES += $(JITGENERIC_CPP_SOURCES) ;
 	C_SOURCES += $(LINUX_C_SOURCES) ;
 	C_SOURCES += $(POSIX_C_SOURCES) ;
 
@@ -549,7 +573,7 @@ if $(OS) = "MACOSX"
 	_commonflags += -DSIZEOF_LONG=4 ;
 	
 	# identify this target for jit
-#	_commonflags += -DJITTARGET=$(JITTARGET:E="GENERIC") ;
+	_commonflags += -DJITTARGET_ARMLE=1 ;
 
 	local _linkflags ;
 
@@ -570,10 +594,12 @@ if $(OS) = "MACOSX"
 	# Fichiers specifiques a Linux
 	CPP_SOURCES += $(LINUX_CPP_SOURCES) ;
 	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
+	CPP_SOURCES += $(JITARMLE_CPP_SOURCES) ;
 	CPP_SOURCES += $(X11_CPP_SOURCES) ;
 #	CPP_SOURCES += $(FBDEV_CPP_SOURCES) ;
 	C_SOURCES += $(LINUX_C_SOURCES) ;
 	C_SOURCES += $(POSIX_C_SOURCES) ;
+	ASM_SOURCES += $(JITARMLE_ASM_SOURCES) ;
 
 } else if $(OS) = "NETBSD" || $(OS) = "FREEBSD" {
 
@@ -603,6 +629,7 @@ if $(OS) = "MACOSX"
 	# Fichiers specifiques a *BSD
 	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
 	CPP_SOURCES += $(X11_CPP_SOURCES) ;
+	CPP_SOURCES += $(JITGENERIC_CPP_SOURCES) ;
 
 } else if $(OS) = "CYGWIN" {
 
@@ -622,12 +649,27 @@ if $(OS) = "MACOSX"
 	_commonflags += -Wwrite-strings ;
 	_commonflags += -Wconversion ;
 	_commonflags += -ggdb -O0 ;
-#	_commonflags += -I"$(DCL_BASE)DCL/Interfaces/POSIX/Compat/" ;
+
+	if $(debug:E=no) = "yes"
+	{
+		_commonflags += -g ;
+	}
+
+	# libffi
+	_commonflags += -I$(BASE)$(LIBFFIPrefix:E=libffi-cygwin/)include ;
+	LibFFI += $(BASE)$(LIBFFIPrefix:E=libffi-cygwin/)lib/libffi.a ;
 
 	local _linkflags ;
+	_linkflags += -Wl,--stack,8388608 ;
 	_linkflags += -Wl,--warn-once ; 
 	_linkflags += -L/usr/X11R6/lib/ ;
-	LINKLIBS += $(KLIBS_BASE)/_Build_/Jam/$(LOCATE_TARGET)/libk.a -lstdc++ -lm -lpthread -lX11 ;
+	LINKLIBS += $(KLIBS_BASE)/_Build_/Jam/$(LOCATE_TARGET)/libk.a -lstdc++ -lm -lpthread -lX11 $(LibFFI) ;
+
+	if $(prof:E=no) = "yes"
+	{
+		_commonflags += -pg ;
+		_linkflags += -pg ;
+	}
 
 	CCFLAGS += $(_commonflags) ;
 	CCFLAGS += -Wmissing-declarations ;
@@ -638,6 +680,7 @@ if $(OS) = "MACOSX"
 	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
 	CPP_SOURCES += $(CYGWIN_CPP_SOURCES) ;
 	CPP_SOURCES += $(X11_CPP_SOURCES) ;
+	CPP_SOURCES += $(JITGENERIC_CPP_SOURCES) ;
 
 } else {
 
@@ -647,7 +690,7 @@ if $(OS) = "MACOSX"
 
 # --------------------------------------------------------------------------------------- #
 
-SOURCES = $(CPP_SOURCES) $(C_SOURCES) $(OBJC_SOURCES) ;
+SOURCES = $(CPP_SOURCES) $(ASM_SOURCES) $(C_SOURCES) $(OBJC_SOURCES) ;
 
 # --------------------------------------------------------------------------------------- #
 

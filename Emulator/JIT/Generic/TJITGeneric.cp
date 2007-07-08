@@ -22,7 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "TJITGeneric.h"
+#include "JIT.h"
 
 // Einstein
 #include <TMemory.h>

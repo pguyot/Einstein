@@ -22,7 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "TJITGenericPage.h"
+#include "JIT.h"
 
 // Einstein
 #include "TARMProcessor.h"
@@ -109,7 +109,7 @@ JITInstructionProto(CoprocRegisterTransfer)
 // -------------------------------------------------------------------------- //
 void
 Translate_SWIAndCoproc(
-					TJITGenericPage* inPage,
+					JITPageClass* inPage,
 					KUInt16* ioUnitCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr )
@@ -173,7 +173,7 @@ JITInstructionProto(BranchWithLink)
 // -------------------------------------------------------------------------- //
 void
 Translate_Branch(
-					TJITGenericPage* inPage,
+					JITPageClass* inPage,
 					KUInt16* ioUnitCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr )

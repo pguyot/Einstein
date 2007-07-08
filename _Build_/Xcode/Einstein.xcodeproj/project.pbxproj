@@ -38,6 +38,8 @@
 		DA02ACBB093CE21A007CC808 /* TJITPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA02AC8E093CE21A007CC808 /* TJITPage.cp */; };
 		DA09410A06B659DF00C67243 /* tests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA09410806B659DF00C67243 /* tests.cp */; };
 		DA09412506B6625C00C67243 /* UProcessorTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA09412306B6625C00C67243 /* UProcessorTests.cp */; };
+		DA1315AE0C404A0B00B5915E /* TJITGeneric.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4403570C32336300CD80DF /* TJITGeneric.cp */; };
+		DA1315AF0C404A1200B5915E /* TJITGenericPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4403910C32336300CD80DF /* TJITGenericPage.cp */; };
 		DA147C8A0976F17000D7A32D /* TNativeCalls.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA147C850976F17000D7A32D /* TNativeCalls.cp */; };
 		DA147C8C0976F17000D7A32D /* TVirtualizedCalls.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA147C870976F17000D7A32D /* TVirtualizedCalls.cp */; };
 		DA147C8F0976F17000D7A32D /* TNativeCalls.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA147C850976F17000D7A32D /* TNativeCalls.cp */; };
@@ -246,7 +248,6 @@
 		DA4403F20C32336300CD80DF /* TJITGeneric_SingleDataTransfer.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4403880C32336300CD80DF /* TJITGeneric_SingleDataTransfer.cp */; };
 		DA4403F30C32336300CD80DF /* TJITGeneric_Test.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA44038D0C32336300CD80DF /* TJITGeneric_Test.cp */; };
 		DA4403F40C32336300CD80DF /* TJITGenericPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4403910C32336300CD80DF /* TJITGenericPage.cp */; };
-		DA4403F50C32336300CD80DF /* TJITGeneric.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4403570C32336300CD80DF /* TJITGeneric.cp */; };
 		DA4403F80C32336300CD80DF /* TJITGeneric_DataProcessingPSRTransfer.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4403610C32336300CD80DF /* TJITGeneric_DataProcessingPSRTransfer.cp */; };
 		DA4403F90C32336300CD80DF /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4403630C32336300CD80DF /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp */; };
 		DA4403FA0C32336300CD80DF /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4403670C32336300CD80DF /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp */; };
@@ -257,7 +258,6 @@
 		DA4403FF0C32336300CD80DF /* TJITGeneric_Other.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4403830C32336300CD80DF /* TJITGeneric_Other.cp */; };
 		DA4404000C32336300CD80DF /* TJITGeneric_SingleDataTransfer.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4403880C32336300CD80DF /* TJITGeneric_SingleDataTransfer.cp */; };
 		DA4404010C32336300CD80DF /* TJITGeneric_Test.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA44038D0C32336300CD80DF /* TJITGeneric_Test.cp */; };
-		DA4404020C32336300CD80DF /* TJITGenericPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4403910C32336300CD80DF /* TJITGenericPage.cp */; };
 		DA4405E80C34B4D200CD80DF /* TJITGeneric_SingleDataSwap.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4405E50C34B4D200CD80DF /* TJITGeneric_SingleDataSwap.cp */; };
 		DA4405EA0C34B4D200CD80DF /* TJITGeneric_SingleDataSwap.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4405E50C34B4D200CD80DF /* TJITGeneric_SingleDataSwap.cp */; };
 		DA4405EC0C34B4D200CD80DF /* TJITGeneric_SingleDataSwap.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4405E50C34B4D200CD80DF /* TJITGeneric_SingleDataSwap.cp */; };
@@ -656,6 +656,8 @@
 		DA09412306B6625C00C67243 /* UProcessorTests.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = UProcessorTests.cp; path = _Tests_/UProcessorTests.cp; sourceTree = "<group>"; };
 		DA09412606B6643300C67243 /* UProcessorTests.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = UProcessorTests.h; path = _Tests_/UProcessorTests.h; sourceTree = "<group>"; };
 		DA09417406B8FD4500C67243 /* einstein */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = einstein; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA1315F60C407EE700B5915E /* THashMapCache.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = THashMapCache.h; sourceTree = "<group>"; };
+		DA1315F70C407EE700B5915E /* TMemoryConsts.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TMemoryConsts.h; sourceTree = "<group>"; };
 		DA147C850976F17000D7A32D /* TNativeCalls.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = TNativeCalls.cp; sourceTree = "<group>"; };
 		DA147C860976F17000D7A32D /* TNativeCalls.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TNativeCalls.h; sourceTree = "<group>"; };
 		DA147C870976F17000D7A32D /* TVirtualizedCalls.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = TVirtualizedCalls.cp; sourceTree = "<group>"; };
@@ -1024,6 +1026,8 @@
 		DA0940AC06B653E400C67243 /* Emulator */ = {
 			isa = PBXGroup;
 			children = (
+				DA1315F60C407EE700B5915E /* THashMapCache.h */,
+				DA1315F70C407EE700B5915E /* TMemoryConsts.h */,
 				DA42081C07B7EED200BF5C06 /* TNativePrimitives.cp */,
 				DA42082307B7EED200BF5C06 /* TNativePrimitives.h */,
 				DA42084407B7EED200BF5C06 /* TMemory.cp */,
@@ -1840,7 +1844,6 @@
 				DA8C81800A26DE3E0030640F /* ffi_darwin.c in Sources */,
 				DA647F230A2C0E2C00B52424 /* TBufferedSoundManager.cp in Sources */,
 				DA9D6E860C1BA281002B7A27 /* TVoyagerSerialPort.cp in Sources */,
-				DA4403F50C32336300CD80DF /* TJITGeneric.cp in Sources */,
 				DA4403F80C32336300CD80DF /* TJITGeneric_DataProcessingPSRTransfer.cp in Sources */,
 				DA4403F90C32336300CD80DF /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp in Sources */,
 				DA4403FA0C32336300CD80DF /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp in Sources */,
@@ -1851,11 +1854,12 @@
 				DA4403FF0C32336300CD80DF /* TJITGeneric_Other.cp in Sources */,
 				DA4404000C32336300CD80DF /* TJITGeneric_SingleDataTransfer.cp in Sources */,
 				DA4404010C32336300CD80DF /* TJITGeneric_Test.cp in Sources */,
-				DA4404020C32336300CD80DF /* TJITGenericPage.cp in Sources */,
 				DA4405EE0C34B4D200CD80DF /* TJITGeneric_SingleDataSwap.cp in Sources */,
 				DA44068D0C34CBF800CD80DF /* TJITGeneric_Multiply.cp in Sources */,
 				DA44068E0C34CBF800CD80DF /* TJITGeneric_MultiplyAndAccumulate.cp in Sources */,
 				DA4407780C35426000CD80DF /* TJITGeneric_BlockDataTransfer.cp in Sources */,
+				DA1315AE0C404A0B00B5915E /* TJITGeneric.cp in Sources */,
+				DA1315AF0C404A1200B5915E /* TJITGenericPage.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
