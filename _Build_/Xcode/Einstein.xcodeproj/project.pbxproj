@@ -655,7 +655,7 @@
 		DA09410906B659DF00C67243 /* tests.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = tests.h; path = _Tests_/tests.h; sourceTree = "<group>"; };
 		DA09412306B6625C00C67243 /* UProcessorTests.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = UProcessorTests.cp; path = _Tests_/UProcessorTests.cp; sourceTree = "<group>"; };
 		DA09412606B6643300C67243 /* UProcessorTests.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = UProcessorTests.h; path = _Tests_/UProcessorTests.h; sourceTree = "<group>"; };
-		DA09417406B8FD4500C67243 /* einstein */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = einstein; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA09417406B8FD4500C67243 /* einstein */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = einstein; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA1315F60C407EE700B5915E /* THashMapCache.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = THashMapCache.h; sourceTree = "<group>"; };
 		DA1315F70C407EE700B5915E /* TMemoryConsts.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TMemoryConsts.h; sourceTree = "<group>"; };
 		DA147C850976F17000D7A32D /* TNativeCalls.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = TNativeCalls.cp; sourceTree = "<group>"; };
@@ -852,7 +852,7 @@
 		DA88B50D07BA6091000F5145 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		DA88B51907BA6115000F5145 /* TCocoaScreenGlue.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaScreenGlue.mm; sourceTree = "<group>"; };
 		DA88B51D07BA611B000F5145 /* TCocoaScreenGlue.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TCocoaScreenGlue.h; sourceTree = "<group>"; };
-		DA88B56E07BA6703000F5145 /* Einstein.rex */ = {isa = PBXFileReference; lastKnownFileType = file; name = Einstein.rex; path = /Users/paul/Projets/Mac/Einstein/Drivers/Einstein.rex; sourceTree = "<absolute>"; };
+		DA88B56E07BA6703000F5145 /* Einstein.rex */ = {isa = PBXFileReference; lastKnownFileType = file; name = Einstein.rex; path = ../../Drivers/Einstein.rex; sourceTree = SOURCE_ROOT; };
 		DA89913507B8BCC20034075D /* einstein.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; path = einstein.mm; sourceTree = "<group>"; };
 		DA89914207B947840034075D /* TCocoaAppController.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaAppController.mm; sourceTree = "<group>"; };
 		DA89914607B947960034075D /* TCocoaAppController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TCocoaAppController.h; sourceTree = "<group>"; };
