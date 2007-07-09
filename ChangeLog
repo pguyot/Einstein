@@ -2,7 +2,9 @@
 - New version of the emulator module, which uses less RAM and is PC-agnostic.
 - Fixed the emulation of several instructions (and wrote regression tests).
 - Compilation for Nokia OS 2006.
+- Experimental direct ARM to ARM translation.
 - Now open source!
+- Ported to Cygwin [matthiasm]
 
 * Einstein 2006.6 (2006/5/31)
 Features:
