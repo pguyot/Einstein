@@ -27,7 +27,10 @@
 #include <K/Defines/KDefinitions.h>
 
 // POSIX & ANSI C
-#include <sys/time.h>
+#if TARGET_OS_WIN32
+#else
+#	include <sys/time.h>
+#endif
 
 // Einstein
 #include "TMemoryConsts.h"

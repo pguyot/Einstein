@@ -26,6 +26,10 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#if TARGET_OS_WIN32
+#	include "Emulator/CompatibilityWin32.h"
+#endif
+
 // POSIX & ANSI C
 #include <stdlib.h>
 #include <string.h>

@@ -30,6 +30,11 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#if TARGET_OS_WIN32
+#	include <time.h>
+#	include <sys/timeb.h>
+#endif
+
 // Mach
 // #include <mach/mach.h>
 // #include <mach/clock.h>
@@ -736,6 +741,14 @@ TInterruptManager::Run( void )
 inline KUInt32
 TInterruptManager::GetTimeInTicks( void )
 {
+#if TARGET_OS_WIN32
+	// FIXME use the performance timer because this timer has not enough resolution
+	// FIXME do ftime and gettimeofday use the same start time?
+	struct _timeb ft;
+	_ftime(&ft);
+	KUInt32 theResult = ft.time * 4000000;
+	theResult += (KUInt32)(ft.millitm * 4000);
+#else
 	// Get the time now.
 	struct timeval now;
 	(void) gettimeofday( &now, NULL );
@@ -772,6 +785,7 @@ TInterruptManager::GetTimeInTicks( void )
 	KUInt32 theResult = now.tv_sec * 4000000;
 //	theResult += (KUInt32) (now.tv_nsec / 250);
 	theResult += (KUInt32) (now.tv_usec * 4);
+#endif
 
 	return theResult;
 }

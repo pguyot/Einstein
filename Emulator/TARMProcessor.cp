@@ -26,8 +26,12 @@
 
 // POSIX
 #include <sys/types.h>
-#include <unistd.h>
 #include <signal.h>
+
+#if TARGET_OS_WIN32
+#else
+#	include <unistd.h>
+#endif
 
 // K
 #include <K/Streams/TStream.h>

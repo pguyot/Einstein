@@ -39,15 +39,16 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/wd4996"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\Emulator\;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;..\..\..\..\K"
+				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -149,6 +150,10 @@
 				Name="Misc"
 				>
 				<File
+					RelativePath="..\..\..\Emulator\CompatibilityWin32.cp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Emulator\TARMProcessor.cp"
 					>
 				</File>
@@ -183,6 +188,10 @@
 				<Filter
 					Name="Emulator Misc Headers"
 					>
+					<File
+						RelativePath="..\..\..\Emulator\CompatibilityWin32.h"
+						>
+					</File>
 					<File
 						RelativePath="..\..\..\Emulator\TARMProcessor.h"
 						>

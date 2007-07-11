@@ -25,13 +25,17 @@
 #include "TMemory.h"
 
 // POSIX & ANSI C
-#include <sys/time.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <signal.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+
+#if TARGET_OS_WIN32
+#else
+#	include <sys/time.h>
+#	include <unistd.h>
+#endif
 
 // K
 #include <K/Streams/TStream.h>

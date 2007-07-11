@@ -25,15 +25,19 @@
 #include "TEmulator.h"
 
 // POSIX
-#include <sys/time.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <signal.h>
 #include <math.h>
 #include <time.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+
+#if TARGET_OS_WIN32
+#else
+#	include <unistd.h>
+#	include <sys/time.h>
+#endif
 
 // K
 #include <K/Streams/TStream.h>
