@@ -24,6 +24,9 @@
 #ifndef _COMPATIBILITY_WIN32_H
 #define _COMPATIBILITY_WIN32_H
 
+#define PATH_MAX 1024
+
 extern void bzero(void *dst, size_t n);
+extern int snprintf(char *buffer, size_t count, const char *format, ...);
 
 #endif

@@ -42,7 +42,7 @@
 				AdditionalOptions="/wd4996"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DYLIBSUFFIX=&quot;.dll&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

@@ -23,9 +23,20 @@
 
 #include "CompatibilityWin32.h"
 
+#include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 void bzero(void *dst, size_t n)
 {
 	memset(dst, 0, n);
+}
+
+int snprintf(char *buffer, size_t count, const char *format, ...)
+{
+	va_list argptr;
+	va_start(argptr, format);
+	int ret = vsnprintf(buffer, count, format, argptr);
+	va_end(argptr);
+	return ret;
 }
