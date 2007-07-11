@@ -28,7 +28,8 @@
 // -------------------------------------------------------------------------- //
 //  * Multiply
 // -------------------------------------------------------------------------- //
-Multiply_Template(FLAG_S, Rd, Rs, Rm,
+Multiply_Template(FLAG_S, Rd, Rs, Rm)
+#if IMPLEMENTATION
 {
 	const KUInt32 theResult = ioCPU->mCurrentRegisters[Rm] * ioCPU->mCurrentRegisters[Rs];
 	ioCPU->mCurrentRegisters[Rd] = theResult;
@@ -46,4 +47,5 @@ Multiply_Template(FLAG_S, Rd, Rs, Rm,
 #endif
 
 	CALLNEXTUNIT;
-})
+}
+#endif

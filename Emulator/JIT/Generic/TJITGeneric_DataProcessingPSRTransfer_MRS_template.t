@@ -28,13 +28,12 @@
 		JITUnit* MRS_TemplateName(flag_r, rd) \
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)
 #if DECLARATION
-	#define MRS(flag_r, rd, body) \
+	#define MRS(flag_r, rd) \
 		MRS_Proto(flag_r, rd);
 #endif
 #if IMPLEMENTATION
-	#define MRS(flag_r, rd, body) \
-		MRS_Proto(flag_r, rd) \
-			body
+	#define MRS(flag_r, rd) \
+		MRS_Proto(flag_r, rd)
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_MRS_template.h"

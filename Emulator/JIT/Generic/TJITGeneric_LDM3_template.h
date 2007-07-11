@@ -27,7 +27,8 @@
 
 // Use of PC for Rn is UNPREDICTABLE.
 
-LDM3_Template(FLAG_P, FLAG_U, FLAG_W, Rn,
+LDM3_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
+#if IMPLEMENTATION
 {
 	POPPC();
 	
@@ -108,4 +109,6 @@ LDM3_Template(FLAG_P, FLAG_U, FLAG_W, Rn,
 	ioCPU->SetCPSR( ioCPU->GetSPSR() );
 
 	MMUCALLNEXT_AFTERSETPC;
-})
+}
+#endif
+

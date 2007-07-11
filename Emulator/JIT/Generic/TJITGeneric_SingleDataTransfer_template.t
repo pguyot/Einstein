@@ -25,16 +25,15 @@
 	SingleDataTransfer_ ## flags ## _ ## rn ## _ ## rd
 	
 #if DECLARATION
-	#define SingleDataTransfer_Template(flags, rn, rd, body) \
+	#define SingleDataTransfer_Template(flags, rn, rd) \
 		JITInstructionProto(SingleDataTransfer_TemplateName(flags, rn, rd));
 #endif
 #if IMPLEMENTATION
-	#define SingleDataTransfer_Template(flags, rn, rd, body) \
-		JITInstructionProto(SingleDataTransfer_TemplateName(flags, rn, rd)) \
-			body
+	#define SingleDataTransfer_Template(flags, rn, rd) \
+		JITInstructionProto(SingleDataTransfer_TemplateName(flags, rn, rd))
 #endif
 #if TRANSLATION_ARRAY
-	#define SingleDataTransfer_Template(flags, rn, rd, body) \
+	#define SingleDataTransfer_Template(flags, rn, rd) \
 		SingleDataTransfer_TemplateName(flags, rn, rd),
 #endif
 

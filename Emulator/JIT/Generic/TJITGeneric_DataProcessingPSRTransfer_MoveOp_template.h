@@ -37,7 +37,9 @@ FLAG_S
 #define OP	MVN
 */
 
-MoveOp(OP, MODE, FLAG_S, Rd, {
+MoveOp(OP, MODE, FLAG_S, Rd)
+#if IMPLEMENTATION
+{
 #if (MODE == Imm) || (MODE == ImmC)
 	KUInt32 Opnd2;
 	POPVALUE(Opnd2);
@@ -98,4 +100,5 @@ MoveOp(OP, MODE, FLAG_S, Rd, {
 #else
 	CALLNEXTUNIT;
 #endif
-})
+}
+#endif

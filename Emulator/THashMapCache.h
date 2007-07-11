@@ -35,7 +35,11 @@
 #include <iterator>
 
 // STL/GCC ext.
-#include <ext/hash_map>
+#if TARGET_OS_WIN32
+#	include <hash_map>
+#else
+#	include <ext/hash_map>
+#endif
 
 ///
 /// Single key hash-backed cache for virtual adresses.

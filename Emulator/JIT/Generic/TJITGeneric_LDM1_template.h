@@ -27,7 +27,8 @@
 
 // Use of PC for Rn is UNPREDICTABLE.
 
-LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn,
+LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
+#if IMPLEMENTATION
 {
 	TMemory* theMemoryInterface = ioCPU->GetMemory();
 
@@ -114,4 +115,5 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn,
 	} else {
 		CALLNEXTUNIT;
 	}
-})
+}
+#endif

@@ -25,16 +25,15 @@
 	LDM1_ ## flag_p ## _ ## flag_u ## _ ## flag_w ## _ ## rn
 	
 #if DECLARATION
-	#define LDM1_Template(flag_p, flag_u, flag_w, rn, body) \
+	#define LDM1_Template(flag_p, flag_u, flag_w, rn) \
 		JITInstructionProto(LDM1_TemplateName(flag_p, flag_u, flag_w, rn));
 #endif
 #if IMPLEMENTATION
-	#define LDM1_Template(flag_p, flag_u, flag_w, rn, body) \
-		JITInstructionProto(LDM1_TemplateName(flag_p, flag_u, flag_w, rn)) \
-			body
+	#define LDM1_Template(flag_p, flag_u, flag_w, rn) \
+		JITInstructionProto(LDM1_TemplateName(flag_p, flag_u, flag_w, rn))
 #endif
 #if TRANSLATION_ARRAY
-	#define LDM1_Template(flag_p, flag_u, flag_w, rn, body) \
+	#define LDM1_Template(flag_p, flag_u, flag_w, rn) \
 		LDM1_TemplateName(flag_p, flag_u, flag_w, rn),
 #endif
 

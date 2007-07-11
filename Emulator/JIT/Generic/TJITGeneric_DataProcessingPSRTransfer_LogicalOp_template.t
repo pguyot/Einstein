@@ -29,13 +29,12 @@
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)
 
 #if DECLARATION
-	#define LogicalOp(op, mode, flag_s, rn, rd, body) \
+	#define LogicalOp(op, mode, flag_s, rn, rd) \
 		LogicalOp_Proto(op, mode, flag_s, rn, rd);
 #endif
 #if IMPLEMENTATION
-	#define LogicalOp(op, mode, flag_s, rn, rd, body) \
-		LogicalOp_Proto(op, mode, flag_s, rn, rd) \
-			body
+	#define LogicalOp(op, mode, flag_s, rn, rd) \
+		LogicalOp_Proto(op, mode, flag_s, rn, rd)
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_LogicalOp_template.h"

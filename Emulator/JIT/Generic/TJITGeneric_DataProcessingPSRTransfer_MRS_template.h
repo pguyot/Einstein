@@ -24,7 +24,8 @@
 // FLAG_R:22
 // Rd
 
-MRS(FLAG_R, Rd,
+MRS(FLAG_R, Rd)
+#if IMPLEMENTATION
 {
 #if Rd != 15
 #if FLAG_R
@@ -38,4 +39,5 @@ MRS(FLAG_R, Rd,
 	// UNPREDICTABLE
 	CALLNEXTUNIT;
 #endif
-})
+}
+#endif

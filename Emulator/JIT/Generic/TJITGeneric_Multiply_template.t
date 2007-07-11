@@ -29,16 +29,15 @@
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)
 	
 #if DECLARATION
-	#define Multiply_Template(flag_s, rd, rs, rm, body) \
+	#define Multiply_Template(flag_s, rd, rs, rm) \
 		Multiply_Proto(flag_s, rd, rs, rm);
 #endif
 #if IMPLEMENTATION
-	#define Multiply_Template(flag_s, rd, rs, rm, body) \
-		Multiply_Proto(flag_s, rd, rs, rm) \
-			body
+	#define Multiply_Template(flag_s, rd, rs, rm) \
+		Multiply_Proto(flag_s, rd, rs, rm)
 #endif
 #if TRANSLATION_ARRAY
-	#define Multiply_Template(flag_s, rd, rs, rm, body) \
+	#define Multiply_Template(flag_s, rd, rs, rm) \
 		Multiply_TemplateName(flag_s, rd, rs, rm),
 #endif
 

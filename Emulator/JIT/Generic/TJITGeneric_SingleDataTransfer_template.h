@@ -33,7 +33,8 @@
 #define WRITEBACK		(!FLAG_P || FLAG_W)
 #define UNPRIVILEDGED	(!FLAG_P && FLAG_W)
 
-SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd,
+SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
+#if IMPLEMENTATION
 {
 	KUInt32 theInstruction;
 	POPVALUE(theInstruction);
@@ -178,4 +179,5 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd,
 #else
 	CALLNEXTUNIT;
 #endif
-})
+}
+#endif

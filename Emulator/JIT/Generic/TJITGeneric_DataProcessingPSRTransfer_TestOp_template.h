@@ -51,7 +51,9 @@ Rn
 	#error "Please define Imm, ImmC, NoShift and Regular to be different"
 #endif
 
-TestOp(OP, MODE, Rn, {
+TestOp(OP, MODE, Rn)
+#if IMPLEMENTATION
+{
 #if (MODE == Imm) || (MODE == ImmC)
 	KUInt32 Opnd2;
 	POPVALUE(Opnd2);
@@ -127,4 +129,5 @@ TestOp(OP, MODE, Rn, {
 	#endif
 #endif
 	CALLNEXTUNIT;
-})
+}
+#endif

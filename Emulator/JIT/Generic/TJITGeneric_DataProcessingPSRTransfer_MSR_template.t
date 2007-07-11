@@ -28,13 +28,12 @@
 		JITUnit* MSR_TemplateName(mode, flag_r, fields_mask, rm) \
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)
 #if DECLARATION
-	#define MSR(mode, flag_r, fields_mask, rm, body) \
+	#define MSR(mode, flag_r, fields_mask, rm) \
 		MSR_Proto(mode, flag_r, fields_mask, rm);
 #endif
 #if IMPLEMENTATION
-	#define MSR(mode, flag_r, fields_mask, rm, body) \
-		MSR_Proto(mode, flag_r, fields_mask, rm) \
-			body
+	#define MSR(mode, flag_r, fields_mask, rm) \
+		MSR_Proto(mode, flag_r, fields_mask, rm)
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_MSR_template.h"

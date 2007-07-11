@@ -45,14 +45,14 @@
 	LogicalOp_TemplateName(op, mode, flag_s, rn, rd),
 #define def_array_mode_s_rn_rd(op) \
 static const JITFuncPtr DataProcessingPSRTransfer_ ## op ## _Funcs[] = {	\
-	repeat_256p(LogicalOp_ArrayEntry, op, Regular, 0)						\
-	repeat_256p(LogicalOp_ArrayEntry, op, Regular, 1)						\
-	repeat_256p(LogicalOp_ArrayEntry, op, Imm, 0)							\
-	repeat_256p(LogicalOp_ArrayEntry, op, Imm, 1)							\
-	repeat_256p(LogicalOp_ArrayEntry, op, ImmC, 0)							\
-	repeat_256p(LogicalOp_ArrayEntry, op, ImmC, 1)							\
-	repeat_256p(LogicalOp_ArrayEntry, op, NoShift, 0)						\
-	repeat_256p(LogicalOp_ArrayEntry, op, NoShift, 1)						\
+	repeat_256p4(LogicalOp_ArrayEntry, op, Regular, 0)						\
+	repeat_256p4(LogicalOp_ArrayEntry, op, Regular, 1)						\
+	repeat_256p4(LogicalOp_ArrayEntry, op, Imm, 0)							\
+	repeat_256p4(LogicalOp_ArrayEntry, op, Imm, 1)							\
+	repeat_256p4(LogicalOp_ArrayEntry, op, ImmC, 0)							\
+	repeat_256p4(LogicalOp_ArrayEntry, op, ImmC, 1)							\
+	repeat_256p4(LogicalOp_ArrayEntry, op, NoShift, 0)						\
+	repeat_256p4(LogicalOp_ArrayEntry, op, NoShift, 1)						\
 }
 
 // MODE(4), Rd (16)
@@ -60,14 +60,14 @@ static const JITFuncPtr DataProcessingPSRTransfer_ ## op ## _Funcs[] = {	\
 	MoveOp_TemplateName(op, mode, flag_s, rd),
 #define def_array_mode_s_rd(op) \
 static const JITFuncPtr DataProcessingPSRTransfer_ ## op ## _Funcs[] = {	\
-	repeat_16p(mode_s_rd_ArrayEntry, op, Regular, 0)						\
-	repeat_16p(mode_s_rd_ArrayEntry, op, Regular, 1)						\
-	repeat_16p(mode_s_rd_ArrayEntry, op, Imm, 0)							\
-	repeat_16p(mode_s_rd_ArrayEntry, op, Imm, 1)							\
-	repeat_16p(mode_s_rd_ArrayEntry, op, ImmC, 0)							\
-	repeat_16p(mode_s_rd_ArrayEntry, op, ImmC, 1)							\
-	repeat_16p(mode_s_rd_ArrayEntry, op, NoShift, 0)						\
-	repeat_16p(mode_s_rd_ArrayEntry, op, NoShift, 1)						\
+	repeat_16p4(mode_s_rd_ArrayEntry, op, Regular, 0)						\
+	repeat_16p4(mode_s_rd_ArrayEntry, op, Regular, 1)						\
+	repeat_16p4(mode_s_rd_ArrayEntry, op, Imm, 0)							\
+	repeat_16p4(mode_s_rd_ArrayEntry, op, Imm, 1)							\
+	repeat_16p4(mode_s_rd_ArrayEntry, op, ImmC, 0)							\
+	repeat_16p4(mode_s_rd_ArrayEntry, op, ImmC, 1)							\
+	repeat_16p4(mode_s_rd_ArrayEntry, op, NoShift, 0)						\
+	repeat_16p4(mode_s_rd_ArrayEntry, op, NoShift, 1)						\
 }
 
 #define ShouldPushPC_TestOp(mode, rn) \
@@ -87,55 +87,55 @@ static const JITFuncPtr DataProcessingPSRTransfer_ ## op ## _Funcs[] = {	\
 	TestOp_TemplateName(op, mode, rn),
 #define def_array_testop_mode_rn(op) \
 static const JITFuncPtr DataProcessingPSRTransfer_ ## op ## _Funcs[] = {	\
-	repeat_16p(TestOp_ArrayEntry, op, Regular)								\
-	repeat_16p(TestOp_ArrayEntry, op, Imm)									\
-	repeat_16p(TestOp_ArrayEntry, op, ImmC)									\
-	repeat_16p(TestOp_ArrayEntry, op, NoShift)								\
+	repeat_16p3(TestOp_ArrayEntry, op, Regular)								\
+	repeat_16p3(TestOp_ArrayEntry, op, Imm)									\
+	repeat_16p3(TestOp_ArrayEntry, op, ImmC)									\
+	repeat_16p3(TestOp_ArrayEntry, op, NoShift)								\
 }
 
 // FLAG_R (2), Rd (16)
 #define MRS_ArrayEntry(flag_r, rd) \
 	MRS_TemplateName(flag_r, rd),
 static const JITFuncPtr DataProcessingPSRTransfer_MRS_Funcs[] = {
-	repeat_16p(MRS_ArrayEntry, 0)
-	repeat_16p(MRS_ArrayEntry, 1)
+	repeat_16p2(MRS_ArrayEntry, 0)
+	repeat_16p2(MRS_ArrayEntry, 1)
 };
 // MODE (2), FLAG_R (2), FIELDS_MASK(16), Rd (16)
 #define MSR_ArrayEntry(mode, flag_r, fields, rm) \
 	MSR_TemplateName(mode, flag_r, fields, rm),
 static const JITFuncPtr DataProcessingPSRTransfer_MSR_NoShift_Funcs[] = {
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0x00000000)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0x000000FF)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0x0000FF00)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0x0000FFFF)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0x00FF0000)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0x00FF00FF)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0x00FFFF00)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0x00FFFFFF)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0xFF000000)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0xFF0000FF)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0xFF00FF00)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0xFF00FFFF)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0xFFFF0000)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0xFFFF00FF)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0xFFFFFF00)
-	repeat_16p(MSR_ArrayEntry, 0, 0, 0xFFFFFFFF)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0x00000000)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0x000000FF)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0x0000FF00)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0x0000FFFF)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0x00FF0000)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0x00FF00FF)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0x00FFFF00)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0x00FFFFFF)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0xFF000000)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0xFF0000FF)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0xFF00FF00)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0xFF00FFFF)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0xFFFF0000)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0xFFFF00FF)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0xFFFFFF00)
-	repeat_16p(MSR_ArrayEntry, 0, 1, 0xFFFFFFFF)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0x00000000)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0x000000FF)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0x0000FF00)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0x0000FFFF)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0x00FF0000)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0x00FF00FF)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0x00FFFF00)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0x00FFFFFF)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0xFF000000)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0xFF0000FF)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0xFF00FF00)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0xFF00FFFF)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0xFFFF0000)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0xFFFF00FF)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0xFFFFFF00)
+	repeat_16p4(MSR_ArrayEntry, 0, 0, 0xFFFFFFFF)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0x00000000)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0x000000FF)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0x0000FF00)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0x0000FFFF)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0x00FF0000)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0x00FF00FF)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0x00FFFF00)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0x00FFFFFF)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0xFF000000)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0xFF0000FF)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0xFF00FF00)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0xFF00FFFF)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0xFFFF0000)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0xFFFF00FF)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0xFFFFFF00)
+	repeat_16p4(MSR_ArrayEntry, 0, 1, 0xFFFFFFFF)
 };
 static const JITFuncPtr DataProcessingPSRTransfer_MSR_Imm_Funcs[] = {
 	MSR_TemplateName(1, 0, 0x00000000, Rm),

@@ -25,16 +25,15 @@
 	SingleDataSwap_ ## flag_b ## _ ## rn ## _ ## rd ## _ ## rm
 
 #if DECLARATION
-	#define SingleDataSwap_Template(flag_b, rn, rd, rm, body) \
+	#define SingleDataSwap_Template(flag_b, rn, rd, rm) \
 		JITInstructionProto(SingleDataSwap_TemplateName(flag_b, rn, rd, rm));
 #endif
 #if IMPLEMENTATION
-	#define SingleDataSwap_Template(flag_b, rn, rd, rm, body) \
-		JITInstructionProto(SingleDataSwap_TemplateName(flag_b, rn, rd, rm)) \
-			body
+	#define SingleDataSwap_Template(flag_b, rn, rd, rm) \
+		JITInstructionProto(SingleDataSwap_TemplateName(flag_b, rn, rd, rm))
 #endif
 #if TRANSLATION_ARRAY
-	#define SingleDataSwap_Template(flag_b, rn, rd, rm, body) \
+	#define SingleDataSwap_Template(flag_b, rn, rd, rm) \
 		SingleDataSwap_TemplateName(flag_b, rn, rd, rm),
 #endif
 

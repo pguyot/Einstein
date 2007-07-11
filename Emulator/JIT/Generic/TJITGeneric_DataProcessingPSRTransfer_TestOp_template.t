@@ -29,13 +29,12 @@
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)
 
 #if DECLARATION
-	#define TestOp(op, mode, rn, body) \
+	#define TestOp(op, mode, rn) \
 		TestOp_Proto(op, mode, rn);
 #endif
 #if IMPLEMENTATION
-	#define TestOp(op, mode, rn, body) \
-		TestOp_Proto(op, mode, rn) \
-			body
+	#define TestOp(op, mode, rn) \
+		TestOp_Proto(op, mode, rn)
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_TestOp_template.h"

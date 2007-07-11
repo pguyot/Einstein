@@ -34,7 +34,11 @@
 //#include "google/dense_hash_map"
 
 // STL/GCC ext.
-#include <ext/hash_map>
+#if TARGET_OS_WIN32
+#	include <hash_map>
+#else
+#	include <ext/hash_map>
+#endif
 
 class TMemory;
 class TMMU;

@@ -25,7 +25,8 @@
 // Use of R15 for Rn, Rd and Rm is UNPREDICTABLE
 // TODO: Make those instructions ATOMIC
 
-SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm,
+SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
+#if IMPLEMENTATION
 {
 	POPPC();
 	
@@ -75,4 +76,5 @@ SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm,
 #endif
 #endif	
 	CALLNEXTUNIT;
-})
+}
+#endif

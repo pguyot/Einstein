@@ -29,13 +29,12 @@
 		(JITUnit* ioUnit, TARMProcessor* ioCPU)
 
 #if DECLARATION
-	#define MoveOp(op, mode, flag_s, rd, body) \
+	#define MoveOp(op, mode, flag_s, rd) \
 		MoveOp_Proto(op, mode, flag_s, rd);
 #endif
 #if IMPLEMENTATION
-	#define MoveOp(op, mode, flag_s, rd, body) \
-		MoveOp_Proto(op, mode, flag_s, rd) \
-			body
+	#define MoveOp(op, mode, flag_s, rd) \
+		MoveOp_Proto(op, mode, flag_s, rd)
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_MoveOp_template.h"

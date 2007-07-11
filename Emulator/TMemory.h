@@ -27,9 +27,13 @@
 #include <K/Defines/KDefinitions.h>
 
 // ANSI C & POSIX
-#include <sys/time.h>
 #include <limits.h>
 #include <stdio.h>
+
+#if TARGET_OS_WIN32
+#else
+#	include <sys/time.h>
+#endif
 
 // Einstein
 #include "TFlash.h"

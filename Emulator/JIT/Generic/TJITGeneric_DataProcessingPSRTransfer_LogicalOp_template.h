@@ -58,7 +58,9 @@ FLAG_S
 // -> Opnd2Helper with Carry
 // -> Opnd2Helper with ioCPU->mCPSR_C
 
-LogicalOp(OP, MODE, FLAG_S, Rn, Rd, {
+LogicalOp(OP, MODE, FLAG_S, Rn, Rd)
+#if IMPLEMENTATION
+{
 #if (MODE == Imm) || (MODE == ImmC)
 	KUInt32 Opnd2;
 	POPVALUE(Opnd2);
@@ -131,4 +133,6 @@ LogicalOp(OP, MODE, FLAG_S, Rn, Rd, {
 #else
 	CALLNEXTUNIT;
 #endif
-})
+}
+#endif
+

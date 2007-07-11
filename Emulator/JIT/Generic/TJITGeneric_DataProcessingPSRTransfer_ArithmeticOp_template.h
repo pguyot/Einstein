@@ -57,7 +57,9 @@ FLAG_S
 	#error "Please define Imm, ImmC, NoShift and Regular to be different"
 #endif
 
-ArithmeticOp(OP, MODE, FLAG_S, Rn, Rd, {
+ArithmeticOp(OP, MODE, FLAG_S, Rn, Rd)
+#if IMPLEMENTATION
+{
 #if (MODE == Imm) || (MODE == ImmC)
 	KUInt32 Opnd2;
 	POPVALUE(Opnd2);
@@ -151,4 +153,5 @@ ArithmeticOp(OP, MODE, FLAG_S, Rn, Rd, {
 #else
 	CALLNEXTUNIT;
 #endif
-})
+}
+#endif

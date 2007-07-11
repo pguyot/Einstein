@@ -26,7 +26,8 @@
 
 // Use of PC for Rn is UNPREDICTABLE.
 
-STM2_Template(FLAG_P, FLAG_U, Rn,
+STM2_Template(FLAG_P, FLAG_U, Rn)
+#if IMPLEMENTATION
 {
 	TMemory* theMemoryInterface = ioCPU->GetMemory();
 
@@ -193,4 +194,5 @@ STM2_Template(FLAG_P, FLAG_U, Rn,
 	}
 
 	CALLNEXTUNIT;
-})
+}
+#endif

@@ -25,16 +25,15 @@
 	STM2_ ## flag_p ## _ ## flag_u ## _ ## rn
 	
 #if DECLARATION
-	#define STM2_Template(flag_p, flag_u, rn, body) \
+	#define STM2_Template(flag_p, flag_u, rn) \
 		JITInstructionProto(STM2_TemplateName(flag_p, flag_u, rn));
 #endif
 #if IMPLEMENTATION
-	#define STM2_Template(flag_p, flag_u, rn, body) \
-		JITInstructionProto(STM2_TemplateName(flag_p, flag_u, rn)) \
-			body
+	#define STM2_Template(flag_p, flag_u, rn) \
+		JITInstructionProto(STM2_TemplateName(flag_p, flag_u, rn))
 #endif
 #if TRANSLATION_ARRAY
-	#define STM2_Template(flag_p, flag_u, rn, body) \
+	#define STM2_Template(flag_p, flag_u, rn) \
 		STM2_TemplateName(flag_p, flag_u, rn),
 #endif
 

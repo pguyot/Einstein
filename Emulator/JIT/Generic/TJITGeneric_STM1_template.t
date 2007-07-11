@@ -25,16 +25,15 @@
 	STM1_ ## flag_p ## _ ## flag_u ## _ ## flag_w ## _ ## rn
 	
 #if DECLARATION
-	#define STM1_Template(flag_p, flag_u, flag_w, rn, body) \
+	#define STM1_Template(flag_p, flag_u, flag_w, rn) \
 		JITInstructionProto(STM1_TemplateName(flag_p, flag_u, flag_w, rn));
 #endif
 #if IMPLEMENTATION
-	#define STM1_Template(flag_p, flag_u, flag_w, rn, body) \
-		JITInstructionProto(STM1_TemplateName(flag_p, flag_u, flag_w, rn)) \
-			body
+	#define STM1_Template(flag_p, flag_u, flag_w, rn) \
+		JITInstructionProto(STM1_TemplateName(flag_p, flag_u, flag_w, rn))
 #endif
 #if TRANSLATION_ARRAY
-	#define STM1_Template(flag_p, flag_u, flag_w, rn, body) \
+	#define STM1_Template(flag_p, flag_u, flag_w, rn) \
 		STM1_TemplateName(flag_p, flag_u, flag_w, rn),
 #endif
 

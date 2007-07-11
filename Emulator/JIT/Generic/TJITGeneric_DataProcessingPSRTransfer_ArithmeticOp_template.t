@@ -28,13 +28,12 @@
 		JITUnit* ArithmeticOp_TemplateName(op, mode, flag_s, rn, rd) \
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)
 #if DECLARATION
-	#define ArithmeticOp(op, mode, flag_s, rn, rd, body) \
+	#define ArithmeticOp(op, mode, flag_s, rn, rd) \
 		ArithmeticOp_Proto(op, mode, flag_s, rn, rd);
 #endif
 #if IMPLEMENTATION
-	#define ArithmeticOp(op, mode, flag_s, rn, rd, body) \
-		ArithmeticOp_Proto(op, mode, flag_s, rn, rd) \
-			body
+	#define ArithmeticOp(op, mode, flag_s, rn, rd) \
+		ArithmeticOp_Proto(op, mode, flag_s, rn, rd)
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp_template.h"

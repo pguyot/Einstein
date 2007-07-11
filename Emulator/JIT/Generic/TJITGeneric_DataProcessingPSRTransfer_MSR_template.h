@@ -35,7 +35,8 @@ MODE Register
 */
 
 // MSR
-MSR(MODE, FLAG_R, FIELDS_MASK, Rm,
+MSR(MODE, FLAG_R, FIELDS_MASK, Rm)
+#if IMPLEMENTATION
 {
 #if (MODE == Imm)
 	KUInt32 Opnd2;
@@ -65,4 +66,5 @@ MSR(MODE, FLAG_R, FIELDS_MASK, Rm,
 #endif
 	
 	CALLNEXTUNIT;
-})
+}
+#endif
