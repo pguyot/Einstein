@@ -169,6 +169,58 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="_Tests_"
+			>
+			<File
+				RelativePath="..\..\..\_Tests_\tests.cp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\_Tests_\UHostInfoTests.cp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\_Tests_\UMemoryTests.cp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\_Tests_\UProcessorTests.cp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\_Tests_\UScreenTests.cp"
+				>
+			</File>
+			<Filter
+				Name="_Test_ Headers"
+				>
+				<File
+					RelativePath="..\..\..\_Tests_\tests.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\_Tests_\UHostInfoTests.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\_Tests_\UMemoryTests.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\_Tests_\UProcessorTests.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\_Tests_\UScreenTests.h"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<File
+			RelativePath="..\README.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
