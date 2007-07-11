@@ -40,3 +40,4 @@ int snprintf(char *buffer, size_t count, const char *format, ...)
 	va_end(argptr);
 	return ret;
 }
+

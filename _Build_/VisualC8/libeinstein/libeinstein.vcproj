@@ -634,7 +634,7 @@
 				Name="Host"
 				>
 				<File
-					RelativePath="..\..\..\Emulator\Host\THostInfo.cp"
+					RelativePath="..\..\..\..\Einstein.quick\Emulator\Host\THostInfo.cp"
 					>
 				</File>
 				<File
@@ -834,9 +834,37 @@
 		<Filter
 			Name="Monitor"
 			>
+			<File
+				RelativePath="..\..\..\Monitor\TMonitor.cp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Monitor\TSymbolList.cp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Monitor\UDisasm.cp"
+				>
+			</File>
+			<Filter
+				Name="Monitor Headers"
+				>
+				<File
+					RelativePath="..\..\..\Monitor\TMonitor.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Monitor\TSymbolList.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Monitor\UDisasm.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
-			Name="NewFilter1"
+			Name="libffi"
 			>
 		</Filter>
 		<File

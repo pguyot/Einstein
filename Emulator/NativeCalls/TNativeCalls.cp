@@ -35,6 +35,13 @@
 #	include "CompatibilityWin32.h"
 #	include <stdlib.h>
 #	include <assert.h>
+	ffi_type ffi_type_uint8; // FIXME these shoudl be in libffi
+	ffi_type ffi_type_sint8;
+	ffi_type ffi_type_uint16;
+	ffi_type ffi_type_sint16;
+	ffi_type ffi_type_uint32;
+	ffi_type ffi_type_sint32;
+	ffi_type ffi_type_pointer;
 #else
 #	include <dlfcn.h>
 #	include <libgen.h>

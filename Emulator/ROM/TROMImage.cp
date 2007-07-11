@@ -136,7 +136,11 @@ TROMImage::IsImageOutdated(
 		}
 		
 		// Read magic & the version.
+#if TARGET_OS_WIN32
+		int fd = ::open( inPath, O_RDONLY|O_BINARY, 0 );
+#else
 		int fd = ::open( inPath, O_RDONLY, 0 );
+#endif
 		if (fd < 0)
 		{
 			// Can't open the file.

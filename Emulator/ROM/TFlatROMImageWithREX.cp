@@ -85,7 +85,11 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 		KUInt8* theData = (KUInt8*) ::calloc(1, 0x01000000);
 
 		// Let's read the ROM file.
+#if TARGET_OS_WIN32
+		int fd = ::open( inROMPath, O_RDONLY|O_BINARY, 0 );
+#else
 		int fd = ::open( inROMPath, O_RDONLY, 0 );
+#endif
 		if (fd < 0)
 		{
 			(void) ::fprintf( stderr, "Can't open ROM file '%s'\n", inROMPath );
@@ -102,7 +106,11 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 		(void) ::close( fd );
 		
 		// Let's read the REX file.
+#if TARGET_OS_WIN32
+		fd = ::open( inREXPath, O_RDONLY|O_BINARY, 0 );
+#else
 		fd = ::open( inREXPath, O_RDONLY, 0 );
+#endif
 		if (fd < 0)
 		{
 			(void) ::fprintf( stderr, "Can't open REX file '%s'\n", inREXPath );

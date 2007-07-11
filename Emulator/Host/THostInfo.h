@@ -31,7 +31,11 @@
 #endif
 
 // Einstein
-#include "UserInfoDefinitions.h"
+#if TARGET_OS_WIN32
+#	include "UserInfoDefinitionsLF.h"
+#else
+#	include "UserInfoDefinitions.h"
+#endif
 
 ///
 /// Class for information on the host system.

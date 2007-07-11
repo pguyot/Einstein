@@ -32,12 +32,19 @@
 #endif
 
 // ANSI C & POSIX
-#include <sys/time.h>
 #include <sys/types.h>
-#include <pwd.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if TARGET_OS_WIN32
+#	include <windows.h>
+#	include "CompatibilityWin32.h"
+#	include <time.h>
+#else
+#	include <unistd.h>
+#	include <sys/time.h>
+#	include <pwd.h>
+#endif
 
 // K
 #include <K/Defines/UByteSex.h>
@@ -220,6 +227,11 @@ THostInfo::GetHostTimeZone( void ) const
 	CFTimeInterval theDelta =  CFTimeZoneGetSecondsFromGMT(
 		theTZ, CFAbsoluteTimeGetCurrent());
 	return (int) theDelta;
+#elif TARGET_OS_WIN32
+	// Timezone is returned in hours.
+	long seconds = 0;
+	_get_timezone(&seconds);
+	return seconds*3600;
 #else
 	// Use gettimeofday.
 	// Cygwin crashes if we give NULL for first parameter.
@@ -241,6 +253,36 @@ void
 THostInfo::RetrieveUserInfo( void )
 {
 	do {
+#if TARGET_OS_WIN32
+		/*
+		CSTR buffer[256];
+		if (GetUserName(buffer, 255)) {
+			char *sep = strchr(buffer, ' ');
+			if (sep) {
+				*sep = 0;
+				mUserFirstName = strdupToUTF16(buffer);
+				mUserLastName = strdupToUTF16(sep+1);
+			} else {
+				mUserLastName = strdupToUTF16(buffer);
+			}
+		}
+		*/
+		// FIXME I am not sure at all, if and where this information s available in the WIN32 API
+		/*
+		const KUInt16*		mUserCompany;			///< User company.
+		const KUInt16*		mUserAddr;				///< User address.
+		const KUInt16*		mUserAddr2;				///< User address (line 2).
+		const KUInt16*		mUserPostalCode;		///< User postal code.
+		const KUInt16*		mUserCity;				///< User city.
+		const KUInt16*		mUserRegion;			///< User region.
+		const KUInt16*		mUserCountry;			///< User country.
+		const KUInt16*		mUserCountryISOCode;	///< User country ISO code.
+		const KUInt16*		mUserHomePhone;			///< User home #.
+		const KUInt16*		mUserHomeFaxPhone;		///< User home fax #.
+		const KUInt16*		mUserWorkPhone;			///< User work #.
+		const KUInt16*		mUserWorkFaxPhone;		///< User work fax #.
+		*/
+#else
 #if TARGET_OS_OPENSTEP
 		// On MacOS X, I try:
 		// - The AddressBook
@@ -533,6 +575,7 @@ THostInfo::RetrieveUserInfo( void )
 			
 			nameIndex++;
 		}
+#endif
 	} while (false);
 }
 

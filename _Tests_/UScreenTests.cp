@@ -18,7 +18,12 @@
 // ANSI C & POSIX
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
+
+#if TARGET_OS_WIN32
+#	include <assert.h>
+#else
+#	include <unistd.h>
+#endif
 
 // Einstein.
 #include "Emulator/TMemory.h"
@@ -33,7 +38,11 @@
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
-#define kTempFlashPath "/tmp/EinsteinTests.flash"
+#if TARGET_OS_WIN32
+#	define kTempFlashPath "c:/EinsteinTests.flash"
+#else
+#	define kTempFlashPath "/tmp/EinsteinTests.flash"
+#endif
 
 // -------------------------------------------------------------------------- //
 //  * TestX11( void )
@@ -41,6 +50,9 @@
 void
 UScreenTests::TestX11( void )
 {
+#if NOX11
+	assert(0); // FIXME later
+#else
 	// Create some memory.
 	TMemory theMem( (TLog*) NULL, (KUInt8*) NULL, kTempFlashPath );
 	
@@ -142,6 +154,7 @@ UScreenTests::TestX11( void )
 	theScreenManager.PowerOffScreen();
 
 	(void) ::unlink( kTempFlashPath );
+#endif
 }
 
 // -------------------------------------------------------------------------- //

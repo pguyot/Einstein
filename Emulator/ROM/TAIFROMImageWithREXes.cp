@@ -132,7 +132,11 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
 		::fclose( theFile );
 		
 		// Read first rex and put it just afterwards.
+#if TARGET_OS_WIN32
+		int fd = ::open( inREX0Path, O_RDONLY|O_BINARY, 0 );
+#else
 		int fd = ::open( inREX0Path, O_RDONLY, 0 );
+#endif
 		if (fd < 0)
 		{
 			(void) ::fprintf( stderr, "Can't open REX 0 file '%s'\n", inREX0Path );
@@ -146,7 +150,11 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
 		(void) ::close( fd );
 
 		// Read second rex.
+#if TARGET_OS_WIN32
+		fd = ::open( inREX1Path, O_RDONLY|O_BINARY, 0 );
+#else
 		fd = ::open( inREX1Path, O_RDONLY, 0 );
+#endif
 		if (fd < 0)
 		{
 			(void) ::fprintf( stderr, "Can't open REX 1 file '%s'\n", inREX1Path );

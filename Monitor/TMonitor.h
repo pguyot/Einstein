@@ -225,8 +225,12 @@ private:
 	TBufferLog*				mLog;				///< Interface to the log.
 	TSymbolList*			mSymbolList;		///< List of symbols.
 	Boolean					mHalted;			///< If the emulator is halted.
+#if TARGET_OS_WIN32
+	// FIXME will be implemented soon
+#else
 	pthread_cond_t			mCondVar;			///< Condition variable
 	pthread_mutex_t			mMutex;				///< Mutex for the loop.
+#endif
 	ECommand				mCommand;			///< Next command for the
 												///< monitor thread.
 	int						mSocketPair[2];		///< Socket pair for monitor

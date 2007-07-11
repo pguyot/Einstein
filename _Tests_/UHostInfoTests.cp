@@ -13,6 +13,7 @@
 // ===========
 
 #include <K/Defines/KDefinitions.h>
+
 #include "UHostInfoTests.h"
 
 // ANSI C & POSIX
@@ -23,7 +24,12 @@
 
 // Einstein
 #include "Emulator/Host/THostInfo.h"
-#include "Emulator/Host/UserInfoDefinitions.h"
+
+#if TARGET_OS_WIN32
+#	include "Emulator/Host/UserInfoDefinitionsLF.h"
+#else
+#	include "Emulator/Host/UserInfoDefinitions.h"
+#endif
 
 // -------------------------------------------------------------------------- //
 // Constantes

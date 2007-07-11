@@ -28,8 +28,13 @@
 #include "TSymbolList.h"
 
 // ANSI C & POSIX
-#include <sys/param.h>
 #include <stdio.h>
+
+#if TARGET_OS_WIN32
+#	include "CompatibilityWin32.h"
+#else
+#	include <sys/param.h>
+#endif
 
 /*
  * General instruction format

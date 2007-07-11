@@ -16,7 +16,10 @@
 #include "UMemoryTests.h"
 
 // ANSI C & POSIX
-#include <unistd.h>
+#if TARGET_OS_WIN32
+#else
+#	include <unistd.h>
+#endif
 
 // K
 #include <K/Defines/UByteSex.h>
@@ -28,7 +31,11 @@
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
-#define kTempFlashPath "/tmp/EinsteinTests.flash"
+#if TARGET_OS_WIN32
+#	define kTempFlashPath "c:/EinsteinTests.flash"
+#else
+#	define kTempFlashPath "/tmp/EinsteinTests.flash"
+#endif
 
 // -------------------------------------------------------------------------- //
 //  * ReadROMTest( void )

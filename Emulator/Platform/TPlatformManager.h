@@ -27,8 +27,13 @@
 #include <K/Defines/KDefinitions.h>
 
 // Einstein
-#include "PlatformEvents.h"
-#include "Emulator/Host/UserInfoDefinitions.h"
+#if TARGET_OS_WIN32
+#	include "PlatformEventsLF.h"
+#	include "Emulator/Host/UserInfoDefinitionsLF.h"
+#else
+#	include "PlatformEvents.h"
+#	include "Emulator/Host/UserInfoDefinitions.h"
+#endif
 
 class TInterruptManager;
 class TScreenManager;
