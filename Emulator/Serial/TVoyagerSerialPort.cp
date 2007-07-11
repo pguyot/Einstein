@@ -25,11 +25,15 @@
 #include "TVoyagerSerialPort.h"
 
 // POSIX
-#include <sys/time.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <signal.h>
 #include <string.h>
+
+#if TARGET_OS_WIN32
+#else
+#	include <unistd.h>
+#	include <sys/time.h>
+#endif
 
 #include "../Log/TLog.h"
 #include "../TInterruptManager.h"

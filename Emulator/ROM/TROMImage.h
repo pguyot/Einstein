@@ -28,6 +28,7 @@
 
 // POSIX & ANSI C
 #if TARGET_OS_WIN32
+#	include <time.h>
 #else
 #	include <sys/time.h>
 #endif

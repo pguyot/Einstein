@@ -25,7 +25,12 @@
 #include "TSoundManager.h"
 
 #include <stdlib.h>
-#include <strings.h>
+
+#ifdef TARGET_OS_WIN32
+#	include <string.h>
+#else
+#	include <strings.h>
+#endif
 
 // Einstein.
 #include "TInterruptManager.h"

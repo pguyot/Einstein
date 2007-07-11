@@ -25,7 +25,7 @@
 #include "TWaveSoundManager.h"
 
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 
 // Einstein.
 #include "Emulator/Log/TLog.h"
