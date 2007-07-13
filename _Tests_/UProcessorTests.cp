@@ -18,9 +18,8 @@
 // ANSI C & POSIX
 #include <stdlib.h>
 
-#if TARGET_OS_WIN32
-#else
-#	include <unistd.h>
+#if !TARGET_OS_WIN32
+	#include <unistd.h>
 #endif
 
 // K
@@ -39,9 +38,9 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 #if TARGET_OS_WIN32
-#	define kTempFlashPath "c:/EinsteinTests.flash"
+	#define kTempFlashPath "c:/EinsteinTests.flash"
 #else
-#	define kTempFlashPath "/tmp/EinsteinTests.flash"
+	#define kTempFlashPath "/tmp/EinsteinTests.flash"
 #endif
 
 // -------------------------------------------------------------------------- //

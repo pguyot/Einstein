@@ -33,10 +33,9 @@
 #include <stdio.h>
 #include <errno.h>
 
-#if TARGET_OS_WIN32
-#else
-#	include <unistd.h>
-#	include <sys/time.h>
+#if !TARGET_OS_WIN32
+	#include <unistd.h>
+	#include <sys/time.h>
 #endif
 
 // K

@@ -35,9 +35,9 @@
 
 // STL/GCC ext.
 #if TARGET_OS_WIN32
-#	include <hash_map>
+	#include <hash_map>
 #else
-#	include <ext/hash_map>
+	#include <ext/hash_map>
 #endif
 
 class TMemory;

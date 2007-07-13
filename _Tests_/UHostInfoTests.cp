@@ -26,9 +26,9 @@
 #include "Emulator/Host/THostInfo.h"
 
 #if TARGET_OS_WIN32
-#	include "Emulator/Host/UserInfoDefinitionsLF.h"
+	#include "Emulator/Host/UserInfoDefinitionsLF.h"
 #else
-#	include "Emulator/Host/UserInfoDefinitions.h"
+	#include "Emulator/Host/UserInfoDefinitions.h"
 #endif
 
 // -------------------------------------------------------------------------- //

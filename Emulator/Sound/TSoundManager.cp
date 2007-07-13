@@ -27,9 +27,9 @@
 #include <stdlib.h>
 
 #ifdef TARGET_OS_WIN32
-#	include <string.h>
+	#include <string.h>
 #else
-#	include <strings.h>
+	#include <strings.h>
 #endif
 
 // Einstein.

@@ -226,7 +226,7 @@ private:
 	TSymbolList*			mSymbolList;		///< List of symbols.
 	Boolean					mHalted;			///< If the emulator is halted.
 #if TARGET_OS_WIN32
-	// FIXME will be implemented soon
+	// FIXME: we must still implement this
 #else
 	pthread_cond_t			mCondVar;			///< Condition variable
 	pthread_mutex_t			mMutex;				///< Mutex for the loop.

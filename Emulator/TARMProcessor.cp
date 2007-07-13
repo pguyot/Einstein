@@ -28,9 +28,8 @@
 #include <sys/types.h>
 #include <signal.h>
 
-#if TARGET_OS_WIN32
-#else
-#	include <unistd.h>
+#if !TARGET_OS_WIN32
+	#include <unistd.h>
 #endif
 
 // K

@@ -31,8 +31,8 @@
 #include <errno.h>
 
 #if TARGET_OS_WIN32
-#	include <time.h>
-#	include <sys/timeb.h>
+	#include <time.h>
+	#include <sys/timeb.h>
 #endif
 
 // Mach
@@ -742,12 +742,31 @@ inline KUInt32
 TInterruptManager::GetTimeInTicks( void )
 {
 #if TARGET_OS_WIN32
-	// FIXME use the performance timer because this timer has not enough resolution
-	// FIXME do ftime and gettimeofday use the same start time?
-	struct _timeb ft;
-	_ftime(&ft);
-	KUInt32 theResult = ft.time * 4000000;
-	theResult += (KUInt32)(ft.millitm * 4000);
+	// FIXME optimize this to avoid using floating point variables
+	static BOOL checked = FALSE, found = FALSE;
+	static double mult = 0.0;
+	if (!checked) {
+		checked = TRUE;
+		LARGE_INTEGER f;
+		found = QueryPerformanceFrequency(&f);
+		if (found) {
+			if (f.QuadPart==0)
+				found = FALSE;
+			else
+				mult = 4000000.0/((double)f.QuadPart);
+		}
+	}
+	if (found) {
+		LARGE_INTEGER f;
+		QueryPerformanceCounter(&f);
+		return (KUInt32)(((double)f.QuadPart)*mult);
+	} else {
+		struct _timeb ft;
+		_ftime(&ft);
+		KUInt32 theResult = ft.time * 4000000;
+		theResult += (KUInt32)(ft.millitm * 4000);
+		return theResult;
+	}
 #else
 	// Get the time now.
 	struct timeval now;
@@ -785,9 +804,8 @@ TInterruptManager::GetTimeInTicks( void )
 	KUInt32 theResult = now.tv_sec * 4000000;
 //	theResult += (KUInt32) (now.tv_nsec / 250);
 	theResult += (KUInt32) (now.tv_usec * 4);
-#endif
-
 	return theResult;
+#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -823,7 +841,9 @@ TInterruptManager::TicksWaitOnCondVar( KUInt32 inTicks )
 	amount.tv_nsec = (inTicks * 250) % 1000000000;
 	amount.tv_sec = inTicks / 4000000;
 
+//	fprintf(stderr, "TicksWaitOnCondVar begin (%f)\n", inTicks/4000000.0f);
 	mTimerCondVar->TimedWaitRelative( mMutex, &amount );
+//	fprintf(stderr, "TicksWaitOnCondVar\n" );
 //	fprintf(stderr, "%i-Timer-WakeUp-3\n", (int) time(NULL));
 }
 

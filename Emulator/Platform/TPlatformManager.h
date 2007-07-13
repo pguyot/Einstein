@@ -28,11 +28,11 @@
 
 // Einstein
 #if TARGET_OS_WIN32
-#	include "PlatformEventsLF.h"
-#	include "Emulator/Host/UserInfoDefinitionsLF.h"
+	#include "PlatformEventsLF.h"
+	#include "Emulator/Host/UserInfoDefinitionsLF.h"
 #else
-#	include "PlatformEvents.h"
-#	include "Emulator/Host/UserInfoDefinitions.h"
+	#include "PlatformEvents.h"
+	#include "Emulator/Host/UserInfoDefinitions.h"
 #endif
 
 class TInterruptManager;

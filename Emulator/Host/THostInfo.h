@@ -32,9 +32,9 @@
 
 // Einstein
 #if TARGET_OS_WIN32
-#	include "UserInfoDefinitionsLF.h"
+	#include "UserInfoDefinitionsLF.h"
 #else
-#	include "UserInfoDefinitions.h"
+	#include "UserInfoDefinitions.h"
 #endif
 
 ///

@@ -27,7 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 #if TARGET_OS_WIN32
-#	include "Emulator/CompatibilityWin32.h"
+	#include "Emulator/CompatibilityWin32.h"
 #endif
 
 // POSIX & ANSI C
@@ -40,9 +40,9 @@
 
 // STL/GCC ext.
 #if TARGET_OS_WIN32
-#	include <hash_map>
+	#include <hash_map>
 #else
-#	include <ext/hash_map>
+	#include <ext/hash_map>
 #endif
 
 ///

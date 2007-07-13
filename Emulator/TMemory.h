@@ -30,9 +30,8 @@
 #include <limits.h>
 #include <stdio.h>
 
-#if TARGET_OS_WIN32
-#else
-#	include <sys/time.h>
+#if !TARGET_OS_WIN32
+	#include <sys/time.h>
 #endif
 
 // Einstein

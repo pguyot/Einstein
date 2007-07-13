@@ -29,9 +29,8 @@
 #include <signal.h>
 #include <stdlib.h>
 
-#if TARGET_OS_WIN32
-#else
-#	include <unistd.h>
+#if !TARGET_OS_WIN32
+	#include <unistd.h>
 #endif
 
 // K
@@ -820,9 +819,9 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 
 		case 0x1D:
 			// CalibrateTablet.
-#			if TARGET_OS_WIN32
-				// FIXME call the Win32 tebale calibration app
-#			else
+			#if TARGET_OS_WIN32
+				// FIXME call the Win32 tablet calibration app
+			#else
 			{
 				// Try xtscal
 				FILE* theFile = popen( "xtscal", "r+" );
@@ -831,7 +830,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 					(void) pclose(theFile);
 				} // Otherwise, don't do anything.
 			}
-#			endif
+			#endif
 			break;
 
 		case 0x1E:
