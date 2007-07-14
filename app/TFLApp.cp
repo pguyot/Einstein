@@ -31,6 +31,8 @@
 #include <sys/types.h>
 
 #include <FL/Fl.H>
+#include <FL/Fl_Window.H>
+#include <FL/Fl_Button.H>
 
 
 // Einstein
@@ -257,9 +259,13 @@ TFLApp::Run( int argc, char* argv[] )
 
 	(void) ::printf( "Welcome to Einstein console.\n" );
 	(void) ::printf( "This is %s.\n", VERSION_STRING );
+
+	Fl_Window *win = new Fl_Window(portraitWidth, portraitHeight+30, "Einstein");
+	win->callback(quit_cb, this);
+
 	if (theSoundManagerClass == nil)
 	{
-		mSoundManager = new TNullSoundManager( mLog );
+		mSoundManager = new TWaveSoundManager( mLog );
 	} else {
 		CreateSoundManager( theSoundManagerClass );
 	}
@@ -301,6 +307,8 @@ TFLApp::Run( int argc, char* argv[] )
 		(void) ::printf( "Booting...\n" );
 
 		Fl::lock();
+		win->show(1, argv);
+
 #if TARGET_OS_WIN32
 		HANDLE theThread = CreateThread(0L, 0, (LPTHREAD_START_ROUTINE)SThreadEntry, this, 0, 0L);
 #else
@@ -510,6 +518,14 @@ void TFLApp::SyntaxError( void )
 				"Try %s --help for more help\n",
 				mProgramName );
 	::exit(1);
+}
+
+
+void TFLApp::quit_cb(Fl_Widget *, void *p) 
+{
+	TFLApp *my = (TFLApp*)p;
+//	my->mPlatformManager->PowerOff();
+	my->mPlatformManager->SendPowerSwitchEvent();
 }
 
 int main(int argc, char** argv )

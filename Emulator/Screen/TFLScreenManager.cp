@@ -227,8 +227,8 @@ TFLScreenManager::TFLScreenManager(
 // -------------------------------------------------------------------------- //
 TFLScreenManager::~TFLScreenManager( void )
 {
-	if (mWidget)
-		mWidget->unlinkSelf();
+	//if (mWidget)
+	//	mWidget->unlinkSelf();
 }
 
 // -------------------------------------------------------------------------- //
@@ -265,6 +265,7 @@ TFLScreenManager::PowerOnScreen( void )
 void
 TFLScreenManager::PowerOffScreen( void )
 {
+	mWidget->window()->hide();
 	printf("Power off Screen\n");
 }
 

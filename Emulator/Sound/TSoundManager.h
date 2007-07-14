@@ -133,7 +133,7 @@ public:
 protected:
 	enum {
 		kOutputVolume_Zero	= 0x80000000,
-		kOutputVolume_Min	= 0xFFE24EDA,
+		kOutputVolume_Min	= 0xFFE00000,
 		kOutputVolume_Max	= 0x00000000
 	};
 	

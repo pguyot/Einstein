@@ -21,27 +21,39 @@
 // $Id$
 // ==============================
 
-#ifndef _TWaveSoundManager_H
-#define _TWaveSoundManager_H
+#ifndef _TWAVESOUNDMANAGER_H
+#define _TWAVESOUNDMANAGER_H
 
 #include <K/Defines/KDefinitions.h>
+
+// Windows Multimedia library waveOut interface
+#include <Windows.h>
 
 // Einstein
 #include "TSoundManager.h"
 
+// #define DEBUG_SOUND	0
+
+class TCircleBuffer;
+class TMutex;
+
 ///
-/// Class to handle sound through the MS-Windows Multimedia library.
+/// Class to handle sound input/output with MS Multimedia wave library.
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
-/// \author Matthias Melcher <einstein@robowerk.com>
 ///
 class TWaveSoundManager
-	:	
+	:
 		public TSoundManager
 {
 public:
+
+	static const int NWaveBuffer = 4;
+
 	///
 	/// Constructor from a log.
+	///
+	/// \param inLog				log interface (can be null)
 	///
 	TWaveSoundManager( TLog* inLog = nil );
 
@@ -70,14 +82,64 @@ public:
 	///
 	virtual Boolean	OutputIsRunning( void );
 
+	///
+	/// Method called to signal a change in the output volume.
+	///
+	virtual void	OutputVolumeChanged( void ) { updateVolume(); }
+
 private:
-	/// \name Variables
-	Boolean			mOutputIsRunning;
+
+	typedef enum { available = 0, pending, playing } State;
+
+	typedef struct {
+		WAVEHDR				waveHdr;
+		KSInt16				*buffer;
+		KUInt32				nBuffer;
+		State				state;
+	} WaveBuffer;
+
+	void		initWaveBuffer(int ix);
+
+	void		freeWaveBuffer(int ix);
+
+	void		fillWaveBuffer(int ix, KUInt32 inBufferAddr, KUInt32 inSize);
+
+	void		sendWaveBuffer(int ix);
+
+	void		openWaveOut();
+
+	void		updateVolume();
+
+	static void CALLBACK waveOutProcCB(
+						HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance,  
+						DWORD dwParam1, DWORD dwParam2);
+
+	void		waveOutProc(UINT uMsg, int ix);
+
+	int			next(int ix);
+
+	void		logError(const char *msg, MMRESULT err);
+
+	WaveBuffer	wb[NWaveBuffer];
+
+	HWAVEOUT	waveOut;
+
+	bool		noWaveOut;
+
+	int			playNext;
+
+	int			nextAvailable;
+
+	bool		isPlaying;
+
+	DWORD		volume;
+
+	TMutex		*mutex;
 };
 
 #endif
-		// _TWaveSoundManager_H
+		// _TWAVESOUNDMANAGER_H
 
-// ==================================================== //
-// "If at first you don't succeed; call it version 1.0" //
-// ==================================================== //
+// ========================================= //
+// TRANSACTION CANCELLED - FARECARD RETURNED //
+// ========================================= //

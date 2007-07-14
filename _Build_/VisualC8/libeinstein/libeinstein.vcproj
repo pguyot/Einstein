@@ -107,6 +107,8 @@
 				AdditionalOptions="/wd4996"
 				InlineFunctionExpansion="0"
 				EnableIntrinsicFunctions="false"
+				FavorSizeOrSpeed="1"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;DYLIBSUFFIX=&quot;.dll&quot;"
 				RuntimeLibrary="2"
@@ -603,38 +605,6 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="Jit"
-				>
-				<File
-					RelativePath="..\..\..\Emulator\JIT\JIT.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Emulator\JIT\TJIT.cp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Emulator\JIT\TJIT.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Emulator\JIT\TJITCache.cp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Emulator\JIT\TJITCache.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Emulator\JIT\TJITPage.cp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Emulator\JIT\TJITPage.h"
-					>
-				</File>
-			</Filter>
-			<Filter
 				Name="Host"
 				>
 				<File
@@ -645,6 +615,38 @@
 					RelativePath="..\..\..\Emulator\Host\THostInfo.h"
 					>
 				</File>
+				<Filter
+					Name="Jit"
+					>
+					<File
+						RelativePath="..\..\..\Emulator\JIT\JIT.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\Emulator\JIT\TJIT.cp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\Emulator\JIT\TJIT.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\Emulator\JIT\TJITCache.cp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\Emulator\JIT\TJITCache.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\Emulator\JIT\TJITPage.cp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\Emulator\JIT\TJITPage.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="Log"

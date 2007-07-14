@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libk.lib"
+				AdditionalDependencies="libk.lib winmm.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\..\..\K\_Build_\VisualC8\debug"
@@ -125,6 +125,7 @@
 				AdditionalOptions="/wd4996"
 				InlineFunctionExpansion="0"
 				EnableIntrinsicFunctions="false"
+				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NOX11=1"
@@ -145,13 +146,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libk.lib"
+				AdditionalDependencies="libk.lib winmm.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\..\K\_Build_\VisualC8\release"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
+				OptimizeReferences="1"
+				EnableCOMDATFolding="1"
 				TargetMachine="1"
 			/>
 			<Tool

@@ -37,6 +37,8 @@ class TPlatformManager;
 class TMonitor;
 class TSymbolList;
 
+class Fl_Widget;
+
 ///
 /// Classe pour le programme einstein en ligne de commande.
 ///
@@ -165,6 +167,8 @@ private:
 	/// Affiche une ligne (dans stdout ou via le moniteur)
 	///
 	void PrintLine( const char* inLine );
+
+	void static quit_cb(Fl_Widget *w, void *p);
 
 	/// \name Variables
 	const char*			mProgramName;		///< Nom du programme.
