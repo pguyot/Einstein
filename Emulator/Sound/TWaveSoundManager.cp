@@ -411,7 +411,7 @@ void TWaveSoundManager::updateVolume()
 	} else {
 		volume = (vol - kOutputVolume_Min)/div;
 	}
-	fprintf(stderr, "Newton volume = 0x%10x (%d) = PC volume 0x%04x (%d)\n", vol, vol, volume, volume);
+	LOG fprintf(stderr, "Newton volume = 0x%10x (%d) = PC volume 0x%04x (%d)\n", vol, vol, volume, volume);
 
 	if (waveOut) {
 		waveOutSetVolume(waveOut, volume);

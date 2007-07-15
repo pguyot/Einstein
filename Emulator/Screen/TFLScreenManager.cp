@@ -123,14 +123,30 @@ public:
 		Fl::awake();
 	}
 
+	int penXPos()
+	{
+		int mx = Fl::event_x()-x();
+		if (mx<0) mx = 0;
+		if (mx>=rgbWidth_) mx = rgbWidth_-1;
+		return mx;
+	}
+
+	int penYPos()
+	{
+		int my = Fl::event_y()-y();
+		if (my<0) my = 0;
+		if (my>=rgbHeight_) my = rgbHeight_-1;
+		return my;
+	}
+
 	int handle(int event) 
 	{
 		switch (event) {
 			case FL_PUSH:
-				screenManager_->PenDown(Fl::event_x()-x(), Fl::event_y()-y());
+				screenManager_->PenDown(penXPos(), penYPos());
 				return 1;
 			case FL_DRAG:
-				screenManager_->PenDown(Fl::event_x()-x(), Fl::event_y()-y());
+				screenManager_->PenDown(penXPos(), penYPos());
 				return 1;
 			case FL_RELEASE:
 				screenManager_->PenUp();
