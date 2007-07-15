@@ -403,12 +403,15 @@ void TWaveSoundManager::updateVolume()
 	KUInt32 vol = OutputVolume();
 
 	const KUInt32 div = ((kOutputVolume_Max-kOutputVolume_Min)/0xffff)+1;
-	if (vol==kOutputVolume_Zero) {
-		vol = 0;
+
+	if (vol==kOutputVolume_Max) {
+		volume = 0xffff;
+	} else if (vol<=kOutputVolume_Min || vol==kOutputVolume_Zero) {
+		volume = 0;
 	} else {
 		volume = (vol - kOutputVolume_Min)/div;
 	}
-	LOG fprintf(stderr, "Newton volume = 0x%08x (%d) = 0x%08x (%d)\n", vol, vol, volume, volume);
+	fprintf(stderr, "Newton volume = 0x%10x (%d) = PC volume 0x%04x (%d)\n", vol, vol, volume, volume);
 
 	if (waveOut) {
 		waveOutSetVolume(waveOut, volume);
