@@ -21,8 +21,10 @@
 #  $Id$
 #  ==============================
 
-# Determine the compiler used here.
-# We know: gcc and xlc
+# Syntax:
+# jam -starget=<TARGET> [-sK=<path_to_k>] [-sjittarget=<JITTARGET>]
+
+# Platform selectors.
 
 # OpenZaurus 3.4.5
 if $(target:E="unknown") = "arm-linux"
@@ -38,7 +40,7 @@ if $(target:E="unknown") = "arm-linux"
 	C++FLAGS += -I/usr/X11R6/include/ ;
 	X11LibsPrefix = openzaurus/usr/lib/ ;
 	LIBFFIPrefix = libffi-armlinux/ ;
-	JITTARGET = "ARMLE" ;
+	JITTARGET = $(jittarget:E="ARMLE") ;
 	CROSS = "yes" ;
 }
 # Nokia 770
@@ -55,25 +57,25 @@ if $(target:E="unknown") = "nokia"
 	SUBTARGET = "-770" ;
 	X11LibsPrefix = maemo/usr/lib/ ;
 	LIBFFIPrefix = libffi-nokia/ ;
-	JITTARGET = "ARMLE" ;
+	JITTARGET = $(jittarget:E="ARMLE") ;
 	CROSS = "yes" ;
 }
-# Nokia OS2006, using scratchbox compilers.
+# Nokia OS2006
 if $(target:E="unknown") = "nokia2006"
 {
 	compiler = $(compiler:E="gcc") ;
-	CC = "/scratchbox/compilers/cs2005q3.2-glibc-arm/arm-none-linux-gnueabi/bin/gcc" ;
-	C++ = "/scratchbox/compilers/cs2005q3.2-glibc-arm/arm-none-linux-gnueabi/bin/g++" ;
-	AR = /scratchbox/compilers/cs2005q3.2-glibc-arm/arm-none-linux-gnueabi/bin/ar ru ;
-	RANLIB = /scratchbox/compilers/cs2005q3.2-glibc-arm/arm-none-linux-gnueabi/bin/ranlib ;
-	LINK = /scratchbox/compilers/cs2005q3.2-glibc-arm/arm-none-linux-gnueabi/bin/g++ -L/scratchbox/compilers/cs2005q3.2-glibc-arm/arm-none-linux-gnueabi/lib ;
+	CC = "arm-none-linux-gnueabi-gcc-2005q3" ;
+	C++ = "arm-none-linux-gnueabi-g++-2005q3" ;
+	AR = arm-none-linux-gnueabi-ar ru ;
+	AS = arm-none-linux-gnueabi-as -mfloat-abi=soft ;
+	RANLIB = arm-none-linux-gnueabi-ranlib ;
+	LINK = arm-none-linux-gnueabi-g++-2005q3 ;
+	C++FLAGS += -I/usr/X11R6/include/ ;
 	OS = "ARM-LINUX" ;
 	SUBTARGET = "-Nokia2006" ;
-	EXPAT = $(EXPAT:E="/scratchbox/users/maemo/targets/SDK_ARMEL/usr") ;
-	C++FLAGS += -I/scratchbox/users/maemo/targets/SDK_ARMEL/usr/include/ ;
 	LIBFFIPrefix = libffi-nokia2006/ ;
 	X11LibsPrefix = maemo2006/usr/lib/ ;
-	JITTARGET = "ARMLE" ;
+	JITTARGET = $(jittarget:E="ARMLE") ;
 	CROSS = "yes" ;
 }
 # Debian x86
@@ -92,6 +94,9 @@ if $(target:E="unknown") = "linux-2.3.2"
 	X11LibsPrefix = debian-x86/usr/lib/ ;
 	CROSS = "yes" ;
 }
+
+# Determine the compiler used here.
+# We know: gcc and xlc
 
 compiler = $(compiler:E="unknown") ;
 
@@ -166,8 +171,6 @@ SubDirHdrs "$(PORTAUDIO_BASE)/pa_common/" ;
 SubDirHdrs "$(BASE)" ;
 SubDirHdrs "$(BASE)Emulator/" ;
 SubDirHdrs "$(BASE)Emulator/JIT/" ;
-SubDirHdrs "$(BASE)Emulator/JIT/Generic/" ;
-SubDirHdrs "$(BASE)Emulator/JIT/ARMLE/" ;
 SubDirHdrs "$(BASE)Emulator/ROM/" ;
 SubDirHdrs "$(BASE)Emulator/Screen/" ;
 SubDirHdrs "$(BASE)Emulator/Serial/" ;
@@ -447,7 +450,6 @@ if $(OS) = "MACOSX"
 	CPP_SOURCES += $(MACOSX_CPP_SOURCES) ;
 	CPP_SOURCES += $(X11_CPP_SOURCES) ;
 	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
-	CPP_SOURCES += $(JITGENERIC_CPP_SOURCES) ;
 
 	OBJC_SOURCES += $(MACOSX_OBJC_SOURCES) ;
 
@@ -517,7 +519,6 @@ if $(OS) = "MACOSX"
 	CPP_SOURCES += $(LINUX_CPP_SOURCES) ;
 	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
 	CPP_SOURCES += $(X11_CPP_SOURCES) ;
-	CPP_SOURCES += $(JITGENERIC_CPP_SOURCES) ;
 	C_SOURCES += $(LINUX_C_SOURCES) ;
 	C_SOURCES += $(POSIX_C_SOURCES) ;
 
@@ -572,9 +573,6 @@ if $(OS) = "MACOSX"
 	_commonflags += -DSIZEOF_INT=4 ;
 	_commonflags += -DSIZEOF_LONG=4 ;
 	
-	# identify this target for jit
-	_commonflags += -DJITTARGET_ARMLE=1 ;
-
 	local _linkflags ;
 
 	# libffi
@@ -594,12 +592,10 @@ if $(OS) = "MACOSX"
 	# Fichiers specifiques a Linux
 	CPP_SOURCES += $(LINUX_CPP_SOURCES) ;
 	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
-	CPP_SOURCES += $(JITARMLE_CPP_SOURCES) ;
 	CPP_SOURCES += $(X11_CPP_SOURCES) ;
 #	CPP_SOURCES += $(FBDEV_CPP_SOURCES) ;
 	C_SOURCES += $(LINUX_C_SOURCES) ;
 	C_SOURCES += $(POSIX_C_SOURCES) ;
-	ASM_SOURCES += $(JITARMLE_ASM_SOURCES) ;
 
 } else if $(OS) = "NETBSD" || $(OS) = "FREEBSD" {
 
@@ -629,7 +625,6 @@ if $(OS) = "MACOSX"
 	# Fichiers specifiques a *BSD
 	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
 	CPP_SOURCES += $(X11_CPP_SOURCES) ;
-	CPP_SOURCES += $(JITGENERIC_CPP_SOURCES) ;
 
 } else if $(OS) = "CYGWIN" {
 
@@ -680,12 +675,37 @@ if $(OS) = "MACOSX"
 	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
 	CPP_SOURCES += $(CYGWIN_CPP_SOURCES) ;
 	CPP_SOURCES += $(X11_CPP_SOURCES) ;
-	CPP_SOURCES += $(JITGENERIC_CPP_SOURCES) ;
 
 } else {
 
 	Exit "You need to define the prefix & specific stuff for your OS $(OS)" ;
 
+}
+
+# --------------------------------------------------------------------------------------- #
+# Selection of JIT code.
+
+if $(JITTARGET:E="GENERIC") = "ARMLE"
+{
+	# identify this target for jit
+	CCFLAGS += -DJITTARGET_ARMLE=1 ;
+	C++FLAGS += -DJITTARGET_ARMLE=1 ;
+
+	# select the specific sources.
+	CPP_SOURCES += $(JITARMLE_CPP_SOURCES) ;
+	ASM_SOURCES += $(JITARMLE_ASM_SOURCES) ;
+
+	# add the headers.
+	SubDirHdrs "$(BASE)Emulator/JIT/Generic/" ;
+	SubDirHdrs "$(BASE)Emulator/JIT/ARMLE/" ;
+} else {
+	# Generic case.
+
+	# select the specific sources.
+	CPP_SOURCES += $(JITGENERIC_CPP_SOURCES) ;
+
+	# add the headers.
+	SubDirHdrs "$(BASE)Emulator/JIT/Generic/" ;
 }
 
 # --------------------------------------------------------------------------------------- #
