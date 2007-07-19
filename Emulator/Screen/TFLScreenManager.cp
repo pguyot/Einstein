@@ -123,7 +123,7 @@ public:
 		// FIXME draw borders if the widget is larger than our bitmap
 		// FIXME enable clipping if the widget is smaller
 		// FIXME center the bitmap if it is smaller
-		fl_draw_image_mono(rgbData_, x(), y(), rgbWidth_, rgbHeight_);
+		fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_);
 		draw_label();
 	}
 
@@ -335,7 +335,7 @@ TFLScreenManager::PowerOffScreen( void )
 void
 TFLScreenManager::BacklightChanged( Boolean )
 {
-	// Just ignore it.
+	UpdateScreenRect(0L);
 }
 
 // -------------------------------------------------------------------------- //
@@ -371,13 +371,28 @@ TFLScreenManager::TabletOrientationChanged( EOrientation )
 void
 TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 {
-	int mBitsPerPixel = 8;
+	int mBitsPerPixel = 24;
 
-	KUInt16 top = inUpdateRect->fTop;
-	KUInt16 left = inUpdateRect->fLeft;
-	KUInt16 height = inUpdateRect->fBottom - top;
-	KUInt16 width = inUpdateRect->fRight - left;
-	
+	KUInt16 top, left, height, width;
+	if (inUpdateRect) {
+		top = inUpdateRect->fTop;
+		left = inUpdateRect->fLeft;
+		height = inUpdateRect->fBottom - top;
+		width = inUpdateRect->fRight - left;
+	} else {
+		top = 0; 
+		left = 0;
+		height = GetScreenHeight();
+		width = GetScreenWidth();
+	}
+
+	KUInt8 rs, gs, bs; 
+	if (GetBacklight()) {
+		rs = 1; gs = 0; bs = 1;
+	} else {
+		rs = 0; gs = 0; bs = 0;
+	}
+
 	// Update the buffer.
 	// We copy more pixels than what we should.
 	if (left & 0x1)
@@ -416,10 +431,14 @@ TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 			KUInt8 theByte = *srcCursor++;
 			// First pixel
 			KUInt8 thePixel = (theByte & 0xF0) | (theByte>>4);
-			*dstCursor++ = thePixel;
+			*dstCursor++ = thePixel>>rs;
+			*dstCursor++ = thePixel>>gs;
+			*dstCursor++ = thePixel>>bs;
 			// Second pixel
 			thePixel = (theByte<<4) | (theByte & 0x0f);
-			*dstCursor++ = thePixel;
+			*dstCursor++ = thePixel>>rs;
+			*dstCursor++ = thePixel>>gs;
+			*dstCursor++ = thePixel>>bs;
 		} while (srcCursor < srcEnd);
 		srcRowPtr += srcRowBytes;
 		dstRowPtr += dstRowBytes;

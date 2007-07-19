@@ -257,7 +257,7 @@ void
 TEmulator::SaveState( const char* inPath ) const
 {
 	// Open the file for writing.
-	TStream* theStream = new TFileStream( inPath, "w" );
+	TStream* theStream = new TFileStream( inPath, "wb" );
 	SaveState( theStream );
 	delete theStream;
 }

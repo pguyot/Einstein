@@ -1,0 +1,283 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0108 
+use_FL_COMMAND 
+header_name {.h} 
+code_name {.cp}
+comment {// ==============================
+// File:			TFLSettings
+// Project:			Einstein
+//
+// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// ==============================
+// $Id$
+// ==============================
+} {in_source in_header
+} 
+
+decl {class TFLApp;} {public global
+} 
+
+decl {\#include "TFLApp.h"} {} 
+
+widget_class TFLSettings {
+  label {Einstein Platform Setup}
+  user_data this
+  callback {{ }} open selected
+  xywh {380 160 426 339} type Double align 80
+  class Fl_Window non_modal visible
+} {
+  Fl_Menu_Button RMB {
+    label {RMB Menu} open
+    xywh {0 0 10 10} labelsize 12 hide deactivate
+  } {
+    MenuItem {} {
+      label Power
+      callback {app->menuPower();}
+      xywh {0 0 100 20} labelsize 12
+    }
+    MenuItem {} {
+      label Backlight
+      callback {app->menuBacklight();}
+      xywh {0 0 100 20} labelsize 12
+    }
+    MenuItem {} {
+      label {Install Package...}
+      callback {app->menuInstallPackage();}
+      xywh {0 0 100 20} labelsize 12 divider
+    }
+    Submenu {} {
+      label Reset open
+      xywh {0 0 100 20} labelsize 12 hide deactivate
+    } {
+      MenuItem {} {
+        label {Soft Reset}
+        xywh {0 0 100 20} labelsize 12 deactivate
+      }
+      MenuItem {} {
+        label {Deep Reset}
+        xywh {0 0 100 20} labelsize 12 deactivate
+      }
+      MenuItem {} {
+        label {Reset w/o Extensions}
+        xywh {0 0 100 20} labelsize 12 deactivate
+      }
+      MenuItem {} {
+        label {Power Drain Reset}
+        xywh {0 0 100 20} labelsize 12 deactivate
+      }
+      MenuItem {} {
+        label {Hard Reset (Brain Wipe)}
+        xywh {0 0 100 20} labelsize 12 deactivate
+      }
+      MenuItem {} {
+        label {Cold Boot}
+        xywh {0 0 100 20} labelsize 12 deactivate
+      }
+    }
+    MenuItem {} {
+      label {Settings...}
+      callback {app->menuShowSettings();}
+      xywh {0 0 100 20} labelsize 12
+    }
+    MenuItem {} {
+      label {Help...}
+      xywh {0 0 100 20} labelsize 12 hide deactivate
+    }
+    MenuItem {} {
+      label {About...}
+      callback {app->menuAbout();}
+      xywh {0 0 100 20} labelsize 12
+    }
+  }
+  Fl_Choice {} {
+    label {Machine:} open
+    xywh {100 10 130 20} down_box BORDER_BOX labelsize 12 deactivate
+  } {
+    MenuItem {} {
+      label {MP2x00 US}
+      xywh {0 0 100 20} labelsize 12 deactivate
+    }
+    MenuItem {} {
+      label {MP2100 D}
+      xywh {0 0 100 20} labelsize 12 deactivate
+    }
+    MenuItem {} {
+      label {eMate 300}
+      xywh {0 0 100 20} labelsize 12 deactivate
+    }
+  }
+  Fl_Group {} {
+    label {  Memory:} open
+    xywh {10 50 405 130} box GTK_THIN_DOWN_FRAME labelsize 12 align 5 deactivate
+  } {
+    Fl_Input {} {
+      label {ROM:}
+      xywh {105 60 210 20} labelsize 12 textsize 12 deactivate
+    }
+    Fl_Button {} {
+      label {Choose...}
+      xywh {325 60 70 20} labelsize 12 deactivate
+    }
+    Fl_Input {} {
+      label {RAM:}
+      xywh {105 90 210 20} labelsize 12 textsize 12 deactivate
+    }
+    Fl_Button {} {
+      label {Choose...}
+      xywh {325 90 70 20} labelsize 12 deactivate
+    }
+    Fl_Input {} {
+      label {Flash:}
+      xywh {105 120 210 20} labelsize 12 textsize 12 deactivate
+    }
+    Fl_Button {} {
+      label {Choose...}
+      xywh {325 120 70 20} labelsize 12 deactivate
+    }
+    Fl_Input_Choice {} {
+      label {Flash Size:} open
+      xywh {105 150 70 20} labelsize 12 textsize 12 deactivate
+    } {
+      MenuItem {} {
+        label 1
+        xywh {5 5 100 20} labelsize 12 deactivate
+      }
+      MenuItem {} {
+        label 4
+        xywh {5 5 100 20} labelsize 12 deactivate
+      }
+      MenuItem {} {
+        label 8
+        xywh {5 5 100 20} labelsize 12 deactivate
+      }
+      MenuItem {} {
+        label 16
+        xywh {5 5 100 20} labelsize 12 deactivate
+      }
+    }
+    Fl_Box {} {
+      label MB
+      xywh {175 150 30 20} labelsize 12 align 20 deactivate
+    }
+    Fl_Input_Choice {} {
+      label {RAM Size:} open
+      xywh {295 150 70 20} labelsize 12 textsize 12 deactivate
+    } {
+      MenuItem {} {
+        label 1
+        xywh {15 15 100 20} labelsize 12 deactivate
+      }
+      MenuItem {} {
+        label 4
+        xywh {15 15 100 20} labelsize 12 deactivate
+      }
+      MenuItem {} {
+        label 8
+        xywh {15 15 100 20} labelsize 12 deactivate
+      }
+      MenuItem {} {
+        label 16
+        xywh {15 15 100 20} labelsize 12 deactivate
+      }
+    }
+    Fl_Box {} {
+      label MB
+      xywh {365 150 30 20} labelsize 12 align 20 deactivate
+    }
+  }
+  Fl_Group {} {
+    label {  Screen:} open
+    xywh {10 205 405 65} box GTK_THIN_DOWN_FRAME labelsize 12 align 5 deactivate
+  } {
+    Fl_Check_Button {} {
+      label {Full Screen}
+      xywh {105 215 180 20} down_box DOWN_BOX labelsize 12 deactivate
+    }
+    Fl_Input {} {
+      label {Size:}
+      xywh {105 240 50 20} type Int labelsize 12 textsize 12 deactivate
+    }
+    Fl_Input {} {
+      label {x }
+      xywh {175 240 50 20} type Int labelsize 12 textsize 12 deactivate
+    }
+    Fl_Box {} {
+      label pixels
+      xywh {230 240 50 20} labelsize 12 align 20 deactivate
+    }
+  }
+  Fl_Check_Button {} {
+    label {Don't show this at startup}
+    xywh {15 280 190 20} down_box DOWN_BOX labelsize 12 deactivate
+  }
+  Fl_Button {} {
+    label Quit
+    xywh {215 300 95 25} labelsize 12 deactivate
+  }
+  Fl_Button {} {
+    label Start
+    xywh {320 300 95 25} labelsize 12 deactivate
+  }
+  Function {setApp(TFLApp *App)} {return_type void
+  } {
+    code {app = App;} {}
+  }
+  decl {TFLApp *app;} {global
+  }
+} 
+
+Function {close_window_cb(Fl_Widget*, void *user)} {open private return_type void
+} {
+  code {Fl_Window *win = (Fl_Window*)user;
+win->hide();} {}
+} 
+
+Function {createAboutDialog()} {open
+} {
+  Fl_Window wAbout {
+    user_data wAbout
+    callback close_window_cb open
+    xywh {350 237 257 247} type Double modal visible
+  } {
+    Fl_Box {} {
+      image {../Resources/icons/EinsteinApp.png} xywh {71 10 115 135}
+    }
+    Fl_Box {} {
+      label Einstein
+      xywh {8 150 240 25} labelfont 1
+    }
+    Fl_Box {} {
+      label {Version 2007.7}
+      xywh {8 175 240 25} labelsize 12
+    }
+    Fl_Button {} {
+      label Close
+      user_data wAbout
+      callback close_window_cb
+      xywh {190 210 55 25} labelsize 12
+    }
+  }
+} 
+
+comment {
+// ======================================================== //
+// Of course the code works. It just compiled, didn't it?   //
+// --helixcode123, 11/8/2001 on slashdot.                   //
+// ======================================================== //
+
+} {in_source in_header
+} 

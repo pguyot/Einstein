@@ -518,7 +518,7 @@ void
 TPlatformManager::InstallPackage( const char* inPackagePath )
 {
 	// Open the package.
-	FILE* thePackageFile = ::fopen( inPackagePath, "r" );
+	FILE* thePackageFile = ::fopen( inPackagePath, "rb" );
 	if (thePackageFile != NULL)
 	{
 		// Read it entirely.

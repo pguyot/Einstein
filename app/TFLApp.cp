@@ -23,6 +23,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TFLApp.h"
+#include "TFLSettings.h"
 
 // ANSI C & POSIX
 #include <stdio.h>
@@ -33,6 +34,7 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_File_Chooser.H>
 
 
 // Einstein
@@ -54,6 +56,37 @@
 // -------------------------------------------------------------------------- //
 
 // -------------------------------------------------------------------------- //
+// Local Classes
+// -------------------------------------------------------------------------- //
+
+class Fl_Einstein_Window : public Fl_Window 
+{
+public:
+	Fl_Einstein_Window(int ww, int hh, TFLApp *App, const char *ll=0)
+		:	Fl_Window(ww, hh, ll), 
+			app(App)
+	{
+	}
+	int handle(int event) 
+	{
+		if ( event==FL_PUSH && (
+				(Fl::event_button()==3) || 
+				(Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==FL_CTRL) 
+			)
+		{
+			const Fl_Menu_Item *choice = TFLSettings::menu_RMB->popup(Fl::event_x(), Fl::event_y());
+			if (choice && choice->callback()) {
+				app->do_callback(choice->callback());
+			}
+			return 1;
+		}
+		return Fl_Window::handle(event);
+	}
+private:
+	TFLApp	*app;
+};
+
+// -------------------------------------------------------------------------- //
 //  * TFLApp( void )
 // -------------------------------------------------------------------------- //
 TFLApp::TFLApp( void )
@@ -64,7 +97,8 @@ TFLApp::TFLApp( void )
 		mSoundManager( nil ),
 		mScreenManager( nil ),
 		mPlatformManager( nil ),
-		mLog( nil )
+		mLog( nil ),
+		flSettings(0L)
 {
 }
 
@@ -114,6 +148,9 @@ TFLApp::Run( int argc, char* argv[] )
 	Boolean fullscreen = false;		// Default is not full screen.
 	Boolean useAIFROMFile = false;	// Default is to use flat rom format.
 	
+	flSettings = new TFLSettings(425, 340, "Einstein Platform Settings");
+	flSettings->setApp(this);
+
 	int indexArgs = 1;
 	if (argc < 2)
 	{
@@ -260,7 +297,7 @@ TFLApp::Run( int argc, char* argv[] )
 	(void) ::printf( "Welcome to Einstein console.\n" );
 	(void) ::printf( "This is %s.\n", VERSION_STRING );
 
-	Fl_Window *win = new Fl_Window(portraitWidth, portraitHeight+30, "Einstein");
+	Fl_Window *win = new Fl_Einstein_Window(portraitWidth, portraitHeight, this, "Einstein");
 	win->callback(quit_cb, this);
 
 	if (theSoundManagerClass == nil)
@@ -526,6 +563,47 @@ void TFLApp::quit_cb(Fl_Widget *, void *p)
 	TFLApp *my = (TFLApp*)p;
 //	my->mPlatformManager->PowerOff();
 	my->mPlatformManager->SendPowerSwitchEvent();
+}
+
+void TFLApp::do_callback(Fl_Callback *cb, void *user)
+{
+	cb(flSettings->RMB, user);
+}
+
+void TFLApp::menuPower()
+{
+	mPlatformManager->SendPowerSwitchEvent();
+}
+
+void TFLApp::menuBacklight()
+{
+	mPlatformManager->SendBacklightEvent();
+}
+
+void TFLApp::menuInstallPackage()
+{
+	static char *filename = 0L;
+	const char *newname = fl_file_chooser("Install Package...", "Package (*.pkg)", filename);
+	if (newname) {
+		if (!filename)
+			filename = (char*)calloc(FL_PATH_MAX, 1);
+		strncpy(filename, newname, FL_PATH_MAX);
+		filename[FL_PATH_MAX] = 0;
+		mPlatformManager->InstallPackage(filename);
+	}
+}
+
+void TFLApp::menuAbout()
+{
+	static Fl_Window *flAbout = 0L;
+	if (!flAbout)
+		flAbout = createAboutDialog();
+	flAbout->show();
+}
+
+void TFLApp::menuShowSettings() 
+{
+	flSettings->show();
 }
 
 int main(int argc, char** argv )

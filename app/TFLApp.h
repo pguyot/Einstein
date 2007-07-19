@@ -25,6 +25,7 @@
 #define _TFLAPP_H
 
 #include <K/Defines/KDefinitions.h>
+#include <FL/Fl_Widget.H>
 
 #include "Version.h"
 
@@ -38,6 +39,7 @@ class TMonitor;
 class TSymbolList;
 
 class Fl_Widget;
+class TFLSettings;
 
 ///
 /// Classe pour le programme einstein en ligne de commande.
@@ -64,6 +66,36 @@ public:
 	/// Point d'entrée.
 	///
 	void Run( int argc, char* argv[] );
+
+	///
+	/// run a callback from any of the menu items in our pulldown
+	///
+	void do_callback(Fl_Callback *cb, void *user=0L);
+
+	///
+	/// user requested simulating the power button
+	///
+	void menuPower();
+
+	///
+	/// user requested simulating holding the power button longer
+	///
+	void menuBacklight();
+
+	///
+	/// user requested to install a package
+	///
+	void menuInstallPackage();
+
+	///
+	/// show the "About..." screen
+	///
+	void menuAbout();
+
+	///
+	/// user wants to see the Settings dialog box
+	///
+	void menuShowSettings();
 
 private:
 	///
@@ -179,6 +211,8 @@ private:
 	TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
 	TLog*				mLog;				///< Log.
 	Boolean				mQuit;				///< If we should quit.
+
+	TFLSettings			*flSettings;		///< settings dialog box
 };
 
 #endif

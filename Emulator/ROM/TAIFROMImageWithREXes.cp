@@ -93,7 +93,7 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
 		KUInt8* theData = (KUInt8*) ::calloc(1, 0x01000000);
 	
 		// On ouvre le fichier ROM.
-		FILE* theFile = ::fopen(inAIFPath, "r");
+		FILE* theFile = ::fopen(inAIFPath, "rb");
 		if (theFile == NULL)
 		{
 			(void) ::fprintf( stderr, "Can't open AIF file '%s'\n", inAIFPath );
