@@ -13,6 +13,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EinsteinTests", "EinsteinTe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libeinstein", "libeinstein\libeinstein.vcproj", "{51A082C3-6B39-472E-A513-F7DDF63BB255}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "EinsteinSetup", "EinsteinSetup\EinsteinSetup.vdproj", "{D6980E35-0582-4E47-B880-BC75C1C529F5}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer", "Installer\Installer.vdproj", "{CAE40FE5-F107-4A73-91DC-CBCF5E239628}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -38,6 +42,12 @@ Global
 		{51A082C3-6B39-472E-A513-F7DDF63BB255}.FastDebug|Win32.Build.0 = FastDebug|Win32
 		{51A082C3-6B39-472E-A513-F7DDF63BB255}.Release|Win32.ActiveCfg = Release|Win32
 		{51A082C3-6B39-472E-A513-F7DDF63BB255}.Release|Win32.Build.0 = Release|Win32
+		{D6980E35-0582-4E47-B880-BC75C1C529F5}.Debug|Win32.ActiveCfg = Debug
+		{D6980E35-0582-4E47-B880-BC75C1C529F5}.FastDebug|Win32.ActiveCfg = Debug
+		{D6980E35-0582-4E47-B880-BC75C1C529F5}.Release|Win32.ActiveCfg = Release
+		{CAE40FE5-F107-4A73-91DC-CBCF5E239628}.Debug|Win32.ActiveCfg = Debug
+		{CAE40FE5-F107-4A73-91DC-CBCF5E239628}.FastDebug|Win32.ActiveCfg = Debug
+		{CAE40FE5-F107-4A73-91DC-CBCF5E239628}.Release|Win32.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

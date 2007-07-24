@@ -310,16 +310,28 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Documents"
+			>
+			<File
+				RelativePath="..\..\..\Drivers\Einstein.rex"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Drivers\packages\ROMDumper.pkg"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Documentation\UserManual.pdf"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\Einstein.rc"
 			>
 		</File>
 		<File
 			RelativePath=".\EinsteinApp32.ico"
-			>
-		</File>
-		<File
-			RelativePath=".\icon1.ico"
 			>
 		</File>
 		<File

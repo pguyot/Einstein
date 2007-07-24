@@ -948,7 +948,15 @@
 			>
 		</Filter>
 		<File
+			RelativePath=".\libeinstein.rc"
+			>
+		</File>
+		<File
 			RelativePath="..\README.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\resource.h"
 			>
 		</File>
 	</Files>
