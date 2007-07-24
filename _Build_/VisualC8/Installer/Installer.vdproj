@@ -33,25 +33,31 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_A46491899C40442CB3ED3788CD215F0A"
+        "OwnerKey" = "8:_F3095B66C9F449249135A25BADA03C0B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B162E865AA554BCE9561A05D6212ED8B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_D7734376015C41EAB35B102D42654405"
-        "OwnerKey" = "8:_DCE3A52091154780A9479CAE5C9B35DC"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DCE3A52091154780A9479CAE5C9B35DC"
-        "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
+        "MsmKey" = "8:_D2918F164FCE499FBFAA9E87CAEA26D6"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_EC6CD436B25BC8BF592C54A98B46B51B"
+        "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F3095B66C9F449249135A25BADA03C0B"
         "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -73,6 +79,17 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                }
+            }
         }
         "Release"
         {
@@ -89,6 +106,22 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.2.0"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 2.0"
+                    "ProductCode" = "8:Microsoft.Net.Framework.2.0"
+                    }
+                }
+            }
         }
     }
     "Deployable"
@@ -170,6 +203,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D2918F164FCE499FBFAA9E87CAEA26D6"
+            {
+            "SourcePath" = "8:..\\InstallerBG.jpg"
+            "TargetName" = "8:InstallerBG.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_CC98C5B91D8C446D92FF899B665C2A45"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:FALSE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EC6CD436B25BC8BF592C54A98B46B51B"
             {
             "SourcePath" = "8:WSOCK32.dll"
@@ -205,11 +258,22 @@
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_13B5F53100B8421B806AC0DB13A880F5"
+                    {
+                    "Name" = "8:Einstein 2007.7"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_5D34111F678A47F0B6BEFFD691B80EC4"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_CC98C5B91D8C446D92FF899B665C2A45"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\2007.7"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -246,7 +310,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Einstein"
         "ProductCode" = "8:{87332A55-0182-4E62-8730-EB33E3C87227}"
-        "PackageCode" = "8:{76033E28-9686-47C9-A178-8E912520CAD0}"
+        "PackageCode" = "8:{6C482BC8-DF75-4444-B765-671AAEC365F3}"
         "UpgradeCode" = "8:{04D5D4E1-3E58-40B7-B1AD-BA60E10334CB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -381,14 +445,14 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_1F05E974565A42B0A2E1AE03E1522158"
             {
-            "Name" = "8:Einstein Manual"
+            "Name" = "8:Einstein Manual.pdf"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
             "Target" = "8:_B162E865AA554BCE9561A05D6212ED8B"
-            "Folder" = "8:_92CAFA42AB7B47C892108D76D44FF163"
+            "Folder" = "8:_13B5F53100B8421B806AC0DB13A880F5"
             "WorkingFolder" = "8:_CC98C5B91D8C446D92FF899B665C2A45"
             "Icon" = "8:"
             "Feature" = "8:"
@@ -416,7 +480,7 @@
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
             "Target" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
-            "Folder" = "8:_92CAFA42AB7B47C892108D76D44FF163"
+            "Folder" = "8:_13B5F53100B8421B806AC0DB13A880F5"
             "WorkingFolder" = "8:_CC98C5B91D8C446D92FF899B665C2A45"
             "Icon" = "8:"
             "Feature" = "8:"
@@ -448,7 +512,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_D2918F164FCE499FBFAA9E87CAEA26D6"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "UpdateText"
@@ -523,7 +588,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_D2918F164FCE499FBFAA9E87CAEA26D6"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -617,7 +683,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_D2918F164FCE499FBFAA9E87CAEA26D6"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "InstallAllUsersVisible"
@@ -652,7 +719,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_D2918F164FCE499FBFAA9E87CAEA26D6"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -663,8 +731,8 @@
                             "Type" = "3:3"
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
-                            "Setting" = "3:1"
-                            "Value" = "8:#1202"
+                            "Setting" = "3:2"
+                            "Value" = "8:This program is free software; you can redistribute it and/or modify\n it under the terms of the GNU General Public License as published by\n the Free Software Foundation; either version 2 of the License, or\n (at your option) any later version."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -700,7 +768,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_D2918F164FCE499FBFAA9E87CAEA26D6"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -817,7 +886,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_D7734376015C41EAB35B102D42654405"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A46491899C40442CB3ED3788CD215F0A"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -831,7 +900,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_DCE3A52091154780A9479CAE5C9B35DC"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F3095B66C9F449249135A25BADA03C0B"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
