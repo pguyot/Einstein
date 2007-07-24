@@ -33,30 +33,36 @@ decl {class TFLApp;} {public global
 
 decl {\#include "TFLApp.h"} {} 
 
+decl {\#include <string.h>} {} 
+
+decl {\#include <FL/filename.h>} {} 
+
+decl {\#include <FL/fl_file_chooser.h>} {} 
+
+decl {\#include <FL/Fl_Preferences.H>} {} 
+
 widget_class TFLSettings {
   label {Einstein Platform Setup}
   user_data this
-  callback {{ }} open selected
-  xywh {380 160 426 339} type Double align 80
+  callback {TFLSettings *me = (TFLSettings*)v;
+me->revertDialog();
+me->redraw();
+me->hide();} open
+  xywh {373 80 425 365} type Double color 50 align 80
   class Fl_Window non_modal visible
 } {
   Fl_Menu_Button RMB {
-    label {RMB Menu} open
+    label {RMB Menu}
     xywh {0 0 10 10} labelsize 12 hide deactivate
   } {
     MenuItem {} {
-      label Power
-      callback {app->menuPower();}
+      label {Install Package...}
+      callback {app->menuInstallPackage();}
       xywh {0 0 100 20} labelsize 12
     }
     MenuItem {} {
       label Backlight
       callback {app->menuBacklight();}
-      xywh {0 0 100 20} labelsize 12
-    }
-    MenuItem {} {
-      label {Install Package...}
-      callback {app->menuInstallPackage();}
       xywh {0 0 100 20} labelsize 12 divider
     }
     Submenu {} {
@@ -94,153 +100,311 @@ widget_class TFLSettings {
       xywh {0 0 100 20} labelsize 12
     }
     MenuItem {} {
-      label {Help...}
-      xywh {0 0 100 20} labelsize 12 hide deactivate
-    }
-    MenuItem {} {
       label {About...}
       callback {app->menuAbout();}
+      xywh {0 0 100 20} labelsize 12 divider
+    }
+    MenuItem {} {
+      label Power
+      callback {app->menuPower();}
       xywh {0 0 100 20} labelsize 12
     }
   }
-  Fl_Choice {} {
-    label {Machine:} open
-    xywh {100 10 130 20} down_box BORDER_BOX labelsize 12 deactivate
+  Fl_Group {} {
+    label {  ROM} open
+    xywh {10 30 405 95} box GTK_DOWN_BOX labelsize 11 align 5
   } {
-    MenuItem {} {
-      label {MP2x00 US}
-      xywh {0 0 100 20} labelsize 12 deactivate
+    Fl_Box wROMPath {
+      xywh {15 35 395 35} labelsize 12 align 212
     }
-    MenuItem {} {
-      label {MP2100 D}
-      xywh {0 0 100 20} labelsize 12 deactivate
+    Fl_Button wROMPathChoose {
+      label {Choose...}
+      callback {const char *path = fl_file_chooser("Choose ROM file", "*", wROMPath->label());
+if (path) {
+  wROMPath->copy_label(path);
+}}
+      xywh {335 70 70 20} labelsize 12
     }
-    MenuItem {} {
-      label {eMate 300}
-      xywh {0 0 100 20} labelsize 12 deactivate
+    Fl_Choice wMachineChoice {
+      label {Machine:}
+      callback {char buf[FL_PATH_MAX];
+strcpy(buf, wROMPath->label());
+char *name = (char*)fl_filename_name(buf);
+if (name) {
+  strcpy(name, (char*)o->menu()[o->value()].user_data());
+  wROMPath->copy_label(buf);
+  wROMPath->redraw();
+}} open selected
+      xywh {275 95 130 20} down_box BORDER_BOX labelsize 12
+    } {
+      MenuItem {} {
+        label {MP2x00 US}
+        user_data {"717006"}
+        xywh {5 5 100 20} labelsize 12
+      }
+      MenuItem {} {
+        label {MP2100 D}
+        user_data {"737041"}
+        xywh {5 5 100 20} labelsize 12
+      }
+      MenuItem {} {
+        label {eMate 300}
+        user_data {"747129"}
+        xywh {5 5 100 20} labelsize 12
+      }
     }
   }
   Fl_Group {} {
-    label {  Memory:} open
-    xywh {10 50 405 130} box GTK_THIN_DOWN_FRAME labelsize 12 align 5 deactivate
+    label {  Internal Flash File} open
+    xywh {10 145 405 70} box GTK_DOWN_BOX labelsize 11 align 5
   } {
-    Fl_Input {} {
-      label {ROM:}
-      xywh {105 60 210 20} labelsize 12 textsize 12 deactivate
+    Fl_Box wFlashPath {
+      xywh {15 150 395 35} labelsize 12 align 212
     }
-    Fl_Button {} {
+    Fl_Button wFlashPathChoose {
       label {Choose...}
-      xywh {325 60 70 20} labelsize 12 deactivate
-    }
-    Fl_Input {} {
-      label {RAM:}
-      xywh {105 90 210 20} labelsize 12 textsize 12 deactivate
-    }
-    Fl_Button {} {
-      label {Choose...}
-      xywh {325 90 70 20} labelsize 12 deactivate
-    }
-    Fl_Input {} {
-      label {Flash:}
-      xywh {105 120 210 20} labelsize 12 textsize 12 deactivate
-    }
-    Fl_Button {} {
-      label {Choose...}
-      xywh {325 120 70 20} labelsize 12 deactivate
-    }
-    Fl_Input_Choice {} {
-      label {Flash Size:} open
-      xywh {105 150 70 20} labelsize 12 textsize 12 deactivate
-    } {
-      MenuItem {} {
-        label 1
-        xywh {5 5 100 20} labelsize 12 deactivate
-      }
-      MenuItem {} {
-        label 4
-        xywh {5 5 100 20} labelsize 12 deactivate
-      }
-      MenuItem {} {
-        label 8
-        xywh {5 5 100 20} labelsize 12 deactivate
-      }
-      MenuItem {} {
-        label 16
-        xywh {5 5 100 20} labelsize 12 deactivate
-      }
-    }
-    Fl_Box {} {
-      label MB
-      xywh {175 150 30 20} labelsize 12 align 20 deactivate
-    }
-    Fl_Input_Choice {} {
-      label {RAM Size:} open
-      xywh {295 150 70 20} labelsize 12 textsize 12 deactivate
-    } {
-      MenuItem {} {
-        label 1
-        xywh {15 15 100 20} labelsize 12 deactivate
-      }
-      MenuItem {} {
-        label 4
-        xywh {15 15 100 20} labelsize 12 deactivate
-      }
-      MenuItem {} {
-        label 8
-        xywh {15 15 100 20} labelsize 12 deactivate
-      }
-      MenuItem {} {
-        label 16
-        xywh {15 15 100 20} labelsize 12 deactivate
-      }
-    }
-    Fl_Box {} {
-      label MB
-      xywh {365 150 30 20} labelsize 12 align 20 deactivate
+      callback {const char *path = fl_file_chooser("Choose Flash file", "*", wFlashPath->label());
+if (path) {
+  wFlashPath->copy_label(path);
+}}
+      xywh {335 185 70 20} labelsize 12
     }
   }
   Fl_Group {} {
-    label {  Screen:} open
-    xywh {10 205 405 65} box GTK_THIN_DOWN_FRAME labelsize 12 align 5 deactivate
+    label {  Screen}
+    xywh {10 235 200 65} box GTK_DOWN_BOX labelsize 11 align 5
   } {
-    Fl_Check_Button {} {
-      label {Full Screen}
-      xywh {105 215 180 20} down_box DOWN_BOX labelsize 12 deactivate
+    Fl_Check_Button wFullScreen {
+      label {Full screen}
+      xywh {15 245 180 20} down_box DOWN_BOX labelsize 12
     }
-    Fl_Input {} {
-      label {Size:}
-      xywh {105 240 50 20} type Int labelsize 12 textsize 12 deactivate
+    Fl_Input wWidth {
+      xywh {20 270 80 20} type Int labelsize 12 textsize 12
     }
-    Fl_Input {} {
+    Fl_Input wHeight {
       label {x }
-      xywh {175 240 50 20} type Int labelsize 12 textsize 12 deactivate
+      xywh {115 270 80 20} type Int labelsize 12 textsize 12
+    }
+  }
+  Fl_Group {} {
+    label {  Memory}
+    xywh {215 235 200 65} box GTK_DOWN_BOX labelsize 11 align 5
+  } {
+    Fl_Box {} {
+      label {RAM Size}
+      xywh {225 245 55 20} labelsize 11 align 24
+    }
+    Fl_Box wRAMSizeMB {
+      label 4
+      xywh {280 245 18 20} labelsize 11 align 24
     }
     Fl_Box {} {
-      label pixels
-      xywh {230 240 50 20} labelsize 12 align 20 deactivate
+      label MB
+      xywh {297 245 20 20} labelsize 11 align 20
+    }
+    Fl_Box wRAMSizeKB {
+      label 0
+      xywh {320 245 25 20} labelsize 11 align 24 hide
+    }
+    Fl_Box wRAMSizeKBLabel {
+      label KB
+      xywh {345 245 20 20} labelsize 11 align 20 hide
+    }
+    Fl_Slider wRAMSize {
+      callback {updateRAMSizeLabel();}
+      xywh {225 270 180 20} type Horizontal minimum 1 maximum 255 step 1 value 64
     }
   }
-  Fl_Check_Button {} {
-    label {Don't show this at startup}
-    xywh {15 280 190 20} down_box DOWN_BOX labelsize 12 deactivate
+  Fl_Check_Button wDontShow {
+    label {Don't show at startup}
+    xywh {10 325 140 20} down_box DOWN_BOX labelsize 12
   }
-  Fl_Button {} {
+  Fl_Button wQuit {
     label Quit
-    xywh {215 300 95 25} labelsize 12 deactivate
+    callback {exit(0);}
+    xywh {215 320 95 25} color 50 labelsize 12
   }
-  Fl_Button {} {
+  Fl_Button wStart {
     label Start
-    xywh {320 300 95 25} labelsize 12 deactivate
+    callback {applyDialog();
+savePreferences();
+hide();}
+    xywh {320 320 95 25} color 50 labelsize 12
   }
-  Function {setApp(TFLApp *App)} {return_type void
+  Fl_Box wRestartWarning {
+    label {Preferences only apply at restart}
+    xywh {10 305 200 20} labelfont 1 labelsize 12 align 20 hide
+  }
+  Fl_Button wRevert {
+    label Revert
+    callback {revertDialog();
+redraw();}
+    xywh {215 320 95 25} color 50 labelsize 12 hide
+  }
+  Fl_Button wSave {
+    label Save
+    callback {applyDialog();
+savePreferences();
+hide();}
+    xywh {320 320 95 25} color 50 labelsize 12 hide
+  }
+  Function {setApp(TFLApp *App, const char *AppPath)} {return_type void
   } {
-    code {app = App;} {}
+    code {app = App;
+appPath = strdup(AppPath);
+char *end = (char*)fl_filename_name(appPath);
+if (end) 
+  *end = 0;} {}
+  }
+  Function {loadPreferences()} {return_type void
+  } {
+    code {char buf[FL_PATH_MAX];
+
+Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+
+// general preferences
+prefs.get("dontShow", dontShow, 0);
+
+// ROM Preferences
+Fl_Preferences rom(prefs, "ROM");
+
+strcpy(buf, appPath);
+strcat(buf, "717006");
+rom.get("path", ROMPath, buf);
+
+rom.get("machine", machine, 0);
+
+// Flash Preferences
+Fl_Preferences flash(prefs, "Flash");
+
+prefs.getUserdataPath(buf, FL_PATH_MAX-15);
+strcat(buf, "internal.flash");
+flash.get("path", FlashPath, buf);
+
+// screen preferences
+Fl_Preferences screen(prefs, "Screen");
+screen.get("fullScreen", fullScreen, 0);
+screen.get("width", screenWidth, 320);
+screen.get("height", screenHeight, 480);
+
+// Memory preferences
+Fl_Preferences memory(prefs, "Memory");
+memory.get("RAMSize", RAMSize, 64);} {}
+  }
+  Function {savePreferences()} {return_type void
+  } {
+    code {Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+
+// general preferences
+prefs.set("dontShow", dontShow);
+
+// ROM Preferences
+Fl_Preferences rom(prefs, "ROM");
+rom.set("path", ROMPath);
+rom.set("machine", machine);
+
+// Flash Preferences
+Fl_Preferences flash(prefs, "Flash");
+flash.set("path", FlashPath);
+
+// screen preferences
+Fl_Preferences screen(prefs, "Screen");
+screen.set("fullScreen", fullScreen);
+screen.set("width", screenWidth);
+screen.set("height", screenHeight);
+
+// Memory preferences
+Fl_Preferences memory(prefs, "Memory");
+memory.set("RAMSize", RAMSize);} {}
+  }
+  Function {revertDialog()} {return_type void
+  } {
+    code {char buf[32];
+
+wROMPath->copy_label(ROMPath);
+wMachineChoice->value(machine);
+
+wFlashPath->copy_label(FlashPath);
+
+wFullScreen->value(fullScreen);
+sprintf(buf, "%d", screenWidth);
+wWidth->value(buf);
+sprintf(buf, "%d", screenHeight);
+wHeight->value(buf);
+
+wRAMSize->value(RAMSize);
+updateRAMSizeLabel();
+
+wDontShow->value(dontShow);} {}
+  }
+  Function {applyDialog()} {return_type void
+  } {
+    code {free(ROMPath);
+ROMPath = strdup(wROMPath->label());
+machine = wMachineChoice->value();
+
+free(FlashPath);
+FlashPath = strdup(wFlashPath->label());
+
+fullScreen = wFullScreen->value();
+screenWidth = atoi(wWidth->value());
+screenHeight = atoi(wHeight->value());
+
+RAMSize = (int)wRAMSize->value();
+
+dontShow = wDontShow->value();} {}
+  }
+  Function {runningMode()} {open return_type void
+  } {
+    code {wRestartWarning->show();
+wQuit->hide();
+wStart->hide();
+wRevert->show();
+wSave->show();} {}
+  }
+  decl {char *ROMPath;} {public global
+  }
+  decl {char *FlashPath;} {public global
+  }
+  decl {int machine;} {public global
+  }
+  decl {int fullScreen;} {public global
+  }
+  decl {int screenWidth;} {public global
+  }
+  decl {int screenHeight;} {public global
+  }
+  decl {int RAMSize;} {public global
+  }
+  decl {int dontShow;} {public global
   }
   decl {TFLApp *app;} {global
   }
+  decl {char *appPath;} {global
+  }
+  Function {updateRAMSizeLabel()} {private return_type void
+  } {
+    code {char buf[32];
+int ram = (int)(wRAMSize->value());
+int m = ram/16;
+sprintf(buf, "%d", m);
+wRAMSizeMB->copy_label(buf);
+
+int k = (ram*64)%1024;
+sprintf(buf, "%d", k);
+wRAMSizeKB->copy_label(buf);
+
+if (k==0) {
+  wRAMSizeKB->hide();
+  wRAMSizeKBLabel->hide();
+} else {
+  wRAMSizeKB->show();
+  wRAMSizeKBLabel->show();
+}} {}
+  }
 } 
 
-Function {close_window_cb(Fl_Widget*, void *user)} {open private return_type void
+Function {close_window_cb(Fl_Widget*, void *user)} {private return_type void
 } {
   code {Fl_Window *win = (Fl_Window*)user;
 win->hide();} {}
@@ -251,24 +415,24 @@ Function {createAboutDialog()} {open
   Fl_Window wAbout {
     user_data wAbout
     callback close_window_cb open
-    xywh {350 237 257 247} type Double modal visible
+    xywh {856 168 254 166} type Double modal visible
   } {
     Fl_Box {} {
-      image {../Resources/icons/EinsteinApp.png} xywh {71 10 115 135}
+      image {../Resources/icons/EinsteinApp64.png} xywh {92 5 69 75}
     }
     Fl_Box {} {
       label Einstein
-      xywh {8 150 240 25} labelfont 1
+      xywh {32 80 190 25} labelfont 1
     }
     Fl_Box {} {
       label {Version 2007.7}
-      xywh {8 175 240 25} labelsize 12
+      xywh {32 105 190 20} labelsize 11
     }
     Fl_Button {} {
       label Close
       user_data wAbout
       callback close_window_cb
-      xywh {190 210 55 25} labelsize 12
+      xywh {190 135 55 20} labelsize 12
     }
   }
 } 

@@ -72,6 +72,11 @@ const KUInt32 k717006Patches[] = {
 	// symcmp__FPcT1
 	0x00358C9C / sizeof(KUInt32),
 	TVirtualizedCallsPatches::ksymcmp__FPcT1,
+	// avoid calibration screen early in the game
+	0x001412f8 / sizeof(KUInt32),
+	0xea000009,
+	//0x00141304 / sizeof(KUInt32),
+	//0xea000006,
 };	
 
 // -------------------------------------------------------------------------- //

@@ -31,6 +31,7 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include <FL/x.H>
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
@@ -136,26 +137,41 @@ void
 TFLApp::Run( int argc, char* argv[] )
 {
 	mProgramName = argv[0];
-	
+
+	Fl::scheme("gtk+");
+	Fl::args(1, argv);
+	Fl::get_system_colors();
+
+	flSettings = new TFLSettings(425, 365, "Einstein Platform Settings");
+	flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+	flSettings->setApp(this, mProgramName);
+	flSettings->loadPreferences();
+	flSettings->revertDialog();
+
+	if (!flSettings->dontShow) {
+		flSettings->show(1, argv);
+		while (flSettings->visible())
+			Fl::wait();
+	}
+	flSettings->runningMode();
+
 	const char* defaultMachineString = "717006";
-	const char* theMachineString = nil;
+	int theMachineID = flSettings->wMachineChoice->value();
+	const Fl_Menu_Item *theMachineMenu = flSettings->wMachineChoice->menu()+theMachineID;
+	const char* theMachineString = strdup((char*)theMachineMenu->user_data());
 	const char* theRestoreFile = nil;
 	const char* theSoundManagerClass = nil;
 	const char* theScreenManagerClass = nil;
-	int portraitWidth = TScreenManager::kDefaultPortraitWidth;
-	int portraitHeight = TScreenManager::kDefaultPortraitHeight;
-	int ramSize = 0x40;
-	Boolean fullscreen = false;		// Default is not full screen.
+	const char *theROMImagePath = strdup(flSettings->ROMPath);
+	const char *theFlashPath = strdup(flSettings->FlashPath);
+	int portraitWidth = flSettings->screenWidth;
+	int portraitHeight = flSettings->screenHeight;
+	int ramSize = flSettings->RAMSize;
+	Boolean fullscreen = (Boolean)flSettings->fullScreen;
 	Boolean useAIFROMFile = false;	// Default is to use flat rom format.
-	
-	flSettings = new TFLSettings(425, 340, "Einstein Platform Settings");
-	flSettings->setApp(this);
 
+#if 0
 	int indexArgs = 1;
-	if (argc < 2)
-	{
-		SyntaxError();
-	}
 	
 	if ((::strcmp(argv[1], "--help") == 0)
 				|| (::strcmp(argv[1], "-h") == 0)) {
@@ -284,7 +300,8 @@ TFLApp::Run( int argc, char* argv[] )
 		
 		indexArgs++;
 	}
-	
+#endif
+
 	if (portraitHeight < portraitWidth)
 	{
 		(void) ::fprintf(
@@ -298,6 +315,7 @@ TFLApp::Run( int argc, char* argv[] )
 	(void) ::printf( "This is %s.\n", VERSION_STRING );
 
 	Fl_Window *win = new Fl_Einstein_Window(portraitWidth, portraitHeight, this, "Einstein");
+	win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 	win->callback(quit_cb, this);
 
 	if (theSoundManagerClass == nil)
@@ -317,13 +335,13 @@ TFLApp::Run( int argc, char* argv[] )
 		theMachineString = defaultMachineString;
 	}
 	{
-		const char* theDataPath = argv[argc - 1];
-		char theROMImagePath[512];
-		char theREX1Path[512];
-		char theFlashPath[512];
-		(void) ::sprintf( theREX1Path, "%s/Einstein.rex", theDataPath );
-		(void) ::sprintf( theFlashPath, "%s/flash", theDataPath );
+		char theREX1Path[FL_PATH_MAX];
+		strcpy(theREX1Path, theROMImagePath);
+		char *rexName = (char*)fl_filename_name(theREX1Path);
+		if (rexName)
+			strcpy(rexName, "Einstein.rex");
 		
+		/*
 		if (useAIFROMFile)
 		{
 			char theREX0Path[512];
@@ -336,6 +354,9 @@ TFLApp::Run( int argc, char* argv[] )
 			mROMImage = new TFlatROMImageWithREX(
 				theROMImagePath, theREX1Path, theMachineString, false );
 		}
+		*/
+		mROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path, theMachineString, false);
+		
 		mEmulator = new TEmulator(
 					mLog, mROMImage, theFlashPath,
 					mSoundManager, mScreenManager, ramSize << 16 );

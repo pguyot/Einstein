@@ -29,13 +29,13 @@
 class TFLApp;
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Menu_Button.H>
-#include <FL/Fl_Choice.H>
 #include <FL/Fl_Group.H>
-#include <FL/Fl_Input.H>
-#include <FL/Fl_Button.H>
-#include <FL/Fl_Input_Choice.H>
 #include <FL/Fl_Box.H>
+#include <FL/Fl_Button.H>
+#include <FL/Fl_Choice.H>
 #include <FL/Fl_Check_Button.H>
+#include <FL/Fl_Input.H>
+#include <FL/Fl_Slider.H>
 
 class TFLSettings : public Fl_Window {
   void _TFLSettings();
@@ -45,22 +45,88 @@ public:
   Fl_Menu_Button *RMB;
   static Fl_Menu_Item menu_RMB[];
 private:
-  void cb_Power_i(Fl_Menu_*, void*);
-  static void cb_Power(Fl_Menu_*, void*);
-  void cb_Backlight_i(Fl_Menu_*, void*);
-  static void cb_Backlight(Fl_Menu_*, void*);
   void cb_Install_i(Fl_Menu_*, void*);
   static void cb_Install(Fl_Menu_*, void*);
+  void cb_Backlight_i(Fl_Menu_*, void*);
+  static void cb_Backlight(Fl_Menu_*, void*);
   void cb_Settings_i(Fl_Menu_*, void*);
   static void cb_Settings(Fl_Menu_*, void*);
   void cb_About_i(Fl_Menu_*, void*);
   static void cb_About(Fl_Menu_*, void*);
-  static Fl_Menu_Item menu_Machine[];
-  static Fl_Menu_Item menu_Flash[];
-  static Fl_Menu_Item menu_RAM[];
-  TFLApp *app; 
+  void cb_Power_i(Fl_Menu_*, void*);
+  static void cb_Power(Fl_Menu_*, void*);
 public:
-  void setApp(TFLApp *App);
+  Fl_Box *wROMPath;
+  Fl_Button *wROMPathChoose;
+private:
+  void cb_wROMPathChoose_i(Fl_Button*, void*);
+  static void cb_wROMPathChoose(Fl_Button*, void*);
+public:
+  Fl_Choice *wMachineChoice;
+private:
+  void cb_wMachineChoice_i(Fl_Choice*, void*);
+  static void cb_wMachineChoice(Fl_Choice*, void*);
+  static Fl_Menu_Item menu_wMachineChoice[];
+public:
+  Fl_Box *wFlashPath;
+  Fl_Button *wFlashPathChoose;
+private:
+  void cb_wFlashPathChoose_i(Fl_Button*, void*);
+  static void cb_wFlashPathChoose(Fl_Button*, void*);
+public:
+  Fl_Check_Button *wFullScreen;
+  Fl_Input *wWidth;
+  Fl_Input *wHeight;
+  Fl_Box *wRAMSizeMB;
+  Fl_Box *wRAMSizeKB;
+  Fl_Box *wRAMSizeKBLabel;
+  Fl_Slider *wRAMSize;
+private:
+  void cb_wRAMSize_i(Fl_Slider*, void*);
+  static void cb_wRAMSize(Fl_Slider*, void*);
+public:
+  Fl_Check_Button *wDontShow;
+  Fl_Button *wQuit;
+private:
+  void cb_wQuit_i(Fl_Button*, void*);
+  static void cb_wQuit(Fl_Button*, void*);
+public:
+  Fl_Button *wStart;
+private:
+  void cb_wStart_i(Fl_Button*, void*);
+  static void cb_wStart(Fl_Button*, void*);
+public:
+  Fl_Box *wRestartWarning;
+  Fl_Button *wRevert;
+private:
+  void cb_wRevert_i(Fl_Button*, void*);
+  static void cb_wRevert(Fl_Button*, void*);
+public:
+  Fl_Button *wSave;
+private:
+  void cb_wSave_i(Fl_Button*, void*);
+  static void cb_wSave(Fl_Button*, void*);
+public:
+  char *ROMPath; 
+  char *FlashPath; 
+  int machine; 
+  int fullScreen; 
+  int screenWidth; 
+  int screenHeight; 
+  int RAMSize; 
+  int dontShow; 
+private:
+  TFLApp *app; 
+  char *appPath; 
+public:
+  void setApp(TFLApp *App, const char *AppPath);
+  void loadPreferences();
+  void savePreferences();
+  void revertDialog();
+  void applyDialog();
+  void runningMode();
+private:
+  void updateRAMSizeLabel();
 };
 #include <FL/Fl_Double_Window.H>
 extern void close_window_cb(Fl_Double_Window*, void*);
