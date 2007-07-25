@@ -297,6 +297,18 @@ TFLScreenManager::TFLScreenManager(
 	mWidget = new Fl_Newton_Screen_Widget(
 		xo, yo, inPortraitWidth, inPortraitHeight, 
 		0L, this);
+	
+	mWidget->label(
+		"booting...\n"
+		"\n"
+		"right-click or\n"
+		"ctrl-left-click\n"
+		"to open the\n"
+		"Einstein menu");
+	mWidget->align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+	mWidget->labelfont(FL_HELVETICA_BOLD);
+	mWidget->labelsize(11);
+	mWidget->labelcolor(FL_WHITE);
 
 	if (createWindow) {
 		Fl::get_system_colors();
@@ -393,6 +405,11 @@ TFLScreenManager::TabletOrientationChanged( EOrientation )
 void
 TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 {
+	static bool firstTime = true;
+	if (firstTime) {
+		mWidget->label("");
+		firstTime = false;
+	}
 	int mBitsPerPixel = 24;
 
 	KUInt16 top, left, height, width;
