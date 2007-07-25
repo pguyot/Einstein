@@ -167,140 +167,8 @@ TFLApp::Run( int argc, char* argv[] )
 	int portraitWidth = flSettings->screenWidth;
 	int portraitHeight = flSettings->screenHeight;
 	int ramSize = flSettings->RAMSize;
-	Boolean fullscreen = (Boolean)flSettings->fullScreen;
-	Boolean useAIFROMFile = false;	// Default is to use flat rom format.
-
-#if 0
-	int indexArgs = 1;
-	
-	if ((::strcmp(argv[1], "--help") == 0)
-				|| (::strcmp(argv[1], "-h") == 0)) {
-		Help();
-	} else if ((::strcmp(argv[1], "--version") == 0)
-				|| (::strcmp(argv[1], "-v") == 0)) {
-		Version();
-	}
-	
-	while (indexArgs < argc - 1)
-	{
-		if (::strcmp(argv[indexArgs], "-a") == 0)
-		{
-			indexArgs++;
-			if ((indexArgs == argc - 1) || (mSoundManager != nil))
-			{
-				SyntaxError( argv[indexArgs-1] );
-			}
-			
-			theSoundManagerClass = argv[indexArgs];
-		} else if (::strncmp(argv[indexArgs], "--audio=", 8) == 0) {
-			if (mSoundManager != nil)
-			{
-				SyntaxError( argv[indexArgs] );
-			}
-			
-			theSoundManagerClass = &argv[indexArgs][8];
-		} else if (::strcmp(argv[indexArgs], "-s") == 0) {
-			indexArgs++;
-			if ((indexArgs == argc - 1) || (mScreenManager != nil))
-			{
-				SyntaxError( argv[indexArgs-1] );
-			}
-			
-			theScreenManagerClass = argv[indexArgs];
-		} else if (::strncmp(argv[indexArgs], "--screen=", 9) == 0) {
-			if (mScreenManager != nil)
-			{
-				SyntaxError( argv[indexArgs] );
-			}
-			
-			theScreenManagerClass = &argv[indexArgs][9];
-		} else if (::strcmp(argv[indexArgs], "-l") == 0) {
-			indexArgs++;
-			if ((indexArgs == argc - 1) || (mLog != nil))
-			{
-				SyntaxError( argv[indexArgs-1] );
-			}
-			
-			CreateLog( argv[indexArgs] );
-		} else if (::strncmp(argv[indexArgs], "--log=", 6) == 0) {
-			if (mLog != nil)
-			{
-				SyntaxError( argv[indexArgs] );
-			}
-			
-			CreateLog( &argv[indexArgs][6] );
-		} else if (::strcmp(argv[indexArgs], "-r") == 0) {
-			indexArgs++;
-			if ((indexArgs == argc - 1) || (theRestoreFile != nil))
-			{
-				SyntaxError( argv[indexArgs-1] );
-			}
-			
-			theRestoreFile = argv[indexArgs];
-		} else if (::strncmp(argv[indexArgs], "--restore=", 10) == 0) {
-			if (theRestoreFile != nil)
-			{
-				SyntaxError( argv[indexArgs] );
-			}
-			
-			theRestoreFile = &argv[indexArgs][10];
-		} else if (::strcmp(argv[indexArgs], "-m") == 0) {
-			indexArgs++;
-			if ((indexArgs == argc - 1) || (theMachineString != nil))
-			{
-				SyntaxError( argv[indexArgs-1] );
-			}
-			
-			theMachineString = argv[indexArgs];
-		} else if (::strncmp(argv[indexArgs], "--machine=", 10) == 0) {
-			if (theMachineString != nil)
-			{
-				SyntaxError( argv[indexArgs] );
-			}
-			
-			theMachineString = &argv[indexArgs][10];
-		} else if (::sscanf(argv[indexArgs], "--width=%i", &portraitWidth) == 1) {
-			if (portraitWidth < (int) TScreenManager::kDefaultPortraitWidth)
-			{
-				(void) ::fprintf(
-					stderr,
-					"Warning, width is smaller than original (%i)\n",
-					(int) TScreenManager::kDefaultPortraitWidth);
-			}
-		} else if (::sscanf(argv[indexArgs], "--height=%i", &portraitHeight) == 1) {
-			if (portraitHeight < (int) TScreenManager::kDefaultPortraitHeight)
-			{
-				(void) ::fprintf(
-					stderr,
-					"Warning, height is smaller than original (%i)\n",
-					(int) TScreenManager::kDefaultPortraitHeight);
-			}
-		} else if (::sscanf(argv[indexArgs], "--ram=%i", &ramSize) == 1) {
-			if ((ramSize < 1) || (ramSize > 0x100))
-			{
-				(void) ::fprintf(
-					stderr,
-					"Ram size must be between 1 and 255 (for now, because only "
-					"first bank is handled)\nI'll boot with 4 MB (64).\n");
-				ramSize = 0x40;
-			}
-		} else if (::strcmp(argv[indexArgs], "--aif") == 0) {
-			useAIFROMFile = true;
-		} else if (::strcmp(argv[indexArgs], "--fullscreen") == 0) {
-			fullscreen = true;
-		} else if ((::strcmp(argv[indexArgs], "--help") == 0)
-					|| (::strcmp(argv[indexArgs], "-h") == 0)) {
-			Help();
-		} else if ((::strcmp(argv[indexArgs], "--version") == 0)
-					|| (::strcmp(argv[indexArgs], "-v") == 0)) {
-			Version();
-		} else {
-			SyntaxError( argv[indexArgs] );
-		}
-		
-		indexArgs++;
-	}
-#endif
+	Boolean fullscreen = (bool)flSettings->fullScreen;
+	int useAIFROMFile = 0;	// 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
 
 	if (portraitHeight < portraitWidth)
 	{
@@ -335,27 +203,53 @@ TFLApp::Run( int argc, char* argv[] )
 		theMachineString = defaultMachineString;
 	}
 	{
+		// will we use an AIF image?
+		{ 
+			const char *ext = fl_filename_ext(theROMImagePath);
+			if ( ext && stricmp(ext, ".aif")==0 )
+			{
+				useAIFROMFile = 1;
+			}
+			const char *name = fl_filename_name(theROMImagePath);
+			if (	name 
+					&& strncmp(name, "Senior Cirrus", 13)==0 
+					&& strstr(name, "image"))
+			{
+				useAIFROMFile = 2;
+			}
+		}
 		char theREX1Path[FL_PATH_MAX];
 		strcpy(theREX1Path, theROMImagePath);
 		char *rexName = (char*)fl_filename_name(theREX1Path);
-		if (rexName)
+		if (rexName) {
 			strcpy(rexName, "Einstein.rex");
-		
-		/*
-		if (useAIFROMFile)
-		{
-			char theREX0Path[512];
-			(void) ::sprintf( theREX0Path, "%s/%s.rex", theDataPath, theMachineString );
-			(void) ::sprintf( theROMImagePath, "%s/%s.aif", theDataPath, theMachineString );
-			mROMImage = new TAIFROMImageWithREXes(
-				theROMImagePath, theREX0Path, theREX1Path, theMachineString, false );
-		} else {
-			(void) ::sprintf( theROMImagePath, "%s/%s", theDataPath, theMachineString );
-			mROMImage = new TFlatROMImageWithREX(
-				theROMImagePath, theREX1Path, theMachineString, false );
 		}
-		*/
-		mROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path, theMachineString, false);
+
+		switch (useAIFROMFile) {
+			case 0:
+				mROMImage = new TFlatROMImageWithREX(
+					theROMImagePath, theREX1Path, theMachineString, false);
+				break;
+			case 1:
+				{
+					char theREX0Path[FL_PATH_MAX];
+					strcpy(theREX0Path, theROMImagePath);
+					fl_filename_setext(theREX0Path, FL_PATH_MAX, ".rex");
+					mROMImage = new TAIFROMImageWithREXes(
+						theROMImagePath, theREX0Path, theREX1Path, theMachineString, false );
+				}
+				break;
+			case 2:
+				{
+					char theREX0Path[FL_PATH_MAX];
+					strcpy(theREX0Path, theROMImagePath);
+					char *image = strstr(theREX0Path, "image");
+					strcpy(image, "high");
+					mROMImage = new TAIFROMImageWithREXes(
+						theROMImagePath, theREX0Path, theREX1Path, theMachineString, false );
+				}
+				break;
+		}
 		
 		mEmulator = new TEmulator(
 					mLog, mROMImage, theFlashPath,

@@ -89,10 +89,12 @@ TAIFFile::ReadROImage( KUInt8* outImage )
 		::abort();
 	}
 
-#if TARGET_RT_LITTLE_ENDIAN
+	// Do not swap the image here.
+	// The image will be swapped in TROMImage::CreateImage
+#if 0 //TARGET_RT_LITTLE_ENDIAN
 	// Swap the image.
-	KUInt32* cursor = (KUInt32*) &outImage;
-	KUInt32* end = (KUInt32*) &outImage[mHeader.fReadOnlySize];
+	KUInt32* cursor = (KUInt32*)(outImage);
+	KUInt32* end = (KUInt32*)(outImage+mHeader.fReadOnlySize);
 	do {
 		*cursor = UByteSex::Swap( *cursor );
 	} while (++cursor < end);
@@ -130,10 +132,12 @@ TAIFFile::ReadRWImage( KUInt8* outImage )
 		::abort();
 	}
 
-#if TARGET_RT_LITTLE_ENDIAN
+	// Do not swap the image here.
+	// The image will be swapped in TROMImage::CreateImage
+#if 0 // TARGET_RT_LITTLE_ENDIAN
 	// Swap the image.
-	KUInt32* cursor = (KUInt32*) &outImage;
-	KUInt32* end = (KUInt32*) &outImage[mHeader.fReadWriteSize];
+	KUInt32* cursor = (KUInt32*)(outImage);
+	KUInt32* end = (KUInt32*)(outImage+mHeader.fReadWriteSize);
 	do {
 		*cursor = UByteSex::Swap( *cursor );
 	} while (++cursor < end);

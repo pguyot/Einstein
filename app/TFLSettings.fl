@@ -48,8 +48,8 @@ widget_class TFLSettings {
 me->revertDialog();
 me->redraw();
 me->hide();} open
-  xywh {373 80 425 365} type Double color 50 align 80
-  class Fl_Window non_modal visible
+  xywh {-32000 -32000 425 365} type Double color 50 align 80 hide
+  class Fl_Window non_modal
 } {
   Fl_Menu_Button RMB {
     label {RMB Menu}
@@ -134,7 +134,7 @@ if (name) {
   strcpy(name, (char*)o->menu()[o->value()].user_data());
   wROMPath->copy_label(buf);
   wROMPath->redraw();
-}} open selected
+}} open
       xywh {275 95 130 20} down_box BORDER_BOX labelsize 12
     } {
       MenuItem {} {
@@ -256,7 +256,7 @@ char *end = (char*)fl_filename_name(appPath);
 if (end) 
   *end = 0;} {}
   }
-  Function {loadPreferences()} {return_type void
+  Function {loadPreferences()} {open return_type void
   } {
     code {char buf[FL_PATH_MAX];
 
@@ -289,7 +289,8 @@ screen.get("height", screenHeight, 480);
 
 // Memory preferences
 Fl_Preferences memory(prefs, "Memory");
-memory.get("RAMSize", RAMSize, 64);} {}
+memory.get("RAMSize", RAMSize, 64);} {selected
+    }
   }
   Function {savePreferences()} {return_type void
   } {
@@ -415,7 +416,7 @@ Function {createAboutDialog()} {open
   Fl_Window wAbout {
     user_data wAbout
     callback close_window_cb open
-    xywh {856 168 254 166} type Double modal visible
+    xywh {-32000 -32000 254 166} type Double hide modal
   } {
     Fl_Box {} {
       image {../Resources/icons/EinsteinApp64.png} xywh {92 5 69 75}
