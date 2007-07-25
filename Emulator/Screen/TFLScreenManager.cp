@@ -91,12 +91,14 @@ class Fl_Newton_Screen_Widget : public Fl_Box
 	unsigned char		*rgbData_;
 	TFLScreenManager	*screenManager_;
 	int					rgbWidth_, rgbHeight_;
+	int					penX, penY, penIsDown;
 
 public:
 	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char *l, TFLScreenManager *s) 
 		: Fl_Box(x, y, w, h, l),
 		rgbData_(0L),
-		screenManager_(s)
+		screenManager_(s),
+		penX(0), penY(0), penIsDown(0)
 	{
 		rgbWidth_ = w;
 		rgbHeight_ = h;
@@ -159,6 +161,7 @@ public:
 		int mx = Fl::event_x()-x();
 		if (mx<0) mx = 0;
 		if (mx>=rgbWidth_) mx = rgbWidth_-1;
+		penX = mx;
 		return mx;
 	}
 
@@ -167,6 +170,7 @@ public:
 		int my = Fl::event_y()-y();
 		if (my<0) my = 0;
 		if (my>=rgbHeight_) my = rgbHeight_-1;
+		penY = my;
 		return my;
 	}
 
@@ -186,17 +190,35 @@ public:
 		return 127;
 	}
 
+	void penDownTimer()
+	{
+		if (penIsDown) {
+			screenManager_->PenDown(penXPos(), penYPos());
+			Fl::repeat_timeout(screenManager_->GetTabletSampleRate()/4000000.0, penDownTimerCB, this);
+		} else {
+			Fl::remove_timeout(penDownTimerCB, this);
+		}
+	}
+
+	static void penDownTimerCB(void *me) {
+		((Fl_Newton_Screen_Widget*)me)->penDownTimer();
+	}
+
 	int handle(int event) 
 	{
 		switch (event) {
 			case FL_PUSH:
 				screenManager_->PenDown(penXPos(), penYPos());
+				penIsDown = true;
+				Fl::add_timeout(screenManager_->GetTabletSampleRate()/4000000.0, penDownTimerCB, this);
 				return 1;
 			case FL_DRAG:
 				screenManager_->PenDown(penXPos(), penYPos());
 				return 1;
 			case FL_RELEASE:
 				screenManager_->PenUp();
+				Fl::remove_timeout(penDownTimerCB, this);
+				penIsDown = false;
 				return 1;
 			case FL_KEYDOWN:
 				screenManager_->KeyDown(eventKeyToMac());

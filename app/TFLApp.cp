@@ -147,6 +147,7 @@ TFLApp::Run( int argc, char* argv[] )
 	flSettings->setApp(this, mProgramName);
 	flSettings->loadPreferences();
 	flSettings->revertDialog();
+	Fl::focus(flSettings->wStart);
 
 	if (!flSettings->dontShow) {
 		flSettings->show(1, argv);
@@ -154,6 +155,7 @@ TFLApp::Run( int argc, char* argv[] )
 			Fl::wait();
 	}
 	flSettings->runningMode();
+	Fl::focus(flSettings->wSave);
 
 	const char* defaultMachineString = "717006";
 	int theMachineID = flSettings->wMachineChoice->value();

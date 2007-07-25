@@ -162,7 +162,7 @@ private:
 	
 	///
 	/// FLTK Widget class that will hold the Newton screen image
-	//
+	///
 	Fl_Newton_Screen_Widget	*mWidget;
 };
 
