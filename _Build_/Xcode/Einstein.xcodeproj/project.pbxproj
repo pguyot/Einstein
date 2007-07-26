@@ -655,7 +655,7 @@
 		DA09410906B659DF00C67243 /* tests.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = tests.h; path = _Tests_/tests.h; sourceTree = "<group>"; };
 		DA09412306B6625C00C67243 /* UProcessorTests.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = UProcessorTests.cp; path = _Tests_/UProcessorTests.cp; sourceTree = "<group>"; };
 		DA09412606B6643300C67243 /* UProcessorTests.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = UProcessorTests.h; path = _Tests_/UProcessorTests.h; sourceTree = "<group>"; };
-		DA09417406B8FD4500C67243 /* einstein */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = einstein; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA09417406B8FD4500C67243 /* einstein */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = einstein; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA1315F60C407EE700B5915E /* THashMapCache.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = THashMapCache.h; sourceTree = "<group>"; };
 		DA1315F70C407EE700B5915E /* TMemoryConsts.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TMemoryConsts.h; sourceTree = "<group>"; };
 		DA147C850976F17000D7A32D /* TNativeCalls.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = TNativeCalls.cp; sourceTree = "<group>"; };

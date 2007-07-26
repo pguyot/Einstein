@@ -24,8 +24,9 @@
 #ifndef _VERSION_H
 #define _VERSION_H
 
-#define VERSION_STRING		"Einstein Platform 2007"
-#define COPYRIGHT_STRING	"Copyright 2003-2007 by Paul Guyot"
+#define VERSION_STRING		"Einstein Platform 2007.7"
+#define VERSION_STRING_SHORT	"2007.7"
+#define COPYRIGHT_STRING		"Copyright 2003-2007 by Paul Guyot"
 
 #endif
 		// _VERSION_H

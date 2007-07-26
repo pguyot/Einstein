@@ -92,9 +92,7 @@ ObjectsNTKC	=	\
 # -------- Rules --------
 
 # --- Common rules ---
-
-%.exp.a : %.exp
-	NCTBuildMain $< $@
+	
 %.impl.a	: %.impl.h
 	ProtocolGen -ImplementationGlue $< -package ${CPlusOptionsDefines} ${CPlusIncludes} -stdout > $@
 
@@ -120,12 +118,40 @@ ObjectsNTKC	=	\
 
 all : NSRuntime.ntkc
 
+# --- cf headers ---	
+
+headers = \
+	../../Headers/NativeCallsDefines.h \
+	../../Headers/PlatformGestalt.h \
+	../../Headers/PlatformEvents.h \
+	../../Headers/UserInfoDefinitions.h \
+	../../Headers/Version.h
+
+../../Headers/%.h	:	../../../Emulator/Platform/%.h
+	mkdir -p ../../Headers/
+	tr '\n' '\r' < $< > $@
+
+../../Headers/%.h	:	../../../Emulator/Host/%.h
+	mkdir -p ../../Headers/
+	tr '\n' '\r' < $< > $@
+
+../../Headers/%.h	:	../../../Emulator/NativeCalls/%.h
+	mkdir -p ../../Headers/
+	tr '\n' '\r' < $< > $@
+
+../../Headers/%.h	:	../../../app/%.h
+	mkdir -p ../../Headers/
+	tr '\n' '\r' < $< > $@
+
 # --- Specific rules ---
 # I need specific rules for the NTKC entry points. They should be compiled with -gf to make AIFtoNTK happy.
 
-NSRuntime.o	:	NSRuntime.cp
-	${CPlus} $(^F) ${CPlusOptionsCommon} ${CPlusOptionsNoDebug} ${CPlusOptionsNTKC} \
-		${CPlusIncludes} -o $(@F)
+NSRuntime.o	:	NSRuntime.cp ${headers}
+	${CPlus} $< ${CPlusOptionsCommon} ${CPlusOptionsNoDebug} ${CPlusOptionsNTKC} \
+		${CPlusIncludes} -o $@
+
+NSRuntime.exp.a : NSRuntime.exp
+	NCTBuildMain $< $@
 
 # ------ Package rules ------
 

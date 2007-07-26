@@ -14,7 +14,7 @@
 
 # --- variables ---
 CPlusOptionsDefines	=	-d hasPCMCIA -d forARM -d TARGET_OS_NEWTON -d NO_ERRNO_H
-CPlusOptions		=	-facqy -zo -W -cfront ${CPlusOptionsDefines}
+CPlusOptions			=	-facqy -zo -W -cfront ${CPlusOptionsDefines}
 LinkOptions			=	-dupok -remove -bin
 
 # Package options:
@@ -49,14 +49,20 @@ CPlusIncludes		=	\
 
 Libraries			=	'"{NCT_Libraries}Newton Public APIs.o"'
 
+headers = \
+	Headers/NativeCallsDefines.h \
+	Headers/PlatformGestalt.h \
+	Headers/PlatformEvents.h \
+	Headers/UserInfoDefinitions.h \
+	Headers/Version.h
+
 # --- rules ---
-%.impl.a	: %.impl.h
+
+%.impl.a	: %.impl.h ${headers}
 	ProtocolGen -ImplementationGlue $< -package ${CPlusOptionsDefines} ${CPlusIncludes} -stdout > $@
-%.a : %.h
-	ProtocolGen -InterfaceGlue $< ${CPlusOptionsDefines} ${CPlusIncludes} -stdout > $@
-%.o : %.c
+%.o : %.c ${headers}
 	ARMCpp $< ${CPlusOptions} ${CPlusIncludes} -o $(@F)
-%.o : %.cp
+%.o : %.cp ${headers}
 	ARMCpp $< ${CPlusOptions} ${CPlusIncludes} -o $(@F)
 %.o : %.a
 	ARM6Asm $< ${AsmIncludes} -o $(@F)
@@ -65,6 +71,27 @@ Libraries			=	'"{NCT_Libraries}Newton Public APIs.o"'
 all : \
 	TNativeCalls.o \
 	Einstein.rex
+
+TNativeCalls.a : TNativeCalls.h ${headers}
+	ProtocolGen -InterfaceGlue $< ${CPlusOptionsDefines} ${CPlusIncludes} -stdout > $@
+
+# --- cf headers ---	
+
+Headers/%.h	:	../Emulator/Platform/%.h
+	mkdir -p Headers/
+	tr '\n' '\r' < $< > $@
+
+Headers/%.h	:	../Emulator/Host/%.h
+	mkdir -p Headers/
+	tr '\n' '\r' < $< > $@
+
+Headers/%.h	:	../Emulator/NativeCalls/%.h
+	mkdir -p Headers/
+	tr '\n' '\r' < $< > $@
+
+Headers/%.h	:	../app/%.h
+	mkdir -p Headers/
+	tr '\n' '\r' < $< > $@
 
 install : all
 	cp Einstein.rex ../_Data_/
@@ -88,7 +115,7 @@ Einstein.rex : \
 	Rex -o Einstein.rex Einstein.rex.src
 
 RelocHack.o : ${KPath_POSIX}/K/Misc/RelocHack.a
-	ARM6Asm "${KPath_Classic}:K:Misc:RelocHack.a" ${AsmIncludes} -o $(@F)
+	ARM6Asm "${KPath_Classic}:K:Misc:RelocHack.a" ${AsmIncludes} -o $@
 	
 EinsteinFlashDriver.bin :	TEinsteinFlashDriver.impl.o \
 							TEinsteinFlashDriver.o \
