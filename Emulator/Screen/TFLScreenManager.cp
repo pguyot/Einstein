@@ -385,8 +385,9 @@ TFLScreenManager::ContrastChanged( KUInt32 )
 //  * ScreenOrientationChanged( EOrientation )
 // -------------------------------------------------------------------------- //
 void
-TFLScreenManager::ScreenOrientationChanged( EOrientation /* inNewOrientation */ )
+TFLScreenManager::ScreenOrientationChanged( EOrientation inNewOrientation )
 {
+	printf("New orientation %d is %dx%d\n", inNewOrientation, GetScreenWidth(), GetScreenHeight());
 	mWidget->newRGBSize(GetScreenWidth(), GetScreenHeight());
 }
 

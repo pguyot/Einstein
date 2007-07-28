@@ -33,8 +33,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A46491899C40442CB3ED3788CD215F0A"
-        "OwnerKey" = "8:_F3095B66C9F449249135A25BADA03C0B"
+        "MsmKey" = "8:_AF819DC5B7944AA99B2E7788F41E45D7"
+        "OwnerKey" = "8:_EBD05671FFCF4094ABACBE84A7AF5E52"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -51,13 +51,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_EC6CD436B25BC8BF592C54A98B46B51B"
+        "MsmKey" = "8:_EBD05671FFCF4094ABACBE84A7AF5E52"
         "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_F3095B66C9F449249135A25BADA03C0B"
+        "MsmKey" = "8:_EC6CD436B25BC8BF592C54A98B46B51B"
         "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -108,18 +108,13 @@
         "InstallerBootstrapper" = "3:2"
             "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
             {
-            "Enabled" = "11:TRUE"
+            "Enabled" = "11:FALSE"
             "PromptEnabled" = "11:TRUE"
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.2.0"
-                    {
-                    "Name" = "8:Microsoft .NET Framework 2.0"
-                    "ProductCode" = "8:Microsoft.Net.Framework.2.0"
-                    }
                 }
             }
         }
@@ -309,17 +304,17 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Einstein"
-        "ProductCode" = "8:{87332A55-0182-4E62-8730-EB33E3C87227}"
-        "PackageCode" = "8:{87DD8E85-43E5-43D1-812A-09456720D769}"
+        "ProductCode" = "8:{E5D73509-577E-4B25-A05A-FCADAD2B7C98}"
+        "PackageCode" = "8:{DED9EBD0-7306-4B81-8207-050EA92DB40B}"
         "UpgradeCode" = "8:{04D5D4E1-3E58-40B7-B1AD-BA60E10334CB}"
         "RestartWWWService" = "11:FALSE"
-        "RemovePreviousVersions" = "11:FALSE"
-        "DetectNewerInstalledVersion" = "11:FALSE"
+        "RemovePreviousVersions" = "11:TRUE"
+        "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.7.1"
+        "ProductVersion" = "8:1.7.3"
         "Manufacturer" = "8:OpenEinstein"
         "ARPHELPTELEPHONE" = "8:"
-        "ARPHELPLINK" = "8:"
+        "ARPHELPLINK" = "8:http://code.google.com/p/peinstein"
         "Title" = "8:Installer"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Paul Guyot"
@@ -886,7 +881,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A46491899C40442CB3ED3788CD215F0A"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_AF819DC5B7944AA99B2E7788F41E45D7"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -900,7 +895,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F3095B66C9F449249135A25BADA03C0B"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_EBD05671FFCF4094ABACBE84A7AF5E52"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"

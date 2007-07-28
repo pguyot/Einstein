@@ -68,6 +68,11 @@ public:
 			app(App)
 	{
 	}
+	Fl_Einstein_Window(int xx, int yy, int ww, int hh, TFLApp *App, const char *ll=0)
+		:	Fl_Window(xx, yy, ww, hh, ll), 
+			app(App)
+	{
+	}
 	int handle(int event) 
 	{
 		if ( event==FL_PUSH && (
@@ -172,6 +177,13 @@ TFLApp::Run( int argc, char* argv[] )
 	Boolean fullscreen = (bool)flSettings->fullScreen;
 	int useAIFROMFile = 0;	// 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
 
+	int xx, yy, ww, hh;
+	if (fullscreen) {
+		Fl::screen_xywh(xx, yy, ww, hh, 0);
+		portraitWidth = ww;
+		portraitHeight = hh;
+	}
+
 	if (portraitHeight < portraitWidth)
 	{
 		(void) ::fprintf(
@@ -184,7 +196,13 @@ TFLApp::Run( int argc, char* argv[] )
 	(void) ::printf( "Welcome to Einstein console.\n" );
 	(void) ::printf( "This is %s.\n", VERSION_STRING );
 
-	Fl_Window *win = new Fl_Einstein_Window(portraitWidth, portraitHeight, this, "Einstein");
+	Fl_Window *win;
+	if (fullscreen) {
+		win = new Fl_Einstein_Window(xx, yy, portraitWidth, portraitHeight, this);
+		win->border(0);
+	} else {
+		win = new Fl_Einstein_Window(portraitWidth, portraitHeight, this, "Einstein");
+	}
 	win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 	win->callback(quit_cb, this);
 
@@ -196,7 +214,8 @@ TFLApp::Run( int argc, char* argv[] )
 	}
 	if (theScreenManagerClass == nil)
 	{
-		CreateScreenManager( "FL", portraitWidth, portraitHeight, fullscreen );
+		//CreateScreenManager( "FL", portraitWidth, portraitHeight, fullscreen );
+		CreateScreenManager( "FL", portraitWidth, portraitHeight, 0 );
 	} else {
 		CreateScreenManager( theScreenManagerClass, portraitWidth, portraitHeight, fullscreen );
 	}
@@ -405,6 +424,8 @@ TFLApp::CreateScreenManager(
 
 		KUInt32 theWidth;
 		KUInt32 theHeight;
+
+#if 0
 		if (inFullScreen)
 		{
 			KUInt32 theScreenWidth;
@@ -424,6 +445,10 @@ TFLApp::CreateScreenManager(
 			theWidth = inPortraitWidth;
 			theHeight = inPortraitHeight;
 		}
+#else
+			theWidth = inPortraitWidth;
+			theHeight = inPortraitHeight;
+#endif
 
 		mScreenManager = new TFLScreenManager(
 									mLog,
