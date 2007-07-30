@@ -738,7 +738,7 @@ private:
 	///
 	/// CRC for the serial number.
 	///
-	static const int TMemory::kSerialNumberCRC[256];
+	static const int kSerialNumberCRC[256];
 
 	///
 	/// Compute the serial number from the NewtonID.
