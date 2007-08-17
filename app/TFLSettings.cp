@@ -25,10 +25,15 @@
 
 #include "TFLSettings.h"
 #include "TFLApp.h"
+#include "winsock2.h"
 #include <string.h>
 #include <FL/filename.h>
 #include <FL/fl_file_chooser.h>
 #include <FL/Fl_Preferences.H>
+static Fl_Window *wProgressWindow = 0L; 
+static FILE *fROM; 
+static SOCKET sData; 
+static int recvd; 
 
 static void cb_TFLSettings(Fl_Window*, void* v) {
   TFLSettings *me = (TFLSettings*)v;
@@ -88,6 +93,13 @@ Fl_Menu_Item TFLSettings::menu_RMB[] = {
  {"Power", 0,  (Fl_Callback*)TFLSettings::cb_Power, 0, 0, FL_NORMAL_LABEL, 0, 12, 0},
  {0,0,0,0,0,0,0,0,0}
 };
+
+void TFLSettings::cb_wROMDownload_i(Fl_Button*, void*) {
+  app->menuDownloadROM();
+}
+void TFLSettings::cb_wROMDownload(Fl_Button* o, void* v) {
+  ((TFLSettings*)(o->parent()->parent()))->cb_wROMDownload_i(o,v);
+}
 
 void TFLSettings::cb_wROMPathChoose_i(Fl_Button*, void*) {
   const char *path = fl_file_chooser("Choose ROM file", "*", wROMPath->label());
@@ -202,14 +214,19 @@ this->when(FL_WHEN_RELEASE);
   o->labelsize(11);
   o->align(FL_ALIGN_TOP_LEFT);
   { wROMPath = new Fl_Box(15, 35, 395, 35);
+    wROMPath->labelfont(1);
     wROMPath->labelsize(12);
     wROMPath->align(196|FL_ALIGN_INSIDE);
   } // Fl_Box* wROMPath
-  { wROMPathChoose = new Fl_Button(335, 70, 70, 20, "Choose...");
+  { wROMDownload = new Fl_Button(235, 70, 80, 20, "Download...");
+    wROMDownload->labelsize(12);
+    wROMDownload->callback((Fl_Callback*)cb_wROMDownload);
+  } // Fl_Button* wROMDownload
+  { wROMPathChoose = new Fl_Button(325, 70, 80, 20, "Choose...");
     wROMPathChoose->labelsize(12);
     wROMPathChoose->callback((Fl_Callback*)cb_wROMPathChoose);
   } // Fl_Button* wROMPathChoose
-  { wMachineChoice = new Fl_Choice(275, 95, 130, 20, "Machine:");
+  { wMachineChoice = new Fl_Choice(280, 95, 125, 20, "Machine:");
     wMachineChoice->down_box(FL_BORDER_BOX);
     wMachineChoice->labelsize(12);
     wMachineChoice->callback((Fl_Callback*)cb_wMachineChoice);
@@ -222,10 +239,11 @@ this->when(FL_WHEN_RELEASE);
   o->labelsize(11);
   o->align(FL_ALIGN_TOP_LEFT);
   { wFlashPath = new Fl_Box(15, 150, 395, 35);
+    wFlashPath->labelfont(1);
     wFlashPath->labelsize(12);
     wFlashPath->align(196|FL_ALIGN_INSIDE);
   } // Fl_Box* wFlashPath
-  { wFlashPathChoose = new Fl_Button(335, 185, 70, 20, "Choose...");
+  { wFlashPathChoose = new Fl_Button(325, 185, 80, 20, "Choose...");
     wFlashPathChoose->labelsize(12);
     wFlashPathChoose->callback((Fl_Callback*)cb_wFlashPathChoose);
   } // Fl_Button* wFlashPathChoose
@@ -291,12 +309,12 @@ this->when(FL_WHEN_RELEASE);
   wDontShow->down_box(FL_DOWN_BOX);
   wDontShow->labelsize(12);
 } // Fl_Check_Button* wDontShow
-{ wQuit = new Fl_Button(215, 320, 95, 25, "Quit");
+{ wQuit = new Fl_Button(215, 325, 95, 25, "Quit");
   wQuit->color(FL_LIGHT1);
   wQuit->labelsize(12);
   wQuit->callback((Fl_Callback*)cb_wQuit);
 } // Fl_Button* wQuit
-{ wStart = new Fl_Button(320, 320, 95, 25, "Start");
+{ wStart = new Fl_Button(320, 325, 95, 25, "Start");
   wStart->color(FL_LIGHT1);
   wStart->labelsize(12);
   wStart->callback((Fl_Callback*)cb_wStart);
@@ -1127,6 +1145,269 @@ Fl_Double_Window* createAboutDialog() {
     wAbout->end();
   } // Fl_Double_Window* wAbout
   return wAbout;
+}
+
+Fl_Double_Window *wROMDownloadWindow=(Fl_Double_Window *)0;
+
+Fl_Input *wDownloadIP3=(Fl_Input *)0;
+
+Fl_Input *wDownloadIP2=(Fl_Input *)0;
+
+Fl_Input *wDownloadIP1=(Fl_Input *)0;
+
+Fl_Input *wDownloadIP0=(Fl_Input *)0;
+
+Fl_Input *wDownloadPort=(Fl_Input *)0;
+
+Fl_Box *wDownloadPath=(Fl_Box *)0;
+
+Fl_Button *wDownloadChoose=(Fl_Button *)0;
+
+static void cb_wDownloadChoose(Fl_Button*, void*) {
+  const char *path = fl_file_chooser("Choose ROM file destination", "*", wDownloadPath->label());
+if (path) {
+  wDownloadPath->copy_label(path);
+}
+wProgressSlider->label("Connecting...");
+wProgressSlider->value(0);
+}
+
+static void cb_Cancel(Fl_Button* o, void*) {
+  o->window()->hide();
+}
+
+static void cb_Download(Fl_Button*, void*) {
+  if (!wProgressWindow) {
+  wProgressWindow = createROMDownloadProgressWindow();
+}
+wProgressSlider->label("Connecting...");
+wProgressSlider->value(0);
+wProgressWindow->show();
+startDump();
+}
+
+Fl_Double_Window* createROMDownloadDialog() {
+  { wROMDownloadWindow = new Fl_Double_Window(417, 394, "Download ROM via TCP/IP");
+    { Fl_Box* o = new Fl_Box(5, 5, 405, 25, "How to download the Newton ROM using a network connection");
+      o->labelfont(1);
+      o->labelsize(12);
+    } // Fl_Box* o
+    { Fl_Box* o = new Fl_Box(20, 35, 370, 120, "* install ROMDumper.pkg on your Newton\n* tap the ROMDumper icon in your Extr\
+as Drawer\n* tap Start\n* if your Newton is not connected to the network yet, \
+choose a\n   connection method\n* copy the IP address and the port number into\
+ the form below\n* choose a filename for your new ROM dump\n* click Download");
+      o->labelsize(11);
+      o->align(133|FL_ALIGN_INSIDE);
+    } // Fl_Box* o
+    { Fl_Group* o = new Fl_Group(5, 170, 405, 70, "  TCP/IP Connection");
+      o->box(FL_GTK_DOWN_BOX);
+      o->labelsize(11);
+      o->align(FL_ALIGN_TOP_LEFT);
+      { Fl_Group* o = new Fl_Group(160, 184, 145, 20, "IP Address:");
+        o->box(FL_DOWN_BOX);
+        o->color(FL_BACKGROUND2_COLOR);
+        o->labelsize(12);
+        o->align(FL_ALIGN_LEFT);
+        { wDownloadIP3 = new Fl_Input(162, 186, 28, 16);
+          wDownloadIP3->type(2);
+          wDownloadIP3->box(FL_FLAT_BOX);
+          wDownloadIP3->textsize(12);
+        } // Fl_Input* wDownloadIP3
+        { wDownloadIP2 = new Fl_Input(197, 186, 28, 16, ".");
+          wDownloadIP2->type(2);
+          wDownloadIP2->box(FL_FLAT_BOX);
+          wDownloadIP2->textsize(12);
+        } // Fl_Input* wDownloadIP2
+        { wDownloadIP1 = new Fl_Input(232, 186, 28, 16, ".");
+          wDownloadIP1->type(2);
+          wDownloadIP1->box(FL_FLAT_BOX);
+          wDownloadIP1->textsize(12);
+        } // Fl_Input* wDownloadIP1
+        { wDownloadIP0 = new Fl_Input(270, 186, 28, 16, ".");
+          wDownloadIP0->type(2);
+          wDownloadIP0->box(FL_FLAT_BOX);
+          wDownloadIP0->textsize(12);
+        } // Fl_Input* wDownloadIP0
+        o->end();
+      } // Fl_Group* o
+      { wDownloadPort = new Fl_Input(160, 209, 80, 20, "Port:");
+        wDownloadPort->type(2);
+        wDownloadPort->labelsize(12);
+        wDownloadPort->textsize(12);
+      } // Fl_Input* wDownloadPort
+      o->end();
+    } // Fl_Group* o
+    { Fl_Group* o = new Fl_Group(5, 260, 405, 70, "  ROM File Destination");
+      o->box(FL_GTK_DOWN_BOX);
+      o->labelsize(11);
+      o->align(FL_ALIGN_TOP_LEFT);
+      { wDownloadPath = new Fl_Box(10, 265, 395, 35);
+        wDownloadPath->labelfont(1);
+        wDownloadPath->labelsize(12);
+        wDownloadPath->align(196|FL_ALIGN_INSIDE);
+      } // Fl_Box* wDownloadPath
+      { wDownloadChoose = new Fl_Button(320, 300, 80, 20, "Choose...");
+        wDownloadChoose->labelsize(12);
+        wDownloadChoose->callback((Fl_Callback*)cb_wDownloadChoose);
+      } // Fl_Button* wDownloadChoose
+      o->end();
+    } // Fl_Group* o
+    { Fl_Button* o = new Fl_Button(210, 355, 95, 25, "Cancel");
+      o->color(FL_LIGHT1);
+      o->labelsize(12);
+      o->callback((Fl_Callback*)cb_Cancel);
+    } // Fl_Button* o
+    { Fl_Button* o = new Fl_Button(315, 355, 95, 25, "Download");
+      o->color(FL_LIGHT1);
+      o->labelsize(12);
+      o->callback((Fl_Callback*)cb_Download);
+    } // Fl_Button* o
+    wROMDownloadWindow->set_modal();
+    wROMDownloadWindow->end();
+  } // Fl_Double_Window* wROMDownloadWindow
+  return wROMDownloadWindow;
+}
+
+void startDump() {
+  sData = INVALID_SOCKET;
+
+// open the file that we will dump the ROM into
+fROM = fopen(wDownloadPath->label(), "rb");
+if (fROM) {
+  fclose(fROM);
+  if (fl_ask("The file\n%s\nalready exists.\nDo you want to erase this file now?", wDownloadPath->label())==0) {
+    wProgressWindow->hide();
+    return;
+  }
+}
+// erase the file now
+fROM = fopen(wDownloadPath->label(), "wb");
+if (!fROM) {
+  fl_alert("The file\n%s\ncan not be written. Operation aborted.", wDownloadPath->label());
+  wProgressWindow->hide();
+  return;
+}
+fclose(fROM);
+
+
+Fl::flush();
+// open the WSA socket library
+WORD wVersionRequested;
+WSADATA wsaData;
+int err;
+wVersionRequested = MAKEWORD( 2, 2 );
+err = WSAStartup( wVersionRequested, &wsaData );
+if (err) {
+  fl_alert("Can't start network communications.");
+  wProgressWindow->hide();
+  return;
+}
+// open the socket itself
+sData = socket(AF_INET, SOCK_STREAM, 0);
+if (sData==INVALID_SOCKET) {
+  fl_alert("Can't open network socket.");
+  wProgressWindow->hide();
+  return;
+}
+// read all TCP/IP settings from the dialog
+unsigned char ip3 = atoi(wDownloadIP3->value());
+unsigned char ip2 = atoi(wDownloadIP2->value());
+unsigned char ip1 = atoi(wDownloadIP1->value());
+unsigned char ip0 = atoi(wDownloadIP0->value());
+unsigned short port = atoi(wDownloadPort->value());
+// copy the data into the structures
+struct sockaddr_in host_addr;
+int addr_len = sizeof(host_addr);
+memset(&host_addr, 0, addr_len);
+host_addr.sin_family = AF_INET;
+host_addr.sin_port = htons(port);
+host_addr.sin_addr.s_addr = htonl((ip3<<24)|(ip2<<16)|(ip1<<8)|ip0);
+// now connect the socket to the Newton TCP/IP port
+wProgressCancel->deactivate();
+Fl::flush();
+if (::connect(sData, (struct sockaddr*)&host_addr, addr_len) == SOCKET_ERROR) 
+{
+  fl_alert("Can't connect socket to Newton.\nDid you start ROMdump?");
+  closesocket(sData);
+  sData = INVALID_SOCKET;
+  wProgressWindow->hide();
+  wProgressCancel->activate();
+  return;
+}
+wProgressCancel->activate();
+// add callbacks that will be called when we receive data and when we lose the connection
+wProgressSlider->label("Downloading...");
+Fl::add_fd(sData, FL_READ, dataReadCB, 0);
+Fl::add_fd(sData, FL_EXCEPT, dataExceptCB, 0);
+fROM = fopen(wDownloadPath->label(), "wb");
+recvd = 0;
+}
+
+void dataReadCB(int p, void *user_data) {
+  unsigned long n;
+DWORD rcvd;
+int ret = WSAIoctl(sData, FIONREAD, 0, 0, &n, sizeof(n), &rcvd, 0, 0);
+if (ret || n==0) {
+  dataExceptCB(p, user_data);
+  return;
+}
+
+char *buf = (char*)malloc(n);
+int n1 = ::recv(sData, buf, n, 0);
+fwrite(buf, n, 1, fROM);
+free(buf);
+
+recvd += n;
+printf("Received %d/%d (%d)\n", n, n1, recvd);
+wProgressSlider->value(recvd/1024);
+}
+
+void dataExceptCB(int p, void *user_data) {
+  if (fROM) {
+  fclose(fROM);
+  fROM = 0L;
+}
+if (sData!=INVALID_SOCKET) {
+  closesocket(sData);
+  Fl::remove_fd(sData);
+  sData = INVALID_SOCKET;  
+}
+wProgressWindow->hide();
+if (recvd==8*1024*1024) {
+  fl_message("Complete ROM received.");
+  wROMDownloadWindow->hide();
+} else {
+  fl_message("Invalid ROM size.\n%d bytes expected, but %d bytes received.", 8*1024*1024, recvd);
+}
+}
+
+Fl_Slider *wProgressSlider=(Fl_Slider *)0;
+
+Fl_Button *wProgressCancel=(Fl_Button *)0;
+
+static void cb_wProgressCancel(Fl_Button* o, void*) {
+  o->window()->hide();
+}
+
+Fl_Double_Window* createROMDownloadProgressWindow() {
+  Fl_Double_Window* w;
+  { Fl_Double_Window* o = new Fl_Double_Window(285, 111);
+    w = o;
+    { wProgressSlider = new Fl_Slider(10, 25, 265, 20, "Connecting...");
+      wProgressSlider->type(3);
+      wProgressSlider->labelsize(12);
+      wProgressSlider->maximum(8192);
+      wProgressSlider->align(FL_ALIGN_TOP);
+    } // Fl_Slider* wProgressSlider
+    { wProgressCancel = new Fl_Button(180, 70, 95, 25, "Cancel");
+      wProgressCancel->color(FL_LIGHT1);
+      wProgressCancel->labelsize(12);
+      wProgressCancel->callback((Fl_Callback*)cb_wProgressCancel);
+    } // Fl_Button* wProgressCancel
+    o->set_modal();
+    o->end();
+  } // Fl_Double_Window* o
+  return w;
 }
 
 // ======================================================== //

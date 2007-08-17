@@ -40,6 +40,8 @@
 #include "TEmulator.h"
 #include "JIT/JIT.h"
 
+//KUInt32 TARMProcessor::mCurrentRegisters[16];		///< The current bank with the
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //

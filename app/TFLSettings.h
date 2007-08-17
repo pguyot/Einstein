@@ -57,6 +57,11 @@ private:
   static void cb_Power(Fl_Menu_*, void*);
 public:
   Fl_Box *wROMPath;
+  Fl_Button *wROMDownload;
+private:
+  void cb_wROMDownload_i(Fl_Button*, void*);
+  static void cb_wROMDownload(Fl_Button*, void*);
+public:
   Fl_Button *wROMPathChoose;
 private:
   void cb_wROMPathChoose_i(Fl_Button*, void*);
@@ -133,6 +138,21 @@ extern void close_window_cb(Fl_Double_Window*, void*);
 extern Fl_Double_Window *wAbout;
 extern void close_window_cb(Fl_Button*, void*);
 Fl_Double_Window* createAboutDialog();
+extern Fl_Double_Window *wROMDownloadWindow;
+extern Fl_Input *wDownloadIP3;
+extern Fl_Input *wDownloadIP2;
+extern Fl_Input *wDownloadIP1;
+extern Fl_Input *wDownloadIP0;
+extern Fl_Input *wDownloadPort;
+extern Fl_Box *wDownloadPath;
+extern Fl_Button *wDownloadChoose;
+Fl_Double_Window* createROMDownloadDialog();
+void startDump();
+void dataReadCB(int p, void *user_data);
+void dataExceptCB(int p, void *user_data);
+extern Fl_Slider *wProgressSlider;
+extern Fl_Button *wProgressCancel;
+Fl_Double_Window* createROMDownloadProgressWindow();
 #endif
 
 // ======================================================== //

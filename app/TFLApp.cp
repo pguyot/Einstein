@@ -548,6 +548,24 @@ void TFLApp::menuShowSettings()
 	flSettings->show();
 }
 
+void TFLApp::menuDownloadROM()
+{
+	static Fl_Window *downloadDialog = 0L;
+	if (!downloadDialog) {
+		downloadDialog = createROMDownloadDialog();
+		wDownloadIP3->value("192");
+		wDownloadIP2->value("168");
+		wDownloadIP1->value("0");
+		wDownloadIP0->value("24");
+		wDownloadPort->value("10080");
+		char path[FL_PATH_MAX]; path[0] = 0;
+		fl_filename_absolute(path, ".");
+		strcat(path, "myROM");
+		wDownloadPath->copy_label(path);
+	}
+	downloadDialog->show();
+}
+
 int main(int argc, char** argv )
 {
 	TFLApp theApp;

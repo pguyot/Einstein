@@ -33,6 +33,8 @@ decl {class TFLApp;} {public global
 
 decl {\#include "TFLApp.h"} {} 
 
+decl {\#include "winsock2.h"} {} 
+
 decl {\#include <string.h>} {} 
 
 decl {\#include <FL/filename.h>} {} 
@@ -41,15 +43,23 @@ decl {\#include <FL/fl_file_chooser.h>} {}
 
 decl {\#include <FL/Fl_Preferences.H>} {} 
 
+decl {Fl_Window *wProgressWindow = 0L;} {} 
+
+decl {FILE *fROM;} {} 
+
+decl {SOCKET sData;} {} 
+
+decl {int recvd;} {} 
+
 widget_class TFLSettings {
   label {Einstein Platform Setup}
   user_data this
   callback {TFLSettings *me = (TFLSettings*)v;
 me->revertDialog();
 me->redraw();
-me->hide();} open
-  xywh {-32000 -32000 425 365} type Double color 50 align 80 hide
-  class Fl_Window non_modal
+me->hide();}
+  xywh {411 145 425 365} type Double color 50 align 80
+  class Fl_Window non_modal visible
 } {
   Fl_Menu_Button RMB {
     label {RMB Menu}
@@ -115,7 +125,12 @@ me->hide();} open
     xywh {10 30 405 95} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Box wROMPath {
-      xywh {15 35 395 35} labelsize 12 align 212
+      xywh {15 35 395 35} labelfont 1 labelsize 12 align 212
+    }
+    Fl_Button wROMDownload {
+      label {Download...}
+      callback {app->menuDownloadROM();}
+      xywh {235 70 80 20} labelsize 12
     }
     Fl_Button wROMPathChoose {
       label {Choose...}
@@ -123,7 +138,7 @@ me->hide();} open
 if (path) {
   wROMPath->copy_label(path);
 }}
-      xywh {335 70 70 20} labelsize 12
+      xywh {325 70 80 20} labelsize 12
     }
     Fl_Choice wMachineChoice {
       label {Machine:}
@@ -135,7 +150,7 @@ if (name) {
   wROMPath->copy_label(buf);
   wROMPath->redraw();
 }} open
-      xywh {275 95 130 20} down_box BORDER_BOX labelsize 12
+      xywh {280 95 125 20} down_box BORDER_BOX labelsize 12
     } {
       MenuItem {} {
         label {MP2x00 US}
@@ -159,7 +174,7 @@ if (name) {
     xywh {10 145 405 70} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Box wFlashPath {
-      xywh {15 150 395 35} labelsize 12 align 212
+      xywh {15 150 395 35} labelfont 1 labelsize 12 align 212
     }
     Fl_Button wFlashPathChoose {
       label {Choose...}
@@ -167,7 +182,7 @@ if (name) {
 if (path) {
   wFlashPath->copy_label(path);
 }}
-      xywh {335 185 70 20} labelsize 12
+      xywh {325 185 80 20} labelsize 12
     }
   }
   Fl_Group {} {
@@ -222,14 +237,14 @@ if (path) {
   Fl_Button wQuit {
     label Quit
     callback {exit(0);}
-    xywh {215 320 95 25} color 50 labelsize 12
+    xywh {215 325 95 25} color 50 labelsize 12
   }
   Fl_Button wStart {
     label Start
     callback {applyDialog();
 savePreferences();
 hide();}
-    xywh {320 320 95 25} color 50 labelsize 12
+    xywh {320 325 95 25} color 50 labelsize 12
   }
   Fl_Box wRestartWarning {
     label {Preferences only apply at restart}
@@ -256,7 +271,7 @@ char *end = (char*)fl_filename_name(appPath);
 if (end) 
   *end = 0;} {}
   }
-  Function {loadPreferences()} {open return_type void
+  Function {loadPreferences()} {return_type void
   } {
     code {char buf[FL_PATH_MAX];
 
@@ -289,8 +304,7 @@ screen.get("height", screenHeight, 480);
 
 // Memory preferences
 Fl_Preferences memory(prefs, "Memory");
-memory.get("RAMSize", RAMSize, 64);} {selected
-    }
+memory.get("RAMSize", RAMSize, 64);} {}
   }
   Function {savePreferences()} {return_type void
   } {
@@ -355,7 +369,7 @@ RAMSize = (int)wRAMSize->value();
 
 dontShow = wDontShow->value();} {}
   }
-  Function {runningMode()} {open return_type void
+  Function {runningMode()} {return_type void
   } {
     code {wRestartWarning->show();
 wQuit->hide();
@@ -434,6 +448,227 @@ Function {createAboutDialog()} {open
       user_data wAbout
       callback close_window_cb
       xywh {190 135 55 20} labelsize 12
+    }
+  }
+} 
+
+Function {createROMDownloadDialog()} {open
+} {
+  Fl_Window wROMDownloadWindow {
+    label {Download ROM via TCP/IP} open
+    xywh {384 325 417 394} type Double modal visible
+  } {
+    Fl_Box {} {
+      label {How to download the Newton ROM using a network connection}
+      xywh {5 5 405 25} labelfont 1 labelsize 12
+    }
+    Fl_Box {} {
+      label {* install ROMDumper.pkg on your Newton
+* tap the ROMDumper icon in your Extras Drawer
+* tap Start
+* if your Newton is not connected to the network yet, choose a
+   connection method
+* copy the IP address and the port number into the form below
+* choose a filename for your new ROM dump
+* click Download}
+      xywh {20 35 370 120} labelsize 11 align 149
+    }
+    Fl_Group {} {
+      label {  TCP/IP Connection} open
+      xywh {5 170 405 70} box GTK_DOWN_BOX labelsize 11 align 5
+    } {
+      Fl_Group {} {
+        label {IP Address:} open
+        xywh {160 184 145 20} box DOWN_BOX color 7 labelsize 12 align 4
+      } {
+        Fl_Input wDownloadIP3 {
+          xywh {162 186 28 16} type Int box FLAT_BOX textsize 12
+        }
+        Fl_Input wDownloadIP2 {
+          label {.}
+          xywh {197 186 28 16} type Int box FLAT_BOX textsize 12
+        }
+        Fl_Input wDownloadIP1 {
+          label {.}
+          xywh {232 186 28 16} type Int box FLAT_BOX textsize 12
+        }
+        Fl_Input wDownloadIP0 {
+          label {.}
+          xywh {270 186 28 16} type Int box FLAT_BOX textsize 12
+        }
+      }
+      Fl_Input wDownloadPort {
+        label {Port:}
+        xywh {160 209 80 20} type Int labelsize 12 textsize 12
+      }
+    }
+    Fl_Group {} {
+      label {  ROM File Destination} open
+      xywh {5 260 405 70} box GTK_DOWN_BOX labelsize 11 align 5
+    } {
+      Fl_Box wDownloadPath {
+        xywh {10 265 395 35} labelfont 1 labelsize 12 align 212
+      }
+      Fl_Button wDownloadChoose {
+        label {Choose...}
+        callback {const char *path = fl_file_chooser("Choose ROM file destination", "*", wDownloadPath->label());
+if (path) {
+  wDownloadPath->copy_label(path);
+}
+wProgressSlider->label("Connecting...");
+wProgressSlider->value(0);}
+        xywh {320 300 80 20} labelsize 12
+      }
+    }
+    Fl_Button {} {
+      label Cancel
+      callback {o->window()->hide();}
+      xywh {210 355 95 25} color 50 labelsize 12
+    }
+    Fl_Button {} {
+      label Download
+      callback {if (!wProgressWindow) {
+  wProgressWindow = createROMDownloadProgressWindow();
+}
+wProgressSlider->label("Connecting...");
+wProgressSlider->value(0);
+wProgressWindow->show();
+startDump();}
+      xywh {315 355 95 25} color 50 labelsize 12
+    }
+  }
+} 
+
+Function {startDump()} {open return_type void
+} {
+  code {sData = INVALID_SOCKET;
+
+// open the file that we will dump the ROM into
+fROM = fopen(wDownloadPath->label(), "rb");
+if (fROM) {
+  fclose(fROM);
+  if (fl_ask("The file\\n%s\\nalready exists.\\nDo you want to erase this file now?", wDownloadPath->label())==0) {
+    wProgressWindow->hide();
+    return;
+  }
+}
+// erase the file now
+fROM = fopen(wDownloadPath->label(), "wb");
+if (!fROM) {
+  fl_alert("The file\\n%s\\ncan not be written. Operation aborted.", wDownloadPath->label());
+  wProgressWindow->hide();
+  return;
+}
+fclose(fROM);
+
+
+Fl::flush();
+// open the WSA socket library
+WORD wVersionRequested;
+WSADATA wsaData;
+int err;
+wVersionRequested = MAKEWORD( 2, 2 );
+err = WSAStartup( wVersionRequested, &wsaData );
+if (err) {
+  fl_alert("Can't start network communications.");
+  wProgressWindow->hide();
+  return;
+}
+// open the socket itself
+sData = socket(AF_INET, SOCK_STREAM, 0);
+if (sData==INVALID_SOCKET) {
+  fl_alert("Can't open network socket.");
+  wProgressWindow->hide();
+  return;
+}
+// read all TCP/IP settings from the dialog
+unsigned char ip3 = atoi(wDownloadIP3->value());
+unsigned char ip2 = atoi(wDownloadIP2->value());
+unsigned char ip1 = atoi(wDownloadIP1->value());
+unsigned char ip0 = atoi(wDownloadIP0->value());
+unsigned short port = atoi(wDownloadPort->value());
+// copy the data into the structures
+struct sockaddr_in host_addr;
+int addr_len = sizeof(host_addr);
+memset(&host_addr, 0, addr_len);
+host_addr.sin_family = AF_INET;
+host_addr.sin_port = htons(port);
+host_addr.sin_addr.s_addr = htonl((ip3<<24)|(ip2<<16)|(ip1<<8)|ip0);
+// now connect the socket to the Newton TCP/IP port
+wProgressCancel->deactivate();
+Fl::flush();
+if (::connect(sData, (struct sockaddr*)&host_addr, addr_len) == SOCKET_ERROR) 
+{
+  fl_alert("Can't connect socket to Newton.\\nDid you start ROMdump?");
+  closesocket(sData);
+  sData = INVALID_SOCKET;
+  wProgressWindow->hide();
+  wProgressCancel->activate();
+  return;
+}
+wProgressCancel->activate();
+// add callbacks that will be called when we receive data and when we lose the connection
+wProgressSlider->label("Downloading...");
+Fl::add_fd(sData, FL_READ, dataReadCB, 0);
+Fl::add_fd(sData, FL_EXCEPT, dataExceptCB, 0);
+fROM = fopen(wDownloadPath->label(), "wb");
+recvd = 0;} {}
+} 
+
+Function {dataReadCB(int p, void *user_data)} {open
+} {
+  code {unsigned long n;
+DWORD rcvd;
+int ret = WSAIoctl(sData, FIONREAD, 0, 0, &n, sizeof(n), &rcvd, 0, 0);
+if (ret || n==0) {
+  dataExceptCB(p, user_data);
+  return;
+}
+
+char *buf = (char*)malloc(n);
+int n1 = ::recv(sData, buf, n, 0);
+fwrite(buf, n, 1, fROM);
+free(buf);
+
+recvd += n;
+printf("Received %d/%d (%d)\\n", n, n1, recvd);
+wProgressSlider->value(recvd/1024);} {}
+} 
+
+Function {dataExceptCB(int p, void *user_data)} {open
+} {
+  code {if (fROM) {
+  fclose(fROM);
+  fROM = 0L;
+}
+if (sData!=INVALID_SOCKET) {
+  closesocket(sData);
+  Fl::remove_fd(sData);
+  sData = INVALID_SOCKET;  
+}
+wProgressWindow->hide();
+if (recvd==8*1024*1024) {
+  fl_message("Complete ROM received.");
+  wROMDownloadWindow->hide();
+} else {
+  fl_message("Invalid ROM size.\\n%d bytes expected, but %d bytes received.", 8*1024*1024, recvd);
+}} {selected
+  }
+} 
+
+Function {createROMDownloadProgressWindow()} {open
+} {
+  Fl_Window {} {open
+    xywh {862 545 285 111} type Double modal visible
+  } {
+    Fl_Slider wProgressSlider {
+      label {Connecting...}
+      xywh {10 25 265 20} type {Horz Fill} labelsize 12 align 1 maximum 8192
+    }
+    Fl_Button wProgressCancel {
+      label Cancel
+      callback {o->window()->hide();}
+      xywh {180 70 95 25} color 50 labelsize 12
     }
   }
 } 

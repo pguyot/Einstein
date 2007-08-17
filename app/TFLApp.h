@@ -97,6 +97,11 @@ public:
 	///
 	void menuShowSettings();
 
+	///
+	/// Open the dialog to download the ROM via TCP/IP 
+	///
+	void menuDownloadROM();
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
