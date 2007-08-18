@@ -143,7 +143,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libk.lib fltk.lib wsock32.lib user32.lib comctl32.lib winmm.lib"
+				AdditionalDependencies="libk.lib fltk.lib ws2_32.lib user32.lib comctl32.lib winmm.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\..\K\_Build_\VisualC8\release"
 				GenerateDebugInformation="false"
@@ -225,7 +225,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libk.lib fltk.lib wsock32.lib user32.lib comctl32.lib winmm.lib"
+				AdditionalDependencies="libk.lib fltk.lib ws2_32.lib user32.lib comctl32.lib winmm.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\..\K\_Build_\VisualC8\release"
 				GenerateDebugInformation="true"
