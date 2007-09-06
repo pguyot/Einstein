@@ -154,6 +154,45 @@ JITInstructionProto(Branch)
 }
 
 // -------------------------------------------------------------------------- //
+//  * Branch within page using a know JITUnit delta.
+// -------------------------------------------------------------------------- //
+JITInstructionProto(BranchWithinPage)
+{
+	KUInt32 theNewPC;
+	POPVALUE(theNewPC);
+
+	KSInt32 theDelta;
+	POPVALUE(theDelta);
+
+	// Branch.
+	SETPC(theNewPC);
+	return ioUnit+theDelta;
+}
+
+// -------------------------------------------------------------------------- //
+//  * Branch within a page - find the delta first.
+// -------------------------------------------------------------------------- //
+JITInstructionProto(BranchWithinPageFindDelta)
+{
+	KUInt32 theNewPC;
+	POPVALUE(theNewPC);
+
+	KSInt32 theDelta;
+	POPVALUE(theDelta);
+	
+	// MMUCALLNEXT()
+	TMemory *theMemIntf = ioCPU->GetMemory();
+	SETPC(theNewPC);
+	JITUnit *nextUnit = theMemIntf->GetJITObject()
+		->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
+
+	// now change the JIT command to the final fast branch
+	ioUnit[ 0].fValue = nextUnit - ioUnit;
+	ioUnit[-2].fFuncPtr = BranchWithinPage;
+	return nextUnit;
+}
+
+// -------------------------------------------------------------------------- //
 //  * BranchWithLink
 // -------------------------------------------------------------------------- //
 JITInstructionProto(BranchWithLink)
@@ -206,9 +245,17 @@ Translate_Branch(
 		// The new PC
 		PUSHVALUE(inVAddr + delta + 4);
 	} else {
-		PUSHFUNC(Branch);
-		// The new PC
-		PUSHVALUE(inVAddr + delta + 4);
+		//if ( ((inVAddr)/inPage->kPageSize) == ((inVAddr+delta)/inPage->kPageSize) ) 
+		if ( (inVAddr+delta>=inPage->GetVAddr()) && (inVAddr+delta<inPage->GetVAddr()+inPage->kPageSize) ) 
+		{
+			PUSHFUNC(BranchWithinPageFindDelta);
+			PUSHVALUE(inVAddr + delta + 4);
+			PUSHVALUE(-1);
+		} else {
+			PUSHFUNC(Branch);
+			// The new PC
+			PUSHVALUE(inVAddr + delta + 4);
+		}
 	}
 }
 

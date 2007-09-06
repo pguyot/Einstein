@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_3050CE430B0642199717BBA647A0D26C"
+        "OwnerKey" = "8:_DB6BF55A1EA446AB863E8556413BF6E2"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -33,14 +39,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_8712C7FF3741448AB6A680CBB3C2178B"
+        "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8D2FDCF053834E8AB218C20FBDD55E23"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_98AD503D19E6448890793733760899B0"
-        "OwnerKey" = "8:_E541C7FC1F2547C39DA4CDCA0EE73A0C"
+        "MsmKey" = "8:_A919BFE2CE2E4DFC88F6CADAA463E370"
+        "OwnerKey" = "8:_8712C7FF3741448AB6A680CBB3C2178B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -57,7 +69,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E541C7FC1F2547C39DA4CDCA0EE73A0C"
+        "MsmKey" = "8:_DB6BF55A1EA446AB863E8556413BF6E2"
         "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -70,6 +82,33 @@
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
         "OutputFilename" = "8:Debug\\Installer.msi"
+        "PackageFilesAs" = "3:2"
+        "PackageFileSize" = "3:-2147483648"
+        "CabType" = "3:1"
+        "Compression" = "3:2"
+        "SignOutput" = "11:FALSE"
+        "CertificateFile" = "8:"
+        "PrivateKeyFile" = "8:"
+        "TimeStampServer" = "8:"
+        "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                }
+            }
+        }
+        "OptDebug"
+        {
+        "DisplayName" = "8:OptDebug"
+        "IsDebugOnly" = "11:FALSE"
+        "IsReleaseOnly" = "11:FALSE"
+        "OutputFilename" = "8:OptDebug\\Installer.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -895,7 +934,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_98AD503D19E6448890793733760899B0"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_3050CE430B0642199717BBA647A0D26C"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -909,7 +948,35 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E541C7FC1F2547C39DA4CDCA0EE73A0C"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_8712C7FF3741448AB6A680CBB3C2178B"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:Microsoft_VC80_DebugCRT_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A919BFE2CE2E4DFC88F6CADAA463E370"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:policy_8_0_microsoft_vc80_debugcrt_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_DB6BF55A1EA446AB863E8556413BF6E2"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -928,7 +995,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_4C2CADC46E4F480895EBB6D51AEB8697"
             {
-            "SourcePath" = "8:..\\release\\Einstein.exe"
+            "SourcePath" = "8:..\\optdebug\\Einstein.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_CC98C5B91D8C446D92FF899B665C2A45"
