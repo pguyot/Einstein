@@ -208,6 +208,52 @@ JITInstructionProto(BranchWithLink)
 }
 
 // -------------------------------------------------------------------------- //
+//  * Branch with link within page using a know JITUnit delta.
+// -------------------------------------------------------------------------- //
+JITInstructionProto(BranchWithLinkWithinPage)
+{
+	KUInt32 theNewLR;
+	POPVALUE(theNewLR);
+	KUInt32 theNewPC;
+	POPVALUE(theNewPC);
+	KSInt32 theDelta;
+	POPVALUE(theDelta);
+
+	// BL
+	ioCPU->mCurrentRegisters[14] = theNewLR;
+	SETPC(theNewPC);
+	return ioUnit+theDelta;
+}
+
+// -------------------------------------------------------------------------- //
+//  * Branch with link within a page - find the delta first.
+// -------------------------------------------------------------------------- //
+JITInstructionProto(BranchWithLinkWithinPageFindDelta)
+{
+	KUInt32 theNewLR;
+	POPVALUE(theNewLR);
+	KUInt32 theNewPC;
+	POPVALUE(theNewPC);
+	KSInt32 theDelta;
+	POPVALUE(theDelta);
+
+	// set the link register
+	ioCPU->mCurrentRegisters[14] = theNewLR;
+
+	// MMUCALLNEXT()
+	TMemory *theMemIntf = ioCPU->GetMemory();
+	SETPC(theNewPC);
+	JITUnit *nextUnit = theMemIntf->GetJITObject()
+		->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
+
+	// now change the JIT command to the final fast branch
+	ioUnit[ 0].fValue = nextUnit - ioUnit;
+	ioUnit[-3].fFuncPtr = BranchWithLinkWithinPage;
+	return nextUnit;
+}
+
+
+// -------------------------------------------------------------------------- //
 //  * Translate_Branch
 // -------------------------------------------------------------------------- //
 void
@@ -239,17 +285,31 @@ Translate_Branch(
 	// if (theOffsetInPage < kPageSize)
 	if (inInstruction & 0x01000000)
 	{
-		PUSHFUNC(BranchWithLink);
-		// The new LR
-		PUSHVALUE(inVAddr + 4);	
-		// The new PC
-		PUSHVALUE(inVAddr + delta + 4);
+		// optimizing branches with link within pages gained only 1% speed
+		if ( (inVAddr+delta>=inPage->GetVAddr()) && (inVAddr+delta<inPage->GetVAddr()+inPage->kPageSize) ) 
+		{
+			PUSHFUNC(BranchWithLinkWithinPageFindDelta);
+			// The new LR
+			PUSHVALUE(inVAddr + 4);	
+			// The new PC
+			PUSHVALUE(inVAddr + delta + 4);
+			// The branch offset in ioUnits, to be calculated later
+			PUSHVALUE(-1);
+		} else {
+			PUSHFUNC(BranchWithLink);
+			// The new LR
+			PUSHVALUE(inVAddr + 4);	
+			// The new PC
+			PUSHVALUE(inVAddr + delta + 4);
+		}
 	} else {
-		//if ( ((inVAddr)/inPage->kPageSize) == ((inVAddr+delta)/inPage->kPageSize) ) 
+		// optimizing branches within pages gave us a 10% speed increase
 		if ( (inVAddr+delta>=inPage->GetVAddr()) && (inVAddr+delta<inPage->GetVAddr()+inPage->kPageSize) ) 
 		{
 			PUSHFUNC(BranchWithinPageFindDelta);
+			// The new PC
 			PUSHVALUE(inVAddr + delta + 4);
+			// The branch offset in ioUnits, to be calculated later
 			PUSHVALUE(-1);
 		} else {
 			PUSHFUNC(Branch);
