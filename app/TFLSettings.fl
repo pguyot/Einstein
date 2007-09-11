@@ -57,8 +57,8 @@ widget_class TFLSettings {
   callback {TFLSettings *me = (TFLSettings*)v;
 me->revertDialog();
 me->redraw();
-me->hide();}
-  xywh {411 145 425 365} type Double color 50 align 80
+me->hide();} open
+  xywh {411 145 425 377} type Double color 50 align 80
   class Fl_Window non_modal visible
 } {
   Fl_Menu_Button RMB {
@@ -121,7 +121,7 @@ me->hide();}
     }
   }
   Fl_Group {} {
-    label {  ROM} open
+    label {  ROM}
     xywh {10 30 405 95} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Box wROMPath {
@@ -170,7 +170,7 @@ if (name) {
     }
   }
   Fl_Group {} {
-    label {  Internal Flash File} open
+    label {  Internal Flash File}
     xywh {10 145 405 70} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Box wFlashPath {
@@ -186,65 +186,69 @@ if (path) {
     }
   }
   Fl_Group {} {
-    label {  Screen}
-    xywh {10 235 200 65} box GTK_DOWN_BOX labelsize 11 align 5
+    label {  Screen} open
+    xywh {10 235 200 80} box GTK_DOWN_BOX labelsize 11 align 5
   } {
-    Fl_Check_Button wFullScreen {
-      label {Full screen}
-      xywh {15 245 180 20} down_box DOWN_BOX labelsize 12
-    }
     Fl_Input wWidth {
-      xywh {20 270 80 20} type Int labelsize 12 textsize 12
+      xywh {20 245 80 20} type Int labelsize 12 textsize 12
     }
     Fl_Input wHeight {
       label {x }
-      xywh {115 270 80 20} type Int labelsize 12 textsize 12
+      xywh {115 245 80 20} type Int labelsize 12 textsize 12
+    }
+    Fl_Check_Button wFullScreen {
+      label {Full screen}
+      xywh {20 270 175 20} down_box DOWN_BOX labelsize 12
+    }
+    Fl_Check_Button wHideMouse {
+      label {Hide mouse pointer}
+      xywh {20 290 175 20} down_box DOWN_BOX labelsize 12
     }
   }
   Fl_Group {} {
     label {  Memory}
-    xywh {215 235 200 65} box GTK_DOWN_BOX labelsize 11 align 5
+    xywh {215 235 200 80} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Box {} {
       label {RAM Size}
-      xywh {225 245 55 20} labelsize 11 align 24
+      xywh {225 250 55 20} labelsize 11 align 24
     }
     Fl_Box wRAMSizeMB {
       label 4
-      xywh {280 245 18 20} labelsize 11 align 24
+      xywh {280 250 18 20} labelsize 11 align 24
     }
     Fl_Box {} {
       label MB
-      xywh {297 245 20 20} labelsize 11 align 20
+      xywh {297 250 20 20} labelsize 11 align 20
     }
     Fl_Box wRAMSizeKB {
       label 0
-      xywh {320 245 25 20} labelsize 11 align 24 hide
+      xywh {320 250 25 20} labelsize 11 align 24 hide
     }
     Fl_Box wRAMSizeKBLabel {
       label KB
-      xywh {345 245 20 20} labelsize 11 align 20 hide
+      xywh {345 250 20 20} labelsize 11 align 20 hide
     }
     Fl_Slider wRAMSize {
       callback {updateRAMSizeLabel();}
-      xywh {225 270 180 20} type Horizontal minimum 1 maximum 255 step 1 value 64
+      xywh {225 275 180 20} type Horizontal minimum 1 maximum 255 step 1 value 64
     }
   }
   Fl_Check_Button wDontShow {
     label {Don't show at startup}
-    xywh {10 325 140 20} down_box DOWN_BOX labelsize 12
+    xywh {10 340 140 20} down_box DOWN_BOX labelsize 12
   }
   Fl_Button wQuit {
     label Quit
     callback {exit(0);}
-    xywh {215 325 95 25} color 50 labelsize 12
+    xywh {215 340 95 25} color 50 labelsize 12
   }
   Fl_Button wStart {
     label Start
     callback {applyDialog();
 savePreferences();
 hide();}
-    xywh {320 325 95 25} color 50 labelsize 12
+    xywh {320 340 95 25} color 50 labelsize 12
   }
   Fl_Box wRestartWarning {
     label {Preferences only apply at restart}
@@ -298,9 +302,10 @@ flash.get("path", FlashPath, buf);
 
 // screen preferences
 Fl_Preferences screen(prefs, "Screen");
-screen.get("fullScreen", fullScreen, 0);
 screen.get("width", screenWidth, 320);
 screen.get("height", screenHeight, 480);
+screen.get("fullScreen", fullScreen, 0);
+screen.get("hideMouse", hideMouse, 0);
 
 // Memory preferences
 Fl_Preferences memory(prefs, "Memory");
@@ -324,9 +329,10 @@ flash.set("path", FlashPath);
 
 // screen preferences
 Fl_Preferences screen(prefs, "Screen");
-screen.set("fullScreen", fullScreen);
 screen.set("width", screenWidth);
 screen.set("height", screenHeight);
+screen.set("fullScreen", fullScreen);
+screen.set("hideMouse", hideMouse);
 
 // Memory preferences
 Fl_Preferences memory(prefs, "Memory");
@@ -341,11 +347,12 @@ wMachineChoice->value(machine);
 
 wFlashPath->copy_label(FlashPath);
 
-wFullScreen->value(fullScreen);
 sprintf(buf, "%d", screenWidth);
 wWidth->value(buf);
 sprintf(buf, "%d", screenHeight);
 wHeight->value(buf);
+wFullScreen->value(fullScreen);
+wHideMouse->value(hideMouse);
 
 wRAMSize->value(RAMSize);
 updateRAMSizeLabel();
@@ -361,9 +368,10 @@ machine = wMachineChoice->value();
 free(FlashPath);
 FlashPath = strdup(wFlashPath->label());
 
-fullScreen = wFullScreen->value();
 screenWidth = atoi(wWidth->value());
 screenHeight = atoi(wHeight->value());
+fullScreen = wFullScreen->value();
+hideMouse = wHideMouse->value();
 
 RAMSize = (int)wRAMSize->value();
 
@@ -383,11 +391,13 @@ wSave->show();} {}
   }
   decl {int machine;} {public global
   }
-  decl {int fullScreen;} {public global
-  }
   decl {int screenWidth;} {public global
   }
   decl {int screenHeight;} {public global
+  }
+  decl {int hideMouse;} {selected public global
+  }
+  decl {int fullScreen;} {public global
   }
   decl {int RAMSize;} {public global
   }
@@ -452,8 +462,7 @@ Function {createAboutDialog()} {open
   }
 } 
 
-Function {createROMDownloadDialog()} {open
-} {
+Function {createROMDownloadDialog()} {} {
   Fl_Window wROMDownloadWindow {
     label {Download ROM via TCP/IP} open
     xywh {384 325 417 394} type Double modal visible
@@ -474,7 +483,7 @@ Function {createROMDownloadDialog()} {open
       xywh {20 35 370 120} labelsize 11 align 149
     }
     Fl_Group {} {
-      label {  TCP/IP Connection} open
+      label {  TCP/IP Connection}
       xywh {5 170 405 70} box GTK_DOWN_BOX labelsize 11 align 5
     } {
       Fl_Group {} {
@@ -652,8 +661,7 @@ if (recvd==8*1024*1024) {
   wROMDownloadWindow->hide();
 } else {
   fl_message("Invalid ROM size.\\n%d bytes expected, but %d bytes received.", 8*1024*1024, recvd);
-}} {selected
-  }
+}} {}
 } 
 
 Function {createROMDownloadProgressWindow()} {open

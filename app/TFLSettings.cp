@@ -249,53 +249,57 @@ this->when(FL_WHEN_RELEASE);
   } // Fl_Button* wFlashPathChoose
   o->end();
 } // Fl_Group* o
-{ Fl_Group* o = new Fl_Group(10, 235, 200, 65, "  Screen");
+{ Fl_Group* o = new Fl_Group(10, 235, 200, 80, "  Screen");
   o->box(FL_GTK_DOWN_BOX);
   o->labelsize(11);
   o->align(FL_ALIGN_TOP_LEFT);
-  { wFullScreen = new Fl_Check_Button(15, 245, 180, 20, "Full screen");
-    wFullScreen->down_box(FL_DOWN_BOX);
-    wFullScreen->labelsize(12);
-  } // Fl_Check_Button* wFullScreen
-  { wWidth = new Fl_Input(20, 270, 80, 20);
+  { wWidth = new Fl_Input(20, 245, 80, 20);
     wWidth->type(2);
     wWidth->labelsize(12);
     wWidth->textsize(12);
   } // Fl_Input* wWidth
-  { wHeight = new Fl_Input(115, 270, 80, 20, "x ");
+  { wHeight = new Fl_Input(115, 245, 80, 20, "x ");
     wHeight->type(2);
     wHeight->labelsize(12);
     wHeight->textsize(12);
   } // Fl_Input* wHeight
+  { wFullScreen = new Fl_Check_Button(20, 270, 175, 20, "Full screen");
+    wFullScreen->down_box(FL_DOWN_BOX);
+    wFullScreen->labelsize(12);
+  } // Fl_Check_Button* wFullScreen
+  { wHideMouse = new Fl_Check_Button(20, 290, 175, 20, "Hide mouse pointer");
+    wHideMouse->down_box(FL_DOWN_BOX);
+    wHideMouse->labelsize(12);
+  } // Fl_Check_Button* wHideMouse
   o->end();
 } // Fl_Group* o
-{ Fl_Group* o = new Fl_Group(215, 235, 200, 65, "  Memory");
+{ Fl_Group* o = new Fl_Group(215, 235, 200, 80, "  Memory");
   o->box(FL_GTK_DOWN_BOX);
   o->labelsize(11);
   o->align(FL_ALIGN_TOP_LEFT);
-  { Fl_Box* o = new Fl_Box(225, 245, 55, 20, "RAM Size");
+  { Fl_Box* o = new Fl_Box(225, 250, 55, 20, "RAM Size");
     o->labelsize(11);
     o->align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE);
   } // Fl_Box* o
-  { wRAMSizeMB = new Fl_Box(280, 245, 18, 20, "4");
+  { wRAMSizeMB = new Fl_Box(280, 250, 18, 20, "4");
     wRAMSizeMB->labelsize(11);
     wRAMSizeMB->align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE);
   } // Fl_Box* wRAMSizeMB
-  { Fl_Box* o = new Fl_Box(297, 245, 20, 20, "MB");
+  { Fl_Box* o = new Fl_Box(297, 250, 20, 20, "MB");
     o->labelsize(11);
     o->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   } // Fl_Box* o
-  { wRAMSizeKB = new Fl_Box(320, 245, 25, 20, "0");
+  { wRAMSizeKB = new Fl_Box(320, 250, 25, 20, "0");
     wRAMSizeKB->labelsize(11);
     wRAMSizeKB->align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE);
     wRAMSizeKB->hide();
   } // Fl_Box* wRAMSizeKB
-  { wRAMSizeKBLabel = new Fl_Box(345, 245, 20, 20, "KB");
+  { wRAMSizeKBLabel = new Fl_Box(345, 250, 20, 20, "KB");
     wRAMSizeKBLabel->labelsize(11);
     wRAMSizeKBLabel->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
     wRAMSizeKBLabel->hide();
   } // Fl_Box* wRAMSizeKBLabel
-  { wRAMSize = new Fl_Slider(225, 270, 180, 20);
+  { wRAMSize = new Fl_Slider(225, 275, 180, 20);
     wRAMSize->type(1);
     wRAMSize->minimum(1);
     wRAMSize->maximum(255);
@@ -305,16 +309,16 @@ this->when(FL_WHEN_RELEASE);
   } // Fl_Slider* wRAMSize
   o->end();
 } // Fl_Group* o
-{ wDontShow = new Fl_Check_Button(10, 325, 140, 20, "Don\'t show at startup");
+{ wDontShow = new Fl_Check_Button(10, 340, 140, 20, "Don\'t show at startup");
   wDontShow->down_box(FL_DOWN_BOX);
   wDontShow->labelsize(12);
 } // Fl_Check_Button* wDontShow
-{ wQuit = new Fl_Button(215, 325, 95, 25, "Quit");
+{ wQuit = new Fl_Button(215, 340, 95, 25, "Quit");
   wQuit->color(FL_LIGHT1);
   wQuit->labelsize(12);
   wQuit->callback((Fl_Callback*)cb_wQuit);
 } // Fl_Button* wQuit
-{ wStart = new Fl_Button(320, 325, 95, 25, "Start");
+{ wStart = new Fl_Button(320, 340, 95, 25, "Start");
   wStart->color(FL_LIGHT1);
   wStart->labelsize(12);
   wStart->callback((Fl_Callback*)cb_wStart);
@@ -375,9 +379,10 @@ flash.get("path", FlashPath, buf);
 
 // screen preferences
 Fl_Preferences screen(prefs, "Screen");
-screen.get("fullScreen", fullScreen, 0);
 screen.get("width", screenWidth, 320);
 screen.get("height", screenHeight, 480);
+screen.get("fullScreen", fullScreen, 0);
+screen.get("hideMouse", hideMouse, 0);
 
 // Memory preferences
 Fl_Preferences memory(prefs, "Memory");
@@ -401,9 +406,10 @@ flash.set("path", FlashPath);
 
 // screen preferences
 Fl_Preferences screen(prefs, "Screen");
-screen.set("fullScreen", fullScreen);
 screen.set("width", screenWidth);
 screen.set("height", screenHeight);
+screen.set("fullScreen", fullScreen);
+screen.set("hideMouse", hideMouse);
 
 // Memory preferences
 Fl_Preferences memory(prefs, "Memory");
@@ -418,11 +424,12 @@ wMachineChoice->value(machine);
 
 wFlashPath->copy_label(FlashPath);
 
-wFullScreen->value(fullScreen);
 sprintf(buf, "%d", screenWidth);
 wWidth->value(buf);
 sprintf(buf, "%d", screenHeight);
 wHeight->value(buf);
+wFullScreen->value(fullScreen);
+wHideMouse->value(hideMouse);
 
 wRAMSize->value(RAMSize);
 updateRAMSizeLabel();
@@ -438,9 +445,10 @@ machine = wMachineChoice->value();
 free(FlashPath);
 FlashPath = strdup(wFlashPath->label());
 
-fullScreen = wFullScreen->value();
 screenWidth = atoi(wWidth->value());
 screenHeight = atoi(wHeight->value());
+fullScreen = wFullScreen->value();
+hideMouse = wHideMouse->value();
 
 RAMSize = (int)wRAMSize->value();
 

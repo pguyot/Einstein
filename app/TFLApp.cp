@@ -32,6 +32,7 @@
 #include <sys/types.h>
 
 #include <FL/x.H>
+#include <FL/fl_draw.h>
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
@@ -86,10 +87,24 @@ public:
 			}
 			return 1;
 		}
+		switch (event) {
+			case FL_ENTER:
+				if (hideMouse_) 
+					fl_cursor(FL_CURSOR_NONE);
+				break;
+			case FL_LEAVE:
+				fl_cursor(FL_CURSOR_DEFAULT);
+				break;
+		}
 		return Fl_Window::handle(event);
+	}
+	void hideMouse() {
+		fl_cursor(FL_CURSOR_NONE);
+		hideMouse_ = 1;
 	}
 private:
 	TFLApp	*app;
+	int		hideMouse_;
 };
 
 // -------------------------------------------------------------------------- //
@@ -147,7 +162,7 @@ TFLApp::Run( int argc, char* argv[] )
 	Fl::args(1, argv);
 	Fl::get_system_colors();
 
-	flSettings = new TFLSettings(425, 365, "Einstein Platform Settings");
+	flSettings = new TFLSettings(425, 380, "Einstein Platform Settings");
 	flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 	flSettings->setApp(this, mProgramName);
 	flSettings->loadPreferences();
@@ -175,6 +190,7 @@ TFLApp::Run( int argc, char* argv[] )
 	int portraitHeight = flSettings->screenHeight;
 	int ramSize = flSettings->RAMSize;
 	Boolean fullscreen = (bool)flSettings->fullScreen;
+	Boolean hidemouse = (bool)flSettings->hideMouse;
 	int useAIFROMFile = 0;	// 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
 
 	int xx, yy, ww, hh;
@@ -196,7 +212,7 @@ TFLApp::Run( int argc, char* argv[] )
 	(void) ::printf( "Welcome to Einstein console.\n" );
 	(void) ::printf( "This is %s.\n", VERSION_STRING );
 
-	Fl_Window *win;
+	Fl_Einstein_Window *win;
 	if (fullscreen) {
 		win = new Fl_Einstein_Window(xx, yy, portraitWidth, portraitHeight, this);
 		win->border(0);
@@ -281,6 +297,9 @@ TFLApp::Run( int argc, char* argv[] )
 
 		Fl::lock();
 		win->show(1, argv);
+		if (hidemouse) {
+			win->hideMouse();
+		}
 
 #if TARGET_OS_WIN32
 		HANDLE theThread = CreateThread(0L, 0, (LPTHREAD_START_ROUTINE)SThreadEntry, this, 0, 0L);

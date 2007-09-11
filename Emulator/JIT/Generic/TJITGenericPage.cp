@@ -397,7 +397,7 @@ TJITGenericPage::DoTranslate_10(
 //  * EndOfPage( JITUnit*, TARMProcessor* )
 // -------------------------------------------------------------------------- //
 JITUnit*
-TJITGenericPage::EndOfPage(
+FASTCALL TJITGenericPage::EndOfPage(
 				JITUnit* ioUnit,
 				TARMProcessor* ioCPU )
 {

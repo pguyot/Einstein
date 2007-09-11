@@ -1,8 +1,9 @@
 // ==============================
-// File:			TJITGeneric_DataProcessingPSRTransfer_MRS_template.t
+// File:			JITPerformance.h
 // Project:			Einstein
 //
 // Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+//                     and Matthias Melcher (m.melcher@robowerk.com)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,30 +22,26 @@
 // $Id$
 // ==============================
 
-#define MRS_TemplateName(flag_r, rd) \
-	DataProcessingTranfer_MRS_ ## flag_r ## _ ## rd
-	
-#define MRS_Proto(flag_r, rd) \
-		JITUnit* FASTCALL MRS_TemplateName(flag_r, rd) \
-			(JITUnit* ioUnit, TARMProcessor* ioCPU)
-#if DECLARATION
-	#define MRS(flag_r, rd) \
-		MRS_Proto(flag_r, rd);
+#ifndef _JITPERFORMANCE_H
+#define _JITPERFOMRANCE_H
+
+#include <K/Defines/KDefinitions.h>
+
+// the following definition sets the fastest calling convention for C functions
+// for a given platform
+
+#if defined(_MSC_VER) && defined(_M_IX86)
+  // Matt: after much testing, I came to the conclusion that the default
+  // calling convention is actually the fastest in VisualC. Nevertheless I want
+  // to leave this code in for potentially better calling conventions
+  // on other compilers or platforms.
+  #define FASTCALL
+#else
+  #define FASTCALL
 #endif
-#if IMPLEMENTATION
-	#define MRS(flag_r, rd) \
-		MRS_Proto(flag_r, rd)
+
+
 #endif
+		// _JITPERFORMANCE_H
 
-#define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_MRS_template.h"
-
-#define FLAG_R	0
-#include "IncludeRd.h"
-#undef FLAG_R
-#define FLAG_R	1
-#include "IncludeRd.h"
-#undef FLAG_R
-
-#undef INCLUDE_TEMPLATE
-#undef MRS
-#undef MRS_Proto
+// ==============================

@@ -21,12 +21,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3050CE430B0642199717BBA647A0D26C"
-        "OwnerKey" = "8:_DB6BF55A1EA446AB863E8556413BF6E2"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -39,7 +33,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8712C7FF3741448AB6A680CBB3C2178B"
+        "MsmKey" = "8:_5FD753D9685640D99E1142496B18E626"
+        "OwnerKey" = "8:_6CE767C56D2E46A3A1EBED1531C00FC0"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6CE767C56D2E46A3A1EBED1531C00FC0"
         "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -51,8 +51,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A919BFE2CE2E4DFC88F6CADAA463E370"
-        "OwnerKey" = "8:_8712C7FF3741448AB6A680CBB3C2178B"
+        "MsmKey" = "8:_AC5E9DCBBDD34EFD87ADC45488DE9B9C"
+        "OwnerKey" = "8:_F29D3A58035144BF984E791E701F2F86"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -69,7 +69,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DB6BF55A1EA446AB863E8556413BF6E2"
+        "MsmKey" = "8:_F29D3A58035144BF984E791E701F2F86"
         "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -343,14 +343,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Einstein"
-        "ProductCode" = "8:{915B5369-0E3E-4B7E-A107-BFA247A1944F}"
-        "PackageCode" = "8:{724B167E-3775-42E4-A8AA-DFB9CAB8C294}"
+        "ProductCode" = "8:{1141874F-1E2D-4D3D-95FF-F83A28F8488A}"
+        "PackageCode" = "8:{D5794807-C2E6-4184-BF57-3C01E158DFD2}"
         "UpgradeCode" = "8:{04D5D4E1-3E58-40B7-B1AD-BA60E10334CB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.7.4"
+        "ProductVersion" = "8:1.7.5"
         "Manufacturer" = "8:OpenEinstein"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://code.google.com/p/peinstein"
@@ -934,7 +934,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_3050CE430B0642199717BBA647A0D26C"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_5FD753D9685640D99E1142496B18E626"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -948,11 +948,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_8712C7FF3741448AB6A680CBB3C2178B"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_6CE767C56D2E46A3A1EBED1531C00FC0"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC80_DebugCRT_x86.msm"
+            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
                 "Properties"
                 {
                 }
@@ -962,7 +962,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A919BFE2CE2E4DFC88F6CADAA463E370"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_AC5E9DCBBDD34EFD87ADC45488DE9B9C"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -976,11 +976,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_DB6BF55A1EA446AB863E8556413BF6E2"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F29D3A58035144BF984E791E701F2F86"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
+            "SourcePath" = "8:Microsoft_VC80_DebugCRT_x86.msm"
                 "Properties"
                 {
                 }

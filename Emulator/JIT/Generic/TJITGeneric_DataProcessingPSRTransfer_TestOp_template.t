@@ -25,7 +25,7 @@
 	DataProcessingTranfer_ ## op ## _ ## mode ## _ ## rn
 	
 #define TestOp_Proto(op, mode, rn) \
-	JITUnit* TestOp_TemplateName(op, mode, rn) \
+	JITUnit* FASTCALL TestOp_TemplateName(op, mode, rn) \
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)
 
 #if DECLARATION

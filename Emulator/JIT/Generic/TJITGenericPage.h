@@ -26,13 +26,14 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TJITPage.h"
+#include "JITPerformance.h"
 
 class TARMProcessor;
 union JITUnit;
 class TJITGeneric;
 
 // Function.
-typedef JITUnit* (*JITFuncPtr)(JITUnit* ioUnit, TARMProcessor* ioCPU);
+typedef JITUnit* (FASTCALL *JITFuncPtr)(JITUnit* ioUnit, TARMProcessor* ioCPU);
 
 typedef union JITUnit {
 	KUIntPtr	fPtr;
@@ -121,7 +122,7 @@ private:
 	///
 	/// \param inInstruction	current instruction.
 	///
-	static JITUnit* EndOfPage(
+	static JITUnit* FASTCALL EndOfPage(
 					JITUnit* ioUnit,
 					TARMProcessor* ioObject );
 
@@ -130,7 +131,7 @@ private:
 	///
 	/// \param inInstruction	current instruction.
 	///
-	static JITUnit* Halt(
+	static JITUnit* FASTCALL Halt(
 					JITUnit* ioUnit,
 					TARMProcessor* ioObject );
 

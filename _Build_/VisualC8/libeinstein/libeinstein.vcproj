@@ -105,10 +105,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/wd4996"
-				InlineFunctionExpansion="0"
-				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="1"
-				WholeProgramOptimization="false"
+				Optimization="3"
 				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;DYLIBSUFFIX=&quot;.dll&quot;"
 				RuntimeLibrary="2"
@@ -171,6 +168,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/wd4996"
 				Optimization="2"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DYLIBSUFFIX=&quot;.dll&quot;"
@@ -178,6 +177,7 @@
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
+				AssemblerOutput="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
@@ -349,6 +349,10 @@
 					>
 					<File
 						RelativePath="..\..\..\Emulator\JIT\JIT.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\Emulator\JIT\JITPerformance.h"
 						>
 					</File>
 					<File

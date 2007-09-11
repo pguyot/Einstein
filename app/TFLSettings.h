@@ -33,8 +33,8 @@ class TFLApp;
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Choice.H>
-#include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Input.H>
+#include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Slider.H>
 
 class TFLSettings : public Fl_Window {
@@ -79,9 +79,10 @@ private:
   void cb_wFlashPathChoose_i(Fl_Button*, void*);
   static void cb_wFlashPathChoose(Fl_Button*, void*);
 public:
-  Fl_Check_Button *wFullScreen;
   Fl_Input *wWidth;
   Fl_Input *wHeight;
+  Fl_Check_Button *wFullScreen;
+  Fl_Check_Button *wHideMouse;
   Fl_Box *wRAMSizeMB;
   Fl_Box *wRAMSizeKB;
   Fl_Box *wRAMSizeKBLabel;
@@ -115,9 +116,10 @@ public:
   char *ROMPath; 
   char *FlashPath; 
   int machine; 
-  int fullScreen; 
   int screenWidth; 
   int screenHeight; 
+  int hideMouse; 
+  int fullScreen; 
   int RAMSize; 
   int dontShow; 
 private:

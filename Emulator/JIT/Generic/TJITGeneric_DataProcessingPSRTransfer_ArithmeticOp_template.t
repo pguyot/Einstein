@@ -25,7 +25,7 @@
 	DataProcessingTranfer_ ## op ## _ ## mode ## _ ## flag_s ## _ ## rn ## _ ## rd
 
 #define ArithmeticOp_Proto(op, mode, flag_s, rn, rd) \
-		JITUnit* ArithmeticOp_TemplateName(op, mode, flag_s, rn, rd) \
+		JITUnit* FASTCALL ArithmeticOp_TemplateName(op, mode, flag_s, rn, rd) \
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)
 #if DECLARATION
 	#define ArithmeticOp(op, mode, flag_s, rn, rd) \

@@ -25,7 +25,7 @@
 #define _TJITGENERIC_MACROS_H
 
 #define JITInstructionProto(name) \
-	JITUnit* name(JITUnit* ioUnit, TARMProcessor* ioCPU)
+	JITUnit* FASTCALL name(JITUnit* ioUnit, TARMProcessor* ioCPU)
 
 // Those really access R15 (for now).
 #define SETPC(newval) \
