@@ -59,7 +59,7 @@ const KUInt32 kInvocation[4] = {
 	UByteSex_FromBigEndian((KUInt32) 0xE8BD8000)
 };
 
-const KUInt32 k717006Patches[] = {
+const KUInt32 k717006VirtualizationPatches[] = {
 	// __rt_sdiv + 8, just after the divide by zero test.
 	(0x0038CA10 + 8) / sizeof(KUInt32),
 	TVirtualizedCallsPatches::k__rt_sdiv,
@@ -67,16 +67,16 @@ const KUInt32 k717006Patches[] = {
 	(0x0038C8FC + 8) / sizeof(KUInt32),
 	TVirtualizedCallsPatches::k__rt_udiv,
 	// memmove
-//	0x00382440 / sizeof(KUInt32),
-//	TVirtualizedCallsPatches::kmemmove,
+  //	0x00382440 / sizeof(KUInt32),
+  //	TVirtualizedCallsPatches::kmemmove,
 	// symcmp__FPcT1
 	0x00358C9C / sizeof(KUInt32),
-	TVirtualizedCallsPatches::ksymcmp__FPcT1,
+	TVirtualizedCallsPatches::ksymcmp__FPcT1
+};	
+
+const KUInt32 k717006SimplePatches[] = {
 	// avoid calibration screen early in the game
-	0x001412f8 / sizeof(KUInt32),
-	0xea000009,
-	//0x00141304 / sizeof(KUInt32),
-	//0xea000006,
+	0x001412f8 / sizeof(KUInt32),	0xea000009,
 };	
 
 // -------------------------------------------------------------------------- //
@@ -507,18 +507,43 @@ TROMImage::PatchROM( SImage* inImagePtr )
 	if (::memcmp(inImagePtr->fMachineString, "717006", 6) == 0)
 	{
 		// Patch for 717006.
-		DoPatchROM(
-			inImagePtr,
-			k717006Patches,
-			(sizeof(k717006Patches) / (sizeof(KUInt32) * 2)));
+		DoPatchROMSimple(
+               inImagePtr,
+               k717006SimplePatches,
+               (sizeof(k717006SimplePatches) / (sizeof(KUInt32) * 2)));
+		// Patch for 717006.
+		DoPatchROMVirtualizationCalls(
+               inImagePtr,
+               k717006VirtualizationPatches,
+               (sizeof(k717006VirtualizationPatches) / (sizeof(KUInt32) * 2)));
 	}
 }
 
 // -------------------------------------------------------------------------- //
-//  * DoPatchROM( SImage* )
+//  * DoPatchROMSimple( SImage* )
 // -------------------------------------------------------------------------- //
 void
-TROMImage::DoPatchROM( SImage* inImagePtr, const KUInt32* inPatches, KUInt32 inCount )
+TROMImage::DoPatchROMSimple( SImage* inImagePtr, const KUInt32* inPatches, KUInt32 inCount )
+{
+	// Get a pointer to the ROM.
+	KUInt32* thePointer = (KUInt32*) inImagePtr->fROM;
+	
+	// Iterate on patches.
+	KUInt32 indexPatches;
+	for (indexPatches = 0; indexPatches < inCount; indexPatches++)
+	{
+		// Patch.
+		KUInt32 address = inPatches[2*indexPatches];
+		KUInt32 value = inPatches[(2*indexPatches) + 1];
+		thePointer[address] = value;
+	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * DoPatchROMVirtualizationCalls( SImage* )
+// -------------------------------------------------------------------------- //
+void
+TROMImage::DoPatchROMVirtualizationCalls( SImage* inImagePtr, const KUInt32* inPatches, KUInt32 inCount )
 {
 	// Get a pointer to the ROM.
 	KUInt32* thePointer = (KUInt32*) inImagePtr->fROM;
@@ -531,7 +556,7 @@ TROMImage::DoPatchROM( SImage* inImagePtr, const KUInt32* inPatches, KUInt32 inC
 		// Write all 5 words there.
 		KUInt32 address = inPatches[2*indexPatches];
 		KUInt32 value = inPatches[(2*indexPatches) + 1] | 0x80000000;
-
+    
 		thePointer[address++] = UByteSex_ToBigEndian( kInvocation[0] );
 		thePointer[address++] = UByteSex_ToBigEndian( kInvocation[1] );
 		thePointer[address++] = UByteSex_ToBigEndian( kInvocation[2] );

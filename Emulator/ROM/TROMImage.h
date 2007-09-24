@@ -168,15 +168,25 @@ private:
 	static void		PatchROM( SImage* inImage );
 
 	///
+	/// Patch the ROM by replacing single commands.
+	///
+	/// \param inImage		ROM Image to patch.
+	///
+	static void		DoPatchROMSimple(
+                                              SImage* inImage,
+                                              const KUInt32* inPatches,
+                                              KUInt32 inCount );
+  
+	///
 	/// Patch the ROM (virtualization), with a given set of patches.
 	///
 	/// \param inImage		ROM Image to patch.
 	///
-	static void		DoPatchROM(
-						SImage* inImage,
-						const KUInt32* inPatches,
-						KUInt32 inCount );
-
+	static void		DoPatchROMVirtualizationCalls(
+                                              SImage* inImage,
+                                              const KUInt32* inPatches,
+                                              KUInt32 inCount );
+  
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
