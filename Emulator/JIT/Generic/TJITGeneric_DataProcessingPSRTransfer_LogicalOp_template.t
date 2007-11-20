@@ -25,7 +25,7 @@
 	DataProcessingTranfer_ ## op ## _ ## mode ## _ ## flag_s ## _ ## rn ## _ ## rd
 	
 #define LogicalOp_Proto(op, mode, flag_s, rn, rd) \
-	JITUnit* FASTCALL LogicalOp_TemplateName(op, mode, flag_s, rn, rd) \
+	JITUnit* LogicalOp_TemplateName(op, mode, flag_s, rn, rd) \
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)
 
 #if DECLARATION

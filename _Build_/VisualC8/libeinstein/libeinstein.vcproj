@@ -352,10 +352,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\Emulator\JIT\JITPerformance.h"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\Emulator\JIT\TJIT.cp"
 						>
 					</File>
@@ -377,6 +373,14 @@
 					</File>
 					<File
 						RelativePath="..\..\..\Emulator\JIT\TJITPage.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\Emulator\JIT\TJITPerformance.cp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\Emulator\JIT\TJITPerformance.h"
 						>
 					</File>
 					<Filter

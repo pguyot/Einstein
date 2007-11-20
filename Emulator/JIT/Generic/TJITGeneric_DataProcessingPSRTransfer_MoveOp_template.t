@@ -25,7 +25,7 @@
 	DataProcessingTranfer_ ## op ## _ ## mode ## _ ## flag_s ## _ ## rd
 	
 #define MoveOp_Proto(op, mode, flag_s, rd) \
-	JITUnit* FASTCALL MoveOp_TemplateName(op, mode, flag_s, rd) \
+	JITUnit* MoveOp_TemplateName(op, mode, flag_s, rd) \
 		(JITUnit* ioUnit, TARMProcessor* ioCPU)
 
 #if DECLARATION

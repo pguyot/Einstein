@@ -25,7 +25,7 @@
 	 Multiply_ ## flag_s ## _ ## rd ## _ ## rs ## _ ## rm
 
 #define Multiply_Proto(flag_s, rd, rs, rm) \
-		JITUnit* FASTCALL Multiply_TemplateName(flag_s, rd, rs, rm) \
+		JITUnit* Multiply_TemplateName(flag_s, rd, rs, rm) \
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)
 	
 #if DECLARATION

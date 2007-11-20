@@ -25,7 +25,7 @@
 	DataProcessingTranfer_MSR_ ## mode ## _ ## flag_r ## _ ## fields_mask ## _ ## rm
 
 #define MSR_Proto(mode, flag_r, fields_mask, rm) \
-		JITUnit* FASTCALL MSR_TemplateName(mode, flag_r, fields_mask, rm) \
+		JITUnit* MSR_TemplateName(mode, flag_r, fields_mask, rm) \
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)
 #if DECLARATION
 	#define MSR(mode, flag_r, fields_mask, rm) \

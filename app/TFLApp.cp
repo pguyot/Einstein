@@ -53,6 +53,10 @@
 #include "Emulator/Log/TFileLog.h"
 #include "Emulator/Log/TBufferLog.h"
 
+#if defined(_MSC_VER) && defined(_DEBUG)
+#include "Emulator/JIT/TJITPerformance.h"
+#endif
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -589,6 +593,12 @@ int main(int argc, char** argv )
 {
 	TFLApp theApp;
 	theApp.Run( argc, argv );
+
+#if defined(_MSC_VER) && defined(_DEBUG)
+	//branchDestCount.print(stdout, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
+	//branchLinkDestCount.print(stdout, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
+#endif
+
 	return 0;
 }
 

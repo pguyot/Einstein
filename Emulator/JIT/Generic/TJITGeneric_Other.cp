@@ -28,6 +28,10 @@
 #include "TARMProcessor.h"
 #include "TEmulator.h"
 
+#if defined(_MSC_VER) && defined(_DEBUG)
+#include "TJITPerformance.h"
+#endif
+
 #include "TJITGeneric_Macros.h"
 
 // R15_SAFE
@@ -148,6 +152,7 @@ JITInstructionProto(Branch)
 {
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
+	COUNTHIT(branchDestCount, theNewPC)
 	
 	// Branch.
 	MMUCALLNEXT(theNewPC);
@@ -160,6 +165,7 @@ JITInstructionProto(BranchWithinPage)
 {
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
+	COUNTHIT(branchDestCount, theNewPC)
 
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
@@ -176,6 +182,7 @@ JITInstructionProto(BranchWithinPageFindDelta)
 {
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
+	COUNTHIT(branchDestCount, theNewPC)
 
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
@@ -201,6 +208,7 @@ JITInstructionProto(BranchWithLink)
 	POPVALUE(theNewLR);
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
+	COUNTHIT(branchLinkDestCount, theNewPC)
 
 	// BL
 	ioCPU->mCurrentRegisters[14] = theNewLR;
@@ -216,6 +224,7 @@ JITInstructionProto(BranchWithLinkWithinPage)
 	POPVALUE(theNewLR);
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
+	COUNTHIT(branchLinkDestCount, theNewPC)
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
 
@@ -234,6 +243,7 @@ JITInstructionProto(BranchWithLinkWithinPageFindDelta)
 	POPVALUE(theNewLR);
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
+	COUNTHIT(branchLinkDestCount, theNewPC)
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
 

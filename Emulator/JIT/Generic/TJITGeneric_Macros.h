@@ -25,7 +25,7 @@
 #define _TJITGENERIC_MACROS_H
 
 #define JITInstructionProto(name) \
-	JITUnit* FASTCALL name(JITUnit* ioUnit, TARMProcessor* ioCPU)
+	JITUnit* name(JITUnit* ioUnit, TARMProcessor* ioCPU)
 
 // Those really access R15 (for now).
 #define SETPC(newval) \
@@ -95,6 +95,12 @@
 		MMUCALLNEXT(pc);									\
 	}
 */
+
+#if defined(_MSC_VER) && defined(_DEBUG)
+#define COUNTHIT(counter, address) counter.hit(address);
+#else
+#define COUNTHIT(counter, address) 
+#endif
 
 // -------------------------------------------------------------------------- //
 //  * GetShift( TARMProcessor*, KUInt32, Boolean* )

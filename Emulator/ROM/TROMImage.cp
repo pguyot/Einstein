@@ -516,6 +516,15 @@ TROMImage::PatchROM( SImage* inImagePtr )
                inImagePtr,
                k717006VirtualizationPatches,
                (sizeof(k717006VirtualizationPatches) / (sizeof(KUInt32) * 2)));
+
+		// Now do the simple patches (replace only a single word)
+		int i = 0, n = sizeof(k717006SimplePatches) / (sizeof(KUInt32) * 2);
+		KUInt32* thePointer = (KUInt32*) inImagePtr->fROM;
+		for ( ; i<n; i++) {
+			KUInt32 address = k717006SimplePatches[2*i];
+			KUInt32 value = k717006SimplePatches[(2*i) + 1];
+			thePointer[address] = value;
+		}
 	}
 }
 
