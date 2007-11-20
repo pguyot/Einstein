@@ -32,11 +32,8 @@
 #include "TJITGeneric_Macros.h"
 
 
-typedef KUInt32 (*EStub)(JITUnit* ioUnit, TARMProcessor* ioCPU);
-
-
-extern EStub EinsteinAPIStub[];
-extern int nEinsteinAPIStub;
+extern JITFuncPtr EinsteinAPIStub[];
+extern KUInt32 nEinsteinAPIStub;
 
 
 #endif

@@ -24,7 +24,7 @@
 #include "fixed_math_stubs.h"
 
 
-KUInt32 FixedMultiply(JITUnit* ioUnit, TARMProcessor* ioCPU)
+JITUnit* FixedMultiply(JITUnit* ioUnit, TARMProcessor* ioCPU)
 {
 	// copy all register values into variables
 	EFixed a = (EFixed)ioCPU->mCurrentRegisters[0];
@@ -36,8 +36,9 @@ KUInt32 FixedMultiply(JITUnit* ioUnit, TARMProcessor* ioCPU)
 	// copy variables back into registers
 	ioCPU->mCurrentRegisters[0] = (KUInt32)result;
 
-	// return the address of the next instruction
-	return (ioCPU->mCurrentRegisters[14]+4);
+	// return for linked branch
+	KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
+	MMUCALLNEXT(next);
 }
 
 

@@ -32,7 +32,7 @@
 #include "TJITGeneric_Macros.h"
 
 
-extern KUInt32 FixedMultiply(JITUnit* ioUnit, TARMProcessor* ioCPU);
+extern JITUnit* FixedMultiply(JITUnit* ioUnit, TARMProcessor* ioCPU);
 
 
 #endif

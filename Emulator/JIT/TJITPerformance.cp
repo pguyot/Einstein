@@ -49,7 +49,7 @@ TJITPerfHitCounter::TJITPerfHitCounter(KUInt32 first, KUInt32 last, KUInt32 step
 		default: mShift = 0; break;
 	}
 	mSize = (last+1-first)>>mShift;
-	mArray = new KUInt32[mSize];
+	mArray = new KUInt64[mSize];
 }
 
 
@@ -59,7 +59,7 @@ TJITPerfHitCounter::~TJITPerfHitCounter()
 }
 
 
-KUInt32 TJITPerfHitCounter::get_hits(KUInt32 at)
+KUInt64 TJITPerfHitCounter::get_hits(KUInt32 at)
 {
 	at = (at-mFirst)>>mShift;
 	if (at>mSize) 
@@ -76,7 +76,8 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 {
 	va_list vl;
 	va_start(vl, style);
-	KUInt32 a, b, i, j, m, n, o, ix;
+	KUInt32 a, b, i, j, n, o, ix;
+	KUInt64 m;
 
 	fprintf(out, "----- statistics ----\n");
 
@@ -88,11 +89,11 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 			a = (a-mFirst)>>mShift; // TODO: check bounds
 			b = (b-mFirst)>>mShift;
 			for (i=a; i<b; i++) {
-				KUInt32 v = mArray[i];
+				KUInt64 v = mArray[i];
 				if (style & kStyleHex) {
-					fprintf(out, "%08x: %8u\n", (i<<mShift)+o, v);
+					fprintf(out, "%08x: %19u\n", (i<<mShift)+o, v);
 				} else {
-					fprintf(out, "%8d: %8u\n", (i<<mShift)+o, v);
+					fprintf(out, "%8d: %19u\n", (i<<mShift)+o, v);
 				}
 			}
 			break;
@@ -102,7 +103,7 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 			for (i=0; i<n; i++) {
 				m = 0; ix = 0;
 				for (j=0; j<mSize; j++) {
-					KUInt32 v = mArray[j];
+					KUInt64 v = mArray[j];
 					if (v>m) {
 						m = v;
 						ix = j;
@@ -112,15 +113,26 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 					break;
 				mArray[ix] = 0;
 				if (style & kStyleHex) {
-					fprintf(out, "%08x: %8u\n", (ix<<mShift)+mFirst, m);
+					fprintf(out, "%08x: %19u\n", (ix<<mShift)+mFirst, m);
 				} else {
-					fprintf(out, "%8d: %8u\n", (ix<<mShift)+mFirst, m);
+					fprintf(out, "%8d: %19u\n", (ix<<mShift)+mFirst, m);
 				}
 			}
 			break;
 	}
     va_end( vl );
 }
+
+
+void TJITPerfHitCounter::hit(KUInt32 at)
+{
+	at = (at-mFirst)>>mShift;
+	if (at>mSize) 
+		return;
+	if (mArray[at]<0xffffffffffffffff)
+		mArray[at]++;
+}
+
 
 
 

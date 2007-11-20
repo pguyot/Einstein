@@ -23,11 +23,13 @@
 
 #include "stubs.h"
 #include "fixed_math_stubs.h"
+#include "misc_stubs.h"
 
 
-EStub EinsteinAPIStub[] = {
+JITFuncPtr EinsteinAPIStub[] = {
 	FixedMultiply,
+	LoadFromPhysAddress,
 };
 
-int nEinsteinAPIStub = sizeof(EinsteinAPIStub)/sizeof(EStub);
+KUInt32 nEinsteinAPIStub = sizeof(EinsteinAPIStub)/sizeof(JITFuncPtr);
 

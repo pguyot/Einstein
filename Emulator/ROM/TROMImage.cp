@@ -77,9 +77,18 @@ const KUInt32 k717006VirtualizationPatches[] = {
 const KUInt32 k717006SimplePatches[] = {
 	// avoid calibration screen early in the game
 	0x001412f8 / sizeof(KUInt32), 0xea000009,
+	// disable "FlushDCache" since we do not emulate a DCache 
+	0x00018994 / sizeof(KUInt32), 0xe1a0f00e, // #  mov pc, lr
+	// disable "CleanPageInDCache" since we do not emulate a DCache 
+	0x0001894c / sizeof(KUInt32), 0xe1a0f00e, // #  mov pc, lr
+	// disable "TGeoPortDebugLink::BeaconDetect(long)"
+	0x000db0d8 / sizeof(KUInt32), 0xe3a00000, // #  mov r0, 0x00000000
+	0x000db0dc / sizeof(KUInt32), 0xe1a0f00e, // #  mov pc, lr
 #ifdef _MSC_VER
 	// call Einstein API for "Fixed FixedMultiply(Fixed, Fixed)"
 	0x00394688 / sizeof(KUInt32), 0xef800000,  
+	// call Einstein API for "KUInt32 LoadFromPhysAddress(KUInt32*)"
+	0x00018ca4 / sizeof(KUInt32), 0xef800001,  
 #endif
 };	
 

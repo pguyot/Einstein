@@ -48,11 +48,11 @@ public:
 
 	/// Count a hit at the given index
 	/// \param at index into hit counter array; out-of-bounds indices are safe
-	inline void	hit(KUInt32 at);
+	void		hit(KUInt32 at);
 
 	/// Return the number of hits for a given index
 	/// \param at the index of the counter that we want to inspect
-	KUInt32		get_hits(KUInt32 at);
+	KUInt64		get_hits(KUInt32 at);
 
 	/// Print the collected data to a file
 	/// \param out a destination file that the caller must manage
@@ -69,17 +69,8 @@ private:
 	KUInt32		mFirst;
 	KUInt32		mSize;
 	KUInt32		mShift;
-	KUInt32		*mArray;
+	KUInt64		*mArray;
 };
-
-
-inline void TJITPerfHitCounter::hit(KUInt32 at)
-{
-	at = (at-mFirst)>>mShift;
-	if (at>mSize) 
-		return;
-	mArray[at]++;
-}
 
 
 extern TJITPerfHitCounter branchDestCount;

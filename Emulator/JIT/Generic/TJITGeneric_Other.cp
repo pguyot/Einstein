@@ -78,8 +78,7 @@ JITInstructionProto(CallHostNative)
 		// this should not happen!
 		CALLNEXTUNIT;
 	}
-	KUInt32 next = EinsteinAPIStub[callIndex](ioUnit, ioCPU);
-	MMUCALLNEXT(next);
+	return EinsteinAPIStub[callIndex](ioUnit, ioCPU);
 }
 #endif
 
@@ -163,6 +162,7 @@ Translate_SWIAndCoproc(
 				// quick host native call
 				PUSHFUNC(CallHostNative);
 				PUSHVALUE(inInstruction & 0x007fffff);
+				return; // do not push the current PC
 #else
 				// SWI.
 				PUSHFUNC(SWI);
