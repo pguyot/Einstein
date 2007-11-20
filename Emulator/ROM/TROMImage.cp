@@ -76,7 +76,9 @@ const KUInt32 k717006VirtualizationPatches[] = {
 
 const KUInt32 k717006SimplePatches[] = {
 	// avoid calibration screen early in the game
-	0x001412f8 / sizeof(KUInt32),	0xea000009,
+	0x001412f8 / sizeof(KUInt32), 0xea000009,
+	// call native version of "Fixed FixedMultiply(Fixed, Fixed)"
+	0x00394688 / sizeof(KUInt32), 0xef800000,  
 };	
 
 // -------------------------------------------------------------------------- //
@@ -116,6 +118,12 @@ TROMImage::IsImageOutdated(
 				const char inMachineString[6] )
 {
 	Boolean result = true;
+
+#ifdef _DEBUG
+	// allow patching the ROM at every run
+	return result;
+#endif
+
 	do {
 		// Check the file exists.
 		struct stat theInfos;
