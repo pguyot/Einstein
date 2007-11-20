@@ -595,8 +595,10 @@ int main(int argc, char** argv )
 	theApp.Run( argc, argv );
 
 #if defined(_MSC_VER) && defined(_DEBUG)
-	//branchDestCount.print(stdout, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
-	//branchLinkDestCount.print(stdout, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
+	FILE *log = fopen("einsteinPerfLog.txt", "wb");
+	branchDestCount.print(log, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
+	branchLinkDestCount.print(log, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
+	fclose(log);
 #endif
 
 	return 0;

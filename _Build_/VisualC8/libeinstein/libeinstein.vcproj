@@ -917,6 +917,34 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="EinsteinAPI"
+				>
+				<File
+					RelativePath="..\..\..\Emulator\EinsteinAPI\fixed_math.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Emulator\EinsteinAPI\fixed_math.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Emulator\EinsteinAPI\fixed_math_stubs.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Emulator\EinsteinAPI\fixed_math_stubs.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Emulator\EinsteinAPI\stubs.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Emulator\EinsteinAPI\stubs.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Monitor"

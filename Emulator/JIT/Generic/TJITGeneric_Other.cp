@@ -34,6 +34,10 @@
 
 #include "TJITGeneric_Macros.h"
 
+#ifdef _MSC_VER
+#include "EinsteinAPI/stubs.h"
+#endif
+
 // R15_SAFE
 
 // -------------------------------------------------------------------------- //
@@ -61,35 +65,23 @@ JITInstructionProto(SWI)
 //  Implementing host-native calls using a stub will allow direct calls
 //  from other native functions, allowing full execution speed without 
 //  any register emulation.
+//
+//  This code is limited to MSVC on WIN32 until other platforms are verified.
 // -------------------------------------------------------------------------- //
+#ifdef _MSC_VER
 JITInstructionProto(CallHostNative)
 {
 	// Set the PC before jumping to the handler....
 	KUInt32 callIndex;
 	POPVALUE(callIndex);
-
-	// this is a sample implementation of the function 
-	// "Fixed FixedMultiply(Fixed, Fixed)"
-	// The actual implementation would be looked up from a table 
-
-	// first we call a stub that copies all register values into variables
-	KSInt32 a = (KSInt32)ioCPU->mCurrentRegisters[0];
-	KSInt32 b = (KSInt32)ioCPU->mCurrentRegisters[1];
-
-	// the stub than calls a true "C" or "C++" function in a mostly native 
-	// environment
-	KSInt64 ax = a, bx = b;
-	KSInt32 result = ((KSInt32)((ax*bx)/65536));
-
-	// after returning from the native function, the stub fixes up all
-	// CPU registers and returns the address of the next instruction
-	ioCPU->mCurrentRegisters[0] = (KUInt32)result;
-	KUInt32 lr = ioCPU->mCurrentRegisters[14]+4;
-
-	// end of sample implementation
-
-	MMUCALLNEXT(lr);
+	if (callIndex>nEinsteinAPIStub) {
+		// this should not happen!
+		CALLNEXTUNIT;
+	}
+	KUInt32 next = EinsteinAPIStub[callIndex](ioUnit, ioCPU);
+	MMUCALLNEXT(next);
 }
+#endif
 
 // -------------------------------------------------------------------------- //
 //  * CoprocDataTransfer
@@ -167,9 +159,14 @@ Translate_SWIAndCoproc(
 		if (inInstruction & 0x01000000)
 		{
 			if (inInstruction & 0x00800000) {
+#ifdef _MSC_VER
 				// quick host native call
 				PUSHFUNC(CallHostNative);
 				PUSHVALUE(inInstruction & 0x007fffff);
+#else
+				// SWI.
+				PUSHFUNC(SWI);
+#endif
 			} else {
 				// SWI.
 				PUSHFUNC(SWI);

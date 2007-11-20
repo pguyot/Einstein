@@ -77,8 +77,10 @@ const KUInt32 k717006VirtualizationPatches[] = {
 const KUInt32 k717006SimplePatches[] = {
 	// avoid calibration screen early in the game
 	0x001412f8 / sizeof(KUInt32), 0xea000009,
-	// call native version of "Fixed FixedMultiply(Fixed, Fixed)"
+#ifdef _MSC_VER
+	// call Einstein API for "Fixed FixedMultiply(Fixed, Fixed)"
 	0x00394688 / sizeof(KUInt32), 0xef800000,  
+#endif
 };	
 
 // -------------------------------------------------------------------------- //
