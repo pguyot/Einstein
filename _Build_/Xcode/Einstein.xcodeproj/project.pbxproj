@@ -1633,6 +1633,7 @@
 		DA09408606B6520100C67243 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = DAA0A021085A8D6400A313E7 /* Build configuration list for PBXProject "Einstein" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = DA09408206B6520100C67243;
 			productRefGroup = DA09409706B6528100C67243 /* Products */;
@@ -1643,6 +1644,7 @@
 					ProjectRef = DAA09FEF085A8D6400A313E7 /* K.xcodeproj */;
 				},
 			);
+			projectRoot = "";
 			targets = (
 				DA09409506B6528100C67243 /* Tests */,
 				DA09415E06B8FD4400C67243 /* einstein */,
@@ -2367,7 +2369,11 @@
 					"-fast",
 					"-finline-limit=2400",
 				);
-				OTHER_LDFLAGS = "-weak-lX11";
+				OTHER_LDFLAGS = (
+					"-weak-lX11",
+					"-dylib_file",
+					"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
+				);
 				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRODUCT_NAME = Einstein;
