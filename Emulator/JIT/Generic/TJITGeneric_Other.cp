@@ -350,7 +350,7 @@ Translate_Branch(
 			// The new PC
 			PUSHVALUE(inVAddr + delta + 4);
 			// The branch offset in ioUnits, to be calculated later
-			PUSHVALUE(-1);
+			PUSHVALUE(0xffffffff);
 		} else {
 			PUSHFUNC(BranchWithLink);
 			// The new LR
@@ -366,7 +366,7 @@ Translate_Branch(
 			// The new PC
 			PUSHVALUE(inVAddr + delta + 4);
 			// The branch offset in ioUnits, to be calculated later
-			PUSHVALUE(-1);
+			PUSHVALUE(0xffffffff);
 		} else {
 			PUSHFUNC(Branch);
 			// The new PC

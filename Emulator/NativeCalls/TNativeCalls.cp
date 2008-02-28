@@ -35,7 +35,7 @@
 	#include "CompatibilityWin32.h"
 	#include <stdlib.h>
 	#include <assert.h>
-	ffi_type ffi_type_uint8; // FIXME these shoudl be in libffi
+	ffi_type ffi_type_uint8; // FIXME these should be in libffi
 	ffi_type ffi_type_sint8;
 	ffi_type ffi_type_uint16;
 	ffi_type ffi_type_sint16;
