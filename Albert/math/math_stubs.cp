@@ -41,7 +41,7 @@ JITInstructionProto(FixedMultiplyStub)
 	Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
 	Fixed b = (Fixed)ioCPU->mCurrentRegisters[1];
   
-	// call the Einstein API
+	// call Albert
 	Fixed result = FixedMultiply(a, b);
   
 	// copy variables back into registers

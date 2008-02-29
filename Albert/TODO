@@ -8,8 +8,8 @@ This file contains a hierarchical todo list for Albert OS
 - (done) sample implementation of a Newton OS function, explaining
          the concept of Albert and the stb based interface
 - interface to read emulator RAM from within Albert
-- sample implemenntation of a function, calling another function
-  within Albert (self-contained nature of Albert)
+- (done) sample implementation of a function, calling another function
+         within Albert (self-contained nature of Albert)
 - sample implementation of a class and class member access
 - sample implementation of partial function replacement
 - extract ROM call tree using DyneE5
