@@ -1,0 +1,11 @@
+
+  C H A N G E S 
+ ===============
+
+This file contains a list of all changes to the Albert OS.
+
+Feb 29th 2008
+ - initial release of Albert
+ - added Albert interface into Einstein
+ - added native FixedMultiply() function
+
