@@ -27,7 +27,9 @@
 /* Begin PBXBuildFile section */
 		374311AB06D0DD98003B9DB0 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 374311AA06D0DD98003B9DB0 /* Carbon.framework */; };
 		C93A87D10D775D1A007E26BF /* fixed.cp in Sources */ = {isa = PBXBuildFile; fileRef = C93A87CA0D775D19007E26BF /* fixed.cp */; };
-		C93A87D20D775D1A007E26BF /* fixed_stubs.cp in Sources */ = {isa = PBXBuildFile; fileRef = C93A87CC0D775D19007E26BF /* fixed_stubs.cp */; };
+		C93A894D0D785C1C007E26BF /* math_stubs.cp in Sources */ = {isa = PBXBuildFile; fileRef = C93A894B0D785C1C007E26BF /* math_stubs.cp */; };
+		C93A894E0D785C1C007E26BF /* math_stubs.cp in Sources */ = {isa = PBXBuildFile; fileRef = C93A894B0D785C1C007E26BF /* math_stubs.cp */; };
+		C93A894F0D785C1C007E26BF /* math_stubs.cp in Sources */ = {isa = PBXBuildFile; fileRef = C93A894B0D785C1C007E26BF /* math_stubs.cp */; };
 		DA02AC96093CE21A007CC808 /* TJIT.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA02AC8D093CE21A007CC808 /* TJIT.cp */; };
 		DA02AC97093CE21A007CC808 /* TJITPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA02AC8E093CE21A007CC808 /* TJITPage.cp */; };
 		DA02AC9F093CE21A007CC808 /* TJIT.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA02AC8D093CE21A007CC808 /* TJIT.cp */; };
@@ -650,9 +652,9 @@
 		374311AA06D0DD98003B9DB0 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		C93A87CA0D775D19007E26BF /* fixed.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fixed.cp; sourceTree = "<group>"; };
 		C93A87CB0D775D19007E26BF /* fixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fixed.h; sourceTree = "<group>"; };
-		C93A87CC0D775D19007E26BF /* fixed_stubs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fixed_stubs.cp; sourceTree = "<group>"; };
-		C93A87CD0D775D19007E26BF /* fixed_stubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fixed_stubs.h; sourceTree = "<group>"; };
 		C93A87CF0D775D19007E26BF /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
+		C93A894B0D785C1C007E26BF /* math_stubs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = math_stubs.cp; sourceTree = "<group>"; };
+		C93A894C0D785C1C007E26BF /* math_stubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = math_stubs.h; sourceTree = "<group>"; };
 		DA02AC8D093CE21A007CC808 /* TJIT.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = TJIT.cp; sourceTree = "<group>"; };
 		DA02AC8E093CE21A007CC808 /* TJITPage.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = TJITPage.cp; sourceTree = "<group>"; };
 		DA02AC90093CE21A007CC808 /* TJITPage.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TJITPage.h; sourceTree = "<group>"; };
@@ -1011,10 +1013,10 @@
 		C93A87C80D775D19007E26BF /* math */ = {
 			isa = PBXGroup;
 			children = (
+				C93A894B0D785C1C007E26BF /* math_stubs.cp */,
+				C93A894C0D785C1C007E26BF /* math_stubs.h */,
 				C93A87CA0D775D19007E26BF /* fixed.cp */,
 				C93A87CB0D775D19007E26BF /* fixed.h */,
-				C93A87CC0D775D19007E26BF /* fixed_stubs.cp */,
-				C93A87CD0D775D19007E26BF /* fixed_stubs.h */,
 			);
 			name = math;
 			path = Albert/math;
@@ -2076,6 +2078,7 @@
 				DA4406880C34CBF800CD80DF /* TJITGeneric_Multiply.cp in Sources */,
 				DA44068A0C34CBF800CD80DF /* TJITGeneric_MultiplyAndAccumulate.cp in Sources */,
 				DA4407710C35426000CD80DF /* TJITGeneric_BlockDataTransfer.cp in Sources */,
+				C93A894F0D785C1C007E26BF /* math_stubs.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2170,7 +2173,7 @@
 				DA4406860C34CBF800CD80DF /* TJITGeneric_MultiplyAndAccumulate.cp in Sources */,
 				DA44076B0C35426000CD80DF /* TJITGeneric_BlockDataTransfer.cp in Sources */,
 				C93A87D10D775D1A007E26BF /* fixed.cp in Sources */,
-				C93A87D20D775D1A007E26BF /* fixed_stubs.cp in Sources */,
+				C93A894D0D785C1C007E26BF /* math_stubs.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2264,6 +2267,7 @@
 				DA4406800C34CBF800CD80DF /* TJITGeneric_Multiply.cp in Sources */,
 				DA4406820C34CBF800CD80DF /* TJITGeneric_MultiplyAndAccumulate.cp in Sources */,
 				DA4407650C35426000CD80DF /* TJITGeneric_BlockDataTransfer.cp in Sources */,
+				C93A894E0D785C1C007E26BF /* math_stubs.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
