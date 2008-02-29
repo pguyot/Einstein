@@ -1,5 +1,5 @@
 // ==============================
-// File:			math/math_stubs.h
+// File:			gfx/gfx_stubs.cp
 // Project:			Albert
 //
 // Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
@@ -21,29 +21,30 @@
 // $Id$
 // ==============================
 
-#ifndef ALBERT_MATH_MATH_STUBS_H
-#define ALBERT_MATH_MATH_STUBS_H
 
-// Albert
-#include "fixed.h"
-
-// Einstein
-#include "JIT.h"
-#include "TROMImage.h"
-#include "TARMProcessor.h"
-#include "TJITGeneric_Macros.h"
+#include "gfx_stubs.h"
 
 
 namespace Albert {
 
-
-  // fixed.h
-  JITInstructionProto(FixedMultiplyStub);
-
   
+TROMPatch pGetInkWordFontSize(0x0014003c, GetInkWordFontSizeStub);
+
+JITInstructionProto(GetInkWordFontSizeStub)
+{
+	// copy all register values into variables
+	Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
+  
+	// call Albert
+	Fixed result = GetInkWordFontSize(a);
+  
+	// copy variables back into registers
+	ioCPU->mCurrentRegisters[0] = (KUInt32)result;
+  
+	// return for linked branch
+	KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
+	MMUCALLNEXT(next);
 }
-
-
-#endif
-// ALBERT_MATH_MATH_STUBS_H
-
+  
+  
+} // namespace

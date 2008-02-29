@@ -1,6 +1,6 @@
 // ==============================
-// File:			math/math_stubs.h
-// Project:			Albert
+// File:                        gfx/font.cp
+// Project:                     Albert
 //
 // Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
 //
@@ -21,29 +21,21 @@
 // $Id$
 // ==============================
 
-#ifndef ALBERT_MATH_MATH_STUBS_H
-#define ALBERT_MATH_MATH_STUBS_H
 
-// Albert
-#include "fixed.h"
-
-// Einstein
-#include "JIT.h"
-#include "TROMImage.h"
-#include "TARMProcessor.h"
-#include "TJITGeneric_Macros.h"
+#include <Albert/gfx/font.h>
+#include <Albert/math/fixed.h>
 
 
 namespace Albert {
 
-
-  // fixed.h
-  JITInstructionProto(FixedMultiplyStub);
+  
+KUInt32 GetInkWordFontSize(KUInt32 v)
+{
+  v = FixedMultiply( (v << 16), 0x0001c000 ); // v = v*1.75
+  v = v + 0x00008000; // v = v + 0.5;
+  return v/65536; // convert from fixed to int
+}
 
   
 }
-
-
-#endif
-// ALBERT_MATH_MATH_STUBS_H
 
