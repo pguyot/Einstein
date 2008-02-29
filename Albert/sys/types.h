@@ -1,8 +1,8 @@
 // ==============================
-// File:			stubs.cp
-// Project:			Einstein
+// File:                        sys/types.h
+// Project:                     Albert
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,15 +21,21 @@
 // $Id$
 // ==============================
 
-#include "stubs.h"
-#include "fixed_math_stubs.h"
-#include "misc_stubs.h"
+#ifndef ALBERT_SYS_TYPES_H
+#define ALBERT_SYS_TYPES_H
+
+#include <K/Defines/KDefinitions.h>
 
 
-JITFuncPtr EinsteinAPIStub[] = {
-	FixedMultiply,
-	LoadFromPhysAddress,
-};
+namespace Albert {
 
-KUInt32 nEinsteinAPIStub = sizeof(EinsteinAPIStub)/sizeof(JITFuncPtr);
+
+typedef KSInt32 Fixed;
+
+
+} // namespace
+
+
+#endif
+// ALBERT_SYS_TYPES_H
 

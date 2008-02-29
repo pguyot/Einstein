@@ -74,23 +74,16 @@ const KUInt32 k717006VirtualizationPatches[] = {
 	TVirtualizedCallsPatches::ksymcmp__FPcT1
 };	
 
-const KUInt32 k717006SimplePatches[] = {
-	// avoid calibration screen early in the game
-	0x001412f8 / sizeof(KUInt32), 0xea000009,
-	// disable "FlushDCache" since we do not emulate a DCache 
-	0x00018994 / sizeof(KUInt32), 0xe1a0f00e, // #  mov pc, lr
-	// disable "CleanPageInDCache" since we do not emulate a DCache 
-	0x0001894c / sizeof(KUInt32), 0xe1a0f00e, // #  mov pc, lr
-	// disable "TGeoPortDebugLink::BeaconDetect(long)"
-	0x000db0d8 / sizeof(KUInt32), 0xe3a00000, // #  mov r0, 0x00000000
-	0x000db0dc / sizeof(KUInt32), 0xe1a0f00e, // #  mov pc, lr
-#ifdef _MSC_VER
-	// call Einstein API for "Fixed FixedMultiply(Fixed, Fixed)"
-	0x00394688 / sizeof(KUInt32), 0xef800000,  
-	// call Einstein API for "KUInt32 LoadFromPhysAddress(KUInt32*)"
-	0x00018ca4 / sizeof(KUInt32), 0xef800001,  
-#endif
-};	
+// avoid calibration screen early in the game
+TROMPatch p001412f8(0x001412f8, 0xea000009);
+// disable "FlushDCache" since we do not emulate a DCache 
+TROMPatch p00018994(0x00018994, 0xe1a0f00e); // #  mov pc, lr
+// disable "CleanPageInDCache" since we do not emulate a DCache 
+TROMPatch p0001894c(0x0001894c, 0xe1a0f00e); // #  mov pc, lr
+// disable "TGeoPortDebugLink::BeaconDetect(long)"
+TROMPatch p000db0d8(0x000db0d8, 0xe3a00000); // #  mov r0, 0x00000000
+TROMPatch p000db0dc(0x000db0dc, 0xe1a0f00e); // #  mov pc, lr
+
 
 // -------------------------------------------------------------------------- //
 //  * TROMImage( void )
@@ -526,24 +519,13 @@ TROMImage::PatchROM( SImage* inImagePtr )
 	if (::memcmp(inImagePtr->fMachineString, "717006", 6) == 0)
 	{
 		// Patch for 717006.
-		DoPatchROMSimple(
-               inImagePtr,
-               k717006SimplePatches,
-               (sizeof(k717006SimplePatches) / (sizeof(KUInt32) * 2)));
+		DoPatchROMFromDatabase(inImagePtr);
 		// Patch for 717006.
 		DoPatchROMVirtualizationCalls(
                inImagePtr,
                k717006VirtualizationPatches,
                (sizeof(k717006VirtualizationPatches) / (sizeof(KUInt32) * 2)));
 
-		// Now do the simple patches (replace only a single word)
-		int i = 0, n = sizeof(k717006SimplePatches) / (sizeof(KUInt32) * 2);
-		KUInt32* thePointer = (KUInt32*) inImagePtr->fROM;
-		for ( ; i<n; i++) {
-			KUInt32 address = k717006SimplePatches[2*i];
-			KUInt32 value = k717006SimplePatches[(2*i) + 1];
-			thePointer[address] = value;
-		}
 	}
 }
 
@@ -551,20 +533,19 @@ TROMImage::PatchROM( SImage* inImagePtr )
 //  * DoPatchROMSimple( SImage* )
 // -------------------------------------------------------------------------- //
 void
-TROMImage::DoPatchROMSimple( SImage* inImagePtr, const KUInt32* inPatches, KUInt32 inCount )
+TROMImage::DoPatchROMFromDatabase( SImage* inImagePtr )
 {
 	// Get a pointer to the ROM.
 	KUInt32* thePointer = (KUInt32*) inImagePtr->fROM;
 	
 	// Iterate on patches.
-	KUInt32 indexPatches;
-	for (indexPatches = 0; indexPatches < inCount; indexPatches++)
-	{
-		// Patch.
-		KUInt32 address = inPatches[2*indexPatches];
-		KUInt32 value = inPatches[(2*indexPatches) + 1];
+  TROMPatch *p;
+  for (p=TROMPatch::first(); p; p=p->next()) 
+  {
+		KUInt32 address = p->address();
+		KUInt32 value = p->value();
 		thePointer[address] = value;
-	}
+  }
 }
 
 // -------------------------------------------------------------------------- //
@@ -591,6 +572,61 @@ TROMImage::DoPatchROMVirtualizationCalls( SImage* inImagePtr, const KUInt32* inP
 		thePointer[address++] = UByteSex_ToBigEndian( kInvocation[3] );
 		thePointer[address] = value;
 	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * TROMPatch first member of database
+// -------------------------------------------------------------------------- //
+TROMPatch *TROMPatch::first_ = 0L;
+JITFuncPtr *TROMPatch::stub_ = 0;
+KUInt32 TROMPatch::nStub = 0, TROMPatch::NStub = 0;
+
+// -------------------------------------------------------------------------- //
+//  * TROMPatch constructor
+// -------------------------------------------------------------------------- //
+TROMPatch::TROMPatch(KUInt32 addr, KUInt32 val)
+: next_(first_),
+  address_(addr>>2),
+  value_(val)
+{
+  first_ = this;
+  printf("Adding ROM patch\n");
+}
+
+// -------------------------------------------------------------------------- //
+//  * TROMPatch constructor for Albert calls
+// -------------------------------------------------------------------------- //
+TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub)
+: next_(first_),
+  address_(addr>>2),
+  value_(0xef800000)
+{
+  first_ = this;
+  address_ |= addStub(stub);
+  printf("Adding ROM patch linking into Albert\n");
+}
+
+// -------------------------------------------------------------------------- //
+//  * Call a native stub in Albert
+// -------------------------------------------------------------------------- //
+JITFuncPtr TROMPatch::albertStub(KUInt32 index) 
+{
+  if (index>=nStub)
+    return 0L;
+  return stub_[index];
+}
+
+// -------------------------------------------------------------------------- //
+//  * Add another stub to the array of stubs and return the index
+// -------------------------------------------------------------------------- //
+KUInt32 TROMPatch::addStub(JITFuncPtr stub)
+{
+  if (nStub==NStub) {
+    NStub += 1024;
+    stub_ = (JITFuncPtr*)realloc(stub_, NStub*sizeof(JITFuncPtr));
+  }
+  stub_[nStub++] = stub;
+  return (nStub-1);
 }
 
 // ====================================================== //

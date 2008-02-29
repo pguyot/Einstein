@@ -1,8 +1,8 @@
 // ==============================
-// File:			fixed_math.h
-// Project:			Einstein
+// File:                        math/fixed.cp
+// Project:                     Albert
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,21 +21,20 @@
 // $Id$
 // ==============================
 
-#ifndef _FIXED_MATH_API_H
-#define _FIXED_MATH_API_H
 
-#include <K/Defines/KDefinitions.h>
+#include <Albert/math/fixed.h>
 
 
-typedef KSInt32 EFixed;
+namespace Albert {
 
+  
+Fixed FixedMultiply(Fixed a, Fixed b)
+{
+	KSInt64 ax = a, bx = b;
+	KSInt32 result = ((KSInt32)((ax*bx)/65536));
+	return result;
+}
 
-/**
- * Multiply two fixed-point numbers and return the result.
- */
-extern EFixed EFixedMultiply(EFixed a, EFixed b);
-
-
-#endif
-		// _FIXED_MATH_API_H
+  
+}
 

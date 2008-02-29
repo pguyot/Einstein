@@ -27,16 +27,13 @@
 // Einstein
 #include "TARMProcessor.h"
 #include "TEmulator.h"
+#include "TROMImage.h"
 
 #if defined(_MSC_VER) && defined(_DEBUG)
 #include "TJITPerformance.h"
 #endif
 
 #include "TJITGeneric_Macros.h"
-
-#ifdef _MSC_VER
-#include "EinsteinAPI/stubs.h"
-#endif
 
 // R15_SAFE
 
@@ -68,19 +65,18 @@ JITInstructionProto(SWI)
 //
 //  This code is limited to MSVC on WIN32 until other platforms are verified.
 // -------------------------------------------------------------------------- //
-#ifdef _MSC_VER
 JITInstructionProto(CallHostNative)
 {
 	// Set the PC before jumping to the handler....
 	KUInt32 callIndex;
 	POPVALUE(callIndex);
-	if (callIndex>nEinsteinAPIStub) {
-		// this should not happen!
+  JITFuncPtr stub = TROMPatch::albertStub(callIndex);
+	if (!stub) {
+    assert(stub);
 		CALLNEXTUNIT;
 	}
-	return EinsteinAPIStub[callIndex](ioUnit, ioCPU);
+	return stub(ioUnit, ioCPU);
 }
-#endif
 
 // -------------------------------------------------------------------------- //
 //  * CoprocDataTransfer
@@ -158,15 +154,10 @@ Translate_SWIAndCoproc(
 		if (inInstruction & 0x01000000)
 		{
 			if (inInstruction & 0x00800000) {
-#ifdef _MSC_VER
 				// quick host native call
 				PUSHFUNC(CallHostNative);
 				PUSHVALUE(inInstruction & 0x007fffff);
 				return; // do not push the current PC
-#else
-				// SWI.
-				PUSHFUNC(SWI);
-#endif
 			} else {
 				// SWI.
 				PUSHFUNC(SWI);

@@ -35,6 +35,7 @@
 
 // Einstein
 #include "TMemoryConsts.h"
+#include "JIT.h"
 
 class TMappedFile;
 
@@ -172,10 +173,7 @@ private:
 	///
 	/// \param inImage		ROM Image to patch.
 	///
-	static void		DoPatchROMSimple(
-                                              SImage* inImage,
-                                              const KUInt32* inPatches,
-                                              KUInt32 inCount );
+	static void		DoPatchROMFromDatabase(SImage* inImage);
   
 	///
 	/// Patch the ROM (virtualization), with a given set of patches.
@@ -203,6 +201,48 @@ private:
 	
 	TMappedFile*	mMappedFile;	///< mapped file with the rom.
 	SImage*			mImage; 		///< image structure.
+};
+
+
+/// This class defines a patch location. 
+/// Patches can be created in any module by static declaration of TROMPatch's
+/// which will then be linked into the patch database and applied to a
+/// freshly loaded ROM.
+/// Usage is currently limited to ROM v717006
+class TROMPatch {
+  static TROMPatch *first_;
+  TROMPatch *next_;
+  KUInt32 address_;
+  KUInt32 value_;
+  
+  static JITFuncPtr *stub_;
+  static KUInt32 nStub, NStub;
+  static KUInt32 addStub(JITFuncPtr stub);
+  
+public:
+  
+  /// Create and add a new patch
+  TROMPatch(KUInt32 address, KUInt32 value);
+  
+  /// Create and add a call to Albert
+  TROMPatch(KUInt32 address, JITFuncPtr stub);
+  
+  /// Return the first patch in the list.
+  /// @return NULL if no patches
+  static TROMPatch *first() { return first_; }
+  
+  /// Return the next patch in the list
+  /// @return NULL if no more patches in the database
+  TROMPatch *next() { return next_; }
+  
+  /// Return the address of this patch (must be dividable by four)
+  KUInt32 address() { return address_; }
+  
+  /// Return the 32-bit patch value for this address
+  KUInt32 value() { return value_; }
+  
+  /// Return the Albert stub by index
+  static JITFuncPtr albertStub(KUInt32 index);
 };
 
 #endif

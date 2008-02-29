@@ -1,8 +1,8 @@
 // ==============================
-// File:			fixed_math.cp
-// Project:			Einstein
+// File:			math/fixed_stubs.h
+// Project:			Albert
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,14 +21,29 @@
 // $Id$
 // ==============================
 
+#ifndef ALBERT_MATH_FIXED_STUBS_H
+#define ALBERT_MATH_FIXED_STUBS_H
 
-#include "EinsteinAPI/fixed_math.h"
+// Albert
+#include "fixed.h"
+#include "JIT.h"
+#include "TROMImage.h"
+
+// Einstein
+#include "TARMProcessor.h"
+#include "TJITGeneric_Macros.h"
 
 
-EFixed EFixedMultiply(EFixed a, EFixed b) 
-{
-	KSInt64 ax = a, bx = b;
-	KSInt32 result = ((KSInt32)((ax*bx)/65536));
-	return result;
+namespace Albert {
+
+  
+//extern JITUnit* FixedMultiply(JITUnit* ioUnit, TARMProcessor* ioCPU);
+JITInstructionProto(FixedMultiplyStub);
+
+  
 }
+
+
+#endif
+// ALBERT_MATH_FIXED_STUBS_H
 

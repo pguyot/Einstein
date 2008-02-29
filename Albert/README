@@ -1,0 +1,98 @@
+
+  A L B E R T
+ =============
+
+Adding native implementations for emulated units in Einstein.
+
+Albert is the attempt to replace individual functions of the ROM
+code emulated by EInstein with "C" and "C++" implementations to 
+gain speed and efficiency.
+
+
+Introduction:
+
+A big problem of emulation is speed. Even with a JIT compiler, 
+the CPU still needs to interprete and emulate all machine commands
+found in the ROM or RAM of the emulated system. One emulated
+machine instruction requires a hundred and more native instructions
+to be fully emulated.
+
+The Newton OS mostly interpretes byte code and holds very little 
+machine instructions in RAM. Finding the bottle necks in the ROM
+is relatively easy by keeping an execution count for every ROM 
+cell during a period of system use. The groups of instructions
+with the highest hit count eat the most CPU cycles and become
+prime candidates for replacement.
+
+The first goal is to replace all high traffic areas in the ROM
+with native code to gain a 100-fold speed increase in these areas
+while keeping the functionality of the system the same.
+
+As a second goal, the Albert system should be self contained 
+with the option to link, but also with a fully functional "C++"
+API for Newton-style operations.
+
+The third goal will be to remove the time-consuming MMU emulation
+by actually changing the functionality of some areas of the ROM.
+This is possible because of the tiny RAM demands of Newton applications
+in relation to the huge amount of RAM in todays host system.
+
+
+Implementation:
+
+- patch code
+
+To be able to call native code, we must patch the ROM so that the 
+JIT switches from interpretation. 
+
+The ARM CPU in the Newton has a whole range of instructions that
+are not defined and would call an exception. None of these are used
+in the Newton OS, so we will use them to let the JIT system know
+whenever we replaced instructions with native code. This special
+instruction is 0xef800000 plus an index into the native function 
+lookup table encoded in the lower bits of the instruction.
+
+Our patch code is only one instruction long so that unknown code which
+may call the instruction right after our patch will continue to 
+function normally.
+
+The TROMPatch class makes it easy to inject native code by statically
+declaring a TROMPatch element. Patches can be removed from a setup
+simply by not linking that module to Einstein.
+
+- stubs
+
+To reach the second goal, creating a self-contained code base, 
+Albert uses stubs to interface JIT Emulation to native code blocks
+and functions. The stub moves the arguments of the native function
+from the emulated CPU into "C" variables, calls the replacement
+function, and finally moves the return value back into the CPU. In
+some cases, it also fixes side-effects to CPU and hardware registers.
+
+- native code
+
+All native implementations shall mimic the Newton OS API as well
+as possible. They should not bother with CPU registers or MMU issues,
+but instead use the arguments provided by the stub, and access RAM 
+via the provided system calls. Class and struct members access must 
+also use these calls because the 'this' pointer of a class refers
+to emultaed RAM, not physical RAM of the host. Please note that this
+way of accessing emulated RAM makes "C++" virtual inheritance
+impossible. Newton OS uses its own implementation of virtual 
+functions for very similar reasons.
+
+- MMU emulation
+
+Newton OS uses the MMU in very tricky ways to save even the smallest 
+block of RAM. There is no "C" equivalent to the exception hanndling 
+and memory management in the Newton device. Therefore memory access
+will remain emulated even in the native implementations.
+
+The third step in the Albert planning will remove MMU emulation by
+changing the implementation of Newton OS, so it will not require the 
+MMU to operate. We would gain a Newton OS running at full speed on
+any platform that sports a "C++" compiler and basic hardware
+requirements.
+
+
+

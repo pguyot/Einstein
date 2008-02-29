@@ -1,8 +1,8 @@
 // ==============================
-// File:			stubs.h
-// Project:			Einstein
+// File:			fixed/math_stubs.cp
+// Project:			Albert
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,21 +21,36 @@
 // $Id$
 // ==============================
 
-#ifndef _STUBS_H
-#define _STUBS_H
 
-#include <K/Defines/KDefinitions.h>
-#include "JIT.h"
-
-// Einstein
-#include "TARMProcessor.h"
-#include "TJITGeneric_Macros.h"
+#include "fixed_stubs.h"
 
 
-extern JITFuncPtr EinsteinAPIStub[];
-extern KUInt32 nEinsteinAPIStub;
+namespace Albert {
+
+  
+// TODO: other easy stub:
+// call Einstein API for "KUInt32 LoadFromPhysAddress(KUInt32*)"
+//TROMPatch p00018ca4(0x00018ca4, 0xef800001);
+
+  
+TROMPatch pFixedMultiply(0x00394688, FixedMultiplyStub);
+
+JITInstructionProto(FixedMultiplyStub)
+{
+	// copy all register values into variables
+	Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
+	Fixed b = (Fixed)ioCPU->mCurrentRegisters[1];
+  
+	// call the Einstein API
+	Fixed result = FixedMultiply(a, b);
+  
+	// copy variables back into registers
+	ioCPU->mCurrentRegisters[0] = (KUInt32)result;
+  
+	// return for linked branch
+	KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
+	MMUCALLNEXT(next);
+}
 
 
-#endif
-		// _STUBS_H
-
+} // namespace

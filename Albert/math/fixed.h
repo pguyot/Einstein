@@ -1,8 +1,8 @@
 // ==============================
-// File:			fixed_math_stubs.h
-// Project:			Einstein
+// File:                        math/fixed.h
+// Project:                     Albert
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,20 +21,25 @@
 // $Id$
 // ==============================
 
-#ifndef _FIXED_MATH_STUBS_H
-#define _FIXED_MATH_STUBS_H
+#ifndef ALBERT_MATH_FIXED_H
+#define ALBERT_MATH_FIXED_H
 
-#include "fixed_math.h"
-#include "JIT.h"
-
-// Einstein
-#include "TARMProcessor.h"
-#include "TJITGeneric_Macros.h"
+#include <K/Defines/KDefinitions.h>
+#include <Albert/sys/types.h>
 
 
-extern JITUnit* FixedMultiply(JITUnit* ioUnit, TARMProcessor* ioCPU);
+namespace Albert {
+
+
+/**
+ * Multiply two fixed-point numbers and return the result.
+ */
+extern Fixed FixedMultiply(Fixed a, Fixed b);
+
+
+} // namespace
 
 
 #endif
-		// _FIXED_MATH_STUBS_H
+// ALBERT_MATH_FIXED_H
 
