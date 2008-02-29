@@ -1,5 +1,5 @@
 // ==============================
-// File:			fixed/math_stubs.cp
+// File:			math/math_stubs.cp
 // Project:			Albert
 //
 // Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
@@ -22,7 +22,7 @@
 // ==============================
 
 
-#include "fixed_stubs.h"
+#include "math_stubs.h"
 
 
 namespace Albert {

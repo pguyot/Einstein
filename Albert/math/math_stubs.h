@@ -1,5 +1,5 @@
 // ==============================
-// File:			math/fixed_stubs.h
+// File:			math/math_stubs.h
 // Project:			Albert
 //
 // Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
@@ -21,8 +21,8 @@
 // $Id$
 // ==============================
 
-#ifndef ALBERT_MATH_FIXED_STUBS_H
-#define ALBERT_MATH_FIXED_STUBS_H
+#ifndef ALBERT_MATH_MATH_STUBS_H
+#define ALBERT_MATH_MATH_STUBS_H
 
 // Albert
 #include "fixed.h"
@@ -36,14 +36,14 @@
 
 namespace Albert {
 
-  
-//extern JITUnit* FixedMultiply(JITUnit* ioUnit, TARMProcessor* ioCPU);
-JITInstructionProto(FixedMultiplyStub);
+
+  // fixed.h
+  JITInstructionProto(FixedMultiplyStub);
 
   
 }
 
 
 #endif
-// ALBERT_MATH_FIXED_STUBS_H
+// ALBERT_MATH_MATH_STUBS_H
 
