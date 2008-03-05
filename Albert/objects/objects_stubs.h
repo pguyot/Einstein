@@ -1,5 +1,5 @@
 // ==============================
-// File:			math/math_stubs.cp
+// File:			objects/objects_stubs.h
 // Project:			Albert
 //
 // Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
@@ -21,36 +21,28 @@
 // $Id$
 // ==============================
 
+#ifndef ALBERT_OBJECTS_OBJECTS_STUBS_H
+#define ALBERT_OBJECTS_OBJECTS_STUBS_H
 
-#include "math_stubs.h"
+// Albert
+#include "TObjectTable.h"
+
+// Einstein
+#include "JIT.h"
+#include "TROMImage.h"
+#include "TARMProcessor.h"
+#include "TJITGeneric_Macros.h"
 
 
 namespace Albert {
 
   
-// TODO: other easy stub:
-// call Einstein API for "KUInt32 LoadFromPhysAddress(KUInt32*)"
-//TROMPatch p00018ca4(0x00018ca4, 0xef800001);
-
+  JITInstructionProto(TObjectTable_Get_Stub);
   
-TROMPatch pFixedMultiply(0x00394688, FixedMultiplyStub, "FixedMultiply");
-
-JITInstructionProto(FixedMultiplyStub)
-{
-	// copy all register values into variables
-	Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
-	Fixed b = (Fixed)ioCPU->mCurrentRegisters[1];
   
-	// call Albert
-	Fixed result = FixedMultiply(a, b);
-  
-	// copy variables back into registers
-	ioCPU->mCurrentRegisters[0] = (KUInt32)result;
-  
-	// return for linked branch
-	KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
-	MMUCALLNEXT(next);
 }
 
 
-} // namespace
+#endif
+// ALBERT_OBJECTS_OBJECTS_STUBS_H
+

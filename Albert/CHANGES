@@ -4,6 +4,11 @@
 
 This file contains a list of all changes to the Albert OS.
 
+Mar 5th 2008
+ - added code to access Einstein RAM (no MMU handling yet)
+ - added macros to support class member access under Einstein and AlbertOS
+ - added more sample implementations
+
 Feb 29th 2008
  - initial release of Albert
  - added Albert interface into Einstein

@@ -1,6 +1,6 @@
 // ==============================
-// File:			math/math_stubs.cp
-// Project:			Albert
+// File:                        gfx/point.h
+// Project:                     Albert
 //
 // Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
 //
@@ -21,36 +21,35 @@
 // $Id$
 // ==============================
 
+#ifndef ALBERT_GFX_POINT_H
+#define ALBERT_GFX_POINT_H
 
-#include "math_stubs.h"
+#include <K/Defines/KDefinitions.h>
+#include <Albert/sys/types.h>
 
 
 namespace Albert {
 
+  // TODO: this is bad because a Point is actaully a KUInt32 containing
+  // two unsigned 16 bit values... see Quickdraw
+  // But this function is not called anyways, or is it?
+  class Point {
+    KSInt16 left_;
+    KSInt16 top_;
+  public:
+    void left(KSInt16 x);
+    KSInt32 left();
+    void top(KSInt16 y);
+    KSInt32 top();    
+    
+  };
   
-// TODO: other easy stub:
-// call Einstein API for "KUInt32 LoadFromPhysAddress(KUInt32*)"
-//TROMPatch p00018ca4(0x00018ca4, 0xef800001);
-
+  extern void SetPt(Point *, KSInt32 x, KSInt32 y);
   
-TROMPatch pFixedMultiply(0x00394688, FixedMultiplyStub, "FixedMultiply");
-
-JITInstructionProto(FixedMultiplyStub)
-{
-	// copy all register values into variables
-	Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
-	Fixed b = (Fixed)ioCPU->mCurrentRegisters[1];
-  
-	// call Albert
-	Fixed result = FixedMultiply(a, b);
-  
-	// copy variables back into registers
-	ioCPU->mCurrentRegisters[0] = (KUInt32)result;
-  
-	// return for linked branch
-	KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
-	MMUCALLNEXT(next);
-}
-
 
 } // namespace
+
+
+#endif
+// ALBERT_GFX_POINT_H
+

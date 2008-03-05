@@ -7,14 +7,19 @@ This file contains a hierarchical todo list for Albert OS
 - (done) initial Albert interface in Einstein
 - (done) sample implementation of a Newton OS function, explaining
          the concept of Albert and the stb based interface
-- interface to read emulator RAM from within Albert
+- (done) interface to read emulator RAM from within Albert, ignoring 
+         MMU access exceptions
 - (done) sample implementation of a function, calling another function
          within Albert (self-contained nature of Albert)
-- sample implementation of a class and class member access
-- sample implementation of partial function replacement
-- extract ROM call tree using DyneE5
+- (done) sample implementation of class member access
 - implement DataAbort() 
-   - implement functions that are called by DataAbort()
+   - (active) implement functions that are called by DataAbort()
+- test implementation for stand-alone AlbertOS
+- sample implementation of partial function replacement
+- sample implementation of class constructor and destructor
+- sample implementation of calls via function pointer
+- interface to read emulator RAM with access violation handling
 - evaluate hit count for all functions in Newton OS
 - implement either class-by-class or as indicated by hit-count
+- replace neccesity for an MMU
 

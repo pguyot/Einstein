@@ -1,5 +1,5 @@
 // ==============================
-// File:                        sys/types.h
+// File:                        objects/TObjectTable.h
 // Project:                     Albert
 //
 // Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
@@ -21,31 +21,41 @@
 // $Id$
 // ==============================
 
-#ifndef ALBERT_SYS_TYPES_H
-#define ALBERT_SYS_TYPES_H
+#ifndef ALBERT_OBJECTS_TOBJECTTABLE_H
+#define ALBERT_OBJECTS_TOBJECTTABLE_H
 
 #include <K/Defines/KDefinitions.h>
+#include <Albert/sys/types.h>
+#include <Albert/sys/einstein.h>
+#include <Albert/sys/macros.h>
 
 
 namespace Albert {
 
-  /* FIXME
-   * Currently this is a loose collection of typedefs that is created as we go.
-   * At som point, we must weed this out and create proper Albert OS code.
-   */
+  class TObject;
+
+  class TObjectTable {
+  public:
+    static const int kObjectTableSize = 0x80;
+    static const int kObjectTableMask = 0x7F;
+    
+    /**
+     * Return the object in the table with the given Id.
+     */
+    TObject *Get(ObjectId id);
+    
+  private:    
+    ALBERT_CLASS_MEMBER( GetScavengeProcPtr, Scavenge );                  // +00
+    ALBERT_CLASS_MEMBER( TObject*, ThisObj );                             // +04
+    ALBERT_CLASS_MEMBER( TObject*, PrevObj );                             // +08
+    ALBERT_CLASS_MEMBER( KUInt32, Index );                                // +0c
+    ALBERT_CLASS_MEMBER_ARRAY( TObject*, Entry, kObjectTableSize );       // +10
+  };
   
-  typedef KSInt32 ObjectId;
-  typedef KSInt32 Fixed;
-  typedef KUInt32 BOOL;
-  typedef KUInt32 ULong;
-  
-  typedef KUInt32 GetScavengeProcPtr; // FIXME
-  
-  typedef void (*DestructorProcPtr)(void *, void *);
-  
+
 } // namespace
 
 
 #endif
-// ALBERT_SYS_TYPES_H
+// ALBERT_OBJECTS_TOBJECTTABLE_H
 
