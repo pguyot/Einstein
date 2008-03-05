@@ -26,6 +26,7 @@
 
 // Albert
 #include "font.h"
+#include "point.h"
 
 // Einstein
 #include "JIT.h"
@@ -40,7 +41,9 @@ namespace Albert {
   // font.cp
   JITInstructionProto(GetInkWordFontSizeStub);
   
-  
+  // point.cp
+  JITInstructionProto(SetPtStub);
+    
 }
 
 

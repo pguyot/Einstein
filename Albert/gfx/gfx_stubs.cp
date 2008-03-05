@@ -28,23 +28,29 @@
 namespace Albert {
 
   
-TROMPatch pGetInkWordFontSize(0x0014003c, GetInkWordFontSizeStub);
+  TROMPatch pGetInkWordFontSize(0x0014003c, GetInkWordFontSizeStub, "GetInkWordFontSize");
+  
+  JITInstructionProto(GetInkWordFontSizeStub)
+  {
+    Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
+    Fixed result = GetInkWordFontSize(a);
+    ioCPU->mCurrentRegisters[0] = (KUInt32)result;
+    KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
+    MMUCALLNEXT(next);
+  }
 
-JITInstructionProto(GetInkWordFontSizeStub)
-{
-	// copy all register values into variables
-	Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
   
-	// call Albert
-	Fixed result = GetInkWordFontSize(a);
+  TROMPatch pSetPt(0x0033525c, SetPtStub, "SetPt");
   
-	// copy variables back into registers
-	ioCPU->mCurrentRegisters[0] = (KUInt32)result;
-  
-	// return for linked branch
-	KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
-	MMUCALLNEXT(next);
-}
+  JITInstructionProto(SetPtStub)
+  {
+    Point *pt    =  (Point*)ioCPU->mCurrentRegisters[0];
+    KSInt32 left = (KSInt32)ioCPU->mCurrentRegisters[1];
+    KSInt32 top  = (KSInt32)ioCPU->mCurrentRegisters[2];
+    SetPt(pt, left, top);
+    KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
+    MMUCALLNEXT(next);
+  }
   
   
 } // namespace

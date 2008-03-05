@@ -1,5 +1,5 @@
 // ==============================
-// File:                        sys/types.h
+// File:                        objects/TDoubleQContainer.cp
 // Project:                     Albert
 //
 // Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
@@ -21,31 +21,51 @@
 // $Id$
 // ==============================
 
-#ifndef ALBERT_SYS_TYPES_H
-#define ALBERT_SYS_TYPES_H
 
-#include <K/Defines/KDefinitions.h>
+#include "TDoubleQContainer.h"
+#include "TDoubleQItem.h"
 
 
-namespace Albert {
+using namespace Albert;
 
-  /* FIXME
-   * Currently this is a loose collection of typedefs that is created as we go.
-   * At som point, we must weed this out and create proper Albert OS code.
-   */
+
+BOOL Albert::TDoubleQContainer::RemoveFromQueue(void *item)
+{
+  if (!item)
+    return 0;  
   
-  typedef KSInt32 ObjectId;
-  typedef KSInt32 Fixed;
-  typedef KUInt32 BOOL;
-  typedef KUInt32 ULong;
+  TDoubleQItem *it = (TDoubleQItem*)(((char*)item) + GetOffsetToDoubleQItem());
+  if (it->GetContainer()!=this) 
+    return 0;
   
-  typedef KUInt32 GetScavengeProcPtr; // FIXME
+  TDoubleQItem *next = it->GetNext();
+  TDoubleQItem *prev = it->GetPrev();
+  TDoubleQItem *head = GetHead();
+  if (it==head) 
+  {
+    TDoubleQItem *tail = GetTail();
+    if (head!=tail) {
+      SetHead(next);
+      next->SetPrev(0);
+    } else {
+      SetHead(0);
+      SetTail(0);
+    }
+  } else {  
+    prev->SetNext(next);
+    TDoubleQItem *tail = GetTail();
+    if (it!=tail) {
+      next->SetPrev(prev);
+    } else {
+      SetTail(prev);
+    }
+  }
   
-  typedef void (*DestructorProcPtr)(void *, void *);
-  
-} // namespace
+  it->SetPrev(0);
+  it->SetNext(0);
+  it->SetContainer(0);
+  return 1;
+}
 
 
-#endif
-// ALBERT_SYS_TYPES_H
-
+using namespace Albert;

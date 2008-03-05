@@ -1,6 +1,6 @@
 // ==============================
-// File:			math/math_stubs.cp
-// Project:			Albert
+// File:                        objects/TDoubleQItem.cp
+// Project:                     Albert
 //
 // Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
 //
@@ -22,35 +22,7 @@
 // ==============================
 
 
-#include "math_stubs.h"
+#include "TDoubleQItem.h"
 
 
-namespace Albert {
-
-  
-// TODO: other easy stub:
-// call Einstein API for "KUInt32 LoadFromPhysAddress(KUInt32*)"
-//TROMPatch p00018ca4(0x00018ca4, 0xef800001);
-
-  
-TROMPatch pFixedMultiply(0x00394688, FixedMultiplyStub, "FixedMultiply");
-
-JITInstructionProto(FixedMultiplyStub)
-{
-	// copy all register values into variables
-	Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
-	Fixed b = (Fixed)ioCPU->mCurrentRegisters[1];
-  
-	// call Albert
-	Fixed result = FixedMultiply(a, b);
-  
-	// copy variables back into registers
-	ioCPU->mCurrentRegisters[0] = (KUInt32)result;
-  
-	// return for linked branch
-	KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
-	MMUCALLNEXT(next);
-}
-
-
-} // namespace
+using namespace Albert;

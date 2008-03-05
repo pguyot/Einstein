@@ -1,6 +1,6 @@
 // ==============================
-// File:			math/math_stubs.cp
-// Project:			Albert
+// File:                        gfx/point.cp
+// Project:                     Albert
 //
 // Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
 //
@@ -22,35 +22,46 @@
 // ==============================
 
 
-#include "math_stubs.h"
+#include <Albert/gfx/point.h>
+#include <Albert/sys/einstein.h>
 
 
 namespace Albert {
 
   
-// TODO: other easy stub:
-// call Einstein API for "KUInt32 LoadFromPhysAddress(KUInt32*)"
-//TROMPatch p00018ca4(0x00018ca4, 0xef800001);
+  void Point::left(KSInt16 l)
+  {
+    setMem8(((KUInt32)this)+0, l>>8);
+    setMem8(((KUInt32)this)+1, l);
+  }
+  
+  KSInt32 Point::left()
+  {
+    KSInt32 ret = getMem8(((KUInt32)this)+0)<<8;
+    ret        |= getMem8(((KUInt32)this)+1);
+    return ret;
+  }
+  
+  void Point::top(KSInt16 t)
+  {
+    setMem8(((KUInt32)this)+2, t>>8);
+    setMem8(((KUInt32)this)+3, t);
+  }
+  
+  KSInt32 Point::top()
+  {
+    KSInt32 ret = getMem8(((KUInt32)this)+2)<<8;
+    ret        |= getMem8(((KUInt32)this)+3);
+    return ret;
+  }
+  
+  void SetPt(Point *pt, KSInt32 l, KSInt32 t)
+  {
+    // printf("SetPt(%d, %d)\n", l, t);
+    pt->left(l);
+    pt->top(t);
+  }
 
   
-TROMPatch pFixedMultiply(0x00394688, FixedMultiplyStub, "FixedMultiply");
-
-JITInstructionProto(FixedMultiplyStub)
-{
-	// copy all register values into variables
-	Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
-	Fixed b = (Fixed)ioCPU->mCurrentRegisters[1];
-  
-	// call Albert
-	Fixed result = FixedMultiply(a, b);
-  
-	// copy variables back into registers
-	ioCPU->mCurrentRegisters[0] = (KUInt32)result;
-  
-	// return for linked branch
-	KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
-	MMUCALLNEXT(next);
 }
 
-
-} // namespace
