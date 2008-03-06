@@ -225,7 +225,7 @@ public:
   TROMPatch(KUInt32 address, KUInt32 value);
   
   /// Create and add a call to Albert
-  TROMPatch(KUInt32 address, JITFuncPtr stub);
+  TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name);
   
   /// Return the first patch in the list.
   /// @return NULL if no patches
