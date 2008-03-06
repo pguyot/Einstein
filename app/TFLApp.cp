@@ -53,6 +53,9 @@
 #include "Emulator/Log/TFileLog.h"
 #include "Emulator/Log/TBufferLog.h"
 
+#include "Monitor/TMonitor.h"
+#include "Monitor/TSymbolList.h"
+
 #if defined(_MSC_VER) && defined(_DEBUG)
 #include "Emulator/JIT/TJITPerformance.h"
 #endif
@@ -123,6 +126,8 @@ TFLApp::TFLApp( void )
 		mScreenManager( nil ),
 		mPlatformManager( nil ),
 		mLog( nil ),
+		mMonitor( nil ),
+		mSymbolList( nil ),
 		flSettings(0L)
 {
 }
@@ -152,6 +157,14 @@ TFLApp::~TFLApp( void )
 	{
 		delete mROMImage;
 	}
+	if (mMonitor)
+	{
+		delete mMonitor;
+	}
+	if (mSymbolList)
+	{
+		delete mSymbolList;
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -166,7 +179,7 @@ TFLApp::Run( int argc, char* argv[] )
 	Fl::args(1, argv);
 	Fl::get_system_colors();
 
-	flSettings = new TFLSettings(425, 380, "Einstein Platform Settings");
+	flSettings = new TFLSettings(425, 392, "Einstein Platform Settings");
 	flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 	flSettings->setApp(this, mProgramName);
 	flSettings->loadPreferences();
@@ -195,6 +208,7 @@ TFLApp::Run( int argc, char* argv[] )
 	int ramSize = flSettings->RAMSize;
 	Boolean fullscreen = (bool)flSettings->fullScreen;
 	Boolean hidemouse = (bool)flSettings->hideMouse;
+	Boolean useMonitor = (bool)flSettings->useMonitor;
 	int useAIFROMFile = 0;	// 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
 
 	int xx, yy, ww, hh;
@@ -269,7 +283,7 @@ TFLApp::Run( int argc, char* argv[] )
 		switch (useAIFROMFile) {
 			case 0:
 				mROMImage = new TFlatROMImageWithREX(
-					theROMImagePath, theREX1Path, theMachineString, false);
+					theROMImagePath, theREX1Path, theMachineString, useMonitor);
 				break;
 			case 1:
 				{
@@ -277,7 +291,7 @@ TFLApp::Run( int argc, char* argv[] )
 					strcpy(theREX0Path, theROMImagePath);
 					fl_filename_setext(theREX0Path, FL_PATH_MAX, ".rex");
 					mROMImage = new TAIFROMImageWithREXes(
-						theROMImagePath, theREX0Path, theREX1Path, theMachineString, false );
+						theROMImagePath, theREX0Path, theREX1Path, theMachineString, useMonitor );
 				}
 				break;
 			case 2:
@@ -287,7 +301,7 @@ TFLApp::Run( int argc, char* argv[] )
 					char *image = strstr(theREX0Path, "image");
 					strcpy(image, "high");
 					mROMImage = new TAIFROMImageWithREXes(
-						theROMImagePath, theREX0Path, theREX1Path, theMachineString, false );
+						theROMImagePath, theREX0Path, theREX1Path, theMachineString, useMonitor );
 				}
 				break;
 		}
@@ -297,7 +311,16 @@ TFLApp::Run( int argc, char* argv[] )
 					mSoundManager, mScreenManager, ramSize << 16 );
 		mPlatformManager = mEmulator->GetPlatformManager();
 		
-		(void) ::printf( "Booting...\n" );
+		if (useMonitor)
+		{
+			char theSymbolListPath[512];
+			(void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
+								theROMImagePath, theMachineString );
+			mSymbolList = new TSymbolList( theSymbolListPath );
+			mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList );
+		} else {
+			(void) ::printf( "Booting...\n" );
+		}
 
 		Fl::lock();
 		win->show(1, argv);
@@ -340,7 +363,11 @@ TFLApp::Run( int argc, char* argv[] )
 void
 TFLApp::ThreadEntry( void )
 {
-	mEmulator->Run();
+	if (mMonitor) {
+		mMonitor->Run();
+	} else {
+		mEmulator->Run();
+	}
 	mQuit = true;
 }
 

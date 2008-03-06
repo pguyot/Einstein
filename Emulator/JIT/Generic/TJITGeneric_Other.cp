@@ -75,7 +75,6 @@ JITInstructionProto(CallHostNative)
   JITFuncPtr stub = TROMPatch::albertStub(callIndex);
   //printf("Albert: %3d:0x%08x\n", (int)callIndex, stub);
 	if (!stub) {
-    assert(stub);
 		CALLNEXTUNIT;
 	}
   Albert::CPUInterface = ioCPU;

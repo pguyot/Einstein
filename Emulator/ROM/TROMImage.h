@@ -222,7 +222,7 @@ class TROMPatch {
 public:
   
   /// Create and add a new patch
-  TROMPatch(KUInt32 address, KUInt32 value);
+  TROMPatch(KUInt32 address, KUInt32 value, const char *name);
   
   /// Create and add a call to Albert
   TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name);

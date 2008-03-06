@@ -215,6 +215,8 @@ private:
 	TScreenManager*		mScreenManager;		///< Gestionnaire d'cran.
 	TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
 	TLog*				mLog;				///< Log.
+	TMonitor*			mMonitor;			///< Monitor.
+	TSymbolList*		mSymbolList;		///< List of symbols.
 	Boolean				mQuit;				///< If we should quit.
 
 	TFLSettings			*flSettings;		///< settings dialog box

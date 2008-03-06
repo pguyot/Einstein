@@ -249,7 +249,7 @@ this->when(FL_WHEN_RELEASE);
   } // Fl_Button* wFlashPathChoose
   o->end();
 } // Fl_Group* o
-{ Fl_Group* o = new Fl_Group(10, 235, 200, 80, "  Screen");
+{ Fl_Group* o = new Fl_Group(10, 235, 200, 100, "  Screen");
   o->box(FL_GTK_DOWN_BOX);
   o->labelsize(11);
   o->align(FL_ALIGN_TOP_LEFT);
@@ -271,9 +271,13 @@ this->when(FL_WHEN_RELEASE);
     wHideMouse->down_box(FL_DOWN_BOX);
     wHideMouse->labelsize(12);
   } // Fl_Check_Button* wHideMouse
+  { wUseMonitor = new Fl_Check_Button(20, 310, 175, 20, "Debug Terminal");
+    wUseMonitor->down_box(FL_DOWN_BOX);
+    wUseMonitor->labelsize(12);
+  } // Fl_Check_Button* wUseMonitor
   o->end();
 } // Fl_Group* o
-{ Fl_Group* o = new Fl_Group(215, 235, 200, 80, "  Memory");
+{ Fl_Group* o = new Fl_Group(215, 235, 200, 100, "  Memory");
   o->box(FL_GTK_DOWN_BOX);
   o->labelsize(11);
   o->align(FL_ALIGN_TOP_LEFT);
@@ -309,16 +313,16 @@ this->when(FL_WHEN_RELEASE);
   } // Fl_Slider* wRAMSize
   o->end();
 } // Fl_Group* o
-{ wDontShow = new Fl_Check_Button(10, 340, 140, 20, "Don\'t show at startup");
+{ wDontShow = new Fl_Check_Button(10, 355, 140, 20, "Don\'t show at startup");
   wDontShow->down_box(FL_DOWN_BOX);
   wDontShow->labelsize(12);
 } // Fl_Check_Button* wDontShow
-{ wQuit = new Fl_Button(215, 340, 95, 25, "Quit");
+{ wQuit = new Fl_Button(215, 355, 95, 25, "Quit");
   wQuit->color(FL_LIGHT1);
   wQuit->labelsize(12);
   wQuit->callback((Fl_Callback*)cb_wQuit);
 } // Fl_Button* wQuit
-{ wStart = new Fl_Button(320, 340, 95, 25, "Start");
+{ wStart = new Fl_Button(320, 355, 95, 25, "Start");
   wStart->color(FL_LIGHT1);
   wStart->labelsize(12);
   wStart->callback((Fl_Callback*)cb_wStart);
@@ -383,6 +387,7 @@ screen.get("width", screenWidth, 320);
 screen.get("height", screenHeight, 480);
 screen.get("fullScreen", fullScreen, 0);
 screen.get("hideMouse", hideMouse, 0);
+screen.get("useMonitor", useMonitor, 0);
 
 // Memory preferences
 Fl_Preferences memory(prefs, "Memory");
@@ -410,6 +415,7 @@ screen.set("width", screenWidth);
 screen.set("height", screenHeight);
 screen.set("fullScreen", fullScreen);
 screen.set("hideMouse", hideMouse);
+screen.set("useMonitor", useMonitor);
 
 // Memory preferences
 Fl_Preferences memory(prefs, "Memory");
@@ -430,6 +436,7 @@ sprintf(buf, "%d", screenHeight);
 wHeight->value(buf);
 wFullScreen->value(fullScreen);
 wHideMouse->value(hideMouse);
+wUseMonitor->value(useMonitor);
 
 wRAMSize->value(RAMSize);
 updateRAMSizeLabel();
@@ -449,6 +456,7 @@ screenWidth = atoi(wWidth->value());
 screenHeight = atoi(wHeight->value());
 fullScreen = wFullScreen->value();
 hideMouse = wHideMouse->value();
+useMonitor = wUseMonitor->value();
 
 RAMSize = (int)wRAMSize->value();
 

@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/wd4996"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
+				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator\ROM;..\..\..\Emulator;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DYLIBSUFFIX=&quot;.dll&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -106,7 +106,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/wd4996"
 				Optimization="3"
-				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
+				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator;..\..\..\Emulator\ROM;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;DYLIBSUFFIX=&quot;.dll&quot;"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -171,7 +171,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
+				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator;..\..\..\Emulator\ROM;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DYLIBSUFFIX=&quot;.dll&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
@@ -937,6 +937,22 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\Emulator\EinsteinAPI\misc.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Emulator\EinsteinAPI\misc.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Emulator\EinsteinAPI\misc_stubs.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Emulator\EinsteinAPI\misc_stubs.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Emulator\EinsteinAPI\stubs.cp"
 					>
 				</File>
@@ -981,6 +997,138 @@
 		<Filter
 			Name="libffi"
 			>
+		</Filter>
+		<Filter
+			Name="Albert"
+			>
+			<Filter
+				Name="gfx"
+				>
+				<File
+					RelativePath="..\..\..\Albert\gfx\font.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\gfx\font.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\gfx\gfx_stubs.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\gfx\gfx_stubs.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\gfx\point.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\gfx\point.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\gfx\TRect.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\gfx\TRect.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="math"
+				>
+				<File
+					RelativePath="..\..\..\Albert\math\fixed.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\math\fixed.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\math\math_stubs.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\math\math_stubs.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="objects"
+				>
+				<File
+					RelativePath="..\..\..\Albert\sys\einstein.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\sys\einstein.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\sys\globals.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\sys\globals.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\sys\macros.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\sys\types.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="sys"
+				>
+				<File
+					RelativePath="..\..\..\Albert\objects\objects_stubs.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\objects_stubs.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\TDoubleQContainer.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\TDoubleQContainer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\TDoubleQItem.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\TDoubleQItem.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\TObject.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\TObject.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\TObjectTable.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\TObjectTable.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\libeinstein.rc"
