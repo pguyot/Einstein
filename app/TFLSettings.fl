@@ -58,7 +58,7 @@ widget_class TFLSettings {
 me->revertDialog();
 me->redraw();
 me->hide();} open
-  xywh {411 145 425 377} type Double color 50 align 80
+  xywh {411 145 425 393} type Double color 50 align 80
   class Fl_Window non_modal visible
 } {
   Fl_Menu_Button RMB {
@@ -186,8 +186,8 @@ if (path) {
     }
   }
   Fl_Group {} {
-    label {  Screen} open
-    xywh {10 235 200 80} box GTK_DOWN_BOX labelsize 11 align 5
+    label {  Screen}
+    xywh {10 235 200 100} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Input wWidth {
       xywh {20 245 80 20} type Int labelsize 12 textsize 12
@@ -204,10 +204,14 @@ if (path) {
       label {Hide mouse pointer}
       xywh {20 290 175 20} down_box DOWN_BOX labelsize 12
     }
+    Fl_Check_Button wUseMonitor {
+      label {Debug Terminal}
+      xywh {20 310 175 20} down_box DOWN_BOX labelsize 12
+    }
   }
   Fl_Group {} {
     label {  Memory}
-    xywh {215 235 200 80} box GTK_DOWN_BOX labelsize 11 align 5
+    xywh {215 235 200 100} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Box {} {
       label {RAM Size}
@@ -236,19 +240,19 @@ if (path) {
   }
   Fl_Check_Button wDontShow {
     label {Don't show at startup}
-    xywh {10 340 140 20} down_box DOWN_BOX labelsize 12
+    xywh {10 355 140 20} down_box DOWN_BOX labelsize 12
   }
   Fl_Button wQuit {
     label Quit
     callback {exit(0);}
-    xywh {215 340 95 25} color 50 labelsize 12
+    xywh {215 355 95 25} color 50 labelsize 12
   }
   Fl_Button wStart {
     label Start
     callback {applyDialog();
 savePreferences();
 hide();}
-    xywh {320 340 95 25} color 50 labelsize 12
+    xywh {320 355 95 25} color 50 labelsize 12
   }
   Fl_Box wRestartWarning {
     label {Preferences only apply at restart}
@@ -275,7 +279,7 @@ char *end = (char*)fl_filename_name(appPath);
 if (end) 
   *end = 0;} {}
   }
-  Function {loadPreferences()} {return_type void
+  Function {loadPreferences()} {open return_type void
   } {
     code {char buf[FL_PATH_MAX];
 
@@ -306,12 +310,13 @@ screen.get("width", screenWidth, 320);
 screen.get("height", screenHeight, 480);
 screen.get("fullScreen", fullScreen, 0);
 screen.get("hideMouse", hideMouse, 0);
+screen.get("useMonitor", useMonitor, 0);
 
 // Memory preferences
 Fl_Preferences memory(prefs, "Memory");
 memory.get("RAMSize", RAMSize, 64);} {}
   }
-  Function {savePreferences()} {return_type void
+  Function {savePreferences()} {open return_type void
   } {
     code {Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
 
@@ -333,12 +338,13 @@ screen.set("width", screenWidth);
 screen.set("height", screenHeight);
 screen.set("fullScreen", fullScreen);
 screen.set("hideMouse", hideMouse);
+screen.set("useMonitor", useMonitor);
 
 // Memory preferences
 Fl_Preferences memory(prefs, "Memory");
 memory.set("RAMSize", RAMSize);} {}
   }
-  Function {revertDialog()} {return_type void
+  Function {revertDialog()} {open return_type void
   } {
     code {char buf[32];
 
@@ -353,13 +359,14 @@ sprintf(buf, "%d", screenHeight);
 wHeight->value(buf);
 wFullScreen->value(fullScreen);
 wHideMouse->value(hideMouse);
+wUseMonitor->value(useMonitor);
 
 wRAMSize->value(RAMSize);
 updateRAMSizeLabel();
 
 wDontShow->value(dontShow);} {}
   }
-  Function {applyDialog()} {return_type void
+  Function {applyDialog()} {open return_type void
   } {
     code {free(ROMPath);
 ROMPath = strdup(wROMPath->label());
@@ -372,10 +379,12 @@ screenWidth = atoi(wWidth->value());
 screenHeight = atoi(wHeight->value());
 fullScreen = wFullScreen->value();
 hideMouse = wHideMouse->value();
+useMonitor = wUseMonitor->value();
 
 RAMSize = (int)wRAMSize->value();
 
-dontShow = wDontShow->value();} {}
+dontShow = wDontShow->value();} {selected
+    }
   }
   Function {runningMode()} {return_type void
   } {
@@ -395,7 +404,9 @@ wSave->show();} {}
   }
   decl {int screenHeight;} {public global
   }
-  decl {int hideMouse;} {selected public global
+  decl {int hideMouse;} {public global
+  }
+  decl {int useMonitor;} {public global
   }
   decl {int fullScreen;} {public global
   }

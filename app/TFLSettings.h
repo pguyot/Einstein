@@ -83,6 +83,7 @@ public:
   Fl_Input *wHeight;
   Fl_Check_Button *wFullScreen;
   Fl_Check_Button *wHideMouse;
+  Fl_Check_Button *wUseMonitor;
   Fl_Box *wRAMSizeMB;
   Fl_Box *wRAMSizeKB;
   Fl_Box *wRAMSizeKBLabel;
@@ -119,6 +120,7 @@ public:
   int screenWidth; 
   int screenHeight; 
   int hideMouse; 
+  int useMonitor; 
   int fullScreen; 
   int RAMSize; 
   int dontShow; 

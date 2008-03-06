@@ -75,14 +75,14 @@ const KUInt32 k717006VirtualizationPatches[] = {
 };	
 
 // avoid calibration screen early in the game
-TROMPatch p001412f8(0x001412f8, 0xea000009);
+TROMPatch p001412f8(0x001412f8, 0xea000009, "Avoid screen calibration");
 // disable "FlushDCache" since we do not emulate a DCache 
-TROMPatch p00018994(0x00018994, 0xe1a0f00e); // #  mov pc, lr
+TROMPatch p00018994(0x00018994, 0xe1a0f00e, "Obsolete FlushDCache"); // #  mov pc, lr
 // disable "CleanPageInDCache" since we do not emulate a DCache 
-TROMPatch p0001894c(0x0001894c, 0xe1a0f00e); // #  mov pc, lr
+TROMPatch p0001894c(0x0001894c, 0xe1a0f00e, "Obsolete CleanPageInDCache"); // #  mov pc, lr
 // disable "TGeoPortDebugLink::BeaconDetect(long)"
-TROMPatch p000db0d8(0x000db0d8, 0xe3a00000); // #  mov r0, 0x00000000
-TROMPatch p000db0dc(0x000db0dc, 0xe1a0f00e); // #  mov pc, lr
+TROMPatch p000db0d8(0x000db0d8, 0xe3a00000, "BeaconDetect (1/2)"); // #  mov r0, 0x00000000
+TROMPatch p000db0dc(0x000db0dc, 0xe1a0f00e, "BeaconDetect (2/2)"); // #  mov pc, lr
 
 
 // -------------------------------------------------------------------------- //
@@ -584,13 +584,13 @@ KUInt32 TROMPatch::nStub = 0, TROMPatch::NStub = 0;
 // -------------------------------------------------------------------------- //
 //  * TROMPatch constructor
 // -------------------------------------------------------------------------- //
-TROMPatch::TROMPatch(KUInt32 addr, KUInt32 val)
+TROMPatch::TROMPatch(KUInt32 addr, KUInt32 val, const char *name)
 : next_(first_),
   address_(addr>>2),
   value_(val)
 {
   first_ = this;
-  printf("Adding ROM patch\n");
+  printf("Adding ROM patch: %s\n", name);
 }
 
 // -------------------------------------------------------------------------- //

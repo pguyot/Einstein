@@ -27,7 +27,6 @@
 
 namespace Albert {
 
-  
   TROMPatch pGetInkWordFontSize(0x0014003c, GetInkWordFontSizeStub, "GetInkWordFontSize");
   
   JITInstructionProto(GetInkWordFontSizeStub)
