@@ -143,6 +143,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				UseLibraryDependencyInputs="true"
 				AdditionalDependencies="libk.lib fltk.lib ws2_32.lib user32.lib comctl32.lib winmm.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\..\K\_Build_\VisualC8\release"
@@ -226,6 +227,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				UseLibraryDependencyInputs="true"
 				AdditionalDependencies="libk.lib fltk.lib ws2_32.lib user32.lib comctl32.lib winmm.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
