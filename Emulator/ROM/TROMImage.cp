@@ -596,14 +596,14 @@ TROMPatch::TROMPatch(KUInt32 addr, KUInt32 val)
 // -------------------------------------------------------------------------- //
 //  * TROMPatch constructor for Albert calls
 // -------------------------------------------------------------------------- //
-TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub)
+TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name)
 : next_(first_),
   address_(addr>>2),
   value_(0xef800000)
 {
   first_ = this;
-  address_ |= addStub(stub);
-  printf("Adding ROM patch linking into Albert\n");
+  printf("Adding ROM patch linking into Albert: %3d = %s\n", (int)nStub, name);
+  value_ |= addStub(stub);
 }
 
 // -------------------------------------------------------------------------- //
