@@ -205,8 +205,8 @@ if (path) {
       xywh {20 290 175 20} down_box DOWN_BOX labelsize 12
     }
     Fl_Check_Button wUseMonitor {
-      label {Debug Terminal}
-      xywh {20 310 175 20} down_box DOWN_BOX labelsize 12
+      label {Debug Terminal} selected
+      xywh {20 310 175 20} down_box DOWN_BOX labelsize 12 deactivate
     }
   }
   Fl_Group {} {
@@ -240,7 +240,7 @@ if (path) {
   }
   Fl_Check_Button wDontShow {
     label {Don't show at startup}
-    xywh {10 355 140 20} down_box DOWN_BOX labelsize 12
+    xywh {10 350 140 20} down_box DOWN_BOX labelsize 12
   }
   Fl_Button wQuit {
     label Quit
@@ -256,20 +256,20 @@ hide();}
   }
   Fl_Box wRestartWarning {
     label {Preferences only apply at restart}
-    xywh {10 305 200 20} labelfont 1 labelsize 12 align 20 hide
+    xywh {10 370 200 20} labelfont 1 labelsize 12 align 20 hide
   }
   Fl_Button wRevert {
     label Revert
     callback {revertDialog();
 redraw();}
-    xywh {215 320 95 25} color 50 labelsize 12 hide
+    xywh {215 355 95 25} color 50 labelsize 12 hide
   }
   Fl_Button wSave {
     label Save
     callback {applyDialog();
 savePreferences();
 hide();}
-    xywh {320 320 95 25} color 50 labelsize 12 hide
+    xywh {320 355 95 25} color 50 labelsize 12 hide
   }
   Function {setApp(TFLApp *App, const char *AppPath)} {return_type void
   } {
@@ -279,7 +279,7 @@ char *end = (char*)fl_filename_name(appPath);
 if (end) 
   *end = 0;} {}
   }
-  Function {loadPreferences()} {open return_type void
+  Function {loadPreferences()} {return_type void
   } {
     code {char buf[FL_PATH_MAX];
 
@@ -316,7 +316,7 @@ screen.get("useMonitor", useMonitor, 0);
 Fl_Preferences memory(prefs, "Memory");
 memory.get("RAMSize", RAMSize, 64);} {}
   }
-  Function {savePreferences()} {open return_type void
+  Function {savePreferences()} {return_type void
   } {
     code {Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
 
@@ -344,7 +344,7 @@ screen.set("useMonitor", useMonitor);
 Fl_Preferences memory(prefs, "Memory");
 memory.set("RAMSize", RAMSize);} {}
   }
-  Function {revertDialog()} {open return_type void
+  Function {revertDialog()} {return_type void
   } {
     code {char buf[32];
 
@@ -366,7 +366,7 @@ updateRAMSizeLabel();
 
 wDontShow->value(dontShow);} {}
   }
-  Function {applyDialog()} {open return_type void
+  Function {applyDialog()} {return_type void
   } {
     code {free(ROMPath);
 ROMPath = strdup(wROMPath->label());
@@ -383,10 +383,9 @@ useMonitor = wUseMonitor->value();
 
 RAMSize = (int)wRAMSize->value();
 
-dontShow = wDontShow->value();} {selected
-    }
+dontShow = wDontShow->value();} {}
   }
-  Function {runningMode()} {return_type void
+  Function {runningMode()} {open return_type void
   } {
     code {wRestartWarning->show();
 wQuit->hide();
@@ -446,8 +445,7 @@ Function {close_window_cb(Fl_Widget*, void *user)} {private return_type void
 win->hide();} {}
 } 
 
-Function {createAboutDialog()} {open
-} {
+Function {createAboutDialog()} {} {
   Fl_Window wAbout {
     user_data wAbout
     callback close_window_cb open
@@ -559,7 +557,7 @@ startDump();}
   }
 } 
 
-Function {startDump()} {open return_type void
+Function {startDump()} {return_type void
 } {
   code {sData = INVALID_SOCKET;
 
@@ -635,8 +633,7 @@ fROM = fopen(wDownloadPath->label(), "wb");
 recvd = 0;} {}
 } 
 
-Function {dataReadCB(int p, void *user_data)} {open
-} {
+Function {dataReadCB(int p, void *user_data)} {} {
   code {unsigned long n;
 DWORD rcvd;
 int ret = WSAIoctl(sData, FIONREAD, 0, 0, &n, sizeof(n), &rcvd, 0, 0);
@@ -655,8 +652,7 @@ printf("Received %d/%d (%d)\\n", n, n1, recvd);
 wProgressSlider->value(recvd/1024);} {}
 } 
 
-Function {dataExceptCB(int p, void *user_data)} {open
-} {
+Function {dataExceptCB(int p, void *user_data)} {} {
   code {if (fROM) {
   fclose(fROM);
   fROM = 0L;
@@ -675,8 +671,7 @@ if (recvd==8*1024*1024) {
 }} {}
 } 
 
-Function {createROMDownloadProgressWindow()} {open
-} {
+Function {createROMDownloadProgressWindow()} {} {
   Fl_Window {} {open
     xywh {862 545 285 111} type Double modal visible
   } {
