@@ -85,8 +85,15 @@ public:
 	};
 	
 	enum {
+#ifdef WIN32
+		kEpochInNewtonBase	= 2082844800 + 24*60*60*150	+ 60*60 
+											///< Number of seconds between
+											///< 1/1/1970 and 1/1/1904.
+											///< The MSWindows time is 150 days off.
+#else
 		kEpochInNewtonBase	= 2082844800	///< Number of seconds between
 											///< 1/1/1970 and 1/1/1904.
+#endif
 	};
 
 	///
