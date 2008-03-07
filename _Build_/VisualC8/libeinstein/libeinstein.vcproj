@@ -963,6 +963,14 @@
 				<File
 					RelativePath="..\..\..\Albert\gfx\font.cp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\Albert\gfx\font.h"
@@ -971,6 +979,14 @@
 				<File
 					RelativePath="..\..\..\Albert\gfx\gfx_stubs.cp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\Albert\gfx\gfx_stubs.h"
@@ -979,6 +995,14 @@
 				<File
 					RelativePath="..\..\..\Albert\gfx\point.cp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\Albert\gfx\point.h"
@@ -987,6 +1011,14 @@
 				<File
 					RelativePath="..\..\..\Albert\gfx\TRect.cp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\Albert\gfx\TRect.h"
@@ -999,6 +1031,14 @@
 				<File
 					RelativePath="..\..\..\Albert\math\fixed.cp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\Albert\math\fixed.h"
@@ -1007,6 +1047,14 @@
 				<File
 					RelativePath="..\..\..\Albert\math\math_stubs.cp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\Albert\math\math_stubs.h"
@@ -1047,6 +1095,14 @@
 				<File
 					RelativePath="..\..\..\Albert\objects\objects_stubs.cp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\Albert\objects\objects_stubs.h"
@@ -1055,6 +1111,14 @@
 				<File
 					RelativePath="..\..\..\Albert\objects\TDoubleQContainer.cp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\Albert\objects\TDoubleQContainer.h"
@@ -1063,6 +1127,14 @@
 				<File
 					RelativePath="..\..\..\Albert\objects\TDoubleQItem.cp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\Albert\objects\TDoubleQItem.h"
@@ -1071,6 +1143,14 @@
 				<File
 					RelativePath="..\..\..\Albert\objects\TObject.cp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\Albert\objects\TObject.h"
@@ -1079,6 +1159,14 @@
 				<File
 					RelativePath="..\..\..\Albert\objects\TObjectTable.cp"
 					>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\Albert\objects\TObjectTable.h"
