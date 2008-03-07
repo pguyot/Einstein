@@ -274,6 +274,7 @@ this->when(FL_WHEN_RELEASE);
   { wUseMonitor = new Fl_Check_Button(20, 310, 175, 20, "Debug Terminal");
     wUseMonitor->down_box(FL_DOWN_BOX);
     wUseMonitor->labelsize(12);
+    wUseMonitor->deactivate();
   } // Fl_Check_Button* wUseMonitor
   o->end();
 } // Fl_Group* o
@@ -313,7 +314,7 @@ this->when(FL_WHEN_RELEASE);
   } // Fl_Slider* wRAMSize
   o->end();
 } // Fl_Group* o
-{ wDontShow = new Fl_Check_Button(10, 355, 140, 20, "Don\'t show at startup");
+{ wDontShow = new Fl_Check_Button(10, 350, 140, 20, "Don\'t show at startup");
   wDontShow->down_box(FL_DOWN_BOX);
   wDontShow->labelsize(12);
 } // Fl_Check_Button* wDontShow
@@ -327,19 +328,19 @@ this->when(FL_WHEN_RELEASE);
   wStart->labelsize(12);
   wStart->callback((Fl_Callback*)cb_wStart);
 } // Fl_Button* wStart
-{ wRestartWarning = new Fl_Box(10, 305, 200, 20, "Preferences only apply at restart");
+{ wRestartWarning = new Fl_Box(10, 370, 200, 20, "Preferences only apply at restart");
   wRestartWarning->labelfont(1);
   wRestartWarning->labelsize(12);
   wRestartWarning->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   wRestartWarning->hide();
 } // Fl_Box* wRestartWarning
-{ wRevert = new Fl_Button(215, 320, 95, 25, "Revert");
+{ wRevert = new Fl_Button(215, 355, 95, 25, "Revert");
   wRevert->color(FL_LIGHT1);
   wRevert->labelsize(12);
   wRevert->callback((Fl_Callback*)cb_wRevert);
   wRevert->hide();
 } // Fl_Button* wRevert
-{ wSave = new Fl_Button(320, 320, 95, 25, "Save");
+{ wSave = new Fl_Button(320, 355, 95, 25, "Save");
   wSave->color(FL_LIGHT1);
   wSave->labelsize(12);
   wSave->callback((Fl_Callback*)cb_wSave);
