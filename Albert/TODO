@@ -14,6 +14,8 @@ This file contains a hierarchical todo list for Albert OS
 - (done) sample implementation of class member access
 - implement DataAbort() 
    - (active) implement functions that are called by DataAbort()
+   - implement a macro that allows a native code to call an emulated
+     function
 - test implementation for stand-alone AlbertOS
 - sample implementation of partial function replacement
 - sample implementation of class constructor and destructor

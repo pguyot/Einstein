@@ -26,7 +26,6 @@
 
 #ifdef ALBERT_OS_STANDALONE
 
-
 /**
  * Generates code for a class member and read and write access.
  * The member is private and followed by an underscore: XXX_ . Direct access to the
@@ -52,6 +51,9 @@
   private: type name##_[size];
 
 
+#define ALBERT_CALL_STUB(name)
+
+
 #else
 
 /*
@@ -70,6 +72,19 @@
            type Get##name(KUInt32 ix) { return (type)getMem32( (KUInt32)(&(name##_[ix])) ); } \
            void Set##name(KUInt32 ix, type v) { setMem32( (KUInt32)(name##_[ix]), (KUInt32)v ); } \
   private: type name##_[size];
+
+/**
+ * Create a call from the emulator into native Albert OS code.
+ */
+/*
+#define ALBERT_FUNCTION_STUB(address, name) \
+	extern JITInstructionProto(name##_Stub); \
+	JITInstructionProto(name##_Stub)
+*/
+#define ALBERT_FUNCTION_STUB(address, name) \
+	JITInstructionProto(name##_Stub); \
+	TROMPatch p##name(address, name##_Stub, #name); \
+	JITInstructionProto(name##_Stub)
 
 
 #endif

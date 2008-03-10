@@ -22,21 +22,22 @@
 // ==============================
 
 
-#include "math_stubs.h"
+// Albert
+#include <Albert/sys/macros.h>
+#include "fixed.h"
+
+// Einstein
+#include "JIT.h"
+#include "TROMImage.h"
+#include "TARMProcessor.h"
+#include "TJITGeneric_Macros.h"
 
 
 namespace Albert {
 
-  
-// TODO: other easy stub:
-// call Einstein API for "KUInt32 LoadFromPhysAddress(KUInt32*)"
-//TROMPatch p00018ca4(0x00018ca4, 0xef800001);
 
-  
-TROMPatch pFixedMultiply(0x00394688, FixedMultiplyStub, "FixedMultiply");
-
-JITInstructionProto(FixedMultiplyStub)
-{
+  ALBERT_FUNCTION_STUB(0x00394688, FixedMultiply)
+  {
 	// copy all register values into variables
 	Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
 	Fixed b = (Fixed)ioCPU->mCurrentRegisters[1];
@@ -50,7 +51,7 @@ JITInstructionProto(FixedMultiplyStub)
 	// return for linked branch
 	KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
 	MMUCALLNEXT(next);
-}
+  }
 
 
 } // namespace
