@@ -22,14 +22,22 @@
 // ==============================
 
 
-#include "objects_stubs.h"
+// Albert
+#include <Albert/sys/macros.h>
 #include "TObjectTable.h"
 #include "TDoubleQContainer.h"
 
+// Einstein
+#include "JIT.h"
+#include "TROMImage.h"
+#include "TARMProcessor.h"
+#include "TJITGeneric_Macros.h"
+
 
 namespace Albert {
+  
 
-  JITInstructionProto(TObjectTable_Get_Stub)
+  ALBERT_METHOD_STUB(0x00319f14, TObjectTable, Get)
   {
     TObjectTable *t = (TObjectTable*)ioCPU->mCurrentRegisters[0];
     KUInt32      id =                ioCPU->mCurrentRegisters[1];
@@ -38,9 +46,8 @@ namespace Albert {
     ioCPU->mCurrentRegisters[0] = result;
     MMUCALLNEXT(next);
   }
-  TROMPatch pTObjectTable_Get(0x00319f14, TObjectTable_Get_Stub, "TObjectTable::Get");
   
-  JITInstructionProto(TDoubleQContainer_RemoveFromQueue_Stub)
+  ALBERT_METHOD_STUB(0x00319f14, TDoubleQContainer, RemoveFromQueue)
   {
     TDoubleQContainer *This = (TDoubleQContainer*)ioCPU->mCurrentRegisters[0];
     void              *data =              (void*)ioCPU->mCurrentRegisters[1];
@@ -49,7 +56,6 @@ namespace Albert {
     ioCPU->mCurrentRegisters[0] = result;
     MMUCALLNEXT(next);
   }
-  TROMPatch pTDoubleQContainer_RemoveFromQueue(0x00319f14, TDoubleQContainer_RemoveFromQueue_Stub, "TDoubleQContainer::RemoveFromQueue");
   
   
 } // namespace

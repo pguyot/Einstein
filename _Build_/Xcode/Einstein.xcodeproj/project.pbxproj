@@ -714,7 +714,6 @@
 		C9209B820D7CB285004EC12D /* globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = globals.h; sourceTree = "<group>"; };
 		C9209B970D7CB548004EC12D /* globals.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = globals.cp; sourceTree = "<group>"; };
 		C9209BE30D7CB7BD004EC12D /* objects_stubs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = objects_stubs.cp; sourceTree = "<group>"; };
-		C9209BE40D7CB7BD004EC12D /* objects_stubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = objects_stubs.h; sourceTree = "<group>"; };
 		C9209BE50D7CB7BD004EC12D /* TObjectTable.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TObjectTable.cp; sourceTree = "<group>"; };
 		C9209BE60D7CB7BD004EC12D /* TObjectTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TObjectTable.h; sourceTree = "<group>"; };
 		C9209C1F0D7CBD71004EC12D /* TObject.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TObject.cp; sourceTree = "<group>"; };
@@ -727,12 +726,10 @@
 		C93A87CA0D775D19007E26BF /* fixed.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fixed.cp; sourceTree = "<group>"; };
 		C93A87CB0D775D19007E26BF /* fixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fixed.h; sourceTree = "<group>"; };
 		C93A87CF0D775D19007E26BF /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
-		C93A894B0D785C1C007E26BF /* math_stubs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = math_stubs.cp; sourceTree = "<group>"; };
-		C93A894C0D785C1C007E26BF /* math_stubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = math_stubs.h; sourceTree = "<group>"; };
+		C93A894B0D785C1C007E26BF /* math_stubs.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = math_stubs.cp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		C93A89610D785D34007E26BF /* font.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = font.cp; sourceTree = "<group>"; };
 		C93A89620D785D34007E26BF /* font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = font.h; sourceTree = "<group>"; };
 		C93A89630D785D34007E26BF /* gfx_stubs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gfx_stubs.cp; sourceTree = "<group>"; };
-		C93A89640D785D34007E26BF /* gfx_stubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gfx_stubs.h; sourceTree = "<group>"; };
 		C93A89E90D789F09007E26BF /* einstein.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = einstein.cp; sourceTree = "<group>"; };
 		C93A89EA0D789F09007E26BF /* einstein.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = einstein.h; sourceTree = "<group>"; };
 		C93A8A120D78AC8F007E26BF /* point.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = point.cp; sourceTree = "<group>"; };
@@ -742,7 +739,6 @@
 		C9CDD9C30D7B429D000019EA /* data_abort.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = data_abort.cp; sourceTree = "<group>"; };
 		C9CDD9C40D7B429D000019EA /* data_abort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = data_abort.h; sourceTree = "<group>"; };
 		C9CDD9C50D7B429D000019EA /* mmu_stubs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mmu_stubs.cp; sourceTree = "<group>"; };
-		C9CDD9C60D7B429D000019EA /* mmu_stubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mmu_stubs.h; sourceTree = "<group>"; };
 		DA02AC8D093CE21A007CC808 /* TJIT.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = TJIT.cp; sourceTree = "<group>"; };
 		DA02AC8E093CE21A007CC808 /* TJITPage.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = TJITPage.cp; sourceTree = "<group>"; };
 		DA02AC90093CE21A007CC808 /* TJITPage.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TJITPage.h; sourceTree = "<group>"; };
@@ -1101,7 +1097,6 @@
 				C9209BE50D7CB7BD004EC12D /* TObjectTable.cp */,
 				C9209BE60D7CB7BD004EC12D /* TObjectTable.h */,
 				C9209BE30D7CB7BD004EC12D /* objects_stubs.cp */,
-				C9209BE40D7CB7BD004EC12D /* objects_stubs.h */,
 			);
 			name = objects;
 			path = Albert/objects;
@@ -1122,10 +1117,9 @@
 		C93A87C80D775D19007E26BF /* math */ = {
 			isa = PBXGroup;
 			children = (
-				C93A894B0D785C1C007E26BF /* math_stubs.cp */,
-				C93A894C0D785C1C007E26BF /* math_stubs.h */,
 				C93A87CA0D775D19007E26BF /* fixed.cp */,
 				C93A87CB0D775D19007E26BF /* fixed.h */,
+				C93A894B0D785C1C007E26BF /* math_stubs.cp */,
 			);
 			name = math;
 			path = Albert/math;
@@ -1155,7 +1149,6 @@
 				C93A89610D785D34007E26BF /* font.cp */,
 				C93A89620D785D34007E26BF /* font.h */,
 				C93A89630D785D34007E26BF /* gfx_stubs.cp */,
-				C93A89640D785D34007E26BF /* gfx_stubs.h */,
 			);
 			name = gfx;
 			path = Albert/gfx;
@@ -1167,7 +1160,6 @@
 				C9CDD9C30D7B429D000019EA /* data_abort.cp */,
 				C9CDD9C40D7B429D000019EA /* data_abort.h */,
 				C9CDD9C50D7B429D000019EA /* mmu_stubs.cp */,
-				C9CDD9C60D7B429D000019EA /* mmu_stubs.h */,
 			);
 			name = mmu;
 			path = Albert/mmu;
