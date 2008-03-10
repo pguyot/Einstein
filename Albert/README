@@ -5,11 +5,13 @@
 Adding native implementations for emulated units in Einstein.
 
 Albert is the attempt to replace individual functions of the ROM
-code emulated by EInstein with "C" and "C++" implementations to 
+code emulated by Einstein with "C" and "C++" implementations to 
 gain speed and efficiency.
 
 
 Introduction:
+
+(FIXME: this text is a mess and must be cleaned up)
 
 A big problem of emulation is speed. Even with a JIT compiler, 
 the CPU still needs to interprete and emulate all machine commands
@@ -43,7 +45,7 @@ Implementation:
 - patch code
 
 To be able to call native code, we must patch the ROM so that the 
-JIT switches from interpretation. 
+JIT switches from interpretation to native execution. 
 
 The ARM CPU in the Newton has a whole range of instructions that
 are not defined and would call an exception. None of these are used
@@ -66,12 +68,13 @@ To reach the second goal, creating a self-contained code base,
 Albert uses stubs to interface JIT Emulation to native code blocks
 and functions. The stub moves the arguments of the native function
 from the emulated CPU into "C" variables, calls the replacement
-function, and finally moves the return value back into the CPU. In
-some cases, it also fixes side-effects to CPU and hardware registers.
+function, and finally moves the return value back into the emulated 
+CPU registers. In some cases, it also fixes side-effects to CPU and 
+hardware registers.
 
 - native code
 
-All native implementations shall mimic the Newton OS API as well
+All native implementations must mimic the Newton OS functionality as well
 as possible. They should not bother with CPU registers or MMU issues,
 but instead use the arguments provided by the stub, and access RAM 
 via the provided system calls. Class and struct members access must 

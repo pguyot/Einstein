@@ -4,6 +4,10 @@
 
 This file contains a list of all changes to the Albert OS.
 
+Mar 10th 2008
+ - fixed project files for MSWindows / VisualC 8
+ - updated project files for OS X / XCode
+ 
 Mar 5th 2008
  - added code to access Einstein RAM (no MMU handling yet)
  - added macros to support class member access under Einstein and AlbertOS
