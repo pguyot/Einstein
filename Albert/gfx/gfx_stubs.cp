@@ -22,14 +22,23 @@
 // ==============================
 
 
-#include "gfx_stubs.h"
+// Albert
+#include <Albert/sys/macros.h>
+#include "font.h"
+#include "point.h"
+#include "TRect.h"
+
+// Einstein
+#include "JIT.h"
+#include "TROMImage.h"
+#include "TARMProcessor.h"
+#include "TJITGeneric_Macros.h"
 
 
 namespace Albert {
 
-  TROMPatch pGetInkWordFontSize(0x0014003c, GetInkWordFontSizeStub, "GetInkWordFontSize");
   
-  JITInstructionProto(GetInkWordFontSizeStub)
+  ALBERT_FUNCTION_STUB(0x0014003c, GetInkWordFontSize)
   {
     Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
     Fixed result = GetInkWordFontSize(a);
@@ -39,9 +48,7 @@ namespace Albert {
   }
 
   
-  TROMPatch pSetPt(0x0033525c, SetPtStub, "SetPt");
-  
-  JITInstructionProto(SetPtStub)
+  ALBERT_FUNCTION_STUB(0x0033525c, SetPt)
   {
     Point *pt    =  (Point*)ioCPU->mCurrentRegisters[0];
     KSInt32 left = (KSInt32)ioCPU->mCurrentRegisters[1];

@@ -51,9 +51,6 @@
   private: type name##_[size];
 
 
-#define ALBERT_CALL_STUB(name)
-
-
 #else
 
 /*
@@ -76,15 +73,18 @@
 /**
  * Create a call from the emulator into native Albert OS code.
  */
-/*
 #define ALBERT_FUNCTION_STUB(address, name) \
-	extern JITInstructionProto(name##_Stub); \
-	JITInstructionProto(name##_Stub)
-*/
-#define ALBERT_FUNCTION_STUB(address, name) \
-	JITInstructionProto(name##_Stub); \
-	TROMPatch p##name(address, name##_Stub, #name); \
-	JITInstructionProto(name##_Stub)
+  JITInstructionProto(name##_Stub); \
+  TROMPatch p##name(address, name##_Stub, #name); \
+  JITInstructionProto(name##_Stub)
+
+/**
+ * Create a call from the emulator into native Albert OS code.
+ */
+#define ALBERT_METHOD_STUB(address, klass, name) \
+  JITInstructionProto(klass##_##name##_Stub); \
+  TROMPatch p##name(address, klass##_##name##_Stub, #klass"::"#name); \
+  JITInstructionProto(klass##_##name##_Stub)
 
 
 #endif

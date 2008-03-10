@@ -38,19 +38,19 @@ namespace Albert {
 
   ALBERT_FUNCTION_STUB(0x00394688, FixedMultiply)
   {
-	// copy all register values into variables
-	Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
-	Fixed b = (Fixed)ioCPU->mCurrentRegisters[1];
+    // copy all register values into variables
+    Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
+    Fixed b = (Fixed)ioCPU->mCurrentRegisters[1];
   
-	// call Albert
-	Fixed result = FixedMultiply(a, b);
+    // call Albert
+    Fixed result = FixedMultiply(a, b);
   
-	// copy variables back into registers
-	ioCPU->mCurrentRegisters[0] = (KUInt32)result;
+    // copy variables back into registers
+    ioCPU->mCurrentRegisters[0] = (KUInt32)result;
   
-	// return for linked branch
-	KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
-	MMUCALLNEXT(next);
+    // return for linked branch
+    KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
+    MMUCALLNEXT(next);
   }
 
 
