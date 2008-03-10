@@ -21,6 +21,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_370B5E341BC44D30AFDE134F3DA7AB8A"
+        "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4388E215BA744822892CC45669A9215F"
+        "OwnerKey" = "8:_EAC278373AB44D65B1CF91A38BEDA4A0"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -33,26 +45,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5FD753D9685640D99E1142496B18E626"
-        "OwnerKey" = "8:_6CE767C56D2E46A3A1EBED1531C00FC0"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6CE767C56D2E46A3A1EBED1531C00FC0"
-        "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_8D2FDCF053834E8AB218C20FBDD55E23"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_AC5E9DCBBDD34EFD87ADC45488DE9B9C"
-        "OwnerKey" = "8:_F29D3A58035144BF984E791E701F2F86"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -69,7 +63,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F29D3A58035144BF984E791E701F2F86"
+        "MsmKey" = "8:_E347C990B0D44591BA90D3C9928798FF"
+        "OwnerKey" = "8:_370B5E341BC44D30AFDE134F3DA7AB8A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EAC278373AB44D65B1CF91A38BEDA4A0"
         "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -82,6 +82,33 @@
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
         "OutputFilename" = "8:Debug\\Installer.msi"
+        "PackageFilesAs" = "3:2"
+        "PackageFileSize" = "3:-2147483648"
+        "CabType" = "3:1"
+        "Compression" = "3:2"
+        "SignOutput" = "11:FALSE"
+        "CertificateFile" = "8:"
+        "PrivateKeyFile" = "8:"
+        "TimeStampServer" = "8:"
+        "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                }
+            }
+        }
+        "Final"
+        {
+        "DisplayName" = "8:Final"
+        "IsDebugOnly" = "11:FALSE"
+        "IsReleaseOnly" = "11:FALSE"
+        "OutputFilename" = "8:Final\\Installer.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -344,8 +371,8 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Einstein"
         "ProductCode" = "8:{1141874F-1E2D-4D3D-95FF-F83A28F8488A}"
-        "PackageCode" = "8:{D5794807-C2E6-4184-BF57-3C01E158DFD2}"
-        "UpgradeCode" = "8:{04D5D4E1-3E58-40B7-B1AD-BA60E10334CB}"
+        "PackageCode" = "8:{E7F3CD25-6357-408F-BE0C-E1C67D93E956}"
+        "UpgradeCode" = "8:{34F69859-7109-4313-A28C-70B3989B3240}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
@@ -934,21 +961,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_5FD753D9685640D99E1142496B18E626"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_6CE767C56D2E46A3A1EBED1531C00FC0"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_370B5E341BC44D30AFDE134F3DA7AB8A"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -962,7 +975,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_AC5E9DCBBDD34EFD87ADC45488DE9B9C"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_4388E215BA744822892CC45669A9215F"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -976,7 +989,21 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F29D3A58035144BF984E791E701F2F86"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E347C990B0D44591BA90D3C9928798FF"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_EAC278373AB44D65B1CF91A38BEDA4A0"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -995,7 +1022,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_4C2CADC46E4F480895EBB6D51AEB8697"
             {
-            "SourcePath" = "8:..\\optdebug\\Einstein.exe"
+            "SourcePath" = "8:..\\final\\Einstein.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_CC98C5B91D8C446D92FF899B665C2A45"
