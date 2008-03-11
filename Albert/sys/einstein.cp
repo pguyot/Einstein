@@ -23,16 +23,18 @@
 
 
 #include <Albert/sys/einstein.h>
+#include <Albert/sys/macros.h>
 #include "Emulator/TMemory.h"
 #include "Emulator/TARMProcessor.h"
+#include "JIT.h"
+#include "TROMImage.h"
+#include "TJITGeneric_Macros.h"
 
 
 namespace Albert {
 
-  
-TARMProcessor *CPUInterface = 0L;
+  TARMProcessor *CPUInterface = 0L;
 
- 
   KUInt32 getMem32(KUInt32 addr)
   {
     TMemory* theMemoryInterface = CPUInterface->GetMemory();
@@ -112,6 +114,15 @@ TARMProcessor *CPUInterface = 0L;
     {
       printf("### DATA ABORT ERROR writing 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)CPUInterface->mCurrentRegisters[15]);
 		}
+  }
+  
+  /**
+   * If Albert calls the emulator, jumping to address 0x007ffff0 will return
+   * into the Albert native code.
+   */
+  ALBERT_FUNCTION_STUB(0x007ffff0, ReturnToAlbert) {
+    printf("Returning from emulator to Albert\n");
+    return 0;
   }
   
 }
