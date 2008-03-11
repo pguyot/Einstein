@@ -51,7 +51,7 @@ namespace Albert {
     
     //void *	remove(void);
     BOOL      RemoveFromQueue(void *item);
-    //BOOL		deleteFromQueue(void * inItem);
+    BOOL		  DeleteFromQueue(void *inItem);
       
   private:
     //void		init(ULong inOffsetToDoubleQItem);
@@ -59,7 +59,7 @@ namespace Albert {
     ALBERT_CLASS_MEMBER( TDoubleQItem*, Head );                           // +00
     ALBERT_CLASS_MEMBER( TDoubleQItem*, Tail );                           // +04
     ALBERT_CLASS_MEMBER( ULong, OffsetToDoubleQItem);                     // +08
-    ALBERT_CLASS_MEMBER( DestructorProcPtr, fDestructor);                 // +0C
+    ALBERT_CLASS_MEMBER( DestructorProcPtr, Destructor);                  // +0C
     ALBERT_CLASS_MEMBER( void*, DestructorInstance);                      // +10
   };
   

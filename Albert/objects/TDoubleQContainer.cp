@@ -68,4 +68,24 @@ BOOL Albert::TDoubleQContainer::RemoveFromQueue(void *item)
 }
 
 
+BOOL TDoubleQContainer::DeleteFromQueue(void *item)
+{
+  BOOL ok = RemoveFromQueue(item);
+  if (!ok) {
+    return 0;
+  }
+  DestructorProcPtr proc = GetDestructor();
+  if (proc) {
+#if 0
+    proc(GetDestructorInstance(), item);
+#else
+    CPUInterface->mCurrentRegisters[TARMProcessor::kR0] = (KUInt32)GetDestructorInstance();
+    CPUInterface->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)item;
+    callEmulator((KUInt32)proc); // DestructorProcPtr(void*, void*);
+#endif
+  }
+  return 1;
+}
+
+
 using namespace Albert;

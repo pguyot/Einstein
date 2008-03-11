@@ -47,12 +47,22 @@ namespace Albert {
     MMUCALLNEXT(next);
   }
   
-  ALBERT_METHOD_STUB(0x00319f14, TDoubleQContainer, RemoveFromQueue)
+  ALBERT_METHOD_STUB(0x0009c7c4, TDoubleQContainer, RemoveFromQueue)
   {
     TDoubleQContainer *This = (TDoubleQContainer*)ioCPU->mCurrentRegisters[0];
     void              *data =              (void*)ioCPU->mCurrentRegisters[1];
     KUInt32            next =                     ioCPU->mCurrentRegisters[14]+4;
     KUInt32 result = (KUInt32)This->RemoveFromQueue(data);
+    ioCPU->mCurrentRegisters[0] = result;
+    MMUCALLNEXT(next);
+  }
+  
+  ALBERT_METHOD_STUB(0x0009c844, TDoubleQContainer, DeleteFromQueue)
+  {
+    TDoubleQContainer *This = (TDoubleQContainer*)ioCPU->mCurrentRegisters[0];
+    void              *data =              (void*)ioCPU->mCurrentRegisters[1];
+    KUInt32            next =                     ioCPU->mCurrentRegisters[14]+4;
+    KUInt32 result = (KUInt32)This->DeleteFromQueue(data);
     ioCPU->mCurrentRegisters[0] = result;
     MMUCALLNEXT(next);
   }
