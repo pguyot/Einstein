@@ -4,6 +4,10 @@
 
 This file contains a list of all changes to the Albert OS.
 
+Mar 11th 2008
+ - implemented more Albert SO functions
+ - added code to call the emulator from within Albert code
+ 
 Mar 10th 2008
  - fixed project files for MSWindows / VisualC 8
  - updated project files for OS X / XCode

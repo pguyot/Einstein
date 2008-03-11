@@ -86,7 +86,6 @@
   TROMPatch p##name(address, klass##_##name##_Stub, #klass"::"#name); \
   JITInstructionProto(klass##_##name##_Stub)
 
-
 #endif
 
 

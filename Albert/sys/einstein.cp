@@ -121,9 +121,22 @@ namespace Albert {
    * into the Albert native code.
    */
   ALBERT_FUNCTION_STUB(0x007ffff0, ReturnToAlbert) {
-    printf("Returning from emulator to Albert\n");
+    printf("## untested: Returning from emulator to Albert\n");
     return 0;
   }
-  
+ 
+  void callEmulator(KUInt32 address) 
+  {
+    printf("## untested: calling from Albert into emulator\n");
+    KUInt32* pcPtr = &CPUInterface->mCurrentRegisters[TARMProcessor::kR15];
+    TMemory* theMemoryInterface = CPUInterface->GetMemory();
+    CPUInterface->mCurrentRegisters[TARMProcessor::kR14] = 0x007ffff0; // return to Albert
+    CPUInterface->mCurrentRegisters[TARMProcessor::kR15] = address+4; // somewhere in ROM where "mov pc, lr" is run
+	  JITUnit* theJITUnit = theMemoryInterface->GetJITObject()->GetJITUnitForPC( CPUInterface, theMemoryInterface, *pcPtr );
+    while (theJITUnit) {
+			theJITUnit = theJITUnit->fFuncPtr( theJITUnit, CPUInterface );
+    }
+  }
+
 }
 

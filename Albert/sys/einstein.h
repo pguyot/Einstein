@@ -80,6 +80,8 @@ namespace Albert {
   extern void setMem32(KUInt32 addr, KUInt32 val);
   extern KUInt8 getMem8(KUInt32 addr);
   extern void setMem8(KUInt32 addr, KUInt8 val);
+
+  extern void callEmulator(KUInt32 addr);
   
 } // namespace
 
