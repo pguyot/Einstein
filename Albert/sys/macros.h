@@ -64,6 +64,11 @@
            void Set##name(type v) { setMem32( (KUInt32)&name##_, (KUInt32)v ); } \
   private: type name##_;
 
+#define ALBERT_CLASS_MEMBER_BYTE(type, name) \
+  public:  type Get##name() { return (type)getMem8( (KUInt32)&name##_ ); } \
+           void Set##name(type v) { setMem8( (KUInt32)&name##_, (KUInt8)v ); } \
+  private: type name##_;
+
 #define ALBERT_CLASS_MEMBER_ARRAY(type, name, size) \
   public:  type *Get##name() { return (type*)(&name##_); } \
            type Get##name(KUInt32 ix) { return (type)getMem32( (KUInt32)(&(name##_[ix])) ); } \
