@@ -30,15 +30,19 @@
 
 namespace Albert {
 
-  const KUInt32 kMonitorType = 0x0a;
-
+  
+  class TObject;
+  
   const KUInt32 kBuiltInSMemMsgId = 1;
   const KUInt32 kBuiltInSMemId = 2;
   const KUInt32 kBuiltInSMemMonitorFaultId = 3;
 
   extern ObjectId LocalToGlobalId(ObjectId);
+  extern NewtonErr ConvertIdToObj(KernelTypes inType, ObjectId inId, TObject **outObj);
+  extern TObject *IdToObj(KernelTypes inType, ObjectId inId);
 
-  inline KUInt32 ObjectType(ObjectId id) { return (id & 0x0f); }
+  inline KSInt32 ObjectType(ObjectId id) { return (id & 0x0f); }
+
 
 } // namespace
 
