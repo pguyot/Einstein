@@ -6,7 +6,7 @@ This file contains a list of all changes to the Albert OS.
 
 Mar 13th 2008
  - added naked classes TTask and TMonitor
- - and new function LocalToGlobalId()
+ - added new functions
 
 Mar 11th 2008
  - implemented more Albert SO functions

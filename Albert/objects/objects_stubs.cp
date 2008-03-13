@@ -77,4 +77,16 @@ namespace Albert {
     MMUCALLNEXT(next);
   }
 
+  ALBERT_FUNCTION_STUB(0x00191f14, ConvertIdToObj)
+  {
+    KernelTypes inType  = (KernelTypes)ioCPU->mCurrentRegisters[0];
+    ObjectId inId       = (ObjectId)ioCPU->mCurrentRegisters[1];
+    TObject **outObj    = (TObject**)ioCPU->mCurrentRegisters[2];
+    KUInt32 next        = ioCPU->mCurrentRegisters[14]+4;
+    NewtonErr result = ConvertIdToObj(inType, inId, outObj);
+    ioCPU->mCurrentRegisters[0] = (KUInt32)result;
+    MMUCALLNEXT(next);
+  }
+
+  
 } // namespace

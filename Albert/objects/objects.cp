@@ -65,5 +65,34 @@ ObjectId LocalToGlobalId(ObjectId localId)
 }
 
   
+/**
+ * Convert a kernel object’s token to the object itself.
+ * 
+ * \param[in]   inType  the object’s expected type
+ * \param[in]   inId    its token
+ * \param[out]  outObj  a pointer to its pointer
+ * \return error code
+ */
+NewtonErr ConvertIdToObj(KernelTypes inType, ObjectId inId, TObject **outObj)
+{
+  NewtonErr	err = noErr;
+  TObject *obj = IdToObj(inType, LocalToGlobalId(inId));    
+  
+  if (!obj)
+    err = kOSErrBadObjectId;
+  if (outObj)
+     setMem32((KUInt32)outObj, (KUInt32)obj);
+     // *outObj = obj;
+  
+  return err;
+}
+
+
+TObject *IdToObj(KernelTypes inType, ObjectId inId)
+{ 
+  return (ObjectType(inId) == inType) ? GetObjectTable()->Get(inId) : nil; 
+}
+  
+  
 }
 

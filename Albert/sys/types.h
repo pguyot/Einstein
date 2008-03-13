@@ -25,6 +25,7 @@
 #define ALBERT_SYS_TYPES_H
 
 #include <K/Defines/KDefinitions.h>
+#include <Albert/sys/error.h>
 
 
 namespace Albert {
@@ -36,6 +37,7 @@ namespace Albert {
   
   typedef KSInt32 ObjectId;
   typedef KSInt32 Fixed;
+  typedef KSInt32 NewtonErr;
   typedef KUInt32 BOOL;
   typedef KUInt32 ULong;
   
@@ -43,6 +45,22 @@ namespace Albert {
   
   typedef void (*DestructorProcPtr)(void *, void *);
   typedef KUInt32 (*MonitorProcPtr)(void *, int, void *);
+
+  enum KernelTypes {
+    kNoType = 0,
+    kBaseType,
+    kPortType,
+    kTaskType,
+    kEnvironmentType,
+    kDomainType,
+    kSemListType,
+    kSemGroupType,
+    kSharedMemType,
+    kSharedMemMsgType,
+    kMonitorType,
+    kPhysType,
+    kExtPhysType
+  };
   
 } // namespace
 

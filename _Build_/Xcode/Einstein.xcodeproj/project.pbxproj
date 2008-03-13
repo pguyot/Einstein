@@ -754,6 +754,7 @@
 		C99F867D0D89CEEF008BB86F /* TMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMonitor.h; sourceTree = "<group>"; };
 		C99F867E0D89CEEF008BB86F /* TTask.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TTask.cp; sourceTree = "<group>"; };
 		C99F867F0D89CEEF008BB86F /* TTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TTask.h; sourceTree = "<group>"; };
+		C99F86B80D89D63E008BB86F /* error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error.h; sourceTree = "<group>"; };
 		C9CDD9C30D7B429D000019EA /* data_abort.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = data_abort.cp; sourceTree = "<group>"; };
 		C9CDD9C40D7B429D000019EA /* data_abort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = data_abort.h; sourceTree = "<group>"; };
 		C9CDD9C50D7B429D000019EA /* mmu_stubs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mmu_stubs.cp; sourceTree = "<group>"; };
@@ -1152,6 +1153,7 @@
 		C93A87CE0D775D19007E26BF /* sys */ = {
 			isa = PBXGroup;
 			children = (
+				C99F86B80D89D63E008BB86F /* error.h */,
 				C9209B970D7CB548004EC12D /* globals.cp */,
 				C9209B820D7CB285004EC12D /* globals.h */,
 				C93A89E90D789F09007E26BF /* einstein.cp */,
