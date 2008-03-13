@@ -89,6 +89,18 @@
 		C99D102E0D7EEE3600D3A7C6 /* TObject.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9209C1F0D7CBD71004EC12D /* TObject.cp */; };
 		C99D102F0D7EEE3700D3A7C6 /* TObjectTable.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9209BE50D7CB7BD004EC12D /* TObjectTable.cp */; };
 		C99D10300D7EEE3800D3A7C6 /* TRect.cp in Sources */ = {isa = PBXBuildFile; fileRef = C93A8A6E0D78B461007E26BF /* TRect.cp */; };
+		C99F86800D89CEEF008BB86F /* objects.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99F867A0D89CEEF008BB86F /* objects.cp */; };
+		C99F86810D89CEEF008BB86F /* TMonitor.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99F867C0D89CEEF008BB86F /* TMonitor.cp */; };
+		C99F86820D89CEEF008BB86F /* TTask.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99F867E0D89CEEF008BB86F /* TTask.cp */; };
+		C99F86830D89CEEF008BB86F /* objects.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99F867A0D89CEEF008BB86F /* objects.cp */; };
+		C99F86840D89CEEF008BB86F /* TMonitor.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99F867C0D89CEEF008BB86F /* TMonitor.cp */; };
+		C99F86850D89CEEF008BB86F /* TTask.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99F867E0D89CEEF008BB86F /* TTask.cp */; };
+		C99F86860D89CEEF008BB86F /* objects.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99F867A0D89CEEF008BB86F /* objects.cp */; };
+		C99F86870D89CEEF008BB86F /* TMonitor.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99F867C0D89CEEF008BB86F /* TMonitor.cp */; };
+		C99F86880D89CEEF008BB86F /* TTask.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99F867E0D89CEEF008BB86F /* TTask.cp */; };
+		C99F86890D89CEEF008BB86F /* objects.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99F867A0D89CEEF008BB86F /* objects.cp */; };
+		C99F868A0D89CEEF008BB86F /* TMonitor.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99F867C0D89CEEF008BB86F /* TMonitor.cp */; };
+		C99F868B0D89CEEF008BB86F /* TTask.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99F867E0D89CEEF008BB86F /* TTask.cp */; };
 		C9CDDA820D7B4F16000019EA /* fixed.cp in Sources */ = {isa = PBXBuildFile; fileRef = C93A87CA0D775D19007E26BF /* fixed.cp */; };
 		C9CDDA830D7B4F20000019EA /* fixed.cp in Sources */ = {isa = PBXBuildFile; fileRef = C93A87CA0D775D19007E26BF /* fixed.cp */; };
 		DA02AC96093CE21A007CC808 /* TJIT.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA02AC8D093CE21A007CC808 /* TJIT.cp */; };
@@ -736,6 +748,12 @@
 		C93A8A130D78AC8F007E26BF /* point.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = point.h; sourceTree = "<group>"; };
 		C93A8A6E0D78B461007E26BF /* TRect.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TRect.cp; sourceTree = "<group>"; };
 		C93A8A6F0D78B461007E26BF /* TRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRect.h; sourceTree = "<group>"; };
+		C99F867A0D89CEEF008BB86F /* objects.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = objects.cp; sourceTree = "<group>"; };
+		C99F867B0D89CEEF008BB86F /* objects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = objects.h; sourceTree = "<group>"; };
+		C99F867C0D89CEEF008BB86F /* TMonitor.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMonitor.cp; sourceTree = "<group>"; };
+		C99F867D0D89CEEF008BB86F /* TMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMonitor.h; sourceTree = "<group>"; };
+		C99F867E0D89CEEF008BB86F /* TTask.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TTask.cp; sourceTree = "<group>"; };
+		C99F867F0D89CEEF008BB86F /* TTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TTask.h; sourceTree = "<group>"; };
 		C9CDD9C30D7B429D000019EA /* data_abort.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = data_abort.cp; sourceTree = "<group>"; };
 		C9CDD9C40D7B429D000019EA /* data_abort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = data_abort.h; sourceTree = "<group>"; };
 		C9CDD9C50D7B429D000019EA /* mmu_stubs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mmu_stubs.cp; sourceTree = "<group>"; };
@@ -1088,6 +1106,12 @@
 		C9209BE20D7CB7BD004EC12D /* objects */ = {
 			isa = PBXGroup;
 			children = (
+				C99F867A0D89CEEF008BB86F /* objects.cp */,
+				C99F867B0D89CEEF008BB86F /* objects.h */,
+				C99F867C0D89CEEF008BB86F /* TMonitor.cp */,
+				C99F867D0D89CEEF008BB86F /* TMonitor.h */,
+				C99F867E0D89CEEF008BB86F /* TTask.cp */,
+				C99F867F0D89CEEF008BB86F /* TTask.h */,
 				C9209EE00D7DFA6D004EC12D /* TDoubleQContainer.cp */,
 				C9209EE10D7DFA6D004EC12D /* TDoubleQContainer.h */,
 				C9209EE20D7DFA6D004EC12D /* TDoubleQItem.cp */,
@@ -2145,6 +2169,9 @@
 				C99D102E0D7EEE3600D3A7C6 /* TObject.cp in Sources */,
 				C99D102F0D7EEE3700D3A7C6 /* TObjectTable.cp in Sources */,
 				C99D10300D7EEE3800D3A7C6 /* TRect.cp in Sources */,
+				C99F86890D89CEEF008BB86F /* objects.cp in Sources */,
+				C99F868A0D89CEEF008BB86F /* TMonitor.cp in Sources */,
+				C99F868B0D89CEEF008BB86F /* TTask.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2251,6 +2278,9 @@
 				C9209C230D7CBD71004EC12D /* TObject.cp in Sources */,
 				C9209EE80D7DFA6E004EC12D /* TDoubleQContainer.cp in Sources */,
 				C9209EE90D7DFA6E004EC12D /* TDoubleQItem.cp in Sources */,
+				C99F86860D89CEEF008BB86F /* objects.cp in Sources */,
+				C99F86870D89CEEF008BB86F /* TMonitor.cp in Sources */,
+				C99F86880D89CEEF008BB86F /* TTask.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2357,6 +2387,9 @@
 				C9209C210D7CBD71004EC12D /* TObject.cp in Sources */,
 				C9209EE40D7DFA6E004EC12D /* TDoubleQContainer.cp in Sources */,
 				C9209EE50D7DFA6E004EC12D /* TDoubleQItem.cp in Sources */,
+				C99F86800D89CEEF008BB86F /* objects.cp in Sources */,
+				C99F86810D89CEEF008BB86F /* TMonitor.cp in Sources */,
+				C99F86820D89CEEF008BB86F /* TTask.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2463,6 +2496,9 @@
 				C9209C220D7CBD71004EC12D /* TObject.cp in Sources */,
 				C9209EE60D7DFA6E004EC12D /* TDoubleQContainer.cp in Sources */,
 				C9209EE70D7DFA6E004EC12D /* TDoubleQItem.cp in Sources */,
+				C99F86830D89CEEF008BB86F /* objects.cp in Sources */,
+				C99F86840D89CEEF008BB86F /* TMonitor.cp in Sources */,
+				C99F86850D89CEEF008BB86F /* TTask.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
