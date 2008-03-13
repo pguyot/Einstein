@@ -23,7 +23,7 @@ This file contains a hierarchical todo list for Albert OS
 - sample implementation of partial function replacement
 - sample implementation of class constructor and destructor
 - sample implementation of calls via function pointer
-- interface to read emulator RAM with access violation handling
+- interface to emulator RAM with access violation handling
 - evaluate hit count for all functions in Newton OS
 - implement either class-by-class or as indicated by hit-count
 - replace neccesity for an MMU

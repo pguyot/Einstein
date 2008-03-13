@@ -1,5 +1,5 @@
 // ==============================
-// File:                        sys/types.h
+// File:                        objects/TTask.cp
 // Project:                     Albert
 //
 // Copyright 2003-2008 by Matthias Melcher (albert@matthiasm.com).
@@ -21,32 +21,8 @@
 // $Id$
 // ==============================
 
-#ifndef ALBERT_SYS_TYPES_H
-#define ALBERT_SYS_TYPES_H
 
-#include <K/Defines/KDefinitions.h>
+#include "TTask.h"
 
 
-namespace Albert {
-
-  /* FIXME
-   * Currently this is a loose collection of typedefs that is created as we go.
-   * At som point, we must weed this out and create proper Albert OS code.
-   */
-  
-  typedef KSInt32 ObjectId;
-  typedef KSInt32 Fixed;
-  typedef KUInt32 BOOL;
-  typedef KUInt32 ULong;
-  
-  typedef KUInt32 GetScavengeProcPtr; // FIXME
-  
-  typedef void (*DestructorProcPtr)(void *, void *);
-  typedef KUInt32 (*MonitorProcPtr)(void *, int, void *);
-  
-} // namespace
-
-
-#endif
-// ALBERT_SYS_TYPES_H
-
+using namespace Albert;

@@ -26,6 +26,7 @@
 #include <Albert/sys/macros.h>
 #include "TObjectTable.h"
 #include "TDoubleQContainer.h"
+#include "objects.h"
 
 // Einstein
 #include "JIT.h"
@@ -66,6 +67,14 @@ namespace Albert {
     ioCPU->mCurrentRegisters[0] = result;
     MMUCALLNEXT(next);
   }
-  
-  
+
+  ALBERT_FUNCTION_STUB(0x00191e80, LocalToGlobalId)
+  {
+    ObjectId a = (ObjectId)ioCPU->mCurrentRegisters[0];
+    ObjectId result = LocalToGlobalId(a);
+    ioCPU->mCurrentRegisters[0] = (KUInt32)result;
+    KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
+    MMUCALLNEXT(next);
+  }
+
 } // namespace

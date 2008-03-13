@@ -26,6 +26,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include <Albert/sys/types.h>
+#include <Albert/sys/einstein.h>
 
 /*
  * FIXME
@@ -36,11 +37,15 @@
 
 namespace Albert {
 
+  class TTask;
+  class TObjectTable;
+
   /*
   extern class CTask              *gIdleTask;             // 0C100FC4
    */
 //extern class CObjectTable       *gObjectTable;          // 0C100FC8 +04
   const KUInt32                    gObjectTable          = 0x0C100FC8; // +04
+  inline TObjectTable           *GetObjectTable() { return (TObjectTable*)getMem32(gObjectTable); }
   /*
   extern class CPort              *gNullPort;             // 0C100FCC +08
   extern class CScheduler         *gKernelScheduler;      // 0C100FD0 +0C
@@ -48,7 +53,11 @@ namespace Albert {
   extern long                      gHoldScheduleLevel;    // 0C100FD8 +14
   extern class CTimerEngine       *gTimerEngine;          // 0C100FE0 +1c
   extern BOOL                      gDoSchedule;           // 0C100FE4 +20
-  extern class CTask              *gCurrentTask;          // 0C100FF8 +34
+  */
+  //extern class CTask              *gCurrentTask;        // 0C100FF8 +34
+  const KUInt32                     gCurrentTask          = 0x0C100FF8; // +34
+  inline TTask                   *GetCurrentTask() { return (TTask*)getMem32(gCurrentTask); }
+  /*
   extern class CTask              *gCurrentTimedTask;     // 0C100FFC +38
   extern class CTask              *gCurrentMemCountTask;  // 0C101000 +3c
   extern class CTask              *gCurrentTaskSaved;     // 0C101004 +40

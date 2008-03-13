@@ -1076,7 +1076,7 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="objects"
+				Name="sys"
 				>
 				<File
 					RelativePath="..\..\..\Albert\sys\einstein.cp"
@@ -1104,8 +1104,16 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="sys"
+				Name="objects"
 				>
+				<File
+					RelativePath="..\..\..\Albert\objects\objects.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\objects.h"
+					>
+				</File>
 				<File
 					RelativePath="..\..\..\Albert\objects\objects_stubs.cp"
 					>
@@ -1127,6 +1135,50 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\Albert\objects\TMonitor.cp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="OptDebug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Final|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\TMonitor.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Albert\objects\TObject.cp"
 					>
 				</File>
@@ -1140,6 +1192,14 @@
 				</File>
 				<File
 					RelativePath="..\..\..\Albert\objects\TObjectTable.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\TTask.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Albert\objects\TTask.h"
 					>
 				</File>
 			</Filter>
