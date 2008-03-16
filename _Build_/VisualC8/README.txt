@@ -1,11 +1,4 @@
 
-+------------------------------------------------------------+
-
-All files in the VisualC8 directory are work in progress.
-This version of Einstein does not compile yet. Please stand
-by and check often.
-
-  Matthias
 
 +------------------------------------------------------------+
 
