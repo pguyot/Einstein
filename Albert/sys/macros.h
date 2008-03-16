@@ -109,10 +109,10 @@
       ret = func(arg1, arg2); \
     } else { \
 emuCall##address: \
-      CPUInterface->mCurrentRegisters[TARMProcessor::kR0] = (KUInt32)arg1; \
-      CPUInterface->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)arg2; \
+      TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR0] = (KUInt32)arg1; \
+      TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)arg2; \
       callEmulator(addr); \
-      ret = (retType)CPUInterface->mCurrentRegisters[TARMProcessor::kR0]; \
+      ret = (retType)TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR0]; \
     } \
   }
 
@@ -127,11 +127,11 @@ emuCall##address: \
     if ( ((cmd & 0xff800000) == 0xEF800000 ) && (func = (Func)TROMPatch::GetAlbertFunctionAt(cmd)) ) { \
       ret = func(arg1, arg2, arg3); \
     } else { \
-      CPUInterface->mCurrentRegisters[TARMProcessor::kR0] = (KUInt32)arg1; \
-      CPUInterface->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)arg2; \
-      CPUInterface->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)arg3; \
+      TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR0] = (KUInt32)arg1; \
+      TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)arg2; \
+      TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)arg3; \
       callEmulator(addr); \
-      ret = (retType)CPUInterface->mCurrentRegisters[TARMProcessor::kR0]; \
+      ret = (retType)TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR0]; \
     } \
   }
 
@@ -151,10 +151,10 @@ emuCall##address: \
     if ( ((cmd & 0xff800000) == 0xEF800000 ) && (metd = (Metd)TROMPatch::GetAlbertMethodAt(cmd)) ) { \
       ret = ((self)->*metd)(arg1); \
     } else { \
-      CPUInterface->mCurrentRegisters[TARMProcessor::kR0] = (KUInt32)self; \
-      CPUInterface->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)arg1; \
+      TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR0] = (KUInt32)self; \
+      TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)arg1; \
       callEmulator(addr); \
-      ret = (retType)CPUInterface->mCurrentRegisters[TARMProcessor::kR0]; \
+      ret = (retType)TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR0]; \
     } \
   }
 

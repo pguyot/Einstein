@@ -79,8 +79,8 @@ BOOL TDoubleQContainer::DeleteFromQueue(void *item)
 #if 0
     proc(GetDestructorInstance(), item);
 #else
-    CPUInterface->mCurrentRegisters[TARMProcessor::kR0] = (KUInt32)GetDestructorInstance();
-    CPUInterface->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)item;
+    TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR0] = (KUInt32)GetDestructorInstance();
+    TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)item;
     callEmulator((KUInt32)proc); // DestructorProcPtr(void*, void*);
 #endif
   }

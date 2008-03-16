@@ -643,7 +643,7 @@ JITFuncPtr TROMPatch::GetAlbertStubAt(KUInt32 index)
 // -------------------------------------------------------------------------- //
 //  * Return the address of the Albert function
 // -------------------------------------------------------------------------- //
-AnyFunctionPtr TROMPatch::GetAlbertFunctionAt(KUInt32 index) 
+AnyFunctionPtr TROMPatch::GetAlbertFunctionAt(KUInt32 index)
 {
   index = index & 0x007fffff;
   if (index>=nPatch)
