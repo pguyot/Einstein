@@ -577,9 +577,10 @@ TROMImage::DoPatchROMVirtualizationCalls( SImage* inImagePtr, const KUInt32* inP
 // -------------------------------------------------------------------------- //
 //  * TROMPatch first member of database
 // -------------------------------------------------------------------------- //
-TROMPatch *TROMPatch::first_ = 0L;
-JITFuncPtr *TROMPatch::stub_ = 0;
-KUInt32 TROMPatch::nStub = 0, TROMPatch::NStub = 0;
+TROMPatch  *TROMPatch::first_ = 0L;
+TROMPatch **TROMPatch::patch_ = 0L;
+KUInt32     TROMPatch::nPatch = 0;
+KUInt32     TROMPatch::NPatch = 0;
 
 // -------------------------------------------------------------------------- //
 //  * TROMPatch constructor
@@ -587,47 +588,93 @@ KUInt32 TROMPatch::nStub = 0, TROMPatch::NStub = 0;
 TROMPatch::TROMPatch(KUInt32 addr, KUInt32 val, const char *name)
 : next_(first_),
   address_(addr>>2),
-  value_(val)
+  value_(val),
+  stub_(0L),
+  function_(0L),
+  method_(0L)
 {
   first_ = this;
   printf("Adding ROM patch: %s\n", name);
 }
 
 // -------------------------------------------------------------------------- //
-//  * TROMPatch constructor for Albert calls
+//  * TROMPatch constructor for Albert function calls
 // -------------------------------------------------------------------------- //
-TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name)
+TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyFunctionPtr function)
 : next_(first_),
   address_(addr>>2),
-  value_(0xef800000)
+  value_(0xef800000),
+  stub_(stub),
+  function_(function),
+  method_(0L)
 {
   first_ = this;
-  printf("Adding ROM patch linking into Albert: %3d = %s\n", (int)nStub, name);
-  value_ |= addStub(stub);
+  printf("Adding ROM patch to Albert function: %3d = %s\n", (int)nPatch, name);
+  value_ |= addPatch(this);
 }
 
 // -------------------------------------------------------------------------- //
-//  * Call a native stub in Albert
+//  * TROMPatch constructor for Albert method calls
 // -------------------------------------------------------------------------- //
-JITFuncPtr TROMPatch::albertStub(KUInt32 index) 
+TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyMethodPtr method)
+: next_(first_),
+  address_(addr>>2),
+  value_(0xef800000),
+  stub_(stub),
+  function_(0L),
+  method_(method)
 {
-  if (index>=nStub)
+  first_ = this;
+  printf("Adding ROM patch to Albert method:   %3d = %s\n", (int)nPatch, name);
+  value_ |= addPatch(this);
+}
+
+// -------------------------------------------------------------------------- //
+//  * Return the native stub in Albert
+// -------------------------------------------------------------------------- //
+JITFuncPtr TROMPatch::GetAlbertStubAt(KUInt32 index) 
+{
+  index = index & 0x007fffff;
+  if (index>=nPatch)
     return 0L;
-  return stub_[index];
+  return patch_[index]->stub_;
+}
+
+// -------------------------------------------------------------------------- //
+//  * Return the address of the Albert function
+// -------------------------------------------------------------------------- //
+AnyFunctionPtr TROMPatch::GetAlbertFunctionAt(KUInt32 index) 
+{
+  index = index & 0x007fffff;
+  if (index>=nPatch)
+    return 0L;
+  return patch_[index]->function_;
+}
+
+// -------------------------------------------------------------------------- //
+//  * Return the address of the Albert function
+// -------------------------------------------------------------------------- //
+AnyMethodPtr TROMPatch::GetAlbertMethodAt(KUInt32 index) 
+{
+  index = index & 0x007fffff;
+  if (index>=nPatch)
+    return 0L;
+  return patch_[index]->method_;
 }
 
 // -------------------------------------------------------------------------- //
 //  * Add another stub to the array of stubs and return the index
 // -------------------------------------------------------------------------- //
-KUInt32 TROMPatch::addStub(JITFuncPtr stub)
+KUInt32 TROMPatch::addPatch(TROMPatch *p)
 {
-  if (nStub==NStub) {
-    NStub += 1024;
-    stub_ = (JITFuncPtr*)realloc(stub_, NStub*sizeof(JITFuncPtr));
+  if (nPatch==NPatch) {
+    NPatch += 256;
+    patch_ = (TROMPatch**)realloc(patch_, NPatch*sizeof(TROMPatch*));
   }
-  stub_[nStub++] = stub;
-  return (nStub-1);
+  patch_[nPatch++] = p;
+  return (nPatch-1);
 }
+
 
 // ====================================================== //
 // Is a computer language with goto's totally Wirth-less? //

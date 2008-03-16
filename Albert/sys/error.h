@@ -26,6 +26,8 @@
 
 #define ERRBASE_OS -10000
 
+#define noErr 0
+
 // ---------------  Result codes…  -------------
 
 #define kCallInProgress                 (1)

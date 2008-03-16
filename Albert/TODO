@@ -14,15 +14,15 @@ This file contains a hierarchical todo list for Albert OS
 - (done) sample implementation of class member access
 - (done) implement a macro that allows a native code to call 
          an emulated function
+- (done) implemet a function that decides if Albert OS or the 
+         Emulator must be called
+- (done) sample implementation of calls via function pointer
+- (done) implement a macro that handles function hooks efficiently
 - implement DataAbort() 
    - (active) implement functions that are called by DataAbort()
-   - implemet a function that decides if Albert OS or the Emulator
-     must be called
-   - implement a macro that handles function hooks efficiently
 - test implementation for stand-alone AlbertOS
 - sample implementation of partial function replacement
 - sample implementation of class constructor and destructor
-- sample implementation of calls via function pointer
 - interface to emulator RAM with access violation handling
 - evaluate hit count for all functions in Newton OS
 - implement either class-by-class or as indicated by hit-count

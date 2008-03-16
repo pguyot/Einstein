@@ -4,6 +4,10 @@
 
 This file contains a list of all changes to the Albert OS.
 
+Mar 16th 2008
+ - added macros that allow Albert to stay native even when using
+   function pointers, method pointers, or RAM hooks to those
+
 Mar 13th 2008
  - added naked classes TTask and TMonitor
  - added new functions

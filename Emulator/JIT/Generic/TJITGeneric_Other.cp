@@ -72,7 +72,7 @@ JITInstructionProto(CallHostNative)
 	// Set the PC before jumping to the handler....
 	KUInt32 callIndex;
 	POPVALUE(callIndex);
-  JITFuncPtr stub = TROMPatch::albertStub(callIndex);
+  JITFuncPtr stub = TROMPatch::GetAlbertStubAt(callIndex);
   //printf("Albert: %3d:0x%08x\n", (int)callIndex, stub);
 	if (!stub) {
 		CALLNEXTUNIT;

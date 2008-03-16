@@ -204,28 +204,42 @@ private:
 };
 
 
+// The three lines below are tricking the compiler into letting
+// us handle a whole range of function calls. This may not work
+// with all compilers out there!
+typedef void (*AnyFunctionPtr)();
+class TAnyClass { };
+typedef void (TAnyClass::*AnyMethodPtr)();
+
 /// This class defines a patch location. 
 /// Patches can be created in any module by static declaration of TROMPatch's
 /// which will then be linked into the patch database and applied to a
 /// freshly loaded ROM.
 /// Usage is currently limited to ROM v717006
 class TROMPatch {
+
+private:
   static TROMPatch *first_;
   TROMPatch *next_;
   KUInt32 address_;
   KUInt32 value_;
+  JITFuncPtr stub_;
+  AnyFunctionPtr function_;
+  AnyMethodPtr method_;
   
-  static JITFuncPtr *stub_;
-  static KUInt32 nStub, NStub;
-  static KUInt32 addStub(JITFuncPtr stub);
+  static TROMPatch **patch_;
+  static KUInt32 nPatch, NPatch;
+  static KUInt32 addPatch(TROMPatch *patch);
   
 public:
-  
   /// Create and add a new patch
   TROMPatch(KUInt32 address, KUInt32 value, const char *name);
   
-  /// Create and add a call to Albert
-  TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name);
+  /// Create and add a call to an Albert function or static method
+  TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyFunctionPtr function);
+  
+  /// Create and add a call to an Albert class method
+  TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyMethodPtr function);
   
   /// Return the first patch in the list.
   /// @return NULL if no patches
@@ -242,7 +256,13 @@ public:
   KUInt32 value() { return value_; }
   
   /// Return the Albert stub by index
-  static JITFuncPtr albertStub(KUInt32 index);
+  static JITFuncPtr GetAlbertStubAt(KUInt32 index);
+
+  /// Return the Albert function by index
+  static AnyFunctionPtr GetAlbertFunctionAt(KUInt32 index);
+
+  /// Return the Albert class method by index
+  static AnyMethodPtr GetAlbertMethodAt(KUInt32 index);
 };
 
 #endif
