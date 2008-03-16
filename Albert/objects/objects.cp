@@ -27,6 +27,7 @@
 #include <Albert/objects/TMonitor.h>
 #include <Albert/objects/TObjectTable.h>
 #include <Albert/sys/globals.h>
+#include <Albert/sys/error.h>
 
 
 namespace Albert {

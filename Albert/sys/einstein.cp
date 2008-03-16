@@ -120,7 +120,9 @@ namespace Albert {
    * If Albert calls the emulator, jumping to address 0x007ffff0 will return
    * into the Albert native code.
    */
-  ALBERT_FUNCTION_STUB(0x007ffff0, ReturnToAlbert) {
+  JITInstructionProto(ReturnToAlbert_Stub);
+  TROMPatch pReturnToAlbert(0x007ffff0, ReturnToAlbert_Stub, "ReturnToAlbert", (AnyFunctionPtr)0L);
+  JITInstructionProto(ReturnToAlbert_Stub) {
     printf("## untested: Returning from emulator to Albert\n");
     return 0;
   }

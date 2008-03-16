@@ -39,7 +39,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/wd4996"
+				AdditionalOptions="/wd4996 /wd4800"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator\ROM;..\..\..\Emulator;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DYLIBSUFFIX=&quot;.dll&quot;"
@@ -104,7 +104,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/wd4996"
+				AdditionalOptions="/wd4996 /wd4800"
 				Optimization="3"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\..\..;..\..\..\Emulator;..\..\..\Emulator\ROM;..\..\..\Emulator\JIT;..\..\..\Emulator\JIT\Generic;&quot;..\..\..\libffi-win32\include&quot;;..\..\..\..\K"
@@ -167,7 +167,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/wd4996"
+				AdditionalOptions="/wd4996 /wd4800"
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
@@ -235,7 +235,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/wd4996"
+				AdditionalOptions="/wd4996 /wd4800"
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="false"
@@ -1087,6 +1087,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\Albert\sys\error.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Albert\sys\globals.cp"
 					>
 				</File>
@@ -1227,7 +1231,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="OptDebug|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1263,7 +1266,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="OptDebug|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCustomBuildTool"
@@ -1299,7 +1301,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="OptDebug|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"

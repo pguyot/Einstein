@@ -80,7 +80,7 @@
  */
 #define ALBERT_FUNCTION_STUB(address, name) \
   JITInstructionProto(name##_Stub); \
-  TROMPatch p##name(address, name##_Stub, #name); \
+  TROMPatch p##name(address, name##_Stub, #name, (AnyFunctionPtr)&name); \
   JITInstructionProto(name##_Stub)
 
 /**
@@ -88,11 +88,77 @@
  */
 #define ALBERT_METHOD_STUB(address, klass, name) \
   JITInstructionProto(klass##_##name##_Stub); \
-  TROMPatch p##name(address, klass##_##name##_Stub, #klass"::"#name); \
+  TROMPatch p##name(address, klass##_##name##_Stub, #klass"::"#name, (AnyMethodPtr)&klass::name); \
   JITInstructionProto(klass##_##name##_Stub)
 
-#endif
+/**
+ * Call any function anywhere in memory. Albert calls will be called directly
+ * without ever hitting the emulator, even if the call goes to a hook in
+ * RAM first.
+ */
+#define ALBERT_CALL_FUNCTION_2(address, retType, ret, arg1Type, arg1, arg2Type, arg2) \
+  { KUInt32 addr = address, cmd = getMem32(addr); \
+    if ( (cmd & 0xff000000) == 0xEA000000 ) { \
+      addr = addr + (((KSInt32)cmd)<<8)/64 + 8; \
+      cmd = getMem32(addr); \
+    } \
+    if ( (cmd & 0xff800000) == 0xEF800000 ) { \
+      typedef retType(*Func)(arg1Type, arg2Type); \
+      Func func = (Func)TROMPatch::GetAlbertFunctionAt(cmd); \
+      if (!func) goto emuCall##address; \
+      ret = func(arg1, arg2); \
+    } else { \
+emuCall##address: \
+      CPUInterface->mCurrentRegisters[TARMProcessor::kR0] = (KUInt32)arg1; \
+      CPUInterface->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)arg2; \
+      callEmulator(addr); \
+      ret = (retType)CPUInterface->mCurrentRegisters[TARMProcessor::kR0]; \
+    } \
+  }
 
+#define ALBERT_CALL_FUNCTION_3(address, retType, ret, arg1Type, arg1, arg2Type, arg2, arg3Type, arg3) \
+  { KUInt32 addr = address, cmd = getMem32(addr); \
+    if ( (cmd & 0xff000000) == 0xEA000000 ) { \
+      addr = addr + (((KSInt32)cmd)<<8)/64 + 8; \
+      cmd = getMem32(addr); \
+    } \
+    typedef retType(*Func)(arg1Type, arg2Type, arg3Type); \
+    Func func; \
+    if ( ((cmd & 0xff800000) == 0xEF800000 ) && (func = (Func)TROMPatch::GetAlbertFunctionAt(cmd)) ) { \
+      ret = func(arg1, arg2, arg3); \
+    } else { \
+      CPUInterface->mCurrentRegisters[TARMProcessor::kR0] = (KUInt32)arg1; \
+      CPUInterface->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)arg2; \
+      CPUInterface->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)arg3; \
+      callEmulator(addr); \
+      ret = (retType)CPUInterface->mCurrentRegisters[TARMProcessor::kR0]; \
+    } \
+  }
+
+/**
+ * Call any method anywhere in memory. Albert calls will be called directly
+ * without ever hitting the emulator, even if the call goes to a hook in
+ * RAM first.
+ */
+#define ALBERT_CALL_METHOD_1(address, retType, ret, klass, self, arg1Type, arg1) \
+  { KUInt32 addr = address, cmd = getMem32(addr); \
+    if ( (cmd & 0xff000000) == 0xEA000000 ) { \
+      addr = addr + (((KSInt32)cmd)<<8)/64 + 8; \
+      cmd = getMem32(addr); \
+    } \
+    typedef retType(klass::*Metd)(arg1Type); \
+    Metd metd; \
+    if ( ((cmd & 0xff800000) == 0xEF800000 ) && (metd = (Metd)TROMPatch::GetAlbertMethodAt(cmd)) ) { \
+      ret = ((self)->*metd)(arg1); \
+    } else { \
+      CPUInterface->mCurrentRegisters[TARMProcessor::kR0] = (KUInt32)self; \
+      CPUInterface->mCurrentRegisters[TARMProcessor::kR1] = (KUInt32)arg1; \
+      callEmulator(addr); \
+      ret = (retType)CPUInterface->mCurrentRegisters[TARMProcessor::kR0]; \
+    } \
+  }
+
+#endif
 
 #endif
 // ALBERT_SYS_MACROS_H
