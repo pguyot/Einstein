@@ -33,86 +33,84 @@
 
 namespace Albert {
 
-  TARMProcessor *CPUInterface = 0L;
-
   KUInt32 getMem32(KUInt32 addr)
   {
-    TMemory* theMemoryInterface = CPUInterface->GetMemory();
+    TMemory* theMemoryInterface = TARMProcessor::current->GetMemory();
     KUInt32 val;
     if (theMemoryInterface->ReadAligned(addr, val))
     {
-      printf("### DATA ABORT ERROR reading 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)CPUInterface->mCurrentRegisters[15]);
+      printf("### DATA ABORT ERROR reading 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)TARMProcessor::current->mCurrentRegisters[15]);
 		}
     return val;
   }
   
   void setMem32(KUInt32 addr, KUInt32 val)
   {
-    TMemory* theMemoryInterface = CPUInterface->GetMemory();
+    TMemory* theMemoryInterface = TARMProcessor::current->GetMemory();
     if (theMemoryInterface->WriteAligned(addr, val))
     {
-      printf("### DATA ABORT ERROR writing 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)CPUInterface->mCurrentRegisters[15]);
+      printf("### DATA ABORT ERROR writing 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)TARMProcessor::current->mCurrentRegisters[15]);
 		}
   }
   
   KUInt8 getMem8(KUInt32 addr)
   {
-    TMemory* theMemoryInterface = CPUInterface->GetMemory();
+    TMemory* theMemoryInterface = TARMProcessor::current->GetMemory();
     KUInt8 val;
     if (theMemoryInterface->ReadB(addr, val))
     {
-      printf("### DATA ABORT ERROR reading 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)CPUInterface->mCurrentRegisters[15]);
+      printf("### DATA ABORT ERROR reading 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)TARMProcessor::current->mCurrentRegisters[15]);
 		}
     return val;
   }
   
   void setMem8(KUInt32 addr, KUInt8 val)
   {
-    TMemory* theMemoryInterface = CPUInterface->GetMemory();
+    TMemory* theMemoryInterface = TARMProcessor::current->GetMemory();
     if (theMemoryInterface->WriteB(addr, val))
     {
-      printf("### DATA ABORT ERROR writing 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)CPUInterface->mCurrentRegisters[15]);
+      printf("### DATA ABORT ERROR writing 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)TARMProcessor::current->mCurrentRegisters[15]);
 		}
   }
   
   KUInt32 getPhysMem32(KUInt32 addr)
   {
-    TMemory* theMemoryInterface = CPUInterface->GetMemory();
+    TMemory* theMemoryInterface = TARMProcessor::current->GetMemory();
     Boolean fault;
     KUInt32 val = theMemoryInterface->ReadP(addr, fault);
     if (fault)
     {
-      printf("### DATA ABORT ERROR reading 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)CPUInterface->mCurrentRegisters[15]);
+      printf("### DATA ABORT ERROR reading 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)TARMProcessor::current->mCurrentRegisters[15]);
 		}
     return val;
   }
   
   void setPhysMem32(KUInt32 addr, KUInt32 val)
   {
-    TMemory* theMemoryInterface = CPUInterface->GetMemory();
+    TMemory* theMemoryInterface = TARMProcessor::current->GetMemory();
     if (theMemoryInterface->WriteP(addr, val))
     {
-      printf("### DATA ABORT ERROR writing 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)CPUInterface->mCurrentRegisters[15]);
+      printf("### DATA ABORT ERROR writing 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)TARMProcessor::current->mCurrentRegisters[15]);
 		}
   }
   
   KUInt8 getPhysMem8(KUInt32 addr)
   {
-    TMemory* theMemoryInterface = CPUInterface->GetMemory();
+    TMemory* theMemoryInterface = TARMProcessor::current->GetMemory();
     KUInt8 val;
     if (theMemoryInterface->ReadBP(addr, val))
     {
-      printf("### DATA ABORT ERROR reading 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)CPUInterface->mCurrentRegisters[15]);
+      printf("### DATA ABORT ERROR reading 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)TARMProcessor::current->mCurrentRegisters[15]);
 		}
     return val;
   }
   
   void setPhysMem8(KUInt32 addr, KUInt8 val)
   {
-    TMemory* theMemoryInterface = CPUInterface->GetMemory();
+    TMemory* theMemoryInterface = TARMProcessor::current->GetMemory();
     if (theMemoryInterface->WriteBP(addr, val))
     {
-      printf("### DATA ABORT ERROR writing 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)CPUInterface->mCurrentRegisters[15]);
+      printf("### DATA ABORT ERROR writing 0x%08x (pc=0x%08x): please implement DataAbortHandler now.\n", (unsigned int)addr, (unsigned int)TARMProcessor::current->mCurrentRegisters[15]);
 		}
   }
   
@@ -130,13 +128,13 @@ namespace Albert {
   void callEmulator(KUInt32 address) 
   {
     printf("## untested: calling from Albert into emulator\n");
-    KUInt32* pcPtr = &CPUInterface->mCurrentRegisters[TARMProcessor::kR15];
-    TMemory* theMemoryInterface = CPUInterface->GetMemory();
-    CPUInterface->mCurrentRegisters[TARMProcessor::kR14] = 0x007ffff0; // return to Albert
-    CPUInterface->mCurrentRegisters[TARMProcessor::kR15] = address+4; // somewhere in ROM where "mov pc, lr" is run
-	  JITUnit* theJITUnit = theMemoryInterface->GetJITObject()->GetJITUnitForPC( CPUInterface, theMemoryInterface, *pcPtr );
+    KUInt32* pcPtr = &TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR15];
+    TMemory* theMemoryInterface = TARMProcessor::current->GetMemory();
+    TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR14] = 0x007ffff0; // return to Albert
+    TARMProcessor::current->mCurrentRegisters[TARMProcessor::kR15] = address+4; // somewhere in ROM where "mov pc, lr" is run
+	  JITUnit* theJITUnit = theMemoryInterface->GetJITObject()->GetJITUnitForPC( TARMProcessor::current, theMemoryInterface, *pcPtr );
     while (theJITUnit) {
-			theJITUnit = theJITUnit->fFuncPtr( theJITUnit, CPUInterface );
+			theJITUnit = theJITUnit->fFuncPtr( theJITUnit, TARMProcessor::current );
     }
   }
 

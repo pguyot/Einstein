@@ -42,6 +42,8 @@
 
 //KUInt32 TARMProcessor::mCurrentRegisters[16];		///< The current bank with the
 
+TARMProcessor *TARMProcessor::current = 0L;
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //

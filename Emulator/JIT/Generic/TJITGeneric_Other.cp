@@ -77,7 +77,7 @@ JITInstructionProto(CallHostNative)
 	if (!stub) {
 		CALLNEXTUNIT;
 	}
-  Albert::CPUInterface = ioCPU;
+  TARMProcessor::current = ioCPU;
 	return stub(ioUnit, ioCPU);
 }
 

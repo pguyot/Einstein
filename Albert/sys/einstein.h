@@ -74,8 +74,6 @@ namespace Albert {
   cpu->mCurrentRegisters[TARMProcessor::kR14] = lr; \
   cpu->mCurrentRegisters[TARMProcessor::kR15] = pc+4;
   
-  extern class TARMProcessor *CPUInterface;
-  
   extern KUInt32 getMem32(KUInt32 addr);
   extern void setMem32(KUInt32 addr, KUInt32 val);
   extern KUInt8 getMem8(KUInt32 addr);
