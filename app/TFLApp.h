@@ -24,6 +24,8 @@
 #ifndef _TFLAPP_H
 #define _TFLAPP_H
 
+#include <winsock2.h>
+#include <FL/x.H>
 #include <K/Defines/KDefinitions.h>
 #include <FL/Fl_Widget.H>
 
@@ -51,6 +53,25 @@ class TFLSettings;
 ///
 class TFLApp
 {
+  class TFLAppPipeServer {
+  public:
+    TFLAppPipeServer(TFLApp*);
+    ~TFLAppPipeServer();
+    int open();
+    void close();
+  private:
+    static void thread_(void *);
+    static void awake_(void *);
+    static const int BUFSIZE = 4096;
+    TFLApp *app_;
+    OVERLAPPED over_; 
+    HANDLE hPipeInst; 
+    HANDLE hPipe; 
+    TCHAR chRequest[BUFSIZE]; 
+    DWORD cbRead;
+    TCHAR chReply[BUFSIZE]; 
+    DWORD cbToWrite; 
+  };
 public:
 	///
 	/// Constructeur par défaut.
@@ -102,6 +123,7 @@ public:
 	///
 	void menuDownloadROM();
 
+  TPlatformManager *getPlatformManager() { return mPlatformManager; }
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
@@ -220,6 +242,7 @@ private:
 	Boolean				mQuit;				///< If we should quit.
 
 	TFLSettings			*flSettings;		///< settings dialog box
+  TFLAppPipeServer mPipeServer;
 };
 
 #endif

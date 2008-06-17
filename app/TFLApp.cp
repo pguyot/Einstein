@@ -128,7 +128,8 @@ TFLApp::TFLApp( void )
 		mLog( nil ),
 		mMonitor( nil ),
 		mSymbolList( nil ),
-		flSettings(0L)
+		flSettings(0L),
+    mPipeServer(this)
 {
 }
 
@@ -339,7 +340,11 @@ TFLApp::Run( int argc, char* argv[] )
 		}
 #endif
 
+    mPipeServer.open();
+
 		Fl::run();
+
+    mPipeServer.close();
 
 		// FIXME Tell the emulator that the power was switched off
 		// FIXME Then wait for it to quit gracefully
@@ -630,6 +635,95 @@ int main(int argc, char** argv )
 
 	return 0;
 }
+
+VOID WINAPI CompletedWriteRoutine(DWORD, DWORD, LPOVERLAPPED); 
+VOID WINAPI CompletedReadRoutine(DWORD, DWORD, LPOVERLAPPED); 
+
+TFLApp::TFLAppPipeServer::TFLAppPipeServer(TFLApp *app)
+: app_(app),
+  hPipeInst(INVALID_HANDLE_VALUE),
+  hPipe(INVALID_HANDLE_VALUE)
+{
+  memset(&over_, 0, sizeof(over_));
+}
+
+TFLApp::TFLAppPipeServer::~TFLAppPipeServer()
+{
+  close();
+}
+
+int TFLApp::TFLAppPipeServer::open()
+{
+  CreateThread(0, 0, (LPTHREAD_START_ROUTINE)thread_, this, 0, 0);
+  return 0;
+}
+
+void TFLApp::TFLAppPipeServer::thread_(void *ps) {
+  //over_.hEvent = CreateEvent(0L, TRUE, FALSE, 0L);
+  //Fl::add_handler(
+  TFLAppPipeServer *This = (TFLAppPipeServer*)ps;
+  LPTSTR name = TEXT("\\\\.\\pipe\\einstein"); 
+  This->hPipe = CreateNamedPipe(
+    name,
+    PIPE_ACCESS_DUPLEX /*| FILE_FLAG_OVERLAPPED*/,
+    PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
+    PIPE_UNLIMITED_INSTANCES,
+    4096, 4096, 5000, 0);
+  if (This->hPipe==INVALID_HANDLE_VALUE) {
+    printf("ERROR %d\n", GetLastError());
+    return;
+  }
+  for (;;) {
+    int ret = ConnectNamedPipe(This->hPipe, 0L);
+    char buf[4096]; buf[0] = 0;
+    DWORD n;
+    ret = ReadFile(This->hPipe, buf, 4096, &n, 0L);
+    printf("%d %d %s %d\n", ret, n, buf, GetLastError());
+    if (strncmp(buf, "quit", 4)==0) {
+      WriteFile(This->hPipe, "QUIT", 5, &n, 0);
+      DisconnectNamedPipe(This->hPipe);
+      ExitThread(0);
+    } else if (strncmp(buf, "dons", 4)==0) {
+      This->app_->getPlatformManager()->EvalNewtonScript(buf+4);
+      WriteFile(This->hPipe, "OK", 3, &n, 0);
+    } else if (strncmp(buf, "inst", 4)==0) {
+      This->app_->getPlatformManager()->InstallPackage(buf+4);
+    } else {
+      WriteFile(This->hPipe, "ERR", 4, &n, 0);
+    }
+//    Fl::awake(awake_, ps);
+    DisconnectNamedPipe(This->hPipe);
+  }
+  return;
+}
+
+void TFLApp::TFLAppPipeServer::awake_(void *ps) {
+  /*
+  TFLAppPipeServer *This = (TFLAppPipeServer*)ps;
+  TFLApp *app = This->app_;
+  app->
+
+    EvalNewtonScript( const char* inNewtonScriptCode )
+    InstallPackage( const char* inPackagePath )
+    */
+}
+
+void TFLApp::TFLAppPipeServer::close()
+{
+  if (hPipe!=INVALID_HANDLE_VALUE) {
+    char inbuf[4096];
+    DWORD n;
+    LPTSTR name = TEXT("\\\\.\\pipe\\einstein"); 
+    CallNamedPipe(
+      name,
+      "quit", 5,
+      inbuf, 4096,
+      &n, 5000);
+    puts(inbuf);
+    //CloseHandle(hPipe); // FIXME: unsafe!
+  }
+}
+
 
 
 // ======================================================================= //
