@@ -459,7 +459,7 @@ Function {createAboutDialog()} {} {
       xywh {32 80 190 25} labelfont 1
     }
     Fl_Box {} {
-      label {Version 2007.7}
+      label {Version 2007.7.6}
       xywh {32 105 190 20} labelsize 11
     }
     Fl_Button {} {

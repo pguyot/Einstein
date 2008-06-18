@@ -309,6 +309,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\app\TFLSettings.fl"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\app\TFLSettings.h"
 				>
 			</File>
