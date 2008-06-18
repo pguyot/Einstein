@@ -1151,7 +1151,7 @@ Fl_Double_Window* createAboutDialog() {
     { Fl_Box* o = new Fl_Box(32, 80, 190, 25, "Einstein");
       o->labelfont(1);
     } // Fl_Box* o
-    { Fl_Box* o = new Fl_Box(32, 105, 190, 20, "Version 2007.7");
+    { Fl_Box* o = new Fl_Box(32, 105, 190, 20, "Version 2007.7.6");
       o->labelsize(11);
     } // Fl_Box* o
     { Fl_Button* o = new Fl_Button(190, 135, 55, 20, "Close");

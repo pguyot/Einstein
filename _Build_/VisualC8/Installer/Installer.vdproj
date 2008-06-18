@@ -21,18 +21,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_370B5E341BC44D30AFDE134F3DA7AB8A"
-        "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4388E215BA744822892CC45669A9215F"
-        "OwnerKey" = "8:_EAC278373AB44D65B1CF91A38BEDA4A0"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -51,6 +39,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_A3D2AEA2DA35495AB5476F1080A204A5"
+        "OwnerKey" = "8:_EC3C90CF79404A0A8C4B0CA63EBDB0E7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B162E865AA554BCE9561A05D6212ED8B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -63,13 +57,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E347C990B0D44591BA90D3C9928798FF"
-        "OwnerKey" = "8:_370B5E341BC44D30AFDE134F3DA7AB8A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_EAC278373AB44D65B1CF91A38BEDA4A0"
+        "MsmKey" = "8:_EC3C90CF79404A0A8C4B0CA63EBDB0E7"
         "OwnerKey" = "8:_4C2CADC46E4F480895EBB6D51AEB8697"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -370,14 +358,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Einstein"
-        "ProductCode" = "8:{1141874F-1E2D-4D3D-95FF-F83A28F8488A}"
-        "PackageCode" = "8:{E7F3CD25-6357-408F-BE0C-E1C67D93E956}"
+        "ProductCode" = "8:{4DE9B8E4-32C9-405A-A536-E2D0F5B1FB34}"
+        "PackageCode" = "8:{259B8688-6332-44C4-B84B-4D53867AE9BE}"
         "UpgradeCode" = "8:{34F69859-7109-4313-A28C-70B3989B3240}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.7.5"
+        "ProductVersion" = "8:1.7.6"
         "Manufacturer" = "8:OpenEinstein"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://code.google.com/p/peinstein"
@@ -961,35 +949,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_370B5E341BC44D30AFDE134F3DA7AB8A"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_4388E215BA744822892CC45669A9215F"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_8_0_microsoft_vc80_debugcrt_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E347C990B0D44591BA90D3C9928798FF"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A3D2AEA2DA35495AB5476F1080A204A5"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1003,11 +963,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_EAC278373AB44D65B1CF91A38BEDA4A0"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_EC3C90CF79404A0A8C4B0CA63EBDB0E7"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC80_DebugCRT_x86.msm"
+            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
                 "Properties"
                 {
                 }
@@ -1022,7 +982,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_4C2CADC46E4F480895EBB6D51AEB8697"
             {
-            "SourcePath" = "8:..\\final\\Einstein.exe"
+            "SourcePath" = "8:..\\release\\Einstein.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_CC98C5B91D8C446D92FF899B665C2A45"
