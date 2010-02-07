@@ -174,7 +174,7 @@ static TCocoaAppController* gInstance = nil;
 		[self startEmulator];
 	} else {
 		[mSetupController openSetupWindow];
-	}
+  	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -263,8 +263,10 @@ static TCocoaAppController* gInstance = nil;
 	if (indexAudioDriver == kCoreAudioDriverTag)
 	{
 		mSoundManager = new TCoreAudioSoundManager();
-	} else if (indexAudioDriver == kPortAudioDriverTag) {
+#if OPTION_PORT_AUDIO          
+        } else if (indexAudioDriver == kPortAudioDriverTag) {
 		mSoundManager = new TPortAudioSoundManager();
+#endif
 	} else {
 		mSoundManager = new TNullSoundManager();
 	}
@@ -303,6 +305,7 @@ static TCocoaAppController* gInstance = nil;
 									theHeight,
 									fullScreen,
 									screenIsLandscape);
+#ifdef OPTION_X11_SCREEN
 	} else {
 		KUInt32 theWidth;
 		KUInt32 theHeight;
@@ -331,6 +334,7 @@ static TCocoaAppController* gInstance = nil;
 									theHeight,
 									fullScreen,
 									screenIsLandscape);
+#endif
 	}
 
 	// Create the emulator.
