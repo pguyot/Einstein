@@ -283,7 +283,8 @@
 {
 	// Cocoa doesn't distinguish left & right keys.
 	// So I ask Carbon.
-	UInt32 theMods = GetCurrentEventKeyModifiers();
+	// FIXME: Carbon does not neccessarily handle the same event as Cocoa!
+	UInt32 theMods = GetCurrentKeyModifiers();
 
 	if (( theMods & cmdKey ) != ( mPreviousMods & cmdKey ))
 	{
