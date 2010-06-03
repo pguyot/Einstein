@@ -29,6 +29,7 @@
 #import <Cocoa/Cocoa.h>
 
 class TBufferLog;
+class TNetworkManager;
 class TSoundManager;
 class TScreenManager;
 class TROMImage;

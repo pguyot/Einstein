@@ -39,6 +39,8 @@
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Host/THostInfo.h"
 #include "Emulator/Screen/TScreenManager.h"
+#include "Emulator/PCMCIA/TPCMCIAController.h"
+#include "Emulator/PCMCIA/TNE2000Card.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -314,6 +316,30 @@ TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inDa
 		RaisePlatformInterrupt();
 	}
 }
+
+// -------------------------------------------------------------------------- //
+//  * SendNE2000CardEvent( void )
+// -------------------------------------------------------------------------- //
+void
+TPlatformManager::SendNE2000CardEvent( void )
+{
+	static TNE2000Card *theCard = 0;
+
+	// FIXME: Change check mark in Menu.
+	if (mMemory) {
+		TPCMCIAController *theController = mMemory->GetPCMCIAController(0);
+		if (theController) {
+			if (theCard==0L) {
+				theCard = new TNE2000Card();
+				theController->InsertCard(theCard);
+			} else {
+				theController->RemoveCard();
+				theCard = 0;
+			}
+		}
+	}
+}
+
 
 // -------------------------------------------------------------------------- //
 //  * SendPowerSwitchEvent( void )

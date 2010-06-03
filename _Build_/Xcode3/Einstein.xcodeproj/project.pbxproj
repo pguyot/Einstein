@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		C932C4C211A1AB5D00F6A7E4 /* TNE2000Card.cp in Sources */ = {isa = PBXBuildFile; fileRef = C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */; };
+		C962429711B69A9D00EE66F3 /* TUsermodeNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */; };
+		C96242A011B6A20A00EE66F3 /* TNetworkManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */; };
 		C99E315E111B733F002165EC /* Einstein.nib in Resources */ = {isa = PBXBuildFile; fileRef = C99E315C111B733F002165EC /* Einstein.nib */; };
 		C99E316A111B7346002165EC /* button_backlight.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3160111B7346002165EC /* button_backlight.png */; };
 		C99E316B111B7346002165EC /* button_backlight_on.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3161111B7346002165EC /* button_backlight_on.png */; };
@@ -165,6 +168,12 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* Einstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Einstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNE2000Card.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C932C4C111A1AB5D00F6A7E4 /* TNE2000Card.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNE2000Card.h; sourceTree = "<group>"; };
+		C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TUsermodeNetwork.cp; path = Network/TUsermodeNetwork.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C962429611B69A9D00EE66F3 /* TUsermodeNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TUsermodeNetwork.h; path = Network/TUsermodeNetwork.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TNetworkManager.cp; path = Network/TNetworkManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C962429F11B6A20A00EE66F3 /* TNetworkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TNetworkManager.h; path = Network/TNetworkManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E315A111B7331002165EC /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../Resources/Info.plist; sourceTree = SOURCE_ROOT; };
 		C99E315D111B733F002165EC /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = ../../Resources/English.lproj/Einstein.nib; sourceTree = SOURCE_ROOT; };
 		C99E3160111B7346002165EC /* button_backlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_backlight.png; sourceTree = "<group>"; };
@@ -176,7 +185,7 @@
 		C99E3166111B7346002165EC /* Einstein.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Einstein.icns; sourceTree = "<group>"; };
 		C99E3175111B73A1002165EC /* TMonitor.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMonitor.cp; sourceTree = "<group>"; };
 		C99E3176111B73A1002165EC /* TMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMonitor.h; sourceTree = "<group>"; };
-		C99E3177111B73A1002165EC /* TSymbolList.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TSymbolList.cp; sourceTree = "<group>"; };
+		C99E3177111B73A1002165EC /* TSymbolList.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TSymbolList.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E3178111B73A1002165EC /* TSymbolList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSymbolList.h; sourceTree = "<group>"; };
 		C99E3179111B73A1002165EC /* UDisasm.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UDisasm.cp; sourceTree = "<group>"; };
 		C99E317A111B73A1002165EC /* UDisasm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDisasm.h; sourceTree = "<group>"; };
@@ -321,10 +330,10 @@
 		C99E33D6111B7C07002165EC /* EinsteinDoNewtonScriptCommand.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EinsteinDoNewtonScriptCommand.mm; sourceTree = "<group>"; };
 		C99E33D7111B7C07002165EC /* EinsteinInstallPackageCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EinsteinInstallPackageCommand.h; sourceTree = "<group>"; };
 		C99E33D8111B7C07002165EC /* EinsteinInstallPackageCommand.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EinsteinInstallPackageCommand.mm; sourceTree = "<group>"; };
-		C99E33D9111B7C07002165EC /* TCLIApp.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCLIApp.cp; sourceTree = "<group>"; };
-		C99E33DA111B7C07002165EC /* TCLIApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCLIApp.h; sourceTree = "<group>"; };
-		C99E33DB111B7C07002165EC /* TCocoaAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaAppController.h; sourceTree = "<group>"; };
-		C99E33DC111B7C07002165EC /* TCocoaAppController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaAppController.mm; sourceTree = "<group>"; };
+		C99E33D9111B7C07002165EC /* TCLIApp.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCLIApp.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C99E33DA111B7C07002165EC /* TCLIApp.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TCLIApp.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C99E33DB111B7C07002165EC /* TCocoaAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaAppController.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C99E33DC111B7C07002165EC /* TCocoaAppController.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaAppController.mm; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E33DD111B7C07002165EC /* TCocoaROMDumperController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaROMDumperController.h; sourceTree = "<group>"; };
 		C99E33DE111B7C07002165EC /* TCocoaROMDumperController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaROMDumperController.mm; sourceTree = "<group>"; };
 		C99E33DF111B7C07002165EC /* TCocoaSetupController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaSetupController.h; sourceTree = "<group>"; };
@@ -432,7 +441,7 @@
 		C99E3461111B7C07002165EC /* TBufferLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBufferLog.h; sourceTree = "<group>"; };
 		C99E3462111B7C07002165EC /* TFileLog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFileLog.cp; sourceTree = "<group>"; };
 		C99E3463111B7C07002165EC /* TFileLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFileLog.h; sourceTree = "<group>"; };
-		C99E3464111B7C07002165EC /* TLog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TLog.cp; sourceTree = "<group>"; };
+		C99E3464111B7C07002165EC /* TLog.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TLog.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E3465111B7C07002165EC /* TLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TLog.h; sourceTree = "<group>"; };
 		C99E3466111B7C07002165EC /* TStdOutLog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TStdOutLog.cp; sourceTree = "<group>"; };
 		C99E3467111B7C07002165EC /* TStdOutLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TStdOutLog.h; sourceTree = "<group>"; };
@@ -448,12 +457,12 @@
 		C99E3473111B7C07002165EC /* TLinearCard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TLinearCard.h; sourceTree = "<group>"; };
 		C99E3474111B7C07002165EC /* TPCMCIACard.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPCMCIACard.cp; sourceTree = "<group>"; };
 		C99E3475111B7C07002165EC /* TPCMCIACard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPCMCIACard.h; sourceTree = "<group>"; };
-		C99E3476111B7C07002165EC /* TPCMCIAController.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPCMCIAController.cp; sourceTree = "<group>"; };
-		C99E3477111B7C07002165EC /* TPCMCIAController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPCMCIAController.h; sourceTree = "<group>"; };
+		C99E3476111B7C07002165EC /* TPCMCIAController.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPCMCIAController.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C99E3477111B7C07002165EC /* TPCMCIAController.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TPCMCIAController.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E3479111B7C07002165EC /* PlatformEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformEvents.h; sourceTree = "<group>"; };
 		C99E347A111B7C07002165EC /* PlatformGestalt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformGestalt.h; sourceTree = "<group>"; };
-		C99E347B111B7C07002165EC /* TPlatformManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPlatformManager.cp; sourceTree = "<group>"; };
-		C99E347C111B7C07002165EC /* TPlatformManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPlatformManager.h; sourceTree = "<group>"; };
+		C99E347B111B7C07002165EC /* TPlatformManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPlatformManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C99E347C111B7C07002165EC /* TPlatformManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TPlatformManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; wrapsLines = 0; };
 		C99E347E111B7C08002165EC /* TAIFFile.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TAIFFile.cp; sourceTree = "<group>"; };
 		C99E347F111B7C08002165EC /* TAIFFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TAIFFile.h; sourceTree = "<group>"; };
 		C99E3480111B7C08002165EC /* TAIFROMImageWithREXes.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TAIFROMImageWithREXes.cp; sourceTree = "<group>"; };
@@ -491,20 +500,20 @@
 		C99E34B7111B7C08002165EC /* TARMProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TARMProcessor.h; sourceTree = "<group>"; };
 		C99E34B8111B7C08002165EC /* TDMAManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TDMAManager.cp; sourceTree = "<group>"; };
 		C99E34B9111B7C08002165EC /* TDMAManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TDMAManager.h; sourceTree = "<group>"; };
-		C99E34BA111B7C08002165EC /* TEmulator.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TEmulator.cp; sourceTree = "<group>"; };
-		C99E34BB111B7C08002165EC /* TEmulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TEmulator.h; sourceTree = "<group>"; };
+		C99E34BA111B7C08002165EC /* TEmulator.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TEmulator.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C99E34BB111B7C08002165EC /* TEmulator.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TEmulator.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E34BC111B7C08002165EC /* TFlash.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFlash.cp; sourceTree = "<group>"; };
 		C99E34BD111B7C08002165EC /* TFlash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFlash.h; sourceTree = "<group>"; };
 		C99E34BE111B7C08002165EC /* THashMapCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = THashMapCache.h; sourceTree = "<group>"; };
 		C99E34BF111B7C08002165EC /* TInterruptManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TInterruptManager.cp; sourceTree = "<group>"; };
 		C99E34C0111B7C08002165EC /* TInterruptManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TInterruptManager.h; sourceTree = "<group>"; };
-		C99E34C1111B7C08002165EC /* TMemory.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMemory.cp; sourceTree = "<group>"; };
+		C99E34C1111B7C08002165EC /* TMemory.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMemory.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E34C2111B7C08002165EC /* TMemory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMemory.h; sourceTree = "<group>"; };
-		C99E34C3111B7C08002165EC /* TMemoryConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMemoryConsts.h; sourceTree = "<group>"; };
+		C99E34C3111B7C08002165EC /* TMemoryConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TMemoryConsts.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E34C4111B7C08002165EC /* TMMU.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMMU.cp; sourceTree = "<group>"; };
 		C99E34C5111B7C08002165EC /* TMMU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMU.h; sourceTree = "<group>"; };
-		C99E34C6111B7C08002165EC /* TNativePrimitives.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNativePrimitives.cp; sourceTree = "<group>"; };
-		C99E34C7111B7C08002165EC /* TNativePrimitives.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNativePrimitives.h; sourceTree = "<group>"; };
+		C99E34C6111B7C08002165EC /* TNativePrimitives.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNativePrimitives.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C99E34C7111B7C08002165EC /* TNativePrimitives.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TNativePrimitives.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E3550111C111D002165EC /* ffi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi.h; sourceTree = "<group>"; };
 		C99E3552111C111D002165EC /* ffi_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_common.h; sourceTree = "<group>"; };
 		C99E3553111C111D002165EC /* fficonfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fficonfig.h; sourceTree = "<group>"; };
@@ -602,6 +611,17 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C962429411B69A6E00EE66F3 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */,
+				C962429F11B6A20A00EE66F3 /* TNetworkManager.h */,
+				C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */,
+				C962429611B69A9D00EE66F3 /* TUsermodeNetwork.h */,
+			);
+			name = Network;
 			sourceTree = "<group>";
 		};
 		C99E3154111B72C0002165EC /* Sources */ = {
@@ -1047,6 +1067,7 @@
 				C99E33EF111B7C07002165EC /* Host */,
 				C99E345F111B7C07002165EC /* Log */,
 				C99E33F3111B7C07002165EC /* JIT */,
+				C962429411B69A6E00EE66F3 /* Network */,
 				C99E346F111B7C07002165EC /* PCMCIA */,
 				C99E34A3111B7C08002165EC /* Serial */,
 				C99E34A9111B7C08002165EC /* Sound */,
@@ -1209,6 +1230,8 @@
 				C99E3471111B7C07002165EC /* TATACard.h */,
 				C99E3472111B7C07002165EC /* TLinearCard.cp */,
 				C99E3473111B7C07002165EC /* TLinearCard.h */,
+				C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */,
+				C932C4C111A1AB5D00F6A7E4 /* TNE2000Card.h */,
 				C99E3474111B7C07002165EC /* TPCMCIACard.cp */,
 				C99E3475111B7C07002165EC /* TPCMCIACard.h */,
 				C99E3476111B7C07002165EC /* TPCMCIAController.cp */,
@@ -1541,6 +1564,9 @@
 				C99E356F111C111D002165EC /* types.c in Sources */,
 				C99E3570111C111D002165EC /* darwin.S in Sources */,
 				C99E3571111C111D002165EC /* ffi_darwin.c in Sources */,
+				C932C4C211A1AB5D00F6A7E4 /* TNE2000Card.cp in Sources */,
+				C962429711B69A9D00EE66F3 /* TUsermodeNetwork.cp in Sources */,
+				C96242A011B6A20A00EE66F3 /* TNetworkManager.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1571,6 +1597,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					_DEBUG,
 					NO_PORT_AUDIO,
 					NO_X11,
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",

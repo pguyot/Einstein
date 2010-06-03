@@ -45,6 +45,7 @@
 // Einstein
 #include "Log/TLog.h"
 #include "JIT/JIT.h"
+#include "Network/TNetworkManager.h"
 #include "Sound/TSoundManager.h"
 #include "Screen/TScreenManager.h"
 #include "PCMCIA/TPCMCIAController.h"
@@ -71,6 +72,7 @@ TEmulator::TEmulator(
 			const char* inFlashPath,
 			TSoundManager* inSoundManager,
 			TScreenManager* inScreenManager,
+			TNetworkManager* inNetworkManager,
 			KUInt32 inRAMSize /* = 4194304 */ )
 	:
 		mMemory( inLog, inROMImage, inFlashPath, inRAMSize ),
@@ -82,6 +84,7 @@ TEmulator::TEmulator(
 		mInfraredPort( nil ),
 		mBuiltInExtraPort( nil ),
 		mModemPort( nil ),
+		mNetworkManager( inNetworkManager ),
 		mSoundManager( inSoundManager ),
 		mScreenManager( inScreenManager ),
 		mLog( inLog ),
@@ -119,8 +122,12 @@ TEmulator::TEmulator(
 
 	mMemory.SetEmulator( this );
 
+	mNetworkManager->SetInterruptManager( mInterruptManager );
+	mNetworkManager->SetMemory( &mMemory );
+	
 	mSoundManager->SetInterruptManager( mInterruptManager );
 	mSoundManager->SetMemory( &mMemory );
+	
 	mScreenManager->SetInterruptManager( mInterruptManager );
 	mScreenManager->SetMemory( &mMemory );
 	mScreenManager->SetPlatformManager( mPlatformManager );
@@ -232,8 +239,9 @@ TEmulator::DebuggerUND( KUInt32 inPAddr )
 				break;
 			}
 		} while (theString[index++] != 0);
-		
-		mLog->LogLine( (const char*) theString );
+          
+                printf("%s\n", theString);
+		if (log) mLog->LogLine( (const char*) theString );
 	}
 }
 

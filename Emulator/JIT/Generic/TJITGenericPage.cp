@@ -355,7 +355,7 @@ TJITGenericPage::DoTranslate_01(
 	if ((inInstruction & 0x02000010) == 0x02000010)
 	{
 // -Cond-- 0  1  1  -XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX- 1  -XXXXX-
-	// DA WINNER
+          // DA WINNER
 		if (inInstruction == 0xE6000510)
 		{
 			PushUnit(ioUnitCrsr, DebuggerUND);

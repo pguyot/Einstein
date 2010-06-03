@@ -30,6 +30,7 @@
 
 class TROMImage;
 class TEmulator;
+class TNetworkManager;
 class TSoundManager;
 class TScreenManager;
 class TLog;
@@ -170,6 +171,7 @@ private:
 	const char*			mProgramName;		///< Nom du programme.
 	TROMImage*			mROMImage;			///< Image ROM.
 	TEmulator*			mEmulator;			///< Emulateur.
+	TNetworkManager*	mNetworkManager;	///< Network Manager.
 	TSoundManager*		mSoundManager;		///< Gestionnaire de son.
 	TScreenManager*		mScreenManager;		///< Gestionnaire d'Žcran.
 	TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.

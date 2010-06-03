@@ -33,6 +33,7 @@ class TLog;
 class TEmulator;
 class TMemory;
 class TARMProcessor;
+class TNetworkManager;
 class TSoundManager;
 class TScreenManager;
 class TPlatformManager;
@@ -208,11 +209,19 @@ private:
 	///
 	void		ExecuteHostCallNative( KUInt32 inInstruction );
 	
+	///
+	/// Execute a native instruction related to network access
+	///
+	/// \param inInstruction	opcode of the instruction to execute.
+	///
+	void		ExecuteNetworkManagerNative( KUInt32 inInstruction );
+	
 	/// \name Variables
 	TARMProcessor*		mProcessor;			///< Reference to the CPU.
 	TLog*				mLog;				///< Interface for logging.
 	TMemory*			mMemory;			///< Interface to the memory.
 	TEmulator*			mEmulator;			///< Emulator (interface to hardware).
+	TNetworkManager*	mNetworkManager;	///< Network manager.
 	TSoundManager*		mSoundManager;		///< Sound manager
 	TScreenManager*		mScreenManager;		///< Screen manager.
 	TPlatformManager*	mPlatformManager;	///< Platform manager.

@@ -70,6 +70,7 @@ TCLIApp::TCLIApp( void )
 		mProgramName( nil ),
 		mROMImage( nil ),
 		mEmulator( nil ),
+		mNetworkManager( nil ),
 		mSoundManager( nil ),
 		mScreenManager( nil ),
 		mPlatformManager( nil ),
@@ -91,6 +92,10 @@ TCLIApp::~TCLIApp( void )
 	if (mScreenManager)
 	{
 		delete mScreenManager;
+	}
+	if (mNetworkManager)
+	{
+		delete mNetworkManager;
 	}
 	if (mSoundManager)
 	{
@@ -150,6 +155,7 @@ TCLIApp::Run( int argc, char* argv[] )
 	
 	while (indexArgs < argc - 1)
 	{
+		// TODO: add code for network manager
 		if (::strcmp(argv[indexArgs], "-a") == 0)
 		{
 			indexArgs++;

@@ -34,11 +34,13 @@
 #import "TCocoaSetupController.h"
 
 class TBufferLog;
+class TNetworkManager;
 class TSoundManager;
 class TScreenManager;
 class TROMImage;
 class TEmulator;
 class TPlatformManager;
+class TLog;
 
 ///
 /// Protocol pour le contr™leur de l'application Einstein.app.
@@ -62,11 +64,14 @@ class TPlatformManager;
 	NSString*			mFlashPath;
 	NSString*			mROMPath;
 	NSString*			mREx0Path;
+  
+	TNetworkManager*	mNetworkManager;
 	TSoundManager*		mSoundManager;
 	TScreenManager*		mScreenManager;
 	TROMImage*			mROMImage;
 	TEmulator*			mEmulator;
 	TPlatformManager*	mPlatformManager;
+    TLog*				mLog;
 	
 	NSToolbarItem*		mToolbarPowerItem;
 	NSImage*			mToolbarPowerOnImage;
@@ -93,6 +98,7 @@ class TPlatformManager;
 
 // Actions.
 - (IBAction) installPackage:(id)sender;
+- (IBAction) insertNE2000Card:(id)sender;
 - (IBAction) powerButton:(id)sender;
 - (IBAction) backlightButton:(id)sender;
 

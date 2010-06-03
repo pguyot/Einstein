@@ -917,6 +917,8 @@ TMemory::ReadP( PAddr inAddress, Boolean& outFault )
 			return mInterruptManager->GetGPIORaised();
 		} else if (inAddress == TMemoryConsts::kHdWr_GPIO_EReg) {
 			return mInterruptManager->GetGPIOCtrlReg();
+		} else if (inAddress == TMemoryConsts::kHdWr_P0F18D400) {
+			return 0xffffffff; // PCMCIA Door Locked?
 		} else {
 			if (mLog)
 			{
