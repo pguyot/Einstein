@@ -532,6 +532,8 @@ TARMProcessor::PrefetchAbort( void )
 void
 TARMProcessor::DataAbort( void )
 {
+	//	printf("Data Abort at 0x%08x\n", mCurrentRegisters[kR15]);
+	//  002ddf2c         str      r1, [r2], #4                     | E4821004
 	BackupBankRegisters();
 	mSPSRabt = GetCPSR();
 	// mR14abt_Bkup = address of the aborted instruction + 8

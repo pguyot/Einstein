@@ -37,6 +37,7 @@ class TDMAManager;
 class TPlatformManager;
 class TROMImage;
 class TLog;
+class TNetworkManager;
 class TSoundManager;
 class TScreenManager;
 class TMonitor;
@@ -73,6 +74,7 @@ public:
 			const char* inFlashPath,
 			TSoundManager* inSoundManager,
 			TScreenManager* inScreenManager,
+			TNetworkManager* inNetworkManager,
 			KUInt32 inRAMSize = 0x00400000 );
 
 	///
@@ -237,9 +239,19 @@ public:
 	/// \return a pointer to the sound manager.
 	///
 	TSoundManager*  GetSoundManager( void )
-		{
-			return mSoundManager;
-		}
+	{
+		return mSoundManager;
+	}
+	
+	///
+	/// Accessor on the network manager interface.
+	///
+	/// \return a pointer to the network manager.
+	///
+	TNetworkManager*  GetNetworkManager( void )
+	{
+		return mNetworkManager;
+	}
 	
 	///
 	/// Accessor on the sound manager interface.
@@ -382,6 +394,7 @@ private:
 	TVoyagerSerialPort*	mInfraredPort;		///< Infrared serial port.
 	TVoyagerSerialPort*	mBuiltInExtraPort;	///< Built-in Extra serial port.
 	TVoyagerSerialPort*	mModemPort;			///< Modem serial port.
+	TNetworkManager*	mNetworkManager;	///< Network manager.
 	TSoundManager*		mSoundManager;		///< Sound manager.
 	TScreenManager*		mScreenManager;		///< Screen manager.
 	KUInt32				mNewtonID[2];		///< NewtonID (48 bits, 16+32).

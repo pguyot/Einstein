@@ -105,6 +105,7 @@ public:
 		kHdWr_GPIO_CReg		= 0x0F18C800,   ///< GPIO interface (3) (w) (clear reg?)
 		kHdWr_P0F18CC00		= 0x0F18CC00,   ///< W (00000103)
 		kHdWr_P0F18D000		= 0x0F18D000,   ///< W (0000000F)
+		kHdWr_P0F18D400		= 0x0F18D400,   ///< R GPIO PCMCIA card related (PCMCIA door lock switch?)
 		kHdWr_P0F18D800		= 0x0F18D800,   ///< W (00000000)
 		kHdWr_P0F18DC00		= 0x0F18DC00,   ///< W (00001EF0, FFFF0FF0)
 //		kHdWr_P0F18DC00		= 0x0F18DC00,   ///< W (00000000) (?)

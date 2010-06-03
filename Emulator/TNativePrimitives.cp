@@ -42,11 +42,14 @@
 #include "TMemory.h"
 #include "TARMProcessor.h"
 #include "Screen/TScreenManager.h"
+#include "Network/TNetworkManager.h"
 #include "Sound/TSoundManager.h"
 #include "NativeCalls/TNativeCalls.h"
 #include "NativeCalls/TVirtualizedCalls.h"
 #include "Platform/TPlatformManager.h"
 #include "Platform/PlatformGestalt.h"
+#include "Emulator/PCMCIA/TPCMCIAController.h"
+
 
 struct NewtonPixmap {
 	KUInt32 addy;
@@ -73,6 +76,7 @@ TNativePrimitives::TNativePrimitives(
 		mLog( inLog ),
 		mMemory( inMemory ),
 		mEmulator( nil ),
+		mNetworkManager( nil ),
 		mSoundManager( nil ),
 		mScreenManager( nil ),
 		mPlatformManager( nil ),
@@ -104,6 +108,7 @@ TNativePrimitives::SetEmulator( TEmulator* inEmulator )
 {
 	if (inEmulator)
 	{
+		mNetworkManager = inEmulator->GetNetworkManager();
 		mSoundManager = inEmulator->GetSoundManager();
 		mScreenManager = inEmulator->GetScreenManager();
 		mPlatformManager = inEmulator->GetPlatformManager();
@@ -111,6 +116,7 @@ TNativePrimitives::SetEmulator( TEmulator* inEmulator )
 		mVirtualizedCalls =
 			new TVirtualizedCalls( inEmulator, mMemory, inEmulator->GetProcessor() );
 	} else {
+		mNetworkManager = nil;
 		mSoundManager = nil;
 		mScreenManager = nil;
 		mPlatformManager = nil;
@@ -174,7 +180,11 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 			case 0x000009:
 				ExecuteHostCallNative( inInstruction );
 				break;
-	
+				
+			case 0x00000A:
+				ExecuteNetworkManagerNative( inInstruction );
+				break;
+				
 			default:
 				if (mLog)
 				{
@@ -1276,6 +1286,18 @@ TNativePrimitives::ExecuteBatteryDriverNative( KUInt32 inInstruction )
 			break;
 			
 		case 0x07:
+			/*
+			 #import <IOKit/ps/IOPowerSources.h>
+			 #import <IOKit/ps/IOPSKeys.h>
+			 CFTypeRef               info;
+			 CFArrayRef              list;
+			 CFDictionaryRef         battery;			 
+			 info = IOPSCopyPowerSourcesInfo();
+			 list = IOPSCopyPowerSourcesList(info);	// ->CFRelease(info);
+			 if(CFArrayGetCount(list) && (battery = IOPSGetPowerSourceDescription(info, CFArrayGetValueAtIndex(list, 0)))) {
+				outputCapacity = [[(NSDictionary*)battery objectForKey:@kIOPSCurrentCapacityKey] doubleValue];
+			 }
+			 */
 			if (mLog)
 			{
 				mLog->LogLine( "PMainBatteryDriver::Status" );
@@ -2455,6 +2477,248 @@ TNativePrimitives::ExecuteHostCallNative( KUInt32 inInstruction )
 			mProcessor->SetRegister( 0, 0 );
 	}
 }
+
+// -------------------------------------------------------------------------- //
+//  * ExecuteNetworkManagerNative( KUInt32 )
+// -------------------------------------------------------------------------- //
+void
+TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
+{
+	switch (inInstruction & 0xFF)
+	{
+			// Debugging Helpers
+			
+		case 0x00:
+			// Just log some unknown function without causing a fuss
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::Unknown" );
+			}
+			break;
+		case 0x01: {
+			// Write some string to the log buffer (reg0 points to the string)
+			KUInt32 addr = mProcessor->GetRegister(0);
+			if (mLog && addr)
+			{
+				char buffer[1024], *dst = buffer+22;
+				strcpy(buffer, "TNetworkManager::Log: ");
+				for (;;) {
+					KUInt8 v;
+					mMemory->ReadB(addr++, v);
+					*dst++ = (char)v;
+					if (v==0) break;
+				}
+			}
+	        break; }
+			
+			// Protocol Class Interface
+			
+		case 0x02:
+			// a new driver is beeing created
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::New" );
+			}
+			break;
+		case 0x03:
+			// the driver is beeing deleted
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::Delete" );
+			}
+			break;
+			
+			// Task services
+			
+		case 0x04:
+			// Initialize the card driver
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::Init" );
+			}
+			break;
+		case 0x05:
+			// Enable the card (switch power on)
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::Enable" );
+			}
+			break;
+		case 0x06:
+			// Disable the card (power off to save battery)
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::Disable" );
+			}
+			break;
+		case 0x07:
+			// Handle any kind of interrupt by the hardware
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::InterruptHandler" );
+			}
+			break;
+			
+			// Client Services (from event handlers of TLanternDriverAPI)
+			
+		case 0x08:
+			// Newton transfers data to the world (calls SendPacket)
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::SendBuffer" );
+			}
+			break;
+		case 0x09:
+			// Newton transfers data to the world (calls SendPacket)
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::SendCBufferList" );
+			}
+			break;
+		case 0x0a: {
+			// Newton wants to send a raw packet into the world
+			KUInt32 addr = mProcessor->GetRegister(1);
+			KUInt32 size = mProcessor->GetRegister(2), i;
+			if (mLog)
+			{
+				mLog->FLogLine( "TNetworkManager::SendPacket(0x%08x, %d)", addr, size );
+			}
+			if (mNetworkManager && size) {
+				KUInt8 *data = (KUInt8*)malloc(size), v;
+				for (i=0; i<size; i++) {
+					mMemory->ReadB(addr+i, v);
+					data[i] = v;
+				}
+				mNetworkManager->SendPacket(data, size);
+				free(data);
+			}
+			break; }
+		case 0x0b: {
+			// NewtonOS wants the hardware MAC address of the card
+			KUInt32 dstBuffer = mProcessor->GetRegister(1);
+			KUInt32 dstBufferSize = mProcessor->GetRegister(2);
+			KUInt32 i, err = 0;
+			if (mLog)
+			{
+				mLog->FLogLine( "TNetworkManager::GetDeviceAddress(0x%08x, %d)", dstBuffer, dstBufferSize );
+			}
+			if (mNetworkManager && dstBufferSize) {
+				KUInt8 mac[6] = { 0 };
+				err = (KUInt32)mNetworkManager->GetDeviceAddress(mac, dstBufferSize);
+				for (i=0; i<dstBufferSize; i++)
+					mMemory->WriteB(dstBuffer+i, mac[i]);
+			}
+			mProcessor->SetRegister(0, err);			
+			break; }
+		case 0x0c:
+			// NewtonOS wants to add a multicast address (not implemented)
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::AddMulticastAddress" );
+			}
+			break;
+		case 0x0d:
+			// NewtonOS wants to remove a multicast address (not implemented)
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::DelMulticastAddress" );
+			}
+			break;
+		case 0x0e:
+			// NewtonOS wants to know if the links are OK  (not implemented)
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::GetLinkIntegrity" );
+			}
+			break;
+			
+			// Optional services
+			
+		case 0x0f:
+			// receive every packet on the network, even those that are not meant for us (not implemented)
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::SetPromiscuous" );
+			}
+			break;
+		case 0x10:
+			// return some number that gives the actual speed of the connection (not implemented)
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::GetThroughput" );
+			}
+			break;
+			
+			// Private Template Services
+			
+		case 0x11:
+			// a regular timer that can help us poll data and monitor integrity and throughput
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::TimerExpired" );
+			}
+			// A possible way to get the interrupt routine to receive data from the world
+			// if (gPackageWaiting) {
+			// 	 mMemory->GetPCMCIAController(0)->RaiseInterrupt(TPCMCIAController::kSocketCardIREQIntVector);
+			// }
+			break;
+			
+			// NE2000 Template driver specific
+			
+		case 0x12:
+			// Initialize card (not needed?!)
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::InitCard" );
+			}
+			break;
+		case 0x13:
+			// Set the card info (not needed?!)
+			if (mLog)
+			{
+				mLog->LogLine( "TNetworkManager::SetCardInfo" );
+			}
+			break;
+		case 0x14: {
+			// Return number of bytes in the first packet available in R0
+			KUInt32 size = 0;
+			if (mNetworkManager) {
+				size = mNetworkManager->DataAvailable();
+			}
+			mProcessor->SetRegister(0, size);
+			if (mLog)
+			{
+				mLog->FLogLine( "TNetworkManager::DataAvailable(Avail: %d)", size );
+			}
+			break; }
+		case 0x15: { 
+			// Copy the next available packet into the buffer pointed to by R1
+			KUInt32 dst = mProcessor->GetRegister(1);
+			KUInt32 i, n = mProcessor->GetRegister(2);
+			if (mLog)
+			{
+				mLog->FLogLine( "TNetworkManager::ReceiveData (buffer=0x%08x, size=%d", dst, n );
+			}
+			if (mNetworkManager && n) {
+				KUInt8 *buffer = (KUInt8*)malloc(n);
+				mNetworkManager->ReceiveData(buffer, n);
+				for (i=0; i<n; i++)
+					mMemory->WriteB(dst+i, buffer[i]);
+				free(buffer);
+			}
+			break; }
+			
+		default:
+			if (mLog)
+			{
+				mLog->FLogLine(
+							   "TNetworkManager: Unknown native primitive %.8X (pc=%.8X)",
+							   (unsigned int) inInstruction,
+							   (unsigned int) mProcessor->GetRegister(15) );
+			}					
+	}
+}
+
 
 // -------------------------------------------------------------------------- //
 //  * SaveState( TStream* ) const

@@ -37,6 +37,56 @@
 
 #include <Albert/sys/einstein.h>
 
+/*
+ This function tests MMU DataAbort hits in native code. If a memory access 
+ fails, DataAbort will be called. After handling the memory fault, JIT will
+ continue in the original ROM instead of returning to the native code.
+ */
+
+// Emulate the following instructions:
+//  002ddf28  ldr		r2,[r6]     | E5962000 - ....
+//  002ddf2c  str		r1,[r2],#4  | E4821004
+//  002ddf30  mov		r10, r5     | E1A0A005 - ....
+JITInstructionProto(test_data_abort) {
+	KUInt32 thePC, theAddress, theValue, offset;
+	TMemory* theMemoryInterface = ioCPU->GetMemory();
+
+	//---- 002ddf28  ldr		r2,[r6]
+	thePC = 0x002ddf28 + 8;
+	theAddress = ioCPU->mCurrentRegisters[TARMProcessor::kR6];
+	if (theMemoryInterface->Read( theAddress, theValue )) {
+		ioCPU->mCurrentRegisters[TARMProcessor::kR15] = thePC;
+		ioCPU->DataAbort();
+		MMUCALLNEXT_AFTERSETPC;
+	}
+	ioCPU->mCurrentRegisters[TARMProcessor::kR2] = theValue;
+
+	//---- 002ddf2c  str		r1,[r2],#4
+	thePC = 0x002ddf2c + 8;
+	offset = 4;
+	theAddress = ioCPU->mCurrentRegisters[TARMProcessor::kR2];
+	theValue = ioCPU->mCurrentRegisters[TARMProcessor::kR1];
+	if (theMemoryInterface->Write( theAddress, theValue )) {
+		ioCPU->mCurrentRegisters[TARMProcessor::kR15] = thePC;
+		ioCPU->DataAbort();
+		MMUCALLNEXT_AFTERSETPC;
+	}
+	ioCPU->mCurrentRegisters[TARMProcessor::kR2] = theAddress + offset;
+	
+	//---- 002ddf30  mov		r10, r5
+	theValue = ioCPU->mCurrentRegisters[TARMProcessor::kR5];
+	ioCPU->mCurrentRegisters[TARMProcessor::kR10] = theValue;
+	
+	//---- back into JIT compiler
+	thePC = 0x002ddf30 + 8;
+	CALLNEXTUNIT;	
+}
+
+//  002ddf2c  str r1,[r2],#4  | E4821004
+//TROMPatch p002ddf2c(0x002ddf2c, test_data_abort, "Test DataAbort scheme");
+
+
+
 // R15_SAFE
 
 // -------------------------------------------------------------------------- //

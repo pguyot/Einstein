@@ -32,6 +32,7 @@
 #include "Emulator/ROM/TROMImage.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
+#include "Emulator/Network/TUsermodeNetwork.h"
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
 #include "Emulator/Sound/TPortAudioSoundManager.h"
 #include "Emulator/Sound/TNullSoundManager.h"
@@ -41,7 +42,7 @@
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
-#include "Emulator/Log/TBufferLog.h"
+#include "Emulator/Log/TStdOutLog.h"
 
 #import "TCocoaUserDefaults.h"
 
@@ -104,11 +105,13 @@ static TCocoaAppController* gInstance = nil;
 		mRAMSize = 0x40;	// 4 MB.
 		mROMPath = NULL;
 		mREx0Path = NULL;
+		mNetworkManager = NULL;
 		mSoundManager = NULL;
 		mScreenManager = NULL;
 		mROMImage = NULL;
 		mEmulator = NULL;
 		mPlatformManager = NULL;
+		mLog = NULL;
 		
 		mToolbarPowerItem = NULL;
 		mPowerState = YES;
@@ -141,6 +144,10 @@ static TCocoaAppController* gInstance = nil;
 	{
 		delete mScreenManager;
 	}
+	if (mNetworkManager)
+	{
+		delete mNetworkManager;
+	}
 	if (mSoundManager)
 	{
 		delete mSoundManager;
@@ -148,6 +155,10 @@ static TCocoaAppController* gInstance = nil;
 	if (mROMImage)
 	{
 		delete mROMImage;
+	}
+	if (mLog)
+	{
+		delete mLog;
 	}
 	
 	[super dealloc];
@@ -258,17 +269,25 @@ static TCocoaAppController* gInstance = nil;
 							machinestr(theMachine) );
 	}
 	
+	// Create a log if possible
+#ifdef _DEBUG
+	mLog = new TStdOutLog(); 
+#endif
+	
+	// Create the network manager.
+	mNetworkManager = new TUsermodeNetwork(mLog);
+	
 	// Create the sound manager.
 	int indexAudioDriver = [defaults integerForKey: kAudioDriverKey];
 	if (indexAudioDriver == kCoreAudioDriverTag)
 	{
-		mSoundManager = new TCoreAudioSoundManager();
+		mSoundManager = new TCoreAudioSoundManager(mLog);
 #if OPTION_PORT_AUDIO          
         } else if (indexAudioDriver == kPortAudioDriverTag) {
-		mSoundManager = new TPortAudioSoundManager();
+		mSoundManager = new TPortAudioSoundManager(mLog);
 #endif
 	} else {
-		mSoundManager = new TNullSoundManager();
+		mSoundManager = new TNullSoundManager(mLog);
 	}
 
 	// Create the screen manager.
@@ -300,7 +319,7 @@ static TCocoaAppController* gInstance = nil;
 		mScreenManager = new TCocoaScreenManager(
 									mProxy,
 									self,
-									nil,
+									mLog,
 									theWidth,
 									theHeight,
 									fullScreen,
@@ -329,7 +348,7 @@ static TCocoaAppController* gInstance = nil;
 			theHeight = [defaults integerForKey: kScreenHeightKey];
 		}
 		mScreenManager = new TX11ScreenManager(
-									nil,
+									mLog,
 									theWidth,
 									theHeight,
 									fullScreen,
@@ -342,8 +361,8 @@ static TCocoaAppController* gInstance = nil;
 	const char* theFlashPath =
 		[[defaults stringForKey: kInternalFlashPathKey] UTF8String];
 	mEmulator = new TEmulator(
-				nil, mROMImage, theFlashPath,
-				mSoundManager, mScreenManager, ramSize << 16 );
+				mLog, mROMImage, theFlashPath,
+				mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
 	mPlatformManager = mEmulator->GetPlatformManager();
 	if (indexScreenDriver == kCocoaScreenDriverTag)
 	{
@@ -357,6 +376,16 @@ static TCocoaAppController* gInstance = nil;
 	// Start the thread.
 	[NSThread detachNewThreadSelector: @selector(runEmulator) toTarget: self withObject: NULL];
 }
+
+
+// -------------------------------------------------------------------------- //
+//  * (IBAction)insertNE2000Card:(id)
+// -------------------------------------------------------------------------- //
+- (IBAction)insertNE2000Card:(id)sender
+{
+  mPlatformManager->SendNE2000CardEvent();
+}
+
 
 // -------------------------------------------------------------------------- //
 //  * (IBAction)powerButton:(id)

@@ -74,10 +74,15 @@ TSymbolList::LoadSymbols( void )
 	mSymbolCount = 0;
 	mSymbolOffsets = (SSymbolStruct*) ::malloc( sizeof(SSymbolStruct) * theSymbolMax );
 	
-	while ( ::fscanf( mFile, "%x", (int*) &mSymbolOffsets[mSymbolCount].fSymbolValue ) )
+	static const char *pattern = "%x";
+	fgetc(mFile);
+	if (fgetc(mFile)=='x') pattern = "0x%x";
+	fseek(mFile, 0, SEEK_SET);
+  
+	while ( ::fscanf( mFile, pattern, (int*) &mSymbolOffsets[mSymbolCount].fSymbolValue ) )
 	{
 		int theChar = fgetc( mFile );
-		if (theChar == '\t')
+		if (theChar == '\t' || theChar == ' ')
 		{
 			
 			(void) ::fgetpos( mFile, &mSymbolOffsets[mSymbolCount].fFileCursor );

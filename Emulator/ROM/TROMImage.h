@@ -235,6 +235,9 @@ public:
   /// Create and add a new patch
   TROMPatch(KUInt32 address, KUInt32 value, const char *name);
   
+  /// Create and add a call to a JIT instruction
+  TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name);
+  
   /// Create and add a call to an Albert function or static method
   TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyFunctionPtr function);
   
