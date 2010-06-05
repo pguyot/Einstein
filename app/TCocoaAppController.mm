@@ -33,6 +33,7 @@
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/Network/TUsermodeNetwork.h"
+#include "Emulator/Network/TTapNetwork.h"
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
 #include "Emulator/Sound/TPortAudioSoundManager.h"
 #include "Emulator/Sound/TNullSoundManager.h"
@@ -275,7 +276,8 @@ static TCocoaAppController* gInstance = nil;
 #endif
 	
 	// Create the network manager.
-	mNetworkManager = new TUsermodeNetwork(mLog);
+//	mNetworkManager = new TUsermodeNetwork(mLog);
+	mNetworkManager = new TTapNetwork(mLog);
 	
 	// Create the sound manager.
 	int indexAudioDriver = [defaults integerForKey: kAudioDriverKey];
