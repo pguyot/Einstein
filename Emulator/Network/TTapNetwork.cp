@@ -43,6 +43,10 @@ TTapNetwork::TTapNetwork(TLog* inLog) :
         }
     } else {
         fcntl(mTapFileDescriptor, F_SETFL, O_NONBLOCK);
+        fd_set readSet;
+        FD_ZERO(&readSet);
+        FD_SET(mTapFileDescriptor, &readSet);
+        AsyncWaitForReadyToRead(mTapFileDescriptor + 1, &readSet);
     }
     mBufferSize = 0;
 }
@@ -89,16 +93,33 @@ KUInt32 TTapNetwork::DataAvailable()
 
 int TTapNetwork::ReceiveData(KUInt8 *data, KUInt32 size)
 {
+    int result;
 	if (mBufferSize == size) {
 		memcpy(data, mBuffer, size);
 		mBufferSize = 0;
-		return 0;
+        result = 0;
 	} else {
 	    if (mLog) {
     		mLog->FLogLine("Tried to read %ui bytes, while %ui are available", size, mBufferSize);
 	    }
-		return -1;
+		result = -1;
 	}
+    // Asynchronously select for next packet.
+    fd_set readSet;
+    FD_ZERO(&readSet);
+    FD_SET(mTapFileDescriptor, &readSet);
+    AsyncWaitForReadyToRead(mTapFileDescriptor + 1, &readSet);
+    
+    return result;
+}
+
+// -------------------------------------------------------------------------- //
+//  * SetReadFDSet(fd_set* ioFDSet)
+// -------------------------------------------------------------------------- //
+int
+TTapNetwork::SetReadFDSet(fd_set* ioFDSet) {
+    FD_SET(mTapFileDescriptor, ioFDSet);
+    return mTapFileDescriptor + 1;
 }
 
 // ================================================================== //

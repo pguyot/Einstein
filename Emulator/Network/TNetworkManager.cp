@@ -22,9 +22,32 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
+#include <K/Threads/TThread.h>
+#include <K/Threads/TCondVar.h>
+#include <K/Threads/TMutex.h>
 #include "TNetworkManager.h"
 #include "Emulator/Log/TLog.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/PCMCIA/TPCMCIAController.h"
+#include <sys/select.h>
 
+// -------------------------------------------------------------------------- //
+//  * TNetworkManager(TLog* inLog)
+// -------------------------------------------------------------------------- //
+TNetworkManager::TNetworkManager(TLog* inLog) :
+	mLog( inLog ),
+	mInterruptManager( 0L ),
+	mMemory( 0L ),
+	mThread( NULL ),
+	mSelectNFDS( 0 )
+{
+	mSelectMutex = new TMutex();
+	mSelectCondVar = new TCondVar();
+	mSelectMutex->Lock();
+	mThread = new TThread(this);
+	mSelectCondVar->Wait(mSelectMutex);
+	mSelectMutex->Unlock();
+}
 
 void TNetworkManager::LogBuffer(KUInt8 *data, KUInt32 size)
 {
@@ -192,7 +215,8 @@ KUInt16 TNetworkManager::GetTCPChecksum(KUInt8 *d, KUInt32 n, bool set) {
 	return s;	
 }
 
-KUInt16 TNetworkManager::GetIPv4Checksum(KUInt8 *d, KUInt32 n, bool set) {
+KUInt16
+TNetworkManager::GetIPv4Checksum(KUInt8 *d, KUInt32 n, bool set) {
 	KUInt32 s = 0;
 	KUInt16 v, i;
 	if (set) {
@@ -211,6 +235,46 @@ KUInt16 TNetworkManager::GetIPv4Checksum(KUInt8 *d, KUInt32 n, bool set) {
 		d[25] = s;
 	}
 	return s;
+}
+
+// -------------------------------------------------------------------------- //
+//  * AsyncWaitForReadyToRead(int, const fd_set*)
+// -------------------------------------------------------------------------- //
+void
+TNetworkManager::AsyncWaitForReadyToRead(int nfds, const fd_set* inFDSet) {
+	mSelectMutex->Lock();
+	mSelectNFDS = nfds;
+	mSelectSet = *inFDSet;
+	mSelectCondVar->Signal();
+	mSelectMutex->Unlock();
+}
+
+// -------------------------------------------------------------------------- //
+//  * Run( void )
+// -------------------------------------------------------------------------- //
+void
+TNetworkManager::Run() {
+	mSelectMutex->Lock();
+	mSelectCondVar->Signal();	// Synchronization with constructor.
+	while (true) {
+		mSelectCondVar->Wait(mSelectMutex);
+		
+		int nbReady = select(mSelectNFDS, &mSelectSet, NULL, NULL, NULL);
+		if (nbReady > 0) {
+			IsReadyToRead(&mSelectSet);
+		} else if (nbReady < 0) {
+			break;
+		}
+	}
+	mSelectMutex->Unlock();
+}
+
+// -------------------------------------------------------------------------- //
+//  * IsReadyToRead(fd_set* inFDSet)
+// -------------------------------------------------------------------------- //
+void
+TNetworkManager::IsReadyToRead(fd_set* inFDSet) {
+	mMemory->GetPCMCIAController(0)->RaiseInterrupt(TPCMCIAController::kSocketCardIREQIntVector);
 }
 
 // ================================================================== //
