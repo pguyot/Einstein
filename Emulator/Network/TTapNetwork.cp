@@ -32,10 +32,13 @@
 #include <net/if.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include "Emulator/TMemory.h"
+#include "Emulator/PCMCIA/TPCMCIAController.h"
 
 TTapNetwork::TTapNetwork(TLog* inLog) :
 	TNetworkManager( inLog )
 {
+    mBufferSize = 0;
     mTapFileDescriptor = open("/dev/tap0", O_RDWR);
     if (mTapFileDescriptor < 0) {
         if (inLog) {
@@ -48,7 +51,6 @@ TTapNetwork::TTapNetwork(TLog* inLog) :
         FD_SET(mTapFileDescriptor, &readSet);
         AsyncWaitForReadyToRead(mTapFileDescriptor + 1, &readSet);
     }
-    mBufferSize = 0;
 }
 
 
@@ -65,6 +67,13 @@ int TTapNetwork::SendPacket(KUInt8 *data, KUInt32 size)
     int nbWritten = write(mTapFileDescriptor, data, size);
     if (nbWritten != size && mLog) {
 		mLog->FLogLine("Sending packet failed. (%i)", errno);
+    }
+    
+    // Raise an interrupt if it sends a packet
+    // (actually, we should call AsyncWaitForReadyToRead only when the card
+    // is inserted).
+    if (mBufferSize > 0) {
+        mMemory->GetPCMCIAController(0)->RaiseInterrupt();
     }
 
 	return 0;
