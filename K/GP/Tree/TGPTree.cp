@@ -90,7 +90,7 @@ void
 TGPTree::ToStreamAsDot( ostream& outStream )
 {
 	char theTreeName[10];
-	(void) ::sprintf( theTreeName, "t%.8X", (unsigned int) this );
+	(void) ::sprintf( theTreeName, "t%p", this );
 	(void) (outStream << "digraph " << theTreeName << " {" << endl);
 	mRoot.ToStreamAsDot( outStream );
 	(void) (outStream << "}" << endl);
