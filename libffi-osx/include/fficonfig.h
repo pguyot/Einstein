@@ -18,6 +18,13 @@
 #   define SIZEOF_DOUBLE 8
 #   define HAVE_LONG_DOUBLE 1
 #   define SIZEOF_LONG_DOUBLE 16
+#elif defined(__x86_64__)
+#   define BYTEORDER 1234
+#   undef HOST_WORDS_BIG_ENDIAN
+#   undef WORDS_BIGENDIAN
+#   define SIZEOF_DOUBLE 8
+#   define HAVE_LONG_DOUBLE 1
+#   define SIZEOF_LONG_DOUBLE 16
 #elif defined(__ppc__)
 #   define BYTEORDER 4321
 #   define HOST_WORDS_BIG_ENDIAN 1

@@ -58,7 +58,7 @@ extern "C" {
 /* Specify which architecture libffi is configured for. */
 #if TARGET_OS_OPENSTEP
 
-#ifdef __i386__
+#if (defined(__i386__) || defined(__x86_64__))
 # define X86_DARWIN
 #elif defined(__ppc__)
 # define POWERPC_DARWIN
@@ -74,7 +74,7 @@ extern "C" {
 
 /* ---- System configuration information --------------------------------- */
 
-#ifdef __i386__
+#if (defined(__i386__) || defined(__x86_64__))
 #include "../src/x86/ffitarget.h"
 #elif defined(__ppc__)
 #include "../src/powerpc/ffitarget.h"

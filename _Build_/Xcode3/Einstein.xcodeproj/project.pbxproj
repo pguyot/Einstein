@@ -161,6 +161,8 @@
 		C99E3750111C1F0E002165EC /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E374F111C1F0E002165EC /* Carbon.framework */; };
 		C99E377B111C2289002165EC /* Einstein.rex in Resources */ = {isa = PBXBuildFile; fileRef = C99E377A111C2289002165EC /* Einstein.rex */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cp */; };
+		DA0D96DE11BAD15300835522 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = DA0D96DD11BAD15300835522 /* darwin64.S */; };
+		DA0D96EC11BAD27000835522 /* x86-ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = DA0D96EB11BAD27000835522 /* x86-ffi64.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -536,6 +538,8 @@
 		C99E377A111C2289002165EC /* Einstein.rex */ = {isa = PBXFileReference; lastKnownFileType = file; name = Einstein.rex; path = ../../_Data_/Einstein.rex; sourceTree = SOURCE_ROOT; };
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTapNetwork.cp; path = Network/TTapNetwork.cp; sourceTree = "<group>"; };
 		DA0D943F11B9A12D00835522 /* TTapNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTapNetwork.h; path = Network/TTapNetwork.h; sourceTree = "<group>"; };
+		DA0D96DD11BAD15300835522 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
+		DA0D96EB11BAD27000835522 /* x86-ffi64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "x86-ffi64.c"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1365,7 +1369,9 @@
 			isa = PBXGroup;
 			children = (
 				C99E3563111C111D002165EC /* darwin.S */,
+				DA0D96DD11BAD15300835522 /* darwin64.S */,
 				C99E3564111C111D002165EC /* ffi_darwin.c */,
+				DA0D96EB11BAD27000835522 /* x86-ffi64.c */,
 				C99E3565111C111D002165EC /* ffitarget.h */,
 			);
 			path = x86;
@@ -1573,6 +1579,8 @@
 				C962429711B69A9D00EE66F3 /* TUsermodeNetwork.cp in Sources */,
 				C96242A011B6A20A00EE66F3 /* TNetworkManager.cp in Sources */,
 				DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */,
+				DA0D96DE11BAD15300835522 /* darwin64.S in Sources */,
+				DA0D96EC11BAD27000835522 /* x86-ffi64.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1634,7 +1642,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_CPU = G4;
@@ -1656,14 +1663,13 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PREBINDING = YES;
 				PRODUCT_NAME = Einstein;
 				USER_HEADER_SEARCH_PATHS = "";
-				VALID_ARCHS = i386;
 			};
 			name = Release;
 		};
