@@ -134,7 +134,7 @@ TJITGenericPage::Translate(
 	{
 		// We have a real test.
 		// Save some room for it, but put a null for now.
-		PushUnit(ioUnitCrsr, (KUInt32) 0L);
+		PushUnit(ioUnitCrsr, (KUIntPtr) 0L);
 	}
 	
 	if (theTestKind != kTestNV)
