@@ -887,9 +887,9 @@ TInterruptManager::FireTimersAndFindNext(
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-					hasNextTimer = true;
 				} else {
 					nextTicksValue = ticksValue;
+					hasNextTimer = true;
 				}
 			}
 		}
@@ -904,9 +904,9 @@ TInterruptManager::FireTimersAndFindNext(
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-					hasNextTimer = true;
 				} else {
 					nextTicksValue = ticksValue;
+					hasNextTimer = true;
 				}
 			}
 		}
@@ -921,9 +921,9 @@ TInterruptManager::FireTimersAndFindNext(
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-					hasNextTimer = true;
 				} else {
 					nextTicksValue = ticksValue;
+					hasNextTimer = true;
 				}
 			}
 		}
@@ -952,9 +952,9 @@ TInterruptManager::FireTimersAndFindNext(
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-					hasNextTimer = true;
 				} else {
 					nextTicksValue = ticksValue;
+					hasNextTimer = true;
 				}
 			}
 		}
@@ -969,9 +969,9 @@ TInterruptManager::FireTimersAndFindNext(
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-					hasNextTimer = true;
 				} else {
 					nextTicksValue = ticksValue;
+					hasNextTimer = true;
 				}
 			}
 		}
@@ -986,9 +986,9 @@ TInterruptManager::FireTimersAndFindNext(
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-					hasNextTimer = true;
 				} else {
 					nextTicksValue = ticksValue;
+					hasNextTimer = true;
 				}
 			}
 		}
@@ -1015,9 +1015,9 @@ TInterruptManager::FireTimersAndFindNext(
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-					hasNextTimer = true;
 				} else {
 					nextTicksValue = ticksValue;
+					hasNextTimer = true;
 				}
 			}
 		}
@@ -1031,9 +1031,9 @@ TInterruptManager::FireTimersAndFindNext(
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-					hasNextTimer = true;
 				} else {
 					nextTicksValue = ticksValue;
+					hasNextTimer = true;
 				}
 			}
 		}
@@ -1047,9 +1047,9 @@ TInterruptManager::FireTimersAndFindNext(
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-					hasNextTimer = true;
 				} else {
 					nextTicksValue = ticksValue;
+					hasNextTimer = true;
 				}
 			}
 		}
