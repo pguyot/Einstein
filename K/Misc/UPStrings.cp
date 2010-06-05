@@ -73,7 +73,7 @@ UPStrings::P2CStrCopy(
 	}
 	
 	// Copie des caractères.		
-	::BlockMove( &inSourceString[1], outDestString, theLength );
+	memmove(outDestString, &inSourceString[1], theLength );
 	
 	// Ajout du terminateur.
 	outDestString[theLength] = '\0';
@@ -126,9 +126,7 @@ UPStrings::P2CStr( Str255 ioString )
 	// Taille de la chaîne
 	register long theLength = ioString[0];
 	
-	// Déplacement des caractères.
-	// BlockMove sait gérer les zones de mémoire qui se recouvrent.
-	::BlockMove( &ioString[1], ioString, theLength );
+	memmove(ioString, &ioString[1], theLength );
 	
 	// Ajout du terminateur.
 	ioString[theLength] = '\0';

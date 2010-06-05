@@ -276,7 +276,7 @@ public:
 						TGPDataRef* ioResult,
 						std::vector<TGPDataRef>& ioStorage,
 						TGPEvaluationContext* inContext,
-						KUInt32* ioCookie );
+						KUIntPtr* ioCookie );
 	
 	///
 	/// Conversion sous forme de texte (au format LISP).

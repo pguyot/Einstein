@@ -154,7 +154,7 @@ TMappedFile::TMappedFile(
 #endif // _MSC_VER
 		mMapped = true;
 	
-		if (((int) mBuffer) == -1)
+		if (((KUIntPtr) mBuffer) == -1)
 		{
 			mMapped = false;
 

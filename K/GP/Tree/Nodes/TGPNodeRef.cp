@@ -525,7 +525,7 @@ TGPNodeRef::ToStreamAsDot( ostream& outStream ) const
 {
 	// On crée le nom.
 	char theName[10];
-	(void) ::sprintf( theName, "n%.8X", (unsigned int) this );
+	(void) ::sprintf( theName, "n%p", this );
 	
 	(void) (outStream << theName << "[label=\"" << GetNode()->GetLispName() << "\"];" << endl);
 
@@ -538,7 +538,7 @@ TGPNodeRef::ToStreamAsDot( ostream& outStream ) const
 		char theSubnodeName[10];
 		(void) ::sprintf(
 					theSubnodeName,
-					"n%.8X", (unsigned int) (TGPNodeRef*) &theNodeRef );
+					"n%p", (TGPNodeRef*) &theNodeRef );
 		
 		if (theArity > 1)
 		{
