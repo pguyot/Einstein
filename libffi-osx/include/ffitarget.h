@@ -4,7 +4,7 @@
  * sets up the right include flags. We want to do neither because that would
  * make building fat binaries harder.
  */
-#if defined(__i386__)
+#if (defined(__i386__) || defined(__x86_64__))
 
 #include "../src/x86/ffitarget.h"
 
