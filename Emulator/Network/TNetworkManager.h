@@ -29,6 +29,9 @@
 class TLog;
 class TInterruptManager;
 class TMemory;
+class TThread;
+class TMutex;
+class TCondVar;
 
 ///
 /// Emulation of a PCMCIA network card on PCMCIA driver level (see Lantern)
@@ -38,12 +41,7 @@ class TMemory;
 class TNetworkManager
 {
 public:
-	TNetworkManager(TLog* inLog) :
-		mLog( inLog ),
-		mInterruptManager( 0L ),
-		mMemory( 0L )
-	{
-	}
+	TNetworkManager(TLog* inLog);
 	
 	///
 	/// Destructor.
@@ -131,10 +129,35 @@ public:
 	KUInt16 GetUDPChecksum(KUInt8 *data, KUInt32 size, bool set=0);
 	void SetUDPChecksum(KUInt8 *data, KUInt32 size) { GetUDPChecksum(data, size, true); }
 	
+	///
+	/// Asynchronously wait for sockets to be readable and call IsReadyToRead in the async thread.
+	/// This function returns immediatly. The fd_set is copied.
+	///
+	void				AsyncWaitForReadyToRead(int nfds, const fd_set* inFDSet);
+	
+	///
+	/// Thread loop entry point.
+	/// Select on fds.
+	///
+	void				Run( void );
+	
 protected:
+	///
+	/// Method called (from the thread) when a file descriptor of the set is read for reading.
+	/// Default implementation raises an interrupt on PCMCIA card 0 (FIXME: provide the socket number somehow).
+	///
+	virtual void		IsReadyToRead(fd_set* inFDSet);
+	
 	TLog*				mLog;				///< Reference to the log.
 	TInterruptManager*	mInterruptManager;	///< Reference to the interrupt mgr.
 	TMemory*			mMemory;			///< Interface to the memory.	
+
+private:
+    TThread*			mThread;
+	TMutex*				mSelectMutex;
+	TCondVar*			mSelectCondVar;
+	int					mSelectNFDS;
+	fd_set				mSelectSet;
 };
 
 #endif

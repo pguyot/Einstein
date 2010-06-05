@@ -338,6 +338,15 @@ void TUsermodeNetwork::DropPacket()
 	}
 }
 
+// -------------------------------------------------------------------------- //
+//  * SetReadFDSet(fd_set* ioFDSet)
+// -------------------------------------------------------------------------- //
+int
+TUsermodeNetwork::SetReadFDSet(fd_set* ioFDSet) {
+	// We don't have fds yet (those would be connected sockets once the Newton
+	// can establish connections with this interface).
+    return 0;
+}
 
 // ================================================================== //
 // We are experiencing system trouble -- do not adjust your terminal. //
