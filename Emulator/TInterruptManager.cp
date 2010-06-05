@@ -305,14 +305,6 @@ TInterruptManager::GetRealTimeClock( void ) const
 {
 	time_t now = time(NULL);
 
-	// EXPIRATION
-//	if (now > 0x44822640)
-//	{
-//		::exit(0);
-//	} else if (now > 0x44821620) {
-//		::abort();
-//	}
-
 	return now - mCalendarDelta;
 }
 
@@ -328,7 +320,9 @@ TInterruptManager::SetRealTimeClock( KUInt32 inValue )
 
 	// newton = host - delta
 	// delta = host - newton
+//  fprintf(stderr, "mCalendarDelta was %i\n", (int) mCalendarDelta);
 	mCalendarDelta = time(NULL) - inValue;
+//  fprintf(stderr, "mCalendarDelta now is %i\n", (int) mCalendarDelta);
 	
 	// Signal the condition variable to wake the timer thread.
 	mTimerCondVar->Signal();
@@ -771,14 +765,6 @@ TInterruptManager::GetTimeInTicks( void )
 	// Get the time now.
 	struct timeval now;
 	(void) gettimeofday( &now, NULL );
-
-	// PREVIEW
-//	if (now.tv_sec > 0x44823670)
-//	{
-//		::exit(0);
-//	} else if (now.tv_sec > 0x44823620) {
-//		::abort();
-//	}
 	
 //	kern_return_t ret;
 //	clock_serv_t aClock;
