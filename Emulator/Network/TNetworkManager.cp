@@ -85,18 +85,18 @@ void TNetworkManager::LogARPPacket(KUInt8 *data, KUInt32 size) {
 void TNetworkManager::LogIPv4Packet(KUInt8 *d, KUInt32 n) {
 	if (mLog) {
 		mLog->FLogLine("  > IPv4 Internet protocol"); 
-		mLog->FLogLine("    Version: %d (4)", d[14]>>4);
-		mLog->FLogLine("    Header Length: %d (5)", d[14]&0x0f);
-		mLog->FLogLine("    Type Of Service: 0x%02x", d[15]);
-		mLog->FLogLine("    Total Length: %d (%d)", (d[16]<<8)|d[17], n-14); // minus 14 bytes for Ethernet header
-		mLog->FLogLine("    ID: %d", (d[18]<<8)|d[19]);
-		mLog->FLogLine("    Flags: %d", d[20]>>5);
-		mLog->FLogLine("    Fragment: %d", ((d[20]<<8)|d[21])&0x1fff);
-		mLog->FLogLine("    Time To Live: %d", d[22]);
-		mLog->FLogLine("    Protocol: %d", d[23]); // TCP, UDP, etc.
-		mLog->FLogLine("    Header Checksum: 0x%04x (0x%04x==0)", (d[24]<<8)|d[25], GetIPv4Checksum(d, n));
-		mLog->FLogLine("    Src IP: %d.%d.%d.%d", d[26], d[27], d[28], d[29]);
-		mLog->FLogLine("    Dst IP: %d.%d.%d.%d", d[30], d[31], d[32], d[33]);
+		mLog->FLogLine("    [14] Version: %d (4)", d[14]>>4);
+		mLog->FLogLine("    [14] Header Length: %d (5)", d[14]&0x0f);
+		mLog->FLogLine("    [15] Type Of Service: 0x%02x", d[15]);
+		mLog->FLogLine("    [16] Total Length: %d (%d)", (d[16]<<8)|d[17], n-14); // minus 14 bytes for Ethernet header
+		mLog->FLogLine("    [18] ID: %d", (d[18]<<8)|d[19]);
+		mLog->FLogLine("    [20] Flags: %d", d[20]>>5);
+		mLog->FLogLine("    [20] Fragment: %d", ((d[20]<<8)|d[21])&0x1fff);
+		mLog->FLogLine("    [22] Time To Live: %d", d[22]);
+		mLog->FLogLine("    [23] Protocol: %d", d[23]); // TCP, UDP, etc.
+		mLog->FLogLine("    [24] Header Checksum: 0x%04x (0x%04x==0)", (d[24]<<8)|d[25], GetIPv4Checksum(d, n));
+		mLog->FLogLine("    [26] Src IP: %d.%d.%d.%d", d[26], d[27], d[28], d[29]);
+		mLog->FLogLine("    [30] Dst IP: %d.%d.%d.%d", d[30], d[31], d[32], d[33]);
 		
 		switch (d[23]) {
 			case  6: LogTCPPacket(d, n); break;
@@ -110,12 +110,12 @@ void TNetworkManager::LogIPv4Packet(KUInt8 *d, KUInt32 n) {
 void TNetworkManager::LogTCPPacket(KUInt8 *d, KUInt32 n) {
 	if (mLog) {
 		mLog->FLogLine("    > Protocol is TCP");
-		mLog->FLogLine("      Src Port: %d", (d[34]<<8)|d[35]);
-		mLog->FLogLine("      Dst Port: %d", (d[36]<<8)|d[37]);
-		mLog->FLogLine("      Seq#: %d", (d[38]<<24)|(d[39]<<16)|(d[40]<<8)|d[41]);
-		mLog->FLogLine("      Ack#: %d", (d[42]<<24)|(d[43]<<16)|(d[44]<<8)|d[45]);
-		mLog->FLogLine("      Header Length: %d (5)", d[46]&0x0f);
-		mLog->FLogLine("      Flags: %s %s %s %s %s %s", 
+		mLog->FLogLine("      [34] Src Port: %d", (d[34]<<8)|d[35]);
+		mLog->FLogLine("      [36] Dst Port: %d", (d[36]<<8)|d[37]);
+		mLog->FLogLine("      [38] Seq#: %d", (d[38]<<24)|(d[39]<<16)|(d[40]<<8)|d[41]);
+		mLog->FLogLine("      [42] Ack#: %d", (d[42]<<24)|(d[43]<<16)|(d[44]<<8)|d[45]);
+		mLog->FLogLine("      [46] Header Length: %d (5)", d[46]&0x0f);
+		mLog->FLogLine("      [47] Flags: %s %s %s %s %s %s", 
 					   d[47]&0x20?"URG":"urg",
 					   d[47]&0x10?"ACK":"ack",
 					   d[47]&0x08?"PSH":"psh",
@@ -123,31 +123,31 @@ void TNetworkManager::LogTCPPacket(KUInt8 *d, KUInt32 n) {
 					   d[47]&0x02?"SYN":"syn",
 					   d[47]&0x01?"FIN":"fin"
 					   );
-		mLog->FLogLine("      Window:    0x%04x", (d[48]<<8)|d[49]);
-		mLog->FLogLine("      Checksum:  0x%04x (0x%04x==0?)", (d[50]<<8)|d[51], GetTCPChecksum(d, n));
-		mLog->FLogLine("      UrgentPtr: 0x%04x", (d[52]<<8)|d[53]);
-		mLog->FLogLine("      ... %d bytes of payload\n", n-54);
+		mLog->FLogLine("      [48] Window:    0x%04x", (d[48]<<8)|d[49]);
+		mLog->FLogLine("      [50] Checksum:  0x%04x (0x%04x==0?)", (d[50]<<8)|d[51], GetTCPChecksum(d, n));
+		mLog->FLogLine("      [52] UrgentPtr: 0x%04x", (d[52]<<8)|d[53]);
+		mLog->FLogLine("      [54] ... %d bytes of payload\n", n-54);
 	}
 }
 
 void TNetworkManager::LogUDPPacket(KUInt8 *d, KUInt32 n) {
 	if (mLog) {
 		mLog->FLogLine("    > Protocol is UDP");
-		mLog->FLogLine("      Src Port: %d", (d[34]<<8)|d[35]);
-		mLog->FLogLine("      Dst Port: %d", (d[36]<<8)|d[37]);
-		mLog->FLogLine("      Length: %d", (d[38]<<8)|d[39]);
-		mLog->FLogLine("      Checksum:  0x%04x (0x%04x==0?)", (d[40]<<8)|d[41], GetUDPChecksum(d, n));
-		mLog->FLogLine("      ... %d bytes of payload\n", n-42);
+		mLog->FLogLine("      [34] Src Port: %d", (d[34]<<8)|d[35]);
+		mLog->FLogLine("      [36] Dst Port: %d", (d[36]<<8)|d[37]);
+		mLog->FLogLine("      [38] Length: %d", (d[38]<<8)|d[39]);
+		mLog->FLogLine("      [40] Checksum:  0x%04x (0x%04x==0?)", (d[40]<<8)|d[41], GetUDPChecksum(d, n));
+		mLog->FLogLine("      [42] ... %d bytes of payload\n", n-42);
 	}
 }
 
 void TNetworkManager::LogPacket(KUInt8 *d, KUInt32 n) {
 	if (mLog) {
 		mLog->FLogLine("TNetworkManager: Log Packet of %d bytes:", n);
-		mLog->FLogLine("  Dst MAC: %02x:%02x:%02x:%02x:%02x:%02x", d[0], d[1], d[2], d[3], d[4], d[5]);
-		mLog->FLogLine("  Src MAC: %02x:%02x:%02x:%02x:%02x:%02x", d[6], d[7], d[8], d[9], d[10], d[11]);
+		mLog->FLogLine("  [0] Dst MAC: %02x:%02x:%02x:%02x:%02x:%02x", d[0], d[1], d[2], d[3], d[4], d[5]);
+		mLog->FLogLine("  [6] Src MAC: %02x:%02x:%02x:%02x:%02x:%02x", d[6], d[7], d[8], d[9], d[10], d[11]);
 		KUInt32 t = (d[12]<<8) | d[13];
-		mLog->FLogLine("  Type:    0x%04x", t);
+		mLog->FLogLine("  [12] Type:   0x%04x", t);
 		switch (t) {
 			case 0x0800: LogIPv4Packet(d, n); break;
 			case 0x0806: LogARPPacket(d, n); break;
