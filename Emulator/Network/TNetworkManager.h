@@ -160,8 +160,19 @@ private:
 	fd_set				mSelectSet;
 };
 
+class TNullNetwork : public TNetworkManager
+{
+public:
+	TNullNetwork(TLog* inLog) : TNetworkManager(inLog) { }
+	virtual ~TNullNetwork() { }
+	virtual int SendPacket(KUInt8 *data, KUInt32 size) { return -1; }
+	virtual int GetDeviceAddress(KUInt8 *data, KUInt32 size) { return -1; }
+	virtual KUInt32 DataAvailable() { return 0; }
+	virtual int ReceiveData(KUInt8 *data, KUInt32 size) { return -1; }
+};
+
 #endif
-		// _TUSERMODENETWORK_H
+		// _TNETWORKMANAGER_H
 
 // ============================================ //
 // The first time, it's a KLUDGE!               //

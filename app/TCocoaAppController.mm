@@ -88,6 +88,8 @@ static TCocoaAppController* gInstance = nil;
 			kAudioDriverKey,
 			[NSNumber numberWithInt: kCocoaScreenDriverTag],
 			kScreenDriverKey,
+			[NSNumber numberWithInt: kUsermodeNetworkDriverTag],
+			kNetworkDriverKey,
 			[NSNumber numberWithBool:NO],
 			kDontShowAtStartupKey,
 			NULL
@@ -276,8 +278,15 @@ static TCocoaAppController* gInstance = nil;
 #endif
 	
 	// Create the network manager.
-//	mNetworkManager = new TUsermodeNetwork(mLog);
-	mNetworkManager = new TTapNetwork(mLog);
+	int indexNetworkDriver = [defaults integerForKey: kNetworkDriverKey];
+	if (indexNetworkDriver == kUsermodeNetworkDriverTag)
+	{
+		mNetworkManager = new TUsermodeNetwork(mLog);
+	} else if (indexNetworkDriver == kTapNetworkDriverTag) {
+		mNetworkManager = new TTapNetwork(mLog);
+	} else {
+		mNetworkManager = new TNullNetwork(mLog);
+	}
 	
 	// Create the sound manager.
 	int indexAudioDriver = [defaults integerForKey: kAudioDriverKey];
