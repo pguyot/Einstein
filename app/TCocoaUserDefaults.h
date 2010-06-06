@@ -24,29 +24,34 @@
 #ifndef _TCOCOAUSERDEFAULTS_H
 #define _TCOCOAUSERDEFAULTS_H
 
-#define kROMImagePathKey		@"ROMImagePath"
-#define kROMREx0PathKey			@"ROMREx0Path"
-#define kInternalFlashPathKey	@"InternalFlashPath"
-#define kScreenWidthKey			@"ScreenWidth"
-#define kScreenHeightKey		@"ScreenHeight"
-#define kFullScreenKey			@"FullScreen"
-#define kRAMSizeKey				@"RAMSize"
+#define kROMImagePathKey			@"ROMImagePath"
+#define kROMREx0PathKey				@"ROMREx0Path"
+#define kInternalFlashPathKey		@"InternalFlashPath"
+#define kScreenWidthKey				@"ScreenWidth"
+#define kScreenHeightKey			@"ScreenHeight"
+#define kFullScreenKey				@"FullScreen"
+#define kRAMSizeKey					@"RAMSize"
 
-#define kMachineKey				@"Machine"
-#define k717006Tag				717006
-#define k737041Tag				737041
-#define k747129Tag				747129
+#define kMachineKey					@"Machine"
+#define k717006Tag					717006
+#define k737041Tag					737041
+#define k747129Tag					747129
 
-#define kAudioDriverKey			@"AudioDriver"
-#define kCoreAudioDriverTag		1
-#define kPortAudioDriverTag		2
-#define kNullSounDriverTag		3
+#define kAudioDriverKey				@"AudioDriver"
+#define kCoreAudioDriverTag			1
+#define kPortAudioDriverTag			2
+#define kNullSounDriverTag			3
 
-#define kScreenDriverKey		@"ScreenDriver"
-#define kCocoaScreenDriverTag	1
-#define kX11ScreenDriverTag		2
+#define kScreenDriverKey			@"ScreenDriver"
+#define kCocoaScreenDriverTag		1
+#define kX11ScreenDriverTag			2
 
-#define kDontShowAtStartupKey	@"DontShowAtStartup"
+#define kNetworkDriverKey			@"NetworkDriver"
+#define kUsermodeNetworkDriverTag	1
+#define kTapNetworkDriverTag		2
+#define kNullNetworkDriverTag		3
+
+#define kDontShowAtStartupKey		@"DontShowAtStartup"
 
 #endif
 		// _TCOCOAUSERDEFAULTS_H
