@@ -70,7 +70,7 @@ void TNetworkManager::LogBuffer(KUInt8 *data, KUInt32 size)
 			if ((i&15)==15)
 				mLog->LogLine( t );
 		}
-		if ((i&15)!=15)
+		if (((i-1)&15)!=15)
 			mLog->LogLine( t );
 	}
 }

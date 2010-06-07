@@ -91,6 +91,13 @@ public:
 	///
 	virtual int ReceiveData(KUInt8 *data, KUInt32 size);
 	
+	///
+	/// Newton device timer expired.
+	/// Out of lazyness and for testing only, we use this timer to poll the open
+	/// sockets of all active protocols.
+	///
+	int TimerExpired();
+	
 	void AddPacketHandler(PacketHandler*);
 	
 	void Enqueue(Packet*);

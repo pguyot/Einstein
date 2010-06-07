@@ -111,6 +111,11 @@ public:
 	/// \param size the number of bytes that we expect in the buffer
 	///
 	virtual int ReceiveData(KUInt8 *data, KUInt32 size) = 0;
+	
+	///
+	/// Newton device driver timer expired.
+	///
+	virtual int TimerExpired() { return 0; }
 
 	void LogBuffer(KUInt8 *data, KUInt32 size);
 	
