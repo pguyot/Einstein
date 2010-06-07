@@ -236,6 +236,7 @@
 #include <sys/sockio.h>
 #include <net/if.h>
 #include <netinet/in.h>
+#include <unistd.h>
 
 
 // TODO: ARP
@@ -402,6 +403,7 @@ public:
 		// build the reply package from scratch
 		return -1;
 	}
+	virtual int timer() { return -2; }
 };
 
 
@@ -414,7 +416,8 @@ public:
 	static const KUInt16 StateRemoteDisconnect = 3;
 	
 	TCPPacketHandler(TUsermodeNetwork *h, Packet &packet) :
-		PacketHandler(h)
+		PacketHandler(h),
+		mSocket(-1)
 	{
 		state = StateDisconnected;
 		
@@ -482,6 +485,23 @@ public:
 				// remote system.
 				// FIXME: we assume that the original package is correct
 				printf("-----> Initiate socket connection\n");
+				
+				mSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+				if (mSocket==-1) 
+					return -1;
+				struct sockaddr_in sa;
+				memset(&sa, 0, sizeof(sa));
+				sa.sin_family = AF_INET;
+				sa.sin_port = htons(theirPort);
+				sa.sin_addr.s_addr = htonl(theirIP);
+				int err = connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
+				if (err==-1)
+					return -1;
+				int fl = fcntl(mSocket, F_GETFL);
+				err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
+				if (err==-1)
+					return -1;
+				
 				//net->LogBuffer(packet.Data(), packet.Size());
 				//net->LogPacket(packet.Data(), packet.Size());
 				Packet *reply = NewPacket(4); // 4 bytes are reserved for the extended TCP header
@@ -509,6 +529,7 @@ public:
 					theirSeqNr = packet.GetTCPAck();
 				} else { // this is a data package, ack needed
 					printf("       This goes out to the world\n");
+					write(mSocket, packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize());					
 					net->LogBuffer(packet.Data(), packet.Size());
 					net->LogPacket(packet.Data(), packet.Size());
 					Packet *reply = NewPacket(0);
@@ -531,7 +552,8 @@ public:
 				// Remote client has close the connection
 				break;
 		}
-				
+		return -2;
+		
   // The rest of this function is obsoltete		
 		KUInt8 *d = packet.Data();
 		KUInt32 n = packet.Size();
@@ -661,7 +683,33 @@ public:
 		}
 		return -1;
 	}
+	
 	virtual int timer() {
+		if (mSocket!=-1) {
+			for(;;) {
+				KUInt8 buf[1];
+				int err = recv(mSocket, buf, 1, MSG_PEEK);
+				// TODO: if this returns 0, the peer has closed the connection and we must initiate the 3-way FIN handshake
+				printf("--: (%d)\n", err);
+				int avail;
+				ioctl(mSocket, FIONREAD, &avail);
+				if (avail>0) {
+					printf("----------> %d bytes available\n", avail);
+					//if (avail>200) avail = 200;
+					Packet *reply = NewPacket(avail);
+					ssize_t n = read(mSocket, reply->GetTCPPayloadStart(), avail);
+					reply->SetTCPAck(mySeqNr);
+					reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagPSH);
+					//memcpy(reply->GetTCPPayloadStart(), buf, n);
+					UpdateChecksums(reply);
+					net->LogBuffer(reply->Data(), reply->Size());
+					net->LogPacket(reply->Data(), reply->Size());
+					net->Enqueue(reply);
+				} else {
+					break;
+				}
+			}
+		}
 		return -1;
 	}
 	
@@ -687,6 +735,7 @@ public:
 	KUInt32		mySeqNr, theirSeqNr;
 	KUInt16		theirID;
 	KUInt16		state;
+	int			mSocket;
 };
 
 
@@ -813,6 +862,22 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 		LogPacket(data, size);
 	}
 	return 0;
+}
+
+int TUsermodeNetwork::TimerExpired()
+{
+	int err = -1;
+	
+	PacketHandler *ph = mFirstPacketHandler;
+	while (ph) {
+		err = ph->timer();
+		if (err<-1) 
+			return err;
+		if (err==0)
+			return 0;
+		ph = ph->next;
+	}
+	return err;
 }
 
 

@@ -2658,10 +2658,7 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 			{
 				mLog->LogLine( "TNetworkManager::TimerExpired" );
 			}
-			// A possible way to get the interrupt routine to receive data from the world
-			// if (gPackageWaiting) {
-			// 	 mMemory->GetPCMCIAController(0)->RaiseInterrupt(TPCMCIAController::kSocketCardIREQIntVector);
-			// }
+			mNetworkManager->TimerExpired();
 			break;
 			
 			// NE2000 Template driver specific
@@ -2708,6 +2705,21 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 				free(buffer);
 			}
 			break; }
+		case 0x16: {
+			// Print some meroy location
+			KUInt32 addr = mProcessor->GetRegister(0);
+			KUInt32 size = mProcessor->GetRegister(1), i;
+			if (mLog && size)
+			{
+				KUInt8 *buffer = (KUInt8*)malloc(size);
+				for (i=0;i<size;i++) {
+					KUInt8 v;
+					mMemory->ReadB(addr+i, v);
+					buffer[i] = v;
+				}
+				mNetworkManager->LogBuffer(buffer, size);
+			}
+	        break; }
 			
 		default:
 			if (mLog)
