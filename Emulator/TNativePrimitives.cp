@@ -2508,6 +2508,7 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 					*dst++ = (char)v;
 					if (v==0) break;
 				}
+				mLog->LogLine(buffer);
 			}
 	        break; }
 			

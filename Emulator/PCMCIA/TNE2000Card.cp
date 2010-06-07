@@ -155,7 +155,7 @@ TNE2000Card::GetVPCPins( void )
 {
 	if (GetLog())
 	{
-		GetLog()->LogLine( "GetVPCPins" );
+		GetLog()->LogLine( "TNE2000Card::GetVPCPins" );
 	}
 	
 	return TPCMCIAController::k1C00_CardIsPresent | 0x0603; // Present and ready
@@ -169,7 +169,7 @@ TNE2000Card::SetVPCPins( KUInt32 inPins )
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "SetVPCPins( %.4X )", (unsigned int) inPins );
+		GetLog()->FLogLine( "TNE2000Card::SetVPCPins( %.4X )", (unsigned int) inPins );
 	}
 }
 
@@ -181,7 +181,7 @@ TNE2000Card::ReadAttr( KUInt32 inOffset )
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "ReadAttr( %.8X )", (unsigned int) inOffset );
+		GetLog()->FLogLine( "TNE2000Card::ReadAttr( %.8X )", (unsigned int) inOffset );
 		GetEmulator()->BreakInMonitor();
 	}
 	
@@ -199,11 +199,15 @@ TNE2000Card::ReadAttrB( KUInt32 inOffset )
 	
 	if (theOffset<sizeof(kCISData)) {
 		theResult = kCISData[theOffset];
+	} else if (theOffset==508) {
+		theResult = 0x41;  // What is this? Why is the OS reading and writing this?
+	} else {
+		theResult = 0;
 	}
 	
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "ReadAttrB( %.8X => %d = '%c' (%d))", 
+		GetLog()->FLogLine( "TNE2000Card::ReadAttrB( %.8X => %d = '%c' (%d))", 
 						   (unsigned int) inOffset,
 						   theOffset,
 						   (theResult>31&&theResult<128)?theResult:'.',
@@ -222,7 +226,7 @@ TNE2000Card::ReadIO( KUInt32 inOffset )
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "ReadIO( %.8X )", (unsigned int) inOffset );
+		GetLog()->FLogLine( "TNE2000Card::ReadIO( %.8X )", (unsigned int) inOffset );
 	}
 	
 	return 0;
@@ -236,7 +240,7 @@ TNE2000Card::ReadIOB( KUInt32 inOffset )
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "ReadIOB( %.8X )", (unsigned int) inOffset );
+		GetLog()->FLogLine( "TNE2000Card::ReadIOB( %.8X )", (unsigned int) inOffset );
 	}
 	
 	return 0;
@@ -250,7 +254,7 @@ TNE2000Card::ReadMem( KUInt32 inOffset )
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "ReadMem( %.8X )", (unsigned int) inOffset );
+		GetLog()->FLogLine( "TNE2000Card::ReadMem( %.8X )", (unsigned int) inOffset );
 	}
 	
 	return 0;
@@ -262,9 +266,11 @@ TNE2000Card::ReadMem( KUInt32 inOffset )
 KUInt8
 TNE2000Card::ReadMemB( KUInt32 inOffset )
 {
+	// Inserting the Card read these locations before the driver is loaded:
+	// 0000 0003 0002 0001 0000 0007
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "ReadMemB( %.8X )", (unsigned int) inOffset );
+		GetLog()->FLogLine( "TNE2000Card::ReadMemB( %.8X )", (unsigned int) inOffset );
 	}
 	
 	return 0;
@@ -278,7 +284,7 @@ TNE2000Card::WriteAttr( KUInt32 inOffset, KUInt32 inValue )
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "WriteAttr( %.8X, %.8X )",
+		GetLog()->FLogLine( "TNE2000Card::WriteAttr( %.8X, %.8X )",
 			(unsigned int) inOffset,
 			(unsigned int) inValue );
 	}
@@ -292,7 +298,7 @@ TNE2000Card::WriteAttrB( KUInt32 inOffset, KUInt8 inValue )
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "WriteAttrB( %.8X, %.2X )",
+		GetLog()->FLogLine( "TNE2000Card::WriteAttrB( %.8X, %.2X )",
 			(unsigned int) inOffset,
 			(unsigned int) inValue );
 	}
@@ -306,7 +312,7 @@ TNE2000Card::WriteIO( KUInt32 inOffset, KUInt32 inValue )
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "WriteIO( %.8X, %.8X )",
+		GetLog()->FLogLine( "TNE2000Card::WriteIO( %.8X, %.8X )",
 			(unsigned int) inOffset,
 			(unsigned int) inValue );
 	}
@@ -320,7 +326,7 @@ TNE2000Card::WriteIOB( KUInt32 inOffset, KUInt8 inValue )
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "WriteIOB( %.8X, %.2X )",
+		GetLog()->FLogLine( "TNE2000Card::WriteIOB( %.8X, %.2X )",
 			(unsigned int) inOffset,
 			(unsigned int) inValue );
 	}
@@ -334,7 +340,7 @@ TNE2000Card::WriteMem( KUInt32 inOffset, KUInt32 inValue )
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "WriteMem( %.8X, %.8X )",
+		GetLog()->FLogLine( "TNE2000Card::WriteMem( %.8X, %.8X )",
 			(unsigned int) inOffset,
 			(unsigned int) inValue );
 	}
@@ -348,7 +354,7 @@ TNE2000Card::WriteMemB( KUInt32 inOffset, KUInt8 inValue )
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "WriteMemB( %.8X, %.2X )",
+		GetLog()->FLogLine( "TNE2000Card::WriteMemB( %.8X, %.2X )",
 			(unsigned int) inOffset,
 			(unsigned int) inValue );
 	}

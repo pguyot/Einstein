@@ -114,7 +114,7 @@ void TNetworkManager::LogTCPPacket(KUInt8 *d, KUInt32 n) {
 		mLog->FLogLine("      [36] Dst Port: %d", (d[36]<<8)|d[37]);
 		mLog->FLogLine("      [38] Seq#: %d", (d[38]<<24)|(d[39]<<16)|(d[40]<<8)|d[41]);
 		mLog->FLogLine("      [42] Ack#: %d", (d[42]<<24)|(d[43]<<16)|(d[44]<<8)|d[45]);
-		mLog->FLogLine("      [46] Header Length: %d (5)", d[46]&0x0f);
+		mLog->FLogLine("      [46] Header Length: %d (5)", d[46]>>4);
 		mLog->FLogLine("      [47] Flags: %s %s %s %s %s %s", 
 					   d[47]&0x20?"URG":"urg",
 					   d[47]&0x10?"ACK":"ack",
