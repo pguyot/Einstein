@@ -51,6 +51,11 @@
  
  The goal is to set up a connection to NCX, Newtsync or Escale running locally. 
  
+ 1514 Max Tx  (1500 + hdr)
+ 60   Min Tx  (46 + hdr)
+ 1518 Max Rx  ( + crc )
+ 64   Min Rx  ( + crc )
+ 
  */
 
 /*
@@ -80,7 +85,7 @@
  192.168.0.200.58982 > borg.org.http: Flags [P.], cksum 0x02d8 (correct), seq 1:340, ack 1, win 65535, options [nop,nop,TS val 774403433 ecr 3757379566], length 339
  0x0000:  0024 36a2 a7e4 58b0 3577 d723 0800 4500  .$6...X.5w.#..E.
  0x0010:  0187 0a76 4000 4006 5fa6 c0a8 00c8 4069  ...v@.@._.....@i
- 0x0020:  cd7b e666 0050 a2bf ba40 6591 0b98 8018  .{.f.P...@e.....
+ 0x0020:  cd7b e666 0050[a2bf ba40]6591 0b98 8018  .{.f.P...@e.....
  0x0030:  ffff 02d8 0000 0101 080a 2e28 7569 dff5  ...........(ui..
  0x0040:  0fee 4745 5420 2f20 4854 5450 2f31 2e30  ..GET./.HTTP/1.0
  0x0050:  0d0a 486f 7374 3a20 626f 7267 2e6f 7267  ..Host:.borg.org
@@ -102,8 +107,8 @@
  0x0150:  4167 656e 743a 204c 796e 782f 322e 382e  Agent:.Lynx/2.8.
  0x0160:  3572 656c 2e31 206c 6962 7777 772d 464d  5rel.1.libwww-FM
  0x0170:  2f32 2e31 3420 5353 4c2d 4d4d 2f31 2e34  /2.14.SSL-MM/1.4
- 0x0180:  2e31 204f 7065 6e53 534c 2f30 2e39 2e37  .1.OpenSSL/0.9.7
- 0x0190:  6c0d 0a0d 0a                             l....
+ 0x0180:  2e31 204f 7065 6e53 534c 2f30 2e39 2e37  .1.OpenSSL/0.9.7     // seq += 339 (0x42/66)
+ 0x0190:  6c0d 0a0d 0a                             l....				// 0x195 = 405 bytes (length = 391, without Net Header)
  16:21:40.465171 IP (tos 0x0, ttl 48, id 7070, offset 0, flags [DF], proto TCP (6), length 52)
  borg.org.http > 192.168.0.200.58982: Flags [.], cksum 0x4485 (correct), seq 1, ack 340, win 6432, options [nop,nop,TS val 3757379592 ecr 774403433], length 0
  0x0000:  58b0 3577 d723 0024 36a2 a7e4 0800 4500  X.5w.#.$6.....E.
@@ -217,6 +222,7 @@
  0x0030:  1920 406d 0000 0101 080a dff5 1023 2e28  ..@m.........#.(
  0x0040:  756b                                     uk
  */
+
 #include <K/Defines/KDefinitions.h>
 #include "TUsermodeNetwork.h"
 #include "Emulator/Log/TLog.h"
@@ -246,21 +252,121 @@
 class Packet
 {
 public:
-	Packet(KUInt8 *data, KUInt32 size) {
-		mData = (KUInt8*)malloc(size);
-		memcpy(mData, data, size);
+	static const KUInt16 TCPFlagURG = 0x0020;
+	static const KUInt16 TCPFlagACK = 0x0010;
+	static const KUInt16 TCPFlagPSH = 0x0008;
+	static const KUInt16 TCPFlagRST = 0x0004;
+	static const KUInt16 TCPFlagSYN = 0x0002;
+	static const KUInt16 TCPFlagFIN = 0x0001;
+	
+	static const KUInt16 NetTypeIP = 0x0800;
+	
+	static const KUInt8 IPProtocolTCP = 6;
+	
+	Packet(KUInt8 *data, KUInt32 size, bool copy=1) {
+		if (copy) {
+			mData = (KUInt8*)malloc(size);
+			if (data) {
+				memcpy(mData, data, size);
+			} else {
+				memset(mData, 0, size);
+			}
+			mCopy = 1;
+		} else {
+			mData = data;
+			mCopy = 0;
+		}
 		mSize = size;
 	}
 	~Packet() {
-		if (mData) 
+		if (mData && mCopy) 
 			free(mData);
 	}
 	KUInt8 *Data() { return mData; }
 	KUInt32 Size() { return mSize; }
+
+	KUInt64 Get48(KUInt32 i) { return ((KUInt64(mData[i]))<<40)|((KUInt64(mData[i+1]))<<32)|(mData[i+2]<<24)|(mData[i+3]<<16)|(mData[i+4]<<8)|(mData[i+5]); }
+	void Set48(KUInt32 i, KUInt64 v) { 
+		mData[i+0] = v>>40;
+		mData[i+1] = v>>32;
+		mData[i+2] = v>>24;
+		mData[i+3] = v>>16;
+		mData[i+4] = v>>8;
+		mData[i+5] = v; }
+	KUInt32 Get32(KUInt32 i) { return (mData[i]<<24)|(mData[i+1]<<16)|(mData[i+2]<<8)|(mData[i+3]); }
+	void Set32(KUInt32 i, KUInt32 v) { 
+		mData[i+0] = v>>24;
+		mData[i+1] = v>>16;
+		mData[i+2] = v>>8;
+		mData[i+3] = v; }
+	KUInt16 Get16(KUInt32 i) { return (mData[i]<<8)|(mData[i+1]); }
+	void Set16(KUInt32 i, KUInt16 v) { 
+		mData[i+0] = v>>8;
+		mData[i+1] = v; }
+	
+	KUInt64 GetDstMAC()			{ return Get48(0); }
+	KUInt64 GetSrcMAC()			{ return Get48(6); }
+	KUInt16 GetType()			{ return Get16(12); }
+	
+	KUInt8	GetIPVersion()		{ return mData[14]>>4; }
+	KUInt8	GetIPHeaderLength() { return (mData[14]&0x0f)*4; } // in bytes!
+	KUInt8	GetIPTOS()			{ return mData[15]; }
+	KUInt16 GetIPTotalLength()	{ return Get16(16); }
+	KUInt16 GetIPID()			{ return Get16(18); }
+	KUInt8	GetIPFlags()		{ return mData[20]>>5; }
+	KUInt16 GetIPFrag()			{ return Get16(20)&0x1fff; }
+	KUInt8	GetIPTTL()			{ return mData[22]; }
+	KUInt8	GetIPProtocol()		{ return mData[23]; }
+	KUInt16 GetIPChecksum()		{ return Get16(24); }
+	KUInt32	GetIPSrcIP()		{ return Get32(26); }
+	KUInt32	GetIPDstIP()		{ return Get32(30); }
+	
+	KUInt16 GetTCPSrcPort()		{ return Get16(34); }
+	KUInt16 GetTCPDstPort()		{ return Get16(36); }
+	KUInt32	GetTCPSeq()			{ return Get32(38); }
+	KUInt32	GetTCPAck()			{ return Get32(42); }
+	KUInt8	GetTCPHeaderLength(){ return (mData[46]>>4)<<2; } // in bytes!
+	KUInt16 GetTCPFlags()		{ return Get16(46)&0x0fff; }
+	KUInt16 GetTCPWindow()		{ return Get16(48); }
+	KUInt16 GetTCPChecksum()	{ return Get16(50); }
+	KUInt16 GetTCPUrgent()		{ return Get16(52); }
+	KUInt8 *GetTCPPayloadStart(){ return mData + (GetTCPHeaderLength() + 34); }
+	KUInt32	GetTCPPayloadSize()	{ return mSize - GetTCPHeaderLength() - 34; }
+	
+	
+	void	SetDstMAC(KUInt64 v)		{ Set48(0, v); }
+	void	SetSrcMAC(KUInt64 v)		{ Set48(6, v); }
+	void	SetType(KUInt16 v)			{ Set16(12, v); }
+	
+	void	SetIPVersion(KUInt8 v)		{ mData[14] = (mData[14]&0x0f) | (v<<4); }
+	void	SetIPHeaderLength(KUInt8 v) { mData[14] = (mData[14]&0xf0) | ((v/4)&0x0f); } // in bytes!
+	void	SetIPTOS(KUInt8 v)			{ mData[15] = v; }
+	void	SetIPTotalLength(KUInt16 v)	{ Set16(16, v); }
+	void	SetIPID(KUInt16 v)			{ Set16(18, v); }
+	void	SetIPFlags(KUInt8 v)		{ mData[20] = (mData[20]&0x1f) | (v<<5); }
+	void	SetIPFrag(KUInt16 v)		{ mData[20] = (mData[20]&0xe0) | ((v>>8)&0x1f); mData[21] = v; }
+	void	SetIPTTL(KUInt8 v)			{ mData[22] = v; }
+	void	SetIPProtocol(KUInt8 v)		{ mData[23] = v; }
+	void	SetIPChecksum(KUInt16 v)	{ Set16(24, v); }
+	void	SetIPSrcIP(KUInt32 v)		{ Set32(26, v); }
+	void	SetIPDstIP(KUInt32 v)		{ Set32(30, v); }
+	
+	void	SetTCPSrcPort(KUInt16 v)	{ Set16(34, v); }
+	void	SetTCPDstPort(KUInt16 v)	{ Set16(36, v); }
+	void	SetTCPSeq(KUInt32 v)		{ Set32(38, v); }
+	void	SetTCPAck(KUInt32 v)		{ Set32(42, v); }
+	void	SetTCPHeaderLength(KUInt8 v){ mData[46] = (mData[46]&0x0f) | ((v>>2)<<4); } // in bytes!
+	void	SetTCPFlags(KUInt16 v)		{ mData[46] = (mData[46]&0xf0) | ((v>>8)&0x0f); mData[47] = v; }
+	void	SetTCPWindow(KUInt16 v)		{ Set16(48, v); }
+	void	SetTCPChecksum(KUInt16 v)	{ Set16(50, v); }
+	void	SetTCPUrgent(KUInt16 v)		{ Set16(52, v); }
+	void	SetTCPPayload(KUInt8 *, KUInt32);
+	
 	Packet *prev, *next;
 private:
 	KUInt8 *mData;
 	KUInt32 mSize;
+	KUInt8	mCopy;
 };
 
 
@@ -273,9 +379,9 @@ public:
 	}
 	virtual ~PacketHandler() {
 	}
-	virtual int send(KUInt8 *data, KUInt32 size) = 0;
+	virtual int send(Packet &p) = 0;
 	virtual int timer() { return 0; }
-	static int canHandle(KUInt8 *data, KUInt32 size) { return 0; }
+	static int canHandle(Packet &p) { return 0; }
 	PacketHandler *prev, *next;
 	TUsermodeNetwork *net;
 };
@@ -294,7 +400,7 @@ public:
 		if ( (n!=42) || ((d[12]<<8)|d[13])!=0x0806 )
 			return -1;
 		// build the reply package from scratch
-		return 0;
+		return -1;
 	}
 };
 
@@ -302,17 +408,138 @@ public:
 class TCPPacketHandler : public PacketHandler 
 {
 public:
-	TCPPacketHandler(TUsermodeNetwork *h) :
+	static const KUInt16 StateDisconnected = 0;
+	static const KUInt16 StateConnected = 1;
+	static const KUInt16 StateLocalDisconnect = 2;
+	static const KUInt16 StateRemoteDisconnect = 3;
+	
+	TCPPacketHandler(TUsermodeNetwork *h, Packet &packet) :
 		PacketHandler(h)
 	{
+		state = StateDisconnected;
+		
+		myMAC = packet.GetSrcMAC();
+		myIP = packet.GetIPSrcIP();
+		myPort = packet.GetTCPSrcPort();
+		mySeqNr = packet.GetTCPSeq();
+
+		theirMAC = packet.GetDstMAC();
+		theirIP = packet.GetIPDstIP();
+		theirPort = packet.GetTCPDstPort();
+		theirSeqNr = 0;
+		theirID = 1000;
 	}
+	
 	~TCPPacketHandler() {
 	}
-	virtual int send(KUInt8 *d, KUInt32 n) {
+	
+	Packet *NewPacket(KUInt32 size) {
+		Packet *p = new Packet(0L, size+54);
+		p->SetDstMAC(myMAC);
+		p->SetSrcMAC(theirMAC);
+		p->SetType(Packet::NetTypeIP);
+		
+		p->SetIPVersion(4);
+		p->SetIPHeaderLength(20);
+		p->SetIPTOS(0);
+		p->SetIPTotalLength(size+54-14);	// not counting the network header
+		p->SetIPID(theirID); theirID++;
+		p->SetIPFlags(0);
+		p->SetIPFrag(0);
+		p->SetIPTTL(64);
+		p->SetIPProtocol(Packet::IPProtocolTCP);
+		p->SetIPSrcIP(theirIP);
+		p->SetIPDstIP(myIP);
+		
+		p->SetTCPSrcPort(theirPort);
+		p->SetTCPDstPort(myPort);
+		p->SetTCPSeq(theirSeqNr);
+		p->SetTCPAck(mySeqNr);
+		p->SetTCPHeaderLength(20);
+		p->SetTCPFlags(Packet::TCPFlagACK);
+		p->SetTCPWindow(0x1000);		
+		
+		return p;
+	}
+	
+	void UpdateChecksums(Packet *p) {
+		net->SetIPv4Checksum(p->Data(), p->Size());
+		net->SetTCPChecksum(p->Data(), p->Size());
+	}
+	
+	/**
+	 * Send the package from the Newt into the world.
+	 * \param packet send this packet
+	 * \return 0 if the packet was sent, -1 if we can't handle this packet, -2 if an error occured
+	 */
+	virtual int send(Packet &packet) {
+		printf("---> TCP send\n");
+		// FIXME: verify that mac, port, and IP are the same for src and dst!
+		switch (state) {
+			case StateDisconnected: {
+				// The class was just created. The first package that we expect 
+				// is the SYN package that opens the socket and connects to the 
+				// remote system.
+				// FIXME: we assume that the original package is correct
+				printf("-----> Initiate socket connection\n");
+				//net->LogBuffer(packet.Data(), packet.Size());
+				//net->LogPacket(packet.Data(), packet.Size());
+				Packet *reply = NewPacket(4); // 4 bytes are reserved for the extended TCP header
+				mySeqNr++; 
+				reply->SetIPFlags(2); // don't fragment
+				reply->SetTCPAck(mySeqNr);
+				reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagSYN);
+				reply->SetTCPHeaderLength(24);
+				reply->Set32(54, 0x02040578); // set Maximum Segment Size
+				UpdateChecksums(reply);
+				//net->LogBuffer(reply->Data(), reply->Size());
+				//net->LogPacket(reply->Data(), reply->Size());
+				net->Enqueue(reply);
+				state = StateConnected;
+				printf("-----> DONE: Initiate socket connection\n");
+				return 0; }
+			case StateConnected:
+				// The socket is connected. Traffic can come from either side
+				printf("-----> Send a package\n");
+				if (packet.GetTCPPayloadSize()==0) { 
+					// this is an acknowledge package
+					printf("       Not replying to an ACK package\n");
+					net->LogBuffer(packet.Data(), packet.Size());
+					net->LogPacket(packet.Data(), packet.Size());
+					theirSeqNr = packet.GetTCPAck();
+				} else { // this is a data package, ack needed
+					printf("       This goes out to the world\n");
+					net->LogBuffer(packet.Data(), packet.Size());
+					net->LogPacket(packet.Data(), packet.Size());
+					Packet *reply = NewPacket(0);
+					mySeqNr += packet.GetTCPPayloadSize(); 
+					reply->SetTCPAck(mySeqNr);
+					reply->SetTCPFlags(Packet::TCPFlagACK);
+					UpdateChecksums(reply);
+					net->LogBuffer(reply->Data(), reply->Size());
+					net->LogPacket(reply->Data(), reply->Size());
+					net->Enqueue(reply);
+					// TODO: now enqueue the reply from the remote client
+				}
+				printf("-----> DONE: Send a package\n");
+				return 0;
+				break;
+			case StateLocalDisconnect:
+				// Newton has close the connection
+				break;
+			case StateRemoteDisconnect:
+				// Remote client has close the connection
+				break;
+		}
+				
+  // The rest of this function is obsoltete		
+		KUInt8 *d = packet.Data();
+		KUInt32 n = packet.Size();
 		if ( ((d[12]<<8)|d[13])!=0x0800 ) return -1;
 		if ( d[23]!=6 ) return -1;
 		if ( (d[47]&0x3f)==0x02) { // start the connection
 			printf("-----> tell Newton that we connected to the other side.\n");
+				net->LogBuffer(d,n);
 				net->LogPacket(d,n);
 			KUInt8 r[58];
 			memcpy(r, d, 58);		// original package
@@ -409,19 +636,22 @@ public:
 					0x6e, 0x73, 0x2e, 0x3c, 0x2f, 0x48, 0x32, 0x3e, 0x0a, 0x0a, 0x20, 0x3c, 0x2f, 0x42, 0x4f, 0x44, 
 					0x59, 0x3e, 0x0a, 0x3c, 0x2f, 0x48, 0x54, 0x4d, 0x4c, 0x3e, 0x0a
 				};
-				n = sizeof(r);
 				memcpy(r+0, d+6, 6);	// MAC
 				memcpy(r+6, d+0, 6);	// MAC
-				memcpy(r+18, d+18, 2);	// ID
-				memcpy(r+20, d+20, 2);	// Frag
+				//memcpy(r+18, d+18, 2);	// ID (should be random?)
+				//memcpy(r+20, d+20, 2);	// Frag
 				memcpy(r+26, d+30, 4);	// IP
 				memcpy(r+30, d+26, 4);	// IP
 				memcpy(r+34, d+36, 2);	// port
 				memcpy(r+36, d+34, 2);	// port
 				memcpy(r+38, d+42, 4);	// 38 seq# (4 bytes)
 				KUInt32 seq = ntohl(*((KUInt32*)(d+38)));
-				*((KUInt32*)(r+42)) = htonl(seq+1); // 42 ack# (4 bytes)
-				r[47] = 0x10;			// flags
+				*((KUInt32*)(r+42)) = htonl(seq+16 /*(n-54)*/ ); // 42 ack# (4 bytes)
+				seq = ntohl(*((KUInt32*)(d+42)));
+				*((KUInt32*)(r+38)) = htonl(seq); // 38 seq#
+				r[47] = 0x18;			// flags
+				
+				n = sizeof(r);
 				net->SetIPv4Checksum(r, n);
 				net->SetTCPChecksum(r, n);
 				net->LogPacket(r,n);
@@ -434,12 +664,29 @@ public:
 	virtual int timer() {
 		return -1;
 	}
-	static int canHandle(KUInt8 *d, KUInt32 n) {
-		if ( ((d[12]<<8)|d[13])!=0x0800 ) return 0;
-		if ( d[23]!=6 ) return 0;
-		if ( (d[47]&0x3f)!=0x02) return 0; // SYN set
+	
+	/**
+	 * Can we handle the given package?
+	 * This function is static and can be called before this class is instantiated.
+	 * \param packet this is the packaet the we need to handle
+	 * \return 1 if we will be able to handle this packe, else 0
+	 */
+	static int canHandle(Packet &packet) {
+		if ( packet.GetType() != Packet::NetTypeIP ) 
+			return 0;
+		if ( packet.GetIPProtocol() != Packet::IPProtocolTCP ) 
+			return 0;
+		if ( packet.GetTCPFlags() != Packet::TCPFlagSYN ) 
+			return 0; // only SYN is set
+		printf("---> TCP can handle this\n");
 		return 1;
 	}
+	KUInt64		myMAC, theirMAC;
+	KUInt32		myIP, theirIP;
+	KUInt16		myPort, theirPort;
+	KUInt32		mySeqNr, theirSeqNr;
+	KUInt16		theirID;
+	KUInt16		state;
 };
 
 
@@ -475,20 +722,27 @@ TUsermodeNetwork::~TUsermodeNetwork()
 int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 {
 	int err = -1;
+	Packet packet(data, size, 0); // convert data into a packet
 	
 	// offer this package to all active handlers
+	printf("---> Send Packet: Offer to all registered handlers\n");
 	PacketHandler *ph = mFirstPacketHandler;
-	while (ph && err) {
-		err = ph->send(data, size);
+	while (ph) {
+		err = ph->send(packet);
+		if (err<-1) 
+			return err;
+		if (err==0)
+			return 0;
 		ph = ph->next;
 	}
 	
 	// now offer the package to possible new handlers
+	printf("---> Send Packet: Offer to all potential handlers\n");
 	if (err) {
-		if (TCPPacketHandler::canHandle(data, size)) {
-			ph = new TCPPacketHandler(this);
+		if (TCPPacketHandler::canHandle(packet)) {
+			ph = new TCPPacketHandler(this, packet);
 			AddPacketHandler(ph);
-			err = ph->send(data, size);
+			err = ph->send(packet);
 		}
 	}
 	/*
@@ -501,7 +755,7 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 	}
 	 */
 	if (!err) 
-		return err;
+		return 0;
 	
 	// FIXME: simulate the ARP request for now
 	// see: man 3 getaddrinfo()
@@ -516,6 +770,7 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 		0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23, 0xc0, 0xa8, 0x00, 0xc6,
 	};
 	if (size==sizeof(b1) && memcmp(b1, data, size)==0) {
+		printf("---> Send Packet: faking ARP request\n");
 		Enqueue(new Packet(r1, sizeof(r1)));
 		return 0;
 	}
@@ -536,7 +791,8 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 		0x00, 0x01, 0x00, 0x01, 0xc0, 0x0c, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x04, 0x7e, 0x00, 0x04, 
 		0x40, 0x69, 0xcd, 0x7b,                   
 	};
-	if (size==sizeof(b2) && memcmp(b2, data, size)==0) {
+	if (size==sizeof(b2) && memcmp(b2, data, /*size*/14)==0) {
+		printf("---> Send Packet: faking DNS request\n");
 		r2[34] = b2[36]; r2[35] = b2[37];
 		r2[36] = b2[34]; r2[37] = b2[35]; // swap ports
 		r2[33] = 198;
@@ -550,6 +806,7 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 	
 	
 	// if we can't interprete the package, we offer some debugging information
+	printf("---> Send Packet: Bad!\n");
 	if (mLog) {
 		mLog->LogLine("\nTUsermodeNetwork: Newton is sending an unsupported package:");
 		LogBuffer(data, size);
