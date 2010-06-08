@@ -105,12 +105,6 @@ public:
 	void DropPacket();
 	
 private:
-	///
-	/// Define the select fd set (in the thread).
-	/// Return the max fd + 1. If the result is 0, the thread exits.
-	///
-	virtual int			SetReadFDSet(fd_set* ioFDSet);
-	
 	PacketHandler	*mFirstPacketHandler, *mLastPacketHandler;
 	Packet			*mFirstPacket, *mLastPacket;
 };
