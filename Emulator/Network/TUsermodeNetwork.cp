@@ -119,7 +119,8 @@ public:
 	static const KUInt16 NetTypeIP = 0x0800;
 	
 	/** Used in GetIPProtocol() */
-	static const KUInt8 IPProtocolTCP = 6;
+	static const KUInt8 IPProtocolTCP =  6;
+	static const KUInt8 IPProtocolUDP = 17;
 	
 	/** 
 	 * Create a new packet.
@@ -223,7 +224,14 @@ public:
 	KUInt16 GetTCPUrgent()		{ return Get16(52); }
 	KUInt8 *GetTCPPayloadStart(){ return mData + (GetTCPHeaderLength() + 34); }
 	KUInt32	GetTCPPayloadSize()	{ return mSize - GetTCPHeaderLength() - 34; }
-	
+
+	KUInt16 GetUDPSrcPort()		{ return Get16(34); }
+	KUInt16 GetUDPDstPort()		{ return Get16(36); }
+	KUInt16 GetUDPLength()		{ return Get16(38); }
+	KUInt16 GetUDPChecksum()	{ return Get16(40); }
+	KUInt8 *GetUDPPayloadStart();
+	KUInt32	GetUDPPayloadSize();
+
 	
 	void	SetDstMAC(KUInt64 v)		{ Set48(0, v); }
 	void	SetSrcMAC(KUInt64 v)		{ Set48(6, v); }
@@ -252,7 +260,13 @@ public:
 	void	SetTCPChecksum(KUInt16 v)	{ Set16(50, v); }
 	void	SetTCPUrgent(KUInt16 v)		{ Set16(52, v); }
 	void	SetTCPPayload(KUInt8 *, KUInt32);
-	
+
+	void	SetUDPSrcPort(KUInt16 v)	{ Set16(34, v); }
+	void	SetUDPDstPort(KUInt16 v)	{ Set16(36, v); }
+	void	SetUDPLength(KUInt16 v)		{ Set16(38, v); }
+	void	SetUDPChecksum(KUInt16 v)	{ Set16(40, v); }
+	void	SetUDPPayload(KUInt8 *, KUInt32);
+
 	Packet *prev, *next;
 	
 private:
@@ -295,7 +309,7 @@ public:
 	 * \return 0 if we don't know how to handle the packet and another handler should have a go
 	 * \return -1 if an error occured and the packet should not be sent by any other handler
 	 */
-	virtual int send(Packet &p) = 0;
+	virtual int send(Packet &p) { return 0; }
 	
 	/**
 	 * Every 10th of a second or so handle outstanding tasks.
@@ -340,8 +354,8 @@ public:
 		kStateConnected,			// socket was opened successfully
 		kStateDisconnectWaitForACK,	// Peer disconnected, send a FIN and wait for an ACK
 		kStateDisconnectWaitForFIN,	// Perr disconnected, now wait for the FIN from the Newt and ACK it.
-								// Newt requests a disconnect
-								// Peer request a disconnect
+									// Newt requests a disconnect
+									// Peer request a disconnect
 		kStateError
 	};
 	
@@ -352,20 +366,20 @@ public:
 	 * that we need to handle.
 	 */
 	TCPPacketHandler(TUsermodeNetwork *h, Packet &packet) :
-		PacketHandler(h),
-		myMAC(0),	theirMAC(0),
-		myIP(0),	theirIP(0),
-		myPort(0),	theirPort(0),
-		mySeqNr(0),	theirSeqNr(0),
-		theirID(0),
-		state(kStateDisconnected),
-		mSocket(-1)
+	PacketHandler(h),
+	myMAC(0),	theirMAC(0),
+	myIP(0),	theirIP(0),
+	myPort(0),	theirPort(0),
+	mySeqNr(0),	theirSeqNr(0),
+	theirID(0),
+	state(kStateDisconnected),
+	mSocket(-1)
 	{
 		myMAC = packet.GetSrcMAC();
 		myIP = packet.GetIPSrcIP();
 		myPort = packet.GetTCPSrcPort();
 		mySeqNr = packet.GetTCPSeq();
-
+		
 		theirMAC = packet.GetDstMAC();
 		theirIP = packet.GetIPDstIP();
 		theirPort = packet.GetTCPDstPort();
@@ -462,7 +476,7 @@ public:
 		err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
 		if (err==-1)
 			return -1;
-
+		
 		// succesful connection, return SYN ACK.
 		Packet *reply = NewPacket(4); // 4 bytes are reserved for the extended TCP header
 		mySeqNr++; 
@@ -530,7 +544,7 @@ public:
 	virtual void timer() {
 		KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
 		int avail = recv(mSocket, buf, sizeof(buf), MSG_PEEK);
-
+		
 		printf("--: (%d)\n", avail);
 		if (avail==0) {
 			printf("----------> closing connection\n", avail);
@@ -594,6 +608,96 @@ public:
 	int			mSocket;
 };
 
+/**
+ * This class handles DNS/UDP/IP packets.
+ *
+ * We catch UDP requests to the Name Server and send a "gethostbyname()" instead.
+ * Then we create the correct answer as a raw packet and send it back to the
+ * Newton.
+ */
+class DNSPacketHandler : public PacketHandler 
+{
+public:	
+	/**
+	 * Can we handle the given package?
+	 * For DNS requests, the packaet will be handled right away.
+
+	 1  1  1  1  1  1
+	 0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
+	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+	 |                      ID                       |
+	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+	 |QR|   Opcode  |AA|TC|RD|RA|   Z    |   RCODE   |
+	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+	 |                    QDCOUNT                    |
+	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+	 |                    ANCOUNT                    |
+	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+	 |                    NSCOUNT                    |
+	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+	 |                    ARCOUNT                    |
+	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+	 
+	 
+	 ID: Eine 16bittige Marke, die der Sender, also der Client, einträgt. Der Server kopiert diese einfach in seine Antwort, um es dem Sender (Client) zu ermöglichen, die Antworten mit den Fragen zu verbinden.
+	 QR: Ein Bit, um Anfrage (query, dann 0) und Antwort (response, dann 1) zu unterscheiden.
+	 OPCODE: Vier Bit, die den Typ der Anfrage zeigen. Wird vom Client gesetzt und vom Server in die Antwort kopiert. Folgende Werte/Typen gibt es: 0 ist eine normale Anfrage (QUERY), 1 eine inverse Anfrage (IQUERY) und 2 zeigt eine Status-Anfrage (STATUS) an. 3-15 sind reserviert.
+	 AA: Autoritäre Antwort. Diese Bit kann nur in Antworten gesetzt werden und zeigt an, das der antwortente Server für die angefragte Domäne autoritär, verantwortlich ist. In der Antwort-Sektion können verschiedene Namen vorkommen, schließlich kann es Aliase geben. Das AA Bit bezieht sich immer auf den Namen, der die Frage trifft. Oder aber auf die erste Antwort in der Antwort Sektion.
+	 TC: Das "TrunCation" Bit. Zeigt an, das die Nachricht zerstückelt werden mußte. Das Paket war größer als das entsprechende Netzwerk es zuläßt.
+	 RD: Das "Recursion Desired" Bit. Wird vom Client gesetzt und zeigt an, das der Client wünscht, das der Server rekursiv die Anfrage weiterverfolgt. Der Client möchte sich also nicht selbst an eventuell weitere Server wenden. Der Server muß das nicht unterstützen.
+	 RA: Das "Recursion Available" Bit. Wird vom Server gesetzt, wenn er in der Lage ist, Anfragen recursiv zu behandeln. Dies ist besonders wichtig, wenn Nameserver untereinander kommunizieren.
+	 .
+	 Z: Reserviert. Muß Null sein.
+	 RCODE: Ist der "Response code" und gibt Informationen über die Art der Antwort. Folgende Werte sind möglich:
+	 0 - Kein Fehler.
+	 1 - Ein Fehler des Formats. Die Nachricht kann nicht interpretiert werden.
+	 2 - Server Fehler. Der Server konnte die Frage nicht bearbeiten aufgrund eines internen Problemes.
+	 3 - Namen Fehler. Nur aussagefähig, wenn die Antwort von einem autoritären Server kommt. Es bedeutet dann, das der angefragte Domain-Name nicht existiert.
+	 4 - Nicht Implementiert. Der Server unterstützt diesen Typ Anfrage nicht.
+	 5 - Verweigert. Der Server führt diese Anfrage aufgrund von Verboten nicht aus. Es mag sein, das der Client nicht vertrauenswürdig ist, oder das der Server z.B. keine Zonentransfers an diese Adresse macht.
+	 6-15 - Reserviert.
+	 QDCOUNT: Ein 16 Bit Feld, das die Anzahl der Einträge (RRs) in der Anfrage-Sektion angibt.
+	 ANCOUNT: Ein 16 Bit Feld, das die Anzahl der Einträge (RRs) in der Antwort-Sektion angibt.
+	 NSCOUNT: Ein 16 Bit Feld, das die Anzahl der Einträge (RRs) in der "Verantwortlicher Server" Sektion angibt.
+	 ARCOUNT: Ein 16 Bit Feld, das die Anzahl der Eintäge (RRs) in der Sektion für zusätzliche Informationen angibt.
+
+	 static KUInt8 b2[] = {
+	 0x00, 0x24, 0x36, 0xa2, 0xa7, 0xe4, 0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23, 0x08, 0x00, 0x45, 0x00,
+	 0x00, 0x36, 0x00, 0x00, 0x00, 0x00, 0x40, 0x11, 0xf8, 0x9f, 0xc0, 0xa8, 0x00, 0xc6, 0xc0, 0xa8,
+	 0x00, 0x01, 0x08, 0x00, 0x00, 0x35, 0x00, 0x22, 0xc3, 0x0e,
+																 0x00, 0x01, 
+																			 0x01, 0x00, 
+																						 0x00, 0x01,
+	 0x00, 0x00, 
+				 0x00, 0x00,  
+							 0x00, 0x00, 
+										 0x04, 0x62, 0x6f, 0x72, 0x67, 
+																	   0x03, 0x6f, 0x72, 0x67, 
+																							   0x00,
+	 0x00, 0x01, 0x00, 0x01
+	 };
+	 
+	 
+	 * \param packet the Newton packet that could be sent
+	 * \param n the network interface
+	 * \return 0 if we can not handle this packet
+	 * \return 1 if we can handled it and it need not to be propagated any further
+	 * \return -1 if an error occurred an no other handler should handle this packet
+	 */
+	static int canHandle(Packet &packet, TUsermodeNetwork *net) {
+		if ( packet.GetType() != Packet::NetTypeIP ) 
+			return 0;
+		if ( packet.GetIPProtocol() != Packet::IPProtocolUDP ) 
+			return 0;
+		if ( packet.GetUDPDstPort() != 53 ) 
+			return 0;
+		printf("---> This is a UDP packaet.\n");
+		net->LogBuffer(packet.Data(), packet.Size());
+		net->LogPacket(packet.Data(), packet.Size());
+		return 0;
+	}
+};
+
 
 
 
@@ -647,6 +751,11 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 	
 	// now offer the package to possible new handlers
 	switch( TCPPacketHandler::canHandle(packet, this) ) {				
+		case -1:	return -1;	// an error occured, packet must not be handled
+		case 1:		return 0;	// packet was handled successfuly, leave
+		case 0:		break;		// another handler should deal with this packet
+	}
+	switch( DNSPacketHandler::canHandle(packet, this) ) {				
 		case -1:	return -1;	// an error occured, packet must not be handled
 		case 1:		return 0;	// packet was handled successfuly, leave
 		case 0:		break;		// another handler should deal with this packet
