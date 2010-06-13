@@ -644,7 +644,7 @@ static TCocoaAppController* gInstance = nil;
 		BOOL isDir;
 		if (![theFileManager fileExistsAtPath: appSupFolderPath isDirectory: &isDir])
 		{
-			if ([theFileManager createDirectoryAtPath: appSupFolderPath attributes: nil] != YES)
+			if ([theFileManager createDirectoryAtPath: appSupFolderPath withIntermediateDirectories:NO attributes: nil error:nil] != YES)
 			{
 				theErr = errno;
 				break;
@@ -659,7 +659,7 @@ static TCocoaAppController* gInstance = nil;
 				stringByAppendingPathComponent: @"Einstein Platform"];
 		if (![theFileManager fileExistsAtPath: result isDirectory: &isDir])
 		{
-			if ([theFileManager createDirectoryAtPath: result attributes: nil] != YES)
+			if ([theFileManager createDirectoryAtPath: result withIntermediateDirectories:NO attributes: nil error:nil] != YES)
 			{
 				theErr = errno;
 				break;

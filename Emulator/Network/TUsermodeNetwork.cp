@@ -334,10 +334,16 @@ public:
 class TCPPacketHandler : public PacketHandler 
 {
 public:
-	static const KUInt16 StateDisconnected = 0;
-	static const KUInt16 StateConnected = 1;
-	static const KUInt16 StateLocalDisconnect = 2;
-	static const KUInt16 StateRemoteDisconnect = 3;
+	enum State {
+		kStateDisconnected = 0,		// handler just created, no socket
+									// we expect a SYN package from the Newt and will reply with SYN ACK (or timeout)
+		kStateConnected,			// socket was opened successfully
+		kStateDisconnectWaitForACK,	// Peer disconnected, send a FIN and wait for an ACK
+		kStateDisconnectWaitForFIN,	// Perr disconnected, now wait for the FIN from the Newt and ACK it.
+								// Newt requests a disconnect
+								// Peer request a disconnect
+		kStateError
+	};
 	
 	/**
 	 * Create a TCP packet handler.
@@ -347,10 +353,14 @@ public:
 	 */
 	TCPPacketHandler(TUsermodeNetwork *h, Packet &packet) :
 		PacketHandler(h),
+		myMAC(0),	theirMAC(0),
+		myIP(0),	theirIP(0),
+		myPort(0),	theirPort(0),
+		mySeqNr(0),	theirSeqNr(0),
+		theirID(0),
+		state(kStateDisconnected),
 		mSocket(-1)
 	{
-		state = StateDisconnected;
-		
 		myMAC = packet.GetSrcMAC();
 		myIP = packet.GetIPSrcIP();
 		myPort = packet.GetTCPSrcPort();
@@ -366,7 +376,15 @@ public:
 	/**
 	 * Delete this handler.
 	 */
-	~TCPPacketHandler() {
+	~TCPPacketHandler() 
+	{
+		if ( mSocket != -1 ) {
+			if ( state!=kStateDisconnected ) {
+				shutdown( mSocket, SHUT_RDWR);
+			}
+			close(mSocket);
+			mSocket = -1;
+		}
 	}
 	
 	/**
@@ -413,6 +431,54 @@ public:
 	}
 	
 	/**
+	 * Connect to a client.
+	 * The class was just created. The first package that we expect 
+	 * is the SYN package that opens the socket and connects to the 
+	 * remote system.
+	 * \return  1 if the connection was established
+	 * \return -1 if no connection could be established
+	 */
+	int connect(Packet &packet) {
+		printf("-----> Initiate socket connection\n");
+		
+		// create a socket
+		mSocket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+		if (mSocket==-1) 
+			return -1;
+		// FIXME: should we remove the handler? Should we remove some kind of not-ACK package?
+		
+		// tell the socket who to connect to and connect
+		struct sockaddr_in sa;
+		memset(&sa, 0, sizeof(sa));
+		sa.sin_family = AF_INET;
+		sa.sin_port = htons(theirPort);
+		sa.sin_addr.s_addr = htonl(theirIP);
+		int err = ::connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
+		if (err==-1)
+			return -1;
+		
+		// perform some presets for the socket
+		int fl = fcntl(mSocket, F_GETFL);
+		err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
+		if (err==-1)
+			return -1;
+
+		// succesful connection, return SYN ACK.
+		Packet *reply = NewPacket(4); // 4 bytes are reserved for the extended TCP header
+		mySeqNr++; 
+		reply->SetIPFlags(2); // don't fragment
+		reply->SetTCPAck(mySeqNr);
+		reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagSYN);
+		reply->SetTCPHeaderLength(24);
+		reply->Set32(54, 0x02040578); // set Maximum Segment Size
+		UpdateChecksums(reply);
+		net->Enqueue(reply);
+		state = kStateConnected;
+		printf("-----> DONE: Initiate socket connection\n");
+		return 1;
+	}
+	
+	/**
 	 * Send a Newton packet to the outside world.
 	 * \param packet send this packet
 	 * \return 1 if the packet was handled ok
@@ -420,60 +486,19 @@ public:
 	 * \return -1 if an error occured and no other handler should handle this packet
 	 */
 	virtual int send(Packet &packet) {
-		printf("---> TCP send\n");
 		// FIXME: verify that mac, port, and IP are the same for src and dst!
 		switch (state) {
-			case StateDisconnected: {
-				// The class was just created. The first package that we expect 
-				// is the SYN package that opens the socket and connects to the 
-				// remote system.
+			case kStateDisconnected:
 				// FIXME: we assume that the original package is correct
-				printf("-----> Initiate socket connection\n");
-				
-				mSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-				if (mSocket==-1) 
-					return -1;
-				struct sockaddr_in sa;
-				memset(&sa, 0, sizeof(sa));
-				sa.sin_family = AF_INET;
-				sa.sin_port = htons(theirPort);
-				sa.sin_addr.s_addr = htonl(theirIP);
-				int err = connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
-				if (err==-1)
-					return -1;
-				int fl = fcntl(mSocket, F_GETFL);
-				err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
-				if (err==-1)
-					return -1;
-				
-				//net->LogBuffer(packet.Data(), packet.Size());
-				//net->LogPacket(packet.Data(), packet.Size());
-				Packet *reply = NewPacket(4); // 4 bytes are reserved for the extended TCP header
-				mySeqNr++; 
-				reply->SetIPFlags(2); // don't fragment
-				reply->SetTCPAck(mySeqNr);
-				reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagSYN);
-				reply->SetTCPHeaderLength(24);
-				reply->Set32(54, 0x02040578); // set Maximum Segment Size
-				UpdateChecksums(reply);
-				//net->LogBuffer(reply->Data(), reply->Size());
-				//net->LogPacket(reply->Data(), reply->Size());
-				net->Enqueue(reply);
-				state = StateConnected;
-				printf("-----> DONE: Initiate socket connection\n");
-				return 1; }
-			case StateConnected:
+				return connect(packet);
+			case kStateConnected:
 				// The socket is connected. Traffic can come from either side
-				printf("-----> Send a package\n");
 				if (packet.GetTCPPayloadSize()==0) { 
 					// this is an acknowledge package
 					theirSeqNr = packet.GetTCPAck();
-					printf("       Not replying to an ACK package\n");
-					net->LogBuffer(packet.Data(), packet.Size());
-					net->LogPacket(packet.Data(), packet.Size());
-					theirSeqNr = packet.GetTCPAck();
 				} else { // this is a data package, ack needed
-					printf("       This goes out to the world\n");
+					printf("-----> Send a packet to the world\n");
+					// FIXME: if FIN is set, we need to start disconnecting
 					write(mSocket, packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize());					
 					net->LogBuffer(packet.Data(), packet.Size());
 					net->LogPacket(packet.Data(), packet.Size());
@@ -487,14 +512,9 @@ public:
 					net->Enqueue(reply);
 					// TODO: now enqueue the reply from the remote client
 				}
-				printf("-----> DONE: Send a package\n");
 				return 1;
-				break;
-			case StateLocalDisconnect:
-				// Newton has close the connection
-				break;
-			case StateRemoteDisconnect:
-				// Remote client has close the connection
+			default:
+				printf("---> TCP send: unsupported state in 'send()'\n");
 				break;
 		}
 		return 0;
@@ -508,50 +528,44 @@ public:
 	 * interrupts to send data to the Newton.
 	 */
 	virtual void timer() {
-		if (mSocket!=-1) {
-			for(;;) {
-				KUInt8 buf[1];
-				int err = recv(mSocket, buf, 1, MSG_PEEK);
-				// TODO: if this returns 0, the peer has closed the connection and we must initiate the 3-way FIN handshake
-				printf("--: (%d)\n", err);
-				if (err==0) {
-					// FIXME: we are simply throwing out a message here. Much more needs to be done.
-					Packet *reply = NewPacket(0);
-					reply->SetTCPFlags(Packet::TCPFlagFIN|Packet::TCPFlagACK);
-					UpdateChecksums(reply);
-					net->Enqueue(reply);
-					close(mSocket);
-					net->RemovePacketHandler(this);
-					delete this;
-					return;
-					// send FIN to Newt
-					// wait for ACK
-					// wait for FIN
-					// send ACK
-					// remove self from list
-				}
-				int avail;
-				ioctl(mSocket, FIONREAD, &avail);
-				if (avail>0) {
-					printf("----------> %d bytes available\n", avail);
-					//if (avail>200) avail = 200;
-					Packet *reply = NewPacket(avail);
-					ssize_t n = read(mSocket, reply->GetTCPPayloadStart(), avail);
-					reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagPSH);
-					UpdateChecksums(reply);
-					net->LogBuffer(reply->Data(), reply->Size());
-					net->LogPacket(reply->Data(), reply->Size());
-					net->Enqueue(reply);
-				} else {
-					break;
-				}
-			}
+		KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
+		int avail = recv(mSocket, buf, sizeof(buf), MSG_PEEK);
+
+		printf("--: (%d)\n", avail);
+		if (avail==0) {
+			printf("----------> closing connection\n", avail);
+			// FIXME: we are simply throwing out a message here. Much more needs to be done.
+			Packet *reply = NewPacket(0);
+			reply->SetTCPFlags(Packet::TCPFlagFIN|Packet::TCPFlagACK);
+			UpdateChecksums(reply);
+			net->Enqueue(reply);
+			close(mSocket);
+			net->RemovePacketHandler(this);
+			delete this;
+			return;
+			// send FIN to Newt
+			// wait for ACK
+			// wait for FIN
+			// send ACK
+			// remove self from list
+		} else if (avail>0) {
+			printf("----------> %d bytes available\n", avail);
+			//if (avail>200) avail = 200;
+			Packet *reply = NewPacket(avail);
+			/*ssize_t n =*/ read(mSocket, reply->GetTCPPayloadStart(), avail);
+			reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagPSH);
+			UpdateChecksums(reply);
+			net->LogBuffer(reply->Data(), reply->Size());
+			net->LogPacket(reply->Data(), reply->Size());
+			net->Enqueue(reply);
 		}
 	}
 	
 	/**
 	 * Can we handle the given package?
 	 * This function is static and can be called before this class is instantiated.
+	 * At this point, no active handler was able to handle the packet. If this
+	 * is a generic TCP/IP packet requestin to open a socket, we will handle it.
 	 * \param packet the Newton packet that could be sent
 	 * \param n the network interface
 	 * \return 0 if we can not handle this packet
@@ -565,7 +579,7 @@ public:
 			return 0;
 		if ( packet.GetTCPFlags() != Packet::TCPFlagSYN ) 
 			return 0; // only SYN is set
-		printf("---> TCP can handle this, link ourselve into the handler list\n");
+		printf("---> Newt wants to open a new TCP connection. Enqueue a handler.\n");
 		PacketHandler *ph = new TCPPacketHandler(net, packet);
 		net->AddPacketHandler(ph);
 		return ph->send(packet);
@@ -576,7 +590,7 @@ public:
 	KUInt16		myPort, theirPort;
 	KUInt32		mySeqNr, theirSeqNr;
 	KUInt16		theirID;
-	KUInt16		state;
+	enum State	state;
 	int			mSocket;
 };
 
@@ -592,11 +606,7 @@ TUsermodeNetwork::TUsermodeNetwork(TLog* inLog) :
 	mFirstPacket( 0L ),
 	mLastPacket( 0L )
 {
-	// create the package pipe for the Newton package receiver
-	// create the active handler list
-	//AddPacketHandler(new ARPPacketHandler());
 }
-
 
 
 /**
@@ -745,11 +755,6 @@ KUInt32 TUsermodeNetwork::DataAvailable()
 
 /**
  * Fill the provided buffer with a raw packet.
- * NE2000 buffer sizes:
- * - 1514 Max Tx  (1500 + hdr)
- * - 60   Min Tx  (46 + hdr)
- * - 1518 Max Rx  ( + crc )
- * - 64   Min Rx  ( + crc )
  */
 int TUsermodeNetwork::ReceiveData(KUInt8 *data, KUInt32 size)
 {
@@ -793,7 +798,7 @@ void TUsermodeNetwork::RemovePacketHandler(PacketHandler *ph)
 	PacketHandler *pn = ph->next;
 	if (pp) pp->next = pn; else mFirstPacketHandler = pn;
 	if (pn) pn->prev = pp; else mLastPacketHandler = pp;
-	delete ph;
+	//delete ph;
 }
 
 

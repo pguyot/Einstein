@@ -44,6 +44,10 @@ class Packet;
 class TUsermodeNetwork : public TNetworkManager
 {
 public:
+	
+	static const int kMaxTxBuffer = 1514;
+	static const int kMaxRxBuffer = 1518;	
+	
 	TUsermodeNetwork(TLog* inLog);
 	
 	///

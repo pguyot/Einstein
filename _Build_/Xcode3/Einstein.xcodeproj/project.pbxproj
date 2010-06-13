@@ -21,7 +21,7 @@
 		C99E3170111B7346002165EC /* Einstein.icns in Resources */ = {isa = PBXBuildFile; fileRef = C99E3166111B7346002165EC /* Einstein.icns */; };
 		C99E317B111B73A1002165EC /* TMonitor.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3175111B73A1002165EC /* TMonitor.cp */; };
 		C99E317C111B73A1002165EC /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
-		C99E317D111B73A1002165EC /* UDisasm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cp */; };
+		C99E317D111B73A1002165EC /* UDisasm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cp */; settings = {COMPILER_FLAGS = "-Wno-format-security"; }; };
 		C99E3358111B7570002165EC /* TError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B6111B7570002165EC /* TError.cp */; };
 		C99E3359111B7570002165EC /* TMemError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B8111B7570002165EC /* TMemError.cp */; };
 		C99E335A111B7570002165EC /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
