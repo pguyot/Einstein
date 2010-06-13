@@ -100,6 +100,8 @@ public:
 	
 	void AddPacketHandler(PacketHandler*);
 	
+	void RemovePacketHandler(PacketHandler*);
+	
 	void Enqueue(Packet*);
 	
 	void DropPacket();

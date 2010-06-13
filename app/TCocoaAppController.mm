@@ -274,14 +274,14 @@ static TCocoaAppController* gInstance = nil;
 	
 	// Create a log if possible
 #ifdef _DEBUG
-	mLog = new TStdOutLog(); 
+	mLog = 0L; // new TStdOutLog(); 
 #endif
 	
 	// Create the network manager.
 	int indexNetworkDriver = [defaults integerForKey: kNetworkDriverKey];
 	if (indexNetworkDriver == kUsermodeNetworkDriverTag)
 	{
-		mNetworkManager = new TUsermodeNetwork(mLog);
+		mNetworkManager = new TUsermodeNetwork(new TStdOutLog());
 	} else if (indexNetworkDriver == kTapNetworkDriverTag) {
 		mNetworkManager = new TTapNetwork(mLog);
 	} else {
