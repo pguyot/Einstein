@@ -158,18 +158,17 @@ void TNetworkManager::LogPacket(KUInt8 *d, KUInt32 n) {
 	}
 }
 
-// UNTESTED!
 KUInt16 TNetworkManager::GetUDPChecksum(KUInt8 *d, KUInt32 n, bool set) {
 	KUInt32 s = 0;
-	KUInt16 i, TCPLength = n-34;
-	// TCP Pseudo Header:
+	KUInt16 i, UDPLength = n-34;
+	// UDP Pseudo Header:
 	s = s + (d[26]<<8) + d[27] + (d[28]<<8) + d[29]; // src IP
 	s = s + (d[30]<<8) + d[31] + (d[32]<<8) + d[33]; // dst IP
-	s = s + d[23] + TCPLength; 
+	s = s + d[23] + UDPLength; 
 	if (set) {
 		d[40] = d[41] = 0;
 	}
-	// TCP Data
+	// UDP Data
 	for (i=34; i<n; i+=2) {
 		s += (d[i]<<8);
 		if (i+1<n) s += d[i+1];
