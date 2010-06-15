@@ -229,8 +229,8 @@ public:
 	KUInt16 GetUDPDstPort()		{ return Get16(36); }
 	KUInt16 GetUDPLength()		{ return Get16(38); }
 	KUInt16 GetUDPChecksum()	{ return Get16(40); }
-	KUInt8 *GetUDPPayloadStart();
-	KUInt32	GetUDPPayloadSize();
+	KUInt8 *GetUDPPayloadStart(){ return mData + 42; }
+	KUInt32	GetUDPPayloadSize()	{ return mSize - 42; }
 
 	
 	void	SetDstMAC(KUInt64 v)		{ Set48(0, v); }
@@ -361,7 +361,7 @@ public:
 	
 	/**
 	 * Create a TCP packet handler.
-	 * A TCP connection ca be uniquely identified by the destinatin MAC, IP, and 
+	 * A TCP connection can be uniquely identified by the destinatin MAC, IP, and 
 	 * port number. Let's remember these now so we can later identify the packets
 	 * that we need to handle.
 	 */
@@ -402,7 +402,7 @@ public:
 	}
 	
 	/**
-	 * Create a genereic TCP packet.
+	 * Create a generic TCP packet.
 	 * This is a working TCP packet for this particular connection. Space is 
 	 * allocated for the payload. The payload must be copied into this 
 	 * packet an the cehcksums must be updated.
@@ -500,10 +500,15 @@ public:
 	 * \return -1 if an error occured and no other handler should handle this packet
 	 */
 	virtual int send(Packet &packet) {
-		// FIXME: verify that mac, port, and IP are the same for src and dst!
+		if (   ( packet.GetType() != Packet::NetTypeIP ) 
+			|| ( packet.GetIPProtocol() != Packet::IPProtocolTCP ) 
+			|| ( myPort != packet.GetTCPSrcPort() )
+			|| ( theirIP != packet.GetIPDstIP() )
+			|| ( theirPort != packet.GetTCPDstPort() ) )
+			return 0;
 		switch (state) {
 			case kStateDisconnected:
-				// FIXME: we assume that the original package is correct
+				// FIXME: we assume that the original packet is a correct SYN packet
 				return connect(packet);
 			case kStateConnected:
 				// The socket is connected. Traffic can come from either side
@@ -531,7 +536,7 @@ public:
 				printf("---> TCP send: unsupported state in 'send()'\n");
 				break;
 		}
-		return 0;
+		return -1;
 	}
 	
 	/**
@@ -543,7 +548,8 @@ public:
 	 */
 	virtual void timer() {
 		KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
-		int avail = recv(mSocket, buf, sizeof(buf), MSG_PEEK);
+		int avail = recv(mSocket, buf, sizeof(buf), 0);
+		//		int avail = recv(mSocket, buf, sizeof(buf), MSG_PEEK);
 		
 		printf("--: (%d)\n", avail);
 		if (avail==0) {
@@ -566,7 +572,8 @@ public:
 			printf("----------> %d bytes available\n", avail);
 			//if (avail>200) avail = 200;
 			Packet *reply = NewPacket(avail);
-			/*ssize_t n =*/ read(mSocket, reply->GetTCPPayloadStart(), avail);
+			// /*ssize_t n =*/ read(mSocket, reply->GetTCPPayloadStart(), avail);
+			memcpy(reply->GetTCPPayloadStart(), buf, avail);
 			reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagPSH);
 			UpdateChecksums(reply);
 			net->LogBuffer(reply->Data(), reply->Size());
@@ -608,76 +615,145 @@ public:
 	int			mSocket;
 };
 
+
+
 /**
- * This class handles DNS/UDP/IP packets.
- *
- * We catch UDP requests to the Name Server and send a "gethostbyname()" instead.
- * Then we create the correct answer as a raw packet and send it back to the
- * Newton.
+ * This class handles UDP packets.
  */
-class DNSPacketHandler : public PacketHandler 
+class UDPPacketHandler : public PacketHandler 
 {
-public:	
+public:
+	
+	/**
+	 * Create a UDP packet handler.
+	 */
+	UDPPacketHandler(TUsermodeNetwork *h, Packet &packet) :
+		PacketHandler(h),
+		myMAC(0),	theirMAC(0),
+		myIP(0),	theirIP(0),
+		myPort(0),	theirPort(0),
+		theirID(0),
+		mSocket(-1)
+	{
+		myMAC = packet.GetSrcMAC();
+		myIP = packet.GetIPSrcIP();
+		myPort = packet.GetUDPSrcPort();
+		
+		theirMAC = packet.GetDstMAC();
+		theirIP = packet.GetIPDstIP();
+		theirPort = packet.GetUDPDstPort();
+		theirID = 2000;
+	}
+	
+	/**
+	 * Delete this handler.
+	 */
+	~UDPPacketHandler() 
+	{
+		if ( mSocket != -1 ) {
+			close(mSocket);
+			mSocket = -1;
+		}
+	}
+	
+	/**
+	 * Create a generic UDP packet.
+	 * \param size this is the desired size of the payload.
+	 * \see UpdateChecksums(Packet *p)
+	 * \see Packet::SetUDPPayload(KUInt8 *, KUInt32)
+	 */
+	Packet *NewPacket(KUInt32 size) {
+		Packet *p = new Packet(0L, size+42);
+		p->SetDstMAC(myMAC);
+		p->SetSrcMAC(theirMAC);
+		p->SetType(Packet::NetTypeIP);
+		
+		p->SetIPVersion(4);
+		p->SetIPHeaderLength(20);
+		p->SetIPTOS(0);
+		p->SetIPTotalLength(size+42-14);	// not counting the network header
+		p->SetIPID(theirID); theirID++;
+		p->SetIPFlags(0);
+		p->SetIPFrag(0);
+		p->SetIPTTL(64);
+		p->SetIPProtocol(Packet::IPProtocolUDP);
+		p->SetIPSrcIP(theirIP);
+		p->SetIPDstIP(myIP);
+		
+		p->SetUDPSrcPort(theirPort);
+		p->SetUDPDstPort(myPort);
+		p->SetUDPLength(size+8);
+		
+		return p;
+	}
+	
+	void UpdateChecksums(Packet *p) {
+		net->SetIPv4Checksum(p->Data(), p->Size());
+		net->SetUDPChecksum(p->Data(), p->Size());
+	}
+
+	/**
+	 * Send a Newton packet to the outside world.
+	 * \param packet send this packet
+	 * \return 1 if the packet was handled ok
+	 * \return 0 if we don't know how to handle the packet
+	 * \return -1 if an error occured and no other handler should handle this packet
+	 */
+	virtual int send(Packet &packet) {
+		if (   ( packet.GetType() != Packet::NetTypeIP ) 
+			|| ( packet.GetIPProtocol() != Packet::IPProtocolUDP ) 
+			|| ( myPort != packet.GetUDPSrcPort() )
+			|| ( theirIP != packet.GetIPDstIP() )
+			|| ( theirPort != packet.GetUDPDstPort() ) )
+			return 0;
+		if (mSocket==-1) {
+			mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+			if (mSocket==-1)
+				return -1;
+			int fl = fcntl(mSocket, F_GETFL);
+			int err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
+			if (err==-1)
+				return -1;
+			memset(&theirSockAddr, 0, sizeof(theirSockAddr));
+			theirSockAddr.sin_family = AF_INET;
+			theirSockAddr.sin_addr.s_addr = htonl(theirIP);
+			theirSockAddr.sin_port = htons(theirPort);
+		}
+		int ret = 
+			sendto(mSocket, packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
+				   0, (struct sockaddr*)&theirSockAddr, sizeof(theirSockAddr));
+		if (ret==-1) 
+			return -1;
+		return 1;
+	}
+	
+	/**
+	 * Handle all reoccuring events.
+	 * We currently use polling to read from the sockets. This is easy on the
+	 * host and does not delay package delivery too much. In a future version
+	 * it would be better to used threads to read from the sockets and 
+	 * interrupts to send data to the Newton.
+	 */
+	virtual void timer() {
+		KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
+		socklen_t addrLen = sizeof(theirSockAddr);
+		if (mSocket==-1)
+			return;
+		int avail = 
+			recvfrom(mSocket, buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
+		if (avail<1)
+			return;
+		
+		Packet *reply = NewPacket(avail);
+		memcpy(reply->GetUDPPayloadStart(), buf, avail);
+		UpdateChecksums(reply);
+		net->LogBuffer(reply->Data(), reply->Size());
+		net->LogPacket(reply->Data(), reply->Size());
+		net->Enqueue(reply);
+	}
+	
 	/**
 	 * Can we handle the given package?
-	 * For DNS requests, the packaet will be handled right away.
-
-	 1  1  1  1  1  1
-	 0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
-	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-	 |                      ID                       |
-	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-	 |QR|   Opcode  |AA|TC|RD|RA|   Z    |   RCODE   |
-	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-	 |                    QDCOUNT                    |
-	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-	 |                    ANCOUNT                    |
-	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-	 |                    NSCOUNT                    |
-	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-	 |                    ARCOUNT                    |
-	 +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-	 
-	 
-	 ID: Eine 16bittige Marke, die der Sender, also der Client, einträgt. Der Server kopiert diese einfach in seine Antwort, um es dem Sender (Client) zu ermöglichen, die Antworten mit den Fragen zu verbinden.
-	 QR: Ein Bit, um Anfrage (query, dann 0) und Antwort (response, dann 1) zu unterscheiden.
-	 OPCODE: Vier Bit, die den Typ der Anfrage zeigen. Wird vom Client gesetzt und vom Server in die Antwort kopiert. Folgende Werte/Typen gibt es: 0 ist eine normale Anfrage (QUERY), 1 eine inverse Anfrage (IQUERY) und 2 zeigt eine Status-Anfrage (STATUS) an. 3-15 sind reserviert.
-	 AA: Autoritäre Antwort. Diese Bit kann nur in Antworten gesetzt werden und zeigt an, das der antwortente Server für die angefragte Domäne autoritär, verantwortlich ist. In der Antwort-Sektion können verschiedene Namen vorkommen, schließlich kann es Aliase geben. Das AA Bit bezieht sich immer auf den Namen, der die Frage trifft. Oder aber auf die erste Antwort in der Antwort Sektion.
-	 TC: Das "TrunCation" Bit. Zeigt an, das die Nachricht zerstückelt werden mußte. Das Paket war größer als das entsprechende Netzwerk es zuläßt.
-	 RD: Das "Recursion Desired" Bit. Wird vom Client gesetzt und zeigt an, das der Client wünscht, das der Server rekursiv die Anfrage weiterverfolgt. Der Client möchte sich also nicht selbst an eventuell weitere Server wenden. Der Server muß das nicht unterstützen.
-	 RA: Das "Recursion Available" Bit. Wird vom Server gesetzt, wenn er in der Lage ist, Anfragen recursiv zu behandeln. Dies ist besonders wichtig, wenn Nameserver untereinander kommunizieren.
-	 .
-	 Z: Reserviert. Muß Null sein.
-	 RCODE: Ist der "Response code" und gibt Informationen über die Art der Antwort. Folgende Werte sind möglich:
-	 0 - Kein Fehler.
-	 1 - Ein Fehler des Formats. Die Nachricht kann nicht interpretiert werden.
-	 2 - Server Fehler. Der Server konnte die Frage nicht bearbeiten aufgrund eines internen Problemes.
-	 3 - Namen Fehler. Nur aussagefähig, wenn die Antwort von einem autoritären Server kommt. Es bedeutet dann, das der angefragte Domain-Name nicht existiert.
-	 4 - Nicht Implementiert. Der Server unterstützt diesen Typ Anfrage nicht.
-	 5 - Verweigert. Der Server führt diese Anfrage aufgrund von Verboten nicht aus. Es mag sein, das der Client nicht vertrauenswürdig ist, oder das der Server z.B. keine Zonentransfers an diese Adresse macht.
-	 6-15 - Reserviert.
-	 QDCOUNT: Ein 16 Bit Feld, das die Anzahl der Einträge (RRs) in der Anfrage-Sektion angibt.
-	 ANCOUNT: Ein 16 Bit Feld, das die Anzahl der Einträge (RRs) in der Antwort-Sektion angibt.
-	 NSCOUNT: Ein 16 Bit Feld, das die Anzahl der Einträge (RRs) in der "Verantwortlicher Server" Sektion angibt.
-	 ARCOUNT: Ein 16 Bit Feld, das die Anzahl der Eintäge (RRs) in der Sektion für zusätzliche Informationen angibt.
-
-	 static KUInt8 b2[] = {
-	 0x00, 0x24, 0x36, 0xa2, 0xa7, 0xe4, 0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23, 0x08, 0x00, 0x45, 0x00,
-	 0x00, 0x36, 0x00, 0x00, 0x00, 0x00, 0x40, 0x11, 0xf8, 0x9f, 0xc0, 0xa8, 0x00, 0xc6, 0xc0, 0xa8,
-	 0x00, 0x01, 0x08, 0x00, 0x00, 0x35, 0x00, 0x22, 0xc3, 0x0e,
-																 0x00, 0x01, 
-																			 0x01, 0x00, 
-																						 0x00, 0x01,
-	 0x00, 0x00, 
-				 0x00, 0x00,  
-							 0x00, 0x00, 
-										 0x04, 0x62, 0x6f, 0x72, 0x67, 
-																	   0x03, 0x6f, 0x72, 0x67, 
-																							   0x00,
-	 0x00, 0x01, 0x00, 0x01
-	 };
-	 
-	 
 	 * \param packet the Newton packet that could be sent
 	 * \param n the network interface
 	 * \return 0 if we can not handle this packet
@@ -689,15 +765,19 @@ public:
 			return 0;
 		if ( packet.GetIPProtocol() != Packet::IPProtocolUDP ) 
 			return 0;
-		if ( packet.GetUDPDstPort() != 53 ) 
-			return 0;
-		printf("---> This is a UDP packaet.\n");
-		net->LogBuffer(packet.Data(), packet.Size());
-		net->LogPacket(packet.Data(), packet.Size());
-		return 0;
+		printf("---> Newt wants to open a new UDP connection. Enqueue a handler.\n");
+		PacketHandler *ph = new UDPPacketHandler(net, packet);
+		net->AddPacketHandler(ph);
+		return ph->send(packet);
 	}
+	
+	KUInt64		myMAC, theirMAC;
+	KUInt32		myIP, theirIP;
+	KUInt16		myPort, theirPort;
+	KUInt16		theirID;
+	int			mSocket;
+	struct sockaddr_in theirSockAddr;
 };
-
 
 
 
@@ -755,7 +835,7 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 		case 1:		return 0;	// packet was handled successfuly, leave
 		case 0:		break;		// another handler should deal with this packet
 	}
-	switch( DNSPacketHandler::canHandle(packet, this) ) {				
+	switch( UDPPacketHandler::canHandle(packet, this) ) {				
 		case -1:	return -1;	// an error occured, packet must not be handled
 		case 1:		return 0;	// packet was handled successfuly, leave
 		case 0:		break;		// another handler should deal with this packet
@@ -778,36 +858,6 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 		Enqueue(new Packet(r1, sizeof(r1)));
 		return 0;
 	}
-	
-	// FIXME: simulate the DNS request
-	static KUInt8 b2[] = {
-		0x00, 0x24, 0x36, 0xa2, 0xa7, 0xe4, 0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23, 0x08, 0x00, 0x45, 0x00,
-		0x00, 0x36, 0x00, 0x00, 0x00, 0x00, 0x40, 0x11, 0xf8, 0x9f, 0xc0, 0xa8, 0x00, 0xc6, 0xc0, 0xa8,
-		0x00, 0x01, 0x08, 0x00, 0x00, 0x35, 0x00, 0x22, 0xc3, 0x0e, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x62, 0x6f, 0x72, 0x67, 0x03, 0x6f, 0x72, 0x67, 0x00,
-		0x00, 0x01, 0x00, 0x01
-	};
-	static KUInt8 r2[] = {
-		0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23, 0x00, 0x24, 0x36, 0xa2, 0xa7, 0xe4, 0x08, 0x00, 0x45, 0x00, 
-		0x00, 0x46, 0x05, 0x97, 0x00, 0x00, 0x40, 0x11, 0xf2, 0xf6, 0xc0, 0xa8, 0x00, 0x01, 0xc0, 0xa8, 
-		0x00, 0xc8, 0x00, 0x35, 0xcd, 0x0c, 0x00, 0x32, 0xaa, 0xe8, 0x00, 0x01, 0x81, 0x80, 0x00, 0x01, 
-		0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x62, 0x6f, 0x72, 0x67, 0x03, 0x6f, 0x72, 0x67, 0x00, 
-		0x00, 0x01, 0x00, 0x01, 0xc0, 0x0c, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x04, 0x7e, 0x00, 0x04, 
-		0x40, 0x69, 0xcd, 0x7b,                   
-	};
-	if (size==sizeof(b2) && memcmp(b2, data, /*size*/14)==0) {
-		printf("---> Send Packet: faking DNS request\n");
-		r2[34] = b2[36]; r2[35] = b2[37];
-		r2[36] = b2[34]; r2[37] = b2[35]; // swap ports
-		r2[33] = 198;
-		SetIPv4Checksum(r2, sizeof(r2));
-		SetUDPChecksum(r2, sizeof(r2));
-		LogPacket(b2, sizeof(b2));
-		LogPacket(r2, sizeof(r2));
-		Enqueue(new Packet(r2, sizeof(r2)));
-		return 0;
-	}
-	
 	
 	// if we can't interprete the package, we offer some debugging information
 	printf("---> Send Packet: I can't handle this packet:\n");
