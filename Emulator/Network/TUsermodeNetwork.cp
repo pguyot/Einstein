@@ -98,6 +98,7 @@
 #include <net/if.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <ifaddrs.h>
 
 
 
@@ -116,7 +117,8 @@ public:
 	static const KUInt16 TCPFlagFIN = 0x0001;
 	
 	/** Used in GetType(). */
-	static const KUInt16 NetTypeIP = 0x0800;
+	static const KUInt16 NetTypeIP	= 0x0800;
+	static const KUInt16 NetTypeARP = 0x0806;
 	
 	/** Used in GetIPProtocol() */
 	static const KUInt8 IPProtocolTCP =  6;
@@ -139,8 +141,13 @@ public:
 			}
 			mCopy = 1;
 		} else {
-			mData = data;
-			mCopy = 0;
+			if (data) {
+				mData = data;
+				mCopy = 0;
+			} else {
+				mData = (KUInt8*)calloc(size, 1);
+				mCopy = 1;
+			}
 		}
 		mSize = size;
 	}
@@ -179,6 +186,7 @@ public:
 		mData[i+3] = v>>16;
 		mData[i+4] = v>>8;
 		mData[i+5] = v; }
+	
 	/** Get a 32-bit word in network order. */
 	KUInt32 Get32(KUInt32 i) { return (mData[i]<<24)|(mData[i+1]<<16)|(mData[i+2]<<8)|(mData[i+3]); }
 	void Set32(KUInt32 i, KUInt32 v) { 
@@ -186,6 +194,7 @@ public:
 		mData[i+1] = v>>16;
 		mData[i+2] = v>>8;
 		mData[i+3] = v; }
+	
 	/** Get a 16-bit word in network order. */
 	KUInt16 Get16(KUInt32 i) { return (mData[i]<<8)|(mData[i+1]); }
 	void Set16(KUInt32 i, KUInt16 v) { 
@@ -232,6 +241,16 @@ public:
 	KUInt8 *GetUDPPayloadStart(){ return mData + 42; }
 	KUInt32	GetUDPPayloadSize()	{ return mSize - 42; }
 
+	KUInt16 GetARPHType()		{ return Get16(14); }
+	KUInt16 GetARPPType()		{ return Get16(16); }
+	KUInt8	GetARPHLen()		{ return mData[18]; }
+	KUInt8	GetARPPLen()		{ return mData[19]; }
+	KUInt16 GetARPOp()			{ return Get16(20); }
+	KUInt64 GetARPSHA()			{ return Get48(22); }
+	KUInt32	GetARPSPA()			{ return Get32(28); }
+	KUInt64 GetARPTHA()			{ return Get48(32); }
+	KUInt32	GetARPTPA()			{ return Get32(38); }
+
 	
 	void	SetDstMAC(KUInt64 v)		{ Set48(0, v); }
 	void	SetSrcMAC(KUInt64 v)		{ Set48(6, v); }
@@ -267,6 +286,16 @@ public:
 	void	SetUDPChecksum(KUInt16 v)	{ Set16(40, v); }
 	void	SetUDPPayload(KUInt8 *, KUInt32);
 
+	void	SetARPHType(KUInt16 v)		{ Set16(14, v); }
+	void	SetARPPType(KUInt16 v)		{ Set16(16, v); }
+	void	SetARPHLen(KUInt8 v)		{ mData[18] = v; }
+	void	SetARPPLen(KUInt8 v)		{ mData[19] = v; }
+	void	SetARPOp(KUInt16 v)			{ Set16(20, v); }
+	void	SetARPSHA(KUInt64 v)		{ Set48(22, v); }
+	void	SetARPSPA(KUInt32 v)		{ Set32(28, v); }
+	void	SetARPTHA(KUInt64 v)		{ Set48(32, v); }
+	void	SetARPTPA(KUInt32 v)		{ Set32(38, v); }
+	
 	Packet *prev, *next;
 	
 private:
@@ -628,12 +657,12 @@ public:
 	 * Create a UDP packet handler.
 	 */
 	UDPPacketHandler(TUsermodeNetwork *h, Packet &packet) :
-		PacketHandler(h),
-		myMAC(0),	theirMAC(0),
-		myIP(0),	theirIP(0),
-		myPort(0),	theirPort(0),
-		theirID(0),
-		mSocket(-1)
+	PacketHandler(h),
+	myMAC(0),	theirMAC(0),
+	myIP(0),	theirIP(0),
+	myPort(0),	theirPort(0),
+	theirID(0),
+	mSocket(-1)
 	{
 		myMAC = packet.GetSrcMAC();
 		myIP = packet.GetIPSrcIP();
@@ -691,7 +720,7 @@ public:
 		net->SetIPv4Checksum(p->Data(), p->Size());
 		net->SetUDPChecksum(p->Data(), p->Size());
 	}
-
+	
 	/**
 	 * Send a Newton packet to the outside world.
 	 * \param packet send this packet
@@ -720,8 +749,8 @@ public:
 			theirSockAddr.sin_port = htons(theirPort);
 		}
 		int ret = 
-			sendto(mSocket, packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
-				   0, (struct sockaddr*)&theirSockAddr, sizeof(theirSockAddr));
+		sendto(mSocket, packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
+			   0, (struct sockaddr*)&theirSockAddr, sizeof(theirSockAddr));
 		if (ret==-1) 
 			return -1;
 		return 1;
@@ -740,7 +769,7 @@ public:
 		if (mSocket==-1)
 			return;
 		int avail = 
-			recvfrom(mSocket, buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
+		recvfrom(mSocket, buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
 		if (avail<1)
 			return;
 		
@@ -782,6 +811,55 @@ public:
 
 
 /**
+ * This class handles UDP packets.
+ */
+class ARPPacketHandler : public PacketHandler 
+{
+public:
+	
+	/**
+	 * Can we handle the given package?
+	 * \param packet the Newton packet that could be sent
+	 * \param n the network interface
+	 * \return 0 if we can not handle this packet
+	 * \return 1 if we can handled it and it need not to be propagated any further
+	 * \return -1 if an error occurred an no other handler should handle this packet
+	 */
+	static int canHandle(Packet &packet, TUsermodeNetwork *net) {
+		if ( packet.GetType() != Packet::NetTypeARP ) 
+			return 0;
+		printf("---> Newt wants to send some ARP request.\n");
+		if ( packet.GetARPOp() != 1 ) // is this a request?
+			return 0;
+		if ( packet.GetARPHType() != 1 ) // is this an Ethernet MAC address?
+			return 0;
+		if ( packet.GetARPPType() != 0x0800 ) // Which upper layer protocol? IP?
+			return 0;
+		if ( packet.GetARPHLen() != 6 ) // Length of MAC Address?
+			return 0;
+		if ( packet.GetARPPLen() != 4 ) // Length of IP Address?
+			return 0;
+		Packet *reply = new Packet(0L, 42);
+		reply->SetSrcMAC( packet.GetDstMAC() );
+		reply->SetDstMAC( packet.GetSrcMAC() );
+		reply->SetType( Packet::NetTypeARP );
+		reply->SetARPHType( 1 );
+		reply->SetARPPType( 0x0800 );
+		reply->SetARPHLen( 6 );
+		reply->SetARPPLen( 4 );
+		reply->SetARPOp( 2 ); // reply
+		reply->SetARPSHA( 0x000000fa00000000ULL | packet.GetARPTPA() ); // faking a MAC address
+		reply->SetARPSPA( packet.GetARPTPA() );
+		reply->SetARPTHA( packet.GetARPSHA() );
+		reply->SetARPTPA( packet.GetARPSPA() );
+		net->Enqueue(reply);
+		return 1;
+	}
+};
+
+
+
+/**
  * Create an interface betweenthe Newton network driver and Einstein.
  */
 TUsermodeNetwork::TUsermodeNetwork(TLog* inLog) :
@@ -790,6 +868,23 @@ TUsermodeNetwork::TUsermodeNetwork(TLog* inLog) :
 	mFirstPacket( 0L ),
 	mLastPacket( 0L )
 {
+	// http://www.developerweb.net/forum/showthread.php?t=5085
+	/*
+	struct ifaddrs *interfaces;
+	int ret = getifaddrs(&interfaces);
+	if (ret==0) {
+		struct ifaddrs *ifa = interfaces;
+		while (ifa) {
+			if (ifa->ifa_name && strcmp(ifa->ifa_name, "en1")==0) {
+				printf("Network adapter found\n");
+				struct if_data *ifd = (struct if_data *)ifa->ifa_data;
+				int x = ifd->ifi_obytes;
+			}
+			ifa = ifa->ifa_next;
+		}
+		freeifaddrs(interfaces);
+	}
+	*/
 }
 
 
@@ -836,6 +931,11 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 		case 0:		break;		// another handler should deal with this packet
 	}
 	switch( UDPPacketHandler::canHandle(packet, this) ) {				
+		case -1:	return -1;	// an error occured, packet must not be handled
+		case 1:		return 0;	// packet was handled successfuly, leave
+		case 0:		break;		// another handler should deal with this packet
+	}
+	switch( ARPPacketHandler::canHandle(packet, this) ) {				
 		case -1:	return -1;	// an error occured, packet must not be handled
 		case 1:		return 0;	// packet was handled successfuly, leave
 		case 0:		break;		// another handler should deal with this packet
