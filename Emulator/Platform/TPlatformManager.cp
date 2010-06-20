@@ -318,10 +318,10 @@ TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inDa
 }
 
 // -------------------------------------------------------------------------- //
-//  * SendNE2000CardEvent( void )
+//  * SendNetworkCardEvent( void )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::SendNE2000CardEvent( void )
+TPlatformManager::SendNetworkCardEvent( void )
 {
 	static TNE2000Card *theCard = 0;
 

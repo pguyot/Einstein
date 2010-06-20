@@ -12,8 +12,8 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="325"/>
 			<integer value="343"/>
-			<integer value="29"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -668,18 +668,9 @@
 									<reference key="NSOnImage" ref="442413667"/>
 									<reference key="NSMixedImage" ref="780571820"/>
 								</object>
-								<object class="NSMenuItem" id="757668125">
-									<reference key="NSMenu" ref="489956518"/>
-									<string key="NSTitle">Insert NE2000 Card</string>
-									<string key="NSKeyEquiv">2</string>
-									<int key="NSKeyEquivModMask">1048576</int>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="442413667"/>
-									<reference key="NSMixedImage" ref="780571820"/>
-								</object>
 								<object class="NSMenuItem" id="870529017">
 									<reference key="NSMenu" ref="489956518"/>
-									<string key="NSTitle">Action power button</string>
+									<string key="NSTitle">Action Power Button</string>
 									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="442413667"/>
@@ -687,8 +678,17 @@
 								</object>
 								<object class="NSMenuItem" id="144943469">
 									<reference key="NSMenu" ref="489956518"/>
-									<string key="NSTitle">Switch backlight</string>
+									<string key="NSTitle">Switch Backlight</string>
 									<string key="NSKeyEquiv"/>
+									<int key="NSKeyEquivModMask">1048576</int>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="442413667"/>
+									<reference key="NSMixedImage" ref="780571820"/>
+								</object>
+								<object class="NSMenuItem" id="855284404">
+									<reference key="NSMenu" ref="489956518"/>
+									<string key="NSTitle">Switch Network Card</string>
+									<string key="NSKeyEquiv">2</string>
 									<int key="NSKeyEquivModMask">1048576</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="442413667"/>
@@ -1889,10 +1889,6 @@ bCBmb3IgZGV0YWlscy4</string>
 				<string key="NSClassName">TCocoaSetupController</string>
 			</object>
 			<object class="NSUserDefaultsController" id="432704173">
-				<object class="NSMutableArray" key="NSDeclaredKeys">
-					<bool key="EncodedWithXMLCoder">YES</bool>
-					<string>NetworkDriver</string>
-				</object>
 				<bool key="NSSharedInstance">YES</bool>
 			</object>
 		</object>
@@ -2712,14 +2708,6 @@ bCBmb3IgZGV0YWlscy4</string>
 					<int key="connectionID">552</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">insertNE2000Card:</string>
-						<reference key="source" ref="1064986798"/>
-						<reference key="destination" ref="757668125"/>
-					</object>
-					<int key="connectionID">553</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">selectedTag: values.NetworkDriver</string>
 						<reference key="source" ref="368487219"/>
@@ -2734,6 +2722,14 @@ bCBmb3IgZGV0YWlscy4</string>
 						</object>
 					</object>
 					<int key="connectionID">574</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">networkButton:</string>
+						<reference key="source" ref="1064986798"/>
+						<reference key="destination" ref="855284404"/>
+					</object>
+					<int key="connectionID">577</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -3235,21 +3231,16 @@ bCBmb3IgZGV0YWlscy4</string>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="144943469"/>
-							<reference ref="757668125"/>
 							<reference ref="1060653562"/>
 							<reference ref="648758434"/>
 							<reference ref="870529017"/>
+							<reference ref="855284404"/>
 						</object>
 						<reference key="parent" ref="471646592"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">320</int>
 						<reference key="object" ref="144943469"/>
-						<reference key="parent" ref="489956518"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">321</int>
-						<reference key="object" ref="757668125"/>
 						<reference key="parent" ref="489956518"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -3998,6 +3989,11 @@ bCBmb3IgZGV0YWlscy4</string>
 						<reference key="object" ref="839656195"/>
 						<reference key="parent" ref="125308949"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">575</int>
+						<reference key="object" ref="855284404"/>
+						<reference key="parent" ref="489956518"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -4160,8 +4156,6 @@ bCBmb3IgZGV0YWlscy4</string>
 					<string>316.ImportedFromIB2</string>
 					<string>320.IBPluginDependency</string>
 					<string>320.ImportedFromIB2</string>
-					<string>321.IBPluginDependency</string>
-					<string>321.ImportedFromIB2</string>
 					<string>323.IBPluginDependency</string>
 					<string>323.ImportedFromIB2</string>
 					<string>324.IBPluginDependency</string>
@@ -4295,6 +4289,8 @@ bCBmb3IgZGV0YWlscy4</string>
 					<string>568.IBPluginDependency</string>
 					<string>57.IBPluginDependency</string>
 					<string>57.ImportedFromIB2</string>
+					<string>575.IBPluginDependency</string>
+					<string>575.ImportedFromIB2</string>
 					<string>58.IBPluginDependency</string>
 					<string>58.ImportedFromIB2</string>
 					<string>72.IBPluginDependency</string>
@@ -4484,9 +4480,7 @@ bCBmb3IgZGV0YWlscy4</string>
 					<boolean value="YES"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<boolean value="YES"/>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<boolean value="YES"/>
-					<string>{{989, 927}, {214, 93}}</string>
+					<string>{{989, 927}, {215, 93}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<boolean value="YES"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -4641,6 +4635,8 @@ bCBmb3IgZGV0YWlscy4</string>
 					<boolean value="YES"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<boolean value="YES"/>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<boolean value="YES"/>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="unlocalizedProperties">
@@ -4659,7 +4655,7 @@ bCBmb3IgZGV0YWlscy4</string>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">574</int>
+			<int key="maxID">577</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -4682,10 +4678,12 @@ bCBmb3IgZGV0YWlscy4</string>
 							<string>backlightButton:</string>
 							<string>insertNE2000Card:</string>
 							<string>installPackage:</string>
+							<string>networkButton:</string>
 							<string>powerButton:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
