@@ -133,9 +133,9 @@ public:
 	void	SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inData );
 
 	///
-	/// Send a NE2000 card insertion event.
+	/// Send a Network card insertion event.
 	///
-	void	SendNE2000CardEvent( void );
+	void	SendNetworkCardEvent( void );
 	
 	///
 	/// Send a power switch event.

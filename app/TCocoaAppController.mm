@@ -120,12 +120,16 @@ static TCocoaAppController* gInstance = nil;
 		mPowerState = YES;
 		mToolbarBacklightItem = NULL;
 		mBacklightState = NO;
+		mToolbarNetworkItem = NULL;
+		mNetworkState = NO;
 
 		// Retrieve toolbar dynamic images.
 		mToolbarPowerOnImage = [NSImage imageNamed:@"button_power_on"];
 		mToolbarPowerOffImage = [NSImage imageNamed:@"button_power"];
 		mToolbarBacklightOnImage = [NSImage imageNamed:@"button_backlight_on"];
 		mToolbarBacklightOffImage = [NSImage imageNamed:@"button_backlight"];
+		mToolbarNetworkOnImage = [NSImage imageNamed:@"button_network_in"];
+		mToolbarNetworkOffImage = [NSImage imageNamed:@"button_network"];
 		
 		// Single instance.
 		gInstance = self;
@@ -390,15 +394,6 @@ static TCocoaAppController* gInstance = nil;
 
 
 // -------------------------------------------------------------------------- //
-//  * (IBAction)insertNE2000Card:(id)
-// -------------------------------------------------------------------------- //
-- (IBAction)insertNE2000Card:(id)sender
-{
-  mPlatformManager->SendNE2000CardEvent();
-}
-
-
-// -------------------------------------------------------------------------- //
 //  * (IBAction)powerButton:(id)
 // -------------------------------------------------------------------------- //
 - (IBAction)powerButton:(id)sender
@@ -412,6 +407,14 @@ static TCocoaAppController* gInstance = nil;
 - (IBAction)backlightButton:(id)sender
 {
 	mPlatformManager->SendBacklightEvent();
+}
+
+// -------------------------------------------------------------------------- //
+//  * (IBAction)networkButton:(id)
+// -------------------------------------------------------------------------- //
+- (IBAction)networkButton:(id)sender
+{
+	mPlatformManager->SendNetworkCardEvent();
 }
 
 // -------------------------------------------------------------------------- //
@@ -574,6 +577,30 @@ static TCocoaAppController* gInstance = nil;
 			[item setImage: mToolbarBacklightOffImage];
 		}
 		[item setEnabled: YES];
+	} else if ( [itemIdentifier isEqualToString:@"Network"] ) {
+		if (flag == YES)
+		{
+			if (mToolbarNetworkItem != NULL)
+			{
+				[mToolbarNetworkItem release];
+				mToolbarNetworkItem = NULL;
+			}
+			mToolbarNetworkItem = item;
+			[mToolbarNetworkItem retain];
+		}
+		[item setLabel:NSLocalizedString(@"Network",nil)];
+		[item setPaletteLabel:[item label]];
+		[item setTarget:self];
+		[item setAction:@selector(networkButton:)];
+		if (flag == YES)
+		{
+			[item setImage: 
+			 (mNetworkState == YES) ?
+				mToolbarNetworkOnImage : mToolbarNetworkOffImage];
+		} else {
+			[item setImage: mToolbarNetworkOffImage];
+		}
+		[item setEnabled: YES];
 	}
 	return [item autorelease];
 }
@@ -586,10 +613,11 @@ static TCocoaAppController* gInstance = nil;
 #pragma unused ( toolbar )
 
 	return [NSArray arrayWithObjects:NSToolbarSeparatorItemIdentifier,
-					NSToolbarSpaceItemIdentifier,
-					NSToolbarFlexibleSpaceItemIdentifier,
-					NSToolbarCustomizeToolbarItemIdentifier, 
-					@"Preferences", @"Install", @"Power", @"Backlight", nil];
+			NSToolbarSpaceItemIdentifier,
+			NSToolbarFlexibleSpaceItemIdentifier,
+			NSToolbarCustomizeToolbarItemIdentifier, 
+			@"Preferences", @"Install", @"Power", 
+			@"Backlight", @"Network", nil];
 }
 
 // ------------------------------------------------------------------------- //
@@ -602,6 +630,7 @@ static TCocoaAppController* gInstance = nil;
 	return [NSArray arrayWithObjects:
 			@"Power",
 			@"Backlight",
+			@"Network",
 			NSToolbarFlexibleSpaceItemIdentifier,
 			@"Install",
 			NSToolbarCustomizeToolbarItemIdentifier,
@@ -731,8 +760,22 @@ static TCocoaAppController* gInstance = nil;
 	if (mToolbarBacklightItem != NULL)
 	{
 		[mToolbarBacklightItem setImage: 
-			(mBacklightState == YES) ?
-				mToolbarBacklightOnImage : mToolbarBacklightOffImage];
+		 (mBacklightState == YES) ?
+			  mToolbarBacklightOnImage : mToolbarBacklightOffImage];
+	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * (void) networkChange: (BOOL)
+// -------------------------------------------------------------------------- //
+- (void) networkChange: (BOOL) state
+{
+	mNetworkState = state;
+	if (mToolbarNetworkItem != NULL)
+	{
+		[mToolbarNetworkItem setImage: 
+		 (mNetworkState == YES) ?
+			  mToolbarNetworkOnImage : mToolbarNetworkOffImage];
 	}
 }
 

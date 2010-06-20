@@ -81,6 +81,10 @@ class TLog;
 	NSImage*			mToolbarBacklightOnImage;
 	NSImage*			mToolbarBacklightOffImage;
 	BOOL				mBacklightState;
+	NSToolbarItem*		mToolbarNetworkItem;
+	NSImage*			mToolbarNetworkOnImage;
+	NSImage*			mToolbarNetworkOffImage;
+	BOOL				mNetworkState;
 }
 
 // Initialize.
@@ -98,9 +102,9 @@ class TLog;
 
 // Actions.
 - (IBAction) installPackage:(id)sender;
-- (IBAction) insertNE2000Card:(id)sender;
 - (IBAction) powerButton:(id)sender;
 - (IBAction) backlightButton:(id)sender;
+- (IBAction) networkButton:(id)sender;
 
 // AppleScript
 - (id)commandInstallPackage:(NSURL*)inFileURL;
@@ -117,6 +121,7 @@ class TLog;
 // Einstein Emulator App interface.
 - (void) powerChange: (BOOL) power;
 - (void) backlightChange: (BOOL) state;
+- (void) networkChange: (BOOL) state;
 - (void) setEmulatorWindow: (NSWindow*) inWindow fullScreen: (BOOL) inFullScreen;
 
 // Private (sic) methods.
