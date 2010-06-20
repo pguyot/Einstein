@@ -101,6 +101,8 @@
 #include <ifaddrs.h>
 
 
+const KUInt32 kUDPExpirationTime = 100;
+
 
 /**
  * This class is used to build and interprete TCP/IP packages.
@@ -178,8 +180,15 @@ public:
 	 * This is used to quickly handle MAC adresses.
 	 * \return a six-byte sequence in the buffer as a 64 bit number.
 	 */
-	KUInt64 Get48(KUInt32 i) { return ((KUInt64(mData[i]))<<40)|((KUInt64(mData[i+1]))<<32)|(mData[i+2]<<24)|(mData[i+3]<<16)|(mData[i+4]<<8)|(mData[i+5]); }
-	void Set48(KUInt32 i, KUInt64 v) { 
+	KUInt64 Get48(KUInt32 i) { 
+		KUInt64 a0 = (KUInt64(mData[i+0]))<<40;
+		KUInt64 a1 = (KUInt64(mData[i+1]))<<32;
+		KUInt64 a2 = (KUInt64(mData[i+2]))<<24;
+		KUInt64 a3 = (KUInt64(mData[i+3]))<<16;
+		KUInt64 a4 = (KUInt64(mData[i+4]))<<8;
+		KUInt64 a5 = (KUInt64(mData[i+5]));
+		return a0|a1|a2|a3|a4|a5; }
+	void Set48(KUInt32 i, KUInt64 v) {
 		mData[i+0] = v>>40;
 		mData[i+1] = v>>32;
 		mData[i+2] = v>>24;
@@ -381,8 +390,8 @@ public:
 		kStateDisconnected = 0,		// handler just created, no socket
 									// we expect a SYN package from the Newt and will reply with SYN ACK (or timeout)
 		kStateConnected,			// socket was opened successfully
-		kStateDisconnectWaitForACK,	// Peer disconnected, send a FIN and wait for an ACK
-		kStateDisconnectWaitForFIN,	// Perr disconnected, now wait for the FIN from the Newt and ACK it.
+		kStatePeerDiscWaitForACK,	// Peer disconnected, send a FIN and wait for an ACK
+		kStatePeerDiscWaitForFIN,	// Perr disconnected, now wait for the FIN from the Newt and ACK it.
 									// Newt requests a disconnect
 									// Peer request a disconnect
 		kStateError
@@ -414,6 +423,8 @@ public:
 		theirPort = packet.GetTCPDstPort();
 		theirSeqNr = 0;
 		theirID = 1000;
+		printf("Net: Adding TCP handler for port %d to %lu.%lu.%lu.%lu\n", theirPort,
+			   (theirIP>>24)&0xff, (theirIP>>16)&0xff, (theirIP>>8)&0xff, theirIP&0xff);
 	}
 	
 	/**
@@ -482,8 +493,6 @@ public:
 	 * \return -1 if no connection could be established
 	 */
 	int connect(Packet &packet) {
-		printf("-----> Initiate socket connection\n");
-		
 		// create a socket
 		mSocket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (mSocket==-1) 
@@ -515,9 +524,9 @@ public:
 		reply->SetTCPHeaderLength(24);
 		reply->Set32(54, 0x02040578); // set Maximum Segment Size
 		UpdateChecksums(reply);
+		net->LogPayload(reply->Data(), reply->Size(), "W E>N");
 		net->Enqueue(reply);
 		state = kStateConnected;
-		printf("-----> DONE: Initiate socket connection\n");
 		return 1;
 	}
 	
@@ -545,22 +554,42 @@ public:
 					// this is an acknowledge package
 					theirSeqNr = packet.GetTCPAck();
 				} else { // this is a data package, ack needed
-					printf("-----> Send a packet to the world\n");
 					// FIXME: if FIN is set, we need to start disconnecting
+					net->LogPayload(packet.Data(), packet.Size(), "W<E N");
 					write(mSocket, packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize());					
-					net->LogBuffer(packet.Data(), packet.Size());
-					net->LogPacket(packet.Data(), packet.Size());
 					Packet *reply = NewPacket(0);
 					mySeqNr += packet.GetTCPPayloadSize(); 
 					reply->SetTCPAck(mySeqNr);
 					reply->SetTCPFlags(Packet::TCPFlagACK);
 					UpdateChecksums(reply);
-					net->LogBuffer(reply->Data(), reply->Size());
-					net->LogPacket(reply->Data(), reply->Size());
+					net->LogPayload(reply->Data(), reply->Size(), "W E>N");
 					net->Enqueue(reply);
 					// TODO: now enqueue the reply from the remote client
 				}
 				return 1;
+			case kStatePeerDiscWaitForACK:
+				// TODO: make sure that this really is the FIN ACK packege (FIN's not set!)
+				theirSeqNr = packet.GetTCPAck();
+				state = kStatePeerDiscWaitForFIN;
+				return 1;
+			case kStatePeerDiscWaitForFIN: {
+				// TODO: make sure that this really is the FIN packege from the Newton!
+				if ( packet.GetTCPFlags()&Packet::TCPFlagFIN==0 )
+					return 1;
+				// Acknowledge the FIN request
+				theirSeqNr = packet.GetTCPAck();
+				Packet *reply = NewPacket(0);
+				reply->SetTCPAck(mySeqNr+1);
+				reply->SetTCPFlags(Packet::TCPFlagACK);
+				UpdateChecksums(reply);
+				net->LogPayload(reply->Data(), reply->Size(), "W E>N (ACK fin)");
+				net->Enqueue(reply);				
+				close(mSocket);
+				net->RemovePacketHandler(this);
+				printf("Net: Peer closing. Removing TCP handler for port %u to %lu.%lu.%lu.%lu\n", theirPort,
+					   (theirIP>>24)&0xff, (theirIP>>16)&0xff, (theirIP>>8)&0xff, theirIP&0xff);
+				delete this;
+				return 1; }
 			default:
 				printf("---> TCP send: unsupported state in 'send()'\n");
 				break;
@@ -576,37 +605,39 @@ public:
 	 * interrupts to send data to the Newton.
 	 */
 	virtual void timer() {
+		switch (state) {
+			case kStatePeerDiscWaitForACK:
+				// TODO: count down the timer and remove myself if expired
+				return;
+			case kStatePeerDiscWaitForFIN:
+				// TODO: count down the timer and remove myself if expired
+				return;
+			case kStateDisconnected:
+				// TODO: this should not happen
+				return;
+		}
+		// ok, the state is kStateConnected. See if there are any icomming messages
 		KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
 		int avail = recv(mSocket, buf, sizeof(buf), 0);
-		//		int avail = recv(mSocket, buf, sizeof(buf), MSG_PEEK);
-		
-		printf("--: (%d)\n", avail);
 		if (avail==0) {
-			printf("----------> closing connection\n", avail);
-			// FIXME: we are simply throwing out a message here. Much more needs to be done.
+			// Peer has closed connection.
 			Packet *reply = NewPacket(0);
+			// Send a FIN request to the Newton
 			reply->SetTCPFlags(Packet::TCPFlagFIN|Packet::TCPFlagACK);
 			UpdateChecksums(reply);
+			net->LogPayload(reply->Data(), reply->Size(), "W E>N (FIN)");
 			net->Enqueue(reply);
-			close(mSocket);
-			net->RemovePacketHandler(this);
-			delete this;
-			return;
-			// send FIN to Newt
-			// wait for ACK
-			// wait for FIN
-			// send ACK
-			// remove self from list
+			// Wait for the newton to acknowledge the FIN
+			state = kStatePeerDiscWaitForACK;
 		} else if (avail>0) {
-			printf("----------> %d bytes available\n", avail);
+			net->LogPayload(buf, avail, "W>E N");
 			//if (avail>200) avail = 200;
 			Packet *reply = NewPacket(avail);
 			// /*ssize_t n =*/ read(mSocket, reply->GetTCPPayloadStart(), avail);
 			memcpy(reply->GetTCPPayloadStart(), buf, avail);
 			reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagPSH);
 			UpdateChecksums(reply);
-			net->LogBuffer(reply->Data(), reply->Size());
-			net->LogPacket(reply->Data(), reply->Size());
+			net->LogPayload(reply->Data(), reply->Size(), "W E>N");
 			net->Enqueue(reply);
 		}
 	}
@@ -629,7 +660,6 @@ public:
 			return 0;
 		if ( packet.GetTCPFlags() != Packet::TCPFlagSYN ) 
 			return 0; // only SYN is set
-		printf("---> Newt wants to open a new TCP connection. Enqueue a handler.\n");
 		PacketHandler *ph = new TCPPacketHandler(net, packet);
 		net->AddPacketHandler(ph);
 		return ph->send(packet);
@@ -657,21 +687,22 @@ public:
 	 * Create a UDP packet handler.
 	 */
 	UDPPacketHandler(TUsermodeNetwork *h, Packet &packet) :
-	PacketHandler(h),
-	myMAC(0),	theirMAC(0),
-	myIP(0),	theirIP(0),
-	myPort(0),	theirPort(0),
-	theirID(0),
-	mSocket(-1)
+		PacketHandler(h),
+		myMAC(0),		theirMAC(0),
+		myIP(0),		theirIP(0),
+		myPort(0),		theirPort(0),
+						theirID(2000),
+		mSocket(-1),	
+		mExpire(kUDPExpirationTime)
 	{
 		myMAC = packet.GetSrcMAC();
 		myIP = packet.GetIPSrcIP();
-		myPort = packet.GetUDPSrcPort();
-		
+		myPort = packet.GetUDPSrcPort();		
 		theirMAC = packet.GetDstMAC();
 		theirIP = packet.GetIPDstIP();
 		theirPort = packet.GetUDPDstPort();
-		theirID = 2000;
+		printf("Net: Adding UDP handler for port %d to %lu.%lu.%lu.%lu\n", theirPort,
+			   (theirIP>>24)&0xff, (theirIP>>16)&0xff, (theirIP>>8)&0xff, theirIP&0xff);
 	}
 	
 	/**
@@ -748,9 +779,11 @@ public:
 			theirSockAddr.sin_addr.s_addr = htonl(theirIP);
 			theirSockAddr.sin_port = htons(theirPort);
 		}
+		mExpire = kUDPExpirationTime;
+		net->LogPayload(packet.Data(), packet.Size(), "W<E N");
 		int ret = 
-		sendto(mSocket, packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
-			   0, (struct sockaddr*)&theirSockAddr, sizeof(theirSockAddr));
+			sendto(mSocket, packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
+				   0, (struct sockaddr*)&theirSockAddr, sizeof(theirSockAddr));
 		if (ret==-1) 
 			return -1;
 		return 1;
@@ -769,20 +802,33 @@ public:
 		if (mSocket==-1)
 			return;
 		int avail = 
-		recvfrom(mSocket, buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
-		if (avail<1)
+			recvfrom(mSocket, buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
+		if (avail<1) {
+			if ( --mExpire == 0 ) {
+				printf("Net: Timer expired. Removing UDP handler for port %u to %lu.%lu.%lu.%lu\n", theirPort,
+					   (theirIP>>24)&0xff, (theirIP>>16)&0xff, (theirIP>>8)&0xff, theirIP&0xff);
+				net->RemovePacketHandler(this);
+				delete this;
+			}
 			return;
+		}
 		
+		net->LogPayload(buf, avail, "W>E N");
 		Packet *reply = NewPacket(avail);
 		memcpy(reply->GetUDPPayloadStart(), buf, avail);
 		UpdateChecksums(reply);
-		net->LogBuffer(reply->Data(), reply->Size());
-		net->LogPacket(reply->Data(), reply->Size());
+		net->LogPayload(reply->Data(), reply->Size(), "W E>N");
 		net->Enqueue(reply);
+		mExpire = kUDPExpirationTime;
 	}
 	
 	/**
 	 * Can we handle the given package?
+	 *
+	 * UDP packets usually expect a single reply through the same port. We send
+	 * the given packet out right away and add a handler for receiving replies
+	 * on the same port.
+	 *
 	 * \param packet the Newton packet that could be sent
 	 * \param n the network interface
 	 * \return 0 if we can not handle this packet
@@ -794,7 +840,6 @@ public:
 			return 0;
 		if ( packet.GetIPProtocol() != Packet::IPProtocolUDP ) 
 			return 0;
-		printf("---> Newt wants to open a new UDP connection. Enqueue a handler.\n");
 		PacketHandler *ph = new UDPPacketHandler(net, packet);
 		net->AddPacketHandler(ph);
 		return ph->send(packet);
@@ -805,6 +850,7 @@ public:
 	KUInt16		myPort, theirPort;
 	KUInt16		theirID;
 	int			mSocket;
+	KUInt32		mExpire;
 	struct sockaddr_in theirSockAddr;
 };
 
@@ -819,16 +865,25 @@ public:
 	
 	/**
 	 * Can we handle the given package?
+	 *
+	 * ARP packets are sent to find the MAC address for a specific IP. The MAC
+	 * address is needed to send IP packets to peers directly. In an emulated
+	 * environment however, a MAC has little meaning, which is why we make up
+	 * MACs as we go by using the IP for the lower 4 bytes and adding 00:fa:... .
+	 *
+	 * This is a very simple and quick operation. canHandle() does not add 
+	 * itself to the handler list, but answers the request immediatly.
+	 *
 	 * \param packet the Newton packet that could be sent
 	 * \param n the network interface
 	 * \return 0 if we can not handle this packet
 	 * \return 1 if we can handled it and it need not to be propagated any further
 	 * \return -1 if an error occurred an no other handler should handle this packet
+	 * \see man 3 getaddrinfo()
 	 */
 	static int canHandle(Packet &packet, TUsermodeNetwork *net) {
 		if ( packet.GetType() != Packet::NetTypeARP ) 
 			return 0;
-		printf("---> Newt wants to send some ARP request.\n");
 		if ( packet.GetARPOp() != 1 ) // is this a request?
 			return 0;
 		if ( packet.GetARPHType() != 1 ) // is this an Ethernet MAC address?
@@ -848,11 +903,20 @@ public:
 		reply->SetARPHLen( 6 );
 		reply->SetARPPLen( 4 );
 		reply->SetARPOp( 2 ); // reply
-		reply->SetARPSHA( 0x000000fa00000000ULL | packet.GetARPTPA() ); // faking a MAC address
+		
+		KUInt64 a = packet.GetARPTPA();
+		KUInt64 b = 0x000000fa00000000ULL;
+		KUInt64 c = a | b;
+		reply->SetARPSHA( c ); // faking a MAC address
+		
 		reply->SetARPSPA( packet.GetARPTPA() );
 		reply->SetARPTHA( packet.GetARPSHA() );
 		reply->SetARPTPA( packet.GetARPSPA() );
+		net->LogPayload(reply->Data(), reply->Size(), "W E>N");
 		net->Enqueue(reply);
+		KUInt32 theirIP = packet.GetARPTPA();
+		printf("Net: ARP request for IP %lu.%lu.%lu.%lu\n",
+			   (theirIP>>24)&0xff, (theirIP>>16)&0xff, (theirIP>>8)&0xff, theirIP&0xff);
 		return 1;
 	}
 };
@@ -868,23 +932,8 @@ TUsermodeNetwork::TUsermodeNetwork(TLog* inLog) :
 	mFirstPacket( 0L ),
 	mLastPacket( 0L )
 {
+	// to implement DHCP, look at getifaddrs()
 	// http://www.developerweb.net/forum/showthread.php?t=5085
-	/*
-	struct ifaddrs *interfaces;
-	int ret = getifaddrs(&interfaces);
-	if (ret==0) {
-		struct ifaddrs *ifa = interfaces;
-		while (ifa) {
-			if (ifa->ifa_name && strcmp(ifa->ifa_name, "en1")==0) {
-				printf("Network adapter found\n");
-				struct if_data *ifd = (struct if_data *)ifa->ifa_data;
-				int x = ifd->ifi_obytes;
-			}
-			ifa = ifa->ifa_next;
-		}
-		freeifaddrs(interfaces);
-	}
-	*/
 }
 
 
@@ -911,6 +960,7 @@ TUsermodeNetwork::~TUsermodeNetwork()
 int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 {
 	int err = 0;
+	LogPayload(data, size, "W E<N");
 	Packet packet(data, size, 0); // convert data into a packet
 	
 	// offer this package to all active handlers
@@ -941,26 +991,8 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 		case 0:		break;		// another handler should deal with this packet
 	}
 	
-	// FIXME: simulate the ARP request for now
-	// see: man 3 getaddrinfo()
-	static KUInt8 b1[] = {
-		0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23, 0x08, 0x06, 0x00, 0x01,
-		0x08, 0x00, 0x06, 0x04, 0x00, 0x01, 0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23, 0xc0, 0xa8, 0x00, 0xc6,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0xa8, 0x00, 0x01,
-	};
-	static KUInt8 r1[] = {
-		0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23, 0x00, 0x24, 0x36, 0xa2, 0xa7, 0xe4, 0x08, 0x06, 0x00, 0x01,
-		0x08, 0x00, 0x06, 0x04, 0x00, 0x02, 0x00, 0x24, 0x36, 0xa2, 0xa7, 0xe4, 0xc0, 0xa8, 0x00, 0x01, 
-		0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23, 0xc0, 0xa8, 0x00, 0xc6,
-	};
-	if (size==sizeof(b1) && memcmp(b1, data, size)==0) {
-		printf("---> Send Packet: faking ARP request\n");
-		Enqueue(new Packet(r1, sizeof(r1)));
-		return 0;
-	}
-	
 	// if we can't interprete the package, we offer some debugging information
-	printf("---> Send Packet: I can't handle this packet:\n");
+	printf("Net: Send Packet - I can't handle this packet:\n");
 	if (mLog) {
 		mLog->LogLine("\nTUsermodeNetwork: Newton is sending an unsupported package:");
 		LogBuffer(data, size);
@@ -992,7 +1024,7 @@ int TUsermodeNetwork::GetDeviceAddress(KUInt8 *data, KUInt32 size)
 {
 	// TODO: of course we need the true MAC of this ethernet card
 	// see: ioctl ? getifaddrs ? http://othermark.livejournal.com/3005.html
-	static KUInt8 gLocalMAC[]   = { 0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23 };
+	static KUInt8 gLocalMAC[]   = { 0x58, 0xb0, 0x35, 0x77, 0xd7, 0x22 };
 	assert(size==6);
 	memcpy(data, gLocalMAC, 6);
 	return 0;

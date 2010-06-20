@@ -117,13 +117,13 @@ public:
 	///
 	virtual int TimerExpired() { return 0; }
 
-	void LogBuffer(KUInt8 *data, KUInt32 size);
-	
+	void LogBuffer(KUInt8 *data, KUInt32 size);	
 	void LogPacket(KUInt8 *data, KUInt32 size);
 	void LogARPPacket(KUInt8 *data, KUInt32 size);
 	void LogIPv4Packet(KUInt8 *data, KUInt32 size);
 	void LogTCPPacket(KUInt8 *data, KUInt32 size);
 	void LogUDPPacket(KUInt8 *data, KUInt32 size);
+	void LogPayload(KUInt8 *data, KUInt32 size, const char *d="");
 	
 	KUInt16 GetIPv4Checksum(KUInt8 *data, KUInt32 size, bool set=0);
 	void SetIPv4Checksum(KUInt8 *data, KUInt32 size) { GetIPv4Checksum(data, size, true); }
