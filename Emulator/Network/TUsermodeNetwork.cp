@@ -240,7 +240,7 @@ public:
 	KUInt16 GetTCPWindow()		{ return Get16(48); }
 	KUInt16 GetTCPChecksum()	{ return Get16(50); }
 	KUInt16 GetTCPUrgent()		{ return Get16(52); }
-	KUInt8 *GetTCPPayloadStart(){ return mData + (GetTCPHeaderLength() + 34); }
+	KUInt8 *GetTCPPayloadStart(){ return mData + GetTCPHeaderLength() + 34; }
 	KUInt32	GetTCPPayloadSize()	{ return mSize - GetTCPHeaderLength() - 34; }
 
 	KUInt16 GetUDPSrcPort()		{ return Get16(34); }
@@ -304,6 +304,46 @@ public:
 	void	SetARPSPA(KUInt32 v)		{ Set32(28, v); }
 	void	SetARPTHA(KUInt64 v)		{ Set48(32, v); }
 	void	SetARPTPA(KUInt32 v)		{ Set32(38, v); }
+	
+	void LogPayload(TLog *mLog, const char *label) {
+		if (mLog) {
+			char buf[200];
+			strcpy(buf, "Net: ");
+			if (label) { strcat(buf, label); strcat(buf, " "); }
+			if ( GetType()==NetTypeIP ) {
+				if ( GetIPProtocol()==IPProtocolTCP ) {
+					KUInt32 o = strlen(buf);
+					sprintf(buf+o, "TCP %c%c%c%c%c %4lu (%4lu, %4lu (%4lu)) [", 
+							GetTCPFlags()&0x10?'A':'.',
+							GetTCPFlags()&0x08?'P':'.',
+							GetTCPFlags()&0x04?'R':'.',
+							GetTCPFlags()&0x02?'S':'.',
+							GetTCPFlags()&0x01?'F':'.',
+							GetTCPPayloadSize(), GetTCPSeq()%9999, GetTCPAck()%9999,
+							(GetTCPPayloadSize()+GetTCPSeq())%9999);
+					KUInt32 i = 0, s = GetTCPPayloadStart()-mData;
+					o = strlen(buf);
+					while (s<mSize && i<128) {
+						KUInt8 c = mData[s];
+						if (c<32 || c>126) c = '.';
+						buf[i+o] = (char)c;
+						s++; i++;
+					}
+					if (s==mSize)
+						buf[i+o] = ']';
+					else
+						buf[i+o] = '+';
+					buf[i+o+1] = 0;
+				} else {
+					strcat(buf, "UDP");
+				}
+			} else {
+				KUInt32 o = strlen(buf);
+				sprintf(buf+o, "%lu bytes", mSize);
+			}
+			mLog->LogLine(buf);
+		}
+	}
 	
 	Packet *prev, *next;
 	
@@ -421,7 +461,7 @@ public:
 		theirMAC = packet.GetDstMAC();
 		theirIP = packet.GetIPDstIP();
 		theirPort = packet.GetTCPDstPort();
-		theirSeqNr = 0;
+		theirSeqNr = packet.GetTCPAck();
 		theirID = 1000;
 		printf("Net: Adding TCP handler for port %d to %lu.%lu.%lu.%lu\n", theirPort,
 			   (theirIP>>24)&0xff, (theirIP>>16)&0xff, (theirIP>>8)&0xff, theirIP&0xff);
@@ -445,7 +485,7 @@ public:
 	 * Create a generic TCP packet.
 	 * This is a working TCP packet for this particular connection. Space is 
 	 * allocated for the payload. The payload must be copied into this 
-	 * packet an the cehcksums must be updated.
+	 * packet an the checksums must be updated.
 	 * \param size this is the desired size of the payload.
 	 * \see UpdateChecksums(Packet *p)
 	 * \see Packet::SetTCPPayload(KUInt8 *, KUInt32)
@@ -515,16 +555,14 @@ public:
 		if (err==-1)
 			return -1;
 		
-		// succesful connection, return SYN ACK.
-		Packet *reply = NewPacket(4); // 4 bytes are reserved for the extended TCP header
+		// succesful connection, return a SYN ACK to the Newton.
 		mySeqNr++; 
-		reply->SetIPFlags(2); // don't fragment
-		reply->SetTCPAck(mySeqNr);
+		Packet *reply = NewPacket(4); // 4 bytes are reserved for the extended TCP header
 		reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagSYN);
 		reply->SetTCPHeaderLength(24);
 		reply->Set32(54, 0x02040578); // set Maximum Segment Size
 		UpdateChecksums(reply);
-		net->LogPayload(reply->Data(), reply->Size(), "W E>N");
+		reply->LogPayload(net->GetLog(), "W E>N");
 		net->Enqueue(reply);
 		state = kStateConnected;
 		return 1;
@@ -555,14 +593,14 @@ public:
 					theirSeqNr = packet.GetTCPAck();
 				} else { // this is a data package, ack needed
 					// FIXME: if FIN is set, we need to start disconnecting
-					net->LogPayload(packet.Data(), packet.Size(), "W<E N");
+					packet.LogPayload(net->GetLog(), "W<E N");
 					write(mSocket, packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize());					
 					Packet *reply = NewPacket(0);
 					mySeqNr += packet.GetTCPPayloadSize(); 
 					reply->SetTCPAck(mySeqNr);
 					reply->SetTCPFlags(Packet::TCPFlagACK);
 					UpdateChecksums(reply);
-					net->LogPayload(reply->Data(), reply->Size(), "W E>N");
+					reply->LogPayload(net->GetLog(), "W E>N");
 					net->Enqueue(reply);
 					// TODO: now enqueue the reply from the remote client
 				}
@@ -582,7 +620,7 @@ public:
 				reply->SetTCPAck(mySeqNr+1);
 				reply->SetTCPFlags(Packet::TCPFlagACK);
 				UpdateChecksums(reply);
-				net->LogPayload(reply->Data(), reply->Size(), "W E>N (ACK fin)");
+				reply->LogPayload(net->GetLog(), "W E>N");
 				net->Enqueue(reply);				
 				close(mSocket);
 				net->RemovePacketHandler(this);
@@ -625,19 +663,19 @@ public:
 			// Send a FIN request to the Newton
 			reply->SetTCPFlags(Packet::TCPFlagFIN|Packet::TCPFlagACK);
 			UpdateChecksums(reply);
-			net->LogPayload(reply->Data(), reply->Size(), "W E>N (FIN)");
+			reply->LogPayload(net->GetLog(), "W E>N");
 			net->Enqueue(reply);
 			// Wait for the newton to acknowledge the FIN
 			state = kStatePeerDiscWaitForACK;
 		} else if (avail>0) {
-			net->LogPayload(buf, avail, "W>E N");
+			printf("Net: W>E N Data %d bytes\n", avail);
 			//if (avail>200) avail = 200;
 			Packet *reply = NewPacket(avail);
 			// /*ssize_t n =*/ read(mSocket, reply->GetTCPPayloadStart(), avail);
 			memcpy(reply->GetTCPPayloadStart(), buf, avail);
 			reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagPSH);
 			UpdateChecksums(reply);
-			net->LogPayload(reply->Data(), reply->Size(), "W E>N");
+			reply->LogPayload(net->GetLog(), "W E>N");
 			net->Enqueue(reply);
 		}
 	}
@@ -780,7 +818,7 @@ public:
 			theirSockAddr.sin_port = htons(theirPort);
 		}
 		mExpire = kUDPExpirationTime;
-		net->LogPayload(packet.Data(), packet.Size(), "W<E N");
+		packet.LogPayload(net->GetLog(), "W<E N");
 		int ret = 
 			sendto(mSocket, packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
 				   0, (struct sockaddr*)&theirSockAddr, sizeof(theirSockAddr));
@@ -812,12 +850,11 @@ public:
 			}
 			return;
 		}
-		
-		net->LogPayload(buf, avail, "W>E N");
+		printf("Net: W>E N Data %d bytes\n", avail);
 		Packet *reply = NewPacket(avail);
 		memcpy(reply->GetUDPPayloadStart(), buf, avail);
 		UpdateChecksums(reply);
-		net->LogPayload(reply->Data(), reply->Size(), "W E>N");
+		reply->LogPayload(net->GetLog(), "W E>N");
 		net->Enqueue(reply);
 		mExpire = kUDPExpirationTime;
 	}
@@ -912,7 +949,7 @@ public:
 		reply->SetARPSPA( packet.GetARPTPA() );
 		reply->SetARPTHA( packet.GetARPSHA() );
 		reply->SetARPTPA( packet.GetARPSPA() );
-		net->LogPayload(reply->Data(), reply->Size(), "W E>N");
+		reply->LogPayload(net->GetLog(), "W E>N");
 		net->Enqueue(reply);
 		KUInt32 theirIP = packet.GetARPTPA();
 		printf("Net: ARP request for IP %lu.%lu.%lu.%lu\n",
@@ -960,8 +997,8 @@ TUsermodeNetwork::~TUsermodeNetwork()
 int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 {
 	int err = 0;
-	LogPayload(data, size, "W E<N");
 	Packet packet(data, size, 0); // convert data into a packet
+	packet.LogPayload(GetLog(), "W E<N");
 	
 	// offer this package to all active handlers
 	PacketHandler *ph = mFirstPacketHandler;

@@ -158,34 +158,6 @@ void TNetworkManager::LogPacket(KUInt8 *d, KUInt32 n) {
 	}
 }
 
-void TNetworkManager::LogPayload(KUInt8 *d, KUInt32 n, const char *label) {
-	if (mLog) {
-		char buf[200];
-		strcpy(buf, "Net: ");
-		if (label) { strcat(buf, label); strcat(buf, " "); }
-		KUInt32 t = (d[12]<<8) | d[13];
-		if ( t==0x0800 && d[23]==6 ) {
-			strcat(buf, "TCP [");
-			KUInt32 s = ((d[46]>>4)<<2) + 34, i = 0, o = strlen(buf);
-			while (s<n && i<128) {
-				KUInt8 c = d[s];
-				if (c<32 || c>126) c = '.';
-				buf[i+o] = (char)c;
-				s++; i++;
-			}
-			if (s==n)
-				buf[i+o] = ']';
-			else
-				buf[i+o] = '#';
-			buf[i+o+1] = 0;
-		} else {
-			KUInt32 o = strlen(buf);
-			sprintf(buf+o, "%lu bytes", n);
-		}
-		mLog->LogLine(buf);
-	}
-}
-
 KUInt16 TNetworkManager::GetUDPChecksum(KUInt8 *d, KUInt32 n, bool set) {
 	KUInt32 s = 0;
 	KUInt16 i, UDPLength = n-34;
