@@ -434,7 +434,19 @@ public:
 		kStatePeerDiscWaitForFIN,	// Perr disconnected, now wait for the FIN from the Newt and ACK it.
 									// Newt requests a disconnect
 									// Peer request a disconnect
-		kStateError
+		kStateError,
+		
+		kStateClosed,				// States according to TCP State Transition Diagram
+		kStateListen,
+		kStateSynRcvd,
+		kStateSynSent,
+		kStateEstablished,
+		kStateCloseWait,
+		kStateLastAck,
+		kStateFinWait1,
+		kStateFinWait2,
+		kStateClosing,
+		kStateTimeWait
 	};
 	
 	/**
@@ -545,6 +557,7 @@ public:
 		sa.sin_family = AF_INET;
 		sa.sin_port = htons(theirPort);
 		sa.sin_addr.s_addr = htonl(theirIP);
+		// TODO: connect() will block. We can also put this socket into non-blocking first
 		int err = ::connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
 		if (err==-1)
 			return -1;
@@ -611,11 +624,27 @@ public:
 				state = kStatePeerDiscWaitForFIN;
 				return 1;
 			case kStatePeerDiscWaitForFIN: {
-				// TODO: make sure that this really is the FIN packege from the Newton!
-				if ( packet.GetTCPFlags()&Packet::TCPFlagFIN==0 )
-					return 1;
-				// Acknowledge the FIN request
 				theirSeqNr = packet.GetTCPAck();
+				// TODO: make sure that this really is the FIN packege from the Newton!
+				// FIXME: actually, instead of a FIN we may get a second ACK which would
+				// mean that the Newton does not agree to closing the connection. So we have
+				// to reopen the socket (or find a way to keep the peer from closing the socket).
+				// SO_LINGER, TIME_WAIT, SO_REUSEADDR, close vs. shutdown, getpeername()
+				// http://www.faqs.org/faqs/unix-faq/socket/
+				if ( packet.GetTCPFlags()&Packet::TCPFlagFIN==0 ) {
+					struct sockaddr_in sa;
+					memset(&sa, 0, sizeof(sa));
+					sa.sin_family = AF_INET;
+					sa.sin_port = htons(theirPort);
+					sa.sin_addr.s_addr = htonl(theirIP);
+					int err = ::connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
+					// perform some presets for the socket
+					int fl = fcntl(mSocket, F_GETFL);
+					err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
+					state = kStateConnected;
+					return 1;
+				}
+				// Acknowledge the FIN request
 				Packet *reply = NewPacket(0);
 				reply->SetTCPAck(mySeqNr+1);
 				reply->SetTCPFlags(Packet::TCPFlagACK);
@@ -696,8 +725,8 @@ public:
 			return 0;
 		if ( packet.GetIPProtocol() != Packet::IPProtocolTCP ) 
 			return 0;
-		if ( packet.GetTCPFlags() != Packet::TCPFlagSYN ) 
-			return 0; // only SYN is set
+		//if ( packet.GetTCPFlags() != Packet::TCPFlagSYN && packet.GetTCPFlags() != Packet::TCPFlagRST) 
+		//	return 0; // only SYN is set
 		PacketHandler *ph = new TCPPacketHandler(net, packet);
 		net->AddPacketHandler(ph);
 		return ph->send(packet);
