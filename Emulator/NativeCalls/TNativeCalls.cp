@@ -42,6 +42,14 @@
 	ffi_type ffi_type_uint32;
 	ffi_type ffi_type_sint32;
 	ffi_type ffi_type_pointer;
+#elif defined TARGET_IOS
+ffi_type ffi_type_uint8; // FIXME these should be in libffi
+ffi_type ffi_type_sint8;
+ffi_type ffi_type_uint16;
+ffi_type ffi_type_sint16;
+ffi_type ffi_type_uint32;
+ffi_type ffi_type_sint32;
+ffi_type ffi_type_pointer;
 #else
 	#include <dlfcn.h>
 	#include <libgen.h>
@@ -192,9 +200,13 @@ void*
 TNativeCalls::DoOpenLib( const char* inPath )
 {
 #if TARGET_OS_WIN32
-	// FIXME We will implement this later
-	assert(0);
-	return 0L;
+  // FIXME We will implement this later
+  assert(0);
+  return 0L;
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
+  return 0L;
 # else
 	void* theResult = NULL;
 	char* theDirNameBuf = NULL;
@@ -287,6 +299,9 @@ TNativeCalls::CloseLib( KUInt32 inLibRef )
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
 # else
 	(void) dlclose( mNativeLibs[inLibRef].fHandle );
 	mNativeLibs[inLibRef].fFreeRec = true;
@@ -316,6 +331,10 @@ TNativeCalls::PrepareFFIStructure(
 	// FIXME We will implement this later
 	assert(0);
 	return 0;
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
+  return 0;
 # else
 	KUInt32 theResult = mNbNativeFuncs;
 	// Get a new record.
@@ -376,6 +395,9 @@ TNativeCalls::SetArgValue_string(
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
 # else
 	// Allocate the string.
 	KUInt8* theString = (KUInt8*) ::malloc(inSize + 1);
@@ -408,6 +430,9 @@ TNativeCalls::SetArgValue_binary(
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
 # else
 	// Allocate the binary.
 	KUInt8* theBinary = (KUInt8*) ::malloc(inSize);
@@ -435,6 +460,9 @@ TNativeCalls::SetResultType(
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
 # else
 	ffi_type* theType = NULL;
 	switch (inType)
@@ -509,6 +537,9 @@ TNativeCalls::Call(KUInt32 inFFIStructure, SStorage* outResult)
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
 # else
 	ffi_cif theCif;
 	SFunctionRec* theStructure = &mNativeFuncs[inFFIStructure];
@@ -543,6 +574,9 @@ TNativeCalls::Call_void(KUInt32 inFFIStructure)
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
 # else
 	SStorage theResult;
 	Call(inFFIStructure, &theResult);
@@ -559,6 +593,10 @@ TNativeCalls::Call_int(KUInt32 inFFIStructure)
 	// FIXME We will implement this later
 	assert(0);
 	return 0;
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
+  return 0;
 # else
 	KUInt32 theReturnValue;
 	SStorage theResult;
@@ -591,6 +629,10 @@ TNativeCalls::Call_real(KUInt32 inFFIStructure)
 	// FIXME We will implement this later
 	assert(0);
 	return 0.0;
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
+  return 0.0;
 # else
 	double theReturnValue;
 	SStorage theResult;
@@ -623,6 +665,9 @@ TNativeCalls::Call_string(
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
 # else
 	SStorage theResult;
 	Call(inFFIStructure, &theResult);
@@ -645,6 +690,10 @@ TNativeCalls::Call_pointer(KUInt32 inFFIStructure)
 	// FIXME We will implement this later
 	assert(0);
 	return 0;
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
+  return 0;
 # else
 	SStorage theResult;
 	Call(inFFIStructure, &theResult);
@@ -666,6 +715,9 @@ TNativeCalls::GetOutArgValue_string(
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
 # else
 	char* theArgCopy = (char*)
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fPtr;
@@ -689,6 +741,9 @@ TNativeCalls::GetOutArgValue_binary(
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
 # else
 	KUInt8* theArgCopy = (KUInt8*)
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fPtr;
@@ -707,6 +762,9 @@ TNativeCalls::DisposeFFIStructure(KUInt32 inFFIStructure)
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
 # else
 	SFunctionRec* theStructure = &mNativeFuncs[inFFIStructure];
 
@@ -751,6 +809,9 @@ TNativeCalls::GetErrorMessage(KUInt32 inStringAddr, KUInt32 inSize)
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
+#elif defined TARGET_IOS
+  // FIXME We will implement this later
+  assert(0);
 # else
 	KUInt32 theSize = inSize;
 	const char* theErrStr = dlerror();

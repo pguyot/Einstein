@@ -26,9 +26,12 @@
 
 // MacOS X
 #if TARGET_OS_OPENSTEP
+#ifdef TARGET_IOS
+#else
 	#include <CoreFoundation/CoreFoundation.h>
 	#include <CoreServices/CoreServices.h>
 	#include <AddressBook/AddressBook.h>
+#endif
 #endif
 
 // ANSI C & POSIX
@@ -284,6 +287,8 @@ THostInfo::RetrieveUserInfo( void )
 		*/
 #else
 #if TARGET_OS_OPENSTEP
+#ifdef TARGET_IOS
+#else
 		// On MacOS X, I try:
 		// - The AddressBook
 		// - Carbon access to the full name
@@ -519,6 +524,7 @@ THostInfo::RetrieveUserInfo( void )
 			}
 			break;
 		}
+#endif
 #endif
 
 		char* theLogin = getlogin();
