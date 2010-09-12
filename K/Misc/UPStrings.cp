@@ -45,7 +45,11 @@
 	#include <Types.h>
 	#include <Memory.h>
 #else
-	#include <CoreServices/CoreServices.h>
+#if TARGET_IOS
+#import <CFNetwork/CFNetwork.h>
+#else
+#import <CoreServices/CoreServices.h>
+#endif
 #endif
 
 #ifdef __MWERKS__

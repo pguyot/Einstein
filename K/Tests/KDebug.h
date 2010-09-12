@@ -58,8 +58,12 @@
 		#pragma	warn_resultnotused	off
 	#endif
 
-	#include <CoreServices/CoreServices.h>
-	#include <stdio.h>
+#if TARGET_IOS
+#import <CFNetwork/CFNetwork.h>
+#else
+#import <CoreServices/CoreServices.h>
+#endif
+#include <stdio.h>
 	#include <syslog.h>
 	#include <stdarg.h>
 

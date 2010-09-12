@@ -313,14 +313,16 @@ public:
 			if ( GetType()==NetTypeIP ) {
 				if ( GetIPProtocol()==IPProtocolTCP ) {
 					KUInt32 o = strlen(buf);
-					sprintf(buf+o, "TCP %c%c%c%c%c %4lu (%4lu, %4lu (%4lu)) [", 
-							GetTCPFlags()&0x10?'A':'.',
-							GetTCPFlags()&0x08?'P':'.',
-							GetTCPFlags()&0x04?'R':'.',
-							GetTCPFlags()&0x02?'S':'.',
-							GetTCPFlags()&0x01?'F':'.',
-							GetTCPPayloadSize(), GetTCPSeq()%9999, GetTCPAck()%9999,
-							(GetTCPPayloadSize()+GetTCPSeq())%9999);
+					sprintf(buf+o, "TCP %c%c%c%c%c %4u (%4u, %4u (%4u)) [", 
+							(unsigned int)(GetTCPFlags()&0x10?'A':'.'),
+							(unsigned int)(GetTCPFlags()&0x08?'P':'.'),
+							(unsigned int)(GetTCPFlags()&0x04?'R':'.'),
+							(unsigned int)(GetTCPFlags()&0x02?'S':'.'),
+							(unsigned int)(GetTCPFlags()&0x01?'F':'.'),
+							(unsigned int)(GetTCPPayloadSize()), 
+							(unsigned int)(GetTCPSeq()%9999), 
+							(unsigned int)(GetTCPAck()%9999),
+							(unsigned int)((GetTCPPayloadSize()+GetTCPSeq())%9999));
 					KUInt32 i = 0, s = GetTCPPayloadStart()-mData;
 					o = strlen(buf);
 					while (s<mSize && i<128) {
@@ -339,7 +341,7 @@ public:
 				}
 			} else {
 				KUInt32 o = strlen(buf);
-				sprintf(buf+o, "%lu bytes", mSize);
+				sprintf(buf+o, "%u bytes", (unsigned int)mSize);
 			}
 			mLog->LogLine(buf);
 		}
@@ -475,8 +477,12 @@ public:
 		theirPort = packet.GetTCPDstPort();
 		theirSeqNr = packet.GetTCPAck();
 		theirID = 1000;
-		printf("Net: Adding TCP handler for port %d to %lu.%lu.%lu.%lu\n", theirPort,
-			   (theirIP>>24)&0xff, (theirIP>>16)&0xff, (theirIP>>8)&0xff, theirIP&0xff);
+		printf("Net: Adding TCP handler for port %u to %u.%u.%u.%u\n", 
+			   theirPort,
+			   (unsigned int)((theirIP>>24)&0xff), 
+			   (unsigned int)((theirIP>>16)&0xff), 
+			   (unsigned int)((theirIP>>8)&0xff), 
+			   (unsigned int)(theirIP&0xff));
 	}
 	
 	/**
@@ -653,8 +659,12 @@ public:
 				net->Enqueue(reply);				
 				close(mSocket);
 				net->RemovePacketHandler(this);
-				printf("Net: Peer closing. Removing TCP handler for port %u to %lu.%lu.%lu.%lu\n", theirPort,
-					   (theirIP>>24)&0xff, (theirIP>>16)&0xff, (theirIP>>8)&0xff, theirIP&0xff);
+				printf("Net: Peer closing. Removing TCP handler for port %u to %u.%u.%u.%u\n", 
+					   theirPort,
+					   (unsigned int)((theirIP>>24)&0xff), 
+					   (unsigned int)((theirIP>>16)&0xff), 
+					   (unsigned int)((theirIP>>8)&0xff), 
+					   (unsigned int)(theirIP&0xff));
 				delete this;
 				return 1; }
 			default:
@@ -768,8 +778,12 @@ public:
 		theirMAC = packet.GetDstMAC();
 		theirIP = packet.GetIPDstIP();
 		theirPort = packet.GetUDPDstPort();
-		printf("Net: Adding UDP handler for port %d to %lu.%lu.%lu.%lu\n", theirPort,
-			   (theirIP>>24)&0xff, (theirIP>>16)&0xff, (theirIP>>8)&0xff, theirIP&0xff);
+		printf("Net: Adding UDP handler for port %d to %u.%u.%u.%u\n", 
+			   theirPort,
+			   (unsigned int)((theirIP>>24)&0xff), 
+			   (unsigned int)((theirIP>>16)&0xff), 
+			   (unsigned int)((theirIP>>8)&0xff), 
+			   (unsigned int)(theirIP&0xff));
 	}
 	
 	/**
@@ -872,8 +886,12 @@ public:
 			recvfrom(mSocket, buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
 		if (avail<1) {
 			if ( --mExpire == 0 ) {
-				printf("Net: Timer expired. Removing UDP handler for port %u to %lu.%lu.%lu.%lu\n", theirPort,
-					   (theirIP>>24)&0xff, (theirIP>>16)&0xff, (theirIP>>8)&0xff, theirIP&0xff);
+				printf("Net: Timer expired. Removing UDP handler for port %u to %u.%u.%u.%u\n", 
+					   theirPort,
+					   (unsigned int)((theirIP>>24)&0xff), 
+					   (unsigned int)((theirIP>>16)&0xff), 
+					   (unsigned int)((theirIP>>8)&0xff), 
+					   (unsigned int)(theirIP&0xff));
 				net->RemovePacketHandler(this);
 				delete this;
 			}
@@ -981,8 +999,11 @@ public:
 		reply->LogPayload(net->GetLog(), "W E>N");
 		net->Enqueue(reply);
 		KUInt32 theirIP = packet.GetARPTPA();
-		printf("Net: ARP request for IP %lu.%lu.%lu.%lu\n",
-			   (theirIP>>24)&0xff, (theirIP>>16)&0xff, (theirIP>>8)&0xff, theirIP&0xff);
+		printf("Net: ARP request for IP %u.%u.%u.%u\n",
+			   (unsigned int)((theirIP>>24)&0xff), 
+			   (unsigned int)((theirIP>>16)&0xff), 
+			   (unsigned int)((theirIP>>8)&0xff), 
+			   (unsigned int)(theirIP&0xff));
 		return 1;
 	}
 };

@@ -226,7 +226,11 @@
 			#pragma warn_implicitconv off
 		#endif
 
-		#include <CoreServices/CoreServices.h>
+#if TARGET_IOS
+#import <CFNetwork/CFNetwork.h>
+#else
+#import <CoreServices/CoreServices.h>
+#endif
 
 		#if __MWERKS__
 			#pragma warn_implicitconv reset
