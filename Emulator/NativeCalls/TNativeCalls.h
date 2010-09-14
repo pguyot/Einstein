@@ -27,7 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 // libffi
-#include <ffi.h>
+#include "ffi.h"
 
 #include "NativeCallsDefines.h"
 

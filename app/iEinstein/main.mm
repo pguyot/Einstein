@@ -15,3 +15,8 @@ int main(int argc, char *argv[]) {
     [pool release];
     return retVal;
 }
+
+void iOSDoLogLine( const char* inLine )
+{
+  NSLog([NSString stringWithUTF8String:inLine ]);
+}
