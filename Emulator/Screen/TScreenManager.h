@@ -498,7 +498,8 @@ protected:
 		{
 			return mMemory;
 		}
-
+  
+public:
 	///
 	///	Insert a sample with pen down.
 	/// The coordinates are rotated if required.

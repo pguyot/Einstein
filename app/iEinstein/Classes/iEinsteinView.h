@@ -7,15 +7,26 @@
 //
 
 #import <UIKit/UIKit.h>
+#include <K/Defines/KDefinitions.h>
+
 
 @interface iEinsteinView : UIView {
 
+  id	mScreenManager;
+  CGImageRef				mScreenImage;
+  //BOOL					mVisible;
+  int						mWidth;
+  int						mHeight;
+  //EOrientation			mOrientation;
+  //KUInt32					mPreviousMods;
+  
 }
 
 - (id)init;
 
 - (void)dealloc;
 
+- (void)SetScreenManager:(id)sm;
   
 @end
 
