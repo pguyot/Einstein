@@ -171,7 +171,13 @@
   mLog = NULL;                // OK
   
   
+  // Create a log if possible
+  //#ifdef _DEBUG
+  mLog = new TStdOutLog(); 
+  //#endif
+  
   NSString *docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+  mLog->LogLine("Hallo Welt!");
   
   // Create the ROM.
   NSString* einsteinRExPath;
@@ -179,28 +185,25 @@
   if (!(einsteinRExPath = [thisBundle pathForResource:@"Einstein" ofType:@"rex"]))
   {
     //[self abortWithMessage: @"Couldn't load Einstein REX"];
+    mLog->LogLine("Couldn't load Einstein REX");
     return;
   }
   
   NSString* theROMPath = [thisBundle pathForResource:@"717006" ofType:0L];
-  //NSString* theROMPath = [docdir stringByAppendingString:@"/717006"];
+  NSString* theImagePath = [docdir stringByAppendingString:@"/717006.img"];
   
   NSFileManager* theFileManager = [NSFileManager defaultManager];
   if (![theFileManager fileExistsAtPath: theROMPath])
   {
-    //[self abortWithMessage: @"ROM file doesn't seem to exist"];
+    mLog->LogLine("ROM file doesn't seem to exist");
     return;
   }
   
   mROMImage = new TFlatROMImageWithREX(
                                        [theROMPath UTF8String],
                                        [einsteinRExPath UTF8String],
-                                       "717006" );
-
-  // Create a log if possible
-#ifdef _DEBUG
-  mLog = new TStdOutLog(); 
-#endif
+                                       "717006", false,
+                                       [theImagePath UTF8String]);
   
   // Create the network manager.
   mNetworkManager = new TNullNetwork(mLog);

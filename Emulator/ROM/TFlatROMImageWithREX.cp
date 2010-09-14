@@ -52,7 +52,8 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 						const char* inROMPath,
 						const char* inREXPath,
 						const char inMachineString[6],
-						Boolean inMonitorMode /* = false */ )
+						Boolean inMonitorMode /* = false */,
+                                           const char *inImagePath /* 0L */ )
 {	
 	struct stat theInfos;
 	int err = ::stat( inROMPath, &theInfos );
@@ -78,7 +79,10 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 
 	// Create the image path.
 	char theImagePath[PATH_MAX];
-	(void) ::sprintf( theImagePath, "%s.img", inROMPath );
+        if (inImagePath) 
+          strcpy(theImagePath, inImagePath);
+        else
+          (void) ::sprintf( theImagePath, "%s.img", inROMPath );
 	
 	// Check if we need to read the ROM file.
 	if (IsImageOutdated(theImagePath, theModTime, inMachineString))

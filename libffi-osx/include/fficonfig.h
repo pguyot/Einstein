@@ -39,6 +39,13 @@
 #   define SIZEOF_LONG_DOUBLE 8 
 #endif /* __GNUC__ */
 
+#elif defined(__arm__)
+#   define BYTEORDER 4321
+#   define HOST_WORDS_BIG_ENDIAN 1
+#   define WORDS_BIGENDIAN 1
+#   define SIZEOF_DOUBLE 8
+#   undef HAVE_LONG_DOUBLE
+#   define SIZEOF_LONG_DOUBLE 16
 #else
 #  error "Unknown CPU type"
 #endif

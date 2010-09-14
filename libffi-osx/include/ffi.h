@@ -62,6 +62,9 @@ extern "C" {
 # define X86_DARWIN
 #elif defined(__ppc__)
 # define POWERPC_DARWIN
+#elif defined(__arm__)
+# define POWERPC_DARWIN
+  // FIXME: wrong! But I could not care less at 2am
 #else
 # error "Unsupported MacOS X CPU type"
 #endif
@@ -76,7 +79,7 @@ extern "C" {
 
 #if (defined(__i386__) || defined(__x86_64__))
 #include "../src/x86/ffitarget.h"
-#elif defined(__ppc__)
+#elif (defined(__ppc__) || defined(__arm__))
 #include "../src/powerpc/ffitarget.h"
 #endif
 

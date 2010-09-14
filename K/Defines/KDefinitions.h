@@ -120,7 +120,11 @@
 #endif
 
 #if TARGET_OS_OPENSTEP_I386
-	#define	TARGET_OS_OPENSTEP 1
+        #define	TARGET_OS_OPENSTEP 1
+#endif
+
+#if TARGET_OS_OPENSTEP_ARM
+        #define	TARGET_OS_OPENSTEP 1
 #endif
 
 #if DARWIN
@@ -226,11 +230,11 @@
 			#pragma warn_implicitconv off
 		#endif
 
-#if TARGET_IOS
-#import <CFNetwork/CFNetwork.h>
-#else
-#import <CoreServices/CoreServices.h>
-#endif
+                #if TARGET_IOS
+                        #import <CFNetwork/CFNetwork.h>
+                #else
+                        #import <CoreServices/CoreServices.h>
+                #endif
 
 		#if __MWERKS__
 			#pragma warn_implicitconv reset
@@ -253,11 +257,17 @@
 		// MacOS X could be on x86 or on ppc
 		#if (defined (__ppc__) || defined (__ppc64__))
 			#define TARGET_OS_OPENSTEP_PPC 1
-			#define TARGET_OS_OPENSTEP_I386 0
-		#elif (defined (__i386__) || defined (__x86_64__))
-			#define TARGET_OS_OPENSTEP_PPC 0
-			#define TARGET_OS_OPENSTEP_I386 1
-		#else
+                        #define TARGET_OS_OPENSTEP_I386 0
+                        #define TARGET_OS_OPENSTEP_ARM 0
+                #elif (defined (__i386__) || defined (__x86_64__))
+                        #define TARGET_OS_OPENSTEP_PPC 0
+                        #define TARGET_OS_OPENSTEP_I386 1
+                        #define TARGET_OS_OPENSTEP_ARM 0
+                #elif (defined (__arm__) )
+                        #define TARGET_OS_OPENSTEP_PPC 0
+                        #define TARGET_OS_OPENSTEP_I386 0
+                        #define TARGET_OS_OPENSTEP_ARM 1
+                #else
 			#error "Unknown MacOS X architecture"
 		#endif
 

@@ -25,8 +25,8 @@
 #include "JIT.h"
 
 // Einstein
-#include <TMemory.h>
-#include <TJITGenericPage.h>
+#include "TMemory.h"
+#include "TJITGenericPage.h"
 #include "TARMProcessor.h"
 #include "TEmulator.h"
 #include "TMemoryConsts.h"

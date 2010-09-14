@@ -20,6 +20,7 @@
 		C99566AA123EC4DA009A5668 /* Einstein.rex in Resources */ = {isa = PBXBuildFile; fileRef = C99E377A111C2289002165EC /* Einstein.rex */; };
 		C995672C123F793D009A5668 /* TIOSScreenManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = C995672B123F793D009A5668 /* TIOSScreenManager.mm */; };
 		C995696D12400EB0009A5668 /* 717006 in Resources */ = {isa = PBXBuildFile; fileRef = C995696C12400EB0009A5668 /* 717006 */; };
+		C99569B112401B2A009A5668 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = C99569B012401B2A009A5668 /* icon.png */; };
 		C99E315E111B733F002165EC /* Einstein.nib in Resources */ = {isa = PBXBuildFile; fileRef = C99E315C111B733F002165EC /* Einstein.nib */; };
 		C99E316A111B7346002165EC /* button_backlight.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3160111B7346002165EC /* button_backlight.png */; };
 		C99E316B111B7346002165EC /* button_backlight_on.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3161111B7346002165EC /* button_backlight_on.png */; };
@@ -309,6 +310,7 @@
 		C9956719123F71D2009A5668 /* TIOSScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TIOSScreenManager.h; sourceTree = "<group>"; };
 		C995672B123F793D009A5668 /* TIOSScreenManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TIOSScreenManager.mm; sourceTree = "<group>"; };
 		C995696C12400EB0009A5668 /* 717006 */ = {isa = PBXFileReference; lastKnownFileType = file; name = 717006; path = ../../_Data_/717006; sourceTree = SOURCE_ROOT; };
+		C99569B012401B2A009A5668 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		C99E315A111B7331002165EC /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../Resources/Info.plist; sourceTree = SOURCE_ROOT; };
 		C99E315D111B733F002165EC /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = ../../Resources/English.lproj/Einstein.nib; sourceTree = SOURCE_ROOT; };
 		C99E3160111B7346002165EC /* button_backlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_backlight.png; sourceTree = "<group>"; };
@@ -1537,6 +1539,7 @@
 		C9B4AA2B123D474800D8D2C7 /* iEinstein */ = {
 			isa = PBXGroup;
 			children = (
+				C99569B012401B2A009A5668 /* icon.png */,
 				C995696C12400EB0009A5668 /* 717006 */,
 				C94ADB3E123E9AEC00406839 /* main.mm */,
 				C9B4AA26123D471D00D8D2C7 /* iEinstein-Info.plist */,
@@ -1655,6 +1658,7 @@
 				C9B4AA3B123D474800D8D2C7 /* MainWindow.xib in Resources */,
 				C99566AA123EC4DA009A5668 /* Einstein.rex in Resources */,
 				C995696D12400EB0009A5668 /* 717006 in Resources */,
+				C99569B112401B2A009A5668 /* icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
