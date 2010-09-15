@@ -670,7 +670,6 @@
 		C99E374F111C1F0E002165EC /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		C99E377A111C2289002165EC /* Einstein.rex */ = {isa = PBXFileReference; lastKnownFileType = file; name = Einstein.rex; path = ../../_Data_/Einstein.rex; sourceTree = SOURCE_ROOT; };
 		C9B4AA24123D471D00D8D2C7 /* iEinstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iEinstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C9B4AA26123D471D00D8D2C7 /* iEinstein-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "iEinstein-Info.plist"; path = "../../_Build_/Xcode3/iEinstein-Info.plist"; sourceTree = "<group>"; };
 		C9B4AA2D123D474800D8D2C7 /* iEinsteinAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iEinsteinAppDelegate.h; sourceTree = "<group>"; };
 		C9B4AA2F123D474800D8D2C7 /* iEinsteinViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iEinsteinViewController.h; sourceTree = "<group>"; };
 		C9B4AA31123D474800D8D2C7 /* iEinstein-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iEinstein-Info.plist"; sourceTree = "<group>"; };
@@ -1542,7 +1541,6 @@
 				C99569B012401B2A009A5668 /* icon.png */,
 				C995696C12400EB0009A5668 /* 717006 */,
 				C94ADB3E123E9AEC00406839 /* main.mm */,
-				C9B4AA26123D471D00D8D2C7 /* iEinstein-Info.plist */,
 				C9B4AA2C123D474800D8D2C7 /* Classes */,
 				C9B4AA31123D474800D8D2C7 /* iEinstein-Info.plist */,
 				C9B4AA32123D474800D8D2C7 /* iEinstein_Prefix.pch */,
@@ -2077,7 +2075,7 @@
 					../../portaudio/pa_common/,
 					"../../libffi-osx",
 				);
-				INFOPLIST_FILE = "iEinstein-Info.plist";
+				INFOPLIST_FILE = "../../app/iEinstein/iEinstein-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				OTHER_LDFLAGS = (
 					"-framework",
