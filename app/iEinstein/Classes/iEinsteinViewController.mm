@@ -161,6 +161,8 @@
 // -------------------------------------------------------------------------- //
 - (void)startEmulator
 {
+  [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+
   printf("Starting the emulator\n");
   mNetworkManager = NULL;     // OK?
   mSoundManager = NULL;       // OK?
