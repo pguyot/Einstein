@@ -236,9 +236,8 @@
                                            480,
                                            true,
                                            false);
-  //iEinsteinView *v = (iEinsteinView*)[self view];
-  [[self view] SetScreenManager: mScreenManager];  // FIXME: what is the correct call?
-  //[v SetScreenManager: mScreenManager];
+
+  [(iEinsteinView*)[self view] setScreenManager:mScreenManager];
   
   // Create the emulator.
   char theFlashPath[2048];

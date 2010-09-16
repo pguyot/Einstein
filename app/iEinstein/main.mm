@@ -23,15 +23,15 @@
 
 #import <UIKit/UIKit.h>
 
-int main(int argc, char *argv[]) {
-    
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    int retVal = UIApplicationMain(argc, argv, nil, nil);
-    [pool release];
-    return retVal;
+int main(int argc, char *argv[]) 
+{    
+	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	int retVal = UIApplicationMain(argc, argv, nil, nil);
+	[pool release];
+	return retVal;
 }
 
-void iOSDoLogLine( const char* inLine )
+void iOSDoLogLine(const char* inLine)
 {
-  NSLog([NSString stringWithUTF8String:inLine ]);
+	NSLog(@"%@", [NSString stringWithUTF8String:inLine]);
 }
