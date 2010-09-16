@@ -45,7 +45,8 @@
 	if ( t ) 
 	{
 		CGPoint p = [t locationInView:[self view]];
-		mScreenManager->PenDown(480 - p.y, p.x);
+        CGRect r = [[self view] frame];
+		mScreenManager->PenDown((1.0-(p.y/r.size.height))*480, (p.x/r.size.width)*320);
 	}
 }
 
@@ -56,7 +57,8 @@
 	if ( t ) 
 	{
 		CGPoint p = [t locationInView:[self view]];
-		mScreenManager->PenDown(480 - p.y, p.x);
+        CGRect r = [[self view] frame];
+		mScreenManager->PenDown((1.0-(p.y/r.size.height))*480, (p.x/r.size.width)*320);
 	}
 }
 
