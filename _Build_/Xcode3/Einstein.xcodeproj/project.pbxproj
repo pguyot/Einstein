@@ -165,7 +165,6 @@
 		C99E3706111C18D2002165EC /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E3705111C18D2002165EC /* AudioUnit.framework */; };
 		C99E3750111C1F0E002165EC /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E374F111C1F0E002165EC /* Carbon.framework */; };
 		C99E377B111C2289002165EC /* Einstein.rex in Resources */ = {isa = PBXBuildFile; fileRef = C99E377A111C2289002165EC /* Einstein.rex */; };
-		C9B4AA38123D474800D8D2C7 /* iEinstein-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C9B4AA31123D474800D8D2C7 /* iEinstein-Info.plist */; };
 		C9B4AA39123D474800D8D2C7 /* iEinsteinViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */; };
 		C9B4AA3B123D474800D8D2C7 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = C9B4AA35123D474800D8D2C7 /* MainWindow.xib */; };
 		C9B4AA8D123D4CC500D8D2C7 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9B4AA8C123D4CC500D8D2C7 /* CoreGraphics.framework */; };
@@ -309,7 +308,7 @@
 		C962429F11B6A20A00EE66F3 /* TNetworkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TNetworkManager.h; path = Network/TNetworkManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C9956719123F71D2009A5668 /* TIOSScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TIOSScreenManager.h; sourceTree = "<group>"; };
 		C995672B123F793D009A5668 /* TIOSScreenManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TIOSScreenManager.mm; sourceTree = "<group>"; };
-		C995696C12400EB0009A5668 /* 717006 */ = {isa = PBXFileReference; lastKnownFileType = file; name = 717006; path = ../../_Data_/717006; sourceTree = SOURCE_ROOT; };
+		C995696C12400EB0009A5668 /* 717006 */ = {isa = PBXFileReference; lastKnownFileType = text; name = 717006; path = ../../_Data_/717006; sourceTree = SOURCE_ROOT; };
 		C99569B012401B2A009A5668 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		C99E315A111B7331002165EC /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../Resources/Info.plist; sourceTree = SOURCE_ROOT; };
 		C99E315D111B733F002165EC /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = ../../Resources/English.lproj/Einstein.nib; sourceTree = SOURCE_ROOT; };
@@ -1619,7 +1618,7 @@
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Einstein */;
 			projectDirPath = "";
-			projectRoot = "";
+			projectRoot = ../../..;
 			targets = (
 				8D1107260486CEB800E47090 /* Einstein */,
 				C9B4AA23123D471D00D8D2C7 /* iEinstein */,
@@ -1651,7 +1650,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C9B4AA38123D474800D8D2C7 /* iEinstein-Info.plist in Resources */,
 				C9B4AA39123D474800D8D2C7 /* iEinsteinViewController.xib in Resources */,
 				C9B4AA3B123D474800D8D2C7 /* MainWindow.xib in Resources */,
 				C99566AA123EC4DA009A5668 /* Einstein.rex in Resources */,
