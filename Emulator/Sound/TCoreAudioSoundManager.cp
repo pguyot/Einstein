@@ -81,7 +81,11 @@ TCoreAudioSoundManager::TCoreAudioSoundManager( TLog* inLog /* = nil */ )
 // -------------------------------------------------------------------------- //
 TCoreAudioSoundManager::~TCoreAudioSoundManager( void )
 {
+#if TARGET_OS_IPHONE
+	AudioComponentInstanceDispose( mOutputUnit );
+#else
 	CloseComponent( mOutputUnit );
+#endif
 	(void) AudioUnitUninitialize( mOutputUnit );
 
 	if (mDataMutex)
@@ -104,14 +108,27 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 	
 	do {
 		// Open the default output unit
+#if TARGET_OS_IPHONE
+		AudioComponentDescription desc;
+#else
 		ComponentDescription desc;
+#endif
 		desc.componentType = kAudioUnitType_Output;
+#if TARGET_OS_IPHONE
+		desc.componentSubType = kAudioUnitSubType_RemoteIO;
+#else
 		desc.componentSubType = kAudioUnitSubType_DefaultOutput;
+#endif
 		desc.componentManufacturer = kAudioUnitManufacturer_Apple;
 		desc.componentFlags = 0;
 		desc.componentFlagsMask = 0;
 		
+#if TARGET_OS_IPHONE
+		AudioComponent comp = AudioComponentFindNext(NULL, &desc);
+#else
 		Component comp = FindNextComponent(NULL, &desc);
+#endif
+
 		if (comp == NULL)
 		{
 			if (GetLog())
@@ -122,7 +139,12 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 			break;
 		}
 	
+#if TARGET_OS_IPHONE
+		err = AudioComponentInstanceNew(comp, &mOutputUnit);
+#else
 		err = OpenAComponent(comp, &mOutputUnit);
+#endif
+
 		if (err != noErr)
 		{
 			if (GetLog())
