@@ -26,21 +26,31 @@
 
 @implementation iEinsteinAppDelegate
 
-@synthesize window;
-@synthesize viewController;
 
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions 
+{
+    // Override point for customization after app launch
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
-    
-    // Override point for customization after app launch    
-    [window addSubview:viewController.view];
-    [window makeKeyAndVisible];
-	
-    return YES;
+	[window makeKeyAndVisible];
+
+	return YES;
 }
 
 
-- (void)dealloc {
+- (void)applicationWillResignActive:(UIApplication*)application
+{
+	[viewController stopEmulator];
+}
+
+
+- (void)applicationDidBecomeActive:(UIApplication*)application 
+{
+	[viewController startEmulator];
+}
+
+
+- (void)dealloc 
+{
     [viewController release];
     [window release];
     [super dealloc];
