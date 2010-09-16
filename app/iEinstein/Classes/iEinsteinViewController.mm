@@ -265,8 +265,10 @@
   mEmulator->Run();
   // Quit if the emulator quitted.
   //mQuit = true;
+  
   // FIXME: bad idea! this crashes!
-  [[UIApplication sharedApplication] terminate: self];
+  // UIApplication has no -terminate method.
+  //[[UIApplication sharedApplication] terminate: self];
 }
 
 
