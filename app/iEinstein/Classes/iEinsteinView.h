@@ -24,10 +24,11 @@
 #import <UIKit/UIKit.h>
 #include <K/Defines/KDefinitions.h>
 
+class TScreenManager;
 
 @interface iEinsteinView : UIView {
 
-  id	mScreenManager;
+  TScreenManager*			mScreenManager;
   CGImageRef				mScreenImage;
   //BOOL					mVisible;
   int						mWidth;
@@ -41,7 +42,7 @@
 
 - (void)dealloc;
 
-- (void)SetScreenManager:(id)sm;
+- (void)setScreenManager:(TScreenManager*)sm;
   
 @end
 
