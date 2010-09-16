@@ -17,6 +17,9 @@
 		C94ADB3F123E9AEC00406839 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = C94ADB3E123E9AEC00406839 /* main.mm */; };
 		C962429711B69A9D00EE66F3 /* TUsermodeNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */; };
 		C96242A011B6A20A00EE66F3 /* TNetworkManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */; };
+		C97C7E1C124282A600CDCD05 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C97C7E1A124282A600CDCD05 /* UIKit.framework */; };
+		C97C7E1D124282A600CDCD05 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C97C7E1B124282A600CDCD05 /* Foundation.framework */; };
+		C97C7EA3124283FE00CDCD05 /* MainWindow_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */; };
 		C99566AA123EC4DA009A5668 /* Einstein.rex in Resources */ = {isa = PBXBuildFile; fileRef = C99E377A111C2289002165EC /* Einstein.rex */; };
 		C995672C123F793D009A5668 /* TIOSScreenManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = C995672B123F793D009A5668 /* TIOSScreenManager.mm */; };
 		C995696D12400EB0009A5668 /* 717006 in Resources */ = {isa = PBXBuildFile; fileRef = C995696C12400EB0009A5668 /* 717006 */; };
@@ -309,6 +312,10 @@
 		C962429611B69A9D00EE66F3 /* TUsermodeNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TUsermodeNetwork.h; path = Network/TUsermodeNetwork.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TNetworkManager.cp; path = Network/TNetworkManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429F11B6A20A00EE66F3 /* TNetworkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TNetworkManager.h; path = Network/TNetworkManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C97C7E1A124282A600CDCD05 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		C97C7E1B124282A600CDCD05 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		C97C7EA01242832700CDCD05 /* iEinstein-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iEinstein-Info.plist"; sourceTree = SOURCE_ROOT; };
+		C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow_iPad.xib; sourceTree = "<group>"; };
 		C9956719123F71D2009A5668 /* TIOSScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TIOSScreenManager.h; sourceTree = "<group>"; };
 		C995672B123F793D009A5668 /* TIOSScreenManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TIOSScreenManager.mm; sourceTree = "<group>"; };
 		C995696C12400EB0009A5668 /* 717006 */ = {isa = PBXFileReference; lastKnownFileType = text; name = 717006; path = ../../_Data_/717006; sourceTree = SOURCE_ROOT; };
@@ -674,7 +681,6 @@
 		C9B4AA24123D471D00D8D2C7 /* iEinstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iEinstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9B4AA2D123D474800D8D2C7 /* iEinsteinAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iEinsteinAppDelegate.h; sourceTree = "<group>"; };
 		C9B4AA2F123D474800D8D2C7 /* iEinsteinViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iEinsteinViewController.h; sourceTree = "<group>"; };
-		C9B4AA31123D474800D8D2C7 /* iEinstein-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iEinstein-Info.plist"; sourceTree = "<group>"; };
 		C9B4AA32123D474800D8D2C7 /* iEinstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iEinstein_Prefix.pch; sourceTree = "<group>"; };
 		C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = iEinsteinViewController.xib; sourceTree = "<group>"; };
 		C9B4AA35123D474800D8D2C7 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
@@ -708,6 +714,8 @@
 				F1CAFBE41241F7C200A0382E /* CoreAudio.framework in Frameworks */,
 				F1CAFBF51241F7E600A0382E /* AudioToolbox.framework in Frameworks */,
 				F1CAFCF9124200C100A0382E /* CoreGraphics.framework in Frameworks */,
+				C97C7E1C124282A600CDCD05 /* UIKit.framework in Frameworks */,
+				C97C7E1D124282A600CDCD05 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -717,6 +725,7 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C99E374F111C1F0E002165EC /* Carbon.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
@@ -753,8 +762,6 @@
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
-				C99E374F111C1F0E002165EC /* Carbon.framework */,
-				F1CAFCF8124200C100A0382E /* CoreGraphics.framework */,
 			);
 			name = Einstein;
 			sourceTree = "<group>";
@@ -773,6 +780,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C97C7CB81242827600CDCD05 /* iOS Frameworks */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
@@ -790,6 +798,16 @@
 				DA0D943F11B9A12D00835522 /* TTapNetwork.h */,
 			);
 			name = Network;
+			sourceTree = "<group>";
+		};
+		C97C7CB81242827600CDCD05 /* iOS Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C97C7E1A124282A600CDCD05 /* UIKit.framework */,
+				C97C7E1B124282A600CDCD05 /* Foundation.framework */,
+				F1CAFCF8124200C100A0382E /* CoreGraphics.framework */,
+			);
+			name = "iOS Frameworks";
 			sourceTree = "<group>";
 		};
 		C99E3154111B72C0002165EC /* Sources */ = {
@@ -1544,14 +1562,15 @@
 		C9B4AA2B123D474800D8D2C7 /* iEinstein */ = {
 			isa = PBXGroup;
 			children = (
+				C97C7EA01242832700CDCD05 /* iEinstein-Info.plist */,
 				C99569B012401B2A009A5668 /* icon.png */,
 				C995696C12400EB0009A5668 /* 717006 */,
 				C94ADB3E123E9AEC00406839 /* main.mm */,
 				C9B4AA2C123D474800D8D2C7 /* Classes */,
-				C9B4AA31123D474800D8D2C7 /* iEinstein-Info.plist */,
 				C9B4AA32123D474800D8D2C7 /* iEinstein_Prefix.pch */,
 				C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */,
 				C9B4AA35123D474800D8D2C7 /* MainWindow.xib */,
+				C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */,
 			);
 			path = iEinstein;
 			sourceTree = "<group>";
@@ -1662,6 +1681,7 @@
 				C99566AA123EC4DA009A5668 /* Einstein.rex in Resources */,
 				C995696D12400EB0009A5668 /* 717006 in Resources */,
 				C99569B112401B2A009A5668 /* icon.png in Resources */,
+				C97C7EA3124283FE00CDCD05 /* MainWindow_iPad.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2063,6 +2083,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2081,17 +2102,17 @@
 					../../portaudio/pa_common/,
 					"../../libffi-osx",
 				);
-				INFOPLIST_FILE = "../../app/iEinstein/iEinstein-Info.plist";
+				INFOPLIST_FILE = "iEinstein-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					UIKit,
-				);
+				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = iEinstein;
-				SDKROOT = iphonesimulator4.1;
+				SDKROOT = iphoneos4.1;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "armv6 armv7";
 			};
 			name = Debug;
 		};
@@ -2099,6 +2120,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -2118,15 +2140,16 @@
 				);
 				INFOPLIST_FILE = "iEinstein-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					UIKit,
-				);
+				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = iEinstein;
 				SDKROOT = iphoneos4.1;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VALID_ARCHS = "armv6 armv7";
 				ZERO_LINK = NO;
 			};
 			name = Release;
