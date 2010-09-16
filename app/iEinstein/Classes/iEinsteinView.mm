@@ -76,31 +76,8 @@
 			CGColorSpaceRelease(theColorSpace);
 		}
 		
-		/*
-		switch (mOrientation)
-		{
-		case kNormal:
-		break;
-
-		case k90Clockwise:
-		CGContextTranslateCTM(theContext, 0, mWidth);
-		CGContextRotateCTM(theContext, -M_PI/2.0);
-		break;
-
-		case k180Clockwise:
-		CGContextTranslateCTM(theContext, mWidth, mHeight);
-		CGContextRotateCTM(theContext, M_PI);
-		break;
-
-		case k270Clockwise:
-		CGContextTranslateCTM(theContext, mHeight, 0);
-		CGContextRotateCTM(theContext, M_PI/2.0);
-		break;
-		}
-		*/
-		
 		CGContextDrawImage(theContext,
-				CGRectMake(0.0, 0.0, mWidth, mHeight),
+				CGRectMake(0.0, 0.0, rect.size.width, rect.size.height),
 				mScreenImage);
 	}
 }
