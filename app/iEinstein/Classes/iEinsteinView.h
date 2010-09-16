@@ -26,8 +26,8 @@
 
 class TScreenManager;
 
-@interface iEinsteinView : UIView {
-
+@interface iEinsteinView : UIView 
+{
   TScreenManager*			mScreenManager;
   CGImageRef				mScreenImage;
   //BOOL					mVisible;
@@ -35,12 +35,9 @@ class TScreenManager;
   int						mHeight;
   //EOrientation			mOrientation;
   //KUInt32					mPreviousMods;
-  
 }
 
 - (id)init;
-
-- (void)dealloc;
 
 - (void)setScreenManager:(TScreenManager*)sm;
   

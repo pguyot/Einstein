@@ -35,16 +35,10 @@
 
 - (id)init 
 {
-	mScreenManager = 0L;
+	mScreenManager = NULL;
 	mWidth = 320;
 	mHeight = 480;
 	return self;
-}
-
-
-- (void)dealloc 
-{
-	[super dealloc];
 }
 
 
@@ -77,7 +71,7 @@
 					((TIOSScreenManager*)mScreenManager)->GetDataProvider(),
 					NULL,
 					false,
-					kCGRenderingIntentAbsoluteColorimetric);
+					kCGRenderingIntentDefault);
 			
 			CGColorSpaceRelease(theColorSpace);
 		}
@@ -106,8 +100,8 @@
 		*/
 		
 		CGContextDrawImage(theContext,
-			CGRectMake(0.0, 0.0, mWidth, mHeight),
-			mScreenImage);
+				CGRectMake(0.0, 0.0, mWidth, mHeight),
+				mScreenImage);
 	}
 }
 
