@@ -167,7 +167,6 @@
 		C99E377B111C2289002165EC /* Einstein.rex in Resources */ = {isa = PBXBuildFile; fileRef = C99E377A111C2289002165EC /* Einstein.rex */; };
 		C9B4AA39123D474800D8D2C7 /* iEinsteinViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */; };
 		C9B4AA3B123D474800D8D2C7 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = C9B4AA35123D474800D8D2C7 /* MainWindow.xib */; };
-		C9B4AA8D123D4CC500D8D2C7 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9B4AA8C123D4CC500D8D2C7 /* CoreGraphics.framework */; };
 		C9B4AAD2123D5AB800D8D2C7 /* TCircleBuffer.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3321111B7570002165EC /* TCircleBuffer.cp */; };
 		C9B4AAE5123D5F1F00D8D2C7 /* U3DES.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32AB111B7570002165EC /* U3DES.cp */; };
 		C9B4AAE6123D5F2000D8D2C7 /* UDES.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32AD111B7570002165EC /* UDES.cp */; };
@@ -252,7 +251,6 @@
 		C9B4AB77123D667F00D8D2C7 /* TJITPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E345B111B7C07002165EC /* TJITPage.cp */; };
 		C9B4AB7A123D66D700D8D2C7 /* TScreenManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E349D111B7C08002165EC /* TScreenManager.cp */; };
 		C9B4AB82123D670700D8D2C7 /* TSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34B2111B7C08002165EC /* TSoundManager.cp */; };
-		C9B4AB83123D670800D8D2C7 /* TNullSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AE111B7C08002165EC /* TNullSoundManager.cp */; };
 		C9B4AB86123D672300D8D2C7 /* TPCMCIAController.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3476111B7C07002165EC /* TPCMCIAController.cp */; };
 		C9B4AB87123D672900D8D2C7 /* TPCMCIACard.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3474111B7C07002165EC /* TPCMCIACard.cp */; };
 		C9B4AB88123D674400D8D2C7 /* TBufferLog.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3460111B7C07002165EC /* TBufferLog.cp */; };
@@ -286,6 +284,11 @@
 		C9E848EA11EDCD6C00F27330 /* x86-ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E811EDCD6C00F27330 /* x86-ffi64.c */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cp */; };
 		DA0D96DE11BAD15300835522 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = DA0D96DD11BAD15300835522 /* darwin64.S */; };
+		F1CAFB841241F53F00A0382E /* TCoreAudioSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AC111B7C08002165EC /* TCoreAudioSoundManager.cp */; };
+		F1CAFB9A1241F5E700A0382E /* TBufferedSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AA111B7C08002165EC /* TBufferedSoundManager.cp */; };
+		F1CAFBE41241F7C200A0382E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E36FD111C18A8002165EC /* CoreAudio.framework */; };
+		F1CAFBF51241F7E600A0382E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */; };
+		F1CAFCF9124200C100A0382E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFCF8124200C100A0382E /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -676,12 +679,13 @@
 		C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = iEinsteinViewController.xib; sourceTree = "<group>"; };
 		C9B4AA35123D474800D8D2C7 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		C9B4AA49123D480900D8D2C7 /* iEinsteinView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iEinsteinView.h; sourceTree = "<group>"; };
-		C9B4AA8C123D4CC500D8D2C7 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		C9E848E711EDCD6C00F27330 /* ffi_darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi_darwin.c; sourceTree = "<group>"; };
 		C9E848E811EDCD6C00F27330 /* x86-ffi64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "x86-ffi64.c"; sourceTree = "<group>"; };
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTapNetwork.cp; path = Network/TTapNetwork.cp; sourceTree = "<group>"; };
 		DA0D943F11B9A12D00835522 /* TTapNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTapNetwork.h; path = Network/TTapNetwork.h; sourceTree = "<group>"; };
 		DA0D96DD11BAD15300835522 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
+		F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		F1CAFCF8124200C100A0382E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -701,7 +705,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C9B4AA8D123D4CC500D8D2C7 /* CoreGraphics.framework in Frameworks */,
+				F1CAFBE41241F7C200A0382E /* CoreAudio.framework in Frameworks */,
+				F1CAFBF51241F7E600A0382E /* AudioToolbox.framework in Frameworks */,
+				F1CAFCF9124200C100A0382E /* CoreGraphics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -721,6 +727,7 @@
 			children = (
 				C99E3703111C18D2002165EC /* AddressBook.framework */,
 				C99E3705111C18D2002165EC /* AudioUnit.framework */,
+				F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */,
 				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
 				13E42FB307B3F0F600E4EEF1 /* CoreData.framework */,
 				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
@@ -747,6 +754,7 @@
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				C99E374F111C1F0E002165EC /* Carbon.framework */,
+				F1CAFCF8124200C100A0382E /* CoreGraphics.framework */,
 			);
 			name = Einstein;
 			sourceTree = "<group>";
@@ -765,7 +773,6 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				C9B4AA8C123D4CC500D8D2C7 /* CoreGraphics.framework */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
@@ -1894,7 +1901,6 @@
 				C9B4AB77123D667F00D8D2C7 /* TJITPage.cp in Sources */,
 				C9B4AB7A123D66D700D8D2C7 /* TScreenManager.cp in Sources */,
 				C9B4AB82123D670700D8D2C7 /* TSoundManager.cp in Sources */,
-				C9B4AB83123D670800D8D2C7 /* TNullSoundManager.cp in Sources */,
 				C9B4AB86123D672300D8D2C7 /* TPCMCIAController.cp in Sources */,
 				C9B4AB87123D672900D8D2C7 /* TPCMCIACard.cp in Sources */,
 				C9B4AB89123D674B00D8D2C7 /* TBufferLog.cp in Sources */,
@@ -1928,6 +1934,8 @@
 				C94ADB3C123E9ADD00406839 /* iEinsteinViewController.mm in Sources */,
 				C94ADB3F123E9AEC00406839 /* main.mm in Sources */,
 				C995672C123F793D009A5668 /* TIOSScreenManager.mm in Sources */,
+				F1CAFB841241F53F00A0382E /* TCoreAudioSoundManager.cp in Sources */,
+				F1CAFB9A1241F5E700A0382E /* TBufferedSoundManager.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

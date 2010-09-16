@@ -29,7 +29,7 @@
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/Network/TNetworkManager.h"
-#include "Emulator/Sound/TNullSoundManager.h"
+#include "Emulator/Sound/TCoreAudioSoundManager.h"
 #include "Emulator/Screen/TIOSScreenManager.h"
 
 @interface iEinsteinViewController ()
@@ -199,7 +199,7 @@
 
 	// Create the sound manager.
 	
-	mSoundManager = new TNullSoundManager(mLog);
+	mSoundManager = new TCoreAudioSoundManager(mLog);
 
 	mScreenManager = new TIOSScreenManager(
 							   (iEinsteinView*)[self view],
