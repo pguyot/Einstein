@@ -30,7 +30,11 @@
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions 
 {
     // Override point for customization after app launch
-
+    /* This is how we access preferences!
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [self setShouldPlaySounds:[defaults boolForKey:@"play_sounds_preference"]];
+     */
+    
 	[window addSubview:[viewController view]];
 	[window makeKeyAndVisible];
 
