@@ -203,6 +203,8 @@
 	
 	mSoundManager = new TCoreAudioSoundManager(mLog);
 
+    // iPad is 1024x768. This size, and some appropriate scaling factirs, should be selectable from
+    // the 'Settings' panel.
 	mScreenManager = new TIOSScreenManager(
 							   (iEinsteinView*)[self view],
 							   self,
