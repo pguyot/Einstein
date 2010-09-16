@@ -32,70 +32,49 @@
 #include "Emulator/Sound/TNullSoundManager.h"
 #include "Emulator/Screen/TIOSScreenManager.h"
 
+@interface iEinsteinViewController ()
+- (void)initEmulator;
+@end
 
 @implementation iEinsteinViewController
 
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  NSSet *ts = [event allTouches];
-  UITouch *t = [ts anyObject];
-  if (t) {
-    CGPoint pt = [t locationInView: [self view]];
-    mScreenManager->PenDown(480-pt.y, pt.x);
-  }
+	UITouch* t = [touches anyObject];
+	if ( t ) 
+	{
+		CGPoint p = [t locationInView:[self view]];
+		mScreenManager->PenDown(480 - p.y, p.x);
+	}
 }
 
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+
+- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  NSSet *ts = [event allTouches];
-  UITouch *t = [ts anyObject];
-  if (t) {
-    CGPoint pt = [t locationInView: [self view]];
-    mScreenManager->PenDown(480-pt.y, pt.x);
-  }
+	UITouch* t = [touches anyObject];
+	if ( t ) 
+	{
+		CGPoint p = [t locationInView:[self view]];
+		mScreenManager->PenDown(480 - p.y, p.x);
+	}
 }
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+
+- (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  mScreenManager->PenUp();
+	mScreenManager->PenUp();
 }
 
 
-/*
- mScreenManager->PenDown(
- (KUInt16) penLoc.x,
- (KUInt16) penLoc.y);
-*/
+- (void)viewDidLoad 
+{
+	[super viewDidLoad];
 
-/*
-// The designated initializer. Override to perform setup that is required before the view is loaded.
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if ((self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])) {
-        // Custom initialization
-    }
-    return self;
-}
-*/
+	NSString* str = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	printf("Document dir is %s\n", [str UTF8String]);
 
-/*
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
-- (void)loadView {
-}
-*/
-
-
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)viewDidLoad {
-  [super viewDidLoad];
-  
-  //char buf[2048];
-  //getcwd(buf, 2048);
-  //printf("Current dir is %s\n", buf);
-  NSString *str = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
-  printf("Document dir is %s\n", [str UTF8String]);
-  
-  [self startEmulator];
+	[self initEmulator];
 }
 
 
@@ -107,171 +86,167 @@
 }
 */
 
-- (void)didReceiveMemoryWarning {
+- (void)didReceiveMemoryWarning 
+{
 	// Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
 	
 	// Release any cached data, images, etc that aren't in use.
 }
 
-- (void)viewDidUnload {
+- (void)viewDidUnload 
+{
 	// Release any retained subviews of the main view.
 	// e.g. self.myOutlet = nil;
 }
 
 
-- (void)dealloc {
-  if (mEmulator)
-  {
-    delete mEmulator;
-  }
-  if (mScreenManager)
-  {
-    delete mScreenManager;
-  }
-  if (mNetworkManager)
-  {
-    delete mNetworkManager;
-  }
-  if (mSoundManager)
-  {
-    delete mSoundManager;
-  }
-  if (mROMImage)
-  {
-    delete mROMImage;
-  }
-  if (mLog)
-  {
-    delete mLog;
-  }  
-  [super dealloc];
-}
-
-/*
-+ (void) initialize
+- (void)dealloc 
 {
+	if ( mEmulator )
+	{
+		delete mEmulator;
+		mEmulator = NULL;
+	}
+	
+	if ( mScreenManager )
+	{
+		delete mScreenManager;
+		mScreenManager = NULL;
+	}
+	
+	if ( mNetworkManager )
+	{
+		delete mNetworkManager;
+		mNetworkManager = NULL;
+	}
+	
+	if ( mSoundManager )
+	{
+		delete mSoundManager;
+		mSoundManager = NULL;
+	}
+	
+	if ( mROMImage )
+	{
+		delete mROMImage;
+		mROMImage = NULL;
+	}
+	
+	if ( mLog )
+	{
+		delete mLog;
+		mLog = NULL;
+	}  
+	
+	[super dealloc];
 }
-*/
 
-// (never called?!)
-- (id) init 
+
+- (void)initEmulator
 {
-  if ((self = [super init]))
-  {
-    mNetworkManager = NULL;
-    mSoundManager = NULL;
-    mScreenManager = NULL;
-    mROMImage = NULL;
-    mEmulator = NULL;
-    mPlatformManager = NULL;
-    mLog = NULL;
-  }
-  return self;
+	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+
+	printf("Initializing the emulator\n");
+
+	mNetworkManager = NULL;     // OK?
+	mSoundManager = NULL;       // OK?
+	mScreenManager = NULL;      // TODO: 
+	mROMImage = NULL;           // TODO:
+	mEmulator = NULL;           // OK
+	mPlatformManager = NULL;    // OK
+	mLog = NULL;                // OK
+
+	// Create a log if possible
+	//#ifdef _DEBUG
+	mLog = new TStdOutLog(); 
+	//#endif
+
+	NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+	mLog->LogLine("Hallo Welt!");
+
+	// Create the ROM.
+	
+	NSString* einsteinRExPath = nil;
+	NSBundle* thisBundle = [NSBundle mainBundle];
+
+	if ( !(einsteinRExPath = [thisBundle pathForResource:@"Einstein" ofType:@"rex"]) )
+	{
+		//[self abortWithMessage: @"Couldn't load Einstein REX"];
+		mLog->LogLine("Couldn't load Einstein REX");
+		return;
+	}
+
+	NSString* theROMPath = [thisBundle pathForResource:@"717006" ofType:nil];
+	NSString* theImagePath = [docdir stringByAppendingPathComponent:@"717006.img"];
+
+	NSFileManager* theFileManager = [NSFileManager defaultManager];
+	if ( ![theFileManager fileExistsAtPath:theROMPath] )
+	{
+		mLog->LogLine("ROM file doesn't seem to exist");
+		return;
+	}
+
+	mROMImage = new TFlatROMImageWithREX(
+							   [theROMPath fileSystemRepresentation],
+							   [einsteinRExPath fileSystemRepresentation],
+							   "717006", false,
+							   [theImagePath fileSystemRepresentation]);
+
+	// Create the network manager.
+	
+	mNetworkManager = new TNullNetwork(mLog);
+
+	// Create the sound manager.
+	
+	mSoundManager = new TNullSoundManager(mLog);
+
+	mScreenManager = new TIOSScreenManager(
+							   (iEinsteinView*)[self view],
+							   self,
+							   mLog,
+							   320,
+							   480,
+							   true,
+							   false);
+
+	[(iEinsteinView*)[self view] setScreenManager:mScreenManager];
+
+	// Create the emulator.
+
+	NSString* theFlashPath = [docdir stringByAppendingPathComponent:@"flash"];
+	printf("Flash file is %s\n", [theFlashPath fileSystemRepresentation]);
+
+	mEmulator = new TEmulator(
+					mLog, mROMImage, [theFlashPath fileSystemRepresentation],
+					mSoundManager, mScreenManager, mNetworkManager, 0x40 << 16);
+					
+	mPlatformManager = mEmulator->GetPlatformManager();
+
+	((TIOSScreenManager*)mScreenManager)->SetPlatformManager(mPlatformManager);
 }
 
 
-// -------------------------------------------------------------------------- //
-//  * (void)startEmulator
-// -------------------------------------------------------------------------- //
 - (void)startEmulator
 {
-  [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
-
-  printf("Starting the emulator\n");
-  mNetworkManager = NULL;     // OK?
-  mSoundManager = NULL;       // OK?
-  mScreenManager = NULL;      // TODO: 
-  mROMImage = NULL;           // TODO:
-  mEmulator = NULL;           // OK
-  mPlatformManager = NULL;    // OK
-  mLog = NULL;                // OK
-  
-  
-  // Create a log if possible
-  //#ifdef _DEBUG
-  mLog = new TStdOutLog(); 
-  //#endif
-  
-  NSString *docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
-  mLog->LogLine("Hallo Welt!");
-  
-  // Create the ROM.
-  NSString* einsteinRExPath;
-  NSBundle* thisBundle = [NSBundle bundleForClass:[self class]];
-  if (!(einsteinRExPath = [thisBundle pathForResource:@"Einstein" ofType:@"rex"]))
-  {
-    //[self abortWithMessage: @"Couldn't load Einstein REX"];
-    mLog->LogLine("Couldn't load Einstein REX");
-    return;
-  }
-  
-  NSString* theROMPath = [thisBundle pathForResource:@"717006" ofType:0L];
-  NSString* theImagePath = [docdir stringByAppendingString:@"/717006.img"];
-  
-  NSFileManager* theFileManager = [NSFileManager defaultManager];
-  if (![theFileManager fileExistsAtPath: theROMPath])
-  {
-    mLog->LogLine("ROM file doesn't seem to exist");
-    return;
-  }
-  
-  mROMImage = new TFlatROMImageWithREX(
-                                       [theROMPath UTF8String],
-                                       [einsteinRExPath UTF8String],
-                                       "717006", false,
-                                       [theImagePath UTF8String]);
-  
-  // Create the network manager.
-  mNetworkManager = new TNullNetwork(mLog);
-  
-  // Create the sound manager.
-  mSoundManager = new TNullSoundManager(mLog);
-  
-  mScreenManager = new TIOSScreenManager(
-                                           (iEinsteinView*)[self view],
-                                           self,
-                                           mLog,
-                                           320,
-                                           480,
-                                           true,
-                                           false);
-
-  [(iEinsteinView*)[self view] setScreenManager:mScreenManager];
-  
-  // Create the emulator.
-  char theFlashPath[2048];
-  sprintf(theFlashPath, "%s/flash", [docdir UTF8String]);
-  printf("Flash file is %s\n", theFlashPath);
-  
-  mEmulator = new TEmulator(
-                            mLog, mROMImage, theFlashPath,
-                            mSoundManager, mScreenManager, mNetworkManager, 0x40 << 16 );
-  mPlatformManager = mEmulator->GetPlatformManager();
-  
-  ((TIOSScreenManager*) mScreenManager)->SetPlatformManager( mPlatformManager );
-  
-  // Start the thread.
-  [NSThread detachNewThreadSelector: @selector(runEmulator) toTarget: self withObject: NULL];
+	// Start the thread.
+	
+	mLog->LogLine("Detaching emulator thread");
+	[NSThread detachNewThreadSelector:@selector(emulatorThread) toTarget:self withObject:nil];
 }
 
 
-
-// -------------------------------------------------------------------------- //
-//  * (void)runEmulator
-// -------------------------------------------------------------------------- //
-- (void)runEmulator
+- (void)emulatorThread
 {
-  mEmulator->Run();
-  // Quit if the emulator quitted.
-  //mQuit = true;
-  
-  // FIXME: bad idea! this crashes!
-  // UIApplication has no -terminate method.
-  //[[UIApplication sharedApplication] terminate: self];
+	mEmulator->Run();
+}
+
+
+- (void)stopEmulator
+{
+	mLog->LogLine("Stopping emulator thread");
+	mEmulator->Stop();
 }
 
 
 @end
-
-

@@ -46,10 +46,6 @@ class TLog;
 }
 
 
-// Initialize.
-//+ (void) initialize;
-- (id) init;
-
 // Release
 - (void) dealloc;
 
@@ -73,6 +69,7 @@ class TLog;
 //- (NSString*)openFile;
 //- (NSString*)saveFile;
 - (void)startEmulator;
+- (void)stopEmulator;
 //- (BOOL)canStartEmulator;
 //- (void)abortWithMessage:(NSString*)message;
 //+ (TCocoaAppController*)getInstance;
@@ -85,7 +82,6 @@ class TLog;
 
 // Private (sic) methods.
 //+ (NSString*)getAppSupportDirectory;
-- (void)runEmulator;
 //- (void)installPackageFile:(NSString*)inPath;
 //- (void)setupToolbar: (NSWindow*) inWindow;
 
