@@ -35,3 +35,9 @@ void iOSDoLogLine(const char* inLine)
 {
 	NSLog(@"%@", [NSString stringWithUTF8String:inLine]);
 }
+
+// TODO: how to get the ROM from the user into the system:
+//  - see section "Sharing Files with the User" in "iOS Application Programming Guide"
+//  - and http://www.raywenderlich.com/1948/how-integrate-itunes-file-sharing-with-your-ios-app
+// TODO: screen rotation
+// ...

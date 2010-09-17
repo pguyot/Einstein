@@ -24,6 +24,10 @@
 #import "iEinsteinView.h"
 #import "TIOSScreenManager.h"
 
+#include "TInterruptManager.h"
+#include "TPlatformManager.h"
+#include "TEmulator.h"
+
 @implementation iEinsteinView
 
 #if !(defined kCGBitmapByteOrder32Host) && TARGET_RT_BIG_ENDIAN
@@ -49,6 +53,11 @@
 { 
 	mScreenManager = sm; 
 } 
+
+- (void)setEmulator:(TEmulator*)em
+{
+    mEmulator = em;
+}
 
 
 - (void)drawRect:(CGRect)rect 
@@ -127,6 +136,10 @@
 	UITouch* t = [touches anyObject];
 	if ( t ) 
 	{
+        if (!mEmulator->GetPlatformManager()->IsPowerOn()) {
+            // we have no power switch on IOS, so any screen touch will power the Newton back on.
+            mEmulator->GetPlatformManager()->SendPowerSwitchEvent();
+        }
 		CGPoint p = [t locationInView:self];
         CGRect r = screenImageRect;
 		int x = (1.0 - ((p.y - r.origin.y) / r.size.height)) * newtonScreenHeight;
