@@ -174,7 +174,9 @@
 
     // iPad is 1024x768. This size, and some appropriate scaling factirs, should be selectable from
     // the 'Settings' panel.
+	
 	iEinsteinView* einsteinView = (iEinsteinView*)[self view];
+	Boolean isLandscape = ([einsteinView newtonScreenWidth] > [einsteinView newtonScreenHeight]);
 	
 	mScreenManager = new TIOSScreenManager(
 							   einsteinView,
@@ -183,7 +185,7 @@
 							   [einsteinView newtonScreenWidth],
 							   [einsteinView newtonScreenHeight],
 							   true,
-							   false);
+							   isLandscape);
 
 	[einsteinView setScreenManager:mScreenManager];
 
