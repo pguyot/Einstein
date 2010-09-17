@@ -33,15 +33,6 @@
 #endif
 
 
-- (id)init 
-{
-	mScreenManager = NULL;
-	mWidth = 320;
-	mHeight = 480;
-	return self;
-}
-
-
 - (void)setScreenManager:(TScreenManager*)sm 
 { 
 	mScreenManager = sm; 
@@ -61,25 +52,67 @@
 			CGColorSpaceRef theColorSpace = CGColorSpaceCreateDeviceRGB();
 			
 			mScreenImage = CGImageCreate(
-					mWidth,
-					mHeight,
-					8,
-					32,
-					mWidth * sizeof(KUInt32),
+					mWidth, mHeight,
+					8, 32, mWidth * sizeof(KUInt32),
 					theColorSpace,
 					kAlphaNoneSkipFirstPlusHostByteOrder,
 					((TIOSScreenManager*)mScreenManager)->GetDataProvider(),
-					NULL,
-					false,
+					NULL, false,
 					kCGRenderingIntentDefault);
 			
 			CGColorSpaceRelease(theColorSpace);
+
+			CGRect screenBounds = [[UIScreen mainScreen] bounds];
+			CGRect r = [self frame];
+			
+			if ( screenBounds.size.width > mWidth && screenBounds.size.height > mHeight )
+			{
+				int mod = (int)r.size.height % (int)r.size.width;
+				r.size.width = r.size.width - (mod / 2);
+				r.size.height = r.size.width + (r.size.width / 2);
+				r.origin.x += (screenBounds.size.width - r.size.width) / 2;
+				r.origin.y += (screenBounds.size.height - r.size.height) / 2;
+			}
+
+			screenImageRect = CGRectIntegral(r);
 		}
 		
-		CGContextDrawImage(theContext,
-				CGRectMake(0.0, 0.0, rect.size.width, rect.size.height),
-				mScreenImage);
+		CGContextSetInterpolationQuality(theContext, kCGInterpolationNone);
+		CGContextDrawImage(theContext, screenImageRect, mScreenImage);
 	}
+}
+
+- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
+{
+	UITouch* t = [touches anyObject];
+	if ( t ) 
+	{
+		CGPoint p = [t locationInView:self];
+        CGRect r = screenImageRect;
+		int x = (1.0 - ((p.y - r.origin.y) / r.size.height)) * mHeight;
+		int y = ((p.x - r.origin.x) / r.size.width) * mWidth;
+		mScreenManager->PenDown(x, y);
+	}
+}
+
+
+- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event
+{
+	UITouch* t = [touches anyObject];
+	if ( t ) 
+	{
+		CGPoint p = [t locationInView:self];
+        CGRect r = screenImageRect;
+		int x = (1.0 - ((p.y - r.origin.y) / r.size.height)) * mHeight;
+		int y = ((p.x - r.origin.x) / r.size.width) * mWidth;
+		mScreenManager->PenDown(x, y);
+	}
+}
+
+
+- (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event
+{
+	mScreenManager->PenUp();
 }
 
 
