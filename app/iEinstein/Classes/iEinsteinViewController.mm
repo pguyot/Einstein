@@ -39,36 +39,6 @@
 @implementation iEinsteinViewController
 
 
-- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
-{
-	UITouch* t = [touches anyObject];
-	if ( t ) 
-	{
-		CGPoint p = [t locationInView:[self view]];
-        CGRect r = [[self view] frame];
-		mScreenManager->PenDown((1.0-(p.y/r.size.height))*480, (p.x/r.size.width)*320);
-	}
-}
-
-
-- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event
-{
-	UITouch* t = [touches anyObject];
-	if ( t ) 
-	{
-		CGPoint p = [t locationInView:[self view]];
-        CGRect r = [[self view] frame];
-		mScreenManager->PenDown((1.0-(p.y/r.size.height))*480, (p.x/r.size.width)*320);
-	}
-}
-
-
-- (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event
-{
-	mScreenManager->PenUp();
-}
-
-
 - (void)viewDidLoad 
 {
 	[super viewDidLoad];

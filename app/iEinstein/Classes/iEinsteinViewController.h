@@ -85,10 +85,6 @@ class TLog;
 //- (void)installPackageFile:(NSString*)inPath;
 //- (void)setupToolbar: (NSWindow*) inWindow;
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
-
 @end
 
 

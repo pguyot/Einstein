@@ -30,14 +30,13 @@ class TScreenManager;
 {
   TScreenManager*			mScreenManager;
   CGImageRef				mScreenImage;
+  CGRect					screenImageRect;
   //BOOL					mVisible;
   int						mWidth;
   int						mHeight;
   //EOrientation			mOrientation;
   //KUInt32					mPreviousMods;
 }
-
-- (id)init;
 
 - (void)setScreenManager:(TScreenManager*)sm;
   
