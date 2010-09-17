@@ -283,7 +283,7 @@ TIOSScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 		+ (left * kBitsPerPixel / 8);
 	KUInt8* dstRowPtr =
 		((KUInt8*) mImageBuffer)
-                + (dstRowBytes*(480-1))
+                + (dstRowBytes*(GetScreenHeight()-1))
 		- (top * dstRowBytes)
 		+ (left * sizeof(KUInt32));
 
