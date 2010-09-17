@@ -221,22 +221,7 @@ TIOSScreenManager::ContrastChanged( KUInt32 )
 void
 TIOSScreenManager::ScreenOrientationChanged( EOrientation inScreenOrientation )
 {
-  /*
-	if (IsFullScreen())
-	{
-		// Rotate the view.
-		RotateView(
-			mEmulatorScreenView,
-			inScreenOrientation);
-	} else {
-		// Resize the window.
-		ResizeForRotation(
-			mEmulatorWindow,
-			mEmulatorScreenView,
-			GetScreenWidth(),
-			GetScreenHeight());
-	}
-   */
+  // RotateView(mEmulatorScreenView, inScreenOrientation);
 }
 
 // -------------------------------------------------------------------------- //
