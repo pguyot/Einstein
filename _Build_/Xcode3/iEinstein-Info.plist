@@ -29,6 +29,8 @@
 	<key>NSMainNibFile~ipad</key>
 	<string>MainWindow_iPad</string>
 	<key>UIStatusBarHidden</key>
+	<false/>
+	<key>UIFileSharingEnabled</key>
 	<true/>
 </dict>
 </plist>

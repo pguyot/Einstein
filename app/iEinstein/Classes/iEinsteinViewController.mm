@@ -199,6 +199,8 @@
 					mSoundManager, mScreenManager, mNetworkManager, 0x40 << 16);
 					
 	mPlatformManager = mEmulator->GetPlatformManager();
+    
+	[einsteinView setEmulator:mEmulator];
 
 	((TIOSScreenManager*)mScreenManager)->SetPlatformManager(mPlatformManager);
 }

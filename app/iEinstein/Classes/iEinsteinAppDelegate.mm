@@ -47,6 +47,7 @@
     [self setScreenResolution:[defaults integerForKey:@"screen_resolution"]];
     //[self setAutoRotate:[defaults boolForKey:@"auto_rotate"]];
     //[self setClearFlashRAM:[defaults boolForKey:@"clear_flash_ram"]];
+    [defaults setValue:[NSNumber numberWithInt:false] forKey:@"clear_flash_ram"];
     
 	[window addSubview:[viewController view]];
 	[window makeKeyAndVisible];

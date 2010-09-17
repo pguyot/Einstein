@@ -94,6 +94,11 @@ public:
 	void	PowerOn( void );
 
 	///
+	/// Is the system powered on?
+	///
+	Boolean IsPowerOn( void ) { return mPowerOn; }
+	
+	///
 	/// Lock the event queue. New events won't be sent to the Newton.
 	///
 	void	LockEventQueue( void );

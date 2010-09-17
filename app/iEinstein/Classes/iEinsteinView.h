@@ -25,10 +25,12 @@
 #include <K/Defines/KDefinitions.h>
 
 class TScreenManager;
+class TEmulator;
 
 @interface iEinsteinView : UIView 
 {
 	TScreenManager*		mScreenManager;
+    TEmulator*          mEmulator;
 	CGImageRef			mScreenImage;
 	CGRect				screenImageRect;
 	//BOOL				mVisible;
@@ -42,5 +44,7 @@ class TScreenManager;
 @property (readwrite, assign) KUInt32 newtonScreenWidth;
 
 - (void)setScreenManager:(TScreenManager*)sm;
+
+- (void)setEmulator:(TEmulator*)em;
   
 @end
