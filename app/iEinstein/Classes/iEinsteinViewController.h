@@ -33,18 +33,16 @@ class TEmulator;
 class TPlatformManager;
 class TLog;
 
-
-
-@interface iEinsteinViewController : UIViewController {
-  TNetworkManager*	mNetworkManager;
-  TSoundManager*	mSoundManager;
-  TScreenManager*	mScreenManager;
-  TROMImage*		mROMImage;
-  TEmulator*		mEmulator;
-  TPlatformManager*	mPlatformManager;
-  TLog*			mLog;  
+@interface iEinsteinViewController : UIViewController 
+{
+	TNetworkManager*	mNetworkManager;
+	TSoundManager*		mSoundManager;
+	TScreenManager*		mScreenManager;
+	TROMImage*			mROMImage;
+	TEmulator*			mEmulator;
+	TPlatformManager*	mPlatformManager;
+	TLog*				mLog;  
 }
-
 
 // Release
 - (void) dealloc;
