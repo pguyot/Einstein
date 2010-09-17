@@ -27,6 +27,17 @@
 @implementation iEinsteinAppDelegate
 
 
++ (void)initialize
+{
+	NSDictionary* defaults = [NSDictionary dictionaryWithObjectsAndKeys:
+			[NSNumber numberWithInt:320], @"NewtonScreenWidth", 
+			[NSNumber numberWithInt:480], @"NewtonScreenHeight", 
+			nil];
+	
+	[[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
+}
+
+
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions 
 {
     // Override point for customization after app launch

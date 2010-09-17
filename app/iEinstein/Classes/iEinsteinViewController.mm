@@ -38,14 +38,13 @@
 
 @implementation iEinsteinViewController
 
-
 - (void)viewDidLoad 
 {
 	[super viewDidLoad];
 
 	NSString* str = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
 	printf("Document dir is %s\n", [str UTF8String]);
-
+	
 	[self initEmulator];
 }
 
@@ -175,16 +174,18 @@
 
     // iPad is 1024x768. This size, and some appropriate scaling factirs, should be selectable from
     // the 'Settings' panel.
+	iEinsteinView* einsteinView = (iEinsteinView*)[self view];
+	
 	mScreenManager = new TIOSScreenManager(
-							   (iEinsteinView*)[self view],
+							   einsteinView,
 							   self,
 							   mLog,
-							   320,
-							   480,
+							   [einsteinView newtonScreenWidth],
+							   [einsteinView newtonScreenHeight],
 							   true,
 							   false);
 
-	[(iEinsteinView*)[self view] setScreenManager:mScreenManager];
+	[einsteinView setScreenManager:mScreenManager];
 
 	// Create the emulator.
 

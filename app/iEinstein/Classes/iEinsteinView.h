@@ -28,17 +28,19 @@ class TScreenManager;
 
 @interface iEinsteinView : UIView 
 {
-  TScreenManager*			mScreenManager;
-  CGImageRef				mScreenImage;
-  CGRect					screenImageRect;
-  //BOOL					mVisible;
-  int						mWidth;
-  int						mHeight;
+	TScreenManager*		mScreenManager;
+	CGImageRef			mScreenImage;
+	CGRect				screenImageRect;
+	//BOOL				mVisible;
+	KUInt32				newtonScreenHeight;
+	KUInt32				newtonScreenWidth;
   //EOrientation			mOrientation;
   //KUInt32					mPreviousMods;
 }
 
+@property (readwrite, assign) KUInt32 newtonScreenHeight;
+@property (readwrite, assign) KUInt32 newtonScreenWidth;
+
 - (void)setScreenManager:(TScreenManager*)sm;
   
 @end
-

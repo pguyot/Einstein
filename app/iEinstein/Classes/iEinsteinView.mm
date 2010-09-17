@@ -32,6 +32,18 @@
 #define kAlphaNoneSkipFirstPlusHostByteOrder (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
 #endif
 
+@synthesize newtonScreenHeight;
+@synthesize newtonScreenWidth;
+
+
+- (void)awakeFromNib
+{
+	NSNumber* w = [[NSUserDefaults standardUserDefaults] objectForKey:@"NewtonScreenWidth"];
+	NSNumber* h = [[NSUserDefaults standardUserDefaults] objectForKey:@"NewtonScreenHeight"];
+	[self setNewtonScreenWidth:[w intValue]];
+	[self setNewtonScreenHeight:[h intValue]];
+}
+
 
 - (void)setScreenManager:(TScreenManager*)sm 
 { 
@@ -41,9 +53,6 @@
 
 - (void)drawRect:(CGRect)rect 
 {
-	mWidth = 320;
-	mHeight = 480;
-
 	if ( mScreenManager != NULL )
 	{
 		CGContextRef theContext = UIGraphicsGetCurrentContext(); 
@@ -52,8 +61,8 @@
 			CGColorSpaceRef theColorSpace = CGColorSpaceCreateDeviceRGB();
 			
 			mScreenImage = CGImageCreate(
-					mWidth, mHeight,
-					8, 32, mWidth * sizeof(KUInt32),
+					newtonScreenWidth, newtonScreenHeight,
+					8, 32, newtonScreenWidth * sizeof(KUInt32),
 					theColorSpace,
 					kAlphaNoneSkipFirstPlusHostByteOrder,
 					((TIOSScreenManager*)mScreenManager)->GetDataProvider(),
@@ -65,7 +74,7 @@
 			CGRect screenBounds = [[UIScreen mainScreen] bounds];
 			CGRect r = [self frame];
 			
-			if ( screenBounds.size.width > mWidth && screenBounds.size.height > mHeight )
+			if ( screenBounds.size.width > newtonScreenWidth && screenBounds.size.height > newtonScreenHeight )
 			{
 				int mod = (int)r.size.height % (int)r.size.width;
 				r.size.width = r.size.width - (mod / 2);
@@ -89,8 +98,8 @@
 	{
 		CGPoint p = [t locationInView:self];
         CGRect r = screenImageRect;
-		int x = (1.0 - ((p.y - r.origin.y) / r.size.height)) * mHeight;
-		int y = ((p.x - r.origin.x) / r.size.width) * mWidth;
+		int x = (1.0 - ((p.y - r.origin.y) / r.size.height)) * newtonScreenHeight;
+		int y = ((p.x - r.origin.x) / r.size.width) * newtonScreenWidth;
 		mScreenManager->PenDown(x, y);
 	}
 }
@@ -103,8 +112,8 @@
 	{
 		CGPoint p = [t locationInView:self];
         CGRect r = screenImageRect;
-		int x = (1.0 - ((p.y - r.origin.y) / r.size.height)) * mHeight;
-		int y = ((p.x - r.origin.x) / r.size.width) * mWidth;
+		int x = (1.0 - ((p.y - r.origin.y) / r.size.height)) * newtonScreenHeight;
+		int y = ((p.x - r.origin.x) / r.size.width) * newtonScreenWidth;
 		mScreenManager->PenDown(x, y);
 	}
 }

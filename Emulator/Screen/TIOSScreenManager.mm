@@ -54,7 +54,7 @@ TIOSScreenManager::TIOSScreenManager(
 		mImageBuffer( NULL )
 {
 	// Create the image.
-	size_t theBufferSize = 320 * 480 * sizeof(KUInt32);
+	size_t theBufferSize = inPortraitWidth * inPortraitHeight * sizeof(KUInt32);
 	mImageBuffer = (KUInt32*) ::malloc( theBufferSize );
 	
 	// Create the direct access data provider.
