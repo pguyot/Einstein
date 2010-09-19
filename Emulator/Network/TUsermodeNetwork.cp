@@ -100,6 +100,10 @@
 #include <unistd.h>
 #include <ifaddrs.h>
 
+#if TARGET_IOS
+#include <fcntl.h>
+#endif
+
 
 const KUInt32 kUDPExpirationTime = 100;
 
