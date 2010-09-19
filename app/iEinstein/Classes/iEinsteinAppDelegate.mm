@@ -24,6 +24,9 @@
 #import "iEinsteinAppDelegate.h"
 #import "iEinsteinViewController.h"
 
+#include "Emulator/JIT/TJITPerformance.h"
+
+
 @implementation iEinsteinAppDelegate
 
 
@@ -58,6 +61,17 @@
 - (void)applicationWillResignActive:(UIApplication*)application
 {
 	[viewController stopEmulator];
+
+#ifdef JIT_PERFORMANCE
+    NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+    NSString* perfpath = [docdir stringByAppendingPathComponent:@"perf.txt"];
+    FILE *log = fopen([perfpath fileSystemRepresentation], "wb");
+    branchDestCount.print(log, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
+    branchLinkDestCount.print(log, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
+    fclose(log);
+    printf("*\n* Perfomance data save at \"%s\"\n*\n", [perfpath fileSystemRepresentation]);
+#endif
+    
 }
 
 

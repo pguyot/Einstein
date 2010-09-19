@@ -135,7 +135,6 @@
 	//#endif
 
 	NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
-	mLog->LogLine("Hallo Welt!");
 
 	// Create the ROM.
 	

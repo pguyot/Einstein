@@ -27,7 +27,7 @@
 #include <stdarg.h>
 
 
-#if defined(_MSC_VER) && defined(_DEBUG)
+#ifdef JIT_PERFORMANCE
 
 TJITPerfHitCounter branchDestCount(0, 8*1024*1024-1, 4);
 
@@ -91,9 +91,9 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 			for (i=a; i<b; i++) {
 				KUInt64 v = mArray[i];
 				if (style & kStyleHex) {
-					fprintf(out, "%08x: %19u\n", (i<<mShift)+o, v);
+					fprintf(out, "%08X: %19llu\n", (unsigned int)((i<<mShift)+o), v);
 				} else {
-					fprintf(out, "%8d: %19u\n", (i<<mShift)+o, v);
+					fprintf(out, "%8d: %19llu\n", (unsigned int)((i<<mShift)+o), v);
 				}
 			}
 			break;
@@ -113,9 +113,9 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 					break;
 				mArray[ix] = 0;
 				if (style & kStyleHex) {
-					fprintf(out, "%08x: %19u\n", (ix<<mShift)+mFirst, m);
+					fprintf(out, "%08X: %19llu\n", (unsigned int)((ix<<mShift)+mFirst), m);
 				} else {
-					fprintf(out, "%8d: %19u\n", (ix<<mShift)+mFirst, m);
+					fprintf(out, "%8d: %19llu\n", (unsigned int)((ix<<mShift)+mFirst), m);
 				}
 			}
 			break;
@@ -126,10 +126,11 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 
 void TJITPerfHitCounter::hit(KUInt32 at)
 {
+    KUInt64 maxULLInt = 0xffffffffffffffffULL;
 	at = (at-mFirst)>>mShift;
 	if (at>mSize) 
 		return;
-	if (mArray[at]<0xffffffffffffffff)
+	if (mArray[at]<maxULLInt)
 		mArray[at]++;
 }
 
