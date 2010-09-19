@@ -360,6 +360,7 @@ TVirtualizedCalls::symcmp__FPcT1( void )
 	mProcessor->SetRegister(0, result);
 }
 
+
 // -------------------------------------------------------------------------- //
 //  * Execute( KUInt32 )
 // -------------------------------------------------------------------------- //
@@ -388,6 +389,8 @@ TVirtualizedCalls::Execute( KUInt32 inInstruction )
 			break;
 	}
 }
+
+
 
 // ============================================================================ //
 // There has also been some work to allow the interesting use of macro names.   //

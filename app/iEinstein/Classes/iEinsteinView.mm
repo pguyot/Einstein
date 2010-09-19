@@ -172,7 +172,11 @@
 	if ( t ) 
 	{
         if (!mEmulator->GetPlatformManager()->IsPowerOn()) {
-            // we have no power switch on IOS, so any screen touch will power the Newton back on.
+            // After five minutes, the MP switches itself off. On the iPad and
+            // iPhone, the host OS should decide when to put the device to sleep.
+            // Newton OS nevertheless switches itself off. To continue work,
+            // we'd have to pull the power switch. Since we have no power switch 
+            // on Einstein/IOS, any screen touch will power the Newton back on.
             mEmulator->GetPlatformManager()->SendPowerSwitchEvent();
         }
 		CGPoint p = [t locationInView:self];

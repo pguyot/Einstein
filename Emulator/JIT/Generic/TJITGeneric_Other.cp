@@ -29,7 +29,7 @@
 #include "TEmulator.h"
 #include "TROMImage.h"
 
-#if defined(_MSC_VER) && defined(_DEBUG)
+#ifdef JIT_PERFORMANCE
 #include "TJITPerformance.h"
 #endif
 
@@ -380,9 +380,6 @@ Translate_Branch(
 	// KUInt32 theOffsetInPage = inOffsetInPage + delta;
 	// optimize here:
 	// if (theOffsetInPage < kPageSize)
-	// TODO: Matt: I am not 100% sure that the decission to optimize is correct. I
-	//    do take a 4 byte offset of the target address into account, however I am 
-	//    not entirely sure about the current PC
 	if (inInstruction & 0x01000000)
 	{
 		// optimizing branches with link within pages gained only 1% speed

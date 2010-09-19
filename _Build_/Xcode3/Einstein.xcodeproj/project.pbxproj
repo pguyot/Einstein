@@ -2014,7 +2014,7 @@
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx10.5;
 				USER_HEADER_SEARCH_PATHS = "";
-				VALID_ARCHS = i386;
+				VALID_ARCHS = "ppc i386 x86_64";
 			};
 			name = Debug;
 		};

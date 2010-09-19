@@ -61,17 +61,13 @@ const KUInt32 kInvocation[4] = {
 
 const KUInt32 k717006VirtualizationPatches[] = {
 	// __rt_sdiv + 8, just after the divide by zero test.
-	(0x0038CA10 + 8) / sizeof(KUInt32),
-	TVirtualizedCallsPatches::k__rt_sdiv,
+	(0x0038CA10 + 8) / sizeof(KUInt32),	TVirtualizedCallsPatches::k__rt_sdiv,
 	// __rt_udiv
-	(0x0038C8FC + 8) / sizeof(KUInt32),
-	TVirtualizedCallsPatches::k__rt_udiv,
+	(0x0038C8FC + 8) / sizeof(KUInt32),	TVirtualizedCallsPatches::k__rt_udiv,
 	// memmove
-  //	0x00382440 / sizeof(KUInt32),
-  //	TVirtualizedCallsPatches::kmemmove,
+  //0x00382440 / sizeof(KUInt32),   TVirtualizedCallsPatches::kmemmove,
 	// symcmp__FPcT1
-	0x00358C9C / sizeof(KUInt32),
-	TVirtualizedCallsPatches::ksymcmp__FPcT1
+	0x00358C9C / sizeof(KUInt32),	TVirtualizedCallsPatches::ksymcmp__FPcT1,
 };	
 
 // avoid calibration screen early in the game
