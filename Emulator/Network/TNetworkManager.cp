@@ -41,8 +41,8 @@ TNetworkManager::TNetworkManager(TLog* inLog) :
 	mThread( NULL ),
 	mSelectNFDS( 0 )
 {
-	mSelectMutex = new TMutex();
 	mSelectCondVar = new TCondVar();
+	mSelectMutex = new TMutex();
 	mSelectMutex->Lock();
 	mThread = new TThread(this);
 	mSelectCondVar->Wait(mSelectMutex);
