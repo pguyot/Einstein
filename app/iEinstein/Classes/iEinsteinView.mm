@@ -36,18 +36,10 @@
 #define kAlphaNoneSkipFirstPlusHostByteOrder (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
 #endif
 
-@synthesize newtonScreenHeight;
-@synthesize newtonScreenWidth;
-
 
 - (void)awakeFromNib
 {
-	NSNumber* w = [[NSUserDefaults standardUserDefaults] objectForKey:@"NewtonScreenWidth"];
-	NSNumber* h = [[NSUserDefaults standardUserDefaults] objectForKey:@"NewtonScreenHeight"];
-	[self setNewtonScreenWidth:[w intValue]];
-	[self setNewtonScreenHeight:[h intValue]];
 }
-
 
 - (void)setScreenManager:(TScreenManager*)sm 
 { 
@@ -62,12 +54,25 @@
 
 - (void)drawRect:(CGRect)rect 
 {
-	if ( mScreenManager != NULL )
+	CGContextRef theContext = UIGraphicsGetCurrentContext(); 
+	
+	if ( mScreenManager == NULL )
 	{
-		CGContextRef theContext = UIGraphicsGetCurrentContext(); 
+		// Just fill black
+		
+		CGFloat black[] = { 0.0, 0.0, 0.0, 1.0 };
+		CGRect frame = [self frame];
+		CGContextSetFillColor(theContext, black);
+		CGContextFillRect(theContext, frame);
+	}
+	else
+	{
 		if ( mScreenImage == NULL )
 		{
 			CGColorSpaceRef theColorSpace = CGColorSpaceCreateDeviceRGB();
+			
+			newtonScreenWidth = mScreenManager->GetScreenWidth();
+			newtonScreenHeight = mScreenManager->GetScreenHeight();
 			
 			mScreenImage = CGImageCreate(
 					newtonScreenWidth, newtonScreenHeight,
@@ -130,6 +135,16 @@
 		CGContextDrawImage(theContext, screenImageRect, mScreenImage);
 	}
 }
+
+
+- (void)reset
+{
+	mEmulator = NULL;
+	mScreenManager = NULL;
+	CGImageRelease(mScreenImage);
+	mScreenImage = NULL;
+}
+
 
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
 {

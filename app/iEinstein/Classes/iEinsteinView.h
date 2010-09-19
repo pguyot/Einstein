@@ -40,9 +40,7 @@ class TEmulator;
   //KUInt32					mPreviousMods;
 }
 
-@property (readwrite, assign) KUInt32 newtonScreenHeight;
-@property (readwrite, assign) KUInt32 newtonScreenWidth;
-
+- (void)reset;
 - (void)setScreenManager:(TScreenManager*)sm;
 
 - (void)setEmulator:(TEmulator*)em;

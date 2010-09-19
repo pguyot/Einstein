@@ -31,6 +31,7 @@
 #include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
 #include "Emulator/Screen/TIOSScreenManager.h"
+#include "Emulator/Platform/TPlatformManager.h"
 
 @interface iEinsteinViewController ()
 - (void)initEmulator;
@@ -175,17 +176,24 @@
     // iPad is 1024x768. This size, and some appropriate scaling factirs, should be selectable from
     // the 'Settings' panel.
 	
+    static int widthLUT[]  = { 320, 640, 384,  512 };
+    static int heightLUT[] = { 480, 960, 512, 1024 };
+    
+    NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
+	int index = [(NSNumber*)[prefs objectForKey:@"screen_resolution"] intValue];
+	int newtonScreenWidth = widthLUT[index];
+	int newtonScreenHeight = heightLUT[index];
+
 	iEinsteinView* einsteinView = (iEinsteinView*)[self view];
-	Boolean isLandscape = ([einsteinView newtonScreenWidth] > [einsteinView newtonScreenHeight]);
+	Boolean isLandscape = (newtonScreenWidth > newtonScreenHeight);
 	
 	mScreenManager = new TIOSScreenManager(
-							   einsteinView,
-							   self,
-							   mLog,
-							   [einsteinView newtonScreenWidth],
-							   [einsteinView newtonScreenHeight],
-							   true,
-							   isLandscape);
+							einsteinView,
+							self,
+							mLog,
+							newtonScreenWidth, newtonScreenHeight,
+							true,
+							isLandscape);
 
 	[einsteinView setScreenManager:mScreenManager];
 
@@ -208,6 +216,21 @@
 
 - (void)startEmulator
 {
+	// See if screen resolution has changed since last time
+	
+	NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
+	[prefs synchronize];
+	int currentScreenResolution = [(NSNumber*)[prefs objectForKey:@"screen_resolution"] intValue];
+	
+	if ( currentScreenResolution != lastKnownScreenResolution )
+	{
+		// Reboot emulator
+		
+		mLog->LogLine("Newton screen resolution changed by Settings.");
+		lastKnownScreenResolution = currentScreenResolution;
+		[self resetEmulator];
+	}
+	
 	// Start the thread.
 	
 	mLog->LogLine("Detaching emulator thread");
@@ -217,13 +240,47 @@
 
 - (void)emulatorThread
 {
+	mEmulator->GetMemory()->PowerOnFlash();
 	mEmulator->Run();
 }
+
+
+- (void)resetEmulator
+{
+	mLog->LogLine("Resetting emulator");
+	
+	[(iEinsteinView*)[self view] reset];
+
+	delete mEmulator;
+	mEmulator = NULL;
+
+	delete mNetworkManager;
+	mNetworkManager = NULL;
+	
+	delete mSoundManager;
+	mSoundManager = NULL;
+	
+	delete mScreenManager;
+	mScreenManager = NULL;
+	
+	delete mROMImage;
+	mROMImage = NULL;
+	
+	// Emulator deletes platform manager in its destructor
+	mPlatformManager = NULL;
+	
+	delete mLog;
+	mLog = NULL;
+
+	[self initEmulator];
+}
+
 
 
 - (void)stopEmulator
 {
 	mLog->LogLine("Stopping emulator thread");
+	
 	mEmulator->Stop();
 }
 
