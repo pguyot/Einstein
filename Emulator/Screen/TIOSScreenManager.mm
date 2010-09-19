@@ -194,7 +194,6 @@ TIOSScreenManager::PowerOffScreen( void )
 void
 TIOSScreenManager::BacklightChanged( Boolean inState )
 {
-  /*
 	// Redraw the screen.
 	SRect wholeScreen;
 	wholeScreen.fTop = 0;
@@ -202,6 +201,7 @@ TIOSScreenManager::BacklightChanged( Boolean inState )
 	wholeScreen.fBottom = GetScreenHeight();
 	wholeScreen.fRight = GetScreenWidth();
 	UpdateScreenRect( &wholeScreen );
+/*
 	EmulatorApp_BacklightChange(mProxy, mEmulatorApp, inState);
    */
 }
@@ -321,7 +321,9 @@ TIOSScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 	}
 
 	// Update.
-  [mView performSelectorOnMainThread:@selector(setNeedsDisplay) withObject:nil waitUntilDone:YES];
+	
+	CGRect newtonRect = CGRectMake(left, top, width, height);
+	[mView performSelectorOnMainThread:@selector(setNeedsDisplayInNewtonRect:) withObject:[NSValue valueWithCGRect:newtonRect] waitUntilDone:YES];
 }
 
 // -------------------------------------------------------------------------- //
