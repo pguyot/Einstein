@@ -240,8 +240,11 @@
 
 - (void)emulatorThread
 {
-	mEmulator->GetMemory()->PowerOnFlash();
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	
 	mEmulator->Run();
+	
+	[pool release];
 }
 
 
