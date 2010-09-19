@@ -31,7 +31,5 @@
 	IBOutlet iEinsteinViewController* viewController;
 }
 
-- (void)setScreenResolution:(int)index;
-
 @end
 

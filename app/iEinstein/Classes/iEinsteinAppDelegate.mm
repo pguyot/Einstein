@@ -30,11 +30,12 @@
 + (void)initialize
 {
 	NSDictionary* defaults = [NSDictionary dictionaryWithObjectsAndKeys:
-			[NSNumber numberWithInt:320], @"NewtonScreenWidth", 
-			[NSNumber numberWithInt:480], @"NewtonScreenHeight", 
+			[NSNumber numberWithInt:0], @"screen_resolution", 
+			[NSNumber numberWithBool:NO], @"clear_flash_ram",
 			nil];
 	
 	[[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
+	[[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 
@@ -43,11 +44,9 @@
     // Override point for customization after app launch
     
     // Get the user preferences
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [self setScreenResolution:[defaults integerForKey:@"screen_resolution"]];
+	
     //[self setAutoRotate:[defaults boolForKey:@"auto_rotate"]];
     //[self setClearFlashRAM:[defaults boolForKey:@"clear_flash_ram"]];
-    [defaults setValue:[NSNumber numberWithInt:false] forKey:@"clear_flash_ram"];
     
 	[window addSubview:[viewController view]];
 	[window makeKeyAndVisible];
@@ -55,15 +54,6 @@
 	return YES;
 }
 
-- (void)setScreenResolution:(int)index
-{
-    static int widthLUT[]  = { 320, 640, 384,  512 };
-    static int heightLUT[] = { 480, 960, 512, 1024 };
-    
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setValue:[NSNumber numberWithInt:widthLUT[index]]  forKey:@"NewtonScreenWidth"];
-    [defaults setValue:[NSNumber numberWithInt:heightLUT[index]] forKey:@"NewtonScreenHeight"];
-}
 
 - (void)applicationWillResignActive:(UIApplication*)application
 {

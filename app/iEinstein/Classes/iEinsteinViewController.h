@@ -42,6 +42,7 @@ class TLog;
 	TEmulator*			mEmulator;
 	TPlatformManager*	mPlatformManager;
 	TLog*				mLog;  
+	int					lastKnownScreenResolution;
 }
 
 // Release
@@ -68,6 +69,7 @@ class TLog;
 //- (NSString*)saveFile;
 - (void)startEmulator;
 - (void)stopEmulator;
+- (void)resetEmulator;
 //- (BOOL)canStartEmulator;
 //- (void)abortWithMessage:(NSString*)message;
 //+ (TCocoaAppController*)getInstance;
@@ -180,23 +182,22 @@ class TLog;
 }
 
 // Initialize.
-+ (void) initialize;
-- (id) init;
+- (id)init;
 
 // Release
-- (void) dealloc;
+- (void)dealloc;
 
 // NSNibAwaking
-- (void) awakeFromNib;
+- (void)awakeFromNib;
 
 // Other delegate methods.
-- (void) applicationWillTerminate: (NSNotification *) notification;
+- (void)applicationWillTerminate:(NSNotification*)notification;
 
 // Actions.
-- (IBAction) installPackage:(id)sender;
-- (IBAction) powerButton:(id)sender;
-- (IBAction) backlightButton:(id)sender;
-- (IBAction) networkButton:(id)sender;
+- (IBAction)installPackage:(id)sender;
+- (IBAction)powerButton:(id)sender;
+- (IBAction)backlightButton:(id)sender;
+- (IBAction)networkButton:(id)sender;
 
 // AppleScript
 - (id)commandInstallPackage:(NSURL*)inFileURL;
@@ -206,21 +207,22 @@ class TLog;
 - (NSString*)openFile;
 - (NSString*)saveFile;
 - (void)startEmulator;
+- (void)resetEmulator;
 - (BOOL)canStartEmulator;
 - (void)abortWithMessage:(NSString*)message;
 + (TCocoaAppController*)getInstance;
 
 // Einstein Emulator App interface.
-- (void) powerChange: (BOOL) power;
-- (void) backlightChange: (BOOL) state;
-- (void) networkChange: (BOOL) state;
-- (void) setEmulatorWindow: (NSWindow*) inWindow fullScreen: (BOOL) inFullScreen;
+- (void)powerChange:(BOOL)power;
+- (void)backlightChange:(BOOL)state;
+- (void)networkChange:(BOOL)state;
+- (void)setEmulatorWindow:(NSWindow*)inWindow fullScreen:(BOOL)inFullScreen;
 
 // Private (sic) methods.
 + (NSString*)getAppSupportDirectory;
 - (void)runEmulator;
 - (void)installPackageFile:(NSString*)inPath;
-- (void)setupToolbar: (NSWindow*) inWindow;
+- (void)setupToolbar:(NSWindow*)inWindow;
 @end
 
 #endif
@@ -232,4 +234,3 @@ class TLog;
 // ============================================================== //
 
 #endif
-
