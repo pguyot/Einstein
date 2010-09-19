@@ -25,10 +25,10 @@
 			<string>0</string>
 			<key>Titles</key>
 			<array>
-				<string>Original 320x480</string>
-				<string>iPhone4 640x960</string>
-				<string>half iPad 384x512</string>
-				<string>full iPad 768x1024</string>
+				<string>MP 2x00 (320x480)</string>
+				<string>iPhone 4 (640x960)</string>
+				<string>Quarter iPad (384x512)</string>
+				<string>iPad (768x1024)</string>
 			</array>
 			<key>Values</key>
 			<array>
