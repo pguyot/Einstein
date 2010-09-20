@@ -42,12 +42,41 @@
 - (void)viewDidLoad 
 {
 	[super viewDidLoad];
-
-	NSString* str = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-	printf("Document dir is %s\n", [str UTF8String]);
-	
-	[self initEmulator];
 }
+
+
+// Action sheet delegate method.
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    switch ([actionSheet tag]) {
+        case 1:
+            if (buttonIndex == 0) {
+                printf("Clearing Flash RAM file!\n");
+                NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+                NSString* theFlashPath = [docdir stringByAppendingPathComponent:@"flash"];
+                remove([theFlashPath fileSystemRepresentation]);
+            }
+            [self initEmulator];
+            [self startEmulator];
+            break;
+    }
+}
+
+
+- (void)verifyDeleteFlashRAM
+{
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] 
+                                  initWithTitle:@"Clear Flash Memory?\r\rClearing the Flash will delete all packages that may have been installed and completely reset your Newton."                                                                
+                                  delegate:self 
+                                  cancelButtonTitle:@"Cancel" 
+                                  destructiveButtonTitle:@"Clear the Flash!" 
+                                  otherButtonTitles:nil];
+    [actionSheet setTag:1];
+    actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
+    [actionSheet showInView:self.view];
+    [actionSheet release];
+}
+
 
 
 /*
@@ -58,6 +87,7 @@
 }
 */
 
+
 - (void)didReceiveMemoryWarning 
 {
 	// Releases the view if it doesn't have a superview.
@@ -65,6 +95,7 @@
 	
 	// Release any cached data, images, etc that aren't in use.
 }
+
 
 - (void)viewDidUnload 
 {

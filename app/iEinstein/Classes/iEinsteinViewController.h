@@ -33,7 +33,7 @@ class TEmulator;
 class TPlatformManager;
 class TLog;
 
-@interface iEinsteinViewController : UIViewController 
+@interface iEinsteinViewController : UIViewController < UIActionSheetDelegate >
 {
 	TNetworkManager*	mNetworkManager;
 	TSoundManager*		mSoundManager;
@@ -67,6 +67,7 @@ class TLog;
 // Public methods.
 //- (NSString*)openFile;
 //- (NSString*)saveFile;
+- (void)initEmulator;
 - (void)startEmulator;
 - (void)stopEmulator;
 - (void)resetEmulator;
@@ -84,6 +85,8 @@ class TLog;
 //+ (NSString*)getAppSupportDirectory;
 //- (void)installPackageFile:(NSString*)inPath;
 //- (void)setupToolbar: (NSWindow*) inWindow;
+
+- (void)verifyDeleteFlashRAM;
 
 @end
 
