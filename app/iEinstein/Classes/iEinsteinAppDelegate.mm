@@ -61,23 +61,25 @@
 - (void)applicationWillResignActive:(UIApplication*)application
 {
 	[viewController stopEmulator];
-
-#ifdef JIT_PERFORMANCE
-    NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
-    NSString* perfpath = [docdir stringByAppendingPathComponent:@"perf.txt"];
-    FILE *log = fopen([perfpath fileSystemRepresentation], "wb");
-    branchDestCount.print(log, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
-    branchLinkDestCount.print(log, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
-    fclose(log);
-    printf("*\n* Perfomance data save at \"%s\"\n*\n", [perfpath fileSystemRepresentation]);
-#endif
-    
 }
 
 
 - (void)applicationDidBecomeActive:(UIApplication*)application 
-{
-	[viewController startEmulator];
+{    
+    NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
+    bool clearFlash = [(NSNumber*)[prefs objectForKey:@"clear_flash_ram"] boolValue];
+    if (clearFlash) {
+        // User requested to clear the Flash Memory
+        // Clear this setting from the preferences.
+        [prefs setValue:[NSNumber numberWithBool:NO] forKey:@"clear_flash_ram"];
+        [prefs synchronize];
+        // Pop up a dialog making sure that the user really wants to that!
+        [viewController verifyDeleteFlashRAM];
+        // replying to the dialog will start the emulator
+    } else {
+        [viewController initEmulator];
+        [viewController startEmulator];
+    }
 }
 
 

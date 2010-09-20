@@ -58,7 +58,7 @@
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
-			<string>Clear Flash RAM</string>
+			<string>Clear Flash Memory</string>
 			<key>Key</key>
 			<string>clear_flash_ram</string>
 			<key>DefaultValue</key>
