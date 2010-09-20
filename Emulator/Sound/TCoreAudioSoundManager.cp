@@ -67,10 +67,11 @@
 TCoreAudioSoundManager::TCoreAudioSoundManager( TLog* inLog /* = nil */ )
 	:
 		TBufferedSoundManager( inLog ),
-		mOutputBuffer( new TCircleBuffer(
+        mOutputBuffer( new TCircleBuffer(
 								kNewtonBufferSizeInFrames *
 								4 * sizeof(KUInt16) ) ),
-		mDataMutex( new TMutex() )
+		mDataMutex( new TMutex() ),
+        mOutputUnit(0L)
 {
 	mDataMutex = new TMutex();
 	CreateDefaultAU();
@@ -85,8 +86,8 @@ TCoreAudioSoundManager::~TCoreAudioSoundManager( void )
 	AudioComponentInstanceDispose( mOutputUnit );
 #else
 	CloseComponent( mOutputUnit );
+	AudioUnitUninitialize( mOutputUnit );
 #endif
-	(void) AudioUnitUninitialize( mOutputUnit );
 
 	if (mDataMutex)
 	{
