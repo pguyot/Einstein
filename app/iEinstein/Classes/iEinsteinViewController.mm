@@ -55,9 +55,17 @@
                 NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
                 NSString* theFlashPath = [docdir stringByAppendingPathComponent:@"flash"];
                 remove([theFlashPath fileSystemRepresentation]);
+                NSString* theLastInstallPath = [docdir stringByAppendingPathComponent:@".lastInstall"];
+                remove([theLastInstallPath fileSystemRepresentation]);
             }
             [self initEmulator];
             [self startEmulator];
+            break;
+        case 2:
+            switch (buttonIndex) {
+                case 0: break;
+                case 1: [self stopEmulator]; break;            
+            }
             break;
     }
 }
@@ -72,6 +80,22 @@
                                   destructiveButtonTitle:@"Clear the Flash!" 
                                   otherButtonTitles:nil];
     [actionSheet setTag:1];
+    actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
+    [actionSheet showInView:self.view];
+    [actionSheet release];
+}
+
+
+//- (void)setNeedsDisplayInNewtonRect:(NSValue*)v
+- (void)openEinsteinMenu:(NSValue*)v
+{
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] 
+                                  initWithTitle:@"Einstein Menu"
+                                  delegate:self 
+                                  cancelButtonTitle:@"Cancel" 
+                                  destructiveButtonTitle:@"Quit Emulator" 
+                                  otherButtonTitles:nil];
+    [actionSheet setTag:2];
     actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
     [actionSheet showInView:self.view];
     [actionSheet release];
@@ -146,19 +170,202 @@
 }
 
 
+#if 0
+// original emulator initialisation w/more ROM choices.
+// TODO: re-implement this (see google code comments)
+// -------------------------------------------------------------------------- //
+//  * (void)startEmulator
+// -------------------------------------------------------------------------- //
+- (void)startEmulator
+{
+	NSUserDefaults* defaults = [mUserDefaultsController defaults];
+    
+	// Create the ROM.
+	NSString* einsteinRExPath;
+	NSBundle* thisBundle = [NSBundle bundleForClass:[self class]];
+	if (!(einsteinRExPath = [thisBundle pathForResource:@"Einstein" ofType:@"rex"]))
+	{
+		[self abortWithMessage: @"Couldn't load Einstein REX"];
+		return;
+	}
+	
+	NSString* theROMPath = [defaults stringForKey: kROMImagePathKey];
+	if (theROMPath == nil)
+	{
+		[self abortWithMessage: @"No path set for ROM"];
+		return;
+	}
+    
+	NSFileManager* theFileManager = [NSFileManager defaultManager];
+	if (![theFileManager fileExistsAtPath: theROMPath])
+	{
+		[self abortWithMessage: @"ROM file doesn't seem to exist"];
+		return;
+	}
+	
+	NSString* theREX0Path = nil;
+	if ([theROMPath hasSuffix: @".aif"])
+	{
+		int theLength = [theROMPath length];
+		theREX0Path = [[theROMPath substringToIndex: (theLength - 4)] stringByAppendingString: @".rex"];
+		if (![theFileManager fileExistsAtPath: theREX0Path])
+		{
+			theREX0Path = nil;
+		}
+	} else if ([theROMPath hasSuffix: @" image"]) {
+		int theLength = [theROMPath length];
+		theREX0Path = [[theROMPath substringToIndex: (theLength - 6)] stringByAppendingString: @" high"];
+		if (![theFileManager fileExistsAtPath: theREX0Path])
+		{
+			theREX0Path = nil;
+		}
+	}
+	
+	int theMachine = [defaults integerForKey: kMachineKey];
+	if (theREX0Path)
+	{
+		mROMImage = new TAIFROMImageWithREXes(
+                                              [theROMPath UTF8String],
+                                              [theREX0Path UTF8String],
+                                              [einsteinRExPath UTF8String],
+                                              machinestr(theMachine) );
+	} else {
+		mROMImage = new TFlatROMImageWithREX(
+                                             [theROMPath UTF8String],
+                                             [einsteinRExPath UTF8String],
+                                             machinestr(theMachine) );
+	}
+	
+	// Create a log if possible
+#ifdef _DEBUG
+	mLog = 0L; // new TStdOutLog(); 
+#endif
+	
+	// Create the network manager.
+	int indexNetworkDriver = [defaults integerForKey: kNetworkDriverKey];
+	if (indexNetworkDriver == kUsermodeNetworkDriverTag)
+	{
+		mNetworkManager = new TUsermodeNetwork(new TStdOutLog());
+	} else if (indexNetworkDriver == kTapNetworkDriverTag) {
+		mNetworkManager = new TTapNetwork(mLog);
+	} else {
+		mNetworkManager = new TNullNetwork(mLog);
+	}
+	
+	// Create the sound manager.
+	int indexAudioDriver = [defaults integerForKey: kAudioDriverKey];
+	if (indexAudioDriver == kCoreAudioDriverTag)
+	{
+		mSoundManager = new TCoreAudioSoundManager(mLog);
+#if OPTION_PORT_AUDIO          
+    } else if (indexAudioDriver == kPortAudioDriverTag) {
+		mSoundManager = new TPortAudioSoundManager(mLog);
+#endif
+	} else {
+		mSoundManager = new TNullSoundManager(mLog);
+	}
+    
+	// Create the screen manager.
+	Boolean fullScreen = [defaults boolForKey: kFullScreenKey] == YES ? true : false;
+	Boolean screenIsLandscape = true;
+	int indexScreenDriver = [defaults integerForKey: kScreenDriverKey];
+	if (indexScreenDriver == kCocoaScreenDriverTag)
+	{
+		int theWidth;
+		int theHeight;
+		if (fullScreen)
+		{
+			// Mac/eMate orientation.
+			NSRect theRect = [[NSScreen mainScreen] frame];
+			if (theRect.size.width > theRect.size.height)
+			{
+				screenIsLandscape = true;
+				theWidth = (int) theRect.size.height;
+				theHeight = (int) theRect.size.width;
+			} else {
+				screenIsLandscape = false;
+				theWidth = (int) theRect.size.width;
+				theHeight = (int) theRect.size.height;
+			}
+		} else {
+			theWidth = [defaults integerForKey: kScreenWidthKey];
+			theHeight = [defaults integerForKey: kScreenHeightKey];
+		}
+		mScreenManager = new TCocoaScreenManager(
+                                                 mProxy,
+                                                 self,
+                                                 mLog,
+                                                 theWidth,
+                                                 theHeight,
+                                                 fullScreen,
+                                                 screenIsLandscape);
+#ifdef OPTION_X11_SCREEN
+	} else {
+		KUInt32 theWidth;
+		KUInt32 theHeight;
+		if (fullScreen)
+		{
+			KUInt32 theScreenWidth;
+			KUInt32 theScreenHeight;
+			TX11ScreenManager::GetScreenSize(&theScreenWidth, &theScreenHeight);
+			if (theScreenWidth >= theScreenHeight)
+			{
+				screenIsLandscape = true;
+				theWidth = theScreenHeight;
+				theHeight = theScreenWidth;
+			} else {
+				screenIsLandscape = false;
+				theWidth = theScreenWidth;
+				theHeight = theScreenHeight;
+			}
+		} else {
+			theWidth = [defaults integerForKey: kScreenWidthKey];
+			theHeight = [defaults integerForKey: kScreenHeightKey];
+		}
+		mScreenManager = new TX11ScreenManager(
+                                               mLog,
+                                               theWidth,
+                                               theHeight,
+                                               fullScreen,
+                                               screenIsLandscape);
+#endif
+	}
+    
+	// Create the emulator.
+	int ramSize = [defaults integerForKey: kRAMSizeKey];
+	const char* theFlashPath =
+    [[defaults stringForKey: kInternalFlashPathKey] UTF8String];
+	mEmulator = new TEmulator(
+                              mLog, mROMImage, theFlashPath,
+                              mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
+	mPlatformManager = mEmulator->GetPlatformManager();
+	if (indexScreenDriver == kCocoaScreenDriverTag)
+	{
+		((TCocoaScreenManager*) mScreenManager)->SetPlatformManager( mPlatformManager );
+	}
+	
+	// Close the window.
+	[mSetupController closeSetupWindow];
+	
+	// Start the thread.
+	[NSThread detachNewThreadSelector: @selector(runEmulator) toTarget: self withObject: NULL];
+}
+#endif
+
+
 - (void)initEmulator
 {
 	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
 
 	printf("Initializing the emulator\n");
 
-	mNetworkManager = NULL;     // OK?
-	mSoundManager = NULL;       // OK?
-	mScreenManager = NULL;      // TODO: 
-	mROMImage = NULL;           // TODO:
-	mEmulator = NULL;           // OK
-	mPlatformManager = NULL;    // OK
-	mLog = NULL;                // OK
+	mNetworkManager = NULL;
+	mSoundManager = NULL;
+	mScreenManager = NULL;
+	mROMImage = NULL;
+	mEmulator = NULL;
+	mPlatformManager = NULL;
+	mLog = NULL;
 
 	// Create a log if possible
 	//#ifdef _DEBUG
@@ -237,6 +444,7 @@
 					mSoundManager, mScreenManager, mNetworkManager, 0x40 << 16);
 					
 	mPlatformManager = mEmulator->GetPlatformManager();
+    mPlatformManager->SetDocDir([docdir fileSystemRepresentation]);
     
 	[einsteinView setEmulator:mEmulator];
 
@@ -316,6 +524,13 @@
 	
 	mEmulator->Stop();
 }
+
+/*
+void openEinsteinMenu(iEinsteinViewController *ctrl)
+{
+    [ctrl openEinsteinMenu];
+}
+*/
 
 
 @end

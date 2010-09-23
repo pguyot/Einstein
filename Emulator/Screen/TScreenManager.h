@@ -473,6 +473,11 @@ public:
 	/// Send a key repeat event to the Newton.
 	///
 	void		KeyRepeat( KUInt8 inKeyCode );
+  
+    ///
+    /// Full screen emulators can use this to offer interactive host functionality.
+    ///
+    virtual void OpenEinsteinMenu() { }
 
 protected:
 	///

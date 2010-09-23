@@ -80,6 +80,19 @@ TROMPatch p0001894c(0x0001894c, 0xe1a0f00e, "Obsolete CleanPageInDCache"); // # 
 TROMPatch p000db0d8(0x000db0d8, 0xe3a00000, "BeaconDetect (1/2)"); // #  mov r0, 0x00000000
 TROMPatch p000db0dc(0x000db0dc, 0xe1a0f00e, "BeaconDetect (2/2)"); // #  mov pc, lr
 
+#ifdef TARGET_IOS_XXX
+// for iOS, the patch changes the REx menu "Quit Einstein" to "Einstein Menu"
+// to call a different platform function
+TROMPatch p00800af0(0x00800af0, 0x00000121, "iOS Menu Patch");  // Einstein Menu
+TROMPatch p0080ac94(0x0080ac94, 0x00450069); // Ei
+TROMPatch p0080ac98(0x0080ac98, 0x006e0073); // ns
+TROMPatch p0080ac9c(0x0080ac9c, 0x00740065); // te
+TROMPatch p0080aca0(0x0080aca0, 0x0069006e); // in
+TROMPatch p0080aca4(0x0080aca4, 0x0020004d); //  M
+TROMPatch p0080aca8(0x0080aca8, 0x0065006e); // en
+TROMPatch p0080acac(0x0080acac, 0x00750000); // u
+#endif
+
 // -------------------------------------------------------------------------- //
 //  * TROMImage( void )
 // -------------------------------------------------------------------------- //
@@ -534,13 +547,13 @@ TROMImage::DoPatchROMFromDatabase( SImage* inImagePtr )
 	KUInt32* thePointer = (KUInt32*) inImagePtr->fROM;
 	
 	// Iterate on patches.
-  TROMPatch *p;
-  for (p=TROMPatch::first(); p; p=p->next()) 
-  {
-		KUInt32 address = p->address();
-		KUInt32 value = p->value();
-		thePointer[address] = value;
-  }
+    TROMPatch *p;
+    for (p=TROMPatch::first(); p; p=p->next()) 
+    {
+        KUInt32 address = p->address();
+        KUInt32 value = p->value();
+        thePointer[address] = value;
+    }
 }
 
 // -------------------------------------------------------------------------- //
@@ -580,16 +593,30 @@ KUInt32     TROMPatch::NPatch = 0;
 // -------------------------------------------------------------------------- //
 //  * TROMPatch constructor
 // -------------------------------------------------------------------------- //
+TROMPatch::TROMPatch(KUInt32 addr, KUInt32 val)
+: next_(first_),
+address_(addr>>2),
+value_(val),
+stub_(0L),
+function_(0L),
+method_(0L)
+{
+    first_ = this;
+}
+
+// -------------------------------------------------------------------------- //
+//  * TROMPatch constructor
+// -------------------------------------------------------------------------- //
 TROMPatch::TROMPatch(KUInt32 addr, KUInt32 val, const char *name)
 : next_(first_),
-  address_(addr>>2),
-  value_(val),
-  stub_(0L),
-  function_(0L),
-  method_(0L)
+address_(addr>>2),
+value_(val),
+stub_(0L),
+function_(0L),
+method_(0L)
 {
-  first_ = this;
-  printf("Adding ROM patch: %s\n", name);
+    first_ = this;
+    printf("Adding ROM patch: %s\n", name);
 }
 
 // -------------------------------------------------------------------------- //

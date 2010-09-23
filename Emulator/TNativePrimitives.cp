@@ -731,6 +731,17 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 					"TMainPlatformDriver::PowerOnDeviceCheck( %.8X )",
 					(unsigned int) mProcessor->GetRegister(1) );
 			}
+			{
+				// this is a hack that will install packages that were added to a 
+				// directory on the host. This is used by iOS/iPhone.
+				static int firstPause = 1;
+				if (firstPause) {
+					firstPause--;
+					if (firstPause==0) {
+						mPlatformManager->InstallNewPackages();
+					}
+				}
+			}
 			mProcessor->SetRegister( 0, 0 );
 			break;
 			
@@ -874,6 +885,14 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 						mProcessor->GetRegister(3),
 						fourthParam));
 			}
+			break;
+
+		case 0x21:
+			if (mLog)
+			{
+				mLog->FLogLine("TMainPlatformDriver::OpenEinsteinMenu()");
+			}
+			mPlatformManager->OpenEinsteinMenu();
 			break;
 
 		default:
