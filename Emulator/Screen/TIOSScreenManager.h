@@ -201,6 +201,11 @@ public:
 	///
 	void	DraggedFile( const char* inPath );
 
+    ///
+    /// Full screen emulators can use this to offer interactive host functionality.
+    ///
+    void OpenEinsteinMenu();
+
 private:
 	/// \name Variables
   iEinsteinView           *mView;

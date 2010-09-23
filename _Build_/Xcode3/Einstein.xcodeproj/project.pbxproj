@@ -317,8 +317,8 @@
 		C97C7E1B124282A600CDCD05 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		C97C7EA01242832700CDCD05 /* iEinstein-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iEinstein-Info.plist"; sourceTree = SOURCE_ROOT; };
 		C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow_iPad.xib; sourceTree = "<group>"; };
-		C9956719123F71D2009A5668 /* TIOSScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TIOSScreenManager.h; sourceTree = "<group>"; };
-		C995672B123F793D009A5668 /* TIOSScreenManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TIOSScreenManager.mm; sourceTree = "<group>"; };
+		C9956719123F71D2009A5668 /* TIOSScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TIOSScreenManager.h; sourceTree = "<group>"; tabWidth = 4; };
+		C995672B123F793D009A5668 /* TIOSScreenManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TIOSScreenManager.mm; sourceTree = "<group>"; tabWidth = 4; };
 		C995696C12400EB0009A5668 /* 717006 */ = {isa = PBXFileReference; lastKnownFileType = text; name = 717006; path = ../../_Data_/717006; sourceTree = SOURCE_ROOT; };
 		C99569B012401B2A009A5668 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		C99E315A111B7331002165EC /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../Resources/Info.plist; sourceTree = SOURCE_ROOT; };
@@ -618,7 +618,7 @@
 		C99E3483111B7C08002165EC /* TFlatROMImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFlatROMImage.h; sourceTree = "<group>"; };
 		C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFlatROMImageWithREX.cp; sourceTree = "<group>"; };
 		C99E3485111B7C08002165EC /* TFlatROMImageWithREX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFlatROMImageWithREX.h; sourceTree = "<group>"; };
-		C99E3486111B7C08002165EC /* TROMImage.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TROMImage.cp; sourceTree = "<group>"; };
+		C99E3486111B7C08002165EC /* TROMImage.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TROMImage.cp; sourceTree = "<group>"; tabWidth = 4; };
 		C99E3487111B7C08002165EC /* TROMImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TROMImage.h; sourceTree = "<group>"; };
 		C99E348E111B7C08002165EC /* CocoaEmulatorApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaEmulatorApp.h; sourceTree = "<group>"; };
 		C99E348F111B7C08002165EC /* CocoaScreenProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaScreenProxy.h; sourceTree = "<group>"; };
@@ -632,7 +632,7 @@
 		C99E3497111B7C08002165EC /* TCocoaScreenView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaScreenView.h; sourceTree = "<group>"; };
 		C99E3498111B7C08002165EC /* TCocoaScreenView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaScreenView.mm; sourceTree = "<group>"; };
 		C99E349D111B7C08002165EC /* TScreenManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TScreenManager.cp; sourceTree = "<group>"; };
-		C99E349E111B7C08002165EC /* TScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TScreenManager.h; sourceTree = "<group>"; };
+		C99E349E111B7C08002165EC /* TScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TScreenManager.h; sourceTree = "<group>"; tabWidth = 4; };
 		C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TVoyagerSerialPort.cp; sourceTree = "<group>"; };
 		C99E34A8111B7C08002165EC /* TVoyagerSerialPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TVoyagerSerialPort.h; sourceTree = "<group>"; };
 		C99E34AA111B7C08002165EC /* TBufferedSoundManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TBufferedSoundManager.cp; sourceTree = "<group>"; };

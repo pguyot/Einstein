@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 // K
 #include <K/Unicode/UUTF16CStr.h>
@@ -67,7 +69,8 @@ TPlatformManager::TPlatformManager(
 		mBufferNextID( 0 ),
 		mPowerOn( true ),
 		mQueueLockCount( 0 ),
-		mMutex( nil )
+		mMutex( nil ),
+		mDocDir(0L)
 {
 	mEventQueue = (SEvent*) ::malloc( sizeof(SEvent) * mEventQueueSize );
 	mBufferQueue = (SBuffer*) ::malloc( sizeof(SBuffer) * mBufferQueueSize );
@@ -80,6 +83,11 @@ TPlatformManager::TPlatformManager(
 // -------------------------------------------------------------------------- //
 TPlatformManager::~TPlatformManager( void )
 {
+	if (mDocDir)
+	{
+		::free(mDocDir);
+	}
+	
 	if (mEventQueue)
 	{
 		::free(mEventQueue);
@@ -572,6 +580,74 @@ TPlatformManager::InstallPackage( const char* inPackagePath )
 		(void) ::fprintf( stderr, "Cannot open package '%s'\n", inPackagePath );
 	}
 }
+
+
+// -------------------------------------------------------------------------- //
+//  * InstallNewPackages( const char* )
+// --------------------------------------------------------------------------
+void
+TPlatformManager::InstallNewPackages( const char* inPackageDir )
+{
+	// -- find the directory
+	if (!inPackageDir) 
+		inPackageDir = mDocDir;
+	DIR *dir = opendir(inPackageDir);
+	if (!dir) {
+		printf("Can't open package directory %s\n", inPackageDir);
+		return;
+	}
+	
+	// -- find the last installation date
+	char buf[2048];
+	sprintf(buf, "%s/.lastInstall", inPackageDir);
+	struct stat lastInstall;
+	int statErr = ::stat(buf, &lastInstall);
+
+	// -- run the directory and install every file that is newer than lastInstall
+	struct dirent *de;
+	while ((de = readdir(dir))) {
+		if (de->d_type==DT_REG) {
+			const char *dot = strrchr(de->d_name, '.');
+			if (dot && strcasecmp(dot, ".pkg")==0) {
+				struct stat pkgStat;
+				sprintf(buf, "%s/%s", inPackageDir, de->d_name);
+				if (::stat(buf, &pkgStat)<0) continue;
+				if (statErr>=0 
+					&& pkgStat.st_mtime<lastInstall.st_mtime
+					&& pkgStat.st_ctime<lastInstall.st_mtime) continue;
+				InstallPackage(buf);
+			}
+		}
+	}
+	closedir(dir);
+	
+	// -- update the modification data
+	sprintf(buf, "%s/.lastInstall", inPackageDir);
+	FILE *f = fopen(buf, "wb");
+	if (f) fclose(f);
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * OpenEinsteinMenu()
+// -------------------------------------------------------------------------- //
+void 
+TPlatformManager::OpenEinsteinMenu()
+{
+	//mScreenManager->OpenEinsteinMenu();
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * SetDocDir()
+// -------------------------------------------------------------------------- //
+void 
+TPlatformManager::SetDocDir(const char *inDocDir)
+{
+	if (mDocDir) ::free(mDocDir);
+	mDocDir = strdup(inDocDir);
+}
+
 
 // ====================================================================== //
 // Nurse Donna:    Oh, Groucho, I'm afraid I'm gonna wind up an old maid. //

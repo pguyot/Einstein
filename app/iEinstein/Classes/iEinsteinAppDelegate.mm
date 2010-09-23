@@ -49,7 +49,6 @@
     // Get the user preferences
 	
     //[self setAutoRotate:[defaults boolForKey:@"auto_rotate"]];
-    //[self setClearFlashRAM:[defaults boolForKey:@"clear_flash_ram"]];
     
 	[window addSubview:[viewController view]];
 	[window makeKeyAndVisible];

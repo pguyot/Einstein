@@ -233,6 +233,9 @@ private:
   
 public:
   /// Create and add a new patch
+  TROMPatch(KUInt32 address, KUInt32 value);
+  
+  /// Create and add a new patch
   TROMPatch(KUInt32 address, KUInt32 value, const char *name);
   
   /// Create and add a call to a JIT instruction

@@ -43,6 +43,7 @@ class TLog;
 	TPlatformManager*	mPlatformManager;
 	TLog*				mLog;  
 	int					lastKnownScreenResolution;
+  
 }
 
 // Release
@@ -87,10 +88,11 @@ class TLog;
 //- (void)setupToolbar: (NSWindow*) inWindow;
 
 - (void)verifyDeleteFlashRAM;
+//- (void)openEinsteinMenu;
 
 @end
 
-
+extern void openEinsteinMenu(iEinsteinViewController*);
 
 #if 0
 

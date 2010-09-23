@@ -169,6 +169,12 @@ public:
 	void	InstallPackage( const char* inPackagePath );
 
 	///
+	/// Install all packages that were added to the directory on the host computer
+	/// since the last call to this function.
+	///
+	void InstallNewPackages( const char *hostPackageDirectory=0L );
+	
+	///
 	/// Get next event from the queue (and remove it).
 	/// Address is wired (and physical).
 	///
@@ -186,6 +192,19 @@ public:
 	///
 	Boolean	CopyBufferData( KUInt32 inID, KUInt32 outVAddress, KUInt32 inOffset, KUInt32 inAmount );
 
+	///
+	/// Display a choice of options on the host platform. This is for devices
+	/// that use a full-screen mode and can't display a host menu, but instead use 
+	/// a Newton OS call to display a menu.
+	///
+	void OpenEinsteinMenu();
+	
+	///
+	/// Directory for al kinds of documents, in particular, a list of pakages
+	/// to be installed with an iOS/iPhone host.
+	///
+	void SetDocDir(const char *inDocDir);
+	
 	///
 	/// Send a buffer event.
 	/// Data is copied.
@@ -246,6 +265,7 @@ private:
 	Boolean				mPowerOn;			///< If power is on.
 	KUInt32				mQueueLockCount;	///< Lock count for the queue.
 	TMutex*				mMutex;				///< Mutex of the queue.
+	char*				mDocDir;			///< Directory on host containing all kinds of documents
 };
 
 #endif
