@@ -57,8 +57,8 @@
                 remove([theFlashPath fileSystemRepresentation]);
                 NSString* theLastInstallPath = [docdir stringByAppendingPathComponent:@".lastInstall"];
                 remove([theLastInstallPath fileSystemRepresentation]);
+                [self resetEmulator];
             }
-            [self initEmulator];
             [self startEmulator];
             break;
         case 2:

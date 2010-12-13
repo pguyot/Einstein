@@ -32,6 +32,7 @@
 
 + (void)initialize
 {
+    printf("------------------> initialize\n");
 	NSDictionary* defaults = [NSDictionary dictionaryWithObjectsAndKeys:
 			[NSNumber numberWithInt:0], @"screen_resolution", 
 			[NSNumber numberWithBool:NO], @"clear_flash_ram",
@@ -44,6 +45,7 @@
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions 
 {
+    printf("------------------> didFinishLaunchingWithOptions\n");
     // Override point for customization after app launch
     
     // Get the user preferences
@@ -53,18 +55,22 @@
 	[window addSubview:[viewController view]];
 	[window makeKeyAndVisible];
 
+    [viewController initEmulator];
+
 	return YES;
 }
 
 
 - (void)applicationWillResignActive:(UIApplication*)application
 {
+    printf("------------------> applicationWillResignActive\n");
 	[viewController stopEmulator];
 }
 
 
 - (void)applicationDidBecomeActive:(UIApplication*)application 
 {    
+    printf("------------------> applicationDidBecomeActive\n");
     NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
     bool clearFlash = [(NSNumber*)[prefs objectForKey:@"clear_flash_ram"] boolValue];
     if (clearFlash) {
@@ -72,11 +78,11 @@
         // Clear this setting from the preferences.
         [prefs setValue:[NSNumber numberWithBool:NO] forKey:@"clear_flash_ram"];
         [prefs synchronize];
+        [viewController stopEmulator];
         // Pop up a dialog making sure that the user really wants to that!
         [viewController verifyDeleteFlashRAM];
         // replying to the dialog will start the emulator
     } else {
-        [viewController initEmulator];
         [viewController startEmulator];
     }
 }
@@ -88,6 +94,20 @@
     [window release];
     [super dealloc];
 }
+
+/*
+ Launch:
+ ------------------> initialize
+ ------------------> didFinishLaunchingWithOptions
+ ------------------> applicationDidBecomeActive
+ Home = AppChangeOther:
+ ------------------> applicationWillResignActive
+ Relaunch = AppChangeMe:
+ ------------------> applicationDidBecomeActive
+ Kill:
+ ------------------> nothing!
+ 
+*/ 
 
 
 @end

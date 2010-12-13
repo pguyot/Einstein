@@ -655,7 +655,7 @@
 		C99E34BF111B7C08002165EC /* TInterruptManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TInterruptManager.cp; sourceTree = "<group>"; };
 		C99E34C0111B7C08002165EC /* TInterruptManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TInterruptManager.h; sourceTree = "<group>"; };
 		C99E34C1111B7C08002165EC /* TMemory.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMemory.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
-		C99E34C2111B7C08002165EC /* TMemory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMemory.h; sourceTree = "<group>"; };
+		C99E34C2111B7C08002165EC /* TMemory.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TMemory.h; sourceTree = "<group>"; tabWidth = 4; };
 		C99E34C3111B7C08002165EC /* TMemoryConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TMemoryConsts.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E34C4111B7C08002165EC /* TMMU.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMMU.cp; sourceTree = "<group>"; };
 		C99E34C5111B7C08002165EC /* TMMU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMU.h; sourceTree = "<group>"; };
