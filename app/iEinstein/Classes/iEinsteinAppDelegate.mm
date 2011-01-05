@@ -44,6 +44,9 @@
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions 
 {
+    
+    fprintf(stderr, "UIApplication::didFinishLaunchingWithOptions -> check for added files\n");
+    
     // Override point for customization after app launch
     
     // Get the user preferences
@@ -68,6 +71,8 @@
 {    
     if (![viewController allResourcesFound])
         return;
+    
+    fprintf(stderr, "UIApplication::applicationDidBecomeActive -> check for added files\n");
     
     NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
     bool clearFlash = [(NSNumber*)[prefs objectForKey:@"clear_flash_ram"] boolValue];
