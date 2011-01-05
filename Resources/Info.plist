@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
@@ -17,14 +17,14 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>2006.6</string>
+	<string>2011.1</string>
 	<key>NSMainNibFile</key>
 	<string>Einstein</string>
 	<key>NSPrincipalClass</key>
 	<string>TEinsteinApplication</string>
-    <key>NSAppleScriptEnabled</key>
-    <string>YES</string>
-    <key>OSAScriptingDefinition</key>
-    <string>Einstein.sdef</string>
+	<key>NSAppleScriptEnabled</key>
+	<string>YES</string>
+	<key>OSAScriptingDefinition</key>
+	<string>Einstein.sdef</string>
 </dict>
 </plist>
