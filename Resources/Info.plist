@@ -23,7 +23,7 @@
 	<key>NSPrincipalClass</key>
 	<string>TEinsteinApplication</string>
 	<key>NSAppleScriptEnabled</key>
-	<string>YES</string>
+	<false/>
 	<key>OSAScriptingDefinition</key>
 	<string>Einstein.sdef</string>
 </dict>
