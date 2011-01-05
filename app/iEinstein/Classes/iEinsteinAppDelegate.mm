@@ -32,7 +32,6 @@
 
 + (void)initialize
 {
-    printf("------------------> initialize\n");
 	NSDictionary* defaults = [NSDictionary dictionaryWithObjectsAndKeys:
 			[NSNumber numberWithInt:0], @"screen_resolution", 
 			[NSNumber numberWithBool:NO], @"clear_flash_ram",
@@ -45,7 +44,6 @@
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions 
 {
-    printf("------------------> didFinishLaunchingWithOptions\n");
     // Override point for customization after app launch
     
     // Get the user preferences
@@ -56,21 +54,21 @@
 	[window makeKeyAndVisible];
 
     [viewController initEmulator];
-
-	return YES;
+    return YES;
 }
 
 
 - (void)applicationWillResignActive:(UIApplication*)application
 {
-    printf("------------------> applicationWillResignActive\n");
 	[viewController stopEmulator];
 }
 
 
 - (void)applicationDidBecomeActive:(UIApplication*)application 
 {    
-    printf("------------------> applicationDidBecomeActive\n");
+    if (![viewController allResourcesFound])
+        return;
+    
     NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
     bool clearFlash = [(NSNumber*)[prefs objectForKey:@"clear_flash_ram"] boolValue];
     if (clearFlash) {
@@ -94,20 +92,6 @@
     [window release];
     [super dealloc];
 }
-
-/*
- Launch:
- ------------------> initialize
- ------------------> didFinishLaunchingWithOptions
- ------------------> applicationDidBecomeActive
- Home = AppChangeOther:
- ------------------> applicationWillResignActive
- Relaunch = AppChangeMe:
- ------------------> applicationDidBecomeActive
- Kill:
- ------------------> nothing!
- 
-*/ 
 
 
 @end
