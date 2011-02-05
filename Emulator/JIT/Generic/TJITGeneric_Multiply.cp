@@ -21,6 +21,67 @@
 // $Id$
 // ==============================
 
+/* MATT: optimization
+ 
+ Here is a tiny insight for some possible optimisations on ARM targets:
+ 
+ This is our C++ function:
+ 
+ JITUnit* multiply_0_1_2_3(JITUnit* ioUnit, TARMProcessor* ioCPU) {
+  const KUInt32 theResult = ioCPU->mCurrentRegisters[3] * ioCPU->mCurrentRegisters[2];
+  ioCPU->mCurrentRegisters[1] = theResult;
+ }
+
+ The gcc compiler generates this code (in optimized mode)
+
+ __Z16Multiply_0_1_2_3P7JITUnitP13TARMProcessor:
+ push	{r7, lr}        ; not needed, we quit this function by jumping to the next one
+ add	r7, sp, #0      ; not needed, we have no stack frame
+ mov	r2, r0          ; store arg0 in r2 to free r0 as a working register
+ ldr	r3, [r1, #12]   ; read ioCPU->mRegister[3] (#12 = 3 * sizeof(regsiter) with mRegister being the first memebr of TARMProcessro)
+ ldr	r0, [r1, #8]    ; read ioCPU->mRegister[2]
+ mul	r3, r3, r0      ; multiply into r3
+ adds	r0, r2, #4      ; prepare the return value, the address of the next ioUnit
+ str	r3, [r1, #4]    ; store the result of the multiplication in ioCPU->mRegister[2]
+ ldr	r3, [r2, #4]    ; get the jump address of the next JIT instruction
+ blx	r3              ; could be the cheaper "bx r3"
+ pop	{r7, pc}        ; not needed, we quit this function by jumping to the next one
+ 
+ So yes, we can hand-optimize, and in this particular example, we would probably 
+ double the execution speed. The shortest I found goes from 11 to 8 instructions,
+ dropping five expensive stack operations, leaving only four memory reads and 
+ writes. By not using the stack frame at all, we avoid data cache misses, and we 
+ do not build up a call stack that needs to be unwound later, avoiding instruction
+ cache misses. 
+ 
+ On the bad side, this is a lot of work, applies only to a single CPU/compiler 
+ combination, and will break badly if any of the classes involved ever change.
+ 
+ All in all, this optimization may be a larger win than it seems 
+ at first.
+ 
+ mov	r2, r0          ; store arg0 in r2 to free r0 as a working register
+ ldr	r3, [r1, #12]   ; read ioCPU->mRegister[3] (#12 = 3 * sizeof(regsiter) with mRegister being the first memebr of TARMProcessro)
+ ldr	r0, [r1, #8]    ; read ioCPU->mRegister[2]
+ mul	r3, r3, r0      ; multiply into r3
+ adds	r0, r2, #4      ; prepare the return value, the address of the next ioUnit
+ str	r3, [r1, #4]    ; store the result of the multiplication in ioCPU->mRegister[2]
+ ldr	r3, [r2, #4]    ; get the jump address of the next JIT instruction
+ bx	r3              ; jump right away to the next emulated instruction
+ 
+ But how do we use this? Well, we can hand-optimize every template for very 
+ specific CPU/compiler combinations. gcc provides some helpers:
+ 
+ JITUnit* multiply_0_1_2_3(JITUnit* ioUnit, TARMProcessor* ioCPU) 
+    __attribute__((naked))
+ {
+    asm("ldr r3, [r1, #12]");
+    ...
+    asm("bx r3");
+ }
+ 
+ */
+ 
 #include <K/Defines/KDefinitions.h>
 #include <K/Tests/KDebug.h>
 #include "JIT.h"

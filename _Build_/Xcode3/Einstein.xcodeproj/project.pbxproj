@@ -680,7 +680,7 @@
 		C99FDB7212D40365002FC776 /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-72.png"; sourceTree = "<group>"; };
 		C99FDB7312D40365002FC776 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		C9B4A5361242E0DE003F7AD5 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
-		C9B4AA24123D471D00D8D2C7 /* iEinstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iEinstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9B4AA24123D471D00D8D2C7 /* iOSEinstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSEinstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9B4AA2D123D474800D8D2C7 /* iEinsteinAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iEinsteinAppDelegate.h; sourceTree = "<group>"; };
 		C9B4AA2F123D474800D8D2C7 /* iEinsteinViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iEinsteinViewController.h; sourceTree = "<group>"; };
 		C9B4AA32123D474800D8D2C7 /* iEinstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iEinstein_Prefix.pch; sourceTree = "<group>"; };
@@ -751,7 +751,7 @@
 			isa = PBXGroup;
 			children = (
 				8D1107320486CEB800E47090 /* Einstein.app */,
-				C9B4AA24123D471D00D8D2C7 /* iEinstein.app */,
+				C9B4AA24123D471D00D8D2C7 /* iOSEinstein.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1612,9 +1612,9 @@
 			productReference = 8D1107320486CEB800E47090 /* Einstein.app */;
 			productType = "com.apple.product-type.application";
 		};
-		C9B4AA23123D471D00D8D2C7 /* iEinstein */ = {
+		C9B4AA23123D471D00D8D2C7 /* iOSEinstein */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C9B4AA29123D471D00D8D2C7 /* Build configuration list for PBXNativeTarget "iEinstein" */;
+			buildConfigurationList = C9B4AA29123D471D00D8D2C7 /* Build configuration list for PBXNativeTarget "iOSEinstein" */;
 			buildPhases = (
 				C9B4AA20123D471D00D8D2C7 /* Resources */,
 				C9B4AA21123D471D00D8D2C7 /* Sources */,
@@ -1624,9 +1624,9 @@
 			);
 			dependencies = (
 			);
-			name = iEinstein;
-			productName = iEinstein;
-			productReference = C9B4AA24123D471D00D8D2C7 /* iEinstein.app */;
+			name = iOSEinstein;
+			productName = iOSEinstein;
+			productReference = C9B4AA24123D471D00D8D2C7 /* iOSEinstein.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -1650,7 +1650,7 @@
 			projectRoot = ../../..;
 			targets = (
 				8D1107260486CEB800E47090 /* Einstein */,
-				C9B4AA23123D471D00D8D2C7 /* iEinstein */,
+				C9B4AA23123D471D00D8D2C7 /* iOSEinstein */,
 			);
 		};
 /* End PBXProject section */
@@ -2088,7 +2088,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Matthias Melcher (EAPTSZ7GSL)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2113,15 +2113,105 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
-				PRODUCT_NAME = iEinstein;
+				PRODUCT_NAME = iOSEinstein;
+				PROVISIONING_PROFILE = "3AE03D3E-57FF-4D77-B393-953D9708FDDC";
 				SDKROOT = iphoneos4.2;
 				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				VALID_ARCHS = "armv6 armv7";
 			};
 			name = Debug;
 		};
 		C9B4AA28123D471D00D8D2C7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					TARGET_IOS,
+					NO_PORT_AUDIO,
+					NO_X11,
+					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+				);
+				HEADER_SEARCH_PATHS = (
+					../../,
+					../../portaudio/pa_common/,
+					"../../libffi-osx",
+				);
+				INFOPLIST_FILE = "iEinstein-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				OTHER_LDFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = iOSEinstein;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = iphoneos4.2;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = NO;
+				VALID_ARCHS = "armv6 armv7";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		C9F9102C12FB780F0061A18D /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "TARGET_OS_OPENSTEP=1";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Distribution;
+		};
+		C9F9102D12FB780F0061A18D /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				DEAD_CODE_STRIPPING = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_MODEL_CPU = G4;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NO_PORT_AUDIO,
+					NO_X11,
+					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+				);
+				HEADER_SEARCH_PATHS = (
+					../../,
+					../../portaudio/pa_common/,
+					"../../libffi-osx",
+				);
+				INFOPLIST_FILE = ../../Resources/Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../K/Misc\"",
+				);
+				ONLY_ACTIVE_ARCH = YES;
+				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
+				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
+				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
+				PREBINDING = YES;
+				PRODUCT_NAME = Einstein;
+				SDKROOT = macosx10.5;
+				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = "ppc i386 x86_64";
+			};
+			name = Distribution;
+		};
+		C9F9102E12FB780F0061A18D /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -2149,15 +2239,16 @@
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
-				PRODUCT_NAME = iEinstein;
+				PRODUCT_NAME = iOSEinstein;
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos4.2;
 				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = NO;
 				VALID_ARCHS = "armv6 armv7";
 				ZERO_LINK = NO;
 			};
-			name = Release;
+			name = Distribution;
 		};
 /* End XCBuildConfiguration section */
 
@@ -2167,6 +2258,7 @@
 			buildConfigurations = (
 				C01FCF4B08A954540054247B /* Debug */,
 				C01FCF4C08A954540054247B /* Release */,
+				C9F9102D12FB780F0061A18D /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -2176,15 +2268,17 @@
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,
 				C01FCF5008A954540054247B /* Release */,
+				C9F9102C12FB780F0061A18D /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C9B4AA29123D471D00D8D2C7 /* Build configuration list for PBXNativeTarget "iEinstein" */ = {
+		C9B4AA29123D471D00D8D2C7 /* Build configuration list for PBXNativeTarget "iOSEinstein" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C9B4AA27123D471D00D8D2C7 /* Debug */,
 				C9B4AA28123D471D00D8D2C7 /* Release */,
+				C9F9102E12FB780F0061A18D /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

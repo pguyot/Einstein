@@ -471,7 +471,7 @@ public:
 	///
 	/// \return \c true if the MMU is enabled, \c false otherwise.
 	///
-	Boolean		IsMMUEnabled( void ) const
+	Boolean		IsMMUEnabled( void )
 		{
 			return mMMU.IsMMUEnabled();
 		}
