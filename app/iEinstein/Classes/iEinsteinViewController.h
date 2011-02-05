@@ -59,6 +59,7 @@ class TLog;
 //- (void) applicationWillTerminate: (NSNotification *) notification;
 
 // Actions.
+- (void)installNewPackages;
 //- (IBAction) installPackage:(id)sender;
 //- (IBAction) powerButton:(id)sender;
 //- (IBAction) backlightButton:(id)sender;
@@ -90,7 +91,7 @@ class TLog;
 //- (void)installPackageFile:(NSString*)inPath;
 //- (void)setupToolbar: (NSWindow*) inWindow;
 
-- (void)verifyDeleteFlashRAM;
+- (void)verifyDeleteFlashRAM:(int)withTag;
 - (void)explainMissingROM;
 //- (void)openEinsteinMenu;
 

@@ -50,6 +50,7 @@
 {
     switch ([actionSheet tag]) {
         case 1:
+        case 4:
             if (buttonIndex == 0) {
                 printf("Clearing Flash RAM file!\n");
                 NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
@@ -58,8 +59,12 @@
                 NSString* theLastInstallPath = [docdir stringByAppendingPathComponent:@".lastInstall"];
                 remove([theLastInstallPath fileSystemRepresentation]);
                 [self resetEmulator];
+                [self startEmulator];
+            } else if ([actionSheet tag]==1)
+                [self startEmulator];
+            else {
+                [self initEmulator];
             }
-            [self startEmulator];
             break;
         case 2:
             switch (buttonIndex) {
@@ -69,12 +74,12 @@
             break;
         case 3:
             [[UIApplication sharedApplication] terminateWithSuccess];
-            break;            
+            break;
     }
 }
 
 
-- (void)verifyDeleteFlashRAM
+- (void)verifyDeleteFlashRAM:(int)withTag;
 {
     UIActionSheet *actionSheet = [[UIActionSheet alloc] 
                                   initWithTitle:@"Clear Flash Memory?\r\r"
@@ -84,7 +89,7 @@
                                   cancelButtonTitle:@"Cancel" 
                                   destructiveButtonTitle:@"Clear the Flash!" 
                                   otherButtonTitles:nil];
-    [actionSheet setTag:1];
+    [actionSheet setTag:withTag];
     actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
     [actionSheet showInView:self.view];
     [actionSheet release];
@@ -151,6 +156,12 @@
 {
 	// Release any retained subviews of the main view.
 	// e.g. self.myOutlet = nil;
+}
+
+- (void)installNewPackages
+{
+    if (mPlatformManager)
+        mPlatformManager->InstallNewPackages();
 }
 
 

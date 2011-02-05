@@ -56,7 +56,20 @@
 	[window addSubview:[viewController view]];
 	[window makeKeyAndVisible];
 
+    NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
+    bool clearFlash = [(NSNumber*)[prefs objectForKey:@"clear_flash_ram"] boolValue];
+    if (clearFlash) {
+        // User requested to clear the Flash Memory
+        // Clear this setting from the preferences.
+        [prefs setValue:[NSNumber numberWithBool:NO] forKey:@"clear_flash_ram"];
+        [prefs synchronize];
+        [viewController stopEmulator];
+        // Pop up a dialog making sure that the user really wants to that!
+        [viewController verifyDeleteFlashRAM:4];
+    }
+
     [viewController initEmulator];
+
     return YES;
 }
 
@@ -72,8 +85,6 @@
     if (![viewController allResourcesFound])
         return;
     
-    fprintf(stderr, "UIApplication::applicationDidBecomeActive -> check for added files\n");
-    
     NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
     bool clearFlash = [(NSNumber*)[prefs objectForKey:@"clear_flash_ram"] boolValue];
     if (clearFlash) {
@@ -83,11 +94,12 @@
         [prefs synchronize];
         [viewController stopEmulator];
         // Pop up a dialog making sure that the user really wants to that!
-        [viewController verifyDeleteFlashRAM];
+        [viewController verifyDeleteFlashRAM:1];
         // replying to the dialog will start the emulator
     } else {
         [viewController startEmulator];
     }
+    [viewController installNewPackages];
 }
 
 
