@@ -262,6 +262,10 @@
                             [einsteinRExPath fileSystemRepresentation],
                             "717006" );
     } else {
+        fprintf(stderr, "ROM file required here:\n %s\nor here:\n %s\n %s\n\n",
+                [theROMPath fileSystemRepresentation],
+                [theDebugROMPath fileSystemRepresentation],
+                [theDebugHighROMPath fileSystemRepresentation]);
 		//[self abortWithMessage: @"ROM file not found"];
         [self explainMissingROM];
         mROMImage = 0L;
