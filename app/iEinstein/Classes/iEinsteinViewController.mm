@@ -280,10 +280,10 @@
 	
 	mSoundManager = new TCoreAudioSoundManager(mLog);
 
-    // iPad is 1024x768. This size, and some appropriate scaling factirs, should be selectable from
+    // iPad is 1024x768. This size, and some appropriate scaling factors, should be selectable from
     // the 'Settings' panel.
 	
-    static int widthLUT[]  = { 320, 640, 384,  512 };
+    static int widthLUT[]  = { 320, 640, 384,  786 };
     static int heightLUT[] = { 480, 960, 512, 1024 };
     
     NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
