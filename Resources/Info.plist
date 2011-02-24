@@ -21,7 +21,7 @@
 	<key>NSMainNibFile</key>
 	<string>Einstein</string>
 	<key>NSPrincipalClass</key>
-	<string>TEinsteinApplication</string>
+	<string>NSApplication</string>
 	<key>NSAppleScriptEnabled</key>
 	<false/>
 	<key>OSAScriptingDefinition</key>

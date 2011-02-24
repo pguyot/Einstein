@@ -53,17 +53,11 @@ enum EOrientation {
 // Interface with the screen manager.
 - (void)setScreenWidth:(int) inWidth height:(int) inHeight orientation:(EOrientation) inOrientation;
 - (void)drawRect:(NSRect)rect;
-- (void)setHidden:(BOOL)inHidden;
 
 // Mouse events.
 - (BOOL)mouseDownCanMoveWindow;
 - (void)mouseDown:(NSEvent *)theEvent;
 - (BOOL)mouseInView;
-
-// Key events.
-- (void)doFlagsChanged: (NSEvent *)theEvent;
-- (void)doKeyDown: (NSEvent *)theEvent;
-- (void)doKeyUp: (NSEvent *)theEvent;
 
 // Drag & drop of packages.
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender;

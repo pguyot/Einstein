@@ -100,7 +100,6 @@
 		C99E34CF111B7C08002165EC /* TCocoaAppController.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E33DC111B7C07002165EC /* TCocoaAppController.mm */; };
 		C99E34D0111B7C08002165EC /* TCocoaROMDumperController.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E33DE111B7C07002165EC /* TCocoaROMDumperController.mm */; };
 		C99E34D1111B7C08002165EC /* TCocoaSetupController.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E33E0111B7C07002165EC /* TCocoaSetupController.mm */; };
-		C99E34D2111B7C08002165EC /* TEinsteinApplication.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E33E3111B7C07002165EC /* TEinsteinApplication.mm */; };
 		C99E34D8111B7C08002165EC /* THostInfo.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E33F0111B7C07002165EC /* THostInfo.cp */; };
 		C99E34DE111B7C08002165EC /* TJITGeneric.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E340F111B7C07002165EC /* TJITGeneric.cp */; };
 		C99E34DF111B7C08002165EC /* TJITGeneric_BlockDataTransfer.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3411111B7C07002165EC /* TJITGeneric_BlockDataTransfer.cp */; };
@@ -468,15 +467,12 @@
 		C99E3350111B7570002165EC /* UUTF16CStr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UUTF16CStr.h; sourceTree = "<group>"; };
 		C99E3352111B7570002165EC /* UExpatUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UExpatUtils.cp; sourceTree = "<group>"; };
 		C99E3353111B7570002165EC /* UExpatUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UExpatUtils.h; sourceTree = "<group>"; };
-		C99E33D0111B7C07002165EC /* einstein.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = einstein.cp; sourceTree = "<group>"; };
 		C99E33D1111B7C07002165EC /* einstein.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = einstein.mm; sourceTree = "<group>"; };
 		C99E33D4111B7C07002165EC /* Einstein.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.sdef; path = Einstein.sdef; sourceTree = "<group>"; };
 		C99E33D5111B7C07002165EC /* EinsteinDoNewtonScriptCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EinsteinDoNewtonScriptCommand.h; sourceTree = "<group>"; };
 		C99E33D6111B7C07002165EC /* EinsteinDoNewtonScriptCommand.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EinsteinDoNewtonScriptCommand.mm; sourceTree = "<group>"; };
 		C99E33D7111B7C07002165EC /* EinsteinInstallPackageCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EinsteinInstallPackageCommand.h; sourceTree = "<group>"; };
 		C99E33D8111B7C07002165EC /* EinsteinInstallPackageCommand.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EinsteinInstallPackageCommand.mm; sourceTree = "<group>"; };
-		C99E33D9111B7C07002165EC /* TCLIApp.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCLIApp.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
-		C99E33DA111B7C07002165EC /* TCLIApp.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TCLIApp.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E33DB111B7C07002165EC /* TCocoaAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaAppController.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E33DC111B7C07002165EC /* TCocoaAppController.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaAppController.mm; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E33DD111B7C07002165EC /* TCocoaROMDumperController.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaROMDumperController.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
@@ -484,8 +480,6 @@
 		C99E33DF111B7C07002165EC /* TCocoaSetupController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaSetupController.h; sourceTree = "<group>"; };
 		C99E33E0111B7C07002165EC /* TCocoaSetupController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaSetupController.mm; sourceTree = "<group>"; };
 		C99E33E1111B7C07002165EC /* TCocoaUserDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaUserDefaults.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
-		C99E33E2111B7C07002165EC /* TEinsteinApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TEinsteinApplication.h; sourceTree = "<group>"; };
-		C99E33E3111B7C07002165EC /* TEinsteinApplication.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TEinsteinApplication.mm; sourceTree = "<group>"; };
 		C99E33F0111B7C07002165EC /* THostInfo.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = THostInfo.cp; sourceTree = "<group>"; };
 		C99E33F1111B7C07002165EC /* THostInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = THostInfo.h; sourceTree = "<group>"; };
 		C99E33F2111B7C07002165EC /* UserInfoDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserInfoDefinitions.h; sourceTree = "<group>"; };
@@ -1206,12 +1200,7 @@
 				C99E33DF111B7C07002165EC /* TCocoaSetupController.h */,
 				C99E33E0111B7C07002165EC /* TCocoaSetupController.mm */,
 				C99E33E1111B7C07002165EC /* TCocoaUserDefaults.h */,
-				C99E33E2111B7C07002165EC /* TEinsteinApplication.h */,
-				C99E33E3111B7C07002165EC /* TEinsteinApplication.mm */,
 				C99E33D1111B7C07002165EC /* einstein.mm */,
-				C99E33D0111B7C07002165EC /* einstein.cp */,
-				C99E33D9111B7C07002165EC /* TCLIApp.cp */,
-				C99E33DA111B7C07002165EC /* TCLIApp.h */,
 				C99E33D3111B7C07002165EC /* Scripting */,
 				C9B4AA2B123D474800D8D2C7 /* iEinstein */,
 			);
@@ -1765,7 +1754,6 @@
 				C99E34CF111B7C08002165EC /* TCocoaAppController.mm in Sources */,
 				C99E34D0111B7C08002165EC /* TCocoaROMDumperController.mm in Sources */,
 				C99E34D1111B7C08002165EC /* TCocoaSetupController.mm in Sources */,
-				C99E34D2111B7C08002165EC /* TEinsteinApplication.mm in Sources */,
 				C99E34D8111B7C08002165EC /* THostInfo.cp in Sources */,
 				C99E34DE111B7C08002165EC /* TJITGeneric.cp in Sources */,
 				C99E34DF111B7C08002165EC /* TJITGeneric_BlockDataTransfer.cp in Sources */,
