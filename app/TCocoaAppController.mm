@@ -100,11 +100,11 @@ static TCocoaAppController* gInstance = nil;
 // -------------------------------------------------------------------------- //
 //  * init
 // -------------------------------------------------------------------------- //
-- init
+- (id)init
 {
 	if ((self = [super init]))
 	{
-		mProxy = [[CocoaScreenProxy new] init];
+		mProxy = [[CocoaScreenProxy alloc] init];
 		mRAMSize = 0x40;	// 4 MB.
 		mROMPath = NULL;
 		mREx0Path = NULL;
