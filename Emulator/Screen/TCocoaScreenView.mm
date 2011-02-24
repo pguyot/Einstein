@@ -26,7 +26,6 @@
 
 #include "TCocoaScreenGlue.h"
 #include "TCocoaScreenManager.h"
-#import "app/TEinsteinApplication.h"
 
 #if !(defined kCGBitmapByteOrder32Host) && TARGET_RT_BIG_ENDIAN
 #define kAlphaNoneSkipFirstPlusHostByteOrder (kCGImageAlphaNoneSkipFirst)
@@ -277,9 +276,9 @@
 }
 
 // -------------------------------------------------------------------------- //
-//  * (void)doFlagsChanged:(NSEvent*)
+//  * (void)flagsChanged:(NSEvent*)
 // -------------------------------------------------------------------------- //
-- (void)doFlagsChanged:(NSEvent*) theEvent
+- (void)flagsChanged:(NSEvent*) theEvent
 {
 	// Cocoa doesn't distinguish left & right keys.
 	// So I ask Carbon.
@@ -363,9 +362,9 @@
 }
 
 // -------------------------------------------------------------------------- //
-//  * (void)doKeyDown:(NSEvent*)
+//  * (void)keyDown:(NSEvent*)
 // -------------------------------------------------------------------------- //
-- (void)doKeyDown:(NSEvent*) theEvent
+- (void)keyDown:(NSEvent*) theEvent
 {
 	int theKeyCode = [theEvent keyCode];
 	if ([theEvent isARepeat])
@@ -377,9 +376,9 @@
 }
 
 // -------------------------------------------------------------------------- //
-//  * (void)doKeyUp:(NSEvent*)
+//  * (void)keyUp:(NSEvent*)
 // -------------------------------------------------------------------------- //
-- (void)doKeyUp:(NSEvent*) theEvent
+- (void)keyUp:(NSEvent*) theEvent
 {
 	int theKeyCode = [theEvent keyCode];		
 	mScreenManager->KeyUp(theKeyCode);	
@@ -393,20 +392,6 @@
 	NSRect box = [self frame];
 	NSPoint loc = [[self window] mouseLocationOutsideOfEventStream];
 	return [self mouse: loc inRect: box];
-}
-
-// -------------------------------------------------------------------------- //
-//  * (void)setHidden:(BOOL)
-// -------------------------------------------------------------------------- //
-- (void)setHidden:(BOOL)inHidden
-{
-	[super setHidden: inHidden];
-	if (inHidden)
-	{
-		[((TEinsteinApplication*) NSApp) unregisterView];
-	} else {
-		[((TEinsteinApplication*) NSApp) registerView: self];
-	}
 }
 
 @end
