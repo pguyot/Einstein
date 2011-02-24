@@ -73,7 +73,7 @@
             }
             break;
         case 3:
-            [[UIApplication sharedApplication] terminateWithSuccess];
+            [[UIApplication sharedApplication] performSelector:@selector(terminateWithSuccess)];
             break;
     }
 }
