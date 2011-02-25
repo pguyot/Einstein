@@ -124,12 +124,6 @@ class TLog;
 - (void)networkChange:(BOOL)state;
 - (void)setEmulatorWindow:(NSWindow*)inWindow fullScreen:(BOOL)inFullScreen;
 
-// Private (sic) methods.
-+ (NSString*)getAppSupportDirectory;
-- (void)runEmulator;
-- (void)installPackageFile:(NSString*)inPath;
-- (void)setupToolbar:(NSWindow*)inWindow;
-
 @end
 
 #endif

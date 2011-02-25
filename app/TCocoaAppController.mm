@@ -53,6 +53,18 @@
 
 static TCocoaAppController* gInstance = nil;
 
+
+@interface TCocoaAppController (Private)
+
++ (NSString*)getAppSupportDirectory;
+- (void)runEmulator;
+- (void)installPackageFile:(NSString*)inPath;
+- (void)setupToolbar:(NSWindow*)inWindow;
+- (BOOL)validateSelector:(SEL)selector;
+
+@end
+
+
 @implementation TCocoaAppController
 
 // -------------------------------------------------------------------------- //
@@ -785,6 +797,31 @@ static TCocoaAppController* gInstance = nil;
 	{
 		[self setupToolbar: inWindow];
 	}
+}
+
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
+{
+	return [self validateSelector:[menuItem action]];
+}
+
+
+- (BOOL)validateSelector:(SEL)selector
+{
+	if ( selector == @selector(installPackage:) 
+			|| selector == @selector(networkButton:) 
+			|| selector == @selector(backlightButton:) 
+			|| selector == @selector(powerButton:) )
+	{
+		return (mEmulator && mEmulator->IsRunning());
+	}
+	return YES;
+}
+
+
+- (BOOL)validateToolbarItem:(NSToolbarItem *)theItem
+{
+	return [self validateSelector:[theItem action]];
 }
 
 @end
