@@ -843,6 +843,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			#if TARGET_OS_WIN32
 				// FIXME call the Win32 tablet calibration app
 			#elif TARGET_IOS
+			#elif TARGET_OS_MAC
 			#else
 			{
 				// Try xtscal
