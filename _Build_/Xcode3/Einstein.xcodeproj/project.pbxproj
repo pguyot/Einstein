@@ -304,9 +304,9 @@
 		C932824611D0CF0A003B93C3 /* button_network.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network.png; sourceTree = "<group>"; };
 		C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNE2000Card.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C932C4C111A1AB5D00F6A7E4 /* TNE2000Card.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNE2000Card.h; sourceTree = "<group>"; };
-		C94ADB37123E9ADD00406839 /* iEinsteinAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = iEinsteinAppDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
-		C94ADB38123E9ADD00406839 /* iEinsteinView.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = iEinsteinView.mm; sourceTree = "<group>"; tabWidth = 4; };
-		C94ADB39123E9ADD00406839 /* iEinsteinViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = iEinsteinViewController.mm; sourceTree = "<group>"; tabWidth = 4; };
+		C94ADB37123E9ADD00406839 /* iEinsteinAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinAppDelegate.mm; path = Classes/iEinsteinAppDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
+		C94ADB38123E9ADD00406839 /* iEinsteinView.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinView.mm; path = Classes/iEinsteinView.mm; sourceTree = "<group>"; tabWidth = 4; };
+		C94ADB39123E9ADD00406839 /* iEinsteinViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinViewController.mm; path = Classes/iEinsteinViewController.mm; sourceTree = "<group>"; tabWidth = 4; };
 		C94ADB3E123E9AEC00406839 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TUsermodeNetwork.cp; path = Network/TUsermodeNetwork.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429611B69A9D00EE66F3 /* TUsermodeNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TUsermodeNetwork.h; path = Network/TUsermodeNetwork.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
@@ -675,12 +675,12 @@
 		C99FDB7312D40365002FC776 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		C9B4A5361242E0DE003F7AD5 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		C9B4AA24123D471D00D8D2C7 /* iOSEinstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSEinstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C9B4AA2D123D474800D8D2C7 /* iEinsteinAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iEinsteinAppDelegate.h; sourceTree = "<group>"; };
-		C9B4AA2F123D474800D8D2C7 /* iEinsteinViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iEinsteinViewController.h; sourceTree = "<group>"; };
+		C9B4AA2D123D474800D8D2C7 /* iEinsteinAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iEinsteinAppDelegate.h; path = Classes/iEinsteinAppDelegate.h; sourceTree = "<group>"; };
+		C9B4AA2F123D474800D8D2C7 /* iEinsteinViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iEinsteinViewController.h; path = Classes/iEinsteinViewController.h; sourceTree = "<group>"; };
 		C9B4AA32123D474800D8D2C7 /* iEinstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iEinstein_Prefix.pch; sourceTree = "<group>"; };
 		C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = iEinsteinViewController.xib; sourceTree = "<group>"; };
 		C9B4AA35123D474800D8D2C7 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
-		C9B4AA49123D480900D8D2C7 /* iEinsteinView.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = iEinsteinView.h; sourceTree = "<group>"; tabWidth = 4; };
+		C9B4AA49123D480900D8D2C7 /* iEinsteinView.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = iEinsteinView.h; path = Classes/iEinsteinView.h; sourceTree = "<group>"; tabWidth = 4; };
 		C9E848E711EDCD6C00F27330 /* ffi_darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi_darwin.c; sourceTree = "<group>"; };
 		C9E848E811EDCD6C00F27330 /* x86-ffi64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "x86-ffi64.c"; sourceTree = "<group>"; };
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTapNetwork.cp; path = Network/TTapNetwork.cp; sourceTree = "<group>"; };
@@ -688,6 +688,7 @@
 		DA0D96DD11BAD15300835522 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
 		F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		F1CAFCF8124200C100A0382E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		F1CB761A1317307E0017B0BB /* Einstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Einstein_Prefix.pch; path = ../../../../../Source/einstein/Einstein/app/Einstein_Prefix.pch; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -765,10 +766,8 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				C99E315F111B7346002165EC /* icons */,
-				C99E315C111B733F002165EC /* Einstein.nib */,
-				C99E315A111B7331002165EC /* Info.plist */,
-				C99E377A111C2289002165EC /* Einstein.rex */,
+				F1CB7613131730100017B0BB /* Mac OS X */,
+				F1CB7616131730260017B0BB /* iOS */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -809,7 +808,8 @@
 		C99E3154111B72C0002165EC /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				C99E33CF111B7C07002165EC /* app */,
+				C99E33CF111B7C07002165EC /* Mac OS X */,
+				C9B4AA2B123D474800D8D2C7 /* iOS */,
 				C99E33EC111B7C07002165EC /* Emulator */,
 				C99E3174111B73A1002165EC /* Monitor */,
 			);
@@ -825,7 +825,7 @@
 			name = Libraries;
 			sourceTree = "<group>";
 		};
-		C99E315F111B7346002165EC /* icons */ = {
+		C99E315F111B7346002165EC /* Icons */ = {
 			isa = PBXGroup;
 			children = (
 				C932824511D0CF0A003B93C3 /* button_network_in.png */,
@@ -838,7 +838,7 @@
 				C99E3165111B7346002165EC /* button_prefs.png */,
 				C99E3166111B7346002165EC /* Einstein.icns */,
 			);
-			name = icons;
+			name = Icons;
 			path = ../../Resources/icons;
 			sourceTree = SOURCE_ROOT;
 		};
@@ -1190,9 +1190,11 @@
 			path = XML;
 			sourceTree = "<group>";
 		};
-		C99E33CF111B7C07002165EC /* app */ = {
+		C99E33CF111B7C07002165EC /* Mac OS X */ = {
 			isa = PBXGroup;
 			children = (
+				C99E33D1111B7C07002165EC /* einstein.mm */,
+				F1CB761A1317307E0017B0BB /* Einstein_Prefix.pch */,
 				C99E33DB111B7C07002165EC /* TCocoaAppController.h */,
 				C99E33DC111B7C07002165EC /* TCocoaAppController.mm */,
 				C99E33DD111B7C07002165EC /* TCocoaROMDumperController.h */,
@@ -1200,11 +1202,9 @@
 				C99E33DF111B7C07002165EC /* TCocoaSetupController.h */,
 				C99E33E0111B7C07002165EC /* TCocoaSetupController.mm */,
 				C99E33E1111B7C07002165EC /* TCocoaUserDefaults.h */,
-				C99E33D1111B7C07002165EC /* einstein.mm */,
 				C99E33D3111B7C07002165EC /* Scripting */,
-				C9B4AA2B123D474800D8D2C7 /* iEinstein */,
 			);
-			name = app;
+			name = "Mac OS X";
 			path = ../../app;
 			sourceTree = SOURCE_ROOT;
 		};
@@ -1550,34 +1550,62 @@
 			path = x86;
 			sourceTree = "<group>";
 		};
-		C9B4AA2B123D474800D8D2C7 /* iEinstein */ = {
+		C9B4AA2B123D474800D8D2C7 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				C9B4AA32123D474800D8D2C7 /* iEinstein_Prefix.pch */,
+				C94ADB37123E9ADD00406839 /* iEinsteinAppDelegate.mm */,
+				C9B4AA2D123D474800D8D2C7 /* iEinsteinAppDelegate.h */,
+				C94ADB38123E9ADD00406839 /* iEinsteinView.mm */,
+				C9B4AA49123D480900D8D2C7 /* iEinsteinView.h */,
+				C94ADB39123E9ADD00406839 /* iEinsteinViewController.mm */,
+				C9B4AA2F123D474800D8D2C7 /* iEinsteinViewController.h */,
+				C94ADB3E123E9AEC00406839 /* main.mm */,
+			);
+			name = iOS;
+			path = ../../app/iEinstein;
+			sourceTree = "<group>";
+		};
+		F1CB7613131730100017B0BB /* Mac OS X */ = {
+			isa = PBXGroup;
+			children = (
+				C99E315F111B7346002165EC /* Icons */,
+				C99E315C111B733F002165EC /* Einstein.nib */,
+				C99E315A111B7331002165EC /* Info.plist */,
+				C99E377A111C2289002165EC /* Einstein.rex */,
+			);
+			name = "Mac OS X";
+			sourceTree = "<group>";
+		};
+		F1CB7616131730260017B0BB /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				F1CB763C1317326C0017B0BB /* Icons */,
+				F1CB763D131732720017B0BB /* Nibs */,
+				C97C7EA01242832700CDCD05 /* iEinstein-Info.plist */,
+				C9B4A5361242E0DE003F7AD5 /* Settings.bundle */,
+			);
+			name = iOS;
+			path = ../../app/iEinstein;
+			sourceTree = "<group>";
+		};
+		F1CB763C1317326C0017B0BB /* Icons */ = {
 			isa = PBXGroup;
 			children = (
 				C99FDB7312D40365002FC776 /* Icon.png */,
 				C99FDB7212D40365002FC776 /* Icon-72.png */,
-				C97C7EA01242832700CDCD05 /* iEinstein-Info.plist */,
-				C94ADB3E123E9AEC00406839 /* main.mm */,
-				C9B4AA2C123D474800D8D2C7 /* Classes */,
-				C9B4AA32123D474800D8D2C7 /* iEinstein_Prefix.pch */,
-				C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */,
-				C9B4AA35123D474800D8D2C7 /* MainWindow.xib */,
-				C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */,
-				C9B4A5361242E0DE003F7AD5 /* Settings.bundle */,
 			);
-			path = iEinstein;
+			name = Icons;
 			sourceTree = "<group>";
 		};
-		C9B4AA2C123D474800D8D2C7 /* Classes */ = {
+		F1CB763D131732720017B0BB /* Nibs */ = {
 			isa = PBXGroup;
 			children = (
-				C94ADB37123E9ADD00406839 /* iEinsteinAppDelegate.mm */,
-				C9B4AA2D123D474800D8D2C7 /* iEinsteinAppDelegate.h */,
-				C94ADB39123E9ADD00406839 /* iEinsteinViewController.mm */,
-				C9B4AA2F123D474800D8D2C7 /* iEinsteinViewController.h */,
-				C94ADB38123E9ADD00406839 /* iEinsteinView.mm */,
-				C9B4AA49123D480900D8D2C7 /* iEinsteinView.h */,
+				C9B4AA35123D474800D8D2C7 /* MainWindow.xib */,
+				C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */,
+				C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */,
 			);
-			path = Classes;
+			name = Nibs;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1977,6 +2005,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_DEBUG,
 					NO_PORT_AUDIO,
@@ -1984,11 +2013,11 @@
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				HEADER_SEARCH_PATHS = (
-					../../,
-					../../portaudio/pa_common/,
-					"../../libffi-osx",
+					"$(SRCROOT)/../../",
+					"$(SRCROOT)/../../portaudio/pa_common/",
+					"$(SRCROOT)/../../libffi-osx",
 				);
-				INFOPLIST_FILE = ../../Resources/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2015,17 +2044,18 @@
 				GCC_MODEL_CPU = G4;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					NO_PORT_AUDIO,
 					NO_X11,
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				HEADER_SEARCH_PATHS = (
-					../../,
-					../../portaudio/pa_common/,
-					"../../libffi-osx",
+					"$(SRCROOT)/../../",
+					"$(SRCROOT)/../../portaudio/pa_common/",
+					"$(SRCROOT)/../../libffi-osx",
 				);
-				INFOPLIST_FILE = ../../Resources/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2076,7 +2106,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CODE_SIGN_IDENTITY = "iPhone Developer: Matthias Melcher (EAPTSZ7GSL)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2102,7 +2132,7 @@
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = iOSEinstein;
-				PROVISIONING_PROFILE = "3AE03D3E-57FF-4D77-B393-953D9708FDDC";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos4.2;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -2115,7 +2145,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
@@ -2171,17 +2201,18 @@
 				GCC_MODEL_CPU = G4;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					NO_PORT_AUDIO,
 					NO_X11,
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				HEADER_SEARCH_PATHS = (
-					../../,
-					../../portaudio/pa_common/,
-					"../../libffi-osx",
+					"$(SRCROOT)/../../",
+					"$(SRCROOT)/../../portaudio/pa_common/",
+					"$(SRCROOT)/../../libffi-osx",
 				);
-				INFOPLIST_FILE = ../../Resources/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
