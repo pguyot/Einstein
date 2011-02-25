@@ -51,11 +51,6 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
-#define machinestr(tag)	\
-	(((tag) == 717006) ? "717006" : \
-		(((tag) == 737041) ? "737041" : \
-			"747129"))
-
 static TCocoaAppController* gInstance = nil;
 
 @implementation TCocoaAppController
@@ -261,19 +256,21 @@ static TCocoaAppController* gInstance = nil;
 		}
 	}
 	
-	int theMachine = [defaults integerForKey: kMachineKey];
+	int theMachine = [defaults integerForKey: kMachineKey]; // e.g; 717006
+	NSString* machineStr = [NSString stringWithFormat:@"%d", theMachine];
+	
 	if (theREX0Path)
 	{
 		mROMImage = new TAIFROMImageWithREXes(
 							[theROMPath UTF8String],
 							[theREX0Path UTF8String],
 							[einsteinRExPath UTF8String],
-							machinestr(theMachine) );
+							[machineStr UTF8String]);
 	} else {
 		mROMImage = new TFlatROMImageWithREX(
 							[theROMPath UTF8String],
 							[einsteinRExPath UTF8String],
-							machinestr(theMachine) );
+							[machineStr UTF8String]);
 	}
 	
 	// Create a log if possible
