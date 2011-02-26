@@ -287,6 +287,8 @@
 		C9E848EA11EDCD6C00F27330 /* x86-ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E811EDCD6C00F27330 /* x86-ffi64.c */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cp */; };
 		DA0D96DE11BAD15300835522 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = DA0D96DD11BAD15300835522 /* darwin64.S */; };
+		F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */; };
+		F164801A13199758001603BE /* TMacMonitor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F164801813199758001603BE /* TMacMonitor.mm */; };
 		F1CAFB841241F53F00A0382E /* TCoreAudioSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AC111B7C08002165EC /* TCoreAudioSoundManager.cp */; };
 		F1CAFB9A1241F5E700A0382E /* TBufferedSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AA111B7C08002165EC /* TBufferedSoundManager.cp */; };
 		F1CAFBE41241F7C200A0382E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E36FD111C18A8002165EC /* CoreAudio.framework */; };
@@ -686,6 +688,10 @@
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTapNetwork.cp; path = Network/TTapNetwork.cp; sourceTree = "<group>"; };
 		DA0D943F11B9A12D00835522 /* TTapNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTapNetwork.h; path = Network/TTapNetwork.h; sourceTree = "<group>"; };
 		DA0D96DD11BAD15300835522 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
+		F1647FC313198E6A001603BE /* TCocoaMonitorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaMonitorController.h; sourceTree = "<group>"; };
+		F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaMonitorController.mm; sourceTree = "<group>"; };
+		F164801813199758001603BE /* TMacMonitor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TMacMonitor.mm; sourceTree = "<group>"; };
+		F164801913199758001603BE /* TMacMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMacMonitor.h; sourceTree = "<group>"; };
 		F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		F1CAFCF8124200C100A0382E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		F1CB761A1317307E0017B0BB /* Einstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Einstein_Prefix.pch; path = ../../../../../Source/einstein/Einstein/app/Einstein_Prefix.pch; sourceTree = SOURCE_ROOT; };
@@ -845,6 +851,8 @@
 		C99E3174111B73A1002165EC /* Monitor */ = {
 			isa = PBXGroup;
 			children = (
+				F164801813199758001603BE /* TMacMonitor.mm */,
+				F164801913199758001603BE /* TMacMonitor.h */,
 				C99E3175111B73A1002165EC /* TMonitor.cp */,
 				C99E3176111B73A1002165EC /* TMonitor.h */,
 				C99E3177111B73A1002165EC /* TSymbolList.cp */,
@@ -1201,6 +1209,8 @@
 				C99E33DE111B7C07002165EC /* TCocoaROMDumperController.mm */,
 				C99E33DF111B7C07002165EC /* TCocoaSetupController.h */,
 				C99E33E0111B7C07002165EC /* TCocoaSetupController.mm */,
+				F1647FC313198E6A001603BE /* TCocoaMonitorController.h */,
+				F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */,
 				C99E33E1111B7C07002165EC /* TCocoaUserDefaults.h */,
 				C99E33D3111B7C07002165EC /* Scripting */,
 			);
@@ -1277,9 +1287,9 @@
 				C99E3459111B7C07002165EC /* TJITCache.cp */,
 				C99E345A111B7C07002165EC /* TJITCache.h */,
 				C99E3457111B7C07002165EC /* TJIT.cp */,
+				C99E3458111B7C07002165EC /* TJIT.h */,
 				C99E345B111B7C07002165EC /* TJITPage.cp */,
 				C99E345C111B7C07002165EC /* TJITPage.h */,
-				C99E3458111B7C07002165EC /* TJIT.h */,
 				C99E33FC111B7C07002165EC /* Generic */,
 			);
 			path = JIT;
@@ -1850,6 +1860,8 @@
 				C9E848E911EDCD6C00F27330 /* ffi_darwin.c in Sources */,
 				C9E848EA11EDCD6C00F27330 /* x86-ffi64.c in Sources */,
 				C9B4AB88123D674400D8D2C7 /* TBufferLog.cp in Sources */,
+				F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */,
+				F164801A13199758001603BE /* TMacMonitor.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

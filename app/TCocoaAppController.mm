@@ -43,7 +43,11 @@
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
+#include "Emulator/Log/TBufferLog.h"
 #include "Emulator/Log/TStdOutLog.h"
+
+#import "Monitor/TMacMonitor.h"
+#import "Monitor/TSymbolList.h"
 
 #import "TCocoaUserDefaults.h"
 
@@ -394,11 +398,17 @@ static TCocoaAppController* gInstance = nil;
 			->SetPlatformManager( mPlatformManager );
 	}
 	
+	mMonitorLog = new TBufferLog();
+	mSymbolList = new TSymbolList("symbols.txt");
+	mMonitor = new TMacMonitor(mMonitorLog, mEmulator, mSymbolList);
+	[mMonitorController setMonitor:mMonitor];
+	
 	// Close the window.
 	[mSetupController closeSetupWindow];
 	
 	// Start the thread.
-	[NSThread detachNewThreadSelector: @selector(runEmulator) toTarget: self withObject: NULL];
+	[NSThread detachNewThreadSelector:@selector(runEmulator) toTarget: self withObject: NULL];
+	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"run" afterDelay:1];
 }
 
 
@@ -484,7 +494,8 @@ static TCocoaAppController* gInstance = nil;
 // -------------------------------------------------------------------------- //
 - (void)runEmulator
 {
-	mEmulator->Run();
+	mMonitor->Run();
+	
 	// Quit if the emulator quitted.
 	mQuit = true;
 	[[NSApplication sharedApplication] terminate: self];
@@ -797,6 +808,12 @@ static TCocoaAppController* gInstance = nil;
 	{
 		[self setupToolbar: inWindow];
 	}
+}
+
+
+- (IBAction)showMonitor:(id)sender
+{
+	[mMonitorController showWindow:self];
 }
 
 

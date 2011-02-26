@@ -54,7 +54,7 @@ enum {
 ///
 @interface TCocoaROMDumperController : NSObject
 {
-	IBOutlet NSPanel* mDumpROMPanel;
+	IBOutlet NSWindow* mDumpROMPanel;
 	IBOutlet NSTextField* mIP1;
 	IBOutlet NSTextField* mIP2;
 	IBOutlet NSTextField* mIP3;

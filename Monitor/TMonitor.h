@@ -56,7 +56,7 @@ public:
 	///
 	/// Destructor.
 	///
-	~TMonitor( void );
+	virtual ~TMonitor( void );
 
 	///
 	/// Draw screen.
@@ -110,7 +110,7 @@ public:
 	///
 	Boolean		ExecuteCommand( const char* inCommand );
 
-private:
+protected:
 	/// Constants.
 	static const char* kEraseLine;
 	static const char* const kRegisterNames[16];

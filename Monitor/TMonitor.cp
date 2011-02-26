@@ -108,9 +108,11 @@ TMonitor::TMonitor(
 	
 	CreateCondVarAndMutex();
 
+#if !TARGET_OS_MAC
 	// Clear the terminal and go to the uppermost position.
 	(void) ::printf( "\033[1;1H" );
 	(void) ::printf( "\033[2J" );
+#endif
 	
 	// Tell the emulator it's being monitored.
 	inEmulator->SetMonitor( this );
@@ -127,9 +129,11 @@ TMonitor::~TMonitor( void )
 #else
 	DeleteCondVarAndMutex();
 
+#if !TARGET_OS_MAC
 	// Clear the terminal and go to the uppermost position.
 	(void) ::printf( "\033[1;1H" );
 	(void) ::printf( "\033[2J" );
+#endif
 #endif
 }
 
@@ -878,7 +882,9 @@ TMonitor::DrawScreen( void )
 		if (!mLastScreenHalted)
 		{
 			// Clear the terminal.
+#if !TARGET_OS_MAC
 			(void) ::printf( "\033[2J" );
+#endif
 			theResult = true;
 		}
 		mLastScreenHalted = true;
@@ -887,7 +893,9 @@ TMonitor::DrawScreen( void )
 		if (mLastScreenHalted)
 		{
 			// Clear the terminal.
+#if !TARGET_OS_MAC
 			(void) ::printf( "\033[2J" );			
+#endif
 			theResult = true;
 		}
 		mLastScreenHalted = false;
@@ -910,7 +918,9 @@ TMonitor::DrawScreenHalted( void )
 	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
 
 	// Go to the uppermost position.
+#if !TARGET_OS_MAC
 	(void) ::printf( "\033[1;1H" );
+#endif
 	int indexRegisters;
 	for (indexRegisters = 0; indexRegisters < 16; indexRegisters++)
 	{
