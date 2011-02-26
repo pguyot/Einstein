@@ -49,7 +49,7 @@ class TPlatformManager;
 {
 	IBOutlet NSSlider* mRAMSizeSlider;
 	IBOutlet NSTextField* mRAMSizeTextField;
-	IBOutlet NSPanel* mSetupWindow;
+	IBOutlet NSWindow* mSetupWindow;
 	IBOutlet NSButton* mStartSaveButton;
 	IBOutlet NSButton* mQuitRevertButton;
 	IBOutlet NSTextField* mOnlyAtRestartTextField;

@@ -32,6 +32,7 @@
 #import "Emulator/Screen/CocoaEmulatorApp.h"
 #import "TCocoaROMDumperController.h"
 #import "TCocoaSetupController.h"
+#import "TCocoaMonitorController.h"
 
 class TBufferLog;
 class TNetworkManager;
@@ -41,6 +42,8 @@ class TROMImage;
 class TEmulator;
 class TPlatformManager;
 class TLog;
+class TMacMonitor;
+class TSymbolList;
 
 ///
 /// Protocol pour le contr™leur de l'application Einstein.app.
@@ -55,6 +58,7 @@ class TLog;
 	IBOutlet NSMenu* mMenuBar;
 	IBOutlet TCocoaSetupController* mSetupController;
 	IBOutlet TCocoaROMDumperController* mROMDumperController;
+	IBOutlet TCocoaMonitorController* mMonitorController;
 	IBOutlet NSUserDefaultsController* mUserDefaultsController;
 	
 	CocoaScreenProxy*	mProxy;
@@ -72,6 +76,9 @@ class TLog;
 	TEmulator*			mEmulator;
 	TPlatformManager*	mPlatformManager;
     TLog*				mLog;
+	TMacMonitor*		mMonitor;
+	TBufferLog*			mMonitorLog;
+	TSymbolList*		mSymbolList;
 	
 	NSToolbarItem*		mToolbarPowerItem;
 	NSImage*			mToolbarPowerOnImage;
@@ -105,6 +112,7 @@ class TLog;
 - (IBAction)powerButton:(id)sender;
 - (IBAction)backlightButton:(id)sender;
 - (IBAction)networkButton:(id)sender;
+- (IBAction)showMonitor:(id)sender;
 
 // AppleScript
 - (id)commandInstallPackage:(NSURL*)inFileURL;
