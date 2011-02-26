@@ -589,11 +589,18 @@ void
 TPlatformManager::InstallNewPackages( const char* inPackageDir )
 {
 	// -- find the directory
-	if (!inPackageDir) 
+	if ( !inPackageDir ) 
 		inPackageDir = mDocDir;
+		
+	if ( !inPackageDir ) {
+		printf("TPlatformManager::InstallNewPackages: No package directory specified, skipping.\n");
+		return;
+	}
+	
 	DIR *dir = opendir(inPackageDir);
+		
 	if (!dir) {
-		printf("Can't open package directory %s\n", inPackageDir);
+		printf("TPlatformManager::InstallNewPackages: Can't open package directory: %s\n", inPackageDir);
 		return;
 	}
 	
