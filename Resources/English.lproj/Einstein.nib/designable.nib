@@ -12,9 +12,9 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="606"/>
 			<integer value="24"/>
 			<integer value="336"/>
+			<integer value="606"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1815,7 +1815,7 @@ bCBmb3IgZGV0YWlscy4</string>
 			<object class="NSWindowTemplate" id="723967932">
 				<int key="NSWindowStyleMask">7</int>
 				<int key="NSWindowBacking">2</int>
-				<string key="NSWindowRect">{{92, 85}, {513, 606}}</string>
+				<string key="NSWindowRect">{{92, 85}, {541, 606}}</string>
 				<int key="NSWTFlags">611844096</int>
 				<string key="NSWindowTitle">Monitor</string>
 				<string key="NSWindowClass">NSWindow</string>
@@ -1839,7 +1839,7 @@ bCBmb3IgZGV0YWlscy4</string>
 										<object class="NSTextView" id="585546047">
 											<reference key="NSNextResponder" ref="99093970"/>
 											<int key="NSvFlags">2322</int>
-											<string key="NSFrameSize">{498, 14}</string>
+											<string key="NSFrameSize">{526, 14}</string>
 											<reference key="NSSuperview" ref="99093970"/>
 											<object class="NSTextContainer" key="NSTextContainer" id="197998651">
 												<object class="NSLayoutManager" key="NSLayoutManager">
@@ -1857,7 +1857,7 @@ bCBmb3IgZGV0YWlscy4</string>
 													<nil key="NSDelegate"/>
 												</object>
 												<reference key="NSTextView" ref="585546047"/>
-												<double key="NSWidth">498</double>
+												<double key="NSWidth">526</double>
 												<int key="NSTCFlags">1</int>
 											</object>
 											<object class="NSTextViewSharedData" key="NSSharedData">
@@ -1918,7 +1918,7 @@ bCBmb3IgZGV0YWlscy4</string>
 											<nil key="NSDelegate"/>
 										</object>
 									</object>
-									<string key="NSFrame">{{1, 1}, {498, 565}}</string>
+									<string key="NSFrame">{{1, 1}, {526, 565}}</string>
 									<reference key="NSSuperview" ref="181841585"/>
 									<reference key="NSNextKeyView" ref="585546047"/>
 									<reference key="NSDocView" ref="585546047"/>
@@ -1932,7 +1932,7 @@ bCBmb3IgZGV0YWlscy4</string>
 								<object class="NSScroller" id="583530941">
 									<reference key="NSNextResponder" ref="181841585"/>
 									<int key="NSvFlags">256</int>
-									<string key="NSFrame">{{499, 1}, {15, 565}}</string>
+									<string key="NSFrame">{{527, 1}, {15, 565}}</string>
 									<reference key="NSSuperview" ref="181841585"/>
 									<reference key="NSTarget" ref="181841585"/>
 									<string key="NSAction">_doScroller:</string>
@@ -1950,7 +1950,7 @@ bCBmb3IgZGV0YWlscy4</string>
 									<double key="NSPercent">0.94565218687057495</double>
 								</object>
 							</object>
-							<string key="NSFrame">{{-1, 40}, {515, 567}}</string>
+							<string key="NSFrame">{{-1, 40}, {543, 567}}</string>
 							<reference key="NSSuperview" ref="711603639"/>
 							<reference key="NSNextKeyView" ref="99093970"/>
 							<int key="NSsFlags">18</int>
@@ -1992,7 +1992,7 @@ bCBmb3IgZGV0YWlscy4</string>
 							</object>
 						</object>
 					</object>
-					<string key="NSFrameSize">{513, 606}</string>
+					<string key="NSFrameSize">{541, 606}</string>
 					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1366, 746}}</string>
@@ -4982,9 +4982,9 @@ bCBmb3IgZGV0YWlscy4</string>
 					<boolean value="YES"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<boolean value="YES"/>
-					<string>{{225, 69}, {513, 606}}</string>
+					<string>{{93, 69}, {541, 606}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{225, 69}, {513, 606}}</string>
+					<string>{{93, 69}, {541, 606}}</string>
 					<boolean value="NO"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
