@@ -133,8 +133,8 @@ TSymbolList::GetSymbol(
 {
 	if (mSymbolCount == 0)
 	{
-		outSymbol[0] = '\0';
-		outComment[0] = '\0';
+		::sprintf(outSymbol, "%08X", inValue);
+		::sprintf(outComment, "(no symbol data)", inValue);
 		*outOffset = 0;
 		return;
 	}
