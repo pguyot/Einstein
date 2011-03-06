@@ -51,6 +51,10 @@
 
 #import "TCocoaUserDefaults.h"
 
+#ifdef JIT_PERFORMANCE
+#include "Emulator/JIT/TJITPerformance.h"
+#endif
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -426,6 +430,15 @@ static TCocoaAppController* gInstance = nil;
 - (IBAction)backlightButton:(id)sender
 {
 	mPlatformManager->SendBacklightEvent();
+#ifdef JIT_PERFORMANCE
+	FILE *f;
+	f = fopen("/Users/matt/dev/Einstein/p1.txt", "wb");
+	branchDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, 1000);
+	fclose(f);
+	f = fopen("/Users/matt/dev/Einstein/p2.txt", "wb");
+	branchLinkDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, 1000);
+	fclose(f);
+#endif
 }
 
 // -------------------------------------------------------------------------- //

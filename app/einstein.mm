@@ -33,7 +33,8 @@
 int
 main(int argc, const char *argv[])
 {
-	return NSApplicationMain(argc, argv);
+  int ret = NSApplicationMain(argc, argv);  
+  return ret;
 }
 
 
