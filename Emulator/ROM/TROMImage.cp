@@ -48,6 +48,8 @@
 // Einstein
 #include "TMemoryConsts.h"
 #include "Emulator/NativeCalls/TVirtualizedCallsPatches.h"
+
+#include "TMemory.h"
 #include "TARMProcessor.h"
 #include "TJITGeneric_Macros.h"
 
@@ -88,15 +90,18 @@ T_ROM_INJECTION(0x00000000, "RESET") {
     fprintf(stderr, "RESET called with r0=0x%08x\n", ioCPU->mCurrentRegisters[TARMProcessor::kR0]);
     return ioUnit;
 }
+*/
 T_ROM_INJECTION(0x0000000c, "Prefetch Abort") {
-    fprintf(stderr, "PREFETCH ABORT\n");
+    fprintf(stderr, "PREFETCH ABORT: at 0x%08x\n", 
+            ioCPU->GetMemory()->GetFaultAddressRegister());
     return ioUnit;
 }
 T_ROM_INJECTION(0x00000010, "Data Abort") {
-    fprintf(stderr, "DATA ABORT\n");
+    fprintf(stderr, "DATA ABORT: accessing 0x%08x from 0x%08x\n", 
+            ioCPU->GetMemory()->GetFaultAddressRegister(),
+            ioCPU->mR14abt_Bkup-8);
     return ioUnit;
 }
-*/
 
 
 // -------------------------------------------------------------------------- //
