@@ -148,6 +148,15 @@ TJITGenericPage::Translate(
 	PushUnit(ioUnitCrsr, instrCount);
 	PushUnit(ioUnitCrsr, inVAddr);
 #endif
+
+	// handle injections before anything else
+	if ((inInstruction & 0xffc00000)==0xefc00000) {
+		inInstruction = Translate_Injection(
+											this,
+											ioUnitCrsr,
+											inInstruction,
+											inVAddr);
+	}
 	
 	int theTestKind = inInstruction >> 28;
 	KUInt16 testUnitCrsr = *ioUnitCrsr;

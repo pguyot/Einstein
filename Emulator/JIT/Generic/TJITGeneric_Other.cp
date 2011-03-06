@@ -46,7 +46,7 @@
 JITInstructionProto(test_data_abort) {
 	KUInt32 thePC, theAddress, theValue, offset;
 	TMemory* theMemoryInterface = ioCPU->GetMemory();
-
+	
 	//---- 002ddf28  ldr		r2,[r6]
 	thePC = 0x002ddf28 + 8;
 	theAddress = ioCPU->mCurrentRegisters[TARMProcessor::kR6];
@@ -56,7 +56,7 @@ JITInstructionProto(test_data_abort) {
 		MMUCALLNEXT_AFTERSETPC;
 	}
 	ioCPU->mCurrentRegisters[TARMProcessor::kR2] = theValue;
-
+	
 	//---- 002ddf2c  str		r1,[r2],#4
 	thePC = 0x002ddf2c + 8;
 	offset = 4;
@@ -106,21 +106,37 @@ JITInstructionProto(SWI)
 //  Implementing host-native calls using a stub will allow direct calls
 //  from other native functions, allowing full execution speed without 
 //  any register emulation.
-//
-//  This code is limited to MSVC on WIN32 until other platforms are verified.
 // -------------------------------------------------------------------------- //
 JITInstructionProto(CallHostNative)
 {
 	// Set the PC before jumping to the handler....
 	KUInt32 callIndex;
 	POPVALUE(callIndex);
-  JITFuncPtr stub = TROMPatch::GetAlbertStubAt(callIndex);
-  //printf("Albert: %3d:0x%08x\n", (int)callIndex, stub);
+	JITFuncPtr stub = TROMPatch::GetAlbertStubAt(callIndex);
+	//printf("Albert: %3d:0x%08x\n", (int)callIndex, stub);
 	if (!stub) {
 		CALLNEXTUNIT;
 	}
-  TARMProcessor::current = ioCPU;
+	TARMProcessor::current = ioCPU;
 	return stub(ioUnit, ioCPU);
+}
+
+// -------------------------------------------------------------------------- //
+//  * CallHostInjection
+//
+//  An Injection allows for a quick native call without disturbing the original
+//  instruction at the point of the injection.
+// -------------------------------------------------------------------------- //
+JITInstructionProto(CallHostInjection)
+{
+	// Set the PC before jumping to the handler....
+	KUInt32 callIndex;
+	POPVALUE(callIndex);
+	JITFuncPtr stub = TROMPatch::GetAlbertStubAt(callIndex);
+	if (stub) {
+		stub(ioUnit, ioCPU);
+	}
+	CALLNEXTUNIT;
 }
 
 // -------------------------------------------------------------------------- //
@@ -180,28 +196,49 @@ JITInstructionProto(CoprocRegisterTransfer)
 	MMUCALLNEXT_AFTERSETPC;
 }
 
+
 // -------------------------------------------------------------------------- //
-//  * Translate_SWIAndCoproc
+//  * Translate a native code injection
 // -------------------------------------------------------------------------- //
-void
-Translate_SWIAndCoproc(
+KUInt32
+Translate_Injection(
 					JITPageClass* inPage,
 					KUInt16* ioUnitCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr )
 {
+	KUInt32 ix = inInstruction & 0x003fffff;
+	PUSHFUNC(CallHostInjection);
+	PUSHVALUE(ix);
+	return TROMPatch::GetOriginalInstructionAt(ix);
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * Translate_SWIAndCoproc
+// -------------------------------------------------------------------------- //
+void
+Translate_SWIAndCoproc(
+					   JITPageClass* inPage,
+					   KUInt16* ioUnitCrsr,
+					   KUInt32 inInstruction,
+					   KUInt32 inVAddr )
+{
 	// -Cond-- 1  1  0  P  U  N  W  L  --Rn--- --CRd-- --CP#-- -----offset-------- Coproc Data Transfer
 	// -Cond-- 1  1  1  0  --CP Opc--- --CRn-- --CRd-- --CP#-- ---CP--- 0  --CRm-- Coproc Data Operation
 	// -Cond-- 1  1  1  0  -CPOpc-- L  --CRn-- --Rd--- --CP#-- ---CP--- 1  --CRm-- Coproc Register Transfer
 	// -Cond-- 1  1  1  1  -----------------ignored by processor------------------ Software Interrupt
+	// Extension for native calls:
+	// -Cond-- 1  1  1  1  1  0  ---------------------index----------------------- Call Native Code at Index
+	// -Cond-- 1  1  1  1  1  1  ---------------------index----------------------- Call Injection at Index
 	if (inInstruction & 0x02000000)
 	{
 		if (inInstruction & 0x01000000)
 		{
-			if (inInstruction & 0x00800000) {
+			if ((inInstruction & 0x00C00000)==0x00800000) {
 				// quick host native call
 				PUSHFUNC(CallHostNative);
-				PUSHVALUE(inInstruction & 0x007fffff);
+				PUSHVALUE(inInstruction & 0x003fffff);
 				return; // do not push the current PC
 			} else {
 				// SWI.
@@ -219,7 +256,7 @@ Translate_SWIAndCoproc(
 	} else {
 		PUSHFUNC(CoprocDataTransfer);
 	}
-
+	
 	// For all those methods, put the PC.
 	PUSHVALUE(inVAddr + 8);
 }
@@ -243,10 +280,10 @@ JITInstructionProto(BranchWithinPage)
 {
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-
+	
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
-
+	
 	// Branch.
 	SETPC(theNewPC);
 	return ioUnit+theDelta;
@@ -259,7 +296,7 @@ JITInstructionProto(BranchWithinPageFindDelta)
 {
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-
+	
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
 	
@@ -267,8 +304,8 @@ JITInstructionProto(BranchWithinPageFindDelta)
 	TMemory *theMemIntf = ioCPU->GetMemory();
 	SETPC(theNewPC);
 	JITUnit *nextUnit = theMemIntf->GetJITObject()
-		->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
-
+	->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
+	
 	// now change the JIT command to the final fast branch
 	ioUnit[ 0].fValue = nextUnit - ioUnit;
 	ioUnit[-2].fFuncPtr = BranchWithinPage;
@@ -284,7 +321,7 @@ JITInstructionProto(BranchWithLink)
 	POPVALUE(theNewLR);
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-
+	
 	// BL
 	ioCPU->mCurrentRegisters[14] = theNewLR;
 	MMUCALLNEXT(theNewPC);
@@ -301,7 +338,7 @@ JITInstructionProto(BranchWithLinkWithinPage)
 	POPVALUE(theNewPC);
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
-
+	
 	// BL
 	ioCPU->mCurrentRegisters[14] = theNewLR;
 	SETPC(theNewPC);
@@ -319,16 +356,16 @@ JITInstructionProto(BranchWithLinkWithinPageFindDelta)
 	POPVALUE(theNewPC);
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
-
+	
 	// set the link register
 	ioCPU->mCurrentRegisters[14] = theNewLR;
-
+	
 	// MMUCALLNEXT()
 	TMemory *theMemIntf = ioCPU->GetMemory();
 	SETPC(theNewPC);
 	JITUnit *nextUnit = theMemIntf->GetJITObject()
-		->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
-
+	->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
+	
 	// now change the JIT command to the final fast branch
 	ioUnit[ 0].fValue = nextUnit - ioUnit;
 	ioUnit[-3].fFuncPtr = BranchWithLinkWithinPage;
@@ -341,13 +378,13 @@ JITInstructionProto(BranchWithLinkWithinPageFindDelta)
 // -------------------------------------------------------------------------- //
 void
 Translate_Branch(
-					JITPageClass* inPage,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr )
+				 JITPageClass* inPage,
+				 KUInt16* ioUnitCrsr,
+				 KUInt32 inInstruction,
+				 KUInt32 inVAddr )
 {
 	// -Cond-- 1  0  1  L  ---------------------offset---------------------------- Branch
-
+	
 	// PC prefetch strategy: PC currently is 8 bytes ahead.
 	// When we enter this method, it should be 4 bytes ahead.
 	// The offset of the branch should be added to the PC and then PC will
@@ -355,14 +392,14 @@ Translate_Branch(
 	// E.g. here B here is coded EAFFFFFE, i.e. branch to offset -8.
 	// So what we need to do, for this emulator, is to add 4 to the
 	// final result.
-
+	
 	KUInt32 offset = (inInstruction & 0x007FFFFF) << 2;
 	if (inInstruction & 0x00800000)
 	{
 		offset |= 0xFE000000;
 	}
 	KUInt32 delta = offset + 8;
-
+	
 	// KUInt32 theOffsetInPage = inOffsetInPage + delta;
 	// optimize here:
 	// if (theOffsetInPage < kPageSize)
@@ -416,7 +453,7 @@ JITInstructionProto(DebuggerUND)
 	ioCPU->GetEmulator()->DebuggerUND( thePAddress );
 	
 	ioCPU->DoUndefinedInstruction();
-		
+	
 	// Don't execute next function.
 	MMUCALLNEXT_AFTERSETPC;
 }
@@ -444,9 +481,9 @@ JITInstructionProto(SoftwareBreakpoint)
 	POPVALUE(theInstruction);
 	POPPC();
 	SETPC(GETPC());
-
+	
 	ioCPU->GetEmulator()->Breakpoint( theInstruction );
-
+	
 	// Don't execute next function.
 	MMUCALLNEXT(GETPC());
 }
