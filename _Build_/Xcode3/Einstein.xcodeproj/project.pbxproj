@@ -547,7 +547,7 @@
 		C99E3438111B7C07002165EC /* TJITGeneric_Multiply_template.t */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TJITGeneric_Multiply_template.t; sourceTree = "<group>"; };
 		C99E3439111B7C07002165EC /* TJITGeneric_MultiplyAndAccumulate.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGeneric_MultiplyAndAccumulate.cp; sourceTree = "<group>"; };
 		C99E343A111B7C07002165EC /* TJITGeneric_MultiplyAndAccumulate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGeneric_MultiplyAndAccumulate.h; sourceTree = "<group>"; };
-		C99E343B111B7C07002165EC /* TJITGeneric_Other.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGeneric_Other.cp; sourceTree = "<group>"; };
+		C99E343B111B7C07002165EC /* TJITGeneric_Other.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGeneric_Other.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E343C111B7C07002165EC /* TJITGeneric_Other.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGeneric_Other.h; sourceTree = "<group>"; };
 		C99E343D111B7C07002165EC /* TJITGeneric_SingleDataSwap.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGeneric_SingleDataSwap.cp; sourceTree = "<group>"; };
 		C99E343E111B7C07002165EC /* TJITGeneric_SingleDataSwap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGeneric_SingleDataSwap.h; sourceTree = "<group>"; };
@@ -613,7 +613,7 @@
 		C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFlatROMImageWithREX.cp; sourceTree = "<group>"; };
 		C99E3485111B7C08002165EC /* TFlatROMImageWithREX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFlatROMImageWithREX.h; sourceTree = "<group>"; };
 		C99E3486111B7C08002165EC /* TROMImage.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TROMImage.cp; sourceTree = "<group>"; tabWidth = 4; };
-		C99E3487111B7C08002165EC /* TROMImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TROMImage.h; sourceTree = "<group>"; };
+		C99E3487111B7C08002165EC /* TROMImage.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TROMImage.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E348E111B7C08002165EC /* CocoaEmulatorApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaEmulatorApp.h; sourceTree = "<group>"; };
 		C99E348F111B7C08002165EC /* CocoaScreenProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaScreenProxy.h; sourceTree = "<group>"; };
 		C99E3490111B7C08002165EC /* CocoaScreenProxy.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CocoaScreenProxy.mm; sourceTree = "<group>"; };
@@ -651,8 +651,8 @@
 		C99E34C1111B7C08002165EC /* TMemory.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMemory.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E34C2111B7C08002165EC /* TMemory.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TMemory.h; sourceTree = "<group>"; tabWidth = 4; };
 		C99E34C3111B7C08002165EC /* TMemoryConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TMemoryConsts.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
-		C99E34C4111B7C08002165EC /* TMMU.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMMU.cp; sourceTree = "<group>"; };
-		C99E34C5111B7C08002165EC /* TMMU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMU.h; sourceTree = "<group>"; };
+		C99E34C4111B7C08002165EC /* TMMU.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMMU.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C99E34C5111B7C08002165EC /* TMMU.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TMMU.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E34C6111B7C08002165EC /* TNativePrimitives.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNativePrimitives.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E34C7111B7C08002165EC /* TNativePrimitives.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TNativePrimitives.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E3550111C111D002165EC /* ffi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi.h; sourceTree = "<group>"; };
@@ -1292,8 +1292,11 @@
 				C99E345C111B7C07002165EC /* TJITPage.h */,
 				C99E33FC111B7C07002165EC /* Generic */,
 			);
+			indentWidth = 4;
 			path = JIT;
 			sourceTree = "<group>";
+			tabWidth = 4;
+			usesTabs = 1;
 		};
 		C99E33FC111B7C07002165EC /* Generic */ = {
 			isa = PBXGroup;

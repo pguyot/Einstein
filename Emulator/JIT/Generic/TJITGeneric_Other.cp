@@ -29,10 +29,6 @@
 #include "TEmulator.h"
 #include "TROMImage.h"
 
-#ifdef JIT_PERFORMANCE
-#include "TJITPerformance.h"
-#endif
-
 #include "TJITGeneric_Macros.h"
 
 #include <Albert/sys/einstein.h>
@@ -82,12 +78,8 @@ JITInstructionProto(test_data_abort) {
 	CALLNEXTUNIT;	
 }
 
-//  002ddf2c  str r1,[r2],#4  | E4821004
 //TROMPatch p002ddf2c(0x002ddf2c, test_data_abort, "Test DataAbort scheme");
 
-
-
-// R15_SAFE
 
 // -------------------------------------------------------------------------- //
 //  * SWI
@@ -239,7 +231,6 @@ JITInstructionProto(Branch)
 {
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-	COUNTHIT(branchDestCount, theNewPC)
 	
 	// Branch.
 	MMUCALLNEXT(theNewPC);
@@ -252,7 +243,6 @@ JITInstructionProto(BranchWithinPage)
 {
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-	COUNTHIT(branchDestCount, theNewPC)
 
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
@@ -269,7 +259,6 @@ JITInstructionProto(BranchWithinPageFindDelta)
 {
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-	COUNTHIT(branchDestCount, theNewPC)
 
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
@@ -295,7 +284,6 @@ JITInstructionProto(BranchWithLink)
 	POPVALUE(theNewLR);
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-	COUNTHIT(branchLinkDestCount, theNewPC)
 
 	// BL
 	ioCPU->mCurrentRegisters[14] = theNewLR;
@@ -311,7 +299,6 @@ JITInstructionProto(BranchWithLinkWithinPage)
 	POPVALUE(theNewLR);
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-	COUNTHIT(branchLinkDestCount, theNewPC)
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
 
@@ -330,7 +317,6 @@ JITInstructionProto(BranchWithLinkWithinPageFindDelta)
 	POPVALUE(theNewLR);
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-	COUNTHIT(branchLinkDestCount, theNewPC)
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
 

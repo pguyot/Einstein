@@ -38,6 +38,10 @@
 #include "TJITGeneric_MultiplyAndAccumulate.h"
 #include "TJITGeneric_BlockDataTransfer.h"
 
+#ifdef JIT_PERFORMANCE
+#include "TJITPerformance.h"
+#endif
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -119,6 +123,18 @@ TJITGenericPage::PushUnit(KUInt16* ioUnitCrsr, KUIntPtr inUnit)
 	*ioUnitCrsr = theCrsr;
 }
 
+
+#ifdef JIT_PERFORMANCE
+JITInstructionProto(instrCount)
+{
+	KUInt32 pc;
+	POPVALUE(pc);
+	COUNTHIT(branchDestCount, pc)
+	EXECUTENEXTUNIT;
+}
+#endif
+
+
 // -------------------------------------------------------------------------- //
 //  * Translate( JITUnit*, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
@@ -128,6 +144,11 @@ TJITGenericPage::Translate(
 				KUInt32 inInstruction,
 				KUInt32 inVAddr )
 {
+#ifdef JIT_PERFORMANCE
+	PushUnit(ioUnitCrsr, instrCount);
+	PushUnit(ioUnitCrsr, inVAddr);
+#endif
+	
 	int theTestKind = inInstruction >> 28;
 	KUInt16 testUnitCrsr = *ioUnitCrsr;
 	if ((theTestKind != kTestAL) && (theTestKind != kTestNV))

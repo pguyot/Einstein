@@ -65,7 +65,7 @@ const KUInt32 k717006VirtualizationPatches[] = {
 	// __rt_udiv
 	(0x0038C8FC + 8) / sizeof(KUInt32),	TVirtualizedCallsPatches::k__rt_udiv,
 	// memmove
-  //0x00382440 / sizeof(KUInt32),   TVirtualizedCallsPatches::kmemmove,
+    //0x00382440 / sizeof(KUInt32),   TVirtualizedCallsPatches::kmemmove,
 	// symcmp__FPcT1
 	0x00358C9C / sizeof(KUInt32),	TVirtualizedCallsPatches::ksymcmp__FPcT1,
 };	
@@ -92,6 +92,7 @@ TROMPatch p0080aca4(0x0080aca4, 0x0020004d); //  M
 TROMPatch p0080aca8(0x0080aca8, 0x0065006e); // en
 TROMPatch p0080acac(0x0080acac, 0x00750000); // u
 #endif
+
 
 // -------------------------------------------------------------------------- //
 //  * TROMImage( void )
