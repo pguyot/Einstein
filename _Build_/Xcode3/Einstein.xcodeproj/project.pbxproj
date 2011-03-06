@@ -329,7 +329,7 @@
 		C99E3164111B7346002165EC /* button_power_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_power_on.png; sourceTree = "<group>"; };
 		C99E3165111B7346002165EC /* button_prefs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_prefs.png; sourceTree = "<group>"; };
 		C99E3166111B7346002165EC /* Einstein.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Einstein.icns; sourceTree = "<group>"; };
-		C99E3175111B73A1002165EC /* TMonitor.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMonitor.cp; sourceTree = "<group>"; };
+		C99E3175111B73A1002165EC /* TMonitor.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMonitor.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E3176111B73A1002165EC /* TMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMonitor.h; sourceTree = "<group>"; };
 		C99E3177111B73A1002165EC /* TSymbolList.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TSymbolList.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E3178111B73A1002165EC /* TSymbolList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSymbolList.h; sourceTree = "<group>"; };

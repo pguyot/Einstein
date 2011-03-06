@@ -819,6 +819,10 @@ TMonitor::ExecuteCommand( const char* inCommand )
 		mLog->Disable();
 	} else if (::strcmp(inCommand, "enable log") == 0) {
 		mLog->Enable();
+	} else if (::strcmp(inCommand, "help") == 0
+		|| ::strcmp(inCommand, "h") == 0
+		|| ::strcmp(inCommand, "?") == 0) {
+		PrintHelp();
 	} else {
 		theResult = false;
 	}

@@ -403,7 +403,10 @@ static TCocoaAppController* gInstance = nil;
 	}
 	
 	mMonitorLog = new TBufferLog();
-	mSymbolList = new TSymbolList("symbols.txt");
+	
+	NSString* theSymbolPath = [[theROMPath stringByDeletingLastPathComponent] stringByAppendingString: @"/symbols.txt"];
+	mSymbolList = new TSymbolList([theSymbolPath UTF8String]);
+	
 	mMonitor = new TMacMonitor(mMonitorLog, mEmulator, mSymbolList);
 	[mMonitorController setMonitor:mMonitor];
 	
