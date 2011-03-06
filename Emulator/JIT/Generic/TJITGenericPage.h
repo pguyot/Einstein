@@ -56,6 +56,7 @@ class TJITGenericPage
 	:
 		public TJITPage< TJITGenericPage >
 {
+
 public:
 	///
 	/// Access from TJITGeneric
@@ -99,6 +100,18 @@ public:
 		return &mUnits[mUnitsTable[inOffset]];
 	}
 
+	///
+	/// Subroutine to translate an instruction.
+	///
+	/// \param ioUnit	unit to translate.
+	/// \param inPAddr	physical address of the instruction.
+	/// \param inInstruction	instruction to translate.
+	///
+	void Translate(
+				   KUInt16* ioUnitCrsr,
+				   KUInt32 inInstruction,
+				   KUInt32 inVAddr );
+	
 private:
 	/// Test bits.
 	enum ETestKind {
@@ -137,18 +150,6 @@ private:
 	static JITUnit* Halt(
 					JITUnit* ioUnit,
 					TARMProcessor* ioObject );
-
-	///
-	/// Subroutine to translate an instruction.
-	///
-	/// \param ioUnit	unit to translate.
-	/// \param inPAddr	physical address of the instruction.
-	/// \param inInstruction	instruction to translate.
-	///
-	void Translate(
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr );
 
 	///
 	/// Subroutine to put the test in the units table.

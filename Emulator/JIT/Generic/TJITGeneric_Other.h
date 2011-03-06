@@ -32,12 +32,19 @@
 
 #include "TJITGeneric_Macros.h"
 
-void
-Translate_SWIAndCoproc(
+KUInt32
+Translate_Injection(
 					JITPageClass* inPage,
 					KUInt16* ioUnitCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr );
+
+void
+Translate_SWIAndCoproc(
+					   JITPageClass* inPage,
+					   KUInt16* ioUnitCrsr,
+					   KUInt32 inInstruction,
+					   KUInt32 inVAddr );
 
 void
 Translate_Branch(

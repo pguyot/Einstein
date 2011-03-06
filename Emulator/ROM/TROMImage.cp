@@ -48,6 +48,8 @@
 // Einstein
 #include "TMemoryConsts.h"
 #include "Emulator/NativeCalls/TVirtualizedCallsPatches.h"
+#include "TARMProcessor.h"
+#include "TJITGeneric_Macros.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -80,18 +82,21 @@ TROMPatch p0001894c(0x0001894c, 0xe1a0f00e, "Obsolete CleanPageInDCache"); // # 
 TROMPatch p000db0d8(0x000db0d8, 0xe3a00000, "BeaconDetect (1/2)"); // #  mov r0, 0x00000000
 TROMPatch p000db0dc(0x000db0dc, 0xe1a0f00e, "BeaconDetect (2/2)"); // #  mov pc, lr
 
-#ifdef TARGET_IOS_XXX
-// for iOS, the patch changes the REx menu "Quit Einstein" to "Einstein Menu"
-// to call a different platform function
-TROMPatch p00800af0(0x00800af0, 0x00000121, "iOS Menu Patch");  // Einstein Menu
-TROMPatch p0080ac94(0x0080ac94, 0x00450069); // Ei
-TROMPatch p0080ac98(0x0080ac98, 0x006e0073); // ns
-TROMPatch p0080ac9c(0x0080ac9c, 0x00740065); // te
-TROMPatch p0080aca0(0x0080aca0, 0x0069006e); // in
-TROMPatch p0080aca4(0x0080aca4, 0x0020004d); //  M
-TROMPatch p0080aca8(0x0080aca8, 0x0065006e); // en
-TROMPatch p0080acac(0x0080acac, 0x00750000); // u
-#endif
+/* Example ROM injections. The return value is ignored. */
+/*
+T_ROM_INJECTION(0x00000000, "RESET") {
+    fprintf(stderr, "RESET called with r0=0x%08x\n", ioCPU->mCurrentRegisters[TARMProcessor::kR0]);
+    return ioUnit;
+}
+T_ROM_INJECTION(0x0000000c, "Prefetch Abort") {
+    fprintf(stderr, "PREFETCH ABORT\n");
+    return ioUnit;
+}
+T_ROM_INJECTION(0x00000010, "Data Abort") {
+    fprintf(stderr, "DATA ABORT\n");
+    return ioUnit;
+}
+*/
 
 
 // -------------------------------------------------------------------------- //
@@ -551,9 +556,7 @@ TROMImage::DoPatchROMFromDatabase( SImage* inImagePtr )
     TROMPatch *p;
     for (p=TROMPatch::first(); p; p=p->next()) 
     {
-        KUInt32 address = p->address();
-        KUInt32 value = p->value();
-        thePointer[address] = value;
+        p->apply(thePointer);
     }
 }
 
@@ -631,9 +634,9 @@ stub_(stub),
 function_(function),
 method_(0L)
 {
-  first_ = this;
-  printf("Adding ROM patch to Albert function: %3d = %s\n", (int)nPatch, name);
-  value_ |= addPatch(this);
+    first_ = this;
+    printf("Adding ROM patch to Albert function: %3d = %s\n", (int)nPatch, name);
+    value_ |= addPatch(this);
 }
 
 // -------------------------------------------------------------------------- //
@@ -647,9 +650,9 @@ stub_(stub),
 function_(0L),
 method_(0L)
 {
-  first_ = this;
-  printf("Adding ROM patch to JIT function: %3d = %s\n", (int)nPatch, name);
-  value_ |= addPatch(this);
+    first_ = this;
+    printf("Adding ROM patch to JIT function: %3d = %s\n", (int)nPatch, name);
+    value_ |= addPatch(this);
 }
 
 // -------------------------------------------------------------------------- //
@@ -657,15 +660,15 @@ method_(0L)
 // -------------------------------------------------------------------------- //
 TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyMethodPtr method)
 : next_(first_),
-  address_(addr>>2),
-  value_(0xef800000),
-  stub_(stub),
-  function_(0L),
-  method_(method)
+address_(addr>>2),
+value_(0xef800000),
+stub_(stub),
+function_(0L),
+method_(method)
 {
-  first_ = this;
-  printf("Adding ROM patch to Albert method:   %3d = %s\n", (int)nPatch, name);
-  value_ |= addPatch(this);
+    first_ = this;
+    printf("Adding ROM patch to Albert method:   %3d = %s\n", (int)nPatch, name);
+    value_ |= addPatch(this);
 }
 
 // -------------------------------------------------------------------------- //
@@ -673,10 +676,10 @@ TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyMethodP
 // -------------------------------------------------------------------------- //
 JITFuncPtr TROMPatch::GetAlbertStubAt(KUInt32 index) 
 {
-  index = index & 0x007fffff;
-  if (index>=nPatch)
-    return 0L;
-  return patch_[index]->stub_;
+    index = index & 0x007fffff;
+    if (index>=nPatch)
+        return 0L;
+    return patch_[index]->stub_;
 }
 
 // -------------------------------------------------------------------------- //
@@ -684,10 +687,10 @@ JITFuncPtr TROMPatch::GetAlbertStubAt(KUInt32 index)
 // -------------------------------------------------------------------------- //
 AnyFunctionPtr TROMPatch::GetAlbertFunctionAt(KUInt32 index)
 {
-  index = index & 0x007fffff;
-  if (index>=nPatch)
-    return 0L;
-  return patch_[index]->function_;
+    index = index & 0x007fffff;
+    if (index>=nPatch)
+        return 0L;
+    return patch_[index]->function_;
 }
 
 // -------------------------------------------------------------------------- //
@@ -695,10 +698,21 @@ AnyFunctionPtr TROMPatch::GetAlbertFunctionAt(KUInt32 index)
 // -------------------------------------------------------------------------- //
 AnyMethodPtr TROMPatch::GetAlbertMethodAt(KUInt32 index) 
 {
-  index = index & 0x007fffff;
-  if (index>=nPatch)
-    return 0L;
-  return patch_[index]->method_;
+    index = index & 0x007fffff;
+    if (index>=nPatch)
+        return 0L;
+    return patch_[index]->method_;
+}
+
+// -------------------------------------------------------------------------- //
+//  * Return the address of the Albert function
+// -------------------------------------------------------------------------- //
+KUInt32 TROMPatch::GetOriginalInstructionAt(KUInt32 index) 
+{
+    index = index & 0x007fffff;
+    if (index>=nPatch)
+        return 0L;
+    return patch_[index]->originalInstruction_;
 }
 
 // -------------------------------------------------------------------------- //
@@ -706,13 +720,31 @@ AnyMethodPtr TROMPatch::GetAlbertMethodAt(KUInt32 index)
 // -------------------------------------------------------------------------- //
 KUInt32 TROMPatch::addPatch(TROMPatch *p)
 {
-  if (nPatch==NPatch) {
-    NPatch += 256;
-    patch_ = (TROMPatch**)realloc(patch_, NPatch*sizeof(TROMPatch*));
-  }
-  patch_[nPatch++] = p;
-  return (nPatch-1);
+    if (nPatch==NPatch) {
+        NPatch += 256;
+        patch_ = (TROMPatch**)realloc(patch_, NPatch*sizeof(TROMPatch*));
+    }
+    patch_[nPatch++] = p;
+    return (nPatch-1);
 }
+
+// -------------------------------------------------------------------------- //
+//  * Apply the patch to the ROM words
+// -------------------------------------------------------------------------- //
+void TROMPatch::apply(KUInt32 *ROM)
+{
+    ROM[address()] = value();
+}
+
+// -------------------------------------------------------------------------- //
+//  * Apply the injection patch to the ROM words
+// -------------------------------------------------------------------------- //
+void TROMInjection::apply(KUInt32 *ROM)
+{
+    originalInstruction_ = ROM[address()];
+    ROM[address()] = value() | 0xefc00000;
+}
+
 
 
 // ====================================================== //

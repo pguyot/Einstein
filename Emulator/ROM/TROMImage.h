@@ -217,62 +217,96 @@ typedef void (TAnyClass::*AnyMethodPtr)();
 /// freshly loaded ROM.
 /// Usage is currently limited to ROM v717006
 class TROMPatch {
-
-private:
-  static TROMPatch *first_;
-  TROMPatch *next_;
-  KUInt32 address_;
-  KUInt32 value_;
-  JITFuncPtr stub_;
-  AnyFunctionPtr function_;
-  AnyMethodPtr method_;
-  
-  static TROMPatch **patch_;
-  static KUInt32 nPatch, NPatch;
-  static KUInt32 addPatch(TROMPatch *patch);
-  
+	
+protected:
+	static TROMPatch *first_;
+	TROMPatch *next_;
+	KUInt32 address_;
+	KUInt32 value_;
+	KUInt32 originalInstruction_;
+	JITFuncPtr stub_;
+	AnyFunctionPtr function_;
+	AnyMethodPtr method_;
+	
+	static TROMPatch **patch_;
+	static KUInt32 nPatch, NPatch;
+	static KUInt32 addPatch(TROMPatch *patch);
+	
 public:
-  /// Create and add a new patch
-  TROMPatch(KUInt32 address, KUInt32 value);
-  
-  /// Create and add a new patch
-  TROMPatch(KUInt32 address, KUInt32 value, const char *name);
-  
-  /// Create and add a call to a JIT instruction
-  TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name);
-  
-  /// Create and add a call to an Albert function or static method
-  TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyFunctionPtr function);
-  
-  /// Create and add a call to an Albert class method
-  TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyMethodPtr function);
-  
-  /// Return the first patch in the list.
-  /// @return NULL if no patches
-  static TROMPatch *first() { return first_; }
-  
-  /// Return the next patch in the list
-  /// @return NULL if no more patches in the database
-  TROMPatch *next() { return next_; }
-  
-  /// Return the address of this patch (must be dividable by four)
-  KUInt32 address() { return address_; }
-  
-  /// Return the 32-bit patch value for this address
-  KUInt32 value() { return value_; }
-  
-  /// Return the Albert stub by index
-  static JITFuncPtr GetAlbertStubAt(KUInt32 index);
-
-  /// Return the Albert function by index
-  static AnyFunctionPtr GetAlbertFunctionAt(KUInt32 index);
-
-  /// Return the Albert class method by index
-  static AnyMethodPtr GetAlbertMethodAt(KUInt32 index);
+	/// Create and add a new patch
+	TROMPatch(KUInt32 address, KUInt32 value);
+	
+	/// Create and add a new patch
+	TROMPatch(KUInt32 address, KUInt32 value, const char *name);
+	
+	/// Create and add a call to a JIT instruction
+	TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name);
+	
+	/// Create and add a call to an Albert function or static method
+	TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyFunctionPtr function);
+	
+	/// Create and add a call to an Albert class method
+	TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyMethodPtr function);
+	
+	/// Destructor is empty
+	virtual ~TROMPatch() { }
+	
+	/// Return the first patch in the list.
+	/// @return NULL if no patches
+	static TROMPatch *first() { return first_; }
+	
+	/// Return the next patch in the list
+	/// @return NULL if no more patches in the database
+	TROMPatch *next() { return next_; }
+	
+	/// Return the address of this patch (must be dividable by four)
+	KUInt32 address() { return address_; }
+	
+	/// Return the 32-bit patch value for this address
+	KUInt32 value() { return value_; }
+	
+	/// Set the original code for this address
+	void originalInstruction(KUInt32 instr) { originalInstruction_ = instr; }
+	
+	/// Return the Albert stub by index
+	static JITFuncPtr GetAlbertStubAt(KUInt32 index);
+	
+	/// Return the Albert function by index
+	static AnyFunctionPtr GetAlbertFunctionAt(KUInt32 index);
+	
+	/// Return the Albert class method by index
+	static AnyMethodPtr GetAlbertMethodAt(KUInt32 index);
+	
+	/// Return the original ROM instruction
+	static KUInt32 GetOriginalInstructionAt(KUInt32 index);
+	
+	/// Patch the ROM word
+	virtual void apply(KUInt32 *ROM);
 };
 
+
+/// An Injection is different to a Patch. It will call native code, but then 
+/// return and execute the original code.
+class TROMInjection : public TROMPatch {
+	
+public:
+	/// Create and add a call to a JIT instruction as an injection
+	TROMInjection(KUInt32 address, JITFuncPtr stub, const char *name)
+	: TROMPatch(address, stub, name) { }
+
+	/// Patch the ROM word
+	virtual void apply(KUInt32 *ROM);
+};
+
+
+#define T_ROM_INJECTION(addr, name) \
+	extern JITInstructionProto(p##addr); \
+	TROMInjection i##addr(addr, p##addr, name); \
+	JITInstructionProto(p##addr)
+
+
 #endif
-		// _TROMIMAGE_H
+// _TROMIMAGE_H
 
 // =================================================================== //
 // By long-standing tradition, I take this opportunity to savage other //
