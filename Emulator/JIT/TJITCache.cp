@@ -37,7 +37,7 @@ using namespace std;
 // -------------------------------------------------------------------------- //
 // Constantes & globales.
 // -------------------------------------------------------------------------- //
-#define kTJITCacheStats	0
+#define kTJITCacheStats	1
 
 #if kTJITCacheStats
 static KUInt32 gNbHits = 0;					///< Nombre de hits.

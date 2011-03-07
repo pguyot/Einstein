@@ -144,6 +144,9 @@ TJITGenericPage::Translate(
 				KUInt32 inInstruction,
 				KUInt32 inVAddr )
 {
+	if (inVAddr==0) {
+		int x = 3;
+	}
 #ifdef JIT_PERFORMANCE
 	PushUnit(ioUnitCrsr, instrCount);
 	PushUnit(ioUnitCrsr, inVAddr);
