@@ -103,6 +103,12 @@ T_ROM_INJECTION(0x00000010, "Data Abort") {
     return ioUnit;
 }
 
+/*
+T_ROM_INJECTION(0x0038D8DC, "Floating Point Exception") {
+    fprintf(stderr, "Floating Point Exception\n");
+    return ioUnit;
+}
+*/
 
 // -------------------------------------------------------------------------- //
 //  * TROMImage( void )

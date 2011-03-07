@@ -34,6 +34,22 @@
 #include <Albert/sys/einstein.h>
 
 /*
+ Floating point math emulation
+ 
+ The SA110 processor has no floating point coprocessor. It emulates FP 
+ instructions in hardware. Einstein then emulates the emulation. I am sure you
+ can see where I am going.
+ 
+ In order to increase speed, it would be nice to write new JIT code that 
+ generates native code for all FP instructions, just as it does for ARM integer
+ instructions. Even though floating point is used sparsely in the ROM, this 
+ should still make for a bit of an acceleration.
+ 
+ All FP registers are stored at __fp_regs (0x0C105A5C). There are 8 registers.
+ Most instructions are 'd', some are 's' precission.
+*/
+
+/*
  This function tests MMU DataAbort hits in native code. If a memory access 
  fails, DataAbort will be called. After handling the memory fault, JIT will
  continue in the original ROM instead of returning to the native code.
