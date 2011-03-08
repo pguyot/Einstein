@@ -13,10 +13,16 @@
 # limitations under the License.
 #
 LOCAL_PATH := $(call my-dir)
+LOCAL_PATH := $(call my-dir)/../../..
 
 include $(CLEAR_VARS)
 
+LOCAL_CPP_EXTENSION := .cp
+LOCAL_CFLAGS    := -D TARGET_OS_ANDROID=1
+
 LOCAL_MODULE    := einstein
-LOCAL_SRC_FILES := einstein.c
+LOCAL_SRC_FILES := einstein.c \
+	../../../K/Misc/TRefCounter.cp
+LOCAL_SRC_FILES := K/Misc/TRefCounter.cp
 
 include $(BUILD_SHARED_LIBRARY)
