@@ -19,6 +19,8 @@
 		C901E52E1326566D0074513E /* TIOException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BD111B7570002165EC /* TIOException.cp */; };
 		C901E52F1326566F0074513E /* TMemError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B8111B7570002165EC /* TMemError.cp */; };
 		C901E530132656710074513E /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
+		C901E551132659120074513E /* TCircleBuffer.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3321111B7570002165EC /* TCircleBuffer.cp */; };
+		C901E552132659140074513E /* TMappedFile.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3324111B7570002165EC /* TMappedFile.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
 		C932C4C211A1AB5D00F6A7E4 /* TNE2000Card.cp in Sources */ = {isa = PBXBuildFile; fileRef = C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */; };
@@ -121,67 +123,16 @@
 		C9B4A5371242E0DE003F7AD5 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C9B4A5361242E0DE003F7AD5 /* Settings.bundle */; };
 		C9B4AA39123D474800D8D2C7 /* iEinsteinViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */; };
 		C9B4AA3B123D474800D8D2C7 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = C9B4AA35123D474800D8D2C7 /* MainWindow.xib */; };
-		C9B4AAD2123D5AB800D8D2C7 /* TCircleBuffer.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3321111B7570002165EC /* TCircleBuffer.cp */; };
-		C9B4AAE5123D5F1F00D8D2C7 /* U3DES.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32AB111B7570002165EC /* U3DES.cp */; };
-		C9B4AAE6123D5F2000D8D2C7 /* UDES.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32AD111B7570002165EC /* UDES.cp */; };
-		C9B4AAE7123D5F2100D8D2C7 /* UDESTables.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32AF111B7570002165EC /* UDESTables.cp */; };
 		C9B4AAEC123D5FA900D8D2C7 /* TMemError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B8111B7570002165EC /* TMemError.cp */; };
 		C9B4AAED123D5FAA00D8D2C7 /* TIOException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BD111B7570002165EC /* TIOException.cp */; };
 		C9B4AAEE123D5FAB00D8D2C7 /* TException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BF111B7570002165EC /* TException.cp */; };
 		C9B4AAEF123D5FAC00D8D2C7 /* TError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B6111B7570002165EC /* TError.cp */; };
 		C9B4AAF0123D5FAC00D8D2C7 /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
-		C9B4AAF1123D5FC500D8D2C7 /* TInt64.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3312111B7570002165EC /* TInt64.cp */; };
-		C9B4AAF2123D5FC600D8D2C7 /* TMT19937RandomGenerator.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3314111B7570002165EC /* TMT19937RandomGenerator.cp */; };
-		C9B4AAF3123D5FC700D8D2C7 /* TRandomGenerator.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3316111B7570002165EC /* TRandomGenerator.cp */; };
-		C9B4AAF4123D5FC700D8D2C7 /* TSInt64.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3318111B7570002165EC /* TSInt64.cp */; };
-		C9B4AAF5123D5FC800D8D2C7 /* TUInt64.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E331A111B7570002165EC /* TUInt64.cp */; };
-		C9B4AAF6123D5FC900D8D2C7 /* UTInt64.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E331C111B7570002165EC /* UTInt64.cp */; };
-		C9B4AAF9123D5FEC00D8D2C7 /* TGPBooleanData.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32CD111B7570002165EC /* TGPBooleanData.cp */; };
-		C9B4AAFA123D5FEE00D8D2C7 /* TGPCAKoza.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32C3111B7570002165EC /* TGPCAKoza.cp */; };
-		C9B4AAFB123D5FEF00D8D2C7 /* TGPCreationAlgorithm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32C5111B7570002165EC /* TGPCreationAlgorithm.cp */; };
-		C9B4AAFC123D5FF000D8D2C7 /* TGPData.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32CF111B7570002165EC /* TGPData.cp */; };
-		C9B4AAFD123D5FF100D8D2C7 /* TGPDataRef.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32D1111B7570002165EC /* TGPDataRef.cp */; };
-		C9B4AAFE123D5FF200D8D2C7 /* TGPDoubleFitness.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32DA111B7570002165EC /* TGPDoubleFitness.cp */; };
-		C9B4AAFF123D5FF300D8D2C7 /* TGPEvaluationContext.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32EA111B7570002165EC /* TGPEvaluationContext.cp */; };
-		C9B4AB00123D5FF400D8D2C7 /* TGPFitness.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32DC111B7570002165EC /* TGPFitness.cp */; };
-		C9B4AB01123D5FF600D8D2C7 /* TGPGetStaticVariable.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E330B111B7570002165EC /* TGPGetStaticVariable.cp */; };
-		C9B4AB02123D5FF700D8D2C7 /* TGPInterpreter.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32EC111B7570002165EC /* TGPInterpreter.cp */; };
-		C9B4AB03123D5FF800D8D2C7 /* TGPLanguage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32DF111B7570002165EC /* TGPLanguage.cp */; };
-		C9B4AB04123D5FFA00D8D2C7 /* TGPNode.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3302111B7570002165EC /* TGPNode.cp */; };
-		C9B4AB05123D5FFB00D8D2C7 /* TGPNodeAnd.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32F5111B7570002165EC /* TGPNodeAnd.cp */; };
-		C9B4AB06123D5FFD00D8D2C7 /* TGPNodeBoolean.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32F7111B7570002165EC /* TGPNodeBoolean.cp */; };
-		C9B4AB07123D5FFE00D8D2C7 /* TGPNodeConst.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3304111B7570002165EC /* TGPNodeConst.cp */; };
-		C9B4AB08123D600000D8D2C7 /* TGPNodeDo.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32FE111B7570002165EC /* TGPNodeDo.cp */; };
-		C9B4AB09123D600200D8D2C7 /* TGPNodeIfThenElse.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3300111B7570002165EC /* TGPNodeIfThenElse.cp */; };
-		C9B4AB0A123D600400D8D2C7 /* TGPNodeLeaf.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3306111B7570002165EC /* TGPNodeLeaf.cp */; };
-		C9B4AB0B123D600600D8D2C7 /* TGPNodeNot.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32F9111B7570002165EC /* TGPNodeNot.cp */; };
-		C9B4AB0C123D600700D8D2C7 /* TGPNodeOr.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32FB111B7570002165EC /* TGPNodeOr.cp */; };
-		C9B4AB0D123D600800D8D2C7 /* TGPNodeRef.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3308111B7570002165EC /* TGPNodeRef.cp */; };
-		C9B4AB0E123D600A00D8D2C7 /* TGPNumberData.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32C9111B7570002165EC /* TGPNumberData.cp */; };
-		C9B4AB0F123D600C00D8D2C7 /* TGPSelection.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32E2111B7570002165EC /* TGPSelection.cp */; };
-		C9B4AB10123D600D00D8D2C7 /* TGPSetStaticVariable.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E330D111B7570002165EC /* TGPSetStaticVariable.cp */; };
-		C9B4AB11123D600E00D8D2C7 /* TGPSimpleInterpreter.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32EE111B7570002165EC /* TGPSimpleInterpreter.cp */; };
-		C9B4AB12123D601000D8D2C7 /* TGPSInt32Data.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32CB111B7570002165EC /* TGPSInt32Data.cp */; };
-		C9B4AB13123D601100D8D2C7 /* TGPSortSelection.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32E4111B7570002165EC /* TGPSortSelection.cp */; };
-		C9B4AB14123D601300D8D2C7 /* TGPSoup.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32F0111B7570002165EC /* TGPSoup.cp */; };
-		C9B4AB15123D601600D8D2C7 /* TGPStringData.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32D3111B7570002165EC /* TGPStringData.cp */; };
-		C9B4AB16123D601700D8D2C7 /* TGPTournamentSelection.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32E6111B7570002165EC /* TGPTournamentSelection.cp */; };
-		C9B4AB17123D601800D8D2C7 /* TGPTree.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E330F111B7570002165EC /* TGPTree.cp */; };
-		C9B4AB18123D601A00D8D2C7 /* TGPTruncationSelection.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32E8111B7570002165EC /* TGPTruncationSelection.cp */; };
-		C9B4AB19123D601B00D8D2C7 /* TGPType.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32D5111B7570002165EC /* TGPType.cp */; };
-		C9B4AB1A123D601C00D8D2C7 /* TGPVoidData.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32D7111B7570002165EC /* TGPVoidData.cp */; };
-		C9B4AB2E123D60B200D8D2C7 /* TMappedFile.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3324111B7570002165EC /* TMappedFile.cp */; };
-		C9B4AB2F123D60B300D8D2C7 /* TRefCounter.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3328111B7570002165EC /* TRefCounter.cp */; };
-		C9B4AB30123D60B500D8D2C7 /* UBase64.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E332B111B7570002165EC /* UBase64.cp */; };
-		C9B4AB31123D60B600D8D2C7 /* UPStrings.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E332D111B7570002165EC /* UPStrings.cp */; };
 		C9B4AB32123D60C600D8D2C7 /* TFileStream.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3330111B7570002165EC /* TFileStream.cp */; };
 		C9B4AB33123D60C700D8D2C7 /* TStream.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3333111B7570002165EC /* TStream.cp */; };
 		C9B4AB34123D60E500D8D2C7 /* TCondVar.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E333F111B7570002165EC /* TCondVar.cp */; };
 		C9B4AB35123D60E600D8D2C7 /* TMutex.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3341111B7570002165EC /* TMutex.cp */; };
 		C9B4AB36123D60E800D8D2C7 /* TThread.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3343111B7570002165EC /* TThread.cp */; };
-		C9B4AB37123D60F900D8D2C7 /* TMutableStringRef.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3346111B7570002165EC /* TMutableStringRef.cp */; };
-		C9B4AB38123D60FB00D8D2C7 /* TString.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3348111B7570002165EC /* TString.cp */; };
-		C9B4AB39123D60FC00D8D2C7 /* TStringRef.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334A111B7570002165EC /* TStringRef.cp */; };
 		C9B4AB3A123D60FF00D8D2C7 /* UUTF16Conv.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334D111B7570002165EC /* UUTF16Conv.cp */; };
 		C9B4AB3B123D610000D8D2C7 /* UUTF16CStr.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334F111B7570002165EC /* UUTF16CStr.cp */; };
 		C9B4AB5F123D647900D8D2C7 /* TJITGeneric.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E340F111B7C07002165EC /* TJITGeneric.cp */; };
@@ -1774,67 +1725,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C9B4AAD2123D5AB800D8D2C7 /* TCircleBuffer.cp in Sources */,
-				C9B4AAE5123D5F1F00D8D2C7 /* U3DES.cp in Sources */,
-				C9B4AAE6123D5F2000D8D2C7 /* UDES.cp in Sources */,
-				C9B4AAE7123D5F2100D8D2C7 /* UDESTables.cp in Sources */,
 				C9B4AAEC123D5FA900D8D2C7 /* TMemError.cp in Sources */,
 				C9B4AAED123D5FAA00D8D2C7 /* TIOException.cp in Sources */,
 				C9B4AAEE123D5FAB00D8D2C7 /* TException.cp in Sources */,
 				C9B4AAEF123D5FAC00D8D2C7 /* TError.cp in Sources */,
 				C9B4AAF0123D5FAC00D8D2C7 /* TEOFException.cp in Sources */,
-				C9B4AAF1123D5FC500D8D2C7 /* TInt64.cp in Sources */,
-				C9B4AAF2123D5FC600D8D2C7 /* TMT19937RandomGenerator.cp in Sources */,
-				C9B4AAF3123D5FC700D8D2C7 /* TRandomGenerator.cp in Sources */,
-				C9B4AAF4123D5FC700D8D2C7 /* TSInt64.cp in Sources */,
-				C9B4AAF5123D5FC800D8D2C7 /* TUInt64.cp in Sources */,
-				C9B4AAF6123D5FC900D8D2C7 /* UTInt64.cp in Sources */,
-				C9B4AAF9123D5FEC00D8D2C7 /* TGPBooleanData.cp in Sources */,
-				C9B4AAFA123D5FEE00D8D2C7 /* TGPCAKoza.cp in Sources */,
-				C9B4AAFB123D5FEF00D8D2C7 /* TGPCreationAlgorithm.cp in Sources */,
-				C9B4AAFC123D5FF000D8D2C7 /* TGPData.cp in Sources */,
-				C9B4AAFD123D5FF100D8D2C7 /* TGPDataRef.cp in Sources */,
-				C9B4AAFE123D5FF200D8D2C7 /* TGPDoubleFitness.cp in Sources */,
-				C9B4AAFF123D5FF300D8D2C7 /* TGPEvaluationContext.cp in Sources */,
-				C9B4AB00123D5FF400D8D2C7 /* TGPFitness.cp in Sources */,
-				C9B4AB01123D5FF600D8D2C7 /* TGPGetStaticVariable.cp in Sources */,
-				C9B4AB02123D5FF700D8D2C7 /* TGPInterpreter.cp in Sources */,
-				C9B4AB03123D5FF800D8D2C7 /* TGPLanguage.cp in Sources */,
-				C9B4AB04123D5FFA00D8D2C7 /* TGPNode.cp in Sources */,
-				C9B4AB05123D5FFB00D8D2C7 /* TGPNodeAnd.cp in Sources */,
-				C9B4AB06123D5FFD00D8D2C7 /* TGPNodeBoolean.cp in Sources */,
-				C9B4AB07123D5FFE00D8D2C7 /* TGPNodeConst.cp in Sources */,
-				C9B4AB08123D600000D8D2C7 /* TGPNodeDo.cp in Sources */,
-				C9B4AB09123D600200D8D2C7 /* TGPNodeIfThenElse.cp in Sources */,
-				C9B4AB0A123D600400D8D2C7 /* TGPNodeLeaf.cp in Sources */,
-				C9B4AB0B123D600600D8D2C7 /* TGPNodeNot.cp in Sources */,
-				C9B4AB0C123D600700D8D2C7 /* TGPNodeOr.cp in Sources */,
-				C9B4AB0D123D600800D8D2C7 /* TGPNodeRef.cp in Sources */,
-				C9B4AB0E123D600A00D8D2C7 /* TGPNumberData.cp in Sources */,
-				C9B4AB0F123D600C00D8D2C7 /* TGPSelection.cp in Sources */,
-				C9B4AB10123D600D00D8D2C7 /* TGPSetStaticVariable.cp in Sources */,
-				C9B4AB11123D600E00D8D2C7 /* TGPSimpleInterpreter.cp in Sources */,
-				C9B4AB12123D601000D8D2C7 /* TGPSInt32Data.cp in Sources */,
-				C9B4AB13123D601100D8D2C7 /* TGPSortSelection.cp in Sources */,
-				C9B4AB14123D601300D8D2C7 /* TGPSoup.cp in Sources */,
-				C9B4AB15123D601600D8D2C7 /* TGPStringData.cp in Sources */,
-				C9B4AB16123D601700D8D2C7 /* TGPTournamentSelection.cp in Sources */,
-				C9B4AB17123D601800D8D2C7 /* TGPTree.cp in Sources */,
-				C9B4AB18123D601A00D8D2C7 /* TGPTruncationSelection.cp in Sources */,
-				C9B4AB19123D601B00D8D2C7 /* TGPType.cp in Sources */,
-				C9B4AB1A123D601C00D8D2C7 /* TGPVoidData.cp in Sources */,
-				C9B4AB2E123D60B200D8D2C7 /* TMappedFile.cp in Sources */,
-				C9B4AB2F123D60B300D8D2C7 /* TRefCounter.cp in Sources */,
-				C9B4AB30123D60B500D8D2C7 /* UBase64.cp in Sources */,
-				C9B4AB31123D60B600D8D2C7 /* UPStrings.cp in Sources */,
 				C9B4AB32123D60C600D8D2C7 /* TFileStream.cp in Sources */,
 				C9B4AB33123D60C700D8D2C7 /* TStream.cp in Sources */,
 				C9B4AB34123D60E500D8D2C7 /* TCondVar.cp in Sources */,
 				C9B4AB35123D60E600D8D2C7 /* TMutex.cp in Sources */,
 				C9B4AB36123D60E800D8D2C7 /* TThread.cp in Sources */,
-				C9B4AB37123D60F900D8D2C7 /* TMutableStringRef.cp in Sources */,
-				C9B4AB38123D60FB00D8D2C7 /* TString.cp in Sources */,
-				C9B4AB39123D60FC00D8D2C7 /* TStringRef.cp in Sources */,
 				C9B4AB3A123D60FF00D8D2C7 /* UUTF16Conv.cp in Sources */,
 				C9B4AB3B123D610000D8D2C7 /* UUTF16CStr.cp in Sources */,
 				C9B4AB5F123D647900D8D2C7 /* TJITGeneric.cp in Sources */,
@@ -1893,6 +1793,8 @@
 				C995672C123F793D009A5668 /* TIOSScreenManager.mm in Sources */,
 				F1CAFB841241F53F00A0382E /* TCoreAudioSoundManager.cp in Sources */,
 				F1CAFB9A1241F5E700A0382E /* TBufferedSoundManager.cp in Sources */,
+				C901E551132659120074513E /* TCircleBuffer.cp in Sources */,
+				C901E552132659140074513E /* TMappedFile.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
