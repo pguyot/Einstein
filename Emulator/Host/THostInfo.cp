@@ -257,34 +257,9 @@ THostInfo::RetrieveUserInfo( void )
 {
 	do {
 #if TARGET_OS_WIN32
-		/*
-		CSTR buffer[256];
-		if (GetUserName(buffer, 255)) {
-			char *sep = strchr(buffer, ' ');
-			if (sep) {
-				*sep = 0;
-				mUserFirstName = strdupToUTF16(buffer);
-				mUserLastName = strdupToUTF16(sep+1);
-			} else {
-				mUserLastName = strdupToUTF16(buffer);
-			}
-		}
-		*/
-		// FIXME I am not sure at all, if and where this information s available in the WIN32 API
-		/*
-		const KUInt16*		mUserCompany;			///< User company.
-		const KUInt16*		mUserAddr;				///< User address.
-		const KUInt16*		mUserAddr2;				///< User address (line 2).
-		const KUInt16*		mUserPostalCode;		///< User postal code.
-		const KUInt16*		mUserCity;				///< User city.
-		const KUInt16*		mUserRegion;			///< User region.
-		const KUInt16*		mUserCountry;			///< User country.
-		const KUInt16*		mUserCountryISOCode;	///< User country ISO code.
-		const KUInt16*		mUserHomePhone;			///< User home #.
-		const KUInt16*		mUserHomeFaxPhone;		///< User home fax #.
-		const KUInt16*		mUserWorkPhone;			///< User work #.
-		const KUInt16*		mUserWorkFaxPhone;		///< User work fax #.
-		*/
+          // do nothing
+#elif TARGET_OS_ANDROID
+          // do nothing
 #else
 #if TARGET_OS_OPENSTEP
 #ifdef TARGET_IOS

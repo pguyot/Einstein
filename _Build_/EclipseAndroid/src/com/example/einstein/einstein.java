@@ -1,24 +1,61 @@
-/*
- * Copyright (C) 2009 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// ==============================
+// File:			einstein.java
+// Project:			Einstein
+//
+// Copyright 2011 by Matthias Melcher (einstein@matthiasm.com)
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// ==============================
+// $Id$
+// ==============================
+
 package com.example.einstein;
 
 import android.app.Activity;
 import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.MotionEvent;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 
+class EinsteinView extends View {
+    private Bitmap mBitmap;
+
+    private static native void renderEinsteinView(Bitmap bitmap);
+
+    public EinsteinView(Context context) {
+        super(context);
+
+        final int W = 200;
+        final int H = 200;
+
+        mBitmap = Bitmap.createBitmap(W, H, Bitmap.Config.RGB_565);
+    }
+
+    @Override protected void onDraw(Canvas canvas) {
+        //canvas.drawColor(0xFFCCCCCC);
+        renderEinsteinView(mBitmap);
+        canvas.drawBitmap(mBitmap, 0, 0, null);
+        // force a redraw, with a different time-based pattern.
+        invalidate();
+    }
+}
 
 public class einstein extends Activity
 {
@@ -28,39 +65,57 @@ public class einstein extends Activity
     {
         super.onCreate(savedInstanceState);
 
-        /* Create a TextView and set its content.
-         * the text is retrieved by calling a native
-         * function.
-         */
+        EinsteinView ev = new EinsteinView(this);
+        
         TextView  tv = new TextView(this);
         tv.setText( stringFromJNI() );
-        setContentView(tv);
+        
+        LinearLayout grp = new LinearLayout(this);
+        grp.setOrientation(LinearLayout.VERTICAL);
+        grp.addView(ev);
+        grp.addView(tv);
+        
+        setContentView(grp);
     }
 
-    /* A native method that is implemented by the
-     * 'einstein' native library, which is packaged
-     * with this application.
-     */
+    //@Override
+    //protected void onStop() {
+    //    finish();
+    //}
+	
+    @Override
+    public boolean onTouchEvent (MotionEvent ev) {
+    	// http://developer.android.com/reference/android/view/MotionEvent.html
+     final int historySize = ev.getHistorySize();
+     final int pointerCount = ev.getPointerCount();
+     for (int h = 0; h < historySize; h++) {
+         System.out.printf("At time %d:", ev.getHistoricalEventTime(h));
+         for (int p = 0; p < pointerCount; p++) {
+             System.out.printf("  pointer %d: (%f,%f)",
+                 ev.getPointerId(p), ev.getHistoricalX(p, h), ev.getHistoricalY(p, h));
+         }
+     }
+     System.out.printf("At time %d:", ev.getEventTime());
+     for (int p = 0; p < pointerCount; p++) {
+         System.out.printf("  pointer %d: (%f,%f)",
+             ev.getPointerId(p), ev.getX(p), ev.getY(p));
+     }
+       
+	return false;	
+    }
+
+    // native test method implemented in app/AndroidGlue.c
     public native String  stringFromJNI();
 
-    /* This is another native method declaration that is *not*
-     * implemented by 'einstein'. This is simply to show that
-     * you can declare as many native methods in your Java code
-     * as you want, their implementation is searched in the
-     * currently loaded native libraries only the first time
-     * you call them.
-     *
-     * Trying to call this function will result in a
-     * java.lang.UnsatisfiedLinkError exception !
-     */
-    public native String  unimplementedStringFromJNI();
-
-    /* this is used to load the 'einstein' library on application
-     * startup. The library has already been unpacked into
-     * /data/data/com.example.einstein/lib/libeinstein.so at
-     * installation time by the package manager.
-     */
+    // load the entire native program as a library at startup
     static {
         System.loadLibrary("einstein");
     }
 }
+
+
+
+// ============================================================================== //
+// I can't uninstall it, there seems to be some kind of 'Uninstall Shield'.       //
+// ============================================================================== //
+

@@ -27,7 +27,9 @@
 #include <K/Defines/KDefinitions.h>
 
 // libffi
-#include "ffi.h"
+#if !TARGET_OS_ANDROID
+  #include "ffi.h"
+#endif
 
 #include "NativeCallsDefines.h"
 
@@ -53,6 +55,8 @@ public:
 	/// Destructor.
 	///
 	~TNativeCalls( void );
+  
+#if !TARGET_OS_ANDROID
 
 	///
 	/// Open a native library.
@@ -385,6 +389,7 @@ private:
 	SFunctionRec*	mNativeFuncs;			///< Data on native functions.
 	KUInt32			mNbNativeFuncs;			///< Number of native functions.
 	KUInt32			mAllocatedNativeFuncs;	///< Capacity of native functions.
+#endif
 };
 
 #endif

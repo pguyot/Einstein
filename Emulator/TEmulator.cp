@@ -240,8 +240,8 @@ TEmulator::DebuggerUND( KUInt32 inPAddr )
 			}
 		} while (theString[index++] != 0);
           
-                printf("%s\n", theString);
-		if (log) mLog->LogLine( (const char*) theString );
+		printf("%s\n", theString);
+		mLog->LogLine( (const char*) theString );
 	}
 }
 
