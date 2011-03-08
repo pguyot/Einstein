@@ -24,6 +24,17 @@
 #include <K/Defines/KDefinitions.h>
 #include "TNativeCalls.h"
 
+
+#if TARGET_OS_ANDROID
+
+// Einstein
+#include "TMemory.h"
+
+TNativeCalls::TNativeCalls( TMemory* inMemoryIntf ) { }
+TNativeCalls::~TNativeCalls( ) { }
+
+#else
+
 // POSIX & Co.
 #include <stdio.h>
 #include <limits.h>
@@ -832,6 +843,8 @@ TNativeCalls::GetErrno( void)
 {
 	return errno;
 }
+
+#endif
 
 // =========================================================================== //
 //         A novice was trying to fix a broken lisp machine by turning the     //

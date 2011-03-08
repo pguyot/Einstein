@@ -2134,6 +2134,7 @@ TNativePrimitives::ExecuteOutTranslatorNative( KUInt32 inInstruction )
 void
 TNativePrimitives::ExecuteHostCallNative( KUInt32 inInstruction )
 {
+#if !TARGET_OS_ANDROID
 	switch (inInstruction & 0xFF)
 	{
 		case 0x01:
@@ -2497,6 +2498,12 @@ TNativePrimitives::ExecuteHostCallNative( KUInt32 inInstruction )
 			}
 			mProcessor->SetRegister( 0, 0 );
 	}
+#else
+	if (mLog)
+	{
+		mLog->FLogLine("Native primitives not supported on this platform");
+	}
+#endif
 }
 
 // -------------------------------------------------------------------------- //

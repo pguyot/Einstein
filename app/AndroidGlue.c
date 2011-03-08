@@ -24,15 +24,48 @@
 #include <app/AndroidGlue.h>
 #include <string.h>
 
+#include <android/bitmap.h>
+
+
 /* This is a trivial JNI example where we use a native method
  * to return a new VM String. 
  */
-jstring
-Java_com_example_einstein_einstein_stringFromJNI( JNIEnv* env, jobject thiz )
+JNIEXPORT jstring JNICALL Java_com_example_einstein_einstein_stringFromJNI( JNIEnv* env, jobject thiz )
 {
     LOGI("Testing Android %s. Seems fine so far!", "NDK");
     return (*env)->NewStringUTF(env, "This is the Einstein native interface (4)!");
 }
+
+JNIEXPORT void JNICALL Java_com_example_einstein_EinsteinView_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap)
+{
+    AndroidBitmapInfo  info;
+    void              *pixels;
+    int                ret;
+    static int c = 0;
+
+    if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
+        LOGE("AndroidBitmap_getInfo() failed ! error=%d", ret);
+        return;
+    }
+
+    if (info.format != ANDROID_BITMAP_FORMAT_RGB_565) {
+        LOGE("Bitmap format is not RGB_565 !");
+        return;
+    }
+
+    if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
+        LOGE("AndroidBitmap_lockPixels() failed ! error=%d", ret);
+    }
+
+    unsigned short *p = (unsigned short*)pixels;
+    p[c]   = 0xf00f;
+    p[c+1] = 0x0ff0;
+    c++;
+    if (c>4000) c = 0;
+
+    AndroidBitmap_unlockPixels(env, bitmap);
+}
+
 
 // ============================================================================ //
 // Beware of the Turing Tar-pit in which everything is possible but nothing of  //

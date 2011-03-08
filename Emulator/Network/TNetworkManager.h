@@ -25,6 +25,7 @@
 #define _TNETWORKMANAGER_H
 
 #include <K/Defines/KDefinitions.h>
+#include <sys/select.h>
 
 class TLog;
 class TInterruptManager;
