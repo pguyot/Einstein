@@ -26,5 +26,5 @@
 jstring
 Java_com_example_einstein_einstein_stringFromJNI( JNIEnv* env, jobject thiz )
 {
-    return (*env)->NewStringUTF(env, "This is the Einstein native interface!");
+    return (*env)->NewStringUTF(env, "This is the Einstein native interface (2)!");
 }

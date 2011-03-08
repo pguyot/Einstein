@@ -8,6 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		C901E51A132655D50074513E /* UUTF16CStr.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334F111B7570002165EC /* UUTF16CStr.cp */; };
+		C901E51D132655E00074513E /* UUTF16Conv.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334D111B7570002165EC /* UUTF16Conv.cp */; };
+		C901E5221326560B0074513E /* TStream.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3333111B7570002165EC /* TStream.cp */; };
+		C901E5231326560C0074513E /* TFileStream.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3330111B7570002165EC /* TFileStream.cp */; };
+		C901E5261326562E0074513E /* TCircleBuffer.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3321111B7570002165EC /* TCircleBuffer.cp */; };
+		C901E527132656310074513E /* TMappedFile.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3324111B7570002165EC /* TMappedFile.cp */; };
+		C901E52C1326566B0074513E /* TError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B6111B7570002165EC /* TError.cp */; };
+		C901E52D1326566C0074513E /* TException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BF111B7570002165EC /* TException.cp */; };
+		C901E52E1326566D0074513E /* TIOException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BD111B7570002165EC /* TIOException.cp */; };
+		C901E52F1326566F0074513E /* TMemError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B8111B7570002165EC /* TMemError.cp */; };
+		C901E530132656710074513E /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
 		C932C4C211A1AB5D00F6A7E4 /* TNE2000Card.cp in Sources */ = {isa = PBXBuildFile; fileRef = C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */; };
@@ -33,66 +44,9 @@
 		C99E317B111B73A1002165EC /* TMonitor.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3175111B73A1002165EC /* TMonitor.cp */; };
 		C99E317C111B73A1002165EC /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		C99E317D111B73A1002165EC /* UDisasm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cp */; settings = {COMPILER_FLAGS = "-Wno-format-security"; }; };
-		C99E3358111B7570002165EC /* TError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B6111B7570002165EC /* TError.cp */; };
-		C99E3359111B7570002165EC /* TMemError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B8111B7570002165EC /* TMemError.cp */; };
-		C99E335A111B7570002165EC /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
-		C99E335B111B7570002165EC /* TIOException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BD111B7570002165EC /* TIOException.cp */; };
-		C99E335C111B7570002165EC /* TException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BF111B7570002165EC /* TException.cp */; };
-		C99E335D111B7570002165EC /* TGPCAKoza.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32C3111B7570002165EC /* TGPCAKoza.cp */; };
-		C99E335E111B7570002165EC /* TGPCreationAlgorithm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32C5111B7570002165EC /* TGPCreationAlgorithm.cp */; };
-		C99E335F111B7570002165EC /* TGPNumberData.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32C9111B7570002165EC /* TGPNumberData.cp */; };
-		C99E3360111B7570002165EC /* TGPSInt32Data.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32CB111B7570002165EC /* TGPSInt32Data.cp */; };
-		C99E3361111B7570002165EC /* TGPBooleanData.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32CD111B7570002165EC /* TGPBooleanData.cp */; };
-		C99E3362111B7570002165EC /* TGPData.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32CF111B7570002165EC /* TGPData.cp */; };
-		C99E3363111B7570002165EC /* TGPDataRef.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32D1111B7570002165EC /* TGPDataRef.cp */; };
-		C99E3364111B7570002165EC /* TGPStringData.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32D3111B7570002165EC /* TGPStringData.cp */; };
-		C99E3365111B7570002165EC /* TGPType.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32D5111B7570002165EC /* TGPType.cp */; };
-		C99E3366111B7570002165EC /* TGPVoidData.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32D7111B7570002165EC /* TGPVoidData.cp */; };
-		C99E3367111B7570002165EC /* TGPDoubleFitness.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32DA111B7570002165EC /* TGPDoubleFitness.cp */; };
-		C99E3368111B7570002165EC /* TGPFitness.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32DC111B7570002165EC /* TGPFitness.cp */; };
-		C99E3369111B7570002165EC /* TGPLanguage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32DF111B7570002165EC /* TGPLanguage.cp */; };
-		C99E336A111B7570002165EC /* TGPSelection.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32E2111B7570002165EC /* TGPSelection.cp */; };
-		C99E336B111B7570002165EC /* TGPSortSelection.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32E4111B7570002165EC /* TGPSortSelection.cp */; };
-		C99E336C111B7570002165EC /* TGPTournamentSelection.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32E6111B7570002165EC /* TGPTournamentSelection.cp */; };
-		C99E336D111B7570002165EC /* TGPTruncationSelection.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32E8111B7570002165EC /* TGPTruncationSelection.cp */; };
-		C99E336E111B7570002165EC /* TGPEvaluationContext.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32EA111B7570002165EC /* TGPEvaluationContext.cp */; };
-		C99E336F111B7570002165EC /* TGPInterpreter.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32EC111B7570002165EC /* TGPInterpreter.cp */; };
-		C99E3370111B7570002165EC /* TGPSimpleInterpreter.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32EE111B7570002165EC /* TGPSimpleInterpreter.cp */; };
-		C99E3371111B7570002165EC /* TGPSoup.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32F0111B7570002165EC /* TGPSoup.cp */; };
-		C99E3372111B7570002165EC /* TGPNodeAnd.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32F5111B7570002165EC /* TGPNodeAnd.cp */; };
-		C99E3373111B7570002165EC /* TGPNodeBoolean.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32F7111B7570002165EC /* TGPNodeBoolean.cp */; };
-		C99E3374111B7570002165EC /* TGPNodeNot.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32F9111B7570002165EC /* TGPNodeNot.cp */; };
-		C99E3375111B7570002165EC /* TGPNodeOr.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32FB111B7570002165EC /* TGPNodeOr.cp */; };
-		C99E3376111B7570002165EC /* TGPNodeDo.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32FE111B7570002165EC /* TGPNodeDo.cp */; };
-		C99E3377111B7570002165EC /* TGPNodeIfThenElse.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3300111B7570002165EC /* TGPNodeIfThenElse.cp */; };
-		C99E3378111B7570002165EC /* TGPNode.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3302111B7570002165EC /* TGPNode.cp */; };
-		C99E3379111B7570002165EC /* TGPNodeConst.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3304111B7570002165EC /* TGPNodeConst.cp */; };
-		C99E337A111B7570002165EC /* TGPNodeLeaf.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3306111B7570002165EC /* TGPNodeLeaf.cp */; };
-		C99E337B111B7570002165EC /* TGPNodeRef.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3308111B7570002165EC /* TGPNodeRef.cp */; };
-		C99E337C111B7570002165EC /* TGPGetStaticVariable.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E330B111B7570002165EC /* TGPGetStaticVariable.cp */; };
-		C99E337D111B7570002165EC /* TGPSetStaticVariable.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E330D111B7570002165EC /* TGPSetStaticVariable.cp */; };
-		C99E337E111B7570002165EC /* TGPTree.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E330F111B7570002165EC /* TGPTree.cp */; };
-		C99E337F111B7570002165EC /* TInt64.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3312111B7570002165EC /* TInt64.cp */; };
-		C99E3380111B7570002165EC /* TMT19937RandomGenerator.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3314111B7570002165EC /* TMT19937RandomGenerator.cp */; };
-		C99E3381111B7570002165EC /* TRandomGenerator.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3316111B7570002165EC /* TRandomGenerator.cp */; };
-		C99E3382111B7570002165EC /* TSInt64.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3318111B7570002165EC /* TSInt64.cp */; };
-		C99E3383111B7570002165EC /* TUInt64.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E331A111B7570002165EC /* TUInt64.cp */; };
-		C99E3384111B7570002165EC /* UTInt64.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E331C111B7570002165EC /* UTInt64.cp */; };
-		C99E3386111B7570002165EC /* TCircleBuffer.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3321111B7570002165EC /* TCircleBuffer.cp */; };
-		C99E3387111B7570002165EC /* TMappedFile.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3324111B7570002165EC /* TMappedFile.cp */; };
-		C99E3389111B7570002165EC /* TRefCounter.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3328111B7570002165EC /* TRefCounter.cp */; };
-		C99E338A111B7570002165EC /* UBase64.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E332B111B7570002165EC /* UBase64.cp */; };
-		C99E338B111B7570002165EC /* UPStrings.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E332D111B7570002165EC /* UPStrings.cp */; };
-		C99E338C111B7570002165EC /* TFileStream.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3330111B7570002165EC /* TFileStream.cp */; };
-		C99E338D111B7570002165EC /* TStream.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3333111B7570002165EC /* TStream.cp */; };
 		C99E3391111B7570002165EC /* TCondVar.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E333F111B7570002165EC /* TCondVar.cp */; };
 		C99E3392111B7570002165EC /* TMutex.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3341111B7570002165EC /* TMutex.cp */; };
 		C99E3393111B7570002165EC /* TThread.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3343111B7570002165EC /* TThread.cp */; };
-		C99E3394111B7570002165EC /* TMutableStringRef.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3346111B7570002165EC /* TMutableStringRef.cp */; };
-		C99E3395111B7570002165EC /* TString.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3348111B7570002165EC /* TString.cp */; };
-		C99E3396111B7570002165EC /* TStringRef.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334A111B7570002165EC /* TStringRef.cp */; };
-		C99E3397111B7570002165EC /* UUTF16Conv.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334D111B7570002165EC /* UUTF16Conv.cp */; };
-		C99E3398111B7570002165EC /* UUTF16CStr.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334F111B7570002165EC /* UUTF16CStr.cp */; };
 		C99E34C9111B7C08002165EC /* einstein.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E33D1111B7C07002165EC /* einstein.mm */; };
 		C99E34CB111B7C08002165EC /* Einstein.sdef in Resources */ = {isa = PBXBuildFile; fileRef = C99E33D4111B7C07002165EC /* Einstein.sdef */; };
 		C99E34CC111B7C08002165EC /* EinsteinDoNewtonScriptCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E33D6111B7C07002165EC /* EinsteinDoNewtonScriptCommand.mm */; };
@@ -154,9 +108,6 @@
 		C99E352F111B7C08002165EC /* TMemory.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34C1111B7C08002165EC /* TMemory.cp */; };
 		C99E3530111B7C08002165EC /* TMMU.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34C4111B7C08002165EC /* TMMU.cp */; };
 		C99E3531111B7C08002165EC /* TNativePrimitives.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34C6111B7C08002165EC /* TNativePrimitives.cp */; };
-		C99E3541111B8357002165EC /* U3DES.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32AB111B7570002165EC /* U3DES.cp */; };
-		C99E3542111B8357002165EC /* UDES.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32AD111B7570002165EC /* UDES.cp */; };
-		C99E3543111B8358002165EC /* UDESTables.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32AF111B7570002165EC /* UDESTables.cp */; };
 		C99E356E111C111D002165EC /* prep_cif.c in Sources */ = {isa = PBXBuildFile; fileRef = C99E3560111C111D002165EC /* prep_cif.c */; };
 		C99E356F111C111D002165EC /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = C99E3561111C111D002165EC /* types.c */; };
 		C99E3570111C111D002165EC /* darwin.S in Sources */ = {isa = PBXBuildFile; fileRef = C99E3563111C111D002165EC /* darwin.S */; };
@@ -341,7 +292,7 @@
 		C99E32AE111B7570002165EC /* UDES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDES.h; sourceTree = "<group>"; };
 		C99E32AF111B7570002165EC /* UDESTables.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UDESTables.cp; sourceTree = "<group>"; };
 		C99E32B1111B7570002165EC /* KDefinitions.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KDefinitions.cp; sourceTree = "<group>"; };
-		C99E32B2111B7570002165EC /* KDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KDefinitions.h; sourceTree = "<group>"; };
+		C99E32B2111B7570002165EC /* KDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = KDefinitions.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E32B3111B7570002165EC /* UByteSex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UByteSex.h; sourceTree = "<group>"; };
 		C99E32B6111B7570002165EC /* TError.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TError.cp; sourceTree = "<group>"; };
 		C99E32B7111B7570002165EC /* TError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TError.h; sourceTree = "<group>"; };
@@ -1729,66 +1680,9 @@
 				C99E317B111B73A1002165EC /* TMonitor.cp in Sources */,
 				C99E317C111B73A1002165EC /* TSymbolList.cp in Sources */,
 				C99E317D111B73A1002165EC /* UDisasm.cp in Sources */,
-				C99E3358111B7570002165EC /* TError.cp in Sources */,
-				C99E3359111B7570002165EC /* TMemError.cp in Sources */,
-				C99E335A111B7570002165EC /* TEOFException.cp in Sources */,
-				C99E335B111B7570002165EC /* TIOException.cp in Sources */,
-				C99E335C111B7570002165EC /* TException.cp in Sources */,
-				C99E335D111B7570002165EC /* TGPCAKoza.cp in Sources */,
-				C99E335E111B7570002165EC /* TGPCreationAlgorithm.cp in Sources */,
-				C99E335F111B7570002165EC /* TGPNumberData.cp in Sources */,
-				C99E3360111B7570002165EC /* TGPSInt32Data.cp in Sources */,
-				C99E3361111B7570002165EC /* TGPBooleanData.cp in Sources */,
-				C99E3362111B7570002165EC /* TGPData.cp in Sources */,
-				C99E3363111B7570002165EC /* TGPDataRef.cp in Sources */,
-				C99E3364111B7570002165EC /* TGPStringData.cp in Sources */,
-				C99E3365111B7570002165EC /* TGPType.cp in Sources */,
-				C99E3366111B7570002165EC /* TGPVoidData.cp in Sources */,
-				C99E3367111B7570002165EC /* TGPDoubleFitness.cp in Sources */,
-				C99E3368111B7570002165EC /* TGPFitness.cp in Sources */,
-				C99E3369111B7570002165EC /* TGPLanguage.cp in Sources */,
-				C99E336A111B7570002165EC /* TGPSelection.cp in Sources */,
-				C99E336B111B7570002165EC /* TGPSortSelection.cp in Sources */,
-				C99E336C111B7570002165EC /* TGPTournamentSelection.cp in Sources */,
-				C99E336D111B7570002165EC /* TGPTruncationSelection.cp in Sources */,
-				C99E336E111B7570002165EC /* TGPEvaluationContext.cp in Sources */,
-				C99E336F111B7570002165EC /* TGPInterpreter.cp in Sources */,
-				C99E3370111B7570002165EC /* TGPSimpleInterpreter.cp in Sources */,
-				C99E3371111B7570002165EC /* TGPSoup.cp in Sources */,
-				C99E3372111B7570002165EC /* TGPNodeAnd.cp in Sources */,
-				C99E3373111B7570002165EC /* TGPNodeBoolean.cp in Sources */,
-				C99E3374111B7570002165EC /* TGPNodeNot.cp in Sources */,
-				C99E3375111B7570002165EC /* TGPNodeOr.cp in Sources */,
-				C99E3376111B7570002165EC /* TGPNodeDo.cp in Sources */,
-				C99E3377111B7570002165EC /* TGPNodeIfThenElse.cp in Sources */,
-				C99E3378111B7570002165EC /* TGPNode.cp in Sources */,
-				C99E3379111B7570002165EC /* TGPNodeConst.cp in Sources */,
-				C99E337A111B7570002165EC /* TGPNodeLeaf.cp in Sources */,
-				C99E337B111B7570002165EC /* TGPNodeRef.cp in Sources */,
-				C99E337C111B7570002165EC /* TGPGetStaticVariable.cp in Sources */,
-				C99E337D111B7570002165EC /* TGPSetStaticVariable.cp in Sources */,
-				C99E337E111B7570002165EC /* TGPTree.cp in Sources */,
-				C99E337F111B7570002165EC /* TInt64.cp in Sources */,
-				C99E3380111B7570002165EC /* TMT19937RandomGenerator.cp in Sources */,
-				C99E3381111B7570002165EC /* TRandomGenerator.cp in Sources */,
-				C99E3382111B7570002165EC /* TSInt64.cp in Sources */,
-				C99E3383111B7570002165EC /* TUInt64.cp in Sources */,
-				C99E3384111B7570002165EC /* UTInt64.cp in Sources */,
-				C99E3386111B7570002165EC /* TCircleBuffer.cp in Sources */,
-				C99E3387111B7570002165EC /* TMappedFile.cp in Sources */,
-				C99E3389111B7570002165EC /* TRefCounter.cp in Sources */,
-				C99E338A111B7570002165EC /* UBase64.cp in Sources */,
-				C99E338B111B7570002165EC /* UPStrings.cp in Sources */,
-				C99E338C111B7570002165EC /* TFileStream.cp in Sources */,
-				C99E338D111B7570002165EC /* TStream.cp in Sources */,
 				C99E3391111B7570002165EC /* TCondVar.cp in Sources */,
 				C99E3392111B7570002165EC /* TMutex.cp in Sources */,
 				C99E3393111B7570002165EC /* TThread.cp in Sources */,
-				C99E3394111B7570002165EC /* TMutableStringRef.cp in Sources */,
-				C99E3395111B7570002165EC /* TString.cp in Sources */,
-				C99E3396111B7570002165EC /* TStringRef.cp in Sources */,
-				C99E3397111B7570002165EC /* UUTF16Conv.cp in Sources */,
-				C99E3398111B7570002165EC /* UUTF16CStr.cp in Sources */,
 				C99E34C9111B7C08002165EC /* einstein.mm in Sources */,
 				C99E34CC111B7C08002165EC /* EinsteinDoNewtonScriptCommand.mm in Sources */,
 				C99E34CD111B7C08002165EC /* EinsteinInstallPackageCommand.mm in Sources */,
@@ -1849,9 +1743,6 @@
 				C99E352F111B7C08002165EC /* TMemory.cp in Sources */,
 				C99E3530111B7C08002165EC /* TMMU.cp in Sources */,
 				C99E3531111B7C08002165EC /* TNativePrimitives.cp in Sources */,
-				C99E3541111B8357002165EC /* U3DES.cp in Sources */,
-				C99E3542111B8357002165EC /* UDES.cp in Sources */,
-				C99E3543111B8358002165EC /* UDESTables.cp in Sources */,
 				C99E356E111C111D002165EC /* prep_cif.c in Sources */,
 				C99E356F111C111D002165EC /* types.c in Sources */,
 				C99E3570111C111D002165EC /* darwin.S in Sources */,
@@ -1865,6 +1756,17 @@
 				C9B4AB88123D674400D8D2C7 /* TBufferLog.cp in Sources */,
 				F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */,
 				F164801A13199758001603BE /* TMacMonitor.mm in Sources */,
+				C901E51A132655D50074513E /* UUTF16CStr.cp in Sources */,
+				C901E51D132655E00074513E /* UUTF16Conv.cp in Sources */,
+				C901E5221326560B0074513E /* TStream.cp in Sources */,
+				C901E5231326560C0074513E /* TFileStream.cp in Sources */,
+				C901E5261326562E0074513E /* TCircleBuffer.cp in Sources */,
+				C901E527132656310074513E /* TMappedFile.cp in Sources */,
+				C901E52C1326566B0074513E /* TError.cp in Sources */,
+				C901E52D1326566C0074513E /* TException.cp in Sources */,
+				C901E52E1326566D0074513E /* TIOException.cp in Sources */,
+				C901E52F1326566F0074513E /* TMemError.cp in Sources */,
+				C901E530132656710074513E /* TEOFException.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
