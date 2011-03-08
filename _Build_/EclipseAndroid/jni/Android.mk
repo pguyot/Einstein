@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-LOCAL_PATH := $(call my-dir)
+
 LOCAL_PATH := $(call my-dir)/../../..
 
 include $(CLEAR_VARS)
@@ -21,8 +21,9 @@ LOCAL_CPP_EXTENSION := .cp
 LOCAL_CFLAGS    := -D TARGET_OS_ANDROID=1
 
 LOCAL_MODULE    := einstein
-LOCAL_SRC_FILES := einstein.c \
-	../../../K/Misc/TRefCounter.cp
-LOCAL_SRC_FILES := K/Misc/TRefCounter.cp
+LOCAL_SRC_FILES := \
+	app/AndroidGlue.c \
+	K/Misc/TRefCounter.cp
+LOCAL_LDLIBS    := -llog
 
 include $(BUILD_SHARED_LIBRARY)
