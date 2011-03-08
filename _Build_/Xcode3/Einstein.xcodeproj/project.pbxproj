@@ -346,10 +346,10 @@
 		C99E332C111B7570002165EC /* UBase64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UBase64.h; sourceTree = "<group>"; };
 		C99E332D111B7570002165EC /* UPStrings.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UPStrings.cp; sourceTree = "<group>"; };
 		C99E332E111B7570002165EC /* UPStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UPStrings.h; sourceTree = "<group>"; };
-		C99E3330111B7570002165EC /* TFileStream.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFileStream.cp; sourceTree = "<group>"; };
+		C99E3330111B7570002165EC /* TFileStream.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFileStream.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E3331111B7570002165EC /* TFileStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFileStream.h; sourceTree = "<group>"; };
 		C99E3332111B7570002165EC /* TRandomAccessStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRandomAccessStream.h; sourceTree = "<group>"; };
-		C99E3333111B7570002165EC /* TStream.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TStream.cp; sourceTree = "<group>"; };
+		C99E3333111B7570002165EC /* TStream.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TStream.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E3334111B7570002165EC /* TStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TStream.h; sourceTree = "<group>"; };
 		C99E3336111B7570002165EC /* KDebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KDebug.h; sourceTree = "<group>"; };
 		C99E333F111B7570002165EC /* TCondVar.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCondVar.cp; sourceTree = "<group>"; };
