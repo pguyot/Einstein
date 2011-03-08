@@ -48,8 +48,10 @@
 // K
 #include <K/Defines/UByteSex.h>
 #include <K/Unicode/UUTF16CStr.h>
-#include <K/Exceptions/Errors/TMemError.h>
-#include <K/Exceptions/IO/TEOFException.h>
+#if HAS_EXCEPTION_HANDLING
+	#include <K/Exceptions/Errors/TMemError.h>
+	#include <K/Exceptions/IO/TEOFException.h>
+#endif
 
 // ------------------------------------------------------------------------- //
 //  * GetCString( KUInt32 )
@@ -61,9 +63,14 @@ TStream::GetCString( KUInt32 inNbChars )
 	
 	if (theResult == nil)
 	{
+#if HAS_EXCEPTION_HANDLING
 		throw MemError;
+#else
+		return 0L;
+#endif
 	}
 	
+#if HAS_EXCEPTION_HANDLING
 	// Un petit try/catch pour nettoyer en sortant.
 	try {
 		KUInt32 theCount = inNbChars;
@@ -82,6 +89,16 @@ TStream::GetCString( KUInt32 inNbChars )
 	
 		throw;	// Rethrow
 	}
+#else
+	KUInt32 theCount = inNbChars;
+	Read( theResult, &theCount );
+		
+	if (theCount != inNbChars)
+	{
+		::free(theResult);
+		return 0L;
+	}
+#endif
 	
 	// Terminateur.
 	theResult[inNbChars] = '\0';
@@ -99,6 +116,7 @@ TStream::GetCString( void )
 	size_t strLength = 0;		// Taille de la cha”ne
 	KUInt8* theResult = (KUInt8*) ::malloc( bufferLength );
 	
+#if HAS_EXCEPTION_HANDLING	
 	if (theResult == nil)
 	{
 		throw MemError;
@@ -136,6 +154,30 @@ TStream::GetCString( void )
 	
 		throw;	// Rethrow
 	}
+#else
+	if (theResult == nil) return 0L;
+	KUInt8 theChar;
+	KUInt32 count = 1;
+		
+	do {
+		Read( &theChar, &count );
+			
+		if (count == 0)	// EOF.
+		{
+			::free( theResult );
+			return 0L;
+		}
+
+		if (strLength == bufferLength)
+		{
+			bufferLength += 10;
+			theResult = (KUInt8*)  ::realloc( theResult, bufferLength );
+		}
+		
+		theResult[ strLength ] = theChar;
+		
+	} while (theChar != '\0');
+#endif
 	
 	return theResult;
 }
@@ -175,6 +217,7 @@ TStream::GetUniString( void )
 	KUInt16* theResult =
 					(KUInt16*) ::malloc( bufferLength * sizeof( KUInt16 ) );
 	
+#if HAS_EXCEPTION_HANDLING
 	if (theResult == nil)
 	{
 		throw MemError;
@@ -211,6 +254,31 @@ TStream::GetUniString( void )
 	
 		throw;	// Rethrow
 	}
+#else
+	if (theResult == nil) return 0L;
+	KUInt16 theChar;
+	KUInt32 count = 2;
+		
+	do {
+		Read( &theChar, &count );
+		
+		if (count != 2)	// EOF.
+		{
+			::free(theResult);
+			return 0L;
+		}
+			
+		if (strLength == bufferLength)
+		{
+			bufferLength += 10;
+			theResult = (KUInt16*)
+			::realloc( theResult, bufferLength * sizeof( KUInt16 ) );
+		}
+			
+		theResult[ strLength ] = theChar;
+			
+	} while (theChar != '\0');
+#endif
 	
 	return theResult;
 }
@@ -239,7 +307,11 @@ TStream::GetInt32( void )
 	
 	if (length < sizeof( theResult ))
 	{
+#if HAS_EXCEPTION_HANDLING
 		throw EOFException;
+#else
+		return 0;
+#endif
 	}
 	
 	return UByteSex_FromBigEndian( theResult );
@@ -270,7 +342,11 @@ TStream::GetXLong( void )
 	
 	if (length < sizeof( theFirstByte ))
 	{
+#if HAS_EXCEPTION_HANDLING
 		throw EOFException;
+#else
+		return 0;
+#endif
 	}
 
 	if (theFirstByte == 0xFF)
@@ -316,7 +392,11 @@ TStream::GetInt16( void )
 
 	if (length < sizeof( theResult ))
 	{
+#if HAS_EXCEPTION_HANDLING
 		throw EOFException;
+#else
+		return 0;
+#endif
 	}
 	
 	return theResult;
@@ -409,7 +489,11 @@ TStream::GetByte( void )
 	
 	if (length < sizeof( theResult ))
 	{
+#if HAS_EXCEPTION_HANDLING
 		throw EOFException;
+#else
+		return 0;
+#endif
 	}
 	
 	return theResult;

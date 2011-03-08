@@ -118,6 +118,8 @@
 
 #define TARGET_OS_UNDEFINED 1
 
+#define HAS_EXCEPTION_HANDLING 1
+
 #if TARGET_OS_OPENSTEP_PPC
 	#define	TARGET_OS_OPENSTEP 1
 #endif
@@ -411,6 +413,11 @@
 	#define TARGET_OS_CYGWIN 0
 	#define TARGET_OS_COMPAT_POSIX 1
 	#undef	TARGET_OS_UNDEFINED
+
+	#undef HAS_EXCEPTION_HANDLING
+	#define HAS_EXCEPTION_HANDLING 0
+
+	#define HAS_C99_LONGLONG 1
 
 	typedef	unsigned long			KUInt32;
 	typedef	signed long				KSInt32;

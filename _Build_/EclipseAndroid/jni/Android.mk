@@ -23,7 +23,16 @@ LOCAL_CFLAGS    := -D TARGET_OS_ANDROID=1
 LOCAL_MODULE    := einstein
 LOCAL_SRC_FILES := \
 	app/AndroidGlue.c \
-	K/Misc/TRefCounter.cp
+	K/Misc/TCircleBuffer.cp \
+	K/Misc/TMappedFile.cp \
+	K/Streams/TFileStream.cp \
+	K/Streams/TStream.cp \
+	K/Threads/TCondVar.cp \
+	K/Threads/TMutex.cp \
+	K/Threads/TThread.cp \
+	K/Unicode/UUTF16Conv.cp \
+	K/Unicode/UUTF16CStr.cp
+
 LOCAL_LDLIBS    := -llog
 
 include $(BUILD_SHARED_LIBRARY)
