@@ -63,6 +63,9 @@
 /// TARGET_RT_LITTLE_ENDIAN		Petit indien (x86, ARM, etc.)
 /// TARGET_RT_BIG_ENDIAN		Grand indien (PowerPC, ARM sur Newton, etc.)
 
+///\def TARGET_OS_ANDROID
+/// Macro qui vaut \c 1 si la cible est Google's Android, \c 0 sinon.
+
 ///\def TARGET_OS_BEOS
 /// Macro qui vaut \c 1 si la cible est BeOS, \c 0 sinon.
 
@@ -242,6 +245,7 @@
 	#endif
 	
 	#if TARGET_API_MAC_OSX
+		#define TARGET_OS_ANDROID 0
 		#define TARGET_OS_BEOS 0
 		#define TARGET_OS_BSD 0
 		#define TARGET_OS_LINUX 0
@@ -277,6 +281,7 @@
 			#define KUIntPtr	KUInt32
 		#endif
 	#else
+		#define TARGET_OS_ANDROID 0
 		#define TARGET_OS_BEOS 0
 		#define TARGET_OS_BSD 0
 		#define TARGET_OS_LINUX 0
@@ -337,6 +342,7 @@
 #endif
 
 #if TARGET_OS_WIN32
+	#define TARGET_OS_ANDROID 0
 	#define TARGET_OS_BEOS 0
 	#define TARGET_OS_BSD 0
 	#define TARGET_OS_LINUX 0
@@ -393,6 +399,50 @@
 	#define HAS_C99_LONGLONG 1
 #endif
 
+#if TARGET_OS_ANDROID
+	#define TARGET_OS_BEOS 0
+	#define TARGET_OS_BSD 0
+	#define TARGET_OS_LINUX 0
+	#define TARGET_OS_MAC 0
+	#define TARGET_OS_MACOS 0
+	#define TARGET_OS_NEWTON 0
+	#define TARGET_OS_OPENSTEP 0
+	#define TARGET_OS_WIN32	0
+	#define TARGET_OS_CYGWIN 0
+	#define TARGET_OS_COMPAT_POSIX 1
+	#undef	TARGET_OS_UNDEFINED
+
+	typedef	unsigned long			KUInt32;
+	typedef	signed long				KSInt32;
+	typedef	unsigned short			KUInt16;
+	typedef	signed short			KSInt16;
+	typedef	signed char				KSInt8;
+	typedef	unsigned char			KUInt8;
+	typedef	bool					Boolean;
+	#define FOUR_CHAR_CODE(x)		((long)(x))
+
+	#include <endian.h>
+	#if __BYTE_ORDER == __LITTLE_ENDIAN
+		#ifndef TARGET_RT_LITTLE_ENDIAN
+			#define TARGET_RT_LITTLE_ENDIAN 1
+		#endif
+		#ifndef TARGET_RT_BIG_ENDIAN
+			#define TARGET_RT_BIG_ENDIAN 0
+		#endif
+	#elif __BYTE_ORDER == __BIG_ENDIAN
+		#ifndef TARGET_RT_LITTLE_ENDIAN
+			#define TARGET_RT_LITTLE_ENDIAN 0
+		#endif
+		#ifndef TARGET_RT_BIG_ENDIAN
+			#define TARGET_RT_BIG_ENDIAN 1
+		#endif
+	#else
+		#if (!defined(TARGET_RT_LITTLE_ENDIAN) || !defined(TARGET_RT_BIG_ENDIAN))
+			#error "Could not guess endianness on Linux platform with <endian.h>"
+		#endif
+	#endif
+#endif
+
 #if TARGET_OS_BEOS
 	#define TARGET_OS_MACOS 0
 	#define TARGET_OS_NEWTON 0
@@ -424,6 +474,7 @@
 #endif
 
 #if TARGET_OS_BSD
+	#define TARGET_OS_ANDROID 0
 	#define TARGET_OS_BEOS 0
 	#define TARGET_OS_LINUX 0
 	#define TARGET_OS_MAC 0
@@ -476,6 +527,7 @@
 #endif
 
 #if TARGET_OS_LINUX
+	#define TARGET_OS_ANDROID 0
 	#define TARGET_OS_BEOS 0
 	#define TARGET_OS_BSD 0
 	#define TARGET_OS_MAC 0
@@ -534,6 +586,7 @@
 #endif
 
 #if TARGET_OS_POSIX
+	#define TARGET_OS_ANDROID 0
 	#define TARGET_OS_BEOS 0
 	#define TARGET_OS_BSD 0
 	#define TARGET_OS_LINUX 0
