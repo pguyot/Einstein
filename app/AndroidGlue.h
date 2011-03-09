@@ -21,6 +21,9 @@
 // $Id$
 // ==============================
 
+#ifndef EINSTEIN_ANDROID_GLUE_H
+#define EINSTEIN_ANDROID_GLUE_H
+
 #include <errno.h>
 #include <jni.h>
 #include <sys/time.h>
@@ -35,6 +38,8 @@
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 #define  LOGW(...)  __android_log_print(ANDROID_LOG_WARN,LOG_TAG,__VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+
+#endif
 
 // ============================================================================ //
 // Beware of the Turing Tar-pit in which everything is possible but nothing of  //
