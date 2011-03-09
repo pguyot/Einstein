@@ -41,8 +41,8 @@ class EinsteinView extends View {
     public EinsteinView(Context context) {
         super(context);
 
-        final int W = 200;
-        final int H = 200;
+        final int W = 320;
+        final int H = 480;
 
         mBitmap = Bitmap.createBitmap(W, H, Bitmap.Config.RGB_565);
     }
@@ -75,6 +75,9 @@ public class einstein extends Activity
         grp.addView(ev);
         
         setContentView(grp);
+		
+		initEmulator();
+		runEmulator();
     }
 
     //@Override
@@ -106,6 +109,12 @@ public class einstein extends Activity
     // native test method implemented in app/AndroidGlue.c
     public native String  stringFromJNI();
 
+	// initialize the emulator
+	public native void initEmulator();
+	
+	// launch the emulator
+	public native void runEmulator();
+	
     // load the entire native program as a library at startup
     static {
         System.loadLibrary("einstein");

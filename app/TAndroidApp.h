@@ -35,8 +35,6 @@ class TSoundManager;
 class TScreenManager;
 class TLog;
 class TPlatformManager;
-class TMonitor;
-class TSymbolList;
 
 ///
 /// Classe pour le programme einstein en ligne de commande.
@@ -207,8 +205,6 @@ private:
 	TScreenManager*		mScreenManager;		///< Gestionnaire d'Žcran.
 	TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
 	TLog*				mLog;				///< Log.
-	TMonitor*			mMonitor;			///< Monitor.
-	TSymbolList*		mSymbolList;		///< List of symbols.
 	Boolean				mQuit;				///< If we should quit.
 };
 

@@ -43,9 +43,6 @@
 #include "Emulator/Log/TFileLog.h"
 #include "Emulator/Log/TBufferLog.h"
 
-#include "Monitor/TMonitor.h"
-#include "Monitor/TSymbolList.h"
-
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -62,9 +59,7 @@ mEmulator( nil ),
 mSoundManager( nil ),
 mScreenManager( nil ),
 mPlatformManager( nil ),
-mLog( nil ),
-mMonitor( nil ),
-mSymbolList( nil )
+mLog( nil )
 {
 }
 
@@ -93,45 +88,18 @@ TAndroidApp::~TAndroidApp( void )
 	{
 		delete mROMImage;
 	}
-	if (mMonitor)
-	{
-		delete mMonitor;
-	}
-	if (mSymbolList)
-	{
-		delete mSymbolList;
-	}
 }
 
-#if 0
 
 // -------------------------------------------------------------------------- //
 // Run( int, char** )
 // -------------------------------------------------------------------------- //
 void
-TAndroidApp::Run( int argc, char* argv[] )
+TAndroidApp::Run()
 {
-	mProgramName = argv[0];
-	
-	Fl::scheme("gtk+");
-	Fl::args(1, argv);
-	Fl::get_system_colors();
-	
-	flSettings = new TFLSettings(425, 392, "Einstein Platform Settings");
-	flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
-	flSettings->setApp(this, mProgramName);
-	flSettings->loadPreferences();
-	flSettings->revertDialog();
-	Fl::focus(flSettings->wStart);
-	
-	if (!flSettings->dontShow) {
-		flSettings->show(1, argv);
-		while (flSettings->visible())
-			Fl::wait();
-	}
-	flSettings->runningMode();
-	Fl::focus(flSettings->wSave);
-	
+	LOGE("TAndroidApp::Run() not yet implemented");
+#if 0
+	mProgramName = "AndriodEinstein";	
 	const char* defaultMachineString = "717006";
 	int theMachineID = flSettings->wMachineChoice->value();
 	const Fl_Menu_Item *theMachineMenu = flSettings->wMachineChoice->menu()+theMachineID;
@@ -248,17 +216,8 @@ TAndroidApp::Run( int argc, char* argv[] )
 								  mLog, mROMImage, theFlashPath,
 								  mSoundManager, mScreenManager, ramSize << 16 );
 		mPlatformManager = mEmulator->GetPlatformManager();
-		
-		if (useMonitor)
-		{
-			char theSymbolListPath[512];
-			(void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
-							  theROMImagePath, theMachineString );
-			mSymbolList = new TSymbolList( theSymbolListPath );
-			mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList );
-		} else {
-			(void) ::printf( "Booting...\n" );
-		}
+
+		ILOG("Booting NewtonOS ROM...");
 		
 		Fl::lock();
 		win->show(1, argv);
@@ -297,7 +256,11 @@ TAndroidApp::Run( int argc, char* argv[] )
 #endif
 		
 	}
+#endif
 }
+
+
+#if 0
 
 // -------------------------------------------------------------------------- //
 // ThreadEntry( void )

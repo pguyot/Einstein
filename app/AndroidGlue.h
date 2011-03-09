@@ -24,6 +24,10 @@
 #ifndef EINSTEIN_ANDROID_GLUE_H
 #define EINSTEIN_ANDROID_GLUE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+  
 #include <errno.h>
 #include <jni.h>
 #include <sys/time.h>
@@ -39,6 +43,16 @@
 #define  LOGW(...)  __android_log_print(ANDROID_LOG_WARN,LOG_TAG,__VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 
+  extern JNIEXPORT jstring JNICALL Java_com_example_einstein_einstein_stringFromJNI( JNIEnv* env, jobject thiz );
+  extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_initEmulator( JNIEnv* env, jobject thiz );
+  extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_runEmulator( JNIEnv* env, jobject thiz );
+  
+  extern JNIEXPORT void JNICALL Java_com_example_einstein_EinsteinView_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap);
+  
+#ifdef __cplusplus
+}
+#endif
+    
 #endif
 
 // ============================================================================ //
