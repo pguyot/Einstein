@@ -22,9 +22,13 @@
 // ==============================
 
 #include <app/AndroidGlue.h>
+#include <app/TAndroidApp.h>
 #include <string.h>
 
 #include <android/bitmap.h>
+
+
+TAndroidApp *theApp = 0;
 
 
 /* This is a trivial JNI example where we use a native method
@@ -33,8 +37,17 @@
 JNIEXPORT jstring JNICALL Java_com_example_einstein_einstein_stringFromJNI( JNIEnv* env, jobject thiz )
 {
     LOGI("Testing Android %s. Seems fine so far!", "NDK");
-    return (*env)->NewStringUTF(env, "This is the Einstein native interface (4)!");
+    return env->NewStringUTF("This is the Einstein native interface (5)!");
 }
+
+
+JNIEXPORT void JNICALL Java_com_example_einstein_einstein_initEmulator( JNIEnv* env, jobject thiz )
+{
+	LOGI("initEmulator: start");
+	theApp = new TAndroidApp();
+	LOGI("initEmulator: done");
+}
+
 
 JNIEXPORT void JNICALL Java_com_example_einstein_EinsteinView_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap)
 {

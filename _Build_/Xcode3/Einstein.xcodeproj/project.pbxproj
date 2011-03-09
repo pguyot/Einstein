@@ -204,15 +204,15 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* Einstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Einstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C90196791328299500C3342F /* AndroidGlue.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = AndroidGlue.c; path = ../../app/AndroidGlue.c; sourceTree = SOURCE_ROOT; };
 		C901967A1328299500C3342F /* AndroidGlue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AndroidGlue.h; path = ../../app/AndroidGlue.h; sourceTree = SOURCE_ROOT; };
 		C901967B1328299500C3342F /* TAndroidApp.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TAndroidApp.cp; path = ../../app/TAndroidApp.cp; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 1; };
 		C901967C1328299500C3342F /* TAndroidApp.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TAndroidApp.h; path = ../../app/TAndroidApp.h; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 1; };
 		C901967D132829C000C3342F /* Android.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Android.mk; path = ../EclipseAndroid/jni/Android.mk; sourceTree = SOURCE_ROOT; };
 		C901967E132829C000C3342F /* Application.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Application.mk; path = ../EclipseAndroid/jni/Application.mk; sourceTree = SOURCE_ROOT; };
-		C901967F132829C000C3342F /* einstein.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = einstein.java; path = ../EclipseAndroid/src/com/example/einstein/einstein.java; sourceTree = SOURCE_ROOT; };
+		C901967F132829C000C3342F /* einstein.java */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.java; name = einstein.java; path = ../EclipseAndroid/src/com/example/einstein/einstein.java; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 1; };
 		C901968613282E1500C3342F /* TAndroidScreenManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TAndroidScreenManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C901968713282E1500C3342F /* TAndroidScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TAndroidScreenManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C9019692132834EA00C3342F /* AndroidGlue.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AndroidGlue.cp; path = ../../app/AndroidGlue.cp; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 1; };
 		C932824511D0CF0A003B93C3 /* button_network_in.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network_in.png; sourceTree = "<group>"; };
 		C932824611D0CF0A003B93C3 /* button_network.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network.png; sourceTree = "<group>"; };
 		C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNE2000Card.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
@@ -705,7 +705,7 @@
 				C901967D132829C000C3342F /* Android.mk */,
 				C901967E132829C000C3342F /* Application.mk */,
 				C901967F132829C000C3342F /* einstein.java */,
-				C90196791328299500C3342F /* AndroidGlue.c */,
+				C9019692132834EA00C3342F /* AndroidGlue.cp */,
 				C901967A1328299500C3342F /* AndroidGlue.h */,
 				C901967B1328299500C3342F /* TAndroidApp.cp */,
 				C901967C1328299500C3342F /* TAndroidApp.h */,
