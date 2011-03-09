@@ -39,6 +39,7 @@ LOCAL_MODULE    := einstein
 LOCAL_SRC_FILES := \
 	app/AndroidGlue.c \
 	app/TAndroidApp.cp \
+	Emulator/Screen/TAndroidScreenManager.cp \
 	Emulator/TARMProcessor.cp \
 	Emulator/TDMAManager.cp \
 	Emulator/TEmulator.cp \

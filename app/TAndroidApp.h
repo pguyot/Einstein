@@ -1,8 +1,8 @@
 // ==============================
-// File:			TFLApp.h
+// File:			TAndroidApp.h
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2011 by Matthias Melcher (einstein@matthiasm.com).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,16 +21,12 @@
 // $Id$
 // ==============================
 
-#ifndef _TFLAPP_H
-#define _TFLAPP_H
+#ifndef _TANDROIDAPP_H
+#define _TANDROIDAPP_H
 
-#if 0
-
-#include <winsock2.h>
-#include <FL/x.H>
 #include <K/Defines/KDefinitions.h>
-#include <FL/Fl_Widget.H>
 
+#include "AndroidGlue.h"
 #include "Version.h"
 
 class TROMImage;
@@ -42,105 +38,79 @@ class TPlatformManager;
 class TMonitor;
 class TSymbolList;
 
-class Fl_Widget;
-class TFLSettings;
-
 ///
 /// Classe pour le programme einstein en ligne de commande.
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
+/// \author Matthias Melcher <einstein@matthiasm.com>
 /// \version $Revision: 113 $
 ///
 /// \test	aucun test défini.
 ///
-class TFLApp
+class TAndroidApp
 {
-  class TFLAppPipeServer {
-  public:
-    TFLAppPipeServer(TFLApp*);
-    ~TFLAppPipeServer();
-    int open();
-    void close();
-  private:
-    static void thread_(void *);
-    static void awake_(void *);
-    static const int BUFSIZE = 4096;
-    TFLApp *app_;
-    OVERLAPPED over_; 
-    HANDLE hPipeInst; 
-    HANDLE hPipe; 
-    TCHAR chRequest[BUFSIZE]; 
-    DWORD cbRead;
-    TCHAR chReply[BUFSIZE]; 
-    DWORD cbToWrite; 
-  };
 public:
 	///
 	/// Constructeur par défaut.
 	///
-	TFLApp( void );
-
+	TAndroidApp( void );
+	
 	///
 	/// Destructeur.
 	///
-	~TFLApp( void );
-
+	~TAndroidApp( void );
+	
 	///
 	/// Point d'entrée.
 	///
-	void Run( int argc, char* argv[] );
-
-	///
-	/// run a callback from any of the menu items in our pulldown
-	///
-	void do_callback(Fl_Callback *cb, void *user=0L);
-
+	void Run();
+	
 	///
 	/// user requested simulating the power button
 	///
 	void menuPower();
-
+	
 	///
 	/// user requested simulating holding the power button longer
 	///
 	void menuBacklight();
-
+	
 	///
 	/// user requested to install a package
 	///
 	void menuInstallPackage();
-
+	
 	///
 	/// show the "About..." screen
 	///
 	void menuAbout();
-
+	
 	///
 	/// user wants to see the Settings dialog box
 	///
 	void menuShowSettings();
-
+	
 	///
 	/// Open the dialog to download the ROM via TCP/IP 
 	///
 	void menuDownloadROM();
-
-  TPlatformManager *getPlatformManager() { return mPlatformManager; }
+	
+	TPlatformManager *getPlatformManager() { return mPlatformManager; }
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TFLApp( const TFLApp& inCopy );
-
+	TAndroidApp( const TAndroidApp& inCopy );
+	
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TFLApp& operator = ( const TFLApp& inCopy );
-
+	TAndroidApp& operator = ( const TAndroidApp& inCopy );
+	
 	///
 	/// Affiche un message d'erreur sur la syntaxe et sort.
 	///
@@ -173,10 +143,10 @@ private:
 	/// Crée le gestionnaire d'écran.
 	///
 	void CreateScreenManager(
-				const char* inClass,
-				int inPortraitWidth,
-				int inPortraitHeight,
-				Boolean inFullScreen);
+							 const char* inClass,
+							 int inPortraitWidth,
+							 int inPortraitHeight,
+							 Boolean inFullScreen);
 	
 	///
 	/// Crée le log.
@@ -187,50 +157,48 @@ private:
 	/// Point d'entrée du processus léger.
 	///
 	static void* SThreadEntry( void* inUserData )
-		{
-			((TFLApp*) inUserData)->ThreadEntry();
-			return NULL;
-		}
-
+	{
+		((TAndroidApp*) inUserData)->ThreadEntry();
+		return NULL;
+	}
+	
 	///
 	/// Point d'entrée du processus léger.
 	///
 	void ThreadEntry( void );
-
+	
 	///
 	/// Boucle du menu.
 	///
 	void MenuLoop( void );
-
+	
 	///
 	/// Boucle du menu (moniteur)
 	///
 	void MonitorMenuLoop( void );
-
+	
 	///
 	/// Boucle du menu (app)
 	///
 	void AppMenuLoop( void );
-
+	
 	///
 	/// Execute a command.
 	///
 	/// \return true if the command was known.
 	///
 	Boolean ExecuteCommand( const char* inCommand );
-
+	
 	///
 	/// Affiche l'aide (du menu)
 	///
 	void PrintHelp( void );
-
+	
 	///
 	/// Affiche une ligne (dans stdout ou via le moniteur)
 	///
 	void PrintLine( const char* inLine );
-
-	void static quit_cb(Fl_Widget *w, void *p);
-
+	
 	/// \name Variables
 	const char*			mProgramName;		///< Nom du programme.
 	TROMImage*			mROMImage;			///< Image ROM.
@@ -242,15 +210,10 @@ private:
 	TMonitor*			mMonitor;			///< Monitor.
 	TSymbolList*		mSymbolList;		///< List of symbols.
 	Boolean				mQuit;				///< If we should quit.
-
-	TFLSettings			*flSettings;		///< settings dialog box
-  TFLAppPipeServer mPipeServer;
 };
 
 #endif
-
-#endif
-		// _TFLAPP_H
+// _TANDROIDAPP_H
 
 // ============================================================================ //
 // Mac Airways:                                                                 //
