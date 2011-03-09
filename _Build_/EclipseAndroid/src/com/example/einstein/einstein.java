@@ -28,7 +28,6 @@ import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.MotionEvent;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -72,8 +71,8 @@ public class einstein extends Activity
         
         LinearLayout grp = new LinearLayout(this);
         grp.setOrientation(LinearLayout.VERTICAL);
-        grp.addView(ev);
         grp.addView(tv);
+        grp.addView(ev);
         
         setContentView(grp);
     }
