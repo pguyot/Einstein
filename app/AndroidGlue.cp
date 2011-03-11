@@ -49,6 +49,17 @@ JNIEXPORT void JNICALL Java_com_example_einstein_einstein_initEmulator( JNIEnv* 
 }
 
 
+JNIEXPORT void JNICALL Java_com_example_einstein_einstein_runEmulator( JNIEnv* env, jobject thiz, jstring dataPath )
+{
+	jboolean isCopy;
+	const char *cDataPath = env->GetStringUTFChars(dataPath, &isCopy);
+	LOGI("runEmulator: start (dataPath=%s)", cDataPath);
+	theApp->Run(cDataPath);
+	LOGI("runEmulator: done");
+	env->ReleaseStringUTFChars(dataPath, cDataPath);
+}
+
+
 JNIEXPORT void JNICALL Java_com_example_einstein_EinsteinView_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap)
 {
     AndroidBitmapInfo  info;

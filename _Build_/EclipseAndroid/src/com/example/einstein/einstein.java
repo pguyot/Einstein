@@ -23,13 +23,20 @@
 
 package com.example.einstein;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.app.Activity;
 import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.MotionEvent;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
@@ -75,9 +82,29 @@ public class einstein extends Activity
         grp.addView(ev);
         
         setContentView(grp);
-		
+
+        /*
+        File dataDir = getExternalFilesDir("data");
+        AssetManager assetManager = getAssets();
+        InputStream inputStream = null;
+        FileOutputStream of = null;
+
+        int i;
+        String ff[] = dataDir.list(null);
+    	Log.e("tag", ">>>");
+        for (i=0; i<ff.length; i++) {
+        	Log.e("tag", ff[i]);
+        }
+    	Log.e("tag", "<<<");
+        
+        try {
+        	String str = dataDir.getAbsolutePath();
+        	inputStream = assetManager.open("717006.rom.png", AssetManager.ACCESS_RANDOM);
+        	of = new FileOutputStream(dataDir.getAbsolutePath()+"/717006.rom");
+        */	
+        	
 		initEmulator();
-		runEmulator();
+		runEmulator(getExternalFilesDir("data").getAbsolutePath());
     }
 
     //@Override
@@ -113,7 +140,7 @@ public class einstein extends Activity
 	public native void initEmulator();
 	
 	// launch the emulator
-	public native void runEmulator();
+	public native void runEmulator(String dataPath);
 	
     // load the entire native program as a library at startup
     static {

@@ -95,9 +95,119 @@ TAndroidApp::~TAndroidApp( void )
 // Run( int, char** )
 // -------------------------------------------------------------------------- //
 void
-TAndroidApp::Run()
+TAndroidApp::Run(const char *dataPath)
 {
 	LOGE("TAndroidApp::Run() not yet implemented");
+	
+	/*
+	mNetworkManager = NULL;
+	mSoundManager = NULL;
+	mScreenManager = NULL;
+	mROMImage = NULL;
+	mEmulator = NULL;
+	mPlatformManager = NULL;
+	mLog = NULL;
+	
+	// Create a log if possible
+	//#ifdef _DEBUG
+	mLog = new TStdOutLog(); 
+	//#endif
+	
+	NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+	
+	// Create the ROM.
+	
+	NSString* einsteinRExPath = nil;
+	NSBundle* thisBundle = [NSBundle mainBundle];
+	
+	if ( !(einsteinRExPath = [thisBundle pathForResource:@"Einstein" ofType:@"rex"]) )
+	{
+		//[self abortWithMessage: @"Couldn't load Einstein REX"];
+		mLog->LogLine("Couldn't load Einstein REX");
+		return 0;
+	}
+	
+	NSString* theROMPath = [docdir stringByAppendingPathComponent:@"717006.rom"];
+	NSString* theDebugROMPath = [docdir stringByAppendingPathComponent:@"717006.aif"];
+	NSString* theDebugHighROMPath = [docdir stringByAppendingPathComponent:@"717006.rex"];
+	NSString* theImagePath = [docdir stringByAppendingPathComponent:@"717006.img"];
+    
+	NSFileManager* theFileManager = [NSFileManager defaultManager];
+    
+    if ([theFileManager fileExistsAtPath:theROMPath]) {
+        mROMImage = new TFlatROMImageWithREX(
+											 [theROMPath fileSystemRepresentation],
+											 [einsteinRExPath fileSystemRepresentation],
+											 "717006", false,
+											 [theImagePath fileSystemRepresentation]);
+    } else if ([theFileManager fileExistsAtPath:theDebugROMPath]
+			   &&[theFileManager fileExistsAtPath:theDebugHighROMPath]) {
+        mROMImage = new TAIFROMImageWithREXes(
+											  [theDebugROMPath fileSystemRepresentation],
+											  [theDebugHighROMPath fileSystemRepresentation],
+											  [einsteinRExPath fileSystemRepresentation],
+											  "717006" );
+    } else {
+        fprintf(stderr, "ROM file required here:\n %s\nor here:\n %s\n %s\n\n",
+                [theROMPath fileSystemRepresentation],
+                [theDebugROMPath fileSystemRepresentation],
+                [theDebugHighROMPath fileSystemRepresentation]);
+		//[self abortWithMessage: @"ROM file not found"];
+        [self explainMissingROM];
+        mROMImage = 0L;
+        return 0;
+    }
+	
+	// Create the network manager.
+	
+	mNetworkManager = new TNullNetwork(mLog);
+	
+	// Create the sound manager.
+	
+	mSoundManager = new TCoreAudioSoundManager(mLog);
+	
+    // iPad is 1024x768. This size, and some appropriate scaling factors, should be selectable from
+    // the 'Settings' panel.
+	
+    static int widthLUT[]  = { 320, 640, 384,  786 };
+    static int heightLUT[] = { 480, 960, 512, 1024 };
+    
+    NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
+	int index = [(NSNumber*)[prefs objectForKey:@"screen_resolution"] intValue];
+	int newtonScreenWidth = widthLUT[index];
+	int newtonScreenHeight = heightLUT[index];
+	
+	iEinsteinView* einsteinView = (iEinsteinView*)[self view];
+	Boolean isLandscape = (newtonScreenWidth > newtonScreenHeight);
+	
+	mScreenManager = new TIOSScreenManager(
+										   einsteinView,
+										   self,
+										   mLog,
+										   newtonScreenWidth, newtonScreenHeight,
+										   true,
+										   isLandscape);
+	
+	[einsteinView setScreenManager:mScreenManager];
+	
+	// Create the emulator.
+	
+	NSString* theFlashPath = [docdir stringByAppendingPathComponent:@"flash"];
+	printf("Flash file is %s\n", [theFlashPath fileSystemRepresentation]);
+	
+	mEmulator = new TEmulator(
+							  mLog, mROMImage, [theFlashPath fileSystemRepresentation],
+							  mSoundManager, mScreenManager, mNetworkManager, 0x40 << 16);
+	
+	mPlatformManager = mEmulator->GetPlatformManager();
+    mPlatformManager->SetDocDir([docdir fileSystemRepresentation]);
+    
+	[einsteinView setEmulator:mEmulator];
+	
+	((TIOSScreenManager*)mScreenManager)->SetPlatformManager(mPlatformManager);
+    
+    return 1;
+	*/
 #if 0
 	mProgramName = "AndriodEinstein";	
 	const char* defaultMachineString = "717006";
