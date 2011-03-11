@@ -61,7 +61,7 @@ public:
 	///
 	/// Point d'entrée.
 	///
-	void Run();
+	void Run(const char *dataPath);
 	
 	///
 	/// user requested simulating the power button
