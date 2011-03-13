@@ -150,7 +150,7 @@ TScreenManager::Blit(
 					SRect* inSrcRect,
 					SRect* inDstRect,
 					KUInt32 inMode )
-{
+{    
 	// Update the local screen buffer.
 	KUInt32 baseAddy;
 	(void) mMemory->Read( inPixelMapAddr, baseAddy );

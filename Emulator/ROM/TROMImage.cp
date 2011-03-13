@@ -254,7 +254,7 @@ TROMImage::CreateImage(
 				KUInt32 inBufferSize,
 				const char inMachineString[6] )
 {
-	(void) ::fprintf( stderr, "Creating image...\n" );
+	fprintf(stderr, "Creating image...\n" );
 
 	// Create the mmap file.
 	TMappedFile theImageFile(
@@ -265,7 +265,7 @@ TROMImage::CreateImage(
 	SImage* theImagePtr = (SImage*) theImageFile.GetBuffer();
 	if (theImagePtr == NULL)
 	{
-		::fprintf( stderr, "Can't create the image at %s\n", inPath );
+		fprintf(stderr, "Can't create the image at %s\n", inPath );
 		::exit(1);
 	}
 	
@@ -317,7 +317,7 @@ TROMImage::Init( const char* inPath, Boolean inMonitorMode )
 	SImage* theImage = (SImage*) theMappedFile->GetBuffer();
 	if (theImage == NULL)
 	{
-		::fprintf( stderr, "Can't load the image at %s\n", inPath );
+		fprintf(stderr, "Can't load the image at %s\n", inPath );
 		::exit(1);
 	}
 
@@ -543,6 +543,7 @@ TROMImage::PatchROM( SImage* inImagePtr )
 {
 	if (::memcmp(inImagePtr->fMachineString, "717006", 6) == 0)
 	{
+        fprintf(stderr, "PATCHING THE ROM");
 		// Patch for 717006.
 		DoPatchROMFromDatabase(inImagePtr);
 		// Patch for 717006.
@@ -551,7 +552,9 @@ TROMImage::PatchROM( SImage* inImagePtr )
                k717006VirtualizationPatches,
                (sizeof(k717006VirtualizationPatches) / (sizeof(KUInt32) * 2)));
 
-	}
+	} else {
+        fprintf(stderr, "Can't patch: WRONG ROM!");
+    }
 }
 
 // -------------------------------------------------------------------------- //
@@ -631,7 +634,7 @@ function_(0L),
 method_(0L)
 {
     first_ = this;
-    printf("Adding ROM patch: %s\n", name);
+    fprintf(stderr, "Adding ROM patch: %s\n", name);
 }
 
 // -------------------------------------------------------------------------- //
@@ -646,7 +649,7 @@ function_(function),
 method_(0L)
 {
     first_ = this;
-    printf("Adding ROM patch to Albert function: %3d = %s\n", (int)nPatch, name);
+    fprintf(stderr, "Adding ROM patch to Albert function: %3d = %s\n", (int)nPatch, name);
     value_ |= addPatch(this);
 }
 
@@ -662,7 +665,7 @@ function_(0L),
 method_(0L)
 {
     first_ = this;
-    printf("Adding ROM patch to JIT function: %3d = %s\n", (int)nPatch, name);
+    fprintf(stderr, "Adding ROM patch to JIT function: %3d = %s\n", (int)nPatch, name);
     value_ |= addPatch(this);
 }
 
@@ -678,7 +681,7 @@ function_(0L),
 method_(method)
 {
     first_ = this;
-    printf("Adding ROM patch to Albert method:   %3d = %s\n", (int)nPatch, name);
+    fprintf(stderr, "Adding ROM patch to Albert method:   %3d = %s\n", (int)nPatch, name);
     value_ |= addPatch(this);
 }
 

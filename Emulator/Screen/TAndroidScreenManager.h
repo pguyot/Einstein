@@ -108,8 +108,7 @@ public:
 	///
 	/// \param inNewOrientation	the new orientation of the screen.
 	///
-	virtual void	ScreenOrientationChanged(
-											 EOrientation inNewOrientation );
+	virtual void	ScreenOrientationChanged( EOrientation inNewOrientation );
 	
 	///
 	/// Notify that the contrast changed.
@@ -139,6 +138,10 @@ public:
 	///
 	void	Run( void );
 	
+	int update(unsigned short *buffer);
+	
+	int isDirty() { return changed; }
+	
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
@@ -153,6 +156,8 @@ private:
 	/// \param inCopy		objet ˆ copier
 	///
 	TAndroidScreenManager& operator = ( const TAndroidScreenManager& inCopy );
+	
+	char changed;
 };
 
 #endif
