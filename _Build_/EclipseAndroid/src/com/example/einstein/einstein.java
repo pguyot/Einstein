@@ -160,7 +160,7 @@ public class einstein extends Activity
             				"ROM file not found.\n\n" +
             				"Please copy the files\n\n  \"717006.rom\" " +
             				"and \"Einstein.rex\"\n\nto\n\n" +
-            				"  \"/Downloads/Einstein\"\n\non your Android device.");
+            				"  \"/Download/Einstein\"\n\non your Android device.");
             		return false;
         		}
         		Log.w("Einstein", "Copying ROM file from assets...");
@@ -185,7 +185,7 @@ public class einstein extends Activity
             				"REX file not found.\n\n" +
             				"Please copy the files\n\n  \"717006.rom\" " +
             				"and \"Einstein.rex\"\n\nto\n\n" +
-            				"  \"/Downloads/Einstein\"\n\non your Android device.");
+            				"  \"/Download/Einstein\"\n\non your Android device.");
             		return false;
         		}
                 Log.w("Einstein", "Copying REX file from assets...");
@@ -221,7 +221,7 @@ public class einstein extends Activity
 			}
 		};
 		AlertDialog ad = new AlertDialog.Builder(this).create();  
-		ad.setCancelable(false); // This blocks the 'BACK' button  
+		ad.setCancelable(false); // This blocks the 'BACK' button
 		ad.setMessage(msg);  
 		ad.setButton("Quit", new MyOnClickListener(this));  
 		ad.show();

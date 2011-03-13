@@ -46,7 +46,7 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 /// Stats...
-#define COLLECT_STATS_ON_PAGES 0
+#undef COLLECT_STATS_ON_PAGES
 
 #ifdef COLLECT_STATS_ON_PAGES
 static KUInt16 gMaxUnitsCount = 0;
@@ -144,9 +144,6 @@ TJITGenericPage::Translate(
 				KUInt32 inInstruction,
 				KUInt32 inVAddr )
 {
-	if (inVAddr==0) {
-		int x = 3;
-	}
 #ifdef JIT_PERFORMANCE
 	PushUnit(ioUnitCrsr, instrCount);
 	PushUnit(ioUnitCrsr, inVAddr);

@@ -536,7 +536,7 @@
 		C99E3496111B7C08002165EC /* TCocoaScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaScreenManager.h; sourceTree = "<group>"; };
 		C99E3497111B7C08002165EC /* TCocoaScreenView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaScreenView.h; sourceTree = "<group>"; };
 		C99E3498111B7C08002165EC /* TCocoaScreenView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaScreenView.mm; sourceTree = "<group>"; };
-		C99E349D111B7C08002165EC /* TScreenManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TScreenManager.cp; sourceTree = "<group>"; };
+		C99E349D111B7C08002165EC /* TScreenManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TScreenManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E349E111B7C08002165EC /* TScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TScreenManager.h; sourceTree = "<group>"; tabWidth = 4; };
 		C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TVoyagerSerialPort.cp; sourceTree = "<group>"; };
 		C99E34A8111B7C08002165EC /* TVoyagerSerialPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TVoyagerSerialPort.h; sourceTree = "<group>"; };

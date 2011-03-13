@@ -35,6 +35,7 @@ class TSoundManager;
 class TScreenManager;
 class TLog;
 class TPlatformManager;
+class TNetworkManager;
 
 ///
 /// Classe pour le programme einstein en ligne de commande.
@@ -94,6 +95,13 @@ public:
 	void menuDownloadROM();
 	
 	TPlatformManager *getPlatformManager() { return mPlatformManager; }
+	
+	TScreenManager *getScreenManager() { return mScreenManager; }
+	
+	int updateScreen(unsigned short *buffer);
+	
+	int screenIsDirty();
+	
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
@@ -205,6 +213,7 @@ private:
 	TScreenManager*		mScreenManager;		///< Gestionnaire d'Žcran.
 	TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
 	TLog*				mLog;				///< Log.
+	TNetworkManager*	mNetworkManager;	///< network connection
 	Boolean				mQuit;				///< If we should quit.
 };
 
