@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.lang.Runtime;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -43,6 +44,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+
 
 class EinsteinView extends View {
     private Bitmap mBitmap;
@@ -92,6 +94,18 @@ public class einstein extends Activity
 {
 	public EinsteinView pEinsteinView = null;
 	
+	/* We need to override these:
+	 * 
+	 * Activity Starts:  onCreate() (cold start)
+	 *         visible:  onStart()  <-  onRestart()
+	 *      foreground:  onResume()
+	 *         running
+	 *       backgroud:  onPause()
+	 *       invisible:  onStop()
+	 *        shutdown:  onDestroy()
+	 *            kill?
+	 */
+	
 	public class ScreenRefresh extends TimerTask {
 
 		public EinsteinView pev = null;
@@ -107,9 +121,9 @@ public class einstein extends Activity
 	};
 	
     /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState)
+    @Override public void onCreate(Bundle savedInstanceState)
     {
+    	//Log.e("einstein", ">>>>>>>>>> onCreate()");    	
         super.onCreate(savedInstanceState);
         
         pEinsteinView = new EinsteinView(this);        
@@ -125,10 +139,36 @@ public class einstein extends Activity
 		t.scheduleAtFixedRate(new ScreenRefresh(pEinsteinView), 1000, 200);
     }
 
-    //@Override
-    //protected void onStop() {
-    //    finish();  // FIXME: we must cancel the main thread
-    //}
+    @Override public void onStart()
+    {
+    	//Log.e("XXXX", ">>>>>>>>>> onStart()");
+    	super.onStart();
+    }
+    
+	@Override public void onResume()
+    {
+    	//Log.e("XXXX", ">>>>>>>>>> onResume()");
+    	super.onResume();
+    }
+    
+	@Override public void onPause()
+    {
+    	//Log.e("XXXX", ">>>>>>>>>> onPause()");
+    	super.onPause();
+    }
+    
+    @Override public void onStop()
+    {
+    	//Log.e("XXXX", ">>>>>>>>>> onStop()");
+    	super.onStop();
+    }
+    
+    @Override public void onDestroy()
+    {
+    	//Log.e("XXXX", ">>>>>>>>>> onDestroy()");
+    	super.onDestroy();
+    }
+    
 
     // native test method implemented in app/AndroidGlue.c
     public native String  stringFromJNI();
@@ -202,8 +242,8 @@ public class einstein extends Activity
         	if (!img.exists()) {
         		warnUser(
         				"EXPERIMENTAL CODE\n\n" +
-        				"This is a very early prerelease of Einstein for Android. First boot may take up to six minutes! " +
-        				"Please watch for stray threads eating battery after Einstein quits!");
+        				"This is a very early prerelease of Einstein for Android. " +
+        				"First boot may take up to six minutes, later cold boots will be quicker.");
         	} 
         } catch (IOException e) {
         	Log.e("Einstein", "Installing assets: " + e.getMessage());
@@ -221,7 +261,7 @@ public class einstein extends Activity
 			}
 		};
 		AlertDialog ad = new AlertDialog.Builder(this).create();  
-		ad.setCancelable(false); // This blocks the 'BACK' button
+		ad.setCancelable(false);
 		ad.setMessage(msg);  
 		ad.setButton("Quit", new MyOnClickListener(this));  
 		ad.show();
@@ -229,7 +269,7 @@ public class einstein extends Activity
 	
 	void warnUser(String msg) {
 		AlertDialog ad = new AlertDialog.Builder(this).create();  
-		ad.setCancelable(false); // This blocks the 'BACK' button  
+		ad.setCancelable(false);  
 		ad.setMessage(msg);  
 		ad.setButton("OK", new DialogInterface.OnClickListener() { 
 			@Override public void onClick(DialogInterface dialog, int which) { dialog.dismiss(); } 
