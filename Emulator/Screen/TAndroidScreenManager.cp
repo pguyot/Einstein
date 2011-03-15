@@ -158,10 +158,6 @@ TAndroidScreenManager::TabletOrientationChanged( EOrientation )
 
 int TAndroidScreenManager::update(unsigned short *buffer)
 {
-	if (!changed) 
-		return 0;
-	
-	LOGW("Rendering entire screen");
 #define ROT(a) (a<<12) | (a<<7) | (a<<1)
 	static unsigned short lut[16] = {
 		ROT(0), ROT(1), ROT(2), ROT(3), 
@@ -169,6 +165,8 @@ int TAndroidScreenManager::update(unsigned short *buffer)
 		ROT(8), ROT(9), ROT(10), ROT(11), 
 		ROT(12), ROT(13), ROT(14), ROT(15), 
 	};
+	if (!changed) 
+		return 0;
 	KUInt8* src = GetScreenBuffer();
 	unsigned short *dst = buffer;
 	int i;
@@ -191,7 +189,6 @@ void
 TAndroidScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 {
 
-	LOGE("********** UpdateScreenRect **********");
 	changed = 1;
 #if 0
 	static bool firstTime = true;

@@ -25,6 +25,7 @@
 #include <app/TAndroidApp.h>
 #include <Emulator/Screen/TScreenManager.h>
 #include <string.h>
+#include <dlfcn.h>
 
 #include <android/bitmap.h>
 
@@ -88,6 +89,21 @@ JNIEXPORT void JNICALL Java_com_example_einstein_einstein_initEmulator( JNIEnv* 
 {
 	LOGI("initEmulator: start");
 	theApp = new TAndroidApp();
+	
+	void *mLibHandle = dlopen("libaudio.so", 0);
+	if (mLibHandle) {
+		// http://source.android.com/porting/audio.html
+		LOGE("YAY, libaudio is here!\n");
+		void *fn = dlsym(mLibHandle, "createAudioHardware");
+		if (fn) {
+			LOGE("YAY again: we have the right funciton ************");
+		} else {
+			LOGE("BOOHOO");
+		}
+	} else {
+		LOGE("dlopen failed on libaudio.so %s\n", dlerror());
+	}
+	
 	LOGI("initEmulator: done");
 }
 
