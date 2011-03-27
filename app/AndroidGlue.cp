@@ -93,6 +93,8 @@ JNIEXPORT void JNICALL Java_com_example_einstein_einstein_initEmulator( JNIEnv* 
 	void *mLibHandle = dlopen("libaudio.so", 0);
 	if (mLibHandle) {
 		// http://source.android.com/porting/audio.html
+		// http://source.android.com/porting/AudioHardwareInterface_8h-source.html
+		// Galaxy Tab: "/sdcard/external_sd/" "/sdcard/sd/"
 		LOGE("YAY, libaudio is here!\n");
 		void *fn = dlsym(mLibHandle, "createAudioHardware");
 		if (fn) {

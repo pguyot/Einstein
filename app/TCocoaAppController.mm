@@ -436,11 +436,12 @@ static TCocoaAppController* gInstance = nil;
 #ifdef JIT_PERFORMANCE
 	FILE *f;
 	f = fopen("/Users/matt/dev/Einstein/p1.txt", "wb");
-	branchDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, 1000);
+	//branchDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, 1000);
+	branchDestCount.print(f, TJITPerfHitCounter::kStyleAllHit|TJITPerfHitCounter::kStyleHex);
 	fclose(f);
-	f = fopen("/Users/matt/dev/Einstein/p2.txt", "wb");
-	branchLinkDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, 1000);
-	fclose(f);
+	//f = fopen("/Users/matt/dev/Einstein/p2.txt", "wb");
+	//branchLinkDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, 1000);
+	//fclose(f);
 #endif
 }
 
