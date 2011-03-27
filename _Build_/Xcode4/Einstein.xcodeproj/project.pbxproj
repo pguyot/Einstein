@@ -383,7 +383,7 @@
 		C99E3352111B7570002165EC /* UExpatUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UExpatUtils.cp; sourceTree = "<group>"; };
 		C99E3353111B7570002165EC /* UExpatUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UExpatUtils.h; sourceTree = "<group>"; };
 		C99E33D1111B7C07002165EC /* einstein.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = einstein.mm; sourceTree = "<group>"; };
-		C99E33D4111B7C07002165EC /* Einstein.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.sdef; path = Einstein.sdef; sourceTree = "<group>"; };
+		C99E33D4111B7C07002165EC /* Einstein.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Einstein.sdef; sourceTree = "<group>"; };
 		C99E33D5111B7C07002165EC /* EinsteinDoNewtonScriptCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EinsteinDoNewtonScriptCommand.h; sourceTree = "<group>"; };
 		C99E33D6111B7C07002165EC /* EinsteinDoNewtonScriptCommand.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EinsteinDoNewtonScriptCommand.mm; sourceTree = "<group>"; };
 		C99E33D7111B7C07002165EC /* EinsteinInstallPackageCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EinsteinInstallPackageCommand.h; sourceTree = "<group>"; };
@@ -1883,7 +1883,7 @@
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PREBINDING = YES;
 				PRODUCT_NAME = Einstein;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = "ppc i386 x86_64";
 			};
@@ -1921,7 +1921,7 @@
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PREBINDING = YES;
 				PRODUCT_NAME = Einstein;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = "ppc i386 x86_64";
 			};
@@ -1987,7 +1987,7 @@
 				PREBINDING = NO;
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
-				SDKROOT = iphoneos4.2;
+				SDKROOT = iphoneos4.3;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 				VALID_ARCHS = "armv6 armv7";
@@ -2024,7 +2024,7 @@
 				PREBINDING = NO;
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
-				SDKROOT = iphoneos4.2;
+				SDKROOT = iphoneos4.3;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 				VALIDATE_PRODUCT = NO;
@@ -2078,7 +2078,7 @@
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PREBINDING = YES;
 				PRODUCT_NAME = Einstein;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = "ppc i386 x86_64";
 			};
@@ -2114,7 +2114,7 @@
 				PREBINDING = NO;
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
-				SDKROOT = iphoneos4.2;
+				SDKROOT = iphoneos4.3;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 				VALIDATE_PRODUCT = NO;

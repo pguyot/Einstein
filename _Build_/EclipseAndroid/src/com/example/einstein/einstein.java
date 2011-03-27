@@ -129,6 +129,7 @@ public class einstein extends Activity
         pEinsteinView = new EinsteinView(this);        
         setContentView(pEinsteinView);
 
+        // FILE* file = fopen("/sdcard/hello.txt","w+");
         String dataPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Einstein"; 
         if (!installAssets(dataPath))
         	return;
@@ -183,6 +184,19 @@ public class einstein extends Activity
 	public native int screenIsDirty();
 
 	public boolean installAssets(String dataPath) {
+		/* TODO: 
+		 * - check all install locations for valid ROM
+		 *   - check EXT/Einstein
+		 *   - check /sdcard/Einstein
+		 *   - check /sdcard/external_sd/Einstein
+		 *   - check /sdcard/sd/Einstein
+		 *   - further possible dirs are /system/media/sdcard/... and /mnt/sdcard/... 
+		 *   - check /proc/self/mounts ... Einstein (don't! This is messy!)
+		 *   - check EXT/download/Einstein (outdated)
+		 * - check download directory for .zip
+		 *   - if found, extract into EXT/Einstein
+		 * - message to the user
+		 */
         File dataDir = new File(dataPath);
         dataDir.mkdirs();
         AssetManager assetManager = getAssets();

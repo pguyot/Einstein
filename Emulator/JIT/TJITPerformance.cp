@@ -97,9 +97,17 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 				}
 			}
 			break;
+		case kStyleAllHit:
+			n = 0;
+			for (j=0; j<mSize; j++) {
+				KUInt64 v = mArray[j];
+				if (v>0) 
+					n++;
+			}
 		case kStyleMostHit:
 			// TODO: using an insanely slow and destructive method to sort
-			n = va_arg( vl, KUInt32 );
+			if ((style & 0x0000ffff)==kStyleMostHit)
+				n = va_arg( vl, KUInt32 );
 			for (i=0; i<n; i++) {
 				m = 0; ix = 0;
 				for (j=0; j<mSize; j++) {
