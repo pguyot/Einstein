@@ -74,6 +74,9 @@ KUInt64 TJITPerfHitCounter::get_hits(KUInt32 at)
 
 void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 {
+	if ( !out )
+		return;
+		
 	va_list vl;
 	va_start(vl, style);
 	KUInt32 a, b, i, j, n, o, ix;
