@@ -736,7 +736,7 @@ disasm_interface_t::di_printf( const char* inFmt )
 	if (mLeft > 0)
 	{
 		// Write the string.
-		int wouldHaveBeenWritten = ::snprintf( mBufferCrsr, mLeft, inFmt );
+		int wouldHaveBeenWritten = ::snprintf( mBufferCrsr, mLeft, "%s", inFmt );
 		if (wouldHaveBeenWritten > mLeft)
 		{
 			mLeft = 0;
