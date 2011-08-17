@@ -42,6 +42,7 @@ class TCondVar;
 class TNetworkManager
 {
 public:
+ 	TNetworkManager() {}
 	TNetworkManager(TLog* inLog);
 	
 	///
@@ -147,7 +148,7 @@ public:
 	/// Thread loop entry point.
 	/// Select on fds.
 	///
-	void				Run( void );
+	virtual void				Run( void );
 	
 protected:
 	///
@@ -177,7 +178,7 @@ private:
 class TNullNetwork : public TNetworkManager
 {
 public:
-	TNullNetwork(TLog* inLog) : TNetworkManager(inLog) { }
+ 	TNullNetwork(TLog* inLog) : TNetworkManager() {}
 	virtual ~TNullNetwork() { }
 	virtual int SendPacket(KUInt8 *data, KUInt32 size) { return -1; }
 	virtual int GetDeviceAddress(KUInt8 *data, KUInt32 size) { return -1; }
