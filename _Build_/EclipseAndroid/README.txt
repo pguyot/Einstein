@@ -5,4 +5,7 @@ Compile the native code first using something like
 
 from this directory
 
+  /Users/matt/dev/Einstein/_Build_/EclipseAndroid
+  
+this call applies changes to the xml files, etc. 
   android update project -p . -s

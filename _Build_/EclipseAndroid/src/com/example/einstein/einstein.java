@@ -27,14 +27,22 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.BufferedInputStream;
+import java.io.OutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.lang.Runtime;
+import java.net.URL;
+import java.net.URLConnection;
+//import java.lang.Runtime;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.AsyncTask;
+import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.view.MotionEvent;
@@ -44,6 +52,9 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
 
 
 class EinsteinView extends View {
@@ -93,6 +104,8 @@ class EinsteinView extends View {
 public class einstein extends Activity
 {
 	public EinsteinView pEinsteinView = null;
+    public static final int DIALOG_DOWNLOAD_PROGRESS = 0;
+    private ProgressDialog mProgressDialog;
 	
 	/* We need to override these:
 	 * 
@@ -180,9 +193,99 @@ public class einstein extends Activity
 	// launch the emulator
 	public native void runEmulator(String dataPath);
 
-	// return 1 if the screen want to be re-rendered
+	// return 1 if the screen wants to be re-rendered
 	public native int screenIsDirty();
 
+	
+    private void startDownload() {
+        String url = "http://farm1.static.flickr.com/114/298125983_0e4bf66782_b.jpg";
+        new DownloadFileAsync().execute(url);
+    }
+    
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case DIALOG_DOWNLOAD_PROGRESS:
+                mProgressDialog = new ProgressDialog(this);
+                mProgressDialog.setMessage("Downloading file..");
+                mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                mProgressDialog.setCancelable(false);
+                mProgressDialog.show();
+                return mProgressDialog;
+            default:
+                return null;
+        }
+    }
+    
+    class DownloadFileAsync extends AsyncTask<String, String, String> {
+        
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showDialog(DIALOG_DOWNLOAD_PROGRESS);
+        }
+
+        @Override
+        protected String doInBackground(String... aurl) {
+            int count;
+
+            try {
+                URL url = new URL(aurl[0]);
+                URLConnection conexion = url.openConnection();
+                conexion.connect();
+
+                int lenghtOfFile = conexion.getContentLength();
+                Log.d("ANDRO_ASYNC", "Lenght of file: " + lenghtOfFile);
+
+                InputStream input = new BufferedInputStream(url.openStream());
+                OutputStream output = new FileOutputStream("/sdcard/some_photo_from_gdansk_poland.jpg");
+
+                byte data[] = new byte[1024];
+
+                long total = 0;
+
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    publishProgress(""+(int)((total*100)/lenghtOfFile));
+                    output.write(data, 0, count);
+                }
+
+                output.flush();
+                output.close();
+                input.close();
+            } catch (Exception e) {}
+            return null;
+
+        }
+        protected void onProgressUpdate(String... progress) {
+             Log.d("ANDRO_ASYNC",progress[0]);
+             mProgressDialog.setProgress(Integer.parseInt(progress[0]));
+        }
+
+        @Override
+        protected void onPostExecute(String unused) {
+            dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
+        }
+    }
+	
+    private String setText(){
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle("Download the ROM");
+        alert.setMessage("Enter the URL of the Newton ROM file");
+        final EditText input = new EditText(this);
+        alert.setView(input);
+        final String out = null;
+        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Editable ed = input.getText();
+                String out = ed.toString();
+        		Log.i("Einstein", out);
+            }
+        });
+        alert.show();
+		return out;
+    }
+    
 	public boolean installAssets(String dataPath) {
 		/* TODO: 
 		 * - check all install locations for valid ROM
@@ -197,10 +300,14 @@ public class einstein extends Activity
 		 *   - if found, extract into EXT/Einstein
 		 * - message to the user
 		 */
+		
+        // setText(); // this is asynchronous! No keyboard is shown!
+        // startDownload(); // this is asynchronous!
+
         File dataDir = new File(dataPath);
         dataDir.mkdirs();
         AssetManager assetManager = getAssets();
-        
+               
         try {
         	File rom = new File(dataPath + "/717006.rom");
         	if (rom.exists()) {
@@ -298,7 +405,146 @@ public class einstein extends Activity
     }
 }
 
+/*
+ * 
+ * http://www.weinbrennerei-dujardin.de/Newton/717006.rom
+ * 
+ * 
+ * 
+ * permissions:
+ * 	
+Òandroid.permission.WRITE_EXTERNAL_STORAGEÓ
+Òandroid.permission.READ_EXTERNAL_STORAGEÓ
+<uses-permission android:name="android.permission.INTERNET" />
 
+
+main.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   android:orientation="vertical"
+   android:layout_width="fill_parent"
+   android:layout_height="fill_parent"
+   >
+<TextView  
+   android:layout_width="fill_parent" 
+   android:layout_height="wrap_content" 
+   android:text="@string/hello"
+   />
+<Button 
+    android:text="Start long running task.." 
+    android:id="@+id/startBtn" 
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content">
+</Button>
+</LinearLayout>
+ * 
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+
+public class AndroAsync extends Activity {
+    
+    public static final int DIALOG_DOWNLOAD_PROGRESS = 0;
+    private Button startBtn;
+    private ProgressDialog mProgressDialog;
+    
+    // Called when the activity is first created. 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+        startBtn = (Button)findViewById(R.id.startBtn);
+        startBtn.setOnClickListener(new OnClickListener(){
+            public void onClick(View v) {
+                startDownload();
+            }
+        });
+    }
+
+    private void startDownload() {
+        String url = "http://farm1.static.flickr.com/114/298125983_0e4bf66782_b.jpg";
+        new DownloadFileAsync().execute(url);
+    }
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case DIALOG_DOWNLOAD_PROGRESS:
+                mProgressDialog = new ProgressDialog(this);
+                mProgressDialog.setMessage("Downloading file..");
+                mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                mProgressDialog.setCancelable(false);
+                mProgressDialog.show();
+                return mProgressDialog;
+            default:
+                return null;
+        }
+    }
+    class DownloadFileAsync extends AsyncTask<String, String, String> {
+        
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showDialog(DIALOG_DOWNLOAD_PROGRESS);
+        }
+
+        @Override
+        protected String doInBackground(String... aurl) {
+            int count;
+
+            try {
+                URL url = new URL(aurl[0]);
+                URLConnection conexion = url.openConnection();
+                conexion.connect();
+
+                int lenghtOfFile = conexion.getContentLength();
+                Log.d("ANDRO_ASYNC", "Lenght of file: " + lenghtOfFile);
+
+                InputStream input = new BufferedInputStream(url.openStream());
+                OutputStream output = new FileOutputStream("/sdcard/some_photo_from_gdansk_poland.jpg");
+
+                byte data[] = new byte[1024];
+
+                long total = 0;
+
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    publishProgress(""+(int)((total*100)/lenghtOfFile));
+                    output.write(data, 0, count);
+                }
+
+                output.flush();
+                output.close();
+                input.close();
+            } catch (Exception e) {}
+            return null;
+
+        }
+        protected void onProgressUpdate(String... progress) {
+             Log.d("ANDRO_ASYNC",progress[0]);
+             mProgressDialog.setProgress(Integer.parseInt(progress[0]));
+        }
+
+        @Override
+        protected void onPostExecute(String unused) {
+            dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
+        }
+    }
+}
+
+ */
 
 // ============================================================================== //
 // I can't uninstall it, there seems to be some kind of 'Uninstall Shield'.       //

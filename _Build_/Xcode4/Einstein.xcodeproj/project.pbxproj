@@ -523,7 +523,7 @@
 		C99E3481111B7C08002165EC /* TAIFROMImageWithREXes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TAIFROMImageWithREXes.h; sourceTree = "<group>"; };
 		C99E3482111B7C08002165EC /* TFlatROMImage.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFlatROMImage.cp; sourceTree = "<group>"; };
 		C99E3483111B7C08002165EC /* TFlatROMImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFlatROMImage.h; sourceTree = "<group>"; };
-		C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFlatROMImageWithREX.cp; sourceTree = "<group>"; };
+		C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFlatROMImageWithREX.cp; sourceTree = "<group>"; tabWidth = 8; };
 		C99E3485111B7C08002165EC /* TFlatROMImageWithREX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFlatROMImageWithREX.h; sourceTree = "<group>"; };
 		C99E3486111B7C08002165EC /* TROMImage.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TROMImage.cp; sourceTree = "<group>"; tabWidth = 4; };
 		C99E3487111B7C08002165EC /* TROMImage.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TROMImage.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };

@@ -279,6 +279,11 @@ public:
 	///
 	void		LoadState( TStream* inStream );
 
+	/// 
+	/// Dump the entire MMU Lookup Table to a File
+	///
+	void		FDump(FILE *f);
+	
 private:
 	///
 	/// New magic.
