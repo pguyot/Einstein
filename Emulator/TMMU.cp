@@ -993,6 +993,22 @@ TMMU::LoadState( TStream* inStream )
 	InvalidateTLB();
 }
 
+// -------------------------------------------------------------------------- //
+//  * FDump(FILE *f)
+// -------------------------------------------------------------------------- //
+void
+TMMU::FDump(FILE *f)
+{
+	fprintf(f, "=====> Dumping MMU state\n");
+	if (mMMUEnabled) {
+		fprintf(f, "Primary MMU table at %08x\n", mTTBase);
+	} else {
+		fprintf(f, "MMU is disabled\n");
+	}
+	fprintf(f, "<===== End of MMU state dump\n");
+}
+
+
 // ==================== //
 // You might have mail. //
 // ==================== //

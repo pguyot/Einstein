@@ -120,22 +120,29 @@ TAndroidApp::Run(const char *dataPath)
 	mPlatformManager = NULL;
 	mLog = NULL;
 	
+	LOGW("Loading assets...");
+	
+	LOGW("  mLog:");
 	mLog = new TAndroidLog();
-	LOGW("mLog: 0x%08x", (int)mLog);
+	LOGW("    OK: 0x%08x", (int)mLog);
 
 	char theROMPath[1024];
 	snprintf(theROMPath, 1024, "%s/717006.rom", dataPath);
+	LOGW("  ROM exists at %s?", theROMPath);
 	if (access(theROMPath, R_OK)==-1) {
 		LOGE("Can't read ROM file %s", theROMPath);
 		return;
 	}
+	LOGW("    OK");
 
 	char theREXPath[1024];
 	snprintf(theREXPath, 1024, "%s/Einstein.rex", dataPath);
+	LOGW("  ROM exists at %s?", theREXPath);
 	if (access(theREXPath, R_OK)==-1) {
 		LOGE("Can't read REX file %s", theREXPath);
 		return;
 	}
+	LOGW("    OK");
 	
 	char theImagePath[1024];
 	snprintf(theImagePath, 1024, "%s/717006.img", dataPath);
@@ -143,25 +150,29 @@ TAndroidApp::Run(const char *dataPath)
 	char theFlashPath[1024];
 	snprintf(theFlashPath, 1024, "%s/flash", dataPath);
 	
+	LOGW("  mROMImage:");
 	mROMImage = new TFlatROMImageWithREX(theROMPath, theREXPath, "717006", false, theImagePath);
-	LOGW("mROMImage: 0x%08x", (int)mROMImage);
+	LOGW("    OK: 0x%08x", (int)mROMImage);
 
+	LOGW("  mSoundManager:");
 	mSoundManager = new TNullSoundManager(mLog);
-	LOGW("mSoundManager: 0x%08x", (int)mSoundManager);
+	LOGW("    OK: 0x%08x", (int)mSoundManager);
 
 	int newtonScreenWidth = 320;
 	int newtonScreenHeight = 480;
 	Boolean isLandscape = false;
-	
+	LOGW("  mScreenManager");
 	mScreenManager = new TAndroidScreenManager(mLog,
 											   newtonScreenWidth, newtonScreenHeight,
 											   true,
 											   isLandscape);
-	LOGW("mScreenManager: 0x%08x", (int)mScreenManager);
+	LOGW("    OK: 0x%08x", (int)mScreenManager);
 	
+	LOGW("  mNetworkManager:");
 	mNetworkManager = new TNullNetwork(mLog);
-	LOGW("mNetworkManager: 0x%08x", (int)mNetworkManager);
+	LOGW("    OK: 0x%08x", (int)mNetworkManager);
 	
+	LOGW("  mEmulator:");
 	mEmulator = new TEmulator(
 							  mLog, 
 							  mROMImage, 
@@ -170,10 +181,11 @@ TAndroidApp::Run(const char *dataPath)
 							  mScreenManager, 
 							  mNetworkManager, 
 							  0x40 << 16);
-	LOGW("mEmulator: 0x%08x", (int)mEmulator);
+	LOGW("    OK: 0x%08x", (int)mEmulator);
 
 	mPlatformManager = mEmulator->GetPlatformManager();
 
+	LOGW("Creating helper thread.");
 	pthread_t theThread;
 	int theErr = ::pthread_create( &theThread, NULL, SThreadEntry, this );
 	if (theErr) 	{
@@ -193,6 +205,7 @@ TAndroidApp::ThreadEntry( void )
 	mEmulator->Run();
 	mQuit = true;
 }
+
 
 int TAndroidApp::updateScreen(unsigned short *buffer)
 {
