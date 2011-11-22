@@ -67,8 +67,6 @@ class EinsteinView extends View {
         final int H = 480;
 
         mBitmap = Bitmap.createBitmap(W, H, Bitmap.Config.RGB_565);
-        
-        System.out.println(" This is a polite message from Frank that can be deleted as soon as Matthias has seen it.");
     }
 
     @Override protected void onDraw(Canvas canvas) {
