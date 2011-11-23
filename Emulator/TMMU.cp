@@ -999,9 +999,50 @@ TMMU::LoadState( TStream* inStream )
 void
 TMMU::FDump(FILE *f)
 {
+	static char *ap[4] = { "ro/na", "rw/na", "rw/ro", "rw/rw" };
+	
+	Boolean err = false;
 	fprintf(f, "=====> Dumping MMU state\n");
 	if (mMMUEnabled) {
-		fprintf(f, "Primary MMU table at %08x\n", mTTBase);
+		fprintf(f, "Primary MMU table at 0x%08x\n", mTTBase);
+		unsigned int i, j, p, sp;
+		for (i=0; i<4096; i++) {
+			p = mMemoryIntf->ReadP(mTTBase+(i<<2), err);
+			switch (p&3) {
+				case 0: // Fault
+					break;
+				case 1: // Page
+					fprintf(f, "0x%03xxxxxx maps to a Page at 0x%08x in Domian %01x\n", i, (p&0xfffffc00), ((p>>5)&3) );
+					for (j=0; j<256; j++) {
+						sp = mMemoryIntf->ReadP((p&0xfffffc00)+(j<<2), err);
+						switch (sp&3) {
+							case 0: // Fault
+								break;
+							case 1:
+								fprintf(f, "  0x%03x%02xxxx maps to a Large Page at 0x%04xxxxx, AP=%s,%s,%s,%s\n", 
+										i, j, sp>>16, ap[(sp>>10)&3], ap[(sp>>8)&3], ap[(sp>>6)&3], ap[(sp>>4)&3] );
+								break;
+							case 2:
+								fprintf(f, "  0x%03x%02xxxx maps to a Small Page at 0x%05xxxx, AP=%s,%s,%s,%s\n", 
+										i, j, sp>>12, ap[(sp>>10)&3], ap[(sp>>8)&3], ap[(sp>>6)&3], ap[(sp>>4)&3] );
+							case 3: // Reserved
+								break;
+						}
+					}
+					break;
+				case 2: // Section
+					fprintf(f, "0x%03xxxxxx maps to 0x%03xxxxxx in Domian %01x, AP=%s\n", i, p>>20, ((p>>5)&3), ap[(p>>10)&3] );
+					break;
+				case 3: // Reserved
+					break;
+					/*
+					 Supersections: 16 MB memory blocks (24-bit offsets)
+					 Sections: 1 MB memory blocks (20-bit offsets)
+					 Large pages: 64 KB pages (16-bit offsets)
+					 Small pages: 4 KB pages (12-bit offsets)
+					 */
+			}
+		}
 	} else {
 		fprintf(f, "MMU is disabled\n");
 	}

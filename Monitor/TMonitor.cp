@@ -405,6 +405,14 @@ TMonitor::Stop( void )
 #endif
 }
 
+
+// little helper to return the prinatble version of any character
+static char cc(unsigned int v) {
+	v = v & 0xff;
+	if (v<32 || v>126) return '.';
+	return (char)v;
+}
+
 // -------------------------------------------------------------------------- //
 // ExecuteCommand( const char* inCommand )
 // -------------------------------------------------------------------------- //
@@ -660,7 +668,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 	} else if (::sscanf(inCommand, "dm %X", &theArgInt) == 1) {
 		KUInt32 theData[4];
 		KUInt32 last;
-		for (last = theArgInt + 64; ((KUInt32) theArgInt) < last; theArgInt += 16)
+		for (last = theArgInt + 16*16; ((KUInt32) theArgInt) < last; theArgInt += 16)
 		{
 			if (mMemory->Read(
 					(TMemory::VAddr) theArgInt, theData[0] )
@@ -677,12 +685,16 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					(unsigned int) mMemory->GetFaultStatusRegister() );
 			} else {
 				(void) ::sprintf(
-					theLine, "%.8X: %.8X %.8X %.8X %.8X",
+					theLine, "%.8X: %.8X %.8X %.8X %.8X %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
 					(unsigned int) theArgInt,
 					(unsigned int) theData[0],
 					(unsigned int) theData[1],
 					(unsigned int) theData[2],
-					(unsigned int) theData[3] );
+					(unsigned int) theData[3],
+					cc(theData[0]>>24), cc(theData[0]>>16), cc(theData[0]>>8), cc(theData[0]),
+					cc(theData[1]>>24), cc(theData[1]>>16), cc(theData[1]>>8), cc(theData[1]),
+					cc(theData[2]>>24), cc(theData[2]>>16), cc(theData[2]>>8), cc(theData[2]),
+					cc(theData[3]>>24), cc(theData[3]>>16), cc(theData[3]>>8), cc(theData[3]));
 			}
 			PrintLine(theLine);
 		}
