@@ -50,6 +50,8 @@ public class einstein extends Activity
 {
 	private EinsteinView pEinsteinView = null;
 	private ProgressDialog mProgressDialog;
+	private Timer mScreenRefreshTimer = null;
+	private ScreenRefresh mScreenRefreshTask = null;
 
 	/* We need to override these:
 	 * 
@@ -61,13 +63,24 @@ public class einstein extends Activity
 	 *       invisible:  onStop()
 	 *        shutdown:  onDestroy()
 	 *            kill?
+	 *            
+	 *        examples:
+	 *           launch  create->start->resume
+	 *    "Home" button  pause->stop
+	 *     launch again  start->resume
+	 *     "off" button  pause
+	 *      "on" button  resume
+	 *    "back" button  pause->stop->destroy 
+	 *     launch again  create->start->resume
+	 *  Android "sleep"  pause
+	 *             wake  resume  
 	 */
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-		//Log.e("einstein", ">>>>>>>>>> onCreate()");    	
+		Log.e("einstein", ">>>>>>>>>> onCreate()");    	
 		super.onCreate(savedInstanceState);
 
 		this.pEinsteinView = new EinsteinView(this);        
@@ -80,47 +93,54 @@ public class einstein extends Activity
 		this.initEmulator();
 		this.runEmulator(dataPath);
 
-		final Timer t = new Timer();
-		t.scheduleAtFixedRate(new ScreenRefresh(this, pEinsteinView), 1000, 200);
+		startScreenRefresh();	
 	}
 
 	@Override
 	public void onStart()
 	{
-		//Log.e("XXXX", ">>>>>>>>>> onStart()");
+		Log.e("XXXX", ">>>>>>>>>> onStart()");
 		super.onStart();
+		startScreenRefresh();	
 	}
 
 	@Override
 	public void onResume()
 	{
-		//Log.e("XXXX", ">>>>>>>>>> onResume()");
+		Log.e("XXXX", ">>>>>>>>>> onResume()");
 		super.onResume();
+		startScreenRefresh();	
 	}
 
 	@Override
 	public void onPause()
 	{
-		//Log.e("XXXX", ">>>>>>>>>> onPause()");
+		Log.e("XXXX", ">>>>>>>>>> onPause()");
+		stopScreenRefresh();	
 		super.onPause();
 	}
 
 	@Override
 	public void onStop()
 	{
-		//Log.e("XXXX", ">>>>>>>>>> onStop()");
+		Log.e("XXXX", ">>>>>>>>>> onStop()");
+		stopScreenRefresh();	
 		super.onStop();
 	}
 
 	@Override
 	public void onDestroy()
 	{
-		//Log.e("XXXX", ">>>>>>>>>> onDestroy()");
+		// TODO: the native resources are not given back! All threads continue to run.
+		// TODO: even the Java timer continues to query screen updates! Weird!
+		Log.e("XXXX", ">>>>>>>>>> onDestroy()");
+		stopScreenRefresh();	
 		super.onDestroy();
+		// FreeLibrary(...); or use Class ClassLoader
 	}
 
 	// native test method implemented in app/AndroidGlue.c
-	public native String  stringFromJNI();
+	public native String stringFromJNI();
 
 	// initialize the emulator
 	public native void initEmulator();
@@ -150,6 +170,25 @@ public class einstein extends Activity
 		}
 	}
 
+	private void startScreenRefresh() {
+		if (mScreenRefreshTask==null) {
+			mScreenRefreshTask = new ScreenRefresh(this, pEinsteinView);
+		}
+		if (mScreenRefreshTimer==null) {
+			mScreenRefreshTimer = new Timer(true);
+			mScreenRefreshTimer.schedule(mScreenRefreshTask, 1000, 100);
+		}
+	}
+
+	private void stopScreenRefresh() {
+		if (mScreenRefreshTimer!=null) {
+			mScreenRefreshTimer.cancel();
+			mScreenRefreshTimer.purge();
+			mScreenRefreshTimer = null;
+		}
+		mScreenRefreshTask = null;
+	}
+	
 	private String setText(){
 		final AlertDialog.Builder alert = new AlertDialog.Builder(this);
 		alert.setTitle(StringConstants.Einstein_002); // Download the ROM
