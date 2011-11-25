@@ -109,13 +109,15 @@ public class einstein extends Activity
 	{
 		Log.e("XXXX", ">>>>>>>>>> onResume()");
 		super.onResume();
-		startScreenRefresh();	
+		startScreenRefresh();
+		powerOnEmulator();
 	}
 
 	@Override
 	public void onPause()
 	{
 		Log.e("XXXX", ">>>>>>>>>> onPause()");
+		powerOffEmulator();
 		stopScreenRefresh();	
 		super.onPause();
 	}
@@ -134,6 +136,7 @@ public class einstein extends Activity
 		// TODO: the native resources are not given back! All threads continue to run.
 		// TODO: even the Java timer continues to query screen updates! Weird!
 		Log.e("XXXX", ">>>>>>>>>> onDestroy()");
+		stopEmulator();
 		stopScreenRefresh();	
 		super.onDestroy();
 		// FreeLibrary(...); or use Class ClassLoader
@@ -148,6 +151,15 @@ public class einstein extends Activity
 	// launch the emulator
 	public native void runEmulator(String dataPath);
 
+	// stop the emulator
+	public native void stopEmulator();
+
+	// wake emulator from sleep
+	public native void powerOnEmulator();
+	
+	// send emulator to sleep
+	public native void powerOffEmulator();
+	
 	// check if the screen contents has changed since the last call
 	public native int screenIsDirty();
 	
