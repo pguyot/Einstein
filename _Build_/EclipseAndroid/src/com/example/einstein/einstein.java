@@ -23,27 +23,28 @@
 
 package com.example.einstein;
 
+import com.example.einstein.constants.OtherConstants;
+import com.example.einstein.constants.StringConstants;
+import com.example.einstein.constants.URLConstants;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Timer;
 
-import com.example.einstein.constants.OtherConstants;
-import com.example.einstein.constants.StringConstants;
-import com.example.einstein.constants.URLConstants;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
 import android.util.Log;
-import android.content.DialogInterface;
-import android.content.res.AssetManager;
 import android.widget.EditText;
+
 
 public class einstein extends Activity
 {
@@ -80,7 +81,7 @@ public class einstein extends Activity
 		this.runEmulator(dataPath);
 
 		final Timer t = new Timer();
-		t.scheduleAtFixedRate(new ScreenRefresh(pEinsteinView), 1000, 200);
+		t.scheduleAtFixedRate(new ScreenRefresh(this, pEinsteinView), 1000, 200);
 	}
 
 	@Override
@@ -127,6 +128,9 @@ public class einstein extends Activity
 	// launch the emulator
 	public native void runEmulator(String dataPath);
 
+	// check if the screen contents has changed since the last call
+	public native int screenIsDirty();
+	
 	private void startDownload() {
 		new DownloadFileAsync(this).execute(URLConstants.SHIP_IMAGE);
 	}
