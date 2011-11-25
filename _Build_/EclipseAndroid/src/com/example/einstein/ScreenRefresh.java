@@ -19,11 +19,11 @@ class ScreenRefresh extends TimerTask {
 		cc++;
 		if (cc==10) {
 			cc = 0;
-			Log.i("ScreenRefresh", "Tick");
+			//Log.i("ScreenRefresh", "Tick");
 		}
 		if (pe.screenIsDirty()!=0) {
 			pev.postInvalidate();
-			Log.i("ScreenRefresh", "Drawing");
+			//Log.i("ScreenRefresh", "Drawing");
 		}
 		
 	}

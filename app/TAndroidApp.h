@@ -65,6 +65,21 @@ public:
 	void Run(const char *dataPath);
 	
 	///
+	/// Stop the app thread
+	///
+	void Stop();
+
+	///
+	/// awake emulator from sleep
+	///
+	void PowerOn();
+
+	///
+	/// send emulator to sleep
+	///
+	void PowerOff();
+
+	///
 	/// user requested simulating the power button
 	///
 	void menuPower();

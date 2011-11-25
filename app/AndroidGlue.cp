@@ -121,6 +121,28 @@ JNIEXPORT void JNICALL Java_com_example_einstein_einstein_runEmulator( JNIEnv* e
 }
 
 
+JNIEXPORT void JNICALL Java_com_example_einstein_einstein_stopEmulator( JNIEnv* env, jobject thiz )
+{
+	LOGI("runEmulator: stop");
+	if (theApp) theApp->Stop();
+	LOGI("runEmulator: done");
+}
+
+
+JNIEXPORT void JNICALL Java_com_example_einstein_einstein_powerOnEmulator( JNIEnv* env, jobject thiz )
+{
+	LOGI("powerOnEmulator");
+	if (theApp) theApp->PowerOn();
+}
+
+
+JNIEXPORT void JNICALL Java_com_example_einstein_einstein_powerOffEmulator( JNIEnv* env, jobject thiz )
+{
+	LOGI("powerOffEmulator");
+	if (theApp) theApp->PowerOff();
+}
+
+
 JNIEXPORT void JNICALL Java_com_example_einstein_EinsteinView_penDown( JNIEnv* env, jobject thiz, jint x, jint y )
 {
 	if (theApp) {
