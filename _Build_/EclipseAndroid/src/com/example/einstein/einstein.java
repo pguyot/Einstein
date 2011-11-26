@@ -139,9 +139,19 @@ public class einstein extends Activity
 		stopEmulator();
 		stopScreenRefresh();	
 		super.onDestroy();
-		// FreeLibrary(...); or use Class ClassLoader
+		// TODO: FreeLibrary(...); or use Class ClassLoader
+		// TODO: handle the function if it was called to free resources, but not to finish the app
+		// if (!isFinishing()) { } 
 	}
 
+	@Override
+	public void onBackPressed()
+	{
+		super.onBackPressed();
+		// showDialog(DIALOG_REALLY_EXIT_ID);
+		// this.finish();
+	}
+	
 	// native test method implemented in app/AndroidGlue.c
 	public native String stringFromJNI();
 
@@ -176,7 +186,24 @@ public class einstein extends Activity
 			this.mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 			this.mProgressDialog.setCancelable(false);
 			this.mProgressDialog.show();
-			return this.mProgressDialog;
+			return this.mProgressDialog;		
+/*        case DIALOG_REALLY_EXIT_ID:
+            dialog = new AlertDialog.Builder(this).setMessage(
+                                "Are you sure you want to exit?")
+            .setCancelable(false)
+            .setPositiveButton("Yes",
+                    new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    TestMain.this.finish();
+                }
+            })
+            .setNegativeButton("No",
+                    new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.cancel();
+                }
+            }).create();
+            break; */
 		default:
 			return null;
 		}
