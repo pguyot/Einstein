@@ -263,8 +263,12 @@ public class einstein extends Activity
 					return false;
 				}
 				finally {
-					in.close();
-					out.close();
+					if (null != in) {
+						in.close();
+					}
+					if (null != out) {
+						out.close();
+					}
 					Log.w("Einstein", "Done.");
 				}
 			}
@@ -287,8 +291,12 @@ public class einstein extends Activity
 					return false;
 				}
 				finally {
-					in.close();
-					out.close();
+					if (null != in) {
+						in.close();
+					}
+					if (null != out) {
+						out.close();
+					}
 					Log.w("Einstein", "Done.");
 				}
 			}
