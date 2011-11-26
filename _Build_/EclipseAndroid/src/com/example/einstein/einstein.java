@@ -43,7 +43,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 
 public class einstein extends Activity
@@ -96,6 +100,25 @@ public class einstein extends Activity
 		startScreenRefresh();	
 	}
 
+	@Override
+	/** Used to create the menu. */
+	public boolean onCreateOptionsMenu(Menu menu) {
+		Log.e("XXXX", ">>>>>>>>>> onCreateOptionsMenu(Menu)");
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.mainmenu, menu);
+		return true;
+	}
+
+	@Override
+	/** This method's behavior is currently hard-coded to show a short message. Soon it will call the preference
+		settings. In case you want to disable or hide menu items you can use the method "onPrepareOptionsMenu",
+		which is called every time the menu is called. */
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Log.e("XXXX", ">>>>>>>>>> onOptionsItemSelected(MenuItem)");
+		Toast.makeText(this, "This will soon call the preferences menu", Toast.LENGTH_SHORT).show();
+		return true;
+	}
+	
 	@Override
 	public void onStart()
 	{
@@ -151,7 +174,7 @@ public class einstein extends Activity
 		// showDialog(DIALOG_REALLY_EXIT_ID);
 		// this.finish();
 	}
-	
+
 	// native test method implemented in app/AndroidGlue.c
 	public native String stringFromJNI();
 
@@ -166,13 +189,13 @@ public class einstein extends Activity
 
 	// wake emulator from sleep
 	public native void powerOnEmulator();
-	
+
 	// send emulator to sleep
 	public native void powerOffEmulator();
-	
+
 	// check if the screen contents has changed since the last call
 	public native int screenIsDirty();
-	
+
 	private void startDownload() {
 		new DownloadFileAsync(this).execute(URLConstants.SHIP_IMAGE);
 	}
@@ -187,7 +210,7 @@ public class einstein extends Activity
 			this.mProgressDialog.setCancelable(false);
 			this.mProgressDialog.show();
 			return this.mProgressDialog;		
-/*        case DIALOG_REALLY_EXIT_ID:
+			/*        case DIALOG_REALLY_EXIT_ID:
             dialog = new AlertDialog.Builder(this).setMessage(
                                 "Are you sure you want to exit?")
             .setCancelable(false)
@@ -227,7 +250,7 @@ public class einstein extends Activity
 		}
 		mScreenRefreshTask = null;
 	}
-	
+
 	private String setText(){
 		final AlertDialog.Builder alert = new AlertDialog.Builder(this);
 		alert.setTitle(StringConstants.Einstein_002); // Download the ROM
