@@ -24,6 +24,7 @@
 #include <app/AndroidGlue.h>
 #include <app/TAndroidApp.h>
 #include <Emulator/Screen/TScreenManager.h>
+#include <Platform/TPlatformManager.h>
 #include <string.h>
 #include <dlfcn.h>
 
@@ -90,6 +91,9 @@ JNIEXPORT void JNICALL Java_com_example_einstein_einstein_initEmulator( JNIEnv* 
 	LOGI("initEmulator: start");
 	theApp = new TAndroidApp();
 	
+	// TODO: this is just a rough test if we can find the audio library.
+	// Android 2.2 does not have any support for audio from native code. Loading
+	// libaudio the Unix way may give us audio support on many devices neverthelee.
 	void *mLibHandle = dlopen("libaudio.so", 0);
 	if (mLibHandle) {
 		// http://source.android.com/porting/audio.html
@@ -116,16 +120,14 @@ JNIEXPORT void JNICALL Java_com_example_einstein_einstein_runEmulator( JNIEnv* e
 	const char *cDataPath = env->GetStringUTFChars(dataPath, &isCopy);
 	LOGI("runEmulator: start (dataPath=%s)", cDataPath);
 	theApp->Run(cDataPath);
-	LOGI("runEmulator: done");
 	env->ReleaseStringUTFChars(dataPath, cDataPath);
 }
 
 
 JNIEXPORT void JNICALL Java_com_example_einstein_einstein_stopEmulator( JNIEnv* env, jobject thiz )
 {
-	LOGI("runEmulator: stop");
+	LOGI("stopEmulator");
 	if (theApp) theApp->Stop();
-	LOGI("runEmulator: done");
 }
 
 
@@ -148,7 +150,16 @@ JNIEXPORT void JNICALL Java_com_example_einstein_EinsteinView_penDown( JNIEnv* e
 	if (theApp) {
 		TScreenManager *tsm = theApp->getScreenManager();
 		if (tsm) {
-			LOGI("Sending pen down at %d, %d", x, y);
+			if (!theApp->getPlatformManager()->IsPowerOn()) {
+				// After five minutes, the MP switches itself off. On Android,
+				// the host OS should decide when to put the device to sleep.
+				// Newton OS nevertheless switches itself off. To continue work,
+				// we'd have to pull the power switch. Since we have no power switch 
+				// on Einstein/IOS, any screen touch will power the Newton back on.
+				theApp->PowerOn();
+				//theApp->getPlatformManager()->SendPowerSwitchEvent();
+			}
+			//LOGI("Sending pen down at %d, %d", x, y);
 			tsm->PenDown(480-y, x);
 		}
 	}
@@ -160,7 +171,6 @@ JNIEXPORT void JNICALL Java_com_example_einstein_EinsteinView_penUp( JNIEnv* env
 	if (theApp) {
 		TScreenManager *tsm = theApp->getScreenManager();
 		if (tsm) {
-			LOGI("Sending pen up");
 			tsm->PenUp();
 		}
 	}
@@ -216,10 +226,10 @@ JNIEXPORT jint JNICALL Java_com_example_einstein_EinsteinView_renderEinsteinView
 		ret = theApp->updateScreen(p);
 	}
 	
-    p[c] = 0xf00f;
-    p[(c+160)%320] = 0x0ff0;
-    c++;
-    if (c>320) c = 0;
+    //p[c] = 0xf00f;
+    //p[(c+160)%320] = 0x0ff0;
+    //c++;
+    //if (c>320) c = 0;
 
     AndroidBitmap_unlockPixels(env, bitmap);
 	

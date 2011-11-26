@@ -212,7 +212,12 @@ TAndroidApp::Stop( void )
 void
 TAndroidApp::PowerOn( void )
 {
+#if 0
 	mPlatformManager->PowerOn();
+#else
+	if (!mPlatformManager->IsPowerOn())
+		mPlatformManager->SendPowerSwitchEvent();
+#endif
 }
 
 
@@ -222,7 +227,12 @@ TAndroidApp::PowerOn( void )
 void
 TAndroidApp::PowerOff( void )
 {
+#if 0
 	mPlatformManager->PowerOff();
+#else
+	if (mPlatformManager->IsPowerOn())
+		mPlatformManager->SendPowerSwitchEvent();
+#endif
 }
 
 

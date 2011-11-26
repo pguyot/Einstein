@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -22,11 +23,12 @@ class EinsteinView extends View {
         renderEinsteinView(mBitmap);
         final Rect dstRect = new Rect();
         super.getDrawingRect(dstRect);
-        canvas.drawBitmap(mBitmap, DimensionConstants.SCREEN_BOUNDS, dstRect, null);
+		//Log.i("ScreenRefresh", "onDraw");
+		canvas.drawBitmap(mBitmap, DimensionConstants.SCREEN_BOUNDS, dstRect, null);
     }
     
     @Override
-    public boolean onTouchEvent (MotionEvent ev) {
+    public boolean onTouchEvent(MotionEvent ev) {
     	// http://developer.android.com/reference/android/view/MotionEvent.html
     	switch (ev.getAction()) {
     	case MotionEvent.ACTION_DOWN:
