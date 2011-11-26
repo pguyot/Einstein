@@ -269,7 +269,7 @@ public class einstein extends Activity
 		final AssetManager assetManager = getAssets();
 
 		try {
-			// TODO Do not hard-code the path separator and the ROM name. The path separator is platform dependent,
+			// TODO: Do not hard-code the path separator and the ROM name. The path separator is platform dependent,
 			// and the ROM name can change FG_2011_11_24
 			final File rom = new File(dataPath + "/717006.rom");
 			if (rom.exists()) {
@@ -371,9 +371,6 @@ public class einstein extends Activity
 }
 
 /*
- * 
- * http://www.weinbrennerei-dujardin.de/Newton/717006.rom
- * 
  * 
  * 
  * permissions:

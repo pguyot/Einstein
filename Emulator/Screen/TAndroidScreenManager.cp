@@ -173,10 +173,15 @@ int TAndroidScreenManager::update(unsigned short *buffer)
 	
 	for (i=320*480; i>0; i-=2) {
 		KUInt8 theByte = *src++;
+#if 0
 		KUInt8 thePixel = (theByte & 0xF0) | (theByte>>4);
 		*dst++ = lut[thePixel&0x0F];
 		thePixel = (theByte<<4) | (theByte & 0x0f);
 		*dst++ = lut[thePixel&0x0F];
+#else
+		*dst++ = lut[theByte>>4];
+		*dst++ = lut[theByte&0x0F];
+#endif
 	}
 	changed = 0;
 	return 1;
