@@ -178,6 +178,7 @@ TScreenManager::Blit(
 					inDstRect,
 					inMode);
 			break;
+			case kOrientation_AppleLeft:
 			case kOrientation_AppleRight:
 				Blit_0(
 					baseAddy,
@@ -198,6 +199,7 @@ TScreenManager::Blit(
 					inDstRect,
 					inMode);
 			break;
+				/* FIXME: Matt say: Blit_180 seems broken.
 			case kOrientation_AppleLeft:
 				Blit_180(
 					baseAddy,
@@ -208,6 +210,7 @@ TScreenManager::Blit(
 					inDstRect,
 					inMode);
 			break;
+				 */
 		}
 	} else {
 		Blit_0(
@@ -487,6 +490,7 @@ TScreenManager::Blit_90(
 
 // -------------------------------------------------------------------------- //
 //  * Blit_180( KUInt32, SRect*, SRect* )
+// FIXME: this function is quite different to Blit_0. Blit_0 is working for me.
 // -------------------------------------------------------------------------- //
 inline void
 TScreenManager::Blit_180(
@@ -854,8 +858,8 @@ TScreenManager::PenDown(
 				theYCoord = mPhysicalHeight - inXCoord - 1;
 			break;
 			case kOrientation_AppleLeft:
-				theXCoord = mPhysicalWidth - inXCoord - 1;
-				theYCoord = mPhysicalHeight - inYCoord - 1;
+				theXCoord = mPhysicalHeight - inXCoord - 1;
+				theYCoord = mPhysicalWidth - inYCoord - 1;
 			break;
 		}
 	}

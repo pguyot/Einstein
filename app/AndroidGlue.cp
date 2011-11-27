@@ -247,6 +247,29 @@ JNIEXPORT jint JNICALL Java_com_example_einstein_einstein_screenIsDirty( JNIEnv*
 }
 
 
+JNIEXPORT void JNICALL Java_com_example_einstein_einstein_setBacklight( JNIEnv* env, jobject thiz, jint v )
+{
+	if (theApp) {
+		TScreenManager *tsm = theApp->getScreenManager();
+		if (tsm) {
+			tsm->SetBacklight(v);
+		}
+	}
+}
+
+
+JNIEXPORT jint JNICALL Java_com_example_einstein_einstein_backlightIsOn( JNIEnv* env, jobject thiz )
+{
+	if (theApp) {
+		TScreenManager *tsm = theApp->getScreenManager();
+		if (tsm) {
+			return tsm->GetBacklight() ? 1 : 0;
+		}
+	}
+	return -1;
+}
+
+
 // the font below was partially extracted from a Linux terminal
 // screenshot and partially created by hand. Wonko.
 unsigned char simple_font[128][13] = {
