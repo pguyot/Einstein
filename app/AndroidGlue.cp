@@ -269,6 +269,12 @@ JNIEXPORT jint JNICALL Java_com_example_einstein_einstein_backlightIsOn( JNIEnv*
 	return -1;
 }
 
+JNIEXPORT void JNICALL Java_com_example_einstein_einstein_installNewPackages( JNIEnv* env, jobject thiz )
+{
+	if (theApp) {
+		theApp->getPlatformManager()->InstallNewPackages();
+	}
+}
 
 // the font below was partially extracted from a Linux terminal
 // screenshot and partially created by hand. Wonko.

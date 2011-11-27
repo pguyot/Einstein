@@ -60,6 +60,7 @@ LOCAL_SRC_FILES := \
 	Emulator/NativeCalls/TNativeCalls.cp \
 	Emulator/NativeCalls/TVirtualizedCalls.cp \
 	Emulator/Network/TNetworkManager.cp \
+	Emulator/Network/TUsermodeNetwork.cp \
 	Emulator/PCMCIA/TATACard.cp \
 	Emulator/PCMCIA/TLinearCard.cp \
 	Emulator/PCMCIA/TNE2000Card.cp \

@@ -135,6 +135,9 @@ public class einstein extends Activity
 			else
 				setBacklight(1);
 			break;
+		case R.id.installNewPackages:
+			this.installNewPackages();
+			break;
 		}
 		return true;	}
 	
@@ -220,6 +223,9 @@ public class einstein extends Activity
 
 	// check if backlight is on
 	public native int backlightIsOn();
+	
+	// install packages that are new in the Einstein directory
+	public native void installNewPackages();
 
 	private void startDownload() {
 		new DownloadFileAsync(this).execute(URLConstants.SHIP_IMAGE);

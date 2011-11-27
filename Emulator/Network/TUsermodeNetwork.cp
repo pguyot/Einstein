@@ -94,11 +94,17 @@
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
-#include <sys/sockio.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <ifaddrs.h>
+
+#ifdef __ANDROID__
+# include <stdio.h>
+#include <fcntl.h>
+#else
+# include <sys/sockio.h>
+# include <ifaddrs.h>
+#endif
 
 #if TARGET_IOS
 #include <fcntl.h>
@@ -1116,7 +1122,7 @@ int TUsermodeNetwork::GetDeviceAddress(KUInt8 *data, KUInt32 size)
 	// TODO: of course we need the true MAC of this ethernet card
 	// see: ioctl ? getifaddrs ? http://othermark.livejournal.com/3005.html
 	static KUInt8 gLocalMAC[]   = { 0x58, 0xb0, 0x35, 0x77, 0xd7, 0x22 };
-	assert(size==6);
+	//assert(size==6);
 	memcpy(data, gLocalMAC, 6);
 	return 0;
 }
@@ -1143,7 +1149,7 @@ int TUsermodeNetwork::ReceiveData(KUInt8 *data, KUInt32 size)
 	
 	Packet *pkt = mLastPacket;
 	if (pkt) {
-		assert(pkt->Size()==size);
+		//assert(pkt->Size()==size);
 		// copy the data over
 		memcpy(data, pkt->Data(), size);
 		// remove this package from the pipe
