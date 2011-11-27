@@ -38,14 +38,18 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -56,6 +60,7 @@ public class einstein extends Activity
 	private ProgressDialog mProgressDialog;
 	private Timer mScreenRefreshTimer = null;
 	private ScreenRefresh mScreenRefreshTask = null;
+	private SharedPreferences preferences;
 
 	/* We need to override these:
 	 * 
@@ -89,7 +94,6 @@ public class einstein extends Activity
 
 		this.pEinsteinView = new EinsteinView(this);        
 		super.setContentView(pEinsteinView);
-
 		// FILE* file = fopen("/sdcard/hello.txt","w+");
 		final String dataPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Einstein"; 
 		if (!installAssets(dataPath))
@@ -115,9 +119,19 @@ public class einstein extends Activity
 		which is called every time the menu is called. */
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Log.e("XXXX", ">>>>>>>>>> onOptionsItemSelected(MenuItem)");
-		Toast.makeText(this, "This will soon call the preferences menu", Toast.LENGTH_SHORT).show();
-		return true;
-	}
+		// We have only one menu option yet, but this might change. So we'll use a switch
+		switch (item.getItemId()) {
+		case R.id.preferences:
+			// Launch Preferences activity
+			final Intent intent = new Intent(einstein.this, EinsteinPreferencesActivity.class);
+			startActivity(intent);
+//			// Some feedback to the user
+//			Toast.makeText(einstein.this, "Enter your user credentials.",
+//				Toast.LENGTH_LONG).show();
+			break;
+
+		}
+		return true;	}
 	
 	@Override
 	public void onStart()

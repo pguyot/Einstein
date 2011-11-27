@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="Einstein Preferences">
+        <EditTextPreference android:key="screenwidth" android:title="Screen Width" android:summary="Width of Newton screen in Pixels"/>
+        <EditTextPreference android:key="screenheight" android:title="Screen Height" android:summary="Height of Newton screen in pixels"/>
+    </PreferenceCategory>
+
+    
+
+</PreferenceScreen>
