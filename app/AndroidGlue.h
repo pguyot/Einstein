@@ -57,6 +57,7 @@ extern "C" {
     
   extern JNIEXPORT void JNICALL Java_com_example_einstein_EinsteinView_penDown( JNIEnv* env, jobject thiz, jint x, jint y );
   extern JNIEXPORT void JNICALL Java_com_example_einstein_EinsteinView_penUp( JNIEnv* env, jobject thiz);
+  extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_installNewPackages( JNIEnv* env, jobject thiz );
   
   extern JNIEXPORT jint JNICALL Java_com_example_einstein_EinsteinView_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap);
   

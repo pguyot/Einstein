@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/preferences" android:title="Preferences" android:titleCondensed="Prefs"></item>
+    <item android:id="@+id/installNewPackages" android:title="Install New Packages" android:titleCondensed="Install"></item>
     <item android:id="@+id/backlight" android:title="Backlight" android:titleCondensed="Backlight"></item>
+    <item android:id="@+id/preferences" android:title="Preferences" android:titleCondensed="Prefs"></item>
 
     
 

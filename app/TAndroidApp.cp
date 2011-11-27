@@ -35,6 +35,7 @@
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/Network/TNetworkManager.h"
+#include "Emulator/Network/TUsermodeNetwork.h"
 #include "Emulator/Sound/TNullSoundManager.h"
 #include "Emulator/Screen/TAndroidScreenManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
@@ -169,7 +170,7 @@ TAndroidApp::Run(const char *dataPath)
 	LOGW("    OK: 0x%08x", (int)mScreenManager);
 	
 	LOGW("  mNetworkManager:");
-	mNetworkManager = new TNullNetwork(mLog);
+	mNetworkManager = new TUsermodeNetwork(mLog);
 	LOGW("    OK: 0x%08x", (int)mNetworkManager);
 	
 	LOGW("  mEmulator:");
@@ -184,6 +185,7 @@ TAndroidApp::Run(const char *dataPath)
 	LOGW("    OK: 0x%08x", (int)mEmulator);
 
 	mPlatformManager = mEmulator->GetPlatformManager();
+	mPlatformManager->SetDocDir(dataPath);
 
 	LOGW("Creating helper thread.");
 	pthread_t theThread;
