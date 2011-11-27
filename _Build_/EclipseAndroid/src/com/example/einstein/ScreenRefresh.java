@@ -28,8 +28,5 @@ class ScreenRefresh extends TimerTask {
 		
 	}
 	
-	// return 1 if the screen wants to be re-rendered
-	public native int screenIsDirty();
-
 	int cc = 0;
 }

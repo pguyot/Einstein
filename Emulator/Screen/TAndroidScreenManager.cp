@@ -126,6 +126,7 @@ void
 TAndroidScreenManager::BacklightChanged( Boolean )
 {
 	LOGW("UpdateScreenRect(0L)");
+	changed = 1;
 }
 
 // -------------------------------------------------------------------------- //
@@ -144,6 +145,7 @@ void
 TAndroidScreenManager::ScreenOrientationChanged( EOrientation inNewOrientation )
 {
 	LOGW("New orientation %d is %dx%d\n", inNewOrientation, GetScreenWidth(), GetScreenHeight());
+	changed = 1;
 }
 
 // -------------------------------------------------------------------------- //
@@ -159,7 +161,15 @@ TAndroidScreenManager::TabletOrientationChanged( EOrientation )
 int TAndroidScreenManager::update(unsigned short *buffer)
 {
 #define ROT(a) (a<<12) | (a<<7) | (a<<1)
-	static unsigned short lut[16] = {
+	static unsigned short lut_wt[16] = {
+		ROT(0), ROT(1), ROT(2), ROT(3), 
+		ROT(4), ROT(5), ROT(6), ROT(7), 
+		ROT(8), ROT(9), ROT(10), ROT(11), 
+		ROT(12), ROT(13), ROT(14), ROT(15), 
+	};
+#undef ROT
+#define ROT(a) (a<<11) | (a<<7) | (a<<0)
+	static unsigned short lut_gn[16] = {
 		ROT(0), ROT(1), ROT(2), ROT(3), 
 		ROT(4), ROT(5), ROT(6), ROT(7), 
 		ROT(8), ROT(9), ROT(10), ROT(11), 
@@ -167,22 +177,54 @@ int TAndroidScreenManager::update(unsigned short *buffer)
 	};
 	if (!changed) 
 		return 0;
+	unsigned short *lut = GetBacklight() ? lut_gn : lut_wt;
 	KUInt8* src = GetScreenBuffer();
 	unsigned short *dst = buffer;
-	int i;
+	int i, j;
 	
-	for (i=320*480; i>0; i-=2) {
-		KUInt8 theByte = *src++;
-#if 0
-		KUInt8 thePixel = (theByte & 0xF0) | (theByte>>4);
-		*dst++ = lut[thePixel&0x0F];
-		thePixel = (theByte<<4) | (theByte & 0x0f);
-		*dst++ = lut[thePixel&0x0F];
-#else
-		*dst++ = lut[theByte>>4];
-		*dst++ = lut[theByte&0x0F];
-#endif
+	switch (GetScreenOrientation()) {
+		case kOrientation_AppleRight:
+			for (i=0; i<320; i++) {
+				dst = buffer + 320*479 + i;
+				for (j=480; j>0; j-=2) {
+					KUInt8 theByte = *src++;
+					*dst = lut[theByte>>4];   dst -= 320;
+					*dst = lut[theByte&0x0F]; dst -= 320;
+				}
+			}
+			break;
+		case kOrientation_AppleLeft:
+			for (i=320; i>0; i--) {
+				dst = buffer + i - 1;
+				for (j=480; j>0; j-=2) {
+					KUInt8 theByte = *src++;
+					*dst = lut[theByte>>4];   dst += 320;
+					*dst = lut[theByte&0x0F]; dst += 320;
+				}
+			}
+			break;
+		case kOrientation_AppleTop:
+			dst = buffer + 320*480 - 1;
+			for (i=480; i>0; i--) {
+				for (j=320; j>0; j-=2) {
+					KUInt8 theByte = *src++;
+					*dst-- = lut[theByte>>4];
+					*dst-- = lut[theByte&0x0F];
+				}
+			}
+			break;
+		case kOrientation_AppleBottom:
+			dst = buffer;
+			for (i=480; i>0; i--) {
+				for (j=320; j>0; j-=2) {
+					KUInt8 theByte = *src++;
+					*dst++ = lut[theByte>>4];
+					*dst++ = lut[theByte&0x0F];
+				}
+			}
+			break;
 	}
+	
 	changed = 0;
 	return 1;
 }

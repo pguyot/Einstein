@@ -57,7 +57,7 @@ import android.widget.Toast;
 public class einstein extends Activity
 {
 	private EinsteinView pEinsteinView = null;
-	private ProgressDialog mProgressDialog;
+	private ProgressDialog mProgressDialog; 
 	private Timer mScreenRefreshTimer = null;
 	private ScreenRefresh mScreenRefreshTask = null;
 	private SharedPreferences preferences;
@@ -92,7 +92,7 @@ public class einstein extends Activity
 		Log.e("einstein", ">>>>>>>>>> onCreate()");    	
 		super.onCreate(savedInstanceState);
 
-		this.pEinsteinView = new EinsteinView(this);        
+		this.pEinsteinView = new EinsteinView(this);     
 		super.setContentView(pEinsteinView);
 		// FILE* file = fopen("/sdcard/hello.txt","w+");
 		final String dataPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Einstein"; 
@@ -129,7 +129,12 @@ public class einstein extends Activity
 //			Toast.makeText(einstein.this, "Enter your user credentials.",
 //				Toast.LENGTH_LONG).show();
 			break;
-
+		case R.id.backlight:
+			if (backlightIsOn()==1)
+				setBacklight(0);
+			else
+				setBacklight(1);
+			break;
 		}
 		return true;	}
 	
@@ -209,6 +214,12 @@ public class einstein extends Activity
 
 	// check if the screen contents has changed since the last call
 	public native int screenIsDirty();
+
+	// switch backlight on or off
+	public native void setBacklight(int v);
+
+	// check if backlight is on
+	public native int backlightIsOn();
 
 	private void startDownload() {
 		new DownloadFileAsync(this).execute(URLConstants.SHIP_IMAGE);

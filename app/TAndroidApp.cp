@@ -164,7 +164,7 @@ TAndroidApp::Run(const char *dataPath)
 	LOGW("  mScreenManager");
 	mScreenManager = new TAndroidScreenManager(mLog,
 											   newtonScreenWidth, newtonScreenHeight,
-											   true,
+											   true, // fullscreen
 											   isLandscape);
 	LOGW("    OK: 0x%08x", (int)mScreenManager);
 	
