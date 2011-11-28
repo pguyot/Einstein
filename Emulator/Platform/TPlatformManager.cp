@@ -551,6 +551,7 @@ TPlatformManager::EvalNewtonScript( const char* inNewtonScriptCode )
 void
 TPlatformManager::InstallPackage( const char* inPackagePath )
 {
+	mLog->FLogLine("Instaloing package '%s'", inPackagePath);
 	// Open the package.
 	FILE* thePackageFile = ::fopen( inPackagePath, "rb" );
 	if (thePackageFile != NULL)
@@ -563,7 +564,7 @@ TPlatformManager::InstallPackage( const char* inPackagePath )
 		KUInt8* theBuffer = (KUInt8*) ::malloc( theSize );
 		if (((long) ::fread( theBuffer, sizeof(KUInt8), theSize, thePackageFile)) != theSize)
 		{
-			(void) ::fprintf( stderr, "Problem while reading '%s'\n", inPackagePath );
+			mLog->FLogLine( "Problem while reading '%s'", inPackagePath );
 		} else {
 			SendBufferAEvent(
 				kNewtPort,
@@ -577,7 +578,7 @@ TPlatformManager::InstallPackage( const char* inPackagePath )
 		(void) ::fclose( thePackageFile );
 		::free( theBuffer );
 	} else {
-		(void) ::fprintf( stderr, "Cannot open package '%s'\n", inPackagePath );
+		mLog->FLogLine( "Cannot open package '%s'", inPackagePath );
 	}
 }
 
@@ -593,14 +594,14 @@ TPlatformManager::InstallNewPackages( const char* inPackageDir )
 		inPackageDir = mDocDir;
 		
 	if ( !inPackageDir ) {
-		printf("TPlatformManager::InstallNewPackages: No package directory specified, skipping.\n");
+		mLog->FLogLine("TPlatformManager::InstallNewPackages: No package directory specified, skipping.");
 		return;
 	}
 	
 	DIR *dir = opendir(inPackageDir);
 		
 	if (!dir) {
-		printf("TPlatformManager::InstallNewPackages: Can't open package directory: %s\n", inPackageDir);
+		mLog->FLogLine("TPlatformManager::InstallNewPackages: Can't open package directory: '%s'", inPackageDir);
 		return;
 	}
 	
@@ -609,19 +610,22 @@ TPlatformManager::InstallNewPackages( const char* inPackageDir )
 	sprintf(buf, "%s/.lastInstall", inPackageDir);
 	struct stat lastInstall;
 	int statErr = ::stat(buf, &lastInstall);
-
+	mLog->FLogLine("TPlatformManager: checking for new packages");
+	
 	// -- run the directory and install every file that is newer than lastInstall
 	struct dirent *de;
 	while ((de = readdir(dir))) {
 		if (de->d_type==DT_REG) {
 			const char *dot = strrchr(de->d_name, '.');
-			if (dot && strcasecmp(dot, ".pkg")==0) {
+			if (dot && strcasecmp(dot, ".pkg")==0 && strncmp(de->d_name, "._", 2)!=0) {
+				mLog->FLogLine("TPlatformManager: Checking '%s'", de->d_name);
 				struct stat pkgStat;
 				sprintf(buf, "%s/%s", inPackageDir, de->d_name);
 				if (::stat(buf, &pkgStat)<0) continue;
 				if (statErr>=0 
 					&& pkgStat.st_mtime<lastInstall.st_mtime
 					&& pkgStat.st_ctime<lastInstall.st_mtime) continue;
+				mLog->FLogLine("TPlatformManager: Installing '%s'", de->d_name);
 				InstallPackage(buf);
 			}
 		}
@@ -629,6 +633,7 @@ TPlatformManager::InstallNewPackages( const char* inPackageDir )
 	closedir(dir);
 	
 	// -- update the modification data
+	mLog->FLogLine("TPlatformManager: updating last package installation date");
 	sprintf(buf, "%s/.lastInstall", inPackageDir);
 	FILE *f = fopen(buf, "wb");
 	if (f) fclose(f);
