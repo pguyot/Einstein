@@ -236,6 +236,18 @@ JNIEXPORT jint JNICALL Java_com_example_einstein_EinsteinView_renderEinsteinView
 	return ret;
 }
 
+
+JNIEXPORT void JNICALL Java_com_example_einstein_einstein_toggleNetworkCard( JNIEnv* env, jobject thiz )
+{
+	LOGE("Toggle Network Card");
+	if (theApp) {
+		if (theApp->getPlatformManager()) {
+			theApp->getPlatformManager()->SendNetworkCardEvent();
+		}
+	}
+}
+
+
 JNIEXPORT jint JNICALL Java_com_example_einstein_einstein_screenIsDirty( JNIEnv* env, jobject thiz )
 {
 	int ret = 0;

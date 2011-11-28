@@ -64,6 +64,7 @@ TLog::~TLog( void )
 void
 TLog::LogLine( const char* inLine )
 {
+	if (!this) return;
 	if (mEnabled)
 	{
 		LockMutex();
@@ -80,6 +81,7 @@ TLog::LogLine( const char* inLine )
 void
 TLog::FLogLine( const char* inFormat, ... )
 {
+	if (!this) return;
 	if (mEnabled)
 	{
 		char bufferLine[512];
