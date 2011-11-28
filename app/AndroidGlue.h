@@ -50,7 +50,9 @@ extern "C" {
   extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_stopEmulator( JNIEnv* env, jobject thiz );
   extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_powerOnEmulator( JNIEnv* env, jobject thiz );
   extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_powerOffEmulator( JNIEnv* env, jobject thiz );
-  
+
+  extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_toggleNetworkCard( JNIEnv* env, jobject thiz );
+
   extern JNIEXPORT jint JNICALL Java_com_example_einstein_einstein_screenIsDirty( JNIEnv* env, jobject thiz );
   extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_setBacklight( JNIEnv* env, jobject thiz, jint v );
   extern JNIEXPORT jint JNICALL Java_com_example_einstein_einstein_backlightIsOn( JNIEnv* env, jobject thiz );

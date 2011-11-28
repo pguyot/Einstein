@@ -138,6 +138,9 @@ public class einstein extends Activity
 		case R.id.installNewPackages:
 			this.installNewPackages();
 			break;
+		case R.id.networkCard:
+			this.toggleNetworkCard();
+			break;
 		}
 		return true;	}
 	
@@ -214,6 +217,9 @@ public class einstein extends Activity
 
 	// send emulator to sleep
 	public native void powerOffEmulator();
+
+	// toggle the network card in and out of the PCMCIA slot
+	public native void toggleNetworkCard();
 
 	// check if the screen contents has changed since the last call
 	public native int screenIsDirty();
