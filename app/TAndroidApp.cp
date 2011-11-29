@@ -111,7 +111,7 @@ TAndroidApp::~TAndroidApp( void )
 // Run( int, char** )
 // -------------------------------------------------------------------------- //
 void
-TAndroidApp::Run(const char *dataPath)
+TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHeight)
 {
 	mProgramName = "Einstein";
 	mROMImage = NULL;
@@ -159,8 +159,6 @@ TAndroidApp::Run(const char *dataPath)
 	mSoundManager = new TNullSoundManager(mLog);
 	LOGW("    OK: 0x%08x", (int)mSoundManager);
 
-	int newtonScreenWidth = 320;
-	int newtonScreenHeight = 480;
 	Boolean isLandscape = false;
 	LOGW("  mScreenManager");
 	mScreenManager = new TAndroidScreenManager(mLog,

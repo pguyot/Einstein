@@ -35,7 +35,9 @@ class EinsteinView extends View {
     	case MotionEvent.ACTION_MOVE:
             Rect dstRect = new Rect();
             getDrawingRect(dstRect);
-    		penDown((int)(ev.getX()*320/dstRect.width()), (int)(ev.getY()*480/dstRect.height()));
+    		Log.i("XXXX", "Destination Rect at " + String.valueOf(dstRect.left) + "," + String.valueOf(dstRect.top) 
+    				+ " - " + String.valueOf(dstRect.width()) + "x" + String.valueOf(dstRect.height()) + " pixels");
+    		penDown((int)(ev.getX()*DimensionConstants.SCREEN_WIDTH/dstRect.width()), (int)(ev.getY()*DimensionConstants.SCREEN_HEIGHT/dstRect.height()));
     		break;
     	case MotionEvent.ACTION_UP:
     	case MotionEvent.ACTION_CANCEL:

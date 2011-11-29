@@ -23,6 +23,7 @@
 
 package com.example.einstein;
 
+import com.example.einstein.constants.DimensionConstants;
 import com.example.einstein.constants.OtherConstants;
 import com.example.einstein.constants.StringConstants;
 import com.example.einstein.constants.URLConstants;
@@ -99,7 +100,8 @@ public class einstein extends Activity
 		if (!installAssets(dataPath))
 			return;
 		this.initEmulator();
-		this.runEmulator(dataPath);
+		this.runEmulator(dataPath, DimensionConstants.SCREEN_WIDTH, DimensionConstants.SCREEN_HEIGHT);
+		//this.runEmulator(dataPath, 400, 614);
 
 		startScreenRefresh();	
 	}
@@ -207,7 +209,7 @@ public class einstein extends Activity
 	public native void initEmulator();
 
 	// launch the emulator
-	public native void runEmulator(String dataPath);
+	public native void runEmulator(String dataPath, int screenWidth, int screenHeight);
 
 	// stop the emulator
 	public native void stopEmulator();
