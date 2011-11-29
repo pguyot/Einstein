@@ -114,12 +114,12 @@ JNIEXPORT void JNICALL Java_com_example_einstein_einstein_initEmulator( JNIEnv* 
 }
 
 
-JNIEXPORT void JNICALL Java_com_example_einstein_einstein_runEmulator( JNIEnv* env, jobject thiz, jstring dataPath )
+JNIEXPORT void JNICALL Java_com_example_einstein_einstein_runEmulator( JNIEnv* env, jobject thiz, jstring dataPath, jint screenWidth, jint screenHeight )
 {
 	jboolean isCopy;
 	const char *cDataPath = env->GetStringUTFChars(dataPath, &isCopy);
 	LOGI("runEmulator: start (dataPath=%s)", cDataPath);
-	theApp->Run(cDataPath);
+	theApp->Run(cDataPath, screenWidth, screenHeight);
 	env->ReleaseStringUTFChars(dataPath, cDataPath);
 }
 
@@ -160,7 +160,7 @@ JNIEXPORT void JNICALL Java_com_example_einstein_EinsteinView_penDown( JNIEnv* e
 				//theApp->getPlatformManager()->SendPowerSwitchEvent();
 			}
 			//LOGI("Sending pen down at %d, %d", x, y);
-			tsm->PenDown(480-y, x);
+			tsm->PenDown(theApp->getScreenManager()->GetActualScreenHeight()-y, x);
 		}
 	}
 }
@@ -226,11 +226,6 @@ JNIEXPORT jint JNICALL Java_com_example_einstein_EinsteinView_renderEinsteinView
 		ret = theApp->updateScreen(p);
 	}
 	
-    //p[c] = 0xf00f;
-    //p[(c+160)%320] = 0x0ff0;
-    //c++;
-    //if (c>320) c = 0;
-
     AndroidBitmap_unlockPixels(env, bitmap);
 	
 	return ret;

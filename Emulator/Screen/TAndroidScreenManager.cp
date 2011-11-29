@@ -38,19 +38,6 @@
 
 
 // -------------------------------------------------------------------------- //
-//  * GetDisplaySize( void )
-// -------------------------------------------------------------------------- //
-void
-TAndroidScreenManager::GetScreenSize(
-									 KUInt32* outWidth,
-									 KUInt32* outHeight)
-{
-	*outWidth = 320;
-	*outHeight = 480;
-}
-
-
-// -------------------------------------------------------------------------- //
 //  * TAndroidScreenManager( TLog* )
 // -------------------------------------------------------------------------- //
 TAndroidScreenManager::TAndroidScreenManager(
@@ -180,33 +167,33 @@ int TAndroidScreenManager::update(unsigned short *buffer)
 	unsigned short *lut = GetBacklight() ? lut_gn : lut_wt;
 	KUInt8* src = GetScreenBuffer();
 	unsigned short *dst = buffer;
-	int i, j;
+	int i, j, wdt = GetScreenWidth(), hgt = GetScreenHeight();
 	
 	switch (GetScreenOrientation()) {
 		case kOrientation_AppleRight:
-			for (i=0; i<320; i++) {
-				dst = buffer + 320*479 + i;
-				for (j=480; j>0; j-=2) {
+			for (i=0; i<hgt; i++) {
+				dst = buffer + hgt*(wdt-1) + i;
+				for (j=wdt; j>0; j-=2) {
 					KUInt8 theByte = *src++;
-					*dst = lut[theByte>>4];   dst -= 320;
-					*dst = lut[theByte&0x0F]; dst -= 320;
+					*dst = lut[theByte>>4];   dst -= hgt;
+					*dst = lut[theByte&0x0F]; dst -= hgt;
 				}
 			}
 			break;
 		case kOrientation_AppleLeft:
-			for (i=320; i>0; i--) {
+			for (i=hgt; i>0; i--) {
 				dst = buffer + i - 1;
-				for (j=480; j>0; j-=2) {
+				for (j=wdt; j>0; j-=2) {
 					KUInt8 theByte = *src++;
-					*dst = lut[theByte>>4];   dst += 320;
-					*dst = lut[theByte&0x0F]; dst += 320;
+					*dst = lut[theByte>>4];   dst += hgt;
+					*dst = lut[theByte&0x0F]; dst += hgt;
 				}
 			}
 			break;
 		case kOrientation_AppleTop:
-			dst = buffer + 320*480 - 1;
-			for (i=480; i>0; i--) {
-				for (j=320; j>0; j-=2) {
+			dst = buffer + wdt*hgt - 1;
+			for (i=hgt; i>0; i--) {
+				for (j=wdt; j>0; j-=2) {
 					KUInt8 theByte = *src++;
 					*dst-- = lut[theByte>>4];
 					*dst-- = lut[theByte&0x0F];
@@ -215,8 +202,8 @@ int TAndroidScreenManager::update(unsigned short *buffer)
 			break;
 		case kOrientation_AppleBottom:
 			dst = buffer;
-			for (i=480; i>0; i--) {
-				for (j=320; j>0; j-=2) {
+			for (i=hgt; i>0; i--) {
+				for (j=wdt; j>0; j-=2) {
 					KUInt8 theByte = *src++;
 					*dst++ = lut[theByte>>4];
 					*dst++ = lut[theByte&0x0F];

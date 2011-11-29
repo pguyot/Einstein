@@ -39,13 +39,6 @@ class TAndroidScreenManager : public TScreenManager
 {
 public:
 	///
-	/// Get the dimension of the screen.
-	///
-	static void	GetScreenSize(
-							  KUInt32* outWidth,
-							  KUInt32* outHeight );
-	
-	///
 	/// Constructor from a log and dimensions.
 	///
 	/// \param inLog				log interface (can be null)
