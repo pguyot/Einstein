@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory android:title="Einstein Preferences">
-        <EditTextPreference android:key="screenwidth" android:title="Screen Width" android:summary="Width of Newton screen in Pixels"/>
-        <EditTextPreference android:key="screenheight" android:title="Screen Height" android:summary="Height of Newton screen in pixels"/>
+    <PreferenceCategory android:title="Screen Size">
+        <EditTextPreference
+			android:key="screenwidth"
+			android:title="Screen Width"
+			android:summary="Width of the Newton screen in pixels"
+			android:numeric="integer"
+			android:defaultValue="320"/>
+        <EditTextPreference
+			android:key="screenheight"
+			android:title="Screen Height"
+			android:summary="Height of Newton screen in pixels"
+			android:numeric="integer"
+			android:defaultValue="480"/>
     </PreferenceCategory>
-
-    
-
+    <PreferenceCategory android:title="Network Card">
+		<CheckBoxPreference
+			android:key="keepnetwrorkcardpluggedin"
+			android:title="Network Card"
+            android:summary="Keep network card plugged in"
+            android:defaultValue="false"/>
+		</PreferenceCategory>
 </PreferenceScreen>
