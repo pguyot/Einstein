@@ -41,6 +41,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -50,18 +51,17 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 
-public class einstein extends Activity
+public class einstein extends Activity implements OnSharedPreferenceChangeListener
 {
 	private EinsteinView pEinsteinView = null;
 	private ProgressDialog mProgressDialog; 
 	private Timer mScreenRefreshTimer = null;
 	private ScreenRefresh mScreenRefreshTask = null;
-	private SharedPreferences preferences;
+	private SharedPreferences sharedPrefs;
+	private SharedPreferences.OnSharedPreferenceChangeListener sharedPrefsListener;
 
 	/* We need to override these:
 	 * 
@@ -99,11 +99,37 @@ public class einstein extends Activity
 		final String dataPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Einstein"; 
 		if (!installAssets(dataPath))
 			return;
+		// Register listener that'll notify us of preference changes
+		this.registerPreferenceChangeListener();
 		this.initEmulator();
 		this.runEmulator(dataPath, DimensionConstants.SCREEN_WIDTH, DimensionConstants.SCREEN_HEIGHT);
 		//this.runEmulator(dataPath, 400, 614);
 
 		startScreenRefresh();	
+	}
+	
+	private void registerPreferenceChangeListener() {
+		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
+	}
+
+	/** Callback method invoked whenever a preference changes. Note that this method might
+	 *  even be called if the actual value of the preference has not changed. */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		// The keys are defined in preferences.xml
+		// TODO We are currently getting exceptions when using the getInt or getBoolean methods of sharedPreferences.
+		// Apart from that, we are getting an exception when we click on the preferences menu after the Einstein emulator is started.
+		if ("screenwidth".equals(key)) {
+			DebugUtils.debugTextOnScreen(this, "screen width changed ");
+			//DebugUtils.debugTextOnScreen(this, "screen width changed to " + String.valueOf(sharedPreferences.getInt(key, -1)));
+		} else if ("screenheight".equals(key)) {
+			DebugUtils.debugTextOnScreen(this, "screen height changed ");
+			//DebugUtils.debugTextOnScreen(this, "screen height changed to " + String.valueOf(sharedPreferences.getInt(key, -1)));
+		} else if ("keepnetwrorkcardpluggedin".equals(key)) {
+			DebugUtils.debugTextOnScreen(this, "card setting changed ");
+			//DebugUtils.debugTextOnScreen(this, "Network card plugged in state changed to " + String.valueOf(sharedPreferences.getBoolean(key, false)));
+		}
 	}
 
 	@Override
@@ -430,7 +456,6 @@ public class einstein extends Activity
 	static {
 		System.loadLibrary("einstein");
 	}
-}
 
 /*
  * 
@@ -574,3 +599,4 @@ public class AndroAsync extends Activity {
 // I can't uninstall it, there seems to be some kind of 'Uninstall Shield'.       //
 // ============================================================================== //
 
+}
