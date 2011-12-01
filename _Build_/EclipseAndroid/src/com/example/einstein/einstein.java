@@ -129,6 +129,9 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		} else if ("keepnetwrorkcardpluggedin".equals(key)) {
 			DebugUtils.debugTextOnScreen(this, "card setting changed ");
 			//DebugUtils.debugTextOnScreen(this, "Network card plugged in state changed to " + String.valueOf(sharedPreferences.getBoolean(key, false)));
+		} else if ("install_rom".equals(key)) {
+			final String installationType = sharedPreferences.getString("install_rom", "1");
+			DebugUtils.debugTextOnScreen(this, "ROM installation path changed to ".concat(installationType));
 		}
 	}
 
