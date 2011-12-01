@@ -20,5 +20,13 @@
 			android:title="Network Card"
             android:summary="Keep network card plugged in"
             android:defaultValue="false"/>
-		</PreferenceCategory>
+	</PreferenceCategory>
+    <PreferenceCategory android:title="Install ROM">
+        <ListPreference
+			android:key="install_rom"
+			android:title="Install ROM"
+			android:summary="Choose how to install the Newton OS ROM"
+			android:entries="@array/entries_install_rom"
+			android:entryValues="@array/entryvalues_install_rom"/>
+	</PreferenceCategory>
 </PreferenceScreen>
