@@ -9,12 +9,4 @@
     <string name="mainmenu.preferences.condensed">Prefs</string>
     <string name="mainmenu.installpackages.title">Install New Packages</string>
     <string name="mainmenu.installpackages.condensed">Install</string>
-    <string name="mainmenu.insertNetworkCard.title">Netzwerkkarte einstecken</string>
-    <string name="mainmenu.insertNetworkCard.condensed">Netzwerk</string>
-    <string name="mainmenu.backlight.title">Hintergrundbeleuchtung</string>
-    <string name="mainmenu.backlight.condensed">Beleuchtung</string>
-    <string name="mainmenu.preferences.title">Einstellungen</string>
-    <string name="mainmenu.preferences.condensed">Einstellungen</string>
-    <string name="mainmenu.installpackages.title">Neue Packages installieren</string>
-    <string name="mainmenu.installpackages.condensed">Installieren</string>   
 </resources>
