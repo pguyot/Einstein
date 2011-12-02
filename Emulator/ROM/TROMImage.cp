@@ -97,9 +97,42 @@ T_ROM_INJECTION(0x0000000c, "Prefetch Abort") {
     return ioUnit;
 }
 T_ROM_INJECTION(0x00000010, "Data Abort") {
-    fprintf(stderr, "DATA ABORT: accessing 0x%08x from 0x%08x\n", 
-            ioCPU->GetMemory()->GetFaultAddressRegister(),
-            ioCPU->mR14abt_Bkup-8);
+    const char *what = "unknown";
+    unsigned int addr = ioCPU->GetMemory()->GetFaultAddressRegister();
+    
+    if (addr < 0x00800000) 
+        what = "ROM";
+    else if (addr<0x00f00000)
+        what = "ROM Extension";
+    else if (addr>=0x01a00000 && addr<0x01c10000)
+        what = "C++ Jump Tables";
+    else if (addr>=0x01d80000 && addr<0x01e00000)
+        what = "REx Jump Table";
+    else if (addr>=0x03500000 && addr<0x03d00000)
+        what = "ROM Mirror";
+    else if (addr>=0x04000000 && addr<0x04100000)
+        what = "First ROM Page Mirror";
+    else if (addr>=0x05000000 && addr<0x05200000)
+        what = "Flash Bank 1";
+    else if (addr>=0x0c000000 && addr<0x0c002000)
+        what = "Kernel Stack";
+    else if (addr>=0x0c002c00 && addr<0x0c003400)
+        what = "IRQ Stack";
+    else if (addr>=0x0c003400 && addr<0x0c004000)
+        what = "FIQ Stack";
+    else if (addr>=0x0c004000 && addr<0x0c004c00)
+        what = "Svc Stack";
+    else if (addr>=0x0c004c00 && addr<0x0c006000)
+        what = "Undef Stack";
+    else if (addr>=0x0c007400 && addr<0x0c010000)
+        what = "User Stack";
+    else if (addr>=0x0c100000 && addr<0x0c100800)
+        what = "Kernel Domain Heap Base";
+    else if (addr>=0x0c100800 && addr<0x0c126000)
+        what = "Kernel Globals";
+    
+    fprintf(stderr, "DATA ABORT: accessing 0x%08x from 0x%08x (%s)\n", 
+            addr, ioCPU->mR14abt_Bkup-8, what);
     return ioUnit;
 }
 
