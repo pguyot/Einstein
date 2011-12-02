@@ -2,8 +2,8 @@
 	<string-array name="entries_install_rom">
     	<item>Internet</item>
     	<item>USB</item>
-    	<item>WLan</item>
-    	<item>Memory Card</item>
+    	<item>WLAN</item>
+    	<item>Speicherkarte</item>
 	</string-array>
 	<string-array name="entryvalues_install_rom">
     	<item>1</item>
