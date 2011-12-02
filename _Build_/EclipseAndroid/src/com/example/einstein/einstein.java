@@ -21,6 +21,74 @@
 // $Id$
 // ==============================
 
+// Suggestion for Android Menu and Dialog setup, strictly divided into 
+// one-shot actions and persistent settings (Preferences)
+
+// 1: Menu
+//  Maintenance >> 2
+//  Install Newton Packages >> 3
+//  Insert Network Card / Remove Network Card
+//  [ ] Backlight (Checkbox) 
+//  Preferences >> 4
+
+// 2: Maintenance
+//  Install NewtonOS ROM:
+//   Creating the Newton ROM file >> Internet Link, Browser
+//   From The Network >> 2.1
+//   From SD Card >> 2.2
+//   Via USB >> 2.3
+//   Via Kies Air >> 2.4 (Only show if Kies Air exists)
+//  Reset Newton:
+//   Soft Reset >> Dialog: "Are you sure, this will..."
+//   Power Reset >> Dialog: "Are you sure, this will..."
+//   Hard Reset >> Dialog: "Are you sure, this will..."
+//   Cold Boot >> Dialog: "Are you sure, this will..."
+
+// 2.1 Network ROM install
+//  Text Dialog, user can enter a URL (http, ftp, file...), OK, Cancel
+//  OK -> Progress Dialog -> Verify ROM -> Success Dialog / Error Dialog
+
+// 2.2 Newton ROM from SD Card
+//  File Browser to search for the ROM as a plain file or zip on the current media, OK, Cancel
+//  OK -> Verify ROM -> Success Dialog / Error Dialog
+
+// 2.3 Newton via USB
+//  Dialog Box "ROM file must be copied to /Downloads/Einstein ...", OK, Cancel
+//  Launch settings to make device a USB drive
+
+// 2.4 Newton via Kies Air
+//  Dialog Box "ROM file must be copied to /Downloads/Einstein ...", OK, Cancel
+//  Launch Kies Air
+
+// 3: Install Newton Packages
+//  Same mennu as (2), additionally we can provide and FTP setup to unna.org and others
+
+// 4: Preferences
+//  Screen Resolution
+//   Preset Screen Resolution >> 4.1
+//   Custom Resolution >> Enter two integers
+//  Emulator Settings
+//   RAM Size >> 4.1
+//   [ ] Keep Network Card plugged in (Checkbox)
+//  Host Settings
+//   Resource Path >> Text Dialog defaulting to "/Downloads/Einstein" (or whatever)
+//   Back button >> 4.2
+
+// 4.1 Screen Resolution
+//  ( ) Original MP: 320x480
+//  ( ) Host Resolution: 800x1010 (or whatever the resolution may be minus the status bar)
+//  ( ) 3/4 Host Resolution: 600x700 (or whatever the resolution may be minus the status bar)
+//  ( ) 1/2 Host Resolution: 400x505 (or whatever the resolution may be minus the status bar)
+//  ( ) 1/3 Host Resolution: 300x400 (or whatever the resolution may be minus the status bar)
+//  ( ) Custom Resolution
+
+// 4.2 Android Back Button
+//  ( ) Quit Einstein, Reboot Newton
+//  ( ) Pause Einstein, Newton Sleeps
+//  ( ) Newton Dot Button
+//  ( ) Newton Context Menu (not sure if I can implement that)
+
+
 package com.example.einstein;
 
 import com.example.einstein.constants.DimensionConstants;
@@ -43,10 +111,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.AssetManager;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.Editable;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -139,6 +209,21 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 	/** Used to create the menu. */
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Log.e("XXXX", ">>>>>>>>>> onCreateOptionsMenu(Menu)");
+		/*
+		// now seems to be a good time to find out about the available screen space
+		// so we can update the menu accordingly (can we? at run time?)
+		DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        int ht = displaymetrics.heightPixels;
+        int wt = displaymetrics.widthPixels;
+		Log.i("XXXX", "Display metrics are " + String.valueOf(wt) + "," + String.valueOf(ht));		
+        Rect dstRect = new Rect();
+        pEinsteinView.getDrawingRect(dstRect);
+		Log.i("XXXX", "Drawing view is " + String.valueOf(dstRect.width()) + "," + String.valueOf(dstRect.height()));
+		// Galaxy Note is 800x1280, available are 800x1230 
+		 */
+
+        // Create the menu using the XML file
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.mainmenu, menu);
 		return true;
