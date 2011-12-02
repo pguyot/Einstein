@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">einstein</string>
+    <string name="app_name">einstein</string>    
+    <string name="mainmenu.insertNetworkCard.title">Insert Network Card</string>
+    <string name="mainmenu.insertNetworkCard.condensed">Network</string>
+    <string name="mainmenu.backlight.title">Backlight</string>
+    <string name="mainmenu.backlight.condensed">Backlight</string>
+    <string name="mainmenu.preferences.title">Preferences</string>
+    <string name="mainmenu.preferences.condensed">Prefs</string>
+    <string name="mainmenu.installpackages.title">Install New Packages</string>
+    <string name="mainmenu.installpackages.condensed">Install</string>
     <string name="mainmenu.insertNetworkCard.title">Netzwerkkarte einstecken</string>
     <string name="mainmenu.insertNetworkCard.condensed">Netzwerk</string>
     <string name="mainmenu.backlight.title">Hintergrundbeleuchtung</string>
