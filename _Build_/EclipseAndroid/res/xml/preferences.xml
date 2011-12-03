@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="Screen Size">
-        <EditTextPreference
+        <ListPreference android:entryValues="@array/entryvalues_screen_resolution" android:entries="@array/entries_screen_resolution" android:summary="choose a recomended screen resolution form the list" android:title="Preset Screen Resolution" android:key="screenpresets"/><CheckBoxPreference android:key="custonscreensize" android:title="Use Custom Screen Size" android:summary="check this to use the screen resulution as defined below"/><EditTextPreference
 			android:key="screenwidth"
 			android:title="Screen Width"
 			android:summary="Width of the Newton screen in pixels"
@@ -13,20 +13,27 @@
 			android:summary="Height of Newton screen in pixels"
 			android:numeric="integer"
 			android:defaultValue="480"/>
+        
+        
     </PreferenceCategory>
-    <PreferenceCategory android:title="Network Card">
-		<CheckBoxPreference
+    <PreferenceCategory android:title="Emulator Settings">
+		<ListPreference android:summary="Memory size, 1MB for the MP2000, 4MB for the MP2100" android:title="RAM Size" android:key="ramsize" android:entryValues="@array/entryvalues_ram_size" android:entries="@array/entries_ram_size"/><CheckBoxPreference
 			android:key="keepnetwrorkcardpluggedin"
 			android:title="Network Card"
             android:summary="Keep network card plugged in"
             android:defaultValue="false"/>
+		
+		
 	</PreferenceCategory>
-    <PreferenceCategory android:title="Install ROM">
+    <PreferenceCategory android:title="Host Settings">
         <ListPreference
 			android:key="install_rom"
-			android:title="Install ROM"
+			android:title="(Install ROM)"
 			android:summary="Choose how to install the Newton OS ROM"
 			android:entries="@array/entries_install_rom"
-			android:entryValues="@array/entryvalues_install_rom"/>
+			android:entryValues="@array/entryvalues_install_rom" android:enabled="false" android:shouldDisableView="true"/>
+        <EditTextPreference android:defaultValue="/Download/Einstein" android:key="resourcepath" android:summary="Defaults to /Download/Einstein" android:title="Path for Resources"/>
+        <ListPreference android:summary='Set the function of the Android "Back" button' android:title='"Back" Button' android:key="backbutton" android:entryValues="@array/entryvalues_back_button" android:entries="@array/entries_back_button"/>
 	</PreferenceCategory>
+    
 </PreferenceScreen>
