@@ -14,10 +14,10 @@
         android:id="@+id/backlight"
         android:title="@string/mainmenu.backlight.title"
         android:titleCondensed="@string/mainmenu.backlight.condensed">
-    </item>
-    <item
+    </item><item
         android:id="@+id/preferences"
         android:title="@string/mainmenu.preferences.title"
         android:titleCondensed="@string/mainmenu.preferences.condensed">
     </item>
+    
 </menu>
