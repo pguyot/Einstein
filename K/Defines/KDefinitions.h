@@ -445,7 +445,7 @@
 		#endif
 	#else
 		#if (!defined(TARGET_RT_LITTLE_ENDIAN) || !defined(TARGET_RT_BIG_ENDIAN))
-			#error "Could not guess endianness on Linux platform with <endian.h>"
+			#error "Could not guess endianness on Android platform with <endian.h>"
 		#endif
 	#endif
 #endif

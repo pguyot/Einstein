@@ -17,10 +17,14 @@ LOCAL_PATH := $(call my-dir)/../../..
 
 include $(CLEAR_VARS)
 
+LOCAL_ARM_MODE := arm
+
 LOCAL_CPP_EXTENSION := .cp
+
 LOCAL_CFLAGS    := \
 	-Wno-multichar \
 	-DTARGET_OS_ANDROID=1 \
+	-O3 \
 	-I../../Emulator/ \
 	-I../../Emulator/ROM/ \
 	-I../../Emulator/Platform/ \
@@ -35,7 +39,10 @@ LOCAL_CFLAGS    := \
 	-I../../Emulator/Sound/ \
 	-I../../Emulator/Screen/
 
+LOCAL_LDLIBS    := -llog -ljnigraphics
+
 LOCAL_MODULE    := einstein
+
 LOCAL_SRC_FILES := \
 	app/AndroidGlue.cp \
 	app/TAndroidApp.cp \
@@ -102,7 +109,5 @@ LOCAL_SRC_FILES := \
 	Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.cp \
 	Emulator/JIT/Generic/TJITGeneric_Test.cp \
 	Emulator/JIT/Generic/TJITGenericPage.cp
-
-LOCAL_LDLIBS    := -llog -ljnigraphics
 
 include $(BUILD_SHARED_LIBRARY)
