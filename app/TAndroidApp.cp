@@ -124,7 +124,7 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 	LOGW("Loading assets...");
 	
 	LOGW("  mLog:");
-	mLog = new TAndroidLog();
+	//mLog = new TAndroidLog();
 	LOGW("    OK: 0x%08x", (int)mLog);
 
 	char theROMPath[1024];

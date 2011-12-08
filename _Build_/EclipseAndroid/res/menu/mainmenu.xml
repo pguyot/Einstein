@@ -3,21 +3,21 @@
     <item
         android:id="@+id/networkCard"
         android:title="@string/mainmenu.insertNetworkCard.title"
-		android:titleCondensed="@string/mainmenu.insertNetworkCard.condensed">    
+		android:titleCondensed="@string/mainmenu.insertNetworkCard.condensed" android:enabled="false">    
     </item>
     <item
         android:id="@+id/installNewPackages"
         android:title="@string/mainmenu.installpackages.title"
-		android:titleCondensed="@string/mainmenu.installpackages.condensed">       
+		android:titleCondensed="@string/mainmenu.installpackages.condensed" android:enabled="true">       
     </item>
     <item
         android:id="@+id/backlight"
         android:title="@string/mainmenu.backlight.title"
-        android:titleCondensed="@string/mainmenu.backlight.condensed">
+        android:titleCondensed="@string/mainmenu.backlight.condensed" android:enabled="true">
     </item><item
         android:id="@+id/preferences"
         android:title="@string/mainmenu.preferences.title"
-        android:titleCondensed="@string/mainmenu.preferences.condensed">
+        android:titleCondensed="@string/mainmenu.preferences.condensed" android:enabled="false">
     </item>
     
 </menu>

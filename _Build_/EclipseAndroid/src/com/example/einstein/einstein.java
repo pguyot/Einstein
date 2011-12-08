@@ -161,6 +161,7 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 	public void onCreate(Bundle savedInstanceState)
 	{
 		Log.e("einstein", ">>>>>>>>>> onCreate()");    	
+		DebugUtils.debugTextOnScreen(this, "onCreate");
 		super.onCreate(savedInstanceState);
 
 		this.pEinsteinView = new EinsteinView(this);     
@@ -171,9 +172,9 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 			return;
 		// Register listener that'll notify us of preference changes
 		this.registerPreferenceChangeListener();
+		DebugUtils.debugTextOnScreen(this, "initEmulator");
 		this.initEmulator();
 		this.runEmulator(dataPath, DimensionConstants.SCREEN_WIDTH, DimensionConstants.SCREEN_HEIGHT);
-		//this.runEmulator(dataPath, 400, 614);
 
 		startScreenRefresh();	
 	}
