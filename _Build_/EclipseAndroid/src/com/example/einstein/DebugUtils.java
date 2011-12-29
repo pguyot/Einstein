@@ -1,7 +1,5 @@
 package com.example.einstein;
 
-import android.app.Activity;
-import android.content.Context;
 import android.widget.Toast;
 
 public class DebugUtils {
