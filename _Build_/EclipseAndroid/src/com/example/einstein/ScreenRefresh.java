@@ -2,8 +2,6 @@ package com.example.einstein;
 
 import java.util.TimerTask;
 
-import android.util.Log;
-
 class ScreenRefresh extends TimerTask {
 
 	public einstein pe = null;
