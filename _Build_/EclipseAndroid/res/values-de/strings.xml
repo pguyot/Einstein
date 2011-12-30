@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">einstein</string>
+    <string name="mainmenu.insertNetworkCard.title">Netzwerkkarte einstecken</string>
+    <string name="mainmenu.insertNetworkCard.condensed">Netzwerk</string>
+    <string name="mainmenu.backlight.title">Hintergrundbeleuchtung</string>
+    <string name="mainmenu.backlight.condensed">Beleuchtung</string>
+    <string name="mainmenu.preferences.title">Einstellungen</string>
+    <string name="mainmenu.preferences.condensed">Einstellungen</string>
+    <string name="mainmenu.installpackages.title">Neue Packages installieren</string>
+    <string name="mainmenu.installpackages.condensed">Installieren</string>  
+	<string name="Startup.romFileMissing">ROM Datei kann nicht installiert werden.</string>
+	<string name="Startup.rexFileMissing">REX Datei kann nicht installiert werden.</string>
+	<string name="Startup.iconFileMissing">Applikations-Icon Datei kann nicht installiert werden.</string>
+	<string name="Startup.expectedPath">Diese Datei sollte sich im Downloads\\Einstein Ordner befinden.</string>
+</resources>
