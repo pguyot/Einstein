@@ -3,8 +3,6 @@ package com.example.einstein.constants;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 
-import com.example.einstein.R;
-
 public class StringConstants {
 
 	// TODO Eventually we need to localize these strings. Can the Android VM handle .properties files?
