@@ -91,16 +91,14 @@
 
 package com.example.einstein;
 
+import java.util.Timer;
+
 import com.example.einstein.constants.DimensionConstants;
 import com.example.einstein.constants.OtherConstants;
 import com.example.einstein.constants.StringConstants;
 import com.example.einstein.constants.URLConstants;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Timer;
+import com.example.einstein.startup.IStartup.LoadResult;
+import com.example.einstein.startup.Startup;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -161,20 +159,24 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		Log.e("einstein", ">>>>>>>>>> onCreate()");    	
 		DebugUtils.debugTextOnScreen(this, "onCreate");
 		super.onCreate(savedInstanceState);
-
 		this.pEinsteinView = new EinsteinView(this);     
 		super.setContentView(pEinsteinView);
-		// FILE* file = fopen("/sdcard/hello.txt","w+");
-		final String dataPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Einstein"; 
-		if (!installAssets(dataPath))
+		// Install all required assets
+		final Startup startup = new Startup(this);
+		final AssetManager assetManager = getAssets();
+		final LoadResult result = startup.installAssets(assetManager);
+		if (!(LoadResult.OK == result)) {
 			return;
+		}
 		// Register listener that'll notify us of preference changes
 		this.registerPreferenceChangeListener();
 		DebugUtils.debugTextOnScreen(this, "initEmulator");
 		this.initEmulator();
+		final String dataPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Einstein"; 
 		this.runEmulator(dataPath, DimensionConstants.SCREEN_WIDTH, DimensionConstants.SCREEN_HEIGHT);
 
 		startScreenRefresh();	
+
 	}
 	
 	private void registerPreferenceChangeListener() {
@@ -298,6 +300,8 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 	{
 		// TODO: the native resources are not given back! All threads continue to run.
 		// TODO: even the Java timer continues to query screen updates! Weird!
+		// December 2011 Frank Gruendel This is because Android Applications do not really stop. They only retreat into the background.
+		// To really stop them one has to use the Android Settings Manager.
 		Log.e("XXXX", ">>>>>>>>>> onDestroy()");
 		stopEmulator();
 		stopScreenRefresh();	
@@ -421,97 +425,6 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		return out;
 	}
 
-	public boolean installAssets(String dataPath) {
-		/* TODO: 
-		 * - check all install locations for valid ROM
-		 *   - check EXT/Einstein
-		 *   - check /sdcard/Einstein
-		 *   - check /sdcard/external_sd/Einstein
-		 *   - check /sdcard/sd/Einstein
-		 *   - further possible dirs are /system/media/sdcard/... and /mnt/sdcard/... 
-		 *   - check /proc/self/mounts ... Einstein (don't! This is messy!)
-		 *   - check EXT/download/Einstein (outdated)
-		 * - check download directory for .zip
-		 *   - if found, extract into EXT/Einstein
-		 * - message to the user
-		 */
-
-		// setText(); // this is asynchronous! No keyboard is shown!
-		// startDownload(); // this is asynchronous!
-
-		final File dataDir = new File(dataPath);
-		dataDir.mkdirs();
-		final AssetManager assetManager = getAssets();
-
-		try {
-			// TODO: Do not hard-code the path separator and the ROM name. The path separator is platform dependent,
-			// and the ROM name can change FG_2011_11_24
-			final File rom = new File(dataPath + "/717006.rom");
-			if (rom.exists()) {
-				Log.i("Einstein", "ROM file found");
-			} else {
-				InputStream in = null;
-				FileOutputStream out = null;
-				try {
-					in = assetManager.open("717006.rom.png");
-					Log.w("Einstein", "Copying ROM file from assets...");
-					out = new FileOutputStream(dataPath+"/717006.rom");
-					int sz = in.available();
-					byte[] b = new byte[sz];
-					in.read(b);
-					out.write(b);
-				} catch (IOException e) {
-					finishWithMessage(StringConstants.Einstein_005);
-					return false;
-				}
-				finally {
-					if (null != in) {
-						in.close();
-					}
-					if (null != out) {
-						out.close();
-					}
-					Log.w("Einstein", "Done.");
-				}
-			}
-			final File rex = new File(dataPath + "/Einstein.rex");
-			if (rex.exists()) {
-				Log.i("Einstein", "REX file found.");
-			} else {
-				InputStream in = null;
-				FileOutputStream out = null;
-				try {
-					in = assetManager.open("Einstein.rex.png");
-					Log.w("Einstein", "Copying REX file from assets...");
-					out = new FileOutputStream(dataPath+"/Einstein.rex");
-					int sz = in.available();
-					byte[] b = new byte[sz];
-					in.read(b);
-					out.write(b);
-				} catch (IOException e) {
-					finishWithMessage(StringConstants.Einstein_005);
-					return false;
-				}
-				finally {
-					if (null != in) {
-						in.close();
-					}
-					if (null != out) {
-						out.close();
-					}
-					Log.w("Einstein", "Done.");
-				}
-			}
-			final File img = new File(dataPath + "/717006.img");
-			if (!img.exists()) {
-				warnUser(StringConstants.Einstein_006);
-			} 
-		} catch (IOException e) {
-			Log.e("Einstein", "Installing assets: " + e.getMessage());
-		}
-		return true;
-	}
-
 	void finishWithMessage(String msg) {
 		class MyOnClickListener implements DialogInterface.OnClickListener {
 			Activity pv = null;
@@ -527,17 +440,17 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		ad.setButton("Quit", new MyOnClickListener(this));  
 		ad.show();
 	}
-
-	void warnUser(String msg) {
-		AlertDialog ad = new AlertDialog.Builder(this).create();  
-		ad.setCancelable(false);  
-		ad.setMessage(msg);  
-		ad.setButton("OK", new DialogInterface.OnClickListener() { 
-			@Override public void onClick(DialogInterface dialog, int which) { dialog.dismiss(); } 
-		} 
-		);  
-		ad.show();
-	}
+//
+//	void warnUser(String msg) {
+//		AlertDialog ad = new AlertDialog.Builder(this).create();  
+//		ad.setCancelable(false);  
+//		ad.setMessage(msg);  
+//		ad.setButton("OK", new DialogInterface.OnClickListener() { 
+//			@Override public void onClick(DialogInterface dialog, int which) { dialog.dismiss(); } 
+//		} 
+//		);  
+//		ad.show();
+//	}
 
 	// load the entire native program as a library at startup
 	static {
