@@ -9,4 +9,8 @@
     <string name="mainmenu.preferences.condensed">Prefs</string>
     <string name="mainmenu.installpackages.title">Install New Packages</string>
     <string name="mainmenu.installpackages.condensed">Install</string>
+	<string name="Startup.romFileMissing">Unable to install ROM file.</string>
+	<string name="Startup.rexFileMissing">Unable to install REX file.</string>
+	<string name="Startup.iconFileMissing">Unable to install application icon file.</string>
+	<string name="Startup.expectedPath">This file must be in the Downloads\\Einstein folder.</string>
 </resources>
