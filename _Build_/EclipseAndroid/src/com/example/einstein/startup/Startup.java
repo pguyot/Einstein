@@ -3,9 +3,6 @@
 package com.example.einstein.startup;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 import com.example.einstein.DebugUtils;
 import com.example.einstein.R;
@@ -15,7 +12,6 @@ import com.example.einstein.startup.IStartup.LoadResult;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
-import android.util.Log;
 
 public class Startup {
 
@@ -26,32 +22,29 @@ public class Startup {
 		this.context = context;
 	}
 
-	/** Ensures that we have a ROM file, a REX file and an application icon */
+	/** Checks if we have a ROM file, a REX file and an application icon in the folder where we expect them. */
 	public final LoadResult installAssets(final AssetManager assetManager) {
+		final Resources resources = this.context.getResources();
 		final File dataDir = new File(StartupConstants.DATA_FILE_PATH);
 		dataDir.mkdirs();
-		// Install ROM file
+		final String line2 = StringConstants.getLocalizedString(resources, R.string.Startup_expectedPath);
+		// Make sure we have a ROM file
 		if (!this.romFileAvailable(dataDir)) {
-			final LoadResult result = this.loadRomFile(assetManager, dataDir);
-			if (LoadResult.OK != result) {
-				return result;
-			}
-			// TODO Log success or failure to file
+			final String line1 = StringConstants.getLocalizedString(resources, R.string.Startup_romFileMissing);
+			final String message = line1 + "\n" + line2;
+			DebugUtils.showInfoDialog(context, message);
+			return LoadResult.ROM_FILE_MISSING;
 		}
-		// Install REX file
+		// Make sure we have a REX file
 		if (!this.rexFileAvailable(dataDir)) {
-			final LoadResult result = this.loadRexFile(assetManager, dataDir);
-			if (LoadResult.OK != result) {
-				return result;
-			}
-			// TODO Log success or failure to file
+			final String line1 = StringConstants.getLocalizedString(resources, R.string.Startup_rexFileMissing);
+			final String message = line1 + "\n" + line2;
+			DebugUtils.showInfoDialog(context, message);
+			return LoadResult.REX_FILE_MISSING;
 		}
-		// Check if we have an application icon
+		// Make sure we have an application icon
 		if (!this.applicationIconAvailable(dataDir)) {
-			// TODO Log failure to file
-			final Resources resources = this.context.getResources();
 			final String line1 = StringConstants.getLocalizedString(resources, R.string.Startup_iconFileMissing);
-			final String line2 = StringConstants.getLocalizedString(resources, R.string.Startup_expectedPath);
 			final String message = line1 + "\n" + line2;
 			DebugUtils.showInfoDialog(context, message);
 			return LoadResult.APPLICATION_ICON_MISSING;
@@ -65,88 +58,10 @@ public class Startup {
 		return romFile.exists();		
 	}
 
-	/** Loads the ROM file */
-	private final IStartup.LoadResult loadRomFile(final AssetManager assetManager, final File dataDir) {
-		InputStream in = null;
-		FileOutputStream out = null;
-		try {
-			final String path = dataDir + StartupConstants.FILE_SEPARATOR + StartupConstants.ROM_FILE_NAME;
-			in = assetManager.open(StartupConstants.ROM_FILE_NAME + ".png");
-			Log.w("Einstein", "Copying ROM file from assets...");
-			out = new FileOutputStream(path);
-			int sz = in.available();
-			byte[] b = new byte[sz];
-			in.read(b);
-			out.write(b);
-			Log.w("Einstein", "Finished loading ROM file.");
-			return LoadResult.OK;
-		}
-		catch (IOException e) {
-			final Resources resources = this.context.getResources();
-			final String line1 = StringConstants.getLocalizedString(resources, R.string.Startup_romFileMissing);
-			final String line2 = StringConstants.getLocalizedString(resources, R.string.Startup_expectedPath);
-			final String message = line1 + "\n" + line2;
-			DebugUtils.showInfoDialog(context, message);
-			return LoadResult.ROM_FILE_MISSING;
-		}
-		finally {
-			try {
-				if (null != in) {
-					in.close();
-				}
-				if (null != out) {
-					out.close();
-				}
-			}
-			catch (IOException e) {
-				// Do nothing. We've already returned true or false
-			}
-		}
-	}
-
 	/** Returns <code>true</code> if a REX file was found in <code>dataDir</code> */
 	private final boolean rexFileAvailable(final File dataDir) {
 		final File rexFile = new File(dataDir + StartupConstants.FILE_SEPARATOR + StartupConstants.REX_FILE_NAME);
 		return rexFile.exists();		
-	}
-
-	/** Loads the REX file */
-	private final LoadResult loadRexFile(final AssetManager assetManager, final File dataDir) {
-		InputStream in = null;
-		FileOutputStream out = null;
-		try {
-			final String path = dataDir + StartupConstants.FILE_SEPARATOR + StartupConstants.REX_FILE_NAME;
-			in = assetManager.open(StartupConstants.REX_FILE_NAME + ".png");
-			Log.w("Einstein", "Copying REX file from assets...");
-			out = new FileOutputStream(path);
-			int sz = in.available();
-			byte[] b = new byte[sz];
-			in.read(b);
-			out.write(b);
-			Log.w("Einstein", "Finished loading REX file.");
-			return LoadResult.OK;
-		}
-		catch (IOException e) {
-			final Resources resources = this.context.getResources();
-			final String line1 = StringConstants.getLocalizedString(resources, R.string.Startup_rexFileMissing);
-			final String line2 = StringConstants.getLocalizedString(resources, R.string.Startup_expectedPath);
-			final String message = line1 + "\n" + line2;
-			DebugUtils.showInfoDialog(context, message);
-			return LoadResult.REX_FILE_MISSING;
-		}
-		finally {
-			try {
-				if (null != in) {
-					in.close();
-				}
-				if (null != out) {
-					out.close();
-				}
-			}
-			catch (IOException e) {
-				// Do nothing. We've already returned true or false
-			}
-		}
 	}
 
 	/** Returns <code>true</code> if an application icon was found in <code>dataDir</code> */
@@ -154,5 +69,4 @@ public class Startup {
 		final File iconFile = new File(dataDir + StartupConstants.FILE_SEPARATOR + StartupConstants.APP_ICON_FILE_NAME);
 		return iconFile.exists();
 	} 
-
 }
