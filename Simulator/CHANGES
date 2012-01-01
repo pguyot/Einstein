@@ -1,0 +1,32 @@
+
+  C H A N G E S 
+ ===============
+
+This file contains a list of all changes to the simulator.
+
+Mar 16th 2008
+ - added macros that allow the Simulator to stay native even when using
+   function pointers, method pointers, or RAM hooks to those
+
+Mar 13th 2008
+ - added naked classes TTask and TMonitor
+ - added new functions
+
+Mar 11th 2008
+ - implemented more simulated functions
+ - added code to call the emulator from within the simulator code
+ 
+Mar 10th 2008
+ - fixed project files for MSWindows / VisualC 8
+ - updated project files for OS X / XCode
+ 
+Mar 5th 2008
+ - added code to access emulated RAM (no MMU handling yet)
+ - added macros to support class member access under emulation and simulation
+ - added more sample implementations
+
+Feb 29th 2008
+ - initial release of simulator
+ - added simulatro interface into emulator
+ - added native FixedMultiply() function
+

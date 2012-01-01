@@ -371,7 +371,7 @@ public:
 	KUInt32		mSPSRirq;					///< Saved PSR for irq mode
 	KUInt32		mSPSRfiq;					///< Saved PSR for fiq mode
 
-  static TARMProcessor *current; ///< bad style, but needed by the Albert interface
+  static TARMProcessor *current; ///< bad style, but needed by the Simulator interface
 
 private:
 	/// \name Variables
