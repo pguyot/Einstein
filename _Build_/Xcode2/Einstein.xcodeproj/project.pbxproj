@@ -1124,10 +1124,10 @@
 				C9209BE30D7CB7BD004EC12D /* objects_stubs.cp */,
 			);
 			name = objects;
-			path = Albert/objects;
+			path = Simulator/objects;
 			sourceTree = "<group>";
 		};
-		C93A87C70D775CEE007E26BF /* Albert */ = {
+		C93A87C70D775CEE007E26BF /* Simulator */ = {
 			isa = PBXGroup;
 			children = (
 				C9209BE20D7CB7BD004EC12D /* objects */,
@@ -1136,7 +1136,7 @@
 				C93A87C80D775D19007E26BF /* math */,
 				C93A87CE0D775D19007E26BF /* sys */,
 			);
-			name = Albert;
+			name = Simulator;
 			sourceTree = "<group>";
 		};
 		C93A87C80D775D19007E26BF /* math */ = {
@@ -1147,7 +1147,7 @@
 				C93A894B0D785C1C007E26BF /* math_stubs.cp */,
 			);
 			name = math;
-			path = Albert/math;
+			path = Simulator/math;
 			sourceTree = "<group>";
 		};
 		C93A87CE0D775D19007E26BF /* sys */ = {
@@ -1162,7 +1162,7 @@
 				C9209C4D0D7D8D20004EC12D /* macros.h */,
 			);
 			name = sys;
-			path = Albert/sys;
+			path = Simulator/sys;
 			sourceTree = "<group>";
 		};
 		C93A89600D785D34007E26BF /* gfx */ = {
@@ -1177,7 +1177,7 @@
 				C93A89630D785D34007E26BF /* gfx_stubs.cp */,
 			);
 			name = gfx;
-			path = Albert/gfx;
+			path = Simulator/gfx;
 			sourceTree = "<group>";
 		};
 		C9CDD9C20D7B429D000019EA /* mmu */ = {
@@ -1188,7 +1188,7 @@
 				C9CDD9C50D7B429D000019EA /* mmu_stubs.cp */,
 			);
 			name = mmu;
-			path = Albert/mmu;
+			path = Simulator/mmu;
 			sourceTree = "<group>";
 		};
 		DA09408206B6520100C67243 = {
@@ -1260,7 +1260,7 @@
 		DA0940AF06B653FB00C67243 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				C93A87C70D775CEE007E26BF /* Albert */,
+				C93A87C70D775CEE007E26BF /* Simulator */,
 				DA09410506B659D100C67243 /* _Tests_ */,
 				DA42072D07B7EE8200BF5C06 /* app */,
 				DA0940AC06B653E400C67243 /* Emulator */,
