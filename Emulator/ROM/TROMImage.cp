@@ -721,7 +721,7 @@ TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyMethodP
 // -------------------------------------------------------------------------- //
 //  * Return the native stub in Simulator
 // -------------------------------------------------------------------------- //
-JITFuncPtr TROMPatch::GetAlbertStubAt(KUInt32 index) 
+JITFuncPtr TROMPatch::GetSimulatorStubAt(KUInt32 index) 
 {
     index = index & 0x007fffff;
     if (index>=nPatch)
@@ -732,7 +732,7 @@ JITFuncPtr TROMPatch::GetAlbertStubAt(KUInt32 index)
 // -------------------------------------------------------------------------- //
 //  * Return the address of the Simulator function
 // -------------------------------------------------------------------------- //
-AnyFunctionPtr TROMPatch::GetAlbertFunctionAt(KUInt32 index)
+AnyFunctionPtr TROMPatch::GetSimulatorFunctionAt(KUInt32 index)
 {
     index = index & 0x007fffff;
     if (index>=nPatch)
@@ -743,7 +743,7 @@ AnyFunctionPtr TROMPatch::GetAlbertFunctionAt(KUInt32 index)
 // -------------------------------------------------------------------------- //
 //  * Return the address of the Simulator function
 // -------------------------------------------------------------------------- //
-AnyMethodPtr TROMPatch::GetAlbertMethodAt(KUInt32 index) 
+AnyMethodPtr TROMPatch::GetSimulatorMethodAt(KUInt32 index) 
 {
     index = index & 0x007fffff;
     if (index>=nPatch)

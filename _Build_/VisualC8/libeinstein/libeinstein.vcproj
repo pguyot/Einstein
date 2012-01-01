@@ -959,50 +959,17 @@
 			>
 		</Filter>
 		<Filter
-			Name="Albert"
+			Name="Simulator"
 			>
 			<Filter
 				Name="gfx"
 				>
 				<File
-					RelativePath="..\..\..\Albert\gfx\font.cp"
+					RelativePath="..\..\..\Simulator\gfx\font.cp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\gfx\font.h"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="OptDebug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\Albert\gfx\gfx_stubs.cp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Albert\gfx\point.cp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Albert\gfx\point.h"
+					RelativePath="..\..\..\Simulator\gfx\font.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1027,11 +994,44 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\gfx\TRect.cp"
+					RelativePath="..\..\..\Simulator\gfx\gfx_stubs.cp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\gfx\TRect.h"
+					RelativePath="..\..\..\Simulator\gfx\point.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Simulator\gfx\point.h"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="OptDebug|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\Simulator\gfx\TRect.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Simulator\gfx\TRect.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1060,11 +1060,11 @@
 				Name="math"
 				>
 				<File
-					RelativePath="..\..\..\Albert\math\fixed.cp"
+					RelativePath="..\..\..\Simulator\math\fixed.cp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\math\fixed.h"
+					RelativePath="..\..\..\Simulator\math\fixed.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1089,7 +1089,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\math\math_stubs.cp"
+					RelativePath="..\..\..\Simulator\math\math_stubs.cp"
 					>
 				</File>
 			</Filter>
@@ -1097,36 +1097,11 @@
 				Name="sys"
 				>
 				<File
-					RelativePath="..\..\..\Albert\sys\einstein.cp"
+					RelativePath="..\..\..\Simulator\sys\einstein.cp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\sys\einstein.h"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="OptDebug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\Albert\sys\error.h"
+					RelativePath="..\..\..\Simulator\sys\einstein.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1151,11 +1126,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\sys\globals.cp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Albert\sys\globals.h"
+					RelativePath="..\..\..\Simulator\sys\error.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1180,7 +1151,11 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\sys\macros.h"
+					RelativePath="..\..\..\Simulator\sys\globals.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Simulator\sys\globals.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1205,7 +1180,32 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\sys\types.h"
+					RelativePath="..\..\..\Simulator\sys\macros.h"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="OptDebug|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\Simulator\sys\types.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1234,44 +1234,11 @@
 				Name="objects"
 				>
 				<File
-					RelativePath="..\..\..\Albert\objects\objects.cp"
+					RelativePath="..\..\..\Simulator\objects\objects.cp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\objects\objects.h"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="OptDebug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\Albert\objects\objects_stubs.cp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Albert\objects\TDoubleQContainer.cp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Albert\objects\TDoubleQContainer.h"
+					RelativePath="..\..\..\Simulator\objects\objects.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1296,11 +1263,15 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\objects\TDoubleQItem.cp"
+					RelativePath="..\..\..\Simulator\objects\objects_stubs.cp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\objects\TDoubleQItem.h"
+					RelativePath="..\..\..\Simulator\objects\TDoubleQContainer.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Simulator\objects\TDoubleQContainer.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1325,7 +1296,36 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\objects\TMonitor.cp"
+					RelativePath="..\..\..\Simulator\objects\TDoubleQItem.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Simulator\objects\TDoubleQItem.h"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="OptDebug|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\Simulator\objects\TMonitor.cp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1356,7 +1356,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\objects\TMonitor.h"
+					RelativePath="..\..\..\Simulator\objects\TMonitor.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1381,40 +1381,11 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\objects\TObject.cp"
+					RelativePath="..\..\..\Simulator\objects\TObject.cp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\objects\TObject.h"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="OptDebug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\Albert\objects\TObjectTable.cp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Albert\objects\TObjectTable.h"
+					RelativePath="..\..\..\Simulator\objects\TObject.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1439,11 +1410,40 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\objects\TTask.cp"
+					RelativePath="..\..\..\Simulator\objects\TObjectTable.cp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\objects\TTask.h"
+					RelativePath="..\..\..\Simulator\objects\TObjectTable.h"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="OptDebug|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\Simulator\objects\TTask.cp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Simulator\objects\TTask.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1472,7 +1472,7 @@
 				Name="mmu"
 				>
 				<File
-					RelativePath="..\..\..\Albert\mmu\data_abort.cp"
+					RelativePath="..\..\..\Simulator\mmu\data_abort.cp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1500,7 +1500,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\mmu\data_abort.h"
+					RelativePath="..\..\..\Simulator\mmu\data_abort.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1528,7 +1528,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\Albert\mmu\mmu_stubs.cp"
+					RelativePath="..\..\..\Simulator\mmu\mmu_stubs.cp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"

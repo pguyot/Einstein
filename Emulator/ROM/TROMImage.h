@@ -269,13 +269,13 @@ public:
 	void originalInstruction(KUInt32 instr) { originalInstruction_ = instr; }
 	
 	/// Return the Simulator stub by index
-	static JITFuncPtr GetAlbertStubAt(KUInt32 index);
+	static JITFuncPtr GetSimulatorStubAt(KUInt32 index);
 	
 	/// Return the Simulator function by index
-	static AnyFunctionPtr GetAlbertFunctionAt(KUInt32 index);
+	static AnyFunctionPtr GetSimulatorFunctionAt(KUInt32 index);
 	
 	/// Return the Simulator class method by index
-	static AnyMethodPtr GetAlbertMethodAt(KUInt32 index);
+	static AnyMethodPtr GetSimulatorMethodAt(KUInt32 index);
 	
 	/// Return the original ROM instruction
 	static KUInt32 GetOriginalInstructionAt(KUInt32 index);
