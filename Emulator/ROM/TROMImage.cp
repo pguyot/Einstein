@@ -659,30 +659,30 @@ method_(0L)
 //  * TROMPatch constructor
 // -------------------------------------------------------------------------- //
 TROMPatch::TROMPatch(KUInt32 addr, KUInt32 val, const char *name)
-: next_(first_),
-address_(addr>>2),
-value_(val),
-stub_(0L),
-function_(0L),
-method_(0L)
+:   next_(first_),
+    address_(addr>>2),
+    value_(val),
+    stub_(0L),
+    function_(0L),
+    method_(0L)
 {
     first_ = this;
     fprintf(stderr, "Adding ROM patch: %s\n", name);
 }
 
 // -------------------------------------------------------------------------- //
-//  * TROMPatch constructor for Albert function calls
+//  * TROMPatch constructor for Simulator function calls
 // -------------------------------------------------------------------------- //
 TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyFunctionPtr function)
-: next_(first_),
-address_(addr>>2),
-value_(0xef800000),
-stub_(stub),
-function_(function),
-method_(0L)
+:   next_(first_),
+    address_(addr>>2),
+    value_(0xef800000),
+    stub_(stub),
+    function_(function),
+    method_(0L)
 {
     first_ = this;
-    fprintf(stderr, "Adding ROM patch to Albert function: %3d = %s\n", (int)nPatch, name);
+    fprintf(stderr, "Adding ROM patch to Simulator function: %3d = %s\n", (int)nPatch, name);
     value_ |= addPatch(this);
 }
 
@@ -690,12 +690,12 @@ method_(0L)
 //  * TROMPatch constructor for JIT instructions
 // -------------------------------------------------------------------------- //
 TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name)
-: next_(first_),
-address_(addr>>2),
-value_(0xef800000),
-stub_(stub),
-function_(0L),
-method_(0L)
+:   next_(first_),
+    address_(addr>>2),
+    value_(0xef800000),
+    stub_(stub),
+    function_(0L),
+    method_(0L)
 {
     first_ = this;
     fprintf(stderr, "Adding ROM patch to JIT function: %3d = %s\n", (int)nPatch, name);
@@ -703,23 +703,23 @@ method_(0L)
 }
 
 // -------------------------------------------------------------------------- //
-//  * TROMPatch constructor for Albert method calls
+//  * TROMPatch constructor for Simulator method calls
 // -------------------------------------------------------------------------- //
 TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyMethodPtr method)
-: next_(first_),
-address_(addr>>2),
-value_(0xef800000),
-stub_(stub),
-function_(0L),
-method_(method)
+:   next_(first_),
+    address_(addr>>2),
+    value_(0xef800000),
+    stub_(stub),
+    function_(0L),
+    method_(method)
 {
     first_ = this;
-    fprintf(stderr, "Adding ROM patch to Albert method:   %3d = %s\n", (int)nPatch, name);
+    fprintf(stderr, "Adding ROM patch to Simulator method:   %3d = %s\n", (int)nPatch, name);
     value_ |= addPatch(this);
 }
 
 // -------------------------------------------------------------------------- //
-//  * Return the native stub in Albert
+//  * Return the native stub in Simulator
 // -------------------------------------------------------------------------- //
 JITFuncPtr TROMPatch::GetAlbertStubAt(KUInt32 index) 
 {
@@ -730,7 +730,7 @@ JITFuncPtr TROMPatch::GetAlbertStubAt(KUInt32 index)
 }
 
 // -------------------------------------------------------------------------- //
-//  * Return the address of the Albert function
+//  * Return the address of the Simulator function
 // -------------------------------------------------------------------------- //
 AnyFunctionPtr TROMPatch::GetAlbertFunctionAt(KUInt32 index)
 {
@@ -741,7 +741,7 @@ AnyFunctionPtr TROMPatch::GetAlbertFunctionAt(KUInt32 index)
 }
 
 // -------------------------------------------------------------------------- //
-//  * Return the address of the Albert function
+//  * Return the address of the Simulator function
 // -------------------------------------------------------------------------- //
 AnyMethodPtr TROMPatch::GetAlbertMethodAt(KUInt32 index) 
 {
@@ -752,7 +752,7 @@ AnyMethodPtr TROMPatch::GetAlbertMethodAt(KUInt32 index)
 }
 
 // -------------------------------------------------------------------------- //
-//  * Return the address of the Albert function
+//  * Return the address of the Simulator function
 // -------------------------------------------------------------------------- //
 KUInt32 TROMPatch::GetOriginalInstructionAt(KUInt32 index) 
 {

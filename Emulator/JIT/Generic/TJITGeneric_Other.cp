@@ -31,7 +31,7 @@
 
 #include "TJITGeneric_Macros.h"
 
-#include <Albert/sys/einstein.h>
+#include "Simulator/sys/einstein.h"
 
 /*
  Floating point math emulation
@@ -129,7 +129,7 @@ JITInstructionProto(CallHostNative)
 	KUInt32 callIndex;
 	POPVALUE(callIndex);
 	JITFuncPtr stub = TROMPatch::GetAlbertStubAt(callIndex);
-	//printf("Albert: %3d:0x%08x\n", (int)callIndex, stub);
+	//printf("Simulator: %3d:0x%08x\n", (int)callIndex, stub);
 	if (!stub) {
 		CALLNEXTUNIT;
 	}
