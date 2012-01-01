@@ -1,5 +1,6 @@
 package com.example.einstein;
 
+import java.io.File;
 import java.util.Timer;
 
 import com.example.einstein.constants.DimensionConstants;
@@ -8,6 +9,7 @@ import com.example.einstein.constants.StringConstants;
 import com.example.einstein.constants.URLConstants;
 import com.example.einstein.startup.IStartup.LoadResult;
 import com.example.einstein.startup.Startup;
+import com.example.einstein.startup.StartupConstants;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,10 +20,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.AssetManager;
+import android.graphics.Point;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.Editable;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,12 +43,16 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 	private SharedPreferences sharedPrefs;
 	private SharedPreferences.OnSharedPreferenceChangeListener sharedPrefsListener;
 
+	// load the entire native program as a library at startup
+	static {
+		System.loadLibrary("einstein");
+	}
+
 	/** Called when the app is started for the first time. */
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		Log.e("einstein", ">>>>>>>>>> onCreate()");    	
-		DebugUtils.debugTextOnScreen(this, "onCreate");
 		super.onCreate(savedInstanceState);
 		this.pEinsteinView = new EinsteinView(this);     
 		super.setContentView(pEinsteinView);
@@ -51,22 +60,52 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		final Startup startup = new Startup(this);
 		final AssetManager assetManager = getAssets();
 		final LoadResult result = startup.installAssets(assetManager);
-		if (!(LoadResult.OK == result)) {
+		if (LoadResult.OK != result) {
 			return;
 		}
+		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		// Register listener that'll notify us of preference changes
 		this.registerPreferenceChangeListener();
-		DebugUtils.debugTextOnScreen(this, "initEmulator");
+		// Initialize emulator
 		this.initEmulator();
-		final String dataPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Einstein"; 
-		this.runEmulator(dataPath, DimensionConstants.SCREEN_WIDTH, DimensionConstants.SCREEN_HEIGHT);
-
+		// Start emulator using Newton screen size as set in the preferences
+		final Point newtonScreenSize = startup.getNewtonScreenSize();
+		// TODO If the screen width or height are larger than what the Newton can handle, the emulator
+		// will not start. It will immediately close itself
+		this.runEmulator(StartupConstants.DATA_FILE_PATH, newtonScreenSize.x, newtonScreenSize.y);
 		startScreenRefresh();	
-
+	}
+	
+	// The following two methods aren't used yet, but we'll know them when we implement picking
+	// the ROM and REX files. Shamelessly copied from http://www.blackmoonit.com/android/filebrowser/intents#intent.pick_file
+	
+	void pickFile(File aFile) {
+	    Intent theIntent = new Intent(Intent.ACTION_PICK);
+	    theIntent.setData(Uri.fromFile(aFile));  //default file / jump directly to this file/folder
+	    theIntent.putExtra(Intent.EXTRA_TITLE,"A Custom Title"); //optional
+	    theIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS); //optional
+	    try {
+	    	this.startActivityForResult(theIntent,Activity.RESULT_FIRST_USER);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data){
+		final int PICK_FILE_RESULT_CODE = Activity.RESULT_FIRST_USER; // ??
+	    switch (requestCode) {
+	        case PICK_FILE_RESULT_CODE: {
+	            if (resultCode==RESULT_OK && data!=null && data.getData()!=null) {
+	                String theFilePath = data.getData().getPath();
+	                // TODO Check if we can use the file. If we can, copy it where it belongs
+	            }
+	            break;
+	        }
+	    }
 	}
 
 	private void registerPreferenceChangeListener() {
-		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 	}
 
@@ -81,6 +120,8 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 			DebugUtils.debugTextOnScreen(this, "screen height changed ");
 		} else if ("keepnetwrorkcardpluggedin".equals(key)) {
 			DebugUtils.debugTextOnScreen(this, "card setting changed ");
+		} else if ("screenpresets".equals(key)) {
+			DebugUtils.debugTextOnScreen(this, "Screen resolution changed");
 		} else if ("install_rom".equals(key)) {
 			final String installationType = sharedPreferences.getString("install_rom", "1");
 			DebugUtils.debugTextOnScreen(this, "ROM installation path changed to ".concat(installationType));
@@ -103,25 +144,24 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		which is called every time the menu is called. */
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Log.e("XXXX", ">>>>>>>>>> onOptionsItemSelected(MenuItem)");
-		// We have only one menu option yet, but this might change. So we'll use a switch
 		switch (item.getItemId()) {
-		case R.id.preferences:
-			// Launch Preferences activity
-			final Intent intent = new Intent(einstein.this, EinsteinPreferencesActivity.class);
-			startActivity(intent);
-			break;
-		case R.id.backlight:
-			if (backlightIsOn()==1)
-				setBacklight(0);
-			else
-				setBacklight(1);
-			break;
-		case R.id.installNewPackages:
-			this.installNewPackages();
-			break;
-		case R.id.networkCard:
-			this.toggleNetworkCard();
-			break;
+			case R.id.preferences:
+				// Launch Preferences activity
+				final Intent intent = new Intent(einstein.this, EinsteinPreferencesActivity.class);
+				startActivity(intent);
+				break;
+			case R.id.backlight:
+				if (backlightIsOn()==1)
+					setBacklight(0);
+				else
+					setBacklight(1);
+				break;
+			case R.id.installNewPackages:
+				this.installNewPackages();
+				break;
+			case R.id.networkCard:
+				this.toggleNetworkCard();
+				break;
 		}
 		return true;	}
 
@@ -275,11 +315,6 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		ad.setMessage(msg);  
 		ad.setButton("Quit", new MyOnClickListener(this));  
 		ad.show();
-	}
-
-	// load the entire native program as a library at startup
-	static {
-		System.loadLibrary("einstein");
 	}
 
 }
