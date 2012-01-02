@@ -28,6 +28,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 
 
@@ -61,15 +63,29 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		}
 		// Register listener that'll notify us of preference changes
 		this.registerPreferenceChangeListener();
-		// Get emulator screen size
-		final Point newtonScreenSize = startup.getNewtonScreenSize();
 		// Initialize emulator
 		this.initEmulator("CONSOLE");
-		// Create view and start emulator
+		// Get emulator screen size and create view
+		final Point newtonScreenSize = startup.getNewtonScreenSize();
 		this.pEinsteinView = new EinsteinView(this, newtonScreenSize);     
+		// Show or hide Android status bar. Note that this must take place before we call setContentView
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		this.updateFullscreenStatus(this.sharedPrefs.getBoolean("androidstatusbar", true));
 		super.setContentView(pEinsteinView);
+		// Start emulator
 		this.runEmulator(StartupConstants.DATA_FILE_PATH, newtonScreenSize.x, newtonScreenSize.y);
 		startScreenRefresh();	
+	}
+	
+	/** Updates the fullscreen status. The app is shown fullscreen if <code>statusBarVisible</code> is <code>false</code>.
+	 * Note that this method must be called before invoking <code>setContentView</code> in the <code>onCreate</code> method. */
+	private void updateFullscreenStatus(boolean statusBarVisible)
+	{  
+		final int fullscreen = WindowManager.LayoutParams.FLAG_FULLSCREEN;
+		final int notFullscreen = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+        super.getWindow().addFlags(statusBarVisible ? notFullscreen : fullscreen);
+        super.getWindow().clearFlags(statusBarVisible ? fullscreen : notFullscreen);
+        this.pEinsteinView.requestLayout();
 	}
 	
 	// The following two methods aren't used yet, but we'll need them when we implement picking
@@ -110,17 +126,17 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		// The keys are defined in preferences.xml
-		if ("screenwidth".equals(key)) {
-			DebugUtils.debugTextOnScreen(this, "screen width changed ");
-		} else if ("screenheight".equals(key)) {
-			DebugUtils.debugTextOnScreen(this, "screen height changed ");
-		} else if ("keepnetwrorkcardpluggedin".equals(key)) {
+		if ("keepnetworkcardpluggedin".equals(key)) {
 			DebugUtils.debugTextOnScreen(this, "card setting changed ");
 		} else if ("screenpresets".equals(key)) {
 			DebugUtils.debugTextOnScreen(this, "Screen resolution changed");
 		} else if ("install_rom".equals(key)) {
 			final String installationType = sharedPreferences.getString("install_rom", "1");
 			DebugUtils.debugTextOnScreen(this, "ROM installation path changed to ".concat(installationType));
+		} else if ("androidstatusbar".equals(key)) {
+			final boolean statusBarVisible = sharedPreferences.getBoolean("androidstatusbar", true);
+			DebugUtils.debugTextOnScreen(this, "Status bar was turned ".concat(statusBarVisible ? "on" : "off"));
+			//this.updateFullscreenStatus(statusBarVisible);
 		}
 	}
 
