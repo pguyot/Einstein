@@ -1,10 +1,9 @@
 package com.example.einstein;
 
-import com.example.einstein.constants.DimensionConstants;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.Rect;
 //import android.util.Log;
 import android.view.MotionEvent;
@@ -12,11 +11,14 @@ import android.view.View;
 
 class EinsteinView extends View {
     private Bitmap mBitmap;
+    private Point newtonScreenSize;
+    private Rect newtonScreenBounds;
 
-    public EinsteinView(Context context) {
+    public EinsteinView(Context context, Point newtonScreenSize) {
         super(context);
-        // FIXME: allocate a bitmap that corresponds to the Newton screen size
-        mBitmap = Bitmap.createBitmap(DimensionConstants.SCREEN_WIDTH, DimensionConstants.SCREEN_HEIGHT, Bitmap.Config.RGB_565);
+        this.mBitmap = Bitmap.createBitmap(newtonScreenSize.x, newtonScreenSize.y, Bitmap.Config.RGB_565);
+        this.newtonScreenSize = newtonScreenSize;
+        this.newtonScreenBounds = new Rect(0, 0, this.newtonScreenSize.x, this.newtonScreenSize.y);
     }
 
     @Override
@@ -24,9 +26,7 @@ class EinsteinView extends View {
         renderEinsteinView(mBitmap);
         final Rect dstRect = new Rect();
         super.getDrawingRect(dstRect);
-		//Log.i("ScreenRefresh", "onDraw");
-        // FIXME: resize the Newton screen to the Android screen size.
-		canvas.drawBitmap(mBitmap, DimensionConstants.SCREEN_BOUNDS, dstRect, null);
+		canvas.drawBitmap(mBitmap, this.newtonScreenBounds, dstRect, null);
     }
     
     @Override
@@ -37,10 +37,7 @@ class EinsteinView extends View {
     	case MotionEvent.ACTION_MOVE:
             Rect dstRect = new Rect();
             getDrawingRect(dstRect);
-    		//Log.i("XXXX", "Destination Rect at " + String.valueOf(dstRect.left) + "," + String.valueOf(dstRect.top) 
-    		//		+ " - " + String.valueOf(dstRect.width()) + "x" + String.valueOf(dstRect.height()) + " pixels");
-            // FIXME: scale peninput  to the Newton screen size
-    		penDown((int)(ev.getX()*DimensionConstants.SCREEN_WIDTH/dstRect.width()), (int)(ev.getY()*DimensionConstants.SCREEN_HEIGHT/dstRect.height()));
+    		penDown((int)(ev.getX()*this.newtonScreenSize.x/dstRect.width()), (int)(ev.getY()*this.newtonScreenSize.y/dstRect.height()));
     		break;
     	case MotionEvent.ACTION_UP:
     	case MotionEvent.ACTION_CANCEL:
