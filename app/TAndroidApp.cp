@@ -114,7 +114,9 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 	if (inLog) inLog->LogLine("Loading assets...");
 	
 	if (inLog) inLog->LogLine("  mLog:");
-	if (inLog) mLog = inLog;
+	// The log slows down the emulator and may cause a deadlock when running 
+	// the Network card emulation. Only activate if you really need it!
+	//if (inLog) mLog = inLog;
 	if (inLog) inLog->FLogLine("    OK: 0x%08x", (int)mLog);
 
 	char theROMPath[1024];
