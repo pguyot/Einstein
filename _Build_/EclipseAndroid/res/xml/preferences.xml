@@ -2,28 +2,17 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory 
         android:title="Screen Size">
+		<CheckBoxPreference
+			android:key="androidstatusbar"
+			android:title="Show Android status bar"
+            android:summary="Show or hide Android status bar"
+            android:defaultValue="true"/>
         <ListPreference
             android:key="screenpresets"
             android:title="Preset Screen Resolution"
-            android:summary="choose a recomended screen resolution form the list"
+            android:summary="Choose a recommended screen resolution from the list"
             android:entryValues="@array/entryvalues_screen_resolution"
             android:entries="@array/entries_screen_resolution"/>
-        <CheckBoxPreference 
-            android:key="custonscreensize"
-            android:title="Use Custom Screen Size"
-            android:summary="check this to use the screen resulution as defined below"/>
-        <EditTextPreference
-			android:key="screenwidth"
-			android:title="Screen Width"
-			android:summary="Width of the Newton screen in pixels"
-			android:numeric="integer"
-			android:defaultValue="320"/>
-        <EditTextPreference
-			android:key="screenheight"
-			android:title="Screen Height"
-			android:summary="Height of Newton screen in pixels"
-			android:numeric="integer"
-			android:defaultValue="480"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:title="Emulator Settings">
@@ -34,7 +23,7 @@
 		    android:entryValues="@array/entryvalues_ram_size"
 		    android:entries="@array/entries_ram_size"/>
 		<CheckBoxPreference
-			android:key="keepnetwrorkcardpluggedin"
+			android:key="keepnetworkcardpluggedin"
 			android:title="Network Card"
             android:summary="Keep network card plugged in"
             android:defaultValue="false"/>
