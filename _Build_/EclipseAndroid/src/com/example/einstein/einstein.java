@@ -67,11 +67,18 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		// Register listener that'll notify us of preference changes
 		this.registerPreferenceChangeListener();
 		// Initialize emulator
-		this.initEmulator();
+		this.initEmulator("CONSOLE");
 		// Start emulator using Newton screen size as set in the preferences
 		final Point newtonScreenSize = startup.getNewtonScreenSize();
 		// TODO If the screen width or height are larger than what the Newton can handle, the emulator
 		// will not start. It will immediately close itself
+		
+		// FIXME: the emulator can handle screen sizes up to 2048x2048, so don't worry.
+		// FIXME: the current code does not work because the EinsetinView class is still hard coded
+		//        to DimensionConstants.SCREEN_WIDTH and HEIGHT. The following two lines override the preferences for now. Please remove!
+		newtonScreenSize.x = DimensionConstants.SCREEN_WIDTH;
+		newtonScreenSize.y = DimensionConstants.SCREEN_HEIGHT;
+		
 		this.runEmulator(StartupConstants.DATA_FILE_PATH, newtonScreenSize.x, newtonScreenSize.y);
 		startScreenRefresh();	
 	}
@@ -216,7 +223,10 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 	public native String stringFromJNI();
 
 	// initialize the emulator
-	public native void initEmulator();
+	// logPath can be any path name in the Android file sytem
+	// Special values for logPath are "NULL" or "" for no log, "STDOUT" for logging to some stdout device,
+	// and "CONSOLE" for logging to the Android debugging log (LogCat on Eclipse). 
+	public native void initEmulator(String logPath);
 
 	// launch the emulator
 	public native void runEmulator(String dataPath, int screenWidth, int screenHeight);

@@ -25,6 +25,8 @@
 #include <app/TAndroidApp.h>
 #include <Emulator/Screen/TScreenManager.h>
 #include <Platform/TPlatformManager.h>
+#include <Log/TFileLog.h>
+#include <Log/TStdOutLog.h>
 #include <string.h>
 #include <dlfcn.h>
 
@@ -32,6 +34,19 @@
 
 
 TAndroidApp *theApp = 0;
+TLog *theLog = 0;
+
+
+class TAndroidLog : public TLog
+{
+public:
+	TAndroidLog() { }
+protected:
+	virtual void DoLogLine(const char* inLine) {
+		__android_log_print(ANDROID_LOG_WARN, "NewtonEmulator", "%s", inLine);
+	}
+};
+
 
 /*
  We need to find a way to stop all threads when the Java part of our app 
@@ -81,16 +96,34 @@ void JNI_OnUnload(JavaVM*, void*)
  */
 JNIEXPORT jstring JNICALL Java_com_example_einstein_einstein_stringFromJNI( JNIEnv* env, jobject thiz )
 {
-    LOGI("Testing Android %s. Seems fine so far!", "NDK");
+    if (theLog) theLog->FLogLine("Testing Android %s. Seems fine so far!", "NDK");
     return env->NewStringUTF("This is the Einstein native interface (5)!");
 }
 
 
-JNIEXPORT void JNICALL Java_com_example_einstein_einstein_initEmulator( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_example_einstein_einstein_initEmulator( JNIEnv* env, jobject thiz, jstring logPath )
 {
-	LOGI("initEmulator: start");
+	jboolean isCopy;
+	
+	const char *cLogPath = env->GetStringUTFChars(logPath, &isCopy);
+	if (cLogPath && *cLogPath) {
+		if (strcmp(cLogPath, "STDOUT")==0) {
+			theLog = new TStdOutLog();
+		} else if (strcmp(cLogPath, "CONSOLE")==0) {
+			theLog = new TAndroidLog();
+		} else if (strcmp(cLogPath, "NULL")==0) {
+			theLog = 0L;
+		} else {
+			theLog = new TFileLog(cLogPath);
+		}
+	} else {
+		theLog = 0L;
+	}
+	
+	if (theLog) theLog->LogLine("initEmulator: start");
 	theApp = new TAndroidApp();
 	
+#if 0
 	// TODO: this is just a rough test if we can find the audio library.
 	// Android 2.2 does not have any support for audio from native code. Loading
 	// libaudio the Unix way may give us audio support on many devices neverthelee.
@@ -109,8 +142,9 @@ JNIEXPORT void JNICALL Java_com_example_einstein_einstein_initEmulator( JNIEnv* 
 	} else {
 		LOGE("dlopen failed on libaudio.so %s\n", dlerror());
 	}
+#endif
 	
-	LOGI("initEmulator: done");
+	if (theLog) theLog->LogLine("initEmulator: done");
 }
 
 
@@ -118,29 +152,29 @@ JNIEXPORT void JNICALL Java_com_example_einstein_einstein_runEmulator( JNIEnv* e
 {
 	jboolean isCopy;
 	const char *cDataPath = env->GetStringUTFChars(dataPath, &isCopy);
-	LOGI("runEmulator: start (dataPath=%s)", cDataPath);
-	theApp->Run(cDataPath, screenWidth, screenHeight);
+	if (theLog) theLog->FLogLine("runEmulator: start (dataPath=%s)", cDataPath);
+	theApp->Run(cDataPath, screenWidth, screenHeight, theLog);
 	env->ReleaseStringUTFChars(dataPath, cDataPath);
 }
 
 
 JNIEXPORT void JNICALL Java_com_example_einstein_einstein_stopEmulator( JNIEnv* env, jobject thiz )
 {
-	LOGI("stopEmulator");
+	if (theLog) theLog->LogLine("stopEmulator");
 	if (theApp) theApp->Stop();
 }
 
 
 JNIEXPORT void JNICALL Java_com_example_einstein_einstein_powerOnEmulator( JNIEnv* env, jobject thiz )
 {
-	LOGI("powerOnEmulator");
+	if (theLog) theLog->LogLine("powerOnEmulator");
 	if (theApp) theApp->PowerOn();
 }
 
 
 JNIEXPORT void JNICALL Java_com_example_einstein_einstein_powerOffEmulator( JNIEnv* env, jobject thiz )
 {
-	LOGI("powerOffEmulator");
+	if (theLog) theLog->LogLine("powerOffEmulator");
 	if (theApp) theApp->PowerOff();
 }
 
@@ -206,17 +240,17 @@ JNIEXPORT jint JNICALL Java_com_example_einstein_EinsteinView_renderEinsteinView
     static int			c = 0;
 
     if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
-        LOGE("AndroidBitmap_getInfo() failed ! error=%d", ret);
+        if (theLog) theLog->FLogLine("AndroidBitmap_getInfo() failed ! error=%d", ret);
         return ret;
     }
 
     if (info.format != ANDROID_BITMAP_FORMAT_RGB_565) {
-        LOGE("Bitmap format is not RGB_565 !");
+        if (theLog) theLog->FLogLine("Bitmap format is not RGB_565 !");
         return ret;
     }
 
     if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
-        LOGE("AndroidBitmap_lockPixels() failed ! error=%d", ret);
+        if (theLog) theLog->FLogLine("AndroidBitmap_lockPixels() failed ! error=%d", ret);
 		return ret;
     }
 
@@ -234,7 +268,7 @@ JNIEXPORT jint JNICALL Java_com_example_einstein_EinsteinView_renderEinsteinView
 
 JNIEXPORT void JNICALL Java_com_example_einstein_einstein_toggleNetworkCard( JNIEnv* env, jobject thiz )
 {
-	LOGE("Toggle Network Card");
+	if (theLog) theLog->FLogLine("Toggle Network Card");
 	if (theApp) {
 		if (theApp->getPlatformManager()) {
 			theApp->getPlatformManager()->SendNetworkCardEvent();
@@ -283,6 +317,7 @@ JNIEXPORT void JNICALL Java_com_example_einstein_einstein_installNewPackages( JN
 	}
 }
 
+#if 0
 // the font below was partially extracted from a Linux terminal
 // screenshot and partially created by hand. Wonko.
 unsigned char simple_font[128][13] = {
@@ -415,7 +450,7 @@ unsigned char simple_font[128][13] = {
 	{ 0x00,0x24,0x54,0x48,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}, // '~'
 	{ 0x00,0x7F,0x41,0x41,0x41,0x41,0x41,0x41,0x41,0x41,0x7f,0x00,0x00}, // DEL
 };
-
+#endif
 
 // ============================================================================ //
 // Beware of the Turing Tar-pit in which everything is possible but nothing of  //

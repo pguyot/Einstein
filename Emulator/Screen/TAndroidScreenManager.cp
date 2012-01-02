@@ -54,7 +54,7 @@ TScreenManager(
 			   inFullScreen,
 			   inScreenIsLandscape )
 {
-	LOGE("********** TAndroidScreenManager **********");
+	if (GetLog()) GetLog()->FLogLine("********** TAndroidScreenManager **********");
 	// Not sure yet how we solve this. 
 	// The view is create in Java.
 	// Here we can lock the associated RAM and copy everything that changed over.
@@ -74,7 +74,7 @@ TAndroidScreenManager::~TAndroidScreenManager( void )
 void
 TAndroidScreenManager::PowerOn( void )
 {
-	LOGE("********** TAndroidScreenManager Power **********");
+	if (GetLog()) GetLog()->FLogLine("********** TAndroidScreenManager Power **********");
 	// This space for rent.
 }
 
@@ -93,7 +93,7 @@ TAndroidScreenManager::PowerOff( void )
 void
 TAndroidScreenManager::PowerOnScreen( void )
 {
-	LOGI("Power on Screen\n");
+	if (GetLog()) GetLog()->FLogLine("Power on Screen\n");
 }
 
 
@@ -103,7 +103,7 @@ TAndroidScreenManager::PowerOnScreen( void )
 void
 TAndroidScreenManager::PowerOffScreen( void )
 {
-	LOGI("Power off Screen\n");
+	if (GetLog()) GetLog()->FLogLine("Power off Screen\n");
 }
 
 // -------------------------------------------------------------------------- //
@@ -112,7 +112,7 @@ TAndroidScreenManager::PowerOffScreen( void )
 void
 TAndroidScreenManager::BacklightChanged( Boolean )
 {
-	LOGW("UpdateScreenRect(0L)");
+	if (GetLog()) GetLog()->FLogLine("UpdateScreenRect(0L)");
 	changed = 1;
 }
 
@@ -131,7 +131,7 @@ TAndroidScreenManager::ContrastChanged( KUInt32 )
 void
 TAndroidScreenManager::ScreenOrientationChanged( EOrientation inNewOrientation )
 {
-	LOGW("New orientation %d is %dx%d\n", inNewOrientation, GetScreenWidth(), GetScreenHeight());
+	if (GetLog()) GetLog()->FLogLine("New orientation %d is %dx%d\n", inNewOrientation, GetScreenWidth(), GetScreenHeight());
 	changed = 1;
 }
 

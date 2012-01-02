@@ -38,14 +38,9 @@ extern "C" {
 #include <stdlib.h>
 #include <math.h>
 
-#define  LOG_TAG    "libeinstein"
-#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
-#define  LOGW(...)  __android_log_print(ANDROID_LOG_WARN,LOG_TAG,__VA_ARGS__)
-#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
-
   extern JNIEXPORT jstring JNICALL Java_com_example_einstein_einstein_stringFromJNI( JNIEnv* env, jobject thiz );
   
-  extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_initEmulator( JNIEnv* env, jobject thiz );
+  extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_initEmulator( JNIEnv* env, jobject thiz, jstring logPath );
   extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_runEmulator( JNIEnv* env, jobject thiz, jstring dataPath, jint screenWidth, jint screenHeight );
   extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_stopEmulator( JNIEnv* env, jobject thiz );
   extern JNIEXPORT void JNICALL Java_com_example_einstein_einstein_powerOnEmulator( JNIEnv* env, jobject thiz );
