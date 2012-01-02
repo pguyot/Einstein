@@ -3,7 +3,6 @@ package com.example.einstein;
 import java.io.File;
 import java.util.Timer;
 
-import com.example.einstein.constants.DimensionConstants;
 import com.example.einstein.constants.OtherConstants;
 import com.example.einstein.constants.StringConstants;
 import com.example.einstein.constants.URLConstants;
@@ -23,10 +22,8 @@ import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.Editable;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,14 +45,13 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		System.loadLibrary("einstein");
 	}
 
-	/** Called when the app is started for the first time. */
+	/** Called when the app is started for the first time or after it has been forcefully terminated from within Android. */
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		Log.e("einstein", ">>>>>>>>>> onCreate()");    	
 		super.onCreate(savedInstanceState);
-		this.pEinsteinView = new EinsteinView(this);     
-		super.setContentView(pEinsteinView);
+		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		// Install all required assets
 		final Startup startup = new Startup(this);
 		final AssetManager assetManager = getAssets();
@@ -63,27 +59,20 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		if (LoadResult.OK != result) {
 			return;
 		}
-		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		// Register listener that'll notify us of preference changes
 		this.registerPreferenceChangeListener();
+		// Get emulator screen size
+		final Point newtonScreenSize = startup.getNewtonScreenSize();
 		// Initialize emulator
 		this.initEmulator("CONSOLE");
-		// Start emulator using Newton screen size as set in the preferences
-		final Point newtonScreenSize = startup.getNewtonScreenSize();
-		// TODO If the screen width or height are larger than what the Newton can handle, the emulator
-		// will not start. It will immediately close itself
-		
-		// FIXME: the emulator can handle screen sizes up to 2048x2048, so don't worry.
-		// FIXME: the current code does not work because the EinsetinView class is still hard coded
-		//        to DimensionConstants.SCREEN_WIDTH and HEIGHT. The following two lines override the preferences for now. Please remove!
-		newtonScreenSize.x = DimensionConstants.SCREEN_WIDTH;
-		newtonScreenSize.y = DimensionConstants.SCREEN_HEIGHT;
-		
+		// Create view and start emulator
+		this.pEinsteinView = new EinsteinView(this, newtonScreenSize);     
+		super.setContentView(pEinsteinView);
 		this.runEmulator(StartupConstants.DATA_FILE_PATH, newtonScreenSize.x, newtonScreenSize.y);
 		startScreenRefresh();	
 	}
 	
-	// The following two methods aren't used yet, but we'll know them when we implement picking
+	// The following two methods aren't used yet, but we'll need them when we implement picking
 	// the ROM and REX files. Shamelessly copied from http://www.blackmoonit.com/android/filebrowser/intents#intent.pick_file
 	
 	void pickFile(File aFile) {
@@ -104,7 +93,7 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 	    switch (requestCode) {
 	        case PICK_FILE_RESULT_CODE: {
 	            if (resultCode==RESULT_OK && data!=null && data.getData()!=null) {
-	                String theFilePath = data.getData().getPath();
+	                //String theFilePath = data.getData().getPath();
 	                // TODO Check if we can use the file. If we can, copy it where it belongs
 	            }
 	            break;
