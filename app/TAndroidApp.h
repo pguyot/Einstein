@@ -62,7 +62,7 @@ public:
 	///
 	/// Point d'entrée.
 	///
-	void Run(const char *dataPath, int screenWidth, int screenHeight);
+	void Run(const char *dataPath, int screenWidth, int screenHeight, TLog *inLog);
 	
 	///
 	/// Stop the app thread

@@ -6,7 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.util.Log;
+//import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -15,6 +15,7 @@ class EinsteinView extends View {
 
     public EinsteinView(Context context) {
         super(context);
+        // FIXME: allocate a bitmap that corresponds to the Newton screen size
         mBitmap = Bitmap.createBitmap(DimensionConstants.SCREEN_WIDTH, DimensionConstants.SCREEN_HEIGHT, Bitmap.Config.RGB_565);
     }
 
@@ -24,6 +25,7 @@ class EinsteinView extends View {
         final Rect dstRect = new Rect();
         super.getDrawingRect(dstRect);
 		//Log.i("ScreenRefresh", "onDraw");
+        // FIXME: resize the Newton screen to the Android screen size.
 		canvas.drawBitmap(mBitmap, DimensionConstants.SCREEN_BOUNDS, dstRect, null);
     }
     
@@ -35,8 +37,9 @@ class EinsteinView extends View {
     	case MotionEvent.ACTION_MOVE:
             Rect dstRect = new Rect();
             getDrawingRect(dstRect);
-    		Log.i("XXXX", "Destination Rect at " + String.valueOf(dstRect.left) + "," + String.valueOf(dstRect.top) 
-    				+ " - " + String.valueOf(dstRect.width()) + "x" + String.valueOf(dstRect.height()) + " pixels");
+    		//Log.i("XXXX", "Destination Rect at " + String.valueOf(dstRect.left) + "," + String.valueOf(dstRect.top) 
+    		//		+ " - " + String.valueOf(dstRect.width()) + "x" + String.valueOf(dstRect.height()) + " pixels");
+            // FIXME: scale peninput  to the Newton screen size
     		penDown((int)(ev.getX()*DimensionConstants.SCREEN_WIDTH/dstRect.width()), (int)(ev.getY()*DimensionConstants.SCREEN_HEIGHT/dstRect.height()));
     		break;
     	case MotionEvent.ACTION_UP:
