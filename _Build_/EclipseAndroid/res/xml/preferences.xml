@@ -10,9 +10,8 @@
         <ListPreference
             android:key="screenpresets"
             android:title="Preset Screen Resolution"
-            android:summary="Choose a recommended screen resolution from the list"
-            android:entryValues="@array/entryvalues_screen_resolution"
-            android:entries="@array/entries_screen_resolution"/>
+            android:summary="Choose a recommended screen resolution from the list"/>
+			<!-- entries and entryvalues depend on host screen size and will be calculated in EinsteinPreferencesActivity -->
     </PreferenceCategory>
     <PreferenceCategory
         android:title="Emulator Settings">
