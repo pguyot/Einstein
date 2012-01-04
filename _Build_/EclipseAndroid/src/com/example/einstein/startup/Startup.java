@@ -95,19 +95,19 @@ public class Startup {
 
 	/** Returns <code>true</code> if a ROM file was found in <code>dataDir</code> */
 	private final boolean romFileAvailable(final File dataDir) {
-		final File romFile = new File(dataDir + StartupConstants.FILE_SEPARATOR + StartupConstants.ROM_FILE_NAME);
+		final File romFile = new File(dataDir + File.separator + StartupConstants.ROM_FILE_NAME);
 		return romFile.exists();		
 	}
 
 	/** Returns <code>true</code> if a REX file was found in <code>dataDir</code> */
 	private final boolean rexFileAvailable(final File dataDir) {
-		final File rexFile = new File(dataDir + StartupConstants.FILE_SEPARATOR + StartupConstants.REX_FILE_NAME);
+		final File rexFile = new File(dataDir + File.separator + StartupConstants.REX_FILE_NAME);
 		return rexFile.exists();		
 	}
 
 	/** Returns <code>true</code> if an application icon was found in <code>dataDir</code> */
 	private final boolean applicationIconAvailable(final File dataDir) {
-		final File iconFile = new File(dataDir + StartupConstants.FILE_SEPARATOR + StartupConstants.APP_ICON_FILE_NAME);
+		final File iconFile = new File(dataDir + File.separator + StartupConstants.APP_ICON_FILE_NAME);
 		return iconFile.exists();
 	} 
 }
