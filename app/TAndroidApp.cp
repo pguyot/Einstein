@@ -116,6 +116,7 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 	if (inLog) inLog->LogLine("  mLog:");
 	// The log slows down the emulator and may cause a deadlock when running 
 	// the Network card emulation. Only activate if you really need it!
+	// CAUTION: the destructor will delete our mLog. That is not good! Avoid!
 	//if (inLog) mLog = inLog;
 	if (inLog) inLog->FLogLine("    OK: 0x%08x", (int)mLog);
 

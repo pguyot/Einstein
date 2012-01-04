@@ -90,7 +90,6 @@ T_ROM_INJECTION(0x00000000, "RESET") {
     fprintf(stderr, "RESET called with r0=0x%08x\n", ioCPU->mCurrentRegisters[TARMProcessor::kR0]);
     return ioUnit;
 }
-*/
 T_ROM_INJECTION(0x0000000c, "Prefetch Abort") {
     fprintf(stderr, "PREFETCH ABORT: at 0x%08x\n", 
             ioCPU->GetMemory()->GetFaultAddressRegister());
@@ -135,8 +134,6 @@ T_ROM_INJECTION(0x00000010, "Data Abort") {
             addr, ioCPU->mR14abt_Bkup-8, what);
     return ioUnit;
 }
-
-/*
 T_ROM_INJECTION(0x0038D8DC, "Floating Point Exception") {
     fprintf(stderr, "Floating Point Exception\n");
     return ioUnit;
