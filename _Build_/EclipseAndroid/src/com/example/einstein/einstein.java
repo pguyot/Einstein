@@ -51,6 +51,7 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
+		DebugUtils.appendLog("einstein: Entering onCreate");
 		Log.e("einstein", ">>>>>>>>>> onCreate()");    	
 		super.onCreate(savedInstanceState);
 		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -59,6 +60,7 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		final AssetManager assetManager = getAssets();
 		final LoadResult result = startup.installAssets(assetManager);
 		if (LoadResult.OK != result) {
+			DebugUtils.appendLog("einstein: Problem installing assets. Result is " + result.toString());
 			return;
 		}
 		// Register listener that'll notify us of preference changes
@@ -67,14 +69,19 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		this.initEmulator("CONSOLE");
 		// Get emulator screen size and create view
 		final Point newtonScreenSize = startup.getNewtonScreenSize();
+		DebugUtils.appendLog("einstein: Newton screen size is " + newtonScreenSize.toString());
 		this.pEinsteinView = new EinsteinView(this, newtonScreenSize);     
 		// Show or hide Android status bar. Note that this must take place before we call setContentView
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		this.updateFullscreenStatus(this.sharedPrefs.getBoolean("androidstatusbar", true));
+		final boolean statusBarVisible = this.sharedPrefs.getBoolean("androidstatusbar", true);
+		DebugUtils.appendLog("einstein: Status bar is " + (statusBarVisible ? "visible" : "not visible"));
+		this.updateFullscreenStatus(statusBarVisible);
 		super.setContentView(pEinsteinView);
 		// Start emulator
+		DebugUtils.appendLog("einstein: Starting emulator");
 		this.runEmulator(StartupConstants.DATA_FILE_PATH, newtonScreenSize.x, newtonScreenSize.y);
 		startScreenRefresh();	
+		DebugUtils.appendLog("einstein: Leaving onCreate");
 	}
 	
 	/** Updates the fullscreen status. The app is shown fullscreen if <code>statusBarVisible</code> is <code>false</code>.
