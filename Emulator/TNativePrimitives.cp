@@ -733,7 +733,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			}
 			{
 				// this is a hack that will install packages that were added to a 
-				// directory on the host. This is used by iOS/iPhone.
+				// directory on the host. This is used by iOS/iPhone/Android.
 				static int firstPause = 1;
 				if (firstPause) {
 					firstPause--;
@@ -844,6 +844,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 				// FIXME call the Win32 tablet calibration app
 			#elif TARGET_IOS
 			#elif TARGET_OS_MAC
+			#elif TARGET_ANDROID
 			#else
 			{
 				// Try xtscal

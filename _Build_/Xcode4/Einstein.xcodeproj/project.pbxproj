@@ -395,9 +395,9 @@
 		C99E33DF111B7C07002165EC /* TCocoaSetupController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TCocoaSetupController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E33E0111B7C07002165EC /* TCocoaSetupController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TCocoaSetupController.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E33E1111B7C07002165EC /* TCocoaUserDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TCocoaUserDefaults.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		C99E33F0111B7C07002165EC /* THostInfo.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = THostInfo.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		C99E33F1111B7C07002165EC /* THostInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = THostInfo.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		C99E33F2111B7C07002165EC /* UserInfoDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = UserInfoDefinitions.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		C99E33F0111B7C07002165EC /* THostInfo.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = THostInfo.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		C99E33F1111B7C07002165EC /* THostInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = THostInfo.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		C99E33F2111B7C07002165EC /* UserInfoDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = UserInfoDefinitions.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E33FD111B7C07002165EC /* IncludeMask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = IncludeMask.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E33FE111B7C07002165EC /* IncludeMaskRm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = IncludeMaskRm.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E33FF111B7C07002165EC /* IncludeModeRd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = IncludeModeRd.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -513,7 +513,7 @@
 		C99E3475111B7C07002165EC /* TPCMCIACard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TPCMCIACard.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3476111B7C07002165EC /* TPCMCIAController.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TPCMCIAController.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E3477111B7C07002165EC /* TPCMCIAController.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TPCMCIAController.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		C99E3479111B7C07002165EC /* PlatformEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PlatformEvents.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		C99E3479111B7C07002165EC /* PlatformEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PlatformEvents.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E347A111B7C07002165EC /* PlatformGestalt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PlatformGestalt.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E347B111B7C07002165EC /* TPlatformManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TPlatformManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E347C111B7C07002165EC /* TPlatformManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TPlatformManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; wrapsLines = 0; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -559,8 +559,8 @@
 		C99E34BC111B7C08002165EC /* TFlash.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TFlash.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E34BD111B7C08002165EC /* TFlash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TFlash.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E34BE111B7C08002165EC /* THashMapCache.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = THashMapCache.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		C99E34BF111B7C08002165EC /* TInterruptManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TInterruptManager.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		C99E34C0111B7C08002165EC /* TInterruptManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TInterruptManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		C99E34BF111B7C08002165EC /* TInterruptManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TInterruptManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		C99E34C0111B7C08002165EC /* TInterruptManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TInterruptManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E34C1111B7C08002165EC /* TMemory.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TMemory.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E34C2111B7C08002165EC /* TMemory.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TMemory.h; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E34C3111B7C08002165EC /* TMemoryConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TMemoryConsts.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -681,8 +681,11 @@
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
+			indentWidth = 4;
 			name = Einstein;
 			sourceTree = "<group>";
+			tabWidth = 4;
+			usesTabs = 1;
 		};
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
@@ -1862,7 +1865,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"JIT_PERFORMANCE=1",
 					_DEBUG,
 					NO_PORT_AUDIO,
 					NO_X11,

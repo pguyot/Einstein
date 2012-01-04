@@ -434,6 +434,7 @@ static TCocoaAppController* gInstance = nil;
 {
 	mPlatformManager->SendBacklightEvent();
 #ifdef JIT_PERFORMANCE
+#if 0
 	FILE *f;
 	f = fopen("/Users/matt/dev/Einstein/p1.txt", "wb");
 	//branchDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, 1000);
@@ -442,6 +443,7 @@ static TCocoaAppController* gInstance = nil;
 	//f = fopen("/Users/matt/dev/Einstein/p2.txt", "wb");
 	//branchLinkDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, 1000);
 	//fclose(f);
+#endif
 #endif
 }
 

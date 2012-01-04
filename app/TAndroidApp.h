@@ -68,7 +68,7 @@ public:
 	/// Stop the app thread
 	///
 	void Stop();
-
+	
 	///
 	/// awake emulator from sleep
 	///

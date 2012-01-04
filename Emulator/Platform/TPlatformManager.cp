@@ -551,7 +551,7 @@ TPlatformManager::EvalNewtonScript( const char* inNewtonScriptCode )
 void
 TPlatformManager::InstallPackage( const char* inPackagePath )
 {
-	mLog->FLogLine("Instaloing package '%s'", inPackagePath);
+	mLog->FLogLine("Installing package '%s'", inPackagePath);
 	// Open the package.
 	FILE* thePackageFile = ::fopen( inPackagePath, "rb" );
 	if (thePackageFile != NULL)

@@ -782,14 +782,19 @@ TInterruptManager::GetTimeInTicks( void )
 //	}
 
 	// Translate to ticks:
+#if 1
+	// slower and accurate
 	// 3.6864 MHz -> 3686400 per seconds.
-//	KUInt32 theResult = now.tv_sec * 3686400;
-//	theResult += (KUInt32) (now.tv_usec * 3.6864);
+	KUInt32 theResult = now.tv_sec * 3686400;
+	//theResult += (KUInt32) (now.tv_usec * 3.6864);
+	theResult += (KUInt32)((((KUInt64)now.tv_usec) * 36864) / 10000);
+#else
+	// faster and inaccurate
 	// We simply multiply with 4000000 to avoid the expensive float to int
 	// conversion.
 	KUInt32 theResult = now.tv_sec * 4000000;
-//	theResult += (KUInt32) (now.tv_nsec / 250);
 	theResult += (KUInt32) (now.tv_usec * 4);
+#endif
 	return theResult;
 #endif
 }
@@ -820,12 +825,22 @@ inline void
 TInterruptManager::TicksWaitOnCondVar( KUInt32 inTicks )
 {
 	// Translate from ticks:
+#if 1
+	// slower and accurate
 	// 3.6864 MHz -> 3686400 per seconds.
+	KUInt32 sec = inTicks / 3686400;
+	KUInt32 rem = inTicks - (sec*3686400);
+	struct timespec amount;
+	amount.tv_nsec = rem * 271; // (1000000000/3686400)
+	amount.tv_sec  = sec;
+#else
+	// faster and inaccurate
 	// We simply divide with 4000000 to avoid the expensive float to int
 	// conversion.
 	struct timespec amount;
 	amount.tv_nsec = (inTicks * 250) % 1000000000;
 	amount.tv_sec = inTicks / 4000000;
+#endif
 
 //	fprintf(stderr, "TicksWaitOnCondVar begin (%f)\n", inTicks/4000000.0f);
 	mTimerCondVar->TimedWaitRelative( mMutex, &amount );
