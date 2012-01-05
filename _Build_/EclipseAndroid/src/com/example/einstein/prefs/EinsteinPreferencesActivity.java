@@ -40,7 +40,7 @@ public class EinsteinPreferencesActivity extends PreferenceActivity {
 	private final void initScreenSizePreferences() {
 		DebugUtils.appendLog("EinsteinPreferencesActivity: Entering initScreenSizePreferences");
 		final Dimension hostScreenSize = ScreenDimensions.HOST_SCREEN_SIZE;
-		final boolean isPortrait = hostScreenSize.width > hostScreenSize.height;
+		final boolean isPortrait = hostScreenSize.width <= hostScreenSize.height;
 		final int minWidth = isPortrait ? 320 : 480;
 		final int minHeight = isPortrait ? 480 : 320;
 		final int widthIncrease = minWidth / 2;
@@ -50,6 +50,7 @@ public class EinsteinPreferencesActivity extends PreferenceActivity {
 		DebugUtils.appendLog("EinsteinPreferencesActivity: Calculating entries");
 		final Vector<String>temp = new Vector<String>();
 		while (w <= hostScreenSize.width && h <= hostScreenSize.height) {
+			// Create a preference entry of the form "w x h", e. g. "320 x 480"
 			temp.add(String.valueOf(w) + " x " + String.valueOf(h));
 			DebugUtils.appendLog("EinsteinPreferencesActivity: Entry w = " + w + " h = " + h);		
 			w += widthIncrease;
@@ -59,8 +60,11 @@ public class EinsteinPreferencesActivity extends PreferenceActivity {
 		DebugUtils.appendLog("EinsteinPreferencesActivity: Preparing " + entryCount + " preference entries");		
 		final CharSequence[] entryValues = new CharSequence[entryCount];
 		final CharSequence[] entries = new CharSequence[entryCount];
+		// Note that entries only contains the string the user sees, whereas entryValues contains what will be returned
+		// when we query the preference. In our case both must be the same, since ScreenDimensionInitializer will query
+		// the preference and parse the string to determine the Newton screen size
 		for (int i = 0; i < entryCount; i++) {
-			entryValues[i] = String.valueOf(i + 1);
+			entryValues[i] = temp.get(i);
 			entries[i] = temp.get(i);
 		}
 		DebugUtils.appendLog("EinsteinPreferencesActivity: Setting preference entries");
