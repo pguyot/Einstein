@@ -3,22 +3,23 @@ package com.example.einstein;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Point;
 import android.graphics.Rect;
-//import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.example.einstein.utils.screen.ScreenDimensions;
+import com.missinginandroid.Dimension;
+
 class EinsteinView extends View {
     private Bitmap mBitmap;
-    private Point newtonScreenSize;
-    private Rect newtonScreenBounds;
+    private Dimension emulatorWindowSize;
+    private Rect emulatorWindowBounds;
 
-    public EinsteinView(Context context, Point newtonScreenSize) {
+    public EinsteinView(Context context) {
         super(context);
-        this.mBitmap = Bitmap.createBitmap(newtonScreenSize.x, newtonScreenSize.y, Bitmap.Config.RGB_565);
-        this.newtonScreenSize = newtonScreenSize;
-        this.newtonScreenBounds = new Rect(0, 0, this.newtonScreenSize.x, this.newtonScreenSize.y);
+        this.emulatorWindowSize = ScreenDimensions.NEWTON_SCREEN_SIZE;
+        this.mBitmap = Bitmap.createBitmap(emulatorWindowSize.width, emulatorWindowSize.height, Bitmap.Config.RGB_565);
+        this.emulatorWindowBounds = new Rect(0, 0, this.emulatorWindowSize.width, this.emulatorWindowSize.height);
     }
 
     // This function will be called by Android whenever we need to refresh the screen, or whenever
@@ -43,7 +44,7 @@ class EinsteinView extends View {
         // on how the bitmap is copied (clipped, scaled, antialiased, etc.)
         // At its simplest, this operation should be performed by the Android video card
         // without the help of the CPU.
-		canvas.drawBitmap(mBitmap, this.newtonScreenBounds, dstRect, null);
+		canvas.drawBitmap(mBitmap, this.emulatorWindowBounds, dstRect, null);
     }
     
     @Override
@@ -54,7 +55,7 @@ class EinsteinView extends View {
     	case MotionEvent.ACTION_MOVE:
             Rect dstRect = new Rect();
             getDrawingRect(dstRect);
-    		penDown((int)(ev.getX()*this.newtonScreenSize.x/dstRect.width()), (int)(ev.getY()*this.newtonScreenSize.y/dstRect.height()));
+    		penDown((int)(ev.getX()*this.emulatorWindowSize.width/dstRect.width()), (int)(ev.getY()*this.emulatorWindowSize.height/dstRect.height()));
     		break;
     	case MotionEvent.ACTION_UP:
     	case MotionEvent.ACTION_CANCEL:
