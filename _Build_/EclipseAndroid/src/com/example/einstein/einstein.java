@@ -3,13 +3,6 @@ package com.example.einstein;
 import java.io.File;
 import java.util.Timer;
 
-import com.example.einstein.constants.OtherConstants;
-import com.example.einstein.constants.StringConstants;
-import com.example.einstein.constants.URLConstants;
-import com.example.einstein.startup.IStartup.LoadResult;
-import com.example.einstein.startup.Startup;
-import com.example.einstein.startup.StartupConstants;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -19,7 +12,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.AssetManager;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -31,6 +23,15 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+
+import com.example.einstein.constants.OtherConstants;
+import com.example.einstein.constants.StringConstants;
+import com.example.einstein.constants.URLConstants;
+import com.example.einstein.prefs.EinsteinPreferencesActivity;
+import com.example.einstein.startup.IStartup.LoadResult;
+import com.example.einstein.startup.Startup;
+import com.example.einstein.startup.StartupConstants;
+import com.example.einstein.utils.screen.ScreenDimensions;
 
 
 public class einstein extends Activity implements OnSharedPreferenceChangeListener
@@ -51,37 +52,40 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-		DebugUtils.appendLog("einstein: Entering onCreate");
-		Log.e("einstein", ">>>>>>>>>> onCreate()");    	
+		DebugUtils.appendLog("einstein.onCreate: Entered method");
 		super.onCreate(savedInstanceState);
+		Log.e("einstein", ">>>>>>>>>> onCreate()");
 		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		// Install all required assets
+		DebugUtils.appendLog("einstein.onCreate: Got preferences");
+		// Create an intance of EinsteinPreferencesActivity. If we do not do this, the preferences that are calculated at
+		// runtime wouldn't exist until the user has invoked the preferences window for the first time
+		// Install all required assets, initialize host device dependant values, ...
 		final Startup startup = new Startup(this);
+		DebugUtils.appendLog("einstein.onCreate: CalledStartup");
 		final AssetManager assetManager = getAssets();
 		final LoadResult result = startup.installAssets(assetManager);
 		if (LoadResult.OK != result) {
-			DebugUtils.appendLog("einstein: Problem installing assets. Result is " + result.toString());
+			DebugUtils.appendLog("einstein.onCreate: Problem installing assets. Result is " + result.toString());
 			return;
 		}
+		DebugUtils.appendLog("einstein.onCreate: Pre-initialization finished successfully");
 		// Register listener that'll notify us of preference changes
 		this.registerPreferenceChangeListener();
 		// Initialize emulator
 		this.initEmulator("CONSOLE");
-		// Get emulator screen size and create view
-		final Point newtonScreenSize = startup.getNewtonScreenSize();
-		DebugUtils.appendLog("einstein: Newton screen size is " + newtonScreenSize.toString());
-		this.pEinsteinView = new EinsteinView(this, newtonScreenSize);     
+		// Create view
+		this.pEinsteinView = new EinsteinView(this);     
 		// Show or hide Android status bar. Note that this must take place before we call setContentView
+		DebugUtils.appendLog("einstein.onCreate: Einstein view creation finished successfully");
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		final boolean statusBarVisible = this.sharedPrefs.getBoolean("androidstatusbar", true);
-		DebugUtils.appendLog("einstein: Status bar is " + (statusBarVisible ? "visible" : "not visible"));
+		DebugUtils.appendLog("einstein.onCreate: Status bar is " + (statusBarVisible ? "visible" : "not visible"));
 		this.updateFullscreenStatus(statusBarVisible);
 		super.setContentView(pEinsteinView);
 		// Start emulator
-		DebugUtils.appendLog("einstein: Starting emulator");
-		this.runEmulator(StartupConstants.DATA_FILE_PATH, newtonScreenSize.x, newtonScreenSize.y);
+		DebugUtils.appendLog("einstein.onCreate: Starting emulator with " + ScreenDimensions.HOST_SCREEN_SIZE);
+		this.runEmulator(StartupConstants.DATA_FILE_PATH, ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
 		startScreenRefresh();	
-		DebugUtils.appendLog("einstein: Leaving onCreate");
 	}
 	
 	/** Updates the fullscreen status. The app is shown fullscreen if <code>statusBarVisible</code> is <code>false</code>.
@@ -158,8 +162,7 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 	}
 
 	@Override
-	/** This method's behavior is currently hard-coded to show a short message. Soon it will call the preference
-		settings. In case you want to disable or hide menu items you can use the method "onPrepareOptionsMenu",
+	/** In case you want to disable or hide menu items you can use the method "onPrepareOptionsMenu",
 		which is called every time the menu is called. */
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Log.e("XXXX", ">>>>>>>>>> onOptionsItemSelected(MenuItem)");
