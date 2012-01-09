@@ -89,7 +89,15 @@ public:
 	/// \return the value or NULL if no matching value was found.
 	///
 	inline TValue*	Lookup( KUInt32 inKey );
-
+	
+	///
+	/// Get the entry at the index defined by the hash value.
+	///
+	/// \param inKey		key.
+	/// \return always returns an entry if Erase is never used.
+	///
+	inline TValue*	At( KUInt32 inKey );
+	
 	///
 	/// Clear the map.
 	///
@@ -136,7 +144,7 @@ public:
 	///
 	/// Hash function.
 	///
-	static KUInt32 HashFunction(const KUInt32 val)
+	static inline KUInt32 HashFunction(const KUInt32 val)
 		{
 			return (val & kHashFunctionMask) >> kHashFunctionShift;
 		}
@@ -219,6 +227,17 @@ THashMapCache<TValue>::Lookup( KUInt32 inKey )
 		return theEntry;
 	}
 	return NULL;
+}
+
+// -------------------------------------------------------------------------- //
+//  * At( KUInt32 )
+// -------------------------------------------------------------------------- //
+template<class TValue>
+TValue*
+THashMapCache<TValue>::At( KUInt32 inKey )
+{
+	KUInt32 index = HashFunction( inKey );
+	return mHashTable[index];
 }
 
 // -------------------------------------------------------------------------- //

@@ -77,9 +77,9 @@ const KUInt32 k717006VirtualizationPatches[] = {
 // avoid calibration screen early in the game
 TROMPatch p001412f8(0x001412f8, 0xea000009, "Avoid screen calibration");
 // disable "FlushDCache" since we do not emulate a DCache 
-TROMPatch p00018994(0x00018994, 0xe1a0f00e, "Obsolete FlushDCache"); // #  mov pc, lr
+//TROMPatch p00018994(0x00018994, 0xe1a0f00e, "Obsolete FlushDCache"); // #  mov pc, lr
 // disable "CleanPageInDCache" since we do not emulate a DCache 
-TROMPatch p0001894c(0x0001894c, 0xe1a0f00e, "Obsolete CleanPageInDCache"); // #  mov pc, lr
+//TROMPatch p0001894c(0x0001894c, 0xe1a0f00e, "Obsolete CleanPageInDCache"); // #  mov pc, lr
 // disable "TGeoPortDebugLink::BeaconDetect(long)"
 TROMPatch p000db0d8(0x000db0d8, 0xe3a00000, "BeaconDetect (1/2)"); // #  mov r0, 0x00000000
 TROMPatch p000db0dc(0x000db0dc, 0xe1a0f00e, "BeaconDetect (2/2)"); // #  mov pc, lr
@@ -139,6 +139,46 @@ T_ROM_INJECTION(0x0038D8DC, "Floating Point Exception") {
     return ioUnit;
 }
 */
+
+/*
+T_ROM_INJECTION(0x001A7248, "Long loop") {
+    fprintf(stderr, "ROM REX cheksum time eater (r2=0x%08x)\n", 
+			ioCPU->GetRegister(2));
+	// r0 = 0x40000000
+	// r1 = 0x001c7f12
+	// r2 = 0x001c7f12
+	// r3 = 0x000011b5
+	// r7 = 0
+	// r9 = 0
+	
+	// r0 = 0x4001fc4c
+	// r1 = 0x000338fe
+	// r2 = 0x000338ff
+	// r3 = 0x000011b5
+	// r7 = 0
+	// r9 = 0
+	return ioUnit;
+}
+T_ROM_INJECTION(0x001A726C, "Long loop end") {
+    fprintf(stderr, "ROM REX cheksum time eater done\n");
+	// r0 = 0x4071fc4c
+	// r1 = 0xffffffff
+	// r2 = 0
+	// r3 = 0
+	// r7 = 0x18741e4d
+	// r9 = 0x4aff4c37
+	
+	// r0 = 0x400ee048
+	// r1 = 0xffffffff
+	// r2 = 0
+	// r3 = 0x968d0000
+	// r7 = 0xbbb55d42
+	// r9 = 0x68481a07
+	return ioUnit;
+}
+*/
+
+// Swap: 0x003AE204
 
 // -------------------------------------------------------------------------- //
 //  * TROMImage( void )

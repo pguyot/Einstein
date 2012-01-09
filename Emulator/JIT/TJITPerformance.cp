@@ -24,6 +24,9 @@
 
 #include "TJITPerformance.h"
 
+#include "TEmulator.h"
+#include "TInterruptManager.h"
+
 #include <stdarg.h>
 
 
@@ -37,7 +40,8 @@ TJITPerfHitCounter branchLinkDestCount(0, 8*1024*1024-1, 4);;
 
 
 TJITPerfHitCounter::TJITPerfHitCounter(KUInt32 first, KUInt32 last, KUInt32 step)
-:	mFirst(0),
+:	mEmulator(0L),
+	mFirst(0),
 	mSize(0),
 	mShift(0),
 	mArray(0L)
@@ -59,6 +63,13 @@ TJITPerfHitCounter::~TJITPerfHitCounter()
 }
 
 
+void TJITPerfHitCounter::SetEmulator(TEmulator *inEmulator)
+{
+	mEmulator = inEmulator;
+}
+
+
+
 KUInt64 TJITPerfHitCounter::get_hits(KUInt32 at)
 {
 	at = (at-mFirst)>>mShift;
@@ -76,12 +87,20 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 {
 	if ( !out )
 		return;
+	
+	if (mEmulator) {
+		mEmulator->PauseSystem();
+		mEmulator->GetInterruptManager()->SuspendTimer();
+		usleep(1000000);
+	}
 		
 	va_list vl;
 	va_start(vl, style);
+    static KUInt64 maxULLInt = 0xffffffffffffffffULL;
 	KUInt32 a, b, i, j, n, o, ix;
 	KUInt64 m;
 
+	//TInterruptManager;;blockEmulatorThread();
 	fprintf(out, "----- statistics ----\n");
 
 	switch (style & 0x0000ffff) {
@@ -111,10 +130,23 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 			// TODO: using an insanely slow and destructive method to sort
 			if ((style & 0x0000ffff)==kStyleMostHit)
 				n = va_arg( vl, KUInt32 );
+			else 
+				n = mSize;
+			o = 0; 
+			m = 0;
+			for (i=0; i<mSize; i++) {
+				if (mArray[i]>0) {
+					o++;
+					m += mArray[i];
+				}
+			}
+			fprintf(out, "%d of %d memory addresses in %lld cycles executed.\n", o, mSize, m);
 			for (i=0; i<n; i++) {
 				m = 0; ix = 0;
 				for (j=0; j<mSize; j++) {
 					KUInt64 v = mArray[j];
+					if (v==maxULLInt) 
+						continue;
 					if (v>m) {
 						m = v;
 						ix = j;
@@ -122,7 +154,7 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 				}
 				if (m==0)
 					break;
-				mArray[ix] = 0;
+				mArray[ix] = maxULLInt;
 				if (style & kStyleHex) {
 					fprintf(out, "%08X: %19llu\n", (unsigned int)((ix<<mShift)+mFirst), m);
 				} else {
@@ -132,12 +164,17 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 			break;
 	}
     va_end( vl );
+	
+	if (mEmulator) {
+		mEmulator->GetInterruptManager()->ResumeTimer();
+		mEmulator->Run();
+	}
 }
 
 
 void TJITPerfHitCounter::hit(KUInt32 at)
 {
-    KUInt64 maxULLInt = 0xffffffffffffffffULL;
+    static KUInt64 maxULLInt = 0xffffffffffffffffULL;
 	at = (at-mFirst)>>mShift;
 	if (at>mSize) 
 		return;

@@ -45,6 +45,7 @@
 // Einstein
 #include "Log/TLog.h"
 #include "JIT/JIT.h"
+#include "JIT/TJITPerformance.h"
 #include "Network/TNetworkManager.h"
 #include "Sound/TSoundManager.h"
 #include "Screen/TScreenManager.h"
@@ -94,6 +95,10 @@ TEmulator::TEmulator(
 		mBPHalted( false )
 {
 	mInterruptManager = new TInterruptManager(inLog, &mProcessor);
+#ifdef JIT_PERFORMANCE
+	branchDestCount.SetEmulator(this);
+	branchLinkDestCount.SetEmulator(this);
+#endif
 	mDMAManager = new TDMAManager(inLog, &mMemory, mInterruptManager);
 	mPlatformManager = new TPlatformManager( inLog, inScreenManager );
 	mExternalPort = new TVoyagerSerialPort(
