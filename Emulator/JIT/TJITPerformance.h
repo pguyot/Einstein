@@ -28,6 +28,10 @@
 #include <K/Defines/KDefinitions.h>
 #include <stdio.h>
 
+
+class TEmulator;
+
+
 ///
 /// Implement a fast hit counter.
 ///
@@ -45,6 +49,8 @@ public:
 
 	/// free all associated resources
 	~TJITPerfHitCounter();
+  
+    void SetEmulator(TEmulator *inEmulator);
 
 	/// Count a hit at the given index
 	/// \param at index into hit counter array; out-of-bounds indices are safe
@@ -67,6 +73,7 @@ public:
 	};
 
 private:
+	TEmulator	*mEmulator;
 	KUInt32		mFirst;
 	KUInt32		mSize;
 	KUInt32		mShift;

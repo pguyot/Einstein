@@ -34,7 +34,7 @@
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
-#define kTMMUStats	0
+#define kTMMUStats	1
 #define MMUDebug	0
 
 
@@ -43,6 +43,29 @@ static KUInt32 gNbHits = 0;				///< Nombre de hits.
 static KUInt32 gNbPerm = 0;				///< Nombre d'erreurs de permission.
 static KUInt32 gNbInvalidate = 0;		///< Nombre d'invalidations.
 static KUInt32 gNbMiss = 0;				///< Nombre de ratŽs.
+static KUInt32 gNbHitsTotal = 0;
+static KUInt32 gNbMissTotal = 0;
+
+static void printMMUStats()
+{
+	gNbHitsTotal += gNbHits;
+	gNbMissTotal += gNbMiss;
+	fprintf(
+			stderr,
+			"MMU: Hits: %4i, Miss: %4i, Perm: %4i, Inv: %4i (H/M = %4i:1 Avg: %4i:1)\n",
+			(gNbHits-gNbMiss),
+			gNbMiss,
+			gNbPerm,
+			gNbInvalidate,
+			(gNbHits-gNbMiss)/(gNbMiss+1),
+			(gNbHitsTotal-gNbMissTotal)/(gNbMissTotal+1)
+			);
+	gNbHits = 0;
+	gNbMiss = 0;
+	gNbPerm = 0;
+	gNbInvalidate = 0;
+}
+
 #endif
 
 // -------------------------------------------------------------------------- //
@@ -126,6 +149,7 @@ TMMU::SetROMProtection( Boolean inProtection )
 
 // -------------------------------------------------------------------------- //
 //  * TranslateR( KUInt32, KUInt32& )
+// Performanc: this function eats around 9% of the overall performance!
 // -------------------------------------------------------------------------- //
 Boolean
 TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
@@ -136,17 +160,10 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 
 	KUInt32 theDomain_times2;
 	KUInt32 theAccessPermissionMask;
-	KUInt32 entryPermIndex = 0;
 
 #if kTMMUStats
 	if ((gNbHits & 0xFFF) == 0) {
-		fprintf(
-			stderr,
-			"MMU: Hits: %i, Miss: %i, Perm: %i, Inv: %i\n",
-			gNbHits,
-			gNbMiss,
-			gNbPerm,
-			gNbInvalidate);
+		printMMUStats();
 	}
 	gNbHits++;
 #endif
@@ -190,6 +207,7 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 		gNbMiss++;
 #endif
 
+	KUInt32 entryPermIndex = 0;
 	// Bits 31-20 of target address are catenated with bits 31-14 of the
 	// TTB.
 	Boolean fault = false;
@@ -505,13 +523,7 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 
 #if kTMMUStats
 	if ((gNbHits & 0xFFF) == 0) {
-		fprintf(
-			stderr,
-			"MMU: Hits: %i, Miss: %i, Perm: %i, Inv: %i\n",
-			gNbHits,
-			gNbMiss,
-			gNbPerm,
-			gNbInvalidate);
+		printMMUStats();
 	}
 	gNbHits++;
 #endif
@@ -924,7 +936,7 @@ TMMU::AddToCache(
 	
 	// Remove it from the table.
 	mCache.Erase( theEntry->key );
-
+	
 	// Modify the entry.
 	theEntry->key = inVAddr;
 	theEntry->mPhysicalAddress = inPAddr;
@@ -999,7 +1011,7 @@ TMMU::LoadState( TStream* inStream )
 void
 TMMU::FDump(FILE *f)
 {
-	static char *ap[4] = { "ro/na", "rw/na", "rw/ro", "rw/rw" };
+	static const char *const ap[4] = { "ro/na", "rw/na", "rw/ro", "rw/rw" };
 	
 	Boolean err = false;
 	fprintf(f, "=====> Dumping MMU state\n");
