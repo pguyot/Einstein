@@ -2905,6 +2905,9 @@ TMemory::LoadState( TStream* inStream )
 
 	// The flash.
 	mFlash.LoadState( inStream );
+  
+	// Invalidate the JIT cache.
+	mJIT.InvalidateTLB();
 }
 
 // -------------------------------------------------------------------------- //
