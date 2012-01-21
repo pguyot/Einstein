@@ -30,6 +30,7 @@ class TLog;
 class TInterruptManager;
 class TMemory;
 class TPlatformManager;
+class TStream;
 
 #define SIXTEEN_GREYS					1
 #define	TWOHUNDREDANDFIFTYSIX_GREYS		0
@@ -478,6 +479,16 @@ public:
     /// Full screen emulators can use this to offer interactive host functionality.
     ///
     virtual void OpenEinsteinMenu() { }
+	
+	///
+	/// Save the state to a stream.
+	///
+	void		SaveState( TStream* inStream ) const;
+	
+	///
+	/// Restore the state from a stream.
+	///
+	void		LoadState( TStream* inStream );
 
 protected:
 	///

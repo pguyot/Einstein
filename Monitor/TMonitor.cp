@@ -48,6 +48,7 @@
 #include "Emulator/Log/TBufferLog.h"
 #include "Monitor/TSymbolList.h"
 #include "Monitor/UDisasm.h"
+#include "Emulator/Screen/TScreenManager.h"
 
 // -------------------------------------------------------------------------- //
 // Constants
@@ -332,6 +333,13 @@ TMonitor::LoadEmulatorState( const char *inFilename )
 	}
 	char someByte = 0;
 	mEmulator->LoadState(inFilename);
+	TScreenManager *screen = mEmulator->GetScreenManager();
+	TScreenManager::SRect rect;
+	rect.fLeft = 0;
+	rect.fTop = 0;
+	rect.fBottom = screen->GetScreenHeight()-1;
+	rect.fRight = screen->GetScreenWidth()-1;
+	screen->UpdateScreenRect(&rect);
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
 }

@@ -290,6 +290,9 @@ TEmulator::SaveState( TStream* inStream ) const
 	// And the interrupt manager.
 	mInterruptManager->SaveState( inStream );
 	
+	// And the screen content.
+	mScreenManager->SaveState( inStream );
+
 	// Emulator specific stuff.
 	inStream->PutInt32BE( mRunning );
 	inStream->PutInt32BE( mPaused );
@@ -323,6 +326,9 @@ TEmulator::LoadState( TStream* inStream )
 	
 	// And the interrupt manager.
 	mInterruptManager->LoadState( inStream );
+	
+	// And the screen content.
+	mScreenManager->LoadState( inStream );
 
 	// Emulator specific stuff.
 	mRunning = inStream->GetInt32BE();

@@ -511,6 +511,8 @@ static TCocoaAppController* gInstance = nil;
 // -------------------------------------------------------------------------- //
 - (void)runEmulator
 {
+	//mEmulator->LoadState("/Users/matt/einstein.state");
+	//mMonitor->LoadEmulatorState();
 	mMonitor->Run();
 	
 	// Quit if the emulator quitted.
