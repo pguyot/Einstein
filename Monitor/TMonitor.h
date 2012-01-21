@@ -163,7 +163,7 @@ protected:
 	/// Output instruction at a given address.
 	///
 	void		PrintInstruction( KUInt32 inAddr );
-
+public:
 	///
 	/// Run the emulator (handle breakpoint if we're on a BP).
 	///
