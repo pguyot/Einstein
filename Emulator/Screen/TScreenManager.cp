@@ -1036,6 +1036,8 @@ TScreenManager::LoadState( TStream* inStream )
 	
 	KUInt32 count = mPortraitWidth * mPortraitHeight * kBitsPerPixel / 8;
 	inStream->Read(mScreenBuffer, &count);
+	
+	PowerOnScreen();
 }
 
 // ======================================================================= //
