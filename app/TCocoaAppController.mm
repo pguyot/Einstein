@@ -511,8 +511,9 @@ static TCocoaAppController* gInstance = nil;
 // -------------------------------------------------------------------------- //
 - (void)runEmulator
 {
-	//mEmulator->LoadState("/Users/matt/einstein.state");
+	// FIXME: to launch with the last saved state, enable these commands (will reboot! Something's missing!)
 	//mMonitor->LoadEmulatorState();
+	//mMonitor->RunEmulator(); // FIXME: this is only called from within the thread
 	mMonitor->Run();
 	
 	// Quit if the emulator quitted.
