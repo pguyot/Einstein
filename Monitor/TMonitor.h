@@ -120,7 +120,9 @@ protected:
 		kNop,
 		kRun,
 		kStep,
-		kExit
+		kExit,
+		kSaveState,
+		kLoadState
 	};
 	
 	enum {
@@ -161,7 +163,17 @@ protected:
 	/// Step the emulator (handle breakpoint if we're on a BP).
 	///
 	void		StepEmulator( void );
-
+	
+	///
+	/// Save the current state of the Emulator to a file.
+	///
+	void		SaveEmulatorState( const char *inFilename=0L );
+	
+	///
+	/// Read the current emulator state from a file.
+	///
+	void		LoadEmulatorState( const char *inFilename=0L );
+	
 	///
 	/// Process a breakpoint.
 	///

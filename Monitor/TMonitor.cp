@@ -174,6 +174,14 @@ TMonitor::Run( void )
 			case kExit:
 				loop = false;
 				break;
+				
+			case kSaveState:
+				SaveEmulatorState();
+				break;
+				
+			case kLoadState:
+				LoadEmulatorState();
+				break;
 		}
 	}
 	
@@ -288,6 +296,42 @@ TMonitor::StepEmulator( void )
 	}
 
 	// Write a byte to the socket pair.
+	(void) ::write( mSocketPair[1], &someByte, 1 );
+#endif
+}
+
+// -------------------------------------------------------------------------- //
+// SaveEmulatroState( const char * )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::SaveEmulatorState( const char *inFilename )
+{
+#if TARGET_OS_WIN32
+	assert(0); // FIXME later
+#else
+	if (inFilename==0) {
+		inFilename = "/Users/matt/einstein.state";
+	}
+	char someByte = 0;
+	mEmulator->SaveState(inFilename);
+	(void) ::write( mSocketPair[1], &someByte, 1 );
+#endif
+}
+
+// -------------------------------------------------------------------------- //
+// LoadEmulatroState( const char * )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::LoadEmulatorState( const char *inFilename )
+{
+#if TARGET_OS_WIN32
+	assert(0); // FIXME later
+#else
+	if (inFilename==0) {
+		inFilename = "/Users/matt/einstein.state";
+	}
+	char someByte = 0;
+	mEmulator->LoadState(inFilename);
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
 }
@@ -449,6 +493,24 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			SignalCondVar();
 		} else if (::strcmp(inCommand, "") != 0) {
 			PrintLine("The emulator is already running");
+		}
+	} else if (::strcmp(inCommand, "sv") == 0) {
+		if (mHalted)
+		{
+			PrintLine("Saving emulator state");
+			mCommand = kSaveState;
+			SignalCondVar();
+		} else if (::strcmp(inCommand, "") != 0) {
+			PrintLine("The emulator is running");
+		}
+	} else if (::strcmp(inCommand, "ld") == 0) {
+		if (mHalted)
+		{
+			PrintLine("Loading emulator state");
+			mCommand = kLoadState;
+			SignalCondVar();
+		} else if (::strcmp(inCommand, "") != 0) {
+			PrintLine("The emulator is running");
 		}
 	} else if ((::strcmp(inCommand, "t") == 0)
 		|| (::strcmp(inCommand, "trace") == 0)) {
@@ -879,6 +941,7 @@ TMonitor::PrintHelp( void )
 	PrintLine(" sl P<addr> <val>   set long at physical address");
 	PrintLine(" raise <val>        raise the interrupts");
 	PrintLine(" gpio <val>         raise the gpio interrupts");
+	PrintLine(" ld | sv            load or save the emulator state");
 #endif
 }
 
