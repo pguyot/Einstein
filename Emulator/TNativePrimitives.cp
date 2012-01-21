@@ -2735,7 +2735,7 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 			}
 			break; }
 		case 0x16: {
-			// Print some meroy location
+			// Print some memory location
 			KUInt32 addr = mProcessor->GetRegister(0);
 			KUInt32 size = mProcessor->GetRegister(1), i;
 			if (mLog && size)

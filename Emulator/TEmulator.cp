@@ -298,6 +298,18 @@ TEmulator::SaveState( TStream* inStream ) const
 }
 
 // -------------------------------------------------------------------------- //
+//  * LoadState( const char* inPath ) const
+// -------------------------------------------------------------------------- //
+void
+TEmulator::LoadState( const char* inPath )
+{
+	// Open the file for Reading.
+	TStream* theStream = new TFileStream( inPath, "rb" );
+	LoadState( theStream );
+	delete theStream;
+}
+
+// -------------------------------------------------------------------------- //
 //  * LoadState( TStream* )
 // -------------------------------------------------------------------------- //
 void

@@ -358,7 +358,14 @@ public:
 	/// Save the state to a file.
 	///
 	void		SaveState( TStream* inStream ) const;
-		
+
+	///
+	/// Load the state from a file.
+	///
+	/// \return an error code if a problem occurred.
+	///
+	void		LoadState( const char* inPath );
+
 	///
 	/// Restore the state from a file.
 	///
