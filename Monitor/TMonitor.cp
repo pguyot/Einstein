@@ -94,6 +94,7 @@ TMonitor::TMonitor(
 		mSymbolList( inSymbolList ),
 		mHalted( true ),
 		mCommand( kNop ),
+		mFilename(0L),
 		mLastScreenHalted( true )
 {
 #if TARGET_OS_WIN32
@@ -129,7 +130,8 @@ TMonitor::~TMonitor( void )
 	assert(0); // FIXME later
 #else
 	DeleteCondVarAndMutex();
-
+	if (mFilename) free(mFilename);
+	
 #if !TARGET_OS_MAC
 	// Clear the terminal and go to the uppermost position.
 	(void) ::printf( "\033[1;1H" );
@@ -177,11 +179,11 @@ TMonitor::Run( void )
 				break;
 				
 			case kSaveState:
-				SaveEmulatorState();
+				SaveEmulatorState(mFilename);
 				break;
 				
 			case kLoadState:
-				LoadEmulatorState();
+				LoadEmulatorState(mFilename);
 				break;
 		}
 	}
@@ -502,22 +504,26 @@ TMonitor::ExecuteCommand( const char* inCommand )
 		} else if (::strcmp(inCommand, "") != 0) {
 			PrintLine("The emulator is already running");
 		}
-	} else if (::strcmp(inCommand, "sv") == 0) {
+	} else if (::strncmp(inCommand, "save ", 5) == 0) {
 		if (mHalted)
 		{
 			PrintLine("Saving emulator state");
+			if (!mFilename) mFilename = (char*)malloc(2048);
+			strcpy(mFilename, inCommand+5);
 			mCommand = kSaveState;
 			SignalCondVar();
-		} else if (::strcmp(inCommand, "") != 0) {
+		} else {
 			PrintLine("The emulator is running");
 		}
-	} else if (::strcmp(inCommand, "ld") == 0) {
+	} else if (::strncmp(inCommand, "load ", 5) == 0) {
 		if (mHalted)
 		{
 			PrintLine("Loading emulator state");
+			if (!mFilename) mFilename = (char*)malloc(2048);
+			strcpy(mFilename, inCommand+5);
 			mCommand = kLoadState;
 			SignalCondVar();
-		} else if (::strcmp(inCommand, "") != 0) {
+		} else {
 			PrintLine("The emulator is running");
 		}
 	} else if ((::strcmp(inCommand, "t") == 0)
@@ -949,7 +955,7 @@ TMonitor::PrintHelp( void )
 	PrintLine(" sl P<addr> <val>   set long at physical address");
 	PrintLine(" raise <val>        raise the interrupts");
 	PrintLine(" gpio <val>         raise the gpio interrupts");
-	PrintLine(" ld | sv            load or save the emulator state");
+	PrintLine(" load|save path     load or save the emulator state");
 #endif
 }
 

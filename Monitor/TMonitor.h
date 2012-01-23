@@ -245,6 +245,7 @@ public:
 #endif
 	ECommand				mCommand;			///< Next command for the
 												///< monitor thread.
+	char*					mFilename;			///< Argument for next command.
 	int						mSocketPair[2];		///< Socket pair for monitor
 												///< state changes.
 	Boolean					mLastScreenHalted;	///< If last screen was halted.
