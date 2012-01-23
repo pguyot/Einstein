@@ -982,6 +982,8 @@ TMMU::SaveState( TStream* inStream ) const
 	// The various registers.
 	inStream->PutInt32BE( mMMUEnabled );
 	inStream->PutInt32BE( mCurrentAPMode );
+	inStream->PutInt32BE( mCurrentAPRead );
+	inStream->PutInt32BE( mCurrentAPWrite );
 	inStream->PutInt32BE( mTTBase );
 	inStream->PutInt32BE( mDomainAC );
 	inStream->PutInt32BE( mFaultAddress );
@@ -996,6 +998,8 @@ TMMU::LoadState( TStream* inStream )
 {
 	mMMUEnabled = inStream->GetInt32BE();
 	mCurrentAPMode = inStream->GetInt32BE();
+	mCurrentAPRead = inStream->GetInt32BE();
+	mCurrentAPWrite = inStream->GetInt32BE();
 	mTTBase = inStream->GetInt32BE();
 	mDomainAC = inStream->GetInt32BE();
 	mFaultAddress = inStream->GetInt32BE();
@@ -1003,6 +1007,7 @@ TMMU::LoadState( TStream* inStream )
 	
 	// Reset the cache.
 	InvalidateTLB();
+	InvalidatePerms();
 }
 
 // -------------------------------------------------------------------------- //

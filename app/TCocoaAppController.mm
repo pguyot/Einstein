@@ -409,9 +409,15 @@ static TCocoaAppController* gInstance = nil;
 	
 	mMonitor = new TMacMonitor(mMonitorLog, mEmulator, mSymbolList);
 	[mMonitorController setMonitor:mMonitor];
+	// FIXME: delete this to keep the Monitor closed
+	//[mMonitorController showWindow:self];
 	
 	// Close the window.
 	[mSetupController closeSetupWindow];
+	
+	// FIXME: to launch with the last saved state, enable these commands (will reboot! Something's missing!)
+	//mMonitor->LoadEmulatorState();
+	//mEmulator->GetProcessor()->SetRegister(15, 0x800AAC); //0x800AB4
 	
 	// Start the thread.
 	[NSThread detachNewThreadSelector:@selector(runEmulator) toTarget: self withObject: NULL];
@@ -511,9 +517,6 @@ static TCocoaAppController* gInstance = nil;
 // -------------------------------------------------------------------------- //
 - (void)runEmulator
 {
-	// FIXME: to launch with the last saved state, enable these commands (will reboot! Something's missing!)
-	//mMonitor->LoadEmulatorState();
-	//mMonitor->RunEmulator(); // FIXME: this is only called from within the thread
 	mMonitor->Run();
 	
 	// Quit if the emulator quitted.
