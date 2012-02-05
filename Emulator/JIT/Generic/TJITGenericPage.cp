@@ -89,6 +89,7 @@ TJITGenericPage::Init(
 	{
 		mUnitsTable[indexInstr] = unitCrsr;
 		Translate(
+		    inMemoryIntf,
 			&unitCrsr,
 			thePointer[indexInstr],
 			inVAddr + theOffsetInPage );
@@ -140,6 +141,7 @@ JITInstructionProto(instrCount)
 // -------------------------------------------------------------------------- //
 void
 TJITGenericPage::Translate(
+				TMemory* inMemoryIntf,
 				KUInt16* ioUnitCrsr,
 				KUInt32 inInstruction,
 				KUInt32 inVAddr )
@@ -180,6 +182,7 @@ TJITGenericPage::Translate(
 					
 			case 0x1:	// 01
 				DoTranslate_01(
+					inMemoryIntf,
 					ioUnitCrsr,
 					inInstruction,
 					inVAddr);
@@ -377,6 +380,7 @@ TJITGenericPage::DoTranslate_00(
 inline
 void
 TJITGenericPage::DoTranslate_01(
+					TMemory* inMemoryIntf,
 					KUInt16* ioUnitCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr )
@@ -397,7 +401,7 @@ TJITGenericPage::DoTranslate_01(
 		}
 	} else {
 // -Cond-- 0  1  I  P  U  B  W  L  --Rn--- --Rd--- -----------offset----------
-		Translate_SingleDataTransfer(this, ioUnitCrsr, inInstruction, inVAddr);
+		Translate_SingleDataTransfer(this, inMemoryIntf, ioUnitCrsr, inInstruction, inVAddr);
 	}
 }
 
