@@ -108,6 +108,7 @@ public:
 	/// \param inInstruction	instruction to translate.
 	///
 	void Translate(
+				   TMemory* inMemoryIntf,
 				   KUInt16* ioUnitCrsr,
 				   KUInt32 inInstruction,
 				   KUInt32 inVAddr );
@@ -185,6 +186,7 @@ private:
 	/// \param ioUnit			unit to fill.
 	///
 	void DoTranslate_01(
+					TMemory* inMemoryIntf,
 					KUInt16* ioUnitCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr );

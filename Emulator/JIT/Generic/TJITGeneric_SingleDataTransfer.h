@@ -32,6 +32,7 @@
 void
 Translate_SingleDataTransfer(
 					JITPageClass* inPage,
+					TMemory* inMemoryIntf,
 					KUInt16* ioUnitCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr );

@@ -696,10 +696,6 @@ TMemory::ReadInstruction( KUInt32 inBankNumber, KUInt32 inOffsetInBank )
 Boolean
 TMemory::Read( VAddr inAddress, KUInt32& outWord )
 {
-//	if (inAddress == 0x0C100AB4)
-//	{
-//		mEmulator->BreakInMonitor();
-//	}
 	PAddr theAddress;
 
 	// Optimization: avoid translation when reading unprotected ROM
@@ -1508,10 +1504,6 @@ TMemory::ReadBP( PAddr inAddress, KUInt8& outByte )
 Boolean
 TMemory::Write( VAddr inAddress, KUInt32 inWord )
 {
-//	if (inAddress == 0x0C100AB4)
-//	{
-//		mEmulator->BreakInMonitor();
-//	}
 	PAddr theAddress;
 
 	if (IsMMUEnabled())
