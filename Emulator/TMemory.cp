@@ -265,7 +265,7 @@ TMemory::GetDirectPointerToROMRAM( VAddr inAddress, const KUInt8** outPTR )
 	PAddr theAddress;
 	
 	// Optimization: avoid translation when reading unprotected ROM
-	if (IsMMUEnabled() && ((inAddress < 0x00002000) || (inAddress & TMemoryConsts::kROMEndMask)))
+	if (IsMMUEnabled() && !IsPageInROM(inAddress))
 	{
 		if (TranslateR( inAddress, theAddress ))
 		{
@@ -699,7 +699,7 @@ TMemory::Read( VAddr inAddress, KUInt32& outWord )
 	PAddr theAddress;
 
 	// Optimization: avoid translation when reading unprotected ROM
-	if (IsMMUEnabled() && ((inAddress < 0x00002000) || (inAddress & TMemoryConsts::kROMEndMask)))
+	if (IsMMUEnabled() && !IsPageInROM(inAddress))
 	{
 		if (TranslateR( inAddress, theAddress ))
 		{
@@ -729,7 +729,7 @@ TMemory::ReadAligned( VAddr inAddress, KUInt32& outWord )
 	PAddr theAddress;
 
 	// Optimization: avoid translation when reading unprotected ROM
-	if (IsMMUEnabled() && ((inAddress < 0x00002000) || (inAddress & TMemoryConsts::kROMEndMask)))
+	if (IsMMUEnabled() && !IsPageInROM(inAddress))
 	{
 		if (TranslateR( inAddress & ~0x03, theAddress ))
 		{

@@ -190,13 +190,27 @@ TJITCache<JITPageClass>::PageMiss( KUInt32 inVAddr, KUInt32 inPAddr )
 	{
 		return NULL;
 	}
-
+		
 	// Take last page.
 	SEntry* theEntry = mVMap.GetLastValue();
 	
 	// Remove it from tables.
 	mVMap.Erase( theEntry->key );
+	
+#if 0
+	// Do not remove entries from the ROM cache.
+	// Keeping a large cache seems to make no difference in performance, but
+	// costs us a lot of RAM. So we don't.
+	if (TMemory::IsPageInROM(theEntry->key)) {
+		SEntry *prevEntry = theEntry;
+		theEntry = (SEntry*)calloc(1, sizeof(struct SEntry));
+		theEntry->prev = prevEntry;
+	} else {
+		EraseFromPMap( theEntry );
+	}
+#else
 	EraseFromPMap( theEntry );
+#endif
 
 	// Modify the entry.
 	theEntry->mPage.Init( mMemoryIntf, inVAddr, inPAddr );
@@ -246,7 +260,7 @@ TJITCache<JITPageClass>::GetPage( KUInt32 inVAddr )
 		return &theEntry->mPage;
 	}
 
-	if (mMMUIntf->IsMMUEnabled())
+	if (mMMUIntf->IsMMUEnabled() && !TMemory::IsPageInROM(baseVAddr))
 	{	
 		// Resolve the address.
 		if (mMMUIntf->TranslateInstruction(baseVAddr, &thePAddr)) {

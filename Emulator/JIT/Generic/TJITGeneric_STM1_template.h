@@ -69,14 +69,16 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 #endif
 
 	// Store.
+#if 0
+	// 4850 loops in debug mode
 	int indexReg = 0;
 	while (curRegList)
 	{
 		if (curRegList & 1)
 		{
 			if (theMemoryInterface->WriteAligned(
-				(TMemory::VAddr) baseAddress,
-				ioCPU->mCurrentRegisters[indexReg] ))
+												 (TMemory::VAddr) baseAddress,
+												 ioCPU->mCurrentRegisters[indexReg] ))
 			{
 				SETPC(GETPC());
 				ioCPU->DataAbort();
@@ -84,10 +86,66 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 			}
 			baseAddress += 4;
 		}
+		
+		curRegList >>= 1;
+		indexReg++;
+	}
+#else
+	// 5550 loops in debug mode
+	// Writing to RAM is really expensive. The STM command stores usually multiple
+	// words at once. We optimize by calculating the target address only once
+	// per MMU page.
+	Boolean isFirst = 1;
+	int indexReg = 0;
+	while (curRegList)
+	{
+		KUInt32 theAddress;
+		if (curRegList & 1)
+		{
+			if (isFirst) {				
+				//fprintf(stderr, "A\n");
+				if (theMemoryInterface->IsMMUEnabled())
+				{
+					if (theMemoryInterface->TranslateW( baseAddress &~ 0x03, theAddress ))
+					{
+						SETPC(GETPC());
+						ioCPU->DataAbort();
+						MMUCALLNEXT_AFTERSETPC;
+					}
+				} else {
+					theAddress = baseAddress &~ 0x03;
+				}
+				if (theMemoryInterface->WritePAligned( theAddress, ioCPU->mCurrentRegisters[indexReg] ))
+				{
+					SETPC(GETPC());
+					ioCPU->DataAbort();
+					MMUCALLNEXT_AFTERSETPC;
+				}
+				theAddress += 4;
+				if (theAddress&0x000003ff) 
+					isFirst = 0;
+			} else {
+				if ((theAddress&0xff000000) == 0x04000000) { // fast RAM write
+					*((KUInt32*) (theMemoryInterface->GetRAMOffset() + theAddress)) = ioCPU->mCurrentRegisters[indexReg];
+				} else {
+					if (theMemoryInterface->WritePAligned( theAddress, ioCPU->mCurrentRegisters[indexReg] ))
+					{
+						SETPC(GETPC());
+						ioCPU->DataAbort();
+						MMUCALLNEXT_AFTERSETPC;
+					}
+				}
+				theAddress += 4;
+				if (!(theAddress&0x000003ff))
+					isFirst = 1;
+			}
+			baseAddress += 4;
+		}
 
 		curRegList >>= 1;
 		indexReg++;
 	}
+#endif
 	if (theRegList & 0x8000)
 	{
 		// PC is special.

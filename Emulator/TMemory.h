@@ -186,6 +186,11 @@ public:
 	KUInt32*	GetDirectPointerToPage( KUInt32 inPAddr );
 
 	///
+	/// Get a pointer into emulated RAM
+	///
+	KUIntPtr	GetRAMOffset() { return mRAMOffset; }
+
+	///
 	/// Fast read data.
 	///
 	/// \param inAddress		virtual address.
@@ -713,6 +718,11 @@ public:
 		{
 			return (inAddr1 & TMemoryConsts::kMMUSmallestPageMask)
 				== (inAddr2 & TMemoryConsts::kMMUSmallestPageMask);
+		}
+	
+	static Boolean	IsPageInROM( KUInt32 inAddress ) 
+		{
+			return !((inAddress < 0x00002000) || (inAddress & TMemoryConsts::kROMEndMask));
 		}
 
 private:
