@@ -647,7 +647,7 @@ public:
 				// to reopen the socket (or find a way to keep the peer from closing the socket).
 				// SO_LINGER, TIME_WAIT, SO_REUSEADDR, close vs. shutdown, getpeername()
 				// http://www.faqs.org/faqs/unix-faq/socket/
-				if ( packet.GetTCPFlags()&Packet::TCPFlagFIN==0 ) {
+				if ( (packet.GetTCPFlags()&Packet::TCPFlagFIN)==0 ) {
 					struct sockaddr_in sa;
 					memset(&sa, 0, sizeof(sa));
 					sa.sin_family = AF_INET;
@@ -702,6 +702,8 @@ public:
 			case kStateDisconnected:
 				// TODO: this should not happen
 				return;
+			default:
+				break;
 		}
 		// ok, the state is kStateConnected. See if there are any icomming messages
 		KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
