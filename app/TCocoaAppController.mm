@@ -39,7 +39,7 @@
 #include "Emulator/Sound/TNullSoundManager.h"
 #include "Emulator/Screen/CocoaScreenProxy.h"
 #include "Emulator/Screen/TCocoaScreenManager.h"
-#include "Emulator/Screen/TX11ScreenManager.h"
+//#include "Emulator/Screen/TX11ScreenManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"

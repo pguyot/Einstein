@@ -331,7 +331,7 @@ TCocoaScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 			dstRowPtr += dstRowBytes;
 		}
 	}
-
+	
 	// Update.
 	TCocoaScreenView_SetNeedsDisplay(mProxy, mEmulatorScreenView);
 }

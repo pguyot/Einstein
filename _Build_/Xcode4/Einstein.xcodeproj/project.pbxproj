@@ -1602,7 +1602,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0410;
+				LastUpgradeCheck = 0440;
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Einstein" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1856,7 +1856,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_CPU = G4;
@@ -1881,15 +1882,15 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
+				MACOSX_DEPLOYMENT_TARGET = "";
+				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRODUCT_NAME = Einstein;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx10.7;
 				USER_HEADER_SEARCH_PATHS = "";
-				VALID_ARCHS = "ppc i386 x86_64";
+				VALID_ARCHS = i386;
 			};
 			name = Debug;
 		};
@@ -1897,6 +1898,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_CPU = G4;
@@ -1919,15 +1922,15 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
+				MACOSX_DEPLOYMENT_TARGET = "";
+				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRODUCT_NAME = Einstein;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx10.7;
 				USER_HEADER_SEARCH_PATHS = "";
-				VALID_ARCHS = "ppc i386 x86_64";
+				VALID_ARCHS = i386;
 			};
 			name = Release;
 		};
@@ -1941,7 +1944,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -1953,7 +1956,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "TARGET_OS_OPENSTEP=1";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -1976,7 +1979,7 @@
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				GCC_THUMB_SUPPORT = NO;
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					../../,
 					../../portaudio/pa_common/,
@@ -2012,7 +2015,7 @@
 					NO_X11,
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					../../,
 					../../portaudio/pa_common/,
@@ -2042,7 +2045,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "TARGET_OS_OPENSTEP=1";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 			};
 			name = Distribution;
 		};
@@ -2050,6 +2053,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_CPU = G4;
@@ -2072,15 +2077,15 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
+				MACOSX_DEPLOYMENT_TARGET = "";
+				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRODUCT_NAME = Einstein;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx10.7;
 				USER_HEADER_SEARCH_PATHS = "";
-				VALID_ARCHS = "ppc i386 x86_64";
+				VALID_ARCHS = i386;
 			};
 			name = Distribution;
 		};
@@ -2100,7 +2105,7 @@
 					NO_X11,
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					../../,
 					../../portaudio/pa_common/,
