@@ -613,7 +613,7 @@ TROMImage::PatchROM( SImage* inImagePtr )
 {
 	if (::memcmp(inImagePtr->fMachineString, "717006", 6) == 0)
 	{
-        fprintf(stderr, "PATCHING THE ROM");
+        fprintf(stderr, "PATCHING THE ROM\n");
 		// Patch for 717006.
 		DoPatchROMFromDatabase(inImagePtr);
 		// Patch for 717006.
@@ -704,6 +704,7 @@ TROMPatch::TROMPatch(KUInt32 addr, KUInt32 val, const char *name)
     method_(0L)
 {
     first_ = this;
+	name_ = name;
     fprintf(stderr, "Adding ROM patch: %s\n", name);
 }
 
@@ -719,6 +720,7 @@ TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyFunctio
     method_(0L)
 {
     first_ = this;
+	name_ = name;
     fprintf(stderr, "Adding ROM patch to Simulator function: %3d = %s\n", (int)nPatch, name);
     value_ |= addPatch(this);
 }
@@ -735,6 +737,7 @@ TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name)
     method_(0L)
 {
     first_ = this;
+	name_ = name;
     fprintf(stderr, "Adding ROM patch to JIT function: %3d = %s\n", (int)nPatch, name);
     value_ |= addPatch(this);
 }
@@ -751,9 +754,17 @@ TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyMethodP
     method_(method)
 {
     first_ = this;
+	name_ = name;
     fprintf(stderr, "Adding ROM patch to Simulator method:   %3d = %s\n", (int)nPatch, name);
     value_ |= addPatch(this);
 }
+
+// -------------------------------------------------------------------------- //
+//  * Destructor
+// -------------------------------------------------------------------------- //
+TROMPatch::~TROMPatch() { 
+}
+
 
 // -------------------------------------------------------------------------- //
 //  * Return the native stub in Simulator
@@ -804,9 +815,16 @@ KUInt32 TROMPatch::GetOriginalInstructionAt(KUInt32 index)
 // -------------------------------------------------------------------------- //
 KUInt32 TROMPatch::addPatch(TROMPatch *p)
 {
+	if (p==0)
+		return 0;
     if (nPatch==NPatch) {
-        NPatch += 256;
-        patch_ = (TROMPatch**)realloc(patch_, NPatch*sizeof(TROMPatch*));
+		if (NPatch) {
+			NPatch *= 2;
+			patch_ = (TROMPatch**)realloc(patch_, NPatch*sizeof(TROMPatch*));
+		} else {
+			NPatch = 64;
+			patch_ = (TROMPatch**)malloc(NPatch*sizeof(TROMPatch*));
+		}
     }
     patch_[nPatch++] = p;
     return (nPatch-1);
