@@ -512,7 +512,12 @@ THostInfo::RetrieveUserInfo( void )
 		}
 		// Try pwent.
 		endpwent();
-		const char* theName = theUserPasswdStruct->pw_gecos;
+		const char* theName = 0;
+		if (theUserPasswdStruct) {
+			theName = theUserPasswdStruct->pw_gecos;
+		} else {
+			theName = "Isaac Newton";
+		}
 		int nameIndex = 0;
 		int theLength = ::strlen( theName );
 		mUserFirstName = (KUInt16*)
