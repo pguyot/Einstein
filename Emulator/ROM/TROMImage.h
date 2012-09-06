@@ -227,6 +227,7 @@ protected:
 	JITFuncPtr stub_;
 	AnyFunctionPtr function_;
 	AnyMethodPtr method_;
+	const char *name_;
 	
 	static TROMPatch **patch_;
 	static KUInt32 nPatch, NPatch;
@@ -248,9 +249,9 @@ public:
 	/// Create and add a call to an Simulator class method
 	TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyMethodPtr function);
 	
-	/// Destructor is empty
-	virtual ~TROMPatch() { }
-	
+	/// Destructor 
+	virtual ~TROMPatch();
+
 	/// Return the first patch in the list.
 	/// @return NULL if no patches
 	static TROMPatch *first() { return first_; }
