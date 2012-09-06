@@ -1021,7 +1021,7 @@ TMMU::FDump(FILE *f)
 	Boolean err = false;
 	fprintf(f, "=====> Dumping MMU state\n");
 	if (mMMUEnabled) {
-		fprintf(f, "Primary MMU table at 0x%08x\n", mTTBase);
+		fprintf(f, "Primary MMU table at 0x%08x\n", (unsigned int)mTTBase);
 		unsigned int i, j, p, sp;
 		for (i=0; i<4096; i++) {
 			p = mMemoryIntf->ReadP(mTTBase+(i<<2), err);

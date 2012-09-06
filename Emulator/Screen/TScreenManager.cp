@@ -200,7 +200,7 @@ TScreenManager::Blit(
 					inDstRect,
 					inMode);
 			break;
-				/* FIXME: Matt say: Blit_180 seems broken.
+				/* FIXME: Matt sais: Blit_180 seems broken.
 			case kOrientation_AppleLeft:
 				Blit_180(
 					baseAddy,

@@ -60,6 +60,7 @@
 	if (mScreenManager != NULL)
 	{
 		CGContextRef theContext = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+		CGContextSaveGState(theContext);
 		if(mScreenImage == NULL)
 		{
 			CGColorSpaceRef theColorSpace = CGColorSpaceCreateDeviceRGB();
@@ -76,6 +77,7 @@
 								false,
 								kCGRenderingIntentAbsoluteColorimetric );
 			CGColorSpaceRelease(theColorSpace);
+			
 		}
 		
 		switch (mOrientation)
@@ -106,6 +108,18 @@
 				mWidth,
 				mHeight),
 				mScreenImage);
+#if 1
+		// Matt: it turns out that CGContextDrawImage uses a cached image under
+		// certain conditions. Under Mountain Lion, this seems to be true at all
+		// times. Apart from using OpenGL, the only way I know to invalidate the
+		// cache is to destroy the CGImage. I assume we are tripple and
+		// quadruple buffering the Newton screen now. A better solution should
+		// be found.
+		// FIXME: use CGLayer or CGBitmapContext or glCopy?
+		CGImageRelease(mScreenImage);
+		mScreenImage = 0L;
+#endif
+		CGContextRestoreGState(theContext);		
 	}
 }
 

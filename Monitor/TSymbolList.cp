@@ -133,7 +133,7 @@ TSymbolList::GetSymbol(
 {
 	if (mSymbolCount == 0)
 	{
-		::sprintf(outSymbol, "%08X", inValue);
+		::sprintf(outSymbol, "%08X", (unsigned int)inValue);
 		::sprintf(outComment, "(no symbol data)");
 		*outOffset = 0;
 		return;
