@@ -150,7 +150,9 @@ JITInstructionProto(CallHostInjection)
 	POPVALUE(callIndex);
 	JITFuncPtr stub = TROMPatch::GetSimulatorStubAt(callIndex);
 	if (stub) {
-		stub(ioUnit, ioCPU);
+		if (stub(ioUnit, ioCPU)==0L) {
+			MMUCALLNEXT_AFTERSETPC;
+		}
 	}
 	CALLNEXTUNIT;
 }
@@ -320,7 +322,7 @@ JITInstructionProto(BranchWithinPageFindDelta)
 	TMemory *theMemIntf = ioCPU->GetMemory();
 	SETPC(theNewPC);
 	JITUnit *nextUnit = theMemIntf->GetJITObject()
-	->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
+		->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
 	
 	// now change the JIT command to the final fast branch
 	ioUnit[ 0].fValue = nextUnit - ioUnit;
@@ -502,6 +504,19 @@ JITInstructionProto(SoftwareBreakpoint)
 	
 	// Don't execute next function.
 	MMUCALLNEXT(GETPC());
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * Simple function for disassembly
+// -------------------------------------------------------------------------- //
+JITInstructionProto(SimpleRegisterTest)
+{
+	KUInt32 t1 = ioCPU->GetRegister(0);
+	KUInt32 t2 = ioCPU->GetRegister(1);
+	KUInt32 t3 = t2 + t1;
+	ioCPU->SetRegister(2, t3);
+	CALLNEXTUNIT;
 }
 
 // ========================================================= //

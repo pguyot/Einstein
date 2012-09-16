@@ -171,6 +171,38 @@ TJITGeneric::GetJITUnitForPC(
 	return thePage->GetJITUnitForOffset(indexInPage);
 }
 
+
+KSInt32
+TJITGeneric::GetJITUnitDelta(
+							 TARMProcessor* ioCPU,
+							 TMemory* inMemoryInterface,
+							 JITUnit* inUnit,
+							 KUInt32 inPC)
+{
+	// Get the page from the cache.
+	KUInt32 pc = inPC - 4;
+	TJITGenericPage* theNextPage = GetPage(pc);
+	if (theNextPage == NULL) {
+		return kNotTheSamePage;
+	}
+	
+	TJITGenericPage* theCurrentPage = GetPage(ioCPU->GetRegister(15));
+	if (theCurrentPage!=theNextPage) {
+		return kNotTheSamePage;
+	}
+	
+	KUInt32 indexInPage = GetOffsetInPage(pc) / sizeof( KUInt32 );	
+	JITUnit *nextUnit = theNextPage->GetJITUnitForOffset(indexInPage);
+	
+	KSInt32 delta = nextUnit - inUnit;
+	
+	printf("Finding Delta at 0x%08x = %d\n", ioCPU->GetRegister(15), delta);
+	if (delta<0 || delta>500)
+		return kNotTheSamePage; // FIXME: kludge to avoid crash
+	return delta;
+}
+
+
 // ============================================================================ //
 // FORTRAN, "the infantile disorder", by now nearly 20 years old, is hopelessly //
 // inadequate for whatever computer application you have in mind today: it is   //

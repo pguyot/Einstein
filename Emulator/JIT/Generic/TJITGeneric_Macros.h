@@ -73,6 +73,25 @@
 			ioCPU, theMemIntf, pc );						\
 	}
 
+#define MMUSMARTCALLNEXT(pc) \
+	{														\
+		static KSInt32 ioUnitOffset = kOffsetUnknown;		\
+	again:													\
+		if (ioUnitOffset<kOffsetUnknown) {					\
+			CALLUNIT(ioUnitOffset);							\
+		} else {											\
+			TMemory* theMemIntf = ioCPU->GetMemory();		\
+			if (ioUnitOffset!=kNotTheSamePage) {			\
+				ioUnitOffset = theMemIntf->GetJITObject()->GetJITUnitDelta(ioCPU, theMemIntf, ioUnit, pc ); \
+				goto again;									\
+			}												\
+			SETPC(pc);										\
+			return theMemIntf->GetJITObject()->GetJITUnitForPC( \
+				ioCPU, theMemIntf, pc );					\
+		}													\
+	}
+
+
 #define POPPC() \
 	KUInt32 thePC; \
 	POPVALUE(thePC)

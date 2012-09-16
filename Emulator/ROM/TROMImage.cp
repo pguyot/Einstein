@@ -180,6 +180,24 @@ T_ROM_INJECTION(0x001A726C, "Long loop end") {
 
 // Swap: 0x003AE204
 
+#include <K/Threads/TFibre.h>
+
+class TJITFibre : public TFibre {
+public:
+	TJITFibre()
+	: TFibre()
+	{
+	}
+	KSInt32 Task(KSInt32 inReason=0, void* inUserData=0L)
+	{
+		printf("Fibre calling: I am here because %ld\n", inReason);
+		printf("Suspending\n");
+		int ret = Suspend(80);
+		printf("Suspend() returned %d\n", ret);
+		return 27;
+	}
+};
+
 // -------------------------------------------------------------------------- //
 //  * TROMImage( void )
 // -------------------------------------------------------------------------- //
@@ -189,6 +207,23 @@ TROMImage::TROMImage( void )
 		mImage( NULL )
 {
 	// I'll create the mmap file later, when asked to.
+	
+	TJITFibre* fibre = new TJITFibre(); // DON'T DELETE! Thread will continue running
+	
+	KSInt32 ret = fibre->Run(1234);
+	printf("Result from Fiber::Run() is %ld\n", ret);
+	
+	ret = fibre->Resume(1501);
+	printf("Result from Fiber::Resume() is %ld\n", ret);
+
+	ret = fibre->Run(4711);
+	printf("Result from Fiber::Run() is %ld\n", ret);
+
+	ret = fibre->Resume(109);
+	printf("Result from Fiber::Resume() is %ld\n", ret);
+	
+	int x = 3;
+	
 }
 
 // -------------------------------------------------------------------------- //

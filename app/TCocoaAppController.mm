@@ -39,7 +39,9 @@
 #include "Emulator/Sound/TNullSoundManager.h"
 #include "Emulator/Screen/CocoaScreenProxy.h"
 #include "Emulator/Screen/TCocoaScreenManager.h"
-//#include "Emulator/Screen/TX11ScreenManager.h"
+#ifdef OPTION_X11_SCREEN
+#include "Emulator/Screen/TX11ScreenManager.h"
+#endif
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
@@ -404,8 +406,12 @@ static TCocoaAppController* gInstance = nil;
 	
 	mMonitorLog = new TBufferLog();
 	
+#ifdef _DEBUG
 	NSString* theSymbolPath = [[theROMPath stringByDeletingLastPathComponent] stringByAppendingString: @"/symbols.txt"];
 	mSymbolList = new TSymbolList([theSymbolPath UTF8String]);
+#else
+	mSymbolList = 0L;
+#endif
 	
 	mMonitor = new TMacMonitor(mMonitorLog, mEmulator, mSymbolList);
 	[mMonitorController setMonitor:mMonitor];
