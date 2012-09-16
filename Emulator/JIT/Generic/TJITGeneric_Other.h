@@ -39,6 +39,13 @@ Translate_Injection(
 					KUInt32 inInstruction,
 					KUInt32 inVAddr );
 
+KUInt32
+Translate_SimulatorInjection(
+					JITPageClass* inPage,
+					KUInt16* ioUnitCrsr,
+					KUInt32 inInstruction,
+					KUInt32 inVAddr );
+
 void
 Translate_SWIAndCoproc(
 					   JITPageClass* inPage,

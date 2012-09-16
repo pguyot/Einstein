@@ -157,6 +157,26 @@ JITInstructionProto(CallHostInjection)
 	CALLNEXTUNIT;
 }
 
+
+JITUnit* (*SimLink)(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt32 ix);
+// -------------------------------------------------------------------------- //
+//  * CallHostSimulatorInjection
+//
+//  A Simulator Injection calls native code that simulates a segment of code.
+//  To avoid recursions, it can also continue in JIT mode.
+// -------------------------------------------------------------------------- //
+JITInstructionProto(CallHostSimulatorInjection)
+{
+	KUInt32 callIndex;
+	POPVALUE(callIndex);
+	if (SimLink) {
+		if (SimLink(ioUnit, ioCPU, callIndex)==0L) {
+			MMUCALLNEXT_AFTERSETPC;
+		}
+	}
+	CALLNEXTUNIT;
+}
+
 // -------------------------------------------------------------------------- //
 //  * CoprocDataTransfer
 // -------------------------------------------------------------------------- //
@@ -225,8 +245,25 @@ Translate_Injection(
 					KUInt32 inInstruction,
 					KUInt32 inVAddr )
 {
-	KUInt32 ix = inInstruction & 0x003fffff;
+	KUInt32 ix = inInstruction & 0x001fffff;
 	PUSHFUNC(CallHostInjection);
+	PUSHVALUE(ix);
+	return TROMPatch::GetOriginalInstructionAt(ix);
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * Translate a simulator native code injection
+// -------------------------------------------------------------------------- //
+KUInt32
+Translate_SimulatorInjection(
+					JITPageClass* inPage,
+					KUInt16* ioUnitCrsr,
+					KUInt32 inInstruction,
+					KUInt32 inVAddr )
+{
+	KUInt32 ix = inInstruction & 0x001fffff;
+	PUSHFUNC(CallHostSimulatorInjection);
 	PUSHVALUE(ix);
 	return TROMPatch::GetOriginalInstructionAt(ix);
 }
@@ -504,19 +541,6 @@ JITInstructionProto(SoftwareBreakpoint)
 	
 	// Don't execute next function.
 	MMUCALLNEXT(GETPC());
-}
-
-
-// -------------------------------------------------------------------------- //
-//  * Simple function for disassembly
-// -------------------------------------------------------------------------- //
-JITInstructionProto(SimpleRegisterTest)
-{
-	KUInt32 t1 = ioCPU->GetRegister(0);
-	KUInt32 t2 = ioCPU->GetRegister(1);
-	KUInt32 t3 = t2 + t1;
-	ioCPU->SetRegister(2, t3);
-	CALLNEXTUNIT;
 }
 
 // ========================================================= //

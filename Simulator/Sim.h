@@ -36,15 +36,40 @@
 
 namespace Sim {
 
-	void Init();
-	JITInstructionProto(Dispatch);
-	
 	extern class SFibre* gCurrentFibre;
 	extern class TARMProcessor* gCurrentCPU;
-
+	
+	KUInt32 ReadWord(KUInt32);
+	void WriteWord(KUInt32, KUInt32);
+	
+	KUInt8 ReadByte(KUInt32);
+	void WriteByte(KUInt32, KUInt8);
+	
+	class SimDispatch
+	{
+	public:
+		static JITUnit* Dispatch(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt32 callIndex);
+		SimDispatch();
+	};
+	
 
 } // namespace
 
+
+#define T_SIM_INJECTION(addr, name) \
+	extern void p##addr(); \
+	TROMSimulatorInjection i##addr(addr, p##addr, name); \
+	void p##addr()
+
+#define SIM_GET_SET_W(type, name) \
+	private: type f##name; \
+	public:  type Get##name() { return (type)Sim::ReadWord( (KUInt32)&f##name ); } \
+	         void Set##name(type v) { Sim::WriteWord( (KUInt32)&f##name, (KUInt32)v ); }
+
+#define SIM_GET_SET_B(type, name) \
+	private: type f##name; \
+	public:  type Get##name() { return (type)Sim::ReadByte( (KUInt32)&f##name ); } \
+	         void Set##name(type v) { Sim::WriteByte( (KUInt32)&f##name, (KUInt8)v ); }
 
 #endif
 // SIMULATOR_SIM_H
