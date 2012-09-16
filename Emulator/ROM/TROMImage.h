@@ -211,11 +211,14 @@ typedef void (*AnyFunctionPtr)();
 class TAnyClass { };
 typedef void (TAnyClass::*AnyMethodPtr)();
 
-/// This class defines a patch location. 
+
+///
+/// This class defines a patch location.
 /// Patches can be created in any module by static declaration of TROMPatch's
 /// which will then be linked into the patch database and applied to a
 /// freshly loaded ROM.
 /// Usage is currently limited to ROM v717006
+///
 class TROMPatch {
 	
 protected:
@@ -286,24 +289,42 @@ public:
 };
 
 
-/// An Injection is different to a Patch. It will call native code, but then 
+///
+/// An Injection is different to a Patch. It will call native code, but then
 /// return and execute the original code.
+///
 class TROMInjection : public TROMPatch {
 	
 public:
 	/// Create and add a call to a JIT instruction as an injection
 	TROMInjection(KUInt32 address, JITFuncPtr stub, const char *name)
 	: TROMPatch(address, stub, name) { }
-
+	
 	/// Patch the ROM word
 	virtual void apply(KUInt32 *ROM);
 };
 
 
 #define T_ROM_INJECTION(addr, name) \
-	extern JITInstructionProto(p##addr); \
-	TROMInjection i##addr(addr, p##addr, name); \
-	JITInstructionProto(p##addr)
+extern JITInstructionProto(p##addr); \
+TROMInjection i##addr(addr, p##addr, name); \
+JITInstructionProto(p##addr)
+
+
+///
+/// Native Injections are functions that can be executed in native mode (using
+/// the Simulator fibre system) or in JIT mode if needed.
+///
+class TROMSimulatorInjection : public TROMPatch {
+	
+public:
+	/// Create and add a call to a JIT instruction as an injection
+	TROMSimulatorInjection(KUInt32 address, void (*stub)(), const char *name)
+	: TROMPatch(address, (JITFuncPtr)stub, name) { }
+	
+	/// Patch the ROM word
+	virtual void apply(KUInt32 *ROM);
+};
 
 
 #endif

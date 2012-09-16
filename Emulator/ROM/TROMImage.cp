@@ -882,6 +882,15 @@ void TROMInjection::apply(KUInt32 *ROM)
     ROM[address()] = value() | 0xefc00000;
 }
 
+// -------------------------------------------------------------------------- //
+//  * Apply the simulator injection patch to the ROM words
+// -------------------------------------------------------------------------- //
+void TROMSimulatorInjection::apply(KUInt32 *ROM)
+{
+    originalInstruction_ = ROM[address()];
+    ROM[address()] = value() | 0xefa00000;
+}
+
 
 
 // ====================================================== //

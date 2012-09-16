@@ -187,6 +187,7 @@
 		C9B4ABC9123D709D00D8D2C7 /* TNetworkManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */; };
 		C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
 		C9BE33D1133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
+		C9CB7B20160625780060BBA5 /* CArrayIterator.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9CB7B1E160625780060BBA5 /* CArrayIterator.cp */; };
 		C9D54E1415FA23E700D91131 /* TFibre.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFibre.cp */; };
 		C9D54E1B15FE913A00D91131 /* SFibre.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1715FE913A00D91131 /* SFibre.cp */; };
 		C9D54E1C15FE913A00D91131 /* Sim.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1915FE913A00D91131 /* Sim.cp */; };
@@ -601,6 +602,8 @@
 		C9B4AA49123D480900D8D2C7 /* iEinsteinView.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = iEinsteinView.h; path = Classes/iEinsteinView.h; sourceTree = "<group>"; tabWidth = 4; };
 		C9BE33CE133E64F60052EA2F /* TJITPerformance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITPerformance.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TJITPerformance.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		C9CB7B1E160625780060BBA5 /* CArrayIterator.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CArrayIterator.cp; path = ../../Simulator/UtilityClasses/CArrayIterator.cp; sourceTree = "<group>"; };
+		C9CB7B1F160625780060BBA5 /* CArrayIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CArrayIterator.h; path = ../../Simulator/UtilityClasses/CArrayIterator.h; sourceTree = "<group>"; };
 		C9D54E1215FA23E700D91131 /* TFibre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFibre.h; sourceTree = "<group>"; };
 		C9D54E1315FA23E700D91131 /* TFibre.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFibre.cp; sourceTree = "<group>"; };
 		C9D54E1715FE913A00D91131 /* SFibre.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SFibre.cp; path = ../../Simulator/SFibre.cp; sourceTree = "<group>"; };
@@ -1528,9 +1531,19 @@
 			path = ../../app/iEinstein;
 			sourceTree = "<group>";
 		};
+		C9CB7B1C160625580060BBA5 /* UtilityClasses */ = {
+			isa = PBXGroup;
+			children = (
+				C9CB7B1E160625780060BBA5 /* CArrayIterator.cp */,
+				C9CB7B1F160625780060BBA5 /* CArrayIterator.h */,
+			);
+			name = UtilityClasses;
+			sourceTree = "<group>";
+		};
 		C9D54E1615FE8C3900D91131 /* Simulator */ = {
 			isa = PBXGroup;
 			children = (
+				C9CB7B1C160625580060BBA5 /* UtilityClasses */,
 				C9D54E1715FE913A00D91131 /* SFibre.cp */,
 				C9D54E1815FE913A00D91131 /* SFibre.h */,
 				C9D54E1915FE913A00D91131 /* Sim.cp */,
@@ -1783,6 +1796,7 @@
 				C9D54E1415FA23E700D91131 /* TFibre.cp in Sources */,
 				C9D54E1B15FE913A00D91131 /* SFibre.cp in Sources */,
 				C9D54E1C15FE913A00D91131 /* Sim.cp in Sources */,
+				C9CB7B20160625780060BBA5 /* CArrayIterator.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
