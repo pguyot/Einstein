@@ -187,6 +187,9 @@
 		C9B4ABC9123D709D00D8D2C7 /* TNetworkManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */; };
 		C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
 		C9BE33D1133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
+		C9D54E1415FA23E700D91131 /* TFibre.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFibre.cp */; };
+		C9D54E1B15FE913A00D91131 /* SFibre.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1715FE913A00D91131 /* SFibre.cp */; };
+		C9D54E1C15FE913A00D91131 /* Sim.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1915FE913A00D91131 /* Sim.cp */; };
 		C9E848E911EDCD6C00F27330 /* ffi_darwin.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E711EDCD6C00F27330 /* ffi_darwin.c */; };
 		C9E848EA11EDCD6C00F27330 /* x86-ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E811EDCD6C00F27330 /* x86-ffi64.c */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cp */; };
@@ -598,6 +601,12 @@
 		C9B4AA49123D480900D8D2C7 /* iEinsteinView.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = iEinsteinView.h; path = Classes/iEinsteinView.h; sourceTree = "<group>"; tabWidth = 4; };
 		C9BE33CE133E64F60052EA2F /* TJITPerformance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITPerformance.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TJITPerformance.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		C9D54E1215FA23E700D91131 /* TFibre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFibre.h; sourceTree = "<group>"; };
+		C9D54E1315FA23E700D91131 /* TFibre.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFibre.cp; sourceTree = "<group>"; };
+		C9D54E1715FE913A00D91131 /* SFibre.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SFibre.cp; path = ../../Simulator/SFibre.cp; sourceTree = "<group>"; };
+		C9D54E1815FE913A00D91131 /* SFibre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SFibre.h; path = ../../Simulator/SFibre.h; sourceTree = "<group>"; };
+		C9D54E1915FE913A00D91131 /* Sim.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sim.cp; path = ../../Simulator/Sim.cp; sourceTree = "<group>"; };
+		C9D54E1A15FE913A00D91131 /* Sim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sim.h; path = ../../Simulator/Sim.h; sourceTree = "<group>"; };
 		C9E848E711EDCD6C00F27330 /* ffi_darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi_darwin.c; sourceTree = "<group>"; };
 		C9E848E811EDCD6C00F27330 /* x86-ffi64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "x86-ffi64.c"; sourceTree = "<group>"; };
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTapNetwork.cp; path = Network/TTapNetwork.cp; sourceTree = "<group>"; };
@@ -750,6 +759,7 @@
 				C9B4AA2B123D474800D8D2C7 /* iOS */,
 				C90196781328296B00C3342F /* Android (Eclipse, ARM-gcc) */,
 				C99E33EC111B7C07002165EC /* Emulator */,
+				C9D54E1615FE8C3900D91131 /* Simulator */,
 				C99E3174111B73A1002165EC /* Monitor */,
 			);
 			name = Sources;
@@ -1094,6 +1104,8 @@
 		C99E333E111B7570002165EC /* Threads */ = {
 			isa = PBXGroup;
 			children = (
+				C9D54E1215FA23E700D91131 /* TFibre.h */,
+				C9D54E1315FA23E700D91131 /* TFibre.cp */,
 				C99E333F111B7570002165EC /* TCondVar.cp */,
 				C99E3340111B7570002165EC /* TCondVar.h */,
 				C99E3341111B7570002165EC /* TMutex.cp */,
@@ -1516,6 +1528,17 @@
 			path = ../../app/iEinstein;
 			sourceTree = "<group>";
 		};
+		C9D54E1615FE8C3900D91131 /* Simulator */ = {
+			isa = PBXGroup;
+			children = (
+				C9D54E1715FE913A00D91131 /* SFibre.cp */,
+				C9D54E1815FE913A00D91131 /* SFibre.h */,
+				C9D54E1915FE913A00D91131 /* Sim.cp */,
+				C9D54E1A15FE913A00D91131 /* Sim.h */,
+			);
+			name = Simulator;
+			sourceTree = "<group>";
+		};
 		F1CB7613131730100017B0BB /* Mac OS X */ = {
 			isa = PBXGroup;
 			children = (
@@ -1757,6 +1780,9 @@
 				C901E52F1326566F0074513E /* TMemError.cp in Sources */,
 				C901E530132656710074513E /* TEOFException.cp in Sources */,
 				C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */,
+				C9D54E1415FA23E700D91131 /* TFibre.cp in Sources */,
+				C9D54E1B15FE913A00D91131 /* SFibre.cp in Sources */,
+				C9D54E1C15FE913A00D91131 /* Sim.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

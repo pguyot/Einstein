@@ -34,6 +34,10 @@ class TMemory;
 class TARMProcessor;
 union JITUnit;
 
+
+const KSInt32 kNotTheSamePage	= 0x7f000001;
+const KSInt32 kOffsetUnknown	= 0x7f000000;
+
 ///
 /// Class for generic JIT interface.
 ///
@@ -47,6 +51,7 @@ class TJITGeneric
 		public TJIT< TJITGenericPage >
 {
 public:
+	
 	///
 	/// Constructor from interfaces to memory and MMU.
 	///
@@ -90,6 +95,16 @@ public:
 					TARMProcessor* ioCPU,
 					TMemory* inMemoryInterface,
 					KUInt32 inPC );
+
+	///
+	/// Get the offset between the current JIT unit and the JIT unit for the new PC
+	/// \return kNotTheSamePage if the units are not on the same page
+	///
+	KSInt32 GetJITUnitDelta(
+							TARMProcessor* ioCPU,
+							TMemory* inMemoryInterface,
+							JITUnit* inUnit,
+							KUInt32 inPC);
 
 private:
 	///

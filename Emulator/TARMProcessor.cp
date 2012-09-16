@@ -532,8 +532,38 @@ TARMProcessor::PrefetchAbort( void )
 void
 TARMProcessor::DataAbort( void )
 {
-	//	printf("Data Abort at 0x%08x\n", mCurrentRegisters[kR15]);
+	// printf("Data Abort at 0x%08lx\n", mCurrentRegisters[kR15]);
 	//  002ddf2c         str      r1, [r2], #4                     | E4821004
+	/*
+	 Data Abort at 0x00311528
+	 Data Abort at 0x0031152c
+	 Data Abort at 0x00025d4c
+	 Data Abort at 0x0031152c
+	 Data Abort at 0x0031152c
+	 Data Abort at 0x00310858
+	 Data Abort at 0x003121b8
+	 Data Abort at 0x00259d34
+	 Data Abort at 0x001a4710
+	 Data Abort at 0x001a4ba4
+	 Data Abort at 0x0013b6e0
+	 Data Abort at 0x0003b2a4
+	 Data Abort at 0x000c0910
+	 Data Abort at 0x001a46e8
+	 Data Abort at 0x001a4ba4
+	 Data Abort at 0x0025a2a4
+	 Data Abort at 0x000c2934
+	 Data Abort at 0x001a4710
+	 Data Abort at 0x001a4ba4
+	 Data Abort at 0x002f4288
+	 Data Abort at 0x001a4ba4
+	 Data Abort at 0x002ddf34
+	 Data Abort at 0x001235dc
+	 Data Abort at 0x002ddf34
+	 Data Abort at 0x002ddf34
+	 Data Abort at 0x002ddf34
+	 Data Abort at 0x002ddf34
+	 Data Abort at 0x002595c0
+	 */
 	BackupBankRegisters();
 	mSPSRabt = GetCPSR();
 	// mR14abt_Bkup = address of the aborted instruction + 8

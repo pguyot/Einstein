@@ -326,6 +326,25 @@ public:
 	///
 	void FIQ( void );
 
+	///
+	/// Inline functions for all tests in the condition field of ARM commands.
+	/// Used in precompiled code.
+	///
+	Boolean TestEQ() { return mCPSR_Z; }
+	Boolean TestNE() { return !mCPSR_Z; }
+	Boolean TestCS() { return mCPSR_C; }
+	Boolean TestCC() { return !mCPSR_C; }
+	Boolean TestMI() { return mCPSR_N; }
+	Boolean TestPL() { return !mCPSR_N; }
+	Boolean TestVS() { return mCPSR_V; }
+	Boolean TestVC() { return !mCPSR_V; }
+	Boolean TestHI() { return ((mCPSR_C) && !(mCPSR_Z)); }
+	Boolean TestLS() { return (!(mCPSR_C) || (mCPSR_Z)); }
+	Boolean TestGE() { return (mCPSR_N == mCPSR_V); }
+	Boolean TestLT() { return (mCPSR_N != mCPSR_V); }
+	Boolean TestGT() { return ((!mCPSR_Z) && (mCPSR_N == mCPSR_V)); }
+	Boolean TestLE() { return ((mCPSR_Z) || (mCPSR_N != mCPSR_V)); }
+
 	/// \name Registers
 	
 	// At any time, 16 general purpose registers (R0-R15) may be visible.
