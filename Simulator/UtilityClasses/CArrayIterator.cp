@@ -126,15 +126,18 @@ void CArrayIterator::Advance()
 //	fIterateForward = inForward;
 //	reset();
 //}
-//
-//
-//void
-//CArrayIterator::reset(void)
-//{
-//	fCurrentIndex = fIterateForward ? fLowBound : fHighBound;
-//}
-//
-//
+
+
+void CArrayIterator::Reset()
+{
+	if (GetIterateForward()) {
+		SetCurrentIndex( GetLowBound() );
+	} else {
+		SetCurrentIndex( GetHighBound() );
+	}
+}
+
+
 //void
 //CArrayIterator::switchArray(CDynamicArray * inNewArray, BOOL inForward)
 //{
@@ -145,31 +148,40 @@ void CArrayIterator::Advance()
 //	}
 //	init(inNewArray, 0, inNewArray->fSize - 1, inForward);
 //}
-//
-//
-//ArrayIndex
-//CArrayIterator::firstIndex(void)
-//{
-//	reset();
-//	return more() ? fCurrentIndex : kEmptyIndex;
-//}
-//
-//
-//ArrayIndex
-//CArrayIterator::nextIndex(void)
-//{
-//	advance();
-//	return more() ? fCurrentIndex : kEmptyIndex;
-//}
-//
-//
-//ArrayIndex
-//CArrayIterator::currentIndex(void)
-//{
-//	return fDynamicArray ? fCurrentIndex : kEmptyIndex;
-//}
-//
-//
+
+
+ArrayIndex CArrayIterator::FirstIndex()
+{
+	Reset();
+	if (More()) {
+		return GetCurrentIndex();
+	} else {
+		return kEmptyIndex;
+	}
+}
+
+
+ArrayIndex CArrayIterator::NextIndex()
+{
+	Advance();
+	if (More()) {
+		return GetCurrentIndex();
+	} else {
+		return kEmptyIndex;
+	}
+}
+
+
+ArrayIndex CArrayIterator::CurrentIndex()
+{
+	if (GetDynamicArray()) {
+		return GetCurrentIndex();
+	} else {
+		return kEmptyIndex;
+	}
+}
+
+
 //void
 //CArrayIterator::removeElementsAt(ArrayIndex index, ArrayIndex inCount)
 //{
@@ -205,37 +217,53 @@ void CArrayIterator::Advance()
 //		fNextLink->deleteArray();
 //	fDynamicArray = nil;
 //}
-//
-//
-//BOOL
-//CArrayIterator::more(void)
-//{
-//	return fDynamicArray != nil
-//	&& fCurrentIndex != kEmptyIndex;
-//}
-//
-//
-//CArrayIterator *
-//CArrayIterator::appendToList(CArrayIterator * inList)
-//{
-//	if (inList)
-//	{
-//		fPreviousLink = inList;
-//		fNextLink = inList->fNextLink;
-//		inList->fNextLink->fPreviousLink = this;
-//		inList->fNextLink = this;
-//	}
-//	return this;
-//}
-//
-//
-//CArrayIterator *
-//CArrayIterator::removeFromList(void)
-//{
-//	CArrayIterator *	result = (fNextLink != this) ? fNextLink : nil;
-//	fNextLink->fPreviousLink = fPreviousLink;
-//	fNextLink->fNextLink = fPreviousLink->fNextLink;
-//	fNextLink = fPreviousLink = this;
-//	return result;
-//}
+
+
+BOOL CArrayIterator::More()
+{
+	if (GetDynamicArray()) {
+		if (GetCurrentIndex()==kEmptyIndex) {
+			return 0;
+		} else {
+			return 1;
+		}
+	} else {
+		return 0;
+	}
+}
+
+
+CArrayIterator* CArrayIterator::AppendToList(CArrayIterator * inList)
+{
+	if (inList) {
+		CArrayIterator *nextLink = inList->GetNextLink();
+		SetPreviousLink(inList);
+		SetNextLink(nextLink);
+		nextLink->SetPreviousLink(this);
+		inList->SetNextLink(this);
+		return this;
+	} else {
+		return 0L;
+	}
+}
+
+
+CArrayIterator* CArrayIterator::RemoveFromList()
+{
+	CArrayIterator* nextLink = GetNextLink(); // r1
+	CArrayIterator* prevLink = GetPreviousLink(); // r3
+	CArrayIterator* returnLink;
+	
+	if (nextLink==this) {
+		returnLink = 0L;
+	} else {
+		returnLink = nextLink;
+	}
+	nextLink->SetPreviousLink( prevLink );
+	prevLink->SetNextLink(nextLink);
+	SetNextLink(this);
+	SetPreviousLink(this);
+	
+	return returnLink;
+}
 

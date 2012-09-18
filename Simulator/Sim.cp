@@ -68,7 +68,8 @@ JITUnit* SimDispatch::Dispatch(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt32 ca
 		gMainFibre.Run(0, (void*)stub);
 		return 0L;
 	} else {
-		printf("INFO: Simulator calling simulator\n");
+		//printf("INFO: Simulator calling simulator\n");
+		gMainFibre.pRecursions++;
 		return ioUnit;
 	}
 	
@@ -82,6 +83,46 @@ SimDispatch::SimDispatch() {
 	SimLink = Dispatch;
 }
 
+
+// -- memory handling
+
+
+//#include <new>
+//#include <iostream>
+//#include <cstdlib>
+//#include <stdexcept>
+//#include <locale>
+//
+//void* operator new(std::size_t sz) throw (std::bad_alloc)
+//{
+//    void *result = std::malloc (sz == 0 ? 1 : sz);
+//    if (result == NULL)
+//        throw std::bad_alloc();
+//    gNewCounter++;
+//    return result;
+//}
+//void operator delete(void* p) throw()
+//{
+//    if (p == NULL)
+//        return;
+//    std::free (p);
+//    gDeleteCounter++;
+//}
+//
+//void* operator new(std::size_t sz, const std::nothrow_t&) throw()
+//{
+//    try {
+//        void * result = ::operator new (sz);  // calls our overridden operator new
+//        return result;
+//    } catch (std::bad_alloc &) {
+//		return NULL;
+//    }
+//}
+//
+//void operator delete(void* p, const std::nothrow_t&) throw()
+//{
+//    ::operator delete (p);
+//}
 
 
 
@@ -151,7 +192,7 @@ void Sim::WriteByte(KUInt32 addr, KUInt8 v)
 T_ROM_INJECTION(0x007ffff0, "Resume Simulator") {
 	gCurrentCPU = ioCPU;
 	gMainFibre.Resume(0);
-    return 0;
+	return 0;
 }
 
 
@@ -164,11 +205,82 @@ void Suspend() {
 	return;
 }
 
+// - When in the Simulator, call the JIT compiler for yet unimplemented functions. Use with care!
+void Sim::CallJIT(KUInt32 addr) {
+	gCurrentCPU->SetRegister(15, addr+4);		// Call this function
+	gCurrentCPU->SetRegister(14, 0x007ffff0);	// Return to the Simulator afterwards
+	gMainFibre.Suspend(0);
+	return;
+}
+
+
+// --- testing ping pong
+
+/*
+ This is an example that show how to use the simulator to call a function using
+ the JIT compiler.
+ */
+KUInt32 RSect(KUInt32 r0, KUInt32 r1, KUInt32 r2, KUInt32 r3)
+{
+	KUInt32 ret;
+	SIM_PUSH_REGISTERS
+	gCurrentCPU->SetRegister(0, r0);
+	gCurrentCPU->SetRegister(1, r1);
+	gCurrentCPU->SetRegister(2, r2);
+	gCurrentCPU->SetRegister(3, r3);
+	Sim::CallJIT(0x003408D0);
+	ret = gCurrentCPU->GetRegister(0);
+	SIM_POP_REGISTERS
+	return ret;
+}
+
+KUInt32 SectRect(KUInt32 r0, KUInt32 r1, KUInt32 r2)
+{
+	KUInt32 ret = 0;
+	ret = RSect(r2, 2, r0, r1);
+	return ret;
+}
+
+// Uncomment the lines below to activate the JIT->Sim->JIT sequence.
+//T_SIM_INJECTION(0x00340D70, "SectRect(Rect,Rect,Rect)") {
+//	SIM_RETVAL SectRect(SIM_ARG0(KUInt32), SIM_ARG1(KUInt32), SIM_ARG2(KUInt32));
+//	SIM_RETURN;
+//}
+
+
 
 // --- simulator calls
 
 T_SIM_INJECTION(0x000384E0, "CArrayIterator::Advance") {
-	((CArrayIterator*)gCurrentCPU->GetRegister(0))->Advance();
-	gCurrentCPU->SetRegister(15, gCurrentCPU->GetRegister(14)+4);
+	SIM_CLASS(CArrayIterator)->Advance();
+	SIM_RETURN;
+}
+T_SIM_INJECTION(0x000383B4, "CArrayIterator::AppendToList(list)") {
+	SIM_RETVAL SIM_CLASS(CArrayIterator)->AppendToList(SIM_ARG1(CArrayIterator*));
+	SIM_RETURN;
+}
+T_SIM_INJECTION(0x00038600, "CArrayIterator::CurrentIndex") {
+	SIM_RETVAL SIM_CLASS(CArrayIterator)->CurrentIndex();
+	SIM_RETURN;
+}
+T_SIM_INJECTION(0x00038614, "CArrayIterator::FirstIndex") {
+	SIM_RETVAL SIM_CLASS(CArrayIterator)->FirstIndex();
+	SIM_RETURN;
+}
+T_SIM_INJECTION(0x00038478, "CArrayIterator::More") {
+	SIM_RETVAL SIM_CLASS(CArrayIterator)->More();
+	SIM_RETURN;
+}
+T_SIM_INJECTION(0x00038674, "CArrayIterator::NextIndex") {
+	SIM_RETVAL SIM_CLASS(CArrayIterator)->NextIndex();
+	SIM_RETURN;
+}
+T_SIM_INJECTION(0x00038640, "CArrayIterator::RemoveFromList") {
+	SIM_RETVAL SIM_CLASS(CArrayIterator)->RemoveFromList();
+	SIM_RETURN;
+}
+T_SIM_INJECTION(0x00038498, "CArrayIterator::Reset") {
+	SIM_CLASS(CArrayIterator)->Reset();
+	SIM_RETURN;
 }
 

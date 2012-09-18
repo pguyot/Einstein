@@ -29,24 +29,17 @@
 
 
 namespace Sim {
-
+	
 	typedef void (*STask)();
 	
 	class SFibre : public TFibre {
 	public:
-		SFibre()
-		: TFibre()
-		{
-		}
-		KSInt32 Task(KSInt32 inReason=0, void* inUserData=0L)
-		{
-			STask task = (STask)inUserData;
-			task();
-			return 0;
-		}
+		SFibre();
+		KSInt32 Task(KSInt32 inReason=0, void* inUserData=0L);
+		KUInt32 pRecursions;
 	};
-
-  
+	
+	
 } // namespace
 
 
