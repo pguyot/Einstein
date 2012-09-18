@@ -66,38 +66,31 @@ public:
 //						 ArrayIndex inHighBound, BOOL inForward);
 //	
 //	void			initBounds(ArrayIndex inLowBound, ArrayIndex inHighBound, BOOL inForward);
-//	void			reset(void);
+	void			Reset();
 //	void			resetBounds(BOOL inForward = kIterateForward);
 //	
 //	void			switchArray(CDynamicArray * inNewArray, BOOL inForward = kIterateForward);
 //	
-//	ArrayIndex	firstIndex(void);
-//	ArrayIndex	nextIndex(void);
-//	ArrayIndex	currentIndex(void);
+	ArrayIndex		FirstIndex();
+	ArrayIndex		NextIndex();
+	ArrayIndex		CurrentIndex();
 //	
 //	void			removeElementsAt(ArrayIndex index, ArrayIndex inCount);
 //	void			insertElementsBefore(ArrayIndex index, ArrayIndex inCount);
 //	void			deleteArray(void);
 //	
-//	BOOL			more(void);
-//
-//protected:
-	void			Advance(void);
-//	
+	BOOL			More();
+	
+	void			Advance();
+	
+	CArrayIterator*	AppendToList(CArrayIterator *inList);
+	CArrayIterator*	RemoveFromList();
+	
 	SIM_GET_SET_W(CDynamicArray*, DynamicArray)		//  +0: the associated dynamic array
 	SIM_GET_SET_W(ArrayIndex, CurrentIndex)			//  +4: current index of this iteration
 	SIM_GET_SET_W(ArrayIndex, LowBound)				//  +8: lower bound of iteration in progress
 	SIM_GET_SET_W(ArrayIndex, HighBound)			// +12: upper bound of iteration in progress
 	SIM_GET_SET_B(BOOL, IterateForward)				// +16: if iteration is forward or backward
-//	
-//private:
-//	friend class CDynamicArray;
-//	friend class CList;
-//	friend class CSortedList;
-//	
-//	CArrayIterator *	appendToList(CArrayIterator * inList);
-//	CArrayIterator *	removeFromList(void);
-//	
 	SIM_GET_SET_W(CArrayIterator*, PreviousLink)	// +20: link to previous iterator
 	SIM_GET_SET_W(CArrayIterator*, NextLink)		// +24: link to next iterator
 };

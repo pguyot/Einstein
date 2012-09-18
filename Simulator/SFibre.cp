@@ -26,3 +26,21 @@
 
 
 using namespace Sim;
+
+SFibre::SFibre()
+:	TFibre()
+{
+	pRecursions = 0;
+}
+
+
+KSInt32 SFibre::Task(KSInt32 inReason, void* inUserData)
+{
+	pRecursions = 0;
+	STask task = (STask)inUserData;
+	task();
+	if (pRecursions) {
+		printf("Performance Info: %ld recursion attempts during simulator call\n", pRecursions);
+	}
+	return 0;
+}
