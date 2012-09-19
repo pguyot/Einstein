@@ -143,7 +143,7 @@
 		{
 			[mROMFilePath release];
 		}
-		mROMFilePath = [sheet filename];
+		mROMFilePath = [[sheet URL] path];
 		[mROMFilePath retain];
 		
 		[self addDeferredSend: @selector(performDump)];
