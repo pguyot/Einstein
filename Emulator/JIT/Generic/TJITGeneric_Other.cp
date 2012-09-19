@@ -31,8 +31,6 @@
 
 #include "TJITGeneric_Macros.h"
 
-#include "Simulator/sys/einstein.h"
-
 /*
  Floating point math emulation
  
