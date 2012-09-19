@@ -103,8 +103,6 @@ enum {
 
 // Delegation
 - (BOOL) windowShouldClose:(id)sender;
-- (void) savePanelDidEnd:(NSSavePanel*) sheet returnCode:(int) returnCode
-			contextInfo: (void*) contextInfo;
 @end
 
 #endif
