@@ -113,41 +113,34 @@
 				[[mUserDefaultsController values]
 					valueForKey: kROMImagePathKey];
 		}
+		
+		
 		NSString* theDir = [theFilePath stringByDeletingLastPathComponent];
 		NSString* theName = [theFilePath lastPathComponent];
 		
-		[thePanel
-			beginSheetForDirectory: theDir
-			file: theName
-			modalForWindow: mDumpROMPanel
-			modalDelegate: self
-			didEndSelector: @selector(savePanelDidEnd:returnCode:contextInfo:)
-			contextInfo: nil];
-	}
-}
-
-// -------------------------------------------------------------------------- //
-//  * (void) savePanelDidEnd:(NSSavePanel*) returnCode:(int) contextInfo: ...
-// -------------------------------------------------------------------------- //
-- (void) savePanelDidEnd:(NSSavePanel*) sheet returnCode:(int) returnCode
-			contextInfo: (void*) contextInfo
-{
-	do {
-		if (returnCode != NSOKButton)
-		{
-			[self setRunning: NO];
-			break;
-		}
-	
-		if (mROMFilePath)
-		{
-			[mROMFilePath release];
-		}
-		mROMFilePath = [[sheet URL] path];
-		[mROMFilePath retain];
+		[thePanel setNameFieldStringValue:theName];
+		[thePanel setDirectoryURL:[NSURL fileURLWithPath:theDir]];
 		
-		[self addDeferredSend: @selector(performDump)];
-	} while (false);
+		[thePanel beginSheetModalForWindow:mDumpROMPanel completionHandler:^(NSInteger result) {
+			do {
+				if (result != NSOKButton)
+				{
+					[self setRunning: NO];
+					break;
+				}
+
+				if (mROMFilePath)
+				{
+					[mROMFilePath release];
+				}
+				mROMFilePath = [[thePanel URL] path];
+				[mROMFilePath retain];
+				
+				[self addDeferredSend: @selector(performDump)];
+			} while (false);
+		}];
+		
+	}
 }
 
 // -------------------------------------------------------------------------- //
