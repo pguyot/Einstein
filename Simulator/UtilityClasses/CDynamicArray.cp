@@ -1,8 +1,8 @@
 // ==============================
-// File:			math/math_stubs.cp
-// Project:			Simulator
+// File:			CDynamicArray.cp
+// Project:			Einstein
 //
-// Copyright 2003-2008 by Matthias Melcher (newton@matthiasm.com).
+// Copyright 1999-2012 by Newton Rsearch Group
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,36 +22,7 @@
 // ==============================
 
 
-// Simulator
-#include <Simulator/sys/macros.h>
-#include "fixed.h"
-
-// Einstein
-#include "JIT.h"
-#include "TROMImage.h"
-#include "TARMProcessor.h"
-#include "TJITGeneric_Macros.h"
+#include "Simulator/UtilityClasses/CDynamicArray.h"
 
 
-namespace Simulator {
 
-
-  SIMULATOR_FUNCTION_STUB(0x00394688, FixedMultiply)
-  {
-    // copy all register values into variables
-    Fixed a = (Fixed)ioCPU->mCurrentRegisters[0];
-    Fixed b = (Fixed)ioCPU->mCurrentRegisters[1];
-  
-    // call Simulator
-    Fixed result = FixedMultiply(a, b);
-  
-    // copy variables back into registers
-    ioCPU->mCurrentRegisters[0] = (KUInt32)result;
-  
-    // return for linked branch
-    KUInt32 next = ioCPU->mCurrentRegisters[14]+4;
-    MMUCALLNEXT(next);
-  }
-
-
-} // namespace
