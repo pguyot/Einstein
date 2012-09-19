@@ -140,7 +140,7 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 					m += mArray[i];
 				}
 			}
-			fprintf(out, "%d of %d memory addresses in %lld cycles executed.\n", o, mSize, m);
+			fprintf(out, "%ld of %li memory addresses in %lld cycles executed.\n", o, mSize, m);
 			for (i=0; i<n; i++) {
 				m = 0; ix = 0;
 				for (j=0; j<mSize; j++) {

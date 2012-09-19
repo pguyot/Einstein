@@ -196,7 +196,7 @@ TJITGeneric::GetJITUnitDelta(
 	
 	KSInt32 delta = nextUnit - inUnit;
 	
-	printf("Finding Delta at 0x%08x = %d\n", ioCPU->GetRegister(15), delta);
+	printf("Finding Delta at 0x%08lx = %ld\n", ioCPU->GetRegister(15), delta);
 	if (delta<0 || delta>500)
 		return kNotTheSamePage; // FIXME: kludge to avoid crash
 	return delta;
