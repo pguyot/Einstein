@@ -763,7 +763,7 @@ static TCocoaAppController* gInstance = nil;
 {
 	NSString* theResult = nil;
 	NSOpenPanel* thePanel = [NSOpenPanel openPanel];
-	if ([thePanel runModalForTypes: nil] == NSOKButton)
+	if ([thePanel runModal] == NSOKButton)
 	{
 		theResult = [[thePanel URL] path];
 	}
