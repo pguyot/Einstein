@@ -2,7 +2,7 @@
 // File:			CArrayIterator.cp
 // Project:			Einstein
 //
-// Copyright 1999-2012 by Newton Rsearch Group
+// Copyright 1999-2012 by Newton Research Group and others
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 // ==============================
 
 
+#include "Simulator/Sim.h"
 #include "Simulator/UtilityClasses/CArrayIterator.h"
 
 
@@ -219,7 +220,7 @@ ArrayIndex CArrayIterator::CurrentIndex()
 //}
 
 
-BOOL CArrayIterator::More()
+Boolean CArrayIterator::More()
 {
 	if (GetDynamicArray()) {
 		if (GetCurrentIndex()==kEmptyIndex) {
@@ -267,3 +268,36 @@ CArrayIterator* CArrayIterator::RemoveFromList()
 	return returnLink;
 }
 
+
+//T_SIM_INJECTION(0x000384E0, "CArrayIterator::Advance") {
+//	SIM_CLASS(CArrayIterator)->Advance();
+//	SIM_RETURN;
+//}
+//T_SIM_INJECTION(0x000383B4, "CArrayIterator::AppendToList(list)") {
+//	SIM_RETVAL SIM_CLASS(CArrayIterator)->AppendToList(SIM_ARG1(CArrayIterator*));
+//	SIM_RETURN;
+//}
+//T_SIM_INJECTION(0x00038600, "CArrayIterator::CurrentIndex") {
+//	SIM_RETVAL SIM_CLASS(CArrayIterator)->CurrentIndex();
+//	SIM_RETURN;
+//}
+//T_SIM_INJECTION(0x00038614, "CArrayIterator::FirstIndex") {
+//	SIM_RETVAL SIM_CLASS(CArrayIterator)->FirstIndex();
+//	SIM_RETURN;
+//}
+//T_SIM_INJECTION(0x00038478, "CArrayIterator::More") {
+//	SIM_RETVAL SIM_CLASS(CArrayIterator)->More();
+//	SIM_RETURN;
+//}
+//T_SIM_INJECTION(0x00038674, "CArrayIterator::NextIndex") {
+//	SIM_RETVAL SIM_CLASS(CArrayIterator)->NextIndex();
+//	SIM_RETURN;
+//}
+//T_SIM_INJECTION(0x00038640, "CArrayIterator::RemoveFromList") {
+//	SIM_RETVAL SIM_CLASS(CArrayIterator)->RemoveFromList();
+//	SIM_RETURN;
+//}
+//T_SIM_INJECTION(0x00038498, "CArrayIterator::Reset") {
+//	SIM_CLASS(CArrayIterator)->Reset();
+//	SIM_RETURN;
+//}

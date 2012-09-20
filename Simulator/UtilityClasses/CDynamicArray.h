@@ -2,7 +2,7 @@
 // File:			CDynamicArray.h
 // Project:			Einstein
 //
-// Copyright 1999-2012 by Newton Rsearch Group
+// Copyright 1999-2012 by Newton Research Group and others
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,13 +27,6 @@
 
 
 #include "Sim.h"
-/*
-#include "List.h"
-*/
-class SingleObject {
-};
-typedef unsigned int ArrayIndex;
-typedef unsigned char BOOL;
 
 
 class CArrayIterator;

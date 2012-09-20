@@ -2,7 +2,7 @@
 // File:			CArrayIterator.h
 // Project:			Einstein
 //
-// Copyright 1999-2012 by Newton Rsearch Group
+// Copyright 1999-2012 by Newton Research Group and others
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,13 +27,8 @@
 
 
 #include "Sim.h"
-/*
-#include "List.h"
-*/
-class SingleObject {
-};
-typedef unsigned int ArrayIndex;
-typedef unsigned char BOOL;
+
+
 class CDynamicArray;
 
 
@@ -79,7 +74,7 @@ public:
 //	void			insertElementsBefore(ArrayIndex index, ArrayIndex inCount);
 //	void			deleteArray(void);
 //	
-	BOOL			More();
+	Boolean			More();
 	
 	void			Advance();
 	
@@ -90,7 +85,7 @@ public:
 	SIM_GET_SET_W(ArrayIndex, CurrentIndex)			//  +4: current index of this iteration
 	SIM_GET_SET_W(ArrayIndex, LowBound)				//  +8: lower bound of iteration in progress
 	SIM_GET_SET_W(ArrayIndex, HighBound)			// +12: upper bound of iteration in progress
-	SIM_GET_SET_B(BOOL, IterateForward)				// +16: if iteration is forward or backward
+	SIM_GET_SET_B(Boolean, IterateForward)			// +16: if iteration is forward or backward
 	SIM_GET_SET_W(CArrayIterator*, PreviousLink)	// +20: link to previous iterator
 	SIM_GET_SET_W(CArrayIterator*, NextLink)		// +24: link to next iterator
 };

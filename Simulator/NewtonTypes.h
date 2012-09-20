@@ -1,5 +1,5 @@
 // ==============================
-// File:			CDynamicArray.cp
+// File:			NewtonTypes.h
 // Project:			Einstein
 //
 // Copyright 1999-2012 by Newton Research Group and others
@@ -22,7 +22,24 @@
 // ==============================
 
 
-#include "Simulator/UtilityClasses/CDynamicArray.h"
+#ifndef NEWTON_TYPES_H
+#define NEWTON_TYPES_H
 
 
+#include <K/Defines/KDefinitions.h>
+
+
+typedef KUInt32 ArrayIndex;
+typedef KUInt8 Boolean;
+typedef KSInt32 Ref;
+
+
+class SingleObject {
+};
+
+
+#define ISINT(a) (((a)&3)==0)
+
+
+#endif	// FAST_RUN_STATE_H
 

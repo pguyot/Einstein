@@ -1,5 +1,5 @@
 // ==============================
-// File:			CDynamicArray.cp
+// File:			TInterpreter.h
 // Project:			Einstein
 //
 // Copyright 1999-2012 by Newton Research Group and others
@@ -22,7 +22,58 @@
 // ==============================
 
 
-#include "Simulator/UtilityClasses/CDynamicArray.h"
+#ifndef T_INTERPRETER_H
+#define T_INTERPRETER_H
 
 
+#include "Sim.h"
+
+
+
+class FreqFuncDef {
+public:
+	SIM_GET_SET_W(char*, Name)
+	SIM_GET_SET_W(KUInt32, NumOfArgs)
+};
+
+
+/**
+ This class manages the interpreter data stack.
+ */
+class SimStack {
+	// FIXME: find the correct class!
+public:
+	SIM_GET_SET_W(KUInt32*, Top) // instruction pointer
+								 // (...)
+};
+
+
+/**
+ This class holds the current state of the interpreter.
+ */
+class FastRunState
+{
+public:
+	SIM_GET_SET_W(KUInt8*, PC)		// instruction pointer
+	SIM_GET_SET_W(SimStack*, Stack) // stack class pointer
+									// (...)
+};
+
+
+
+
+/**
+ This class contains the byte code interpreter.
+ */
+class TInterpreter
+{
+public:
+};
+
+
+
+KUInt32 FastFreqFuncGeneral(FastRunState*, long);
+
+
+#endif	// FAST_RUN_STATE_H
 
