@@ -27,7 +27,7 @@
 // Simulator
 #include "Simulator/SFibre.h"
 #include "Simulator/UtilityClasses/CArrayIterator.h"
-#include "Simulator/Frames/FastRunState.h"
+#include "Simulator/Frames/TInterpreter.h"
 
 // Einstein
 #include "TARMProcessor.h"
