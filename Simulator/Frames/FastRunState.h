@@ -1,5 +1,5 @@
 // ==============================
-// File:			CDynamicArray.cp
+// File:			FastRunState.h
 // Project:			Einstein
 //
 // Copyright 1999-2012 by Newton Research Group and others
@@ -22,7 +22,4 @@
 // ==============================
 
 
-#include "Simulator/UtilityClasses/CDynamicArray.h"
-
-
-
+// FIXME: remove this file

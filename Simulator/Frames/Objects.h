@@ -1,5 +1,5 @@
 // ==============================
-// File:			CDynamicArray.cp
+// File:			Objects.h
 // Project:			Einstein
 //
 // Copyright 1999-2012 by Newton Research Group and others
@@ -22,7 +22,27 @@
 // ==============================
 
 
-#include "Simulator/UtilityClasses/CDynamicArray.h"
+#ifndef OBJECTS_H
+#define OBJECTS_H
+
+#include "NewtonTypes.h"
+#include "Sim.h"
 
 
+class ObjectHeader
+{
+public:
+	SIM_GET_SET_W(KUInt32, SizeAndFlags);
+	SIM_GET_SET_W(KUInt32, LocksAndSlots);
+};
+
+
+class ArrayObject : public ObjectHeader
+{
+public:
+	SIM_GET_SET_W(Ref, ObjectClass);
+	SIM_GET_SET_W_ARRAY(Ref, Slot, 1);
+};
+
+#endif	// FAST_RUN_STATE_H
 

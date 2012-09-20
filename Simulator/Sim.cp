@@ -27,6 +27,7 @@
 // Simulator
 #include "Simulator/SFibre.h"
 #include "Simulator/UtilityClasses/CArrayIterator.h"
+#include "Simulator/Frames/FastRunState.h"
 
 // Einstein
 #include "TARMProcessor.h"
@@ -63,12 +64,13 @@ extern JITUnit* (*SimLink)(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt32 ix);
  */
 JITUnit* SimDispatch::Dispatch(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt32 callIndex) {
 	if (gMainFibre.IsStopped()) {
+		//printf("INFO: Calling Simulator\n");
 		gCurrentCPU = ioCPU;
 		JITFuncPtr stub = TROMPatch::GetSimulatorStubAt(callIndex);
 		gMainFibre.Run(0, (void*)stub);
 		return 0L;
 	} else {
-		//printf("INFO: Simulator calling simulator\n");
+		printf("INFO: Simulator calling simulator\n");
 		gMainFibre.pRecursions++;
 		return ioUnit;
 	}
@@ -243,6 +245,7 @@ KUInt32 SectRect(KUInt32 r0, KUInt32 r1, KUInt32 r2)
 
 // Uncomment the lines below to activate the JIT->Sim->JIT sequence.
 //T_SIM_INJECTION(0x00340D70, "SectRect(Rect,Rect,Rect)") {
+//	printf("*** SectRect\n");
 //	SIM_RETVAL SectRect(SIM_ARG0(KUInt32), SIM_ARG1(KUInt32), SIM_ARG2(KUInt32));
 //	SIM_RETURN;
 //}
@@ -251,36 +254,40 @@ KUInt32 SectRect(KUInt32 r0, KUInt32 r1, KUInt32 r2)
 
 // --- simulator calls
 
-T_SIM_INJECTION(0x000384E0, "CArrayIterator::Advance") {
-	SIM_CLASS(CArrayIterator)->Advance();
-	SIM_RETURN;
-}
-T_SIM_INJECTION(0x000383B4, "CArrayIterator::AppendToList(list)") {
-	SIM_RETVAL SIM_CLASS(CArrayIterator)->AppendToList(SIM_ARG1(CArrayIterator*));
-	SIM_RETURN;
-}
-T_SIM_INJECTION(0x00038600, "CArrayIterator::CurrentIndex") {
-	SIM_RETVAL SIM_CLASS(CArrayIterator)->CurrentIndex();
-	SIM_RETURN;
-}
-T_SIM_INJECTION(0x00038614, "CArrayIterator::FirstIndex") {
-	SIM_RETVAL SIM_CLASS(CArrayIterator)->FirstIndex();
-	SIM_RETURN;
-}
-T_SIM_INJECTION(0x00038478, "CArrayIterator::More") {
-	SIM_RETVAL SIM_CLASS(CArrayIterator)->More();
-	SIM_RETURN;
-}
-T_SIM_INJECTION(0x00038674, "CArrayIterator::NextIndex") {
-	SIM_RETVAL SIM_CLASS(CArrayIterator)->NextIndex();
-	SIM_RETURN;
-}
-T_SIM_INJECTION(0x00038640, "CArrayIterator::RemoveFromList") {
-	SIM_RETVAL SIM_CLASS(CArrayIterator)->RemoveFromList();
-	SIM_RETURN;
-}
-T_SIM_INJECTION(0x00038498, "CArrayIterator::Reset") {
-	SIM_CLASS(CArrayIterator)->Reset();
-	SIM_RETURN;
-}
+
+
+
+//T_ROM_INJECTION(0x002ECD94, "FastFreqFuncGeneral(FastRunState*, long)") {
+//	printf("*** FastFreqFuncGeneral(FastRunState*, long)\n");
+//	return ioUnit;
+//}
+
+//T_ROM_INJECTION(0x002EE138, "FastRun") {
+//	printf("*** Fast Run\n");
+//	return ioUnit;
+//}
+//
+//T_ROM_INJECTION(0x002F1EE0, "SlowRun") {
+//	printf("*** Slow Run\n");
+//	return ioUnit;
+//}
+
+
+
+/*
+ 
+ Next task: implement TInterpreter::FastRun1(...)
+	0x002EE138 to 0x002EF140 (1026 lines of code)
+ 
+ Jump table for byte code starts at 0x002EE1E8 and is 207 entries big.
+ 
+ There is also a slow version. Is that used when debugging?
+	0x002F1EE0: t_unknown TInterpreter::SlowRun(...)
+ 
+ Jump table at: 0x002F2034
+ 
+ 
+ Look at 0x002ECD94: t_unknown FastFreqFuncGeneral(...)
+ 
+ */
 

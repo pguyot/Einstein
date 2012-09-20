@@ -1,5 +1,5 @@
 // ==============================
-// File:			CDynamicArray.cp
+// File:			NewtonGlobals.h
 // Project:			Einstein
 //
 // Copyright 1999-2012 by Newton Research Group and others
@@ -22,7 +22,18 @@
 // ==============================
 
 
-#include "Simulator/UtilityClasses/CDynamicArray.h"
+#ifndef NEWTON_GLOBALS_H
+#define NEWTON_GLOBALS_H
 
 
+#include "Sim.h"
+#include "Frames/TInterpreter.h"
+
+
+
+FreqFuncDef* GlobalGetFreqFuncInfo(); //SIM_GLOBAL_W_DECL(FreqFuncDef*, FreqFuncInfo, 0x0C1051F4);
+SIM_GLOBAL_W_DECL(Ref, FreqFuncs, 0x0C105450);
+
+
+#endif	// NEWTON_GLOBALS_H
 
