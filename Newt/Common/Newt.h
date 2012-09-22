@@ -1,8 +1,8 @@
 // ==============================
-// File:                        Simulator/SFibre.cp
-// Project:                     Simulator
+// File:			Newt/Common/Newt.h
+// Project:			Einstein
 //
-// Copyright 2012 by Matthias Melcher (newton@matthiasm.com).
+// Copyright 1999-2012 by Newton Research Group and others
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,25 +22,13 @@
 // ==============================
 
 
-#include "SFibre.h"
+#ifndef NEWT_COMMON_NEWT_H
+#define NEWT_COMMON_NEWT_H
 
+#include "Newt/Common/Glue.h"
+#include "Newt/Common/Types.h"
+#include "Newt/Common/Macros.h"
+#include "Newt/Common/Globals.h"
 
-using namespace Sim;
+#endif	// NEWT_COMMON_TYPES_H
 
-SFibre::SFibre()
-:	TFibre()
-{
-	pRecursions = 0;
-}
-
-
-KSInt32 SFibre::Task(KSInt32 inReason, void* inUserData)
-{
-	pRecursions = 0;
-	STask task = (STask)inUserData;
-	task();
-	if (pRecursions) {
-		printf("Performance Info: %ld recursion attempts during simulator call\n", pRecursions);
-	}
-	return 0;
-}

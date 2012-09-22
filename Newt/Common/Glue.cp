@@ -1,8 +1,8 @@
 // ==============================
-// File:                        Simulator/Sim.cp
+// File:                        SNewt/Common/Glue.cp
 // Project:                     Simulator
 //
-// Copyright 2012 by Matthias Melcher (newton@matthiasm.com).
+// Copyright 1999-2012 by Newton Research Group and others
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,12 +22,11 @@
 // ==============================
 
 
-#include "Simulator/Sim.h"
+#include "Newt/Common/Glue.h"
 
 // Simulator
-#include "Simulator/SFibre.h"
-#include "Simulator/UtilityClasses/CArrayIterator.h"
-#include "Simulator/Frames/TInterpreter.h"
+#include "Newt/UtilityClasses/CArrayIterator.h"
+#include "Newt/Frames/TInterpreter.h"
 
 // Einstein
 #include "TARMProcessor.h"
@@ -37,15 +36,10 @@
 #include "TROMImage.h"
 
 
-namespace Sim {
-	SFibre gMainFibre;
-	SimDispatch gSimDispatch;
-	SFibre* gCurrentFibre = 0L;
-	TARMProcessor* gCurrentCPU = 0L;
-};
-
-
-using namespace Sim;
+NewtGlueFibre gMainFibre;
+NewtGlueDispatch gSimDispatch;
+NewtGlueFibre* gCurrentFibre = 0L;
+TARMProcessor* gCurrentCPU = 0L;
 
 
 /*
@@ -58,11 +52,11 @@ extern JITUnit* (*SimLink)(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt32 ix);
 
 /**
  If the Simulator is already busy, this function will return and continue JIT
- execution. If the Simulator is idle, this function switches context into the 
+ execution. If the Simulator is idle, this function switches context into the
  Simulator fibre and calls the Stub that will then simulate a function by
  running the corresponding native code.
  */
-JITUnit* SimDispatch::Dispatch(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt32 callIndex) {
+JITUnit* NewtGlueDispatch::Dispatch(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt32 callIndex) {
 	if (gMainFibre.IsStopped()) {
 		//printf("INFO: Calling Simulator\n");
 		gCurrentCPU = ioCPU;
@@ -81,7 +75,7 @@ JITUnit* SimDispatch::Dispatch(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt32 ca
 /**
  Initialize the Simulator.
  */
-SimDispatch::SimDispatch() {
+NewtGlueDispatch::NewtGlueDispatch() {
 	SimLink = Dispatch;
 }
 
@@ -128,12 +122,12 @@ SimDispatch::SimDispatch() {
 
 
 
-KUInt32 Sim::ReadWord(KUInt32 addr)
+KUInt32 NewtReadWord(KUInt32 addr)
 {
 	KUInt32 v;
 	bool err = 0;
 	do {
-		err = Sim::gCurrentCPU->GetMemory()->Read(addr, v);
+		err = gCurrentCPU->GetMemory()->Read(addr, v);
 		if (err) {
 			gCurrentCPU->mCurrentRegisters[TARMProcessor::kR15] = 0x007ffff0;
 			gCurrentCPU->DataAbort();
@@ -144,11 +138,11 @@ KUInt32 Sim::ReadWord(KUInt32 addr)
 }
 
 
-void Sim::WriteWord(KUInt32 addr, KUInt32 v)
+void NewtWriteWord(KUInt32 addr, KUInt32 v)
 {
 	bool err = 0;
 	do {
-		err = Sim::gCurrentCPU->GetMemory()->Write(addr, v);
+		err = gCurrentCPU->GetMemory()->Write(addr, v);
 		if (err) {
 			gCurrentCPU->mCurrentRegisters[TARMProcessor::kR15] = 0x007ffff0;
 			gCurrentCPU->DataAbort();
@@ -158,12 +152,12 @@ void Sim::WriteWord(KUInt32 addr, KUInt32 v)
 }
 
 
-KUInt8 Sim::ReadByte(KUInt32 addr)
+KUInt8 NewtReadByte(KUInt32 addr)
 {
 	KUInt8 v;
 	bool err = 0;
 	do {
-		err = Sim::gCurrentCPU->GetMemory()->ReadB(addr, v);
+		err = gCurrentCPU->GetMemory()->ReadB(addr, v);
 		if (err) {
 			gCurrentCPU->mCurrentRegisters[TARMProcessor::kR15] = 0x007ffff0;
 			gCurrentCPU->DataAbort();
@@ -174,11 +168,11 @@ KUInt8 Sim::ReadByte(KUInt32 addr)
 }
 
 
-void Sim::WriteByte(KUInt32 addr, KUInt8 v)
+void NewtWriteByte(KUInt32 addr, KUInt8 v)
 {
 	bool err = 0;
 	do {
-		err = Sim::gCurrentCPU->GetMemory()->WriteB(addr, v);
+		err = gCurrentCPU->GetMemory()->WriteB(addr, v);
 		if (err) {
 			gCurrentCPU->mCurrentRegisters[TARMProcessor::kR15] = 0x007ffff0;
 			gCurrentCPU->DataAbort();
@@ -208,7 +202,7 @@ void Suspend() {
 }
 
 // - When in the Simulator, call the JIT compiler for yet unimplemented functions. Use with care!
-void Sim::CallJIT(KUInt32 addr) {
+void NewtCallJIT(KUInt32 addr) {
 	gCurrentCPU->SetRegister(15, addr+4);		// Call this function
 	gCurrentCPU->SetRegister(14, 0x007ffff0);	// Return to the Simulator afterwards
 	gMainFibre.Suspend(0);
@@ -225,14 +219,14 @@ void Sim::CallJIT(KUInt32 addr) {
 KUInt32 RSect(KUInt32 r0, KUInt32 r1, KUInt32 r2, KUInt32 r3)
 {
 	KUInt32 ret;
-	SIM_PUSH_REGISTERS
+	NEWT_PUSH_REGISTERS
 	gCurrentCPU->SetRegister(0, r0);
 	gCurrentCPU->SetRegister(1, r1);
 	gCurrentCPU->SetRegister(2, r2);
 	gCurrentCPU->SetRegister(3, r3);
-	Sim::CallJIT(0x003408D0);
+	NewtCallJIT(0x003408D0);
 	ret = gCurrentCPU->GetRegister(0);
-	SIM_POP_REGISTERS
+	NEWT_POP_REGISTERS
 	return ret;
 }
 
@@ -244,10 +238,10 @@ KUInt32 SectRect(KUInt32 r0, KUInt32 r1, KUInt32 r2)
 }
 
 // Uncomment the lines below to activate the JIT->Sim->JIT sequence.
-//T_SIM_INJECTION(0x00340D70, "SectRect(Rect,Rect,Rect)") {
+//NEWT_INJECTION(0x00340D70, "SectRect(Rect,Rect,Rect)") {
 //	printf("*** SectRect\n");
-//	SIM_RETVAL SectRect(SIM_ARG0(KUInt32), SIM_ARG1(KUInt32), SIM_ARG2(KUInt32));
-//	SIM_RETURN;
+//	NEWT_RETVAL SectRect(NEWT_ARG0(KUInt32), NEWT_ARG1(KUInt32), NEWT_ARG2(KUInt32));
+//	NEWT_RETURN;
 //}
 
 
@@ -277,12 +271,12 @@ KUInt32 SectRect(KUInt32 r0, KUInt32 r1, KUInt32 r2)
 /*
  
  Next task: implement TInterpreter::FastRun1(...)
-	0x002EE138 to 0x002EF140 (1026 lines of code)
+ 0x002EE138 to 0x002EF140 (1026 lines of code)
  
  Jump table for byte code starts at 0x002EE1E8 and is 207 entries big.
  
  There is also a slow version. Is that used when debugging?
-	0x002F1EE0: t_unknown TInterpreter::SlowRun(...)
+ 0x002F1EE0: t_unknown TInterpreter::SlowRun(...)
  
  Jump table at: 0x002F2034
  
@@ -291,3 +285,21 @@ KUInt32 SectRect(KUInt32 r0, KUInt32 r1, KUInt32 r2)
  
  */
 
+
+NewtGlueFibre::NewtGlueFibre()
+:	TFibre()
+{
+	pRecursions = 0;
+}
+
+
+KSInt32 NewtGlueFibre::Task(KSInt32 inReason, void* inUserData)
+{
+	pRecursions = 0;
+	NewtGlueTask task = (NewtGlueTask)inUserData;
+	task();
+	if (pRecursions) {
+		printf("Performance Info: %ld recursion attempts during simulator call\n", pRecursions);
+	}
+	return 0;
+}

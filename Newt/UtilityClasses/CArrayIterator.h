@@ -1,5 +1,5 @@
 // ==============================
-// File:			CArrayIterator.h
+// File:			Newt/UtilityClasses/CArrayIterator.h
 // Project:			Einstein
 //
 // Copyright 1999-2012 by Newton Research Group and others
@@ -22,11 +22,11 @@
 // ==============================
 
 
-#ifndef C_ARRAY_ITERATOR_H
-#define C_ARRAY_ITERATOR_H
+#ifndef NEWT_UTILITY_CLASSES_C_ARRAY_ITERATOR_H
+#define NEWT_UTILITY_CLASSES_C_ARRAY_ITERATOR_H
 
 
-#include "Sim.h"
+#include "Newt/Common/Newt.h"
 
 
 class CDynamicArray;
@@ -81,15 +81,15 @@ public:
 	CArrayIterator*	AppendToList(CArrayIterator *inList);
 	CArrayIterator*	RemoveFromList();
 	
-	SIM_GET_SET_W(CDynamicArray*, DynamicArray)		//  +0: the associated dynamic array
-	SIM_GET_SET_W(ArrayIndex, CurrentIndex)			//  +4: current index of this iteration
-	SIM_GET_SET_W(ArrayIndex, LowBound)				//  +8: lower bound of iteration in progress
-	SIM_GET_SET_W(ArrayIndex, HighBound)			// +12: upper bound of iteration in progress
-	SIM_GET_SET_B(Boolean, IterateForward)			// +16: if iteration is forward or backward
-	SIM_GET_SET_W(CArrayIterator*, PreviousLink)	// +20: link to previous iterator
-	SIM_GET_SET_W(CArrayIterator*, NextLink)		// +24: link to next iterator
+	NEWT_GET_SET_W(CDynamicArray*, DynamicArray)		//  +0: the associated dynamic array
+	NEWT_GET_SET_W(ArrayIndex, CurrentIndex)			//  +4: current index of this iteration
+	NEWT_GET_SET_W(ArrayIndex, LowBound)				//  +8: lower bound of iteration in progress
+	NEWT_GET_SET_W(ArrayIndex, HighBound)			// +12: upper bound of iteration in progress
+	NEWT_GET_SET_B(Boolean, IterateForward)			// +16: if iteration is forward or backward
+	NEWT_GET_SET_W(CArrayIterator*, PreviousLink)	// +20: link to previous iterator
+	NEWT_GET_SET_W(CArrayIterator*, NextLink)		// +24: link to next iterator
 };
 
 
-#endif	// C_ARRAY_ITERATOR_H
+#endif	// NEWT_UTILITY_CLASSES_C_ARRAY_ITERATOR_H
 

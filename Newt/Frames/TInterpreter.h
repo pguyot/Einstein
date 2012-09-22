@@ -1,5 +1,5 @@
 // ==============================
-// File:			Objects.h
+// File:			Newt/Frames/TInterpreter.h
 // Project:			Einstein
 //
 // Copyright 1999-2012 by Newton Research Group and others
@@ -22,27 +22,58 @@
 // ==============================
 
 
-#ifndef OBJECTS_H
-#define OBJECTS_H
-
-#include "NewtonTypes.h"
-#include "Sim.h"
+#ifndef NEWT_FRAMES_T_INTERPRETER_H
+#define NEWT_FRAMES_T_INTERPRETER_H
 
 
-class ObjectHeader
-{
+#include "Newt/Common/Newt.h"
+
+
+
+class FreqFuncDef {
 public:
-	SIM_GET_SET_W(KUInt32, SizeAndFlags);
-	SIM_GET_SET_W(KUInt32, LocksAndSlots);
+	NEWT_GET_SET_W(char*, Name)
+	NEWT_GET_SET_W(KUInt32, NumOfArgs)
 };
 
 
-class ArrayObject : public ObjectHeader
-{
+/**
+ This class manages the interpreter data stack.
+ */
+class SimStack {
+	// FIXME: find the correct class!
 public:
-	SIM_GET_SET_W(Ref, ObjectClass);
-	SIM_GET_SET_W_ARRAY(Ref, Slot, 1);
+	NEWT_GET_SET_W(KUInt32*, Top) // instruction pointer
+								 // (...)
 };
 
-#endif	// FAST_RUN_STATE_H
+
+/**
+ This class holds the current state of the interpreter.
+ */
+class FastRunState
+{
+public:
+	NEWT_GET_SET_W(KUInt8*, PC)		// instruction pointer
+	NEWT_GET_SET_W(SimStack*, Stack) // stack class pointer
+									// (...)
+};
+
+
+
+
+/**
+ This class contains the byte code interpreter.
+ */
+class TInterpreter
+{
+public:
+};
+
+
+
+KUInt32 FastFreqFuncGeneral(FastRunState*, long);
+
+
+#endif	// NEWT_FRAMES_T_INTERPRETER_H
 

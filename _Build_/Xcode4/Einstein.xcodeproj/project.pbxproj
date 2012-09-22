@@ -187,15 +187,14 @@
 		C9B4ABC9123D709D00D8D2C7 /* TNetworkManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */; };
 		C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
 		C9BE33D1133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
-		C9CB7B20160625780060BBA5 /* CArrayIterator.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9CB7B1E160625780060BBA5 /* CArrayIterator.cp */; };
 		C9D54E1415FA23E700D91131 /* TFibre.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFibre.cp */; };
-		C9D54E1B15FE913A00D91131 /* SFibre.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1715FE913A00D91131 /* SFibre.cp */; };
-		C9D54E1C15FE913A00D91131 /* Sim.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1915FE913A00D91131 /* Sim.cp */; };
 		C9E848E911EDCD6C00F27330 /* ffi_darwin.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E711EDCD6C00F27330 /* ffi_darwin.c */; };
 		C9E848EA11EDCD6C00F27330 /* x86-ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E811EDCD6C00F27330 /* x86-ffi64.c */; };
-		C9EF94C5160BAA6F009E89C3 /* TInterpreter.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94C1160BAA6F009E89C3 /* TInterpreter.cp */; };
-		C9EF94CA160BBC8A009E89C3 /* NewtonGlobals.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94C9160BBC8A009E89C3 /* NewtonGlobals.cp */; };
-		C9F7C6B1160920C800C23662 /* CDynamicArray.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9F7C6AF160920C800C23662 /* CDynamicArray.cp */; };
+		C9EF94E1160E48E5009E89C3 /* Globals.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94D3160E48E5009E89C3 /* Globals.cp */; };
+		C9EF94E2160E48E5009E89C3 /* Glue.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94D5160E48E5009E89C3 /* Glue.cp */; };
+		C9EF94E3160E48E5009E89C3 /* TInterpreter.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94DA160E48E5009E89C3 /* TInterpreter.cp */; };
+		C9EF94E4160E48E5009E89C3 /* CArrayIterator.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94DD160E48E5009E89C3 /* CArrayIterator.cp */; };
+		C9EF94E5160E48E5009E89C3 /* CDynamicArray.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94DF160E48E5009E89C3 /* CDynamicArray.cp */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cp */; };
 		DA0D96DE11BAD15300835522 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = DA0D96DD11BAD15300835522 /* darwin64.S */; };
 		F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */; };
@@ -605,24 +604,24 @@
 		C9B4AA49123D480900D8D2C7 /* iEinsteinView.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = iEinsteinView.h; path = Classes/iEinsteinView.h; sourceTree = "<group>"; tabWidth = 4; };
 		C9BE33CE133E64F60052EA2F /* TJITPerformance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITPerformance.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TJITPerformance.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		C9CB7B1E160625780060BBA5 /* CArrayIterator.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CArrayIterator.cp; path = ../../Simulator/UtilityClasses/CArrayIterator.cp; sourceTree = "<group>"; };
-		C9CB7B1F160625780060BBA5 /* CArrayIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CArrayIterator.h; path = ../../Simulator/UtilityClasses/CArrayIterator.h; sourceTree = "<group>"; };
 		C9D54E1215FA23E700D91131 /* TFibre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFibre.h; sourceTree = "<group>"; };
 		C9D54E1315FA23E700D91131 /* TFibre.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFibre.cp; sourceTree = "<group>"; };
-		C9D54E1715FE913A00D91131 /* SFibre.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SFibre.cp; path = ../../Simulator/SFibre.cp; sourceTree = "<group>"; };
-		C9D54E1815FE913A00D91131 /* SFibre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SFibre.h; path = ../../Simulator/SFibre.h; sourceTree = "<group>"; };
-		C9D54E1915FE913A00D91131 /* Sim.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sim.cp; path = ../../Simulator/Sim.cp; sourceTree = "<group>"; };
-		C9D54E1A15FE913A00D91131 /* Sim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sim.h; path = ../../Simulator/Sim.h; sourceTree = "<group>"; };
 		C9E848E711EDCD6C00F27330 /* ffi_darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi_darwin.c; sourceTree = "<group>"; };
 		C9E848E811EDCD6C00F27330 /* x86-ffi64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "x86-ffi64.c"; sourceTree = "<group>"; };
-		C9EF94C1160BAA6F009E89C3 /* TInterpreter.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TInterpreter.cp; path = ../../Simulator/Frames/TInterpreter.cp; sourceTree = "<group>"; };
-		C9EF94C2160BAA6F009E89C3 /* TInterpreter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TInterpreter.h; path = ../../Simulator/Frames/TInterpreter.h; sourceTree = "<group>"; };
-		C9EF94C6160BABD1009E89C3 /* NewtonTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NewtonTypes.h; path = ../../Simulator/NewtonTypes.h; sourceTree = "<group>"; };
-		C9EF94C7160BB3BB009E89C3 /* Objects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Objects.h; path = ../../Simulator/Frames/Objects.h; sourceTree = "<group>"; };
-		C9EF94C8160BBC06009E89C3 /* NewtonGlobals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NewtonGlobals.h; path = ../../Simulator/NewtonGlobals.h; sourceTree = "<group>"; };
-		C9EF94C9160BBC8A009E89C3 /* NewtonGlobals.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NewtonGlobals.cp; path = ../../Simulator/NewtonGlobals.cp; sourceTree = "<group>"; };
-		C9F7C6AF160920C800C23662 /* CDynamicArray.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CDynamicArray.cp; path = ../../Simulator/UtilityClasses/CDynamicArray.cp; sourceTree = "<group>"; };
-		C9F7C6B0160920C800C23662 /* CDynamicArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDynamicArray.h; path = ../../Simulator/UtilityClasses/CDynamicArray.h; sourceTree = "<group>"; };
+		C9EF94D3160E48E5009E89C3 /* Globals.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Globals.cp; sourceTree = "<group>"; };
+		C9EF94D4160E48E5009E89C3 /* Globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Globals.h; sourceTree = "<group>"; };
+		C9EF94D5160E48E5009E89C3 /* Glue.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Glue.cp; sourceTree = "<group>"; };
+		C9EF94D6160E48E5009E89C3 /* Glue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Glue.h; sourceTree = "<group>"; };
+		C9EF94D7160E48E5009E89C3 /* Types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Types.h; sourceTree = "<group>"; };
+		C9EF94D9160E48E5009E89C3 /* Objects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Objects.h; sourceTree = "<group>"; };
+		C9EF94DA160E48E5009E89C3 /* TInterpreter.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TInterpreter.cp; sourceTree = "<group>"; };
+		C9EF94DB160E48E5009E89C3 /* TInterpreter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TInterpreter.h; sourceTree = "<group>"; };
+		C9EF94DD160E48E5009E89C3 /* CArrayIterator.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CArrayIterator.cp; sourceTree = "<group>"; };
+		C9EF94DE160E48E5009E89C3 /* CArrayIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CArrayIterator.h; sourceTree = "<group>"; };
+		C9EF94DF160E48E5009E89C3 /* CDynamicArray.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CDynamicArray.cp; sourceTree = "<group>"; };
+		C9EF94E0160E48E5009E89C3 /* CDynamicArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDynamicArray.h; sourceTree = "<group>"; };
+		C9EF94E6160E518A009E89C3 /* Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
+		C9EF94E7160E518A009E89C3 /* Newt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Newt.h; sourceTree = "<group>"; };
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTapNetwork.cp; path = Network/TTapNetwork.cp; sourceTree = "<group>"; };
 		DA0D943F11B9A12D00835522 /* TTapNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTapNetwork.h; path = Network/TTapNetwork.h; sourceTree = "<group>"; };
 		DA0D96DD11BAD15300835522 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
@@ -773,8 +772,8 @@
 				C9B4AA2B123D474800D8D2C7 /* iOS */,
 				C90196781328296B00C3342F /* Android (Eclipse, ARM-gcc) */,
 				C99E33EC111B7C07002165EC /* Emulator */,
-				C9D54E1615FE8C3900D91131 /* Simulator */,
 				C99E3174111B73A1002165EC /* Monitor */,
+				C9EF94D1160E48E5009E89C3 /* Newt */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -1542,41 +1541,50 @@
 			path = ../../app/iEinstein;
 			sourceTree = "<group>";
 		};
-		C9CB7B1C160625580060BBA5 /* UtilityClasses */ = {
+		C9EF94D1160E48E5009E89C3 /* Newt */ = {
 			isa = PBXGroup;
 			children = (
-				C9F7C6AF160920C800C23662 /* CDynamicArray.cp */,
-				C9F7C6B0160920C800C23662 /* CDynamicArray.h */,
-				C9CB7B1E160625780060BBA5 /* CArrayIterator.cp */,
-				C9CB7B1F160625780060BBA5 /* CArrayIterator.h */,
+				C9EF94D2160E48E5009E89C3 /* Common */,
+				C9EF94D8160E48E5009E89C3 /* Frames */,
+				C9EF94DC160E48E5009E89C3 /* UtilityClasses */,
 			);
-			name = UtilityClasses;
+			name = Newt;
+			path = ../../Newt;
 			sourceTree = "<group>";
 		};
-		C9D54E1615FE8C3900D91131 /* Simulator */ = {
+		C9EF94D2160E48E5009E89C3 /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				C9EF94C9160BBC8A009E89C3 /* NewtonGlobals.cp */,
-				C9EF94C8160BBC06009E89C3 /* NewtonGlobals.h */,
-				C9EF94C6160BABD1009E89C3 /* NewtonTypes.h */,
-				C9EF94B4160AF4AB009E89C3 /* Frames */,
-				C9CB7B1C160625580060BBA5 /* UtilityClasses */,
-				C9D54E1715FE913A00D91131 /* SFibre.cp */,
-				C9D54E1815FE913A00D91131 /* SFibre.h */,
-				C9D54E1915FE913A00D91131 /* Sim.cp */,
-				C9D54E1A15FE913A00D91131 /* Sim.h */,
+				C9EF94E6160E518A009E89C3 /* Macros.h */,
+				C9EF94E7160E518A009E89C3 /* Newt.h */,
+				C9EF94D7160E48E5009E89C3 /* Types.h */,
+				C9EF94D3160E48E5009E89C3 /* Globals.cp */,
+				C9EF94D4160E48E5009E89C3 /* Globals.h */,
+				C9EF94D5160E48E5009E89C3 /* Glue.cp */,
+				C9EF94D6160E48E5009E89C3 /* Glue.h */,
 			);
-			name = Simulator;
+			path = Common;
 			sourceTree = "<group>";
 		};
-		C9EF94B4160AF4AB009E89C3 /* Frames */ = {
+		C9EF94D8160E48E5009E89C3 /* Frames */ = {
 			isa = PBXGroup;
 			children = (
-				C9EF94C7160BB3BB009E89C3 /* Objects.h */,
-				C9EF94C1160BAA6F009E89C3 /* TInterpreter.cp */,
-				C9EF94C2160BAA6F009E89C3 /* TInterpreter.h */,
+				C9EF94D9160E48E5009E89C3 /* Objects.h */,
+				C9EF94DA160E48E5009E89C3 /* TInterpreter.cp */,
+				C9EF94DB160E48E5009E89C3 /* TInterpreter.h */,
 			);
-			name = Frames;
+			path = Frames;
+			sourceTree = "<group>";
+		};
+		C9EF94DC160E48E5009E89C3 /* UtilityClasses */ = {
+			isa = PBXGroup;
+			children = (
+				C9EF94DD160E48E5009E89C3 /* CArrayIterator.cp */,
+				C9EF94DE160E48E5009E89C3 /* CArrayIterator.h */,
+				C9EF94DF160E48E5009E89C3 /* CDynamicArray.cp */,
+				C9EF94E0160E48E5009E89C3 /* CDynamicArray.h */,
+			);
+			path = UtilityClasses;
 			sourceTree = "<group>";
 		};
 		F1CB7613131730100017B0BB /* Mac OS X */ = {
@@ -1821,12 +1829,11 @@
 				C901E530132656710074513E /* TEOFException.cp in Sources */,
 				C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */,
 				C9D54E1415FA23E700D91131 /* TFibre.cp in Sources */,
-				C9D54E1B15FE913A00D91131 /* SFibre.cp in Sources */,
-				C9D54E1C15FE913A00D91131 /* Sim.cp in Sources */,
-				C9CB7B20160625780060BBA5 /* CArrayIterator.cp in Sources */,
-				C9F7C6B1160920C800C23662 /* CDynamicArray.cp in Sources */,
-				C9EF94C5160BAA6F009E89C3 /* TInterpreter.cp in Sources */,
-				C9EF94CA160BBC8A009E89C3 /* NewtonGlobals.cp in Sources */,
+				C9EF94E1160E48E5009E89C3 /* Globals.cp in Sources */,
+				C9EF94E2160E48E5009E89C3 /* Glue.cp in Sources */,
+				C9EF94E3160E48E5009E89C3 /* TInterpreter.cp in Sources */,
+				C9EF94E4160E48E5009E89C3 /* CArrayIterator.cp in Sources */,
+				C9EF94E5160E48E5009E89C3 /* CDynamicArray.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

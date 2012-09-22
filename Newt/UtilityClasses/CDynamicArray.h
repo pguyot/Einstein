@@ -1,5 +1,5 @@
 // ==============================
-// File:			CDynamicArray.h
+// File:			Newt/UtilityClasses/CDynamicArray.h
 // Project:			Einstein
 //
 // Copyright 1999-2012 by Newton Research Group and others
@@ -22,11 +22,11 @@
 // ==============================
 
 
-#ifndef C_DYNAMIC_ARRAY_H
-#define C_DYNAMIC_ARRAY_H
+#ifndef NEWT_UTILITY_CLASSES_C_DYNAMIC_ARRAY_H
+#define NEWT_UTILITY_CLASSES_C_DYNAMIC_ARRAY_H
 
 
-#include "Sim.h"
+#include "Newt/Common/Newt.h"
 
 
 class CArrayIterator;
@@ -74,12 +74,12 @@ public:
 //		
 //		Size			ComputeByteCount(ArrayIndex count);
 		
-	SIM_GET_SET_W(ArrayIndex, Size)				//  +0: logical size of array
-	SIM_GET_SET_W(Size, ElementSize)			//  +4: size of a single element
-	SIM_GET_SET_W(ArrayIndex, ChunkSize)		//  +8: grow/shrink array by this many elements
-	SIM_GET_SET_W(ArrayIndex, AllocatedSize)	// +12: physical size of array
-	SIM_GET_SET_W(void*, ArrayBlock)			// +16: element storage
-	SIM_GET_SET_W(CArrayIterator*, Iterator)	// +20: linked list of iterators active on this array
+	NEWT_GET_SET_W(ArrayIndex, Size)				//  +0: logical size of array
+	NEWT_GET_SET_W(Size, ElementSize)			//  +4: size of a single element
+	NEWT_GET_SET_W(ArrayIndex, ChunkSize)		//  +8: grow/shrink array by this many elements
+	NEWT_GET_SET_W(ArrayIndex, AllocatedSize)	// +12: physical size of array
+	NEWT_GET_SET_W(void*, ArrayBlock)			// +16: element storage
+	NEWT_GET_SET_W(CArrayIterator*, Iterator)	// +20: linked list of iterators active on this array
 
 //	inline ArrayIndex CDynamicArray::GetArraySize()
 //	{ return fSize; }
@@ -101,5 +101,5 @@ public:
 };
 
 
-#endif	// C_ARRAY_ITERATOR_H
+#endif	// NEWT_UTILITY_CLASSES_C_DYNAMIC_ARRAY_H
 
