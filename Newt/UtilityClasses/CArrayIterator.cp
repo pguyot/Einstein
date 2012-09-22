@@ -1,5 +1,5 @@
 // ==============================
-// File:			CArrayIterator.cp
+// File:			Newt/UtilityClasses/CArrayIterator.cp
 // Project:			Einstein
 //
 // Copyright 1999-2012 by Newton Research Group and others
@@ -22,8 +22,8 @@
 // ==============================
 
 
-#include "Simulator/Sim.h"
-#include "Simulator/UtilityClasses/CArrayIterator.h"
+#include "Newt/Common/Glue.h"
+#include "Newt/UtilityClasses/CArrayIterator.h"
 
 
 /**
@@ -269,35 +269,35 @@ CArrayIterator* CArrayIterator::RemoveFromList()
 }
 
 
-//T_SIM_INJECTION(0x000384E0, "CArrayIterator::Advance") {
-//	SIM_CLASS(CArrayIterator)->Advance();
-//	SIM_RETURN;
+//NEWT_INJECTION(0x000384E0, "CArrayIterator::Advance") {
+//	NEWT_CLASS(CArrayIterator)->Advance();
+//	NEWT_RETURN;
 //}
-//T_SIM_INJECTION(0x000383B4, "CArrayIterator::AppendToList(list)") {
-//	SIM_RETVAL SIM_CLASS(CArrayIterator)->AppendToList(SIM_ARG1(CArrayIterator*));
-//	SIM_RETURN;
+//NEWT_INJECTION(0x000383B4, "CArrayIterator::AppendToList(list)") {
+//	NEWT_RETVAL NEWT_CLASS(CArrayIterator)->AppendToList(NEWT_ARG1(CArrayIterator*));
+//	NEWT_RETURN;
 //}
-//T_SIM_INJECTION(0x00038600, "CArrayIterator::CurrentIndex") {
-//	SIM_RETVAL SIM_CLASS(CArrayIterator)->CurrentIndex();
-//	SIM_RETURN;
+//NEWT_INJECTION(0x00038600, "CArrayIterator::CurrentIndex") {
+//	NEWT_RETVAL NEWT_CLASS(CArrayIterator)->CurrentIndex();
+//	NEWT_RETURN;
 //}
-//T_SIM_INJECTION(0x00038614, "CArrayIterator::FirstIndex") {
-//	SIM_RETVAL SIM_CLASS(CArrayIterator)->FirstIndex();
-//	SIM_RETURN;
+//NEWT_INJECTION(0x00038614, "CArrayIterator::FirstIndex") {
+//	NEWT_RETVAL NEWT_CLASS(CArrayIterator)->FirstIndex();
+//	NEWT_RETURN;
 //}
-//T_SIM_INJECTION(0x00038478, "CArrayIterator::More") {
-//	SIM_RETVAL SIM_CLASS(CArrayIterator)->More();
-//	SIM_RETURN;
+//NEWT_INJECTION(0x00038478, "CArrayIterator::More") {
+//	NEWT_RETVAL NEWT_CLASS(CArrayIterator)->More();
+//	NEWT_RETURN;
 //}
-//T_SIM_INJECTION(0x00038674, "CArrayIterator::NextIndex") {
-//	SIM_RETVAL SIM_CLASS(CArrayIterator)->NextIndex();
-//	SIM_RETURN;
+//NEWT_INJECTION(0x00038674, "CArrayIterator::NextIndex") {
+//	NEWT_RETVAL NEWT_CLASS(CArrayIterator)->NextIndex();
+//	NEWT_RETURN;
 //}
-//T_SIM_INJECTION(0x00038640, "CArrayIterator::RemoveFromList") {
-//	SIM_RETVAL SIM_CLASS(CArrayIterator)->RemoveFromList();
-//	SIM_RETURN;
+//NEWT_INJECTION(0x00038640, "CArrayIterator::RemoveFromList") {
+//	NEWT_RETVAL NEWT_CLASS(CArrayIterator)->RemoveFromList();
+//	NEWT_RETURN;
 //}
-//T_SIM_INJECTION(0x00038498, "CArrayIterator::Reset") {
-//	SIM_CLASS(CArrayIterator)->Reset();
-//	SIM_RETURN;
+//NEWT_INJECTION(0x00038498, "CArrayIterator::Reset") {
+//	NEWT_CLASS(CArrayIterator)->Reset();
+//	NEWT_RETURN;
 //}

@@ -1,8 +1,8 @@
 // ==============================
-// File:                        Simulator/Sim.cp
-// Project:                     Simulator
+// File:			Newt/UtilityClasses/CDynamicArray.cp
+// Project:			Einstein
 //
-// Copyright 2012 by Matthias Melcher (newton@matthiasm.com).
+// Copyright 1999-2012 by Newton Research Group and others
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,9 +22,7 @@
 // ==============================
 
 
-#include "NewtonGlobals.h"
+#include "Newt/UtilityClasses/CDynamicArray.h"
 
 
-FreqFuncDef* GlobalGetFreqFuncInfo() { return (FreqFuncDef*)0x0C1051F4; }
-SIM_GLOBAL_W_IMPL(Ref, FreqFuncs, 0x0C105450);
 

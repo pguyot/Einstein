@@ -1,8 +1,8 @@
 // ==============================
-// File:                        Simulator/SFibre.h
+// File:                        Newt/Common/Globals.cp
 // Project:                     Simulator
 //
-// Copyright 2012 by Matthias Melcher (newton@matthiasm.com).
+// Copyright 1999-2012 by Newton Research Group and others
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,28 +21,10 @@
 // $Id$
 // ==============================
 
-#ifndef SIMULATOR_SFIBRE_H
-#define SIMULATOR_SFIBRE_H
 
-#include <K/Defines/KDefinitions.h>
-#include <K/Threads/TFibre.h>
+#include "Newt/Common/Globals.h"
 
 
-namespace Sim {
-	
-	typedef void (*STask)();
-	
-	class SFibre : public TFibre {
-	public:
-		SFibre();
-		KSInt32 Task(KSInt32 inReason=0, void* inUserData=0L);
-		KUInt32 pRecursions;
-	};
-	
-	
-} // namespace
-
-
-#endif
-// SIMULATOR_SFIBRE_H
+FreqFuncDef* GlobalGetFreqFuncInfo() { return (FreqFuncDef*)0x0C1051F4; }
+NEWT_GLOBAL_W_IMPL(Ref, FreqFuncs, 0x0C105450);
 

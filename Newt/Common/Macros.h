@@ -1,5 +1,5 @@
 // ==============================
-// File:			CDynamicArray.cp
+// File:			Newt/Common/Macros.h
 // Project:			Einstein
 //
 // Copyright 1999-2012 by Newton Research Group and others
@@ -22,7 +22,12 @@
 // ==============================
 
 
-#include "Simulator/UtilityClasses/CDynamicArray.h"
+#ifndef NEWT_COMMON_MACROS_H
+#define NEWT_COMMON_MACROS_H
 
 
+#define ISINT(a) (((a)&3)==0)
+
+
+#endif	// NEWT_COMMON_MACROS_H
 

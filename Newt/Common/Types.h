@@ -1,5 +1,5 @@
 // ==============================
-// File:			NewtonTypes.h
+// File:			Newt/Common/Types.h
 // Project:			Einstein
 //
 // Copyright 1999-2012 by Newton Research Group and others
@@ -22,8 +22,14 @@
 // ==============================
 
 
-#ifndef NEWTON_TYPES_H
-#define NEWTON_TYPES_H
+#ifndef NEWT_COMMON_TYPES_H
+#define NEWT_COMMON_TYPES_H
+
+
+/** \file Types.h
+ This file contains the definition of all basic types and enumerations 
+ needed by Newt.
+ */
 
 
 #include <K/Defines/KDefinitions.h>
@@ -38,8 +44,5 @@ class SingleObject {
 };
 
 
-#define ISINT(a) (((a)&3)==0)
-
-
-#endif	// FAST_RUN_STATE_H
+#endif	// NEWT_COMMON_TYPES_H
 

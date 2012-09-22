@@ -1,5 +1,5 @@
 // ==============================
-// File:			NewtonGlobals.h
+// File:			Newt/Common/Globals.h
 // Project:			Einstein
 //
 // Copyright 1999-2012 by Newton Research Group and others
@@ -22,18 +22,19 @@
 // ==============================
 
 
-#ifndef NEWTON_GLOBALS_H
-#define NEWTON_GLOBALS_H
+#ifndef NEWT_COMMON_GLOBALS_H
+#define NEWT_COMMON_GLOBALS_H
 
 
-#include "Sim.h"
-#include "Frames/TInterpreter.h"
+#include "Newt/Common/Glue.h"
+#include "Newt/Common/Types.h"
+#include "Newt/Frames/TInterpreter.h"
 
 
 
-FreqFuncDef* GlobalGetFreqFuncInfo(); //SIM_GLOBAL_W_DECL(FreqFuncDef*, FreqFuncInfo, 0x0C1051F4);
-SIM_GLOBAL_W_DECL(Ref, FreqFuncs, 0x0C105450);
+FreqFuncDef* GlobalGetFreqFuncInfo(); //NEWT_GLOBAL_W_DECL(FreqFuncDef*, FreqFuncInfo, 0x0C1051F4);
+NEWT_GLOBAL_W_DECL(Ref, FreqFuncs, 0x0C105450);
 
 
-#endif	// NEWTON_GLOBALS_H
+#endif	// NEWT_COMMON_GLOBALS_H
 
