@@ -29,6 +29,48 @@
 #include "Newt/Common/Newt.h"
 
 
+/// the lowest two bit of a Ref define the type of the Ref
+const int kRefTagBits = 2;
+const int kRefValueBits = (sizeof(Ref)*4)-kRefTagBits;
+const Ref kRefValueMask = (-1 << kRefTagBits);
+const Ref kRefTagMask = ~kRefValueMask;
+
+const int kRefImmedBits = 2;
+const Ref kRefImmedMask = (-1 << kRefImmedBits);
+
+enum
+{
+	kTagInteger,
+	kTagPointer,
+	kTagImmed,
+	kTagMagicPtr
+};
+
+enum
+{
+	kImmedSpecial,
+	kImmedChar,
+	kImmedBoolean,
+	kImmedReserved
+};
+
+
+
+#define MAKEINT(i)			(((Ref)(i)) << kRefTagBits)
+#define MAKEIMMED(t, v)		((((((Refg)(v)) << kRefImmedBits) | ((Ref)(t))) << kRefTagBits) | kTagImmed)
+#define MAKECHAR(c)			MAKEIMMED(kImmedChar, (unsigned)c)
+#define MAKEBOOLEAN(b)		(b ? TRUEREF : FALSEREF)
+#define MAKEPTR(p)			((Ref)((char*)p + 1))
+#define MAKEMAGICPTR(index)	((Ref)(((Ref)(index)) << kRefTagBits) | kTagMagicPtr)
+
+#define NILREF				MAKEIMMED(kImmedSpecial, 0)
+#define TRUEREF				MAKEIMMED(kImmedBoolean, 1)
+#define FALSEREF			NILREF
+#define INVALIDPTRREF		MAKEINT(0)
+
+#define ISINT(a)			(((a)&kRefTagMask)==kTagInteger)
+
+
 class ObjectHeader
 {
 public:

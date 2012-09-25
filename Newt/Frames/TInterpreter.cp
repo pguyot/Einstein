@@ -36,15 +36,50 @@
 
 
 
-KUInt32 ObjectPtr(KUInt32 r0)
+ObjectHeader* ResolveMagicPtr(Ref r0)
 {
 	KUInt32 ret;
 	NEWT_PUSH_REGISTERS
 	gCurrentCPU->SetRegister(0, r0);
-	NewtCallJIT(0x0031DD54);
+	NewtCallJIT(0x0031DAD4);
 	ret = gCurrentCPU->GetRegister(0);
 	NEWT_POP_REGISTERS
-	return ret;
+	return (ObjectHeader*)ret;
+}
+
+
+ObjectHeader* ObjectPtr1(Ref r0, Ref r1, KSInt32 r2)
+{
+	KUInt32 ret;
+	NEWT_PUSH_REGISTERS
+	gCurrentCPU->SetRegister(0, r0);
+	gCurrentCPU->SetRegister(1, r1);
+	gCurrentCPU->SetRegister(2, r2);
+	NewtCallJIT(0x0031DC54);
+	ret = gCurrentCPU->GetRegister(0);
+	NEWT_POP_REGISTERS
+	return (ObjectHeader*)ret;
+}
+
+
+ObjectHeader* ObjectPtr(Ref inRef)
+{
+	Ref type = inRef & 3;
+	if (type==1) { // pointer
+		if ( (inRef<0x3800000) || (inRef>=0x60000000 && inRef<0x68000000) ) {
+			// in ROM of packet memory?
+			return (ObjectHeader*)(inRef&0xfffffffc);
+		} else {
+			// Cached?
+			if (inRef == GlobalGetCacheObjPtrRef()) {
+				return GlobalGetCacheObjPtrPtr();
+			}
+			// No? Fall through.
+		}
+	} else if (type==3) {
+		return ResolveMagicPtr(inRef);
+	}
+	return ObjectPtr1(inRef, type, 0);
 }
 
 
@@ -232,6 +267,11 @@ KUInt32 FastFreqFuncGeneral(FastRunState* inState, KSInt32)
 	return FastDoCall(inState, thisFunc, numArgs);
 }
 
+
+NEWT_INJECTION(0x0031DD54, "ObjectPtr(Ref)") {
+	NEWT_RETVAL ObjectPtr(NEWT_ARG0(Ref));
+	NEWT_RETURN;
+}
 
 NEWT_INJECTION(0x002ECD94, "FastFreqFuncGeneral(FastRunState*, long)") {
 	NEWT_RETVAL FastFreqFuncGeneral(NEWT_ARG0(FastRunState*), NEWT_ARG1(Ref));
