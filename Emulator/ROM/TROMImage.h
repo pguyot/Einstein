@@ -284,6 +284,9 @@ public:
 	/// Return the original ROM instruction
 	static KUInt32 GetOriginalInstructionAt(KUInt32 index);
 	
+	/// Return the original ROM instruction
+	static const char* GetNameAt(KUInt32 index);
+	
 	/// Patch the ROM word
 	virtual void apply(KUInt32 *ROM);
 };

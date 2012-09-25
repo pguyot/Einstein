@@ -61,10 +61,10 @@ JITUnit* NewtGlueDispatch::Dispatch(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt
 		//printf("INFO: Calling Simulator\n");
 		gCurrentCPU = ioCPU;
 		JITFuncPtr stub = TROMPatch::GetSimulatorStubAt(callIndex);
-		gMainFibre.Run(0, (void*)stub);
+		gMainFibre.Run(callIndex, (void*)stub);
 		return 0L;
 	} else {
-		printf("INFO: Simulator calling simulator\n");
+		printf("INFO: Simulator calling simulator (%s)\n", TROMPatch::GetNameAt(callIndex));
 		gMainFibre.pRecursions++;
 		return ioUnit;
 	}
@@ -293,13 +293,13 @@ NewtGlueFibre::NewtGlueFibre()
 }
 
 
-KSInt32 NewtGlueFibre::Task(KSInt32 inReason, void* inUserData)
+KSInt32 NewtGlueFibre::Task(KSInt32 inIndex, void* inUserData)
 {
 	pRecursions = 0;
 	NewtGlueTask task = (NewtGlueTask)inUserData;
 	task();
 	if (pRecursions) {
-		printf("Performance Info: %ld recursion attempts during simulator call\n", pRecursions);
+		printf("Performance Info: %ld recursion attempts during simulator call (%s)\n", pRecursions, TROMPatch::GetNameAt(inIndex));
 	}
 	return 0;
 }

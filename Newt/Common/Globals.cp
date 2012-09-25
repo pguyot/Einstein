@@ -26,5 +26,8 @@
 
 
 FreqFuncDef* GlobalGetFreqFuncInfo() { return (FreqFuncDef*)0x0C1051F4; }
+
 NEWT_GLOBAL_W_IMPL(Ref, FreqFuncs, 0x0C105450);
 
+NEWT_GLOBAL_W_IMPL(Ref, CacheObjPtrRef, 0x0c10554c);
+NEWT_GLOBAL_W_IMPL(ObjectHeader*, CacheObjPtrPtr, 0x0c105550);

@@ -31,9 +31,15 @@
 #include "Newt/Frames/TInterpreter.h"
 
 
+class ObjectHeader;
+
 
 FreqFuncDef* GlobalGetFreqFuncInfo(); //NEWT_GLOBAL_W_DECL(FreqFuncDef*, FreqFuncInfo, 0x0C1051F4);
+
 NEWT_GLOBAL_W_DECL(Ref, FreqFuncs, 0x0C105450);
+
+NEWT_GLOBAL_W_DECL(Ref, CacheObjPtrRef, 0x0c10554c);
+NEWT_GLOBAL_W_DECL(ObjectHeader*, CacheObjPtrPtr, 0x0c105550);
 
 
 #endif	// NEWT_COMMON_GLOBALS_H

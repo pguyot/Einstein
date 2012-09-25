@@ -26,8 +26,5 @@
 #define NEWT_COMMON_MACROS_H
 
 
-#define ISINT(a) (((a)&3)==0)
-
-
 #endif	// NEWT_COMMON_MACROS_H
 

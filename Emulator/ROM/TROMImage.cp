@@ -802,12 +802,23 @@ AnyMethodPtr TROMPatch::GetSimulatorMethodAt(KUInt32 index)
 // -------------------------------------------------------------------------- //
 //  * Return the address of the Simulator function
 // -------------------------------------------------------------------------- //
-KUInt32 TROMPatch::GetOriginalInstructionAt(KUInt32 index) 
+KUInt32 TROMPatch::GetOriginalInstructionAt(KUInt32 index)
 {
     index = index & 0x007fffff;
     if (index>=nPatch)
         return 0L;
     return patch_[index]->originalInstruction_;
+}
+
+// -------------------------------------------------------------------------- //
+//  * Return the name of the Simulator function
+// -------------------------------------------------------------------------- //
+const char* TROMPatch::GetNameAt(KUInt32 index)
+{
+    index = index & 0x007fffff;
+    if (index>=nPatch)
+        return 0L;
+    return patch_[index]->name_;
 }
 
 // -------------------------------------------------------------------------- //
