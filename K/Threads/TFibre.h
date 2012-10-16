@@ -172,6 +172,18 @@ public:
 	 */
 	KSInt32 Resume( KSInt32 inReason );
 	
+	/**
+	 Abort execution of a fibre.
+	 
+	 This method will abort any currently running task.
+	 
+	 This method transforms a suspended Fibre into stopped mode. This is helpful
+	 when the current Fibre will no longer bee needed, if for example a longjmp
+	 instruction in the emulator crosses over the execution path of 
+	 the simulator.
+	 */
+	void Abort( KSInt32 reason );
+	
 private:
 	
 	EState				mState;				///< State of the fibre.

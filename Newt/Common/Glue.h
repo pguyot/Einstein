@@ -58,31 +58,56 @@ public:
 	NewtGlueDispatch();
 };
 	
+class NewtGlueStackManager
+{
+public:
+	KUInt32 pSize;
+	NewtGlueStackManager(KUInt32 n) {
+		pSize = n;
+		gCurrentCPU->SetRegister(13, gCurrentCPU->GetRegister(13)-pSize);
+	}
+	~NewtGlueStackManager() {
+		gCurrentCPU->SetRegister(13, gCurrentCPU->GetRegister(13)+pSize);
+	}
+};
 
 
 
 #define NEWT_INJECTION(addr, name) \
-	extern void p##addr(); \
+	extern KSInt32 p##addr(); \
 	TROMSimulatorInjection i##addr(addr, p##addr, name); \
-	void p##addr()
+	KSInt32 p##addr()
 
 #define NEWT_GET_SET_W(type, name) \
-	private: type f##name; \
-	public:  type Get##name() { return (type)NewtReadWord( (KUInt32)&f##name ); } \
-	         void Set##name(type v) { NewtWriteWord( (KUInt32)&f##name, (KUInt32)v ); }
+	private: type p##name; \
+	public:  type Get##name() { return (type)NewtReadWord( (KUInt32)&p##name ); } \
+			 void Set##name(type v) { NewtWriteWord( (KUInt32)&p##name, (KUInt32)v ); }
+
+#define NEWT_IS_SET_W(type, name) \
+	private: type p##name; \
+	public:  type Is##name() { return (type)NewtReadWord( (KUInt32)&p##name ); } \
+			 void Set##name(type v) { NewtWriteWord( (KUInt32)&p##name, (KUInt32)v ); }
 
 #define NEWT_GET_SET_W_ARRAY(type, name, size) \
-	private: type f##name[size]; \
-	public:  type Get##name(KUInt32 ix) { return (type)NewtReadWord( ((KUInt32)&f##name)+4*ix ); } \
-	         void Set##name(KUInt32 ix, type v) { NewtWriteWord( ((KUInt32)&f##name)+4*ix, (KUInt32)v ); }
+	private: type p##name[size]; \
+	public:  type Get##name(KUInt32 ix) { return (type)NewtReadWord( ((KUInt32)&p##name)+4*ix ); } \
+	         void Set##name(KUInt32 ix, type v) { NewtWriteWord( ((KUInt32)&p##name)+4*ix, (KUInt32)v ); } \
+			 type* PtrTo##name##s() { return p##name; } \
+			 type* PtrTo##name(KUInt32 ix) { return p##name + ix; }
 
 #define NEWT_GET_SET_B(type, name) \
-	private: type f##name; \
-	public:  type Get##name() { return (type)NewtReadByte( (KUInt32)&f##name ); } \
-	         void Set##name(type v) { NewtWriteByte( (KUInt32)&f##name, (KUInt8)v ); }
+	private: type p##name; \
+	public:  type Get##name() { return (type)NewtReadByte( (KUInt32)&p##name ); } \
+	         void Set##name(type v) { NewtWriteByte( (KUInt32)&p##name, (KUInt8)v ); }
+
+#define NEWT_IS_SET_B(type, name) \
+	private: type p##name; \
+	public:  type Is##name() { return (type)NewtReadByte( (KUInt32)&p##name ); } \
+			 void Set##name(type v) { NewtWriteByte( (KUInt32)&p##name, (KUInt8)v ); }
 
 #define NEWT_RETURN \
-	gCurrentCPU->SetRegister(15, gCurrentCPU->GetRegister(14)+4)
+	gCurrentCPU->SetRegister(15, gCurrentCPU->GetRegister(14)+4); \
+	return 0
 
 #define NEWT_RETVAL \
 	gCurrentCPU->mCurrentRegisters[0] = (KUInt32)
@@ -151,14 +176,25 @@ public:
 	type GlobalGet##name() { return (type)NewtReadWord(addr); }
 
 
+#define NEWT_LOCAL(type, name) \
+	NewtGlueStackManager ngManage##name(sizeof(type)); \
+	type* ngPtr##name = (type*)(gCurrentCPU->GetRegister(13));
 
-typedef void (*NewtGlueTask)();
+#define NEWT_LOACL_REF(name) \
+	(*(ngPtr##Name))
+
+#define NEWT_LOCAL_PTR(name) \
+	(ngPtr##name)
+
+typedef KSInt32 (*NewtGlueTask)();
 
 class NewtGlueFibre : public TFibre {
 public:
 	NewtGlueFibre();
 	KSInt32 Task(KSInt32 inReason=0, void* inUserData=0L);
 	KUInt32 pRecursions;
+	KUInt32 pSP;
+	KUInt32 pTaskIndex;
 };
 
 

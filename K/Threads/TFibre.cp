@@ -204,7 +204,7 @@ KSInt32 TFibre::Suspend( KSInt32 inReason )
 #endif
 #ifdef FIBRE_USE_LONGJMP
 	if (_setjmp(mSuspendContext)) {
-		// Resume() goes here
+		// Resume() jumps here
 	} else {
 		_longjmp(mCallerContext, 1);
 	}
@@ -218,7 +218,7 @@ KSInt32 TFibre::Suspend( KSInt32 inReason )
 KSInt32 TFibre::Resume( KSInt32 inReason )
 {
 	if (mState!=kSuspended) {
-		fprintf(stderr, "ERROR in TFibre: Resume() called, but fibre isnt' suspended.\n");
+		fprintf(stderr, "ERROR in TFibre: Resume() called, but fibre isn't suspended.\n");
 		return -1;
 	}
 	mState = kRunning;
@@ -238,7 +238,7 @@ KSInt32 TFibre::Resume( KSInt32 inReason )
 #endif
 #ifdef FIBRE_USE_LONGJMP
 	if (_setjmp(mCallerContext)) {
-		// finished tasks and Suspend() go here
+		// finished tasks and Suspend() jump here
 	} else {
 		_longjmp(mSuspendContext, 1);
 	}
@@ -331,6 +331,18 @@ void* TFibre::TaskCaller(void* inFibre)
 
 #endif
 
+// -------------------------------------------------------------------------- //
+//  * void Abort( KSInt32 reason )
+// -------------------------------------------------------------------------- //
+void TFibre::Abort(KSInt32 inReason)
+{
+	if (!IsSuspended()) {
+		fprintf(stderr, "ERROR in TFibre: Abort() called, but fibre isn't suspended.\n");
+		return;
+	}
+	mReason = inReason;
+	mState = kStopped;
+}
 
 // ============================================================================= //
 // `Lasu' Releases SAG 0.3 -- Freeware Book Takes Paves For New World Order      //

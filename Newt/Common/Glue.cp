@@ -61,10 +61,15 @@ JITUnit* NewtGlueDispatch::Dispatch(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt
 		//printf("INFO: Calling Simulator\n");
 		gCurrentCPU = ioCPU;
 		JITFuncPtr stub = TROMPatch::GetSimulatorStubAt(callIndex);
-		gMainFibre.Run(callIndex, (void*)stub);
-		return 0L;
+		KSInt32 ret = gMainFibre.Run(callIndex, (void*)stub);
+		if (ret) {
+			//printf("INFO: Called Simulator, but changed my mind\n");
+			return ioUnit;
+		} else {
+			return 0L;
+		}
 	} else {
-		printf("INFO: Simulator calling simulator (%s)\n", TROMPatch::GetNameAt(callIndex));
+		// printf("INFO: Simulator calling simulator (%s)\n", TROMPatch::GetNameAt(callIndex));
 		gMainFibre.pRecursions++;
 		return ioUnit;
 	}
@@ -267,6 +272,26 @@ KUInt32 SectRect(KUInt32 r0, KUInt32 r1, KUInt32 r2)
 //}
 
 
+//T_ROM_INJECTION(0x0038e2cc, "Read Double from memory") {
+//	union {
+//		struct { KUInt32 r0, r1; };
+//		struct { KUInt8 b0, b1, b2, b3, b4, b5, b6, b7; };
+//		double d;
+//	} v;
+//	v.r0 = ioCPU->GetRegister(2);
+//	v.r1 = ioCPU->GetRegister(0);
+//	printf("read double 0x%08lX 0x%08lX (%g)\n", ioCPU->GetRegister(0), ioCPU->GetRegister(2), v.d);
+//	printf("%02X%02X%02X%02X%02X%02X%02X%02X\n", v.b7, v.b6, v.b5, v.b4, v.b3, v.b2, v.b1, v.b0);
+//	printf("%d %d %g\n", v.b7>>7, ((v.b7&127)<<4)|(v.b6>>4), 0);
+//	printf("read double 0x%08lX 0x%08lX (%g)\n", ioCPU->GetRegister(0), ioCPU->GetRegister(2), v.d);
+//	return ioUnit;
+//}
+//
+//T_ROM_INJECTION(0x0038e30c, "Write f0 to memory") {
+//	printf("write f0 0x%08lX 0x%08lX 0x%08lX\n", ioCPU->GetRegister(0), ioCPU->GetRegister(1), ioCPU->GetRegister(2));
+//	return ioUnit;
+//}
+
 
 /*
  
@@ -296,10 +321,35 @@ NewtGlueFibre::NewtGlueFibre()
 KSInt32 NewtGlueFibre::Task(KSInt32 inIndex, void* inUserData)
 {
 	pRecursions = 0;
+	pTaskIndex = inIndex;
+	pSP = gCurrentCPU->GetRegister(13);
 	NewtGlueTask task = (NewtGlueTask)inUserData;
-	task();
+	KSInt32 ret = task();
 	if (pRecursions) {
-		printf("Performance Info: %ld recursion attempts during simulator call (%s)\n", pRecursions, TROMPatch::GetNameAt(inIndex));
+		// printf("Performance Info: %ld recursion attempts during simulator call (%s)\n", pRecursions, TROMPatch::GetNameAt(inIndex));
 	}
-	return 0;
+	return ret;
 }
+
+
+T_ROM_INJECTION(0x00394560, "longjmp")
+{
+	KUInt32 oldSP = ioCPU->GetRegister(13);
+	KUInt32 newSP = NewtReadWord(ioCPU->GetRegister(0)+12*4);
+	KUInt32 newPC = NewtReadWord(ioCPU->GetRegister(0)+13*4);
+	printf("INFO: longmp called from 0x%08lX (old sp: 0x%08lX, new sp: 0x%08lX, d=%ld, new pc: 0x%08lX)\n",
+		   ioCPU->GetRegister(14),
+		   oldSP,
+		   newSP,
+		   oldSP-newSP,
+		   newPC);
+	if (gMainFibre.IsSuspended() && oldSP<gMainFibre.pSP && newSP>gMainFibre.pSP) {
+		fprintf(stderr, "ALERT: longjmp crosses Fibre stack at 0x%08lX, Fibres may no longer work (%s)!\n",
+				gMainFibre.pSP,
+				TROMPatch::GetNameAt(gMainFibre.pTaskIndex));
+		fprintf(stderr, "INFO: trying to fix the issue. This is untested and may cause inconsistencies.\n");
+		gMainFibre.Abort(0);
+	}
+	return ioUnit;
+}
+

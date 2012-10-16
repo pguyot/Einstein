@@ -322,7 +322,7 @@ class TROMSimulatorInjection : public TROMPatch {
 	
 public:
 	/// Create and add a call to a JIT instruction as an injection
-	TROMSimulatorInjection(KUInt32 address, void (*stub)(), const char *name)
+	TROMSimulatorInjection(KUInt32 address, KSInt32 (*stub)(), const char *name)
 	: TROMPatch(address, (JITFuncPtr)stub, name) { }
 	
 	/// Patch the ROM word
