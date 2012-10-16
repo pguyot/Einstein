@@ -274,7 +274,7 @@ EmulatorWindow_Create( id inApp, int inWindowWidth, int inWindowHeight, id inVie
 	theWindowRect.size.height = inWindowHeight;
 	theWindow = [[NSWindow alloc]
 							initWithContentRect: theWindowRect
-							styleMask: NSTitledWindowMask | NSTexturedBackgroundWindowMask
+							styleMask: NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask
 							backing: NSBackingStoreBuffered
 							defer: YES];
 	[theWindow setContentSize: theWindowRect.size];

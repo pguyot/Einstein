@@ -150,6 +150,8 @@ static TCocoaAppController* gInstance = nil;
 		
 		// Single instance.
 		gInstance = self;
+		
+		[NSApp setDelegate:self];
 	}
 
 	return self;
@@ -868,6 +870,12 @@ static TCocoaAppController* gInstance = nil;
 - (BOOL)validateToolbarItem:(NSToolbarItem *)theItem
 {
 	return [self validateSelector:[theItem action]];
+}
+
+
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)sender
+{
+    return YES;
 }
 
 @end
