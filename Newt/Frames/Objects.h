@@ -57,7 +57,7 @@ enum
 
 
 #define MAKEINT(i)			(((Ref)(i)) << kRefTagBits)
-#define MAKEIMMED(t, v)		((((((Refg)(v)) << kRefImmedBits) | ((Ref)(t))) << kRefTagBits) | kTagImmed)
+#define MAKEIMMED(t, v)		((((((Ref)(v)) << kRefImmedBits) | ((Ref)(t))) << kRefTagBits) | kTagImmed)
 #define MAKECHAR(c)			MAKEIMMED(kImmedChar, (unsigned)c)
 #define MAKEBOOLEAN(b)		(b ? TRUEREF : FALSEREF)
 #define MAKEPTR(p)			((Ref)((char*)p + 1))
@@ -74,6 +74,10 @@ enum
 class ObjectHeader
 {
 public:
+	KUInt32 GetSize() { return GetSizeAndFlags()>>8; }
+	KUInt32 GetType() { return GetSizeAndFlags() & 3; }
+	KUInt32 GetFlags() { return GetSizeAndFlags() & 255; }
+public:
 	NEWT_GET_SET_W(KUInt32, SizeAndFlags);
 	NEWT_GET_SET_W(KUInt32, LocksAndSlots);
 };
@@ -81,6 +85,8 @@ public:
 
 class ArrayObject : public ObjectHeader
 {
+public:
+	KUInt32 GetNumSlots() { return (GetSize()-11)>>2; }
 public:
 	NEWT_GET_SET_W(Ref, ObjectClass);
 	NEWT_GET_SET_W_ARRAY(Ref, Slot, 1);
