@@ -35,7 +35,7 @@
  Floating point math emulation
  
  The SA110 processor has no floating point coprocessor. It emulates FP 
- instructions in hardware. Einstein then emulates the emulation. I am sure you
+ instructions in software. Einstein then emulates the emulation. I am sure you
  can see where I am going.
  
  In order to increase speed, it would be nice to write new JIT code that 
@@ -44,55 +44,10 @@
  should still make for a bit of an acceleration.
  
  All FP registers are stored at __fp_regs (0x0C105A5C). There are 8 registers.
- Most instructions are 'd', some are 's' precission.
+ Most instructions are 'd', some are 's' precission. Registeres are stored
+ in their own format and converted to and from IEEE when copied to RAM or to
+ registers.
 */
-
-/*
- This function tests MMU DataAbort hits in native code. If a memory access 
- fails, DataAbort will be called. After handling the memory fault, JIT will
- continue in the original ROM instead of returning to the native code.
- */
-
-// Emulate the following instructions:
-//  002ddf28  ldr		r2,[r6]     | E5962000 - ....
-//  002ddf2c  str		r1,[r2],#4  | E4821004
-//  002ddf30  mov		r10, r5     | E1A0A005 - ....
-JITInstructionProto(test_data_abort) {
-	KUInt32 thePC, theAddress, theValue, offset;
-	TMemory* theMemoryInterface = ioCPU->GetMemory();
-	
-	//---- 002ddf28  ldr		r2,[r6]
-	thePC = 0x002ddf28 + 8;
-	theAddress = ioCPU->mCurrentRegisters[TARMProcessor::kR6];
-	if (theMemoryInterface->Read( theAddress, theValue )) {
-		ioCPU->mCurrentRegisters[TARMProcessor::kR15] = thePC;
-		ioCPU->DataAbort();
-		MMUCALLNEXT_AFTERSETPC;
-	}
-	ioCPU->mCurrentRegisters[TARMProcessor::kR2] = theValue;
-	
-	//---- 002ddf2c  str		r1,[r2],#4
-	thePC = 0x002ddf2c + 8;
-	offset = 4;
-	theAddress = ioCPU->mCurrentRegisters[TARMProcessor::kR2];
-	theValue = ioCPU->mCurrentRegisters[TARMProcessor::kR1];
-	if (theMemoryInterface->Write( theAddress, theValue )) {
-		ioCPU->mCurrentRegisters[TARMProcessor::kR15] = thePC;
-		ioCPU->DataAbort();
-		MMUCALLNEXT_AFTERSETPC;
-	}
-	ioCPU->mCurrentRegisters[TARMProcessor::kR2] = theAddress + offset;
-	
-	//---- 002ddf30  mov		r10, r5
-	theValue = ioCPU->mCurrentRegisters[TARMProcessor::kR5];
-	ioCPU->mCurrentRegisters[TARMProcessor::kR10] = theValue;
-	
-	//---- back into JIT compiler
-	thePC = 0x002ddf30 + 8;
-	CALLNEXTUNIT;	
-}
-
-//TROMPatch p002ddf2c(0x002ddf2c, test_data_abort, "Test DataAbort scheme");
 
 
 // -------------------------------------------------------------------------- //
