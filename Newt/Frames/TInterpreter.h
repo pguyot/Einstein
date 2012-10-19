@@ -103,6 +103,7 @@ class VMState
 {
 public:
 	Ref GetRcvrRef() { return pRcvr.GetRefHandle()->GetRef(); }
+public:
 	RefVar pPC;					//  0: instruction pointer
 	RefVar pFunction;			//  4: current function
 	RefVar pLocals;				//  8: local variables
@@ -167,8 +168,8 @@ class TInterpreter
 public:	// methods
 	KUInt32 FastRun1(KSInt32 inInitialStackDepth, FastRunState* inState);
 	KUInt32 PopHandlers();
-	KUInt32 SetFlags();
-	
+	void SetFlags();
+  void SetFastLoopFlag();
 	void SetValue(long index, Ref value);
 	void PushValue(Ref value);
 	Ref PopValue();
@@ -198,12 +199,13 @@ public:	// variables
 	NEWT_GET_SET_W(KUInt32, Unknown112);		// 112:
 	NEWT_GET_SET_W(KUInt32, Unknown116);		// 116:
 	NEWT_GET_SET_W(KUInt32, Unknown120);		// 120:
-	NEWT_GET_SET_W(KUInt32, Unknown124);		// 124: tracing?
+	NEWT_IS_SET_W(KUInt32, Tracing);		// 124: tracing?
 };
 
 
 
 KUInt32 FastFreqFuncGeneral(FastRunState*, long);
+class ArrayObject* ObjectPtr(Ref inRef);
 
 
 #endif	// NEWT_FRAMES_T_INTERPRETER_H

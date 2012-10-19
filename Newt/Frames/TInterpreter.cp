@@ -39,6 +39,9 @@ class RefVar;
 typedef RefVar* RefArg;
 
 
+// ----------------------------------------------------------------------------
+
+
 ObjectHeader* ResolveMagicPtr(Ref r0)
 {
 	KUInt32 ret;
@@ -423,18 +426,6 @@ KUInt32 _RINTError(Ref r0)
 }
 
 
-KUInt32 TInterpreter::SetFlags()
-{
-	KUInt32 ret;
-	NEWT_PUSH_REGISTERS
-	gCurrentCPU->SetRegister(0, (KUInt32)this);
-	NewtCallJIT(0x002F543C);
-	ret = gCurrentCPU->GetRegister(0);
-	NEWT_POP_REGISTERS
-	return ret;
-}
-
-
 KUInt32 SetFramePath(RefArg r0, RefArg r1, RefArg r2)
 {
 	KUInt32 ret;
@@ -503,30 +494,6 @@ ArrayObject* ObjectPtr1(Ref r0, Ref r1, KSInt32 r2)
 }
 
 
-KUInt32 FindOffset(long r0, long r1)
-{
-	KUInt32 ret;
-	NEWT_PUSH_REGISTERS
-	gCurrentCPU->SetRegister(0, r0);
-	gCurrentCPU->SetRegister(1, r1);
-	NewtCallJIT(0x003201CC);
-	ret = gCurrentCPU->GetRegister(0);
-	NEWT_POP_REGISTERS
-	return ret;
-}
-
-
-KUInt32 GlobalFunctionLookup(long r0)
-{
-	KUInt32 ret;
-	NEWT_PUSH_REGISTERS
-	gCurrentCPU->SetRegister(0, r0);
-	NewtCallJIT(0x002B5054);
-	ret = gCurrentCPU->GetRegister(0);
-	NEWT_POP_REGISTERS
-	return ret;
-}
-
 KUInt32 FastDoCall(FastRunState* inState, Ref fnRef, KUInt32 r2)
 {
 	KUInt32 ret;
@@ -553,7 +520,54 @@ KUInt32 rt_sdiv(KUInt32 r0, KUInt32 r1)
 	return ret;
 }
 
+
 // ----------------------------------------------------------------------------
+
+
+void TInterpreter::SetFastLoopFlag()
+{
+	if (   GlobalGetAccurateStackTrace()
+		|| IsTracing()
+		|| GlobalGetFramesBreakPointsEnabled()
+		|| !IsReadOnly() )
+	{
+		SetFast(0);
+	} else if (GlobalGetFramesFunctionProfilingEnabled()!='ffpe') {
+		SetFast(1);
+	} else if (GlobalGetFramesFunctionProfiler()!=0) {
+		SetFast(0);
+	} else {
+		SetFast(1);
+	}
+}
+
+
+KUInt32 ObjectFlags(Ref obj)
+{
+	return ObjectPtr(obj)->GetFlags();
+}
+
+
+void TInterpreter::SetFlags()
+{
+	Ref funcRef = GetVMState()->pFunction.GetRefHandle()->GetRef();
+	ArrayObject* funcArray = ObjectPtr(funcRef);
+	Ref myInstructions = funcArray->GetSlot(1); // _instructions
+	pInstructions.GetRefHandle()->SetRef(myInstructions);
+	Ref myLiterals = funcArray->GetSlot(2); // _literals
+	pLiterals.GetRefHandle()->SetRef(myLiterals);
+	KUInt32 flags = ObjectFlags(pInstructions.GetRefHandle()->GetRef()) & 80;
+	SetReadOnly( (flags!=0) );
+	Ref stackFrameRef = GetVMState()->pStackFrame.GetRefHandle()->GetRef();
+	if ( (stackFrameRef&4) ) {
+		SetLocalsIndex(stackFrameRef>>8);
+		SetVer2X(1);
+	} else {
+		SetVer2X(0);
+	}
+	return SetFastLoopFlag();
+}
+
 
 ArrayObject* ObjectPtr(Ref inRef)
 {
@@ -593,11 +607,6 @@ KUInt8* BinaryData(Ref ref)
 	}
 }
 
-NEWT_INJECTION(0x0031E684, "BinaryData(Ref)") {
-	NEWT_RETVAL BinaryData(NEWT_ARG0(Ref));
-	NEWT_RETURN;
-}
-
 
 KUInt32 FastFreqFuncGeneral(FastRunState* inState, KSInt32)
 {
@@ -616,7 +625,7 @@ KUInt32 FastFreqFuncGeneral(FastRunState* inState, KSInt32)
 			arg1 = NewtReadWord(sp-1);
 			arg2 = NewtReadWord(sp-2);
 			if ( ISINT(arg1) && ISINT(arg2) ) {
-				result = arg1 * (arg2/4);
+				result = arg1 * (arg2>>2);
 				NewtWriteWord(sp-2, result);
 				currentStack->SetTop(sp-1);
 				return 0;
@@ -630,9 +639,9 @@ KUInt32 FastFreqFuncGeneral(FastRunState* inState, KSInt32)
 			arg2 = NewtReadWord(sp-2);
 			if ( ISINT(arg1) && ISINT(arg2) ) {
 				if (arg1) {
-					result = 4 * ( (arg2/4) / (arg1/4) );
+					result = 4 * ( (arg2>>2) / (arg1>>2) );
 				} else {
-					result = 4 * rt_sdiv( arg1/4, arg2/4 );
+					result = 4 * rt_sdiv( arg1>>2, arg2>>2 );
 					// FIXME: sdiv calls sdiv0 and throws an exception if dividing by 0. Go implement Throw()
 				}
 				NewtWriteWord(sp-2, result);
@@ -811,7 +820,7 @@ KUInt32 TInterpreter::FastRun1(KSInt32 inInitialStackDepth, FastRunState* inStat
 						Ref retVal = PeekValue(0);
 						VMState* vm = GetVMState();
 						Ref stackFrame = vm->pStackFrame.GetRefHandle()->GetRef();
-						stackFrame = stackFrame/256 +3;
+						stackFrame = (stackFrame>>8) +3;
 						SimStack* stack = inState->GetStack();
 						Ref* newTop = stack->GetBase() + stackFrame;
 						stack->SetTop(newTop+1);
@@ -819,12 +828,12 @@ KUInt32 TInterpreter::FastRun1(KSInt32 inInitialStackDepth, FastRunState* inStat
 					}
 					VMState* newState = pCtrlStack.PrevState();
 					SetVMState(newState);
-					SetInstructionOffset(newState->pPC.GetRefHandle()->GetRef()/4);
+					SetInstructionOffset(newState->pPC.GetRefHandle()->GetRef()>>2);
 					
 					KSInt32 stackDepth = pCtrlStack.GetTop() - pCtrlStack.GetBase() - 1;
 					if (stackDepth<0)
 						stackDepth += 3;
-					stackDepth = (stackDepth/4)-1;
+					stackDepth = (stackDepth>>2)-1;
 					if (stackDepth<GetExceptionStackIndex())
 						PopHandlers();
 					
@@ -1094,7 +1103,7 @@ KUInt32 TInterpreter::FastRun1(KSInt32 inInitialStackDepth, FastRunState* inStat
 				case 0302: {
 					Ref ix = PopValue();
 					if ( (ix&3)==0 ) {
-						ix = ix/4;
+						ix = ix>>2;
 					} else {
 						_RINTError(ix);
 					}
@@ -1125,7 +1134,7 @@ KUInt32 TInterpreter::FastRun1(KSInt32 inInitialStackDepth, FastRunState* inStat
 					
 					Ref ix = PopValue();
 					if ( (ix&3)==0 ) {
-						ix = ix/4;
+						ix = ix>>2;
 					} else {
 						_RINTError(ix);
 					}
@@ -1530,7 +1539,7 @@ KUInt32 TInterpreter::FastRun1(KSInt32 inInitialStackDepth, FastRunState* inStat
 		KSInt32 stackDepth = pCtrlStack.GetTop() - pCtrlStack.GetBase() - 1;
 		if (stackDepth<0)
 			stackDepth += 3;
-		stackDepth = (stackDepth/4)-1;
+		stackDepth = (stackDepth>>2)-1;
 		if (stackDepth<inInitialStackDepth)
 			return 1;
 		if (!IsFast())
@@ -1576,6 +1585,13 @@ Ref TInterpreter::PopValue()
 }
 
 
+// ----------------------------------------------------------------------------
+
+
+NEWT_INJECTION(0x0031E684, "BinaryData(Ref)") {
+	NEWT_RETVAL BinaryData(NEWT_ARG0(Ref));
+	NEWT_RETURN;
+}
 
 NEWT_INJECTION(0x002F42A0, "TInterpreter::PeekValue(...)") {
 	NEWT_RETVAL NEWT_CLASS(TInterpreter)->PeekValue(NEWT_ARG1(long));
@@ -1599,5 +1615,20 @@ NEWT_INJECTION(0x0031DD54, "ObjectPtr(Ref)") {
 
 NEWT_INJECTION(0x002ECD94, "FastFreqFuncGeneral(FastRunState*, long)") {
 	NEWT_RETVAL FastFreqFuncGeneral(NEWT_ARG0(FastRunState*), NEWT_ARG1(Ref));
+	NEWT_RETURN;
+}
+
+NEWT_INJECTION(0x002F1CEC, "TInterpreter::SetFastLoopFlag(...)") {
+	NEWT_CLASS(TInterpreter)->SetFastLoopFlag();
+	NEWT_RETURN;
+}
+
+NEWT_INJECTION(0x0031E290, "ObjectFlags(...)") {
+	NEWT_RETVAL ObjectFlags(NEWT_ARG0(Ref));
+	NEWT_RETURN;
+}
+
+NEWT_INJECTION(0x002F543C, "TInterpreter::SetFlags(...)") {
+	NEWT_CLASS(TInterpreter)->SetFlags();
 	NEWT_RETURN;
 }

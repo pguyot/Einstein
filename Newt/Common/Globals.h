@@ -36,11 +36,14 @@ class ObjectHeader;
 
 FreqFuncDef* GlobalGetFreqFuncInfo(); //NEWT_GLOBAL_W_DECL(FreqFuncDef*, FreqFuncInfo, 0x0C1051F4);
 
-NEWT_GLOBAL_W_DECL(Ref, FreqFuncs, 0x0C105450);
-
-NEWT_GLOBAL_W_DECL(Ref, CacheObjPtrRef, 0x0c10554c);
-NEWT_GLOBAL_W_DECL(ObjectHeader*, CacheObjPtrPtr, 0x0c105550);
-
+NEWT_GLOBAL_W_DECL(KUInt32,			FramesFunctionProfilingEnabled,	0x0C10535C);
+NEWT_GLOBAL_W_DECL(KUInt32,			FramesFunctionProfiler,			0x0C105360);
+NEWT_GLOBAL_W_DECL(Ref,				FunctionFrame,					0x0C10544C);
+NEWT_GLOBAL_W_DECL(Ref,				FreqFuncs,						0x0C105450);
+NEWT_GLOBAL_W_DECL(KUInt32,			FramesBreakPointsEnabled,		0x0C105460);
+NEWT_GLOBAL_W_DECL(KUInt32,			AccurateStackTrace,				0x0C105468);
+NEWT_GLOBAL_W_DECL(Ref,				CacheObjPtrRef,					0x0C10554C);
+NEWT_GLOBAL_W_DECL(ObjectHeader*,	CacheObjPtrPtr,					0x0C105550);
 
 #endif	// NEWT_COMMON_GLOBALS_H
 
