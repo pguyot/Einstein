@@ -31,6 +31,8 @@
 
 typedef long Ref;
 
+class TInterpreter;
+
 
 class RefPtr
 {
@@ -102,14 +104,14 @@ public:
 class VMState
 {
 public:
-	Ref GetRcvrRef() { return pRcvr.GetRefHandle()->GetRef(); }
+	Ref GetRcvrRef() { return GetRcvr()->GetRef(); }
 public:
-	RefVar pPC;					//  0: instruction pointer
-	RefVar pFunction;			//  4: current function
-	RefVar pLocals;				//  8: local variables
-	RefVar pImpl;				// 12:
-	RefVar pRcvr;				// 16: variables used by some calls
-	RefVar pStackFrame;			// 20:
+	NEWT_GET_SET_W(RefHandle*, PC);  //  0: instruction pointer
+	NEWT_GET_SET_W(RefHandle*, Function);			//  4: current function
+	NEWT_GET_SET_W(RefHandle*, Locals);				//  8: local variables
+	NEWT_GET_SET_W(RefHandle*, Impl);				// 12:
+	NEWT_GET_SET_W(RefHandle*, Rcvr);				// 16: variables used by some calls
+	NEWT_GET_SET_W(RefHandle*, StackFrame);			// 20:
 };
 
 
@@ -123,11 +125,9 @@ public:
 /**
  This class manages the interpreter data stack.
  */
-class SimStack {
+class SimStack : public RefStructStack {
 	// FIXME: find the correct class!
 public:
-	NEWT_GET_SET_W(Ref*, Top) // 0: pointer to top of stack (stack grows up!)
-	NEWT_GET_SET_W(Ref*, Base) // 4:								 // (...)
 };
 
 
@@ -139,11 +139,11 @@ class FastRunState // FIXME: same as or derived from VMState?
 public:	// variables
 	NEWT_GET_SET_W(KUInt8*, ByteCodePC)			//   0: instruction pointer
 	NEWT_GET_SET_W(SimStack*, Stack)			//   4: stack class pointer
-	NEWT_GET_SET_W(KUInt32, Unknown8)			//   8:
+	NEWT_GET_SET_W(TInterpreter*, Interpreter)			//   8:
 	RefStruct pImpl;							//  12:
 	RefStruct pRcvr;							//  16:
 	RefStruct pStackFrame;						//  20:
-	NEWT_GET_SET_W(KUInt32, Unknown24)			//  24:
+        RefStruct pUnknown24;			//  24:
 	NEWT_GET_SET_W(Ref*, Literals)				//  28: Literals
 	NEWT_GET_SET_W(KUInt8*, ByteCodeBase)		//  32: Ptr to BinaryData of InstructionsRef
 };
@@ -158,18 +158,20 @@ public:	// variables
 };
 
 
-
-
 /**
  This class contains the byte code interpreter.
  */
 class TInterpreter
 {
 public:	// methods
+  KUInt32 AlternatingLoops(long inInitialStackDepth);
+  KUInt32 Run();
+  KUInt32 FastRun(long inInitialStackDepth);
+  KUInt32 SlowRun(long inInitialStackDepth);
 	KUInt32 FastRun1(KSInt32 inInitialStackDepth, FastRunState* inState);
 	KUInt32 PopHandlers();
 	void SetFlags();
-  void SetFastLoopFlag();
+	void SetFastLoopFlag();
 	void SetValue(long index, Ref value);
 	void PushValue(Ref value);
 	Ref PopValue();
@@ -180,11 +182,11 @@ public:	// variables
 	NEWT_GET_SET_W(TInterpreter*, Next)			//   0: pointer to next interpreter in linked list
 	NEWT_GET_SET_W(KUInt32, ID);				//   4:
 	TIntrpStack pCtrlStack;						//   8:
-	RefStructStack pDataStack;					//  32:
-	RefStruct pExceptionContext;				//  56:
+	SimStack pDataStack;					//  32:
+	NEWT_GET_SET_W(RefHandle*, ExceptionContext);				//  56:
 	NEWT_GET_SET_W(long, ExceptionStackIndex);  //  60:
-	RefStruct pLiterals;						//  64:
-	RefStruct pInstructions;					//  68: reference to instructions object
+	NEWT_GET_SET_W(RefHandle*, Literals);  //  64:
+	NEWT_GET_SET_W(RefHandle*, Instructions);					//  68: reference to instructions object
 	NEWT_IS_SET_W(KUInt32, ReadOnly);			//  72:
 	NEWT_GET_SET_W(VMState*, VMState);			//  76:
 	NEWT_GET_SET_W(KSInt32, InstructionOffset);	//  80:
