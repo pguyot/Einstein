@@ -131,7 +131,7 @@ TSymbolList::GetSymbol(
 				char* outComment,
 				int* outOffset )
 {
-	if (mSymbolCount == 0)
+	if (this==0 || mSymbolCount==0)
 	{
 		::sprintf(outSymbol, "%08X", (unsigned int)inValue);
 		::sprintf(outComment, "(no symbol data)");
