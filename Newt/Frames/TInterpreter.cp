@@ -39,6 +39,82 @@ class RefVar;
 typedef RefVar* RefArg;
 
 
+bool RefIsInt(Ref v) {
+	return ((v&3)==0);
+}
+
+KSInt32 RefToInt(Ref v) {
+	return (v>>2);
+}
+
+// 	KUInt32 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9;
+
+
+// --
+// Understanding the floating point emulator
+
+// 8 registers, starting at 0x0C105A5C
+// IEEE float   1 x sign,  8 x exp, 23 x mantisse, excess 127, implied 1
+// IEEE double  1 x sign, 11 x exp, 52 x mantissa, excess 1023, implied 1
+// ARM ext      1 x sign, 15 x exp, 16 x 0, 1 x int, 63 x mantissa, excess 16383, 1 not implied(?)
+
+
+//					   Sign Exponent	J		Mantissa
+//Non-trapping NAN		x	Maximum		x		1xxxxxxxxxxxxx...
+//Trapping NAN			x	Maximum		x		0<non zero>
+//INF					s	Maximum		0		00000000000000...
+//Zero					s	0			0		00000000000000...
+//Denormalised number	s	0			0		<non zero>
+//Un-normalised number	s	Not			0/Max	0	xxxxxxxxxxxxxx...
+//Normalised number		s	Not			0/Max	1	xxxxxxxxxxxxxx...
+
+
+
+//T_ROM_INJECTION(0x0031C390, "stfd f4, [r0]")
+//{
+//	union {
+//		double d;
+//		KUInt8 c[8];
+//		KUInt64 x;
+//	};
+//	int i;
+//	for (i=0; i<16; i++) {
+//		printf("%02X ", NewtReadByte(0x0C105A5C+4*16+i));
+//	}
+//	printf(" = %g\n", d);
+//	KUInt32 r0 = gCurrentCPU->GetRegister(0);
+//	for (i=0; i<8; i++) {
+//		KUInt8 v = NewtReadByte(r0+i);
+//		c[7-i] = v;
+//		printf("%02X ", v);
+//	}
+//	printf(" = %g\n", d);
+//	
+//	KUInt64 dSign = x>>63, dExp = (x>>52)&0x7ff, dMant = x&0xfffffffffffff;
+//	
+//	printf(" = %01llx %04llx %016llx  %lld\n", dSign, dExp, dMant, dExp-1024);
+//	// Exp base offsets by 1024
+//	// Exp base offsets by 32768
+//	for (i=0; i<8; i++) c[7-i] = NewtReadByte(0x0C105A5C+4*16+i);
+//	KUInt64 eSign = x>>63; dSign = eSign;
+//	KUInt64 eExp = (x>>31)&0xffff;
+//	if (eExp==0) {
+//		// special case
+//		dExp = 0;
+//	} else if (eExp>=0x8000) {
+//		dExp = (((KSInt32)eExp) - 32768)/2 + 1024; // bias is 1023
+//	} else {
+//		dExp = (((KSInt32)eExp) - 32768)/2 + 1023;
+//	}
+//	
+//	//	dExp = (((KSInt64)eExp) - 32768)/2 + 1024;
+//		
+//	printf(" = %01llx %04llx %016llx  %lld\n", dSign, dExp, dMant, eExp-32768);
+//	return ioUnit;
+//}
+
+
+
 // ----------------------------------------------------------------------------
 
 
@@ -76,13 +152,14 @@ KUInt32 DisposeRefHandle(RefHandle* r0)
 }
 
 
-KUInt32 FastBranchIfLoopNotDone(FastRunState* r0, Ref r1)
+KUInt32 Throw(const char *label, long err, KUInt32 r2)
 {
 	KUInt32 ret;
 	NEWT_PUSH_REGISTERS
-	gCurrentCPU->SetRegister(0, (KUInt32)r0);
-	gCurrentCPU->SetRegister(1, (KUInt32)r1);
-	NewtCallJIT(0x002ED9B8);
+	gCurrentCPU->SetRegister(0, (KUInt32)label);
+	gCurrentCPU->SetRegister(1, (KUInt32)err);
+	gCurrentCPU->SetRegister(2, (KUInt32)r2);
+	NewtCallJIT(0x000B00C8);
 	ret = gCurrentCPU->GetRegister(0);
 	NEWT_POP_REGISTERS
 	return ret;
@@ -1634,6 +1711,51 @@ KUInt32 TInterpreter::AlternatingLoops(long inInitialStackDepth)
 	}
 }
 
+
+// incr index limit
+KUInt32 FastBranchIfLoopNotDone(FastRunState* inState, long B)
+{
+	SimStack* stack = inState->GetStack();
+	Ref* top = stack->GetTop();
+	
+	// pop loop limit from the stack
+	Ref limitRef = NewtReadWord(top-1);
+	if (!RefIsInt(limitRef))
+		_RINTError(limitRef);
+	long limit = RefToInt(limitRef);
+	
+	// pop loop index from the stack
+	Ref indexRef = NewtReadWord(top-2);
+	if (!RefIsInt(indexRef))
+		_RINTError(indexRef);
+	long index = RefToInt(indexRef);
+	
+	// pop loop increment from the stack
+	Ref incrRef = NewtReadWord(top-3);
+	if (!RefIsInt(incrRef))
+		_RINTError(incrRef);
+	long incr = RefToInt(incrRef);
+	
+	// update stack top
+	stack->SetTop(top-3);
+	
+	// don't allow a zero incrment
+	if (incr==0) {
+		Throw("evt.ex.fr.intrp", -48804, 0); // FOR loop BY expression has value zero
+		return 0;
+	}
+	
+	// did the index pass the limit?
+	if ( (incr<0 && limit<=index) || (incr>0 && limit>=index) ) {
+		// if not, set the PC to the start of the loop
+		KUInt8* newPC = inState->GetByteCodeBase() + B;
+		inState->SetByteCodePC(newPC);
+	}
+	
+	return 0;
+}
+
+
 // FIXME: next is KUInt32 TInterpreter::Run()
 // This method contains a setjmp call to prepare for a later Throw() call.
 // Something we have not solved yet.
@@ -1642,6 +1764,11 @@ KUInt32 TInterpreter::AlternatingLoops(long inInitialStackDepth)
 
 // ----------------------------------------------------------------------------
 
+
+NEWT_INJECTION(0x002ED9B8, "FastBranchIfLoopNotDone(FastRunState*, long)") {
+	NEWT_RETVAL FastBranchIfLoopNotDone(NEWT_ARG0(FastRunState*), NEWT_ARG1(long));
+	NEWT_RETURN;
+}
 
 NEWT_INJECTION(0x0031E684, "BinaryData(Ref)") {
 	NEWT_RETVAL BinaryData(NEWT_ARG0(Ref));

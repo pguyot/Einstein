@@ -207,7 +207,9 @@ public:	// variables
 
 
 KUInt32 FastFreqFuncGeneral(FastRunState*, long);
+KUInt32 FastBranchIfLoopNotDone(FastRunState* inState, long B);
 class ArrayObject* ObjectPtr(Ref inRef);
+KUInt32 _RINTError(Ref r0);
 
 
 #endif	// NEWT_FRAMES_T_INTERPRETER_H
