@@ -81,7 +81,8 @@ public:
 #define NEWT_GET_SET_W(type, name) \
 	private: type p##name; \
 	public:  type Get##name() { return (type)NewtReadWord( (KUInt32)&p##name ); } \
-			 void Set##name(type v) { NewtWriteWord( (KUInt32)&p##name, (KUInt32)v ); }
+			 void Set##name(type v) { NewtWriteWord( (KUInt32)&p##name, (KUInt32)v ); } \
+			 type* PtrTo##name() { return &p##name; }
 
 #define NEWT_IS_SET_W(type, name) \
 	private: type p##name; \
@@ -185,6 +186,9 @@ public:
 
 #define NEWT_LOCAL_PTR(name) \
 	(ngPtr##name)
+
+#define NEWT_LOCAL_GET_W(type, name) \
+	(type)NewtReadWord(ngPtr##name)
 
 typedef KSInt32 (*NewtGlueTask)();
 

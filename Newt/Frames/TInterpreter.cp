@@ -118,6 +118,48 @@ KSInt32 RefToInt(Ref v) {
 // ----------------------------------------------------------------------------
 
 
+KUInt32 XGetVariable(RefArg cotext, RefArg name, long* exist, int lookup)
+{
+	KUInt32 ret;
+	NEWT_PUSH_REGISTERS
+	gCurrentCPU->SetRegister(0, (KUInt32)cotext);
+	gCurrentCPU->SetRegister(1, (KUInt32)name);
+	gCurrentCPU->SetRegister(2, (KUInt32)exist);
+	gCurrentCPU->SetRegister(3, (KUInt32)lookup);
+	NewtCallJIT(0x002FF82C);
+	ret = gCurrentCPU->GetRegister(0);
+	NEWT_POP_REGISTERS
+	return ret;
+}
+
+
+KUInt32 UnsafeGetFrameSlot(Ref r0, Ref r1, Ref* r2)
+{
+	KUInt32 ret;
+	NEWT_PUSH_REGISTERS
+	gCurrentCPU->SetRegister(0, (KUInt32)r0);
+	gCurrentCPU->SetRegister(1, (KUInt32)r1);
+	gCurrentCPU->SetRegister(2, (KUInt32)r2);
+	NewtCallJIT(0x0031EBE4);
+	ret = gCurrentCPU->GetRegister(0);
+	NEWT_POP_REGISTERS
+	return ret;
+}
+
+
+KUInt32 ThrowExInterpreterWithSymbol(long r0, RefArg r1)
+{
+	KUInt32 ret;
+	NEWT_PUSH_REGISTERS
+	gCurrentCPU->SetRegister(0, (KUInt32)r0);
+	gCurrentCPU->SetRegister(1, (KUInt32)r1);
+	NewtCallJIT(0x002F5810);
+	ret = gCurrentCPU->GetRegister(0);
+	NEWT_POP_REGISTERS
+	return ret;
+}
+
+
 ObjectHeader* ResolveMagicPtr(Ref r0)
 {
 	KUInt32 ret;
@@ -227,19 +269,6 @@ KUInt32 FastComplicatedSetAref(FastRunState* r0, Ref r1, Ref r2, int r3)
 	gCurrentCPU->SetRegister(2, (KUInt32)r2);
 	gCurrentCPU->SetRegister(3, (KUInt32)r3);
 	NewtCallJIT(0x002EF314);
-	ret = gCurrentCPU->GetRegister(0);
-	NEWT_POP_REGISTERS
-	return ret;
-}
-
-
-KUInt32 FastFindVar(FastRunState* r0, Ref r1)
-{
-	KUInt32 ret;
-	NEWT_PUSH_REGISTERS
-	gCurrentCPU->SetRegister(0, (KUInt32)r0);
-	gCurrentCPU->SetRegister(1, (KUInt32)r1);
-	NewtCallJIT(0x002EDAF8);
 	ret = gCurrentCPU->GetRegister(0);
 	NEWT_POP_REGISTERS
 	return ret;
@@ -1756,6 +1785,53 @@ KUInt32 FastBranchIfLoopNotDone(FastRunState* inState, long B)
 }
 
 
+KUInt32 FastFindVar(FastRunState* inState, long inB)
+{
+	NEWT_LOCAL(long, exists);
+	RefHandle** context;
+	int lookup = 1;
+	
+	// find all values
+	RefStruct* name = &inState->pImpl;
+	Ref *literals  = inState->GetLiterals();
+	Ref nameRef = NewtReadWord(literals+inB);
+	name->GetRefHandle()->SetRef(nameRef);
+	TInterpreter *interpreter = inState->GetInterpreter();
+	VMState *vm = interpreter->GetVMState();
+	RefStruct* rcvr = &inState->pRcvr;
+	if (!interpreter->IsVer2X()) {
+		context = vm->PtrToLocals();
+	} else {
+		context = vm->PtrToLocals();
+		if (vm->GetLocals()->GetRef()==NILREF) {
+			context = vm->PtrToRcvr();
+			lookup = 0;
+		}
+	}
+	
+	// find the actual variable with either of these methods
+	Ref var = XGetVariable((RefArg)context, (RefArg)name, NEWT_LOCAL_PTR(exists), lookup);
+	rcvr->GetRefHandle()->SetRef(var);
+	if (!NEWT_LOCAL_GET_W(KUInt32, exists)) {
+		var = UnsafeGetFrameSlot(GlobalGetVarFrame(), name->GetRefHandle()->GetRef(), NEWT_LOCAL_PTR(exists));
+		rcvr->GetRefHandle()->SetRef(var);
+	}
+	
+	// if we did not find the variable, throw an exception
+	if (NEWT_LOCAL_GET_W(KUInt32, exists)==0) {
+		ThrowExInterpreterWithSymbol(-48807, (RefArg)name); // Undefined variable
+		return 0;
+	}
+	
+	// push the variable onto the stack
+	SimStack *stack = inState->GetStack();
+	Ref* sp = stack->GetTop();
+	NewtWriteWord(sp, var);
+	stack->SetTop(sp+1);
+	return 0;
+}
+
+
 // FIXME: next is KUInt32 TInterpreter::Run()
 // This method contains a setjmp call to prepare for a later Throw() call.
 // Something we have not solved yet.
@@ -1764,6 +1840,11 @@ KUInt32 FastBranchIfLoopNotDone(FastRunState* inState, long B)
 
 // ----------------------------------------------------------------------------
 
+
+NEWT_INJECTION(0x002EDAF8, "FastFindVar(FastRunState*, long)") {
+	NEWT_RETVAL FastFindVar(NEWT_ARG0(FastRunState*), NEWT_ARG1(long));
+	NEWT_RETURN;
+}
 
 NEWT_INJECTION(0x002ED9B8, "FastBranchIfLoopNotDone(FastRunState*, long)") {
 	NEWT_RETVAL FastBranchIfLoopNotDone(NEWT_ARG0(FastRunState*), NEWT_ARG1(long));
