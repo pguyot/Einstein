@@ -36,6 +36,8 @@ class ObjectHeader;
 
 FreqFuncDef* GlobalGetFreqFuncInfo(); //NEWT_GLOBAL_W_DECL(FreqFuncDef*, FreqFuncInfo, 0x0C1051F4);
 
+NEWT_GLOBAL_W_DECL(Ref,				VarFrame,						0x0C10180C);
+
 NEWT_GLOBAL_W_DECL(KUInt32,			FramesFunctionProfilingEnabled,	0x0C10535C);
 NEWT_GLOBAL_W_DECL(KUInt32,			FramesFunctionProfiler,			0x0C105360);
 NEWT_GLOBAL_W_DECL(Ref,				FunctionFrame,					0x0C10544C);

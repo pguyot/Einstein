@@ -27,6 +27,8 @@
 
 FreqFuncDef* GlobalGetFreqFuncInfo() { return (FreqFuncDef*)0x0C1051F4; }
 
+NEWT_GLOBAL_W_IMPL(Ref,				VarFrame,						0x0C10180C);
+
 NEWT_GLOBAL_W_IMPL(KUInt32,			FramesFunctionProfilingEnabled,	0x0C10535C);
 NEWT_GLOBAL_W_IMPL(KUInt32,			FramesFunctionProfiler,			0x0C105360);
 NEWT_GLOBAL_W_IMPL(Ref,				FunctionFrame,					0x0C10544C);
