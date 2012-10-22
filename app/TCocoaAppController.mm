@@ -539,7 +539,10 @@ static TCocoaAppController* gInstance = nil;
 {
 	if (!mQuit)
 	{
-		mEmulator->Quit();
+		if ( mEmulator )
+		{
+			mEmulator->Quit();
+		}
 	}
 }
 
