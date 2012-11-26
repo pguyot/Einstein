@@ -104,10 +104,14 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 	fprintf(out, "----- statistics ----\n");
 
 	switch (style & 0x0000ffff) {
+		case kStyleDontSort:
+			a = 0; b = 0x00800000;
+			goto AToB;
 		case kStyleAToB:
 			a = va_arg( vl, KUInt32 );
 			b = va_arg( vl, KUInt32 );
-			o = a; 
+		AToB:
+			o = a;
 			a = (a-mFirst)>>mShift; // TODO: check bounds
 			b = (b-mFirst)>>mShift;
 			for (i=a; i<b; i++) {
@@ -123,8 +127,9 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 			n = 0;
 			for (j=0; j<mSize; j++) {
 				KUInt64 v = mArray[j];
-				if (v>0) 
-					n++;
+				if (v>0) {
+					fprintf(out, "%08X: %19llu\n", (unsigned int)((j<<mShift)+mFirst), m);
+				}
 			}
 		case kStyleMostHit:
 			// TODO: using an insanely slow and destructive method to sort

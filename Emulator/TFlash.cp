@@ -280,6 +280,8 @@ TFlash::ReadB(
 void
 TFlash::SaveState( TStream* inStream ) const
 {
+	mFlashFile.Sync();
+
 	// The flash.
 	KUInt32 FlashSize = kFlashBank1Size + kFlashBank2Size;
 	inStream->PutInt32ArrayBE( (KUInt32*) mFlash, FlashSize / sizeof( KUInt32 ) );
@@ -293,6 +295,8 @@ TFlash::LoadState( TStream* inStream )
 {
 	KUInt32 FlashSize = kFlashBank1Size + kFlashBank2Size;
 	inStream->GetInt32ArrayBE( (KUInt32*) mFlash, FlashSize / sizeof( KUInt32 ) );
+
+	mFlashFile.Sync();
 }
 
 // -------------------------------------------------------------------------- //

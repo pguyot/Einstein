@@ -54,6 +54,8 @@ class TStream;
 ///
 class TEmulator
 {
+  friend class TMonitor;
+
 public:
 	///
 	/// Constructor from a ROM image and a RAM size.

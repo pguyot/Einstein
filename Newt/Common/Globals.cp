@@ -35,5 +35,6 @@ NEWT_GLOBAL_W_IMPL(Ref,				FunctionFrame,					0x0C10544C);
 NEWT_GLOBAL_W_IMPL(Ref,				FreqFuncs,						0x0C105450);
 NEWT_GLOBAL_W_IMPL(KUInt32,			FramesBreakPointsEnabled,		0x0C105460);
 NEWT_GLOBAL_W_IMPL(KUInt32,			AccurateStackTrace,				0x0C105468);
+NEWT_GLOBAL_W_IMPL(TObjectHeap*,	Heap,							0x0c105548);
 NEWT_GLOBAL_W_IMPL(Ref,				CacheObjPtrRef,					0x0c10554c);
 NEWT_GLOBAL_W_IMPL(ObjectHeader*,	CacheObjPtrPtr,					0x0c105550);

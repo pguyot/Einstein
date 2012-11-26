@@ -190,6 +190,41 @@ public:
 #define NEWT_LOCAL_GET_W(type, name) \
 	(type)NewtReadWord(ngPtr##name)
 
+
+//0000 = EQ - Z set (equal)
+//0001 = NE - Z clear (not equal)
+//0010 = CS - C set (unsigned higher or same)
+//0011 = CC - C clear (unsigned lower)
+//0100 = MI - N set (negative)
+//0101 = PL - N clear (positive or zero)
+//0110 = VS - V set (overflow)
+//0111 = VC - V clear (no overflow)
+//1000 = HI - C set and Z clear (unsigned higher)
+//1001 = LS - C clear or Z set (unsigned lower or same)
+//1010 = GE - N set and V set, or N clear and V clear (greater or equal)
+//1011 = LT - N set and V clear, or N clear and V set (less than)
+//1100 = GT - Z clear, and either N set and V set, or N clear and V clear (greater than)
+//1101 = LE - Z set, or N set and V clear, or N clear and V set (less than or equal) 1110 = AL - always
+//1111 = NV - never
+
+#define NEWT_COND_EQ (cond_z)
+#define NEWT_COND_NE (!cond_z)
+#define NEWT_COND_CS (cond_c)
+#define NEWT_COND_CC (!cond_c)
+#define NEWT_COND_MI (cond_n)
+#define NEWT_COND_PL (!cond_n)
+#define NEWT_COND_VS (cond_v)
+#define NEWT_COND_VC (!cond_v)
+#define NEWT_COND_HI ((cond_c)&&(!cond_z))
+#define NEWT_COND_LS ((!cond_c)||(cond_z))
+#define NEWT_COND_GE (!(cond_n^cond_v))
+#define NEWT_COND_LT (cond_n^cond_v)
+#define NEWT_COND_GT (!cond_z&&!(cond_n^cond_v))
+#define NEWT_COND_LE (cond_z||(cond_n^cond_v))
+#define NEWT_COND_AL 1
+#define NEWT_COND_NV 0
+
+
 typedef KSInt32 (*NewtGlueTask)();
 
 class NewtGlueFibre : public TFibre {

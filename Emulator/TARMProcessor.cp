@@ -1026,6 +1026,7 @@ TARMProcessor::SaveState( TStream* inStream ) const
 	inStream->PutInt32BE( mSPSRund );
 	inStream->PutInt32BE( mSPSRirq );
 	inStream->PutInt32BE( mSPSRfiq );
+	
 	inStream->PutInt32BE( mMode );
 	inStream->PutInt32BE( mPendingInterrupts );
 }
@@ -1077,6 +1078,7 @@ TARMProcessor::LoadState( TStream* inStream )
 	mSPSRund = inStream->GetInt32BE();
 	mSPSRirq = inStream->GetInt32BE();
 	mSPSRfiq = inStream->GetInt32BE();
+	
 	mMode = (EMode) inStream->GetInt32BE();
 	mPendingInterrupts = inStream->GetInt32BE();
 }

@@ -24,20 +24,22 @@ LOCAL_CPP_EXTENSION := .cp
 LOCAL_CFLAGS    := \
 	-Wno-multichar \
 	-DTARGET_OS_ANDROID=1 \
-	-O3 \
-	-I../../Emulator/ \
-	-I../../Emulator/ROM/ \
-	-I../../Emulator/Platform/ \
-	-I../../Emulator/NativeCalls/ \
-	-I../../Emulator/Host/ \
-	-I../../Emulator/Log/ \
-	-I../../Emulator/JIT/ \
-	-I../../Emulator/JIT/Generic/ \
-	-I../../Emulator/Network/ \
-	-I../../Emulator/PCMCIA/ \
-	-I../../Emulator/Serial/ \
-	-I../../Emulator/Sound/ \
-	-I../../Emulator/Screen/
+	-O3 
+
+LOCAL_C_INCLUDES := \
+	$(LOCAL_PATH)/Emulator/ \
+	$(LOCAL_PATH)/Emulator/ROM/ \
+	$(LOCAL_PATH)/Emulator/Platform/ \
+	$(LOCAL_PATH)/Emulator/NativeCalls/ \
+	$(LOCAL_PATH)/Emulator/Host/ \
+	$(LOCAL_PATH)/Emulator/Log/ \
+	$(LOCAL_PATH)/Emulator/JIT/ \
+	$(LOCAL_PATH)/Emulator/JIT/Generic/ \
+	$(LOCAL_PATH)/Emulator/Network/ \
+	$(LOCAL_PATH)/Emulator/PCMCIA/ \
+	$(LOCAL_PATH)/Emulator/Serial/ \
+	$(LOCAL_PATH)/Emulator/Sound/ \
+	$(LOCAL_PATH)/Emulator/Screen/
 
 LOCAL_LDLIBS    := -llog -ljnigraphics
 

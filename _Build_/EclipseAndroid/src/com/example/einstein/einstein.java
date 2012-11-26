@@ -55,6 +55,13 @@ public class einstein extends Activity implements OnSharedPreferenceChangeListen
 		DebugUtils.appendLog("einstein.onCreate: Entered method");
 		super.onCreate(savedInstanceState);
 		Log.e("einstein", ">>>>>>>>>> onCreate()");
+		
+		// -- start a service that will make sure that Einstein will run in the background as long as we have the resources
+	    Intent intent = new Intent(EinsteinService.class.getName());
+		Log.e("einstein", ">>>>>>>>>> starting service"+intent);
+	    startService(intent); 
+		Log.e("einstein", ">>>>>>>>>> service started");
+		
 		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		DebugUtils.appendLog("einstein.onCreate: Got preferences");
 		// Create an intance of EinsteinPreferencesActivity. If we do not do this, the preferences that are calculated at

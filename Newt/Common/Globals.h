@@ -44,8 +44,10 @@ NEWT_GLOBAL_W_DECL(Ref,				FunctionFrame,					0x0C10544C);
 NEWT_GLOBAL_W_DECL(Ref,				FreqFuncs,						0x0C105450);
 NEWT_GLOBAL_W_DECL(KUInt32,			FramesBreakPointsEnabled,		0x0C105460);
 NEWT_GLOBAL_W_DECL(KUInt32,			AccurateStackTrace,				0x0C105468);
+NEWT_GLOBAL_W_DECL(TObjectHeap*,	Heap,							0x0c105548);
 NEWT_GLOBAL_W_DECL(Ref,				CacheObjPtrRef,					0x0C10554C);
 NEWT_GLOBAL_W_DECL(ObjectHeader*,	CacheObjPtrPtr,					0x0C105550);
+
 
 #endif	// NEWT_COMMON_GLOBALS_H
 

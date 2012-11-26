@@ -33,6 +33,28 @@
 #include <android/bitmap.h>
 
 
+/* How to keep the Einstein App around when inactive to avoid rebooting NewtonOS
+ 
+ The following list presents the different types of processes in order of importance (the first process is most important and is killed last):
+ 
+ 1.Foreground process
+ 2.Visible process
+ 3.Service process
+ 4.Background process
+ 5.Empty process
+ 
+ Possible solution:
+ 
+ 1: start a service (seems reasonably easy)
+ http://developer.android.com/reference/android/content/Context.html#startService(android.content.Intent)
+ 2: Process.THREAD_PRIORITY_BACKGROUND (simple, but will it work?)
+ The second way to set priorities is to call android.os.Process.setThreadPriority(). This allows to set the pririty to higer priorities for that
+ Declare: in your AndroidManifest and call Process.setThreadPriority(Process.myTid(), Process.THREAD_PRIORITY_URGENT_DISPLAY )
+ ANDROID_PRIORITY_NORMAL, ANDROID_PRIORITY_FOREGROUND
+ public static final void setThreadPriority (int priority)
+
+ */
+
 TAndroidApp *theApp = 0;
 TLog *theLog = 0;
 

@@ -292,6 +292,12 @@ public:
 };
 
 
+#define T_ROM_PATCH(addr, name) \
+extern JITInstructionProto(p##addr); \
+TROMPatch i##addr(addr, p##addr, name); \
+JITInstructionProto(p##addr)
+
+
 ///
 /// An Injection is different to a Patch. It will call native code, but then
 /// return and execute the original code.

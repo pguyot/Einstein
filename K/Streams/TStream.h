@@ -54,7 +54,9 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TStream( void ) {}
+	virtual ~TStream( void ) {
+		mVersion = 0;
+	}
 
 	/// \name Input/Output interface.
 
@@ -356,6 +358,20 @@ public:
 	/// \throws an exception if a problem occurred.
 	///
 	virtual	void		PutByte( const KUInt8 inByte );
+	
+	///
+	/// Set the version of this stream.
+	///
+	KUInt32 Version() { return mVersion; }
+	
+	///
+	/// Get the version of this stream.
+	///
+	void Version(KUInt32 v) { mVersion = v; }
+	
+protected:
+	
+	KUInt32 mVersion;
 };
 
 #endif

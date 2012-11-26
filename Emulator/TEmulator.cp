@@ -271,6 +271,10 @@ TEmulator::SaveState( const char* inPath ) const
 {
 	// Open the file for writing.
 	TStream* theStream = new TFileStream( inPath, "wb" );
+	theStream->Version(1);
+	theStream->PutInt32BE('EINI');
+	theStream->PutInt32BE('SNAP');
+	theStream->PutInt32BE(theStream->Version());
 	SaveState( theStream );
 	delete theStream;
 }
@@ -294,11 +298,14 @@ TEmulator::SaveState( TStream* inStream ) const
 	mScreenManager->SaveState( inStream );
 
 	// Emulator specific stuff.
+	inStream->PutInt32BE( mSignal );
+	inStream->PutInt32BE( mInterrupted );
 	inStream->PutInt32BE( mRunning );
 	inStream->PutInt32BE( mPaused );
 	inStream->PutInt32BE( mBPHalted );
 	inStream->PutInt16BE( mBPID );
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * LoadState( const char* inPath ) const
@@ -306,8 +313,25 @@ TEmulator::SaveState( TStream* inStream ) const
 void
 TEmulator::LoadState( const char* inPath )
 {
+	KUInt32 id, type;
+	
 	// Open the file for Reading.
 	TStream* theStream = new TFileStream( inPath, "rb" );
+	id = theStream->GetInt32BE();
+	if (id!='EINI') {
+		fprintf(stderr, "This is not a file created by Einstein!\n");
+		return;
+	}
+	type = theStream->GetInt32BE();
+	if (type!='SNAP') {
+		fprintf(stderr, "This is not an Einstein State file!\n");
+		return;
+	}
+	theStream->Version(theStream->GetInt32BE());
+	if (type!='SNAP') {
+		fprintf(stderr, "This Einstein State file is not supported. Please upgarde your Einstein version.\n");
+		return;
+	}
 	LoadState( theStream );
 	delete theStream;
 }
@@ -331,6 +355,8 @@ TEmulator::LoadState( TStream* inStream )
 	mScreenManager->LoadState( inStream );
 
 	// Emulator specific stuff.
+	mSignal = inStream->GetInt32BE();
+	mInterrupted = inStream->GetInt32BE();
 	mRunning = inStream->GetInt32BE();
 	mPaused = inStream->GetInt32BE();
 	mBPHalted = inStream->GetInt32BE();

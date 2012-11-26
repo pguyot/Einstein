@@ -31,6 +31,9 @@
 
 typedef long Ref;
 
+class RefVar;
+typedef RefVar* RefArg;
+
 class TInterpreter;
 
 
@@ -70,14 +73,14 @@ public:
 };
 
 
-class RefStack
+class TRefStack
 {
-	//public:
-	//  RefStack();
-	//  ~RefStack();
+public:
+	//  TRefStack();
+	//  ~TRefStack();
 	//
 	//  void		reset(long);
-	//  void		pushNILs(long);
+  KUInt32 TRefStack::PushNILs(long r1);
 	
 public:
 	NEWT_GET_SET_W(Ref*, Top)			// 0:
@@ -87,7 +90,7 @@ public:
 };
 
 
-class RefStructStack : public RefStack
+class RefStructStack : public TRefStack
 {
 	//public:
 	//  RefStructStack();
@@ -153,7 +156,8 @@ public:	// variables
 class TIntrpStack : public RefStructStack
 {
 public:	// methods
-	VMState* PrevState();
+  KUInt32 NewState();
+  VMState* PrevState();
 public:	// variables
 };
 
@@ -176,7 +180,8 @@ public:	// methods
 	void PushValue(Ref value);
 	Ref PopValue();
 	Ref PeekValue(long index);
-	
+  KUInt32 CallCFuncPtr(long* r1, long r2);
+  KUInt32 Call(RefArg r1, long r2);
 	
 public:	// variables
 	NEWT_GET_SET_W(TInterpreter*, Next)			//   0: pointer to next interpreter in linked list
@@ -205,12 +210,23 @@ public:	// variables
 };
 
 
+class TObjectHeap
+{
+public:
+  KUInt32 AllocateArray(RefArg r1, long r2);
+  KUInt32 AllocateFrame();
+  KUInt32 AllocateObject(long r1, unsigned long r2);
+  KUInt32 AllocateMap(RefArg r1, long r2);
+};
 
-KUInt32 FastFreqFuncGeneral(FastRunState*, long);
-KUInt32 FastBranchIfLoopNotDone(FastRunState* inState, long B);
-class ArrayObject* ObjectPtr(Ref inRef);
-KUInt32 _RINTError(Ref r0);
-KUInt32 FastFindVar(FastRunState* inState, long inB);
+
+class TRefStructStack
+{
+public:
+  KUInt32 Fill();
+};
+
+
 
 
 #endif	// NEWT_FRAMES_T_INTERPRETER_H
