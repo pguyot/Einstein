@@ -120,6 +120,16 @@ public:
 	///
 	void		LoadEmulatorState( const char *inFilename=0L );
 	
+	///
+	/// Save the current state of the Emulator to a file.
+	///
+	void		SnapEmulatorState( const char *inFilename=0L );
+	
+	///
+	/// Read the current emulator state from a file.
+	///
+	void		RevertEmulatorState( const char *inFilename=0L );
+	
 protected:
 	/// Constants.
 	static const char* kEraseLine;

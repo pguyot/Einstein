@@ -1118,7 +1118,13 @@ void
 TInterruptManager::SaveState( TStream* inStream ) const
 {
 	// Interrupt manager specific stuff.
-	inStream->PutInt32BE( mIntRaised );
+	inStream->PutInt32BE( mRunning );
+	inStream->PutInt32BE( mExiting );
+
+	inStream->PutInt32BE( mWaiting );
+
+	inStream->PutInt32BE( mMaskIRQ );
+	inStream->PutInt32BE( mMaskFIQ );
 	inStream->PutInt32BE( mIntRaised );
 	inStream->PutInt32BE( mIntCtrlReg );
 	inStream->PutInt32BE( mFIQMask );
@@ -1128,13 +1134,13 @@ TInterruptManager::SaveState( TStream* inStream ) const
 	inStream->PutInt32BE( mGPIORaised );
 	inStream->PutInt32BE( mGPIOCtrlReg );
 	inStream->PutInt32BE( mCalendarDelta );
+	
 	inStream->PutInt32BE( mAlarmRegister );
 	inStream->PutInt32BE( mTimerDelta );
 	inStream->PutInt32BE( mTimer );
 	inStream->PutInt32ArrayBE(
 				mMatchRegisters,
 				sizeof(mMatchRegisters) / sizeof(KUInt32) );
-	inStream->PutInt32BE( mRunning );
 }
 
 // -------------------------------------------------------------------------- //
@@ -1144,7 +1150,13 @@ void
 TInterruptManager::LoadState( TStream* inStream )
 {
 		// Interrupt manager specific stuff.
-	mIntRaised = inStream->GetInt32BE();
+	mRunning = inStream->GetInt32BE();
+	mExiting = inStream->GetInt32BE();
+
+	mWaiting = inStream->GetInt32BE();
+
+	mMaskIRQ = inStream->GetInt32BE();
+	mMaskFIQ = inStream->GetInt32BE();
 	mIntRaised = inStream->GetInt32BE();
 	mIntCtrlReg = inStream->GetInt32BE();
 	mFIQMask = inStream->GetInt32BE();
@@ -1154,13 +1166,13 @@ TInterruptManager::LoadState( TStream* inStream )
 	mGPIORaised = inStream->GetInt32BE();
 	mGPIOCtrlReg = inStream->GetInt32BE();
 	mCalendarDelta = inStream->GetInt32BE();
+	
 	mAlarmRegister = inStream->GetInt32BE();
 	mTimerDelta = inStream->GetInt32BE();
 	mTimer = inStream->GetInt32BE();
 	inStream->GetInt32ArrayBE(
 				mMatchRegisters,
 				sizeof(mMatchRegisters) / sizeof(KUInt32) );
-	mRunning = inStream->GetInt32BE();
 }
 
 // ======================================== //

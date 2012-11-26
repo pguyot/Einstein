@@ -42,6 +42,7 @@
 
 // Einstein
 #include "Emulator/TEmulator.h"
+#include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/TInterruptManager.h"
@@ -347,6 +348,54 @@ TMonitor::LoadEmulatorState( const char *inFilename )
 }
 
 // -------------------------------------------------------------------------- //
+// SaveEmulatroState( const char * )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::SnapEmulatorState( const char *inFilename )
+{
+#if TARGET_OS_WIN32
+	assert(0); // FIXME later
+#else
+	// TODO: power emulator off
+	TPlatformManager *pm = mEmulator->GetPlatformManager();
+	if (pm->IsPowerOn())
+		pm->SendPowerSwitchEvent();
+	// TODO: save state
+	// TODO: pause emulator
+	// TODO: signal caller
+	char someByte = 0;
+	mEmulator->SaveState(inFilename);
+	(void) ::write( mSocketPair[1], &someByte, 1 );
+#endif
+}
+
+// -------------------------------------------------------------------------- //
+// LoadEmulatroState( const char * )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::RevertEmulatorState( const char *inFilename )
+{
+#if TARGET_OS_WIN32
+	assert(0); // FIXME later
+#else
+	// TODO: pause emulator
+	// TODO: load state
+	// TODO: bring emulator out of sleep state
+	// TODO: signal caller
+	char someByte = 0;
+	mEmulator->LoadState(inFilename);
+	TScreenManager *screen = mEmulator->GetScreenManager();
+	TScreenManager::SRect rect;
+	rect.fLeft = 0;
+	rect.fTop = 0;
+	rect.fBottom = screen->GetScreenHeight()-1;
+	rect.fRight = screen->GetScreenWidth()-1;
+	screen->UpdateScreenRect(&rect);
+	(void) ::write( mSocketPair[1], &someByte, 1 );
+#endif
+}
+
+// -------------------------------------------------------------------------- //
 // ProcessBreakpoint( KUInt16, KUInt32 )
 // -------------------------------------------------------------------------- //
 Boolean
@@ -526,6 +575,76 @@ TMonitor::ExecuteCommand( const char* inCommand )
 		} else {
 			PrintLine("The emulator is running");
 		}
+	} else if (::strcmp(inCommand, "snap") == 0) {
+		if (!mHalted)
+		{
+			int i;
+			TPlatformManager *pm = mEmulator->GetPlatformManager();
+			if (pm->IsPowerOn()) {
+				PrintLine("Powering down");
+				pm->SendPowerSwitchEvent();
+				// wait a bit until we power down
+				for (i=300; i>0; --i) { // max. 3 seconds
+					if (!pm->IsPowerOn()) break;
+					usleep(10000);
+				}
+				if (i==0) {
+					PrintLine("ERROR: Failed to power down!\n");
+					// TODO: do something!
+				}
+			}
+			PrintLine("Stopping the Emulator");
+			mEmulator->Stop();
+			// wait for the emulator to stop
+			for (i=10; i>0; --i) { // 1/10th of a second
+				usleep(10000);
+			}
+			PrintLine("Saving emulator snapshot");
+			SaveEmulatorState("/Users/matt/einstein.state");
+			PrintLine("Emulator snapshot saved.");
+		} else {
+			PrintLine("The emulator is halted");
+		}
+	} else if (::strcmp(inCommand, "revert") == 0 || ::strcmp(inCommand, "rev") == 0) {
+		int i;
+		TPlatformManager *pm = mEmulator->GetPlatformManager();
+		if (pm->IsPowerOn()) {
+			PrintLine("Powering down");
+			pm->SendPowerSwitchEvent();
+			// wait a bit until we power down
+			for (i=300; i>0; --i) { // max. 3 seconds
+				if (!pm->IsPowerOn()) break;
+				usleep(10000);
+			}
+			if (i==0) {
+				PrintLine("ERROR: Failed to power down!\n");
+				// TODO: do something!
+			}
+		}
+		if (!mHalted) {
+			PrintLine("Stopping the Emulator");
+			mEmulator->Stop();
+			// wait for the emulator to stop
+			for (i=10; i>0; --i) { // 1/10th of a second
+				usleep(10000);
+			}
+		}
+		PrintLine("Loading emulator snapshot");
+		LoadEmulatorState("/Users/matt/einstein.state");
+		PrintLine("Restarting the Emulator");
+		if (mHalted)
+		{
+			mCommand = kRun;
+			SignalCondVar();
+		}
+		// wait for the emulator to start
+		for (i=300; i>0; --i) { // 1/10th of a second
+			usleep(10000);
+		}
+		PrintLine("Powering up");
+		if (!pm->IsPowerOn())
+			pm->SendPowerSwitchEvent();
+		PrintLine("Emulator snapshot restored.");
 	} else if ((::strcmp(inCommand, "t") == 0)
 		|| (::strcmp(inCommand, "trace") == 0)) {
 		// Is it a jump?
@@ -956,6 +1075,7 @@ TMonitor::PrintHelp( void )
 	PrintLine(" raise <val>        raise the interrupts");
 	PrintLine(" gpio <val>         raise the gpio interrupts");
 	PrintLine(" load|save path     load or save the emulator state");
+	PrintLine(" snap|revert        (re)store machine state while running");
 #endif
 }
 

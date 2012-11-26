@@ -429,7 +429,9 @@ static TCocoaAppController* gInstance = nil;
 	
 	// Start the thread.
 	[NSThread detachNewThreadSelector:@selector(runEmulator) toTarget: self withObject: NULL];
-	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"run" afterDelay:1];
+//	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"load x" afterDelay:1];
+//	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"run" afterDelay:1];
+	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"revert" afterDelay:1];
 }
 
 
@@ -447,11 +449,13 @@ static TCocoaAppController* gInstance = nil;
 - (IBAction)backlightButton:(id)sender
 {
 	mPlatformManager->SendBacklightEvent();
-#ifdef JIT_PERFORMANCE
+#ifdef JIT_PERFORMANCE 
+	// branchDestCount currently holds all commands that are executed.
 	FILE *f;
 	f = fopen("/Users/matt/dev/Einstein/p1.txt", "wb");
 	//branchDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, 1000);
-	branchDestCount.print(f, TJITPerfHitCounter::kStyleAllHit|TJITPerfHitCounter::kStyleHex);
+	//branchDestCount.print(f, TJITPerfHitCounter::kStyleAllHit|TJITPerfHitCounter::kStyleHex);
+	branchDestCount.print(f, TJITPerfHitCounter::kStyleDontSort|TJITPerfHitCounter::kStyleHex);
 	fclose(f);
 	//f = fopen("/Users/matt/dev/Einstein/p2.txt", "wb");
 	//branchLinkDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, 1000);

@@ -82,6 +82,9 @@
   - TCP send
   - TCP receive
 
+ Newton Synchronization happens on port: TCP 3679 (use NCX to test)
+ 
+ 
  */
 
 #include <K/Defines/KDefinitions.h>
@@ -97,10 +100,11 @@
 #include <net/if.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <errno.h>
 
 #ifdef __ANDROID__
 # include <stdio.h>
-#include <fcntl.h>
+# include <fcntl.h>
 #else
 # include <sys/sockio.h>
 # include <ifaddrs.h>
@@ -323,7 +327,7 @@ public:
 			if ( GetType()==NetTypeIP ) {
 				if ( GetIPProtocol()==IPProtocolTCP ) {
 					KUInt32 o = strlen(buf);
-					sprintf(buf+o, "TCP %c%c%c%c%c %4u (%4u, %4u (%4u)) [", 
+					sprintf(buf+o, "TCP %c%c%c%c%c %4u bytes payload (Seq:%4u, Ack:%4u) [",
 							(unsigned int)(GetTCPFlags()&0x10?'A':'.'),
 							(unsigned int)(GetTCPFlags()&0x08?'P':'.'),
 							(unsigned int)(GetTCPFlags()&0x04?'R':'.'),
@@ -331,8 +335,7 @@ public:
 							(unsigned int)(GetTCPFlags()&0x01?'F':'.'),
 							(unsigned int)(GetTCPPayloadSize()), 
 							(unsigned int)(GetTCPSeq()%9999), 
-							(unsigned int)(GetTCPAck()%9999),
-							(unsigned int)((GetTCPPayloadSize()+GetTCPSeq())%9999));
+							(unsigned int)(GetTCPAck()%9999));
 					KUInt32 i = 0, s = GetTCPPayloadStart()-mData;
 					o = strlen(buf);
 					while (s<mSize && i<128) {
@@ -575,8 +578,10 @@ public:
 		sa.sin_addr.s_addr = htonl(theirIP);
 		// TODO: connect() will block. We can also put this socket into non-blocking first
 		int err = ::connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
-		if (err==-1)
+		if (err==-1) {
+			fprintf(stderr, "Can't connect: %s\n", strerror(errno));
 			return -1;
+		}
 		
 		// perform some presets for the socket
 		int fl = fcntl(mSocket, F_GETFL);
@@ -735,7 +740,7 @@ public:
 	 * Can we handle the given package?
 	 * This function is static and can be called before this class is instantiated.
 	 * At this point, no active handler was able to handle the packet. If this
-	 * is a generic TCP/IP packet requestin to open a socket, we will handle it.
+	 * is a generic TCP/IP packet request to open a socket, we will handle it.
 	 * \param packet the Newton packet that could be sent
 	 * \param n the network interface
 	 * \return 0 if we can not handle this packet

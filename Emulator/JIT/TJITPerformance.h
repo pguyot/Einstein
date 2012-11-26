@@ -66,9 +66,10 @@ public:
 	void		print(FILE *out, KUInt32 style, ...);
 
 	enum {
-		kStyleAToB = 0,	///< show all values from a to b; varargs are UInt32 a, UInt32 b
-		kStyleMostHit,	///< show the first n addresses that were hit most often; varargs is UInt32 n
-		kStyleAllHit,	///< show all addresses that were hit, sorted by number of hit; varargs is unused
+		kStyleAToB = 0,		///< show all values from a to b; varargs are UInt32 a, UInt32 b
+		kStyleMostHit,		///< show the first n addresses that were hit most often; varargs is UInt32 n
+		kStyleAllHit,		///< show all addresses that were hit, sorted by number of hit; varargs is unused
+		kStyleDontSort,		///< list all addresses that were hit
 		kStyleHex = 0x10000000 ///< show addresse in 8 byte hex notation instead of decimal
 	};
 
@@ -86,6 +87,6 @@ extern TJITPerfHitCounter branchLinkDestCount;
 
 
 #endif
-		// _JITPERFORMANCE_H
+// _JITPERFORMANCE_H
 
 // ==============================

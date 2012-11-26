@@ -35,6 +35,8 @@
 #include "TJITGeneric_Macros.h"
 #include "TROMImage.h"
 
+//#define NEWT_GLUE_VERBATIM
+#define NEWT_GLUE_VERBATIM if (0)
 
 NewtGlueFibre gMainFibre;
 NewtGlueDispatch gSimDispatch;
@@ -63,13 +65,14 @@ JITUnit* NewtGlueDispatch::Dispatch(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt
 		JITFuncPtr stub = TROMPatch::GetSimulatorStubAt(callIndex);
 		KSInt32 ret = gMainFibre.Run(callIndex, (void*)stub);
 		if (ret) {
-			//printf("INFO: Called Simulator, but changed my mind\n");
+			NEWT_GLUE_VERBATIM printf("INFO: Called Simulator, but changed my mind (%s)\n", TROMPatch::GetNameAt(callIndex));
 			return ioUnit;
 		} else {
+			NEWT_GLUE_VERBATIM printf("INFO: Called Simulator (%s)\n", TROMPatch::GetNameAt(callIndex));
 			return 0L;
 		}
 	} else {
-		// printf("INFO: Simulator calling simulator (%s)\n", TROMPatch::GetNameAt(callIndex));
+		NEWT_GLUE_VERBATIM printf("INFO: Simulator calling simulator (%s)\n", TROMPatch::GetNameAt(callIndex));
 		gMainFibre.pRecursions++;
 		return ioUnit;
 	}
@@ -326,30 +329,40 @@ KSInt32 NewtGlueFibre::Task(KSInt32 inIndex, void* inUserData)
 	NewtGlueTask task = (NewtGlueTask)inUserData;
 	KSInt32 ret = task();
 	if (pRecursions) {
-		// printf("Performance Info: %ld recursion attempts during simulator call (%s)\n", pRecursions, TROMPatch::GetNameAt(inIndex));
+		NEWT_GLUE_VERBATIM printf("Performance Info: %ld recursion attempts during simulator call (%s)\n", pRecursions, TROMPatch::GetNameAt(inIndex));
+		pRecursions = 0;
 	}
 	return ret;
 }
 
+#if 0
 
 T_ROM_INJECTION(0x00394560, "longjmp")
 {
 	KUInt32 oldSP = ioCPU->GetRegister(13);
 	KUInt32 newSP = NewtReadWord(ioCPU->GetRegister(0)+12*4);
 	KUInt32 newPC = NewtReadWord(ioCPU->GetRegister(0)+13*4);
-	printf("INFO: longmp called from 0x%08lX (old sp: 0x%08lX, new sp: 0x%08lX, d=%ld, new pc: 0x%08lX)\n",
+	NEWT_GLUE_VERBATIM printf("INFO: longmp called from 0x%08lX (old sp: 0x%08lX, new sp: 0x%08lX, d=%ld, new pc: 0x%08lX)\n",
 		   ioCPU->GetRegister(14),
 		   oldSP,
 		   newSP,
 		   oldSP-newSP,
 		   newPC);
+	if (gMainFibre.IsSuspended()) {
+		NEWT_GLUE_VERBATIM fprintf(stderr, "INFO: Fibre SP is 0x%08lX\n", gMainFibre.pSP);
+		if (oldSP<gMainFibre.pSP && newSP<gMainFibre.pSP)  // and same stack
+			NEWT_GLUE_VERBATIM fprintf(stderr, "INFO: Fibre is not affected\n");
+		if (oldSP>gMainFibre.pSP && newSP>gMainFibre.pSP) // and same stack
+			NEWT_GLUE_VERBATIM fprintf(stderr, "ERROR: Fibre will not run again!\n");
+	}
+	NEWT_GLUE_VERBATIM fprintf(stderr, "INFO: trying to fix the issue. This is untested and may cause inconsistencies.\n");
 	if (gMainFibre.IsSuspended() && oldSP<gMainFibre.pSP && newSP>gMainFibre.pSP) {
-		fprintf(stderr, "ALERT: longjmp crosses Fibre stack at 0x%08lX, Fibres may no longer work (%s)!\n",
-				gMainFibre.pSP,
-				TROMPatch::GetNameAt(gMainFibre.pTaskIndex));
-		fprintf(stderr, "INFO: trying to fix the issue. This is untested and may cause inconsistencies.\n");
+		NEWT_GLUE_VERBATIM fprintf(stderr, "ALERT: longjmp crosses Fibre stack at 0x%08lX, Fibres may no longer work (%s)!\n", gMainFibre.pSP, TROMPatch::GetNameAt(gMainFibre.pTaskIndex));
+		NEWT_GLUE_VERBATIM fprintf(stderr, "INFO: trying to fix the issue. This is untested and may cause inconsistencies.\n");
 		gMainFibre.Abort(0);
 	}
 	return ioUnit;
 }
+
+#endif
 
