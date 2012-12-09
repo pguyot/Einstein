@@ -217,7 +217,6 @@
 		C901967C1328299500C3342F /* TAndroidApp.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TAndroidApp.h; path = ../../app/TAndroidApp.h; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 1; };
 		C901967D132829C000C3342F /* Android.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Android.mk; path = ../EclipseAndroid/jni/Android.mk; sourceTree = SOURCE_ROOT; };
 		C901967E132829C000C3342F /* Application.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Application.mk; path = ../EclipseAndroid/jni/Application.mk; sourceTree = SOURCE_ROOT; };
-		C901967F132829C000C3342F /* einstein.java */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.java; name = einstein.java; path = ../EclipseAndroid/src/com/example/einstein/einstein.java; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 1; };
 		C901968613282E1500C3342F /* TAndroidScreenManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TAndroidScreenManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C901968713282E1500C3342F /* TAndroidScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TAndroidScreenManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C9019692132834EA00C3342F /* AndroidGlue.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AndroidGlue.cp; path = ../../app/AndroidGlue.cp; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 1; };
@@ -733,7 +732,6 @@
 			children = (
 				C901967D132829C000C3342F /* Android.mk */,
 				C901967E132829C000C3342F /* Application.mk */,
-				C901967F132829C000C3342F /* einstein.java */,
 				C9019692132834EA00C3342F /* AndroidGlue.cp */,
 				C901967A1328299500C3342F /* AndroidGlue.h */,
 				C901967B1328299500C3342F /* TAndroidApp.cp */,

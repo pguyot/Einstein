@@ -227,6 +227,83 @@ public:
 };
 
 
+  // TODO
+KUInt32 SetArraySlotError(long r0, long r1, char* r2);
+KUInt32 EQ1(long r0, long r1);
+KUInt32 AllocateFrameWithMap(RefArg map);
+KUInt32 XGetVariable(RefArg cotext, RefArg name, long* exist, int lookup);
+KUInt32 UnsafeGetFrameSlot(Ref r0, Ref r1, Ref* r2);
+KUInt32 ThrowExInterpreterWithSymbol(long r0, RefArg r1);
+class ObjectHeader* ResolveMagicPtr(Ref r0);
+RefHandle* AllocateRefHandle(Ref r0);
+KUInt32 DisposeRefHandle(RefHandle* r0);
+KUInt32 Throw(const char *label, long err, KUInt32 r2);
+KUInt32 FastComplicatedAref(FastRunState* r0, Ref r1, Ref r2, int r3);
+KUInt32 FastComplicatedEqual(FastRunState* r0);
+KUInt32 FastComplicatedNotEqual(FastRunState* r0);
+KUInt32 FastComplicatedSetAref(FastRunState* r0, Ref r1, Ref r2, int r3);
+KUInt32 FastFindAndSetVar(FastRunState* r0, Ref r1);
+KUInt32 FastInvoke(FastRunState* r0, Ref r1);
+KUInt32 FastIterDone(FastRunState* r0, Ref r1);
+KUInt32 GetTag(RefArg r0, long r1, long* r2);
+KUInt32 ForEachLoopReset(RefArg r0, RefArg r1);
+KUInt32 GetFrameSlotRef(long r0, long r1);
+KUInt32 Length(long r0);
+KUInt32 ICacheClear();
+KUInt32 ForEachLoopDone(RefArg r0);
+KUInt32 FastNewHandlers(FastRunState* r0, Ref r1);
+KUInt32 FastResend(FastRunState* r0, Ref r1);
+KUInt32 FastResendIfDefined(FastRunState* r0, Ref r1);
+KUInt32 FastSend(FastRunState* r0, Ref r1);
+KUInt32 FastSendIfDefined(FastRunState* r0, Ref r1);
+KUInt32 FastSetLexScope(FastRunState* r0, Ref r1);
+KUInt32 FastUnary1Ext(FastRunState* r0, Ref r1);
+KUInt32 FastUndefined(FastRunState* r0, Ref r1);
+Ref GetFramePath(RefArg r0, RefArg r1);
+KUInt32 NumberAdd(RefArg r0, RefArg r1);
+KUInt32 NumberSubtract(RefArg r0, RefArg r1);
+KUInt32 ThrowBadTypeWithFrameData(long r0, RefArg r1);
+KUInt32 FindOffset(long r0, long r1);
+KUInt32 AddSlot(RefArg r0, RefArg r1);
+KUInt32 ThrowExFramesWithBadValue(long r0, RefArg r1);
+KUInt32 ThrowRefException(char* r0, RefArg r1);
+KUInt32 _RINTError(Ref r0);
+KUInt32 SetFramePath(RefArg r0, RefArg r1, RefArg r2);
+KUInt32 SetFramePathFor1XFunctions(RefArg r0, RefArg r1, RefArg r2);
+KUInt32 ThrowOutOfBoundsException(RefArg r0, Ref r1);
+class ArrayObject* ObjectPtr1(Ref r0, Ref r1, KSInt32 r2);
+KUInt32 FastDoCall(FastRunState* inState, Ref fnRef, Ref r2);
+KUInt32 rt_sdiv(KUInt32 r0, KUInt32 r1);
+KUInt32 RemoveSecP(unsigned long r0);
+KUInt32 AddNewSecPNJT(unsigned long r0, unsigned long r1, unsigned long r2, KUInt32 r3, unsigned char frame0);
+KUInt32 Clone(RefArg r0);
+KUInt32 Throw(KUInt32 r0, KUInt32 r1, KUInt32 r2);
+
+
+  // DONE
+KUInt32 FastCall(FastRunState* r0, Ref r1);
+KUInt32 SetArraySlotRef(long r0, long r1, long r2);
+KUInt32 EQRef(long r0, long r1);
+KUInt32 ForEachLoopNext(RefArg r0);
+KUInt32 AllocateFrame();
+KUInt32 DirtyObject(long r0);
+KUInt32 SymbolHash(long r0);
+KUInt32 symcmp(char* r0, char* r1);
+KUInt32 SymbolCompare(long r0, long r1);
+KUInt32 SetFrameSlot(RefArg r0, RefArg r1, RefArg r2);
+KUInt32 GetArraySlotError(long r0, long r1, char* r2);
+KUInt32 GetArraySlotRef(long r0, long r1);
+KUInt32 FastIterNext(FastRunState* r0, long r1);
+KUInt32 AllocateArray(RefArg r0, long r1);
+KUInt32 FastMakeArray(FastRunState* r0, long r1);
+KUInt32 FastMakeFrame(FastRunState* inState, long inB);
+KUInt32 ObjectFlags(Ref obj);
+class ArrayObject* ObjectPtr(Ref inRef);
+KUInt8* BinaryData(Ref ref);
+KUInt32 FastFreqFuncGeneral(FastRunState* inState, KSInt32);
+KUInt32 FastBranchIfLoopNotDone(FastRunState* inState, long B);
+KUInt32 FastFindVar(FastRunState* inState, long inB);
+KUInt32 FixedMultiply(KUInt32 in0, KUInt32 in1);
 
 
 #endif	// NEWT_FRAMES_T_INTERPRETER_H
