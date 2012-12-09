@@ -1,42 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-	<string-array name="entries_install_rom">
-		<item>Internet</item>
-		<item>USB</item>
-		<item>WLAN</item>
-		<item>Speicherkarte</item>
-	</string-array>
-	<string-array name="entryvalues_install_rom">
-		<item>1</item>
-		<item>2</item>
-		<item>3</item>
-		<item>4</item>
-	</string-array>
-	<string-array name="entries_ram_size">
-		<item>1MB (MP2000)</item>
-		<item>4MB (MP2100)</item>
-		<item>8MB</item>
-		<item>16MB</item>
-	</string-array>
-	<string-array name="entryvalues_ram_size">
-		<item>1</item>
-		<item>4</item>
-		<item>8</item>
-		<item>16</item>
-	</string-array>
-
-	<string-array name="entries_back_button">
-		<item>Quit Einstein, Reboot Newton</item>
-		<item>Pause Einstein, Newton Sleeps</item>
-		<item>Newton Dot Button</item>
-		<item>Newton Extras Drawer</item>
-		<item>Newton Context Menu</item>
-	</string-array>
-	<string-array name="entryvalues_back_button">
-		<item>1</item>
-		<item>2</item>
-		<item>3</item>
-		<item>4</item>
-		<item>5</item>
-	</string-array>
+  <string-array name="entries_install_rom">
+    <item>Internet</item>
+    <item>USB</item>
+    <item>WLAN</item>
+    <item>SD Card</item>
+  </string-array>
+  <string-array name="entryvalues_install_rom">
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+    <item>4</item>
+  </string-array>
+  <string-array name="entries_ram_size">
+    <item>1MB (MP2000)</item>
+    <item>4MB (MP2100)</item>
+    <item>8MB</item>
+    <item>16MB</item>
+  </string-array>
+  <string-array name="entryvalues_ram_size">
+    <item>1</item>
+    <item>4</item>
+    <item>8</item>
+    <item>16</item>
+  </string-array>
+  <string-array name="entries_back_button">
+    <item>Quit Einstein, Reboot Newton</item>
+    <item>Pause Einstein, Newton Sleeps</item>
+    <item>Newton Dot Button</item>
+    <item>Newton Extras Drawer</item>
+    <item>Newton Context Menu</item>
+  </string-array>
+  <string-array name="entryvalues_back_button">
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+    <item>4</item>
+    <item>5</item>
+  </string-array>
 </resources>
