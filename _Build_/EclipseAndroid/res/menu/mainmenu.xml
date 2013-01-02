@@ -7,8 +7,8 @@
     </item>
     <item
         android:id="@+id/installNewPackages"
-        android:title="@string/mainmenu.installpackages.title"
-		android:titleCondensed="@string/mainmenu.installpackages.condensed" android:enabled="true">       
+        android:title="@string/mainmenu.installPackages.title"
+		android:titleCondensed="@string/mainmenu.installPackages.condensed" android:enabled="true">       
     </item>
     <item
         android:id="@+id/backlight"

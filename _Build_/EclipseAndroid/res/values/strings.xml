@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Einstein</string>    
+    <string name="mainmenu.toEmulator.title">Back to Einstein</string>
+    <string name="mainmenu.toEmulator.condensed">Einstein</string>
     <string name="mainmenu.insertNetworkCard.title">Insert Network Card</string>
     <string name="mainmenu.insertNetworkCard.condensed">Network</string>
     <string name="mainmenu.backlight.title">Backlight</string>
     <string name="mainmenu.backlight.condensed">Backlight</string>
     <string name="mainmenu.preferences.title">Preferences</string>
     <string name="mainmenu.preferences.condensed">Prefs</string>
-    <string name="mainmenu.installpackages.title">Install New Packages</string>
-    <string name="mainmenu.installpackages.condensed">Install</string>
-	<string name="Startup.romFileMissing">Unable to install ROM file.</string>
+    <string name="mainmenu.installPackages.title">Install New Packages</string>
+    <string name="mainmenu.installPackages.condensed">Install</string>
+    <string name="mainmenu.quitEinstein.title">Quit Einstein</string>
+    <string name="mainmenu.quitEinstein.condensed">Quit</string>
+    <string name="Startup.romFileMissing">Unable to install ROM file.</string>
 	<string name="Startup.rexFileMissing">Unable to install REX file.</string>
 	<string name="Startup.iconFileMissing">Unable to install application icon file.</string>
 	<string name="Startup.expectedPath">This file must be in the Downloads\\Einstein folder.</string>
