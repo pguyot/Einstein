@@ -17,9 +17,9 @@ class DownloadFileAsync extends AsyncTask<String, String, String> {
 
 	;
     private ProgressDialog mProgressDialog;	
-	private final Einstein einsteinActivity;
+	private final EinsteinActivity einsteinActivity;
 	
-	DownloadFileAsync(Einstein einsteinActivity) {
+	DownloadFileAsync(EinsteinActivity einsteinActivity) {
 		this.einsteinActivity = einsteinActivity;
 	}
     

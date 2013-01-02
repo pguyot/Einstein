@@ -19,7 +19,7 @@ public class DebugUtils {
 		// No instances, please
 	}
 
-	public static void debugTextOnScreen(Einstein es, String text) {
+	public static void debugTextOnScreen(Context es, String text) {
 		Toast.makeText(es, text, Toast.LENGTH_LONG).show();
 		try {
 			Thread.sleep(1000);

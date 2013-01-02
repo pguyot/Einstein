@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:columnCount="3"
+    android:orientation="vertical"
+    android:padding="10dp" >
+
+    <Button
+        android:id="@+id/toEmulatorAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClickToEmulator"
+        android:text="@string/mainmenu.toEmulator.title" />
+
+    <Button
+        android:id="@+id/insertNetworkCardAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:onClick="onClickInsertNetworkCard"
+        android:text="@string/mainmenu.insertNetworkCard.title" />
+
+    <Button
+        android:id="@+id/backlightAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClickBacklight"
+        android:text="@string/mainmenu.backlight.title" />
+
+    <Button
+        android:id="@+id/installPackagesAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClickInstallPackages"
+        android:text="@string/mainmenu.installPackages.title" />
+
+    <Button
+        android:id="@+id/preferencesAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClickPreferences"
+        android:text="@string/mainmenu.preferences.title" />
+
+    <Button
+        android:id="@+id/quitEinsteinAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:onClick="onClickQuit"
+        android:text="@string/mainmenu.quitEinstein.title" />
+
+</LinearLayout>
