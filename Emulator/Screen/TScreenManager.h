@@ -489,6 +489,11 @@ public:
 	/// Restore the state from a stream.
 	///
 	void		LoadState( TStream* inStream );
+	
+	///
+	/// Change Screen Size.
+	///
+	void		ChangeScreenSize(int inWidth, int inHeight);
 
 protected:
 	///

@@ -9,10 +9,14 @@ import java.net.URLConnection;
 
 import org.messagepademu.einstein.constants.OtherConstants;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
 
+/**
+ * This class is currently not used.
+ */
 class DownloadFileAsync extends AsyncTask<String, String, String> {
 
 	;
@@ -23,13 +27,15 @@ class DownloadFileAsync extends AsyncTask<String, String, String> {
 		this.einsteinActivity = einsteinActivity;
 	}
     
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected void onPreExecute() {
         super.onPreExecute();
         einsteinActivity.showDialog(OtherConstants.DIALOG_DOWNLOAD_PROGRESS);
     }
 
-    @Override
+    @SuppressLint("SdCardPath")
+	@Override
     protected String doInBackground(String... aurl) {
         int count;
 
@@ -67,7 +73,8 @@ class DownloadFileAsync extends AsyncTask<String, String, String> {
          mProgressDialog.setProgress(Integer.parseInt(progress[0]));
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected void onPostExecute(String unused) {
     	einsteinActivity.dismissDialog(OtherConstants.DIALOG_DOWNLOAD_PROGRESS);
     }

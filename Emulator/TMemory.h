@@ -725,6 +725,11 @@ public:
 			return !((inAddress < 0x00002000) || (inAddress & TMemoryConsts::kROMEndMask));
 		}
 
+	///
+	/// Compute the serial number from the NewtonID.
+	///
+	void	ComputeSerialNumber( const KUInt32 inNewtonID[2] );
+	
 private:
 	struct SBreakpoint {
 		PAddr   fAddress;		///< (physical) address of the Breakpoint.
@@ -750,11 +755,6 @@ private:
 	///
 	static const int kSerialNumberCRC[256];
 
-	///
-	/// Compute the serial number from the NewtonID.
-	///
-	void	ComputeSerialNumber( const KUInt32 inNewtonID[2] );
-	
 	///
 	/// Read 32 bits from memory.
 	/// Perform address translation if the MMU is enabled.

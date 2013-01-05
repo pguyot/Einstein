@@ -13,8 +13,15 @@
     <string name="mainmenu.installPackages.condensed">Install</string>
     <string name="mainmenu.quitEinstein.title">Quit Einstein</string>
     <string name="mainmenu.quitEinstein.condensed">Quit</string>
-    <string name="Startup.romFileMissing">Unable to install ROM file.</string>
-	<string name="Startup.rexFileMissing">Unable to install REX file.</string>
-	<string name="Startup.iconFileMissing">Unable to install application icon file.</string>
-	<string name="Startup.expectedPath">This file must be in the Downloads\\Einstein folder.</string>
+    <string name="Startup.romFileMissing">ROM image not found.</string>
+	<string name="Startup.rexFileMissing">REX file not found.</string>
+	<string name="Startup.expectedPath">This file must be in the /Download/Einstein/ folder.</string>
+	<string name="Preferences.statusbar.title">Show Status Bar</string>
+	<string name="Preferences.statusbar.summary">Show or hide Android Status Bar</string>
+	<string name="Preferences.screensize.title">"Emulator Screen Size"</string>
+    <string name="Preferences.screensize.summary">"Choose the NewtonOS Screen Size (Newton will reboot)"</string>
+	<string name="Preferences.refreshrate.title">"Refresh Rate"</string>
+    <string name="Preferences.refreshrate.summary">"A faster screen refresh rate uses more power and requires a faster CPU"</string>
+	<string name="Preferences.newtonid.title">"Newton ID"</string>
+    <string name="Preferences.newtonid.summary">"Set the Newton Serial Number (enter 16 hex digits - reboot required)"</string>
 </resources>

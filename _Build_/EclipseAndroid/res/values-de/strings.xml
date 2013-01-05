@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Einstein</string>
+    <string name="app_name">Einstein</string>    
+    <string name="mainmenu.toEmulator.title">Zurück zu Einstein</string>
+    <string name="mainmenu.toEmulator.condensed">Einstein</string>
     <string name="mainmenu.insertNetworkCard.title">Netzwerkkarte einstecken</string>
     <string name="mainmenu.insertNetworkCard.condensed">Netzwerk</string>
-    <string name="mainmenu.backlight.title">Hintergrundbeleuchtung</string>
-    <string name="mainmenu.backlight.condensed">Beleuchtung</string>
+    <string name="mainmenu.backlight.title">Hintergrundlicht</string>
+    <string name="mainmenu.backlight.condensed">Hintergrundlicht</string>
     <string name="mainmenu.preferences.title">Einstellungen</string>
     <string name="mainmenu.preferences.condensed">Einstellungen</string>
-    <string name="mainmenu.installpackages.title">Neue Packages installieren</string>
-    <string name="mainmenu.installpackages.condensed">Installieren</string>  
-	<string name="Startup.romFileMissing">ROM Datei kann nicht installiert werden.</string>
-	<string name="Startup.rexFileMissing">REX Datei kann nicht installiert werden.</string>
-	<string name="Startup.iconFileMissing">Applikations-Icon Datei kann nicht installiert werden.</string>
-	<string name="Startup.expectedPath">Diese Datei sollte sich im Downloads\\Einstein Ordner befinden.</string>
+    <string name="mainmenu.installPackages.title">Neue Pakete installiern</string>
+    <string name="mainmenu.installPackages.condensed">Neue Pakete</string>
+    <string name="mainmenu.quitEinstein.title">Einstein beenden</string>
+    <string name="mainmenu.quitEinstein.condensed">beendent</string>
+    <string name="Startup.romFileMissing">Newton ROM Datein nicht installiert.</string>
+	<string name="Startup.rexFileMissing">Einstein REX Datei nicht installiert.</string>
+	<string name="Startup.expectedPath">Diese Datei muss im Verzeichnis /Downloads/Einstein/ liegen.</string>
+	<string name="Preferences.statusbar.title">Statuszeile anzeigen</string>
+	<string name="Preferences.statusbar.summary">Android Statuszeile anzeigen oder verstecken</string>
+	<string name="Preferences.screensize.title">"Bildschirmgröße"</string>
+    <string name="Preferences.screensize.summary">"Wähle die Bildschirmgröße für NewtonOS (startet den Emulator neu)"</string>
+	<string name="Preferences.refreshrate.title">"Auffrischrate"</string>
+    <string name="Preferences.refreshrate.summary">"Eine schnellere Bildschirmanzeige benötigt mehr Batterie und eine schnellere CPU"</string>
+	<string name="Preferences.newtonid.title">"Newton ID"</string>
+    <string name="Preferences.newtonid.summary">"Ändert die Seriennummer (16 Hexadezimalstellen - Neustart nötig)"</string>
 </resources>

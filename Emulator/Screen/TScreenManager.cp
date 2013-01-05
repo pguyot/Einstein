@@ -96,12 +96,29 @@ TScreenManager::TScreenManager(
 		mScreenBuffer( NULL )
 {
 	mTabletBuffer = (KUInt32*) ::malloc( sizeof(KUInt32) * kTabletBufferSize );
-	mScreenBuffer = (KUInt8*)
-		::malloc(
-			inPortraitWidth *
-			inPortraitHeight *
-			kBitsPerPixel / 8);
+	mScreenBuffer = 0L;
+	ChangeScreenSize(inPortraitWidth, inPortraitHeight);
+}
 
+
+// -------------------------------------------------------------------------- //
+//  * ChangeScreenSize( int, int )
+//  Calling this requires a reboot.
+// -------------------------------------------------------------------------- //
+void TScreenManager::ChangeScreenSize(int inPortraitWidth, int inPortraitHeight)
+{
+	mPortraitWidth = inPortraitWidth;
+	mPortraitHeight = inPortraitHeight;
+	
+	if (mScreenBuffer)
+		::free(mScreenBuffer);
+	
+	mScreenBuffer = (KUInt8*)
+	::malloc(
+			 inPortraitWidth *
+			 inPortraitHeight *
+			 kBitsPerPixel / 8);
+	
 	if (mFullScreen)
 	{
 		if (mScreenIsLandscape)

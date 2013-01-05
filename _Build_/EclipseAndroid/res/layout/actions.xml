@@ -20,7 +20,8 @@
         android:layout_marginTop="10dp"
         android:onClick="onClickInsertNetworkCard"
         android:text="@string/mainmenu.insertNetworkCard.title" />
-
+        <!-- android:drawableLeft="@drawable/button_network" -->
+    
     <Button
         android:id="@+id/backlightAction"
         android:layout_width="match_parent"

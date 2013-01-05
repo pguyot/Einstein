@@ -45,23 +45,28 @@
     			<action android:name="android.intent.action.VIEW" />
     			<category android:name="android.intent.category.DEFAULT" />
     			<category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http"
-                      android:mimeType="*/*" 
-                      android:host="*"
-                      android:pathPattern=".*\\.pkg" />
-                <data android:scheme="https"
-                      android:mimeType="*/*" 
-                      android:host="*"
-                      android:pathPattern=".*\\.pkg" />
+                <data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.pkg" />
+                <data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\.pkg" />
+              	<data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\.pkg" />
+                <data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\.pkg" />
+                <data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\.PKG" />
+              	<data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\.PKG" />
+                <data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\.PKG" />
+                <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.pkg" />
+                <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\.pkg" />
+				<data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\.pkg" />
+                <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\.pkg" />
+                <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.PKG" />
+                <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\.PKG" />
+				<data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\.PKG" />
+                <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\.PKG" />
                 <data android:scheme="content"
                       android:mimeType="*/*" 
                       android:host="*"
                       android:pathPattern=".*\\.pkg" />
-                <data android:scheme="file"
-                      android:mimeType="*/*" 
-                      android:host="*"
-                      android:pathPattern=".*\\.pkg" />
-    		</intent-filter>
+                <data android:scheme="file" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.pkg" />
+                <data android:scheme="file" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.PKG" />
+            </intent-filter>
     		<!-- allow 717006 with the extension .rom, .aif, and .zip, also allow .rex? -->
        	</activity>
         <service

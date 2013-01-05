@@ -397,6 +397,13 @@ TEmulator::Quit( void )
 	Stop();
 }
 
+
+void TEmulator::SetNewtonID(KUInt32 inID0, KUInt32 inID1) {
+	mNewtonID[0] = inID0;
+	mNewtonID[1] = inID1;
+	mMemory.ComputeSerialNumber( GetNewtonID() );
+}
+
 // ====================================================================== //
 // A computer without COBOL and Fortran is like a piece of chocolate cake //
 // without ketchup and mustard.                                           //

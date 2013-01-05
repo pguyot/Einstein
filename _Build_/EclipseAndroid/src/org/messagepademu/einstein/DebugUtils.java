@@ -13,12 +13,23 @@ import android.widget.Toast;
 
 import org.messagepademu.einstein.startup.StartupConstants;
 
+/**
+ * A small halper class for debugging this app.
+ */
 public class DebugUtils {
 
+	/**
+	 * Avoid the instatiation of this class.
+	 */
 	private DebugUtils() {
 		// No instances, please
 	}
 
+	/**
+	 * Show a quick message and pause execution for a short moment.
+	 * @param es
+	 * @param text
+	 */
 	public static void debugTextOnScreen(Context es, String text) {
 		Toast.makeText(es, text, Toast.LENGTH_LONG).show();
 		try {
@@ -28,6 +39,10 @@ public class DebugUtils {
 		}
 	}
 
+	/**
+	 * Show a message in a dialog and wait for the dialog to be dismissed.
+	 */
+	@SuppressWarnings("deprecation")
 	public static void showInfoDialog(Context context, String text) {
 		final AlertDialog dialog = new AlertDialog.Builder(context).create();  
 		dialog.setCancelable(false);  
@@ -40,7 +55,10 @@ public class DebugUtils {
 		dialog.show();
 	}
 
-	/** Appends <code>text</code> to the log file. */
+	/** 
+	 * Appends <code>text</code> to the log file. 
+	 */
+	@SuppressWarnings("deprecation")
 	public static void appendLog(String text) {
 		final File logFile = getLogFile();
 		if (null == logFile) {
@@ -68,7 +86,10 @@ public class DebugUtils {
 		}
 	}
 	
-	/** Creates the log file unless it already exists. The log file'noselog.txt will be in the Download\Einstein folder.*/
+	/** 
+	 * Creates the log file unless it already exists. 
+	 * The log file'noselog.txt will be in the Download\Einstein folder.
+	 */
 	private static File getLogFile() {
 		final String logFolderName = StartupConstants.DATA_FILE_PATH + File.separator + StartupConstants.LOG_FOLDER;
 		final File logFolder = new File(logFolderName);
