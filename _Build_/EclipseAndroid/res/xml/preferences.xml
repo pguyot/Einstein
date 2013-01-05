@@ -21,7 +21,7 @@
     </PreferenceCategory>
     <PreferenceCategory
         android:title="Emulator Settings" android:enabled="true">
-		<EditTextPreference android:dialogMessage="@string/Preferences.newtonid.summary" android:defaultValue="00004E6577746F6E" android:dialogTitle="@string/Preferences.newtonid.title" android:key="newtonid" android:title="@string/Preferences.newtonid.title" android:summary="@string/Preferences.refreshrate.summary"/><ListPreference 
+		<EditTextPreference android:dialogMessage="@string/Preferences.newtonid.summary" android:defaultValue="00004E6577746F6E" android:dialogTitle="@string/Preferences.newtonid.title" android:key="newtonid" android:title="@string/Preferences.newtonid.title" android:summary="@string/Preferences.newtonid.summary"/><ListPreference 
 		    android:key="ramsize"
 		    android:title="RAM Size"
 		    android:summary="Memory size, 1MB for the MP2000, 4MB for the MP2100"
