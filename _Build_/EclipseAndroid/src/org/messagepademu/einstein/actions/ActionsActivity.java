@@ -68,8 +68,8 @@ public class ActionsActivity extends Activity {
 	public void onClickPreferences(View v) {
 		// FIXME: after preferences are closed, we end up in Actions again. We should probably be in EInstein instead.
 	    Intent intent = new Intent(v.getContext(), EinsteinPreferencesActivity.class);
-	    this.finish();
 	    startActivity(intent);
+	    this.finish();
 	}
 
 	public void onClickQuit(View v) {

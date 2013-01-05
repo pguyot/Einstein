@@ -34,8 +34,47 @@ import android.util.Log;
  *  and the permanent availability of the network card. Most of these settings will require a reboot of the 
  *  emulator, directly offering that to the user.
  *  
- *  Further ativities should help the user to install the ROM, Rex, and all available NewtonOS packages.
- *  
+ *  Further activities should help the user to install the ROM, Rex, and all available NewtonOS packages.
+ 
+ CHANGES (last update Jan 5th 2013):
+  
+    newest:
+    	- fixed text in NewtonID dialog
+    	- fixed finish/start activity order in actions menu to correctly launch the preferences on some machines
+    
+ 	05.01.2013:
+		- added option to change screen resolution (requires Newton reboot)
+		- added option to enable/disable status bar
+		- added option to change screen refresh rate (now very fluid at 30fps on fast machines)
+		- added option to change NewtonID (if you already have licensed software, you can move your ID with your device)
+		- added global event handler to install from file (start file browser and tap on any package (*.pkg))
+		- added global event handler to install form web (start web browser, got to inna.org or similar, tap on any package)
+		- fixed background light
+		
+	03.01.2013:
+		- replaced deprecated context menu with actions menu that can also be reached via notification
+		- fixed packages installer, but this method is clunky
+		- fixed "insert network card"
+		- added action to quit the service, so Android can quit the app if needed
+
+ TODO (last updated Jan 5th 2013):
+		- rebooting the emulated Newton does not work reliably, the pen/touch interface does not reconnect. 
+		  Going to the home screen and tapping Einstein again is a temp fix
+		- Einstein sometimes hangs after the first welcome sequence. After a reboot, it usually never hangs again
+		- Options missing for the various resets and reboots, clear Flash, etc.
+		- Network support may actually work, but must be tested (will allow syncing)
+		- keep network card connected - option
+		- install ROM and REX the same way we install packages
+		- sound support
+		- interface to Android API
+		- automatic screen rotation?
+		- keyboard support
+		- if network support is not enough, a serial port?
+		- more icons in the Android UI
+		- Newton alerts and alarms while in the background
+		- improve TCP/IP speed, make connection more secure
+		- support for DHCP
+
  */
 
 /**
