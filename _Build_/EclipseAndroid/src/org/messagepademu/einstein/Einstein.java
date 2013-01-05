@@ -1,12 +1,6 @@
 
 package org.messagepademu.einstein;
 
-import java.util.Timer;
-
-import android.app.ProgressDialog;
-import android.content.SharedPreferences;
-
-
 /**
  * Class interfacing to the native Einstein emulator.
  * 
@@ -72,6 +66,22 @@ public class Einstein
 	 */
 	public native void powerOffEmulator();
 
+
+	public native int isPowerOn();
+	
+	public native void sendPowerSwitchEvent();
+
+	/** 
+	 * Reboot.
+	 */
+	public native void rebootEmulator();
+
+	
+	/** 
+	 * Change Screen Size (requires reboot).
+	 */
+	public native void changeScreenSize(int w, int h);
+
 	
 	/**
 	 * Toggle the network card in and out of the PCMCIA slot.
@@ -106,4 +116,11 @@ public class Einstein
 	 */
 	public native void installNewPackages();
 
+	/**
+	 * Install a package from a file
+	 */
+	public native void installPackage(String filename);
+
+	public native void setNewtonID(String id);
+	
 }

@@ -33,28 +33,6 @@
 #include <android/bitmap.h>
 
 
-/* How to keep the Einstein App around when inactive to avoid rebooting NewtonOS
- 
- The following list presents the different types of processes in order of importance (the first process is most important and is killed last):
- 
- 1.Foreground process
- 2.Visible process
- 3.Service process
- 4.Background process
- 5.Empty process
- 
- Possible solution:
- 
- 1: start a service (seems reasonably easy)
- http://developer.android.com/reference/android/content/Context.html#startService(android.content.Intent)
- 2: Process.THREAD_PRIORITY_BACKGROUND (simple, but will it work?)
- The second way to set priorities is to call android.os.Process.setThreadPriority(). This allows to set the pririty to higer priorities for that
- Declare: in your AndroidManifest and call Process.setThreadPriority(Process.myTid(), Process.THREAD_PRIORITY_URGENT_DISPLAY )
- ANDROID_PRIORITY_NORMAL, ANDROID_PRIORITY_FOREGROUND
- public static final void setThreadPriority (int priority)
-
- */
-
 TAndroidApp *theApp = 0;
 TLog *theLog = 0;
 
@@ -144,29 +122,9 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_initEmulator( JN
 	
 	if (theLog) theLog->LogLine("initEmulator: start");
 	theApp = new TAndroidApp();
-	
-#if 0
-	// TODO: this is just a rough test if we can find the audio library.
-	// Android 2.2 does not have any support for audio from native code. Loading
-	// libaudio the Unix way may give us audio support on many devices neverthelee.
-	void *mLibHandle = dlopen("libaudio.so", 0);
-	if (mLibHandle) {
-		// http://source.android.com/porting/audio.html
-		// http://source.android.com/porting/AudioHardwareInterface_8h-source.html
-		// Galaxy Tab: "/sdcard/external_sd/" "/sdcard/sd/"
-		LOGE("YAY, libaudio is here!\n");
-		void *fn = dlsym(mLibHandle, "createAudioHardware");
-		if (fn) {
-			LOGE("YAY again: we have the right funciton ************");
-		} else {
-			LOGE("BOOHOO");
-		}
-	} else {
-		LOGE("dlopen failed on libaudio.so %s\n", dlerror());
-	}
-#endif
-	
 	if (theLog) theLog->LogLine("initEmulator: done");
+	
+	env->ReleaseStringUTFChars(logPath, cLogPath);
 }
 
 
@@ -201,6 +159,28 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_powerOffEmulator
 }
 
 
+JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_sendPowerSwitchEvent( JNIEnv* env, jobject thiz )
+{
+	if (theLog) theLog->LogLine("powerEvent");
+	if (theApp) {
+		theApp->getPlatformManager()->SendPowerSwitchEvent();
+	}
+}
+
+
+JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_rebootEmulator( JNIEnv* env, jobject thiz )
+{
+	if (theLog) theLog->LogLine("reboot");
+	if (theApp) theApp->reboot();
+}
+
+JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_changeScreenSize( JNIEnv* env, jobject thiz, jint w, jint h )
+{
+	if (theLog) theLog->LogLine("changeScreenSize");
+	if (theApp) theApp->ChangeScreenSize(w, h);
+}
+
+
 JNIEXPORT void JNICALL Java_org_messagepademu_einstein_EinsteinView_penDown( JNIEnv* env, jobject thiz, jint x, jint y )
 {
 	if (theApp) {
@@ -215,7 +195,7 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_EinsteinView_penDown( JNI
 				theApp->PowerOn();
 				//theApp->getPlatformManager()->SendPowerSwitchEvent();
 			}
-			//LOGI("Sending pen down at %d, %d", x, y);
+			//LOGI("Sending pen down at %d, %d (%d)", x, y, theApp->getScreenManager()->GetActualScreenHeight());
 			tsm->PenDown(theApp->getScreenManager()->GetActualScreenHeight()-y, x);
 		}
 	}
@@ -299,6 +279,19 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_toggleNetworkCar
 }
 
 
+JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_setNewtonID( JNIEnv* env, jobject thiz, jstring jID )
+{
+	if (theApp) {
+		jboolean isCopy;
+		KUInt32 id0, id1;
+		const char *cID = env->GetStringUTFChars(jID, &isCopy);
+		sscanf(cID, "%08x%08x", &id0, &id1);
+		theApp->SetNewtonID(id0, id1);
+		env->ReleaseStringUTFChars(jID, cID);
+	}
+}
+
+
 JNIEXPORT jint JNICALL Java_org_messagepademu_einstein_Einstein_screenIsDirty( JNIEnv* env, jobject thiz )
 {
 	int ret = 0;
@@ -338,6 +331,24 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_installNewPackag
 		theApp->getPlatformManager()->InstallNewPackages();
 	}
 }
+
+JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_installPackage( JNIEnv* env, jobject thiz, jstring filename )
+{
+	if (theApp) {
+		jboolean isCopy;
+		const char *cFilename = env->GetStringUTFChars(filename, &isCopy);
+		theApp->getPlatformManager()->InstallPackage(cFilename);
+		env->ReleaseStringUTFChars(filename, cFilename);
+	}
+}
+
+JNIEXPORT jint JNICALL Java_org_messagepademu_einstein_Einstein_isPowerOn( JNIEnv* env, jobject thiz )
+{
+	if (theApp) {
+		return theApp->IsPowerOn();
+	}
+}
+
 
 #if 0
 // the font below was partially extracted from a Linux terminal

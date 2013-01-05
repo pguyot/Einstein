@@ -5,6 +5,7 @@ import java.util.Vector;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
+import android.util.Log;
 
 import org.messagepademu.einstein.DebugUtils;
 import org.messagepademu.einstein.R;
@@ -12,8 +13,9 @@ import org.messagepademu.einstein.R.xml;
 import org.messagepademu.einstein.utils.screen.ScreenDimensions;
 import com.missinginandroid.Dimension;
 
-/** This activity loads the "preferences.xml" file. To make this class available as an
-	activity for Android you need to register it in the "AndroidManifest.xml" file. */ 
+/** 
+ * This activity loads the "preferences.xml" file. 
+ */ 
 public class EinsteinPreferencesActivity extends PreferenceActivity {
 	
 	public EinsteinPreferencesActivity() {
@@ -36,25 +38,41 @@ public class EinsteinPreferencesActivity extends PreferenceActivity {
 		this.initScreenSizePreferences();
 	}
 
-	/** Initializes the emulator screen size preferences. */
+	/**
+	 *  Initializes the emulator screen size preferences. 
+	 */
 	private final void initScreenSizePreferences() {
 		DebugUtils.appendLog("EinsteinPreferencesActivity: Entering initScreenSizePreferences");
 		final Dimension hostScreenSize = ScreenDimensions.HOST_SCREEN_SIZE;
 		final boolean isPortrait = hostScreenSize.width <= hostScreenSize.height;
 		final int minWidth = isPortrait ? 320 : 480;
 		final int minHeight = isPortrait ? 480 : 320;
-		final int widthIncrease = minWidth / 2;
-		final int heightIncrease = minHeight / 2;
 		int w = minWidth;
 		int h = minHeight;
 		DebugUtils.appendLog("EinsteinPreferencesActivity: Calculating entries");
+		Log.i("SIZE", "Screen: " + hostScreenSize.width + " x " + hostScreenSize.height);
 		final Vector<String>temp = new Vector<String>();
-		while (w <= hostScreenSize.width && h <= hostScreenSize.height) {
+		int i, currentSize = 0;
+		temp.add(String.valueOf(w) + " x " + String.valueOf(h) + " (original size)"); // always add the native NewtonOS size
+		double d = Math.abs(ScreenDimensions.NEWTON_SCREEN_WIDTH-w) + Math.abs(ScreenDimensions.NEWTON_SCREEN_HEIGHT-h);
+		Log.i("SIZE", "Choice: " + w + " x " + h);	
+		Log.i("SIZE", "Newton: " + ScreenDimensions.NEWTON_SCREEN_WIDTH + " x " + ScreenDimensions.NEWTON_SCREEN_HEIGHT);
+		for (i=10; i>=3; i--) {
+			int f = i/3;
+			switch (i%3) {
+			case 0: w = hostScreenSize.width/f; h = hostScreenSize.height/f; break;
+			case 1: w = hostScreenSize.width*3/4/f; h = hostScreenSize.height*3/4/f; break;
+			case 2: w = hostScreenSize.width*2/3/f; h = hostScreenSize.height*2/3/f; break;
+			}
+			w = w&0xfffffffe; // width must always be an even number
+			if (w<=minWidth || h<=minHeight) continue;
 			// Create a preference entry of the form "w x h", e. g. "320 x 480"
 			temp.add(String.valueOf(w) + " x " + String.valueOf(h));
-			DebugUtils.appendLog("EinsteinPreferencesActivity: Entry w = " + w + " h = " + h);		
-			w += widthIncrease;
-			h += heightIncrease;
+			double d1 = Math.abs(ScreenDimensions.NEWTON_SCREEN_WIDTH-w) + Math.abs(ScreenDimensions.NEWTON_SCREEN_HEIGHT-h);
+			if (d1<d) {
+				d = d1;
+				currentSize = temp.size()-1;
+			}
 		}
 		final int entryCount = temp.size();
 		DebugUtils.appendLog("EinsteinPreferencesActivity: Preparing " + entryCount + " preference entries");		
@@ -63,14 +81,16 @@ public class EinsteinPreferencesActivity extends PreferenceActivity {
 		// Note that entries only contains the string the user sees, whereas entryValues contains what will be returned
 		// when we query the preference. In our case both must be the same, since ScreenDimensionInitializer will query
 		// the preference and parse the string to determine the Newton screen size
-		for (int i = 0; i < entryCount; i++) {
+		for (i = 0; i < entryCount; i++) {
 			entryValues[i] = temp.get(i);
 			entries[i] = temp.get(i);
 		}
 		DebugUtils.appendLog("EinsteinPreferencesActivity: Setting preference entries");
+		@SuppressWarnings("deprecation")
 		final ListPreference screenPresets = (ListPreference)(super.findPreference("screenpresets"));
 		screenPresets.setEntries(entries);
 		screenPresets.setEntryValues(entryValues);
+		screenPresets.setValue(temp.get(currentSize));
 		DebugUtils.appendLog("EinsteinPreferencesActivity: Leaving EinsteinPreferencesActivity");		
 	}
 

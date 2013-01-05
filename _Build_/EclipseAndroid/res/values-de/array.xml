@@ -6,23 +6,11 @@
     <item>WLAN</item>
     <item>Speicherkarte</item>
   </string-array>
-  <string-array name="entryvalues_install_rom">
-    <item>1</item>
-    <item>2</item>
-    <item>3</item>
-    <item>4</item>
-  </string-array>
   <string-array name="entries_ram_size">
     <item>1MB (MP2000)</item>
     <item>4MB (MP2100)</item>
     <item>8MB</item>
     <item>16MB</item>
-  </string-array>
-  <string-array name="entryvalues_ram_size">
-    <item>1</item>
-    <item>4</item>
-    <item>8</item>
-    <item>16</item>
   </string-array>
   <string-array name="entries_back_button">
     <item>Einstein beenden, Newton bootet neu</item>
@@ -31,11 +19,9 @@
     <item>Newton Extras Verzeichnis</item>
     <item>Newton Kontextmenü</item>
   </string-array>
-  <string-array name="entryvalues_back_button">
-    <item>1</item>
-    <item>2</item>
-    <item>3</item>
-    <item>4</item>
-    <item>5</item>
+  <string-array name="entries_refresh_rate">
+    <item>Langsam</item>
+    <item>Mittel</item>
+    <item>Schnell</item>
   </string-array>
 </resources>

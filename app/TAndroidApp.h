@@ -79,6 +79,8 @@ public:
 	///
 	void PowerOff();
 
+	int IsPowerOn();
+	
 	///
 	/// user requested simulating the power button
 	///
@@ -109,6 +111,13 @@ public:
 	///
 	void menuDownloadROM();
 	
+	///
+	/// Reboot NewtonOS
+	///
+	void reboot();
+	
+	void ChangeScreenSize(int w, int h);
+	
 	TPlatformManager *getPlatformManager() { return mPlatformManager; }
 	
 	TScreenManager *getScreenManager() { return mScreenManager; }
@@ -116,6 +125,11 @@ public:
 	int updateScreen(unsigned short *buffer);
 	
 	int screenIsDirty();
+	
+	void SetNewtonID(KUInt32 id0, KUInt32 id1) {
+		mNewtonID0 = id0;
+		mNewtonID1 = id1;
+	}
 	
 private:
 	///
@@ -230,6 +244,8 @@ private:
 	TLog*				mLog;				///< Log.
 	TNetworkManager*	mNetworkManager;	///< network connection
 	Boolean				mQuit;				///< If we should quit.
+	
+	KUInt32				mNewtonID0, mNewtonID1;
 };
 
 #endif

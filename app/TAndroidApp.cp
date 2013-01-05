@@ -61,7 +61,9 @@ TAndroidApp::TAndroidApp( void )
 	mPlatformManager( nil ),
 	mLog( nil ),
 	mNetworkManager( nil ),
-	mQuit(false)
+	mQuit(false),
+	mNewtonID0(0x00004E65),
+	mNewtonID1(0x77746F6E)
 {
 }
 
@@ -174,6 +176,7 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 							  mNetworkManager, 
 							  0x40 << 16);
 	if (mLog) mLog->FLogLine("    OK: 0x%08x", (int)mEmulator);
+	mEmulator->SetNewtonID(mNewtonID0, mNewtonID1);
 
 	mPlatformManager = mEmulator->GetPlatformManager();
 	mPlatformManager->SetDocDir(dataPath);
@@ -228,6 +231,22 @@ TAndroidApp::PowerOff( void )
 #endif
 }
 
+
+void TAndroidApp::reboot()
+{
+	TARMProcessor *cpu = mEmulator->GetProcessor();
+	cpu->ResetInterrupt();
+}
+
+int TAndroidApp::IsPowerOn()
+{
+	return mPlatformManager->IsPowerOn();
+}
+
+void TAndroidApp::ChangeScreenSize(int w, int h)
+{
+	mScreenManager->ChangeScreenSize(w, h);
+}
 
 // -------------------------------------------------------------------------- //
 // ThreadEntry( void )

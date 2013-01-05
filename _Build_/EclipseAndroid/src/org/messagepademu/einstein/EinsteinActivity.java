@@ -16,7 +16,7 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.Editable;
+//import android.text.Editable;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -24,20 +24,28 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.EditText;
+//import android.widget.EditText;
 import android.widget.Toast;
 
 import org.messagepademu.einstein.actions.ActionsActivity;
 import org.messagepademu.einstein.constants.OtherConstants;
 import org.messagepademu.einstein.constants.StringConstants;
-import org.messagepademu.einstein.constants.URLConstants;
 import org.messagepademu.einstein.prefs.EinsteinPreferencesActivity;
 import org.messagepademu.einstein.startup.IStartup.LoadResult;
 import org.messagepademu.einstein.startup.Startup;
 import org.messagepademu.einstein.startup.StartupConstants;
 import org.messagepademu.einstein.utils.screen.ScreenDimensions;
+import org.messagepademu.einstein.utils.screen.ScreenDimensionsInitializer;
 
 
+/**
+ * The main user interface to the emulator.
+ * 
+ * This class manages the visual representation of the emulator and
+ * the screen interface.
+ * 
+ * @author matt
+ */
 public class EinsteinActivity extends Activity implements OnSharedPreferenceChangeListener
 {
 	private static EinsteinActivity pInstance = null;
@@ -52,7 +60,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 	private Timer mScreenRefreshTimer = null;
 	private ScreenRefresh mScreenRefreshTask = null;
 	private SharedPreferences sharedPrefs;
-	private SharedPreferences.OnSharedPreferenceChangeListener sharedPrefsListener;
+//	private SharedPreferences.OnSharedPreferenceChangeListener sharedPrefsListener;
 
 	// --- beginning of life cycle
 	
@@ -82,7 +90,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 		DebugUtils.appendLog("einstein.onCreate: Got preferences");
 		// Create an instance of EinsteinPreferencesActivity. If we do not do this, the preferences that are calculated at
 		// runtime wouldn't exist until the user has invoked the preferences window for the first time
-		// Install all required assets, initialize host device dependant values, ...
+		// Install all required assets, initialize host device dependent values, ...
 		final Startup startup = new Startup(this);
 		DebugUtils.appendLog("einstein.onCreate: CalledStartup");
 		final AssetManager assetManager = getAssets();
@@ -116,10 +124,14 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 			Toast.makeText(getApplicationContext(), "Reconnecting to Einstein", Toast.LENGTH_SHORT).show();		
 			// wake up
 		} else {
+			String id = this.sharedPrefs.getString("newtonid", "00004E6577746F6E");
+			pEinstein.setNewtonID(id);
 			pEinstein.run(StartupConstants.DATA_FILE_PATH, ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
 			Toast.makeText(getApplicationContext(), "Booting Einstein", Toast.LENGTH_LONG).show();		
 		}
-		startScreenRefresh();
+		int rate = Integer.valueOf(this.sharedPrefs.getString("screenrefreshrate", "10"));
+		Log.e("REFRESH", "Rate is "+rate);
+		startScreenRefresh(rate);
 		
 		Log.i("einstein", "------< Activity.onCreate()");
 
@@ -131,7 +143,8 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 	{
 		Log.e("XXXX", ">>>>>>>>>> onStart()");
 		super.onStart();
-		startScreenRefresh();	
+		int rate = Integer.valueOf(this.sharedPrefs.getString("screenrefreshrate", "10"));
+		startScreenRefresh(rate);	
 		//EinsteinApplication app = (EinsteinApplication)getApplication();
 		//app.normalPriority();
 	}
@@ -141,7 +154,8 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 	{
 		Log.e("XXXX", ">>>>>>>>>> onResume()");
 		super.onResume();
-		startScreenRefresh();
+		int rate = Integer.valueOf(this.sharedPrefs.getString("screenrefreshrate", "10"));
+		startScreenRefresh(rate);
 		pEinstein.powerOnEmulator();
 	}
 
@@ -152,6 +166,11 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 			Log.e("XXXX", ">>>>>>>>>> EXIT");
 			finish();
 	    }
+		String file = intent.getStringExtra("FILE"); 
+		if (file!=null) {
+			pEinstein.installPackage(file);
+			intent.removeExtra("FILE");
+		}
 	}
 	
 	
@@ -159,8 +178,8 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 	public void onPause()
 	{
 		Log.e("XXXX", ">>>>>>>>>> onPause()");
-		pEinstein.powerOffEmulator();
-		stopScreenRefresh();	
+		//pEinstein.powerOffEmulator();
+		//stopScreenRefresh();	
 		super.onPause();
 	}
 
@@ -171,7 +190,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 		stopScreenRefresh();	
 		super.onStop();
 		//setThreadPriority(-2); //Process.THREAD_PRIORITY_FOREGROUND);
-		EinsteinApplication app = (EinsteinApplication)getApplication();
+		//EinsteinApplication app = (EinsteinApplication)getApplication();
 		//app.raisePriority();
 	}
 	
@@ -194,8 +213,10 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 	// --- End of application life cycle
 	
 	
-	/** Updates the fullscreen status. The app is shown fullscreen if <code>statusBarVisible</code> is <code>false</code>.
-	 * Note that this method must be called before invoking <code>setContentView</code> in the <code>onCreate</code> method. */
+	/** 
+	 * Updates the fullscreen status. The app is shown fullscreen if <code>statusBarVisible</code> is <code>false</code>.
+	 * Note that this method must be called before invoking <code>setContentView</code> in the <code>onCreate</code> method. 
+	 */
 	private void updateFullscreenStatus(boolean statusBarVisible)
 	{  
 		final int fullscreen = WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -245,54 +266,55 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		// The keys are defined in preferences.xml
 		if ("keepnetworkcardpluggedin".equals(key)) {
-			DebugUtils.debugTextOnScreen(this, "card setting changed ");
-		} else if ("screenpresets".equals(key)) {
-			DebugUtils.debugTextOnScreen(this, "Screen resolution changed");
+			//DebugUtils.debugTextOnScreen(this, "card setting changed ");
+		} else if ("screenpresets".equals(key) /* || "newtonid".equals(key) */) {
+			//DebugUtils.debugTextOnScreen(this, "Screen resolution changed");
+			stopScreenRefresh();
+			// Send the emulator to sleep so that everything ist saved
+			if (pEinstein.isPowerOn()!=0) {
+				pEinstein.sendPowerSwitchEvent();;
+				while (pEinstein.isPowerOn()!=0) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+					}
+					Log.i("SCREEN", "Wait for power down");
+				}
+			}
+			ScreenDimensionsInitializer.initNewtonScreenDimensions(this);
+			pEinstein.changeScreenSize(ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
+			pEinsteinView.updateDimensions();
+			Toast.makeText(getApplicationContext(), "Rebooting NewtonOS", Toast.LENGTH_LONG).show();		
+			pEinstein.rebootEmulator();
+			pEinstein.powerOnEmulator();
+			while (pEinstein.isPowerOn()==0) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+				}
+				Log.i("SCREEN", "Wait for power up");
+			}
+			int rate = Integer.valueOf(this.sharedPrefs.getString("screenrefreshrate", "10"));
+			startScreenRefresh(rate);
+			// TODO: reconnect the view somehow!
 		} else if ("install_rom".equals(key)) {
-			final String installationType = sharedPreferences.getString("install_rom", "1");
-			DebugUtils.debugTextOnScreen(this, "ROM installation path changed to ".concat(installationType));
+			//final String installationType = sharedPreferences.getString("install_rom", "1");
+			//DebugUtils.debugTextOnScreen(this, "ROM installation path changed to ".concat(installationType));
 		} else if ("androidstatusbar".equals(key)) {
 			final boolean statusBarVisible = sharedPreferences.getBoolean("androidstatusbar", true);
-			DebugUtils.debugTextOnScreen(this, "Status bar was turned ".concat(statusBarVisible ? "on" : "off"));
-			//this.updateFullscreenStatus(statusBarVisible);
+			//DebugUtils.debugTextOnScreen(this, "Status bar was turned ".concat(statusBarVisible ? "on" : "off"));
+			this.updateFullscreenStatus(statusBarVisible);
+		} else if ("screenrefreshrate".equals(key)) {
+			int rate = Integer.valueOf(this.sharedPrefs.getString("screenrefreshrate", "10"));
+			changeScreenRefresh(rate);
 		}
 	}
 
 	@Override
 	/** Used to create the menu. */
 	public boolean onCreateOptionsMenu(Menu menu) {
-		Log.e("XXXX", ">>>>>>>>>> onCreateOptionsMenu(Menu)");
-		// Create the menu using the XML file
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.mainmenu, menu);
 		return true;
 	}
-
-	@Override
-	/** In case you want to disable or hide menu items you can use the method "onPrepareOptionsMenu",
-		which is called every time the menu is called. */
-	public boolean onOptionsItemSelected(MenuItem item) {
-		Log.e("XXXX", ">>>>>>>>>> onOptionsItemSelected(MenuItem)");
-		switch (item.getItemId()) {
-			case R.id.preferences:
-				// Launch Preferences activity
-				final Intent intent = new Intent(EinsteinActivity.this, EinsteinPreferencesActivity.class);
-				startActivity(intent);
-				break;
-			case R.id.backlight:
-				if (pEinstein.backlightIsOn()==1)
-					pEinstein.setBacklight(0);
-				else
-					pEinstein.setBacklight(1);
-				break;
-			case R.id.installNewPackages:
-				pEinstein.installNewPackages();
-				break;
-			case R.id.networkCard:
-				pEinstein.toggleNetworkCard();
-				break;
-		}
-		return true;	}
 
 	/*
 	 * Keep the "Back" key from destroying this activity!
@@ -325,13 +347,25 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 		}
 	}
 
-	private void startScreenRefresh() {
+	private void startScreenRefresh(int rate) {
 		if (mScreenRefreshTask==null) {
 			mScreenRefreshTask = new ScreenRefresh(pEinstein, pEinsteinView);
 		}
 		if (mScreenRefreshTimer==null) {
 			mScreenRefreshTimer = new Timer(true);
-			mScreenRefreshTimer.schedule(mScreenRefreshTask, 1000, 100);
+			Log.e("REFRESH", "rate is set to "+rate);
+			mScreenRefreshTimer.schedule(mScreenRefreshTask, 1000, 1000/rate);
+		}
+	}
+	
+	private void changeScreenRefresh(int rate) {
+		if (mScreenRefreshTimer!=null) {
+			mScreenRefreshTimer.cancel();
+			mScreenRefreshTimer.purge();
+			mScreenRefreshTimer = null;
+			mScreenRefreshTimer = new Timer(true);
+			Log.e("REFRESH", "rate is changed to "+rate);
+			mScreenRefreshTimer.schedule(mScreenRefreshTask, 1000/rate, 1000/rate);
 		}
 	}
 
@@ -344,24 +378,26 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 		mScreenRefreshTask = null;
 	}
 
-	private String setText(){
-		final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-		alert.setTitle(StringConstants.Einstein_002); // Download the ROM
-		alert.setMessage(StringConstants.Einstein_003); // Enter the URL of the Newton ROM file
-		final EditText input = new EditText(this);
-		alert.setView(input);
-		final String out = null;
-		alert.setPositiveButton(StringConstants.Einstein_004, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				Editable ed = input.getText();
-				String out = ed.toString();
-				Log.i("Einstein", out);
-			}
-		});
-		alert.show();
-		return out;
-	}
+//@SuppressWarnings("deprecation")
+//	private String setText(){
+//		final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+//		alert.setTitle(StringConstants.Einstein_002); // Download the ROM
+//		alert.setMessage(StringConstants.Einstein_003); // Enter the URL of the Newton ROM file
+//		final EditText input = new EditText(this);
+//		alert.setView(input);
+//		final String out = null;
+//		alert.setPositiveButton(StringConstants.Einstein_004, new DialogInterface.OnClickListener() {
+//			public void onClick(DialogInterface dialog, int which) {
+//				Editable ed = input.getText();
+//				String out = ed.toString();
+//				Log.i("Einstein", out);
+//			}
+//		});
+//		alert.show();
+//		return out;
+//	}
 
+	@SuppressWarnings("deprecation")
 	void finishWithMessage(String msg) {
 		class MyOnClickListener implements DialogInterface.OnClickListener {
 			Activity pv = null;
@@ -378,9 +414,9 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 		ad.show();
 	}
 	
-	private void startDownload() {
-		//new DownloadFileAsync(this).execute(URLConstants.SHIP_IMAGE);
-	}
+//	private void startDownload() {
+//		//new DownloadFileAsync(this).execute(URLConstants.SHIP_IMAGE);
+//	}
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {

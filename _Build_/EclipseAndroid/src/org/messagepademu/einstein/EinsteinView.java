@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -54,8 +55,9 @@ class EinsteinView extends View {
     	case MotionEvent.ACTION_DOWN:
     	case MotionEvent.ACTION_MOVE:
             Rect dstRect = new Rect();
-            getDrawingRect(dstRect);
+            this.getDrawingRect(dstRect);
     		penDown((int)(ev.getX()*this.emulatorWindowSize.width/dstRect.width()), (int)(ev.getY()*this.emulatorWindowSize.height/dstRect.height()));
+    		//Log.i("PEN", "Pen down at " + ev.getX() + ", " + emulatorWindowSize.width + ", " + dstRect.width());
     		break;
     	case MotionEvent.ACTION_UP:
     	case MotionEvent.ACTION_CANCEL:
@@ -63,6 +65,14 @@ class EinsteinView extends View {
     		break;
     	}
     	return true;
+    }
+    
+    public void updateDimensions() {
+    	this.mBitmap = null;
+    	this.emulatorWindowBounds = null;
+        this.emulatorWindowSize = ScreenDimensions.NEWTON_SCREEN_SIZE;
+        this.mBitmap = Bitmap.createBitmap(emulatorWindowSize.width, emulatorWindowSize.height, Bitmap.Config.RGB_565);
+        this.emulatorWindowBounds = new Rect(0, 0, this.emulatorWindowSize.width, this.emulatorWindowSize.height);
     }
 
     // send refresh requests

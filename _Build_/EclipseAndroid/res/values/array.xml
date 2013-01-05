@@ -36,6 +36,16 @@
     <item>2</item>
     <item>3</item>
     <item>4</item>
-    <item>5</item>
+    <item>5</item>  
+  </string-array>
+  <string-array name="entries_refresh_rate">
+    <item>Slow</item>
+    <item>Medium</item>
+    <item>Fast</item>
+  </string-array>
+  <string-array name="entryvalues_refresh_rate">
+    <item>10</item>
+    <item>20</item>
+    <item>30</item>
   </string-array>
 </resources>

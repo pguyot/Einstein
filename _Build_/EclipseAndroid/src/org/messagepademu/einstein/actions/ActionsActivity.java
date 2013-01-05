@@ -8,9 +8,6 @@ import org.messagepademu.einstein.prefs.EinsteinPreferencesActivity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -58,7 +55,7 @@ public class ActionsActivity extends Activity {
 	}
 
 	public void onClickBacklight(View v) {
-		// FIXME: this does not toggle the light, only switches it on. Somehoe the backlight state is not not retained when the activity changes
+		// FIXME: this does not toggle the light, only switches it on. Somehow the backlight state is not not retained when the activity changes
 		EinsteinApplication app = (EinsteinApplication)getApplication();
 		Einstein einstein = app.getEinstein();
 		if (einstein.backlightIsOn()==1)
@@ -70,7 +67,8 @@ public class ActionsActivity extends Activity {
 
 	public void onClickPreferences(View v) {
 		// FIXME: after preferences are closed, we end up in Actions again. We should probably be in EInstein instead.
-	    Intent intent = new Intent(v.getContext(), EinsteinPreferencesActivity.class);  
+	    Intent intent = new Intent(v.getContext(), EinsteinPreferencesActivity.class);
+	    this.finish();
 	    startActivity(intent);
 	}
 

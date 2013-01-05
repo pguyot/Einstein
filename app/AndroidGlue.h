@@ -44,14 +44,20 @@ extern "C" {
   extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_runEmulator( JNIEnv* env, jobject thiz, jstring dataPath, jint screenWidth, jint screenHeight );
   extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_stopEmulator( JNIEnv* env, jobject thiz );
   extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_powerOnEmulator( JNIEnv* env, jobject thiz );
-  extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_powerOffEmulator( JNIEnv* env, jobject thiz );
+	extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_powerOffEmulator( JNIEnv* env, jobject thiz );
+	extern JNIEXPORT jint JNICALL Java_org_messagepademu_einstein_Einstein_isPowerOn( JNIEnv* env, jobject thiz );
+	extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_rebootEmulator( JNIEnv* env, jobject thiz );
+	extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_changeScreenSize( JNIEnv* env, jobject thiz, jint w, jint h );
+	extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_sendPowerSwitchEvent( JNIEnv* env, jobject thiz );
+	extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_setNewtonID( JNIEnv* env, jobject thiz, jstring );
 
-  extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_toggleNetworkCard( JNIEnv* env, jobject thiz );
+	extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_toggleNetworkCard( JNIEnv* env, jobject thiz );
 
   extern JNIEXPORT jint JNICALL Java_org_messagepademu_einstein_Einstein_screenIsDirty( JNIEnv* env, jobject thiz );
   extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_setBacklight( JNIEnv* env, jobject thiz, jint v );
   extern JNIEXPORT jint JNICALL Java_org_messagepademu_einstein_Einstein_backlightIsOn( JNIEnv* env, jobject thiz );
-  extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_installNewPackages( JNIEnv* env, jobject thiz );
+	extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_installNewPackages( JNIEnv* env, jobject thiz );
+	extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_installPackage( JNIEnv* env, jobject thiz, jstring filename );
 	
   extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_EinsteinView_penDown( JNIEnv* env, jobject thiz, jint x, jint y );
   extern JNIEXPORT void JNICALL Java_org_messagepademu_einstein_EinsteinView_penUp( JNIEnv* env, jobject thiz);

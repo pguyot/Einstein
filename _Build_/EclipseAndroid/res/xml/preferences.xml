@@ -4,30 +4,37 @@
         android:title="Screen Size">
 		<CheckBoxPreference
 			android:key="androidstatusbar"
-			android:title="Show Android status bar"
-            android:summary="Show or hide Android status bar"
+			android:title="@string/Preferences.statusbar.title"
+            android:summary="@string/Preferences.statusbar.summary"
             android:defaultValue="true"/>
         <ListPreference
             android:key="screenpresets"
-            android:title="Emulator window size"
-            android:summary="Choose a recommended emulator window size"/>
-			<!-- entries and entryvalues depend on host screen size and will be calculated in EinsteinPreferencesActivity -->
+			android:title="@string/Preferences.screensize.title"
+            android:summary="@string/Preferences.screensize.summary"/>
+        <ListPreference 
+            android:entries="@array/entries_refresh_rate" 
+            android:title="@string/Preferences.refreshrate.title" 
+            android:defaultValue="20" 
+            android:entryValues="@array/entryvalues_refresh_rate" 
+            android:dialogTitle="@string/Preferences.refreshrate.title" 
+            android:summary="@string/Preferences.refreshrate.summary" android:key="screenrefreshrate"/>
     </PreferenceCategory>
     <PreferenceCategory
-        android:title="Emulator Settings">
-		<ListPreference 
+        android:title="Emulator Settings" android:enabled="true">
+		<EditTextPreference android:dialogMessage="@string/Preferences.newtonid.summary" android:defaultValue="00004E6577746F6E" android:dialogTitle="@string/Preferences.newtonid.title" android:key="newtonid" android:title="@string/Preferences.newtonid.title" android:summary="@string/Preferences.refreshrate.summary"/><ListPreference 
 		    android:key="ramsize"
 		    android:title="RAM Size"
 		    android:summary="Memory size, 1MB for the MP2000, 4MB for the MP2100"
 		    android:entryValues="@array/entryvalues_ram_size"
-		    android:entries="@array/entries_ram_size"/>
+		    android:entries="@array/entries_ram_size" android:enabled="false"/>
 		<CheckBoxPreference
 			android:key="keepnetworkcardpluggedin"
 			android:title="Network Card"
             android:summary="Keep network card plugged in"
-            android:defaultValue="false"/>
+            android:defaultValue="false" android:enabled="false"/>
+		
 	</PreferenceCategory>
-    <PreferenceCategory android:title="Host Settings">
+    <PreferenceCategory android:title="Host Settings" android:enabled="false">
         <ListPreference
         	android:key="install_rom"
 			android:title="(Install ROM)"
