@@ -38,6 +38,8 @@
 
 // ANSI C
 #include <stdio.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 // K
 #if HAS_EXCEPTION_HANDLING
@@ -215,6 +217,17 @@ TFileStream::SetCursor( KSInt64 inPos, ECursorMode inMode )
 		throw TIOException();
 #endif
 	}
+}
+
+// ------------------------------------------------------------------------- //
+//  * Exists( const char *inPath )
+// ------------------------------------------------------------------------- //
+bool
+TFileStream::Exists( const char *inPath )
+{
+	struct stat s;
+	int theErr = ::stat( inPath, &s);
+	return theErr == 0;
 }
 
 // ================================================ //

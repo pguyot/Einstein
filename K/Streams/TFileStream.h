@@ -137,6 +137,16 @@ public:
 	///
 	virtual void 		SetCursor( KSInt64 inPos, ECursorMode inMode );
 
+	/// \name Information interface.
+
+	///
+	/// Check whether the given file exitss
+	///
+	/// \param inPath	file to check for
+	/// \return true if the file exists
+	///
+	static bool			Exists( const char *inPath );
+
 private:
 	/// \name Variables
 	FILE*		mFile;				///< Pointer to the file.
