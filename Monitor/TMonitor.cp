@@ -22,7 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include <K/Exceptions/IO/TIOException.h>
+#include <K/Streams/TFileStream.h>
 #include "TMonitor.h"
 
 // ANSI C & POSIX
@@ -336,9 +336,8 @@ TMonitor::LoadEmulatorState( const char *inFilename )
 		inFilename = "/tmp/einstein.state";
 	}
 	char someByte = 0;
-	try {
+	if (TFileStream::Exists(inFilename)) {
 		mEmulator->LoadState(inFilename);
-	} catch (TIOException e) {
 	}
 	TScreenManager *screen = mEmulator->GetScreenManager();
 	TScreenManager::SRect rect;
