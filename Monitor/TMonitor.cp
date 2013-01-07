@@ -22,6 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
+#include <K/Exceptions/IO/TIOException.h>
 #include "TMonitor.h"
 
 // ANSI C & POSIX
@@ -314,7 +315,7 @@ TMonitor::SaveEmulatorState( const char *inFilename )
 	assert(0); // FIXME later
 #else
 	if (inFilename==0) {
-		inFilename = "/Users/matt/einstein.state";
+		inFilename = "/tmp/einstein.state";
 	}
 	char someByte = 0;
 	mEmulator->SaveState(inFilename);
@@ -332,10 +333,13 @@ TMonitor::LoadEmulatorState( const char *inFilename )
 	assert(0); // FIXME later
 #else
 	if (inFilename==0) {
-		inFilename = "/Users/matt/einstein.state";
+		inFilename = "/tmp/einstein.state";
 	}
 	char someByte = 0;
-	mEmulator->LoadState(inFilename);
+	try {
+		mEmulator->LoadState(inFilename);
+	} catch (TIOException e) {
+	}
 	TScreenManager *screen = mEmulator->GetScreenManager();
 	TScreenManager::SRect rect;
 	rect.fLeft = 0;
@@ -600,7 +604,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				usleep(10000);
 			}
 			PrintLine("Saving emulator snapshot");
-			SaveEmulatorState("/Users/matt/einstein.state");
+			SaveEmulatorState();
 			PrintLine("Emulator snapshot saved.");
 		} else {
 			PrintLine("The emulator is halted");
@@ -630,7 +634,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			}
 		}
 		PrintLine("Loading emulator snapshot");
-		LoadEmulatorState("/Users/matt/einstein.state");
+		LoadEmulatorState();
 		PrintLine("Restarting the Emulator");
 		if (mHalted)
 		{
