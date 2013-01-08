@@ -53,13 +53,23 @@ public:
 	~TSymbolList( void );
 
 	///
-	/// Accessor to a symbol.
+	/// Find symbol at or preceeding a given address
 	///
 	void GetSymbol(
 			KUInt32 inValue,
 			char* outSymbol,
 			char* outComment,
 			int* outOffset );
+
+	///
+	/// Find symbol at a given address
+	///
+	bool GetSymbolExact(
+			KUInt32 inValue,
+			char* outSymbol,
+			char* outComment,
+			int* outOffset );
+
 
 private:
 	struct SSymbolStruct
@@ -86,6 +96,14 @@ private:
 	/// Load symbols.
 	///
 	void LoadSymbols( void );
+
+	///
+	/// Read data for a symbol from the symbol file
+	//
+	void ReadSymbolData(
+		SSymbolStruct *symbol,
+		char* outSymbol,
+		char* outComment);
 
 	/// \name Variables
 	SSymbolStruct*		mSymbolOffsets;
