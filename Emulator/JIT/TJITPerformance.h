@@ -30,6 +30,7 @@
 
 
 class TEmulator;
+class TSymbolList;
 
 
 ///
@@ -63,14 +64,17 @@ public:
 	/// Print the collected data to a file
 	/// \param out a destination file that the caller must manage
 	/// \param style one of the output styles defined below
-	void		print(FILE *out, KUInt32 style, ...);
+	/// \param inSymbols optional symbol file used to map hits to symbols
+	void		print(FILE *out, KUInt32 style, TSymbolList *inSymbols = NULL, ...);
 
 	enum {
 		kStyleAToB = 0,		///< show all values from a to b; varargs are UInt32 a, UInt32 b
 		kStyleMostHit,		///< show the first n addresses that were hit most often; varargs is UInt32 n
 		kStyleAllHit,		///< show all addresses that were hit, sorted by number of hit; varargs is unused
 		kStyleDontSort,		///< list all addresses that were hit
-		kStyleHex = 0x10000000 ///< show addresse in 8 byte hex notation instead of decimal
+		kStyleHex = 0x10000000, ///< show addresse in 8 byte hex notation instead of decimal
+		kStyleSymbolsOnly = 0x20000000,	///< show only hits for symbols
+		kStyleNonZeroOnly = 0x40000000	///< print only hits greater than zero
 	};
 
 private:
@@ -79,6 +83,14 @@ private:
 	KUInt32		mSize;
 	KUInt32		mShift;
 	KUInt64		*mArray;
+
+	/// Print one hit according to the style and optional symbol information
+	/// \param out a destination file that the caller must manage
+	/// \param style one of the output styles defined below
+	/// \param inSymbols symbol file used to map hits to symbols (can be NULL)
+	/// \param addr address to print
+	/// \param count hits
+	void		printOneHit(FILE *out, KUInt32 style, TSymbolList *inSymbols, KUInt32 addr, KUInt64 count);
 };
 
 
