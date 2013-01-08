@@ -27,6 +27,18 @@
 #include <stdlib.h>
 
 // -------------------------------------------------------------------------- //
+// Local functions
+// -------------------------------------------------------------------------- //
+
+int symbolValueCompare( const void * a, const void * b )
+{
+	int r;
+	KUInt32 x = *(KUInt32 *) a, y = *(KUInt32 *) b;
+	if (x > y) r = 1; else if (x < y) r = -1; else r = 0;
+	return r;
+}
+
+// -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
 
@@ -122,6 +134,54 @@ TSymbolList::LoadSymbols( void )
 }
 
 // -------------------------------------------------------------------------- //
+//  * ReadSymbolData( SSymbolStruct symbol, char* outSymbol, char* outComment )
+// -------------------------------------------------------------------------- //
+void
+TSymbolList::ReadSymbolData(
+    SSymbolStruct *symbol,
+	char* outSymbol,
+	char* outComment)
+{
+	int cursor = 0;
+	int theChar;
+
+	(void) ::fsetpos( mFile, &symbol->fFileCursor );
+	do
+	{
+		theChar = ::fgetc( mFile );
+		if ((theChar != EOF) && (theChar != '\t') && (cursor < 510) && (theChar != '\n') && (theChar != '\r'))
+		{
+			outSymbol[cursor] = theChar;
+		} else {
+			outSymbol[cursor] = '\0';
+			break;
+		}
+		cursor++;
+	} while (1);
+
+	if (theChar != '\t')
+	{
+		outComment[0] = '\0';
+	} else {
+		cursor = 0;
+		// Now I fill the comment
+		do
+		{
+			theChar = ::fgetc( mFile );
+			if ((theChar != EOF) && (theChar != '\n') && (theChar != '\r') && (cursor < 510))
+			{
+				outComment[cursor] = theChar;
+			} else {
+				outComment[cursor] = '\0';
+				break;
+			}
+			cursor++;
+		} while (1);
+	}
+
+}
+
+// -------------------------------------------------------------------------- //
 //  * GetSymbol( KUInt32, char*, char*, int* )
 // -------------------------------------------------------------------------- //
 void
@@ -131,7 +191,7 @@ TSymbolList::GetSymbol(
 				char* outComment,
 				int* outOffset )
 {
-	if (this==0 || mSymbolCount==0)
+	if (mSymbolCount == 0)
 	{
 		::sprintf(outSymbol, "%08X", (unsigned int)inValue);
 		::sprintf(outComment, "(no symbol data)");
@@ -142,7 +202,7 @@ TSymbolList::GetSymbol(
 	// Let's look for the symbol.
 	// Strings should have a size of 510 bytes plus the terminator (full ANSI C strings).
 	KUInt32 indexSymbols;
-	
+
 	unsigned long int theNextSymbolValue = mSymbolOffsets[0].fSymbolValue;
 	for (indexSymbols = 0; indexSymbols < mSymbolCount; indexSymbols++)
 	{
@@ -155,49 +215,39 @@ TSymbolList::GetSymbol(
 		}
 		if ((inValue >= theSymbolValue) && (inValue < theNextSymbolValue))
 		{
-			int cursor = 0;
-			int theChar;
-			
-			// Let's read the symbol in the file.
-			(void) ::fsetpos( mFile, &mSymbolOffsets[indexSymbols].fFileCursor );
-			// Now I fill the symbol
-			do
-			{
-				theChar = ::fgetc( mFile );
-				if ((theChar != EOF) && (theChar != '\t') && (cursor < 510) && (theChar != '\n') && (theChar != '\r'))
-				{
-					outSymbol[cursor] = theChar;
-				} else {
-					outSymbol[cursor] = '\0';
-					break;
-				}
-				cursor++;
-			} while (1);
-			
-			if (theChar != '\t')
-			{
-				outComment[0] = '\0';
-			} else {
-				cursor = 0;
-				// Now I fill the comment
-				do
-				{
-					theChar = ::fgetc( mFile );
-					if ((theChar != EOF) && (theChar != '\n') && (theChar != '\r') && (cursor < 510))
-					{
-						outComment[cursor] = theChar;
-					} else {
-						outComment[cursor] = '\0';
-						break;
-					}
-					cursor++;
-				} while (1);
-			}
-			
+			ReadSymbolData(&mSymbolOffsets[indexSymbols], outSymbol, outComment);
 			*outOffset = inValue - theSymbolValue;
 			break;
 		}
 	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetSymbol( KUInt32, char*, char*, int* )
+// -------------------------------------------------------------------------- //
+bool
+TSymbolList::GetSymbolExact(
+				KUInt32 inValue,
+				char* outSymbol,
+				char* outComment,
+				int* outOffset )
+{
+	bool r;
+	SSymbolStruct *symbol = (SSymbolStruct *) bsearch(&inValue, mSymbolOffsets,
+		mSymbolCount, sizeof(*mSymbolOffsets), symbolValueCompare);
+
+	if (symbol != NULL)
+	{
+		ReadSymbolData(symbol, outSymbol, outComment);
+		*outOffset = inValue - symbol->fSymbolValue;
+		r = true;
+	} else {
+		::sprintf(outSymbol, "%08X", (unsigned int)inValue);
+		::sprintf(outComment, "(no symbol data)");
+		*outOffset = 0;
+		r = false;
+	}
+	return r;
 }
 
 // ======================================================================= //
