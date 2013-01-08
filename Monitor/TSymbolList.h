@@ -29,7 +29,10 @@
 #include <stdio.h>
 
 ///
-/// Class for a list of symbols.
+/// Class for a list of symbols. The symbol file format is:
+/// addr name[\tcommment]
+/// where addr is a 32 bit hex number, and the optional comment is preceeded
+/// by a tab character. The file sorted by addr.
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 113 $
