@@ -26,6 +26,7 @@
 
 #include "TEmulator.h"
 #include "TInterruptManager.h"
+#include "TSymbolList.h"
 
 #include <stdarg.h>
 
@@ -79,11 +80,33 @@ KUInt64 TJITPerfHitCounter::get_hits(KUInt32 at)
 }
 
 
+void TJITPerfHitCounter::printOneHit(FILE *out, KUInt32 style, TSymbolList *inSymbols, KUInt32 addr, KUInt64 count)
+{
+	char symbol[512];
+	char comment[80];
+	int offset;
+	bool exactSymbol = false;
+
+	if (count > 0 || !(style & kStyleNonZeroOnly)) {
+		if (inSymbols != NULL) exactSymbol = inSymbols->GetSymbolExact(addr, symbol, comment, &offset);
+		if (exactSymbol) {
+			fprintf(out, "%s\t%19llu\n", symbol, count);
+		} else if ((style & kStyleSymbolsOnly) == 0) {
+			if (style & kStyleHex) {
+				fprintf(out, "%08X: ", (unsigned int)addr);
+			} else {
+				fprintf(out, "%8d: ", (unsigned int)addr);
+			}
+			fprintf(out, "%19llu\n", count);
+		}
+	}
+}
+
 //	kStyleAToB = 0,	///< show all values from a to b; varargs are UInt32 a, UInt32 b
 //	kStyleMostHit,	///< show the first n addresses that were hit most often; varargs is UInt32 n
 //	kStyleHex = 0x10000000 ///< show addresse in 8 byte hex notation instead of decimal
 
-void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
+void TJITPerfHitCounter::print(FILE *out, KUInt32 style, TSymbolList *inSymbols, ...)
 {
 	if ( !out )
 		return;
@@ -95,7 +118,7 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 	}
 		
 	va_list vl;
-	va_start(vl, style);
+	va_start(vl, inSymbols);
     static KUInt64 maxULLInt = 0xffffffffffffffffULL;
 	KUInt32 a, b, i, j, n, o, ix;
 	KUInt64 m;
@@ -116,11 +139,7 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 			b = (b-mFirst)>>mShift;
 			for (i=a; i<b; i++) {
 				KUInt64 v = mArray[i];
-				if (style & kStyleHex) {
-					fprintf(out, "%08X: %19llu\n", (unsigned int)((i<<mShift)+o), v);
-				} else {
-					fprintf(out, "%8d: %19llu\n", (unsigned int)((i<<mShift)+o), v);
-				}
+				printOneHit(out, style, inSymbols, (i<<mShift)+o, v);
 			}
 			break;
 		case kStyleAllHit:
@@ -128,7 +147,7 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 			for (j=0; j<mSize; j++) {
 				KUInt64 v = mArray[j];
 				if (v>0) {
-					fprintf(out, "%08X: %19llu\n", (unsigned int)((j<<mShift)+mFirst), m);
+					printOneHit(out, style, inSymbols, (j<<mShift)+mFirst, m);
 				}
 			}
 		case kStyleMostHit:
@@ -160,11 +179,7 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, ...)
 				if (m==0)
 					break;
 				mArray[ix] = maxULLInt;
-				if (style & kStyleHex) {
-					fprintf(out, "%08X: %19llu\n", (unsigned int)((ix<<mShift)+mFirst), m);
-				} else {
-					fprintf(out, "%8d: %19llu\n", (unsigned int)((ix<<mShift)+mFirst), m);
-				}
+				printOneHit(out, style, inSymbols, (ix<<mShift)+mFirst, m);
 			}
 			break;
 	}
