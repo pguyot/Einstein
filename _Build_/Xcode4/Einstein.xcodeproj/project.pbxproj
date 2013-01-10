@@ -204,6 +204,8 @@
 		F1CAFBE41241F7C200A0382E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E36FD111C18A8002165EC /* CoreAudio.framework */; };
 		F1CAFBF51241F7E600A0382E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */; };
 		F1CAFCF9124200C100A0382E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFCF8124200C100A0382E /* CoreGraphics.framework */; };
+		F8B76BC5169CAE7100660943 /* newt_string.cp in Sources */ = {isa = PBXBuildFile; fileRef = F8B76BC4169CAE7100660943 /* newt_string.cp */; };
+		F8B76BC6169CAE7100660943 /* newt_string.cp in Sources */ = {isa = PBXBuildFile; fileRef = F8B76BC4169CAE7100660943 /* newt_string.cp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -631,6 +633,8 @@
 		F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		F1CAFCF8124200C100A0382E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		F1CB761A1317307E0017B0BB /* Einstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Einstein_Prefix.pch; path = ../../../../../Source/einstein/Einstein/app/Einstein_Prefix.pch; sourceTree = SOURCE_ROOT; };
+		F8B76BC3169CAD6E00660943 /* newt_string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = newt_string.h; path = CLibrary/newt_string.h; sourceTree = "<group>"; };
+		F8B76BC4169CAE7100660943 /* newt_string.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = newt_string.cp; path = CLibrary/newt_string.cp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1545,6 +1549,7 @@
 				C9EF94D2160E48E5009E89C3 /* Common */,
 				C9EF94D8160E48E5009E89C3 /* Frames */,
 				C9EF94DC160E48E5009E89C3 /* UtilityClasses */,
+				F8B76BC2169CACF600660943 /* CLibrary */,
 			);
 			name = Newt;
 			path = ../../Newt;
@@ -1625,6 +1630,15 @@
 				C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */,
 			);
 			name = Nibs;
+			sourceTree = "<group>";
+		};
+		F8B76BC2169CACF600660943 /* CLibrary */ = {
+			isa = PBXGroup;
+			children = (
+				F8B76BC3169CAD6E00660943 /* newt_string.h */,
+				F8B76BC4169CAE7100660943 /* newt_string.cp */,
+			);
+			name = CLibrary;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1832,6 +1846,7 @@
 				C9C7BB8D162B6C9B0074FBDE /* TInterpreter.cp in Sources */,
 				C9C7BB8E162B6C9B0074FBDE /* CArrayIterator.cp in Sources */,
 				C9C7BB8F162B6C9B0074FBDE /* CDynamicArray.cp in Sources */,
+				F8B76BC5169CAE7100660943 /* newt_string.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1910,6 +1925,7 @@
 				C901E551132659120074513E /* TCircleBuffer.cp in Sources */,
 				C901E552132659140074513E /* TMappedFile.cp in Sources */,
 				C9BE33D1133E64F60052EA2F /* TJITPerformance.cp in Sources */,
+				F8B76BC6169CAE7100660943 /* newt_string.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
