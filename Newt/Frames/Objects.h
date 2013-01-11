@@ -38,6 +38,8 @@ const Ref kRefTagMask = ~kRefValueMask;
 const int kRefImmedBits = 2;
 const Ref kRefImmedMask = (-1 << kRefImmedBits);
 
+const int kRefFlagForward = 0x20;
+
 enum
 {
 	kTagInteger,
@@ -63,12 +65,15 @@ enum
 #define MAKEPTR(p)			((Ref)((char*)p + 1))
 #define MAKEMAGICPTR(index)	((Ref)(((Ref)(index)) << kRefTagBits) | kTagMagicPtr)
 
+#define PTRFROMREF(c, r)	((c *)((char *)r - 1))
+
 #define NILREF				MAKEIMMED(kImmedSpecial, 0)
 #define TRUEREF				MAKEIMMED(kImmedBoolean, 1)
 #define FALSEREF			NILREF
 #define INVALIDPTRREF		MAKEINT(0)
 
 #define ISINT(a)			(((a)&kRefTagMask)==kTagInteger)
+#define ISPTR(a)			(((a)&kRefTagMask)==kTagPointer)
 
 
 class ObjectHeader
@@ -90,6 +95,12 @@ public:
 public:
 	NEWT_GET_SET_W(Ref, ObjectClass);
 	NEWT_GET_SET_W_ARRAY(Ref, Slot, 1);
+};
+
+class ForwardingObject: public ObjectHeader
+{
+public:
+	NEWT_GET_SET_W(Ref, ForwardRef);
 };
 
 #endif	// NEWT_FRAMES_OBJECTS_H
