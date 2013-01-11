@@ -430,8 +430,8 @@ static TCocoaAppController* gInstance = nil;
 	// Start the thread.
 	[NSThread detachNewThreadSelector:@selector(runEmulator) toTarget: self withObject: NULL];
 //	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"load x" afterDelay:1];
-//	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"run" afterDelay:1];
-	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"revert" afterDelay:1];
+	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"run" afterDelay:1];
+//	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"revert" afterDelay:1];
 }
 
 
@@ -452,13 +452,13 @@ static TCocoaAppController* gInstance = nil;
 #ifdef JIT_PERFORMANCE 
 	// branchDestCount currently holds all commands that are executed.
 	FILE *f;
-	f = fopen("/Users/matt/dev/Einstein/p1.txt", "wb");
-	//branchDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, 1000);
-	//branchDestCount.print(f, TJITPerfHitCounter::kStyleAllHit|TJITPerfHitCounter::kStyleHex);
-	branchDestCount.print(f, TJITPerfHitCounter::kStyleDontSort|TJITPerfHitCounter::kStyleHex);
+	f = fopen("/tmp/p1.txt", "wb");
+	//branchDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, mSymbolList, 1000);
+	//branchDestCount.print(f, TJITPerfHitCounter::kStyleAllHit|TJITPerfHitCounter::kStyleHex, mSymbolList);
+	branchDestCount.print(f, TJITPerfHitCounter::kStyleNonZeroOnly|TJITPerfHitCounter::kStyleSymbolsOnly|TJITPerfHitCounter::kStyleDontSort|TJITPerfHitCounter::kStyleHex, mSymbolList);
 	fclose(f);
-	//f = fopen("/Users/matt/dev/Einstein/p2.txt", "wb");
-	//branchLinkDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, 1000);
+	//f = fopen("/tmp/p2.txt", "wb");
+	//branchLinkDestCount.print(f, TJITPerfHitCounter::kStyleMostHit|TJITPerfHitCounter::kStyleHex, mSymbolList, 1000);
 	//fclose(f);
 #endif
 }
