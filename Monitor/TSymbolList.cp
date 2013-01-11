@@ -191,7 +191,7 @@ TSymbolList::GetSymbol(
 				char* outComment,
 				int* outOffset )
 {
-	if (mSymbolCount == 0)
+	if (this == NULL || mSymbolCount == 0)
 	{
 		::sprintf(outSymbol, "%08X", (unsigned int)inValue);
 		::sprintf(outComment, "(no symbol data)");
@@ -232,6 +232,8 @@ TSymbolList::GetSymbolExact(
 				char* outComment,
 				int* outOffset )
 {
+	if (this == NULL) return false;
+
 	bool r;
 	SSymbolStruct *symbol = (SSymbolStruct *) bsearch(&inValue, mSymbolOffsets,
 		mSymbolCount, sizeof(*mSymbolOffsets), symbolValueCompare);
