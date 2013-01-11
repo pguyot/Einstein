@@ -204,6 +204,7 @@
 		F1CAFBE41241F7C200A0382E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E36FD111C18A8002165EC /* CoreAudio.framework */; };
 		F1CAFBF51241F7E600A0382E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */; };
 		F1CAFCF9124200C100A0382E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFCF8124200C100A0382E /* CoreGraphics.framework */; };
+		F8847563169F4DE1007CE179 /* Objects.cp in Sources */ = {isa = PBXBuildFile; fileRef = F8847562169F4DE1007CE179 /* Objects.cp */; };
 		F8B76BC5169CAE7100660943 /* newt_string.cp in Sources */ = {isa = PBXBuildFile; fileRef = F8B76BC4169CAE7100660943 /* newt_string.cp */; };
 		F8B76BC6169CAE7100660943 /* newt_string.cp in Sources */ = {isa = PBXBuildFile; fileRef = F8B76BC4169CAE7100660943 /* newt_string.cp */; };
 /* End PBXBuildFile section */
@@ -633,6 +634,7 @@
 		F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		F1CAFCF8124200C100A0382E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		F1CB761A1317307E0017B0BB /* Einstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Einstein_Prefix.pch; path = ../../../../../Source/einstein/Einstein/app/Einstein_Prefix.pch; sourceTree = SOURCE_ROOT; };
+		F8847562169F4DE1007CE179 /* Objects.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Objects.cp; sourceTree = "<group>"; };
 		F8B76BC3169CAD6E00660943 /* newt_string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = newt_string.h; path = CLibrary/newt_string.h; sourceTree = "<group>"; };
 		F8B76BC4169CAE7100660943 /* newt_string.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = newt_string.cp; path = CLibrary/newt_string.cp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1573,6 +1575,7 @@
 			isa = PBXGroup;
 			children = (
 				C9EF94D9160E48E5009E89C3 /* Objects.h */,
+				F8847562169F4DE1007CE179 /* Objects.cp */,
 				C9EF94DA160E48E5009E89C3 /* TInterpreter.cp */,
 				C9EF94DB160E48E5009E89C3 /* TInterpreter.h */,
 			);
@@ -1847,6 +1850,7 @@
 				C9C7BB8E162B6C9B0074FBDE /* CArrayIterator.cp in Sources */,
 				C9C7BB8F162B6C9B0074FBDE /* CDynamicArray.cp in Sources */,
 				F8B76BC5169CAE7100660943 /* newt_string.cp in Sources */,
+				F8847563169F4DE1007CE179 /* Objects.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
