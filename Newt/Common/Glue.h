@@ -181,14 +181,17 @@ public:
 	NewtGlueStackManager ngManage##name(sizeof(type)); \
 	type* ngPtr##name = (type*)(gCurrentCPU->GetRegister(13));
 
-#define NEWT_LOACL_REF(name) \
-	(*(ngPtr##Name))
+#define NEWT_LOCAL_REF(name) \
+	(*(ngPtr##name))
 
 #define NEWT_LOCAL_PTR(name) \
 	(ngPtr##name)
 
 #define NEWT_LOCAL_GET_W(type, name) \
 	(type)NewtReadWord(ngPtr##name)
+
+#define NEWT_LOCAL_SET_W(name, v) \
+    NewtWriteWord(ngPtr##name, v)
 
 
 //0000 = EQ - Z set (equal)
