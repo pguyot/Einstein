@@ -101,6 +101,10 @@ class ForwardingObject: public ObjectHeader
 {
 public:
 	NEWT_GET_SET_W(Ref, ForwardRef);
+	NEWT_GET_SET_W(Ref, Unknown_0c);
+	NEWT_GET_SET_W(Ref, Unknown_10);
+	NEWT_GET_SET_W(Ref, Unknown_14);
+	NEWT_GET_SET_W(Ref, Unknown_18);
 };
 
 #endif	// NEWT_FRAMES_OBJECTS_H
