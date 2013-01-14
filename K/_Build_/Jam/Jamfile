@@ -1,0 +1,717 @@
+# ==============================
+# Fichier:			Jamfile
+# Projet:			K
+# 
+# Créé le:			5/6/2003
+# Tabulation:		4 espaces
+# 
+# ***** BEGIN LICENSE BLOCK *****
+# Version: MPL 1.1
+#
+# The contents of this file are subject to the Mozilla Public License Version
+# 1.1 (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+# http://www.mozilla.org/MPL/
+#
+# Software distributed under the License is distributed on an "AS IS" basis,
+# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+# for the specific language governing rights and limitations under the
+# License.
+#
+# The Original Code is Jamfile.
+#
+# The Initial Developer of the Original Code is Paul Guyot.
+# Portions created by the Initial Developer are Copyright (C) 2003-2005
+# the Initial Developer. All Rights Reserved.
+#
+# Contributor(s):
+#   Paul Guyot <pguyot@kallisys.net> (original author)
+#
+# ***** END LICENSE BLOCK *****
+# ===========
+# $Id: Jamfile,v 1.34 2007/07/11 01:36:30 pguyot Exp $
+# ===========
+
+# Determine the compiler used here.
+# We know: gcc and xlc
+
+# OpenZaurus 3.4.5
+if $(target:E="unknown") = "arm-linux"
+{
+	compiler = $(compiler:E="gcc") ;
+	CC = "/opt/crosstool/gcc-3.4.5-glibc-2.3.6/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-gcc" ;
+	C++ = "/opt/crosstool/gcc-3.4.5-glibc-2.3.6/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-g++" ;
+	AR = /opt/crosstool/gcc-3.4.5-glibc-2.3.6/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-ar ru ;
+	RANLIB = /opt/crosstool/gcc-3.4.5-glibc-2.3.6/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-ranlib ;
+	LINK = /opt/crosstool/gcc-3.4.5-glibc-2.3.6/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-g++ ;
+	OS = "ARM-LINUX" ;
+	ROOT = $(ROOT:E="/opt/crosstool/gcc-3.4.5-glibc-2.3.6/arm-softfloat-linux-gnu/arm-softfloat-linux-gnu/") ;
+#	EXPAT_BASE = $(ROOT)/usr/X11R6 ;
+	CROSS = "yes" ;
+}
+# pdaXrom 1.1.0beta1
+if $(target:E="unknown") = "pdaXrom"
+{
+	compiler = $(compiler:E="gcc") ;
+	CC = "/opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-gcc" ;
+	C++ = "/opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-g++" ;
+	AR = /opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-ar ru ;
+	RANLIB = /opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-ranlib ;
+	LINK = /opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/bin/arm-softfloat-linux-gnu-g++ ;
+	OS = "ARM-LINUX" ;
+	SUBTARGET = "-pdaXrom" ;
+	ROOT = $(ROOT:E="/opt/crosstool/gcc-3.4.1-glibc-2.3.3/arm-softfloat-linux-gnu/arm-softfloat-linux-gnu/") ;
+	CROSS = "yes" ;
+}
+# Nokia 770
+if $(target:E="unknown") = "nokia"
+{
+	compiler = $(compiler:E="gcc") ;
+	CC = "/opt/crosstool/gcc-3.3.6-glibc-2.3.2/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-gcc" ;
+	C++ = "/opt/crosstool/gcc-3.3.6-glibc-2.3.2/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-g++" ;
+	AR = /opt/crosstool/gcc-3.3.6-glibc-2.3.2/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-ar ru ;
+	RANLIB = /opt/crosstool/gcc-3.3.6-glibc-2.3.2/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-ranlib ;
+	LINK = /opt/crosstool/gcc-3.3.6-glibc-2.3.2/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-g++ ;
+	OS = "ARM-LINUX" ;
+	SUBTARGET = "-770" ;
+	ROOT = $(ROOT:E="/opt/crosstool/gcc-3.3.6-glibc-2.3.2/arm-unknown-linux-gnu/") ;
+	CROSS = "yes" ;
+}
+# Nokia OS2006
+if $(target:E="unknown") = "nokia2006"
+{
+	compiler = $(compiler:E="gcc") ;
+	CC = "arm-none-linux-gnueabi-gcc-2005q3" ;
+	C++ = "arm-none-linux-gnueabi-g++-2005q3" ;
+	AR = arm-none-linux-gnueabi-ar ru ;
+	RANLIB = arm-none-linux-gnueabi-ranlib ;
+	LINK = arm-none-linux-gnueabi-g++-2005q3 ;
+	OS = "ARM-LINUX" ;
+	SUBTARGET = "-Nokia2006" ;
+	CROSS = "yes" ;
+}
+# Debian x86
+if $(target:E="unknown") = "linux-2.3.2"
+{
+	compiler = $(compiler:E="gcc") ;
+	CC = "/opt/crosstool/gcc-3.3.5-glibc-2.3.2/i386-unknown-linux-gnu/bin/i386-unknown-linux-gnu-gcc" ;
+	C++ = "/opt/crosstool/gcc-3.3.5-glibc-2.3.2/i386-unknown-linux-gnu/bin/i386-unknown-linux-gnu-g++" ;
+	AR = /opt/crosstool/gcc-3.3.5-glibc-2.3.2/i386-unknown-linux-gnu/bin/i386-unknown-linux-gnu-ar ru ;
+	RANLIB = /opt/crosstool/gcc-3.3.5-glibc-2.3.2/i386-unknown-linux-gnu/bin/i386-unknown-linux-gnu-ranlib ;
+	LINK = /opt/crosstool/gcc-3.3.5-glibc-2.3.2/i386-unknown-linux-gnu/bin/i386-unknown-linux-gnu-g++ ;
+	OS = "LINUX" ;
+	ROOT = $(ROOT:E="/opt/crosstool/gcc-3.3.6-glibc-2.3.2/arm-unknown-linux-gnu/") ;
+	SUBTARGET = "-2.3.2" ;
+	CROSS = "yes" ;
+}
+
+compiler = $(compiler:E="unknown") ;
+
+if $(compiler) = "unknown"
+{
+	if $(C++) = "xlc++" || $(C++) = "xlC" || $(C++) = "xlC_r" || $(C++) = "xlc++_r" || $(CC) = "xlc" || $(CC) = "xlc_r"
+	{
+		compiler = "xlc" ;
+	} else if $(C++) = "g++" || $(C++) = "gcc" || $(CC) = "gcc" {
+		compiler = "gcc" ;
+	}
+} else if $(compiler) = xlc {
+	if $(C++) = "c++" || $(C++) = "cc"
+	{
+		C++ = "xlc++" ;
+	}
+	if $(CC) = "cc"
+	{
+		CC = "xlc" ;
+	}
+	if $(LINK) = "cc"
+	{
+		LINK = "xlc" ;
+	}
+} else if $(compiler) = "gcc" {
+	if $(C++) = "c++" || $(C++) = "cc"
+	{
+		C++ = "g++" ;
+	}
+	if $(CC) = "cc"
+	{
+		CC = "gcc" ;
+	}
+}
+
+# Default compiler: assume gcc
+if $(compiler) = "unknown"
+{
+	compiler = "gcc" ;
+}
+
+# ——————————————————————————————————————————————————————————————————————————— #
+
+# Dependencies
+
+EXPAT_BASE = $(EXPAT:E="/opt/local/") ;
+
+# Source (bibliothèque)
+
+KLIBS_BASE = "../../../" ;
+
+KCRYPTO = "$(KLIBS_BASE)K/Crypto/" ;
+KDEFINES = "$(KLIBS_BASE)K/Defines/" ;
+KEXCEPTIONS = "$(KLIBS_BASE)K/Exceptions/" ;
+KGP = "$(KLIBS_BASE)K/GP/" ;
+KMATH = "$(KLIBS_BASE)K/Math/" ;
+KMISC = "$(KLIBS_BASE)K/Misc/" ;
+KSTREAMS = "$(KLIBS_BASE)K/Streams/" ;
+KTESTS = "$(KLIBS_BASE)K/Tests/" ;
+KTHREADS = "$(KLIBS_BASE)K/Threads/" ;
+KUNICODE = "$(KLIBS_BASE)K/Unicode/" ;
+KXML = "$(KLIBS_BASE)K/XML/" ;
+
+SubDirHdrs "$(KLIBS_BASE)" ;
+
+COMMON_CPP_SOURCES = ;
+COMMON_CPP_SOURCES	+= "$(KCRYPTO)U3DES.cp" ;
+COMMON_CPP_SOURCES	+= "$(KCRYPTO)UDES.cp" ;
+COMMON_CPP_SOURCES	+= "$(KCRYPTO)UDESTables.cp" ;
+COMMON_CPP_SOURCES	+= "$(KEXCEPTIONS)TException.cp" ;
+COMMON_CPP_SOURCES	+= "$(KEXCEPTIONS)Errors/TError.cp" ;
+COMMON_CPP_SOURCES	+= "$(KEXCEPTIONS)Errors/TMemError.cp" ;
+COMMON_CPP_SOURCES	+= "$(KEXCEPTIONS)IO/TIOException.cp" ;
+COMMON_CPP_SOURCES	+= "$(KEXCEPTIONS)IO/TEOFException.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)TGPEvaluationContext.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)TGPInterpreter.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)TGPSimpleInterpreter.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)TGPSoup.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Creation/TGPCAKoza.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Creation/TGPCreationAlgorithm.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPBooleanData.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPData.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPDataRef.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPType.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPVoidData.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Data/Numbers/TGPNumberData.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Data/Numbers/TGPSInt32Data.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPStringData.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Fitness/TGPDoubleFitness.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Fitness/TGPFitness.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Language/TGPLanguage.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Selection/TGPSelection.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Selection/TGPSortSelection.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Selection/TGPTournamentSelection.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Selection/TGPTruncationSelection.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/TGPTree.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/TGPNode.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/TGPNodeConst.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/TGPNodeLeaf.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/TGPNodeRef.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/BooleanNodes/TGPNodeAnd.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/BooleanNodes/TGPNodeBoolean.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/BooleanNodes/TGPNodeNot.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/BooleanNodes/TGPNodeOr.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/FlowNodes/TGPNodeDo.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/FlowNodes/TGPNodeIfThenElse.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/VarNodes/TGPGetStaticVariable.cp" ;
+COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/VarNodes/TGPSetStaticVariable.cp" ;
+COMMON_CPP_SOURCES	+= "$(KMATH)TRandomGenerator.cp" ;
+COMMON_CPP_SOURCES	+= "$(KMATH)TMT19937RandomGenerator.cp" ;
+COMMON_CPP_SOURCES	+= "$(KMATH)TInt64.cp" ;
+COMMON_CPP_SOURCES	+= "$(KMATH)TSInt64.cp" ;
+COMMON_CPP_SOURCES	+= "$(KMATH)TUInt64.cp" ;
+COMMON_CPP_SOURCES	+= "$(KMATH)UTInt64.cp" ;
+COMMON_CPP_SOURCES	+= "$(KMISC)TCircleBuffer.cp" ;
+COMMON_CPP_SOURCES	+= "$(KMISC)TMappedFile.cp" ;
+COMMON_CPP_SOURCES	+= "$(KMISC)TRefCounter.cp" ;
+COMMON_CPP_SOURCES	+= "$(KMISC)UBase64.cp" ;
+MACOS_CPP_SOURCES	+= "$(KMISC)UPStrings.cp" ;
+COMMON_CPP_SOURCES	+= "$(KSTREAMS)TFileStream.cp" ;
+COMMON_CPP_SOURCES	+= "$(KSTREAMS)TStream.cp" ;
+COMMON_CPP_SOURCES	+= "$(KTHREADS)TCondVar.cp" ;
+COMMON_CPP_SOURCES	+= "$(KTHREADS)TMutex.cp" ;
+COMMON_CPP_SOURCES	+= "$(KTHREADS)TThread.cp" ;
+COMMON_CPP_SOURCES	+= "$(KUNICODE)TString.cp" ;
+COMMON_CPP_SOURCES	+= "$(KUNICODE)TMutableStringRef.cp" ;
+COMMON_CPP_SOURCES	+= "$(KUNICODE)TStringRef.cp" ;
+COMMON_CPP_SOURCES	+= "$(KUNICODE)UUTF16Conv.cp" ;
+COMMON_CPP_SOURCES	+= "$(KUNICODE)UUTF16CStr.cp" ;
+COMMON_CPP_SOURCES	+= "$(KXML)UExpatUtils.cp" ;
+
+
+CPP_SOURCES = $(COMMON_CPP_SOURCES) ;
+
+C_SOURCES = $(COMMON_C_SOURCES) ;
+
+OBJC_SOURCES = $(COMMON_OBJC_SOURCES) ;
+
+# ——————————————————————————————————————————————————————————————————————————— #
+
+# Source (tests)
+TESTS_BASE			= "$(KLIBS_BASE)_Tests_/" ;
+
+SubDirHdrs "$(TESTS_BASE)" ;
+SubDirHdrs "$(TESTS_BASE)Tests/" ;
+
+TESTS_SOURCES		+= "$(TESTS_BASE)tests.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)Tests/U3DESTest.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UBase64Test.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UDESTest.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UDoubleLinkedListTest.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UGPDataTest.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UGPStreamTest.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UMappedFileTest.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UThreadsTest.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UUInt64Test.cp" ;
+TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UUTF16Test.cp" ;
+
+# ——————————————————————————————————————————————————————————————————————————— #
+
+# Définitions, inclusions additionelles et paramètres supplémentaires.
+
+if $(OS) = "MACOSX"
+{
+	# Spécificités OS X
+	# use g++ 4.0 for both compiling and linking
+	if $(compiler) = "gcc"
+	{
+		C++ = g++-4.0 ;
+		LINK = g++-4.0 ;
+	}
+
+	local _frameworks ;
+	_frameworks += "-F/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks" ;
+	_frameworks += "-F/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks" ;
+	_frameworks += "-F/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks" ;
+	
+	local _link_frameworks ;
+	_link_frameworks += -framework CoreServices ;
+	_link_frameworks += -framework IOKit ;
+	_link_frameworks += -framework AppleTalk ;
+	_link_frameworks += -framework Cocoa ;
+	_link_frameworks += -framework Carbon ;
+
+	# Drapeaux pour gcc/g++
+	local _commonflags ;
+	_commonflags += -DTARGET_OS_OPENSTEP=1 ;
+	_commonflags += $(_frameworks) ;
+	_commonflags += -I$(EXPAT_BASE)/include ;
+	if $(compiler) = "gcc"
+	{
+		_commonflags += -fpascal-strings ;
+		_commonflags += -Wall ;
+		_commonflags += -Wno-four-char-constants ;
+		_commonflags += -Wno-unknown-pragmas ;
+		_commonflags += -W ;
+		_commonflags += -Wfloat-equal ;
+		_commonflags += -Wshadow ;
+		_commonflags += -Wpointer-arith ;
+		_commonflags += -Wwrite-strings ;
+		_commonflags += -Wconversion ;
+		_commonflags += -mdynamic-no-pic ;
+		if $(debug:E=no) = "yes"
+		{
+			_commonflags += -g ;
+		}
+	}
+	if $(compiler) = "xlc"
+	{
+		# Use xlc headers and wrappers around system's headers
+		_commonflags += -I/opt/ibmcmp/vacpp/6.0/include/ ;
+		_commonflags += -I/opt/ibmcmp/vac/6.0/include/ ;
+
+		# Define CPU
+		_commonflags += -DTARGET_CPU_PPC=1 ;
+		
+		# Define architecture.
+		_commonflags += -DTARGET_RT_MAC_MACHO ;
+
+		# Define Endianness
+		_commonflags += -DTARGET_RT_BIG_ENDIAN=1 ;
+		_commonflags += -DTARGET_RT_LITTLE_ENDIAN=0 ;
+		
+		_commonflags += -qnopic ;
+	}
+
+	if $(optimize:E=no) = "yes"
+	{
+		if $(compiler) = "xlc"
+		{
+			_commonflags += -O5 ;
+		} else if $(compiler) = "gcc" {
+			_commonflags += -O3 ;
+			_commonflags += -funroll-loops ;
+			_commonflags += -fstrict-aliasing ;
+			_commonflags += -fsched-interblock ;
+			_commonflags += -falign-loops=16 ;
+			_commonflags += -falign-jumps=16 ;
+			_commonflags += -falign-functions=16 ;
+			_commonflags += -falign-jumps-max-skip=15 ;
+			_commonflags += -falign-loops-max-skip=15 ;
+			_commonflags += -mpowerpc-gpopt ;
+		}
+	}
+
+	local _linkflags ;
+	_linkflags += -lstdc++ -lm -lpthread ;
+	_linkflags += -prebind ;
+	_linkflags += -L$(EXPAT_BASE)/lib ;
+	if $(compiler) = "xlc"
+	{
+		_linkflags += -libmc++ ;
+	}
+
+	CCFLAGS += $(_commonflags) ;
+	CCFLAGS += -Wmissing-declarations ;
+	C++FLAGS += $(_commonflags) ;
+	OBJC++FLAGS += $(_commonflags) ;
+	LINKFLAGS += $(_frameworks) $(_link_frameworks) $(_linkflags) ;
+
+	# Fichiers source spécifiques à OS X
+	CPP_SOURCES += $(MACOS_CPP_SOURCES) ;
+	CPP_SOURCES += $(MACOSX_CPP_SOURCES) ;
+	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
+
+	OBJC_SOURCES += $(MACOSX_OBJC_SOURCES) ;
+
+	C_SOURCES += $(MACOSX_C_SOURCES) ;
+	C_SOURCES += $(POSIX_C_SOURCES) ;
+
+} else if $(OS) = "LINUX" {
+
+	# Spécificité Linux
+
+	# Drapeaux pour gcc/g++
+	local _commonflags ;
+	_commonflags += -I$(EXPAT_BASE)/include ;
+	_commonflags += -I/usr/include/i686-linux-gnu/ ;
+	_commonflags += -DTARGET_OS_LINUX=1 ;
+	_commonflags += -Wall ;
+	_commonflags += -Wno-multichar ;
+	_commonflags += -Wno-unknown-pragmas ;
+	_commonflags += -W ;
+	_commonflags += -Wfloat-equal ;
+	_commonflags += -Wshadow ;
+	_commonflags += -Wpointer-arith ;
+	_commonflags += -Wwrite-strings ;
+	_commonflags += -Wconversion ;
+	_commonflags += -m32 ;
+
+	if $(compiler) = "gcc"
+	{
+		if $(debug:E=no) = "yes"
+		{
+			_commonflags += -g ;
+		}		
+		if $(optimize:E=no) = "yes"
+		{
+			_commonflags += -O3 ;
+		}
+	}
+
+	local _linkflags ;
+	_linkflags += -lstdc++ -lm -lpthread ;
+	_linkflags += -L/usr/X11R6/lib/ -L/usr/lib/i386-linux-gnu/ -L$(EXPAT_BASE)/lib ;
+
+	CCFLAGS += $(_commonflags) ;
+	CCFLAGS += -Wmissing-declarations ;
+	C++FLAGS += $(_commonflags) ;
+	LINKFLAGS += $(_linkflags) ;
+
+	# Fichiers specifiques a Linux
+	CPP_SOURCES += $(LINUX_CPP_SOURCES) ;
+	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
+	C_SOURCES += $(LINUX_C_SOURCES) ;
+	C_SOURCES += $(POSIX_C_SOURCES) ;
+
+} else if $(OS) = "ARM-LINUX" {
+
+	# Specificite Linux
+
+	# Drapeaux pour gcc/g++
+	local _commonflags ;
+	_commonflags += -I$(EXPAT_BASE)/include ;
+	_commonflags += -DTARGET_OS_LINUX=1 ;
+	_commonflags += -Wall ;
+	_commonflags += -Wno-multichar ;
+	_commonflags += -Wno-unknown-pragmas ;
+	_commonflags += -W ;
+	_commonflags += -Wshadow ;
+	_commonflags += -Wpointer-arith ;
+	_commonflags += -Wwrite-strings ;
+	_commonflags += -Wconversion ;
+
+	if $(debug:E=no) = "no"
+	{
+		_commonflags += -DRELEASE=1 ;
+	} else {
+		if $(compiler) = "gcc"
+		{
+			_commonflags += -g ;
+		}		
+	}
+	if $(optimize:E=no) = "yes"
+	{
+		if $(compiler) = "gcc"
+		{
+			_commonflags += -O3 ;
+		}
+	}
+
+	local _linkflags ;
+	_linkflags += -lstdc++ -lm -lpthread ;
+	_linkflags += -L$(EXPAT_BASE)/lib ;
+
+	CCFLAGS += $(_commonflags) ;
+	CCFLAGS += -Wmissing-declarations ;
+	C++FLAGS += $(_commonflags) ;
+	LINKFLAGS += $(_linkflags) ;
+
+	# Fichiers specifiques a Linux
+	CPP_SOURCES += $(LINUX_CPP_SOURCES) ;
+	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
+	C_SOURCES += $(LINUX_C_SOURCES) ;
+	C_SOURCES += $(POSIX_C_SOURCES) ;
+
+} else if ( $(OS) = "NETBSD" ) || ( $(OS) = "FREEBSD" ) {
+
+	# Spécificité *BSD
+
+	# Drapeaux pour gcc/g++
+	local _commonflags ;
+	_commonflags += -DTARGET_OS_BSD=1 ;
+	_commonflags += -Wall ;
+	_commonflags += -Wno-multichar ;
+	_commonflags += -Wno-unknown-pragmas ;
+	_commonflags += -W ;
+	_commonflags += -Wfloat-equal ;
+	_commonflags += -Wshadow ;
+	_commonflags += -Wpointer-arith ;
+	_commonflags += -Wwrite-strings ;
+	_commonflags += -Wconversion ;
+
+	local _linkflags ;
+	_linkflags += -lstdc++ -lm -lpthread ;
+
+	CCFLAGS += $(_commonflags) ;
+	CCFLAGS += -Wmissing-declarations ;
+	C++FLAGS += $(_commonflags) ;
+	LINKFLAGS += $(_linkflags) ;
+
+	# Fichiers specifiques a *BSD
+	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
+
+} else if $(OS) = "CYGWIN" {
+
+	# Cygwin rules
+	LINK = g++ ;
+
+	# Drapeaux pour gcc/g++
+	local _commonflags ;
+	_commonflags += -I$(EXPAT_BASE)/include ;
+	_commonflags += -DTARGET_OS_CYGWIN=1 ;
+	_commonflags += -Wall ;
+	_commonflags += -Wno-multichar ;
+	_commonflags += -Wno-unknown-pragmas ;
+	_commonflags += -W ;
+	_commonflags += -Wfloat-equal ;
+	_commonflags += -Wshadow ;
+	_commonflags += -Wpointer-arith ;
+	_commonflags += -Wwrite-strings ;
+	_commonflags += -Wconversion ;
+	_commonflags += -mwindows ;
+
+	if $(compiler) = "gcc"
+	{
+		if $(debug:E=no) = "yes"
+		{
+			_commonflags += -g ;
+		}		
+		if $(optimize:E=no) = "yes"
+		{
+			_commonflags += -O3 ;
+		}
+	}
+
+	local _linkflags ;
+	_linkflags += -lstdc++ -lm -lpthread ;
+	_linkflags += -L$(EXPAT_BASE)/lib ;
+
+	CCFLAGS += $(_commonflags) ;
+	CCFLAGS += -Wmissing-declarations ;
+	C++FLAGS += $(_commonflags) ;
+	LINKFLAGS += $(_linkflags) ;
+
+	# Fichiers specifiques a Linux
+	CPP_SOURCES += $(LINUX_CPP_SOURCES) ;
+	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
+	C_SOURCES += $(LINUX_C_SOURCES) ;
+	C_SOURCES += $(POSIX_C_SOURCES) ;
+
+} else {
+
+	Exit "You need to define the prefix & specific stuff for your OS $(OS)" ;
+
+}
+
+# ——————————————————————————————————————————————————————————————————————————— #
+
+# Configuration pour jam.
+# On garde les .o
+KEEPOBJS = 1 ;
+
+# Répertoire pour les binaires et les objets.
+LOCATE_TARGET = "build.$(OS)$(SUBTARGET:E=)" ;
+
+# Compilateur ObjC++
+OBJC++ = $(C++) ;
+
+SOURCES = $(CPP_SOURCES) $(C_SOURCES) $(OBJC_SOURCES) ;
+
+# ——————————————————————————————————————————————————————————————————————————— #
+
+# ==== Correction des règles de Jam pour s'adapter aux conventions K ====
+
+# L'idée est: (a) de gérer les espaces dans les noms et (b) de rajouter un suffixe
+# au lieu de juste le remplacer.
+
+# Correction de la règle Library.
+rule Library
+{
+	local _source ;
+	local _objects = ;
+
+	for _source in [ FGristFiles $(>) ]
+	{
+		_objects += $(_source:B)$(_source:S)$(SUFOBJ) ;
+	}
+	
+	LibraryFromObjects $(<) : $(_objects) ;
+	Objects $(>) ;
+}
+
+# Idem pour la règle Main.
+rule Main
+{
+	MainFromObjects $(<) : [ FGristObjectFiles $(>) ] ;
+	Objects $(>) ;
+}
+
+rule ObjectCcFlags
+{
+	CCFLAGS on [ FGristObjectFiles $(>) ] += $(>) ;
+}
+
+rule ObjectC++Flags
+{
+	C++FLAGS on [ FGristObjectFiles $(>) ] += $(>) ;
+}
+
+rule ObjectDefines
+{
+	# must reformat CCDEFS according to current defines
+
+	local s = [ FGristObjectFiles $(>) ] ;
+
+	DEFINES on $(s) += $(>) ;
+	CCDEFS on $(s) = [ on $(s) FDefines $(DEFINES) ] ;
+}
+
+rule ObjectHdrs
+{
+	# Add to HDRS for HdrScan's benefit.
+	# must reformat CCHDRS according to headers
+
+	local s = [ FGristObjectFiles $(>) ] ;
+
+	HDRS on $(s) += $(>) ;
+	CCHDRS on $(s) = [ on $(s) FIncludes $(HDRS) ] ;
+}
+
+# Correction de la règle Objects pour ajouter un suffixe (au lieu d'en remplacer un)
+# et pour gérer un chemin relatif (qui descend)
+rule Objects
+{
+	local _source ;
+
+	for _source in [ FGristFiles $(1) ]
+	{
+		local _object = "$(_source:B)$(_source:S)$(SUFOBJ)" ;
+		Object "$(_object)" : "$(_source)" ;
+		Depends obj : "$(_object)" ;
+		Clean clean : "$(_object)" ;
+	}
+}
+
+# Guillements pour la règle FIncludes
+if $(UNIX)
+{
+	rule FIncludes { return -I\"$(<)\" ; }
+}
+
+# Récupère les fichiers objets.
+rule FGristObjectFiles
+{
+	local _source ;
+	local _objects = ;
+
+	for _source in [ FGristFiles $(<) ]
+	{
+		_objects += $(_source:B)$(_source:S)$(SUFOBJ) ;
+	}
+
+	return $(_objects) ;
+}
+
+# Définition de la règle pour .cp et pour .mm
+rule UserObject
+{
+	switch $(>:S)
+	{
+		case .cp : C++ $(<) : $(>) ;
+		case .mm : ObjC++ $(<) : $(>) ;
+		case * : Exit "Unknown suffix : $(>:S)" ;
+	}
+}
+
+# Correction de la règle C++ (ajout de guillemets)
+actions C++
+{
+	$(C++) -c -o "$(<)" $(C++FLAGS) $(CCDEFS) $(CCHDRS) "$(>)"
+}
+
+# Nouvelle règle pour ObjC++.
+rule ObjC++
+{
+	Depends $(<) : $(>) ;
+	Clean clean : $(<) ;
+
+	if $(RELOCATE)
+	{
+	    CcMv $(<) : $(>) ;
+	}
+
+	OBJC++FLAGS on $(<) += $(OBJC++FLAGS) $(SUBDIROBJC++FLAGS) $(OPTIM) ;
+
+	CCHDRS on $(<) = [ on $(<) FIncludes $(HDRS) ] ;
+	CCDEFS on $(<) = [ on $(<) FDefines $(DEFINES) ] ;
+}
+
+actions ObjC++
+{
+	$(OBJC++) -c -o "$(<)" $(OBJC++FLAGS) $(CCDEFS) $(CCHDRS) "$(>)"
+}
+
+# ——————————————————————————————————————————————————————————————————————————— #
+
+# ==== Construction de la bibliothèque ====
+
+Library libk : $(SOURCES) ;
+
+# ==== Construction des tests ====
+
+LinkLibraries KLibsTests : libk ;
+Main KLibsTests : $(TESTS_SOURCES) ;
+
+## ================================================================== ##
+## You can do this in a number of ways.  IBM chose to do all of them. ##
+## Why do you find that funny?                                        ##
+##                 -- D. Taylor, Computer Science 350                 ##
+## ================================================================== ##
