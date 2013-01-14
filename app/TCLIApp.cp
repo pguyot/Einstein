@@ -50,6 +50,7 @@
 #define TX11ScreenManager TFBScreenManager
 #endif
 #include "Emulator/Platform/TPlatformManager.h"
+#include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TLog.h"
@@ -341,9 +342,10 @@ TCLIApp::Run( int argc, char* argv[] )
 			mROMImage = new TFlatROMImageWithREX(
 				theROMImagePath, theREX1Path, theMachineString, useMonitor );
 		}
+		mNetworkManager = new TNullNetwork(mLog);
 		mEmulator = new TEmulator(
 					mLog, mROMImage, theFlashPath,
-					mSoundManager, mScreenManager, ramSize << 16 );
+					mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
 		mPlatformManager = mEmulator->GetPlatformManager();
 		
 		if (useMonitor)
