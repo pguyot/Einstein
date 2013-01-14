@@ -163,7 +163,7 @@ OBJC++ = $(C++) ;
 
 # Source (ensemble)
 BASE = "../../" ;
-KLIBS_BASE = $(K:E="../../../../../Bibliotheques/K/") ;
+KLIBS_BASE = $(K:E="../../K/") ;
 PORTAUDIO_BASE = $(PA:E="$(BASE)portaudio/") ;
 SubDirHdrs "$(KLIBS_BASE)" ;
 SubDirHdrs "$(PORTAUDIO_BASE)/pa_common/" ;
@@ -199,6 +199,7 @@ COMMON_CPP_SOURCES	+= "$(BASE)Emulator/NativeCalls/TNativeCalls.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/NativeCalls/TVirtualizedCalls.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/PCMCIA/TLinearCard.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/PCMCIA/TPCMCIACard.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/PCMCIA/TNE2000Card.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/PCMCIA/TPCMCIAController.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Platform/TPlatformManager.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/ROM/TAIFFile.cp" ;
@@ -213,6 +214,7 @@ COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Sound/TPortAudioSoundManager.cp" ;
 MACOSX_CPP_SOURCES	+= "$(BASE)Emulator/Sound/TCoreAudioSoundManager.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Sound/TNullSoundManager.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Screen/TScreenManager.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Network/TNetworkManager.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Monitor/TMonitor.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Monitor/TSymbolList.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Monitor/UDisasm.cp" ;
@@ -471,6 +473,7 @@ if $(OS) = "MACOSX"
 	_commonflags += -Wpointer-arith ;
 	_commonflags += -Wwrite-strings ;
 	_commonflags += -Wconversion ;
+	_commonflags += -m32 ;
 
 	if $(debug:E=no) = "no"
 	{
@@ -505,7 +508,8 @@ if $(OS) = "MACOSX"
 		X11Libs += $(BASE)$(X11LibsPrefix)libXau.so.6 ;
 		X11Libs += $(BASE)$(X11LibsPrefix)libXdmcp.so.6 ;
 	} else {
-		LINKFLAGS += -L/usr/X11R6/lib/ ;
+		LINKFLAGS += -m32 -L/usr/X11R6/lib/ -L/usr/lib/i386-linux-gnu/ ;
+		_commonflags += -I/usr/include/i686-linux-gnu/ ;
 		LibFFI = -lffi ;
 		X11Libs = -lX11 -lXau ;
 	}
