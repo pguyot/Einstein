@@ -18,8 +18,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#include <Glue.h>
 #include <K/Defines/UByteSex.h>
+#include "Newt/Common/Glue.h"
 #include "newt_string.h"
 
 void* newt_memcpy(void* s1, const void* s2, unsigned int n)
