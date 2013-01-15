@@ -80,7 +80,7 @@ public:
 	//  ~TRefStack();
 	//
 	//  void		reset(long);
-  KUInt32 TRefStack::PushNILs(long r1);
+  KUInt32 PushNILs(long r1);
 	
 public:
 	NEWT_GET_SET_W(Ref*, Top)			// 0:

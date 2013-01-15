@@ -36,8 +36,8 @@
 
 
 typedef KUInt32 ArrayIndex;
-typedef KUInt8 Boolean;
 typedef KSInt32 Ref;
+typedef KUInt32 Size;
 
 
 class SingleObject {
