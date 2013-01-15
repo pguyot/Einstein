@@ -1,6 +1,6 @@
 // ==============================
-// File:			Newt/CLibrary/newt_string.c
-// Project:			Einstein
+// File:            Newt/CLibrary/newt_string.c
+// Project:         Einstein
 //
 // Copyright 2012 by Newton Research Group and others
 //
@@ -24,79 +24,79 @@
 
 void* newt_memcpy(void* s1, const void* s2, unsigned int n)
 {
-	char *a = (char *) s1;
-	char *b = (char *) s2;
-	char *buffer = (char *) malloc(n);
-	char *x;
-	unsigned int m = n;
+    char *a = (char *) s1;
+    char *b = (char *) s2;
+    char *buffer = (char *) malloc(n);
+    char *x;
+    unsigned int m = n;
 
-	x = buffer;
-	while (n > 0 && (unsigned int) b & 0x3) {
-		*x = NewtReadByte(b);
-		b++;
-		x++;
-		n--;
-	}
-	while (n > 3) {
-		*(KUInt32 *) x = UByteSex::Swap(NewtReadWord(b));
-		b += 4;
-		x += 4;
-		n -= 4;
-	}
-	while (n > 0) {
-		*x = NewtReadByte(b);
-		b++;
-		x++;
-		n--;
-	}
+    x = buffer;
+    while (n > 0 && (unsigned int) b & 0x3) {
+        *x = NewtReadByte(b);
+        b++;
+        x++;
+        n--;
+    }
+    while (n > 3) {
+        *(KUInt32 *) x = UByteSex::Swap(NewtReadWord(b));
+        b += 4;
+        x += 4;
+        n -= 4;
+    }
+    while (n > 0) {
+        *x = NewtReadByte(b);
+        b++;
+        x++;
+        n--;
+    }
 
-	n = m;
-	x = buffer;
-	while (n > 0 && (unsigned int) a & 0x3) {
-		NewtWriteByte(a, *x);
-		a++;
-		x++;
-		n--;
-	}
-	while (n > 3) {
-		NewtWriteWord(a, UByteSex::Swap(*(KUInt32 *) x));
-		a += 4;
-		x += 4;
-		n -= 4;
-	}
-	while (n > 0) {
-		NewtWriteByte(a, *x);
-		a++;
-		x++;
-		n--;
-	}
-	free (buffer);
+    n = m;
+    x = buffer;
+    while (n > 0 && (unsigned int) a & 0x3) {
+        NewtWriteByte(a, *x);
+        a++;
+        x++;
+        n--;
+    }
+    while (n > 3) {
+        NewtWriteWord(a, UByteSex::Swap(*(KUInt32 *) x));
+        a += 4;
+        x += 4;
+        n -= 4;
+    }
+    while (n > 0) {
+        NewtWriteByte(a, *x);
+        a++;
+        x++;
+        n--;
+    }
+    free (buffer);
 
 /*
-	if (a >= b && a < b + n) {
-		a += n - 1;
-		b += n - 1;
-		while (n > 0) {
-			NewtWriteByte(a, NewtReadByte(b));
-			a--;
-			b--;
-			n--;
-		}
-	} else {
-		while (n > 0) {
-			NewtWriteByte(a, NewtReadByte(b));
-			a++;
-			b++;
-			n--;
-		}
-	}
+    if (a >= b && a < b + n) {
+        a += n - 1;
+        b += n - 1;
+        while (n > 0) {
+            NewtWriteByte(a, NewtReadByte(b));
+            a--;
+            b--;
+            n--;
+        }
+    } else {
+        while (n > 0) {
+            NewtWriteByte(a, NewtReadByte(b));
+            a++;
+            b++;
+            n--;
+        }
+    }
 */
-	return s1;
+    return s1;
 }
 
 NEWT_INJECTION(0x00382440, "memcpy(void* s1, const void* s2, unsigned int n)") {
-	NEWT_RETVAL newt_memcpy(NEWT_ARG0(void *), NEWT_ARG1(const void *), NEWT_ARG2(unsigned int));
-	NEWT_RETURN;
+    NEWT_RETVAL newt_memcpy(NEWT_ARG0(void *), NEWT_ARG1(const void *), NEWT_ARG2(unsigned int));
+    NEWT_RETURN;
 }
 
 
