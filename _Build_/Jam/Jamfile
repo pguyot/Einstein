@@ -218,6 +218,13 @@ COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Network/TNetworkManager.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Monitor/TMonitor.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Monitor/TSymbolList.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Monitor/UDisasm.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Newt/CLibrary/newt_string.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Newt/Common/Globals.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Newt/Common/Glue.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Newt/Frames/Objects.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Newt/Frames/TInterpreter.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Newt/UtilityClasses/CArrayIterator.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Newt/UtilityClasses/CDynamicArray.cp" ;
 
 JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGeneric.cp" ;
 JITGENERIC_CPP_SOURCES	+= "$(BASE)Emulator/JIT/Generic/TJITGenericPage.cp" ;
