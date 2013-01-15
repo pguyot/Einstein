@@ -323,7 +323,8 @@ TCLIApp::Run( int argc, char* argv[] )
 		theMachineString = defaultMachineString;
 	}
 	{
-		const char* theDataPath = argv[argc - 1];
+		const char* theDataPath = ::getenv( "EINSTEIN_HOME" );
+		if (theDataPath == NULL) theDataPath = argv[argc - 1];
 		char theROMImagePath[512];
 		char theREX1Path[512];
 		char theFlashPath[512];
@@ -702,8 +703,8 @@ TCLIApp::Help( void )
 				"  --monitor                       monitor mode\n" );
 	(void) ::printf(
 				"  --ram=size                      ram size in 64 KB (1-255) (default: 64, i.e. 4 MB)\n" );
-//	(void) ::printf(
-//				"  --aif                           read aif files\n" );
+	(void) ::printf(
+				"  --aif                           read aif files\n" );
 	::exit(1);
 }
 
