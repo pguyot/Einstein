@@ -133,6 +133,7 @@ TCLIApp::Run( int argc, char* argv[] )
 	const char* theRestoreFile = nil;
 	const char* theSoundManagerClass = nil;
 	const char* theScreenManagerClass = nil;
+	const char* theDataPath = ::getenv( "EINSTEIN_HOME" );
 	int portraitWidth = TScreenManager::kDefaultPortraitWidth;
 	int portraitHeight = TScreenManager::kDefaultPortraitHeight;
 	int ramSize = 0x40;
@@ -141,24 +142,23 @@ TCLIApp::Run( int argc, char* argv[] )
 	Boolean faceless = false;		// Default is to have an interface.
 	Boolean useMonitor = false;		// Default is to not have a monitor.
 	int indexArgs = 1;
-	if (argc < 2)
+	if (argc < 2 && theDataPath == NULL)
 	{
 		SyntaxError();
 	}
+	if (theDataPath == NULL) theDataPath = argv[argc - 1];
 	
-	if ((::strcmp(argv[1], "--help") == 0)
-				|| (::strcmp(argv[1], "-h") == 0)) {
-		Help();
-	} else if ((::strcmp(argv[1], "--version") == 0)
-				|| (::strcmp(argv[1], "-v") == 0)) {
-		Version();
-	}
 	
-	while (indexArgs < argc - 1)
+	while (indexArgs < argc)
 	{
 		// TODO: add code for network manager
-		if (::strcmp(argv[indexArgs], "-a") == 0)
-		{
+		if ((::strcmp(argv[1], "--help") == 0)
+					|| (::strcmp(argv[1], "-h") == 0)) {
+			Help();
+		} else if ((::strcmp(argv[1], "--version") == 0)
+					|| (::strcmp(argv[1], "-v") == 0)) {
+			Version();
+		} else if (::strcmp(argv[indexArgs], "-a") == 0) {
 			indexArgs++;
 			if ((indexArgs == argc - 1) || (mSoundManager != nil))
 			{
@@ -278,8 +278,6 @@ TCLIApp::Run( int argc, char* argv[] )
 		} else if ((::strcmp(argv[indexArgs], "--version") == 0)
 					|| (::strcmp(argv[indexArgs], "-v") == 0)) {
 			Version();
-		} else {
-			SyntaxError( argv[indexArgs] );
 		}
 		
 		indexArgs++;
@@ -322,60 +320,56 @@ TCLIApp::Run( int argc, char* argv[] )
 	{
 		theMachineString = defaultMachineString;
 	}
+	char theROMImagePath[512];
+	char theREX1Path[512];
+	char theFlashPath[512];
+	(void) ::snprintf( theREX1Path, 512, "%s/Einstein.rex", theDataPath );
+	(void) ::snprintf( theFlashPath, 512, "%s/flash", theDataPath );
+	
+	if (useAIFROMFile)
 	{
-		const char* theDataPath = ::getenv( "EINSTEIN_HOME" );
-		if (theDataPath == NULL) theDataPath = argv[argc - 1];
-		char theROMImagePath[512];
-		char theREX1Path[512];
-		char theFlashPath[512];
-		(void) ::snprintf( theREX1Path, 512, "%s/Einstein.rex", theDataPath );
-		(void) ::snprintf( theFlashPath, 512, "%s/flash", theDataPath );
-		
-		if (useAIFROMFile)
-		{
-			char theREX0Path[512];
-			(void) ::snprintf( theREX0Path, 512, "%s/%s.rex", theDataPath, theMachineString );
-			(void) ::snprintf( theROMImagePath, 512, "%s/%s.aif", theDataPath, theMachineString );
-			mROMImage = new TAIFROMImageWithREXes(
-				theROMImagePath, theREX0Path, theREX1Path, theMachineString, useMonitor );
-		} else {
-			(void) ::snprintf( theROMImagePath, 512, "%s/%s", theDataPath, theMachineString );
-			mROMImage = new TFlatROMImageWithREX(
-				theROMImagePath, theREX1Path, theMachineString, useMonitor );
-		}
-		mNetworkManager = new TNullNetwork(mLog);
-		mEmulator = new TEmulator(
-					mLog, mROMImage, theFlashPath,
-					mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
-		mPlatformManager = mEmulator->GetPlatformManager();
-		
-		if (useMonitor)
-		{
-			char theSymbolListPath[512];
-			(void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
-								theDataPath, theMachineString );
-			mSymbolList = new TSymbolList( theSymbolListPath );
-			mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList );
-		} else {
-			(void) ::printf( "Booting...\n" );
-		}
-		
-		pthread_t theThread;
-		int theErr = ::pthread_create( &theThread, NULL, SThreadEntry, this );
-		if (theErr)
-		{
-			(void) ::fprintf( stderr, "Error with pthread_create (%i)\n", theErr );
-			::exit(2);
-		}
-		
-		if (!faceless)
-		{
-			MenuLoop();
-		}
-		
-		// Wait for the thread to finish.
-		(void) ::pthread_join( theThread, NULL );
+		char theREX0Path[512];
+		(void) ::snprintf( theREX0Path, 512, "%s/%s.rex", theDataPath, theMachineString );
+		(void) ::snprintf( theROMImagePath, 512, "%s/%s.aif", theDataPath, theMachineString );
+		mROMImage = new TAIFROMImageWithREXes(
+			theROMImagePath, theREX0Path, theREX1Path, theMachineString, useMonitor );
+	} else {
+		(void) ::snprintf( theROMImagePath, 512, "%s/%s", theDataPath, theMachineString );
+		mROMImage = new TFlatROMImageWithREX(
+			theROMImagePath, theREX1Path, theMachineString, useMonitor );
 	}
+	mNetworkManager = new TNullNetwork(mLog);
+	mEmulator = new TEmulator(
+				mLog, mROMImage, theFlashPath,
+				mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
+	mPlatformManager = mEmulator->GetPlatformManager();
+	
+	if (useMonitor)
+	{
+		char theSymbolListPath[512];
+		(void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
+							theDataPath, theMachineString );
+		mSymbolList = new TSymbolList( theSymbolListPath );
+		mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList );
+	} else {
+		(void) ::printf( "Booting...\n" );
+	}
+	
+	pthread_t theThread;
+	int theErr = ::pthread_create( &theThread, NULL, SThreadEntry, this );
+	if (theErr)
+	{
+		(void) ::fprintf( stderr, "Error with pthread_create (%i)\n", theErr );
+		::exit(2);
+	}
+	
+	if (!faceless)
+	{
+		MenuLoop();
+	}
+	
+	// Wait for the thread to finish.
+	(void) ::pthread_join( theThread, NULL );
 }
 
 // -------------------------------------------------------------------------- //
@@ -664,7 +658,7 @@ TCLIApp::SyntaxError( void )
 				mProgramName );
 	(void) ::fprintf(
 				stderr,
-				"syntax is %s [options] path_to_data\n",
+				"syntax is %s [options] [path_to_data] (or set the environment variable EINSTEIN_HOME)\n",
 				mProgramName );
 	(void) ::fprintf(
 				stderr,
@@ -683,7 +677,7 @@ TCLIApp::Help( void )
 				"%s - Einstein Platform\n",
 				mProgramName );
 	(void) ::printf(
-				"%s [options] data_path\n",
+				"%s [options] [data_path] (or set the environment variable EINSTEIN_HOME)\n",
 				mProgramName );
 	(void) ::printf(
 				"  -a | --audio=audiodriver        (null, portaudio)\n" );
