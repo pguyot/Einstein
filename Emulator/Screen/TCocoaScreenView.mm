@@ -100,6 +100,8 @@
 				CGContextRotateCTM(theContext, M_PI/2.0);
 				break;
 		}
+		
+		CGContextSetInterpolationQuality(theContext, kCGInterpolationNone);
 
 		CGContextDrawImage(theContext,
 			CGRectMake(
