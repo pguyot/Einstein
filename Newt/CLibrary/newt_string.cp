@@ -94,9 +94,36 @@ void* newt_memcpy(void* s1, const void* s2, unsigned int n)
     return s1;
 }
 
+void* newt_memset(void* s, int c, unsigned int n)
+{	
+    char *a = (char *)s;
+    
+    while (n > 0 && (unsigned int) a & 0x3) {
+        NewtWriteByte(a, c & 0xff);
+        a++;
+        n--;
+    }
+    while (n > 3) {
+		KUInt32 lc = (c << 24) | (c << 16) | (c << 8) | c;
+        NewtWriteWord(a, UByteSex::Swap(lc));
+        a += 4;
+        n -= 4;
+    }
+    while (n > 0) {
+        NewtWriteByte(a, c & 0xff);
+        a++;
+        n--;
+    }
+	
+	return s;
+}
+
 NEWT_INJECTION(0x00382440, "memcpy(void* s1, const void* s2, unsigned int n)") {
     NEWT_RETVAL newt_memcpy(NEWT_ARG0(void *), NEWT_ARG1(const void *), NEWT_ARG2(unsigned int));
     NEWT_RETURN;
 }
 
-
+NEWT_INJECTION(0x003828C8, "memset(void *b, int c, size_t len)") {
+    NEWT_RETVAL newt_memset(NEWT_ARG0(void *), NEWT_ARG1(int), NEWT_ARG2(unsigned int));
+    NEWT_RETURN;
+}
