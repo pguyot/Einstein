@@ -529,11 +529,17 @@ static TCocoaAppController* gInstance = nil;
 // -------------------------------------------------------------------------- //
 - (void)runEmulator
 {
+	// This runs in an NSThread
+	
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	
 	mMonitor->Run();
 	
 	// Quit if the emulator quitted.
 	mQuit = true;
 	[[NSApplication sharedApplication] terminate: self];
+	
+	[pool release];
 }
 
 // -------------------------------------------------------------------------- //
