@@ -41,8 +41,6 @@ void EmulatorWindow_FinishCreate(
 id
 EmulatorText_Create( int inWindowWidth, int inWindowHeight )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	NSRect theFrame;
 	theFrame.origin.x = 0;
 	theFrame.origin.y = 0;
@@ -80,8 +78,6 @@ EmulatorText_Create( int inWindowWidth, int inWindowHeight )
 	theRect.size.width = inWindowWidth;
 	[theTextField setFrame: theRect];
 
-	[pool release];
-	
 	return theTextField;
 }
 
@@ -91,11 +87,7 @@ EmulatorText_Create( int inWindowWidth, int inWindowHeight )
 void
 EmulatorText_SetScreenOffString( id inProxy, id inEmulatorText )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	[((CocoaScreenProxy*) inProxy) setStringValue: @"Screen is off (please be patient)" forControl: inEmulatorText];
-
-	[pool release];
 }
 
 // -------------------------------------------------------------------------- //
@@ -104,11 +96,7 @@ EmulatorText_SetScreenOffString( id inProxy, id inEmulatorText )
 void
 EmulatorText_SetEinsteinOffString( id inProxy, id inEmulatorText )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	[((CocoaScreenProxy*) inProxy) setStringValue: @"Einstein is off" forControl: inEmulatorText];
-
-	[pool release];
 }
 
 // -------------------------------------------------------------------------- //
@@ -117,8 +105,6 @@ EmulatorText_SetEinsteinOffString( id inProxy, id inEmulatorText )
 id
 TCocoaScreenView_Create( TCocoaScreenManager* inManager, int inWidth, int inHeight )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	NSRect theFrame;
 	theFrame.origin.x = 0;
 	theFrame.origin.y = 0;
@@ -133,8 +119,6 @@ TCocoaScreenView_Create( TCocoaScreenManager* inManager, int inWidth, int inHeig
 		| NSViewMaxXMargin | NSViewMinYMargin
 		| NSViewHeightSizable | NSViewMaxYMargin];
 
-	[pool release];
-	
 	return theScreenView;
 }
 
@@ -144,11 +128,7 @@ TCocoaScreenView_Create( TCocoaScreenManager* inManager, int inWidth, int inHeig
 void
 TCocoaScreenView_SetNeedsDisplay( id inProxy, id inView )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	[((CocoaScreenProxy*) inProxy) setNeedsDisplay: YES forView: inView];
-
-	[pool release];
 }
 
 // -------------------------------------------------------------------------- //
@@ -157,11 +137,7 @@ TCocoaScreenView_SetNeedsDisplay( id inProxy, id inView )
 void
 TCocoaScreenView_SetHidden( id inProxy, id inView, bool inHidden )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	[((CocoaScreenProxy*) inProxy) setHidden: (inHidden ? YES : NO) forView: inView];
-
-	[pool release];
 }
 
 // -------------------------------------------------------------------------- //
@@ -170,13 +146,9 @@ TCocoaScreenView_SetHidden( id inProxy, id inView, bool inHidden )
 void
 EmulatorApp_PowerChange( id inProxy, id inApp, bool inState )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	[((CocoaScreenProxy*) inProxy)
 		forwardPowerChange: (inState ? YES : NO)
 		toListener: ((id<CocoaEmulatorApp>) inApp)];
-
-	[pool release];
 }
 
 // -------------------------------------------------------------------------- //
@@ -185,13 +157,9 @@ EmulatorApp_PowerChange( id inProxy, id inApp, bool inState )
 void
 EmulatorApp_BacklightChange( id inProxy, id inApp, bool inState )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	[((CocoaScreenProxy*) inProxy)
 		forwardBacklightChange: (inState ? YES : NO)
 		toListener: ((id<CocoaEmulatorApp>) inApp)];
-
-	[pool release];
 }
 
 // -------------------------------------------------------------------------- //
@@ -233,8 +201,6 @@ EmulatorWindow_CreateFullScreen(
 		id inView,
 		id inText)
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	NSWindow* theWindow;
 	NSScreen* theMainScreen = [NSScreen mainScreen];
 	NSRect theScreenRect = [theMainScreen frame];
@@ -253,8 +219,6 @@ EmulatorWindow_CreateFullScreen(
 	// Tell the app about the window.
 	[((id<CocoaEmulatorApp>) inApp) setEmulatorWindow: theWindow fullScreen: YES];
 
-	[pool release];
-
 	return theWindow;
 }
 
@@ -264,8 +228,6 @@ EmulatorWindow_CreateFullScreen(
 id
 EmulatorWindow_Create( id inApp, int inWindowWidth, int inWindowHeight, id inView, id inText )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	NSWindow* theWindow;
 	NSRect theWindowRect;
 	theWindowRect.origin.x = 0;
@@ -286,8 +248,6 @@ EmulatorWindow_Create( id inApp, int inWindowWidth, int inWindowHeight, id inVie
 	// Tell the app about the window.
 	[((id<CocoaEmulatorApp>) inApp) setEmulatorWindow: theWindow fullScreen: NO];
 
-	[pool release];
-	
 	return theWindow;
 }
 
@@ -297,11 +257,7 @@ EmulatorWindow_Create( id inApp, int inWindowWidth, int inWindowHeight, id inVie
 void
 EmulatorWindow_MakeFront( id inWindow )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	[((NSWindow*) inWindow) makeKeyAndOrderFront: NULL];
-
-	[pool release];
 }
 
 // -------------------------------------------------------------------------- //
@@ -310,14 +266,10 @@ EmulatorWindow_MakeFront( id inWindow )
 void
 EmulatorWindow_Resize( id inWindow, int inWidth, int inHeight )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	NSSize theSize;
 	theSize.width = inWidth;
 	theSize.height = inHeight;
 	[((NSWindow*) inWindow) setContentSize: theSize];
-
-	[pool release];
 }
 
 // -------------------------------------------------------------------------- //
@@ -326,11 +278,7 @@ EmulatorWindow_Resize( id inWindow, int inWidth, int inHeight )
 void
 EmulatorWindow_Close( id inWindow )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	[((NSWindow*) inWindow) close];
-
-	[pool release];
 }
 
 // -------------------------------------------------------------------------- //
@@ -339,11 +287,7 @@ EmulatorWindow_Close( id inWindow )
 void
 EmulatorWindow_SetFirstResponder( id inWindow, id inView )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	[((NSWindow*) inWindow) makeFirstResponder: inView];
-
-	[pool release];
 }
 
 // -------------------------------------------------------------------------- //
@@ -352,15 +296,11 @@ EmulatorWindow_SetFirstResponder( id inWindow, id inView )
 void
 ResizeForRotation( id inWindow, id inView, int inWidth, int inHeight )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	NSSize theSize;
 	theSize.width = inWidth;
 	theSize.height = inHeight;
 	[((TCocoaScreenView*) inView) setScreenWidth: inWidth height: inHeight orientation: kNormal];
 	[((NSWindow*) inWindow) setContentSize: theSize];
-
-	[pool release];
 }
 
 // -------------------------------------------------------------------------- //
@@ -369,8 +309,6 @@ ResizeForRotation( id inWindow, id inView, int inWidth, int inHeight )
 void
 RotateView( id inView, TScreenManager::EOrientation inScreenOrientation )
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
 	TCocoaScreenView* theView = (TCocoaScreenView*) inView;
 	NSRect theFrame = [theView frame];
 	
@@ -426,8 +364,6 @@ RotateView( id inView, TScreenManager::EOrientation inScreenOrientation )
 	}
 	
 	[theView setScreenWidth: theWidth height: theHeight orientation: theOrientation];
-	
-	[pool release];
 }
 
 // ========================================================================== //
