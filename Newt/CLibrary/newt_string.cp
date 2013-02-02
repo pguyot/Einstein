@@ -118,12 +118,84 @@ void* newt_memset(void* s, int c, unsigned int n)
 	return s;
 }
 
-NEWT_INJECTION(0x00382440, "memcpy(void* s1, const void* s2, unsigned int n)") {
+void newt_FillBytes(void* s, KUInt32 len, unsigned int pattern)
+{
+	newt_memset(s, pattern, len);
+}
+
+void newt_ZeroBytes(void* s, KUInt32 len)
+{
+	newt_memset(s, 0x00, len);
+}
+
+void newt_BlockMove(void* src, void* dst, KUInt32 len)
+{
+	newt_memcpy(dst, src, len);
+}
+
+KUInt32 newt_memcmp(void* ptr1, void* ptr2, KUInt32 byteCount)
+{
+	KUInt32 n = byteCount;
+	char* a = (char*)ptr1;
+	char* b = (char*)ptr2;
+	KUInt32 retVal = 0;
+	
+	while ( n > 0 )
+	{
+		char aval = NewtReadByte(a);
+		char bval = NewtReadByte(b);
+
+		if ( aval != bval )
+		{
+			retVal = 1;
+			break;
+		}
+			
+		--n;
+		++a;
+		++b;
+	}
+	
+	return retVal;
+}
+
+
+NEWT_INJECTION(0x00358074, "memcmp(const void* ptr1, const void* ptr2, Size byteCount)") {
+    NEWT_RETVAL newt_memcmp(NEWT_ARG0(void *), NEWT_ARG1(void *), NEWT_ARG2(KUInt32));
+    NEWT_RETURN;
+}
+
+NEWT_INJECTION(0x00382440, "memcpy(void* dst, const void* src, unsigned int n)") {
     NEWT_RETVAL newt_memcpy(NEWT_ARG0(void *), NEWT_ARG1(const void *), NEWT_ARG2(unsigned int));
     NEWT_RETURN;
 }
 
 NEWT_INJECTION(0x003828C8, "memset(void *b, int c, size_t len)") {
     NEWT_RETVAL newt_memset(NEWT_ARG0(void *), NEWT_ARG1(int), NEWT_ARG2(unsigned int));
+    NEWT_RETURN;
+}
+
+NEWT_INJECTION(0x00311104, "BlockMove(const void *src, void *dst, Size bytes)") {
+    newt_BlockMove(NEWT_ARG0(void *), NEWT_ARG1(void *), NEWT_ARG2(KUInt32));
+    NEWT_RETURN;
+}
+
+NEWT_INJECTION(0x00311488, "FillBytes(void *b, Size len, UChar pattern)") {
+    newt_FillBytes(NEWT_ARG0(void *), NEWT_ARG1(KUInt32), NEWT_ARG2(unsigned int));
+    NEWT_RETURN;
+}
+
+NEWT_INJECTION(0x00018CA4, "LoadFromPhysAddress(PAddr)") {
+    NEWT_RETVAL NewtReadWordPhysical(NEWT_ARG0(KUInt32));
+    NEWT_RETURN;
+}
+
+NEWT_INJECTION(0x00018CE0, "StoreToPhysAddress(PAddr, value)") {
+   	NewtWriteWordPhysical(NEWT_ARG0(KUInt32), NEWT_ARG1(KUInt32));
+    NEWT_RETURN;
+}
+
+NEWT_INJECTION(0x0031139C, "ZeroBytes(void *b, Size len)") {
+    newt_ZeroBytes(NEWT_ARG0(void *), NEWT_ARG1(KUInt32));
     NEWT_RETURN;
 }
