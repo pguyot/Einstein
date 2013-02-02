@@ -118,22 +118,22 @@ void* newt_memset(void* s, int c, unsigned int n)
 	return s;
 }
 
-void newt_FillBytes(void* s, KUInt32 len, unsigned int pattern)
+void newt_FillBytes(void* s, KSInt32 len, unsigned int pattern)
 {
 	newt_memset(s, pattern, len);
 }
 
-void newt_ZeroBytes(void* s, KUInt32 len)
+void newt_ZeroBytes(void* s, KSInt32 len)
 {
 	newt_memset(s, 0x00, len);
 }
 
-void newt_BlockMove(void* src, void* dst, KUInt32 len)
+void newt_BlockMove(void* src, void* dst, KSInt32 len)
 {
 	newt_memcpy(dst, src, len);
 }
 
-KUInt32 newt_memcmp(void* ptr1, void* ptr2, KUInt32 byteCount)
+KUInt32 newt_memcmp(void* ptr1, void* ptr2, KSInt32 byteCount)
 {
 	KUInt32 n = byteCount;
 	char* a = (char*)ptr1;
