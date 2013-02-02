@@ -38,7 +38,10 @@
 
 extern class NewtGlueFibre* gCurrentFibre;
 extern class TARMProcessor* gCurrentCPU;
-	
+
+KUInt32 NewtReadWordPhysical(KUInt32 addr);
+void NewtWriteWordPhysical(KUInt32 addr, KUInt32 value);
+
 KUInt32 NewtReadWord(KUInt32);
 inline KUInt32 NewtReadWord(void* p) { return NewtReadWord((KUInt32)p); }
 void NewtWriteWord(KUInt32, KUInt32);

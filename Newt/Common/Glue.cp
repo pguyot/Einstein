@@ -1,3 +1,4 @@
+
 // ==============================
 // File:                        SNewt/Common/Glue.cp
 // Project:                     Simulator
@@ -128,6 +129,36 @@ NewtGlueDispatch::NewtGlueDispatch() {
 //    ::operator delete (p);
 //}
 
+KUInt32 NewtReadWordPhysical(KUInt32 addr)
+{
+	KUInt32 v;
+	Boolean fault = false;
+	do {
+		TMemory* mem = gCurrentCPU->GetMemory();
+		v = mem->ReadP(addr, fault);		
+		if ( fault ) {
+			gCurrentCPU->mCurrentRegisters[TARMProcessor::kR15] = 0x007ffff0;
+			gCurrentCPU->DataAbort();
+			gMainFibre.Suspend(0);
+		}
+	} while ( fault );
+	return v;
+}
+
+
+void NewtWriteWordPhysical(KUInt32 addr, KUInt32 value)
+{
+	Boolean err = false;
+	do {
+		TMemory* mem = gCurrentCPU->GetMemory();
+		err = mem->WriteP(addr, value);
+		if ( err ) {
+			gCurrentCPU->mCurrentRegisters[TARMProcessor::kR15] = 0x007ffff0;
+			gCurrentCPU->DataAbort();
+			gMainFibre.Suspend(0);
+		}
+	} while ( err );
+}
 
 
 KUInt32 NewtReadWord(KUInt32 addr)
