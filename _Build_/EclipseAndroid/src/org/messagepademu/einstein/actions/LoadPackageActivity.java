@@ -9,7 +9,6 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.messagepademu.einstein.EinsteinActivity;
-import org.messagepademu.einstein.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
