@@ -1,6 +1,6 @@
 package org.messagepademu.einstein.utils.screen;
 
-import com.missinginandroid.Dimension;
+import org.missinginandroid.Dimension;
 
 public class ScreenDimensions {
 	
