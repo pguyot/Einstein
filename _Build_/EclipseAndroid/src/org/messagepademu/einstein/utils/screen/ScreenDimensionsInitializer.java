@@ -1,13 +1,13 @@
 package org.messagepademu.einstein.utils.screen;
 
+import org.messagepademu.einstein.DebugUtils;
+import org.missinginandroid.Dimension;
+
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
-
-import org.messagepademu.einstein.DebugUtils;
-import com.missinginandroid.Dimension;
 
 public class ScreenDimensionsInitializer {
 	
