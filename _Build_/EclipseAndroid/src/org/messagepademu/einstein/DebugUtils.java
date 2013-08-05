@@ -42,7 +42,6 @@ public class DebugUtils {
 	/**
 	 * Show a message in a dialog and wait for the dialog to be dismissed.
 	 */
-	@SuppressWarnings("deprecation")
 	public static void showInfoDialog(Context context, String text) {
 		final AlertDialog dialog = new AlertDialog.Builder(context).create();  
 		dialog.setCancelable(false);  
@@ -58,7 +57,6 @@ public class DebugUtils {
 	/** 
 	 * Appends <code>text</code> to the log file. 
 	 */
-	@SuppressWarnings("deprecation")
 	public static void appendLog(String text) {
 		final File logFile = getLogFile();
 		if (null == logFile) {
