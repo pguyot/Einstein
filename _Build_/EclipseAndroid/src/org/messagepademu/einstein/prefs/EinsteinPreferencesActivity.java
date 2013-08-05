@@ -85,7 +85,6 @@ public class EinsteinPreferencesActivity extends PreferenceActivity {
 			entries[i] = temp.get(i);
 		}
 		DebugUtils.appendLog("EinsteinPreferencesActivity: Setting preference entries");
-		@SuppressWarnings("deprecation")
 		final ListPreference screenPresets = (ListPreference)(super.findPreference("screenpresets"));
 		screenPresets.setEntries(entries);
 		screenPresets.setEntryValues(entryValues);
