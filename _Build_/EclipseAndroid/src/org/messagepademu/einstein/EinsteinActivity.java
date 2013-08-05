@@ -392,7 +392,6 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 //		return out;
 //	}
 
-	@SuppressWarnings("deprecation")
 	void finishWithMessage(String msg) {
 		class MyOnClickListener implements DialogInterface.OnClickListener {
 			Activity pv = null;
