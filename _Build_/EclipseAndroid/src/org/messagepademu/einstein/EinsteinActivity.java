@@ -4,6 +4,15 @@ package org.messagepademu.einstein;
 import java.io.File;
 import java.util.Timer;
 
+import org.messagepademu.einstein.actions.ActionsActivity;
+import org.messagepademu.einstein.constants.OtherConstants;
+import org.messagepademu.einstein.constants.StringConstants;
+import org.messagepademu.einstein.startup.IStartup.LoadResult;
+import org.messagepademu.einstein.startup.Startup;
+import org.messagepademu.einstein.startup.StartupConstants;
+import org.messagepademu.einstein.utils.screen.ScreenDimensions;
+import org.messagepademu.einstein.utils.screen.ScreenDimensionsInitializer;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -16,26 +25,12 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-//import android.text.Editable;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
-//import android.widget.EditText;
 import android.widget.Toast;
-
-import org.messagepademu.einstein.actions.ActionsActivity;
-import org.messagepademu.einstein.constants.OtherConstants;
-import org.messagepademu.einstein.constants.StringConstants;
-import org.messagepademu.einstein.prefs.EinsteinPreferencesActivity;
-import org.messagepademu.einstein.startup.IStartup.LoadResult;
-import org.messagepademu.einstein.startup.Startup;
-import org.messagepademu.einstein.startup.StartupConstants;
-import org.messagepademu.einstein.utils.screen.ScreenDimensions;
-import org.messagepademu.einstein.utils.screen.ScreenDimensionsInitializer;
 
 
 /**
