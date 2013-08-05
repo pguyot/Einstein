@@ -1,15 +1,14 @@
 package org.messagepademu.einstein;
 
+import org.messagepademu.einstein.utils.screen.ScreenDimensions;
+import org.missinginandroid.Dimension;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
-import org.messagepademu.einstein.utils.screen.ScreenDimensions;
-import com.missinginandroid.Dimension;
 
 class EinsteinView extends View {
     private Bitmap mBitmap;
