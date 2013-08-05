@@ -2,16 +2,15 @@ package org.messagepademu.einstein.prefs;
 
 import java.util.Vector;
 
+import org.messagepademu.einstein.DebugUtils;
+import org.messagepademu.einstein.R;
+import org.messagepademu.einstein.utils.screen.ScreenDimensions;
+import org.missinginandroid.Dimension;
+
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.util.Log;
-
-import org.messagepademu.einstein.DebugUtils;
-import org.messagepademu.einstein.R;
-import org.messagepademu.einstein.R.xml;
-import org.messagepademu.einstein.utils.screen.ScreenDimensions;
-import com.missinginandroid.Dimension;
 
 /** 
  * This activity loads the "preferences.xml" file. 
