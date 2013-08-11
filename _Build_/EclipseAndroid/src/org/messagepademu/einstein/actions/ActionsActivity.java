@@ -66,7 +66,7 @@ public class ActionsActivity extends Activity {
 	}
 
 	public void onClickPreferences(View v) {
-		// FIXME: after preferences are closed, we end up in Actions again. We should probably be in EInstein instead.
+		// FIXME: after preferences are closed, we end up in Actions again. We should probably be in Einstein instead.
 	    Intent intent = new Intent(v.getContext(), EinsteinPreferencesActivity.class);
 	    startActivity(intent);
 	    this.finish();
@@ -83,6 +83,9 @@ public class ActionsActivity extends Activity {
 	    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
 	    intent.putExtra("EXIT", true);
 	    startActivity(intent);
+	    
+	    // android.os.Process.killProcess(android.os.Process.myPid());
+	    // super.finish();
 	}
 	
 }

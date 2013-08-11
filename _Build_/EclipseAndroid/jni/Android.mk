@@ -41,7 +41,7 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/Emulator/Sound/ \
 	$(LOCAL_PATH)/Emulator/Screen/
 
-LOCAL_LDLIBS    := -llog -ljnigraphics
+LOCAL_LDLIBS    := -llog -ljnigraphics -lOpenSLES
 
 LOCAL_MODULE    := einstein
 
