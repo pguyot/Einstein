@@ -1,0 +1,11 @@
+To compile Einstein.rex, you will need:
+
+- mosrun from:
+https://code.google.com/p/dynee5/source/browse/#svn%2Ftrunk%2FAlienate%2Fmosrun
+Install it in your $PATH
+
+- NewtonDev package
+http://www.unna.org/view.php?/development/NewtonDev
+Extract it directly in Einstein/ directory.
+
+You will need a tool to uncompress NewtonDev.sit. On MacOS X, you can use The Unarchiver from the AppStore.
