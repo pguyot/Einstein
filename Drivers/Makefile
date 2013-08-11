@@ -3,51 +3,65 @@
 # Projet:			Einstein
 # Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 # 
-# Créé le:			1/8/2004
+# Cr√©√© le:			1/8/2004
 # Tabulation:		4 espaces
 # 
-# Copyright:		© 2004-2005 by Paul Guyot.
-# 					Tous droits réservés pour tous pays.
+# Copyright:		¬© 2004-2005 by Paul Guyot.
+# 					Tous droits r√©serv√©s pour tous pays.
 # ===========
 # $Id: Makefile 150 2006-01-10 05:55:43Z paul $
 # ===========
 
 # --- variables ---
 CPlusOptionsDefines	=	-d hasPCMCIA -d forARM -d TARGET_OS_NEWTON -d NO_ERRNO_H
-CPlusOptions			=	-facqy -zo -W -cfront ${CPlusOptionsDefines}
+CPlusOptions		=	-facqy -zo -W -cfront ${CPlusOptionsDefines}
 LinkOptions			=	-dupok -remove -bin
+
+DDK_Libraries-dir   ?=  ::NewtonDev:C++:NCT_Projects:DDKLibraries:
+DDK_Includes-dir    ?=  ::NewtonDev:C++:NCT_Projects:DDKIncludes:
+NCT_Includes        ?=  ::NewtonDev:C++:NCT_Projects:Includes:
+NCT_Libraries       ?=  ::NewtonDev:C++:NCT_Projects:Libraries:
+
+NCTTools            ?=  ../NewtonDev/C++/For\ MPW/‚Ä¢\ Put\ into\ MPW\ folder\ ‚Ä¢/NCT_Folder/Tools
+ARM6Asm             ?=  mosrun ---run ${NCTTools}/ARM6Asm
+ARM6c               ?=  mosrun ---run ${NCTTools}/ARM6c
+ARMCpp              ?=  mosrun ---run ${NCTTools}/ARMCpp
+ARMLink             ?=  mosrun ---run ${NCTTools}/ARMLink
+Packer              ?=  mosrun ---run ${NCTTools}/Packer
+ProtocolGenTool     ?=  mosrun ---run ${NCTTools}/ProtocolGenTool
+Rex                 ?=  mosrun ---run ${NCTTools}/Rex
 
 # Package options:
 PackerCopyright		=	'"Copyright (c) 2004-2007 Paul Guyot."'
 
-KPath_Classic		=	'"Marvin:Users:paul:Bibliotheques:K"'
-KPath_POSIX			=	/Users/paul/Bibliotheques/K
+KPath_Classic		=	::
+KPath_POSIX			=	../
 
 # Include paths:
-AsmIncludes			=	-i "{DDK_Libraries-dir}"
+AsmIncludes			=	-i "${DDK_Libraries-dir}"
 CPlusIncludes		=	\
-		-i "{DDK_Includes-dir}" \
-		-i "{DDK_Includes-dir}Bootstrap:" \
-		-i "{DDK_Includes-dir}CLibrary:" \
-		-i "{DDK_Includes-dir}CommAPI:" \
-		-i "{DDK_Includes-dir}Communications:" \
-		-i "{DDK_Includes-dir}Frames:" \
-		-i "{DDK_Includes-dir}HAL:" \
-		-i "{DDK_Includes-dir}OS600:" \
-		-i "{DDK_Includes-dir}Packages:" \
-		-i "{DDK_Includes-dir}Power:" \
-		-i "{DDK_Includes-dir}Printing:" \
-		-i "{DDK_Includes-dir}QD:" \
-		-i "{DDK_Includes-dir}Toolbox:" \
-		-i "{DDK_Includes-dir}UtilityClasses:" \
-		-i "{DDK_Includes-dir}PCMCIA:" \
-		-i "{NCT_Includes}" \
-		-i "{NCT_Includes}Frames:" \
-		-i "{NCT_Includes}Utilities:" \
-		-i "{NCT_Includes}:NSandDDK:" \
-		-i ${KPath_Classic}
+		-i "${DDK_Includes-dir}" \
+		-i "${DDK_Includes-dir}Bootstrap:" \
+		-i "${DDK_Includes-dir}CLibrary:" \
+		-i "${DDK_Includes-dir}CommAPI:" \
+		-i "${DDK_Includes-dir}Communications:" \
+		-i "${DDK_Includes-dir}Frames:" \
+		-i "${DDK_Includes-dir}HAL:" \
+		-i "${DDK_Includes-dir}OS600:" \
+		-i "${DDK_Includes-dir}Packages:" \
+		-i "${DDK_Includes-dir}Power:" \
+		-i "${DDK_Includes-dir}Printing:" \
+		-i "${DDK_Includes-dir}QD:" \
+		-i "${DDK_Includes-dir}Toolbox:" \
+		-i "${DDK_Includes-dir}UtilityClasses:" \
+		-i "${DDK_Includes-dir}PCMCIA:" \
+		-i "${NCT_Includes}" \
+		-i "${NCT_Includes}Frames:" \
+		-i "${NCT_Includes}Utilities:" \
+		-i "${NCT_Includes}:NSandDDK:" \
+		-i "${KPath_Classic}"
 
-Libraries			=	'"{NCT_Libraries}Newton Public APIs.o"'
+Libraries			=	"${NCT_Libraries}Newton Public APIs.o"
 
 headers = \
 	Headers/NativeCallsDefines.h \
@@ -58,22 +72,31 @@ headers = \
 
 # --- rules ---
 
-%.impl.a	: %.impl.h ${headers}
-	ProtocolGen -ImplementationGlue $< -package ${CPlusOptionsDefines} ${CPlusIncludes} -stdout > $@
+#%.impl.a	: %.impl.h ${headers}
+#	${ProtocolGen} -ImplementationGlue $< -package ${CPlusOptionsDefines} ${CPlusIncludes} -stdout > $@
+%.impl.pg	: %.impl.h ${headers}
+	${ARM6c} -e -em -w -d PROTOCOLGEN $< ${CPlusOptionsDefines} ${CPlusIncludes} ---stdout-raw > $@
+%.impl.a	: %.impl.pg ${headers}
+	${ProtocolGenTool} -date "`date +'%A, %B %d, %G %r'`" -trueinputfile $(basename $<).h $< -ServerGlue -package -stdout ---stdout-raw > $@
+
 %.o : %.c ${headers}
-	ARMCpp $< ${CPlusOptions} ${CPlusIncludes} -o $(@F)
+	${ARMCpp} $< ${CPlusOptions} ${CPlusIncludes} -o $(@F)
 %.o : %.cp ${headers}
-	ARMCpp $< ${CPlusOptions} ${CPlusIncludes} -o $(@F)
+	${ARMCpp} $< ${CPlusOptions} ${CPlusIncludes} -o $(@F)
 %.o : %.a
-	ARM6Asm $< ${AsmIncludes} -o $(@F)
+	${ARM6Asm} $< ${AsmIncludes} -o $(@F)
 
 # --- specific ---	
 all : \
 	TNativeCalls.o \
 	Einstein.rex
 
-TNativeCalls.a : TNativeCalls.h ${headers}
-	ProtocolGen -InterfaceGlue $< ${CPlusOptionsDefines} ${CPlusIncludes} -stdout > $@
+#TNativeCalls.a : TNativeCalls.h ${headers}
+#	${ProtocolGen} -InterfaceGlue $< ${CPlusOptionsDefines} ${CPlusIncludes} -stdout > $@
+TNativeCalls.pg : TNativeCalls.h ${headers}
+	${ARM6c} -e -em -w -d PROTOCOLGEN $< ${CPlusOptionsDefines} ${CPlusIncludes} ---stdout-raw > $@
+TNativeCalls.a : TNativeCalls.pg ${headers}
+	${ProtocolGenTool} -date "`date +'%A, %B %d, %G %r'`" -trueinputfile $(basename $<).h $< -ClientGlue -stdout ---stdout-raw > $@
 
 # --- cf headers ---	
 
@@ -112,15 +135,15 @@ Einstein.rex : \
 	EinsteinNativeCalls.pkg \
 	NSRuntime/Einstein\ NS\ Runtime.pkg \
 	../Packages/Keyboards/Keyboards.pkg
-	Rex -o Einstein.rex Einstein.rex.src
+	${Rex} -o Einstein.rex Einstein.rex.src
 
 RelocHack.o : ${KPath_POSIX}/K/Misc/RelocHack.a
-	ARM6Asm "${KPath_Classic}:K:Misc:RelocHack.a" ${AsmIncludes} -o $@
+	${ARM6Asm} "${KPath_Classic}K:Misc:RelocHack.a" ${AsmIncludes} -o $@
 	
 EinsteinFlashDriver.bin :	TEinsteinFlashDriver.impl.o \
 							TEinsteinFlashDriver.o \
 							TEinsteinFlashDriverPrims.o
-	ARMLink ${LinkOptions} ${Libraries} \
+	${ARMLink} ${LinkOptions} ${Libraries} \
 		$(^F) -o $(@F)
 
 EinsteinPlatformDriver.bin :	TMainPlatformDriver.impl.o \
@@ -129,12 +152,12 @@ EinsteinPlatformDriver.bin :	TMainPlatformDriver.impl.o \
 								RelocHack.o \
 								Glue.o \
 								UGlue.o
-	ARMLink ${LinkOptions} ${Libraries} \
+	${ARMLink} ${LinkOptions} ${Libraries} \
 		$(^F) -o $(@F)
 
 EinsteinPlatformDriver.pkg	: EinsteinPlatformDriver.bin
-	Packer -o $(@F) \
-		"EinsteinPlatformDriver:Einstein" -packageid '" no "' -copyright ${PackerCopyright} \
+	${Packer} -o $(@F) \
+		"EinsteinPlatformDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
 		-version 01 -invisible \
 		-protocol $(<F) -autoload
 	SetFile -t "pkg " -c "pkgX" $@
@@ -145,12 +168,12 @@ EinsteinSoundDriver.bin :		PMainSoundDriver.impl.o \
 								RelocHack.o \
 								Glue.o \
 								UGlue.o
-	ARMLink ${LinkOptions} ${Libraries} \
+	${ARMLink} ${LinkOptions} ${Libraries} \
 		$(^F) -o $(@F)
 
 EinsteinSoundDriver.pkg	: EinsteinSoundDriver.bin
-	Packer -o $(@F) \
-		"EinsteinSoundDriver:Einstein" -packageid '" no "' -copyright ${PackerCopyright} \
+	${Packer} -o $(@F) \
+		"EinsteinSoundDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
 		-version 01 -invisible \
 		-protocol $(<F) -autoload
 	SetFile -t "pkg " -c "pkgX" $@
@@ -158,12 +181,12 @@ EinsteinSoundDriver.pkg	: EinsteinSoundDriver.bin
 EinsteinBatteryDriver.bin :		PMainBatteryDriver.impl.o \
 								PMainBatteryDriver.o \
 								PMainBatteryDriverPrims.o
-	ARMLink ${LinkOptions} ${Libraries} \
+	${ARMLink} ${LinkOptions} ${Libraries} \
 		$(^F) -o $(@F)
 
 EinsteinBatteryDriver.pkg	: EinsteinBatteryDriver.bin
-	Packer -o $(@F) \
-		"EinsteinBatteryDriver:Einstein" -packageid '" no "' -copyright ${PackerCopyright} \
+	${Packer} -o $(@F) \
+		"EinsteinBatteryDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
 		-version 01 -invisible \
 		-protocol $(<F) -autoload
 	SetFile -t "pkg " -c "pkgX" $@
@@ -171,12 +194,12 @@ EinsteinBatteryDriver.pkg	: EinsteinBatteryDriver.bin
 EinsteinScreenDriver.bin :		TMainDisplayDriver.impl.o \
 								TMainDisplayDriver.o \
 								TMainDisplayDriverPrims.o
-	ARMLink ${LinkOptions} ${Libraries} \
+	${ARMLink} ${LinkOptions} ${Libraries} \
 		$(^F) -o $(@F)
 
 EinsteinScreenDriver.pkg	: EinsteinScreenDriver.bin
-	Packer -o $(@F) \
-		"EinsteinScreenDriver:Einstein" -packageid '" no "' -copyright ${PackerCopyright} \
+	${Packer} -o $(@F) \
+		"EinsteinScreenDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
 		-version 01 -invisible \
 		-protocol $(<F) -autoload
 	SetFile -t "pkg " -c "pkgX" $@
@@ -185,36 +208,36 @@ EinsteinTabletDriver.bin :		TMainTabletDriver.impl.o \
 								TMainTabletDriver.o \
 								TMainTabletDriverPrims.o \
 								RelocHack.o
-	ARMLink ${LinkOptions} ${Libraries} \
+	${ARMLink} ${LinkOptions} ${Libraries} \
 		$(^F) -o $(@F)
 
 EinsteinTabletDriver.pkg	: EinsteinTabletDriver.bin
-	Packer -o $(@F) \
-		"EinsteinTabletDriver:Einstein" -packageid '" no "' -copyright ${PackerCopyright} \
+	${Packer} -o $(@F) \
+		"EinsteinTabletDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
 		-version 01 -invisible \
 		-protocol $(<F) -autoload
 	SetFile -t "pkg " -c "pkgX" $@
 
 EinsteinVersionString.bin :		TMainVersionString.impl.o \
 								TMainVersionString.o
-	ARMLink ${LinkOptions} ${Libraries} \
+	${ARMLink} ${LinkOptions} ${Libraries} \
 		$(^F) -o $(@F)
 
 EinsteinVersionString.pkg	: EinsteinVersionString.bin
-	Packer -o $(@F) \
-		"EinsteinVersionString:Einstein" -packageid '" no "' -copyright ${PackerCopyright} \
+	${Packer} -o $(@F) \
+		"EinsteinVersionString:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
 		-version 01 -invisible \
 		-protocol $(<F) -autoload
 	SetFile -t "pkg " -c "pkgX" $@
 
 EinsteinStartupDriver.bin :		TMainStartupDriver.impl.o \
 								TMainStartupDriver.o
-	ARMLink ${LinkOptions} ${Libraries} \
+	${ARMLink} ${LinkOptions} ${Libraries} \
 		$(^F) -o $(@F)
 
 EinsteinStartupDriver.pkg	: EinsteinStartupDriver.bin
-	Packer -o $(@F) \
-		"EinsteinStartupDriver:Einstein" -packageid '" no "' -copyright ${PackerCopyright} \
+	${Packer} -o $(@F) \
+		"EinsteinStartupDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
 		-version 01 -invisible \
 		-protocol $(<F) -autoload
 	SetFile -t "pkg " -c "pkgX" $@
@@ -222,12 +245,12 @@ EinsteinStartupDriver.pkg	: EinsteinStartupDriver.bin
 EinsteinSerialDriver.bin :		TSerialChipVoyager.impl.o \
 								TSerialChipVoyager.o \
 								TSerialChipVoyagerPrims.o
-	ARMLink ${LinkOptions} ${Libraries} \
+	${ARMLink} ${LinkOptions} ${Libraries} \
 		$(^F) -o $(@F)
 
 EinsteinSerialDriver.pkg	: EinsteinSerialDriver.bin
-	Packer -o $(@F) \
-		"EinsteinSerialDriver:Einstein" -packageid '" no "' -copyright ${PackerCopyright} \
+	${Packer} -o $(@F) \
+		"EinsteinSerialDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
 		-version 01 -invisible \
 		-protocol $(<F) -autoload
 	SetFile -t "pkg " -c "pkgX" $@
@@ -235,12 +258,12 @@ EinsteinSerialDriver.pkg	: EinsteinSerialDriver.bin
 EinsteinInTranslator.bin :		PEinsteinInTranslator.impl.o \
 								PEinsteinInTranslator.o \
 								PEinsteinInTranslatorPrims.o
-	ARMLink ${LinkOptions} ${Libraries} \
+	${ARMLink} ${LinkOptions} ${Libraries} \
 		$(^F) -o $(@F)
 
 EinsteinInTranslator.pkg	: EinsteinInTranslator.bin
-	Packer -o $(@F) \
-		"EinsteinInTranslator:Einstein" -packageid '" no "' -copyright ${PackerCopyright} \
+	${Packer} -o $(@F) \
+		"EinsteinInTranslator:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
 		-version 01 -invisible \
 		-protocol $(<F) -autoload
 	SetFile -t "pkg " -c "pkgX" $@
@@ -248,12 +271,12 @@ EinsteinInTranslator.pkg	: EinsteinInTranslator.bin
 EinsteinOutTranslator.bin :		PEinsteinOutTranslator.impl.o \
 								PEinsteinOutTranslator.o \
 								PEinsteinOutTranslatorPrims.o
-	ARMLink ${LinkOptions} ${Libraries} \
+	${ARMLink} ${LinkOptions} ${Libraries} \
 		$(^F) -o $(@F)
 
 EinsteinOutTranslator.pkg	: EinsteinOutTranslator.bin
-	Packer -o $(@F) \
-		"EinsteinOutTranslator:Einstein" -packageid '" no "' -copyright ${PackerCopyright} \
+	${Packer} -o $(@F) \
+		"EinsteinOutTranslator:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
 		-version 01 -invisible \
 		-protocol $(<F) -autoload
 	SetFile -t "pkg " -c "pkgX" $@
@@ -261,12 +284,12 @@ EinsteinOutTranslator.pkg	: EinsteinOutTranslator.bin
 EinsteinNativeCalls.bin :		TEinsteinNativeCalls.impl.o \
 								TEinsteinNativeCalls.o \
 								TEinsteinNativeCallsPrims.o
-	ARMLink ${LinkOptions} ${Libraries} \
+	${ARMLink} ${LinkOptions} ${Libraries} \
 		$(^F) -o $(@F)
 
 EinsteinNativeCalls.pkg	: EinsteinNativeCalls.bin
-	Packer -o $(@F) \
-		"EinsteinNativeCalls:Einstein" -packageid '" no "' -copyright ${PackerCopyright} \
+	${Packer} -o $(@F) \
+		"EinsteinNativeCalls:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
 		-version 01 -invisible \
 		-protocol $(<F) -autoload
 	SetFile -t "pkg " -c "pkgX" $@
@@ -278,3 +301,4 @@ clean :
 ## =================================================== ##
 ## Can't open /usr/fortunes.  Lid stuck on cookie jar. ##
 ## =================================================== ##
+
