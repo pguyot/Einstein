@@ -38,9 +38,8 @@
 typedef KUInt32 ArrayIndex;
 typedef KSInt32 Ref;
 
-#ifndef TARGET_API_MAC_OSX
-typedef KUInt32 Size;
-#endif
+//typedef KUInt32 Size;
+
 
 class SingleObject {
 };

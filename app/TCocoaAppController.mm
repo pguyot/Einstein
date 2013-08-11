@@ -299,7 +299,8 @@ static TCocoaAppController* gInstance = nil;
 	
 	// Create a log if possible
 #ifdef _DEBUG
-	mLog = 0L; // new TStdOutLog(); 
+	mLog = 0L; // new TStdOutLog();
+	//mLog = new TStdOutLog();
 #endif
 	
 	// Create the network manager.
@@ -430,8 +431,8 @@ static TCocoaAppController* gInstance = nil;
 	// Start the thread.
 	[NSThread detachNewThreadSelector:@selector(runEmulator) toTarget: self withObject: NULL];
 //	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"load x" afterDelay:1];
-//	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"run" afterDelay:1];
-	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"revert" afterDelay:1];
+	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"run" afterDelay:1];
+//	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"revert" afterDelay:1];
 }
 
 

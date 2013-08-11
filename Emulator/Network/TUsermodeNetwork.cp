@@ -224,6 +224,10 @@ public:
 		mData[i+0] = v>>8;
 		mData[i+1] = v; }
 	
+	/** Get a 8-bit byte in network order. */
+	KUInt8 Get8(KUInt32 i) { return mData[i]; }
+	void Set8(KUInt32 i, KUInt8 v) { mData[i] = v; }
+	
 	/**
 	 * All the functions below get and set members of raw TCP packets including network header.
 	 * Details can be found all over the web.
@@ -899,28 +903,31 @@ public:
 		socklen_t addrLen = sizeof(theirSockAddr);
 		if (mSocket==-1)
 			return;
-		int avail = 
-			recvfrom(mSocket, buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
-		if (avail<1) {
-			if ( --mExpire == 0 ) {
-				printf("Net: Timer expired. Removing UDP handler for port %u to %u.%u.%u.%u\n", 
-					   theirPort,
-					   (unsigned int)((theirIP>>24)&0xff), 
-					   (unsigned int)((theirIP>>16)&0xff), 
-					   (unsigned int)((theirIP>>8)&0xff), 
-					   (unsigned int)(theirIP&0xff));
-				net->RemovePacketHandler(this);
-				delete this;
+		int maxTry = 5;
+		for (;maxTry>0; maxTry--) {
+			int avail =
+				recvfrom(mSocket, buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
+			if (avail<1) {
+				if ( --mExpire == 0 ) {
+					printf("Net: Timer expired. Removing UDP handler for port %u to %u.%u.%u.%u\n",
+						   theirPort,
+						   (unsigned int)((theirIP>>24)&0xff),
+						   (unsigned int)((theirIP>>16)&0xff),
+						   (unsigned int)((theirIP>>8)&0xff),
+						   (unsigned int)(theirIP&0xff));
+					net->RemovePacketHandler(this);
+					delete this;
+				}
+				return;
 			}
-			return;
+			printf("Net: W>E N Data %d bytes\n", avail);
+			Packet *reply = NewPacket(avail);
+			memcpy(reply->GetUDPPayloadStart(), buf, avail);
+			UpdateChecksums(reply);
+			reply->LogPayload(net->GetLog(), "W E>N");
+			net->Enqueue(reply);
+			mExpire = kUDPExpirationTime;
 		}
-		printf("Net: W>E N Data %d bytes\n", avail);
-		Packet *reply = NewPacket(avail);
-		memcpy(reply->GetUDPPayloadStart(), buf, avail);
-		UpdateChecksums(reply);
-		reply->LogPayload(net->GetLog(), "W E>N");
-		net->Enqueue(reply);
-		mExpire = kUDPExpirationTime;
 	}
 	
 	/**
@@ -937,7 +944,7 @@ public:
 	 * \return -1 if an error occurred an no other handler should handle this packet
 	 */
 	static int canHandle(Packet &packet, TUsermodeNetwork *net) {
-		if ( packet.GetType() != Packet::NetTypeIP ) 
+		if ( packet.GetType() != Packet::NetTypeIP )
 			return 0;
 		if ( packet.GetIPProtocol() != Packet::IPProtocolUDP ) 
 			return 0;
@@ -958,9 +965,9 @@ public:
 
 
 /**
- * This class handles UDP packets.
+ * This class handles ARP packets.
  */
-class ARPPacketHandler : public PacketHandler 
+class ARPPacketHandler : public PacketHandler
 {
 public:
 	
@@ -972,7 +979,7 @@ public:
 	 * environment however, a MAC has little meaning, which is why we make up
 	 * MACs as we go by using the IP for the lower 4 bytes and adding 00:fa:... .
 	 *
-	 * This is a very simple and quick operation. canHandle() does not add 
+	 * This is a very simple and quick operation. canHandle() does not add
 	 * itself to the handler list, but answers the request immediatly.
 	 *
 	 * \param packet the Newton packet that could be sent
@@ -983,7 +990,7 @@ public:
 	 * \see man 3 getaddrinfo()
 	 */
 	static int canHandle(Packet &packet, TUsermodeNetwork *net) {
-		if ( packet.GetType() != Packet::NetTypeARP ) 
+		if ( packet.GetType() != Packet::NetTypeARP )
 			return 0;
 		if ( packet.GetARPOp() != 1 ) // is this a request?
 			return 0;
@@ -1017,10 +1024,450 @@ public:
 		net->Enqueue(reply);
 		KUInt32 theirIP = packet.GetARPTPA();
 		printf("Net: ARP request for IP %u.%u.%u.%u\n",
-			   (unsigned int)((theirIP>>24)&0xff), 
-			   (unsigned int)((theirIP>>16)&0xff), 
-			   (unsigned int)((theirIP>>8)&0xff), 
+			   (unsigned int)((theirIP>>24)&0xff),
+			   (unsigned int)((theirIP>>16)&0xff),
+			   (unsigned int)((theirIP>>8)&0xff),
 			   (unsigned int)(theirIP&0xff));
+		return 1;
+	}
+};
+
+
+
+/**
+ * This class handles ARP packets.
+ */
+class DHCPPacketHandler : public PacketHandler
+{
+public:
+	
+	/**
+	 * Can we handle the given package?
+	 *
+	 * DHCP Packages are special UDP broadcasts that are needed to assign an IP
+	 * to a machine that newly joins a network. Since our emulator shares the IP
+	 * of the host, we can reply to these requests immediatly.
+	 *
+	 * \param packet the Newton packet that could be sent
+	 * \param n the network interface
+	 * \return 0 if we can not handle this packet
+	 * \return 1 if we can handled it and it need not to be propagated any further
+	 * \return -1 if an error occurred an no other handler should handle this packet
+	 * \see man 3 getaddrinfo()
+	 */
+	static int canHandle(Packet &packet, TUsermodeNetwork *net) {
+		if ( packet.GetType() != Packet::NetTypeIP )
+			return 0;
+		if ( packet.GetIPProtocol() != Packet::IPProtocolUDP )
+			return 0;
+		if (packet.GetUDPDstPort()!=67) // DHCP requests come on port 57 and are answered on 68
+			return 0;
+		if (packet.Get8(42)==3)
+			printf("PARTY! ***********************************");
+		if (packet.GetIPDstIP()!=0xffffffff) // DHCP are broadcast to 255.255.255.255
+			return 0;
+		if (packet.Get32(0x0116)!=0x63825363) // check for DHCP magic number
+			return 0;
+		
+		printf("Net: DHCP request (%d bytes)\n", packet.Size());
+		int i = 0;
+		for (i=0; i<packet.Size(); i++) {
+			KUInt8 d = packet.Data()[i];
+			printf("0x%02x, ", d);
+			if ((i&15)==15) printf("\n");
+		}
+		printf("\n");
+		
+
+#if 0
+		// options:
+		// 22, 23, 26, 31, 32, 35, 1, 3, 6, 15
+		KUInt8 prepackedReply[] = {
+			0x00, 0x0b, 0x82, 0x01, 0xfc, 0x42, 0x00, 0x08, 0x74, 0xad, 0xf1, 0x9b, 0x08, 0x00, 0x45, 0x00,
+			0x01, 0x48, 0x04, 0x45, 0x00, 0x00, 0x80, 0x11, 0x00, 0x00, 0xc0, 0xa8, 0x00, 0x01, 0xc0, 0xa8,
+			0x00, 0x0a, 0x00, 0x43, 0x00, 0x44, 0x01, 0x34, 0x22, 0x33, 0x02, 0x01, 0x06, 0x00, 0x00, 0x00,
+			0x3d, 0x1d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0xa8, 0x00, 0x0a, 0xc0, 0xa8,
+			0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0b, 0x82, 0x01, 0xfc, 0x42, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63, 0x82, 0x53, 0x63, 0x35, 0x01, 0x02, 0x01, 0x04, 0xff,
+			0xff, 0xff, 0x00, 0x3a, 0x04, 0x00, 0x00, 0x07, 0x08, 0x3b, 0x04, 0x00, 0x00, 0x0c, 0x4e, 0x33,
+			0x04, 0x00, 0x00, 0x0e, 0x10, 0x36, 0x04, 0xc0, 0xa8, 0x00, 0x01, 0xff, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+		};
+		Packet *reply = new Packet(prepackedReply, sizeof(prepackedReply), 1);
+	
+		reply->SetDstMAC(packet.GetSrcMAC());
+		reply->Set32(46, packet.Get32(46));
+		
+		net->SetUDPChecksum(reply->Data(), reply->Size());
+		net->Enqueue(reply);
+
+		printf("Net: DHCP reply (%d bytes)\n", reply->Size());
+		{
+			int i = 0;
+			for (i=0; i<reply->Size(); i++) {
+				KUInt8 d = reply->Data()[i];
+				printf("%02x %c  ", d, ((d>=32)&&(d<127))?d:'.');
+				if ((i&15)==15) printf("\n");
+			}
+			printf("\n");
+		}
+#endif
+
+#if 0
+		// ok, I am pretty sure this is a DHCP package. Generate a generic DHCP reply based on the request
+		Packet *reply = new Packet(0L, packet.Size());
+		reply->SetDstMAC(packet.GetSrcMAC());
+		reply->SetSrcMAC(0x000874adf19b);	// virtual router MAC
+		reply->Set16(12, 0x0800); // Type
+		reply->Set8(14, 0x45); // length
+		reply->Set8(15, 0x00); // flags
+		reply->Set16(16, packet.Get16(16));
+		reply->Set16(18, 0x0445); // identification
+		reply->Set8(22, 128); // time to live
+		reply->Set8(23, 0x11); // UDP
+		reply->SetIPSrcIP(0x0a000101);
+		reply->SetIPDstIP(0x0a000117);
+		reply->SetUDPSrcPort(67);
+		reply->SetUDPDstPort(68);
+		reply->SetUDPLength(packet.GetUDPLength());
+		
+		reply->Set8(42, 2);	// DHCPOFFER
+		reply->Set8(43, 1);
+		reply->Set8(44, 6);
+		reply->Set8(45, 0);
+		reply->Set32(46, packet.Get32(46));
+		reply->Set32(0x3a, 0x0a000117); // YIP
+		reply->Set32(0x3e, 0x0a000101); //
+		reply->Set48(0x46, reply->GetDstMAC());
+		
+		// is it DHCPDISCOVER? If so, we answer with DHCPOFFER
+		if (packet.Get8(42)==1) {
+//			reply->Set8(42, 2);	// DHCPOFFER
+//			reply->Set32(58, 0x0a000105); // FIXME: YIADDR, suggested client address
+//			reply->Set32(62, 0x0a000101); // FIXME: SIADDR, server address
+//			reply->Set32(66, 0x00000000); // GIADDR, Gateway address is 0 for now
+			
+			memset(reply->Data()+0x011a, 0, reply->Size()-0x011a); // clear the DHCP options
+			reply->Set32(0x0116, 0x63825363);
+			KUInt8 *d = reply->Data()+0x011a;
+			
+			// TODO: add options!
+			// DHCP option 53: DHCP Offer
+			*d++ = 53; *d++ = 1; *d++ = 2;
+			// DHCP option 1: 255.255.255.0 subnet mask
+			*d++ = 1; *d++ = 4; *d++ = 255; *d++ = 255; *d++ = 255; *d++ = 0;
+			// DHCP option 3: 192.168.1.1 router
+			*d++ = 3; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+			// DHCP option 51: 86400s (1 day) IP lease time
+			*d++ = 51; *d++ = 4; *d++ = 0x00; *d++ = 0x01; *d++ = 0x51; *d++ = 0x80;
+			// DHCP option 54: 192.168.1.1 DHCP server
+			*d++ = 54; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+			// DHCP option 6: DNS servers 9.7.10.15, 9.7.10.16, 9.7.10.18
+			*d++ = 6; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+			// DHCP end option:
+			*d++ = 0xff;
+			
+			net->SetIPv4Checksum(reply->Data(), reply->Size());
+			net->SetUDPChecksum(reply->Data(), reply->Size());
+			net->Enqueue(reply);
+			
+			printf("Net: DHCP reply (%d bytes)\n", reply->Size());
+			int i = 0;
+			for (i=0; i<reply->Size(); i++) {
+				KUInt8 d = reply->Data()[i];
+				printf("%02x %c  ", d, ((d>=32)&&(d<127))?d:'.');
+				if ((i&15)==15) printf("\n");
+			}
+			printf("\n");
+
+		}
+#endif
+		
+		Packet *reply = new Packet(0L, 342);
+
+		// ethernet II
+		reply->Set48(0x0000, packet.Get48(6));	// dest MAC
+		reply->Set48(0x0006, 0x9bf1ad740800);	// src MAC
+		reply->Set16(0x000c, 0x0800);	// type
+		// IP4
+		reply->Set8(0x000e, 0x45); // Version/length
+		reply->Set8(0x000f, 0); // service field
+		reply->Set16(0x0010, reply->Size()-14);
+		reply->Set16(0x0012, 1093); // identification (FIXME?)
+		reply->Set16(0x0014, 0); // Flags
+		reply->Set8(0x0016, 128); // TTL
+		reply->Set8(0x0017, 17); // Protocol: UDP
+		reply->Set16(0x0018, 0); // Checksum (ignore)
+		reply->Set32(0x001a, 0x0a000101); // src IP
+		reply->Set32(0x001e, 0x0a000108); // dst IP
+		// UDP
+		reply->Set16(0x0022, 67); // src port (bootps)
+		reply->Set16(0x0024, 68); // dst port (bootpc)
+		reply->Set16(0x0026, reply->Size()-34); // size
+		reply->Set16(0x0028, 0); // checksum
+		// BOOTP
+		reply->Set8(0x002a, 2); // msg type: boot reply
+		reply->Set8(0x002b, 1); // hardware type
+		reply->Set8(0x002c, 6); // hardware address length
+		reply->Set8(0x002d, 0); // hops 0
+		reply->Set32(0x002e, packet.Get32(0x002e)); // transaction ID
+		reply->Set16(0x0032, 0); // seconds elapsed
+		reply->Set16(0x0034, 0); // flags
+		reply->Set32(0x0036, 0); // client IP
+		reply->Set32(0x003a, 0x0a000108); // your IP
+		reply->Set32(0x003e, 0x0a000101); // server IP
+		reply->Set32(0x0042, 0); // relay agent IP
+		reply->Set48(0x0046, packet.Get48(6));	// client MAC (padded with 0'a
+		// server host name, boot file name are all 0's
+		reply->Set32(0x0116, 0x63825363); // DHCP magic cookie
+		KUInt8 *d = reply->Data()+0x011a;
+		// DHCP option 53: DHCP Offer
+		*d++ = 53; *d++ = 1; *d++ = 2;
+		// 22, 23, 26, 31, 32, 35, 1, 3, 6, 15
+		
+		/*
+		// DHCP option 1: 255.255.255.0 subnet mask
+		*d++ = 1; *d++ = 4; *d++ = 255; *d++ = 255; *d++ = 255; *d++ = 0;
+		// DHCP option 3: 192.168.1.1 router
+		*d++ = 3; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+		// DHCP option 51: 86400s (1 day) IP lease time
+		*d++ = 51; *d++ = 4; *d++ = 0x00; *d++ = 0x01; *d++ = 0x51; *d++ = 0x80;
+		// DHCP option 54: 192.168.1.1 DHCP server
+		*d++ = 54; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+		// DHCP option 6: DNS servers 9.7.10.15, 9.7.10.16, 9.7.10.18
+		*d++ = 6; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+		 */
+		
+		// 22: Maximum Datagram Reassembly Size
+		*d++ = 22; *d++ = 2; *d++ = 2; *d++ = 64;	// 576 (minimum)
+		// 23: Default IP Time-to-live
+		*d++ = 23; *d++ = 1; *d++ = 80;
+		// 26: Interface MTU Option
+		*d++ = 26; *d++ = 2; *d++ = 0; *d++ = 68;
+		// 31: Perform Router Discovery Option
+		*d++ = 31; *d++ = 1; *d++ = 0;
+		// 32
+		// 35: ARP Cache Timeout Option
+		*d++ = 35; *d++ = 4; *d++ = 0; *d++ = 0; *d++ = 16; *d++ = 16; // 3600 sec
+		// 1: Subnet Mask
+		*d++ = 1; *d++ = 4; *d++ = 255; *d++ = 0; *d++ = 0; *d++ = 0;
+		// 3: router
+		*d++ = 3; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+		// 6: DNS Server
+		*d++ = 6; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+		// 15
+		*d++ = 15; *d++ = 4; *d++ = 'E'; *d++ = 'i'; *d++ = 'n'; *d++ = 'i';
+		
+		// DHCP end option:
+		*d++ = 0xff;
+		if ( d>=reply->Data()+reply->Size())
+			printf("ERRROR: reply package too short\n");
+		
+		net->SetUDPChecksum(reply->Data(), reply->Size());
+		net->Enqueue(reply);
+
+		printf("Net: DHCP reply (%d bytes)\n", reply->Size());
+		 i = 0;
+		for (i=0; i<reply->Size(); i++) {
+			KUInt8 d = reply->Data()[i];
+			printf("%02x %c  ", d, ((d>=32)&&(d<127))?d:'.');
+			if ((i&15)==15) printf("\n");
+		}
+		printf("\n");
+
+		
+		
+		/* Data starts at 42  1 1 6 0 DHCPDISCOVER:   @ 0x0116: Magic 0x63825363
+		
+		Packet *reply = new Packet(0L, 42);
+		reply->SetSrcMAC( packet.GetDstMAC() );
+		reply->SetDstMAC( packet.GetSrcMAC() );
+		reply->SetType( Packet::NetTypeARP );
+		reply->SetARPHType( 1 );
+		reply->SetARPPType( 0x0800 );
+		reply->SetARPHLen( 6 );
+		reply->SetARPPLen( 4 );
+		reply->SetARPOp( 2 ); // reply
+		
+		KUInt64 a = packet.GetARPTPA();
+		KUInt64 b = 0x000000fa00000000ULL;
+		KUInt64 c = a | b;
+		reply->SetARPSHA( c ); // faking a MAC address
+		
+		reply->SetARPSPA( packet.GetARPTPA() );
+		reply->SetARPTHA( packet.GetARPSHA() );
+		reply->SetARPTPA( packet.GetARPSPA() );
+		reply->LogPayload(net->GetLog(), "W E>N");
+		net->Enqueue(reply);
+		KUInt32 theirIP = packet.GetARPTPA();
+		  0     1     2     3     4     5     6     7     8     9     a     b     c     d     e     f 
+	00	 ff .  ff .  ff .  ff .  ff .  ff .  58 X  b0 .  35 5  77 w  d7 .  22 "  08 .  00 .  45 E  00 .
+	01	 02 .  40 @  00 .  01 .  00 .  00 .  3c <  11 .  7c |  ad .  00 .  00 .  00 .  00 .  ff .  ff .
+	02	 ff .  ff .  00 .  44 D  00 .  43 C  02 .  2c ,  13 .  9c .  01 .  01 .  06 .  00 .  17 .  d1 .
+	03	 4b K  ab .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	04	 00 .  00 .  00 .  00 .  00 .  00 .  58 X  b0 .  35 5  77 w  d7 .  22 "  00 .  00 .  00 .  00 .
+	05	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	06	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	07	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	08	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	09	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	0a	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	0b	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	0c	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	0d	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	0e	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	0f	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	10	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	11	 00 .  00 .  00 .  00 .  00 .  00 .  63 c  82 .  53 S  63 c  35 5  01 .  01 .  33 3  04 .  00 .
+	12	 00 .  04 .  b0 .  37 7  0a .  16 .  17 .  1a .  1f .  20    23 #  01 .  03 .  06 .  0f .  ff .
+	13	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	14	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	15	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	16	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	17	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	18	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	19	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	1a	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	1b	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	1c	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	1d	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	1e	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	1f	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	20	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	21	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	22	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	23	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+	24	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+
+
+		 58 X  b0 .  35 5  77 w  d7 .  22 "  9b .  f1 .  ad .  74 t  08 .  00 .  08 .  00 .  45 E  00 .
+		 01 .  48 H  04 .  45 E  00 .  00 .  80 .  11 .  00 .  00 .  0a .  00 .  01 .  01 .  0a .  00 .
+		 01 .  08 .  00 .  43 C  00 .  44 D  01 .  34 4  f7 .  47 G  02 .  01 .  06 .  00 .  5c \  a8 .
+		 a9 .  f0 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  0a .  00 .  01 .  08 .  0a .  00 .
+		 01 .  01 .  00 .  00 .  00 .  00 .  58 X  b0 .  35 5  77 w  d7 .  22 "  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .  63 c  82 .  53 S  63 c  35 5  01 .  02 .  16 .  02 .  02 .
+		 40 @  17 .  01 .  50 P  1a .  02 .  00 .  44 D  1f .  01 .  00 .  23 #  04 .  00 .  00 .  10 .
+		 10 .  01 .  04 .  ff .  00 .  00 .  00 .  03 .  04 .  0a .  00 .  01 .  01 .  06 .  04 .  0a .
+		 00 .  01 .  01 .  0f .  04 .  45 E  69 i  6e n  69 i  ff .  00 .  00 .  00 .  00 .  00 .  00 .
+		 00 .  00 .  00 .  00 .  00 .  00 .
+		 
+		 0000  ff ff ff ff ff ff 00 0b  82 01 fc 42 08 00 45 00   ........ ...B..E.
+		 0010  01 2c a8 36 00 00 fa 11  17 8b 00 00 00 00 ff ff   .,.6.... ........
+		 0020  ff ff 00 44 00 43 01 18  59 1f 01 01 06 00 00 00   ...D.C.. Y.......
+		 0030  3d 1d 00 00 00 00 00 00  00 00 00 00 00 00 00 00   =....... ........
+		 0040  00 00 00 00 00 00 00 0b  82 01 fc 42 00 00 00 00   ........ ...B....
+		 0050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0110  00 00 00 00 00 00 63 82  53 63 35 01 01 3d 07 01   ......c. Sc5..=..
+		 0120  00 0b 82 01 fc 42 32 04  00 00 00 00 37 04 01 03   .....B2. ....7...
+		 0130  06 2a ff 00 00 00 00 00  00 00                     .*...... ..
+		 
+		 
+		 0000  00 0b 82 01 fc 42 00 08  74 ad f1 9b 08 00 45 00   .....B.. t.....E.
+		 0010  01 48 04 45 00 00 80 11  00 00 c0 a8 00 01 c0 a8   .H.E.... ........
+		 0020  00 0a 00 43 00 44 01 34  22 33 02 01 06 00 00 00   ...C.D.4 "3......
+		 0030  3d 1d 00 00 00 00 00 00  00 00 c0 a8 00 0a c0 a8   =....... ........
+		 0040  00 01 00 00 00 00 00 0b  82 01 fc 42 00 00 00 00   ........ ...B....
+		 0050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0110  00 00 00 00 00 00 63 82  53 63 35 01 02 01 04 ff   ......c. Sc5.....
+		 0120  ff ff 00 3a 04 00 00 07  08 3b 04 00 00 0c 4e 33   ...:.... .;....N3
+		 0130  04 00 00 0e 10 36 04 c0  a8 00 01 ff 00 00 00 00   .....6.. ........
+		 0140  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0150  00 00 00 00 00 00                                  ......
+		 
+		 
+		 0000  ff ff ff ff ff ff 00 0b  82 01 fc 42 08 00 45 00   ........ ...B..E.
+		 0010  01 2c a8 37 00 00 fa 11  17 8a 00 00 00 00 ff ff   .,.7.... ........
+		 0020  ff ff 00 44 00 43 01 18  9f bd 01 01 06 00 00 00   ...D.C.. ........
+		 0030  3d 1e 00 00 00 00 00 00  00 00 00 00 00 00 00 00   =....... ........
+		 0040  00 00 00 00 00 00 00 0b  82 01 fc 42 00 00 00 00   ........ ...B....
+		 0050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0110  00 00 00 00 00 00 63 82  53 63 35 01 03 3d 07 01   ......c. Sc5..=..
+		 0120  00 0b 82 01 fc 42 32 04  c0 a8 00 0a 36 04 c0 a8   .....B2. ....6...
+		 0130  00 01 37 04 01 03 06 2a  ff 00                     ..7....* ..
+		 
+		 
+		 0000  00 0b 82 01 fc 42 00 08  74 ad f1 9b 08 00 45 00   .....B.. t.....E.
+		 0010  01 48 04 46 00 00 80 11  00 00 c0 a8 00 01 c0 a8   .H.F.... ........
+		 0020  00 0a 00 43 00 44 01 34  df db 02 01 06 00 00 00   ...C.D.4 ........
+		 0030  3d 1e 00 00 00 00 00 00  00 00 c0 a8 00 0a 00 00   =....... ........
+		 0040  00 00 00 00 00 00 00 0b  82 01 fc 42 00 00 00 00   ........ ...B....
+		 0050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0110  00 00 00 00 00 00 63 82  53 63 35 01 05 3a 04 00   ......c. Sc5..:..
+		 0120  00 07 08 3b 04 00 00 0c  4e 33 04 00 00 0e 10 36   ...;.... N3.....6
+		 0130  04 c0 a8 00 01 01 04 ff  ff ff 00 ff 00 00 00 00   ........ ........
+		 0140  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0150  00 00 00 00 00 00                                  ......
+
+		 */
 		return 1;
 	}
 };
@@ -1079,17 +1526,22 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 	}
 	
 	// now offer the package to possible new handlers
-	switch( TCPPacketHandler::canHandle(packet, this) ) {				
+	switch( DHCPPacketHandler::canHandle(packet, this) ) {
+		case -1:	return -1;	// an error occured, packet must not be handled
+		case 1:		return 0;	// packet was handled successfuly, leave
+		case 0:		break;		// another handler should deal with this packet
+	}
+	switch( ARPPacketHandler::canHandle(packet, this) ) {
+		case -1:	return -1;	// an error occured, packet must not be handled
+		case 1:		return 0;	// packet was handled successfuly, leave
+		case 0:		break;		// another handler should deal with this packet
+	}
+	switch( TCPPacketHandler::canHandle(packet, this) ) {
 		case -1:	return -1;	// an error occured, packet must not be handled
 		case 1:		return 0;	// packet was handled successfuly, leave
 		case 0:		break;		// another handler should deal with this packet
 	}
 	switch( UDPPacketHandler::canHandle(packet, this) ) {				
-		case -1:	return -1;	// an error occured, packet must not be handled
-		case 1:		return 0;	// packet was handled successfuly, leave
-		case 0:		break;		// another handler should deal with this packet
-	}
-	switch( ARPPacketHandler::canHandle(packet, this) ) {				
 		case -1:	return -1;	// an error occured, packet must not be handled
 		case 1:		return 0;	// packet was handled successfuly, leave
 		case 0:		break;		// another handler should deal with this packet
@@ -1153,7 +1605,6 @@ KUInt32 TUsermodeNetwork::DataAvailable()
  */
 int TUsermodeNetwork::ReceiveData(KUInt8 *data, KUInt32 size)
 {
-	
 	Packet *pkt = mLastPacket;
 	if (pkt) {
 		//assert(pkt->Size()==size);
