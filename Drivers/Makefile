@@ -32,7 +32,7 @@ ProtocolGenTool     ?=  mosrun ---run ${NCTTools}/ProtocolGenTool
 Rex                 ?=  mosrun ---run ${NCTTools}/Rex
 
 # Package options:
-PackerCopyright		=	'"Copyright (c) 2004-2007 Paul Guyot."'
+PackerCopyright		=	"Copyright (c) 2004-2007 Paul Guyot."
 
 KPath_Classic		=	::
 KPath_POSIX			=	../
