@@ -13,8 +13,8 @@
     <string name="mainmenu.installPackages.condensed">Install</string>
     <string name="mainmenu.quitEinstein.title">Quit Einstein</string>
     <string name="mainmenu.quitEinstein.condensed">Quit</string>
-    <string name="Startup.romFileMissing">ROM image not found.</string>
-	<string name="Startup.rexFileMissing">REX file not found.</string>
+    <string name="Startup.romFileMissing">Newton ROM file not found.</string>
+	<string name="Startup.rexFileMissing">Einstein REX file not found.</string>
 	<string name="Startup.expectedPath">This file must be in the /Download/Einstein/ folder.</string>
 	<string name="Preferences.statusbar.title">Show Status Bar</string>
 	<string name="Preferences.statusbar.summary">Show or hide Android Status Bar</string>
