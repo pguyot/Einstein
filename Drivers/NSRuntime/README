@@ -1,0 +1,33 @@
+This directory contains the source code of the Einstein NS Runtime package
+which is eventually included into Einstein.rex.
+
+This package contains NewtonScript code in the rex specific to Einstein.
+
+For convenience, Einstein NS Runtime.pkg binary is included.
+
+The package can be compiled using Newton Toolkit (Mac version).
+
+For this purpose:
+1. Creator codes and file types of text files should be fixed with the following
+command (on MacOS X)
+
+SetFile -c NTP1 -t TEXT "Display Params.f" \
+    "Handlers.f" "Install & Remove.f" "Native Global FUnctions.f" \
+    "NIE Bindings.f" "UserInfo.f"
+
+2. Creator codes and file type of "NS Runtime.ntkc" should be fixed with the
+following command:
+
+SetFile -c NTP1 -t ntkc "Native Module/NSRuntime.ntkc"
+
+NS Runtime.ntkc is provided for convenience, but could be rebuilt from source
+code.
+
+3. Files with resource forks should be decoded from MacBinary with:
+
+macbinary decode "Einstein NS Runtime.bin"
+macbinary decode "package.rsrc.bin"
+macbinary decode "Main Layout.bin"
+
+You might want to use Basilisk II with NewtDevel image available from UNNA at:
+http://www.unna.org/view.php?/development/NewtonDev
