@@ -13,8 +13,8 @@
     <string name="mainmenu.installPackages.condensed">Neue Pakete</string>
     <string name="mainmenu.quitEinstein.title">Einstein beenden</string>
     <string name="mainmenu.quitEinstein.condensed">beendent</string>
-    <string name="Startup.romFileMissing">Newton ROM Datein nicht installiert.</string>
-	<string name="Startup.rexFileMissing">Einstein REX Datei nicht installiert.</string>
+    <string name="Startup.romFileMissing">Newton ROM Datei nicht gefunden.</string>
+	<string name="Startup.rexFileMissing">Einstein REX Datei nicht gefunden.</string>
 	<string name="Startup.expectedPath">Diese Datei muss im Verzeichnis /Downloads/Einstein/ liegen.</string>
 	<string name="Preferences.statusbar.title">Statuszeile anzeigen</string>
 	<string name="Preferences.statusbar.summary">Android Statuszeile anzeigen oder verstecken</string>
