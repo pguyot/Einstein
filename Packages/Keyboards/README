@@ -1,0 +1,21 @@
+This directory contains the source code of the Keyboard package which is
+eventually included into Einstein.rex.
+
+For convenience, Keyboards.pkg binary is included.
+
+The package can be compiled using Newton Toolkit (Mac version).
+
+For this purpose:
+1. Creator codes and file types of text files "Install & Remove.f"
+"KeyboardsDefinitions.f" should be fixed with the following command (on MacOS X)
+
+SetFile -c NTP1 -t TEXT Install\ \&\ Remove.f KeyboardsDefinitions.f
+
+2. Keyboards and Keyboards.rsrc shall be decoded from MacBinary, for example
+with:
+
+macbinary decode Keyboards.bin
+macbinary decode Keyboards.rsrc.bin
+
+You might want to use Basilisk II with NewtDevel image available from UNNA at:
+http://www.unna.org/view.php?/development/NewtonDev
