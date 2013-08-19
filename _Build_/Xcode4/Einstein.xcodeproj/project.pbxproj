@@ -197,6 +197,14 @@
 		C9E848EA11EDCD6C00F27330 /* x86-ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E811EDCD6C00F27330 /* x86-ffi64.c */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cp */; };
 		DA0D96DE11BAD15300835522 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = DA0D96DD11BAD15300835522 /* darwin64.S */; };
+		F11E44B117C2DE9200EB9B4E /* CArrayIterator.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94DD160E48E5009E89C3 /* CArrayIterator.cp */; };
+		F11E44B217C2DE9400EB9B4E /* CDynamicArray.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94DF160E48E5009E89C3 /* CDynamicArray.cp */; };
+		F11E44B317C2DE9800EB9B4E /* TInterpreter.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94DA160E48E5009E89C3 /* TInterpreter.cp */; };
+		F11E44B417C2DE9B00EB9B4E /* Glue.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94D5160E48E5009E89C3 /* Glue.cp */; };
+		F11E44B517C2DE9D00EB9B4E /* Objects.cp in Sources */ = {isa = PBXBuildFile; fileRef = F8847562169F4DE1007CE179 /* Objects.cp */; };
+		F11E44B617C2DEA300EB9B4E /* Globals.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94D3160E48E5009E89C3 /* Globals.cp */; };
+		F11E44B717C2DEE800EB9B4E /* TFibre.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFibre.cp */; };
+		F11E44B817C2DEF100EB9B4E /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */; };
 		F164801A13199758001603BE /* TMacMonitor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F164801813199758001603BE /* TMacMonitor.mm */; };
 		F1CAFB841241F53F00A0382E /* TCoreAudioSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AC111B7C08002165EC /* TCoreAudioSoundManager.cp */; };
@@ -1928,7 +1936,15 @@
 				F1CAFB9A1241F5E700A0382E /* TBufferedSoundManager.cp in Sources */,
 				C901E551132659120074513E /* TCircleBuffer.cp in Sources */,
 				C901E552132659140074513E /* TMappedFile.cp in Sources */,
+				F11E44B817C2DEF100EB9B4E /* TSymbolList.cp in Sources */,
+				F11E44B617C2DEA300EB9B4E /* Globals.cp in Sources */,
 				C9BE33D1133E64F60052EA2F /* TJITPerformance.cp in Sources */,
+				F11E44B217C2DE9400EB9B4E /* CDynamicArray.cp in Sources */,
+				F11E44B517C2DE9D00EB9B4E /* Objects.cp in Sources */,
+				F11E44B717C2DEE800EB9B4E /* TFibre.cp in Sources */,
+				F11E44B417C2DE9B00EB9B4E /* Glue.cp in Sources */,
+				F11E44B317C2DE9800EB9B4E /* TInterpreter.cp in Sources */,
+				F11E44B117C2DE9200EB9B4E /* CArrayIterator.cp in Sources */,
 				F8B76BC6169CAE7100660943 /* newt_string.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
