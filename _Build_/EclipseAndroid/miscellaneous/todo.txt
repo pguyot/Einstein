@@ -1,0 +1,9 @@
+TODO:
+
+normal screens are at least 470dp x 320dp
+small screens are at least 426dp x 320dp
+
+--> Also auf diesen Screens Einstein nicht installieren, weil lt. Paul Grössen < 480x320 nicht funktionieren?
+
+Add layout xml file and work in dp
+
