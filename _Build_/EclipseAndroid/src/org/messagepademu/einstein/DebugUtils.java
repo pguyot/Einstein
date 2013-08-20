@@ -13,36 +13,27 @@ import android.widget.Toast;
 
 import org.messagepademu.einstein.startup.StartupConstants;
 
-/**
- * A small halper class for debugging this app.
- */
+/** A small halper class for debugging this app. */
 public class DebugUtils {
 
-	/**
-	 * Avoid the instatiation of this class.
-	 */
 	private DebugUtils() {
 		// No instances, please
 	}
 
-	/**
-	 * Show a quick message and pause execution for a short moment.
-	 * @param es
-	 * @param text
-	 */
-	public static void debugTextOnScreen(Context es, String text) {
-		Toast.makeText(es, text, Toast.LENGTH_LONG).show();
+	private static File logFile = null;
+	
+	/** Show a quick message and pause execution for a short moment. */
+	public static void debugTextOnScreen(final Context context, final String text) {
+		Toast.makeText(context, text, Toast.LENGTH_LONG).show();
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Log this exception to log file
+			appendLog(e.getMessage());
 		}
 	}
 
-	/**
-	 * Show a message in a dialog and wait for the dialog to be dismissed.
-	 */
-	public static void showInfoDialog(Context context, String text) {
+	/** Shows a message in a dialog and waits for the dialog to be dismissed. */
+	public static void showInfoDialog(final Context context, final String text) {
 		final AlertDialog dialog = new AlertDialog.Builder(context).create();  
 		dialog.setCancelable(false);  
 		dialog.setMessage(text);  
@@ -54,19 +45,16 @@ public class DebugUtils {
 		dialog.show();
 	}
 
-	/** 
-	 * Appends <code>text</code> to the log file. 
-	 */
-	public static void appendLog(String text) {
-		final File logFile = getLogFile();
+	/** Appends <code>text</code> to the log file. */
+	public static void appendLog(final String text) {
 		if (null == logFile) {
-			return;
+			logFile = getLogFile();
 		}
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(logFile, true));
 			bufferedWriter.append(new Date().toGMTString() + ": " + text);
-			bufferedWriter.append("\r\n"); // Add line feed. Do not use buf.newLine() since it'll only add 0A, which doesn't help under Windows
+			bufferedWriter.append("\r\n"); // Add line feed. Do not use buf.newLine() since it'll only add hex 0A, which doesn't help under Windows
 			bufferedWriter.close();
 		}
 		catch (IOException e) {
@@ -84,34 +72,28 @@ public class DebugUtils {
 		}
 	}
 	
-	/** 
-	 * Creates the log file unless it already exists. 
-	 * The log file'noselog.txt will be in the Download\Einstein folder.
-	 */
+	/** Creates and returns a new text file for log output. This file can be found in the folder Download\Einstein. */
 	private static File getLogFile() {
+		if (null != logFile) {
+			return logFile;
+		}
 		final String logFolderName = StartupConstants.DATA_FILE_PATH + File.separator + StartupConstants.LOG_FOLDER;
 		final File logFolder = new File(logFolderName);
 		if (!logFolder.exists()) {
-			final boolean success = logFolder.mkdir();
-			if (!success) {
-				return null;
-			}
+			logFolder.mkdir();
 		}
 		final String logFileName = logFolderName + File.separator + StartupConstants.LOG_FILE_NAME;
-		final File logFile = new File(logFileName);
-		if (!logFile.exists()) {
-			try {
-				final boolean success = logFile.createNewFile();
-				if (!success) {
-					return null;
-				}
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-				return null;
-			}
+		logFile = new File(logFileName);
+		if (logFile.exists()) {
+			logFile.delete();
+		}
+		try {
+			logFile.createNewFile();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+			return null;
 		}
 		return logFile;
 	}
-
 }
