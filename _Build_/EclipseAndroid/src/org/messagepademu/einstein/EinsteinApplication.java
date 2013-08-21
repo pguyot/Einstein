@@ -1,3 +1,5 @@
+// TODO FG Review
+
 package org.messagepademu.einstein;
 
 import android.app.Application;

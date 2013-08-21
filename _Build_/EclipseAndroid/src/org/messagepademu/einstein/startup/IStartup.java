@@ -1,3 +1,5 @@
+// TODO FG Review
+
 package org.messagepademu.einstein.startup;
 
 public interface IStartup {
