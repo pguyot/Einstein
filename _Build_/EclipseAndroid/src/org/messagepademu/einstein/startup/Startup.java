@@ -9,11 +9,11 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 
 import org.messagepademu.einstein.R;
-import org.messagepademu.einstein.constants.StringConstants;
 import org.messagepademu.einstein.startup.IStartup.LoadResult;
 import org.messagepademu.einstein.utils.screen.ScreenDimensionsInitializer;
 
 import com.newtonforever.einstein.utils.DebugUtils;
+import com.newtonforever.einstein.utils.StringUtils;
 
 public class Startup {
 
@@ -30,11 +30,11 @@ public class Startup {
 		final Resources resources = this.activity.getResources();
 		final File dataDir = new File(StartupConstants.DATA_FILE_PATH);
 		dataDir.mkdirs();
-		final String line2 = StringConstants.getLocalizedString(resources, R.string.Startup_expectedPath);
+		final String line2 = StringUtils.getLocalizedString(resources, R.string.Startup_expectedPath);
 		// Make sure we have a ROM file
 		if (!this.romFileAvailable(dataDir)) {
 			DebugUtils.appendLog("Startup.installAssets: ROM file not found");
-			final String line1 = StringConstants.getLocalizedString(resources, R.string.Startup_romFileMissing);
+			final String line1 = StringUtils.getLocalizedString(resources, R.string.Startup_romFileMissing);
 			final String message = line1 + "\n" + line2;
 			DebugUtils.showInfoDialog(activity, message);
 			return LoadResult.ROM_FILE_MISSING;
@@ -42,7 +42,7 @@ public class Startup {
 		// Make sure we have a REX file
 		if (!this.rexFileAvailable(dataDir)) {
 			DebugUtils.appendLog("Startup.installAssets: REX file not found");
-			final String line1 = StringConstants.getLocalizedString(resources, R.string.Startup_rexFileMissing);
+			final String line1 = StringUtils.getLocalizedString(resources, R.string.Startup_rexFileMissing);
 			final String message = line1 + "\n" + line2;
 			DebugUtils.showInfoDialog(activity, message);
 			return LoadResult.REX_FILE_MISSING;
