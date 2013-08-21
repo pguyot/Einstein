@@ -2,7 +2,7 @@
 
 package org.messagepademu.einstein.utils.screen;
 
-import org.missinginandroid.Dimension;
+import com.newtonforever.utils.Dimension;
 
 public class ScreenDimensions {
 	

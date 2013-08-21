@@ -5,7 +5,8 @@ import java.util.Vector;
 import org.messagepademu.einstein.DebugUtils;
 import org.messagepademu.einstein.R;
 import org.messagepademu.einstein.utils.screen.ScreenDimensions;
-import org.missinginandroid.Dimension;
+
+import com.newtonforever.utils.Dimension;
 
 import android.os.Bundle;
 import android.preference.ListPreference;
