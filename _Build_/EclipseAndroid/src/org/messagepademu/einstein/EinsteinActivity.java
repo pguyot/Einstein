@@ -14,6 +14,8 @@ import org.messagepademu.einstein.startup.StartupConstants;
 import org.messagepademu.einstein.utils.screen.ScreenDimensions;
 import org.messagepademu.einstein.utils.screen.ScreenDimensionsInitializer;
 
+import com.newtonforever.einstein.utils.DebugUtils;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

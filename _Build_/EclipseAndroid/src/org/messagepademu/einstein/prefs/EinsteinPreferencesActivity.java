@@ -2,10 +2,10 @@ package org.messagepademu.einstein.prefs;
 
 import java.util.Vector;
 
-import org.messagepademu.einstein.DebugUtils;
 import org.messagepademu.einstein.R;
 import org.messagepademu.einstein.utils.screen.ScreenDimensions;
 
+import com.newtonforever.einstein.utils.DebugUtils;
 import com.newtonforever.einstein.utils.Dimension;
 
 import android.os.Bundle;
