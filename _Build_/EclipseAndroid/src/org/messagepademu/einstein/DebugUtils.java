@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import org.messagepademu.einstein.startup.StartupConstants;
 
-/** A small halper class for debugging this app. */
+/** A small halper class for debugging the Einstein app. @author Frank Gruendel */
 public class DebugUtils {
 
 	private DebugUtils() {
@@ -38,14 +38,15 @@ public class DebugUtils {
 		dialog.setCancelable(false);  
 		dialog.setMessage(text);  
 		dialog.setButton("OK", new DialogInterface.OnClickListener() { 
-			@Override public void onClick(DialogInterface dialog, int which) {
+			@Override 
+			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
 			} 
 		});  
 		dialog.show();
 	}
 
-	/** Appends <code>text</code> to the log file. */
+	/** Appends <code>text</code> to the end of the log file. */
 	public static void appendLog(final String text) {
 		if (null == logFile) {
 			logFile = getLogFile();
@@ -72,7 +73,7 @@ public class DebugUtils {
 		}
 	}
 	
-	/** Creates and returns a new text file for log output. This file can be found in the folder Download\Einstein. */
+	/** Creates and returns an empty text file for log output. This file can be found in the folder Download\Einstein. */
 	private static File getLogFile() {
 		if (null != logFile) {
 			return logFile;
