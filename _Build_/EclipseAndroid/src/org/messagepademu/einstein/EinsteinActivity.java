@@ -411,10 +411,6 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 		ad.show();
 	}
 	
-//	private void startDownload() {
-//		//new DownloadFileAsync(this).execute(URLConstants.SHIP_IMAGE);
-//	}
-	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 	    if ( keyCode == KeyEvent.KEYCODE_MENU ) {
