@@ -41,7 +41,7 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/Emulator/Sound/ \
 	$(LOCAL_PATH)/Emulator/Screen/
 
-LOCAL_LDLIBS    := -llog -ljnigraphics -lOpenSLES
+LOCAL_LDLIBS    := -llog -ljnigraphics
 
 LOCAL_MODULE    := einstein
 
@@ -86,6 +86,7 @@ LOCAL_SRC_FILES := \
 	Emulator/Sound/TBufferedSoundManager.cp \
 	Emulator/Sound/TNullSoundManager.cp \
 	Emulator/Sound/TSoundManager.cp \
+	Monitor/TSymbolList.cp \
 	K/Misc/TCircleBuffer.cp \
 	K/Misc/TMappedFile.cp \
 	K/Streams/TFileStream.cp \
