@@ -1,3 +1,5 @@
+// TODO FG Review
+
 package org.messagepademu.einstein.constants;
 
 import android.content.res.Resources;
