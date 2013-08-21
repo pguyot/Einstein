@@ -7,7 +7,6 @@ import java.util.Timer;
 
 import org.messagepademu.einstein.actions.ActionsActivity;
 import org.messagepademu.einstein.constants.OtherConstants;
-import org.messagepademu.einstein.constants.StringConstants;
 import org.messagepademu.einstein.startup.IStartup.LoadResult;
 import org.messagepademu.einstein.startup.Startup;
 import org.messagepademu.einstein.startup.StartupConstants;
@@ -15,6 +14,7 @@ import org.messagepademu.einstein.utils.screen.ScreenDimensions;
 import org.messagepademu.einstein.utils.screen.ScreenDimensionsInitializer;
 
 import com.newtonforever.einstein.utils.DebugUtils;
+import com.newtonforever.einstein.utils.StringUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -335,7 +335,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 		switch (id) {
 		case OtherConstants.DIALOG_DOWNLOAD_PROGRESS:
 			this.mProgressDialog = new ProgressDialog(this);
-			this.mProgressDialog.setMessage(StringConstants.Einstein_001); // Downloading file..
+			this.mProgressDialog.setMessage(StringUtils.getLocalizedString(this.getResources(), R.string.Startup_downloadingFile));
 			this.mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 			this.mProgressDialog.setCancelable(false);
 			this.mProgressDialog.show();
