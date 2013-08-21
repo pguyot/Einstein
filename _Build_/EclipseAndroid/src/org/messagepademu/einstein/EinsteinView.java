@@ -4,7 +4,7 @@ package org.messagepademu.einstein;
 
 import org.messagepademu.einstein.utils.screen.ScreenDimensions;
 
-import com.newtonforever.utils.Dimension;
+import com.newtonforever.einstein.utils.Dimension;
 
 import android.content.Context;
 import android.graphics.Bitmap;
