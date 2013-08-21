@@ -2,8 +2,8 @@
 
 package org.messagepademu.einstein.utils.screen;
 
-import org.messagepademu.einstein.DebugUtils;
 
+import com.newtonforever.einstein.utils.DebugUtils;
 import com.newtonforever.einstein.utils.Dimension;
 
 import android.app.Activity;

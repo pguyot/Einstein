@@ -8,11 +8,12 @@ import android.app.Activity;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 
-import org.messagepademu.einstein.DebugUtils;
 import org.messagepademu.einstein.R;
 import org.messagepademu.einstein.constants.StringConstants;
 import org.messagepademu.einstein.startup.IStartup.LoadResult;
 import org.messagepademu.einstein.utils.screen.ScreenDimensionsInitializer;
+
+import com.newtonforever.einstein.utils.DebugUtils;
 
 public class Startup {
 

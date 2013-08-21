@@ -1,4 +1,4 @@
-package org.messagepademu.einstein;
+package com.newtonforever.einstein.utils;
 
 import java.io.BufferedWriter;
 import java.io.File;
