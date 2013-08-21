@@ -3,7 +3,8 @@
 package org.messagepademu.einstein;
 
 import org.messagepademu.einstein.utils.screen.ScreenDimensions;
-import org.missinginandroid.Dimension;
+
+import com.newtonforever.utils.Dimension;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -3,7 +3,8 @@
 package org.messagepademu.einstein.utils.screen;
 
 import org.messagepademu.einstein.DebugUtils;
-import org.missinginandroid.Dimension;
+
+import com.newtonforever.utils.Dimension;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
