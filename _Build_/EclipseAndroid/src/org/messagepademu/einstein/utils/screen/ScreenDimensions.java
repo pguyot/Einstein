@@ -2,7 +2,7 @@
 
 package org.messagepademu.einstein.utils.screen;
 
-import com.newtonforever.utils.Dimension;
+import com.newtonforever.einstein.utils.Dimension;
 
 public class ScreenDimensions {
 	

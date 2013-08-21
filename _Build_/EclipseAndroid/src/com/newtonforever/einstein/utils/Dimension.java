@@ -1,7 +1,7 @@
 /** A Dimension class that encapsulates width and height values. This class is here because Android
  * surprisingly does not know the java.awt.Dimension class. */
 
-package com.newtonforever.utils;
+package com.newtonforever.einstein.utils;
  
 public class Dimension {
 	

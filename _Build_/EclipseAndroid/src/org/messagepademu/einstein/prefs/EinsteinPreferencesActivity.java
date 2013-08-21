@@ -6,7 +6,7 @@ import org.messagepademu.einstein.DebugUtils;
 import org.messagepademu.einstein.R;
 import org.messagepademu.einstein.utils.screen.ScreenDimensions;
 
-import com.newtonforever.utils.Dimension;
+import com.newtonforever.einstein.utils.Dimension;
 
 import android.os.Bundle;
 import android.preference.ListPreference;
