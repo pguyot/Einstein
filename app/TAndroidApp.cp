@@ -43,14 +43,14 @@
 #include "Emulator/TMemory.h"
 #include "Log/TLog.h"
 
-#include <SLES/OpenSLES.h>
-#include <SLES/OpenSLES_Android.h>
+//#include <SLES/OpenSLES.h>
+//#include <SLES/OpenSLES_Android.h>
 
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
 
-
+#if 0
 SLObjectItf mEngineObj;
 SLEngineItf mEngine;
 SLObjectItf mOutputMixObj;
@@ -69,7 +69,7 @@ void audio_test() {
 	lRes = slCreateEngine(&mEngineObj, 0, NULL, lEngineMixIIDCount, lEngineMixIIDs, lEngineMixReqs);
 	(*mEngineObj)->Destroy(mEngineObj);
 }
-
+#endif
 
 #if 0
 namespace packt {
@@ -138,7 +138,7 @@ TAndroidApp::TAndroidApp( void )
 	mNewtonID0(0x00004E65),
 	mNewtonID1(0x77746F6E)
 {
-	audio_test();
+//	audio_test();
 }
 
 // -------------------------------------------------------------------------- //

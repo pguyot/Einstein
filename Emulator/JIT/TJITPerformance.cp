@@ -26,7 +26,7 @@
 
 #include "TEmulator.h"
 #include "TInterruptManager.h"
-#include "TSymbolList.h"
+#include "Monitor/TSymbolList.h"
 
 #include <stdarg.h>
 

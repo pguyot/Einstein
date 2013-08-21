@@ -5,5 +5,7 @@ small screens are at least 426dp x 320dp
 
 --> Also auf diesen Screens Einstein nicht installieren, weil lt. Paul Grössen < 480x320 nicht funktionieren?
 
+Matt: but we can render in native Newton Res and then scale the image down to the screen size. Ugly, but works.
+
 Add layout xml file and work in dp
 
