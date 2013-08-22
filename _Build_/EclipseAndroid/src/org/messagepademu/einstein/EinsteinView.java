@@ -13,7 +13,7 @@ import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.View;
 
-class EinsteinView extends View {
+public class EinsteinView extends View {
     private Bitmap mBitmap;
     private Dimension emulatorWindowSize;
     private Rect emulatorWindowBounds;
