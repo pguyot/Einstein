@@ -2,7 +2,7 @@ package com.newtonforever.einstein.utils.screen;
 
 import com.newtonforever.einstein.utils.Dimension;
 
-public class bbla {
+public class ScreenDimensions {
 		
 		/** The width of the host device's screen. This value depends on the screen orientation. */
 		public static int HOST_SCREEN_WIDTH = -1;
