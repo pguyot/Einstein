@@ -3,10 +3,10 @@
 package com.newtonforever.einstein.actions;
 
 import org.messagepademu.einstein.Einstein;
-import org.messagepademu.einstein.EinsteinActivity;
-import org.messagepademu.einstein.EinsteinApplication;
 import org.messagepademu.einstein.R;
 
+import com.newtonforever.einstein.EinsteinActivity;
+import com.newtonforever.einstein.EinsteinApplication;
 import com.newtonforever.einstein.prefs.EinsteinPreferencesActivity;
 
 import android.app.Activity;
