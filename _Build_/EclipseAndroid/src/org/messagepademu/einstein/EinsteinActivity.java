@@ -6,15 +6,11 @@ import java.io.File;
 import java.util.Timer;
 
 import org.messagepademu.einstein.actions.ActionsActivity;
-import org.messagepademu.einstein.constants.OtherConstants;
 import org.messagepademu.einstein.startup.IStartup.LoadResult;
 import org.messagepademu.einstein.startup.Startup;
 import org.messagepademu.einstein.startup.StartupConstants;
 import org.messagepademu.einstein.utils.screen.ScreenDimensions;
 import org.messagepademu.einstein.utils.screen.ScreenDimensionsInitializer;
-
-import com.newtonforever.einstein.utils.DebugUtils;
-import com.newtonforever.einstein.utils.StringUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -35,6 +31,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.newtonforever.einstein.utils.DebugUtils;
+import com.newtonforever.einstein.utils.StringUtils;
+
 
 /**
  * The main user interface to the emulator.
@@ -47,6 +46,10 @@ import android.widget.Toast;
 public class EinsteinActivity extends Activity implements OnSharedPreferenceChangeListener
 {
 	private static EinsteinActivity pInstance = null;
+	
+	// Note that dialog ID values are arbitrary, but need to be unique within the Activity.
+	private static final int DIALOG_DOWNLOAD_PROGRESS_ID = 0;
+
 
 	public static EinsteinActivity getInstance() {
 		return pInstance;
@@ -329,11 +332,11 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 	   // or: onKeyDown(KeyEvent.KEYCODE_HOME); 
 	}
 	*/
-	
+
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
-		case OtherConstants.DIALOG_DOWNLOAD_PROGRESS:
+		case DIALOG_DOWNLOAD_PROGRESS_ID:
 			this.mProgressDialog = new ProgressDialog(this);
 			this.mProgressDialog.setMessage(StringUtils.getLocalizedString(this.getResources(), R.string.Startup_downloadingFile));
 			this.mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
