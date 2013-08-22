@@ -6,7 +6,8 @@ import org.messagepademu.einstein.Einstein;
 import org.messagepademu.einstein.EinsteinActivity;
 import org.messagepademu.einstein.EinsteinApplication;
 import org.messagepademu.einstein.R;
-import org.messagepademu.einstein.prefs.EinsteinPreferencesActivity;
+
+import com.newtonforever.einstein.prefs.EinsteinPreferencesActivity;
 
 import android.app.Activity;
 import android.content.Intent;
