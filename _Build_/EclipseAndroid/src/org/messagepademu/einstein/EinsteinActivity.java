@@ -9,8 +9,6 @@ import org.messagepademu.einstein.actions.ActionsActivity;
 import org.messagepademu.einstein.startup.IStartup.LoadResult;
 import org.messagepademu.einstein.startup.Startup;
 import org.messagepademu.einstein.startup.StartupConstants;
-import org.messagepademu.einstein.utils.screen.ScreenDimensions;
-import org.messagepademu.einstein.utils.screen.ScreenDimensionsInitializer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -33,6 +31,8 @@ import android.widget.Toast;
 
 import com.newtonforever.einstein.utils.DebugUtils;
 import com.newtonforever.einstein.utils.StringUtils;
+import com.newtonforever.einstein.utils.screen.ScreenDimensions;
+import com.newtonforever.einstein.utils.screen.ScreenDimensionsInitializer;
 
 
 /**

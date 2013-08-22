@@ -3,10 +3,10 @@ package org.messagepademu.einstein.prefs;
 import java.util.Vector;
 
 import org.messagepademu.einstein.R;
-import org.messagepademu.einstein.utils.screen.ScreenDimensions;
 
 import com.newtonforever.einstein.utils.DebugUtils;
 import com.newtonforever.einstein.utils.Dimension;
+import com.newtonforever.einstein.utils.screen.ScreenDimensions;
 
 import android.os.Bundle;
 import android.preference.ListPreference;
