@@ -10,7 +10,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.messagepademu.einstein.EinsteinActivity;
+import com.newtonforever.einstein.EinsteinActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
