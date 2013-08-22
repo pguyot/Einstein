@@ -2,7 +2,7 @@
 
 package org.messagepademu.einstein;
 
-import org.messagepademu.einstein.actions.ActionsActivity;
+import com.newtonforever.einstein.actions.ActionsActivity;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
