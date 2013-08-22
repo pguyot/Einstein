@@ -29,8 +29,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.newtonforever.einstein.utils.DebugUtils;
 import com.newtonforever.einstein.utils.StringUtils;
+import com.newtonforever.einstein.utils.debug.DebugUtils;
 import com.newtonforever.einstein.utils.screen.ScreenDimensions;
 import com.newtonforever.einstein.utils.screen.ScreenDimensionsInitializer;
 

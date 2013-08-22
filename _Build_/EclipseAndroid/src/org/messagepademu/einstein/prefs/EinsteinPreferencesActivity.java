@@ -4,8 +4,8 @@ import java.util.Vector;
 
 import org.messagepademu.einstein.R;
 
-import com.newtonforever.einstein.utils.DebugUtils;
 import com.newtonforever.einstein.utils.Dimension;
+import com.newtonforever.einstein.utils.debug.DebugUtils;
 import com.newtonforever.einstein.utils.screen.ScreenDimensions;
 
 import android.os.Bundle;

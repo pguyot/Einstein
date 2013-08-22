@@ -1,4 +1,4 @@
-package com.newtonforever.einstein.utils;
+package com.newtonforever.einstein.utils.debug;
 
 import java.io.BufferedWriter;
 import java.io.File;

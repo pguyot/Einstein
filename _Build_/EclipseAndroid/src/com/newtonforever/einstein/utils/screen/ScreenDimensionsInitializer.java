@@ -3,8 +3,8 @@
 package com.newtonforever.einstein.utils.screen;
 
 
-import com.newtonforever.einstein.utils.DebugUtils;
 import com.newtonforever.einstein.utils.Dimension;
+import com.newtonforever.einstein.utils.debug.DebugUtils;
 
 import android.app.Activity;
 import android.content.SharedPreferences;

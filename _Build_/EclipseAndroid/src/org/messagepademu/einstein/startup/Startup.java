@@ -11,8 +11,8 @@ import android.content.res.Resources;
 import org.messagepademu.einstein.R;
 import org.messagepademu.einstein.startup.IStartup.LoadResult;
 
-import com.newtonforever.einstein.utils.DebugUtils;
 import com.newtonforever.einstein.utils.StringUtils;
+import com.newtonforever.einstein.utils.debug.DebugUtils;
 import com.newtonforever.einstein.utils.screen.ScreenDimensionsInitializer;
 
 public class Startup {
