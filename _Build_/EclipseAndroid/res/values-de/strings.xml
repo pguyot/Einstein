@@ -24,4 +24,5 @@
     <string name="Preferences.refreshrate.summary">"Eine schnellere Bildschirmanzeige benötigt mehr Batterie und eine schnellere CPU"</string>
 	<string name="Preferences.newtonid.title">"Newton ID"</string>
     <string name="Preferences.newtonid.summary">"Ändert die Seriennummer (16 Hexadezimalstellen - Neustart nötig)"</string>
+    <string name="Startup.downloadingFile">Datei wird geladen...</string>
 </resources>

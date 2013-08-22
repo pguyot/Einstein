@@ -24,4 +24,5 @@
     <string name="Preferences.refreshrate.summary">"A faster screen refresh rate uses more power and requires a faster CPU"</string>
 	<string name="Preferences.newtonid.title">"Newton ID"</string>
     <string name="Preferences.newtonid.summary">"Set the Newton Serial Number (enter 16 hex digits - reboot required)"</string>
+    <string name="Startup.downloadingFile">Downloading file...</string>
 </resources>
