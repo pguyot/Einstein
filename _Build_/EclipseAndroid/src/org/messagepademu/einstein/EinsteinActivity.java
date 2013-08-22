@@ -5,9 +5,6 @@ package org.messagepademu.einstein;
 import java.io.File;
 import java.util.Timer;
 
-import org.messagepademu.einstein.startup.IStartup.LoadResult;
-import org.messagepademu.einstein.startup.Startup;
-import org.messagepademu.einstein.startup.StartupConstants;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -29,6 +26,9 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.newtonforever.einstein.actions.ActionsActivity;
+import com.newtonforever.einstein.startup.Startup;
+import com.newtonforever.einstein.startup.StartupConstants;
+import com.newtonforever.einstein.startup.IStartup.LoadResult;
 import com.newtonforever.einstein.utils.StringUtils;
 import com.newtonforever.einstein.utils.debug.DebugUtils;
 import com.newtonforever.einstein.utils.screen.ScreenDimensions;

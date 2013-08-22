@@ -11,7 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.widget.Toast;
 
-import org.messagepademu.einstein.startup.StartupConstants;
+import com.newtonforever.einstein.startup.StartupConstants;
 
 /** A small halper class for debugging the Einstein app. @author Frank Gruendel */
 public class DebugUtils {

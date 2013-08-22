@@ -1,6 +1,6 @@
 // TODO FG Review
 
-package org.messagepademu.einstein.startup;
+package com.newtonforever.einstein.startup;
 
 import java.io.File;
 
@@ -9,8 +9,8 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 
 import org.messagepademu.einstein.R;
-import org.messagepademu.einstein.startup.IStartup.LoadResult;
 
+import com.newtonforever.einstein.startup.IStartup.LoadResult;
 import com.newtonforever.einstein.utils.StringUtils;
 import com.newtonforever.einstein.utils.debug.DebugUtils;
 import com.newtonforever.einstein.utils.screen.ScreenDimensionsInitializer;
