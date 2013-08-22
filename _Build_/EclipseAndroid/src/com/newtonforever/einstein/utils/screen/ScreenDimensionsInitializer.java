@@ -53,10 +53,10 @@ public class ScreenDimensionsInitializer {
 		// Could someone please tell me why getMetrics doesn't return a DisplayMetrics object? Hgrmpff...
 		final DisplayMetrics metrics = new DisplayMetrics();
 		windowManager.getDefaultDisplay().getMetrics(metrics);
-		bbla.HOST_SCREEN_WIDTH = metrics.widthPixels;
-		bbla.HOST_SCREEN_HEIGHT = metrics.heightPixels;
-		bbla.HOST_SCREEN_SIZE = new Dimension(metrics.widthPixels, metrics.heightPixels);
-		DebugUtils.appendLog("ScreenDimensionInitializer.initHostScreenDimensions: Host screen size is " + bbla.HOST_SCREEN_SIZE );
+		ScreenDimensions.HOST_SCREEN_WIDTH = metrics.widthPixels;
+		ScreenDimensions.HOST_SCREEN_HEIGHT = metrics.heightPixels;
+		ScreenDimensions.HOST_SCREEN_SIZE = new Dimension(metrics.widthPixels, metrics.heightPixels);
+		DebugUtils.appendLog("ScreenDimensionInitializer.initHostScreenDimensions: Host screen size is " + ScreenDimensions.HOST_SCREEN_SIZE );
     }
     
     /** Initializes the host screen dimensions. */
@@ -71,10 +71,10 @@ public class ScreenDimensionsInitializer {
 		final int endPosition = sh.indexOf(" ");
 		if (endPosition!=-1) sh = sh.substring(0, endPosition);
 		DebugUtils.appendLog("ScreenDimensionInitializer.initNewtonScreenDimensions: Height got from preference string is " + sh);		
-		bbla.NEWTON_SCREEN_WIDTH = Integer.valueOf(sw);
-		bbla.NEWTON_SCREEN_HEIGHT = Integer.valueOf(sh);
-		bbla.NEWTON_SCREEN_SIZE = new Dimension(bbla.NEWTON_SCREEN_WIDTH, bbla.NEWTON_SCREEN_HEIGHT);
-		DebugUtils.appendLog("ScreenDimensionInitializer.initNewtonScreenDimensions: Newton window size is " + bbla.NEWTON_SCREEN_SIZE );
+		ScreenDimensions.NEWTON_SCREEN_WIDTH = Integer.valueOf(sw);
+		ScreenDimensions.NEWTON_SCREEN_HEIGHT = Integer.valueOf(sh);
+		ScreenDimensions.NEWTON_SCREEN_SIZE = new Dimension(ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
+		DebugUtils.appendLog("ScreenDimensionInitializer.initNewtonScreenDimensions: Newton window size is " + ScreenDimensions.NEWTON_SCREEN_SIZE );
     }
 
 }
