@@ -4,8 +4,6 @@ package com.newtonforever.einstein;
 
 import java.util.TimerTask;
 
-import org.messagepademu.einstein.EinsteinView;
-import org.messagepademu.einstein.Einstein;
 
 class ScreenRefresh extends TimerTask {
 

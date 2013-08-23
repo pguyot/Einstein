@@ -1,5 +1,5 @@
 // TODO FG Review
-package org.messagepademu.einstein;
+package com.newtonforever.einstein;
 
 //TODO FG Review
 

@@ -5,8 +5,6 @@ package com.newtonforever.einstein;
 import java.io.File;
 import java.util.Timer;
 
-import org.messagepademu.einstein.Einstein;
-import org.messagepademu.einstein.EinsteinView;
 import org.messagepademu.einstein.R;
 
 import android.app.Activity;

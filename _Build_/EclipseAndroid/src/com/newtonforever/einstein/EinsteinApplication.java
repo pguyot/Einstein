@@ -2,7 +2,6 @@
 
 package com.newtonforever.einstein;
 
-import org.messagepademu.einstein.Einstein;
 
 import android.app.Application;
 import android.content.ComponentName;
