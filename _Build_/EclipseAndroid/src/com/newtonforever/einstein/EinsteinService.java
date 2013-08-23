@@ -3,7 +3,6 @@
 package com.newtonforever.einstein;
 
 import org.messagepademu.einstein.R;
-import org.messagepademu.einstein.R.drawable;
 
 import com.newtonforever.einstein.actions.ActionsActivity;
 
