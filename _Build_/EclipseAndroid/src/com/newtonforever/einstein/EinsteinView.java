@@ -1,6 +1,6 @@
 // TODO FG Review
 
-package org.messagepademu.einstein;
+package com.newtonforever.einstein;
 
 
 import com.newtonforever.einstein.utils.Dimension;

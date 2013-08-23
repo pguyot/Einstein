@@ -2,9 +2,9 @@
 
 package com.newtonforever.einstein.actions;
 
-import org.messagepademu.einstein.Einstein;
 import org.messagepademu.einstein.R;
 
+import com.newtonforever.einstein.Einstein;
 import com.newtonforever.einstein.EinsteinActivity;
 import com.newtonforever.einstein.EinsteinApplication;
 import com.newtonforever.einstein.prefs.EinsteinPreferencesActivity;
