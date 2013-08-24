@@ -94,14 +94,14 @@ void JNI_OnUnload(JavaVM*, void*)
 /* This is a trivial JNI example where we use a native method
  * to return a new VM String. 
  */
-JNIEXPORT jstring JNICALL Java_org_messagepademu_einstein_Einstein_stringFromJNI( JNIEnv* env, jobject thiz )
+JNIEXPORT jstring JNICALL Java_com_newtonforever_einstein_Einstein_stringFromJNI( JNIEnv* env, jobject thiz )
 {
     if (theLog) theLog->FLogLine("Testing Android %s. Seems fine so far!", "NDK");
     return env->NewStringUTF("This is the Einstein native interface (5)!");
 }
 
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_initEmulator( JNIEnv* env, jobject thiz, jstring logPath )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_initEmulator( JNIEnv* env, jobject thiz, jstring logPath )
 {
 	jboolean isCopy;
 	
@@ -128,7 +128,7 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_initEmulator( JN
 }
 
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_runEmulator( JNIEnv* env, jobject thiz, jstring dataPath, jint screenWidth, jint screenHeight )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_runEmulator( JNIEnv* env, jobject thiz, jstring dataPath, jint screenWidth, jint screenHeight )
 {
 	jboolean isCopy;
 	const char *cDataPath = env->GetStringUTFChars(dataPath, &isCopy);
@@ -138,28 +138,28 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_runEmulator( JNI
 }
 
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_stopEmulator( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_stopEmulator( JNIEnv* env, jobject thiz )
 {
 	if (theLog) theLog->LogLine("stopEmulator");
 	if (theApp) theApp->Stop();
 }
 
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_powerOnEmulator( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_powerOnEmulator( JNIEnv* env, jobject thiz )
 {
 	if (theLog) theLog->LogLine("powerOnEmulator");
 	if (theApp) theApp->PowerOn();
 }
 
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_powerOffEmulator( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_powerOffEmulator( JNIEnv* env, jobject thiz )
 {
 	if (theLog) theLog->LogLine("powerOffEmulator");
 	if (theApp) theApp->PowerOff();
 }
 
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_sendPowerSwitchEvent( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_sendPowerSwitchEvent( JNIEnv* env, jobject thiz )
 {
 	if (theLog) theLog->LogLine("powerEvent");
 	if (theApp) {
@@ -168,20 +168,20 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_sendPowerSwitchE
 }
 
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_rebootEmulator( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_rebootEmulator( JNIEnv* env, jobject thiz )
 {
 	if (theLog) theLog->LogLine("reboot");
 	if (theApp) theApp->reboot();
 }
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_changeScreenSize( JNIEnv* env, jobject thiz, jint w, jint h )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_changeScreenSize( JNIEnv* env, jobject thiz, jint w, jint h )
 {
 	if (theLog) theLog->LogLine("changeScreenSize");
 	if (theApp) theApp->ChangeScreenSize(w, h);
 }
 
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_EinsteinView_penDown( JNIEnv* env, jobject thiz, jint x, jint y )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_EinsteinView_penDown( JNIEnv* env, jobject thiz, jint x, jint y )
 {
 	if (theApp) {
 		TScreenManager *tsm = theApp->getScreenManager();
@@ -202,7 +202,7 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_EinsteinView_penDown( JNI
 }
 
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_EinsteinView_penUp( JNIEnv* env, jobject thiz)
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_EinsteinView_penUp( JNIEnv* env, jobject thiz)
 {
 	if (theApp) {
 		TScreenManager *tsm = theApp->getScreenManager();
@@ -226,7 +226,7 @@ void callScreenInvalidate()
 }
 */
 
-JNIEXPORT jint JNICALL Java_org_messagepademu_einstein_EinsteinView_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap)
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_EinsteinView_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap)
 {
 /*	
 	if (!tasmClass) {
@@ -268,7 +268,7 @@ JNIEXPORT jint JNICALL Java_org_messagepademu_einstein_EinsteinView_renderEinste
 }
 
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_toggleNetworkCard( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_toggleNetworkCard( JNIEnv* env, jobject thiz )
 {
 	if (theLog) theLog->FLogLine("Toggle Network Card");
 	if (theApp) {
@@ -279,7 +279,7 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_toggleNetworkCar
 }
 
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_setNewtonID( JNIEnv* env, jobject thiz, jstring jID )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_setNewtonID( JNIEnv* env, jobject thiz, jstring jID )
 {
 	if (theApp) {
 		jboolean isCopy;
@@ -292,7 +292,7 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_setNewtonID( JNI
 }
 
 
-JNIEXPORT jint JNICALL Java_org_messagepademu_einstein_Einstein_screenIsDirty( JNIEnv* env, jobject thiz )
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Einstein_screenIsDirty( JNIEnv* env, jobject thiz )
 {
 	int ret = 0;
 	if (theApp)
@@ -303,7 +303,7 @@ JNIEXPORT jint JNICALL Java_org_messagepademu_einstein_Einstein_screenIsDirty( J
 }
 
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_setBacklight( JNIEnv* env, jobject thiz, jint v )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_setBacklight( JNIEnv* env, jobject thiz, jint v )
 {
 	if (theApp) {
 		TScreenManager *tsm = theApp->getScreenManager();
@@ -314,7 +314,7 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_setBacklight( JN
 }
 
 
-JNIEXPORT jint JNICALL Java_org_messagepademu_einstein_Einstein_backlightIsOn( JNIEnv* env, jobject thiz )
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Einstein_backlightIsOn( JNIEnv* env, jobject thiz )
 {
 	if (theApp) {
 		TScreenManager *tsm = theApp->getScreenManager();
@@ -325,14 +325,14 @@ JNIEXPORT jint JNICALL Java_org_messagepademu_einstein_Einstein_backlightIsOn( J
 	return -1;
 }
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_installNewPackages( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_installNewPackages( JNIEnv* env, jobject thiz )
 {
 	if (theApp) {
 		theApp->getPlatformManager()->InstallNewPackages();
 	}
 }
 
-JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_installPackage( JNIEnv* env, jobject thiz, jstring filename )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_installPackage( JNIEnv* env, jobject thiz, jstring filename )
 {
 	if (theApp) {
 		jboolean isCopy;
@@ -342,7 +342,7 @@ JNIEXPORT void JNICALL Java_org_messagepademu_einstein_Einstein_installPackage( 
 	}
 }
 
-JNIEXPORT jint JNICALL Java_org_messagepademu_einstein_Einstein_isPowerOn( JNIEnv* env, jobject thiz )
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Einstein_isPowerOn( JNIEnv* env, jobject thiz )
 {
 	if (theApp) {
 		return theApp->IsPowerOn();
