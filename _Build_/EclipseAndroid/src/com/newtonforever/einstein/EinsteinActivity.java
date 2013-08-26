@@ -1,5 +1,4 @@
 // TODO FG Review
-
 package com.newtonforever.einstein;
 
 import java.io.File;

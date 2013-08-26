@@ -11,14 +11,14 @@ import android.util.Log;
 /*
  * EinsteinApplication manages Einstein (the native interface to the emulator) and EinsteinService, 
  * a notification manager that keeps the emulator alive when there is no more activity. 
- * EinsteinService also give access to the ActionsActivity, a rplacement for the now vanished
+ * EinsteinService also give access to the ActionsActivity, a replacement for the now vanished
  * hardware context menu button.
  * 
  * EinsteinActivity is the main activity that should always be the lowest on the stack.
  * 
  * The EinsteinActivity can open the ActionActivity by either pressing the menu button, 
  * by tapping the Service notification, or by tapping an item in the NewtonOS 
- * Extras Folder menu (todo).
+ * Extras Folder menu (// TODO).
  * 
  * ActionActivity renders as a popup window and provides quick access to a variety of actions
  * that otherwise would be done by handling the MessagePad hardware. The current list includes
@@ -27,12 +27,12 @@ import android.util.Log;
  *   - install packages (this action has no good interface yet)
  *   
  * There are a number of administrative actions as well:
- *   - quit the emulator (this merely quits the service and puts the main activity in the background. quitting the emulator itself is left to Android)
+ *   - quit the emulator (this merely quits the service and puts the main activity in the background. Quitting the emulator itself is left to Android)
  *   - back to the emulator (may be useful if opened through the notification, but it would be better to just cancel the activity to go back!)
  *   - call the preferences activity (this is another big dialog that we provide)
  *   * we may need to offer various kinds of resets and reboots, inserting a Flash card, connecting a serial cord, etc... .
  *   
- *  EinsteinPreferencesAction provides some settings that are useful (or not so useful) to remeber between 
+ *  EinsteinPreferencesAction provides some settings that are useful (or not so useful) to remember between 
  *  launches, most prominently the screen resolution and orientation, visibility of the Android status bar, 
  *  and the permanent availability of the network card. Most of these settings will require a reboot of the 
  *  emulator, directly offering that to the user.
