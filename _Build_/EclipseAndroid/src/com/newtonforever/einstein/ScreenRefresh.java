@@ -3,15 +3,15 @@ package com.newtonforever.einstein;
 
 import java.util.TimerTask;
 
+import com.newtonforever.einstein.jni.Native;
+
 class ScreenRefresh extends TimerTask {
 
-	private final Einstein einstein;
 	private final EinsteinView einsteinView;
 	int cc = 0;
 
 	public ScreenRefresh(Einstein e, EinsteinView ev) {
-		einstein = e;
-		einsteinView = ev;
+		this.einsteinView = ev;
 	}
 
 	@Override
@@ -24,7 +24,7 @@ class ScreenRefresh extends TimerTask {
 			cc = 0;
 			//Log.i("ScreenRefresh", "Tick");
 		}
-		if (0 != einstein.screenIsDirty()) {
+		if (0 != Native.screenIsDirty()) {
 			einsteinView.postInvalidate();
 			//Log.i("ScreenRefresh", "Drawing");
 		}

@@ -4,11 +4,6 @@ package com.newtonforever.einstein.actions;
 
 import org.messagepademu.einstein.R;
 
-import com.newtonforever.einstein.Einstein;
-import com.newtonforever.einstein.EinsteinActivity;
-import com.newtonforever.einstein.EinsteinApplication;
-import com.newtonforever.einstein.prefs.EinsteinPreferencesActivity;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +11,11 @@ import android.support.v4.content.IntentCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+
+import com.newtonforever.einstein.EinsteinActivity;
+import com.newtonforever.einstein.EinsteinApplication;
+import com.newtonforever.einstein.jni.Native;
+import com.newtonforever.einstein.prefs.EinsteinPreferencesActivity;
 
 public class ActionsActivity extends Activity {
 
@@ -48,27 +48,21 @@ public class ActionsActivity extends Activity {
 	}
 
 	public void onClickInstallPackages(View v) {
-		EinsteinApplication app = (EinsteinApplication)getApplication();
-		Einstein einstein = app.getEinstein();
-		einstein.installNewPackages();
+		Native.installNewPackages();
 		backToEinstein(v);
 	}
 
 	public void onClickInsertNetworkCard(View v) {
-		EinsteinApplication app = (EinsteinApplication)getApplication();
-		Einstein einstein = app.getEinstein();
-		einstein.toggleNetworkCard();
+		Native.toggleNetworkCard();
 		backToEinstein(v);
 	}
 
 	public void onClickBacklight(View v) {
 		// FIXME: this does not toggle the light, only switches it on. Somehow the backlight state is not not retained when the activity changes
-		EinsteinApplication app = (EinsteinApplication)getApplication();
-		Einstein einstein = app.getEinstein();
-		if (einstein.backlightIsOn()==1)
-			einstein.setBacklight(0);
+		if (Native.backlightIsOn()==1)
+			Native.setBacklight(0);
 		else
-			einstein.setBacklight(1);
+			Native.setBacklight(1);
 		backToEinstein(v);
 	}
 
@@ -83,8 +77,7 @@ public class ActionsActivity extends Activity {
 		// FIXME: stop emulator
 		Log.e("ACTION", "onClickQuitEinstein");
 		EinsteinApplication app = (EinsteinApplication)getApplication();
-		Einstein einstein = app.getEinstein();
-		einstein.powerOffEmulator();
+		Native.powerOffEmulator();
 		app.normalPriority();
 	    Intent intent = new Intent(v.getContext(), EinsteinActivity.class);
 	    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);

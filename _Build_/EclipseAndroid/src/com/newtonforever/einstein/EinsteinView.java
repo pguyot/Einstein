@@ -1,14 +1,15 @@
 package com.newtonforever.einstein;
 
-import com.newtonforever.einstein.utils.Dimension;
-import com.newtonforever.einstein.utils.screen.ScreenDimensions;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.newtonforever.einstein.jni.Native;
+import com.newtonforever.einstein.utils.Dimension;
+import com.newtonforever.einstein.utils.screen.ScreenDimensions;
 
 public class EinsteinView extends View {
 	private Bitmap mBitmap;
@@ -30,7 +31,7 @@ public class EinsteinView extends View {
 		// Copy the NewtonOS screen content from the emulated RAM into mBitmap. Both have the same resolution,
 		// but different color formats. NewtonOS uses grey nibbles (4 bit per color). We requested RGB_565 on
 		// the Android side (16 bit per color).
-		renderEinsteinView(mBitmap);
+		Native.renderEinsteinView(mBitmap);
 		// Request the Android display size minus some Android components like the Android status bar, if it is visible.
 		super.getDrawingRect(dstRect);
 		// TODO MM Ein Rechteck namens newtonScreenBounds gibt es im ganzen Projekt nicht. Muss dieser Kommentar angepasst werden?
@@ -54,11 +55,11 @@ public class EinsteinView extends View {
 				this.getDrawingRect(dstRect);
 				final int x = (int)(ev.getX()*this.emulatorWindowSize.width/dstRect.width());
 				final int y = (int)(ev.getY()*this.emulatorWindowSize.height/dstRect.height());
-				penDown(x, y);
+				Native.penDown(x, y);
 			break;
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
-				penUp();
+				Native.penUp();
 			break;
 		}
 		return true;
@@ -72,13 +73,4 @@ public class EinsteinView extends View {
 		this.mBitmap = Bitmap.createBitmap(emulatorWindowSize.width, emulatorWindowSize.height, Bitmap.Config.RGB_565);
 		this.emulatorWindowBounds = new Rect(0, 0, this.emulatorWindowSize.width, this.emulatorWindowSize.height);
 	}
-
-	/** Sends refresh requests */
-	private static native int renderEinsteinView(Bitmap bitmap);
-
-	/** Sends a pen down event. */
-	public native void penDown(int x, int y);
-
-	/** Sends a pen down event. */
-	public native void penUp();   
 }

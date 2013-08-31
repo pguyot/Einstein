@@ -26,6 +26,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.newtonforever.einstein.actions.ActionsActivity;
+import com.newtonforever.einstein.jni.Native;
 import com.newtonforever.einstein.startup.IStartup.LoadResult;
 import com.newtonforever.einstein.startup.Startup;
 import com.newtonforever.einstein.startup.StartupConstants;
@@ -47,9 +48,8 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 {
 	private static EinsteinActivity pInstance = null;
 	
-	// Note that dialog ID values are arbitrary, but need to be unique within the Activity.
+	// Be aware that dialog ID values are arbitrary, but need to be unique within the Activity.
 	private static final int DIALOG_DOWNLOAD_PROGRESS_ID = 0;
-
 
 	public static EinsteinActivity getInstance() {
 		return pInstance;
@@ -106,7 +106,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 		
 		if (!pEinstein.isRunning()) {
 			// Initialize emulator
-			pEinstein.initEmulator("CONSOLE");
+			Native.initEmulator("CONSOLE");
 		}
 		
 		// Create view
@@ -126,7 +126,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 			// wake up
 		} else {
 			String id = this.sharedPrefs.getString("newtonid", "00004E6577746F6E");
-			pEinstein.setNewtonID(id);
+			Native.setNewtonID(id);
 			pEinstein.run(StartupConstants.DATA_FILE_PATH, ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
 			Toast.makeText(getApplicationContext(), "Booting Einstein", Toast.LENGTH_LONG).show();		
 		}
@@ -157,7 +157,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 		super.onResume();
 		int rate = Integer.valueOf(this.sharedPrefs.getString("screenrefreshrate", "10"));
 		startScreenRefresh(rate);
-		pEinstein.powerOnEmulator();
+		Native.powerOnEmulator();
 	}
 
 	@Override
@@ -169,7 +169,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 	    }
 		String file = intent.getStringExtra("FILE"); 
 		if (file!=null) {
-			pEinstein.installPackage(file);
+			Native.installPackage(file);
 			intent.removeExtra("FILE");
 		}
 	}
@@ -202,7 +202,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 		// To really stop them one has to use the Android Settings Manager.
 		Log.e("XXXX", ">>>>>>>>>> onDestroy()");
 		//pEinstein.stopEmulator();
-		pEinstein.powerOffEmulator();
+		Native.powerOffEmulator();
 		stopScreenRefresh();	
 		
 	    //Intent intent = new Intent(EinsteinService.class.getName());
@@ -272,9 +272,9 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 			//DebugUtils.debugTextOnScreen(this, "Screen resolution changed");
 			stopScreenRefresh();
 			// Send the emulator to sleep so that everything ist saved
-			if (pEinstein.isPowerOn()!=0) {
-				pEinstein.sendPowerSwitchEvent();;
-				while (pEinstein.isPowerOn()!=0) {
+			if (Native.isPowerOn()!=0) {
+				Native.sendPowerSwitchEvent();;
+				while (Native.isPowerOn()!=0) {
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
@@ -283,12 +283,12 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 				}
 			}
 			ScreenDimensionsInitializer.initNewtonScreenDimensions(this);
-			pEinstein.changeScreenSize(ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
+			Native.changeScreenSize(ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
 			pEinsteinView.updateDimensions();
 			Toast.makeText(getApplicationContext(), "Rebooting NewtonOS", Toast.LENGTH_LONG).show();		
-			pEinstein.rebootEmulator();
-			pEinstein.powerOnEmulator();
-			while (pEinstein.isPowerOn()==0) {
+			Native.rebootEmulator();
+			Native.powerOnEmulator();
+			while (Native.isPowerOn()==0) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
