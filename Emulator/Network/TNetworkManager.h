@@ -34,6 +34,7 @@ class TThread;
 class TMutex;
 class TCondVar;
 
+
 ///
 /// Emulation of a PCMCIA network card on PCMCIA driver level (see Lantern)
 ///
@@ -97,7 +98,7 @@ public:
 	/// This number is polled on a regular base. If no block is available,
 	/// return 0. If a block of data is waiting, return the size of the raw
 	/// ethernet datagram. Do not split blocks of data unless you create a
-	/// complete rwa ethernet datagramm for each of them.	
+	/// complete raw ethernet datagramm for each of them.	
 	///
 	/// \return the number of bytes in the first block that is available for the Newton
 	///
@@ -105,7 +106,7 @@ public:
 	
 	///
 	/// Newton receives a block of data.
-	/// Copy the block that was received from the outside world int this buffer.
+	/// Copy the block that was received from the outside world into this buffer.
 	/// The Newton expects a raw ethernet datagramm. The size will always be
 	/// whatever the menager returned in a previous call to DataAvailable().
 	///
@@ -175,6 +176,7 @@ private:
 	fd_set				mSelectSet;
 };
 
+
 class TNullNetwork : public TNetworkManager
 {
 public:
@@ -185,6 +187,7 @@ public:
 	virtual KUInt32 DataAvailable() { return 0; }
 	virtual int ReceiveData(KUInt8 *data, KUInt32 size) { return -1; }
 };
+
 
 #endif
 		// _TNETWORKMANAGER_H

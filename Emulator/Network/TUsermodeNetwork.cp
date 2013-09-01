@@ -82,8 +82,7 @@
   - TCP send
   - TCP receive
 
- Newton Synchronization happens on port: TCP 3679 (use NCX to test)
- 
+ Newton Synchronization happens on port: TCP 3679 (works mostly well with NCX 2.0)
  
  */
 
@@ -95,12 +94,15 @@
 // Handle all kinds of network packages
 //
 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
+
 
 #ifdef __ANDROID__
 # include <stdio.h>
@@ -1033,6 +1035,34 @@ public:
 };
 
 
+		void GetPrimaryIp(char* buffer, size_t buflen)
+		{
+			assert(buflen >= 16);
+
+			int sock = socket(AF_INET, SOCK_DGRAM, 0);
+			assert(sock != -1);
+
+			const char* kGoogleDnsIp = "8.8.8.8";
+			uint16_t kDnsPort = 53;
+			struct sockaddr_in serv;
+			memset(&serv, 0, sizeof(serv));
+			serv.sin_family = AF_INET;
+			serv.sin_addr.s_addr = inet_addr(kGoogleDnsIp);
+			serv.sin_port = htons(kDnsPort);
+
+			int err = connect(sock, (const sockaddr*) &serv, sizeof(serv));
+			assert(err != -1);
+
+			sockaddr_in name;
+			socklen_t namelen = sizeof(name);
+			err = getsockname(sock, (sockaddr*) &name, &namelen);
+			assert(err != -1);
+
+			const char* p = inet_ntop(AF_INET, &name.sin_addr, buffer, buflen);
+			assert(p);
+
+			close(sock);
+		}
 
 /**
  * This class handles ARP packets.
@@ -1055,22 +1085,83 @@ public:
 	 * \return -1 if an error occurred an no other handler should handle this packet
 	 * \see man 3 getaddrinfo()
 	 */
-	static int canHandle(Packet &packet, TUsermodeNetwork *net) {
+	static int canHandle(Packet &packet, TUsermodeNetwork *net)
+	{
+		char buf[1024];
+		GetPrimaryIp(buf, 1023);
+		printf("My primary IP seems to be %s\n", buf);
+//		void GetPrimaryIp(char* buffer, size_t buflen)
+//		{
+//			assert(buflen >= 16);
+//			
+//			int sock = socket(AF_INET, SOCK_DGRAM, 0);
+//			assert(sock != -1);
+//			
+//			const char* kGoogleDnsIp = "8.8.8.8";
+//			uint16_t kDnsPort = 53;
+//			struct sockaddr_in serv;
+//			memset(&serv, 0, sizeof(serv));
+//			serv.sin_family = AF_INET;
+//			serv.sin_addr.s_addr = inet_addr(kGoogleDnsIp);
+//			serv.sin_port = htons(kDnsPort);
+//			
+//			int err = connect(sock, (const sockaddr*) &serv, sizeof(serv));
+//			assert(err != -1);
+//			
+//			sockaddr_in name;
+//			socklen_t namelen = sizeof(name);
+//			err = getsockname(sock, (sockaddr*) &name, &namelen);
+//			assert(err != -1);
+//			
+//			const char* p = inet_ntop(AF_INET, &name.sin_addr, buffer, buflen);
+//			assert(p);
+//			
+//			close(sock);
+//		}
+// then continue from here with getifaddrs or man networking and ioctl
+// ioctl(<socketfd>, SIOCGIFCONF, (struct ifconf)&buffer);
+// gethostname() to find the name of the router?
+// ioctl(sockfd, SIOCGIFCONF, (char *)&ifc
+//		struct sockaddr_dl *sdl = (struct sockaddr_dl *)&ifr->ifr_addr;
+//		strcpy(temp, (char *)ether_ntoa(LLADDR(sdl)));
+// http://iphonedevsdk.com/forum/iphone-sdk-development/5293-get-current-ip-address.html
+		
+//		1) struct ifreq ifr; struct sockaddr_in saddr;
+//		2) fd=socket(PF_INET,SOCK_STREAM,0)
+//		3) strcpy(ifr.ifr_name,"name of interface");
+//		4) ioctl(fd,SIOCGIFADDR,&ifr);
+//		5) saddr=*((struct sockaddr_in *)(&(ifr.ifr_addr))); /* is the address
+//															  */
+//		6) saddr.sin_addr.s_addr is the address of the interface in integer
+//		format
+		
 		if ( packet.GetType() != Packet::NetTypeIP )
 			return 0;
 		if ( packet.GetIPProtocol() != Packet::IPProtocolUDP )
 			return 0;
-		if (packet.GetUDPDstPort()!=67) // DHCP requests come on port 57 and are answered on 68
+		if (packet.GetUDPDstPort()!=67) // DHCP requests come from port 68 and are sent to 67
 			return 0;
-		if (packet.Get8(42)==3)
-			printf("PARTY! ***********************************");
+		if (packet.Get8(42)!=1)
+			return 0;
 		if (packet.GetIPDstIP()!=0xffffffff) // DHCP are broadcast to 255.255.255.255
 			return 0;
 		if (packet.Get32(0x0116)!=0x63825363) // check for DHCP magic number
 			return 0;
 		
+		switch (packet.Get8(0x011c)) {
+			case 1:
+				printf("Newt->World DHCP Discover\n"); break;
+			case 2:
+				printf("Router -> Newt: DCHP Offer\n"); break;
+			case 3:
+				printf("Newt->World DHCP Request\n"); break;
+			case 5:
+				printf("Router -> Newt: DHCP ACK\n"); break;
+			default: printf("UNKNOWN BOOT TYPE: %d\n", packet.Get8(0x011c)); break;
+		}
+		
 		printf("Net: DHCP request (%d bytes)\n", packet.Size());
-		int i = 0;
+		int i;
 		for (i=0; i<packet.Size(); i++) {
 			KUInt8 d = packet.Data()[i];
 			printf("0x%02x, ", d);
@@ -1078,16 +1169,17 @@ public:
 		}
 		printf("\n");
 		
-
-#if 0
-		// options:
-		// 22, 23, 26, 31, 32, 35, 1, 3, 6, 15
-		KUInt8 prepackedReply[] = {
-			0x00, 0x0b, 0x82, 0x01, 0xfc, 0x42, 0x00, 0x08, 0x74, 0xad, 0xf1, 0x9b, 0x08, 0x00, 0x45, 0x00,
-			0x01, 0x48, 0x04, 0x45, 0x00, 0x00, 0x80, 0x11, 0x00, 0x00, 0xc0, 0xa8, 0x00, 0x01, 0xc0, 0xa8,
-			0x00, 0x0a, 0x00, 0x43, 0x00, 0x44, 0x01, 0x34, 0x22, 0x33, 0x02, 0x01, 0x06, 0x00, 0x00, 0x00,
-			0x3d, 0x1d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0xa8, 0x00, 0x0a, 0xc0, 0xa8,
-			0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0b, 0x82, 0x01, 0xfc, 0x42, 0x00, 0x00, 0x00, 0x00,
+		// Create a DHCP offer from the DHCP Discover packet
+		
+		
+		static const unsigned char DHCPDiscoverPkg[] = {
+			0x00, 0x60, 0x1d, 0x1e, 0xfa, 0xf7, 0xac, 0xde, 0x48, 0x14, 0x6e, 0x4f, 0x08, 0x00, 0x45, 0x00,
+			0x01, 0x48, 0x8b, 0x85, 0x00, 0x00, 0xff, 0x11, 0xa9, 0xcb, 0xc0, 0xa8, 0x02, 0x01, 0xc0, 0xa8,
+			0x02, 0x02, 0x00, 0x43, 0x00, 0x44, 0x01, 0x34, 0xc6, 0xc9, 0x02, 0x01, 0x06, 0x00, 0x75, 0x74,
+			0x2b, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0xa8, 0x02, 0x02, 0xc0, 0xa8,
+			0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x1d, 0x1e, 0xfa, 0xf7, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x41, 0x6e, 0x6e, 0x69, 0x6b, 0x61, 0x2d, 0x32, 0x2e, 0x6c,
+			0x6f, 0x63, 0x61, 0x6c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1098,185 +1190,104 @@ public:
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63, 0x82, 0x53, 0x63, 0x35, 0x01, 0x02, 0x36, 0x04, 0xc0,
+			0xa8, 0x02, 0x01, 0x33, 0x04, 0x00, 0x01, 0x4e, 0x20, 0x01, 0x04, 0xff, 0xff, 0xff, 0x00, 0x03,
+			0x04, 0xc0, 0xa8, 0x02, 0x01, 0x06, 0x04, 0xc0, 0xa8, 0x02, 0x01, 0xff, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63, 0x82, 0x53, 0x63, 0x35, 0x01, 0x02, 0x01, 0x04, 0xff,
-			0xff, 0xff, 0x00, 0x3a, 0x04, 0x00, 0x00, 0x07, 0x08, 0x3b, 0x04, 0x00, 0x00, 0x0c, 0x4e, 0x33,
-			0x04, 0x00, 0x00, 0x0e, 0x10, 0x36, 0x04, 0xc0, 0xa8, 0x00, 0x01, 0xff, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		};
-		Packet *reply = new Packet(prepackedReply, sizeof(prepackedReply), 1);
-	
-		reply->SetDstMAC(packet.GetSrcMAC());
-		reply->Set32(46, packet.Get32(46));
-		
-		net->SetUDPChecksum(reply->Data(), reply->Size());
-		net->Enqueue(reply);
 
-		printf("Net: DHCP reply (%d bytes)\n", reply->Size());
-		{
-			int i = 0;
-			for (i=0; i<reply->Size(); i++) {
-				KUInt8 d = reply->Data()[i];
-				printf("%02x %c  ", d, ((d>=32)&&(d<127))?d:'.');
-				if ((i&15)==15) printf("\n");
-			}
-			printf("\n");
-		}
-#endif
-
-#if 0
-		// ok, I am pretty sure this is a DHCP package. Generate a generic DHCP reply based on the request
-		Packet *reply = new Packet(0L, packet.Size());
-		reply->SetDstMAC(packet.GetSrcMAC());
-		reply->SetSrcMAC(0x000874adf19b);	// virtual router MAC
-		reply->Set16(12, 0x0800); // Type
-		reply->Set8(14, 0x45); // length
-		reply->Set8(15, 0x00); // flags
-		reply->Set16(16, packet.Get16(16));
-		reply->Set16(18, 0x0445); // identification
-		reply->Set8(22, 128); // time to live
-		reply->Set8(23, 0x11); // UDP
-		reply->SetIPSrcIP(0x0a000101);
-		reply->SetIPDstIP(0x0a000117);
-		reply->SetUDPSrcPort(67);
-		reply->SetUDPDstPort(68);
-		reply->SetUDPLength(packet.GetUDPLength());
 		
-		reply->Set8(42, 2);	// DHCPOFFER
-		reply->Set8(43, 1);
-		reply->Set8(44, 6);
-		reply->Set8(45, 0);
-		reply->Set32(46, packet.Get32(46));
-		reply->Set32(0x3a, 0x0a000117); // YIP
-		reply->Set32(0x3e, 0x0a000101); //
-		reply->Set48(0x46, reply->GetDstMAC());
-		
-		// is it DHCPDISCOVER? If so, we answer with DHCPOFFER
-		if (packet.Get8(42)==1) {
-//			reply->Set8(42, 2);	// DHCPOFFER
-//			reply->Set32(58, 0x0a000105); // FIXME: YIADDR, suggested client address
-//			reply->Set32(62, 0x0a000101); // FIXME: SIADDR, server address
-//			reply->Set32(66, 0x00000000); // GIADDR, Gateway address is 0 for now
-			
-			memset(reply->Data()+0x011a, 0, reply->Size()-0x011a); // clear the DHCP options
-			reply->Set32(0x0116, 0x63825363);
-			KUInt8 *d = reply->Data()+0x011a;
-			
-			// TODO: add options!
-			// DHCP option 53: DHCP Offer
-			*d++ = 53; *d++ = 1; *d++ = 2;
-			// DHCP option 1: 255.255.255.0 subnet mask
-			*d++ = 1; *d++ = 4; *d++ = 255; *d++ = 255; *d++ = 255; *d++ = 0;
-			// DHCP option 3: 192.168.1.1 router
-			*d++ = 3; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-			// DHCP option 51: 86400s (1 day) IP lease time
-			*d++ = 51; *d++ = 4; *d++ = 0x00; *d++ = 0x01; *d++ = 0x51; *d++ = 0x80;
-			// DHCP option 54: 192.168.1.1 DHCP server
-			*d++ = 54; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-			// DHCP option 6: DNS servers 9.7.10.15, 9.7.10.16, 9.7.10.18
-			*d++ = 6; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-			// DHCP end option:
-			*d++ = 0xff;
-			
-			net->SetIPv4Checksum(reply->Data(), reply->Size());
-			net->SetUDPChecksum(reply->Data(), reply->Size());
-			net->Enqueue(reply);
-			
-			printf("Net: DHCP reply (%d bytes)\n", reply->Size());
-			int i = 0;
-			for (i=0; i<reply->Size(); i++) {
-				KUInt8 d = reply->Data()[i];
-				printf("%02x %c  ", d, ((d>=32)&&(d<127))?d:'.');
-				if ((i&15)==15) printf("\n");
-			}
-			printf("\n");
-
-		}
-#endif
 		
 		Packet *reply = new Packet(0L, 342);
+		memcpy(reply->Data(), DHCPDiscoverPkg, 342);
 
-		// ethernet II
+//		// ethernet II
 		reply->Set48(0x0000, packet.Get48(6));	// dest MAC
-		reply->Set48(0x0006, 0x9bf1ad740800);	// src MAC
-		reply->Set16(0x000c, 0x0800);	// type
-		// IP4
-		reply->Set8(0x000e, 0x45); // Version/length
-		reply->Set8(0x000f, 0); // service field
-		reply->Set16(0x0010, reply->Size()-14);
-		reply->Set16(0x0012, 1093); // identification (FIXME?)
-		reply->Set16(0x0014, 0); // Flags
-		reply->Set8(0x0016, 128); // TTL
-		reply->Set8(0x0017, 17); // Protocol: UDP
-		reply->Set16(0x0018, 0); // Checksum (ignore)
-		reply->Set32(0x001a, 0x0a000101); // src IP
-		reply->Set32(0x001e, 0x0a000108); // dst IP
-		// UDP
-		reply->Set16(0x0022, 67); // src port (bootps)
-		reply->Set16(0x0024, 68); // dst port (bootpc)
-		reply->Set16(0x0026, reply->Size()-34); // size
-		reply->Set16(0x0028, 0); // checksum
-		// BOOTP
-		reply->Set8(0x002a, 2); // msg type: boot reply
-		reply->Set8(0x002b, 1); // hardware type
-		reply->Set8(0x002c, 6); // hardware address length
-		reply->Set8(0x002d, 0); // hops 0
+//		reply->Set48(0x0006, 0x9bf1ad740800);	// src MAC
+//		reply->Set16(0x000c, 0x0800);	// type
+//		// IP4
+//		reply->Set8(0x000e, 0x45); // Version/length
+//		reply->Set8(0x000f, 0); // service field
+//		reply->Set16(0x0010, reply->Size()-14);
+//		reply->Set16(0x0012, 35717); // identification (FIXME?)
+//		reply->Set16(0x0014, 0); // Flags
+//		reply->Set8(0x0016, 0xff); // TTL
+//		reply->Set8(0x0017, 17); // Protocol: UDP
+//		reply->Set16(0x0018, 0); // Checksum (ignore)
+//		reply->Set32(0x001a, 0x0a000101); // src IP
+//		reply->Set32(0x001e, 0x0a000108); // dst IP
+//		// UDP
+//		reply->Set16(0x0022, 67); // src port (bootps)
+//		reply->Set16(0x0024, 68); // dst port (bootpc)
+//		reply->Set16(0x0026, reply->Size()-34); // size
+//		reply->Set16(0x0028, 0); // checksum
+//		// BOOTP
+//		reply->Set8(0x002a, 2); // msg type: boot reply
+//		reply->Set8(0x002b, 1); // hardware type
+//		reply->Set8(0x002c, 6); // hardware address length
+//		reply->Set8(0x002d, 0); // hops 0
 		reply->Set32(0x002e, packet.Get32(0x002e)); // transaction ID
-		reply->Set16(0x0032, 0); // seconds elapsed
-		reply->Set16(0x0034, 0); // flags
-		reply->Set32(0x0036, 0); // client IP
-		reply->Set32(0x003a, 0x0a000108); // your IP
-		reply->Set32(0x003e, 0x0a000101); // server IP
-		reply->Set32(0x0042, 0); // relay agent IP
+//		reply->Set16(0x0032, 0); // seconds elapsed
+//		reply->Set16(0x0034, 0); // flags
+//		reply->Set32(0x0036, 0); // client IP
+//		reply->Set32(0x003a, 0x0a000108); // your IP
+//		reply->Set32(0x003e, 0x0a000101); // server IP
+//		reply->Set32(0x0042, 0); // relay agent IP
 		reply->Set48(0x0046, packet.Get48(6));	// client MAC (padded with 0'a
-		// server host name, boot file name are all 0's
-		reply->Set32(0x0116, 0x63825363); // DHCP magic cookie
-		KUInt8 *d = reply->Data()+0x011a;
-		// DHCP option 53: DHCP Offer
-		*d++ = 53; *d++ = 1; *d++ = 2;
-		// 22, 23, 26, 31, 32, 35, 1, 3, 6, 15
+//		// server host name, boot file name are all 0's
+//		reply->Set32(0x0116, 0x63825363); // DHCP magic cookie
+//		KUInt8 *d = reply->Data()+0x011a;
+//		// DHCP option 53: DHCP Offer
+//		*d++ = 53; *d++ = 1; *d++ = 2;
+//		// 22, 23, 26, 31, 32, 35, 1, 3, 6, 15
+//		
+//		/*
+//		// DHCP option 1: 255.255.255.0 subnet mask
+//		*d++ = 1; *d++ = 4; *d++ = 255; *d++ = 255; *d++ = 255; *d++ = 0;
+//		// DHCP option 3: 192.168.1.1 router
+//		*d++ = 3; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+//		// DHCP option 51: 86400s (1 day) IP lease time
+//		*d++ = 51; *d++ = 4; *d++ = 0x00; *d++ = 0x01; *d++ = 0x51; *d++ = 0x80;
+//		// DHCP option 54: 192.168.1.1 DHCP server
+//		*d++ = 54; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+//		// DHCP option 6: DNS servers 9.7.10.15, 9.7.10.16, 9.7.10.18
+//		*d++ = 6; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+//		 */
+//		
+//		// 22: Maximum Datagram Reassembly Size
+//		*d++ = 22; *d++ = 2; *d++ = 2; *d++ = 64;	// 576 (minimum)
+//		// 23: Default IP Time-to-live
+//		*d++ = 23; *d++ = 1; *d++ = 80;
+//		// 26: Interface MTU Option
+//		*d++ = 26; *d++ = 2; *d++ = 0; *d++ = 68;
+//		// 31: Perform Router Discovery Option
+//		*d++ = 31; *d++ = 1; *d++ = 0;
+//		// 32
+//		// 35: ARP Cache Timeout Option
+//		*d++ = 35; *d++ = 4; *d++ = 0; *d++ = 0; *d++ = 16; *d++ = 16; // 3600 sec
+//		// 1: Subnet Mask
+//		*d++ = 1; *d++ = 4; *d++ = 255; *d++ = 0; *d++ = 0; *d++ = 0;
+//		// 3: router
+//		*d++ = 3; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+//		// 6: DNS Server
+//		*d++ = 6; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
+//		// 15
+//		*d++ = 15; *d++ = 4; *d++ = 'E'; *d++ = 'i'; *d++ = 'n'; *d++ = 'i';
+//		
+//		// DHCP end option:
+//		*d++ = 0xff;
+//		if ( d>=reply->Data()+reply->Size())
+//			printf("ERRROR: reply package too short\n");
+//		
+		if (packet.Get8(0x011c)==3)
+			reply->Set8(0x011c, 5); // ACK
 		
-		/*
-		// DHCP option 1: 255.255.255.0 subnet mask
-		*d++ = 1; *d++ = 4; *d++ = 255; *d++ = 255; *d++ = 255; *d++ = 0;
-		// DHCP option 3: 192.168.1.1 router
-		*d++ = 3; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-		// DHCP option 51: 86400s (1 day) IP lease time
-		*d++ = 51; *d++ = 4; *d++ = 0x00; *d++ = 0x01; *d++ = 0x51; *d++ = 0x80;
-		// DHCP option 54: 192.168.1.1 DHCP server
-		*d++ = 54; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-		// DHCP option 6: DNS servers 9.7.10.15, 9.7.10.16, 9.7.10.18
-		*d++ = 6; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-		 */
-		
-		// 22: Maximum Datagram Reassembly Size
-		*d++ = 22; *d++ = 2; *d++ = 2; *d++ = 64;	// 576 (minimum)
-		// 23: Default IP Time-to-live
-		*d++ = 23; *d++ = 1; *d++ = 80;
-		// 26: Interface MTU Option
-		*d++ = 26; *d++ = 2; *d++ = 0; *d++ = 68;
-		// 31: Perform Router Discovery Option
-		*d++ = 31; *d++ = 1; *d++ = 0;
-		// 32
-		// 35: ARP Cache Timeout Option
-		*d++ = 35; *d++ = 4; *d++ = 0; *d++ = 0; *d++ = 16; *d++ = 16; // 3600 sec
-		// 1: Subnet Mask
-		*d++ = 1; *d++ = 4; *d++ = 255; *d++ = 0; *d++ = 0; *d++ = 0;
-		// 3: router
-		*d++ = 3; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-		// 6: DNS Server
-		*d++ = 6; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-		// 15
-		*d++ = 15; *d++ = 4; *d++ = 'E'; *d++ = 'i'; *d++ = 'n'; *d++ = 'i';
-		
-		// DHCP end option:
-		*d++ = 0xff;
-		if ( d>=reply->Data()+reply->Size())
-			printf("ERRROR: reply package too short\n");
-		
+		printf("Net: DHCP checksums %04X %04X\n", reply->GetIPChecksum(), reply->GetUDPChecksum());
+		net->SetIPv4Checksum(reply->Data(), reply->Size());
 		net->SetUDPChecksum(reply->Data(), reply->Size());
+		printf("Net: DHCP checksums %04X %04X\n", reply->GetIPChecksum(), reply->GetUDPChecksum());
+		
 		net->Enqueue(reply);
 
 		printf("Net: DHCP reply (%d bytes)\n", reply->Size());
@@ -1288,99 +1299,15 @@ public:
 		}
 		printf("\n");
 
-		
-		
-		/* Data starts at 42  1 1 6 0 DHCPDISCOVER:   @ 0x0116: Magic 0x63825363
-		
-		Packet *reply = new Packet(0L, 42);
-		reply->SetSrcMAC( packet.GetDstMAC() );
-		reply->SetDstMAC( packet.GetSrcMAC() );
-		reply->SetType( Packet::NetTypeARP );
-		reply->SetARPHType( 1 );
-		reply->SetARPPType( 0x0800 );
-		reply->SetARPHLen( 6 );
-		reply->SetARPPLen( 4 );
-		reply->SetARPOp( 2 ); // reply
-		
-		KUInt64 a = packet.GetARPTPA();
-		KUInt64 b = 0x000000fa00000000ULL;
-		KUInt64 c = a | b;
-		reply->SetARPSHA( c ); // faking a MAC address
-		
-		reply->SetARPSPA( packet.GetARPTPA() );
-		reply->SetARPTHA( packet.GetARPSHA() );
-		reply->SetARPTPA( packet.GetARPSPA() );
-		reply->LogPayload(net->GetLog(), "W E>N");
-		net->Enqueue(reply);
-		KUInt32 theirIP = packet.GetARPTPA();
-		  0     1     2     3     4     5     6     7     8     9     a     b     c     d     e     f 
-	00	 ff .  ff .  ff .  ff .  ff .  ff .  58 X  b0 .  35 5  77 w  d7 .  22 "  08 .  00 .  45 E  00 .
-	01	 02 .  40 @  00 .  01 .  00 .  00 .  3c <  11 .  7c |  ad .  00 .  00 .  00 .  00 .  ff .  ff .
-	02	 ff .  ff .  00 .  44 D  00 .  43 C  02 .  2c ,  13 .  9c .  01 .  01 .  06 .  00 .  17 .  d1 .
-	03	 4b K  ab .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	04	 00 .  00 .  00 .  00 .  00 .  00 .  58 X  b0 .  35 5  77 w  d7 .  22 "  00 .  00 .  00 .  00 .
-	05	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	06	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	07	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	08	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	09	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	0a	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	0b	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	0c	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	0d	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	0e	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	0f	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	10	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	11	 00 .  00 .  00 .  00 .  00 .  00 .  63 c  82 .  53 S  63 c  35 5  01 .  01 .  33 3  04 .  00 .
-	12	 00 .  04 .  b0 .  37 7  0a .  16 .  17 .  1a .  1f .  20    23 #  01 .  03 .  06 .  0f .  ff .
-	13	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	14	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	15	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	16	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	17	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	18	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	19	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	1a	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	1b	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	1c	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	1d	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	1e	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	1f	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	20	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	21	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	22	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	23	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-	24	 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
+		/* Newton DHCP capture:
 
-
-		 58 X  b0 .  35 5  77 w  d7 .  22 "  9b .  f1 .  ad .  74 t  08 .  00 .  08 .  00 .  45 E  00 .
-		 01 .  48 H  04 .  45 E  00 .  00 .  80 .  11 .  00 .  00 .  0a .  00 .  01 .  01 .  0a .  00 .
-		 01 .  08 .  00 .  43 C  00 .  44 D  01 .  34 4  f7 .  47 G  02 .  01 .  06 .  00 .  5c \  a8 .
-		 a9 .  f0 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  0a .  00 .  01 .  08 .  0a .  00 .
-		 01 .  01 .  00 .  00 .  00 .  00 .  58 X  b0 .  35 5  77 w  d7 .  22 "  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .  63 c  82 .  53 S  63 c  35 5  01 .  02 .  16 .  02 .  02 .
-		 40 @  17 .  01 .  50 P  1a .  02 .  00 .  44 D  1f .  01 .  00 .  23 #  04 .  00 .  00 .  10 .
-		 10 .  01 .  04 .  ff .  00 .  00 .  00 .  03 .  04 .  0a .  00 .  01 .  01 .  06 .  04 .  0a .
-		 00 .  01 .  01 .  0f .  04 .  45 E  69 i  6e n  69 i  ff .  00 .  00 .  00 .  00 .  00 .  00 .
-		 00 .  00 .  00 .  00 .  00 .  00 .
+		 Newt->World DHCP Discover
 		 
-		 0000  ff ff ff ff ff ff 00 0b  82 01 fc 42 08 00 45 00   ........ ...B..E.
-		 0010  01 2c a8 36 00 00 fa 11  17 8b 00 00 00 00 ff ff   .,.6.... ........
-		 0020  ff ff 00 44 00 43 01 18  59 1f 01 01 06 00 00 00   ...D.C.. Y.......
-		 0030  3d 1d 00 00 00 00 00 00  00 00 00 00 00 00 00 00   =....... ........
-		 0040  00 00 00 00 00 00 00 0b  82 01 fc 42 00 00 00 00   ........ ...B....
+		 0000  ff ff ff ff ff ff 00 60  1d 1e fa f7 08 00 45 00   .......` ......E.
+		 0010  02 40 00 01 00 00 3c 11  7c ad 00 00 00 00 ff ff   .@....<. |.......
+		 0020  ff ff 00 44 00 43 02 2c  23 6c 01 01 06 00 75 74   ...D.C., #l....ut
+		 0030  2b 0c 00 00 00 00 00 00  00 00 00 00 00 00 00 00   +....... ........
+		 0040  00 00 00 00 00 00 00 60  1d 1e fa f7 00 00 00 00   .......` ........
 		 0050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
 		 0060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
 		 0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
@@ -1393,42 +1320,36 @@ public:
 		 00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
 		 00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
 		 0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0110  00 00 00 00 00 00 63 82  53 63 35 01 01 3d 07 01   ......c. Sc5..=..
-		 0120  00 0b 82 01 fc 42 32 04  00 00 00 00 37 04 01 03   .....B2. ....7...
-		 0130  06 2a ff 00 00 00 00 00  00 00                     .*...... ..
-		 
-		 
-		 0000  00 0b 82 01 fc 42 00 08  74 ad f1 9b 08 00 45 00   .....B.. t.....E.
-		 0010  01 48 04 45 00 00 80 11  00 00 c0 a8 00 01 c0 a8   .H.E.... ........
-		 0020  00 0a 00 43 00 44 01 34  22 33 02 01 06 00 00 00   ...C.D.4 "3......
-		 0030  3d 1d 00 00 00 00 00 00  00 00 c0 a8 00 0a c0 a8   =....... ........
-		 0040  00 01 00 00 00 00 00 0b  82 01 fc 42 00 00 00 00   ........ ...B....
-		 0050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 00a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 00b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 00c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 00d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0110  00 00 00 00 00 00 63 82  53 63 35 01 02 01 04 ff   ......c. Sc5.....
-		 0120  ff ff 00 3a 04 00 00 07  08 3b 04 00 00 0c 4e 33   ...:.... .;....N3
-		 0130  04 00 00 0e 10 36 04 c0  a8 00 01 ff 00 00 00 00   .....6.. ........
+		 0110  00 00 00 00 00 00 63 82  53 63 35 01 01 33 04 00   ......c. Sc5..3..
+		 0120  00 04 b0 37 0a 16 17 1a  1f 20 23 01 03 06 0f ff   ...7.... . #.....
+		 0130  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
 		 0140  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0150  00 00 00 00 00 00                                  ......
+		 0150  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0160  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0170  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0180  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0190  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 01a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 01b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 01c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 01d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 01e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 01f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0210  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0220  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0230  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0240  00 00 00 00 00 00 00 00  00 00 00 00 00 00         ........ ......  
 		 
+		 Router -> Newt: DCHP offer
 		 
-		 0000  ff ff ff ff ff ff 00 0b  82 01 fc 42 08 00 45 00   ........ ...B..E.
-		 0010  01 2c a8 37 00 00 fa 11  17 8a 00 00 00 00 ff ff   .,.7.... ........
-		 0020  ff ff 00 44 00 43 01 18  9f bd 01 01 06 00 00 00   ...D.C.. ........
-		 0030  3d 1e 00 00 00 00 00 00  00 00 00 00 00 00 00 00   =....... ........
-		 0040  00 00 00 00 00 00 00 0b  82 01 fc 42 00 00 00 00   ........ ...B....
-		 0050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0000  00 60 1d 1e fa f7 ac de  48 14 6e 4f 08 00 45 00   .`...... H.nO..E.
+		 0010  01 48 8b 85 00 00 ff 11  a9 cb c0 a8 02 01 c0 a8   .H...... ........
+		 0020  02 02 00 43 00 44 01 34  c6 c9 02 01 06 00 75 74   ...C.D.4 ......ut
+		 0030  2b 0c 00 00 00 00 00 00  00 00 c0 a8 02 02 c0 a8   +....... ........
+		 0040  02 01 00 00 00 00 00 60  1d 1e fa f7 00 00 00 00   .......` ........
+		 0050  00 00 00 00 00 00 41 6e  6e 69 6b 61 2d 32 2e 6c   ......An nika-2.l
+		 0060  6f 63 61 6c 00 00 00 00  00 00 00 00 00 00 00 00   ocal.... ........
 		 0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
 		 0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
 		 0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
@@ -1439,35 +1360,79 @@ public:
 		 00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
 		 00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
 		 0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0110  00 00 00 00 00 00 63 82  53 63 35 01 03 3d 07 01   ......c. Sc5..=..
-		 0120  00 0b 82 01 fc 42 32 04  c0 a8 00 0a 36 04 c0 a8   .....B2. ....6...
-		 0130  00 01 37 04 01 03 06 2a  ff 00                     ..7....* ..
-		 
-		 
-		 0000  00 0b 82 01 fc 42 00 08  74 ad f1 9b 08 00 45 00   .....B.. t.....E.
-		 0010  01 48 04 46 00 00 80 11  00 00 c0 a8 00 01 c0 a8   .H.F.... ........
-		 0020  00 0a 00 43 00 44 01 34  df db 02 01 06 00 00 00   ...C.D.4 ........
-		 0030  3d 1e 00 00 00 00 00 00  00 00 c0 a8 00 0a 00 00   =....... ........
-		 0040  00 00 00 00 00 00 00 0b  82 01 fc 42 00 00 00 00   ........ ...B....
-		 0050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 00a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 00b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 00c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 00d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-		 0110  00 00 00 00 00 00 63 82  53 63 35 01 05 3a 04 00   ......c. Sc5..:..
-		 0120  00 07 08 3b 04 00 00 0c  4e 33 04 00 00 0e 10 36   ...;.... N3.....6
-		 0130  04 c0 a8 00 01 01 04 ff  ff ff 00 ff 00 00 00 00   ........ ........
+		 0110  00 00 00 00 00 00 63 82  53 63 35 01 02 36 04 c0   ......c. Sc5..6..
+		 0120  a8 02 01 33 04 00 01 4e  20 01 04 ff ff ff 00 03   ...3...N  .......
+		 0130  04 c0 a8 02 01 06 04 c0  a8 02 01 ff 00 00 00 00   ........ ........
 		 0140  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
 		 0150  00 00 00 00 00 00                                  ......
 
-		 */
+		 Newt -> World: DHCP Request
+		 
+		 0000  ff ff ff ff ff ff 00 60  1d 1e fa f7 08 00 45 00   .......` ......E.
+		 0010  02 40 00 02 00 00 3c 11  7c ac 00 00 00 00 ff ff   .@....<. |.......
+		 0020  ff ff 00 44 00 43 02 2c  78 b6 01 01 06 00 75 74   ...D.C., x.....ut
+		 0030  2b 0c 00 00 00 00 00 00  00 00 00 00 00 00 00 00   +....... ........
+		 0040  00 00 00 00 00 00 00 60  1d 1e fa f7 00 00 00 00   .......` ........
+		 0050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0110  00 00 00 00 00 00 63 82  53 63 35 01 03 32 04 c0   ......c. Sc5..2..
+		 0120  a8 02 02 36 04 c0 a8 02  01 37 0a 16 17 1a 1f 20   ...6.... .7.....
+		 0130  23 01 03 06 0f ff 00 00  00 00 00 00 00 00 00 00   #....... ........
+		 0140  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0150  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0160  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0170  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0180  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0190  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 01a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 01b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 01c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 01d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 01e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 01f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0210  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0220  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0230  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0240  00 00 00 00 00 00 00 00  00 00 00 00 00 00         ........ ......  
+
+		 Router -> Newt: DHCP Ack
+		 
+		 0000  00 60 1d 1e fa f7 ac de  48 14 6e 4f 08 00 45 00   .`...... H.nO..E.
+		 0010  01 48 8b 86 00 00 ff 11  a9 ca c0 a8 02 01 c0 a8   .H...... ........
+		 0020  02 02 00 43 00 44 01 34  c3 c9 02 01 06 00 75 74   ...C.D.4 ......ut
+		 0030  2b 0c 00 00 00 00 00 00  00 00 c0 a8 02 02 c0 a8   +....... ........
+		 0040  02 01 00 00 00 00 00 60  1d 1e fa f7 00 00 00 00   .......` ........
+		 0050  00 00 00 00 00 00 41 6e  6e 69 6b 61 2d 32 2e 6c   ......An nika-2.l
+		 0060  6f 63 61 6c 00 00 00 00  00 00 00 00 00 00 00 00   ocal.... ........
+		 0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0110  00 00 00 00 00 00 63 82  53 63 35 01 05 36 04 c0   ......c. Sc5..6..
+		 0120  a8 02 01 33 04 00 01 4e  20 01 04 ff ff ff 00 03   ...3...N  .......
+		 0130  04 c0 a8 02 01 06 04 c0  a8 02 01 ff 00 00 00 00   ........ ........
+		 0140  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
+		 0150  00 00 00 00 00 00                                  ......
+
+		
+*/
 		return 1;
 	}
 };
