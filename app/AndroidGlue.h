@@ -27,47 +27,88 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  
+	
 #include <errno.h>
 #include <jni.h>
 #include <sys/time.h>
 #include <time.h>
 #include <android/log.h>
-
+	
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
-  extern JNIEXPORT jstring JNICALL Java_com_newtonforever_einstein_Einstein_stringFromJNI( JNIEnv* env, jobject thiz );
-  
-  extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_initEmulator( JNIEnv* env, jobject thiz, jstring logPath );
-  extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_runEmulator( JNIEnv* env, jobject thiz, jstring dataPath, jint screenWidth, jint screenHeight );
-  extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_stopEmulator( JNIEnv* env, jobject thiz );
-  extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_powerOnEmulator( JNIEnv* env, jobject thiz );
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_powerOffEmulator( JNIEnv* env, jobject thiz );
-	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Einstein_isPowerOn( JNIEnv* env, jobject thiz );
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_rebootEmulator( JNIEnv* env, jobject thiz );
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_changeScreenSize( JNIEnv* env, jobject thiz, jint w, jint h );
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_sendPowerSwitchEvent( JNIEnv* env, jobject thiz );
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_setNewtonID( JNIEnv* env, jobject thiz, jstring );
-
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_toggleNetworkCard( JNIEnv* env, jobject thiz );
-
-  extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Einstein_screenIsDirty( JNIEnv* env, jobject thiz );
-  extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_setBacklight( JNIEnv* env, jobject thiz, jint v );
-  extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Einstein_backlightIsOn( JNIEnv* env, jobject thiz );
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_installNewPackages( JNIEnv* env, jobject thiz );
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Einstein_installPackage( JNIEnv* env, jobject thiz, jstring filename );
 	
-  extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_EinsteinView_penDown( JNIEnv* env, jobject thiz, jint x, jint y );
-  extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_EinsteinView_penUp( JNIEnv* env, jobject thiz);
 	
-  extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_EinsteinView_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap);
-  
+	/** Initializes the emulator.
+	 * @param logPath can be any path name in the Android file sytem. Special values for logPath are "NULL"
+     * or "" for no log, "STDOUT" for logging to some stdout device, and "CONSOLE" for logging to the
+     * Android debugging log (LogCat on Eclipse).
+	 */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_initEmulator( JNIEnv* env, jobject thiz, jstring logPath );
+	
+	/** Launches the emulator. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_runEmulator( JNIEnv* env, jobject thiz, jstring dataPath, jint screenWidth, jint screenHeight );
+	
+	/** Stops the emulator. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_stopEmulator( JNIEnv* env, jobject thiz );
+	
+	/** Wakes the emulator from sleep. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_powerOnEmulator( JNIEnv* env, jobject thiz );
+	
+	/** Sends emulator to sleep. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_powerOffEmulator( JNIEnv* env, jobject thiz );
+	
+	/** Checks if the power is currently on. */
+	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Native_isPowerOn( JNIEnv* env, jobject thiz );
+	
+	/** Sends a power switch event. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_sendPowerSwitchEvent( JNIEnv* env, jobject thiz );
+	
+	/** Reboots the emulator. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_rebootEmulator( JNIEnv* env, jobject thiz );
+	
+	/** Changes the screen size (requires reboot). */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_changeScreenSize( JNIEnv* env, jobject thiz, jint w, jint h );
+	
+	/** Toggles the network card in and out of the PCMCIA slot. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_toggleNetworkCard( JNIEnv* env, jobject thiz );
+	
+	/** Checks if the screen contents has changed since the last call
+	 * @return 0 if the screen hasn't changed since the last call */
+	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Native_screenIsDirty( JNIEnv* env, jobject thiz );
+	
+	/** Switches the backlight on or off.
+	 * @param v 0 to switch backlight off */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_setBacklight( JNIEnv* env, jobject thiz, jint v );
+	
+	/** Checks if backlight is on.
+	 * @return 0 if the backlight is currently off */
+	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Native_backlightIsOn( JNIEnv* env, jobject thiz );
+	
+	/** Installs packages that are new in the Einstein directory.
+	 * @TODO find a better way to do this */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_installNewPackages( JNIEnv* env, jobject thiz );
+	
+	/** Installs a package from a file. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_installPackage( JNIEnv* env, jobject thiz, jstring filename );
+	
+	/** Sets the Newton ID. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_setNewtonID( JNIEnv* env, jobject thiz, jstring );
+	
+	/** Sends refresh requests */
+	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Native_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap);
+	
+	/** Sends a pen down event. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_penDown( JNIEnv* env, jobject thiz, jint x, jint y );
+	
+	/** Sends a pen down event. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_penUp( JNIEnv* env, jobject thiz);
+	
+	
 #ifdef __cplusplus
 }
 #endif
-    
+
 #endif
 
 // ============================================================================ //

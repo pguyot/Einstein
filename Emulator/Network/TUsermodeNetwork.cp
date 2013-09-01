@@ -1034,7 +1034,8 @@ public:
 	}
 };
 
-
+#if 0
+// Code to get the IP that connects to the outside world
 		void GetPrimaryIp(char* buffer, size_t buflen)
 		{
 			assert(buflen >= 16);
@@ -1063,6 +1064,7 @@ public:
 
 			close(sock);
 		}
+#endif
 
 /**
  * This class handles ARP packets.
@@ -1088,8 +1090,8 @@ public:
 	static int canHandle(Packet &packet, TUsermodeNetwork *net)
 	{
 		char buf[1024];
-		GetPrimaryIp(buf, 1023);
-		printf("My primary IP seems to be %s\n", buf);
+//		GetPrimaryIp(buf, 1023);
+//		printf("My primary IP seems to be %s\n", buf);
 //		void GetPrimaryIp(char* buffer, size_t buflen)
 //		{
 //			assert(buflen >= 16);
