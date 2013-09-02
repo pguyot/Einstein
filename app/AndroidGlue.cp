@@ -94,14 +94,14 @@ void JNI_OnUnload(JavaVM*, void*)
 /* This is a trivial JNI example where we use a native method
  * to return a new VM String. 
  */
-JNIEXPORT jstring JNICALL Java_com_newtonforever_einstein_Native_stringFromJNI( JNIEnv* env, jobject thiz )
+JNIEXPORT jstring JNICALL Java_com_newtonforever_einstein_jni_Native_stringFromJNI( JNIEnv* env, jobject thiz )
 {
     if (theLog) theLog->FLogLine("Testing Android %s. Seems fine so far!", "NDK");
     return env->NewStringUTF("This is the Einstein native interface (5)!");
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_initEmulator( JNIEnv* env, jobject thiz, jstring logPath )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_initEmulator( JNIEnv* env, jobject thiz, jstring logPath )
 {
 	jboolean isCopy;
 	
@@ -128,7 +128,7 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_initEmulator( JNIE
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_runEmulator( JNIEnv* env, jobject thiz, jstring dataPath, jint screenWidth, jint screenHeight )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_runEmulator( JNIEnv* env, jobject thiz, jstring dataPath, jint screenWidth, jint screenHeight )
 {
 	jboolean isCopy;
 	const char *cDataPath = env->GetStringUTFChars(dataPath, &isCopy);
@@ -138,28 +138,28 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_runEmulator( JNIEn
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_stopEmulator( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_stopEmulator( JNIEnv* env, jobject thiz )
 {
 	if (theLog) theLog->LogLine("stopEmulator");
 	if (theApp) theApp->Stop();
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_powerOnEmulator( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_powerOnEmulator( JNIEnv* env, jobject thiz )
 {
 	if (theLog) theLog->LogLine("powerOnEmulator");
 	if (theApp) theApp->PowerOn();
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_powerOffEmulator( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_powerOffEmulator( JNIEnv* env, jobject thiz )
 {
 	if (theLog) theLog->LogLine("powerOffEmulator");
 	if (theApp) theApp->PowerOff();
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_sendPowerSwitchEvent( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_sendPowerSwitchEvent( JNIEnv* env, jobject thiz )
 {
 	if (theLog) theLog->LogLine("powerEvent");
 	if (theApp) {
@@ -168,20 +168,20 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_sendPowerSwitchEve
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_rebootEmulator( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_rebootEmulator( JNIEnv* env, jobject thiz )
 {
 	if (theLog) theLog->LogLine("reboot");
 	if (theApp) theApp->reboot();
 }
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_changeScreenSize( JNIEnv* env, jobject thiz, jint w, jint h )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_changeScreenSize( JNIEnv* env, jobject thiz, jint w, jint h )
 {
 	if (theLog) theLog->LogLine("changeScreenSize");
 	if (theApp) theApp->ChangeScreenSize(w, h);
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_penDown( JNIEnv* env, jobject thiz, jint x, jint y )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_penDown( JNIEnv* env, jobject thiz, jint x, jint y )
 {
 	if (theApp) {
 		TScreenManager *tsm = theApp->getScreenManager();
@@ -202,7 +202,7 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_penDown( JNIEnv* e
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_penUp( JNIEnv* env, jobject thiz)
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_penUp( JNIEnv* env, jobject thiz)
 {
 	if (theApp) {
 		TScreenManager *tsm = theApp->getScreenManager();
@@ -226,7 +226,7 @@ void callScreenInvalidate()
 }
 */
 
-JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Native_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap)
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap)
 {
 /*	
 	if (!tasmClass) {
@@ -268,7 +268,7 @@ JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Native_renderEinsteinView
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_toggleNetworkCard( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_toggleNetworkCard( JNIEnv* env, jobject thiz )
 {
 	if (theLog) theLog->FLogLine("Toggle Network Card");
 	if (theApp) {
@@ -279,7 +279,7 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_toggleNetworkCard(
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_setNewtonID( JNIEnv* env, jobject thiz, jstring jID )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_setNewtonID( JNIEnv* env, jobject thiz, jstring jID )
 {
 	if (theApp) {
 		jboolean isCopy;
@@ -292,7 +292,7 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_setNewtonID( JNIEn
 }
 
 
-JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Native_screenIsDirty( JNIEnv* env, jobject thiz )
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_screenIsDirty( JNIEnv* env, jobject thiz )
 {
 	int ret = 0;
 	if (theApp)
@@ -303,7 +303,7 @@ JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Native_screenIsDirty( JNI
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_setBacklight( JNIEnv* env, jobject thiz, jint v )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_setBacklight( JNIEnv* env, jobject thiz, jint v )
 {
 	if (theApp) {
 		TScreenManager *tsm = theApp->getScreenManager();
@@ -314,7 +314,7 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_setBacklight( JNIE
 }
 
 
-JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Native_backlightIsOn( JNIEnv* env, jobject thiz )
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_backlightIsOn( JNIEnv* env, jobject thiz )
 {
 	if (theApp) {
 		TScreenManager *tsm = theApp->getScreenManager();
@@ -325,14 +325,14 @@ JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Native_backlightIsOn( JNI
 	return -1;
 }
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_installNewPackages( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_installNewPackages( JNIEnv* env, jobject thiz )
 {
 	if (theApp) {
 		theApp->getPlatformManager()->InstallNewPackages();
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_installPackage( JNIEnv* env, jobject thiz, jstring filename )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_installPackage( JNIEnv* env, jobject thiz, jstring filename )
 {
 	if (theApp) {
 		jboolean isCopy;
@@ -342,7 +342,7 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_Native_installPackage( JN
 	}
 }
 
-JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_Native_isPowerOn( JNIEnv* env, jobject thiz )
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_isPowerOn( JNIEnv* env, jobject thiz )
 {
 	if (theApp) {
 		return theApp->IsPowerOn();
