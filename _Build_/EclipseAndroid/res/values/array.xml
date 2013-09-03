@@ -48,4 +48,9 @@
     <item>20</item>
     <item>30</item>
   </string-array>
+  <string-array name="entries_newtonsite_urls">
+    <item>PDA-Soft</item>
+    <item>UNNA</item>
+    <item>NewtonTalk</item>
+  </string-array>
 </resources>
