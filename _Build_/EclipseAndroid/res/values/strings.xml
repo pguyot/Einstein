@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Einstein</string>    
+    <string name="common.cancel">Cancel</string>    
     <string name="mainmenu.toEmulator.title">Back to Einstein</string>
     <string name="mainmenu.toEmulator.condensed">Einstein</string>
     <string name="mainmenu.insertNetworkCard.title">Insert Network Card</string>
@@ -25,4 +26,5 @@
 	<string name="Preferences.newtonid.title">"Newton ID"</string>
     <string name="Preferences.newtonid.summary">"Set the Newton Serial Number (enter 16 hex digits - reboot required)"</string>
     <string name="Startup.downloadingFile">Downloading file...</string>
+    <string name="dialogs.urlpicker.title">Choose website</string>
 </resources>
