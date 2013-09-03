@@ -103,11 +103,15 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 		DebugUtils.appendLog("einstein.onCreate: Pre-initialization finished successfully");
 		// Register listener that'll notify us of preference changes
 		this.registerPreferenceChangeListener();
-		
+		DebugUtils.appendLog("einstein.onCreate: Registered preference change listener");
+
 		if (!pEinstein.isRunning()) {
 			// Initialize emulator
+			DebugUtils.appendLog("einstein.onCreate: NOT trying to initialize emulator (commented out)");
 			Native.initEmulator("CONSOLE");
 		}
+
+  		DebugUtils.appendLog("einstein.onCreate: Initialized emulator");
 		
 		// Create view
 		this.pEinsteinView = new EinsteinView(this);     
@@ -122,21 +126,27 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 		DebugUtils.appendLog("einstein.onCreate: Starting emulator with " + ScreenDimensions.HOST_SCREEN_SIZE);
 		
 		if (pEinstein.isRunning()) {
+			DebugUtils.appendLog("einstein.onCreate: Einstein is already running. Waking it up... ");
 			Toast.makeText(getApplicationContext(), "Reconnecting to Einstein", Toast.LENGTH_SHORT).show();		
 			// wake up
 		} else {
+			DebugUtils.appendLog("einstein.onCreate: Einstein is not running. Starting it up... ");
 			String id = this.sharedPrefs.getString("newtonid", "00004E6577746F6E");
 			Native.setNewtonID(id);
-			pEinstein.run(StartupConstants.DATA_FILE_PATH, ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
+			pEinstein.run(StartupConstants.DATA_FILE_PATH, ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT); // TODO FG Uncomment
 			Toast.makeText(getApplicationContext(), "Booting Einstein", Toast.LENGTH_LONG).show();		
 		}
 		int rate = Integer.valueOf(this.sharedPrefs.getString("screenrefreshrate", "10"));
 		Log.e("REFRESH", "Rate is "+rate);
+		DebugUtils.appendLog("einstein.onCreate: Starting screen refresh with rate " + rate);
 		startScreenRefresh(rate);
+		DebugUtils.appendLog("einstein.onCreate: Started screen refresh with rate " + rate);
 		
 		Log.i("einstein", "------< Activity.onCreate()");
+ 		DebugUtils.appendLog("einstein.onCreate: Raising app priority");
 
 		app.raisePriority();
+ 		DebugUtils.appendLog("einstein.onCreate: Leaving method");
 	}
 	
 	@Override
