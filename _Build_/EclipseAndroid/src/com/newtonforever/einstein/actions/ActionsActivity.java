@@ -4,9 +4,10 @@ package com.newtonforever.einstein.actions;
 
 import org.messagepademu.einstein.R;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.IntentCompat;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -14,10 +15,13 @@ import android.view.View;
 
 import com.newtonforever.einstein.EinsteinActivity;
 import com.newtonforever.einstein.EinsteinApplication;
+import com.newtonforever.einstein.dialog.DialogFragmentTags;
+import com.newtonforever.einstein.dialog.URLPickerFragment;
 import com.newtonforever.einstein.jni.Native;
 import com.newtonforever.einstein.prefs.EinsteinPreferencesActivity;
-
-public class ActionsActivity extends Activity {
+import com.newtonforever.einstein.utils.debug.DebugUtils;
+// Note that the names of the onClick methods must match those defined in actions.xml
+public class ActionsActivity extends FragmentActivity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -48,8 +52,15 @@ public class ActionsActivity extends Activity {
 	}
 
 	public void onClickInstallPackages(View v) {
+		DebugUtils.appendLog("ActionsActivity.onClickInstallPackages: Installing new packages");
 		Native.installNewPackages();
 		backToEinstein(v);
+	}
+	public void onClickOpenURL(View v) {
+		DebugUtils.appendLog("ActionsActivity.onClickOpenURL: Invoking URLPickerFragment");
+	    final DialogFragment newFragment = new URLPickerFragment();
+	    newFragment.show(getSupportFragmentManager(), DialogFragmentTags.URLPickerFragmentTag);
+		DebugUtils.appendLog("ActionsActivity.onClickOpenURL: Leaving method");
 	}
 
 	public void onClickInsertNetworkCard(View v) {
