@@ -25,7 +25,9 @@ public class URLPickerFragment extends DialogFragment {
 	private final String[] urls = {
        "http://www.pda-soft.de",
        "http://www.unna.org", 
-       "http://www.newtontalk.net"
+       "http://www.newtontalk.net",
+       "http://myapplenewton.blogspot.com",
+       "http://40hz.org"
     };
 
 	/** Opens the URL selection dialog. The selected site is opened in the web browser. */
