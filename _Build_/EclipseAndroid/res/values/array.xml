@@ -49,8 +49,10 @@
     <item>30</item>
   </string-array>
   <string-array name="entries_newtonsite_urls">
-    <item>PDA-Soft</item>
+    <item>PDA-Soft (Frank Gründel)</item>
     <item>UNNA</item>
     <item>NewtonTalk</item>
+    <item>myapplenewton (Tony Kan)</item>
+    <item>40hz (Eckhart Köppen)</item>
   </string-array>
 </resources>
