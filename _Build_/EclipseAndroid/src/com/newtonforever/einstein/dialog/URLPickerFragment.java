@@ -1,6 +1,6 @@
 package com.newtonforever.einstein.dialog;
 
-import org.messagepademu.einstein.R;
+import com.newtonforever.einstein.R;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

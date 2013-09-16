@@ -8,7 +8,7 @@ import android.app.Activity;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 
-import org.messagepademu.einstein.R;
+import com.newtonforever.einstein.R;
 
 import com.newtonforever.einstein.startup.IStartup.LoadResult;
 import com.newtonforever.einstein.utils.StringUtils;
