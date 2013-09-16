@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="org.messagepademu.einstein"
+      package="com.newtonforever.einstein"
       android:versionCode="1"
       android:versionName="1.0">
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17" />
@@ -73,7 +73,7 @@
       		android:name="com.newtonforever.einstein.EinsteinService"
       		android:process=":remote">
       		<intent-filter>
-        		<action android:name="org.messagepademu.einstein.EinsteinService" />
+        		<action android:name="com.newtonforever.einstein.EinsteinService" />
       		</intent-filter>
     	</service>
     </application>
