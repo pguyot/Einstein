@@ -4,7 +4,7 @@ package com.newtonforever.einstein;
 import java.io.File;
 import java.util.Timer;
 
-import org.messagepademu.einstein.R;
+import com.newtonforever.einstein.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -59,7 +59,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 	private EinsteinView pEinsteinView = null;
 	private ProgressDialog mProgressDialog; 
 	private Timer mScreenRefreshTimer = null;
-	private ScreenRefresh mScreenRefreshTask = null;
+	private NewtonOsActionHandler mScreenRefreshTask = null;
 	private SharedPreferences sharedPrefs;
 //	private SharedPreferences.OnSharedPreferenceChangeListener sharedPrefsListener;
 
@@ -360,7 +360,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 
 	private void startScreenRefresh(int rate) {
 		if (mScreenRefreshTask==null) {
-			mScreenRefreshTask = new ScreenRefresh(pEinstein, pEinsteinView);
+			mScreenRefreshTask = new NewtonOsActionHandler(pEinstein, pEinsteinView);
 		}
 		if (mScreenRefreshTimer==null) {
 			mScreenRefreshTimer = new Timer(true);

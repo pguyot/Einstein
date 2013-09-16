@@ -2,7 +2,7 @@
 
 package com.newtonforever.einstein.actions;
 
-import org.messagepademu.einstein.R;
+import com.newtonforever.einstein.R;
 
 import android.content.Intent;
 import android.os.Bundle;

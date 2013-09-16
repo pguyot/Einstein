@@ -2,7 +2,7 @@
 
 package com.newtonforever.einstein;
 
-import org.messagepademu.einstein.R;
+import com.newtonforever.einstein.R;
 
 import com.newtonforever.einstein.actions.ActionsActivity;
 
