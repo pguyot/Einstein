@@ -232,6 +232,8 @@
 		C901968613282E1500C3342F /* TAndroidScreenManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TAndroidScreenManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C901968713282E1500C3342F /* TAndroidScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TAndroidScreenManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C9019692132834EA00C3342F /* AndroidGlue.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AndroidGlue.cp; path = ../../app/AndroidGlue.cp; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 1; };
+		C906A8BA17E7B1E2004E0244 /* TAndroidSoundManager.cp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TAndroidSoundManager.cp; sourceTree = "<group>"; };
+		C906A8BB17E7B1E2004E0244 /* TAndroidSoundManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TAndroidSoundManager.h; sourceTree = "<group>"; };
 		C932824511D0CF0A003B93C3 /* button_network_in.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network_in.png; sourceTree = "<group>"; };
 		C932824611D0CF0A003B93C3 /* button_network.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network.png; sourceTree = "<group>"; };
 		C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNE2000Card.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
@@ -1477,6 +1479,8 @@
 				C99E34AB111B7C08002165EC /* TBufferedSoundManager.h */,
 				C99E34AC111B7C08002165EC /* TCoreAudioSoundManager.cp */,
 				C99E34AD111B7C08002165EC /* TCoreAudioSoundManager.h */,
+				C906A8BA17E7B1E2004E0244 /* TAndroidSoundManager.cp */,
+				C906A8BB17E7B1E2004E0244 /* TAndroidSoundManager.h */,
 				C99E34AE111B7C08002165EC /* TNullSoundManager.cp */,
 				C99E34AF111B7C08002165EC /* TNullSoundManager.h */,
 				C99E34B2111B7C08002165EC /* TSoundManager.cp */,

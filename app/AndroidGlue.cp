@@ -24,6 +24,7 @@
 #include <app/AndroidGlue.h>
 #include <app/TAndroidApp.h>
 #include <Emulator/Screen/TScreenManager.h>
+#include <Emulator/Sound/TAndroidSoundManager.h>
 #include <Platform/TPlatformManager.h>
 #include <Log/TFileLog.h>
 #include <Log/TStdOutLog.h>
@@ -31,6 +32,12 @@
 #include <dlfcn.h>
 
 #include <android/bitmap.h>
+
+
+const jint kRequiredActionsRefreshScreen = 1;
+const jint kRequiredActionsStartSound = 2;
+const jint kRequiredActionsStopSound = 4;
+const jint kRequiredActionsSetVolume = 8;
 
 
 TAndroidApp *theApp = 0;
@@ -292,15 +299,15 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_setNewtonID( J
 }
 
 
-JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_screenIsDirty( JNIEnv* env, jobject thiz )
-{
-	int ret = 0;
-	if (theApp)
-	{
-		ret = theApp->screenIsDirty();
-	}	
-	return ret;
-}
+//JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_screenIsDirty( JNIEnv* env, jobject thiz )
+//{
+//	int ret = 0;
+//	if (theApp)
+//	{
+//		ret = theApp->screenIsDirty();
+//	}	
+//	return ret;
+//}
 
 
 JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_setBacklight( JNIEnv* env, jobject thiz, jint v )
@@ -337,6 +344,8 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_installPackage
 	if (theApp) {
 		jboolean isCopy;
 		const char *cFilename = env->GetStringUTFChars(filename, &isCopy);
+		if (theLog)
+			theLog->FLogLine("Request to install package %s\n", cFilename);
 		theApp->getPlatformManager()->InstallPackage(cFilename);
 		env->ReleaseStringUTFChars(filename, cFilename);
 	}
@@ -347,6 +356,51 @@ JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_isPowerOn( JNI
 	if (theApp) {
 		return theApp->IsPowerOn();
 	}
+}
+
+
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getRequiredActions( JNIEnv* env, jobject thiz )
+{
+	jint requiredActions = 0;
+	if (theApp)
+	{
+		if (theApp->screenIsDirty()) {
+			requiredActions |= kRequiredActionsRefreshScreen;
+		}
+		if (TAndroidSoundManager::pollAndClearPendingBufferRequest()) {
+			requiredActions |= kRequiredActionsStartSound;
+		}
+	}
+	return requiredActions;
+}
+
+
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundBufferSize( JNIEnv* env, jobject thiz )
+{
+	return 0;
+}
+
+
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_fillSoundBuffer( JNIEnv* env, jobject thiz, jshortArray soundBuffer)
+{
+}
+
+
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundVolume( JNIEnv* env, jobject thiz )
+{
+	return 0;
+}
+
+
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferAvailable( JNIEnv* env, jobject thiz )
+{
+	return 0;
+}
+
+
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferFinishedOrCanceled( JNIEnv* env, jobject thiz )
+{
+	return 0;
 }
 
 

@@ -36,7 +36,7 @@
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Network/TUsermodeNetwork.h"
-#include "Emulator/Sound/TNullSoundManager.h"
+#include "Emulator/Sound/TAndroidSoundManager.h"
 #include "Emulator/Screen/TAndroidScreenManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
@@ -225,7 +225,7 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 	if (mLog) mLog->FLogLine("    OK: 0x%08x", (int)mROMImage);
 
 	if (mLog) mLog->FLogLine("  mSoundManager:");
-	mSoundManager = new TNullSoundManager(mLog);
+	mSoundManager = new TAndroidSoundManager(mLog);
 	if (mLog) mLog->FLogLine("    OK: 0x%08x", (int)mSoundManager);
 
 	Boolean isLandscape = false;
