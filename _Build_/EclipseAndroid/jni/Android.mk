@@ -84,7 +84,7 @@ LOCAL_SRC_FILES := \
 	Emulator/Screen/TScreenManager.cp \
 	Emulator/Serial/TVoyagerSerialPort.cp \
 	Emulator/Sound/TBufferedSoundManager.cp \
-	Emulator/Sound/TNullSoundManager.cp \
+	Emulator/Sound/TAndroidSoundManager.cp \
 	Emulator/Sound/TSoundManager.cp \
 	Monitor/TSymbolList.cp \
 	K/Misc/TCircleBuffer.cp \

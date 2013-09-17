@@ -75,7 +75,7 @@ extern "C" {
 	
 	/** Checks if the screen contents has changed since the last call
 	 * @return 0 if the screen hasn't changed since the last call */
-	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_screenIsDirty( JNIEnv* env, jobject thiz );
+	//extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_screenIsDirty( JNIEnv* env, jobject thiz );
 	
 	/** Switches the backlight on or off.
 	 * @param v 0 to switch backlight off */
@@ -104,6 +104,19 @@ extern "C" {
 	/** Sends a pen down event. */
 	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_penUp( JNIEnv* env, jobject thiz);
 	
+	
+	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getRequiredActions( JNIEnv* env, jobject thiz );
+	
+	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundBufferSize( JNIEnv* env, jobject thiz );
+	
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_fillSoundBuffer( JNIEnv* env, jobject thiz, jshortArray soundBuffer);
+	
+	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundVolume( JNIEnv* env, jobject thiz );
+	
+	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferAvailable( JNIEnv* env, jobject thiz );
+	
+	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferFinishedOrCanceled( JNIEnv* env, jobject thiz );
+
 	
 #ifdef __cplusplus
 }

@@ -45,7 +45,7 @@ public class Native {
 
 	/** Checks if the screen contents has changed since the last call
 	 * @return 0 if the screen hasn't changed since the last call */
-	public static native int screenIsDirty();
+	//public static native int screenIsDirty();
 
 	/** Switches the backlight on or off.
 	 * @param v 0 to switch backlight off */
@@ -73,6 +73,19 @@ public class Native {
 
 	/** Sends a pen down event. */
 	public static native void penUp();   
+
+	
+	public static native int getRequiredActions();
+	
+	public static native int getSoundBufferSize();
+	
+	public static native void fillSoundBuffer(short[] soundBuffer);
+	
+	public static native int getSoundVolume();
+	
+	public static native int soundBufferAvailable();
+	
+	public static native int soundBufferFinishedOrCanceled();
 
 }
 
