@@ -77,13 +77,13 @@ public class Native {
 	/** Java requests a bitmap of required actions from C */
 	public static native int getRequiredActions();
 	
-	/** Java requests the number of samples needed to fill the sound buffer */
+	/** Java requests the number of samples needed to fill the sound buffer. */
 	public static native int getSoundBufferSize();
 	
-	/** Java asks C to fill the sound buffer with samples */
+	/** Java asks C to fill the sound buffer with samples. */
 	public static native void fillSoundBuffer(short[] soundBuffer);
 	
-	/** Java requests the current sound volumee form C. Values range from 0 for off to 100 for full volume */
+	/** Java requests the current sound volume from C. Values range from 0 for off to 100 for full volume. */
 	public static native int getSoundVolume();
 	
 	/** Java tells C that a new sound buffer became available. */
