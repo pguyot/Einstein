@@ -104,18 +104,23 @@ extern "C" {
 	/** Sends a pen down event. */
 	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_penUp( JNIEnv* env, jobject thiz);
 	
-	
+	/** Java requests a bitmap of required actions from C */
 	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getRequiredActions( JNIEnv* env, jobject thiz );
 	
+	/** Java requests the number of samples needed to fill the sound buffer */
 	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundBufferSize( JNIEnv* env, jobject thiz );
 	
+	/** Java asks C to fill the sound buffer with samples */
 	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_fillSoundBuffer( JNIEnv* env, jobject thiz, jshortArray soundBuffer);
 	
+	/** Java requests the current sound volumee form C. Values range from 0 for off to 100 for full volume */
 	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundVolume( JNIEnv* env, jobject thiz );
 	
-	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferAvailable( JNIEnv* env, jobject thiz );
+	/** Java tells C that a new sound buffer became available. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferAvailable( JNIEnv* env, jobject thiz );
 	
-	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferFinishedOrCanceled( JNIEnv* env, jobject thiz );
+	/** Java tells C that the last sound finished playing, and no more filled buffers are pending. */
+	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferFinishedOrCanceled( JNIEnv* env, jobject thiz );
 
 	
 #ifdef __cplusplus

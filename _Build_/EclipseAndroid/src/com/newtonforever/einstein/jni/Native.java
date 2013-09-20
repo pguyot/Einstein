@@ -74,18 +74,23 @@ public class Native {
 	/** Sends a pen down event. */
 	public static native void penUp();   
 
-	
+	/** Java requests a bitmap of required actions from C */
 	public static native int getRequiredActions();
 	
+	/** Java requests the number of samples needed to fill the sound buffer */
 	public static native int getSoundBufferSize();
 	
+	/** Java asks C to fill the sound buffer with samples */
 	public static native void fillSoundBuffer(short[] soundBuffer);
 	
+	/** Java requests the current sound volumee form C. Values range from 0 for off to 100 for full volume */
 	public static native int getSoundVolume();
 	
-	public static native int soundBufferAvailable();
+	/** Java tells C that a new sound buffer became available. */
+	public static native void soundBufferAvailable();
 	
-	public static native int soundBufferFinishedOrCanceled();
+	/** Java tells C that the last sound finished playing, and no more filled buffers are pending. */
+	public static native void soundBufferFinishedOrCanceled();
 
 }
 

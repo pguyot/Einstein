@@ -392,15 +392,13 @@ JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundVolume
 }
 
 
-JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferAvailable( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferAvailable( JNIEnv* env, jobject thiz )
 {
-	return 0;
 }
 
 
-JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferFinishedOrCanceled( JNIEnv* env, jobject thiz )
+JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferFinishedOrCanceled( JNIEnv* env, jobject thiz )
 {
-	return 0;
 }
 
 
