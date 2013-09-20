@@ -4,7 +4,8 @@ package com.newtonforever.einstein;
 
 import com.newtonforever.einstein.R;
 
-import com.newtonforever.einstein.actions.ActionsActivity;
+import com.newtonforever.einstein.activity.ActionsActivity;
+import com.newtonforever.einstein.activity.EinsteinActivity;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
