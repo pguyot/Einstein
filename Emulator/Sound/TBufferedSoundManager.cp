@@ -80,6 +80,37 @@ TBufferedSoundManager::ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSiz
 		}
 	} else {
 		ScheduleOutput(mBuffer, inSize);
+#if 0
+		// this little snippet writes a WAV file for every sample sent to the Output
+		if (inSize) {
+			static int i = 0;
+			unsigned int v = 0;
+			char buf[2000];
+			sprintf(buf, "/Users/matt/NewtAudioSamples%03d.wav", i);
+			FILE *f = fopen(buf, "wb");
+			fwrite("RIFF", 4, 1, f);		// 0
+			v = inSize+36; fwrite(&v, 4, 1, f);	// 4 chunk size
+			fwrite("WAVE", 4, 1, f);		// 8
+			fwrite("fmt ", 4, 1, f);		// 12
+			v = 16; fwrite(&v, 4, 1, f);	// 16 chunk size
+			v = 1; fwrite(&v, 2, 1, f);		// 20 PCM
+			v = 1; fwrite(&v, 2, 1, f);		// 22 channels
+			v = 22050; fwrite(&v, 4, 1, f);	// 24 sample rate
+			v = 44100; fwrite(&v, 4, 1, f);	// 28 byte rate
+			v = 2; fwrite(&v, 2, 1, f);		// 32 block align
+			v = 16; fwrite(&v, 2, 1, f);	// 34 bits per sampel
+			fwrite("data", 4, 1, f);		// 36
+			v = inSize; fwrite(&v, 4, 1, f);// 40 chnk size
+			int j;
+			for (j=0; j<inSize/2; j++) {
+				v = (mBuffer[2*j]<<8) | mBuffer[2*j+1];
+				fwrite(&v, 2, 1, f);
+			}
+			//fwrite(mBuffer, inSize, 1, f);
+			fclose(f);
+			i++;
+		}
+#endif
 	}
 #else
 	// Get the pointer directly.

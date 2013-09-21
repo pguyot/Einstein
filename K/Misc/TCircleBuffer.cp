@@ -95,7 +95,7 @@ TCircleBuffer::Produce( const void* inBuffer, KUIntPtr inAmount )
 		{
 			// ---C123P--- -> C123P--------
 			(void) ::memcpy(
-				mBuffer,
+				newBuffer,
 				(const void*) (mBuffer + mConsumerCrsr),
 				mProducerCrsr - mConsumerCrsr);
 			mProducerCrsr -= mConsumerCrsr;
@@ -103,11 +103,11 @@ TCircleBuffer::Produce( const void* inBuffer, KUIntPtr inAmount )
 		} else {
 			// 456P---C123 -> C123456P-----
 			(void) ::memcpy(
-				mBuffer,
+				newBuffer,
 				(const void*) (mBuffer + mConsumerCrsr),
 				mBufferSize - mConsumerCrsr);
 			(void) ::memcpy(
-				mBuffer + (mBufferSize - mConsumerCrsr),
+				newBuffer + (mBufferSize - mConsumerCrsr),
 				(const void*) mBuffer,
 				mProducerCrsr);
 			mProducerCrsr += mBufferSize - mConsumerCrsr;
