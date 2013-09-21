@@ -23,6 +23,8 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TAndroidSoundManager.h"
+#include <app/AndroidGlue.h>
+#include <app/TAndroidApp.h>
 
 #include <stdlib.h>
 
@@ -62,6 +64,7 @@ TAndroidSoundManager::ScheduleOutputBuffer( KUInt32 /* inBufferAddr */, KUInt32 
 {
 	// TODO: create an interface to AndroidGlue
 	mRequestBuffer = true;
+	__android_log_print(ANDROID_LOG_ERROR, "NewtonEmulator", "SChedule Output Bffer");
 
 	if (inSize == 0)
 	{
@@ -78,6 +81,8 @@ void
 TAndroidSoundManager::StartOutput( void )
 {
 	// TODO: create an interface to AndroidGlue
+    mRequestBuffer = true;
+	__android_log_print(ANDROID_LOG_ERROR, "NewtonEmulator", "Start Output");
 	
 	mOutputIsRunning = true;
 	RaiseOutputInterrupt();
@@ -90,6 +95,7 @@ void
 TAndroidSoundManager::StopOutput( void )
 {
 	// TODO: create an interface to AndroidGlue
+	__android_log_print(ANDROID_LOG_ERROR, "NewtonEmulator", "Stop Output");
 	
 	mOutputIsRunning = false;
 }
@@ -114,7 +120,7 @@ TAndroidSoundManager::pollAndClearPendingBufferRequest()
 {
 	Boolean ret = mRequestBuffer;
 	mRequestBuffer = false;
-	return mRequestBuffer;
+	return ret;
 }
 
 

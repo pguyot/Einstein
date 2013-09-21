@@ -9,7 +9,6 @@ import java.util.TimerTask;
 
 import android.util.Log;
 
-import com.newtonforever.einstein.action.EinsteinActionHelper.ActionType;
 import com.newtonforever.einstein.jni.Native;
 import com.newtonforever.einstein.sound.SoundManager;
 import com.newtonforever.einstein.view.EinsteinView;
@@ -17,8 +16,12 @@ import com.newtonforever.einstein.view.EinsteinView;
 /** Polls the C side and handles actions that the C side wants us to do. @author Frank Gruendel. */
 public class EinsteinActionHandler extends TimerTask {
 
-    private final EinsteinActionHelper m_einsteinActionHelper = new EinsteinActionHelper();
-
+    private final int NO_ACTION_MASK = 0x00;
+    private final int REFRESH_SCREEN_MASK = 0x01;
+    private final int PLAY_SOUND_MASK = 0x02;
+    private final int STOP_SOUND_MASK = 0x04;
+    private final int CHANGE_VOLUME_MASK = 0x08;
+    
     private final EinsteinView m_einsteinView;
     
     private final SoundManager m_soundManager = new SoundManager();
@@ -29,29 +32,40 @@ public class EinsteinActionHandler extends TimerTask {
 
     @Override
     public void run() {
+    	
+    	// this call returns multiple values as bits, packed into an integer variable
         final int actionMask = Native.getRequiredActions();
-        final ActionType actionType = m_einsteinActionHelper.getActionForMask(actionMask);
-        if (0 != actionMask) {
-            Log.e("EinsteinActionHandler ", "action type is " + actionType.toString());
-        }
-        switch (actionType) {
-            case DO_NOTHING: // Will occur 99% of the time, but according to MM isn't an action.
-            default:         // Can't normally happen since we're using a typesafe enum here.
-                break;
-            case REFRESH_SCREEN:
+        
+        if (actionMask!=NO_ACTION_MASK) {
+        	// Note: one request can trigger multiple actions
+            Log.e("EinsteinActionHandler ", "Native.getRequiredActions() requires Android actions");
+            
+            // NewtonOS changed the screen contents. Java must re-render the Android surface.
+            if (0!=(actionMask&REFRESH_SCREEN_MASK)) {
+            	Log.e("EinsteinActionHandler ", "  Requesting Screen Refresh");
                 this.refreshScreen();
-                this.m_soundManager.playSound();
-                break;
-            case PLAY_SOUND:
-                this.m_soundManager.playSound();
-                break;
-            case STOP_SOUND:
+            }
+        
+            // NewtonOS has canceled the current sound. This must be done before starting a new sound.
+            if (0!=(actionMask&STOP_SOUND_MASK)) {
+            	Log.e("EinsteinActionHandler ", "  Requesting Sound Output Cancelation");
                 this.m_soundManager.stopSound();
-                break;
-            case CHANGE_VOLUME:
+            }
+        
+            // NewtonOS wants to start a sound, or, if a sound is currently played, add more samples to the buffers.
+            if (0!=(actionMask&PLAY_SOUND_MASK)) {
+            	Log.e("EinsteinActionHandler ", "  Requesting Sound Output");
+                this.m_soundManager.playSound();
+            }
+        
+            // NewtonOS has changed the volume setting. Android needs to be notified.
+            if (0!=(actionMask&CHANGE_VOLUME_MASK)) {
+            	Log.e("EinsteinActionHandler ", "  Requesting new Sound Output volume");
                 this.m_soundManager.changeVolume();
-                break;
+            }
+            
         }
+        
     }
 
     private void refreshScreen() {
