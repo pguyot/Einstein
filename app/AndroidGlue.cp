@@ -34,10 +34,10 @@
 #include <android/bitmap.h>
 
 
-const jint kRequiredActionsRefreshScreen = 1;
-const jint kRequiredActionsStartSound = 2;
-const jint kRequiredActionsStopSound = 4;
-const jint kRequiredActionsSetVolume = 8;
+const jint kRequiredActionsRefreshScreen	= 0x01;
+const jint kRequiredActionsStartSound		= 0x02;
+const jint kRequiredActionsStopSound		= 0x04;
+const jint kRequiredActionsSetVolume		= 0x08;
 
 
 TAndroidApp *theApp = 0;
@@ -71,20 +71,6 @@ protected:
  }
 */ 
 
-#if 0
-/* This function is called very early, as expected */
-jint JNI_OnLoad(JavaVM* vm, void* reserved)
-{
-	LOGE("***** JNI_OnLoad called! ******");
-	return JNI_VERSION_1_4;
-}
-
-/* this function is not called when deactivating or killing the app! */
-void JNI_OnUnload(JavaVM*, void*)
-{
-	LOGE("***** JNI_OnUnload called! ******");
-}
-#endif
 
 
 /*
