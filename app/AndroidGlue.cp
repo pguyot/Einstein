@@ -353,7 +353,7 @@ JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getRequiredAct
 		if (theApp->screenIsDirty()) {
 			requiredActions |= kRequiredActionsRefreshScreen;
 		}
-		if (TAndroidSoundManager::pollAndClearPendingBufferRequest()) {
+		if (TAndroidSoundManager::soundOutputDataAvailable()) {
 			requiredActions |= kRequiredActionsStartSound;
 		}
 	}
@@ -363,12 +363,15 @@ JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getRequiredAct
 
 JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundBufferSize( JNIEnv* env, jobject thiz )
 {
-	return 0;
+	return TAndroidSoundManager::soundOutputBytesAvailable();
 }
 
 
-JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_fillSoundBuffer( JNIEnv* env, jobject thiz, jshortArray soundBuffer)
+JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_fillSoundBuffer( JNIEnv* env, jobject thiz, jshortArray soundBuffer)
 {
+	jsize len = env->GetArrayLength(soundBuffer);
+    jshort *values = env->GetShortArrayElements(soundBuffer, NULL);
+	return TAndroidSoundManager::soundOutputBytesCopy(values, 2*len);
 }
 
 

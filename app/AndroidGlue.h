@@ -111,7 +111,7 @@ extern "C" {
 	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundBufferSize( JNIEnv* env, jobject thiz );
 	
 	/** Java asks C to fill the sound buffer with samples */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_fillSoundBuffer( JNIEnv* env, jobject thiz, jshortArray soundBuffer);
+	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_fillSoundBuffer( JNIEnv* env, jobject thiz, jshortArray soundBuffer);
 	
 	/** Java requests the current sound volumee form C. Values range from 0 for off to 100 for full volume */
 	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundVolume( JNIEnv* env, jobject thiz );

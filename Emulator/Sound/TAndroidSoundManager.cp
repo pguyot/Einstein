@@ -23,55 +23,77 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TAndroidSoundManager.h"
-#include <app/AndroidGlue.h>
-#include <app/TAndroidApp.h>
 
-#include <stdlib.h>
-
+// ANSI C & POSIX
 #include <strings.h>
+#include <stdio.h>
+
+// K
+#include <K/Defines/UByteSex.h>
+#include <K/Misc/TCircleBuffer.h>
+#include <K/Threads/TMutex.h>
 
 // Einstein.
 #include "Emulator/Log/TLog.h"
+
 
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
 
+#define kNewtonBufferSizeInFrames		0x750
+
+
 // -------------------------------------------------------------------------- //
-//  * TAndroidSoundManager( TLog* )
+// Static Member Variables
+// -------------------------------------------------------------------------- //
+TCircleBuffer* TAndroidSoundManager::mOutputBuffer = 0L;
+TMutex* TAndroidSoundManager::mDataMutex = 0L;
+
+
+// -------------------------------------------------------------------------- //
+//  * TAndroidSoundManager( void )
 // -------------------------------------------------------------------------- //
 TAndroidSoundManager::TAndroidSoundManager( TLog* inLog /* = nil */ )
 :
-TSoundManager( inLog ),
-mOutputIsRunning( false )
+TBufferedSoundManager( inLog )
 {
-	// TODO: create an interface to AndroidGlue
+  if (!mOutputBuffer) {
+    mOutputBuffer =
+      new TCircleBuffer(kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16) );
+  }
+  if (!mDataMutex) {
+    mDataMutex = new TMutex();
+  }
 }
 
 // -------------------------------------------------------------------------- //
-//  * ~TNullSoundManager( void )
+//  * ~TAndroidSoundManager( void )
 // -------------------------------------------------------------------------- //
 TAndroidSoundManager::~TAndroidSoundManager( void )
 {
-	// TODO: create an interface to AndroidGlue
 }
 
 // -------------------------------------------------------------------------- //
-//  * ScheduleOutputBuffer( KUInt32, KUInt32 )
+//  * ScheduleOutput( const KUInt8*, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TAndroidSoundManager::ScheduleOutputBuffer( KUInt32 /* inBufferAddr */, KUInt32 inSize )
+TAndroidSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
 {
-	// TODO: create an interface to AndroidGlue
-	mRequestBuffer = true;
-	__android_log_print(ANDROID_LOG_ERROR, "NewtonEmulator", "SChedule Output Bffer");
-
-	if (inSize == 0)
-	{
-		mOutputIsRunning = false;
-	} else if (mOutputIsRunning) {
-		RaiseOutputInterrupt();
-	}
+  if (inSize > 0)
+  {
+    if (OutputVolume() != kOutputVolume_Zero)
+    {
+      // Write to the output buffer.
+      // Copy data.
+      mDataMutex->Lock();
+      mOutputBuffer->Produce( inBuffer, inSize );
+      mDataMutex->Unlock();
+    }
+    
+    // Ask for more data.
+    RaiseOutputInterrupt();
+  }
 }
 
 // -------------------------------------------------------------------------- //
@@ -80,12 +102,9 @@ TAndroidSoundManager::ScheduleOutputBuffer( KUInt32 /* inBufferAddr */, KUInt32 
 void
 TAndroidSoundManager::StartOutput( void )
 {
-	// TODO: create an interface to AndroidGlue
-    mRequestBuffer = true;
-	__android_log_print(ANDROID_LOG_ERROR, "NewtonEmulator", "Start Output");
-	
-	mOutputIsRunning = true;
-	RaiseOutputInterrupt();
+  // Start the rendering
+  // The DefaultOutputUnit will do any format conversions to the format of the
+  // default device
 }
 
 // -------------------------------------------------------------------------- //
@@ -94,10 +113,9 @@ TAndroidSoundManager::StartOutput( void )
 void
 TAndroidSoundManager::StopOutput( void )
 {
-	// TODO: create an interface to AndroidGlue
-	__android_log_print(ANDROID_LOG_ERROR, "NewtonEmulator", "Stop Output");
-	
-	mOutputIsRunning = false;
+  // Start the rendering
+  // The DefaultOutputUnit will do any format conversions to the format of the
+  // default device
 }
 
 // -------------------------------------------------------------------------- //
@@ -106,21 +124,31 @@ TAndroidSoundManager::StopOutput( void )
 Boolean
 TAndroidSoundManager::OutputIsRunning( void )
 {
-	// TODO: create an interface to AndroidGlue
-	
-	return false;
+  return !mOutputBuffer->IsEmpty();
 }
 
 
-
-Boolean	TAndroidSoundManager::mRequestBuffer = false;
-
-Boolean
-TAndroidSoundManager::pollAndClearPendingBufferRequest()
+bool TAndroidSoundManager::soundOutputDataAvailable()
 {
-	Boolean ret = mRequestBuffer;
-	mRequestBuffer = false;
-	return ret;
+  return !mOutputBuffer->IsEmpty();
+}
+
+
+int TAndroidSoundManager::soundOutputBytesAvailable()
+{
+  return mOutputBuffer->AvailableBytes();
+}
+
+int TAndroidSoundManager::soundOutputBytesCopy(signed short *dst, int max)
+{
+  int n = soundOutputBytesAvailable();
+  if (n>max) n = max;
+  mOutputBuffer->Consume((void*)dst, n);
+	int i;
+	for (i=0; i<n/2; i++) {
+		dst[i] = dst[i]<<8;
+	}
+  return n;
 }
 
 

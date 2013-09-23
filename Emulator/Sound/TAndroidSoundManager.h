@@ -25,9 +25,10 @@
 #define _TANDROIDSOUNDMANAGER_H
 
 #include <K/Defines/KDefinitions.h>
+#include "TBufferedSoundManager.h"
 
-// Einstein
-#include "TSoundManager.h"
+class TMutex;
+class TCircleBuffer;
 
 ///
 /// Class to handle sound input/output and redirect them to Java/Android8.
@@ -39,11 +40,13 @@
 ///
 class TAndroidSoundManager
 :
-public TSoundManager
+public TBufferedSoundManager
 {
 public:
 	///
 	/// Constructor from a log.
+	///
+	/// \param inLog				log interface (can be null)
 	///
 	TAndroidSoundManager( TLog* inLog = nil );
 	
@@ -55,7 +58,7 @@ public:
 	///
 	/// Schedule output of some buffer.
 	///
-	virtual void	ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize );
+	virtual void	ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize );
 	
 	///
 	/// Start output.
@@ -71,14 +74,16 @@ public:
 	/// Is output running?
 	///
 	virtual Boolean	OutputIsRunning( void );
-
-	static Boolean pollAndClearPendingBufferRequest();
+	
+	static bool soundOutputDataAvailable();
+	static int soundOutputBytesAvailable();
+	static int soundOutputBytesCopy(signed short *, int);
 	
 private:
-	/// \name Variables
-	Boolean			mOutputIsRunning;
 	
-	static Boolean	mRequestBuffer;
+	/// \name Variables
+	static TCircleBuffer*		mOutputBuffer;	///< Output buffer.
+	static TMutex*				mDataMutex;		///< Mutex on shared structures.
 };
 
 #endif
