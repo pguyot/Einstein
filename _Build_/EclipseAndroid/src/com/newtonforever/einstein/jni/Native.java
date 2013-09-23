@@ -81,7 +81,7 @@ public class Native {
 	public static native int getSoundBufferSize();
 	
 	/** Java asks C to fill the sound buffer with samples. */
-	public static native void fillSoundBuffer(short[] soundBuffer);
+	public static native int fillSoundBuffer(short[] soundBuffer);
 	
 	/** Java requests the current sound volume from C. Values range from 0 for off to 100 for full volume. */
 	public static native int getSoundVolume();

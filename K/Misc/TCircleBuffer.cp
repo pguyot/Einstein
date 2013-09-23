@@ -154,6 +154,26 @@ TCircleBuffer::Produce( const void* inBuffer, KUIntPtr inAmount )
 	}
 }
 
+
+// -------------------------------------------------------------------------- //
+//  * AvailableBytes();
+// -------------------------------------------------------------------------- //
+KUIntPtr
+TCircleBuffer::AvailableBytes()
+{
+  KUIntPtr max = 0;
+  if (mConsumerCrsr <= mProducerCrsr)
+  {
+    // ---C123P---
+    max = mProducerCrsr - mConsumerCrsr;
+  } else {
+    // 456P---C123
+    max = mBufferSize + mProducerCrsr - mConsumerCrsr;
+  }
+  return max;
+}
+
+
 // -------------------------------------------------------------------------- //
 //  * Consume( void*, KUIntPtr )
 // -------------------------------------------------------------------------- //

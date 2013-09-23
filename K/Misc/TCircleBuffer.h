@@ -87,6 +87,13 @@ public:
 			return mProducerCrsr == mConsumerCrsr;
 		}
 	
+	///
+	/// Determine the number of bytes availbe for consumption.
+	///
+	/// \return number of bytes available
+	///
+	KUIntPtr AvailableBytes();
+	
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
