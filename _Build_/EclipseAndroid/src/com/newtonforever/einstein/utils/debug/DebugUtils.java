@@ -10,15 +10,26 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.newtonforever.einstein.startup.StartupConstants;
 
 /** A small halper class for debugging the Einstein app. @author Frank Gruendel */
 public class DebugUtils {
+    
+    private static final String EINSTEIN_LOG_PREFIX = "----------- ";
 
     private DebugUtils() {
         // No instances, please
+    }
+    
+    public static void logGreen(String tag, String message) {
+        Log.i(EINSTEIN_LOG_PREFIX + tag, message);
+    }
+   
+    public static void logRed(String tag, String message) {
+        Log.e(EINSTEIN_LOG_PREFIX + tag, message);
     }
 
     private static File logFile = null;
@@ -114,4 +125,5 @@ public class DebugUtils {
             f.mkdir();
         }
     }
+    
 }
