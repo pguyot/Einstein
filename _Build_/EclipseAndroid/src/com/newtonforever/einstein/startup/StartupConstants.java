@@ -23,14 +23,17 @@ public class StartupConstants {
 	/** The absolute path to the Newton Emulator data files */
 	public static final String DATA_FILE_PATH;
 	
-	/** The name of the application icon image file */
-	public static final String APP_ICON_FILE_NAME;
-	
 	/** The folder in the SD card in which to put the log file */
 	public static final String LOG_FOLDER;
 	
 	/** The name of the log file */
 	public static final String LOG_FILE_NAME;
+    
+    /** The default Newton ID if no ID has been set in the preferences. */
+    public static final String DEFAULT_NEWTON_ID;
+    
+    /** The default screen refresh rate if no rate has been set in the preferences. */
+    public static final String DEFAULT_SCREEN_REFRESH_RATE;
 	
 	static {
 		EXTERNAL_STORAGE_PUBLIC_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -38,9 +41,10 @@ public class StartupConstants {
 		ROM_FILE_NAME = "717006.rom";
 		REX_FILE_NAME = "Einstein.rex";
 		DATA_FILE_PATH = EXTERNAL_STORAGE_PUBLIC_DIR + File.separator + APPLICATION_SUBDIR;
-		APP_ICON_FILE_NAME = "717006.img";
 		LOG_FOLDER = "log";
 		LOG_FILE_NAME = "noselog.txt";
+		DEFAULT_NEWTON_ID = "00004E6577746F6E";
+		DEFAULT_SCREEN_REFRESH_RATE = "10";
 	}
 
 }
