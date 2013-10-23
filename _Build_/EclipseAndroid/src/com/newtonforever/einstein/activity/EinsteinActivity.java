@@ -125,11 +125,13 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
             Native.setNewtonID(id);
             pEinstein.run(StartupConstants.DATA_FILE_PATH, ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
             // TODO FG 2013_10_19 Only required when using Frank's Flash ROM board data. Remove in a final version.
+            MiscUtils.sleepForMillis(2000);
             DebugUtils.logGreen("EinsteinActivity: ", "Sleeping for 2s after calling run because we're using Frank's ROM...");
         }
         final int rate = Integer.valueOf(this.sharedPrefs.getString("screenrefreshrate", StartupConstants.DEFAULT_SCREEN_REFRESH_RATE));
         startScreenRefresh(rate);
-        // Remove this, it isn't possible if the normal ROM file is used.
+        // TODO FG 2013_10_19 Only required when using Frank's Flash ROM board data. Remove in a final version.
+        MiscUtils.sleepForMillis(2000);
         DebugUtils.logGreen("EinsteinActivity: ", "Sleeping for 2s after starting screen refresh because we're using Frank's ROM...");
 
         app.raisePriority();
