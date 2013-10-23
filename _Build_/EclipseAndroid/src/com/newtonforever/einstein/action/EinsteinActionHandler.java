@@ -2,8 +2,14 @@ package com.newtonforever.einstein.action;
 
 import java.util.TimerTask;
 
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
+import android.media.ToneGenerator;
+
 import com.newtonforever.einstein.jni.Native;
 import com.newtonforever.einstein.sound.SoundManager;
+import com.newtonforever.einstein.startup.StartupConstants;
 import com.newtonforever.einstein.utils.debug.DebugUtils;
 import com.newtonforever.einstein.view.EinsteinView;
 
@@ -48,24 +54,25 @@ public class EinsteinActionHandler extends TimerTask {
         }
         // Note that multiple actions might be required if more than one bit is set in actionMask.
         // So don't even think of using else if here...
-        if (this.isScreenRefresh(actionMask)) {
-            // NewtonOS changed the Newton's screen content. Java must refresh the Android screen.
-            this.handleScreenRefresh();
+        if (this.isPlaySound(actionMask)) {
+            // NewtonOS wants to start a sound or (if a sound is currently played) add more samples to the buffers.
+            DebugUtils.logGreen("EinsteinActionHandler: ", "Requesting sound output with " + actionMask);
+            this.m_soundManager.playSound(Native.getSoundBufferSize());
+            Native.soundBufferFinishedOrCanceled();
         }
         if (this.isStopSound(actionMask)) {
             // NewtonOS has stopped the current sound. This must be done before starting a new sound.
-            DebugUtils.logGreen("EinsteinActionHandler: ", "Stopping sound output");
+            //DebugUtils.logGreen("EinsteinActionHandler: ", "Stopping sound output");
             this.m_soundManager.stopSound();
-        }
-        if (this.isPlaySound(actionMask)) {
-            // NewtonOS wants to start a sound or (if a sound is currently played) add more samples to the buffers.
-            DebugUtils.logGreen("EinsteinActionHandler: ", "Requesting sound output");
-            this.m_soundManager.playSound();
         }
         if (this.isVolumeChanged(actionMask)) {
             // NewtonOS has changed the volume setting. Android must be notified.
-            DebugUtils.logGreen("EinsteinActionHandler: ", "Volume changed");
+            //DebugUtils.logGreen("EinsteinActionHandler: ", "Volume changed");
             this.m_soundManager.changeVolume();
+        }
+        if (this.isScreenRefresh(actionMask)) {
+            // NewtonOS changed the Newton's screen content. Java must refresh the Android screen.
+            this.handleScreenRefresh();
         }
     }
 
@@ -93,7 +100,7 @@ public class EinsteinActionHandler extends TimerTask {
     private void handleScreenRefresh() {
         if (!m_screenRefreshStarted)
         {
-            DebugUtils.logGreen("EinsteinActionHandler: ", "First time screen refresh");
+            //DebugUtils.logGreen("EinsteinActionHandler: ", "First time screen refresh");
             m_screenRefreshStarted = true;
         }
         this.m_einsteinView.postInvalidate();
