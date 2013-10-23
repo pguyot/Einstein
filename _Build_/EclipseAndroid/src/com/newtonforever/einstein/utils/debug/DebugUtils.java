@@ -18,7 +18,7 @@ import com.newtonforever.einstein.startup.StartupConstants;
 /** A small halper class for debugging the Einstein app. @author Frank Gruendel */
 public class DebugUtils {
     
-    private static final String EINSTEIN_LOG_PREFIX = "----------- ";
+    private static final String EINSTEIN_LOG_PREFIX = "--- ";
 
     private DebugUtils() {
         // No instances, please
