@@ -4,6 +4,8 @@ package com.newtonforever.einstein.startup;
 
 import java.io.File;
 
+import android.media.AudioFormat;
+import android.media.AudioTrack;
 import android.os.Environment;
 
 public class StartupConstants {
@@ -34,17 +36,22 @@ public class StartupConstants {
     
     /** The default screen refresh rate if no rate has been set in the preferences. */
     public static final String DEFAULT_SCREEN_REFRESH_RATE;
+    
+    /** The minimum buffer size required for the successful creation of an AudioTrack object created in MODE_STREAM mode */
+    public static final int AUDIO_TRACK_MIN_BUFFER_SIZE;
 	
 	static {
 		EXTERNAL_STORAGE_PUBLIC_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 		APPLICATION_SUBDIR = "Einstein"; // TODO Change this?
 		ROM_FILE_NAME = "717006.rom";
+		//ROM_FILE_NAME = "FranksFlashRomBoard.rom";
 		REX_FILE_NAME = "Einstein.rex";
 		DATA_FILE_PATH = EXTERNAL_STORAGE_PUBLIC_DIR + File.separator + APPLICATION_SUBDIR;
 		LOG_FOLDER = "log";
 		LOG_FILE_NAME = "noselog.txt";
 		DEFAULT_NEWTON_ID = "00004E6577746F6E";
 		DEFAULT_SCREEN_REFRESH_RATE = "10";
+		AUDIO_TRACK_MIN_BUFFER_SIZE = AudioTrack.getMinBufferSize(22050, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
 	}
 
 }
