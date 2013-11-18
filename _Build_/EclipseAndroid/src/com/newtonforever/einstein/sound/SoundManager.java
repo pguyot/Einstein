@@ -1,5 +1,7 @@
 package com.newtonforever.einstein.sound;
 
+import java.util.Calendar;
+
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -26,15 +28,15 @@ public class SoundManager {
         final int minBufferSize = StartupConstants.AUDIO_TRACK_MIN_BUFFER_SIZE;
         final int bufferMode = AudioTrack.MODE_STREAM;
         this.m_audioTrack = new AudioTrack(streamType, sampleRateInHz, channelConfig, audioFormat, minBufferSize, bufferMode);
-        this.m_audioTrack.play(); // Start playing the audio track        
+        this.m_audioTrack.play(); // Note that this only puts the AudioTrack into play mode. It won't play anything yet.
     }
 
     public void playSound(final int soundBufferSize) {
-        DebugUtils.logGreen("SoundManager: ", "Entering playSound()");
-        DebugUtils.logGreen("SoundManager: ", "Sound buffer size: " + soundBufferSize);
         if (0 == soundBufferSize) {
             return;
         }
+        DebugUtils.logGreen("SoundManager: ", "Entering playSound()");
+        DebugUtils.logGreen("SoundManager: ", "Sound buffer size: " + soundBufferSize);
         final short[] soundBuffer = new short[soundBufferSize];
         final int bytesReceived = Native.fillSoundBuffer(soundBuffer);
         final int samplesReceived = bytesReceived / 2;
