@@ -21,7 +21,7 @@ public class EinsteinActionHandler extends TimerTask {
     /** If no bits are set, we will do nothing. */
     private final int NO_ACTION_MASK = 0x00;
 
-    /** If bit 0 is set, we'll do refresh the Android screen. */
+    /** If bit 0 is set, we'll refresh the Android screen. */
     private final int REFRESH_SCREEN_MASK = 0x01;
 
     /** If bit 1 is set, we'll start or continue playing sound. */
