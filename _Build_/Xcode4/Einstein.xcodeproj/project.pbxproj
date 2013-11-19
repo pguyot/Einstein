@@ -1975,7 +1975,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2007,7 +2007,7 @@
 				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRODUCT_NAME = Einstein;
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx10.8;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = i386;
 			};
@@ -2017,7 +2017,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -2047,7 +2047,7 @@
 				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRODUCT_NAME = Einstein;
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx10.8;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = i386;
 			};
@@ -2175,7 +2175,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -2205,7 +2205,7 @@
 				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRODUCT_NAME = Einstein;
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx10.8;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = i386;
 			};
