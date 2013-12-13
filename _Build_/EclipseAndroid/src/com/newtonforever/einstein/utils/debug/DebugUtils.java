@@ -120,7 +120,7 @@ public class DebugUtils {
         if (!f.exists()) {
             f.mkdir();
         }
-        f = new File(externalStorageRoot + "Download/Einstein/log");
+        f = new File(externalStorageRoot + "/Download/Einstein/log");
         if (!f.exists()) {
             f.mkdir();
         }
