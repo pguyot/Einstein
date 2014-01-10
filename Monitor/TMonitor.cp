@@ -306,7 +306,7 @@ TMonitor::StepEmulator( void )
 }
 
 // -------------------------------------------------------------------------- //
-// SaveEmulatroState( const char * )
+// SaveEmulatorState( const char * )
 // -------------------------------------------------------------------------- //
 void
 TMonitor::SaveEmulatorState( const char *inFilename )
@@ -351,7 +351,7 @@ TMonitor::LoadEmulatorState( const char *inFilename )
 }
 
 // -------------------------------------------------------------------------- //
-// SaveEmulatroState( const char * )
+// SnapEmulatorState( const char * )
 // -------------------------------------------------------------------------- //
 void
 TMonitor::SnapEmulatorState( const char *inFilename )

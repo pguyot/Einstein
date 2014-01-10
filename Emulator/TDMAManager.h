@@ -29,6 +29,7 @@
 class TLog;
 class TInterruptManager;
 class TMemory;
+class TStream;
 
 ///
 /// Class for the DMA Manager.
@@ -156,17 +157,12 @@ public:
 					KUInt32 inRegister,
 					KUInt32 inValue );
 
+	///
+	/// Save or restore the state to or from a file.
+	///
+	void		TransferState( TStream* inStream );
+
 private:
-	struct SChannelRegisters {
-		KUInt32			fControlRegister;
-		KUInt32			fBaseRegister;
-		KUInt32			fPointerRegister;
-		KUInt32			fCountRegister;
-		KUInt32			fSizeRegister;
-		KUInt32			fWordRegister;
-		KUInt32			fCompareRegister;
-	};
-	
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///

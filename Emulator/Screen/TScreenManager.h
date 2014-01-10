@@ -481,14 +481,9 @@ public:
     virtual void OpenEinsteinMenu() { }
 	
 	///
-	/// Save the state to a stream.
+	/// Save or restore the state to and from a stream.
 	///
-	void		SaveState( TStream* inStream ) const;
-	
-	///
-	/// Restore the state from a stream.
-	///
-	void		LoadState( TStream* inStream );
+	void		TransferState( TStream* inStream );
 	
 	///
 	/// Change Screen Size.

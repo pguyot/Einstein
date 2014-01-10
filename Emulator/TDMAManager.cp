@@ -22,6 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
+#include <K/Streams/TStream.h>
 #include "TDMAManager.h"
 
 // Einstein
@@ -217,6 +218,7 @@ TDMAManager::ReadChannel2Register( KUInt32 inChannel, KUInt32 inRegister )
 	return theResult;
 }
 
+
 // -------------------------------------------------------------------------- //
 //  * WriteChannel2Register( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
@@ -236,6 +238,16 @@ TDMAManager::WriteChannel2Register(
 	
 //	TDebugger::BreakInDebugger();
 }
+
+
+// -------------------------------------------------------------------------- //
+//  * void TransferState( TStream* )
+// -------------------------------------------------------------------------- //
+void TDMAManager::TransferState( TStream* inStream )
+{
+	inStream->TransferInt32BE(mAssignmentReg);
+}
+
 
 // ======================================================== //
 // The moving cursor writes, and having written, blinks on. //

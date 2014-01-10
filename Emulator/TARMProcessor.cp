@@ -42,7 +42,7 @@
 
 //KUInt32 TARMProcessor::mCurrentRegisters[16];		///< The current bank with the
 
-TARMProcessor *TARMProcessor::current = 0L;
+//TARMProcessor *TARMProcessor::current = 0L;
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -979,109 +979,61 @@ TARMProcessor::PrintRegisters( void )
 	(void) ::printf( "CPSR = %.8X\n", (unsigned int) GetCPSR() );
 }
 
-// -------------------------------------------------------------------------- //
-//  * SaveState( TStream* ) const
-// -------------------------------------------------------------------------- //
-void
-TARMProcessor::SaveState( TStream* inStream ) const
-{
-	// First, save the native primitives stuff.
-	mNativePrimitives.SaveState( inStream );
-
-	// CPU specific stuff.
-	inStream->PutInt32ArrayBE(
-					mCurrentRegisters,
-					sizeof(mCurrentRegisters) / sizeof(KUInt32) );
-	inStream->PutByte( mCPSR_N );
-	inStream->PutByte( mCPSR_Z );
-	inStream->PutByte( mCPSR_C );
-	inStream->PutByte( mCPSR_V );
-	inStream->PutByte( mCPSR_I );
-	inStream->PutByte( mCPSR_F );
-	inStream->PutByte( mCPSR_T );
-	inStream->PutInt32BE( mR8_Bkup );
-	inStream->PutInt32BE( mR9_Bkup );
-	inStream->PutInt32BE( mR10_Bkup );
-	inStream->PutInt32BE( mR11_Bkup );
-	inStream->PutInt32BE( mR12_Bkup );
-	inStream->PutInt32BE( mR13_Bkup );
-	inStream->PutInt32BE( mR14_Bkup );
-	inStream->PutInt32BE( mR13svc_Bkup );
-	inStream->PutInt32BE( mR14svc_Bkup );
-	inStream->PutInt32BE( mR13abt_Bkup );
-	inStream->PutInt32BE( mR14abt_Bkup );
-	inStream->PutInt32BE( mR13und_Bkup );
-	inStream->PutInt32BE( mR14und_Bkup );
-	inStream->PutInt32BE( mR13irq_Bkup );
-	inStream->PutInt32BE( mR14irq_Bkup );
-	inStream->PutInt32BE( mR8fiq_Bkup );
-	inStream->PutInt32BE( mR9fiq_Bkup );
-	inStream->PutInt32BE( mR10fiq_Bkup );
-	inStream->PutInt32BE( mR11fiq_Bkup );
-	inStream->PutInt32BE( mR12fiq_Bkup );
-	inStream->PutInt32BE( mR13fiq_Bkup );
-	inStream->PutInt32BE( mR14fiq_Bkup );
-	inStream->PutInt32BE( mSPSRsvc );
-	inStream->PutInt32BE( mSPSRabt );
-	inStream->PutInt32BE( mSPSRund );
-	inStream->PutInt32BE( mSPSRirq );
-	inStream->PutInt32BE( mSPSRfiq );
-	
-	inStream->PutInt32BE( mMode );
-	inStream->PutInt32BE( mPendingInterrupts );
-}
 
 // -------------------------------------------------------------------------- //
-//  * LoadState( TStream )
+//  * TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::LoadState( TStream* inStream )
+TARMProcessor::TransferState( TStream* inStream ) 
 {
-	// First, load the native primitives stuff.
-	mNativePrimitives.LoadState( inStream );
+	KUInt32 tmp;
 	
-	// Emulator specific stuff.
-	inStream->GetInt32ArrayBE(
+	// First, transfer the native primitives stuff.
+	mNativePrimitives.TransferState( inStream );
+
+	// Then transfer the CPU specific stuff.
+	inStream->TransferInt32ArrayBE(
 					mCurrentRegisters,
 					sizeof(mCurrentRegisters) / sizeof(KUInt32) );
-	mCPSR_N = inStream->GetByte();
-	mCPSR_Z = inStream->GetByte();
-	mCPSR_C = inStream->GetByte();
-	mCPSR_V = inStream->GetByte();
-	mCPSR_I = inStream->GetByte();
-	mCPSR_F = inStream->GetByte();
-	mCPSR_T = inStream->GetByte();
-	mR8_Bkup = inStream->GetInt32BE();
-	mR9_Bkup = inStream->GetInt32BE();
-	mR10_Bkup = inStream->GetInt32BE();
-	mR11_Bkup = inStream->GetInt32BE();
-	mR12_Bkup = inStream->GetInt32BE();
-	mR13_Bkup = inStream->GetInt32BE();
-	mR14_Bkup = inStream->GetInt32BE();
-	mR13svc_Bkup = inStream->GetInt32BE();
-	mR14svc_Bkup = inStream->GetInt32BE();
-	mR13abt_Bkup = inStream->GetInt32BE();
-	mR14abt_Bkup = inStream->GetInt32BE();
-	mR13und_Bkup = inStream->GetInt32BE();
-	mR14und_Bkup = inStream->GetInt32BE();
-	mR13irq_Bkup = inStream->GetInt32BE();
-	mR14irq_Bkup = inStream->GetInt32BE();
-	mR8fiq_Bkup = inStream->GetInt32BE();
-	mR9fiq_Bkup = inStream->GetInt32BE();
-	mR10fiq_Bkup = inStream->GetInt32BE();
-	mR11fiq_Bkup = inStream->GetInt32BE();
-	mR12fiq_Bkup = inStream->GetInt32BE();
-	mR13fiq_Bkup = inStream->GetInt32BE();
-	mR14fiq_Bkup = inStream->GetInt32BE();
-	mSPSRsvc = inStream->GetInt32BE();
-	mSPSRabt = inStream->GetInt32BE();
-	mSPSRund = inStream->GetInt32BE();
-	mSPSRirq = inStream->GetInt32BE();
-	mSPSRfiq = inStream->GetInt32BE();
+	inStream->TransferByte( mCPSR_N );
+	inStream->TransferByte( mCPSR_Z );
+	inStream->TransferByte( mCPSR_C );
+	inStream->TransferByte( mCPSR_V );
+	inStream->TransferByte( mCPSR_I );
+	inStream->TransferByte( mCPSR_F );
+	inStream->TransferByte( mCPSR_T );
+	inStream->TransferInt32BE( mR8_Bkup );
+	inStream->TransferInt32BE( mR9_Bkup );
+	inStream->TransferInt32BE( mR10_Bkup );
+	inStream->TransferInt32BE( mR11_Bkup );
+	inStream->TransferInt32BE( mR12_Bkup );
+	inStream->TransferInt32BE( mR13_Bkup );
+	inStream->TransferInt32BE( mR14_Bkup );
+	inStream->TransferInt32BE( mR13svc_Bkup );
+	inStream->TransferInt32BE( mR14svc_Bkup );
+	inStream->TransferInt32BE( mR13abt_Bkup );
+	inStream->TransferInt32BE( mR14abt_Bkup );
+	inStream->TransferInt32BE( mR13und_Bkup );
+	inStream->TransferInt32BE( mR14und_Bkup );
+	inStream->TransferInt32BE( mR13irq_Bkup );
+	inStream->TransferInt32BE( mR14irq_Bkup );
+	inStream->TransferInt32BE( mR8fiq_Bkup );
+	inStream->TransferInt32BE( mR9fiq_Bkup );
+	inStream->TransferInt32BE( mR10fiq_Bkup );
+	inStream->TransferInt32BE( mR11fiq_Bkup );
+	inStream->TransferInt32BE( mR12fiq_Bkup );
+	inStream->TransferInt32BE( mR13fiq_Bkup );
+	inStream->TransferInt32BE( mR14fiq_Bkup );
+	inStream->TransferInt32BE( mSPSRsvc );
+	inStream->TransferInt32BE( mSPSRabt );
+	inStream->TransferInt32BE( mSPSRund );
+	inStream->TransferInt32BE( mSPSRirq );
+	inStream->TransferInt32BE( mSPSRfiq );
 	
-	mMode = (EMode) inStream->GetInt32BE();
-	mPendingInterrupts = inStream->GetInt32BE();
+	tmp = (KUInt32)mMode; inStream->TransferInt32BE( tmp ); mMode = (EMode)tmp;
+	inStream->TransferInt32BE( mPendingInterrupts );
 }
+
 
 // =========================================================================== //
 // Some programming languages manage to absorb change, but withstand progress. //

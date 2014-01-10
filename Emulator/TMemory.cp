@@ -2829,78 +2829,53 @@ TMemory::EnableBreakpoint( VAddr inAddress)
 }
 
 // -------------------------------------------------------------------------- //
-//  * SaveState( TStream* ) const
+//  * TransferState( TStream* ) const
 // -------------------------------------------------------------------------- //
 void
-TMemory::SaveState( TStream* inStream ) const
+TMemory::TransferState( TStream* inStream )
 {
+	// Invalidate the JIT cache.
+	mJIT.InvalidateTLB();
+	
 	// The various registers.
-	inStream->PutInt32BE( mRAMSize );
-	inStream->PutInt32BE( mRAMEnd );
-	inStream->PutInt32BE( mBankCtrlRegister );
-	inStream->PutInt32BE( mBPCount );
+	inStream->TransferInt32BE( mRAMSize );
+	inStream->TransferInt32BE( mRAMEnd );
+	inStream->TransferInt32BE( mBankCtrlRegister );
+	inStream->TransferInt32BE( mBPCount );
 	
 	// The ROM.
-	inStream->PutInt32ArrayBE( (KUInt32*) mROMImagePtr, 0x01000000 / sizeof( KUInt32 ) );
+	inStream->TransferInt32ArrayBE( (KUInt32*) mROMImagePtr, 0x01000000 / sizeof( KUInt32 ) );
 
 	// The RAM
-	inStream->PutInt32ArrayBE( (KUInt32*) mRAM, mRAMSize / sizeof( KUInt32 ) );
+	if (inStream->IsReading()) {
+		mRAM = (KUInt8*) ::realloc( mRAM, mRAMSize );
+		mRAMOffset = ((KUIntPtr) mRAM) - TMemoryConsts::kRAMStart;
+	}
+	inStream->TransferInt32ArrayBE( (KUInt32*) mRAM, mRAMSize / sizeof( KUInt32 ) );
 
 	// The breakpoints.
+	if (inStream->IsReading()) {
+		KUInt32 BPSize = sizeof(SBreakpoint) * mBPCount;
+		mBreakpoints = (SBreakpoint*) ::realloc( mBreakpoints, BPSize );
+	}
 	KUInt32 indexBP;
 	for (indexBP = 0; indexBP < mBPCount; indexBP++)
 	{
-		inStream->PutInt32BE( mBreakpoints[indexBP].fAddress );
-		inStream->PutInt32BE( mBreakpoints[indexBP].fOriginalValue );
-		inStream->PutInt32BE( mBreakpoints[indexBP].fBPValue );
+		inStream->TransferInt32BE( mBreakpoints[indexBP].fAddress );
+		inStream->TransferInt32BE( mBreakpoints[indexBP].fOriginalValue );
+		inStream->TransferInt32BE( mBreakpoints[indexBP].fBPValue );
 	}
 
 	// The MMU
-	mMMU.SaveState( inStream );
+	mMMU.TransferState( inStream );
 
 	// The flash.
-	mFlash.SaveState( inStream );
-}
+	mFlash.TransferState( inStream );
 
-// -------------------------------------------------------------------------- //
-//  * LoadState( TStream* )
-// -------------------------------------------------------------------------- //
-void
-TMemory::LoadState( TStream* inStream )
-{
-	mRAMSize = inStream->GetInt32BE();
-	mRAMEnd = inStream->GetInt32BE();
-	mBankCtrlRegister = inStream->GetInt32BE();
-	mBPCount = inStream->GetInt32BE();
-		
-	// The ROM.
-	inStream->GetInt32ArrayBE( (KUInt32*) mROMImagePtr, 0x01000000 / sizeof( KUInt32 ) );
-
-	// The RAM
-	mRAM = (KUInt8*) ::realloc( mRAM, mRAMSize );
-	inStream->GetInt32ArrayBE( (KUInt32*) mRAM, mRAMSize / sizeof( KUInt32 ) );
-	mRAMOffset = ((KUIntPtr) mRAM) - TMemoryConsts::kRAMStart;
-
-	// The breakpoints.
-	KUInt32 BPSize = sizeof(SBreakpoint) * mBPCount;
-	mBreakpoints = (SBreakpoint*) ::realloc( mBreakpoints, BPSize );
-	KUInt32 indexBP;
-	for (indexBP = 0; indexBP < mBPCount; indexBP++)
-	{
-		mBreakpoints[indexBP].fAddress = inStream->GetInt32BE();
-		mBreakpoints[indexBP].fOriginalValue = inStream->GetInt32BE();
-		mBreakpoints[indexBP].fBPValue = inStream->GetInt32BE();
-	}
-
-	// The MMU
-	mMMU.LoadState( inStream );
-
-	// The flash.
-	mFlash.LoadState( inStream );
-  
 	// Invalidate the JIT cache.
 	mJIT.InvalidateTLB();
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * Init( void )

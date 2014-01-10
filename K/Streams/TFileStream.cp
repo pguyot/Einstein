@@ -80,6 +80,17 @@ TFileStream::TFileStream( const char* inPath, const char* inMode )
 		throw TIOException();
 	}
 #endif
+	switch (inMode[0]) {
+		case 'r':
+			mIsReading = 1;
+			if (inMode[1]=='+') mIsWriting = 1;
+			break;
+		case 'w':
+		case 'a':
+			mIsWriting = 1;
+			if (inMode[1]=='+') mIsReading = 1;
+			break;
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -90,6 +101,14 @@ TFileStream::TFileStream( FILE* inFile )
 		mFile( inFile ),
 		mWeOpenedTheFile( false )
 {
+	int fileflags = fcntl (fileno(inFile), F_GETFL, 0);
+	if (fileflags!=-1) {
+		switch (fileflags & (O_RDWR|O_WRONLY|O_RDONLY) ) {
+			case O_RDONLY: mIsReading = 1; break;
+			case O_WRONLY: mIsWriting = 1; break;
+			case O_RDWR: mIsWriting = mIsReading = 1; break;
+		}
+	}
 }
 
 // -------------------------------------------------------------------------- //

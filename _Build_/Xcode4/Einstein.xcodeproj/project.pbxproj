@@ -187,23 +187,12 @@
 		C9B4ABC9123D709D00D8D2C7 /* TNetworkManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */; };
 		C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
 		C9BE33D1133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
-		C9C7BB8B162B6C9B0074FBDE /* Globals.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94D3160E48E5009E89C3 /* Globals.cp */; };
-		C9C7BB8C162B6C9B0074FBDE /* Glue.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94D5160E48E5009E89C3 /* Glue.cp */; };
-		C9C7BB8D162B6C9B0074FBDE /* TInterpreter.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94DA160E48E5009E89C3 /* TInterpreter.cp */; };
-		C9C7BB8E162B6C9B0074FBDE /* CArrayIterator.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94DD160E48E5009E89C3 /* CArrayIterator.cp */; };
-		C9C7BB8F162B6C9B0074FBDE /* CDynamicArray.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94DF160E48E5009E89C3 /* CDynamicArray.cp */; };
 		C9D54E1415FA23E700D91131 /* TFibre.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFibre.cp */; };
 		C9DA71BA17CD42D4008E6DB2 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C9DA71B917CD42D4008E6DB2 /* libresolv.dylib */; };
 		C9E848E911EDCD6C00F27330 /* ffi_darwin.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E711EDCD6C00F27330 /* ffi_darwin.c */; };
 		C9E848EA11EDCD6C00F27330 /* x86-ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E811EDCD6C00F27330 /* x86-ffi64.c */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cp */; };
 		DA0D96DE11BAD15300835522 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = DA0D96DD11BAD15300835522 /* darwin64.S */; };
-		F11E44B117C2DE9200EB9B4E /* CArrayIterator.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94DD160E48E5009E89C3 /* CArrayIterator.cp */; };
-		F11E44B217C2DE9400EB9B4E /* CDynamicArray.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94DF160E48E5009E89C3 /* CDynamicArray.cp */; };
-		F11E44B317C2DE9800EB9B4E /* TInterpreter.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94DA160E48E5009E89C3 /* TInterpreter.cp */; };
-		F11E44B417C2DE9B00EB9B4E /* Glue.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94D5160E48E5009E89C3 /* Glue.cp */; };
-		F11E44B517C2DE9D00EB9B4E /* Objects.cp in Sources */ = {isa = PBXBuildFile; fileRef = F8847562169F4DE1007CE179 /* Objects.cp */; };
-		F11E44B617C2DEA300EB9B4E /* Globals.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9EF94D3160E48E5009E89C3 /* Globals.cp */; };
 		F11E44B717C2DEE800EB9B4E /* TFibre.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFibre.cp */; };
 		F11E44B817C2DEF100EB9B4E /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */; };
@@ -213,9 +202,6 @@
 		F1CAFBE41241F7C200A0382E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E36FD111C18A8002165EC /* CoreAudio.framework */; };
 		F1CAFBF51241F7E600A0382E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */; };
 		F1CAFCF9124200C100A0382E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFCF8124200C100A0382E /* CoreGraphics.framework */; };
-		F8847563169F4DE1007CE179 /* Objects.cp in Sources */ = {isa = PBXBuildFile; fileRef = F8847562169F4DE1007CE179 /* Objects.cp */; };
-		F8B76BC5169CAE7100660943 /* newt_string.cp in Sources */ = {isa = PBXBuildFile; fileRef = F8B76BC4169CAE7100660943 /* newt_string.cp */; };
-		F8B76BC6169CAE7100660943 /* newt_string.cp in Sources */ = {isa = PBXBuildFile; fileRef = F8B76BC4169CAE7100660943 /* newt_string.cp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1860,13 +1846,6 @@
 				C901E530132656710074513E /* TEOFException.cp in Sources */,
 				C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */,
 				C9D54E1415FA23E700D91131 /* TFibre.cp in Sources */,
-				C9C7BB8B162B6C9B0074FBDE /* Globals.cp in Sources */,
-				C9C7BB8C162B6C9B0074FBDE /* Glue.cp in Sources */,
-				C9C7BB8D162B6C9B0074FBDE /* TInterpreter.cp in Sources */,
-				C9C7BB8E162B6C9B0074FBDE /* CArrayIterator.cp in Sources */,
-				C9C7BB8F162B6C9B0074FBDE /* CDynamicArray.cp in Sources */,
-				F8B76BC5169CAE7100660943 /* newt_string.cp in Sources */,
-				F8847563169F4DE1007CE179 /* Objects.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1945,15 +1924,8 @@
 				C901E551132659120074513E /* TCircleBuffer.cp in Sources */,
 				C901E552132659140074513E /* TMappedFile.cp in Sources */,
 				F11E44B817C2DEF100EB9B4E /* TSymbolList.cp in Sources */,
-				F11E44B617C2DEA300EB9B4E /* Globals.cp in Sources */,
 				C9BE33D1133E64F60052EA2F /* TJITPerformance.cp in Sources */,
-				F11E44B217C2DE9400EB9B4E /* CDynamicArray.cp in Sources */,
-				F11E44B517C2DE9D00EB9B4E /* Objects.cp in Sources */,
 				F11E44B717C2DEE800EB9B4E /* TFibre.cp in Sources */,
-				F11E44B417C2DE9B00EB9B4E /* Glue.cp in Sources */,
-				F11E44B317C2DE9800EB9B4E /* TInterpreter.cp in Sources */,
-				F11E44B117C2DE9200EB9B4E /* CArrayIterator.cp in Sources */,
-				F8B76BC6169CAE7100660943 /* newt_string.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

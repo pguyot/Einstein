@@ -1111,69 +1111,41 @@ TInterruptManager::GetSyncedCalendarDelta( void )
 	return (KUInt32) (-kEpochInNewtonBase);
 }
 
+
 // -------------------------------------------------------------------------- //
-//  * SaveState( TStream* ) const
+//  * TransferState( TStream* ) const
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::SaveState( TStream* inStream ) const
+TInterruptManager::TransferState( TStream* inStream )
 {
+	KUInt32 t;
+	
 	// Interrupt manager specific stuff.
-	inStream->PutInt32BE( mRunning );
-	inStream->PutInt32BE( mExiting );
+	t = mRunning; inStream->TransferInt32BE( t ); mRunning = t;
+	t = mExiting; inStream->TransferInt32BE( t ); mExiting = t;
 
-	inStream->PutInt32BE( mWaiting );
+	t = mWaiting; inStream->TransferInt32BE( t ); mWaiting  = t;
 
-	inStream->PutInt32BE( mMaskIRQ );
-	inStream->PutInt32BE( mMaskFIQ );
-	inStream->PutInt32BE( mIntRaised );
-	inStream->PutInt32BE( mIntCtrlReg );
-	inStream->PutInt32BE( mFIQMask );
-	inStream->PutInt32BE( mIntEDReg1 );
-	inStream->PutInt32BE( mIntEDReg2 );
-	inStream->PutInt32BE( mIntEDReg3 );
-	inStream->PutInt32BE( mGPIORaised );
-	inStream->PutInt32BE( mGPIOCtrlReg );
-	inStream->PutInt32BE( mCalendarDelta );
+	inStream->TransferInt32BE( mMaskIRQ );
+	inStream->TransferInt32BE( mMaskFIQ );
+	inStream->TransferInt32BE( mIntRaised );
+	inStream->TransferInt32BE( mIntCtrlReg );
+	inStream->TransferInt32BE( mFIQMask );
+	inStream->TransferInt32BE( mIntEDReg1 );
+	inStream->TransferInt32BE( mIntEDReg2 );
+	inStream->TransferInt32BE( mIntEDReg3 );
+	inStream->TransferInt32BE( mGPIORaised );
+	inStream->TransferInt32BE( mGPIOCtrlReg );
+	inStream->TransferInt32BE( mCalendarDelta );
 	
-	inStream->PutInt32BE( mAlarmRegister );
-	inStream->PutInt32BE( mTimerDelta );
-	inStream->PutInt32BE( mTimer );
-	inStream->PutInt32ArrayBE(
+	inStream->TransferInt32BE( mAlarmRegister );
+	inStream->TransferInt32BE( mTimerDelta );
+	inStream->TransferInt32BE( mTimer );
+	inStream->TransferInt32ArrayBE(
 				mMatchRegisters,
 				sizeof(mMatchRegisters) / sizeof(KUInt32) );
 }
 
-// -------------------------------------------------------------------------- //
-//  * LoadState( TStream* )
-// -------------------------------------------------------------------------- //
-void
-TInterruptManager::LoadState( TStream* inStream )
-{
-		// Interrupt manager specific stuff.
-	mRunning = inStream->GetInt32BE();
-	mExiting = inStream->GetInt32BE();
-
-	mWaiting = inStream->GetInt32BE();
-
-	mMaskIRQ = inStream->GetInt32BE();
-	mMaskFIQ = inStream->GetInt32BE();
-	mIntRaised = inStream->GetInt32BE();
-	mIntCtrlReg = inStream->GetInt32BE();
-	mFIQMask = inStream->GetInt32BE();
-	mIntEDReg1 = inStream->GetInt32BE();
-	mIntEDReg2 = inStream->GetInt32BE();
-	mIntEDReg3 = inStream->GetInt32BE();
-	mGPIORaised = inStream->GetInt32BE();
-	mGPIOCtrlReg = inStream->GetInt32BE();
-	mCalendarDelta = inStream->GetInt32BE();
-	
-	mAlarmRegister = inStream->GetInt32BE();
-	mTimerDelta = inStream->GetInt32BE();
-	mTimer = inStream->GetInt32BE();
-	inStream->GetInt32ArrayBE(
-				mMatchRegisters,
-				sizeof(mMatchRegisters) / sizeof(KUInt32) );
-}
 
 // ======================================== //
 // Cobol programmers are down in the dumps. //

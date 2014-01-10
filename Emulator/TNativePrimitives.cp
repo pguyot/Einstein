@@ -2763,36 +2763,21 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 
 
 // -------------------------------------------------------------------------- //
-//  * SaveState( TStream* ) const
+//  * TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
-TNativePrimitives::SaveState( TStream* inStream ) const
+TNativePrimitives::TransferState( TStream* inStream )
 {
 	// The various registers.
-	inStream->PutInt32BE( mTabletCalibration.fUnknown_00 );
-	inStream->PutInt32BE( mTabletCalibration.fUnknown_04 );
-	inStream->PutInt32BE( mTabletCalibration.fUnknown_08 );
-	inStream->PutInt32BE( mTabletCalibration.fUnknown_0C );
-	inStream->PutInt32BE( mTabletCalibration.fUnknown_10 );
-	inStream->PutInt32BE( mTabletSampleRate );
-	inStream->PutInt32BE( mInputVolume );
+	inStream->TransferInt32BE( mTabletCalibration.fUnknown_00 );
+	inStream->TransferInt32BE( mTabletCalibration.fUnknown_04 );
+	inStream->TransferInt32BE( mTabletCalibration.fUnknown_08 );
+	inStream->TransferInt32BE( mTabletCalibration.fUnknown_0C );
+	inStream->TransferInt32BE( mTabletCalibration.fUnknown_10 );
+	inStream->TransferInt32BE( mTabletSampleRate );
+	inStream->TransferByte( mInputVolume );
 }
 
-// -------------------------------------------------------------------------- //
-//  * LoadState( TStream* )
-// -------------------------------------------------------------------------- //
-void
-TNativePrimitives::LoadState( TStream* inStream )
-{
-	// The various registers.
-	mTabletCalibration.fUnknown_00 = inStream->GetInt32BE();
-	mTabletCalibration.fUnknown_04 = inStream->GetInt32BE();
-	mTabletCalibration.fUnknown_08 = inStream->GetInt32BE();
-	mTabletCalibration.fUnknown_0C = inStream->GetInt32BE();
-	mTabletCalibration.fUnknown_10 = inStream->GetInt32BE();
-	mTabletSampleRate = inStream->GetInt32BE();
-	mInputVolume = inStream->GetInt32BE();
-}
 
 // ============================================================================== //
 // Dear Sir,                                                                      //

@@ -265,15 +265,10 @@ public:
 		}
 	
 	///
-	/// Save the state to a stream.
+	/// Save or retore the state to a stream.
 	///
-	void	SaveState( TStream* inStream ) const;
+	void	TransferState( TStream* inStream );
 		
-	///
-	/// Restore the state from a stream.
-	///
-	void	LoadState( TStream* inStream );
-	
 	///
 	/// System Coproc Register Transfer (MMU & Co).
 	///
@@ -390,7 +385,7 @@ public:
 	KUInt32		mSPSRirq;					///< Saved PSR for irq mode
 	KUInt32		mSPSRfiq;					///< Saved PSR for fiq mode
 
-  static TARMProcessor *current; ///< bad style, but needed by the Simulator interface
+	// static TARMProcessor *current; ///< bad style, but needed by the Simulator interface
 
 private:
 	/// \name Variables
