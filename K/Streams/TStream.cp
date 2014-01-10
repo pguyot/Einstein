@@ -510,6 +510,87 @@ TStream::PutByte( const KUInt8 inByte )
 	Write( &inByte, &length );
 }
 
+
+// ------------------------------------------------------------------------- //
+//  * TransferByte( KUInt8& )
+// ------------------------------------------------------------------------- //
+void TStream::TransferByte(KUInt8 &myByte)
+{
+	if (IsReading()) {
+		myByte = GetByte();
+	} else if (IsWriting()) {
+		PutByte(myByte);
+	}
+}
+
+
+// ------------------------------------------------------------------------- //
+//  * TransferInt32BE( KUInt32& )
+// ------------------------------------------------------------------------- //
+void TStream::TransferInt32BE(KUInt32 &myWord)
+{
+	if (IsReading()) {
+		myWord = GetInt32BE();
+	} else if (IsWriting()) {
+		PutInt32BE(myWord);
+	}
+}
+
+
+// ------------------------------------------------------------------------- //
+//  * TransferInt32BE( KSInt32& )
+// ------------------------------------------------------------------------- //
+void TStream::TransferInt32BE(KSInt32 &myWord)
+{
+	union { KUInt32 U32; KSInt32 S32; } v;
+	if (IsReading()) {
+		v.U32 = GetInt32BE();
+		myWord = v.S32;
+	} else if (IsWriting()) {
+		v.S32 = myWord;
+		PutInt32BE(v.U32);
+	}
+}
+
+
+// ------------------------------------------------------------------------- //
+//  * TransferInt16BE( KUInt16& )
+// ------------------------------------------------------------------------- //
+void TStream::TransferInt16BE(KUInt16 &myWord)
+{
+	if (IsReading()) {
+		myWord = GetInt16BE();
+	} else if (IsWriting()) {
+		PutInt16BE(myWord);
+	}
+}
+
+
+// ------------------------------------------------------------------------- //
+//  * void TransferInt32ArrayBE( KUInt32* , const KUInt32 )
+// ------------------------------------------------------------------------- //
+void TStream::TransferInt32ArrayBE(KUInt32* myArray, const KUInt32 myCount)
+{
+	if (IsReading()) {
+		GetInt32ArrayBE(myArray, myCount);
+	} else if (IsWriting()) {
+		PutInt32ArrayBE(myArray, myCount);
+	}
+}
+
+// ------------------------------------------------------------------------- //
+//  * void Transfer( void*, KUInt32* )
+// ------------------------------------------------------------------------- //
+void TStream::Transfer( void* inoutBuffer, KUInt32* ioCount )
+{
+	if (IsReading()) {
+		Read(inoutBuffer, ioCount);
+	} else if (IsWriting()) {
+		Write(inoutBuffer, ioCount);
+	}
+}
+
+
 // =============================== //
 // System going down in 5 minutes. //
 // =============================== //

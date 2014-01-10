@@ -1001,61 +1001,38 @@ TScreenManager::KeyRepeat( KUInt8 inKeyCode )
 	mPlatformManager->SendKeyEvent( kKeyRepeatEventType, inKeyCode );
 }
 
-// -------------------------------------------------------------------------- //
-//  * SaveState( TStream* ) const
-// -------------------------------------------------------------------------- //
-void
-TScreenManager::SaveState( TStream* inStream ) const
-{
-	inStream->PutInt32BE( mPortraitWidth );
-	inStream->PutInt32BE( mPortraitHeight );
-	inStream->PutInt32BE( mPhysicalWidth );
-	inStream->PutInt32BE( mPhysicalHeight );
-	inStream->PutInt32BE( mFullScreen );
-	inStream->PutInt32BE( mScreenIsLandscape );
-	inStream->PutInt32BE( mBypassTablet );
-	inStream->PutInt32BE( mTabletIsDown );
-	inStream->PutInt32BE( mPenIsDown );
-	inStream->PutInt32BE( mTabletSampleRate );
-	inStream->PutInt32BE( mTabletOrientation );
-	inStream->PutInt32BE( mScreenOrientation );
-	inStream->PutInt32BE( mContrast );
-	inStream->PutInt32BE( mBacklight );
-	inStream->PutInt32BE( mKbdIsConnected );
-	
-	KUInt32 count = mPortraitWidth * mPortraitHeight * kBitsPerPixel / 8;
-	inStream->Write(mScreenBuffer, &count);
-}
 
 // -------------------------------------------------------------------------- //
-//  * LoadState( TStream* )
+//  * TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
-TScreenManager::LoadState( TStream* inStream )
+TScreenManager::TransferState( TStream* inStream )
 {
-	// FIXME: make sure that the current setup equals the saved state
+	KUInt32 t;
 	
-	mPortraitWidth = inStream->GetInt32BE(  );
-	mPortraitHeight = inStream->GetInt32BE(  );
-	mPhysicalWidth = inStream->GetInt32BE(  );
-	mPhysicalHeight = inStream->GetInt32BE(  );
-	mFullScreen = inStream->GetInt32BE(  );
-	mScreenIsLandscape = inStream->GetInt32BE(  );
-	mBypassTablet = inStream->GetInt32BE(  );
-	mTabletIsDown = inStream->GetInt32BE(  );
-	mPenIsDown = inStream->GetInt32BE(  );
-	mTabletSampleRate = inStream->GetInt32BE(  );
-	mTabletOrientation = (EOrientation)inStream->GetInt32BE(  );
-	mScreenOrientation = (EOrientation)inStream->GetInt32BE(  );
-	mContrast = inStream->GetInt32BE(  );
-	mBacklight = inStream->GetInt32BE(  );
-	mKbdIsConnected = inStream->GetInt32BE(  );
+	inStream->TransferInt32BE( mPortraitWidth );
+	inStream->TransferInt32BE( mPortraitHeight );
+	inStream->TransferInt32BE( mPhysicalWidth );
+	inStream->TransferInt32BE( mPhysicalHeight );
+	inStream->TransferByte( mFullScreen );
+	inStream->TransferByte( mScreenIsLandscape );
+	inStream->TransferByte( mBypassTablet );
+	inStream->TransferByte( mTabletIsDown );
+	inStream->TransferByte( mPenIsDown );
+	inStream->TransferInt32BE( mTabletSampleRate );
+	t = mTabletOrientation; inStream->TransferInt32BE( t ); mTabletOrientation = (EOrientation)t;
+	t = mScreenOrientation; inStream->TransferInt32BE( t ); mScreenOrientation = (EOrientation)t;
+	inStream->TransferInt32BE( mContrast );
+	inStream->TransferByte( mBacklight );
+	inStream->TransferByte( mKbdIsConnected );
 	
 	KUInt32 count = mPortraitWidth * mPortraitHeight * kBitsPerPixel / 8;
-	inStream->Read(mScreenBuffer, &count);
+	inStream->Transfer(mScreenBuffer, &count);
 	
-	PowerOnScreen();
+	if (inStream->IsReading())
+		PowerOnScreen();
 }
+
 
 // ======================================================================= //
 // "Our attitude with TCP/IP is, `Hey, we'll do it, but don't make a big   //

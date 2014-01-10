@@ -267,7 +267,7 @@ TEmulator::BreakInMonitor( void )
 //  * SaveState( const char* inPath ) const
 // -------------------------------------------------------------------------- //
 void
-TEmulator::SaveState( const char* inPath ) const
+TEmulator::SaveState( const char* inPath )
 {
 	// Open the file for writing.
 	TStream* theStream = new TFileStream( inPath, "wb" );
@@ -275,37 +275,9 @@ TEmulator::SaveState( const char* inPath ) const
 	theStream->PutInt32BE('EINI');
 	theStream->PutInt32BE('SNAP');
 	theStream->PutInt32BE(theStream->Version());
-	SaveState( theStream );
+	TransferState( theStream );
 	delete theStream;
 }
-
-// -------------------------------------------------------------------------- //
-//  * SaveState( TStream* ) const
-// -------------------------------------------------------------------------- //
-void
-TEmulator::SaveState( TStream* inStream ) const
-{
-	// First, save the memory.
-	mMemory.SaveState( inStream );
-	
-	// Then the CPU.
-	mProcessor.SaveState( inStream );
-	
-	// And the interrupt manager.
-	mInterruptManager->SaveState( inStream );
-	
-	// And the screen content.
-	mScreenManager->SaveState( inStream );
-
-	// Emulator specific stuff.
-	inStream->PutInt32BE( mSignal );
-	inStream->PutInt32BE( mInterrupted );
-	inStream->PutInt32BE( mRunning );
-	inStream->PutInt32BE( mPaused );
-	inStream->PutInt32BE( mBPHalted );
-	inStream->PutInt16BE( mBPID );
-}
-
 
 // -------------------------------------------------------------------------- //
 //  * LoadState( const char* inPath ) const
@@ -328,40 +300,46 @@ TEmulator::LoadState( const char* inPath )
 		return;
 	}
 	theStream->Version(theStream->GetInt32BE());
-	if (type!='SNAP') {
+	if (theStream->Version()!=1) {
 		fprintf(stderr, "This Einstein State file is not supported. Please upgarde your Einstein version.\n");
 		return;
 	}
-	LoadState( theStream );
+	TransferState( theStream );
 	delete theStream;
 }
 
+
 // -------------------------------------------------------------------------- //
-//  * LoadState( TStream* )
+//  * TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
-TEmulator::LoadState( TStream* inStream )
+TEmulator::TransferState( TStream* inStream )
 {
-	// First, load the memory.
-	mMemory.LoadState( inStream );
-
+	// First, save the memory.
+	mMemory.TransferState( inStream );
+	
 	// Then the CPU.
-	mProcessor.LoadState( inStream );
+	mProcessor.TransferState( inStream );
 	
 	// And the interrupt manager.
-	mInterruptManager->LoadState( inStream );
+	mInterruptManager->TransferState( inStream );
+  
+	// And the interrupt manager.
+	mDMAManager->TransferState( inStream );
 	
 	// And the screen content.
-	mScreenManager->LoadState( inStream );
-
+	mScreenManager->TransferState( inStream );
+	
 	// Emulator specific stuff.
-	mSignal = inStream->GetInt32BE();
-	mInterrupted = inStream->GetInt32BE();
-	mRunning = inStream->GetInt32BE();
-	mPaused = inStream->GetInt32BE();
-	mBPHalted = inStream->GetInt32BE();
-	mBPID = inStream->GetInt16BE();
+	inStream->TransferInt32ArrayBE(mNewtonID, 2);
+	inStream->TransferInt32BE( mSignal );
+	inStream->TransferInt32BE( mInterrupted );
+	inStream->TransferInt32BE( mRunning );
+	inStream->TransferInt32BE( mPaused );
+	inStream->TransferInt32BE( mBPHalted );
+	inStream->TransferInt16BE( mBPID );
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * InsertCard( void )

@@ -51,6 +51,17 @@
 class TStream
 {
 public:
+	
+	///
+	/// Constructor
+	///
+	TStream() :
+		mVersion(0),
+		mIsReading(0),
+		mIsWriting(0)
+	{
+	}
+	
 	///
 	/// Destructor.
 	///
@@ -369,9 +380,41 @@ public:
 	///
 	void Version(KUInt32 v) { mVersion = v; }
 	
+	/// The followinf functions are shortcuts to either reading or writing data.
+	/// Only a single flag differentiates between reding and writing data. This
+	/// allows for a single function to read and write settings, avoid bug
+	/// prone code replication.
+	
+	/// Return 1 if this stream can read from a file
+	KUInt32 IsReading() { return (mIsReading==1); }
+	
+	/// Return 1 if this stream can write to a file
+	KUInt32 IsWriting() { return (mIsWriting==1); }
+
+	/// Transfer a byte.
+	void TransferByte(KUInt8 &inByte);
+	
+	/// Transfer a word.
+	void TransferInt32BE(KUInt32 &inWord);
+	
+	/// Transfer a word.
+	void TransferInt32BE(KSInt32 &inWord);
+	
+	/// Transfer a short.
+	void TransferInt16BE(KUInt16 &inWord);
+	
+	/// Transfer an array of words
+	void TransferInt32ArrayBE(KUInt32* inArray, const KUInt32 inCount);
+	
+	/// Transfer some bytes.
+	void Transfer( void* outBuffer, KUInt32* ioCount );
+	
+
 protected:
 	
 	KUInt32 mVersion;
+	KUInt32 mIsReading;
+	KUInt32 mIsWriting;
 };
 
 #endif

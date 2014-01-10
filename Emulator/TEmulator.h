@@ -354,13 +354,8 @@ public:
 	///
 	/// \return an error code if a problem occurred.
 	///
-	void		SaveState( const char* inPath ) const;
+	void		SaveState( const char* inPath );
 	
-	///
-	/// Save the state to a file.
-	///
-	void		SaveState( TStream* inStream ) const;
-
 	///
 	/// Load the state from a file.
 	///
@@ -369,10 +364,10 @@ public:
 	void		LoadState( const char* inPath );
 
 	///
-	/// Restore the state from a file.
+	/// Save or restore the state to or from a file.
 	///
-	void		LoadState( TStream* inStream );
-
+	void		TransferState( TStream* inStream );
+	
 	///
 	/// Insert a card.
 	///

@@ -373,15 +373,10 @@ public:
 	void	ClearGPIO( KUInt32 inIntMask );
 
 	///
-	/// Save the state to a stream.
+	/// Save or restore the state to or from a stream.
 	///
-	void	SaveState( TStream* inStream ) const;
+	void	TransferState( TStream* inStream );
 		
-	///
-	/// Restore the state from a stream.
-	///
-	void	LoadState( TStream* inStream );
-
 	///
 	/// Thread loop entry point.
 	///

@@ -274,30 +274,26 @@ TFlash::ReadB(
 	return theResult;
 }
 
+
 // -------------------------------------------------------------------------- //
-//  * SaveState( TStream* ) const
+//  * TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
-TFlash::SaveState( TStream* inStream ) const
+TFlash::TransferState( TStream* inStream )
 {
-	mFlashFile.Sync();
+	if (inStream->IsWriting())
+		mFlashFile.Sync();
 
 	// The flash.
 	KUInt32 FlashSize = kFlashBank1Size + kFlashBank2Size;
-	inStream->PutInt32ArrayBE( (KUInt32*) mFlash, FlashSize / sizeof( KUInt32 ) );
+	inStream->TransferInt32ArrayBE(
+								   (KUInt32*) mFlash,
+								   FlashSize / sizeof( KUInt32 ) );
+
+	if (inStream->IsReading())
+		mFlashFile.Sync();
 }
 
-// -------------------------------------------------------------------------- //
-//  * LoadState( TStream* )
-// -------------------------------------------------------------------------- //
-void
-TFlash::LoadState( TStream* inStream )
-{
-	KUInt32 FlashSize = kFlashBank1Size + kFlashBank2Size;
-	inStream->GetInt32ArrayBE( (KUInt32*) mFlash, FlashSize / sizeof( KUInt32 ) );
-
-	mFlashFile.Sync();
-}
 
 // -------------------------------------------------------------------------- //
 //  * Save( void ) const

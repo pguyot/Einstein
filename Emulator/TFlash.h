@@ -105,14 +105,9 @@ public:
 					KUInt32 inBank );
 
 	///
-	/// Save the state to a stream.
+	/// Save or restor the state to or from a stream.
 	///
-	void		SaveState( TStream* inStream ) const;
-		
-	///
-	/// Restore the state from a stream.
-	///
-	void		LoadState( TStream* inStream );
+	void		TransferState( TStream* inStream );
 		
 	///
 	/// Save flash to the flash file.

@@ -276,16 +276,11 @@ public:
 	void		InvalidateTLB( void );
 
 	///
-	/// Save the state to a stream.
+	/// Save or restore the state of the MMU.
 	///
-	void		SaveState( TStream* inStream ) const;
+	void		TransferState( TStream* inStream );
 		
 	///
-	/// Restore the state from a stream.
-	///
-	void		LoadState( TStream* inStream );
-
-	/// 
 	/// Dump the entire MMU Lookup Table to a File
 	///
 	void		FDump(FILE *f);

@@ -106,15 +106,10 @@ public:
 	void		ExecuteNative( KUInt32 inInstruction );
 
 	///
-	/// Save the state to a stream.
+	/// Load or save the state to a stream.
 	///
-	void		SaveState( TStream* inStream ) const;
+	void		TransferState( TStream* inStream );
 		
-	///
-	/// Restore the state from a file.
-	///
-	void		LoadState( TStream* inStream );
-
 private:
 	/// Constants
 	enum {

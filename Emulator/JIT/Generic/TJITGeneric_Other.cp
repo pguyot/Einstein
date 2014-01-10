@@ -86,7 +86,7 @@ JITInstructionProto(CallHostNative)
 	if (!stub) {
 		CALLNEXTUNIT;
 	}
-	TARMProcessor::current = ioCPU;
+	//TARMProcessor::current = ioCPU;
 	return stub(ioUnit, ioCPU);
 }
 

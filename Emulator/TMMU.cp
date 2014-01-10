@@ -973,42 +973,28 @@ TMMU::InvalidatePerms( void )
 	mMemoryIntf->GetJITObject()->InvalidateTLB();
 }
 
-// -------------------------------------------------------------------------- //
-//  * SaveState( TStream* ) const
-// -------------------------------------------------------------------------- //
-void
-TMMU::SaveState( TStream* inStream ) const
-{
-	// The various registers.
-	inStream->PutInt32BE( mMMUEnabled );
-	inStream->PutInt32BE( mCurrentAPMode );
-	inStream->PutInt32BE( mCurrentAPRead );
-	inStream->PutInt32BE( mCurrentAPWrite );
-	inStream->PutInt32BE( mTTBase );
-	inStream->PutInt32BE( mDomainAC );
-	inStream->PutInt32BE( mFaultAddress );
-	inStream->PutInt32BE( mFaultStatus );
-}
 
 // -------------------------------------------------------------------------- //
-//  * LoadState( TStream* )
+//  * TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
-TMMU::LoadState( TStream* inStream )
+TMMU::TransferState( TStream* inStream )
 {
-	mMMUEnabled = inStream->GetInt32BE();
-	mCurrentAPMode = inStream->GetInt32BE();
-	mCurrentAPRead = inStream->GetInt32BE();
-	mCurrentAPWrite = inStream->GetInt32BE();
-	mTTBase = inStream->GetInt32BE();
-	mDomainAC = inStream->GetInt32BE();
-	mFaultAddress = inStream->GetInt32BE();
-	mFaultStatus = inStream->GetInt32BE();
-	
-	// Reset the cache.
+	// Do not load or save any cached data.
 	InvalidateTLB();
 	InvalidatePerms();
+
+	// The various registers.
+	inStream->TransferByte( mMMUEnabled );
+	inStream->TransferByte( mCurrentAPMode );
+	inStream->TransferByte( mCurrentAPRead );
+	inStream->TransferByte( mCurrentAPWrite );
+	inStream->TransferInt32BE( mTTBase );
+	inStream->TransferInt32BE( mDomainAC );
+	inStream->TransferInt32BE( mFaultAddress );
+	inStream->TransferInt32BE( mFaultStatus );
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * FDump(FILE *f)
