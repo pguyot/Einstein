@@ -133,6 +133,8 @@ public:
 	
 	int update(unsigned short *buffer);
 	
+	int updateOverlay(unsigned short *buffer);
+	
 	int isDirty() { return changed; }
 	
 private:

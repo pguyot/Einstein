@@ -255,6 +255,13 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 	mPlatformManager = mEmulator->GetPlatformManager();
 	mPlatformManager->SetDocDir(dataPath);
 
+	// Create the Overlay text window
+	mScreenManager->OverlayClear();
+	mScreenManager->OverlayOn();
+	mScreenManager->OverlayPrintAt(0, 0, "Booting...", true);
+	mScreenManager->OverlayPrintProgress(1, 0);
+	mScreenManager->OverlayFlush();
+
 	if (mLog) mLog->FLogLine("Creating helper thread.");
 	pthread_t theThread;
 	int theErr = ::pthread_create( &theThread, NULL, SThreadEntry, this );

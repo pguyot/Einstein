@@ -985,7 +985,7 @@ TMMU::TransferState( TStream* inStream )
 	InvalidatePerms();
 
 	// The various registers.
-	inStream->TransferByte( mMMUEnabled );
+	inStream->TransferBoolean( mMMUEnabled );
 	inStream->TransferByte( mCurrentAPMode );
 	inStream->TransferByte( mCurrentAPRead );
 	inStream->TransferByte( mCurrentAPWrite );

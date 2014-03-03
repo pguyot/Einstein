@@ -995,13 +995,13 @@ TARMProcessor::TransferState( TStream* inStream )
 	inStream->TransferInt32ArrayBE(
 					mCurrentRegisters,
 					sizeof(mCurrentRegisters) / sizeof(KUInt32) );
-	inStream->TransferByte( mCPSR_N );
-	inStream->TransferByte( mCPSR_Z );
-	inStream->TransferByte( mCPSR_C );
-	inStream->TransferByte( mCPSR_V );
-	inStream->TransferByte( mCPSR_I );
-	inStream->TransferByte( mCPSR_F );
-	inStream->TransferByte( mCPSR_T );
+	inStream->TransferBoolean( mCPSR_N );
+	inStream->TransferBoolean( mCPSR_Z );
+	inStream->TransferBoolean( mCPSR_C );
+	inStream->TransferBoolean( mCPSR_V );
+	inStream->TransferBoolean( mCPSR_I );
+	inStream->TransferBoolean( mCPSR_F );
+	inStream->TransferBoolean( mCPSR_T );
 	inStream->TransferInt32BE( mR8_Bkup );
 	inStream->TransferInt32BE( mR9_Bkup );
 	inStream->TransferInt32BE( mR10_Bkup );

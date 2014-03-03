@@ -53,6 +53,9 @@
 #include "TARMProcessor.h"
 #include "TJITGeneric_Macros.h"
 
+#include "TEmulator.h"
+#include "TScreenManager.h"
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -73,6 +76,17 @@ const KUInt32 k717006VirtualizationPatches[] = {
 	// symcmp__FPcT1
 	0x00358C9C / sizeof(KUInt32),	TVirtualizedCallsPatches::ksymcmp__FPcT1,
 };	
+
+
+T_ROM_INJECTION(0x00018688, "Progress_ROMBoot") {
+	TScreenManager *screen = ioCPU->GetEmulator()->GetScreenManager();
+	if (screen->OverlayIsOn()) {
+		screen->OverlayPrintProgress(1, 2);
+		screen->OverlayPrintAt(0, 3, "ROMBoot", 1);
+		screen->OverlayFlush();
+	}
+	return ioUnit;
+}
 
 // avoid calibration screen early in the game
 TROMPatch p001412f8(0x001412f8, 0xea000009, "Avoid screen calibration");
