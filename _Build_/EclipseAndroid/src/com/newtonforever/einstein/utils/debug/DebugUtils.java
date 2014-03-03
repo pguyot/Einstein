@@ -90,10 +90,13 @@ public class DebugUtils {
         if (null != logFile) {
             return logFile;
         }
-        final String logFolderName = StartupConstants.DATA_FILE_PATH + File.separator + StartupConstants.LOG_FOLDER;
+        String logFolderName = StartupConstants.DATA_FILE_PATH + File.separator + StartupConstants.LOG_FOLDER;
+        if (logFolderName.startsWith("/mnt/")) {
+        	logFolderName = logFolderName.substring(4);
+        }
         final File logFolder = new File(logFolderName);
         if (!logFolder.exists()) {
-            createLogFolderPath();
+            createLogFolderPath(logFolderName);
         }
         final String logFileName = logFolderName + File.separator + StartupConstants.LOG_FILE_NAME;
         logFile = new File(logFileName);
@@ -110,20 +113,12 @@ public class DebugUtils {
         return logFile;
     }
 
-    private static void createLogFolderPath() {
-        final String externalStorageRoot = Environment.getExternalStorageDirectory().getPath();
-        File f = new File(externalStorageRoot + "/Download");
-        if (!f.exists()) {
-            f.mkdir();
-        }
-        f = new File(externalStorageRoot + "/Download/Einstein");
-        if (!f.exists()) {
-            f.mkdir();
-        }
-        f = new File(externalStorageRoot + "/Download/Einstein/log");
-        if (!f.exists()) {
-            f.mkdir();
-        }
+    private static void createLogFolderPath(final String path) {
+    	File dir = new File(path);
+    	dir.mkdirs();
+    	if (!dir.isDirectory()) {
+    		Log.e("ERROR", "Can't create path");
+    	}
     }
     
 }
