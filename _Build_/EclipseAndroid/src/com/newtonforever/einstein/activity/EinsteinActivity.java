@@ -1,7 +1,13 @@
 // TODO FG Review
 package com.newtonforever.einstein.activity;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Timer;
 
 import android.app.Activity;
@@ -16,6 +22,7 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.Window;
@@ -62,7 +69,33 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     public static EinsteinActivity getInstance() {
         return pInstance;
     }
+/*
+    public void DownloadFile(String src, String dst){
 
+        try {
+            URL u = new URL(src);
+            InputStream is = u.openStream();
+
+            DataInputStream dis = new DataInputStream(is);
+
+            byte[] buffer = new byte[1024];
+            int length;
+
+            FileOutputStream fos = new FileOutputStream(new File(dst));
+            while ((length = dis.read(buffer))>0) {
+              fos.write(buffer, 0, length);
+            }
+            fos.close();
+
+          } catch (MalformedURLException mue) {
+            Log.e("SYNC getUpdate", "malformed url error", mue);
+          } catch (IOException ioe) {
+            Log.e("SYNC getUpdate", "io error", ioe);
+          } catch (SecurityException se) {
+            Log.e("SYNC getUpdate", "security error", se);
+          }
+}
+*/
     // --- beginning of life cycle
 
     /** 
@@ -86,6 +119,12 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         DebugUtils.logGreen("EinsteinActivity: ", "Creating Einstein application.");
         final EinsteinApplication app = (EinsteinApplication)getApplication();
         pEinstein = app.getEinstein();
+
+        // Download the ROM
+        //DebugUtils.logGreen("ERR", "A");
+        //DownloadFile("http://www.matthiasm.com/717006", "/mnt/sdcard/Download/Einstein/717006.rom");
+        //DebugUtils.logGreen("ERR", "B");
+        
 
         // Create an instance of EinsteinPreferencesActivity. If we do not do this, the preferences that are calculated
         // at runtime wouldn't exist until the user has invoked the preferences window for the first time.
