@@ -212,9 +212,62 @@ int TAndroidScreenManager::update(unsigned short *buffer)
 			break;
 	}
 	
+	updateOverlay(buffer);
 	changed = 0;
 	return 1;
 }
+
+
+int TAndroidScreenManager::updateOverlay(unsigned short *buffer)
+{
+	// Update the overlay plane
+	// TODO: we can save some time if we do this only for an overlapping area
+	if (mOverlayIsOn)
+	{
+		// TODO: this calculation should only be done during screen sizing and orientation changes
+		mOverlayRect.fLeft = GetScreenWidth()/2 - 20*8;
+		mOverlayRect.fRight = mOverlayRect.fLeft+40*8;
+		mOverlayRect.fTop = GetScreenHeight()*2/3;
+		mOverlayRect.fBottom = mOverlayRect.fTop + 16*4;
+		
+		KUInt32 dstRowBytes = GetScreenWidth() * 2;
+		KUInt8* dstRowPtr =
+		((KUInt8*)buffer)
+		+ (mOverlayRect.fTop * dstRowBytes)
+		+ (mOverlayRect.fLeft * sizeof(KUInt16))
+		;
+		
+		KUInt32 line;
+		for (line=0; line<4; line++) {
+			if (mOverlayIsDirty[line]) {
+				KUInt32 row ;
+				for (row=0; row<13; row++) {
+					KUInt32 cx;
+					KUInt16 *dstCursor = ((KUInt16*)(dstRowPtr + (line*16 + row)*dstRowBytes));
+					for (cx=0; cx<40; cx++) {
+						char c = mOverlay[line][cx] & 0x7f;
+						if (c!=0 && c!=32) {
+							KUInt32 x;
+							KUInt16 pattern = mFontData[c][row];
+							for (x=8; x>0; x--) {
+								if (pattern&0x180) {
+									*dstCursor++ = 0x03FF;
+								} else {
+									dstCursor++;
+								}
+								pattern <<= 1;
+							}
+						} else {
+							dstCursor += 8;
+						}
+					}
+				}
+			}
+		}
+		
+	}
+}
+
 
 // -------------------------------------------------------------------------- //
 //  * UpdateScreenRect( SRect* )

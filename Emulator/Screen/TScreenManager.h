@@ -489,6 +489,42 @@ public:
 	/// Change Screen Size.
 	///
 	void		ChangeScreenSize(int inWidth, int inHeight);
+	
+	///
+	/// Switch the status overlay on
+	///
+	void		OverlayOn();
+	
+	///
+	/// Switch the status overlay off
+	///
+	void		OverlayOff();
+	
+	///
+	/// Switch the status overlay on
+	///
+	Boolean		OverlayIsOn() { return mOverlayIsOn; }
+	
+	///
+	/// Push the overlay changes to the screen
+	///
+	void		OverlayFlush();
+	
+	///
+	/// Clear the contents of the overlayplane
+	///
+	void		OverlayClear(KSInt32 line=-1);
+	
+	///
+	/// print some text into the status overlay
+	///
+	void		OverlayPrintAt(KSInt32 x, KSInt32 y, const char *text, Boolean centered=0);
+	
+	///
+	/// print a progress bar
+	///
+	void		OverlayPrintProgress(KSInt32 y, KUInt32 percent);
+	
 
 protected:
 	///
@@ -648,6 +684,13 @@ private:
 	Boolean				mBacklight;			///< Current screen backlight.
 	Boolean				mKbdIsConnected;	///< If keyboard is connected.
 	KUInt8*				mScreenBuffer;		///< Buffer of the screen.
+	
+protected:
+	Boolean				mOverlayIsOn;		///< Show overlay on screen
+	Boolean				mOverlayIsDirty[4];	///< There is something visible in the overlay buffer line
+	char				mOverlay[4][40];	///< Overlay text buffer
+	SRect				mOverlayRect;		///< Position and size of overlay on screen
+	static KUInt8		mFontData[128][13]; ///< Pixeldata for overlay font
 };
 
 #endif

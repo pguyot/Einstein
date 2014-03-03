@@ -135,28 +135,97 @@ TNativePrimitives::SetEmulator( TEmulator* inEmulator )
 void
 TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 {
+	static KUInt16 n[0x1000] = { 0 };
+	
 	if (inInstruction & 0x80000000)
 	{
 		mVirtualizedCalls->Execute(inInstruction &~ 0x80000000);
 	} else {
+		static Boolean traceProgress = true;
+		if (traceProgress) {
+			int nn = n[inInstruction&0xfff]++;
+			static int prevProgress = 2;
+			int progress = 0;
+			const char *title = "";
+			if (nn==0) {
+				switch (inInstruction) {
+					case 0x00000003: progress=1; title = "Init Flash"; break;
+					case 0x00000001: progress=2; title = "Identify Flash"; break;
+					case 0x00000004: progress=3; title = "Init Flash Driver"; break;
+					case 0x0000000a: progress=4; title = "Reset Flash Block Status"; break;
+					case 0x00000006: progress=5; title = "Read Flash Array"; break;
+					case 0x00000007: progress=6; title = "Read Flash Array"; break;
+					case 0x00000005: progress=7; title = "Cleanup Flash Driver Data"; break;
+					case 0x00000002: progress=8; title = "Cleanup Flash"; break;
+					case 0x00000117: progress=9; title = "Get Emulator Info"; break;
+					case 0x00000103: progress=10; title = "Init Platform"; break;
+					case 0x0000010b: progress=11; title = "Power Off Subsystem"; break;
+					case 0x0000021f: progress=12; title = ""; break;
+					case 0x00000205: progress=13; title = ""; break;
+					case 0x00000206: progress=14; title = ""; break;
+					case 0x0000020a: progress=15; title = ""; break;
+					case 0x0000020c: progress=16; title = ""; break;
+					case 0x0000010a: progress=17; title = "Power On Subsystem"; break;
+					case 0x0000010d: progress=18; title = "Pause System"; break;
+					case 0x00000109: progress=19; title = "Reset ZAP Store Check"; break;
+					case 0x00000301: progress=20; title = ""; break;
+					case 0x00000303: progress=21; title = "Battery Driver Init"; break;
+					case 0x00000404: progress=22; title = "Display Power Init"; break;
+					case 0x00000403: progress=23; title = "Get Screen Info"; break;
+					case 0x00000408: progress=24; title = "Get Screen Features"; break;
+					case 0x00000405: progress=25; title = "Screen Power On"; break;
+					case 0x00000409: progress=26; title = "Set Screen Features"; break;
+					case 0x00000204: progress=27; title = ""; break;
+					case 0x00000217: progress=28; title = ""; break;
+					case 0x00000218: progress=29; title = ""; break;
+					case 0x00000503: progress=30; title = "Tablet Init"; break;
+					case 0x0000050c: progress=31; title = "Get Tablet Resolution"; break;
+					case 0x00000507: progress=32; title = "Get Tablet Sample Rate"; break;
+					case 0x0000050d: progress=33; title = "Set Tablet Orientation"; break;
+					case 0x00000407: progress=34; title = "Screen Output"; break;
+					case 0x00000213: progress=35; title = ""; break;
+					case 0x00000209: progress=36; title = ""; break;
+					case 0x00000207: progress=37; title = ""; break;
+					case 0x00000211: progress=38; title = ""; break;
+					case 0x0000021d: progress=39; title = ""; break;
+					case 0x0000020d: progress=40; title = ""; break;
+					case 0x0000020f: progress=41; title = ""; break;
+					case 0x00000307: progress=42; title = ""; break;
+					case 0x0000000d: progress=43; title = "Write Flash Memory"; break;
+					case 0x00000008: progress=44; title = "Write Flash Memory"; break;
+					case 0x0000000e: progress=45; title = "Setup Flash Memory"; break;
+					case 0x00000112: progress=46; traceProgress = false; break;
+					default:
+						printf("Unmanaged: 0x%08x at %d\n", (unsigned int)inInstruction, progress);
+				}
+				if (progress>prevProgress) {
+					prevProgress = progress;
+					if (mScreenManager->OverlayIsOn()) {
+						mScreenManager->OverlayPrintProgress(1, progress*100/46);
+						if (*title) mScreenManager->OverlayPrintAt(0, 3, title, true);
+						mScreenManager->OverlayFlush();
+					}
+				}
+			}
+		}
 		switch (inInstruction >> 8)
 		{
 			case 0x000000:
 				ExecuteFlashDriverNative( inInstruction );
 				break;
-	
+				
 			case 0x000001:
 				ExecutePlatformDriverNative( inInstruction );
 				break;
-	
+				
 			case 0x000002:
 				ExecuteSoundDriverNative( inInstruction );
 				break;
-	
+				
 			case 0x000003:
 				ExecuteBatteryDriverNative( inInstruction );
 				break;
-	
+				
 			case 0x000004:
 				ExecuteScreenDriverNative( inInstruction );
 				break;
@@ -732,11 +801,15 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 					(unsigned int) mProcessor->GetRegister(1) );
 			}
 			{
-				// this is a hack that will install packages that were added to a 
-				// directory on the host. This is used by iOS/iPhone/Android.
 				static int firstPause = 1;
 				if (firstPause) {
 					firstPause--;
+					// This will remove the boot-progress display
+					if (mScreenManager->OverlayIsOn()) {
+						mScreenManager->OverlayOff();
+					}
+					// this is a hack that will install packages that were added to a
+					// directory on the host. This is used by iOS/iPhone/Android.
 					if (firstPause==0) {
 						mPlatformManager->InstallNewPackages();
 					}

@@ -332,6 +332,51 @@ TCocoaScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 		}
 	}
 	
+	// Update the overlay plane
+	// TODO: we can save some time if we do this only for an overlapping area
+	if (mOverlayIsOn) {
+		// TODO: this calculation should only be done during screen sizing and orientation changes
+		mOverlayRect.fLeft = GetScreenWidth()/2 - 20*8;
+		mOverlayRect.fRight = mOverlayRect.fLeft+40*8;
+		mOverlayRect.fTop = GetScreenHeight()*2/3;
+		mOverlayRect.fBottom = mOverlayRect.fTop + 16*4;
+		
+		KUInt8* dstRowPtr =
+			((KUInt8*) mImageBuffer)
+			+ (mOverlayRect.fTop * dstRowBytes)
+			+ (mOverlayRect.fLeft * sizeof(KUInt32))
+		;
+		
+		KUInt32 line;
+		for (line=0; line<4; line++) {
+			if (mOverlayIsDirty[line]) {
+				KUInt32 row ;
+				for (row=0; row<13; row++) {
+					KUInt32 cx;
+					KUInt32 *dstCursor = ((KUInt32*)(dstRowPtr + (line*16 + row)*dstRowBytes));
+					for (cx=0; cx<40; cx++) {
+						char c = mOverlay[line][cx] & 0x7f;
+						if (c!=0 && c!=32) {
+							KUInt32 x;
+							KUInt16 pattern = mFontData[c][row];
+							for (x=8; x>0; x--) {
+								if (pattern&0x180) {
+									*dstCursor++ = 0x00FF8888;
+								} else {
+									dstCursor++;
+								}
+								pattern <<= 1;
+							}
+						} else {
+							dstCursor += 8;
+						}
+					}
+				}
+			}
+		}
+		
+	}
+	
 	// Update.
 	TCocoaScreenView_SetNeedsDisplay(mProxy, mEmulatorScreenView);
 }
