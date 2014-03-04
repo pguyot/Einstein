@@ -220,6 +220,8 @@ int TAndroidScreenManager::update(unsigned short *buffer)
 
 int TAndroidScreenManager::updateOverlay(unsigned short *buffer)
 {
+	// RGB16 = [FEDCB.A98765.43210]
+	//   red =  11111 011111 01111 = 0xFBEF
 	// Update the overlay plane
 	// TODO: we can save some time if we do this only for an overlapping area
 	if (mOverlayIsOn)
@@ -227,7 +229,7 @@ int TAndroidScreenManager::updateOverlay(unsigned short *buffer)
 		// TODO: this calculation should only be done during screen sizing and orientation changes
 		mOverlayRect.fLeft = GetScreenWidth()/2 - 20*8;
 		mOverlayRect.fRight = mOverlayRect.fLeft+40*8;
-		mOverlayRect.fTop = GetScreenHeight()*2/3;
+		mOverlayRect.fTop = GetScreenHeight() - 16*5;
 		mOverlayRect.fBottom = mOverlayRect.fTop + 16*4;
 		
 		KUInt32 dstRowBytes = GetScreenWidth() * 2;
@@ -251,7 +253,7 @@ int TAndroidScreenManager::updateOverlay(unsigned short *buffer)
 							KUInt16 pattern = mFontData[c][row];
 							for (x=8; x>0; x--) {
 								if (pattern&0x180) {
-									*dstCursor++ = 0x03FF;
+									*dstCursor++ = 0xFBEF;
 								} else {
 									dstCursor++;
 								}
