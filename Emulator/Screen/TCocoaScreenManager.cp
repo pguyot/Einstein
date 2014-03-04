@@ -338,7 +338,7 @@ TCocoaScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 		// TODO: this calculation should only be done during screen sizing and orientation changes
 		mOverlayRect.fLeft = GetScreenWidth()/2 - 20*8;
 		mOverlayRect.fRight = mOverlayRect.fLeft+40*8;
-		mOverlayRect.fTop = GetScreenHeight()*2/3;
+		mOverlayRect.fTop = GetScreenHeight() - 16*5;
 		mOverlayRect.fBottom = mOverlayRect.fTop + 16*4;
 		
 		KUInt8* dstRowPtr =
