@@ -71,6 +71,11 @@ public:
 	virtual void	StopOutput( void );
 	
 	///
+	/// User changed the sound volume
+	///
+	virtual void	OutputVolumeChanged( void );
+
+	///
 	/// Is output running?
 	///
 	virtual Boolean	OutputIsRunning( void );
@@ -78,12 +83,16 @@ public:
 	static bool soundOutputDataAvailable();
 	static int soundOutputBytesAvailable();
 	static int soundOutputBytesCopy(signed short *, int);
+	static int getGlobalVolume() { return mGlobalVolume; }
+	static int soundVolumeChanged();
 	
 private:
 	
 	/// \name Variables
 	static TCircleBuffer*		mOutputBuffer;	///< Output buffer.
 	static TMutex*				mDataMutex;		///< Mutex on shared structures.
+	static int					mGlobalVolume;
+	static int					mGlobalVolumeChanged;
 };
 
 #endif

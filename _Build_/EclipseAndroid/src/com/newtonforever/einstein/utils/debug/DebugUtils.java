@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import com.newtonforever.einstein.startup.StartupConstants;
 
-/** A small halper class for debugging the Einstein app. @author Frank Gruendel */
+/** A small helper class for debugging the Einstein app. @author Frank Gruendel */
 public class DebugUtils {
     
     private static final String EINSTEIN_LOG_PREFIX = "--- ";

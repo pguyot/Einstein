@@ -67,7 +67,6 @@ public class EinsteinActionHandler extends TimerTask {
         }
         if (this.isVolumeChanged(actionMask)) {
             // NewtonOS has changed the volume setting. Android must be notified.
-            //DebugUtils.logGreen("EinsteinActionHandler: ", "Volume changed");
             this.m_soundManager.changeVolume();
         }
         if (this.isScreenRefresh(actionMask)) {

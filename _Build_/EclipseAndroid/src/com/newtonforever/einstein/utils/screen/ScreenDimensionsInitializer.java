@@ -12,6 +12,15 @@ import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+/**
+ * @brief Find the sizes of the Newton and the host screen.
+ * 
+ * This class uses the preferences to find the size of the Newton screen.
+ * It also searches the Display Metrics database to initialize the Host screen size.
+ * 
+ * @author matt
+ *
+ */
 public class ScreenDimensionsInitializer {
 	
     private ScreenDimensionsInitializer() {

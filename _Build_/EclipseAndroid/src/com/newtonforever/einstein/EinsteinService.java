@@ -25,7 +25,7 @@ import android.support.v4.app.TaskStackBuilder;
  * causes Einstein to go into a lengthy reboot of the MessagePad at the next start.
  * 
  * This service makes sure that the emulator is not destroyed unless absolutely necessary.
- * An indicator in task bar shows the user that Einstein is still available.
+ * An indicator in the task bar shows the user that Einstein is still available.
  * 
  * @todo This service should check if the MessagePad awoke due to an alarm and create
  *       a new Activity in case we are currently in the background.

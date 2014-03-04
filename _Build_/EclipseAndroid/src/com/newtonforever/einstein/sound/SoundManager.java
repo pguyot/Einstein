@@ -14,13 +14,16 @@ import com.newtonforever.einstein.utils.debug.DebugUtils;
 
 public class SoundManager {
 
-    private final ToneGenerator m_toneGenerator;
+    private ToneGenerator m_toneGenerator;
 
     private final AudioTrack m_audioTrack;
+    
+    private int m_volume;
 
     public SoundManager() {
         super();
-        this.m_toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+        m_volume = 100; //Native.getSoundVolume();
+        this.m_toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, m_volume);
         final int streamType = AudioManager.STREAM_MUSIC;
         final int sampleRateInHz = 22050;
         final int channelConfig = AudioFormat.CHANNEL_CONFIGURATION_MONO;
@@ -28,6 +31,7 @@ public class SoundManager {
         final int minBufferSize = StartupConstants.AUDIO_TRACK_MIN_BUFFER_SIZE;
         final int bufferMode = AudioTrack.MODE_STREAM;
         this.m_audioTrack = new AudioTrack(streamType, sampleRateInHz, channelConfig, audioFormat, minBufferSize, bufferMode);
+        this.m_audioTrack.setStereoVolume(m_volume/100.0f, m_volume/100.0f);
         this.m_audioTrack.play(); // Note that this only puts the AudioTrack into play mode. It won't play anything yet.
     }
 
@@ -46,6 +50,7 @@ public class SoundManager {
         if (bytesWritten < StartupConstants.AUDIO_TRACK_MIN_BUFFER_SIZE) {
             final int tmpBufferSize = (StartupConstants.AUDIO_TRACK_MIN_BUFFER_SIZE - bytesWritten) / 2;
             final short[] tmpBuffer = new short[tmpBufferSize];
+            m_audioTrack.setStereoVolume(m_volume/100.0f, m_volume/100.0f);
             m_audioTrack.write(tmpBuffer, 0, tmpBufferSize);
             m_audioTrack.flush();
         }
@@ -58,8 +63,8 @@ public class SoundManager {
     }
 
     public void changeVolume() {
-        final int volume = Native.getSoundVolume();
-        Log.e("SoundManager.changeVolume", "Changed volume to " + volume);
+        m_volume = Native.getSoundVolume();
+        Log.e("SoundManager.changeVolume", "Changed volume to " + m_volume);
     }
 }
 
