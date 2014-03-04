@@ -23,6 +23,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TAndroidSoundManager.h"
+#include "Log/TLog.h"
 
 // ANSI C & POSIX
 #include <strings.h>
@@ -49,6 +50,8 @@
 // -------------------------------------------------------------------------- //
 TCircleBuffer* TAndroidSoundManager::mOutputBuffer = 0L;
 TMutex* TAndroidSoundManager::mDataMutex = 0L;
+int TAndroidSoundManager::mGlobalVolume = 50; // TODO: store between system starts
+int TAndroidSoundManager::mGlobalVolumeChanged = 1;
 
 
 // -------------------------------------------------------------------------- //
@@ -150,6 +153,33 @@ int TAndroidSoundManager::soundOutputBytesCopy(signed short *dst, int max)
 	}
   return n;
 }
+
+void
+TAndroidSoundManager::OutputVolumeChanged()
+{
+	KUInt32 v = OutputVolume();
+	int vNew = 0;
+	if (v==kOutputVolume_Zero || v<kOutputVolume_Min) {
+		vNew = 0;
+	} else if (v==kOutputVolume_Max) {
+		vNew = 100;
+	} else {
+		vNew = (v-kOutputVolume_Min) / 19458;
+	}
+	
+	if (mGlobalVolume != vNew)
+		mGlobalVolumeChanged = 1;
+	mGlobalVolume = vNew;
+}
+
+int
+TAndroidSoundManager::soundVolumeChanged()
+{
+  int tmp = mGlobalVolumeChanged;
+  mGlobalVolumeChanged = 0;
+  return tmp;
+}
+
 
 
 // ============================================================================= //

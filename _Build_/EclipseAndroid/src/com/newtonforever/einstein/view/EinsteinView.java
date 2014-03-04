@@ -11,6 +11,25 @@ import com.newtonforever.einstein.jni.Native;
 import com.newtonforever.einstein.utils.Dimension;
 import com.newtonforever.einstein.utils.screen.ScreenDimensions;
 
+
+/**
+ * @brief A View class that forwards events to native code and displays pixels from the native side.
+ * 
+ * This class implements a view that renders the contents of the emulated 
+ * Newton screen. The Java side of this class generates a bitmap in the size 
+ * of the Newton screen. This bitmap is filled with pixel data on the native side
+ * whenever Android requires a refresh.
+ * 
+ * Android takes care of scaling the Newton screen to fit the device view.
+ * 
+ * This class also manages touch and pen input and forwards the corresponding
+ * events to the native side.
+ *  
+ * @todo In this class, we probably have to handle input from a physical keyboard as well. 
+ * 
+ * @author matt
+ *
+ */
 public class EinsteinView extends View {
 	private Bitmap mBitmap;
 	private Dimension emulatorWindowSize;
@@ -19,9 +38,7 @@ public class EinsteinView extends View {
 
 	public EinsteinView(Context context) {
 		super(context);
-		this.emulatorWindowSize = ScreenDimensions.NEWTON_SCREEN_SIZE;
-		this.mBitmap = Bitmap.createBitmap(emulatorWindowSize.width, emulatorWindowSize.height, Bitmap.Config.RGB_565);
-		this.emulatorWindowBounds = new Rect(0, 0, this.emulatorWindowSize.width, this.emulatorWindowSize.height);
+		updateDimensions();
 	}
 
 	@Override
@@ -34,8 +51,7 @@ public class EinsteinView extends View {
 		Native.renderEinsteinView(mBitmap);
 		// Request the Android display size minus some Android components like the Android status bar, if it is visible.
 		super.getDrawingRect(dstRect);
-		// TODO MM Ein Rechteck namens newtonScreenBounds gibt es im ganzen Projekt nicht. Muss dieser Kommentar angepasst werden?
-		// The Rect newtonScreenBounds has its origin at 0/0, and is exactly as big as the NewtonOS screen 
+		// The Rect emulatorWindowBounds has its origin at 0/0, and is exactly as big as the NewtonOS screen 
 		// (or mBitmap for that matter, so it could actually be null).
 		// Canvas.drawBitmap copies and scales all pixels form mBitmap onto the Canvas, which in our case should
 		// be most or all of the Android screen.
