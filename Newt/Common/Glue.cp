@@ -39,9 +39,9 @@
 //#define NEWT_GLUE_VERBATIM
 #define NEWT_GLUE_VERBATIM if (0)
 
-NewtGlueFibre gMainFibre;
+NewtGlueFiber gMainFiber;
 NewtGlueDispatch gSimDispatch;
-NewtGlueFibre* gCurrentFibre = 0L;
+NewtGlueFiber* gCurrentFiber = 0L;
 TARMProcessor* gCurrentCPU = 0L;
 
 
@@ -56,15 +56,15 @@ extern JITUnit* (*SimLink)(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt32 ix);
 /**
  If the Simulator is already busy, this function will return and continue JIT
  execution. If the Simulator is idle, this function switches context into the
- Simulator fibre and calls the Stub that will then simulate a function by
+ Simulator fiber and calls the Stub that will then simulate a function by
  running the corresponding native code.
  */
 JITUnit* NewtGlueDispatch::Dispatch(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt32 callIndex) {
-	if (gMainFibre.IsStopped()) {
+	if (gMainFiber.IsStopped()) {
 		//printf("INFO: Calling Simulator\n");
 		gCurrentCPU = ioCPU;
 		JITFuncPtr stub = TROMPatch::GetSimulatorStubAt(callIndex);
-		KSInt32 ret = gMainFibre.Run(callIndex, (void*)stub);
+		KSInt32 ret = gMainFiber.Run(callIndex, (void*)stub);
 		if (ret) {
 			NEWT_GLUE_VERBATIM printf("INFO: Called Simulator, but changed my mind (%s)\n", TROMPatch::GetNameAt(callIndex));
 			return ioUnit;
@@ -74,7 +74,7 @@ JITUnit* NewtGlueDispatch::Dispatch(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt
 		}
 	} else {
 		NEWT_GLUE_VERBATIM printf("INFO: Simulator calling simulator (%s)\n", TROMPatch::GetNameAt(callIndex));
-		gMainFibre.pRecursions++;
+		gMainFiber.pRecursions++;
 		return ioUnit;
 	}
 	
@@ -139,7 +139,7 @@ KUInt32 NewtReadWordPhysical(KUInt32 addr)
 		if ( fault ) {
 			gCurrentCPU->mCurrentRegisters[TARMProcessor::kR15] = 0x007ffff0;
 			gCurrentCPU->DataAbort();
-			gMainFibre.Suspend(0);
+			gMainFiber.Suspend(0);
 		}
 	} while ( fault );
 	return v;
@@ -155,7 +155,7 @@ void NewtWriteWordPhysical(KUInt32 addr, KUInt32 value)
 		if ( err ) {
 			gCurrentCPU->mCurrentRegisters[TARMProcessor::kR15] = 0x007ffff0;
 			gCurrentCPU->DataAbort();
-			gMainFibre.Suspend(0);
+			gMainFiber.Suspend(0);
 		}
 	} while ( err );
 }
@@ -170,7 +170,7 @@ KUInt32 NewtReadWord(KUInt32 addr)
 		if (err) {
 			gCurrentCPU->mCurrentRegisters[TARMProcessor::kR15] = 0x007ffff0;
 			gCurrentCPU->DataAbort();
-			gMainFibre.Suspend(0);
+			gMainFiber.Suspend(0);
 		}
 	} while (err);
 	return v;
@@ -185,7 +185,7 @@ void NewtWriteWord(KUInt32 addr, KUInt32 v)
 		if (err) {
 			gCurrentCPU->mCurrentRegisters[TARMProcessor::kR15] = 0x007ffff0;
 			gCurrentCPU->DataAbort();
-			gMainFibre.Suspend(0);
+			gMainFiber.Suspend(0);
 		}
 	} while (err);
 }
@@ -200,7 +200,7 @@ KUInt8 NewtReadByte(KUInt32 addr)
 		if (err) {
 			gCurrentCPU->mCurrentRegisters[TARMProcessor::kR15] = 0x007ffff0;
 			gCurrentCPU->DataAbort();
-			gMainFibre.Suspend(0);
+			gMainFiber.Suspend(0);
 		}
 	} while (err);
 	return v;
@@ -215,7 +215,7 @@ void NewtWriteByte(KUInt32 addr, KUInt8 v)
 		if (err) {
 			gCurrentCPU->mCurrentRegisters[TARMProcessor::kR15] = 0x007ffff0;
 			gCurrentCPU->DataAbort();
-			gMainFibre.Suspend(0);
+			gMainFiber.Suspend(0);
 		}
 	} while (err);
 }
@@ -226,7 +226,7 @@ void NewtWriteByte(KUInt32 addr, KUInt8 v)
 // - This is called by the JIT to resume the Simulator after an interrupt or exception
 T_ROM_INJECTION(0x007ffff0, "Resume Simulator") {
 	gCurrentCPU = ioCPU;
-	gMainFibre.Resume(0);
+	gMainFiber.Resume(0);
 	return 0;
 }
 
@@ -236,7 +236,7 @@ T_ROM_INJECTION(0x007ffff0, "Resume Simulator") {
 // - This is used to switch context from the Simulator to JIT when an exception occurs
 void Suspend() {
 	gCurrentCPU->SetRegister(15, 0x007ffff0);
-	gMainFibre.Suspend(0);
+	gMainFiber.Suspend(0);
 	return;
 }
 
@@ -244,7 +244,7 @@ void Suspend() {
 void NewtCallJIT(KUInt32 addr) {
 	gCurrentCPU->SetRegister(15, addr+4);		// Call this function
 	gCurrentCPU->SetRegister(14, 0x007ffff0);	// Return to the Simulator afterwards
-	gMainFibre.Suspend(0);
+	gMainFiber.Suspend(0);
 	return;
 }
 
@@ -345,14 +345,14 @@ KUInt32 SectRect(KUInt32 r0, KUInt32 r1, KUInt32 r2)
  */
 
 
-NewtGlueFibre::NewtGlueFibre()
-:	TFibre()
+NewtGlueFiber::NewtGlueFiber()
+:	TFiber()
 {
 	pRecursions = 0;
 }
 
 
-KSInt32 NewtGlueFibre::Task(KSInt32 inIndex, void* inUserData)
+KSInt32 NewtGlueFiber::Task(KSInt32 inIndex, void* inUserData)
 {
 	pRecursions = 0;
 	pTaskIndex = inIndex;
@@ -379,18 +379,18 @@ T_ROM_INJECTION(0x00394560, "longjmp")
 		   newSP,
 		   oldSP-newSP,
 		   newPC);
-	if (gMainFibre.IsSuspended()) {
-		NEWT_GLUE_VERBATIM fprintf(stderr, "INFO: Fibre SP is 0x%08lX\n", gMainFibre.pSP);
-		if (oldSP<gMainFibre.pSP && newSP<gMainFibre.pSP)  // and same stack
-			NEWT_GLUE_VERBATIM fprintf(stderr, "INFO: Fibre is not affected\n");
-		if (oldSP>gMainFibre.pSP && newSP>gMainFibre.pSP) // and same stack
-			NEWT_GLUE_VERBATIM fprintf(stderr, "ERROR: Fibre will not run again!\n");
+	if (gMainFiber.IsSuspended()) {
+		NEWT_GLUE_VERBATIM fprintf(stderr, "INFO: Fiber SP is 0x%08lX\n", gMainFiber.pSP);
+		if (oldSP<gMainFiber.pSP && newSP<gMainFiber.pSP)  // and same stack
+			NEWT_GLUE_VERBATIM fprintf(stderr, "INFO: Fiber is not affected\n");
+		if (oldSP>gMainFiber.pSP && newSP>gMainFiber.pSP) // and same stack
+			NEWT_GLUE_VERBATIM fprintf(stderr, "ERROR: Fiber will not run again!\n");
 	}
 	NEWT_GLUE_VERBATIM fprintf(stderr, "INFO: trying to fix the issue. This is untested and may cause inconsistencies.\n");
-	if (gMainFibre.IsSuspended() && oldSP<gMainFibre.pSP && newSP>gMainFibre.pSP) {
-		NEWT_GLUE_VERBATIM fprintf(stderr, "ALERT: longjmp crosses Fibre stack at 0x%08lX, Fibres may no longer work (%s)!\n", gMainFibre.pSP, TROMPatch::GetNameAt(gMainFibre.pTaskIndex));
+	if (gMainFiber.IsSuspended() && oldSP<gMainFiber.pSP && newSP>gMainFiber.pSP) {
+		NEWT_GLUE_VERBATIM fprintf(stderr, "ALERT: longjmp crosses Fiber stack at 0x%08lX, Fibers may no longer work (%s)!\n", gMainFiber.pSP, TROMPatch::GetNameAt(gMainFiber.pTaskIndex));
 		NEWT_GLUE_VERBATIM fprintf(stderr, "INFO: trying to fix the issue. This is untested and may cause inconsistencies.\n");
-		gMainFibre.Abort(0);
+		gMainFiber.Abort(0);
 	}
 	return ioUnit;
 }

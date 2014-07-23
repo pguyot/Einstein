@@ -322,7 +322,7 @@ JITInstructionProto(p##addr)
 
 ///
 /// Native Injections are functions that can be executed in native mode (using
-/// the Simulator fibre system) or in JIT mode if needed.
+/// the Simulator fiber system) or in JIT mode if needed.
 ///
 class TROMSimulatorInjection : public TROMPatch {
 	

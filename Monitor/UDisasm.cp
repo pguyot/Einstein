@@ -36,6 +36,8 @@
 	#include <sys/param.h>
 #endif
 
+TSymbolList *UDisasm::pSymbolList = 0L;
+
 /*
  * General instruction format
  *
@@ -923,8 +925,15 @@ UDisasm::Disasm(
 					KUInt32 inInstruction,
 					TSymbolList* inSymbolList )
 {
+	if (!inSymbolList)
+		inSymbolList = pSymbolList;
 	disasm_interface_t theInterface( outString, inStringSize, inSymbolList );
 	disasm( &theInterface, inAddr, inInstruction );
+}
+
+void UDisasm::setSymbolList(TSymbolList *aSymbolList)
+{
+	pSymbolList = aSymbolList;
 }
 
 // ====================================== //

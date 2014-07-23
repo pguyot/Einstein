@@ -387,6 +387,16 @@ public:
 
 	// static TARMProcessor *current; ///< bad style, but needed by the Simulator interface
 
+	//
+	// Read a word in memory and handle access violations if needed.
+	//
+	KUInt32		ManagedMemoryReadAligned(KUInt32 inAddress);
+	KUInt32		ManagedMemoryRead(KUInt32 inAddress);
+	KUInt8		ManagedMemoryReadB(KUInt32 inAddress);
+	void		ManagedMemoryWriteAligned(KUInt32 inAddress, KUInt32 inData);
+	void		ManagedMemoryWrite(KUInt32 inAddress, KUInt32 inData);
+	void		ManagedMemoryWriteB(KUInt32 inAddress, KUInt8 inData);
+	
 private:
 	/// \name Variables
 	EMode		mMode;						///< Current mode.

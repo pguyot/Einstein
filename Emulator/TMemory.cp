@@ -696,6 +696,14 @@ TMemory::ReadInstruction( KUInt32 inBankNumber, KUInt32 inOffsetInBank )
 Boolean
 TMemory::Read( VAddr inAddress, KUInt32& outWord )
 {
+	int i;
+	for (i=0; i<mWPCount; i++) {
+		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
+			fprintf(stderr, "Watchpoint 0x%08lX read around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			mEmulator->BreakInMonitor();
+		}
+	}
+	
 	PAddr theAddress;
 
 	// Optimization: avoid translation when reading unprotected ROM
@@ -726,6 +734,14 @@ TMemory::Read( VAddr inAddress, KUInt32& outWord )
 Boolean
 TMemory::ReadAligned( VAddr inAddress, KUInt32& outWord )
 {
+	int i;
+	for (i=0; i<mWPCount; i++) {
+		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
+			fprintf(stderr, "Watchpoint 0x%08lX read around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			mEmulator->BreakInMonitor();
+		}
+	}
+
 	PAddr theAddress;
 
 	// Optimization: avoid translation when reading unprotected ROM
@@ -756,10 +772,14 @@ TMemory::ReadAligned( VAddr inAddress, KUInt32& outWord )
 inline Boolean
 TMemory::ReadROMRAM( VAddr inAddress, KUInt32& outWord )
 {
-//	if (inAddress == 0x0C100AB4)
-//	{
-//		mEmulator->BreakInMonitor();
-//	}
+	int i;
+	for (i=0; i<mWPCount; i++) {
+		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
+			fprintf(stderr, "Watchpoint 0x%08lX read around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			mEmulator->BreakInMonitor();
+		}
+	}
+
 	PAddr theAddress;
 
 	// Optimization: avoid translation when reading unprotected ROM
@@ -1315,10 +1335,14 @@ TMemory::DoReadROMRAMP( PAddr inAddress, Boolean& outFault )
 Boolean
 TMemory::ReadB( VAddr inAddress, KUInt8& outByte )
 {
-//	if (inAddress == 0x0C100AB7)
-//	{
-//		mEmulator->BreakInMonitor();
-//	}
+	int i;
+	for (i=0; i<mWPCount; i++) {
+		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
+			fprintf(stderr, "Watchpoint 0x%08lX read around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			mEmulator->BreakInMonitor();
+		}
+	}
+
 	PAddr theAddress;
 
 	if (IsMMUEnabled())
@@ -1504,6 +1528,14 @@ TMemory::ReadBP( PAddr inAddress, KUInt8& outByte )
 Boolean
 TMemory::Write( VAddr inAddress, KUInt32 inWord )
 {
+	int i;
+	for (i=0; i<mWPCount; i++) {
+		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
+			fprintf(stderr, "Watchpoint 0x%08lX written around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			mEmulator->BreakInMonitor();
+		}
+	}
+
 	PAddr theAddress;
 
 	if (IsMMUEnabled())
@@ -1531,6 +1563,14 @@ TMemory::Write( VAddr inAddress, KUInt32 inWord )
 Boolean
 TMemory::WriteAligned( VAddr inAddress, KUInt32 inWord )
 {
+	int i;
+	for (i=0; i<mWPCount; i++) {
+		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
+			fprintf(stderr, "Watchpoint 0x%08lX written around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			mEmulator->BreakInMonitor();
+		}
+	}
+	
 	PAddr theAddress;
 
 	if (IsMMUEnabled())
@@ -1558,10 +1598,14 @@ TMemory::WriteAligned( VAddr inAddress, KUInt32 inWord )
 inline Boolean
 TMemory::WriteRAM( VAddr inAddress, KUInt32 inWord )
 {
-//	if (inAddress == 0x0C100AB4)
-//	{
-//		mEmulator->BreakInMonitor();
-//	}
+	int i;
+	for (i=0; i<mWPCount; i++) {
+		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
+			fprintf(stderr, "Watchpoint 0x%08lX written around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			mEmulator->BreakInMonitor();
+		}
+	}
+	
 	PAddr theAddress;
 
 	if (IsMMUEnabled())
@@ -1589,12 +1633,6 @@ TMemory::WriteRAM( VAddr inAddress, KUInt32 inWord )
 Boolean
 TMemory::WriteP( PAddr inAddress, KUInt32 inWord )
 {
-//	if (((inAddress &~ 0x3) == 0x043AF01C)
-//		&& ((inWord == 0x00010000) || (inWord == 0x00020000)))
-//	{
-//		mEmulator->BreakInMonitor();
-//	}
-	
 	if (inAddress < TMemoryConsts::kRAMStart)
 	{
 		if (inAddress < TMemoryConsts::kHighROMEnd)
@@ -1816,12 +1854,6 @@ TMemory::WriteP( PAddr inAddress, KUInt32 inWord )
 Boolean
 TMemory::WritePAligned( PAddr inAddress, KUInt32 inWord )
 {
-//	if (((inAddress &~ 0x3) == 0x043AF01C)
-//		&& ((inWord == 0x00010000) || (inWord == 0x00020000)))
-//	{
-//		mEmulator->BreakInMonitor();
-//	}
-
 	if (inAddress < TMemoryConsts::kRAMStart)
 	{
 		if (inAddress < TMemoryConsts::kHighROMEnd)
@@ -2034,12 +2066,6 @@ TMemory::WritePAligned( PAddr inAddress, KUInt32 inWord )
 inline Boolean
 TMemory::WriteRAMP( PAddr inAddress, KUInt32 inWord )
 {
-//	if (((inAddress &~ 0x3) == 0x0403506C)
-//		&& ((inWord == 0x00) || (inWord == 0xFF)))
-//	{
-//		mEmulator->BreakInMonitor();
-//	}
-
 	if (inAddress < TMemoryConsts::kRAMStart)
 	{
 		if (mLog)
@@ -2084,10 +2110,14 @@ TMemory::WriteRAMP( PAddr inAddress, KUInt32 inWord )
 Boolean
 TMemory::WriteB( VAddr inAddress, KUInt8 inByte )
 {
-//	if (inAddress == 0x0C100AB7)
-//	{
-//		mEmulator->BreakInMonitor();
-//	}
+	int i;
+	for (i=0; i<mWPCount; i++) {
+		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
+			fprintf(stderr, "Watchpoint 0x%08lX written around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			mEmulator->BreakInMonitor();
+		}
+	}
+	
 	PAddr theAddress;
 	if (IsMMUEnabled())
 	{
@@ -2119,11 +2149,6 @@ TMemory::WriteB( VAddr inAddress, KUInt8 inByte )
 Boolean
 TMemory::WriteBP( PAddr inAddress, KUInt8 inByte )
 {
-//	if ((inAddress == 0x043AF089) && ((inByte == 0x01) || (inByte == 0x02)))
-//	{
-//		mEmulator->BreakInMonitor();
-//	}
-
 	if (inAddress < TMemoryConsts::kHighROMEnd)
 	{
 		if (mLog)
@@ -2893,7 +2918,55 @@ TMemory::Init( void )
 	mBreakpoints = (SBreakpoint*) ::malloc( 0 );
 	mSerialNumber[0] = 0;
 	mSerialNumber[1] = 0;
+	mWPCount = 0;
+	mWatchpoints = (struct SWatchpoint*)::calloc(kMaxWatchpoints, sizeof(struct SWatchpoint));
 }
+
+
+Boolean TMemory::AddWatchpoint(VAddr inAddr, KUInt8 inMode)
+{
+	// if there is already a wp, replace it
+	int i;
+	for (i=0; i<mWPCount; i++) {
+		if (mWatchpoints[i].fAddress==inAddr) {
+			mWatchpoints[i].fAddress = inAddr;
+			mWatchpoints[i].fMode = inMode;
+			return false;
+		}
+	}
+	// if there is no more room for wp's, fail.
+	if (mWPCount==kMaxWatchpoints) return true;
+	// add a wp to the end of the list
+	mWatchpoints[mWPCount].fAddress = inAddr;
+	mWatchpoints[mWPCount].fMode = inMode;
+	mWPCount++;
+	return false;
+}
+
+
+Boolean TMemory::ClearWatchpoint(VAddr inAddr)
+{
+	// find the wp
+	int i;
+	for (i=0; i<mWPCount; i++) {
+		if (mWatchpoints[i].fAddress==inAddr) {
+			// move all following wp's one position back
+			memmove(mWatchpoints+i, mWatchpoints+i+1, (kMaxWatchpoints-i-1)*sizeof(SWatchpoint));
+			mWPCount--;
+			return false;
+		}
+	}
+	return true;
+}
+
+Boolean TMemory::GetWatchpoint( int inIndex, VAddr &outAddress, KUInt8 &outMode )
+{
+	if (inIndex>=mWPCount) return true;
+	outAddress = mWatchpoints[inIndex].fAddress;
+	outMode = mWatchpoints[inIndex].fMode;
+	return false;
+}
+
 
 // ========================================================================== //
 // If I have seen farther than others, it is because I was standing on the    //

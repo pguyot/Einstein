@@ -105,7 +105,7 @@ public:
 	void		SetMMUEnabled( Boolean inEnableMMU )
 		{
 			mMMUEnabled = inEnableMMU;
-			// enable this to get a rough ide ho the MMU table looks
+			// enable this to get a rough idea how the MMU table looks
 			//if (mMMUEnabled) {
 			//	FILE *f = fopen("/Users/matt/dev/Einstein/mmu.txt", "wb");
 			//	FDump(f);
