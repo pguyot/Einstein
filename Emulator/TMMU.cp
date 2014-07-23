@@ -999,6 +999,48 @@ TMMU::TransferState( TStream* inStream )
 // -------------------------------------------------------------------------- //
 //  * FDump(FILE *f)
 // -------------------------------------------------------------------------- //
+
+static KUInt32 blockFirst = 0, blockLast = 0, blockType = 0;
+static const char* blockName = "unknown";
+
+static void startBlocks()
+{
+	blockFirst = 0;
+	blockLast = 0;
+	blockType = 0;
+	blockName = "unknown";
+}
+
+static void addBlock(FILE *f, KUInt32 first, KUInt32 last, KUInt32 type, const char *name)
+{
+	bool newBlock = false;
+	if (type!=blockType) newBlock = true;
+	if (first!=blockLast) newBlock = true;
+	if (newBlock) {
+		if (blockType!=0)
+			fprintf(f, "VA 0x%08lX to 0x%08lX (%ld kB): %s\n", blockFirst, blockLast, (blockLast-blockFirst)/1024, blockName);
+		blockFirst = first;
+		blockLast = last;
+		blockType = type;
+		blockName = name;
+	} else {
+		// blockFirst unchanged
+		blockLast = last;
+		// blockType unchanged
+		blockName = name;
+	}
+}
+
+static void endBlocks(FILE *f)
+{
+	fprintf(f, "VA 0x%08lX to 0x%08lX (%ld kB): %s\n", blockFirst, blockLast, (blockLast-blockFirst)/1024, blockName);
+}
+
+
+/*
+ Level 1 Lookup: 1MB (4096 32bit entries)
+ Level 2 Lookup: 64kB or 4kB (256 32bit entries 64k entries are repeated 16 times))
+ */
 void
 TMMU::FDump(FILE *f)
 {
@@ -1008,6 +1050,7 @@ TMMU::FDump(FILE *f)
 	fprintf(f, "=====> Dumping MMU state\n");
 	if (mMMUEnabled) {
 		fprintf(f, "Primary MMU table at 0x%08x\n", (unsigned int)mTTBase);
+#if 0
 		unsigned int i, j, p, sp;
 		for (i=0; i<4096; i++) {
 			p = mMemoryIntf->ReadP(mTTBase+(i<<2), err);
@@ -1046,12 +1089,179 @@ TMMU::FDump(FILE *f)
 					 */
 			}
 		}
+#else
+		unsigned int i, j, p, sp, first, last;
+		startBlocks();
+		for (i=0; i<4096; i++) {
+			p = mMemoryIntf->ReadP(mTTBase+(i<<2), err);
+			switch (p&3) {
+				case 0: // Fault
+					first = (i<<20);
+					last  = ((i+1)<<20);
+					addBlock(f, first, last, 1, "fault");
+					break;
+				case 1: // Page
+					for (j=0; j<256; j++) {
+						sp = mMemoryIntf->ReadP((p&0xfffffc00)+(j<<2), err);
+						first = (i<<20) + (j<<12);
+						last  = (i<<20) + ((j+1)<<12);;
+						switch (sp&3) {
+							case 0: // Fault
+								addBlock(f, first, last, 13, "page fault");
+								break;
+							case 1:
+								addBlock(f, first, last, 12, "large pages");
+//								fprintf(f, "  0x%03x%02xxxx maps to a Large Page at 0x%04xxxxx, AP=%s,%s,%s,%s\n",
+//										i, j, sp>>16, ap[(sp>>10)&3], ap[(sp>>8)&3], ap[(sp>>6)&3], ap[(sp>>4)&3] );
+								break;
+							case 2:
+								addBlock(f, first, last, 12, "small pages");
+//								fprintf(f, "  0x%03x%02xxxx maps to a Small Page at 0x%05xxxx, AP=%s,%s,%s,%s\n",
+//										i, j, sp>>12, ap[(sp>>10)&3], ap[(sp>>8)&3], ap[(sp>>6)&3], ap[(sp>>4)&3] );
+								break;
+							case 3: // Reserved
+								addBlock(f, first, last, 11, "PAGE RESERVED");
+								break;
+						}
+					}
+					break;
+				case 2: // Section
+					first = (i<<20);
+					last  = ((i+1)<<20);
+					addBlock(f, first, last, 2, "section");
+					break;
+				case 3: // Reserved
+					first = (i<<20);
+					last  = ((i+1)<<20);
+					addBlock(f, first, last, 2, "RESERVED");
+					break;
+					/*
+					 Supersections: 16 MB memory blocks (24-bit offsets)
+					 Sections: 1 MB memory blocks (20-bit offsets)
+					 Large pages: 64 KB pages (16-bit offsets)
+					 Small pages: 4 KB pages (12-bit offsets)
+					 */
+			}
+		}
+		endBlocks(f);
+		
+#endif
 	} else {
 		fprintf(f, "MMU is disabled\n");
 	}
 	fprintf(f, "<===== End of MMU state dump\n");
 }
 
+/*
+Primary MMU table at 0x04000000
+VA 0x00000000 to 0x00100000 (1024 kB): large pages
+	ROM:      0x00000000-0x00800000
+	Opt. ROM: 0x00800000-0x01000000
+VA 0x00100000 to 0x01000000 (15360 kB): section
+
+VA 0x01800000 to 0x01810000 (64 kB): small pages
+	??
+VA 0x01A00000 to 0x01C20000 (2176 kB): small pages
+	ROM Jump Tables
+
+VA 0x01D80000 to 0x01DA0000 (128 kB): small pages
+	Magic Pointer Tables
+
+VA 0x01E00000 to 0x01F00000 (1024 kB): small pages
+	REx Jump Tables
+ 
+
+VA 0x03500000 to 0x03D00000 (8192 kB): section
+	ROM mirror
+ 
+VA 0x04000000 to 0x04100000 (1024 kB): section
+	ROM mirror
+
+VA 0x05000000 to 0x05200000 (2048 kB): section
+	Mirror of first half of FLash Bank 1
+
+VA 0x0C000000 to 0x0C001000 (4 kB): small pages
+	RAM
+
+VA 0x0C002000 to 0x0C009000 (28 kB): small pages
+	RAM: special stacks (IRQ, FIQ, etc.)
+ 
+VA 0x0C100000 to 0x0C110000 (64 kB): small pages
+	RAM: Kernel: Domain Heap, Globals
+ 
+VA 0x0C111000 to 0x0C126000 (84 kB): small pages
+
+VA 0x0C200000 to 0x0C206000 (24 kB): small pages
+
+VA 0x0C310000 to 0x0C311000 (4 kB): small pages
+
+VA 0x0C318000 to 0x0C319000 (4 kB): small pages
+
+VA 0x0C320000 to 0x0C321000 (4 kB): small pages
+
+VA 0x0C328000 to 0x0C329000 (4 kB): small pages
+
+VA 0x0C600000 to 0x0C678000 (480 kB): small pages
+
+VA 0x0C984000 to 0x0C985000 (4 kB): small pages
+
+VA 0x0CA6B000 to 0x0CA90000 (148 kB): small pages
+
+VA 0x0CC79000 to 0x0CC7B000 (8 kB): small pages
+
+VA 0x0CC84000 to 0x0CC88000 (16 kB): small pages
+
+VA 0x0CC9B000 to 0x0CC9C000 (4 kB): small pages
+
+VA 0x0CCA3000 to 0x0CCA4000 (4 kB): small pages
+ 
+VA 0x0CCAB000 to 0x0CCAD000 (8 kB): small pages
+ 
+VA 0x0CCC3000 to 0x0CCC5000 (8 kB): small pages
+ 
+VA 0x0CCC9000 to 0x0CCCD000 (16 kB): small pages
+ 
+VA 0x0CCD4000 to 0x0CCD5000 (4 kB): small pages
+ 
+VA 0x0CCDD000 to 0x0CCDE000 (4 kB): small pages
+ 
+VA 0x0CCE4000 to 0x0CCE6000 (8 kB): small pages
+
+VA 0x0CD58000 to 0x0CD59000 (4 kB): small pages
+
+VA 0x0CD60000 to 0x0CD63000 (12 kB): small pages
+
+VA 0x0CD7A000 to 0x0CD7B000 (4 kB): small pages
+
+VA 0x0CD83000 to 0x0CD84000 (4 kB): small pages
+
+VA 0x0CDA4000 to 0x0CDA7000 (12 kB): small pages
+
+VA 0x0CDE3000 to 0x0CDE7000 (16 kB): small pages
+
+VA 0x0CDFE000 to 0x0CDFF000 (4 kB): small pages
+
+VA 0x0CE17000 to 0x0CE18000 (4 kB): small pages
+
+VA 0x0CE30000 to 0x0CE31000 (4 kB): small pages
+
+VA 0x0F000000 to 0x30800000 (548864 kB): section
+	0f000000 hardware registers
+	30000000 flash memory bank 1 -> 02000000
+	30400000 flash memory bank 1 -> 10000000
+
+VA 0x34000000 to 0x34800000 (8192 kB): section
+	34000000 flash memory bank 1 -> 02000000
+	34400000 flash memory bank 1 -> 10000000
+
+VA 0x78000000 to 0x80000000 (131072 kB): RESERVED
+
+VA 0x90000000 to 0xB0000000 (524288 kB): section
+ 9c000000 maps PCMCIA 0 -> 3c000000
+ ac000000 maps PCMCIA 1 -> 4c000000
+
+<===== End of MMU state dump
+*/
 
 // ==================== //
 // You might have mail. //

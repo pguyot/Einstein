@@ -51,6 +51,7 @@
 #include "Monitor/TSymbolList.h"
 #include "Monitor/UDisasm.h"
 #include "Emulator/Screen/TScreenManager.h"
+#include "Emulator/JIT/Generic/TJITGenericRetarget.h"
 
 // -------------------------------------------------------------------------- //
 // Constants
@@ -97,7 +98,8 @@ TMonitor::TMonitor(
 		mHalted( true ),
 		mCommand( kNop ),
 		mFilename(0L),
-		mLastScreenHalted( true )
+		mLastScreenHalted( true ),
+		mRetarget(0L)
 {
 #if TARGET_OS_WIN32
 	assert(0);	// FIXME later
@@ -140,6 +142,8 @@ TMonitor::~TMonitor( void )
 	(void) ::printf( "\033[2J" );
 #endif
 #endif
+	if (mRetarget)
+		delete mRetarget;
 }
 
 // -------------------------------------------------------------------------- //
@@ -1021,6 +1025,24 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				(int) theArgInt2 );
 		}
 		PrintLine(theLine);
+	} else if (::strcmp(inCommand, "bt") == 0) {
+		// backtrack stack content
+		KSInt32 i, sp = mProcessor->GetRegister(13), lr = mProcessor->GetRegister(14);
+		KUInt32 theData;
+		char theSymbol[512];
+		char theComment[512];
+		int theOffset;
+		for (i=28; i>=0; i--) {
+			mMemory->Read((TMemory::VAddr)sp+4*i, theData);
+			mSymbolList->GetSymbol( theData, theSymbol, theComment, &theOffset );
+			sprintf(theLine, "sp+%3ld: 0x%08lX = %s+%d", 4*i, theData, theSymbol, theOffset);
+			theLine[62] = 0;
+			PrintLine(theLine);
+		}
+		mSymbolList->GetSymbol( lr, theSymbol, theComment, &theOffset );
+		sprintf(theLine, "    lr: 0x%08lX = %s+%d", lr, theSymbol, theOffset);
+		theLine[62] = 0;
+		PrintLine(theLine);
 	} else if (::strcmp(inCommand, "log") == 0) {
 		mLog->CloseLog();
 	} else if (::sscanf(inCommand, "log %s", theLine) == 1) {
@@ -1030,9 +1052,121 @@ TMonitor::ExecuteCommand( const char* inCommand )
 	} else if (::strcmp(inCommand, "enable log") == 0) {
 		mLog->Enable();
 	} else if (::strcmp(inCommand, "help") == 0
-		|| ::strcmp(inCommand, "h") == 0
-		|| ::strcmp(inCommand, "?") == 0) {
+			   || ::strcmp(inCommand, "h") == 0
+			   || ::strcmp(inCommand, "?") == 0) {
 		PrintHelp();
+	} else if (::strcmp(inCommand, "help wp") == 0
+			   || ::strcmp(inCommand, "? wp") == 0) {
+		PrintWatchpointHelp();
+	} else if (::sscanf(inCommand, "wpr %X", &theArgInt) == 1) {
+		if (mMemory->AddWatchpoint( theArgInt, 1 )) {
+			::sprintf(theLine, "Setting watchpoint at %.8X failed", theArgInt);
+		} else {
+			::sprintf(theLine, "Watching read access at %.8X", theArgInt);
+		}
+		PrintLine(theLine);
+	} else if (::sscanf(inCommand, "wpw %X", &theArgInt) == 1) {
+		if (mMemory->AddWatchpoint( theArgInt, 2 )) {
+			::sprintf(theLine, "Setting watchpoint at %.8X failed", theArgInt);
+		} else {
+			::sprintf(theLine, "Watching write access at %.8X", theArgInt);
+		}
+		PrintLine(theLine);
+	} else if (::sscanf(inCommand, "wpc %X", &theArgInt) == 1) {
+		if (mMemory->ClearWatchpoint( theArgInt)) {
+			::sprintf(theLine, "Clearing watchpoint at %.8X failed", theArgInt);
+		} else {
+			::sprintf(theLine, "Watchpoint at %.8X cleared", theArgInt);
+		}
+		PrintLine(theLine);
+	} else if (::sscanf(inCommand, "wp %X", &theArgInt) == 1) {
+		if (mMemory->AddWatchpoint( theArgInt, 3 )) {
+			::sprintf(theLine, "Setting watchpoint at %.8X failed", theArgInt);
+		} else {
+			::sprintf(theLine, "Watching read and write access at %.8X", theArgInt);
+		}
+		PrintLine(theLine);
+	} else if (strcmp(inCommand, "wpl")==0) {
+		int i=0;
+		const char *lut[] = { "--", "read", "write", "read/write" };
+		for (;;i++) {
+			KUInt32 addr;
+			KUInt8 type;
+			if (mMemory->GetWatchpoint(i, addr, type)) break;
+			::sprintf(theLine, "WP %2d at %.8lX, %s", i, addr, lut[type&3]);
+			PrintLine(theLine);
+		}
+	} else if (::strncmp(inCommand, "rt ", 3)==0) {
+		theResult = ExecuteRetargetCommand(inCommand+3);
+	} else if (::strcmp(inCommand, "help rt") == 0
+			   || ::strcmp(inCommand, "? rt") == 0) {
+		PrintRetargetHelp();
+	} else if (::strcmp(inCommand, "p tasks") == 0) {
+		PrintLine("List of Tasks");
+		KUInt32 kernelScheduler; mMemory->Read(0x0C100FD0, kernelScheduler);
+		int i;
+		for (i=0; i<32; i++) {
+			KUInt32 taskQ; mMemory->Read(kernelScheduler+0x1C+4*i, taskQ); // TTaskQueue
+			if (taskQ) {
+				KUInt32 task; mMemory->Read(taskQ, task); // TTask
+				::sprintf(theLine, " Pri %d: first Task at 0x%08lX", i, task);
+				PrintLine(theLine);
+			}
+		}
+	} else {
+		theResult = false;
+	}
+	return theResult;
+#endif
+}
+
+// -------------------------------------------------------------------------- //
+// ExecuteCommand( const char* inCommand )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::ExecuteRetargetCommand( const char* inCommand )
+{
+#if TARGET_OS_WIN32
+	assert(0); // FIXME later
+	return 0;
+#else
+	if (!mRetarget)
+		mRetarget = new TJITGenericRetarget(mMemory);
+	Boolean theResult = true;
+	if (::strncmp(inCommand, "open ", 5) == 0) {
+		if (mRetarget->OpenFiles(inCommand+5, "")) {
+			PrintLine("Can't open file");
+			theResult = false;
+		} else {
+			PrintLine("Retarget files opened");
+		}
+	} else if (::strcmp(inCommand, "close") == 0) {
+		mRetarget->CloseFiles();
+		PrintLine("Retarget files closed");
+//	} else if (::strncmp(inCommand, "arm ", 4) == 0) {
+//		disasm();
+	} else if (::strncmp(inCommand, "cjit ", 5) == 0) {
+		// TODO:use symbols
+		KUInt32 first, last;
+		int n = sscanf(inCommand+5, "%lx-%lx", &first, &last);
+		if (n==0) {
+			PrintLine("Can't read memory range");
+			theResult = false;
+		} else {
+			if (n==1) last = first + 80;
+			char name[80];
+			const char *n = inCommand+5;
+			for (;;n++) { // skip the start and end address and find the function name
+				if (*n==0) break;
+				if (*n==' ') { n++; break; }
+			}
+			if (*n) {
+				strcpy(name, n);
+			} else {
+				sprintf(name, "Func_0x%08lX", first);
+			}
+			mRetarget->TranslateFunction(first, last, name);
+		}
 	} else {
 		theResult = false;
 	}
@@ -1051,7 +1185,7 @@ TMonitor::PrintHelp( void )
 #else
 	PrintLine("Monitor commands available when the machine is halted:");
 	PrintLine(" <return>|step      step once");
-//	PrintLine(" step <count>       step for count steps");
+	//	PrintLine(" step <count>       step for count steps");
 	PrintLine(" t|trace            step over");
 	PrintLine(" g|run              run");
 	PrintLine(" mmu                display mmu registers");
@@ -1059,6 +1193,7 @@ TMonitor::PrintHelp( void )
 	PrintLine(" mr                 magic return (relies on lr)");
 	PrintLine(" r<i>=<val>         set ith register");
 	PrintLine(" pc=<val>           set pc");
+	PrintLine(" bt                 backtrack the stack");
 	PrintLine("Monitor commands available when the machine is running:");
 	PrintLine(" stop               interrupt the machine");
 	PrintLine("Monitor commands always available:");
@@ -1073,12 +1208,54 @@ TMonitor::PrintHelp( void )
 	PrintLine(" dl P<address>      display long at physical address");
 	PrintLine(" dm <addr>[-<addr>] display memory at address/between addresses");
 	PrintLine(" dm P<addr>[-<add>] display memory at physical address(es)");
-	PrintLine(" sl <address> <val> set long at address");
-	PrintLine(" sl P<addr> <val>   set long at physical address");
+	PrintLine(" sl [P]<addr> <val> set long at [physical] address");
 	PrintLine(" raise <val>        raise the interrupts");
 	PrintLine(" gpio <val>         raise the gpio interrupts");
 	PrintLine(" load|save path     load or save the emulator state");
 	PrintLine(" snap|revert        (re)store machine state while running");
+	PrintLine(" help wp            help with watchpoint commands");
+	PrintLine(" help rt            help with retargeting commands");
+#endif
+}
+
+// -------------------------------------------------------------------------- //
+// PrintWatchpointHelp( void )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::PrintWatchpointHelp( void )
+{
+#if TARGET_OS_WIN32
+	assert(0); // FIXME later
+#else
+	PrintLine("Watchpoints stop execution whenever the value of");
+	PrintLine("a virtual memory address changes.");
+	PrintLine("");
+	PrintLine("Watchpoint commands available when the machine is halted:");
+	PrintLine(" wp <addr>          set a watchpoint for reading and writing");
+	PrintLine(" wpr <addr>         set a watchpoint for reading only");
+	PrintLine(" wpw <addr>         set a watchpoint for writing only");
+	PrintLine(" wpc <addr>         clear a watchpoint");
+	PrintLine(" wpl                list all watchpoints");
+#endif
+}
+
+// -------------------------------------------------------------------------- //
+// PrintRetargetHelp( void )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::PrintRetargetHelp( void )
+{
+#if TARGET_OS_WIN32
+	assert(0); // FIXME later
+#else
+	PrintLine("Retargeting translates ARM code from one platform");
+	PrintLine("into code that can be recompiled to run");
+	PrintLine("on another platform:");
+	PrintLine(" rt open <basename> destination file path and base name");
+	PrintLine(" rt close           close files");
+//	PrintLine(" rt arm <addr>[-<addr>]  disassemble ARM code");
+	PrintLine(" rt cjit <addr>[-<addr>][ name]");
+	PrintLine("                    transcode function to JIT \"C\" code");
 #endif
 }
 

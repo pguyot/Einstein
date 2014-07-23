@@ -25,7 +25,7 @@
 #define NEWT_COMMON_GLUE_H
 
 #include <K/Defines/KDefinitions.h>
-#include <K/Threads/TFibre.h>
+#include <K/Threads/TFiber.h>
 
 #include "Newt/Common/Types.h"
 
@@ -36,7 +36,7 @@
 #include "TROMImage.h"
 
 
-extern class NewtGlueFibre* gCurrentFibre;
+extern class NewtGlueFiber* gCurrentFiber;
 extern class TARMProcessor* gCurrentCPU;
 
 KUInt32 NewtReadWordPhysical(KUInt32 addr);
@@ -233,9 +233,9 @@ public:
 
 typedef KSInt32 (*NewtGlueTask)();
 
-class NewtGlueFibre : public TFibre {
+class NewtGlueFiber : public TFiber {
 public:
-	NewtGlueFibre();
+	NewtGlueFiber();
 	KSInt32 Task(KSInt32 inReason=0, void* inUserData=0L);
 	KUInt32 pRecursions;
 	KUInt32 pSP;

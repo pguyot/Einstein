@@ -693,6 +693,23 @@ public:
 	///		
 	Boolean		EnableBreakpoint( VAddr inAddress );
 
+	static const int kMaxWatchpoints = 32;
+	
+	///
+	/// Create a memory watchpoint for a specific address
+	///
+	Boolean		AddWatchpoint( VAddr inAddress, KUInt8 inMode);
+	
+	///
+	/// Clear a memory watchpoint for a specific address
+	///
+	Boolean		ClearWatchpoint( VAddr inAddress);
+	
+	///
+	/// Return teh memory watchpoint at index i
+	///
+	Boolean		GetWatchpoint( int inIndex, VAddr &outAddress, KUInt8 &outMode );
+	
 	///
 	/// Accessor on the RAM size.
 	///
@@ -725,11 +742,18 @@ public:
 	///
 	void	ComputeSerialNumber( const KUInt32 inNewtonID[2] );
 	
+	void FDump(FILE *f) { mMMU.FDump(f); }
+	
 private:
 	struct SBreakpoint {
 		PAddr   fAddress;		///< (physical) address of the Breakpoint.
 		KUInt32 fOriginalValue; ///< Original value of the Breakpoint.
 		KUInt32	fBPValue;		///< Value for the BP instruction.
+	};
+	
+	struct SWatchpoint {
+		VAddr   fAddress;		///< (physical) address of the Breakpoint.
+		KUInt8	fMode;			///< mode bit: 1 for reading, 2 for writing
 	};
 	
 	struct SDMAChannel {
@@ -848,6 +872,8 @@ private:
 	TEmulator*			mEmulator;			///< Emulator (interface to hardware).
 	KUInt32				mBPCount;			///< Number of Breakpoints.
 	SBreakpoint*		mBreakpoints;		///< Breakpoints.
+	KUInt32				mWPCount;			///< Number of Watchpoints.
+	SWatchpoint*		mWatchpoints;		///< Watchpoints.
 };
 
 #endif

@@ -24,6 +24,8 @@
 #include <K/Defines/KDefinitions.h>
 #include "TSymbolList.h"
 
+#include "UDisasm.h"
+
 #include <stdlib.h>
 
 // -------------------------------------------------------------------------- //
@@ -57,6 +59,7 @@ TSymbolList::TSymbolList( const char* inPath )
 		(void) ::fprintf( stderr, "Cannot open symbol files '%s'\n", inPath );
 	} else {
 		LoadSymbols();
+		UDisasm::setSymbolList(this);
 	}
 }
 

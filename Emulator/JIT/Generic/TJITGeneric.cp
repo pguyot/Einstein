@@ -31,6 +31,89 @@
 #include "TEmulator.h"
 #include "TMemoryConsts.h"
 
+
+#if 0
+//
+// The following code is a test for cooperative multitaksing as it is
+// used in NewtonOS. The goal is, to move the multitasking from the
+// emulation into the Einstein code, accelerating the emultion
+// and getting closer to simulation and finally native code.
+//
+
+#include <stdio.h>
+#include <ucontext.h>
+#include <sys/mman.h>
+
+void
+assign(long a, int *b)
+{
+	*b = (int)a;
+}
+
+int
+test()
+{
+	ucontext_t uc, back;
+	size_t sz = 0x10000;
+	int value = 0;
+	
+	getcontext(&uc);
+	
+	uc.uc_stack.ss_sp = mmap(0, sz,
+							 PROT_READ | PROT_WRITE | PROT_EXEC,
+							 MAP_PRIVATE | MAP_ANON, -1, 0);
+	uc.uc_stack.ss_size = sz;
+	uc.uc_stack.ss_flags = 0;
+	
+	uc.uc_link = &back;
+	
+	makecontext(&uc, (void(*)())assign, 2, 123L, &value);
+	swapcontext(&back, &uc);
+	
+	printf("done %d\n", value);
+	
+	return (0);
+}
+
+/*
+ // The ARM command movs pc, lr is commonly used to return from 
+ // an exception or an interrupt routine. Here, we try to find
+ // all point that may require task switching.
+ 
+ movs pc,lr
+ 
+ 0x00019428 SaveCPUStateAndStopSystem
+ 0x0038D504 ResumeImage
+ 0x0038D78C FIQCleanUp
+ -- floating point:
+ 0x0038D87C _getFPSCR
+ 0x0038D884 _setFPSCR
+ 0x0038D894 _rint
+ 0x0038D8A4 _rintZ
+ 0x0038D8B4 _rintP
+ 0x0038D8C4 _rintM
+ 0x0039262C Unnamed_00391CAC (FP_UndefHandlers_Start)
+ --
+ 0x00392CD0 IRQCleanUp
+ 0x00392FD4 IRQCleanUp
+ 0x0039306C IRQCleanUp
+ 0x00393110 IRQCleanUp
+ // all DatAbortHandler code seems to ond in SWI. The faulty memory
+ // access generates a task switch into a "Monitor". The Monitor
+ // maps RAM into the location that generated the fault, then 
+ // suspends itself. The original task is rescheduled to execute 
+ // the failed operation again.
+ 0x00393944 DataAbortHandler
+ 0x00393B80 DataAbortHandler
+ 0x003ADA6C DataAbortHandler
+ 0x003ADB10 DataAbortHandler
+ 0x003ADBB0 DataAbortHandler
+ 0x003ADD78 SWI?
+ */
+
+#endif
+
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //

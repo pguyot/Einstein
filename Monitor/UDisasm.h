@@ -47,7 +47,15 @@ public:
 					int inStringSize,
 					KUInt32 inAddr,
 					KUInt32 inInstruction,
-					TSymbolList* inSymbolList );
+					TSymbolList* inSymbolList=0L );
+	
+	///
+	/// make symbol list access easy
+	///
+	static void setSymbolList(TSymbolList*);
+	
+private:
+	static TSymbolList *pSymbolList;
 };
 
 #endif

@@ -647,6 +647,25 @@ TROMImage::LookForREXes(
 void
 TROMImage::PatchROM( SImage* inImagePtr )
 {
+#if 0
+	// before we patch the ROM, lets try to retarget some code
+	//
+	// Don't enable this code. This functionality is now integrated
+	// into the Monitor class
+	//
+	KUInt32* ROM = (KUInt32*)inImagePtr->fROM;
+	TJITGenericRetarget tgt(ROM);
+	tgt.OpenFiles("/Users/matt/dev/Einstein/Newt/", "SimCollection1");
+	tgt.TranslateFunction(0x00120010, 0x0012002C, "TMonitor::SetResult(...)");
+//	tgt.TranslateFunction(0x0009C77C, 0x0009C7C4, "TDoubleQContainer::Remove(...)");
+//	tgt.TranslateFunction(0x0009C6B0, 0x0009C6D8, "InitFaultMonitors(...)");
+//	tgt.TranslateFunction(0x00392AC0, 0x00392B1C, "_EnterAtomicFast(...)");
+//	tgt.TranslateFunction(0x00319F14, 0x00319F60, "TObjectTable::Get(...)");		// OK
+//	tgt.TranslateFunction(0x001E0754, 0x001E07B0, "ConvertMemOrMsgIdToObj(...)");	// OK
+//	tgt.TranslateFunction(0x00191E80, 0x00191F14, "LocalToGlobalId(...)");			// OK
+	tgt.CloseFiles();
+#endif
+	
 	if (::memcmp(inImagePtr->fMachineString, "717006", 6) == 0)
 	{
         fprintf(stderr, "PATCHING THE ROM\n");
@@ -718,12 +737,12 @@ KUInt32     TROMPatch::NPatch = 0;
 //  * TROMPatch constructor
 // -------------------------------------------------------------------------- //
 TROMPatch::TROMPatch(KUInt32 addr, KUInt32 val)
-: next_(first_),
-address_(addr>>2),
-value_(val),
-stub_(0L),
-function_(0L),
-method_(0L)
+:	next_(first_),
+	address_(addr>>2),
+	value_(val),
+	stub_(0L),
+	function_(0L),
+	method_(0L)
 {
     first_ = this;
 }

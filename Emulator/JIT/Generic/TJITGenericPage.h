@@ -56,7 +56,6 @@ class TJITGenericPage
 	:
 		public TJITPage< TJITGenericPage >
 {
-
 public:
 	///
 	/// Access from TJITGeneric
@@ -113,7 +112,7 @@ public:
 				   KUInt32 inInstruction,
 				   KUInt32 inVAddr );
 	
-private:
+protected:
 	/// Test bits.
 	enum ETestKind {
 		kTestEQ = 0x0,

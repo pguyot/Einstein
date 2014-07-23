@@ -33,6 +33,7 @@ class TMemory;
 class TARMProcessor;
 class TInterruptManager;
 class TSymbolList;
+class TJITGenericRetarget;
 
 ///
 /// Class for the monitor (in monitor mode).
@@ -86,7 +87,17 @@ public:
 	/// Print help for the available commands.
 	///
 	void		PrintHelp( void );
-
+	
+	///
+	/// Print help for the watchpoint commands.
+	///
+	void		PrintWatchpointHelp( void );
+	
+	///
+	/// Print help for the retargeting commands.
+	///
+	void		PrintRetargetHelp( void );
+	
 	///
 	/// Output a line.
 	///
@@ -109,7 +120,14 @@ public:
 	/// \return true if the command was known.
 	///
 	Boolean		ExecuteCommand( const char* inCommand );
-
+	
+	///
+	/// Execute a retargeting command.
+	///
+	/// \return true if the command was known.
+	///
+	Boolean		ExecuteRetargetCommand( const char* inCommand );
+	
 	///
 	/// Save the current state of the Emulator to a file.
 	///
@@ -259,6 +277,7 @@ public:
 	int						mSocketPair[2];		///< Socket pair for monitor
 												///< state changes.
 	Boolean					mLastScreenHalted;	///< If last screen was halted.
+	TJITGenericRetarget*	mRetarget;			///< retargeting source code generator
 };
 
 #endif

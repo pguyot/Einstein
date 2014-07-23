@@ -30,9 +30,12 @@
 		C94ADB3F123E9AEC00406839 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = C94ADB3E123E9AEC00406839 /* main.mm */; };
 		C962429711B69A9D00EE66F3 /* TUsermodeNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */; };
 		C96242A011B6A20A00EE66F3 /* TNetworkManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */; };
+		C965D3FD19706FFC00348893 /* SimCollection1.cp in Sources */ = {isa = PBXBuildFile; fileRef = C965D3FB19706FFC00348893 /* SimCollection1.cp */; };
+		C965D4011970A47000348893 /* TJITGenericRetargetMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C965D3FF1970A47000348893 /* TJITGenericRetargetMap.cpp */; };
 		C97C7E1C124282A600CDCD05 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C97C7E1A124282A600CDCD05 /* UIKit.framework */; };
 		C97C7E1D124282A600CDCD05 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C97C7E1B124282A600CDCD05 /* Foundation.framework */; };
 		C97C7EA3124283FE00CDCD05 /* MainWindow_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */; };
+		C98A531A19717C67007A1164 /* SimTTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C98A531819717C67007A1164 /* SimTTask.cpp */; };
 		C99566AA123EC4DA009A5668 /* Einstein.rex in Resources */ = {isa = PBXBuildFile; fileRef = C99E377A111C2289002165EC /* Einstein.rex */; };
 		C995672C123F793D009A5668 /* TIOSScreenManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = C995672B123F793D009A5668 /* TIOSScreenManager.mm */; };
 		C99E315E111B733F002165EC /* Einstein.nib in Resources */ = {isa = PBXBuildFile; fileRef = C99E315C111B733F002165EC /* Einstein.nib */; };
@@ -187,13 +190,14 @@
 		C9B4ABC9123D709D00D8D2C7 /* TNetworkManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */; };
 		C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
 		C9BE33D1133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
-		C9D54E1415FA23E700D91131 /* TFibre.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFibre.cp */; };
+		C9CEB43F19601CA3002198A7 /* TJITGenericRetarget.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9CEB43D19601CA3002198A7 /* TJITGenericRetarget.cp */; };
+		C9D54E1415FA23E700D91131 /* TFiber.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cp */; };
 		C9DA71BA17CD42D4008E6DB2 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C9DA71B917CD42D4008E6DB2 /* libresolv.dylib */; };
 		C9E848E911EDCD6C00F27330 /* ffi_darwin.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E711EDCD6C00F27330 /* ffi_darwin.c */; };
 		C9E848EA11EDCD6C00F27330 /* x86-ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E811EDCD6C00F27330 /* x86-ffi64.c */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cp */; };
 		DA0D96DE11BAD15300835522 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = DA0D96DD11BAD15300835522 /* darwin64.S */; };
-		F11E44B717C2DEE800EB9B4E /* TFibre.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFibre.cp */; };
+		F11E44B717C2DEE800EB9B4E /* TFiber.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cp */; };
 		F11E44B817C2DEF100EB9B4E /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */; };
 		F164801A13199758001603BE /* TMacMonitor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F164801813199758001603BE /* TMacMonitor.mm */; };
@@ -232,10 +236,17 @@
 		C962429611B69A9D00EE66F3 /* TUsermodeNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TUsermodeNetwork.h; path = Network/TUsermodeNetwork.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TNetworkManager.cp; path = Network/TNetworkManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429F11B6A20A00EE66F3 /* TNetworkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TNetworkManager.h; path = Network/TNetworkManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		C965D3FB19706FFC00348893 /* SimCollection1.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimCollection1.cp; sourceTree = "<group>"; };
+		C965D3FC19706FFC00348893 /* SimulatorGlue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimulatorGlue.h; sourceTree = "<group>"; };
+		C965D3FE19709A2F00348893 /* SimCollection1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimCollection1.h; sourceTree = "<group>"; };
+		C965D3FF1970A47000348893 /* TJITGenericRetargetMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGenericRetargetMap.cpp; sourceTree = "<group>"; };
+		C965D4001970A47000348893 /* TJITGenericRetargetMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGenericRetargetMap.h; sourceTree = "<group>"; };
 		C97C7E1A124282A600CDCD05 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		C97C7E1B124282A600CDCD05 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		C97C7EA01242832700CDCD05 /* iEinstein-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iEinstein-Info.plist"; sourceTree = SOURCE_ROOT; };
 		C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow_iPad.xib; sourceTree = "<group>"; };
+		C98A531819717C67007A1164 /* SimTTask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimTTask.cpp; sourceTree = "<group>"; };
+		C98A531919717C67007A1164 /* SimTTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimTTask.h; sourceTree = "<group>"; };
 		C9956719123F71D2009A5668 /* TIOSScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TIOSScreenManager.h; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C995672B123F793D009A5668 /* TIOSScreenManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TIOSScreenManager.mm; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E315A111B7331002165EC /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../Resources/Info.plist; sourceTree = SOURCE_ROOT; };
@@ -603,8 +614,10 @@
 		C9B4AA49123D480900D8D2C7 /* iEinsteinView.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = iEinsteinView.h; path = Classes/iEinsteinView.h; sourceTree = "<group>"; tabWidth = 4; };
 		C9BE33CE133E64F60052EA2F /* TJITPerformance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITPerformance.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TJITPerformance.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		C9D54E1215FA23E700D91131 /* TFibre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFibre.h; sourceTree = "<group>"; };
-		C9D54E1315FA23E700D91131 /* TFibre.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFibre.cp; sourceTree = "<group>"; };
+		C9CEB43D19601CA3002198A7 /* TJITGenericRetarget.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGenericRetarget.cp; sourceTree = "<group>"; };
+		C9CEB43E19601CA3002198A7 /* TJITGenericRetarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGenericRetarget.h; sourceTree = "<group>"; };
+		C9D54E1215FA23E700D91131 /* TFiber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFiber.h; sourceTree = "<group>"; };
+		C9D54E1315FA23E700D91131 /* TFiber.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFiber.cp; sourceTree = "<group>"; };
 		C9DA71B917CD42D4008E6DB2 /* libresolv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libresolv.dylib; path = usr/lib/libresolv.dylib; sourceTree = SDKROOT; };
 		C9E848E711EDCD6C00F27330 /* ffi_darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi_darwin.c; sourceTree = "<group>"; };
 		C9E848E811EDCD6C00F27330 /* x86-ffi64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "x86-ffi64.c"; sourceTree = "<group>"; };
@@ -1121,8 +1134,8 @@
 		C99E333E111B7570002165EC /* Threads */ = {
 			isa = PBXGroup;
 			children = (
-				C9D54E1215FA23E700D91131 /* TFibre.h */,
-				C9D54E1315FA23E700D91131 /* TFibre.cp */,
+				C9D54E1215FA23E700D91131 /* TFiber.h */,
+				C9D54E1315FA23E700D91131 /* TFiber.cp */,
 				C99E333F111B7570002165EC /* TCondVar.cp */,
 				C99E3340111B7570002165EC /* TCondVar.h */,
 				C99E3341111B7570002165EC /* TMutex.cp */,
@@ -1348,6 +1361,10 @@
 				C99E344D111B7C07002165EC /* TJITGeneric_Test_template.t */,
 				C99E344E111B7C07002165EC /* TJITGenericPage.cp */,
 				C99E344F111B7C07002165EC /* TJITGenericPage.h */,
+				C9CEB43D19601CA3002198A7 /* TJITGenericRetarget.cp */,
+				C9CEB43E19601CA3002198A7 /* TJITGenericRetarget.h */,
+				C965D3FF1970A47000348893 /* TJITGenericRetargetMap.cpp */,
+				C965D4001970A47000348893 /* TJITGenericRetargetMap.h */,
 			);
 			path = Generic;
 			sourceTree = "<group>";
@@ -1550,6 +1567,11 @@
 		C9EF94D1160E48E5009E89C3 /* Newt */ = {
 			isa = PBXGroup;
 			children = (
+				C965D3FB19706FFC00348893 /* SimCollection1.cp */,
+				C965D3FE19709A2F00348893 /* SimCollection1.h */,
+				C965D3FC19706FFC00348893 /* SimulatorGlue.h */,
+				C98A531819717C67007A1164 /* SimTTask.cpp */,
+				C98A531919717C67007A1164 /* SimTTask.h */,
 				C9EF94D2160E48E5009E89C3 /* Common */,
 				C9EF94D8160E48E5009E89C3 /* Frames */,
 				C9EF94DC160E48E5009E89C3 /* UtilityClasses */,
@@ -1755,15 +1777,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				C99E317B111B73A1002165EC /* TMonitor.cp in Sources */,
+				C965D3FD19706FFC00348893 /* SimCollection1.cp in Sources */,
 				C99E317C111B73A1002165EC /* TSymbolList.cp in Sources */,
 				C99E317D111B73A1002165EC /* UDisasm.cp in Sources */,
 				C99E3391111B7570002165EC /* TCondVar.cp in Sources */,
+				C9CEB43F19601CA3002198A7 /* TJITGenericRetarget.cp in Sources */,
 				C99E3392111B7570002165EC /* TMutex.cp in Sources */,
 				C99E3393111B7570002165EC /* TThread.cp in Sources */,
 				C99E34C9111B7C08002165EC /* einstein.mm in Sources */,
 				C99E34CC111B7C08002165EC /* EinsteinDoNewtonScriptCommand.mm in Sources */,
 				C99E34CD111B7C08002165EC /* EinsteinInstallPackageCommand.mm in Sources */,
 				C99E34CF111B7C08002165EC /* TCocoaAppController.mm in Sources */,
+				C965D4011970A47000348893 /* TJITGenericRetargetMap.cpp in Sources */,
+				C98A531A19717C67007A1164 /* SimTTask.cpp in Sources */,
 				C99E34D0111B7C08002165EC /* TCocoaROMDumperController.mm in Sources */,
 				C99E34D1111B7C08002165EC /* TCocoaSetupController.mm in Sources */,
 				C99E34D8111B7C08002165EC /* THostInfo.cp in Sources */,
@@ -1845,7 +1871,7 @@
 				C901E52F1326566F0074513E /* TMemError.cp in Sources */,
 				C901E530132656710074513E /* TEOFException.cp in Sources */,
 				C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */,
-				C9D54E1415FA23E700D91131 /* TFibre.cp in Sources */,
+				C9D54E1415FA23E700D91131 /* TFiber.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1925,7 +1951,7 @@
 				C901E552132659140074513E /* TMappedFile.cp in Sources */,
 				F11E44B817C2DEF100EB9B4E /* TSymbolList.cp in Sources */,
 				C9BE33D1133E64F60052EA2F /* TJITPerformance.cp in Sources */,
-				F11E44B717C2DEE800EB9B4E /* TFibre.cp in Sources */,
+				F11E44B717C2DEE800EB9B4E /* TFiber.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1966,18 +1992,22 @@
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
+					/usr/local/include,
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
+					/usr/local/lib,
+					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
+				PRELINK_LIBS = "";
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx10.8;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -2006,18 +2036,22 @@
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
+					/usr/local/include,
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
+					/usr/local/lib,
+					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
+				PRELINK_LIBS = "";
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx10.8;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -2164,18 +2198,22 @@
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
+					/usr/local/include,
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
+					/usr/local/lib,
+					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
 				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
+				PRELINK_LIBS = "";
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx10.8;
 				USER_HEADER_SEARCH_PATHS = "";

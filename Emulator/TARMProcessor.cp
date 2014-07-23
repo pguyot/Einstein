@@ -532,7 +532,12 @@ TARMProcessor::PrefetchAbort( void )
 void
 TARMProcessor::DataAbort( void )
 {
-	// printf("Data Abort at 0x%08lx\n", mCurrentRegisters[kR15]);
+#if 0
+	printf("Data Abort at 0x%08lx, accessing 0x%08lx\n", mCurrentRegisters[kR15]-8, mMemory->GetFaultAddressRegister());
+	FILE *f = fopen("/Users/matt/dev/Einstein/mmu.txt", "wb");
+	mMemory->FDump(f);
+	fclose(f);
+#endif
 	//  002ddf2c         str      r1, [r2], #4                     | E4821004
 	/*
 	 Data Abort at 0x00311528
@@ -1033,6 +1038,110 @@ TARMProcessor::TransferState( TStream* inStream )
 	tmp = (KUInt32)mMode; inStream->TransferInt32BE( tmp ); mMode = (EMode)tmp;
 	inStream->TransferInt32BE( mPendingInterrupts );
 }
+
+
+/**
+ * Read emulated memory from a virtual address.
+ * This function handles all exceptions that may happen during this process.
+ * The function may invoke the scheduler and switch tasks.
+ */
+KUInt32
+TARMProcessor::ManagedMemoryReadAligned(KUInt32 inAddress)
+{
+	KUInt32 theData;
+	TMemory *theMemoryInterface = mMemory;
+	while (theMemoryInterface->ReadAligned(inAddress, theData)) {
+		//ManagedDataAbort();
+		fprintf(stderr, "PANIC: memory access failed in simulation\n");
+	}
+	return theData;
+}
+
+
+/**
+ * Read emulated memory from a virtual address.
+ * This function handles all exceptions that may happen during this process.
+ * The function may invoke the scheduler and switch tasks.
+ */
+KUInt32
+TARMProcessor::ManagedMemoryRead(KUInt32 inAddress)
+{
+	KUInt32 theData;
+	TMemory *theMemoryInterface = mMemory;
+	while (theMemoryInterface->Read(inAddress, theData)) {
+		//ManagedDataAbort();
+		fprintf(stderr, "PANIC: memory access failed in simulation\n");
+	}
+	return theData;
+}
+
+
+/**
+ * Read emulated memory from a virtual address.
+ * This function handles all exceptions that may happen during this process.
+ * The function may invoke the scheduler and switch tasks.
+ */
+KUInt8
+TARMProcessor::ManagedMemoryReadB(KUInt32 inAddress)
+{
+	KUInt8 theData;
+	TMemory *theMemoryInterface = mMemory;
+	while (theMemoryInterface->ReadB(inAddress, theData)) {
+		//ManagedDataAbort();
+		fprintf(stderr, "PANIC: memory access failed in simulation\n");
+	}
+	return theData;
+}
+
+
+/**
+ * Write emulated memory at a virtual address.
+ * This function handles all exceptions that may happen during this process.
+ * The function may invoke the scheduler and switch tasks.
+ */
+void
+TARMProcessor::ManagedMemoryWriteAligned(KUInt32 inAddress, KUInt32 inData)
+{
+	TMemory *theMemoryInterface = mMemory;
+	while (theMemoryInterface->WriteAligned(inAddress, inData)) {
+		//ManagedDataAbort();
+		fprintf(stderr, "PANIC: memory access failed in simulation\n");
+	}
+}
+
+
+/**
+ * Write emulated memory at a virtual address.
+ * This function handles all exceptions that may happen during this process.
+ * The function may invoke the scheduler and switch tasks.
+ */
+void
+TARMProcessor::ManagedMemoryWrite(KUInt32 inAddress, KUInt32 inData)
+{
+	TMemory *theMemoryInterface = mMemory;
+	while (theMemoryInterface->Write(inAddress, inData)) {
+		//ManagedDataAbort();
+		fprintf(stderr, "PANIC: memory access failed in simulation\n");
+	}
+}
+
+
+/**
+ * Write emulated memory at a virtual address.
+ * This function handles all exceptions that may happen during this process.
+ * The function may invoke the scheduler and switch tasks.
+ */
+void
+TARMProcessor::ManagedMemoryWriteB(KUInt32 inAddress, KUInt8 inData)
+{
+	TMemory *theMemoryInterface = mMemory;
+	while (theMemoryInterface->WriteB(inAddress, inData)) {
+		//ManagedDataAbort();
+		fprintf(stderr, "PANIC: memory access failed in simulation\n");
+	}
+}
+
+
 
 
 // =========================================================================== //
