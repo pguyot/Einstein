@@ -1113,6 +1113,28 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				PrintLine(theLine);
 			}
 		}
+	} else if (inCommand[0]=='!') {
+		FILE *f = fopen(inCommand+1, "rb");
+		if (f) {
+			for (;;) {
+				char buf[2048];
+				if (feof(f)) break;
+				if (fgets(buf, 2047, f)) {
+					int n = strlen(buf);
+					if (n) {
+						if (buf[n-1]=='\n') n--;
+						if (buf[n-1]=='\r') n--;
+						buf[n] = 0;
+						if (buf[0]!='#')
+							theResult = ExecuteCommand(buf);
+					}
+				}
+				if (theResult==false) break;
+			}
+			fclose(f);
+		} else {
+			PrintLine("Can't open script file");
+		}
 	} else {
 		theResult = false;
 	}
@@ -1256,6 +1278,7 @@ TMonitor::PrintRetargetHelp( void )
 //	PrintLine(" rt arm <addr>[-<addr>]  disassemble ARM code");
 	PrintLine(" rt cjit <addr>[-<addr>][ name]");
 	PrintLine("                    transcode function to JIT \"C\" code");
+	PrintLine(" !filename          run a script file");
 #endif
 }
 
