@@ -53,6 +53,7 @@ TSymbolList::TSymbolList( const char* inPath )
 		mSymbolCount( 0 ),
 		mFile( nil )
 {
+	// Load symbols and keep them in memory to have fast access when searching.
 	mFile = ::fopen( inPath, "r" );
 	if (mFile == NULL)
 	{
@@ -60,6 +61,7 @@ TSymbolList::TSymbolList( const char* inPath )
 	} else {
 		LoadSymbols();
 		UDisasm::setSymbolList(this);
+		::fclose( mFile );
 	}
 }
 
@@ -68,12 +70,16 @@ TSymbolList::TSymbolList( const char* inPath )
 // -------------------------------------------------------------------------- //
 TSymbolList::~TSymbolList( void )
 {
-	if (mFile)
-	{
-		::fclose( mFile );
-	}
 	if (mSymbolOffsets)
 	{
+		int i;
+		for (i=0; i<mSymbolCount; i++) {
+			struct SSymbolStruct* s = mSymbolOffsets+i;
+			if (s->fSymbol)
+				::free(s->fSymbol);
+			if (s->fComment)
+				::free(s->fComment);
+		}
 		::free( mSymbolOffsets );
 	}
 }
@@ -99,8 +105,18 @@ TSymbolList::LoadSymbols( void )
 		int theChar = fgetc( mFile );
 		if (theChar == '\t' || theChar == ' ')
 		{
-			
-			(void) ::fgetpos( mFile, &mSymbolOffsets[mSymbolCount].fFileCursor );
+			char sym[512], cmt[512];
+			ReadSymbolData( mFile, sym, cmt);
+			if (sym[0]) {
+				mSymbolOffsets[mSymbolCount].fSymbol = strdup(sym);
+			} else {
+				mSymbolOffsets[mSymbolCount].fSymbol = 0L;
+			}
+			if (cmt[0]) {
+				mSymbolOffsets[mSymbolCount].fComment = strdup(cmt);
+			} else {
+				mSymbolOffsets[mSymbolCount].fComment = 0L;
+			}
 			mSymbolCount++;
 				
 			// Let's look for the next line
@@ -141,17 +157,37 @@ TSymbolList::LoadSymbols( void )
 // -------------------------------------------------------------------------- //
 void
 TSymbolList::ReadSymbolData(
-    SSymbolStruct *symbol,
+							SSymbolStruct *symbol,
+							char* outSymbol,
+							char* outComment)
+{
+	if (symbol->fSymbol) {
+		strcpy(outSymbol, symbol->fSymbol);
+	} else {
+		outSymbol = 0L;
+	}
+	if (symbol->fComment) {
+		strcpy(outComment, symbol->fComment);
+	} else {
+		outComment = 0L;
+	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * ReadSymbolData( SSymbolStruct symbol, char* outSymbol, char* outComment )
+// -------------------------------------------------------------------------- //
+void
+TSymbolList::ReadSymbolData(
+	FILE *inFile,
 	char* outSymbol,
 	char* outComment)
 {
 	int cursor = 0;
 	int theChar;
 
-	(void) ::fsetpos( mFile, &symbol->fFileCursor );
 	do
 	{
-		theChar = ::fgetc( mFile );
+		theChar = ::fgetc( inFile );
 		if ((theChar != EOF) && (theChar != '\t') && (cursor < 510) && (theChar != '\n') && (theChar != '\r'))
 		{
 			outSymbol[cursor] = theChar;
@@ -170,7 +206,7 @@ TSymbolList::ReadSymbolData(
 		// Now I fill the comment
 		do
 		{
-			theChar = ::fgetc( mFile );
+			theChar = ::fgetc( inFile );
 			if ((theChar != EOF) && (theChar != '\n') && (theChar != '\r') && (cursor < 510))
 			{
 				outComment[cursor] = theChar;
@@ -181,7 +217,8 @@ TSymbolList::ReadSymbolData(
 			cursor++;
 		} while (1);
 	}
-
+	if (theChar != EOF)
+		::ungetc(theChar, inFile);
 }
 
 // -------------------------------------------------------------------------- //
@@ -254,6 +291,43 @@ TSymbolList::GetSymbolExact(
 	}
 	return r;
 }
+
+
+// -------------------------------------------------------------------------- //
+//  * GetSymbol( const char* inName )
+// -------------------------------------------------------------------------- //
+KUInt32
+TSymbolList::GetSymbol( const char* inName )
+{
+	if (this == NULL || mSymbolCount == 0)
+		return kNoSymbol;
+	int i;
+	for (i=0; i<mSymbolCount; i++) {
+		struct SSymbolStruct* s = mSymbolOffsets+i;
+		if (s->fSymbol && ::strcmp(inName, s->fSymbol)==0)
+			return s->fSymbolValue;
+	}
+	return kNoSymbol;
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * GetNextSymbol( KUInt32 inValue )
+// -------------------------------------------------------------------------- //
+KUInt32
+TSymbolList::GetNextSymbol( KUInt32 inValue )
+{
+	if (this == NULL || mSymbolCount == 0)
+		return kNoSymbol;
+	int i;
+	for (i=0; i<mSymbolCount; i++) {
+		struct SSymbolStruct* s = mSymbolOffsets+i;
+		if (s->fSymbolValue > inValue)
+			return s->fSymbolValue;
+	}
+	return kNoSymbol;
+}
+
 
 // ======================================================================= //
 // A computer lets you make more mistakes faster than any other invention, //

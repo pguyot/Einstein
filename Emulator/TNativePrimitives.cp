@@ -196,7 +196,8 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 					case 0x0000000e: progress=45; title = "Setup Flash Memory"; break;
 					case 0x00000112: progress=46; traceProgress = false; break;
 					default:
-						printf("Unmanaged: 0x%08x at %d\n", (unsigned int)inInstruction, progress);
+						//printf("Unmanaged progress indicator: 0x%08x at %d\n", (unsigned int)inInstruction, progress);
+						break;
 				}
 				if (progress>prevProgress) {
 					prevProgress = progress;

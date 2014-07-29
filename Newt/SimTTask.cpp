@@ -35,7 +35,7 @@ TTask::Init(TaskProcPtr inProc, size_t inStackSize, ObjectId inTaskId, ObjectId 
  
  
  When a memory fault is triggered, we fiddle around a lot with the CPU states and 
- domain, but essentially we call FaultMonitorEntry(). If FaultMonitorEntry() return 1,
+ domain, but essentially we call FaultMonitorEntry(). If FaultMonitorEntry() returns 1,
  we end up in a exception (or reboot). If it returns 0, we simply schedule the next task.
  
  FaultMonitorEntry(): 

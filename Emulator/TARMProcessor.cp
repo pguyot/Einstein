@@ -40,6 +40,8 @@
 #include "TEmulator.h"
 #include "JIT/JIT.h"
 
+#define HANDLE_DATA_ABORT_LOCALLY 0
+
 //KUInt32 TARMProcessor::mCurrentRegisters[16];		///< The current bank with the
 
 //TARMProcessor *TARMProcessor::current = 0L;
@@ -1046,14 +1048,22 @@ TARMProcessor::TransferState( TStream* inStream )
  * The function may invoke the scheduler and switch tasks.
  */
 KUInt32
-TARMProcessor::ManagedMemoryReadAligned(KUInt32 inAddress)
+TARMProcessor::ManagedMemoryReadAligned(KUInt32 inAddress, KUInt32 inPC)
 {
 	KUInt32 theData;
 	TMemory *theMemoryInterface = mMemory;
+#if HANDLE_DATA_ABORT_LOCALLY
 	while (theMemoryInterface->ReadAligned(inAddress, theData)) {
 		//ManagedDataAbort();
 		fprintf(stderr, "PANIC: memory access failed in simulation\n");
 	}
+#else
+	if (theMemoryInterface->ReadAligned(inAddress, theData)) {
+		SetRegister(kR15, inPC+4);
+		DataAbort();
+		throw "DataAbort";
+	}
+#endif
 	return theData;
 }
 
@@ -1064,14 +1074,22 @@ TARMProcessor::ManagedMemoryReadAligned(KUInt32 inAddress)
  * The function may invoke the scheduler and switch tasks.
  */
 KUInt32
-TARMProcessor::ManagedMemoryRead(KUInt32 inAddress)
+TARMProcessor::ManagedMemoryRead(KUInt32 inAddress, KUInt32 inPC)
 {
 	KUInt32 theData;
 	TMemory *theMemoryInterface = mMemory;
+#if HANDLE_DATA_ABORT_LOCALLY
 	while (theMemoryInterface->Read(inAddress, theData)) {
 		//ManagedDataAbort();
 		fprintf(stderr, "PANIC: memory access failed in simulation\n");
 	}
+#else
+	if (theMemoryInterface->Read(inAddress, theData)) {
+		SetRegister(kR15, inPC+4);
+		DataAbort();
+		throw "DataAbort";
+	}
+#endif
 	return theData;
 }
 
@@ -1082,14 +1100,22 @@ TARMProcessor::ManagedMemoryRead(KUInt32 inAddress)
  * The function may invoke the scheduler and switch tasks.
  */
 KUInt8
-TARMProcessor::ManagedMemoryReadB(KUInt32 inAddress)
+TARMProcessor::ManagedMemoryReadB(KUInt32 inAddress, KUInt32 inPC)
 {
 	KUInt8 theData;
 	TMemory *theMemoryInterface = mMemory;
+#if HANDLE_DATA_ABORT_LOCALLY
 	while (theMemoryInterface->ReadB(inAddress, theData)) {
 		//ManagedDataAbort();
 		fprintf(stderr, "PANIC: memory access failed in simulation\n");
 	}
+#else
+	if (theMemoryInterface->ReadB(inAddress, theData)) {
+		SetRegister(kR15, inPC+4);
+		DataAbort();
+		throw "DataAbort";
+	}
+#endif
 	return theData;
 }
 
@@ -1100,13 +1126,21 @@ TARMProcessor::ManagedMemoryReadB(KUInt32 inAddress)
  * The function may invoke the scheduler and switch tasks.
  */
 void
-TARMProcessor::ManagedMemoryWriteAligned(KUInt32 inAddress, KUInt32 inData)
+TARMProcessor::ManagedMemoryWriteAligned(KUInt32 inAddress, KUInt32 inData, KUInt32 inPC)
 {
 	TMemory *theMemoryInterface = mMemory;
+#if HANDLE_DATA_ABORT_LOCALLY
 	while (theMemoryInterface->WriteAligned(inAddress, inData)) {
 		//ManagedDataAbort();
 		fprintf(stderr, "PANIC: memory access failed in simulation\n");
 	}
+#else
+	if (theMemoryInterface->WriteAligned(inAddress, inData)) {
+		SetRegister(kR15, inPC+4);
+		DataAbort();
+		throw "DataAbort";
+	}
+#endif
 }
 
 
@@ -1116,13 +1150,21 @@ TARMProcessor::ManagedMemoryWriteAligned(KUInt32 inAddress, KUInt32 inData)
  * The function may invoke the scheduler and switch tasks.
  */
 void
-TARMProcessor::ManagedMemoryWrite(KUInt32 inAddress, KUInt32 inData)
+TARMProcessor::ManagedMemoryWrite(KUInt32 inAddress, KUInt32 inData, KUInt32 inPC)
 {
 	TMemory *theMemoryInterface = mMemory;
+#if HANDLE_DATA_ABORT_LOCALLY
 	while (theMemoryInterface->Write(inAddress, inData)) {
 		//ManagedDataAbort();
 		fprintf(stderr, "PANIC: memory access failed in simulation\n");
 	}
+#else
+	if (theMemoryInterface->Write(inAddress, inData)) {
+		SetRegister(kR15, inPC+4);
+		DataAbort();
+		throw "DataAbort";
+	}
+#endif
 }
 
 
@@ -1132,14 +1174,33 @@ TARMProcessor::ManagedMemoryWrite(KUInt32 inAddress, KUInt32 inData)
  * The function may invoke the scheduler and switch tasks.
  */
 void
-TARMProcessor::ManagedMemoryWriteB(KUInt32 inAddress, KUInt8 inData)
+TARMProcessor::ManagedMemoryWriteB(KUInt32 inAddress, KUInt8 inData, KUInt32 inPC)
 {
 	TMemory *theMemoryInterface = mMemory;
+#if HANDLE_DATA_ABORT_LOCALLY
 	while (theMemoryInterface->WriteB(inAddress, inData)) {
 		//ManagedDataAbort();
 		fprintf(stderr, "PANIC: memory access failed in simulation\n");
 	}
+#else
+	if (theMemoryInterface->WriteB(inAddress, inData)) {
+		SetRegister(kR15, inPC+4);
+		DataAbort();
+		throw "DataAbort";
+	}
+#endif
 }
+
+
+/**
+ * Throw an exception if the simulation receives an unexpected program counter.
+ */
+void
+TARMProcessor::UnexpectedPC()
+{
+	throw "UnexpectedPC";
+}
+
 
 
 

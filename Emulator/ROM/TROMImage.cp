@@ -166,7 +166,7 @@ T_ROM_INJECTION(0x00000010, "Data Abort") {
     else if (addr>=0x0c100800 && addr<0x0c126000)
         what = "Kernel Globals";
     
-    fprintf(stderr, "DATA ABORT: accessing 0x%08x from 0x%08x (%s)\n", 
+    fprintf(stderr, "DATA ABORT: accessing 0x%08X from 0x%08X (%s)\n", 
             addr, ioCPU->mR14abt_Bkup-8, what);
     return ioUnit;
 }
@@ -826,7 +826,7 @@ TROMPatch::~TROMPatch() {
 // -------------------------------------------------------------------------- //
 JITFuncPtr TROMPatch::GetSimulatorStubAt(KUInt32 index) 
 {
-    index = index & 0x007fffff;
+    index = index & 0x003fffff;
     if (index>=nPatch)
         return 0L;
     return patch_[index]->stub_;
@@ -837,7 +837,7 @@ JITFuncPtr TROMPatch::GetSimulatorStubAt(KUInt32 index)
 // -------------------------------------------------------------------------- //
 AnyFunctionPtr TROMPatch::GetSimulatorFunctionAt(KUInt32 index)
 {
-    index = index & 0x007fffff;
+    index = index & 0x003fffff;
     if (index>=nPatch)
         return 0L;
     return patch_[index]->function_;
@@ -848,18 +848,18 @@ AnyFunctionPtr TROMPatch::GetSimulatorFunctionAt(KUInt32 index)
 // -------------------------------------------------------------------------- //
 AnyMethodPtr TROMPatch::GetSimulatorMethodAt(KUInt32 index) 
 {
-    index = index & 0x007fffff;
+    index = index & 0x003fffff;
     if (index>=nPatch)
         return 0L;
     return patch_[index]->method_;
 }
 
 // -------------------------------------------------------------------------- //
-//  * Return the address of the Simulator function
+//  * Return the original instruction for this patch
 // -------------------------------------------------------------------------- //
 KUInt32 TROMPatch::GetOriginalInstructionAt(KUInt32 index)
 {
-    index = index & 0x007fffff;
+    index = index & 0x003fffff;
     if (index>=nPatch)
         return 0L;
     return patch_[index]->originalInstruction_;
@@ -870,7 +870,7 @@ KUInt32 TROMPatch::GetOriginalInstructionAt(KUInt32 index)
 // -------------------------------------------------------------------------- //
 const char* TROMPatch::GetNameAt(KUInt32 index)
 {
-    index = index & 0x007fffff;
+    index = index & 0x003fffff;
     if (index>=nPatch)
         return 0L;
     return patch_[index]->name_;

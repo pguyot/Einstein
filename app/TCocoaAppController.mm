@@ -409,14 +409,15 @@ static TCocoaAppController* gInstance = nil;
 	
 	mMonitorLog = new TBufferLog();
 	
+	NSString* theDataPath = [theROMPath stringByDeletingLastPathComponent];
 #ifdef _DEBUG
-	NSString* theSymbolPath = [[theROMPath stringByDeletingLastPathComponent] stringByAppendingString: @"/symbols.txt"];
+	NSString* theSymbolPath = [theDataPath stringByAppendingString: @"/symbols.txt"];
 	mSymbolList = new TSymbolList([theSymbolPath UTF8String]);
 #else
 	mSymbolList = 0L;
 #endif
 	
-	mMonitor = new TMacMonitor(mMonitorLog, mEmulator, mSymbolList);
+	mMonitor = new TMacMonitor(mMonitorLog, mEmulator, mSymbolList, theDataPath.UTF8String);
 	[mMonitorController setMonitor:mMonitor];
 	// FIXME: delete this to keep the Monitor closed
 	//[mMonitorController showWindow:self];

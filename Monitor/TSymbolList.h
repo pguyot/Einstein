@@ -42,6 +42,9 @@
 class TSymbolList
 {
 public:
+	
+	static const KUInt32 kNoSymbol = 0xFFFFFFFF;
+	
 	///
 	/// Constructor from a path.
 	///
@@ -69,13 +72,24 @@ public:
 			char* outSymbol,
 			char* outComment,
 			int* outOffset );
-
+	
+	///
+	/// Find a symbol by name and return its address
+	///
+	KUInt32 GetSymbol( const char* inName );
+	
+	///
+	/// Find the next symbol for a give address
+	///
+	KUInt32 GetNextSymbol( KUInt32 inValue );
+	
 
 private:
 	struct SSymbolStruct
 	{
 		KUInt32	fSymbolValue;
-		fpos_t	fFileCursor;
+		char*	fSymbol;
+		char*	fComment;
 	};
 
 	///
@@ -101,10 +115,18 @@ private:
 	/// Read data for a symbol from the symbol file
 	//
 	void ReadSymbolData(
-		SSymbolStruct *symbol,
-		char* outSymbol,
-		char* outComment);
-
+						SSymbolStruct *symbol,
+						char* outSymbol,
+						char* outComment);
+	
+	///
+	/// Read data for a symbol from the symbol file
+	//
+	void ReadSymbolData(
+						FILE *inFile,
+						char* outSymbol,
+						char* outComment);
+	
 	/// \name Variables
 	SSymbolStruct*		mSymbolOffsets;
 	KUInt32				mSymbolCount;
