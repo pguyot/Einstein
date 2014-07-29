@@ -52,7 +52,8 @@ public:
 	TMonitor(
 			TBufferLog* inLog,
 			TEmulator* inEmulator,
-			TSymbolList* inSymbolList );
+			TSymbolList* inSymbolList,
+			const char* inROMPath);
 
 	///
 	/// Destructor.
@@ -89,6 +90,16 @@ public:
 	void		PrintHelp( void );
 	
 	///
+	/// Print help for the log commands.
+	///
+	void		PrintLoggingHelp( void );
+	
+	///
+	/// Print help for the script commands.
+	///
+	void		PrintScriptingHelp( void );
+	
+	///
 	/// Print help for the watchpoint commands.
 	///
 	void		PrintWatchpointHelp( void );
@@ -113,13 +124,35 @@ public:
 		{
 			return mSocketPair[0];
 		}
-
+	
+	///
+	/// Execute a script.
+	///
+	/// \return false, if the script file was not found, or the result of
+	///         the script operations.
+	///
+	Boolean		ExecuteScript( const char* inScriptFile );
+	
+	///
+	/// Execute startup script.
+	///
+	/// \return true if /ROMPath/monitorrc was found and run.
+	///
+	Boolean		ExecuteStartupScript();
+	
 	///
 	/// Execute a command.
 	///
 	/// \return true if the command was known.
 	///
 	Boolean		ExecuteCommand( const char* inCommand );
+	
+	///
+	/// Execute the help command.
+	///
+	/// \return true if the command was known.
+	///
+	Boolean		ExecuteHelpCommand( const char* inCommand );
 	
 	///
 	/// Execute a retargeting command.
@@ -191,6 +224,12 @@ protected:
 	/// Output instruction at a given address.
 	///
 	void		PrintInstruction( KUInt32 inAddr );
+	
+	///
+	/// Output the contents of the current stack.
+	///
+	void		PrintBacktrace(KSInt32 inNWords=0);
+	
 public:
 	///
 	/// Run the emulator (handle breakpoint if we're on a BP).
@@ -278,6 +317,7 @@ public:
 												///< state changes.
 	Boolean					mLastScreenHalted;	///< If last screen was halted.
 	TJITGenericRetarget*	mRetarget;			///< retargeting source code generator
+	char*					mROMPath;			///< path to the ROM fle directory
 };
 
 #endif

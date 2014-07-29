@@ -7,7 +7,9 @@
 TMacMonitor::TMacMonitor(
 			TBufferLog* inLog,
 			TEmulator* inEmulator,
-			TSymbolList* inSymbolList ) : TMonitor(inLog, inEmulator, inSymbolList)
+			TSymbolList* inSymbolList,
+			const char* inROMPath) :
+	TMonitor(inLog, inEmulator, inSymbolList, inROMPath)
 {
 }
 

@@ -35,7 +35,8 @@ public:
 	TMacMonitor(
 			TBufferLog* inLog,
 			TEmulator* inEmulator,
-			TSymbolList* inSymbolList );
+			TSymbolList* inSymbolList,
+			const char *inROMPath );
 
 	virtual ~TMacMonitor( void );
 

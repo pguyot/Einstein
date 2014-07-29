@@ -17,7 +17,7 @@
 #include "TARMProcessor.h"
 #include "TJITGeneric_Macros.h"
 
-
+#if 0
 #define T_ROM_SIMULATION(addr, name) \
 	T_ROM_INJECTION(addr, name) {\
 		if (ioCPU->GetMode()==TARMProcessor::kUserMode) {\
@@ -27,5 +27,15 @@
 			return 0;\
 		}\
 	}
+#else
+#define T_ROM_SIMULATION(addr, name) \
+	T_ROM_INJECTION(addr, name) {\
+		Func_##addr(ioCPU);\
+		return 0;\
+	}
+#endif
+
+#define RT_PANIC_UNEXPECTED_RETURN_ADDRESS \
+	ioCPU->UnexpectedPC();
 
 #endif /* EINSTEIN_NEWT_SIMULATOR_GLUE_H */

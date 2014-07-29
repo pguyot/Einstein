@@ -284,7 +284,7 @@ public:
 	/// Return the original ROM instruction
 	static KUInt32 GetOriginalInstructionAt(KUInt32 index);
 	
-	/// Return the original ROM instruction
+	/// Return the name for this patch
 	static const char* GetNameAt(KUInt32 index);
 	
 	/// Patch the ROM word

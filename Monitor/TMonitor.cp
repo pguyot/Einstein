@@ -87,7 +87,8 @@ const char* const TMonitor::kModesNames[32] = {
 TMonitor::TMonitor(
 		TBufferLog* inLog,
 		TEmulator* inEmulator,
-		TSymbolList* inSymbolList )
+		TSymbolList* inSymbolList,
+		const char* inROMPath)
 	:
 		mEmulator( inEmulator ),
 		mMemory( inEmulator->GetMemory() ),
@@ -99,7 +100,8 @@ TMonitor::TMonitor(
 		mCommand( kNop ),
 		mFilename(0L),
 		mLastScreenHalted( true ),
-		mRetarget(0L)
+		mRetarget(0L),
+		mROMPath(strdup(inROMPath))
 {
 #if TARGET_OS_WIN32
 	assert(0);	// FIXME later
@@ -161,6 +163,10 @@ TMonitor::Run( void )
 	// At first, we're halted.
 	mHalted = true;
 		
+	// If the user put a script at /ROMPath/monitorrc, run it.
+	// This is used to set the default path, breakpoints, etc.
+	ExecuteStartupScript();
+	
 	Boolean loop = true;
 	while (loop)
 	{
@@ -523,6 +529,56 @@ static char cc(unsigned int v) {
 	return (char)v;
 }
 
+
+// -------------------------------------------------------------------------- //
+// ExecuteScript( const char* inCommand )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::ExecuteScript( const char* inScriptFile )
+{
+	bool theResult = true;
+	FILE *f = fopen(inScriptFile, "rb");
+	if (f) {
+		for (;;) {
+			char buf[2048];
+			if (feof(f)) break;
+			if (fgets(buf, 2047, f)) {
+				int n = strlen(buf);
+				if (n) {
+					if (buf[n-1]=='\n') n--;
+					if (buf[n-1]=='\r') n--;
+					buf[n] = 0;
+					if (buf[0]!='#' && buf[0]!=0)
+						theResult = ExecuteCommand(buf);
+				}
+			}
+			if (theResult==false) break;
+		}
+		fclose(f);
+	} else {
+		theResult = false;
+		PrintLine("Can't open script file");
+	}
+	return theResult;
+}
+
+
+// -------------------------------------------------------------------------- //
+// ExecuteStartupScript()
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::ExecuteStartupScript()
+{
+	bool theResult = true;
+	char buf[2048];
+	snprintf(buf, 2048, "%s/monitorrc", mROMPath);
+	if (::access(buf, R_OK)==0) {
+		theResult = ExecuteScript(buf);
+	}
+	return theResult;
+}
+
+
 // -------------------------------------------------------------------------- //
 // ExecuteCommand( const char* inCommand )
 // -------------------------------------------------------------------------- //
@@ -537,8 +593,9 @@ TMonitor::ExecuteCommand( const char* inCommand )
 	int theArgInt, theArgInt2;
 	char theLine[256];
 	
-	// commands when the emulator is halted.
-	if ((::strcmp(inCommand, "run") == 0)
+	if (inCommand[0]=='#') {	// script comment
+	} else if ((::strcmp(inCommand, "run") == 0) 	// commands when the emulator is halted.
+
 		|| (::strcmp(inCommand, "g") == 0))
 	{
 		if (mHalted)
@@ -1026,23 +1083,9 @@ TMonitor::ExecuteCommand( const char* inCommand )
 		}
 		PrintLine(theLine);
 	} else if (::strcmp(inCommand, "bt") == 0) {
-		// backtrack stack content
-		KSInt32 i, sp = mProcessor->GetRegister(13), lr = mProcessor->GetRegister(14);
-		KUInt32 theData;
-		char theSymbol[512];
-		char theComment[512];
-		int theOffset;
-		for (i=28; i>=0; i--) {
-			mMemory->Read((TMemory::VAddr)sp+4*i, theData);
-			mSymbolList->GetSymbol( theData, theSymbol, theComment, &theOffset );
-			sprintf(theLine, "sp+%3ld: 0x%08lX = %s+%d", 4*i, theData, theSymbol, theOffset);
-			theLine[62] = 0;
-			PrintLine(theLine);
-		}
-		mSymbolList->GetSymbol( lr, theSymbol, theComment, &theOffset );
-		sprintf(theLine, "    lr: 0x%08lX = %s+%d", lr, theSymbol, theOffset);
-		theLine[62] = 0;
-		PrintLine(theLine);
+		PrintBacktrace();
+	} else if (::strncmp(inCommand, "bt ", 3) == 0) {
+		PrintBacktrace(::atoi(inCommand+3));
 	} else if (::strcmp(inCommand, "log") == 0) {
 		mLog->CloseLog();
 	} else if (::sscanf(inCommand, "log %s", theLine) == 1) {
@@ -1055,9 +1098,12 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			   || ::strcmp(inCommand, "h") == 0
 			   || ::strcmp(inCommand, "?") == 0) {
 		PrintHelp();
-	} else if (::strcmp(inCommand, "help wp") == 0
-			   || ::strcmp(inCommand, "? wp") == 0) {
-		PrintWatchpointHelp();
+	} else if (::strncmp(inCommand, "help ", 5) == 0) {
+		ExecuteHelpCommand(inCommand+5);
+	} else if (::strncmp(inCommand, "h ", 2) == 0) {
+		ExecuteHelpCommand(inCommand+2);
+	} else if (::strncmp(inCommand, "? ", 2) == 0) {
+		ExecuteHelpCommand(inCommand+2);
 	} else if (::sscanf(inCommand, "wpr %X", &theArgInt) == 1) {
 		if (mMemory->AddWatchpoint( theArgInt, 1 )) {
 			::sprintf(theLine, "Setting watchpoint at %.8X failed", theArgInt);
@@ -1098,9 +1144,6 @@ TMonitor::ExecuteCommand( const char* inCommand )
 		}
 	} else if (::strncmp(inCommand, "rt ", 3)==0) {
 		theResult = ExecuteRetargetCommand(inCommand+3);
-	} else if (::strcmp(inCommand, "help rt") == 0
-			   || ::strcmp(inCommand, "? rt") == 0) {
-		PrintRetargetHelp();
 	} else if (::strcmp(inCommand, "p tasks") == 0) {
 		PrintLine("List of Tasks");
 		KUInt32 kernelScheduler; mMemory->Read(0x0C100FD0, kernelScheduler);
@@ -1113,28 +1156,21 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				PrintLine(theLine);
 			}
 		}
+	} else if (::strcmp(inCommand, "cdr") == 0) {
+		::chdir(mROMPath);
+	} else if (::strcmp(inCommand, "cd") == 0) {
+		const char *home = ::getenv("HOME");
+		::chdir(home);
+	} else if (::strncmp(inCommand, "cd ", 3) == 0) {
+		::chdir(inCommand+3);
+	} else if (::strcmp(inCommand, "cwd") == 0) {
+		char buf[2048];
+		getcwd(buf, 2048);
+		PrintLine(buf);
+	} else if (inCommand[0]=='\'') {
+		PrintLine(inCommand+1);
 	} else if (inCommand[0]=='!') {
-		FILE *f = fopen(inCommand+1, "rb");
-		if (f) {
-			for (;;) {
-				char buf[2048];
-				if (feof(f)) break;
-				if (fgets(buf, 2047, f)) {
-					int n = strlen(buf);
-					if (n) {
-						if (buf[n-1]=='\n') n--;
-						if (buf[n-1]=='\r') n--;
-						buf[n] = 0;
-						if (buf[0]!='#')
-							theResult = ExecuteCommand(buf);
-					}
-				}
-				if (theResult==false) break;
-			}
-			fclose(f);
-		} else {
-			PrintLine("Can't open script file");
-		}
+		theResult = ExecuteScript(inCommand+1);
 	} else {
 		theResult = false;
 	}
@@ -1153,10 +1189,10 @@ TMonitor::ExecuteRetargetCommand( const char* inCommand )
 	return 0;
 #else
 	if (!mRetarget)
-		mRetarget = new TJITGenericRetarget(mMemory);
+		mRetarget = new TJITGenericRetarget(mMemory, mSymbolList);
 	Boolean theResult = true;
 	if (::strncmp(inCommand, "open ", 5) == 0) {
-		if (mRetarget->OpenFiles(inCommand+5, "")) {
+		if (mRetarget->OpenFiles(inCommand+5)) {
 			PrintLine("Can't open file");
 			theResult = false;
 		} else {
@@ -1168,15 +1204,25 @@ TMonitor::ExecuteRetargetCommand( const char* inCommand )
 //	} else if (::strncmp(inCommand, "arm ", 4) == 0) {
 //		disasm();
 	} else if (::strncmp(inCommand, "cjit ", 5) == 0) {
-		// TODO:use symbols
 		KUInt32 first, last;
 		int n = sscanf(inCommand+5, "%lx-%lx", &first, &last);
+		if (n==0) {
+			first = mSymbolList->GetSymbol(inCommand+5);
+			if (first!=TSymbolList::kNoSymbol) {
+				n = 1;
+				last = mSymbolList->GetNextSymbol(first);
+				if (last!=TSymbolList::kNoSymbol) {
+					n = 2;
+				}
+			}
+		}
 		if (n==0) {
 			PrintLine("Can't read memory range");
 			theResult = false;
 		} else {
 			if (n==1) last = first + 80;
-			char name[80];
+			char name[512], cmt[512];
+			int off;
 			const char *n = inCommand+5;
 			for (;;n++) { // skip the start and end address and find the function name
 				if (*n==0) break;
@@ -1184,6 +1230,8 @@ TMonitor::ExecuteRetargetCommand( const char* inCommand )
 			}
 			if (*n) {
 				strcpy(name, n);
+			} else if (mSymbolList->GetSymbolExact(first, name, cmt, &off)) {
+				// symbol name is in 'name'
 			} else {
 				sprintf(name, "Func_0x%08lX", first);
 			}
@@ -1195,6 +1243,34 @@ TMonitor::ExecuteRetargetCommand( const char* inCommand )
 	return theResult;
 #endif
 }
+
+
+// -------------------------------------------------------------------------- //
+// ExecuteHelpCommand( const char* inCommand )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::ExecuteHelpCommand( const char* inCommand )
+{
+#if TARGET_OS_WIN32
+	assert(0); // FIXME later
+	return 0;
+#else
+	bool theResult = true;
+	if (::strcmp(inCommand, "rt") == 0) {
+		PrintRetargetHelp();
+	} else if (::strcmp(inCommand, "log") == 0) {
+		PrintLoggingHelp();
+	} else if (::strcmp(inCommand, "script") == 0) {
+		PrintScriptingHelp();
+	} else if (::strcmp(inCommand, "wp") == 0) {
+		PrintWatchpointHelp();
+	} else {
+		theResult = false;
+	}
+	return theResult;
+#endif
+}
+
 
 // -------------------------------------------------------------------------- //
 // PrintHelp( void )
@@ -1215,17 +1291,13 @@ TMonitor::PrintHelp( void )
 	PrintLine(" mr                 magic return (relies on lr)");
 	PrintLine(" r<i>=<val>         set ith register");
 	PrintLine(" pc=<val>           set pc");
-	PrintLine(" bt                 backtrack the stack");
+	PrintLine(" bt [n]             backtrace the stack");
 	PrintLine("Monitor commands available when the machine is running:");
 	PrintLine(" stop               interrupt the machine");
 	PrintLine("Monitor commands always available:");
 	PrintLine(" break|bp <address> set breakpoint at address");
 	PrintLine(" watch <x> <addr>   set watchpoint with x params at address");
 	PrintLine(" bc <address>       clear breakpoint at address");
-	PrintLine(" log path           start logging to file");
-	PrintLine(" log                stop logging to file");
-	PrintLine(" disable log        disable the log");
-	PrintLine(" enable log         enable the log");
 	PrintLine(" dl <address>       display long at address");
 	PrintLine(" dl P<address>      display long at physical address");
 	PrintLine(" dm <addr>[-<addr>] display memory at address/between addresses");
@@ -1235,8 +1307,54 @@ TMonitor::PrintHelp( void )
 	PrintLine(" gpio <val>         raise the gpio interrupts");
 	PrintLine(" load|save path     load or save the emulator state");
 	PrintLine(" snap|revert        (re)store machine state while running");
+	PrintLine(" help log           help with logging");
+	PrintLine(" help script        help with scripting");
 	PrintLine(" help wp            help with watchpoint commands");
 	PrintLine(" help rt            help with retargeting commands");
+#endif
+}
+
+// -------------------------------------------------------------------------- //
+// PrintLoggingHelp( void )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::PrintLoggingHelp( void )
+{
+#if TARGET_OS_WIN32
+	assert(0); // FIXME later
+#else
+	PrintLine("Logging commands start or stop a log file for all");
+	PrintLine("text output in the Monitor window.");
+	PrintLine("");
+	PrintLine(" log path           start logging to file");
+	PrintLine(" log                stop logging to file");
+	PrintLine(" disable log        disable the log");
+	PrintLine(" enable log         enable the log");
+#endif
+}
+
+// -------------------------------------------------------------------------- //
+// PrintScriptingHelp( void )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::PrintScriptingHelp( void )
+{
+#if TARGET_OS_WIN32
+	assert(0); // FIXME later
+#else
+	PrintLine("Scripting can run many Monitor commands in a text file.");
+	PrintLine("When Einstein starts, the script /ROMpath/monitorrc is");
+	PrintLine("executed first.");
+	PrintLine("");
+	PrintLine(" !filename          run a script file");
+	PrintLine(" cd                 change to the user HOME directory");
+	PrintLine(" cd path            set a new current directory");
+	PrintLine(" cdr                cd to directory where the ROM is located");
+	PrintLine(" cwd                print current working directory");
+//	PrintLine("*mon show           show the monitor window");
+//	PrintLine("*mon hide           hide the monitor window");
+	PrintLine(" # comment          marks commentary lines in the script file");
+	PrintLine(" 'text              print text");
 #endif
 }
 
@@ -1273,12 +1391,12 @@ TMonitor::PrintRetargetHelp( void )
 	PrintLine("Retargeting translates ARM code from one platform");
 	PrintLine("into code that can be recompiled to run");
 	PrintLine("on another platform:");
+	PrintLine("");
 	PrintLine(" rt open <basename> destination file path and base name");
 	PrintLine(" rt close           close files");
 //	PrintLine(" rt arm <addr>[-<addr>]  disassemble ARM code");
 	PrintLine(" rt cjit <addr>[-<addr>][ name]");
 	PrintLine("                    transcode function to JIT \"C\" code");
-	PrintLine(" !filename          run a script file");
 #endif
 }
 
@@ -1715,6 +1833,36 @@ TMonitor::PrintInstruction( KUInt32 inAddress )
 	PrintLine(theLine);
 #endif
 }
+
+
+// -------------------------------------------------------------------------- //
+//  * PrintBacktrace(KSInt32 inNWords)
+// -------------------------------------------------------------------------- //
+void
+TMonitor::PrintBacktrace(KSInt32 inNWords)
+{
+	// backtrack stack content
+	KSInt32 i, sp = mProcessor->GetRegister(13), lr = mProcessor->GetRegister(14);
+	KUInt32 theData;
+	char theSymbol[512];
+	char theComment[512];
+	char theLine[512];
+	int theOffset;
+	if (inNWords<=0)
+		inNWords = 28; // approximatly one full screen
+	for (i=inNWords; i>=0; i--) {
+		mMemory->Read((TMemory::VAddr)sp+4*i, theData);
+		mSymbolList->GetSymbol( theData, theSymbol, theComment, &theOffset );
+		sprintf(theLine, "sp+%3ld: 0x%08lX = %s+%d", 4*i, theData, theSymbol, theOffset);
+		theLine[62] = 0;
+		PrintLine(theLine);
+	}
+	mSymbolList->GetSymbol( lr, theSymbol, theComment, &theOffset );
+	sprintf(theLine, "    lr: 0x%08lX = %s+%d", lr, theSymbol, theOffset);
+	theLine[62] = 0;
+	PrintLine(theLine);
+}
+
 
 // -------------------------------------------------------------------------- //
 //  * CreateCondVarAndMutex( void )

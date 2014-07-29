@@ -103,7 +103,19 @@ JITInstructionProto(CallHostInjection)
 	POPVALUE(callIndex);
 	JITFuncPtr stub = TROMPatch::GetSimulatorStubAt(callIndex);
 	if (stub) {
-		if (stub(ioUnit, ioCPU)==0L) {
+		try {
+			// The stub calls a native function.
+			// If it returns 0L, the PC changed within the native code and we need
+			// to find the next ioUnit.
+			// Otherwise, we simply continue by running the already JIT'ed instruction
+			// that was here before we injected code.
+			JITUnit *ret = stub(ioUnit, ioCPU);
+			if (ret==0L) {
+				MMUCALLNEXT_AFTERSETPC;
+			}
+		} catch (const char *err) {
+			fprintf(stderr, "SIM_INFO: %s caught at pc=0x%08lX (pcAbort=0x%08lX)\n",
+					err, ioCPU->GetRegister(15), ioCPU->mR14abt_Bkup);
 			MMUCALLNEXT_AFTERSETPC;
 		}
 	}
