@@ -118,6 +118,7 @@ protected:
 	void Translate_DataProcessingPSRTransfer(KUInt32 inVAddr, KUInt32 inInstruction);
 	
 	void TestOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32 OP, KUInt32 MODE, KUInt32 Rn, KUInt32 thePushedValue);
+	void Translate_MRS(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32 FLAG_R, KUInt32 Rd);
 	void ArithmeticOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32 OP, KUInt32 MODE, KUInt32 FLAG_S, KUInt32 Rn, KUInt32 Rd, KUInt32 thePushedValue);
 	void LogicalOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32 OP, KUInt32 MODE, KUInt32 FLAG_S, KUInt32 Rn, KUInt32 Rd, KUInt32 thePushedValue);
 	void MoveOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32 OP, KUInt32 MODE, KUInt32 FLAG_S, KUInt32 Rd, KUInt32 thePushedValue);

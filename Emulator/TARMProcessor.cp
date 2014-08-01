@@ -1202,6 +1202,17 @@ TARMProcessor::UnexpectedPC()
 }
 
 
+/**
+ * Throw an exception to return fromsimulation back to emulation.
+ */
+void
+TARMProcessor::ReturnToEmualtor(KUInt32 inPC)
+{
+	SetRegister(kR15, inPC+4);
+	throw "ExitSimulator";
+}
+
+
 
 
 
