@@ -548,8 +548,10 @@ TMonitor::ExecuteScript( const char* inScriptFile )
 					if (buf[n-1]=='\n') n--;
 					if (buf[n-1]=='\r') n--;
 					buf[n] = 0;
-					if (buf[0]!='#' && buf[0]!=0)
-						theResult = ExecuteCommand(buf);
+					char *s = buf;
+					while (*s=='\t' || *s==' ') s++;
+					if (s[0]!='#' && s[0]!=0)
+						theResult = ExecuteCommand(s);
 				}
 			}
 			if (theResult==false) break;
@@ -1205,7 +1207,7 @@ TMonitor::ExecuteRetargetCommand( const char* inCommand )
 //		disasm();
 	} else if (::strncmp(inCommand, "cjit ", 5) == 0) {
 		KUInt32 first, last;
-		int n = sscanf(inCommand+5, "%lx-%lx", &first, &last);
+		int n = 0;
 		if (n==0) {
 			first = mSymbolList->GetSymbol(inCommand+5);
 			if (first!=TSymbolList::kNoSymbol) {
@@ -1215,6 +1217,9 @@ TMonitor::ExecuteRetargetCommand( const char* inCommand )
 					n = 2;
 				}
 			}
+		}
+		if (n==0) {
+			n = sscanf(inCommand+5, "%lx-%lx", &first, &last);
 		}
 		if (n==0) {
 			PrintLine("Can't read memory range");

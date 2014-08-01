@@ -38,4 +38,6 @@
 #define RT_PANIC_UNEXPECTED_RETURN_ADDRESS \
 	ioCPU->UnexpectedPC();
 
+#include "SimHandcoded.h"
+
 #endif /* EINSTEIN_NEWT_SIMULATOR_GLUE_H */

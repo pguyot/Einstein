@@ -398,6 +398,7 @@ public:
 	void		ManagedMemoryWrite(KUInt32 inAddress, KUInt32 inData, KUInt32 inPC);
 	void		ManagedMemoryWriteB(KUInt32 inAddress, KUInt8 inData, KUInt32 inPC);
 	void		UnexpectedPC();
+	void		ReturnToEmualtor(KUInt32 inPC);
 	
 private:
 	/// \name Variables
