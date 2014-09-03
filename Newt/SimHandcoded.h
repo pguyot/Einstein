@@ -14,5 +14,6 @@
 extern void Func_0x00392C2C(TARMProcessor* ioCPU); // ThrowSystemPainc_ExitAtomic_Underflow
 extern void Func_0x003AD658(TARMProcessor* ioCPU); // DoSchedulerSWI
 extern void Func_0x0033E620(TARMProcessor* ioCPU); // sprintf
+extern void Func_0x00318EE8(TARMProcessor* ioCPU); // __nw__FUi
 
 #endif /* defined(__Einstein__SimHandcoded__) */
