@@ -9,10 +9,15 @@
 #ifndef EINSTEIN_NEWT_SIMULATOR_GLUE_H
 #define EINSTEIN_NEWT_SIMULATOR_GLUE_H
 
+
+#ifdef IS_NEWT_SIM
+
+#include "NewtSim.h"
+
+#else
+
 #include <K/Defines/KDefinitions.h>
 #include "TROMImage.h"
-
-// Einstein
 #include "TMemory.h"
 #include "TARMProcessor.h"
 #include "TJITGeneric_Macros.h"
@@ -37,6 +42,9 @@
 
 #define RT_PANIC_UNEXPECTED_RETURN_ADDRESS \
 	ioCPU->UnexpectedPC();
+
+#endif
+
 
 #include "SimHandcoded.h"
 
