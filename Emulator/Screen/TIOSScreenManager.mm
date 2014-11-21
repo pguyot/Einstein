@@ -222,6 +222,7 @@ void
 TIOSScreenManager::ScreenOrientationChanged( EOrientation inScreenOrientation )
 {
   // RotateView(mEmulatorScreenView, inScreenOrientation);
+	[mView performSelectorOnMainThread:@selector(newtonOrientationChanged) withObject:nil waitUntilDone:YES];
 }
 
 // -------------------------------------------------------------------------- //

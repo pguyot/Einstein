@@ -42,6 +42,9 @@
 - (void)viewDidLoad 
 {
 	[super viewDidLoad];
+#ifdef USE_STORYBOARDS
+	[self initEmulator];
+#endif
 }
 
 
@@ -202,7 +205,8 @@
 		delete mLog;
 		mLog = NULL;
 	}  
-	
+
+    [_einsteinView release];
 	[super dealloc];
 }
 
@@ -210,7 +214,9 @@
 
 - (int)initEmulator
 {
+#ifndef USE_STORYBOARDS
 	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+#endif
 
 	printf("Initializing the emulator\n");
 
@@ -283,15 +289,22 @@
     // iPad is 1024x768. This size, and some appropriate scaling factors, should be selectable from
     // the 'Settings' panel.
 	
-    static int widthLUT[]  = { 320, 640, 384,  786 };
-    static int heightLUT[] = { 480, 960, 512, 1024 };
+    static int widthLUT[]  = { 320, 640, 384,  786,  640, 320,  750, 375, 1080, 540 };
+    static int heightLUT[] = { 480, 960, 512, 1024, 1136, 568, 1134, 567, 1920, 960 };
     
     NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
 	int index = [(NSNumber*)[prefs objectForKey:@"screen_resolution"] intValue];
 	int newtonScreenWidth = widthLUT[index];
 	int newtonScreenHeight = heightLUT[index];
 
+#ifdef USE_STORYBOARDS
+    // When using storyboards as configured, the einsteinView is a subview of self.view
+    // This facilitates other subviews in the future.
+    iEinsteinView* einsteinView = self.einsteinView;
+#else
+    // When using NIBs, the einsteinView is self.view
 	iEinsteinView* einsteinView = (iEinsteinView*)[self view];
+#endif
 	Boolean isLandscape = (newtonScreenWidth > newtonScreenHeight);
 	
 	mScreenManager = new TIOSScreenManager(
@@ -369,9 +382,13 @@
 - (void)resetEmulator
 {
 	mLog->LogLine("Resetting emulator");
-	
-	[(iEinsteinView*)[self view] reset];
 
+#ifdef USE_STORYBOARDS
+    [self.einsteinView reset];
+#else
+    [(iEinsteinView*)[self view] reset];
+#endif
+    
 	delete mEmulator;
 	mEmulator = NULL;
 
@@ -412,5 +429,9 @@ void openEinsteinMenu(iEinsteinViewController *ctrl)
 }
 */
 
+// for iOS7+ hide the status bar
+- (BOOL)prefersStatusBarHidden {
+	return YES;
+}
 
 @end

@@ -35,6 +35,7 @@ class TROMImage;
 class TEmulator;
 class TPlatformManager;
 class TLog;
+@class iEinsteinView;
 
 @interface iEinsteinViewController : UIViewController < UIActionSheetDelegate >
 {
@@ -48,6 +49,8 @@ class TLog;
 	int					lastKnownScreenResolution;
   
 }
+
+@property (retain, nonatomic) IBOutlet iEinsteinView *einsteinView;
 
 // Release
 - (void) dealloc;
