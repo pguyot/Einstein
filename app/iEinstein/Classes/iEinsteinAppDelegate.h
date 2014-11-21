@@ -31,6 +31,10 @@
 	IBOutlet iEinsteinViewController* viewController;
 }
 
+#ifdef USE_STORYBOARDS
+@property (retain, nonatomic) IBOutlet UIWindow* window;
+#endif
+
 //NSUserDefaultsDidChangeNotification
 
 @end

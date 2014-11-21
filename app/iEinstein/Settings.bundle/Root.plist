@@ -29,6 +29,12 @@
 				<string>iPhone 4 (640x960)</string>
 				<string>Quarter iPad (384x512)</string>
 				<string>iPad (768x1024)</string>
+				<string>iPhone 5/5s (640x1136)</string>
+				<string>Quarter iPhone 5/5s (320x568)</string>
+				<string>iPhone 6 (750x1134)</string>
+				<string>Quarter iPhone 6 (375x567)</string>
+				<string>iPhone 6+ (1080x1920)</string>
+				<string>Quarter iPhone 6+ (540x960)</string>
 			</array>
 			<key>Values</key>
 			<array>
@@ -36,6 +42,12 @@
 				<string>1</string>
 				<string>2</string>
 				<string>3</string>
+				<string>4</string>
+				<string>5</string>
+				<string>6</string>
+				<string>7</string>
+				<string>8</string>
+				<string>9</string>
 			</array>
 		</dict>
 		<dict>

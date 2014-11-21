@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>00387C14-EF80-463A-B73E-5DA22517C520</string>
+	<key>IDESourceControlProjectName</key>
+	<string>Einstein</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>C30B40EBA08C22E2F51FB8C7D99C35D48D8B6FB5</key>
+		<string>https://github.com/jake-b/Einstein.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>_Build_/Xcode6/Einstein.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>C30B40EBA08C22E2F51FB8C7D99C35D48D8B6FB5</key>
+		<string>../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/jake-b/Einstein.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>C30B40EBA08C22E2F51FB8C7D99C35D48D8B6FB5</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>C30B40EBA08C22E2F51FB8C7D99C35D48D8B6FB5</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Einstein</string>
+		</dict>
+	</array>
+</dict>
+</plist>

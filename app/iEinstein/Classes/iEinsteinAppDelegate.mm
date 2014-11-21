@@ -29,6 +29,10 @@
 
 @implementation iEinsteinAppDelegate
 
+#ifdef USE_STORYBOARDS
+// Reuse the window variable leveraged by the NIB version of the code
+@synthesize window=window;
+#endif
 
 + (void)initialize
 {
@@ -52,9 +56,15 @@
     // Get the user preferences
 	
     //[self setAutoRotate:[defaults boolForKey:@"auto_rotate"]];
-    
+
+#ifdef USE_STORYBOARDS
+	// When using Storyboards, we get back a full heirarchy, so no need to add it
+	// to the veiwe and make it visible.
+	viewController = (iEinsteinViewController*)self.window.rootViewController;
+#else
 	[window addSubview:[viewController view]];
 	[window makeKeyAndVisible];
+#endif
 
     NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
     bool clearFlash = [(NSNumber*)[prefs objectForKey:@"clear_flash_ram"] boolValue];
@@ -66,10 +76,14 @@
         [viewController stopEmulator];
         // Pop up a dialog making sure that the user really wants to that!
         [viewController verifyDeleteFlashRAM:4];
-    }
+	}
 
+#ifndef USE_STORYBOARDS
+	// When using storyboards, we can't init the emulator until the view heirarchy
+	// is fully built.  Do it in the iEinsteinViewController.
     [viewController initEmulator];
-
+#endif 
+	
     return YES;
 }
 

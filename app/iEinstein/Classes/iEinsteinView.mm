@@ -23,6 +23,7 @@
 
 #import "iEinsteinView.h"
 #import "TIOSScreenManager.h"
+#import "TScreenManager.h"
 
 #include "TInterruptManager.h"
 #include "TPlatformManager.h"
@@ -36,30 +37,54 @@
 #define kAlphaNoneSkipFirstPlusHostByteOrder (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
 #endif
 
+#define SWAP(x,y) {x=x+y;y=x-y;x=x-y;}
 
 - (void)awakeFromNib
 {
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(didRotate:)
+												 name:UIApplicationDidChangeStatusBarOrientationNotification
+											   object:nil];
 }
 
-- (void)setScreenManager:(TScreenManager*)sm 
-{ 
-	mScreenManager = sm; 
-} 
+- (void) didRotate:(NSNotification *)notification {
+	//UIInterfaceOrientation orientation = [notification.userInfo[UIApplicationStatusBarOrientationUserInfoKey] integerValue];
+
+	// Clear the screen image.  It will be recreated on the next draw.
+	CGImageRelease(mScreenImage);
+	mScreenImage = NULL;
+	
+	// Force the next draw.
+	[self setNeedsDisplay];
+}
+
+- (void)setScreenManager:(TScreenManager*)sm
+{
+	mScreenManager = sm;
+}
 
 - (void)setEmulator:(TEmulator*)em
 {
     mEmulator = em;
 }
 
+// Called by the screen manager when the Newton changes its orientation
+-(void) newtonOrientationChanged {
+	// Clear the screen image.  It will be recreated on the next draw.
+	CGImageRelease(mScreenImage);
+	mScreenImage = NULL;
+	
+	// Force the next draw.
+	[self setNeedsDisplay];
+}
 
-- (void)drawRect:(CGRect)rect 
+- (void)drawRect:(CGRect)rect
 {
 	CGContextRef theContext = UIGraphicsGetCurrentContext(); 
 	
 	if ( mScreenManager == NULL )
 	{
 		// Just fill black
-		
 		CGFloat black[] = { 0.0, 0.0, 0.0, 1.0 };
 		CGRect frame = [self frame];
 		CGContextSetFillColor(theContext, black);
@@ -85,9 +110,10 @@
 						
 			CGColorSpaceRelease(theColorSpace);
 
-			CGRect screenBounds = [[UIScreen mainScreen] bounds];
+			//CGRect screenBounds = [[UIScreen mainScreen] bounds]; //OLD
+			CGRect screenBounds = [self bounds];
 			CGRect r = [self frame];
-			
+
 			if ( screenBounds.size.width > newtonScreenWidth && screenBounds.size.height > newtonScreenHeight )
 			{
 				if ( newtonScreenWidth == newtonScreenHeight )
@@ -183,6 +209,25 @@
         CGRect r = screenImageRect;
 		int x = (1.0 - ((p.y - r.origin.y) / r.size.height)) * newtonScreenHeight;
 		int y = ((p.x - r.origin.x) / r.size.width) * newtonScreenWidth;
+		
+		// Translate coordinates based on orientation
+		switch (mScreenManager->GetScreenOrientation()) {
+			case TScreenManager::kOrientation_AppleRight:
+				SWAP(x,y);
+				y = newtonScreenHeight-y;
+				break;
+			case TScreenManager::kOrientation_AppleLeft:
+				SWAP(x,y);
+				x = newtonScreenWidth-x;
+				break;
+			case TScreenManager::kOrientation_AppleTop:
+				y = newtonScreenWidth-y;
+				x = newtonScreenHeight-x;
+				break;
+			default:
+				break;
+		}
+		
 		mScreenManager->PenDown(x, y);
 	}
 }
@@ -197,6 +242,25 @@
         CGRect r = screenImageRect;
 		int x = (1.0 - ((p.y - r.origin.y) / r.size.height)) * newtonScreenHeight;
 		int y = ((p.x - r.origin.x) / r.size.width) * newtonScreenWidth;
+
+		// Translate coordinates based on orientation
+		switch (mScreenManager->GetScreenOrientation()) {
+			case TScreenManager::kOrientation_AppleRight:
+				SWAP(x,y);
+				y = newtonScreenHeight-y;
+				break;
+			case TScreenManager::kOrientation_AppleLeft:
+				SWAP(x,y);
+				x = newtonScreenWidth-x;
+				break;
+			case TScreenManager::kOrientation_AppleTop:
+				y = newtonScreenWidth-y;
+				x = newtonScreenHeight-x;
+				break;
+			default:
+				break;
+		}
+		
 		mScreenManager->PenDown(x, y);
 	}
 }

@@ -26,7 +26,13 @@
 int main(int argc, char *argv[]) 
 {    
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+#ifdef USE_STORYBOARDS
+	// For storyboards, set the app delegate here
+	int retVal = UIApplicationMain(argc, argv, nil, @"iEinsteinAppDelegate");
+#else
+	// For NIBs, use the app delegate defined in the NIB
 	int retVal = UIApplicationMain(argc, argv, nil, nil);
+#endif
 	[pool release];
 	return retVal;
 }
