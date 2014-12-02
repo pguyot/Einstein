@@ -448,64 +448,7 @@ THostInfo::RetrieveUserInfo( void )
 			
 			break;
 		}
-		
-		// Try Carbon if AddressBook failed.
-		CFStringRef theCarbonName = CSCopyUserName( false );
-		if (theCarbonName)
-		{
-			CFIndex theLength;
-			CFRange theRange;
 
-			theLength = CFStringGetLength( theCarbonName );
-			mUserFirstName =
-				(KUInt16*) ::malloc( (theLength + 1) * sizeof( KUInt16 ) );
-			theRange.location = 0;
-			theRange.length = theLength;
-			CFStringGetCharacters(
-				theCarbonName, theRange, (UniChar*) mUserFirstName );
-			((KUInt16*) mUserFirstName)[theLength] = 0x0000;
-			
-			// Split.
-			int nameIndex;
-			for (nameIndex = 0; nameIndex < theLength; nameIndex++)
-			{
-				KUInt16 theChar = mUserFirstName[nameIndex];
-				if (theChar == 0x0020)
-				{
-					theLength -= nameIndex;	// incl. null term.
-					mUserLastName =
-						(KUInt16*) ::malloc(
-							theLength * sizeof( KUInt16 ) );
-					(void) ::memcpy(
-								(KUInt16*) mUserLastName,
-								&mUserFirstName[nameIndex + 1],
-								theLength * sizeof(KUInt16));
-					((KUInt16*) mUserFirstName)[nameIndex] = 0x0000;
-					mUserFirstName =
-						(KUInt16*) ::realloc(
-										(KUInt16*) mUserFirstName,
-										(nameIndex + 1) * sizeof(KUInt16) );
-#if TARGET_RT_LITTLE_ENDIAN
-					// On little endian, swap the characters.
-					for (nameIndex = 0; nameIndex < theLength; nameIndex++)
-					{
-						((KUInt16*) mUserLastName)[nameIndex]
-							= UByteSex_ToBigEndian(mUserLastName[nameIndex]);
-					}
-#endif
-					break;
-				} else {
-#if TARGET_RT_LITTLE_ENDIAN
-					// On little endian, swap the characters.
-					((KUInt16*) mUserFirstName)[nameIndex]
-						= UByteSex_ToBigEndian(theChar);
-#endif
-				}
-			}
-			
-			CFRelease(theCarbonName);			
-			break;
-		}
 #endif
 #endif
 
