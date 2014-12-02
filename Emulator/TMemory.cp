@@ -398,7 +398,11 @@ TMemory::FastReadString( VAddr inAddress, char** outString )
 			// Slower.
 			while (len-- > 0)
 			{
-				if (ReadB(addr++, byte)) return true;
+				if (ReadB(addr++, byte))
+				{
+					::free(result);
+					return true;
+				}
 				*dst++ = (char) byte;
 				if (byte == 0)
 				{
@@ -2337,7 +2341,7 @@ TMemory::TranslateAndCheckFlashAddress( KUInt32 inAddress, PAddr* outAddress )
 Boolean
 TMemory::WriteToFlash32Bits( KUInt32 inWord, KUInt32 inMask, KUInt32 inAddress )
 {
-	PAddr theAddress;
+	PAddr theAddress = 0;
 	
 	if (TranslateAndCheckFlashAddress( inAddress, &theAddress ))
 	{
@@ -2385,7 +2389,7 @@ TMemory::WriteToFlash32Bits( KUInt32 inWord, KUInt32 inMask, KUInt32 inAddress )
 Boolean
 TMemory::WriteToFlash16Bits( KUInt32 inWord, KUInt32 inMask, KUInt32 inAddress )
 {
-	PAddr theAddress;
+	PAddr theAddress = 0;
 	
 	if (TranslateAndCheckFlashAddress( inAddress, &theAddress ))
 	{
@@ -2440,7 +2444,7 @@ TMemory::WriteToFlash16Bits( KUInt32 inWord, KUInt32 inMask, KUInt32 inAddress )
 Boolean
 TMemory::EraseFlash( KUInt32 inAddress, KUInt32 inBlockSize )
 {
-	PAddr theAddress;
+	PAddr theAddress = 0;
 	
 	if (TranslateAndCheckFlashAddress( inAddress, &theAddress ))
 	{
@@ -2915,7 +2919,7 @@ TMemory::Init( void )
 	}
 	mRAM = (KUInt8*) ::calloc( 1, mRAMSize );
 	mRAMOffset = ((KUIntPtr) mRAM) - TMemoryConsts::kRAMStart;
-	mBreakpoints = (SBreakpoint*) ::malloc( 0 );
+	mBreakpoints = (SBreakpoint*) ::malloc( 1 );
 	mSerialNumber[0] = 0;
 	mSerialNumber[1] = 0;
 	mWPCount = 0;
