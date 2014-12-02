@@ -778,6 +778,7 @@
 		F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaMonitorController.mm; sourceTree = "<group>"; };
 		F164801813199758001603BE /* TMacMonitor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TMacMonitor.mm; sourceTree = "<group>"; };
 		F164801913199758001603BE /* TMacMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TMacMonitor.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		F1AD645D1A2E4F4A00C32AD5 /* Einstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Einstein_Prefix.pch; sourceTree = "<group>"; };
 		F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		F1CAFCF8124200C100A0382E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		F8847562169F4DE1007CE179 /* Objects.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Objects.cp; sourceTree = "<group>"; };
@@ -1133,6 +1134,7 @@
 		C99E33CF111B7C07002165EC /* Mac OS X */ = {
 			isa = PBXGroup;
 			children = (
+				F1AD645D1A2E4F4A00C32AD5 /* Einstein_Prefix.pch */,
 				C99E33D1111B7C07002165EC /* einstein.mm */,
 				C99E33DB111B7C07002165EC /* TCocoaAppController.h */,
 				C99E33DC111B7C07002165EC /* TCocoaAppController.mm */,
@@ -2227,7 +2229,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_DEBUG,
 					TARGET_IOS,
@@ -2265,7 +2267,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TARGET_IOS,
 					NO_PORT_AUDIO,
@@ -2304,7 +2306,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TARGET_IOS,
 					NO_PORT_AUDIO,
@@ -2352,7 +2354,7 @@
 					_DEBUG,
 					NO_PORT_AUDIO,
 					NO_X11,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
@@ -2369,8 +2371,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
-				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
-				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx;
@@ -2394,7 +2394,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					NO_PORT_AUDIO,
 					NO_X11,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
@@ -2411,8 +2411,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
-				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
-				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx;
@@ -2465,7 +2463,6 @@
 					_DEBUG,
 					NO_PORT_AUDIO,
 					NO_X11,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
@@ -2482,8 +2479,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
-				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
-				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = "Einstein copy";
 				SDKROOT = macosx;
@@ -2508,7 +2503,6 @@
 					EINSTEIN_FEAT_DEV,
 					NO_PORT_AUDIO,
 					NO_X11,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
@@ -2525,8 +2519,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
-				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
-				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = "Einstein copy";
 				SDKROOT = macosx;
@@ -2551,7 +2543,6 @@
 					EINSTEIN_FEAT_DEV,
 					NO_PORT_AUDIO,
 					NO_X11,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
@@ -2568,8 +2559,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
-				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
-				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = "Einstein copy";
 				SDKROOT = macosx;
@@ -2698,7 +2687,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_DEBUG,
 					TARGET_IOS,
@@ -2735,7 +2724,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TARGET_IOS,
 					NO_PORT_AUDIO,
@@ -2792,7 +2781,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					NO_PORT_AUDIO,
 					NO_X11,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
@@ -2809,8 +2798,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
-				PER_ARCH_CFLAGS_ppc = "$(PER_ARCH_CFLAGS_ppc) -mcpu=7450";
-				PER_ARCH_CPLUSPLUSFLAGS_ppc = "$(PER_ARCH_CPLUSPLUSFLAGS_ppc) -mcpu=7450";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx;
@@ -2827,7 +2814,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TARGET_IOS,
 					NO_PORT_AUDIO,
