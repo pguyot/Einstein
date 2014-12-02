@@ -436,18 +436,11 @@
 		2360EB291A1E85EB00893927 /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
 		2389E9331A1E3A5C0001A8C5 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		2389E9961A1E4D4A0001A8C5 /* iOSEinstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSEinstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		2389E9971A1E4D4A0001A8C5 /* iOSEinstein copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "iOSEinstein copy-Info.plist"; path = "/Users/jake/Development/Einstein/_Build_/Xcode6/iOSEinstein copy-Info.plist"; sourceTree = "<absolute>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* Einstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Einstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C901967A1328299500C3342F /* AndroidGlue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AndroidGlue.h; path = ../../app/AndroidGlue.h; sourceTree = SOURCE_ROOT; };
-		C901967B1328299500C3342F /* TAndroidApp.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TAndroidApp.cp; path = ../../app/TAndroidApp.cp; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 1; };
-		C901967C1328299500C3342F /* TAndroidApp.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TAndroidApp.h; path = ../../app/TAndroidApp.h; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 1; };
-		C901967D132829C000C3342F /* Android.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Android.mk; path = ../EclipseAndroid/jni/Android.mk; sourceTree = SOURCE_ROOT; };
-		C901967E132829C000C3342F /* Application.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Application.mk; path = ../EclipseAndroid/jni/Application.mk; sourceTree = SOURCE_ROOT; };
 		C901968613282E1500C3342F /* TAndroidScreenManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TAndroidScreenManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C901968713282E1500C3342F /* TAndroidScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TAndroidScreenManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
-		C9019692132834EA00C3342F /* AndroidGlue.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AndroidGlue.cp; path = ../../app/AndroidGlue.cp; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 1; };
 		C906A8BA17E7B1E2004E0244 /* TAndroidSoundManager.cp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TAndroidSoundManager.cp; sourceTree = "<group>"; };
 		C906A8BB17E7B1E2004E0244 /* TAndroidSoundManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TAndroidSoundManager.h; sourceTree = "<group>"; };
 		C932824511D0CF0A003B93C3 /* button_network_in.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network_in.png; sourceTree = "<group>"; };
@@ -461,7 +454,6 @@
 		C95E60291988E1D9004C6CEF /* SimHandcoded.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimHandcoded.cpp; sourceTree = "<group>"; };
 		C95E602A1988E1D9004C6CEF /* SimHandcoded.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimHandcoded.h; sourceTree = "<group>"; };
 		C95E60B7198B76DC004C6CEF /* Einstein copy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Einstein copy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C95E60B8198B76DD004C6CEF /* Einstein copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Einstein copy-Info.plist"; path = "/Users/matt/dev/Einstein/_Build_/Xcode4/Einstein copy-Info.plist"; sourceTree = "<absolute>"; };
 		C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TUsermodeNetwork.cp; path = Network/TUsermodeNetwork.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429611B69A9D00EE66F3 /* TUsermodeNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TUsermodeNetwork.h; path = Network/TUsermodeNetwork.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TNetworkManager.cp; path = Network/TNetworkManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
@@ -879,7 +871,6 @@
 		F164801913199758001603BE /* TMacMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TMacMonitor.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		F1CAFCF8124200C100A0382E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		F1CB761A1317307E0017B0BB /* Einstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Einstein_Prefix.pch; path = ../../../../../Source/einstein/Einstein/app/Einstein_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		F8847562169F4DE1007CE179 /* Objects.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Objects.cp; sourceTree = "<group>"; };
 		F8B76BC3169CAD6E00660943 /* newt_string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = newt_string.h; path = CLibrary/newt_string.h; sourceTree = "<group>"; };
 		F8B76BC4169CAE7100660943 /* newt_string.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = newt_string.cp; path = CLibrary/newt_string.cp; sourceTree = "<group>"; };
@@ -997,8 +988,6 @@
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
-				C95E60B8198B76DD004C6CEF /* Einstein copy-Info.plist */,
-				2389E9971A1E4D4A0001A8C5 /* iOSEinstein copy-Info.plist */,
 			);
 			indentWidth = 4;
 			name = Einstein;
@@ -1023,19 +1012,6 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		C90196781328296B00C3342F /* Android (Eclipse, ARM-gcc) */ = {
-			isa = PBXGroup;
-			children = (
-				C901967D132829C000C3342F /* Android.mk */,
-				C901967E132829C000C3342F /* Application.mk */,
-				C9019692132834EA00C3342F /* AndroidGlue.cp */,
-				C901967A1328299500C3342F /* AndroidGlue.h */,
-				C901967B1328299500C3342F /* TAndroidApp.cp */,
-				C901967C1328299500C3342F /* TAndroidApp.h */,
-			);
-			name = "Android (Eclipse, ARM-gcc)";
 			sourceTree = "<group>";
 		};
 		C962429411B69A6E00EE66F3 /* Network */ = {
@@ -1066,7 +1042,6 @@
 			children = (
 				C99E33CF111B7C07002165EC /* Mac OS X */,
 				C9B4AA2B123D474800D8D2C7 /* iOS */,
-				C90196781328296B00C3342F /* Android (Eclipse, ARM-gcc) */,
 				C99E33EC111B7C07002165EC /* Emulator */,
 				C99E3174111B73A1002165EC /* Monitor */,
 				C9EF94D1160E48E5009E89C3 /* Newt */,
@@ -1457,7 +1432,6 @@
 			isa = PBXGroup;
 			children = (
 				C99E33D1111B7C07002165EC /* einstein.mm */,
-				F1CB761A1317307E0017B0BB /* Einstein_Prefix.pch */,
 				C99E33DB111B7C07002165EC /* TCocoaAppController.h */,
 				C99E33DC111B7C07002165EC /* TCocoaAppController.mm */,
 				C99E33DD111B7C07002165EC /* TCocoaROMDumperController.h */,
