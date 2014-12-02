@@ -18,12 +18,14 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>2012.9</string>
+	<key>NSAppleScriptEnabled</key>
+	<false/>
+	<key>NSContactsUsageDescription</key>
+	<string>Einstein can autofill your Names card with your name, address, and phone number.</string>
 	<key>NSMainNibFile</key>
 	<string>Einstein</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-	<key>NSAppleScriptEnabled</key>
-	<false/>
 	<key>OSAScriptingDefinition</key>
 	<string>Einstein.sdef</string>
 </dict>
