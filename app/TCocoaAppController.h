@@ -53,7 +53,7 @@ class TSymbolList;
 ///
 /// \test	aucun test défini.
 ///
-@interface TCocoaAppController : NSObject <CocoaEmulatorApp, NSApplicationDelegate, NSToolbarDelegate>
+@interface TCocoaAppController : NSObject <CocoaEmulatorApp, NSApplicationDelegate, NSToolbarDelegate, NSFileManagerDelegate>
 {
 	IBOutlet NSMenu* mMenuBar;
 	IBOutlet TCocoaSetupController* mSetupController;
