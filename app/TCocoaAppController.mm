@@ -414,7 +414,7 @@ static TCocoaAppController* gInstance = nil;
 	NSString* theSymbolPath = [theDataPath stringByAppendingString: @"/symbols.txt"];
 	mSymbolList = TSymbolList::List = new TSymbolList([theSymbolPath UTF8String]);
 #else
-	mSymbolList = 0L;
+	mSymbolList = NULL;
 #endif
 	
 	mMonitor = new TMacMonitor(mMonitorLog, mEmulator, mSymbolList, theDataPath.UTF8String);

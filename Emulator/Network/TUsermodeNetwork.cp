@@ -1597,7 +1597,7 @@ void TUsermodeNetwork::AddPacketHandler(PacketHandler *inPacketHandler)
 	else
 		mLastPacketHandler = inPacketHandler;
 	inPacketHandler->next = n;
-	inPacketHandler->prev = 0;
+	inPacketHandler->prev = NULL;
 	mFirstPacketHandler = inPacketHandler;
 }
 
@@ -1629,7 +1629,7 @@ void TUsermodeNetwork::Enqueue(Packet *inPacket)
 	else
 		mLastPacket = inPacket;
 	inPacket->next = n;
-	inPacket->prev = 0;
+	inPacket->prev = NULL;
 	mFirstPacket = inPacket;
 }
 
@@ -1643,9 +1643,9 @@ void TUsermodeNetwork::DropPacket()
 	if (pkt) {
 		Packet *prevPkt = pkt->prev;
 		if (prevPkt) 
-			prevPkt->next = 0L;
+			prevPkt->next = NULL;
 		else
-			mFirstPacket = 0L;
+			mFirstPacket = NULL;
 		mLastPacket = prevPkt;
 		delete pkt;
 	}
