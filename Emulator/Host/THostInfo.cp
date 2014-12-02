@@ -229,6 +229,7 @@ THostInfo::GetHostTimeZone( void ) const
 	CFTimeZoneRef theTZ = CFTimeZoneCopyDefault();
 	CFTimeInterval theDelta =  CFTimeZoneGetSecondsFromGMT(
 		theTZ, CFAbsoluteTimeGetCurrent());
+	CFRelease(theTZ);
 	return (int) theDelta;
 #elif TARGET_OS_WIN32
 	// Timezone is returned in hours.
