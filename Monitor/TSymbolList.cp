@@ -138,12 +138,12 @@ TSymbolList::LoadSymbols( void )
 			if (sym[0]) {
 				mSymbolOffsets[mSymbolCount].fSymbol = strdup(sym);
 			} else {
-				mSymbolOffsets[mSymbolCount].fSymbol = 0L;
+				mSymbolOffsets[mSymbolCount].fSymbol = NULL;
 			}
 			if (cmt[0]) {
 				mSymbolOffsets[mSymbolCount].fComment = strdup(cmt);
 			} else {
-				mSymbolOffsets[mSymbolCount].fComment = 0L;
+				mSymbolOffsets[mSymbolCount].fComment = NULL;
 			}
 			mSymbolCount++;
 				
@@ -587,12 +587,12 @@ TSymbolList::ReadSymbolData(
 	if (symbol->fSymbol) {
 		strcpy(outSymbol, symbol->fSymbol);
 	} else {
-		outSymbol = 0L;
+		outSymbol = NULL;
 	}
 	if (symbol->fComment) {
 		strcpy(outComment, symbol->fComment);
 	} else {
-		outComment = 0L;
+		outComment = NULL;
 	}
 }
 

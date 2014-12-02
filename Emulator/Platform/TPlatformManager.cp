@@ -70,7 +70,7 @@ TPlatformManager::TPlatformManager(
 		mPowerOn( true ),
 		mQueueLockCount( 0 ),
 		mMutex( nil ),
-		mDocDir(0L)
+		mDocDir( nil )
 {
 	mEventQueue = (SEvent*) ::malloc( sizeof(SEvent) * mEventQueueSize );
 	mBufferQueue = (SBuffer*) ::malloc( sizeof(SBuffer) * mBufferQueueSize );
@@ -331,7 +331,7 @@ TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inDa
 void
 TPlatformManager::SendNetworkCardEvent( void )
 {
-	static TNE2000Card *theCard = 0;
+	static TNE2000Card *theCard = NULL;
 
 	// FIXME: Change check mark in Menu.
 	if (mMemory) {
@@ -342,7 +342,7 @@ TPlatformManager::SendNetworkCardEvent( void )
 				theController->InsertCard(theCard);
 			} else {
 				theController->RemoveCard();
-				theCard = 0;
+				theCard = NULL;
 			}
 		}
 	}
