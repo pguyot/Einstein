@@ -421,10 +421,10 @@ TNativeCalls::SetArgValue_string(
 		mNativeFuncs[inFFIStructure].fArgTypes[inArgIndex] = &ffi_type_pointer;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fPtr = theString;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fToFree = true;
-	}
 	
-	// Set the null terminator.
-	theString[inSize] = 0;
+		// Set the null terminator.
+		theString[inSize] = 0;
+	}
 #endif
 }
 
