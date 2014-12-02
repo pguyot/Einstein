@@ -1,0 +1,8 @@
+*.swp
+build/
+DerivedData/
+*.mode1v3
+*.mode2v3
+*.perspectivev4
+*.moved-aside
+
