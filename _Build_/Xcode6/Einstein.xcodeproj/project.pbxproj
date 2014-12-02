@@ -2667,6 +2667,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2685,14 +2686,12 @@
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
-					/usr/local/include,
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
-					/usr/local/lib,
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
@@ -2712,6 +2711,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -2728,14 +2728,12 @@
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
-					/usr/local/include,
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
-					/usr/local/lib,
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
@@ -3108,6 +3106,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -3124,14 +3123,12 @@
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
-					/usr/local/include,
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
-					/usr/local/lib,
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
