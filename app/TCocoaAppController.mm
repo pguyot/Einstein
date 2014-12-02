@@ -64,7 +64,7 @@
 static TCocoaAppController* gInstance = nil;
 
 
-@interface TCocoaAppController (Private)
+@interface TCocoaAppController ()
 
 + (NSString*)getAppSupportDirectory;
 - (void)runEmulator;
