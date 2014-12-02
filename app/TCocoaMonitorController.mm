@@ -21,6 +21,13 @@
 }
 
 
+- (void)dealloc
+{
+	[commandField setDelegate:nil];
+	[super dealloc];
+}
+
+
 - (void)setMonitor:(TMacMonitor*)inMonitor
 {
 	monitor = inMonitor;
