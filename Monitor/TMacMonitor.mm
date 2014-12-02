@@ -20,22 +20,11 @@ TMacMonitor::~TMacMonitor( void )
 
 NSString* TMacMonitor::GetScreen(void)
 {
-	Boolean theResult = false;
 	if (mHalted)
 	{
-		if (!mLastScreenHalted)
-		{
-			// Clear the terminal.
-			theResult = true;
-		}
 		mLastScreenHalted = true;
 		return GetScreenHalted();
 	} else {
-		if (mLastScreenHalted)
-		{
-			// Clear the terminal.
-			theResult = true;
-		}
 		mLastScreenHalted = false;
 		return GetScreenRunning();
 	}
