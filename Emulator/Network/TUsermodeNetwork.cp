@@ -664,10 +664,10 @@ public:
 					sa.sin_family = AF_INET;
 					sa.sin_port = htons(theirPort);
 					sa.sin_addr.s_addr = htonl(theirIP);
-					int err = ::connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
+					/* int err = */ ::connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
 					// perform some presets for the socket
 					int fl = fcntl(mSocket, F_GETFL);
-					err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
+					/* err = */ fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
 					state = kStateConnected;
 					return 1;
 				}
