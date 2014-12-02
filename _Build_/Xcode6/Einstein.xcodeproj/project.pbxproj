@@ -95,7 +95,6 @@
 		2389E98D1A1E4D4A0001A8C5 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E36FD111C18A8002165EC /* CoreAudio.framework */; };
 		2389E98E1A1E4D4A0001A8C5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */; };
 		2389E98F1A1E4D4A0001A8C5 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFCF8124200C100A0382E /* CoreGraphics.framework */; };
-		2389E9901A1E4D4A0001A8C5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C97C7E1A124282A600CDCD05 /* UIKit.framework */; };
 		2389E9911A1E4D4A0001A8C5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C97C7E1B124282A600CDCD05 /* Foundation.framework */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		C901E51A132655D50074513E /* UUTF16CStr.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334F111B7570002165EC /* UUTF16CStr.cp */; };
@@ -242,7 +241,6 @@
 		C9642CE419B6815B00BB0B42 /* SimHandcoded.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95E60291988E1D9004C6CEF /* SimHandcoded.cpp */; };
 		C965D3FD19706FFC00348893 /* SimCollection1.cp in Sources */ = {isa = PBXBuildFile; fileRef = C965D3FB19706FFC00348893 /* SimCollection1.cp */; };
 		C965D4011970A47000348893 /* TJITGenericRetargetMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C965D3FF1970A47000348893 /* TJITGenericRetargetMap.cpp */; };
-		C97C7E1C124282A600CDCD05 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C97C7E1A124282A600CDCD05 /* UIKit.framework */; };
 		C97C7E1D124282A600CDCD05 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C97C7E1B124282A600CDCD05 /* Foundation.framework */; };
 		C97C7EA3124283FE00CDCD05 /* MainWindow_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */; };
 		C98A531A19717C67007A1164 /* SimTTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C98A531819717C67007A1164 /* SimTTask.cpp */; };
@@ -409,6 +407,8 @@
 		DA0D96DE11BAD15300835522 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = DA0D96DD11BAD15300835522 /* darwin64.S */; };
 		F11E44B717C2DEE800EB9B4E /* TFiber.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cp */; };
 		F11E44B817C2DEF100EB9B4E /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
+		F15858B71A2E3CA100D72203 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F15858B51A2E3C8C00D72203 /* UIKit.framework */; };
+		F15858B81A2E3D4300D72203 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F15858B51A2E3C8C00D72203 /* UIKit.framework */; };
 		F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */; };
 		F164801A13199758001603BE /* TMacMonitor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F164801813199758001603BE /* TMacMonitor.mm */; };
 		F1CAFB841241F53F00A0382E /* TCoreAudioSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AC111B7C08002165EC /* TCoreAudioSoundManager.cp */; };
@@ -464,7 +464,6 @@
 		C965D3FE19709A2F00348893 /* SimCollection1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimCollection1.h; sourceTree = "<group>"; };
 		C965D3FF1970A47000348893 /* TJITGenericRetargetMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGenericRetargetMap.cpp; sourceTree = "<group>"; };
 		C965D4001970A47000348893 /* TJITGenericRetargetMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGenericRetargetMap.h; sourceTree = "<group>"; };
-		C97C7E1A124282A600CDCD05 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		C97C7E1B124282A600CDCD05 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		C97C7EA01242832700CDCD05 /* iEinstein-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iEinstein-Info.plist"; sourceTree = SOURCE_ROOT; };
 		C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow_iPad.xib; sourceTree = "<group>"; };
@@ -774,6 +773,7 @@
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTapNetwork.cp; path = Network/TTapNetwork.cp; sourceTree = "<group>"; };
 		DA0D943F11B9A12D00835522 /* TTapNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTapNetwork.h; path = Network/TTapNetwork.h; sourceTree = "<group>"; };
 		DA0D96DD11BAD15300835522 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
+		F15858B51A2E3C8C00D72203 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		F1647FC313198E6A001603BE /* TCocoaMonitorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaMonitorController.h; sourceTree = "<group>"; };
 		F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaMonitorController.mm; sourceTree = "<group>"; };
 		F164801813199758001603BE /* TMacMonitor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TMacMonitor.mm; sourceTree = "<group>"; };
@@ -790,10 +790,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F15858B81A2E3D4300D72203 /* UIKit.framework in Frameworks */,
 				2389E98D1A1E4D4A0001A8C5 /* CoreAudio.framework in Frameworks */,
 				2389E98E1A1E4D4A0001A8C5 /* AudioToolbox.framework in Frameworks */,
 				2389E98F1A1E4D4A0001A8C5 /* CoreGraphics.framework in Frameworks */,
-				2389E9901A1E4D4A0001A8C5 /* UIKit.framework in Frameworks */,
 				2389E9911A1E4D4A0001A8C5 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -835,10 +835,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F15858B71A2E3CA100D72203 /* UIKit.framework in Frameworks */,
 				F1CAFBE41241F7C200A0382E /* CoreAudio.framework in Frameworks */,
 				F1CAFBF51241F7E600A0382E /* AudioToolbox.framework in Frameworks */,
 				F1CAFCF9124200C100A0382E /* CoreGraphics.framework in Frameworks */,
-				C97C7E1C124282A600CDCD05 /* UIKit.framework in Frameworks */,
 				C97C7E1D124282A600CDCD05 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -939,7 +939,7 @@
 		C97C7CB81242827600CDCD05 /* iOS Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				C97C7E1A124282A600CDCD05 /* UIKit.framework */,
+				F15858B51A2E3C8C00D72203 /* UIKit.framework */,
 				C97C7E1B124282A600CDCD05 /* Foundation.framework */,
 				F1CAFCF8124200C100A0382E /* CoreGraphics.framework */,
 			);
