@@ -500,18 +500,6 @@
 		C99E32BE111B7570002165EC /* TIOException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TIOException.h; sourceTree = "<group>"; };
 		C99E32BF111B7570002165EC /* TException.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TException.cp; sourceTree = "<group>"; };
 		C99E32C0111B7570002165EC /* TException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TException.h; sourceTree = "<group>"; };
-		C99E3312111B7570002165EC /* TInt64.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TInt64.cp; sourceTree = "<group>"; };
-		C99E3313111B7570002165EC /* TInt64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TInt64.h; sourceTree = "<group>"; };
-		C99E3314111B7570002165EC /* TMT19937RandomGenerator.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMT19937RandomGenerator.cp; sourceTree = "<group>"; };
-		C99E3315111B7570002165EC /* TMT19937RandomGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMT19937RandomGenerator.h; sourceTree = "<group>"; };
-		C99E3316111B7570002165EC /* TRandomGenerator.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TRandomGenerator.cp; sourceTree = "<group>"; };
-		C99E3317111B7570002165EC /* TRandomGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRandomGenerator.h; sourceTree = "<group>"; };
-		C99E3318111B7570002165EC /* TSInt64.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TSInt64.cp; sourceTree = "<group>"; };
-		C99E3319111B7570002165EC /* TSInt64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSInt64.h; sourceTree = "<group>"; };
-		C99E331A111B7570002165EC /* TUInt64.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TUInt64.cp; sourceTree = "<group>"; };
-		C99E331B111B7570002165EC /* TUInt64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUInt64.h; sourceTree = "<group>"; };
-		C99E331C111B7570002165EC /* UTInt64.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = UTInt64.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		C99E331D111B7570002165EC /* UTInt64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UTInt64.h; sourceTree = "<group>"; };
 		C99E3321111B7570002165EC /* TCircleBuffer.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCircleBuffer.cp; sourceTree = "<group>"; };
 		C99E3322111B7570002165EC /* TCircleBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCircleBuffer.h; sourceTree = "<group>"; };
 		C99E3324111B7570002165EC /* TMappedFile.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TMappedFile.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -1018,7 +1006,6 @@
 			children = (
 				C99E32B0111B7570002165EC /* Defines */,
 				C99E32B4111B7570002165EC /* Exceptions */,
-				C99E3311111B7570002165EC /* Math */,
 				C99E331E111B7570002165EC /* Misc */,
 				C99E332F111B7570002165EC /* Streams */,
 				C99E3335111B7570002165EC /* Tests */,
@@ -1070,25 +1057,6 @@
 				C99E32BE111B7570002165EC /* TIOException.h */,
 			);
 			path = IO;
-			sourceTree = "<group>";
-		};
-		C99E3311111B7570002165EC /* Math */ = {
-			isa = PBXGroup;
-			children = (
-				C99E3312111B7570002165EC /* TInt64.cp */,
-				C99E3313111B7570002165EC /* TInt64.h */,
-				C99E3314111B7570002165EC /* TMT19937RandomGenerator.cp */,
-				C99E3315111B7570002165EC /* TMT19937RandomGenerator.h */,
-				C99E3316111B7570002165EC /* TRandomGenerator.cp */,
-				C99E3317111B7570002165EC /* TRandomGenerator.h */,
-				C99E3318111B7570002165EC /* TSInt64.cp */,
-				C99E3319111B7570002165EC /* TSInt64.h */,
-				C99E331A111B7570002165EC /* TUInt64.cp */,
-				C99E331B111B7570002165EC /* TUInt64.h */,
-				C99E331C111B7570002165EC /* UTInt64.cp */,
-				C99E331D111B7570002165EC /* UTInt64.h */,
-			);
-			path = Math;
 			sourceTree = "<group>";
 		};
 		C99E331E111B7570002165EC /* Misc */ = {
