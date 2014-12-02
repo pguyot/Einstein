@@ -17,7 +17,9 @@ extern "C" {
 /* Do not move this. Some versions of AIX are very picky about where
    this is positioned. */
 #ifdef __GNUC__
-# define alloca __builtin_alloca
+# ifndef alloca
+#  define alloca __builtin_alloca
+# endif
 #else
 # if HAVE_ALLOCA_H
 #  include <alloca.h>
