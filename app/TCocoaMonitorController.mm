@@ -9,7 +9,7 @@
 #import "TCocoaMonitorController.h"
 #import "Monitor/TMacMonitor.h"
 
-@interface TCocoaMonitorController (Private)
+@interface TCocoaMonitorController ()
 - (void)update;
 @end
 
