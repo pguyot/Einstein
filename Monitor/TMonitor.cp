@@ -922,7 +922,6 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				theLine, "Memory error when accessing %.8X [%.8X]",
 				(unsigned int) theArgInt,
 				(unsigned int) mMemory->GetFaultStatusRegister() );
-			fault = false;
 		} else {
 			(void) ::sprintf(
 				theLine, "P%.8X: %.8X",
