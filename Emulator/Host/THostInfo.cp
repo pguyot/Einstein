@@ -439,7 +439,11 @@ THostInfo::RetrieveUserInfo( void )
 							mUserWorkFaxPhone = ConvertCFString( thePhone );
 						}
 					}
+					
+					CFRelease(theLabel);
 				}
+				
+				CFRelease(thePhones);
 			}
 			
 			break;
@@ -498,6 +502,8 @@ THostInfo::RetrieveUserInfo( void )
 #endif
 				}
 			}
+			
+			CFRelease(theCarbonName);			
 			break;
 		}
 #endif
