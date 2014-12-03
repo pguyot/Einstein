@@ -234,7 +234,7 @@ static TCocoaAppController* gInstance = nil;
 
 	// Create the ROM.
 	NSString* einsteinRExPath;
-	NSBundle* thisBundle = [NSBundle bundleForClass:[self class]];
+	NSBundle* thisBundle = [NSBundle mainBundle];
 	if (!(einsteinRExPath = [thisBundle pathForResource:@"Einstein" ofType:@"rex"]))
 	{
 		[self abortWithMessage: @"Couldn't load Einstein REX"];
@@ -255,6 +255,8 @@ static TCocoaAppController* gInstance = nil;
 		return;
 	}
 	
+	// Special cases for ROM files ending with the extension ".aif" or " image"
+	
 	NSString* theREX0Path = nil;
 	if ([theROMPath hasSuffix: @".aif"])
 	{
@@ -273,17 +275,23 @@ static TCocoaAppController* gInstance = nil;
 		}
 	}
 	
+	// Load the ROM
+	
 	int theMachine = [defaults integerForKey: kMachineKey]; // e.g; 717006
 	NSString* machineStr = [NSString stringWithFormat:@"%d", theMachine];
 	
 	if (theREX0Path)
 	{
+		// .aif or "image" ROM file
+		
 		mROMImage = new TAIFROMImageWithREXes(
 							[theROMPath UTF8String],
 							[theREX0Path UTF8String],
 							[einsteinRExPath UTF8String],
 							[machineStr UTF8String]);
 	} else {
+		// .rom file
+		
 		mROMImage = new TFlatROMImageWithREX(
 							[theROMPath UTF8String],
 							[einsteinRExPath UTF8String],
