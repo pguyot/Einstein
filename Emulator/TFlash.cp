@@ -38,6 +38,17 @@
 #include "Log/TLog.h"
 #include "ROM/TROMImage.h"
 
+// TFlash implements the persistent internal storage on the
+// Newton.
+//
+// Einstein emulates 2 banks of 4 MB flash storage:
+//
+// Bank 1 is mapped to physical addresses 0x02000000 - 0x02400000
+// Bank 2 is mapped to physical addresses 0x10000000 - 0x10400000
+//
+// When TMemory tries to access locations in these ranges, the read
+// and write methods in this class will be called.
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -179,7 +190,7 @@ TFlash::Write(
 				KUInt32 inMask,
 				KUInt32 inOffset,
 				KUInt32 inBank )
-{	
+{
 	KUInt32* thePointer;
 	if (inBank == 0)
 	{
@@ -229,6 +240,8 @@ TFlash::Read(
 				KUInt32 inOffset,
 				KUInt32 inBank )
 {
+	// Read 32-bit value from inOffset in bank inBank
+
 	KUInt32* thePointer;
 	if (inBank == 0)
 	{
@@ -250,6 +263,8 @@ TFlash::ReadB(
 				KUInt32 inOffset,
 				KUInt32 inBank )
 {
+	// Read 8-bit value from inOffset in bank inBank
+
 	KUInt32 theWord = Read(inOffset & ~ 0x03, inBank);
 	KUInt8 theResult;
 	switch (inOffset & 0x03)
