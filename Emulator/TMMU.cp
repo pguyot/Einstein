@@ -878,7 +878,7 @@ TMMU::TranslateInstruction(
 	// Optimization: avoid translation when reading unprotected ROM
 	if (mMMUEnabled && ((theAddress < 0x00002000) || (theAddress & TMemoryConsts::kROMEndMask)))
 	{
-		KUInt32 theTranslatedAddress;
+		KUInt32 theTranslatedAddress = 0;
 		if (TranslateR( theAddress, theTranslatedAddress ))
 		{
 			return true;
