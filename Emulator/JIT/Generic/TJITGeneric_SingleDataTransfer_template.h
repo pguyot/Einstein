@@ -42,21 +42,27 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 	POPPC();
 
 	TMemory* theMemoryInterface = ioCPU->GetMemory();
-	KUInt32 offset;
 
-#if FLAG_I
-	if ((theInstruction & 0x00000FFF) >> 4)
-	{
-		// Shift.
-		// PC should not be used as Rm.
-		offset = GetShiftNoCarryNoR15( theInstruction, ioCPU->mCurrentRegisters, ioCPU->mCPSR_C );
-	} else {
-		offset = ioCPU->mCurrentRegisters[theInstruction & 0x0000000F];
-	}
-#else
-	// Immediate
-	offset = theInstruction & 0x00000FFF;
+#if FLAG_P || (WRITEBACK && Rn != 15)
+	#if FLAG_I
+		KUInt32 offset;
+
+		if ((theInstruction & 0x00000FFF) >> 4)
+		{
+			// Shift.
+			// PC should not be used as Rm.
+			offset = GetShiftNoCarryNoR15( theInstruction, ioCPU->mCurrentRegisters, ioCPU->mCPSR_C );
+		} else {
+			offset = ioCPU->mCurrentRegisters[theInstruction & 0x0000000F];
+		}
+	#else
+		KUInt32 offset;
+
+		// Immediate
+		offset = theInstruction & 0x00000FFF;
+	#endif
 #endif
+
 #if (Rn == 15)
 	KUInt32 theAddress = GETPC();
 #else
