@@ -720,7 +720,6 @@ static TCocoaAppController* gInstance = nil;
 	// Returns where to place the file internal.flash -- usually ~/Library/Application Support/Einstein Platform/
 	
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-	NSError *error = nil;
 	
 	if ( paths && [paths count] > 0 )
 	{
@@ -735,7 +734,7 @@ static TCocoaAppController* gInstance = nil;
 		{
 			// Try creating the "Einstein Platform" folder
 			
-			if ( [theFileManager createDirectoryAtPath:result withIntermediateDirectories:NO attributes:nil error:&error] == NO )
+			if ( [theFileManager createDirectoryAtPath:result withIntermediateDirectories:NO attributes:nil error:nil] == NO )
 			{
 				return NSHomeDirectory();
 			}
