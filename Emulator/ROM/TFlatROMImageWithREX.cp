@@ -32,12 +32,12 @@
 #include <stdio.h>
 
 #if TARGET_OS_WIN32
-	#include "CompatibilityWin32.h"
-	#include <io.h>
+    #include "CompatibilityWin32.h"
+    #include <io.h>
 #else
-	#include <sys/uio.h>
-	#include <unistd.h>
-	#include <sys/param.h>
+    #include <sys/uio.h>
+    #include <unistd.h>
+    #include <sys/param.h>
 #endif
 
 
@@ -49,89 +49,109 @@
 //  * TFlatROMImageWithREX( const char*, const char*, const char[6], ... )
 // -------------------------------------------------------------------------- //
 TFlatROMImageWithREX::TFlatROMImageWithREX(
-						const char* inROMPath,
-						const char* inREXPath,
-						const char inMachineString[6],
-						Boolean inMonitorMode /* = false */,
-                                           const char *inImagePath /* 0L */ )
-{	
-	struct stat theInfos;
-	int err = ::stat( inROMPath, &theInfos );
-	if (err < 0)
-	{
-		(void) ::fprintf( stderr, "Can't stat ROM file '%s'\n", inROMPath );
-		::exit( 1 );
-	}
-	
-	if (theInfos.st_size != 0x00800000)
-	{
-		(void) ::fprintf( stderr, "ROM file should be 8MB long\n" );
-		::exit( 1 );
-	}
-	
-	time_t theModTime = theInfos.st_mtime;
+			    const char* inROMPath,
+			    const char* inREXPath,
+			    const char inMachineString[6],
+			    Boolean inMonitorMode /* = false */,
+			    const char *inImagePath /* 0L */ )
+{
+    struct stat theInfos;
+    int err = ::stat( inROMPath, &theInfos );
+    if (err < 0)
+    {
+	(void) ::fprintf( stderr, "Can't stat ROM file '%s'\n", inROMPath );
+	::exit( 1 );
+    }
+    
+    // Validate size of ROM file
 
-	if (GetLatestModDate( &theModTime, inREXPath ) < 0)
-	{
-		(void) ::fprintf( stderr, "Can't stat REX file (%s)\n", inREXPath );
-		::exit( 1 );
-	}
+    if (theInfos.st_size != 0x00800000)
+    {
+	(void) ::fprintf( stderr, "ROM file should be 8MB long\n" );
+	::exit( 1 );
+    }
+    
+    // Which has the more recent modification time: the ROM or the REX?
+    // Store the most recent of the two times in theModTime
 
-	// Create the image path.
-	char theImagePath[PATH_MAX];
-        if (inImagePath) 
-          strcpy(theImagePath, inImagePath);
-        else
-          (void) ::sprintf( theImagePath, "%s.img", inROMPath );
+    time_t theModTime = theInfos.st_mtime;
+
+    if (GetLatestModDate( &theModTime, inREXPath ) < 0)
+    {
+	(void) ::fprintf( stderr, "Can't stat REX file (%s)\n", inREXPath );
+	::exit( 1 );
+    }
+
+    // Create the image path. We're going to create a separate image of
+    // the ROM at this path.
+
+    char theImagePath[PATH_MAX];
+    if (inImagePath) 
+	strcpy(theImagePath, inImagePath);
+    else
+	(void) ::sprintf( theImagePath, "%s.img", inROMPath );
+    
+    // Check if we need to re-create the image file
+    
+    if (IsImageOutdated(theImagePath, theModTime, inMachineString))
+    {
+	// Create a 16 MB buffer
 	
-	// Check if we need to read the ROM file.
-	if (IsImageOutdated(theImagePath, theModTime, inMachineString))
-	{	
-		KUInt8* theData = (KUInt8*) ::calloc(1, 0x01000000);
+	KUInt8* theData = (KUInt8*) ::calloc(1, 0x01000000);
 
-		// Let's read the ROM file.
+	// Let's read the ROM file.
 #if TARGET_OS_WIN32
-		int fd = ::open( inROMPath, O_RDONLY|O_BINARY, 0 );
+	int fd = ::open( inROMPath, O_RDONLY|O_BINARY, 0 );
 #else
-		int fd = ::open( inROMPath, O_RDONLY, 0 );
+	int fd = ::open( inROMPath, O_RDONLY, 0 );
 #endif
-		if (fd < 0)
-		{
-			(void) ::fprintf( stderr, "Can't open ROM file '%s'\n", inROMPath );
-			::exit( 1 );
-		}
+	if (fd < 0)
+	{
+	    (void) ::fprintf( stderr, "Can't open ROM file '%s'\n", inROMPath );
+	    ::exit( 1 );
+	}
+
+	// Read the 8 MB ROM into the first half of the buffer
 	
-		if (::read(	fd, (void*) theData, 0x00800000 ) != 0x00800000)
-		{
-			(void) ::close( fd );
-			(void) ::fprintf( stderr, "Error while reading ROM file '%s'\n", inROMPath );
-			::exit( 1 );
-		}
-		
-		(void) ::close( fd );
-		
-		// Let's read the REX file.
-#if TARGET_OS_WIN32
-		fd = ::open( inREXPath, O_RDONLY|O_BINARY, 0 );
-#else
-		fd = ::open( inREXPath, O_RDONLY, 0 );
-#endif
-		if (fd < 0)
-		{
-			(void) ::fprintf( stderr, "Can't open REX file '%s'\n", inREXPath );
-			::exit( 1 );
-		}
-		
-		(void) ::read( fd, (void*) &theData[0x00800000], 0x00800000 );
-		(void) ::close( fd );
-
-		CreateImage( theImagePath, theData, 0x01000000, inMachineString );
-
-		::free(theData);
+	if (::read(fd, (void*) theData, 0x00800000 ) != 0x00800000)
+	{
+	    (void) ::close( fd );
+	    (void) ::fprintf( stderr, "Error while reading ROM file '%s'\n", inROMPath );
+	    ::exit( 1 );
 	}
 	
-	// Finally load the image.
-	Init(theImagePath, inMonitorMode);
+	(void) ::close( fd );
+	
+	// Let's read the REX (ROM Extension) file.
+#if TARGET_OS_WIN32
+	fd = ::open( inREXPath, O_RDONLY|O_BINARY, 0 );
+#else
+	fd = ::open( inREXPath, O_RDONLY, 0 );
+#endif
+	if (fd < 0)
+	{
+	    (void) ::fprintf( stderr, "Can't open REX file '%s'\n", inREXPath );
+	    ::exit( 1 );
+	}
+	
+	// Read the REX into the second half of the buffer
+	
+	(void) ::read( fd, (void*) &theData[0x00800000], 0x00800000 );
+	(void) ::close( fd );
+	
+	// The .img file consists of:
+	// - The ROM (8MB)
+	// - The REX (8MB)
+	// - Some metadata (a magic number, ROM version string, padding)
+	// - Checksums
+
+	CreateImage( theImagePath, theData, 0x01000000, inMachineString );
+
+	::free(theData);
+    }
+    
+    // Finally load the image.
+    Init(theImagePath, inMonitorMode);
 }
 
 // -------------------------------------------------------------------------- //
