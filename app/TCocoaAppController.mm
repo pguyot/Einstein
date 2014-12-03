@@ -84,33 +84,21 @@ static TCocoaAppController* gInstance = nil;
 {
 	NSString* theAppSupportDir = [self getAppSupportDirectory];
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	NSDictionary *appDefaults =
-		[NSDictionary
-			dictionaryWithObjectsAndKeys:
-			[theAppSupportDir stringByAppendingPathComponent: @"newton.rom"],
-			kROMImagePathKey,
-			[theAppSupportDir stringByAppendingPathComponent: @"internal.flash"],
-			kInternalFlashPathKey,
-			[NSNumber numberWithInt: 717006],
-			kMachineKey,
-			[NSNumber numberWithInt: TScreenManager::kDefaultPortraitWidth],
-			kScreenWidthKey,
-			[NSNumber numberWithInt: TScreenManager::kDefaultPortraitHeight],
-			kScreenHeightKey,
-			[NSNumber numberWithBool: NO],
-			kFullScreenKey,
-			[NSNumber numberWithInt: 0x40],
-			kRAMSizeKey,
-			[NSNumber numberWithInt: kCoreAudioDriverTag],
-			kAudioDriverKey,
-			[NSNumber numberWithInt: kCocoaScreenDriverTag],
-			kScreenDriverKey,
-			[NSNumber numberWithInt: kUsermodeNetworkDriverTag],
-			kNetworkDriverKey,
-			[NSNumber numberWithBool:NO],
-			kDontShowAtStartupKey,
-			NULL
-			];
+	
+	NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
+			[theAppSupportDir stringByAppendingPathComponent:@"newton.rom"], kROMImagePathKey,
+			[theAppSupportDir stringByAppendingPathComponent:@"internal.flash"], kInternalFlashPathKey,
+			[NSNumber numberWithInt:717006], kMachineKey,
+			[NSNumber numberWithInt:TScreenManager::kDefaultPortraitWidth], kScreenWidthKey,
+			[NSNumber numberWithInt:TScreenManager::kDefaultPortraitHeight], kScreenHeightKey,
+			[NSNumber numberWithBool:NO], kFullScreenKey,
+			[NSNumber numberWithInt:0x40], kRAMSizeKey,
+			[NSNumber numberWithInt:kCoreAudioDriverTag], kAudioDriverKey,
+			[NSNumber numberWithInt:kCocoaScreenDriverTag], kScreenDriverKey,
+			[NSNumber numberWithInt:kUsermodeNetworkDriverTag], kNetworkDriverKey,
+			[NSNumber numberWithBool:NO], kDontShowAtStartupKey,
+			nil];
+	
 	[defaults registerDefaults:appDefaults];
 }
 
@@ -203,15 +191,18 @@ static TCocoaAppController* gInstance = nil;
 // -------------------------------------------------------------------------- //
 - (void)awakeFromNib
 {
-	NSUserDefaults* defaults = [mUserDefaultsController defaults];
-	if ([defaults boolForKey: kDontShowAtStartupKey]
-		&& ![defaults boolForKey: kFullScreenKey]
-		&& [self canStartEmulator])
+	NSUserDefaults *defaults = [mUserDefaultsController defaults];
+
+	if ([defaults boolForKey:kDontShowAtStartupKey]
+			&& ![defaults boolForKey:kFullScreenKey]
+			&& [self canStartEmulator])
 	{
 		[self startEmulator];
-	} else {
+	}
+	else
+	{
 		[mSetupController openSetupWindow];
-  	}
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -221,12 +212,14 @@ static TCocoaAppController* gInstance = nil;
 {
 	BOOL canStart = NO;
 
-	NSUserDefaults* defaults = [mUserDefaultsController defaults];
-	NSString* thePath = [defaults stringForKey: kROMImagePathKey];
-	if (thePath != nil)
+	NSUserDefaults *defaults = [mUserDefaultsController defaults];
+	
+	// Confirm that there is a file at the path where the ROM is supposed to be
+	NSString *romPath = [defaults stringForKey:kROMImagePathKey];
+	
+	if ( romPath != nil )
 	{
-		NSFileManager* theFileManager = [NSFileManager defaultManager];
-		canStart = [theFileManager fileExistsAtPath: thePath];
+		canStart = [[NSFileManager defaultManager] fileExistsAtPath:romPath];
 	}
 	
 	return canStart;
@@ -319,8 +312,8 @@ static TCocoaAppController* gInstance = nil;
 	if (indexAudioDriver == kCoreAudioDriverTag)
 	{
 		mSoundManager = new TCoreAudioSoundManager(mLog);
-#if OPTION_PORT_AUDIO          
-        } else if (indexAudioDriver == kPortAudioDriverTag) {
+#if OPTION_PORT_AUDIO		  
+		} else if (indexAudioDriver == kPortAudioDriverTag) {
 		mSoundManager = new TPortAudioSoundManager(mLog);
 #endif
 	} else {
@@ -870,13 +863,13 @@ static TCocoaAppController* gInstance = nil;
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)sender
 {
-    return YES;
+	return YES;
 }
 
 @end
 
 // ============================================================================= //
-// The proof that IBM didn't invent the car is that it has a steering wheel      //
+// The proof that IBM didn't invent the car is that it has a steering wheel	  //
 // and an accelerator instead of spurs and ropes, to be compatible with a horse. //
-//                 -- Jac Goudsmit                                               //
+//				 -- Jac Goudsmit											   //
 // ============================================================================= //
