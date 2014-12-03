@@ -149,17 +149,28 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 			const char *title = "";
 			if (nn==0) {
 				switch (inInstruction) {
-					case 0x00000003: progress=1; title = "Init Flash"; break;
-					case 0x00000001: progress=2; title = "Identify Flash"; break;
-					case 0x00000004: progress=3; title = "Init Flash Driver"; break;
-					case 0x0000000a: progress=4; title = "Reset Flash Block Status"; break;
-					case 0x00000006: progress=5; title = "Read Flash Array"; break;
-					case 0x00000007: progress=6; title = "Read Flash Array"; break;
-					case 0x00000005: progress=7; title = "Cleanup Flash Driver Data"; break;
-					case 0x00000002: progress=8; title = "Cleanup Flash"; break;
-					case 0x00000117: progress=9; title = "Get Emulator Info"; break;
-					case 0x00000103: progress=10; title = "Init Platform"; break;
-					case 0x0000010b: progress=11; title = "Power Off Subsystem"; break;
+					case 0x00000003:
+						progress=1; title = "Init Flash"; break;
+					case 0x00000001:
+						progress=2; title = "Identify Flash"; break;
+					case 0x00000004:
+						progress=3; title = "Init Flash Driver"; break;
+					case 0x0000000a:
+						progress=4; title = "Reset Flash Block Status"; break;
+					case 0x00000006:
+						progress=5; title = "Read Flash Array"; break;
+					case 0x00000007:
+						progress=6; title = "Read Flash Array"; break;
+					case 0x00000005:
+						progress=7; title = "Cleanup Flash Driver Data"; break;
+					case 0x00000002:
+						progress=8; title = "Cleanup Flash"; break;
+					case 0x00000117:
+						progress=9; title = "Get Emulator Info"; break;
+					case 0x00000103:
+						progress=10; title = "Init Platform"; break;
+					case 0x0000010b:
+						progress=11; title = "Power Off Subsystem"; break;
 					case 0x0000021f: progress=12; title = ""; break;
 					case 0x00000205: progress=13; title = ""; break;
 					case 0x00000206: progress=14; title = ""; break;

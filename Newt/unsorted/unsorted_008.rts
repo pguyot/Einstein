@@ -1,0 +1,89 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_008
+rt cjit toupper
+rt cjit ResizeSymbolTable__FlT1
+rt cjit AdjustSymbolTableSize__Fv
+rt cjit RehashSymbolTable__Fv
+rt cjit UpdateRef__11TObjectHeapFl
+rt cjit Next__14DeclawingRangeFv
+rt cjit InAnyRange__14DeclawingRangeFl
+rt cjit InRange__14DeclawingRangeFl
+rt cjit ValidateHeap
+rt cjit Uriah__11TObjectHeapFv
+rt cjit ClassInfo__19PStdioOutTranslatorSFv
+rt cjit Register__18TClassInfoRegistryFPC10TClassInfoUl
+rt cjit fopen
+rt cjit Init__14POutTranslatorFPv
+rt cjit Delete__14POutTranslatorFv
+rt cjit fclose
+rt cjit PauseSystem__15TPlatformDriverFv
+rt cjit _ExitFIQAtomicFast
+rt cjit ExitBreakLoop__19PStdioOutTranslatorFv
+rt cjit StackTrace__19PStdioOutTranslatorFPv
+rt cjit ExceptionNotify__19PStdioOutTranslatorFP9Exception
+rt cjit Sizeof__17TNewInternalFlashSFv
+rt cjit NewBlock
+rt cjit REPExceptionNotify__FP9Exception
+rt cjit REPStackTrace__FPv
+rt cjit New__17TNewInternalFlashFv
+rt cjit Delete__17TNewInternalFlashFv
+rt cjit IsNativeFunction__FRC6RefVar
+rt cjit GetFunctionArgCount__FRC6RefVar
+rt cjit RemoveSlot__FRC6RefVarT1
+rt cjit FindSlotName__FRC6RefVarT1
+rt cjit GetTag__FRC6RefVarlPl
+rt cjit ASCIIString__FRC6RefVar
+rt cjit __ct__15TObjectIteratorFRC6RefVari
+rt cjit Done__15TObjectIteratorFv
+rt cjit Next__15TObjectIteratorFv
+rt cjit OnStack__FPCv
+rt cjit Reset__15TObjectIteratorFRC6RefVar
+rt cjit ConvertFromUnicode__FPCUsPvlT3
+rt cjit subConvertFromUnicode__FPCUsPvlT3
+rt code 007A5618-007A561C
+rt cjit 007A5618-007A561C vt_007A5618
+rt code 007A5690-007A5698
+rt cjit 007A5690-007A5698 REx_007A5690
+rt cjit 0001C874-0001C878 vt_0001C878
+rt cjit 00386058-0038605C vt_0038605C
+rt cjit Sizeof__22TClassInfoRegistryImplSFv
+rt code 0080006C-00800070
+rt cjit 0080006C-00800070 vt_0080006C
+rt code 00800138-00800140
+rt cjit 00800138-00800140 vt_0080006C
+rt cjit 00386064-00386068 vt_00386064
+rt cjit 003860BC-003860C0 vt_003860BC
+rt cjit 003898C4-003898C8 vt_003898C4
+rt cjit 0001D420-0001D424 vt_0001D420
+rt cjit 00384D7C-00384D80 vt_00384D7C
+rt cjit 003898D0-003898D4 vt_003898D0
+rt cjit Sizeof__19PTheSerChipRegistrySFv
+rt cjit GetPage__14SWiredHeapPageFv
+rt cjit Sizeof__15TLZDecompressorSFv
+rt cjit ClassInfo__22TClassInfoRegistryImplSFv
+rt cjit _ExitAtomicFast
+rt cjit PrimGetMemObjInfo__Fv
+rt cjit Free__13SSafeHeapPageFPv
+rt cjit GetGlobalTime
+rt cjit GetPage__13SSafeHeapPageFv
+rt cjit GetNewPageFromPageMgr__FPPvPUlPP5TPhys
+rt cjit Get__12TPageManagerFRUlUli
+rt cjit GetNextKernelVAddr__Fv
+rt cjit __ct__9TUMonitorFUl
+rt cjit Get__12TPageManagerFRUlUliP9TUMonitor
+rt cjit QueryClients__12TPageManagerFiP9TUMonitor
+rt cjit Add__12TObjectTableFP13TKernelObject11KernelTypesUl
+rt cjit ReleaseRequest__20TUPageManagerMonitorSFUli
+rt cjit NewId__12TObjectTableF11KernelTypes
+rt cjit CopyObject__9TUMonitorFUl
+rt cjit NextGlobalUniqueId__12TObjectTableFv
+rt cjit GetKernelDomainHeapBase
+rt cjit GetKernelDomainHeapSize
+rt cjit VToP__FUl
+rt cjit Remember__15TUDomainManagerSFUlN31Uc
+rt cjit AllocatePageTable__15TUDomainManagerSFv
+rt cjit Take__12TPageTrackerFv
+rt cjit RememberMappingUsingPAddr
+rt close

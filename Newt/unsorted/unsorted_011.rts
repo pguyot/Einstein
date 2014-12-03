@@ -1,0 +1,40 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_011
+rt cjit GrabPtr__11TRichStringCFv
+rt cjit ReleasePtr__11TRichStringCFv
+rt cjit PrintInstructions__FRC6RefVar
+rt cjit IsSubclassRef__FlT1
+rt cjit SafelyPrintString__FPUs
+rt cjit __vfprintf
+rt cjit Ustrlen
+rt cjit MaybeUnicodeStr
+rt cjit A_CONST_CHAR
+rt cjit Unnamed_0033D7F8
+rt cjit ferror
+rt cjit ForEachLoopNext__FRC6RefVar
+rt cjit ForEachLoopDone__FRC6RefVar
+rt cjit UndefinedBytecode__Fv
+rt cjit ForEachLoopReset__FRC6RefVarT1
+rt cjit GetVariable__FRC6RefVarT1Pli
+rt cjit SetFramePath__FRC6RefVarN21
+rt cjit SetFramePathFor1XFunctions__FRC6RefVarN21
+rt cjit UnsafeGetFrameSlot__FlT1Pl
+rt cjit SetFramePath__FRC6RefVarN21i
+rt cjit XGetVariable__FRC6RefVarT1Pli
+rt cjit SetVariableOrGlobal__FRC6RefVarN21l
+rt cjit XFindProtoImplementor__FRC6RefVarT1P6RefVarT3
+rt cjit IsInstance__FRC6RefVarT1
+rt cjit __ct__11TRichStringFRC6RefVar
+rt cjit SetStringData__11TRichStringFRC6RefVar
+rt cjit _RCHARError__Fl
+rt cjit StrMunger__FRC6RefVarlT2T1N22
+rt cjit SetFormatAndLength__11TRichStringFPUsUl
+rt cjit DeleteRange__11TRichStringFUlT1
+rt cjit MungeRange__11TRichStringFUlT1PC11TRichStringN21
+rt cjit relation
+rt cjit GetInkData__11TRichStringCFUlT1PUlT3
+rt cjit Format__11TRichStringCFv
+rt cjit SetObjectSize__11TRichStringFl
+rt close

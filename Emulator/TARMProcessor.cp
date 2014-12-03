@@ -39,6 +39,7 @@
 #include "Log/TLog.h"
 #include "TEmulator.h"
 #include "JIT/JIT.h"
+#include "TROMImage.h"
 
 #define HANDLE_DATA_ABORT_LOCALLY 0
 
@@ -1048,7 +1049,7 @@ TARMProcessor::TransferState( TStream* inStream )
  * The function may invoke the scheduler and switch tasks.
  */
 KUInt32
-TARMProcessor::ManagedMemoryReadAligned(KUInt32 inAddress, KUInt32 inPC)
+TARMProcessor::ManagedMemoryReadAligned(KUInt32 inAddress)
 {
 	KUInt32 theData;
 	TMemory *theMemoryInterface = mMemory;
@@ -1059,7 +1060,6 @@ TARMProcessor::ManagedMemoryReadAligned(KUInt32 inAddress, KUInt32 inPC)
 	}
 #else
 	if (theMemoryInterface->ReadAligned(inAddress, theData)) {
-		SetRegister(kR15, inPC+4);
 		DataAbort();
 		throw "DataAbort";
 	}
@@ -1074,7 +1074,7 @@ TARMProcessor::ManagedMemoryReadAligned(KUInt32 inAddress, KUInt32 inPC)
  * The function may invoke the scheduler and switch tasks.
  */
 KUInt32
-TARMProcessor::ManagedMemoryRead(KUInt32 inAddress, KUInt32 inPC)
+TARMProcessor::ManagedMemoryRead(KUInt32 inAddress)
 {
 	KUInt32 theData;
 	TMemory *theMemoryInterface = mMemory;
@@ -1085,7 +1085,6 @@ TARMProcessor::ManagedMemoryRead(KUInt32 inAddress, KUInt32 inPC)
 	}
 #else
 	if (theMemoryInterface->Read(inAddress, theData)) {
-		SetRegister(kR15, inPC+4);
 		DataAbort();
 		throw "DataAbort";
 	}
@@ -1100,7 +1099,7 @@ TARMProcessor::ManagedMemoryRead(KUInt32 inAddress, KUInt32 inPC)
  * The function may invoke the scheduler and switch tasks.
  */
 KUInt8
-TARMProcessor::ManagedMemoryReadB(KUInt32 inAddress, KUInt32 inPC)
+TARMProcessor::ManagedMemoryReadB(KUInt32 inAddress)
 {
 	KUInt8 theData;
 	TMemory *theMemoryInterface = mMemory;
@@ -1111,7 +1110,6 @@ TARMProcessor::ManagedMemoryReadB(KUInt32 inAddress, KUInt32 inPC)
 	}
 #else
 	if (theMemoryInterface->ReadB(inAddress, theData)) {
-		SetRegister(kR15, inPC+4);
 		DataAbort();
 		throw "DataAbort";
 	}
@@ -1126,7 +1124,7 @@ TARMProcessor::ManagedMemoryReadB(KUInt32 inAddress, KUInt32 inPC)
  * The function may invoke the scheduler and switch tasks.
  */
 void
-TARMProcessor::ManagedMemoryWriteAligned(KUInt32 inAddress, KUInt32 inData, KUInt32 inPC)
+TARMProcessor::ManagedMemoryWriteAligned(KUInt32 inAddress, KUInt32 inData)
 {
 	TMemory *theMemoryInterface = mMemory;
 #if HANDLE_DATA_ABORT_LOCALLY
@@ -1136,7 +1134,6 @@ TARMProcessor::ManagedMemoryWriteAligned(KUInt32 inAddress, KUInt32 inData, KUIn
 	}
 #else
 	if (theMemoryInterface->WriteAligned(inAddress, inData)) {
-		SetRegister(kR15, inPC+4);
 		DataAbort();
 		throw "DataAbort";
 	}
@@ -1150,7 +1147,7 @@ TARMProcessor::ManagedMemoryWriteAligned(KUInt32 inAddress, KUInt32 inData, KUIn
  * The function may invoke the scheduler and switch tasks.
  */
 void
-TARMProcessor::ManagedMemoryWrite(KUInt32 inAddress, KUInt32 inData, KUInt32 inPC)
+TARMProcessor::ManagedMemoryWrite(KUInt32 inAddress, KUInt32 inData)
 {
 	TMemory *theMemoryInterface = mMemory;
 #if HANDLE_DATA_ABORT_LOCALLY
@@ -1160,7 +1157,6 @@ TARMProcessor::ManagedMemoryWrite(KUInt32 inAddress, KUInt32 inData, KUInt32 inP
 	}
 #else
 	if (theMemoryInterface->Write(inAddress, inData)) {
-		SetRegister(kR15, inPC+4);
 		DataAbort();
 		throw "DataAbort";
 	}
@@ -1174,7 +1170,7 @@ TARMProcessor::ManagedMemoryWrite(KUInt32 inAddress, KUInt32 inData, KUInt32 inP
  * The function may invoke the scheduler and switch tasks.
  */
 void
-TARMProcessor::ManagedMemoryWriteB(KUInt32 inAddress, KUInt8 inData, KUInt32 inPC)
+TARMProcessor::ManagedMemoryWriteB(KUInt32 inAddress, KUInt8 inData)
 {
 	TMemory *theMemoryInterface = mMemory;
 #if HANDLE_DATA_ABORT_LOCALLY
@@ -1184,7 +1180,6 @@ TARMProcessor::ManagedMemoryWriteB(KUInt32 inAddress, KUInt8 inData, KUInt32 inP
 	}
 #else
 	if (theMemoryInterface->WriteB(inAddress, inData)) {
-		SetRegister(kR15, inPC+4);
 		DataAbort();
 		throw "DataAbort";
 	}
@@ -1203,16 +1198,60 @@ TARMProcessor::UnexpectedPC()
 
 
 /**
- * Throw an exception to return fromsimulation back to emulation.
+ * Throw an exception to return from simulation back to emulation.
  */
 void
-TARMProcessor::ReturnToEmualtor(KUInt32 inPC)
+TARMProcessor::ReturnToEmulator(KUInt32 inPC)
 {
 	SetRegister(kR15, inPC+4);
-	throw "ExitSimulator";
+	throw "ReturnToEmulator";
 }
 
-
+/**
+ * Look up the given PC in the list of simulated functions. If the function
+ * exist, stay in the simulation and call it. If it doesn't exist, fall back
+ * into emulation.
+ */
+void
+TARMProcessor::JumpToCalculatedAddress(KUInt32 inPC, KUInt32 ret)
+{
+	static KUInt32 cnt = 0;
+	// FIXME: implement the lookup for known functions
+	SetRegister(kR15, inPC);
+	if (inPC>=0x01000000) {
+		KUInt32 instruction = ManagedMemoryRead(inPC-4);
+		if ((instruction & 0xff000000)==0xea000000) {
+			KUInt32 offset = (instruction & 0x007FFFFF) << 2;
+			if (instruction & 0x00800000) {
+				offset |= 0xFE000000;
+			}
+			KUInt32 delta = offset + 8;
+			inPC = inPC + delta;
+		}
+	}
+	if (inPC<0x01000000) {
+		KUInt32 instruction = ManagedMemoryRead(inPC-4);
+		if ((instruction & 0xffe00000)==0xefc00000) {
+			KUInt32 simIndex = instruction & 0x001fffff;
+			JITSimPtr nativeTarget = (JITSimPtr)TROMPatch::GetSimulatorFunctionAt(simIndex);
+			if (nativeTarget) {
+				SetRegister(kR15, inPC);
+				return nativeTarget(this, ret);
+			} else {
+				printf("SIM_INFO(%ld): no native function registered at 0x%08lX\n", ++cnt, inPC);
+			}
+		} else {
+			// FIXME: remove some noise
+			if (inPC<0x00800000 || inPC>0x008fffff) {
+				printf("SIM_INFO: not a native target at 0x%08lX\n", inPC-4);
+				printf("SIM_INFO(%ld): try: rt cjit %08lX-%08lX vt_%08lX\n", ++cnt, inPC-4, inPC, inPC-4);
+			}
+		}
+	} else {
+		printf("SIM_INFO(%ld): target outside of ROM at 0x%08lX\n", ++cnt, inPC);
+	}
+	throw "JumpToCalculatedAddress";
+}
 
 
 

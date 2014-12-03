@@ -1,0 +1,138 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_014
+
+rt cjit RegisterInterrupt__FUlPvPFPv_lT1
+rt cjit SetResetState__16THermesIRControlFv
+rt cjit RegisterInterrupt__FPP15InterruptObjectUlPvPFPv_lT2
+rt cjit Register__19PSerialChipRegistryFP11TSerialChipUl
+rt cjit RegisterPrimaryInterrupt__18TSerialChipVoyagerFv
+rt cjit New__17TGeoPortDebugLinkFv
+rt cjit RegisterAdditionalInterrupt__FPP15InterruptObjectUlPvPFPv_lT2
+rt cjit ResetIRCmdBuf__16THermesIRControlFv
+rt cjit PackInterruptObject__FP15InterruptObjectUlPvPFPv_l
+rt cjit UnmaskInterrupt
+rt cjit Delete__17TGeoPortDebugLinkFv
+rt cjit Install__17TGeoPortDebugLinkFUlT1PvPFPv_l
+rt cjit Remove__17TGeoPortDebugLinkFv
+rt cjit WriteDebugFrame__17TGeoPortDebugLinkFPUclUl
+rt cjit WriteDebugFrame__17TGeoPortDebugLinkFPUcl
+rt cjit 00384DF0-00384DF4 vt_00384DF0
+rt cjit Register__19PTheSerChipRegistryFP11TSerialChipUl
+rt cjit GetMutex__19PTheSerChipRegistryFv
+rt cjit FindNextFreeIndex__19PTheSerChipRegistryFPUl
+rt cjit SetChipData__19PTheSerChipRegistryFUlP11TSerialChipT1
+rt cjit IndexToID__19PTheSerChipRegistryFUl
+rt cjit RegisterULongName__14TUConfigServerFUlPcN21
+rt cjit RelMutex__19PTheSerChipRegistryFv
+rt cjit ULongStrToCStr__14TUConfigServerFUlPc
+rt cjit RegisterName__12TUNameServerFPcT1UlT3
+rt cjit __ct__12TNameRequestFv
+rt cjit ResetTimeOut__17TGeoPortDebugLinkFUl
+rt cjit IOPowerOff__FUl
+rt cjit __ct__18TNameServerRequestFv
+rt cjit __ct__16TNameServerReplyFv
+rt cjit SetBuffer__11TUSharedMemFPvUlT2
+rt cjit PowerOffSubsystem__15TPlatformDriverFUl
+rt cjit GrabSerialPort__17TGeoPortDebugLinkFUc
+rt cjit FindByLocation__19PSerialChipRegistryFUl
+rt cjit __dt__5TPhysFv
+rt cjit 00384E0C-00384E10 vt_00384E0C
+rt cjit FindByLocation__19PTheSerChipRegistryFUl
+rt cjit DeletePhys__FP5TPhys
+rt cjit IOPowerOn__FUl
+rt cjit 00386E4C-00386E50 vt_00386E4C
+rt cjit 003871B0-003871B4 vt_003871B0
+rt cjit 00386F64-00386F68 vt_00386F64
+rt cjit PowerOnSubsystem__15TPlatformDriverFUl
+rt cjit Sizeof__11TFlashStoreSFv
+rt cjit Sizeof__16TMuxStoreMonitorSFv
+rt cjit 00386FBC-00386FC0 vt_00386FBC
+rt cjit 00384630-00384634 vt_00384630
+rt cjit 00386EC4-00386EC8 vt_00386EC4
+rt cjit 00387240-00387244 vt_00387240
+rt cjit 003843B8-003843BC vt_003843B8
+rt cjit 00384448-0038444C vt_00384448
+rt cjit 00386F88-00386F90 ClassInfo__16TMuxStoreMonitorSFv
+rt cjit GetObjectSize__9TMuxStoreFUlPl
+rt cjit GetObjectSize__11TFlashStoreFUlPl
+rt cjit Sizeof__18PNullOutTranslatorSFv
+rt cjit 003843C4-003843C8 vt_003843C4
+rt cjit 00384454-00384458 vt_00384454
+rt cjit 003844B0-003844B4 vt_003844B0
+rt cjit 003844C4-003844C8 vt_003844C4
+rt cjit 00386ECC-00386ED0 vt_00386ECC
+rt cjit New__17PNullInTranslatorFv
+rt cjit New__18PNullOutTranslatorFv
+rt cjit Print__18PNullOutTranslatorFPCce
+rt cjit Init__18PNullOutTranslatorFPv
+rt cjit Add__11TFlashStoreFP7TObjRef
+rt cjit SetupForRead__11TFlashStoreFUlP7TObjRef
+rt cjit VccOn__11TFlashStoreFv
+rt cjit Sizeof__17PNullInTranslatorSFv
+rt cjit Sizeof__9TMuxStoreSFv
+rt cjit 00387248-0038724C vt_00387248
+rt cjit ValidateIncomingPSSID__11TFlashStoreFUl
+rt cjit Lookup__11TFlashStoreFUliR7TObjRef
+rt cjit Read__9TMuxStoreFUllPcT2
+rt cjit Set__7TObjRefFUlT1
+rt cjit IsVirgin__11TFlashBlockFv
+rt cjit LogEntryOffset__11TFlashBlockFv
+rt cjit Translate__11TFlashStoreFUl
+rt cjit Read__11TFlashStoreFUllPcT2
+rt cjit Lookup__22TFlashStoreLookupCacheFUli
+rt cjit Read__12TStoreDriverFPcUlT2
+rt cjit Read__6TFlashFUlT1Pc
+rt cjit PhysBlock__11TFlashBlockFv
+rt cjit HashPSSID__FUl
+rt cjit BasicRead__11TFlashStoreFUlPvT1
+rt cjit AddressOf__12TStoreDriverFUlPUc
+rt cjit 00384690-00384694 vt_00384690
+rt cjit Read__17TNewInternalFlashFUlT1Pc
+rt cjit __ct__25TULockingSemaphoreGrabberFP18TULockingSemaphore
+rt cjit ReadWrite__17TNewInternalFlashFM11TFlashRangeFUlT2Pc_lN22Pc
+rt cjit ReadWritePhysical__17TNewInternalFlashFM11TFlashRangeFUlT2Pc_lN22Pc
+rt cjit Read__11TFlashRangeFUlT1Pc
+rt cjit StartReadingArray__11TFlashRangeFv
+rt cjit DoneReadingArray__11TFlashRangeFv
+rt cjit GetBankControlRegister__20TBankControlRegisterSFv
+rt cjit ConfigureFlashBankDataSize__20TBankControlRegisterF11eMemoryLane
+rt cjit StartReadingArray__12TFlashDriverFR11TFlashRange
+rt cjit DoneReadingArray__12TFlashDriverFR11TFlashRange
+rt cjit SetBankControlRegister__20TBankControlRegisterFUlT1
+rt cjit Matches__27SFlashStoreLookupCacheEntryFUli
+rt cjit LogEntryOffset__15TFlashPhysBlockFv
+rt cjit Lookup__11TFlashBlockFUliR7TObjRefPl
+rt cjit IsReserved__11TFlashBlockFv
+rt cjit RootDirEnt__11TFlashBlockFUl
+rt cjit __ct__14TFlashIteratorFP11TFlashStoreP7TObjRefUl14IterFilterType
+rt cjit Lookup__14TFlashIteratorFUliPl
+rt cjit BucketCount__11TFlashBlockFv
+rt cjit BucketSize__11TFlashBlockFv
+rt cjit Start__14TFlashIteratorFUl14IterFilterType
+rt cjit ObjectNumberFor__11TFlashStoreFUl
+rt cjit GetDirEnt__14TFlashIteratorFUl
+rt cjit IsValid__7SDirEntFP11TFlashStore
+rt cjit GetMigratedObjectInfo__7SDirEntCFPlT1
+rt cjit ReadDirBucket__14TFlashIteratorFUl
+rt cjit 00389BC0-00389BC4 vt_00389BC0
+rt cjit 00389C30-00389C34 vt_00389C30
+rt cjit 00389C38-00389C3C vt_00389C38
+rt cjit 00389C2C-00389C30 vt_00389C2C
+rt cjit Sizeof__20TUnicodeDecompressorSFv
+rt cjit Init__20TUnicodeDecompressorFPv
+rt cjit ReadChunk__20TUnicodeDecompressorFPvPlPUc
+rt cjit Delete__20TUnicodeDecompressorFv
+rt cjit 00389BCC-00389BD0 vt_00389BCC
+rt cjit DecompCallback__FUlPvPlPUc
+rt cjit 00389C24-00389C28 vt_00389C24
+rt cjit 00386E98-00386E9C vt_00386E98
+rt cjit New__20TUnicodeDecompressorFv
+rt cjit DecompCallback__14TStoreReadPipeFPvPlPUc
+rt cjit 00389BE4-00389BEC ClassInfo__20TUnicodeDecompressorSFv
+rt cjit 00386E70-00386E78 ClassInfo__9TMuxStoreSFv
+rt cjit 00387214-00387218 vt_00387214
+rt cjit 003871D4-003871DC ClassInfo__11TFlashStoreSFv
+
+rt close

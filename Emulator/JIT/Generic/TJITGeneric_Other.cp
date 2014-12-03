@@ -28,6 +28,7 @@
 #include "TARMProcessor.h"
 #include "TEmulator.h"
 #include "TROMImage.h"
+#include "Monitor/TSymbolList.h"
 
 #include "TJITGeneric_Macros.h"
 
@@ -98,6 +99,8 @@ JITInstructionProto(CallHostNative)
 // -------------------------------------------------------------------------- //
 JITInstructionProto(CallHostInjection)
 {
+	static KUInt32 errCnt = 0;
+	
 	// Set the PC before jumping to the handler....
 	KUInt32 callIndex;
 	POPVALUE(callIndex);
@@ -114,8 +117,25 @@ JITInstructionProto(CallHostInjection)
 				MMUCALLNEXT_AFTERSETPC;
 			}
 		} catch (const char *err) {
-			fprintf(stderr, "SIM_INFO: %s caught at pc=0x%08lX (pcAbort=0x%08lX)\n",
-					err, ioCPU->GetRegister(15), ioCPU->mR14abt_Bkup);
+			KUInt32 pc = ioCPU->GetRegister(15)-4;
+			if (pc!=8 && (pc<0x00800000 || pc>0x008fffff)) { // don't chat about every SWI
+				char *symbol = 0;
+				int offset = 0;
+				if (TSymbolList::List) {
+					symbol = (char*)::malloc(1024);
+					TSymbolList::List->GetSymbol(pc, symbol, 0L, &offset);
+					fprintf(stderr, "SIM_INFO[%ld]: %s caught at 0x%08lX, lr=0x%08lX (pcAbort=0x%08lX)\n",
+							errCnt++, err, pc, ioCPU->GetRegister(14)-4, ioCPU->mR14abt_Bkup);
+					if (symbol) {
+						if (offset) {
+							fprintf(stderr, "SIM_INFO: ... at %s%+d\n", symbol, offset);
+						} else {
+							fprintf(stderr, "SIM_INFO: try: rt cjit %s\n", symbol);
+						}
+						::free(symbol);
+					}
+				}
+			}
 			MMUCALLNEXT_AFTERSETPC;
 		}
 	}
@@ -384,7 +404,7 @@ JITInstructionProto(BranchWithLinkWithinPageFindDelta)
 	TMemory *theMemIntf = ioCPU->GetMemory();
 	SETPC(theNewPC);
 	JITUnit *nextUnit = theMemIntf->GetJITObject()
-	->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
+		->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
 	
 	// now change the JIT command to the final fast branch
 	ioUnit[ 0].fValue = nextUnit - ioUnit;

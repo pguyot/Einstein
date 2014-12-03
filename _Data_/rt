@@ -1,0 +1,117 @@
+#
+# This file is located in Einstein/_Data_
+#
+# Running this file will regenerate all source and header files 
+# for the simulator
+#
+# Assuming that all the paths are set correctly, you can run this script
+# from the Monitor (Alt-Cmd-M) by typing "!rt"
+#
+
+#
+# Some statistics:
+# - we have about 1155873 lines of "C" code
+# - we have about 21000 symbols that may refer to functions and methods
+# - 100 functions fit into a Einetsin C file
+# - this leads to 21000/100 = 210 Einstein files
+# - one function is on everage 300 lines long -> 6.3 mio. lines of code
+#
+
+# All SWIs end in 003AD750 to allow task switching
+
+#
+# Another source collection
+#
+rt open /Users/matt/dev/Einstein/Newt/Objects2
+rt close
+
+#
+# Another source collection
+#
+rt open /Users/matt/dev/Einstein/Newt/Objects3
+rt close
+
+#
+# Another source collection
+#
+rt open /Users/matt/dev/Einstein/Newt/Objects4
+rt close
+
+
+# Another source collection
+#
+rt open /Users/matt/dev/Einstein/Newt/Objects5
+rt close
+
+#
+# Another source collection
+#
+rt open /Users/matt/dev/Einstein/Newt/Objects6
+rt close
+
+#
+# Another source collection
+#
+rt open /Users/matt/dev/Einstein/Newt/Objects7
+rt close
+
+#
+# Another source collection
+#
+rt open /Users/matt/dev/Einstein/Newt/Objects8
+rt close
+
+#
+# Another source collection
+#
+rt open /Users/matt/dev/Einstein/Newt/Objects9
+rt close
+
+#
+# Another source collection
+#
+rt open /Users/matt/dev/Einstein/Newt/Objects10
+rt close
+
+#
+# Another source collection
+#
+rt open /Users/matt/dev/Einstein/Newt/Objects11
+rt close
+
+#
+# Another source collection
+#
+rt open /Users/matt/dev/Einstein/Newt/Objects12
+rt close
+
+#
+# Another source collection
+#
+rt open /Users/matt/dev/Einstein/Newt/Objects13
+rt close
+
+
+# Retarget the class "TSerialChipVoyager"
+# retargeting active
+# C++ interface active
+#
+rt open /Users/matt/dev/Einstein/Newt/TSerialChipVoyager
+rt close
+
+
+# Retarget the class "TInterpreter"
+# retargeting active
+# C++ interface active
+#
+rt open /Users/matt/dev/Einstein/Newt/TInterpreter
+rt close
+
+
+# Retarget the class "SingleQContainer"
+# retargeting complete
+# C++ interface complete
+#
+rt open ../Newt/SingleQContainer
+rt close
+

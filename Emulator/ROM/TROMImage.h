@@ -246,13 +246,16 @@ public:
 	/// Create and add a call to a JIT instruction
 	TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name);
 	
-	/// Create and add a call to an Simulator function or static method
+	/// Create and add a call to a Simulator function or static method
 	TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyFunctionPtr function);
 	
-	/// Create and add a call to an Simulator class method
+	/// Create and add a call to a Simulator class method
 	TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyMethodPtr function);
 	
-	/// Destructor 
+	/// Create and add a call to a Simulator function or static method
+	TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, JITSimPtr function);
+	
+	/// Destructor
 	virtual ~TROMPatch();
 
 	/// Return the first patch in the list.
@@ -282,13 +285,16 @@ public:
 	static AnyMethodPtr GetSimulatorMethodAt(KUInt32 index);
 	
 	/// Return the original ROM instruction
-	static KUInt32 GetOriginalInstructionAt(KUInt32 index);
+	static KUInt32 GetOriginalInstructionAt(KUInt32 command, KUInt32 address=0xFFFFFFFF);
 	
 	/// Return the name for this patch
 	static const char* GetNameAt(KUInt32 index);
 	
 	/// Patch the ROM word
 	virtual void apply(KUInt32 *ROM);
+	
+	// Get number of patches
+	static KUInt32 GetNumPatches() { return nPatch; }
 };
 
 
@@ -309,6 +315,9 @@ public:
 	TROMInjection(KUInt32 address, JITFuncPtr stub, const char *name)
 	: TROMPatch(address, stub, name) { }
 	
+	TROMInjection(KUInt32 address, JITFuncPtr stub, const char *name, JITSimPtr nativeStub)
+	: TROMPatch(address, stub, name, nativeStub) { }
+	
 	/// Patch the ROM word
 	virtual void apply(KUInt32 *ROM);
 };
@@ -317,6 +326,11 @@ public:
 #define T_ROM_INJECTION(addr, name) \
 extern JITInstructionProto(p##addr); \
 TROMInjection i##addr(addr, p##addr, name); \
+JITInstructionProto(p##addr)
+
+#define T_ROM_INJECTION3(addr, name, nativeCall) \
+extern JITInstructionProto(p##addr); \
+TROMInjection i##addr(addr, p##addr, name, nativeCall); \
 JITInstructionProto(p##addr)
 
 

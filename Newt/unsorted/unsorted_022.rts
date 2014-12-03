@@ -1,0 +1,390 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_022
+
+# 490 / 7600
+# 18000
+# 9500 / 26000
+# 26700
+
+rt cjit FTimeInSeconds__FRC6RefVar
+
+rt cjit FSetLength
+rt cjit FMax
+rt cjit FGreaterOrEqual
+
+rt cjit SFNTGetGlyphInfo__FlT1Pv
+rt cjit BBPatCopy__FPUlT1lT3UlT5N53
+rt cjit Init__9SaveLevelFP9SaveLevel
+rt cjit FMakeRect
+
+rt cjit GetPenState__FP8PenState
+rt cjit ReleaseTextWalker__FP10TextWalker
+rt cjit CalcTextAdvance__FlP6FPointT1
+
+rt cjit BBPatOrBic4__FPUlT1lT3UlT5N53
+rt cjit RemoveElementsAt__14CArrayIteratorFlT1
+rt cjit AddIdler__9TRootViewFP5TViewUll
+
+rt cjit __ct__14CArrayIteratorFP13CDynamicArray
+rt cjit FirstIndex__14CArrayIteratorFv
+rt cjit More__14CArrayIteratorFv
+rt cjit NextIndex__14CArrayIteratorFv
+rt cjit __dt__14CArrayIteratorFv
+rt cjit Init__14CArrayIteratorFP13CDynamicArraylT2Uc
+rt cjit Reset__14CArrayIteratorFv
+rt cjit Advance__14CArrayIteratorFv
+rt cjit RemoveFromList__14CArrayIteratorFv
+rt cjit AppendToList__14CArrayIteratorFP14CArrayIterator
+rt cjit InitBounds__14CArrayIteratorFlT1Uc
+
+rt cjit JustifyText__Fl
+rt cjit SetStyle__10TStyleSaveFRC6RefVarRC6TPointl
+rt cjit FindSFNT__FlRC6RefVarP14FontEngineInfoPl
+rt cjit CommonBox__FRC6RefVarP5TRect
+
+rt cjit Setup__10TTransformFPC5TRectT1Uc
+rt cjit ReplaceScaling__9TQDScalerSFP10TTransform
+rt cjit StartScaling__9TQDScalerSFP10TTransformUcl
+rt cjit PenSize__FlT1
+
+rt cjit __ct__13TCardAsyncMsgFv
+rt cjit __ct__16TNewCardAsyncMsgFv
+rt cjit __ct__14TUAsyncMessageFv
+rt cjit KeyBoundsValidTest__7TCursorFRC4SKeyUc
+
+rt cjit __ct__12TCardMessageFv
+rt cjit __ct__12TSystemEventFUl
+rt cjit __ct__16TSysEventRequestFv
+rt cjit __ct__7TAEventFv
+rt cjit Free__13TCardAsyncMsgFv
+rt cjit Clear__12TCardMessageFv
+rt cjit CopyObject__8TUObjectFCUl
+
+rt cjit MakeFaultBlock__FRC6RefVarP13TStoreWrapperUl
+rt cjit MakeSimpleStyle__FRC6RefVarlT2
+rt cjit BlitModeCopy__FPlN21lN24
+rt cjit InvalFontCache__Fl
+rt cjit ChooseStrike__FlRC6RefVarPl
+rt cjit ScanNextChunk__FPlPPvP10TextWalkerPPl
+
+rt cjit PenNormal__Fv
+rt cjit DrTextChunk__FP10DrTextInfolPUsPl
+rt cjit DisposeText__Fl
+
+rt cjit BlackOrWhitePat__FPP8PixelMap
+rt cjit MakeGrayText__FP8PixelMapP8GrafPort
+
+rt cjit SFNTGetGlyph__FlT1Pv
+rt cjit PenMode__Fl
+
+rt cjit SetFgPattern__FPP8PixelMap
+rt cjit LookupCache__10TStyleSaveFv
+rt cjit BeginLevel__10TStyleSaveFP9SaveLevel
+rt cjit FindFontTable__FP16sfnt_OffsetTableUl
+
+rt cjit DrawShapeList__FRC6RefVarRC6TPointP10TStyleSave
+rt cjit LocateEntry__FlP14sfnt_blocTable
+rt cjit IsStyleFrame__FRC6RefVar
+rt cjit DrawOneShape__FRC6RefVarRC6TPointP10TStyleSave
+
+rt cjit GetBoundsRect__FRC6RefVarP5TRectRC6TPointP10TStyleSave
+rt cjit MoveTo__FlT1
+rt cjit LineTo__FlT1
+
+
+rt cjitr GetStdPattern__FUc
+rt cjitr Intersects__5TRectCFRC5TRect
+rt cjitr InkDrawInRect__FRC6RefVarUlP4RectT3Uc
+rt cjitr PaintRoundRect__FP4RectlT2
+rt cjitr FrameRoundRect__FP4RectlT2
+rt cjitr SectRgn__FPP6RegionN21
+rt cjitr GetFontSize__FRC6RefVar
+rt cjitr __ct__10TRegionVarFv
+rt cjitr WedgeBox__FP5TRectsT2
+rt cjitr __dt__10TRegionVarFv
+rt cjitr TextBox__FR11TRichStringRC6RefVarRC5TRectlN24
+rt cjitr SetClip__FPP6Region
+rt cjitr DrawRichString__FR11TRichStringUllP11StyleRecord6FPointP11TextOptionsP14TextBoundsInfo
+
+rt cjitr FrameArc__FP4RectlT2
+rt cjitr GetFontFamilySym__FRC6RefVar
+rt cjitr __ct__11TRichStringFPUsUl
+rt cjitr MapRect__FP4RectN21
+rt cjitr InvertRect__FP4Rect
+rt cjitr GetProto__5TViewCFRC6RefVar
+rt cjitr __ct__18TRectangularRegionFRC5TRect
+rt cjitr GetClip__FPP6Region
+rt cjitr PaintArc__FP4RectlT2
+rt cjitr GetFontFace__FRC6RefVar
+rt cjitr GetActualVis__9TQDScalerSFv
+rt cjitr JustifyBounds__5TViewFP5TRect
+rt cjitr SetupWidthsFont__FlP16sfnt_OffsetTableP14FontEngineInfoPl
+rt cjitr GetFillPattern__8TPatternFRC6RefVarUc
+rt cjitr EqualRect__FP4RectT1
+rt cjitr UseTransform__9TQDScalerFP10TTransformUc
+rt cjitr Setup__9TQDScalerFv
+rt cjitr __ct__9TQDScalerFv
+rt cjitr RectInRgn__FP4RectPP6Region
+rt cjitr GetActualClip__9TQDScalerSFv
+rt cjitr ReplaceClip__9TQDScalerSFPP6RegionT1l
+rt cjitr GetTransformLevel__9TQDScalerSFv
+rt cjitr FMakeRegion
+rt cjitr SeekRgn__FP8RgnStatel
+rt cjitr TimeString__FUlT1PUsT1RC6RefVar
+rt cjitr Text__14TParagraphViewFv
+rt cjitr MakeString__FPCUs
+rt cjitr __ct__9TListLoopFP5CList
+rt cjitr ReorderView__5TViewFP5TViewl
+rt cjitr _PortSendSWI
+rt cjitr SMemMsgSetTimerParmsSWI
+rt cjitr MoveChildBehind__5TViewFP5TViewT1
+rt cjitr UpdateStyleTable__FlT1
+rt cjitr RemapCharWidths__Fl
+rt cjitr VccOff__FiUl
+rt cjitr PutPicLong__Fl
+rt cjitr __ct__10TObjectPtrFv
+rt cjitr DoCharToPoint__FlN21
+rt cjitr DoPointToChar__FlN21
+rt cjitr __as__7DataPtrFRC7DataPtr
+rt cjitr RgnOp__FPP10TrueRegionT1PPclN24Uc
+
+rt cjitr GetStoreWrapper__FRC6RefVar
+rt cjitr LSeekMask__FlT1PUlT1P8RgnStateN25
+rt cjitr GrayShrink__18TPixelMapAntialiasFP8PixelMapT1P4RectT3PP6RegionN25
+rt cjitr HSetState
+rt cjitr InitRgn__FP6RegionP8RgnStatelN23Pc
+rt cjitr CopyRgn__FPP6RegionT1
+rt cjitr EqualRgn__FPP6RegionT1
+rt cjitr PutPicData__FPcl
+rt cjitr PackBits__FPPcT1l
+rt cjitr PutPicByte__Fc
+rt cjitr PutPicOpcode__Fl
+rt cjitr PutPixMap__FP8PixelMap
+rt cjitr PutPicWord__Fl
+rt cjitr PutGrayTable__FP8PixelMap
+rt cjitr PutPicRgn__FPP6Region
+
+rt cjitr UpdateNextIdleTime__12TApplicationFRC5TTime
+rt cjitr RemoveIdler__9TRootViewFP5TViewl
+rt cjitr ValidTest__8TagsBitsCFRC8TagsBitsl
+rt cjitr GetLengthsAndDataInRange__11TRichStringCFUlT1PsPc
+rt cjitr NumInkAndTextRunsInRange__11TRichStringCFUlT1
+rt cjitr NumInkWordsInRange__11TRichStringCFUlT1
+rt cjitr FindPriorAndGetState__10TSoupIndexFP8KeyFieldUcP10IndexState
+rt cjitr FindAndGetState__10TSoupIndexFP8KeyFieldP10IndexState
+rt cjitr InkOpenFont__FP8PixelMapP11StyleRecordRC6RefVarlT4P14FontEngineInfo
+rt cjitr CommonMakePict__FP5TViewR5TRectRC6RefVarT3
+rt cjitr DeclawRefsInRegisteredRanges__Fv
+rt cjitr RegisterLargeBinaryForDeclawing__FPC6LBData
+rt cjitr AbortObject__FP6TStoreUl
+rt cjitr IsSameEntry__6LBDataFl
+rt cjitr UpdateNode__10TSoupIndexFP10NodeHeader
+rt cjitr UpdateDupNode__10TSoupIndexFP10NodeHeader
+rt cjitr __dt__10TStyleSaveFv
+rt cjitr SetPenState__FP8PenState
+rt cjitr EndLevel__10TStyleSaveFv
+rt cjitr Union__5TRectFRC5TRect
+rt cjitr GetPattern__FRC6RefVarPUcPPP8PixelMapUc
+rt cjitr GetInkWordInfo__FRC6RefVarP11InkWordInfo
+rt cjitr RGBtoGray__FUlN21lT4
+rt cjitr FindNextDupDataAdr__10TSoupIndexFPP13DupNodeHeaderPvPUc
+rt cjitr FirstDupDataAdr__10TSoupIndexFP13DupNodeHeader
+rt cjitr ReadADupNode__10TSoupIndexFUl
+rt cjitr kfNextDupID__10TSoupIndexFP8KeyField
+rt cjitr kfReplaceFirstData__10TSoupIndexFP8KeyFieldPv
+rt cjitr kfNextDataAdr__10TSoupIndexFP8KeyFieldPvPPv
+rt cjitr kfFindDataAdr__10TSoupIndexFP8KeyFieldPvPPv
+rt cjitr Write__7TObjRefFPvUlT2
+rt cjitr MessageStuff__12TCardMessageFUlN21
+rt cjitr VppRisingTime__11TCardSocketFv
+rt cjitr WriteEphemeralList__17TEphemeralTrackerFv
+rt cjitr SearchPrior__10TSoupIndexFP8KeyFieldPP10NodeHeaderPl
+rt cjitr SearchPriorDup__10TSoupIndexFP8KeyFieldPP10NodeHeaderPlPP13DupNodeHeader
+rt cjitr FindPriorKey__10TSoupIndexFP8KeyFieldPP10NodeHeaderPl
+rt cjitr CreateFirstRoot__10TSoupIndexFv
+rt cjitr LastSlotInNode__10TSoupIndexFP10NodeHeader
+rt cjitr FirstKeyField__10TSoupIndexFP10NodeHeader
+rt cjitr FirstNodeNo__10TSoupIndexFP10NodeHeader
+rt cjitr KeyAfterNodeNo__10TSoupIndexFP10NodeHeaderUlPl
+rt cjitr DoCommit__11TFlashStoreFUc
+rt cjitr VppOff__11TFlashStoreFv
+rt cjitr RememberNode__10TNodeCacheFP10TSoupIndexUlliT4
+rt cjitr FindFirstKey__10TSoupIndexFP10NodeHeaderP8KeyField
+rt cjitr Abort__10TNodeCacheFP10TSoupIndex
+rt cjitr ConvertTextToLowestSort__13TSortingTableCFPUsl
+rt cjitr StoreAborted__10TSoupIndexFv
+rt cjitr Abort__15TStoreHashTableFv
+rt cjitr Abort__6TStoreFv
+rt cjitr Clear__10TNodeCacheFv
+rt cjitr AbortEphemerals__17TEphemeralTrackerFv
+rt cjitr DeletePendingEphemerals__17TEphemeralTrackerFv
+rt cjitr WriteFaultBlock__FRC6RefVar
+rt cjitr Add__10TSoupIndexFP4SKeyT1
+rt cjitr Delete__10TSoupIndexFP4SKeyT1
+rt cjitr Equals__4SKeyCFRC4SKey
+rt cjitr GetEntrySKey__FRC6RefVarT1P4SKeyPUc
+rt cjitr UpdateTagsIndex__FRC6RefVarN31Ul
+
+rt cjitr CheckWriteProtect__FP6TStore
+rt cjitr EnsureEntryInternal__FRC6RefVar
+rt cjitr StorePermObject__FRC6RefVarP13TStoreWrapperRUlP13CDynamicArrayPUc
+
+rt cjitr __dt__20TObjTextDecompressorFv
+rt cjitr MoveUsingState__10TSoupIndexFUciP8KeyFieldP10IndexState
+rt cjitr IsValidState__15TUnionSoupIndexFP4SKeyT1
+rt cjitr FindPrior__18TAbstractSoupIndexFP4SKeyN21UcT4
+rt cjitr WordsValidTest__7TCursorFUl
+rt cjitr TextValidTest__7TCursorFUl
+
+rt cjitr GotoKey__7TCursorFRC6RefVar
+
+rt cjitr __ct__13TBackwardLoopFP5CList
+rt cjitr FindRestorableKeyView__9TRootViewFP5TViewPUl
+rt cjitr FindView__5TViewFRC6RefVar
+rt cjitr NextKeyView__5TViewFP5TViewlT2
+rt cjitr FrontMost__5TViewFv
+rt cjitr GetFrontCommandKeyView__Fv
+rt cjitr SetPt__FP5PointlT2
+rt cjitr SetBgPattern__FPP8PixelMap
+rt cjitr ParsePicCodes__FP7PicPlayPCPFlT1P8GrafPort_v
+
+rt cjitr FSetContains
+
+rt cjitr ArrayInsert__FRC6RefVarT1l
+rt cjitr BuildContext__5TViewFRC6RefVarUc
+rt cjitr Sync__5TViewFv
+rt cjitr SetFlags__5TViewFUl
+rt cjitr MakeCommand__FUlP10TResponderl
+rt cjitr TTimeToMilliseconds__F5TTime
+rt cjitr ResetIdle__14TAEventHandlerFUl9TimeUnits
+rt cjitr DispatchCommand__12TApplicationFRC6RefVar
+rt cjitr UpdateHardwareScreen__Fv
+rt cjitr DisposePattern__FPP8PixelMap
+rt cjitr BadWickedNaughtyNoot__Fl
+rt cjitr __as__4SKeyFCd
+rt cjitr __as__4SKeyFUs
+
+rt cjitr LIEndWeights__FPPc
+rt cjitr AdjustParaSize__FUl
+rt cjitr AllocLearnInfo__FPPvUl
+rt cjitr GetDTELearnInfoHandle__FPv
+rt cjitr CreateTrigramHeader__FPPvPPcPv
+rt cjitr UnloadTrigram__FPPv
+
+rt cjitr UnloadData__FPPv
+rt cjitr GlobalSoundChannel__Fv
+rt cjitr SetVolume__14TUSoundChannelFl
+rt cjitr SetFlags__4SKeyFUc
+rt cjitr EncodeQueryTags__FRC6RefVarT1
+
+rt cjitr GetDTELearnInfoSize__FPv
+rt cjitr HWRMemoryFreeHandle__FUl
+rt cjitr GetWordsHints__FRC6RefVar
+rt cjitr SetupScreenPixelMap__Fv
+rt cjitr GetSample__4TADCF10ADCMuxTypeUlPFPvlUl_vPv
+rt cjitr GetADCObject__Fv
+rt cjitr GetSortTable__11TSortTablesCFlPl
+rt cjitr Fetch__13TStringToSortFv
+rt cjitr CalcSecondOrderResult__FRC13TStringToSortT1
+rt cjitr Project__13TStringToSortFc
+rt cjitr NSCall__FRC6RefVarT1
+rt cjitr __dt__10TSoupIndexFv
+rt cjitr MakeFaultBlock__FRC6RefVarP13TStoreWrapperUlT1
+rt cjitr MakeEntryCache__Fv
+rt cjitr CreateSoupIndexObjects__FRC6RefVar
+rt cjitr GetNumberOfDevice__12TCardHandlerFv
+rt cjitr GetCardDevice__11TCardPCMCIAFCUl
+rt cjitr GetNumOfCISs__11TCardPCMCIAFv
+rt cjitr GetFuncExt__13TCardFunctionFCUl
+rt cjitr GetNumOfFuncExts__13TCardFunctionFv
+rt cjitr GetCardFunction__11TCardPCMCIAFCUl
+rt cjitr GetNumOfCardFunctions__11TCardPCMCIAFv
+rt cjitr GetCardCIS__11TCardPCMCIAFCUl
+rt cjitr CardSpecific__12TCardHandlerFUlPvT1
+rt cjitr Read__7TObjRefFPvUlT2
+rt cjitr StoreCapacity__11TFlashStoreFv
+rt cjitr Add__22TFlashStoreLookupCacheFR7TObjRef
+rt cjitr RecoveryCheck__11TFlashStoreFUc
+rt cjitr VccOn__FiUc
+rt cjitr FlashSpecific__6TFlashFUlPvT1
+rt cjitr Remove__11TFlashStoreFP7TObjRef
+rt cjitr SetObjectSize__16TMuxStoreMonitorFUll
+rt cjitr GetObjectSize__16TMuxStoreMonitorFUlPl
+rt cjitr Write__16TMuxStoreMonitorFUllPcT2
+rt cjitr Read__16TMuxStoreMonitorFUllPcT2
+rt cjitr GetStoreSizes__16TMuxStoreMonitorFPlT1
+rt cjitr LockStore__16TMuxStoreMonitorFv
+rt cjitr UnlockStore__16TMuxStoreMonitorFv
+rt cjitr Abort__16TMuxStoreMonitorFv
+rt cjitr New__16TMuxStoreMonitorFv
+rt cjitr IsReadOnly__16TMuxStoreMonitorFPUc
+rt cjitr PutByte__17TGeoPortDebugLinkFUc
+rt cjitr PutByteEnd__17TGeoPortDebugLinkFv
+rt cjitr GetBeaconMsg__17TGeoPortDebugLinkFPUcUl
+rt cjitr InitForHDLC__17TGeoPortDebugLinkFv
+rt cjitr ShortTimerDelay__17TGeoPortDebugLinkFUl
+rt cjitr SendRPCGoo__6TUPortFUlT1PUlPvN31UcT4N21P5TTime
+rt cjitr GetChipPtr__19PSerialChipRegistryFUl
+rt cjitr __ct__22THMOGeoPortDebugConfigFv
+rt cjitr ProcessOption__11TSerialChipFP7TOption
+rt cjitr Send2BytePacket__17TGeoPortDebugLinkFUl
+rt cjitr InitForAsync__17TGeoPortDebugLinkFv
+rt cjitr BeaconDetect__17TGeoPortDebugLinkFl
+rt cjitr PutByteStart__17TGeoPortDebugLinkFUc
+rt cjitr WaitFor2BytePacket__17TGeoPortDebugLinkFPUl
+rt cjitr SendDataFrame__17TGeoPortDebugLinkFPUclUl
+rt cjitr ReadDebugFrame__17TGeoPortDebugLinkFPUclPlUl
+rt cjitr PollByte__17TGeoPortDebugLinkFv
+rt cjitr GetSerialChipPtr__17TGeoPortDebugLinkFv
+rt cjitr PowerCycle__17TGeoPortDebugLinkFUc
+rt cjitr EnbIntOnNextRxC__17TGeoPortDebugLinkFv
+rt cjitr DisableExtSoundSource__Fl
+rt cjitr PowerOffAssignment__11TDMAManagerFUl
+rt cjitr PowerOnAssignment__11TDMAManagerFUl
+rt cjitr EnableExtSoundSource__Fl
+rt cjitr New__9TMuxStoreFv
+rt cjitr Delete__9TMuxStoreFv
+rt cjitr 00386E78-00386E80
+rt cjitr GetRefCon__16TUSemaphoreGroupFPPv
+rt cjitr Init__18TULockingSemaphoreFv
+rt cjitr Delete__13TStoreMonitorFv
+rt cjitr Delete__6TStoreFv
+rt cjitr Init__16TUSemaphoreGroupFUl
+rt cjitr SetRefCon__16TUSemaphoreGroupFPv
+rt cjitr DestroyMonitor__9TProtocolFv
+rt cjitr MakeObject__8TUObjectF11ObjectTypesP13ObjectMessageUl
+
+# TODO: linking these functions in will make the SWI number unreadable by the code following
+rt cjit !_EnterAtomicSWI
+rt cjit !_ExitAtomicSWI
+rt cjit !_EnterFIQAtomicSWI
+rt cjit !_ExitFIQAtomicSWI
+rt cjit !_GenerateMessageIRQ
+rt cjit !_PurgeMMUTLBEntry
+rt cjit !_FlushMMU
+rt cjit !_FlushIDC
+rt cjit !_GetCPUVersion
+rt cjit !_SetDomainRegister
+rt cjit !TurnOffCache
+rt cjit !TurnOnCache
+rt cjit !003AD658-003AD660 DoSchedulerSWI
+rt cjit !003AD660-003AD664 ThrowSystemPanic
+rt cjit !_GenericWithReturnSWI
+rt cjit !_MonitorDispatchSWI
+rt cjit !_MonitorThrowSWI
+rt cjit !_SemaphoreOpGlue
+rt cjit !_SMemSetBufferSWI
+rt cjit !GetPortSWI
+
+# function start must not be overridden
+rt cjit !UnevenDivide__FlT1
+
+# FIXME:
+rt cjit setjmp
+rt cjitr longjmp
+rt cjitr 00000008-0000000C
+rt cjitr 00000004-00000008
+
+rt close

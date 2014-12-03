@@ -1,0 +1,45 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_015
+rt cjit FIsFunction
+rt cjit FClone
+rt cjit FQuickSort
+rt cjit FGetCardInfo
+rt cjit FAddArraySlot
+rt cjit FNewIterator
+rt cjit FGetStores
+rt cjit __ct__21TGeneralizedTestFnVarFRC6RefVarT1i
+rt cjit QSort__FRC6RefVarP21TGeneralizedTestFnVar
+rt cjit DeepClone__FRC6RefVar
+rt cjit AddArraySlot__FRC6RefVarT1
+rt cjit FourCharToSymbol__FUl
+rt cjit QSUtil__FPlT1P21TGeneralizedTestFnVar
+rt cjit __ct__14TPrecedentsVarFv
+rt cjit ApplyKey__21TGeneralizedTestFnVarFRC6RefVar
+rt cjit ApplyKey__21TGeneralizedTestFnVarFPl
+rt cjit DeepClone1__FRC6RefVarR14TPrecedentsVarT2
+rt cjit TestUniStrings__21TGeneralizedTestFnVarFPlT1
+rt cjit Find__14TPrecedentsVarFRC6RefVar
+rt cjit GetStores__Fv
+rt cjit CompareSubStringCommon__11TRichStringCFRC11TRichStringUllUc
+rt cjit CompareUnicodeText__FPCUslT1T2PC13TSortingTableUcPFlT1Pv_lPv
+rt cjit OldCompareText__FPCUslT1T2UcPFlT1Pv_lPv
+rt cjit Append__14TPrecedentsVarFRC6RefVar
+rt cjit StoreGetSoup
+rt cjit CObjectBinaryDataPtr__FPc
+rt cjit FindSoupInCache__FRC6RefVarT1
+rt cjit StoreGetDirSortTable__FRC6RefVar
+rt cjit __ct__13TStringToSortFPCUslPC13TSortingTable
+rt cjit CommonSoupQuery
+rt cjit FCursorEntry
+rt cjit CreateNewCursor__7TCursorSFv
+rt cjit FEnsureInternal
+rt cjit FSetLCDContrast__FRC6RefVarT1
+rt cjit AllocateFramesCObject__FlPFPv_vN22
+rt cjit CursorObj__FRC6RefVar
+rt cjit EnsureInternal__FRC6RefVar
+rt cjit TotalClone1__FRC6RefVarR14TPrecedentsVarT2i
+rt cjit SetGrafInfo__FlT1
+rt cjit __ct__7TCursorFv
+rt close

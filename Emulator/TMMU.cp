@@ -1044,7 +1044,7 @@ static void endBlocks(FILE *f)
 void
 TMMU::FDump(FILE *f)
 {
-	static const char *const ap[4] = { "ro/na", "rw/na", "rw/ro", "rw/rw" };
+//	static const char *const ap[4] = { "ro/na", "rw/na", "rw/ro", "rw/rw" };
 	
 	Boolean err = false;
 	fprintf(f, "=====> Dumping MMU state\n");

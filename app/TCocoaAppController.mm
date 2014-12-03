@@ -412,7 +412,7 @@ static TCocoaAppController* gInstance = nil;
 	NSString* theDataPath = [theROMPath stringByDeletingLastPathComponent];
 #ifdef _DEBUG
 	NSString* theSymbolPath = [theDataPath stringByAppendingString: @"/symbols.txt"];
-	mSymbolList = new TSymbolList([theSymbolPath UTF8String]);
+	mSymbolList = TSymbolList::List = new TSymbolList([theSymbolPath UTF8String]);
 #else
 	mSymbolList = 0L;
 #endif

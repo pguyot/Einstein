@@ -37,6 +37,7 @@ class TJITGeneric;
 
 // Function.
 typedef JITUnit* (*JITFuncPtr)(JITUnit* ioUnit, TARMProcessor* ioCPU);
+typedef void (*JITSimPtr)(TARMProcessor* ioCPU, KUInt32 ret);
 
 typedef union JITUnit {
 	KUIntPtr	fPtr;

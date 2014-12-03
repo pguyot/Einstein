@@ -26,6 +26,7 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include "TMonitorCore.h"
 #include "Emulator/Log/TBufferLog.h"
 
 class TEmulator;
@@ -43,7 +44,7 @@ class TJITGenericRetarget;
 ///
 /// \test	aucun test défini.
 ///
-class TMonitor
+class TMonitor : public TMonitorCore
 {
 public:
 	///
@@ -125,13 +126,13 @@ public:
 			return mSocketPair[0];
 		}
 	
-	///
-	/// Execute a script.
-	///
-	/// \return false, if the script file was not found, or the result of
-	///         the script operations.
-	///
-	Boolean		ExecuteScript( const char* inScriptFile );
+//	///
+//	/// Execute a script.
+//	///
+//	/// \return false, if the script file was not found, or the result of
+//	///         the script operations.
+//	///
+//	Boolean		ExecuteScript( const char* inScriptFile );
 	
 	///
 	/// Execute startup script.
@@ -153,13 +154,6 @@ public:
 	/// \return true if the command was known.
 	///
 	Boolean		ExecuteHelpCommand( const char* inCommand );
-	
-	///
-	/// Execute a retargeting command.
-	///
-	/// \return true if the command was known.
-	///
-	Boolean		ExecuteRetargetCommand( const char* inCommand );
 	
 	///
 	/// Save the current state of the Emulator to a file.
@@ -298,11 +292,11 @@ public:
 
 	/// \name Variables
 	TEmulator*				mEmulator;			///< Emulator.
-	TMemory*				mMemory;			///< Memory.
+//	TMemory*				mMemory;			///< Memory.
 	TARMProcessor*			mProcessor;			///< CPU.
 	TInterruptManager*		mInterruptManager;	///< Interrupt manager.
 	TBufferLog*				mLog;				///< Interface to the log.
-	TSymbolList*			mSymbolList;		///< List of symbols.
+//	TSymbolList*			mSymbolList;		///< List of symbols.
 	Boolean					mHalted;			///< If the emulator is halted.
 #if TARGET_OS_WIN32
 	// FIXME: we must still implement this
@@ -316,7 +310,7 @@ public:
 	int						mSocketPair[2];		///< Socket pair for monitor
 												///< state changes.
 	Boolean					mLastScreenHalted;	///< If last screen was halted.
-	TJITGenericRetarget*	mRetarget;			///< retargeting source code generator
+//	TJITGenericRetarget*	mRetarget;			///< retargeting source code generator
 	char*					mROMPath;			///< path to the ROM fle directory
 };
 

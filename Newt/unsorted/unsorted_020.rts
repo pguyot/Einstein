@@ -1,0 +1,45 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_020
+
+rt cjit MoveToNextSoup__15TUnionSoupIndexFUciP4SKeyT1
+rt cjit CallBits__FP8PixelMapP4RectT2lPP6Region
+rt cjit IsInkWord__FRC6RefVar
+rt cjit __vc__FPvT1iPFPv_v
+rt cjit DoRichString__FR11TRichStringUllP11StyleRecord6FPointP11TextOptionsP14TextBoundsInfoUc
+rt cjit TagsValidTest__FR10TSoupIndexRC6RefVarUl
+rt cjit GetTagsIndexDesc__FRC6RefVar
+rt cjit Commit__15TUnionSoupIndexFv
+rt cjit StdBits
+rt cjit DoTextOnce__FPvlPP11StyleRecordPs6FPointP11TextOptionsP14TextBoundsInfoUc
+rt cjit EqualStyle__FP11StyleRecordT1
+rt cjit CheckPic__Fv
+rt cjit SFNTReopenFont__FPv
+rt cjit QDNewTempPtr__Fl
+rt cjit StretchBits__FP8PixelMapT1P4RectT3lPP6RegionN26
+rt cjit DrawTextObj__Fl
+rt cjit SFNTCloseFont__FPv
+rt cjit DispatchCalcBounds__FlPv
+rt cjit FNegate
+rt cjit FDirtyX
+rt cjit FIntern
+rt cjit FHasVariable
+rt cjit RgnBlt__FP8PixelMapT1P4RectT3lPP8PixelMapPP6RegionN27
+rt cjit SetupStretchRatio__F5PointT1PllT4
+rt cjit CallDrawText__FlN21
+rt cjit FDivide
+rt cjit FFloor
+rt cjit FUnionRect
+rt cjit FIsFrame
+rt cjit FEntryStore
+rt cjit StoreIsReadOnly
+rt cjit TrimRect__FPP6RegionP4Rect
+rt cjit BitBlt__FP8PixelMapT1P4RectT3lPP8PixelMap
+rt cjit NumberDivide__FRC6RefVarT1
+rt cjit floor
+rt cjit IsReadOnly__6TStoreFPUc
+rt cjit SetRect__FP4RectlN32
+rt cjit _rintM
+
+rt close

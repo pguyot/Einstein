@@ -1,0 +1,87 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_019
+
+rt cjit FlushEphemerals__17TEphemeralTrackerFv
+rt cjit VppOn__11TFlashStoreFv
+rt cjit UnlockStore__9TMuxStoreFv
+rt cjit IsLocked__9TMuxStoreFv
+rt cjit FindNode__10TNodeCacheFP10TSoupIndexUl
+rt cjit FMakeText
+rt cjit Merge__13CDynamicArrayFP13CDynamicArray
+rt cjit VppOn__FiUc
+rt cjit UnlockStore__13TStoreMonitorFv
+rt cjit MakeRectShape__FRC6RefVarN41
+rt cjit Sleep__FUl
+rt cjit InternalVppOn__Fv
+rt cjit VppOn__11TCardSocketFv
+rt cjit MarkCommitPoint__11TFlashStoreFv
+rt cjit Unnamed_00386C48
+rt cjit LockEphemerals__17TEphemeralTrackerFv
+rt cjit Search__10TSoupIndexFP8KeyFieldPP10NodeHeaderPl
+rt cjit KeyFieldAdr__10TSoupIndexFP10NodeHeaderl
+rt cjit DrawBitmap__FRC6RefVarP5TRectl
+rt cjit RemoveElementsAt__13CDynamicArrayFlT1
+rt cjit KeyInNode__10TSoupIndexFP8KeyFieldP10NodeHeaderPUlPl
+rt cjit SearchNextDup__10TSoupIndexFP8KeyFieldPP10NodeHeaderPlPP13DupNodeHeader
+rt cjit __ct__9TPixelObjFv
+rt cjit FailGetView__FRC6RefVar
+rt cjit FDrawShape
+rt cjit LockStore__6TStoreFv
+rt cjit CompareKeys__10TSoupIndexFRC4SKeyT1
+rt cjit LeftNodeNo__10TSoupIndexFP10NodeHeaderl
+rt cjit Init__9TPixelObjFRC6RefVar
+rt cjit ForceScaling__9TQDScalerSFl
+rt cjit FEntryUndoChanges
+rt cjit FIsSoupEntry
+rt cjit SetClass__FRC6RefVarT1
+rt cjit IsSoupEntry__FRC6RefVar
+rt cjit GetFramBitmap__9TPixelObjFv
+rt cjit FramBitMapToPixMap__9TPixelObjFRC10FramBitmap
+rt cjit GetFgPattern__Fv
+rt cjit 00387254-00387258 vt_00387254
+rt cjit 00386ED8-00386EDC vt_00386ED8
+rt cjit StringKeyCompare__10TSoupIndexFRC4SKeyT1
+rt cjit FIsPrimShape
+rt cjit FShapeBounds
+rt cjit FOffsetShape
+rt cjit LockStore__11TFlashStoreFv
+rt cjit LockStore__9TMuxStoreFv
+rt cjit IsPrimShape__FRC6RefVar
+rt cjit ToObject__FRC5TRect
+rt cjit NewFakeHandle
+rt cjit OffsetRgn__FPP6RegionlT2
+rt cjit OffsetPoly__FPP7PolygonlT2
+rt cjit LockStore__13TStoreMonitorFv
+rt cjit SetBoundsRect__FRC6RefVarRC5TRect
+rt cjit NewFakeIndirectBlock
+rt cjit MoveKey__10TSoupIndexFP8KeyFieldT1
+rt cjit GetPort__FPP8GrafPort
+rt cjit DrawShape__FRC6RefVarT1RC6TPoint
+rt cjit EntryUndoChanges__FRC6RefVar
+rt cjit FFontAscent__FRC6RefVarT1
+rt cjit CreateTextStyleRecord__FRC6RefVarP11StyleRecord
+rt cjit FStrPos
+rt cjit ShapeBounds__FRC6RefVarP5TRect
+rt cjit StrPosition__FRC6RefVarT1l
+rt cjit AddressToRef__FPv
+rt cjit Commit__10TNodeCacheFP10TSoupIndex
+rt cjit kfFirstDataAdr__10TSoupIndexFP8KeyField
+rt cjit CopyBits__FP8PixelMapT1P4RectT3lPP6Region
+rt cjit AbortLargeBinaries__FRC6RefVar
+rt cjit FMin
+rt cjit GetStyleFontInfo__FP11StyleRecordP8FontInfo
+rt cjit FMakeShape
+rt cjit FIsInteger
+rt cjit FLessOrEqual
+rt cjit FixedMultiply
+rt cjit Union__5TRectF6TPoint
+rt cjit kfDisassembleKeyField__10TSoupIndexFP8KeyFieldP4SKeyT2
+rt cjit LongKeyCompare__10TSoupIndexFRC4SKeyT1
+rt cjit StartProtectSrcBits__FP8PixelMapP4Rect
+rt cjit __ct__10TStyleSaveFv
+rt cjit UncacheIfFaultBlock__FRC6RefVar
+rt cjit OpenFont__FP8PixelMapP11StyleRecordlT3P14FontEngineInfo
+rt cjit MeasureRichString__FR11TRichStringUllP11StyleRecord6FPointP11TextOptionsP14TextBoundsInfo
+rt close

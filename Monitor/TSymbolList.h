@@ -45,6 +45,8 @@ public:
 	
 	static const KUInt32 kNoSymbol = 0xFFFFFFFF;
 	
+	static TSymbolList *List;
+	
 	///
 	/// Constructor from a path.
 	///
@@ -70,8 +72,8 @@ public:
 	bool GetSymbolExact(
 			KUInt32 inValue,
 			char* outSymbol,
-			char* outComment,
-			int* outOffset );
+			char* outComment=0L,
+			int* outOffset=0L );
 	
 	///
 	/// Find a symbol by name and return its address
@@ -127,9 +129,19 @@ private:
 						char* outSymbol,
 						char* outComment);
 	
+	///
+	/// Add one symbol with value and comment
+	///
+	void AddSymbol(KUInt32 inValue, const char* inSymbol, const char* inComment=0);
+	
+	///
+	/// Return -1, 0, or 1 if the symbol position is less, equal, or greater
+	static int QSortCallback(const void*, const void*);
+	
 	/// \name Variables
 	SSymbolStruct*		mSymbolOffsets;
 	KUInt32				mSymbolCount;
+	KUInt32				mSymbolCapacity;
 	FILE*				mFile;
 };
 
