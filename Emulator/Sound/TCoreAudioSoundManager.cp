@@ -85,7 +85,7 @@ TCoreAudioSoundManager::~TCoreAudioSoundManager( void )
 #if TARGET_IOS
 	AudioComponentInstanceDispose( mOutputUnit );
 #else
-	CloseComponent( mOutputUnit );
+	AudioComponentInstanceDispose( mOutputUnit );
 	AudioUnitUninitialize( mOutputUnit );
 #endif
 
@@ -109,11 +109,8 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 	
 	do {
 		// Open the default output unit
-#if TARGET_IOS
 		AudioComponentDescription desc;
-#else
-		ComponentDescription desc;
-#endif
+
 		desc.componentType = kAudioUnitType_Output;
 #if TARGET_IOS
 		desc.componentSubType = kAudioUnitSubType_RemoteIO;
@@ -124,11 +121,7 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 		desc.componentFlags = 0;
 		desc.componentFlagsMask = 0;
 		
-#if TARGET_IOS
 		AudioComponent comp = AudioComponentFindNext(NULL, &desc);
-#else
-		Component comp = FindNextComponent(NULL, &desc);
-#endif
 
 		if (comp == NULL)
 		{
@@ -140,11 +133,7 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 			break;
 		}
 	
-#if TARGET_IOS
 		err = AudioComponentInstanceNew(comp, &mOutputUnit);
-#else
-		err = OpenAComponent(comp, &mOutputUnit);
-#endif
 
 		if (err != noErr)
 		{
