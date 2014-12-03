@@ -778,11 +778,6 @@
 		C99E3552111C111D002165EC /* ffi_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_common.h; sourceTree = "<group>"; };
 		C99E3553111C111D002165EC /* fficonfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fficonfig.h; sourceTree = "<group>"; };
 		C99E3554111C111D002165EC /* ffitarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffitarget.h; sourceTree = "<group>"; };
-		C99E355B111C111D002165EC /* asm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asm.h; sourceTree = "<group>"; };
-		C99E355C111C111D002165EC /* darwin.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin.S; sourceTree = "<group>"; };
-		C99E355D111C111D002165EC /* darwin_closure.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin_closure.S; sourceTree = "<group>"; };
-		C99E355E111C111D002165EC /* ffi_darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi_darwin.c; sourceTree = "<group>"; };
-		C99E355F111C111D002165EC /* ffitarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffitarget.h; sourceTree = "<group>"; };
 		C99E3560111C111D002165EC /* prep_cif.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = prep_cif.c; sourceTree = "<group>"; };
 		C99E3561111C111D002165EC /* types.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = types.c; sourceTree = "<group>"; };
 		C99E3563111C111D002165EC /* darwin.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin.S; sourceTree = "<group>"; };
@@ -1526,24 +1521,11 @@
 		C99E3559111C111D002165EC /* src */ = {
 			isa = PBXGroup;
 			children = (
-				C99E355A111C111D002165EC /* powerpc */,
 				C99E3560111C111D002165EC /* prep_cif.c */,
 				C99E3561111C111D002165EC /* types.c */,
 				C99E3562111C111D002165EC /* x86 */,
 			);
 			path = src;
-			sourceTree = "<group>";
-		};
-		C99E355A111C111D002165EC /* powerpc */ = {
-			isa = PBXGroup;
-			children = (
-				C99E355B111C111D002165EC /* asm.h */,
-				C99E355C111C111D002165EC /* darwin.S */,
-				C99E355D111C111D002165EC /* darwin_closure.S */,
-				C99E355E111C111D002165EC /* ffi_darwin.c */,
-				C99E355F111C111D002165EC /* ffitarget.h */,
-			);
-			path = powerpc;
 			sourceTree = "<group>";
 		};
 		C99E3562111C111D002165EC /* x86 */ = {
@@ -2371,7 +2353,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
@@ -2410,7 +2392,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
@@ -2511,7 +2493,11 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = "TARGET_OS_OPENSTEP=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"TARGET_OS_OPENSTEP=1",
+					"NS_BLOCK_ASSERTIONS=1",
+					"NDEBUG=1",
+				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2525,13 +2511,14 @@
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_PREPROCESSOR_DEFINITIONS = "TARGET_OS_OPENSTEP=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"TARGET_OS_OPENSTEP=1",
+					"NS_BLOCK_ASSERTIONS=1",
+					"NDEBUG=1",
+				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				OTHER_CFLAGS = (
-					"-DNS_BLOCK_ASSERTIONS",
-					"-DNDEBUG",
-				);
+				OTHER_CFLAGS = "";
 				SDKROOT = macosx;
 				VALID_ARCHS = i386;
 			};
@@ -2854,7 +2841,11 @@
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_PREPROCESSOR_DEFINITIONS = "TARGET_OS_OPENSTEP=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"TARGET_OS_OPENSTEP=1",
+					"NS_BLOCK_ASSERTIONS=1",
+					"NDEBUG=1",
+				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				SDKROOT = macosx;
