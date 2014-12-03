@@ -421,8 +421,8 @@
 		C9E848EA11EDCD6C00F27330 /* x86-ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E811EDCD6C00F27330 /* x86-ffi64.c */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cp */; };
 		DA0D96DE11BAD15300835522 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = DA0D96DD11BAD15300835522 /* darwin64.S */; };
-		F115FF0F1A2E9103001F3D65 /* Einstein.nib in Resources */ = {isa = PBXBuildFile; fileRef = F115FF0D1A2E9103001F3D65 /* Einstein.nib */; };
-		F115FF101A2E9103001F3D65 /* Einstein.nib in Resources */ = {isa = PBXBuildFile; fileRef = F115FF0D1A2E9103001F3D65 /* Einstein.nib */; };
+		F115FF131A2EA415001F3D65 /* Einstein.xib in Resources */ = {isa = PBXBuildFile; fileRef = F115FF111A2EA415001F3D65 /* Einstein.xib */; };
+		F115FF141A2EA415001F3D65 /* Einstein.xib in Resources */ = {isa = PBXBuildFile; fileRef = F115FF111A2EA415001F3D65 /* Einstein.xib */; };
 		F11E44B717C2DEE800EB9B4E /* TFiber.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cp */; };
 		F11E44B817C2DEF100EB9B4E /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		F15858B71A2E3CA100D72203 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F15858B51A2E3C8C00D72203 /* UIKit.framework */; };
@@ -823,7 +823,7 @@
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTapNetwork.cp; path = Network/TTapNetwork.cp; sourceTree = "<group>"; };
 		DA0D943F11B9A12D00835522 /* TTapNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTapNetwork.h; path = Network/TTapNetwork.h; sourceTree = "<group>"; };
 		DA0D96DD11BAD15300835522 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
-		F115FF0E1A2E9103001F3D65 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = ../../Resources/en.lproj/Einstein.nib; sourceTree = "<group>"; };
+		F115FF121A2EA415001F3D65 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = ../../Resources/en.lproj/Einstein.xib; sourceTree = "<group>"; };
 		F15858B51A2E3C8C00D72203 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		F1647FC313198E6A001603BE /* TCocoaMonitorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaMonitorController.h; sourceTree = "<group>"; };
 		F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaMonitorController.mm; sourceTree = "<group>"; };
@@ -1618,8 +1618,8 @@
 		F1CB7613131730100017B0BB /* Mac OS X */ = {
 			isa = PBXGroup;
 			children = (
+				F115FF111A2EA415001F3D65 /* Einstein.xib */,
 				C99E315F111B7346002165EC /* Icons */,
-				F115FF0D1A2E9103001F3D65 /* Einstein.nib */,
 				C99E315A111B7331002165EC /* Info.plist */,
 				C99E377A111C2289002165EC /* Einstein.rex */,
 			);
@@ -1815,9 +1815,9 @@
 			files = (
 				C99E316A111B7346002165EC /* button_backlight.png in Resources */,
 				C99E316B111B7346002165EC /* button_backlight_on.png in Resources */,
-				F115FF0F1A2E9103001F3D65 /* Einstein.nib in Resources */,
 				C99E316C111B7346002165EC /* button_install.png in Resources */,
 				C99E316D111B7346002165EC /* button_power.png in Resources */,
+				F115FF131A2EA415001F3D65 /* Einstein.xib in Resources */,
 				C99E316E111B7346002165EC /* button_power_on.png in Resources */,
 				C99E316F111B7346002165EC /* button_prefs.png in Resources */,
 				C99E3170111B7346002165EC /* Einstein.icns in Resources */,
@@ -1834,9 +1834,9 @@
 			files = (
 				C95E603F198B76DC004C6CEF /* button_backlight.png in Resources */,
 				C95E6040198B76DC004C6CEF /* button_backlight_on.png in Resources */,
-				F115FF101A2E9103001F3D65 /* Einstein.nib in Resources */,
 				C95E6041198B76DC004C6CEF /* button_install.png in Resources */,
 				C95E6042198B76DC004C6CEF /* button_power.png in Resources */,
+				F115FF141A2EA415001F3D65 /* Einstein.xib in Resources */,
 				C95E6043198B76DC004C6CEF /* button_power_on.png in Resources */,
 				C95E6044198B76DC004C6CEF /* button_prefs.png in Resources */,
 				C95E6045198B76DC004C6CEF /* Einstein.icns in Resources */,
@@ -2277,12 +2277,12 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		F115FF0D1A2E9103001F3D65 /* Einstein.nib */ = {
+		F115FF111A2EA415001F3D65 /* Einstein.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				F115FF0E1A2E9103001F3D65 /* en */,
+				F115FF121A2EA415001F3D65 /* en */,
 			);
-			name = Einstein.nib;
+			name = Einstein.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
