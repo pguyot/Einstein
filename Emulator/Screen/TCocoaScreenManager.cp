@@ -63,7 +63,7 @@ TCocoaScreenManager::TCocoaScreenManager(
 	size_t theBufferSize = GetScreenWidth()
 					* GetScreenHeight()
 					* sizeof(KUInt32);
-	mImageBuffer = (KUInt32*) ::malloc( theBufferSize );
+	mImageBuffer = (KUInt32*) ::calloc( 1, theBufferSize );
 	
 	// Create the direct access data provider.
 	mDataProviderRef = CGDataProviderCreateWithData(

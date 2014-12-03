@@ -110,7 +110,7 @@
 				mWidth,
 				mHeight),
 				mScreenImage);
-#if 1
+
 		// Matt: it turns out that CGContextDrawImage uses a cached image under
 		// certain conditions. Under Mountain Lion, this seems to be true at all
 		// times. Apart from using OpenGL, the only way I know to invalidate the
@@ -119,9 +119,9 @@
 		// be found.
 		// FIXME: use CGLayer or CGBitmapContext or glCopy?
 		CGImageRelease(mScreenImage);
-		mScreenImage = 0L;
-#endif
-		CGContextRestoreGState(theContext);		
+		mScreenImage = NULL;
+
+		CGContextRestoreGState(theContext);
 	}
 }
 

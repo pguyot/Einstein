@@ -96,7 +96,7 @@ TScreenManager::TScreenManager(
 		mScreenBuffer( NULL ),
 		mOverlayIsOn( false )
 {
-	mTabletBuffer = (KUInt32*) ::malloc( sizeof(KUInt32) * kTabletBufferSize );
+	mTabletBuffer = (KUInt32*) ::calloc( 1, sizeof(KUInt32) * kTabletBufferSize );
 	mScreenBuffer = NULL;
 	memset(mOverlayIsDirty, 0, sizeof(mOverlayIsDirty));
 	memset(mOverlay, 0, sizeof(mOverlay));
@@ -116,11 +116,7 @@ void TScreenManager::ChangeScreenSize(int inPortraitWidth, int inPortraitHeight)
 	if (mScreenBuffer)
 		::free(mScreenBuffer);
 	
-	mScreenBuffer = (KUInt8*)
-	::malloc(
-			 inPortraitWidth *
-			 inPortraitHeight *
-			 kBitsPerPixel / 8);
+	mScreenBuffer = (KUInt8*)::calloc(1, inPortraitWidth * inPortraitHeight * kBitsPerPixel / 8);
 	
 	if (mFullScreen)
 	{
