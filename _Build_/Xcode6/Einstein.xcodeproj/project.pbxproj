@@ -136,7 +136,6 @@
 		C94ADB3C123E9ADD00406839 /* iEinsteinViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = C94ADB39123E9ADD00406839 /* iEinsteinViewController.mm */; };
 		C94ADB3F123E9AEC00406839 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = C94ADB3E123E9AEC00406839 /* main.mm */; };
 		C95E602B1988E1D9004C6CEF /* SimHandcoded.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95E60291988E1D9004C6CEF /* SimHandcoded.cpp */; };
-		C95E603E198B76DC004C6CEF /* Einstein.nib in Resources */ = {isa = PBXBuildFile; fileRef = C99E315C111B733F002165EC /* Einstein.nib */; };
 		C95E603F198B76DC004C6CEF /* button_backlight.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3160111B7346002165EC /* button_backlight.png */; };
 		C95E6040198B76DC004C6CEF /* button_backlight_on.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3161111B7346002165EC /* button_backlight_on.png */; };
 		C95E6041198B76DC004C6CEF /* button_install.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3162111B7346002165EC /* button_install.png */; };
@@ -264,7 +263,6 @@
 		C98A531A19717C67007A1164 /* SimTTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C98A531819717C67007A1164 /* SimTTask.cpp */; };
 		C99566AA123EC4DA009A5668 /* Einstein.rex in Resources */ = {isa = PBXBuildFile; fileRef = C99E377A111C2289002165EC /* Einstein.rex */; };
 		C995672C123F793D009A5668 /* TIOSScreenManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = C995672B123F793D009A5668 /* TIOSScreenManager.mm */; };
-		C99E315E111B733F002165EC /* Einstein.nib in Resources */ = {isa = PBXBuildFile; fileRef = C99E315C111B733F002165EC /* Einstein.nib */; };
 		C99E316A111B7346002165EC /* button_backlight.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3160111B7346002165EC /* button_backlight.png */; };
 		C99E316B111B7346002165EC /* button_backlight_on.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3161111B7346002165EC /* button_backlight_on.png */; };
 		C99E316C111B7346002165EC /* button_install.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3162111B7346002165EC /* button_install.png */; };
@@ -423,6 +421,8 @@
 		C9E848EA11EDCD6C00F27330 /* x86-ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E811EDCD6C00F27330 /* x86-ffi64.c */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cp */; };
 		DA0D96DE11BAD15300835522 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = DA0D96DD11BAD15300835522 /* darwin64.S */; };
+		F115FF0F1A2E9103001F3D65 /* Einstein.nib in Resources */ = {isa = PBXBuildFile; fileRef = F115FF0D1A2E9103001F3D65 /* Einstein.nib */; };
+		F115FF101A2E9103001F3D65 /* Einstein.nib in Resources */ = {isa = PBXBuildFile; fileRef = F115FF0D1A2E9103001F3D65 /* Einstein.nib */; };
 		F11E44B717C2DEE800EB9B4E /* TFiber.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cp */; };
 		F11E44B817C2DEF100EB9B4E /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		F15858B71A2E3CA100D72203 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F15858B51A2E3C8C00D72203 /* UIKit.framework */; };
@@ -528,7 +528,6 @@
 		C9956719123F71D2009A5668 /* TIOSScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TIOSScreenManager.h; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C995672B123F793D009A5668 /* TIOSScreenManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TIOSScreenManager.mm; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E315A111B7331002165EC /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../Resources/Info.plist; sourceTree = SOURCE_ROOT; };
-		C99E315D111B733F002165EC /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = ../../Resources/English.lproj/Einstein.nib; sourceTree = SOURCE_ROOT; };
 		C99E3160111B7346002165EC /* button_backlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_backlight.png; sourceTree = "<group>"; };
 		C99E3161111B7346002165EC /* button_backlight_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_backlight_on.png; sourceTree = "<group>"; };
 		C99E3162111B7346002165EC /* button_install.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_install.png; sourceTree = "<group>"; };
@@ -829,6 +828,7 @@
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTapNetwork.cp; path = Network/TTapNetwork.cp; sourceTree = "<group>"; };
 		DA0D943F11B9A12D00835522 /* TTapNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTapNetwork.h; path = Network/TTapNetwork.h; sourceTree = "<group>"; };
 		DA0D96DD11BAD15300835522 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
+		F115FF0E1A2E9103001F3D65 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = ../../Resources/en.lproj/Einstein.nib; sourceTree = "<group>"; };
 		F15858B51A2E3C8C00D72203 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		F1647FC313198E6A001603BE /* TCocoaMonitorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaMonitorController.h; sourceTree = "<group>"; };
 		F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaMonitorController.mm; sourceTree = "<group>"; };
@@ -1637,7 +1637,7 @@
 			isa = PBXGroup;
 			children = (
 				C99E315F111B7346002165EC /* Icons */,
-				C99E315C111B733F002165EC /* Einstein.nib */,
+				F115FF0D1A2E9103001F3D65 /* Einstein.nib */,
 				C99E315A111B7331002165EC /* Info.plist */,
 				C99E377A111C2289002165EC /* Einstein.rex */,
 			);
@@ -1794,10 +1794,6 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
 				en,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Einstein */;
@@ -1835,9 +1831,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C99E315E111B733F002165EC /* Einstein.nib in Resources */,
 				C99E316A111B7346002165EC /* button_backlight.png in Resources */,
 				C99E316B111B7346002165EC /* button_backlight_on.png in Resources */,
+				F115FF0F1A2E9103001F3D65 /* Einstein.nib in Resources */,
 				C99E316C111B7346002165EC /* button_install.png in Resources */,
 				C99E316D111B7346002165EC /* button_power.png in Resources */,
 				C99E316E111B7346002165EC /* button_power_on.png in Resources */,
@@ -1854,9 +1850,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C95E603E198B76DC004C6CEF /* Einstein.nib in Resources */,
 				C95E603F198B76DC004C6CEF /* button_backlight.png in Resources */,
 				C95E6040198B76DC004C6CEF /* button_backlight_on.png in Resources */,
+				F115FF101A2E9103001F3D65 /* Einstein.nib in Resources */,
 				C95E6041198B76DC004C6CEF /* button_install.png in Resources */,
 				C95E6042198B76DC004C6CEF /* button_power.png in Resources */,
 				C95E6043198B76DC004C6CEF /* button_power_on.png in Resources */,
@@ -2299,10 +2295,10 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		C99E315C111B733F002165EC /* Einstein.nib */ = {
+		F115FF0D1A2E9103001F3D65 /* Einstein.nib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				C99E315D111B733F002165EC /* English */,
+				F115FF0E1A2E9103001F3D65 /* en */,
 			);
 			name = Einstein.nib;
 			sourceTree = "<group>";
@@ -2512,6 +2508,7 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "TARGET_OS_OPENSTEP=1";
@@ -2526,6 +2523,7 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = "TARGET_OS_OPENSTEP=1";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2854,6 +2852,7 @@
 		C9F9102C12FB780F0061A18D /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = "TARGET_OS_OPENSTEP=1";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -3033,6 +3032,7 @@
 				F115FF021A2E8D34001F3D65 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
