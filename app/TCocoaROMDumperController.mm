@@ -123,7 +123,7 @@
 		
 		[thePanel beginSheetModalForWindow:mDumpROMPanel completionHandler:^(NSInteger result) {
 			do {
-				if (result != NSOKButton)
+				if (result != NSModalResponseOK)
 				{
 					[self setRunning: NO];
 					break;
