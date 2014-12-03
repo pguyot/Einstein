@@ -135,6 +135,7 @@ TSymbolList::LoadSymbols( void )
 		{
 			char sym[512], cmt[512];
 			ReadSymbolData( mFile, sym, cmt);
+
 			if (sym[0]) {
 				mSymbolOffsets[mSymbolCount].fSymbol = strdup(sym);
 			} else {
@@ -654,11 +655,14 @@ TSymbolList::GetSymbol(
 				char* outComment,
 				int* outOffset )
 {
+	*outSymbol = '\0';
+	*outComment = '\0';
+	*outOffset = 0;
+	
 	if (this == NULL || mSymbolCount == 0)
 	{
 		::sprintf(outSymbol, "%08X", (unsigned int)inValue);
 		::sprintf(outComment, "(no symbol data)");
-		*outOffset = 0;
 		return;
 	}
 	
