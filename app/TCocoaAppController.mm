@@ -713,68 +713,42 @@ static TCocoaAppController* gInstance = nil;
 // ------------------------------------------------------------------------- //
 //  * getAppSupportDirectory
 // ------------------------------------------------------------------------- //
-+ (NSString*) getAppSupportDirectory
++ (NSString *)getAppSupportDirectory
 {
-	NSString* result = nil;
+	NSString *result = nil;
 
-	// We'll use the file internal.flash into ~/Library/Application Support/Einstein Platform/
-	FSRef appSupFolderRef;
-	OSStatus theErr;
-	do {
-		theErr = FSFindFolder(
-					kUserDomain,
-					kApplicationSupportFolderType,
-					kCreateFolder,
-					&appSupFolderRef );
-		if (theErr != noErr)
-		{
-			break;
-		}
-		
-		UInt8 cFlashPath[PATH_MAX];
-		theErr = FSRefMakePath(&appSupFolderRef, cFlashPath, sizeof(cFlashPath));
-		if (theErr != noErr)
-		{
-			break;
-		}
-
-		NSFileManager* theFileManager = [NSFileManager defaultManager];
-		NSString* appSupFolderPath =
-			[theFileManager
-					stringWithFileSystemRepresentation: (const char*) cFlashPath
-					length: strlen((const char*) cFlashPath) ];
-		BOOL isDir;
-		if (![theFileManager fileExistsAtPath: appSupFolderPath isDirectory: &isDir])
-		{
-			if ([theFileManager createDirectoryAtPath: appSupFolderPath withIntermediateDirectories:NO attributes: nil error:nil] != YES)
-			{
-				theErr = errno;
-				break;
-			}
-		} else if (!isDir) {
-			theErr = ENOTDIR;
-			break;
-		}
-
-		result =
-			[appSupFolderPath
-				stringByAppendingPathComponent: @"Einstein Platform"];
-		if (![theFileManager fileExistsAtPath: result isDirectory: &isDir])
-		{
-			if ([theFileManager createDirectoryAtPath: result withIntermediateDirectories:NO attributes: nil error:nil] != YES)
-			{
-				theErr = errno;
-				break;
-			}
-		} else if (!isDir) {
-			theErr = ENOTDIR;
-			break;
-		}
-	} while (false);
+	// Returns where to place the file internal.flash -- usually ~/Library/Application Support/Einstein Platform/
 	
-	if ((result == nil) || (theErr != noErr))
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+	NSError *error = nil;
+	
+	if ( paths && [paths count] > 0 )
 	{
-		result = NSHomeDirectory();
+		NSString *appSupFolderPath = [paths firstObject];
+		NSFileManager *theFileManager = [NSFileManager defaultManager];
+		
+		BOOL isDir;
+
+		result = [appSupFolderPath stringByAppendingPathComponent:@"Einstein Platform"];
+		
+		if ( ![theFileManager fileExistsAtPath:result isDirectory:&isDir] )
+		{
+			// Try creating the "Einstein Platform" folder
+			
+			if ( [theFileManager createDirectoryAtPath:result withIntermediateDirectories:NO attributes:nil error:&error] == NO )
+			{
+				return NSHomeDirectory();
+			}
+		}
+
+		if ( isDir == NO )
+		{
+			return NSHomeDirectory();
+		}
+	}
+	else
+	{
+		return NSHomeDirectory();
 	}
 	
 	return result;
@@ -787,7 +761,7 @@ static TCocoaAppController* gInstance = nil;
 {
 	NSString* theResult = nil;
 	NSOpenPanel* thePanel = [NSOpenPanel openPanel];
-	if ([thePanel runModal] == NSOKButton)
+	if ([thePanel runModal] == NSModalResponseOK)
 	{
 		theResult = [[thePanel URL] path];
 	}
@@ -802,7 +776,7 @@ static TCocoaAppController* gInstance = nil;
 {
 	NSString* theResult = nil;
 	NSSavePanel* thePanel = [NSSavePanel savePanel];
-	if ([thePanel runModal] == NSOKButton)
+	if ([thePanel runModal] == NSModalResponseOK)
 	{
 		theResult = [[thePanel URL] path];
 	}
