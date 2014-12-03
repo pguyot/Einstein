@@ -3,7 +3,6 @@
 //  Einstein
 //
 //  Created by Steven Frank on 2/26/11.
-//  Copyright 2011 Panic. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
