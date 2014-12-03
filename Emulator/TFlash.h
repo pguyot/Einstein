@@ -128,8 +128,8 @@ public:
 	/// Additional constants related to the memory space.
 	///
 	enum {
-		kFlashBank1Size		= 0x00400000,	///< Size of internal store (bank#1)
-		kFlashBank2Size		= 0x00400000	///< Size of internal store (bank#2)
+		kFlashBank1Size		= 0x00400000,	///< Size of internal store (bank#1) (4MB)
+		kFlashBank2Size		= 0x00400000	///< Size of internal store (bank#2) (4MB)
 	};
 	
 private:
