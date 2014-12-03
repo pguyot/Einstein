@@ -6,6 +6,24 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		F115FEFE1A2E8D34001F3D65 /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = F115FEFF1A2E8D34001F3D65 /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				F115FF041A2E8D40001F3D65 /* PBXTargetDependency */,
+				F115FF061A2E8D40001F3D65 /* PBXTargetDependency */,
+				F115FF081A2E8D40001F3D65 /* PBXTargetDependency */,
+				F115FF0A1A2E8D40001F3D65 /* PBXTargetDependency */,
+				F115FF0C1A2E8D40001F3D65 /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		2360EB2A1A1E85EB00893927 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2360EB291A1E85EB00893927 /* Launch Screen.xib */; };
 		2389E9321A1E36300001A8C5 /* UDisasm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cp */; };
@@ -417,6 +435,44 @@
 		F1CAFBF51241F7E600A0382E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */; };
 		F1CAFCF9124200C100A0382E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFCF8124200C100A0382E /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F115FF031A2E8D40001F3D65 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D1107260486CEB800E47090;
+			remoteInfo = Einstein;
+		};
+		F115FF051A2E8D40001F3D65 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C9B4AA23123D471D00D8D2C7;
+			remoteInfo = "iOSEinstein (NIBs)";
+		};
+		F115FF071A2E8D40001F3D65 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2389E9371A1E4D4A0001A8C5;
+			remoteInfo = "iOSEinstein (Storyboards)";
+		};
+		F115FF091A2E8D40001F3D65 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C95E603C198B76DC004C6CEF;
+			remoteInfo = EinsteinDev;
+		};
+		F115FF0B1A2E8D40001F3D65 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C9642CD519B67DE900BB0B42;
+			remoteInfo = NewtSim;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		C9642CD419B67DE900BB0B42 /* CopyFiles */ = {
@@ -1727,6 +1783,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0610;
+				TargetAttributes = {
+					F115FEFE1A2E8D34001F3D65 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Einstein" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1748,6 +1809,7 @@
 				2389E9371A1E4D4A0001A8C5 /* iOSEinstein (Storyboards) */,
 				C95E603C198B76DC004C6CEF /* EinsteinDev */,
 				C9642CD519B67DE900BB0B42 /* NewtSim */,
+				F115FEFE1A2E8D34001F3D65 /* All */,
 			);
 		};
 /* End PBXProject section */
@@ -2208,6 +2270,34 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		F115FF041A2E8D40001F3D65 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8D1107260486CEB800E47090 /* Einstein */;
+			targetProxy = F115FF031A2E8D40001F3D65 /* PBXContainerItemProxy */;
+		};
+		F115FF061A2E8D40001F3D65 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C9B4AA23123D471D00D8D2C7 /* iOSEinstein (NIBs) */;
+			targetProxy = F115FF051A2E8D40001F3D65 /* PBXContainerItemProxy */;
+		};
+		F115FF081A2E8D40001F3D65 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2389E9371A1E4D4A0001A8C5 /* iOSEinstein (Storyboards) */;
+			targetProxy = F115FF071A2E8D40001F3D65 /* PBXContainerItemProxy */;
+		};
+		F115FF0A1A2E8D40001F3D65 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C95E603C198B76DC004C6CEF /* EinsteinDev */;
+			targetProxy = F115FF091A2E8D40001F3D65 /* PBXContainerItemProxy */;
+		};
+		F115FF0C1A2E8D40001F3D65 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C9642CD519B67DE900BB0B42 /* NewtSim */;
+			targetProxy = F115FF0B1A2E8D40001F3D65 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
 		C99E315C111B733F002165EC /* Einstein.nib */ = {
 			isa = PBXVariantGroup;
@@ -2235,7 +2325,7 @@
 					TARGET_IOS,
 					NO_PORT_AUDIO,
 					NO_X11,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					"$(inherited)",
 					USE_STORYBOARDS,
 				);
 				GCC_THUMB_SUPPORT = NO;
@@ -2272,7 +2362,7 @@
 					TARGET_IOS,
 					NO_PORT_AUDIO,
 					NO_X11,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					"$(inherited)",
 					USE_STORYBOARDS,
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -2311,7 +2401,7 @@
 					TARGET_IOS,
 					NO_PORT_AUDIO,
 					NO_X11,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					"$(inherited)",
 					USE_STORYBOARDS,
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -2368,7 +2458,7 @@
 					"\"$(SRCROOT)/../../K/Misc\"",
 					"$(PROJECT_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
@@ -2408,7 +2498,7 @@
 					"\"$(SRCROOT)/../../K/Misc\"",
 					"$(PROJECT_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
@@ -2467,6 +2557,7 @@
 					_DEBUG,
 					NO_PORT_AUDIO,
 					NO_X11,
+					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
@@ -2480,7 +2571,7 @@
 					"\"$(SRCROOT)/../../K/Misc\"",
 					"$(PROJECT_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
@@ -2507,6 +2598,7 @@
 					EINSTEIN_FEAT_DEV,
 					NO_PORT_AUDIO,
 					NO_X11,
+					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
@@ -2520,7 +2612,7 @@
 					"\"$(SRCROOT)/../../K/Misc\"",
 					"$(PROJECT_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
@@ -2547,6 +2639,7 @@
 					EINSTEIN_FEAT_DEV,
 					NO_PORT_AUDIO,
 					NO_X11,
+					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
@@ -2560,7 +2653,7 @@
 					"\"$(SRCROOT)/../../K/Misc\"",
 					"$(PROJECT_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
@@ -2592,8 +2685,8 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
 					IS_NEWT_SIM,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -2630,8 +2723,8 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
 					IS_NEWT_SIM,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -2667,8 +2760,8 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
 					IS_NEWT_SIM,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -2696,8 +2789,8 @@
 					_DEBUG,
 					TARGET_IOS,
 					NO_PORT_AUDIO,
+					"$(inherited)",
 					NO_X11,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -2732,8 +2825,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TARGET_IOS,
 					NO_PORT_AUDIO,
+					"$(inherited)",
 					NO_X11,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
@@ -2799,7 +2892,7 @@
 					"\"$(SRCROOT)/../../K/Misc\"",
 					"$(PROJECT_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
@@ -2822,8 +2915,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TARGET_IOS,
 					NO_PORT_AUDIO,
+					"$(inherited)",
 					NO_X11,
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
@@ -2845,6 +2938,27 @@
 				VALIDATE_PRODUCT = NO;
 				VALID_ARCHS = "armv6 armv7 i386";
 				ZERO_LINK = NO;
+			};
+			name = Distribution;
+		};
+		F115FF001A2E8D34001F3D65 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F115FF011A2E8D34001F3D65 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		F115FF021A2E8D34001F3D65 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Distribution;
 		};
@@ -2910,6 +3024,15 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		F115FEFF1A2E8D34001F3D65 /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F115FF001A2E8D34001F3D65 /* Debug */,
+				F115FF011A2E8D34001F3D65 /* Release */,
+				F115FF021A2E8D34001F3D65 /* Distribution */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
