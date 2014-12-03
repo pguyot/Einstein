@@ -412,8 +412,11 @@ static TCocoaAppController* gInstance = nil;
 	
 	NSString* theDataPath = [theROMPath stringByDeletingLastPathComponent];
 #ifdef _DEBUG
-	NSString* theSymbolPath = [theDataPath stringByAppendingString: @"/symbols.txt"];
-	mSymbolList = TSymbolList::List = new TSymbolList([theSymbolPath UTF8String]);
+	// If there is a file called symbols.txt next to the ROM file, we can
+	// load it to symbolicate addresses in the monitor
+	
+	NSString* theSymbolPath = [theDataPath stringByAppendingPathComponent:@"symbols.txt"];
+	mSymbolList = new TSymbolList([theSymbolPath fileSystemRepresentation]);
 #else
 	mSymbolList = NULL;
 #endif
