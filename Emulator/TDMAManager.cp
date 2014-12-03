@@ -30,6 +30,12 @@
 #include "TMemory.h"
 #include "Log/TLog.h"
 
+// TDMAManager is invoked by TMemory when physical addresses corresponding
+// to DMA registers are accessed.
+//
+// Currently the only register that is tracked is the Channel Assignment
+// register which resides at physical address 0x0F08FC00 and is read/write.
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
