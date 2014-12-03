@@ -62,10 +62,14 @@ TThread::~TThread( void )
 	assert( ret==WAIT_OBJECT_0 );
 #else
 	int err = ::pthread_detach( mThread );
-	assert( err == 0 );
+	
+	if ( err != 0 )
+		::abort();
+
 	err = ::pthread_join( mThread, NULL );
-	assert( (err == 0) || (err == EINVAL) || (err == ESRCH) );
-	(void) err;
+	
+	if ( !((err == 0) || (err == EINVAL) || (err == ESRCH)) )
+		::abort();
 #endif
 }
 
