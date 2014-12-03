@@ -120,8 +120,8 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, TSymbolList *inSymbols,
 	va_list vl;
 	va_start(vl, inSymbols);
     static KUInt64 maxULLInt = 0xffffffffffffffffULL;
-	KUInt32 a, b, i, j, n, o, ix;
-	KUInt64 m;
+	KUInt32 a, b, i, j, n = 0, o, ix;
+	KUInt64 m = 0;
 
 	//TInterruptManager;;blockEmulatorThread();
 	fprintf(out, "----- statistics ----\n");
@@ -143,7 +143,6 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, TSymbolList *inSymbols,
 			}
 			break;
 		case kStyleAllHit:
-			n = 0;
 			for (j=0; j<mSize; j++) {
 				KUInt64 v = mArray[j];
 				if (v>0) {
