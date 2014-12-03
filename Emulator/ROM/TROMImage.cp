@@ -360,7 +360,7 @@ TROMImage::CreateImage(
 				KUInt32 inBufferSize,
 				const char inMachineString[6] )
 {
-	fprintf(stderr, "Creating image...\n" );
+	fprintf(stderr, "Creating image from ROM and REX...\n" );
 
 	// Create the mmap file.
 	TMappedFile theImageFile(
@@ -378,9 +378,13 @@ TROMImage::CreateImage(
 	// Fill with zeroes.
 	bzero(theImagePtr, sizeof(theImagePtr));
 	
-	// Swap/copy the image.
+	// inBuffer contains 16 MB consisting of the ROM followed by the REX.
+	// Write this at the start of the image.
+	
 #if TARGET_RT_LITTLE_ENDIAN
 	{
+		// Endian swap it first
+		
 		KUInt32* src = (KUInt32*) inBuffer;
 		KUInt32* dest = (KUInt32*) theImagePtr;
 		KUInt32* end = (KUInt32*) &inBuffer[inBufferSize];
@@ -400,7 +404,7 @@ TROMImage::CreateImage(
 	// Copy the machine string.
 	(void) ::memcpy(
 				theImagePtr->fMachineString,
-				inMachineString,
+				inMachineString,	// like "717006"
 				6);
 	
 	// This is where I could patch the ROM.
@@ -665,6 +669,8 @@ TROMImage::PatchROM( SImage* inImagePtr )
 //	tgt.TranslateFunction(0x00191E80, 0x00191F14, "LocalToGlobalId(...)");			// OK
 	tgt.CloseFiles();
 #endif
+	
+	// Only ROM 717006 can be patched at this time
 	
 	if (::memcmp(inImagePtr->fMachineString, "717006", 6) == 0)
 	{

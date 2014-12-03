@@ -119,7 +119,7 @@ private:
 	/// Structure of the image.
 	///
 	struct SImage {
-		KUInt8		fROM[TMemoryConsts::kHighROMEnd];
+		KUInt8		fROM[TMemoryConsts::kHighROMEnd];	// 8 MB ROM + 8 MB REX = 16 MB
 		KUInt32		fMagic;
 		KUInt32		fVersion;
 		char		fMachineString[6];
