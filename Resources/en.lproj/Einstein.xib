@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" promptedForUpgradeToXcode5="NO">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
@@ -7,7 +7,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <menu title="Einstein" systemMenu="main" id="29" userLabel="MainMenu">
             <items>
                 <menuItem title="Einstein" id="56">
@@ -393,7 +393,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <popUpButtonCell key="cell" type="push" title="Cocoa" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="1" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="312" id="533">
                                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="system"/>
+                                        <font key="font" metaFont="menu"/>
                                         <menu key="menu" title="OtherViews" id="310">
                                             <items>
                                                 <menuItem title="Cocoa" state="on" tag="1" id="312"/>
@@ -410,7 +410,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <popUpButtonCell key="cell" type="push" title="CoreAudio" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="1" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="418" id="527">
                                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="system"/>
+                                        <font key="font" metaFont="menu"/>
                                         <menu key="menu" title="OtherViews" id="270">
                                             <items>
                                                 <menuItem title="CoreAudio" state="on" tag="1" id="418">
@@ -434,7 +434,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <popUpButtonCell key="cell" type="push" title="User Mode" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="1" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="557" id="555">
                                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="system"/>
+                                        <font key="font" metaFont="menu"/>
                                         <menu key="menu" title="OtherViews" id="556">
                                             <items>
                                                 <menuItem title="User Mode" state="on" tag="1" id="557">
@@ -617,12 +617,12 @@ DQ
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
+                            <binding destination="436" name="value" keyPath="values.DontShowAtStartup" id="463"/>
                             <binding destination="436" name="enabled" keyPath="values.FullScreen" id="519">
                                 <dictionary key="options">
                                     <string key="NSValueTransformerName">NSNegateBoolean</string>
                                 </dictionary>
                             </binding>
-                            <binding destination="436" name="value" keyPath="values.DontShowAtStartup" id="463"/>
                         </connections>
                     </button>
                     <popUpButton verticalHuggingPriority="750" id="475">
@@ -630,7 +630,7 @@ DQ
                         <autoresizingMask key="autoresizingMask"/>
                         <popUpButtonCell key="cell" type="push" title="MP2x00 US" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="717006" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="477" id="537">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="menu"/>
                             <menu key="menu" title="OtherViews" id="476">
                                 <items>
                                     <menuItem title="MP2x00 US" state="on" tag="717006" id="477">
@@ -831,7 +831,7 @@ DQ
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <clipView key="contentView" id="L6a-wo-jxh">
                             <rect key="frame" x="1" y="1" width="541" height="565"/>
-                            <autoresizingMask key="autoresizingMask"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textView editable="NO" importsGraphics="NO" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="595">
                                     <rect key="frame" x="0.0" y="0.0" width="541" height="565"/>
