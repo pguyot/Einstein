@@ -26,8 +26,6 @@
 
 #include <K/Defines/KDefinitions.h>
 
-#include "TJITGenericPage.h"
-
 #include <stdio.h>
 
 
@@ -56,7 +54,7 @@ class TSymbolList;
  *
  * Once that is done, simplify the JIT commands and create "normal" C code
  */
-class TJITGenericRetarget : public TJITGenericPage
+class TJITGenericRetarget
 {
 public:
 	/**
@@ -68,6 +66,11 @@ public:
 	 * Release all resources.
 	 */
 	~TJITGenericRetarget();
+	
+	/**
+	 *
+	 */
+	Boolean MemoryRead( KUInt32 inAddress, KUInt32& outWord );
 	
 	/**
 	 * Start output into text files.
@@ -82,7 +85,12 @@ public:
 	/**
 	 * Translate an entire function.
 	 */
-	void TranslateFunction(KUInt32 inFirst, KUInt32 inLast, const char *inName, bool inSafeMode=true);
+	void TranslateFunction(KUInt32 inFirst, KUInt32 inLast, const char *inName, bool cont=false, bool dontLink=false);
+	
+	/**
+	 * Create a "ReturnToEmulaor" stub
+	 */
+	void ReturnToEmulator(KUInt32 inFirst, const char *inName);
 	
 	/**
 	 * Subroutine to translate an instruction.
@@ -91,6 +99,21 @@ public:
 	 * \param inVAddr	address of the instruction.
 	 */
 	void Translate(KUInt32 inVAddr, KUInt32 inInstruction);
+	
+	/**
+	 * Translate a switch/case statement.
+	 */
+	void TranslateSwitchCase(KUInt32 inVAddr, KUInt32 inInstruction, int inBaseReg, int inFirstCase, int inLastCase);
+
+	/**
+	 * Translate co-processor register transfers (calls the emulator, but doesn't break simulation)
+	 */
+	void CoprocRegisterTransfer(KUInt32 inVAddr, KUInt32 inInstruction);
+	
+	/**
+	 * Set a range of words in the ROM Retarget Map to another type.
+	 */
+	void SetRetargetMap(KUInt32 first, KUInt32 last, KUInt8 type);
 	
 protected:
 	
@@ -113,23 +136,29 @@ protected:
 	void DoTranslate_10( KUInt32 inVAddr, KUInt32 inInstruction );
 	void DoTranslate_11( KUInt32 inVAddr, KUInt32 inInstruction );
 	
+	void Translate_Multiply( KUInt32 inVAddr, KUInt32 inInstruction );
+	void Translate_SingleDataSwap( KUInt32 inVAddr, KUInt32 inInstruction );
 	void Translate_SingleDataTransfer( KUInt32 inVAddr, KUInt32 inInstruction );
 	void Translate_BlockDataTransfer( KUInt32 inVAddr, KUInt32 inInstruction );
 	void Translate_DataProcessingPSRTransfer(KUInt32 inVAddr, KUInt32 inInstruction);
 	
 	void TestOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32 OP, KUInt32 MODE, KUInt32 Rn, KUInt32 thePushedValue);
-	void Translate_MRS(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32 FLAG_R, KUInt32 Rd);
+	void Translate_MRS(KUInt32 inVAddr, KUInt32 inInstruction);
+	void Translate_MSR(KUInt32 inVAddr, KUInt32 inInstruction);
 	void ArithmeticOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32 OP, KUInt32 MODE, KUInt32 FLAG_S, KUInt32 Rn, KUInt32 Rd, KUInt32 thePushedValue);
 	void LogicalOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32 OP, KUInt32 MODE, KUInt32 FLAG_S, KUInt32 Rn, KUInt32 Rd, KUInt32 thePushedValue);
 	void MoveOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32 OP, KUInt32 MODE, KUInt32 FLAG_S, KUInt32 Rd, KUInt32 thePushedValue);
 	
 	void Translate_Branch(KUInt32 inVAddr, KUInt32 inInstruction);
+	void Translate_JumpToCalculatedAddress(KUInt32 inVAddr, KUInt32 inInstruction);
 	
 	void Translate_BlockDataTransfer_LDM1(KUInt32 inVAddr, KUInt32 inInstruction);
 	void Translate_BlockDataTransfer_LDM2(KUInt32 inVAddr, KUInt32 inInstruction);
 	void Translate_BlockDataTransfer_LDM3(KUInt32 inVAddr, KUInt32 inInstruction);
 	void Translate_BlockDataTransfer_STM1(KUInt32 inVAddr, KUInt32 inInstruction);
 	void Translate_BlockDataTransfer_STM2(KUInt32 inVAddr, KUInt32 inInstruction);
+	
+	void GenerateReturnInstruction();
 
 	TMemory *pMemory;
 	TSymbolList *pSymbolList;
@@ -137,6 +166,9 @@ protected:
 	FILE *pHOut;
 	KUInt32 pFunctionBegin;
 	KUInt32 pFunctionEnd;
+	
+	const char *pWarning;
+	int pAction;
 };
 
 #endif

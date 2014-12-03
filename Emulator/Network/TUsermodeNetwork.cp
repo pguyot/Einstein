@@ -1089,7 +1089,7 @@ public:
 	 */
 	static int canHandle(Packet &packet, TUsermodeNetwork *net)
 	{
-		char buf[1024];
+//		char buf[1024];
 //		GetPrimaryIp(buf, 1023);
 //		printf("My primary IP seems to be %s\n", buf);
 //		void GetPrimaryIp(char* buffer, size_t buflen)
@@ -1162,7 +1162,7 @@ public:
 			default: printf("UNKNOWN BOOT TYPE: %d\n", packet.Get8(0x011c)); break;
 		}
 		
-		printf("Net: DHCP request (%d bytes)\n", packet.Size());
+		printf("Net: DHCP request (%ld bytes)\n", packet.Size());
 		int i;
 		for (i=0; i<packet.Size(); i++) {
 			KUInt8 d = packet.Data()[i];
@@ -1292,7 +1292,7 @@ public:
 		
 		net->Enqueue(reply);
 
-		printf("Net: DHCP reply (%d bytes)\n", reply->Size());
+		printf("Net: DHCP reply (%ld bytes)\n", reply->Size());
 		 i = 0;
 		for (i=0; i<reply->Size(); i++) {
 			KUInt8 d = reply->Data()[i];

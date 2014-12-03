@@ -1,0 +1,64 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_010
+rt cjit Satisfy__22TClassInfoRegistryImplCFPCcN21
+rt cjit Find__22TClassInfoRegistryImplCFPCcT1iPUl
+rt cjit New__15TLZDecompressorFv
+rt cjit New__22TClassInfoRegistryImplFv
+rt cjit ShrinkSharedMap__FRC6RefVarT1l
+rt cjit ShrinkArray__FRC6RefVarl
+rt cjit __ct__11NComparatorFv
+rt cjit __ct__12NSortedArrayFv
+rt cjit Init__12NSortedArrayFP11NComparatorlN22Uc
+rt cjit __ct__6NArrayFv
+rt cjit Init__6NArrayFlN21Uc
+rt cjit PrintFramesErrorMsg__FPCcRC6RefVar
+rt cjit strncpy
+rt cjit Putc__14POutTranslatorFi
+rt cjit GetFramesErrorString__Fl
+rt cjit 0038465C-00384664 Unknown_0038465C
+rt cjit CleanUp__17TNewInternalFlashFv
+rt cjit PrintWellKnownObject__FRC6RefVarl
+rt cjit CleanUp__12TFlashDriverFR16TMemoryAllocator
+rt cjit __dt__18TULockingSemaphoreFv
+rt cjit IsAggregate__FRC6RefVar
+rt cjit SearchForObjectName__FRC6RefVar
+rt cjit CheckForObjectName__FRC6RefVarPcT1
+rt cjit FFramesStringer
+rt cjit Unnamed_0034EFBC
+rt cjit freopen
+rt cjit New__19PStdioOutTranslatorFv
+rt cjit Delete__19PStdioOutTranslatorFv
+rt cjit Init__19PStdioOutTranslatorFPv
+rt cjit Idle__19PStdioOutTranslatorFv
+rt cjit ConsumeFrame__19PStdioOutTranslatorFRC6RefVariT2
+rt cjit Flush__19PStdioOutTranslatorFv
+rt cjit Prompt__19PStdioOutTranslatorFi
+rt cjit Print__19PStdioOutTranslatorFPCce
+rt cjit Putc__19PStdioOutTranslatorFi
+rt cjit EnterBreakLoop__19PStdioOutTranslatorFi
+rt cjit Unnamed_0034EFCC
+rt cjit fflush
+rt cjit _sys_close
+rt cjit _tmpfile_delete
+rt cjit Stringer__FRC6RefVar
+rt cjit AcquireStdioMutex
+rt cjit _sys_open
+rt cjit __ct__10TObjectPtrFRC6RefVar
+rt cjit __opPc__7DataPtrCFv
+rt cjit __dt__10TObjectPtrFv
+rt cjit IsString__FRC6RefVar
+rt cjit DoStringerStuff__11TRichStringFPcPlT1T2
+rt cjit StringerStringObject__FRC6RefVarPcPlT2T3
+rt code 0033CCB0-0033CCB4
+rt cjit PrintObjectAux__FRC6RefVarlT2
+rt cjit vfprintf
+rt cjit fputc
+rt cjit ReleaseStdioMutex
+rt cjit Unnamed_0034F9D0
+rt cjit _sys_tmpnam
+rt cjit ArrayRemoveCount__FRC6RefVarlT2
+rt cjit remove
+rt cjit ArrayMunger__FRC6RefVarlT2T1N22
+rt close

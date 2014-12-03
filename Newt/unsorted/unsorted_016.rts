@@ -1,0 +1,71 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_016
+rt cjit __ct__18TAbstractSoupIndexFv
+rt cjit Entry__7TCursorFv
+rt cjit DefineCursor__FRC6RefVarN21
+rt cjit SetFeature__13TScreenDriverFlT1
+rt cjit Init__7TCursorFRC6RefVarN21
+rt cjit Init__10TSoupIndexFP13TStoreWrapperUlPC13TSortingTable
+rt cjit CloneFrameSlot__7TCursorCFRC6RefVarT1
+rt cjit FSetSystemVolume
+rt cjit ConvertFromUnicodeFunc_Segmented16__FPCUsPUcPvl
+rt cjit ReadInfo__10TSoupIndexFv
+rt cjit TotalClone__FRC6RefVar
+rt cjit 00388F80-00388F84 vt_00388F80
+rt cjit GetCString__FRC6RefVar
+rt cjit FQuery
+rt cjit BuildSoupsInfo__7TCursorFv
+rt cjit Sizeof__10TDTMFCodecSFv
+rt cjit CompareStringNoCase__FPUsT1
+rt cjit SoupQuery__FRC6RefVarT1
+rt cjit __vc__FPvUiiPFPv_v
+rt cjit 00388F8C-00388F90 vt_00388F8C
+rt cjit FStrEqual__FRC6RefVarN21
+rt cjit FGetLetterWeights__FRC6RefVar
+rt cjit New__10TDTMFCodecFv
+rt cjit SizeOfLetterWeightData__Fv
+rt cjit PGGetLetterSetInfo__FUl
+rt cjit GetParaPtr__FPPc
+rt cjit 0038ABFC-0038AC38
+rt cjit GetLetterSet__Fv
+rt cjit PGLetterSetInfoUnchanged__FPPcUl
+rt cjit StoreGetName
+rt cjit __ct__14CursorSoupInfoFv
+rt cjit IndexPathToIndexDesc__FRC6RefVarT1Pl
+rt cjit GetPreference__FRC6RefVar
+rt cjit ReadDteResource__FPcsPPvT3Ui
+rt cjit StoreHasSoup
+rt cjit FAddDeferredCall
+rt cjit FTicks__FRC6RefVar
+rt cjit HLock
+rt cjit HUnlock
+rt cjit StoreGetSoupId__FRC6RefVarT1
+rt cjit LIBeginWeights__Fv
+rt cjit IndexPathsEqual__FRC6RefVarT1
+rt cjit FGetDTEHeader__FRC6RefVar
+rt cjit Ticks__Fv
+rt cjit FGetSerialNumber
+rt cjit MakeHandle__Fl
+rt cjit PathsEqual__FRC6RefVarT1
+rt cjit GetSerialNumberROMObject__Fv
+rt cjit GetSystemSerialNumber__16TSerialNumberROMFPUl
+rt cjit xNewHandle__Fl
+rt cjit NameHandle__FPPcUl
+rt cjit KeyToSKey__FRC6RefVarT1P4SKeyPsPUc
+rt cjit CreateIndexes__7TCursorFv
+rt cjit GetTypedDomain__11TControllerFUl
+rt cjit FGetDTEMain__FRC6RefVar
+rt cjit IsLargeBinary__FRC6RefVar
+rt cjit IsRichString__FRC6RefVar
+rt cjit RichStringToSKey__FRC6RefVarP4SKey
+rt cjit MultiKeyToSKey__FRC6RefVarT1P4SKey
+rt cjit GetIterator__6TArrayFP14TArrayIterator
+rt cjit GetStringFormat__FRC6RefVar
+rt cjit SetSize__4SKeyFs
+rt cjit SetMissingKey__4SKeyFi
+rt cjit Set__4SKeyFUiPv
+rt cjit GetNext__FP14TArrayIterator
+rt cjit __nw_v__FPvUiT2PFPv_v
+rt close

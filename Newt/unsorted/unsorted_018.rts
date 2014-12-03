@@ -1,0 +1,92 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_018
+rt cjit RefToAddress__Fl
+rt cjit FLength
+rt cjit CommonSoupGetName
+rt cjit FEntrySoup
+rt cjit __as__4SKeyFl
+rt cjit SetEmptyRect__FP4Rect
+rt cjit Park__7TCursorFUc
+rt cjit Dequeue__11TTimerQueueFP13TTimerElementUc
+rt cjit __ct__10TObjectPtrFRC10TObjectPtr
+rt cjit SearchFont__FlPUs
+rt cjit CreatePDFHeader__FPv
+rt cjit SetCurrentSoup__15TUnionSoupIndexFl
+rt cjit Ustrcmp
+rt cjit HWRMemoryAllocHandle__FUl
+rt cjit InvalidateState__15TUnionSoupIndexFv
+rt cjit 0001FB5C-0001FB60 vt_0001FB5C
+rt cjit Justify__FP5TRectRC5TRectUl
+rt cjit 0001E120-0001E124 vt_0001E120
+rt cjit 0001FB64-0001FB68 vt_0001FB64
+rt cjit HWRMemoryUnlockHandle__FUl
+rt cjit EntrySoup__FRC6RefVar
+rt cjit 00389B8C-00389B90 vt_00389B8C
+rt cjit 00389B2C-00389B30 vt_00389B2C
+rt cjit FEntryChange
+rt cjit FApply
+rt cjit FRemoveSlot
+rt cjit Move__7TCursorFl
+rt cjit 00389B50-00389B58 ClassInfo__18TUnicodeCompressorSFv
+rt cjit Sizeof__18TUnicodeCompressorSFv
+rt cjit EntryChange__FRC6RefVar
+rt cjit ExitParking__7TCursorFUc
+rt cjit ValidTest__7TCursorFRC4SKeyUlUcPUcT4
+rt cjit Search__15TUnionSoupIndexFUcP4SKeyT2PFP4SKeyT1Pv_iPvN22i
+rt cjit MakeEntryFaultBlock__7TCursorFUl
+rt cjit ReleasePermObjectTextCache__FPv
+rt cjit GetEntry__FRC6RefVarUl
+rt cjit FindEntryInCache__FRC6RefVarUl
+rt cjit IsProxyEntry__FRC6RefVar
+rt cjit 00389B38-00389B3C vt_00389B38
+rt cjit 0001E1D0-0001E1D4 vt_0001E1D0
+rt cjit FGetUnionSoupAlways
+rt cjit FEndsWith
+rt cjit New__18TUnicodeCompressorFv
+rt cjit Find__15TUnionSoupIndexFP4SKeyN21Uc
+rt cjit GetUnionSoupAlways__FRC6RefVar
+rt cjit kfAssembleKeyField__10TSoupIndexFP8KeyFieldPvT2
+rt cjit StrEndsWith__FRC6RefVarT1
+rt cjit SKeyToKey__FRC4SKeyRC6RefVarPs
+rt cjit kfSizeOfKey__10TSoupIndexFPv
+rt cjit kfSizeOfData__10TSoupIndexFPv
+rt cjit GetUnionSoup__FRC6RefVar
+rt cjit __opl__4SKeyCFv
+rt cjit __opd__4SKeyCFv
+rt cjit __opUs__4SKeyCFv
+rt cjit SoupGetName__FRC6RefVar
+rt cjit Unnamed_0035FE60
+rt cjit CheckSoupsSortTables__FRC6RefVarT1
+rt cjit EntryChangeCommon__FRC6RefVari
+rt cjit 0001AE44-0001AE48 vt_0001AE44
+rt cjit MoveAndGetState__10TSoupIndexFUciP8KeyFieldP10IndexState
+rt cjit 0001E1D4-0001E1D8 vt_0001E1D4
+rt cjit FPerform
+rt cjit __dt__15TObjectIteratorFv
+rt cjit OffsetRect__FP4RectlT2
+rt cjit LockStore__13TStoreWrapperFv
+rt cjit UpdateIndexes__FRC6RefVarN21UlPUc
+rt cjit SoupChanged__FRC6RefVarUc
+rt cjit UnlockStore__13TStoreWrapperFv
+rt cjit EntryChanged__7TCursorFRC6RefVarUcT2
+rt cjit Abort__13TStoreWrapperFv
+rt cjit AbortSoupIndexes__FRC6RefVar
+rt cjit Find__10TSoupIndexFP4SKeyN21Uc
+rt cjit First__15TUnionSoupIndexFP4SKeyT1
+rt cjit IsLocked__6TStoreFv
+rt cjit UnlockStore__6TStoreFv
+rt cjit 00387258-0038725C vt_00387258
+rt cjit 00386EDC-00386EE0 vt_00386EDC
+rt cjit 00387284-00387288 vt_00387284
+rt cjit 00386F08-00386F0C vt_00386F08
+rt cjit ReadRootNode__10TSoupIndexFUc
+rt cjit 0001AE48-0001AE4C vt_0001AE48
+rt cjit SearchNext__10TSoupIndexFP8KeyFieldPP10NodeHeaderPl
+rt cjit FindNextKey__10TSoupIndexFP8KeyFieldPP10NodeHeaderPl
+rt cjit IsLocked__11TFlashStoreFv
+rt cjit UnlockStore__11TFlashStoreFv
+rt cjit ReadANode__10TSoupIndexFUlT1
+rt cjit First__10TSoupIndexFP4SKeyT1
+rt close

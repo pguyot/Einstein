@@ -1,0 +1,82 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_021
+
+rt cjit 00387250-00387254 vt_00387250
+rt cjit 00386ED4-00386ED8 vt_00386ED4
+rt cjit BBSrcOr4__FPUlT1lT3UlT5N53
+rt cjit RSect__FP4RectlT1e
+rt cjit SetupConversion__FlP8PixelMap
+rt cjit BBFastCopy__FPUlT1lT3UlT5N53
+rt cjit 0038333C-00383340 vt_0038333C
+rt cjit 00382D38-00382D3C vt_00382D38
+rt cjit IsReadOnly__11TFlashStoreFPUc
+rt cjit IsReadOnly__9TMuxStoreFPUc
+rt cjit Sizeof__15TSerialEndpointSFv
+rt cjit Sizeof__19TFramedAsyncServiceSFv
+rt cjit GetAttributes__6TFlashFv
+rt cjit IsROM__11TFlashStoreFv
+rt cjit IsWriteProtected__11TFlashStoreFv
+rt cjit TouchMe__11TFlashStoreFv
+rt cjit GetWriteProtected__6TFlashFPUc
+rt cjit CardStatus__12TCardHandlerFv
+rt cjit VccOff__11TFlashStoreFv
+rt cjit QDStartDrawing__FP8PixelMapP4Rect
+rt cjit SetupCombine__FlP8PixelMap
+rt cjit StdText
+rt cjit VccOff__Fi
+rt cjit DoTextArrow__FlN21
+rt cjit DoPutText__FlN21
+rt cjit DrText__FlN21
+rt cjit QDStopDrawing__FP8PixelMapP4Rect
+rt cjit XorSlab__FPclN22
+rt cjit UpdateLayoutState__FlN31
+rt cjit StopProtectSrcBits__FP8PixelMap
+rt cjit CopyStyle__FP11StyleRecord
+rt cjit EmptyRect__FP4Rect
+rt cjit UnionRect__FP4RectN21
+rt cjit SetupStretchMode__FlT1
+rt cjit MeasureGlyphWidths__Fl
+rt cjit __dt__9TPixelObjFv
+rt cjit QDPatchpoint__Fv
+rt cjit InitTextWalker__FlP10TextWalkerUc
+rt cjit NoConversion__FPcPUcl
+rt cjit ResetTextWalker__FP10TextWalkerUc
+rt cjit FLocalBoxX
+rt cjit SFNTOpenFont__FP8PixelMapP11StyleRecordRC6RefVarlT4P14FontEngineInfo
+rt cjit FSetBounds__FRC6RefVarN41
+rt cjit FMoveBehindX
+rt cjit FChildViewFramesX
+rt cjit SendGoo__6TUPortFUlT1PvN31UcT1P5TTime
+rt cjit IsSizeAvailable__FlRC6RefVarT1
+rt cjit FixedMultiplyDivide
+rt cjit SetRectFrame__FlN31
+rt cjit BringToFront__5TViewFv
+rt cjit ChildViewFrames__5TViewFv
+rt cjit Next__9TListLoopFv
+rt cjit Current__9TListLoopFv
+rt cjit Unscaled1to4__FPlN21l
+rt cjit DefaultScanner__FPvlN22PPv
+rt cjit MSeekMask__FlT1PUlT1P8RgnStateN25
+rt cjit MapFormat4Patched__FlPv
+rt cjit EntryStore__FRC6RefVar
+rt cjit FTimeStr__FRC6RefVarN21
+rt cjit FKeyboardConnected
+rt cjit CalcTextBounds__FlPvN21
+rt cjit TextRefScanner__FPvlN22PPv
+rt cjit QDSafeLock__FPPc
+rt cjit InvalCachedTextInfo__Fl
+rt cjit KeyboardConnected__9TRootViewFv
+rt cjit HGetState
+rt cjit GetBlockBusy
+rt cjit BlitModeBic__FPlN21lN24
+rt cjit QDDisposeTempPtr__FPc
+rt cjit MapFormat4__FlPv
+rt cjit ScanNextChar__FP10TextWalkerPPl
+rt cjit 0038AEAC-0038AEEC
+rt cjit FontRefToCharSize__FRC6RefVar
+rt cjit __ct__10TAlertItemFv
+rt cjit PatExpand__FPP8PixelMapPllUl
+
+rt close

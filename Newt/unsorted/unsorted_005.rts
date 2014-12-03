@@ -1,0 +1,44 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_005
+rt cjit SlowFrameHasSlot__FlT1
+rt cjit __flsbuf
+rt cjit LockRef__Fl
+rt cjit UnlockRef__Fl
+rt cjit _deferredlazyseek
+rt cjit _seterr
+rt cjit fseek
+rt cjit _sys_istty
+rt cjit Unnamed_00319030
+rt cjit Unnamed_00319074
+rt cjit _fflush
+rt cjit _sys_flen
+rt cjit ftell
+rt cjit TapFileCntl
+rt cjit __GetErrNo__Fv
+rt cjit _sys_alloc
+rt cjit _writebuf
+rt cjit FaultCheckObjectPtr__Fl
+rt cjit _sys_seek
+rt cjit _sys_write
+rt cjit NewState__11TIntrpStackFv
+rt cjit GetArraySlotRef__FlT1
+rt cjit GetArraySlotError__FlT1Pc
+rt cjit Clone__FRC6RefVar
+rt cjit PushNILs__9TRefStackFl
+rt cjit Clone__11TObjectHeapFRC6RefVar
+rt cjit IsFrame__FRC6RefVar
+rt cjit GetStackState__Fv
+rt cjit IncrementCurrentStackPos__Fv
+rt cjit DecrementCurrentStackPos__Fv
+rt cjit ClearRefHandles__Fv
+rt cjit DoBlock__FRC6RefVarT1
+rt cjit DeveloperNotified__FP9Exception
+rt cjit SetArraySlotRef__FlN21
+rt cjit ResetStack__FRC10StackState
+rt cjit IsFunction__FRC6RefVar
+rt cjit DoCall__FRC6RefVarl
+rt cjit SetArraySlotError__FlT1Pc
+rt cjit Reset__9TRefStackFl
+rt close

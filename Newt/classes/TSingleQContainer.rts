@@ -1,0 +1,11 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/classes/TSingleQContainer
+rt cjit __ct__17TSingleQContainerFv
+rt cjit Init__17TSingleQContainerFUl
+rt cjit Add__17TSingleQContainerFPv
+rt cjit Remove__17TSingleQContainerFv
+rt cjit Peek__17TSingleQContainerFv
+rt cjit GetNext__17TSingleQContainerFPv
+rt close

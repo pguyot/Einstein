@@ -1,0 +1,39 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/classes/TInterpreter
+rt cjit SetFastLoopFlag__12TInterpreterFv
+rt cjit PopValue__12TInterpreterFv
+rt cjit PrevState__11TIntrpStackFv
+rt cjit PushValue__12TInterpreterFRC6RefVar
+rt cjit TraceSend__12TInterpreterFRC6RefVarT1lT3
+rt cjit TraceMethod__12TInterpreterFRC6RefVarT1PclT4
+rt cjit TaciturnPrintObject__12TInterpreterFRC6RefVarl
+rt cjit TraceArgs__12TInterpreterFlN21
+rt cjit TraceGet__12TInterpreterFRC6RefVarN21
+rt cjit Send__12TInterpreterFRC6RefVarN21l
+rt cjit Run__12TInterpreterFv
+rt cjit CallPlainCFunction__12TInterpreterFRC6RefVarl
+rt cjit CallCFuncPtr__12TInterpreterFPFRC6RefVare_ll
+rt cjit TraceReturn__12TInterpreterFv
+rt cjit CallPlainCodeBlock__12TInterpreterFRC6RefVarlT2
+rt cjit TraceReturn__12TInterpreterFUc
+rt cjit CallCFunction__12TInterpreterFRC6RefVarli
+rt cjit SetFlags__12TInterpreterFv
+rt cjit CallCodeBlock__12TInterpreterFRC6RefVarlT2
+rt cjit TraceSetOptions__12TInterpreterFv
+rt cjit AlternatingLoops__12TInterpreterFl
+rt cjit HandleException__12TInterpreterFP9ExceptionlR10StackState
+rt cjit TraceApply__12TInterpreterFRC6RefVarl
+rt cjit Call__12TInterpreterFRC6RefVarl
+rt cjit PopHandlers__12TInterpreterFv
+rt cjit TranslateException__12TInterpreterFP9Exception
+rt cjit SlowRun__12TInterpreterFl
+rt cjit HandleBreakPoints__12TInterpreterFv
+rt cjit Return__12TInterpreterF19FramesProfilingKind
+rt cjit TraceCall__12TInterpreterFRC6RefVarl
+rt cjit TraceSet__12TInterpreterFRC6RefVarN31
+rt cjit TraceFreqCall__12TInterpreterFl
+rt cjit FastRun__12TInterpreterFl
+rt cjit FastRun1__12TInterpreterFlR12FastRunState
+rt close

@@ -1,0 +1,138 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_013
+rt cjit Delete__11TFlashRangeFR16TMemoryAllocator
+rt cjit 0001E3D4-0001E3D8 vt_0001E3D4
+rt cjit 0001E3D8-0001E3DC vt_0001E3D8
+rt cjit 0038BBE0-0038BC10 unk_0038BBE0
+rt cjit 0038AEEC-0038AEF0 unk_0038AEEC
+rt cjit CleanUpDriverData__12TFlashDriverFR11TFlashRangeR16TMemoryAllocator
+rt cjit __dt__11TFlashRangeFv
+rt code 008000F0-008000F4
+rt cjit 008000F0-008000F4 vt_008000F0
+rt code 00800164-00800174
+rt cjit 00800164-00800178 unk_00800164
+rt code 008000FC-00800100
+rt cjit 008000FC-00800100 vt_008000FC
+rt code 00800150-00800160
+rt cjit 00800150-00800160 unk_00800164
+rt code 008003FC-00800400
+rt cjit 008003FC-00800400 vt_008003FC
+rt code 00800AA4-00800AB4
+rt cjit 00800AA4-00800AB4 unk_00800AA4
+rt cjit _GenericSWI
+rt cjit Unnamed_00385F04
+rt cjit 0001B948-0001B94C vt_0001B948
+rt cjit UnScheduleTask__FP5TTask
+rt cjit ThrowExFramesWithBadValue__FlRC6RefVar
+rt cjit ResetAccountTimeKernelGlue__Fv
+rt cjit At__6NArrayCFl
+rt cjit __ct__20TObjectTableIteratorFP12TObjectTableUl
+rt cjit GetNextTypedObject__20TObjectTableIteratorF11KernelTypes
+rt cjit GetNextTaskIdKernelGlue__FUlPUl
+rt cjit sprintf
+rt cjit SetCurrentPosition__20TObjectTableIteratorFUl
+rt cjit GetNextTypedId__20TObjectTableIteratorF11KernelTypes
+rt cjit GetNextTableId__20TObjectTableIteratorFv
+rt cjit GetThisLineNextEntry__20TObjectTableIteratorFv
+rt cjit Remove__12TObjectTableFUl
+rt cjit PowerOffSystem__15TPlatformDriverFv
+rt cjit MakeConforming__FUlPUl
+rt cjit DeleteFromQueue__17TDoubleQContainerFPv
+rt cjit Alarm__12TTimerEngineFv
+rt cjit Fire__13RealTimeAlarmFUl
+rt cjit ReportMemMgrTrap__Fl
+rt cjit UnhandledNonUserModeException__FPcPvPFPv_v
+rt cjit UnhandledException__FPcPvPFPv_v
+rt cjit Throw
+rt cjit SlideBlocksUp
+rt cjit CheckHeap
+rt cjit ExitHandler
+rt cjit WalkEachBlock
+rt cjit 0001E938-0001E93C vt_0001E938
+rt cjit FixedDivide
+rt cjit Deallocate__17TNoReuseAllocatorFPv
+rt cjit NumStackFrames__11TNSDebugAPIFv
+rt cjit __ct__11TNSDebugAPIFP12TInterpreter
+rt cjit __dt__11TNSDebugAPIFv
+rt cjit Locals__11TNSDebugAPIFl
+rt cjit AccurateStack__11TNSDebugAPIFv
+rt cjit FindVar__11TNSDebugAPIFlRC6RefVar
+rt cjit Function__11TNSDebugAPIFl
+rt cjit StackFrameAt__11TNSDebugAPIFl
+rt cjit Receiver__11TNSDebugAPIFl
+rt cjit Implementor__11TNSDebugAPIFl
+rt cjit PC__11TNSDebugAPIFl
+rt cjit 00392C2C-00392C30 ThrowSystemPanic
+rt cjit RememberMappingUsingPAddrGlue
+rt cjit 0001AE3C-0001AE40 vt_0001AE3C
+rt cjit Remove__10TSchedulerFP5TTask
+rt cjit 0001B950-0001B954 vt_0001B950
+rt cjit Where__12NSortedArrayCFPCv
+rt cjit RemoveFromQueue__10TTaskQueueFP5TTask17KernelObjectState
+rt cjit Peek__10TTaskQueueFv
+rt cjit UpdateCurrentBucket__10TSchedulerFv
+rt cjit 0001EFE0-0001EFE4 vt_0001EFE0
+rt cjit KeyOf__11NComparatorCFPCv
+rt cjit ObjectScavenger__FP13TKernelObjectUl
+rt cjit Suspend__8TMonitorFUl
+rt cjit SetResult__8TMonitorFP5TTaskl
+rt cjit DeleteSemGroup__FP15TSemaphoreGroup
+rt cjit __dt__15TSemaphoreGroupFv
+rt cjit DeleteSharedMem__FP10TSharedMem
+rt cjit __dl_v__FPvUiPFPvi_v
+rt cjit CheckCopyTask__Fv
+rt cjit DeleteTask__FP5TTask
+rt cjit DeleteSharedMemMsg__FP13TSharedMemMsg
+rt cjit __dt__5TTaskFv
+rt cjit ReassignOwnership__12TObjectTableFUlT1
+rt cjit __dt__13TSharedMemMsgFv
+rt cjit FreeStack__5TTaskFv
+rt cjit __dt__12TEnvironmentFv
+rt cjit FreePagedMem
+rt cjit RemoveEnvironment__15TMemArchManagerFP12TEnvironment
+rt cjit __dt__10TSemaphoreFv
+rt cjit DeletePort__FP5TPort
+rt cjit 0001EFE4-0001EFE8 vt_0001EFE4
+rt cjit Remove__10TTaskQueueF17KernelObjectState
+rt cjit MarkMessageDone__FP5TTaskl
+rt cjit __dt__5TPortFv
+rt cjit CompareKeys__20TClassInfoComparatorCFPCvT1
+rt cjit 00384D88-00384D8C vt_00384D88
+rt cjit New__19PTheSerChipRegistryFv
+rt cjit ClearEntry__19PTheSerChipRegistryFUl
+rt cjit 003849DC-003849E0 vt_003849DC
+rt cjit 003849E8-003849EC vt_003849E8
+rt cjit __ct__11TDelayTimerFv
+rt cjit GetFIQTimerObject__Fv
+rt cjit ReleaseFIQTimer__9TFIQTimerFP8FIQTimer
+rt cjit InitFIQTimer__9TFIQTimerFP8FIQTimer
+rt cjit ConvertToUnicodeFunc_Contiguous8__FPCvPUsPvl
+rt cjit DeregisterInterrupt__FP15InterruptObject
+rt cjit GetSerialChipRegistry__Fv
+rt cjit UnRegister__19PSerialChipRegistryFP11TSerialChip
+rt cjit RemoveInterrupt__FP15InterruptObject
+rt cjit WhichHandlerPresent__FUl
+rt cjit GetInterruptPriority__FP15InterruptObject
+rt cjit ChangeInterruptPriority__FP15InterruptObject17InterruptPriority
+rt cjit SubtractInterrupt__FPP15InterruptObjectP15InterruptObject
+rt cjit FindInterrupt__FP15InterruptObjectUl
+rt cjit RegisterInterruptObject__FP15InterruptObjectPP15InterruptObject
+rt cjit RegisterInterruptObject__FP15InterruptObject
+rt cjit addInterrupt__FPP15InterruptObjectP15InterruptObject
+rt cjit Sizeof__17TGeoPortDebugLinkSFv
+rt cjit 00384FBC-00384FC0
+rt cjit ClassInfo__17TGeoPortDebugLinkSFv
+rt cjit 00385018-0038501C
+rt cjit 00384FC8-00384FCC
+rt cjit Init__17TGeoPortDebugLinkFv
+rt cjit QueueNotify__FP13TSharedMemMsg
+rt cjit NewXIPObject__13TStoreMonitorFlPUl
+rt cjit GetDMAManagerObject__Fv
+rt cjit RequestAssignment__11TDMAManagerFUlP21TDMAChannelDiscriptor
+rt cjit __ct__16TSerialDMAEngineFv
+rt cjit Init__16TSerialDMAEngineFP21TDMAChannelDiscriptorPvUc
+rt cjit __dt__16TSerialDMAEngineFv
+rt cjit __ct__16THermesIRControlFv
+rt close

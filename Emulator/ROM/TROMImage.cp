@@ -677,6 +677,9 @@ TROMImage::PatchROM( SImage* inImagePtr )
                k717006VirtualizationPatches,
                (sizeof(k717006VirtualizationPatches) / (sizeof(KUInt32) * 2)));
 
+		fprintf(stderr, "%ld/19300 patches added %.2f%%.\n",
+				TROMPatch::GetNumPatches(),
+				TROMPatch::GetNumPatches()/193.00);
 	} else {
         fprintf(stderr, "Can't patch: WRONG ROM!");
     }
@@ -776,7 +779,7 @@ TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyFunctio
 {
     first_ = this;
 	name_ = name;
-    fprintf(stderr, "Adding ROM patch to Simulator function: %3d = %s\n", (int)nPatch, name);
+//    fprintf(stderr, "Adding ROM patch to Simulator function: %3d = %s\n", (int)nPatch, name);
     value_ |= addPatch(this);
 }
 
@@ -793,7 +796,7 @@ TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name)
 {
     first_ = this;
 	name_ = name;
-    fprintf(stderr, "Adding ROM patch to JIT function: %3d = %s\n", (int)nPatch, name);
+//    fprintf(stderr, "Adding ROM patch to JIT function: %3d = %s\n", (int)nPatch, name);
     value_ |= addPatch(this);
 }
 
@@ -802,16 +805,33 @@ TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name)
 // -------------------------------------------------------------------------- //
 TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyMethodPtr method)
 :   next_(first_),
-    address_(addr>>2),
-    value_(0xef800000),
-    stub_(stub),
-    function_(0L),
-    method_(method)
+address_(addr>>2),
+value_(0xef800000),
+stub_(stub),
+function_(0L),
+method_(method)
 {
-    first_ = this;
+	first_ = this;
 	name_ = name;
-    fprintf(stderr, "Adding ROM patch to Simulator method:   %3d = %s\n", (int)nPatch, name);
-    value_ |= addPatch(this);
+//	fprintf(stderr, "Adding ROM patch to Simulator method:   %3d = %s\n", (int)nPatch, name);
+	value_ |= addPatch(this);
+}
+
+// -------------------------------------------------------------------------- //
+//  * TROMPatch constructor for Simulator method calls
+// -------------------------------------------------------------------------- //
+TROMPatch::TROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, JITSimPtr function)
+:   next_(first_),
+	address_(addr>>2),
+	value_(0xef800000),
+	stub_(stub),
+	function_((AnyFunctionPtr)function),
+	method_(0L)
+{
+	first_ = this;
+	name_ = name;
+//	fprintf(stderr, "Adding ROM patch to Simulator function:   %3d = %s\n", (int)nPatch, name);
+	value_ |= addPatch(this);
 }
 
 // -------------------------------------------------------------------------- //
@@ -857,11 +877,23 @@ AnyMethodPtr TROMPatch::GetSimulatorMethodAt(KUInt32 index)
 // -------------------------------------------------------------------------- //
 //  * Return the original instruction for this patch
 // -------------------------------------------------------------------------- //
-KUInt32 TROMPatch::GetOriginalInstructionAt(KUInt32 index)
+KUInt32 TROMPatch::GetOriginalInstructionAt(KUInt32 command, KUInt32 address)
 {
-    index = index & 0x003fffff;
+	// extract the patch index from the command (this assumes that we already
+	// know that this is a high-digit SWI)
+    KUInt32 index = command & 0x001fffff;
+	
+	// check if the index is in range
     if (index>=nPatch)
-        return 0L;
+        return command;
+	
+	// if the address of the pacth is known, verify that we have the correct patch
+	if (address!=0xFFFFFFFF) {
+		if (patch_[index]->address_ != (address>>2))
+			return command;
+	}
+	
+	// return the word that we patched out
     return patch_[index]->originalInstruction_;
 }
 

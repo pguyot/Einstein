@@ -1,0 +1,47 @@
+#
+# Retarget functions as they appear
+#
+rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_012
+rt cjit CoerceToDouble__FRC6RefVar
+rt cjit NumberAdd__FRC6RefVarT1
+rt cjit CDouble__FRC6RefVar
+rt cjit NumberSubtract__FRC6RefVarT1
+rt cjit GetChar__11TRichStringCFUl
+rt cjit SetChar__11TRichStringFUlUs
+rt cjit Reboot__FlUlUc
+rt cjit Restart__Fv
+rt cjit MakeReal__Fd
+rt cjit __ct__11TRichStringFPUs
+rt cjit DisableAllInterrupts
+rt cjit IOPowerOffAll__Fv
+rt cjit SetCPlainStringData__11TRichStringFPUs
+rt cjit FastComplicatedAref__FP12FastRunStatelT2i
+rt cjit ThrowOutOfBoundsException__FRC6RefVarl
+rt cjit FastComplicatedSetAref__FP12FastRunStatelT2i
+rt cjit FastComplicatedNotEqual__FP12FastRunState
+rt cjit FastComplicatedEqual__FP12FastRunState
+rt cjit FastSetLexScope__FP12FastRunStatel
+rt cjit FastIterNext__FP12FastRunStatel
+rt cjit FastIterDone__FP12FastRunStatel
+rt cjit FastUnary1Ext__FP12FastRunStatel
+rt cjit FastFindVar__FP12FastRunStatel
+rt cjit FastFindAndSetVar__FP12FastRunStatel
+rt cjit FastMakeArray__FP12FastRunStatel
+rt cjit FastMakeFrame__FP12FastRunStatel
+rt cjit FastCall__FP12FastRunStatel
+rt cjit FastInvoke__FP12FastRunStatel
+rt cjit FastSend__FP12FastRunStatel
+rt cjit FastSendIfDefined__FP12FastRunStatel
+rt cjit FastResend__FP12FastRunStatel
+rt cjit FastResendIfDefined__FP12FastRunStatel
+rt cjit FastBranchIfLoopNotDone__FP12FastRunStatel
+rt cjit FastFreqFuncGeneral__FP12FastRunStatel
+rt cjit FastNewHandlers__FP12FastRunStatel
+rt cjit FastUndefined__FP12FastRunStatel
+rt cjit PowerOffAllSubsystems__15TPlatformDriverFv
+rt cjit SetCStringData__11TRichStringFPUsUl
+rt cjit FastPartiallyRealNotEqual__FP12FastRunStateiT2
+rt cjit FastPartiallyRealEqual__FP12FastRunStateiT2
+rt cjit FastDoCall__FP12FastRunStatelT2
+rt cjit FastDoSend__FP12FastRunStateRC6RefVarN22l
+rt close

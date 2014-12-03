@@ -195,6 +195,7 @@ TEmulator::Run( void )
 		{
 			mSignal = true;
 		}
+		// We can insert a try....catch block here to trace all CPU mode changes
 		mMemory.GetJITObject()->Run( &mProcessor, &mSignal );
 	}
 	
