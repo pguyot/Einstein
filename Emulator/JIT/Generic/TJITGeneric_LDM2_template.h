@@ -173,7 +173,6 @@ LDM2_Template(FLAG_P, FLAG_U, Rn)
 				ioCPU->DataAbort();
 				MMUCALLNEXT_AFTERSETPC;
 			}
-			baseAddress += 4;
 		}
 	}
 
