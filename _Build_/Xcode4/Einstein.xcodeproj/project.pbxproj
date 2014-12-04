@@ -133,6 +133,8 @@
 		C916B3E819DAE3BA00837370 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E3703111C18D2002165EC /* AddressBook.framework */; };
 		C916B3E919DAE3BA00837370 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E3705111C18D2002165EC /* AudioUnit.framework */; };
 		C916B3EA19DAE3BA00837370 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E374F111C1F0E002165EC /* Carbon.framework */; };
+		C92544C41A2FD0F8007E99EA /* unsorted_023.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92544C11A2FD0F8007E99EA /* unsorted_023.cp */; };
+		C92544C51A2FD0F8007E99EA /* unsorted_023.rts in Resources */ = {isa = PBXBuildFile; fileRef = C92544C31A2FD0F8007E99EA /* unsorted_023.rts */; };
 		C9287ADA19DAE9D300683F49 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C9287AD919DAE9D300683F49 /* Info.plist */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
@@ -349,6 +351,8 @@
 		C9B4ABC1123D6D5300D8D2C7 /* TLinearCard.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3472111B7C07002165EC /* TLinearCard.cp */; };
 		C9B4ABC2123D6D5400D8D2C7 /* TNE2000Card.cp in Sources */ = {isa = PBXBuildFile; fileRef = C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */; };
 		C9B4ABC9123D709D00D8D2C7 /* TNetworkManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */; };
+		C9B8B7331A2FDAE800B3E57D /* unsorted_024.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9B8B7301A2FDAE800B3E57D /* unsorted_024.cp */; };
+		C9B8B7341A2FDAE800B3E57D /* unsorted_024.rts in Resources */ = {isa = PBXBuildFile; fileRef = C9B8B7321A2FDAE800B3E57D /* unsorted_024.rts */; };
 		C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
 		C9BE33D1133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
 		C9CEB43F19601CA3002198A7 /* TJITGenericRetarget.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9CEB43D19601CA3002198A7 /* TJITGenericRetarget.cp */; };
@@ -390,7 +394,7 @@
 				"$(INPUT_FILE_DIR)/$(INPUT_FILE_BASE).cp",
 				"$(INPUT_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
-			script = "cd \"${INPUT_FILE_DIR}\"\necho ${TARGET_BUILD_DIR}\n${TARGET_BUILD_DIR}/retarget ${INPUT_FILE_PATH}\n";
+			script = "cd \"${INPUT_FILE_DIR}\"\n${TARGET_BUILD_DIR}/retarget ${INPUT_FILE_PATH}\n";
 		};
 /* End PBXBuildRule section */
 
@@ -433,6 +437,9 @@
 		C906A8BA17E7B1E2004E0244 /* TAndroidSoundManager.cp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TAndroidSoundManager.cp; sourceTree = "<group>"; };
 		C906A8BB17E7B1E2004E0244 /* TAndroidSoundManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TAndroidSoundManager.h; sourceTree = "<group>"; };
 		C916B3EF19DAE3BA00837370 /* EinsteinDev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EinsteinDev.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C92544C11A2FD0F8007E99EA /* unsorted_023.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = unsorted_023.cp; path = unsorted/unsorted_023.cp; sourceTree = "<group>"; };
+		C92544C21A2FD0F8007E99EA /* unsorted_023.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unsorted_023.h; path = unsorted/unsorted_023.h; sourceTree = "<group>"; };
+		C92544C31A2FD0F8007E99EA /* unsorted_023.rts */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = unsorted_023.rts; path = unsorted/unsorted_023.rts; sourceTree = "<group>"; };
 		C9287AD919DAE9D300683F49 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C932824511D0CF0A003B93C3 /* button_network_in.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network_in.png; sourceTree = "<group>"; };
 		C932824611D0CF0A003B93C3 /* button_network.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network.png; sourceTree = "<group>"; };
@@ -897,6 +904,9 @@
 		C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = iEinsteinViewController.xib; sourceTree = "<group>"; };
 		C9B4AA35123D474800D8D2C7 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		C9B4AA49123D480900D8D2C7 /* iEinsteinView.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = iEinsteinView.h; path = Classes/iEinsteinView.h; sourceTree = "<group>"; tabWidth = 4; };
+		C9B8B7301A2FDAE800B3E57D /* unsorted_024.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = unsorted_024.cp; path = unsorted/unsorted_024.cp; sourceTree = "<group>"; };
+		C9B8B7311A2FDAE800B3E57D /* unsorted_024.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unsorted_024.h; path = unsorted/unsorted_024.h; sourceTree = "<group>"; };
+		C9B8B7321A2FDAE800B3E57D /* unsorted_024.rts */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = unsorted_024.rts; path = unsorted/unsorted_024.rts; sourceTree = "<group>"; };
 		C9BE33CE133E64F60052EA2F /* TJITPerformance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITPerformance.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TJITPerformance.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C9CEB43D19601CA3002198A7 /* TJITGenericRetarget.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGenericRetarget.cp; sourceTree = "<group>"; };
@@ -1966,6 +1976,12 @@
 				C99A4C401A2949A600F4130D /* unsorted_022.rts */,
 				C99A4C3E1A2949A600F4130D /* unsorted_022.cp */,
 				C99A4C3F1A2949A600F4130D /* unsorted_022.h */,
+				C92544C31A2FD0F8007E99EA /* unsorted_023.rts */,
+				C92544C11A2FD0F8007E99EA /* unsorted_023.cp */,
+				C92544C21A2FD0F8007E99EA /* unsorted_023.h */,
+				C9B8B7321A2FDAE800B3E57D /* unsorted_024.rts */,
+				C9B8B7301A2FDAE800B3E57D /* unsorted_024.cp */,
+				C9B8B7311A2FDAE800B3E57D /* unsorted_024.h */,
 			);
 			name = unsorted;
 			sourceTree = "<group>";
@@ -2187,6 +2203,8 @@
 				C953BA151A27CAA800EF8352 /* unsorted_007.rts in Resources */,
 				C916B37A19DAE3BA00837370 /* Einstein.icns in Resources */,
 				C916B37B19DAE3BA00837370 /* Einstein.sdef in Resources */,
+				C92544C51A2FD0F8007E99EA /* unsorted_023.rts in Resources */,
+				C9B8B7341A2FDAE800B3E57D /* unsorted_024.rts in Resources */,
 				C916B37C19DAE3BA00837370 /* Einstein.rex in Resources */,
 				C953BA1B1A27CAA800EF8352 /* unsorted_013.rts in Resources */,
 				C916B37D19DAE3BA00837370 /* button_network_in.png in Resources */,
@@ -2366,6 +2384,7 @@
 				C916B39F19DAE3BA00837370 /* TJITGeneric_Test.cp in Sources */,
 				C916B3A019DAE3BA00837370 /* TJITGenericPage.cp in Sources */,
 				C916B3A219DAE3BA00837370 /* TJIT.cp in Sources */,
+				C92544C41A2FD0F8007E99EA /* unsorted_023.cp in Sources */,
 				C916B3A319DAE3BA00837370 /* TJITCache.cp in Sources */,
 				C916B3A419DAE3BA00837370 /* TJITPage.cp in Sources */,
 				C916B3A519DAE3BA00837370 /* TFileLog.cp in Sources */,
@@ -2414,6 +2433,7 @@
 				C916B3C819DAE3BA00837370 /* TNativePrimitives.cp in Sources */,
 				C916B3C919DAE3BA00837370 /* prep_cif.c in Sources */,
 				C953BA4F1A27CE5D00EF8352 /* TSingleQContainer.cp in Sources */,
+				C9B8B7331A2FDAE800B3E57D /* unsorted_024.cp in Sources */,
 				C916B3CA19DAE3BA00837370 /* types.c in Sources */,
 				C953BA4B1A27CE5D00EF8352 /* TInterpreter.cp in Sources */,
 				C953BA031A27C8DD00EF8352 /* unsorted_001.cp in Sources */,
