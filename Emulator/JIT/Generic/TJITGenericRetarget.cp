@@ -566,6 +566,60 @@ void TJITGenericRetarget::Translate_SingleDataTransfer(
 													   KUInt32 inVAddr,
 													   KUInt32 inInstruction)
 {
+	// -Cond-- 0  1  I  P  U  B  W  L  --Rn--- --Rd--- -----------offset----------
+	
+	//L003AD74C: 0xE790F101  ldr	pc, [r0, r1, lsl #2]
+	if ( inInstruction==0xE790F101 && inVAddr==0x003AD74C) {
+		// 0x23 jump vectors at 003AD568
+		fprintf(pCOut, "\t\tswitch (ioCPU->mCurrentRegisters[1]) {\n");
+		int i;
+		for (i=0; i<35; i++) {
+		//for (i=0; i<35; i++) {
+			KUInt32 dest = 0;
+			MemoryRead(0x003AD56C + 4*i, dest);
+			fprintf(pCOut, "\t\t\tcase %2d: SETPC(0x%08lX+4); Func_0x%08lX(ioCPU, 0x003AD750+4); goto L003AD750;\n", i, dest, dest);
+			/*
+			 .word   0x003ADFAC                      @ 0x003AD570 ".:.." 3858348 (flags_type_arm_word) SWI1_PortSend?
+			 .word   0x003AE070                      @ 0x003AD574 ".:.p" 3858544 (flags_type_arm_word) SWI2_PortReceive?
+			 .word   0x00393D8C                      @ 0x003AD578 ".9=." 3751308 (flags_type_arm_word) SWI3_03?
+			 .word   0x00393E2C                      @ 0x003AD57C ".9>," 3751468 (flags_type_arm_word) SWI4_04?
+			 .word   0x003ADBB4                      @ 0x003AD580 ".:.." 3857332 (flags_type_arm_word) SWI5_Generic?
+			 .word   0x003ADEDC                      @ 0x003AD584 ".:.." 3858140 (flags_type_arm_word) SWI6_06?
+			 .word   0x003ADC88                      @ 0x003AD588 ".:.." 3857544 (flags_type_arm_word) SWI7_07?
+			 .word   0x003ADCB0                      @ 0x003AD58C ".:.." 3857584 (flags_type_arm_word) SWI8_FlushMMU?
+			 .word   0x003ADCD4                      @ 0x003AD590 ".:.." 3857620 (flags_type_arm_word) SWI9_09?
+			 .word   0x003ADD10                      @ 0x003AD594 ".:.." 3857680 (flags_type_arm_word) SWI10_Version?
+			 .word   0x003ADEE4                      @ 0x003AD598 ".:.." 3858148 (flags_type_arm_word) SWI11_SemOp?
+			 .word   0x003ADD1C                      @ 0x003AD59C ".:.." 3857692 (flags_type_arm_word) SWI12_12?
+			 .word   0x00394050                      @ 0x003AD5A0 ".9@P" 3752016 (flags_type_arm_word) SWI13_MemSetBuffer?
+			 .word   0x00394064                      @ 0x003AD5A4 ".9@d" 3752036 (flags_type_arm_word) SWI14_MemGetSize?
+			 .word   0x003940C0                      @ 0x003AD5A8 ".9@." 3752128 (flags_type_arm_word) SWI15_MemCopyToShared?
+			 .word   0x00394120                      @ 0x003AD5AC ".9A." 3752224 (flags_type_arm_word) SWI16_MemCopyFromShared?
+			 .word   0x003941A4                      @ 0x003AD5B0 ".9A." 3752356 (flags_type_arm_word) SWI17_MemMsgSetTimerParms?
+			 .word   0x003941B8                      @ 0x003AD5B4 ".9A." 3752376 (flags_type_arm_word) SWI18_MemMsgSetMsgAvailPort?
+			 .word   0x003941CC                      @ 0x003AD5B8 ".9A." 3752396 (flags_type_arm_word) SWI19_MemMsgGetSenderTaskId?
+			 .word   0x003941F8                      @ 0x003AD5BC ".9A." 3752440 (flags_type_arm_word) SWI20_MemMsgSetUserRefCon?
+			 .word   0x0039420C                      @ 0x003AD5C0 ".9B." 3752460 (flags_type_arm_word) SWI21_MemMsgGetUserRefCon?
+			 .word   0x00394238                      @ 0x003AD5C4 ".9B8" 3752504 (flags_type_arm_word) SWI22_MemMsgCheckForDone?
+			 .word   0x00394264                      @ 0x003AD5C8 ".9Bd" 3752548 (flags_type_arm_word) SWI23_MemMsgMsgDone?
+			 .word   0x003ADE7C                      @ 0x003AD5CC ".:.|" 3858044 (flags_type_arm_word) SWI24_24?
+			 .word   0x003ADEC8                      @ 0x003AD5D0 ".:.." 3858120 (flags_type_arm_word) SWI25_25?
+			 .word   0x00394180                      @ 0x003AD5D4 ".9A." 3752320 (flags_type_arm_word) SWI26_MemCopyDone?
+			 .word   0x00394278                      @ 0x003AD5D8 ".9Bx" 3752568 (flags_type_arm_word) SWI27_MonitorDispatch?
+			 .word   0x00394370                      @ 0x003AD5DC ".9Cp" 3752816 (flags_type_arm_word) SWI28_MonitorExit?
+			 .word   0x00394384                      @ 0x003AD5E0 ".9C." 3752836 (flags_type_arm_word) SWI29_MonitorThrow?
+			 .word   0x00393F10                      @ 0x003AD5E4 ".9?." 3751696 (flags_type_arm_word) SWI30_30?
+			 .word   0x00393FD4                      @ 0x003AD5E8 ".9?." 3751892 (flags_type_arm_word) SWI31_31?
+			 .word   0x00394398                      @ 0x003AD5EC ".9C." 3752856 (flags_type_arm_word) SWI32_MonitorFlush?
+			 .word   0x003AE138                      @ 0x003AD5F0 ".:.8" 3858744 (flags_type_arm_word) SWI33_PortResetFilter?
+			 .word   0x003AE14C                      @ 0x003AD5F4 ".:.L" 3858764 (flags_type_arm_word) SWI34_Scheduler?
+			*/
+		}
+		fprintf(pCOut, "\t\t}\n");
+	}
+
+	// ldr     pc, [r2, r1, lsl #2]      	@ 0x00199624 0xE792F101
+	
 	// special handling for reading a word form ROM
 	if ( (inInstruction & 0x0fff0000) == 0x059F0000 && ((inInstruction&0x00000fff)+inVAddr+8)<0x00800000) {
 		KUInt32 Rd = ((inInstruction & 0x0000F000) >> 12);
@@ -1152,7 +1206,7 @@ void TJITGenericRetarget::LogicalOp(KUInt32 inVAddr, KUInt32 inInstruction, KUIn
 
 void TJITGenericRetarget::ArithmeticOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32 OP, KUInt32 MODE, KUInt32 FLAG_S, KUInt32 Rn, KUInt32 Rd, KUInt32 thePushedValue)
 {
-	// find the typicl patter for switch/case statements:
+	// find the typical pattern for switch/case statements:
 	//     0xE35x00nn  cmp    rx, #n
 	//     0x908FF10x  addls  pc, pc, rx, lsl #2
 	if ( (inInstruction&0xFFFFFFF0)==0x908FF100 ) {
@@ -1454,9 +1508,8 @@ void TJITGenericRetarget::Translate_BlockDataTransfer(KUInt32 inVAddr, KUInt32 i
 				fprintf(pCOut, "#error Not yet implemented 11\n");
 //				Translate_BlockDataTransfer_LDM3(inVAddr, inInstruction);
 			} else {
-				// LDM2
-				fprintf(pCOut, "#error Not yet implemented 12\n");
-//				Translate_BlockDataTransfer_LDM2(inVAddr, inInstruction);
+				// LDM2 ( ldmneia r0, {r0-lr}^ )
+				Translate_BlockDataTransfer_LDM2(inVAddr, inInstruction);
 			}
 		} else {
 			// LDM1
@@ -1467,18 +1520,12 @@ void TJITGenericRetarget::Translate_BlockDataTransfer(KUInt32 inVAddr, KUInt32 i
 		if (inInstruction & 0x00400000)
 		{
 			// STM2
-			fprintf(pCOut, "#error Not yet implemented 13\n");
-//			PUSHFUNC(BlockDataTransfer_STM2_Funcs[flag_pu | Rn]);
+			Translate_BlockDataTransfer_STM2(inVAddr, inInstruction);
 		} else {
 			// STM1
 			Translate_BlockDataTransfer_STM1(inVAddr, inInstruction);
 		}
 	}
-	
-	// Push the PC. We'll need it for data aborts.
-//	PUSHVALUE(inVAddr + 8);
-	// Push the reg list and the number of registers.
-//	PUSHVALUE((nbRegs << 16) | regList);
 }
 
 
@@ -1536,6 +1583,184 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_STM1(KUInt32 inVAddr, KUIn
 	}
 }
 
+
+void TJITGenericRetarget::Translate_BlockDataTransfer_STM2(KUInt32 inVAddr, KUInt32 inInstruction)
+{
+	// example: stmneia	r1, {r8-lr}^
+	KUInt32 FLAG_P = (inInstruction>>24) & 1;
+	KUInt32 FLAG_U = (inInstruction>>23) & 1;
+	//KUInt32 FLAG_W = (inInstruction>>21) & 1;
+	KUInt32 Rn = (inInstruction>>16) & 0x0F;
+	KUInt32 theRegList = inInstruction & 0xFFFF;
+	//KUInt32 curRegList = theRegList & 0x7FFF;
+	KUInt32 nbRegisters = CountBits(theRegList);
+	
+	if (Rn==15) fprintf(pCOut, "#error Rn == 15 -> UNPREDICTABLE\n");
+	
+	fprintf(pCOut, "\t\tKUInt32 curRegList;\n");
+	fprintf(pCOut, "\t\tKUInt32 bankRegList;\n");
+	
+	// Use bank and current registers.
+	fprintf(pCOut, "\t\tif (ioCPU->GetMode() == TARMProcessor::kFIQMode) {\n");
+	fprintf(pCOut, "\t\t\tcurRegList = 0x%04lX & 0xFF;\n", theRegList);
+	fprintf(pCOut, "\t\t\tbankRegList = 0x%04lX & 0x7F00;\n", theRegList);
+	fprintf(pCOut, "\t\t} else {\n");
+	fprintf(pCOut, "\t\t\tcurRegList = 0x%04lX & 0x1FFF;\n", theRegList);
+	fprintf(pCOut, "\t\t\tbankRegList = 0x%04lX & 0x6000;\n", theRegList);
+	fprintf(pCOut, "\t\t}\n");
+	fprintf(pCOut, "\t\tKUInt32 baseAddress = ioCPU->mCurrentRegisters[%ld];\n", Rn);
+	
+	if (FLAG_U) {
+		// Up.
+		if (FLAG_P) {
+			// Post: add 4.
+			fprintf(pCOut, "\t\tbaseAddress += 4;\n");
+		}
+	} else {
+		// Down.
+		fprintf(pCOut, "\t\tbaseAddress -= (%ld * 4);\n", nbRegisters);
+		
+		if (!FLAG_P) {
+			// Post: add 4.
+			fprintf(pCOut, "\t\tbaseAddress += 4;\n");
+		}
+	}
+	
+	// Store.
+	fprintf(pCOut, "\t\tif (curRegList) {\n");
+	if (theRegList & 0x0001) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0001) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[0]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0002) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0002) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[1]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0004) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0004) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[2]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0008) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0008) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[3]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0010) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0010) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[4]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0020) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0020) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[5]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0040) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0040) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[6]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0080) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0080) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[7]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0100) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0100) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[8]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0200) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0200) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[9]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0400) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0400) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[10]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0800) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0800) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[11]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x1000) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x1000) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[12]);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	fprintf(pCOut, "\t\t}\n");
+	
+	
+	fprintf(pCOut, "\t\tif (bankRegList) {\n");
+	if (theRegList & 0x0100) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0100) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR8_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0200) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0200) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR9_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0400) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0400) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR10_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0800) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0800) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR11_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x1000) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x1000) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR12_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x2000) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x2000) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR13_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x4000) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x4000) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR14_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	fprintf(pCOut, "\t\t}\n");
+
+	if (theRegList & 0x8000)
+	{
+		// PC is special.
+		// Stored value is PC + 12 (verified)
+		fprintf(pCOut, "\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, 0x%08lX + 12);\n", inVAddr);
+	}
+}
 
 void TJITGenericRetarget::Translate_BlockDataTransfer_LDM1(KUInt32 inVAddr, KUInt32 inInstruction)
 {
@@ -1597,6 +1822,191 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_LDM1(KUInt32 inVAddr, KUIn
 	} else {
 		//CALLNEXTUNIT;
 	}
+}
+
+
+void TJITGenericRetarget::Translate_BlockDataTransfer_LDM2(KUInt32 inVAddr, KUInt32 inInstruction)
+{
+	// -Cond-- 1  0  0  P  U  S  W  L  --Rn--- ------------register list---------- Block Data Transfer
+	KUInt32 FLAG_P = (inInstruction>>24) & 1;
+	KUInt32 FLAG_U = (inInstruction>>23) & 1;
+//	KUInt32 FLAG_W = (inInstruction>>21) & 1;
+	KUInt32 Rn = (inInstruction>>16) & 0x0F;
+	KUInt32 theRegList = inInstruction & 0xFFFF;
+//	KUInt32 curRegList = theRegList & 0x7FFF;
+	KUInt32 nbRegisters = CountBits(theRegList);
+	if (Rn==15) fprintf(pCOut, "#error Rn == 15 -> UNPREDICTABLE\n");
+
+	fprintf(pCOut, "\t\tKUInt32 curRegList;\n");
+	fprintf(pCOut, "\t\tKUInt32 bankRegList;\n");
+	
+	// Use bank and current registers.
+	fprintf(pCOut, "\t\tif (ioCPU->GetMode() == TARMProcessor::kFIQMode) {\n");
+	fprintf(pCOut, "\t\t\tcurRegList = 0x%04lX & 0xFF;\n", theRegList);
+	fprintf(pCOut, "\t\t\tbankRegList = 0x%04lX & 0x7F00;\n", theRegList);
+	fprintf(pCOut, "\t\t} else {\n");
+	fprintf(pCOut, "\t\t\tcurRegList = 0x%04lX & 0x1FFF;\n", theRegList);
+	fprintf(pCOut, "\t\t\tbankRegList = 0x%04lX & 0x6000;\n", theRegList);
+	fprintf(pCOut, "\t\t}\n");
+	fprintf(pCOut, "\t\tKUInt32 baseAddress = ioCPU->mCurrentRegisters[%ld];\n", Rn);
+	
+	if (FLAG_U) {
+		// Up.
+		if (FLAG_P) {
+			// Post: add 4.
+			fprintf(pCOut, "\t\tbaseAddress += 4;\n");
+		}
+	} else {
+		// Down.
+		fprintf(pCOut, "\t\tbaseAddress -= (%ld * 4);\n", nbRegisters);
+		
+		if (!FLAG_P) {
+			// Post: add 4.
+			fprintf(pCOut, "\t\tbaseAddress += 4;\n");
+		}
+	}
+	
+	// Load.
+	fprintf(pCOut, "\t\tif (curRegList) {\n");
+	if (theRegList & 0x0001) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0001) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[0] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0002) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0002) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[1] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0004) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0004) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[2] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0008) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0008) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[3] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0010) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0010) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[4] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0020) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0020) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[5] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0040) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0040) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[6] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0080) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0080) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[7] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0100) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0100) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[8] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0200) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0200) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[9] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0400) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0400) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[10] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0800) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x0800) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[11] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x1000) {
+		fprintf(pCOut, "\t\t\tif (curRegList & 0x1000) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[12] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	fprintf(pCOut, "\t\t}\n");
+
+	fprintf(pCOut, "\t\tif (bankRegList) {\n");
+	if (theRegList & 0x0100) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0100) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR8_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0200) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0200) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR9_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0400) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0400) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR10_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x0800) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0800) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR11_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x1000) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x1000) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR12_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x2000) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x2000) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR13_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	if (theRegList & 0x4000) {
+		fprintf(pCOut, "\t\t\tif (bankRegList & 0x4000) {\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR14_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
+		fprintf(pCOut, "\t\t\t}\n");
+	}
+	fprintf(pCOut, "\t\t}\n");
+
+	if (theRegList & 0x8000)
+	{
+		// PC is special.
+		fprintf(pCOut, "\t\tSETPC( ioCPU->ManagedMemoryReadAligned(baseAddress)) + 4;\n");
+		// don't mark as error because this is usually used to return from a function
+		fprintf(pCOut, "#warn this is setting an arbitrary return address! Does this work in simulation?\n");
+	}
+	
+	if (theRegList & 0x8000)
+	{
+		fprintf(pCOut, "\t\treturn;\n");
+	} else {
+	}
+
 }
 
 
