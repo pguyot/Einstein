@@ -270,7 +270,7 @@ void TJITGenericRetarget::TranslateFunction(KUInt32 inFirst, KUInt32 inLast, con
 		fprintf(pCOut, "\treturn Func_0x%08lX(ioCPU, ret);\n", inLast);
 	} else {
 		// If no 
-		fprintf(pCOut, "\tDebugger(); // There was no return instruction found\n");
+		fprintf(pCOut, "\traise(SIGINT); // There was no return instruction found\n");
 	}
 	fprintf(pCOut, "}\n");
 	if (!dontLink) {
@@ -311,7 +311,7 @@ void TJITGenericRetarget::Translate(KUInt32 inVAddr, KUInt32 inInstruction)
 	UDisasm::Disasm(buf, 2047, inVAddr, inInstruction);
 	fprintf(pCOut, "L%08X: // 0x%08X  %s\n", (unsigned int)inVAddr, (unsigned int)inInstruction, buf);
 	
-	fprintf(pCOut, "\tif (ioCPU->mCurrentRegisters[15]!=0x%08lX+4) Debugger(); // be paranoid about a correct PC\n", inVAddr);
+	fprintf(pCOut, "\tif (ioCPU->mCurrentRegisters[15]!=0x%08lX+4) raise(SIGINT); // be paranoid about a correct PC\n", inVAddr);
 	fprintf(pCOut, "\tioCPU->mCurrentRegisters[15] += 4; // update the PC\n");
 	
 	// Always generate code for a condition, so we can use local variables
@@ -1373,7 +1373,7 @@ void TJITGenericRetarget::GenerateReturnInstruction()
 	fprintf(pCOut, "\t\t\treturn; // Return to emulator\n");
 	fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=ret)\n");
 //	fprintf(pCOut, "\t\t\treturn ioCPU->JumpToCalculatedAddress(ioCPU->mCurrentRegisters[15], ret);\n");
-	fprintf(pCOut, "\t\t\tDebugger(); // Unexpected return address\n");
+	fprintf(pCOut, "\t\t\traise(SIGINT); // Unexpected return address\n");
 	fprintf(pCOut, "\t\treturn;\n");
 }
 
@@ -1449,7 +1449,7 @@ void TJITGenericRetarget::Translate_Branch(KUInt32 inVAddr, KUInt32 inInstructio
 		dest = dest + delta;
 		fprintf(pCOut, "\t\tKUInt32 jumpInstr = ioCPU->ManagedMemoryRead(0x%08lX);\n", jumpTableDest);
 		fprintf(pCOut, "\t\tif (jumpInstr!=0x%08lX) {\n", jumpTableInstr);
-		fprintf(pCOut, "\t\t\tDebugger(); // unexpected jump table entry\n");
+		fprintf(pCOut, "\t\t\traise(SIGINT); // unexpected jump table entry\n");
 		fprintf(pCOut, "\t\t\tioCPU->ReturnToEmulator(0x%08lX);\n", jumpTableDest);
 		fprintf(pCOut, "\t\t}\n");
 	}

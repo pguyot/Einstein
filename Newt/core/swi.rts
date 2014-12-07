@@ -5,7 +5,7 @@ rt open swi
 rt cjit 00000008-0000000C
 rt cjit 0x003AD698-0x003AE158 SWIBoot
 
-# Gettinf stuck at PauseSystemKernelGlue__Fv (SWI 5/69)
+# Getting stuck at PauseSystemKernelGlue__Fv (SWI 5/69)
 
 # all functions end in 'b L003AD750'
 rt cjit 0x003ADD3C-0x003ADD50 SWI0_GetPort
