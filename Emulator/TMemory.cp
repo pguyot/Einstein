@@ -703,7 +703,7 @@ TMemory::Read( VAddr inAddress, KUInt32& outWord )
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
-			fprintf(stderr, "Watchpoint 0x%08lX read around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			fprintf(stderr, "Watchpoint 0x%08X read around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
 			mEmulator->BreakInMonitor();
 		}
 	}
@@ -741,7 +741,7 @@ TMemory::ReadAligned( VAddr inAddress, KUInt32& outWord )
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
-			fprintf(stderr, "Watchpoint 0x%08lX read around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			fprintf(stderr, "Watchpoint 0x%08X read around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
 			mEmulator->BreakInMonitor();
 		}
 	}
@@ -779,7 +779,7 @@ TMemory::ReadROMRAM( VAddr inAddress, KUInt32& outWord )
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
-			fprintf(stderr, "Watchpoint 0x%08lX read around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			fprintf(stderr, "Watchpoint 0x%08X read around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
 			mEmulator->BreakInMonitor();
 		}
 	}
@@ -1342,7 +1342,7 @@ TMemory::ReadB( VAddr inAddress, KUInt8& outByte )
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
-			fprintf(stderr, "Watchpoint 0x%08lX read around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			fprintf(stderr, "Watchpoint 0x%08X read around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
 			mEmulator->BreakInMonitor();
 		}
 	}
@@ -1535,7 +1535,7 @@ TMemory::Write( VAddr inAddress, KUInt32 inWord )
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
-			fprintf(stderr, "Watchpoint 0x%08lX written around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			fprintf(stderr, "Watchpoint 0x%08X written around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
 			mEmulator->BreakInMonitor();
 		}
 	}
@@ -1570,7 +1570,7 @@ TMemory::WriteAligned( VAddr inAddress, KUInt32 inWord )
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
-			fprintf(stderr, "Watchpoint 0x%08lX written around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			fprintf(stderr, "Watchpoint 0x%08X written around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
 			mEmulator->BreakInMonitor();
 		}
 	}
@@ -1605,7 +1605,7 @@ TMemory::WriteRAM( VAddr inAddress, KUInt32 inWord )
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
-			fprintf(stderr, "Watchpoint 0x%08lX written around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			fprintf(stderr, "Watchpoint 0x%08lX written around 0x%08lX\n", (unsigned long)inAddress, (unsigned long)mProcessor->mCurrentRegisters[15]);
 			mEmulator->BreakInMonitor();
 		}
 	}
@@ -2117,7 +2117,7 @@ TMemory::WriteB( VAddr inAddress, KUInt8 inByte )
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
-			fprintf(stderr, "Watchpoint 0x%08lX written around 0x%08lX\n", inAddress, mProcessor->mCurrentRegisters[15]);
+			fprintf(stderr, "Watchpoint 0x%08X written around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
 			mEmulator->BreakInMonitor();
 		}
 	}

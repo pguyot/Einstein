@@ -5,4 +5,5 @@ DerivedData/
 *.mode2v3
 *.perspectivev4
 *.moved-aside
-
+*.xcuserdatad
+.DS_Store
