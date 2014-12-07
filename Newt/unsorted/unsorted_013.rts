@@ -17,8 +17,15 @@ rt code 008000FC-00800100
 rt cjit 008000FC-00800100 vt_008000FC
 rt code 00800150-00800160
 rt cjit 00800150-00800160 unk_00800164
+
+##
+## This is the native call to PauseSystem.
+## Untile we have a good native implementation of this, we must return to the emulator
+##
 rt code 008003FC-00800400
-rt cjit 008003FC-00800400 vt_008003FC
+# rt cjit 008003FC-00800400 vt_008003FC
+rt cjitr 008003FC
+
 rt code 00800AA4-00800AB4
 rt cjit 00800AA4-00800AB4 unk_00800AA4
 rt cjit _GenericSWI

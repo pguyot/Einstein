@@ -507,6 +507,13 @@
 /* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
+		C9BFFFE51A35115C001A90BC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C9BFFE9C1A34F5B3001A90BC;
+			remoteInfo = retarget;
+		};
 		F115FF031A2E8D40001F3D65 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
@@ -1916,6 +1923,7 @@
 				C9BFFFE41A3500FE001A90BC /* PBXBuildRule */,
 			);
 			dependencies = (
+				C9BFFFE61A35115C001A90BC /* PBXTargetDependency */,
 			);
 			name = EinsteinDev;
 			productInstallPath = "$(HOME)/Applications";
@@ -2507,6 +2515,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		C9BFFFE61A35115C001A90BC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C9BFFE9C1A34F5B3001A90BC /* retarget */;
+			targetProxy = C9BFFFE51A35115C001A90BC /* PBXContainerItemProxy */;
+		};
 		F115FF041A2E8D40001F3D65 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8D1107260486CEB800E47090 /* Einstein */;
@@ -2802,7 +2815,7 @@
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
 				);
-				INFOPLIST_FILE = "Einstein copy-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2843,7 +2856,7 @@
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
 				);
-				INFOPLIST_FILE = "Einstein copy-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2884,7 +2897,7 @@
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
 				);
-				INFOPLIST_FILE = "Einstein copy-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
