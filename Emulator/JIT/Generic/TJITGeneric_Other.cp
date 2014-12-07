@@ -124,8 +124,8 @@ JITInstructionProto(CallHostInjection)
 				if (TSymbolList::List) {
 					symbol = (char*)::malloc(1024);
 					TSymbolList::List->GetSymbol(pc, symbol, 0L, &offset);
-					fprintf(stderr, "SIM_INFO[%ld]: %s caught at 0x%08lX, lr=0x%08lX (pcAbort=0x%08lX)\n",
-							errCnt++, err, pc, ioCPU->GetRegister(14)-4, ioCPU->mR14abt_Bkup);
+					fprintf(stderr, "SIM_INFO[%u]: %s caught at 0x%08X, lr=0x%08X (pcAbort=0x%08X)\n",
+							(unsigned int)errCnt++, err, pc, (unsigned int)ioCPU->GetRegister(14)-4, (unsigned int)ioCPU->mR14abt_Bkup);
 					if (symbol) {
 						if (offset) {
 							fprintf(stderr, "SIM_INFO: ... at %s%+d\n", symbol, offset);

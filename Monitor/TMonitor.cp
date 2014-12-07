@@ -532,41 +532,6 @@ static char cc(unsigned int v) {
 
 
 // -------------------------------------------------------------------------- //
-// ExecuteScript( const char* inCommand )
-// -------------------------------------------------------------------------- //
-//Boolean
-//TMonitor::ExecuteScript( const char* inScriptFile )
-//{
-//	bool theResult = true;
-//	FILE *f = fopen(inScriptFile, "rb");
-//	if (f) {
-//		for (;;) {
-//			char buf[2048];
-//			if (feof(f)) break;
-//			if (fgets(buf, 2047, f)) {
-//				int n = strlen(buf);
-//				if (n) {
-//					if (buf[n-1]=='\n') n--;
-//					if (buf[n-1]=='\r') n--;
-//					buf[n] = 0;
-//					char *s = buf;
-//					while (*s=='\t' || *s==' ') s++;
-//					if (s[0]!='#' && s[0]!=0)
-//						theResult = ExecuteCommand(s);
-//				}
-//			}
-//			if (theResult==false) break;
-//		}
-//		fclose(f);
-//	} else {
-//		theResult = false;
-//		PrintLine("Can't open script file");
-//	}
-//	return theResult;
-//}
-
-
-// -------------------------------------------------------------------------- //
 // ExecuteStartupScript()
 // -------------------------------------------------------------------------- //
 Boolean
@@ -636,12 +601,12 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					(a>=0x01A00000 && a<0x01C20000)||
 					(a>=0x01e00000 && a<0x01f00000)||
 					(a>=0x0c100000 && a<0x0c126000)) {
-					fprintf(f, "  0x%08lX, // Page %ld\n", pg*4096, nPage);
+					fprintf(f, "  0x%08X, // Page %ld\n", (unsigned int)pg*4096, (unsigned long)nPage);
 					nPage++;
 				}
 			}
 			fprintf(f, "};\n\nKUInt32 gMemPageN = %ld;\n\n"
-					   "KUInt32 gMemPage[][4096] = {\n", nPage);
+					   "KUInt32 gMemPage[][4096] = {\n", (unsigned long)nPage);
 			nPage = 0;
 			for (pg=0; pg<1024*1024; pg++) {
 				KUInt32 v, a = pg*4096;
@@ -650,7 +615,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					(a>=0x01A00000 && a<0x01C20000)||
 					(a>=0x01e00000 && a<0x01f00000)||
 					(a>=0x0c100000 && a<0x0c126000)) {
-					fprintf(f, "// Page %ld at 0x%08lX\n{\n  ", nPage, pg*4096);
+					fprintf(f, "// Page %u at 0x%08X\n{\n  ", (unsigned int)nPage, (unsigned int)pg*4096);
 					for (i=0; i<1024; i++) {
 						KUInt32 addr = pg*4096+i*4;
 						mMemory->Read(addr, v);
@@ -658,14 +623,14 @@ TMonitor::ExecuteCommand( const char* inCommand )
 							v = TROMPatch::GetOriginalInstructionAt(v, addr);
 						}
 						if (i>0 && (i&7)==0) fprintf(f, "\n  ");
-						fprintf(f, "0x%08lX, ", v);
+						fprintf(f, "0x%08X, ", v);
 					}
 					fprintf(f, "},\n");
 					nPage++;
 				}
 			}
 			fprintf(f, "};\n\n");
-			fprintf(f, "// %ld pages found\n\n", nPage);
+			fprintf(f, "// %u pages found\n\n", (unsigned int)nPage);
 			fclose(f);
 		}
 	} else if (::strncmp(inCommand, "save ", 5) == 0) {
@@ -1212,7 +1177,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			KUInt32 addr;
 			KUInt8 type;
 			if (mMemory->GetWatchpoint(i, addr, type)) break;
-			::sprintf(theLine, "WP %2d at %.8lX, %s", i, addr, lut[type&3]);
+			::sprintf(theLine, "WP %2d at %.8X, %s", i, addr, lut[type&3]);
 			PrintLine(theLine);
 		}
 	} else if (::strcmp(inCommand, "p tasks") == 0) {
@@ -1223,7 +1188,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			KUInt32 taskQ; mMemory->Read(kernelScheduler+0x1C+4*i, taskQ); // TTaskQueue
 			if (taskQ) {
 				KUInt32 task; mMemory->Read(taskQ, task); // TTask
-				::sprintf(theLine, " Pri %d: first Task at 0x%08lX", i, task);
+				::sprintf(theLine, " Pri %d: first Task at 0x%08X", i, task);
 				PrintLine(theLine);
 			}
 		}
@@ -1856,12 +1821,12 @@ TMonitor::PrintBacktrace(KSInt32 inNWords)
 	for (i=inNWords; i>=0; i--) {
 		mMemory->Read((TMemory::VAddr)sp+4*i, theData);
 		mSymbolList->GetSymbol( theData, theSymbol, theComment, &theOffset );
-		sprintf(theLine, "sp+%3ld: 0x%08lX = %s+%d", 4*i, theData, theSymbol, theOffset);
+		sprintf(theLine, "sp+%3d: 0x%08X = %s+%d", 4*i, theData, theSymbol, theOffset);
 		theLine[62] = 0;
 		PrintLine(theLine);
 	}
 	mSymbolList->GetSymbol( lr, theSymbol, theComment, &theOffset );
-	sprintf(theLine, "    lr: 0x%08lX = %s+%d", lr, theSymbol, theOffset);
+	sprintf(theLine, "    lr: 0x%08X = %s+%d", lr, theSymbol, theOffset);
 	theLine[62] = 0;
 	PrintLine(theLine);
 }
