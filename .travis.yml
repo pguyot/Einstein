@@ -1,3 +1,3 @@
 language: objective-c
 xcode_project: _Build_/Xcode6/Einstein.xcodeproj
-xcode_scheme: Debug
+xcode_scheme: Einstein
