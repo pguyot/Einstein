@@ -156,17 +156,17 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 		mRetarget->CloseFiles();
 		PrintLine("Retarget files closed");
 	} else if (::strncmp(inCommand, "code ", 5) == 0) {
-		KUInt32 first, last;
+		unsigned long first, last;
 		int n = 0;
 		n = sscanf(inCommand+5, "%lx-%lx", &first, &last);
 		if (n==0) {
 			PrintLine("rt code: Can't read memory range - undefined symbol?");
 			theResult = false;
 		} else {
-			mRetarget->SetRetargetMap(first, last, 1);
+			mRetarget->SetRetargetMap((KUInt32)first, (KUInt32)last, 1);
 		}
 	} else if (::strncmp(inCommand, "cjit ", 5) == 0) {
-		KUInt32 first = 0, last = 4;
+		unsigned long first = 0, last = 4;
 		int arg = 5;
 		bool dontLink = 0;
 		if (inCommand[arg]=='!') { dontLink = 1; arg++; }
@@ -203,22 +203,22 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 			if (isJumpTable) {
 				for ( ; first<last; first+=4) {
 					sprintf(name, "JumpTable_0x%08lX", first);
-					mRetarget->TranslateFunction(first, first+4, name, continueAfterFunction, dontLink);
+					mRetarget->TranslateFunction((KUInt32)first, (KUInt32)first+4, name, continueAfterFunction, dontLink);
 				}
 			} else {
 				while (*n==' ') n++;
 				if (*n) {
 					strcpy(name, n);
-				} else if (mSymbolList->GetSymbolExact(first, name, cmt, &off)) {
+				} else if (mSymbolList->GetSymbolExact((KUInt32)first, name, cmt, &off)) {
 					// symbol name is in 'name'
 				} else {
 					sprintf(name, "Func_0x%08lX", first);
 				}
-				mRetarget->TranslateFunction(first, last, name, continueAfterFunction, dontLink);
+				mRetarget->TranslateFunction((KUInt32)first, (KUInt32)last, name, continueAfterFunction, dontLink);
 			}
 		}
 	} else if (::strncmp(inCommand, "cjitr ", 6) == 0) {
-		KUInt32 first = 0;
+		unsigned long first = 0;
 		int n = 0;
 		if (n==0) {
 			first = mSymbolList->GetSymbol(inCommand+6);
@@ -245,12 +245,12 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 			while (*n==' ') n++;
 			if (*n) {
 				strcpy(name, n);
-			} else if (mSymbolList->GetSymbolExact(first, name, cmt, &off)) {
+			} else if (mSymbolList->GetSymbolExact((KUInt32)first, name, cmt, &off)) {
 				// symbol name is in 'name'
 			} else {
-				sprintf(name, "Func_0x%08lX", first);
+				sprintf(name, "Func_0x%08X", (unsigned int)first);
 			}
-			mRetarget->ReturnToEmulator(first, name);
+			mRetarget->ReturnToEmulator((KUInt32)first, name);
 		}
 	} else if (::strcmp(inCommand, "monty") == 0) {
 		int i, j, si;

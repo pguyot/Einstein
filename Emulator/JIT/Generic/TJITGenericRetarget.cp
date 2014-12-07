@@ -232,10 +232,10 @@ void TJITGenericRetarget::TranslateFunction(KUInt32 inFirst, KUInt32 inLast, con
 {
 	pFunctionBegin = inFirst;
 	pFunctionEnd = inLast;
-	fprintf(pCOut, "\n/**\n * Transcoded function %s\n * ROM: 0x%08lX - 0x%08lX\n */\n", inName, inFirst, inLast);
+	fprintf(pCOut, "\n/**\n * Transcoded function %s\n * ROM: 0x%08X - 0x%08X\n */\n", inName, (unsigned int)inFirst, (unsigned int)inLast);
 	if (pHOut!=stdout)
-		fprintf(pHOut, "extern void Func_0x%08lX(TARMProcessor* ioCPU, KUInt32 ret); // %s\n", inFirst, inName);
-	fprintf(pCOut, "void Func_0x%08lX(TARMProcessor* ioCPU, KUInt32 ret)\n{\n", inFirst);
+		fprintf(pHOut, "extern void Func_0x%08X(TARMProcessor* ioCPU, KUInt32 ret); // %s\n", (unsigned int)inFirst, inName);
+	fprintf(pCOut, "void Func_0x%08X(TARMProcessor* ioCPU, KUInt32 ret)\n{\n", (unsigned int)inFirst);
 	KUInt32 instr = 0;
 	KUInt32 addr = inFirst;
 	for ( ; addr<inLast; addr+=4) {
@@ -254,9 +254,9 @@ void TJITGenericRetarget::TranslateFunction(KUInt32 inFirst, KUInt32 inLast, con
 				char sym[512], cmt[512];
 				int off;
 				if (pSymbolList->GetSymbolExact(instr, sym, cmt, &off)) {
-					fprintf(pCOut, "\t// KUInt32 D_%08lX = 0x%08lX; // %s\n", addr, instr, sym);
+					fprintf(pCOut, "\t// KUInt32 D_%08X = 0x%08X; // %s\n", (unsigned int)addr, (unsigned int)instr, sym);
 				} else {
-					fprintf(pCOut, "\t// KUInt32 D_%08lX = 0x%08lX;\n", addr, instr);
+					fprintf(pCOut, "\t// KUInt32 D_%08X = 0x%08X;\n", (unsigned int)addr, (unsigned int)instr);
 				}
 				break;
 			}
@@ -266,8 +266,8 @@ void TJITGenericRetarget::TranslateFunction(KUInt32 inFirst, KUInt32 inLast, con
 		// If the following commands are translated as well, this line will avoid
 		// falling back to the interpreter and instead generate a simple "goto"
 		// instruction (still having the cost of the function prolog and epilog though)
-		fprintf(pCOut, "\tioCPU->mCurrentRegisters[15] = 0x%08lX + 4;\n", inLast);
-		fprintf(pCOut, "\treturn Func_0x%08lX(ioCPU, ret);\n", inLast);
+		fprintf(pCOut, "\tioCPU->mCurrentRegisters[15] = 0x%08X + 4;\n", (unsigned int)inLast);
+		fprintf(pCOut, "\treturn Func_0x%08X(ioCPU, ret);\n", (unsigned int)inLast);
 	} else {
 		// If no 
 		fprintf(pCOut, "\tDebugger(); // There was no return instruction found\n");
@@ -275,7 +275,7 @@ void TJITGenericRetarget::TranslateFunction(KUInt32 inFirst, KUInt32 inLast, con
 	fprintf(pCOut, "}\n");
 	if (!dontLink) {
 		// This line creates a ROM patch that diverts the interpreter into running the code above
-		fprintf(pCOut, "T_ROM_SIMULATION3(0x%08lX, \"%s\", Func_0x%08lX)\n\n", inFirst, inName, inFirst);
+		fprintf(pCOut, "T_ROM_SIMULATION3(0x%08X, \"%s\", Func_0x%08X)\n\n", (unsigned int)inFirst, inName, (unsigned int)inFirst);
 	}
 }
 
@@ -283,11 +283,11 @@ void TJITGenericRetarget::TranslateFunction(KUInt32 inFirst, KUInt32 inLast, con
 void TJITGenericRetarget::ReturnToEmulator(KUInt32 inFirst, const char *inName)
 {
 	pFunctionBegin = inFirst;
-	fprintf(pCOut, "\n/**\n * ReturnToEmulator Stub function %s\n * ROM: 0x%08lX\n */\n", inName, inFirst);
+	fprintf(pCOut, "\n/**\n * ReturnToEmulator Stub function %s\n * ROM: 0x%08X\n */\n", inName, (unsigned int)inFirst);
 	if (pHOut!=stdout)
-		fprintf(pHOut, "extern void Func_0x%08lX(TARMProcessor* ioCPU, KUInt32 ret); // (RET) %s\n", inFirst, inName);
-	fprintf(pCOut, "void Func_0x%08lX(TARMProcessor* ioCPU, KUInt32)\n{\n", inFirst);
-	fprintf(pCOut, "\tioCPU->ReturnToEmulator(0x%08lX);\n", inFirst);
+		fprintf(pHOut, "extern void Func_0x%08X(TARMProcessor* ioCPU, KUInt32 ret); // (RET) %s\n", (unsigned int)inFirst, inName);
+	fprintf(pCOut, "void Func_0x%08X(TARMProcessor* ioCPU, KUInt32)\n{\n", (unsigned int)inFirst);
+	fprintf(pCOut, "\tioCPU->ReturnToEmulator(0x%08X);\n", (unsigned int)inFirst);
 	fprintf(pCOut, "}\n");
 }
 
@@ -311,7 +311,7 @@ void TJITGenericRetarget::Translate(KUInt32 inVAddr, KUInt32 inInstruction)
 	UDisasm::Disasm(buf, 2047, inVAddr, inInstruction);
 	fprintf(pCOut, "L%08X: // 0x%08X  %s\n", (unsigned int)inVAddr, (unsigned int)inInstruction, buf);
 	
-	fprintf(pCOut, "\tif (ioCPU->mCurrentRegisters[15]!=0x%08lX+4) Debugger(); // be paranoid about a correct PC\n", inVAddr);
+	fprintf(pCOut, "\tif (ioCPU->mCurrentRegisters[15]!=0x%08X+4) Debugger(); // be paranoid about a correct PC\n", (unsigned int)inVAddr);
 	fprintf(pCOut, "\tioCPU->mCurrentRegisters[15] += 4; // update the PC\n");
 	
 	// Always generate code for a condition, so we can use local variables
@@ -357,10 +357,9 @@ void TJITGenericRetarget::TranslateSwitchCase(KUInt32 inVAddr, KUInt32 inInstruc
 	fprintf(pCOut, "\t\t// switch/case statement 0..%d\n", inLastCase);
 	fprintf(pCOut, "\t\tswitch (ioCPU->mCurrentRegisters[%d]) {\n", inBaseReg);
 	if (inFirstCase==-1)
-		fprintf(pCOut, "\t\t\tdefault:  SETPC(0x%08lX+4); goto L%08lX;\n", inVAddr+4, inVAddr+4);
-	int i;
-	for (i=0; i<=inLastCase; i++) {
-		fprintf(pCOut, "\t\t\tcase %3d: SETPC(0x%08lX+4); goto L%08lX;\n", i, inVAddr+4*i+8, inVAddr+4*i+8);
+		fprintf(pCOut, "\t\t\tdefault:  SETPC(0x%08X+4); goto L%08X;\n", (unsigned int)inVAddr+4, (unsigned int)inVAddr+4);
+	for (int i=0; i<=inLastCase; i++) {
+		fprintf(pCOut, "\t\t\tcase %3d: SETPC(0x%08X+4); goto L%08X;\n", i, (unsigned int)inVAddr+4*i+8, (unsigned int)inVAddr+4*i+8);
 	}
 	fprintf(pCOut, "\t\t}\n");
 }
@@ -491,11 +490,11 @@ void TJITGenericRetarget::Translate_Multiply( KUInt32 inVAddr, KUInt32 inInstruc
 	const KUInt32 Rm = inInstruction & 0x0000000F;
 
 	if (FLAG_A) { // multiply and add
-		fprintf(pCOut, "\t\tconst KUInt32 theResult = (ioCPU->mCurrentRegisters[%ld] * ioCPU->mCurrentRegisters[%ld]) + ioCPU->mCurrentRegisters[%ld];\n", Rm, Rs, Rn);
-		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%ld] = theResult;\n", Rd);
+		fprintf(pCOut, "\t\tconst KUInt32 theResult = (ioCPU->mCurrentRegisters[%d] * ioCPU->mCurrentRegisters[%d]) + ioCPU->mCurrentRegisters[%d];\n", (int)Rm, (int)Rs, (int)Rn);
+		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theResult;\n", (int)Rd);
 	} else { // just multiply
-		fprintf(pCOut, "\t\tconst KUInt32 theResult = ioCPU->mCurrentRegisters[%ld] * ioCPU->mCurrentRegisters[%ld];\n", Rm, Rs);
-		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%ld] = theResult;\n", Rd);
+		fprintf(pCOut, "\t\tconst KUInt32 theResult = ioCPU->mCurrentRegisters[%d] * ioCPU->mCurrentRegisters[%d];\n", (int)Rm, (int)Rs);
+		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theResult;\n", (int)Rd);
 	}
 	if (FLAG_S) {
 		// We track status flags
@@ -536,9 +535,9 @@ void TJITGenericRetarget::DoTranslate_01(KUInt32 inVAddr, KUInt32 inInstruction)
 	if ((inInstruction & 0x02000010) == 0x02000010)
 	{
 		if ((inInstruction&0x0FFFFFFF)==0x06000510) {
-			fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(0x%08lX); // throwSystemPanic\n", inVAddr);
+			fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(0x%08X); // throwSystemPanic\n", (unsigned int)inVAddr);
 		} else {
-			fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(0x%08lX); // undefined instruction\n", inVAddr);
+			fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(0x%08X); // undefined instruction\n", (unsigned int)inVAddr);
 			// -Cond-- 0  1  1  -XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX- 1  -XXXXX-
 			// DA WINNER
 			//		if (inInstruction == 0xE6000510)
@@ -578,18 +577,18 @@ void TJITGenericRetarget::Translate_SingleDataTransfer(
 #if 0
 			if (theValue>=0x0c100800 && theValue<=0x0F243000) {
 				// know global variables - use a symbolic expression for simulation!
-				fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%ld] = ptr_%s; // 0x%08lX\n", Rd, sym, theValue);
+				fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = ptr_%s; // 0x%08X\n", (int)Rd, sym, (unsigned int)theValue);
 			} else if (theValue>=0x0F000000 && theValue<=0x0c107e14) {
 				// know hardware address range - we need to do some manual labour here!
-				fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%ld] = ptr_%s; // 0x%08lX\n", Rd, sym, theValue);
+				fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = ptr_%s; // 0x%08X\n", (int)Rd, sym, (unsigned int)theValue);
 			} else {
-				fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%ld] = 0x%08lX; // %s\n", Rd, theValue, sym);
+				fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = 0x%08X; // %s\n", (int)Rd, theValue, sym);
 			}
 #else
-			fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%ld] = 0x%08lX; // %s\n", Rd, theValue, sym);
+			fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = 0x%08X; // %s\n", (int)Rd, (unsigned int)theValue, sym);
 #endif
 		} else {
-			fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%ld] = 0x%08lX;\n", Rd, theValue);
+			fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = 0x%08X;\n", (int)Rd, (unsigned int)theValue);
 		}
 	} else {
 		KUInt32 Rn = ((inInstruction & 0x000F0000) >> 16);
@@ -607,7 +606,7 @@ void TJITGenericRetarget::Translate_SingleDataTransfer(
 		if (FLAG_I) {
 			if ((inInstruction & 0x00000FFF) >> 4)
 			{
-				fprintf(pCOut, "\t\tKUInt32 offset = GetShiftNoCarryNoR15( 0x%08lX, ioCPU->mCurrentRegisters, ioCPU->mCPSR_C );\n", inInstruction);
+				fprintf(pCOut, "\t\tKUInt32 offset = GetShiftNoCarryNoR15( 0x%08X, ioCPU->mCurrentRegisters, ioCPU->mCPSR_C );\n", (unsigned int)inInstruction);
 			} else {
 				fprintf(pCOut, "\t\tKUInt32 offset = ioCPU->mCurrentRegisters[%d];\n", (unsigned int)(inInstruction & 0x0000000F));
 			}
@@ -649,13 +648,13 @@ void TJITGenericRetarget::Translate_SingleDataTransfer(
 					fprintf(pCOut, "\t\tSETPC(theData + 4);\n");
 				}
 			} else {
-				fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theData;\n", (unsigned int)Rd);
+				fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theData;\n", (int)Rd);
 			}
 		} else {
 			if (Rd == 15) {
-				fprintf(pCOut, "\t\tKUInt32 theValue = 0x%08lX + 8;\n", inVAddr);
+				fprintf(pCOut, "\t\tKUInt32 theValue = 0x%08X + 8;\n", (unsigned int)inVAddr);
 			} else {
-				fprintf(pCOut, "\t\tKUInt32 theValue = ioCPU->mCurrentRegisters[%d];\n", (unsigned int)Rd);
+				fprintf(pCOut, "\t\tKUInt32 theValue = ioCPU->mCurrentRegisters[%d];\n", (int)Rd);
 			}
 		
 			if (FLAG_B) {
@@ -671,12 +670,12 @@ void TJITGenericRetarget::Translate_SingleDataTransfer(
 			} else {
 				if (!FLAG_P) {
 					if (FLAG_U) {
-						fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theAddress + offset;\n", (unsigned int)Rn);
+						fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theAddress + offset;\n", (int)Rn);
 					} else {
-						fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theAddress - offset;\n", (unsigned int)Rn);
+						fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theAddress - offset;\n", (int)Rn);
 					}
 				} else {
-					fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theAddress;\n", (unsigned int)Rn);
+					fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theAddress;\n", (int)Rn);
 				}
 			}
 		}
@@ -920,9 +919,9 @@ void TJITGenericRetarget::Translate_MSR(KUInt32 inVAddr, KUInt32 inInstruction)
 		if (FLAG_I) {
 			KUInt32 rot = (inInstruction>>8)&15;
 			KUInt32 imm = (inInstruction&255);
-			fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = 0x%08lX;\n", imm<<(rot*2));
+			fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = 0x%08X;\n", (unsigned int) imm<<(rot*2));
 		} else {
-			fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = ioCPU->mCurrentRegisters[%ld];\n", Rm);
+			fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = ioCPU->mCurrentRegisters[%d];\n", (int)Rm);
 		}
 		if (FLAG_R) {
 			fprintf(pCOut, "\t\tif (ioCPU->GetMode()==TARMProcessor::kUserMode) {\n");
@@ -943,9 +942,9 @@ void TJITGenericRetarget::Translate_MSR(KUInt32 inVAddr, KUInt32 inInstruction)
 		if (FLAG_I) {
 			KUInt32 rot = (inInstruction>>16)&15;
 			KUInt32 imm = (inInstruction&255);
-			fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = 0x%08lX;\n", imm<<(rot*2));
+			fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = 0x%08X;\n", (unsigned int)imm<<(rot*2));
 		} else {
-			fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = ioCPU->mCurrentRegisters[%ld];\n", Rm);
+			fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = ioCPU->mCurrentRegisters[%d];\n", (int)Rm);
 		}
 		if (FLAG_R) {
 			fprintf(pCOut, "\t\tconst KUInt32 oldValue = ioCPU->GetSPSR();\n");
@@ -1015,7 +1014,7 @@ void TJITGenericRetarget::Translate_MRS(KUInt32 inVAddr, KUInt32 inInstruction)
 		} else {
 			fprintf(pCOut, "\t\tconst KUInt32 theResult = ioCPU->GetCPSR();\n");
 		}
-		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%ld] = theResult;\n", Rd);
+		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theResult;\n", (int)Rd);
 	} else {
 		fprintf(pCOut, "\t\t#error Can't use R15 as a destination here!\n");
 	}
@@ -1030,20 +1029,20 @@ void TJITGenericRetarget::TestOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32
 	} else if (MODE == NoShift) {
 		if (Rm == 15)
 		{
-			fprintf(pCOut, "\t\tKUInt32 Opnd2 = 0x%08lX + 8; // (PC)\n", inVAddr);
+			fprintf(pCOut, "\t\tKUInt32 Opnd2 = 0x%08X + 8; // (PC)\n", (unsigned int)inVAddr);
 		} else {
-			fprintf(pCOut, "\t\tKUInt32 Opnd2 = ioCPU->mCurrentRegisters[%d];\n", (unsigned int)Rm);
+			fprintf(pCOut, "\t\tKUInt32 Opnd2 = ioCPU->mCurrentRegisters[%d];\n", (int)Rm);
 		}
 	} else if ((OP == TST) || (OP == TEQ)) {
 		fprintf(pCOut, "\t\tBoolean carry = false;\n");
-		fprintf(pCOut, "\t\tKUInt32 Opnd2 = GetShift(ioCPU, 0x%08lX, &carry, 0x%08lX + 8);\n", inInstruction, inVAddr);
+		fprintf(pCOut, "\t\tKUInt32 Opnd2 = GetShift(ioCPU, 0x%08X, &carry, 0x%08X + 8);\n", (unsigned int)inInstruction, (unsigned int)inVAddr);
 	} else {
-		fprintf(pCOut, "\t\tKUInt32 Opnd2 = GetShiftNoCarry(ioCPU, 0x%08lX, ioCPU->mCPSR_C, 0x%08lX + 8);\n", inInstruction, inVAddr);
+		fprintf(pCOut, "\t\tKUInt32 Opnd2 = GetShiftNoCarry(ioCPU, 0x%08X, ioCPU->mCPSR_C, 0x%08X + 8);\n", (unsigned int)inInstruction, (unsigned int)inVAddr);
 	}
 	if (Rn == 15) {
-		fprintf(pCOut, "\t\tKUInt32 Opnd1 = 0x%08lX + 8;\n", inVAddr);
+		fprintf(pCOut, "\t\tKUInt32 Opnd1 = 0x%08X + 8;\n", (unsigned int)inVAddr);
 	} else {
-		fprintf(pCOut, "\t\tKUInt32 Opnd1 = ioCPU->mCurrentRegisters[%d];\n", (unsigned int)Rn);
+		fprintf(pCOut, "\t\tKUInt32 Opnd1 = ioCPU->mCurrentRegisters[%d];\n", (int)Rn);
 	}
 	if (OP == TST) {
 		fprintf(pCOut, "\t\tconst KUInt32 theResult = Opnd1 & Opnd2;\n");
@@ -1096,18 +1095,18 @@ void TJITGenericRetarget::LogicalOp(KUInt32 inVAddr, KUInt32 inInstruction, KUIn
 		fprintf(pCOut, "\t\tKUInt32 Opnd2 = 0x%08X;\n", (unsigned int)thePushedValue);
 	} else if (MODE == NoShift) {
 		if (Rm == 15) {
-			fprintf(pCOut, "\t\tKUInt32 Opnd2 = 0x%08lX + 8; // PC\n", inVAddr);
+			fprintf(pCOut, "\t\tKUInt32 Opnd2 = 0x%08X + 8; // PC\n", (unsigned int)inVAddr);
 		} else {
 			fprintf(pCOut, "\t\tKUInt32 Opnd2 = ioCPU->mCurrentRegisters[%d];\n", (unsigned int)Rm);
 		}
 	} else if (FLAG_S) {
 		fprintf(pCOut, "\t\tBoolean carry = false;\n");
-		fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = GetShift( ioCPU, 0x%08lX, &carry, 0x%08lX + 8 );\n", inInstruction, inVAddr);
+		fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = GetShift( ioCPU, 0x%08X, &carry, 0x%08X + 8 );\n", (unsigned int)inInstruction, (unsigned int)inVAddr);
 	} else {
-		fprintf(pCOut, "\t\tKUInt32 Opnd2 = GetShiftNoCarry( ioCPU, 0x%08lX, ioCPU->mCPSR_C, 0x%08lX + 8 );\n", inInstruction, inVAddr);
+		fprintf(pCOut, "\t\tKUInt32 Opnd2 = GetShiftNoCarry( ioCPU, 0x%08X, ioCPU->mCPSR_C, 0x%08X + 8 );\n", (unsigned int)inInstruction, (unsigned int)inVAddr);
 	}
 	if (Rn == 15) {
-		fprintf(pCOut, "\t\tKUInt32 Opnd1 = 0x%08lX + 8;\n", inVAddr);
+		fprintf(pCOut, "\t\tKUInt32 Opnd1 = 0x%08X + 8;\n", (unsigned int)inVAddr);
 	} else {
 		fprintf(pCOut, "\t\tKUInt32 Opnd1 = ioCPU->mCurrentRegisters[%d];\n", (unsigned int)Rn);
 	}
@@ -1171,15 +1170,15 @@ void TJITGenericRetarget::ArithmeticOp(KUInt32 inVAddr, KUInt32 inInstruction, K
 		fprintf(pCOut, "\t\tKUInt32 Opnd2 = 0x%08X;\n", (unsigned int)thePushedValue);
 	} else if (MODE == NoShift) {
 		if (Rm == 15) {
-			fprintf(pCOut, "\t\tKUInt32 Opnd2 = 0x%08lX + 8; // PC\n", inVAddr);
+			fprintf(pCOut, "\t\tKUInt32 Opnd2 = 0x%08X + 8; // PC\n", (unsigned int)inVAddr);
 		} else {
 			fprintf(pCOut, "\t\tKUInt32 Opnd2 = ioCPU->mCurrentRegisters[%d];\n", (unsigned int)Rm);
 		}
 	} else {
-		fprintf(pCOut, "\t\tKUInt32 Opnd2 = GetShiftNoCarry( ioCPU, 0x%08lX, ioCPU->mCPSR_C, 0x%08lX + 8 );\n", inInstruction, inVAddr);
+		fprintf(pCOut, "\t\tKUInt32 Opnd2 = GetShiftNoCarry( ioCPU, 0x%08X, ioCPU->mCPSR_C, 0x%08X + 8 );\n", (unsigned int)inInstruction, (unsigned int)inVAddr);
 	}
 	if (Rn == 15) {
-		fprintf(pCOut, "\t\tKUInt32 Opnd1 = 0x%08lX + 8;\n", inVAddr);
+		fprintf(pCOut, "\t\tKUInt32 Opnd1 = 0x%08X + 8;\n", (unsigned int)inVAddr);
 	} else {
 		fprintf(pCOut, "\t\tKUInt32 Opnd1 = ioCPU->mCurrentRegisters[%d];\n", (unsigned int)Rn);
 	}
@@ -1254,18 +1253,18 @@ void TJITGenericRetarget::MoveOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32
 {
 	KUInt32 Rm = thePushedValue;
 	if ((MODE == Imm) || (MODE == ImmC)) {
-		fprintf(pCOut, "\t\tKUInt32 Opnd2 = 0x%08lX;\n", thePushedValue);
+		fprintf(pCOut, "\t\tKUInt32 Opnd2 = 0x%08X;\n", (unsigned int)thePushedValue);
 	} else if (MODE == NoShift) {
 		if (Rm == 15) {
-			fprintf(pCOut, "\t\tKUInt32 Opnd2 = 0x%08lX + 8;\n", inVAddr);
+			fprintf(pCOut, "\t\tKUInt32 Opnd2 = 0x%08X + 8;\n", (unsigned int)inVAddr);
 		} else {
-			fprintf(pCOut, "\t\tKUInt32 Opnd2 = ioCPU->mCurrentRegisters[%ld];\n", Rm);
+			fprintf(pCOut, "\t\tKUInt32 Opnd2 = ioCPU->mCurrentRegisters[%d];\n", (int)Rm);
 		}
 	} else if (FLAG_S) {
 		fprintf(pCOut, "\t\tBoolean carry = false;\n");
-		fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = GetShift( ioCPU, 0x%08lX, &carry, 0x%08lX + 8 );\n", inInstruction, inVAddr);
+		fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = GetShift( ioCPU, 0x%08X, &carry, 0x%08X + 8 );\n", (unsigned int)inInstruction, (unsigned int)inVAddr);
 	} else {
-		fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = GetShiftNoCarry( ioCPU, 0x%08lX, ioCPU->mCPSR_C, 0x%08lX + 8 );\n", inInstruction, inVAddr);
+		fprintf(pCOut, "\t\tconst KUInt32 Opnd2 = GetShiftNoCarry( ioCPU, 0x%08X, ioCPU->mCPSR_C, 0x%08X + 8 );\n", (unsigned int)inInstruction, (unsigned int)inVAddr);
 	}
 	if (OP == MOV) {
 		fprintf(pCOut, "\t\tconst KUInt32 theResult = Opnd2;\n");
@@ -1281,7 +1280,7 @@ void TJITGenericRetarget::MoveOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32
 			fprintf(pCOut, "\t\tioCPU->SetCPSR( ioCPU->GetSPSR() );\n");
 		}
 	} else {
-		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%ld] = theResult;\n", Rd);
+		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theResult;\n", (int)Rd);
 		if (FLAG_S) {
 			if ((MODE == NoShift) || (MODE == Imm)) {
 				fprintf(pCOut, "\t\tSetCPSRBitsForLogicalOpLeaveCarry( ioCPU, theResult );\n");
@@ -1350,7 +1349,7 @@ void TJITGenericRetarget::Translate_JumpToCalculatedAddress(KUInt32 inVAddr, KUI
 	MemoryRead(inVAddr-8, prevPrevInstruction);
 	if (prevInstruction==0xE1A0E00F || prevPrevInstruction==0xE28FE004) { // mov lr,pc
 		// the previous instruct sets a return address, so this is a call
-		fprintf(pCOut, "\t\tioCPU->JumpToCalculatedAddress(ioCPU->mCurrentRegisters[15], 0x%08lX);\n", inVAddr+8);
+		fprintf(pCOut, "\t\tioCPU->JumpToCalculatedAddress(ioCPU->mCurrentRegisters[15], 0x%08X);\n", (unsigned int)inVAddr+8);
 	} else {
 		fprintf(pCOut, "\t\treturn ioCPU->JumpToCalculatedAddress(ioCPU->mCurrentRegisters[15], ret);\n");
 	}
@@ -1393,26 +1392,26 @@ void TJITGenericRetarget::Translate_Branch(KUInt32 inVAddr, KUInt32 inInstructio
 		}
 		delta = offset + 8;
 		dest = dest + delta;
-		fprintf(pCOut, "\t\tKUInt32 jumpInstr = ioCPU->ManagedMemoryRead(0x%08lX);\n", jumpTableDest);
-		fprintf(pCOut, "\t\tif (jumpInstr!=0x%08lX) {\n", jumpTableInstr);
+		fprintf(pCOut, "\t\tKUInt32 jumpInstr = ioCPU->ManagedMemoryRead(0x%08X);\n", (unsigned int)jumpTableDest);
+		fprintf(pCOut, "\t\tif (jumpInstr!=0x%08X) {\n", (unsigned int)jumpTableInstr);
 		fprintf(pCOut, "\t\t\tDebugger(); // unexpected jump table entry\n");
-		fprintf(pCOut, "\t\t\tioCPU->ReturnToEmulator(0x%08lX);\n", jumpTableDest);
+		fprintf(pCOut, "\t\t\tioCPU->ReturnToEmulator(0x%08X);\n", (unsigned int)jumpTableDest);
 		fprintf(pCOut, "\t\t}\n");
 	}
 	
 	if (inInstruction & 0x01000000)
 	{
 		// branch with link
-		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[14] = 0x%08lX + 4;\n", inVAddr);
+		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[14] = 0x%08X + 4;\n", (unsigned int)inVAddr);
 		char sym[512];
 		if (pSymbolList->GetSymbolExact(dest, sym)) {
 			fprintf(pCOut, "\t\t// rt cjitr %s\n", sym);
 		} else {
-			fprintf(pCOut, "\t\t// rt cjitr %08lX\n", dest);
+			fprintf(pCOut, "\t\t// rt cjitr %08X\n", (unsigned int)dest);
 		}
-		fprintf(pCOut, "\t\tSETPC(0x%08lX+4);\n", dest);
-		fprintf(pCOut, "\t\tFunc_0x%08lX(ioCPU, 0x%08lX);\n", dest, inVAddr+8);
-		fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08lX) {\n", inVAddr+8);
+		fprintf(pCOut, "\t\tSETPC(0x%08X+4);\n", (unsigned int)dest);
+		fprintf(pCOut, "\t\tFunc_0x%08X(ioCPU, 0x%08X);\n", (unsigned int)dest, (unsigned int)inVAddr+8);
+		fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08X) {\n", (unsigned int)inVAddr+8);
 		fprintf(pCOut, "\t\t	RT_PANIC_UNEXPECTED_RETURN_ADDRESS\n"); // throws an exception that leaves simulation and returns to JIT
 		fprintf(pCOut, "\t\t}\n");
 	} else {
@@ -1423,13 +1422,13 @@ void TJITGenericRetarget::Translate_Branch(KUInt32 inVAddr, KUInt32 inInstructio
 			if (pSymbolList->GetSymbolExact(dest, sym)) {
 				fprintf(pCOut, "\t\t// rt cjitr %s\n", sym);
 			} else {
-				fprintf(pCOut, "\t\t// rt cjitr %08lX\n", dest);
+				fprintf(pCOut, "\t\t// rt cjitr %08X\n", (unsigned int)dest);
 			}
-			fprintf(pCOut, "\t\tSETPC(0x%08lX+4);\n", dest);
-			fprintf(pCOut, "\t\treturn Func_0x%08lX(ioCPU, ret);\n", dest);
+			fprintf(pCOut, "\t\tSETPC(0x%08X+4);\n", (unsigned int)dest);
+			fprintf(pCOut, "\t\treturn Func_0x%08X(ioCPU, ret);\n", (unsigned int)dest);
 		} else {
-			fprintf(pCOut, "\t\tSETPC(0x%08lX+4);\n", dest);
-			fprintf(pCOut, "\t\tgoto L%08lX;\n", dest);
+			fprintf(pCOut, "\t\tSETPC(0x%08X+4);\n", (unsigned int)dest);
+			fprintf(pCOut, "\t\tgoto L%08X;\n", (unsigned int)dest);
 		}
 	}
 }
@@ -1493,13 +1492,13 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_STM1(KUInt32 inVAddr, KUIn
 	KUInt32 curRegList = theRegList & 0x7FFF;
 	KUInt32 nbRegisters = CountBits(theRegList);
 	if (Rn==15) fprintf(pCOut, "#error Rn == 15 -> UNPREDICTABLE\n");
-	fprintf(pCOut, "\t\tKUInt32 baseAddress = ioCPU->mCurrentRegisters[%ld];\n", Rn);
+	fprintf(pCOut, "\t\tKUInt32 baseAddress = ioCPU->mCurrentRegisters[%d];\n", (int)Rn);
 	
 	if (FLAG_W) { // Write back
 		if (FLAG_U) {
-			fprintf(pCOut, "\t\tKUInt32 wbAddress = baseAddress + (%ld * 4);\n", nbRegisters);
+			fprintf(pCOut, "\t\tKUInt32 wbAddress = baseAddress + (%d * 4);\n", (int)nbRegisters);
 		} else {
-			fprintf(pCOut, "\t\tKUInt32 wbAddress = baseAddress - (%ld * 4);\n", nbRegisters);
+			fprintf(pCOut, "\t\tKUInt32 wbAddress = baseAddress - (%d * 4);\n", (int)nbRegisters);
 		}
 	}
 	
@@ -1508,7 +1507,7 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_STM1(KUInt32 inVAddr, KUIn
 			fprintf(pCOut, "\t\tbaseAddress += 4;\n");
 		}
 	} else {	// Down.
-		fprintf(pCOut, "\t\tbaseAddress -= (%ld * 4);\n", nbRegisters);
+		fprintf(pCOut, "\t\tbaseAddress -= (%d * 4);\n", (int)nbRegisters);
 		if (!FLAG_P) { // Post: add 4.
 			fprintf(pCOut, "\t\tbaseAddress += 4;\n");
 		}
@@ -1526,13 +1525,13 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_STM1(KUInt32 inVAddr, KUIn
 	{
 		// PC is special.
 		// Stored value is PC + 12 (verified)
-		fprintf(pCOut, "\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, 0x%08lX + 12);\n", inVAddr);
+		fprintf(pCOut, "\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, 0x%08X + 12);\n", (unsigned int)inVAddr);
 	}
 	
 	if (FLAG_W) {
 	// Write back.
 	// Rn == 15 -> UNPREDICTABLE
-		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%ld] = wbAddress;\n", Rn);
+		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = wbAddress;\n", (int)Rn);
 	}
 }
 
@@ -1548,12 +1547,12 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_LDM1(KUInt32 inVAddr, KUIn
 	KUInt32 curRegList = theRegList & 0x7FFF;
 	KUInt32 nbRegisters = CountBits(theRegList);
 	if (Rn==15) fprintf(pCOut, "#error Rn == 15 -> UNPREDICTABLE\n");
-	fprintf(pCOut, "\t\tKUInt32 baseAddress = ioCPU->mCurrentRegisters[%ld];\n", Rn);
+	fprintf(pCOut, "\t\tKUInt32 baseAddress = ioCPU->mCurrentRegisters[%d];\n", (int)Rn);
 	if (FLAG_W) { // Write back
 		if (FLAG_U) {
-			fprintf(pCOut, "\t\tKUInt32 wbAddress = baseAddress + (%ld * 4);\n", nbRegisters);
+			fprintf(pCOut, "\t\tKUInt32 wbAddress = baseAddress + (%d * 4);\n", (int)nbRegisters);
 		} else {
-			fprintf(pCOut, "\t\tKUInt32 wbAddress = baseAddress - (%ld * 4);\n", nbRegisters);
+			fprintf(pCOut, "\t\tKUInt32 wbAddress = baseAddress - (%d * 4);\n", (int)nbRegisters);
 		}
 	}
 	
@@ -1562,7 +1561,7 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_LDM1(KUInt32 inVAddr, KUIn
 			fprintf(pCOut, "\t\tbaseAddress += 4;\n");
 		}
 	} else { // Down.
-		fprintf(pCOut, "\t\tbaseAddress -= (%ld * 4);\n", nbRegisters);
+		fprintf(pCOut, "\t\tbaseAddress -= (%d * 4);\n", (int)nbRegisters);
 		if (!FLAG_P) { // Post: add 4.
 			fprintf(pCOut, "\t\tbaseAddress += 4;\n");
 		}
@@ -1588,7 +1587,7 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_LDM1(KUInt32 inVAddr, KUIn
 	if (FLAG_W) {
 	// Write back.
 	// Rn == 15 -> UNPREDICTABLE
-		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%ld] = wbAddress;\n", Rn);
+		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = wbAddress;\n", (int)Rn);
 	}
 	
 	if (theRegList & 0x8000)
@@ -1625,8 +1624,8 @@ void TJITGenericRetarget::DoTranslate_11(KUInt32 inVAddr, KUInt32 inInstruction)
 				fprintf(pCOut, "#error Not yet implemented 14.2\n");
 #else
 				fprintf(pCOut, "\t\tioCPU->DoSWI();\n");
-				fprintf(pCOut, "\t\tFunc_0x00000008(ioCPU, 0x%08lX);\n", inVAddr+8);
-				fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08lX) {\n", inVAddr+8);
+				fprintf(pCOut, "\t\tFunc_0x00000008(ioCPU, 0x%08X);\n", (unsigned int)inVAddr+8);
+				fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08X) {\n", (unsigned int)inVAddr+8);
 				fprintf(pCOut, "\t\t\tRT_PANIC_UNEXPECTED_RETURN_ADDRESS\n");
 				fprintf(pCOut, "\t\t}\n");
 #endif
@@ -1640,8 +1639,8 @@ void TJITGenericRetarget::DoTranslate_11(KUInt32 inVAddr, KUInt32 inInstruction)
 #if 0
 				fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(4);\n");
 #else
-				fprintf(pCOut, "\t\tFunc_0x00000004(ioCPU, 0x%08lX);\n", inVAddr+8);
-				fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08lX) {\n", inVAddr+8);
+				fprintf(pCOut, "\t\tFunc_0x00000004(ioCPU, 0x%08X);\n", (unsigned int)inVAddr+8);
+				fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08X) {\n", (unsigned int)inVAddr+8);
 				fprintf(pCOut, "\t\t\tRT_PANIC_UNEXPECTED_RETURN_ADDRESS\n");
 				fprintf(pCOut, "\t\t}\n");
 #endif
@@ -1655,8 +1654,8 @@ void TJITGenericRetarget::DoTranslate_11(KUInt32 inVAddr, KUInt32 inInstruction)
 #if 0
 		fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(4);\n");
 #else
-		fprintf(pCOut, "\t\tFunc_0x00000004(ioCPU, 0x%08lX);\n", inVAddr+8);
-		fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08lX) {\n", inVAddr+8);
+		fprintf(pCOut, "\t\tFunc_0x00000004(ioCPU, 0x%08X);\n", (unsigned int)inVAddr+8);
+		fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08X) {\n", (unsigned int)inVAddr+8);
 		fprintf(pCOut, "\t\t\tRT_PANIC_UNEXPECTED_RETURN_ADDRESS\n");
 		fprintf(pCOut, "\t\t}\n");
 #endif
@@ -1677,20 +1676,20 @@ void TJITGenericRetarget::CoprocRegisterTransfer(KUInt32 inVAddr, KUInt32 inInst
 {
 	// -Cond-- 1  1  1  0  -CPOpc-- L  --CRn-- --Rd--- --CP#-- ---CP--- 1  --CRm-- Coproc Register Transfer
 	// FIXME: this could read the PC register. Be smart about it!
-	fprintf(pCOut, "\t\tSETPC(0x%08lX+8);\n", inVAddr);
+	fprintf(pCOut, "\t\tSETPC(0x%08X+8);\n", (unsigned int)inVAddr);
 	KUInt32 CPNumber = (inInstruction & 0x00000F00) >> 8;
 	if (CPNumber == 0xF) {
-		fprintf(pCOut, "\t\tioCPU->SystemCoprocRegisterTransfer(0x%08lX);\n", inInstruction);
+		fprintf(pCOut, "\t\tioCPU->SystemCoprocRegisterTransfer(0x%08X);\n", (unsigned int)inInstruction);
 	} else if (CPNumber == 10) {
 		// Native primitives.
-		fprintf(pCOut, "\t\tioCPU->NativeCoprocRegisterTransfer(0x%08lX);\n", inInstruction);
+		fprintf(pCOut, "\t\tioCPU->NativeCoprocRegisterTransfer(0x%08X);\n", (unsigned int)inInstruction);
 	} else {
 		fprintf(pCOut, "\t\tioCPU->DoUndefinedInstruction(); // (3)\n");
 #if 0
 		fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(4);\n");
 #else
-		fprintf(pCOut, "\t\tFunc_0x00000004(ioCPU, 0x%08lX);\n", inVAddr+8);
-		fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08lX) {\n", inVAddr+8);
+		fprintf(pCOut, "\t\tFunc_0x00000004(ioCPU, 0x%08X);\n", (unsigned int)inVAddr+8);
+		fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08X) {\n", (unsigned int)inVAddr+8);
 		fprintf(pCOut, "\t\t\tRT_PANIC_UNEXPECTED_RETURN_ADDRESS\n");
 		fprintf(pCOut, "\t\t}\n");
 #endif

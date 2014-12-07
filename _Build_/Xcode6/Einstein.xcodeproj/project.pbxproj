@@ -2351,7 +2351,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2379,13 +2378,11 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
-				VALID_ARCHS = i386;
 			};
 			name = Debug;
 		};
@@ -2393,7 +2390,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -2419,13 +2415,11 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
-				VALID_ARCHS = i386;
 			};
 			name = Release;
 		};
@@ -2444,7 +2438,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				VALID_ARCHS = i386;
 			};
 			name = Debug;
 		};
@@ -2462,7 +2455,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				OTHER_CFLAGS = "";
 				SDKROOT = macosx;
-				VALID_ARCHS = i386;
 			};
 			name = Release;
 		};
@@ -2791,7 +2783,6 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				SDKROOT = macosx;
-				VALID_ARCHS = i386;
 			};
 			name = Distribution;
 		};
@@ -2799,7 +2790,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -2825,13 +2815,11 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
-				VALID_ARCHS = i386;
 			};
 			name = Distribution;
 		};

@@ -683,8 +683,8 @@ TROMImage::PatchROM( SImage* inImagePtr )
                k717006VirtualizationPatches,
                (sizeof(k717006VirtualizationPatches) / (sizeof(KUInt32) * 2)));
 
-		fprintf(stderr, "%ld/19300 patches added %.2f%%.\n",
-				TROMPatch::GetNumPatches(),
+		fprintf(stderr, "%u/19300 patches added %.2f%%.\n",
+				(unsigned int)TROMPatch::GetNumPatches(),
 				TROMPatch::GetNumPatches()/193.00);
 	} else {
         fprintf(stderr, "Can't patch: WRONG ROM!");
