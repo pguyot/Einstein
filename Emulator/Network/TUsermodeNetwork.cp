@@ -1162,7 +1162,7 @@ public:
 			default: printf("UNKNOWN BOOT TYPE: %d\n", packet.Get8(0x011c)); break;
 		}
 		
-		printf("Net: DHCP request (%ld bytes)\n", packet.Size());
+		printf("Net: DHCP request (%u bytes)\n", (unsigned int)packet.Size());
 		int i;
 		for (i=0; i<packet.Size(); i++) {
 			KUInt8 d = packet.Data()[i];
@@ -1292,7 +1292,7 @@ public:
 		
 		net->Enqueue(reply);
 
-		printf("Net: DHCP reply (%ld bytes)\n", reply->Size());
+		printf("Net: DHCP reply (%u bytes)\n", (unsigned int)reply->Size());
 		for (i=0; i<reply->Size(); i++) {
 			KUInt8 d = reply->Data()[i];
 			printf("%02x %c  ", d, ((d>=32)&&(d<127))?d:'.');

@@ -1018,7 +1018,7 @@ static void addBlock(FILE *f, KUInt32 first, KUInt32 last, KUInt32 type, const c
 	if (first!=blockLast) newBlock = true;
 	if (newBlock) {
 		if (blockType!=0)
-			fprintf(f, "VA 0x%08lX to 0x%08lX (%ld kB): %s\n", blockFirst, blockLast, (blockLast-blockFirst)/1024, blockName);
+			fprintf(f, "VA 0x%08lX to 0x%08lX (%ld kB): %s\n", (unsigned long)blockFirst, (unsigned long)blockLast, (unsigned long)(blockLast-blockFirst)/1024, blockName);
 		blockFirst = first;
 		blockLast = last;
 		blockType = type;
@@ -1033,7 +1033,7 @@ static void addBlock(FILE *f, KUInt32 first, KUInt32 last, KUInt32 type, const c
 
 static void endBlocks(FILE *f)
 {
-	fprintf(f, "VA 0x%08lX to 0x%08lX (%ld kB): %s\n", blockFirst, blockLast, (blockLast-blockFirst)/1024, blockName);
+	fprintf(f, "VA 0x%08lX to 0x%08lX (%ld kB): %s\n", (unsigned long)blockFirst, (unsigned long)blockLast, (unsigned long)(blockLast-blockFirst)/1024, blockName);
 }
 
 

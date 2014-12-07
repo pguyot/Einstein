@@ -1238,17 +1238,17 @@ TARMProcessor::JumpToCalculatedAddress(KUInt32 inPC, KUInt32 ret)
 				SetRegister(kR15, inPC);
 				return nativeTarget(this, ret);
 			} else {
-				printf("SIM_INFO(%ld): no native function registered at 0x%08lX\n", ++cnt, inPC);
+				printf("SIM_INFO(%ld): no native function registered at 0x%08lX\n", (unsigned long)++cnt, (unsigned long)inPC);
 			}
 		} else {
 			// FIXME: remove some noise
 			if (inPC<0x00800000 || inPC>0x008fffff) {
-				printf("SIM_INFO: not a native target at 0x%08lX\n", inPC-4);
-				printf("SIM_INFO(%ld): try: rt cjit %08lX-%08lX vt_%08lX\n", ++cnt, inPC-4, inPC, inPC-4);
+				printf("SIM_INFO: not a native target at 0x%08lX\n", (unsigned long)inPC-4);
+				printf("SIM_INFO(%ld): try: rt cjit %08lX-%08lX vt_%08lX\n", (unsigned long)++cnt, (unsigned long)inPC-4, (unsigned long)inPC, (unsigned long)inPC-4);
 			}
 		}
 	} else {
-		printf("SIM_INFO(%ld): target outside of ROM at 0x%08lX\n", ++cnt, inPC);
+		printf("SIM_INFO(%ld): target outside of ROM at 0x%08lX\n", (unsigned long)++cnt, (unsigned long)inPC);
 	}
 	throw "JumpToCalculatedAddress";
 }
