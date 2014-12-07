@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_005
+rt open unsorted_005
 rt cjit SlowFrameHasSlot__FlT1
 rt cjit __flsbuf
 rt cjit LockRef__Fl

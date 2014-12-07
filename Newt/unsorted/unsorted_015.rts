@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_015
+rt open unsorted_015
 rt cjit FIsFunction
 rt cjit FClone
 rt cjit FQuickSort

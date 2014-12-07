@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_019
+rt open unsorted_019
 
 rt cjit FlushEphemerals__17TEphemeralTrackerFv
 rt cjit VppOn__11TFlashStoreFv

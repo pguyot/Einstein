@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_017
+rt open unsorted_017
 rt cjit __ct__10TSemaphoreFv
 rt cjit FHasPath
 rt cjit FIsReadOnly

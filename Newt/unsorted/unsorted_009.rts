@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_009
+rt open unsorted_009
 rt cjit Next__22TClassInfoRegistryImplCFlPC10TClassInfoPUl
 rt cjit First__22TClassInfoRegistryImplCFlPUl
 rt cjit Seed__22TClassInfoRegistryImplCFv

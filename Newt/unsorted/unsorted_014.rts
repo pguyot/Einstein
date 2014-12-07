@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_014
+rt open unsorted_014
 
 rt cjit RegisterInterrupt__FUlPvPFPv_lT1
 rt cjit SetResetState__16THermesIRControlFv

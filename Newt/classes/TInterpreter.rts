@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/classes/TInterpreter
+rt open TInterpreter
 rt cjit SetFastLoopFlag__12TInterpreterFv
 rt cjit PopValue__12TInterpreterFv
 rt cjit PrevState__11TIntrpStackFv

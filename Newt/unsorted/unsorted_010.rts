@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_010
+rt open unsorted_010
 rt cjit Satisfy__22TClassInfoRegistryImplCFPCcN21
 rt cjit Find__22TClassInfoRegistryImplCFPCcT1iPUl
 rt cjit New__15TLZDecompressorFv

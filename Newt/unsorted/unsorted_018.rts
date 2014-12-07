@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_018
+rt open unsorted_018
 rt cjit RefToAddress__Fl
 rt cjit FLength
 rt cjit CommonSoupGetName

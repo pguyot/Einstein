@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_020
+rt open unsorted_020
 
 rt cjit MoveToNextSoup__15TUnionSoupIndexFUciP4SKeyT1
 rt cjit CallBits__FP8PixelMapP4RectT2lPP6Region
