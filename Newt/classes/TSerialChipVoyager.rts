@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/classes/TSerialChipVoyager
+rt open TSerialChipVoyager
 rt cjit #00384A3C-00384AF8
 rt cjit InitializeForNextHandler__18TSerialChipVoyagerFv
 rt cjit Sizeof__18TSerialChipVoyagerSFv

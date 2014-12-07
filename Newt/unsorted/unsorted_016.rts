@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_016
+rt open unsorted_016
 rt cjit __ct__18TAbstractSoupIndexFv
 rt cjit Entry__7TCursorFv
 rt cjit DefineCursor__FRC6RefVarN21

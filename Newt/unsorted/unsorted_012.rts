@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_012
+rt open unsorted_012
 rt cjit CoerceToDouble__FRC6RefVar
 rt cjit NumberAdd__FRC6RefVarT1
 rt cjit CDouble__FRC6RefVar

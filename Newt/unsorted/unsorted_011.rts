@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_011
+rt open unsorted_011
 rt cjit GrabPtr__11TRichStringCFv
 rt cjit ReleasePtr__11TRichStringCFv
 rt cjit PrintInstructions__FRC6RefVar

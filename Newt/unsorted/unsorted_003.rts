@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_003
+rt open unsorted_003
 rt cjit BackupPatch__FUl
 rt cjit PrimRExConfigEntry
 rt cjit PrimLastRExConfigEntry

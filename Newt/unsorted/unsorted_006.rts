@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_006
+rt open unsorted_006
 rt cjit RememberDeveloperNotified__FP9Exception
 rt cjit StateAt__11TIntrpStackFl
 rt cjit strcpy

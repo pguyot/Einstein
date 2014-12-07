@@ -492,6 +492,21 @@
 		F1CAFCF9124200C100A0382E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFCF8124200C100A0382E /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXBuildRule section */
+		C9BFFFE41A3500FE001A90BC /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.rts";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+				"$(INPUT_FILE_DIR)/$(INPUT_FILE_BASE).cp",
+				"$(INPUT_FILE_DIR)/$(INPUT_FILE_BASE).h",
+			);
+			script = "cd \"${INPUT_FILE_DIR}\"\n${TARGET_BUILD_DIR}/retarget -s ${PROJECT_DIR}/../../_Data_/symbols.txt ${INPUT_FILE_PATH}";
+		};
+/* End PBXBuildRule section */
+
 /* Begin PBXContainerItemProxy section */
 		F115FF031A2E8D40001F3D65 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1903,6 +1918,7 @@
 				C95E60AC198B76DC004C6CEF /* Frameworks */,
 			);
 			buildRules = (
+				C9BFFFE41A3500FE001A90BC /* PBXBuildRule */,
 			);
 			dependencies = (
 			);

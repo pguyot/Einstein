@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_013
+rt open unsorted_013
 rt cjit Delete__11TFlashRangeFR16TMemoryAllocator
 rt cjit 0001E3D4-0001E3D8 vt_0001E3D4
 rt cjit 0001E3D8-0001E3DC vt_0001E3D8

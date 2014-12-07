@@ -36,6 +36,12 @@ int main(int argc, const char * argv[])
 {
 	int err = 1;
 	char symbols_file[PATH_MAX];
+	char script_file[PATH_MAX];
+	
+//	int i;
+//	for (i=0; i<argc; i++) {
+//		fprintf(stderr, "Arg %d = >>%s<<\n", i, argv[i]);
+//	}
 	
 	strcpy(symbols_file, "symbols.txt");
 	if (argc==4) {
@@ -48,32 +54,47 @@ int main(int argc, const char * argv[])
 			} else {
 				fclose(f);
 			}
-			f = fopen(argv[3], "rb");
+			strcpy(script_file, argv[3]);
+			f = fopen(script_file, "rb");
 			if (!f) {
-				fprintf(stderr, "ERROR: can't open script_file \"%s\"\n", argv[3]);
+				fprintf(stderr, "ERROR: can't open script_file \"%s\"\n", script_file);
 				return -1;
 			} else {
 				fclose(f);
 			}
+			err = 0;
 		}
 	}
 	
 	if (err) {
-		fprintf(stderr, ">>%s<<\n", argv[1]);
-		fprintf(stderr, ">>%s<<\n", argv[2]);
 		fprintf(stderr, "USAGE: retarget -s symbols_file script_file\n");
 		return -1;
 	}
 	
-	TSymbolList::List = new TSymbolList(argv[3]);
+	TSymbolList::List = new TSymbolList(symbols_file);
 	TMonitorCore m(TSymbolList::List);
 	
-	bool result = m.ExecuteScript(argv[1]);
+	char script_dir[PATH_MAX];
+	char current_dir[PATH_MAX];
+	
+	strcpy(script_dir, script_file);
+	char *slash = strrchr(script_dir, '/');
+	if (slash) {
+		slash[1] = 0;
+	} else {
+		strcpy(script_dir, ".");
+	}
+	getcwd(current_dir, PATH_MAX);
+	chdir(script_dir);
+	
+	bool result = m.ExecuteScript(script_file);
 	
 	if (result==false) {
-		fprintf(stderr, "ERROR: script erro in \"%s\"\n", argv[3]);
+		fprintf(stderr, "ERROR: script error in \"%s\"\n", argv[3]);
 		return -1;
 	}
-	
+
+	chdir(current_dir);
+
     return 0;
 }
