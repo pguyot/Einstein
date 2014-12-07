@@ -532,41 +532,6 @@ static char cc(unsigned int v) {
 
 
 // -------------------------------------------------------------------------- //
-// ExecuteScript( const char* inCommand )
-// -------------------------------------------------------------------------- //
-//Boolean
-//TMonitor::ExecuteScript( const char* inScriptFile )
-//{
-//	bool theResult = true;
-//	FILE *f = fopen(inScriptFile, "rb");
-//	if (f) {
-//		for (;;) {
-//			char buf[2048];
-//			if (feof(f)) break;
-//			if (fgets(buf, 2047, f)) {
-//				int n = strlen(buf);
-//				if (n) {
-//					if (buf[n-1]=='\n') n--;
-//					if (buf[n-1]=='\r') n--;
-//					buf[n] = 0;
-//					char *s = buf;
-//					while (*s=='\t' || *s==' ') s++;
-//					if (s[0]!='#' && s[0]!=0)
-//						theResult = ExecuteCommand(s);
-//				}
-//			}
-//			if (theResult==false) break;
-//		}
-//		fclose(f);
-//	} else {
-//		theResult = false;
-//		PrintLine("Can't open script file");
-//	}
-//	return theResult;
-//}
-
-
-// -------------------------------------------------------------------------- //
 // ExecuteStartupScript()
 // -------------------------------------------------------------------------- //
 Boolean
