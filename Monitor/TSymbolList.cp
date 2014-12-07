@@ -683,7 +683,7 @@ TSymbolList::GetSymbol(
 		if ((inValue >= theSymbolValue) && (inValue < theNextSymbolValue))
 		{
 			ReadSymbolData(&mSymbolOffsets[indexSymbols], outSymbol, outComment);
-			*outOffset = inValue - theSymbolValue;
+			*outOffset = (int)(inValue - theSymbolValue);
 			break;
 		}
 	}
