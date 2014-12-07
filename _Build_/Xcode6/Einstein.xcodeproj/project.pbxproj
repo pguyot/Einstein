@@ -405,6 +405,13 @@
 		C9B4ABC9123D709D00D8D2C7 /* TNetworkManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */; };
 		C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
 		C9BE33D1133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
+		C9BFFEA81A34F601001A90BC /* main.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BFFEA61A34F601001A90BC /* main.cp */; };
+		C9BFFEA91A34F601001A90BC /* MemSnap.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BFFEA71A34F601001A90BC /* MemSnap.cp */; };
+		C9BFFEAA1A34F745001A90BC /* TMonitorCore.cp in Sources */ = {isa = PBXBuildFile; fileRef = C94233911A34F08E002D82EF /* TMonitorCore.cp */; };
+		C9BFFEAB1A34F74A001A90BC /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
+		C9BFFEAC1A34F76A001A90BC /* TJITGenericRetarget.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9CEB43D19601CA3002198A7 /* TJITGenericRetarget.cp */; };
+		C9BFFEAD1A34F76A001A90BC /* TJITGenericRetargetMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C965D3FF1970A47000348893 /* TJITGenericRetargetMap.cpp */; };
+		C9BFFEAE1A34F783001A90BC /* UDisasm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cp */; };
 		C9CEB43F19601CA3002198A7 /* TJITGenericRetarget.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9CEB43D19601CA3002198A7 /* TJITGenericRetarget.cp */; };
 		C9D54E1415FA23E700D91131 /* TFiber.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cp */; };
 		C9DA71BA17CD42D4008E6DB2 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C9DA71B917CD42D4008E6DB2 /* libresolv.dylib */; };
@@ -457,6 +464,18 @@
 			remoteInfo = EinsteinDev;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C9BFFE9B1A34F5B3001A90BC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -761,6 +780,9 @@
 		C9B4AA49123D480900D8D2C7 /* iEinsteinView.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = iEinsteinView.h; path = Classes/iEinsteinView.h; sourceTree = "<group>"; tabWidth = 4; };
 		C9BE33CE133E64F60052EA2F /* TJITPerformance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITPerformance.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TJITPerformance.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		C9BFFE9D1A34F5B3001A90BC /* retarget */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = retarget; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9BFFEA61A34F601001A90BC /* main.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cp; sourceTree = "<group>"; };
+		C9BFFEA71A34F601001A90BC /* MemSnap.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MemSnap.cp; sourceTree = "<group>"; };
 		C9CEB43D19601CA3002198A7 /* TJITGenericRetarget.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGenericRetarget.cp; sourceTree = "<group>"; };
 		C9CEB43E19601CA3002198A7 /* TJITGenericRetarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGenericRetarget.h; sourceTree = "<group>"; };
 		C9D54E1215FA23E700D91131 /* TFiber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFiber.h; sourceTree = "<group>"; };
@@ -833,6 +855,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C9BFFE9A1A34F5B3001A90BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -866,6 +895,7 @@
 				C9B4AA24123D471D00D8D2C7 /* iOSEinstein.app */,
 				C95E60B7198B76DC004C6CEF /* Einstein copy.app */,
 				2389E9961A1E4D4A0001A8C5 /* iOSEinstein.app */,
+				C9BFFE9D1A34F5B3001A90BC /* retarget */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -882,6 +912,7 @@
 			isa = PBXGroup;
 			children = (
 				C99E3154111B72C0002165EC /* Sources */,
+				C9BFFE7F1A34F57C001A90BC /* Tools */,
 				C99E3156111B72CC002165EC /* Libraries */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
@@ -1494,6 +1525,24 @@
 			path = ../../app/iEinstein;
 			sourceTree = "<group>";
 		};
+		C9BFFE7F1A34F57C001A90BC /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				C9BFFEA51A34F601001A90BC /* retarget */,
+			);
+			name = Tools;
+			path = ../../Tools;
+			sourceTree = "<group>";
+		};
+		C9BFFEA51A34F601001A90BC /* retarget */ = {
+			isa = PBXGroup;
+			children = (
+				C9BFFEA61A34F601001A90BC /* main.cp */,
+				C9BFFEA71A34F601001A90BC /* MemSnap.cp */,
+			);
+			path = retarget;
+			sourceTree = "<group>";
+		};
 		F1CB7613131730100017B0BB /* Mac OS X */ = {
 			isa = PBXGroup;
 			children = (
@@ -1611,6 +1660,23 @@
 			productReference = C9B4AA24123D471D00D8D2C7 /* iOSEinstein.app */;
 			productType = "com.apple.product-type.application";
 		};
+		C9BFFE9C1A34F5B3001A90BC /* retarget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C9BFFEA11A34F5B3001A90BC /* Build configuration list for PBXNativeTarget "retarget" */;
+			buildPhases = (
+				C9BFFE991A34F5B3001A90BC /* Sources */,
+				C9BFFE9A1A34F5B3001A90BC /* Frameworks */,
+				C9BFFE9B1A34F5B3001A90BC /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = retarget;
+			productName = retarget;
+			productReference = C9BFFE9D1A34F5B3001A90BC /* retarget */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1619,6 +1685,9 @@
 			attributes = {
 				LastUpgradeCheck = 0610;
 				TargetAttributes = {
+					C9BFFE9C1A34F5B3001A90BC = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
 					F115FEFE1A2E8D34001F3D65 = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -1639,6 +1708,7 @@
 				C9B4AA23123D471D00D8D2C7 /* iOSEinstein (NIBs) */,
 				2389E9371A1E4D4A0001A8C5 /* iOSEinstein (Storyboards) */,
 				C95E603C198B76DC004C6CEF /* EinsteinDev */,
+				C9BFFE9C1A34F5B3001A90BC /* retarget */,
 				F115FEFE1A2E8D34001F3D65 /* All */,
 			);
 		};
@@ -2080,6 +2150,20 @@
 				F11E44B817C2DEF100EB9B4E /* TSymbolList.cp in Sources */,
 				C9BE33D1133E64F60052EA2F /* TJITPerformance.cp in Sources */,
 				F11E44B717C2DEE800EB9B4E /* TFiber.cp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C9BFFE991A34F5B3001A90BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C9BFFEAC1A34F76A001A90BC /* TJITGenericRetarget.cp in Sources */,
+				C9BFFEAD1A34F76A001A90BC /* TJITGenericRetargetMap.cpp in Sources */,
+				C9BFFEAA1A34F745001A90BC /* TMonitorCore.cp in Sources */,
+				C9BFFEAB1A34F74A001A90BC /* TSymbolList.cp in Sources */,
+				C9BFFEA91A34F601001A90BC /* MemSnap.cp in Sources */,
+				C9BFFEAE1A34F783001A90BC /* UDisasm.cp in Sources */,
+				C9BFFEA81A34F601001A90BC /* main.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2557,6 +2641,135 @@
 			};
 			name = Release;
 		};
+		C9BFFEA21A34F5B3001A90BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					"EINSTEIN_RETARGET=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../../",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		C9BFFEA31A34F5B3001A90BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"TARGET_OS_OPENSTEP=1",
+					"NS_BLOCK_ASSERTIONS=1",
+					"NDEBUG=1",
+					"EINSTEIN_RETARGET=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../../",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		C9BFFEA41A34F5B3001A90BC /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"TARGET_OS_OPENSTEP=1",
+					"NS_BLOCK_ASSERTIONS=1",
+					"NDEBUG=1",
+					"EINSTEIN_RETARGET=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../../",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Distribution;
+		};
 		C9F9102C12FB780F0061A18D /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2725,6 +2938,15 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		C9BFFEA11A34F5B3001A90BC /* Build configuration list for PBXNativeTarget "retarget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9BFFEA21A34F5B3001A90BC /* Debug */,
+				C9BFFEA31A34F5B3001A90BC /* Release */,
+				C9BFFEA41A34F5B3001A90BC /* Distribution */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		F115FEFF1A2E8D34001F3D65 /* Build configuration list for PBXAggregateTarget "All" */ = {
 			isa = XCConfigurationList;
