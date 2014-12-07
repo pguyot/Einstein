@@ -77,7 +77,7 @@ TMonitorCore::ExecuteScript( const char* inScriptFile )
 			char buf[2048];
 			if (feof(f)) break;
 			if (fgets(buf, 2047, f)) {
-				int n = strlen(buf);
+				int n = (int)strlen(buf);
 				if (n) {
 					if (buf[n-1]=='\n') n--;
 					if (buf[n-1]=='\r') n--;
@@ -179,7 +179,7 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 			first = mSymbolList->GetSymbol(inCommand+arg);
 			if (first!=TSymbolList::kNoSymbol) {
 				n = 1;
-				last = mSymbolList->GetNextSymbol(first);
+				last = (KUInt32)mSymbolList->GetNextSymbol(first);
 				if (last!=TSymbolList::kNoSymbol) {
 					n = 2;
 				}
