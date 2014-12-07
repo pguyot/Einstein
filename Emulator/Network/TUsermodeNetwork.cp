@@ -1293,7 +1293,6 @@ public:
 		net->Enqueue(reply);
 
 		printf("Net: DHCP reply (%ld bytes)\n", reply->Size());
-		 i = 0;
 		for (i=0; i<reply->Size(); i++) {
 			KUInt8 d = reply->Data()[i];
 			printf("%02x %c  ", d, ((d>=32)&&(d<127))?d:'.');
