@@ -17,7 +17,6 @@
 				F115FF061A2E8D40001F3D65 /* PBXTargetDependency */,
 				F115FF081A2E8D40001F3D65 /* PBXTargetDependency */,
 				F115FF0A1A2E8D40001F3D65 /* PBXTargetDependency */,
-				F115FF0C1A2E8D40001F3D65 /* PBXTargetDependency */,
 			);
 			name = All;
 			productName = All;
@@ -131,11 +130,12 @@
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
 		C932C4C211A1AB5D00F6A7E4 /* TNE2000Card.cp in Sources */ = {isa = PBXBuildFile; fileRef = C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */; };
+		C94233931A34F08E002D82EF /* TMonitorCore.cp in Sources */ = {isa = PBXBuildFile; fileRef = C94233911A34F08E002D82EF /* TMonitorCore.cp */; };
+		C94233941A34F08E002D82EF /* TMonitorCore.cp in Sources */ = {isa = PBXBuildFile; fileRef = C94233911A34F08E002D82EF /* TMonitorCore.cp */; };
 		C94ADB3A123E9ADD00406839 /* iEinsteinAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = C94ADB37123E9ADD00406839 /* iEinsteinAppDelegate.mm */; };
 		C94ADB3B123E9ADD00406839 /* iEinsteinView.mm in Sources */ = {isa = PBXBuildFile; fileRef = C94ADB38123E9ADD00406839 /* iEinsteinView.mm */; };
 		C94ADB3C123E9ADD00406839 /* iEinsteinViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = C94ADB39123E9ADD00406839 /* iEinsteinViewController.mm */; };
 		C94ADB3F123E9AEC00406839 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = C94ADB3E123E9AEC00406839 /* main.mm */; };
-		C95E602B1988E1D9004C6CEF /* SimHandcoded.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95E60291988E1D9004C6CEF /* SimHandcoded.cpp */; };
 		C95E603F198B76DC004C6CEF /* button_backlight.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3160111B7346002165EC /* button_backlight.png */; };
 		C95E6040198B76DC004C6CEF /* button_backlight_on.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3161111B7346002165EC /* button_backlight_on.png */; };
 		C95E6041198B76DC004C6CEF /* button_install.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3162111B7346002165EC /* button_install.png */; };
@@ -148,8 +148,6 @@
 		C95E6048198B76DC004C6CEF /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C95E6049198B76DC004C6CEF /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
 		C95E604B198B76DC004C6CEF /* TMonitor.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3175111B73A1002165EC /* TMonitor.cp */; };
-		C95E604C198B76DC004C6CEF /* SimHandcoded.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95E60291988E1D9004C6CEF /* SimHandcoded.cpp */; };
-		C95E604D198B76DC004C6CEF /* SimCollection1.cp in Sources */ = {isa = PBXBuildFile; fileRef = C965D3FB19706FFC00348893 /* SimCollection1.cp */; };
 		C95E604E198B76DC004C6CEF /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		C95E604F198B76DC004C6CEF /* UDisasm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cp */; settings = {COMPILER_FLAGS = "-Wno-format-security"; }; };
 		C95E6050198B76DC004C6CEF /* TCondVar.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E333F111B7570002165EC /* TCondVar.cp */; };
@@ -161,7 +159,6 @@
 		C95E6056198B76DC004C6CEF /* EinsteinInstallPackageCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E33D8111B7C07002165EC /* EinsteinInstallPackageCommand.mm */; };
 		C95E6057198B76DC004C6CEF /* TCocoaAppController.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E33DC111B7C07002165EC /* TCocoaAppController.mm */; };
 		C95E6058198B76DC004C6CEF /* TJITGenericRetargetMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C965D3FF1970A47000348893 /* TJITGenericRetargetMap.cpp */; };
-		C95E6059198B76DC004C6CEF /* SimTTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C98A531819717C67007A1164 /* SimTTask.cpp */; };
 		C95E605A198B76DC004C6CEF /* TCocoaROMDumperController.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E33DE111B7C07002165EC /* TCocoaROMDumperController.mm */; };
 		C95E605B198B76DC004C6CEF /* TCocoaSetupController.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E33E0111B7C07002165EC /* TCocoaSetupController.mm */; };
 		C95E605C198B76DC004C6CEF /* THostInfo.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E33F0111B7C07002165EC /* THostInfo.cp */; };
@@ -252,15 +249,9 @@
 		C95E60B2198B76DC004C6CEF /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E374F111C1F0E002165EC /* Carbon.framework */; };
 		C962429711B69A9D00EE66F3 /* TUsermodeNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */; };
 		C96242A011B6A20A00EE66F3 /* TNetworkManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */; };
-		C9642CD119B67CE400BB0B42 /* SingleQContainer.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9642CCF19B67CE400BB0B42 /* SingleQContainer.cp */; };
-		C9642CE219B67E3500BB0B42 /* NewtSim.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9642CE019B67E3500BB0B42 /* NewtSim.cp */; };
-		C9642CE319B6815B00BB0B42 /* SingleQContainer.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9642CCF19B67CE400BB0B42 /* SingleQContainer.cp */; };
-		C9642CE419B6815B00BB0B42 /* SimHandcoded.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95E60291988E1D9004C6CEF /* SimHandcoded.cpp */; };
-		C965D3FD19706FFC00348893 /* SimCollection1.cp in Sources */ = {isa = PBXBuildFile; fileRef = C965D3FB19706FFC00348893 /* SimCollection1.cp */; };
 		C965D4011970A47000348893 /* TJITGenericRetargetMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C965D3FF1970A47000348893 /* TJITGenericRetargetMap.cpp */; };
 		C97C7E1D124282A600CDCD05 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C97C7E1B124282A600CDCD05 /* Foundation.framework */; };
 		C97C7EA3124283FE00CDCD05 /* MainWindow_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */; };
-		C98A531A19717C67007A1164 /* SimTTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C98A531819717C67007A1164 /* SimTTask.cpp */; };
 		C99566AA123EC4DA009A5668 /* Einstein.rex in Resources */ = {isa = PBXBuildFile; fileRef = C99E377A111C2289002165EC /* Einstein.rex */; };
 		C995672C123F793D009A5668 /* TIOSScreenManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = C995672B123F793D009A5668 /* TIOSScreenManager.mm */; };
 		C99E316A111B7346002165EC /* button_backlight.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3160111B7346002165EC /* button_backlight.png */; };
@@ -465,26 +456,7 @@
 			remoteGlobalIDString = C95E603C198B76DC004C6CEF;
 			remoteInfo = EinsteinDev;
 		};
-		F115FF0B1A2E8D40001F3D65 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C9642CD519B67DE900BB0B42;
-			remoteInfo = NewtSim;
-		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		C9642CD419B67DE900BB0B42 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -499,32 +471,22 @@
 		C932824611D0CF0A003B93C3 /* button_network.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network.png; sourceTree = "<group>"; };
 		C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNE2000Card.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C932C4C111A1AB5D00F6A7E4 /* TNE2000Card.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNE2000Card.h; sourceTree = "<group>"; };
+		C94233911A34F08E002D82EF /* TMonitorCore.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMonitorCore.cp; sourceTree = "<group>"; };
+		C94233921A34F08E002D82EF /* TMonitorCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMonitorCore.h; sourceTree = "<group>"; };
 		C94ADB37123E9ADD00406839 /* iEinsteinAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinAppDelegate.mm; path = Classes/iEinsteinAppDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
 		C94ADB38123E9ADD00406839 /* iEinsteinView.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinView.mm; path = Classes/iEinsteinView.mm; sourceTree = "<group>"; tabWidth = 4; };
 		C94ADB39123E9ADD00406839 /* iEinsteinViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinViewController.mm; path = Classes/iEinsteinViewController.mm; sourceTree = "<group>"; tabWidth = 4; };
 		C94ADB3E123E9AEC00406839 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
-		C95E60291988E1D9004C6CEF /* SimHandcoded.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimHandcoded.cpp; sourceTree = "<group>"; };
-		C95E602A1988E1D9004C6CEF /* SimHandcoded.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimHandcoded.h; sourceTree = "<group>"; };
 		C95E60B7198B76DC004C6CEF /* Einstein copy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Einstein copy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TUsermodeNetwork.cp; path = Network/TUsermodeNetwork.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429611B69A9D00EE66F3 /* TUsermodeNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TUsermodeNetwork.h; path = Network/TUsermodeNetwork.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TNetworkManager.cp; path = Network/TNetworkManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429F11B6A20A00EE66F3 /* TNetworkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TNetworkManager.h; path = Network/TNetworkManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
-		C9642CCF19B67CE400BB0B42 /* SingleQContainer.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleQContainer.cp; sourceTree = "<group>"; };
-		C9642CD019B67CE400BB0B42 /* SingleQContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleQContainer.h; sourceTree = "<group>"; };
-		C9642CD619B67DE900BB0B42 /* NewtSim */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NewtSim; sourceTree = BUILT_PRODUCTS_DIR; };
-		C9642CE019B67E3500BB0B42 /* NewtSim.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewtSim.cp; sourceTree = "<group>"; };
-		C9642CE119B67E3500BB0B42 /* NewtSim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewtSim.h; sourceTree = "<group>"; };
-		C965D3FB19706FFC00348893 /* SimCollection1.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimCollection1.cp; sourceTree = "<group>"; };
-		C965D3FC19706FFC00348893 /* SimulatorGlue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimulatorGlue.h; sourceTree = "<group>"; };
-		C965D3FE19709A2F00348893 /* SimCollection1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimCollection1.h; sourceTree = "<group>"; };
 		C965D3FF1970A47000348893 /* TJITGenericRetargetMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGenericRetargetMap.cpp; sourceTree = "<group>"; };
 		C965D4001970A47000348893 /* TJITGenericRetargetMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGenericRetargetMap.h; sourceTree = "<group>"; };
 		C97C7E1B124282A600CDCD05 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		C97C7EA01242832700CDCD05 /* iEinstein-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iEinstein-Info.plist"; sourceTree = SOURCE_ROOT; };
 		C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow_iPad.xib; sourceTree = "<group>"; };
-		C98A531819717C67007A1164 /* SimTTask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimTTask.cpp; sourceTree = "<group>"; };
-		C98A531919717C67007A1164 /* SimTTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimTTask.h; sourceTree = "<group>"; };
 		C9956719123F71D2009A5668 /* TIOSScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TIOSScreenManager.h; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C995672B123F793D009A5668 /* TIOSScreenManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TIOSScreenManager.mm; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E315A111B7331002165EC /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../Resources/Info.plist; sourceTree = SOURCE_ROOT; };
@@ -806,20 +768,6 @@
 		C9DA71B917CD42D4008E6DB2 /* libresolv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libresolv.dylib; path = usr/lib/libresolv.dylib; sourceTree = SDKROOT; };
 		C9E848E711EDCD6C00F27330 /* ffi_darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi_darwin.c; sourceTree = "<group>"; };
 		C9E848E811EDCD6C00F27330 /* x86-ffi64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "x86-ffi64.c"; sourceTree = "<group>"; };
-		C9EF94D3160E48E5009E89C3 /* Globals.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Globals.cp; sourceTree = "<group>"; };
-		C9EF94D4160E48E5009E89C3 /* Globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Globals.h; sourceTree = "<group>"; };
-		C9EF94D5160E48E5009E89C3 /* Glue.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Glue.cp; sourceTree = "<group>"; };
-		C9EF94D6160E48E5009E89C3 /* Glue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Glue.h; sourceTree = "<group>"; };
-		C9EF94D7160E48E5009E89C3 /* Types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Types.h; sourceTree = "<group>"; };
-		C9EF94D9160E48E5009E89C3 /* Objects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Objects.h; sourceTree = "<group>"; };
-		C9EF94DA160E48E5009E89C3 /* TInterpreter.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TInterpreter.cp; sourceTree = "<group>"; };
-		C9EF94DB160E48E5009E89C3 /* TInterpreter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TInterpreter.h; sourceTree = "<group>"; };
-		C9EF94DD160E48E5009E89C3 /* CArrayIterator.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CArrayIterator.cp; sourceTree = "<group>"; };
-		C9EF94DE160E48E5009E89C3 /* CArrayIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CArrayIterator.h; sourceTree = "<group>"; };
-		C9EF94DF160E48E5009E89C3 /* CDynamicArray.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CDynamicArray.cp; sourceTree = "<group>"; };
-		C9EF94E0160E48E5009E89C3 /* CDynamicArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDynamicArray.h; sourceTree = "<group>"; };
-		C9EF94E6160E518A009E89C3 /* Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
-		C9EF94E7160E518A009E89C3 /* Newt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Newt.h; sourceTree = "<group>"; };
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTapNetwork.cp; path = Network/TTapNetwork.cp; sourceTree = "<group>"; };
 		DA0D943F11B9A12D00835522 /* TTapNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTapNetwork.h; path = Network/TTapNetwork.h; sourceTree = "<group>"; };
 		DA0D96DD11BAD15300835522 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
@@ -832,9 +780,6 @@
 		F1AD645D1A2E4F4A00C32AD5 /* Einstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Einstein_Prefix.pch; sourceTree = "<group>"; };
 		F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		F1CAFCF8124200C100A0382E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		F8847562169F4DE1007CE179 /* Objects.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Objects.cp; sourceTree = "<group>"; };
-		F8B76BC3169CAD6E00660943 /* newt_string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = newt_string.h; path = CLibrary/newt_string.h; sourceTree = "<group>"; };
-		F8B76BC4169CAE7100660943 /* newt_string.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = newt_string.cp; path = CLibrary/newt_string.cp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -873,13 +818,6 @@
 				C95E60B0198B76DC004C6CEF /* AddressBook.framework in Frameworks */,
 				C95E60B1198B76DC004C6CEF /* AudioUnit.framework in Frameworks */,
 				C95E60B2198B76DC004C6CEF /* Carbon.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C9642CD319B67DE900BB0B42 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -927,7 +865,6 @@
 				8D1107320486CEB800E47090 /* Einstein.app */,
 				C9B4AA24123D471D00D8D2C7 /* iOSEinstein.app */,
 				C95E60B7198B76DC004C6CEF /* Einstein copy.app */,
-				C9642CD619B67DE900BB0B42 /* NewtSim */,
 				2389E9961A1E4D4A0001A8C5 /* iOSEinstein.app */,
 			);
 			name = Products;
@@ -1005,7 +942,6 @@
 				C9B4AA2B123D474800D8D2C7 /* iOS */,
 				C99E33EC111B7C07002165EC /* Emulator */,
 				C99E3174111B73A1002165EC /* Monitor */,
-				C9EF94D1160E48E5009E89C3 /* Newt */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -1044,6 +980,8 @@
 				F164801913199758001603BE /* TMacMonitor.h */,
 				C99E3175111B73A1002165EC /* TMonitor.cp */,
 				C99E3176111B73A1002165EC /* TMonitor.h */,
+				C94233911A34F08E002D82EF /* TMonitorCore.cp */,
+				C94233921A34F08E002D82EF /* TMonitorCore.h */,
 				C99E3177111B73A1002165EC /* TSymbolList.cp */,
 				C99E3178111B73A1002165EC /* TSymbolList.h */,
 				C99E3179111B73A1002165EC /* UDisasm.cp */,
@@ -1556,65 +1494,6 @@
 			path = ../../app/iEinstein;
 			sourceTree = "<group>";
 		};
-		C9EF94D1160E48E5009E89C3 /* Newt */ = {
-			isa = PBXGroup;
-			children = (
-				C9642CCF19B67CE400BB0B42 /* SingleQContainer.cp */,
-				C9642CD019B67CE400BB0B42 /* SingleQContainer.h */,
-				C965D3FB19706FFC00348893 /* SimCollection1.cp */,
-				C965D3FE19709A2F00348893 /* SimCollection1.h */,
-				C98A531819717C67007A1164 /* SimTTask.cpp */,
-				C98A531919717C67007A1164 /* SimTTask.h */,
-				C95E60291988E1D9004C6CEF /* SimHandcoded.cpp */,
-				C95E602A1988E1D9004C6CEF /* SimHandcoded.h */,
-				C965D3FC19706FFC00348893 /* SimulatorGlue.h */,
-				C9EF94D2160E48E5009E89C3 /* Common */,
-				C9EF94D8160E48E5009E89C3 /* Frames */,
-				C9EF94DC160E48E5009E89C3 /* UtilityClasses */,
-				F8B76BC2169CACF600660943 /* CLibrary */,
-				C9642CE019B67E3500BB0B42 /* NewtSim.cp */,
-				C9642CE119B67E3500BB0B42 /* NewtSim.h */,
-			);
-			name = Newt;
-			path = ../../Newt;
-			sourceTree = "<group>";
-		};
-		C9EF94D2160E48E5009E89C3 /* Common */ = {
-			isa = PBXGroup;
-			children = (
-				C9EF94E6160E518A009E89C3 /* Macros.h */,
-				C9EF94E7160E518A009E89C3 /* Newt.h */,
-				C9EF94D7160E48E5009E89C3 /* Types.h */,
-				C9EF94D3160E48E5009E89C3 /* Globals.cp */,
-				C9EF94D4160E48E5009E89C3 /* Globals.h */,
-				C9EF94D5160E48E5009E89C3 /* Glue.cp */,
-				C9EF94D6160E48E5009E89C3 /* Glue.h */,
-			);
-			path = Common;
-			sourceTree = "<group>";
-		};
-		C9EF94D8160E48E5009E89C3 /* Frames */ = {
-			isa = PBXGroup;
-			children = (
-				C9EF94D9160E48E5009E89C3 /* Objects.h */,
-				F8847562169F4DE1007CE179 /* Objects.cp */,
-				C9EF94DA160E48E5009E89C3 /* TInterpreter.cp */,
-				C9EF94DB160E48E5009E89C3 /* TInterpreter.h */,
-			);
-			path = Frames;
-			sourceTree = "<group>";
-		};
-		C9EF94DC160E48E5009E89C3 /* UtilityClasses */ = {
-			isa = PBXGroup;
-			children = (
-				C9EF94DD160E48E5009E89C3 /* CArrayIterator.cp */,
-				C9EF94DE160E48E5009E89C3 /* CArrayIterator.h */,
-				C9EF94DF160E48E5009E89C3 /* CDynamicArray.cp */,
-				C9EF94E0160E48E5009E89C3 /* CDynamicArray.h */,
-			);
-			path = UtilityClasses;
-			sourceTree = "<group>";
-		};
 		F1CB7613131730100017B0BB /* Mac OS X */ = {
 			isa = PBXGroup;
 			children = (
@@ -1657,15 +1536,6 @@
 				2360EB291A1E85EB00893927 /* Launch Screen.xib */,
 			);
 			name = Nibs;
-			sourceTree = "<group>";
-		};
-		F8B76BC2169CACF600660943 /* CLibrary */ = {
-			isa = PBXGroup;
-			children = (
-				F8B76BC3169CAD6E00660943 /* newt_string.h */,
-				F8B76BC4169CAE7100660943 /* newt_string.cp */,
-			);
-			name = CLibrary;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1724,23 +1594,6 @@
 			productReference = C95E60B7198B76DC004C6CEF /* Einstein copy.app */;
 			productType = "com.apple.product-type.application";
 		};
-		C9642CD519B67DE900BB0B42 /* NewtSim */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = C9642CDC19B67DE900BB0B42 /* Build configuration list for PBXNativeTarget "NewtSim" */;
-			buildPhases = (
-				C9642CD219B67DE900BB0B42 /* Sources */,
-				C9642CD319B67DE900BB0B42 /* Frameworks */,
-				C9642CD419B67DE900BB0B42 /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = NewtSim;
-			productName = NewtSim;
-			productReference = C9642CD619B67DE900BB0B42 /* NewtSim */;
-			productType = "com.apple.product-type.tool";
-		};
 		C9B4AA23123D471D00D8D2C7 /* iOSEinstein (NIBs) */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C9B4AA29123D471D00D8D2C7 /* Build configuration list for PBXNativeTarget "iOSEinstein (NIBs)" */;
@@ -1786,7 +1639,6 @@
 				C9B4AA23123D471D00D8D2C7 /* iOSEinstein (NIBs) */,
 				2389E9371A1E4D4A0001A8C5 /* iOSEinstein (Storyboards) */,
 				C95E603C198B76DC004C6CEF /* EinsteinDev */,
-				C9642CD519B67DE900BB0B42 /* NewtSim */,
 				F115FEFE1A2E8D34001F3D65 /* All */,
 			);
 		};
@@ -1951,8 +1803,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C99E317B111B73A1002165EC /* TMonitor.cp in Sources */,
-				C95E602B1988E1D9004C6CEF /* SimHandcoded.cpp in Sources */,
-				C965D3FD19706FFC00348893 /* SimCollection1.cp in Sources */,
 				C99E317C111B73A1002165EC /* TSymbolList.cp in Sources */,
 				C99E317D111B73A1002165EC /* UDisasm.cp in Sources */,
 				C99E3391111B7570002165EC /* TCondVar.cp in Sources */,
@@ -1964,7 +1814,6 @@
 				C99E34CD111B7C08002165EC /* EinsteinInstallPackageCommand.mm in Sources */,
 				C99E34CF111B7C08002165EC /* TCocoaAppController.mm in Sources */,
 				C965D4011970A47000348893 /* TJITGenericRetargetMap.cpp in Sources */,
-				C98A531A19717C67007A1164 /* SimTTask.cpp in Sources */,
 				C99E34D0111B7C08002165EC /* TCocoaROMDumperController.mm in Sources */,
 				C99E34D1111B7C08002165EC /* TCocoaSetupController.mm in Sources */,
 				C99E34D8111B7C08002165EC /* THostInfo.cp in Sources */,
@@ -2000,7 +1849,6 @@
 				C99E3511111B7C08002165EC /* TAIFFile.cp in Sources */,
 				C99E3512111B7C08002165EC /* TAIFROMImageWithREXes.cp in Sources */,
 				C99E3513111B7C08002165EC /* TFlatROMImage.cp in Sources */,
-				C9642CD119B67CE400BB0B42 /* SingleQContainer.cp in Sources */,
 				C99E3514111B7C08002165EC /* TFlatROMImageWithREX.cp in Sources */,
 				C99E3515111B7C08002165EC /* TROMImage.cp in Sources */,
 				C99E3518111B7C08002165EC /* CocoaScreenProxy.mm in Sources */,
@@ -2040,6 +1888,7 @@
 				C901E5221326560B0074513E /* TStream.cp in Sources */,
 				C901E5231326560C0074513E /* TFileStream.cp in Sources */,
 				C901E5261326562E0074513E /* TCircleBuffer.cp in Sources */,
+				C94233931A34F08E002D82EF /* TMonitorCore.cp in Sources */,
 				C901E527132656310074513E /* TMappedFile.cp in Sources */,
 				C901E52C1326566B0074513E /* TError.cp in Sources */,
 				C901E52D1326566C0074513E /* TException.cp in Sources */,
@@ -2056,8 +1905,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C95E604B198B76DC004C6CEF /* TMonitor.cp in Sources */,
-				C95E604C198B76DC004C6CEF /* SimHandcoded.cpp in Sources */,
-				C95E604D198B76DC004C6CEF /* SimCollection1.cp in Sources */,
 				C95E604E198B76DC004C6CEF /* TSymbolList.cp in Sources */,
 				C95E604F198B76DC004C6CEF /* UDisasm.cp in Sources */,
 				C95E6050198B76DC004C6CEF /* TCondVar.cp in Sources */,
@@ -2069,7 +1916,6 @@
 				C95E6056198B76DC004C6CEF /* EinsteinInstallPackageCommand.mm in Sources */,
 				C95E6057198B76DC004C6CEF /* TCocoaAppController.mm in Sources */,
 				C95E6058198B76DC004C6CEF /* TJITGenericRetargetMap.cpp in Sources */,
-				C95E6059198B76DC004C6CEF /* SimTTask.cpp in Sources */,
 				C95E605A198B76DC004C6CEF /* TCocoaROMDumperController.mm in Sources */,
 				C95E605B198B76DC004C6CEF /* TCocoaSetupController.mm in Sources */,
 				C95E605C198B76DC004C6CEF /* THostInfo.cp in Sources */,
@@ -2144,6 +1990,7 @@
 				C95E60A1198B76DC004C6CEF /* TStream.cp in Sources */,
 				C95E60A2198B76DC004C6CEF /* TFileStream.cp in Sources */,
 				C95E60A3198B76DC004C6CEF /* TCircleBuffer.cp in Sources */,
+				C94233941A34F08E002D82EF /* TMonitorCore.cp in Sources */,
 				C95E60A4198B76DC004C6CEF /* TMappedFile.cp in Sources */,
 				C95E60A5198B76DC004C6CEF /* TError.cp in Sources */,
 				C95E60A6198B76DC004C6CEF /* TException.cp in Sources */,
@@ -2152,16 +1999,6 @@
 				C95E60A9198B76DC004C6CEF /* TEOFException.cp in Sources */,
 				C95E60AA198B76DC004C6CEF /* TJITPerformance.cp in Sources */,
 				C95E60AB198B76DC004C6CEF /* TFiber.cp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C9642CD219B67DE900BB0B42 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				C9642CE319B6815B00BB0B42 /* SingleQContainer.cp in Sources */,
-				C9642CE419B6815B00BB0B42 /* SimHandcoded.cpp in Sources */,
-				C9642CE219B67E3500BB0B42 /* NewtSim.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2268,11 +2105,6 @@
 			isa = PBXTargetDependency;
 			target = C95E603C198B76DC004C6CEF /* EinsteinDev */;
 			targetProxy = F115FF091A2E8D40001F3D65 /* PBXContainerItemProxy */;
-		};
-		F115FF0C1A2E8D40001F3D65 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = C9642CD519B67DE900BB0B42 /* NewtSim */;
-			targetProxy = F115FF0B1A2E8D40001F3D65 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2649,117 +2481,6 @@
 			};
 			name = Distribution;
 		};
-		C9642CDD19B67DE900BB0B42 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					IS_NEWT_SIM,
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.9;
-			};
-			name = Debug;
-		};
-		C9642CDE19B67DE900BB0B42 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					IS_NEWT_SIM,
-				);
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.9;
-			};
-			name = Release;
-		};
-		C9642CDF19B67DE900BB0B42 /* Distribution */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					IS_NEWT_SIM,
-				);
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.9;
-			};
-			name = Distribution;
-		};
 		C9B4AA27123D471D00D8D2C7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2991,16 +2712,6 @@
 				C95E60B4198B76DC004C6CEF /* Debug */,
 				C95E60B5198B76DC004C6CEF /* Release */,
 				C95E60B6198B76DC004C6CEF /* Distribution */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		C9642CDC19B67DE900BB0B42 /* Build configuration list for PBXNativeTarget "NewtSim" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				C9642CDD19B67DE900BB0B42 /* Debug */,
-				C9642CDE19B67DE900BB0B42 /* Release */,
-				C9642CDF19B67DE900BB0B42 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
