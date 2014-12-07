@@ -8,6 +8,9 @@ rt open /Users/matt/dev/Einstein/Newt/unsorted/unsorted_024
 # 9500 / 26000
 # 26700
 
+rt cjit UserInit__Fv
+rt cjit __ct__6TUPortFUl
+
 rt cjit PushVerb__FUcPlPPP8PixelMap
 rt cjit SetPt__FP5PointlT2
 rt cjit GotoKey__7TCursorFRC6RefVar
@@ -377,7 +380,6 @@ rt cjit !UnevenDivide__FlT1
 # FIXME:
 rt cjit setjmp
 rt cjitr longjmp
-rt cjitr 00000008-0000000C
 rt cjitr 00000004-00000008
 
 rt close
