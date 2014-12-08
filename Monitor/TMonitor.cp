@@ -623,7 +623,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 							v = TROMPatch::GetOriginalInstructionAt(v, addr);
 						}
 						if (i>0 && (i&7)==0) fprintf(f, "\n  ");
-						fprintf(f, "0x%08X, ", v);
+						fprintf(f, "0x%08X, ", (unsigned int)v);
 					}
 					fprintf(f, "},\n");
 					nPage++;
@@ -1177,7 +1177,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			KUInt32 addr;
 			KUInt8 type;
 			if (mMemory->GetWatchpoint(i, addr, type)) break;
-			::sprintf(theLine, "WP %2d at %.8X, %s", i, addr, lut[type&3]);
+			::sprintf(theLine, "WP %2d at %.8X, %s", i, (unsigned int)addr, lut[type&3]);
 			PrintLine(theLine);
 		}
 	} else if (::strcmp(inCommand, "p tasks") == 0) {
@@ -1188,7 +1188,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			KUInt32 taskQ; mMemory->Read(kernelScheduler+0x1C+4*i, taskQ); // TTaskQueue
 			if (taskQ) {
 				KUInt32 task; mMemory->Read(taskQ, task); // TTask
-				::sprintf(theLine, " Pri %d: first Task at 0x%08X", i, task);
+				::sprintf(theLine, " Pri %d: first Task at 0x%08X", i, (unsigned int)task);
 				PrintLine(theLine);
 			}
 		}
@@ -1810,7 +1810,8 @@ void
 TMonitor::PrintBacktrace(KSInt32 inNWords)
 {
 	// backtrack stack content
-	KSInt32 i, sp = mProcessor->GetRegister(13), lr = mProcessor->GetRegister(14);
+	KSInt32 i;
+	KUInt32 sp = mProcessor->GetRegister(13), lr = mProcessor->GetRegister(14);
 	KUInt32 theData;
 	char theSymbol[512];
 	char theComment[512];
@@ -1821,12 +1822,12 @@ TMonitor::PrintBacktrace(KSInt32 inNWords)
 	for (i=inNWords; i>=0; i--) {
 		mMemory->Read((TMemory::VAddr)sp+4*i, theData);
 		mSymbolList->GetSymbol( theData, theSymbol, theComment, &theOffset );
-		sprintf(theLine, "sp+%3d: 0x%08X = %s+%d", 4*i, theData, theSymbol, theOffset);
+		sprintf(theLine, "sp+%3ld: 0x%08X = %s+%d", 4*i, (unsigned int)theData, theSymbol, theOffset);
 		theLine[62] = 0;
 		PrintLine(theLine);
 	}
 	mSymbolList->GetSymbol( lr, theSymbol, theComment, &theOffset );
-	sprintf(theLine, "    lr: 0x%08X = %s+%d", lr, theSymbol, theOffset);
+	sprintf(theLine, "    lr: 0x%08X = %s+%d", (unsigned int)lr, theSymbol, theOffset);
 	theLine[62] = 0;
 	PrintLine(theLine);
 }

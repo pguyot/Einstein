@@ -576,7 +576,7 @@ void TJITGenericRetarget::Translate_SingleDataTransfer(
 		//for (i=0; i<35; i++) {
 			KUInt32 dest = 0;
 			MemoryRead(0x003AD56C + 4*i, dest);
-			fprintf(pCOut, "\t\t\tcase %2d: SETPC(0x%08X+4); Func_0x%08X(ioCPU, 0x003AD750+4); goto L003AD750;\n", i, dest, dest);
+			fprintf(pCOut, "\t\t\tcase %2d: SETPC(0x%08X+4); Func_0x%08X(ioCPU, 0x003AD750+4); goto L003AD750;\n", i, (unsigned int)dest, (unsigned int)dest);
 			/*
 			 .word   0x003ADFAC                      @ 0x003AD570 ".:.." 3858348 (flags_type_arm_word) SWI1_PortSend?
 			 .word   0x003AE070                      @ 0x003AD574 ".:.p" 3858544 (flags_type_arm_word) SWI2_PortReceive?
@@ -1604,10 +1604,10 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_STM2(KUInt32 inVAddr, KUIn
 	fprintf(pCOut, "\t\t\tcurRegList = 0x%04X & 0xFF;\n", (unsigned int)theRegList);
 	fprintf(pCOut, "\t\t\tbankRegList = 0x%04X & 0x7F00;\n", (unsigned int)theRegList);
 	fprintf(pCOut, "\t\t} else {\n");
-	fprintf(pCOut, "\t\t\tcurRegList = 0x%04X & 0x1FFF;\n", theRegList);
-	fprintf(pCOut, "\t\t\tbankRegList = 0x%04X & 0x6000;\n", theRegList);
+	fprintf(pCOut, "\t\t\tcurRegList = 0x%04X & 0x1FFF;\n", (unsigned int)theRegList);
+	fprintf(pCOut, "\t\t\tbankRegList = 0x%04X & 0x6000;\n", (unsigned int)theRegList);
 	fprintf(pCOut, "\t\t}\n");
-	fprintf(pCOut, "\t\tKUInt32 baseAddress = ioCPU->mCurrentRegisters[%d];\n", Rn);
+	fprintf(pCOut, "\t\tKUInt32 baseAddress = ioCPU->mCurrentRegisters[%d];\n", (unsigned int)Rn);
 	
 	if (FLAG_U) {
 		// Up.
@@ -1617,7 +1617,7 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_STM2(KUInt32 inVAddr, KUIn
 		}
 	} else {
 		// Down.
-		fprintf(pCOut, "\t\tbaseAddress -= (%d * 4);\n", nbRegisters);
+		fprintf(pCOut, "\t\tbaseAddress -= (%d * 4);\n", (unsigned int)nbRegisters);
 		
 		if (!FLAG_P) {
 			// Post: add 4.
@@ -1757,7 +1757,7 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_STM2(KUInt32 inVAddr, KUIn
 	{
 		// PC is special.
 		// Stored value is PC + 12 (verified)
-		fprintf(pCOut, "\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, 0x%08X + 12);\n", inVAddr);
+		fprintf(pCOut, "\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, 0x%08X + 12);\n", (unsigned int)inVAddr);
 	}
 }
 
@@ -1841,13 +1841,13 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_LDM2(KUInt32 inVAddr, KUIn
 	
 	// Use bank and current registers.
 	fprintf(pCOut, "\t\tif (ioCPU->GetMode() == TARMProcessor::kFIQMode) {\n");
-	fprintf(pCOut, "\t\t\tcurRegList = 0x%04X & 0xFF;\n", theRegList);
-	fprintf(pCOut, "\t\t\tbankRegList = 0x%04X & 0x7F00;\n", theRegList);
+	fprintf(pCOut, "\t\t\tcurRegList = 0x%04X & 0xFF;\n", (unsigned int)theRegList);
+	fprintf(pCOut, "\t\t\tbankRegList = 0x%04X & 0x7F00;\n", (unsigned int)theRegList);
 	fprintf(pCOut, "\t\t} else {\n");
-	fprintf(pCOut, "\t\t\tcurRegList = 0x%04X & 0x1FFF;\n", theRegList);
-	fprintf(pCOut, "\t\t\tbankRegList = 0x%04X & 0x6000;\n", theRegList);
+	fprintf(pCOut, "\t\t\tcurRegList = 0x%04X & 0x1FFF;\n", (unsigned int)theRegList);
+	fprintf(pCOut, "\t\t\tbankRegList = 0x%04X & 0x6000;\n", (unsigned int)theRegList);
 	fprintf(pCOut, "\t\t}\n");
-	fprintf(pCOut, "\t\tKUInt32 baseAddress = ioCPU->mCurrentRegisters[%d];\n", Rn);
+	fprintf(pCOut, "\t\tKUInt32 baseAddress = ioCPU->mCurrentRegisters[%d];\n", (unsigned int)Rn);
 	
 	if (FLAG_U) {
 		// Up.
@@ -1857,7 +1857,7 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_LDM2(KUInt32 inVAddr, KUIn
 		}
 	} else {
 		// Down.
-		fprintf(pCOut, "\t\tbaseAddress -= (%d * 4);\n", nbRegisters);
+		fprintf(pCOut, "\t\tbaseAddress -= (%d * 4);\n", (unsigned int)nbRegisters);
 		
 		if (!FLAG_P) {
 			// Post: add 4.
