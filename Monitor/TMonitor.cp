@@ -1810,7 +1810,6 @@ void
 TMonitor::PrintBacktrace(KSInt32 inNWords)
 {
 	// backtrack stack content
-	KSInt32 i;
 	KUInt32 sp = mProcessor->GetRegister(13), lr = mProcessor->GetRegister(14);
 	KUInt32 theData;
 	char theSymbol[512];
@@ -1819,10 +1818,10 @@ TMonitor::PrintBacktrace(KSInt32 inNWords)
 	int theOffset;
 	if (inNWords<=0)
 		inNWords = 28; // approximatly one full screen
-	for (i=inNWords; i>=0; i--) {
+	for (int i=inNWords; i>=0; i--) {
 		mMemory->Read((TMemory::VAddr)sp+4*i, theData);
 		mSymbolList->GetSymbol( theData, theSymbol, theComment, &theOffset );
-		sprintf(theLine, "sp+%3ld: 0x%08X = %s+%d", 4*i, (unsigned int)theData, theSymbol, theOffset);
+		sprintf(theLine, "sp+%3d: 0x%08X = %s+%d", (int) 4*i, (unsigned int)theData, theSymbol, theOffset);
 		theLine[62] = 0;
 		PrintLine(theLine);
 	}
