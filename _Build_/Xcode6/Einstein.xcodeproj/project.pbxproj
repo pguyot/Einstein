@@ -709,8 +709,6 @@
 		C99E3328111B7570002165EC /* TRefCounter.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TRefCounter.cp; sourceTree = "<group>"; };
 		C99E3329111B7570002165EC /* TRefCounter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRefCounter.h; sourceTree = "<group>"; };
 		C99E332A111B7570002165EC /* TSmartPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSmartPtr.h; sourceTree = "<group>"; };
-		C99E332B111B7570002165EC /* UBase64.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UBase64.cp; sourceTree = "<group>"; };
-		C99E332C111B7570002165EC /* UBase64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UBase64.h; sourceTree = "<group>"; };
 		C99E332D111B7570002165EC /* UPStrings.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UPStrings.cp; sourceTree = "<group>"; };
 		C99E332E111B7570002165EC /* UPStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UPStrings.h; sourceTree = "<group>"; };
 		C99E3330111B7570002165EC /* TFileStream.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TFileStream.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -1394,8 +1392,6 @@
 				C99E3328111B7570002165EC /* TRefCounter.cp */,
 				C99E3329111B7570002165EC /* TRefCounter.h */,
 				C99E332A111B7570002165EC /* TSmartPtr.h */,
-				C99E332B111B7570002165EC /* UBase64.cp */,
-				C99E332C111B7570002165EC /* UBase64.h */,
 				C99E332D111B7570002165EC /* UPStrings.cp */,
 				C99E332E111B7570002165EC /* UPStrings.h */,
 			);
