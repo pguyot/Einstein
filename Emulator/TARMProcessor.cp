@@ -1243,7 +1243,7 @@ TARMProcessor::JumpToCalculatedAddress(KUInt32 inPC, KUInt32 ret)
 		} else {
 			// FIXME: remove some noise
 			if (inPC<0x00800000 || inPC>0x008fffff) {
-				printf("SIM_INFO: not a native target at 0x%08lX\n", (unsigned long)inPC-4);
+				printf("SIM_INFO: not a native target at 0x%08lX, pc=0x%08lX, lr=0x%08lX\n", (unsigned long)inPC-4, mCurrentRegisters[kR14], mCurrentRegisters[kR15]);
 				printf("SIM_INFO(%ld): try: rt cjit %08lX-%08lX vt_%08lX\n", (unsigned long)++cnt, (unsigned long)inPC-4, (unsigned long)inPC, (unsigned long)inPC-4);
 			}
 		}
