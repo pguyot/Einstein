@@ -30,16 +30,6 @@
 #include "TMemoryConsts.h"
 #include "THashMapCache.h"
 
-// Google Dense Hash Map
-//#include "google/dense_hash_map"
-
-// STL/GCC ext.
-#if ( TARGET_OS_WIN32 || TARGET_OS_ANDROID )
-	#include <hash_map>
-#else
-	#include <ext/hash_map>
-#endif
-
 class TMemory;
 class TMMU;
 

@@ -179,7 +179,7 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 			first = mSymbolList->GetSymbol(inCommand+arg);
 			if (first!=TSymbolList::kNoSymbol) {
 				n = 1;
-				last = (KUInt32)mSymbolList->GetNextSymbol(first);
+				last = (KUInt32)mSymbolList->GetNextSymbol((KUInt32)first);
 				if (last!=TSymbolList::kNoSymbol) {
 					n = 2;
 				}
