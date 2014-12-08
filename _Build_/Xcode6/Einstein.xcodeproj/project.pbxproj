@@ -491,6 +491,21 @@
 		F1CAFCF9124200C100A0382E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFCF8124200C100A0382E /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXBuildRule section */
+		C98AB2E01A351F7C001BB1CD /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.rts";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+				"$(INPUT_FILE_DIR)/$(INPUT_FILE_BASE).cp",
+				"$(INPUT_FILE_DIR)/$(INPUT_FILE_BASE).h",
+			);
+			script = "cd \"${INPUT_FILE_DIR}\"\n${TARGET_BUILD_DIR}/retarget -s ${PROJECT_DIR}/../../_Data_/symbols.txt ${INPUT_FILE_PATH}";
+		};
+/* End PBXBuildRule section */
+
 /* Begin PBXContainerItemProxy section */
 		C98AB2451A351E0B001BB1CD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -558,7 +573,7 @@
 		C94ADB38123E9ADD00406839 /* iEinsteinView.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinView.mm; path = Classes/iEinsteinView.mm; sourceTree = "<group>"; tabWidth = 4; };
 		C94ADB39123E9ADD00406839 /* iEinsteinViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinViewController.mm; path = Classes/iEinsteinViewController.mm; sourceTree = "<group>"; tabWidth = 4; };
 		C94ADB3E123E9AEC00406839 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
-		C95E60B7198B76DC004C6CEF /* Einstein copy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Einstein copy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C95E60B7198B76DC004C6CEF /* EinsteinDev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EinsteinDev.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TUsermodeNetwork.cp; path = Network/TUsermodeNetwork.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429611B69A9D00EE66F3 /* TUsermodeNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = TUsermodeNetwork.h; path = Network/TUsermodeNetwork.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TNetworkManager.cp; path = Network/TNetworkManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
@@ -1044,7 +1059,7 @@
 			children = (
 				8D1107320486CEB800E47090 /* Einstein.app */,
 				C9B4AA24123D471D00D8D2C7 /* iOSEinstein.app */,
-				C95E60B7198B76DC004C6CEF /* Einstein copy.app */,
+				C95E60B7198B76DC004C6CEF /* EinsteinDev.app */,
 				2389E9961A1E4D4A0001A8C5 /* iOSEinstein.app */,
 				C98AB2371A351D20001BB1CD /* retarget */,
 			);
@@ -1905,6 +1920,7 @@
 				C95E60AC198B76DC004C6CEF /* Frameworks */,
 			);
 			buildRules = (
+				C98AB2E01A351F7C001BB1CD /* PBXBuildRule */,
 			);
 			dependencies = (
 				C98AB2461A351E0B001BB1CD /* PBXTargetDependency */,
@@ -1912,7 +1928,7 @@
 			name = EinsteinDev;
 			productInstallPath = "$(HOME)/Applications";
 			productName = Einstein;
-			productReference = C95E60B7198B76DC004C6CEF /* Einstein copy.app */;
+			productReference = C95E60B7198B76DC004C6CEF /* EinsteinDev.app */;
 			productType = "com.apple.product-type.application";
 		};
 		C98AB2361A351D20001BB1CD /* retarget */ = {
@@ -2791,7 +2807,7 @@
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
 				);
-				INFOPLIST_FILE = "Einstein copy-Info.plist";
+				INFOPLIST_FILE = "EinsteinDev-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2802,7 +2818,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
-				PRODUCT_NAME = "Einstein copy";
+				PRODUCT_NAME = EinsteinDev;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = i386;
@@ -2832,7 +2848,7 @@
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
 				);
-				INFOPLIST_FILE = "Einstein copy-Info.plist";
+				INFOPLIST_FILE = "EinsteinDev-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2843,7 +2859,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
-				PRODUCT_NAME = "Einstein copy";
+				PRODUCT_NAME = EinsteinDev;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = i386;
@@ -2873,7 +2889,7 @@
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
 				);
-				INFOPLIST_FILE = "Einstein copy-Info.plist";
+				INFOPLIST_FILE = "EinsteinDev-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2884,7 +2900,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
-				PRODUCT_NAME = "Einstein copy";
+				PRODUCT_NAME = EinsteinDev;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = i386;
