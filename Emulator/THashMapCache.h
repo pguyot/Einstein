@@ -34,17 +34,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// STL
-#include <utility>
-#include <iterator>
-
-// STL/GCC ext.
-#if ( TARGET_OS_WIN32 || TARGET_OS_ANDROID )
-	#include <hash_map>
-#else
-	#include <ext/hash_map>
-#endif
-
 ///
 /// Single key hash-backed cache for virtual adresses.
 ///
