@@ -11,8 +11,6 @@
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>3F095384EB2E575B5833D9DA773470ADC1D3F937</key>
-		<string>github.com:pguyot/Einstein.git</string>
-		<key>C30B40EBA08C22E2F51FB8C7D99C35D48D8B6FB5</key>
 		<string>https://github.com/jake-b/Einstein.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
@@ -21,11 +19,9 @@
 	<dict>
 		<key>3F095384EB2E575B5833D9DA773470ADC1D3F937</key>
 		<string>../../../..</string>
-		<key>C30B40EBA08C22E2F51FB8C7D99C35D48D8B6FB5</key>
-		<string>../../../../../Einstein</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>github.com:pguyot/Einstein.git</string>
+	<string>https://github.com/jake-b/Einstein.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
@@ -36,17 +32,9 @@
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>C30B40EBA08C22E2F51FB8C7D99C35D48D8B6FB5</string>
-			<key>IDESourceControlWCCName</key>
-			<string>Einstein</string>
-		</dict>
-		<dict>
-			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
-			<string>public.vcs.git</string>
-			<key>IDESourceControlWCCIdentifierKey</key>
 			<string>3F095384EB2E575B5833D9DA773470ADC1D3F937</string>
 			<key>IDESourceControlWCCName</key>
-			<string>einstein.git</string>
+			<string>Einstein</string>
 		</dict>
 	</array>
 </dict>

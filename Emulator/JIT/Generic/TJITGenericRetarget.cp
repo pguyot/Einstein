@@ -56,7 +56,8 @@
 #include "TROMImage.h"
 #include "UDisasm.h"
 
-
+// This code enters the debugger right where we need it (OS X Intel)
+static const char *Debug = "__asm__(\"int $3\\n\" : : );";
 
 const KUInt32 AND = 0;
 const KUInt32 EOR = 1;
@@ -270,7 +271,7 @@ void TJITGenericRetarget::TranslateFunction(KUInt32 inFirst, KUInt32 inLast, con
 		fprintf(pCOut, "\treturn Func_0x%08X(ioCPU, ret);\n", (unsigned int)inLast);
 	} else {
 		// If no 
-		fprintf(pCOut, "\traise(SIGINT); // There was no return instruction found\n");
+		fprintf(pCOut, "\t%s // There was no return instruction found\n", Debug);
 	}
 	fprintf(pCOut, "}\n");
 	if (!dontLink) {
@@ -311,7 +312,7 @@ void TJITGenericRetarget::Translate(KUInt32 inVAddr, KUInt32 inInstruction)
 	UDisasm::Disasm(buf, 2047, inVAddr, inInstruction);
 	fprintf(pCOut, "L%08X: // 0x%08X  %s\n", (unsigned int)inVAddr, (unsigned int)inInstruction, buf);
 	
-	fprintf(pCOut, "\tif (ioCPU->mCurrentRegisters[15]!=0x%08X+4) raise(SIGINT); // be paranoid about a correct PC\n", (unsigned int)inVAddr);
+	fprintf(pCOut, "\tif (ioCPU->mCurrentRegisters[15]!=0x%08X+4) %s // be paranoid about a correct PC\n", (unsigned int)inVAddr, Debug);
 	fprintf(pCOut, "\tioCPU->mCurrentRegisters[15] += 4; // update the PC\n");
 	
 	// Always generate code for a condition, so we can use local variables
@@ -539,20 +540,6 @@ void TJITGenericRetarget::DoTranslate_01(KUInt32 inVAddr, KUInt32 inInstruction)
 		} else {
 			fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(0x%08X); // undefined instruction\n", (unsigned int)inVAddr);
 			// -Cond-- 0  1  1  -XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX- 1  -XXXXX-
-			// DA WINNER
-			//		if (inInstruction == 0xE6000510)
-			//		{
-			//			JITUnitBegin();
-			//			PushSymbol("DebuggerUND");
-			//			PushAddress(inVAddr - GetVAddr() + GetPAddr());
-			//			PushAddress(inVAddr + 8);
-			//			JITUnitEnd();
-			//		} else {
-			//			JITUnitBegin();
-			//			PushSymbol("UndefinedInstruction");
-			//			PushAddress(inVAddr + 8);
-			//			JITUnitEnd();
-			//		}
 		}
 	} else {
 		// -Cond-- 0  1  I  P  U  B  W  L  --Rn--- --Rd--- -----------offset----------
@@ -577,42 +564,6 @@ void TJITGenericRetarget::Translate_SingleDataTransfer(
 			KUInt32 dest = 0;
 			MemoryRead(0x003AD56C + 4*i, dest);
 			fprintf(pCOut, "\t\t\tcase %2d: SETPC(0x%08X+4); Func_0x%08X(ioCPU, 0x003AD750+4); goto L003AD750;\n", i, (unsigned int)dest, (unsigned int)dest);
-			/*
-			 .word   0x003ADFAC                      @ 0x003AD570 ".:.." 3858348 (flags_type_arm_word) SWI1_PortSend?
-			 .word   0x003AE070                      @ 0x003AD574 ".:.p" 3858544 (flags_type_arm_word) SWI2_PortReceive?
-			 .word   0x00393D8C                      @ 0x003AD578 ".9=." 3751308 (flags_type_arm_word) SWI3_03?
-			 .word   0x00393E2C                      @ 0x003AD57C ".9>," 3751468 (flags_type_arm_word) SWI4_04?
-			 .word   0x003ADBB4                      @ 0x003AD580 ".:.." 3857332 (flags_type_arm_word) SWI5_Generic?
-			 .word   0x003ADEDC                      @ 0x003AD584 ".:.." 3858140 (flags_type_arm_word) SWI6_06?
-			 .word   0x003ADC88                      @ 0x003AD588 ".:.." 3857544 (flags_type_arm_word) SWI7_07?
-			 .word   0x003ADCB0                      @ 0x003AD58C ".:.." 3857584 (flags_type_arm_word) SWI8_FlushMMU?
-			 .word   0x003ADCD4                      @ 0x003AD590 ".:.." 3857620 (flags_type_arm_word) SWI9_09?
-			 .word   0x003ADD10                      @ 0x003AD594 ".:.." 3857680 (flags_type_arm_word) SWI10_Version?
-			 .word   0x003ADEE4                      @ 0x003AD598 ".:.." 3858148 (flags_type_arm_word) SWI11_SemOp?
-			 .word   0x003ADD1C                      @ 0x003AD59C ".:.." 3857692 (flags_type_arm_word) SWI12_12?
-			 .word   0x00394050                      @ 0x003AD5A0 ".9@P" 3752016 (flags_type_arm_word) SWI13_MemSetBuffer?
-			 .word   0x00394064                      @ 0x003AD5A4 ".9@d" 3752036 (flags_type_arm_word) SWI14_MemGetSize?
-			 .word   0x003940C0                      @ 0x003AD5A8 ".9@." 3752128 (flags_type_arm_word) SWI15_MemCopyToShared?
-			 .word   0x00394120                      @ 0x003AD5AC ".9A." 3752224 (flags_type_arm_word) SWI16_MemCopyFromShared?
-			 .word   0x003941A4                      @ 0x003AD5B0 ".9A." 3752356 (flags_type_arm_word) SWI17_MemMsgSetTimerParms?
-			 .word   0x003941B8                      @ 0x003AD5B4 ".9A." 3752376 (flags_type_arm_word) SWI18_MemMsgSetMsgAvailPort?
-			 .word   0x003941CC                      @ 0x003AD5B8 ".9A." 3752396 (flags_type_arm_word) SWI19_MemMsgGetSenderTaskId?
-			 .word   0x003941F8                      @ 0x003AD5BC ".9A." 3752440 (flags_type_arm_word) SWI20_MemMsgSetUserRefCon?
-			 .word   0x0039420C                      @ 0x003AD5C0 ".9B." 3752460 (flags_type_arm_word) SWI21_MemMsgGetUserRefCon?
-			 .word   0x00394238                      @ 0x003AD5C4 ".9B8" 3752504 (flags_type_arm_word) SWI22_MemMsgCheckForDone?
-			 .word   0x00394264                      @ 0x003AD5C8 ".9Bd" 3752548 (flags_type_arm_word) SWI23_MemMsgMsgDone?
-			 .word   0x003ADE7C                      @ 0x003AD5CC ".:.|" 3858044 (flags_type_arm_word) SWI24_24?
-			 .word   0x003ADEC8                      @ 0x003AD5D0 ".:.." 3858120 (flags_type_arm_word) SWI25_25?
-			 .word   0x00394180                      @ 0x003AD5D4 ".9A." 3752320 (flags_type_arm_word) SWI26_MemCopyDone?
-			 .word   0x00394278                      @ 0x003AD5D8 ".9Bx" 3752568 (flags_type_arm_word) SWI27_MonitorDispatch?
-			 .word   0x00394370                      @ 0x003AD5DC ".9Cp" 3752816 (flags_type_arm_word) SWI28_MonitorExit?
-			 .word   0x00394384                      @ 0x003AD5E0 ".9C." 3752836 (flags_type_arm_word) SWI29_MonitorThrow?
-			 .word   0x00393F10                      @ 0x003AD5E4 ".9?." 3751696 (flags_type_arm_word) SWI30_30?
-			 .word   0x00393FD4                      @ 0x003AD5E8 ".9?." 3751892 (flags_type_arm_word) SWI31_31?
-			 .word   0x00394398                      @ 0x003AD5EC ".9C." 3752856 (flags_type_arm_word) SWI32_MonitorFlush?
-			 .word   0x003AE138                      @ 0x003AD5F0 ".:.8" 3858744 (flags_type_arm_word) SWI33_PortResetFilter?
-			 .word   0x003AE14C                      @ 0x003AD5F4 ".:.L" 3858764 (flags_type_arm_word) SWI34_Scheduler?
-			*/
 		}
 		fprintf(pCOut, "\t\t}\n");
 	}
@@ -1008,53 +959,6 @@ void TJITGenericRetarget::Translate_MSR(KUInt32 inVAddr, KUInt32 inInstruction)
 			fprintf(pCOut, "\t\tioCPU->SetCPSR((Opnd2 & 0xF0000000) | (oldValue & 0x0FFFFFFF));\n");
 		}
 	}
-
-	//L0039444C: // 0xE161F000  msr	spsr_c, r0
-//	{
-//#error Not yet implemented 0D
-//	}
-//	if (theMode == NoShift)
-//	{
-//		PUSHFUNC(MSR_NoShift_Func(1, (inInstruction & 0x000F0000) >> 16, __Rm));
-//		doPush = false;
-//	} else {
-//		PUSHFUNC(MSR_Imm_Func(1, (inInstruction & 0x000F0000) >> 16));
-//	}
-
-
-//	MSR(MODE, FLAG_R, FIELDS_MASK, Rm)
-//#if IMPLEMENTATION
-//	{
-//#if (MODE == Imm)
-//		KUInt32 Opnd2;
-//		POPVALUE(Opnd2);
-//#elif Rm == 15
-//		POPPC();
-//		const KUInt32 Opnd2 = GETPC();
-//#else
-//		const KUInt32 Opnd2 = ioCPU->mCurrentRegisters[Rm];
-//#endif
-//#if FLAG_R
-//		// SPSR
-//		if (ioCPU->GetMode() != TARMProcessor::kUserMode) {
-//			const KUInt32 oldValue = ioCPU->GetSPSR();
-//			ioCPU->SetSPSR((Opnd2 & FIELDS_MASK) | (oldValue & ~ FIELDS_MASK));
-//		}
-//#else
-//		// CPSR
-//		const KUInt32 oldValue = ioCPU->GetCPSR();
-//		if (ioCPU->GetMode() != TARMProcessor::kUserMode) {
-//			ioCPU->SetCPSR((Opnd2 & FIELDS_MASK) | (oldValue & ~ FIELDS_MASK));
-//		} else {
-//#if (FIELDS_MASK & 0xFF)
-//			ioCPU->SetCPSR((Opnd2 & 0xFF) | (oldValue & 0xFFFFFF00));
-//#endif
-//		}
-//#endif
-//		
-//		CALLNEXTUNIT;
-//	}
-//#endif
 }
 
 
@@ -1205,6 +1109,17 @@ void TJITGenericRetarget::LogicalOp(KUInt32 inVAddr, KUInt32 inInstruction, KUIn
 
 void TJITGenericRetarget::ArithmeticOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32 OP, KUInt32 MODE, KUInt32 FLAG_S, KUInt32 Rn, KUInt32 Rd, KUInt32 thePushedValue)
 {
+	// FIXME: a very untypical, handcoded switch case statement:
+	// add     pc, pc, r1, lsr #24             @ 0x003ADD80 0xE08FFC21
+	if ( (inVAddr==0x003ADD80) && (inInstruction==0xE08FFC21) ) {
+		fprintf(pCOut, "\t\t// hardcoded switch/case statement\n");
+		fprintf(pCOut, "\t\tswitch (ioCPU->mCurrentRegisters[1]>>28) {\n");
+		for (int i=0; i<16; i++) {
+			fprintf(pCOut, "\t\t\tcase %3d: SETPC(0x%08X+4); goto L%08X;\n", i, (unsigned int)inVAddr+16*i+8, (unsigned int)inVAddr+16*i+8);
+		}
+		fprintf(pCOut, "\t\t}\n");
+	}
+		  
 	// find the typical pattern for switch/case statements:
 	//     0xE35x00nn  cmp    rx, #n
 	//     0x908FF10x  addls  pc, pc, rx, lsl #2
@@ -1347,14 +1262,14 @@ void TJITGenericRetarget::MoveOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32
 	}
 	if (Rd == 15) {
 		if (FLAG_S) {
-			if ( (inInstruction&0x0FFFFFFF)==0x01A0F00E ) { // mov pc, lr
-				GenerateReturnInstruction();
+			if ( (inInstruction&0x0FFFFFFF)==0x01B0F00E ) { // movs pc, lr
+				GenerateReturnInstruction(true);
 			} else {
 				Translate_JumpToCalculatedAddress(inVAddr, inInstruction);
 			}
 		} else {
 			if ( (inInstruction&0x0FFFFFFF)==0x01A0F00E ) { // mov pc, lr
-				GenerateReturnInstruction();
+				GenerateReturnInstruction(false);
 			} else {
 				Translate_JumpToCalculatedAddress(inVAddr, inInstruction);
 			}
@@ -1365,14 +1280,31 @@ void TJITGenericRetarget::MoveOp(KUInt32 inVAddr, KUInt32 inInstruction, KUInt32
 }
 
 
-void TJITGenericRetarget::GenerateReturnInstruction()
+/**
+ * Generate code that returns from a simulated function into an unknown function.
+ *
+ * Typically, this is 'mov pc,lr'.
+ *
+ * \param withFlags the instruction 'movs pc,lr' may jump legally to a completely 
+ *        different address than the expected one. This typically happens when a
+ *        task switch occurs.
+ */
+void TJITGenericRetarget::GenerateReturnInstruction(bool withFlags)
 {
+	// This is typically called for 'mov pc, lr'
+	// If the caller of this function was the emulator, simply return to the emulator
 	fprintf(pCOut, "\t\tif (ret==0xFFFFFFFF)\n");
-//	fprintf(pCOut, "\t\t\treturn ioCPU->JumpToCalculatedAddress(ioCPU->mCurrentRegisters[15], ret);\n");
 	fprintf(pCOut, "\t\t\treturn; // Return to emulator\n");
+	// If the caller of this function was a simulated function, and the return address
+	// is not the expected address, jump into the debugger and find the reason for this.
 	fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=ret)\n");
-//	fprintf(pCOut, "\t\t\treturn ioCPU->JumpToCalculatedAddress(ioCPU->mCurrentRegisters[15], ret);\n");
-	fprintf(pCOut, "\t\t\traise(SIGINT); // Unexpected return address\n");
+	if (withFlags) {
+		fprintf(pCOut, "\t\treturn ioCPU->JumpToCalculatedAddress(ioCPU->mCurrentRegisters[15], ret);\n");
+	} else {
+		fprintf(pCOut, "\t\t\t%s // Unexpected return address\n", Debug);
+	}
+	// If the caller was a simulated function, and the return address equals the
+	// expected address, we can simply return.
 	fprintf(pCOut, "\t\treturn;\n");
 }
 
@@ -1448,7 +1380,7 @@ void TJITGenericRetarget::Translate_Branch(KUInt32 inVAddr, KUInt32 inInstructio
 		dest = dest + delta;
 		fprintf(pCOut, "\t\tKUInt32 jumpInstr = ioCPU->ManagedMemoryRead(0x%08X);\n", (unsigned int)jumpTableDest);
 		fprintf(pCOut, "\t\tif (jumpInstr!=0x%08X) {\n", (unsigned int)jumpTableInstr);
-		fprintf(pCOut, "\t\t\traise(SIGINT); // unexpected jump table entry\n");
+		fprintf(pCOut, "\t\t\t%s // unexpected jump table entry\n", Debug);
 		fprintf(pCOut, "\t\t\tioCPU->ReturnToEmulator(0x%08X);\n", (unsigned int)jumpTableDest);
 		fprintf(pCOut, "\t\t}\n");
 	}
@@ -2030,15 +1962,11 @@ void TJITGenericRetarget::DoTranslate_11(KUInt32 inVAddr, KUInt32 inInstruction)
 				return; // do not push the current PC
 			} else {
 				// SWI.
-#if 0
-				fprintf(pCOut, "#error Not yet implemented 14.2\n");
-#else
 				fprintf(pCOut, "\t\tioCPU->DoSWI();\n");
 				fprintf(pCOut, "\t\tFunc_0x00000008(ioCPU, 0x%08X);\n", (unsigned int)inVAddr+8);
 				fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08X) {\n", (unsigned int)inVAddr+8);
 				fprintf(pCOut, "\t\t\tRT_PANIC_UNEXPECTED_RETURN_ADDRESS\n");
 				fprintf(pCOut, "\t\t}\n");
-#endif
 			}
 		} else {
 			if (inInstruction & 0x00000010)
@@ -2046,36 +1974,19 @@ void TJITGenericRetarget::DoTranslate_11(KUInt32 inVAddr, KUInt32 inInstruction)
 				CoprocRegisterTransfer(inVAddr, inInstruction);
 			} else {
 				fprintf(pCOut, "\t\tioCPU->DoUndefinedInstruction(); // (1)\n");
-#if 0
-				fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(4);\n");
-#else
 				fprintf(pCOut, "\t\tFunc_0x00000004(ioCPU, 0x%08X);\n", (unsigned int)inVAddr+8);
 				fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08X) {\n", (unsigned int)inVAddr+8);
 				fprintf(pCOut, "\t\t\tRT_PANIC_UNEXPECTED_RETURN_ADDRESS\n");
 				fprintf(pCOut, "\t\t}\n");
-#endif
-//				fprintf(pCOut, "#error Not yet implemented 14.4\n");
-//				Floating Point operations, like "mvfd"
-//				PUSHFUNC(CoprocDataOperation);
 			}
 		}
 	} else {
 		fprintf(pCOut, "\t\tioCPU->DoUndefinedInstruction(); // (2)\n");
-#if 0
-		fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(4);\n");
-#else
 		fprintf(pCOut, "\t\tFunc_0x00000004(ioCPU, 0x%08X);\n", (unsigned int)inVAddr+8);
 		fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08X) {\n", (unsigned int)inVAddr+8);
 		fprintf(pCOut, "\t\t\tRT_PANIC_UNEXPECTED_RETURN_ADDRESS\n");
 		fprintf(pCOut, "\t\t}\n");
-#endif
-//		fprintf(pCOut, "#error Not yet implemented 14.5\n");
-//				Floating Point operations, like "sfm"
-//		PUSHFUNC(CoprocDataTransfer);
 	}
-	
-	// For all those methods, put the PC.
-//	PUSHVALUE(inVAddr + 8);
 }
 
 
@@ -2095,516 +2006,13 @@ void TJITGenericRetarget::CoprocRegisterTransfer(KUInt32 inVAddr, KUInt32 inInst
 		fprintf(pCOut, "\t\tioCPU->NativeCoprocRegisterTransfer(0x%08X);\n", (unsigned int)inInstruction);
 	} else {
 		fprintf(pCOut, "\t\tioCPU->DoUndefinedInstruction(); // (3)\n");
-#if 0
-		fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(4);\n");
-#else
 		fprintf(pCOut, "\t\tFunc_0x00000004(ioCPU, 0x%08X);\n", (unsigned int)inVAddr+8);
 		fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=0x%08X) {\n", (unsigned int)inVAddr+8);
 		fprintf(pCOut, "\t\t\tRT_PANIC_UNEXPECTED_RETURN_ADDRESS\n");
 		fprintf(pCOut, "\t\t}\n");
-#endif
 	}
 	// FIXME: this could write the PC register
 }
-
-
-#if 0
-// Einstein
-#include "TARMProcessor.h"
-
-#include "TJITGeneric_Macros.h"
-
-#include "TJITGeneric_Test.h"
-#include "TJITGeneric_Other.h"
-#include "TJITGeneric_DataProcessingPSRTransfer.h"
-#include "TJITGeneric_SingleDataTransfer.h"
-#include "TJITGeneric_SingleDataSwap.h"
-#include "TJITGeneric_Multiply.h"
-#include "TJITGeneric_MultiplyAndAccumulate.h"
-#include "TJITGeneric_BlockDataTransfer.h"
-
-#ifdef JIT_PERFORMANCE
-#include "TJITPerformance.h"
-#endif
-
-// -------------------------------------------------------------------------- //
-// Constantes
-// -------------------------------------------------------------------------- //
-/// Stats...
-#undef COLLECT_STATS_ON_PAGES
-
-#ifdef COLLECT_STATS_ON_PAGES
-static KUInt16 gMaxUnitsCount = 0;
-#endif
-
-// -------------------------------------------------------------------------- //
-//  * TJITGenericPage( void )
-// -------------------------------------------------------------------------- //
-TJITGenericPage::TJITGenericPage( void )
-{
-	mUnits = (JITUnit*) ::malloc(sizeof(JITUnit) * kDefaultUnitCount);
-	mUnitCount = kDefaultUnitCount;
-}
-
-// -------------------------------------------------------------------------- //
-//  * ~TJITGenericPage( void )
-// -------------------------------------------------------------------------- //
-TJITGenericPage::~TJITGenericPage( void )
-{
-	::free(mUnits);
-}
-
-// -------------------------------------------------------------------------- //
-//  * Init( KUInt32*, KUInt32, KUInt32 )
-// -------------------------------------------------------------------------- //
-void
-TJITGenericPage::Init(
-			TMemory* inMemoryIntf,
-			KUInt32 inVAddr,
-			KUInt32 inPAddr )
-{
-	TJITPage<TJITGenericPage>::Init( inMemoryIntf, inVAddr, inPAddr );
-	KUInt32* thePointer = GetPointer();
-
-	// Translate the page.
-	KUInt32 indexInstr;
-	KUInt32 theOffsetInPage = 0;
-	KUInt16 unitCrsr = 0;
-	for (indexInstr = 0; indexInstr < kInstructionCount; indexInstr++)
-	{
-		mUnitsTable[indexInstr] = unitCrsr;
-		Translate(
-		    inMemoryIntf,
-			&unitCrsr,
-			thePointer[indexInstr],
-			inVAddr + theOffsetInPage );
-		theOffsetInPage += 4;
-	}
-
-	PushUnit(&unitCrsr, TJITGenericPage::EndOfPage);
-	PushUnit(&unitCrsr, inVAddr + theOffsetInPage + 4);	// PC + 8
-
-#ifdef COLLECT_STATS_ON_PAGES
-	if (unitCrsr > gMaxUnitsCount) {
-		gMaxUnitsCount = unitCrsr;
-		fprintf(stderr, "Max units count = %i\n", unitCrsr);
-	}
-#endif
-}
-
-// -------------------------------------------------------------------------- //
-//  * PushUnit( KUInt16*, KUIntPtr )
-// -------------------------------------------------------------------------- //
-void
-TJITGenericPage::PushUnit(KUInt16* ioUnitCrsr, KUIntPtr inUnit)
-{
-	// Can we push it?
-	KUInt16 theCrsr = *ioUnitCrsr;
-	if (theCrsr == mUnitCount) {
-		// We need to resize the table.
-		mUnitCount += kUnitIncrement;
-		mUnits = (JITUnit*) ::realloc(mUnits, mUnitCount * sizeof(JITUnit));
-	}
-	mUnits[theCrsr++].fPtr = inUnit;
-	*ioUnitCrsr = theCrsr;
-}
-
-
-#ifdef JIT_PERFORMANCE
-JITInstructionProto(instrCount)
-{
-	KUInt32 pc;
-	POPVALUE(pc);
-	COUNTHIT(branchDestCount, pc)
-	EXECUTENEXTUNIT;
-}
-#endif
-
-
-// -------------------------------------------------------------------------- //
-//  * Translate( JITUnit*, KUInt32, KUInt32, KUInt32 )
-// -------------------------------------------------------------------------- //
-void
-TJITGenericPage::Translate(
-				TMemory* inMemoryIntf,
-				KUInt16* ioUnitCrsr,
-				KUInt32 inInstruction,
-				KUInt32 inVAddr )
-{
-#ifdef JIT_PERFORMANCE
-	PushUnit(ioUnitCrsr, instrCount);
-	PushUnit(ioUnitCrsr, inVAddr);
-#endif
-
-	// handle injections before anything else
-	if ((inInstruction & 0xffe00000)==0xefc00000) {
-		inInstruction = Translate_Injection(
-											this,
-											ioUnitCrsr,
-											inInstruction,
-											inVAddr);
-	} else if ((inInstruction & 0xffe00000)==0xefa00000) {
-		inInstruction = Translate_SimulatorInjection(
-											this,
-											ioUnitCrsr,
-											inInstruction,
-											inVAddr);
-	}
-	
-	int theTestKind = inInstruction >> 28;
-	KUInt16 testUnitCrsr = *ioUnitCrsr;
-	if ((theTestKind != kTestAL) && (theTestKind != kTestNV))
-	{
-		// We have a real test.
-		// Save some room for it, but put a null for now.
-		PushUnit(ioUnitCrsr, (KUIntPtr) 0L);
-	}
-	
-	if (theTestKind != kTestNV)
-	{
-		switch ((inInstruction >> 26) & 0x3)				// 27 & 26
-		{
-			case 0x0:	// 00
-				DoTranslate_00(
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr);
-				break;
-					
-			case 0x1:	// 01
-				DoTranslate_01(
-					inMemoryIntf,
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr);
-				break;
-					
-			case 0x2:	// 10
-				DoTranslate_10(
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr);
-				break;
-					
-			case 0x3:	// 11
-				Translate_SWIAndCoproc(
-					this,
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr);
-				break;
-		} // switch 27 & 26
-	}
-	
-	// Finally put the test, based on the current unit crsr.
-	if ((theTestKind != kTestAL) && (theTestKind != kTestNV))
-	{
-		KUInt16 nextInstrCrsr = *ioUnitCrsr;
-		PutTest(testUnitCrsr, nextInstrCrsr - testUnitCrsr, theTestKind);
-	}
-}
-
-// -------------------------------------------------------------------------- //
-//  * PutTest( KUInt16*, KUInt32 )
-// -------------------------------------------------------------------------- //
-#define _template1(func, delta)	func ## delta
-#define __PutTest_line(func, delta)										\
-		case (delta):													\
-			mUnits[inUnitCrsr].fFuncPtr = _template1(func, delta);		\
-			break
-
-// NOTICE: maximum number of units for an instruction is set to 6.....
-
-#define __PutTest_packet(func)							\
-		switch(inDelta) {								\
-			__PutTest_line(func, 2);					\
-			__PutTest_line(func, 3);					\
-			__PutTest_line(func, 4);					\
-			__PutTest_line(func, 5);					\
-			__PutTest_line(func, 6);					\
-			__PutTest_line(func, 7);					\
-			default:									\
-				fprintf(stderr, "Test overflow!\n");	\
-				abort();								\
-		}
-
-inline void
-TJITGenericPage::PutTest(
-				KUInt16 inUnitCrsr,
-				unsigned char inDelta,
-				int inTest )
-{
-	// Test the condition.
-	switch (inTest)
-	{
-		// 0000 = EQ - Z set (equal)
-		case kTestEQ:
-			__PutTest_packet(TestEQ);
-			break;
-			
-			// 0001 = NE - Z clear (not equal)
-		case kTestNE:
-			__PutTest_packet(TestNE);
-			break;
-	
-			// 0010 = CS - C set (unsigned higher or same)
-		case kTestCS:
-			__PutTest_packet(TestCS);
-			break;
-			
-			// 0011 = CC - C clear (unsigned lower)
-		case kTestCC:
-			__PutTest_packet(TestCC);
-			break;
-			
-			// 0100 = MI - N set (negative)
-		case kTestMI:
-			__PutTest_packet(TestMI);
-			break;
-			
-			// 0101 = PL - N clear (positive or zero)
-		case kTestPL:
-			__PutTest_packet(TestPL);
-			break;
-			
-			// 0110 = VS - V set (overflow)
-		case kTestVS:
-			__PutTest_packet(TestVS);
-			break;
-			
-			// 0111 = VC - V clear (no overflow)
-		case kTestVC:
-			__PutTest_packet(TestVC);
-			break;
-			
-			// 1000 = HI - C set and Z clear (unsigned higher)
-		case kTestHI:
-			__PutTest_packet(TestHI);
-			break;
-			
-			// 1001 = LS - C clear or Z set (unsigned lower or same)
-		case kTestLS:
-			__PutTest_packet(TestLS);
-			break;
-			
-			// 1010 = GE - N set and V set, or N clear and V clear (greater or equal)
-		case kTestGE:
-			__PutTest_packet(TestGE);
-			break;
-			
-			// 1011 = LT - N set and V clear, or N clear and V set (less than)
-		case kTestLT:
-			__PutTest_packet(TestLT);
-			break;
-			
-			// 1100 = GT - Z clear, and either N set and V set, or N clear and V clear (greater than)
-		case kTestGT:
-			__PutTest_packet(TestGT);
-			break;
-			
-			// 1101 = LE - Z set, or N set and V clear, or N clear and V set (less than or equal)
-		case kTestLE:
-			__PutTest_packet(TestLE);
-			break;
-			
-			// 1110 = AL - always
-		case kTestAL:
-			// 1111 = NV - never
-		case kTestNV:
-		default:
-			break;
-	}
-}
-
-// -------------------------------------------------------------------------- //
-//  * DoTranslate_00( KUInt32, JITFuncPtr*, JITUnit* )
-// -------------------------------------------------------------------------- //
-void
-TJITGenericPage::DoTranslate_00(
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr )
-{
-	// 31 - 28 27 26 25 24 23 22 21 20 19 - 16 15 - 12 11 - 08 07 06 05 04 03 - 00
-	// -Cond-- 0  0  I  --Opcode--- S  --Rn--- --Rd--- ----------Operand 2-------- Data Processing PSR Transfer
-	// -Cond-- 0  0  0  0  0  0  A  S  --Rd--- --Rn--- --Rs--- 1  0  0  1  --Rm--- Multiply
-	// -Cond-- 0  0  0  1  0  B  0  0  --Rn--- --Rd--- 0 0 0 0 1  0  0  1  --Rm---
-	if ((inInstruction & 0x020000F0) == 0x90)	// I=0 & 0b1001----
-	{
-		if (inInstruction & 0x01000000)
-		{
-			// Single Data Swap
-			Translate_SingleDataSwap(
-					this,
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr );
-		} else {
-			// Multiply
-			if (inInstruction & 0x00200000)
-			{
-				Translate_MultiplyAndAccumulate(
-					this,
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr);
-			} else {
-				Translate_Multiply(
-					this,
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr);
-			}
-		}
-	} else {
-		Translate_DataProcessingPSRTransfer(
-					this,
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr );
-	}
-}
-
-// -------------------------------------------------------------------------- //
-//  * DoTranslate_01( JITUnit*, KUInt32, KUInt32, KUInt32, JITFuncPtr* )
-// -------------------------------------------------------------------------- //
-inline
-void
-TJITGenericPage::DoTranslate_01(
-					TMemory* inMemoryIntf,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr )
-{
-	// Single Data Transfer & Undefined
-	if ((inInstruction & 0x02000010) == 0x02000010)
-	{
-// -Cond-- 0  1  1  -XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX- 1  -XXXXX-
-          // DA WINNER
-		if (inInstruction == 0xE6000510)
-		{
-			PushUnit(ioUnitCrsr, DebuggerUND);
-			PushUnit(ioUnitCrsr, inVAddr - GetVAddr() + GetPAddr());
-			PushUnit(ioUnitCrsr, inVAddr + 8);
-		} else {
-			PushUnit(ioUnitCrsr, UndefinedInstruction);
-			PushUnit(ioUnitCrsr, inVAddr + 8);
-		}
-	} else {
-// -Cond-- 0  1  I  P  U  B  W  L  --Rn--- --Rd--- -----------offset----------
-		Translate_SingleDataTransfer(this, inMemoryIntf, ioUnitCrsr, inInstruction, inVAddr);
-	}
-}
-
-// -------------------------------------------------------------------------- //
-//  * DoTranslate_10( JITUnit*, KUInt32, KUInt32, JITFuncPtr* )
-// -------------------------------------------------------------------------- //
-inline void
-TJITGenericPage::DoTranslate_10(
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr )
-{
-	// Block Data Transfer
-	// Branch
-	// -Cond-- 1  0  0  P  U  S  W  L  --Rn--- ------------register list---------- Block Data Transfer
-	// -Cond-- 1  0  1  L  ---------------------offset---------------------------- Branch
-	if (inInstruction & 0x02000000)
-	{
-		Translate_Branch(this, ioUnitCrsr, inInstruction, inVAddr);
-	} else {
-		// Block Data Transfer.
-		Translate_BlockDataTransfer(this, ioUnitCrsr, inInstruction, inVAddr);
-	}
-}
-
-// -------------------------------------------------------------------------- //
-//  * EndOfPage( JITUnit*, TARMProcessor* )
-// -------------------------------------------------------------------------- //
-JITUnit*
-TJITGenericPage::EndOfPage(
-				JITUnit* ioUnit,
-				TARMProcessor* ioCPU )
-{
-	// PC shouldn't have been incremented.
-	POPPC();
-
-	// Don't execute next function.
-	MMUCALLNEXT(GETPC());
-}
-
-// -------------------------------------------------------------------------- //
-//  * Halt( JITUnit*, TARMProcessor* )
-// -------------------------------------------------------------------------- //
-JITUnit*
-TJITGenericPage::Halt(
-				JITUnit* ioUnit,
-				TARMProcessor* ioCPU )
-{
-	// Halt is used for single steps.
-	// If we are here, then the previous instruction tried to continue the
-	// execution with us. And as a consequence, the PC is the previous PC + 4.
-	SETPC(THEPC + 4);
-	return ioUnit;
-}
-
-#endif
-
-
-
-#if 0
-// The code below seemingly works as it should for "good" cases.
-// FIXME: what happens if a memory access exception is caused?
-// FIXME: what happens if the pc register is modified?
-// FIXME: how can we translate a jump or call function int a true "C" call?
-// FIXME: how can we translate function returns?
-// FIXME: how can we translate virtual jump tables?
-// FIXME: what if we need to jump to code in RAM?
-
-/*
- SuperStacks (0x04004000 or 0x8004000)
- KernelStack (GetKernelSTackVirtualTop()->0x0C000400)
- SpecialStacks (InitSpecialStacks())
-	FIQStack (SetFIQSTack(0x0C003400))
-	AbortStack (SetAbortStack(0x0C004C00))
-	UndefStack (SetUndefStack(0x0C006000))
-	IRQStack (SetIRQStack(0x0C002C00))
-	UserStack (SetUserStack(0x0C007400))
- 
- First fault at 0x0cc79ff4
-
- */
-
-JITInstructionProto(JITGenericEnd) {
-	return ioUnit;
-}
-
-/// FIXME: UGLY TEST
-T_ROM_PATCH(0x00038600, "Retargeting test 1")
-{
-	// addr:0x00038600, instr:0xE5901000
-	extern JITInstructionProto(SingleDataTransfer_25_0_1);
-	JITUnit j[] = {
-		{ .fFuncPtr=SingleDataTransfer_25_0_1 },
-		{ .fValue=0xE5901000 },
-		{ .fPtr=0x00038608 },
-		{ .fFuncPtr=JITGenericEnd } };
-	j[0].fFuncPtr(j, ioCPU);
-	CALLNEXTUNIT;
-	
-#if 0
-	// this is called whenever a read or write exception occurs
-	SETPC(GETPC());
-	ioCPU->DataAbort();
-	MMUCALLNEXT_AFTERSETPC;
-#endif
-
-#if 0
-	// this is called whenever r15 (pc) changes
-	FURTHERCALLNEXT_AFTERSETPC; // (==MMUCALLNEXT_AFTERSETPC)
-#endif
-}
-#endif
 
 
 // ============================================================================= //

@@ -47,22 +47,6 @@ rt cjit 0039401C-0x00394050 SystemPanic
 # this is partially duplicating SWI2. It's called by SWI22
 rt cjit 0x003AE098-0x003AE138 SWI2_PortReceive_2
 
-rt cjitr SMemSetBufferKernelGlue
-rt cjitr SMemGetSizeKernelGlue
-rt cjitr SMemCopyToKernelGlue
-rt cjitr SMemCopyFromKernelGlue
-rt cjitr SMemMsgSetTimerParmsKernelGlue
-rt cjitr SMemMsgSetMsgAvailPortKernelGlue
-rt cjitr SMemMsgGetSenderTaskIdKernelGlue
-rt cjitr SMemMsgSetUserRefConKernelGlue
-rt cjitr SMemMsgGetUserRefConKernelGlue
-rt cjitr SMemMsgCheckForDoneKernelGlue
-rt cjitr SMemMsgMsgDoneKernelGlue
-rt cjitr MonitorDispatchKernelGlue
-rt cjitr MonitorExitKernelGlue
-rt cjitr MonitorThrowKernelGlue
-rt cjitr MonitorFlushKernelGlue
-
 rt cjit DoDeferrals
 rt cjit Scheduler
 rt cjit StartScheduler
