@@ -83,7 +83,22 @@ rt cjit GetPicSByte__Fv
 rt cjit GetPicGrayTable__FlPPUc
 rt cjit ConvertPixPat__FP8PixelMap
 
+rt cjit UserBoot__Fv
 
+rt cjit StdGetPic
+
+rt cjitr StaticInit__18TULockingSemaphoreSFv
+rt cjitr StaticInit__15TURdWrSemaphoreSFv
+rt cjitr AddSemaphoreToHeap
+rt cjitr InitMemArchObjs__Fv
+rt cjitr InitDomainsAndEnvironments__Fv
+rt cjitr FindHeapRef__13MemObjManagerSFUlPPv
+rt cjitr InitROMDomainManager__Fv
+rt cjitr srand
+rt cjitr FindEnvironmentId__13MemObjManagerSFUlPUl
+rt cjitr Init__6TUTaskFPFPvUlT2_vUlT2PvN32
+rt cjitr Start__6TUTaskFv
+rt cjitr SetBequeathId__FUl
 
 rt cjitr PicComment__FsT1PPc
 rt cjitr GetPicBits__FlP7PicPlayPCPFT1T2P8GrafPort_v
@@ -256,7 +271,6 @@ rt cjitr GetFrontCommandKeyView__Fv
 rt cjitr Sync__5TViewFv
 rt cjitr SetFlags__5TViewFUl
 rt cjitr MakeCommand__FUlP10TResponderl
-rt cjitr TTimeToMilliseconds__F5TTime
 rt cjitr ResetIdle__14TAEventHandlerFUl9TimeUnits
 rt cjitr DispatchCommand__12TApplicationFRC6RefVar
 rt cjitr UpdateHardwareScreen__Fv
@@ -352,6 +366,23 @@ rt cjitr SetRefCon__16TUSemaphoreGroupFPv
 rt cjitr DestroyMonitor__9TProtocolFv
 rt cjitr MakeObject__8TUObjectF11ObjectTypesP13ObjectMessageUl
 
+rt cjitr SMemSetBufferKernelGlue
+rt cjitr SMemGetSizeKernelGlue
+rt cjitr SMemCopyToKernelGlue
+rt cjitr SMemCopyFromKernelGlue
+rt cjitr SMemMsgSetTimerParmsKernelGlue
+rt cjitr SMemMsgSetMsgAvailPortKernelGlue
+rt cjitr SMemMsgGetSenderTaskIdKernelGlue
+rt cjitr SMemMsgSetUserRefConKernelGlue
+rt cjitr SMemMsgGetUserRefConKernelGlue
+rt cjitr SMemMsgCheckForDoneKernelGlue
+rt cjitr SMemMsgMsgDoneKernelGlue
+rt cjitr MonitorDispatchKernelGlue
+rt cjitr MonitorExitKernelGlue
+rt cjitr MonitorThrowKernelGlue
+rt cjitr MonitorFlushKernelGlue
+rt cjitr TTimeToMilliseconds__F5TTime
+
 # TODO: linking these functions in will make the SWI number unreadable by the code following
 rt cjit !_EnterAtomicSWI
 rt cjit !_ExitAtomicSWI
@@ -370,7 +401,7 @@ rt cjit !003AD660-003AD664 ThrowSystemPanic
 rt cjit !_GenericWithReturnSWI
 rt cjit !_MonitorDispatchSWI
 rt cjit !_MonitorThrowSWI
-rt cjit !_SemaphoreOpGlue
+# rt cjit !_SemaphoreOpGlue
 rt cjit !_SMemSetBufferSWI
 rt cjit !GetPortSWI
 

@@ -158,7 +158,7 @@ protected:
 	void Translate_BlockDataTransfer_STM1(KUInt32 inVAddr, KUInt32 inInstruction);
 	void Translate_BlockDataTransfer_STM2(KUInt32 inVAddr, KUInt32 inInstruction);
 	
-	void GenerateReturnInstruction();
+	void GenerateReturnInstruction(bool withFlags);
 
 	TMemory *pMemory;
 	TSymbolList *pSymbolList;

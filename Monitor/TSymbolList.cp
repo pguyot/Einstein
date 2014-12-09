@@ -655,9 +655,9 @@ TSymbolList::GetSymbol(
 				char* outComment,
 				int* outOffset )
 {
-	*outSymbol = '\0';
-	*outComment = '\0';
-	*outOffset = 0;
+	if (outSymbol) *outSymbol = '\0';
+	if (outComment) *outComment = '\0';
+	if (outOffset) *outOffset = 0;
 	
 	if (this == NULL || mSymbolCount == 0)
 	{

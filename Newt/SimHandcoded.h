@@ -14,6 +14,7 @@
 // keep this empty if possible
 
 extern void Func_0x003AD750(TARMProcessor* ioCPU, KUInt32 ret); // SWI0_GetPort
+extern void Func_0x003AE1FC(TARMProcessor* ioCPU, KUInt32 ret); // _SemaphoreOpGlue
 
 
 #endif /* defined(__Einstein__SimHandcoded__) */

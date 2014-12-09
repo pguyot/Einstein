@@ -416,7 +416,7 @@ static TCocoaAppController* gInstance = nil;
 	// load it to symbolicate addresses in the monitor
 	
 	NSString* theSymbolPath = [theDataPath stringByAppendingPathComponent:@"symbols.txt"];
-	mSymbolList = new TSymbolList([theSymbolPath fileSystemRepresentation]);
+	mSymbolList = TSymbolList::List = new TSymbolList([theSymbolPath fileSystemRepresentation]);
 #else
 	mSymbolList = NULL;
 #endif

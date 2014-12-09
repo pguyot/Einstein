@@ -153,7 +153,7 @@ STM2_Template(FLAG_P, FLAG_U, Rn)
 			}
 			baseAddress += 4;
 		}
-		if (bankRegList & 0x3000)
+		if (bankRegList & 0x2000)
 		{
 			if (theMemoryInterface->WriteAligned(
 				(TMemory::VAddr) baseAddress,
