@@ -470,6 +470,8 @@
 		C9CEB43F19601CA3002198A7 /* TJITGenericRetarget.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9CEB43D19601CA3002198A7 /* TJITGenericRetarget.cp */; };
 		C9D54E1415FA23E700D91131 /* TFiber.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cp */; };
 		C9DA71BA17CD42D4008E6DB2 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C9DA71B917CD42D4008E6DB2 /* libresolv.dylib */; };
+		C9DB61801A37C42F00E5CC95 /* unsorted_025.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9DB617D1A37C42F00E5CC95 /* unsorted_025.cp */; };
+		C9DB61811A37C42F00E5CC95 /* unsorted_025.rts in Resources */ = {isa = PBXBuildFile; fileRef = C9DB617F1A37C42F00E5CC95 /* unsorted_025.rts */; };
 		C9E848E911EDCD6C00F27330 /* ffi_darwin.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E711EDCD6C00F27330 /* ffi_darwin.c */; };
 		C9E848EA11EDCD6C00F27330 /* x86-ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E811EDCD6C00F27330 /* x86-ffi64.c */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cp */; };
@@ -950,6 +952,9 @@
 		C9D54E1215FA23E700D91131 /* TFiber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFiber.h; sourceTree = "<group>"; };
 		C9D54E1315FA23E700D91131 /* TFiber.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFiber.cp; sourceTree = "<group>"; };
 		C9DA71B917CD42D4008E6DB2 /* libresolv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libresolv.dylib; path = usr/lib/libresolv.dylib; sourceTree = SDKROOT; };
+		C9DB617D1A37C42F00E5CC95 /* unsorted_025.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = unsorted_025.cp; sourceTree = "<group>"; };
+		C9DB617E1A37C42F00E5CC95 /* unsorted_025.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unsorted_025.h; sourceTree = "<group>"; };
+		C9DB617F1A37C42F00E5CC95 /* unsorted_025.rts */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = unsorted_025.rts; sourceTree = "<group>"; };
 		C9E848E711EDCD6C00F27330 /* ffi_darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi_darwin.c; sourceTree = "<group>"; };
 		C9E848E811EDCD6C00F27330 /* x86-ffi64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "x86-ffi64.c"; sourceTree = "<group>"; };
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTapNetwork.cp; path = Network/TTapNetwork.cp; sourceTree = "<group>"; };
@@ -1263,6 +1268,9 @@
 				C98AB2A41A351EE6001BB1CD /* unsorted_024.cp */,
 				C98AB2A51A351EE6001BB1CD /* unsorted_024.h */,
 				C98AB2A61A351EE6001BB1CD /* unsorted_024.rts */,
+				C9DB617D1A37C42F00E5CC95 /* unsorted_025.cp */,
+				C9DB617E1A37C42F00E5CC95 /* unsorted_025.h */,
+				C9DB617F1A37C42F00E5CC95 /* unsorted_025.rts */,
 			);
 			path = unsorted;
 			sourceTree = "<group>";
@@ -2053,6 +2061,7 @@
 				C95E6040198B76DC004C6CEF /* button_backlight_on.png in Resources */,
 				C95E6041198B76DC004C6CEF /* button_install.png in Resources */,
 				C95E6042198B76DC004C6CEF /* button_power.png in Resources */,
+				C9DB61811A37C42F00E5CC95 /* unsorted_025.rts in Resources */,
 				C98AB2B31A351EE6001BB1CD /* unsorted_002.rts in Resources */,
 				C98AB2D51A351EE6001BB1CD /* unsorted_019.rts in Resources */,
 				C98AB2CD1A351EE6001BB1CD /* unsorted_015.rts in Resources */,
@@ -2366,6 +2375,7 @@
 				C98AB2B21A351EE6001BB1CD /* unsorted_002.cp in Sources */,
 				C95E608A198B76DC004C6CEF /* TARMProcessor.cp in Sources */,
 				C95E608B198B76DC004C6CEF /* TDMAManager.cp in Sources */,
+				C9DB61801A37C42F00E5CC95 /* unsorted_025.cp in Sources */,
 				C95E608C198B76DC004C6CEF /* TEmulator.cp in Sources */,
 				C95E608D198B76DC004C6CEF /* TFlash.cp in Sources */,
 				C95E608E198B76DC004C6CEF /* TInterruptManager.cp in Sources */,
