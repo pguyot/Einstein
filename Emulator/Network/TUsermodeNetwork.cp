@@ -149,7 +149,7 @@ public:
 	 * \param copy if set, the packet data will be copied, otherwise this class
 	 *        will only point at the buffer
 	 */
-	Packet(KUInt8 *data, KUInt32 size, bool copy=1) {
+	Packet(KUInt8 *data, ssize_t size, bool copy=1) {
 		if (copy) {
 			mData = (KUInt8*)malloc(size);
 			if (data) {
@@ -189,7 +189,7 @@ public:
 	 * Get the number of bytes in the buffer.
 	 * \return number of bytes.
 	 */
-	KUInt32 Size() { return mSize; }
+	ssize_t Size() { return mSize; }
 
 	/**
 	 * Read a six-byte word in network order.
@@ -261,14 +261,14 @@ public:
 	KUInt16 GetTCPChecksum()	{ return Get16(50); }
 	KUInt16 GetTCPUrgent()		{ return Get16(52); }
 	KUInt8 *GetTCPPayloadStart(){ return mData + GetTCPHeaderLength() + 34; }
-	KUInt32	GetTCPPayloadSize()	{ return mSize - GetTCPHeaderLength() - 34; }
+	ssize_t	GetTCPPayloadSize()	{ return mSize - GetTCPHeaderLength() - 34; }
 
 	KUInt16 GetUDPSrcPort()		{ return Get16(34); }
 	KUInt16 GetUDPDstPort()		{ return Get16(36); }
 	KUInt16 GetUDPLength()		{ return Get16(38); }
 	KUInt16 GetUDPChecksum()	{ return Get16(40); }
 	KUInt8 *GetUDPPayloadStart(){ return mData + 42; }
-	KUInt32	GetUDPPayloadSize()	{ return mSize - 42; }
+	ssize_t	GetUDPPayloadSize()	{ return mSize - 42; }
 
 	KUInt16 GetARPHType()		{ return Get16(14); }
 	KUInt16 GetARPPType()		{ return Get16(16); }
@@ -332,7 +332,7 @@ public:
 			if (label) { strcat(buf, label); strcat(buf, " "); }
 			if ( GetType()==NetTypeIP ) {
 				if ( GetIPProtocol()==IPProtocolTCP ) {
-					KUInt32 o = strlen(buf);
+					ssize_t o = strlen(buf);
 					sprintf(buf+o, "TCP %c%c%c%c%c %4u bytes payload (Seq:%4u, Ack:%4u) [",
 							(unsigned int)(GetTCPFlags()&0x10?'A':'.'),
 							(unsigned int)(GetTCPFlags()&0x08?'P':'.'),
@@ -342,7 +342,7 @@ public:
 							(unsigned int)(GetTCPPayloadSize()), 
 							(unsigned int)(GetTCPSeq()%9999), 
 							(unsigned int)(GetTCPAck()%9999));
-					KUInt32 i = 0, s = GetTCPPayloadStart()-mData;
+					ssize_t i = 0, s = GetTCPPayloadStart()-mData;
 					o = strlen(buf);
 					while (s<mSize && i<128) {
 						KUInt8 c = mData[s];
@@ -359,7 +359,7 @@ public:
 					strcat(buf, "UDP");
 				}
 			} else {
-				KUInt32 o = strlen(buf);
+				ssize_t o = strlen(buf);
 				sprintf(buf+o, "%u bytes", (unsigned int)mSize);
 			}
 			mLog->LogLine(buf);
@@ -370,7 +370,7 @@ public:
 	
 private:
 	KUInt8 *mData;
-	KUInt32 mSize;
+	ssize_t mSize;
 	KUInt8	mCopy;
 };
 
@@ -527,7 +527,7 @@ public:
 	 * \see UpdateChecksums(Packet *p)
 	 * \see Packet::SetTCPPayload(KUInt8 *, KUInt32)
 	 */
-	Packet *NewPacket(KUInt32 size) {
+	Packet *NewPacket(ssize_t size) {
 		Packet *p = new Packet(0L, size+54);
 		p->SetDstMAC(myMAC);
 		p->SetSrcMAC(theirMAC);
@@ -718,7 +718,7 @@ public:
 		}
 		// ok, the state is kStateConnected. See if there are any icomming messages
 		KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
-		int avail = recv(mSocket, buf, sizeof(buf), 0);
+		ssize_t avail = recv(mSocket, buf, sizeof(buf), 0);
 		if (avail==0) {
 			// Peer has closed connection.
 			Packet *reply = NewPacket(0);
@@ -730,7 +730,7 @@ public:
 			// Wait for the newton to acknowledge the FIN
 			state = kStatePeerDiscWaitForACK;
 		} else if (avail>0) {
-			printf("Net: W>E N Data %d bytes\n", avail);
+			printf("Net: W>E N Data %d bytes\n", (int) avail);
 			//if (avail>200) avail = 200;
 			Packet *reply = NewPacket(avail);
 			// /*ssize_t n =*/ read(mSocket, reply->GetTCPPayloadStart(), avail);
@@ -826,7 +826,7 @@ public:
 	 * \see UpdateChecksums(Packet *p)
 	 * \see Packet::SetUDPPayload(KUInt8 *, KUInt32)
 	 */
-	Packet *NewPacket(KUInt32 size) {
+	Packet *NewPacket(ssize_t size) {
 		Packet *p = new Packet(0L, size+42);
 		p->SetDstMAC(myMAC);
 		p->SetSrcMAC(theirMAC);
@@ -885,7 +885,7 @@ public:
 		}
 		mExpire = kUDPExpirationTime;
 		packet.LogPayload(net->GetLog(), "W<E N");
-		int ret = 
+		ssize_t ret =
 			sendto(mSocket, packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
 				   0, (struct sockaddr*)&theirSockAddr, sizeof(theirSockAddr));
 		if (ret==-1) 
@@ -907,7 +907,7 @@ public:
 			return;
 		int maxTry = 5;
 		for (;maxTry>0; maxTry--) {
-			int avail =
+			ssize_t avail =
 				recvfrom(mSocket, buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
 			if (avail<1) {
 				if ( --mExpire == 0 ) {
@@ -922,7 +922,7 @@ public:
 				}
 				return;
 			}
-			printf("Net: W>E N Data %d bytes\n", avail);
+			printf("Net: W>E N Data %d bytes\n", (int) avail);
 			Packet *reply = NewPacket(avail);
 			memcpy(reply->GetUDPPayloadStart(), buf, avail);
 			UpdateChecksums(reply);
@@ -1559,7 +1559,7 @@ int TUsermodeNetwork::GetDeviceAddress(KUInt8 *data, KUInt32 size)
 KUInt32 TUsermodeNetwork::DataAvailable()
 {	
 	if (mLastPacket) {
-		return mLastPacket->Size();
+		return (KUInt32) mLastPacket->Size();
 	} else {
 		return 0;
 	}

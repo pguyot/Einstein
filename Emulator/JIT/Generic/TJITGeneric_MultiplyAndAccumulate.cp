@@ -22,7 +22,6 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include <K/Tests/KDebug.h>
 #include "JIT.h"
 
 #ifdef JITTARGET_GENERIC

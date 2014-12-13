@@ -1103,7 +1103,7 @@ TScreenManager::OverlayPrintAt(KSInt32 x, KSInt32 y, const char *text, Boolean c
 	size_t len = strlen(text);
 	if (centered) {
 		if (len>40) len = 40;
-		KUInt32 i, margin = (40-len)/2;
+		ssize_t i, margin = (40-len)/2;
 		char *dst =  mOverlay[y];
 		const char *src =  text;
 		for (i=margin; i>0; i--) *dst++ = 32;
