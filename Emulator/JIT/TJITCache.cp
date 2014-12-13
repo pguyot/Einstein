@@ -44,7 +44,7 @@ using namespace std;
 static KUInt32 gNbHits = 0;					///< Nombre de hits.
 static KUInt32 gNbInvalidatePage = 0;		///< Nombre d'invalidations (pages)
 static KUInt32 gNbInvalidateTLB = 0;		///< Nombre d'invalidations (tlb)
-static KUInt32 gNbMiss = 0;					///< Nombre de ratŽs.
+static KUInt32 gNbMiss = 0;					///< Nombre de ratÃ©s.
 #endif
 
 // -------------------------------------------------------------------------- //
