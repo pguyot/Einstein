@@ -404,7 +404,7 @@ TPCMCIAController::RaiseInterrupt( int inVector )
 void 
 TPCMCIAController::LogRegister(KUInt32 reg, KUInt32 v) 
 {
-	return;
+#if 0
 	
 	if (!mLog)
 		return;
@@ -663,6 +663,7 @@ TPCMCIAController::LogRegister(KUInt32 reg, KUInt32 v)
 			mLog->FLogLine("    kSocketWrFIFOThreshldIntVector = 1");
 	}
 	mLog->FLogLine("");
+#endif
 }
 
 

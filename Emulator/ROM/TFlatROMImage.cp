@@ -67,7 +67,7 @@ TFlatROMImage::TFlatROMImage(
 		::exit( 1 );
 	}
 
-	KUInt32 theSize = theInfos.st_size;
+	KUInt32 theSize = (KUInt32) theInfos.st_size;
 	if (theSize == 0x00800000)
 	{
 		// is 8MB
