@@ -41,7 +41,8 @@ LDM2_Template(FLAG_P, FLAG_U, Rn)
 #endif
 	KUInt32 curRegList;
 	KUInt32 bankRegList;
-
+	// In FIQ mode, user registers R8-R12 are banked (saved in _Bkup).
+	// In all other modes, user registers R8-R12 are the currently used registers.
 	if (ioCPU->GetMode() == TARMProcessor::kFIQMode)
 	{
 		curRegList = theRegList & 0xFF;
