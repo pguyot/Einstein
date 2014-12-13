@@ -282,7 +282,7 @@ TEmulator::DebuggerUND( KUInt32 inPAddr )
 		// Extract the string.
 		KUInt8 theString[512];
 		(void) ::sprintf( (char*) theString, "DebuggerUND: " );
-		KUInt32 index = ::strlen( (const char*) theString);
+		ssize_t index = ::strlen( (const char*) theString);
 		KUInt32 theAddress = inPAddr + 4;
 		do {
 			if (mMemory.ReadBP( theAddress++, theString[index] ))

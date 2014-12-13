@@ -417,7 +417,7 @@ TMemory::FastReadString( VAddr inAddress, char** outString )
 				// Resize.
 				len = 1024;
 				result_len += len;
-				KUInt32 offset = dst - result;
+				ssize_t offset = dst - result;
 				result = (char*) ::realloc(result, result_len);
 				dst = result + offset;
 			} else {
