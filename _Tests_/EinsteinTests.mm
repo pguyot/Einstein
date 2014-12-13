@@ -153,7 +153,10 @@ typedef void (^LogBlock)(TLog* log);
 - (void)testProcessorExecuteInstruction_E321F01B {
 	[self doTestProcessorExecuteInstruction:@"E321F01B"];
 }
-
+// E8D00800		ldm	r0, {r11}^
+- (void)testProcessorExecuteInstruction_E8D00800 {
+	[self doTestProcessorExecuteInstruction:@"E8D00800"];
+}
 
 - (void)testProcessorExecuteInstructionState1_E0049A22 {
     [self doTestProcessorExecuteInstructionState1:@"E0049A22"];
@@ -276,7 +279,11 @@ typedef void (^LogBlock)(TLog* log);
 - (void)testProcessorExecuteTwoInstructions_E3A0D301_E8CD0100 {
 	[self doTestProcessorExecuteTwoInstructions:@"E3A0D301-E8CD0100"];
 }
-
+// E8D00800		ldm	r0, {r11}^
+// E321F010		msr	CPSR_c, #0x10
+- (void)testProcessorExecuteTwoInstructions_E8D00800_E321F010 {
+	[self doTestProcessorExecuteTwoInstructions:@"E8D00800-E321F010"];
+}
 
 // e1200070		bkpt	#0x0
 - (void)testProcessorRunCode_1 {
@@ -543,6 +550,19 @@ bkpt 0
 	[self doTestProcessorRunCode:@"e28fb028 e91baff0 e1200070 00000010 0000000F 0000000E 0000000D 0000000C 0000000B 0000000A 00000009 00000008" master: @"19"];
 }
 
+/*
+ mov    r1, #3
+ mov    r0, #0x200
+ add    r0, #0x57
+ mov	r2, r0, lsr r1
+ mov	r3, r0, lsr #3
+ mov	r4, r0, asr r1
+ mov	r5, r0, asr #3
+ bkpt 0
+*/
+- (void)testProcessorRunCode_20 {
+	[self doTestProcessorRunCode:@"e3a01003 e3a00c02 e2800057 e1a02130 e1a031a0 e1a04150 e1a051c0 e1200070" master: @"20"];
+}
 
 // Step tests require a ROM image
 
