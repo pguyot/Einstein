@@ -846,18 +846,23 @@ TARMProcessor::SetSPSR( KUInt32 inNewSPSR )
 
 		case kUndefinedMode:
 			mSPSRund = inNewSPSR;
+			break;
 
 		case kFIQMode:
 			mSPSRfiq = inNewSPSR;
+			break;
 
 		case kIRQMode:
 			mSPSRirq = inNewSPSR;
+			break;
 
 		case kSupervisorMode:
 			mSPSRsvc = inNewSPSR;
+			break;
 
 		case kAbortMode:
 			mSPSRabt = inNewSPSR;
+			break;
 	}
 }
 
