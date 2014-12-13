@@ -118,7 +118,7 @@ LogicalOp(OP, MODE, FLAG_S, Rn, Rd)
 		#if (MODE == NoShift) || (MODE == Imm)
 			SetCPSRBitsForLogicalOpLeaveCarry( ioCPU, theResult );
 		#elif (MODE == ImmC)
-			SetCPSRBitsForLogicalOp( ioCPU, theResult, Opnd2 & 0x80000000 );
+			SetCPSRBitsForLogicalOp( ioCPU, theResult, (Opnd2 & 0x80000000) != 0 );
 		#else
 			SetCPSRBitsForLogicalOp( ioCPU, theResult, carry );
 		#endif
