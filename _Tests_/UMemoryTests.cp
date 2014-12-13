@@ -24,7 +24,7 @@
 #include <K/Defines/UByteSex.h>
 
 // Einstein
-#include "Emulator/Log/TStdOutLog.h"
+#include "Emulator/Log/TLog.h"
 #include "Emulator/TMemory.h"
 
 // -------------------------------------------------------------------------- //
@@ -37,14 +37,13 @@
 #endif
 
 // -------------------------------------------------------------------------- //
-//  * ReadROMTest( void )
+//  * ReadROMTest( TLog* )
 // -------------------------------------------------------------------------- //
 void
-UMemoryTests::ReadROMTest( void )
+UMemoryTests::ReadROMTest( TLog* inLog )
 {
 	KUInt8* romBuffer = (KUInt8*) malloc(TMemoryConsts::kLowROMEnd);
-	TStdOutLog theLog;
-	TMemory theMem( &theLog, romBuffer, kTempFlashPath );
+	TMemory theMem( inLog, romBuffer, kTempFlashPath );
 	int index;
 	for (index = 0; index < 8; index++)
 	{
@@ -64,9 +63,9 @@ UMemoryTests::ReadROMTest( void )
 		KUInt32 theWord = theMem.ReadP( index, fault );
 		if (fault)
 		{
-			(void) ::printf( "A fault occurred at %i\n", index  );
+			inLog->FLogLine( "A fault occurred at %i", index  );
 		}
-		::printf( "%i: %.8X\n", index, (unsigned int) theWord );
+		inLog->FLogLine( "%i: %.8X", index, (unsigned int) theWord );
 	}
 	
 	KUInt8 theByte;
@@ -74,9 +73,9 @@ UMemoryTests::ReadROMTest( void )
 	{
 		if (theMem.ReadBP( index, theByte ))
 		{
-			(void) ::printf( "A fault occurred at %i\n", index  );
+			inLog->FLogLine( "A fault occurred at %i", index  );
 		}
-		::printf( "%i: %.2X\n", index, (unsigned int) theByte );
+		inLog->FLogLine( "%i: %.2X", index, (unsigned int) theByte );
 	}
 
 	(void) ::unlink( kTempFlashPath );
@@ -84,23 +83,22 @@ UMemoryTests::ReadROMTest( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * ReadWriteRAMTest( void )
+//  * ReadWriteRAMTest( TLog* )
 // -------------------------------------------------------------------------- //
 void
-UMemoryTests::ReadWriteRAMTest( void )
+UMemoryTests::ReadWriteRAMTest( TLog* inLog )
 {
-	TStdOutLog theLog;
 	KUInt8* romBuffer = (KUInt8*) malloc(TMemoryConsts::kLowROMEnd);
-	TMemory theMem( &theLog, (KUInt8*) romBuffer, kTempFlashPath );
+	TMemory theMem( inLog, (KUInt8*) romBuffer, kTempFlashPath );
 	int index;
 
 	if (theMem.WriteP( 0x04000000, 0x00112233 ))
 	{
-		(void) ::printf( "A fault occurred writing at 0x04000000\n"  );
+		inLog->LogLine("A fault occurred writing at 0x04000000");
 	}
 	if (theMem.WriteP( 0x04000004, 0x44556677 ))
 	{
-		(void) ::printf( "A fault occurred writing at 0x04000004\n"  );
+		inLog->LogLine("A fault occurred writing at 0x04000004");
 	}
 
 	Boolean fault = false;
@@ -109,9 +107,9 @@ UMemoryTests::ReadWriteRAMTest( void )
 		KUInt32 theWord = theMem.ReadP( 0x04000000 + index, fault );
 		if (fault)
 		{
-			(void) ::printf( "A fault occurred reading at %i\n", index  );
+			inLog->FLogLine("A fault occurred reading at %i", index);
 		}
-		::printf( "%i: %.8X\n", index, (unsigned int) theWord );
+		inLog->FLogLine("%i: %.8X", index, (unsigned int) theWord);
 	}
 	
 	KUInt8 theByte;
@@ -119,16 +117,16 @@ UMemoryTests::ReadWriteRAMTest( void )
 	{
 		if (theMem.ReadBP( 0x04000000 + index, theByte ))
 		{
-			(void) ::printf( "A fault occurred reading at %i\n", index  );
+			inLog->FLogLine("A fault occurred reading at %i", index);
 		}
-		::printf( "%i: %.2X\n", index, (unsigned int) theByte );
+		inLog->FLogLine("%i: %.2X", index, (unsigned int) theByte);
 	}
 
 	for (index = 0; index < 8; index++)
 	{
 		if (theMem.WriteBP( 0x04000000 + index, ((index + 8) * 16) + index + 8 ))
 		{
-			(void) ::printf( "A fault occurred writing at %i\n", index  );
+			inLog->FLogLine("A fault occurred writing at %i", index);
 		}
 	}
 
@@ -137,9 +135,9 @@ UMemoryTests::ReadWriteRAMTest( void )
 		KUInt32 theWord = theMem.ReadP( 0x04000000 + index, fault );
 		if (fault)
 		{
-			(void) ::printf( "A fault occurred reading at %i\n", index  );
+			inLog->FLogLine("A fault occurred reading at %i", index);
 		}
-		::printf( "%i: %.8X\n", index, (unsigned int) theWord );
+		inLog->FLogLine("%i: %.8X", index, (unsigned int) theWord);
 	}
 
 	(void) ::unlink( kTempFlashPath );
@@ -147,35 +145,34 @@ UMemoryTests::ReadWriteRAMTest( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * FlashTest( void )
+//  * FlashTest( TLog* )
 // -------------------------------------------------------------------------- //
 void
-UMemoryTests::FlashTest( void )
+UMemoryTests::FlashTest( TLog* inLog )
 {
-	TStdOutLog theLog;
 	KUInt8* romBuffer = (KUInt8*) malloc(TMemoryConsts::kLowROMEnd);
-	TMemory theMem( &theLog, (KUInt8*) romBuffer, kTempFlashPath );
+	TMemory theMem( inLog, (KUInt8*) romBuffer, kTempFlashPath );
 	int index;
 
 	if (theMem.WriteToFlash32Bits(
 			0x00112233, 0xFFFFFFFF, TMemoryConsts::kFlashBank1 ))
 	{
-		(void) ::printf( "A fault occurred writing to flash at bank1\n"  );
+		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash32Bits(
 			0x44556677, 0xFFFFFFFF, TMemoryConsts::kFlashBank1 + 4 ))
 	{
-		(void) ::printf( "A fault occurred writing to flash at bank1+4\n"  );
+		inLog->LogLine("A fault occurred writing to flash at bank1+4");
 	}
 	if (theMem.WriteToFlash32Bits(
 			0x8899AABB, 0xFFFFFFFF, TMemoryConsts::kFlashBank1 + 8 ))
 	{
-		(void) ::printf( "A fault occurred writing to flash at bank1+8\n"  );
+		inLog->LogLine("A fault occurred writing to flash at bank1+8");
 	}
 	if (theMem.WriteToFlash32Bits(
 			0xCCDDEEFF, 0xFFFFFFFF, TMemoryConsts::kFlashBank1 + 12 ))
 	{
-		(void) ::printf( "A fault occurred writing to flash at bank1+C\n"  );
+		inLog->LogLine("A fault occurred writing to flash at bank1+C");
 	}
 
 	Boolean fault = false;
@@ -184,9 +181,9 @@ UMemoryTests::FlashTest( void )
 		KUInt32 theWord = theMem.ReadP( TMemoryConsts::kFlashBank1 + (4*index), fault );
 		if (fault)
 		{
-			(void) ::printf( "A fault occurred reading at %i\n", index  );
+			inLog->FLogLine("A fault occurred reading at %i", index);
 		}
-		::printf( "%i: %.8X\n", index, (unsigned int) theWord );
+		inLog->FLogLine("%i: %.8X", index, (unsigned int) theWord);
 	}
 	
 	KUInt8 theByte;
@@ -194,69 +191,69 @@ UMemoryTests::FlashTest( void )
 	{
 		if (theMem.ReadBP( TMemoryConsts::kFlashBank1 + index, theByte ))
 		{
-			(void) ::printf( "A fault occurred reading at %i\n", index  );
+			inLog->FLogLine("A fault occurred reading at %i", index);
 		}
-		::printf( "%i: %.2X\n", index, (unsigned int) theByte );
+		inLog->FLogLine("%i: %.2X", index, (unsigned int) theByte);
 	}
 
 	if (theMem.WriteToFlash16Bits(
 			0xFFEEDDCC, 0xFFFF0000, TMemoryConsts::kFlashBank1 ))
 	{
-		(void) ::printf( "A fault occurred writing to flash at bank1\n"  );
+		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash16Bits(
 			0xBBAA9988, 0xFFFF0000, TMemoryConsts::kFlashBank1 + 4 ))
 	{
-		(void) ::printf( "A fault occurred writing to flash at bank1\n"  );
+		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash16Bits(
 			0x77665544, 0xFFFF0000, TMemoryConsts::kFlashBank1 + 8 ))
 	{
-		(void) ::printf( "A fault occurred writing to flash at bank1\n"  );
+		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash16Bits(
 			0x33221100, 0xFFFF0000, TMemoryConsts::kFlashBank1 + 12 ))
 	{
-		(void) ::printf( "A fault occurred writing to flash at bank1\n"  );
+		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	for (index = 0; index < 4; index++)
 	{
 		KUInt32 theWord = theMem.ReadP( TMemoryConsts::kFlashBank1 + (4*index), fault );
 		if (fault)
 		{
-			(void) ::printf( "A fault occurred reading at %i\n", index  );
+			inLog->FLogLine("A fault occurred reading at %i", index);
 		}
-		::printf( "%i: %.8X\n", index, (unsigned int) theWord );
+		inLog->FLogLine("%i: %.8X", index, (unsigned int) theWord);
 	}
 
 	if (theMem.WriteToFlash16Bits(
 			0x33221100, 0x0000FFFF, TMemoryConsts::kFlashBank1 ))
 	{
-		(void) ::printf( "A fault occurred writing to flash at bank1\n"  );
+		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash16Bits(
 			0x77665544, 0x0000FFFF, TMemoryConsts::kFlashBank1 + 4 ))
 	{
-		(void) ::printf( "A fault occurred writing to flash at bank1\n"  );
+		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash16Bits(
 			0xBBAA9988, 0x0000FFFF, TMemoryConsts::kFlashBank1 + 8 ))
 	{
-		(void) ::printf( "A fault occurred writing to flash at bank1\n"  );
+		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash16Bits(
 			0xFFEEDDCC, 0x0000FFFF, TMemoryConsts::kFlashBank1 + 12 ))
 	{
-		(void) ::printf( "A fault occurred writing to flash at bank1\n"  );
+		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	for (index = 0; index < 4; index++)
 	{
 		KUInt32 theWord = theMem.ReadP( TMemoryConsts::kFlashBank1 + (4*index), fault );
 		if (fault)
 		{
-			(void) ::printf( "A fault occurred reading at %i\n", index  );
+			inLog->FLogLine("A fault occurred reading at %i", index);
 		}
-		::printf( "%i: %.8X\n", index, (unsigned int) theWord );
+		inLog->FLogLine("%i: %.8X", index, (unsigned int) theWord);
 	}
 
 	(void) ::unlink( kTempFlashPath );

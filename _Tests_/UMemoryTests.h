@@ -17,6 +17,8 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include <Emulator/Log/TLog.h>
+
 ///
 /// Class for memory related tests.
 ///
@@ -32,18 +34,18 @@ public:
 	/// Perform accesses that check both endianness and alignment with read
 	/// accesses.
 	///
-	static void ReadROMTest( void );
+	static void ReadROMTest( TLog* inLog );
 
 	///
 	/// Perform accesses that check both endianness and alignment with read
 	/// and write accesses.
 	///
-	static void ReadWriteRAMTest( void );
+	static void ReadWriteRAMTest( TLog* inLog );
 
 	///
 	/// Perform flash accesses.
 	///
-	static void FlashTest( void );
+	static void FlashTest( TLog* inLog );
 };
 
 #endif

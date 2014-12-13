@@ -57,36 +57,37 @@ main( int argc, char* argv[] )
 void
 test( const char* inTestName, const char* inArgument )
 {
+	TStdOutLog theLog;
 	if (::strcmp(inTestName, "execute-instruction") == 0) {
 		// inArgument: instruction to execute.
-		UProcessorTests::ExecuteInstruction( inArgument );
+		UProcessorTests::ExecuteInstruction( inArgument, &theLog );
 	} else if (::strcmp(inTestName, "execute-instruction-state1") == 0) {
 		// inArgument: instruction to execute.
-		UProcessorTests::ExecuteInstructionState1( inArgument );
+		UProcessorTests::ExecuteInstructionState1( inArgument, &theLog );
 	} else if (::strcmp(inTestName, "execute-instruction-state2") == 0) {
 		// inArgument: instruction to execute.
-		UProcessorTests::ExecuteInstructionState2( inArgument );
+		UProcessorTests::ExecuteInstructionState2( inArgument, &theLog );
 	} else if (::strcmp(inTestName, "execute-two-instructions") == 0) {
 		// inArgument: instructions to execute.
-		UProcessorTests::ExecuteTwoInstructions( inArgument );
+		UProcessorTests::ExecuteTwoInstructions( inArgument, &theLog );
 	} else if (::strcmp(inTestName, "step") == 0) {
 		// inArgument: number of steps to perform.
-		UProcessorTests::Step( inArgument );
+		UProcessorTests::Step( inArgument, &theLog );
 	} else if (::strcmp(inTestName, "run-code") == 0) {
 		// inArgument: code to execute.
-		UProcessorTests::RunCode( inArgument );
+		UProcessorTests::RunCode( inArgument, &theLog );
 #ifndef TARGET_OS_MAC
 	} else if (::strcmp(inTestName, "screen-x11") == 0) {
 		UScreenTests::TestX11();
 #endif
 	} else if (::strcmp(inTestName, "memory-read-rom") == 0) {
-		UMemoryTests::ReadROMTest();
+		UMemoryTests::ReadROMTest(&theLog);
 	} else if (::strcmp(inTestName, "memory-read-write-ram") == 0) {
-		UMemoryTests::ReadWriteRAMTest();
+		UMemoryTests::ReadWriteRAMTest(&theLog);
 	} else if (::strcmp(inTestName, "flash") == 0) {
-		UMemoryTests::FlashTest();
+		UMemoryTests::FlashTest(&theLog);
 	} else if (::strcmp(inTestName, "host-info") == 0) {
-		UHostInfoTests::HostInfoTest();
+		UHostInfoTests::HostInfoTest(&theLog);
 	} else {
 		(void) ::printf( "%s is an unknown test.\n", inTestName );
 	}

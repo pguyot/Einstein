@@ -11,39 +11,20 @@
 
 #include "UProcessorTests.h"
 #include "UMemoryTests.h"
+#include "Emulator/Log/TRAMLog.h"
 
 @interface EinsteinTests : XCTestCase
 @end
 
-typedef void (^VoidBlock)();
+typedef void (^LogBlock)(TLog* log);
 
 @implementation EinsteinTests
 
-
-- (NSString*)captureStdoutWithBlock: (VoidBlock)block {
-	int saved_stdout = dup(STDOUT_FILENO);
-	char* path = strdup("/tmp/einstein-test.XXXXXX");
-	int test_output = mkstemp(path);
-	int r = dup2(test_output, STDOUT_FILENO);
-	XCTAssert(r > 0, @"dup2 failed");
-	block();
-	lseek(test_output, 0, SEEK_SET);
-	char buffer[8196];
-	ssize_t n_read = read(test_output, buffer, sizeof(buffer) - 1);
-	XCTAssert(n_read >= 0, @"read failed");
-	buffer[n_read] = 0;
-	NSString* result = [NSString stringWithUTF8String:buffer];
-	r = dup2(saved_stdout, STDOUT_FILENO);
-	XCTAssert(r > 0, @"dup2 failed");
-	close(test_output);
-	(void) unlink(path);
-	free(path);
-	return result;
-}
-
-- (void)doTest: (VoidBlock)block withOutputFile:(NSString*)path {
+- (void)doTest: (LogBlock)block withOutputFile:(NSString*)path {
 	NSString* master = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
-	NSString* output = [self captureStdoutWithBlock:block];
+	TRAMLog log;
+	block(&log);
+	NSString* output = [NSString stringWithUTF8String:log.GetContent().c_str()];
 	XCTAssertEqualObjects(output, master, @"master = %@", path);
 }
 
@@ -56,28 +37,28 @@ typedef void (^VoidBlock)();
 }
 
 - (void)doTestProcessorExecuteInstruction:(NSString*) instruction {
-	[self doTest: ^{
-			UProcessorTests::ExecuteInstruction([instruction cStringUsingEncoding:NSUTF8StringEncoding]);
+	[self doTest: ^(TLog* log){
+			UProcessorTests::ExecuteInstruction([instruction cStringUsingEncoding:NSUTF8StringEncoding], log);
 	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-execute-instruction_%@", instruction]];
 }
 - (void)doTestProcessorExecuteInstructionState1:(NSString*) instruction {
-	[self doTest: ^{
-			UProcessorTests::ExecuteInstructionState1([instruction cStringUsingEncoding:NSUTF8StringEncoding]);
+	[self doTest: ^(TLog* log){
+			UProcessorTests::ExecuteInstructionState1([instruction cStringUsingEncoding:NSUTF8StringEncoding], log);
 	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-execute-instruction-state1_%@", instruction]];
 }
 - (void)doTestProcessorExecuteInstructionState2:(NSString*) instruction {
-	[self doTest: ^{
-			UProcessorTests::ExecuteInstructionState2([instruction cStringUsingEncoding:NSUTF8StringEncoding]);
+	[self doTest: ^(TLog* log){
+			UProcessorTests::ExecuteInstructionState2([instruction cStringUsingEncoding:NSUTF8StringEncoding], log);
 	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-execute-instruction-state2_%@", instruction]];
 }
 - (void)doTestProcessorExecuteTwoInstructions:(NSString*) instructions {
-	[self doTest: ^{
-			UProcessorTests::ExecuteTwoInstructions([instructions cStringUsingEncoding:NSUTF8StringEncoding]);
+	[self doTest: ^(TLog* log){
+			UProcessorTests::ExecuteTwoInstructions([instructions cStringUsingEncoding:NSUTF8StringEncoding], log);
 	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-execute-two-instructions_%@", instructions]];
 }
 - (void)doTestProcessorRunCode:(NSString*) code master: (NSString*) suffix {
-	[self doTest: ^{
-		UProcessorTests::RunCode([code cStringUsingEncoding:NSUTF8StringEncoding]);
+	[self doTest: ^(TLog* log){
+		UProcessorTests::RunCode([code cStringUsingEncoding:NSUTF8StringEncoding], log);
 	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-run-code_%@", suffix]];
 }
 
@@ -566,14 +547,14 @@ bkpt 0
 // Step tests require a ROM image
 
 - (void)testMemoryReadROM {
-	[self doTest: ^{
-		UMemoryTests::ReadROMTest();
+	[self doTest: ^(TLog* log){
+		UMemoryTests::ReadROMTest(log);
 	} withOutputFile: @"../../_Tests_/scripts/master-test-memory-read-rom"];
 }
 
 - (void)testMemoryReadWriteRAM {
-	[self doTest: ^{
-		UMemoryTests::ReadWriteRAMTest();
+	[self doTest: ^(TLog* log){
+		UMemoryTests::ReadWriteRAMTest(log);
 	} withOutputFile: @"../../_Tests_/scripts/master-test-memory-read-write-ram"];
 }
 

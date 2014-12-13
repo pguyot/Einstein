@@ -25,6 +25,7 @@
 // Einstein
 #include "Emulator/Host/THostInfo.h"
 #include "Emulator/Host/UserInfoDefinitions.h"
+#include "Emulator/Log/TLog.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -34,7 +35,7 @@
 //  * HostInfoTest( void )
 // -------------------------------------------------------------------------- //
 void
-UHostInfoTests::HostInfoTest( void )
+UHostInfoTests::HostInfoTest( TLog* inLog )
 {
 	const THostInfo* theHostInfo = THostInfo::GetHostInfo();
 	const KUInt16* theFirstName = theHostInfo->GetUserInfo( kUserInfo_FirstName );
@@ -42,10 +43,10 @@ UHostInfoTests::HostInfoTest( void )
 	
 	char buffer[512];
 	UUTF16CStr::ToUTF8( theFirstName, (KUInt8*) buffer );
-	(void) ::printf( "first = >%s<\n", buffer );
+	inLog->FLogLine("first = >%s<", buffer);
 
 	UUTF16CStr::ToUTF8( theLastName, (KUInt8*) buffer );
-	(void) ::printf( "last = >%s<\n", buffer );
+	inLog->FLogLine("last = >%s<\n", buffer);
 }
 
 // ============================================================================== //
