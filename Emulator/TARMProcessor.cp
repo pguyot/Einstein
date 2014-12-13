@@ -701,12 +701,11 @@ TARMProcessor::SetCPSR( KUInt32 inNewValue )
 	mCPSR_I = (inNewValue & kPSR_IBit) != 0;
 	mCPSR_F = (inNewValue & kPSR_FBit) != 0;
 	mCPSR_T = (inNewValue & kPSR_TBit) != 0;
-
-	BackupBankRegisters();
 	
 	KUInt32 theMode = inNewValue & kPSR_ModeMask;
 	if (theMode != (KUInt32) mMode)
 	{
+		BackupBankRegisters();
 		if (theMode == kFIQMode)
 		{
 			mCurrentRegisters[kR8] = mR8fiq_Bkup;
@@ -721,67 +720,67 @@ TARMProcessor::SetCPSR( KUInt32 inNewValue )
 			mCurrentRegisters[kR11] = mR11_Bkup;
 			mCurrentRegisters[kR12] = mR12_Bkup;
 		}
-	}
 
-	switch (theMode)
-	{
-		case kUserMode:
-			// Get back to user mode.
-			mMode = kUserMode;
-			mMemory->SetPrivilege( false );
-			mCurrentRegisters[kR13] = mR13_Bkup;
-			mCurrentRegisters[kR14] = mR14_Bkup;
-			break;
-		
-		case kFIQMode:
-			mMode = kFIQMode;
-			mMemory->SetPrivilege( true );
-			mCurrentRegisters[kR13] = mR13fiq_Bkup;
-			mCurrentRegisters[kR14] = mR14fiq_Bkup;
-			break;
-		
-		case kIRQMode:
-			mMode = kIRQMode;
-			mMemory->SetPrivilege( true );
-			mCurrentRegisters[kR13] = mR13irq_Bkup;
-			mCurrentRegisters[kR14] = mR14irq_Bkup;
-			break;
-		
-		case kSupervisorMode:
-			mMode = kSupervisorMode;
-			mMemory->SetPrivilege( true );
-			mCurrentRegisters[kR13] = mR13svc_Bkup;
-			mCurrentRegisters[kR14] = mR14svc_Bkup;
-			break;
-		
-		case kAbortMode:
-			mMode = kAbortMode;
-			mMemory->SetPrivilege( true );
-			mCurrentRegisters[kR13] = mR13abt_Bkup;
-			mCurrentRegisters[kR14] = mR14abt_Bkup;
-			break;
-		
-		case kUndefinedMode:
-			mMode = kUndefinedMode;
-			mMemory->SetPrivilege( true );
-			mCurrentRegisters[kR13] = mR13und_Bkup;
-			mCurrentRegisters[kR14] = mR14und_Bkup;
-			break;
-		
-		case kSystemMode:
-			mMode = kSystemMode;
-			mMemory->SetPrivilege( true );
-			mCurrentRegisters[kR13] = mR13_Bkup;
-			mCurrentRegisters[kR14] = mR14_Bkup;
-			break;
-		
-		default:
-			if (mLog)
-			{
-				mLog->FLogLine(
-					"SetCPSR with unknown mode (%i)", (int) theMode );
-			}
-			mEmulator->BreakInMonitor();
+		switch (theMode)
+		{
+			case kUserMode:
+				// Get back to user mode.
+				mMode = kUserMode;
+				mMemory->SetPrivilege( false );
+				mCurrentRegisters[kR13] = mR13_Bkup;
+				mCurrentRegisters[kR14] = mR14_Bkup;
+				break;
+			
+			case kFIQMode:
+				mMode = kFIQMode;
+				mMemory->SetPrivilege( true );
+				mCurrentRegisters[kR13] = mR13fiq_Bkup;
+				mCurrentRegisters[kR14] = mR14fiq_Bkup;
+				break;
+			
+			case kIRQMode:
+				mMode = kIRQMode;
+				mMemory->SetPrivilege( true );
+				mCurrentRegisters[kR13] = mR13irq_Bkup;
+				mCurrentRegisters[kR14] = mR14irq_Bkup;
+				break;
+			
+			case kSupervisorMode:
+				mMode = kSupervisorMode;
+				mMemory->SetPrivilege( true );
+				mCurrentRegisters[kR13] = mR13svc_Bkup;
+				mCurrentRegisters[kR14] = mR14svc_Bkup;
+				break;
+			
+			case kAbortMode:
+				mMode = kAbortMode;
+				mMemory->SetPrivilege( true );
+				mCurrentRegisters[kR13] = mR13abt_Bkup;
+				mCurrentRegisters[kR14] = mR14abt_Bkup;
+				break;
+			
+			case kUndefinedMode:
+				mMode = kUndefinedMode;
+				mMemory->SetPrivilege( true );
+				mCurrentRegisters[kR13] = mR13und_Bkup;
+				mCurrentRegisters[kR14] = mR14und_Bkup;
+				break;
+			
+			case kSystemMode:
+				mMode = kSystemMode;
+				mMemory->SetPrivilege( true );
+				mCurrentRegisters[kR13] = mR13_Bkup;
+				mCurrentRegisters[kR14] = mR14_Bkup;
+				break;
+			
+			default:
+				if (mLog)
+				{
+					mLog->FLogLine(
+						"SetCPSR with unknown mode (%i)", (int) theMode );
+				}
+				mEmulator->BreakInMonitor();
+		}
 	}
 
 	if (((!mCPSR_F) && (mPendingInterrupts & kFIQInterrupt))
