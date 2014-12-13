@@ -43,7 +43,6 @@ class TCondVar;
 class TNetworkManager
 {
 public:
- 	TNetworkManager() {}
 	TNetworkManager(TLog* inLog);
 	
 	///
@@ -180,7 +179,7 @@ private:
 class TNullNetwork : public TNetworkManager
 {
 public:
- 	TNullNetwork(TLog* inLog) : TNetworkManager() {}
+ 	TNullNetwork(TLog* inLog) : TNetworkManager(inLog) {}
 	virtual ~TNullNetwork() { }
 	virtual int SendPacket(KUInt8 *data, KUInt32 size) { return -1; }
 	virtual int GetDeviceAddress(KUInt8 *data, KUInt32 size) { return -1; }
