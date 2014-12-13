@@ -150,10 +150,11 @@ TJITCache<JITPageClass>::TJITCache(
 	InitPMap();
 	
 	// Init the entries.
+	// We create up to one entry per ROM page.
 	SEntry* theEntries = mVMap.GetValues();
-	KUInt32 indexEntry;
+	KUInt32 indexEntry = 0;
 	KUInt32 theAddress = 0;
-	for (indexEntry = 0; indexEntry < THashMapCache<SEntry>::kCacheSize; indexEntry++) {
+	while (theAddress < TMemoryConsts::kROMEnd && indexEntry < THashMapCache<SEntry>::kCacheSize) {
 		SEntry* theEntry = &theEntries[indexEntry];
 		theEntry->key = theAddress;
 		theEntry->mPhysicalAddress = theAddress;
@@ -162,6 +163,7 @@ TJITCache<JITPageClass>::TJITCache(
 		mVMap.Insert(theAddress, theEntry);
 		InsertInPMap(theAddress, theEntry);
 		theAddress += kPageSize;
+		indexEntry++;
 	}
 }
 
