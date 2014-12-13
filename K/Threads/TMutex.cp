@@ -129,7 +129,6 @@ TMutex::TryLock( void )
 		assert( err == 0 );
 		return false;
 	}
-	(void) err;
 #endif
 }
 
