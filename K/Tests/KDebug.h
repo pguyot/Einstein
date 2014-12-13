@@ -2,7 +2,7 @@
 // Fichier:			KDebug.h
 // Projet:			K
 // 
-// Créé le:			3/8/2003
+// Cr√©√© le:			3/8/2003
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****
@@ -40,24 +40,11 @@
 
 #if TARGET_OS_MACOS
 	#include <K/Misc/UPStrings.h>
-	#ifdef __MWERKS__
-		#pragma	warn_resultnotused	off
-	#endif
 	#include <OSUtils.h>
 	#include <stdio.h>
-
-	#ifdef __MWERKS__
-		#pragma	warn_resultnotused	on
-	#endif
 #endif
 
 #if TARGET_OS_OPENSTEP
-	#include <K/Misc/UPStrings.h>
-
-	#ifdef __MWERKS__
-		#pragma	warn_resultnotused	off
-	#endif
-
 #if TARGET_IOS
 #import <CFNetwork/CFNetwork.h>
 #else
@@ -66,10 +53,6 @@
 #include <stdio.h>
 	#include <syslog.h>
 	#include <stdarg.h>
-
-	#ifdef __MWERKS__
-		#pragma	warn_resultnotused	on
-	#endif
 #endif
 
 #if TARGET_OS_COMPAT_POSIX
@@ -94,10 +77,10 @@
 #	endif
 #endif
 
-// Macros pour le déverminage.
+// Macros pour le d√©verminage.
 // Utilise certaines classes dans K Tests.
 
-// Ce fichier doit être inclus avec au préalable un certain nombre de macros définies.
+// Ce fichier doit √™tre inclus avec au pr√©alable un certain nombre de macros d√©finies.
 
 // -- KDebugOn/forDebug/NDEBUG
 // undef(KDebugOn) &&  TARGET_OS_NEWTON && forDebug		-> KDebugOn = 1
@@ -105,13 +88,13 @@
 // undef(KDebugOn) && !TARGET_OS_NEWTON && NDEBUG		-> KDebugOn = 0
 // undef(KDebugOn) && !TARGET_OS_NEWTON && !NDEBUG		-> KDebugOn = 1
 
-// Trois niveaux de déverminage (en fait indépendants).
-// - error -> on s'arrête lorsqu'une erreur est survenue (nécessite KDEBUGSTR)
-// - trace -> on raconte l'entrée/la sortie de méthodes (nécessite KDPRINTF)
-// - debug -> on raconte sa vie (nécessite KDPRINTF)
+// Trois niveaux de d√©verminage (en fait ind√©pendants).
+// - error -> on s'arr√™te lorsqu'une erreur est survenue (n√©cessite KDEBUGSTR)
+// - trace -> on raconte l'entr√©e/la sortie de m√©thodes (n√©cessite KDPRINTF)
+// - debug -> on raconte sa vie (n√©cessite KDPRINTF)
 
-// Les versions par défaut de ces macros sont définies plus loin et dependent de l'OS.
-// Elles peuvent être remplacées par d'autres méthodes.
+// Les versions par d√©faut de ces macros sont d√©finies plus loin et dependent de l'OS.
+// Elles peuvent √™tre remplac√©es par d'autres m√©thodes.
 
 // L'utilisation de chacun de ces niveaux se fait en ajoutant dans le fichier .cp:
 // 
@@ -136,7 +119,7 @@
 // #define KDEBUG_ENABLED 0
 // #endif
 //
-// En cas d'absence de ces lignes, on n'a que KERROR_ENABLED à un.
+// En cas d'absence de ces lignes, on n'a que KERROR_ENABLED √† un.
 #ifndef KERROR_ENABLED
 	#define KERROR_ENABLED 1
 #endif
@@ -147,14 +130,14 @@
 	#define KDEBUG_ENABLED 0
 #endif
 
-// On peut aussi définir directement ces macros.
+// On peut aussi d√©finir directement ces macros.
 // Ensuite, il suffit d'appler les macros KASSERT, KERROR, KERRORC,
 // KTRACE, KTRACE1, KTRACE2, KTRACE3, KTRACE4,
 // KDEBUG, KDEBUG1, KDEBUG2, KDEBUG3, KDEBUG4
-// Remarque: celles-ci ne sont définies par quelque chose que si (a) elles ne
-// sont pas précédemment définies et (b) KDebugOn vaut 1.
+// Remarque: celles-ci ne sont d√©finies par quelque chose que si (a) elles ne
+// sont pas pr√©c√©demment d√©finies et (b) KDebugOn vaut 1.
 
-// ---- détermine si on veut le déverminage ----
+// ---- d√©termine si on veut le d√©verminage ----
 
 #ifndef KDebugOn
 	// Sur Newton: forDebug
@@ -174,7 +157,7 @@
 	#endif
 #endif
 
-// ---- snprintf n'est pas forcément disponible. ----
+// ---- snprintf n'est pas forc√©ment disponible. ----
 #ifndef KSNPRINTF
 	#if _MSC_VER
 		#define KSNPRINTF( output, size, format )						\
@@ -218,7 +201,7 @@
 	#endif
 #endif
 
-// ---- Valeurs par défaut de KDEBUGSTR et KDPRINTF ----
+// ---- Valeurs par d√©faut de KDEBUGSTR et KDPRINTF ----
 #ifndef KDPRINTF
 	#if TARGET_OS_NEWTON
 		// KDPRINTF va sur stdout
@@ -299,7 +282,7 @@
 		#define KDPRINTF_SETUP
 	#else
 		#if KDebugOn
-			#warning KDPRINTF n´est pas défini
+			#warning KDPRINTF n¬¥est pas d√©fini
 		#endif
 	#endif
 #endif
@@ -333,7 +316,7 @@
 						cstr, __FILE__, __LINE__ );			
 	#else
 		#if KDebugOn
-			#warning KDEBUGSTR n´est pas défini
+			#warning KDEBUGSTR n¬¥est pas d√©fini
 		#endif
 	#endif
 #endif
@@ -467,7 +450,7 @@
 			if (KERROR_ENABLED && (err)) {								\
 				KDEBUGSTR( "Erreur!" );									\
 				KDPRINTF_SETUP;											\
-				KDPRINTF4( "E]%s:%i> %s a retourné une erreur: %i\n",	\
+				KDPRINTF4( "E]%s:%i> %s a retourn√© une erreur: %i\n",	\
 						__FILE__, __LINE__, func, err );				\
 				KPRINT_STACK;											\
 			}
@@ -476,7 +459,7 @@
 		#define KERRORC( func, err, cond )								\
 			if (KERROR_ENABLED && (err) && (cond)) {					\
 				KDEBUGSTR( "Erreur!" );									\
-				KDPRINTF4( "E]%s:%i> %s a retourné une erreur: %i\n",	\
+				KDPRINTF4( "E]%s:%i> %s a retourn√© une erreur: %i\n",	\
 					__FILE__, __LINE__, func, err );					\
 				KPRINT_STACK;											\
 			}
@@ -485,7 +468,7 @@
 		#define KASSERT( cond )											\
 			if (KERROR_ENABLED && !(cond)) {							\
 				KDEBUGSTR( "Assertion!" );								\
-				KDPRINTF2( "A]%s:%i> l'assertion ("#cond") a échoué\n",	\
+				KDPRINTF2( "A]%s:%i> l'assertion ("#cond") a √©chou√©\n",	\
 					__FILE__, __LINE__ );								\
 				KPRINT_STACK;											\
 			}
@@ -494,7 +477,7 @@
 		#define KFAIL( str )											\
 			if (KERROR_ENABLED) {										\
 				KDEBUGSTR( "Echec!" );									\
-				KDPRINTF3( "A]%s:%i> échec inconditionnel (%s)\n",		\
+				KDPRINTF3( "A]%s:%i> √©chec inconditionnel (%s)\n",		\
 					__FILE__, __LINE__, (str) );						\
 				KPRINT_STACK;											\
 			}
