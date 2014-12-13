@@ -980,16 +980,14 @@ TARMProcessor::ClearIRQInterrupt( void )
 void
 TARMProcessor::PrintRegisters( void )
 {
-	int indexRegisters;
-	
-	for (indexRegisters = 0; indexRegisters < 16; indexRegisters++)
-	{
-		(void) ::printf(
-						"R%i = %.8X\n",
+	if (mLog) {
+		for (int indexRegisters = 0; indexRegisters < 16; indexRegisters++) {
+			mLog->FLogLine("R%i = %.8X",
 						indexRegisters,
 						(unsigned int) mCurrentRegisters[indexRegisters] );
+		}
+		mLog->FLogLine( "CPSR = %.8X", (unsigned int) GetCPSR() );
 	}
-	(void) ::printf( "CPSR = %.8X\n", (unsigned int) GetCPSR() );
 }
 
 
