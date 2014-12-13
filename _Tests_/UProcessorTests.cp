@@ -3,11 +3,11 @@
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 // 
-// CrŽŽ le:			27/7/2004
+// CrÃ©Ã© le:			27/7/2004
 // Tabulation:		4 espaces
 // 
-// Copyright:		© 2004 by Paul Guyot.
-// 					Tous droits rŽservŽs pour tous pays.
+// Copyright:		Â© 2004 by Paul Guyot.
+// 					Tous droits rÃ©servÃ©s pour tous pays.
 // ===========
 // $Id: UProcessorTests.cp 151 2006-01-13 16:15:33Z paul $
 // ===========
@@ -29,10 +29,14 @@
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/Log/TStdOutLog.h"
 #include "Emulator/TMemory.h"
+#include "Emulator/TEmulator.h"
 #include "Emulator/TInterruptManager.h"
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/JIT/JIT.h"
 #include "Emulator/JIT/TJITPage.h"
+#include "Emulator/Sound/TNullSoundManager.h"
+#include "Emulator/Network/TUsermodeNetwork.h"
+#include "Emulator/Screen/TNullScreenManager.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -177,6 +181,34 @@ UProcessorTests::ExecuteTwoInstructions( const char* inHexWords )
 }
 
 // -------------------------------------------------------------------------- //
+//  * RunCode( const char* )
+// -------------------------------------------------------------------------- //
+void
+UProcessorTests::RunCode( const char* inHexWords ) {
+	if (inHexWords == nil)
+	{
+		(void) ::printf( "This test requires code in hexa\n" );
+	} else {
+		KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
+		KUInt32* theCodePtr = (KUInt32*) rom;
+		int nbBytes;
+		while (::sscanf(inHexWords, "%X %n", theCodePtr, &nbBytes) == 1) {
+			inHexWords += nbBytes;
+			theCodePtr++;
+		}
+		(void) ::printf( "Parsed %d instruction(s).\n", (int) ((theCodePtr - (KUInt32*)rom)));
+
+		TStdOutLog theLog;
+		TEmulator theEmulator(&theLog, rom, kTempFlashPath);
+		theEmulator.Run();
+		theEmulator.GetProcessor()->PrintRegisters();
+		(void) ::unlink( kTempFlashPath );
+		::free( rom );
+	}
+}
+
+
+// -------------------------------------------------------------------------- //
 //  * Step( const char* )
 // -------------------------------------------------------------------------- //
 void
@@ -191,14 +223,17 @@ UProcessorTests::Step( const char* inCount )
 	} else {
 		// Load the ROM.
 		TStdOutLog theLog;
+//		TFlatROMImageWithREX theROM(
+//			"../../_Data_/717006", "../../_Data_/Einstein.rex", "717006" );
 		TFlatROMImageWithREX theROM(
-			"../../_Data_/717006", "../../_Data_/Einstein.rex", "717006" );
-		TMemory theMem( &theLog, &theROM, kTempFlashPath );
-		TARMProcessor theProcessor( &theLog, &theMem );
-		TInterruptManager theInterruptManager( &theLog, &theProcessor );
-		theMem.SetInterruptManager( &theInterruptManager );
-		theMem.GetJITObject()->Step( &theProcessor, count );
-		theProcessor.PrintRegisters();
+			"/Junk/tmp/arm/717006", "/Junk/tmp/arm/Einstein.rex", "717006" );
+		TNullSoundManager soundManager;
+		TUsermodeNetwork networkManager(&theLog);
+		TNullScreenManager screenManager(&theLog);
+		TEmulator theEmulator(&theLog, &theROM, kTempFlashPath, &soundManager, &screenManager, &networkManager);
+
+		theEmulator.GetMemory()->GetJITObject()->Step( theEmulator.GetProcessor(), count );
+		theEmulator.GetProcessor()->PrintRegisters();
 		(void) ::unlink( kTempFlashPath );
 	}
 }

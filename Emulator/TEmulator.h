@@ -80,6 +80,21 @@ public:
 			KUInt32 inRAMSize = 0x00400000 );
 
 	///
+	/// Constructor from a rom image buffer.
+	/// This is typically used in tests.
+	///
+	/// \param inLog				interface for logging.
+	/// \param inROMImageBuffer		pointer to ROM data.
+	/// \param inFlashPath			path to the flash file.
+	/// \param inRAMSize			size of the RAM installed (in bytes)
+	///
+	TEmulator(
+			  TLog* inLog,
+			  KUInt8* inROMImageBuffer,
+			  const char* inFlashPath,
+			  KUInt32 inRAMSize = 0x00400000);
+
+	///
 	/// Destructor.
 	///
 	~TEmulator( void );

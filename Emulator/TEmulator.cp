@@ -144,6 +144,52 @@ TEmulator::TEmulator(
 }
 
 // -------------------------------------------------------------------------- //
+//  * TEmulator( void )
+// -------------------------------------------------------------------------- //
+TEmulator::TEmulator(
+					 TLog* inLog,
+					 KUInt8* inROMImageBuffer,
+					 const char* inFlashPath,
+					 KUInt32 inRAMSize)
+	:
+		mMemory( inLog, inROMImageBuffer, inFlashPath, inRAMSize ),
+		mProcessor( inLog, &mMemory ),
+		mInterruptManager( nil ),
+		mDMAManager( nil ),
+		mPlatformManager( nil ),
+		mExternalPort( nil ),
+		mInfraredPort( nil ),
+		mBuiltInExtraPort( nil ),
+		mModemPort( nil ),
+		mNetworkManager( nil ),
+		mSoundManager( nil ),
+		mScreenManager( nil ),
+		mLog( inLog ),
+		mMonitor( NULL ),
+		mRunning( false ),
+		mPaused( false ),
+		mBPHalted( false )
+{
+	mInterruptManager = new TInterruptManager(inLog, &mProcessor);
+#ifdef JIT_PERFORMANCE
+	branchDestCount.SetEmulator(this);
+	branchLinkDestCount.SetEmulator(this);
+#endif
+	mDMAManager = new TDMAManager(inLog, &mMemory, mInterruptManager);
+	mPlatformManager = new TPlatformManager( inLog, nil );
+	
+	mNewtonID[0] = kMyNewtonIDHigh;
+	mNewtonID[1] = kMyNewtonIDLow;
+	
+	mMemory.SetEmulator( this );
+	
+	mPlatformManager->SetInterruptManager( mInterruptManager );
+	mPlatformManager->SetMemory( &mMemory );
+	
+	mProcessor.SetEmulator( this );
+}
+
+// -------------------------------------------------------------------------- //
 //  * ~TEmulator( void )
 // -------------------------------------------------------------------------- //
 TEmulator::~TEmulator( void )

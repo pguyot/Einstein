@@ -58,6 +58,13 @@ public:
 	/// \param inHexWord	instructions (as hexa) to execute.
 	///
 	static void ExecuteTwoInstructions( const char* inHexWords );
+	
+	///
+	/// Run code (until TEmulator::Run() returns, typically after a breakpoint)
+	///
+	/// \param inHexWord	instructions (as hexa) to execute.
+	///
+	static void RunCode( const char* inHexWords );
 
 	///
 	/// Step into the ROM (found at ../../_Data_/717006)
