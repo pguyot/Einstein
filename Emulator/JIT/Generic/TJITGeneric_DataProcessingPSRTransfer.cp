@@ -24,6 +24,8 @@
 #include <K/Defines/KDefinitions.h>
 #include "JIT.h"
 
+#ifdef JITTARGET_GENERIC
+
 // Einstein
 #include "TARMProcessor.h"
 
@@ -450,6 +452,8 @@ Translate_DataProcessingPSRTransfer(
 		PUSHVALUE(inVAddr + 8);
 	}
 }
+
+#endif
 
 // ====================================================================== //
 // Established technology tends to persist in the face of new technology. //

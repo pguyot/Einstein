@@ -44,18 +44,28 @@
 
 // Einstein
 #include "Monitor/TSymbolList.h"
+#include "Emulator/JIT/JIT.h"
+
+#ifdef JITTARGET_GENERIC
 #include "Emulator/JIT/Generic/TJITGenericRetarget.h"
+#endif
 
 TMonitorCore::TMonitorCore(TSymbolList* inSymbolList)
 :	mMemory(0L),
-	mSymbolList(inSymbolList),
-	mRetarget(0L)
+	mSymbolList(inSymbolList)
+#ifdef JITTARGET_GENERIC
+	,mRetarget(0L)
+#endif
 {
 }
 
 
 TMonitorCore::~TMonitorCore()
 {
+#ifdef JITTARGET_GENERIC
+	if (mRetarget)
+		delete mRetarget;
+#endif
 }
 
 
@@ -111,8 +121,10 @@ TMonitorCore::ExecuteCommand( const char* inCommand )
 	Boolean theResult = true;
 	
 	if (inCommand[0]=='#') {	// script comment
+#ifdef JITTARGET_GENERIC
 	} else if (::strncmp(inCommand, "rt ", 3)==0) {
 		theResult = ExecuteRetargetCommand(inCommand+3);
+#endif
 	} else if (::strcmp(inCommand, "cd") == 0) {
 		const char *home = ::getenv("HOME");
 		::chdir(home);
@@ -132,6 +144,7 @@ TMonitorCore::ExecuteCommand( const char* inCommand )
 #endif
 }
 
+#ifdef JITTARGET_GENERIC
 // -------------------------------------------------------------------------- //
 // ExecuteRetargetCommand( const char* inCommand )
 // -------------------------------------------------------------------------- //
@@ -284,6 +297,7 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 	return theResult;
 #endif
 }
+#endif
 
 // ==================================================================== //
 // I am not now, nor have I ever been, a member of the demigodic party. //

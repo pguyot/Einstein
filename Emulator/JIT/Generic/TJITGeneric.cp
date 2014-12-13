@@ -24,13 +24,15 @@
 #include <K/Defines/KDefinitions.h>
 #include "JIT.h"
 
+#ifdef JITTARGET_GENERIC
+
 // Einstein
 #include "TMemory.h"
+#include "TJITGeneric.h"
 #include "TJITGenericPage.h"
 #include "TARMProcessor.h"
 #include "TEmulator.h"
 #include "TMemoryConsts.h"
-
 
 #if 0
 //
@@ -281,6 +283,7 @@ TJITGeneric::GetJITUnitDelta(
 	return delta;
 }
 
+#endif
 
 // ============================================================================ //
 // FORTRAN, "the infantile disorder", by now nearly 20 years old, is hopelessly //

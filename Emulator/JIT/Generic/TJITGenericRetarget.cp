@@ -46,6 +46,9 @@
 // sfm/lfm: 0x0c000200, 0x0e100f00, "sfm%c\t%12-14f, %F, %A"
 
 #include "TJITGenericRetarget.h"
+#include "JIT.h"
+
+#ifdef JITTARGET_GENERIC
 
 // Einstein
 #include "TMemory.h"
@@ -2014,6 +2017,7 @@ void TJITGenericRetarget::CoprocRegisterTransfer(KUInt32 inVAddr, KUInt32 inInst
 	// FIXME: this could write the PC register
 }
 
+#endif
 
 // ============================================================================= //
 // Ever wondered about the origins of the term "bugs" as applied to computer     //

@@ -22,10 +22,13 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "TJITGenericPage.h"
+#include "JIT.h"
+
+#ifdef JITTARGET_GENERIC
 
 // Einstein
 #include "TARMProcessor.h"
+#include "TJITGenericPage.h"
 
 #include "TJITGeneric_Macros.h"
 
@@ -462,6 +465,8 @@ TJITGenericPage::Halt(
 	SETPC(THEPC + 4);
 	return ioUnit;
 }
+
+#endif
 
 // ============================================================================= //
 // Ever wondered about the origins of the term "bugs" as applied to computer     //

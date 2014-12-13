@@ -25,6 +25,8 @@
 #include <K/Tests/KDebug.h>
 #include "JIT.h"
 
+#ifdef JITTARGET_GENERIC
+
 // Einstein
 #include "TARMProcessor.h"
 
@@ -36,6 +38,7 @@
 #include "TJITGeneric_DataProcessingPSRTransfer_MSR_template.t"
 #undef IMPLEMENTATION
 
+#endif
 
 // =============================== //
 // 1: No code table for op: ++post //

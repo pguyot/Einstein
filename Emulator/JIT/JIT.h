@@ -32,6 +32,7 @@
 	#include "TJITGeneric.h"
 	#define	JITClass		TJITGeneric
 	#define	JITPageClass	TJITGenericPage
+	#define JITTARGET_GENERIC
 
 #endif
 		// _JIT_H

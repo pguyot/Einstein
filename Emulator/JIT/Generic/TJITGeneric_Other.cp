@@ -24,6 +24,8 @@
 #include <K/Defines/KDefinitions.h>
 #include "JIT.h"
 
+#ifdef JITTARGET_GENERIC
+
 // Einstein
 #include "TARMProcessor.h"
 #include "TEmulator.h"
@@ -527,6 +529,8 @@ JITInstructionProto(SoftwareBreakpoint)
 	// Don't execute next function.
 	MMUCALLNEXT(GETPC());
 }
+
+#endif
 
 // ========================================================= //
 // As of next week, passwords will be entered in Morse code. //

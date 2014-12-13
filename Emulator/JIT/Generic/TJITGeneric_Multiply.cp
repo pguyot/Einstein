@@ -86,6 +86,8 @@
 #include <K/Tests/KDebug.h>
 #include "JIT.h"
 
+#ifdef JITTARGET_GENERIC
+
 // Einstein
 #include "TARMProcessor.h"
 
@@ -133,6 +135,8 @@ void TJITGeneric_Multiply_assertions( void )
     KCOMPILE_TIME_ASSERT_SIZE(
     	Multiply_Funcs, 2 * 15 * 15 * 15 * sizeof(void*) );
 }
+
+#endif
 
 // =============================== //
 // 1: No code table for op: ++post //

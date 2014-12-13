@@ -24,6 +24,8 @@
 #include <K/Defines/KDefinitions.h>
 #include "JIT.h"
 
+#ifdef JITTARGET_GENERIC
+
 // Einstein
 #include "TARMProcessor.h"
 #include "TEmulator.h"
@@ -33,6 +35,8 @@
 #define IMPLEMENTATION 1
 #include "TJITGeneric_Test_template.t"
 #undef IMPLEMENTATION
+
+#endif
 
 // ===================================== //
 // Multics is security spelled sideways. //

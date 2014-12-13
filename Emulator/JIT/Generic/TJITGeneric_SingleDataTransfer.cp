@@ -25,6 +25,8 @@
 #include <K/Tests/KDebug.h>
 #include "JIT.h"
 
+#ifdef JITTARGET_GENERIC
+
 // Einstein
 #include "TARMProcessor.h"
 #include "TMemory.h"
@@ -123,6 +125,8 @@ void TJITGeneric_SingleDataTransfer_assertions( void )
 	// Check that the array has the expected size.
     KCOMPILE_TIME_ASSERT_SIZE( SingleDataTransfer_Funcs, 0x04000 * sizeof(void*) );
 }
+
+#endif
 
 // =============================== //
 // 1: No code table for op: ++post //
