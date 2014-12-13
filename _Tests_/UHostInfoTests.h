@@ -17,6 +17,8 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include "Emulator/Log/TLog.h"
+
 ///
 /// Class to test THostInfo.
 ///
@@ -31,7 +33,7 @@ public:
 	///
 	/// Test THostInfo
 	///
-	static void HostInfoTest( void );
+	static void HostInfoTest( TLog* inLog );
 };
 
 #endif

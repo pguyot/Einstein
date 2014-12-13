@@ -27,7 +27,7 @@
 
 // Einstein
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
-#include "Emulator/Log/TStdOutLog.h"
+#include "Emulator/Log/TLog.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TInterruptManager.h"
@@ -51,7 +51,7 @@
 //  * ExecuteInstruction( const char* )
 // -------------------------------------------------------------------------- //
 void
-UProcessorTests::ExecuteInstruction( const char* inHexWord )
+UProcessorTests::ExecuteInstruction( const char* inHexWord, TLog* inLog )
 {
 	KUInt32 theInstruction;
 	if (inHexWord == nil)
@@ -63,11 +63,10 @@ UProcessorTests::ExecuteInstruction( const char* inHexWord )
 					(unsigned int*) &theInstruction ) != 1) {
 		(void) ::printf( "Can't parse instruction (%s).\n", inHexWord );
 	} else {
-		TStdOutLog theLog;
 		KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
 		((KUInt32*) rom)[0] = theInstruction;
-		TMemory theMem( &theLog, rom, kTempFlashPath );
-		TARMProcessor theProcessor( &theLog, &theMem );
+		TMemory theMem( inLog, rom, kTempFlashPath );
+		TARMProcessor theProcessor( inLog, &theMem );
 		theMem.GetJITObject()->Step( &theProcessor, 1 );
 		theProcessor.PrintRegisters();
 		(void) ::unlink( kTempFlashPath );
@@ -79,7 +78,7 @@ UProcessorTests::ExecuteInstruction( const char* inHexWord )
 //  * ExecuteInstructionState1( const char* )
 // -------------------------------------------------------------------------- //
 void
-UProcessorTests::ExecuteInstructionState1( const char* inHexWord )
+UProcessorTests::ExecuteInstructionState1( const char* inHexWord, TLog* inLog )
 {
 	KUInt32 theInstruction;
 	if (inHexWord == nil)
@@ -91,11 +90,10 @@ UProcessorTests::ExecuteInstructionState1( const char* inHexWord )
 					(unsigned int*) &theInstruction ) != 1) {
 		(void) ::printf( "Can't parse instruction (%s).\n", inHexWord );
 	} else {
-		TStdOutLog theLog;
 		KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
 		((KUInt32*) rom)[0] = theInstruction;
-		TMemory theMem( &theLog, rom, kTempFlashPath );
-		TARMProcessor theProcessor( &theLog, &theMem );
+		TMemory theMem( inLog, rom, kTempFlashPath );
+		TARMProcessor theProcessor( inLog, &theMem );
 		theProcessor.SetRegister( 0, 0x01020304 );
 		theProcessor.SetRegister( 1, 0x05060708 );
 		theProcessor.SetRegister( 2, 0x090A0B0C );
@@ -123,7 +121,7 @@ UProcessorTests::ExecuteInstructionState1( const char* inHexWord )
 //  * ExecuteInstructionState2( const char* )
 // -------------------------------------------------------------------------- //
 void
-UProcessorTests::ExecuteInstructionState2( const char* inHexWord )
+UProcessorTests::ExecuteInstructionState2( const char* inHexWord, TLog* inLog )
 {
 	KUInt32 theInstruction;
 	if (inHexWord == nil)
@@ -135,11 +133,10 @@ UProcessorTests::ExecuteInstructionState2( const char* inHexWord )
 					(unsigned int*) &theInstruction ) != 1) {
 		(void) ::printf( "Can't parse instruction (%s).\n", inHexWord );
 	} else {
-		TStdOutLog theLog;
 		KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
 		((KUInt32*) rom)[0] = theInstruction;
-		TMemory theMem( &theLog, rom, kTempFlashPath );
-		TARMProcessor theProcessor( &theLog, &theMem );
+		TMemory theMem( inLog, rom, kTempFlashPath );
+		TARMProcessor theProcessor( inLog, &theMem );
 		theProcessor.SetRegister( 3, 0x00000020 );
 		theProcessor.SetRegister( 12, 0xFFFFFFFF );
 //		theProcessor.SetRegister( 15, 0x00000004 );
@@ -154,7 +151,7 @@ UProcessorTests::ExecuteInstructionState2( const char* inHexWord )
 //  * ExecuteTwoInstructions( const char* )
 // -------------------------------------------------------------------------- //
 void
-UProcessorTests::ExecuteTwoInstructions( const char* inHexWords )
+UProcessorTests::ExecuteTwoInstructions( const char* inHexWords, TLog* inLog )
 {
 	KUInt32 theInstructions[2];
 	if (inHexWords == nil)
@@ -167,12 +164,11 @@ UProcessorTests::ExecuteTwoInstructions( const char* inHexWords )
 					(unsigned int*) &theInstructions[1] ) != 2) {
 		(void) ::printf( "Can't parse instructions (%s).\n", inHexWords );
 	} else {
-		TStdOutLog theLog;
 		KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
 		((KUInt32*) rom)[0] = theInstructions[0];
 		((KUInt32*) rom)[1] = theInstructions[1];
-		TMemory theMem( &theLog, rom, kTempFlashPath );
-		TARMProcessor theProcessor( &theLog, &theMem );
+		TMemory theMem( inLog, rom, kTempFlashPath );
+		TARMProcessor theProcessor( inLog, &theMem );
 		theMem.GetJITObject()->Step( &theProcessor, 2 );
 		theProcessor.PrintRegisters();
 		(void) ::unlink( kTempFlashPath );
@@ -184,7 +180,7 @@ UProcessorTests::ExecuteTwoInstructions( const char* inHexWords )
 //  * RunCode( const char* )
 // -------------------------------------------------------------------------- //
 void
-UProcessorTests::RunCode( const char* inHexWords ) {
+UProcessorTests::RunCode( const char* inHexWords, TLog* inLog ) {
 	if (inHexWords == nil)
 	{
 		(void) ::printf( "This test requires code in hexa\n" );
@@ -196,10 +192,11 @@ UProcessorTests::RunCode( const char* inHexWords ) {
 			inHexWords += nbBytes;
 			theCodePtr++;
 		}
-		(void) ::printf( "Parsed %d instruction(s).\n", (int) ((theCodePtr - (KUInt32*)rom)));
+		if (inLog) {
+			inLog->FLogLine("Parsed %d instruction(s).", (int) ((theCodePtr - (KUInt32*)rom)));
+		}
 
-		TStdOutLog theLog;
-		TEmulator theEmulator(&theLog, rom, kTempFlashPath);
+		TEmulator theEmulator(inLog, rom, kTempFlashPath);
 		theEmulator.Run();
 		theEmulator.GetProcessor()->PrintRegisters();
 		(void) ::unlink( kTempFlashPath );
@@ -212,7 +209,7 @@ UProcessorTests::RunCode( const char* inHexWords ) {
 //  * Step( const char* )
 // -------------------------------------------------------------------------- //
 void
-UProcessorTests::Step( const char* inCount )
+UProcessorTests::Step( const char* inCount, TLog* inLog )
 {
 	KUInt32 count;
 	if (inCount == nil)
@@ -222,15 +219,12 @@ UProcessorTests::Step( const char* inCount )
 		(void) ::printf( "Can't parse number of steps (%s).\n", inCount );
 	} else {
 		// Load the ROM.
-		TStdOutLog theLog;
-//		TFlatROMImageWithREX theROM(
-//			"../../_Data_/717006", "../../_Data_/Einstein.rex", "717006" );
 		TFlatROMImageWithREX theROM(
-			"/Junk/tmp/arm/717006", "/Junk/tmp/arm/Einstein.rex", "717006" );
+			"../../_Data_/717006", "../../_Data_/Einstein.rex", "717006" );
 		TNullSoundManager soundManager;
-		TUsermodeNetwork networkManager(&theLog);
-		TNullScreenManager screenManager(&theLog);
-		TEmulator theEmulator(&theLog, &theROM, kTempFlashPath, &soundManager, &screenManager, &networkManager);
+		TUsermodeNetwork networkManager(inLog);
+		TNullScreenManager screenManager(inLog);
+		TEmulator theEmulator(inLog, &theROM, kTempFlashPath, &soundManager, &screenManager, &networkManager);
 
 		theEmulator.GetMemory()->GetJITObject()->Step( theEmulator.GetProcessor(), count );
 		theEmulator.GetProcessor()->PrintRegisters();

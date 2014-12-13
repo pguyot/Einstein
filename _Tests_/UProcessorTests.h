@@ -16,6 +16,8 @@
 #define _UPROCESSORTESTS_H
 
 #include <K/Defines/KDefinitions.h>
+#include <Emulator/Log/TLog.h>
+#include <Emulator/Log/TStdOutLog.h>
 
 ///
 /// Class for tests relative to the processor.
@@ -34,7 +36,7 @@ public:
 	///
 	/// \param inHexWord	instruction (as hexa) to execute.
 	///
-	static void ExecuteInstruction( const char* inHexWord );
+	static void ExecuteInstruction( const char* inHexWord, TLog* inLog );
 
 	///
 	/// Execute an instruction and print the registers afterwards.
@@ -42,7 +44,7 @@ public:
 	///
 	/// \param inHexWord	instruction (as hexa) to execute.
 	///
-	static void ExecuteInstructionState1( const char* inHexWord );
+	static void ExecuteInstructionState1( const char* inHexWord, TLog* inLog );
 
 	///
 	/// Execute an instruction and print the registers afterwards.
@@ -50,28 +52,28 @@ public:
 	///
 	/// \param inHexWord	instruction (as hexa) to execute.
 	///
-	static void ExecuteInstructionState2( const char* inHexWord );
+	static void ExecuteInstructionState2( const char* inHexWord, TLog* inLog );
 
 	///
 	/// Execute two instructions and print the registers afterwards.
 	///
 	/// \param inHexWord	instructions (as hexa) to execute.
 	///
-	static void ExecuteTwoInstructions( const char* inHexWords );
+	static void ExecuteTwoInstructions( const char* inHexWords, TLog* inLog );
 	
 	///
 	/// Run code (until TEmulator::Run() returns, typically after a breakpoint)
 	///
 	/// \param inHexWord	instructions (as hexa) to execute.
 	///
-	static void RunCode( const char* inHexWords );
+	static void RunCode( const char* inHexWords, TLog* inLog );
 
 	///
 	/// Step into the ROM (found at ../../_Data_/717006)
 	///
 	/// \param inCount  number of steps to perform.
 	///
-	static void Step( const char* inCount );
+	static void Step( const char* inCount, TLog* inLog );
 };
 
 #endif
