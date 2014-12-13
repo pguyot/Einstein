@@ -98,7 +98,7 @@ public:
 	///
 	virtual void	Run(
 						TARMProcessor* ioObject,
-						volatile KUInt32* inSignal ) = 0;
+						volatile bool* inSignal ) = 0;
 
 	///
 	/// Accessor to a page.

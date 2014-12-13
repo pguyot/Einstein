@@ -333,7 +333,6 @@ TEmulator::TransferState( TStream* inStream )
 	
 	// Emulator specific stuff.
 	inStream->TransferInt32ArrayBE(mNewtonID, 2);
-	inStream->TransferInt32BE( mSignal );
 	inStream->TransferInt32BE( mInterrupted );
 	inStream->TransferInt32BE( mRunning );
 	inStream->TransferInt32BE( mPaused );
