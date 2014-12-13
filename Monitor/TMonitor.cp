@@ -145,8 +145,6 @@ TMonitor::~TMonitor( void )
 	(void) ::printf( "\033[2J" );
 #endif
 #endif
-	if (mRetarget)
-		delete mRetarget;
 }
 
 // -------------------------------------------------------------------------- //
@@ -588,6 +586,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			PrintLine("The emulator is already running");
 		}
 	} else if (::strcmp(inCommand, "memsnap") == 0) {
+#ifdef JITTARGET_GENERIC
 		FILE *f = fopen("/Users/matt/dev/Einstein/retarget/MemSnap.cp", "wb");
 		if (f) {
 			KUInt32 pg, i;
@@ -633,6 +632,9 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			fprintf(f, "// %u pages found\n\n", (unsigned int)nPage);
 			fclose(f);
 		}
+#else
+		PrintLine("Command not supported with current JIT implementation.");
+#endif
 	} else if (::strncmp(inCommand, "save ", 5) == 0) {
 		if (mHalted)
 		{

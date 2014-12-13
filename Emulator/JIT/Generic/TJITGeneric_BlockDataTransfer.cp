@@ -25,6 +25,8 @@
 #include <K/Tests/KDebug.h>
 #include "JIT.h"
 
+#ifdef JITTARGET_GENERIC
+
 // Einstein
 #include "TARMProcessor.h"
 
@@ -128,6 +130,8 @@ void TJITGeneric_BlockDataTransfer_assertions( void )
     KCOMPILE_TIME_ASSERT_SIZE( BlockDataTransfer_STM1_Funcs, 128 * sizeof(void*) );
     KCOMPILE_TIME_ASSERT_SIZE( BlockDataTransfer_STM2_Funcs, 64 * sizeof(void*) );
 }
+
+#endif
 
 // =============================== //
 // 1: No code table for op: ++post //

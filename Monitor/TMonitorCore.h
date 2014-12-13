@@ -27,6 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 #include "Emulator/Log/TBufferLog.h"
+#include "Emulator/JIT/JIT.h"
 
 class TEmulator;
 class TMemory;
@@ -73,18 +74,22 @@ public:
 	/// \return true if the command was known.
 	///
 	virtual Boolean ExecuteCommand( const char* inCommand );
-	
+
+#ifdef JITTARGET_GENERIC
 	///
 	/// Execute a retargeting command.
 	///
 	/// \return true if the command was known.
 	///
-	virtual Boolean ExecuteRetargetCommand( const char* inCommand );
-	
+	Boolean ExecuteRetargetCommand( const char* inCommand );
+#endif
+
 	/// \name Variables
 	TMemory*				mMemory;			///< Memory.
 	TSymbolList*			mSymbolList;		///< List of symbols.
+#ifdef JITTARGET_GENERIC
 	TJITGenericRetarget*	mRetarget;			///< retargeting source code generator
+#endif
 };
 
 #endif
