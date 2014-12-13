@@ -28,16 +28,10 @@
 
 // Includes the proper header depending on the platform and define the JIT
 // class accordingly.
-#if JITTARGET_ARMLE
-	#include "TJITARMLE.h"
-	#define JITClass		TJITARMLE
-	#define JITPageClass	TJITARMLEPage
-#else
 	// Default case.
 	#include "TJITGeneric.h"
 	#define	JITClass		TJITGeneric
 	#define	JITPageClass	TJITGenericPage
-#endif
 
 #endif
 		// _JIT_H
