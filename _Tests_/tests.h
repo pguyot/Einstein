@@ -3,12 +3,12 @@
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 // 
-// Créé le:			31/1/2004
+// Cr√©√© le:			31/1/2004
 // Tabulation:		4 espaces
 // 
-// Copyright:		© 2004 by Paul Guyot.
-// 					Tous droits réservés pour tous pays.
-// Licence:			Licence Réflexive Kallisys
+// Copyright:		¬© 2004 by Paul Guyot.
+// 					Tous droits r√©serv√©s pour tous pays.
+// Licence:			Licence R√©flexive Kallisys
 // 					http://www.kallisys.org/reflexive/
 // ===========
 // $Id: tests.h 107 2005-01-05 10:20:39Z paul $
@@ -18,11 +18,11 @@
 #define __TESTS__
 
 ///
-/// Effectue un test donné.
+/// Effectue un test donn√©.
 /// Si ce test n'existe pas, retourne une erreur.
 ///
-/// \param inTestName	nom du test à effectuer.
-/// \param inArgument	argument supplémentaire (ou \c null)
+/// \param inTestName	nom du test √† effectuer.
+/// \param inArgument	argument suppl√©mentaire (ou \c null)
 ///
 void test( const char* inTestName, const char* inArgument );
 

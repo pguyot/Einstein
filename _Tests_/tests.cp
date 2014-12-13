@@ -3,11 +3,11 @@
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 // 
-// Créé le:			31/1/2004
+// Cr√©√© le:			31/1/2004
 // Tabulation:		4 espaces
 // 
-// Copyright:		© 2004-2005 by Paul Guyot.
-// 					Tous droits réservés pour tous pays.
+// Copyright:		¬© 2004-2005 by Paul Guyot.
+// 					Tous droits r√©serv√©s pour tous pays.
 // ===========
 // $Id: tests.cp 151 2006-01-13 16:15:33Z paul $
 // ===========
@@ -29,7 +29,7 @@
 // ------------------------------------------------------------------------- //
 //  * main
 // ------------------------------------------------------------------------- //
-// Point d'entrée des tests pour une interface cli.
+// Point d'entr√©e des tests pour une interface cli.
 // Syntaxe:
 //		EinsteinTests	<nom du test>
 int
@@ -72,8 +72,13 @@ test( const char* inTestName, const char* inArgument )
 	} else if (::strcmp(inTestName, "step") == 0) {
 		// inArgument: number of steps to perform.
 		UProcessorTests::Step( inArgument );
+	} else if (::strcmp(inTestName, "run-code") == 0) {
+		// inArgument: code to execute.
+		UProcessorTests::RunCode( inArgument );
+#ifndef TARGET_OS_MAC
 	} else if (::strcmp(inTestName, "screen-x11") == 0) {
 		UScreenTests::TestX11();
+#endif
 	} else if (::strcmp(inTestName, "memory-read-rom") == 0) {
 		UMemoryTests::ReadROMTest();
 	} else if (::strcmp(inTestName, "memory-read-write-ram") == 0) {

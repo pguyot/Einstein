@@ -6,6 +6,9 @@ perl tests.pl "$TESTSPATH" execute-instruction EAFFFFFE
 # 00000000 b        0x00018688
 #perl tests.pl "$TESTSPATH" execute-instruction EA0061A0
 
+# 00000000 add      pc, r2, #20 (14)
+perl tests.pl "$TESTSPATH" execute-instruction E282F014
+
 # 00000000 mov      r4, #156 (9C)
 perl tests.pl "$TESTSPATH" execute-instruction E3A0409C
 
@@ -111,9 +114,6 @@ perl tests.pl "$TESTSPATH" execute-instruction-state1 E24CB004
 
 # 00000000 sub      r13, r13, #4 (4)
 perl tests.pl "$TESTSPATH" execute-instruction-state1 E24DD004
-
-# 00000000 add      pc, r2, #20 (14)
-perl tests.pl "$TESTSPATH" execute-instruction-state1 E282F014
 
 # 00000000 add      r5, r5, #3584 (E00)
 perl tests.pl "$TESTSPATH" execute-instruction-state1 E2855C0E
