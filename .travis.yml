@@ -1,3 +1,6 @@
 language: objective-c
 xcode_project: _Build_/Xcode6/Einstein.xcodeproj
 xcode_scheme: Einstein
+before_install:
+  - brew update
+  - brew upgrade xctool
