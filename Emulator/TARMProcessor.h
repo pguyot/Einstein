@@ -45,6 +45,8 @@ class TStream;
 class TARMProcessor
 {
 public:
+    // These are macros referring to the current implementation.
+    // (we can only have one JIT implementation)
 	friend class JITClass;
 	friend class JITPageClass;
 
