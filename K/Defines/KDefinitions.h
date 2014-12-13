@@ -2,7 +2,7 @@
 // Fichier:			KDefinitions.h
 // Projet:			K
 //
-// Créé le:			13/01/2002
+// Cr√©√© le:			13/01/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -35,29 +35,29 @@
 
 /// \file KDefinitions.h
 ///
-/// Fichier pour des définitions pour différentes plateformes.
-/// Utilisé dans différents projets (K, DCL, etc.)
+/// Fichier pour des d√©finitions pour diff√©rentes plateformes.
+/// Utilis√© dans diff√©rents projets (K, DCL, etc.)
 ///
 /// Ce fichier est inclus par chaque fichier .h et comprend des macros
 /// pour la platforme courante.
 ///
-/// Il essaye de deviner la plateforme. Celle-ci peut-être définie
+/// Il essaye de deviner la plateforme. Celle-ci peut-√™tre d√©finie
 /// par TARGET_OS_XXX.
 ///
-/// Ce qui est définit ici:
+/// Ce qui est d√©finit ici:
 /// Boolean		(taille quelconque, sur certaines plateformes, un mot
 ///				de 32 bits est plus efficace qu'un octet)
-/// false et true (normalement définis par le compilateur C++)
-/// KUInt64		un entier non signé de 64 bits
-/// KUInt32		un entier non signé de 32 bits
-/// KSInt32		un entier signé de 32 bits
-/// KUInt16		un entier non signé de 16 bits
-/// KSInt16		un entier signé de 16 bits
-/// KUInt8		un entier non signé de 8 bits
-/// KSInt8		un entier signé de 8 bits
-/// KUIntPtr	un entier non signé de la taille d'un pointeur.
+/// false et true (normalement d√©finis par le compilateur C++)
+/// KUInt64		un entier non sign√© de 64 bits
+/// KUInt32		un entier non sign√© de 32 bits
+/// KSInt32		un entier sign√© de 32 bits
+/// KUInt16		un entier non sign√© de 16 bits
+/// KSInt16		un entier sign√© de 16 bits
+/// KUInt8		un entier non sign√© de 8 bits
+/// KSInt8		un entier sign√© de 8 bits
+/// KUIntPtr	un entier non sign√© de la taille d'un pointeur.
 ///
-/// La cible est définie par les macros TARGET_OS_XXX
+/// La cible est d√©finie par les macros TARGET_OS_XXX
 ///
 /// Le sexes des octets:
 /// TARGET_RT_LITTLE_ENDIAN		Petit indien (x86, ARM, etc.)
@@ -107,8 +107,8 @@
 /// (compatible: le minimum dont on a besoin pour la DCL)
 /// (POSIX: un peu plus large en fait, puisqu'on utilise les sockets BSD)
 
-/// On a aussi KDebugOn qui détermine si on veut du déverminage.
-/// Par défaut à 1 sauf si NDEBUG vaut 1.
+/// On a aussi KDebugOn qui d√©termine si on veut du d√©verminage.
+/// Par d√©faut √† 1 sauf si NDEBUG vaut 1.
 
 ///\def HAS_C99_LONGLONG
 /// Macro qui vaut \c 1 si on a l'extension C99 long long, \c 0 sinon.
@@ -163,10 +163,10 @@
 #endif
 
 #ifdef __MWERKS__
-	// Les compilateurs Metrowerks ont cette fonction plutôt sympa.
+	// Les compilateurs Metrowerks ont cette fonction plut√¥t sympa.
 	#pragma	warn_resultnotused	on
 	
-	// On active l'optimisation du résultat.
+	// On active l'optimisation du r√©sultat.
 	// Cf: <hinnant-3969E3.10055518092003@syrcnyrdrs-03-ge0.nyroc.rr.com>
 	#pragma opt_classresults on
 	#if macintosh
@@ -191,7 +191,7 @@
 	#define TARGET_OS_COMPAT_POSIX 0
 	#undef	TARGET_OS_UNDEFINED
 		
-	// Macro pour le compilateur ARM du Newton qui est particulièrement
+	// Macro pour le compilateur ARM du Newton qui est particuli√®rement
 	// stupide.
 	#define ARMCPP 1
 
@@ -212,12 +212,12 @@
 		#define HAS_C99_LONGLONG 0
 	#endif
 	
-	// La bibliothèque C n'a pas snprintf
+	// La biblioth√®que C n'a pas snprintf
 	#ifndef HAS_C99_SNPRINTF
 		#define HAS_C99_SNPRINTF 0
 	#endif
 
-	// Gestion des portées.
+	// Gestion des port√©es.
 	#ifndef HAS_NAMESPACES
 		#define HAS_NAMESPACES 0
 	#endif
@@ -296,11 +296,11 @@
 		#define TARGET_OS_COMPAT_POSIX 0
 		#undef	TARGET_OS_UNDEFINED
 		
-		// Sur MacOS, on a forcément du 32 bits.
+		// Sur MacOS, on a forc√©ment du 32 bits.
 		#define KUIntPtr	KUInt32
 	#endif
 
-	// FOUR_CHAR_CODE est déjà défini.
+	// FOUR_CHAR_CODE est d√©j√† d√©fini.
 	
 	#if TARGET_OS_MACOS
 		#include <MacTypes.h>
@@ -353,7 +353,7 @@
 	#define TARGET_OS_OPENSTEP 0
 	#define TARGET_OS_MAC 0
 	#define TARGET_OS_POSIX 0
-	// Ça marche peut-être sous windoze. (?)
+	// √áa marche peut-√™tre sous windoze. (?)
 	#ifdef TARGET_OS_CYGWIN
 		#if TARGET_OS_CYGWIN
 			#define TARGET_OS_COMPAT_POSIX 1
@@ -493,7 +493,7 @@
 	#define TARGET_OS_COMPAT_POSIX 1
 	#undef	TARGET_OS_UNDEFINED
 
-	// J'espère que ceci passe:
+	// J'esp√®re que ceci passe:
 	typedef	unsigned long			KUInt32;
 	typedef	signed long				KSInt32;
 	typedef	unsigned short			KUInt16;
@@ -503,7 +503,7 @@
 	typedef	bool					Boolean;
 	#define FOUR_CHAR_CODE(x)		((long)(x))
 
-	// Détermination du sexe via endian.h
+	// D√©termination du sexe via endian.h
 	#include <sys/endian.h>
 	#if BYTE_ORDER == LITTLE_ENDIAN
 		#ifndef TARGET_RT_LITTLE_ENDIAN
@@ -559,7 +559,7 @@
 	#endif
 	#define _XOPEN_SOURCE_EXTENDED 1
 
-	// J'espère que ceci passe:
+	// J'esp√®re que ceci passe:
 	typedef	unsigned long			KUInt32;
 	typedef	signed long				KSInt32;
 	typedef	unsigned short			KUInt16;
@@ -569,7 +569,7 @@
 	typedef	bool					Boolean;
 	#define FOUR_CHAR_CODE(x)		((long)(x))
 
-	// Détermination du sexe via endian.h
+	// D√©termination du sexe via endian.h
 	#include <endian.h>
 	#if __BYTE_ORDER == __LITTLE_ENDIAN
 		#ifndef TARGET_RT_LITTLE_ENDIAN
@@ -606,7 +606,7 @@
 	#define TARGET_OS_COMPAT_POSIX 1
 	#undef	TARGET_OS_UNDEFINED
 
-	// J'espère que ceci passe:
+	// J'esp√®re que ceci passe:
 	typedef	unsigned long			KUInt32;
 	typedef	signed long				KSInt32;
 	typedef	unsigned short			KUInt16;
@@ -676,7 +676,7 @@
 #endif
 
 
-// Par défaut, on a les portées.
+// Par d√©faut, on a les port√©es.
 #ifndef HAS_NAMESPACES
 	#define HAS_NAMESPACES 1
 #endif
@@ -686,7 +686,7 @@
 #else
 #endif
 
-// Cas par défaut: 32 bits.
+// Cas par d√©faut: 32 bits.
 #ifndef KUIntPtr
 	#define KUIntPtr	KUInt32
 #endif
