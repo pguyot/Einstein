@@ -857,7 +857,6 @@ private:
 	KUInt32				mRAMEnd;			///< Address of the last RAM byte.
 	KUIntPtr			mRAMOffset;			///< Offset mRAM - kRAMStart
 	TMMU				mMMU;				///< MMU.
-	JITClass			mJIT;				///< JIT.
 	KUInt32				mBankCtrlRegister;  ///< Bank control register.
 	TInterruptManager*	mInterruptManager;	///< Interface to the interrupt mgr.
 	TDMAManager*		mDMAManager;		///< Interface to the DMA mgr.
@@ -874,6 +873,7 @@ private:
 	SBreakpoint*		mBreakpoints;		///< Breakpoints.
 	KUInt32				mWPCount;			///< Number of Watchpoints.
 	SWatchpoint*		mWatchpoints;		///< Watchpoints.
+	JITClass			mJIT;				///< JIT.
 };
 
 #endif
