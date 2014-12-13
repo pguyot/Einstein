@@ -123,7 +123,8 @@ TMemory::TMemory(
 		mBuiltInExtraPort( 0 ),
 		mModemPort( 0 ),
 		mSerialNumberIx( 64 ),
-		mBPCount( 0 )
+		mBPCount( 0 ),
+		mWPCount( 0 )
 {
 	Init();
 }
@@ -154,7 +155,8 @@ TMemory::TMemory(
 		mBuiltInExtraPort( 0 ),
 		mModemPort( 0 ),
 		mSerialNumberIx( 64 ),
-		mBPCount( 0 )
+		mBPCount( 0 ),
+		mWPCount( 0 )
 {
 	Init();
 }
