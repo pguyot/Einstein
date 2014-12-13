@@ -139,10 +139,10 @@ TJITGeneric::~TJITGeneric( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * Run( TARMProcessor*, volatile KUInt32* )
+//  * Run( TARMProcessor*, volatile bool* )
 // -------------------------------------------------------------------------- //
 void
-TJITGeneric::Run( TARMProcessor* ioCPU, volatile KUInt32* inSignal )
+TJITGeneric::Run( TARMProcessor* ioCPU, volatile bool* inSignal )
 {
 	volatile KUInt32* pendingInterrupts = &ioCPU->mPendingInterrupts;
 	KUInt32* pcPtr = &ioCPU->mCurrentRegisters[TARMProcessor::kR15];
