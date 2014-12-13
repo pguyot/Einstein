@@ -226,8 +226,8 @@ TNativeCalls::DoOpenLib( const char* inPath )
 		char thePath[PATH_MAX];
 		char* theDirName;
 		char* theBaseName;
-		int baseNameLen;
-		int pathLen;
+		size_t baseNameLen;
+		size_t pathLen;
 		DIR* theDir;
 
 		/* try to open the library without any suffix */

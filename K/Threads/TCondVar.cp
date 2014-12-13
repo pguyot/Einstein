@@ -231,7 +231,6 @@ TCondVar::TimedWait( TMutex* inMutex, const struct timespec* inAbsTime )
 		assert( err == 0 );
 		return true;
 	}
-	(void) err;
 }
 
 // -------------------------------------------------------------------------- //
@@ -261,7 +260,6 @@ TCondVar::TimedWaitRelative( TMutex* inMutex, const struct timespec* inRelTime )
 		assert( err == 0 );
 		return true;
 	}
-	(void) err;
 }
 
 // -------------------------------------------------------------------------- //

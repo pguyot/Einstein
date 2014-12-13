@@ -189,7 +189,7 @@ void
 TStream::PutCString( const KUInt8* inString )
 {
 	// Taille de la chaîne plus le caractère nul.
-	KUInt32 strLength = ::strlen( (char*) inString ) + 1;
+	KUInt32 strLength = (KUInt32) ::strlen( (char*) inString ) + 1;
 	
 	Write( inString, &strLength );
 }
@@ -201,7 +201,7 @@ void
 TStream::PutString( const char* inString )
 {
 	// Taille de la chaîne sans le caractère nul.
-	KUInt32 strLength = ::strlen( (char*) inString );
+	KUInt32 strLength = (KUInt32) ::strlen( (char*) inString );
 	
 	Write( inString, &strLength );
 }
@@ -289,7 +289,7 @@ TStream::GetUniString( void )
 void
 TStream::PutUniString( const KUInt16* inString )
 {
-	KUInt32 strLength = UUTF16CStr::StrLen( inString ) + 1;
+	KUInt32 strLength = (KUInt32) UUTF16CStr::StrLen( inString ) + 1;
 	
 	Write( inString, &strLength );
 }

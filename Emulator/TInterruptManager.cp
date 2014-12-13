@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <sys/time.h>
 
 #if TARGET_OS_WIN32
 	#include <time.h>
@@ -305,7 +306,7 @@ TInterruptManager::GetRealTimeClock( void ) const
 {
 	time_t now = time(NULL);
 
-	return now - mCalendarDelta;
+	return (KUInt32) (now - mCalendarDelta);
 }
 
 // -------------------------------------------------------------------------- //
@@ -321,7 +322,7 @@ TInterruptManager::SetRealTimeClock( KUInt32 inValue )
 	// newton = host - delta
 	// delta = host - newton
 //  fprintf(stderr, "mCalendarDelta was %i\n", (int) mCalendarDelta);
-	mCalendarDelta = time(NULL) - inValue;
+	mCalendarDelta = (KSInt32) (time(NULL) - inValue);
 //  fprintf(stderr, "mCalendarDelta now is %i\n", (int) mCalendarDelta);
 	
 	// Signal the condition variable to wake the timer thread.
@@ -785,7 +786,7 @@ TInterruptManager::GetTimeInTicks( void )
 #if 1
 	// slower and accurate
 	// 3.6864 MHz -> 3686400 per seconds.
-	KUInt32 theResult = now.tv_sec * 3686400;
+	KUInt32 theResult = (KUInt32) now.tv_sec * 3686400;
 	//theResult += (KUInt32) (now.tv_usec * 3.6864);
 	theResult += (KUInt32)((((KUInt64)now.tv_usec) * 36864) / 10000);
 #else

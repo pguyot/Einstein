@@ -194,7 +194,7 @@ TJITGeneric::Step( TARMProcessor* ioCPU, KUInt32 count )
 		// next instruction.
 		JITUnit* theNextJITUnit =
 			GetJITUnitForPC( ioCPU, theMemoryInterface, *pcPtr + 4 );
-		KUIntPtr theSavedValue;
+		KUIntPtr theSavedValue = 0;
 		if (theNextJITUnit) {
 			theSavedValue = theNextJITUnit->fPtr;
 			theNextJITUnit->fFuncPtr = TJITGenericPage::Halt;
@@ -277,11 +277,7 @@ TJITGeneric::GetJITUnitDelta(
 	KUInt32 indexInPage = GetOffsetInPage(pc) / sizeof( KUInt32 );	
 	JITUnit *nextUnit = theNextPage->GetJITUnitForOffset(indexInPage);
 	
-	KSInt32 delta = nextUnit - inUnit;
-	
-	printf("Finding Delta at 0x%08x = %d\n", (unsigned int)ioCPU->GetRegister(15), (int)delta);
-	if (delta<0 || delta>500)
-		return kNotTheSamePage; // FIXME: kludge to avoid crash
+	KSInt32 delta = (KSInt32)(nextUnit - inUnit);
 	return delta;
 }
 

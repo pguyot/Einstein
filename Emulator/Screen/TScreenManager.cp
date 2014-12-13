@@ -1100,7 +1100,7 @@ TScreenManager::OverlayClear(KSInt32 line)
 void
 TScreenManager::OverlayPrintAt(KSInt32 x, KSInt32 y, const char *text, Boolean centered)
 {
-	KUInt32 len = strlen(text);
+	size_t len = strlen(text);
 	if (centered) {
 		if (len>40) len = 40;
 		KUInt32 i, margin = (40-len)/2;

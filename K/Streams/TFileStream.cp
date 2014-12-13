@@ -133,7 +133,7 @@ TFileStream::Read( void* outBuffer, KUInt32* ioCount )
 	
 	if (*ioCount != theCount)
 	{
-		*ioCount = theCount;
+		*ioCount = (KUInt32)theCount;
 
 #if HAS_EXCEPTION_HANDLING
 		if (feof( mFile ) == 0)
@@ -154,7 +154,7 @@ TFileStream::Write( const void* inBuffer, KUInt32* ioCount )
 	
 	if (*ioCount != theCount)
 	{
-		*ioCount = theCount;
+		*ioCount = (KUInt32) theCount;
 #if HAS_EXCEPTION_HANDLING
 		throw TIOException();
 #endif

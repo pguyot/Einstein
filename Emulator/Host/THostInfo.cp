@@ -308,7 +308,7 @@ THostInfo::RetrieveUserInfo( void )
 				// Pick the primary one, work or home, we don't care.
 				CFStringRef primaryId = ABMultiValueCopyPrimaryIdentifier(
 						theAddresses );
-				int index = ABMultiValueIndexForIdentifier(
+				CFIndex index = ABMultiValueIndexForIdentifier(
 						theAddresses, primaryId );
 
 				CFDictionaryRef theAddress = (CFDictionaryRef)
@@ -393,8 +393,8 @@ THostInfo::RetrieveUserInfo( void )
 					theUserRef, kABPhoneProperty );
 			if (thePhones)
 			{
-				unsigned nbPhones = ABMultiValueCount( thePhones );
-				unsigned indexPhones;
+				CFIndex nbPhones = ABMultiValueCount( thePhones );
+				CFIndex indexPhones;
 				for (indexPhones = 0; indexPhones < nbPhones; indexPhones++)
 				{
 					CFStringRef theLabel = ABMultiValueCopyLabelAtIndex(
@@ -469,7 +469,7 @@ THostInfo::RetrieveUserInfo( void )
 			theName = "Isaac Newton";
 		}
 		int nameIndex = 0;
-		int theLength = ::strlen( theName );
+		size_t theLength = ::strlen( theName );
 		mUserFirstName = (KUInt16*)
 			::malloc( (theLength + 1) * sizeof( KUInt16 ) );
 		while (true)

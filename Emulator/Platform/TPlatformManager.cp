@@ -489,11 +489,11 @@ TPlatformManager::GetUserInfo(
 		}
 		mMemory->FastWriteBuffer(
 			outAddress,
-			theSize,
+			(KUInt32) theSize,
 			(const KUInt8*) theString);
 	}
 	
-	return theSize;
+	return (KUInt32) theSize;
 }
 
 // -------------------------------------------------------------------------- //
