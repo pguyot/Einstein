@@ -199,7 +199,7 @@ TJITCache<JITPageClass>::PageMiss( KUInt32 inVAddr, KUInt32 inPAddr )
 	// Remove it from tables.
 	mVMap.Erase( theEntry->key );
 	
-#if 0
+#ifdef JITTARGET_LLVM_Z
 	// Do not remove entries from the ROM cache.
 	// Keeping a large cache seems to make no difference in performance, but
 	// costs us a lot of RAM. So we don't.

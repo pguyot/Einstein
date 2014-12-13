@@ -23,6 +23,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TROMImage.h"
+#include "JIT.h"
 
 // ANSI C & POSIX
 #include <sys/types.h>
@@ -59,6 +60,8 @@
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
+// This is not supported with LLVM until further notice
+#ifdef JITTARGET_GENERIC
 const KUInt32 kInvocation[4] = {
 	UByteSex_FromBigEndian((KUInt32) 0xE92D4000),
 	UByteSex_FromBigEndian((KUInt32) 0xE59FE004),
@@ -97,6 +100,7 @@ TROMPatch p001412f8(0x001412f8, 0xea000009, "Avoid screen calibration");
 // disable "TGeoPortDebugLink::BeaconDetect(long)"
 TROMPatch p000db0d8(0x000db0d8, 0xe3a00000, "BeaconDetect (1/2)"); // #  mov r0, 0x00000000
 TROMPatch p000db0dc(0x000db0dc, 0xe1a0f00e, "BeaconDetect (2/2)"); // #  mov pc, lr
+#endif
 
 /*
 //T_ROM_INJECTION(0x000E5CA4, "DispatchFIQ") {
@@ -257,7 +261,7 @@ TROMImage::IsImageOutdated(
 #ifdef _DEBUG
 	// allow patching the ROM at every run
 	return result;
-#endif
+#else
 
 	do {
 		// Check the file exists.
@@ -348,6 +352,7 @@ TROMImage::IsImageOutdated(
 	} while ( false );
 	
 	return result;
+#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -651,6 +656,7 @@ TROMImage::LookForREXes(
 void
 TROMImage::PatchROM( SImage* inImagePtr )
 {
+#ifdef JITTARGET_GENERIC
 #if 0
 	// before we patch the ROM, lets try to retarget some code
 	//
@@ -689,8 +695,10 @@ TROMImage::PatchROM( SImage* inImagePtr )
 	} else {
         fprintf(stderr, "Can't patch: WRONG ROM!");
     }
+#endif
 }
 
+#ifdef JITTARGET_GENERIC
 // -------------------------------------------------------------------------- //
 //  * DoPatchROMSimple( SImage* )
 // -------------------------------------------------------------------------- //
@@ -960,7 +968,7 @@ void TROMSimulatorInjection::apply(KUInt32 *ROM)
     ROM[address()] = value() | 0xefa00000;
 }
 
-
+#endif
 
 // ====================================================== //
 // Is a computer language with goto's totally Wirth-less? //

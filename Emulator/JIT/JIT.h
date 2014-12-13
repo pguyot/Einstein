@@ -28,11 +28,17 @@
 
 // Includes the proper header depending on the platform and define the JIT
 // class accordingly.
+#if JITTARGET_LLVM
+	#include "Emulator/JIT/LLVM/TJITLLVM.h"
+	#define	JITClass		TJITLLVM
+	#define	JITPageClass	TJITLLVMPage
+#else
 	// Default case.
 	#include "TJITGeneric.h"
 	#define	JITClass		TJITGeneric
 	#define	JITPageClass	TJITGenericPage
 	#define JITTARGET_GENERIC
+#endif
 
 #endif
 		// _JIT_H

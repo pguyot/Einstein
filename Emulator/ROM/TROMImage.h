@@ -211,6 +211,7 @@ typedef void (*AnyFunctionPtr)();
 class TAnyClass { };
 typedef void (TAnyClass::*AnyMethodPtr)();
 
+#ifdef JITTARGET_GENERIC
 
 ///
 /// This class defines a patch location.
@@ -348,7 +349,7 @@ public:
 	/// Patch the ROM word
 	virtual void apply(KUInt32 *ROM);
 };
-
+#endif
 
 #endif
 // _TROMIMAGE_H

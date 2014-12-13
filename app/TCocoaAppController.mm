@@ -441,7 +441,11 @@ static TCocoaAppController* gInstance = nil;
 	//mEmulator->GetProcessor()->SetRegister(15, 0x800AAC); //0x800AB4
 	
 	// Start the thread.
-	[NSThread detachNewThreadSelector:@selector(runEmulator) toTarget: self withObject: NULL];
+	// LLVM translator is recursive but definitely not tail-recursive.
+	// So we need a large stack until the loop is rewritten.
+	NSThread* emulatorThread = [[NSThread alloc] initWithTarget: self selector:@selector(runEmulator) object:NULL];
+	[emulatorThread setStackSize:128 * 1024 * 1024];
+	[emulatorThread start];
 //	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"load x" afterDelay:1];
 	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"run" afterDelay:1];
 //	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"revert" afterDelay:1];

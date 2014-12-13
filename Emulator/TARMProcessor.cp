@@ -23,6 +23,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TARMProcessor.h"
+#include "JIT.h"
 
 // POSIX
 #include <sys/types.h>
@@ -1210,6 +1211,7 @@ TARMProcessor::ReturnToEmulator(KUInt32 inPC)
 	throw "ReturnToEmulator";
 }
 
+#ifdef JITTARGET_GENERIC
 /**
  * Look up the given PC in the list of simulated functions. If the function
  * exist, stay in the simulation and call it. If it doesn't exist, fall back
@@ -1260,7 +1262,7 @@ TARMProcessor::JumpToCalculatedAddress(KUInt32 inPC, KUInt32 ret)
 	}
 	throw "JumpToCalculatedAddress";
 }
-
+#endif
 
 
 // =========================================================================== //

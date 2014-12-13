@@ -459,6 +459,14 @@
 		C9E848EA11EDCD6C00F27330 /* x86-ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E811EDCD6C00F27330 /* x86-ffi64.c */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cp */; };
 		DA0D96DE11BAD15300835522 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = DA0D96DD11BAD15300835522 /* darwin64.S */; };
+		DA24E5D81A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
+		DA24E5D91A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
+		DA24E5DA1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
+		DA24E5DB1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
+		DA24E5DC1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
+		DA24E5DE1A3655C300C60EF7 /* libLLVM-3.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5DD1A3655C300C60EF7 /* libLLVM-3.5.dylib */; };
+		DA24E5E11A3655C300C60EF7 /* libLLVM-3.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5DD1A3655C300C60EF7 /* libLLVM-3.5.dylib */; };
+		DA24E5E21A3655C400C60EF7 /* libLLVM-3.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5DD1A3655C300C60EF7 /* libLLVM-3.5.dylib */; };
 		DA4BA40D1A3A0160002BDB80 /* tests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B61A35E76400092B5A /* tests.cp */; };
 		DA4BA40E1A3A01F7002BDB80 /* UHostInfoTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B81A35E76400092B5A /* UHostInfoTests.cp */; };
 		DA4BA40F1A3A01F7002BDB80 /* UMemoryTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0BA1A35E76400092B5A /* UMemoryTests.cp */; };
@@ -480,6 +488,9 @@
 		DA4BA4201A3A028C002BDB80 /* TJIT.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3457111B7C07002165EC /* TJIT.cp */; };
 		DA4BA4211A3A028C002BDB80 /* TJITPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E345B111B7C07002165EC /* TJITPage.cp */; };
 		DA4BA4221A3A028C002BDB80 /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
+		DA4BA4231A3A028C002BDB80 /* TJITLLVM.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F864F1A359287006BC81E /* TJITLLVM.cp */; };
+		DA4BA4241A3A028C002BDB80 /* TJITLLVMPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86511A359287006BC81E /* TJITLLVMPage.cp */; };
+		DA4BA4251A3A028C002BDB80 /* TJITLLVMTranslator.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF1621A3637E400092B5A /* TJITLLVMTranslator.cp */; };
 		DA4BA4261A3A02FD002BDB80 /* TPlatformManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347B111B7C07002165EC /* TPlatformManager.cp */; };
 		DA4BA4271A3A02FD002BDB80 /* TNativeCalls.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E346A111B7C07002165EC /* TNativeCalls.cp */; };
 		DA4BA4281A3A02FD002BDB80 /* TVirtualizedCalls.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E346C111B7C07002165EC /* TVirtualizedCalls.cp */; };
@@ -513,6 +524,8 @@
 		DA4BA4441A3A02FD002BDB80 /* TVoyagerSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */; };
 		DA4BA4451A3A02FD002BDB80 /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		DA4BA4461A3A02FD002BDB80 /* UDisasm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cp */; };
+		DA4BA4471A3A0358002BDB80 /* libLLVM-3.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5DD1A3655C300C60EF7 /* libLLVM-3.5.dylib */; };
+		DA4BA4481A3A035C002BDB80 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
 		DA4BA4491A3A036C002BDB80 /* prep_cif.c in Sources */ = {isa = PBXBuildFile; fileRef = C99E3560111C111D002165EC /* prep_cif.c */; };
 		DA4BA44A1A3A036C002BDB80 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = C99E3561111C111D002165EC /* types.c */; };
 		DA4BA44B1A3A0372002BDB80 /* ffi_darwin.c in Sources */ = {isa = PBXBuildFile; fileRef = C9E848E711EDCD6C00F27330 /* ffi_darwin.c */; };
@@ -633,6 +646,21 @@
 		DA4FF1531A35EC9400092B5A /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E3705111C18D2002165EC /* AudioUnit.framework */; };
 		DA4FF1541A35ECA700092B5A /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E36FD111C18A8002165EC /* CoreAudio.framework */; };
 		DA4FF1561A35ED5400092B5A /* EinsteinTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF1551A35ED5400092B5A /* EinsteinTests.mm */; };
+		DA4FF1571A35FAD000092B5A /* TJITLLVM.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F864F1A359287006BC81E /* TJITLLVM.cp */; };
+		DA4FF1581A35FAD000092B5A /* TJITLLVMPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86511A359287006BC81E /* TJITLLVMPage.cp */; };
+		DA4FF1591A35FAD100092B5A /* TJITLLVM.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F864F1A359287006BC81E /* TJITLLVM.cp */; };
+		DA4FF15A1A35FAD100092B5A /* TJITLLVMPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86511A359287006BC81E /* TJITLLVMPage.cp */; };
+		DA4FF15B1A35FAD200092B5A /* TJITLLVM.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F864F1A359287006BC81E /* TJITLLVM.cp */; };
+		DA4FF15C1A35FAD200092B5A /* TJITLLVMPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86511A359287006BC81E /* TJITLLVMPage.cp */; };
+		DA4FF15D1A35FAD200092B5A /* TJITLLVM.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F864F1A359287006BC81E /* TJITLLVM.cp */; };
+		DA4FF15E1A35FAD200092B5A /* TJITLLVMPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86511A359287006BC81E /* TJITLLVMPage.cp */; };
+		DA4FF15F1A35FAD300092B5A /* TJITLLVM.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F864F1A359287006BC81E /* TJITLLVM.cp */; };
+		DA4FF1601A35FAD300092B5A /* TJITLLVMPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86511A359287006BC81E /* TJITLLVMPage.cp */; };
+		DA4FF1631A3637E400092B5A /* TJITLLVMTranslator.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF1621A3637E400092B5A /* TJITLLVMTranslator.cp */; };
+		DA4FF1641A3637E400092B5A /* TJITLLVMTranslator.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF1621A3637E400092B5A /* TJITLLVMTranslator.cp */; };
+		DA4FF1651A3637E400092B5A /* TJITLLVMTranslator.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF1621A3637E400092B5A /* TJITLLVMTranslator.cp */; };
+		DA4FF1661A3637E400092B5A /* TJITLLVMTranslator.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF1621A3637E400092B5A /* TJITLLVMTranslator.cp */; };
+		DA4FF1671A3637E400092B5A /* TJITLLVMTranslator.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF1621A3637E400092B5A /* TJITLLVMTranslator.cp */; };
 		DA6F86431A34FBB7006BC81E /* TMonitorCore.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86421A34FBB7006BC81E /* TMonitorCore.cp */; };
 		DA6F86441A34FBD1006BC81E /* TMonitorCore.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86421A34FBB7006BC81E /* TMonitorCore.cp */; };
 		DAE9EF031A3B29150095BFAF /* Tests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAE9EF021A3B29150095BFAF /* Tests-Info.plist */; };
@@ -1093,6 +1121,9 @@
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TTapNetwork.cp; path = Network/TTapNetwork.cp; sourceTree = "<group>"; };
 		DA0D943F11B9A12D00835522 /* TTapNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTapNetwork.h; path = Network/TTapNetwork.h; sourceTree = "<group>"; };
 		DA0D96DD11BAD15300835522 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
+		DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.8.dylib; path = usr/lib/libcrypto.0.9.8.dylib; sourceTree = SDKROOT; };
+		DA24E5DD1A3655C300C60EF7 /* libLLVM-3.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libLLVM-3.5.dylib"; path = "../../../../../../opt/local/libexec/llvm-3.5/lib/libLLVM-3.5.dylib"; sourceTree = "<group>"; };
+		DA24E5E31A379D5400C60EF7 /* JITLLVM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JITLLVM.h; sourceTree = "<group>"; };
 		DA4BA4051A3A0153002BDB80 /* CLITest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CLITest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA4BA46E1A3A3B78002BDB80 /* TNullScreenManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNullScreenManager.cp; sourceTree = "<group>"; };
 		DA4BA46F1A3A3B78002BDB80 /* TNullScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNullScreenManager.h; sourceTree = "<group>"; };
@@ -1108,8 +1139,14 @@
 		DA4FF0BE1A35E76400092B5A /* UScreenTests.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UScreenTests.cp; sourceTree = "<group>"; };
 		DA4FF0BF1A35E76400092B5A /* UScreenTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UScreenTests.h; sourceTree = "<group>"; };
 		DA4FF1551A35ED5400092B5A /* EinsteinTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EinsteinTests.mm; sourceTree = "<group>"; };
+		DA4FF1611A3637E400092B5A /* TJITLLVMTranslator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITLLVMTranslator.h; sourceTree = "<group>"; };
+		DA4FF1621A3637E400092B5A /* TJITLLVMTranslator.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITLLVMTranslator.cp; sourceTree = "<group>"; };
 		DA6F86411A34FBB7006BC81E /* TMonitorCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMonitorCore.h; sourceTree = "<group>"; };
 		DA6F86421A34FBB7006BC81E /* TMonitorCore.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMonitorCore.cp; sourceTree = "<group>"; };
+		DA6F864F1A359287006BC81E /* TJITLLVM.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITLLVM.cp; sourceTree = "<group>"; };
+		DA6F86501A359287006BC81E /* TJITLLVM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITLLVM.h; sourceTree = "<group>"; };
+		DA6F86511A359287006BC81E /* TJITLLVMPage.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITLLVMPage.cp; sourceTree = "<group>"; };
+		DA6F86521A359287006BC81E /* TJITLLVMPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITLLVMPage.h; sourceTree = "<group>"; };
 		DAE9EF021A3B29150095BFAF /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Tests-Info.plist"; path = "../../Resources/Tests-Info.plist"; sourceTree = "<group>"; };
 		DAE9EF221A3CFACC0095BFAF /* TRAMLog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TRAMLog.cp; sourceTree = "<group>"; };
 		DAE9EF231A3CFACC0095BFAF /* TRAMLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRAMLog.h; sourceTree = "<group>"; };
@@ -1131,6 +1168,7 @@
 			files = (
 				F15858B81A2E3D4300D72203 /* UIKit.framework in Frameworks */,
 				2389E98D1A1E4D4A0001A8C5 /* CoreAudio.framework in Frameworks */,
+				DA24E5DA1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */,
 				2389E98E1A1E4D4A0001A8C5 /* AudioToolbox.framework in Frameworks */,
 				2389E98F1A1E4D4A0001A8C5 /* CoreGraphics.framework in Frameworks */,
 				2389E9911A1E4D4A0001A8C5 /* Foundation.framework in Frameworks */,
@@ -1141,10 +1179,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DA24E5DE1A3655C300C60EF7 /* libLLVM-3.5.dylib in Frameworks */,
 				C9DA71BA17CD42D4008E6DB2 /* libresolv.dylib in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				C99E36FE111C18A8002165EC /* CoreAudio.framework in Frameworks */,
 				C99E3704111C18D2002165EC /* AddressBook.framework in Frameworks */,
+				DA24E5D81A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */,
 				C99E3706111C18D2002165EC /* AudioUnit.framework in Frameworks */,
 				C99E3750111C1F0E002165EC /* Carbon.framework in Frameworks */,
 			);
@@ -1154,10 +1194,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DA24E5E11A3655C300C60EF7 /* libLLVM-3.5.dylib in Frameworks */,
 				C95E60AD198B76DC004C6CEF /* libresolv.dylib in Frameworks */,
 				C95E60AE198B76DC004C6CEF /* Cocoa.framework in Frameworks */,
 				C95E60AF198B76DC004C6CEF /* CoreAudio.framework in Frameworks */,
 				C95E60B0198B76DC004C6CEF /* AddressBook.framework in Frameworks */,
+				DA24E5DB1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */,
 				C95E60B1198B76DC004C6CEF /* AudioUnit.framework in Frameworks */,
 				C95E60B2198B76DC004C6CEF /* Carbon.framework in Frameworks */,
 			);
@@ -1176,6 +1218,7 @@
 			files = (
 				F15858B71A2E3CA100D72203 /* UIKit.framework in Frameworks */,
 				F1CAFBE41241F7C200A0382E /* CoreAudio.framework in Frameworks */,
+				DA24E5D91A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */,
 				F1CAFBF51241F7E600A0382E /* AudioToolbox.framework in Frameworks */,
 				F1CAFCF9124200C100A0382E /* CoreGraphics.framework in Frameworks */,
 				C97C7E1D124282A600CDCD05 /* Foundation.framework in Frameworks */,
@@ -1189,7 +1232,9 @@
 				DA4BA4531A3A03CF002BDB80 /* CoreAudio.framework in Frameworks */,
 				DA4BA4511A3A03CF002BDB80 /* AddressBook.framework in Frameworks */,
 				DA4BA4501A3A03C3002BDB80 /* Cocoa.framework in Frameworks */,
+				DA4BA4481A3A035C002BDB80 /* libcrypto.0.9.8.dylib in Frameworks */,
 				DA4BA44F1A3A03C0002BDB80 /* Carbon.framework in Frameworks */,
+				DA4BA4471A3A0358002BDB80 /* libLLVM-3.5.dylib in Frameworks */,
 				DA4BA4521A3A03CF002BDB80 /* AudioUnit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1200,7 +1245,9 @@
 			files = (
 				DA4FF1521A35EC8400092B5A /* AddressBook.framework in Frameworks */,
 				DA4FF1531A35EC9400092B5A /* AudioUnit.framework in Frameworks */,
+				DA24E5DC1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */,
 				DA4FF1501A35EC7A00092B5A /* Cocoa.framework in Frameworks */,
+				DA24E5E21A3655C400C60EF7 /* libLLVM-3.5.dylib in Frameworks */,
 				DA4FF1541A35ECA700092B5A /* CoreAudio.framework in Frameworks */,
 				DA4FF1511A35EC7F00092B5A /* Carbon.framework in Frameworks */,
 			);
@@ -1470,6 +1517,8 @@
 			isa = PBXGroup;
 			children = (
 				C9DA71B917CD42D4008E6DB2 /* libresolv.dylib */,
+				DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */,
+				DA24E5DD1A3655C300C60EF7 /* libLLVM-3.5.dylib */,
 				C99E354E111C111D002165EC /* libffi-osx */,
 				C99E32A9111B7570002165EC /* K */,
 			);
@@ -1718,6 +1767,7 @@
 				C99E345C111B7C07002165EC /* TJITPage.h */,
 				C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */,
 				C9BE33CE133E64F60052EA2F /* TJITPerformance.h */,
+				DA6F864E1A359287006BC81E /* LLVM */,
 				C99E33FC111B7C07002165EC /* Generic */,
 			);
 			indentWidth = 4;
@@ -2019,6 +2069,20 @@
 			);
 			name = _Tests_;
 			path = ../../_Tests_;
+			sourceTree = "<group>";
+		};
+		DA6F864E1A359287006BC81E /* LLVM */ = {
+			isa = PBXGroup;
+			children = (
+				DA24E5E31A379D5400C60EF7 /* JITLLVM.h */,
+				DA6F864F1A359287006BC81E /* TJITLLVM.cp */,
+				DA6F86501A359287006BC81E /* TJITLLVM.h */,
+				DA6F86511A359287006BC81E /* TJITLLVMPage.cp */,
+				DA6F86521A359287006BC81E /* TJITLLVMPage.h */,
+				DA4FF1621A3637E400092B5A /* TJITLLVMTranslator.cp */,
+				DA4FF1611A3637E400092B5A /* TJITLLVMTranslator.h */,
+			);
+			path = LLVM;
 			sourceTree = "<group>";
 		};
 		F1CB7613131730100017B0BB /* Mac OS X */ = {
@@ -2360,7 +2424,9 @@
 				2389E94B1A1E4D4A0001A8C5 /* TMutex.cp in Sources */,
 				2389E94C1A1E4D4A0001A8C5 /* TThread.cp in Sources */,
 				2389E94D1A1E4D4A0001A8C5 /* UUTF16Conv.cp in Sources */,
+				DA4FF1651A3637E400092B5A /* TJITLLVMTranslator.cp in Sources */,
 				2389E94E1A1E4D4A0001A8C5 /* UUTF16CStr.cp in Sources */,
+				DA4FF15C1A35FAD200092B5A /* TJITLLVMPage.cp in Sources */,
 				2389E94F1A1E4D4A0001A8C5 /* TJITGeneric.cp in Sources */,
 				2389E9501A1E4D4A0001A8C5 /* TJITGeneric_BlockDataTransfer.cp in Sources */,
 				2389E9511A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer.cp in Sources */,
@@ -2406,6 +2472,7 @@
 				2389E9791A1E4D4A0001A8C5 /* TVoyagerSerialPort.cp in Sources */,
 				2389E97A1A1E4D4A0001A8C5 /* TVirtualizedCalls.cp in Sources */,
 				2389E97B1A1E4D4A0001A8C5 /* TNativeCalls.cp in Sources */,
+				DA4FF15B1A35FAD200092B5A /* TJITLLVM.cp in Sources */,
 				2389E97C1A1E4D4A0001A8C5 /* TATACard.cp in Sources */,
 				DA4BA4721A3A3B78002BDB80 /* TNullScreenManager.cp in Sources */,
 				2389E97D1A1E4D4A0001A8C5 /* TLinearCard.cp in Sources */,
@@ -2487,6 +2554,7 @@
 				C99E351B111B7C08002165EC /* TCocoaScreenManager.cp in Sources */,
 				C99E351C111B7C08002165EC /* TCocoaScreenView.mm in Sources */,
 				C99E351F111B7C08002165EC /* TScreenManager.cp in Sources */,
+				DA4FF1631A3637E400092B5A /* TJITLLVMTranslator.cp in Sources */,
 				C99E3523111B7C08002165EC /* TVoyagerSerialPort.cp in Sources */,
 				C99E3524111B7C08002165EC /* TBufferedSoundManager.cp in Sources */,
 				C99E3525111B7C08002165EC /* TCoreAudioSoundManager.cp in Sources */,
@@ -2499,6 +2567,7 @@
 				C99E352E111B7C08002165EC /* TInterruptManager.cp in Sources */,
 				C99E352F111B7C08002165EC /* TMemory.cp in Sources */,
 				C99E3530111B7C08002165EC /* TMMU.cp in Sources */,
+				DA4FF1571A35FAD000092B5A /* TJITLLVM.cp in Sources */,
 				C99E3531111B7C08002165EC /* TNativePrimitives.cp in Sources */,
 				C99E356E111C111D002165EC /* prep_cif.c in Sources */,
 				C99E356F111C111D002165EC /* types.c in Sources */,
@@ -2525,6 +2594,7 @@
 				C901E52F1326566F0074513E /* TMemError.cp in Sources */,
 				C901E530132656710074513E /* TEOFException.cp in Sources */,
 				C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */,
+				DA4FF1581A35FAD000092B5A /* TJITLLVMPage.cp in Sources */,
 				C9D54E1415FA23E700D91131 /* TFiber.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2575,6 +2645,7 @@
 				C98AB2BA1A351EE6001BB1CD /* unsorted_006.cp in Sources */,
 				C95E606B198B76DC004C6CEF /* TJITGeneric_Test.cp in Sources */,
 				C95E606C198B76DC004C6CEF /* TJITGenericPage.cp in Sources */,
+				DA4FF1591A35FAD100092B5A /* TJITLLVM.cp in Sources */,
 				C95E606D198B76DC004C6CEF /* TJIT.cp in Sources */,
 				C98AB2C61A351EE6001BB1CD /* unsorted_012.cp in Sources */,
 				C95E606E198B76DC004C6CEF /* TJITCache.cp in Sources */,
@@ -2605,6 +2676,7 @@
 				C95E6081198B76DC004C6CEF /* TCocoaScreenGlue.mm in Sources */,
 				C95E6082198B76DC004C6CEF /* TCocoaScreenManager.cp in Sources */,
 				C95E6083198B76DC004C6CEF /* TCocoaScreenView.mm in Sources */,
+				DA4FF15A1A35FAD100092B5A /* TJITLLVMPage.cp in Sources */,
 				C95E6084198B76DC004C6CEF /* TScreenManager.cp in Sources */,
 				C95E6085198B76DC004C6CEF /* TVoyagerSerialPort.cp in Sources */,
 				C95E6086198B76DC004C6CEF /* TBufferedSoundManager.cp in Sources */,
@@ -2621,6 +2693,7 @@
 				C95E608F198B76DC004C6CEF /* TMemory.cp in Sources */,
 				C95E6090198B76DC004C6CEF /* TMMU.cp in Sources */,
 				C98AB2BE1A351EE6001BB1CD /* unsorted_008.cp in Sources */,
+				DA4FF1661A3637E400092B5A /* TJITLLVMTranslator.cp in Sources */,
 				C95E6091198B76DC004C6CEF /* TNativePrimitives.cp in Sources */,
 				C95E6092198B76DC004C6CEF /* prep_cif.c in Sources */,
 				C98AB2DA1A351EE6001BB1CD /* unsorted_022.cp in Sources */,
@@ -2692,7 +2765,9 @@
 				C9B4AB35123D60E600D8D2C7 /* TMutex.cp in Sources */,
 				C9B4AB36123D60E800D8D2C7 /* TThread.cp in Sources */,
 				C9B4AB3A123D60FF00D8D2C7 /* UUTF16Conv.cp in Sources */,
+				DA4FF1641A3637E400092B5A /* TJITLLVMTranslator.cp in Sources */,
 				C9B4AB3B123D610000D8D2C7 /* UUTF16CStr.cp in Sources */,
+				DA4FF15E1A35FAD200092B5A /* TJITLLVMPage.cp in Sources */,
 				C9B4AB5F123D647900D8D2C7 /* TJITGeneric.cp in Sources */,
 				C9B4AB60123D647900D8D2C7 /* TJITGeneric_BlockDataTransfer.cp in Sources */,
 				C9B4AB61123D647A00D8D2C7 /* TJITGeneric_DataProcessingPSRTransfer.cp in Sources */,
@@ -2738,6 +2813,7 @@
 				C9B4ABB3123D6C1500D8D2C7 /* TVoyagerSerialPort.cp in Sources */,
 				C9B4ABB6123D6C4100D8D2C7 /* TVirtualizedCalls.cp in Sources */,
 				C9B4ABB7123D6C4800D8D2C7 /* TNativeCalls.cp in Sources */,
+				DA4FF15D1A35FAD200092B5A /* TJITLLVM.cp in Sources */,
 				C9B4ABC0123D6D5300D8D2C7 /* TATACard.cp in Sources */,
 				DA4BA4711A3A3B78002BDB80 /* TNullScreenManager.cp in Sources */,
 				C9B4ABC1123D6D5300D8D2C7 /* TLinearCard.cp in Sources */,
@@ -2795,6 +2871,7 @@
 				DA4BA4391A3A02FD002BDB80 /* TJITGeneric_SingleDataTransfer.cp in Sources */,
 				DA4BA4561A3A03EF002BDB80 /* TIOException.cp in Sources */,
 				DA4BA4181A3A028C002BDB80 /* TFlash.cp in Sources */,
+				DA4BA4231A3A028C002BDB80 /* TJITLLVM.cp in Sources */,
 				DA4BA42F1A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp in Sources */,
 				DA4BA41E1A3A028C002BDB80 /* TROMImage.cp in Sources */,
 				DA4BA4751A3A3B78002BDB80 /* TNullScreenManager.cp in Sources */,
@@ -2809,6 +2886,7 @@
 				DA4BA44A1A3A036C002BDB80 /* types.c in Sources */,
 				DA4BA41F1A3A028C002BDB80 /* TJITCache.cp in Sources */,
 				DA4BA4351A3A02FD002BDB80 /* TJITGeneric_Multiply.cp in Sources */,
+				DA4BA4251A3A028C002BDB80 /* TJITLLVMTranslator.cp in Sources */,
 				DA4BA45C1A3A03FD002BDB80 /* TStream.cp in Sources */,
 				DA4BA42A1A3A02FD002BDB80 /* TLog.cp in Sources */,
 				DA4BA4151A3A028C002BDB80 /* TDMAManager.cp in Sources */,
@@ -2830,6 +2908,7 @@
 				DA4BA4121A3A028C002BDB80 /* TNativePrimitives.cp in Sources */,
 				DA4BA45E1A3A0407002BDB80 /* TCondVar.cp in Sources */,
 				DA4BA4291A3A02FD002BDB80 /* THostInfo.cp in Sources */,
+				DA4BA4241A3A028C002BDB80 /* TJITLLVMPage.cp in Sources */,
 				DA4BA45A1A3A03F8002BDB80 /* TMappedFile.cp in Sources */,
 				DA4BA45B1A3A03FD002BDB80 /* TFileStream.cp in Sources */,
 				DA4BA42D1A3A02FD002BDB80 /* TJITGeneric_BlockDataTransfer.cp in Sources */,
@@ -2863,7 +2942,9 @@
 				DA4FF1311A35EB4D00092B5A /* TCircleBuffer.cp in Sources */,
 				DA4FF1491A35EC4A00092B5A /* THostInfo.cp in Sources */,
 				DA4FF10D1A35EA8C00092B5A /* TFlash.cp in Sources */,
+				DA4FF1671A3637E400092B5A /* TJITLLVMTranslator.cp in Sources */,
 				DA4FF1371A35EB9500092B5A /* TMemError.cp in Sources */,
+				DA4FF1601A35FAD300092B5A /* TJITLLVMPage.cp in Sources */,
 				DA4FF1211A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cp in Sources */,
 				DA4FF14E1A35EC6B00092B5A /* darwin.S in Sources */,
 				DA4FF1281A35EAF600092B5A /* TJITGenericPage.cp in Sources */,
@@ -2914,6 +2995,7 @@
 				DA4FF1441A35EC2B00092B5A /* TFiber.cp in Sources */,
 				DA4FF1391A35EBAA00092B5A /* TVirtualizedCalls.cp in Sources */,
 				DA4FF1471A35EC2B00092B5A /* TThread.cp in Sources */,
+				DA4FF15F1A35FAD300092B5A /* TJITLLVM.cp in Sources */,
 				DA4FF1261A35EAF600092B5A /* TJITGeneric_SingleDataTransfer.cp in Sources */,
 				DA4FF1431A35EC1700092B5A /* TROMImage.cp in Sources */,
 				DA4FF14C1A35EC6B00092B5A /* ffi_darwin.c in Sources */,
@@ -2988,6 +3070,10 @@
 				INFOPLIST_FILE = "iOSEinstein copy-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/opt/local/libexec/llvm-3.5/lib",
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = iOSEinstein;
@@ -3024,6 +3110,10 @@
 				INFOPLIST_FILE = "iOSEinstein copy-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/opt/local/libexec/llvm-3.5/lib",
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -3063,6 +3153,10 @@
 				INFOPLIST_FILE = "iOSEinstein copy-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/opt/local/libexec/llvm-3.5/lib",
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -3092,11 +3186,13 @@
 					NO_PORT_AUDIO,
 					NO_X11,
 					"$(inherited)",
+					JITTARGET_LLVM,
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
+					"/opt/local/libexec/llvm-3.5/include/",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -3104,6 +3200,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
 					"$(PROJECT_DIR)",
+					"/opt/local/libexec/llvm-3.5/lib/",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
@@ -3126,12 +3223,14 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					NO_PORT_AUDIO,
 					NO_X11,
+					JITTARGET_LLVM,
 					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
+					"/opt/local/libexec/llvm-3.5/include/",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -3139,6 +3238,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
 					"$(PROJECT_DIR)",
+					"/opt/local/libexec/llvm-3.5/lib/",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
@@ -3164,6 +3264,13 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-D_GNU_SOURCE",
+					"-D__STDC_CONSTANT_MACROS",
+					"-D__STDC_FORMAT_MACROS",
+					"-D__STDC_LIMIT_MACROS",
+					"-D_DEBUG",
+				);
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -3181,7 +3288,12 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = (
+					"-D_GNU_SOURCE",
+					"-D__STDC_CONSTANT_MACROS",
+					"-D__STDC_FORMAT_MACROS",
+					"-D__STDC_LIMIT_MACROS",
+				);
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -3216,6 +3328,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
 					"$(PROJECT_DIR)",
+					"/opt/local/libexec/llvm-3.5/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
@@ -3254,6 +3367,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
 					"$(PROJECT_DIR)",
+					"/opt/local/libexec/llvm-3.5/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
@@ -3292,6 +3406,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
 					"$(PROJECT_DIR)",
+					"/opt/local/libexec/llvm-3.5/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
@@ -3455,6 +3570,10 @@
 				INFOPLIST_FILE = "iEinstein-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/opt/local/libexec/llvm-3.5/lib",
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = iOSEinstein;
@@ -3490,6 +3609,10 @@
 				INFOPLIST_FILE = "iEinstein-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/opt/local/libexec/llvm-3.5/lib",
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				OTHER_LDFLAGS = "";
@@ -3517,6 +3640,12 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_CFLAGS = (
+					"-D_GNU_SOURCE",
+					"-D__STDC_CONSTANT_MACROS",
+					"-D__STDC_FORMAT_MACROS",
+					"-D__STDC_LIMIT_MACROS",
+				);
 				SDKROOT = macosx;
 			};
 			name = Distribution;
@@ -3534,11 +3663,13 @@
 					NO_PORT_AUDIO,
 					NO_X11,
 					"$(inherited)",
+					JITTARGET_LLVM,
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
+					"/opt/local/libexec/llvm-3.5/include/",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -3546,6 +3677,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../K/Misc\"",
 					"$(PROJECT_DIR)",
+					"/opt/local/libexec/llvm-3.5/lib/",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
@@ -3580,6 +3712,10 @@
 				INFOPLIST_FILE = "iEinstein-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/opt/local/libexec/llvm-3.5/lib",
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				OTHER_LDFLAGS = "";
@@ -3627,9 +3763,11 @@
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../libffi-osx",
 					"$(SRCROOT)/../../portaudio/pa_common/",
+					"/opt/local/libexec/llvm-3.5/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"/opt/local/libexec/llvm-3.5/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -3666,9 +3804,11 @@
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../libffi-osx",
 					"$(SRCROOT)/../../portaudio/pa_common/",
+					"/opt/local/libexec/llvm-3.5/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"/opt/local/libexec/llvm-3.5/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3704,9 +3844,11 @@
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../libffi-osx",
 					"$(SRCROOT)/../../portaudio/pa_common/",
+					"/opt/local/libexec/llvm-3.5/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"/opt/local/libexec/llvm-3.5/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3741,6 +3883,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					JITTARGET_LLVM,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -3754,11 +3897,13 @@
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
 					"$(SRCROOT)/../../",
+					"/opt/local/libexec/llvm-3.5/include/",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"/opt/local/libexec/llvm-3.5/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -3803,11 +3948,13 @@
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
 					"$(SRCROOT)/../../",
+					"/opt/local/libexec/llvm-3.5/include/",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"/opt/local/libexec/llvm-3.5/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3851,11 +3998,13 @@
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
 					"$(SRCROOT)/../../",
+					"/opt/local/libexec/llvm-3.5/include/",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"/opt/local/libexec/llvm-3.5/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
