@@ -2561,8 +2561,9 @@ TNativePrimitives::ExecuteHostCallNative( KUInt32 inInstruction )
 			{
 				mLog->LogLine( "TEinsteinNativeCalls::Call_string" );
 			}
+			// TODO: We have a real 64bits problem here.
 			mProcessor->SetRegister(0, 
-				mNativeCalls->Call_pointer(
+				/* (KUInt32) */ mNativeCalls->Call_pointer(
 							mProcessor->GetRegister(1)));
 			break;
 
