@@ -78,6 +78,23 @@ extern const KUInt32 ptr_##name;
 #define NEWT_IMP_GLOBAL(type, name, addr) \
 KUInt32 const ptr_##name = (addr);
 
+#define R0 ioCPU->mCurrentRegisters[0]
+#define R1 ioCPU->mCurrentRegisters[1]
+#define R2 ioCPU->mCurrentRegisters[2]
+#define R3 ioCPU->mCurrentRegisters[3]
+#define R4 ioCPU->mCurrentRegisters[4]
+#define R5 ioCPU->mCurrentRegisters[5]
+#define R6 ioCPU->mCurrentRegisters[6]
+#define R7 ioCPU->mCurrentRegisters[7]
+#define R8 ioCPU->mCurrentRegisters[8]
+#define R9 ioCPU->mCurrentRegisters[9]
+#define R10 ioCPU->mCurrentRegisters[10]
+#define R11 ioCPU->mCurrentRegisters[11]
+#define R12 ioCPU->mCurrentRegisters[12]
+#define SP ioCPU->mCurrentRegisters[13]
+#define LR ioCPU->mCurrentRegisters[14]
+#define PC ioCPU->mCurrentRegisters[15]
+
 
 #include "unsorted/unsorted_001.h"
 #include "unsorted/unsorted_002.h"
