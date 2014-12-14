@@ -4,3 +4,4 @@ xcode_scheme: Einstein
 before_install:
   - brew update
   - brew upgrade xctool
+  - brew install homebrew/versions/llvm35
