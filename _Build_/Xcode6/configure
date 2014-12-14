@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Run this script to configure LLVM.
+export PROJECT_DIR=`dirname $0`
+sh ${PROJECT_DIR}/BuildEinsteinLLVMConfig.sh >/dev/null
+exit 0

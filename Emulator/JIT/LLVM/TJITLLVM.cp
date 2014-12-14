@@ -35,6 +35,8 @@
 #include "TMemoryConsts.h"
 
 #include <llvm/Support/TargetSelect.h>
+#include <llvm/ExecutionEngine/JIT.h>
+#include <llvm/ExecutionEngine/Interpreter.h>
 
 using namespace llvm;
 
@@ -46,10 +48,6 @@ using namespace llvm;
 __attribute__((constructor))
 static void InitLLVM() {
 	InitializeNativeTarget();
-	InitializeAllTargetMCs();
-	InitializeNativeTargetAsmParser();
-	InitializeNativeTargetAsmPrinter();
-	InitializeNativeTargetDisassembler();
 }
 
 // -------------------------------------------------------------------------- //

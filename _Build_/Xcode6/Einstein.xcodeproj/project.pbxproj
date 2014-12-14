@@ -464,9 +464,6 @@
 		DA24E5DA1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
 		DA24E5DB1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
 		DA24E5DC1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
-		DA24E5DE1A3655C300C60EF7 /* libLLVM-3.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5DD1A3655C300C60EF7 /* libLLVM-3.5.dylib */; };
-		DA24E5E11A3655C300C60EF7 /* libLLVM-3.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5DD1A3655C300C60EF7 /* libLLVM-3.5.dylib */; };
-		DA24E5E21A3655C400C60EF7 /* libLLVM-3.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5DD1A3655C300C60EF7 /* libLLVM-3.5.dylib */; };
 		DA4BA40D1A3A0160002BDB80 /* tests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B61A35E76400092B5A /* tests.cp */; };
 		DA4BA40E1A3A01F7002BDB80 /* UHostInfoTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B81A35E76400092B5A /* UHostInfoTests.cp */; };
 		DA4BA40F1A3A01F7002BDB80 /* UMemoryTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0BA1A35E76400092B5A /* UMemoryTests.cp */; };
@@ -524,7 +521,6 @@
 		DA4BA4441A3A02FD002BDB80 /* TVoyagerSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */; };
 		DA4BA4451A3A02FD002BDB80 /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		DA4BA4461A3A02FD002BDB80 /* UDisasm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cp */; };
-		DA4BA4471A3A0358002BDB80 /* libLLVM-3.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5DD1A3655C300C60EF7 /* libLLVM-3.5.dylib */; };
 		DA4BA4481A3A035C002BDB80 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
 		DA4BA4491A3A036C002BDB80 /* prep_cif.c in Sources */ = {isa = PBXBuildFile; fileRef = C99E3560111C111D002165EC /* prep_cif.c */; };
 		DA4BA44A1A3A036C002BDB80 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = C99E3561111C111D002165EC /* types.c */; };
@@ -665,11 +661,6 @@
 		DA6F86441A34FBD1006BC81E /* TMonitorCore.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86421A34FBB7006BC81E /* TMonitorCore.cp */; };
 		DAE9EF031A3B29150095BFAF /* Tests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAE9EF021A3B29150095BFAF /* Tests-Info.plist */; };
 		DAE9EF251A3CFCC70095BFAF /* TRAMLog.cp in Sources */ = {isa = PBXBuildFile; fileRef = DAE9EF221A3CFACC0095BFAF /* TRAMLog.cp */; };
-		DAE9EF271A3D67610095BFAF /* EinsteinLLVM.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */; };
-		DAE9EF281A3D67610095BFAF /* EinsteinLLVM.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */; };
-		DAE9EF291A3D67610095BFAF /* EinsteinLLVM.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */; };
-		DAE9EF2A1A3D67610095BFAF /* EinsteinLLVM.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */; };
-		DAE9EF2B1A3D67610095BFAF /* EinsteinLLVM.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */; };
 		F115FF131A2EA415001F3D65 /* Einstein.xib in Resources */ = {isa = PBXBuildFile; fileRef = F115FF111A2EA415001F3D65 /* Einstein.xib */; };
 		F115FF141A2EA415001F3D65 /* Einstein.xib in Resources */ = {isa = PBXBuildFile; fileRef = F115FF111A2EA415001F3D65 /* Einstein.xib */; };
 		F11E44B717C2DEE800EB9B4E /* TFiber.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cp */; };
@@ -1155,7 +1146,6 @@
 		DA0D943F11B9A12D00835522 /* TTapNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTapNetwork.h; path = Network/TTapNetwork.h; sourceTree = "<group>"; };
 		DA0D96DD11BAD15300835522 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
 		DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.8.dylib; path = usr/lib/libcrypto.0.9.8.dylib; sourceTree = SDKROOT; };
-		DA24E5DD1A3655C300C60EF7 /* libLLVM-3.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libLLVM-3.5.dylib"; path = "../../../../../../opt/local/libexec/llvm-3.5/lib/libLLVM-3.5.dylib"; sourceTree = "<group>"; };
 		DA24E5E31A379D5400C60EF7 /* JITLLVM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JITLLVM.h; sourceTree = "<group>"; };
 		DA4BA4051A3A0153002BDB80 /* CLITest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CLITest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA4BA46E1A3A3B78002BDB80 /* TNullScreenManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNullScreenManager.cp; sourceTree = "<group>"; };
@@ -1213,7 +1203,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DA24E5DE1A3655C300C60EF7 /* libLLVM-3.5.dylib in Frameworks */,
 				C9DA71BA17CD42D4008E6DB2 /* libresolv.dylib in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				C99E36FE111C18A8002165EC /* CoreAudio.framework in Frameworks */,
@@ -1228,7 +1217,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DA24E5E11A3655C300C60EF7 /* libLLVM-3.5.dylib in Frameworks */,
 				C95E60AD198B76DC004C6CEF /* libresolv.dylib in Frameworks */,
 				C95E60AE198B76DC004C6CEF /* Cocoa.framework in Frameworks */,
 				C95E60AF198B76DC004C6CEF /* CoreAudio.framework in Frameworks */,
@@ -1268,7 +1256,6 @@
 				DA4BA4501A3A03C3002BDB80 /* Cocoa.framework in Frameworks */,
 				DA4BA4481A3A035C002BDB80 /* libcrypto.0.9.8.dylib in Frameworks */,
 				DA4BA44F1A3A03C0002BDB80 /* Carbon.framework in Frameworks */,
-				DA4BA4471A3A0358002BDB80 /* libLLVM-3.5.dylib in Frameworks */,
 				DA4BA4521A3A03CF002BDB80 /* AudioUnit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1281,7 +1268,6 @@
 				DA4FF1531A35EC9400092B5A /* AudioUnit.framework in Frameworks */,
 				DA24E5DC1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */,
 				DA4FF1501A35EC7A00092B5A /* Cocoa.framework in Frameworks */,
-				DA24E5E21A3655C400C60EF7 /* libLLVM-3.5.dylib in Frameworks */,
 				DA4FF1541A35ECA700092B5A /* CoreAudio.framework in Frameworks */,
 				DA4FF1511A35EC7F00092B5A /* Carbon.framework in Frameworks */,
 			);
@@ -1553,7 +1539,6 @@
 			children = (
 				C9DA71B917CD42D4008E6DB2 /* libresolv.dylib */,
 				DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */,
-				DA24E5DD1A3655C300C60EF7 /* libLLVM-3.5.dylib */,
 				C99E354E111C111D002165EC /* libffi-osx */,
 				C99E32A9111B7570002165EC /* K */,
 			);
@@ -2367,7 +2352,6 @@
 				2389E93A1A1E4D4A0001A8C5 /* MainWindow.xib in Resources */,
 				2360EB2A1A1E85EB00893927 /* Launch Screen.xib in Resources */,
 				2389E93B1A1E4D4A0001A8C5 /* Icon.png in Resources */,
-				DAE9EF291A3D67610095BFAF /* EinsteinLLVM.xcconfig in Resources */,
 				2389E93C1A1E4D4A0001A8C5 /* Main.storyboard in Resources */,
 				2389E93D1A1E4D4A0001A8C5 /* Icon-72.png in Resources */,
 				2389E93E1A1E4D4A0001A8C5 /* Einstein.rex in Resources */,
@@ -2384,7 +2368,6 @@
 				C99E316B111B7346002165EC /* button_backlight_on.png in Resources */,
 				C99E316C111B7346002165EC /* button_install.png in Resources */,
 				C99E316D111B7346002165EC /* button_power.png in Resources */,
-				DAE9EF271A3D67610095BFAF /* EinsteinLLVM.xcconfig in Resources */,
 				F115FF131A2EA415001F3D65 /* Einstein.xib in Resources */,
 				C99E316E111B7346002165EC /* button_power_on.png in Resources */,
 				C99E316F111B7346002165EC /* button_prefs.png in Resources */,
@@ -2405,7 +2388,6 @@
 				C98AB2CF1A351EE6001BB1CD /* unsorted_016.rts in Resources */,
 				C98AB2AE1A351EE6001BB1CD /* swi.rts in Resources */,
 				C98AB2BF1A351EE6001BB1CD /* unsorted_008.rts in Resources */,
-				DAE9EF2A1A3D67610095BFAF /* EinsteinLLVM.xcconfig in Resources */,
 				C95E603F198B76DC004C6CEF /* button_backlight.png in Resources */,
 				C98AB2D91A351EE6001BB1CD /* unsorted_021.rts in Resources */,
 				C98AB2C11A351EE6001BB1CD /* unsorted_009.rts in Resources */,
@@ -2454,7 +2436,6 @@
 				C9B4AA3B123D474800D8D2C7 /* MainWindow.xib in Resources */,
 				C99FDB7512D40365002FC776 /* Icon.png in Resources */,
 				2389E9341A1E3A5C0001A8C5 /* Main.storyboard in Resources */,
-				DAE9EF281A3D67610095BFAF /* EinsteinLLVM.xcconfig in Resources */,
 				C99FDB7412D40365002FC776 /* Icon-72.png in Resources */,
 				C99566AA123EC4DA009A5668 /* Einstein.rex in Resources */,
 				C97C7EA3124283FE00CDCD05 /* MainWindow_iPad.xib in Resources */,
@@ -2466,7 +2447,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DAE9EF2B1A3D67610095BFAF /* EinsteinLLVM.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3258,7 +3238,6 @@
 		};
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -3299,7 +3278,6 @@
 		};
 		C01FCF4C08A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -3338,6 +3316,7 @@
 		};
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -3351,19 +3330,13 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = (
-					"-D_GNU_SOURCE",
-					"-D__STDC_CONSTANT_MACROS",
-					"-D__STDC_FORMAT_MACROS",
-					"-D__STDC_LIMIT_MACROS",
-					"-D_DEBUG",
-				);
 				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -3375,19 +3348,12 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				OTHER_CFLAGS = (
-					"-D_GNU_SOURCE",
-					"-D__STDC_CONSTANT_MACROS",
-					"-D__STDC_FORMAT_MACROS",
-					"-D__STDC_LIMIT_MACROS",
-				);
 				SDKROOT = macosx;
 			};
 			name = Release;
 		};
 		C95E60B4198B76DC004C6CEF /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -3419,6 +3385,8 @@
 					"/opt/local/libexec/llvm-3.5/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				OTHER_CFLAGS = "${LLVM_CFLAGS}";
+				OTHER_LDFLAGS = "${LLVM_LDFLAGS}";
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = EinsteinDev;
@@ -3429,7 +3397,6 @@
 		};
 		C95E60B5198B76DC004C6CEF /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -3459,6 +3426,8 @@
 					"/opt/local/libexec/llvm-3.5/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				OTHER_CFLAGS = "${LLVM_CFLAGS}";
+				OTHER_LDFLAGS = "${LLVM_LDFLAGS}";
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = EinsteinDev;
@@ -3469,7 +3438,6 @@
 		};
 		C95E60B6198B76DC004C6CEF /* Distribution */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -3499,6 +3467,8 @@
 					"/opt/local/libexec/llvm-3.5/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				OTHER_CFLAGS = "${LLVM_CFLAGS}";
+				OTHER_LDFLAGS = "${LLVM_LDFLAGS}";
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = EinsteinDev;
@@ -3719,6 +3689,7 @@
 		};
 		C9F9102C12FB780F0061A18D /* Distribution */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -3730,19 +3701,12 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				OTHER_CFLAGS = (
-					"-D_GNU_SOURCE",
-					"-D__STDC_CONSTANT_MACROS",
-					"-D__STDC_FORMAT_MACROS",
-					"-D__STDC_LIMIT_MACROS",
-				);
 				SDKROOT = macosx;
 			};
 			name = Distribution;
 		};
 		C9F9102D12FB780F0061A18D /* Distribution */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -3823,7 +3787,6 @@
 		};
 		DA4BA4091A3A0153002BDB80 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -3864,13 +3827,14 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "${LLVM_CFLAGS}";
+				OTHER_LDFLAGS = "${LLVM_LDFLAGS}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
 		};
 		DA4BA40A1A3A0153002BDB80 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -3905,13 +3869,14 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "${LLVM_CFLAGS}";
+				OTHER_LDFLAGS = "${LLVM_LDFLAGS}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
 		DA4BA40B1A3A0153002BDB80 /* Distribution */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -3946,13 +3911,14 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "${LLVM_CFLAGS}";
+				OTHER_LDFLAGS = "${LLVM_LDFLAGS}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Distribution;
 		};
 		DA4FF0721A35E73A00092B5A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
@@ -4003,6 +3969,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "${LLVM_CFLAGS}";
+				OTHER_LDFLAGS = "${LLVM_LDFLAGS}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Einstein.app/Contents/MacOS/Einstein";
 			};
@@ -4010,7 +3978,6 @@
 		};
 		DA4FF0731A35E73A00092B5A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
@@ -4054,6 +4021,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "${LLVM_CFLAGS}";
+				OTHER_LDFLAGS = "${LLVM_LDFLAGS}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Einstein.app/Contents/MacOS/Einstein";
 			};
@@ -4061,7 +4030,6 @@
 		};
 		DA4FF0741A35E73A00092B5A /* Distribution */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAE9EF261A3D67610095BFAF /* EinsteinLLVM.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
@@ -4105,6 +4073,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "${LLVM_CFLAGS}";
+				OTHER_LDFLAGS = "${LLVM_LDFLAGS}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Einstein.app/Contents/MacOS/Einstein";
 			};
@@ -4219,6 +4189,7 @@
 				DAE9EF301A3D94840095BFAF /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
