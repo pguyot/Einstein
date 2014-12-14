@@ -140,10 +140,17 @@ TJITLLVMPage::GetFunctionModule(const std::string& inName )
 #if LLVM_USE_MCJIT
 	Module* funcModule = new Module(inName, getGlobalContext());
 	if (mExecutionEngine == nullptr) {
+		std::string engineBuilderError;
 		mExecutionEngine = std::unique_ptr<ExecutionEngine>(EngineBuilder(funcModule)
+													.setEngineKind(EngineKind::JIT)
 													.setUseMCJIT(true)
+													.setErrorStr(&err)
 													.setMCJITMemoryManager(new MemoryManager())
 													.create());
+		if (mExecutionEngine.get() == nullptr) {
+			fprintf(stderr, "Could not create MCJIT execution engine: %s\n", engineBuilderError.c_str());
+			throw engineBuilderError;
+		}
 		assert(mExecutionEngine.get() != nullptr);
 		mExecutionEngine->DisableSymbolSearching();
 		mExecutionEngine->InstallLazyFunctionCreator(LazyFunctionCreator);
@@ -155,8 +162,14 @@ TJITLLVMPage::GetFunctionModule(const std::string& inName )
 #else
 	if (mSingleModule == nullptr) {
 		mSingleModule = new Module("", getGlobalContext());
+		std::string engineBuilderError;
 		mExecutionEngine = std::unique_ptr<ExecutionEngine>(EngineBuilder(mSingleModule)
+															.setErrorStr(&engineBuilderError)
 															.create());
+		if (mExecutionEngine.get() == nullptr) {
+			fprintf(stderr, "Could not create execution engine: %s\n", engineBuilderError.c_str());
+			throw engineBuilderError;
+		}
 		assert(mExecutionEngine.get() != nullptr);
 		mExecutionEngine->DisableSymbolSearching();
 		mExecutionEngine->InstallLazyFunctionCreator(LazyFunctionCreator);
