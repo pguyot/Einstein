@@ -1173,52 +1173,21 @@ void TJITGenericRetarget::ArithmeticOp(KUInt32 inVAddr, KUInt32 inInstruction, K
 	} else {
 		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theResult;\n", (unsigned int)Rd);
 		if (FLAG_S) {
-			fprintf(pCOut, "\t\tconst KUInt32 Negative1 = Opnd1 & 0x80000000;\n");
-			fprintf(pCOut, "\t\tconst KUInt32 Negative2 = Opnd2 & 0x80000000;\n");
-			fprintf(pCOut, "\t\tconst KUInt32 NegativeR = theResult & 0x80000000;\n");
 			if ((OP == SUB) || (OP == SBC)) {
-				// TODO: simplify
-				fprintf(pCOut, "\t\tSetCPSRBitsForArithmeticOp(\n"
-							   "\t\t\tioCPU,\n"
-							   "\t\t\ttheResult,\n"
-							   "\t\t\t(Negative1 && !Negative2)\n"
-							   "\t\t\t|| (Negative1 && !NegativeR)\n"
-							   "\t\t\t|| (!Negative2 && !NegativeR),\n"
-							   "\t\t\t(Negative1 && !Negative2 && !NegativeR)\n"
-					           "\t\t\t|| (!Negative1 && Negative2 && NegativeR));\n");
 				fprintf(pCOut, "\t\tioCPU->mCPSR_Z = (theResult==0);\n");
 				fprintf(pCOut, "\t\tioCPU->mCPSR_N = ((theResult&0x80000000)!=0);\n");
-//				fprintf(pCOut, "\t\tioCPU->mCPSR_C = (Negative1 && !Negative2) || (Negative1 && !NegativeR) || (!Negative2 && !NegativeR);\n");
 				fprintf(pCOut, "\t\tioCPU->mCPSR_C = ( ((Opnd1&~Opnd2)|(Opnd1&~theResult)|(~Opnd2&~theResult)) >> 31);\n");
-//				fprintf(pCOut, "\t\tioCPU->mCPSR_V = (Negative1 && !Negative2 && !NegativeR) || (!Negative1 && Negative2 && NegativeR);\n");
 				fprintf(pCOut, "\t\tioCPU->mCPSR_V = ( ( (Opnd1&~Opnd2&~theResult)|(~Opnd1&Opnd2&theResult) ) >> 31);\n");
 			} else if ((OP == RSB) || (OP == RSC)) {
-				// TODO: simplify
-				fprintf(pCOut, "\t\tSetCPSRBitsForArithmeticOp(\n"
-							   "\t\t\tioCPU,\n"
-							   "\t\t\ttheResult,\n"
-							   "\t\t\t(Negative2 && !Negative1)\n"
-							   "\t\t\t|| (Negative2 && !NegativeR)\n"
-							   "\t\t\t|| (!Negative1 && !NegativeR),\n"
-							   "\t\t\t(Negative2 && !Negative1 && !NegativeR)\n"
-						       "\t\t\t|| (!Negative2 && Negative1 && NegativeR));\n");
 				fprintf(pCOut, "\t\tioCPU->mCPSR_Z = (theResult==0);\n");
 				fprintf(pCOut, "\t\tioCPU->mCPSR_N = ((theResult&0x80000000)!=0);\n");
-//				fprintf(pCOut, "\t\tioCPU->mCPSR_C = ( ((Opnd1&~Opnd2)|(Opnd1&~theResult)|(~Opnd2&~theResult)) >> 31);\n");
-//				fprintf(pCOut, "\t\tioCPU->mCPSR_V = ( ((Opnd1&~Opnd2&~theResult)|(~Opnd1&Opnd2&theResult)) >> 31);\n");
+				fprintf(pCOut, "\t\tioCPU->mCPSR_C = ( ((Opnd2&~Opnd1)|(Opnd2&~theResult)|(~Opnd1&~theResult)) >> 31);\n");
+				fprintf(pCOut, "\t\tioCPU->mCPSR_V = ( ((Opnd2&~Opnd1&~theResult)|(~Opnd2&Opnd1&theResult)) >> 31);\n");
 			} else if ((OP == ADD) || (OP == ADC)) {
-				// TODO: simplify
-				fprintf(pCOut, "\t\tSetCPSRBitsForArithmeticOp(\n"
-							   "\t\t\tioCPU,\n"
-							   "\t\t\ttheResult,\n"
-							   "\t\t\t(Negative1 && Negative2)\n"
-							   "\t\t\t|| ((Negative1 || Negative2) && !NegativeR),\n"
-							   "\t\t\t(Negative1 == Negative2)\n"
-						       "\t\t\t&& (Negative1 != NegativeR));\n");
 				fprintf(pCOut, "\t\tioCPU->mCPSR_Z = (theResult==0);\n");
 				fprintf(pCOut, "\t\tioCPU->mCPSR_N = ((theResult&0x80000000)!=0);\n");
-//				fprintf(pCOut, "\t\tioCPU->mCPSR_C = ( ((Opnd1&~Opnd2)|(Opnd1&~theResult)|(~Opnd2&~theResult)) >> 31);\n");
-//				fprintf(pCOut, "\t\tioCPU->mCPSR_V = ( ((Opnd1&~Opnd2&~theResult)|(~Opnd1&Opnd2&theResult)) >> 31);\n");
+				fprintf(pCOut, "\t\tioCPU->mCPSR_C = ( ((Opnd1&Opnd2)|((Opnd1|Opnd2)&~theResult)) >> 31);\n");
+				fprintf(pCOut, "\t\tioCPU->mCPSR_V = ( ((~(Opnd1^Opnd2))&(Opnd1^theResult)) >> 31);\n");
 			}
 		}
 	}
