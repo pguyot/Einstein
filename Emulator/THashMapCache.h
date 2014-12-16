@@ -228,7 +228,7 @@ template<class TValue>
 void
 THashMapCache<TValue>::Clear( void )
 {
-	bzero(mHashTable, sizeof(mHashTable));
+	memset(mHashTable, 0, kHashTableSize * sizeof(TValue*));
 }
 
 // -------------------------------------------------------------------------- //
