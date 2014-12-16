@@ -281,6 +281,7 @@ THostInfo::RetrieveUserInfo( void )
 			if (theInfo)
 			{
 				mUserFirstName = ConvertCFString( theInfo );
+				CFRelease(theInfo);
 			}
 			
 			// Try the last name now.
@@ -290,6 +291,7 @@ THostInfo::RetrieveUserInfo( void )
 			if (theInfo)
 			{
 				mUserLastName = ConvertCFString( theInfo );
+				CFRelease(theInfo);
 			}
 
 			theInfo =
@@ -298,6 +300,7 @@ THostInfo::RetrieveUserInfo( void )
 			if (theInfo)
 			{
 				mUserCompany = ConvertCFString( theInfo );
+				CFRelease(theInfo);
 			}
 
 			ABMultiValueRef theAddresses =
@@ -306,10 +309,14 @@ THostInfo::RetrieveUserInfo( void )
 			if (theAddresses && (ABMultiValueCount(theAddresses) > 0))
 			{
 				// Pick the primary one, work or home, we don't care.
-				CFStringRef primaryId = ABMultiValueCopyPrimaryIdentifier(
+				CFIndex index;
+				{
+					CFStringRef primaryId = ABMultiValueCopyPrimaryIdentifier(
 						theAddresses );
-				CFIndex index = ABMultiValueIndexForIdentifier(
+					index = ABMultiValueIndexForIdentifier(
 						theAddresses, primaryId );
+					CFRelease(primaryId);
+				}
 
 				CFDictionaryRef theAddress = (CFDictionaryRef)
 					ABMultiValueCopyValueAtIndex(theAddresses, index);
@@ -330,18 +337,22 @@ THostInfo::RetrieveUserInfo( void )
 						CFIndex theLocation = theRange.location;
 						theRange.length = theLocation;
 						theRange.location = 0;
-						mUserAddr = ConvertCFString(
+						CFStringRef theAddress1 =
 							CFStringCreateWithSubstring(
 								kCFAllocatorDefault,
 								theInfo,
-								theRange ) );
+								theRange );
+						mUserAddr = ConvertCFString(theAddress1);
+						CFRelease(theAddress1);
 						theRange.length = theLength - theLocation - 1;
 						theRange.location = theLocation + 1;
-						mUserAddr2 = ConvertCFString(
+						CFStringRef theAddress2 =
 							CFStringCreateWithSubstring(
 								kCFAllocatorDefault,
 								theInfo,
-								theRange ) );
+								theRange );
+						mUserAddr2 = ConvertCFString(theAddress2);
+						CFRelease(theAddress2);
 					} else {
 						mUserAddr = ConvertCFString( theInfo );
 					}
@@ -386,6 +397,11 @@ THostInfo::RetrieveUserInfo( void )
 				{
 					mUserCountryISOCode = ConvertCFString( theInfo );
 				}
+				
+				CFRelease(theAddress);
+			}
+			if (theAddresses) {
+				CFRelease(theAddresses);
 			}
 			
 			ABMultiValueRef thePhones =
@@ -410,6 +426,7 @@ THostInfo::RetrieveUserInfo( void )
 						if (thePhone)
 						{
 							mUserHomePhone = ConvertCFString( thePhone );
+							CFRelease(thePhone);
 						}
 					} else if ((mUserHomeFaxPhone == nil)
 						&& (CFStringCompare(theLabel, kABPhoneHomeFAXLabel, 0)
@@ -419,6 +436,7 @@ THostInfo::RetrieveUserInfo( void )
 						if (thePhone)
 						{
 							mUserHomeFaxPhone = ConvertCFString( thePhone );
+							CFRelease(thePhone);
 						}
 					} else if ((mUserWorkPhone == nil)
 						&& (CFStringCompare(theLabel, kABPhoneWorkLabel, 0)
@@ -428,6 +446,7 @@ THostInfo::RetrieveUserInfo( void )
 						if (thePhone)
 						{
 							mUserWorkPhone = ConvertCFString( thePhone );
+							CFRelease(thePhone);
 						}
 					} else if ((mUserWorkFaxPhone == nil)
 						&& (CFStringCompare(theLabel, kABPhoneWorkFAXLabel, 0)
@@ -437,6 +456,7 @@ THostInfo::RetrieveUserInfo( void )
 						if (thePhone)
 						{
 							mUserWorkFaxPhone = ConvertCFString( thePhone );
+							CFRelease(thePhone);
 						}
 					}
 					
