@@ -441,8 +441,10 @@ static TCocoaAppController* gInstance = nil;
 	//mEmulator->GetProcessor()->SetRegister(15, 0x800AAC); //0x800AB4
 	
 	// Start the thread.
-	// LLVM translator is recursive but definitely not tail-recursive.
-	// So we need a large stack until the loop is rewritten.
+	// NSThread comes with 16KB stacks by default.
+	// The emulator will crash unless the stack is much larger, even after the LLVM translation code
+	// was re-written to avoid recursion.
+	// TODO: This requires further investigation.
 	NSThread* emulatorThread = [[NSThread alloc] initWithTarget: self selector:@selector(runEmulator) object:NULL];
 	[emulatorThread setStackSize:128 * 1024 * 1024];
 	[emulatorThread start];

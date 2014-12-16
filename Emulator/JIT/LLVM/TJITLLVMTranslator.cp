@@ -342,14 +342,17 @@ TJITLLVMTranslator::FrameTranslator::EnsureFunction(FunctionType* funcType, cons
 //  * Translate(KUInt32, KUInt32, KUInt32*, KUInt32, BasicBlock**, BasicBlock*, KUInt32* )
 // -------------------------------------------------------------------------- //
 void
-TJITLLVMTranslator::FrameTranslator::Translate(KUInt32 offsetInPage)
+TJITLLVMTranslator::FrameTranslator::Translate(KUInt32 inOffsetInPage)
 {
-    // Check if current instruction is already translated.
-	// last element is not null (it's epilogue BasicBlock) and therefore we don't overrun the array.
-    if (mLabels[offsetInPage] == NULL) {
+	// Push first block in the queue.
+	(void) GetBlock(inOffsetInPage);
+	
+	while (!mPending.empty()) {
+		KUInt32 offsetInPage = mPending.front();
+		mPending.pop_front();
 		LLVMContext& context = getGlobalContext();
-		BasicBlock* theBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-		mLabels[offsetInPage] = theBlock;
+		BasicBlock* theBlock = GetBlock(offsetInPage);
+		mBuilder.SetInsertPoint(theBlock);
 		
 		KUInt32 instruction = mCurrentPointer[offsetInPage];
 		
@@ -361,24 +364,17 @@ TJITLLVMTranslator::FrameTranslator::Translate(KUInt32 offsetInPage)
 			// This is required to skip the current instruction.
 			// If we reached the end of page (or section to translate), we'll find
 			// epilogue there anyway.
-			Translate(offsetInPage + 1);
-			BasicBlock* nextInstructionBlock = mLabels[offsetInPage + 1]; // We have epilogue at the end of the page.
-			mBuilder.SetInsertPoint(theBlock);
+			BasicBlock* nextInstructionBlock = GetBlock(offsetInPage + 1);
 			BasicBlock* thisInstructionBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
 			DoTranslateTest(thisInstructionBlock, nextInstructionBlock, theTestKind);
 			theBlock = thisInstructionBlock;
 			// Continue from here.
 			mBuilder.SetInsertPoint(theBlock);
 		}
-		// Continue from here.
-		mBuilder.SetInsertPoint(theBlock);
 		
 		if (theTestKind == kTestNV)
 		{
-			auto ip = mBuilder.saveIP();
-			Translate(offsetInPage + 1);
-			mBuilder.restoreIP(ip);
-			mBuilder.CreateBr(mLabels[offsetInPage + 1]);
+			mBuilder.CreateBr(GetBlock(offsetInPage + 1));
 		} else {
 			switch ((instruction >> 26) & 0x3)				// 27 & 26
 			{
@@ -399,7 +395,25 @@ TJITLLVMTranslator::FrameTranslator::Translate(KUInt32 offsetInPage)
 					break;
 			} // switch 27 & 26
 		}
-    }
+	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetBlock(KUInt32)
+// -------------------------------------------------------------------------- //
+BasicBlock*
+TJITLLVMTranslator::FrameTranslator::GetBlock(KUInt32 inOffsetInPage)
+{
+	// Check if this instruction is already translated.
+	// Last element of the array is not null (it's epilogue BasicBlock)
+	// and therefore we don't overrun the array with GetBlock(offset + 1).
+	BasicBlock* theBlock = mLabels[inOffsetInPage];
+	if (theBlock == nullptr) {
+		mPending.push_back(inOffsetInPage);
+		theBlock = BasicBlock::Create(getGlobalContext(), BLOCKNAME, mFunction);
+		mLabels[inOffsetInPage] = theBlock;
+	}
+	return theBlock;
 }
 
 // -------------------------------------------------------------------------- //
@@ -729,11 +743,9 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataSwap(KUInt32 offsetInPa
 			mBuilder.CreateStore(mBuilder.CreateLoad(word), mRegisters[Rd]);
 		}
 		// Next instruction
-		auto ip = mBuilder.saveIP();
-		Translate(offsetInPage + 1);
-		mBuilder.restoreIP(ip);
+		BasicBlock* nextInstructionBlock = GetBlock(offsetInPage + 1);
 		// Because reading or writing could cause an interrupt, we check it now.
-		mBuilder.CreateCondBr(mBuilder.CreateLoad(mSignal, true), mLabels[offsetInPage + 1], signalExit);
+		mBuilder.CreateCondBr(mBuilder.CreateLoad(mSignal, true), nextInstructionBlock, signalExit);
 
 		mBuilder.SetInsertPoint(dataAbortExit);
 		BuildExitToFunction("DataAbort", exitPC);
@@ -781,10 +793,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_MultiplyAndAccumulate(KUInt32 off
 		}
 		
 		// Next instruction
-		auto ip = mBuilder.saveIP();
-		Translate(offsetInPage + 1);
-		mBuilder.restoreIP(ip);
-		mBuilder.CreateBr(mLabels[offsetInPage + 1]);
+		mBuilder.CreateBr(GetBlock(offsetInPage + 1));
 	}
 }
 
@@ -820,10 +829,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_Multiply(KUInt32 offsetInPage, KU
 		}
 
 		// Next instruction
-		auto ip = mBuilder.saveIP();
-		Translate(offsetInPage + 1);
-		mBuilder.restoreIP(ip);
-		mBuilder.CreateBr(mLabels[offsetInPage + 1]);
+		mBuilder.CreateBr(GetBlock(offsetInPage + 1));
 	}
 }
 
@@ -1413,10 +1419,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 		mBuilder.CreateBr(mMainExit);
 	} else {
 		// Next instruction
-        auto ip = mBuilder.saveIP();
-        Translate(offsetInPage + 1);
-        mBuilder.restoreIP(ip);
-        mBuilder.CreateBr(mLabels[offsetInPage + 1]);
+        mBuilder.CreateBr(GetBlock(offsetInPage + 1));
 	}
 }
 
@@ -1444,10 +1447,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_MRS(KUInt32 offsetInPage, KUInt32
 		}
 		mBuilder.CreateStore(value, mRegisters[Rd]);
 		// Next instruction
-		auto ip = mBuilder.saveIP();
-		Translate(offsetInPage + 1);
-		mBuilder.restoreIP(ip);
-		mBuilder.CreateBr(mLabels[offsetInPage + 1]);
+		mBuilder.CreateBr(GetBlock(offsetInPage + 1));
 	}
 }
 
@@ -1528,10 +1528,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_MSR(KUInt32 offsetInPage, KUInt32
 	}
 	
 	// Next instruction
-	auto ip = mBuilder.saveIP();
-	Translate(offsetInPage + 1);
-	mBuilder.restoreIP(ip);
-	mBuilder.CreateBr(mLabels[offsetInPage + 1]);
+	mBuilder.CreateBr(GetBlock(offsetInPage + 1));
 }
 
 // -------------------------------------------------------------------------- //
@@ -1752,10 +1749,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 		
 		if (nextBlock == nullptr) {
 			// Next instruction
-			auto ip = mBuilder.saveIP();
-			Translate(offsetInPage + 1);
-			mBuilder.restoreIP(ip);
-			nextBlock = mLabels[offsetInPage + 1];
+			nextBlock = GetBlock(offsetInPage + 1);
 		}
 		mBuilder.CreateBr(nextBlock);
 		
@@ -1806,17 +1800,11 @@ TJITLLVMTranslator::FrameTranslator::Translate_Branch(KUInt32 offsetInPage, KUIn
 	    mBuilder.CreateStore(mBuilder.getInt32(lrValue), mRegisters[TARMProcessor::kR14]);
 	    if (delta > 0 && branchToInPage < mInstructionCount) {
 	        // Forward, in page.
-            auto ip = mBuilder.saveIP();
-            Translate(branchToInPage);
-            mBuilder.restoreIP(ip);
-            mBuilder.CreateBr(mLabels[branchToInPage]);
+            mBuilder.CreateBr(GetBlock(branchToInPage));
         } else if (branchToInPage >= 0 && branchToInPage < mInstructionCount) {
 			BasicBlock* signalExit = BasicBlock::Create(getGlobalContext(), BLOCKNAME, mFunction);
             // Backward, in page.
-			auto ip = mBuilder.saveIP();
-			Translate(branchToInPage);
-			mBuilder.restoreIP(ip);
-			mBuilder.CreateCondBr(mBuilder.CreateLoad(mSignal, true), mLabels[branchToInPage], signalExit);
+			mBuilder.CreateCondBr(mBuilder.CreateLoad(mSignal, true), GetBlock(branchToInPage), signalExit);
 			mBuilder.SetInsertPoint(signalExit);
 			mBuilder.CreateStore(mBuilder.getInt32(delta + mCurrentVAddress + 4), mPC);
 			mBuilder.CreateBr(mMainExit);
@@ -1828,17 +1816,11 @@ TJITLLVMTranslator::FrameTranslator::Translate_Branch(KUInt32 offsetInPage, KUIn
 	    // This is regular branch.
 		if (delta > 0 && branchToInPage < mInstructionCount) {
 			// Forward, in page.
-			auto ip = mBuilder.saveIP();
-			Translate(branchToInPage);
-			mBuilder.restoreIP(ip);
-			mBuilder.CreateBr(mLabels[branchToInPage]);
+			mBuilder.CreateBr(GetBlock(branchToInPage));
 		} else if (branchToInPage >= 0 && branchToInPage < mInstructionCount) {
 			BasicBlock* signalExit = BasicBlock::Create(getGlobalContext(), BLOCKNAME, mFunction);
 			// Backward, in page.
-			auto ip = mBuilder.saveIP();
-			Translate(branchToInPage);
-			mBuilder.restoreIP(ip);
-			mBuilder.CreateCondBr(mBuilder.CreateLoad(mSignal, true), mLabels[branchToInPage], signalExit);
+			mBuilder.CreateCondBr(mBuilder.CreateLoad(mSignal, true), GetBlock(branchToInPage), signalExit);
 			mBuilder.SetInsertPoint(signalExit);
 			mBuilder.CreateStore(mBuilder.getInt32(delta + mCurrentVAddress + 4), mPC);
 			mBuilder.CreateBr(mMainExit);
@@ -1923,10 +1905,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM13(KUInt32 offsetInPage, KUInt
 		// Exit as PC was written to.
 		mBuilder.CreateBr(mMainExit);
 	} else {
-		auto ip = mBuilder.saveIP();
-		Translate(offsetInPage + 1);
-		mBuilder.restoreIP(ip);
-		mBuilder.CreateBr(mLabels[offsetInPage + 1]);
+		mBuilder.CreateBr(GetBlock(offsetInPage + 1));
 	}
 
 	mBuilder.SetInsertPoint(dataAbortExit);
@@ -2042,10 +2021,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 	}
 
 	mBuilder.SetInsertPoint(endBlock);
-	auto ip = mBuilder.saveIP();
-	Translate(offsetInPage + 1);
-	mBuilder.restoreIP(ip);
-	mBuilder.CreateBr(mLabels[offsetInPage + 1]);
+	mBuilder.CreateBr(GetBlock(offsetInPage + 1));
 
 	mBuilder.SetInsertPoint(dataAbortExit);
 	KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
@@ -2104,10 +2080,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM1(KUInt32 offsetInPage, KUInt3
 	}
 	
 	// Next instruction
-	auto ip = mBuilder.saveIP();
-	Translate(offsetInPage + 1);
-	mBuilder.restoreIP(ip);
-	mBuilder.CreateBr(mLabels[offsetInPage + 1]);
+	mBuilder.CreateBr(GetBlock(offsetInPage + 1));
 
 	mBuilder.SetInsertPoint(dataAbortExit);
 	BuildExitToFunction("DataAbort", exitPC);
@@ -2228,10 +2201,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 	
 	mBuilder.SetInsertPoint(endBlock);
 
-	auto ip = mBuilder.saveIP();
-	Translate(offsetInPage + 1);
-	mBuilder.restoreIP(ip);
-	mBuilder.CreateBr(mLabels[offsetInPage + 1]);
+	mBuilder.CreateBr(GetBlock(offsetInPage + 1));
 	
 	mBuilder.SetInsertPoint(dataAbortExit);
 	BuildExitToFunction("DataAbort", exitPC);

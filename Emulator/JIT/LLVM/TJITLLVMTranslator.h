@@ -38,6 +38,7 @@
 #include <llvm/PassManager.h>
 
 #include <vector>
+#include <deque>
 
 ///
 /// Class for translating instructions into a function using LLVM.
@@ -81,9 +82,15 @@ private:
 		llvm::Function* Finish();
 		
 		///
-		/// Recursive function to translate instructions.
+		/// Function to translate instructions from a given offset.
 		///
 		void Translate(KUInt32 offsetInPage);
+		
+		///
+		/// Return a block at the given position, creating it if required
+		/// and pushing it to the mPending stack.
+		///
+		llvm::BasicBlock* GetBlock(KUInt32 offsetInPage);
 		
 		///
 		/// Translate a test, branching to next instruction if test fails.
@@ -350,6 +357,7 @@ private:
 		                                                        ///< as well as load from page.
 		KUInt32							mOffsetInPage;			///< offset in page.
 		std::vector<llvm::Instruction*>	mExitInstructions;
+		std::deque<KUInt32>				mPending;
 		llvm::Value*                    mRegisters[15];
 		llvm::Value*				    mPC;
 		llvm::Value*                    mCPSR_N;
