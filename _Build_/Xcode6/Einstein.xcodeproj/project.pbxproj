@@ -47,7 +47,6 @@
 		2389E95C1A1E4D4A0001A8C5 /* TJITGeneric_SingleDataSwap.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E343D111B7C07002165EC /* TJITGeneric_SingleDataSwap.cp */; };
 		2389E95D1A1E4D4A0001A8C5 /* TJITGeneric_SingleDataTransfer.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3441111B7C07002165EC /* TJITGeneric_SingleDataTransfer.cp */; };
 		2389E95E1A1E4D4A0001A8C5 /* TJITGeneric_Multiply.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3435111B7C07002165EC /* TJITGeneric_Multiply.cp */; };
-		2389E95F1A1E4D4A0001A8C5 /* TJIT.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3457111B7C07002165EC /* TJIT.cp */; };
 		2389E9601A1E4D4A0001A8C5 /* TJITCache.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3459111B7C07002165EC /* TJITCache.cp */; };
 		2389E9611A1E4D4A0001A8C5 /* TJITPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E345B111B7C07002165EC /* TJITPage.cp */; };
 		2389E9621A1E4D4A0001A8C5 /* TScreenManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E349D111B7C08002165EC /* TScreenManager.cp */; };
@@ -159,7 +158,6 @@
 		C95E606A198B76DC004C6CEF /* TJITGeneric_SingleDataTransfer.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3441111B7C07002165EC /* TJITGeneric_SingleDataTransfer.cp */; };
 		C95E606B198B76DC004C6CEF /* TJITGeneric_Test.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E344A111B7C07002165EC /* TJITGeneric_Test.cp */; };
 		C95E606C198B76DC004C6CEF /* TJITGenericPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E344E111B7C07002165EC /* TJITGenericPage.cp */; };
-		C95E606D198B76DC004C6CEF /* TJIT.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3457111B7C07002165EC /* TJIT.cp */; };
 		C95E606E198B76DC004C6CEF /* TJITCache.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3459111B7C07002165EC /* TJITCache.cp */; };
 		C95E606F198B76DC004C6CEF /* TJITPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E345B111B7C07002165EC /* TJITPage.cp */; };
 		C95E6070198B76DC004C6CEF /* TFileLog.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3462111B7C07002165EC /* TFileLog.cp */; };
@@ -336,7 +334,6 @@
 		C99E34F6111B7C08002165EC /* TJITGeneric_SingleDataTransfer.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3441111B7C07002165EC /* TJITGeneric_SingleDataTransfer.cp */; };
 		C99E34FB111B7C08002165EC /* TJITGeneric_Test.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E344A111B7C07002165EC /* TJITGeneric_Test.cp */; };
 		C99E34FD111B7C08002165EC /* TJITGenericPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E344E111B7C07002165EC /* TJITGenericPage.cp */; };
-		C99E3502111B7C08002165EC /* TJIT.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3457111B7C07002165EC /* TJIT.cp */; };
 		C99E3503111B7C08002165EC /* TJITCache.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3459111B7C07002165EC /* TJITCache.cp */; };
 		C99E3504111B7C08002165EC /* TJITPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E345B111B7C07002165EC /* TJITPage.cp */; };
 		C99E3507111B7C08002165EC /* TFileLog.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3462111B7C07002165EC /* TFileLog.cp */; };
@@ -414,7 +411,6 @@
 		C9B4AB6D123D64C800D8D2C7 /* TJITGeneric_SingleDataSwap.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E343D111B7C07002165EC /* TJITGeneric_SingleDataSwap.cp */; };
 		C9B4AB6E123D64C900D8D2C7 /* TJITGeneric_SingleDataTransfer.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3441111B7C07002165EC /* TJITGeneric_SingleDataTransfer.cp */; };
 		C9B4AB6F123D64D300D8D2C7 /* TJITGeneric_Multiply.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3435111B7C07002165EC /* TJITGeneric_Multiply.cp */; };
-		C9B4AB75123D667C00D8D2C7 /* TJIT.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3457111B7C07002165EC /* TJIT.cp */; };
 		C9B4AB76123D667D00D8D2C7 /* TJITCache.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3459111B7C07002165EC /* TJITCache.cp */; };
 		C9B4AB77123D667F00D8D2C7 /* TJITPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E345B111B7C07002165EC /* TJITPage.cp */; };
 		C9B4AB7A123D66D700D8D2C7 /* TScreenManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E349D111B7C08002165EC /* TScreenManager.cp */; };
@@ -477,7 +473,6 @@
 		DA4BA41D1A3A028C002BDB80 /* TFlatROMImageWithREX.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cp */; };
 		DA4BA41E1A3A028C002BDB80 /* TROMImage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3486111B7C08002165EC /* TROMImage.cp */; };
 		DA4BA41F1A3A028C002BDB80 /* TJITCache.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3459111B7C07002165EC /* TJITCache.cp */; };
-		DA4BA4201A3A028C002BDB80 /* TJIT.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3457111B7C07002165EC /* TJIT.cp */; };
 		DA4BA4211A3A028C002BDB80 /* TJITPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E345B111B7C07002165EC /* TJITPage.cp */; };
 		DA4BA4221A3A028C002BDB80 /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
 		DA4BA4261A3A02FD002BDB80 /* TPlatformManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347B111B7C07002165EC /* TPlatformManager.cp */; };
@@ -570,7 +565,6 @@
 		DA4FF1131A35EAB600092B5A /* TFileStream.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3330111B7570002165EC /* TFileStream.cp */; };
 		DA4FF1141A35EABA00092B5A /* TStream.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3333111B7570002165EC /* TStream.cp */; };
 		DA4FF1151A35EAD500092B5A /* TJITCache.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3459111B7C07002165EC /* TJITCache.cp */; };
-		DA4FF1161A35EAD500092B5A /* TJIT.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3457111B7C07002165EC /* TJIT.cp */; };
 		DA4FF1171A35EAD500092B5A /* TJITPage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E345B111B7C07002165EC /* TJITPage.cp */; };
 		DA4FF1181A35EAD500092B5A /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
 		DA4FF1191A35EAF600092B5A /* TJITGeneric.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E340F111B7C07002165EC /* TJITGeneric.cp */; };
@@ -633,6 +627,25 @@
 		DA4FF1531A35EC9400092B5A /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E3705111C18D2002165EC /* AudioUnit.framework */; };
 		DA4FF1541A35ECA700092B5A /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E36FD111C18A8002165EC /* CoreAudio.framework */; };
 		DA4FF1561A35ED5400092B5A /* EinsteinTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF1551A35ED5400092B5A /* EinsteinTests.mm */; };
+		DA52C8911A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C88F1A409164008A17D0 /* TJITGenericROMPatch.cp */; };
+		DA52C8921A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C88F1A409164008A17D0 /* TJITGenericROMPatch.cp */; };
+		DA52C8931A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C88F1A409164008A17D0 /* TJITGenericROMPatch.cp */; };
+		DA52C8941A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C88F1A409164008A17D0 /* TJITGenericROMPatch.cp */; };
+		DA52C8961A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C88F1A409164008A17D0 /* TJITGenericROMPatch.cp */; };
+		DA52C8971A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C88F1A409164008A17D0 /* TJITGenericROMPatch.cp */; };
+		DA52C8991A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cp */; };
+		DA52C89A1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cp */; };
+		DA52C89B1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cp */; };
+		DA52C89C1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cp */; };
+		DA52C89D1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cp */; };
+		DA52C89E1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cp */; };
+		DA52C89F1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cp */; };
+		DA52C8A31A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8A11A409C18008A17D0 /* UJITGenericRetargetSupport.cp */; };
+		DA52C8A41A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8A11A409C18008A17D0 /* UJITGenericRetargetSupport.cp */; };
+		DA52C8A51A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8A11A409C18008A17D0 /* UJITGenericRetargetSupport.cp */; };
+		DA52C8A61A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8A11A409C18008A17D0 /* UJITGenericRetargetSupport.cp */; };
+		DA52C8A81A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8A11A409C18008A17D0 /* UJITGenericRetargetSupport.cp */; };
+		DA52C8A91A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8A11A409C18008A17D0 /* UJITGenericRetargetSupport.cp */; };
 		DA6F86431A34FBB7006BC81E /* TMonitorCore.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86421A34FBB7006BC81E /* TMonitorCore.cp */; };
 		DA6F86441A34FBD1006BC81E /* TMonitorCore.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86421A34FBB7006BC81E /* TMonitorCore.cp */; };
 		DAE9EF031A3B29150095BFAF /* Tests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAE9EF021A3B29150095BFAF /* Tests-Info.plist */; };
@@ -972,7 +985,6 @@
 		C99E344E111B7C07002165EC /* TJITGenericPage.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TJITGenericPage.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E344F111B7C07002165EC /* TJITGenericPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITGenericPage.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3450111B7C07002165EC /* JIT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = JIT.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		C99E3457111B7C07002165EC /* TJIT.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TJIT.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E3458111B7C07002165EC /* TJIT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJIT.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3459111B7C07002165EC /* TJITCache.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TJITCache.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E345A111B7C07002165EC /* TJITCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITCache.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1108,6 +1120,11 @@
 		DA4FF0BE1A35E76400092B5A /* UScreenTests.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UScreenTests.cp; sourceTree = "<group>"; };
 		DA4FF0BF1A35E76400092B5A /* UScreenTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UScreenTests.h; sourceTree = "<group>"; };
 		DA4FF1551A35ED5400092B5A /* EinsteinTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EinsteinTests.mm; sourceTree = "<group>"; };
+		DA52C88F1A409164008A17D0 /* TJITGenericROMPatch.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGenericROMPatch.cp; sourceTree = "<group>"; };
+		DA52C8901A409164008A17D0 /* TJITGenericROMPatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGenericROMPatch.h; sourceTree = "<group>"; };
+		DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TVirtualizedCallsPatches.cp; sourceTree = "<group>"; };
+		DA52C8A11A409C18008A17D0 /* UJITGenericRetargetSupport.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UJITGenericRetargetSupport.cp; sourceTree = "<group>"; };
+		DA52C8A21A409C18008A17D0 /* UJITGenericRetargetSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UJITGenericRetargetSupport.h; sourceTree = "<group>"; };
 		DA6F86411A34FBB7006BC81E /* TMonitorCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMonitorCore.h; sourceTree = "<group>"; };
 		DA6F86421A34FBB7006BC81E /* TMonitorCore.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMonitorCore.cp; sourceTree = "<group>"; };
 		DAE9EF021A3B29150095BFAF /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Tests-Info.plist"; path = "../../Resources/Tests-Info.plist"; sourceTree = "<group>"; };
@@ -1712,7 +1729,6 @@
 				C99E3450111B7C07002165EC /* JIT.h */,
 				C99E3459111B7C07002165EC /* TJITCache.cp */,
 				C99E345A111B7C07002165EC /* TJITCache.h */,
-				C99E3457111B7C07002165EC /* TJIT.cp */,
 				C99E3458111B7C07002165EC /* TJIT.h */,
 				C99E345B111B7C07002165EC /* TJITPage.cp */,
 				C99E345C111B7C07002165EC /* TJITPage.h */,
@@ -1816,6 +1832,10 @@
 				C9CEB43E19601CA3002198A7 /* TJITGenericRetarget.h */,
 				C965D3FF1970A47000348893 /* TJITGenericRetargetMap.cpp */,
 				C965D4001970A47000348893 /* TJITGenericRetargetMap.h */,
+				DA52C88F1A409164008A17D0 /* TJITGenericROMPatch.cp */,
+				DA52C8901A409164008A17D0 /* TJITGenericROMPatch.h */,
+				DA52C8A11A409C18008A17D0 /* UJITGenericRetargetSupport.cp */,
+				DA52C8A21A409C18008A17D0 /* UJITGenericRetargetSupport.h */,
 			);
 			path = Generic;
 			sourceTree = "<group>";
@@ -1845,6 +1865,7 @@
 				C99E346B111B7C07002165EC /* TNativeCalls.h */,
 				C99E346C111B7C07002165EC /* TVirtualizedCalls.cp */,
 				C99E346D111B7C07002165EC /* TVirtualizedCalls.h */,
+				DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cp */,
 				C99E346E111B7C07002165EC /* TVirtualizedCallsPatches.h */,
 			);
 			path = NativeCalls;
@@ -2367,6 +2388,7 @@
 				2389E9521A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp in Sources */,
 				2389E9531A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp in Sources */,
 				2389E9541A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cp in Sources */,
+				DA52C8931A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */,
 				2389E9551A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_MRS.cp in Sources */,
 				2389E9561A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_MSR.cp in Sources */,
 				2389E9571A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cp in Sources */,
@@ -2377,15 +2399,16 @@
 				2389E95C1A1E4D4A0001A8C5 /* TJITGeneric_SingleDataSwap.cp in Sources */,
 				2389E95D1A1E4D4A0001A8C5 /* TJITGeneric_SingleDataTransfer.cp in Sources */,
 				2389E95E1A1E4D4A0001A8C5 /* TJITGeneric_Multiply.cp in Sources */,
-				2389E95F1A1E4D4A0001A8C5 /* TJIT.cp in Sources */,
 				2389E9601A1E4D4A0001A8C5 /* TJITCache.cp in Sources */,
 				2389E9611A1E4D4A0001A8C5 /* TJITPage.cp in Sources */,
+				DA52C8A51A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */,
 				2389E9621A1E4D4A0001A8C5 /* TScreenManager.cp in Sources */,
 				2389E9631A1E4D4A0001A8C5 /* TSoundManager.cp in Sources */,
 				2389E9641A1E4D4A0001A8C5 /* TPCMCIAController.cp in Sources */,
 				2389E9651A1E4D4A0001A8C5 /* TPCMCIACard.cp in Sources */,
 				2389E9661A1E4D4A0001A8C5 /* TBufferLog.cp in Sources */,
 				2389E9671A1E4D4A0001A8C5 /* TFileLog.cp in Sources */,
+				DA52C89B1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
 				2389E9681A1E4D4A0001A8C5 /* TLog.cp in Sources */,
 				2389E9691A1E4D4A0001A8C5 /* TStdOutLog.cp in Sources */,
 				2389E96A1A1E4D4A0001A8C5 /* THostInfo.cp in Sources */,
@@ -2455,6 +2478,7 @@
 				C99E34E7111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MRS.cp in Sources */,
 				C99E34E9111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MSR.cp in Sources */,
 				C99E34EB111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cp in Sources */,
+				DA52C8911A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */,
 				C99E34F0111B7C08002165EC /* TJITGeneric_Multiply.cp in Sources */,
 				C99E34F2111B7C08002165EC /* TJITGeneric_MultiplyAndAccumulate.cp in Sources */,
 				C99E34F3111B7C08002165EC /* TJITGeneric_Other.cp in Sources */,
@@ -2462,7 +2486,6 @@
 				C99E34F6111B7C08002165EC /* TJITGeneric_SingleDataTransfer.cp in Sources */,
 				C99E34FB111B7C08002165EC /* TJITGeneric_Test.cp in Sources */,
 				C99E34FD111B7C08002165EC /* TJITGenericPage.cp in Sources */,
-				C99E3502111B7C08002165EC /* TJIT.cp in Sources */,
 				C99E3503111B7C08002165EC /* TJITCache.cp in Sources */,
 				C99E3504111B7C08002165EC /* TJITPage.cp in Sources */,
 				C99E3507111B7C08002165EC /* TFileLog.cp in Sources */,
@@ -2472,6 +2495,7 @@
 				C99E350A111B7C08002165EC /* TNativeCalls.cp in Sources */,
 				C99E350B111B7C08002165EC /* TVirtualizedCalls.cp in Sources */,
 				C99E350C111B7C08002165EC /* TATACard.cp in Sources */,
+				DA52C8A31A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */,
 				C99E350D111B7C08002165EC /* TLinearCard.cp in Sources */,
 				C99E350E111B7C08002165EC /* TPCMCIACard.cp in Sources */,
 				C99E350F111B7C08002165EC /* TPCMCIAController.cp in Sources */,
@@ -2487,6 +2511,7 @@
 				C99E351B111B7C08002165EC /* TCocoaScreenManager.cp in Sources */,
 				C99E351C111B7C08002165EC /* TCocoaScreenView.mm in Sources */,
 				C99E351F111B7C08002165EC /* TScreenManager.cp in Sources */,
+				DA52C8991A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
 				C99E3523111B7C08002165EC /* TVoyagerSerialPort.cp in Sources */,
 				C99E3524111B7C08002165EC /* TBufferedSoundManager.cp in Sources */,
 				C99E3525111B7C08002165EC /* TCoreAudioSoundManager.cp in Sources */,
@@ -2575,7 +2600,6 @@
 				C98AB2BA1A351EE6001BB1CD /* unsorted_006.cp in Sources */,
 				C95E606B198B76DC004C6CEF /* TJITGeneric_Test.cp in Sources */,
 				C95E606C198B76DC004C6CEF /* TJITGenericPage.cp in Sources */,
-				C95E606D198B76DC004C6CEF /* TJIT.cp in Sources */,
 				C98AB2C61A351EE6001BB1CD /* unsorted_012.cp in Sources */,
 				C95E606E198B76DC004C6CEF /* TJITCache.cp in Sources */,
 				C95E606F198B76DC004C6CEF /* TJITPage.cp in Sources */,
@@ -2602,6 +2626,7 @@
 				C95E607E198B76DC004C6CEF /* TROMImage.cp in Sources */,
 				C95E607F198B76DC004C6CEF /* CocoaScreenProxy.mm in Sources */,
 				C95E6080198B76DC004C6CEF /* TCocoaPowerButtonNSView.mm in Sources */,
+				DA52C89C1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
 				C95E6081198B76DC004C6CEF /* TCocoaScreenGlue.mm in Sources */,
 				C95E6082198B76DC004C6CEF /* TCocoaScreenManager.cp in Sources */,
 				C95E6083198B76DC004C6CEF /* TCocoaScreenView.mm in Sources */,
@@ -2655,6 +2680,8 @@
 				C95E60A7198B76DC004C6CEF /* TIOException.cp in Sources */,
 				C98AB2AB1A351EE6001BB1CD /* TSingleQContainer.cp in Sources */,
 				C95E60A8198B76DC004C6CEF /* TMemError.cp in Sources */,
+				DA52C8A61A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */,
+				DA52C8941A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */,
 				C95E60A9198B76DC004C6CEF /* TEOFException.cp in Sources */,
 				C95E60AA198B76DC004C6CEF /* TJITPerformance.cp in Sources */,
 				C98AB2C01A351EE6001BB1CD /* unsorted_009.cp in Sources */,
@@ -2671,6 +2698,7 @@
 				C98AB2491A351E26001BB1CD /* TJITGenericRetargetMap.cpp in Sources */,
 				C98AB2441A351D61001BB1CD /* MemSnap.cp in Sources */,
 				C98AB2431A351D61001BB1CD /* main.cp in Sources */,
+				DA52C89D1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
 				C98AB24B1A351E39001BB1CD /* UDisasm.cp in Sources */,
 				C98AB24A1A351E39001BB1CD /* TSymbolList.cp in Sources */,
 			);
@@ -2699,6 +2727,7 @@
 				C9B4AB62123D647B00D8D2C7 /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp in Sources */,
 				C9B4AB63123D647C00D8D2C7 /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp in Sources */,
 				C9B4AB64123D647D00D8D2C7 /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cp in Sources */,
+				DA52C8921A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */,
 				C9B4AB65123D647E00D8D2C7 /* TJITGeneric_DataProcessingPSRTransfer_MRS.cp in Sources */,
 				C9B4AB66123D647F00D8D2C7 /* TJITGeneric_DataProcessingPSRTransfer_MSR.cp in Sources */,
 				C9B4AB67123D648000D8D2C7 /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cp in Sources */,
@@ -2709,15 +2738,16 @@
 				C9B4AB6D123D64C800D8D2C7 /* TJITGeneric_SingleDataSwap.cp in Sources */,
 				C9B4AB6E123D64C900D8D2C7 /* TJITGeneric_SingleDataTransfer.cp in Sources */,
 				C9B4AB6F123D64D300D8D2C7 /* TJITGeneric_Multiply.cp in Sources */,
-				C9B4AB75123D667C00D8D2C7 /* TJIT.cp in Sources */,
 				C9B4AB76123D667D00D8D2C7 /* TJITCache.cp in Sources */,
 				C9B4AB77123D667F00D8D2C7 /* TJITPage.cp in Sources */,
+				DA52C8A41A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */,
 				C9B4AB7A123D66D700D8D2C7 /* TScreenManager.cp in Sources */,
 				C9B4AB82123D670700D8D2C7 /* TSoundManager.cp in Sources */,
 				C9B4AB86123D672300D8D2C7 /* TPCMCIAController.cp in Sources */,
 				C9B4AB87123D672900D8D2C7 /* TPCMCIACard.cp in Sources */,
 				C9B4AB89123D674B00D8D2C7 /* TBufferLog.cp in Sources */,
 				C9B4AB8A123D675100D8D2C7 /* TFileLog.cp in Sources */,
+				DA52C89A1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
 				C9B4AB8B123D675300D8D2C7 /* TLog.cp in Sources */,
 				C9B4AB8C123D675400D8D2C7 /* TStdOutLog.cp in Sources */,
 				C9B4AB8D123D678300D8D2C7 /* THostInfo.cp in Sources */,
@@ -2769,6 +2799,7 @@
 				DA4BA40F1A3A01F7002BDB80 /* UMemoryTests.cp in Sources */,
 				DA4BA4441A3A02FD002BDB80 /* TVoyagerSerialPort.cp in Sources */,
 				DA4BA4431A3A02FD002BDB80 /* TPCMCIAController.cp in Sources */,
+				DA52C89F1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
 				DA4BA4361A3A02FD002BDB80 /* TJITGeneric_MultiplyAndAccumulate.cp in Sources */,
 				DA4BA4381A3A02FD002BDB80 /* TJITGeneric_SingleDataSwap.cp in Sources */,
 				DA4BA41B1A3A028C002BDB80 /* TAIFROMImageWithREXes.cp in Sources */,
@@ -2783,12 +2814,12 @@
 				DA4BA4221A3A028C002BDB80 /* TJITPerformance.cp in Sources */,
 				DA4BA43C1A3A02FD002BDB80 /* TJITGenericRetarget.cp in Sources */,
 				DA4BA4671A3A3800002BDB80 /* TNullSoundManager.cp in Sources */,
+				DA52C8971A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */,
 				DA4BA4591A3A03F8002BDB80 /* TCircleBuffer.cp in Sources */,
 				DA4BA42E1A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer.cp in Sources */,
 				DA4BA44C1A3A0372002BDB80 /* x86-ffi64.c in Sources */,
 				DA4BA4191A3A028C002BDB80 /* TEmulator.cp in Sources */,
 				DA4BA43D1A3A02FD002BDB80 /* TJITGenericRetargetMap.cpp in Sources */,
-				DA4BA4201A3A028C002BDB80 /* TJIT.cp in Sources */,
 				DA4BA42B1A3A02FD002BDB80 /* TStdOutLog.cp in Sources */,
 				DA4BA4341A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cp in Sources */,
 				DA4BA4551A3A03EF002BDB80 /* TEOFException.cp in Sources */,
@@ -2841,6 +2872,7 @@
 				DA4BA4161A3A028C002BDB80 /* TARMProcessor.cp in Sources */,
 				DA4BA4611A3A040C002BDB80 /* UUTF16Conv.cp in Sources */,
 				DA4BA4271A3A02FD002BDB80 /* TNativeCalls.cp in Sources */,
+				DA52C8A91A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */,
 				DA4BA4601A3A0407002BDB80 /* TThread.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2855,6 +2887,7 @@
 				DA4FF1561A35ED5400092B5A /* EinsteinTests.mm in Sources */,
 				DA4FF13A1A35EBBA00092B5A /* TScreenManager.cp in Sources */,
 				DA4FF1131A35EAB600092B5A /* TFileStream.cp in Sources */,
+				DA52C8A81A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */,
 				DA4FF1121A35EA9100092B5A /* TDMAManager.cp in Sources */,
 				DA4FF1041A35E9CD00092B5A /* TLog.cp in Sources */,
 				DA4FF12F1A35EB3D00092B5A /* TPCMCIAController.cp in Sources */,
@@ -2865,6 +2898,7 @@
 				DA4FF10D1A35EA8C00092B5A /* TFlash.cp in Sources */,
 				DA4FF1371A35EB9500092B5A /* TMemError.cp in Sources */,
 				DA4FF1211A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cp in Sources */,
+				DA52C89E1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
 				DA4FF14E1A35EC6B00092B5A /* darwin.S in Sources */,
 				DA4FF1281A35EAF600092B5A /* TJITGenericPage.cp in Sources */,
 				DA4BA4661A3A37FF002BDB80 /* TNullSoundManager.cp in Sources */,
@@ -2890,7 +2924,6 @@
 				DA4FF1181A35EAD500092B5A /* TJITPerformance.cp in Sources */,
 				DA4FF12C1A35EB3D00092B5A /* TATACard.cp in Sources */,
 				DA4FF1011A35E76400092B5A /* UMemoryTests.cp in Sources */,
-				DA4FF1161A35EAD500092B5A /* TJIT.cp in Sources */,
 				DA4FF1001A35E76400092B5A /* UHostInfoTests.cp in Sources */,
 				DA4FF1221A35EAF600092B5A /* TJITGeneric_Multiply.cp in Sources */,
 				DA4FF1381A35EBA700092B5A /* TNativeCalls.cp in Sources */,
@@ -2926,6 +2959,7 @@
 				DA4FF11F1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_MRS.cp in Sources */,
 				DA4FF12B1A35EB3200092B5A /* TLinearCard.cp in Sources */,
 				DA4FF13F1A35EC0A00092B5A /* TFlatROMImageWithREX.cp in Sources */,
+				DA52C8961A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */,
 				DA4FF10E1A35EA8C00092B5A /* TEmulator.cp in Sources */,
 				DA4FF1201A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_MSR.cp in Sources */,
 				DA4FF1461A35EC2B00092B5A /* TMutex.cp in Sources */,

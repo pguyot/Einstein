@@ -46,7 +46,7 @@ L003AE1FC: // 0xEF00000B  swi	0x0000000b
 			RT_PANIC_UNEXPECTED_RETURN_ADDRESS
 		}
 	}
-	if (prevLR != ioCPU->mCurrentRegisters[14]) ioCPU->ReturnToEmulator(0x003AE200);
+	if (prevLR != ioCPU->mCurrentRegisters[14]) UJITGenericRetargetSupport::ReturnToEmulator(ioCPU, 0x003AE200);
 L003AE200: // 0xE1A0F00E  mov	pc, lr
 	if (ioCPU->mCurrentRegisters[15]!=0x003AE200+4) __asm__("int $3\n" : : ); // be paranoid about a correct PC
 	ioCPU->mCurrentRegisters[15] += 4; // update the PC

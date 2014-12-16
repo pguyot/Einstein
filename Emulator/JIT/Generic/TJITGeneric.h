@@ -29,6 +29,7 @@
 
 // Einstein
 #include "TJITGenericPage.h"
+#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 
 class TMemory;
 class TARMProcessor;
@@ -41,14 +42,9 @@ const KSInt32 kOffsetUnknown	= 0x7f000000;
 ///
 /// Class for generic JIT interface.
 ///
-/// \author Paul Guyot <pguyot@kallisys.net>
-/// \version $Revision: 150 $
-///
-/// \test	aucun test défini.
-///
 class TJITGeneric
 	:
-		public TJIT< TJITGenericPage >
+		public TJIT< TJITGeneric, TJITGenericPage >
 {
 public:
 	
@@ -106,6 +102,20 @@ public:
 							JITUnit* inUnit,
 							KUInt32 inPC);
 
+	///
+	/// ID and version for patches.
+	/// Version should be bumped for every new collection of retargetted functions.
+	///
+	static const KUInt32 kID = 0;
+	static const KUInt32 kVersion = 0;
+
+	///
+	/// Patch the ROM.
+	/// This function is called to modify the ROM before it is saved on disk.
+	/// It is only called when the image is created.
+	///
+	static void DoPatchROM(KUInt32* romPtr, const std::string& inMachineName);
+	
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.

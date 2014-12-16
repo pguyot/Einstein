@@ -42,11 +42,6 @@ class TMappedFile;
 ///
 /// Base class for the ROM Image.
 ///
-/// \author Paul Guyot <pguyot@kallisys.net>
-/// \version $Revision: 151 $
-///
-/// \test	aucun test défini.
-///
 class TROMImage
 {
 public:
@@ -118,18 +113,24 @@ private:
 	///
 	/// Structure of the image.
 	///
-	struct SImage {
-		KUInt8		fROM[TMemoryConsts::kHighROMEnd];	// 8 MB ROM + 8 MB REX = 16 MB
+	struct SImageInfo {
 		KUInt32		fMagic;
 		KUInt32		fVersion;
+		KUInt32     fJITID;
+		KUInt32     fJITVersion;
 		char		fMachineString[6];
 		char		fPadding[2];
 		KUInt32		fChecksums[10];
 	};
+	
+	struct SImage {
+		KUInt8		fROM[TMemoryConsts::kHighROMEnd];	// 8 MB ROM + 8 MB REX = 16 MB
+		SImageInfo  fInfo;
+	};
 
 	enum {
 		kMagic		= 0x424C5447,
-		kVersion	= 1,
+		kVersion	= 2,
 	};
 	
 	///
@@ -162,30 +163,6 @@ private:
 						KUInt32 outRexSizes[4] );
 
 	///
-	/// Patch the ROM (virtualization).
-	///
-	/// \param inImage		ROM Image to patch.
-	///
-	static void		PatchROM( SImage* inImage );
-
-	///
-	/// Patch the ROM by replacing single commands.
-	///
-	/// \param inImage		ROM Image to patch.
-	///
-	static void		DoPatchROMFromDatabase(SImage* inImage);
-  
-	///
-	/// Patch the ROM (virtualization), with a given set of patches.
-	///
-	/// \param inImage		ROM Image to patch.
-	///
-	static void		DoPatchROMVirtualizationCalls(
-                                              SImage* inImage,
-                                              const KUInt32* inPatches,
-                                              KUInt32 inCount );
-  
-	///
 	/// Constructeur par copie volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
@@ -202,153 +179,6 @@ private:
 	TMappedFile*	mMappedFile;	///< mapped file with the rom.
 	SImage*			mImage; 		///< image structure.
 };
-
-
-// The three lines below are tricking the compiler into letting
-// us handle a whole range of function calls. This may not work
-// with all compilers out there!
-typedef void (*AnyFunctionPtr)();
-class TAnyClass { };
-typedef void (TAnyClass::*AnyMethodPtr)();
-
-
-///
-/// This class defines a patch location.
-/// Patches can be created in any module by static declaration of TROMPatch's
-/// which will then be linked into the patch database and applied to a
-/// freshly loaded ROM.
-/// Usage is currently limited to ROM v717006
-///
-class TROMPatch {
-	
-protected:
-	static TROMPatch *first_;
-	TROMPatch *next_;
-	KUInt32 address_;
-	KUInt32 value_;
-	KUInt32 originalInstruction_;
-	JITFuncPtr stub_;
-	AnyFunctionPtr function_;
-	AnyMethodPtr method_;
-	const char *name_;
-	
-	static TROMPatch **patch_;
-	static KUInt32 nPatch, NPatch;
-	static KUInt32 addPatch(TROMPatch *patch);
-	
-public:
-	/// Create and add a new patch
-	TROMPatch(KUInt32 address, KUInt32 value);
-	
-	/// Create and add a new patch
-	TROMPatch(KUInt32 address, KUInt32 value, const char *name);
-	
-	/// Create and add a call to a JIT instruction
-	TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name);
-	
-	/// Create and add a call to a Simulator function or static method
-	TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyFunctionPtr function);
-	
-	/// Create and add a call to a Simulator class method
-	TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyMethodPtr function);
-	
-	/// Create and add a call to a Simulator function or static method
-	TROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, JITSimPtr function);
-	
-	/// Destructor
-	virtual ~TROMPatch();
-
-	/// Return the first patch in the list.
-	/// @return NULL if no patches
-	static TROMPatch *first() { return first_; }
-	
-	/// Return the next patch in the list
-	/// @return NULL if no more patches in the database
-	TROMPatch *next() { return next_; }
-	
-	/// Return the address of this patch (must be dividable by four)
-	KUInt32 address() { return address_; }
-	
-	/// Return the 32-bit patch value for this address
-	KUInt32 value() { return value_; }
-	
-	/// Set the original code for this address
-	void originalInstruction(KUInt32 instr) { originalInstruction_ = instr; }
-	
-	/// Return the Simulator stub by index
-	static JITFuncPtr GetSimulatorStubAt(KUInt32 index);
-	
-	/// Return the Simulator function by index
-	static AnyFunctionPtr GetSimulatorFunctionAt(KUInt32 index);
-	
-	/// Return the Simulator class method by index
-	static AnyMethodPtr GetSimulatorMethodAt(KUInt32 index);
-	
-	/// Return the original ROM instruction
-	static KUInt32 GetOriginalInstructionAt(KUInt32 command, KUInt32 address=0xFFFFFFFF);
-	
-	/// Return the name for this patch
-	static const char* GetNameAt(KUInt32 index);
-	
-	/// Patch the ROM word
-	virtual void apply(KUInt32 *ROM);
-	
-	// Get number of patches
-	static KUInt32 GetNumPatches() { return nPatch; }
-};
-
-
-#define T_ROM_PATCH(addr, name) \
-extern JITInstructionProto(p##addr); \
-TROMPatch i##addr(addr, p##addr, name); \
-JITInstructionProto(p##addr)
-
-
-///
-/// An Injection is different to a Patch. It will call native code, but then
-/// return and execute the original code.
-///
-class TROMInjection : public TROMPatch {
-	
-public:
-	/// Create and add a call to a JIT instruction as an injection
-	TROMInjection(KUInt32 address, JITFuncPtr stub, const char *name)
-	: TROMPatch(address, stub, name) { }
-	
-	TROMInjection(KUInt32 address, JITFuncPtr stub, const char *name, JITSimPtr nativeStub)
-	: TROMPatch(address, stub, name, nativeStub) { }
-	
-	/// Patch the ROM word
-	virtual void apply(KUInt32 *ROM);
-};
-
-
-#define T_ROM_INJECTION(addr, name) \
-extern JITInstructionProto(p##addr); \
-TROMInjection i##addr(addr, p##addr, name); \
-JITInstructionProto(p##addr)
-
-#define T_ROM_INJECTION3(addr, name, nativeCall) \
-extern JITInstructionProto(p##addr); \
-TROMInjection i##addr(addr, p##addr, name, nativeCall); \
-JITInstructionProto(p##addr)
-
-
-///
-/// Native Injections are functions that can be executed in native mode (using
-/// the Simulator fiber system) or in JIT mode if needed.
-///
-class TROMSimulatorInjection : public TROMPatch {
-	
-public:
-	/// Create and add a call to a JIT instruction as an injection
-	TROMSimulatorInjection(KUInt32 address, KSInt32 (*stub)(), const char *name)
-	: TROMPatch(address, (JITFuncPtr)stub, name) { }
-	
-	/// Patch the ROM word
-	virtual void apply(KUInt32 *ROM);
-};
-
 
 #endif
 // _TROMIMAGE_H
