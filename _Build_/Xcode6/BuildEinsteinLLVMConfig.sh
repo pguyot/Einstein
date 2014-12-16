@@ -6,7 +6,7 @@ LLVM_XCCONFIG_FILE_TEMP="${PROJECT_DIR}/EinsteinLLVM.xcconfig.new"
 LLVM_COMPONENTS="jit mcjit native interpreter"
 
 if [ $"{ACTION}" != "clean" ]; then
-    LLVM_CONFIG_BIN=`which llvm-config-mp-3.5 || which llvm-config-3.5 || which /opt/local/bin/llvm-config-mp-3.5 || which llvm-config`
+    LLVM_CONFIG_BIN=`which llvm-config-mp-3.5 || which llvm-config-3.5 || which /opt/local/bin/llvm-config-mp-3.5 || which llvm-config || which /usr/local/opt/llvm/bin/llvm-config`
     if [ "${LLVM_CONFIG_BIN}" = "" ]; then
         echo "Could not find llvm-config. Please install LLVM 3.5 with MacPorts or Homebrew"
         exit 1;
