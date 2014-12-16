@@ -29,6 +29,9 @@
 // Einstein
 #include "TJITCache.h"
 
+// C++
+#include <string>
+
 class TMemory;
 class TMMU;
 class TARMProcessor;
@@ -36,7 +39,7 @@ class TARMProcessor;
 ///
 /// Base class for the JIT implementation.
 ///
-template< class TPage >
+template< class TImplementation, class TPage >
 class TJIT
 {
 public:
@@ -52,12 +55,14 @@ public:
 	///
 	TJIT(
 		TMemory* inMemoryIntf,
-		TMMU* inMMUIntf );
+		 TMMU* inMMUIntf )
+		:
+		mCache( inMemoryIntf, inMMUIntf ) {};
 
 	///
 	/// Destructor.
 	///
-	virtual ~TJIT( void );	
+	virtual ~TJIT( void ) {};
 
 	///
 	/// Invalidate an instruction.
@@ -117,6 +122,29 @@ public:
 		{
 			return mCache.GetOffsetInPage( inVAddr );
 		}
+		
+	///
+	/// Patch the ROM.
+	/// This function is called to modify the ROM before it is saved on disk.
+	/// It is only called when the image is created.
+	///
+	static void PatchROM(KUInt32* romPointer, const std::string& machineName) {
+	    TImplementation::DoPatchROM(romPointer, machineName);
+	}
+
+    ///	
+	/// Return the ID as stored in the ROM image (for patching purposes).
+	///
+	static KUInt32 GetID() {
+	    return TImplementation::kID;
+	}
+
+    ///	
+	/// Return the version as stored in the ROM image (for patching purposes).
+	///
+	static KUInt32 GetVersion() {
+	    return TImplementation::kVersion;
+	}
 
 private:
 	/// \name Variables

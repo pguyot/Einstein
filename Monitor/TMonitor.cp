@@ -51,8 +51,11 @@
 #include "Monitor/TSymbolList.h"
 #include "Monitor/UDisasm.h"
 #include "Emulator/Screen/TScreenManager.h"
+
+#ifdef JITTARGET_GENERIC
 #include "Emulator/JIT/Generic/TJITGenericRetarget.h"
-#include "TROMImage.h"
+#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
+#endif
 
 // -------------------------------------------------------------------------- //
 // Constants
@@ -619,7 +622,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 						KUInt32 addr = pg*4096+i*4;
 						mMemory->Read(addr, v);
 						if ( ((v & 0xff000000)==0xef000000) && ((v & 0x00e00000)!=0) ) {
-							v = TROMPatch::GetOriginalInstructionAt(v, addr);
+							v = TJITGenericROMPatch::GetOriginalInstructionAt(v, addr);
 						}
 						if (i>0 && (i&7)==0) fprintf(f, "\n  ");
 						fprintf(f, "0x%08X, ", (unsigned int)v);

@@ -55,7 +55,7 @@ typedef union JITUnit {
 ///
 class TJITGenericPage
 	:
-		public TJITPage< TJITGenericPage >
+		public TJITPage< TJITGeneric, TJITGenericPage >
 {
 public:
 	///
@@ -219,7 +219,7 @@ protected:
 
 	/// \name Constants
 	enum {
-		kInstructionCount = (TJITPage< TJITGenericPage >::kPageSize / 4),
+		kInstructionCount = (TJITPage< TJITGeneric, TJITGenericPage >::kPageSize / 4),
 		kDefaultUnitCount = 3 * kInstructionCount,
 		kUnitIncrement = 32,
 	};

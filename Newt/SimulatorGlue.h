@@ -36,10 +36,11 @@ KUInt32 const ptr_##name = (KUInt32)(&name);
 #else
 
 #include <K/Defines/KDefinitions.h>
-#include "TROMImage.h"
 #include "TMemory.h"
 #include "TARMProcessor.h"
 #include "TJITGeneric_Macros.h"
+#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
+#include "Emulator/JIT/Generic/UJITGenericRetargetSupport.h"
 
 #if 0
 #define T_ROM_SIMULATION(addr, name) \
@@ -65,7 +66,7 @@ KUInt32 const ptr_##name = (KUInt32)(&name);
 #endif
 
 #define RT_PANIC_UNEXPECTED_RETURN_ADDRESS \
-	ioCPU->UnexpectedPC();
+	UJITGenericRetargetSupport::UnexpectedPC(ioCPU);
 
 #endif
 
