@@ -36,7 +36,7 @@
 //  * TJITPage( void )
 // -------------------------------------------------------------------------- //
 template<>
-TJITPage<JITPageClass>::TJITPage( void )
+TJITPage<JITClass, JITPageClass>::TJITPage( void )
 	:
 		mPointer( NULL ),
 		mVAddr( 0 ),
@@ -48,7 +48,7 @@ TJITPage<JITPageClass>::TJITPage( void )
 //  * ~TJITPage( void )
 // -------------------------------------------------------------------------- //
 template<>
-TJITPage<JITPageClass>::~TJITPage( void )
+TJITPage<JITClass, JITPageClass>::~TJITPage( void )
 {
 }
 
@@ -57,7 +57,7 @@ TJITPage<JITPageClass>::~TJITPage( void )
 // -------------------------------------------------------------------------- //
 template<>
 void
-TJITPage<JITPageClass>::Init(
+TJITPage<JITClass, JITPageClass>::Init(
 			TMemory* inMemoryIntf,
 			KUInt32 inVAddr,
 			KUInt32 inPAddr )

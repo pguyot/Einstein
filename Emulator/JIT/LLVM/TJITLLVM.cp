@@ -33,6 +33,7 @@
 #include "TARMProcessor.h"
 #include "TEmulator.h"
 #include "TMemoryConsts.h"
+#include "Emulator/NativeCalls/TVirtualizedCallsPatches.h"
 
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/ExecutionEngine/JIT.h>
@@ -57,7 +58,7 @@ TJITLLVM::TJITLLVM(
 		TMemory* inMemoryIntf,
 		TMMU* inMMUIntf )
 	:
-		TJIT<TJITLLVMPage>( inMemoryIntf, inMMUIntf )
+		TJIT<TJITLLVM, TJITLLVMPage>( inMemoryIntf, inMMUIntf )
 {
 }
 
@@ -198,6 +199,15 @@ TJITLLVM::GetJITFuncForSingleInstructionAtPC(
 	// Return the function.
 	return thePage->GetJITFuncForSingleInstructionAtOffset(inMemoryInterface, indexInPage);
 }
+
+// -------------------------------------------------------------------------- //
+//  * DoPatchROM(KUInt32* romPtr, const std::string& inMachineName)
+// -------------------------------------------------------------------------- //
+void
+TJITLLVM::DoPatchROM(KUInt32* romPtr, const std::string& inMachineName) {
+	TVirtualizedCallsPatches::DoPatchROM(romPtr, inMachineName);
+}
+
 
 #endif
 

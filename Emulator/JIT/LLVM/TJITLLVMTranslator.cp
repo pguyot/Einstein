@@ -636,16 +636,8 @@ TJITLLVMTranslator::FrameTranslator::Translate_SWIAndCoproc(KUInt32 offsetInPage
 	{
 		if (inInstruction & 0x01000000)
 		{
-			if ((inInstruction & 0x00C00000)==0x00800000) {
-				// This is where TROMPatch are hooked.
-				// However, the current TROMPatch mechanism depends on TJITGeneric
-				// and is therefore incompatible with TJITLLVM.
-				// Since this is a SWI, we'll do a SWI. Yet bad things will happen.
-        		BuildExitToFunction("SWI", exitPC);
-			} else {
-				// SWI.
-        		BuildExitToFunction("SWI", exitPC);
-			}
+			// SWI.
+        	BuildExitToFunction("SWI", exitPC);
 		} else {
 			if (inInstruction & 0x00000010)
 			{

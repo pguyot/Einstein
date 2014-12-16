@@ -47,7 +47,7 @@
 ///
 class TJITLLVMPage
 	:
-		public TJITPage< TJITLLVMPage >
+		public TJITPage< TJITLLVM, TJITLLVMPage >
 {
 
 public:
@@ -190,7 +190,7 @@ private:
 	
 	/// \name Constants
 	enum {
-		kInstructionCount = (TJITPage< TJITLLVMPage >::kPageSize / 4),
+		kInstructionCount = (TJITPage< TJITLLVM, TJITLLVMPage >::kPageSize / 4),
 	};
 	
 	///

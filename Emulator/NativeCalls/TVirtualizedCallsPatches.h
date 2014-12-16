@@ -18,21 +18,19 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // ==============================
-// $Id$
-// ==============================
 
 #ifndef _TVIRTUALIZEDCALLSPATCHES_H
 #define _TVIRTUALIZEDCALLSPATCHES_H
 
 #include <K/Defines/KDefinitions.h>
 
+// C++
+#include <string>
+
 ///
 /// Class for virtualized calls constants.
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
-/// \version $Revision: 151 $
-///
-/// \test	aucun test défini.
 ///
 class TVirtualizedCallsPatches
 {
@@ -43,6 +41,9 @@ public:
 		kmemmove,
 		ksymcmp__FPcT1,
 	};
+
+	static void DoPatchROM(KUInt32* romPtr, const std::string& inMachineName);
+
 };
 
 #endif

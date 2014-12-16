@@ -81,7 +81,7 @@ TJITGenericPage::Init(
 			KUInt32 inVAddr,
 			KUInt32 inPAddr )
 {
-	TJITPage<TJITGenericPage>::Init( inMemoryIntf, inVAddr, inPAddr );
+	TJITPage<TJITGeneric, TJITGenericPage>::Init( inMemoryIntf, inVAddr, inPAddr );
 	KUInt32* thePointer = GetPointer();
 
 	// Translate the page.

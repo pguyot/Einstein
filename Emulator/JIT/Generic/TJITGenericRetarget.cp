@@ -55,6 +55,7 @@
 #include "TSymbolList.h"
 
 #include "TJITGenericRetargetMap.h"
+#include "Emulator/JIT/GEneric/TJITGenericROMPatch.h"
 
 #include "TROMImage.h"
 #include "UDisasm.h"
@@ -291,7 +292,7 @@ void TJITGenericRetarget::ReturnToEmulator(KUInt32 inFirst, const char *inName)
 	if (pHOut!=stdout)
 		fprintf(pHOut, "extern void Func_0x%08X(TARMProcessor* ioCPU, KUInt32 ret); // (RET) %s\n", (unsigned int)inFirst, inName);
 	fprintf(pCOut, "void Func_0x%08X(TARMProcessor* ioCPU, KUInt32)\n{\n", (unsigned int)inFirst);
-	fprintf(pCOut, "\tioCPU->ReturnToEmulator(0x%08X);\n", (unsigned int)inFirst);
+	fprintf(pCOut, "\tUJITGenericRetargetSupport::ReturnToEmulator(ioCPU, 0x%08X);\n", (unsigned int)inFirst);
 	fprintf(pCOut, "}\n");
 }
 
@@ -304,9 +305,9 @@ void TJITGenericRetarget::Translate(KUInt32 inVAddr, KUInt32 inInstruction)
 #ifndef EINSTEIN_RETARGET
 	// Make sure that injections are handled in a transparent manner
 	if ((inInstruction & 0xffe00000)==0xefc00000) {
-		inInstruction = TROMPatch::GetOriginalInstructionAt(inInstruction);
+		inInstruction = TJITGenericROMPatch::GetOriginalInstructionAt(inInstruction);
 	} else if ((inInstruction & 0xffe00000)==0xefa00000) {
-		inInstruction = TROMPatch::GetOriginalInstructionAt(inInstruction);
+		inInstruction = TJITGenericROMPatch::GetOriginalInstructionAt(inInstruction);
 	}
 #endif
 	
@@ -520,13 +521,13 @@ void TJITGenericRetarget::Translate_SingleDataSwap( KUInt32 inVAddr, KUInt32 inI
 		fprintf(pCOut, "\t\tKUInt32 theAddress = ioCPU->mCurrentRegisters[%d];\n", Rn);
 		if (FLAG_B) {
 			// Swap byte quantity.
-			fprintf(pCOut, "\t\tKUInt8 theData = ioCPU->ManagedMemoryReadB(theAddress);\n");
-			fprintf(pCOut, "\t\tioCPU->ManagedMemoryWriteB(theAddress, (KUInt8)(ioCPU->mCurrentRegisters[%d] & 0xFF));\n", Rm);
+			fprintf(pCOut, "\t\tKUInt8 theData = UJITGenericRetargetSupport::ManagedMemoryReadB(ioCPU, theAddress);\n");
+			fprintf(pCOut, "\t\tUJITGenericRetargetSupport::ManagedMemoryWriteB(ioCPU, theAddress, (KUInt8)(ioCPU->mCurrentRegisters[%d] & 0xFF));\n", Rm);
 			fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theData;\n", Rd);
 		} else {
 			// Swap word quantity.
-			fprintf(pCOut, "\t\tKUInt32 theData = ioCPU->ManagedMemoryRead(theAddress);\n");
-			fprintf(pCOut, "\t\tioCPU->ManagedMemoryWrite(theAddress, ioCPU->mCurrentRegisters[%d]);\n", Rm);
+			fprintf(pCOut, "\t\tKUInt32 theData = UJITGenericRetargetSupport::ManagedMemoryRead(ioCPU, theAddress);\n");
+			fprintf(pCOut, "\t\tUJITGenericRetargetSupport::ManagedMemoryWrite(ioCPU, theAddress, ioCPU->mCurrentRegisters[%d]);\n", Rm);
 			fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = theData;\n", Rd);
 		}
 	}
@@ -539,9 +540,9 @@ void TJITGenericRetarget::DoTranslate_01(KUInt32 inVAddr, KUInt32 inInstruction)
 	if ((inInstruction & 0x02000010) == 0x02000010)
 	{
 		if ((inInstruction&0x0FFFFFFF)==0x06000510) {
-			fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(0x%08X); // throwSystemPanic\n", (unsigned int)inVAddr);
+			fprintf(pCOut, "\t\tUJITGenericRetargetSupport::ReturnToEmulator(ioCPU, 0x%08X); // throwSystemPanic\n", (unsigned int)inVAddr);
 		} else {
-			fprintf(pCOut, "\t\tioCPU->ReturnToEmulator(0x%08X); // undefined instruction\n", (unsigned int)inVAddr);
+			fprintf(pCOut, "\t\tUJITGenericRetargetSupport::ReturnToEmulator(ioCPU, 0x%08X); // undefined instruction\n", (unsigned int)inVAddr);
 			// -Cond-- 0  1  1  -XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX- 1  -XXXXX-
 		}
 	} else {
@@ -644,9 +645,9 @@ void TJITGenericRetarget::Translate_SingleDataTransfer(
 		
 		if (FLAG_L) {
 			if (FLAG_B){
-				fprintf(pCOut, "\t\tKUInt8 theData = ioCPU->ManagedMemoryReadB(theAddress);\n");
+				fprintf(pCOut, "\t\tKUInt8 theData = UJITGenericRetargetSupport::ManagedMemoryReadB(ioCPU, theAddress);\n");
 			} else {
-				fprintf(pCOut, "\t\tKUInt32 theData = ioCPU->ManagedMemoryRead(theAddress);\n");
+				fprintf(pCOut, "\t\tKUInt32 theData = UJITGenericRetargetSupport::ManagedMemoryRead(ioCPU, theAddress);\n");
 			}
 		
 			if (Rd == 15) {
@@ -666,9 +667,9 @@ void TJITGenericRetarget::Translate_SingleDataTransfer(
 			}
 		
 			if (FLAG_B) {
-				fprintf(pCOut, "\t\tioCPU->ManagedMemoryWriteB(theAddress, (KUInt8)(theValue & 0xFF));\n");
+				fprintf(pCOut, "\t\tUJITGenericRetargetSupport::ManagedMemoryWriteB(ioCPU, theAddress, (KUInt8)(theValue & 0xFF));\n");
 			} else {
-				fprintf(pCOut, "\t\tioCPU->ManagedMemoryWrite(theAddress, theValue);\n");
+				fprintf(pCOut, "\t\tUJITGenericRetargetSupport::ManagedMemoryWrite(ioCPU, theAddress, theValue);\n");
 			}
 		}
 		
@@ -1302,7 +1303,7 @@ void TJITGenericRetarget::GenerateReturnInstruction(bool withFlags)
 	// is not the expected address, jump into the debugger and find the reason for this.
 	fprintf(pCOut, "\t\tif (ioCPU->mCurrentRegisters[15]!=ret)\n");
 	if (withFlags) {
-		fprintf(pCOut, "\t\treturn ioCPU->JumpToCalculatedAddress(ioCPU->mCurrentRegisters[15], ret);\n");
+		fprintf(pCOut, "\t\treturn UJITGenericRetargetSupport::JumpToCalculatedAddress(ioCPU, ioCPU->mCurrentRegisters[15], ret);\n");
 	} else {
 		fprintf(pCOut, "\t\t\t%s // Unexpected return address\n", Debug);
 	}
@@ -1338,9 +1339,9 @@ void TJITGenericRetarget::Translate_JumpToCalculatedAddress(KUInt32 inVAddr, KUI
 	MemoryRead(inVAddr-8, prevPrevInstruction);
 	if (prevInstruction==0xE1A0E00F || prevPrevInstruction==0xE28FE004) { // mov lr,pc
 		// the previous instruct sets a return address, so this is a call
-		fprintf(pCOut, "\t\tioCPU->JumpToCalculatedAddress(ioCPU->mCurrentRegisters[15], 0x%08X);\n", (unsigned int)inVAddr+8);
+		fprintf(pCOut, "\t\tUJITGenericRetargetSupport::JumpToCalculatedAddress(ioCPU, ioCPU->mCurrentRegisters[15], 0x%08X);\n", (unsigned int)inVAddr+8);
 	} else {
-		fprintf(pCOut, "\t\treturn ioCPU->JumpToCalculatedAddress(ioCPU->mCurrentRegisters[15], ret);\n");
+		fprintf(pCOut, "\t\treturn UJITGenericRetargetSupport::JumpToCalculatedAddress(ioCPU, ioCPU->mCurrentRegisters[15], ret);\n");
 	}
 }
 
@@ -1381,10 +1382,10 @@ void TJITGenericRetarget::Translate_Branch(KUInt32 inVAddr, KUInt32 inInstructio
 		}
 		delta = offset + 8;
 		dest = dest + delta;
-		fprintf(pCOut, "\t\tKUInt32 jumpInstr = ioCPU->ManagedMemoryRead(0x%08X);\n", (unsigned int)jumpTableDest);
+		fprintf(pCOut, "\t\tKUInt32 jumpInstr = UJITGenericRetargetSupport::ManagedMemoryRead(ioCPU, 0x%08X);\n", (unsigned int)jumpTableDest);
 		fprintf(pCOut, "\t\tif (jumpInstr!=0x%08X) {\n", (unsigned int)jumpTableInstr);
 		fprintf(pCOut, "\t\t\t%s // unexpected jump table entry\n", Debug);
-		fprintf(pCOut, "\t\t\tioCPU->ReturnToEmulator(0x%08X);\n", (unsigned int)jumpTableDest);
+		fprintf(pCOut, "\t\t\tUJITGenericRetargetSupport::ReturnToEmulator(ioCPU, 0x%08X);\n", (unsigned int)jumpTableDest);
 		fprintf(pCOut, "\t\t}\n");
 	}
 	
@@ -1497,7 +1498,7 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_STM1(KUInt32 inVAddr, KUIn
 	int indexReg = 0;
 	while (curRegList) {
 		if (curRegList & 1) {
-			fprintf(pCOut, "\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[%d]);\n", indexReg);
+			fprintf(pCOut, "\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[%d]);\n", indexReg);
 			fprintf(pCOut, "\t\tbaseAddress += 4;\n");
 		}
 		curRegList >>= 1;
@@ -1507,7 +1508,7 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_STM1(KUInt32 inVAddr, KUIn
 	{
 		// PC is special.
 		// Stored value is PC + 12 (verified)
-		fprintf(pCOut, "\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, 0x%08X + 12);\n", (unsigned int)inVAddr);
+		fprintf(pCOut, "\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, 0x%08X + 12);\n", (unsigned int)inVAddr);
 	}
 	
 	if (FLAG_W) {
@@ -1564,79 +1565,79 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_STM2(KUInt32 inVAddr, KUIn
 	fprintf(pCOut, "\t\tif (curRegList) {\n");
 	if (theRegList & 0x0001) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0001) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[0]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[0]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0002) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0002) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[1]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[1]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0004) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0004) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[2]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[2]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0008) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0008) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[3]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[3]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0010) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0010) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[4]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[4]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0020) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0020) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[5]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[5]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0040) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0040) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[6]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[6]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0080) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0080) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[7]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[7]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0100) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0100) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[8]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[8]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0200) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0200) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[9]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[9]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0400) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0400) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[10]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[10]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0800) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0800) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[11]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[11]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x1000) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x1000) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mCurrentRegisters[12]);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mCurrentRegisters[12]);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
@@ -1646,43 +1647,43 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_STM2(KUInt32 inVAddr, KUIn
 	fprintf(pCOut, "\t\tif (bankRegList) {\n");
 	if (theRegList & 0x0100) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0100) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR8_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mR8_Bkup);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0200) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0200) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR9_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mR9_Bkup);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0400) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0400) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR10_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mR10_Bkup);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0800) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0800) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR11_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mR11_Bkup);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x1000) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x1000) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR12_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mR12_Bkup);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x2000) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x2000) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR13_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mR13_Bkup);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x4000) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x4000) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, ioCPU->mR14_Bkup);\n");
+		fprintf(pCOut, "\t\t\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, ioCPU->mR14_Bkup);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
@@ -1692,7 +1693,7 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_STM2(KUInt32 inVAddr, KUIn
 	{
 		// PC is special.
 		// Stored value is PC + 12 (verified)
-		fprintf(pCOut, "\t\tioCPU->ManagedMemoryWriteAligned(baseAddress, 0x%08X + 12);\n", (unsigned int)inVAddr);
+		fprintf(pCOut, "\t\tUJITGenericRetargetSupport::ManagedMemoryWriteAligned(ioCPU, baseAddress, 0x%08X + 12);\n", (unsigned int)inVAddr);
 	}
 }
 
@@ -1730,7 +1731,7 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_LDM1(KUInt32 inVAddr, KUIn
 	int indexReg = 0;
 	while (curRegList) {
 		if (curRegList & 1) {
-			fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n", indexReg);
+			fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[%d] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n", indexReg);
 			fprintf(pCOut, "\t\tbaseAddress += 4;\n");
 		}
 		curRegList >>= 1;
@@ -1740,7 +1741,7 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_LDM1(KUInt32 inVAddr, KUIn
 	if (theRegList & 0x8000)
 	{
 		// PC is special.
-		fprintf(pCOut, "\t\tSETPC( ioCPU->ManagedMemoryReadAligned(baseAddress)) + 4;\n");
+		fprintf(pCOut, "\t\tSETPC( UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress)) + 4;\n");
 		// don't mark as error because this is usually used to return from a function
 	}
 	
@@ -1804,79 +1805,79 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_LDM2(KUInt32 inVAddr, KUIn
 	fprintf(pCOut, "\t\tif (curRegList) {\n");
 	if (theRegList & 0x0001) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0001) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[0] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[0] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0002) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0002) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[1] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[1] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0004) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0004) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[2] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[2] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0008) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0008) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[3] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[3] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0010) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0010) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[4] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[4] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0020) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0020) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[5] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[5] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0040) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0040) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[6] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[6] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0080) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0080) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[7] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[7] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0100) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0100) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[8] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[8] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0200) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0200) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[9] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[9] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0400) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0400) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[10] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[10] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0800) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x0800) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[11] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[11] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x1000) {
 		fprintf(pCOut, "\t\t\tif (curRegList & 0x1000) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[12] = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mCurrentRegisters[12] = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
@@ -1885,43 +1886,43 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_LDM2(KUInt32 inVAddr, KUIn
 	fprintf(pCOut, "\t\tif (bankRegList) {\n");
 	if (theRegList & 0x0100) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0100) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mR8_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR8_Bkup = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0200) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0200) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mR9_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR9_Bkup = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0400) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0400) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mR10_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR10_Bkup = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x0800) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x0800) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mR11_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR11_Bkup = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x1000) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x1000) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mR12_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR12_Bkup = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x2000) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x2000) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mR13_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR13_Bkup = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
 	if (theRegList & 0x4000) {
 		fprintf(pCOut, "\t\t\tif (bankRegList & 0x4000) {\n");
-		fprintf(pCOut, "\t\t\t\tioCPU->mR14_Bkup = ioCPU->ManagedMemoryReadAligned(baseAddress);\n");
+		fprintf(pCOut, "\t\t\t\tioCPU->mR14_Bkup = UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress);\n");
 		fprintf(pCOut, "\t\t\t\tbaseAddress += 4;\n");
 		fprintf(pCOut, "\t\t\t}\n");
 	}
@@ -1930,7 +1931,7 @@ void TJITGenericRetarget::Translate_BlockDataTransfer_LDM2(KUInt32 inVAddr, KUIn
 	if (theRegList & 0x8000)
 	{
 		// PC is special.
-		fprintf(pCOut, "\t\tSETPC( ioCPU->ManagedMemoryReadAligned(baseAddress)) + 4;\n");
+		fprintf(pCOut, "\t\tSETPC( UJITGenericRetargetSupport::ManagedMemoryReadAligned(ioCPU, baseAddress)) + 4;\n");
 		// don't mark as error because this is usually used to return from a function
 		fprintf(pCOut, "#warn this is setting an arbitrary return address! Does this work in simulation?\n");
 	}

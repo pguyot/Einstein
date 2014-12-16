@@ -29,7 +29,7 @@
 // Einstein
 #include "TMemoryConsts.h"
 
-template< class TPage > class TJIT;
+template< class TImplementation, class TPage > class TJIT;
 class TMemory;
 
 ///
@@ -44,14 +44,14 @@ class TMemory;
 ///
 /// \test	aucun test défini.
 ///
-template< class TPage >
+template< class TImplementation, class TPage >
 class TJITPage
 {
 public:
 	///
 	/// Access from TJIT
 	///
-	friend class TJIT< TPage >;
+	friend class TJIT< TImplementation, TPage >;
 
 	enum {
 		kPageSize = TMemoryConsts::kMMUSmallestPageSize,

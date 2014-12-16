@@ -42,7 +42,7 @@ class TARMProcessor;
 ///
 class TJITLLVM
 	:
-		public TJIT< TJITLLVMPage >
+		public TJIT< TJITLLVM, TJITLLVMPage >
 {
 public:
 	
@@ -98,6 +98,19 @@ public:
 				   TARMProcessor* ioCPU,
 				   TMemory* inMemoryInterface,
 				   KUInt32 inPC );
+
+	///
+	/// ID and version for patches.
+	///
+	static const KUInt32 kID = 0x4C4C564D;	// 'LLVM'
+	static const KUInt32 kVersion = 0;
+	
+	///
+	/// Patch the ROM.
+	/// This function is called to modify the ROM before it is saved on disk.
+	/// It is only called when the image is created.
+	///
+	static void DoPatchROM(KUInt32* romPtr, const std::string& inMachineName);
 
 private:
 	///

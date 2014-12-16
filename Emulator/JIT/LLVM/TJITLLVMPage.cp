@@ -69,7 +69,7 @@ TJITLLVMPage::Init(
 			KUInt32 inVAddr,
 			KUInt32 inPAddr )
 {
-	TJITPage<TJITLLVMPage>::Init( inMemoryIntf, inVAddr, inPAddr );
+	TJITPage<TJITLLVM, TJITLLVMPage>::Init( inMemoryIntf, inVAddr, inPAddr );
     mTranslator.Init(inVAddr, GetPointer());
 	mExecutionEngine = nullptr;
 #if !LLVM_USE_MCJIT
