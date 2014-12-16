@@ -127,13 +127,16 @@ Module*
 TJITLLVMPage::GetFunctionModule(KUInt32 inOffset)
 {
 #if LLVM_USE_MCJIT
-	Module* funcModule = new Module(inName, getGlobalContext());
+	std::stringstream stream;
+	stream << "m" << (GetVAddr() + (inOffset * 4));
+	std::string moduleName(stream.str());
+	Module* funcModule = new Module(moduleName, getGlobalContext());
 	if (mExecutionEngine == nullptr) {
 		std::string engineBuilderError;
 		mExecutionEngine = std::unique_ptr<ExecutionEngine>(EngineBuilder(funcModule)
 													.setEngineKind(EngineKind::JIT)
 													.setUseMCJIT(true)
-													.setErrorStr(&err)
+													.setErrorStr(&engineBuilderError)
 													.setMCJITMemoryManager(new MemoryManager())
 													.create());
 		if (mExecutionEngine.get() == nullptr) {

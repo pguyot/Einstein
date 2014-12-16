@@ -143,8 +143,6 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(KUInt32 baseVAddress, KUInt
 
 	// Setup optimizations.
 	mFPM.add(new DataLayoutPass(inModule));
-	// Use registers.
-	mFPM.add(createPromoteMemoryToRegisterPass());
 	// Provide basic AliasAnalysis support for GVN.
 	mFPM.add(createBasicAliasAnalysisPass());
 	// Do simple "peephole" optimizations and bit-twiddling optzns.
@@ -155,6 +153,10 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(KUInt32 baseVAddress, KUInt
 	mFPM.add(createGVNPass());
 	// Simplify the control flow graph (deleting unreachable blocks, etc).
 	mFPM.add(createCFGSimplificationPass());
+	// Convert calls to tail calls (all JIT exit functions are designed for tail-calling).
+	mFPM.add(createTailCallEliminationPass());
+	// Use registers.
+	mFPM.add(createPromoteMemoryToRegisterPass());
 	mFPM.doInitialization();
 	
 	// Create inner function

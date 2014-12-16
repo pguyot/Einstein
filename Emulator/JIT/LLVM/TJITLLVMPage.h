@@ -40,7 +40,7 @@
 
 // MCJIT is the modern JIT engine.
 // However, it seems quite slower now…
-#define LLVM_USE_MCJIT 0
+#define LLVM_USE_MCJIT 1
 
 using TJITLLVMPageFunctions = std::map<KUInt32, std::pair<llvm::Function*, JITFuncPtr>>;
 class TJITLLVM;
