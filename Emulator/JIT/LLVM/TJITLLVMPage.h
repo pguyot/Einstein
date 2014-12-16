@@ -42,6 +42,8 @@
 // However, it seems quite slower now…
 #define LLVM_USE_MCJIT 0
 
+class TJITLLVM;
+
 ///
 /// Class for a JIT page for LLVM-based emulation.
 ///
