@@ -36,11 +36,20 @@
 
 ///
 /// Single key hash-backed cache for virtual adresses.
+/// This isn't a "real" hash-map:
+/// - the hash function is extremely simple;
+/// - collision are not handled here.
 ///
-/// \author Paul Guyot <pguyot@kallisys.net>
-/// \version $Revision: 150 $
+/// Instead, all entries are allocated here and are stored within a double
+/// linked list. These links are used as a double end queue through
+/// MakeFirst and MakeLast.
 ///
-/// \test	aucun test défini.
+/// "Insert" actually stores a new entry as the head of the
+/// given bucket, and "Erase" erases the entry at the bucket. Consequently,
+/// "Lookup" may return NULL while the entry is still live. The entry should
+/// be accessible from another structure, typically a map by physical
+/// addresses.
+///
 ///
 template <class TValue>
 class THashMapCache
@@ -78,14 +87,6 @@ public:
 	/// \return the value or NULL if no matching value was found.
 	///
 	inline TValue*	Lookup( KUInt32 inKey );
-	
-	///
-	/// Get the entry at the index defined by the hash value.
-	///
-	/// \param inKey		key.
-	/// \return always returns an entry if Erase is never used.
-	///
-	inline TValue*	At( KUInt32 inKey );
 	
 	///
 	/// Clear the map.
@@ -199,7 +200,9 @@ void
 THashMapCache<TValue>::Erase( KUInt32 inKey )
 {
 	KUInt32 index = HashFunction( inKey );
-	mHashTable[index] = NULL;
+	if (mHashTable[index] != NULL && mHashTable[index]->key == inKey) {
+		mHashTable[index] = NULL;
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -216,17 +219,6 @@ THashMapCache<TValue>::Lookup( KUInt32 inKey )
 		return theEntry;
 	}
 	return NULL;
-}
-
-// -------------------------------------------------------------------------- //
-//  * At( KUInt32 )
-// -------------------------------------------------------------------------- //
-template<class TValue>
-TValue*
-THashMapCache<TValue>::At( KUInt32 inKey )
-{
-	KUInt32 index = HashFunction( inKey );
-	return mHashTable[index];
 }
 
 // -------------------------------------------------------------------------- //
