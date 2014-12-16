@@ -585,15 +585,19 @@ TSymbolList::ReadSymbolData(
 							char* outSymbol,
 							char* outComment)
 {
-	if (symbol->fSymbol) {
-		strcpy(outSymbol, symbol->fSymbol);
-	} else {
-		outSymbol = NULL;
+	if (outSymbol) {
+		if (symbol->fSymbol) {
+			strcpy(outSymbol, symbol->fSymbol);
+		} else {
+			outSymbol = NULL;
+		}
 	}
-	if (symbol->fComment) {
-		strcpy(outComment, symbol->fComment);
-	} else {
-		outComment = NULL;
+	if (outComment) {
+		if (symbol->fComment) {
+			strcpy(outComment, symbol->fComment);
+		} else {
+			outComment = NULL;
+		}
 	}
 }
 
@@ -683,7 +687,9 @@ TSymbolList::GetSymbol(
 		if ((inValue >= theSymbolValue) && (inValue < theNextSymbolValue))
 		{
 			ReadSymbolData(&mSymbolOffsets[indexSymbols], outSymbol, outComment);
-			*outOffset = (int)(inValue - theSymbolValue);
+			if (outOffset) {
+				*outOffset = (int)(inValue - theSymbolValue);
+			}
 			break;
 		}
 	}
