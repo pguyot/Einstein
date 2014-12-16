@@ -42,6 +42,7 @@
 // However, it seems quite slower now…
 #define LLVM_USE_MCJIT 0
 
+using TJITLLVMPageFunctions = std::map<KUInt32, std::pair<llvm::Function*, JITFuncPtr>>;
 class TJITLLVM;
 
 ///
@@ -202,7 +203,7 @@ private:
 	/// In both cases, the execution engine is created if required.
 	/// (modules are owned by execution engines).
 	///
-	llvm::Module* GetFunctionModule(const std::string& inName );
+	llvm::Module* GetFunctionModule(KUInt32 inOffset);
 
 #if LLVM_USE_MCJIT
 	///
@@ -223,8 +224,9 @@ private:
 #if !LLVM_USE_MCJIT
 	llvm::Module*						mSingleModule;			///< With JIT, we have a single module.
 #endif
-	std::map<std::string, JITFuncPtr>	mFunctions;				///< Available functions.
-	TJITLLVMTranslator                  mTranslator;
+	TJITLLVMPageFunctions				mEntryPointFunctions;	///< Available functions by offset.
+	std::map<KUInt32, llvm::Function*>	mStepFunctions;			///< Step functions.
+	TJITLLVMTranslator					mTranslator;
 };
 
 #endif

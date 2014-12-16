@@ -75,7 +75,7 @@ TJITLLVMPage::Init(
 #if !LLVM_USE_MCJIT
 	mSingleModule = nullptr;
 #endif
-	mFunctions.clear();
+	mEntryPointFunctions.clear();
 }
 
 
@@ -85,24 +85,20 @@ TJITLLVMPage::Init(
 JITFuncPtr
 TJITLLVMPage::GetJITFuncForOffset(TMemory* inMemoryInterface, KUInt32 inOffset )
 {
-    std::stringstream stream;
-    stream << "f_" << std::hex << inOffset;
-    std::string functionName(stream.str());
-
-	JITFuncPtr result;
-	auto it = mFunctions.find(functionName);
-	if (it == mFunctions.end()) {
-		Module* funcModule = GetFunctionModule(functionName);
-		Function* function = mTranslator.TranslateEntryPoint(inOffset, kInstructionCount, functionName, funcModule);
+	auto it = mEntryPointFunctions.find(inOffset);
+	if (it == mEntryPointFunctions.end()) {
+		Module* funcModule = GetFunctionModule(inOffset);
+		mTranslator.TranslateEntryPoint(inOffset, kInstructionCount, funcModule, mEntryPointFunctions);
 #if LLVM_USE_MCJIT
 		mExecutionEngine->finalizeObject();
 #endif
-		result = (JITFuncPtr) mExecutionEngine->getPointerToFunction(function);
-		mFunctions[functionName] = result;
-	} else {
-		result = it->second;
+		it = mEntryPointFunctions.find(inOffset);
 	}
-	return result;
+	auto funcPair = it->second;
+	if (funcPair.second == nullptr) {
+		funcPair.second = (JITFuncPtr) mExecutionEngine->getPointerToFunction(funcPair.first);
+	}
+	return funcPair.second;
 }
 
 // -------------------------------------------------------------------------- //
@@ -111,31 +107,24 @@ TJITLLVMPage::GetJITFuncForOffset(TMemory* inMemoryInterface, KUInt32 inOffset )
 JITFuncPtr
 TJITLLVMPage::GetJITFuncForSingleInstructionAtOffset(TMemory* inMemoryInterface, KUInt32 inOffset )
 {
-    std::stringstream stream;
-    stream << "i_" << std::hex << inOffset;
-    std::string functionName(stream.str());
-	
-	JITFuncPtr result;
-	auto it = mFunctions.find(functionName);
-	if (it == mFunctions.end()) {
-		Module* funcModule = GetFunctionModule(functionName);
-		Function* function = mTranslator.TranslateSingleInstruction(inOffset, functionName, funcModule);
+	Function* function;
+	auto it = mStepFunctions.find(inOffset);
+	if (it == mStepFunctions.end()) {
+		Module* funcModule = GetFunctionModule(inOffset);
+		function = mTranslator.TranslateSingleInstruction(inOffset, funcModule);
 #if LLVM_USE_MCJIT
 		mExecutionEngine->finalizeObject();
 #endif
-		result = (JITFuncPtr) mExecutionEngine->getPointerToFunction(function);
-		mFunctions[functionName] = result;
-	} else {
-		result = it->second;
+		mStepFunctions[inOffset] = function;
 	}
-	return result;
+	return (JITFuncPtr) mExecutionEngine->getPointerToFunction(function);
 }
 
 // -------------------------------------------------------------------------- //
 //  * GetFunctionModule( std::string& )
 // -------------------------------------------------------------------------- //
 Module*
-TJITLLVMPage::GetFunctionModule(const std::string& inName )
+TJITLLVMPage::GetFunctionModule(KUInt32 inOffset)
 {
 #if LLVM_USE_MCJIT
 	Module* funcModule = new Module(inName, getGlobalContext());

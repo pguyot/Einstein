@@ -40,6 +40,8 @@
 #include <vector>
 #include <deque>
 
+using TJITLLVMPageFunctions = std::map<KUInt32, std::pair<llvm::Function*, JITFuncPtr>>;
+
 ///
 /// Class for translating instructions into a function using LLVM.
 ///
@@ -55,18 +57,20 @@ public:
     
     ///
     /// Translate from an entry point.
+	/// This function will create additional functions for possible re-entries.
+	///
     /// \param offsetInPage     instruction offset in page
     /// \param inPageSize       page size (in instructions)
-    /// \param functionName     generated function's name (for caching/serializing)
+    /// \param inModule			module to generate the function into.
+	/// \param ioFunctions		functions of the page, as
     ///
-    llvm::Function* TranslateEntryPoint(KUInt32 offsetInPage, KUInt32 inPageSize, std::string& functionName, llvm::Module* inModule);
+    void TranslateEntryPoint(KUInt32 offsetInPage, KUInt32 inPageSize, llvm::Module* inModule, TJITLLVMPageFunctions& ioFunctions);
     
     ///
     /// Translate for a single instruction (typically with Step).
     /// \param offsetInPage     instruction offset in page
-    /// \param functionName     generated function's name (for caching/serializing)
     ///
-    llvm::Function* TranslateSingleInstruction(KUInt32 offsetInPage, std::string& functionName, llvm::Module* inModule);
+    llvm::Function* TranslateSingleInstruction(KUInt32 offsetInPage, llvm::Module* inModule);
 
 private:
 	class FrameTranslator {
@@ -74,15 +78,15 @@ private:
 		///
 		/// Setup prologue and epilogue, clearing register values.
 		///
-		FrameTranslator(KUInt32 baseVAddress, KUInt32* basePointer, KUInt32 offsetInPage, KUInt32 inPageSize, llvm::Module* inModule, std::string& functionName);
+		FrameTranslator(KUInt32 baseVAddress, KUInt32* basePointer, KUInt32 offsetInPage, KUInt32 inPageSize, llvm::Module* inModule, TJITLLVMPageFunctions& ioFunctions);
 		
 		///
 		/// Finish function construction.
 		///
-		llvm::Function* Finish();
+		void Finish();
 		
 		///
-		/// Function to translate instructions from a given offset.
+		/// Translate instructions from a given offset.
 		///
 		void Translate(KUInt32 offsetInPage);
 		
@@ -91,6 +95,12 @@ private:
 		/// and pushing it to the mPending stack.
 		///
 		llvm::BasicBlock* GetBlock(KUInt32 offsetInPage);
+		
+		///
+		/// Add an entry point function if required that will call the inner
+		/// function to jump to the provided offset.
+		///
+		void AddFunctionIfRequired(KUInt32 offsetInPage);
 		
 		///
 		/// Translate a test, branching to next instruction if test fails.
@@ -343,13 +353,20 @@ private:
 	
 		llvm::IRBuilder<>				mBuilder;				///< IR builder to generate code.
 	    llvm::Module*                   mModule;
+		TJITLLVMPageFunctions&			mModuleFunctions;		///< Module functions (modified by the translator).
+		// FunctionPassManager is legacy, but what is it replaced with?
+		llvm::FunctionPassManager		mFPM;
+		
 		/// The following values are used during translation
 		llvm::Value*				    mProcessor;
 		llvm::Value*				    mSignal;
+		llvm::Value*				    mOffsetArg;
 		llvm::BasicBlock*               mPrologue;
 		llvm::BasicBlock*			    mMainExit;
 		std::vector<llvm::BasicBlock*>  mLabels;
-		llvm::Function*				    mFunction;
+		std::map<KUInt32, llvm::BasicBlock*> mNewFunctionsBlocks;
+		///< The block the inner function should switch to for the given offset parameter value.
+		llvm::Function*					mFunction;				///< Inner function owning most blocks.
 		KUInt32						    mCurrentVAddress;		///< Page base virtual address, unless we're
 		///< translating a single instruction.
 		KUInt32*					    mCurrentPointer;		///< Likewise, usually mBasePointer
@@ -365,8 +382,6 @@ private:
 		llvm::Value*                    mCPSR_C;
 		llvm::Value*                    mCPSR_V;
 	};
-
-	static void	OptimizeFunction(llvm::Function* inFunction, llvm::Module* inModule);
 	
 	static KUInt32 CountBits( KUInt16 inWord );
 
@@ -376,6 +391,7 @@ private:
 	// LLVM types.
 	static llvm::PointerType*  DefineTARMProcessorPtrType(void);
 	static llvm::FunctionType* DefineEntryPointFuncType(void);
+	static llvm::FunctionType* DefineInnerFuncType(void);
 	static llvm::FunctionType* DefineReadBFuncType(void);
 	static llvm::FunctionType* DefineWriteBFuncType(void);
 	static llvm::FunctionType* DefineReadFuncType(void);
@@ -384,6 +400,7 @@ private:
 
 	static llvm::PointerType*	gTARMProcessorPtrType;		///< TARMProcessor* type (JITFuncPtr)
 	static llvm::FunctionType*	gEntryPointFuncType;		///< Type of entry point functions (JITFuncPtr)
+	static llvm::FunctionType*	gInnerFuncType;				///< Inner function, like JITFuncPtr but taking the offset.
 	static llvm::FunctionType*	gReadBFuncType;				///< Type of ReadB function
 	static llvm::FunctionType*	gWriteBFuncType;			///< Type of WriteB function
 	static llvm::FunctionType*	gReadFuncType;				///< Type of Read function

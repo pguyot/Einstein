@@ -27,7 +27,8 @@
 #ifdef JITTARGET_LLVM
 
 #include "TJITLLVMTranslator.h"
-#include "TARMProcessor.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/JIT/LLVM/TJITLLVMPage.h"
 
 // llvm
 #include <llvm/Analysis/Passes.h>
@@ -46,6 +47,7 @@
 
 // C++
 #include <memory>
+#include <sstream>
 
 using namespace llvm;
 
@@ -63,6 +65,7 @@ using namespace llvm;
 
 PointerType* TJITLLVMTranslator::gTARMProcessorPtrType = TJITLLVMTranslator::DefineTARMProcessorPtrType();
 FunctionType* TJITLLVMTranslator::gEntryPointFuncType = TJITLLVMTranslator::DefineEntryPointFuncType();
+FunctionType* TJITLLVMTranslator::gInnerFuncType = TJITLLVMTranslator::DefineInnerFuncType();
 FunctionType* TJITLLVMTranslator::gReadBFuncType = TJITLLVMTranslator::DefineReadBFuncType();
 FunctionType* TJITLLVMTranslator::gWriteBFuncType = TJITLLVMTranslator::DefineWriteBFuncType();
 FunctionType* TJITLLVMTranslator::gReadFuncType = TJITLLVMTranslator::DefineReadFuncType();
@@ -82,8 +85,8 @@ TJITLLVMTranslator::Init(KUInt32 inVAddr, KUInt32* inPointer)
 // -------------------------------------------------------------------------- //
 //  * TranslateEntryPoint(KUInt32, KUInt32, std::string&)
 // -------------------------------------------------------------------------- //
-Function*
-TJITLLVMTranslator::TranslateEntryPoint(KUInt32 offsetInPage, KUInt32 inPageSize, std::string& functionName, Module* inModule)
+void
+TJITLLVMTranslator::TranslateEntryPoint(KUInt32 offsetInPage, KUInt32 inPageSize, Module* inModule, TJITLLVMPageFunctions& ioFunctions)
 {
 	FrameTranslator tr(
 	    mBaseVAddress,
@@ -91,82 +94,39 @@ TJITLLVMTranslator::TranslateEntryPoint(KUInt32 offsetInPage, KUInt32 inPageSize
 	    offsetInPage,
 	    inPageSize,
 	    inModule,
-	    functionName);
+	    ioFunctions);
 	tr.Translate(offsetInPage);
-    Function* result = tr.Finish();
-
-	OptimizeFunction(result, inModule);
-
-	return result;
+	tr.Finish();
 }
 
 // -------------------------------------------------------------------------- //
 //  * TranslateSingleInstruction(KUInt32, std::string&)
 // -------------------------------------------------------------------------- //
 Function*
-TJITLLVMTranslator::TranslateSingleInstruction(KUInt32 offsetInPage, std::string& functionName, Module* inModule)
+TJITLLVMTranslator::TranslateSingleInstruction(KUInt32 offsetInPage, Module* inModule)
 {
+	TJITLLVMPageFunctions functions;
 	FrameTranslator tr(
 	    mBaseVAddress + (offsetInPage * 4),
 	    mBasePointer + offsetInPage,
 	    0,
 	    1,
 	    inModule,
-	    functionName);
+	    functions);
     tr.Translate(0);
-	Function* result = tr.Finish();
-	
-	OptimizeFunction(result, inModule);
-
-	return result;
-}
-
-// -------------------------------------------------------------------------- //
-//  * OptimizeFunction(Function*, Module*)
-// -------------------------------------------------------------------------- //
-void
-TJITLLVMTranslator::OptimizeFunction(Function* inFunction, Module* inModule) {
-#ifdef DEBUG
-	// Verify the function.
-	verifyFunction(*inFunction);
-#endif
-	
-	// Print non optimized version.
-	// inFunction->dump();
-	
-	// Optimize the function.
-	// FunctionPassManager is legacy, but what is it replaced with?
-	FunctionPassManager fpm(inModule);
-	
-	fpm.add(new DataLayoutPass(inModule));
-	// Use registers.
-	fpm.add(createPromoteMemoryToRegisterPass());
-	// Provide basic AliasAnalysis support for GVN.
-	fpm.add(createBasicAliasAnalysisPass());
-	// Do simple "peephole" optimizations and bit-twiddling optzns.
-	fpm.add(createInstructionCombiningPass());
-	// Reassociate expressions.
-	fpm.add(createReassociatePass());
-	// Eliminate Common SubExpressions.
-	fpm.add(createGVNPass());
-	// Simplify the control flow graph (deleting unreachable blocks, etc).
-	fpm.add(createCFGSimplificationPass());
-	fpm.doInitialization();
-	
-	// Actually optimize.
-	fpm.run(*inFunction);
-	
-	// Print optimized version.
-	// inFunction->dump();
+	tr.Finish();
+	return functions[0].first;
 }
 
 // -------------------------------------------------------------------------- //
 //  * FrameTranslator(KUInt32, KUInt32*, KUInt32, KUInt32*, Module*, std::string&)
 // -------------------------------------------------------------------------- //
-TJITLLVMTranslator::FrameTranslator::FrameTranslator(KUInt32 baseVAddress, KUInt32* basePointer, KUInt32 offsetInPage, KUInt32 inPageSize, Module* inModule, std::string& functionName)
+TJITLLVMTranslator::FrameTranslator::FrameTranslator(KUInt32 baseVAddress, KUInt32* basePointer, KUInt32 offsetInPage, KUInt32 inPageSize, Module* inModule, TJITLLVMPageFunctions& ioFunctions)
     :
 		mBuilder(llvm::getGlobalContext()),
         mModule(inModule),
+		mModuleFunctions(ioFunctions),
+		mFPM(inModule),
         mLabels(inPageSize + 1, nullptr),
 		mCurrentVAddress(baseVAddress),
 		mCurrentPointer(basePointer),
@@ -177,18 +137,39 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(KUInt32 baseVAddress, KUInt
 	    mCPSR_C(nullptr),
 	    mCPSR_V(nullptr)
 {
-    mFunction = Function::Create(gEntryPointFuncType, Function::ExternalLinkage, functionName, inModule);
+	for (int i = 0; i < sizeof(mRegisters) / sizeof(llvm::Value*); i++) {
+		mRegisters[i] = nullptr;
+	}
+
+	// Setup optimizations.
+	mFPM.add(new DataLayoutPass(inModule));
+	// Use registers.
+	mFPM.add(createPromoteMemoryToRegisterPass());
+	// Provide basic AliasAnalysis support for GVN.
+	mFPM.add(createBasicAliasAnalysisPass());
+	// Do simple "peephole" optimizations and bit-twiddling optzns.
+	mFPM.add(createInstructionCombiningPass());
+	// Reassociate expressions.
+	mFPM.add(createReassociatePass());
+	// Eliminate Common SubExpressions.
+	mFPM.add(createGVNPass());
+	// Simplify the control flow graph (deleting unreachable blocks, etc).
+	mFPM.add(createCFGSimplificationPass());
+	mFPM.doInitialization();
+	
+	// Create inner function
+	std::stringstream stream;
+	stream << "i" << (baseVAddress + (offsetInPage * 4));
+	std::string functionName(stream.str());
+	mFunction = Function::Create(gInnerFuncType, Function::PrivateLinkage, functionName, mModule);
 	
 	LLVMContext& context = getGlobalContext();
 	mPrologue = BasicBlock::Create(context, BLOCKNAME, mFunction);
 	
-	for (int i = 0; i < sizeof(mRegisters) / sizeof(llvm::Value*); i++) {
-	    mRegisters[i] = nullptr;
-	}
-	
 	auto argsIt = mFunction->arg_begin();
 	mProcessor = argsIt++;
-	mSignal = argsIt;
+	mSignal = argsIt++;
+	mOffsetArg = argsIt;
 	mBuilder.SetInsertPoint(mPrologue);
 	mPC = mBuilder.CreateAlloca(IntegerType::getInt32Ty(context));
 
@@ -203,16 +184,15 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(KUInt32 baseVAddress, KUInt
 	Function* continueFunction = EnsureFunction(TJITLLVMTranslator::gEntryPointFuncType, "Continue");
 	Instruction* retInst = mBuilder.CreateRet(mBuilder.CreateBitCast(continueFunction, PointerType::getInt8PtrTy(context)));
 	mExitInstructions.push_back(retInst);
-	mBuilder.SetInsertPoint(retInst);
 }
 
 // -------------------------------------------------------------------------- //
 //  * Finish()
 // -------------------------------------------------------------------------- //
-llvm::Function*
+void
 TJITLLVMTranslator::FrameTranslator::Finish()
 {
-    // Generate register read operations.
+    // Generate register read operations in inner function's prologue.
 	mBuilder.SetInsertPoint(mPrologue);
 	std::vector<llvm::Value *> indexes;
 	indexes.push_back(mBuilder.getInt32(0));
@@ -242,15 +222,35 @@ TJITLLVMTranslator::FrameTranslator::Finish()
 		mBuilder.CreateStore(mBuilder.CreateLoad(mBuilder.CreateGEP(mProcessor, indexes)), mCPSR_V);
 	}
 	
-	mBuilder.CreateBr(mLabels[mOffsetInPage]);
+	// Generate switch unless there is a single entry.
+	if (mNewFunctionsBlocks.size() == 1) {
+		mBuilder.CreateBr(mNewFunctionsBlocks.begin()->second);
+	} else {
+		SwitchInst* innerSwitch = mBuilder.CreateSwitch(mOffsetArg, mMainExit);
+		for (const auto& block : mNewFunctionsBlocks) {
+			innerSwitch->addCase(mBuilder.getInt32(block.first), block.second);
+		}
+	}
 
-	// alloca instructions were generated in prologue.
-	for (auto exitInstructions : mExitInstructions) {
+	// Restore registers on each exit point.
+	for (const auto exitInstructions : mExitInstructions) {
 		mBuilder.SetInsertPoint(exitInstructions);
 		PrepareExit();
 	}
 	
-	return mFunction;
+	// Optimize inner function.
+#ifdef DEBUG
+	// Verify the function.
+	verifyFunction(*mFunction);
+#endif
+
+	// Print non optimized version.
+	//mFunction->dump();
+	
+	mFPM.run(*mFunction);
+	
+	// Print optimized version.
+	// mFunction->dump();
 }
 
 // -------------------------------------------------------------------------- //
@@ -344,8 +344,9 @@ TJITLLVMTranslator::FrameTranslator::EnsureFunction(FunctionType* funcType, cons
 void
 TJITLLVMTranslator::FrameTranslator::Translate(KUInt32 inOffsetInPage)
 {
-	// Push first block in the queue.
-	(void) GetBlock(inOffsetInPage);
+	// Push first block in the queue and create a function for the requested
+	// entry point.
+	AddFunctionIfRequired(inOffsetInPage);
 	
 	while (!mPending.empty()) {
 		KUInt32 offsetInPage = mPending.front();
@@ -414,6 +415,41 @@ TJITLLVMTranslator::FrameTranslator::GetBlock(KUInt32 inOffsetInPage)
 		mLabels[inOffsetInPage] = theBlock;
 	}
 	return theBlock;
+}
+
+// -------------------------------------------------------------------------- //
+//  * AddFunctionIfRequired(KUInt32)
+// -------------------------------------------------------------------------- //
+void
+TJITLLVMTranslator::FrameTranslator::AddFunctionIfRequired(KUInt32 inOffsetInPage)
+{
+	if (inOffsetInPage < mInstructionCount) {
+		BasicBlock* offsetBlock = GetBlock(inOffsetInPage);
+		// Check if this function is already available.
+		// If it isn't, add it to our new module functions (to finish it eventually)
+		// and to the modules functions.
+		if (mModuleFunctions.find(inOffsetInPage) == mModuleFunctions.end()) {
+			std::stringstream stream;
+			stream << "e" << inOffsetInPage;
+			std::string functionName(stream.str());
+			Function* newFunction = Function::Create(gEntryPointFuncType, Function::ExternalLinkage, functionName, mModule);
+			mNewFunctionsBlocks[inOffsetInPage] = offsetBlock;
+			mModuleFunctions[inOffsetInPage] = std::make_pair(newFunction, nullptr);
+			
+			auto argsIt = newFunction->arg_begin();
+			Value* processor = argsIt++;
+			Value* signal = argsIt;
+			BasicBlock* functionBlock = BasicBlock::Create(getGlobalContext(), BLOCKNAME, newFunction);
+			auto ip = mBuilder.saveIP();
+			mBuilder.SetInsertPoint(functionBlock);
+			Value* returnValue = mBuilder.CreateCall3(mFunction, processor, signal, mBuilder.getInt32(inOffsetInPage));
+			mBuilder.CreateRet(returnValue);
+			mBuilder.restoreIP(ip);
+			
+			// Optimize new function.
+			mFPM.run(*newFunction);
+		}
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -675,6 +711,8 @@ TJITLLVMTranslator::FrameTranslator::Translate_SWIAndCoproc(KUInt32 offsetInPage
         // And we don't have another coproc anyway.
         BuildExitToFunction("UndefinedInstruction", exitPC);
 	}
+	// We might return from there (typically for SWI, coproc or FP emulation).
+	AddFunctionIfRequired(offsetInPage + 1);
 }
 
 // -------------------------------------------------------------------------- //
@@ -753,6 +791,9 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataSwap(KUInt32 offsetInPa
 		mBuilder.SetInsertPoint(signalExit);
 		mBuilder.CreateStore(mBuilder.getInt32(exitPC), mPC);
 		mBuilder.CreateBr(mMainExit);
+
+		// We might return from a DataAbort or a signal.
+		AddFunctionIfRequired(offsetInPage + 1);
 	}
 }
 
@@ -1750,6 +1791,8 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 		if (nextBlock == nullptr) {
 			// Next instruction
 			nextBlock = GetBlock(offsetInPage + 1);
+			// We might return from a DataAbort or a signal, but only if PC wasn't written.
+			AddFunctionIfRequired(offsetInPage + 1);
 		}
 		mBuilder.CreateBr(nextBlock);
 		
@@ -1812,6 +1855,8 @@ TJITLLVMTranslator::FrameTranslator::Translate_Branch(KUInt32 offsetInPage, KUIn
 			mBuilder.CreateStore(mBuilder.getInt32(delta + mCurrentVAddress + 4), mPC);
 			mBuilder.CreateBr(mMainExit);
 	    }
+		// We definitely will return.
+		AddFunctionIfRequired(offsetInPage + 1);
 	} else {
 	    // This is regular branch.
 		if (delta > 0 && branchToInPage < mInstructionCount) {
@@ -1906,6 +1951,8 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM13(KUInt32 offsetInPage, KUInt
 		mBuilder.CreateBr(mMainExit);
 	} else {
 		mBuilder.CreateBr(GetBlock(offsetInPage + 1));
+		// We might return after a data abort.
+		AddFunctionIfRequired(offsetInPage + 1);
 	}
 
 	mBuilder.SetInsertPoint(dataAbortExit);
@@ -2026,6 +2073,9 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 	mBuilder.SetInsertPoint(dataAbortExit);
 	KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
 	BuildExitToFunction("DataAbort", exitPC);
+
+	// We might return after a data abort.
+	AddFunctionIfRequired(offsetInPage + 1);
 }
 
 // -------------------------------------------------------------------------- //
@@ -2084,6 +2134,9 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM1(KUInt32 offsetInPage, KUInt3
 
 	mBuilder.SetInsertPoint(dataAbortExit);
 	BuildExitToFunction("DataAbort", exitPC);
+
+	// We might return after a data abort.
+	AddFunctionIfRequired(offsetInPage + 1);
 }
 
 // -------------------------------------------------------------------------- //
@@ -2205,6 +2258,9 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 	
 	mBuilder.SetInsertPoint(dataAbortExit);
 	BuildExitToFunction("DataAbort", exitPC);
+
+	// We might return after a data abort.
+	AddFunctionIfRequired(offsetInPage + 1);
 }
 
 // -------------------------------------------------------------------------- //
@@ -2855,6 +2911,22 @@ TJITLLVMTranslator::DefineEntryPointFuncType(void) {
 	Type* argsList[2];
 	argsList[0] = gTARMProcessorPtrType;
 	argsList[1] = PointerType::getInt1PtrTy(context);
+	ArrayRef<Type*> funcArgs(argsList);
+	return FunctionType::get(PointerType::getInt8PtrTy(context), funcArgs, false);
+}
+
+// -------------------------------------------------------------------------- //
+//  * DefineEntryPointFuncType(void)
+// -------------------------------------------------------------------------- //
+FunctionType*
+TJITLLVMTranslator::DefineInnerFuncType(void) {
+	// We consider functions return int8* and we will use bitcast.
+	LLVMContext& context = getGlobalContext();
+	
+	Type* argsList[3];
+	argsList[0] = gTARMProcessorPtrType;
+	argsList[1] = PointerType::getInt1PtrTy(context);
+	argsList[2] = IntegerType::getInt32Ty(context);
 	ArrayRef<Type*> funcArgs(argsList);
 	return FunctionType::get(PointerType::getInt8PtrTy(context), funcArgs, false);
 }
