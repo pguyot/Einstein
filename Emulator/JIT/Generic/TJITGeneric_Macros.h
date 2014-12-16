@@ -45,18 +45,35 @@
 #define PUSHFUNC(func)										\
 	inPage->PushUnit(ioUnitCrsr, func)
 
+
+// Set this value to 0 if you want to measure the performance of individual
+// functions at the cost of lowering overall performance. This is not working
+// perfectly well (NewtonOS will not boot all the way), but gives some
+// rough results
+#if 1
+
 #define EXECUTENEXTUNIT \
 	return ioUnit[1].fFuncPtr(&ioUnit[1], ioCPU)
 
 #define CALLNEXTUNIT \
 	return ioUnit[1].fFuncPtr(&ioUnit[1], ioCPU)
-//	THEPC += 4;												
-//	return &ioUnit[1]
 
 #define CALLUNIT(offset) \
 	return ioUnit[offset].fFuncPtr(&ioUnit[offset], ioCPU)
-//	THEPC += 4;												
-//	return &ioUnit[offset]
+
+#else
+
+#define EXECUTENEXTUNIT \
+	THEPC += 4; return &ioUnit[1]
+
+#define CALLNEXTUNIT \
+	THEPC += 4; return &ioUnit[1]
+
+#define CALLUNIT(offset) \
+	THEPC += 4; return &ioUnit[offset]
+
+#endif
+
 
 #define MMUCALLNEXT_AFTERSETPC \
 	{														\
@@ -90,7 +107,6 @@
 				ioCPU, theMemIntf, pc );					\
 		}													\
 	}
-
 
 #define POPPC() \
 	KUInt32 thePC; \
