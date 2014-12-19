@@ -11,7 +11,7 @@ if [ $"{ACTION}" != "clean" ]; then
         echo "Could not find llvm-config. Please install LLVM 3.5 with MacPorts or Homebrew"
         exit 1;
     fi
-    LLVM_CFLAGS=`${LLVM_CONFIG_BIN} --cflags`
+    LLVM_CFLAGS=`${LLVM_CONFIG_BIN} --cflags | sed -E 's|-O[a-z0-9]+||g'`
     LLVM_LDFLAGS=`${LLVM_CONFIG_BIN} --ldflags`" "`${LLVM_CONFIG_BIN} --libs $LLVM_COMPONENTS`" "`${LLVM_CONFIG_BIN} --system-libs`
 
     echo "// Configuration file for LLVM settings, generated as a build phase." > $LLVM_XCCONFIG_FILE_TEMP
