@@ -107,11 +107,10 @@ public:
 			return mPointer[inOffset];
 		}
 
-protected:
 	///
 	/// Accessor on the pointer.
 	///
-	inline KUInt32* GetPointer( void )
+	inline const KUInt32* GetPointer( void ) const
 		{
 			return mPointer;
 		}
