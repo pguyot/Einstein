@@ -2334,7 +2334,6 @@
 					};
 					DA4FF0681A35E73900092B5A = {
 						CreatedOnToolsVersion = 6.1.1;
-						TestTargetID = 8D1107260486CEB800E47090;
 					};
 					DAE9EF2C1A3D94840095BFAF = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -3954,7 +3953,6 @@
 		DA4FF0721A35E73A00092B5A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -4006,14 +4004,12 @@
 				OTHER_CFLAGS = "${LLVM_CFLAGS}";
 				OTHER_LDFLAGS = "${LLVM_LDFLAGS}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Einstein.app/Contents/MacOS/Einstein";
 			};
 			name = Debug;
 		};
 		DA4FF0731A35E73A00092B5A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -4058,14 +4054,12 @@
 				OTHER_CFLAGS = "${LLVM_CFLAGS}";
 				OTHER_LDFLAGS = "${LLVM_LDFLAGS}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Einstein.app/Contents/MacOS/Einstein";
 			};
 			name = Release;
 		};
 		DA4FF0741A35E73A00092B5A /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -4110,7 +4104,6 @@
 				OTHER_CFLAGS = "${LLVM_CFLAGS}";
 				OTHER_LDFLAGS = "${LLVM_LDFLAGS}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Einstein.app/Contents/MacOS/Einstein";
 			};
 			name = Distribution;
 		};
