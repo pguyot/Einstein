@@ -35,14 +35,11 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <llvm/ExecutionEngine/ObjectCache.h>
+
 #include "JITLLVM.h"
 #include "TJITLLVMTranslator.h"
 
-// MCJIT is the modern JIT engine.
-// However, it seems quite slower now…
-#define LLVM_USE_MCJIT 1
-
-using TJITLLVMPageFunctions = std::map<KUInt32, std::pair<llvm::Function*, JITFuncPtr>>;
 class TJITLLVM;
 
 ///
@@ -55,12 +52,12 @@ class TJITLLVMPage
 
 public:
 	///
-	/// Access from TJITLLVM
+	/// Access from TJITLLVM & TJITLLVMTranslator.
 	///
 	friend class TJITLLVM;
 	
 	///
-	/// Default constructor.
+	/// Default constructor used by cache.
 	///
 	TJITLLVMPage( void );
 
@@ -89,144 +86,64 @@ public:
 	///
 	JITFuncPtr GetJITFuncForSingleInstructionAtOffset(TMemory* inMemoryIntf, KUInt32 inPC);
 
+	///
+	/// Get the prefix for this page.
+	/// This prefix is applied to both modules and function names.
+	///
+	std::string PagePrefix() const;
+	
+	///
+	/// Get a module name for a given entry point.
+	///
+	std::string ModuleName(KUInt32 entryPointOffset) const;
+	
+	///
+	/// Get a function name for a given offset.
+	///
+	std::string FunctionName(KUInt32 offset) const;
+	
+	///
+	/// Extract the offset from a function name.
+	///
+	KUInt32 OffsetFromFunctionName(const std::string& inFunctionName) const;
+
+	///
+	/// Get the page prefix for a given module.
+	/// Used by the cache to gather modules belonging to a given page.
+	///
+	static std::string PagePrefixFromModuleName(const std::string& inModuleName);
+	
+	///
+	/// Get the size of the page in instructions.
+	/// Currently constant.
+	///
+	KUInt32 GetPageSize() const {
+		return kInstructionCount;
+	}
+
+	///
+	/// Determine if we already have a given function to avoid translating it again.
+	///
+	bool HasTranslatedFunction(KUInt32 inOffset) const {
+		return mEntryPointFunctions.count(inOffset) > 0;
+	}
+
 private:
 	///
 	/// Prevent copies.
 	///
-	TJITLLVMPage( const TJITLLVMPage& );
-	
-	///
-	/// Function returned by generated code to re-enter generated code a the next
-	/// loop iteration.
-	///
-	/// \param inInstruction	current instruction.
-	///
-	static JITFuncPtr Continue(TARMProcessor* ioCPU, volatile bool* inSignal);
-	
-	///
-	/// DebuggerUND exit
-	///
-	/// \param inInstruction	current instruction.
-	///
-	static JITFuncPtr DebuggerUND(TARMProcessor* ioCPU, volatile bool* inSignal);
-	
-	///
-	/// Breakpoint exit
-	///
-	/// \param inInstruction	current instruction.
-	///
-	static JITFuncPtr Breakpoint(TARMProcessor* ioCPU, volatile bool* inSignal);
-	
-	///
-	/// Undefined instruction exit
-	///
-	/// \param inInstruction	current instruction.
-	///
-	static JITFuncPtr UndefinedInstruction(TARMProcessor* ioCPU, volatile bool* inSignal);
-	
-	///
-	/// SWI exit
-	///
-	/// \param inInstruction	current instruction.
-	///
-	static JITFuncPtr SWI(TARMProcessor* ioCPU, volatile bool* inSignal);
-	
-	///
-	/// Software Breakpoint exit
-	///
-	/// \param inInstruction	current instruction.
-	///
-	static JITFuncPtr SoftwareBreakpoint(TARMProcessor* ioCPU, volatile bool* inSignal);
-	
-	///
-	/// System (CP15) coprocessor register transfer exit.
-	///
-	/// \param inInstruction	current instruction.
-	///
-	static JITFuncPtr SystemCoprocRegisterTransfer(TARMProcessor* ioCPU, volatile bool* inSignal);
-	
-	///
-	/// Native coprocessor register transfer exit.
-	///
-	/// \param inInstruction	current instruction.
-	///
-	static JITFuncPtr NativeCoprocRegisterTransfer(TARMProcessor* ioCPU, volatile bool* inSignal);
-	
-	///
-	/// Data abort handler exit.
-	///
-	/// \param inInstruction	current instruction.
-	///
-	static JITFuncPtr DataAbort(TARMProcessor* ioCPU, volatile bool* inSignal);
-
-	///
-	/// Signal Interrupt handler exit.
-	///
-	/// \param inInstruction	current instruction.
-	///
-	static JITFuncPtr SignalInterrupt(TARMProcessor* ioCPU, volatile bool* inSignal);
-
-	///
-	/// Read a byte.
-	///
-	static bool ReadB(TARMProcessor* ioCPU, KUInt32 address, KUInt8* outByte);
-	
-	///
-	/// Write a byte.
-	///
-	static bool WriteB(TARMProcessor* ioCPU, KUInt32 address, KUInt8 inByte);
-	
-	///
-	/// Read a word.
-	///
-	static bool Read(TARMProcessor* ioCPU, KUInt32 address, KUInt32* outWord);
-	
-	///
-	/// Write a word.
-	///
-	static bool Write(TARMProcessor* ioCPU, KUInt32 address, KUInt32 inWord);
-	
-	///
-	/// Set privilege memory access.
-	///
-	static void SetPrivilege(TARMProcessor* ioCPU, bool privilege);
+	TJITLLVMPage( const TJITLLVMPage& ) = delete;
 	
 	/// \name Constants
 	enum {
 		kInstructionCount = (TJITPage< TJITLLVM, TJITLLVMPage >::kPageSize / 4),
 	};
 	
-	///
-	/// For traditional JIT: get the single module.
-	/// For MCJIT, create a new module.
-	///
-	/// In both cases, the execution engine is created if required.
-	/// (modules are owned by execution engines).
-	///
-	llvm::Module* GetFunctionModule(KUInt32 inOffset);
-
-#if LLVM_USE_MCJIT
-	///
-	/// We need our own memory manager with MCJIT
-	/// as InstallLazyFunctionCreator does not work.
-	///
-	class MemoryManager : public llvm::SectionMemoryManager {
-		/// This method returns the address of the specified function or variable.
-		/// It is used to resolve symbols during module linking.
-		uint64_t getSymbolAddress(const std::string &Name) override;
-	};
-#endif
-	
-	static void* LazyFunctionCreator(const std::string& inName);
-	
 	/// \name Variables
-	std::unique_ptr<llvm::ExecutionEngine> mExecutionEngine;	///< Execution engine for the page.
-#if !LLVM_USE_MCJIT
-	llvm::Module*						mSingleModule;			///< With JIT, we have a single module.
-#endif
-	TJITLLVMPageFunctions				mEntryPointFunctions;	///< Available functions by offset.
-	std::map<KUInt32, llvm::Function*>	mStepFunctions;			///< Step functions.
-	TJITLLVMTranslator					mTranslator;
+	std::unique_ptr<llvm::ExecutionEngine>	mExecutionEngine;		///< Execution engine for the page.
+	std::map<KUInt32, JITFuncPtr>			mEntryPointFunctions;	///< Available functions by offset.
+	std::map<KUInt32, JITFuncPtr>			mStepFunctions;			///< Step functions.
+	TJITLLVMTranslator						mTranslator;
 };
 
 #endif

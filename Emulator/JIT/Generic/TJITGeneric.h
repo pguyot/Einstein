@@ -33,6 +33,7 @@
 
 class TMemory;
 class TARMProcessor;
+class TROMImage;
 union JITUnit;
 
 
@@ -56,7 +57,8 @@ public:
 	///
 	TJITGeneric(
 		TMemory* inMemoryIntf,
-		TMMU* inMMUIntf );
+		TMMU* inMMUIntf,
+		const TROMImage* inROMImage );
 	
 	///
 	/// Destructor.

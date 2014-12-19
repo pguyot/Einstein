@@ -69,7 +69,21 @@ public:
 	/// Compute the checksums.
 	///
 	void	ComputeChecksums( KUInt32 outChecksums[10] ) const;
-
+	
+	///
+	/// Get the path to the ROM image (actually to the SImage file).
+	///
+	const char* GetPath() const {
+		return mImagePath.c_str();
+	}
+	
+	///
+	/// Get the machine string.
+	///
+	std::string GetMachineString() const {
+		return std::string(mImage->fInfo.fMachineString, sizeof(mImage->fInfo.fMachineString));
+	}
+	
 protected:
 	///
 	/// Determine if the mmap is outdated and should be redone.
@@ -178,6 +192,7 @@ private:
 	
 	TMappedFile*	mMappedFile;	///< mapped file with the rom.
 	SImage*			mImage; 		///< image structure.
+	std::string		mImagePath;		///< Path to the image.
 };
 
 #endif

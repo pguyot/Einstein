@@ -40,7 +40,9 @@
 #include <vector>
 #include <deque>
 
-using TJITLLVMPageFunctions = std::map<KUInt32, std::pair<llvm::Function*, JITFuncPtr>>;
+using TJITLLVMPageFunctions = std::map<KUInt32, JITFuncPtr>;
+
+class TJITLLVMPage;
 
 ///
 /// Class for translating instructions into a function using LLVM.
@@ -48,12 +50,10 @@ using TJITLLVMPageFunctions = std::map<KUInt32, std::pair<llvm::Function*, JITFu
 class TJITLLVMTranslator
 {
 public:
-    friend class TJITLLVMPage;
-    
     ///
-    /// Initialize or reset the translator for a new page.
+    /// Constructor binding the translator to its page.
     ///
-	void Init(KUInt32 inVAddr, KUInt32* inPointer);
+	TJITLLVMTranslator(const TJITLLVMPage& inPage) : mPage(inPage) {};
     
     ///
     /// Translate from an entry point.
@@ -64,7 +64,7 @@ public:
     /// \param inModule			module to generate the function into.
 	/// \param ioFunctions		functions of the page, as
     ///
-    void TranslateEntryPoint(KUInt32 offsetInPage, KUInt32 inPageSize, llvm::Module* inModule, TJITLLVMPageFunctions& ioFunctions);
+	std::map<KUInt32, llvm::Function*> TranslateEntryPoint(KUInt32 offsetInPage, llvm::Module* inModule);
     
     ///
     /// Translate for a single instruction (typically with Step).
@@ -78,18 +78,23 @@ private:
 		///
 		/// Setup prologue and epilogue, clearing register values.
 		///
-		FrameTranslator(KUInt32 baseVAddress, KUInt32* basePointer, KUInt32 offsetInPage, KUInt32 inPageSize, llvm::Module* inModule, TJITLLVMPageFunctions& ioFunctions);
-		
-		///
-		/// Finish function construction.
-		///
-		void Finish();
+		FrameTranslator(
+					const TJITLLVMPage& page,
+					KUInt32 offsetInPage,
+					llvm::Module* inModule,
+					bool step);
 		
 		///
 		/// Translate instructions from a given offset.
 		///
 		void Translate(KUInt32 offsetInPage);
+	
+		///
+		/// Finish construction and return the generated functions.
+		///
+		std::map<KUInt32, llvm::Function*> Finish();
 		
+	private:
 		///
 		/// Return a block at the given position, creating it if required
 		/// and pushing it to the mPending stack.
@@ -159,6 +164,16 @@ private:
 		///
 		void Translate_DataProcessing(KUInt32 offsetInPage, KUInt32 inInstruction);
 
+		///
+		/// Translate Data Processing insructions: shifter part.
+		///
+		void Translate_DataProcessing_Shifter(KUInt32 offsetInPage, KUInt32 inInstruction, llvm::Value*& shifterOperand, llvm::Value*& shifterCarryOut);
+		
+		///
+		/// Translate Data Processing insructions: op part.
+		///
+		void Translate_DataProcessing_Op(KUInt32 inInstruction, llvm::Value* operand, llvm::Value* shifterOperand, llvm::Value* shifterCarryOut, llvm::Value*& carry, llvm::Value*& overflow, llvm::Value*& result);
+		
 		///
 		/// Translate MSR insructions.
 		///
@@ -273,7 +288,16 @@ private:
 		///
 		llvm::Value* GetShiftNoCarryNoR15(KUInt32 inShift);
 
-	private:
+		// LLVM types.
+		llvm::PointerType*  GetTARMProcessorPtrType();
+		llvm::FunctionType* GetEntryPointFuncType();
+		llvm::FunctionType* GetInnerFuncType();
+		llvm::FunctionType* GetReadBFuncType();
+		llvm::FunctionType* GetWriteBFuncType();
+		llvm::FunctionType* GetReadFuncType();
+		llvm::FunctionType* GetWriteFuncType();
+		llvm::FunctionType* GetSetPrivilegeFuncType();
+
 		/// Test bits.
 		enum ETestKind {
 			kTestEQ = 0x0,
@@ -351,9 +375,11 @@ private:
 		};
 
 	
-		llvm::IRBuilder<>				mBuilder;				///< IR builder to generate code.
+		bool							mStepFunction;
+		const TJITLLVMPage&				mPage;
 	    llvm::Module*                   mModule;
-		TJITLLVMPageFunctions&			mModuleFunctions;		///< Module functions (modified by the translator).
+		llvm::LLVMContext&				mContext;
+		llvm::IRBuilder<>				mBuilder;				///< IR builder to generate code.
 		// FunctionPassManager is legacy, but what is it replaced with?
 		llvm::FunctionPassManager		mFPM;
 		
@@ -364,15 +390,16 @@ private:
 		llvm::BasicBlock*               mPrologue;
 		llvm::BasicBlock*			    mMainExit;
 		std::vector<llvm::BasicBlock*>  mLabels;
+		std::map<KUInt32, llvm::Function*> mNewFunctions;
 		std::map<KUInt32, llvm::BasicBlock*> mNewFunctionsBlocks;
 		///< The block the inner function should switch to for the given offset parameter value.
 		llvm::Function*					mFunction;				///< Inner function owning most blocks.
-		KUInt32						    mCurrentVAddress;		///< Page base virtual address, unless we're
+		const KUInt32					mCurrentVAddress;		///< Page base virtual address, unless we're
 		///< translating a single instruction.
-		KUInt32*					    mCurrentPointer;		///< Likewise, usually mBasePointer
-		KUInt32						    mInstructionCount;		///< This is used to optimize (forward) branches
+		const KUInt32*					mCurrentPointer;		///< Likewise, usually mBasePointer
+		const KUInt32					mInstructionCount;		///< This is used to optimize (forward) branches
 		                                                        ///< as well as load from page.
-		KUInt32							mOffsetInPage;			///< offset in page.
+		const KUInt32					mOffsetInPage;			///< offset in page.
 		std::vector<llvm::Instruction*>	mExitInstructions;
 		std::deque<KUInt32>				mPending;
 		llvm::Value*                    mRegisters[15];
@@ -385,27 +412,7 @@ private:
 	
 	static KUInt32 CountBits( KUInt16 inWord );
 
-	KUInt32                     mBaseVAddress;          ///< Page base virtual address
-	KUInt32*                    mBasePointer;           ///< Page base pointer
-
-	// LLVM types.
-	static llvm::PointerType*  DefineTARMProcessorPtrType(void);
-	static llvm::FunctionType* DefineEntryPointFuncType(void);
-	static llvm::FunctionType* DefineInnerFuncType(void);
-	static llvm::FunctionType* DefineReadBFuncType(void);
-	static llvm::FunctionType* DefineWriteBFuncType(void);
-	static llvm::FunctionType* DefineReadFuncType(void);
-	static llvm::FunctionType* DefineWriteFuncType(void);
-	static llvm::FunctionType* DefineSetPrivilegeFuncType(void);
-
-	static llvm::PointerType*	gTARMProcessorPtrType;		///< TARMProcessor* type (JITFuncPtr)
-	static llvm::FunctionType*	gEntryPointFuncType;		///< Type of entry point functions (JITFuncPtr)
-	static llvm::FunctionType*	gInnerFuncType;				///< Inner function, like JITFuncPtr but taking the offset.
-	static llvm::FunctionType*	gReadBFuncType;				///< Type of ReadB function
-	static llvm::FunctionType*	gWriteBFuncType;			///< Type of WriteB function
-	static llvm::FunctionType*	gReadFuncType;				///< Type of Read function
-	static llvm::FunctionType*	gWriteFuncType;				///< Type of Write function
-	static llvm::FunctionType*	gSetPrivilegeFuncType;		///< Type of SetPrivilege function
+	const TJITLLVMPage&			mPage;
 };
 
 #endif

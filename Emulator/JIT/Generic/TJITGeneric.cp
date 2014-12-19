@@ -128,7 +128,8 @@ test()
 // -------------------------------------------------------------------------- //
 TJITGeneric::TJITGeneric(
 		TMemory* inMemoryIntf,
-		TMMU* inMMUIntf )
+		TMMU* inMMUIntf,
+		const TROMImage*)
 	:
 		TJIT<TJITGeneric, TJITGenericPage>( inMemoryIntf, inMMUIntf )
 {

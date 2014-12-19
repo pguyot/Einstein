@@ -254,6 +254,9 @@ TROMImage::Init( const char* inPath, Boolean inMonitorMode )
 		mMappedFile = theMappedFile;
 		mImage = theImage;
 	}
+	
+	// Save the path for the JIT backend cache files.
+	mImagePath = inPath;
 }
 
 // -------------------------------------------------------------------------- //

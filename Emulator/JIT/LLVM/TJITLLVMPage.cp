@@ -31,7 +31,8 @@
 #include "TARMProcessor.h"
 #include "TEmulator.h"
 
-#include "UDisasm.h"
+#include "Emulator/JIT/LLVM/TJITLLVMObjectCache.h"
+#include "Emulator/JIT/LLVM/TJITLLVM.h"
 
 // LLVM
 #include <llvm/IR/LLVMContext.h>
@@ -39,6 +40,8 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/TypeBuilder.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
+#include <llvm/Bitcode/ReaderWriter.h>
+#include <llvm/Support/DataStream.h>
 
 // C++
 #include <sstream>
@@ -50,7 +53,8 @@ using namespace llvm;
 // -------------------------------------------------------------------------- //
 TJITLLVMPage::TJITLLVMPage( void )
     :
-        mExecutionEngine(nullptr)
+        mExecutionEngine(nullptr),
+		mTranslator(*this)
 {
 }
 
@@ -70,12 +74,23 @@ TJITLLVMPage::Init(
 			KUInt32 inPAddr )
 {
 	TJITPage<TJITLLVM, TJITLLVMPage>::Init( inMemoryIntf, inVAddr, inPAddr );
-    mTranslator.Init(inVAddr, GetPointer());
-	mExecutionEngine = nullptr;
-#if !LLVM_USE_MCJIT
-	mSingleModule = nullptr;
-#endif
 	mEntryPointFunctions.clear();
+	mStepFunctions.clear();
+	
+	TJITLLVM* jit = inMemoryIntf->GetJITObject();
+	mExecutionEngine = std::unique_ptr<ExecutionEngine>(jit->CreateExecutionEngine());
+	
+	// We only cache object code for ROM.
+	if (inPAddr < TMemoryConsts::kHighROMEnd) {
+		TJITLLVMObjectCache* objectCache = jit->GetObjectCache();
+		if (objectCache) {
+			// Set an object cache so we are notified of newly compiled pages and we
+			// can save them to disk.
+			mExecutionEngine->setObjectCache(objectCache);
+			// Load saved pages directly
+			mEntryPointFunctions = objectCache->LoadPageFunctions(*mExecutionEngine, *this);
+		}
+	}
 }
 
 
@@ -87,18 +102,25 @@ TJITLLVMPage::GetJITFuncForOffset(TMemory* inMemoryInterface, KUInt32 inOffset )
 {
 	auto it = mEntryPointFunctions.find(inOffset);
 	if (it == mEntryPointFunctions.end()) {
-		Module* funcModule = GetFunctionModule(inOffset);
-		mTranslator.TranslateEntryPoint(inOffset, kInstructionCount, funcModule, mEntryPointFunctions);
-#if LLVM_USE_MCJIT
+		// Not found.
+		// We need to perform translation of the page.
+		Module* funcModule = new Module(ModuleName(inOffset), getGlobalContext());
+		funcModule->setDataLayout(mExecutionEngine->getDataLayout());
+		std::map<KUInt32, Function*> generated = mTranslator.TranslateEntryPoint(inOffset, funcModule);
+		mExecutionEngine->addModule(funcModule);
 		mExecutionEngine->finalizeObject();
-#endif
+		// Plug all generated functions.
+		for (auto pair : generated) {
+			Function* function = pair.second;
+			std::string functionName = function->getName();
+			JITFuncPtr ptr = (JITFuncPtr) mExecutionEngine->getFunctionAddress(functionName);
+			KUInt32 offset = OffsetFromFunctionName(functionName);
+			mEntryPointFunctions[offset] = ptr;
+		}
 		it = mEntryPointFunctions.find(inOffset);
+		assert(it != mEntryPointFunctions.end());
 	}
-	auto funcPair = it->second;
-	if (funcPair.second == nullptr) {
-		funcPair.second = (JITFuncPtr) mExecutionEngine->getPointerToFunction(funcPair.first);
-	}
-	return funcPair.second;
+	return it->second;
 }
 
 // -------------------------------------------------------------------------- //
@@ -107,290 +129,72 @@ TJITLLVMPage::GetJITFuncForOffset(TMemory* inMemoryInterface, KUInt32 inOffset )
 JITFuncPtr
 TJITLLVMPage::GetJITFuncForSingleInstructionAtOffset(TMemory* inMemoryInterface, KUInt32 inOffset )
 {
-	Function* function;
+	JITFuncPtr ptr;
 	auto it = mStepFunctions.find(inOffset);
 	if (it == mStepFunctions.end()) {
-		Module* funcModule = GetFunctionModule(inOffset);
-		function = mTranslator.TranslateSingleInstruction(inOffset, funcModule);
-#if LLVM_USE_MCJIT
-		mExecutionEngine->finalizeObject();
-#endif
-		mStepFunctions[inOffset] = function;
-	}
-	return (JITFuncPtr) mExecutionEngine->getPointerToFunction(function);
-}
-
-// -------------------------------------------------------------------------- //
-//  * GetFunctionModule( std::string& )
-// -------------------------------------------------------------------------- //
-Module*
-TJITLLVMPage::GetFunctionModule(KUInt32 inOffset)
-{
-#if LLVM_USE_MCJIT
-	std::stringstream stream;
-	stream << "m" << (GetVAddr() + (inOffset * 4));
-	std::string moduleName(stream.str());
-	Module* funcModule = new Module(moduleName, getGlobalContext());
-	if (mExecutionEngine == nullptr) {
-		std::string engineBuilderError;
-		mExecutionEngine = std::unique_ptr<ExecutionEngine>(EngineBuilder(funcModule)
-													.setEngineKind(EngineKind::JIT)
-													.setUseMCJIT(true)
-													.setErrorStr(&engineBuilderError)
-													.setMCJITMemoryManager(new MemoryManager())
-													.create());
-		if (mExecutionEngine.get() == nullptr) {
-			fprintf(stderr, "Could not create MCJIT execution engine: %s\n", engineBuilderError.c_str());
-			throw engineBuilderError;
-		}
-		assert(mExecutionEngine.get() != nullptr);
-		mExecutionEngine->DisableSymbolSearching();
-		mExecutionEngine->InstallLazyFunctionCreator(LazyFunctionCreator);
-	} else {
+		Module* funcModule = new Module("i" + ModuleName(inOffset), getGlobalContext());
+		funcModule->setDataLayout(mExecutionEngine->getDataLayout());
+		const Function* function = mTranslator.TranslateSingleInstruction(inOffset, funcModule);
 		mExecutionEngine->addModule(funcModule);
-	}
-	funcModule->setDataLayout(mExecutionEngine->getDataLayout());
-	return funcModule;
-#else
-	if (mSingleModule == nullptr) {
-		mSingleModule = new Module("", getGlobalContext());
-		std::string engineBuilderError;
-		mExecutionEngine = std::unique_ptr<ExecutionEngine>(EngineBuilder(mSingleModule)
-															.setErrorStr(&engineBuilderError)
-															.create());
-		if (mExecutionEngine.get() == nullptr) {
-			fprintf(stderr, "Could not create execution engine: %s\n", engineBuilderError.c_str());
-			throw engineBuilderError;
-		}
-		assert(mExecutionEngine.get() != nullptr);
-		mExecutionEngine->DisableSymbolSearching();
-		mExecutionEngine->InstallLazyFunctionCreator(LazyFunctionCreator);
-	}
-	return mSingleModule;
-#endif
-}
-
-// -------------------------------------------------------------------------- //
-//  * LazyFunctionCreator(const std::string&)
-// -------------------------------------------------------------------------- //
-// Translate glue functions.
-//
-void*
-TJITLLVMPage::LazyFunctionCreator(const std::string& name) {
-	if (name == "Continue") {
-		return (void*)Continue;
-	} else if (name == "DebuggerUND") {
-		return (void*)DebuggerUND;
-	} else if (name == "Breakpoint") {
-		return (void*)Breakpoint;
-	} else if (name == "UndefinedInstruction") {
-		return (void*)UndefinedInstruction;
-	} else if (name == "SoftwareBreakpoint") {
-		return (void*)SoftwareBreakpoint;
-	} else if (name == "SystemCoprocRegisterTransfer") {
-		return (void*)SystemCoprocRegisterTransfer;
-	} else if (name == "NativeCoprocRegisterTransfer") {
-		return (void*)NativeCoprocRegisterTransfer;
-	} else if (name == "DataAbort") {
-		return (void*)DataAbort;
-	} else if (name == "SWI") {
-		return (void*)SWI;
-	} else if (name == "SignalInterrupt") {
-		return (void*)SignalInterrupt;
-	} else if (name == "ReadB") {
-		return (void*)ReadB;
-	} else if (name == "WriteB") {
-		return (void*)WriteB;
-	} else if (name == "Read") {
-		return (void*)Read;
-	} else if (name == "Write") {
-		return (void*)Write;
-	} else if (name == "SetPrivilege") {
-		return (void*)SetPrivilege;
+		mExecutionEngine->finalizeObject();
+		ptr = (JITFuncPtr) mExecutionEngine->getFunctionAddress(function->getName());
+		mStepFunctions[inOffset] = ptr;
 	} else {
-		return nullptr;
+		ptr = it->second;
 	}
+	return ptr;
 }
 
 // -------------------------------------------------------------------------- //
-//  * getSymbolAddress(const std::string& name)
+//  * PagePrefix(TJITLLVMPage&)
 // -------------------------------------------------------------------------- //
-#if LLVM_USE_MCJIT
-uint64_t
-TJITLLVMPage::MemoryManager::getSymbolAddress(const std::string& name) {
-	void* funcPtr;
-	if (name[0] == '_') {
-		funcPtr = TJITLLVMPage::LazyFunctionCreator(name.substr(1));
-	} else {
-		funcPtr = TJITLLVMPage::LazyFunctionCreator(name);
+std::string
+TJITLLVMPage::PagePrefix() const {
+	char pagePrefix[18];
+	snprintf(pagePrefix, sizeof(pagePrefix), "%.8X@%.8X", GetPAddr(), GetVAddr());
+	return std::string(pagePrefix);
+}
+
+// -------------------------------------------------------------------------- //
+//  * ModuleName(TJITLLVMPage&, KUInt32)
+// -------------------------------------------------------------------------- //
+std::string
+TJITLLVMPage::ModuleName(KUInt32 entryPointOffset) const {
+	char moduleName[27];
+	snprintf(moduleName, sizeof(moduleName), "%.8X@%.8X_%.8X", GetPAddr(), GetVAddr(), GetVAddr() + (entryPointOffset * 4));
+	return std::string(moduleName);
+}
+
+// -------------------------------------------------------------------------- //
+//  * FunctionName(TJITLLVMPage&, KUInt32)
+// -------------------------------------------------------------------------- //
+std::string
+TJITLLVMPage::FunctionName(KUInt32 offset) const {
+	return ModuleName(offset);
+}
+
+// -------------------------------------------------------------------------- //
+//  * OffsetFromFunctionName(TJITLLVMPage&, KUInt32)
+// -------------------------------------------------------------------------- //
+KUInt32
+TJITLLVMPage::OffsetFromFunctionName(const std::string& inFunctionName) const {
+	const char* str = inFunctionName.c_str();
+	const char* functionVAddrStr = str + 18;
+	KUInt32 functionVAddr;
+	int r = sscanf(functionVAddrStr, "%X", &functionVAddr);
+	if (r != 1) {
+		fprintf(stderr, "Could not parse function name %s\n", str);
+		abort();
 	}
-	return (uint64_t) funcPtr;
-}
-#endif
-
-// -------------------------------------------------------------------------- //
-//  * Continue(TARMProcessor*, volatile KUInt32*)
-// -------------------------------------------------------------------------- //
-// This function continues execution by loading the next function and executing
-// it. It is used by the functions here for lazy translation. Indeed,
-// GetJITFuncForPC will actually translate emulated code to native, yet PC might
-// change after these functions return.
-//
-JITFuncPtr
-TJITLLVMPage::Continue(TARMProcessor* ioCPU, volatile bool* inSignal) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	JITFuncPtr f = theMemIntf->GetJITObject()->GetJITFuncForPC(ioCPU, theMemIntf, ioCPU->mCurrentRegisters[TARMProcessor::kR15]);
-	return f(ioCPU, inSignal);
+	return (functionVAddr - GetVAddr()) / 4;
 }
 
 // -------------------------------------------------------------------------- //
-//  * DebuggerUND(TARMProcessor*, volatile bool*)
+//  * OffsetFromFunctionName(TJITLLVMPage&, KUInt32)
 // -------------------------------------------------------------------------- //
-JITFuncPtr
-TJITLLVMPage::DebuggerUND(TARMProcessor* ioCPU, volatile bool* inSignal) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	KUInt32 pc = ioCPU->mCurrentRegisters[TARMProcessor::kR15] - 8;
-	KUInt32 thePAddress;
-	theMemIntf->TranslateInstruction(pc, &thePAddress);
-	ioCPU->GetEmulator()->DebuggerUND(thePAddress);
-	ioCPU->DoUndefinedInstruction();
-	return (JITFuncPtr) Continue;
-}
-
-// -------------------------------------------------------------------------- //
-//  * Breakpoint(TARMProcessor*, volatile bool*)
-// -------------------------------------------------------------------------- //
-JITFuncPtr
-TJITLLVMPage::Breakpoint(TARMProcessor* ioCPU, volatile bool* inSignal) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	KUInt32 pc = ioCPU->mCurrentRegisters[TARMProcessor::kR15] - 8;
-	KUInt32 theInstruction;
-	theMemIntf->Read(pc, theInstruction);
-	KUInt16 theBreakpointID = (KUInt16) ((theInstruction & 0xFFF00) >> 4 | (theInstruction & 0xF));
-	ioCPU->GetEmulator()->Breakpoint(theBreakpointID);
-	return (JITFuncPtr) Continue;
-}
-
-// -------------------------------------------------------------------------- //
-//  * UndefinedInstruction(TARMProcessor*, volatile bool*)
-// -------------------------------------------------------------------------- //
-JITFuncPtr
-TJITLLVMPage::UndefinedInstruction(TARMProcessor* ioCPU, volatile bool* inSignal) {
-	ioCPU->DoUndefinedInstruction();
-	return (JITFuncPtr) Continue;
-}
-
-// -------------------------------------------------------------------------- //
-//  * SoftwareBreakpoint(TARMProcessor*, volatile bool*)
-// -------------------------------------------------------------------------- //
-JITFuncPtr
-TJITLLVMPage::SoftwareBreakpoint(TARMProcessor* ioCPU, volatile bool* inSignal) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	KUInt32 pc = ioCPU->mCurrentRegisters[TARMProcessor::kR15] - 8;
-	KUInt32 theInstruction;
-	theMemIntf->Read(pc, theInstruction);
-	ioCPU->GetEmulator()->Breakpoint( theInstruction );
-	return (JITFuncPtr) Continue;
-}
-
-// -------------------------------------------------------------------------- //
-//  * SystemCoprocRegisterTransfer(TARMProcessor*, volatile bool*)
-// -------------------------------------------------------------------------- //
-JITFuncPtr
-TJITLLVMPage::SystemCoprocRegisterTransfer(TARMProcessor* ioCPU, volatile bool* inSignal) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	KUInt32 pc = ioCPU->mCurrentRegisters[TARMProcessor::kR15] - 8;
-	KUInt32 theInstruction;
-	theMemIntf->Read(pc, theInstruction);
-	ioCPU->SystemCoprocRegisterTransfer(theInstruction);
-	return (JITFuncPtr) Continue;
-}
-
-// -------------------------------------------------------------------------- //
-//  * NativeCoprocRegisterTransfer(TARMProcessor*, volatile KUInt32*)
-// -------------------------------------------------------------------------- //
-JITFuncPtr
-TJITLLVMPage::NativeCoprocRegisterTransfer(TARMProcessor* ioCPU, volatile bool* inSignal) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	KUInt32 pc = ioCPU->mCurrentRegisters[TARMProcessor::kR15] - 8;
-	KUInt32 theInstruction;
-	theMemIntf->Read(pc, theInstruction);
-	ioCPU->NativeCoprocRegisterTransfer(theInstruction);
-	return (JITFuncPtr) Continue;
-}
-
-// -------------------------------------------------------------------------- //
-//  * DataAbort(TARMProcessor*, volatile KUInt32*)
-// -------------------------------------------------------------------------- //
-JITFuncPtr
-TJITLLVMPage::DataAbort(TARMProcessor* ioCPU, volatile bool* inSignal) {
-	ioCPU->DataAbort();
-	return (JITFuncPtr) Continue;
-}
-
-// -------------------------------------------------------------------------- //
-//  * SWI(TARMProcessor*, volatile KUInt32*)
-// -------------------------------------------------------------------------- //
-JITFuncPtr
-TJITLLVMPage::SWI(TARMProcessor* ioCPU, volatile bool* inSignal) {
-	ioCPU->DoSWI();
-	return (JITFuncPtr) Continue;
-}
-
-// -------------------------------------------------------------------------- //
-//  * SignalInterrupt(TARMProcessor*, volatile KUInt32*)
-// -------------------------------------------------------------------------- //
-JITFuncPtr
-TJITLLVMPage::SignalInterrupt(TARMProcessor* ioCPU, volatile bool* inSignal) {
-	ioCPU->GetEmulator()->SignalInterrupt();
-	return (JITFuncPtr) Continue;
-}
-
-// -------------------------------------------------------------------------- //
-//  * ReadB(TARMProcessor*, KUInt32, KUInt8*)
-// -------------------------------------------------------------------------- //
-bool
-TJITLLVMPage::ReadB(TARMProcessor* ioCPU, KUInt32 address, KUInt8* outByte) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	return theMemIntf->ReadB(address, *outByte);
-}
-
-// -------------------------------------------------------------------------- //
-//  * WriteB(TARMProcessor*, KUInt32, KUInt8)
-// -------------------------------------------------------------------------- //
-bool
-TJITLLVMPage::WriteB(TARMProcessor* ioCPU, KUInt32 address, KUInt8 inByte) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	return theMemIntf->WriteB(address, inByte);
-}
-
-// -------------------------------------------------------------------------- //
-//  * Read(TARMProcessor*, KUInt32, KUInt32*)
-// -------------------------------------------------------------------------- //
-bool
-TJITLLVMPage::Read(TARMProcessor* ioCPU, KUInt32 address, KUInt32* outWord) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	return theMemIntf->Read(address, *outWord);
-}
-
-// -------------------------------------------------------------------------- //
-//  * Write(TARMProcessor*, KUInt32, KUInt32)
-// -------------------------------------------------------------------------- //
-bool
-TJITLLVMPage::Write(TARMProcessor* ioCPU, KUInt32 address, KUInt32 inWord) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	return theMemIntf->Write(address, inWord);
-}
-
-// -------------------------------------------------------------------------- //
-//  * SetPrivilege(TARMProcessor*, bool)
-// -------------------------------------------------------------------------- //
-void
-TJITLLVMPage::SetPrivilege(TARMProcessor* ioCPU, bool privilege) {
-	if (ioCPU->GetMode() != TARMProcessor::kUserMode) {
-		TMemory* theMemIntf = ioCPU->GetMemory();
-		theMemIntf->SetPrivilege( privilege );
-	}
+std::string
+TJITLLVMPage::PagePrefixFromModuleName(const std::string& inModuleName) {
+	return inModuleName.substr(0, 17);
 }
 
 #endif

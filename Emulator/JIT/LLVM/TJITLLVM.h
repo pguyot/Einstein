@@ -28,11 +28,25 @@
 #include "TJIT.h"
 
 // Einstein
-#include "TJITLLVMPage.h"
-#include "llvm/IR/Module.h"
+#include "Emulator/JIT/LLVM/TJITLLVMPage.h"
+#include "Emulator/JIT/LLVM/TJITLLVMLinker.h"
+
+#include <llvm/IR/Module.h>
+#include <llvm/Support/TargetRegistry.h>
+
+#include "K/Threads/TThread.h"
+#include "K/Threads/TMutex.h"
+#include "K/Threads/TCondVar.h"
+
+// C++
+#include <set>
+#include <deque>
+
 
 class TMemory;
 class TARMProcessor;
+class TJITLLVMObjectCache;
+class TROMImage;
 
 ///
 /// Class for LLVM-based JIT interface.
@@ -47,14 +61,16 @@ class TJITLLVM
 public:
 	
 	///
-	/// Constructor from interfaces to memory and MMU.
+	/// Constructor.
 	///
 	/// \param inMemoryIntf	interface to memory.
 	/// \param inMMUIntf	interface to the MMU.
+	/// \param inROMImage	ROM image or nullptr if there is no image.
 	///
 	TJITLLVM(
 		TMemory* inMemoryIntf,
-		TMMU* inMMUIntf );
+		TMMU* inMMUIntf,
+		const TROMImage* inROMImage);
 	
 	///
 	/// Destructor.
@@ -111,30 +127,50 @@ public:
 	/// It is only called when the image is created.
 	///
 	static void DoPatchROM(KUInt32* romPtr, const std::string& inMachineName);
-
+	
+	///
+	/// Get the object cache, or nullptr if it is not enabled (typically we're
+	/// not starting from a ROM Image).
+	///
+	TJITLLVMObjectCache* GetObjectCache() {
+		return mObjectCache;
+	}
+	
+	///
+	/// Create a new execution engine.
+	///
+	llvm::ExecutionEngine* CreateExecutionEngine();
+	
 private:
+	TJITLLVM( const TJITLLVM& inCopy ) = delete;
+	TJITLLVM& operator = ( const TJITLLVM& inCopy ) = delete;
+	
 	///
-	/// Constructeur par copie volontairement indisponible.
+	/// We need our own memory manager as InstallLazyFunctionCreator
+	/// does not work with MCJIT.
 	///
-	/// \param inCopy		objet à copier
-	///
-	TJITLLVM( const TJITLLVM& inCopy );
+	class MemoryManager : public llvm::SectionMemoryManager {
+		/// This method returns the address of the specified function or variable.
+		/// It is used to resolve symbols during module linking.
+		uint64_t getSymbolAddress(const std::string &Name) override;
 
-	///
-	/// Opérateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TJITLLVM& operator = ( const TJITLLVM& inCopy );
+	public:
+		MemoryManager(const std::map<std::string, uint64_t>& inGlues) :
+		mGluesTable(inGlues) {};
 
-	enum {
-		kPoolSize = 512,	///< 512 pages in pool.
+	private:
+		const std::map<std::string, uint64_t>& mGluesTable;
 	};
 	
-	/// \name Variables
+	///
+	/// Constructor helper to create the glues table.
+	///
+	static std::map<std::string, uint64_t> CreateGluesTable();
 	
-	TJITLLVMPage*	        mPagesPool;	            ///< Array with all the pages.
-	llvm::FunctionType*     mEntryPointFuncType;    ///< Type of entry points (JITFuncPtr)	
+	TJITLLVMObjectCache*	mObjectCache;	///< Directory with cached native code.
+	const llvm::Target*		mTarget;		///< Lookup only once.
+	const std::map<std::string, uint64_t> mGluesTable;	///< Address of glue functions.
+	
 };
 
 #endif

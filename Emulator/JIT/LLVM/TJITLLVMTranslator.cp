@@ -63,40 +63,15 @@ using namespace llvm;
 // Constants
 // -------------------------------------------------------------------------- //
 
-PointerType* TJITLLVMTranslator::gTARMProcessorPtrType = TJITLLVMTranslator::DefineTARMProcessorPtrType();
-FunctionType* TJITLLVMTranslator::gEntryPointFuncType = TJITLLVMTranslator::DefineEntryPointFuncType();
-FunctionType* TJITLLVMTranslator::gInnerFuncType = TJITLLVMTranslator::DefineInnerFuncType();
-FunctionType* TJITLLVMTranslator::gReadBFuncType = TJITLLVMTranslator::DefineReadBFuncType();
-FunctionType* TJITLLVMTranslator::gWriteBFuncType = TJITLLVMTranslator::DefineWriteBFuncType();
-FunctionType* TJITLLVMTranslator::gReadFuncType = TJITLLVMTranslator::DefineReadFuncType();
-FunctionType* TJITLLVMTranslator::gWriteFuncType = TJITLLVMTranslator::DefineWriteFuncType();
-FunctionType* TJITLLVMTranslator::gSetPrivilegeFuncType = TJITLLVMTranslator::DefineSetPrivilegeFuncType();
-
-// -------------------------------------------------------------------------- //
-//  * Init(KUInt32, KUInt32*, Module*)
-// -------------------------------------------------------------------------- //
-void
-TJITLLVMTranslator::Init(KUInt32 inVAddr, KUInt32* inPointer)
-{
-    mBaseVAddress = inVAddr;
-    mBasePointer = inPointer;
-}
-
 // -------------------------------------------------------------------------- //
 //  * TranslateEntryPoint(KUInt32, KUInt32, std::string&)
 // -------------------------------------------------------------------------- //
-void
-TJITLLVMTranslator::TranslateEntryPoint(KUInt32 offsetInPage, KUInt32 inPageSize, Module* inModule, TJITLLVMPageFunctions& ioFunctions)
+std::map<KUInt32, Function*>
+TJITLLVMTranslator::TranslateEntryPoint(KUInt32 offsetInPage, Module* inModule)
 {
-	FrameTranslator tr(
-	    mBaseVAddress,
-	    mBasePointer,
-	    offsetInPage,
-	    inPageSize,
-	    inModule,
-	    ioFunctions);
+	FrameTranslator tr(mPage, offsetInPage, inModule, false);
 	tr.Translate(offsetInPage);
-	tr.Finish();
+	return tr.Finish();
 }
 
 // -------------------------------------------------------------------------- //
@@ -105,39 +80,38 @@ TJITLLVMTranslator::TranslateEntryPoint(KUInt32 offsetInPage, KUInt32 inPageSize
 Function*
 TJITLLVMTranslator::TranslateSingleInstruction(KUInt32 offsetInPage, Module* inModule)
 {
-	TJITLLVMPageFunctions functions;
-	FrameTranslator tr(
-	    mBaseVAddress + (offsetInPage * 4),
-	    mBasePointer + offsetInPage,
-	    0,
-	    1,
-	    inModule,
-	    functions);
-    tr.Translate(0);
-	tr.Finish();
-	return functions[0].first;
+	FrameTranslator tr(mPage, offsetInPage, inModule, true);
+	tr.Translate(offsetInPage);
+	std::map<KUInt32, Function*> generated = tr.Finish();
+	return generated[offsetInPage];
 }
 
 // -------------------------------------------------------------------------- //
-//  * FrameTranslator(KUInt32, KUInt32*, KUInt32, KUInt32*, Module*, std::string&)
+//  * FrameTranslator(const TJITLLVMPage&, KUInt32, Module*, bool)
 // -------------------------------------------------------------------------- //
-TJITLLVMTranslator::FrameTranslator::FrameTranslator(KUInt32 baseVAddress, KUInt32* basePointer, KUInt32 offsetInPage, KUInt32 inPageSize, Module* inModule, TJITLLVMPageFunctions& ioFunctions)
+TJITLLVMTranslator::FrameTranslator::FrameTranslator(
+			const TJITLLVMPage& inPage,
+			KUInt32 offsetInPage,
+			Module* inModule,
+			bool stepFunction)
     :
-		mBuilder(llvm::getGlobalContext()),
+		mStepFunction(stepFunction),
+		mPage(inPage),
         mModule(inModule),
-		mModuleFunctions(ioFunctions),
+		mContext(inModule->getContext()),
+		mBuilder(mContext),
 		mFPM(inModule),
-        mLabels(inPageSize + 1, nullptr),
-		mCurrentVAddress(baseVAddress),
-		mCurrentPointer(basePointer),
-		mInstructionCount(inPageSize),
+        mLabels(inPage.GetPageSize() + 1, nullptr),
+		mCurrentVAddress(inPage.GetVAddr()),
+		mCurrentPointer(inPage.GetPointer()),
+		mInstructionCount(inPage.GetPageSize()),
 		mOffsetInPage(offsetInPage),
     	mCPSR_N(nullptr),
 	    mCPSR_Z(nullptr),
 	    mCPSR_C(nullptr),
 	    mCPSR_V(nullptr)
 {
-	for (int i = 0; i < sizeof(mRegisters) / sizeof(llvm::Value*); i++) {
+	for (int i = 0; i < 15; i++) {
 		mRegisters[i] = nullptr;
 	}
 
@@ -161,37 +135,51 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(KUInt32 baseVAddress, KUInt
 	
 	// Create inner function
 	std::stringstream stream;
-	stream << "i" << (baseVAddress + (offsetInPage * 4));
+	stream << "i" << (mPage.GetVAddr() + (offsetInPage * 4));
 	std::string functionName(stream.str());
-	mFunction = Function::Create(gInnerFuncType, Function::PrivateLinkage, functionName, mModule);
+	mFunction = Function::Create(GetInnerFuncType(), Function::PrivateLinkage, functionName, mModule);
 	
-	LLVMContext& context = getGlobalContext();
-	mPrologue = BasicBlock::Create(context, BLOCKNAME, mFunction);
+	mPrologue = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 	
 	auto argsIt = mFunction->arg_begin();
 	mProcessor = argsIt++;
 	mSignal = argsIt++;
 	mOffsetArg = argsIt;
 	mBuilder.SetInsertPoint(mPrologue);
-	mPC = mBuilder.CreateAlloca(IntegerType::getInt32Ty(context));
+	mPC = mBuilder.CreateAlloca(IntegerType::getInt32Ty(mContext));
+	mMainExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 
-	BasicBlock* endOfPageBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	mLabels[inPageSize] = endOfPageBlock;
+	// Exit step : put it everywhere except at offset.
+	if (mStepFunction) {
+		for (int i = 0; i < mInstructionCount; i++) {
+			if (i != offsetInPage) {
+				BasicBlock* exitStepBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+				mLabels[i] = exitStepBlock;
+				KUInt32 exitStepPC = mPage.GetVAddr() + (i + 1) * 4;
+				mBuilder.SetInsertPoint(exitStepBlock);
+				mBuilder.CreateStore(mBuilder.getInt32(exitStepPC), mPC);
+				mBuilder.CreateBr(mMainExit);
+			}
+		}
+	}
+	// End of page.
+	BasicBlock* endOfPageBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	KUInt32 endOfPagePC = mPage.GetVAddr() + (mInstructionCount + 1) * 4;
+	mLabels[mInstructionCount] = endOfPageBlock;
 	mBuilder.SetInsertPoint(endOfPageBlock);
-	KUInt32 endOfPagePC = baseVAddress + (inPageSize + 1) * 4;
 	mBuilder.CreateStore(mBuilder.getInt32(endOfPagePC), mPC);
-	mMainExit = BasicBlock::Create(context, BLOCKNAME, mFunction);
 	mBuilder.CreateBr(mMainExit);
+	
 	mBuilder.SetInsertPoint(mMainExit);
-	Function* continueFunction = EnsureFunction(TJITLLVMTranslator::gEntryPointFuncType, "Continue");
-	Instruction* retInst = mBuilder.CreateRet(mBuilder.CreateBitCast(continueFunction, PointerType::getInt8PtrTy(context)));
+	Function* continueFunction = EnsureFunction(GetEntryPointFuncType(), "JIT_Continue");
+	Instruction* retInst = mBuilder.CreateRet(mBuilder.CreateBitCast(continueFunction, PointerType::getInt8PtrTy(mContext)));
 	mExitInstructions.push_back(retInst);
 }
 
 // -------------------------------------------------------------------------- //
 //  * Finish()
 // -------------------------------------------------------------------------- //
-void
+std::map<KUInt32, Function*>
 TJITLLVMTranslator::FrameTranslator::Finish()
 {
     // Generate register read operations in inner function's prologue.
@@ -247,12 +235,14 @@ TJITLLVMTranslator::FrameTranslator::Finish()
 #endif
 
 	// Print non optimized version.
-	//mFunction->dump();
+	// mFunction->dump();
 	
 	mFPM.run(*mFunction);
 	
 	// Print optimized version.
 	// mFunction->dump();
+	
+	return mNewFunctions;
 }
 
 // -------------------------------------------------------------------------- //
@@ -300,7 +290,7 @@ TJITLLVMTranslator::FrameTranslator::EnsureAllocated(Value** reg, int numBits) {
 	if (*reg == nullptr) {
 		auto ip = mBuilder.saveIP();
 		mBuilder.SetInsertPoint(mPrologue);
-		*reg = mBuilder.CreateAlloca(IntegerType::getIntNTy(getGlobalContext(), numBits));
+		*reg = mBuilder.CreateAlloca(IntegerType::getIntNTy(mContext, numBits));
 		mBuilder.restoreIP(ip);
 	}
 }
@@ -321,7 +311,7 @@ TJITLLVMTranslator::FrameTranslator::BuildExitToFunction(const char *funcName, V
 	if (exitPC != nullptr) {
 		mBuilder.CreateStore(exitPC, mPC);
 	}
-	Function* function = EnsureFunction(TJITLLVMTranslator::gEntryPointFuncType, funcName);
+	Function* function = EnsureFunction(GetEntryPointFuncType(), funcName);
 	Instruction* callInst = mBuilder.CreateCall2(function, mProcessor, mSignal);
 	mExitInstructions.push_back(callInst);
 	mBuilder.CreateRet(callInst);
@@ -353,7 +343,6 @@ TJITLLVMTranslator::FrameTranslator::Translate(KUInt32 inOffsetInPage)
 	while (!mPending.empty()) {
 		KUInt32 offsetInPage = mPending.front();
 		mPending.pop_front();
-		LLVMContext& context = getGlobalContext();
 		BasicBlock* theBlock = GetBlock(offsetInPage);
 		mBuilder.SetInsertPoint(theBlock);
 		
@@ -368,7 +357,7 @@ TJITLLVMTranslator::FrameTranslator::Translate(KUInt32 inOffsetInPage)
 			// If we reached the end of page (or section to translate), we'll find
 			// epilogue there anyway.
 			BasicBlock* nextInstructionBlock = GetBlock(offsetInPage + 1);
-			BasicBlock* thisInstructionBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+			BasicBlock* thisInstructionBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 			DoTranslateTest(thisInstructionBlock, nextInstructionBlock, theTestKind);
 			theBlock = thisInstructionBlock;
 			// Continue from here.
@@ -413,7 +402,7 @@ TJITLLVMTranslator::FrameTranslator::GetBlock(KUInt32 inOffsetInPage)
 	BasicBlock* theBlock = mLabels[inOffsetInPage];
 	if (theBlock == nullptr) {
 		mPending.push_back(inOffsetInPage);
-		theBlock = BasicBlock::Create(getGlobalContext(), BLOCKNAME, mFunction);
+		theBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 		mLabels[inOffsetInPage] = theBlock;
 	}
 	return theBlock;
@@ -430,18 +419,20 @@ TJITLLVMTranslator::FrameTranslator::AddFunctionIfRequired(KUInt32 inOffsetInPag
 		// Check if this function is already available.
 		// If it isn't, add it to our new module functions (to finish it eventually)
 		// and to the modules functions.
-		if (mModuleFunctions.find(inOffsetInPage) == mModuleFunctions.end()) {
-			std::stringstream stream;
-			stream << "e" << inOffsetInPage;
-			std::string functionName(stream.str());
-			Function* newFunction = Function::Create(gEntryPointFuncType, Function::ExternalLinkage, functionName, mModule);
+		if ((mStepFunction || !mPage.HasTranslatedFunction(inOffsetInPage))
+			&& mNewFunctions.count(inOffsetInPage) == 0) {
+			std::string functionName = mPage.FunctionName(inOffsetInPage);
+			if (mStepFunction) {
+				functionName = "s" + functionName;
+			}
+			Function* newFunction = Function::Create(GetEntryPointFuncType(), Function::ExternalLinkage, functionName, mModule);
 			mNewFunctionsBlocks[inOffsetInPage] = offsetBlock;
-			mModuleFunctions[inOffsetInPage] = std::make_pair(newFunction, nullptr);
+			mNewFunctions[inOffsetInPage] = newFunction;
 			
 			auto argsIt = newFunction->arg_begin();
 			Value* processor = argsIt++;
 			Value* signal = argsIt;
-			BasicBlock* functionBlock = BasicBlock::Create(getGlobalContext(), BLOCKNAME, newFunction);
+			BasicBlock* functionBlock = BasicBlock::Create(mContext, BLOCKNAME, newFunction);
 			auto ip = mBuilder.saveIP();
 			mBuilder.SetInsertPoint(functionBlock);
 			Value* returnValue = mBuilder.CreateCall3(mFunction, processor, signal, mBuilder.getInt32(inOffsetInPage));
@@ -626,9 +617,9 @@ TJITLLVMTranslator::FrameTranslator::DoTranslate_01(KUInt32 offsetInPage, KUInt3
 		// PC is used to fetch the instruction and process it further.
 		KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
 		if (inInstruction == 0xE6000510) {
-    		BuildExitToFunction("DebuggerUND", exitPC);
+    		BuildExitToFunction("JIT_DebuggerUND", exitPC);
 		} else {
-    		BuildExitToFunction("UndefinedInstruction", exitPC);
+    		BuildExitToFunction("JIT_UndefinedInstruction", exitPC);
 		}
 	} else {
 // -Cond-- 0  1  I  P  U  B  W  L  --Rn--- --Rd--- -----------offset----------
@@ -651,7 +642,7 @@ TJITLLVMTranslator::FrameTranslator::DoTranslate_10(KUInt32 offsetInPage, KUInt3
 	} else if ((inInstruction & 0x000F0000) == 0x000F0000) {
 		// Use of R15 as Rn for LDM/STM is UNPREDICTABLE.
 		KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
-		BuildExitToFunction("UndefinedInstruction", exitPC);
+		BuildExitToFunction("JIT_UndefinedInstruction", exitPC);
 	} else if ((inInstruction & 0x00500000) == 0x00100000) {
 		Translate_LDM13(offsetInPage, inInstruction);
 	} else if ((inInstruction & 0x00708000) == 0x00500000) {
@@ -664,7 +655,7 @@ TJITLLVMTranslator::FrameTranslator::DoTranslate_10(KUInt32 offsetInPage, KUInt3
 		Translate_STM2(offsetInPage, inInstruction);
 	} else {
 		KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
-		BuildExitToFunction("UndefinedInstruction", exitPC);		
+		BuildExitToFunction("JIT_UndefinedInstruction", exitPC);		
 	}
 }
 
@@ -689,29 +680,29 @@ TJITLLVMTranslator::FrameTranslator::Translate_SWIAndCoproc(KUInt32 offsetInPage
 		if (inInstruction & 0x01000000)
 		{
 			// SWI.
-        	BuildExitToFunction("SWI", exitPC);
+        	BuildExitToFunction("JIT_SWI", exitPC);
 		} else {
 			if (inInstruction & 0x00000010)
 			{
                 KUInt32 CPNumber = (inInstruction & 0x00000F00) >> 8;
                 if (CPNumber == 0xF) {
-            		BuildExitToFunction("SystemCoprocRegisterTransfer", exitPC);
+            		BuildExitToFunction("JIT_SystemCoprocRegisterTransfer", exitPC);
                 } else if (CPNumber == 10) {
                     // Native primitives.
-            		BuildExitToFunction("NativeCoprocRegisterTransfer", exitPC);
+            		BuildExitToFunction("JIT_NativeCoprocRegisterTransfer", exitPC);
                 } else {
-            		BuildExitToFunction("UndefinedInstruction", exitPC);
+            		BuildExitToFunction("JIT_UndefinedInstruction", exitPC);
                 }
 			} else {
                 // All CP15 CDP operations are undefined.
                 // And we don't have another coproc anyway.
-            	BuildExitToFunction("UndefinedInstruction", exitPC);
+            	BuildExitToFunction("JIT_UndefinedInstruction", exitPC);
 			}
 		}
 	} else {
         // All CP15 LDC and STC operations are undefined.
         // And we don't have another coproc anyway.
-        BuildExitToFunction("UndefinedInstruction", exitPC);
+        BuildExitToFunction("JIT_UndefinedInstruction", exitPC);
 	}
 	// We might return from there (typically for SWI, coproc or FP emulation).
 	AddFunctionIfRequired(offsetInPage + 1);
@@ -734,44 +725,43 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataSwap(KUInt32 offsetInPa
 	// Use of R15 If R15 is specified for <Rd>, <Rn>, or <Rm>, the result is UNPREDICTABLE.
 	if ((Rd == 15) || (Rn == 15) || (Rm == 15))
 	{
-		BuildExitToFunction("UndefinedInstruction", exitPC);
+		BuildExitToFunction("JIT_UndefinedInstruction", exitPC);
 	} else {
 		EnsureAllocated(&mRegisters[Rd], 32);
 		EnsureAllocated(&mRegisters[Rn], 32);
 		EnsureAllocated(&mRegisters[Rm], 32);
-		LLVMContext& context = getGlobalContext();
 		Value* address = mBuilder.CreateLoad(mRegisters[Rn]);
-		BasicBlock* dataAbortExit = BasicBlock::Create(context, BLOCKNAME, mFunction);
-		BasicBlock* writeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-		BasicBlock* storeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-		BasicBlock* signalExit = BasicBlock::Create(context, BLOCKNAME, mFunction);
+		BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+		BasicBlock* writeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+		BasicBlock* storeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+		BasicBlock* signalExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 		
 		if (flag_b) {
-			Function* readFunction = EnsureFunction(gReadBFuncType, "ReadB");
-			Value* byte = mBuilder.CreateAlloca(Type::getInt8Ty(context));
+			Function* readFunction = EnsureFunction(GetReadBFuncType(), "JIT_ReadB");
+			Value* byte = mBuilder.CreateAlloca(Type::getInt8Ty(mContext));
 			Value* result = mBuilder.CreateCall3(readFunction, mProcessor, address, byte);
 			mBuilder.CreateCondBr(result, dataAbortExit, writeBlock);
 			
 			mBuilder.SetInsertPoint(writeBlock);
-			Function* writeFunction = EnsureFunction(gWriteBFuncType, "WriteB");
+			Function* writeFunction = EnsureFunction(GetWriteBFuncType(), "JIT_WriteB");
 			result = mBuilder.CreateCall3(
 								writeFunction,
 								mProcessor,
 								address,
 								mBuilder.CreateTrunc(mBuilder.CreateLoad(mRegisters[Rm]),
-													   Type::getInt8Ty(context)));
+													   Type::getInt8Ty(mContext)));
 			mBuilder.CreateCondBr(result, dataAbortExit, storeBlock);
 			
 			mBuilder.SetInsertPoint(storeBlock);
-			mBuilder.CreateStore(mBuilder.CreateZExt(mBuilder.CreateLoad(byte), Type::getInt32Ty(context)), mRegisters[Rd]);
+			mBuilder.CreateStore(mBuilder.CreateZExt(mBuilder.CreateLoad(byte), Type::getInt32Ty(mContext)), mRegisters[Rd]);
 		} else {
-			Function* readFunction = EnsureFunction(gReadFuncType, "Read");
-			Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(context));
+			Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read");
+			Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(mContext));
 			Value* result = mBuilder.CreateCall3(readFunction, mProcessor, address, word);
 			mBuilder.CreateCondBr(result, dataAbortExit, writeBlock);
 			
 			mBuilder.SetInsertPoint(writeBlock);
-			Function* writeFunction = EnsureFunction(gWriteFuncType, "Write");
+			Function* writeFunction = EnsureFunction(GetWriteFuncType(), "JIT_Write");
 			result = mBuilder.CreateCall3(
 								 writeFunction,
 								 mProcessor,
@@ -788,7 +778,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataSwap(KUInt32 offsetInPa
 		mBuilder.CreateCondBr(mBuilder.CreateLoad(mSignal, true), nextInstructionBlock, signalExit);
 
 		mBuilder.SetInsertPoint(dataAbortExit);
-		BuildExitToFunction("DataAbort", exitPC);
+		BuildExitToFunction("JIT_DataAbort", exitPC);
 
 		mBuilder.SetInsertPoint(signalExit);
 		mBuilder.CreateStore(mBuilder.getInt32(exitPC), mPC);
@@ -816,7 +806,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_MultiplyAndAccumulate(KUInt32 off
 	if ((Rd == 15) || (Rn == 15) || (Rs == 15) || (Rm == 15))
 	{
 		KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
-		BuildExitToFunction("UndefinedInstruction", exitPC);
+		BuildExitToFunction("JIT_UndefinedInstruction", exitPC);
 	} else {
 		EnsureAllocated(&mRegisters[Rd], 32);
 		EnsureAllocated(&mRegisters[Rn], 32);
@@ -856,7 +846,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_Multiply(KUInt32 offsetInPage, KU
 	if ((Rd == 15) || (Rs == 15) || (Rm == 15))
 	{
 		KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
-		BuildExitToFunction("UndefinedInstruction", exitPC);
+		BuildExitToFunction("JIT_UndefinedInstruction", exitPC);
 	} else {
 		EnsureAllocated(&mRegisters[Rd], 32);
 		EnsureAllocated(&mRegisters[Rs], 32);
@@ -883,7 +873,6 @@ void
 TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPage, KUInt32 inInstruction) {
 	// 31 - 28 27 26 25 24 23 22 21 20 19 - 16 15 - 12 11 - 08 07 06 05 04 03 - 00
 	// -Cond-- 0  0  I  --Opcode--- S  --Rn--- --Rd--- ----------Operand 2-------- Data Processing
-	const KUInt32 flag_i = inInstruction & 0x02000000;
 	const KUInt32 flag_s = inInstruction & 0x00100000;
 	const KUInt32 Rd = (inInstruction & 0x0000F000) >> 12;
 	const KUInt32 Rn = (inInstruction & 0x000F0000) >> 16;
@@ -891,7 +880,65 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 	// Data-processing operands
 	Value* shifterOperand;
 	Value* shifterCarryOut;
-	LLVMContext& context = getGlobalContext();
+	
+	Translate_DataProcessing_Shifter(offsetInPage, inInstruction, shifterOperand, shifterCarryOut);
+
+	Value* operand;
+	if (Rn == 15) {
+		operand = mBuilder.getInt32((offsetInPage + 2) * 4 + mCurrentVAddress);
+	} else {
+		EnsureAllocated(&mRegisters[Rn], 32);
+		operand = mBuilder.CreateLoad(mRegisters[Rn]);
+	}
+	
+	if (Rd != 15) {
+		EnsureAllocated(&mRegisters[Rd], 32);
+	}
+
+    Value* carry = nullptr;
+    Value* overflow = nullptr;
+	Value* result = nullptr;
+	
+	Translate_DataProcessing_Op(inInstruction, operand, shifterOperand, shifterCarryOut, carry, overflow, result);
+	
+	if (flag_s) {
+	    if (Rd == 15) {
+	        // Try CPSR = SPSR
+	        // Result is UNPREDICTABLE if not in a mode with SPSR.
+			Value* mode = BuildGetEmulationMode();
+	        Value* cpsr = BuildGetSPSR(mode);
+	        BuildSetCPSR(cpsr, mode, mBuilder.getInt1(true), mBuilder.getInt1(true), mBuilder.CreateAdd(result, mBuilder.getInt32(4)));
+	    } else {
+	        if (overflow != nullptr) {
+	            EnsureAllocated(&mCPSR_V, 1);
+	            mBuilder.CreateStore(overflow, mCPSR_V);
+	        }
+            EnsureAllocated(&mCPSR_C, 1);
+            mBuilder.CreateStore(carry, mCPSR_C);
+            EnsureAllocated(&mCPSR_N, 1);
+            mBuilder.CreateStore(mBuilder.CreateICmpSLT(result, mBuilder.getInt32(0)), mCPSR_N);
+            EnsureAllocated(&mCPSR_Z, 1);
+            mBuilder.CreateStore(mBuilder.CreateICmpEQ(result, mBuilder.getInt32(0)), mCPSR_Z);
+	    }
+	}
+	
+	if (Rd == 15) {
+		mBuilder.CreateStore(mBuilder.CreateAdd(result, mBuilder.getInt32(4)), mPC);
+		mBuilder.CreateBr(mMainExit);
+	} else {
+		// Next instruction
+        mBuilder.CreateBr(GetBlock(offsetInPage + 1));
+	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * Translate_DataProcessing_AddressingMode
+// -------------------------------------------------------------------------- //
+void
+TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing_Shifter(KUInt32 offsetInPage, KUInt32 inInstruction, Value*& shifterOperand, Value*& shifterCarryOut) {
+	// 31 - 28 27 26 25 24 23 22 21 20 19 - 16 15 - 12 11 - 08 07 06 05 04 03 - 00
+	// -Cond-- 0  0  I  --Opcode--- S  --Rn--- --Rd--- ----------Operand 2-------- Data Processing
+	const KUInt32 flag_i = inInstruction & 0x02000000;
 	
 	if (flag_i) {
 		// Immediate.
@@ -926,7 +973,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			EnsureAllocated(&mCPSR_C, 1);
 			shifterCarryOut = mBuilder.CreateLoad(mCPSR_C);
 		} else {
-			shifterCarryOut = mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(32 - shiftImm)), IntegerType::getInt1Ty(context));
+			shifterCarryOut = mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(32 - shiftImm)), IntegerType::getInt1Ty(mContext));
 		}
 	} else if ((inInstruction & 0x000000F0) == 0x00000010) {
 		// Logical shift left by register.
@@ -949,26 +996,26 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 		}
 		// if rs == 0 then shifter_operand = Rm
 		shifterOperand = mBuilder.CreateSelect(
-			mBuilder.CreateICmpEQ(rsValue, mBuilder.getInt32(0)),
-				rmValue,
-			    mBuilder.CreateSelect(
-				    mBuilder.CreateICmpUGE(rsValue, mBuilder.getInt32(32)),
-		// if rs >= 32 then shifter_operand = 0
-				        mBuilder.getInt32(0),
-		// else (rs < 32) shifter_operand = Rm LSL Rs
-				        mBuilder.CreateShl(rmValue, rsValue)));
-
+											   mBuilder.CreateICmpEQ(rsValue, mBuilder.getInt32(0)),
+											   rmValue,
+											   mBuilder.CreateSelect(
+																	 mBuilder.CreateICmpUGE(rsValue, mBuilder.getInt32(32)),
+																	 // if rs >= 32 then shifter_operand = 0
+																	 mBuilder.getInt32(0),
+																	 // else (rs < 32) shifter_operand = Rm LSL Rs
+																	 mBuilder.CreateShl(rmValue, rsValue)));
+		
 		EnsureAllocated(&mCPSR_C, 1);
 		// if rs == 0 then shifter_carry_out = C Flag
 		shifterCarryOut = mBuilder.CreateSelect(
-			mBuilder.CreateICmpEQ(rsValue, mBuilder.getInt32(0)),
-				mBuilder.CreateLoad(mCPSR_C),
-		// if rs <= 32 then shifter_carry_out = Rm[32 - Rs]
-				mBuilder.CreateSelect(
-					mBuilder.CreateICmpULE(rsValue, mBuilder.getInt32(32)),
-						mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.CreateSub(mBuilder.getInt32(32), rsValue)), IntegerType::getInt1Ty(context)),
-		//else, shifter_carry_out = 0
-						mBuilder.getInt1(0)));
+												mBuilder.CreateICmpEQ(rsValue, mBuilder.getInt32(0)),
+												mBuilder.CreateLoad(mCPSR_C),
+												// if rs <= 32 then shifter_carry_out = Rm[32 - Rs]
+												mBuilder.CreateSelect(
+																	  mBuilder.CreateICmpULE(rsValue, mBuilder.getInt32(32)),
+																	  mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.CreateSub(mBuilder.getInt32(32), rsValue)), IntegerType::getInt1Ty(mContext)),
+																	  //else, shifter_carry_out = 0
+																	  mBuilder.getInt1(0)));
 	} else if ((inInstruction & 0x00000070) == 0x00000020) {
 		// Logical shift right by immediate
 		const KUInt32 shiftImm = (inInstruction & 0x00000F80) >> 7;
@@ -980,10 +1027,10 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			shifterOperand = mBuilder.CreateLoad(mRegisters[Rm]);
 		}
 		if (shiftImm == 0) {
-			shifterCarryOut = mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)), IntegerType::getInt1Ty(context));
+			shifterCarryOut = mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)), IntegerType::getInt1Ty(mContext));
 			shifterOperand = mBuilder.getInt32(0);
 		} else {
-			shifterCarryOut = mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(shiftImm - 1)), IntegerType::getInt1Ty(context));
+			shifterCarryOut = mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(shiftImm - 1)), IntegerType::getInt1Ty(mContext));
 			shifterOperand = mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(shiftImm));
 		}
 	} else if ((inInstruction & 0x000000F0) == 0x00000030) {
@@ -1007,26 +1054,26 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 		}
 		// if rs == 0 then shifter_operand = Rm
 		shifterOperand = mBuilder.CreateSelect(
-		    mBuilder.CreateICmpEQ(rsValue, mBuilder.getInt32(0)),
-		        rmValue,
-		        mBuilder.CreateSelect(
-		            mBuilder.CreateICmpUGE(rsValue, mBuilder.getInt32(32)),
-		// if rs >= 32 then shifter_operand = 0
+											   mBuilder.CreateICmpEQ(rsValue, mBuilder.getInt32(0)),
+											   rmValue,
+											   mBuilder.CreateSelect(
+																	 mBuilder.CreateICmpUGE(rsValue, mBuilder.getInt32(32)),
+																	 // if rs >= 32 then shifter_operand = 0
 		                mBuilder.getInt32(0),
-	    // else (rs < 32) shifter_operand = Rm LSR Rs
-			            mBuilder.CreateLShr(rmValue, rsValue)));
+																	 // else (rs < 32) shifter_operand = Rm LSR Rs
+																	 mBuilder.CreateLShr(rmValue, rsValue)));
 		
 		EnsureAllocated(&mCPSR_C, 1);
 		// if rs == 0 then shifter_carry_out = C Flag
 		shifterCarryOut = mBuilder.CreateSelect(
-	        mBuilder.CreateICmpEQ(rsValue, mBuilder.getInt32(0)),
-				mBuilder.CreateLoad(mCPSR_C),
-		// if rs <= 32 then shifter_carry_out = Rm[Rs - 1]
-				mBuilder.CreateSelect(
-			        mBuilder.CreateICmpULE(rsValue, mBuilder.getInt32(32)),
-					    mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.CreateSub(rsValue, mBuilder.getInt32(1))), IntegerType::getInt1Ty(context)),
-		// else, shifter_carry_out = 0
-					    mBuilder.getInt1(0)));
+												mBuilder.CreateICmpEQ(rsValue, mBuilder.getInt32(0)),
+												mBuilder.CreateLoad(mCPSR_C),
+												// if rs <= 32 then shifter_carry_out = Rm[Rs - 1]
+												mBuilder.CreateSelect(
+																	  mBuilder.CreateICmpULE(rsValue, mBuilder.getInt32(32)),
+																	  mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.CreateSub(rsValue, mBuilder.getInt32(1))), IntegerType::getInt1Ty(mContext)),
+																	  // else, shifter_carry_out = 0
+																	  mBuilder.getInt1(0)));
 	} else if ((inInstruction & 0x00000070) == 0x00000040) {
 		// Arithmetic shift right by immediate
 		const KUInt32 shiftImm = (inInstruction & 0x00000F80) >> 7;
@@ -1038,10 +1085,10 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			shifterOperand = mBuilder.CreateLoad(mRegisters[Rm]);
 		}
 		if (shiftImm == 0) {
-			shifterCarryOut = mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)), IntegerType::getInt1Ty(context));
+			shifterCarryOut = mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)), IntegerType::getInt1Ty(mContext));
 			shifterOperand = mBuilder.CreateSelect(shifterCarryOut, mBuilder.getInt32(0xFFFFFFFF), mBuilder.getInt32(0));
 		} else {
-			shifterCarryOut = mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(shiftImm - 1)), IntegerType::getInt1Ty(context));
+			shifterCarryOut = mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(shiftImm - 1)), IntegerType::getInt1Ty(mContext));
 			shifterOperand = mBuilder.CreateAShr(shifterOperand, mBuilder.getInt32(shiftImm));
 		}
 	} else if ((inInstruction & 0x000000F0) == 0x00000050) {
@@ -1066,39 +1113,39 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 		// if Rs[7:0] == 0 then
 		//     shifter_operand = Rm
 		//     shifter_carry_out = C Flag
-        // else if Rs[7:0] < 32 then
-        //      shifter_operand = Rm Arithmetic_Shift_Right Rs[7:0]
-        //      shifter_carry_out = Rm[Rs[7:0] - 1]
-        // else /* Rs[7:0] >= 32 */
-        //      if Rm[31] == 0 then
-        //          shifter_operand = 0
-        //          shifter_carry_out = Rm[31]
-        //      else /* Rm[31] == 1 */
-        //          shifter_operand = 0xFFFFFFFF
-        //          shifter_carry_out = Rm[31]
-
+		// else if Rs[7:0] < 32 then
+		//      shifter_operand = Rm Arithmetic_Shift_Right Rs[7:0]
+		//      shifter_carry_out = Rm[Rs[7:0] - 1]
+		// else /* Rs[7:0] >= 32 */
+		//      if Rm[31] == 0 then
+		//          shifter_operand = 0
+		//          shifter_carry_out = Rm[31]
+		//      else /* Rm[31] == 1 */
+		//          shifter_operand = 0xFFFFFFFF
+		//          shifter_carry_out = Rm[31]
+		
 		// ARM ARM explains that if rs >= 32 then
 		// shifter_operand = -1 or 0 depending on sign of Rm.
 		// LLVM ASR is just doing this.
 		shifterOperand =
-		    mBuilder.CreateAShr(rmValue,
-		        mBuilder.CreateSelect(
+		mBuilder.CreateAShr(rmValue,
+							mBuilder.CreateSelect(
 		            mBuilder.CreateICmpUGE(rsValue, mBuilder.getInt32(32)),
-		                mBuilder.getInt32(31),
-		                rsValue));
-
+												  mBuilder.getInt32(31),
+												  rsValue));
+		
 		EnsureAllocated(&mCPSR_C, 1);
 		// if rs == 0 then shifter_carry_out = C Flag
 		shifterCarryOut = mBuilder.CreateSelect(
-	        mBuilder.CreateICmpEQ(rsValue, mBuilder.getInt32(0)),
-				mBuilder.CreateLoad(mCPSR_C),
-				mBuilder.CreateTrunc(
-				    mBuilder.CreateLShr(rmValue,
-        				mBuilder.CreateSelect(
-			                mBuilder.CreateICmpULE(rsValue, mBuilder.getInt32(32)),
-			                    mBuilder.CreateSub(rsValue, mBuilder.getInt32(1)),
-			                    mBuilder.getInt32(31))),
-									IntegerType::getInt1Ty(context)));
+												mBuilder.CreateICmpEQ(rsValue, mBuilder.getInt32(0)),
+												mBuilder.CreateLoad(mCPSR_C),
+												mBuilder.CreateTrunc(
+																	 mBuilder.CreateLShr(rmValue,
+																						 mBuilder.CreateSelect(
+																											   mBuilder.CreateICmpULE(rsValue, mBuilder.getInt32(32)),
+																											   mBuilder.CreateSub(rsValue, mBuilder.getInt32(1)),
+																											   mBuilder.getInt32(31))),
+																	 IntegerType::getInt1Ty(mContext)));
 	} else if ((inInstruction & 0x00000070) == 0x00000060) {
 		// Rotate right by immediate
 		// Rotate right with extend
@@ -1111,17 +1158,17 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			shifterOperand = mBuilder.CreateLoad(mRegisters[Rm]);
 		}
 		if (shiftImm == 0) {
-		    // Rotate right with extend
-			shifterCarryOut = mBuilder.CreateTrunc(shifterOperand, IntegerType::getInt1Ty(context));
-    		EnsureAllocated(&mCPSR_C, 1);
+			// Rotate right with extend
+			shifterCarryOut = mBuilder.CreateTrunc(shifterOperand, IntegerType::getInt1Ty(mContext));
+			EnsureAllocated(&mCPSR_C, 1);
 			shifterOperand = mBuilder.CreateOr(
-			    mBuilder.CreateShl(mBuilder.CreateZExt(mBuilder.CreateLoad(mCPSR_C), IntegerType::getInt32Ty(context)), mBuilder.getInt32(31)),
-			    mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(1)));
+											   mBuilder.CreateShl(mBuilder.CreateZExt(mBuilder.CreateLoad(mCPSR_C), IntegerType::getInt32Ty(mContext)), mBuilder.getInt32(31)),
+											   mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(1)));
 		} else {
-			shifterCarryOut = mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(shiftImm - 1)), IntegerType::getInt1Ty(context));
+			shifterCarryOut = mBuilder.CreateTrunc(mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(shiftImm - 1)), IntegerType::getInt1Ty(mContext));
 			shifterOperand = mBuilder.CreateOr(
-			    mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(shiftImm)),
-				mBuilder.CreateShl(shifterOperand, mBuilder.getInt32(32 - shiftImm)));
+											   mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(shiftImm)),
+											   mBuilder.CreateShl(shifterOperand, mBuilder.getInt32(32 - shiftImm)));
 		}
 	} else /* ((inInstruction & 0x000000F0) == 0x00000050) */ {
 		// Rotate right by register
@@ -1143,51 +1190,46 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			rmValue = mBuilder.CreateLoad(mRegisters[Rm]);
 		}
 		Value* rsValue32 = mBuilder.CreateAnd(mBuilder.CreateLoad(mRegisters[Rs]), mBuilder.getInt32(0x0000001F));
-
+		
 		// if Rs[7:0] == 0 then
 		//     shifter_operand = Rm
 		//     shifter_carry_out = C Flag
-        // else if Rs[4:0] == 32 then
-        //      shifter_operand = Rm
-        //      shifter_carry_out = Rm[31]
-        // else /* Rs[4:0] > 32 */
-        //      shifter_operand = Rm Rotate_Right Rs[4:0]
-        //      shifter_carry_out = Rm[Rs[4:0] - 1]
-
+		// else if Rs[4:0] == 32 then
+		//      shifter_operand = Rm
+		//      shifter_carry_out = Rm[31]
+		// else /* Rs[4:0] > 32 */
+		//      shifter_operand = Rm Rotate_Right Rs[4:0]
+		//      shifter_carry_out = Rm[Rs[4:0] - 1]
+		
 		shifterOperand =
-		    mBuilder.CreateSelect(
-		        mBuilder.CreateICmpEQ(rsValue32, mBuilder.getInt32(0)),
-		            rmValue,
-        		    mBuilder.CreateOr(
-		                mBuilder.CreateLShr(rmValue, rsValue32),
-		                mBuilder.CreateShl(rmValue, mBuilder.CreateSub(mBuilder.getInt32(32), rsValue32))));
+		mBuilder.CreateSelect(
+							  mBuilder.CreateICmpEQ(rsValue32, mBuilder.getInt32(0)),
+							  rmValue,
+							  mBuilder.CreateOr(
+												mBuilder.CreateLShr(rmValue, rsValue32),
+												mBuilder.CreateShl(rmValue, mBuilder.CreateSub(mBuilder.getInt32(32), rsValue32))));
 		EnsureAllocated(&mCPSR_C, 1);
 		shifterCarryOut =
-		    mBuilder.CreateSelect(
-		        mBuilder.CreateICmpEQ(rsValue, mBuilder.getInt32(0)),
-		        mBuilder.CreateLoad(mCPSR_C),
-                mBuilder.CreateTrunc(mBuilder.CreateLShr(rmValue,
+		mBuilder.CreateSelect(
+							  mBuilder.CreateICmpEQ(rsValue, mBuilder.getInt32(0)),
+							  mBuilder.CreateLoad(mCPSR_C),
+							  mBuilder.CreateTrunc(mBuilder.CreateLShr(rmValue,
                     mBuilder.CreateSelect(
-        		        mBuilder.CreateICmpEQ(rsValue32, mBuilder.getInt32(0)),
-        		        mBuilder.getInt32(31),
-        		        mBuilder.CreateSub(rsValue32, mBuilder.getInt32(1)))), IntegerType::getInt1Ty(context)));
+										  mBuilder.CreateICmpEQ(rsValue32, mBuilder.getInt32(0)),
+										  mBuilder.getInt32(31),
+										  mBuilder.CreateSub(rsValue32, mBuilder.getInt32(1)))), IntegerType::getInt1Ty(mContext)));
 	}
-	Value* operand;
-	if (Rn == 15) {
-		operand = mBuilder.getInt32((offsetInPage + 2) * 4 + mCurrentVAddress);
-	} else {
-		EnsureAllocated(&mRegisters[Rn], 32);
-		operand = mBuilder.CreateLoad(mRegisters[Rn]);
-	}
-	
-	if (Rd != 15) {
-		EnsureAllocated(&mRegisters[Rd], 32);
-	}
+}
 
-    Value* carry = nullptr;
-    Value* overflow = nullptr;
-	Value* result = nullptr;
-    
+// -------------------------------------------------------------------------- //
+//  * Translate_DataProcessing
+// -------------------------------------------------------------------------- //
+void
+TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing_Op(KUInt32 inInstruction, Value* operand, Value* shifterOperand, Value* shifterCarryOut, Value*& carry, Value*& overflow, Value*& result) {
+	// 31 - 28 27 26 25 24 23 22 21 20 19 - 16 15 - 12 11 - 08 07 06 05 04 03 - 00
+	// -Cond-- 0  0  I  --Opcode--- S  --Rn--- --Rd--- ----------Operand 2-------- Data Processing
+	const KUInt32 Rd = (inInstruction & 0x0000F000) >> 12;
+	
 	switch ((inInstruction & 0x01E00000) >> 21)
 	{
 		case 0x0:	// 0b0000
@@ -1213,16 +1255,16 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			result = mBuilder.CreateSub(operand, shifterOperand);
 			
 			// OverFlow:
-            // Subtraction causes an overflow if the operands have different
-            // signs, and the first operand and the result have different signs.
+			// Subtraction causes an overflow if the operands have different
+			// signs, and the first operand and the result have different signs.
 			overflow = mBuilder.CreateAnd(
-			        mBuilder.CreateICmpNE(
-			            mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-    			        mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
-    			    mBuilder.CreateICmpNE(
-			            mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-    			        mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
-
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
+			
 			carry = mBuilder.CreateICmpUGE(operand, shifterOperand);
 			if (Rd != 15) {
 				mBuilder.CreateStore(result, mRegisters[Rd]);
@@ -1234,16 +1276,16 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			result = mBuilder.CreateSub(shifterOperand, operand);
 			
 			// OverFlow:
-            // Subtraction causes an overflow if the operands have different
-            // signs, and the first operand and the result have different signs.
+			// Subtraction causes an overflow if the operands have different
+			// signs, and the first operand and the result have different signs.
 			overflow = mBuilder.CreateAnd(
-			        mBuilder.CreateICmpNE(
-			            mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)),
-    			        mBuilder.CreateLShr(operand, mBuilder.getInt32(31))),
-    			    mBuilder.CreateICmpNE(
-			            mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)),
-    			        mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
-
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31))),
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
+			
 			carry = mBuilder.CreateICmpUGE(shifterOperand, operand);
 			if (Rd != 15) {
 				mBuilder.CreateStore(result, mRegisters[Rd]);
@@ -1259,17 +1301,17 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			// sign (bit[31]), and the sign of the result is different to the
 			// sign of both operands.
 			overflow = mBuilder.CreateAnd(
-			        mBuilder.CreateICmpEQ(
-			            mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-    			        mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
-    			    mBuilder.CreateICmpNE(
-			            mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-    			        mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
+										  mBuilder.CreateICmpEQ(
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
 			
 			carry = mBuilder.CreateOr(
-			            mBuilder.CreateICmpULT(result, operand),
-			            mBuilder.CreateICmpULT(result, shifterOperand));
-
+									  mBuilder.CreateICmpULT(result, operand),
+									  mBuilder.CreateICmpULT(result, shifterOperand));
+			
 			if (Rd != 15) {
 				mBuilder.CreateStore(result, mRegisters[Rd]);
 			}
@@ -1277,24 +1319,25 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			
 		case 0x5:	// 0b01010
 			// ADC
-			result = mBuilder.CreateAdd(mBuilder.CreateAdd(operand, shifterOperand), mBuilder.CreateZExt(mBuilder.CreateLoad(mCPSR_C), Type::getInt32Ty(context)));
-
+			EnsureAllocated(&mCPSR_C, 1);
+			result = mBuilder.CreateAdd(mBuilder.CreateAdd(operand, shifterOperand), mBuilder.CreateZExt(mBuilder.CreateLoad(mCPSR_C), Type::getInt32Ty(mContext)));
+			
 			// OverFlow:
 			// Addition generates an overflow if both operands have the same
 			// sign (bit[31]), and the sign of the result is different to the
 			// sign of both operands.
 			overflow = mBuilder.CreateAnd(
-			        mBuilder.CreateICmpEQ(
-			            mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-    			        mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
-    			    mBuilder.CreateICmpNE(
-			            mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-    			        mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
+										  mBuilder.CreateICmpEQ(
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
 			
 			carry = mBuilder.CreateOr(
-			            mBuilder.CreateICmpULT(result, operand),
-			            mBuilder.CreateICmpULT(result, shifterOperand));
-
+									  mBuilder.CreateICmpULT(result, operand),
+									  mBuilder.CreateICmpULT(result, shifterOperand));
+			
 			if (Rd != 15) {
 				mBuilder.CreateStore(result, mRegisters[Rd]);
 			}
@@ -1302,22 +1345,23 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			
 		case 0x6:	// 0b01100
 			// SBC
+			EnsureAllocated(&mCPSR_C, 1);
 			result = mBuilder.CreateSub(mBuilder.CreateSub(operand, shifterOperand),
-			    mBuilder.CreateZExt(
-			        mBuilder.CreateXor(mBuilder.CreateLoad(mCPSR_C), mBuilder.getInt1(true)),
-			        Type::getInt32Ty(context)));
-
+										mBuilder.CreateZExt(
+															mBuilder.CreateXor(mBuilder.CreateLoad(mCPSR_C), mBuilder.getInt1(true)),
+															Type::getInt32Ty(mContext)));
+			
 			// OverFlow:
-            // Subtraction causes an overflow if the operands have different
-            // signs, and the first operand and the result have different signs.
+			// Subtraction causes an overflow if the operands have different
+			// signs, and the first operand and the result have different signs.
 			overflow = mBuilder.CreateAnd(
-			        mBuilder.CreateICmpNE(
-			            mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-    			        mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
-    			    mBuilder.CreateICmpNE(
-			            mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-    			        mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
-
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
+			
 			carry = mBuilder.CreateICmpUGE(operand, shifterOperand);
 			if (Rd != 15) {
 				mBuilder.CreateStore(result, mRegisters[Rd]);
@@ -1326,22 +1370,23 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			
 		case 0x7:	// 0b0111
 			// RSC
+			EnsureAllocated(&mCPSR_C, 1);
 			result = mBuilder.CreateSub(mBuilder.CreateSub(shifterOperand, operand),
-			    mBuilder.CreateZExt(
-			        mBuilder.CreateXor(mBuilder.CreateLoad(mCPSR_C), mBuilder.getInt1(true)),
-			        Type::getInt32Ty(context)));
-
+										mBuilder.CreateZExt(
+															mBuilder.CreateXor(mBuilder.CreateLoad(mCPSR_C), mBuilder.getInt1(true)),
+															Type::getInt32Ty(mContext)));
+			
 			// OverFlow:
-            // Subtraction causes an overflow if the operands have different
-            // signs, and the first operand and the result have different signs.
+			// Subtraction causes an overflow if the operands have different
+			// signs, and the first operand and the result have different signs.
 			overflow = mBuilder.CreateAnd(
-			        mBuilder.CreateICmpNE(
-			            mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)),
-    			        mBuilder.CreateLShr(operand, mBuilder.getInt32(31))),
-    			    mBuilder.CreateICmpNE(
-			            mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)),
-    			        mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
-
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31))),
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
+			
 			carry = mBuilder.CreateICmpUGE(shifterOperand, operand);
 			if (Rd != 15) {
 				mBuilder.CreateStore(result, mRegisters[Rd]);
@@ -1350,53 +1395,53 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			
 		case 0x8:	// 0b1000
 			// TST
-            result = mBuilder.CreateAnd(operand, shifterOperand);
-            carry = shifterCarryOut;
+			result = mBuilder.CreateAnd(operand, shifterOperand);
+			carry = shifterCarryOut;
 			break;
 			
 		case 0x9:	// 0b1001
 			// TEQ
-            result = mBuilder.CreateXor(operand, shifterOperand);
-            carry = shifterCarryOut;
+			result = mBuilder.CreateXor(operand, shifterOperand);
+			carry = shifterCarryOut;
 			break;
 			
 		case 0xA:	// 0b1010
-		    // CMP
-            result = mBuilder.CreateSub(operand, shifterOperand);
-        
-            // OverFlow:
-            // Subtraction causes an overflow if the operands have different
-            // signs, and the first operand and the result have different signs.
-            overflow = mBuilder.CreateAnd(
-                    mBuilder.CreateICmpNE(
-                        mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-                        mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
-                    mBuilder.CreateICmpNE(
-                        mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-                        mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
-
-            carry = mBuilder.CreateICmpUGE(operand, shifterOperand);
+			// CMP
+			result = mBuilder.CreateSub(operand, shifterOperand);
+			
+			// OverFlow:
+			// Subtraction causes an overflow if the operands have different
+			// signs, and the first operand and the result have different signs.
+			overflow = mBuilder.CreateAnd(
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
+			
+			carry = mBuilder.CreateICmpUGE(operand, shifterOperand);
 			break;
 			
 		case 0xB:	// 0b1011
 			// CMN
-            result = mBuilder.CreateAdd(operand, shifterOperand);
-        
-            // OverFlow:
-            // Addition generates an overflow if both operands have the same
-            // sign (bit[31]), and the sign of the result is different to the
-            // sign of both operands.
-            overflow = mBuilder.CreateAnd(
-                    mBuilder.CreateICmpEQ(
-                        mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-                        mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
-                    mBuilder.CreateICmpNE(
-                        mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-                        mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
-        
-            carry = mBuilder.CreateOr(
-                        mBuilder.CreateICmpULT(result, operand),
-                        mBuilder.CreateICmpULT(result, shifterOperand));
+			result = mBuilder.CreateAdd(operand, shifterOperand);
+			
+			// OverFlow:
+			// Addition generates an overflow if both operands have the same
+			// sign (bit[31]), and the sign of the result is different to the
+			// sign of both operands.
+			overflow = mBuilder.CreateAnd(
+										  mBuilder.CreateICmpEQ(
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
+										  mBuilder.CreateICmpNE(
+																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
+																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
+			
+			carry = mBuilder.CreateOr(
+									  mBuilder.CreateICmpULT(result, operand),
+									  mBuilder.CreateICmpULT(result, shifterOperand));
 			break;
 			
 		case 0xC:	// 0b1100
@@ -1435,36 +1480,9 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing(KUInt32 offsetInPa
 			}
 			break;
 	}
-	
-	if (flag_s) {
-	    if (Rd == 15) {
-	        // Try CPSR = SPSR
-	        // Result is UNPREDICTABLE if not in a mode with SPSR.
-			Value* mode = BuildGetEmulationMode();
-	        Value* cpsr = BuildGetSPSR(mode);
-	        BuildSetCPSR(cpsr, mode, mBuilder.getInt1(true), mBuilder.getInt1(true), mBuilder.CreateAdd(result, mBuilder.getInt32(4)));
-	    } else {
-	        if (overflow != nullptr) {
-	            EnsureAllocated(&mCPSR_V, 1);
-	            mBuilder.CreateStore(overflow, mCPSR_V);
-	        }
-            EnsureAllocated(&mCPSR_C, 1);
-            mBuilder.CreateStore(carry, mCPSR_C);
-            EnsureAllocated(&mCPSR_N, 1);
-            mBuilder.CreateStore(mBuilder.CreateICmpSLT(result, mBuilder.getInt32(0)), mCPSR_N);
-            EnsureAllocated(&mCPSR_Z, 1);
-            mBuilder.CreateStore(mBuilder.CreateICmpEQ(result, mBuilder.getInt32(0)), mCPSR_Z);
-	    }
-	}
-	
-	if (Rd == 15) {
-		mBuilder.CreateStore(mBuilder.CreateAdd(result, mBuilder.getInt32(4)), mPC);
-		mBuilder.CreateBr(mMainExit);
-	} else {
-		// Next instruction
-        mBuilder.CreateBr(GetBlock(offsetInPage + 1));
-	}
 }
+
+
 
 // -------------------------------------------------------------------------- //
 //  * Translate_MRS
@@ -1478,7 +1496,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_MRS(KUInt32 offsetInPage, KUInt32
 	
 	if (Rd == 15) {
 		KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
-		BuildExitToFunction("UndefinedInstruction", exitPC);
+		BuildExitToFunction("JIT_UndefinedInstruction", exitPC);
 	} else {
 		EnsureAllocated(&mRegisters[Rd], 32);
 		Value* value;
@@ -1581,7 +1599,7 @@ void
 TJITLLVMTranslator::FrameTranslator::Translate_BKPT(KUInt32 offsetInPage, KUInt32 inInstruction) {
 	// Breakpoint handler will read the instruction to get the Breakpoint ID.
 	KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
-	BuildExitToFunction("Breakpoint", exitPC);
+	BuildExitToFunction("JIT_Breakpoint", exitPC);
 }
 
 // -------------------------------------------------------------------------- //
@@ -1657,7 +1675,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 	KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
 	// Unpredicable uses of R15
 	if ((flag_i && Rm == 15) || (Rn == 15 && !flag_p)) {
-		BuildExitToFunction("UndefinedInstruction", exitPC);
+		BuildExitToFunction("JIT_UndefinedInstruction", exitPC);
 	} else {
 		Value* theOffset;
 	
@@ -1708,14 +1726,12 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 		Function* setPrivilegeFunc = nullptr;
 		if (!flag_p && flag_w) {
 			// Drop privilege for unprivileged access.
-			setPrivilegeFunc = EnsureFunction(gSetPrivilegeFuncType, "SetPrivilege");
+			setPrivilegeFunc = EnsureFunction(GetSetPrivilegeFuncType(), "JIT_SetPrivilege");
 			mBuilder.CreateCall2(setPrivilegeFunc, mProcessor, mBuilder.getInt1(false));
 		}
 		
-		LLVMContext& context = getGlobalContext();
-
-		BasicBlock* dataAbortExit = BasicBlock::Create(context, BLOCKNAME, mFunction);
-		BasicBlock* proceedBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+		BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+		BasicBlock* proceedBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 		BasicBlock* nextBlock = nullptr;
 		
 		if (flag_l) {
@@ -1723,16 +1739,16 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 			Value* wordResult;
 			if (flag_b) {
 				// Byte.
-				Function* readFunction = EnsureFunction(gReadBFuncType, "ReadB");
-				Value* byte = mBuilder.CreateAlloca(Type::getInt8Ty(context));
+				Function* readFunction = EnsureFunction(GetReadBFuncType(), "JIT_ReadB");
+				Value* byte = mBuilder.CreateAlloca(Type::getInt8Ty(mContext));
 				Value* result = mBuilder.CreateCall3(readFunction, mProcessor, theAddress, byte);
 				mBuilder.CreateCondBr(result, dataAbortExit, proceedBlock);
 				mBuilder.SetInsertPoint(proceedBlock);
-				wordResult = mBuilder.CreateZExt(mBuilder.CreateLoad(byte), Type::getInt32Ty(context));
+				wordResult = mBuilder.CreateZExt(mBuilder.CreateLoad(byte), Type::getInt32Ty(mContext));
 			} else {
 				// Word.
-				Function* readFunction = EnsureFunction(gReadFuncType, "Read");
-				Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(context));
+				Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read");
+				Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(mContext));
 				Value* result = mBuilder.CreateCall3(readFunction, mProcessor, theAddress, word);
 				mBuilder.CreateCondBr(result, dataAbortExit, proceedBlock);
 				mBuilder.SetInsertPoint(proceedBlock);
@@ -1757,12 +1773,12 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 			}
 			if (flag_b) {
 				// Byte.
-				Function* writeFunction = EnsureFunction(gWriteBFuncType, "WriteB");
-				Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, theAddress, mBuilder.CreateTrunc(storedValue, Type::getInt8Ty(context)));
+				Function* writeFunction = EnsureFunction(GetWriteBFuncType(), "JIT_WriteB");
+				Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, theAddress, mBuilder.CreateTrunc(storedValue, Type::getInt8Ty(mContext)));
 				mBuilder.CreateCondBr(result, dataAbortExit, proceedBlock);
 			} else {
 				// Word.
-				Function* writeFunction = EnsureFunction(gWriteFuncType, "Write");
+				Function* writeFunction = EnsureFunction(GetWriteFuncType(), "JIT_Write");
 				Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, theAddress, storedValue);
 				mBuilder.CreateCondBr(result, dataAbortExit, proceedBlock);
 			}
@@ -1799,7 +1815,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 		mBuilder.CreateBr(nextBlock);
 		
 		mBuilder.SetInsertPoint(dataAbortExit);
-		BuildExitToFunction("DataAbort", exitPC);
+		BuildExitToFunction("JIT_DataAbort", exitPC);
 	}
 }
 
@@ -1847,7 +1863,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_Branch(KUInt32 offsetInPage, KUIn
 	        // Forward, in page.
             mBuilder.CreateBr(GetBlock(branchToInPage));
         } else if (branchToInPage >= 0 && branchToInPage < mInstructionCount) {
-			BasicBlock* signalExit = BasicBlock::Create(getGlobalContext(), BLOCKNAME, mFunction);
+			BasicBlock* signalExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
             // Backward, in page.
 			mBuilder.CreateCondBr(mBuilder.CreateLoad(mSignal, true), GetBlock(branchToInPage), signalExit);
 			mBuilder.SetInsertPoint(signalExit);
@@ -1865,7 +1881,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_Branch(KUInt32 offsetInPage, KUIn
 			// Forward, in page.
 			mBuilder.CreateBr(GetBlock(branchToInPage));
 		} else if (branchToInPage >= 0 && branchToInPage < mInstructionCount) {
-			BasicBlock* signalExit = BasicBlock::Create(getGlobalContext(), BLOCKNAME, mFunction);
+			BasicBlock* signalExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 			// Backward, in page.
 			mBuilder.CreateCondBr(mBuilder.CreateLoad(mSignal, true), GetBlock(branchToInPage), signalExit);
 			mBuilder.SetInsertPoint(signalExit);
@@ -1892,19 +1908,18 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM13(KUInt32 offsetInPage, KUInt
 	const KUInt32 Rn = (inInstruction & 0x000F0000) >> 16;
 	const KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
 	
-	LLVMContext& context = getGlobalContext();
-	BasicBlock* dataAbortExit = BasicBlock::Create(context, BLOCKNAME, mFunction);
+	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 	
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
 	Value* address = startAddress;
 	KUInt32 registersMask = 0x0001;
-	Function* readFunction = EnsureFunction(gReadFuncType, "Read");
-	Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(context));
+	Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read");
+	Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(mContext));
 	for (int i = 0; i < 15; i++) {
 		if (inInstruction & registersMask) {
 			EnsureAllocated(&mRegisters[i], 32);
 			Value* result = mBuilder.CreateCall3(readFunction, mProcessor, address, word);
-			BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+			BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 			mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 			mBuilder.SetInsertPoint(continueBlock);
 			mBuilder.CreateStore(mBuilder.CreateLoad(word), mRegisters[i]);
@@ -1914,7 +1929,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM13(KUInt32 offsetInPage, KUInt
 	}
 	if (inInstruction & 0x8000) {
 		Value* result = mBuilder.CreateCall3(readFunction, mProcessor, address, word);
-		BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+		BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 		mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 		mBuilder.SetInsertPoint(continueBlock);
 		// Store value + 4 for PREFETCH
@@ -1958,7 +1973,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM13(KUInt32 offsetInPage, KUInt
 	}
 
 	mBuilder.SetInsertPoint(dataAbortExit);
-	BuildExitToFunction("DataAbort", exitPC);
+	BuildExitToFunction("JIT_DataAbort", exitPC);
 }
 
 // -------------------------------------------------------------------------- //
@@ -1968,19 +1983,18 @@ void
 TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt32 inInstruction)
 {
 	// LDM(2) loads user mode registers when the processor is in a privileged mode.
-	LLVMContext& context = getGlobalContext();
-	BasicBlock* dataAbortExit = BasicBlock::Create(context, BLOCKNAME, mFunction);
+	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 	
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
 	Value* commonAddress = startAddress;
 	KUInt32 commonRegistersMask = 0x0001;
-	Function* readFunction = EnsureFunction(gReadFuncType, "Read");
-	Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(context));
+	Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read");
+	Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(mContext));
 	for (int i = 0; i < 8; i++) {
 		if (inInstruction & commonRegistersMask) {
 			EnsureAllocated(&mRegisters[i], 32);
 			Value* result = mBuilder.CreateCall3(readFunction, mProcessor, commonAddress, word);
-			BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+			BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 			mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 			mBuilder.SetInsertPoint(continueBlock);
 			mBuilder.CreateStore(mBuilder.CreateLoad(word), mRegisters[i]);
@@ -1989,10 +2003,10 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 		commonRegistersMask = commonRegistersMask << 1;
 	}
 	
-	BasicBlock* fiqModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* otherModesBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* testSuperModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* endBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* otherModesBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* testSuperModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* endBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 	
 	std::vector<llvm::Value *> indexes;
 	indexes.push_back(mBuilder.getInt32(0));
@@ -2011,7 +2025,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 		for (int i = 8; i < 13; i++) {
 			if (inInstruction & fiqRegistersMask) {
 				Value* result = mBuilder.CreateCall3(readFunction, mProcessor, fiqAddress, word);
-				BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				indexes[1] = mBuilder.getInt32(i_mR8_Bkup + i - 8);
@@ -2024,7 +2038,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 		for (int i = 13; i < 15; i++) {
 			if (inInstruction & fiqRegistersMask) {
 				Value* result = mBuilder.CreateCall3(readFunction, mProcessor, fiqAddress, word);
-				BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				indexes[1] = mBuilder.getInt32(i_mR13_Bkup + i - 13);
@@ -2045,7 +2059,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 			if (inInstruction & otherRegistersMask) {
 				EnsureAllocated(&mRegisters[i], 32);
 				Value* result = mBuilder.CreateCall3(readFunction, mProcessor, otherAddress, word);
-				BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				mBuilder.CreateStore(mBuilder.CreateLoad(word), mRegisters[i]);
@@ -2056,7 +2070,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 		for (int i = 13; i < 15; i++) {
 			if (inInstruction & otherRegistersMask) {
 				Value* result = mBuilder.CreateCall3(readFunction, mProcessor, otherAddress, word);
-				BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				indexes[1] = mBuilder.getInt32(i_mR13_Bkup + i - 13);
@@ -2074,7 +2088,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 
 	mBuilder.SetInsertPoint(dataAbortExit);
 	KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
-	BuildExitToFunction("DataAbort", exitPC);
+	BuildExitToFunction("JIT_DataAbort", exitPC);
 
 	// We might return after a data abort.
 	AddFunctionIfRequired(offsetInPage + 1);
@@ -2092,19 +2106,18 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM1(KUInt32 offsetInPage, KUInt3
 	const KUInt32 flag_w = (inInstruction & 0x00200000);
 	const KUInt32 Rn = (inInstruction & 0x000F0000) >> 16;
 	
-	LLVMContext& context = getGlobalContext();
-	BasicBlock* dataAbortExit = BasicBlock::Create(context, BLOCKNAME, mFunction);
+	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 	KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
 	
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
 	Value* address = startAddress;
 	KUInt32 registersMask = 0x0001;
-	Function* writeFunction = EnsureFunction(gWriteFuncType, "Write");
+	Function* writeFunction = EnsureFunction(GetWriteFuncType(), "JIT_Write");
 	for (int i = 0; i < 15; i++) {
 		if (inInstruction & registersMask) {
 			EnsureAllocated(&mRegisters[i], 32);
 			Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, address, mBuilder.CreateLoad(mRegisters[i]));
-			BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+			BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 			mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 			mBuilder.SetInsertPoint(continueBlock);
 			address = mBuilder.CreateAdd(address, mBuilder.getInt32(4));
@@ -2113,7 +2126,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM1(KUInt32 offsetInPage, KUInt3
 	}
 	if (inInstruction & 0x8000) {
 		Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, address, mBuilder.getInt32(exitPC));
-		BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+		BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 		mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 		mBuilder.SetInsertPoint(continueBlock);
 	}
@@ -2135,7 +2148,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM1(KUInt32 offsetInPage, KUInt3
 	mBuilder.CreateBr(GetBlock(offsetInPage + 1));
 
 	mBuilder.SetInsertPoint(dataAbortExit);
-	BuildExitToFunction("DataAbort", exitPC);
+	BuildExitToFunction("JIT_DataAbort", exitPC);
 
 	// We might return after a data abort.
 	AddFunctionIfRequired(offsetInPage + 1);
@@ -2148,19 +2161,18 @@ void
 TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt32 inInstruction)
 {
 	// STM(2) stores user mode registers when the processor is in a privileged mode.
-	LLVMContext& context = getGlobalContext();
-	BasicBlock* dataAbortExit = BasicBlock::Create(context, BLOCKNAME, mFunction);
+	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 	KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
 	
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
 	Value* commonAddress = startAddress;
 	KUInt32 commonRegistersMask = 0x0001;
-	Function* writeFunction = EnsureFunction(gWriteFuncType, "Write");
+	Function* writeFunction = EnsureFunction(GetWriteFuncType(), "JIT_Write");
 	for (int i = 0; i < 8; i++) {
 		if (inInstruction & commonRegistersMask) {
 			EnsureAllocated(&mRegisters[i], 32);
 			Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, commonAddress, mBuilder.CreateLoad(mRegisters[i]));
-			BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+			BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 			mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 			mBuilder.SetInsertPoint(continueBlock);
 			commonAddress = mBuilder.CreateAdd(commonAddress, mBuilder.getInt32(4));
@@ -2168,10 +2180,10 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 		commonRegistersMask = commonRegistersMask << 1;
 	}
 	
-	BasicBlock* fiqModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* otherModesBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* testSuperModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* endBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* otherModesBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* testSuperModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* endBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 	
 	std::vector<llvm::Value *> indexes;
 	indexes.push_back(mBuilder.getInt32(0));
@@ -2192,7 +2204,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 				indexes[1] = mBuilder.getInt32(i_mR8_Bkup + i - 8);
 				Value* backupRegister = mBuilder.CreateGEP(mProcessor, indexes);
 				Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, fiqAddress, mBuilder.CreateLoad(backupRegister));
-				BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				fiqAddress = mBuilder.CreateAdd(fiqAddress, mBuilder.getInt32(4));
@@ -2204,7 +2216,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 				indexes[1] = mBuilder.getInt32(i_mR13_Bkup + i - 13);
 				Value* backupRegister = mBuilder.CreateGEP(mProcessor, indexes);
 				Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, fiqAddress, mBuilder.CreateLoad(backupRegister));
-				BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				fiqAddress = mBuilder.CreateAdd(fiqAddress, mBuilder.getInt32(4));
@@ -2227,7 +2239,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 			if (inInstruction & otherRegistersMask) {
 				EnsureAllocated(&mRegisters[i], 32);
 				Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, otherAddress, mBuilder.CreateLoad(mRegisters[i]));
-				BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				otherAddress = mBuilder.CreateAdd(otherAddress, mBuilder.getInt32(4));
@@ -2239,7 +2251,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 				indexes[1] = mBuilder.getInt32(i_mR13_Bkup + i - 13);
 				Value* backupRegister = mBuilder.CreateGEP(mProcessor, indexes);
 				Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, otherAddress, mBuilder.CreateLoad(backupRegister));
-				BasicBlock* continueBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				otherAddress = mBuilder.CreateAdd(otherAddress, mBuilder.getInt32(4));
@@ -2259,7 +2271,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 	mBuilder.CreateBr(GetBlock(offsetInPage + 1));
 	
 	mBuilder.SetInsertPoint(dataAbortExit);
-	BuildExitToFunction("DataAbort", exitPC);
+	BuildExitToFunction("JIT_DataAbort", exitPC);
 
 	// We might return after a data abort.
 	AddFunctionIfRequired(offsetInPage + 1);
@@ -2443,15 +2455,14 @@ TJITLLVMTranslator::FrameTranslator::BuildBackupBankRegisters(Value* currentMode
 	indexes.push_back(mBuilder.getInt32(0));
 	indexes.push_back(mBuilder.getInt32(0));
 
-	LLVMContext& context = getGlobalContext();
-	BasicBlock* endBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* firstSetBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* userModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* supervisorModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* abortModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* undefinedModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* irqModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* fiqModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+	BasicBlock* endBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* firstSetBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* userModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* supervisorModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* abortModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* undefinedModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* irqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 	SwitchInst* sw = mBuilder.CreateSwitch(currentMode, userModeBlock);
 	
 	sw->addCase(mBuilder.getInt32(TARMProcessor::kUserMode), userModeBlock);
@@ -2527,18 +2538,17 @@ TJITLLVMTranslator::FrameTranslator::BuildRestoreBankRegisters(Value* currentMod
 	indexes.push_back(mBuilder.getInt32(0));
 	indexes.push_back(mBuilder.getInt32(0));
 
-	LLVMContext& context = getGlobalContext();
-	BasicBlock* endBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* restoreFIQBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* restoreSwitchBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* restoreFirstSetBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+	BasicBlock* endBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* restoreFIQBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* restoreSwitchBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* restoreFirstSetBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 
-	BasicBlock* userModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* supervisorModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* abortModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* undefinedModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* irqModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* fiqModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+	BasicBlock* userModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* supervisorModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* abortModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* undefinedModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* irqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 
     // Old mode was FIQ, new mode is not FIQ : restore R8-R12
     mBuilder.CreateCondBr(
@@ -2631,14 +2641,13 @@ TJITLLVMTranslator::FrameTranslator::BuildSetCPSR(Value* operand, Value* current
 	indexes.push_back(mBuilder.getInt32(0));
 
 	// First set field bits.
-	LLVMContext& context = getGlobalContext();
-	BasicBlock* setFieldsBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* afterSetFieldsBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* setControlBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* setModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* setPrivilegeBitsBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* signalInterruptExit = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* endBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+	BasicBlock* setFieldsBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* afterSetFieldsBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* setControlBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* setModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* setPrivilegeBitsBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* signalInterruptExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* endBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 	mBuilder.CreateCondBr(doFieldsBits, setFieldsBlock, afterSetFieldsBlock);
 	mBuilder.SetInsertPoint(setFieldsBlock);
 	EnsureAllocated(&mCPSR_N, 1);
@@ -2646,13 +2655,13 @@ TJITLLVMTranslator::FrameTranslator::BuildSetCPSR(Value* operand, Value* current
 	EnsureAllocated(&mCPSR_C, 1);
 	EnsureAllocated(&mCPSR_V, 1);
 	mBuilder.CreateStore(mBuilder.CreateTrunc(
-		mBuilder.CreateLShr(operand, mBuilder.getInt32(31)), IntegerType::getInt1Ty(context)), mCPSR_N);
+		mBuilder.CreateLShr(operand, mBuilder.getInt32(31)), IntegerType::getInt1Ty(mContext)), mCPSR_N);
 	mBuilder.CreateStore(mBuilder.CreateTrunc(
-		mBuilder.CreateLShr(operand, mBuilder.getInt32(30)), IntegerType::getInt1Ty(context)), mCPSR_Z);
+		mBuilder.CreateLShr(operand, mBuilder.getInt32(30)), IntegerType::getInt1Ty(mContext)), mCPSR_Z);
 	mBuilder.CreateStore(mBuilder.CreateTrunc(
-		mBuilder.CreateLShr(operand, mBuilder.getInt32(29)), IntegerType::getInt1Ty(context)), mCPSR_C);
+		mBuilder.CreateLShr(operand, mBuilder.getInt32(29)), IntegerType::getInt1Ty(mContext)), mCPSR_C);
 	mBuilder.CreateStore(mBuilder.CreateTrunc(
-		mBuilder.CreateLShr(operand, mBuilder.getInt32(28)), IntegerType::getInt1Ty(context)), mCPSR_V);
+		mBuilder.CreateLShr(operand, mBuilder.getInt32(28)), IntegerType::getInt1Ty(mContext)), mCPSR_V);
 	mBuilder.CreateBr(afterSetFieldsBlock);
 	mBuilder.SetInsertPoint(afterSetFieldsBlock);
 	mBuilder.CreateCondBr(doControlBits, setControlBlock, endBlock);
@@ -2667,20 +2676,20 @@ TJITLLVMTranslator::FrameTranslator::BuildSetCPSR(Value* operand, Value* current
 	indexes[1] = mBuilder.getInt32(i_mMode);
 	mBuilder.CreateStore(newMode, mBuilder.CreateGEP(mProcessor, indexes));
 	
-	Function* setPrivilegeFunc = EnsureFunction(gSetPrivilegeFuncType, "SetPrivilege");
+	Function* setPrivilegeFunc = EnsureFunction(GetSetPrivilegeFuncType(), "JIT_SetPrivilege");
 	mBuilder.CreateCall2(setPrivilegeFunc, mProcessor, mBuilder.CreateICmpNE(newMode, mBuilder.getInt32(TARMProcessor::kUserMode)));
 	mBuilder.CreateBr(setPrivilegeBitsBlock);
 	
 	mBuilder.SetInsertPoint(setPrivilegeBitsBlock);
 	indexes[1] = mBuilder.getInt32(i_mCPSR_I);
-	Value* newCPSR_I = mBuilder.CreateTrunc(mBuilder.CreateLShr(operand, mBuilder.getInt32(7)), IntegerType::getInt1Ty(context));
+	Value* newCPSR_I = mBuilder.CreateTrunc(mBuilder.CreateLShr(operand, mBuilder.getInt32(7)), IntegerType::getInt1Ty(mContext));
 	mBuilder.CreateStore(newCPSR_I, mBuilder.CreateGEP(mProcessor, indexes));
 	indexes[1] = mBuilder.getInt32(i_mCPSR_F);
-	Value* newCPSR_F = mBuilder.CreateTrunc(mBuilder.CreateLShr(operand, mBuilder.getInt32(6)), IntegerType::getInt1Ty(context));
+	Value* newCPSR_F = mBuilder.CreateTrunc(mBuilder.CreateLShr(operand, mBuilder.getInt32(6)), IntegerType::getInt1Ty(mContext));
 	mBuilder.CreateStore(newCPSR_F, mBuilder.CreateGEP(mProcessor, indexes));
 	indexes[1] = mBuilder.getInt32(i_mCPSR_T);
 	mBuilder.CreateStore(
-		mBuilder.CreateTrunc(mBuilder.CreateLShr(operand, mBuilder.getInt32(5)), IntegerType::getInt1Ty(context)),
+		mBuilder.CreateTrunc(mBuilder.CreateLShr(operand, mBuilder.getInt32(5)), IntegerType::getInt1Ty(mContext)),
 		mBuilder.CreateGEP(mProcessor, indexes));
 
 	indexes[1] = mBuilder.getInt32(i_mPendingInterrupts);
@@ -2691,7 +2700,7 @@ TJITLLVMTranslator::FrameTranslator::BuildSetCPSR(Value* operand, Value* current
 	mBuilder.CreateCondBr(mBuilder.CreateICmpNE(mBuilder.getInt32(0), mBuilder.CreateAnd(mPendingInterrupts, mask)), signalInterruptExit, endBlock);
 	
 	mBuilder.SetInsertPoint(signalInterruptExit);
-	BuildExitToFunction("SignalInterrupt", exitPC);
+	BuildExitToFunction("JIT_SignalInterrupt", exitPC);
 	
 	mBuilder.SetInsertPoint(endBlock);
 }
@@ -2705,13 +2714,12 @@ TJITLLVMTranslator::FrameTranslator::BuildSetSPSR(Value* operand, Value* current
 	indexes.push_back(mBuilder.getInt32(0));
 	indexes.push_back(mBuilder.getInt32(0));
 
-	LLVMContext& context = getGlobalContext();
-	BasicBlock* endBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* supervisorModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* abortModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* undefinedModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* irqModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
-	BasicBlock* fiqModeBlock = BasicBlock::Create(context, BLOCKNAME, mFunction);
+	BasicBlock* endBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* supervisorModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* abortModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* undefinedModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* irqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 	SwitchInst* sw = mBuilder.CreateSwitch(currentMode, endBlock);
 	
 	sw->addCase(mBuilder.getInt32(TARMProcessor::kSupervisorMode), supervisorModeBlock);
@@ -2835,176 +2843,160 @@ TJITLLVMTranslator::FrameTranslator::GetShiftNoCarryNoR15(KUInt32 inInstruction)
 }
 
 // -------------------------------------------------------------------------- //
-//  * DefineTARMProcessorType(void)
+//  * GetTARMProcessorType(void)
 // -------------------------------------------------------------------------- //
 PointerType*
-TJITLLVMTranslator::DefineTARMProcessorPtrType(void) {
+TJITLLVMTranslator::FrameTranslator::GetTARMProcessorPtrType(void) {
 	 // We consider functions return int8* and we will use bitcast.
-	 LLVMContext& context = getGlobalContext();
-	 
 	 // LLVM functions only know about the processor registers
 	 StructType* tARMProcessorType = StructType::get(
-		 IntegerType::get(context, 32),  // mCurrentRegisters[0]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[1]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[2]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[3]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[4]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[5]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[6]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[7]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[8]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[9]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[10]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[11]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[12]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[13]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[14]
-		 IntegerType::get(context, 32),  // mCurrentRegisters[15]
-		 IntegerType::get(context, 1),   // mCPSR_N
-		 IntegerType::get(context, 1),   // mCPSR_Z
-		 IntegerType::get(context, 1),   // mCPSR_C
-		 IntegerType::get(context, 1),   // mCPSR_V
-		 IntegerType::get(context, 1),   // mCPSR_I
-		 IntegerType::get(context, 1),   // mCPSR_F
-		 IntegerType::get(context, 1),   // mCPSR_T
-		 IntegerType::get(context, 32),  // mR8_Bkup
-		 IntegerType::get(context, 32),  // mR9_Bkup
-		 IntegerType::get(context, 32),  // mR10_Bkup
-		 IntegerType::get(context, 32),  // mR11_Bkup
-		 IntegerType::get(context, 32),  // mR12_Bkup
-		 IntegerType::get(context, 32),  // mR13_Bkup
-		 IntegerType::get(context, 32),  // mR14_Bkup
-		 IntegerType::get(context, 32),  // mR13svc_Bkup
-		 IntegerType::get(context, 32),  // mR14svc_Bkup
-		 IntegerType::get(context, 32),  // mR13abt_Bkup
-		 IntegerType::get(context, 32),  // mR14abt_Bkup
-		 IntegerType::get(context, 32),  // mR13und_Bkup
-		 IntegerType::get(context, 32),  // mR14und_Bkup
-		 IntegerType::get(context, 32),  // mR13irq_Bkup
-		 IntegerType::get(context, 32),  // mR14irq_Bkup
-		 IntegerType::get(context, 32),  // mR8fiq_Bkup
-		 IntegerType::get(context, 32),  // mR9fiq_Bkup
-		 IntegerType::get(context, 32),  // mR10fiq_Bkup
-		 IntegerType::get(context, 32),  // mR11fiq_Bkup
-		 IntegerType::get(context, 32),  // mR12fiq_Bkup
-		 IntegerType::get(context, 32),  // mR13fiq_Bkup
-		 IntegerType::get(context, 32),  // mR14fiq_Bkup
-		 IntegerType::get(context, 32),  // mSPSRsvc
-		 IntegerType::get(context, 32),  // mSPSRabt
-		 IntegerType::get(context, 32),  // mSPSRund
-		 IntegerType::get(context, 32),  // mSPSRirq
-		 IntegerType::get(context, 32),  // mSPSRfiq
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[0]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[1]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[2]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[3]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[4]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[5]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[6]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[7]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[8]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[9]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[10]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[11]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[12]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[13]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[14]
+		 IntegerType::get(mContext, 32),  // mCurrentRegisters[15]
+		 IntegerType::get(mContext, 1),   // mCPSR_N
+		 IntegerType::get(mContext, 1),   // mCPSR_Z
+		 IntegerType::get(mContext, 1),   // mCPSR_C
+		 IntegerType::get(mContext, 1),   // mCPSR_V
+		 IntegerType::get(mContext, 1),   // mCPSR_I
+		 IntegerType::get(mContext, 1),   // mCPSR_F
+		 IntegerType::get(mContext, 1),   // mCPSR_T
+		 IntegerType::get(mContext, 32),  // mR8_Bkup
+		 IntegerType::get(mContext, 32),  // mR9_Bkup
+		 IntegerType::get(mContext, 32),  // mR10_Bkup
+		 IntegerType::get(mContext, 32),  // mR11_Bkup
+		 IntegerType::get(mContext, 32),  // mR12_Bkup
+		 IntegerType::get(mContext, 32),  // mR13_Bkup
+		 IntegerType::get(mContext, 32),  // mR14_Bkup
+		 IntegerType::get(mContext, 32),  // mR13svc_Bkup
+		 IntegerType::get(mContext, 32),  // mR14svc_Bkup
+		 IntegerType::get(mContext, 32),  // mR13abt_Bkup
+		 IntegerType::get(mContext, 32),  // mR14abt_Bkup
+		 IntegerType::get(mContext, 32),  // mR13und_Bkup
+		 IntegerType::get(mContext, 32),  // mR14und_Bkup
+		 IntegerType::get(mContext, 32),  // mR13irq_Bkup
+		 IntegerType::get(mContext, 32),  // mR14irq_Bkup
+		 IntegerType::get(mContext, 32),  // mR8fiq_Bkup
+		 IntegerType::get(mContext, 32),  // mR9fiq_Bkup
+		 IntegerType::get(mContext, 32),  // mR10fiq_Bkup
+		 IntegerType::get(mContext, 32),  // mR11fiq_Bkup
+		 IntegerType::get(mContext, 32),  // mR12fiq_Bkup
+		 IntegerType::get(mContext, 32),  // mR13fiq_Bkup
+		 IntegerType::get(mContext, 32),  // mR14fiq_Bkup
+		 IntegerType::get(mContext, 32),  // mSPSRsvc
+		 IntegerType::get(mContext, 32),  // mSPSRabt
+		 IntegerType::get(mContext, 32),  // mSPSRund
+		 IntegerType::get(mContext, 32),  // mSPSRirq
+		 IntegerType::get(mContext, 32),  // mSPSRfiq
 
-		 IntegerType::get(context, 32),  // mMode
-		 IntegerType::get(context, 32),  // mPendingInterrupts
+		 IntegerType::get(mContext, 32),  // mMode
+		 IntegerType::get(mContext, 32),  // mPendingInterrupts
 		 NULL);
 	 
 	 return PointerType::get(tARMProcessorType, 0);
 }
 
 // -------------------------------------------------------------------------- //
-//  * DefineEntryPointFuncType(void)
+//  * GetEntryPointFuncType(void)
 // -------------------------------------------------------------------------- //
 FunctionType*
-TJITLLVMTranslator::DefineEntryPointFuncType(void) {
+TJITLLVMTranslator::FrameTranslator::GetEntryPointFuncType(void) {
 	// We consider functions return int8* and we will use bitcast.
-	LLVMContext& context = getGlobalContext();
-
 	Type* argsList[2];
-	argsList[0] = gTARMProcessorPtrType;
-	argsList[1] = PointerType::getInt1PtrTy(context);
+	argsList[0] = GetTARMProcessorPtrType();
+	argsList[1] = PointerType::getInt1PtrTy(mContext);
 	ArrayRef<Type*> funcArgs(argsList);
-	return FunctionType::get(PointerType::getInt8PtrTy(context), funcArgs, false);
+	return FunctionType::get(PointerType::getInt8PtrTy(mContext), funcArgs, false);
 }
 
 // -------------------------------------------------------------------------- //
-//  * DefineEntryPointFuncType(void)
+//  * GetEntryPointFuncType(void)
 // -------------------------------------------------------------------------- //
 FunctionType*
-TJITLLVMTranslator::DefineInnerFuncType(void) {
+TJITLLVMTranslator::FrameTranslator::GetInnerFuncType(void) {
 	// We consider functions return int8* and we will use bitcast.
-	LLVMContext& context = getGlobalContext();
-	
 	Type* argsList[3];
-	argsList[0] = gTARMProcessorPtrType;
-	argsList[1] = PointerType::getInt1PtrTy(context);
-	argsList[2] = IntegerType::getInt32Ty(context);
+	argsList[0] = GetTARMProcessorPtrType();
+	argsList[1] = PointerType::getInt1PtrTy(mContext);
+	argsList[2] = IntegerType::getInt32Ty(mContext);
 	ArrayRef<Type*> funcArgs(argsList);
-	return FunctionType::get(PointerType::getInt8PtrTy(context), funcArgs, false);
+	return FunctionType::get(PointerType::getInt8PtrTy(mContext), funcArgs, false);
 }
 
 // -------------------------------------------------------------------------- //
-//  * DefineReadBFuncType(void)
+//  * GetReadBFuncType(void)
 // -------------------------------------------------------------------------- //
 FunctionType*
-TJITLLVMTranslator::DefineReadBFuncType(void) {
-	LLVMContext& context = getGlobalContext();
-	
+TJITLLVMTranslator::FrameTranslator::GetReadBFuncType(void) {
 	Type* argsList[3];
-	argsList[0] = gTARMProcessorPtrType;
-	argsList[1] = Type::getInt32Ty(context);
-	argsList[2] = PointerType::getInt8PtrTy(context);
+	argsList[0] = GetTARMProcessorPtrType();
+	argsList[1] = Type::getInt32Ty(mContext);
+	argsList[2] = PointerType::getInt8PtrTy(mContext);
 	ArrayRef<Type*> funcArgs(argsList);
-	return FunctionType::get(Type::getInt1Ty(context), funcArgs, false);
+	return FunctionType::get(Type::getInt1Ty(mContext), funcArgs, false);
 }
 
 // -------------------------------------------------------------------------- //
-//  * DefineWriteBFuncType(void)
+//  * GetWriteBFuncType(void)
 // -------------------------------------------------------------------------- //
 FunctionType*
-TJITLLVMTranslator::DefineWriteBFuncType(void) {
-	LLVMContext& context = getGlobalContext();
-	
+TJITLLVMTranslator::FrameTranslator::GetWriteBFuncType(void) {
 	Type* argsList[3];
-	argsList[0] = gTARMProcessorPtrType;
-	argsList[1] = Type::getInt32Ty(context);
-	argsList[2] = Type::getInt8Ty(context);
+	argsList[0] = GetTARMProcessorPtrType();
+	argsList[1] = Type::getInt32Ty(mContext);
+	argsList[2] = Type::getInt8Ty(mContext);
 	ArrayRef<Type*> funcArgs(argsList);
-	return FunctionType::get(Type::getInt1Ty(context), funcArgs, false);
+	return FunctionType::get(Type::getInt1Ty(mContext), funcArgs, false);
 }
 
 // -------------------------------------------------------------------------- //
-//  * DefineReadFuncType(void)
+//  * GetReadFuncType(void)
 // -------------------------------------------------------------------------- //
 FunctionType*
-TJITLLVMTranslator::DefineReadFuncType(void) {
-	LLVMContext& context = getGlobalContext();
-	
+TJITLLVMTranslator::FrameTranslator::GetReadFuncType(void) {
 	Type* argsList[3];
-	argsList[0] = gTARMProcessorPtrType;
-	argsList[1] = Type::getInt32Ty(context);
-	argsList[2] = PointerType::getInt32PtrTy(context);
+	argsList[0] = GetTARMProcessorPtrType();
+	argsList[1] = Type::getInt32Ty(mContext);
+	argsList[2] = PointerType::getInt32PtrTy(mContext);
 	ArrayRef<Type*> funcArgs(argsList);
-	return FunctionType::get(Type::getInt1Ty(context), funcArgs, false);
+	return FunctionType::get(Type::getInt1Ty(mContext), funcArgs, false);
 }
 
 // -------------------------------------------------------------------------- //
-//  * DefineWriteFuncType(void)
+//  * GetWriteFuncType(void)
 // -------------------------------------------------------------------------- //
 FunctionType*
-TJITLLVMTranslator::DefineWriteFuncType(void) {
-	LLVMContext& context = getGlobalContext();
-	
+TJITLLVMTranslator::FrameTranslator::GetWriteFuncType(void) {
 	Type* argsList[3];
-	argsList[0] = gTARMProcessorPtrType;
-	argsList[1] = Type::getInt32Ty(context);
-	argsList[2] = Type::getInt32Ty(context);
+	argsList[0] = GetTARMProcessorPtrType();
+	argsList[1] = Type::getInt32Ty(mContext);
+	argsList[2] = Type::getInt32Ty(mContext);
 	ArrayRef<Type*> funcArgs(argsList);
-	return FunctionType::get(Type::getInt1Ty(context), funcArgs, false);
+	return FunctionType::get(Type::getInt1Ty(mContext), funcArgs, false);
 }
 
 // -------------------------------------------------------------------------- //
-//  * DefineSetPrivilegeFuncType(void)
+//  * GetSetPrivilegeFuncType(void)
 // -------------------------------------------------------------------------- //
 FunctionType*
-TJITLLVMTranslator::DefineSetPrivilegeFuncType(void) {
-	LLVMContext& context = getGlobalContext();
-	
+TJITLLVMTranslator::FrameTranslator::GetSetPrivilegeFuncType(void) {
 	Type* argsList[2];
-	argsList[0] = gTARMProcessorPtrType;
-	argsList[1] = Type::getInt1Ty(context);
+	argsList[0] = GetTARMProcessorPtrType();
+	argsList[1] = Type::getInt1Ty(mContext);
 	ArrayRef<Type*> funcArgs(argsList);
-	return FunctionType::get(PointerType::getInt8PtrTy(context), funcArgs, false);
+	return FunctionType::get(PointerType::getInt8PtrTy(mContext), funcArgs, false);
 }
 
 // -------------------------------------------------------------------------- //
