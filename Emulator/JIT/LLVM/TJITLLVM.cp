@@ -60,6 +60,8 @@ TJITLLVM::TJITLLVM(
 	:
 		TJIT<TJITLLVM, TJITLLVMPage>( inMemoryIntf, inMMUIntf )
 {
+	// Finally init cache.
+	InitCache();
 }
 
 // -------------------------------------------------------------------------- //

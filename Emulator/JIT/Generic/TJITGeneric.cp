@@ -132,6 +132,7 @@ TJITGeneric::TJITGeneric(
 	:
 		TJIT<TJITGeneric, TJITGenericPage>( inMemoryIntf, inMMUIntf )
 {
+	InitCache();
 }
 
 // -------------------------------------------------------------------------- //

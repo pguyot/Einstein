@@ -146,6 +146,16 @@ public:
 	    return TImplementation::kVersion;
 	}
 
+protected:
+	///
+	/// Init cache.
+	/// This must be called from the constructor, after necessary initializations
+	/// have taken place.
+	///
+	void InitCache() {
+		mCache.Init();
+	}
+	
 private:
 	/// \name Variables
 	TJITCache<TPage>		mCache;			///< Cache.

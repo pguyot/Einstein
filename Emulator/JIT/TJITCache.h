@@ -58,6 +58,12 @@ public:
 	~TJITCache( void );
 	
 	///
+	/// Init the cache.
+	/// Make sure this is called after the JIT object was initialized.
+	///
+	void Init();
+
+	///
 	/// From a virtual address, return a new page or NULL if a translation
 	/// error occurred (typically a MMU problem).
 	///

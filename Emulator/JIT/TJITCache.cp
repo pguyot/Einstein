@@ -148,7 +148,14 @@ TJITCache<JITPageClass>::TJITCache(
 		mMMUIntf( inMMUIntf )
 {
 	InitPMap();
-	
+}
+
+// -------------------------------------------------------------------------- //
+//  * Init( TMemory*, TMMU* )
+// -------------------------------------------------------------------------- //
+template<>
+void
+TJITCache<JITPageClass>::Init() {
 	// Init the entries.
 	// We create up to one entry per ROM page.
 	SEntry* theEntries = mVMap.GetValues();
@@ -158,7 +165,7 @@ TJITCache<JITPageClass>::TJITCache(
 		SEntry* theEntry = &theEntries[indexEntry];
 		theEntry->key = theAddress;
 		theEntry->mPhysicalAddress = theAddress;
-		theEntry->mPage.Init( inMemoryIntf, theAddress, theAddress);
+		theEntry->mPage.Init(mMemoryIntf, theAddress, theAddress);
 		
 		mVMap.Insert(theAddress, theEntry);
 		InsertInPMap(theAddress, theEntry);
