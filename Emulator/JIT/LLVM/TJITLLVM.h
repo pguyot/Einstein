@@ -29,7 +29,6 @@
 
 // Einstein
 #include "Emulator/JIT/LLVM/TJITLLVMPage.h"
-#include "Emulator/JIT/LLVM/TJITLLVMLinker.h"
 
 #include <llvm/IR/Module.h>
 #include <llvm/Support/TargetRegistry.h>
