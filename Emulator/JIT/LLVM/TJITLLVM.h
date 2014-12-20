@@ -32,6 +32,7 @@
 
 #include <llvm/IR/Module.h>
 #include <llvm/Support/TargetRegistry.h>
+#include <llvm/Object/ObjectFile.h>
 
 #include "K/Threads/TThread.h"
 #include "K/Threads/TMutex.h"
@@ -140,26 +141,14 @@ public:
 	///
 	llvm::ExecutionEngine* CreateExecutionEngine();
 	
+	///
+	/// Create a new runtime linker for cached objects.
+	///
+	llvm::RuntimeDyld* CreateRuntimeDyld();
+	
 private:
 	TJITLLVM( const TJITLLVM& inCopy ) = delete;
 	TJITLLVM& operator = ( const TJITLLVM& inCopy ) = delete;
-	
-	///
-	/// We need our own memory manager as InstallLazyFunctionCreator
-	/// does not work with MCJIT.
-	///
-	class MemoryManager : public llvm::SectionMemoryManager {
-		/// This method returns the address of the specified function or variable.
-		/// It is used to resolve symbols during module linking.
-		uint64_t getSymbolAddress(const std::string &Name) override;
-
-	public:
-		MemoryManager(const std::map<std::string, uint64_t>& inGlues) :
-		mGluesTable(inGlues) {};
-
-	private:
-		const std::map<std::string, uint64_t>& mGluesTable;
-	};
 	
 	///
 	/// Constructor helper to create the glues table.
@@ -169,7 +158,60 @@ private:
 	TJITLLVMObjectCache*	mObjectCache;	///< Directory with cached native code.
 	const llvm::Target*		mTarget;		///< Lookup only once.
 	const std::map<std::string, uint64_t> mGluesTable;	///< Address of glue functions.
+};
+
+///
+/// Memory manager that solves glue symbols.
+///
+class TJITLLVMGlueMemoryManager : public llvm::SectionMemoryManager {
+public:
+	TJITLLVMGlueMemoryManager(const std::map<std::string, uint64_t>& inGlues) :
+	mGluesTable(inGlues) {};
+
+	/// This method returns the address of the specified function or variable.
+	/// It is used to resolve symbols during module linking.
+	uint64_t getSymbolAddress(const std::string &Name) override;
+
+private:
+	const std::map<std::string, uint64_t>&	mGluesTable;
+};
+
+///
+/// Memory manager that records allocation so we know about load addresses
+/// of functions and avoid symbol lookups.
+///
+/// (What a hack !)
+///
+class TJITLLVMRecordingMemoryManager : public TJITLLVMGlueMemoryManager {
+public:
+	TJITLLVMRecordingMemoryManager(const std::map<std::string, uint64_t>& inGlues) :
+	TJITLLVMGlueMemoryManager(inGlues) {};
 	
+	///
+	/// Patch of allocateCodeSection callback to note where
+	/// sections are loaded
+	///
+	uint8_t* allocateCodeSection(uintptr_t size, unsigned alignment, unsigned sectionID, llvm::StringRef sectionName) override;
+	
+	///
+	/// Start recording allocations.
+	///
+	void FlushRecordedAllocations() {
+		mAllocatedSectionsCount = 0;
+		mLatestAllocatedSectionID = (unsigned) -1;
+		mLatestAllocatedAddress = nullptr;
+	}
+	
+	///
+	/// Get section load address.
+	/// Aborts if more than one section was loaded.
+	///
+	uint8_t* GetLatestSectionLoadAddress();
+	
+private:
+	unsigned							mAllocatedSectionsCount;
+	unsigned							mLatestAllocatedSectionID;
+	uint8_t*							mLatestAllocatedAddress;
 };
 
 #endif

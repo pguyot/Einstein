@@ -32,6 +32,7 @@
 
 class TROMImage;
 class TJITLLVMPage;
+class TJITLLVMRecordingMemoryManager;
 
 ///
 /// LLVM object cache.
@@ -41,15 +42,16 @@ class TJITLLVMObjectCache : public llvm::ObjectCache {
 public:
     ///
     /// Constructor from a ROM Image.
-	/// Cache directory is cleaned in there is a mismatch.
+	/// Cached objects older than ROM image are deleted.
+	/// Memory manager is owned by this object (through dynamic linker).
     ///
-    TJITLLVMObjectCache(const TROMImage& inROMImage);
+    TJITLLVMObjectCache(const TROMImage& inROMImage, TJITLLVMRecordingMemoryManager* inMemoryManager);
 
 	///
 	/// Load functions for a given page.
 	/// Return the function pointers.
 	///
-	std::map<KUInt32, JITFuncPtr> LoadPageFunctions(llvm::ExecutionEngine& inEngine, const TJITLLVMPage& inPage);
+	std::map<KUInt32, JITFuncPtr> LoadPageFunctions(llvm::SmallVector<llvm::ObjectImage *, 2>& ioLoadedObjects, const TJITLLVMPage& inPage);
 	
 	///
 	/// ObjectCache interface: write machine code to disk.
@@ -78,7 +80,9 @@ private:
 
     /// Mapping from VAddr/PAddr couple to module name.
     std::unordered_map<uint64_t, llvm::StringRef>   mEntryPointMapping;
+	llvm::RuntimeDyld								mDynamicLinker;
 	const llvm::SmallString<128>                    mCacheDir;
+	TJITLLVMRecordingMemoryManager*					mMemoryManager;
 };
 
 #endif

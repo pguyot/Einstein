@@ -33,6 +33,8 @@
 #include <llvm/Support/Path.h>
 #include <llvm/Object/ObjectFile.h>
 #include <llvm/Object/SymbolicFile.h>
+#include <llvm/ExecutionEngine/RuntimeDyld.h>
+#include <llvm/ExecutionEngine/ObjectImage.h>
 
 // POSIX
 #include <sys/stat.h>
@@ -42,11 +44,13 @@
 using namespace llvm;
 
 // -------------------------------------------------------------------------- //
-//  * TJITLLVMObjectCache(const TROMImage&)
+//  * TJITLLVMObjectCache(const TROMImage&, RTDyldMemoryManager*)
 // -------------------------------------------------------------------------- //
-TJITLLVMObjectCache::TJITLLVMObjectCache(const TROMImage& inROMImage)
+TJITLLVMObjectCache::TJITLLVMObjectCache(const TROMImage& inROMImage, TJITLLVMRecordingMemoryManager* memoryManager)
     :
-        mCacheDir(GetCacheDir(inROMImage))
+        mCacheDir(GetCacheDir(inROMImage)),
+		mDynamicLinker(memoryManager),
+		mMemoryManager(memoryManager)
 {
 	InvalidateCacheIfRequired(inROMImage);
 }
@@ -150,10 +154,10 @@ TJITLLVMObjectCache::getObject(const llvm::Module* inModule) {
 }
 
 // -------------------------------------------------------------------------- //
-//  * LoadPageFunctions(llvm::ExecutionEngine&, const TJITLLVMPage&)
+//  * LoadPageFunctions(SmallVector<ObjectImage *, 2>&, const TJITLLVMPage&)
 // -------------------------------------------------------------------------- //
 std::map<KUInt32, JITFuncPtr>
-TJITLLVMObjectCache::LoadPageFunctions(llvm::ExecutionEngine& engine, const TJITLLVMPage& page) {
+TJITLLVMObjectCache::LoadPageFunctions(SmallVector<ObjectImage *, 2>& ioLoadedObjects, const TJITLLVMPage& page) {
 	std::map<KUInt32, JITFuncPtr> result;
 	SmallString<112> path(mCacheDir);
 	sys::path::append(path, page.PagePrefix());
@@ -173,20 +177,40 @@ TJITLLVMObjectCache::LoadPageFunctions(llvm::ExecutionEngine& engine, const TJIT
 				fprintf(stderr, "Could not create object file %s (%s)\n", objPath.c_str(), objFile.getError().message().c_str());
 				abort();
 			}
-			engine.addObjectFile(std::move(std::unique_ptr<object::ObjectFile>(objFile.get())));
-			// Object file hasn't been deleted yet...
-			for (auto it = objFile.get()->symbol_begin_impl(); it != objFile.get()->symbol_end_impl(); ++it) {
+			mMemoryManager->FlushRecordedAllocations();
+			ObjectImage* image = mDynamicLinker.loadObject(std::move(std::unique_ptr<object::ObjectFile>(objFile.get())));
+			ioLoadedObjects.push_back(image);
+			uint8_t* sectionLoadAddr = mMemoryManager->GetLatestSectionLoadAddress();
+			auto section = image->begin_sections();
+			for (auto it = image->begin_symbols(); it != image->end_symbols(); ++it) {
 				uint32_t flags = it->getFlags();
 				if ((flags & (object::SymbolRef::SF_Undefined | object::SymbolRef::SF_Global)) == object::SymbolRef::SF_Global) {
-					std::string buffer;
-					raw_string_ostream stream(buffer);
-					it->printName(stream);
-					std::string name = stream.str();
-					if (name[0] == '_') {
-						name = name.substr(1);
+					StringRef name;
+					std::error_code err = it->getName(name);
+					if (err) {
+						fprintf(stderr, "Could not get name of symbol (%s)\n", err.message().c_str());
 					}
-					JITFuncPtr ptr = (JITFuncPtr) engine.getFunctionAddress(name);
-					KUInt32 functionOffset = page.OffsetFromFunctionName(name);
+					uint64_t addr;
+					err = it->getAddress(addr);
+					if (err) {
+						fprintf(stderr, "Could not get address of symbol (%s)\n", err.message().c_str());
+					}
+					err = it->getSection(section);
+					if (err) {
+						fprintf(stderr, "Could not get section of symbol (%s)\n", err.message().c_str());
+					}
+					uint64_t sectionAddr;
+					err = section->getAddress(sectionAddr);
+					if (err) {
+						fprintf(stderr, "Could not get address of section (%s)\n", err.message().c_str());
+					}
+					JITFuncPtr ptr = (JITFuncPtr) (sectionLoadAddr + addr - sectionAddr);
+					KUInt32 functionOffset;
+					if (name[0] == '_') {
+						functionOffset = page.OffsetFromFunctionName(name.substr(1));
+					} else {
+						functionOffset = page.OffsetFromFunctionName(name);
+					}
 					result[functionOffset] = ptr;
 				}
 			}
@@ -194,6 +218,12 @@ TJITLLVMObjectCache::LoadPageFunctions(llvm::ExecutionEngine& engine, const TJIT
 	}
 	if (dir) {
 		::closedir(dir);
+	}
+	if (!result.empty()) {
+		// Resolve location & set memory permissions only once per page.
+		mDynamicLinker.resolveRelocations();
+		mDynamicLinker.registerEHFrames();
+		mMemoryManager->finalizeMemory();
 	}
 	return result;
 }

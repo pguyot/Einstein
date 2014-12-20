@@ -140,10 +140,11 @@ private:
 	};
 	
 	/// \name Variables
-	std::unique_ptr<llvm::ExecutionEngine>	mExecutionEngine;		///< Execution engine for the page.
-	std::map<KUInt32, JITFuncPtr>			mEntryPointFunctions;	///< Available functions by offset.
-	std::map<KUInt32, JITFuncPtr>			mStepFunctions;			///< Step functions.
-	TJITLLVMTranslator						mTranslator;
+	std::unique_ptr<llvm::ExecutionEngine>		mExecutionEngine;		///< Execution engine for the page.
+	llvm::SmallVector<llvm::ObjectImage*, 2>	mLoadedObjects;			///< Loaded, cached objects.
+	std::map<KUInt32, JITFuncPtr>				mEntryPointFunctions;	///< Available functions by offset.
+	std::map<KUInt32, JITFuncPtr>				mStepFunctions;			///< Step functions.
+	TJITLLVMTranslator							mTranslator;
 };
 
 #endif

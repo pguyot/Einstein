@@ -207,7 +207,7 @@ TJITLLVM::TJITLLVM(
 		mGluesTable(CreateGluesTable())
 {
 	if (inROMImage) {
-		mObjectCache = new TJITLLVMObjectCache(*inROMImage);
+		mObjectCache = new TJITLLVMObjectCache(*inROMImage, new TJITLLVMRecordingMemoryManager(mGluesTable));
 	} else {
 		mObjectCache = nullptr;
 	}
@@ -385,7 +385,7 @@ TJITLLVM::CreateExecutionEngine() {
 										.setEngineKind(EngineKind::JIT)
 										.setUseMCJIT(true)
 										.setErrorStr(&engineBuilderError)
-										.setMCJITMemoryManager(new MemoryManager(mGluesTable))
+										.setMCJITMemoryManager(new TJITLLVMGlueMemoryManager(mGluesTable))
 										.create(targetMachine);
 	if (theResult == nullptr) {
 		fprintf(stderr, "Could not create MCJIT execution engine: %s\n", engineBuilderError.c_str());
@@ -393,6 +393,14 @@ TJITLLVM::CreateExecutionEngine() {
 	}
 	theResult->DisableSymbolSearching();
 	return theResult;
+}
+
+// -------------------------------------------------------------------------- //
+//  * CreateRuntimeDyld()
+// -------------------------------------------------------------------------- //
+RuntimeDyld*
+TJITLLVM::CreateRuntimeDyld() {
+	return new RuntimeDyld(new TJITLLVMGlueMemoryManager(mGluesTable));
 }
 
 // -------------------------------------------------------------------------- //
@@ -424,7 +432,7 @@ TJITLLVM::CreateGluesTable() {
 //  * getSymbolAddress(const std::string& name)
 // -------------------------------------------------------------------------- //
 uint64_t
-TJITLLVM::MemoryManager::getSymbolAddress(const std::string& name) {
+TJITLLVMGlueMemoryManager::getSymbolAddress(const std::string& name) {
 	uint64_t result;
 	ssize_t pos;
 	if (name[0] == '_') {
@@ -441,6 +449,31 @@ TJITLLVM::MemoryManager::getSymbolAddress(const std::string& name) {
 	return result;
 }
 
+// -------------------------------------------------------------------------- //
+//  * allocateCodeSection(uintptr_t, unsigned, unsigned, llvm::StringRef)
+// -------------------------------------------------------------------------- //
+uint8_t*
+TJITLLVMRecordingMemoryManager::allocateCodeSection(uintptr_t size, unsigned alignment, unsigned sectionID, llvm::StringRef sectionName) {
+	if (sectionID != mLatestAllocatedSectionID) {
+		mLatestAllocatedSectionID = sectionID;
+		mAllocatedSectionsCount++;
+	}
+	uint8_t* result = TJITLLVMGlueMemoryManager::allocateCodeSection(size, alignment, sectionID, sectionName);
+	mLatestAllocatedAddress = result;
+	return result;
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetLatestSectionLoadAddress()
+// -------------------------------------------------------------------------- //
+uint8_t*
+TJITLLVMRecordingMemoryManager::GetLatestSectionLoadAddress() {
+	if (mAllocatedSectionsCount != 1) {
+		fprintf(stderr, "Could not get section address as we have %i sections\n", mAllocatedSectionsCount);
+		abort();
+	}
+	return mLatestAllocatedAddress;
+}
 
 // -------------------------------------------------------------------------- //
 //  * Continue(TARMProcessor*, volatile KUInt32*)
