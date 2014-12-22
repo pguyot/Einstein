@@ -103,7 +103,7 @@ public:
 	///
 	JITFuncPtr GetJITFuncForPC(
 					TARMProcessor* ioCPU,
-					TMemory* inMemoryInterface,
+					TMemory& inMemoryInterface,
 					KUInt32 inPC );
 
 	///
@@ -112,7 +112,7 @@ public:
 	JITFuncPtr
 	GetJITFuncForSingleInstructionAtPC(
 				   TARMProcessor* ioCPU,
-				   TMemory* inMemoryInterface,
+				   TMemory& inMemoryInterface,
 				   KUInt32 inPC );
 
 	///

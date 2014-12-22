@@ -76,6 +76,14 @@ test( const char* inTestName, const char* inArgument )
 	} else if (::strcmp(inTestName, "run-code") == 0) {
 		// inArgument: code to execute.
 		UProcessorTests::RunCode( inArgument, &theLog );
+#ifdef JITTARGET_LLVM
+	} else if (::strcmp(inTestName, "translate-instruction") == 0) {
+		// inArgument: instruction to translate.
+		UJITLLVMTests::TranslateSingleInstruction( inArgument, &theLog );
+	} else if (::strcmp(inTestName, "translate-entry-point") == 0) {
+		// inArgument: code to transalte.
+		UJITLLVMTests::TranslateEntryPoint( inArgument, &theLog );
+#endif
 #ifndef TARGET_OS_MAC
 	} else if (::strcmp(inTestName, "screen-x11") == 0) {
 		UScreenTests::TestX11();

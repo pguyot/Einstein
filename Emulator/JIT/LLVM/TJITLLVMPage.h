@@ -73,18 +73,19 @@ public:
 	void Init(
 			TMemory* inMemoryIntf,
 			KUInt32 inVAddr,
-			KUInt32 inPAddr );
+			KUInt32 inPAddr,
+			KUInt32 inSize );
 
 	///
 	/// Get the function for a given offset.
 	///
-	JITFuncPtr GetJITFuncForOffset(TMemory* inMemoryIntf, KUInt32 inPC);
+	JITFuncPtr GetJITFuncForOffset(TMemory& inMemoryIntf, KUInt32 inPC);
 
 	///
 	/// Get the function for a single instruction at given offset.
 	/// This is used with Step.
 	///
-	JITFuncPtr GetJITFuncForSingleInstructionAtOffset(TMemory* inMemoryIntf, KUInt32 inPC);
+	JITFuncPtr GetJITFuncForSingleInstructionAtOffset(TMemory& inMemoryIntf, KUInt32 inPC);
 
 	///
 	/// Get the prefix for this page.
@@ -112,14 +113,6 @@ public:
 	/// Used by the cache to gather modules belonging to a given page.
 	///
 	static std::string PagePrefixFromModuleName(const std::string& inModuleName);
-	
-	///
-	/// Get the size of the page in instructions.
-	/// Currently constant.
-	///
-	KUInt32 GetPageSize() const {
-		return kInstructionCount;
-	}
 
 	///
 	/// Determine if we already have a given function to avoid translating it again.
@@ -133,11 +126,6 @@ private:
 	/// Prevent copies.
 	///
 	TJITLLVMPage( const TJITLLVMPage& ) = delete;
-	
-	/// \name Constants
-	enum {
-		kInstructionCount = (TJITPage< TJITLLVM, TJITLLVMPage >::kPageSize / 4),
-	};
 	
 	/// \name Variables
 	std::unique_ptr<llvm::ExecutionEngine>		mExecutionEngine;		///< Execution engine for the page.

@@ -669,16 +669,16 @@ TMemory::FastWriteString( VAddr inAddress, KUInt32* ioAmount, const char* inStri
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetDirectPointerToPage( KUInt32 )
+//  * GetDirectPointerToPage( KUInt32 ) const
 // -------------------------------------------------------------------------- //
-KUInt32*
-TMemory::GetDirectPointerToPage( KUInt32 inPAddr )
+const KUInt32*
+TMemory::GetDirectPointerToPage( KUInt32 inPAddr ) const
 {
 	if (!(inPAddr & TMemoryConsts::kROMEndMask))
 	{
-		return ((KUInt32*) ((KUIntPtr) mROMImagePtr + inPAddr));
+		return ((const KUInt32*) ((KUIntPtr) mROMImagePtr + inPAddr));
 	} else {
-		return ((KUInt32*) (mRAMOffset + inPAddr));
+		return ((const KUInt32*) (mRAMOffset + inPAddr));
 	}
 }
 

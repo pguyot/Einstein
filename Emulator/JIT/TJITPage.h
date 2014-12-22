@@ -53,11 +53,6 @@ public:
 	///
 	friend class TJIT< TImplementation, TPage >;
 
-	enum {
-		kPageSize = TMemoryConsts::kMMUSmallestPageSize,
-		kPageMask = TMemoryConsts::kMMUSmallestPageMask,
-	};
-
 	///
 	/// Default constructor.
 	///
@@ -74,7 +69,8 @@ public:
 	void Init(
 			TMemory* inMemoryIntf,
 			KUInt32 inVAddr,
-			KUInt32 inPAddr );
+			KUInt32 inPAddr,
+			KUInt32 inSize);
 
 	///
 	/// Accessor on the virtual address of the page.
@@ -115,6 +111,26 @@ public:
 			return mPointer;
 		}
 
+	///
+	/// Accessor on the size (in bytes).
+	///
+	KUInt32 GetSize( void ) const {
+		return mSize;
+	}
+
+	///
+	/// Get the size of the page in instructions.
+	///
+	KUInt32 GetInstructionCount() const {
+		return GetSize() / sizeof(KUInt32);
+	}
+
+	///
+	/// Get the instruction index in the page.
+	///
+	KUInt32 GetIndexInPage(KUInt32 inVAddress) const {
+		return (inVAddress - mVAddr) / sizeof(KUInt32);
+	}
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
@@ -131,10 +147,11 @@ private:
 	TJITPage& operator = ( const TJITPage& inCopy );
 
 	/// \name Variables
-	KUInt32*	mPointer;	///< Pointer to instructions, null if the page
-							///< is dirty.
-	KUInt32		mVAddr;		///< Virtual address of the page.
-	KUInt32		mPAddr;		///< Physical address of the page.
+	const KUInt32*	mPointer;	///< Pointer to instructions, null if the page
+								///< is dirty.
+	KUInt32			mVAddr;		///< Virtual address of the page.
+	KUInt32			mPAddr;		///< Physical address of the page.
+	KUInt32			mSize;		///< Size of the page.
 };
 
 #endif

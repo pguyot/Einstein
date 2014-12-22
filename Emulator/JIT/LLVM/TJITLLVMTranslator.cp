@@ -29,6 +29,7 @@
 #include "TJITLLVMTranslator.h"
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/JIT/LLVM/TJITLLVMPage.h"
+#include "Emulator/JIT/LLVM/TJITLLVMOptimizeReadPass.h"
 
 // llvm
 #include <llvm/Analysis/Passes.h>
@@ -67,9 +68,9 @@ using namespace llvm;
 //  * TranslateEntryPoint(KUInt32, KUInt32, std::string&)
 // -------------------------------------------------------------------------- //
 std::map<KUInt32, Function*>
-TJITLLVMTranslator::TranslateEntryPoint(KUInt32 offsetInPage, Module* inModule)
+TJITLLVMTranslator::TranslateEntryPoint(const TMemory& inMemoryIntf, KUInt32 offsetInPage, Module* inModule)
 {
-	FrameTranslator tr(mPage, offsetInPage, inModule, false);
+	FrameTranslator tr(inMemoryIntf, mPage, offsetInPage, inModule, false);
 	tr.Translate(offsetInPage);
 	return tr.Finish();
 }
@@ -78,9 +79,9 @@ TJITLLVMTranslator::TranslateEntryPoint(KUInt32 offsetInPage, Module* inModule)
 //  * TranslateSingleInstruction(KUInt32, std::string&)
 // -------------------------------------------------------------------------- //
 Function*
-TJITLLVMTranslator::TranslateSingleInstruction(KUInt32 offsetInPage, Module* inModule)
+TJITLLVMTranslator::TranslateSingleInstruction(const TMemory& inMemoryIntf, KUInt32 offsetInPage, Module* inModule)
 {
-	FrameTranslator tr(mPage, offsetInPage, inModule, true);
+	FrameTranslator tr(inMemoryIntf, mPage, offsetInPage, inModule, true);
 	tr.Translate(offsetInPage);
 	std::map<KUInt32, Function*> generated = tr.Finish();
 	return generated[offsetInPage];
@@ -90,6 +91,7 @@ TJITLLVMTranslator::TranslateSingleInstruction(KUInt32 offsetInPage, Module* inM
 //  * FrameTranslator(const TJITLLVMPage&, KUInt32, Module*, bool)
 // -------------------------------------------------------------------------- //
 TJITLLVMTranslator::FrameTranslator::FrameTranslator(
+			const TMemory& inMemoryIntf,
 			const TJITLLVMPage& inPage,
 			KUInt32 offsetInPage,
 			Module* inModule,
@@ -101,10 +103,10 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(
 		mContext(inModule->getContext()),
 		mBuilder(mContext),
 		mFPM(inModule),
-        mLabels(inPage.GetPageSize() + 1, nullptr),
+        mLabels(inPage.GetInstructionCount() + 1, nullptr),
 		mCurrentVAddress(inPage.GetVAddr()),
 		mCurrentPointer(inPage.GetPointer()),
-		mInstructionCount(inPage.GetPageSize()),
+		mInstructionCount(inPage.GetInstructionCount()),
 		mOffsetInPage(offsetInPage),
     	mCPSR_N(nullptr),
 	    mCPSR_Z(nullptr),
@@ -119,6 +121,9 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(
 	mFPM.add(new DataLayoutPass(inModule));
 	// Provide basic AliasAnalysis support for GVN.
 	mFPM.add(createBasicAliasAnalysisPass());
+	
+	mFPM.add(new TJITLLVMOptimizeReadPass(inMemoryIntf, inPage));
+	
 	// Do simple "peephole" optimizations and bit-twiddling optzns.
 	mFPM.add(createInstructionCombiningPass());
 	// Reassociate expressions.

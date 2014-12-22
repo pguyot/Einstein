@@ -448,7 +448,7 @@ Translate_Branch(
 	if (inInstruction & 0x01000000)
 	{
 		// optimizing branches with link within pages gained only 1% speed
-		if ( (inVAddr+delta>=inPage->GetVAddr()) && (inVAddr+delta<inPage->GetVAddr()+inPage->kPageSize) ) 
+		if ( (inVAddr+delta>=inPage->GetVAddr()) && (inVAddr+delta<inPage->GetVAddr()+inPage->GetSize()) )
 		{
 			PUSHFUNC(BranchWithLinkWithinPageFindDelta);
 			// The new LR
@@ -466,7 +466,7 @@ Translate_Branch(
 		}
 	} else {
 		// optimizing branches within pages gave us a 10% speed increase
-		if ( (inVAddr+delta>=inPage->GetVAddr()) && (inVAddr+delta<inPage->GetVAddr()+inPage->kPageSize) ) 
+		if ( (inVAddr+delta>=inPage->GetVAddr()) && (inVAddr+delta<inPage->GetVAddr()+inPage->GetSize()) )
 		{
 			PUSHFUNC(BranchWithinPageFindDelta);
 			// The new PC

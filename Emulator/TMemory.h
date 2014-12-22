@@ -183,7 +183,7 @@ public:
 	/// \param inPAddr			physical address.
 	/// \return a pointer to instructions in this page.
 	///
-	KUInt32*	GetDirectPointerToPage( KUInt32 inPAddr );
+	const KUInt32*	GetDirectPointerToPage( KUInt32 inPAddr ) const;
 
 	///
 	/// Get a pointer into emulated RAM
@@ -476,7 +476,7 @@ public:
 	///
 	/// \return \c true if the MMU is enabled, \c false otherwise.
 	///
-	Boolean		IsMMUEnabled( void )
+	Boolean		IsMMUEnabled( void ) const
 		{
 			return mMMU.IsMMUEnabled();
 		}

@@ -11,6 +11,7 @@
 
 #include "UProcessorTests.h"
 #include "UMemoryTests.h"
+#include "UJITLLVMTests.h"
 #include "Emulator/Log/TRAMLog.h"
 
 @interface EinsteinTests : XCTestCase
@@ -61,6 +62,18 @@ typedef void (^LogBlock)(TLog* log);
 		UProcessorTests::RunCode([code cStringUsingEncoding:NSUTF8StringEncoding], log);
 	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-run-code_%@", suffix]];
 }
+#ifdef JITTARGET_LLVM
+- (void)doTestJITLLVMTranslateInstruction:(NSString*) instruction {
+	[self doTest: ^(TLog* log){
+		UJITLLVMTests::TranslateInstruction([instruction cStringUsingEncoding:NSUTF8StringEncoding], log);
+	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-translate-instruction_%@", instruction]];
+}
+- (void)doTestJITLLVMTranslateEntryPoint:(NSString*) code master: (NSString*) suffix {
+	[self doTest: ^(TLog* log){
+		UJITLLVMTests::TranslateEntryPoint([code cStringUsingEncoding:NSUTF8StringEncoding], log);
+	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-translate-entry-point_%@", suffix]];
+}
+#endif
 
 // beq      0x00000024
 - (void)testProcessorExecuteInstruction_0A000007 {
@@ -581,6 +594,17 @@ bkpt 0
 - (void)testProcessorRunCode_20 {
 	[self doTestProcessorRunCode:@"e3a01003 e3a00c02 e2800057 e1a02130 e1a031a0 e1a04150 e1a051c0 e1200070" master: @"20"];
 }
+
+#ifdef JITTARGET_LLVM
+// ldm	r0, {r11}^
+- (void)testJITLLVMTranslateInstruction_E8D00800 {
+	[self doTestJITLLVMTranslateInstruction:@"E8D00800"];
+}
+// ldr  r0, [pc] -- also known as ldr r0, 0x00000008
+- (void)testJITLLVMTranslateInstruction_E59F0000 {
+	[self doTestJITLLVMTranslateInstruction:@"E59F0000"];
+}
+#endif
 
 // Step tests require a ROM image
 

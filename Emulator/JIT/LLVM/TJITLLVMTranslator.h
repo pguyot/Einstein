@@ -64,13 +64,13 @@ public:
     /// \param inModule			module to generate the function into.
 	/// \param ioFunctions		functions of the page, as
     ///
-	std::map<KUInt32, llvm::Function*> TranslateEntryPoint(KUInt32 offsetInPage, llvm::Module* inModule);
+	std::map<KUInt32, llvm::Function*> TranslateEntryPoint(const TMemory& inMemoryIntf, KUInt32 offsetInPage, llvm::Module* inModule);
     
     ///
     /// Translate for a single instruction (typically with Step).
     /// \param offsetInPage     instruction offset in page
     ///
-    llvm::Function* TranslateSingleInstruction(KUInt32 offsetInPage, llvm::Module* inModule);
+    llvm::Function* TranslateSingleInstruction(const TMemory& inMemoryIntf, KUInt32 offsetInPage, llvm::Module* inModule);
 
 private:
 	class FrameTranslator {
@@ -79,6 +79,7 @@ private:
 		/// Setup prologue and epilogue, clearing register values.
 		///
 		FrameTranslator(
+					const TMemory& inMemoryIntf,
 					const TJITLLVMPage& page,
 					KUInt32 offsetInPage,
 					llvm::Module* inModule,

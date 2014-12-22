@@ -165,7 +165,7 @@ TJITCache<JITPageClass>::Init() {
 		SEntry* theEntry = &theEntries[indexEntry];
 		theEntry->key = theAddress;
 		theEntry->mPhysicalAddress = theAddress;
-		theEntry->mPage.Init(mMemoryIntf, theAddress, theAddress);
+		theEntry->mPage.Init(mMemoryIntf, theAddress, theAddress, TMemoryConsts::kMMUSmallestPageSize);
 		
 		mVMap.Insert(theAddress, theEntry);
 		InsertInPMap(theAddress, theEntry);
@@ -222,7 +222,7 @@ TJITCache<JITPageClass>::PageMiss( KUInt32 inVAddr, KUInt32 inPAddr )
 #endif
 
 	// Modify the entry.
-	theEntry->mPage.Init( mMemoryIntf, inVAddr, inPAddr );
+	theEntry->mPage.Init( mMemoryIntf, inVAddr, inPAddr, TMemoryConsts::kMMUSmallestPageSize );
 	theEntry->key = inVAddr;
 	
 	// Add it into the tables.

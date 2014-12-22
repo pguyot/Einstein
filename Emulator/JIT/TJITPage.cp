@@ -60,11 +60,13 @@ void
 TJITPage<JITClass, JITPageClass>::Init(
 			TMemory* inMemoryIntf,
 			KUInt32 inVAddr,
-			KUInt32 inPAddr )
+			KUInt32 inPAddr,
+			KUInt32 inSize)
 {
 	mPointer = inMemoryIntf->GetDirectPointerToPage( inPAddr );
 	mVAddr = inVAddr;
 	mPAddr = inPAddr;
+	mSize = inSize;
 }
 
 // =========================== //

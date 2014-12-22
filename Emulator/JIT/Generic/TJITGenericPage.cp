@@ -62,6 +62,7 @@ TJITGenericPage::TJITGenericPage( void )
 {
 	mUnits = (JITUnit*) ::malloc(sizeof(JITUnit) * kDefaultUnitCount);
 	mUnitCount = kDefaultUnitCount;
+	mUnitsTable = (KUInt16*) ::malloc(0);
 }
 
 // -------------------------------------------------------------------------- //
@@ -69,6 +70,7 @@ TJITGenericPage::TJITGenericPage( void )
 // -------------------------------------------------------------------------- //
 TJITGenericPage::~TJITGenericPage( void )
 {
+	::free(mUnitsTable);
 	::free(mUnits);
 }
 
@@ -79,16 +81,21 @@ void
 TJITGenericPage::Init(
 			TMemory* inMemoryIntf,
 			KUInt32 inVAddr,
-			KUInt32 inPAddr )
+			KUInt32 inPAddr,
+			KUInt32 inSize)
 {
-	TJITPage<TJITGeneric, TJITGenericPage>::Init( inMemoryIntf, inVAddr, inPAddr );
-	KUInt32* thePointer = GetPointer();
+	TJITPage<TJITGeneric, TJITGenericPage>::Init( inMemoryIntf, inVAddr, inPAddr, inSize );
+	KUInt32 instructionCount = GetInstructionCount();
+	if (mUnitsTable) {
+		mUnitsTable = (KUInt16*) ::realloc(mUnitsTable, instructionCount * sizeof(KUInt16*));
+	}
+	const KUInt32* thePointer = GetPointer();
 
 	// Translate the page.
 	KUInt32 indexInstr;
 	KUInt32 theOffsetInPage = 0;
 	KUInt16 unitCrsr = 0;
-	for (indexInstr = 0; indexInstr < kInstructionCount; indexInstr++)
+	for (indexInstr = 0; indexInstr < instructionCount; indexInstr++)
 	{
 		mUnitsTable[indexInstr] = unitCrsr;
 		Translate(

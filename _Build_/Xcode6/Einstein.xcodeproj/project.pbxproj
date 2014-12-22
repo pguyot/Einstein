@@ -678,6 +678,12 @@
 		DA52C8A91A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8A11A409C18008A17D0 /* UJITGenericRetargetSupport.cp */; };
 		DA6F86431A34FBB7006BC81E /* TMonitorCore.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86421A34FBB7006BC81E /* TMonitorCore.cp */; };
 		DA6F86441A34FBD1006BC81E /* TMonitorCore.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86421A34FBB7006BC81E /* TMonitorCore.cp */; };
+		DA7B663D1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA7B663B1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp */; };
+		DA7B663E1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA7B663B1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp */; };
+		DA7B663F1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA7B663B1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp */; };
+		DA7B66401A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA7B663B1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp */; };
+		DA7B66431A46AA7A0049B8B1 /* UJITLLVMTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA7B66411A46AA7A0049B8B1 /* UJITLLVMTests.cp */; };
+		DA7B66441A46AA7A0049B8B1 /* UJITLLVMTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA7B66411A46AA7A0049B8B1 /* UJITLLVMTests.cp */; };
 		DAE9EF031A3B29150095BFAF /* Tests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAE9EF021A3B29150095BFAF /* Tests-Info.plist */; };
 		DAE9EF251A3CFCC70095BFAF /* TRAMLog.cp in Sources */ = {isa = PBXBuildFile; fileRef = DAE9EF221A3CFACC0095BFAF /* TRAMLog.cp */; };
 		F115FF131A2EA415001F3D65 /* Einstein.xib in Resources */ = {isa = PBXBuildFile; fileRef = F115FF111A2EA415001F3D65 /* Einstein.xib */; };
@@ -1195,6 +1201,10 @@
 		DA6F86501A359287006BC81E /* TJITLLVM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITLLVM.h; sourceTree = "<group>"; };
 		DA6F86511A359287006BC81E /* TJITLLVMPage.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITLLVMPage.cp; sourceTree = "<group>"; };
 		DA6F86521A359287006BC81E /* TJITLLVMPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITLLVMPage.h; sourceTree = "<group>"; };
+		DA7B663B1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITLLVMOptimizeReadPass.cp; sourceTree = "<group>"; };
+		DA7B663C1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITLLVMOptimizeReadPass.h; sourceTree = "<group>"; };
+		DA7B66411A46AA7A0049B8B1 /* UJITLLVMTests.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UJITLLVMTests.cp; sourceTree = "<group>"; };
+		DA7B66421A46AA7A0049B8B1 /* UJITLLVMTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UJITLLVMTests.h; sourceTree = "<group>"; };
 		DAE9EF021A3B29150095BFAF /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Tests-Info.plist"; path = "../../Resources/Tests-Info.plist"; sourceTree = "<group>"; };
 		DAE9EF221A3CFACC0095BFAF /* TRAMLog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TRAMLog.cp; sourceTree = "<group>"; };
 		DAE9EF231A3CFACC0095BFAF /* TRAMLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRAMLog.h; sourceTree = "<group>"; };
@@ -2115,6 +2125,8 @@
 				DA4FF0BD1A35E76400092B5A /* UProcessorTests.h */,
 				DA4FF0BE1A35E76400092B5A /* UScreenTests.cp */,
 				DA4FF0BF1A35E76400092B5A /* UScreenTests.h */,
+				DA7B66411A46AA7A0049B8B1 /* UJITLLVMTests.cp */,
+				DA7B66421A46AA7A0049B8B1 /* UJITLLVMTests.h */,
 			);
 			name = _Tests_;
 			path = ../../_Tests_;
@@ -2132,6 +2144,8 @@
 				DA4FF1611A3637E400092B5A /* TJITLLVMTranslator.h */,
 				DA237F541A430C0400E771BF /* TJITLLVMObjectCache.cp */,
 				DA237F551A430C0400E771BF /* TJITLLVMObjectCache.h */,
+				DA7B663B1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp */,
+				DA7B663C1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.h */,
 			);
 			path = LLVM;
 			sourceTree = "<group>";
@@ -2626,6 +2640,7 @@
 				C99E3511111B7C08002165EC /* TAIFFile.cp in Sources */,
 				C99E3512111B7C08002165EC /* TAIFROMImageWithREXes.cp in Sources */,
 				C99E3513111B7C08002165EC /* TFlatROMImage.cp in Sources */,
+				DA7B663D1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp in Sources */,
 				C99E3514111B7C08002165EC /* TFlatROMImageWithREX.cp in Sources */,
 				C99E3515111B7C08002165EC /* TROMImage.cp in Sources */,
 				C99E3518111B7C08002165EC /* CocoaScreenProxy.mm in Sources */,
@@ -2714,6 +2729,7 @@
 				C95E6061198B76DC004C6CEF /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp in Sources */,
 				C98AB2D81A351EE6001BB1CD /* unsorted_021.cp in Sources */,
 				C95E6062198B76DC004C6CEF /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cp in Sources */,
+				DA7B663E1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp in Sources */,
 				C95E6063198B76DC004C6CEF /* TJITGeneric_DataProcessingPSRTransfer_MRS.cp in Sources */,
 				C95E6064198B76DC004C6CEF /* TJITGeneric_DataProcessingPSRTransfer_MSR.cp in Sources */,
 				C95E6065198B76DC004C6CEF /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cp in Sources */,
@@ -2945,6 +2961,7 @@
 				DA4BA42C1A3A02FD002BDB80 /* TJITGeneric.cp in Sources */,
 				DA4BA4311A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cp in Sources */,
 				DA4BA43A1A3A02FD002BDB80 /* TJITGeneric_Test.cp in Sources */,
+				DA7B66441A46AA7A0049B8B1 /* UJITLLVMTests.cp in Sources */,
 				DA4BA4221A3A028C002BDB80 /* TJITPerformance.cp in Sources */,
 				DA4BA43C1A3A02FD002BDB80 /* TJITGenericRetarget.cp in Sources */,
 				DA4BA4671A3A3800002BDB80 /* TNullSoundManager.cp in Sources */,
@@ -2987,6 +3004,7 @@
 				DA4BA4301A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp in Sources */,
 				DA4BA4571A3A03F3002BDB80 /* TError.cp in Sources */,
 				DA4BA43E1A3A02FD002BDB80 /* TNetworkManager.cp in Sources */,
+				DA7B66401A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp in Sources */,
 				DA4BA4411A3A02FD002BDB80 /* TNE2000Card.cp in Sources */,
 				DA4BA4281A3A02FD002BDB80 /* TVirtualizedCalls.cp in Sources */,
 				DA4BA4461A3A02FD002BDB80 /* UDisasm.cp in Sources */,
@@ -3057,7 +3075,9 @@
 				DA4FF14F1A35EC6B00092B5A /* darwin64.S in Sources */,
 				DA4FF13D1A35EBE600092B5A /* TPlatformManager.cp in Sources */,
 				DA4FF1411A35EC1000092B5A /* TAIFROMImageWithREXes.cp in Sources */,
+				DA7B663F1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp in Sources */,
 				DA4FF1421A35EC1400092B5A /* TAIFFile.cp in Sources */,
+				DA7B66431A46AA7A0049B8B1 /* UJITLLVMTests.cp in Sources */,
 				DA4BA4741A3A3B78002BDB80 /* TNullScreenManager.cp in Sources */,
 				DAE9EF251A3CFCC70095BFAF /* TRAMLog.cp in Sources */,
 				DA4FF1141A35EABA00092B5A /* TStream.cp in Sources */,

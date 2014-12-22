@@ -239,7 +239,7 @@ void
 TJITLLVM::Run( TARMProcessor* ioCPU, volatile bool* inSignal )
 {
 	KUInt32* pcPtr = &ioCPU->mCurrentRegisters[TARMProcessor::kR15];
-	TMemory* theMemoryInterface = ioCPU->mMemory;
+	TMemory& theMemoryInterface = *ioCPU->mMemory;
 	TEmulator* theEmulator = ioCPU->mEmulator;
 	JITFuncPtr theJITFunc = GetJITFuncForPC( ioCPU, theMemoryInterface, *pcPtr );
 	while (true)
@@ -281,7 +281,7 @@ TJITLLVM::Step( TARMProcessor* ioCPU, KUInt32 count )
 {
 	KUInt32* pendingInterrupts = &ioCPU->mPendingInterrupts;
 	KUInt32* pcPtr = &ioCPU->mCurrentRegisters[TARMProcessor::kR15];
-	TMemory* theMemoryInterface = ioCPU->mMemory;
+	TMemory& theMemoryInterface = *ioCPU->mMemory;
 	while (count-- > 0)
 	{
 		bool signal = 0;
@@ -311,7 +311,7 @@ TJITLLVM::Step( TARMProcessor* ioCPU, KUInt32 count )
 JITFuncPtr
 TJITLLVM::GetJITFuncForPC(
 					TARMProcessor* ioCPU,
-					TMemory* inMemoryInterface,
+					TMemory& inMemoryInterface,
 					KUInt32 inPC )
 {
 	// Get the page from the cache.
@@ -340,7 +340,7 @@ TJITLLVM::GetJITFuncForPC(
 JITFuncPtr
 TJITLLVM::GetJITFuncForSingleInstructionAtPC(
 					TARMProcessor* ioCPU,
-					TMemory* inMemoryInterface,
+					TMemory& inMemoryInterface,
 					KUInt32 inPC )
 {
 	// Get the page from the cache.
@@ -485,8 +485,8 @@ TJITLLVMRecordingMemoryManager::GetLatestSectionLoadAddress() {
 //
 JITFuncPtr
 JIT_Continue(TARMProcessor* ioCPU, volatile bool* inSignal) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	JITFuncPtr f = theMemIntf->GetJITObject()->GetJITFuncForPC(ioCPU, theMemIntf, ioCPU->mCurrentRegisters[TARMProcessor::kR15]);
+	TMemory& theMemIntf = *ioCPU->GetMemory();
+	JITFuncPtr f = theMemIntf.GetJITObject()->GetJITFuncForPC(ioCPU, theMemIntf, ioCPU->mCurrentRegisters[TARMProcessor::kR15]);
 	return f(ioCPU, inSignal);
 }
 

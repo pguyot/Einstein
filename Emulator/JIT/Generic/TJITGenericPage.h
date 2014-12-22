@@ -79,7 +79,8 @@ public:
 	void Init(
 			TMemory* inMemoryIntf,
 			KUInt32 inVAddr,
-			KUInt32 inPAddr );
+			KUInt32 inPAddr,
+			KUInt32 inSize);
 
 	///
 	/// Push a unit in the table, resizing the table if required.
@@ -219,8 +220,7 @@ protected:
 
 	/// \name Constants
 	enum {
-		kInstructionCount = (TJITPage< TJITGeneric, TJITGenericPage >::kPageSize / 4),
-		kDefaultUnitCount = 3 * kInstructionCount,
+		kDefaultUnitCount = 3 * TMemoryConsts::kMMUSmallPageSize / 4,
 		kUnitIncrement = 32,
 	};
 	
@@ -228,7 +228,7 @@ protected:
 	KUInt32			mUnitCount;	///< Total number of units in this page.
 								///< This is initialized with a reasonable
 								///< default and increased as required.
-	KUInt16			mUnitsTable[kInstructionCount];
+	KUInt16*		mUnitsTable;
 								///< Array with the index of a unit for a given
 								///< address. This is used to find out the
 								///< proper unit when jumping...

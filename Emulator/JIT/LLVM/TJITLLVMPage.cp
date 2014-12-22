@@ -71,9 +71,10 @@ void
 TJITLLVMPage::Init(
 			TMemory* inMemoryIntf,
 			KUInt32 inVAddr,
-			KUInt32 inPAddr )
+			KUInt32 inPAddr,
+			KUInt32 inSize )
 {
-	TJITPage<TJITLLVM, TJITLLVMPage>::Init( inMemoryIntf, inVAddr, inPAddr );
+	TJITPage<TJITLLVM, TJITLLVMPage>::Init( inMemoryIntf, inVAddr, inPAddr, inSize );
 	mEntryPointFunctions.clear();
 	mStepFunctions.clear();
 	mExecutionEngine = nullptr;
@@ -92,17 +93,17 @@ TJITLLVMPage::Init(
 
 
 // -------------------------------------------------------------------------- //
-//  * GetJITFuncForOffset( TMemory*, KUInt32 )
+//  * GetJITFuncForOffset(TMemory&, KUInt32 )
 // -------------------------------------------------------------------------- //
 JITFuncPtr
-TJITLLVMPage::GetJITFuncForOffset(TMemory* inMemoryInterface, KUInt32 inOffset )
+TJITLLVMPage::GetJITFuncForOffset(TMemory& inMemoryInterface, KUInt32 inOffset )
 {
 	auto it = mEntryPointFunctions.find(inOffset);
 	if (it == mEntryPointFunctions.end()) {
 		// Not found.
 		// We need to perform translation of the page.
 		if (mExecutionEngine == nullptr) {
-			TJITLLVM* jit = inMemoryInterface->GetJITObject();
+			TJITLLVM* jit = inMemoryInterface.GetJITObject();
 			mExecutionEngine = std::unique_ptr<ExecutionEngine>(jit->CreateExecutionEngine());
 			TJITLLVMObjectCache* objectCache = jit->GetObjectCache();
 			if (objectCache) {
@@ -113,7 +114,7 @@ TJITLLVMPage::GetJITFuncForOffset(TMemory* inMemoryInterface, KUInt32 inOffset )
 		}
 		Module* funcModule = new Module(ModuleName(inOffset), getGlobalContext());
 		funcModule->setDataLayout(mExecutionEngine->getDataLayout());
-		std::map<KUInt32, Function*> generated = mTranslator.TranslateEntryPoint(inOffset, funcModule);
+		std::map<KUInt32, Function*> generated = mTranslator.TranslateEntryPoint(inMemoryInterface, inOffset, funcModule);
 		mExecutionEngine->addModule(funcModule);
 		mExecutionEngine->finalizeObject();
 		// Plug all generated functions.
@@ -131,16 +132,16 @@ TJITLLVMPage::GetJITFuncForOffset(TMemory* inMemoryInterface, KUInt32 inOffset )
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetJITFuncForSingleInstructionAtOffset( TMemory*, KUInt32 )
+//  * GetJITFuncForSingleInstructionAtOffset(TMemory&, KUInt32 )
 // -------------------------------------------------------------------------- //
 JITFuncPtr
-TJITLLVMPage::GetJITFuncForSingleInstructionAtOffset(TMemory* inMemoryInterface, KUInt32 inOffset )
+TJITLLVMPage::GetJITFuncForSingleInstructionAtOffset(TMemory& inMemoryInterface, KUInt32 inOffset )
 {
 	JITFuncPtr ptr;
 	auto it = mStepFunctions.find(inOffset);
 	if (it == mStepFunctions.end()) {
 		if (mExecutionEngine == nullptr) {
-			TJITLLVM* jit = inMemoryInterface->GetJITObject();
+			TJITLLVM* jit = inMemoryInterface.GetJITObject();
 			mExecutionEngine = std::unique_ptr<ExecutionEngine>(jit->CreateExecutionEngine());
 			TJITLLVMObjectCache* objectCache = jit->GetObjectCache();
 			if (objectCache) {
@@ -151,7 +152,7 @@ TJITLLVMPage::GetJITFuncForSingleInstructionAtOffset(TMemory* inMemoryInterface,
 		}
 		Module* funcModule = new Module("i" + ModuleName(inOffset), getGlobalContext());
 		funcModule->setDataLayout(mExecutionEngine->getDataLayout());
-		const Function* function = mTranslator.TranslateSingleInstruction(inOffset, funcModule);
+		const Function* function = mTranslator.TranslateSingleInstruction(inMemoryInterface, inOffset, funcModule);
 		mExecutionEngine->addModule(funcModule);
 		mExecutionEngine->finalizeObject();
 		ptr = (JITFuncPtr) mExecutionEngine->getFunctionAddress(function->getName());
