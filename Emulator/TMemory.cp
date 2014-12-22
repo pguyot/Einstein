@@ -1649,7 +1649,6 @@ TMemory::WriteP( PAddr inAddress, KUInt32 inWord )
 					"Ignored write word access to ROM at P0x%.8X (%.8X)",
 					(unsigned int) inAddress,
 					(unsigned int) inWord );
-				//mEmulator->BreakInMonitor();
 			}
 		} else if (inAddress < TMemoryConsts::kFlashBank1) {
 			if (mLog)
@@ -1678,13 +1677,8 @@ TMemory::WriteP( PAddr inAddress, KUInt32 inWord )
 					(unsigned int) inAddress,
 					(unsigned int) inWord );
 			}
-			// mEmulator->BreakInMonitor();
 		}
 	} else if (inAddress < mRAMEnd) {
-//        if (inAddress == 0x04098490)
-//        {
-//                mEmulator->BreakInMonitor();
-//        }
 		// RAM.
 		if (inAddress & 0x3)
 		{

@@ -18,8 +18,6 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // ==============================
-// $Id$
-// ==============================
 
 #ifndef _TMMU_H
 #define _TMMU_H
@@ -35,7 +33,7 @@
 #endif
 
 // Einstein
-#include "TMemoryConsts.h"
+#include "Emulator/TMemoryConsts.h"
 #include "THashMapCache.h"
 
 class TStream;
