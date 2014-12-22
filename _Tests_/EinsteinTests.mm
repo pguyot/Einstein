@@ -62,57 +62,75 @@ typedef void (^LogBlock)(TLog* log);
 	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-run-code_%@", suffix]];
 }
 
+// beq      0x00000024
 - (void)testProcessorExecuteInstruction_0A000007 {
     [self doTestProcessorExecuteInstruction:@"0A000007"];
 }
+// bne      0x00000024
 - (void)testProcessorExecuteInstruction_1A000007 {
     [self doTestProcessorExecuteInstruction:@"1A000007"];
 }
+// mrs      r1, cpsr
 - (void)testProcessorExecuteInstruction_E10F1000 {
     [self doTestProcessorExecuteInstruction:@"E10F1000"];
 }
+// mrs      r1, spsr
 - (void)testProcessorExecuteInstruction_E14F1000 {
     [self doTestProcessorExecuteInstruction:@"E14F1000"];
 }
+// add      pc, r2, #20
 - (void)testProcessorExecuteInstruction_E282F014 {
 	[self doTestProcessorExecuteInstruction:@"E282F014"];
 }
+// adds     r2, r2, #0
 - (void)testProcessorExecuteInstruction_E2922000 {
     [self doTestProcessorExecuteInstruction:@"E2922000"];
 }
+// mov      r4, #156
 - (void)testProcessorExecuteInstruction_E3A0409C {
     [self doTestProcessorExecuteInstruction:@"E3A0409C"];
 }
+// ldr      r0, [r0]
 - (void)testProcessorExecuteInstruction_E5900000 {
     [self doTestProcessorExecuteInstruction:@"E5900000"];
 }
+// ldr      r0, [r0, #1]
 - (void)testProcessorExecuteInstruction_E5900001 {
     [self doTestProcessorExecuteInstruction:@"E5900001"];
 }
+// ldr      r0, [r0, #2]
 - (void)testProcessorExecuteInstruction_E5900002 {
     [self doTestProcessorExecuteInstruction:@"E5900002"];
 }
+// ldr      r0, [r0, #3]
 - (void)testProcessorExecuteInstruction_E5900003 {
     [self doTestProcessorExecuteInstruction:@"E5900003"];
 }
+// ldrb     r0, [r0]
 - (void)testProcessorExecuteInstruction_E5D00000 {
     [self doTestProcessorExecuteInstruction:@"E5D00000"];
 }
+// ldrb     r0, [r0, #1]
 - (void)testProcessorExecuteInstruction_E5D00001 {
     [self doTestProcessorExecuteInstruction:@"E5D00001"];
 }
+// ldrb     r0, [r0, #2]
 - (void)testProcessorExecuteInstruction_E5D00002 {
     [self doTestProcessorExecuteInstruction:@"E5D00002"];
 }
+// ldrb     r0, [r0, #3]
 - (void)testProcessorExecuteInstruction_E5D00003 {
     [self doTestProcessorExecuteInstruction:@"E5D00003"];
 }
+// b        0x00018688
 - (void)testProcessorExecuteInstruction_EA0061A0 {
     [self doTestProcessorExecuteInstruction:@"EA0061A0"];
 }
+// b        0x00000000
 - (void)testProcessorExecuteInstruction_EAFFFFFE {
     [self doTestProcessorExecuteInstruction:@"EAFFFFFE"];
 }
+// mcr      15, 0, r0, cr1, cr1, {0}
 - (void)testProcessorExecuteInstruction_EE010F11 {
     [self doTestProcessorExecuteInstruction:@"EE010F11"];
 }
