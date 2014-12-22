@@ -37,6 +37,10 @@
 #define kTMMUStats	0
 #define MMUDebug	0
 
+constexpr KUInt32 TMemoryConsts::MMUPageSizes[4];
+constexpr KUInt32 TMemoryConsts::MMUPageMasks[4];
+constexpr KUInt32 TMemoryConsts::MMUPageMasksNeg[4];
+
 
 #if kTMMUStats
 static KUInt32 gNbHits = 0;				///< Nombre de hits.

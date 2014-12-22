@@ -42,14 +42,19 @@ class TMemory;
 ///
 /// Class to handle MMU operations.
 ///
-/// \author Paul Guyot <pguyot@kallisys.net>
-/// \version $Revision: 150 $
-///
-/// \test	aucun test défini.
-///
 class TMMU
 {
 public:
+	///
+	/// Various pages sizes.
+	///
+	enum PageSize {
+		kMMUSection				= 0,
+		kMMULargePage			= 1,
+		kMMUSmallPage			= 2,
+		kMMUTinyPage			= 3
+	};
+	
 	///
 	/// Constructor from the memory interface.
 	///

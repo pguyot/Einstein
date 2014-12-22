@@ -46,6 +46,7 @@ public:
 		kHighROMEnd			= 0x01000000,   ///< BTW, High means 8-16 MB here.
 		kROMEnd				= kHighROMEnd,  ///< Full ROM End
 		kROMEndMask			= 0xFF000000,	///< What's after ROM.
+		kProtectedROMEnd	= 0x00002000,	///< First page is protected.
 		kFlashBank1			= 0x02000000,   ///< Internal store.
 		kFlashBank1End		= 0x02400000,   ///< End of internal store (bank#1)
 		// bank #2
@@ -176,19 +177,26 @@ public:
 	/// Other MMU-related constants.
 	///
 	enum {
+		kMMUSectionSize			= 0x00100000,
 		kMMUSectionMask			= 0xFFF00000,
 		kMMUSectionMaskNeg		= ~kMMUSectionMask,
+		kMMULargePageSize		= 0x00010000,
 		kMMULargePageMask		= 0xFFFF0000,
 		kMMULargePageMaskNeg	= ~kMMULargePageMask,
+		kMMUSmallPageSize		= 0x00001000,
 		kMMUSmallPageMask		= 0xFFFFF000,
 		kMMUSmallPageMaskNeg	= ~kMMUSmallPageMask,
+		kMMUTinyPageSize		= 0x00000400,
 		kMMUTinyPageMask		= 0xFFFFFC00,
 		kMMUTinyPageMaskNeg		= ~kMMUTinyPageMask,
 		kMMUSmallestPageMask	= kMMUTinyPageMask,
 		kMMUSmallestPageMaskNeg = ~kMMUSmallestPageMask,
-		kMMUSmallestPageSize	= 1024,	///< 1 KB (that's not big).
+		kMMUSmallestPageSize	= kMMUTinyPageSize,	///< 1 KB (that's not big).
 		kMMUDirtyCacheMask		= 1
 	};
+	constexpr static KUInt32 MMUPageSizes[4] = {kMMUSectionSize, kMMULargePageSize, kMMUSmallPageSize, kMMUTinyPageSize};
+	constexpr static KUInt32 MMUPageMasks[4] = {kMMUSectionMask, kMMULargePageMask, kMMUSmallPageMask, kMMUTinyPageMask};
+	constexpr static KUInt32 MMUPageMasksNeg[4] = {kMMUSectionMaskNeg, kMMULargePageMaskNeg, kMMUSmallPageMaskNeg, kMMUTinyPageMaskNeg};
 	
 	///
 	/// Other hardware constants.

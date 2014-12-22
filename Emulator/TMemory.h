@@ -734,7 +734,7 @@ public:
 	
 	static Boolean	IsPageInROM( KUInt32 inAddress ) 
 		{
-			return !((inAddress < 0x00002000) || (inAddress & TMemoryConsts::kROMEndMask));
+			return !((inAddress < TMemoryConsts::kProtectedROMEnd) || (inAddress & TMemoryConsts::kROMEndMask));
 		}
 
 	///

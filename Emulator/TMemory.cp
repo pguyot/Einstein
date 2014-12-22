@@ -789,7 +789,7 @@ TMemory::ReadROMRAM( VAddr inAddress, KUInt32& outWord )
 	PAddr theAddress;
 
 	// Optimization: avoid translation when reading unprotected ROM
-	if (IsMMUEnabled() && ((inAddress < 0x00002000) || (inAddress & TMemoryConsts::kROMEndMask)))
+	if (IsMMUEnabled() && ((inAddress < TMemoryConsts::kProtectedROMEnd) || (inAddress & TMemoryConsts::kROMEndMask)))
 	{
 		if (TranslateR( inAddress, theAddress ))
 		{
