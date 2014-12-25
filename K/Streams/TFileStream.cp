@@ -42,7 +42,7 @@
 #include <sys/stat.h>
 
 // K
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 	#include <K/Exceptions/IO/TIOException.h>
 	#include <K/Exceptions/IO/TEOFException.h>
 #endif
@@ -74,7 +74,7 @@ TFileStream::TFileStream( const char* inPath, const char* inMode )
 		mWeOpenedTheFile( true )
 {
 	mFile = ::fopen( inPath, inMode );
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 	if (mFile == NULL)
 	{
 		throw TIOException();
@@ -135,7 +135,7 @@ TFileStream::Read( void* outBuffer, KUInt32* ioCount )
 	{
 		*ioCount = (KUInt32)theCount;
 
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 		if (feof( mFile ) == 0)
 		{
 			throw TIOException();
@@ -155,7 +155,7 @@ TFileStream::Write( const void* inBuffer, KUInt32* ioCount )
 	if (*ioCount != theCount)
 	{
 		*ioCount = (KUInt32) theCount;
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 		throw TIOException();
 #endif
 	}
@@ -179,7 +179,7 @@ TFileStream::PeekByte( void )
 	int theNextChar = getc( mFile );
 	if (theNextChar == EOF)
 	{
-#if HAS_EXCEPTION_HANDLING		
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 		throw EOFException;
 #else
 		return EOF;
@@ -188,7 +188,7 @@ TFileStream::PeekByte( void )
 	
 	if (::ungetc( theNextChar, mFile ) != theNextChar)
 	{
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 		throw TIOException();
 #else
 		return EOF;
@@ -232,7 +232,7 @@ TFileStream::SetCursor( KSInt64 inPos, ECursorMode inMode )
 	int theErr = ::fseeko( mFile, (off_t) inPos, whence );
 	if (theErr != 0)
 	{
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 		throw TIOException();
 #endif
 	}

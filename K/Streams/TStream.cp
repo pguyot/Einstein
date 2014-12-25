@@ -48,7 +48,7 @@
 // K
 #include <K/Defines/UByteSex.h>
 #include <K/Unicode/UUTF16CStr.h>
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 	#include <K/Exceptions/Errors/TMemError.h>
 	#include <K/Exceptions/IO/TEOFException.h>
 #endif
@@ -63,14 +63,14 @@ TStream::GetCString( KUInt32 inNbChars )
 	
 	if (theResult == nil)
 	{
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 		throw MemError;
 #else
 		return 0L;
 #endif
 	}
 	
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 	// Un petit try/catch pour nettoyer en sortant.
 	try {
 		KUInt32 theCount = inNbChars;
@@ -116,7 +116,7 @@ TStream::GetCString( void )
 	size_t strLength = 0;		// Taille de la cha”ne
 	KUInt8* theResult = (KUInt8*) ::malloc( bufferLength );
 	
-#if HAS_EXCEPTION_HANDLING	
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 	if (theResult == nil)
 	{
 		throw MemError;
@@ -217,7 +217,7 @@ TStream::GetUniString( void )
 	KUInt16* theResult =
 					(KUInt16*) ::malloc( bufferLength * sizeof( KUInt16 ) );
 	
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 	if (theResult == nil)
 	{
 		throw MemError;
@@ -307,7 +307,7 @@ TStream::GetInt32( void )
 	
 	if (length < sizeof( theResult ))
 	{
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 		throw EOFException;
 #else
 		return 0;
@@ -342,7 +342,7 @@ TStream::GetXLong( void )
 	
 	if (length < sizeof( theFirstByte ))
 	{
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 		throw EOFException;
 #else
 		return 0;
@@ -392,7 +392,7 @@ TStream::GetInt16( void )
 
 	if (length < sizeof( theResult ))
 	{
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 		throw EOFException;
 #else
 		return 0;
@@ -489,7 +489,7 @@ TStream::GetByte( void )
 	
 	if (length < sizeof( theResult ))
 	{
-#if HAS_EXCEPTION_HANDLING
+#if __cpp_exceptions || __has_feature(cxx_exceptions)
 		throw EOFException;
 #else
 		return 0;

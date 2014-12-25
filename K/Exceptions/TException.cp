@@ -91,7 +91,11 @@ TException::~TException( void ) throw ()
 const char*
 TException::what( void ) const throw ()
 {
+#if __cpp_rtti || __has_feature(cxx_rtti)
 	return typeid(*this).name();
+#else
+	return "TException (RTTI was disabled)";
+#endif
 }
 
 // =========================================== //
