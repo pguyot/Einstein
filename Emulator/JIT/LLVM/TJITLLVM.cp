@@ -218,6 +218,9 @@ TJITLLVM::TJITLLVM(
 		abort();
 	}
 	
+	// Init main ROM page.
+	mMainROMPage.Init(inMemoryIntf, TMemoryConsts::kProtectedROMEnd, TMemoryConsts::kProtectedROMEnd, TMemoryConsts::kROMEnd - TMemoryConsts::kProtectedROMEnd);
+
 	// Finally init cache.
 	InitCache();
 }
@@ -316,19 +319,24 @@ TJITLLVM::GetJITFuncForPC(
 {
 	// Get the page from the cache.
 	KUInt32 pc = inPC - 4;
-	TJITLLVMPage* thePage = GetPage(pc);
-
-	if (thePage == NULL)	
-	{
-		// Let's manage the exception
-		ioCPU->PrefetchAbort();
-		
-		// Redo the translation.
-		pc = ioCPU->mCurrentRegisters[TARMProcessor::kR15];
-		return GetJITFuncForPC( ioCPU, inMemoryInterface, pc );
+	TJITLLVMPage* thePage;
+	KUInt32 indexInPage;
+	if (pc < TMemoryConsts::kROMEnd && pc >= TMemoryConsts::kProtectedROMEnd) {
+		thePage = &mMainROMPage;
+		indexInPage = (pc - TMemoryConsts::kProtectedROMEnd) / sizeof(KUInt32);
+	} else {
+		thePage = GetPage(pc);
+		if (thePage == NULL)
+		{
+			// Let's manage the exception
+			ioCPU->PrefetchAbort();
+			
+			// Redo the translation.
+			pc = ioCPU->mCurrentRegisters[TARMProcessor::kR15];
+			return GetJITFuncForPC( ioCPU, inMemoryInterface, pc );
+		}
+		indexInPage = GetOffsetInPage(pc) / sizeof( KUInt32 );
 	}
-
-	KUInt32 indexInPage = GetOffsetInPage(pc) / sizeof( KUInt32 );
 
 	// Return the function.
 	return thePage->GetJITFuncForOffset(inMemoryInterface, indexInPage);
@@ -345,19 +353,24 @@ TJITLLVM::GetJITFuncForSingleInstructionAtPC(
 {
 	// Get the page from the cache.
 	KUInt32 pc = inPC - 4;
-	TJITLLVMPage* thePage = GetPage(pc);
-
-	if (thePage == NULL)
-	{
-		// Let's manage the exception
-		ioCPU->PrefetchAbort();
-		
-		// Redo the translation.
-		pc = ioCPU->mCurrentRegisters[TARMProcessor::kR15];
-		return GetJITFuncForPC( ioCPU, inMemoryInterface, pc );
+	TJITLLVMPage* thePage;
+	KUInt32 indexInPage;
+	if (pc < TMemoryConsts::kROMEnd && pc >= TMemoryConsts::kProtectedROMEnd) {
+		thePage = &mMainROMPage;
+		indexInPage = (pc - TMemoryConsts::kProtectedROMEnd) / sizeof(KUInt32);
+	} else {
+		thePage = GetPage(pc);
+		if (thePage == NULL)
+		{
+			// Let's manage the exception
+			ioCPU->PrefetchAbort();
+			
+			// Redo the translation.
+			pc = ioCPU->mCurrentRegisters[TARMProcessor::kR15];
+			return GetJITFuncForSingleInstructionAtPC( ioCPU, inMemoryInterface, pc );
+		}
+		indexInPage = GetOffsetInPage(pc) / sizeof( KUInt32 );
 	}
-
-	KUInt32 indexInPage = GetOffsetInPage(pc) / sizeof( KUInt32 );
 
 	// Return the function.
 	return thePage->GetJITFuncForSingleInstructionAtOffset(inMemoryInterface, indexInPage);

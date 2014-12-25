@@ -153,6 +153,7 @@ private:
 	TJITLLVMObjectCache*	mObjectCache;	///< Directory with cached native code.
 	const llvm::Target*		mTarget;		///< Lookup only once.
 	const std::map<std::string, uint64_t> mGluesTable;	///< Address of glue functions.
+	TJITLLVMPage			mMainROMPage;
 };
 
 ///
