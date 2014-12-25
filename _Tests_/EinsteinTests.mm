@@ -604,6 +604,70 @@ bkpt 0
 - (void)testJITLLVMTranslateInstruction_E59F0000 {
 	[self doTestJITLLVMTranslateInstruction:@"E59F0000"];
 }
+
+/*
+ // Candidate function: memset
+	stmfd r13!, {r0, lr}
+	subs r2, r2, #0x00000004
+	bmi label1
+	ands r12, r0, #0x00000003
+	bne label2
+ label7:
+	and r1, r1, #0x000000ff
+	orr r1, r1, r1, lsl #8
+	orr r1, r1, r1, lsl #16
+	mov r3, r1
+	mov r12, r1
+	mov lr, r1
+	subs r2, r2, #0x00000008
+	blt label3
+	subs r2, r2, #0x00000014
+	blt label4
+ label5:
+	stmia r0!, {r1, r3, r12, lr}
+	stmia r0!, {r1, r3, r12, lr}
+	subs r2, r2, #0x00000020
+	bge label5
+	cmn r2, #0x00000010
+	stmgeia r0!, {r1, r3, r12, lr}
+	subge r2, r2, #0x00000010
+ label4:
+	adds r2, r2, #0x00000014
+ label6:
+	stmgeia r0!, {r3, r12, lr}
+	subges r2, r2, #0x0000000c
+	bge label6
+ label3:
+	adds r2, r2, #0x00000008
+	blt label1
+	subs r2, r2, #0x00000004
+	strlt r1, [r0], #0x004
+	stmgeia r0!, {r1, r3}
+	subge r2, r2, #0x00000004
+ label1:
+	adds r2, r2, #0x00000004
+	ldmeqea r13!, {r0, pc}
+	cmp r2, #0x00000002
+	strb r1, [r0], #0x001
+	strbge r1, [r0], #0x001
+	strbgt r1, [r0], #0x001
+	ldmea r13!, {r0, pc}
+ label2:
+	rsb r12, r12, #0x00000004
+	cmp r12, #0x00000002
+	strb r1, [r0], #0x001
+	strbge r1, [r0], #0x001
+	strbgt r1, [r0], #0x001
+	subs r2, r2, r12
+	blt label1
+	b label7
+	mov r0, pc
+	mov pc, lr
+*/
+- (void)testJITLLVMTranslateEntryPoint_memset {
+	[self doTestJITLLVMTranslateEntryPoint:@"E92D4001 E2522004 4A00001C E210C003 1A000021 E20110FF E1811401 E1811801 E1A03001 E1A0C001 E1A0E001 E2522008 BA00000C E2522014 BA000006 E8A0500A E8A0500A E2522020 AAFFFFFB E3720010 A8A0500A A2422010 E2922014 A8A05008 A252200C AAFFFFFC E2922008 BA000003 E2522004 B4801004 A8A0000A A2422004 E2922004 08BD8001 E3520002 E4C01001 A4C01001 C4C01001 E8BD8001 E26CC004 E35C0002 E4C01001 A4C01001 C4C01001 E052200C BAFFFFF1 EAFFFFD5 E1A0000F E1A0F00E" master:@"memset"];
+}
+
 #endif
 
 // Step tests require a ROM image

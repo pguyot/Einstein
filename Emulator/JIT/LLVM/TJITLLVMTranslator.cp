@@ -2117,24 +2117,27 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM1(KUInt32 offsetInPage, KUInt3
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
 	Value* address = startAddress;
 	KUInt32 registersMask = 0x0001;
+	// Actual order is unpredictable: we can try to write them all
+	// and only abort if it failed.
+	Value* finalResult = mBuilder.getInt1(false);
 	Function* writeFunction = EnsureFunction(GetWriteFuncType(), "JIT_Write");
 	for (int i = 0; i < 15; i++) {
 		if (inInstruction & registersMask) {
 			EnsureAllocated(&mRegisters[i], 32);
 			Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, address, mBuilder.CreateLoad(mRegisters[i]));
-			BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-			mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
-			mBuilder.SetInsertPoint(continueBlock);
+			finalResult = mBuilder.CreateOr(finalResult, result);
 			address = mBuilder.CreateAdd(address, mBuilder.getInt32(4));
 		}
 		registersMask = registersMask << 1;
 	}
 	if (inInstruction & 0x8000) {
 		Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, address, mBuilder.getInt32(exitPC));
-		BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-		mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
-		mBuilder.SetInsertPoint(continueBlock);
+		finalResult = mBuilder.CreateOr(finalResult, result);
 	}
+
+	BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	mBuilder.CreateCondBr(finalResult, dataAbortExit, continueBlock);
+	mBuilder.SetInsertPoint(continueBlock);
 	
 	if (flag_w) {
 		// Use of R15 as Rn is UNPREDICTABLE and generated an undefined instruction above.
