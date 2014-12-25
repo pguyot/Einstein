@@ -726,13 +726,13 @@ public:
 	///
 	/// Check that two addresses are very probably on the same page.
 	///
-	static Boolean	SamePage( KUInt32 inAddr1, KUInt32 inAddr2 )
+	static bool	SamePage( KUInt32 inAddr1, KUInt32 inAddr2 )
 		{
 			return (inAddr1 & TMemoryConsts::kMMUSmallestPageMask)
 				== (inAddr2 & TMemoryConsts::kMMUSmallestPageMask);
 		}
 	
-	static Boolean	IsPageInROM( KUInt32 inAddress ) 
+	static bool	IsPageInROM( KUInt32 inAddress )
 		{
 			return !((inAddress < TMemoryConsts::kProtectedROMEnd) || (inAddress & TMemoryConsts::kROMEndMask));
 		}
@@ -741,8 +741,6 @@ public:
 	/// Compute the serial number from the NewtonID.
 	///
 	void	ComputeSerialNumber( const KUInt32 inNewtonID[2] );
-	
-	void FDump(FILE *f) { mMMU.FDump(f); }
 	
 private:
 	struct SBreakpoint {

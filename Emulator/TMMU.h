@@ -76,7 +76,7 @@ public:
 	/// \param outOffsetInBank		offset in the bank (address - base).
 	/// \return true if the address couldn't be accessed for reading.
 	///		
-	Boolean		TranslateInstruction(
+	bool		TranslateInstruction(
 					KUInt32 inVAddress,
 					KUInt32* outPAddress );
 
@@ -88,7 +88,7 @@ public:
 	/// \return true if the MMU tables couldn't be accessed for
 	///			reading or if the target address is not accessible.
 	///
-	Boolean		TranslateR( KUInt32 inVAddress, KUInt32& outPAddress );
+	bool		TranslateR( KUInt32 inVAddress, KUInt32& outPAddress );
 
 	///
 	/// Translate an address using MMU tables for writing.
@@ -96,9 +96,9 @@ public:
 	/// \param inVAddress   virtual address.
 	/// \param outPAddress  physical address.
 	/// \return true if the MMU tables couldn't be accessed for
-	///			reading or if the target address is not accessible.
+	///			writing or if the target address is not accessible.
 	///
-	Boolean		TranslateW( KUInt32 inVAddress, KUInt32& outPAddress );
+	bool		TranslateW( KUInt32 inVAddress, KUInt32& outPAddress );
 
 	///
 	/// Enable or disable the MMU.
@@ -108,12 +108,6 @@ public:
 	void		SetMMUEnabled( Boolean inEnableMMU )
 		{
 			mMMUEnabled = inEnableMMU;
-			// enable this to get a rough idea how the MMU table looks
-			//if (mMMUEnabled) {
-			//	FILE *f = fopen("/Users/matt/dev/Einstein/mmu.txt", "wb");
-			//	FDump(f);
-			//	fclose(f);
-			//}
 		}
 
 	///
@@ -283,11 +277,6 @@ public:
 	///
 	void		TransferState( TStream* inStream );
 		
-	///
-	/// Dump the entire MMU Lookup Table to a File
-	///
-	void		FDump(FILE *f);
-	
 private:
 	///
 	/// New magic.
@@ -318,19 +307,8 @@ private:
 		SEntry*			next;
 	};
 
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TMMU( const TMMU& inCopy );
-
-	///
-	/// Opérateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TMMU& operator = ( const TMMU& inCopy );
+	TMMU( const TMMU& inCopy ) = delete;
+	TMMU& operator = ( const TMMU& inCopy ) = delete;
 
 	///
 	/// Invalidate the perms cache.
@@ -345,6 +323,18 @@ private:
 				KUInt32 inPAddr,
 				KUInt32 inDomainT2,
 				KUInt32 inEntryPermIndex );
+
+	
+	///
+	/// Actually translate an address using MMU tables.
+	///
+	/// \param inVAddress   virtual address.
+	/// \param outPAddress  physical address.
+	/// \param inCurrentAP	current AP read or write.
+	/// \return true if the MMU tables couldn't be accessed for
+	///			writing or if the target address is not accessible.
+	///
+	inline bool	Translate( KUInt32 inVAddress, KUInt32& outPAddress, KUInt8 inCurrentAP );
 
 	/// \name Variables
 	TMemory*			mMemoryIntf;		///< Interface to the memory.
