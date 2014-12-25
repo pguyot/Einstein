@@ -141,11 +141,6 @@ public:
 	///
 	llvm::ExecutionEngine* CreateExecutionEngine();
 	
-	///
-	/// Create a new runtime linker for cached objects.
-	///
-	llvm::RuntimeDyld* CreateRuntimeDyld();
-	
 private:
 	TJITLLVM( const TJITLLVM& inCopy ) = delete;
 	TJITLLVM& operator = ( const TJITLLVM& inCopy ) = delete;

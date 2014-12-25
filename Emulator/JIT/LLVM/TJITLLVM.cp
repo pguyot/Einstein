@@ -396,14 +396,6 @@ TJITLLVM::CreateExecutionEngine() {
 }
 
 // -------------------------------------------------------------------------- //
-//  * CreateRuntimeDyld()
-// -------------------------------------------------------------------------- //
-RuntimeDyld*
-TJITLLVM::CreateRuntimeDyld() {
-	return new RuntimeDyld(new TJITLLVMGlueMemoryManager(mGluesTable));
-}
-
-// -------------------------------------------------------------------------- //
 //  * CreateGluesTable()
 // -------------------------------------------------------------------------- //
 std::map<std::string, uint64_t>
