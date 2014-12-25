@@ -46,12 +46,18 @@ public:
 	/// Memory manager is owned by this object (through dynamic linker).
     ///
     TJITLLVMObjectCache(const TROMImage& inROMImage, TJITLLVMRecordingMemoryManager* inMemoryManager);
+	
+	///
+	/// Destructor.
+	/// Deletes cache.
+	///
+	virtual ~TJITLLVMObjectCache();
 
 	///
-	/// Load functions for a given page.
-	/// Return the function pointers.
+	/// Get functions for a given page.
+	/// Fill an array of function pointers.
 	///
-	const std::map<KUInt32, JITFuncPtr>& LoadPageFunctions(llvm::SmallVector<llvm::ObjectImage *, 2>& ioLoadedObjects, const TJITLLVMPage& inPage);
+	void GetPageFunctions(const TJITLLVMPage& inPage, JITFuncPtr* outEntryPoints);
 	
 	///
 	/// ObjectCache interface: write machine code to disk.
@@ -80,9 +86,10 @@ private:
 
     /// We never unload functions and therefore keep a cache of all
 	/// loaded object files.
-	std::unordered_map<uint64_t, std::vector<std::pair<KUInt32, JITFuncPtr>>> mLoadedObjectFiles;
+	std::unordered_map<uint64_t, std::vector<std::pair<KUInt32, JITFuncPtr>>>		mLoadedObjectFiles;
+	std::deque<llvm::ObjectImage*>					mLoadedImages;
 	/// readdir is expensive, so we also keep a cache of all directories.
-	std::unordered_map<std::string, std::map<KUInt32, JITFuncPtr>>	mLoadedPages;
+	std::unordered_map<std::string, std::pair<ssize_t, JITFuncPtr*>>	mLoadedPages;
 	llvm::RuntimeDyld								mDynamicLinker;
 	const llvm::SmallString<128>                    mCacheDir;
 	TJITLLVMRecordingMemoryManager*					mMemoryManager;

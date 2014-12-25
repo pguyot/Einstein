@@ -56,12 +56,14 @@ TJITLLVMPage::TJITLLVMPage( void )
         mExecutionEngine(nullptr),
 		mTranslator(*this)
 {
+	mEntryPointFunctions = (JITFuncPtr*) ::malloc(0);
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TJITLLVMPage( void )
 // -------------------------------------------------------------------------- //
 TJITLLVMPage::~TJITLLVMPage( void ) {
+	::free(mEntryPointFunctions);
 }
 
 // -------------------------------------------------------------------------- //
@@ -75,10 +77,11 @@ TJITLLVMPage::Init(
 			KUInt32 inSize )
 {
 	TJITPage<TJITLLVM, TJITLLVMPage>::Init( inMemoryIntf, inVAddr, inPAddr, inSize );
-	mEntryPointFunctions.clear();
+	ssize_t entryPointArraySize = GetInstructionCount() * sizeof(JITFuncPtr);
+	mEntryPointFunctions = (JITFuncPtr*) ::realloc(mEntryPointFunctions, entryPointArraySize);
+	::memset(mEntryPointFunctions, 0, entryPointArraySize);
 	mStepFunctions.clear();
 	mExecutionEngine = nullptr;
-	mLoadedObjects.clear();
 	
 	TJITLLVM* jit = inMemoryIntf->GetJITObject();
 	// We only cache object code for ROM.
@@ -86,7 +89,7 @@ TJITLLVMPage::Init(
 		TJITLLVMObjectCache* objectCache = jit->GetObjectCache();
 		if (objectCache) {
 			// Load saved pages directly
-			mEntryPointFunctions = objectCache->LoadPageFunctions(mLoadedObjects, *this);
+			objectCache->GetPageFunctions(*this, mEntryPointFunctions);
 		}
 	}
 }
@@ -98,8 +101,8 @@ TJITLLVMPage::Init(
 JITFuncPtr
 TJITLLVMPage::GetJITFuncForOffset(TMemory& inMemoryInterface, KUInt32 inOffset )
 {
-	auto it = mEntryPointFunctions.find(inOffset);
-	if (it == mEntryPointFunctions.end()) {
+	JITFuncPtr result = mEntryPointFunctions[inOffset];
+	if (result == nullptr) {
 		// Not found.
 		// We need to perform translation of the page.
 		if (mExecutionEngine == nullptr) {
@@ -125,10 +128,10 @@ TJITLLVMPage::GetJITFuncForOffset(TMemory& inMemoryInterface, KUInt32 inOffset )
 			KUInt32 offset = OffsetFromFunctionName(functionName);
 			mEntryPointFunctions[offset] = ptr;
 		}
-		it = mEntryPointFunctions.find(inOffset);
-		assert(it != mEntryPointFunctions.end());
+		result = mEntryPointFunctions[inOffset];
+		assert(result != nullptr);
 	}
-	return it->second;
+	return result;
 }
 
 // -------------------------------------------------------------------------- //

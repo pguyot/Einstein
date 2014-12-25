@@ -56,6 +56,18 @@ TJITLLVMObjectCache::TJITLLVMObjectCache(const TROMImage& inROMImage, TJITLLVMRe
 }
 
 // -------------------------------------------------------------------------- //
+//  * ~TJITLLVMObjectCache()
+// -------------------------------------------------------------------------- //
+TJITLLVMObjectCache::~TJITLLVMObjectCache() {
+	for (auto loadedPage : mLoadedPages) {
+		::free(loadedPage.second.second);
+	}
+	for (auto image : mLoadedImages) {
+		delete image;
+	}
+}
+
+// -------------------------------------------------------------------------- //
 //  * GetCacheDir()
 // -------------------------------------------------------------------------- //
 SmallString<128>
@@ -130,7 +142,11 @@ TJITLLVMObjectCache::notifyObjectCompiled(const Module* inModule, const MemoryBu
 	if (!moduleName.empty()) {
 		std::string::size_type n = moduleName.find("_");
 		std::string pagePrefix = moduleName.substr(0, n);
-		mLoadedPages.erase(pagePrefix);
+		const auto pagesIt = mLoadedPages.find(pagePrefix);
+		if (pagesIt != mLoadedPages.end()) {
+			::free(pagesIt->second.second);
+			mLoadedPages.erase(pagePrefix);
+		}
 		SmallString<128> path(mCacheDir);
 		sys::path::append(path, pagePrefix);
 		(void) ::mkdir(path.c_str(), 0755);
@@ -155,15 +171,18 @@ TJITLLVMObjectCache::getObject(const llvm::Module* inModule) {
 }
 
 // -------------------------------------------------------------------------- //
-//  * LoadPageFunctions(SmallVector<ObjectImage *, 2>&, const TJITLLVMPage&)
+//  * LoadPageFunctions(const TJITLLVMPage&, JITFuncPtr*)
 // -------------------------------------------------------------------------- //
-const std::map<KUInt32, JITFuncPtr>&
-TJITLLVMObjectCache::LoadPageFunctions(SmallVector<ObjectImage *, 2>& ioLoadedObjects, const TJITLLVMPage& page) {
+void
+TJITLLVMObjectCache::GetPageFunctions(const TJITLLVMPage& page, JITFuncPtr* outEntryPoints) {
+	ssize_t outputSize = page.GetInstructionCount() * sizeof(JITFuncPtr);
 	const auto pagesIt = mLoadedPages.find(page.PagePrefix());
 	if (pagesIt != mLoadedPages.end()) {
-		return pagesIt->second;
+		memcpy(outEntryPoints, pagesIt->second.second, std::min(pagesIt->second.first, outputSize));
 	} else {
-		std::map<KUInt32, JITFuncPtr> result;
+		ssize_t bufferSize = outputSize;
+		JITFuncPtr* cachedResult = (JITFuncPtr*) ::malloc(bufferSize);
+		::memset(cachedResult, 0, bufferSize);
 		SmallString<112> path(mCacheDir);
 		sys::path::append(path, page.PagePrefix());
 		DIR* dir = ::opendir(path.c_str());
@@ -178,7 +197,14 @@ TJITLLVMObjectCache::LoadPageFunctions(SmallVector<ObjectImage *, 2>& ioLoadedOb
 				&& theEntry.d_type == DT_REG) {
 				auto it = mLoadedObjectFiles.find(theEntry.d_ino);
 				if (it != mLoadedObjectFiles.end()) {
-					result.insert(it->second.begin(), it->second.end());
+					for (const std::pair<KUInt32, JITFuncPtr>& previouslyLoadedEntryPoint : it->second) {
+						if (previouslyLoadedEntryPoint.first >= bufferSize / sizeof(JITFuncPtr)) {
+							ssize_t newBufferSize = (previouslyLoadedEntryPoint.first + 1) * sizeof(JITFuncPtr);
+							cachedResult = (JITFuncPtr*) ::realloc(cachedResult, newBufferSize);
+							bufferSize = newBufferSize;
+						}
+						cachedResult[previouslyLoadedEntryPoint.first] = previouslyLoadedEntryPoint.second;
+					}
 				} else {
 					loadedObjectFiles = true;
 					std::vector<std::pair<KUInt32, JITFuncPtr>> loadedFunctions;
@@ -191,7 +217,7 @@ TJITLLVMObjectCache::LoadPageFunctions(SmallVector<ObjectImage *, 2>& ioLoadedOb
 					}
 					mMemoryManager->FlushRecordedAllocations();
 					ObjectImage* image = mDynamicLinker.loadObject(std::move(std::unique_ptr<object::ObjectFile>(objFile.get())));
-					ioLoadedObjects.push_back(image);
+					mLoadedImages.push_back(image);
 					uint8_t* sectionLoadAddr = mMemoryManager->GetLatestSectionLoadAddress();
 					auto section = image->begin_sections();
 					for (auto it = image->begin_symbols(); it != image->end_symbols(); ++it) {
@@ -223,10 +249,15 @@ TJITLLVMObjectCache::LoadPageFunctions(SmallVector<ObjectImage *, 2>& ioLoadedOb
 							} else {
 								functionOffset = page.OffsetFromFunctionName(name);
 							}
+							if (functionOffset >= bufferSize * sizeof(JITFuncPtr)) {
+								ssize_t newBufferSize = (functionOffset + 1) * sizeof(JITFuncPtr);
+								cachedResult = (JITFuncPtr*) ::realloc(cachedResult, newBufferSize);
+								bufferSize = newBufferSize;
+							}
+							cachedResult[functionOffset] = ptr;
 							loadedFunctions.push_back(std::make_pair(functionOffset, ptr));
 						}
 					}
-					result.insert(loadedFunctions.begin(), loadedFunctions.end());
 					mLoadedObjectFiles[theEntry.d_ino] = loadedFunctions;
 				}
 			}
@@ -234,16 +265,14 @@ TJITLLVMObjectCache::LoadPageFunctions(SmallVector<ObjectImage *, 2>& ioLoadedOb
 		if (dir) {
 			::closedir(dir);
 		}
-		if (!result.empty()) {
-			if (loadedObjectFiles) {
-				// Resolve location & set memory permissions only once per page.
-				mDynamicLinker.resolveRelocations();
-				mDynamicLinker.registerEHFrames();
-				mMemoryManager->finalizeMemory();
-			}
+		if (loadedObjectFiles) {
+			// Resolve location & set memory permissions only once per page.
+			mDynamicLinker.resolveRelocations();
+			mDynamicLinker.registerEHFrames();
+			mMemoryManager->finalizeMemory();
 		}
-		mLoadedPages[page.PagePrefix()] = result;
-		return mLoadedPages[page.PagePrefix()];
+		mLoadedPages[page.PagePrefix()] = std::make_pair(bufferSize, cachedResult);
+		memcpy(outEntryPoints, cachedResult, outputSize);
 	}
 }
 

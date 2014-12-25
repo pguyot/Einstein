@@ -118,7 +118,7 @@ public:
 	/// Determine if we already have a given function to avoid translating it again.
 	///
 	bool HasTranslatedFunction(KUInt32 inOffset) const {
-		return mEntryPointFunctions.count(inOffset) > 0;
+		return mEntryPointFunctions[inOffset] != nullptr;
 	}
 
 private:
@@ -129,8 +129,7 @@ private:
 	
 	/// \name Variables
 	std::unique_ptr<llvm::ExecutionEngine>		mExecutionEngine;		///< Execution engine for the page.
-	llvm::SmallVector<llvm::ObjectImage*, 2>	mLoadedObjects;			///< Loaded, cached objects.
-	std::map<KUInt32, JITFuncPtr>				mEntryPointFunctions;	///< Available functions by offset.
+	JITFuncPtr*                                 mEntryPointFunctions;	///< Available functions by offset.
 	std::map<KUInt32, JITFuncPtr>				mStepFunctions;			///< Step functions.
 	TJITLLVMTranslator							mTranslator;
 };
