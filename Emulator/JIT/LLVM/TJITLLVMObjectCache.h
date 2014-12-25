@@ -51,7 +51,7 @@ public:
 	/// Load functions for a given page.
 	/// Return the function pointers.
 	///
-	std::map<KUInt32, JITFuncPtr> LoadPageFunctions(llvm::SmallVector<llvm::ObjectImage *, 2>& ioLoadedObjects, const TJITLLVMPage& inPage);
+	const std::map<KUInt32, JITFuncPtr>& LoadPageFunctions(llvm::SmallVector<llvm::ObjectImage *, 2>& ioLoadedObjects, const TJITLLVMPage& inPage);
 	
 	///
 	/// ObjectCache interface: write machine code to disk.
@@ -78,8 +78,11 @@ private:
 	///
 	void InvalidateCacheIfRequired(const TROMImage& inROMImage);
 
-    /// Mapping from VAddr/PAddr couple to module name.
-    std::unordered_map<uint64_t, llvm::StringRef>   mEntryPointMapping;
+    /// We never unload functions and therefore keep a cache of all
+	/// loaded object files.
+	std::unordered_map<uint64_t, std::vector<std::pair<KUInt32, JITFuncPtr>>> mLoadedObjectFiles;
+	/// readdir is expensive, so we also keep a cache of all directories.
+	std::unordered_map<std::string, std::map<KUInt32, JITFuncPtr>>	mLoadedPages;
 	llvm::RuntimeDyld								mDynamicLinker;
 	const llvm::SmallString<128>                    mCacheDir;
 	TJITLLVMRecordingMemoryManager*					mMemoryManager;

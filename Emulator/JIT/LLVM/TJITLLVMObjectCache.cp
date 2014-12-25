@@ -130,6 +130,7 @@ TJITLLVMObjectCache::notifyObjectCompiled(const Module* inModule, const MemoryBu
 	if (!moduleName.empty()) {
 		std::string::size_type n = moduleName.find("_");
 		std::string pagePrefix = moduleName.substr(0, n);
+		mLoadedPages.erase(pagePrefix);
 		SmallString<128> path(mCacheDir);
 		sys::path::append(path, pagePrefix);
 		(void) ::mkdir(path.c_str(), 0755);
@@ -156,76 +157,94 @@ TJITLLVMObjectCache::getObject(const llvm::Module* inModule) {
 // -------------------------------------------------------------------------- //
 //  * LoadPageFunctions(SmallVector<ObjectImage *, 2>&, const TJITLLVMPage&)
 // -------------------------------------------------------------------------- //
-std::map<KUInt32, JITFuncPtr>
+const std::map<KUInt32, JITFuncPtr>&
 TJITLLVMObjectCache::LoadPageFunctions(SmallVector<ObjectImage *, 2>& ioLoadedObjects, const TJITLLVMPage& page) {
-	std::map<KUInt32, JITFuncPtr> result;
-	SmallString<112> path(mCacheDir);
-	sys::path::append(path, page.PagePrefix());
-	DIR* dir = ::opendir(path.c_str());
-	while (dir != NULL) {
-		struct dirent theEntry;
-		struct dirent* theEntryPtr = nullptr;
-		int r = readdir_r(dir, &theEntry, &theEntryPtr);
-		if (r || theEntryPtr == nullptr) break;
-		if (theEntry.d_name[theEntry.d_namlen - 1] == 'o'
-			&& theEntry.d_name[theEntry.d_namlen - 2] == '.'
-			&& theEntry.d_type == DT_REG) {
-			SmallString<128> objPath(path);
-			sys::path::append(objPath, std::string(theEntry.d_name, theEntry.d_namlen));
-			ErrorOr<object::ObjectFile*> objFile = object::ObjectFile::createObjectFile(objPath.c_str());
-			if (!objFile) {
-				fprintf(stderr, "Could not create object file %s (%s)\n", objPath.c_str(), objFile.getError().message().c_str());
-				abort();
-			}
-			mMemoryManager->FlushRecordedAllocations();
-			ObjectImage* image = mDynamicLinker.loadObject(std::move(std::unique_ptr<object::ObjectFile>(objFile.get())));
-			ioLoadedObjects.push_back(image);
-			uint8_t* sectionLoadAddr = mMemoryManager->GetLatestSectionLoadAddress();
-			auto section = image->begin_sections();
-			for (auto it = image->begin_symbols(); it != image->end_symbols(); ++it) {
-				uint32_t flags = it->getFlags();
-				if ((flags & (object::SymbolRef::SF_Undefined | object::SymbolRef::SF_Global)) == object::SymbolRef::SF_Global) {
-					StringRef name;
-					std::error_code err = it->getName(name);
-					if (err) {
-						fprintf(stderr, "Could not get name of symbol (%s)\n", err.message().c_str());
+	const auto pagesIt = mLoadedPages.find(page.PagePrefix());
+	if (pagesIt != mLoadedPages.end()) {
+		return pagesIt->second;
+	} else {
+		std::map<KUInt32, JITFuncPtr> result;
+		SmallString<112> path(mCacheDir);
+		sys::path::append(path, page.PagePrefix());
+		DIR* dir = ::opendir(path.c_str());
+		bool loadedObjectFiles = false;
+		while (dir != NULL) {
+			struct dirent theEntry;
+			struct dirent* theEntryPtr = nullptr;
+			int r = readdir_r(dir, &theEntry, &theEntryPtr);
+			if (r || theEntryPtr == nullptr) break;
+			if (theEntry.d_name[theEntry.d_namlen - 1] == 'o'
+				&& theEntry.d_name[theEntry.d_namlen - 2] == '.'
+				&& theEntry.d_type == DT_REG) {
+				auto it = mLoadedObjectFiles.find(theEntry.d_ino);
+				if (it != mLoadedObjectFiles.end()) {
+					result.insert(it->second.begin(), it->second.end());
+				} else {
+					loadedObjectFiles = true;
+					std::vector<std::pair<KUInt32, JITFuncPtr>> loadedFunctions;
+					SmallString<128> objPath(path);
+					sys::path::append(objPath, std::string(theEntry.d_name, theEntry.d_namlen));
+					ErrorOr<object::ObjectFile*> objFile = object::ObjectFile::createObjectFile(objPath.c_str());
+					if (!objFile) {
+						fprintf(stderr, "Could not create object file %s (%s)\n", objPath.c_str(), objFile.getError().message().c_str());
+						abort();
 					}
-					uint64_t addr;
-					err = it->getAddress(addr);
-					if (err) {
-						fprintf(stderr, "Could not get address of symbol (%s)\n", err.message().c_str());
+					mMemoryManager->FlushRecordedAllocations();
+					ObjectImage* image = mDynamicLinker.loadObject(std::move(std::unique_ptr<object::ObjectFile>(objFile.get())));
+					ioLoadedObjects.push_back(image);
+					uint8_t* sectionLoadAddr = mMemoryManager->GetLatestSectionLoadAddress();
+					auto section = image->begin_sections();
+					for (auto it = image->begin_symbols(); it != image->end_symbols(); ++it) {
+						uint32_t flags = it->getFlags();
+						if ((flags & (object::SymbolRef::SF_Undefined | object::SymbolRef::SF_Global)) == object::SymbolRef::SF_Global) {
+							StringRef name;
+							std::error_code err = it->getName(name);
+							if (err) {
+								fprintf(stderr, "Could not get name of symbol (%s)\n", err.message().c_str());
+							}
+							uint64_t addr;
+							err = it->getAddress(addr);
+							if (err) {
+								fprintf(stderr, "Could not get address of symbol (%s)\n", err.message().c_str());
+							}
+							err = it->getSection(section);
+							if (err) {
+								fprintf(stderr, "Could not get section of symbol (%s)\n", err.message().c_str());
+							}
+							uint64_t sectionAddr;
+							err = section->getAddress(sectionAddr);
+							if (err) {
+								fprintf(stderr, "Could not get address of section (%s)\n", err.message().c_str());
+							}
+							JITFuncPtr ptr = (JITFuncPtr) (sectionLoadAddr + addr - sectionAddr);
+							KUInt32 functionOffset;
+							if (name[0] == '_') {
+								functionOffset = page.OffsetFromFunctionName(name.substr(1));
+							} else {
+								functionOffset = page.OffsetFromFunctionName(name);
+							}
+							loadedFunctions.push_back(std::make_pair(functionOffset, ptr));
+						}
 					}
-					err = it->getSection(section);
-					if (err) {
-						fprintf(stderr, "Could not get section of symbol (%s)\n", err.message().c_str());
-					}
-					uint64_t sectionAddr;
-					err = section->getAddress(sectionAddr);
-					if (err) {
-						fprintf(stderr, "Could not get address of section (%s)\n", err.message().c_str());
-					}
-					JITFuncPtr ptr = (JITFuncPtr) (sectionLoadAddr + addr - sectionAddr);
-					KUInt32 functionOffset;
-					if (name[0] == '_') {
-						functionOffset = page.OffsetFromFunctionName(name.substr(1));
-					} else {
-						functionOffset = page.OffsetFromFunctionName(name);
-					}
-					result[functionOffset] = ptr;
+					result.insert(loadedFunctions.begin(), loadedFunctions.end());
+					mLoadedObjectFiles[theEntry.d_ino] = loadedFunctions;
 				}
 			}
 		}
+		if (dir) {
+			::closedir(dir);
+		}
+		if (!result.empty()) {
+			if (loadedObjectFiles) {
+				// Resolve location & set memory permissions only once per page.
+				mDynamicLinker.resolveRelocations();
+				mDynamicLinker.registerEHFrames();
+				mMemoryManager->finalizeMemory();
+			}
+		}
+		mLoadedPages[page.PagePrefix()] = result;
+		return mLoadedPages[page.PagePrefix()];
 	}
-	if (dir) {
-		::closedir(dir);
-	}
-	if (!result.empty()) {
-		// Resolve location & set memory permissions only once per page.
-		mDynamicLinker.resolveRelocations();
-		mDynamicLinker.registerEHFrames();
-		mMemoryManager->finalizeMemory();
-	}
-	return result;
 }
 
 #endif
