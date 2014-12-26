@@ -135,6 +135,26 @@ typedef void (^LogBlock)(TLog* log);
 - (void)testProcessorExecuteInstruction_E5D00003 {
     [self doTestProcessorExecuteInstruction:@"E5D00003"];
 }
+// ldrb     r0, 0x00
+- (void)testProcessorExecuteInstruction_E55F0008 {
+	[self doTestProcessorExecuteInstruction:@"E55F0008"];
+}
+// ldrb     r0, 0x01
+- (void)testProcessorExecuteInstruction_E55F0007 {
+	[self doTestProcessorExecuteInstruction:@"E55F0007"];
+}
+// ldrb     r0, 0x02
+- (void)testProcessorExecuteInstruction_E55F0006 {
+	[self doTestProcessorExecuteInstruction:@"E55F0006"];
+}
+// ldrb     r0, 0x03
+- (void)testProcessorExecuteInstruction_E55F0005 {
+	[self doTestProcessorExecuteInstruction:@"E55F0005"];
+}
+// ldr     r0, 0x00
+- (void)testProcessorExecuteInstruction_E51F0008 {
+	[self doTestProcessorExecuteInstruction:@"E51F0008"];
+}
 // b        0x00018688
 - (void)testProcessorExecuteInstruction_EA0061A0 {
     [self doTestProcessorExecuteInstruction:@"EA0061A0"];

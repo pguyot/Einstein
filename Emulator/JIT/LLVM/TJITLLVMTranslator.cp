@@ -1735,30 +1735,49 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 			mBuilder.CreateCall2(setPrivilegeFunc, mProcessor, mBuilder.getInt1(false));
 		}
 		
-		BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-		BasicBlock* proceedBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+		BasicBlock* dataAbortExit = nullptr;
 		BasicBlock* nextBlock = nullptr;
 		
 		if (flag_l) {
 			// Load
-			Value* wordResult;
-			if (flag_b) {
-				// Byte.
-				Function* readFunction = EnsureFunction(GetReadBFuncType(), "JIT_ReadB");
-				Value* byte = mBuilder.CreateAlloca(Type::getInt8Ty(mContext));
-				Value* result = mBuilder.CreateCall3(readFunction, mProcessor, theAddress, byte);
-				mBuilder.CreateCondBr(result, dataAbortExit, proceedBlock);
-				mBuilder.SetInsertPoint(proceedBlock);
-				wordResult = mBuilder.CreateZExt(mBuilder.CreateLoad(byte), Type::getInt32Ty(mContext));
-			} else {
-				// Word.
-				Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read");
-				Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(mContext));
-				Value* result = mBuilder.CreateCall3(readFunction, mProcessor, theAddress, word);
-				mBuilder.CreateCondBr(result, dataAbortExit, proceedBlock);
-				mBuilder.SetInsertPoint(proceedBlock);
-				wordResult = mBuilder.CreateLoad(word);
+			Value* wordResult = nullptr;
+			bool optimized = false;
+			if (ConstantInt::classof(theAddress) && !(!flag_p && flag_w)) {
+				KUInt32 theAddressVal = (KUInt32) ((ConstantInt*)theAddress)->getZExtValue();
+			    if (theAddressVal > mCurrentVAddress
+			        && ((theAddressVal - mCurrentVAddress) / sizeof(KUInt32)) < mInstructionCount) {
+			        // Within same page.
+			        optimized = true;
+			        if (flag_b) {
+			            KUInt8* ptr = ((KUInt8*) mCurrentPointer) + (theAddressVal - mCurrentVAddress);
+			            wordResult = mBuilder.getInt32((KUInt32) *ptr);
+			        } else {
+			            KUInt32 value = mCurrentPointer[(theAddressVal - mCurrentVAddress) / sizeof(KUInt32)];
+			            wordResult = mBuilder.getInt32(value);
+			        }
+			    }
 			}
+			if (!optimized) {
+				dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+				BasicBlock* proceedBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+                if (flag_b) {
+                    // Byte.
+                    Function* readFunction = EnsureFunction(GetReadBFuncType(), "JIT_ReadB");
+                    Value* byte = mBuilder.CreateAlloca(Type::getInt8Ty(mContext));
+                    Value* result = mBuilder.CreateCall3(readFunction, mProcessor, theAddress, byte);
+                    mBuilder.CreateCondBr(result, dataAbortExit, proceedBlock);
+                    mBuilder.SetInsertPoint(proceedBlock);
+                    wordResult = mBuilder.CreateZExt(mBuilder.CreateLoad(byte), Type::getInt32Ty(mContext));
+                } else {
+                    // Word.
+                    Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read");
+                    Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(mContext));
+                    Value* result = mBuilder.CreateCall3(readFunction, mProcessor, theAddress, word);
+                    mBuilder.CreateCondBr(result, dataAbortExit, proceedBlock);
+                    mBuilder.SetInsertPoint(proceedBlock);
+                    wordResult = mBuilder.CreateLoad(word);
+                }
+            }
 			if (Rd == 15) {
 				mBuilder.CreateStore(mBuilder.CreateAdd(wordResult, mBuilder.getInt32(4)), mPC);
 				nextBlock = mMainExit;
@@ -1767,6 +1786,8 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 				mBuilder.CreateStore(wordResult, mRegisters[Rd]);
 			}
 		} else {
+			dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+			BasicBlock* proceedBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
 			// Store
 			Value* storedValue;
 			if (Rd == 15) {
@@ -1819,8 +1840,10 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 		}
 		mBuilder.CreateBr(nextBlock);
 		
-		mBuilder.SetInsertPoint(dataAbortExit);
-		BuildExitToFunction("JIT_DataAbort", exitPC);
+		if (dataAbortExit) {
+			mBuilder.SetInsertPoint(dataAbortExit);
+			BuildExitToFunction("JIT_DataAbort", exitPC);
+		}
 	}
 }
 
