@@ -32,6 +32,7 @@
 #include "TJITPage.h"
 #include "TJITLLVMPage.h"
 
+#include <llvm/IR/Intrinsics.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -290,6 +291,11 @@ private:
 		///
 		llvm::Function* EnsureFunction(llvm::FunctionType* funcType, const char* funcName);
 
+		///
+		/// Retrieve a given intrinsic. Import it in the module if required.
+		///
+		llvm::Function* EnsureIntrinsic(llvm::Intrinsic::ID intrinsicID);
+		
 		///
 		/// Generate code to perform shift no carry of operand.
 		///

@@ -45,6 +45,7 @@
 #include <llvm/Pass.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Transforms/Scalar.h>
+#include <llvm/IR/Intrinsics.h>
 
 // C++
 #include <memory>
@@ -336,6 +337,17 @@ TJITLLVMTranslator::FrameTranslator::EnsureFunction(FunctionType* funcType, cons
 		function->setCallingConv(CallingConv::C);
 	}
 	return function;
+}
+
+// -------------------------------------------------------------------------- //
+//  * EnsureIntrinsic(FunctipnType*, const char*)
+// -------------------------------------------------------------------------- //
+Function*
+TJITLLVMTranslator::FrameTranslator::EnsureIntrinsic(Intrinsic::ID intrinsicID) {
+	std::vector<Type *> arg_type;
+	arg_type.push_back(mBuilder.getInt32Ty());
+	arg_type.push_back(mBuilder.getInt32Ty());
+	return Intrinsic::getDeclaration(mModule, intrinsicID, arg_type);
 }
 
 // -------------------------------------------------------------------------- //
@@ -1305,6 +1317,8 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing_Op(KUInt32 inInstr
 	// 31 - 28 27 26 25 24 23 22 21 20 19 - 16 15 - 12 11 - 08 07 06 05 04 03 - 00
 	// -Cond-- 0  0  I  --Opcode--- S  --Rn--- --Rd--- ----------Operand 2-------- Data Processing
 	const KUInt32 Rd = (inInstruction & 0x0000F000) >> 12;
+	Function* intrinsic;
+	Value* compResult;
 	
 	switch ((inInstruction & 0x01E00000) >> 21)
 	{
@@ -1328,19 +1342,10 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing_Op(KUInt32 inInstr
 			
 		case 0x2:	// 0b0010
 			// SUB
-			result = mBuilder.CreateSub(operand, shifterOperand);
-			
-			// OverFlow:
-			// Subtraction causes an overflow if the operands have different
-			// signs, and the first operand and the result have different signs.
-			overflow = mBuilder.CreateAnd(
-										  mBuilder.CreateICmpNE(
-																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
-										  mBuilder.CreateICmpNE(
-																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
-			
+			intrinsic = EnsureIntrinsic(Intrinsic::ssub_with_overflow);
+			compResult = mBuilder.CreateCall2(intrinsic, operand, shifterOperand);
+			result = mBuilder.CreateExtractValue(compResult, 0);
+			overflow = mBuilder.CreateExtractValue(compResult, 1);
 			carry = mBuilder.CreateICmpUGE(operand, shifterOperand);
 			if (Rd != 15) {
 				mBuilder.CreateStore(result, mRegisters[Rd]);
@@ -1349,19 +1354,10 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing_Op(KUInt32 inInstr
 			
 		case 0x3:	// 0b0011
 			// RSB
-			result = mBuilder.CreateSub(shifterOperand, operand);
-			
-			// OverFlow:
-			// Subtraction causes an overflow if the operands have different
-			// signs, and the first operand and the result have different signs.
-			overflow = mBuilder.CreateAnd(
-										  mBuilder.CreateICmpNE(
-																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)),
-																mBuilder.CreateLShr(operand, mBuilder.getInt32(31))),
-										  mBuilder.CreateICmpNE(
-																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31)),
-																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
-			
+			intrinsic = EnsureIntrinsic(Intrinsic::ssub_with_overflow);
+			compResult = mBuilder.CreateCall2(intrinsic, shifterOperand, operand);
+			result = mBuilder.CreateExtractValue(compResult, 0);
+			overflow = mBuilder.CreateExtractValue(compResult, 1);
 			carry = mBuilder.CreateICmpUGE(shifterOperand, operand);
 			if (Rd != 15) {
 				mBuilder.CreateStore(result, mRegisters[Rd]);
@@ -1370,20 +1366,10 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing_Op(KUInt32 inInstr
 			
 		case 0x4:	// 0b01000
 			// ADD
-			result = mBuilder.CreateAdd(operand, shifterOperand);
-			
-			// OverFlow:
-			// Addition generates an overflow if both operands have the same
-			// sign (bit[31]), and the sign of the result is different to the
-			// sign of both operands.
-			overflow = mBuilder.CreateAnd(
-										  mBuilder.CreateICmpEQ(
-																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
-										  mBuilder.CreateICmpNE(
-																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
-			
+			intrinsic = EnsureIntrinsic(Intrinsic::sadd_with_overflow);
+			compResult = mBuilder.CreateCall2(intrinsic, operand, shifterOperand);
+			result = mBuilder.CreateExtractValue(compResult, 0);
+			overflow = mBuilder.CreateExtractValue(compResult, 1);
 			carry = mBuilder.CreateOr(
 									  mBuilder.CreateICmpULT(result, operand),
 									  mBuilder.CreateICmpULT(result, shifterOperand));
@@ -1483,38 +1469,19 @@ TJITLLVMTranslator::FrameTranslator::Translate_DataProcessing_Op(KUInt32 inInstr
 			
 		case 0xA:	// 0b1010
 			// CMP
-			result = mBuilder.CreateSub(operand, shifterOperand);
-			
-			// OverFlow:
-			// Subtraction causes an overflow if the operands have different
-			// signs, and the first operand and the result have different signs.
-			overflow = mBuilder.CreateAnd(
-										  mBuilder.CreateICmpNE(
-																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
-										  mBuilder.CreateICmpNE(
-																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
-			
+			intrinsic = EnsureIntrinsic(Intrinsic::ssub_with_overflow);
+			compResult = mBuilder.CreateCall2(intrinsic, operand, shifterOperand);
+			result = mBuilder.CreateExtractValue(compResult, 0);
+			overflow = mBuilder.CreateExtractValue(compResult, 1);
 			carry = mBuilder.CreateICmpUGE(operand, shifterOperand);
 			break;
 			
 		case 0xB:	// 0b1011
 			// CMN
-			result = mBuilder.CreateAdd(operand, shifterOperand);
-			
-			// OverFlow:
-			// Addition generates an overflow if both operands have the same
-			// sign (bit[31]), and the sign of the result is different to the
-			// sign of both operands.
-			overflow = mBuilder.CreateAnd(
-										  mBuilder.CreateICmpEQ(
-																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-																mBuilder.CreateLShr(shifterOperand, mBuilder.getInt32(31))),
-										  mBuilder.CreateICmpNE(
-																mBuilder.CreateLShr(operand, mBuilder.getInt32(31)),
-																mBuilder.CreateLShr(result, mBuilder.getInt32(31))));
-			
+			intrinsic = EnsureIntrinsic(Intrinsic::sadd_with_overflow);
+			compResult = mBuilder.CreateCall2(intrinsic, operand, shifterOperand);
+			result = mBuilder.CreateExtractValue(compResult, 0);
+			overflow = mBuilder.CreateExtractValue(compResult, 1);
 			carry = mBuilder.CreateOr(
 									  mBuilder.CreateICmpULT(result, operand),
 									  mBuilder.CreateICmpULT(result, shifterOperand));
@@ -1779,23 +1746,10 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 		}
 	
 		if (flag_p) {
-			// If theAddress and theOffset are constants, keep theAddress constant
-			// This will be useful (later) for optimizations.
-			if (ConstantInt::classof(theAddress)
-				&& ConstantInt::classof(theOffset)) {
-				KUInt32 theAddressVal = (KUInt32) ((ConstantInt*)theAddress)->getZExtValue();
-				KUInt32 theOffsetVal = (KUInt32) ((ConstantInt*)theOffset)->getZExtValue();
-				if (flag_u) {
-					theAddress = mBuilder.getInt32(theAddressVal + theOffsetVal);
-				} else {
-					theAddress = mBuilder.getInt32(theAddressVal - theOffsetVal);
-				}
+			if (flag_u) {
+				theAddress = mBuilder.CreateAdd(theAddress, theOffset);
 			} else {
-				if (flag_u) {
-					theAddress = mBuilder.CreateAdd(theAddress, theOffset);
-				} else {
-					theAddress = mBuilder.CreateSub(theAddress, theOffset);
-				}
+				theAddress = mBuilder.CreateSub(theAddress, theOffset);
 			}
 		}
 		
