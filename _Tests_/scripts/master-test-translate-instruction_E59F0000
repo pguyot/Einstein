@@ -1,39 +1,39 @@
 Starting from an empty flash
 
 define private i8* @i0({ i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i1, i1, i1, i1, i1, i1, i1, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32 }*, i1*, i32) {
-"line:147#0":
+"prologue:149#0":
   %3 = getelementptr { i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i1, i1, i1, i1, i1, i1, i1, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32 }* %0, i64 0, i32 0
   %4 = load i32* %3, align 4
-  switch i32 %2, label %"line:155#1" [
-    i32 0, label %"line:410#5"
-    i32 1, label %"line:161#2"
+  switch i32 %2, label %"mainexit:157#1" [
+    i32 0, label %"_:412#5"
+    i32 1, label %"_:163#2"
   ]
 
-"line:155#1":                                     ; preds = %"line:147#0", %"line:161#2"
-  %5 = phi i32 [ %4, %"line:147#0" ], [ %7, %"line:161#2" ]
+"mainexit:157#1":                                 ; preds = %"prologue:149#0", %"_:163#2"
+  %5 = phi i32 [ %4, %"prologue:149#0" ], [ %7, %"_:163#2" ]
   store i32 %5, i32* %3, align 4
   %6 = getelementptr { i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i1, i1, i1, i1, i1, i1, i1, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32 }* %0, i64 0, i32 15
   store i32 8, i32* %6, align 4
   ret i8* bitcast (i8* ({ i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i1, i1, i1, i1, i1, i1, i1, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32 }*, i1*)* @JIT_Continue to i8*)
 
-"line:161#2":                                     ; preds = %"line:147#0", %"line:410#5"
-  %7 = phi i32 [ %4, %"line:147#0" ], [ 0, %"line:410#5" ]
-  br label %"line:155#1"
+"_:163#2":                                        ; preds = %"prologue:149#0", %"_:412#5"
+  %7 = phi i32 [ %4, %"prologue:149#0" ], [ 0, %"_:412#5" ]
+  br label %"mainexit:157#1"
 
-"line:410#5":                                     ; preds = %"line:147#0"
-  br label %"line:161#2"
+"_:412#5":                                        ; preds = %"prologue:149#0"
+  br label %"_:163#2"
 }
 
 declare i8* @JIT_Continue({ i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i1, i1, i1, i1, i1, i1, i1, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32 }*, i1*)
 
 define i8* @"s00000000@00000000_00000000"({ i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i1, i1, i1, i1, i1, i1, i1, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32 }*, i1*) {
-"line:440#6":
+"_:442#6":
   %2 = tail call i8* @i0({ i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i1, i1, i1, i1, i1, i1, i1, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32 }* %0, i1* %1, i32 0)
   ret i8* %2
 }
 
 define i8* @"s00000000@00000000_00000004"({ i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i1, i1, i1, i1, i1, i1, i1, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32 }*, i1*) {
-"line:440#6":
+"_:442#6":
   %2 = tail call i8* @i0({ i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i1, i1, i1, i1, i1, i1, i1, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32 }* %0, i1* %1, i32 1)
   ret i8* %2
 }

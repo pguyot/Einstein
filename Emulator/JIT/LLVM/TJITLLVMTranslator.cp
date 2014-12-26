@@ -55,9 +55,11 @@ using namespace llvm;
 #ifdef DEBUG
 	#define STRINGIFY(x) #x
 	#define TOSTRING(x) STRINGIFY(x)
-	#define BLOCKNAME "line:" TOSTRING(__LINE__) "#" TOSTRING(__COUNTER__)
+	#define ANONBLOCK "_:" TOSTRING(__LINE__) "#" TOSTRING(__COUNTER__)
+	#define BLOCKNAME(x) x ":" TOSTRING(__LINE__) "#" TOSTRING(__COUNTER__)
 #else
-    #define BLOCKNAME ""
+    #define ANONBLOCK ""
+    #define BLOCKNAME(x) ""
 #endif
 
 // -------------------------------------------------------------------------- //
@@ -144,7 +146,7 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(
 	std::string functionName(stream.str());
 	mFunction = Function::Create(GetInnerFuncType(), Function::PrivateLinkage, functionName, mModule);
 	
-	mPrologue = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	mPrologue = BasicBlock::Create(mContext, BLOCKNAME("prologue"), mFunction);
 	
 	auto argsIt = mFunction->arg_begin();
 	mProcessor = argsIt++;
@@ -152,13 +154,13 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(
 	mOffsetArg = argsIt;
 	mBuilder.SetInsertPoint(mPrologue);
 	mPC = mBuilder.CreateAlloca(IntegerType::getInt32Ty(mContext));
-	mMainExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	mMainExit = BasicBlock::Create(mContext, BLOCKNAME("mainexit"), mFunction);
 
 	// Exit step : put it everywhere except at offset.
 	if (mStepFunction) {
 		for (int i = 0; i < mInstructionCount; i++) {
 			if (i != offsetInPage) {
-				BasicBlock* exitStepBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+				BasicBlock* exitStepBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 				mLabels[i] = exitStepBlock;
 				KUInt32 exitStepPC = mPage.GetVAddr() + (i + 1) * 4;
 				mBuilder.SetInsertPoint(exitStepBlock);
@@ -168,7 +170,7 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(
 		}
 	}
 	// End of page.
-	BasicBlock* endOfPageBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* endOfPageBlock = BasicBlock::Create(mContext, BLOCKNAME("endofpage"), mFunction);
 	KUInt32 endOfPagePC = mPage.GetVAddr() + (mInstructionCount + 1) * 4;
 	mLabels[mInstructionCount] = endOfPageBlock;
 	mBuilder.SetInsertPoint(endOfPageBlock);
@@ -362,7 +364,7 @@ TJITLLVMTranslator::FrameTranslator::Translate(KUInt32 inOffsetInPage)
 			// If we reached the end of page (or section to translate), we'll find
 			// epilogue there anyway.
 			BasicBlock* nextInstructionBlock = GetBlock(offsetInPage + 1);
-			BasicBlock* thisInstructionBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+			BasicBlock* thisInstructionBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 			DoTranslateTest(thisInstructionBlock, nextInstructionBlock, theTestKind);
 			theBlock = thisInstructionBlock;
 			// Continue from here.
@@ -407,7 +409,7 @@ TJITLLVMTranslator::FrameTranslator::GetBlock(KUInt32 inOffsetInPage)
 	BasicBlock* theBlock = mLabels[inOffsetInPage];
 	if (theBlock == nullptr) {
 		mPending.push_back(inOffsetInPage);
-		theBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+		theBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 		mLabels[inOffsetInPage] = theBlock;
 	}
 	return theBlock;
@@ -437,7 +439,7 @@ TJITLLVMTranslator::FrameTranslator::AddFunctionIfRequired(KUInt32 inOffsetInPag
 			auto argsIt = newFunction->arg_begin();
 			Value* processor = argsIt++;
 			Value* signal = argsIt;
-			BasicBlock* functionBlock = BasicBlock::Create(mContext, BLOCKNAME, newFunction);
+			BasicBlock* functionBlock = BasicBlock::Create(mContext, ANONBLOCK, newFunction);
 			auto ip = mBuilder.saveIP();
 			mBuilder.SetInsertPoint(functionBlock);
 			Value* returnValue = mBuilder.CreateCall3(mFunction, processor, signal, mBuilder.getInt32(inOffsetInPage));
@@ -736,10 +738,10 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataSwap(KUInt32 offsetInPa
 		EnsureAllocated(&mRegisters[Rn], 32);
 		EnsureAllocated(&mRegisters[Rm], 32);
 		Value* address = mBuilder.CreateLoad(mRegisters[Rn]);
-		BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-		BasicBlock* writeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-		BasicBlock* storeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-		BasicBlock* signalExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+		BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME("dataabort"), mFunction);
+		BasicBlock* writeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+		BasicBlock* storeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+		BasicBlock* signalExit = BasicBlock::Create(mContext, BLOCKNAME("signalexit"), mFunction);
 		
 		if (flag_b) {
 			Function* readFunction = EnsureFunction(GetReadBFuncType(), "JIT_ReadB");
@@ -1758,8 +1760,8 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 			    }
 			}
 			if (!optimized) {
-				dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-				BasicBlock* proceedBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+				dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME("dataabort"), mFunction);
+				BasicBlock* proceedBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
                 if (flag_b) {
                     // Byte.
                     Function* readFunction = EnsureFunction(GetReadBFuncType(), "JIT_ReadB");
@@ -1786,8 +1788,8 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 				mBuilder.CreateStore(wordResult, mRegisters[Rd]);
 			}
 		} else {
-			dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-			BasicBlock* proceedBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+			dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME("dataabort"), mFunction);
+			BasicBlock* proceedBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 			// Store
 			Value* storedValue;
 			if (Rd == 15) {
@@ -1891,7 +1893,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_Branch(KUInt32 offsetInPage, KUIn
 	        // Forward, in page.
             mBuilder.CreateBr(GetBlock(branchToInPage));
         } else if (branchToInPage >= 0 && branchToInPage < mInstructionCount) {
-			BasicBlock* signalExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+			BasicBlock* signalExit = BasicBlock::Create(mContext, BLOCKNAME("signalexit"), mFunction);
             // Backward, in page.
 			mBuilder.CreateCondBr(mBuilder.CreateLoad(mSignal, true), GetBlock(branchToInPage), signalExit);
 			mBuilder.SetInsertPoint(signalExit);
@@ -1909,7 +1911,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_Branch(KUInt32 offsetInPage, KUIn
 			// Forward, in page.
 			mBuilder.CreateBr(GetBlock(branchToInPage));
 		} else if (branchToInPage >= 0 && branchToInPage < mInstructionCount) {
-			BasicBlock* signalExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+			BasicBlock* signalExit = BasicBlock::Create(mContext, BLOCKNAME("signalexit"), mFunction);
 			// Backward, in page.
 			mBuilder.CreateCondBr(mBuilder.CreateLoad(mSignal, true), GetBlock(branchToInPage), signalExit);
 			mBuilder.SetInsertPoint(signalExit);
@@ -1936,7 +1938,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM13(KUInt32 offsetInPage, KUInt
 	const KUInt32 Rn = (inInstruction & 0x000F0000) >> 16;
 	const KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
 	
-	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME("dataabort"), mFunction);
 	
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
 	Value* address = startAddress;
@@ -1947,7 +1949,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM13(KUInt32 offsetInPage, KUInt
 		if (inInstruction & registersMask) {
 			EnsureAllocated(&mRegisters[i], 32);
 			Value* result = mBuilder.CreateCall3(readFunction, mProcessor, address, word);
-			BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+			BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 			mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 			mBuilder.SetInsertPoint(continueBlock);
 			mBuilder.CreateStore(mBuilder.CreateLoad(word), mRegisters[i]);
@@ -1957,7 +1959,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM13(KUInt32 offsetInPage, KUInt
 	}
 	if (inInstruction & 0x8000) {
 		Value* result = mBuilder.CreateCall3(readFunction, mProcessor, address, word);
-		BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+		BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 		mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 		mBuilder.SetInsertPoint(continueBlock);
 		// Store value + 4 for PREFETCH
@@ -2011,7 +2013,7 @@ void
 TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt32 inInstruction)
 {
 	// LDM(2) loads user mode registers when the processor is in a privileged mode.
-	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME("dataabort"), mFunction);
 	
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
 	Value* commonAddress = startAddress;
@@ -2022,7 +2024,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 		if (inInstruction & commonRegistersMask) {
 			EnsureAllocated(&mRegisters[i], 32);
 			Value* result = mBuilder.CreateCall3(readFunction, mProcessor, commonAddress, word);
-			BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+			BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 			mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 			mBuilder.SetInsertPoint(continueBlock);
 			mBuilder.CreateStore(mBuilder.CreateLoad(word), mRegisters[i]);
@@ -2031,10 +2033,10 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 		commonRegistersMask = commonRegistersMask << 1;
 	}
 	
-	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* otherModesBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* testSuperModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* endBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* otherModesBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* testSuperModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* endBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 	
 	std::vector<llvm::Value *> indexes;
 	indexes.push_back(mBuilder.getInt32(0));
@@ -2053,7 +2055,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 		for (int i = 8; i < 13; i++) {
 			if (inInstruction & fiqRegistersMask) {
 				Value* result = mBuilder.CreateCall3(readFunction, mProcessor, fiqAddress, word);
-				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				indexes[1] = mBuilder.getInt32(i_mR8_Bkup + i - 8);
@@ -2066,7 +2068,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 		for (int i = 13; i < 15; i++) {
 			if (inInstruction & fiqRegistersMask) {
 				Value* result = mBuilder.CreateCall3(readFunction, mProcessor, fiqAddress, word);
-				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				indexes[1] = mBuilder.getInt32(i_mR13_Bkup + i - 13);
@@ -2087,7 +2089,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 			if (inInstruction & otherRegistersMask) {
 				EnsureAllocated(&mRegisters[i], 32);
 				Value* result = mBuilder.CreateCall3(readFunction, mProcessor, otherAddress, word);
-				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				mBuilder.CreateStore(mBuilder.CreateLoad(word), mRegisters[i]);
@@ -2098,7 +2100,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 		for (int i = 13; i < 15; i++) {
 			if (inInstruction & otherRegistersMask) {
 				Value* result = mBuilder.CreateCall3(readFunction, mProcessor, otherAddress, word);
-				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				indexes[1] = mBuilder.getInt32(i_mR13_Bkup + i - 13);
@@ -2134,7 +2136,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM1(KUInt32 offsetInPage, KUInt3
 	const KUInt32 flag_w = (inInstruction & 0x00200000);
 	const KUInt32 Rn = (inInstruction & 0x000F0000) >> 16;
 	
-	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME("dataabort"), mFunction);
 	KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
 	
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
@@ -2158,7 +2160,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM1(KUInt32 offsetInPage, KUInt3
 		finalResult = mBuilder.CreateOr(finalResult, result);
 	}
 
-	BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 	mBuilder.CreateCondBr(finalResult, dataAbortExit, continueBlock);
 	mBuilder.SetInsertPoint(continueBlock);
 	
@@ -2192,7 +2194,7 @@ void
 TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt32 inInstruction)
 {
 	// STM(2) stores user mode registers when the processor is in a privileged mode.
-	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME("dataabort"), mFunction);
 	KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
 	
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
@@ -2203,7 +2205,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 		if (inInstruction & commonRegistersMask) {
 			EnsureAllocated(&mRegisters[i], 32);
 			Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, commonAddress, mBuilder.CreateLoad(mRegisters[i]));
-			BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+			BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 			mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 			mBuilder.SetInsertPoint(continueBlock);
 			commonAddress = mBuilder.CreateAdd(commonAddress, mBuilder.getInt32(4));
@@ -2211,10 +2213,10 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 		commonRegistersMask = commonRegistersMask << 1;
 	}
 	
-	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* otherModesBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* testSuperModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* endBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* otherModesBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* testSuperModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* endBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 	
 	std::vector<llvm::Value *> indexes;
 	indexes.push_back(mBuilder.getInt32(0));
@@ -2235,7 +2237,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 				indexes[1] = mBuilder.getInt32(i_mR8_Bkup + i - 8);
 				Value* backupRegister = mBuilder.CreateGEP(mProcessor, indexes);
 				Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, fiqAddress, mBuilder.CreateLoad(backupRegister));
-				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				fiqAddress = mBuilder.CreateAdd(fiqAddress, mBuilder.getInt32(4));
@@ -2247,7 +2249,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 				indexes[1] = mBuilder.getInt32(i_mR13_Bkup + i - 13);
 				Value* backupRegister = mBuilder.CreateGEP(mProcessor, indexes);
 				Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, fiqAddress, mBuilder.CreateLoad(backupRegister));
-				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				fiqAddress = mBuilder.CreateAdd(fiqAddress, mBuilder.getInt32(4));
@@ -2270,7 +2272,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 			if (inInstruction & otherRegistersMask) {
 				EnsureAllocated(&mRegisters[i], 32);
 				Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, otherAddress, mBuilder.CreateLoad(mRegisters[i]));
-				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				otherAddress = mBuilder.CreateAdd(otherAddress, mBuilder.getInt32(4));
@@ -2282,7 +2284,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 				indexes[1] = mBuilder.getInt32(i_mR13_Bkup + i - 13);
 				Value* backupRegister = mBuilder.CreateGEP(mProcessor, indexes);
 				Value* result = mBuilder.CreateCall3(writeFunction, mProcessor, otherAddress, mBuilder.CreateLoad(backupRegister));
-				BasicBlock* continueBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+				BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 				mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 				mBuilder.SetInsertPoint(continueBlock);
 				otherAddress = mBuilder.CreateAdd(otherAddress, mBuilder.getInt32(4));
@@ -2486,14 +2488,14 @@ TJITLLVMTranslator::FrameTranslator::BuildBackupBankRegisters(Value* currentMode
 	indexes.push_back(mBuilder.getInt32(0));
 	indexes.push_back(mBuilder.getInt32(0));
 
-	BasicBlock* endBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* firstSetBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* userModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* supervisorModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* abortModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* undefinedModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* irqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* endBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* firstSetBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* userModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* supervisorModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* abortModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* undefinedModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* irqModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 	SwitchInst* sw = mBuilder.CreateSwitch(currentMode, userModeBlock);
 	
 	sw->addCase(mBuilder.getInt32(TARMProcessor::kUserMode), userModeBlock);
@@ -2569,17 +2571,17 @@ TJITLLVMTranslator::FrameTranslator::BuildRestoreBankRegisters(Value* currentMod
 	indexes.push_back(mBuilder.getInt32(0));
 	indexes.push_back(mBuilder.getInt32(0));
 
-	BasicBlock* endBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* restoreFIQBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* restoreSwitchBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* restoreFirstSetBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* endBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* restoreFIQBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* restoreSwitchBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* restoreFirstSetBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 
-	BasicBlock* userModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* supervisorModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* abortModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* undefinedModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* irqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* userModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* supervisorModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* abortModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* undefinedModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* irqModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 
     // Old mode was FIQ, new mode is not FIQ : restore R8-R12
     mBuilder.CreateCondBr(
@@ -2672,13 +2674,13 @@ TJITLLVMTranslator::FrameTranslator::BuildSetCPSR(Value* operand, Value* current
 	indexes.push_back(mBuilder.getInt32(0));
 
 	// First set field bits.
-	BasicBlock* setFieldsBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* afterSetFieldsBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* setControlBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* setModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* setPrivilegeBitsBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* signalInterruptExit = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* endBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* setFieldsBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* afterSetFieldsBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* setControlBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* setModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* setPrivilegeBitsBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* signalInterruptExit = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* endBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 	mBuilder.CreateCondBr(doFieldsBits, setFieldsBlock, afterSetFieldsBlock);
 	mBuilder.SetInsertPoint(setFieldsBlock);
 	EnsureAllocated(&mCPSR_N, 1);
@@ -2745,12 +2747,12 @@ TJITLLVMTranslator::FrameTranslator::BuildSetSPSR(Value* operand, Value* current
 	indexes.push_back(mBuilder.getInt32(0));
 	indexes.push_back(mBuilder.getInt32(0));
 
-	BasicBlock* endBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* supervisorModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* abortModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* undefinedModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* irqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
-	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, BLOCKNAME, mFunction);
+	BasicBlock* endBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* supervisorModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* abortModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* undefinedModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* irqModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 	SwitchInst* sw = mBuilder.CreateSwitch(currentMode, endBlock);
 	
 	sw->addCase(mBuilder.getInt32(TARMProcessor::kSupervisorMode), supervisorModeBlock);
