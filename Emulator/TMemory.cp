@@ -683,20 +683,6 @@ TMemory::GetDirectPointerToPage( KUInt32 inPAddr ) const
 }
 
 // -------------------------------------------------------------------------- //
-//  * ReadInstruction( PAddr )
-// -------------------------------------------------------------------------- //
-KUInt32
-TMemory::ReadInstruction( KUInt32 inBankNumber, KUInt32 inOffsetInBank )
-{
-	if (inBankNumber == 0)
-	{
-		return *((KUInt32*) ((KUIntPtr) mROMImagePtr + inOffsetInBank));
-	} else /* (inBankNumber == 1) */ {
-		return *((KUInt32*) (mRAM + inOffsetInBank));
-	}
-}
-
-// -------------------------------------------------------------------------- //
 //  * Read( VAddr, KUInt32& )
 // -------------------------------------------------------------------------- //
 Boolean

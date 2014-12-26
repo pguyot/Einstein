@@ -245,20 +245,6 @@ public:
 					const char* inString );
 	
 	///
-	/// Read an instruction from memory.
-	/// This function must be used with results from the previous function.
-	/// It returns the instruction at the given physical address in the
-	/// proper bank.
-	///
-	/// \param inBankNumber			bank index (0 for ROM or 1 for RAM).
-	/// \param inOffsetInBank		offset in the bank (address - base).
-	/// \return the instruction
-	///		
-	KUInt32		ReadInstruction(
-					KUInt32 inBankNumber,
-					KUInt32 inOffsetInBank );
-	
-	///
 	/// Read 32 bits from memory.
 	/// Perform address translation if the MMU is enabled.
 	///
