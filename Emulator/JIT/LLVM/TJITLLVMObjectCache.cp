@@ -46,10 +46,12 @@ using namespace llvm;
 // -------------------------------------------------------------------------- //
 //  * TJITLLVMObjectCache(const TROMImage&, RTDyldMemoryManager*)
 // -------------------------------------------------------------------------- //
-TJITLLVMObjectCache::TJITLLVMObjectCache(const TROMImage& inROMImage, TJITLLVMRecordingMemoryManager* memoryManager)
+TJITLLVMObjectCache::TJITLLVMObjectCache(const TROMImage& inROMImage,
+										 RuntimeDyld* dynamicLinker,
+										 TJITLLVMRecordingMemoryManager* memoryManager)
     :
         mCacheDir(GetCacheDir(inROMImage)),
-		mDynamicLinker(memoryManager),
+		mDynamicLinker(dynamicLinker),
 		mMemoryManager(memoryManager)
 {
 	InvalidateCacheIfRequired(inROMImage);
@@ -134,10 +136,10 @@ TJITLLVMObjectCache::InvalidateCacheIfRequired(const TROMImage& inROMImage) {
 }
 
 // -------------------------------------------------------------------------- //
-//  * notifyObjectCompiled(const Module*, const MemoryBuffer*)
+//  * SaveCompiledObject(const Module*, const StringRef objectCode)
 // -------------------------------------------------------------------------- //
 void
-TJITLLVMObjectCache::notifyObjectCompiled(const Module* inModule, const MemoryBuffer* objectCode) {
+TJITLLVMObjectCache::SaveCompiledObject(const Module* inModule, const StringRef objectCode) {
 	const std::string& moduleName = inModule->getModuleIdentifier();
 	if (!moduleName.empty()) {
 		std::string::size_type n = moduleName.find("_");
@@ -156,22 +158,14 @@ TJITLLVMObjectCache::notifyObjectCompiled(const Module* inModule, const MemoryBu
 		if (err != "" || stream.has_error()) {
 			fprintf(stderr, "Could not open object file for writing: %s\n", err.c_str());
 		} else {
-			stream << objectCode->getBuffer();
+			stream << objectCode;
 		}
 		stream.close();
 	}
 }
 
 // -------------------------------------------------------------------------- //
-//  * getObject(const Module*)
-// -------------------------------------------------------------------------- //
-MemoryBuffer*
-TJITLLVMObjectCache::getObject(const llvm::Module* inModule) {
-    return nullptr;
-}
-
-// -------------------------------------------------------------------------- //
-//  * LoadPageFunctions(const TJITLLVMPage&, JITFuncPtr*)
+//  * GetPageFunctions(const TJITLLVMPage&, JITFuncPtr*)
 // -------------------------------------------------------------------------- //
 void
 TJITLLVMObjectCache::GetPageFunctions(const TJITLLVMPage& page, JITFuncPtr* outEntryPoints) {
@@ -216,7 +210,7 @@ TJITLLVMObjectCache::GetPageFunctions(const TJITLLVMPage& page, JITFuncPtr* outE
 						abort();
 					}
 					mMemoryManager->FlushRecordedAllocations();
-					ObjectImage* image = mDynamicLinker.loadObject(std::move(std::unique_ptr<object::ObjectFile>(objFile.get())));
+					ObjectImage* image = mDynamicLinker->loadObject(std::move(std::unique_ptr<object::ObjectFile>(objFile.get())));
 					mLoadedImages.push_back(image);
 					uint8_t* sectionLoadAddr = mMemoryManager->GetLatestSectionLoadAddress();
 					auto section = image->begin_sections();
@@ -267,8 +261,8 @@ TJITLLVMObjectCache::GetPageFunctions(const TJITLLVMPage& page, JITFuncPtr* outE
 		}
 		if (loadedObjectFiles) {
 			// Resolve location & set memory permissions only once per page.
-			mDynamicLinker.resolveRelocations();
-			mDynamicLinker.registerEHFrames();
+			mDynamicLinker->resolveRelocations();
+			mDynamicLinker->registerEHFrames();
 			mMemoryManager->finalizeMemory();
 		}
 		mLoadedPages[page.PagePrefix()] = std::make_pair(bufferSize, cachedResult);

@@ -128,8 +128,8 @@ private:
 	TJITLLVMPage( const TJITLLVMPage& ) = delete;
 	
 	/// \name Variables
-	std::unique_ptr<llvm::ExecutionEngine>		mExecutionEngine;		///< Execution engine for the page.
 	JITFuncPtr*                                 mEntryPointFunctions;	///< Available functions by offset.
+	std::unique_ptr<llvm::ExecutionEngine>		mStepExecutionEngine;	///< Execution engine for stepping.
 	std::map<KUInt32, JITFuncPtr>				mStepFunctions;			///< Step functions.
 	TJITLLVMTranslator							mTranslator;
 };

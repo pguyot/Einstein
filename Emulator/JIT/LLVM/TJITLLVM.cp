@@ -48,6 +48,7 @@
 #include <llvm/Target/TargetLibraryInfo.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Target/TargetSubtargetInfo.h>
+#include <llvm/ExecutionEngine/ObjectImage.h>
 
 // C++
 #include <set>
@@ -206,8 +207,10 @@ TJITLLVM::TJITLLVM(
 		TJIT<TJITLLVM, TJITLLVMPage>( inMemoryIntf, inMMUIntf ),
 		mGluesTable(CreateGluesTable())
 {
+	mMemoryManager = new TJITLLVMRecordingMemoryManager(mGluesTable);
+	mDynamicLinker = new RuntimeDyld(mMemoryManager);
 	if (inROMImage) {
-		mObjectCache = new TJITLLVMObjectCache(*inROMImage, new TJITLLVMRecordingMemoryManager(mGluesTable));
+		mObjectCache = new TJITLLVMObjectCache(*inROMImage, mDynamicLinker, mMemoryManager);
 	} else {
 		mObjectCache = nullptr;
 	}
@@ -217,6 +220,8 @@ TJITLLVM::TJITLLVM(
 		fprintf(stderr, "Cannot find LLVM target %s\n", err.c_str());
 		abort();
 	}
+	TargetOptions options;
+	mTargetMachine = mTarget->createTargetMachine(LLVM_HOST_TRIPLE, "", "", options);
 	
 	// Init main ROM page.
 	mMainROMPage.Init(inMemoryIntf, TMemoryConsts::kProtectedROMEnd, TMemoryConsts::kProtectedROMEnd, TMemoryConsts::kROMEnd - TMemoryConsts::kProtectedROMEnd);
@@ -385,27 +390,99 @@ TJITLLVM::DoPatchROM(KUInt32* romPtr, const std::string& inMachineName) {
 }
 
 // -------------------------------------------------------------------------- //
-//  * CreateExecutionEngine()
+//  * CreateStepExecutionEngine()
 // -------------------------------------------------------------------------- //
-ExecutionEngine*
-TJITLLVM::CreateExecutionEngine() {
+llvm::ExecutionEngine*
+TJITLLVM::CreateStepExecutionEngine() {
 	TargetOptions options;
 	TargetMachine* targetMachine = mTarget->createTargetMachine(LLVM_HOST_TRIPLE, "", "", options);
 	std::string engineBuilderError;
 	// We do this with a dummy module.
 	Module* emptyModule = new Module("", getGlobalContext());
 	ExecutionEngine* theResult = EngineBuilder(emptyModule)
-										.setEngineKind(EngineKind::JIT)
-										.setUseMCJIT(true)
-										.setErrorStr(&engineBuilderError)
-										.setMCJITMemoryManager(new TJITLLVMGlueMemoryManager(mGluesTable))
-										.create(targetMachine);
+		.setEngineKind(EngineKind::JIT)
+		.setUseMCJIT(true)
+		.setErrorStr(&engineBuilderError)
+		.setMCJITMemoryManager(new TJITLLVMGlueMemoryManager(mGluesTable))
+		.create(targetMachine);
 	if (theResult == nullptr) {
 		fprintf(stderr, "Could not create MCJIT execution engine: %s\n", engineBuilderError.c_str());
+	}
+	return theResult;
+}
+
+// -------------------------------------------------------------------------- //
+//  * CompileAndLoad(llvm::Module*, TJITLLVMPage&, JITFuncPtr*)
+// -------------------------------------------------------------------------- //
+void
+TJITLLVM::CompileAndLoad(llvm::Module* module, TJITLLVMPage& page, JITFuncPtr* outFunctions) {
+	module->setDataLayout(mTargetMachine->getDataLayout());
+	PassManager passManager;
+	Triple theTriple(LLVM_HOST_TRIPLE);
+	passManager.add(new TargetLibraryInfo(theTriple));
+	passManager.add(new DataLayoutPass(module));
+	std::string buffer;
+	raw_string_ostream stream(buffer);
+	formatted_raw_ostream formattedStream(stream);
+	if (mTargetMachine->addPassesToEmitFile(passManager, formattedStream, TargetMachine::CGFT_ObjectFile)) {
+		fprintf(stderr, "Could not generate machine code with target\n");
 		abort();
 	}
-	theResult->DisableSymbolSearching();
-	return theResult;
+	passManager.run(*module);
+	formattedStream.flush();
+	StringRef objectCode(stream.str());
+	std::unique_ptr<MemoryBuffer> objectCodeBuffer(MemoryBuffer::getMemBuffer(objectCode));
+	ErrorOr<llvm::object::ObjectFile *> result = object::ObjectFile::createObjectFile(objectCodeBuffer);
+	if (!result) {
+		fprintf(stderr, "Could not create object file (%s)\n", result.getError().message().c_str());
+		abort();
+	}
+	
+	// We only cache object code for ROM.
+	if (page.GetPAddr() < TMemoryConsts::kHighROMEnd && mObjectCache) {
+		mObjectCache->SaveCompiledObject(module, objectCode);
+	}
+	
+	// Finally load the code.
+	mMemoryManager->FlushRecordedAllocations();
+	ObjectImage* image = mDynamicLinker->loadObject(std::move(std::unique_ptr<object::ObjectFile>(result.get())));
+	uint8_t* sectionLoadAddr = mMemoryManager->GetLatestSectionLoadAddress();
+	auto section = image->begin_sections();
+	for (auto it = image->begin_symbols(); it != image->end_symbols(); ++it) {
+		uint32_t flags = it->getFlags();
+		if ((flags & (object::SymbolRef::SF_Undefined | object::SymbolRef::SF_Global)) == object::SymbolRef::SF_Global) {
+			StringRef name;
+			std::error_code err = it->getName(name);
+			if (err) {
+				fprintf(stderr, "Could not get name of symbol (%s)\n", err.message().c_str());
+			}
+			uint64_t addr;
+			err = it->getAddress(addr);
+			if (err) {
+				fprintf(stderr, "Could not get address of symbol (%s)\n", err.message().c_str());
+			}
+			err = it->getSection(section);
+			if (err) {
+				fprintf(stderr, "Could not get section of symbol (%s)\n", err.message().c_str());
+			}
+			uint64_t sectionAddr;
+			err = section->getAddress(sectionAddr);
+			if (err) {
+				fprintf(stderr, "Could not get address of section (%s)\n", err.message().c_str());
+			}
+			JITFuncPtr ptr = (JITFuncPtr) (sectionLoadAddr + addr - sectionAddr);
+			KUInt32 functionOffset;
+			if (name[0] == '_') {
+				functionOffset = page.OffsetFromFunctionName(name.substr(1));
+			} else {
+				functionOffset = page.OffsetFromFunctionName(name);
+			}
+			outFunctions[functionOffset] = ptr;
+		}
+	}
+	mDynamicLinker->resolveRelocations();
+	mDynamicLinker->registerEHFrames();
+	mMemoryManager->finalizeMemory();
 }
 
 // -------------------------------------------------------------------------- //

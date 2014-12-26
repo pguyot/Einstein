@@ -47,12 +47,10 @@ class TMemory;
 class TARMProcessor;
 class TJITLLVMObjectCache;
 class TROMImage;
+class TJITLLVMRecordingMemoryManager;
 
 ///
 /// Class for LLVM-based JIT interface.
-///
-/// \author Paul Guyot <pguyot@kallisys.net>
-/// \version $Revision: 150 $
 ///
 class TJITLLVM
 	:
@@ -135,11 +133,17 @@ public:
 	TJITLLVMObjectCache* GetObjectCache() {
 		return mObjectCache;
 	}
-	
+
 	///
-	/// Create a new execution engine.
+	/// Create an execution engine for stepping.
 	///
-	llvm::ExecutionEngine* CreateExecutionEngine();
+	llvm::ExecutionEngine* CreateStepExecutionEngine();
+
+	///
+	/// Compile functions to native code.
+	/// This method is invoked by pages.
+	///
+	void CompileAndLoad(llvm::Module* module, TJITLLVMPage& page, JITFuncPtr* outFunctions);
 	
 private:
 	TJITLLVM( const TJITLLVM& inCopy ) = delete;
@@ -150,10 +154,13 @@ private:
 	///
 	static std::map<std::string, uint64_t> CreateGluesTable();
 	
-	TJITLLVMObjectCache*	mObjectCache;	///< Directory with cached native code.
-	const llvm::Target*		mTarget;		///< Lookup only once.
+	TJITLLVMObjectCache*			mObjectCache;	///< Cache of native code (ROM pages).
+	const llvm::Target*				mTarget;		///< Lookup only once.
+	llvm::TargetMachine*			mTargetMachine;
 	const std::map<std::string, uint64_t> mGluesTable;	///< Address of glue functions.
-	TJITLLVMPage			mMainROMPage;
+	TJITLLVMPage					mMainROMPage;
+	TJITLLVMRecordingMemoryManager* mMemoryManager;
+	llvm::RuntimeDyld*				mDynamicLinker;
 };
 
 ///

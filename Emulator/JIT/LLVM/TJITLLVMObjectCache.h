@@ -35,17 +35,18 @@ class TJITLLVMPage;
 class TJITLLVMRecordingMemoryManager;
 
 ///
-/// LLVM object cache.
+/// Object cache.
 /// Used through translation to avoid translating functions we already have.
 ///
-class TJITLLVMObjectCache : public llvm::ObjectCache {
+class TJITLLVMObjectCache {
 public:
     ///
     /// Constructor from a ROM Image.
 	/// Cached objects older than ROM image are deleted.
-	/// Memory manager is owned by this object (through dynamic linker).
     ///
-    TJITLLVMObjectCache(const TROMImage& inROMImage, TJITLLVMRecordingMemoryManager* inMemoryManager);
+    TJITLLVMObjectCache(const TROMImage& inROMImage,
+						llvm::RuntimeDyld* dynamicLinker,
+						TJITLLVMRecordingMemoryManager* inMemoryManager);
 	
 	///
 	/// Destructor.
@@ -60,18 +61,11 @@ public:
 	void GetPageFunctions(const TJITLLVMPage& inPage, JITFuncPtr* outEntryPoints);
 	
 	///
-	/// ObjectCache interface: write machine code to disk.
+	/// Write machine code to disk.
 	/// Determine the page name from the module name and add the object to the corresponding
 	/// directory.
 	///
-	void notifyObjectCompiled(const llvm::Module *M, const llvm::MemoryBuffer *Obj) override;
-	
-	///
-	/// ObjectCache interface: read machine code from disk.
-	/// This function always return nullptr (objects are loaded with
-	/// LoadPageFunctions).
-	///
-	llvm::MemoryBuffer* getObject(const llvm::Module* M) override;
+	void SaveCompiledObject(const llvm::Module *M, const llvm::StringRef objectCode);
 
 private:
 	///
@@ -90,7 +84,8 @@ private:
 	std::deque<llvm::ObjectImage*>					mLoadedImages;
 	/// readdir is expensive, so we also keep a cache of all directories.
 	std::unordered_map<std::string, std::pair<ssize_t, JITFuncPtr*>>	mLoadedPages;
-	llvm::RuntimeDyld								mDynamicLinker;
+	/// Shared dynamic linker.
+	llvm::RuntimeDyld*								mDynamicLinker;
 	const llvm::SmallString<128>                    mCacheDir;
 	TJITLLVMRecordingMemoryManager*					mMemoryManager;
 };

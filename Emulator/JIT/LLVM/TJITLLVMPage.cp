@@ -53,7 +53,7 @@ using namespace llvm;
 // -------------------------------------------------------------------------- //
 TJITLLVMPage::TJITLLVMPage( void )
     :
-        mExecutionEngine(nullptr),
+        mStepExecutionEngine(nullptr),
 		mTranslator(*this)
 {
 	mEntryPointFunctions = (JITFuncPtr*) ::malloc(0);
@@ -81,7 +81,7 @@ TJITLLVMPage::Init(
 	mEntryPointFunctions = (JITFuncPtr*) ::realloc(mEntryPointFunctions, entryPointArraySize);
 	::memset(mEntryPointFunctions, 0, entryPointArraySize);
 	mStepFunctions.clear();
-	mExecutionEngine = nullptr;
+	mStepExecutionEngine = nullptr;
 	
 	TJITLLVM* jit = inMemoryIntf->GetJITObject();
 	// We only cache object code for ROM.
@@ -105,29 +105,10 @@ TJITLLVMPage::GetJITFuncForOffset(TMemory& inMemoryInterface, KUInt32 inOffset )
 	if (result == nullptr) {
 		// Not found.
 		// We need to perform translation of the page.
-		if (mExecutionEngine == nullptr) {
-			TJITLLVM* jit = inMemoryInterface.GetJITObject();
-			mExecutionEngine = std::unique_ptr<ExecutionEngine>(jit->CreateExecutionEngine());
-			TJITLLVMObjectCache* objectCache = jit->GetObjectCache();
-			if (objectCache) {
-				// Set an object cache so we are notified of newly compiled pages and we
-				// can save them to disk.
-				mExecutionEngine->setObjectCache(objectCache);
-			}
-		}
-		Module* funcModule = new Module(ModuleName(inOffset), getGlobalContext());
-		funcModule->setDataLayout(mExecutionEngine->getDataLayout());
-		std::map<KUInt32, Function*> generated = mTranslator.TranslateEntryPoint(inMemoryInterface, inOffset, funcModule);
-		mExecutionEngine->addModule(funcModule);
-		mExecutionEngine->finalizeObject();
-		// Plug all generated functions.
-		for (auto pair : generated) {
-			Function* function = pair.second;
-			std::string functionName = function->getName();
-			JITFuncPtr ptr = (JITFuncPtr) mExecutionEngine->getFunctionAddress(functionName);
-			KUInt32 offset = OffsetFromFunctionName(functionName);
-			mEntryPointFunctions[offset] = ptr;
-		}
+		std::unique_ptr<Module> funcModule(new Module(ModuleName(inOffset), getGlobalContext()));
+		(void) mTranslator.TranslateEntryPoint(inMemoryInterface, inOffset, funcModule.get());
+		TJITLLVM* jit = inMemoryInterface.GetJITObject();
+		jit->CompileAndLoad(funcModule.get(), *this, mEntryPointFunctions);
 		result = mEntryPointFunctions[inOffset];
 		assert(result != nullptr);
 	}
@@ -143,22 +124,16 @@ TJITLLVMPage::GetJITFuncForSingleInstructionAtOffset(TMemory& inMemoryInterface,
 	JITFuncPtr ptr;
 	auto it = mStepFunctions.find(inOffset);
 	if (it == mStepFunctions.end()) {
-		if (mExecutionEngine == nullptr) {
+		if (mStepExecutionEngine == nullptr) {
 			TJITLLVM* jit = inMemoryInterface.GetJITObject();
-			mExecutionEngine = std::unique_ptr<ExecutionEngine>(jit->CreateExecutionEngine());
-			TJITLLVMObjectCache* objectCache = jit->GetObjectCache();
-			if (objectCache) {
-				// Set an object cache so we are notified of newly compiled pages and we
-				// can save them to disk.
-				mExecutionEngine->setObjectCache(objectCache);
-			}
+			mStepExecutionEngine = std::unique_ptr<ExecutionEngine>(jit->CreateStepExecutionEngine());
 		}
 		Module* funcModule = new Module("i" + ModuleName(inOffset), getGlobalContext());
-		funcModule->setDataLayout(mExecutionEngine->getDataLayout());
+		funcModule->setDataLayout(mStepExecutionEngine->getDataLayout());
 		const Function* function = mTranslator.TranslateSingleInstruction(inMemoryInterface, inOffset, funcModule);
-		mExecutionEngine->addModule(funcModule);
-		mExecutionEngine->finalizeObject();
-		ptr = (JITFuncPtr) mExecutionEngine->getFunctionAddress(function->getName());
+		mStepExecutionEngine->addModule(funcModule);
+		mStepExecutionEngine->finalizeObject();
+		ptr = (JITFuncPtr) mStepExecutionEngine->getFunctionAddress(function->getName());
 		mStepFunctions[inOffset] = ptr;
 	} else {
 		ptr = it->second;
