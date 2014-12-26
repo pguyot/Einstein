@@ -97,6 +97,12 @@ private:
 		
 	private:
 		///
+		/// Translate optimized pairs of instructions.
+		/// Currently limited to switch statements.
+		///
+		bool TranslateOptimizedPair(KUInt32 instruction, KUInt32 previousInstruction, KUInt32 offsetInPage);
+
+		///
 		/// Return a block at the given position, creating it if required
 		/// and pushing it to the mPending stack.
 		///

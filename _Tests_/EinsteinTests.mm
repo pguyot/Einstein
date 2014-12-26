@@ -615,6 +615,60 @@ bkpt 0
 	[self doTestProcessorRunCode:@"e3a01003 e3a00c02 e2800057 e1a02130 e1a031a0 e1a04150 e1a051c0 e1200070" master: @"20"];
 }
 
+/*
+    add r1, r2, #3
+    cmp r1, #4
+    addls pc, pc, r1, lsl #2
+    b default
+    b label0
+    b label1
+    b label2
+    b label3
+    b label4
+default:
+    mov r9, #1
+label0:
+    mov r4, #1
+label1:
+    mov r5, #1
+label2:
+    mov r6, #1
+label3:
+    mov r7, #1
+label4:
+    bkpt 0
+*/
+- (void)testProcessorRunCode_21 {
+	[self doTestProcessorRunCode:@"E2821003 E3510004 908FF101 EA000004 EA000004 EA000004 EA000004 EA000004 EA000004 E3A09001 E3A04001 E3A05001 E3A06001 E3A07001 E1200070" master: @"21"];
+}
+
+/*
+ add r1, r2, #4
+ cmp r1, #4
+ addls pc, pc, r1, lsl #2
+ b default
+ b label0
+ b label1
+ b label2
+ b label3
+ b label4
+ default:
+ mov r9, #1
+ label0:
+ mov r4, #1
+ label1:
+ mov r5, #1
+ label2:
+ mov r6, #1
+ label3:
+ mov r7, #1
+ label4:
+ bkpt 0
+ */
+- (void)testProcessorRunCode_22 {
+	[self doTestProcessorRunCode:@"E2821004 E3510004 908FF101 EA000004 EA000004 EA000004 EA000004 EA000004 EA000004 E3A09001 E3A04001 E3A05001 E3A06001 E3A07001 E1200070" master: @"22"];
+}
+
 #ifdef JITTARGET_LLVM
 // ldm	r0, {r11}^
 - (void)testJITLLVMTranslateInstruction_E8D00800 {
@@ -686,6 +740,49 @@ bkpt 0
 */
 - (void)testJITLLVMTranslateEntryPoint_memset {
 	[self doTestJITLLVMTranslateEntryPoint:@"E92D4001 E2522004 4A00001C E210C003 1A000021 E20110FF E1811401 E1811801 E1A03001 E1A0C001 E1A0E001 E2522008 BA00000C E2522014 BA000006 E8A0500A E8A0500A E2522020 AAFFFFFB E3720010 A8A0500A A2422010 E2922014 A8A05008 A252200C AAFFFFFC E2922008 BA000003 E2522004 B4801004 A8A0000A A2422004 E2922004 08BD8001 E3520002 E4C01001 A4C01001 C4C01001 E8BD8001 E26CC004 E35C0002 E4C01001 A4C01001 C4C01001 E052200C BAFFFFF1 EAFFFFD5 E1A0000F E1A0F00E" master:@"memset"];
+}
+
+/*
+    mov r12, r13
+    stmfd r13!, {r4, r11-r12, lr-pc}
+    sub r11, r12, #0x00000004
+    mov r4, r0
+    sub r0, r1, #0x33
+    cmp r0, #4
+    addls pc, pc, r0, lsl #2
+    ldmdb r11, {r4, r11, r13, pc}
+    b label1
+    b label2
+    b label3
+    b label4
+label3:
+    mov r0, r4
+    bl HideBusyBox__8TBusyBoxFv
+    mov r0, r4
+    ldmdb r11, {r4, r11, r13-lr}
+    b Cancel__13TTimerElementFv
+label1:
+    mov r0, r4
+    ldmdb r11, {r4, r11, r13-lr}
+    b ShowBusyBox__8TBusyBoxFv
+label2:
+    mov r0, r4
+    ldmdb r11, {r4, r11, r13-lr}
+    b HideBusyBox__8TBusyBoxFv
+label4:
+    mov r0, r4
+    bl HideBusyBox__8TBusyBoxFv
+    mov r0, r4
+    ldr r1, label5
+    bl Prime__13TTimerElementFUl
+    mvn r0, #0x0
+    str r0, [r4, #0x034]!
+    ldmdb r11, {r4, r11, r13, pc}
+label5:
+    dl 0x383E70
+*/
+- (void)testJITLLVMTranslateEntryPoint_switch {
+	[self doTestJITLLVMTranslateEntryPoint:@"E1A0C00D E92DD810 E24CB004 E1A04000 E2410033 E3500004 908FF100 E91BA810 EA000007 EA000009 EA000000 EA00000A E1A00004 EB634624 E1A00004 E91B6810 EA664E57 E1A00004 E91B6810 EA63461F E1A00004 E91B6810 EA63461B E1A00004 EB634619 E1A00004 E59F100C EB665692 E3E00000 E5A40034 E91BA810 00383E70" master:@"switch"];
 }
 
 #endif

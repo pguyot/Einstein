@@ -220,10 +220,11 @@ TJITLLVMTranslator::FrameTranslator::Finish()
 	}
 	
 	// Generate switch unless there is a single entry.
-	if (mNewFunctionsBlocks.size() == 1) {
+	unsigned nbFunctions = (unsigned) mNewFunctionsBlocks.size();
+	if (nbFunctions == 1) {
 		mBuilder.CreateBr(mNewFunctionsBlocks.begin()->second);
 	} else {
-		SwitchInst* innerSwitch = mBuilder.CreateSwitch(mOffsetArg, mMainExit);
+		SwitchInst* innerSwitch = mBuilder.CreateSwitch(mOffsetArg, mMainExit, nbFunctions);
 		for (const auto& block : mNewFunctionsBlocks) {
 			innerSwitch->addCase(mBuilder.getInt32(block.first), block.second);
 		}
@@ -338,7 +339,7 @@ TJITLLVMTranslator::FrameTranslator::EnsureFunction(FunctionType* funcType, cons
 }
 
 // -------------------------------------------------------------------------- //
-//  * Translate(KUInt32, KUInt32, KUInt32*, KUInt32, BasicBlock**, BasicBlock*, KUInt32* )
+//  * Translate(KUInt32)
 // -------------------------------------------------------------------------- //
 void
 TJITLLVMTranslator::FrameTranslator::Translate(KUInt32 inOffsetInPage)
@@ -347,14 +348,22 @@ TJITLLVMTranslator::FrameTranslator::Translate(KUInt32 inOffsetInPage)
 	// entry point.
 	AddFunctionIfRequired(inOffsetInPage);
 	
+	KUInt32 previousInstruction = 0;
+	
 	while (!mPending.empty()) {
 		KUInt32 offsetInPage = mPending.front();
 		mPending.pop_front();
+
+		KUInt32 instruction = mCurrentPointer[offsetInPage];
+		if (TranslateOptimizedPair(instruction, previousInstruction, offsetInPage)) {
+			previousInstruction = 0;
+			continue;
+		}
+		previousInstruction = instruction;
+		
 		BasicBlock* theBlock = GetBlock(offsetInPage);
 		mBuilder.SetInsertPoint(theBlock);
-		
-		KUInt32 instruction = mCurrentPointer[offsetInPage];
-		
+
 		int theTestKind = instruction >> 28;
 		if ((theTestKind != kTestAL) && (theTestKind != kTestNV))
 		{
@@ -395,6 +404,66 @@ TJITLLVMTranslator::FrameTranslator::Translate(KUInt32 inOffsetInPage)
 			} // switch 27 & 26
 		}
 	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * TranslateOptimizedPair(KUInt32, KUInt32, KUInt32)
+// -------------------------------------------------------------------------- //
+bool
+TJITLLVMTranslator::FrameTranslator::TranslateOptimizedPair(KUInt32 instruction, KUInt32 previousInstruction, KUInt32 offsetInPage) {
+	//     0xE35x00nn  cmp    rx, #n
+	//     0x908FF10x  addls  pc, pc, rx, lsl #2
+	if (
+			((instruction & 0xFFFFFFF0) == 0x908FF100)
+		&&  ((previousInstruction & 0xFFF0FF00) == 0xE3500000)
+		&&  (((previousInstruction & 0x000F0000) >> 16) == (instruction & 0x0000000F))) {
+		// Extract the number of cases from cmp instruction.
+		KUInt32 nbCases = previousInstruction & 0x000000FF;
+		// Make sure all cases are within current page.
+		if ((offsetInPage + nbCases + 1) > mInstructionCount) {
+			return false;
+		}
+
+		KUInt32 Rn = instruction & 0x0000000F;
+		if (Rn == 15) {
+			return false;
+		}
+
+		// Remove block from table, as a jump to addls instruction should yield different code.
+		// Also make sure we have only one branch to this block.
+		unsigned nbBranches = 0;
+		BasicBlock* theBlock = mLabels[offsetInPage];
+		if (theBlock == nullptr) {
+			return false;
+		}
+		for (const BasicBlock& block : mFunction->getBasicBlockList()) {
+			for (const Instruction& inst : block) {
+				if (BranchInst::classof(&inst)) {
+					unsigned numSuccessors = ((const BranchInst& )inst).getNumSuccessors();
+					for (unsigned ixSucc = 0; ixSucc < numSuccessors; ixSucc++) {
+						if (((const BranchInst& )inst).getSuccessor(ixSucc) == theBlock) {
+							nbBranches++;
+						}
+					}
+				}
+			}
+		}
+		if (nbBranches != 1) {
+			return false;
+		}
+		mLabels[offsetInPage] = nullptr;
+
+		// Build a switch.
+		mBuilder.SetInsertPoint(theBlock);
+		EnsureAllocated(&mRegisters[Rn], 32);
+		Value* swValue = mBuilder.CreateLoad(mRegisters[Rn]);
+		SwitchInst* sw = mBuilder.CreateSwitch(swValue, GetBlock(offsetInPage + 1), nbCases);
+		for (unsigned caseIx = 0; caseIx <= nbCases; caseIx++) {
+			sw->addCase(mBuilder.getInt32(caseIx), GetBlock(offsetInPage + caseIx + 2));
+		}
+		return true;
+	}
+	return false;
 }
 
 // -------------------------------------------------------------------------- //
@@ -2496,7 +2565,7 @@ TJITLLVMTranslator::FrameTranslator::BuildBackupBankRegisters(Value* currentMode
 	BasicBlock* undefinedModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 	BasicBlock* irqModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
-	SwitchInst* sw = mBuilder.CreateSwitch(currentMode, userModeBlock);
+	SwitchInst* sw = mBuilder.CreateSwitch(currentMode, userModeBlock, 7);
 	
 	sw->addCase(mBuilder.getInt32(TARMProcessor::kUserMode), userModeBlock);
 	sw->addCase(mBuilder.getInt32(TARMProcessor::kSystemMode), userModeBlock);
@@ -2599,7 +2668,7 @@ TJITLLVMTranslator::FrameTranslator::BuildRestoreBankRegisters(Value* currentMod
 	mBuilder.CreateBr(restoreSwitchBlock);
     
     mBuilder.SetInsertPoint(restoreSwitchBlock);
-	SwitchInst* sw = mBuilder.CreateSwitch(newMode, userModeBlock);
+	SwitchInst* sw = mBuilder.CreateSwitch(newMode, userModeBlock, 7);
 	sw->addCase(mBuilder.getInt32(TARMProcessor::kUserMode), userModeBlock);
 	sw->addCase(mBuilder.getInt32(TARMProcessor::kSystemMode), userModeBlock);
 	sw->addCase(mBuilder.getInt32(TARMProcessor::kSupervisorMode), supervisorModeBlock);
@@ -2753,7 +2822,7 @@ TJITLLVMTranslator::FrameTranslator::BuildSetSPSR(Value* operand, Value* current
 	BasicBlock* undefinedModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 	BasicBlock* irqModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 	BasicBlock* fiqModeBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
-	SwitchInst* sw = mBuilder.CreateSwitch(currentMode, endBlock);
+	SwitchInst* sw = mBuilder.CreateSwitch(currentMode, endBlock, 5);
 	
 	sw->addCase(mBuilder.getInt32(TARMProcessor::kSupervisorMode), supervisorModeBlock);
 	sw->addCase(mBuilder.getInt32(TARMProcessor::kAbortMode), abortModeBlock);
