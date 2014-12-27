@@ -56,8 +56,10 @@ using namespace llvm;
 #ifdef DEBUG
 	#define STRINGIFY(x) #x
 	#define TOSTRING(x) STRINGIFY(x)
-	#define ANONBLOCK "_:" TOSTRING(__LINE__) "#" TOSTRING(__COUNTER__)
-	#define BLOCKNAME(x) x ":" TOSTRING(__LINE__) "#" TOSTRING(__COUNTER__)
+//	#define ANONBLOCK "_:" TOSTRING(__LINE__) "#" TOSTRING(__COUNTER__)
+//	#define BLOCKNAME(x) x ":" TOSTRING(__LINE__) "#" TOSTRING(__COUNTER__)
+	#define ANONBLOCK "_#" TOSTRING(__COUNTER__)
+	#define BLOCKNAME(x) x "#" TOSTRING(__COUNTER__)
 #else
     #define ANONBLOCK ""
     #define BLOCKNAME(x) ""
