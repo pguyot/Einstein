@@ -318,6 +318,8 @@ private:
 		llvm::FunctionType* GetWriteBFuncType();
 		llvm::FunctionType* GetReadFuncType();
 		llvm::FunctionType* GetWriteFuncType();
+		llvm::FunctionType* GetReadBlockFuncType();
+		llvm::FunctionType* GetWriteBlockFuncType();
 		llvm::FunctionType* GetSetPrivilegeFuncType();
 
 		/// Test bits.

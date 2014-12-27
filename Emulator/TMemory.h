@@ -302,7 +302,18 @@ public:
 	/// \return true if the address couldn't be accessed for reading.
 	///		
 	Boolean		ReadBP( PAddr inAddress, KUInt8& outByte );
-	
+
+	///
+	/// Read a block of 32 bits words from memory.
+	/// Perform address translation if the MMU is enabled.
+	///
+	/// \param inAddress	virtual address to read words from.
+	/// \param numWords		number of 32 bits words to read.
+	/// \param outWords		32 bits words that were read.
+	/// \return true if any address couldn't be accessed for reading.
+	///
+	bool		ReadBlock(VAddr inAddress, KUInt32 numWords, KUInt32* outWords);
+
 	///
 	/// Write 32 bits to memory.
 	/// Perform address translation if the MMU is enabled.
@@ -360,6 +371,17 @@ public:
 	///
 	Boolean		WriteBP( PAddr inAddress, KUInt8 inByte );
 
+	///
+	/// Write a block of 32 bits words to memory.
+	/// Perform address translation if the MMU is enabled.
+	///
+	/// \param inAddress	virtual address to write words to.
+	/// \param numWords		number of 32 bits words to write.
+	/// \param outWords		32 bits words to write.
+	/// \return true if any address couldn't be accessed for writing.
+	///
+	bool		WriteBlock(VAddr inAddress, KUInt32 numWords, const KUInt32* inWords);
+	
 	///
 	/// Translate a flash address and check its validity.
 	///

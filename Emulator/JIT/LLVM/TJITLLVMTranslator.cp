@@ -1986,32 +1986,37 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM13(KUInt32 offsetInPage, KUInt
 	BasicBlock* dataAbortExit = BasicBlock::Create(mContext, BLOCKNAME("dataabort"), mFunction);
 	
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
-	Value* address = startAddress;
 	KUInt32 registersMask = 0x0001;
-	Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read");
-	Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(mContext));
+	uint32_t numWords = 0;
+	for (int i = 0; i <= 15; i++) {
+		if (inInstruction & registersMask) {
+			numWords++;
+		}
+		registersMask = registersMask << 1;
+	}
+	Value* countVal = mBuilder.getInt32(numWords);
+	Value* words = mBuilder.CreateAlloca(Type::getInt32Ty(mContext), countVal);
+	Function* readFunction = EnsureFunction(GetReadBlockFuncType(), "JIT_ReadBlock");
+	Value* result = mBuilder.CreateCall4(readFunction, GetMemory(), startAddress, countVal, words);
+	BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
+	mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
+	mBuilder.SetInsertPoint(continueBlock);
+	int readWord = 0;
+	registersMask = 0x0001;
 	for (int i = 0; i < 15; i++) {
 		if (inInstruction & registersMask) {
 			EnsureAllocated(&mRegisters[i], 32);
-			Value* result = mBuilder.CreateCall3(readFunction, GetMemory(), address, word);
-			BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
-			mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
-			mBuilder.SetInsertPoint(continueBlock);
-			mBuilder.CreateStore(mBuilder.CreateLoad(word), mRegisters[i]);
-			address = mBuilder.CreateAdd(address, mBuilder.getInt32(4));
+			mBuilder.CreateStore(mBuilder.CreateLoad(mBuilder.CreateGEP(words, mBuilder.getInt32(readWord))), mRegisters[i]);
+			readWord++;
 		}
 		registersMask = registersMask << 1;
 	}
 	if (inInstruction & 0x8000) {
-		Value* result = mBuilder.CreateCall3(readFunction, GetMemory(), address, word);
-		BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
-		mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
-		mBuilder.SetInsertPoint(continueBlock);
 		// Store value + 4 for PREFETCH
 		mBuilder.CreateStore(
 			mBuilder.CreateAdd(
 				mBuilder.CreateAnd(
-					mBuilder.CreateLoad(word),
+					mBuilder.CreateLoad(mBuilder.CreateGEP(words, mBuilder.getInt32(readWord))),
 					mBuilder.getInt32(0xFFFFFFFC)),
 				mBuilder.getInt32(4)), mPC);
 	}
@@ -2019,14 +2024,9 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM13(KUInt32 offsetInPage, KUInt
 	if (flag_w) {
 		// Use of R15 as Rn is UNPREDICTABLE and generated an undefined instruction above.
 		// We know Rn was allocated by BuildGetBlockDataTranferBaseAddress.
-		Value* endAddress;
-		if (inInstruction & 0x8000) {
-			endAddress = address;
-		} else {
-			endAddress = mBuilder.CreateSub(address, mBuilder.getInt32(4));
-		}
-		address = BuildGetBlockDataTransferWriteback(inInstruction, startAddress, endAddress);
-		mBuilder.CreateStore(address, mRegisters[Rn]);
+		Value* endAddress = mBuilder.CreateAdd(startAddress, mBuilder.getInt32(4 * (numWords - 1)));
+		Value* storedAddress = BuildGetBlockDataTransferWriteback(inInstruction, startAddress, endAddress);
+		mBuilder.CreateStore(storedAddress, mRegisters[Rn]);
 	}
 
 	// Next instruction
@@ -2185,41 +2185,42 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM1(KUInt32 offsetInPage, KUInt3
 	KUInt32 exitPC = (offsetInPage + 2) * 4 + mCurrentVAddress;
 	
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
-	Value* address = startAddress;
 	KUInt32 registersMask = 0x0001;
-	// Actual order is unpredictable: we can try to write them all
-	// and only abort if it failed.
-	Value* finalResult = mBuilder.getInt1(false);
-	Function* writeFunction = EnsureFunction(GetWriteFuncType(), "JIT_Write");
+	uint32_t numWords = 0;
+	for (int i = 0; i <= 15; i++) {
+		if (inInstruction & registersMask) {
+			numWords++;
+		}
+		registersMask = registersMask << 1;
+	}
+	Value* countVal = mBuilder.getInt32(numWords);
+	Value* words = mBuilder.CreateAlloca(Type::getInt32Ty(mContext), countVal);
+	int writtenWord = 0;
+	registersMask = 0x0001;
 	for (int i = 0; i < 15; i++) {
 		if (inInstruction & registersMask) {
 			EnsureAllocated(&mRegisters[i], 32);
-			Value* result = mBuilder.CreateCall3(writeFunction, GetMemory(), address, mBuilder.CreateLoad(mRegisters[i]));
-			finalResult = mBuilder.CreateOr(finalResult, result);
-			address = mBuilder.CreateAdd(address, mBuilder.getInt32(4));
+			mBuilder.CreateStore(mBuilder.CreateLoad(mRegisters[i]), mBuilder.CreateGEP(words, mBuilder.getInt32(writtenWord)));
+			writtenWord++;
 		}
 		registersMask = registersMask << 1;
 	}
 	if (inInstruction & 0x8000) {
-		Value* result = mBuilder.CreateCall3(writeFunction, GetMemory(), address, mBuilder.getInt32(exitPC));
-		finalResult = mBuilder.CreateOr(finalResult, result);
+		mBuilder.CreateStore(mBuilder.getInt32(exitPC), mBuilder.CreateGEP(words, mBuilder.getInt32(writtenWord)));
 	}
 
+	Function* writeFunction = EnsureFunction(GetWriteBlockFuncType(), "JIT_WriteBlock");
+	Value* result = mBuilder.CreateCall4(writeFunction, GetMemory(), startAddress, countVal, words);
 	BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
-	mBuilder.CreateCondBr(finalResult, dataAbortExit, continueBlock);
+	mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
 	mBuilder.SetInsertPoint(continueBlock);
 	
 	if (flag_w) {
 		// Use of R15 as Rn is UNPREDICTABLE and generated an undefined instruction above.
 		// We know Rn was allocated by BuildGetBlockDataTranferBaseAddress.
-		Value* endAddress;
-		if (inInstruction & 0x8000) {
-			endAddress = address;
-		} else {
-			endAddress = mBuilder.CreateSub(address, mBuilder.getInt32(4));
-		}
-		address = BuildGetBlockDataTransferWriteback(inInstruction, startAddress, endAddress);
-		mBuilder.CreateStore(address, mRegisters[Rn]);
+		Value* endAddress = mBuilder.CreateAdd(startAddress, mBuilder.getInt32(4 * (numWords - 1)));
+		Value* storedAddress = BuildGetBlockDataTransferWriteback(inInstruction, startAddress, endAddress);
+		mBuilder.CreateStore(storedAddress, mRegisters[Rn]);
 	}
 	
 	// Next instruction
@@ -3079,6 +3080,34 @@ TJITLLVMTranslator::FrameTranslator::GetWriteFuncType(void) {
 	argsList[0] = GetTMemoryPtrType();
 	argsList[1] = Type::getInt32Ty(mContext);
 	argsList[2] = Type::getInt32Ty(mContext);
+	ArrayRef<Type*> funcArgs(argsList);
+	return FunctionType::get(Type::getInt1Ty(mContext), funcArgs, false);
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetReadBlockFuncType(void)
+// -------------------------------------------------------------------------- //
+FunctionType*
+TJITLLVMTranslator::FrameTranslator::GetReadBlockFuncType(void) {
+	Type* argsList[4];
+	argsList[0] = GetTMemoryPtrType();
+	argsList[1] = Type::getInt32Ty(mContext);
+	argsList[2] = Type::getInt32Ty(mContext);
+	argsList[3] = PointerType::getInt32PtrTy(mContext);
+	ArrayRef<Type*> funcArgs(argsList);
+	return FunctionType::get(Type::getInt1Ty(mContext), funcArgs, false);
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetWriteBlockFuncType(void)
+// -------------------------------------------------------------------------- //
+FunctionType*
+TJITLLVMTranslator::FrameTranslator::GetWriteBlockFuncType(void) {
+	Type* argsList[4];
+	argsList[0] = GetTMemoryPtrType();
+	argsList[1] = Type::getInt32Ty(mContext);
+	argsList[2] = Type::getInt32Ty(mContext);
+	argsList[3] = PointerType::getInt32PtrTy(mContext);
 	ArrayRef<Type*> funcArgs(argsList);
 	return FunctionType::get(Type::getInt1Ty(mContext), funcArgs, false);
 }

@@ -1550,6 +1550,65 @@ TMemory::Write( VAddr inAddress, KUInt32 inWord )
 }
 
 // -------------------------------------------------------------------------- //
+//  * ReadBlock( VAddr, KUInt32, const KUInt32* )
+// -------------------------------------------------------------------------- //
+bool
+TMemory::ReadBlock(VAddr inAddress, KUInt32 numWords, KUInt32* outWords) {
+	VAddr theVAddress = inAddress;
+	PAddr thePAddress = theVAddress;
+	Boolean fault = false;
+	bool translate = IsMMUEnabled();
+	while (numWords > 0) {
+		if (translate) {
+			if (TranslateR(theVAddress, thePAddress)) {
+				return true;
+			}
+		}
+		KUInt32 read = ReadP(thePAddress, fault);
+		if (fault) {
+			mMMU.SetHardwareFault(theVAddress);
+			return true;
+		}
+		*outWords = read;
+		thePAddress += 4;
+		theVAddress += 4;
+		translate = (thePAddress & 0x000003ff) == 0 && IsMMUEnabled();
+		numWords--;
+		outWords++;
+	}
+	
+	return false;
+}
+
+// -------------------------------------------------------------------------- //
+//  * WriteBlock(VAddr, KUInt32, const KUInt32*)
+// -------------------------------------------------------------------------- //
+bool
+TMemory::WriteBlock(VAddr inAddress, KUInt32 numWords, const KUInt32* inWords) {
+	VAddr theVAddress = inAddress;
+	PAddr thePAddress = theVAddress;
+	bool translate = IsMMUEnabled();
+	while (numWords > 0) {
+		if (translate) {
+			if (TranslateW(theVAddress, thePAddress)) {
+				return true;
+			}
+		}
+		if (WriteP(thePAddress, *inWords)) {
+			mMMU.SetHardwareFault(theVAddress);
+			return true;
+		}
+		thePAddress += 4;
+		theVAddress += 4;
+		translate = (thePAddress & 0x000003ff) == 0 && IsMMUEnabled();
+		numWords--;
+		inWords++;
+	}
+	
+	return false;
+}
+
+// -------------------------------------------------------------------------- //
 //  * WriteAligned( VAddr, KUInt32 )
 // -------------------------------------------------------------------------- //
 Boolean

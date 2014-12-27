@@ -52,7 +52,7 @@ public:
 	/// Perform optimization.
 	/// Returns true if the block was modified.
 	///
-	bool runOnBasicBlock(llvm::BasicBlock &BB) override;
+	bool runOnBasicBlock(llvm::BasicBlock&) override;
 
 private:
 	const TMemory&		mMemoryIntf;

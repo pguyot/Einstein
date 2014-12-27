@@ -25,20 +25,20 @@ define private i8* @i0(%TARMProcessor*, i1*, i32) {
   store i32 8, i32* %10, align 4
   ret i8* bitcast (i8* (%TARMProcessor*, i1*)* @JIT_Continue to i8*)
 
-"_#2":                                            ; preds = %"_#26259", %"_#28260", %"_#5", %"prologue#0"
-  %11 = phi i32 [ %8, %"prologue#0" ], [ %21, %"_#28260" ], [ %8, %"_#26259" ], [ %8, %"_#5" ]
+"_#2":                                            ; preds = %"_#25259", %"_#27260", %"_#5", %"prologue#0"
+  %11 = phi i32 [ %8, %"prologue#0" ], [ %21, %"_#27260" ], [ %8, %"_#25259" ], [ %8, %"_#5" ]
   br label %"mainexit#1"
 
 "_#5":                                            ; preds = %"prologue#0"
   %12 = alloca i32, align 4
   %13 = getelementptr %TARMProcessor* %0, i64 0, i32 50
   %14 = load i32* %13, align 4
-  switch i32 %14, label %"_#23256" [
-    i32 17, label %"_#22255"
+  switch i32 %14, label %"_#22256" [
+    i32 17, label %"_#21255"
     i32 16, label %"_#2"
   ]
 
-"dataabort#20":                                   ; preds = %"_#23256", %"_#22255"
+"dataabort#19":                                   ; preds = %"_#22256", %"_#21255"
   store i32 %6, i32* %5, align 4
   store i32 %8, i32* %7, align 4
   %15 = getelementptr %TARMProcessor* %0, i64 0, i32 15
@@ -46,21 +46,21 @@ define private i8* @i0(%TARMProcessor*, i1*, i32) {
   %16 = call i8* @JIT_DataAbort(%TARMProcessor* %0, i1* %1)
   ret i8* %16
 
-"_#22255":                                        ; preds = %"_#5"
+"_#21255":                                        ; preds = %"_#5"
   %17 = call i1 @JIT_Read(%TMemory* %4, i32 %6, i32* %12)
-  br i1 %17, label %"dataabort#20", label %"_#26259"
+  br i1 %17, label %"dataabort#19", label %"_#25259"
 
-"_#23256":                                        ; preds = %"_#5"
+"_#22256":                                        ; preds = %"_#5"
   %18 = call i1 @JIT_Read(%TMemory* %4, i32 %6, i32* %12)
-  br i1 %18, label %"dataabort#20", label %"_#28260"
+  br i1 %18, label %"dataabort#19", label %"_#27260"
 
-"_#26259":                                        ; preds = %"_#22255"
+"_#25259":                                        ; preds = %"_#21255"
   %19 = getelementptr %TARMProcessor* %0, i64 0, i32 26
   %20 = load i32* %12, align 4
   store i32 %20, i32* %19, align 4
   br label %"_#2"
 
-"_#28260":                                        ; preds = %"_#23256"
+"_#27260":                                        ; preds = %"_#22256"
   %21 = load i32* %12, align 4
   br label %"_#2"
 }
@@ -82,12 +82,12 @@ define i8* @"s00000000@00000000_00000000"(%TARMProcessor*, i1*) {
   %9 = load i32* %8, align 4
   %10 = getelementptr %TARMProcessor* %0, i64 0, i32 50
   %11 = load i32* %10, align 4
-  switch i32 %11, label %"_#23256.i" [
-    i32 17, label %"_#22255.i"
-    i32 16, label %"_#25258.i"
+  switch i32 %11, label %"_#22256.i" [
+    i32 17, label %"_#21255.i"
+    i32 16, label %"_#24258.i"
   ]
 
-"dataabort#20.i":                                 ; preds = %"_#23256.i", %"_#22255.i"
+"dataabort#19.i":                                 ; preds = %"_#22256.i", %"_#21255.i"
   store i32 %7, i32* %6, align 4
   store i32 %9, i32* %8, align 4
   %12 = getelementptr %TARMProcessor* %0, i64 0, i32 15
@@ -97,16 +97,16 @@ define i8* @"s00000000@00000000_00000000"(%TARMProcessor*, i1*) {
   call void @llvm.stackrestore(i8* %savedstack)
   br label %i0.exit
 
-"_#22255.i":                                      ; preds = %"_#6"
+"_#21255.i":                                      ; preds = %"_#6"
   %14 = call i1 @JIT_Read(%TMemory* %5, i32 %7, i32* %2)
-  br i1 %14, label %"dataabort#20.i", label %"_#26259.i"
+  br i1 %14, label %"dataabort#19.i", label %"_#25259.i"
 
-"_#23256.i":                                      ; preds = %"_#6"
+"_#22256.i":                                      ; preds = %"_#6"
   %15 = call i1 @JIT_Read(%TMemory* %5, i32 %7, i32* %2)
-  br i1 %15, label %"dataabort#20.i", label %"_#28260.i"
+  br i1 %15, label %"dataabort#19.i", label %"_#27260.i"
 
-"_#25258.i":                                      ; preds = %"_#6", %"_#28260.i", %"_#26259.i"
-  %16 = phi i32 [ %20, %"_#28260.i" ], [ %9, %"_#26259.i" ], [ %9, %"_#6" ]
+"_#24258.i":                                      ; preds = %"_#6", %"_#27260.i", %"_#25259.i"
+  %16 = phi i32 [ %20, %"_#27260.i" ], [ %9, %"_#25259.i" ], [ %9, %"_#6" ]
   store i32 %7, i32* %6, align 4
   store i32 %16, i32* %8, align 4
   %17 = getelementptr %TARMProcessor* %0, i64 0, i32 15
@@ -115,18 +115,18 @@ define i8* @"s00000000@00000000_00000000"(%TARMProcessor*, i1*) {
   call void @llvm.stackrestore(i8* %savedstack)
   br label %i0.exit
 
-"_#26259.i":                                      ; preds = %"_#22255.i"
+"_#25259.i":                                      ; preds = %"_#21255.i"
   %18 = getelementptr %TARMProcessor* %0, i64 0, i32 26
   %19 = load i32* %2, align 4
   store i32 %19, i32* %18, align 4
-  br label %"_#25258.i"
+  br label %"_#24258.i"
 
-"_#28260.i":                                      ; preds = %"_#23256.i"
+"_#27260.i":                                      ; preds = %"_#22256.i"
   %20 = load i32* %2, align 4
-  br label %"_#25258.i"
+  br label %"_#24258.i"
 
-i0.exit:                                          ; preds = %"_#25258.i", %"dataabort#20.i"
-  %21 = phi i8* [ %13, %"dataabort#20.i" ], [ bitcast (i8* (%TARMProcessor*, i1*)* @JIT_Continue to i8*), %"_#25258.i" ]
+i0.exit:                                          ; preds = %"_#24258.i", %"dataabort#19.i"
+  %21 = phi i8* [ %13, %"dataabort#19.i" ], [ bitcast (i8* (%TARMProcessor*, i1*)* @JIT_Continue to i8*), %"_#24258.i" ]
   ret i8* %21
 }
 

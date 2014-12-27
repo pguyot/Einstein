@@ -189,6 +189,18 @@ extern "C" {
 	__attribute__ ((visibility ("default")));
 	
 	///
+	/// Read a block.
+	///
+	bool JIT_ReadBlock(TMemory* inMemIntf, KUInt32 address, KUInt32 numWords, KUInt32* outWords)
+	__attribute__ ((visibility ("default")));
+	
+	///
+	/// Write a block.
+	///
+	bool JIT_WriteBlock(TMemory* inMemIntf, KUInt32 address, KUInt32 numWords, const KUInt32* inWords)
+	__attribute__ ((visibility ("default")));
+	
+	///
 	/// Set privilege memory access.
 	///
 	void JIT_SetPrivilege(TARMProcessor* ioCPU, bool privilege)
@@ -505,6 +517,8 @@ TJITLLVM::CreateGluesTable() {
 	result["WriteB"] = (uint64_t)(void*)JIT_WriteB;
 	result["Read"] = (uint64_t)(void*)JIT_Read;
 	result["Write"] = (uint64_t)(void*)JIT_Write;
+	result["ReadBlock"] = (uint64_t)(void*)JIT_ReadBlock;
+	result["WriteBlock"] = (uint64_t)(void*)JIT_WriteBlock;
 	result["SetPrivilege"] = (uint64_t)(void*)JIT_SetPrivilege;
 
 	return result;
@@ -692,7 +706,7 @@ JIT_WriteB(TMemory* inMemIntf, KUInt32 address, KUInt8 inByte) {
 }
 
 // -------------------------------------------------------------------------- //
-//  * Read(TARMProcessor*, KUInt32, KUInt32*)
+//  * Read(TMemory*, KUInt32, KUInt32*)
 // -------------------------------------------------------------------------- //
 bool
 JIT_Read(TMemory* inMemIntf, KUInt32 address, KUInt32* outWord) {
@@ -700,11 +714,27 @@ JIT_Read(TMemory* inMemIntf, KUInt32 address, KUInt32* outWord) {
 }
 
 // -------------------------------------------------------------------------- //
-//  * Write(TARMProcessor*, KUInt32, KUInt32)
+//  * Write(TMemory*, KUInt32, KUInt32)
 // -------------------------------------------------------------------------- //
 bool
 JIT_Write(TMemory* inMemIntf, KUInt32 address, KUInt32 inWord) {
 	return inMemIntf->Write(address, inWord);
+}
+
+// -------------------------------------------------------------------------- //
+//  * ReadBlock(TMemory*, KUInt32, KUInt32*)
+// -------------------------------------------------------------------------- //
+bool
+JIT_ReadBlock(TMemory* inMemIntf, KUInt32 address, KUInt32 numWords, KUInt32* outWords) {
+	return inMemIntf->ReadBlock(address, numWords, outWords);
+}
+
+// -------------------------------------------------------------------------- //
+//  * WriteBlock(TMemory*, KUInt32, KUInt32)
+// -------------------------------------------------------------------------- //
+bool
+JIT_WriteBlock(TMemory* inMemIntf, KUInt32 address, KUInt32 numWords, const KUInt32* inWords) {
+	return inMemIntf->WriteBlock(address, numWords, inWords);
 }
 
 // -------------------------------------------------------------------------- //

@@ -53,33 +53,54 @@ TJITLLVMOptimizeReadPass::runOnBasicBlock(BasicBlock& block) {
 			if (calledFunction) {
 				StringRef name = calledFunction->getName();
 				bool readByte = name.equals("JIT_ReadB");
-				bool readWord = name.equals("JIT_Read");
-				if (readWord || readByte) {
+				bool readWord = readByte ? false : name.equals("JIT_Read");
+				bool readBlock = (readWord || readByte) ? false : name.equals("JIT_ReadBlock");
+				if (readWord || readByte || readBlock) {
 					Value* value = callInstruction->getOperand(1);
 					if (isa<ConstantInt>(value)) {
 						ConstantInt* constValue = dyn_cast<ConstantInt>(value);
 						APInt intValue = constValue->getValue();
-						KUInt32 constAddress = (KUInt32) intValue.getZExtValue();
+						KUInt32 startAddress = (KUInt32) intValue.getZExtValue();
+						KUInt32 endAddress = (KUInt32) intValue.getZExtValue();
+						KUInt32 numWords = 0;
+						if (readBlock) {
+							numWords = (KUInt32) dyn_cast<ConstantInt>(callInstruction->getOperand(2))->getValue().getZExtValue();
+							endAddress = startAddress + (numWords - 1) * sizeof(KUInt32);
+						}
 						Value* readValue = nullptr;
-						if (TMemory::IsPageInROM(constAddress)) {
-							const KUInt32* pointer = mMemoryIntf.GetDirectPointerToPage(constAddress);
+						const KUInt32* blockPtr = nullptr;
+						if (TMemory::IsPageInROM(startAddress) && TMemory::IsPageInROM(endAddress)) {
+							const KUInt32* pointer = mMemoryIntf.GetDirectPointerToPage(startAddress);
 							if (readByte) {
 								readValue = builder.getInt8(*((const KUInt8*) pointer));
-							} else {
+							} else if (readWord) {
 								readValue = builder.getInt32(*pointer);
+							} else {
+								blockPtr = pointer;
 							}
-						} else if (constAddress >= mPage.GetVAddr() && constAddress < mPage.GetVAddr() + mPage.GetSize()) {
-							const KUInt8* pointer = (const KUInt8*) mPage.GetPointer() + constAddress - mPage.GetVAddr();
+						} else if (startAddress >= mPage.GetVAddr() && endAddress < mPage.GetVAddr() + mPage.GetSize()) {
+							const KUInt8* pointer = (const KUInt8*) mPage.GetPointer() + startAddress - mPage.GetVAddr();
 							if (readByte) {
 								readValue = builder.getInt8(*pointer);
-							} else {
+							} else if (readWord) {
 								readValue = builder.getInt32(*((const KUInt32*) pointer));
+							} else {
+								blockPtr = (const KUInt32*) pointer;
 							}
 						}
 						
 						if (readValue != nullptr) {
 							builder.SetInsertPoint(callInstruction);
 							builder.CreateStore(readValue, callInstruction->getOperand(2));
+							callInstruction->replaceAllUsesWith(builder.getInt1(false));
+							callInstructions.push_back(callInstruction);
+							result = true;
+						} else if (blockPtr != nullptr) {
+							builder.SetInsertPoint(callInstruction);
+							Value* buffer = callInstruction->getOperand(3);
+							for (unsigned wordIx = 0; wordIx < numWords; wordIx++) {
+								builder.CreateStore(builder.getInt32(blockPtr[wordIx]), builder.CreateGEP(buffer, builder.getInt32(wordIx)));
+							}
 							callInstruction->replaceAllUsesWith(builder.getInt1(false));
 							callInstructions.push_back(callInstruction);
 							result = true;
