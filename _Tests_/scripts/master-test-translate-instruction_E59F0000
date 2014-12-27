@@ -28,7 +28,8 @@ define private i8* @i0(%TARMProcessor*, i1*, i32) {
   br label %"_#2"
 }
 
-declare i8* @JIT_Continue(%TARMProcessor*, i1*)
+; Function Attrs: nounwind
+declare i8* @JIT_Continue(%TARMProcessor*, i1*) #0
 
 define i8* @"s00000000@00000000_00000000"(%TARMProcessor*, i1*) {
 "_#6":

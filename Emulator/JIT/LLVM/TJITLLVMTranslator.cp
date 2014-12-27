@@ -109,6 +109,7 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(
 		mContext(inModule->getContext()),
 		mBuilder(mContext),
 		mFPM(inModule),
+		mMemory(nullptr),
         mLabels(inPage.GetInstructionCount() + 1, nullptr),
 		mCurrentVAddress(inPage.GetVAddr()),
 		mCurrentPointer(inPage.GetPointer()),
@@ -325,10 +326,16 @@ TJITLLVMTranslator::FrameTranslator::EnsureAllocated(Value** reg, int numBits) {
 // -------------------------------------------------------------------------- //
 llvm::Value*
 TJITLLVMTranslator::FrameTranslator::GetMemory() {
-	std::vector<llvm::Value *> indexes;
-	indexes.push_back(mBuilder.getInt32(0));
-	indexes.push_back(mBuilder.getInt32(i_mMemory));
-	return mBuilder.CreateLoad(mBuilder.CreateGEP(mProcessor, indexes));
+	if (mMemory == nullptr) {
+		auto ip = mBuilder.saveIP();
+		mBuilder.SetInsertPoint(mPrologue);
+		std::vector<llvm::Value *> indexes;
+		indexes.push_back(mBuilder.getInt32(0));
+		indexes.push_back(mBuilder.getInt32(i_mMemory));
+		mMemory = mBuilder.CreateLoad(mBuilder.CreateGEP(mProcessor, indexes));
+		mBuilder.restoreIP(ip);
+	}
+	return mMemory;
 }
 
 // -------------------------------------------------------------------------- //
@@ -362,6 +369,7 @@ TJITLLVMTranslator::FrameTranslator::EnsureFunction(FunctionType* funcType, cons
 	if (function == nullptr) {
 		function = Function::Create(funcType, Function::ExternalLinkage, funcName, mModule);
 		function->setCallingConv(CallingConv::C);
+		function->setDoesNotThrow();
 	}
 	return function;
 }
@@ -372,7 +380,6 @@ TJITLLVMTranslator::FrameTranslator::EnsureFunction(FunctionType* funcType, cons
 Function*
 TJITLLVMTranslator::FrameTranslator::EnsureIntrinsic(Intrinsic::ID intrinsicID) {
 	std::vector<Type *> arg_type;
-	arg_type.push_back(mBuilder.getInt32Ty());
 	arg_type.push_back(mBuilder.getInt32Ty());
 	return Intrinsic::getDeclaration(mModule, intrinsicID, arg_type);
 }

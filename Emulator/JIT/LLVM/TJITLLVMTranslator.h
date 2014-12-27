@@ -409,6 +409,7 @@ private:
 		
 		/// The following values are used during translation
 		llvm::Value*				    mProcessor;
+		llvm::Value*					mMemory;
 		llvm::Value*				    mSignal;
 		llvm::Value*				    mOffsetArg;
 		llvm::BasicBlock*               mPrologue;
