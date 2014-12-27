@@ -167,25 +167,25 @@ extern "C" {
 	///
 	/// Read a byte.
 	///
-	bool JIT_ReadB(TARMProcessor* ioCPU, KUInt32 address, KUInt8* outByte)
+	bool JIT_ReadB(TMemory* inMemIntf, KUInt32 address, KUInt8* outByte)
 	__attribute__ ((visibility ("default")));
 	
 	///
 	/// Write a byte.
 	///
-	bool JIT_WriteB(TARMProcessor* ioCPU, KUInt32 address, KUInt8 inByte)
+	bool JIT_WriteB(TMemory* inMemIntf, KUInt32 address, KUInt8 inByte)
 	__attribute__ ((visibility ("default")));
 	
 	///
 	/// Read a word.
 	///
-	bool JIT_Read(TARMProcessor* ioCPU, KUInt32 address, KUInt32* outWord)
+	bool JIT_Read(TMemory* inMemIntf, KUInt32 address, KUInt32* outWord)
 	__attribute__ ((visibility ("default")));
 	
 	///
 	/// Write a word.
 	///
-	bool JIT_Write(TARMProcessor* ioCPU, KUInt32 address, KUInt32 inWord)
+	bool JIT_Write(TMemory* inMemIntf, KUInt32 address, KUInt32 inWord)
 	__attribute__ ((visibility ("default")));
 	
 	///
@@ -679,36 +679,32 @@ JIT_SignalInterrupt(TARMProcessor* ioCPU, volatile bool* inSignal) {
 //  * ReadB(TARMProcessor*, KUInt32, KUInt8*)
 // -------------------------------------------------------------------------- //
 bool
-JIT_ReadB(TARMProcessor* ioCPU, KUInt32 address, KUInt8* outByte) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	return theMemIntf->ReadB(address, *outByte);
+JIT_ReadB(TMemory* inMemIntf, KUInt32 address, KUInt8* outByte) {
+	return inMemIntf->ReadB(address, *outByte);
 }
 
 // -------------------------------------------------------------------------- //
 //  * WriteB(TARMProcessor*, KUInt32, KUInt8)
 // -------------------------------------------------------------------------- //
 bool
-JIT_WriteB(TARMProcessor* ioCPU, KUInt32 address, KUInt8 inByte) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	return theMemIntf->WriteB(address, inByte);
+JIT_WriteB(TMemory* inMemIntf, KUInt32 address, KUInt8 inByte) {
+	return inMemIntf->WriteB(address, inByte);
 }
 
 // -------------------------------------------------------------------------- //
 //  * Read(TARMProcessor*, KUInt32, KUInt32*)
 // -------------------------------------------------------------------------- //
 bool
-JIT_Read(TARMProcessor* ioCPU, KUInt32 address, KUInt32* outWord) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	return theMemIntf->Read(address, *outWord);
+JIT_Read(TMemory* inMemIntf, KUInt32 address, KUInt32* outWord) {
+	return inMemIntf->Read(address, *outWord);
 }
 
 // -------------------------------------------------------------------------- //
 //  * Write(TARMProcessor*, KUInt32, KUInt32)
 // -------------------------------------------------------------------------- //
 bool
-JIT_Write(TARMProcessor* ioCPU, KUInt32 address, KUInt32 inWord) {
-	TMemory* theMemIntf = ioCPU->GetMemory();
-	return theMemIntf->Write(address, inWord);
+JIT_Write(TMemory* inMemIntf, KUInt32 address, KUInt32 inWord) {
+	return inMemIntf->Write(address, inWord);
 }
 
 // -------------------------------------------------------------------------- //

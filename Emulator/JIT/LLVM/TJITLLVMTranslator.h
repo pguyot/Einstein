@@ -113,7 +113,10 @@ private:
 		/// Add an entry point function if required that will call the inner
 		/// function to jump to the provided offset.
 		///
-		void AddFunctionIfRequired(KUInt32 offsetInPage);
+		/// \param offsetInPage		offset of the function.
+		/// \param inlining			whether inner function should be inlined
+		///
+		void AddFunctionIfRequired(KUInt32 offsetInPage, bool inlining);
 		
 		///
 		/// Translate a test, branching to next instruction if test fails.
@@ -125,6 +128,11 @@ private:
 		/// (actual copy will be created by Finish).
 		///
 		void EnsureAllocated(llvm::Value** reg, int numBits);
+		
+		///
+		/// Get reference to memory.
+		///
+		llvm::Value* GetMemory();
 		
 		///
 		/// Prepare exit at the current builder insertion point.
@@ -302,6 +310,7 @@ private:
 		llvm::Value* GetShiftNoCarryNoR15(KUInt32 inShift);
 
 		// LLVM types.
+		llvm::PointerType*  GetTMemoryPtrType();
 		llvm::PointerType*  GetTARMProcessorPtrType();
 		llvm::FunctionType* GetEntryPointFuncType();
 		llvm::FunctionType* GetInnerFuncType();
@@ -384,7 +393,9 @@ private:
 			i_mSPSRfiq,
 		
 			i_mMode,
-			i_mPendingInterrupts
+			i_mPendingInterrupts,
+			i_mLog,
+			i_mMemory
 		};
 
 	
@@ -406,6 +417,7 @@ private:
 		std::map<KUInt32, llvm::Function*> mNewFunctions;
 		std::map<KUInt32, llvm::BasicBlock*> mNewFunctionsBlocks;
 		///< The block the inner function should switch to for the given offset parameter value.
+		std::deque<llvm::CallInst*>		mInlineCalls;			///< Calls that will be inlined eventually.
 		llvm::Function*					mFunction;				///< Inner function owning most blocks.
 		const KUInt32					mCurrentVAddress;		///< Page base virtual address, unless we're
 		///< translating a single instruction.
@@ -421,6 +433,9 @@ private:
 		llvm::Value*                    mCPSR_Z;
 		llvm::Value*                    mCPSR_C;
 		llvm::Value*                    mCPSR_V;
+		// Types.
+		llvm::PointerType*				mTMemoryPtrType;
+		llvm::PointerType*				mTARMProcessorPtrType;
 	};
 	
 	static KUInt32 CountBits( KUInt16 inWord );
