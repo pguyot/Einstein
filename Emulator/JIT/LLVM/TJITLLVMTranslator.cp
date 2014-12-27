@@ -445,24 +445,11 @@ TJITLLVMTranslator::FrameTranslator::TranslateOptimizedPair(KUInt32 instruction,
 
 		// Remove block from table, as a jump to addls instruction should yield different code.
 		// Also make sure we have only one branch to this block.
-		unsigned nbBranches = 0;
 		BasicBlock* theBlock = mLabels[offsetInPage];
 		if (theBlock == nullptr) {
 			return false;
 		}
-		for (const BasicBlock& block : mFunction->getBasicBlockList()) {
-			for (const Instruction& inst : block) {
-				if (BranchInst::classof(&inst)) {
-					unsigned numSuccessors = ((const BranchInst& )inst).getNumSuccessors();
-					for (unsigned ixSucc = 0; ixSucc < numSuccessors; ixSucc++) {
-						if (((const BranchInst& )inst).getSuccessor(ixSucc) == theBlock) {
-							nbBranches++;
-						}
-					}
-				}
-			}
-		}
-		if (nbBranches != 1) {
+		if (theBlock->getSinglePredecessor() == nullptr) {
 			return false;
 		}
 		mLabels[offsetInPage] = nullptr;
