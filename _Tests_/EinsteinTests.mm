@@ -313,6 +313,8 @@ typedef void (^LogBlock)(TLog* log);
 - (void)testProcessorExecuteTwoInstructions_E3A0100C_EA0061A0 {
 	[self doTestProcessorExecuteTwoInstructions:@"E3A0100C-EA0061A0"];
 }
+// mov      ip, #8
+// ldmdb    ip, {r8, r9}
 - (void)testProcessorExecuteTwoInstructions_E3A0C008_E91C0300 {
     [self doTestProcessorExecuteTwoInstructions:@"E3A0C008-E91C0300"];
 }
@@ -784,6 +786,19 @@ label5:
 - (void)testJITLLVMTranslateEntryPoint_switch {
 	[self doTestJITLLVMTranslateEntryPoint:@"E1A0C00D E92DD810 E24CB004 E1A04000 E2410033 E3500004 908FF100 E91BA810 EA000007 EA000009 EA000000 EA00000A E1A00004 EB634624 E1A00004 E91B6810 EA664E57 E1A00004 E91B6810 EA63461F E1A00004 E91B6810 EA63461B E1A00004 EB634619 E1A00004 E59F100C EB665692 E3E00000 E5A40034 E91BA810 00383E70" master:@"switch"];
 }
+
+/*
+ // Test OptimizeReadPass with ROM as well as block write.
+	E3A00301	mov	r0, #0x4000000
+	E28F1008	add	r1, pc, #0x8
+	E8B103F0	ldm	r1!, {r4, r5, r6, r7, r8, r9}
+	E88003F0	stm	r0, {r4, r5, r6, r7, r8, r9}
+	E1200070	bkpt	#0x0
+*/
+- (void)testJITLLVMTranslateEntryPoint_readBlock {
+	[self doTestJITLLVMTranslateEntryPoint:@"E3A00301 E28F1008 E8B103F0 E88003F0 E1200070" master:@"readBlock"];
+}
+
 
 #endif
 

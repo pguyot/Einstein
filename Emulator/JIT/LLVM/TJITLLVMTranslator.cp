@@ -130,15 +130,16 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(
 	mFPM.add(new DataLayoutPass(inModule));
 	// Provide basic AliasAnalysis support for GVN.
 	mFPM.add(createBasicAliasAnalysisPass());
-	
-	mFPM.add(new TJITLLVMOptimizeReadPass(inMemoryIntf, inPage));
-	
 	// Do simple "peephole" optimizations and bit-twiddling optzns.
 	mFPM.add(createInstructionCombiningPass());
 	// Reassociate expressions.
 	mFPM.add(createReassociatePass());
 	// Eliminate Common SubExpressions.
 	mFPM.add(createGVNPass());
+	// Optimize reads to page or ROM.
+	mFPM.add(new TJITLLVMOptimizeReadPass(inMemoryIntf, inPage));
+	// Further propagate constants.
+	mFPM.add(createConstantPropagationPass());
 	// Simplify the control flow graph (deleting unreachable blocks, etc).
 	mFPM.add(createCFGSimplificationPass());
 	// Convert calls to tail calls (all JIT exit functions are designed for tail-calling).
