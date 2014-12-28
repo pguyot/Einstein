@@ -437,8 +437,17 @@ private:
 		llvm::Value*                    mCPSR_C;
 		llvm::Value*                    mCPSR_V;
 		// Types.
-		llvm::PointerType*				mTMemoryPtrType;
-		llvm::PointerType*				mTARMProcessorPtrType;
+		struct CachedTypes {
+			CachedTypes() :
+				fTMemoryPtrType(nullptr),
+				fTLogPtrType(nullptr),
+				fTARMProcessorPtrType(nullptr) {};
+			
+			llvm::PointerType*			fTMemoryPtrType;
+			llvm::PointerType*			fTLogPtrType;
+			llvm::PointerType*			fTARMProcessorPtrType;
+		};
+		static std::map<llvm::LLVMContext*, CachedTypes> gTypes;
 	};
 	
 	static KUInt32 CountBits( KUInt16 inWord );

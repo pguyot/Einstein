@@ -71,6 +71,8 @@ using namespace llvm;
 // Constants
 // -------------------------------------------------------------------------- //
 
+std::map<LLVMContext*, TJITLLVMTranslator::FrameTranslator::CachedTypes> TJITLLVMTranslator::FrameTranslator::gTypes;
+
 // -------------------------------------------------------------------------- //
 //  * TranslateEntryPoint(KUInt32, KUInt32, std::string&)
 // -------------------------------------------------------------------------- //
@@ -119,9 +121,7 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(
     	mCPSR_N(nullptr),
 	    mCPSR_Z(nullptr),
 	    mCPSR_C(nullptr),
-	    mCPSR_V(nullptr),
-		mTMemoryPtrType(nullptr),
-		mTARMProcessorPtrType(nullptr)
+	    mCPSR_V(nullptr)
 {
 	for (int i = 0; i < 15; i++) {
 		mRegisters[i] = nullptr;
@@ -2938,11 +2938,12 @@ TJITLLVMTranslator::FrameTranslator::GetShiftNoCarryNoR15(KUInt32 inInstruction)
 // -------------------------------------------------------------------------- //
 PointerType*
 TJITLLVMTranslator::FrameTranslator::GetTMemoryPtrType() {
-	if (mTMemoryPtrType == nullptr) {
+	CachedTypes& cached = gTypes[&mContext];
+	if (cached.fTMemoryPtrType == nullptr) {
 		StructType* tMemoryType = StructType::create(mContext, "TMemory");
-		mTMemoryPtrType = PointerType::get(tMemoryType, 0);
+		cached.fTMemoryPtrType = PointerType::get(tMemoryType, 0);
 	}
-	return mTMemoryPtrType;
+	return cached.fTMemoryPtrType;
 }
 
 // -------------------------------------------------------------------------- //
@@ -2950,9 +2951,13 @@ TJITLLVMTranslator::FrameTranslator::GetTMemoryPtrType() {
 // -------------------------------------------------------------------------- //
 PointerType*
 TJITLLVMTranslator::FrameTranslator::GetTARMProcessorPtrType() {
-	 // We consider functions return int8* and we will use bitcast.
-	 // LLVM functions only know about the processor registers
-	if (mTARMProcessorPtrType == nullptr) {
+	// We consider functions return int8* and we will use bitcast.
+	// LLVM functions only know about the processor registers
+	CachedTypes& cached = gTypes[&mContext];
+	if (cached.fTARMProcessorPtrType == nullptr) {
+		if (cached.fTLogPtrType == nullptr) {
+			cached.fTLogPtrType = PointerType::get(StructType::create(mContext, "TLog"), 0);
+		}
 		StructType* tARMProcessorType = StructType::create(
 			"TARMProcessor",
 			IntegerType::get(mContext, 32),  // mCurrentRegisters[0]
@@ -3008,13 +3013,13 @@ TJITLLVMTranslator::FrameTranslator::GetTARMProcessorPtrType() {
 
 			IntegerType::get(mContext, 32),  // mMode
 			IntegerType::get(mContext, 32),  // mPendingInterrupts
-			PointerType::get(StructType::create(mContext, "TLog"), 0),
+			cached.fTLogPtrType,
 			GetTMemoryPtrType(),
 			NULL);
 
-			mTARMProcessorPtrType = PointerType::get(tARMProcessorType, 0);
+			cached.fTARMProcessorPtrType = PointerType::get(tARMProcessorType, 0);
 	}
-	return mTARMProcessorPtrType;
+	return cached.fTARMProcessorPtrType;
 }
 
 // -------------------------------------------------------------------------- //
