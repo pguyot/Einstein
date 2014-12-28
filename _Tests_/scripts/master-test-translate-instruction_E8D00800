@@ -12,57 +12,51 @@ define private i8* @i0(%TARMProcessor*, i1*, i32) {
   %6 = load i32* %5, align 4
   %7 = getelementptr %TARMProcessor* %0, i64 0, i32 11
   %8 = load i32* %7, align 4
-  switch i32 %2, label %"mainexit#1" [
-    i32 0, label %"_#5"
-    i32 1, label %"_#2"
-  ]
+  %cond = icmp eq i32 %2, 0
+  br i1 %cond, label %"_#5", label %"mainexit#1"
 
-"mainexit#1":                                     ; preds = %"prologue#0", %"_#2"
-  %9 = phi i32 [ %8, %"prologue#0" ], [ %11, %"_#2" ]
+"mainexit#1":                                     ; preds = %"prologue#0", %"_#25259", %"_#27260", %"_#5"
+  %9 = phi i32 [ %8, %"prologue#0" ], [ %20, %"_#27260" ], [ %8, %"_#25259" ], [ %8, %"_#5" ]
   store i32 %6, i32* %5, align 4
   store i32 %9, i32* %7, align 4
   %10 = getelementptr %TARMProcessor* %0, i64 0, i32 15
   store i32 8, i32* %10, align 4
   ret i8* bitcast (i8* (%TARMProcessor*, i1*)* @JIT_Continue to i8*)
 
-"_#2":                                            ; preds = %"_#25259", %"_#27260", %"_#5", %"prologue#0"
-  %11 = phi i32 [ %8, %"prologue#0" ], [ %21, %"_#27260" ], [ %8, %"_#25259" ], [ %8, %"_#5" ]
-  br label %"mainexit#1"
-
 "_#5":                                            ; preds = %"prologue#0"
-  %12 = alloca i32, align 4
-  %13 = getelementptr %TARMProcessor* %0, i64 0, i32 50
-  %14 = load i32* %13, align 4
-  switch i32 %14, label %"_#22256" [
+  %11 = alloca i32, align 4
+  %12 = getelementptr %TARMProcessor* %0, i64 0, i32 50
+  %13 = load i32* %12, align 4
+  switch i32 %13, label %"_#22256" [
     i32 17, label %"_#21255"
-    i32 16, label %"_#2"
+    i32 16, label %"mainexit#1"
   ]
 
 "dataabort#19":                                   ; preds = %"_#22256", %"_#21255"
   store i32 %6, i32* %5, align 4
   store i32 %8, i32* %7, align 4
-  %15 = getelementptr %TARMProcessor* %0, i64 0, i32 15
-  store i32 8, i32* %15, align 4
-  %16 = call i8* @JIT_DataAbort(%TARMProcessor* %0, i1* %1)
-  ret i8* %16
+  %14 = getelementptr %TARMProcessor* %0, i64 0, i32 15
+  store i32 8, i32* %14, align 4
+  %15 = call i8* @JIT_DataAbort(%TARMProcessor* %0, i1* %1)
+  ret i8* %15
 
 "_#21255":                                        ; preds = %"_#5"
-  %17 = call i1 @JIT_Read(%TMemory* %4, i32 %6, i32* %12)
-  br i1 %17, label %"dataabort#19", label %"_#25259"
+  %16 = call i1 @JIT_Read(%TMemory* %4, i32 %6, i32* %11)
+  br i1 %16, label %"dataabort#19", label %"_#25259"
 
 "_#22256":                                        ; preds = %"_#5"
-  %18 = call i1 @JIT_Read(%TMemory* %4, i32 %6, i32* %12)
-  br i1 %18, label %"dataabort#19", label %"_#27260"
+  %17 = call i1 @JIT_Read(%TMemory* %4, i32 %6, i32* %11)
+  br i1 %17, label %"dataabort#19", label %"_#27260"
 
 "_#25259":                                        ; preds = %"_#21255"
-  %19 = getelementptr %TARMProcessor* %0, i64 0, i32 26
-  %20 = load i32* %12, align 4
-  store i32 %20, i32* %19, align 4
-  br label %"_#2"
+  %18 = getelementptr %TARMProcessor* %0, i64 0, i32 26
+  %19 = load i32* %11, align 4
+  store i32 %19, i32* %18, align 4
+  br label %"mainexit#1"
 
 "_#27260":                                        ; preds = %"_#22256"
-  %21 = load i32* %12, align 4
-  br label %"_#2"
+  %20 = load i32* %11, align 4
+  br label %"mainexit#1"
 }
 
 ; Function Attrs: nounwind

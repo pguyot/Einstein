@@ -188,6 +188,19 @@ UProcessorTests::RunCode( const char* inHexWords, TLog* inLog ) {
 		KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
 		KUInt32* theCodePtr = (KUInt32*) rom;
 		int nbBytes;
+		KUInt32 registers[16];
+		::memset(registers, 0, sizeof(registers));
+		registers[15] = 4;
+		unsigned theRegister;
+		KUInt32 theValue;
+		while (::sscanf(inHexWords, "R%u=%X %n", &theRegister, &theValue, &nbBytes) == 2) {
+			if (theRegister > 15) {
+				(void) ::printf( "Invalid register ! R%u\n", theRegister );
+				return;
+			}
+			registers[theRegister] = theValue;
+			inHexWords += nbBytes;
+		}
 		while (::sscanf(inHexWords, "%X %n", theCodePtr, &nbBytes) == 1) {
 			inHexWords += nbBytes;
 			theCodePtr++;
@@ -197,8 +210,12 @@ UProcessorTests::RunCode( const char* inHexWords, TLog* inLog ) {
 		}
 
 		TEmulator theEmulator(inLog, rom, kTempFlashPath);
+		TARMProcessor* theProcessor = theEmulator.GetProcessor();
+		for (theRegister = 0; theRegister < 16; theRegister++) {
+			theProcessor->SetRegister(theRegister, registers[theRegister]);
+		}
 		theEmulator.Run();
-		theEmulator.GetProcessor()->PrintRegisters();
+		theProcessor->PrintRegisters();
 		(void) ::unlink( kTempFlashPath );
 		::free( rom );
 	}

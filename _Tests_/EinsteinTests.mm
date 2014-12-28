@@ -671,6 +671,18 @@ label4:
 	[self doTestProcessorRunCode:@"E2821004 E3510004 908FF101 EA000004 EA000004 EA000004 EA000004 EA000004 EA000004 E3A09001 E3A04001 E3A05001 E3A06001 E3A07001 E1200070" master: @"22"];
 }
 
+/*
+ R13=04001000
+ stmfd r13!, {r0, r1}
+ mov r0, #1
+ mov r1, #2
+ ldmea, r13!, {r0, r1}
+ bkpt 0
+ */
+- (void)testProcessorRunCode_23 {
+	[self doTestProcessorRunCode:@"R0=42 R1=43 R2=44 R13=04001000 E92D0003 E3A00001 E3A01002 E8BD0003 E1200070" master: @"23"];
+}
+
 #ifdef JITTARGET_LLVM
 // ldm	r0, {r11}^
 - (void)testJITLLVMTranslateInstruction_E8D00800 {

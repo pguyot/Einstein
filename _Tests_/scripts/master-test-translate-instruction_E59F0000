@@ -8,24 +8,12 @@ define private i8* @i0(%TARMProcessor*, i1*, i32) {
 "prologue#0":
   %3 = getelementptr %TARMProcessor* %0, i64 0, i32 0
   %4 = load i32* %3, align 4
-  switch i32 %2, label %"mainexit#1" [
-    i32 0, label %"_#5"
-    i32 1, label %"_#2"
-  ]
-
-"mainexit#1":                                     ; preds = %"prologue#0", %"_#2"
-  %5 = phi i32 [ %4, %"prologue#0" ], [ %7, %"_#2" ]
-  store i32 %5, i32* %3, align 4
-  %6 = getelementptr %TARMProcessor* %0, i64 0, i32 15
-  store i32 8, i32* %6, align 4
+  %cond = icmp eq i32 %2, 0
+  %. = select i1 %cond, i32 0, i32 %4
+  store i32 %., i32* %3, align 4
+  %5 = getelementptr %TARMProcessor* %0, i64 0, i32 15
+  store i32 8, i32* %5, align 4
   ret i8* bitcast (i8* (%TARMProcessor*, i1*)* @JIT_Continue to i8*)
-
-"_#2":                                            ; preds = %"prologue#0", %"_#5"
-  %7 = phi i32 [ %4, %"prologue#0" ], [ 0, %"_#5" ]
-  br label %"mainexit#1"
-
-"_#5":                                            ; preds = %"prologue#0"
-  br label %"_#2"
 }
 
 ; Function Attrs: nounwind

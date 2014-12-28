@@ -42,7 +42,6 @@ char TJITLLVMOptimizeReadPass::ID = 0;
 // -------------------------------------------------------------------------- //
 bool
 TJITLLVMOptimizeReadPass::runOnBasicBlock(BasicBlock& block) {
-    IRBuilder<>(block.getContext());
 	bool result = false;
 	IRBuilder<> builder(block.getContext());
 	SmallVector<CallInst*, 1> callInstructions;

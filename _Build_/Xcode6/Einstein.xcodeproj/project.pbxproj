@@ -466,6 +466,10 @@
 		DA24E5DA1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
 		DA24E5DB1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
 		DA24E5DC1A3654CA00C60EF7 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */; };
+		DA3B129B1A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA3B12991A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp */; };
+		DA3B129C1A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA3B12991A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp */; };
+		DA3B129D1A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA3B12991A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp */; };
+		DA3B129E1A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA3B12991A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp */; };
 		DA4BA40D1A3A0160002BDB80 /* tests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B61A35E76400092B5A /* tests.cp */; };
 		DA4BA40E1A3A01F7002BDB80 /* UHostInfoTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B81A35E76400092B5A /* UHostInfoTests.cp */; };
 		DA4BA40F1A3A01F7002BDB80 /* UMemoryTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0BA1A35E76400092B5A /* UMemoryTests.cp */; };
@@ -1173,6 +1177,8 @@
 		DA237F551A430C0400E771BF /* TJITLLVMObjectCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITLLVMObjectCache.h; sourceTree = "<group>"; };
 		DA24E5D71A3654CA00C60EF7 /* libcrypto.0.9.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.8.dylib; path = usr/lib/libcrypto.0.9.8.dylib; sourceTree = SDKROOT; };
 		DA24E5E31A379D5400C60EF7 /* JITLLVM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JITLLVM.h; sourceTree = "<group>"; };
+		DA3B12991A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITLLVMEmulatedStackPass.cp; sourceTree = "<group>"; };
+		DA3B129A1A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITLLVMEmulatedStackPass.h; sourceTree = "<group>"; };
 		DA4BA4051A3A0153002BDB80 /* CLITest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CLITest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA4BA46E1A3A3B78002BDB80 /* TNullScreenManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNullScreenManager.cp; sourceTree = "<group>"; };
 		DA4BA46F1A3A3B78002BDB80 /* TNullScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNullScreenManager.h; sourceTree = "<group>"; };
@@ -2146,6 +2152,8 @@
 				DA237F551A430C0400E771BF /* TJITLLVMObjectCache.h */,
 				DA7B663B1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp */,
 				DA7B663C1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.h */,
+				DA3B12991A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp */,
+				DA3B129A1A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.h */,
 			);
 			path = LLVM;
 			sourceTree = "<group>";
@@ -2638,6 +2646,7 @@
 				C99E350F111B7C08002165EC /* TPCMCIAController.cp in Sources */,
 				C99E3510111B7C08002165EC /* TPlatformManager.cp in Sources */,
 				C99E3511111B7C08002165EC /* TAIFFile.cp in Sources */,
+				DA3B129B1A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp in Sources */,
 				C99E3512111B7C08002165EC /* TAIFROMImageWithREXes.cp in Sources */,
 				C99E3513111B7C08002165EC /* TFlatROMImage.cp in Sources */,
 				DA7B663D1A45CC060049B8B1 /* TJITLLVMOptimizeReadPass.cp in Sources */,
@@ -2788,6 +2797,7 @@
 				C95E608D198B76DC004C6CEF /* TFlash.cp in Sources */,
 				C95E608E198B76DC004C6CEF /* TInterruptManager.cp in Sources */,
 				C95E608F198B76DC004C6CEF /* TMemory.cp in Sources */,
+				DA3B129C1A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp in Sources */,
 				DA237F591A430C0400E771BF /* TJITLLVMObjectCache.cp in Sources */,
 				C95E6090198B76DC004C6CEF /* TMMU.cp in Sources */,
 				C98AB2BE1A351EE6001BB1CD /* unsorted_008.cp in Sources */,
@@ -2985,6 +2995,7 @@
 				DA4BA44B1A3A0372002BDB80 /* ffi_darwin.c in Sources */,
 				DA4BA4321A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_MRS.cp in Sources */,
 				DA4BA4141A3A028C002BDB80 /* TMMU.cp in Sources */,
+				DA3B129E1A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp in Sources */,
 				DA4BA4541A3A03EA002BDB80 /* TException.cp in Sources */,
 				DA4BA4131A3A028C002BDB80 /* TMemory.cp in Sources */,
 				DA4BA4101A3A01F7002BDB80 /* UProcessorTests.cp in Sources */,
@@ -3052,6 +3063,7 @@
 				DA4BA4651A3A37FA002BDB80 /* TSoundManager.cp in Sources */,
 				DA4FF1311A35EB4D00092B5A /* TCircleBuffer.cp in Sources */,
 				DA4FF1491A35EC4A00092B5A /* THostInfo.cp in Sources */,
+				DA3B129D1A4F4D2300A1241A /* TJITLLVMEmulatedStackPass.cp in Sources */,
 				DA4FF10D1A35EA8C00092B5A /* TFlash.cp in Sources */,
 				DA4FF1671A3637E400092B5A /* TJITLLVMTranslator.cp in Sources */,
 				DA4FF1371A35EB9500092B5A /* TMemError.cp in Sources */,

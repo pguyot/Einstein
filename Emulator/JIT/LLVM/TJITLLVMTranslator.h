@@ -297,7 +297,7 @@ private:
 		///
 		/// Retrieve a given function. Import it in the module if required.
 		///
-		llvm::Function* EnsureFunction(llvm::FunctionType* funcType, const char* funcName);
+		llvm::Function* EnsureFunction(llvm::FunctionType* funcType, const char* funcName, bool readOnly);
 
 		///
 		/// Retrieve a given intrinsic. Import it in the module if required.

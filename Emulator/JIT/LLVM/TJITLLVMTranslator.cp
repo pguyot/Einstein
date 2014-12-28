@@ -30,6 +30,7 @@
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/JIT/LLVM/TJITLLVMPage.h"
 #include "Emulator/JIT/LLVM/TJITLLVMOptimizeReadPass.h"
+#include "Emulator/JIT/LLVM/TJITLLVMEmulatedStackPass.h"
 
 // llvm
 #include <llvm/Analysis/Passes.h>
@@ -140,12 +141,17 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(
 	mFPM.add(new TJITLLVMOptimizeReadPass(inMemoryIntf, inPage));
 	// Further propagate constants.
 	mFPM.add(createConstantPropagationPass());
-	// Simplify the control flow graph (deleting unreachable blocks, etc).
-	mFPM.add(createCFGSimplificationPass());
-	// Convert calls to tail calls (all JIT exit functions are designed for tail-calling).
-	mFPM.add(createTailCallEliminationPass());
 	// Use registers.
 	mFPM.add(createPromoteMemoryToRegisterPass());
+	// Optimize stack accesses (after register promotion)
+	mFPM.add(new TJITLLVMEmulatedStackPass(GetTARMProcessorPtrType()));
+	// Cleanup after stack pass.
+	mFPM.add(createBasicAliasAnalysisPass());
+	mFPM.add(createGVNPass());
+	mFPM.add(createCFGSimplificationPass());
+	mFPM.add(createAggressiveDCEPass());
+	// Convert calls to tail calls (all JIT exit functions are designed for tail-calling).
+	mFPM.add(createTailCallEliminationPass());
 	mFPM.doInitialization();
 	
 	// Create inner function
@@ -186,7 +192,7 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(
 	mBuilder.CreateBr(mMainExit);
 	
 	mBuilder.SetInsertPoint(mMainExit);
-	Function* continueFunction = EnsureFunction(GetEntryPointFuncType(), "JIT_Continue");
+	Function* continueFunction = EnsureFunction(GetEntryPointFuncType(), "JIT_Continue", false);
 	Instruction* retInst = mBuilder.CreateRet(mBuilder.CreateBitCast(continueFunction, PointerType::getInt8PtrTy(mContext)));
 	mExitInstructions.push_back(retInst);
 }
@@ -355,22 +361,25 @@ TJITLLVMTranslator::FrameTranslator::BuildExitToFunction(const char *funcName, V
 	if (exitPC != nullptr) {
 		mBuilder.CreateStore(exitPC, mPC);
 	}
-	Function* function = EnsureFunction(GetEntryPointFuncType(), funcName);
+	Function* function = EnsureFunction(GetEntryPointFuncType(), funcName, false);
 	Instruction* callInst = mBuilder.CreateCall2(function, mProcessor, mSignal);
 	mExitInstructions.push_back(callInst);
 	mBuilder.CreateRet(callInst);
 }
 
 // -------------------------------------------------------------------------- //
-//  * EnsureFunction(FunctipnType*, const char*)
+//  * EnsureFunction(FunctionType*, const char*, bool)
 // -------------------------------------------------------------------------- //
 Function*
-TJITLLVMTranslator::FrameTranslator::EnsureFunction(FunctionType* funcType, const char* funcName) {
+TJITLLVMTranslator::FrameTranslator::EnsureFunction(FunctionType* funcType, const char* funcName, bool readOnly) {
 	Function* function = mModule->getFunction(funcName);
 	if (function == nullptr) {
 		function = Function::Create(funcType, Function::ExternalLinkage, funcName, mModule);
 		function->setCallingConv(CallingConv::C);
 		function->setDoesNotThrow();
+		if (readOnly) {
+			function->setOnlyReadsMemory();
+		}
 	}
 	return function;
 }
@@ -848,13 +857,13 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataSwap(KUInt32 offsetInPa
 		BasicBlock* signalExit = BasicBlock::Create(mContext, BLOCKNAME("signalexit"), mFunction);
 		
 		if (flag_b) {
-			Function* readFunction = EnsureFunction(GetReadBFuncType(), "JIT_ReadB");
+			Function* readFunction = EnsureFunction(GetReadBFuncType(), "JIT_ReadB", false);
 			Value* byte = mBuilder.CreateAlloca(Type::getInt8Ty(mContext));
 			Value* result = mBuilder.CreateCall3(readFunction, GetMemory(), address, byte);
 			mBuilder.CreateCondBr(result, dataAbortExit, writeBlock);
 			
 			mBuilder.SetInsertPoint(writeBlock);
-			Function* writeFunction = EnsureFunction(GetWriteBFuncType(), "JIT_WriteB");
+			Function* writeFunction = EnsureFunction(GetWriteBFuncType(), "JIT_WriteB", true);
 			result = mBuilder.CreateCall3(
 								writeFunction,
 								GetMemory(),
@@ -866,13 +875,13 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataSwap(KUInt32 offsetInPa
 			mBuilder.SetInsertPoint(storeBlock);
 			mBuilder.CreateStore(mBuilder.CreateZExt(mBuilder.CreateLoad(byte), Type::getInt32Ty(mContext)), mRegisters[Rd]);
 		} else {
-			Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read");
+			Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read", false);
 			Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(mContext));
 			Value* result = mBuilder.CreateCall3(readFunction, GetMemory(), address, word);
 			mBuilder.CreateCondBr(result, dataAbortExit, writeBlock);
 			
 			mBuilder.SetInsertPoint(writeBlock);
-			Function* writeFunction = EnsureFunction(GetWriteFuncType(), "JIT_Write");
+			Function* writeFunction = EnsureFunction(GetWriteFuncType(), "JIT_Write", true);
 			result = mBuilder.CreateCall3(
 								 writeFunction,
 								 GetMemory(),
@@ -1779,7 +1788,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 		Function* setPrivilegeFunc = nullptr;
 		if (!flag_p && flag_w) {
 			// Drop privilege for unprivileged access.
-			setPrivilegeFunc = EnsureFunction(GetSetPrivilegeFuncType(), "JIT_SetPrivilege");
+			setPrivilegeFunc = EnsureFunction(GetSetPrivilegeFuncType(), "JIT_SetPrivilege", true);
 			mBuilder.CreateCall2(setPrivilegeFunc, mProcessor, mBuilder.getInt1(false));
 		}
 		
@@ -1810,7 +1819,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 				BasicBlock* proceedBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
                 if (flag_b) {
                     // Byte.
-                    Function* readFunction = EnsureFunction(GetReadBFuncType(), "JIT_ReadB");
+                    Function* readFunction = EnsureFunction(GetReadBFuncType(), "JIT_ReadB", false);
                     Value* byte = mBuilder.CreateAlloca(Type::getInt8Ty(mContext));
                     Value* result = mBuilder.CreateCall3(readFunction, GetMemory(), theAddress, byte);
                     mBuilder.CreateCondBr(result, dataAbortExit, proceedBlock);
@@ -1818,7 +1827,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
                     wordResult = mBuilder.CreateZExt(mBuilder.CreateLoad(byte), Type::getInt32Ty(mContext));
                 } else {
                     // Word.
-                    Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read");
+                    Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read", false);
                     Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(mContext));
                     Value* result = mBuilder.CreateCall3(readFunction, GetMemory(), theAddress, word);
                     mBuilder.CreateCondBr(result, dataAbortExit, proceedBlock);
@@ -1847,12 +1856,12 @@ TJITLLVMTranslator::FrameTranslator::Translate_SingleDataTransfer(KUInt32 offset
 			}
 			if (flag_b) {
 				// Byte.
-				Function* writeFunction = EnsureFunction(GetWriteBFuncType(), "JIT_WriteB");
+				Function* writeFunction = EnsureFunction(GetWriteBFuncType(), "JIT_WriteB", true);
 				Value* result = mBuilder.CreateCall3(writeFunction, GetMemory(), theAddress, mBuilder.CreateTrunc(storedValue, Type::getInt8Ty(mContext)));
 				mBuilder.CreateCondBr(result, dataAbortExit, proceedBlock);
 			} else {
 				// Word.
-				Function* writeFunction = EnsureFunction(GetWriteFuncType(), "JIT_Write");
+				Function* writeFunction = EnsureFunction(GetWriteFuncType(), "JIT_Write", true);
 				Value* result = mBuilder.CreateCall3(writeFunction, GetMemory(), theAddress, storedValue);
 				mBuilder.CreateCondBr(result, dataAbortExit, proceedBlock);
 			}
@@ -1937,10 +1946,12 @@ TJITLLVMTranslator::FrameTranslator::Translate_Branch(KUInt32 offsetInPage, KUIn
 	    mBuilder.CreateStore(mBuilder.getInt32(lrValue), mRegisters[TARMProcessor::kR14]);
 	    if (delta > 0 && branchToInPage < mInstructionCount) {
 	        // Forward, in page.
+			AddFunctionIfRequired(branchToInPage, true);
             mBuilder.CreateBr(GetBlock(branchToInPage));
         } else if (branchToInPage >= 0 && branchToInPage < mInstructionCount) {
 			BasicBlock* signalExit = BasicBlock::Create(mContext, BLOCKNAME("signalexit"), mFunction);
             // Backward, in page.
+			AddFunctionIfRequired(branchToInPage, true);
 			mBuilder.CreateCondBr(mBuilder.CreateLoad(mSignal, true), GetBlock(branchToInPage), signalExit);
 			mBuilder.SetInsertPoint(signalExit);
 			mBuilder.CreateStore(mBuilder.getInt32(delta + mCurrentVAddress + 4), mPC);
@@ -1997,7 +2008,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM13(KUInt32 offsetInPage, KUInt
 	}
 	Value* countVal = mBuilder.getInt32(numWords);
 	Value* words = mBuilder.CreateAlloca(Type::getInt32Ty(mContext), countVal);
-	Function* readFunction = EnsureFunction(GetReadBlockFuncType(), "JIT_ReadBlock");
+	Function* readFunction = EnsureFunction(GetReadBlockFuncType(), "JIT_ReadBlock", false);
 	Value* result = mBuilder.CreateCall4(readFunction, GetMemory(), startAddress, countVal, words);
 	BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 	mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
@@ -2064,7 +2075,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_LDM2(KUInt32 offsetInPage, KUInt3
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
 	Value* commonAddress = startAddress;
 	KUInt32 commonRegistersMask = 0x0001;
-	Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read");
+	Function* readFunction = EnsureFunction(GetReadFuncType(), "JIT_Read", false);
 	Value* word = mBuilder.CreateAlloca(Type::getInt32Ty(mContext));
 	for (int i = 0; i < 8; i++) {
 		if (inInstruction & commonRegistersMask) {
@@ -2210,7 +2221,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM1(KUInt32 offsetInPage, KUInt3
 		mBuilder.CreateStore(mBuilder.getInt32(exitPC), mBuilder.CreateGEP(words, mBuilder.getInt32(writtenWord)));
 	}
 
-	Function* writeFunction = EnsureFunction(GetWriteBlockFuncType(), "JIT_WriteBlock");
+	Function* writeFunction = EnsureFunction(GetWriteBlockFuncType(), "JIT_WriteBlock", true);
 	Value* result = mBuilder.CreateCall4(writeFunction, GetMemory(), startAddress, countVal, words);
 	BasicBlock* continueBlock = BasicBlock::Create(mContext, ANONBLOCK, mFunction);
 	mBuilder.CreateCondBr(result, dataAbortExit, continueBlock);
@@ -2247,7 +2258,7 @@ TJITLLVMTranslator::FrameTranslator::Translate_STM2(KUInt32 offsetInPage, KUInt3
 	Value* startAddress = BuildGetBlockDataTransferBaseAddress(inInstruction);
 	Value* commonAddress = startAddress;
 	KUInt32 commonRegistersMask = 0x0001;
-	Function* writeFunction = EnsureFunction(GetWriteFuncType(), "JIT_Write");
+	Function* writeFunction = EnsureFunction(GetWriteFuncType(), "JIT_Write", true);
 	for (int i = 0; i < 8; i++) {
 		if (inInstruction & commonRegistersMask) {
 			EnsureAllocated(&mRegisters[i], 32);
@@ -2756,7 +2767,7 @@ TJITLLVMTranslator::FrameTranslator::BuildSetCPSR(Value* operand, Value* current
 	indexes[1] = mBuilder.getInt32(i_mMode);
 	mBuilder.CreateStore(newMode, mBuilder.CreateGEP(mProcessor, indexes));
 	
-	Function* setPrivilegeFunc = EnsureFunction(GetSetPrivilegeFuncType(), "JIT_SetPrivilege");
+	Function* setPrivilegeFunc = EnsureFunction(GetSetPrivilegeFuncType(), "JIT_SetPrivilege", true);
 	mBuilder.CreateCall2(setPrivilegeFunc, mProcessor, mBuilder.CreateICmpNE(newMode, mBuilder.getInt32(TARMProcessor::kUserMode)));
 	mBuilder.CreateBr(setPrivilegeBitsBlock);
 	
