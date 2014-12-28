@@ -1,5 +1,5 @@
 // ==============================
-// File:			TJITLLVMOptimizeReadPass.cp
+// File:			TJITLLVMConstantReadPass.cp
 // Project:			Einstein
 //
 // Copyright 2014 by Paul Guyot (pguyot@kallisys.net).
@@ -25,7 +25,7 @@
 #ifdef JITTARGET_LLVM
 
 #include "Emulator/TMemory.h"
-#include "Emulator/JIT/LLVM/TJITLLVMOptimizeReadPass.h"
+#include "Emulator/JIT/LLVM/TJITLLVMConstantReadPass.h"
 
 #include <llvm/IR/Instruction.h>
 
@@ -35,13 +35,13 @@ using namespace llvm;
 // Constants
 // -------------------------------------------------------------------------- //
 
-char TJITLLVMOptimizeReadPass::ID = 0;
+char TJITLLVMConstantReadPass::ID = 0;
 
 // -------------------------------------------------------------------------- //
 //  * runOnBasicBlock(BasicBlock&)
 // -------------------------------------------------------------------------- //
 bool
-TJITLLVMOptimizeReadPass::runOnBasicBlock(BasicBlock& block) {
+TJITLLVMConstantReadPass::runOnBasicBlock(BasicBlock& block) {
 	bool result = false;
 	IRBuilder<> builder(block.getContext());
 	SmallVector<CallInst*, 1> callInstructions;

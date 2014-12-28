@@ -29,7 +29,7 @@
 #include "TJITLLVMTranslator.h"
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/JIT/LLVM/TJITLLVMPage.h"
-#include "Emulator/JIT/LLVM/TJITLLVMOptimizeReadPass.h"
+#include "Emulator/JIT/LLVM/TJITLLVMConstantReadPass.h"
 #include "Emulator/JIT/LLVM/TJITLLVMEmulatedStackPass.h"
 
 // llvm
@@ -138,7 +138,7 @@ TJITLLVMTranslator::FrameTranslator::FrameTranslator(
 	// Eliminate Common SubExpressions.
 	mFPM.add(createGVNPass());
 	// Optimize reads to page or ROM.
-	mFPM.add(new TJITLLVMOptimizeReadPass(inMemoryIntf, inPage));
+	mFPM.add(new TJITLLVMConstantReadPass(inMemoryIntf, inPage));
 	// Further propagate constants.
 	mFPM.add(createConstantPropagationPass());
 	// Use registers.

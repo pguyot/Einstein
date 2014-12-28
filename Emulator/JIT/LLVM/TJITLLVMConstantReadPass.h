@@ -1,5 +1,5 @@
 // ==============================
-// File:			TJITLLVMOptimizeReadPass.h
+// File:			TJITLLVMConstantReadPass.h
 // Project:			Einstein
 //
 // Copyright 2014 by Paul Guyot (pguyot@kallisys.net).
@@ -19,8 +19,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // ==============================
 
-#ifndef _TJITLLVMOPTIMIZEREADPASS_H
-#define _TJITLLVMOPTIMIZEREADPASS_H
+#ifndef _TJITLLVMCONSTANTREADPASS_H
+#define _TJITLLVMCONSTANTREADPASS_H
 
 // llvm
 #include <llvm/Pass.h>
@@ -36,17 +36,17 @@ class TMemory;
 /// This pass generates more constants and make functions redundant
 /// (typically returning after a data abort that will not happen).
 ///
-class TJITLLVMOptimizeReadPass : public llvm::BasicBlockPass {
+class TJITLLVMConstantReadPass : public llvm::BasicBlockPass {
 public:
 	///
 	/// Constructor from a memory interface.
 	///
-	TJITLLVMOptimizeReadPass(const TMemory& inMemoryIntf, const TJITLLVMPage& inPage) :
+	TJITLLVMConstantReadPass(const TMemory& inMemoryIntf, const TJITLLVMPage& inPage) :
 	llvm::BasicBlockPass(ID),
 	mMemoryIntf(inMemoryIntf),
 	mPage(inPage) {};
 	
-	virtual ~TJITLLVMOptimizeReadPass() {};
+	virtual ~TJITLLVMConstantReadPass() {};
 	
 	///
 	/// Perform optimization.
