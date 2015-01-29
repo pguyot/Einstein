@@ -27,6 +27,7 @@
 #include "UDisasm.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 TSymbolList *TSymbolList::List = 0;
 

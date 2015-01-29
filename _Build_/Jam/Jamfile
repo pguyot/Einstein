@@ -472,6 +472,7 @@ if $(OS) = "MACOSX"
 	# Drapeaux pour gcc/g++
 	local _commonflags ;
 	_commonflags += -DTARGET_OS_LINUX=1 ;
+	_commonflags += -DHAS_C99_LONGLONG=1 ;
 	_commonflags += -Wall ;
 	_commonflags += -Wno-multichar ;
 	_commonflags += -Wno-unknown-pragmas ;
@@ -516,7 +517,7 @@ if $(OS) = "MACOSX"
 		X11Libs += $(BASE)$(X11LibsPrefix)libXdmcp.so.6 ;
 	} else {
 		LINKFLAGS += -m32 -L/usr/X11R6/lib/ -L/usr/lib/i386-linux-gnu/ ;
-		_commonflags += -I/usr/include/i686-linux-gnu/ ;
+		_commonflags += -I/usr/include/i386-linux-gnu/ ;
 		LibFFI = -lffi ;
 		X11Libs = -lX11 -lXau ;
 	}

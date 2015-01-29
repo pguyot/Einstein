@@ -40,6 +40,7 @@
 #if !TARGET_OS_WIN32
 	#include <sys/time.h>
 #endif
+#include <stdlib.h>
 #include <errno.h>
 #include <signal.h>
 

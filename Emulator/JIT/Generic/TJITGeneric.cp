@@ -35,7 +35,7 @@
 #include "TMemoryConsts.h"
 
 #include "TJITGenericROMPatch.h"
-#include "TVirtualizedCallsPatches.h"
+#include "../../NativeCalls/TVirtualizedCallsPatches.h"
 
 #if 0
 //
