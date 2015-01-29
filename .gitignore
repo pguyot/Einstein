@@ -7,3 +7,6 @@ DerivedData/
 *.moved-aside
 *.xcuserdatad
 .DS_Store
+K/_Build_/Jam/build.LINUX
+_Build_/Jam/build.LINUX
+
