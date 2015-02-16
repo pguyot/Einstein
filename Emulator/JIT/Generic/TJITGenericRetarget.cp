@@ -55,7 +55,7 @@
 #include "TSymbolList.h"
 
 #include "TJITGenericRetargetMap.h"
-#include "Emulator/JIT/GEneric/TJITGenericROMPatch.h"
+#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 
 #include "TROMImage.h"
 #include "UDisasm.h"
