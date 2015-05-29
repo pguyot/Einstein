@@ -663,7 +663,7 @@ TSymbolList::GetSymbol(
 	if (outComment) *outComment = '\0';
 	if (outOffset) *outOffset = 0;
 	
-	if (this == NULL || mSymbolCount == 0)
+	if (mSymbolCount == 0)
 	{
 		::sprintf(outSymbol, "%08X", (unsigned int)inValue);
 		::sprintf(outComment, "(no symbol data)");
@@ -705,8 +705,6 @@ TSymbolList::GetSymbolExact(
 				char* outComment,
 				int* outOffset )
 {
-	if (this == NULL) return false;
-
 	bool r;
 	char outCommentAlt[512];
 	if (!outComment) outComment = outCommentAlt;
@@ -737,7 +735,7 @@ TSymbolList::GetSymbolExact(
 KUInt32
 TSymbolList::GetSymbol( const char* inName )
 {
-	if (this == NULL || mSymbolCount == 0)
+	if (mSymbolCount == 0)
 		return kNoSymbol;
 	int i;
 	for (i=0; i<mSymbolCount; i++) {
@@ -755,7 +753,7 @@ TSymbolList::GetSymbol( const char* inName )
 KUInt32
 TSymbolList::GetNextSymbol( KUInt32 inValue )
 {
-	if (this == NULL || mSymbolCount == 0)
+	if (mSymbolCount == 0)
 		return kNoSymbol;
 	int i;
 	for (i=0; i<mSymbolCount; i++) {
