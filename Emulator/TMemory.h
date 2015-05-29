@@ -797,17 +797,6 @@ private:
 	KUInt32		ReadROMRAMP( PAddr inAddress, Boolean& outFault );
 
 	///
-	/// Actually read 32 bits from memory, with a direct physical address.
-	/// This function only applies to aligned ROM & RAM accesses.
-	///
-	/// \param inAddress	physical address to read 32 bits from.
-	/// \param outFault		on return, \c true if there was a bus error
-	///						(unchanged otherwise)
-	/// \return the word that was read, 0 in case of error.
-	///		
-	KUInt32		DoReadROMRAMP( PAddr inAddress, Boolean& outFault );
-
-	///
 	/// Write 32 bits to memory.
 	/// Perform address translation if the MMU is enabled.
 	/// This function only applies to aligned RAM accesses.
