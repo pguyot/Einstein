@@ -873,7 +873,10 @@ TMMU::TranslateInstruction(
 			KUInt32 inVAddress,
 			KUInt32* outPAddress )
 {
-	register KUInt32 theAddress = inVAddress;
+#if !TARGET_OS_MAC
+	register
+#endif
+	KUInt32 theAddress = inVAddress;
 
 	// Optimization: avoid translation when reading unprotected ROM
 	if (mMMUEnabled && ((theAddress < 0x00002000) || (theAddress & TMemoryConsts::kROMEndMask)))
