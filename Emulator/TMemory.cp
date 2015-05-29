@@ -1271,7 +1271,9 @@ TMemory::ReadPAligned( PAddr inAddress, Boolean& outFault )
 // -------------------------------------------------------------------------- //
 //  * ReadROMRAMP( PAddr, Boolean& )
 // -------------------------------------------------------------------------- //
+#if !TARGET_OS_MAC
 inline
+#endif
 KUInt32
 TMemory::ReadROMRAMP( PAddr inAddress, Boolean& outFault )
 {
