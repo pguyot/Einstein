@@ -42,6 +42,7 @@ class TSoundManager;
 class TScreenManager;
 class TMonitor;
 class TStream;
+class TFileManager;
 
 ///
 /// Class for the main loop of the emulator.
@@ -152,10 +153,24 @@ public:
 	
 	///
 	/// NewtonOS Debugger UND instruction.
+	/// Method called by the processor when it encounters a SystemBootUND
+	/// instruction.
+	///
+	void		SystemBootUND( KUInt32 inPAddr );
+	
+	///
+	/// NewtonOS Debugger UND instruction.
 	/// Method called by the processor when it encounters a DebuggerUND
 	/// instruction.
 	///
 	void		DebuggerUND( KUInt32 inPAddr );
+		
+	///
+	/// NewtonOS Debugger UND instruction.
+	/// Method called by the processor when it encounters a TapFileCntlUND
+	/// instruction.
+	///
+	void		TapFileCntlUND( KUInt32 inPAddr );
 	
 	///
 	/// Selector on the monitor.
@@ -165,6 +180,16 @@ public:
 	void		SetMonitor( TMonitor* inMonitor )
 		{
 			mMonitor = inMonitor;
+		}
+
+	///
+	/// Selector on the file manager interface.
+	///
+	/// \param inMonitor	reference to the manager.
+	///
+	void		SetFileManager( TFileManager* inManager )
+		{
+			mFileManager = inManager;
 		}
 
 	///
@@ -278,6 +303,16 @@ public:
 	TScreenManager*  GetScreenManager( void )
 		{
 			return mScreenManager;
+		}
+
+	///
+	/// Accessor on the file manager interface.
+	///
+	/// \return a pointer to the file manager.
+	///
+	TFileManager*  GetFileManager( void )
+		{
+			return mFileManager;
 		}
 	
 	///
@@ -421,6 +456,7 @@ private:
 	TNetworkManager*	mNetworkManager;	///< Network manager.
 	TSoundManager*		mSoundManager;		///< Sound manager.
 	TScreenManager*		mScreenManager;		///< Screen manager.
+	TFileManager*       mFileManager;
 	KUInt32				mNewtonID[2];		///< NewtonID (48 bits, 16+32).
 	TLog*				mLog;				///< Interface for logging.
 	TMonitor*			mMonitor;			///< Monitor (or \c nil).
