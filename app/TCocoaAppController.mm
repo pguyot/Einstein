@@ -39,6 +39,7 @@
 #include "Emulator/Sound/TNullSoundManager.h"
 #include "Emulator/Screen/CocoaScreenProxy.h"
 #include "Emulator/Screen/TCocoaScreenManager.h"
+#include "Emulator/Files/TCocoaFileManager.h"
 #ifdef OPTION_X11_SCREEN
 #include "Emulator/Screen/TX11ScreenManager.h"
 #endif
@@ -97,6 +98,7 @@ static TCocoaAppController* gInstance = nil;
 			[NSNumber numberWithInt:kCocoaScreenDriverTag], kScreenDriverKey,
 			[NSNumber numberWithInt:kUsermodeNetworkDriverTag], kNetworkDriverKey,
 			[NSNumber numberWithBool:NO], kDontShowAtStartupKey,
+			[NSNumber numberWithBool:NO], kEnableListenersKey,
 			nil];
 	
 	[defaults registerDefaults:appDefaults];
@@ -173,6 +175,10 @@ static TCocoaAppController* gInstance = nil;
 	if (mLog)
 	{
 		delete mLog;
+	}
+	if (mFileManager)
+	{
+		delete mFileManager;
 	}
 	
 	[super dealloc];
@@ -401,6 +407,15 @@ static TCocoaAppController* gInstance = nil;
 	mEmulator = new TEmulator(
 				mLog, mROMImage, theFlashPath,
 				mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
+	
+	if ([defaults boolForKey: kEnableListenersKey])
+	{
+		mFileManager = new TCocoaFileManager();
+		mFileManager->SetLog(mLog);
+		mFileManager->SetMemory(mEmulator->GetMemory());
+		mEmulator->SetFileManager(mFileManager);
+	}
+	
 	mPlatformManager = mEmulator->GetPlatformManager();
 	if (indexScreenDriver == kCocoaScreenDriverTag)
 	{
