@@ -399,12 +399,26 @@ TJITGenericPage::DoTranslate_01(
 	{
 // -Cond-- 0  1  1  -XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX- 1  -XXXXX-
           // DA WINNER
-		if (inInstruction == 0xE6000510)
+		if (inInstruction == 0xE6000010)
+		{
+			PushUnit(ioUnitCrsr, SystemBootUND);
+			PushUnit(ioUnitCrsr, inVAddr - GetVAddr() + GetPAddr());
+			PushUnit(ioUnitCrsr, inVAddr + 8);
+		}
+		else if (inInstruction == 0xE6000510)
 		{
 			PushUnit(ioUnitCrsr, DebuggerUND);
 			PushUnit(ioUnitCrsr, inVAddr - GetVAddr() + GetPAddr());
 			PushUnit(ioUnitCrsr, inVAddr + 8);
-		} else {
+		}
+		else if (inInstruction == 0xE6000810)
+		{
+			PushUnit(ioUnitCrsr, TapFileCntlUND);
+			PushUnit(ioUnitCrsr, inVAddr - GetVAddr() + GetPAddr());
+			PushUnit(ioUnitCrsr, inVAddr + 8);
+		}
+		else 
+		{
 			PushUnit(ioUnitCrsr, UndefinedInstruction);
 			PushUnit(ioUnitCrsr, inVAddr + 8);
 		}
