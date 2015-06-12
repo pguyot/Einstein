@@ -21,6 +21,13 @@ typedef void (^LogBlock)(TLog* log);
 @implementation EinsteinTests
 
 - (void)doTest: (LogBlock)block withOutputFile:(NSString*)path {
+	BOOL fileExistsAtPath = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:nil];
+
+	XCTAssertTrue(fileExistsAtPath, @"Expected test result file is missing: %@", path);
+	
+	if ( fileExistsAtPath == NO )
+		return;
+	
 	NSString* master = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
 	TRAMLog log;
 	block(&log);
@@ -37,29 +44,40 @@ typedef void (^LogBlock)(TLog* log);
 }
 
 - (void)doTestProcessorExecuteInstruction:(NSString*) instruction {
+	NSString *outputFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:[NSString stringWithFormat:@"master-test-execute-instruction_%@", instruction] ofType:@""];
+	
 	[self doTest: ^(TLog* log){
 			UProcessorTests::ExecuteInstruction([instruction cStringUsingEncoding:NSUTF8StringEncoding], log);
-	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-execute-instruction_%@", instruction]];
+	} withOutputFile:outputFilePath];
 }
+
 - (void)doTestProcessorExecuteInstructionState1:(NSString*) instruction {
+	NSString *outputFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:[NSString stringWithFormat:@"master-test-execute-instruction-state1_%@", instruction] ofType:@""];
+
 	[self doTest: ^(TLog* log){
 			UProcessorTests::ExecuteInstructionState1([instruction cStringUsingEncoding:NSUTF8StringEncoding], log);
-	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-execute-instruction-state1_%@", instruction]];
+	} withOutputFile:outputFilePath];
 }
 - (void)doTestProcessorExecuteInstructionState2:(NSString*) instruction {
+	NSString *outputFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:[NSString stringWithFormat:@"master-test-execute-instruction-state2_%@", instruction] ofType:@""];
+	
 	[self doTest: ^(TLog* log){
 			UProcessorTests::ExecuteInstructionState2([instruction cStringUsingEncoding:NSUTF8StringEncoding], log);
-	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-execute-instruction-state2_%@", instruction]];
+	} withOutputFile:outputFilePath];
 }
 - (void)doTestProcessorExecuteTwoInstructions:(NSString*) instructions {
+	NSString *outputFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:[NSString stringWithFormat:@"master-test-execute-two-instructions_%@", instructions] ofType:@""];
+
 	[self doTest: ^(TLog* log){
 			UProcessorTests::ExecuteTwoInstructions([instructions cStringUsingEncoding:NSUTF8StringEncoding], log);
-	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-execute-two-instructions_%@", instructions]];
+	} withOutputFile:outputFilePath];
 }
 - (void)doTestProcessorRunCode:(NSString*) code master: (NSString*) suffix {
+	NSString *outputFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:[NSString stringWithFormat:@"master-test-run-code_%@", suffix] ofType:@""];
+
 	[self doTest: ^(TLog* log){
 		UProcessorTests::RunCode([code cStringUsingEncoding:NSUTF8StringEncoding], log);
-	} withOutputFile: [NSString stringWithFormat:@"../../_Tests_/scripts/master-test-run-code_%@", suffix]];
+	} withOutputFile:outputFilePath];
 }
 
 - (void)testProcessorExecuteInstruction_0A000007 {
@@ -567,15 +585,17 @@ bkpt 0
 // Step tests require a ROM image
 
 - (void)testMemoryReadROM {
+	NSString *outputFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"master-test-memory-read-rom" ofType:@""];
 	[self doTest: ^(TLog* log){
 		UMemoryTests::ReadROMTest(log);
-	} withOutputFile: @"../../_Tests_/scripts/master-test-memory-read-rom"];
+	} withOutputFile:outputFilePath];
 }
 
 - (void)testMemoryReadWriteRAM {
+	NSString *outputFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"master-test-memory-read-write-ram" ofType:@""];
 	[self doTest: ^(TLog* log){
 		UMemoryTests::ReadWriteRAMTest(log);
-	} withOutputFile: @"../../_Tests_/scripts/master-test-memory-read-write-ram"];
+	} withOutputFile:outputFilePath];
 }
 
 
