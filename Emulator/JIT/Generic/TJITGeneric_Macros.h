@@ -35,6 +35,11 @@
 #define GETPC() \
 	thePC
 
+#define THECALLER \
+	ioCPU->mCurrentRegisters[TARMProcessor::kR14]
+#define GETCALLER() \
+	THECALLER
+
 #define PUSHVALUE(value) 									\
 	inPage->PushUnit(ioUnitCrsr, value)
 #define POPVALUE(lref) 										\
