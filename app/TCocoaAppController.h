@@ -44,6 +44,7 @@ class TPlatformManager;
 class TLog;
 class TMacMonitor;
 class TSymbolList;
+class TFileManager;
 
 ///
 /// Protocol pour le contr™leur de l'application Einstein.app.
@@ -75,6 +76,7 @@ class TSymbolList;
 	TROMImage*			mROMImage;
 	TEmulator*			mEmulator;
 	TPlatformManager*	mPlatformManager;
+	TFileManager*       mFileManager;
     TLog*				mLog;
 	TMacMonitor*		mMonitor;
 	TBufferLog*			mMonitorLog;
