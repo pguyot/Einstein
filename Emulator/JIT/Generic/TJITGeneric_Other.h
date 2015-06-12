@@ -60,7 +60,10 @@ Translate_Branch(
 					KUInt32 inInstruction,
 					KUInt32 inVAddr );
 
+JITInstructionProto(SystemBootUND);
 JITInstructionProto(DebuggerUND);
+JITInstructionProto(TapFileCntlUND);
+
 JITInstructionProto(UndefinedInstruction);
 JITInstructionProto(SoftwareBreakpoint);
 

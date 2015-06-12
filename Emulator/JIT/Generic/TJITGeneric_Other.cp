@@ -482,6 +482,23 @@ Translate_Branch(
 }
 
 // -------------------------------------------------------------------------- //
+//  * SystemBootUND
+// -------------------------------------------------------------------------- //
+JITInstructionProto(SystemBootUND)
+{
+	// 0xE6000010
+	KUInt32 thePAddress;
+	POPVALUE(thePAddress);
+	// Set the PC before jumping to the handler....
+	POPPC();
+	SETPC(GETPC());
+	ioCPU->GetEmulator()->SystemBootUND( thePAddress );
+	
+	// Don't execute next function.
+	MMUCALLNEXT_AFTERSETPC;
+}
+
+// -------------------------------------------------------------------------- //
 //  * DebuggerUND
 // -------------------------------------------------------------------------- //
 JITInstructionProto(DebuggerUND)
@@ -494,8 +511,22 @@ JITInstructionProto(DebuggerUND)
 	SETPC(GETPC());
 	ioCPU->GetEmulator()->DebuggerUND( thePAddress );
 	
-	ioCPU->DoUndefinedInstruction();
-	
+	// Don't execute next function.
+	MMUCALLNEXT_AFTERSETPC;
+}
+
+// -------------------------------------------------------------------------- //
+//  * TapFileCntlUND
+// -------------------------------------------------------------------------- //
+JITInstructionProto(TapFileCntlUND)
+{
+	// 0xE6000810
+	KUInt32 thePAddress;
+	POPVALUE(thePAddress);
+	// Set the PC before jumping to the handler....
+	POPPC();
+	SETPC(GETCALLER() + 4);
+	ioCPU->GetEmulator()->TapFileCntlUND( thePAddress );
 	// Don't execute next function.
 	MMUCALLNEXT_AFTERSETPC;
 }
