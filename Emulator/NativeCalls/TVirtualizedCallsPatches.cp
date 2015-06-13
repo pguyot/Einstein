@@ -33,6 +33,11 @@ const KUInt32 kInvocation[4] = {
 	// followed by address.
 };
 
+// These virtualization patches overwrite 4x 32-bit words in memory with the
+// ARM instructions described by kInvocation, followed by 1x 32-bit word
+// containing the enum value associated with the patch in k
+// 717006VirtualizationPatches or'ed with 0x80000000
+
 const KUInt32 k717006VirtualizationPatches[] = {
 	// __rt_sdiv + 8, just after the divide by zero test.
 	(0x0038CA10 + 8) / sizeof(KUInt32),	TVirtualizedCallsPatches::k__rt_sdiv,
@@ -71,7 +76,7 @@ TVirtualizedCallsPatches::DoPatchROM(KUInt32* inROMPtr, const std::string& inMac
 			inROMPtr[address++] = kInvocation[3];
 			inROMPtr[address] = value;
 			
-			patches++;
+			patches += 2;
 		}
 	}
 }
