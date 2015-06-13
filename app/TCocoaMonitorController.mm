@@ -37,6 +37,13 @@
 {
 	if ( monitor && [notification object] == commandField )
 	{
+		// Only execute the command if return is pressed. If, for example,
+		// the textfield loses focus, DON'T trigger a partially
+		// entered command.
+		
+		if ( [[[notification userInfo] objectForKey:@"NSTextMovement"] intValue] != NSReturnTextMovement )
+			return;
+		
 		[self executeCommand:[commandField stringValue]];
 		[commandField setStringValue:@""];
 		
