@@ -35,8 +35,11 @@ const KUInt32 kInvocation[4] = {
 
 // These virtualization patches overwrite 4x 32-bit words in memory with the
 // ARM instructions described by kInvocation, followed by 1x 32-bit word
-// containing the enum value associated with the patch in k
-// 717006VirtualizationPatches or'ed with 0x80000000
+// containing the enum value associated with the patch in
+// k717006VirtualizationPatches or'ed with 0x80000000 (setting bit 31)
+//
+// TNativePrimitives::ExecuteNative() checks if bit 31 is set and calls into
+// mVirtualizedCalls->Execute() if it is.
 
 const KUInt32 k717006VirtualizationPatches[] = {
 	// __rt_sdiv + 8, just after the divide by zero test.
@@ -68,12 +71,17 @@ TVirtualizedCallsPatches::DoPatchROM(KUInt32* inROMPtr, const std::string& inMac
 			// Patch.
 			// Write all 5 words there.
 			KUInt32 address = patches[0];
-			KUInt32 value = patches[1] | 0x80000000;
 			
 			inROMPtr[address++] = kInvocation[0];
 			inROMPtr[address++] = kInvocation[1];
 			inROMPtr[address++] = kInvocation[2];
 			inROMPtr[address++] = kInvocation[3];
+			
+			// The last word in the patch is a fake instruction
+			// which will be caught in TNativePrimitives::ExecuteNative()
+			// because the high bit is set
+			
+			KUInt32 value = patches[1] | 0x80000000;
 			inROMPtr[address] = value;
 			
 			patches += 2;
