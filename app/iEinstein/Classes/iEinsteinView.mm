@@ -154,9 +154,13 @@
 				r.origin.y += (screenBounds.size.height - r.size.height) / 2;
 			}
 
-			screenImageRect = CGRectIntegral(r);
+			screenImageRect = r;
+			screenImageRect.origin.x = floor(screenImageRect.origin.x);
+			screenImageRect.origin.y = floor(screenImageRect.origin.y);
+			screenImageRect.size.width = floor(screenImageRect.size.width);
+			screenImageRect.size.height = floor(screenImageRect.size.height);
 		}
-		
+				
 		CGContextSetInterpolationQuality(theContext, kCGInterpolationNone);
 		CGContextDrawImage(theContext, screenImageRect, mScreenImage);
 	}
