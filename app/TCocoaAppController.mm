@@ -192,6 +192,11 @@ static TCocoaAppController* gInstance = nil;
 - (void)awakeFromNib
 {
 	NSUserDefaults *defaults = [mUserDefaultsController defaults];
+	
+	if ( [defaults boolForKey:kOpenMonitorAtLaunch] )
+	{
+		[self showMonitor:self];
+	}
 
 	if ([defaults boolForKey:kDontShowAtStartupKey]
 			&& ![defaults boolForKey:kFullScreenKey]

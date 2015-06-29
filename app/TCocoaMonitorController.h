@@ -10,7 +10,7 @@
 class TMacMonitor;
 
 
-@interface TCocoaMonitorController : NSWindowController <NSTextFieldDelegate>
+@interface TCocoaMonitorController : NSWindowController <NSTextFieldDelegate, NSWindowDelegate>
 {
 	IBOutlet NSTextField* commandField;
 	IBOutlet NSTextView* textView;

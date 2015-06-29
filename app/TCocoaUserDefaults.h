@@ -53,6 +53,8 @@
 
 #define kDontShowAtStartupKey		@"DontShowAtStartup"
 
+#define kOpenMonitorAtLaunch		@"OpenMonitorAtLaunch"
+
 #endif
 		// _TCOCOAUSERDEFAULTS_H
 
