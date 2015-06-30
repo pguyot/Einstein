@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication"/>
@@ -817,8 +817,8 @@ DQ
                 <outlet property="delegate" destination="398" id="417"/>
             </connections>
         </window>
-        <window title="Monitor" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" visibleAtLaunch="NO" frameAutosaveName="MonitorWindow" animationBehavior="default" id="578" userLabel="Monitor Window">
-            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
+        <window title="Monitor" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="MonitorWindow" animationBehavior="default" id="578" userLabel="Monitor Window">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="92" y="85" width="541" height="606"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
@@ -826,58 +826,45 @@ DQ
                 <rect key="frame" x="0.0" y="0.0" width="541" height="606"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="592">
-                        <rect key="frame" x="-1" y="40" width="543" height="567"/>
+                    <customView id="sDM-6n-Cbb" customClass="TMacMonitorView">
+                        <rect key="frame" x="0.0" y="0.0" width="541" height="565"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <clipView key="contentView" id="L6a-wo-jxh">
-                            <rect key="frame" x="1" y="1" width="541" height="565"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            <subviews>
-                                <textView editable="NO" importsGraphics="NO" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="595">
-                                    <rect key="frame" x="0.0" y="0.0" width="541" height="565"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    <size key="minSize" width="541" height="565"/>
-                                    <size key="maxSize" width="630" height="10000000"/>
-                                    <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                    <size key="minSize" width="541" height="565"/>
-                                    <size key="maxSize" width="630" height="10000000"/>
-                                </textView>
-                            </subviews>
-                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        </clipView>
-                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="594">
-                            <rect key="frame" x="-100" y="-100" width="513" height="15"/>
-                            <autoresizingMask key="autoresizingMask"/>
-                        </scroller>
-                        <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="593">
-                            <rect key="frame" x="526" y="1" width="16" height="565"/>
-                            <autoresizingMask key="autoresizingMask"/>
-                        </scroller>
-                    </scrollView>
-                    <textField verticalHuggingPriority="750" id="604">
-                        <rect key="frame" x="17" y="12" width="38" height="17"/>
+                    </customView>
+                    <button verticalHuggingPriority="750" id="M6V-In-a1Y">
+                        <rect key="frame" x="4" y="568" width="70" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Cmd:" id="605">
+                        <buttonCell key="cell" type="push" title="Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="DxD-h4-twO">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <textField verticalHuggingPriority="750" id="606">
-                        <rect key="frame" x="60" y="10" width="433" height="22"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="stopStart:" target="580" id="fvP-Jd-Dl2"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" id="sFw-Oa-RF9">
+                        <rect key="frame" x="176" y="568" width="97" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="607">
+                        <buttonCell key="cell" type="push" title="Step Into" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="gYw-WS-nRB">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
-                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
+                        </buttonCell>
+                        <connections>
+                            <action selector="stepInto:" target="580" id="Cg9-xy-ALP"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" id="hUn-3i-lW0">
+                        <rect key="frame" x="74" y="568" width="102" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Step Over" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZUt-Gz-euZ">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="stepOver:" target="580" id="EV9-Y1-6Gj"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
-            <connections>
-                <outlet property="initialFirstResponder" destination="606" id="609"/>
-            </connections>
         </window>
         <numberFormatter formatterBehavior="default10_4" localizesFormat="NO" usesGroupingSeparator="NO" minimumIntegerDigits="0" maximumIntegerDigits="42" id="293">
             <decimal key="minimum" value="0"/>
@@ -893,8 +880,10 @@ DQ
         </customObject>
         <customObject id="580" userLabel="TCocoaMonitorController" customClass="TCocoaMonitorController">
             <connections>
-                <outlet property="commandField" destination="606" id="608"/>
-                <outlet property="textView" destination="595" id="596"/>
+                <outlet property="stepIntoButton" destination="sFw-Oa-RF9" id="oQJ-bk-oLQ"/>
+                <outlet property="stepOverButton" destination="hUn-3i-lW0" id="GlR-Bs-y5Y"/>
+                <outlet property="stopStartButton" destination="M6V-In-a1Y" id="ymJ-7T-Rjf"/>
+                <outlet property="view" destination="sDM-6n-Cbb" id="M3M-07-Rev"/>
                 <outlet property="window" destination="578" id="582"/>
             </connections>
         </customObject>

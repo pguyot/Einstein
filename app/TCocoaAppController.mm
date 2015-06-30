@@ -23,6 +23,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #import "TCocoaAppController.h"
+#import "TCocoaMonitorController.h"
 
 // ANSI & POSIX
 #include <stdlib.h>
@@ -428,6 +429,7 @@ static TCocoaAppController* gInstance = nil;
 	
 	mMonitor = new TMacMonitor(mMonitorLog, mEmulator, mSymbolList, theDataPath.UTF8String);
 	[mMonitorController setMonitor:mMonitor];
+	
 	// FIXME: delete this to keep the Monitor closed
 	//[mMonitorController showWindow:self];
 	
@@ -450,6 +452,8 @@ static TCocoaAppController* gInstance = nil;
 //	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"load x" afterDelay:1];
 	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"run" afterDelay:1];
 //	[mMonitorController performSelector:@selector(executeCommand:) withObject:@"revert" afterDelay:1];
+
+	[mMonitorController update];
 }
 
 

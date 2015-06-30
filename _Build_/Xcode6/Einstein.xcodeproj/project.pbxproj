@@ -652,6 +652,7 @@
 		DAE9EF251A3CFCC70095BFAF /* TRAMLog.cp in Sources */ = {isa = PBXBuildFile; fileRef = DAE9EF221A3CFACC0095BFAF /* TRAMLog.cp */; };
 		F115FF131A2EA415001F3D65 /* Einstein.xib in Resources */ = {isa = PBXBuildFile; fileRef = F115FF111A2EA415001F3D65 /* Einstein.xib */; };
 		F115FF141A2EA415001F3D65 /* Einstein.xib in Resources */ = {isa = PBXBuildFile; fileRef = F115FF111A2EA415001F3D65 /* Einstein.xib */; };
+		F119E9BD1B41FA0D00192514 /* TMacMonitorView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F119E9BC1B41FA0D00192514 /* TMacMonitorView.mm */; };
 		F11E44B717C2DEE800EB9B4E /* TFiber.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cp */; };
 		F11E44B817C2DEF100EB9B4E /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		F13599D41B2A356B00EFD22D /* master-test-execute-instruction_0A000007 in Resources */ = {isa = PBXBuildFile; fileRef = F13599791B2A356B00EFD22D /* master-test-execute-instruction_0A000007 */; };
@@ -1222,6 +1223,8 @@
 		DAE9EF221A3CFACC0095BFAF /* TRAMLog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TRAMLog.cp; sourceTree = "<group>"; };
 		DAE9EF231A3CFACC0095BFAF /* TRAMLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRAMLog.h; sourceTree = "<group>"; };
 		F115FF121A2EA415001F3D65 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = ../../Resources/en.lproj/Einstein.xib; sourceTree = "<group>"; };
+		F119E9BB1B41FA0D00192514 /* TMacMonitorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMacMonitorView.h; sourceTree = "<group>"; };
+		F119E9BC1B41FA0D00192514 /* TMacMonitorView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TMacMonitorView.mm; sourceTree = "<group>"; };
 		F13599791B2A356B00EFD22D /* master-test-execute-instruction_0A000007 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "master-test-execute-instruction_0A000007"; path = "scripts/master-test-execute-instruction_0A000007"; sourceTree = "<group>"; };
 		F135997A1B2A356B00EFD22D /* master-test-execute-instruction_1A000007 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "master-test-execute-instruction_1A000007"; path = "scripts/master-test-execute-instruction_1A000007"; sourceTree = "<group>"; };
 		F135997B1B2A356B00EFD22D /* master-test-execute-instruction_01F94573 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "master-test-execute-instruction_01F94573"; path = "scripts/master-test-execute-instruction_01F94573"; sourceTree = "<group>"; };
@@ -1697,6 +1700,8 @@
 			children = (
 				F164801813199758001603BE /* TMacMonitor.mm */,
 				F164801913199758001603BE /* TMacMonitor.h */,
+				F119E9BC1B41FA0D00192514 /* TMacMonitorView.mm */,
+				F119E9BB1B41FA0D00192514 /* TMacMonitorView.h */,
 				C99E3175111B73A1002165EC /* TMonitor.cp */,
 				C99E3176111B73A1002165EC /* TMonitor.h */,
 				DA6F86421A34FBB7006BC81E /* TMonitorCore.cp */,
@@ -2917,6 +2922,7 @@
 				C901E5261326562E0074513E /* TCircleBuffer.cp in Sources */,
 				C901E527132656310074513E /* TMappedFile.cp in Sources */,
 				C901E52C1326566B0074513E /* TError.cp in Sources */,
+				F119E9BD1B41FA0D00192514 /* TMacMonitorView.mm in Sources */,
 				C901E52D1326566C0074513E /* TException.cp in Sources */,
 				C901E52E1326566D0074513E /* TIOException.cp in Sources */,
 				C901E52F1326566F0074513E /* TMemError.cp in Sources */,

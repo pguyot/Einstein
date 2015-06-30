@@ -761,7 +761,7 @@ disasm_interface_t::di_printaddr( unsigned int inAddress )
 	{
 		di_printf( theSymbol );
 	} else {
-		di_printf( "%08X=", inAddress );
+		di_printf( "%08X  =", inAddress );
 		di_printf( "%s+%X", theSymbol, theOffset );
 	}
 }
