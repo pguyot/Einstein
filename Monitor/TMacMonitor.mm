@@ -313,8 +313,14 @@ void TMacMonitor::PrintLine(const char* inLine, int type)
 
 Boolean TMacMonitor::ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr )
 {
-	[controller update];
-	return TMonitor::ProcessBreakpoint(inBPID, inBPAddr);
+	Boolean stop = TMonitor::ProcessBreakpoint(inBPID, inBPAddr);
+	
+	if ( controller )
+	{	
+		[controller performSelectorInBackground:@selector(update) withObject:nil];
+	}
+	
+	return stop;
 }
 
 
