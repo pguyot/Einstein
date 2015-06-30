@@ -22,7 +22,7 @@ class TMacMonitor;
 
 - (void)update;
 
-- (void)addHistoryLine:(NSString *)line;
+- (void)addHistoryLine:(NSString *)line type:(int)type;
 
 - (IBAction)stopStart:(id)sender;
 - (IBAction)stepInto:(id)sender;

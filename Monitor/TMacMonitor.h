@@ -42,8 +42,10 @@ public:
 
 	virtual ~TMacMonitor( void );
 	
-	virtual void PrintLine(const char *inLine);
+	virtual void PrintLine(const char *inLine, int type);
 	void SetController(TCocoaMonitorController *inController);
+
+	Boolean ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr );
 
 	NSString* GetAlarm();
 	NSString* GetCPSR();

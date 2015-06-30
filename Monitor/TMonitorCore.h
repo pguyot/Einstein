@@ -36,6 +36,13 @@ class TInterruptManager;
 class TSymbolList;
 class TJITGenericRetarget;
 
+// Logging types for PrintLine()
+
+#define MONITOR_LOG_INFO 0
+#define MONITOR_LOG_ERROR 1
+#define MONITOR_LOG_USER_INPUT 2
+#define MONITOR_LOG_CODE 3
+
 ///
 /// Base class for the monitor.
 ///
@@ -58,7 +65,7 @@ public:
 	///
 	/// Output a line.
 	///
-	virtual void PrintLine(const char* inLine);
+	virtual void PrintLine(const char* inLine, int type);
 
 	///
 	/// Execute a script.
