@@ -14,7 +14,7 @@ class TMacMonitor;
 
 - (void)setController:(TCocoaMonitorController *)controller;
 
-- (void)addHistoryLine:(NSString *)line;
+- (void)addHistoryLine:(NSString *)line type:(int)type;
 
 - (void)updateWithMonitor:(TMacMonitor *)monitor;
 

@@ -44,7 +44,7 @@
 	NSDictionary *disasmBaseHighlightedAttrs;
 	NSDictionary *disasmBaseAttrs;
 	NSDictionary *disasmStatusAttrs;
-	NSDictionary *cmdHistoryAttrs;
+	NSDictionary *errorAttrs;
 }
 @end
 
@@ -124,13 +124,14 @@
 
 		[disasmStatusAttrs retain];
 
-		cmdHistoryAttrs =
+		errorAttrs =
 		@{
 			NSFontAttributeName: font,
 			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:0.2 blue:0.2 alpha:1.0]
 		};
 
-		[cmdHistoryAttrs retain];
+		[errorAttrs retain];
+
 		
 		command = [[NSMutableString alloc] init];
 	}
@@ -145,8 +146,10 @@
 }
 
 
-- (void)addHistoryLine:(NSString *)line
+- (void)addHistoryLine:(NSString *)line type:(int)type
 {
+	// Scroll up
+	
 	[history[0] release];
 	
 	for ( int i = 1; i < 32; ++i )
@@ -154,9 +157,19 @@
 		history[i - 1] = history[i];
 	}
 	
-	if ( [line hasPrefix:@"> "] )
+	// Add new
+	
+	if ( type == MONITOR_LOG_ERROR )
 	{
-		history[31] = [[NSAttributedString alloc] initWithString:line attributes:cmdHistoryAttrs];
+		history[31] = [[NSAttributedString alloc] initWithString:line attributes:errorAttrs];
+	}
+	else if ( type == MONITOR_LOG_CODE )
+	{
+		history[31] = [[NSAttributedString alloc] initWithString:line attributes:disasmBaseAttrs];
+	}
+	else if ( type == MONITOR_LOG_USER_INPUT )
+	{
+		history[31] = [[NSAttributedString alloc] initWithString:line attributes:labelAttrs];
 	}
 	else
 	{

@@ -9,6 +9,7 @@
 #import "Monitor/TMacMonitor.h"
 #import "TCocoaUserDefaults.h"
 #import "TMacMonitorView.h"
+#import "TMonitorCore.h"
 
 @interface TCocoaMonitorController ()
 - (void)update;
@@ -27,9 +28,9 @@
 }
 
 
-- (void)addHistoryLine:(NSString *)line
+- (void)addHistoryLine:(NSString *)line type:(int)type
 {
-	[view addHistoryLine:line];
+	[view addHistoryLine:line type:type];
 }
 
 
@@ -42,7 +43,7 @@
 
 - (void)executeCommand:(NSString*)command
 {
-	[self addHistoryLine:[NSString stringWithFormat:@"> %@", command]];
+	[self addHistoryLine:[NSString stringWithFormat:@"> %@", command] type:MONITOR_LOG_USER_INPUT];
 	
 	monitor->ExecuteCommand([command UTF8String]);
 	[self performSelector:@selector(update) withObject:nil afterDelay:0.0];
