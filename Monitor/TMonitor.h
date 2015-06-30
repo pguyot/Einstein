@@ -1,3 +1,4 @@
+
 // ==============================
 // File:			TMonitor.h
 // Project:			Einstein
@@ -113,7 +114,7 @@ public:
 	///
 	/// Output a line.
 	///
-	void		PrintLine( const char* inLine )
+	virtual void		PrintLine( const char* inLine )
 		{
 			mLog->LogLine( inLine );
 		}

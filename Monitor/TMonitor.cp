@@ -851,7 +851,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 	} else if (::strcmp(inCommand, "stop") == 0) {
 		if (!mHalted)
 		{
-			(void) ::fprintf( stderr, "doing stop\n" );
+			//(void) ::fprintf( stderr, "doing stop\n" );
 			mEmulator->Stop();
 		} else {
 			PrintLine("Emulator is not running");
@@ -1790,15 +1790,15 @@ TMonitor::PrintInstruction( KUInt32 inAddress )
 			(unsigned int) inAddress );
 	} else {
 		theLine[0] = 0;
-		(void) ::sprintf( theLine, "%.8X: ", (int) inAddress );
+		(void) ::sprintf( theLine, "  %.8X   ", (int) inAddress );
 		if ((instruction & 0xFFF000F0) == 0xE1200070)
 		{
 			(void) mMemory->ReadBreakpoint(
 					(TMemory::VAddr) inAddress, instruction );
 		}
 		UDisasm::Disasm(
-					&theLine[10],
-					sizeof(theLine) - 10,
+					&theLine[13],
+					sizeof(theLine) - 13,
 					inAddress,
 					instruction,
 					mSymbolList );
