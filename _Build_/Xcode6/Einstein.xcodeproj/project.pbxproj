@@ -748,6 +748,7 @@
 		F1359A2E1B2A356B00EFD22D /* master-test-step_3 in Resources */ = {isa = PBXBuildFile; fileRef = F13599D31B2A356B00EFD22D /* master-test-step_3 */; };
 		F15858B71A2E3CA100D72203 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F15858B51A2E3C8C00D72203 /* UIKit.framework */; };
 		F15858B81A2E3D4300D72203 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F15858B51A2E3C8C00D72203 /* UIKit.framework */; };
+		F15C09631B4B03FD00F95B00 /* TMacMonitorView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F119E9BC1B41FA0D00192514 /* TMacMonitorView.mm */; };
 		F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */; };
 		F164801A13199758001603BE /* TMacMonitor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F164801813199758001603BE /* TMacMonitor.mm */; };
 		F1CAFB841241F53F00A0382E /* TCoreAudioSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AC111B7C08002165EC /* TCoreAudioSoundManager.cp */; };
@@ -2936,6 +2937,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F15C09631B4B03FD00F95B00 /* TMacMonitorView.mm in Sources */,
 				C95E604B198B76DC004C6CEF /* TMonitor.cp in Sources */,
 				C95E604E198B76DC004C6CEF /* TSymbolList.cp in Sources */,
 				C95E604F198B76DC004C6CEF /* UDisasm.cp in Sources */,
