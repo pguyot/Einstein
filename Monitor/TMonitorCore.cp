@@ -173,7 +173,9 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 		int n = 0;
 		n = sscanf(inCommand+5, "%lx-%lx", &first, &last);
 		if (n==0) {
-			PrintLine("rt code: Can't read memory range - undefined symbol?", MONITOR_LOG_ERROR);
+			char buf[512];
+			::sprintf(buf, "rt code: Can't read memory range - undefined symbol? %s", inCommand);
+			PrintLine(buf, MONITOR_LOG_ERROR);
 			theResult = false;
 		} else {
 			mRetarget->SetRetargetMap((KUInt32)first, (KUInt32)last, 1);
@@ -202,7 +204,9 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 			n = sscanf(inCommand+arg, "%lx-%lx", &first, &last);
 		}
 		if (n==0) {
-			PrintLine("rt cjit: Can't read memory range - undefined symbol?", MONITOR_LOG_ERROR);
+			char buf[512];
+			::sprintf(buf, "rt cjit: Can't read memory range - undefined symbol? %s", inCommand);
+			PrintLine(buf, MONITOR_LOG_ERROR);
 			theResult = false;
 		} else {
 			if (n==1) last = first + 80;
