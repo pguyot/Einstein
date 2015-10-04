@@ -78,6 +78,16 @@
 	[self setNeedsDisplay];
 }
 
+// Called, among other times, when Split View multi-tasking divider changes.
+-(void) layoutSubviews {
+	// Clear the screen image.  It will be recreated on the next draw.
+	CGImageRelease(mScreenImage);
+	mScreenImage = NULL;
+	
+	// Force the next draw.
+	[self setNeedsDisplay];
+}
+
 - (void)drawRect:(CGRect)rect
 {
 	CGContextRef theContext = UIGraphicsGetCurrentContext(); 
