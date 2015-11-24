@@ -135,7 +135,7 @@ TSymbolList::LoadSymbols( void )
 		
 		if ( this->GetSymbolExact(mSymbolOffsets[mSymbolCount].fSymbolValue, prevSym) )
 		{
-			::fprintf(stderr, "Warning: redefining symbol at %08X (was: %s)\n", mSymbolOffsets[mSymbolCount].fSymbolValue, prevSym);
+			::fprintf(stderr, "Warning: redefining symbol at %08X (was: %s)\n", (unsigned int)mSymbolOffsets[mSymbolCount].fSymbolValue, prevSym);
 		}
 	
 		int theChar = fgetc( mFile );

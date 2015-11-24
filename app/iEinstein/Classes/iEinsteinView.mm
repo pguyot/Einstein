@@ -45,6 +45,19 @@
 											 selector:@selector(didRotate:)
 												 name:UIApplicationDidChangeStatusBarOrientationNotification
 											   object:nil];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(defaultsChanged:)
+												 name:NSUserDefaultsDidChangeNotification
+											   object:nil];
+
+	//Get initial state of preference
+	[self defaultsChanged:nil];
+}
+
+- (void) defaultsChanged:(NSNotification *)notification {
+	NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
+	applePencilMode = [(NSNumber*)[prefs objectForKey:@"apple_pencil"] boolValue];
 }
 
 - (void) didRotate:(NSNotification *)notification {
@@ -208,8 +221,19 @@
 
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
 {
-	UITouch* t = [touches anyObject];
-	if ( t ) 
+	UITouch* t = nil;
+	if (applePencilMode) {
+		for (UITouch* aTouch in touches) {
+			if (aTouch.type == UITouchTypeStylus) {
+				t = aTouch;
+				break;
+			}
+		}
+	} else {
+		t = [touches anyObject];
+	}
+	
+	if ( t )
 	{
         if (!mEmulator->GetPlatformManager()->IsPowerOn()) {
             // After five minutes, the MP switches itself off. On the iPad and
@@ -249,7 +273,18 @@
 
 - (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event
 {
-	UITouch* t = [touches anyObject];
+	UITouch* t = nil;
+	if (applePencilMode) {
+		for (UITouch* aTouch in touches) {
+			if (aTouch.type == UITouchTypeStylus) {
+				t = aTouch;
+				break;
+			}
+		}
+	} else {
+		t = [touches anyObject];
+	}
+
 	if ( t ) 
 	{
 		CGPoint p = [t locationInView:self];

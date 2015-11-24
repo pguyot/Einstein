@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		2360EB2A1A1E85EB00893927 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2360EB291A1E85EB00893927 /* Launch Screen.xib */; };
+		2374E8CC1C02830C00CCA90B /* TNativeiOSCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2374E8CB1C02830C00CCA90B /* TNativeiOSCalls.mm */; };
+		2374E8CD1C02841E00CCA90B /* TNativeiOSCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2374E8CB1C02830C00CCA90B /* TNativeiOSCalls.mm */; };
+		2374E8CE1C02841E00CCA90B /* TNativeiOSCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2374E8CB1C02830C00CCA90B /* TNativeiOSCalls.mm */; };
+		2374E8CF1C02841F00CCA90B /* TNativeiOSCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2374E8CB1C02830C00CCA90B /* TNativeiOSCalls.mm */; };
 		2389E9321A1E36300001A8C5 /* UDisasm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cp */; };
 		2389E9341A1E3A5C0001A8C5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2389E9331A1E3A5C0001A8C5 /* Main.storyboard */; };
 		2389E9391A1E4D4A0001A8C5 /* iEinsteinViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */; };
@@ -815,6 +819,8 @@
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		2360EB291A1E85EB00893927 /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
+		2374E8CA1C02830C00CCA90B /* TNativeiOSCalls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNativeiOSCalls.h; sourceTree = "<group>"; };
+		2374E8CB1C02830C00CCA90B /* TNativeiOSCalls.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TNativeiOSCalls.mm; sourceTree = "<group>"; };
 		2389E9331A1E3A5C0001A8C5 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		2389E9961A1E4D4A0001A8C5 /* iOSEinstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSEinstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -2048,6 +2054,8 @@
 		C99E3468111B7C07002165EC /* NativeCalls */ = {
 			isa = PBXGroup;
 			children = (
+				2374E8CA1C02830C00CCA90B /* TNativeiOSCalls.h */,
+				2374E8CB1C02830C00CCA90B /* TNativeiOSCalls.mm */,
 				C99E3469111B7C07002165EC /* NativeCallsDefines.h */,
 				C99E346A111B7C07002165EC /* TNativeCalls.cp */,
 				C99E346B111B7C07002165EC /* TNativeCalls.h */,
@@ -2506,7 +2514,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0710;
 				TargetAttributes = {
 					C98AB2361A351D20001BB1CD = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -2788,6 +2796,7 @@
 				2389E9671A1E4D4A0001A8C5 /* TFileLog.cp in Sources */,
 				DA52C89B1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
 				2389E9681A1E4D4A0001A8C5 /* TLog.cp in Sources */,
+				2374E8CE1C02841E00CCA90B /* TNativeiOSCalls.mm in Sources */,
 				2389E9691A1E4D4A0001A8C5 /* TStdOutLog.cp in Sources */,
 				2389E96A1A1E4D4A0001A8C5 /* THostInfo.cp in Sources */,
 				2389E96B1A1E4D4A0001A8C5 /* TPlatformManager.cp in Sources */,
@@ -2882,6 +2891,7 @@
 				C99E3512111B7C08002165EC /* TAIFROMImageWithREXes.cp in Sources */,
 				C99E3513111B7C08002165EC /* TFlatROMImage.cp in Sources */,
 				C99E3514111B7C08002165EC /* TFlatROMImageWithREX.cp in Sources */,
+				2374E8CC1C02830C00CCA90B /* TNativeiOSCalls.mm in Sources */,
 				C99E3515111B7C08002165EC /* TROMImage.cp in Sources */,
 				C99E3518111B7C08002165EC /* CocoaScreenProxy.mm in Sources */,
 				C99E3519111B7C08002165EC /* TCocoaPowerButtonNSView.mm in Sources */,
@@ -2978,6 +2988,7 @@
 				C98AB2B61A351EE6001BB1CD /* unsorted_004.cp in Sources */,
 				C95E606A198B76DC004C6CEF /* TJITGeneric_SingleDataTransfer.cp in Sources */,
 				C98AB2BA1A351EE6001BB1CD /* unsorted_006.cp in Sources */,
+				2374E8CF1C02841F00CCA90B /* TNativeiOSCalls.mm in Sources */,
 				C95E606B198B76DC004C6CEF /* TJITGeneric_Test.cp in Sources */,
 				C95E606C198B76DC004C6CEF /* TJITGenericPage.cp in Sources */,
 				C98AB2C61A351EE6001BB1CD /* unsorted_012.cp in Sources */,
@@ -3129,6 +3140,7 @@
 				C9B4AB8A123D675100D8D2C7 /* TFileLog.cp in Sources */,
 				DA52C89A1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
 				C9B4AB8B123D675300D8D2C7 /* TLog.cp in Sources */,
+				2374E8CD1C02841E00CCA90B /* TNativeiOSCalls.mm in Sources */,
 				C9B4AB8C123D675400D8D2C7 /* TStdOutLog.cp in Sources */,
 				C9B4AB8D123D678300D8D2C7 /* THostInfo.cp in Sources */,
 				C9B4AB8E123D678D00D8D2C7 /* TPlatformManager.cp in Sources */,
@@ -3404,6 +3416,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevenf.einstein;
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
@@ -3441,6 +3454,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevenf.einstein;
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
@@ -3480,6 +3494,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevenf.einstein;
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
@@ -3522,6 +3537,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -3557,6 +3573,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -3569,6 +3586,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_TESTABILITY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"TARGET_OS_OPENSTEP=1",
@@ -3634,6 +3652,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = EinsteinDev;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -3672,6 +3691,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = EinsteinDev;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -3710,6 +3730,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = EinsteinDev;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -3871,6 +3892,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevenf.einstein;
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
@@ -3907,6 +3929,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevenf.einstein;
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
@@ -3964,6 +3987,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PER_ARCH_CFLAGS_i386 = "-DPA_LITTLE_ENDIAN -DWORDS_LITTLEENDIAN=1";
 				PRELINK_LIBS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = Einstein;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -3997,6 +4021,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.stevenf.einstein;
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
@@ -4169,6 +4194,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kallisys.einstein.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Einstein.app/Contents/MacOS/Einstein";
 			};
@@ -4215,6 +4241,7 @@
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kallisys.einstein.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Einstein.app/Contents/MacOS/Einstein";
 			};
@@ -4261,6 +4288,7 @@
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kallisys.einstein.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Einstein.app/Contents/MacOS/Einstein";
 			};

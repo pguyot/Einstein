@@ -49,6 +49,7 @@
 #include "Platform/TPlatformManager.h"
 #include "Platform/PlatformGestalt.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
+#include "NativeCalls/TNativeiOSCalls.h"
 
 // Native primitives implement stores to coprocessor #10
 
@@ -83,6 +84,7 @@ TNativePrimitives::TNativePrimitives(
 		mScreenManager( nil ),
 		mPlatformManager( nil ),
 		mNativeCalls( new TNativeCalls(inMemory) ),
+		mNativeiOSCalls( new TNativeiOSCalls(inMemory)),
 		mVirtualizedCalls( nil ),
 		mInputVolume( 0 ),
 		mQuit( false )
@@ -277,6 +279,10 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 				
 			case 0x00000A:
 				ExecuteNetworkManagerNative( inInstruction );
+				break;
+			
+			case 0x00000B:
+				ExecuteHostiOSNativeiOS( inInstruction );
 				break;
 				
 			default:
@@ -2860,6 +2866,24 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 	}
 }
 
+void
+TNativePrimitives::ExecuteHostiOSNativeiOS( KUInt32 inInstruction )
+{
+	switch (inInstruction & 0xFF)
+	{
+		case 0x01:
+			if (mLog)
+			{
+				mLog->LogLine( "TNativeiOSCalls::iOSActivityWithText" );
+			}
+			//
+			mProcessor->SetRegister(0,
+			mNativeiOSCalls->iOSActivityWithText(mProcessor->GetRegister(0),
+												 mProcessor->GetRegister(1)));
+
+			break;
+	}
+}
 
 // -------------------------------------------------------------------------- //
 //  * TransferState( TStream* )

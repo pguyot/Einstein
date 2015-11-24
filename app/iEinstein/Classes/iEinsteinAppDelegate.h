@@ -35,6 +35,8 @@
 @property (retain, nonatomic) IBOutlet UIWindow* window;
 #endif
 
+- (void)share: (NSString*)data;
+
 //NSUserDefaultsDidChangeNotification
 
 @end

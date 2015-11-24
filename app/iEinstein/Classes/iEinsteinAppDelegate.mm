@@ -116,6 +116,38 @@
     [viewController installNewPackages];
 }
 
+- (void)share: (NSString*)data {
+	//dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+	dispatch_async(dispatch_get_main_queue(), ^{
+		NSArray *objectsToShare = @[data];
+	 
+		UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:objectsToShare applicationActivities:nil];
+	 
+		NSArray *excludeActivities = @[UIActivityTypeAssignToContact,
+									   UIActivityTypeSaveToCameraRoll,
+									   UIActivityTypeAddToReadingList,
+									   UIActivityTypePostToFlickr,
+									   UIActivityTypePostToVimeo];
+	 
+		activityVC.excludedActivityTypes = excludeActivities;
+		/*activityVC.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+			dispatch_semaphore_signal(sema);
+		};
+		 */
+		if ( [activityVC respondsToSelector:@selector(popoverPresentationController)] ) {
+			// iOS8
+			UIView* view = (UIView*)viewController.einsteinView;
+			CGRect fullView = view.frame;
+			activityVC.popoverPresentationController.sourceView = view;
+			activityVC.popoverPresentationController.sourceRect = CGRectMake(fullView.size.width/2-10, 10, 20, 20);
+		}
+		
+		[viewController presentViewController:activityVC animated:YES completion:nil];
+	});
+	
+	//dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+	//dispatch_release(sema);
+}
 
 - (void)dealloc 
 {
