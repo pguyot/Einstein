@@ -38,22 +38,65 @@ class TMemory;
 ///
 /// \test	aucun test défini.
 ///
-class TNativeiOSCalls
+class TObjCBridgeCalls
 {
 public:	
 	///
 	/// Constructor from an interface to memory.
 	///
-	TNativeiOSCalls( TMemory* inMemoryIntf );
+	TObjCBridgeCalls( TMemory* inMemoryIntf );
 
 	///
 	/// Destructor.
 	///
-	~TNativeiOSCalls( void );
+	~TObjCBridgeCalls( void );
   
 #if TARGET_IOS
-	KUInt32 iOSActivityWithText(KUInt32 textPtrAddr,
-											  KUInt32 textLen);
+	///
+	/// Returns the number of bits of the host running the emulator.
+	/// Used by the client OS to determine the size needed to hold object pointers.
+	///
+	KUInt32 HostGetCPUArchitecture();
+	
+	///
+	/// Create an NSInvocation object.
+	/// The selector string is of the form "+classMethod:" or "-instanceMethod:"
+	///
+	KUInt32 HostMakeNSInvocation(KUInt32 objPtrAddrOut,
+									 KUInt32 classNamePtrAddress,
+									 KUInt32 selectorStringPtrAddress);
+	
+	///
+	/// Given an NSInvocation object, set the target object
+	///
+	KUInt32 HostSetInvocationTarget(KUInt32 invocationObjectAddr,
+								KUInt32 targetObjectAddr);
+	
+	/// Set a parameter on an NSInvocation object
+	KUInt32 HostSetInvocationArgument_Object(KUInt32 invocationObjectAddr,
+											  KUInt32 objectAddr,
+											  KUInt32 index);
+	
+	///
+	/// Given an NSInvocation object, perform the invocation as configured.
+	///
+	KUInt32 HostInvoke(KUInt32 invocationObjectAddr);
+
+	///
+	/// Get return value Object from an NSInvocation
+	///
+	KUInt32 HostGetInvocationReturn_Object(KUInt32 returnObjectAddr,
+										   KUInt32 invocationObjectAddr);
+	
+	
+	///
+	/// Release an object.  If using ARC, then use __bridge_transfer to release
+	/// Otherwise, actually release the object.
+	///
+	KUInt32 HostReleaseObject(KUInt32 objectToRelease);
+
+	KUInt32 HostMakeNSString(KUInt32 returnObjAddr, KUInt32 cStringAddr);
+	
 	/// \name Variables
 	TMemory*		mMemoryIntf;			///< Interface to memory.
 

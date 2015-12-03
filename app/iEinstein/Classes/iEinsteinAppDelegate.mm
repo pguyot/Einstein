@@ -32,6 +32,7 @@
 #ifdef USE_STORYBOARDS
 // Reuse the window variable leveraged by the NIB version of the code
 @synthesize window=window;
+@synthesize viewController=viewController;
 #endif
 
 + (void)initialize
@@ -151,9 +152,11 @@
 
 - (void)dealloc 
 {
+#if !__has_feature(objc_arc)
     [viewController release];
     [window release];
     [super dealloc];
+#endif
 }
 
 

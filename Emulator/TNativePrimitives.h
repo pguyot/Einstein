@@ -40,7 +40,7 @@ class TPlatformManager;
 class TNativeCalls;
 class TVirtualizedCalls;
 class TStream;
-class TNativeiOSCalls;
+class TObjCBridgeCalls;
 
 struct TabletCalibration {
 	KUInt32	fUnknown_00;
@@ -230,7 +230,7 @@ private:
 	TPlatformManager*	mPlatformManager;	///< Platform manager.
 	TNativeCalls*		mNativeCalls;		///< Interface for native calls.
 	TVirtualizedCalls*	mVirtualizedCalls;	///< Interface for virtualized calls.
-	TNativeiOSCalls*    mNativeiOSCalls;    ///< Interface for iOS calls.
+	TObjCBridgeCalls*   mObjCBridgeCalls;    ///< Interface for iOS calls.
 	KUInt32				mScreenContrast;	///< Feature 0x0 (probably the contrast).
 	KUInt32				mScreenBacklight;   ///< Feature 0x2.
 	KUInt32				mScreenOrientation; ///< Feature 0x4.

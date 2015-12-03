@@ -49,7 +49,7 @@
 #include "Platform/TPlatformManager.h"
 #include "Platform/PlatformGestalt.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
-#include "NativeCalls/TNativeiOSCalls.h"
+#include "NativeCalls/TObjCBridgeCalls.h"
 
 // Native primitives implement stores to coprocessor #10
 
@@ -84,7 +84,7 @@ TNativePrimitives::TNativePrimitives(
 		mScreenManager( nil ),
 		mPlatformManager( nil ),
 		mNativeCalls( new TNativeCalls(inMemory) ),
-		mNativeiOSCalls( new TNativeiOSCalls(inMemory)),
+		mObjCBridgeCalls( new TObjCBridgeCalls(inMemory)),
 		mVirtualizedCalls( nil ),
 		mInputVolume( 0 ),
 		mQuit( false )
@@ -2874,14 +2874,74 @@ TNativePrimitives::ExecuteHostiOSNativeiOS( KUInt32 inInstruction )
 		case 0x01:
 			if (mLog)
 			{
-				mLog->LogLine( "TNativeiOSCalls::iOSActivityWithText" );
+				mLog->LogLine( "TObjCBridgeCalls::HostGetCPUArchitecture" );
 			}
 			//
-			mProcessor->SetRegister(0,
-			mNativeiOSCalls->iOSActivityWithText(mProcessor->GetRegister(0),
-												 mProcessor->GetRegister(1)));
-
+			mProcessor->SetRegister(0, mObjCBridgeCalls->HostGetCPUArchitecture());
 			break;
+		case 0x02:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostMakeNSInvocation" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostMakeNSInvocation(mProcessor->GetRegister(0),
+																		   mProcessor->GetRegister(1),
+																		   mProcessor->GetRegister(2)));
+			break;
+		case 0x03:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostSetInvocationTarget" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostSetInvocationTarget(mProcessor->GetRegister(0),
+																			  mProcessor->GetRegister(1)));
+			break;
+		case 0x04:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostSetInvocationArgument_Object" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostSetInvocationArgument_Object(mProcessor->GetRegister(0), mProcessor->GetRegister(1), mProcessor->GetRegister(2)));
+			break;
+		case 0x05:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostGetInvocationReturn_Object" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostGetInvocationReturn_Object(mProcessor->GetRegister(0), mProcessor->GetRegister(1)));
+			break;
+		case 0x06:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostInvoke" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostInvoke(mProcessor->GetRegister(0)));
+			break;
+		case 0x07:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostReleaseObject" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostReleaseObject(mProcessor->GetRegister(0)));
+			break;
+		case 0x08:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostMakeNSString" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostMakeNSString(mProcessor->GetRegister(0),
+																	   mProcessor->GetRegister(1)));
+			break;
+
+			
+			
 	}
 }
 
