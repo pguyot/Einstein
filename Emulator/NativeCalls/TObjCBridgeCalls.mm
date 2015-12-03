@@ -23,7 +23,6 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TObjCBridgeCalls.h"
-#include "iEinsteinAppDelegate.h"
 
 // POSIX & Co.
 #include <stdio.h>
@@ -35,9 +34,9 @@
 // Einstein
 #include "TMemory.h"
 
+// Helper functions
 inline void WriteObjectToEmulatorMemory(TMemory* mMemoryIntf, KUInt32 address, id object);
 inline id ReadObjectFromEmulatorMemory(TMemory* mMemoryIntf, KUInt32 address);
-
 NSString* ReadUTF16(TMemory* memoryIntf, KUInt32 address);
 
 // -------------------------------------------------------------------------- //
@@ -50,13 +49,7 @@ TObjCBridgeCalls::TObjCBridgeCalls( TMemory* inMemoryIntf )
 	// Initialization
 }
 
-// -------------------------------------------------------------------------- //
-//  * ~TNativeCalls( void )
-// -------------------------------------------------------------------------- //
-//TObjCBridgeCalls::TObjCBridgeCalls( void )
-//{
-//	// Clean-up
-//}
+#if TARGET_IOS || TARGET_OS_OPENSTEP
 
 KUInt32 TObjCBridgeCalls::HostGetCPUArchitecture() {
 	return sizeof(void*);
@@ -226,6 +219,7 @@ inline id ReadObjectFromEmulatorMemory(TMemory* mMemoryIntf, KUInt32 address) {
 	return (__bridge id)objectPtr;
 }
 
+#endif
 
 // =========================================================================== //
 //         A novice was trying to fix a broken lisp machine by turning the     //

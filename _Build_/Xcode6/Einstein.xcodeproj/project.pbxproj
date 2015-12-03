@@ -99,6 +99,10 @@
 		2389E98E1A1E4D4A0001A8C5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */; };
 		2389E98F1A1E4D4A0001A8C5 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFCF8124200C100A0382E /* CoreGraphics.framework */; };
 		2389E9911A1E4D4A0001A8C5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C97C7E1B124282A600CDCD05 /* Foundation.framework */; };
+		23C324D91C0FC225006CEBE6 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 23C324D81C0FC225006CEBE6 /* logo.png */; };
+		23C324DA1C0FC225006CEBE6 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 23C324D81C0FC225006CEBE6 /* logo.png */; };
+		23C324DB1C0FC225006CEBE6 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 23C324D81C0FC225006CEBE6 /* logo.png */; };
+		23C324DC1C0FC225006CEBE6 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 23C324D81C0FC225006CEBE6 /* logo.png */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		C901E51A132655D50074513E /* UUTF16CStr.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334F111B7570002165EC /* UUTF16CStr.cp */; };
 		C901E51D132655E00074513E /* UUTF16Conv.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334D111B7570002165EC /* UUTF16Conv.cp */; };
@@ -823,6 +827,7 @@
 		2374E8CB1C02830C00CCA90B /* TObjCBridgeCalls.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TObjCBridgeCalls.mm; sourceTree = "<group>"; };
 		2389E9331A1E3A5C0001A8C5 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		2389E9961A1E4D4A0001A8C5 /* iOSEinstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSEinstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		23C324D81C0FC225006CEBE6 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* Einstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Einstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1482,6 +1487,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				23C324D81C0FC225006CEBE6 /* logo.png */,
 				DAE9EF021A3B29150095BFAF /* Tests-Info.plist */,
 				F1CB7613131730100017B0BB /* Mac OS X */,
 				F1CB7616131730260017B0BB /* iOS */,
@@ -2561,6 +2567,7 @@
 				2389E93B1A1E4D4A0001A8C5 /* Icon.png in Resources */,
 				2389E93C1A1E4D4A0001A8C5 /* Main.storyboard in Resources */,
 				2389E93D1A1E4D4A0001A8C5 /* Icon-72.png in Resources */,
+				23C324DB1C0FC225006CEBE6 /* logo.png in Resources */,
 				2389E93E1A1E4D4A0001A8C5 /* Einstein.rex in Resources */,
 				2389E93F1A1E4D4A0001A8C5 /* MainWindow_iPad.xib in Resources */,
 				2389E9401A1E4D4A0001A8C5 /* Settings.bundle in Resources */,
@@ -2575,6 +2582,7 @@
 				C99E316B111B7346002165EC /* button_backlight_on.png in Resources */,
 				C99E316C111B7346002165EC /* button_install.png in Resources */,
 				C99E316D111B7346002165EC /* button_power.png in Resources */,
+				23C324D91C0FC225006CEBE6 /* logo.png in Resources */,
 				F115FF131A2EA415001F3D65 /* Einstein.xib in Resources */,
 				C99E316E111B7346002165EC /* button_power_on.png in Resources */,
 				C99E316F111B7346002165EC /* button_prefs.png in Resources */,
@@ -2623,6 +2631,7 @@
 				C98AB2B11A351EE6001BB1CD /* unsorted_001.rts in Resources */,
 				C98AB2B71A351EE6001BB1CD /* unsorted_004.rts in Resources */,
 				C98AB2C71A351EE6001BB1CD /* unsorted_012.rts in Resources */,
+				23C324DC1C0FC225006CEBE6 /* logo.png in Resources */,
 				C95E6046198B76DC004C6CEF /* Einstein.sdef in Resources */,
 				C98AB2D31A351EE6001BB1CD /* unsorted_018.rts in Resources */,
 				C95E6047198B76DC004C6CEF /* Einstein.rex in Resources */,
@@ -2641,6 +2650,7 @@
 			files = (
 				C9B4AA39123D474800D8D2C7 /* iEinsteinViewController.xib in Resources */,
 				C9B4AA3B123D474800D8D2C7 /* MainWindow.xib in Resources */,
+				23C324DA1C0FC225006CEBE6 /* logo.png in Resources */,
 				C99FDB7512D40365002FC776 /* Icon.png in Resources */,
 				2389E9341A1E3A5C0001A8C5 /* Main.storyboard in Resources */,
 				C99FDB7412D40365002FC776 /* Icon-72.png in Resources */,

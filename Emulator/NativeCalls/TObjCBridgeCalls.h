@@ -21,8 +21,8 @@
 // $Id$
 // ==============================
 
-#ifndef _TNATIVEIOSCALLS_H
-#define _TNATIVEIOSCALLS_H
+#ifndef _TOBJCBRIDGECALLS_H
+#define _TOBJCBRIDGECALLS_H
 
 #include <K/Defines/KDefinitions.h>
 
@@ -50,8 +50,10 @@ public:
 	/// Destructor.
 	///
 	~TObjCBridgeCalls( void );
-  
-#if TARGET_IOS
+	
+
+#if TARGET_IOS || TARGET_OS_OPENSTEP
+
 	///
 	/// Returns the number of bits of the host running the emulator.
 	/// Used by the client OS to determine the size needed to hold object pointers.
