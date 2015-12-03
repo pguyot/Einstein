@@ -9,7 +9,8 @@ DerivedData/
 *.pbxuser*.xcuserdatad
 *.xcuserstate
 project.xcworkspace/
-*.xcuserdatad
+xcuserdata/*
+*.xcuserdatad/*
 *.xcuserdata
 *.xccheckout
 *.moved-aside

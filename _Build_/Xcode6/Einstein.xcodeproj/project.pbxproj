@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		23597E6B1C0FE04D008577F4 /* TObjCBridgeCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2374E8CB1C02830C00CCA90B /* TObjCBridgeCalls.mm */; };
 		2360EB2A1A1E85EB00893927 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2360EB291A1E85EB00893927 /* Launch Screen.xib */; };
 		2374E8CC1C02830C00CCA90B /* TObjCBridgeCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2374E8CB1C02830C00CCA90B /* TObjCBridgeCalls.mm */; };
 		2374E8CD1C02841E00CCA90B /* TObjCBridgeCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2374E8CB1C02830C00CCA90B /* TObjCBridgeCalls.mm */; };
@@ -3332,6 +3333,7 @@
 				DA4FF1251A35EAF600092B5A /* TJITGeneric_SingleDataSwap.cp in Sources */,
 				DA4FF14A1A35EC6200092B5A /* prep_cif.c in Sources */,
 				DA4FF12D1A35EB3D00092B5A /* TNE2000Card.cp in Sources */,
+				23597E6B1C0FE04D008577F4 /* TObjCBridgeCalls.mm in Sources */,
 				DA4FF1091A35E9E600092B5A /* UUTF16Conv.cp in Sources */,
 				DA4FF11A1A35EAF600092B5A /* TJITGeneric_BlockDataTransfer.cp in Sources */,
 				DA4FF1231A35EAF600092B5A /* TJITGeneric_MultiplyAndAccumulate.cp in Sources */,
