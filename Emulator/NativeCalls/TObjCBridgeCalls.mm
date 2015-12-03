@@ -23,6 +23,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TObjCBridgeCalls.h"
+#import <Foundation/Foundation.h>
 
 // POSIX & Co.
 #include <stdio.h>
