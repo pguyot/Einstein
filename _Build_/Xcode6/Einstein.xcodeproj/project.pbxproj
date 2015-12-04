@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		23597E6B1C0FE04D008577F4 /* TObjCBridgeCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2374E8CB1C02830C00CCA90B /* TObjCBridgeCalls.mm */; };
+		23597E6D1C10C279008577F4 /* TObjCBridgeTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23597E6C1C10C279008577F4 /* TObjCBridgeTests.mm */; };
 		2360EB2A1A1E85EB00893927 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2360EB291A1E85EB00893927 /* Launch Screen.xib */; };
 		2374E8CC1C02830C00CCA90B /* TObjCBridgeCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2374E8CB1C02830C00CCA90B /* TObjCBridgeCalls.mm */; };
 		2374E8CD1C02841E00CCA90B /* TObjCBridgeCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2374E8CB1C02830C00CCA90B /* TObjCBridgeCalls.mm */; };
@@ -823,6 +824,7 @@
 /* Begin PBXFileReference section */
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+		23597E6C1C10C279008577F4 /* TObjCBridgeTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TObjCBridgeTests.mm; sourceTree = "<group>"; };
 		2360EB291A1E85EB00893927 /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
 		2374E8CA1C02830C00CCA90B /* TObjCBridgeCalls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TObjCBridgeCalls.h; sourceTree = "<group>"; };
 		2374E8CB1C02830C00CCA90B /* TObjCBridgeCalls.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TObjCBridgeCalls.mm; sourceTree = "<group>"; };
@@ -2230,6 +2232,7 @@
 			isa = PBXGroup;
 			children = (
 				DA4FF1551A35ED5400092B5A /* EinsteinTests.mm */,
+				23597E6C1C10C279008577F4 /* TObjCBridgeTests.mm */,
 				DA4FF0B61A35E76400092B5A /* tests.cp */,
 				DA4FF0B71A35E76400092B5A /* tests.h */,
 				DA4FF0B81A35E76400092B5A /* UHostInfoTests.cp */,
@@ -3358,6 +3361,7 @@
 				DA4FF10F1A35EA9100092B5A /* TNativePrimitives.cp in Sources */,
 				DA4FF1101A35EA9100092B5A /* TMemory.cp in Sources */,
 				DA4FF10A1A35E9E600092B5A /* UUTF16CStr.cp in Sources */,
+				23597E6D1C10C279008577F4 /* TObjCBridgeTests.mm in Sources */,
 				DA4FF1361A35EB9200092B5A /* TError.cp in Sources */,
 				DA4FF1171A35EAD500092B5A /* TJITPage.cp in Sources */,
 				DA4FF11F1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_MRS.cp in Sources */,
