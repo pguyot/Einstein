@@ -2,7 +2,7 @@
 // File:			TNativeCalls.cp
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2007 by Jake Bordens.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -56,23 +56,6 @@ KUInt32 TObjCBridgeCalls::HostGetCPUArchitecture() {
 	return sizeof(void*);
 }
 
-//KUInt32 TNativeiOSCalls::iOSActivityWithText(KUInt32 textPtrAddr,
-//									      KUInt32 textLen)
-//{
-//	char* myCString = (char*)malloc(textLen);
-//	mMemoryIntf->FastReadBuffer(textPtrAddr, textLen, (KUInt8*)myCString);
-//	
-//	NSData* data = [NSData dataWithBytes:myCString length:textLen];
-//	NSMutableString* stringObj = [[[NSMutableString alloc] initWithData:data encoding:NSUTF16BigEndianStringEncoding] autorelease];
-//	
-//	// Replace classic MacOS line endings with modern ones.
-//	[stringObj replaceOccurrencesOfString:@"\r" withString:@"\n" options:NSLiteralSearch range:NSMakeRange(0, [stringObj length])];
-//
-//	[(iEinsteinAppDelegate*)[[UIApplication sharedApplication] delegate] share:stringObj];
-//	
-//	free(myCString);
-//	return 123;
-//}
 
 KUInt32 TObjCBridgeCalls::HostMakeNSInvocation(KUInt32 objPtrAddrOut,
 										  KUInt32 classNamePtrAddress,
@@ -223,9 +206,6 @@ inline id ReadObjectFromEmulatorMemory(TMemory* mMemoryIntf, KUInt32 address) {
 #endif
 
 // =========================================================================== //
-//         A novice was trying to fix a broken lisp machine by turning the     //
-// power off and on.  Knight, seeing what the student was doing spoke sternly, //
-// "You cannot fix a machine by just power-cycling it with no understanding    //
-// of what is going wrong."  Knight turned the machine off and on.  The        //
-// machine worked.                                                             //
+// Jakes-MBP:Einstein jake$ fortune											   //
+// -bash: fortune: command not found                                           //
 // =========================================================================== //

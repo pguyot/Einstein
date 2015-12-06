@@ -77,7 +77,12 @@
 	// Get the result out of memory
 	void* invokePtr = nil;
 	theMem->FastReadBuffer(resultAddr, sizeof(id), (KUInt8*)&invokePtr);
+#if !__has_feature(objc_arc)
+	NSInvocation* invocation = (NSInvocation*)invokePtr;
+	[invocation release];
+#else
 	NSInvocation* invocation = (__bridge_transfer NSInvocation*)invokePtr;
+#endif
 	
 	XCTAssertNotNil(invocation, "TObjCBridgeCalls::HostMakeNSInvocation (class method) returned NIL invocation");
 	
@@ -111,7 +116,13 @@
 	// Get the result out of memory
 	void* invokePtr = nil;
 	theMem->FastReadBuffer(invocationAddr, sizeof(id), (KUInt8*)&invokePtr);
+	
+#if !__has_feature(objc_arc)
+	NSInvocation* invocation = (NSInvocation*)invokePtr;
+	[invocation release];
+#else
 	NSInvocation* invocation = (__bridge_transfer NSInvocation*)invokePtr;
+#endif
 	
 	XCTAssertNotNil(invocation, "TObjCBridgeCalls::HostMakeNSInvocation (instance method) returned NIL invocation");
 	
@@ -199,7 +210,13 @@
 	// Get the result out of memory
 	void* returnPtr = nil;
 	theMem->FastReadBuffer(returnObjAddr, sizeof(id), (KUInt8*)&returnPtr);
+
+#if !__has_feature(objc_arc)
+	NSString* resultString = (NSString*)returnPtr;
+	[resultString release];
+#else
 	NSString* resultString = (__bridge_transfer NSString*)returnPtr;
+#endif
 	
 	XCTAssertNotNil(invocation, "TObjCBridgeCalls::HostGetInvocationReturn_Object (instance method) returned NIL invocation");
 	
@@ -240,8 +257,14 @@
 	const KUInt32 objAddr = 0x04000080;
 	NSObject* obj = [[NSObject alloc] init];
 	
+#if !__has_feature(objc_arc)
+	[obj retain];
+	void* objPtr = (void*)obj;
+#else
 	// Increase the retain count by casting to __bridge_retained
 	void* objPtr = (__bridge_retained void*)obj;
+#endif
+	// Move the pointer into memory
 	theMem->FastWriteBuffer(objAddr, sizeof(id), (KUInt8*)&objPtr);
 	
 	NSInteger retainCountBefore = CFGetRetainCount((__bridge CFTypeRef)obj);
@@ -251,6 +274,10 @@
 	NSInteger retainCountAfter = CFGetRetainCount((__bridge CFTypeRef)obj);
 	
 	XCTAssertEqual(retainCountAfter, retainCountBefore - 1, "TObjCBridgeCalls::HostReleaseObject did not decrement retain count");
+
+#if !__has_feature(objc_arc)
+	[obj release];
+#endif
 }
 
 - (void)testHostMakeNSString {
@@ -270,13 +297,20 @@
 	theMem->FastReadBuffer(nsStringAddr, sizeof(id), (KUInt8*)&returnPtr);
 	NSString* resultString = (__bridge NSString*)returnPtr;
 
+	// MAke sure the value is correct.
+	XCTAssertEqualObjects(resultString, testString, @"TObjCBridgeCalls::HostMakeNSString did not create a string with the proper value");
+	
 	// Lets test the retain count just because we can
 	NSInteger retainCountBefore = CFGetRetainCount((__bridge CFTypeRef)resultString);
 	
 	XCTAssertEqualObjects(resultString, testString, "TObjCBridgeCalls::HostMakeNSString did not create the proper NSString object");
 	
 	// Decrement the retain count by using __bridge_transfer cast
+#if !__has_feature(objc_arc)
+	[resultString release];	
+#else
 	resultString = (__bridge_transfer NSString*)returnPtr;
+#endif
 	NSInteger retainCountAfter = CFGetRetainCount((__bridge CFTypeRef)resultString);
 	resultString = nil;
 
