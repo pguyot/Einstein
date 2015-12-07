@@ -2239,7 +2239,8 @@ TNativePrimitives::ExecuteOutTranslatorNative( KUInt32 inInstruction )
 void
 TNativePrimitives::ExecuteHostCallNative( KUInt32 inInstruction )
 {
-#if !TARGET_OS_ANDROID
+#if !TARGET_OS_ANDROID && !__LP64__
+	
 	switch (inInstruction & 0xFF)
 	{
 		case 0x01:

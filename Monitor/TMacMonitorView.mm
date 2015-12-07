@@ -58,80 +58,87 @@
 {
 	if ( self = [super initWithFrame:frameRect] )
 	{
-		font = [[NSFont userFixedPitchFontOfSize:11.0] retain];
+		font = [NSFont userFixedPitchFontOfSize:11.0];
+#if !__has_feature(objc_arc)
+		[font retain];
+#endif
 		
 		labelAttrs =
 		@{
 			NSFontAttributeName: font,
 			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.22 green:0.75 blue:1.0 alpha:1.0]
 		};
-		
+#if !__has_feature(objc_arc)
 		[labelAttrs retain];
+#endif
 
 		symbolAttrs =
 		@{
 			NSFontAttributeName: font,
 			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:0.8 blue:0.22 alpha:1.0]
 		};
-		
+#if !__has_feature(objc_arc)
 		[symbolAttrs retain];
-
+#endif
 		valueAttrs =
 		@{
 			NSFontAttributeName: font,
 			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.7 green:0.7 blue:0.7 alpha:1.0]
 		};
-
+#if !__has_feature(objc_arc)
 		[valueAttrs retain];
-
+#endif
 		changedValueAttrs =
 		@{
 			NSFontAttributeName: font,
 			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:1.0 green:1.0 blue:1.0 alpha:1.0]
 		};
 
+#if !__has_feature(objc_arc)
 		[changedValueAttrs retain];
-
+#endif
+		
 		disasmAddrAttrs =
 		@{
 			NSFontAttributeName: font,
 			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.5 green:0.7 blue:0.3 alpha:1.0]
 		};
-
+#if !__has_feature(objc_arc)
 		[disasmAddrAttrs retain];
-
+#endif
 		disasmBaseHighlightedAttrs =
 		@{
 			NSFontAttributeName: font,
 			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:1.0 blue:0.6 alpha:1.0],
 		};
-
+#if !__has_feature(objc_arc)
 		[disasmBaseHighlightedAttrs retain];
-
+#endif
 		disasmBaseAttrs =
 		@{
 			NSFontAttributeName: font,
 			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.1 green:0.7 blue:0.1 alpha:1.0]
 		};
-
+#if !__has_feature(objc_arc)
 		[disasmBaseAttrs retain];
-
+#endif
 		disasmStatusAttrs =
 		@{
 			NSFontAttributeName: font,
 			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:0.5 blue:0.2 alpha:1.0]
 		};
-
+		
+#if !__has_feature(objc_arc)
 		[disasmStatusAttrs retain];
-
+#endif
 		errorAttrs =
 		@{
 			NSFontAttributeName: font,
 			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:0.2 blue:0.2 alpha:1.0]
 		};
-
+#if !__has_feature(objc_arc)
 		[errorAttrs retain];
-
+#endif
 		
 		command = [[NSMutableString alloc] init];
 	}
@@ -149,9 +156,9 @@
 - (void)addHistoryLine:(NSString *)line type:(int)type
 {
 	// Scroll up
-	
+#if !__has_feature(objc_arc)
 	[history[0] release];
-	
+#endif
 	for ( int i = 1; i < 32; ++i )
 	{
 		history[i - 1] = history[i];
@@ -502,56 +509,73 @@
 	{
 		NSString* newRegVal = [monitor->GetRegister(i) copy];
 		regValChanged[i] = ![newRegVal isEqualToString:regVal[i]];
-			
+#if !__has_feature(objc_arc)
 		[regVal[i] release];
+#endif
 		regVal[i] = newRegVal;
 	}
-	
+#if !__has_feature(objc_arc)
 	[cpsr release];
+#endif
 	cpsr = [monitor->GetCPSR() copy];
-
+#if !__has_feature(objc_arc)
 	[spsr release];
+#endif
 	spsr = [monitor->GetSPSR() copy];
-	
+#if !__has_feature(objc_arc)
 	[frozenTimer release];
+#endif
 	frozenTimer = [monitor->GetFrozenTimer() copy];
 
 	for ( int i = 0; i < 4; ++i )
 	{
+#if !__has_feature(objc_arc)
 		[tmRegVal[i] release];
+#endif
 		tmRegVal[i] = [monitor->GetTimerMatchRegister(i) copy];
 	}
-
+#if !__has_feature(objc_arc)
 	[rtc release];
+#endif
 	rtc = [monitor->GetRealTimeClock() copy];
-
+#if !__has_feature(objc_arc)
 	[alarm release];
+#endif
 	alarm = [monitor->GetAlarm() copy];
-
+#if !__has_feature(objc_arc)
 	[intRaised release];
+#endif
 	intRaised = [monitor->GetIntRaised() copy];
-
+#if !__has_feature(objc_arc)
 	[intCtrlReg release];
+#endif
 	intCtrlReg = [monitor->GetIntCtrlReg() copy];
-	
+#if !__has_feature(objc_arc)
 	[fm release];
+#endif
 	fm = [monitor->GetFIQMask() copy];
-	
+#if !__has_feature(objc_arc)
 	[ic1 release];
+#endif
 	ic1 = [monitor->GetIntEDReg1() copy];
-
+#if !__has_feature(objc_arc)
 	[ic2 release];
+#endif
 	ic2 = [monitor->GetIntEDReg2() copy];
-
+#if !__has_feature(objc_arc)
 	[ic3 release];
+#endif
 	ic3 = [monitor->GetIntEDReg3() copy];
-	
+#if !__has_feature(objc_arc)
 	[symbol release];
+#endif
 	symbol = [monitor->GetSymbol() copy];
 
 	for ( int i = 0; i < 5; ++i )
 	{
+#if !__has_feature(objc_arc)
 		[disasm[i] release];
+#endif
 		disasm[i] = [[NSAttributedString alloc] initWithString:monitor->GetDisasmLine(i)];
 	}
 }
