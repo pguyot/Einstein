@@ -4,4 +4,4 @@ xcode_scheme: Einstein
 osx_image: xcode7.2
 before_install:
   - brew update
-  - brew upgrade xctool
+  - brew outdated xctool || brew upgrade xctool
