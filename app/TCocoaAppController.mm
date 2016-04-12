@@ -40,7 +40,6 @@
 #include "Emulator/Sound/TNullSoundManager.h"
 #include "Emulator/Screen/CocoaScreenProxy.h"
 #include "Emulator/Screen/TCocoaScreenManager.h"
-#include "Emulator/Files/TCocoaFileManager.h"
 #ifdef OPTION_X11_SCREEN
 #include "Emulator/Screen/TX11ScreenManager.h"
 #endif
@@ -53,6 +52,7 @@
 #import "Monitor/TMacMonitor.h"
 #import "Monitor/TSymbolList.h"
 
+#include "TCocoaFileManager.h"
 #import "TCocoaUserDefaults.h"
 
 #ifdef JIT_PERFORMANCE
