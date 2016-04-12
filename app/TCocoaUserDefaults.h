@@ -54,6 +54,8 @@
 #define kDontShowAtStartupKey		@"DontShowAtStartup"
 #define kEnableListenersKey			@"EnableListeners"
 
+#define kOpenMonitorAtLaunch		@"OpenMonitorAtLaunch"
+
 #endif
 		// _TCOCOAUSERDEFAULTS_H
 

@@ -50,6 +50,8 @@
 #include "Platform/PlatformGestalt.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
 
+// Native primitives implement stores to coprocessor #10
+
 
 struct NewtonPixmap {
 	KUInt32 addy;
@@ -139,8 +141,16 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 	
 	if (inInstruction & 0x80000000)
 	{
+		// If the high bit is set, this instruction is actually a patch, not
+		// a real ARM instruction.  The lower 31 bits are an enum value
+		// identifying a virtualized call. These enums are defined in
+		// TVirtualizedCallsPatches.h
+		
 		mVirtualizedCalls->Execute(inInstruction &~ 0x80000000);
 	} else {
+		// This block updates the progress bar overlay as the
+		// virtual Newton is going through its early boot phases.
+		
 		static Boolean traceProgress = true;
 		if (traceProgress) {
 			int nn = n[inInstruction&0xfff]++;
@@ -220,6 +230,9 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 				}
 			}
 		}
+		
+		// Now execute the native implementation of the coprocessor
+		
 		switch (inInstruction >> 8)
 		{
 			case 0x000000:

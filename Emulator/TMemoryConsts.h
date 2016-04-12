@@ -60,7 +60,7 @@ public:
 		kHdWr_P0F043000		= 0x0F043000,   ///< W (00007400)
 		kHdWr_P0F043800		= 0x0F043800,   ///< W (00002000)
 		kHdWr_P0F048000		= 0x0F048000,   ///< R/W (00000000)
-		kHdWr_P0F052C00		= 0x0F053000,   ///< R/W (0000004E)
+		kHdWr_P0F052C00		= 0x0F052C00,   ///< R/W (0000004E)
 		kHdWr_P0F053000		= 0x0F053000,   ///< R/W (00007000)
 		kHdWr_P0F053400		= 0x0F053400,   ///< R/W (00008C00)
 		kHdWr_P0F053800		= 0x0F053800,   ///< R/W (00000000)
@@ -77,7 +77,6 @@ public:
 		kHdWr_DMAWordStat	= 0x0F098800,   ///< DMA Word status register (R)
 		kHdWr_P0F110000		= 0x0F110000,   ///< External interrupt mask.
 		kHdWr_HighSpeedClck	= 0x0F110400,	///< High speed clock (R, v=0x90)
-		kHdWr_P0F110400		= 0x0F110400,   ///< W (00000090)
 		kHdWr_P0F111400		= 0x0F111400,   ///< W (00000000, 000007E6)
 		kHdWr_P0F180400		= 0x0F180400,   ///< W (00008000)
 		kHdWr_CalendarReg   = 0x0F181000,   ///< Calendar register, in seconds.

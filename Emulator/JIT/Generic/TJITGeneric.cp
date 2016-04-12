@@ -157,6 +157,8 @@ TJITGeneric::Run( TARMProcessor* ioCPU, volatile bool* inSignal )
 		while (*inSignal)
 		{
 			// Here we go, iterating...
+			// *pcPtr is 4 bytes ahead of the instruction that will
+			// actually be executed here
 			theJITUnit = theJITUnit->fFuncPtr( theJITUnit, ioCPU );
 		}
 		

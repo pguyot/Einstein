@@ -41,4 +41,12 @@ rt cjit IsFunction__FRC6RefVar
 rt cjit DoCall__FRC6RefVarl
 rt cjit SetArraySlotError__FlT1Pc
 rt cjit Reset__9TRefStackFl
+rt cjit __filbuf
+rt cjit Unnamed_0034FAA8
+rt cjit Unnamed_0034FBA8
+rt cjit Unnamed_0034FB80
+rt cjit Unnamed_0034FB3C
+rt cjit Unnamed_0031919C
+rt cjit Unnamed_0034FDB0
+rt cjit Unnamed_0031931C
 rt close

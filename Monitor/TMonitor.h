@@ -1,3 +1,4 @@
+
 // ==============================
 // File:			TMonitor.h
 // Project:			Einstein
@@ -113,7 +114,7 @@ public:
 	///
 	/// Output a line.
 	///
-	void		PrintLine( const char* inLine )
+	virtual void		PrintLine( const char* inLine, int type )
 		{
 			mLog->LogLine( inLine );
 		}
@@ -234,7 +235,7 @@ public:
 	/// \param inBPAddr		address of the breakpoint.
 	/// \return true if the machine should be stopped.
 	///
-	Boolean		ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr );
+	virtual Boolean		ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr );
 
 	/// \name Platform threading primitives
 

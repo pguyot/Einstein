@@ -78,6 +78,16 @@
 	[self setNeedsDisplay];
 }
 
+// Called, among other times, when Split View multi-tasking divider changes.
+-(void) layoutSubviews {
+	// Clear the screen image.  It will be recreated on the next draw.
+	CGImageRelease(mScreenImage);
+	mScreenImage = NULL;
+	
+	// Force the next draw.
+	[self setNeedsDisplay];
+}
+
 - (void)drawRect:(CGRect)rect
 {
 	CGContextRef theContext = UIGraphicsGetCurrentContext(); 
@@ -154,9 +164,13 @@
 				r.origin.y += (screenBounds.size.height - r.size.height) / 2;
 			}
 
-			screenImageRect = CGRectIntegral(r);
+			screenImageRect = r;
+			screenImageRect.origin.x = floor(screenImageRect.origin.x);
+			screenImageRect.origin.y = floor(screenImageRect.origin.y);
+			screenImageRect.size.width = floor(screenImageRect.size.width);
+			screenImageRect.size.height = floor(screenImageRect.size.height);
 		}
-		
+				
 		CGContextSetInterpolationQuality(theContext, kCGInterpolationNone);
 		CGContextDrawImage(theContext, screenImageRect, mScreenImage);
 	}
