@@ -285,7 +285,7 @@
 		int indexFiles;
 		for(indexFiles = 0 ; indexFiles < numberOfFiles ; indexFiles++)
 		{
-			mScreenManager->DraggedFile([[files objectAtIndex:indexFiles] cString]);
+			mScreenManager->DraggedFile([[files objectAtIndex:indexFiles] fileSystemRepresentation]);
 		}
     }
     return YES;

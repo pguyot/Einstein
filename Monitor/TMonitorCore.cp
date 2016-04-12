@@ -69,7 +69,7 @@ TMonitorCore::~TMonitorCore()
 }
 
 
-void TMonitorCore::PrintLine(const char* inLine)
+void TMonitorCore::PrintLine(const char* inLine, int type)
 {
 	puts(inLine);
 }
@@ -103,7 +103,7 @@ TMonitorCore::ExecuteScript( const char* inScriptFile )
 		fclose(f);
 	} else {
 		theResult = false;
-		PrintLine("Can't open script file");
+		PrintLine("Can't open script file", MONITOR_LOG_ERROR);
 	}
 	return theResult;
 }
@@ -133,11 +133,11 @@ TMonitorCore::ExecuteCommand( const char* inCommand )
 	} else if (::strcmp(inCommand, "cwd") == 0) {
 		char buf[2048];
 		getcwd(buf, 2048);
-		PrintLine(buf);
+		PrintLine(buf, MONITOR_LOG_INFO);
 	} else if (inCommand[0]=='\'') {
-		PrintLine(inCommand+1);
+		PrintLine(inCommand+1, MONITOR_LOG_INFO);
 	} else {
-		PrintLine("Unknown command. Type '?' for help.");
+		PrintLine("Unknown command. Type '?' for help.", MONITOR_LOG_ERROR);
 		theResult = false;
 	}
 	return theResult;
@@ -160,20 +160,22 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 	Boolean theResult = true;
 	if (::strncmp(inCommand, "open ", 5) == 0) {
 		if (mRetarget->OpenFiles(inCommand+5)) {
-			PrintLine("Can't open file");
+			PrintLine("Can't open file", MONITOR_LOG_ERROR);
 			theResult = false;
 		} else {
-			PrintLine("Retarget files opened");
+			PrintLine("Retarget files opened", MONITOR_LOG_INFO);
 		}
 	} else if (::strcmp(inCommand, "close") == 0) {
 		mRetarget->CloseFiles();
-		PrintLine("Retarget files closed");
+		PrintLine("Retarget files closed", MONITOR_LOG_INFO);
 	} else if (::strncmp(inCommand, "code ", 5) == 0) {
 		unsigned long first, last;
 		int n = 0;
 		n = sscanf(inCommand+5, "%lx-%lx", &first, &last);
 		if (n==0) {
-			PrintLine("rt code: Can't read memory range - undefined symbol?");
+			char buf[512];
+			::sprintf(buf, "rt code: Can't read memory range - undefined symbol? %s", inCommand);
+			PrintLine(buf, MONITOR_LOG_ERROR);
 			theResult = false;
 		} else {
 			mRetarget->SetRetargetMap((KUInt32)first, (KUInt32)last, 1);
@@ -202,7 +204,9 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 			n = sscanf(inCommand+arg, "%lx-%lx", &first, &last);
 		}
 		if (n==0) {
-			PrintLine("rt cjit: Can't read memory range - undefined symbol?");
+			char buf[512];
+			::sprintf(buf, "rt cjit: Can't read memory range - undefined symbol? %s", inCommand);
+			PrintLine(buf, MONITOR_LOG_ERROR);
 			theResult = false;
 		} else {
 			if (n==1) last = first + 80;
@@ -245,7 +249,7 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 		if (n==0) {
 			char buf[64];
 			snprintf(buf, 64, "Start address not found: %s", inCommand);
-			PrintLine(buf);
+			PrintLine(buf, MONITOR_LOG_ERROR);
 			theResult = false;
 		} else {
 			char name[512], cmt[512];

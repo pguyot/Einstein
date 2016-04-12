@@ -403,6 +403,9 @@ TARMProcessor::NativeCoprocRegisterTransfer( KUInt32 inInstruction )
 		{
 			theValue += 4;
 		}
+		
+		// Coprocessor 10 is the gateway to the sound, screen, tablet, battery,
+		// and other native hardware drivers, which are emulated in Einstein
 
 		mNativePrimitives.ExecuteNative( theValue );
 	}

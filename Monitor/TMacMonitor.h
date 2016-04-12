@@ -29,6 +29,8 @@
 #include <K/Defines/KDefinitions.h>
 #include "Monitor/TMonitor.h"
 
+@class TCocoaMonitorController;
+
 class TMacMonitor : public TMonitor
 {
 public:
@@ -39,17 +41,30 @@ public:
 			const char *inROMPath );
 
 	virtual ~TMacMonitor( void );
+	
+	virtual void PrintLine(const char *inLine, int type);
+	void SetController(TCocoaMonitorController *inController);
 
-	NSString* GetScreen( void );
+	Boolean ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr );
 
-protected:
-
-	NSString*
-	GetScreenHalted( void );
-
-	NSString*
-	GetScreenRunning( void );
-
+	NSString* GetAlarm();
+	NSString* GetCPSR();
+	NSString* GetDisasmLine(int offset);
+	NSString* GetFIQMask();
+	NSString* GetFrozenTimer();
+	NSString* GetIntCtrlReg();
+	NSString* GetIntRaised();
+	NSString* GetIntEDReg1();
+	NSString* GetIntEDReg2();
+	NSString* GetIntEDReg3();
+	NSString* GetRealTimeClock();
+	NSString* GetRegister(int rn);
+	NSString* GetSPSR();
+	NSString* GetSymbol();
+	NSString* GetTimerMatchRegister(int rn);
+	
+private:
+	TCocoaMonitorController *controller;
 };
 
 #endif

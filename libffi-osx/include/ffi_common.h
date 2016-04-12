@@ -14,6 +14,7 @@ extern "C" {
 
 #include <fficonfig.h>
 
+#ifndef TARGET_OS_OPENSTEP
 /* Do not move this. Some versions of AIX are very picky about where
    this is positioned. */
 #ifdef __GNUC__
@@ -33,6 +34,7 @@ char *alloca ();
 #  endif
 # endif
 #endif
+#endif /* TARGET_OS_OPENSTEP */
 
 /* Check for the existence of memcpy. */
 #if STDC_HEADERS

@@ -429,7 +429,7 @@ TMonitor::ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr )
 			{
 				char theLine[256];
 				(void) ::sprintf( theLine, "Break at %.8X", (int) (inBPAddr) );
-				PrintLine( theLine );
+				PrintLine( theLine, MONITOR_LOG_INFO );
 			}
 			break;
 		
@@ -443,7 +443,7 @@ TMonitor::ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr )
 			{
 				char theLine[256];
 				(void) ::sprintf( theLine, "Watch at %.8X", (int) (inBPAddr) );
-				PrintLine( theLine );
+				PrintLine( theLine, MONITOR_LOG_INFO );
 			}
 			stop = false;
 			break;
@@ -457,7 +457,7 @@ TMonitor::ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr )
 					"Watch at %.8X [R0=%.8X]",
 					(int) (inBPAddr),
 					(unsigned int) mProcessor->GetRegister(0) );
-				PrintLine( theLine );
+				PrintLine( theLine, MONITOR_LOG_INFO );
 			}
 			stop = false;
 			break;
@@ -472,7 +472,7 @@ TMonitor::ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr )
 					(int) (inBPAddr),
 					(unsigned int) mProcessor->GetRegister(0),
 					(unsigned int) mProcessor->GetRegister(1) );
-				PrintLine( theLine );
+				PrintLine( theLine, MONITOR_LOG_INFO );
 			}
 			stop = false;
 			break;
@@ -488,7 +488,7 @@ TMonitor::ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr )
 					(unsigned int) mProcessor->GetRegister(0),
 					(unsigned int) mProcessor->GetRegister(1),
 					(unsigned int) mProcessor->GetRegister(2) );
-				PrintLine( theLine );
+				PrintLine( theLine, MONITOR_LOG_INFO );
 			}
 			stop = false;
 			break;
@@ -574,7 +574,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			mCommand = kRun;
 			SignalCondVar();
 		} else {
-			PrintLine("The emulator is already running");
+			PrintLine("The emulator is already running", MONITOR_LOG_ERROR);
 		}
 	} else if ((::strcmp(inCommand, "step") == 0)
 			|| (::strcmp(inCommand, "") == 0)) {
@@ -586,7 +586,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			mCommand = kStep;
 			SignalCondVar();
 		} else if (::strcmp(inCommand, "") != 0) {
-			PrintLine("The emulator is already running");
+			PrintLine("The emulator is already running", MONITOR_LOG_ERROR);
 		}
 	} else if (::strcmp(inCommand, "memsnap") == 0) {
 #ifdef JITTARGET_GENERIC
@@ -641,24 +641,24 @@ TMonitor::ExecuteCommand( const char* inCommand )
 	} else if (::strncmp(inCommand, "save ", 5) == 0) {
 		if (mHalted)
 		{
-			PrintLine("Saving emulator state");
+			PrintLine("Saving emulator state", MONITOR_LOG_INFO);
 			if (!mFilename) mFilename = (char*)malloc(2048);
 			strcpy(mFilename, inCommand+5);
 			mCommand = kSaveState;
 			SignalCondVar();
 		} else {
-			PrintLine("The emulator is running");
+			PrintLine("The emulator is running", MONITOR_LOG_ERROR);
 		}
 	} else if (::strncmp(inCommand, "load ", 5) == 0) {
 		if (mHalted)
 		{
-			PrintLine("Loading emulator state");
+			PrintLine("Loading emulator state", MONITOR_LOG_INFO);
 			if (!mFilename) mFilename = (char*)malloc(2048);
 			strcpy(mFilename, inCommand+5);
 			mCommand = kLoadState;
 			SignalCondVar();
 		} else {
-			PrintLine("The emulator is running");
+			PrintLine("The emulator is running", MONITOR_LOG_ERROR);
 		}
 	} else if (::strcmp(inCommand, "snap") == 0) {
 		if (!mHalted)
@@ -666,7 +666,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			int i;
 			TPlatformManager *pm = mEmulator->GetPlatformManager();
 			if (pm->IsPowerOn()) {
-				PrintLine("Powering down");
+				PrintLine("Powering down", MONITOR_LOG_INFO);
 				pm->SendPowerSwitchEvent();
 				// wait a bit until we power down
 				for (i=300; i>0; --i) { // max. 3 seconds
@@ -674,27 +674,27 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					usleep(10000);
 				}
 				if (i==0) {
-					PrintLine("ERROR: Failed to power down!\n");
+					PrintLine("ERROR: Failed to power down!\n", MONITOR_LOG_ERROR);
 					// TODO: do something!
 				}
 			}
-			PrintLine("Stopping the Emulator");
+			PrintLine("Stopping the Emulator", MONITOR_LOG_INFO);
 			mEmulator->Stop();
 			// wait for the emulator to stop
 			for (i=10; i>0; --i) { // 1/10th of a second
 				usleep(10000);
 			}
-			PrintLine("Saving emulator snapshot");
+			PrintLine("Saving emulator snapshot", MONITOR_LOG_INFO);
 			SaveEmulatorState();
-			PrintLine("Emulator snapshot saved.");
+			PrintLine("Emulator snapshot saved.", MONITOR_LOG_INFO);
 		} else {
-			PrintLine("The emulator is halted");
+			PrintLine("The emulator is halted", MONITOR_LOG_ERROR);
 		}
 	} else if (::strcmp(inCommand, "revert") == 0 || ::strcmp(inCommand, "rev") == 0) {
 		int i;
 		TPlatformManager *pm = mEmulator->GetPlatformManager();
 		if (pm->IsPowerOn()) {
-			PrintLine("Powering down");
+			PrintLine("Powering down", MONITOR_LOG_INFO);
 			pm->SendPowerSwitchEvent();
 			// wait a bit until we power down
 			for (i=300; i>0; --i) { // max. 3 seconds
@@ -702,21 +702,21 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				usleep(10000);
 			}
 			if (i==0) {
-				PrintLine("ERROR: Failed to power down!\n");
+				PrintLine("ERROR: Failed to power down!", MONITOR_LOG_ERROR);
 				// TODO: do something!
 			}
 		}
 		if (!mHalted) {
-			PrintLine("Stopping the Emulator");
+			PrintLine("Stopping the Emulator", MONITOR_LOG_INFO);
 			mEmulator->Stop();
 			// wait for the emulator to stop
 			for (i=10; i>0; --i) { // 1/10th of a second
 				usleep(10000);
 			}
 		}
-		PrintLine("Loading emulator snapshot");
+		PrintLine("Loading emulator snapshot", MONITOR_LOG_INFO);
 		LoadEmulatorState();
-		PrintLine("Restarting the Emulator");
+		PrintLine("Restarting the Emulator", MONITOR_LOG_INFO);
 		if (mHalted)
 		{
 			mCommand = kRun;
@@ -726,10 +726,10 @@ TMonitor::ExecuteCommand( const char* inCommand )
 		for (i=300; i>0; --i) { // 1/10th of a second
 			usleep(10000);
 		}
-		PrintLine("Powering up");
+		PrintLine("Powering up", MONITOR_LOG_INFO);
 		if (!pm->IsPowerOn())
 			pm->SendPowerSwitchEvent();
-		PrintLine("Emulator snapshot restored.");
+		PrintLine("Emulator snapshot restored.", MONITOR_LOG_INFO);
 	} else if ((::strcmp(inCommand, "t") == 0)
 		|| (::strcmp(inCommand, "trace") == 0)) {
 		// Is it a jump?
@@ -766,7 +766,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			mCommand = kRun;
 			SignalCondVar();
 		} else {
-			PrintLine("The emulator is already running");
+			PrintLine("The emulator is already running", MONITOR_LOG_ERROR);
 		}
 	} else if (::sscanf(inCommand, "pc=%X", &theArgInt) == 1) {
 		if (mHalted)
@@ -775,9 +775,9 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			(void) ::sprintf(
 				theLine, "pc <- %.8X",
 				(unsigned int) theArgInt );
-			PrintLine(theLine);
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		} else {
-			PrintLine("Cannot change register, the emulator is running");
+			PrintLine("Cannot change register, the emulator is running", MONITOR_LOG_ERROR);
 		}
 	} else if (::sscanf(inCommand, "r%i=%X", &theArgInt, &theArgInt2) == 2) {
 		if (mHalted)
@@ -794,9 +794,9 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					theLine, "Unknown register r%i",
 					(int) theArgInt );
 			}
-			PrintLine(theLine);
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		} else {
-			PrintLine("Cannot change register, the emulator is running");
+			PrintLine("Cannot change register, the emulator is running", MONITOR_LOG_ERROR);
 		}
 	} else if (::strcmp(inCommand, "mmu") == 0) {
 		if (mHalted)
@@ -812,12 +812,12 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					mMemory->GetSystemProtection() ? "S" : "s",
 					mMemory->GetROMProtection() ? "R" : "r",
 					mMemory->GetPrivilege() ? "P" : "p" );
-				PrintLine(theLine);
+				PrintLine(theLine, MONITOR_LOG_INFO);
 			} else {
-				PrintLine("MMU is disabled");
+				PrintLine("MMU is disabled", MONITOR_LOG_INFO);
 			}
 		} else {
-			PrintLine("Cannot play with MMU, the emulator is running");
+			PrintLine("Cannot play with MMU, the emulator is running", MONITOR_LOG_ERROR);
 		}
 	} else if (::sscanf(inCommand, "mmu %X", &theArgInt) == 1) {
 		if (mHalted)
@@ -833,28 +833,28 @@ TMonitor::ExecuteCommand( const char* inCommand )
 						theLine, "An error occurred resolving V0x%.8X [%.8X]",
 						(unsigned int) theArgInt,
 						(unsigned int) mMemory->GetFaultStatusRegister() );
-					PrintLine(theLine);
+					PrintLine(theLine, MONITOR_LOG_ERROR);
 				} else {
 					(void) ::sprintf(
 						theLine, "V0x%.8X = P0x%.8X",
 						(unsigned int) theArgInt,
 						(unsigned int) physAddr );
-					PrintLine(theLine);
+					PrintLine(theLine, MONITOR_LOG_INFO);
 				}
 			} else {
-				PrintLine( "MMU is currently disabled" );
+				PrintLine( "MMU is currently disabled", MONITOR_LOG_INFO );
 			}
 		} else {
-			PrintLine("Cannot play with MMU, the emulator is running");
+			PrintLine("Cannot play with MMU, the emulator is running", MONITOR_LOG_ERROR);
 		}
 	// commands when the emulator is running
 	} else if (::strcmp(inCommand, "stop") == 0) {
 		if (!mHalted)
 		{
-			(void) ::fprintf( stderr, "doing stop\n" );
+			//(void) ::fprintf( stderr, "doing stop\n" );
 			mEmulator->Stop();
 		} else {
-			PrintLine("Emulator is not running");
+			PrintLine("Emulator is not running", MONITOR_LOG_ERROR);
 		}
 	// commands always available.
 	} else if ((::sscanf(inCommand, "break %X", &theArgInt) == 1)
@@ -864,24 +864,26 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			(void) ::sprintf(
 				theLine, "Setting breakpoint at %.8X failed",
 				(unsigned int) theArgInt );
+			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else {
 			(void) ::sprintf(
 				theLine, "Breakpoint set at %.8X",
 				(unsigned int) theArgInt );
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
-		PrintLine(theLine);
 	} else if (::sscanf(inCommand, "bc %X", &theArgInt) == 1) {
 		if (mMemory->ClearBreakpoint( theArgInt ))
 		{
 			(void) ::sprintf(
 				theLine, "Clearing breakpoint at %.8X failed",
 				(unsigned int) theArgInt );
+			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else {
 			(void) ::sprintf(
 				theLine, "Breakpoint cleared at %.8X",
 				(unsigned int) theArgInt );
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
-		PrintLine(theLine);
 	} else if (::sscanf(inCommand, "dl P%X", &theArgInt) == 1) {
 		Boolean fault = false;
 		KUInt32 theData = mMemory->ReadP(
@@ -892,13 +894,14 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				theLine, "Memory error when accessing %.8X [%.8X]",
 				(unsigned int) theArgInt,
 				(unsigned int) mMemory->GetFaultStatusRegister() );
+			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else {
 			(void) ::sprintf(
 				theLine, "P%.8X: %.8X",
 				(unsigned int) theArgInt,
 				(unsigned int) theData );
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
-		PrintLine(theLine);
 	} else if (::sscanf(inCommand, "dl %X", &theArgInt) == 1) {
 		KUInt32 theData;
 		if (mMemory->Read(
@@ -908,13 +911,14 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				theLine, "Memory error when accessing %.8X [%.8X]",
 				(unsigned int) theArgInt,
 				(unsigned int) mMemory->GetFaultStatusRegister() );
+			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else {
 			(void) ::sprintf(
 				theLine, "%.8X: %.8X",
 				(unsigned int) theArgInt,
 				(unsigned int) theData );
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
-		PrintLine(theLine);
 	} else if (::sscanf(inCommand, "d %X", &theArgInt) == 1) {
 		KUInt32 theData;
 		if (mMemory->Read(
@@ -924,7 +928,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 							 theLine, "Memory error when accessing %.8X [%.8X]",
 							 (unsigned int) theArgInt,
 							 (unsigned int) mMemory->GetFaultStatusRegister() );
-			PrintLine(theLine);
+			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else {
 			int i;
 			for (i=0; i<16; i++) {
@@ -955,6 +959,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					theLine, "Memory error when accessing %.8X [%.8X]",
 					(unsigned int) theArgInt,
 					(unsigned int) mMemory->GetFaultStatusRegister() );
+				PrintLine(theLine, MONITOR_LOG_ERROR);
 			} else {
 				(void) ::sprintf(
 					theLine, "%.8X: %.8X %.8X %.8X %.8X",
@@ -963,8 +968,8 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					(unsigned int) theData[1],
 					(unsigned int) theData[2],
 					(unsigned int) theData[3] );
+				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
-			PrintLine(theLine);
 			theArgInt += 16;
 		}
 	} else if (::sscanf(inCommand, "dm %X", &theArgInt) == 1) {
@@ -985,6 +990,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					theLine, "Memory error when accessing %.8X [%.8X]",
 					(unsigned int) theArgInt,
 					(unsigned int) mMemory->GetFaultStatusRegister() );
+				PrintLine(theLine, MONITOR_LOG_ERROR);
 			} else {
 				(void) ::sprintf(
 					theLine, "%.8X: %.8X %.8X %.8X %.8X %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
@@ -997,8 +1003,8 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					cc(theData[1]>>24), cc(theData[1]>>16), cc(theData[1]>>8), cc(theData[1]),
 					cc(theData[2]>>24), cc(theData[2]>>16), cc(theData[2]>>8), cc(theData[2]),
 					cc(theData[3]>>24), cc(theData[3]>>16), cc(theData[3]>>8), cc(theData[3]));
+				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
-			PrintLine(theLine);
 		}
 	} else if (::sscanf(inCommand, "dm P%X-%X", &theArgInt, &theArgInt2) == 2) {
 		KUInt32 theData[4];
@@ -1019,6 +1025,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					theLine, "Memory error when accessing P%.8X [%.8X]",
 					(unsigned int) theArgInt,
 					(unsigned int) mMemory->GetFaultStatusRegister() );
+				PrintLine(theLine, MONITOR_LOG_ERROR);
 			} else {
 				(void) ::sprintf(
 					theLine, "P%.8X: %.8X %.8X %.8X %.8X",
@@ -1027,8 +1034,8 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					(unsigned int) theData[1],
 					(unsigned int) theData[2],
 					(unsigned int) theData[3] );
+				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
-			PrintLine(theLine);
 			theArgInt += 16;
 		}
 	} else if (::sscanf(inCommand, "dm P%X", &theArgInt) == 1) {
@@ -1052,6 +1059,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					(unsigned int) theArgInt,
 					(unsigned int) mMemory->GetFaultStatusRegister() );
 				fault = false;
+				PrintLine(theLine, MONITOR_LOG_ERROR);
 			} else {
 				(void) ::sprintf(
 					theLine, "P%.8X: %.8X %.8X %.8X %.8X",
@@ -1060,8 +1068,8 @@ TMonitor::ExecuteCommand( const char* inCommand )
 					(unsigned int) theData[1],
 					(unsigned int) theData[2],
 					(unsigned int) theData[3] );
+				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
-			PrintLine(theLine);
 		}
 	} else if (::sscanf(inCommand, "sl %X %X", &theArgInt, &theArgInt2) == 2) {
 		if (mMemory->Write(
@@ -1071,13 +1079,14 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				theLine, "Memory error when writing at %.8X [%.8X]",
 				(unsigned int) theArgInt,
 				(unsigned int) mMemory->GetFaultStatusRegister() );
+			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else {
 			(void) ::sprintf(
 				theLine, "%.8X <- %.8X",
 				(unsigned int) theArgInt,
 				(unsigned int) theArgInt2 );
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
-		PrintLine(theLine);
 	} else if (::sscanf(inCommand, "sl P%X %X", &theArgInt, &theArgInt2) == 2) {
 		if (mMemory->WriteP(
 				(TMemory::VAddr) theArgInt, theArgInt2 ))
@@ -1086,25 +1095,26 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				theLine, "Memory error when writing at %.8X [%.8X]",
 				(unsigned int) theArgInt,
 				(unsigned int) mMemory->GetFaultStatusRegister() );
+			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else {
 			(void) ::sprintf(
 				theLine, "P%.8X <- %.8X",
 				(unsigned int) theArgInt,
 				(unsigned int) theArgInt2 );
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
-		PrintLine(theLine);
 	} else if (::sscanf(inCommand, "raise %X", &theArgInt) == 1) {
 		mInterruptManager->RaiseInterrupt(theArgInt);
 		(void) ::sprintf(
 			theLine, "IR |= %.8X",
 			(int) theArgInt );
-		PrintLine(theLine);
+		PrintLine(theLine, MONITOR_LOG_INFO);
 	} else if (::sscanf(inCommand, "gpio %X", &theArgInt) == 1) {
 		mInterruptManager->RaiseGPIO(theArgInt);
 		(void) ::sprintf(
 			theLine, "RaiseGPIO %.8X",
 			(int) theArgInt );
-		PrintLine(theLine);
+		PrintLine(theLine, MONITOR_LOG_INFO);
 	} else if (::sscanf(inCommand, "watch %i %X", &theArgInt2, &theArgInt) == 2) {
 		if ((theArgInt2 >= 0) && (theArgInt2 <= 3))
 		{
@@ -1113,18 +1123,20 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				(void) ::sprintf(
 					theLine, "Setting breakpoint at %.8X failed",
 					(unsigned int) theArgInt );
+				PrintLine(theLine, MONITOR_LOG_ERROR);
 			} else {
 				(void) ::sprintf(
 					theLine, "Watching execution at %.8X with %i parameters",
 					(unsigned int) theArgInt,
 					(int) theArgInt2 );
+				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
 		} else {
 			(void) ::sprintf(
 				theLine, "Cannot watch %i parameters (proper range: 0..3)",
 				(int) theArgInt2 );
+			PrintLine(theLine, MONITOR_LOG_ERROR);
 		}
-		PrintLine(theLine);
 	} else if (::strcmp(inCommand, "bt") == 0) {
 		PrintBacktrace();
 	} else if (::strncmp(inCommand, "bt ", 3) == 0) {
@@ -1150,31 +1162,35 @@ TMonitor::ExecuteCommand( const char* inCommand )
 	} else if (::sscanf(inCommand, "wpr %X", &theArgInt) == 1) {
 		if (mMemory->AddWatchpoint( theArgInt, 1 )) {
 			::sprintf(theLine, "Setting watchpoint at %.8X failed", theArgInt);
+			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else {
 			::sprintf(theLine, "Watching read access at %.8X", theArgInt);
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
-		PrintLine(theLine);
 	} else if (::sscanf(inCommand, "wpw %X", &theArgInt) == 1) {
 		if (mMemory->AddWatchpoint( theArgInt, 2 )) {
 			::sprintf(theLine, "Setting watchpoint at %.8X failed", theArgInt);
+			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else {
 			::sprintf(theLine, "Watching write access at %.8X", theArgInt);
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
-		PrintLine(theLine);
 	} else if (::sscanf(inCommand, "wpc %X", &theArgInt) == 1) {
 		if (mMemory->ClearWatchpoint( theArgInt)) {
 			::sprintf(theLine, "Clearing watchpoint at %.8X failed", theArgInt);
+			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else {
 			::sprintf(theLine, "Watchpoint at %.8X cleared", theArgInt);
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
-		PrintLine(theLine);
 	} else if (::sscanf(inCommand, "wp %X", &theArgInt) == 1) {
 		if (mMemory->AddWatchpoint( theArgInt, 3 )) {
 			::sprintf(theLine, "Setting watchpoint at %.8X failed", theArgInt);
+			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else {
 			::sprintf(theLine, "Watching read and write access at %.8X", theArgInt);
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
-		PrintLine(theLine);
 	} else if (strcmp(inCommand, "wpl")==0) {
 		int i=0;
 		const char *lut[] = { "--", "read", "write", "read/write" };
@@ -1183,10 +1199,10 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			KUInt8 type;
 			if (mMemory->GetWatchpoint(i, addr, type)) break;
 			::sprintf(theLine, "WP %2d at %.8X, %s", i, (unsigned int)addr, lut[type&3]);
-			PrintLine(theLine);
+			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
 	} else if (::strcmp(inCommand, "p tasks") == 0) {
-		PrintLine("List of Tasks");
+		PrintLine("List of Tasks", MONITOR_LOG_INFO);
 		KUInt32 kernelScheduler; mMemory->Read(0x0C100FD0, kernelScheduler);
 		int i;
 		for (i=0; i<32; i++) {
@@ -1194,7 +1210,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			if (taskQ) {
 				KUInt32 task; mMemory->Read(taskQ, task); // TTask
 				::sprintf(theLine, " Pri %d: first Task at 0x%08X", i, (unsigned int)task);
-				PrintLine(theLine);
+				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
 		}
 	} else if (::strcmp(inCommand, "cdr") == 0) {
@@ -1245,37 +1261,37 @@ TMonitor::PrintHelp( void )
 #if TARGET_OS_WIN32
 	assert(0); // FIXME later
 #else
-	PrintLine("Monitor commands available when the machine is halted:");
-	PrintLine(" <return>|step      step once");
+	PrintLine("Monitor commands available when the machine is halted:", MONITOR_LOG_INFO);
+	PrintLine(" <return>|step      step once", MONITOR_LOG_INFO);
 	//	PrintLine(" step <count>       step for count steps");
-	PrintLine(" t|trace            step over");
-	PrintLine(" g|run              run");
-	PrintLine(" mmu                display mmu registers");
-	PrintLine(" mmu <address>      mmu lookup address");
-	PrintLine(" mr                 magic return (relies on lr)");
-	PrintLine(" r<i>=<val>         set ith register");
-	PrintLine(" pc=<val>           set pc");
-	PrintLine(" bt [n]             backtrace the stack");
-	PrintLine("Monitor commands available when the machine is running:");
-	PrintLine(" stop               interrupt the machine");
-	PrintLine("Monitor commands always available:");
-	PrintLine(" break|bp <address> set breakpoint at address");
-	PrintLine(" watch <x> <addr>   set watchpoint with x params at address");
-	PrintLine(" bc <address>       clear breakpoint at address");
-	PrintLine(" dis <address>      disassemble code at address");
-	PrintLine(" dl <address>       display long at address");
-	PrintLine(" dl P<address>      display long at physical address");
-	PrintLine(" dm <addr>[-<addr>] display memory at address/between addresses");
-	PrintLine(" dm P<addr>[-<add>] display memory at physical address(es)");
-	PrintLine(" sl [P]<addr> <val> set long at [physical] address");
-	PrintLine(" raise <val>        raise the interrupts");
-	PrintLine(" gpio <val>         raise the gpio interrupts");
-	PrintLine(" load|save path     load or save the emulator state");
-	PrintLine(" snap|revert        (re)store machine state while running");
-	PrintLine(" help log           help with logging");
-	PrintLine(" help script        help with scripting");
-	PrintLine(" help wp            help with watchpoint commands");
-	PrintLine(" help rt            help with retargeting commands");
+	PrintLine(" t|trace            step over", MONITOR_LOG_INFO);
+	PrintLine(" g|run              run", MONITOR_LOG_INFO);
+	PrintLine(" mmu                display mmu registers", MONITOR_LOG_INFO);
+	PrintLine(" mmu <address>      mmu lookup address", MONITOR_LOG_INFO);
+	PrintLine(" mr                 magic return (relies on lr)", MONITOR_LOG_INFO);
+	PrintLine(" r<i>=<val>         set ith register", MONITOR_LOG_INFO);
+	PrintLine(" pc=<val>           set pc", MONITOR_LOG_INFO);
+	PrintLine(" bt [n]             backtrace the stack", MONITOR_LOG_INFO);
+	PrintLine("Monitor commands available when the machine is running:", MONITOR_LOG_INFO);
+	PrintLine(" stop               interrupt the machine", MONITOR_LOG_INFO);
+	PrintLine("Monitor commands always available:", MONITOR_LOG_INFO);
+	PrintLine(" break|bp <address> set breakpoint at address", MONITOR_LOG_INFO);
+	PrintLine(" watch <x> <addr>   set watchpoint with x params at address", MONITOR_LOG_INFO);
+	PrintLine(" bc <address>       clear breakpoint at address", MONITOR_LOG_INFO);
+	PrintLine(" dis <address>      disassemble code at address", MONITOR_LOG_INFO);
+	PrintLine(" dl <address>       display long at address", MONITOR_LOG_INFO);
+	PrintLine(" dl P<address>      display long at physical address", MONITOR_LOG_INFO);
+	PrintLine(" dm <addr>[-<addr>] display memory at address/between addresses", MONITOR_LOG_INFO);
+	PrintLine(" dm P<addr>[-<add>] display memory at physical address(es)", MONITOR_LOG_INFO);
+	PrintLine(" sl [P]<addr> <val> set long at [physical] address", MONITOR_LOG_INFO);
+	PrintLine(" raise <val>        raise the interrupts", MONITOR_LOG_INFO);
+	PrintLine(" gpio <val>         raise the gpio interrupts", MONITOR_LOG_INFO);
+	PrintLine(" load|save path     load or save the emulator state", MONITOR_LOG_INFO);
+	PrintLine(" snap|revert        (re)store machine state while running", MONITOR_LOG_INFO);
+	PrintLine(" help log           help with logging", MONITOR_LOG_INFO);
+	PrintLine(" help script        help with scripting", MONITOR_LOG_INFO);
+	PrintLine(" help wp            help with watchpoint commands", MONITOR_LOG_INFO);
+	PrintLine(" help rt            help with retargeting commands", MONITOR_LOG_INFO);
 #endif
 }
 
@@ -1288,13 +1304,13 @@ TMonitor::PrintLoggingHelp( void )
 #if TARGET_OS_WIN32
 	assert(0); // FIXME later
 #else
-	PrintLine("Logging commands start or stop a log file for all");
-	PrintLine("text output in the Monitor window.");
-	PrintLine("");
-	PrintLine(" log path           start logging to file");
-	PrintLine(" log                stop logging to file");
-	PrintLine(" disable log        disable the log");
-	PrintLine(" enable log         enable the log");
+	PrintLine("Logging commands start or stop a log file for all", MONITOR_LOG_INFO);
+	PrintLine("text output in the Monitor window.", MONITOR_LOG_INFO);
+	PrintLine("", MONITOR_LOG_INFO);
+	PrintLine(" log path           start logging to file", MONITOR_LOG_INFO);
+	PrintLine(" log                stop logging to file", MONITOR_LOG_INFO);
+	PrintLine(" disable log        disable the log", MONITOR_LOG_INFO);
+	PrintLine(" enable log         enable the log", MONITOR_LOG_INFO);
 #endif
 }
 
@@ -1307,19 +1323,19 @@ TMonitor::PrintScriptingHelp( void )
 #if TARGET_OS_WIN32
 	assert(0); // FIXME later
 #else
-	PrintLine("Scripting can run many Monitor commands in a text file.");
-	PrintLine("When Einstein starts, the script /ROMpath/monitorrc is");
-	PrintLine("executed first.");
-	PrintLine("");
-	PrintLine(" !filename          run a script file");
-	PrintLine(" cd                 change to the user HOME directory");
-	PrintLine(" cd path            set a new current directory");
-	PrintLine(" cdr                cd to directory where the ROM is located");
-	PrintLine(" cwd                print current working directory");
+	PrintLine("Scripting can run many Monitor commands in a text file.", MONITOR_LOG_INFO);
+	PrintLine("When Einstein starts, the script /ROMpath/monitorrc is", MONITOR_LOG_INFO);
+	PrintLine("executed first.", MONITOR_LOG_INFO);
+	PrintLine("", MONITOR_LOG_INFO);
+	PrintLine(" !filename          run a script file", MONITOR_LOG_INFO);
+	PrintLine(" cd                 change to the user HOME directory", MONITOR_LOG_INFO);
+	PrintLine(" cd path            set a new current directory", MONITOR_LOG_INFO);
+	PrintLine(" cdr                cd to directory where the ROM is located", MONITOR_LOG_INFO);
+	PrintLine(" cwd                print current working directory", MONITOR_LOG_INFO);
 //	PrintLine("*mon show           show the monitor window");
 //	PrintLine("*mon hide           hide the monitor window");
-	PrintLine(" # comment          marks commentary lines in the script file");
-	PrintLine(" 'text              print text");
+	PrintLine(" # comment          marks commentary lines in the script file", MONITOR_LOG_INFO);
+	PrintLine(" 'text              print text", MONITOR_LOG_INFO);
 #endif
 }
 
@@ -1332,15 +1348,15 @@ TMonitor::PrintWatchpointHelp( void )
 #if TARGET_OS_WIN32
 	assert(0); // FIXME later
 #else
-	PrintLine("Watchpoints stop execution whenever the value of");
-	PrintLine("a virtual memory address changes.");
-	PrintLine("");
-	PrintLine("Watchpoint commands available when the machine is halted:");
-	PrintLine(" wp <addr>          set a watchpoint for reading and writing");
-	PrintLine(" wpr <addr>         set a watchpoint for reading only");
-	PrintLine(" wpw <addr>         set a watchpoint for writing only");
-	PrintLine(" wpc <addr>         clear a watchpoint");
-	PrintLine(" wpl                list all watchpoints");
+	PrintLine("Watchpoints stop execution whenever the value of", MONITOR_LOG_INFO);
+	PrintLine("a virtual memory address changes.", MONITOR_LOG_INFO);
+	PrintLine("", MONITOR_LOG_INFO);
+	PrintLine("Watchpoint commands available when the machine is halted:", MONITOR_LOG_INFO);
+	PrintLine(" wp <addr>          set a watchpoint for reading and writing", MONITOR_LOG_INFO);
+	PrintLine(" wpr <addr>         set a watchpoint for reading only", MONITOR_LOG_INFO);
+	PrintLine(" wpw <addr>         set a watchpoint for writing only", MONITOR_LOG_INFO);
+	PrintLine(" wpc <addr>         clear a watchpoint", MONITOR_LOG_INFO);
+	PrintLine(" wpl                list all watchpoints", MONITOR_LOG_INFO);
 #endif
 }
 
@@ -1353,23 +1369,23 @@ TMonitor::PrintRetargetHelp( void )
 #if TARGET_OS_WIN32
 	assert(0); // FIXME later
 #else
-	PrintLine("Retargeting translates ARM code from one platform");
-	PrintLine("into code that can be recompiled to run");
-	PrintLine("on another platform:");
-	PrintLine("");
-	PrintLine(" rt open <basename> destination file path and base name");
-	PrintLine(" rt close           close files");
+	PrintLine("Retargeting translates ARM code from one platform", MONITOR_LOG_INFO);
+	PrintLine("into code that can be recompiled to run", MONITOR_LOG_INFO);
+	PrintLine("on another platform:", MONITOR_LOG_INFO);
+	PrintLine("", MONITOR_LOG_INFO);
+	PrintLine(" rt open <basename> destination file path and base name", MONITOR_LOG_INFO);
+	PrintLine(" rt close           close files", MONITOR_LOG_INFO);
 //	PrintLine(" rt arm <addr>[-<addr>]  disassemble ARM code");
-	PrintLine(" rt cjit [!][^]<symbolic_name>");
-	PrintLine(" rt cjit [!][^][#]<addr>[-<addr>][ name]");
-	PrintLine("                    transcode function to JIT \"C\" code");
-	PrintLine("                    add '!' to remove the auto-patch line");
-	PrintLine("                    add '_' to make function fall through");
-	PrintLine("                    add '#' to transcode a jump table");
-	PrintLine(" rt cjitr <addr> or <symbolic_name>");
-	PrintLine("                    transcode function to return stub");
-	PrintLine(" rt code <addr>-<addr>");
-	PrintLine("                    mark range as ARM code");
+	PrintLine(" rt cjit [!][^]<symbolic_name>", MONITOR_LOG_INFO);
+	PrintLine(" rt cjit [!][^][#]<addr>[-<addr>][ name]", MONITOR_LOG_INFO);
+	PrintLine("                    transcode function to JIT \"C\" code", MONITOR_LOG_INFO);
+	PrintLine("                    add '!' to remove the auto-patch line", MONITOR_LOG_INFO);
+	PrintLine("                    add '_' to make function fall through", MONITOR_LOG_INFO);
+	PrintLine("                    add '#' to transcode a jump table", MONITOR_LOG_INFO);
+	PrintLine(" rt cjitr <addr> or <symbolic_name>", MONITOR_LOG_INFO);
+	PrintLine("                    transcode function to return stub", MONITOR_LOG_INFO);
+	PrintLine(" rt code <addr>-<addr>", MONITOR_LOG_INFO);
+	PrintLine("                    mark range as ARM code", MONITOR_LOG_INFO);
 #endif
 }
 
@@ -1777,7 +1793,7 @@ TMonitor::PrintInstruction( KUInt32 inAddress )
 			"%s\t; %s",
 			theSymbol,
 			theComment );
-		PrintLine( theLine );
+		PrintLine( theLine, MONITOR_LOG_INFO );
 	}
 
 	KUInt32 instruction;
@@ -1788,22 +1804,23 @@ TMonitor::PrintInstruction( KUInt32 inAddress )
 			theLine,
 			"Memory error while reading %.8X\n",
 			(unsigned int) inAddress );
+		PrintLine(theLine, MONITOR_LOG_ERROR);
 	} else {
 		theLine[0] = 0;
-		(void) ::sprintf( theLine, "%.8X: ", (int) inAddress );
+		(void) ::sprintf( theLine, "  %.8X   ", (int) inAddress );
 		if ((instruction & 0xFFF000F0) == 0xE1200070)
 		{
 			(void) mMemory->ReadBreakpoint(
 					(TMemory::VAddr) inAddress, instruction );
 		}
 		UDisasm::Disasm(
-					&theLine[10],
-					sizeof(theLine) - 10,
+					&theLine[13],
+					sizeof(theLine) - 13,
 					inAddress,
 					instruction,
 					mSymbolList );
+		PrintLine(theLine, MONITOR_LOG_CODE);
 	}
-	PrintLine(theLine);
 #endif
 }
 
@@ -1828,12 +1845,12 @@ TMonitor::PrintBacktrace(KSInt32 inNWords)
 		mSymbolList->GetSymbol( theData, theSymbol, theComment, &theOffset );
 		sprintf(theLine, "sp+%3d: 0x%08X = %s+%d", (int) 4*i, (unsigned int)theData, theSymbol, theOffset);
 		theLine[62] = 0;
-		PrintLine(theLine);
+		PrintLine(theLine, MONITOR_LOG_INFO);
 	}
 	mSymbolList->GetSymbol( lr, theSymbol, theComment, &theOffset );
 	sprintf(theLine, "    lr: 0x%08X = %s+%d", (unsigned int)lr, theSymbol, theOffset);
 	theLine[62] = 0;
-	PrintLine(theLine);
+	PrintLine(theLine, MONITOR_LOG_INFO);
 }
 
 

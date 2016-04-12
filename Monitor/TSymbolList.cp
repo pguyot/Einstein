@@ -130,6 +130,14 @@ TSymbolList::LoadSymbols( void )
   
 	while ( ::fscanf( mFile, pattern, (int*) &mSymbolOffsets[mSymbolCount].fSymbolValue ) )
 	{
+		char prevSym[512];
+		prevSym[0] = '\0';
+		
+		if ( this->GetSymbolExact(mSymbolOffsets[mSymbolCount].fSymbolValue, prevSym) )
+		{
+			::fprintf(stderr, "Warning: redefining symbol at %08X (was: %s)\n", mSymbolOffsets[mSymbolCount].fSymbolValue, prevSym);
+		}
+	
 		int theChar = fgetc( mFile );
 		if (theChar == '\t' || theChar == ' ')
 		{
@@ -146,8 +154,11 @@ TSymbolList::LoadSymbols( void )
 			} else {
 				mSymbolOffsets[mSymbolCount].fComment = NULL;
 			}
+
+			//printf("Symbol: %08X %s %s\n", mSymbolOffsets[mSymbolCount].fSymbolValue, mSymbolOffsets[mSymbolCount].fSymbol ? mSymbolOffsets[mSymbolCount].fSymbol : "", mSymbolOffsets[mSymbolCount].fComment ? mSymbolOffsets[mSymbolCount].fComment : "");
+
 			mSymbolCount++;
-				
+			
 			// Let's look for the next line
 			do
 			{
@@ -177,7 +188,7 @@ TSymbolList::LoadSymbols( void )
 			break;
 		}
 	}
-
+/*
 	// FIXME: this is only true for the debugging ROM
 	AddSymbol( 0x00018450, "Unnamed_00018450");
 	AddSymbol( 0x00018B78, "Unnamed_00018B78");
@@ -548,7 +559,7 @@ TSymbolList::LoadSymbols( void )
 	AddSymbol( 0x00392944, "Unnamed_00392944");
 	AddSymbol( 0x0039294C, "Unnamed_0039294C");
 	AddSymbol( 0x00393710, "Unnamed_00393710");
-	
+*/
 	qsort(mSymbolOffsets, mSymbolCount, sizeof(struct SSymbolStruct), QSortCallback);
 	
 	(void) ::fprintf( stderr, "Read %i symbols\n", (int) mSymbolCount );
@@ -719,8 +730,10 @@ TSymbolList::GetSymbolExact(
 			*outOffset = inValue - symbol->fSymbolValue;
 		r = true;
 	} else {
-		::sprintf(outSymbol, "%08X", (unsigned int)inValue);
-		::sprintf(outComment, "(no symbol data)");
+		if ( outSymbol )
+			::sprintf(outSymbol, "%08X", (unsigned int)inValue);
+		if ( outComment )
+			::sprintf(outComment, "(no symbol data)");
 		if (outOffset)
 			*outOffset = 0;
 		r = false;
