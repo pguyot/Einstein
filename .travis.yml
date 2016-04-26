@@ -9,4 +9,4 @@ before_install:
   - gem install xcpretty-travis-formatter --no-rdoc --no-ri --no-document --quiet
 script:
   - xcodebuild clean build -project _Build_/Xcode6/Einstein.xcodeproj -scheme Einstein | xcpretty -f `xcpretty-travis-formatter`
-  - xcodebuild test -project _Build_/Xcode6/Einstein.xcodeproj -scheme Einstein | xcpretty -f `xcpretty-travis-formatter`
+  - xcodebuild test -project _Build_/Xcode6/Einstein.xcodeproj -scheme Einstein
