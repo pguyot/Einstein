@@ -320,7 +320,14 @@
 			
 			[tempStr setAttributes:disasmAddrAttrs range:NSMakeRange(0, 8)];
 
-			NSRange statusRange = [[tempStr string] rangeOfString:@"(will skip)"];
+			NSRange statusRange = [[tempStr string] rangeOfString:@"  ="];
+			if ( statusRange.location != NSNotFound )
+			{
+				statusRange.length = [tempStr length] - statusRange.location;
+				[tempStr setAttributes:symbolAttrs range:statusRange];
+			}
+
+			statusRange = [[tempStr string] rangeOfString:@"(will skip)"];
 			if ( statusRange.location != NSNotFound )
 				[tempStr setAttributes:disasmStatusAttrs range:statusRange];
 
@@ -329,7 +336,6 @@
 				[tempStr setAttributes:disasmStatusAttrs range:statusRange];
 
 			[tempStr drawAtPoint:textPoint];
-
 
 			textPoint.y -= FONT_HEIGHT;
 		}
