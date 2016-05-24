@@ -3399,7 +3399,7 @@
 					../../portaudio/pa_common/,
 					"../../libffi-osx",
 				);
-				INFOPLIST_FILE = "iOSEinstein Storyboards-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
@@ -3435,7 +3435,7 @@
 					../../portaudio/pa_common/,
 					"../../libffi-osx",
 				);
-				INFOPLIST_FILE = "iOSEinstein Storyboards-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
@@ -3474,7 +3474,7 @@
 					../../portaudio/pa_common/,
 					"../../libffi-osx",
 				);
-				INFOPLIST_FILE = "iOSEinstein Storyboards-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
@@ -3624,7 +3624,7 @@
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
 				);
-				INFOPLIST_FILE = "EinsteinDev-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/EinsteinDev-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3662,7 +3662,7 @@
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
 				);
-				INFOPLIST_FILE = "EinsteinDev-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/EinsteinDev-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3700,7 +3700,7 @@
 					"$(SRCROOT)/../../portaudio/pa_common/",
 					"$(SRCROOT)/../../libffi-osx",
 				);
-				INFOPLIST_FILE = "EinsteinDev-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/EinsteinDev-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3866,7 +3866,7 @@
 					../../portaudio/pa_common/,
 					"../../libffi-osx",
 				);
-				INFOPLIST_FILE = "iEinstein-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
@@ -3901,7 +3901,7 @@
 					../../portaudio/pa_common/,
 					"../../libffi-osx",
 				);
-				INFOPLIST_FILE = "iEinstein-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
@@ -3991,7 +3991,7 @@
 					../../portaudio/pa_common/,
 					"../../libffi-osx",
 				);
-				INFOPLIST_FILE = "iEinstein-Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
