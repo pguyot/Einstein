@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 	<string>Einstein</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.kallisys.einstein</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
