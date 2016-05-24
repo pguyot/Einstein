@@ -3399,7 +3399,7 @@
 					../../portaudio/pa_common/,
 					"../../libffi-osx",
 				);
-				INFOPLIST_FILE = "iOSEinstein copy-Info.plist";
+				INFOPLIST_FILE = "iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
@@ -3435,7 +3435,7 @@
 					../../portaudio/pa_common/,
 					"../../libffi-osx",
 				);
-				INFOPLIST_FILE = "iOSEinstein copy-Info.plist";
+				INFOPLIST_FILE = "iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
@@ -3474,7 +3474,7 @@
 					../../portaudio/pa_common/,
 					"../../libffi-osx",
 				);
-				INFOPLIST_FILE = "iOSEinstein copy-Info.plist";
+				INFOPLIST_FILE = "iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
