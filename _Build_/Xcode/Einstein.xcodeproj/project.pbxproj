@@ -746,6 +746,8 @@
 		F1359A2C1B2A356B00EFD22D /* master-test-step_1 in Resources */ = {isa = PBXBuildFile; fileRef = F13599D11B2A356B00EFD22D /* master-test-step_1 */; };
 		F1359A2D1B2A356B00EFD22D /* master-test-step_2 in Resources */ = {isa = PBXBuildFile; fileRef = F13599D21B2A356B00EFD22D /* master-test-step_2 */; };
 		F1359A2E1B2A356B00EFD22D /* master-test-step_3 in Resources */ = {isa = PBXBuildFile; fileRef = F13599D31B2A356B00EFD22D /* master-test-step_3 */; };
+		F15676641CF4E85D0067508C /* iOSEinstein-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F15676631CF4E85D0067508C /* iOSEinstein-Info.plist */; };
+		F15676661CF4E86D0067508C /* iOSEinstein Storyboards-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F15676651CF4E86D0067508C /* iOSEinstein Storyboards-Info.plist */; };
 		F15858B71A2E3CA100D72203 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F15858B51A2E3C8C00D72203 /* UIKit.framework */; };
 		F15858B81A2E3D4300D72203 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F15858B51A2E3C8C00D72203 /* UIKit.framework */; };
 		F15C09631B4B03FD00F95B00 /* TMacMonitorView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F119E9BC1B41FA0D00192514 /* TMacMonitorView.mm */; };
@@ -836,7 +838,6 @@
 		C965D3FF1970A47000348893 /* TJITGenericRetargetMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGenericRetargetMap.cpp; sourceTree = "<group>"; };
 		C965D4001970A47000348893 /* TJITGenericRetargetMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGenericRetargetMap.h; sourceTree = "<group>"; };
 		C97C7E1B124282A600CDCD05 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		C97C7EA01242832700CDCD05 /* iEinstein-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iEinstein-Info.plist"; sourceTree = SOURCE_ROOT; };
 		C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow_iPad.xib; sourceTree = "<group>"; };
 		C98AB2371A351D20001BB1CD /* retarget */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = retarget; sourceTree = BUILT_PRODUCTS_DIR; };
 		C98AB2411A351D61001BB1CD /* main.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cp; sourceTree = "<group>"; };
@@ -1317,6 +1318,8 @@
 		F13599D11B2A356B00EFD22D /* master-test-step_1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "master-test-step_1"; path = "scripts/master-test-step_1"; sourceTree = "<group>"; };
 		F13599D21B2A356B00EFD22D /* master-test-step_2 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "master-test-step_2"; path = "scripts/master-test-step_2"; sourceTree = "<group>"; };
 		F13599D31B2A356B00EFD22D /* master-test-step_3 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "master-test-step_3"; path = "scripts/master-test-step_3"; sourceTree = "<group>"; };
+		F15676631CF4E85D0067508C /* iOSEinstein-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "iOSEinstein-Info.plist"; path = "../../Resources/iOSEinstein-Info.plist"; sourceTree = "<group>"; };
+		F15676651CF4E86D0067508C /* iOSEinstein Storyboards-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "iOSEinstein Storyboards-Info.plist"; path = "../../Resources/iOSEinstein Storyboards-Info.plist"; sourceTree = "<group>"; };
 		F15858B51A2E3C8C00D72203 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		F1647FC313198E6A001603BE /* TCocoaMonitorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaMonitorController.h; sourceTree = "<group>"; };
 		F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaMonitorController.mm; sourceTree = "<group>"; };
@@ -2346,7 +2349,8 @@
 				2389E9351A1E3A6A0001A8C5 /* Storyboards */,
 				F1CB763C1317326C0017B0BB /* Icons */,
 				F1CB763D131732720017B0BB /* Nibs */,
-				C97C7EA01242832700CDCD05 /* iEinstein-Info.plist */,
+				F15676631CF4E85D0067508C /* iOSEinstein-Info.plist */,
+				F15676651CF4E86D0067508C /* iOSEinstein Storyboards-Info.plist */,
 				C9B4A5361242E0DE003F7AD5 /* Settings.bundle */,
 			);
 			name = iOS;
@@ -2548,6 +2552,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2389E9391A1E4D4A0001A8C5 /* iEinsteinViewController.xib in Resources */,
+				F15676661CF4E86D0067508C /* iOSEinstein Storyboards-Info.plist in Resources */,
 				2389E93A1A1E4D4A0001A8C5 /* MainWindow.xib in Resources */,
 				2360EB2A1A1E85EB00893927 /* Launch Screen.xib in Resources */,
 				2389E93B1A1E4D4A0001A8C5 /* Icon.png in Resources */,
@@ -2634,6 +2639,7 @@
 				C9B4AA39123D474800D8D2C7 /* iEinsteinViewController.xib in Resources */,
 				C9B4AA3B123D474800D8D2C7 /* MainWindow.xib in Resources */,
 				C99FDB7512D40365002FC776 /* Icon.png in Resources */,
+				F15676641CF4E85D0067508C /* iOSEinstein-Info.plist in Resources */,
 				2389E9341A1E3A5C0001A8C5 /* Main.storyboard in Resources */,
 				C99FDB7412D40365002FC776 /* Icon-72.png in Resources */,
 				C99566AA123EC4DA009A5668 /* Einstein.rex in Resources */,
