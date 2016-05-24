@@ -27,7 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 // libffi
-#if !TARGET_OS_ANDROID
+#if !TARGET_OS_ANDROID && !TARGET_OS_MAC
   #include "ffi.h"
 #endif
 

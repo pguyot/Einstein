@@ -44,7 +44,9 @@
 #include "Screen/TScreenManager.h"
 #include "Network/TNetworkManager.h"
 #include "Sound/TSoundManager.h"
+#if !TARGET_OS_MAC
 #include "NativeCalls/TNativeCalls.h"
+#endif
 #include "NativeCalls/TVirtualizedCalls.h"
 #include "Platform/TPlatformManager.h"
 #include "Platform/PlatformGestalt.h"
@@ -82,7 +84,9 @@ TNativePrimitives::TNativePrimitives(
 		mSoundManager( nil ),
 		mScreenManager( nil ),
 		mPlatformManager( nil ),
+#if !TARGET_OS_MAC
 		mNativeCalls( new TNativeCalls(inMemory) ),
+#endif
 		mVirtualizedCalls( nil ),
 		mInputVolume( 0 ),
 		mQuit( false )
@@ -94,7 +98,10 @@ TNativePrimitives::TNativePrimitives(
 // -------------------------------------------------------------------------- //
 TNativePrimitives::~TNativePrimitives( void )
 {
+#if !TARGET_OS_MAC
 	delete mNativeCalls;
+#endif
+
 	if (mVirtualizedCalls)
 	{
 		delete mVirtualizedCalls;
@@ -2233,7 +2240,7 @@ TNativePrimitives::ExecuteOutTranslatorNative( KUInt32 inInstruction )
 void
 TNativePrimitives::ExecuteHostCallNative( KUInt32 inInstruction )
 {
-#if !TARGET_OS_ANDROID
+#if !TARGET_OS_ANDROID && !TARGET_OS_MAC
 	switch (inInstruction & 0xFF)
 	{
 		case 0x01:
