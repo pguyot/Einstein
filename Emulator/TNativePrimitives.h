@@ -37,7 +37,9 @@ class TNetworkManager;
 class TSoundManager;
 class TScreenManager;
 class TPlatformManager;
+#if !TARGET_OS_MAC
 class TNativeCalls;
+#endif
 class TVirtualizedCalls;
 class TStream;
 
@@ -220,7 +222,9 @@ private:
 	TSoundManager*		mSoundManager;		///< Sound manager
 	TScreenManager*		mScreenManager;		///< Screen manager.
 	TPlatformManager*	mPlatformManager;	///< Platform manager.
+#if !TARGET_OS_MAC
 	TNativeCalls*		mNativeCalls;		///< Interface for native calls.
+#endif
 	TVirtualizedCalls*	mVirtualizedCalls;	///< Interface for virtualized calls.
 	KUInt32				mScreenContrast;	///< Feature 0x0 (probably the contrast).
 	KUInt32				mScreenBacklight;   ///< Feature 0x2.
