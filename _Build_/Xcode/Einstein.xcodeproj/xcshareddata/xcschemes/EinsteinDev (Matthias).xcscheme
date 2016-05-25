@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C95E603C198B76DC004C6CEF"
                BuildableName = "EinsteinDev.app"
-               BlueprintName = "EinsteinDev"
+               BlueprintName = "EinsteinDev (Matthias)"
                ReferencedContainer = "container:Einstein.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -34,7 +34,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C95E603C198B76DC004C6CEF"
             BuildableName = "EinsteinDev.app"
-            BlueprintName = "EinsteinDev"
+            BlueprintName = "EinsteinDev (Matthias)"
             ReferencedContainer = "container:Einstein.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -57,7 +57,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C95E603C198B76DC004C6CEF"
             BuildableName = "EinsteinDev.app"
-            BlueprintName = "EinsteinDev"
+            BlueprintName = "EinsteinDev (Matthias)"
             ReferencedContainer = "container:Einstein.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -76,7 +76,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C95E603C198B76DC004C6CEF"
             BuildableName = "EinsteinDev.app"
-            BlueprintName = "EinsteinDev"
+            BlueprintName = "EinsteinDev (Matthias)"
             ReferencedContainer = "container:Einstein.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

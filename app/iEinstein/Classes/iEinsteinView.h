@@ -38,6 +38,7 @@ class TEmulator;
 	KUInt32				newtonScreenWidth;
   //EOrientation			mOrientation;
   //KUInt32					mPreviousMods;
+	bool				applePencilMode;
 }
 
 - (void)reset;
