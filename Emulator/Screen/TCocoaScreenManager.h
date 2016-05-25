@@ -26,6 +26,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TScreenManager.h"
+#include "CocoaScreenProxy.h"
 
 // CoreGraphics via ApplicationServices
 #include <ApplicationServices/ApplicationServices.h>
@@ -58,7 +59,7 @@ public:
 	/// \param inPortraitHeight		height (in portrait mode).
 	///
 	TCocoaScreenManager(
-				id inProxy,
+				CocoaScreenProxy* inProxy,
 				id inEmulatorApp,
 				TLog* inLog = nil,
 				KUInt32 inPortraitWidth = kDefaultPortraitWidth,
