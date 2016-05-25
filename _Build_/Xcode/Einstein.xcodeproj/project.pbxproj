@@ -168,7 +168,7 @@
 		C95E607F198B76DC004C6CEF /* CocoaScreenProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3490111B7C08002165EC /* CocoaScreenProxy.mm */; };
 		C95E6080198B76DC004C6CEF /* TCocoaPowerButtonNSView.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3492111B7C08002165EC /* TCocoaPowerButtonNSView.mm */; };
 		C95E6081198B76DC004C6CEF /* TCocoaScreenGlue.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3494111B7C08002165EC /* TCocoaScreenGlue.mm */; };
-		C95E6082198B76DC004C6CEF /* TCocoaScreenManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3495111B7C08002165EC /* TCocoaScreenManager.cp */; };
+		C95E6082198B76DC004C6CEF /* TCocoaScreenManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3495111B7C08002165EC /* TCocoaScreenManager.mm */; };
 		C95E6083198B76DC004C6CEF /* TCocoaScreenView.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3498111B7C08002165EC /* TCocoaScreenView.mm */; };
 		C95E6084198B76DC004C6CEF /* TScreenManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E349D111B7C08002165EC /* TScreenManager.cp */; };
 		C95E6085198B76DC004C6CEF /* TVoyagerSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */; };
@@ -332,7 +332,7 @@
 		C99E3518111B7C08002165EC /* CocoaScreenProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3490111B7C08002165EC /* CocoaScreenProxy.mm */; };
 		C99E3519111B7C08002165EC /* TCocoaPowerButtonNSView.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3492111B7C08002165EC /* TCocoaPowerButtonNSView.mm */; };
 		C99E351A111B7C08002165EC /* TCocoaScreenGlue.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3494111B7C08002165EC /* TCocoaScreenGlue.mm */; };
-		C99E351B111B7C08002165EC /* TCocoaScreenManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3495111B7C08002165EC /* TCocoaScreenManager.cp */; };
+		C99E351B111B7C08002165EC /* TCocoaScreenManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3495111B7C08002165EC /* TCocoaScreenManager.mm */; };
 		C99E351C111B7C08002165EC /* TCocoaScreenView.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3498111B7C08002165EC /* TCocoaScreenView.mm */; };
 		C99E351F111B7C08002165EC /* TScreenManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E349D111B7C08002165EC /* TScreenManager.cp */; };
 		C99E3523111B7C08002165EC /* TVoyagerSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */; };
@@ -1005,7 +1005,7 @@
 		C99E3492111B7C08002165EC /* TCocoaPowerButtonNSView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TCocoaPowerButtonNSView.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3493111B7C08002165EC /* TCocoaScreenGlue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TCocoaScreenGlue.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3494111B7C08002165EC /* TCocoaScreenGlue.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TCocoaScreenGlue.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		C99E3495111B7C08002165EC /* TCocoaScreenManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TCocoaScreenManager.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		C99E3495111B7C08002165EC /* TCocoaScreenManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TCocoaScreenManager.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E3496111B7C08002165EC /* TCocoaScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TCocoaScreenManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3497111B7C08002165EC /* TCocoaScreenView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TCocoaScreenView.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3498111B7C08002165EC /* TCocoaScreenView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TCocoaScreenView.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1969,7 +1969,7 @@
 				C99E348F111B7C08002165EC /* CocoaScreenProxy.h */,
 				C99E349D111B7C08002165EC /* TScreenManager.cp */,
 				C99E349E111B7C08002165EC /* TScreenManager.h */,
-				C99E3495111B7C08002165EC /* TCocoaScreenManager.cp */,
+				C99E3495111B7C08002165EC /* TCocoaScreenManager.mm */,
 				C99E3496111B7C08002165EC /* TCocoaScreenManager.h */,
 				C99E3498111B7C08002165EC /* TCocoaScreenView.mm */,
 				C99E3497111B7C08002165EC /* TCocoaScreenView.h */,
@@ -2666,7 +2666,7 @@
 				C99E3518111B7C08002165EC /* CocoaScreenProxy.mm in Sources */,
 				C99E3519111B7C08002165EC /* TCocoaPowerButtonNSView.mm in Sources */,
 				C99E351A111B7C08002165EC /* TCocoaScreenGlue.mm in Sources */,
-				C99E351B111B7C08002165EC /* TCocoaScreenManager.cp in Sources */,
+				C99E351B111B7C08002165EC /* TCocoaScreenManager.mm in Sources */,
 				C99E351C111B7C08002165EC /* TCocoaScreenView.mm in Sources */,
 				C99E351F111B7C08002165EC /* TScreenManager.cp in Sources */,
 				DA52C8991A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
@@ -2781,7 +2781,7 @@
 				C95E6080198B76DC004C6CEF /* TCocoaPowerButtonNSView.mm in Sources */,
 				DA52C89C1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
 				C95E6081198B76DC004C6CEF /* TCocoaScreenGlue.mm in Sources */,
-				C95E6082198B76DC004C6CEF /* TCocoaScreenManager.cp in Sources */,
+				C95E6082198B76DC004C6CEF /* TCocoaScreenManager.mm in Sources */,
 				C95E6083198B76DC004C6CEF /* TCocoaScreenView.mm in Sources */,
 				C95E6084198B76DC004C6CEF /* TScreenManager.cp in Sources */,
 				C95E6085198B76DC004C6CEF /* TVoyagerSerialPort.cp in Sources */,
@@ -3048,7 +3048,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -3089,7 +3089,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -3130,7 +3130,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -3171,7 +3171,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -3211,7 +3211,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
@@ -3549,7 +3549,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;

@@ -35,7 +35,7 @@
 //  * TCocoaScreenManager( TLog* )
 // -------------------------------------------------------------------------- //
 TCocoaScreenManager::TCocoaScreenManager(
-			id inProxy,
+			CocoaScreenProxy* inProxy,
 			id inEmulatorApp,
 			TLog* inLog /* = nil */,
 			KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
