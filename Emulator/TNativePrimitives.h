@@ -42,6 +42,7 @@ class TNativeCalls;
 #endif
 class TVirtualizedCalls;
 class TStream;
+class TObjCBridgeCalls;
 
 struct TabletCalibration {
 	KUInt32	fUnknown_00;
@@ -212,6 +213,13 @@ private:
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
 	void		ExecuteNetworkManagerNative( KUInt32 inInstruction );
+
+	///
+	/// Execute a native instruction supporting iOS integration
+	///
+	/// \param inInstruction	opcode of the instruction to execute.
+	///
+	void		ExecuteHostiOSNativeiOS( KUInt32 inInstruction );
 	
 	/// \name Variables
 	TARMProcessor*		mProcessor;			///< Reference to the CPU.
@@ -226,6 +234,7 @@ private:
 	TNativeCalls*		mNativeCalls;		///< Interface for native calls.
 #endif
 	TVirtualizedCalls*	mVirtualizedCalls;	///< Interface for virtualized calls.
+	TObjCBridgeCalls*   mObjCBridgeCalls;    ///< Interface for iOS calls.
 	KUInt32				mScreenContrast;	///< Feature 0x0 (probably the contrast).
 	KUInt32				mScreenBacklight;   ///< Feature 0x2.
 	KUInt32				mScreenOrientation; ///< Feature 0x4.
