@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2389E9371A1E4D4A0001A8C5"
                BuildableName = "iOSEinstein.app"
-               BlueprintName = "iOSEinstein (Storyboards)"
+               BlueprintName = "iOSEinstein"
                ReferencedContainer = "container:Einstein.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -34,7 +34,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2389E9371A1E4D4A0001A8C5"
             BuildableName = "iOSEinstein.app"
-            BlueprintName = "iOSEinstein (Storyboards)"
+            BlueprintName = "iOSEinstein"
             ReferencedContainer = "container:Einstein.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -57,7 +57,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2389E9371A1E4D4A0001A8C5"
             BuildableName = "iOSEinstein.app"
-            BlueprintName = "iOSEinstein (Storyboards)"
+            BlueprintName = "iOSEinstein"
             ReferencedContainer = "container:Einstein.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -76,7 +76,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2389E9371A1E4D4A0001A8C5"
             BuildableName = "iOSEinstein.app"
-            BlueprintName = "iOSEinstein (Storyboards)"
+            BlueprintName = "iOSEinstein"
             ReferencedContainer = "container:Einstein.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

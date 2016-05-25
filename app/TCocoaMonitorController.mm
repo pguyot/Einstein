@@ -17,17 +17,6 @@
 
 @implementation TCocoaMonitorController
 
-- (void)awakeFromNib
-{
-}
-
-
-- (void)dealloc
-{
-	[super dealloc];
-}
-
-
 - (void)addHistoryLine:(NSString *)line type:(int)type
 {
 	[view addHistoryLine:line type:type];
