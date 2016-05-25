@@ -1570,12 +1570,22 @@ TMonitor::DrawScreenHalted( void )
 	int theOffset;
 	char theLine[512];
 
-	// Get the symbol.
-	mSymbolList->GetSymbol(
-					realPC,
-					theSymbol,
-					theComment,
-					&theOffset );
+	if ( mSymbolList )
+	{
+		// Get the symbol.
+		mSymbolList->GetSymbol(
+						realPC,
+						theSymbol,
+						theComment,
+						&theOffset );
+	}
+	else
+	{
+		theSymbol[0] = '\0';
+		theComment[0] = '\0';
+		theLine[0] = '\0';
+		theOffset = 0;
+	}
 
 	(void) ::printf(
 		"%s%s+%X\n",
