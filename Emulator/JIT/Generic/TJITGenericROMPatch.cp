@@ -50,7 +50,7 @@ TJITGenericROMPatch p000db0d8(0x000db0d8, 0xe3a00000, "BeaconDetect (1/2)"); // 
 TJITGenericROMPatch p000db0dc(0x000db0dc, 0xe1a0f00e, "BeaconDetect (2/2)"); // #  mov pc, lr
 
 TJITGenericROMPatch gDebuggerPatch(0x000013f4, 1, "gDebugger patch");
-TJITGenericROMPatch gNewtConfigPatch(0x00000002 /*kEnableListener*/ | 0x00000200 /*kDefaultStdioOn*/ | 0x00008000 /*kEnableStdout*/, 1, "gNewtConfig patch");
+TJITGenericROMPatch gNewtConfigPatch(0x000013fc, 0x00000002 /*kEnableListener*/ | 0x00000200 /*kDefaultStdioOn*/ | 0x00008000 /*kEnableStdout*/, "gNewtConfig patch");
 
 /*
 //T_ROM_INJECTION(0x000E5CA4, "DispatchFIQ") {
