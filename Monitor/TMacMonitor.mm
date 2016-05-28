@@ -130,6 +130,9 @@ NSString* TMacMonitor::GetSPSR()
 
 NSString* TMacMonitor::GetSymbol()
 {
+	if ( mSymbolList == NULL )
+		return [@"" copy];
+		
 	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
 	char theSymbol[512];
 	char theComment[512];

@@ -680,7 +680,7 @@ TSymbolList::GetSymbol(
 		::sprintf(outComment, "(no symbol data)");
 		return;
 	}
-	
+		
 	// Let's look for the symbol.
 	// Strings should have a size of 510 bytes plus the terminator (full ANSI C strings).
 	KUInt32 indexSymbols;

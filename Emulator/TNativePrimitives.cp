@@ -44,11 +44,14 @@
 #include "Screen/TScreenManager.h"
 #include "Network/TNetworkManager.h"
 #include "Sound/TSoundManager.h"
+#if !TARGET_OS_MAC
 #include "NativeCalls/TNativeCalls.h"
+#endif
 #include "NativeCalls/TVirtualizedCalls.h"
 #include "Platform/TPlatformManager.h"
 #include "Platform/PlatformGestalt.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
+#include "NativeCalls/TObjCBridgeCalls.h"
 
 // Native primitives implement stores to coprocessor #10
 
@@ -82,7 +85,10 @@ TNativePrimitives::TNativePrimitives(
 		mSoundManager( nil ),
 		mScreenManager( nil ),
 		mPlatformManager( nil ),
+#if !TARGET_OS_MAC
 		mNativeCalls( new TNativeCalls(inMemory) ),
+#endif
+		mObjCBridgeCalls( new TObjCBridgeCalls(inMemory)),
 		mVirtualizedCalls( nil ),
 		mInputVolume( 0 ),
 		mQuit( false )
@@ -94,7 +100,10 @@ TNativePrimitives::TNativePrimitives(
 // -------------------------------------------------------------------------- //
 TNativePrimitives::~TNativePrimitives( void )
 {
+#if !TARGET_OS_MAC
 	delete mNativeCalls;
+#endif
+
 	if (mVirtualizedCalls)
 	{
 		delete mVirtualizedCalls;
@@ -277,6 +286,10 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 				
 			case 0x00000A:
 				ExecuteNetworkManagerNative( inInstruction );
+				break;
+			
+			case 0x00000B:
+				ExecuteHostiOSNativeiOS( inInstruction );
 				break;
 				
 			default:
@@ -2233,7 +2246,7 @@ TNativePrimitives::ExecuteOutTranslatorNative( KUInt32 inInstruction )
 void
 TNativePrimitives::ExecuteHostCallNative( KUInt32 inInstruction )
 {
-#if !TARGET_OS_ANDROID
+#if !TARGET_OS_ANDROID && !TARGET_OS_MAC && !__LP64__
 	switch (inInstruction & 0xFF)
 	{
 		case 0x01:
@@ -2860,6 +2873,84 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 	}
 }
 
+void
+TNativePrimitives::ExecuteHostiOSNativeiOS( KUInt32 inInstruction )
+{
+	switch (inInstruction & 0xFF)
+	{
+		case 0x01:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostGetCPUArchitecture" );
+			}
+			//
+			mProcessor->SetRegister(0, mObjCBridgeCalls->HostGetCPUArchitecture());
+			break;
+		case 0x02:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostMakeNSInvocation" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostMakeNSInvocation(mProcessor->GetRegister(0),
+																		   mProcessor->GetRegister(1),
+																		   mProcessor->GetRegister(2)));
+			break;
+		case 0x03:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostSetInvocationTarget" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostSetInvocationTarget(mProcessor->GetRegister(0),
+																			  mProcessor->GetRegister(1)));
+			break;
+		case 0x04:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostSetInvocationArgument_Object" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostSetInvocationArgument_Object(mProcessor->GetRegister(0), mProcessor->GetRegister(1), mProcessor->GetRegister(2)));
+			break;
+		case 0x05:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostGetInvocationReturn_Object" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostGetInvocationReturn_Object(mProcessor->GetRegister(0), mProcessor->GetRegister(1)));
+			break;
+		case 0x06:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostInvoke" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostInvoke(mProcessor->GetRegister(0)));
+			break;
+		case 0x07:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostReleaseObject" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostReleaseObject(mProcessor->GetRegister(0)));
+			break;
+		case 0x08:
+			if (mLog)
+			{
+				mLog->LogLine( "TObjCBridgeCalls::HostMakeNSString" );
+			}
+			mProcessor->SetRegister(0,
+									mObjCBridgeCalls->HostMakeNSString(mProcessor->GetRegister(0),
+																	   mProcessor->GetRegister(1)));
+			break;
+
+			
+			
+	}
+}
 
 // -------------------------------------------------------------------------- //
 //  * TransferState( TStream* )

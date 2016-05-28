@@ -1,7 +1,14 @@
 language: objective-c
-xcode_project: _Build_/Xcode6/Einstein.xcodeproj
+xcode_project: _Build_/Xcode/Einstein.xcodeproj
 xcode_scheme: Einstein
-osx_image: xcode7.2
+osx_image: xcode7.3
 before_install:
   - brew update
   - brew outdated xctool || brew upgrade xctool
+  - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
+  - gem install xcpretty-travis-formatter --no-rdoc --no-ri --no-document --quiet
+  # Grant access to Contacts
+  - sqlite3 ~/"Library/Application Support/com.apple.TCC/TCC.db" "insert into access values('kTCCServiceAddressBook','/Users/travis/runner.rb',1,1,1,null,null)"
+  - sudo killall tccd
+script:
+  - xcodebuild build test -project _Build_/Xcode/Einstein.xcodeproj -scheme Einstein | xcpretty

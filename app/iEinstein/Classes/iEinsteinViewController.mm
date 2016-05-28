@@ -95,7 +95,9 @@
     [actionSheet setTag:withTag];
     actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
     [actionSheet showInView:self.view];
+#if !__has_feature(objc_arc)
     [actionSheet release];
+#endif
 }
 
 
@@ -115,7 +117,9 @@
     [actionSheet setTag:3];
     actionSheet.actionSheetStyle = UIActionSheetStyleBlackOpaque;
     [actionSheet showInView:self.view];
+#if !__has_feature(objc_arc)
     [actionSheet release];
+#endif
 }
 
 
@@ -132,7 +136,9 @@
     [actionSheet setTag:2];
     actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
     [actionSheet showInView:self.view];
+#if !__has_feature(objc_arc)
     [actionSheet release];
+#endif
 }
 
 
@@ -206,8 +212,10 @@
 		mLog = NULL;
 	}  
 
+#if !__has_feature(objc_arc)
     [_einsteinView release];
 	[super dealloc];
+#endif
 }
 
 
@@ -363,11 +371,13 @@
 
 - (void)emulatorThread
 {
+#if !__has_feature(objc_arc)
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	
+#endif
 	mEmulator->Run();
-	
+#if !__has_feature(objc_arc)
 	[pool release];
+#endif
 }
 
 - (int)allResourcesFound

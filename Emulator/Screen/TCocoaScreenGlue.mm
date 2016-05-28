@@ -176,9 +176,12 @@ EmulatorWindow_FinishCreate(
 	NSView* thePowerButtonView = NULL;
 	if (inScreenManager != NULL)
 	{
-		thePowerButtonView = [[[TCocoaPowerButtonNSView alloc]
-			initWithFrame: [inView frame]
-			screenManager: inScreenManager] autorelease];
+		thePowerButtonView = [[TCocoaPowerButtonNSView alloc]
+							  initWithFrame: [inView frame]
+							  screenManager: inScreenManager];
+#if !__has_feature(objc_arc)
+		[thePowerButtonView autorelease];
+#endif
 	}
 	
 	// Add the widgets.

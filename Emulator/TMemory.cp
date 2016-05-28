@@ -2911,8 +2911,8 @@ TMemory::Init( void )
 	{
 		mPCMCIACtrls[socketsIx] = NULL;
 	}
-	mRAM = (KUInt8*) ::calloc( 1, mRAMSize );
-	mRAMOffset = ((KUIntPtr) mRAM) - TMemoryConsts::kRAMStart;
+	mRAM = (KUInt8*) ::calloc( 1, mRAMSize );	// Default is 4 MB
+	mRAMOffset = ((KUIntPtr) mRAM) - TMemoryConsts::kRAMStart;	// Difference between our RAM base address and a real Newton's
 	mBreakpoints = (SBreakpoint*) ::malloc( 1 );
 	mSerialNumber[0] = 0;
 	mSerialNumber[1] = 0;
