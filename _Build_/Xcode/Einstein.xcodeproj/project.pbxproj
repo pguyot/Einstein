@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		234B67611CFA4F06007A835B /* TFileManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = F156B80F1CFA48B0004661E8 /* TFileManager.cp */; };
 		2360EB2A1A1E85EB00893927 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2360EB291A1E85EB00893927 /* Launch Screen.xib */; };
 		2389E9391A1E4D4A0001A8C5 /* iEinsteinViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C9B4AA33123D474800D8D2C7 /* iEinsteinViewController.xib */; };
 		2389E93A1A1E4D4A0001A8C5 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = C9B4AA35123D474800D8D2C7 /* MainWindow.xib */; };
@@ -2555,6 +2556,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2389E9421A1E4D4A0001A8C5 /* TMemError.cp in Sources */,
+				234B67611CFA4F06007A835B /* TFileManager.cp in Sources */,
 				2389E9431A1E4D4A0001A8C5 /* UDisasm.cp in Sources */,
 				2389E9441A1E4D4A0001A8C5 /* TIOException.cp in Sources */,
 				2389E9451A1E4D4A0001A8C5 /* TException.cp in Sources */,
