@@ -635,6 +635,10 @@
 		F150BC3E1CF630CC0077CDB7 /* TObjCBridgeCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = F150BC3B1CF630CC0077CDB7 /* TObjCBridgeCalls.mm */; };
 		F150BC401CF6315C0077CDB7 /* TObjCBridgeTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = F150BC3F1CF6315C0077CDB7 /* TObjCBridgeTests.mm */; };
 		F15676661CF4E86D0067508C /* iOSEinstein Storyboards-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F15676651CF4E86D0067508C /* iOSEinstein Storyboards-Info.plist */; };
+		F156B8111CFA48B0004661E8 /* TFileManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = F156B80F1CFA48B0004661E8 /* TFileManager.cp */; };
+		F156B8161CFA48BD004661E8 /* TCocoaFileManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F156B8131CFA48BD004661E8 /* TCocoaFileManager.mm */; };
+		F156B8171CFA48BD004661E8 /* TCocoaListenerWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = F156B8151CFA48BD004661E8 /* TCocoaListenerWindow.mm */; };
+		F156B8191CFA49BE004661E8 /* TCocoaListenerWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = F156B8181CFA49BE004661E8 /* TCocoaListenerWindow.xib */; };
 		F15858B81A2E3D4300D72203 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F15858B51A2E3C8C00D72203 /* UIKit.framework */; };
 		F15C09631B4B03FD00F95B00 /* TMacMonitorView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F119E9BC1B41FA0D00192514 /* TMacMonitorView.mm */; };
 		F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */; };
@@ -1188,6 +1192,13 @@
 		F150BC3F1CF6315C0077CDB7 /* TObjCBridgeTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TObjCBridgeTests.mm; sourceTree = "<group>"; };
 		F15676631CF4E85D0067508C /* iOSEinstein-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "iOSEinstein-Info.plist"; path = "../../Resources/iOSEinstein-Info.plist"; sourceTree = "<group>"; };
 		F15676651CF4E86D0067508C /* iOSEinstein Storyboards-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "iOSEinstein Storyboards-Info.plist"; path = "../../Resources/iOSEinstein Storyboards-Info.plist"; sourceTree = "<group>"; };
+		F156B80F1CFA48B0004661E8 /* TFileManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFileManager.cp; sourceTree = "<group>"; };
+		F156B8101CFA48B0004661E8 /* TFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFileManager.h; sourceTree = "<group>"; };
+		F156B8121CFA48BD004661E8 /* TCocoaFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaFileManager.h; sourceTree = "<group>"; };
+		F156B8131CFA48BD004661E8 /* TCocoaFileManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaFileManager.mm; sourceTree = "<group>"; };
+		F156B8141CFA48BD004661E8 /* TCocoaListenerWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaListenerWindow.h; sourceTree = "<group>"; };
+		F156B8151CFA48BD004661E8 /* TCocoaListenerWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaListenerWindow.mm; sourceTree = "<group>"; };
+		F156B8181CFA49BE004661E8 /* TCocoaListenerWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TCocoaListenerWindow.xib; sourceTree = "<group>"; };
 		F15858B51A2E3C8C00D72203 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		F1647FC313198E6A001603BE /* TCocoaMonitorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaMonitorController.h; sourceTree = "<group>"; };
 		F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaMonitorController.mm; sourceTree = "<group>"; };
@@ -1700,6 +1711,10 @@
 				F1647FC313198E6A001603BE /* TCocoaMonitorController.h */,
 				F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */,
 				C99E33E1111B7C07002165EC /* TCocoaUserDefaults.h */,
+				F156B8121CFA48BD004661E8 /* TCocoaFileManager.h */,
+				F156B8131CFA48BD004661E8 /* TCocoaFileManager.mm */,
+				F156B8141CFA48BD004661E8 /* TCocoaListenerWindow.h */,
+				F156B8151CFA48BD004661E8 /* TCocoaListenerWindow.mm */,
 				C99E33D3111B7C07002165EC /* Scripting */,
 			);
 			name = "Mac OS X";
@@ -1741,6 +1756,7 @@
 				C99E34BD111B7C08002165EC /* TFlash.h */,
 				C99E34BA111B7C08002165EC /* TEmulator.cp */,
 				C99E34BB111B7C08002165EC /* TEmulator.h */,
+				F156B80E1CFA48B0004661E8 /* Files */,
 				C99E347D111B7C07002165EC /* ROM */,
 				C99E3478111B7C07002165EC /* Platform */,
 				C99E3468111B7C07002165EC /* NativeCalls */,
@@ -2140,9 +2156,19 @@
 			name = "Expected Results";
 			sourceTree = "<group>";
 		};
+		F156B80E1CFA48B0004661E8 /* Files */ = {
+			isa = PBXGroup;
+			children = (
+				F156B80F1CFA48B0004661E8 /* TFileManager.cp */,
+				F156B8101CFA48B0004661E8 /* TFileManager.h */,
+			);
+			path = Files;
+			sourceTree = "<group>";
+		};
 		F1CB7613131730100017B0BB /* Mac OS X */ = {
 			isa = PBXGroup;
 			children = (
+				F156B8181CFA49BE004661E8 /* TCocoaListenerWindow.xib */,
 				F115FF111A2EA415001F3D65 /* Einstein.xib */,
 				C99E315F111B7346002165EC /* Icons */,
 				C99E315A111B7331002165EC /* Info.plist */,
@@ -2362,6 +2388,7 @@
 				C99E316B111B7346002165EC /* button_backlight_on.png in Resources */,
 				C99E316C111B7346002165EC /* button_install.png in Resources */,
 				C99E316D111B7346002165EC /* button_power.png in Resources */,
+				F156B8191CFA49BE004661E8 /* TCocoaListenerWindow.xib in Resources */,
 				F115FF131A2EA415001F3D65 /* Einstein.xib in Resources */,
 				C99E316E111B7346002165EC /* button_power_on.png in Resources */,
 				C99E316F111B7346002165EC /* button_prefs.png in Resources */,
@@ -2648,6 +2675,7 @@
 				C99E3504111B7C08002165EC /* TJITPage.cp in Sources */,
 				C99E3507111B7C08002165EC /* TFileLog.cp in Sources */,
 				C99E3508111B7C08002165EC /* TLog.cp in Sources */,
+				F156B8111CFA48B0004661E8 /* TFileManager.cp in Sources */,
 				DA6F86431A34FBB7006BC81E /* TMonitorCore.cp in Sources */,
 				C99E3509111B7C08002165EC /* TStdOutLog.cp in Sources */,
 				C99E350B111B7C08002165EC /* TVirtualizedCalls.cp in Sources */,
@@ -2696,10 +2724,12 @@
 				C901E5231326560C0074513E /* TFileStream.cp in Sources */,
 				C901E5261326562E0074513E /* TCircleBuffer.cp in Sources */,
 				C901E527132656310074513E /* TMappedFile.cp in Sources */,
+				F156B8171CFA48BD004661E8 /* TCocoaListenerWindow.mm in Sources */,
 				C901E52C1326566B0074513E /* TError.cp in Sources */,
 				F119E9BD1B41FA0D00192514 /* TMacMonitorView.mm in Sources */,
 				C901E52D1326566C0074513E /* TException.cp in Sources */,
 				C901E52E1326566D0074513E /* TIOException.cp in Sources */,
+				F156B8161CFA48BD004661E8 /* TCocoaFileManager.mm in Sources */,
 				C901E52F1326566F0074513E /* TMemError.cp in Sources */,
 				C901E530132656710074513E /* TEOFException.cp in Sources */,
 				C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */,

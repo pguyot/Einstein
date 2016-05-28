@@ -52,6 +52,7 @@
 #import "Monitor/TMacMonitor.h"
 #import "Monitor/TSymbolList.h"
 
+#include "TCocoaFileManager.h"
 #import "TCocoaUserDefaults.h"
 
 #ifdef JIT_PERFORMANCE
@@ -98,6 +99,7 @@ static TCocoaAppController* gInstance = nil;
 			[NSNumber numberWithInt:kCocoaScreenDriverTag], kScreenDriverKey,
 			[NSNumber numberWithInt:kUsermodeNetworkDriverTag], kNetworkDriverKey,
 			[NSNumber numberWithBool:NO], kDontShowAtStartupKey,
+			[NSNumber numberWithBool:NO], kEnableListenersKey,
 			nil];
 	
 	[defaults registerDefaults:appDefaults];
@@ -175,7 +177,11 @@ static TCocoaAppController* gInstance = nil;
 	{
 		delete mLog;
 	}
-
+	if (mFileManager)
+	{
+		delete mFileManager;
+	}
+	
 #if !__has_feature(objc_arc)
 	[super dealloc];
 #endif
@@ -409,6 +415,15 @@ static TCocoaAppController* gInstance = nil;
 	mEmulator = new TEmulator(
 				mLog, mROMImage, theFlashPath,
 				mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
+	
+	if ([defaults boolForKey: kEnableListenersKey])
+	{
+		mFileManager = new TCocoaFileManager();
+		mFileManager->SetLog(mLog);
+		mFileManager->SetMemory(mEmulator->GetMemory());
+		mEmulator->SetFileManager(mFileManager);
+	}
+	
 	mPlatformManager = mEmulator->GetPlatformManager();
 	if (indexScreenDriver == kCocoaScreenDriverTag)
 	{
