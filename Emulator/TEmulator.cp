@@ -55,6 +55,7 @@
 #include "TInterruptManager.h"
 #include "TDMAManager.h"
 #include "Platform/TPlatformManager.h"
+#include "Files/TFileManager.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -267,6 +268,21 @@ TEmulator::Step( void )
 }
 
 // -------------------------------------------------------------------------- //
+//  * SystemBootUND( KUInt32 )
+// -------------------------------------------------------------------------- //
+void
+TEmulator::SystemBootUND( KUInt32 inPAddr )
+{
+	// Just log the string.
+	if (mLog)
+	{
+		KUInt8 theString[] = "SystemBoot";
+		printf("%s\n", theString);
+		mLog->LogLine( (const char*) theString );
+	}
+}
+
+// -------------------------------------------------------------------------- //
 //  * DebuggerUND( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
@@ -291,10 +307,158 @@ TEmulator::DebuggerUND( KUInt32 inPAddr )
 				break;
 			}
 		} while (theString[index++] != 0);
-          
+
 		printf("%s\n", theString);
 		mLog->LogLine( (const char*) theString );
 	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * TapFileCntlUND( KUInt32 )
+// -------------------------------------------------------------------------- //
+void
+TEmulator::TapFileCntlUND( KUInt32 inPAddr )
+{
+	enum {
+		do_sys_open = 0x10,
+		do_sys_close = 0x11,
+		do_sys_istty = 0x12,
+		do_sys_read = 0x13,
+		do_sys_write = 0x14,
+		do_sys_set_input_notify = 0x15,
+		do_sys_seek = 0x16,
+		do_sys_flen = 0x17,
+	};
+
+	KSInt32 result = -1;
+	
+	if (mFileManager) {
+		KUInt32 command = mProcessor.GetRegister(TARMProcessor::kR0);
+		KUInt32 args = mProcessor.GetRegister(TARMProcessor::kR1);
+
+		if (command == do_sys_open) {
+			KUInt32 filenameAddress;
+			KUInt32 modeIdx = 0;
+			mMemory.Read(args, filenameAddress);
+			mMemory.Read(args + 4, modeIdx);
+			
+			ssize_t index = 0;
+			KUInt8 filename[512];
+			
+			do {
+				if (mMemory.ReadBP( filenameAddress++, filename[index] ))
+				{
+					filename[index] = 0;
+					break;
+				}
+			} while (filename[index++] != 0);
+			filename[index] = 0;
+			
+			// XXX: make sure modeIdx doesn't exceed this.
+			const char *modes[] = { "r", "rb", "r+", "r+b", "w", "wb", "w+", "w+b", "a", "ab", "a+", "a+b" };
+			
+			result = mFileManager->do_sys_open((const char*)filename, modes[modeIdx]);
+			if (result > 0) {
+				mProcessor.SetRegister(TARMProcessor::kR7, 8);
+			}
+		}
+		else {
+			// All other commands have a fp for arg1...
+			KUInt32 fp = 0;
+			mMemory.Read(args, fp);
+			
+			// Single argument calls
+			if (command == do_sys_close) {
+				result = mFileManager->do_sys_close(fp);
+			}
+			else if (command == do_sys_istty) {
+				result = mFileManager->do_sys_istty(fp);
+			}
+			else if (command == do_sys_flen) {
+				result = mFileManager->do_sys_flen(fp);
+			}
+			
+			// Two argument calls
+			else if (command == do_sys_set_input_notify || command == do_sys_seek) {
+				KUInt32 arg2 = 0;
+				mMemory.Read(args + 4, arg2);
+				
+				if (command == do_sys_set_input_notify) {
+					result = mFileManager->do_sys_set_input_notify(fp, arg2);
+				}
+				else if (command == do_sys_seek) {
+					result = mFileManager->do_sys_seek(fp, arg2);
+				}
+			}
+			
+			// Three argument calls
+			else if (command == do_sys_read || command == do_sys_write) {
+				KUInt32 bufAddress = 0;
+				KUInt32 nbyte = 0;
+				
+				mMemory.Read(args + 4, bufAddress);
+				mMemory.Read(args + 8, nbyte);
+				
+				if (command == do_sys_read) {
+					char *buffer = (char *)::calloc(nbyte, 1);
+					KSInt32 amount = mFileManager->do_sys_read(fp, buffer, nbyte);
+					// 0 if the call is successful.
+					// The same value as nbyte if the call has failed and EOF is assumed.
+					// A smaller value than nbyte if the call was partially successful. No error is assumed, but the buffer has not been filled.
+					if (amount == -1) {
+						result = nbyte;
+					}
+					else {
+						if (amount == 0) {
+							buffer[0] = 0x04; // end of transmission
+							amount = 1;
+						}
+
+						result = nbyte - amount;
+					}
+
+					KSInt32 index = 0;
+					while (index < amount) {
+						if (mMemory.WriteB( bufAddress + index, buffer[index] )) {
+							break;
+						}
+						index++;
+					}
+
+					free(buffer);
+				}
+				else if (command == do_sys_write) {
+					KUInt32 index = 0;
+					KUInt8 buffer[nbyte];
+					
+					while (index < nbyte) {
+						if (mMemory.ReadB( bufAddress + index, buffer[index] )) {
+							break;
+						}
+						index++;
+					}
+					
+					KSInt32 amount = mFileManager->do_sys_write(fp, buffer, nbyte);
+					
+					// 0 if the call is successful
+					// the number of bytes that are not written, if there is an error.
+					if (amount == -1) {
+						amount = 0;
+					}
+					result = nbyte - amount;
+				}
+			}
+			
+			// Unhandled :(
+			else {
+				fprintf(stderr, "unknown TapFileCntl command: 0x%02x\n", command);
+				BreakInMonitor();
+				result = -1;
+			}
+		}
+	}
+
+	mProcessor.SetRegister(TARMProcessor::kR0, result);
 }
 
 // -------------------------------------------------------------------------- //

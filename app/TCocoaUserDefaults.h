@@ -52,6 +52,7 @@
 #define kNullNetworkDriverTag		3
 
 #define kDontShowAtStartupKey		@"DontShowAtStartup"
+#define kEnableListenersKey			@"EnableListeners"
 
 #define kOpenMonitorAtLaunch		@"OpenMonitorAtLaunch"
 
