@@ -42,8 +42,11 @@
 - (void) dealloc {
 	self.textAttributes = nil;
 	self.title = nil;
+
+#if !__has_feature(objc_arc)
 	[_pendingInput release], _pendingInput = nil;
 	[super dealloc];
+#endif
 }
 
 - (void)windowDidLoad {
@@ -96,9 +99,12 @@
 	}
 	
 	NSTextView *textView = self.textView;
-	NSAttributedString *attrString = [[[NSAttributedString alloc] initWithString:string
-																	  attributes:self.textAttributes] autorelease];
+	NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:string
+																	 attributes:self.textAttributes];
 	[textView.textStorage appendAttributedString:attrString];
+#if !__has_feature(objc_arc)
+	[attrString autorelease];
+#endif
 	
 	// XXX: Be smarter. If the user has scrolled away, don't scroll back to the bottom
 	[textView scrollToEndOfDocument:self];

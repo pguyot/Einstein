@@ -30,7 +30,9 @@
 // -------------------------------------------------------------------------- //
 TCocoaFileManager::~TCocoaFileManager( void )
 {
+#if !__has_feature(objc_arc)
 	[mListenerWindows release], mListenerWindows = nil;
+#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -48,7 +50,9 @@ TCocoaFileManager::open_listener( const char *name, KUInt32 desc )
 		window = [[TCocoaListenerWindow alloc] init];
 		NSString *title = [[NSString alloc] initWithCString:name encoding:NSASCIIStringEncoding];
 		[window setTitle:title];
+#if !__has_feature(objc_arc)
 		[title release];
+#endif
 
 		[window setFileManager:this];
 		[window setNewt_fdesc:desc];
@@ -114,7 +118,9 @@ TCocoaFileManager::write_listener( KUInt32 desc, const void *buf, KUInt32 nbytes
 		if (window.newt_fdesc == desc) {
 			NSString *buffer = [[NSString alloc] initWithBytes:buf length:nbytes encoding:NSASCIIStringEncoding];
 			[window appendString:buffer];
+#if !__has_feature(objc_arc)
 			[buffer release];
+#endif
 			return nbytes;
 		}
 	}
