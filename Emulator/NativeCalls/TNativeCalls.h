@@ -27,7 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 // libffi
-#if !TARGET_OS_ANDROID
+#if !TARGET_OS_ANDROID && !TARGET_OS_MAC
   #include "ffi.h"
 #endif
 
@@ -57,6 +57,8 @@ public:
 	~TNativeCalls( void );
   
 #if !TARGET_OS_ANDROID
+ 
+#if !__LP64__
 
 	///
 	/// Open a native library.
@@ -313,7 +315,8 @@ public:
 	/// Dispose the FFI structure.
 	///
 	void	DisposeFFIStructure(KUInt32 inFFIStructure);
-
+#endif // if !__LP64__
+	
 private:
 	/// If the binary should be disposed
 	struct SPointer {
@@ -367,6 +370,7 @@ private:
 	///
 	TNativeCalls& operator = ( const TNativeCalls& inCopy );
 
+#if !__LP64__
 	///
 	/// Call the function.
 	///
@@ -380,7 +384,8 @@ private:
 	/// \return a handle or NULL
 	///
 	void*	DoOpenLib( const char* inPath );
-
+#endif
+	
 	/// \name Variables
 	TMemory*		mMemoryIntf;			///< Interface to memory.
 	SLibraryRec*	mNativeLibs;			///< Data on open native libraries.

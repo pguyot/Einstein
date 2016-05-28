@@ -72,12 +72,14 @@
 // -------------------------------------------------------------------------- //
 - (void) dealloc
 {
+#if !__has_feature(objc_arc)
 	if (mROMFilePath)
 	{
 		[mROMFilePath release];
 	}
 	
 	[super dealloc];
+#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -128,13 +130,16 @@
 					[self setRunning: NO];
 					break;
 				}
-
+#if !__has_feature(objc_arc)
 				if (mROMFilePath)
 				{
 					[mROMFilePath release];
 				}
+#endif
 				mROMFilePath = [[thePanel URL] path];
+#if !__has_feature(objc_arc)
 				[mROMFilePath retain];
+#endif
 				
 				[self addDeferredSend: @selector(performDump)];
 			} while (false);
@@ -238,8 +243,11 @@
 // -------------------------------------------------------------------------- //
 - (void) performDumpInThreadWithIgnoredData:(id) ignored
 {
+#if !__has_feature(objc_arc)
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
+#else
+	@autoreleasepool {
+#endif
 	// Init the size of what we dumped so far.
 	mROMSize = 0;
 	char buffer[1024];
@@ -316,7 +324,11 @@
 		[self addDeferredSend: @selector(reportError)];
 	}
 
+#if !__has_feature(objc_arc)
 	[pool release];
+#else 
+	}
+#endif
 }
 
 // -------------------------------------------------------------------------- //

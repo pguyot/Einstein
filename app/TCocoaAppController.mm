@@ -182,7 +182,9 @@ static TCocoaAppController* gInstance = nil;
 		delete mFileManager;
 	}
 	
+#if !__has_feature(objc_arc)
 	[super dealloc];
+#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -567,16 +569,21 @@ static TCocoaAppController* gInstance = nil;
 - (void)runEmulator
 {
 	// This runs in an NSThread
-	
+#if !__has_feature(objc_arc)
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	
+#else
+	@autoreleasepool {
+#endif
 	mMonitor->Run();
 	
 	// Quit if the emulator quitted.
 	mQuit = true;
 	[[NSApplication sharedApplication] terminate: self];
-	
+#if !__has_feature(objc_arc)
 	[pool release];
+#else
+	}
+#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -602,7 +609,10 @@ static TCocoaAppController* gInstance = nil;
 	[toolbar setDelegate:self];
 	[toolbar setAllowsUserCustomization:YES];	
 	[toolbar setAutosavesConfiguration:YES];
-	[inWindow setToolbar:[toolbar autorelease]];
+#if !__has_feature(objc_arc)
+	[toolbar autorelease];
+#endif
+	[inWindow setToolbar:toolbar];
 }
 
 // ------------------------------------------------------------------------- //
@@ -635,11 +645,15 @@ static TCocoaAppController* gInstance = nil;
 		{
 			if (mToolbarPowerItem != NULL)
 			{
+#if !__has_feature(objc_arc)
 				[mToolbarPowerItem release];
+#endif
 				mToolbarPowerItem = NULL;
 			}
 			mToolbarPowerItem = item;
+#if !__has_feature(objc_arc)
 			[mToolbarPowerItem retain];
+#endif
 		}
 		[item setLabel:NSLocalizedString(@"Power",nil)];
 		[item setPaletteLabel:[item label]];
@@ -659,11 +673,15 @@ static TCocoaAppController* gInstance = nil;
 		{
 			if (mToolbarBacklightItem != NULL)
 			{
+#if !__has_feature(objc_arc)
 				[mToolbarBacklightItem release];
+#endif
 				mToolbarBacklightItem = NULL;
 			}
 			mToolbarBacklightItem = item;
+#if !__has_feature(objc_arc)
 			[mToolbarBacklightItem retain];
+#endif
 		}
 		[item setLabel:NSLocalizedString(@"Backlight",nil)];
 		[item setPaletteLabel:[item label]];
@@ -683,11 +701,15 @@ static TCocoaAppController* gInstance = nil;
 		{
 			if (mToolbarNetworkItem != NULL)
 			{
+#if !__has_feature(objc_arc)
 				[mToolbarNetworkItem release];
+#endif
 				mToolbarNetworkItem = NULL;
 			}
 			mToolbarNetworkItem = item;
+#if !__has_feature(objc_arc)
 			[mToolbarNetworkItem retain];
+#endif
 		}
 		[item setLabel:NSLocalizedString(@"Network",nil)];
 		[item setPaletteLabel:[item label]];
@@ -703,7 +725,10 @@ static TCocoaAppController* gInstance = nil;
 		}
 		[item setEnabled: YES];
 	}
-	return [item autorelease];
+#if !__has_feature(objc_arc)
+	[item autorelease];
+#endif
+	return item;
 }
 
 // ------------------------------------------------------------------------- //

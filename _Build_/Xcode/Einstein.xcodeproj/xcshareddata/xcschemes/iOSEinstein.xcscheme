@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0610"
+   LastUpgradeVersion = "0730"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,70 +14,50 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "8D1107260486CEB800E47090"
-               BuildableName = "Einstein.app"
-               BlueprintName = "Einstein"
-               ReferencedContainer = "container:Einstein.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DA4FF0681A35E73900092B5A"
-               BuildableName = "EinsteinTests.xctest"
-               BlueprintName = "EinsteinTests"
+               BlueprintIdentifier = "2389E9371A1E4D4A0001A8C5"
+               BuildableName = "iOSEinstein.app"
+               BlueprintName = "iOSEinstein"
                ReferencedContainer = "container:Einstein.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      buildConfiguration = "Debug">
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DA4FF0681A35E73900092B5A"
-               BuildableName = "EinsteinTests.xctest"
-               BlueprintName = "EinsteinTests"
-               ReferencedContainer = "container:Einstein.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "8D1107260486CEB800E47090"
-            BuildableName = "Einstein.app"
-            BlueprintName = "Einstein"
+            BlueprintIdentifier = "2389E9371A1E4D4A0001A8C5"
+            BuildableName = "iOSEinstein.app"
+            BlueprintName = "iOSEinstein"
             ReferencedContainer = "container:Einstein.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </TestAction>
    <LaunchAction
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Debug"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "8D1107260486CEB800E47090"
-            BuildableName = "Einstein.app"
-            BlueprintName = "Einstein"
+            BlueprintIdentifier = "2389E9371A1E4D4A0001A8C5"
+            BuildableName = "iOSEinstein.app"
+            BlueprintName = "iOSEinstein"
             ReferencedContainer = "container:Einstein.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -85,17 +65,18 @@
       </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
+      buildConfiguration = "Release"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "8D1107260486CEB800E47090"
-            BuildableName = "Einstein.app"
-            BlueprintName = "Einstein"
+            BlueprintIdentifier = "2389E9371A1E4D4A0001A8C5"
+            BuildableName = "iOSEinstein.app"
+            BlueprintName = "iOSEinstein"
             ReferencedContainer = "container:Einstein.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

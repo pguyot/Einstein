@@ -755,8 +755,13 @@ disasm_interface_t::di_printaddr( unsigned int inAddress )
 {
 	char theSymbol[512];
 	char theComment[512];
-	int theOffset;
-	mSymbolList->GetSymbol( inAddress, theSymbol, theComment, &theOffset );
+	int theOffset = 0;
+	
+	if ( mSymbolList )
+	{
+		mSymbolList->GetSymbol( inAddress, theSymbol, theComment, &theOffset );
+	}
+	
 	if (theOffset == 0)
 	{
 		di_printf( theSymbol );
