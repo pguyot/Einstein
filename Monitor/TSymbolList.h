@@ -114,9 +114,9 @@ private:
 	void LoadSymbols( void );
 
 	///
-	/// Read data for a symbol from the symbol file
+	/// Copy symbol name and comment strings out of an SSymbolStruct
 	//
-	void ReadSymbolData(
+	void CopySymbolStrings(
 						SSymbolStruct *symbol,
 						char* outSymbol,
 						char* outComment);
