@@ -588,26 +588,35 @@ struct SSymbolStruct
 
 
 // -------------------------------------------------------------------------- //
-//  * ReadSymbolData( SSymbolStruct symbol, char* outSymbol, char* outComment )
+//  * CopySymbolStrings( SSymbolStruct symbol, char* outSymbol, char* outComment )
 // -------------------------------------------------------------------------- //
 void
-TSymbolList::ReadSymbolData(
+TSymbolList::CopySymbolStrings(
 							SSymbolStruct *symbol,
 							char* outSymbol,
 							char* outComment)
 {
-	if (outSymbol) {
-		if (symbol->fSymbol) {
+	if ( outSymbol )
+	{
+		if ( symbol->fSymbol )
+		{
 			strcpy(outSymbol, symbol->fSymbol);
-		} else {
-			outSymbol = NULL;
+		}
+		else
+		{
+			*outSymbol = '\0';
 		}
 	}
-	if (outComment) {
-		if (symbol->fComment) {
+	
+	if ( outComment )
+	{
+		if ( symbol->fComment )
+		{
 			strcpy(outComment, symbol->fComment);
-		} else {
-			outComment = NULL;
+		}
+		else
+		{
+			*outComment = '\0';
 		}
 	}
 }
@@ -697,7 +706,7 @@ TSymbolList::GetSymbol(
 		}
 		if ((inValue >= theSymbolValue) && (inValue < theNextSymbolValue))
 		{
-			ReadSymbolData(&mSymbolOffsets[indexSymbols], outSymbol, outComment);
+			CopySymbolStrings(&mSymbolOffsets[indexSymbols], outSymbol, outComment);
 			if (outOffset) {
 				*outOffset = (int)(inValue - theSymbolValue);
 			}
@@ -725,7 +734,7 @@ TSymbolList::GetSymbolExact(
 
 	if (symbol != NULL)
 	{
-		ReadSymbolData(symbol, outSymbol, outComment);
+		CopySymbolStrings(symbol, outSymbol, outComment);
 		if (outOffset)
 			*outOffset = inValue - symbol->fSymbolValue;
 		r = true;
