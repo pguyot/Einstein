@@ -78,8 +78,8 @@ TSymbolList::~TSymbolList( void )
 		int i;
 		for (i=0; i<mSymbolCount; i++) {
 			struct SSymbolStruct* s = mSymbolOffsets+i;
-			if (s->fSymbol)
-				::free(s->fSymbol);
+			if (s->fName)
+				::free(s->fName);
 			if (s->fComment)
 				::free(s->fComment);
 		}
@@ -94,8 +94,8 @@ TSymbolList::~TSymbolList( void )
 void
 TSymbolList::AddSymbol(KUInt32 inValue, const char* inSymbol, const char* inComment)
 {
-	mSymbolOffsets[mSymbolCount].fSymbol = strdup(inSymbol);
-	mSymbolOffsets[mSymbolCount].fSymbolValue = inValue;
+	mSymbolOffsets[mSymbolCount].fName = strdup(inSymbol);
+	mSymbolOffsets[mSymbolCount].fAddress = inValue;
 	if (inComment) {
 		mSymbolOffsets[mSymbolCount].fComment = strdup(inComment);
 	}
@@ -128,14 +128,14 @@ TSymbolList::LoadSymbols( void )
 	if (fgetc(mFile)=='x') pattern = "0x%x";
 	fseek(mFile, 0, SEEK_SET);
   
-	while ( ::fscanf( mFile, pattern, (int*) &mSymbolOffsets[mSymbolCount].fSymbolValue ) )
+	while ( ::fscanf( mFile, pattern, (int*) &mSymbolOffsets[mSymbolCount].fAddress ) )
 	{
 		char prevSym[512];
 		prevSym[0] = '\0';
 		
-		if ( this->GetSymbolExact(mSymbolOffsets[mSymbolCount].fSymbolValue, prevSym) )
+		if ( this->GetSymbolExact(mSymbolOffsets[mSymbolCount].fAddress, prevSym) )
 		{
-			::fprintf(stderr, "Warning: redefining symbol at %08X (was: %s)\n", mSymbolOffsets[mSymbolCount].fSymbolValue, prevSym);
+			::fprintf(stderr, "Warning: redefining symbol at %08X (was: %s)\n", mSymbolOffsets[mSymbolCount].fAddress, prevSym);
 		}
 	
 		int theChar = fgetc( mFile );
@@ -145,9 +145,9 @@ TSymbolList::LoadSymbols( void )
 			ReadSymbolData( mFile, sym, cmt);
 
 			if (sym[0]) {
-				mSymbolOffsets[mSymbolCount].fSymbol = strdup(sym);
+				mSymbolOffsets[mSymbolCount].fName = strdup(sym);
 			} else {
-				mSymbolOffsets[mSymbolCount].fSymbol = NULL;
+				mSymbolOffsets[mSymbolCount].fName = NULL;
 			}
 			if (cmt[0]) {
 				mSymbolOffsets[mSymbolCount].fComment = strdup(cmt);
@@ -183,7 +183,7 @@ TSymbolList::LoadSymbols( void )
 		} else {
 			(void) ::fprintf( stderr,
 				"Symbol list failed at line %i, last value read is %.8X, read %.2X\n", 
-				(int) mSymbolCount, (unsigned int) mSymbolOffsets[mSymbolCount].fSymbolValue, theChar );
+				(int) mSymbolCount, (unsigned int) mSymbolOffsets[mSymbolCount].fAddress, theChar );
 			mSymbolCount = 0;
 			break;
 		}
@@ -573,18 +573,15 @@ int TSymbolList::QSortCallback(const void *a, const void *b)
 {
 	struct SSymbolStruct* sa = (struct SSymbolStruct*)a;
 	struct SSymbolStruct* sb = (struct SSymbolStruct*)b;
-	if (sa->fSymbolValue<sb->fSymbolValue) return -1;
-	if (sa->fSymbolValue>sb->fSymbolValue) return 1;
+	
+	if ( sa->fAddress < sb->fAddress )
+		return -1;
+	
+	if ( sa->fAddress > sb->fAddress )
+		return 1;
+	
 	return 0;
 }
-
-
-struct SSymbolStruct
-{
-	KUInt32	fSymbolValue;
-	char*	fSymbol;
-	char*	fComment;
-};
 
 
 // -------------------------------------------------------------------------- //
@@ -598,9 +595,9 @@ TSymbolList::CopySymbolStrings(
 {
 	if ( outSymbol )
 	{
-		if ( symbol->fSymbol )
+		if ( symbol->fName )
 		{
-			strcpy(outSymbol, symbol->fSymbol);
+			strcpy(outSymbol, symbol->fName);
 		}
 		else
 		{
@@ -694,13 +691,13 @@ TSymbolList::GetSymbol(
 	// Strings should have a size of 510 bytes plus the terminator (full ANSI C strings).
 	KUInt32 indexSymbols;
 
-	unsigned long int theNextSymbolValue = mSymbolOffsets[0].fSymbolValue;
+	unsigned long int theNextSymbolValue = mSymbolOffsets[0].fAddress;
 	for (indexSymbols = 0; indexSymbols < mSymbolCount; indexSymbols++)
 	{
 		unsigned long int theSymbolValue = theNextSymbolValue;
 		if (indexSymbols < mSymbolCount - 1)
 		{
-			theNextSymbolValue = mSymbolOffsets[indexSymbols+1].fSymbolValue;
+			theNextSymbolValue = mSymbolOffsets[indexSymbols+1].fAddress;
 		} else {
 			theNextSymbolValue = (unsigned long int) -1;
 		}
@@ -736,7 +733,7 @@ TSymbolList::GetSymbolExact(
 	{
 		CopySymbolStrings(symbol, outSymbol, outComment);
 		if (outOffset)
-			*outOffset = inValue - symbol->fSymbolValue;
+			*outOffset = inValue - symbol->fAddress;
 		r = true;
 	} else {
 		if ( outSymbol )
@@ -752,20 +749,25 @@ TSymbolList::GetSymbolExact(
 
 
 // -------------------------------------------------------------------------- //
-//  * GetSymbol( const char* inName )
+//  * GetSymbolByName( const char* inName )
 // -------------------------------------------------------------------------- //
 KUInt32
-TSymbolList::GetSymbol( const char* inName )
+TSymbolList::GetSymbolByName( const char* inName )
 {
-	if (mSymbolCount == 0)
-		return kNoSymbol;
-	int i;
-	for (i=0; i<mSymbolCount; i++) {
-		struct SSymbolStruct* s = mSymbolOffsets+i;
-		if (s->fSymbol && ::strcmp(inName, s->fSymbol)==0)
-			return s->fSymbolValue;
+	KUInt32 outSymbolValue = kNoSymbol;
+	
+	for ( int i = 0; i < mSymbolCount; i++ )
+	{
+		struct SSymbolStruct* s = mSymbolOffsets + i;
+		
+		if ( s->fName && ::strcmp(inName, s->fName) == 0 )
+		{
+			outSymbolValue = s->fAddress;
+			break;
+		}
 	}
-	return kNoSymbol;
+	
+	return outSymbolValue;
 }
 
 
@@ -780,8 +782,8 @@ TSymbolList::GetNextSymbol( KUInt32 inValue )
 	int i;
 	for (i=0; i<mSymbolCount; i++) {
 		struct SSymbolStruct* s = mSymbolOffsets+i;
-		if (s->fSymbolValue > inValue)
-			return s->fSymbolValue;
+		if (s->fAddress > inValue)
+			return s->fAddress;
 	}
 	return kNoSymbol;
 }
