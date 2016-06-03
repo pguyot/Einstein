@@ -191,7 +191,7 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 		if (inCommand[arg]=='#') { isJumpTable = 1; arg++; }
 		int n = 0;
 		if (n==0) {
-			first = mSymbolList->GetSymbol(inCommand+arg);
+			first = mSymbolList->GetSymbolByName(inCommand+arg);
 			if (first!=TSymbolList::kNoSymbol) {
 				n = 1;
 				last = (KUInt32)mSymbolList->GetNextSymbol((KUInt32)first);
@@ -238,7 +238,7 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 		unsigned long first = 0;
 		int n = 0;
 		if (n==0) {
-			first = mSymbolList->GetSymbol(inCommand+6);
+			first = mSymbolList->GetSymbolByName(inCommand+6);
 			if (first!=TSymbolList::kNoSymbol) {
 				n = 1;
 			}

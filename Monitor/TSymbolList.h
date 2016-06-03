@@ -78,7 +78,7 @@ public:
 	///
 	/// Find a symbol by name and return its address
 	///
-	KUInt32 GetSymbol( const char* inName );
+	KUInt32 GetSymbolByName( const char* inName );
 	
 	///
 	/// Find the next symbol for a give address
@@ -89,8 +89,8 @@ public:
 private:
 	struct SSymbolStruct
 	{
-		KUInt32	fSymbolValue;
-		char*	fSymbol;
+		KUInt32	fAddress;
+		char*	fName;
 		char*	fComment;
 	};
 
