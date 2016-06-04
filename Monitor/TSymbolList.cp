@@ -89,27 +89,30 @@ TSymbolList::~TSymbolList( void )
 
 
 // -------------------------------------------------------------------------- //
-//  * AddSymbol(KUInt32 inValue, char* inSymbol, char* inComment)
+//  * AddSymbol(KUInt32 inAddress, char* inSymbol, char* inComment)
 // -------------------------------------------------------------------------- //
 void
-TSymbolList::AddSymbol(KUInt32 inValue, const char* inSymbol, const char* inComment)
+TSymbolList::AddSymbol(KUInt32 inAddress, const char* inSymbol, const char* inComment)
 {
 	mSymbolOffsets[mSymbolCount].fName = strdup(inSymbol);
-	mSymbolOffsets[mSymbolCount].fAddress = inValue;
-	if (inComment) {
+	mSymbolOffsets[mSymbolCount].fAddress = inAddress;
+	
+	if ( inComment )
+	{
 		mSymbolOffsets[mSymbolCount].fComment = strdup(inComment);
 	}
+	
 	mSymbolCount++;
-	if (mSymbolCount == mSymbolCapacity)
+	
+	if ( mSymbolCount == mSymbolCapacity )
 	{
 		mSymbolCapacity += 0x4000;	// + 16k
-		mSymbolOffsets = (SSymbolStruct *)
-		::realloc(
+		
+		mSymbolOffsets = (SSymbolStruct *)::realloc(
 				  mSymbolOffsets,
 				  sizeof(SSymbolStruct) * mSymbolCapacity );
 	}
 }
-
 
 
 // -------------------------------------------------------------------------- //
@@ -671,41 +674,51 @@ TSymbolList::ReadSymbolData(
 // -------------------------------------------------------------------------- //
 void
 TSymbolList::GetNearestSymbolByAddress(
-				KUInt32 inValue,
+				KUInt32 inAddress,
 				char* outSymbol,
 				char* outComment,
 				int* outOffset )
 {
-	if (outSymbol) *outSymbol = '\0';
-	if (outComment) *outComment = '\0';
-	if (outOffset) *outOffset = 0;
+	if ( outSymbol )
+		*outSymbol = '\0';
 	
-	if (mSymbolCount == 0)
+	if ( outComment )
+		*outComment = '\0';
+	
+	if ( outOffset )
+		*outOffset = 0;
+	
+	if ( mSymbolCount == 0 )
 	{
-		::sprintf(outSymbol, "%08X", (unsigned int)inValue);
 		::sprintf(outComment, "(no symbol data)");
 		return;
 	}
 		
 	// Let's look for the symbol.
 	// Strings should have a size of 510 bytes plus the terminator (full ANSI C strings).
-	KUInt32 indexSymbols;
-
-	unsigned long int theNextSymbolValue = mSymbolOffsets[0].fAddress;
-	for (indexSymbols = 0; indexSymbols < mSymbolCount; indexSymbols++)
+	
+	unsigned long int theNextSymbolAddress = mSymbolOffsets[0].fAddress;
+	
+	for ( KUInt32 indexSymbols = 0; indexSymbols < mSymbolCount; indexSymbols++ )
 	{
-		unsigned long int theSymbolValue = theNextSymbolValue;
-		if (indexSymbols < mSymbolCount - 1)
+		unsigned long int theSymbolAddress = theNextSymbolAddress;
+		
+		if ( indexSymbols < mSymbolCount - 1 )
 		{
-			theNextSymbolValue = mSymbolOffsets[indexSymbols+1].fAddress;
-		} else {
-			theNextSymbolValue = (unsigned long int) -1;
+			theNextSymbolAddress = mSymbolOffsets[indexSymbols + 1].fAddress;
 		}
-		if ((inValue >= theSymbolValue) && (inValue < theNextSymbolValue))
+		else
+		{
+			theNextSymbolAddress = kNoSymbol;
+		}
+		
+		if ( (inAddress >= theSymbolAddress) && (inAddress < theNextSymbolAddress) )
 		{
 			CopySymbolStrings(&mSymbolOffsets[indexSymbols], outSymbol, outComment);
-			if (outOffset) {
-				*outOffset = (int)(inValue - theSymbolValue);
+			
+			if ( outOffset )
+			{
+				*outOffset = (int)(inAddress - theSymbolAddress);
 			}
 			break;
 		}
@@ -717,32 +730,38 @@ TSymbolList::GetNearestSymbolByAddress(
 // -------------------------------------------------------------------------- //
 bool
 TSymbolList::GetSymbolByAddress(
-				KUInt32 inValue,
+				KUInt32 inAddress,
 				char* outSymbol,
 				char* outComment,
 				int* outOffset )
 {
 	bool found = false;
-	char outCommentAlt[512];
-	if (!outComment) outComment = outCommentAlt;
 	
-	SSymbolStruct *symbol = (SSymbolStruct *) bsearch(&inValue, mSymbolOffsets,
-		mSymbolCount, sizeof(*mSymbolOffsets), symbolValueCompare);
+	SSymbolStruct *symbol = (SSymbolStruct *)bsearch(&inAddress, mSymbolOffsets,
+								mSymbolCount, sizeof(*mSymbolOffsets),
+								symbolValueCompare);
 
-	if (symbol != NULL)
+	if ( symbol != NULL )
 	{
 		CopySymbolStrings(symbol, outSymbol, outComment);
-		if (outOffset)
-			*outOffset = inValue - symbol->fAddress;
+		
+		if ( outOffset )
+			*outOffset = inAddress - symbol->fAddress;
+		
 		found = true;
-	} else {
+	}
+	else
+	{
 		if ( outSymbol )
-			::sprintf(outSymbol, "%08X", (unsigned int)inValue);
+			::sprintf(outSymbol, "%08X", (unsigned int)inAddress);
+	
 		if ( outComment )
 			::sprintf(outComment, "(no symbol data)");
-		if (outOffset)
+		
+		if ( outOffset )
 			*outOffset = 0;
 	}
+	
 	return found;
 }
 
@@ -755,14 +774,17 @@ TSymbolList::GetSymbolByName( const char* inName )
 {
 	KUInt32 outSymbolValue = kNoSymbol;
 	
-	for ( int i = 0; i < mSymbolCount; i++ )
+	if ( inName != NULL )
 	{
-		struct SSymbolStruct* s = mSymbolOffsets + i;
-		
-		if ( s->fName && ::strcmp(inName, s->fName) == 0 )
+		for ( int i = 0; i < mSymbolCount; i++ )
 		{
-			outSymbolValue = s->fAddress;
-			break;
+			struct SSymbolStruct* s = mSymbolOffsets + i;
+			
+			if ( s->fName && ::strcmp(inName, s->fName) == 0 )
+			{
+				outSymbolValue = s->fAddress;
+				break;
+			}
 		}
 	}
 	
@@ -771,20 +793,25 @@ TSymbolList::GetSymbolByName( const char* inName )
 
 
 // -------------------------------------------------------------------------- //
-//  * GetNextSymbol( KUInt32 inValue )
+//  * GetNextSymbol( KUInt32 inAddress )
 // -------------------------------------------------------------------------- //
 KUInt32
-TSymbolList::GetNextSymbol( KUInt32 inValue )
+TSymbolList::GetNextSymbol( KUInt32 inAddress )
 {
-	if (mSymbolCount == 0)
-		return kNoSymbol;
-	int i;
-	for (i=0; i<mSymbolCount; i++) {
-		struct SSymbolStruct* s = mSymbolOffsets+i;
-		if (s->fAddress > inValue)
-			return s->fAddress;
+	KUInt32 outAddress = kNoSymbol;
+	
+	for ( int i = 0; i < mSymbolCount; i++ )
+	{
+		struct SSymbolStruct* s = mSymbolOffsets + i;
+		
+		if ( s->fAddress > inAddress )
+		{
+			outAddress = s->fAddress;
+			break;
+		}
 	}
-	return kNoSymbol;
+	
+	return outAddress;
 }
 
 
