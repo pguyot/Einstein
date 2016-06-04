@@ -234,7 +234,7 @@ UJITGenericRetargetSupport::JumpToCalculatedAddress(TARMProcessor* ioCPU, KUInt3
 			if (inPC<0x00800000 || inPC>0x008fffff) {
 				printf("SIM_INFO: not a native target at 0x%08X, pc=0x%08X, lr=0x%08X\n", (unsigned int)inPC-4, (unsigned int)ioCPU->mCurrentRegisters[TARMProcessor::kR14], (unsigned int)ioCPU->mCurrentRegisters[TARMProcessor::kR15]);
 				char sym[1024];
-				if (TSymbolList::List->GetSymbolExact(inPC-4, sym)) {
+				if (TSymbolList::List->GetSymbolByAddress(inPC-4, sym)) {
 					printf("SIM_INFO(%d): try: rt cjit %s\n", (unsigned int)++cnt, sym);
 				} else {
 					printf("SIM_INFO(%d): try: rt cjit %08lX-%08lX vt_%08lX\n", (unsigned int)++cnt, (unsigned long)inPC-4, (unsigned long)inPC, (unsigned long)inPC-4);

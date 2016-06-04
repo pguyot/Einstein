@@ -1573,7 +1573,7 @@ TMonitor::DrawScreenHalted( void )
 	if ( mSymbolList )
 	{
 		// Get the symbol.
-		mSymbolList->GetSymbol(
+		mSymbolList->GetNearestSymbolByAddress(
 						realPC,
 						theSymbol,
 						theComment,
@@ -1795,7 +1795,7 @@ TMonitor::PrintInstruction( KUInt32 inAddress )
 	int theOffset;
 	char theLine[512];
 	// If instruction is at the top of a function, print its name.
-	mSymbolList->GetSymbol( inAddress, theSymbol, theComment, &theOffset );
+	mSymbolList->GetNearestSymbolByAddress( inAddress, theSymbol, theComment, &theOffset );
 	if (theOffset == 0)
 	{
 		(void) ::sprintf(
@@ -1852,12 +1852,12 @@ TMonitor::PrintBacktrace(KSInt32 inNWords)
 		inNWords = 28; // approximatly one full screen
 	for (int i=inNWords; i>=0; i--) {
 		mMemory->Read((TMemory::VAddr)sp+4*i, theData);
-		mSymbolList->GetSymbol( theData, theSymbol, theComment, &theOffset );
+		mSymbolList->GetNearestSymbolByAddress( theData, theSymbol, theComment, &theOffset );
 		sprintf(theLine, "sp+%3d: 0x%08X = %s+%d", (int) 4*i, (unsigned int)theData, theSymbol, theOffset);
 		theLine[62] = 0;
 		PrintLine(theLine, MONITOR_LOG_INFO);
 	}
-	mSymbolList->GetSymbol( lr, theSymbol, theComment, &theOffset );
+	mSymbolList->GetNearestSymbolByAddress( lr, theSymbol, theComment, &theOffset );
 	sprintf(theLine, "    lr: 0x%08X = %s+%d", (unsigned int)lr, theSymbol, theOffset);
 	theLine[62] = 0;
 	PrintLine(theLine, MONITOR_LOG_INFO);
