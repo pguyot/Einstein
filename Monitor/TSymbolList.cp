@@ -34,11 +34,22 @@ TSymbolList *TSymbolList::List = 0;
 // Local functions
 // -------------------------------------------------------------------------- //
 
-int symbolValueCompare( const void * a, const void * b )
+int symbolAddressCompare( const void * a, const void * b )
 {
-	int r;
-	KUInt32 x = *(KUInt32 *) a, y = *(KUInt32 *) b;
-	if (x > y) r = 1; else if (x < y) r = -1; else r = 0;
+	int r = 0;
+
+	KUInt32 x = *(KUInt32 *)a;
+	KUInt32 y = *(KUInt32 *)b;
+	
+	if ( x > y )
+	{
+		r = 1;
+	}
+	else if ( x < y )
+	{
+		r = -1;
+	}
+
 	return r;
 }
 
@@ -57,11 +68,15 @@ TSymbolList::TSymbolList( const char* inPath )
 		mFile( nil )
 {
 	// Load symbols and keep them in memory to have fast access when searching.
+	
 	mFile = ::fopen( inPath, "r" );
+	
 	if (mFile == NULL)
 	{
 		(void) ::fprintf( stderr, "Cannot open symbol files '%s'\n", inPath );
-	} else {
+	}
+	else
+	{
 		LoadSymbols();
 		UDisasm::setSymbolList(this);
 		::fclose( mFile );
@@ -73,16 +88,19 @@ TSymbolList::TSymbolList( const char* inPath )
 // -------------------------------------------------------------------------- //
 TSymbolList::~TSymbolList( void )
 {
-	if (mSymbolOffsets)
+	if ( mSymbolOffsets )
 	{
-		int i;
-		for (i=0; i<mSymbolCount; i++) {
-			struct SSymbolStruct* s = mSymbolOffsets+i;
-			if (s->fName)
+		for ( int i = 0; i < mSymbolCount; i++ )
+		{
+			struct SSymbolStruct* s = mSymbolOffsets + i;
+			
+			if ( s->fName )
 				::free(s->fName);
-			if (s->fComment)
+			
+			if ( s->fComment )
 				::free(s->fComment);
 		}
+		
 		::free( mSymbolOffsets );
 	}
 }
@@ -121,14 +139,16 @@ TSymbolList::AddSymbol(KUInt32 inAddress, const char* inSymbol, const char* inCo
 void
 TSymbolList::LoadSymbols( void )
 {
-	// I need to load the symbol table.
 	mSymbolCapacity = 0x20000;	// 128 k entries
 	mSymbolCount = 0;
 	mSymbolOffsets = (SSymbolStruct*) ::malloc( sizeof(SSymbolStruct) * mSymbolCapacity );
 	
 	static const char *pattern = "%x";
 	fgetc(mFile);
-	if (fgetc(mFile)=='x') pattern = "0x%x";
+	
+	if ( fgetc(mFile) == 'x' )
+		pattern = "0x%x";
+		
 	fseek(mFile, 0, SEEK_SET);
   
 	while ( ::fscanf( mFile, pattern, (int*) &mSymbolOffsets[mSymbolCount].fAddress ) )
@@ -142,19 +162,26 @@ TSymbolList::LoadSymbols( void )
 		}
 	
 		int theChar = fgetc( mFile );
-		if (theChar == '\t' || theChar == ' ')
+		if ( theChar == '\t' || theChar == ' ' )
 		{
 			char sym[512], cmt[512];
 			ReadSymbolData( mFile, sym, cmt);
 
-			if (sym[0]) {
+			if ( sym[0] )
+			{
 				mSymbolOffsets[mSymbolCount].fName = strdup(sym);
-			} else {
+			}
+			else
+			{
 				mSymbolOffsets[mSymbolCount].fName = NULL;
 			}
-			if (cmt[0]) {
+			
+			if ( cmt[0] )
+			{
 				mSymbolOffsets[mSymbolCount].fComment = strdup(cmt);
-			} else {
+			}
+			else
+			{
 				mSymbolOffsets[mSymbolCount].fComment = NULL;
 			}
 
@@ -166,14 +193,14 @@ TSymbolList::LoadSymbols( void )
 			do
 			{
 				theChar = fgetc( mFile );
-			} while ((theChar != EOF) && (theChar != '\n') && (theChar != '\r'));
+			} while ( (theChar != EOF) && (theChar != '\n') && (theChar != '\r') );
 			
-			if (theChar == EOF)
+			if ( theChar == EOF )
 			{
 				break;
 			}
 			
-			if (mSymbolCount == mSymbolCapacity)
+			if ( mSymbolCount == mSymbolCapacity )
 			{
 				mSymbolCapacity += 0x4000;	// + 16k
 				mSymbolOffsets = (SSymbolStruct *)
@@ -181,9 +208,13 @@ TSymbolList::LoadSymbols( void )
 										mSymbolOffsets,
 										sizeof(SSymbolStruct) * mSymbolCapacity );
 			}
-		} else if (theChar == EOF) {
+		}
+		else if ( theChar == EOF )
+		{
 			break;
-		} else {
+		}
+		else
+		{
 			(void) ::fprintf( stderr,
 				"Symbol list failed at line %i, last value read is %.8X, read %.2X\n", 
 				(int) mSymbolCount, (unsigned int) mSymbolOffsets[mSymbolCount].fAddress, theChar );
@@ -636,36 +667,49 @@ TSymbolList::ReadSymbolData(
 	do
 	{
 		theChar = ::fgetc( inFile );
-		if ((theChar != EOF) && (theChar != '\t') && (cursor < 510) && (theChar != '\n') && (theChar != '\r'))
+		
+		if ( (theChar != EOF) && (theChar != '\t') && (cursor < 510) && (theChar != '\n') && (theChar != '\r') )
 		{
 			outSymbol[cursor] = theChar;
-		} else {
+		}
+		else
+		{
 			outSymbol[cursor] = '\0';
 			break;
 		}
+		
 		cursor++;
 	} while (1);
 
-	if (theChar != '\t')
+	if ( theChar != '\t' )
 	{
 		outComment[0] = '\0';
-	} else {
+	}
+	else
+	{
 		cursor = 0;
+
 		// Now I fill the comment
+
 		do
 		{
 			theChar = ::fgetc( inFile );
-			if ((theChar != EOF) && (theChar != '\n') && (theChar != '\r') && (cursor < 510))
+
+			if ( (theChar != EOF) && (theChar != '\n') && (theChar != '\r') && (cursor < 510) )
 			{
 				outComment[cursor] = theChar;
-			} else {
+			}
+			else
+			{
 				outComment[cursor] = '\0';
 				break;
 			}
+			
 			cursor++;
 		} while (1);
 	}
-	if (theChar != EOF)
+	
+	if ( theChar != EOF )
 		::ungetc(theChar, inFile);
 }
 
@@ -739,7 +783,7 @@ TSymbolList::GetSymbolByAddress(
 	
 	SSymbolStruct *symbol = (SSymbolStruct *)bsearch(&inAddress, mSymbolOffsets,
 								mSymbolCount, sizeof(*mSymbolOffsets),
-								symbolValueCompare);
+								symbolAddressCompare);
 
 	if ( symbol != NULL )
 	{
