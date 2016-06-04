@@ -133,7 +133,7 @@ TSymbolList::LoadSymbols( void )
 		char prevSym[512];
 		prevSym[0] = '\0';
 		
-		if ( this->GetSymbolExact(mSymbolOffsets[mSymbolCount].fAddress, prevSym) )
+		if ( this->GetSymbolByAddress(mSymbolOffsets[mSymbolCount].fAddress, prevSym) )
 		{
 			::fprintf(stderr, "Warning: redefining symbol at %08X (was: %s)\n", mSymbolOffsets[mSymbolCount].fAddress, prevSym);
 		}
@@ -667,10 +667,10 @@ TSymbolList::ReadSymbolData(
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetSymbol( KUInt32, char*, char*, int* )
+//  * GetNearestSymbolByAddress( KUInt32, char*, char*, int* )
 // -------------------------------------------------------------------------- //
 void
-TSymbolList::GetSymbol(
+TSymbolList::GetNearestSymbolByAddress(
 				KUInt32 inValue,
 				char* outSymbol,
 				char* outComment,
@@ -713,16 +713,16 @@ TSymbolList::GetSymbol(
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetSymbol( KUInt32, char*, char*, int* )
+//  * GetSymbolByAddress( KUInt32, char*, char*, int* )
 // -------------------------------------------------------------------------- //
 bool
-TSymbolList::GetSymbolExact(
+TSymbolList::GetSymbolByAddress(
 				KUInt32 inValue,
 				char* outSymbol,
 				char* outComment,
 				int* outOffset )
 {
-	bool r;
+	bool found = false;
 	char outCommentAlt[512];
 	if (!outComment) outComment = outCommentAlt;
 	
@@ -734,7 +734,7 @@ TSymbolList::GetSymbolExact(
 		CopySymbolStrings(symbol, outSymbol, outComment);
 		if (outOffset)
 			*outOffset = inValue - symbol->fAddress;
-		r = true;
+		found = true;
 	} else {
 		if ( outSymbol )
 			::sprintf(outSymbol, "%08X", (unsigned int)inValue);
@@ -742,9 +742,8 @@ TSymbolList::GetSymbolExact(
 			::sprintf(outComment, "(no symbol data)");
 		if (outOffset)
 			*outOffset = 0;
-		r = false;
 	}
-	return r;
+	return found;
 }
 
 

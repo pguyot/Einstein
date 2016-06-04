@@ -138,7 +138,7 @@ NSString* TMacMonitor::GetSymbol()
 	char theComment[512];
 	int theOffset;
 
-	mSymbolList->GetSymbol(
+	mSymbolList->GetNearestSymbolByAddress(
 					realPC,
 					theSymbol,
 					theComment,

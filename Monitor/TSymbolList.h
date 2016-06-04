@@ -60,7 +60,7 @@ public:
 	///
 	/// Find symbol at or preceeding a given address
 	///
-	void GetSymbol(
+	void GetNearestSymbolByAddress(
 			KUInt32 inValue,
 			char* outSymbol,
 			char* outComment,
@@ -69,11 +69,11 @@ public:
 	///
 	/// Find symbol at a given address
 	///
-	bool GetSymbolExact(
+	bool GetSymbolByAddress(
 			KUInt32 inValue,
 			char* outSymbol,
-			char* outComment=0L,
-			int* outOffset=0L );
+			char* outComment = NULL,
+			int* outOffset = NULL );
 	
 	///
 	/// Find a symbol by name and return its address
@@ -90,8 +90,8 @@ private:
 	struct SSymbolStruct
 	{
 		KUInt32	fAddress;
-		char*	fName;
-		char*	fComment;
+		char* fName;
+		char* fComment;
 	};
 
 	///
@@ -119,7 +119,7 @@ private:
 	void CopySymbolStrings(
 						SSymbolStruct *symbol,
 						char* outSymbol,
-						char* outComment);
+						char* outComment );
 	
 	///
 	/// Read data for a symbol from the symbol file
@@ -127,16 +127,19 @@ private:
 	void ReadSymbolData(
 						FILE *inFile,
 						char* outSymbol,
-						char* outComment);
+						char* outComment );
 	
 	///
 	/// Add one symbol with value and comment
 	///
-	void AddSymbol(KUInt32 inValue, const char* inSymbol, const char* inComment=0);
+	void AddSymbol(
+						KUInt32 inValue,
+						const char* inSymbol,
+						const char* inComment = NULL );
 	
 	///
 	/// Return -1, 0, or 1 if the symbol position is less, equal, or greater
-	static int QSortCallback(const void*, const void*);
+	static int QSortCallback( const void *left, const void *right );
 	
 	/// \name Variables
 	SSymbolStruct*		mSymbolOffsets;

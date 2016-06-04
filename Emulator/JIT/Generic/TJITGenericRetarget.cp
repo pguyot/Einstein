@@ -258,7 +258,7 @@ void TJITGenericRetarget::TranslateFunction(KUInt32 inFirst, KUInt32 inLast, con
 			{
 				char sym[512], cmt[512];
 				int off;
-				if (pSymbolList->GetSymbolExact(instr, sym, cmt, &off)) {
+				if (pSymbolList->GetSymbolByAddress(instr, sym, cmt, &off)) {
 					fprintf(pCOut, "\t// KUInt32 D_%08X = 0x%08X; // %s\n", (unsigned int)addr, (unsigned int)instr, sym);
 				} else {
 					fprintf(pCOut, "\t// KUInt32 D_%08X = 0x%08X;\n", (unsigned int)addr, (unsigned int)instr);
@@ -582,7 +582,7 @@ void TJITGenericRetarget::Translate_SingleDataTransfer(
 		MemoryRead(theAddress, theValue);
 		char sym[512], cmt[512];
 		int off;
-		if (pSymbolList->GetSymbolExact(theValue, sym, cmt, &off)) {
+		if (pSymbolList->GetSymbolByAddress(theValue, sym, cmt, &off)) {
 #if 0
 			if (theValue>=0x0c100800 && theValue<=0x0F243000) {
 				// know global variables - use a symbolic expression for simulation!
@@ -1384,7 +1384,7 @@ void TJITGenericRetarget::Translate_Branch(KUInt32 inVAddr, KUInt32 inInstructio
 		// branch with link
 		fprintf(pCOut, "\t\tioCPU->mCurrentRegisters[14] = 0x%08X + 4;\n", (unsigned int)inVAddr);
 		char sym[512];
-		if (pSymbolList->GetSymbolExact(dest, sym)) {
+		if (pSymbolList->GetSymbolByAddress(dest, sym)) {
 			fprintf(pCOut, "\t\t// rt cjitr %s\n", sym);
 		} else {
 			fprintf(pCOut, "\t\t// rt cjitr %08X\n", (unsigned int)dest);
@@ -1399,7 +1399,7 @@ void TJITGenericRetarget::Translate_Branch(KUInt32 inVAddr, KUInt32 inInstructio
 		if (destination<pFunctionBegin||destination>=pFunctionEnd) {
 			// branch to some address outside of the current function range
 			char sym[512];
-			if (pSymbolList->GetSymbolExact(dest, sym)) {
+			if (pSymbolList->GetSymbolByAddress(dest, sym)) {
 				fprintf(pCOut, "\t\t// rt cjitr %s\n", sym);
 			} else {
 				fprintf(pCOut, "\t\t// rt cjitr %08X\n", (unsigned int)dest);

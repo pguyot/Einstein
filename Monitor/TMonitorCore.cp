@@ -226,7 +226,7 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 				while (*n==' ') n++;
 				if (*n) {
 					strcpy(name, n);
-				} else if (mSymbolList->GetSymbolExact((KUInt32)first, name, cmt, &off)) {
+				} else if (mSymbolList->GetSymbolByAddress((KUInt32)first, name, cmt, &off)) {
 					// symbol name is in 'name'
 				} else {
 					sprintf(name, "Func_0x%08lX", first);
@@ -262,7 +262,7 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 			while (*n==' ') n++;
 			if (*n) {
 				strcpy(name, n);
-			} else if (mSymbolList->GetSymbolExact((KUInt32)first, name, cmt, &off)) {
+			} else if (mSymbolList->GetSymbolByAddress((KUInt32)first, name, cmt, &off)) {
 				// symbol name is in 'name'
 			} else {
 				sprintf(name, "Func_0x%08X", (unsigned int)first);
@@ -278,7 +278,7 @@ TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
 				fprintf(f, "\n\nrt open /Users/matt/dev/Einstein/Newt/Monty/Grp%X/Fn%X\n", i, j);
 				for (si=0; si<100; si++) {
 					char sym[1024];
-					mSymbolList->GetSymbolExact(addr, sym);
+					mSymbolList->GetSymbolByAddress(addr, sym);
 					if (addr<0x003AE58C) {
 						fprintf(f, "rt cjit %s\n", sym);
 						addr = mSymbolList->GetNextSymbol(addr);

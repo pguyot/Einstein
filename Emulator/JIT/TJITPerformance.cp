@@ -88,7 +88,7 @@ void TJITPerfHitCounter::printOneHit(FILE *out, KUInt32 style, TSymbolList *inSy
 	bool exactSymbol = false;
 
 	if (count > 0 || !(style & kStyleNonZeroOnly)) {
-		if (inSymbols != NULL) exactSymbol = inSymbols->GetSymbolExact(addr, symbol, comment, &offset);
+		if (inSymbols != NULL) exactSymbol = inSymbols->GetSymbolByAddress(addr, symbol, comment, &offset);
 		if (exactSymbol) {
 			fprintf(out, "%s\t%19llu\n", symbol, count);
 		} else if ((style & kStyleSymbolsOnly) == 0) {
