@@ -59,7 +59,7 @@ const KUInt32 k717006VirtualizationPatches[] = {
 // -------------------------------------------------------------------------- //
 void
 TVirtualizedCallsPatches::DoPatchROM(KUInt32* inROMPtr, const std::string& inMachineName) {
-	const KUInt32* patches = nullptr;
+	const KUInt32* patches = 0;
 	
 	if (inMachineName == "717006") {
 		patches = k717006VirtualizationPatches;

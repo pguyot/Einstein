@@ -383,6 +383,7 @@ if $(OS) = "MACOSX"
 	_commonflags += -I$(EXPAT_BASE)/include ;
 	_commonflags += -I/usr/include/i686-linux-gnu/ ;
 	_commonflags += -DTARGET_OS_LINUX=1 ;
+	_commonflags += -DHAS_C99_LONGLONG=1 ;
 	_commonflags += -Wall ;
 	_commonflags += -Wno-multichar ;
 	_commonflags += -Wno-unknown-pragmas ;
