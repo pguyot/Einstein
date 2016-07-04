@@ -104,18 +104,26 @@
 #include <errno.h>
 
 
-#ifdef __ANDROID__
+#ifdef __ANDROID__ 
 # include <stdio.h>
 # include <fcntl.h>
 #else
+#if !RASPBERRY_PI
 # include <sys/sockio.h>
 # include <ifaddrs.h>
+#endif
 #endif
 
 #if TARGET_IOS
 #include <fcntl.h>
 #endif
 
+#if RASPBERRY_PI
+#include <stdio.h>
+#include <fcntl.h>
+#include <string.h>
+#include <stdlib.h>
+#endif
 
 const KUInt32 kUDPExpirationTime = 100;
 

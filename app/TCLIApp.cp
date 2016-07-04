@@ -350,7 +350,7 @@ TCLIApp::Run( int argc, char* argv[] )
 		(void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
 							theDataPath, theMachineString );
 		mSymbolList = new TSymbolList( theSymbolListPath );
-		mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList );
+		mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList, NULL );
 	} else {
 		(void) ::printf( "Booting...\n" );
 	}
@@ -622,7 +622,7 @@ TCLIApp::PrintLine( const char* inLine )
 {
 	if (mMonitor)
 	{
-		mMonitor->PrintLine( inLine );
+		mMonitor->PrintLine( inLine, 0 );
 	} else {
 		(void) ::printf( "%s\n", inLine );
 	}

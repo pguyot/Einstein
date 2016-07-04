@@ -25,7 +25,12 @@
 
 // Einstein
 #include "TMemory.h"
+
+#if RASPBERRY_PI
+#include "../Log/TLog.h"
+#else
 #include "TLog.h"
+#endif
 
 //
 #include <sys/types.h>

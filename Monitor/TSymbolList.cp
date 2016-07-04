@@ -28,6 +28,10 @@
 
 #include <stdlib.h>
 
+#if RASPBERRY_PI
+#include <string.h>
+#endif
+
 TSymbolList *TSymbolList::List = 0;
 
 // -------------------------------------------------------------------------- //

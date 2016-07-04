@@ -42,7 +42,9 @@ class TNativeCalls;
 #endif
 class TVirtualizedCalls;
 class TStream;
+#if TARGET_OS_MAC
 class TObjCBridgeCalls;
+#endif
 
 struct TabletCalibration {
 	KUInt32	fUnknown_00;
@@ -234,7 +236,9 @@ private:
 	TNativeCalls*		mNativeCalls;		///< Interface for native calls.
 #endif
 	TVirtualizedCalls*	mVirtualizedCalls;	///< Interface for virtualized calls.
+#if TARGET_OS_MAC
 	TObjCBridgeCalls*   mObjCBridgeCalls;    ///< Interface for iOS calls.
+#endif
 	KUInt32				mScreenContrast;	///< Feature 0x0 (probably the contrast).
 	KUInt32				mScreenBacklight;   ///< Feature 0x2.
 	KUInt32				mScreenOrientation; ///< Feature 0x4.

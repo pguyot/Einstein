@@ -51,7 +51,9 @@
 #include "Platform/TPlatformManager.h"
 #include "Platform/PlatformGestalt.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
+#if TARGET_OS_MAC
 #include "NativeCalls/TObjCBridgeCalls.h"
+#endif
 
 // Native primitives implement stores to coprocessor #10
 
@@ -88,7 +90,9 @@ TNativePrimitives::TNativePrimitives(
 #if !TARGET_OS_MAC
 		mNativeCalls( new TNativeCalls(inMemory) ),
 #endif
+#if TARGET_OS_MAC
 		mObjCBridgeCalls( new TObjCBridgeCalls(inMemory)),
+#endif
 		mVirtualizedCalls( nil ),
 		mInputVolume( 0 ),
 		mQuit( false )
@@ -287,10 +291,12 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 			case 0x00000A:
 				ExecuteNetworkManagerNative( inInstruction );
 				break;
-			
+		
+#if TARGET_OS_MAC	
 			case 0x00000B:
 				ExecuteHostiOSNativeiOS( inInstruction );
 				break;
+#endif
 				
 			default:
 				if (mLog)
@@ -2873,6 +2879,7 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 	}
 }
 
+#if TARGET_OS_MAC
 void
 TNativePrimitives::ExecuteHostiOSNativeiOS( KUInt32 inInstruction )
 {
@@ -2951,6 +2958,7 @@ TNativePrimitives::ExecuteHostiOSNativeiOS( KUInt32 inInstruction )
 			
 	}
 }
+#endif
 
 // -------------------------------------------------------------------------- //
 //  * TransferState( TStream* )

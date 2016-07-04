@@ -27,6 +27,10 @@
 #include <K/Defines/KDefinitions.h>
 #include <sys/select.h>
 
+#if RASPBERRY_PI
+#include <sys/socket.h>
+#endif
+
 class TLog;
 class TInterruptManager;
 class TMemory;

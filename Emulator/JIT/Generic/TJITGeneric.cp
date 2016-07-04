@@ -35,7 +35,12 @@
 #include "TMemoryConsts.h"
 
 #include "TJITGenericROMPatch.h"
+
+#if RASPBERRY_PI
+#include "../../NativeCalls/TVirtualizedCallsPatches.h"
+#else
 #include "TVirtualizedCallsPatches.h"
+#endif
 
 #if 0
 //

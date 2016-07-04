@@ -104,6 +104,13 @@ if $(target:E="unknown") = "linux-2.3.2"
 	SUBTARGET = "-2.3.2" ;
 	CROSS = "yes" ;
 }
+# Raspberry Pi
+if $(target:E="unknown") = "raspberry-pi"
+{
+	compiler = $(compiler:E="gcc") ;
+	cross = "no" ;
+	OS = "LINUX" ;
+}
 
 compiler = $(compiler:E="unknown") ;
 
@@ -170,70 +177,70 @@ KXML = "$(KLIBS_BASE)K/XML/" ;
 SubDirHdrs "$(KLIBS_BASE)" ;
 
 COMMON_CPP_SOURCES = ;
-COMMON_CPP_SOURCES	+= "$(KCRYPTO)U3DES.cp" ;
-COMMON_CPP_SOURCES	+= "$(KCRYPTO)UDES.cp" ;
-COMMON_CPP_SOURCES	+= "$(KCRYPTO)UDESTables.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KCRYPTO)U3DES.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KCRYPTO)UDES.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KCRYPTO)UDESTables.cp" ;
 COMMON_CPP_SOURCES	+= "$(KEXCEPTIONS)TException.cp" ;
 COMMON_CPP_SOURCES	+= "$(KEXCEPTIONS)Errors/TError.cp" ;
 COMMON_CPP_SOURCES	+= "$(KEXCEPTIONS)Errors/TMemError.cp" ;
 COMMON_CPP_SOURCES	+= "$(KEXCEPTIONS)IO/TIOException.cp" ;
 COMMON_CPP_SOURCES	+= "$(KEXCEPTIONS)IO/TEOFException.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)TGPEvaluationContext.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)TGPInterpreter.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)TGPSimpleInterpreter.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)TGPSoup.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Creation/TGPCAKoza.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Creation/TGPCreationAlgorithm.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPBooleanData.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPData.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPDataRef.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPType.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPVoidData.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Data/Numbers/TGPNumberData.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Data/Numbers/TGPSInt32Data.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPStringData.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Fitness/TGPDoubleFitness.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Fitness/TGPFitness.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Language/TGPLanguage.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Selection/TGPSelection.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Selection/TGPSortSelection.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Selection/TGPTournamentSelection.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Selection/TGPTruncationSelection.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/TGPTree.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/TGPNode.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/TGPNodeConst.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/TGPNodeLeaf.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/TGPNodeRef.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/BooleanNodes/TGPNodeAnd.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/BooleanNodes/TGPNodeBoolean.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/BooleanNodes/TGPNodeNot.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/BooleanNodes/TGPNodeOr.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/FlowNodes/TGPNodeDo.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/FlowNodes/TGPNodeIfThenElse.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/VarNodes/TGPGetStaticVariable.cp" ;
-COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/VarNodes/TGPSetStaticVariable.cp" ;
-COMMON_CPP_SOURCES	+= "$(KMATH)TRandomGenerator.cp" ;
-COMMON_CPP_SOURCES	+= "$(KMATH)TMT19937RandomGenerator.cp" ;
-COMMON_CPP_SOURCES	+= "$(KMATH)TInt64.cp" ;
-COMMON_CPP_SOURCES	+= "$(KMATH)TSInt64.cp" ;
-COMMON_CPP_SOURCES	+= "$(KMATH)TUInt64.cp" ;
-COMMON_CPP_SOURCES	+= "$(KMATH)UTInt64.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)TGPEvaluationContext.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)TGPInterpreter.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)TGPSimpleInterpreter.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)TGPSoup.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Creation/TGPCAKoza.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Creation/TGPCreationAlgorithm.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPBooleanData.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPData.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPDataRef.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPType.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPVoidData.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Data/Numbers/TGPNumberData.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Data/Numbers/TGPSInt32Data.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Data/TGPStringData.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Fitness/TGPDoubleFitness.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Fitness/TGPFitness.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Language/TGPLanguage.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Selection/TGPSelection.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Selection/TGPSortSelection.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Selection/TGPTournamentSelection.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Selection/TGPTruncationSelection.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/TGPTree.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/TGPNode.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/TGPNodeConst.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/TGPNodeLeaf.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/TGPNodeRef.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/BooleanNodes/TGPNodeAnd.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/BooleanNodes/TGPNodeBoolean.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/BooleanNodes/TGPNodeNot.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/BooleanNodes/TGPNodeOr.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/FlowNodes/TGPNodeDo.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/FlowNodes/TGPNodeIfThenElse.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/VarNodes/TGPGetStaticVariable.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KGP)Tree/Nodes/VarNodes/TGPSetStaticVariable.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KMATH)TRandomGenerator.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KMATH)TMT19937RandomGenerator.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KMATH)TInt64.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KMATH)TSInt64.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KMATH)TUInt64.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KMATH)UTInt64.cp" ;
 COMMON_CPP_SOURCES	+= "$(KMISC)TCircleBuffer.cp" ;
 COMMON_CPP_SOURCES	+= "$(KMISC)TMappedFile.cp" ;
-COMMON_CPP_SOURCES	+= "$(KMISC)TRefCounter.cp" ;
-COMMON_CPP_SOURCES	+= "$(KMISC)UBase64.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KMISC)TRefCounter.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KMISC)UBase64.cp" ;
 MACOS_CPP_SOURCES	+= "$(KMISC)UPStrings.cp" ;
 COMMON_CPP_SOURCES	+= "$(KSTREAMS)TFileStream.cp" ;
 COMMON_CPP_SOURCES	+= "$(KSTREAMS)TStream.cp" ;
 COMMON_CPP_SOURCES	+= "$(KTHREADS)TCondVar.cp" ;
 COMMON_CPP_SOURCES	+= "$(KTHREADS)TMutex.cp" ;
 COMMON_CPP_SOURCES	+= "$(KTHREADS)TThread.cp" ;
-COMMON_CPP_SOURCES	+= "$(KUNICODE)TString.cp" ;
-COMMON_CPP_SOURCES	+= "$(KUNICODE)TMutableStringRef.cp" ;
-COMMON_CPP_SOURCES	+= "$(KUNICODE)TStringRef.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KUNICODE)TString.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KUNICODE)TMutableStringRef.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KUNICODE)TStringRef.cp" ;
 COMMON_CPP_SOURCES	+= "$(KUNICODE)UUTF16Conv.cp" ;
 COMMON_CPP_SOURCES	+= "$(KUNICODE)UUTF16CStr.cp" ;
-COMMON_CPP_SOURCES	+= "$(KXML)UExpatUtils.cp" ;
+#COMMON_CPP_SOURCES	+= "$(KXML)UExpatUtils.cp" ;
 
 
 CPP_SOURCES = $(COMMON_CPP_SOURCES) ;
@@ -251,16 +258,16 @@ SubDirHdrs "$(TESTS_BASE)" ;
 SubDirHdrs "$(TESTS_BASE)Tests/" ;
 
 TESTS_SOURCES		+= "$(TESTS_BASE)tests.cp" ;
-TESTS_SOURCES		+= "$(TESTS_BASE)Tests/U3DESTest.cp" ;
-TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UBase64Test.cp" ;
-TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UDESTest.cp" ;
-TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UDoubleLinkedListTest.cp" ;
-TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UGPDataTest.cp" ;
-TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UGPStreamTest.cp" ;
-TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UMappedFileTest.cp" ;
-TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UThreadsTest.cp" ;
-TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UUInt64Test.cp" ;
-TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UUTF16Test.cp" ;
+#TESTS_SOURCES		+= "$(TESTS_BASE)Tests/U3DESTest.cp" ;
+#TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UBase64Test.cp" ;
+#TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UDESTest.cp" ;
+#TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UDoubleLinkedListTest.cp" ;
+#TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UGPDataTest.cp" ;
+#TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UGPStreamTest.cp" ;
+#TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UMappedFileTest.cp" ;
+#TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UThreadsTest.cp" ;
+#TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UUInt64Test.cp" ;
+#TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UUTF16Test.cp" ;
 
 # ÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑ #
 
@@ -392,7 +399,17 @@ if $(OS) = "MACOSX"
 	_commonflags += -Wpointer-arith ;
 	_commonflags += -Wwrite-strings ;
 	_commonflags += -Wconversion ;
-	_commonflags += -m32 ;
+
+        if $(target:E="unknown") = "raspberry-pi"
+        {
+		_commonflags += -DRASPBERRY_PI=1 ;
+		_commonflags += -DHAS_C99_LONGLONG=1 ;
+	}
+
+	if $(target:E="unknown") != "raspberry-pi"
+	{
+		_commonflags += -m32 ;
+	}
 
 	if $(compiler) = "gcc"
 	{
