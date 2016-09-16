@@ -349,7 +349,7 @@ JITInstructionProto(BranchWithinPageFindDelta)
 		->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
 	
 	// now change the JIT command to the final fast branch
-	ioUnit[ 0].fValue = nextUnit - ioUnit;
+	ioUnit[ 0].fValue = (KUInt32)(nextUnit - ioUnit);
 	ioUnit[-2].fFuncPtr = BranchWithinPage;
 	return nextUnit;
 }
@@ -409,7 +409,7 @@ JITInstructionProto(BranchWithLinkWithinPageFindDelta)
 		->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
 	
 	// now change the JIT command to the final fast branch
-	ioUnit[ 0].fValue = nextUnit - ioUnit;
+	ioUnit[ 0].fValue = (KUInt32)(nextUnit - ioUnit);
 	ioUnit[-3].fFuncPtr = BranchWithLinkWithinPage;
 	return nextUnit;
 }
