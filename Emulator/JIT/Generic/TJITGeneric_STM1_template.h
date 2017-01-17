@@ -99,7 +99,7 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	int indexReg = 0;
 	while (curRegList)
 	{
-		KUInt32 theAddress;
+		static KUInt32 theAddress = 0;
 		if (curRegList & 1)
 		{
 			if (isFirst) {				
