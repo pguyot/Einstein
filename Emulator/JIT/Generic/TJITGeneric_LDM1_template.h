@@ -97,7 +97,7 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	// per MMU page.
 	Boolean isFirst = 1;
 	int indexReg = 0;
-	KUInt32 theAddress;
+	KUInt32 theAddress = 0;
 	while (curRegList)
 	{
 		if (curRegList & 1)
