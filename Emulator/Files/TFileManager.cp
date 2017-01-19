@@ -26,7 +26,7 @@
 // Einstein
 #include "TMemory.h"
 
-#if RASPBERRY_PI
+#if RASPBERRY_PI || TARGET_OS_LINUX
 #include "../Log/TLog.h"
 #else
 #include "TLog.h"

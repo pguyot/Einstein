@@ -102,6 +102,14 @@ if $(target:E="unknown") = "raspberry-pi"
 	LIBFFIPrefix = libffi-armlinux/ ;
 	C++FLAGS += -I/usr/local/lib/libffi-3.99999/include ;
 }
+# Linux (generic, non-cross-compile)
+if $(target:E="unknown") = "linux"
+{
+        OS = "LINUX" ;
+        CROSS = "no" ;
+#        LIBFFIPrefix = libffi-armlinux/ ;
+#        C++FLAGS += -I/usr/local/lib/libffi-3.99999/include ;
+}
 
 # Determine the compiler used here.
 # We know: gcc and xlc
@@ -497,10 +505,15 @@ if $(OS) = "MACOSX"
 	_commonflags += -Wwrite-strings ;
 	_commonflags += -Wconversion ;
 
-        if $(target:E="unknown") = "raspberry-pi"
+        if $(target:E="unknown") = "raspberry-pi" 
         {
 		_commonflags += -DHAS_C99_LONGLONG=1 ;
 		_commonflags += -DRASPBERRY_PI=1 ;
+	}
+
+	if $(target:E="unknown") = "linux"
+	{
+		_commonflags += -DHAS_C99_LONGLONG=1 ;
 	}
 
 	if $(target:E="unknown") != "raspberry-pi"
@@ -555,7 +568,7 @@ if $(OS) = "MACOSX"
 		_commonflags += -I/usr/include/i686-linux-gnu/ ;
 		LibFFI = -lffi ;
 
-		if $(target:E="unknown") = "raspberry-pi"
+		if $(target:E="unknown") = "raspberry-pi" || $(target:E="unknown") = "linux"
 		{
 			LibFFI += -ldl ;
 		}

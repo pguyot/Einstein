@@ -108,7 +108,7 @@
 # include <stdio.h>
 # include <fcntl.h>
 #else
-#if !RASPBERRY_PI
+#if !RASPBERRY_PI && !TARGET_OS_LINUX
 # include <sys/sockio.h>
 # include <ifaddrs.h>
 #endif
@@ -118,7 +118,7 @@
 #include <fcntl.h>
 #endif
 
-#if RASPBERRY_PI
+#if RASPBERRY_PI || TARGET_OS_LINUX
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>

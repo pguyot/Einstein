@@ -400,7 +400,7 @@ if $(OS) = "MACOSX"
 	_commonflags += -Wwrite-strings ;
 	_commonflags += -Wconversion ;
 
-        if $(target:E="unknown") = "raspberry-pi"
+        if $(target:E="unknown") = "raspberry-pi" || $(OS) = "LINUX"
         {
 		_commonflags += -DRASPBERRY_PI=1 ;
 		_commonflags += -DHAS_C99_LONGLONG=1 ;

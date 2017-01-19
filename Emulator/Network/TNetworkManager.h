@@ -27,7 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 #include <sys/select.h>
 
-#if RASPBERRY_PI
+#if RASPBERRY_PI || TARGET_OS_LINUX
 #include <sys/socket.h>
 #endif
 
