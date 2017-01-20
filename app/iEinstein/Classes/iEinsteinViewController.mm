@@ -428,8 +428,9 @@
 - (void)stopEmulator
 {
 	mLog->LogLine("Stopping emulator thread");
-	
-	mEmulator->Stop();
+
+	if ( mEmulator )
+		mEmulator->Stop();
 }
 
 /*
