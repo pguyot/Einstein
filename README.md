@@ -4,7 +4,7 @@
 
 Einstein officially runs on macOS, iOS, and Ubuntu Linux with partial support for Android, and Windows. 
 
-A Newton ROM file is required to run Einstein.  We cannot distribute the ROM file.  If you own a Newton device, you may be able to dump your own ROM file from it.  See [[Dumping The Rom]] for more information.
+A Newton ROM file is required to run Einstein.  We cannot distribute the ROM file.  If you own a Newton device, you may be able to dump your own ROM file from it.  See [Dumping The Rom](../../wiki/Dumping-The-Rom) for more information.
 
 Click here for [downloads and more information](../../wiki)
 
