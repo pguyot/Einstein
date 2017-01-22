@@ -124,7 +124,7 @@ public class EinsteinApplication extends Application {
 	    if (name==null) {
 			Log.i("einstein", "--------< App.onCreate() - CANT LAUNCH SERVICE");
 	    }
-	    
+
 		//Log.i("einstein", "--------< App.onCreate()");
 	}
 	

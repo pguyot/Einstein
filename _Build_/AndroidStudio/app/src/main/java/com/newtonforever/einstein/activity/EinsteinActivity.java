@@ -67,9 +67,11 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     private SharedPreferences sharedPrefs;
 
     // Used to load the 'native-lib' library on application startup.
+    /*
     static {
         System.loadLibrary("native-lib");
     }
+    */
 
     public static EinsteinActivity getInstance() {
         return pInstance;

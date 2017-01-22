@@ -8,7 +8,7 @@ public class Einstein
 {
 	/** Load the entire native program as a library at startup. */
 	static {
-		System.loadLibrary("einstein");
+		System.loadLibrary("native-lib");
 	}
 	
 	private boolean pRunning = false;

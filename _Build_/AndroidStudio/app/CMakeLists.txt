@@ -30,6 +30,7 @@ include_directories(
 SET (SourceFiles
     ${LOCAL_PATH}/app/AndroidGlue.cp
 	${LOCAL_PATH}/app/TAndroidApp.cp
+	${LOCAL_PATH}/Emulator/Files/TFileManager.cp
 	${LOCAL_PATH}/Emulator/Screen/TAndroidScreenManager.cp
 	${LOCAL_PATH}/Emulator/TARMProcessor.cp
 	${LOCAL_PATH}/Emulator/TDMAManager.cp
@@ -40,7 +41,6 @@ SET (SourceFiles
 	${LOCAL_PATH}/Emulator/TMMU.cp
 	${LOCAL_PATH}/Emulator/TNativePrimitives.cp
 	${LOCAL_PATH}/Emulator/Host/THostInfo.cp
-	# ${LOCAL_PATH}/Emulator/JIT/TJIT.cp
 	${LOCAL_PATH}/Emulator/JIT/TJITCache.cp
 	${LOCAL_PATH}/Emulator/JIT/TJITPage.cp
 	${LOCAL_PATH}/Emulator/JIT/TJITPerformance.cp
@@ -94,6 +94,9 @@ SET (SourceFiles
 	${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.cp
 	${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_Test.cp
 	${LOCAL_PATH}/Emulator/JIT/Generic/TJITGenericPage.cp
+	${LOCAL_PATH}/Emulator/JIT/Generic/TJITGenericROMPatch.cp
+	${LOCAL_PATH}/Emulator/NativeCalls/TVirtualizedCallsPatches.cp
+	${LOCAL_PATH}/Monitor/UDisasm.cp
 )
 
 set_source_files_properties(${SourceFiles} PROPERTIES LANGUAGE CXX)
