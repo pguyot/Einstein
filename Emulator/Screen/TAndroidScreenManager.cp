@@ -266,8 +266,9 @@ int TAndroidScreenManager::updateOverlay(unsigned short *buffer)
 				}
 			}
 		}
-		
+		return 1;
 	}
+	return 0;
 }
 
 

@@ -40,7 +40,7 @@
 #include "TEmulator.h"
 #include "JIT/JIT.h"
 #include "TROMImage.h"
-#include "TSymbolList.h"
+#include "Monitor/TSymbolList.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes

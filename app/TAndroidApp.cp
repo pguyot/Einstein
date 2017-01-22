@@ -194,7 +194,7 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 	// the Network card emulation. Only activate if you really need it!
 	// CAUTION: the destructor will delete our mLog. That is not good! Avoid!
 	//if (inLog) mLog = inLog;
-	if (inLog) inLog->FLogLine("    OK: 0x%08x", (int)mLog);
+	if (inLog) inLog->FLogLine("    OK: 0x%08x", (intptr_t)mLog);
 
 	char theROMPath[1024];
 	snprintf(theROMPath, 1024, "%s/717006.rom", dataPath);
@@ -222,11 +222,11 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 	
 	if (mLog) mLog->FLogLine("  mROMImage:");
 	mROMImage = new TFlatROMImageWithREX(theROMPath, theREXPath, "717006", false, theImagePath);
-	if (mLog) mLog->FLogLine("    OK: 0x%08x", (int)mROMImage);
+	if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mROMImage);
 
 	if (mLog) mLog->FLogLine("  mSoundManager:");
 	mSoundManager = new TAndroidSoundManager(mLog);
-	if (mLog) mLog->FLogLine("    OK: 0x%08x", (int)mSoundManager);
+	if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mSoundManager);
 
 	Boolean isLandscape = false;
 	if (mLog) mLog->FLogLine("  mScreenManager");
@@ -234,11 +234,11 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 											   newtonScreenWidth, newtonScreenHeight,
 											   true, // fullscreen
 											   isLandscape);
-	if (mLog) mLog->FLogLine("    OK: 0x%08x", (int)mScreenManager);
+	if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mScreenManager);
 	
 	if (mLog) mLog->FLogLine("  mNetworkManager:");
 	mNetworkManager = new TUsermodeNetwork(mLog);
-	if (mLog) mLog->FLogLine("    OK: 0x%08x", (int)mNetworkManager);
+	if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mNetworkManager);
 	
 	if (mLog) mLog->FLogLine("  mEmulator:");
 	mEmulator = new TEmulator(
@@ -249,7 +249,7 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 							  mScreenManager, 
 							  mNetworkManager, 
 							  0x40 << 16);
-	if (mLog) mLog->FLogLine("    OK: 0x%08x", (int)mEmulator);
+	if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mEmulator);
 	mEmulator->SetNewtonID(mNewtonID0, mNewtonID1);
 
 	mPlatformManager = mEmulator->GetPlatformManager();
