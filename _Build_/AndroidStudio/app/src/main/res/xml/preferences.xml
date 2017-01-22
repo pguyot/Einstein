@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory 
+        android:title="Screen Size">
+		<CheckBoxPreference
+			android:key="androidstatusbar"
+			android:title="@string/Preferences.statusbar.title"
+            android:summary="@string/Preferences.statusbar.summary"
+            android:defaultValue="true"/>
+        <ListPreference
+            android:key="screenpresets"
+			android:title="@string/Preferences.screensize.title"
+            android:summary="@string/Preferences.screensize.summary"/>
+        <ListPreference 
+            android:entries="@array/entries_refresh_rate" 
+            android:title="@string/Preferences.refreshrate.title" 
+            android:defaultValue="20" 
+            android:entryValues="@array/entryvalues_refresh_rate" 
+            android:dialogTitle="@string/Preferences.refreshrate.title" 
+            android:summary="@string/Preferences.refreshrate.summary" android:key="screenrefreshrate"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="Emulator Settings" android:enabled="true">
+		<EditTextPreference android:dialogMessage="@string/Preferences.newtonid.summary" android:defaultValue="00004E6577746F6E" android:dialogTitle="@string/Preferences.newtonid.title" android:key="newtonid" android:title="@string/Preferences.newtonid.title" android:summary="@string/Preferences.newtonid.summary"/><ListPreference 
+		    android:key="ramsize"
+		    android:title="RAM Size"
+		    android:summary="Memory size, 1MB for the MP2000, 4MB for the MP2100"
+		    android:entryValues="@array/entryvalues_ram_size"
+		    android:entries="@array/entries_ram_size" android:enabled="false"/>
+		<CheckBoxPreference
+			android:key="keepnetworkcardpluggedin"
+			android:title="Network Card"
+            android:summary="Keep network card plugged in"
+            android:defaultValue="false" android:enabled="false"/>
+		
+	</PreferenceCategory>
+    <PreferenceCategory android:title="Host Settings" android:enabled="false">
+        <ListPreference
+        	android:key="install_rom"
+			android:title="(Install ROM)"
+			android:summary="Choose how to install the Newton OS ROM"
+			android:shouldDisableView="true"
+        	android:entryValues="@array/entryvalues_install_rom"
+			android:entries="@array/entries_install_rom"/>
+        <EditTextPreference
+            android:key="resourcepath"
+            android:title="Path for Resources"
+            android:summary="Defaults to /Download/Einstein"
+            android:defaultValue="/Download/Einstein"/>
+        <ListPreference
+            android:key="backbutton"
+            android:title='"Back" Button' 
+            android:summary='Set the function of the Android "Back" button'
+            android:entryValues="@array/entryvalues_back_button"
+            android:entries="@array/entries_back_button"/>
+	</PreferenceCategory>    
+</PreferenceScreen>
