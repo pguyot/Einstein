@@ -109,7 +109,7 @@
                                   "The ROM file must be named 717006.rom and copied to "
                                   "this device using the iTunes File Sharing feature.\r\r"
                                   "For more information please read the instructions at "
-                                  "http://code.google.com/p/einstein/wiki/iOS"
+                                  "https://github.com/pguyot/Einstein/wiki/Build-Instructions"
                                   delegate:self 
                                   cancelButtonTitle:@"Quit Einstein" 
                                   destructiveButtonTitle:nil 
@@ -428,8 +428,9 @@
 - (void)stopEmulator
 {
 	mLog->LogLine("Stopping emulator thread");
-	
-	mEmulator->Stop();
+
+	if ( mEmulator )
+		mEmulator->Stop();
 }
 
 /*

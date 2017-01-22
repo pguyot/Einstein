@@ -639,11 +639,12 @@
 		F156B8111CFA48B0004661E8 /* TFileManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = F156B80F1CFA48B0004661E8 /* TFileManager.cp */; };
 		F156B8161CFA48BD004661E8 /* TCocoaFileManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F156B8131CFA48BD004661E8 /* TCocoaFileManager.mm */; };
 		F156B8171CFA48BD004661E8 /* TCocoaListenerWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = F156B8151CFA48BD004661E8 /* TCocoaListenerWindow.mm */; };
-		F156B8191CFA49BE004661E8 /* TCocoaListenerWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = F156B8181CFA49BE004661E8 /* TCocoaListenerWindow.xib */; };
 		F15858B81A2E3D4300D72203 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F15858B51A2E3C8C00D72203 /* UIKit.framework */; };
 		F15C09631B4B03FD00F95B00 /* TMacMonitorView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F119E9BC1B41FA0D00192514 /* TMacMonitorView.mm */; };
 		F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */; };
 		F164801A13199758001603BE /* TMacMonitor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F164801813199758001603BE /* TMacMonitor.mm */; };
+		F1C2423E1E3167B700D074C6 /* TCocoaListenerWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = F1C2423C1E3167B700D074C6 /* TCocoaListenerWindow.xib */; };
+		F1C2423F1E3167B700D074C6 /* TCocoaListenerWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = F1C2423C1E3167B700D074C6 /* TCocoaListenerWindow.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -1199,13 +1200,13 @@
 		F156B8131CFA48BD004661E8 /* TCocoaFileManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaFileManager.mm; sourceTree = "<group>"; };
 		F156B8141CFA48BD004661E8 /* TCocoaListenerWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaListenerWindow.h; sourceTree = "<group>"; };
 		F156B8151CFA48BD004661E8 /* TCocoaListenerWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaListenerWindow.mm; sourceTree = "<group>"; };
-		F156B8181CFA49BE004661E8 /* TCocoaListenerWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TCocoaListenerWindow.xib; sourceTree = "<group>"; };
 		F15858B51A2E3C8C00D72203 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		F1647FC313198E6A001603BE /* TCocoaMonitorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCocoaMonitorController.h; sourceTree = "<group>"; };
 		F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaMonitorController.mm; sourceTree = "<group>"; };
 		F164801813199758001603BE /* TMacMonitor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TMacMonitor.mm; sourceTree = "<group>"; };
 		F164801913199758001603BE /* TMacMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TMacMonitor.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		F1AD645D1A2E4F4A00C32AD5 /* Einstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Einstein_Prefix.pch; sourceTree = "<group>"; };
+		F1C2423D1E3167B700D074C6 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = ../../Resources/en.lproj/TCocoaListenerWindow.xib; sourceTree = "<group>"; };
 		F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		F1CAFCF8124200C100A0382E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -2169,8 +2170,8 @@
 		F1CB7613131730100017B0BB /* Mac OS X */ = {
 			isa = PBXGroup;
 			children = (
-				F156B8181CFA49BE004661E8 /* TCocoaListenerWindow.xib */,
 				F115FF111A2EA415001F3D65 /* Einstein.xib */,
+				F1C2423C1E3167B700D074C6 /* TCocoaListenerWindow.xib */,
 				C99E315F111B7346002165EC /* Icons */,
 				C99E315A111B7331002165EC /* Info.plist */,
 				C99E377A111C2289002165EC /* Einstein.rex */,
@@ -2389,7 +2390,7 @@
 				C99E316B111B7346002165EC /* button_backlight_on.png in Resources */,
 				C99E316C111B7346002165EC /* button_install.png in Resources */,
 				C99E316D111B7346002165EC /* button_power.png in Resources */,
-				F156B8191CFA49BE004661E8 /* TCocoaListenerWindow.xib in Resources */,
+				F1C2423E1E3167B700D074C6 /* TCocoaListenerWindow.xib in Resources */,
 				F115FF131A2EA415001F3D65 /* Einstein.xib in Resources */,
 				C99E316E111B7346002165EC /* button_power_on.png in Resources */,
 				C99E316F111B7346002165EC /* button_prefs.png in Resources */,
@@ -2424,6 +2425,7 @@
 				C9DB61811A37C42F00E5CC95 /* unsorted_025.rts in Resources */,
 				C98AB2B31A351EE6001BB1CD /* unsorted_002.rts in Resources */,
 				C98AB2D51A351EE6001BB1CD /* unsorted_019.rts in Resources */,
+				F1C2423F1E3167B700D074C6 /* TCocoaListenerWindow.xib in Resources */,
 				C98AB2CD1A351EE6001BB1CD /* unsorted_015.rts in Resources */,
 				F115FF141A2EA415001F3D65 /* Einstein.xib in Resources */,
 				C95E6043198B76DC004C6CEF /* button_power_on.png in Resources */,
@@ -3071,6 +3073,14 @@
 				F115FF121A2EA415001F3D65 /* en */,
 			);
 			name = Einstein.xib;
+			sourceTree = "<group>";
+		};
+		F1C2423C1E3167B700D074C6 /* TCocoaListenerWindow.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F1C2423D1E3167B700D074C6 /* en */,
+			);
+			name = TCocoaListenerWindow.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

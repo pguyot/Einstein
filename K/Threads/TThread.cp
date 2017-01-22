@@ -44,7 +44,7 @@
 #include <errno.h>
 #include <signal.h>
 
-#if RASPBERRY_PI
+#if RASPBERRY_PI || TARGET_OS_LINUX
 #include <stdlib.h>
 #endif
 

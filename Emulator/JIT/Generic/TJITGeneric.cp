@@ -36,7 +36,7 @@
 
 #include "TJITGenericROMPatch.h"
 
-#if RASPBERRY_PI
+#if RASPBERRY_PI || TARGET_OS_LINUX
 #include "../../NativeCalls/TVirtualizedCallsPatches.h"
 #else
 #include "TVirtualizedCallsPatches.h"

@@ -82,17 +82,24 @@ TFlash::TFlash(
 		if ((checksums[4] != REX_Csum1)
 			|| (checksums[5] != REX_Csum2))
 		{
+/*
+ * This is generating a false "REx seems corrupted" message on Ubuntu?? -- stevenf
+ *
 #ifdef RELEASE
 			corruptedRex = ((checksums[4] != REX_Csum1)
 							|| (checksums[5] != REX_Csum2));
+
 #else
+*/
 			for (int indexChecksum = 0; indexChecksum < 10; indexChecksum++)
 			{
 				(void) ::fprintf( stderr, "Checksum-%i: %.8X\n",
 					indexChecksum,
 					(unsigned int) checksums[indexChecksum] );
 			}
+/*
 #endif
+*/
 		}
 	}
 

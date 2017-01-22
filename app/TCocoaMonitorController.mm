@@ -30,6 +30,18 @@
 }
 
 
+- (void)awakeFromNib
+{
+	[[self window] setDelegate:self];
+
+	[view setController:self];
+
+	[self update];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillTerminate:) name:NSApplicationWillTerminateNotification object:nil];
+}
+
+
 - (void)executeCommand:(NSString*)command
 {
 	[self addHistoryLine:[NSString stringWithFormat:@"> %@", command] type:MONITOR_LOG_USER_INPUT];
@@ -58,14 +70,7 @@
 - (void)showWindow:(id)sender
 {
 	[super showWindow:sender];
-	
-	[[self window] setDelegate:self];
-	
-	[view setController:self];
-	[[self window] makeFirstResponder:view];
-	
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillTerminate:) name:NSApplicationWillTerminateNotification object:nil];
-	
+
 	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:kOpenMonitorAtLaunch];
 	[[NSUserDefaults standardUserDefaults] synchronize];
 }
@@ -98,32 +103,42 @@
 			monitor->ExecuteCommand("stop");
 		}
 		
-		[stopStartButton setEnabled:YES];
 		[self performSelector:@selector(update) withObject:nil afterDelay:0.0];
 	}
 	else
 	{
 		[self performSelector:@selector(update) withObject:nil afterDelay:0.0];
-		[stopStartButton setEnabled:NO];
 	}
 }
 
 
 - (void)update
 {
-	[view updateWithMonitor:monitor];
-	
-	if ( monitor->IsHalted() )
+	if ( monitor )
 	{
-		[stepIntoButton setEnabled:YES];
-		[stepOverButton setEnabled:YES];
-		[stopStartButton setTitle:@"Run"];
+		[view updateWithMonitor:monitor];
+		
+		if ( monitor->IsHalted() )
+		{
+			[stepIntoButton setEnabled:YES];
+			[stepOverButton setEnabled:YES];
+			[stopStartButton setTitle:@"Run"];
+		}
+		else
+		{
+			[stepIntoButton setEnabled:NO];
+			[stepOverButton setEnabled:NO];
+			[stopStartButton setTitle:@"Stop"];
+		}
+
+		[stopStartButton setEnabled:YES];
 	}
 	else
 	{
 		[stepIntoButton setEnabled:NO];
 		[stepOverButton setEnabled:NO];
-		[stopStartButton setTitle:@"Stop"];
+		[stopStartButton setEnabled:NO];
+		[stopStartButton setTitle:@"Run"];
 	}
 }
 
