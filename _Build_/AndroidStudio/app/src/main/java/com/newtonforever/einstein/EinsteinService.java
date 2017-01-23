@@ -54,7 +54,7 @@ public class EinsteinService extends Service {
 
 	@Override
 	public void onCreate() {
-	    Log.i(TAG, "Einstein Service created.");
+		Log.i(TAG, "Einstein Service created.");
 	}
 	
 	@Override
