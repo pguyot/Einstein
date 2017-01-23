@@ -85,8 +85,10 @@ public class DebugUtils {
         }
     }
 
+
     /** Creates and returns an empty text file for log output. This file can be found in the folder Download\Einstein. */
     private static File getLogFile() {
+        // TODO: write log to a better location, for example getApplicationContext().getFilesDir().getPath()
         if (null != logFile) {
             return logFile;
         }
