@@ -119,12 +119,12 @@ public class EinsteinApplication extends Application {
 		
 		// create the keep-alive Service (will be created asynchronously)
 	    Intent intent = new Intent(EinsteinService.class.getName());
+		intent.setPackage("com.newtonforever.einstein");
 	    intent.putExtra("task", EinsteinService.TASK_LAUNCH);
 	    ComponentName name = startService(intent);
 	    if (name==null) {
 			Log.i("einstein", "--------< App.onCreate() - CANT LAUNCH SERVICE");
 	    }
-
 		//Log.i("einstein", "--------< App.onCreate()");
 	}
 	
@@ -134,6 +134,7 @@ public class EinsteinApplication extends Application {
 	public void raisePriority()
 	{
 	    Intent intent = new Intent(EinsteinService.class.getName());
+		intent.setPackage("com.newtonforever.einstein");
 	    intent.putExtra("task", EinsteinService.TASK_RAISE_PRIORITY);
 	    startService(intent);
 	}
@@ -144,6 +145,7 @@ public class EinsteinApplication extends Application {
 	public void normalPriority()
 	{
 	    Intent intent = new Intent(EinsteinService.class.getName());
+		intent.setPackage("com.newtonforever.einstein");
 	    intent.putExtra("task", EinsteinService.TASK_NORMAL_PRIORITY);
 	    startService(intent);
 	}
