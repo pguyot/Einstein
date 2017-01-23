@@ -43,6 +43,8 @@
 // Einstein.
 #include "Emulator/Log/TLog.h"
 
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -226,12 +228,23 @@ TCoreAudioSoundManager::RenderCallback(
 		UInt32 inNumberFrames,
 		AudioBufferList* ioData )
 {
-	// Ask for more data.
-	RaiseOutputInterrupt();
+	
+	// Rate limiter - only request bytes from NewtonOS when bytes are needed
+	// Otherewise we exhaust the buffers too quickly and truncate the sounds.
+	mDataMutex->Lock();
+	KUIntPtr bytesInBuffer = mOutputBuffer->AvailableBytes();
+	mDataMutex->Unlock();
+	
+	if (bytesInBuffer < kNewtonBufferSize) {
+		// Ask for more data.
+		RaiseOutputInterrupt();
+	}
 
 	// Copy data from the circle buffer.
-	KUIntPtr amount = inNumberFrames * sizeof( KSInt16 );
 	mDataMutex->Lock();
+	KUIntPtr amount = MIN(bytesInBuffer, inNumberFrames * sizeof( KSInt16 ));
+	// TODO: find possible error in the ringBuffer implementation?
+	
 	KUIntPtr available =
 		mOutputBuffer->Consume(
 			ioData->mBuffers[0].mData,
@@ -266,7 +279,7 @@ TCoreAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
 		}
 
 		// Ask for more data.
-		RaiseOutputInterrupt();
+		//RaiseOutputInterrupt();
 	}
 }
 
