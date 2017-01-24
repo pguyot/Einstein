@@ -61,7 +61,6 @@
 #define kNewtonNumChannels				1
 #define kNewtonBitsPerChannel			16
 #define kFramesPerPacket				1
-#define	k
 
 // -------------------------------------------------------------------------- //
 //  * TCoreAudioSoundManager( void )
