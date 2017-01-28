@@ -1,0 +1,4 @@
+ROM Dumper Release Notes
+
+1.0		16/01/05 [Paul Guyot]
+	Initial Release.

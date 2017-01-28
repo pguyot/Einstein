@@ -1,0 +1,85 @@
+ROM Dumper Read Me
+
+Introduction
+------------
+ROM Dumper is a very simple utility to dump the Newton's ROM via TCP/IP.
+I wrote it to provide an alternative way to dump the ROM and use it with
+Einstein emulator (the original method implied using a low-level debugger
+and worked over a serial link).
+
+Principle
+---------
+ROM Dumper relies on the fact that the ROM is duplicated between 8 MB and
+16 MB. This is not necessarily true (with EVT units) and is caused by
+electronic properties of the ROM board. It therefore dumps the content of
+the memory between 8 and 16 MB virtual.
+
+ROM Dumper will dump the unpatched base ROM. You don't need to remove
+the system patch to dump the ROM.
+
+Please note that ROM Dumper isn't really a very good example of a TCP/IP
+server or program. I really wrote it quickly, bypassing many good practices.
+I just wanted it to work (and it seems to). You may need to restart your
+Newton if something wrong occurs.
+
+Usage
+-----
+Press ROM Dumper's start button. This will connect to the internet (if you
+aren't connected yet) and it will listen on port 10080.
+Then connect to port 10080 on a desktop computer and save the result to a
+file. The easiest way to do it is to use the terminal with nc program utility.
+
+Syntax is:
+
+nc <newton's ip address> 10080 > <rom file>
+
+For example, I was able to save my MP2x00 US ROM to a file called 717006 with:
+
+nc 10.0.1.202 10080 > 717006
+
+For your information, the MP2x00 US ROM's md5 sum is
+70dc5f5f3102e44f15dc93f356b98add.
+
+No graphical utility on the desktop side is provided because I'd better
+spend my time on other tasks.
+
+Compilation
+-----------
+To compiler ROMDumper native code, you need toolserver(1) and associated
+scripts, as well as Newton C++ Tools. NCTBuildMain doesn't work here for
+some reason I ignore, hence the presence of ROMDumper.exp.a.
+
+The package was build with NTK.
+
+License
+-------
+ROM Dumper is released under the BSD license.
+
+Copyright (c) 2005, Paul Guyot.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+* Redistributions of source code must retain the above copyright
+  notice and the following disclaimer. 
+* Redistributions in binary form must reproduce the above
+  copyright notice and the following disclaimer in the
+  documentation and/or other materials provided with the
+  distribution.
+* Neither the name of the author nor the names of its contributors
+  may be used to endorse or promote products derived from this
+  software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT
+HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

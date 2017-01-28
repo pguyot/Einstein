@@ -1,0 +1,10 @@
+
+	AREA	|@NCTBuiltMain|,REL,CODE,READONLY
+;
+; Dummy main to reference all the functions for the linker
+	ENTRY
+__NCTMain_ROMDumper
+; Module ROMDumper
+	IMPORT	Dump
+	b		Dump
+	END

@@ -1,0 +1,1 @@
+/*	File:		Consts.f	Project:	ROM Dumper	Written by:	Paul Guyot <pguyot@kallisys.net>	Copyright:	© 2005 by Paul Guyot.				All rights reserved worldwide.*/DefConst('kROMBase, 0x00800000);DefConst('kROMSize, 0x00800000);DefConst('kPacketSize, 2048);
