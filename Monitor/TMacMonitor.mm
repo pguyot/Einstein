@@ -309,7 +309,9 @@ void TMacMonitor::PrintLine(const char* inLine, int type)
 {
 	if ( controller )
 	{
-		[controller addHistoryLine:[NSString stringWithCString:inLine encoding:NSUTF8StringEncoding] type:type];
+		NSString *s = [NSString stringWithCString:inLine encoding:NSUTF8StringEncoding];
+		s = [s stringByReplacingOccurrencesOfString:@"\t" withString:@" "];
+		[controller addHistoryLine:s type:type];
 	}
 }
 

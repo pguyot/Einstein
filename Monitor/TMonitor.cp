@@ -972,6 +972,30 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			}
 			theArgInt += 16;
 		}
+	} else if ( ::sscanf(inCommand, "dis %X", &theArgInt) == 1 ) {
+		KUInt32 addr = theArgInt;
+		KUInt32 data;
+
+		for ( int i = 0; i < 16; ++i )
+		{
+			if ( mMemory->Read((TMemory::VAddr) addr, data) )
+			{
+				(void) ::sprintf(
+								 theLine, "Memory error when accessing %.8X [%.8X]",
+								 (unsigned int) theArgInt,
+								 (unsigned int) mMemory->GetFaultStatusRegister() );
+				PrintLine(theLine, MONITOR_LOG_ERROR);
+				break;
+			} else {
+				char disasm[256];
+
+				UDisasm::Disasm(disasm, 256, addr, data);
+				::snprintf(theLine, 256, "     %08X   %s", addr, disasm);
+				PrintLine(theLine, MONITOR_LOG_INFO);
+			}
+
+			addr += 4;
+		}
 	} else if (::sscanf(inCommand, "dm %X", &theArgInt) == 1) {
 		KUInt32 theData[4];
 		KUInt32 last;
