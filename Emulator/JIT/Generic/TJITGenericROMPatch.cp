@@ -387,6 +387,22 @@ TJITGenericROMPatch::DoPatchROM(KUInt32* inROMPtr, const std::string& inMachineN
 		fprintf(stderr, "%u/19300 patches added %.2f%%.\n",
 				(unsigned int)GetNumPatches(), GetNumPatches()/193.00);
 	}
+#if TARGET_OS_MAC
+	// Matt: this is an ugly hack that removes a reference from the 'extr'
+	//		serial port driver from the REx. This is required to make low level
+	//		comm emulation possible. Removing this patch is not harmful beyond
+	//		disabling comm emulation. Keeping the patch should not be harmful
+	//		either.
+	KUInt32 *ROM = inROMPtr;
+	// Find the pattern 'extr\0\0\0\0' in the first 1MB of the REx.
+	for (KUInt32 addr = 0x00800634/4; addr<0x00900000/4; ++addr) {
+		if (ROM[addr]=='extr' && ROM[addr+1]==0) {
+			ROM[addr]='~xtr'; // just change this into an unlikely FourCC
+			fprintf(stderr, "Removing 'extr' serial port driver from REx.\n");
+			break;
+		}
+	}
+#endif
 }
 
 

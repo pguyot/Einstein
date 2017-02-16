@@ -894,13 +894,17 @@ TVoyagerManagedSerialPort::HandleDMA()
 
 
 // -------------------------------------------------------------------------- //
-// This patch renames the standard serial port to another name, so that the
-// 'extr' serial port is registered by the OS.
-// FIXME: we must either verify that the REx file does actually contain a
-// driver and that it is at this particular location, or make sure that the
-// user receives a REx file that is fixed in this respect.
+//		This patch renames the standard serial port to another name, so that the
+//		'extr' serial port is registered by the OS.
+//
+// NOTE: We must either verify that the REx file does actually contain a
+//		driver and that it is at this particular location, or make sure that the
+//		user receives a REx file that is fixed in this respect.
+//
+// NOTE: This test has now moved into the ROM patch routine:
+//		TJITGenericROMPatch::DoPatchROM(...)
 // -------------------------------------------------------------------------- //
-TJITGenericROMPatch p00800634(0x00800634, 'Matt', "No Ser Port");
+// TJITGenericROMPatch p00800634(0x00800634, 'Matt', "No Ser Port");
 
 
 // -------------------------------------------------------------------------- //
