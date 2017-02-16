@@ -29,6 +29,7 @@
 class TLog;
 class TInterruptManager;
 class TDMAManager;
+class TMemory;
 
 ///
 /// Class for the 4 voyager serial ports.
@@ -59,26 +60,41 @@ public:
 			TLog* inLog,
 			ELocationID inLocationID,
 			TInterruptManager* inInterruptManager,
-			TDMAManager* inDMAManager );
+			TDMAManager* inDMAManager,
+			TMemory* inMemory);
 
 	///
 	/// Destructor.
 	///
-	~TVoyagerSerialPort( void );
+	virtual ~TVoyagerSerialPort( void );
 
 	/// \name Low-level routines.
-	
+
+//	virtual KUInt32 HandleDMACtrlRead(regsiter);
+//	virtual void HandleDMACtrlWrite(regsiter, value);
+//	virtual void HandleInterruptWrite(regsiter, addr);
+
 	///
 	/// Write register.
 	///
-	void	WriteRegister( KUInt32 inOffset, KUInt8 inValue );
+	virtual void WriteRegister( KUInt32 inOffset, KUInt8 inValue );
 
 	///
 	/// Read register.
 	///
-	KUInt8	ReadRegister( KUInt32 inOffset );
+	virtual KUInt8 ReadRegister( KUInt32 inOffset );
 
-private:
+	///
+	/// Read DMA register.
+	///
+	virtual KUInt32 ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister );
+	
+	///
+	/// Write register.
+	///
+	virtual void WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue );
+
+protected:
 
 	///
 	/// Registers.
@@ -108,6 +124,7 @@ private:
 	ELocationID			mLocationID;		///< Location ID (which serial port)
 	TInterruptManager*	mInterruptManager;	///< Interface to the interrupt mgr.
 	TDMAManager*		mDMAManager;		///< Interface to the DMA mgr.
+	TMemory*			mMemory;			///< Interface to the memory mgr.
 };
 
 #endif

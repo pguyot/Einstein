@@ -34,15 +34,20 @@
 #include <sys/time.h>
 #include <sys/ioctl.h>
 #include <termios.h>
+#include <sys/stat.h>
+#include <CoreServices/CoreServices.h>
 #endif
 
-#include "../Log/TLog.h"
-#include "../TInterruptManager.h"
-#include "../TDMAManager.h"
+#include "Emulator/Log/TLog.h"
+#include "Emulator/TInterruptManager.h"
+#include "Emulator/TDMAManager.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TARMProcessor.h"
 
-#include "TMemory.h"
+// --- include these to be able to patch the ROM before the emulator starts
+#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
-#define NEWSTYLE
 
 /*
  TSerialChipVoyager : TSerialChip : TProtocol
@@ -97,6 +102,36 @@
  7000:       rx byte buffer (non-DAM)
  8000:  w 00
 
+ // TSerialPortVoyager
+ //  +36 : HW Base Address
+ // +100, bit 7: set if Tx Buffer is full
+
+ //0x0F1C0000	kExternalSerialBase
+ //0x0F1D0000	kInfraredSerialBase
+ //0x0F1E0000	kBuiltInSerialBase
+ //0x0F1F0000	kModemSerialBase
+
+ // Port base address: 0F1C0000 'extr', 'vshw'=kHMOSerialVoyagerHardware
+ // Port base address: 0F1D0000 'infr'
+ // Port base address: 0F1E0000 'tblt'
+ // Port base address: 0F1F0000 'mdem'
+ //  +2000 : bit 1: write: Clear Rx Error Status?
+ //  +2400 : bit 0: read/write: enable tx DMA
+ //  +2800 : bit 1: write: set outputs? DTR, RTS?
+ //  +3000 : read (some status mask?)
+ //  +3000 : write: interrupt enable?
+ //  +3C00 : bit 7: write: Tx Buffer is empty
+ //  +4400 : bit 7: read:  Tx Buffer is empty
+ //  +4400 : bit 6: read:  Rx Buffer is full
+ //  +4400 : bit 5: read:  Rx Byte available?
+ //  +4400 : bit 4: read:  DCD asserted
+ //  +4400 : bit 3: read:  CTS asserted
+ //  +4400 : bit 2: read:  Tx underrun (also in 3000)
+ //  +4400 : bit 0: read:  Serial abort (also in 3000)
+ //  +4800 : bit 7, 6, 5, 4: read:  Rx Error Status
+ //  +6000 : tx byte buffer
+ //  +7000 : rx byte buffer
+
  compare to Cirrus Logig EP93xx registers:
  quite a bunch of registers there...
 
@@ -112,7 +147,7 @@
  F080C00 = 1,0,3:  w: 00000080 (RxDMAControl), 00000000 (The interrupt that we trigger?)
  F081000 = 1,0,4: rw: 00000403 buffer count? (RxDMAControl) (reading when shutting down?)
  F081400 = 1,0,5:  w: 00000404 buffer size? (RxDMAControl)
- F081800 = 1,0,6:  w: 00000000 (InitRxDMA), 000000FF (RxDMAControl)
+ F081800 = 1,0,6:  w: 00000000 (InitRxDMA), 000000FF (RxDMAControl): FF = clear all bits in another register?
  F090000 = 2,0,0:  w: 00000006 (RxDMAControl), 00000000
  F090400 = 2,0,1: r : (RxDMAControl)
  F090800 = 2,0,2:  w: 00000000 (RxDMAControl)
@@ -180,99 +215,32 @@
  #define kSerIntSrcRxOnAllChars		(0x00000040)
  #define kSerIntSrcTxBufEmpty		(0x00000080)
  #define kSerIntSrcRxOnFirstChar	(0x00000100)	// may go away
-
-
  */
-
-void crc16(unsigned short &crc, unsigned char d)
-{
-	static unsigned short crctab[256] = {
-		0x0000, 0xc0c1, 0xc181, 0x0140, 0xc301, 0x03c0, 0x0280, 0xc241,
-		0xc601, 0x06c0, 0x0780, 0xc741, 0x0500, 0xc5c1, 0xc481, 0x0440,
-		0xcc01, 0x0cc0, 0x0d80, 0xcd41, 0x0f00, 0xcfc1, 0xce81, 0x0e40,
-		0x0a00, 0xcac1, 0xcb81, 0x0b40, 0xc901, 0x09c0, 0x0880, 0xc841,
-		0xd801, 0x18c0, 0x1980, 0xd941, 0x1b00, 0xdbc1, 0xda81, 0x1a40,
-		0x1e00, 0xdec1, 0xdf81, 0x1f40, 0xdd01, 0x1dc0, 0x1c80, 0xdc41,
-		0x1400, 0xd4c1, 0xd581, 0x1540, 0xd701, 0x17c0, 0x1680, 0xd641,
-		0xd201, 0x12c0, 0x1380, 0xd341, 0x1100, 0xd1c1, 0xd081, 0x1040,
-		0xf001, 0x30c0, 0x3180, 0xf141, 0x3300, 0xf3c1, 0xf281, 0x3240,
-		0x3600, 0xf6c1, 0xf781, 0x3740, 0xf501, 0x35c0, 0x3480, 0xf441,
-		0x3c00, 0xfcc1, 0xfd81, 0x3d40, 0xff01, 0x3fc0, 0x3e80, 0xfe41,
-		0xfa01, 0x3ac0, 0x3b80, 0xfb41, 0x3900, 0xf9c1, 0xf881, 0x3840,
-		0x2800, 0xe8c1, 0xe981, 0x2940, 0xeb01, 0x2bc0, 0x2a80, 0xea41,
-		0xee01, 0x2ec0, 0x2f80, 0xef41, 0x2d00, 0xedc1, 0xec81, 0x2c40,
-		0xe401, 0x24c0, 0x2580, 0xe541, 0x2700, 0xe7c1, 0xe681, 0x2640,
-		0x2200, 0xe2c1, 0xe381, 0x2340, 0xe101, 0x21c0, 0x2080, 0xe041,
-		0xa001, 0x60c0, 0x6180, 0xa141, 0x6300, 0xa3c1, 0xa281, 0x6240,
-		0x6600, 0xa6c1, 0xa781, 0x6740, 0xa501, 0x65c0, 0x6480, 0xa441,
-		0x6c00, 0xacc1, 0xad81, 0x6d40, 0xaf01, 0x6fc0, 0x6e80, 0xae41,
-		0xaa01, 0x6ac0, 0x6b80, 0xab41, 0x6900, 0xa9c1, 0xa881, 0x6840,
-		0x7800, 0xb8c1, 0xb981, 0x7940, 0xbb01, 0x7bc0, 0x7a80, 0xba41,
-		0xbe01, 0x7ec0, 0x7f80, 0xbf41, 0x7d00, 0xbdc1, 0xbc81, 0x7c40,
-		0xb401, 0x74c0, 0x7580, 0xb541, 0x7700, 0xb7c1, 0xb681, 0x7640,
-		0x7200, 0xb2c1, 0xb381, 0x7340, 0xb101, 0x71c0, 0x7080, 0xb041,
-		0x5000, 0x90c1, 0x9181, 0x5140, 0x9301, 0x53c0, 0x5280, 0x9241,
-		0x9601, 0x56c0, 0x5780, 0x9741, 0x5500, 0x95c1, 0x9481, 0x5440,
-		0x9c01, 0x5cc0, 0x5d80, 0x9d41, 0x5f00, 0x9fc1, 0x9e81, 0x5e40,
-		0x5a00, 0x9ac1, 0x9b81, 0x5b40, 0x9901, 0x59c0, 0x5880, 0x9841,
-		0x8801, 0x48c0, 0x4980, 0x8941, 0x4b00, 0x8bc1, 0x8a81, 0x4a40,
-		0x4e00, 0x8ec1, 0x8f81, 0x4f40, 0x8d01, 0x4dc0, 0x4c80, 0x8c41,
-		0x4400, 0x84c1, 0x8581, 0x4540, 0x8701, 0x47c0, 0x4680, 0x8641,
-		0x8201, 0x42c0, 0x4380, 0x8341, 0x4100, 0x81c1, 0x8081, 0x4040,
-	};
-
-	crc = ((crc>>8)&0x00ff)^crctab[(crc&0xff)^d];
-}
-
-
-
-static const KUInt8 esc_ = 0x33;
-static KUInt32 txCnt_;
-static unsigned char buf[1024];
-static KUInt32 nBuf;
-
-void send_block(unsigned char *data, int size)
-{
-	txCnt_ = 0;
-
-	static unsigned char hdr[] = { 0x16, 0x10, 0x02 };
-	static unsigned char ftr[] = { 0x10, 0x03 };
-
-	unsigned char *d = buf;
-
-	int i;
-	*d++ = hdr[0];
-	*d++ = hdr[1];
-	*d++ = hdr[2];
-	unsigned short crc = 0;
-	for (i=0; i<size; i++) {
-		unsigned char c = data[i];
-		if (i==2 && data[1]==4)
-			c = ++txCnt_;
-		crc16(crc, c);
-		*d++ = c;
-		if (c==0x10)
-			*d++ = c;
-		if (c==esc_) {
-			*d++ = 1;
-			crc16(crc, 1);
-	  printf("--- CONTROL BLOCK *NOT* changing esc from 0x%02x to 0x%02x\n", esc_, esc_+51);
-			//esc_ += 51;
-		}
-	}
-	*d++ = ftr[0];
-	*d++ = ftr[1];
-	crc16(crc, ftr[1]);
-	*d++ = crc;
-	*d++ = crc>>8;
-	//	write(buf, d-buf);
-	nBuf = d-buf;
-}
-
 
 
 // -------------------------------------------------------------------------- //
 //  * TVoyagerManagedSerialPort()
+//		Create a DMA and Interrupt emulation for a serial port.
+//		The original Newton ROM does not seem to have the driver system via
+//		ROM Extension sufficiently implemented. To circumvent patching a
+//		multitude of ROMs, Einstein emulates the hardware at the lowest
+//		level.
+//
+//		The registers for serial hardware access, DMA access, and interrupt
+//		documentation has not been accessible as of February 2017. All
+//		implementations of this driver are based on observation on the
+//		original NewtonOS and are emulated as needed. Emulation is by
+//		no means complete, or correct.
+//
+// TODO: This class should be made more universal and then be derived into
+//		three new classes to emulate the external serial port, the modem,
+//		and possibly the third internal port.
+// TODO: it would be nice to implement access to a host hardware serial
+//		port, especially for mobile device. Maybe a remote serial port
+//		via TCP/IP would be useful?
+// FIXME: the current implementation is for MacOS only. We should add MSWindows,
+//		Android, and iOS support, or at least make sure that compilation
+//		on those systems does not break.
 // -------------------------------------------------------------------------- //
 TVoyagerManagedSerialPort::TVoyagerManagedSerialPort(
 													 TLog* inLog,
@@ -295,30 +263,126 @@ TVoyagerManagedSerialPort::TVoyagerManagedSerialPort(
 	mRxDMAEvent(0),
 
 	mPipe{-1,-1},
-	mSerialPort(-1),
+	mTxPort(-1),
+	mRxPort(-1),
 	mDMAIsRunning(false),
-	mDMAThread(0L)
+	mDMAThread(0L),
+	mTxPortName(0L),
+	mRxPortName(0L)
 {
-	// TODO: don't run this unless we get a PowerOn for the serial port
 	RunDMA();
 }
 
 
 // -------------------------------------------------------------------------- //
 //  * ~TVoyagerManagedSerialPort( void )
+//		Don't worry about releasing  resources. All drivers will live
+//		throughout the run time of the app.
 // -------------------------------------------------------------------------- //
 TVoyagerManagedSerialPort::~TVoyagerManagedSerialPort()
 {
+	if (mTxPortName)
+		free(mTxPortName);
+	if (mRxPortName)
+		free(mRxPortName);
+}
+
+
+// -------------------------------------------------------------------------- //
+// * FindPipeNames()
+//		Find names that will be available for external apps for this user.
+//		We want exactly this as a result:
+//		"/Users/{username}/Library/Application Support/Einstein Emulator/ExtrSerPortSend";
+//		"/Users/{username}/Library/Application Support/Einstein Emulator/ExtrSerPortRecv";
+// TODO: currently we care about the 'extr' port, but we may want to provide
+//		pipes for a virtual modem
+// TODO: does someone know the non-deprecated way in C++?
+// -------------------------------------------------------------------------- //
+void
+TVoyagerManagedSerialPort::FindPipeNames()
+{
+	if (mTxPortName && mRxPort)
+		return;
+
+	FSRef ref;
+	OSType folderType = kApplicationSupportFolderType;
+	char path[PATH_MAX];
+
+	FSFindFolder( kUserDomain, folderType, kCreateFolder, &ref );
+	FSRefMakePath( &ref, (UInt8*)&path, PATH_MAX );
+
+	char *end = path + strlen(path);
+
+	// crete the file path to the sending and receiving node
+	strcpy(end, "/Einstein Emulator");
+	if (access(path, S_IRUSR|S_IWUSR|S_IXUSR)==-1) {
+		if (mkdir(path, S_IRUSR|S_IWUSR|S_IXUSR)==-1) {
+			printf("***** Error creating named pipe directory %s - %s (%d).\n", path, strerror(errno), errno);
+		}
+	}
+
+	// create the name for the transmitting pipe
+	strcpy(end, "/Einstein Emulator/ExtrSerPortSend");
+	if (!mTxPortName)
+		mTxPortName = strdup(path);
+
+	// create the name for the receiving pipe
+	strcpy(end, "/Einstein Emulator/ExtrSerPortRecv");
+	if (!mRxPortName)
+		mRxPortName = strdup(path);
+}
+
+// -------------------------------------------------------------------------- //
+// * CreateNamedPipes
+//		Create the named pipes as nodes in the file system.
+// -------------------------------------------------------------------------- //
+bool
+TVoyagerManagedSerialPort::CreateNamedPipes()
+{
+	// crete the sending node if it does not exist yet
+	if (access(mTxPortName, S_IRUSR|S_IWUSR)==-1) {
+		if (mkfifo(mTxPortName, S_IRUSR|S_IWUSR)==-1) {
+			printf("***** Error creating named pipe %s - %s (%d).\n", mTxPortName, strerror(errno), errno);
+			return false;
+		}
+	}
+
+	// crete the receiving node if it does not exist yet
+	if (access(mRxPortName, S_IRUSR|S_IWUSR)==-1) {
+		if (mkfifo(mRxPortName, S_IRUSR|S_IWUSR)==-1) {
+			printf("***** Error creating named pipe %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
+			return false;
+		}
+	}
+
+	return true;
 }
 
 
 // -------------------------------------------------------------------------- //
 //  * WriteRegister( KUInt32, KUInt8 )
+//		This function is called whenever the TMemory class determines a write
+//		operation to a memory address that represents a hardware register
+//		associted with this serial port.
+//
+//		Hardware registers control the baud rate, modem signals, but also
+//		some DMA activity. All serial ports can be configured to use no DMA
+//		at all and instead read and write directly to the serial port via
+//		hardware register access alone.
+//
+//		Einstein does not implement many registers. In particular, data
+//		transfer via hardware registers is not implemented at all. "Dock" and
+//		"Inspector" use DMA transfer only.
+//
+// TODO: If we decide to support the host's serial port hardware, we will have
+//		to put a sizeable amount of reasearch into understanding the hardware
+//		registers. For communication vie named pipe or software null modem,
+//		emulation can stay at a minimum.
 // -------------------------------------------------------------------------- //
 void
 TVoyagerManagedSerialPort::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
 {
-	printf("***** 'extr' serial, writing unknown register 0x%08X = 0x%08X\n", inOffset, inValue);
+//	printf("***** 'extr' serial, writing unknown register 0x%08X = 0x%08X\n", inOffset, inValue);
 
 	if (mLog)
 	{
@@ -333,165 +397,40 @@ TVoyagerManagedSerialPort::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
 	}
 	switch (inOffset) {
 		case 0x2400:
-#ifdef NEWSTYLE
 			if (mPipe[1]!=-1) {
 				KUInt8 cmd = kSerCmd_TxCtrlChanged;
 				write(mPipe[1], &cmd, 1);
 			}
-#else
-			if (inValue & 0x01)
-				//if (mDMAManager->GetEnabledChannels() & 0x0001)
-			{
-				printf("===> Start Tx DMA\n");
-				KUInt32 dmaStart = mDMAManager->ReadChannel1Register(1, 1);
-				KUInt32 dmaSize = mDMAManager->ReadChannel1Register(1, 4);
-				for (KUInt32 i=0; i<dmaSize; i++) {
-					KUInt8 data = 0;
-					mMemory->ReadBP(dmaStart+i, data);
-					printf(" tx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
-					buf[i] = data;
-				}
-
-#if 1
-				KUInt32 bufferStart = mDMAManager->ReadChannel1Register(1, 0);
-				KUInt32 dataStart = mDMAManager->ReadChannel1Register(1, 1);
-				KUInt32 dataSize = mDMAManager->ReadChannel1Register(1, 4);
-				KUInt32 bytesToEndOfBuffer = mDMAManager->ReadChannel1Register(1, 5);
-				for (int i=0;;++i) {
-					KUInt8 data;
-					if (dataSize==0) break;
-					mMemory->ReadBP(dataStart, data);
-					buf[i] = data;
-					dataSize--;
-					dataStart++;
-					bytesToEndOfBuffer--;
-					if (bytesToEndOfBuffer==0)
-						dataStart = bufferStart;
-				}
-				mDMAManager->WriteChannel1Register(1, 1, bufferStart);
-				mDMAManager->WriteChannel1Register(1, 4, dataSize);
-				mDMAManager->WriteChannel2Register(1, 1, 0x00000080);
-				mInterruptManager->RaiseInterrupt(0x00000100); // 0x80 = TxBufEmpty, 0x00000180
-
-				// NCX default port: 3679
-
-				static int fd = -1;
-
-				if (fd==-1) {
-					fd = open("/dev/ttys016", O_RDWR | O_NOCTTY | O_NONBLOCK);
-				}
-				if (fd==-1) {
-					printf("Error opening serial port %s - %s (%d).\n", "/dev/ttyp8", strerror(errno), errno);
-				} else {
-					printf("\n\n\n\n---------------> writing %d bytes\n\n\n\n", dmaSize);
-					int err = write(fd, buf, dmaSize);
-					if (err==-1) {
-						printf("Error writing to serial port %s - %s (%d).\n", "/dev/ttyp8", strerror(errno), errno);
-					}
-					//close(fd);
-				}
-#endif
-
-
-
-				printf("===> End Tx DMA\n");
-#if 0
-#if 1
-				int n = -1;
-				for (int j=2; j>0; j--) {
-					n = read(fd, buf, 1024);
-					if (n<=0)
-						sleep(1);
-					else
-						break;
-				}
-				if (n==-1) {
-					printf("Error reading from serial port %s - %s (%d).\n", "/dev/ttyp8", strerror(errno), errno);
-				} else if (n==0) {
-					printf("No data yet\n");
-				} else {
-					printf("----> Received %d bytes data from NCX\n", n);
-					KUInt32 dmaRxStart = mDMAManager->ReadChannel1Register(0, 0);
-					KUInt32 dmaRxSize = n; //sizeof(LR_ack);
-					for (KUInt32 i=0; i<dmaRxSize; i++) {
-						KUInt8 data = buf[i];
-						mMemory->WriteBP(dmaRxStart+i, data);
-						printf(" rx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
-					}
-					printf("===> Start Rx DMA\n");
-					KUInt32 dmaRxPos = mDMAManager->ReadChannel1Register(0, 1);
-					mDMAManager->WriteChannel1Register(0, 1, dmaRxPos + dmaRxSize);
-					KUInt32 dmaRxBuf = mDMAManager->ReadChannel1Register(0, 4);
-					mDMAManager->WriteChannel1Register(0, 4, dmaRxBuf - dmaRxSize);
-					mDMAManager->WriteChannel2Register(0, 1, 0x00000040); // ???
-					mInterruptManager->RaiseInterrupt(0x00000080); // 0x00000180
-					printf("===> End Rx DMA\n");
-				}
-#else
-				static unsigned char LR_ack[] = {
-					0x1d, 0x01, 0x02, 0x01, 0x06, 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x02, 0x01, 0x02, 0x03, 0x01,
-					0x08, 0x04, 0x02, 0x40, 0x00, 0x08, 0x01, 0x03, 0x0E, 0x04, 0x02, 0x04, 0x00, 0xFA,
-				};
-
-				send_block(LR_ack, sizeof(LR_ack));
-
-				KUInt32 dmaRxStart = mDMAManager->ReadChannel1Register(0, 0);
-				KUInt32 dmaRxSize = nBuf; //sizeof(LR_ack);
-				for (KUInt32 i=0; i<dmaRxSize; i++) {
-					mMemory->WriteBP(dmaRxStart+i, buf[i]);
-				}
-				printf("===> Start Rx DMA\n");
-				KUInt32 dmaRxPos = mDMAManager->ReadChannel1Register(0, 1);
-				mDMAManager->WriteChannel1Register(0, 1, dmaRxPos + dmaRxSize);
-				KUInt32 dmaRxBuf = mDMAManager->ReadChannel1Register(0, 4);
-				mDMAManager->WriteChannel1Register(0, 4, dmaRxBuf - dmaRxSize);
-				mDMAManager->WriteChannel2Register(0, 1, 0x00000040);
-				//mInterruptManager->RaiseInterrupt(0x00000100); // 0x00000180
-				printf("===> End Rx DMA\n");
-#endif
-#endif
-			}
-#endif
 			break;
 	}
 }
 
+
 // -------------------------------------------------------------------------- //
 //  * ReadRegister( KUInt32 )
+//		This function is called whenever the TMemory class determines a read
+//		operation to a memory address that represents a hardware register
+//		associted with this serial port.
 // -------------------------------------------------------------------------- //
 KUInt8
 TVoyagerManagedSerialPort::ReadRegister( KUInt32 inOffset )
 {
-	printf("***** 'extr' serial, reading unknown register 0x%08X\n", inOffset);
-	/*
-	 TSerialDMAEngine Rx = 0x0CCACB38
-	 TSerialDMAEngine Tx = 0x0CCACAE8
-	 */
+//	printf("***** 'extr' serial, reading unknown register 0x%08X\n", inOffset);
 
 	KUInt8 theResult = 0;
-	/*	if (mLog)
-	 {
-		mLog->FLogLine(
-	 "[%c%c%c%c] - Read serial register %.4X : %.2X",
-	 (char) ((mLocationID >> 24) & 0xFF),
-	 (char) ((mLocationID >> 16) & 0xFF),
-	 (char) ((mLocationID >> 8) & 0xFF),
-	 (char) ((mLocationID) & 0xFF),
-	 (unsigned int) inOffset,
-	 (unsigned int) theResult );
-	 }
-	 */
+
 	if (inOffset == 0x4400)
 	{
+		// TODO: what is this? Please write more documentation
 		// Both buffers are empty for now.
 		// We also don't want a beacon.
 		theResult = 0x80;
 	} else if (inOffset == 0x4800) {
+		// TODO: what is this? Please write more documentation
 		// RxEOF
 		//		theResult = 0x80;
 		//		TDebugger::BreakInDebugger();
 	} else {
-		//		TDebugger::BreakInDebugger();
 		if (mLog)
 		{
 			mLog->FLogLine(
@@ -511,6 +450,9 @@ TVoyagerManagedSerialPort::ReadRegister( KUInt32 inOffset )
 
 // -------------------------------------------------------------------------- //
 //  * ReadDMARegister( KUInt32, KUInt32, KUInt32 )
+//		TDMAManage has determined that the CPU reads a memory address that
+//		refers to a DMA register associted with this serial port.
+//		This function dispatches to the DMA emulation.
 // -------------------------------------------------------------------------- //
 KUInt32
 TVoyagerManagedSerialPort::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister )
@@ -527,6 +469,9 @@ TVoyagerManagedSerialPort::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, K
 
 // -------------------------------------------------------------------------- //
 //  * WriteDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
+//		TDMAManage has determined that the CPU writes a memory address that
+//		refers to a DMA register associted with this serial port.
+//		This function dispatches to the DMA emulation.
 // -------------------------------------------------------------------------- //
 void
 TVoyagerManagedSerialPort::WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue )
@@ -541,9 +486,8 @@ TVoyagerManagedSerialPort::WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, 
 }
 
 
-
 // -------------------------------------------------------------------------- //
-//  * ReadDMARegister( KUInt32, KUInt32, KUInt32 )
+//  * ReadRxDMARegister( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
 TVoyagerManagedSerialPort::ReadRxDMARegister( KUInt32 inBank, KUInt32 inRegister )
@@ -560,14 +504,14 @@ TVoyagerManagedSerialPort::ReadRxDMARegister( KUInt32 inBank, KUInt32 inRegister
 			case 6: result = 0; break;
 			case 2:
 			default:
-				//printf("***** 'extr' serial Rx, reading unknown DMA register %d %d %d\n", inBank, 0, inRegister);
+				printf("***** 'extr' serial Rx, reading unknown DMA register %d %d %d\n", inBank, 0, inRegister);
 				break;
 		}
 	} else if (inBank==2) {
 		switch (inRegister) {
 			case 0: result = mRxDMAControl; break;
 			case 1: // TSerialDMAEngine::StartRxDMA reading
-				printf("----- 'extr' serial Rx DMA, reading interrupt reason (?) %d %d %d (0x%08X)\n", inBank, 0, inRegister, mRxDMAEvent);
+				//printf("----- 'extr' serial Rx DMA, reading interrupt reason (?) %d %d %d (0x%08X)\n", inBank, 0, inRegister, mRxDMAEvent);
 				result = mRxDMAEvent; break; // FIXME: additional action needed?
 			case 2: result = 0; break;
 			case 3: result = 0; break;
@@ -582,7 +526,7 @@ TVoyagerManagedSerialPort::ReadRxDMARegister( KUInt32 inBank, KUInt32 inRegister
 
 
 // -------------------------------------------------------------------------- //
-//  * WriteDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
+//  * WriteRxDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
 TVoyagerManagedSerialPort::WriteRxDMARegister( KUInt32 inBank, KUInt32 inRegister, KUInt32 inValue )
@@ -590,24 +534,24 @@ TVoyagerManagedSerialPort::WriteRxDMARegister( KUInt32 inBank, KUInt32 inRegiste
 	if (inBank==1) {
 		switch (inRegister) {
 			case 0: // TSerialDMAEngine::BindToBuffer buffer start
-				printf("----- 'extr' serial Rx DMA, set buffer start %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				//printf("----- 'extr' serial Rx DMA, set buffer start %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				mRxDMAPhysicalBufferStart = inValue; break;
 			case 1: // TSerialDMAEngine::StartRxDMA data start
-				printf("----- 'extr' serial Rx DMA, set data start %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				//printf("----- 'extr' serial Rx DMA, set data start %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				mRxDMAPhysicalData = inValue; break;
 			case 3: // TSerialDMAEngine::StartRxDMA writes 00000080
-				printf("----- 'extr' serial Rx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				//printf("----- 'extr' serial Rx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				break; // FIXME: will other values be written here? What do they do?
 			case 4: // TSerialDMAEngine::StartRxDMA buffer max count
-				printf("----- 'extr' serial Rx DMA, set data count %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				//printf("----- 'extr' serial Rx DMA, set data count %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				mRxDMADataCountdown = inValue; break;
 			case 5: // TSerialDMAEngine::StartRxDMA buffer size
-				printf("----- 'extr' serial Rx DMA, set buffer size %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				//printf("----- 'extr' serial Rx DMA, set buffer size %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				mRxDMABufferSize = inValue; break;
 			case 6:
 				// TSerialDMAEngine::BindToBuffer writing 00000000
 				// TSerialDMAEngine::StartRxDMA writing 000000FF
-				printf("----- 'extr' serial Rx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				//printf("----- 'extr' serial Rx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				break; // FIXME: additional action needed?
 			case 2:
 			default:
@@ -617,16 +561,17 @@ TVoyagerManagedSerialPort::WriteRxDMARegister( KUInt32 inBank, KUInt32 inRegiste
 	} else if (inBank==2) {
 		switch (inRegister) {
 			case 0: // TSerialDMAEngine::Init writing 00000000, TSerialDMAEngine::StartRxDMA writing 00000006
-				printf("----- 'extr' serial Rx DMA, set control register %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				//printf("----- 'extr' serial Rx DMA, set control register %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				mRxDMAControl = inValue; break;
 			case 1:
-				printf("----- 'extr' serial Rx DMA, set interrupt reason %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				//printf("----- 'extr' serial Rx DMA, set interrupt reason %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				mRxDMAEvent = inValue; break;
 			case 2: // TSerialDMAEngine::StartRxDMA writing 00000000
-				printf("----- 'extr' serial Rx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
-				break; // FIXME: additional action needed?
+				// in all likelyhodd, this clears the events that were triggered and read from mRxDMAEvent
+				//printf("----- 'extr' serial Rx DMA, clear event mask %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				mRxDMAEvent &= ~inValue; break; // FIXME: additional action needed?
 			case 3: // TSerialDMAEngine::ConfigureInterrupts writing 00000006
-				printf("----- 'extr' serial Rx DMA, set interrupt select (?) %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				//printf("----- 'extr' serial Rx DMA, set interrupt select (?) %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				break; // FIXME: additional action needed?
 			default:
 				printf("***** 'extr' serial Rx, writing unknown DMA register %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
@@ -637,7 +582,7 @@ TVoyagerManagedSerialPort::WriteRxDMARegister( KUInt32 inBank, KUInt32 inRegiste
 
 
 // -------------------------------------------------------------------------- //
-//  * ReadDMARegister( KUInt32, KUInt32, KUInt32 )
+//  * ReadTxDMARegister( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
 TVoyagerManagedSerialPort::ReadTxDMARegister( KUInt32 inBank, KUInt32 inRegister )
@@ -663,7 +608,7 @@ TVoyagerManagedSerialPort::ReadTxDMARegister( KUInt32 inBank, KUInt32 inRegister
 			case 1:
 				// TSerialDMAEngine::StartTxDMA reads this register
 				// TSerialDMAEngine::DMAInterrupt reads this register as a very first step!
-				printf("----- 'extr' serial Tx DMA, reading interrupt reason (?) %d %d %d (0x%08X)\n", inBank, 1, inRegister, mTxDMAEvent);
+				//printf("----- 'extr' serial Tx DMA, reading interrupt reason (?) %d %d %d (0x%08X)\n", inBank, 1, inRegister, mTxDMAEvent);
 				result = mTxDMAEvent; break; // FIXME: additional action needed?
 			case 2: result = 0; break;
 			case 3: result = 0; break;
@@ -678,7 +623,7 @@ TVoyagerManagedSerialPort::ReadTxDMARegister( KUInt32 inBank, KUInt32 inRegister
 
 
 // -------------------------------------------------------------------------- //
-//  * WriteDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
+//  * WriteTxDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
 TVoyagerManagedSerialPort::WriteTxDMARegister( KUInt32 inBank, KUInt32 inRegister, KUInt32 inValue )
@@ -686,22 +631,22 @@ TVoyagerManagedSerialPort::WriteTxDMARegister( KUInt32 inBank, KUInt32 inRegiste
 	if (inBank==1) {
 		switch (inRegister) {
 			case 0: // TSerialDMAEngine::BindToBuffer writing the start address of the buffer
-				printf("----- 'extr' serial Tx DMA, set buffer start %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				//printf("----- 'extr' serial Tx DMA, set buffer start %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				mTxDMAPhysicalBufferStart = inValue; break;
 			case 1: // TSerialDMAEngine::StartTxDMA writes the start address of the transfer
-				printf("----- 'extr' serial Tx DMA, set data start %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				//printf("----- 'extr' serial Tx DMA, set data start %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				mTxDMAPhysicalData = inValue; break;
 			case 3: // TSerialDMAEngine::StartTxDMA writes 000000C0
-				printf("----- 'extr' serial Tx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				//printf("----- 'extr' serial Tx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				break; // FIXME: will other values be written here? What do they do?
 			case 4: // TSerialDMAEngine::StartTxDMA writes the number of bytes to be sent
-				printf("----- 'extr' serial Tx DMA, set data count %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				//printf("----- 'extr' serial Tx DMA, set data count %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				mTxDMADataCountdown = inValue; break;
 			case 5: // TSerialDMAEngine::StartTxDMA writes the size of the buffer
-				printf("----- 'extr' serial Tx DMA, set buffer size %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				//printf("----- 'extr' serial Tx DMA, set buffer size %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				mTxDMABufferSize = inValue; break;
 			case 6: // TSerialDMAEngine::BindToBuffer writing 0
-				printf("----- 'extr' serial Tx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				//printf("----- 'extr' serial Tx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				break; // FIXME: additional action needed?
 			case 2:
 			default:
@@ -714,18 +659,19 @@ TVoyagerManagedSerialPort::WriteTxDMARegister( KUInt32 inBank, KUInt32 inRegiste
 				// TSerialDMAEngine::Init writes 0 (probably disabeling the entire DMA channel)
 				// TSerialDMAEngine::StartTxDMA writes 00000002 (probably to prepare the DMA, write DMA enable 00000002 is next.)
 				// TSerialDMAEngine::StopTxDMA writes 0
-				printf("----- 'extr' serial Tx DMA, set control register %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				//printf("----- 'extr' serial Tx DMA, set control register %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				mTxDMAControl = inValue; break;
 			case 1:
-				printf("----- 'extr' serial Tx DMA, set interrupt reason %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				//printf("----- 'extr' serial Tx DMA, set interrupt reason %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				mTxDMAEvent = inValue; break;
 			case 2:
 				// TSerialDMAEngine::StartTxDMA writes whatever it reads in 2.1.1
 				// TSerialDMAEngine::DMAInterrupt set this to 0 after reading 2.1.1
-				printf("----- 'extr' serial Tx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
-				break; // FIXME: additional action needed?
+				// in all likelyhodd, this clears the events that were triggered and read from mTxDMAEvent
+				//printf("----- 'extr' serial Tx DMA, clear event mask %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				mTxDMAEvent &= ~inValue; break; // FIXME: additional action needed?
 			case 3: // TSerialDMAEngine::ConfigureInterrupts writes 00000002
-				printf("----- 'extr' serial Tx DMA, set interrupt select (?) %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				//printf("----- 'extr' serial Tx DMA, set interrupt select (?) %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				break; // FIXME: additional action needed?
 			default:
 				printf("***** 'extr' serial Tx, writing unknown DMA register %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
@@ -738,48 +684,85 @@ TVoyagerManagedSerialPort::WriteTxDMARegister( KUInt32 inBank, KUInt32 inRegiste
 
 // -------------------------------------------------------------------------- //
 //  * RunDMA()
+//		RunDMA initializes the ports that are needed to communicate with the
+//		outside world and between threads. It then launches a thread that
+//		handles all DMA access independently of anything else going on
+//		inside Einstein - just as a hardware DMA would.
+//
+//		Not to be confused with RunDMC which is an American Hip Hop band from
+//		the eighties.
 // -------------------------------------------------------------------------- //
 void
 TVoyagerManagedSerialPort::RunDMA()
 {
+	// TDOO: we should also offer using a physical serial port of the host machine
+#if 0 // use the "socat" system ("socat -d -d -d -v -x pty,rawer,echo=0 pty,rawer,echo=0")
 	static const char *portName = "/dev/ttys016";
-
 	// open the serial port
-	mSerialPort = open(portName, O_RDWR | O_NOCTTY | O_NONBLOCK);
-	if (mSerialPort==-1) {
-		printf("Error opening serial port %s - %s (%d).\n", portName, strerror(errno), errno);
+	mTxPort = mRxPort = open(portName, O_RDWR | O_NOCTTY | O_NONBLOCK);
+	if (mTxPort==-1) {
+		printf("***** Error opening serial port %s - %s (%d).\n", portName, strerror(errno), errno);
 		return;
 	}
-	tcflush(mSerialPort, TCIOFLUSH);
+	tcflush(mRxPort, TCIOFLUSH);
+#else // use two named pipes
+	// FIXME: the pipe names must be generated at run tim, based on the actual
+	//		location of the "Application Support" directory
+	// FIXME: the pipe nodes must be created programmatically if they do not
+	//		exist yet
 
-	// open the communication pipe
+	// create named pipe nodes
+	FindPipeNames();
+	if (!CreateNamedPipes()) {
+		return;
+	}
+
+	// open the named pipes
+	mTxPort = open(mTxPortName, O_RDWR | O_NOCTTY | O_NONBLOCK);
+	if (mTxPort==-1) {
+		printf("***** Error opening named sending pipe %s - %s (%d).\n", mTxPortName, strerror(errno), errno);
+		return;
+	}
+	mRxPort = open(mRxPortName, O_RDWR | O_NOCTTY | O_NONBLOCK);
+	if (mRxPort==-1) {
+		printf("***** Error opening named receiving pipe %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
+		return;
+	}
+	tcflush(mTxPort, TCIOFLUSH);
+	tcflush(mRxPort, TCIOFLUSH);
+#endif
+
+	// open the thread communication pipe
 	int err = pipe(mPipe);
 	if (err==-1) {
-		printf("Error opening pipe - %s (%d).\n", strerror(errno), errno);
+		printf("***** Error opening pipe - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
 
 	// create the actual thread and let it run forever
 	int ptErr = ::pthread_create( &mDMAThread, NULL, &SHandleDMA, this );
 	if (ptErr==-1) {
-		printf("Error creating pthread - %s (%d).\n", strerror(errno), errno);
+		printf("***** Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
 	pthread_detach( mDMAThread );
 }
 
+
 // -------------------------------------------------------------------------- //
 //  * HandleDMA()
+//		This endless loop watches DMA registers as they are changed by the
+//		OS, and read and writes data via the outside communication ports.
+//		It can also trigger interrupts when buffers empty, filll, or overflow.
 // -------------------------------------------------------------------------- //
 void
 TVoyagerManagedSerialPort::HandleDMA()
 {
 	static int maxFD = -1;
 
-	if (mSerialPort>maxFD) maxFD = mSerialPort;
+	if (mTxPort>maxFD) maxFD = mTxPort;
+	if (mRxPort>maxFD) maxFD = mRxPort;
 	if (mPipe[0]>maxFD) maxFD = mPipe[0];
-
-	printf(":::::>> fork is working\n");
 
 	// thread loops and handles pipe, port, and DMA
 	fd_set readSet;
@@ -796,7 +779,7 @@ TVoyagerManagedSerialPort::HandleDMA()
 		// wait for the next event
 		FD_ZERO(&readSet);
 		FD_SET(mPipe[0], &readSet);
-		FD_SET(mSerialPort, &readSet);
+		FD_SET(mRxPort, &readSet);
 		if (needTimer) {
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 260; // one byte at 38400bps serial port speed
@@ -804,13 +787,14 @@ TVoyagerManagedSerialPort::HandleDMA()
 		/*int s =*/ select(maxFD+1, &readSet, 0L, 0L, needTimer ? &timeout : 0L);
 
 		// handle transmitting DMA
+		
 		if (mTxDMAControl&0x00000002) { // DMA is enabled
 			if (mTxDMADataCountdown) {
 				// write a byte
 				KUInt8 data = 0;
 				mMemory->ReadBP(mTxDMAPhysicalData, data);
-				printf(":::::>> TX: 0x%02X '%c'\n", data, isprint(data)?data:'.');
-				write(mSerialPort, &data, 1);
+				//printf(":::::>> TX: 0x%02X '%c'\n", data, isprint(data)?data:'.');
+				write(mTxPort, &data, 1);
 				mTxDMAPhysicalData++;
 				mTxDMABufferSize--;
 				if (mTxDMABufferSize==0) {
@@ -820,7 +804,7 @@ TVoyagerManagedSerialPort::HandleDMA()
 				if (mTxDMADataCountdown==0) {
 					// trigger a "send buffer empty" interrupt
 					//mDMAManager->WriteChannel2Register(1, 1, 0x00000080); // 0x80 = TxBufEmpty, 0x00000180
-					printf(":::::>> buffer is now empty\n");
+					//printf(":::::>> buffer is now empty\n");
 					mTxDMAEvent = 0x00000080;
 					mInterruptManager->RaiseInterrupt(0x00000100);
 				}
@@ -828,31 +812,38 @@ TVoyagerManagedSerialPort::HandleDMA()
 		}
 
 		// handle receiving DMA
-		if (FD_ISSET(mSerialPort, &readSet)) {
+
+		// FIXME: This routine is currently a mess. it needs to be rewritten
+		// and retested. Note though that the original Newton hardware and OS
+		// did have timing issues whan the server PC communicated faster as
+		// expected in 1996, which lead to CPU cycle buring software like
+		// "slowdown.exe".
+
+		if (FD_ISSET(mRxPort, &readSet)) {
 			// read bytes that come in through the serial port
-#if 1
 			KUInt8 buf[1026];
 			int n = -1;
 			usleep(100000); // 1/10th of a second
 			for (int j=2; j>0; j--) {
-				n = read(mSerialPort, buf, 1024);
-//				n = read(mSerialPort, buf, 1);
+				// FIXME: reading 1024 bytes will overflow the buffer
+				// FIXME: reading less bytes must make sure that the next select() call triggers on data left in the buffer
+				n = read(mRxPort, buf, 1024);
+//				n = read(mRxPort, buf, 1);
 				if (n<=0)
 					usleep(100000); // 1/10th of a second
 				else
 					break;
 			}
 			if (n==-1) {
-				printf("Error reading from serial port %s - %s (%d).\n", "/dev/ttyp8", strerror(errno), errno);
+				printf("***** Error reading from serial port %s - %s (%d).\n", "/dev/ttyp8", strerror(errno), errno);
 			} else if (n==0) {
-				printf("No data yet\n");
+				printf("***** No data yet\n");
 			} else {
-				printf("----> Received %d bytes data from NCX\n", n);
-#if 1
+				//printf("----> Received %d bytes data from NCX\n", n);
 				for (KUInt32 i=0; i<n; i++) {
 					KUInt8 data = buf[i];
 					mMemory->WriteBP(mRxDMAPhysicalData, data);
-					printf(" rx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
+					//printf(" rx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
 					mRxDMAPhysicalData++;
 					mRxDMABufferSize--;
 					if (mRxDMABufferSize==0) { // or mRxDMADataCountdown?
@@ -864,54 +855,11 @@ TVoyagerManagedSerialPort::HandleDMA()
 						// buffer overflow?
 					}
 				}
-				printf("===> Start Rx DMA\n");
-#else
-				KUInt32 dmaRxStart = mRxDMAPhysicalData;
-				KUInt32 dmaRxSize = n;
-				for (KUInt32 i=0; i<dmaRxSize; i++) {
-					KUInt8 data = buf[i];
-					mMemory->WriteBP(dmaRxStart+i, data);
-					printf(" rx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
-				}
-				printf("===> Start Rx DMA\n");
-				KUInt32 dmaRxPos = mRxDMAPhysicalData;
-				mRxDMAPhysicalData = dmaRxPos + dmaRxSize;
-				KUInt32 dmaRxBuf = mRxDMADataCountdown;
-				mRxDMADataCountdown = dmaRxBuf - dmaRxSize;
-#endif
+				//printf("===> Start Rx DMA\n");
 				mRxDMAEvent = 0x00000040;
 				mInterruptManager->RaiseInterrupt(0x00000080); // 0x00000180
-				printf("===> End Rx DMA\n");
+				//printf("===> End Rx DMA\n");
 			}
-
-#else
-			KUInt8 data;
-			int nAvail;
-			int err = ioctl(mSerialPort, FIONREAD, &nAvail);
-			if (err==-1) {
-			} else {
-				for (int i=0; i<nAvail; i++) {
-					int n = read(mSerialPort, &data, 1);
-					if (n==-1) {
-						printf("Error reading serial port - %s (%d).\n", strerror(errno), errno);
-					} else if (n) {
-						printf(":::::>> RX: 0x%02X '%c'\n", data, isprint(data)?data:'.');
-						mMemory->WriteBP(mRxDMAPhysicalData, data);
-						mRxDMAPhysicalData++;
-						mRxDMADataCountdown--;
-						if (mRxDMADataCountdown==0) {
-							// TODO: generate an overflow error
-						}
-
-					}
-				}
-				if (nAvail) {
-					printf(":::::>> Raising receive interrupt\n");
-					mRxDMAEvent = 0x00000040;
-					mInterruptManager->RaiseInterrupt(0x00000080); // 0x00000180
-				}
-			}
-#endif
 		}
 
 		// handle commands from the pipe
@@ -926,9 +874,16 @@ TVoyagerManagedSerialPort::HandleDMA()
 				for (int i=0; i<nAvail; i++) {
 					int n = read(mPipe[0], &cmd, 1);
 					if (n==-1) {
-						printf("Error reading pipe - %s (%d).\n", strerror(errno), errno);
+						printf("***** Error reading pipe - %s (%d).\n", strerror(errno), errno);
 					} else if (n) {
-						printf(":::::>> pipe commend '%c'\n", cmd);
+						// TODO: add a command that is sent whenever a relevant
+						//		 DMA register is written in order to launch the
+						//		 DMA management loop again.
+						// TODO: add a command for power on and use it to open
+						//		 files and ports.
+						// TODO: add a command for power off and use it to close
+						//		 files and ports.
+						//printf(":::::>> pipe commend '%c'\n", cmd);
 					}
 				}
 			}
@@ -938,510 +893,599 @@ TVoyagerManagedSerialPort::HandleDMA()
 }
 
 
-/*
- F080000 = 1,0,0:  w: rx physical buffer address (InitRxDMA)
- F080400 = 1,0,1:  w: current buffer address? (RxDMAControl)
- F080800 = 1,0,2
- F080C00 = 1,0,3:  w: 00000080 (RxDMAControl), 00000000 (The interrupt that we trigger?)
- F081000 = 1,0,4: rw: 00000403 buffer count? (RxDMAControl) (reading when shutting down?)
- F081400 = 1,0,5:  w: 00000404 buffer size? (RxDMAControl)
- F081800 = 1,0,6:  w: 00000000 (InitRxDMA), 000000FF (RxDMAControl)
- F090000 = 2,0,0:  w: 00000006 (RxDMAControl), 00000000
- F090400 = 2,0,1: r : (RxDMAControl)
- F090800 = 2,0,2:  w: 00000000 (RxDMAControl)
- F090C00 = 2,0,3:  w: 00000006 (InitRxDMA)
- Transmit:
- F082000 = 1,1,0:  w: tx physical buffer address (InitTxDMA)
- F082400 = 1,1,1: rw: physical address of data start
- F082800 = 1,1,2
- F082C00 = 1,1,3:  w: 000000C0 (TxDMAControl) Some Control Register
- F083000 = 1,1,4: rw: number of bytes to write (TxDMAControl)
- F083400 = 1,1,5:  w: 204, buffer size? (TxDMAControl) bytes to end of buffer
- F083800 = 1,1,6:  w: 00000000 (InitTxDMA)
- F091000 = 2,1,0:  w: 00000002 (TxDMAControl)
- F091400 = 2,1,1: r : (TxDMAControl)
- F091800 = 2,1,2:  w: 00000000 (TxDMAControl) (whatever we read from 2,1,1)
- F091C00 = 2,1,3:  w: 00000002 (InitTxDMA)
-*/
+// -------------------------------------------------------------------------- //
+// This patch renames the standard serial port to another name, so that the
+// 'extr' serial port is registered by the OS.
+// FIXME: we must either verify that the REx file does actually contain a
+// driver and that it is at this particular location, or make sure that the
+// user receives a REx file that is fixed in this respect.
+// -------------------------------------------------------------------------- //
+TJITGenericROMPatch p00800634(0x00800634, 'Matt', "No Ser Port");
 
 
+// -------------------------------------------------------------------------- //
+// SCPCheck__8TCMWorldFUl:	@ 0x0006C48C: TCMWorld::SCPCheck(unsigned long)
+// This method gets stuck when using the current very incomplete serial port
+// emulation.. With the improved emulation developed over the last days, this
+// patch is no longer required.
+// -------------------------------------------------------------------------- //
+//T_ROM_PATCH(0x0006C48C, "SCPCheck__8TCMWorldFUl") {
+//	ioCPU->SetRegister(0, -18000);
+//	SETPC(0x001D73D0+4); // return
+//	MMUCALLNEXT_AFTERSETPC;
+//}
 
 
+// -------------------------------------------------------------------------- //
+// Enable the ROM patches below to get an overview of the calls related to
+// serial communication. I left those in for reference and if anyone feels like
+// taking a peek at the complexity of a serial port via DMA.
+// -------------------------------------------------------------------------- //
 
-
-
-
-
-// ============================== References ===================================
 #if 0
 
-// POSIX
-#include <sys/types.h>
-#include <signal.h>
-#include <string.h>
+T_ROM_INJECTION(0x001D6780, "Init__18TSerialChipVoyagerFP11TCardSocketP12TCardHandlerPUc") {
+	printf("0x001D6780: TSerialChipVoyager::Init(TCardSocket *, TCardHandler *, unsigned char *)\n");
+	return ioUnit;
+}
 
-#if !TARGET_OS_WIN32
-#include <unistd.h>
-#include <sys/time.h>
+T_ROM_INJECTION(0x001D678C, "InitByOption__18TSerialChipVoyagerFP7TOption") {
+	printf("0x001D678C: TSerialChipVoyager::InitByOption(TOption *)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6A14, "InstallChipHandler__18TSerialChipVoyagerFPvP14SCCChannelInts") {
+	printf("0x001D6A14: TSerialChipVoyager::InstallChipHandler(void *, SCCChannelInts *)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6A5C, "RemoveChipHandler__18TSerialChipVoyagerFPv") {
+	printf("0x001D6A5C: TSerialChipVoyager::RemoveChipHandler(void *)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6A88, "InitializeForNextHandler__18TSerialChipVoyagerFv") {
+	printf("0x001D6A88: TSerialChipVoyager::InitializeForNextHandler(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6AF0, "PutByte__18TSerialChipVoyagerFUc") {
+	printf("0x001D6AF0: TSerialChipVoyager::PutByte(unsigned char)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6B3C, "ResetTxBEmpty__18TSerialChipVoyagerFv") {
+	printf("0x001D6B3C: TSerialChipVoyager::ResetTxBEmpty(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6B60, "GetByte__18TSerialChipVoyagerFv") {
+	printf("0x001D6B60: TSerialChipVoyager::GetByte(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6B70, "TxBufEmpty__18TSerialChipVoyagerFv") {
+	printf("0x001D6B70: TSerialChipVoyager::TxBufEmpty(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6B84, "RxBufFull__18TSerialChipVoyagerFv") {
+	printf("0x001D6B84: TSerialChipVoyager::RxBufFull(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6BAC, "GetRxErrorStatus__18TSerialChipVoyagerFv") {
+	printf("0x001D6BAC: TSerialChipVoyager::GetRxErrorStatus(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6BD8, "GetSerialStatus__18TSerialChipVoyagerFv") {
+	printf("0x001D6BD8: TSerialChipVoyager::GetSerialStatus(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6C6C, "ResetSerialStatus__18TSerialChipVoyagerFv") {
+	printf("0x001D6C6C: TSerialChipVoyager::ResetSerialStatus(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6C70, "SetSerialOutputs__18TSerialChipVoyagerFUl") {
+	printf("0x001D6C70: TSerialChipVoyager::SetSerialOutputs(unsigned long)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6CA0, "ClearSerialOutputs__18TSerialChipVoyagerFUl") {
+	printf("0x001D6CA0: TSerialChipVoyager::ClearSerialOutputs(unsigned long)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6CCC, "GetSerialOutputs__18TSerialChipVoyagerFv") {
+	printf("0x001D6CCC: TSerialChipVoyager::GetSerialOutputs(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6CFC, "PowerOff__18TSerialChipVoyagerFv") {
+	printf("0x001D6CFC: TSerialChipVoyager::PowerOff(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6E58, "PowerOn__18TSerialChipVoyagerFv") {
+	printf("0x001D6E58: TSerialChipVoyager::PowerOn(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6F70, "PowerIsOn__18TSerialChipVoyagerFv") {
+	printf("0x001D6F70: TSerialChipVoyager::PowerIsOn(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6F78, "SetInterruptEnable__18TSerialChipVoyagerFUc") {
+	UInt32 r1 = ioCPU->GetRegister(1);
+	printf("0x001D6F78: TSerialChipVoyager::SetInterruptEnable(%d)\n", (unsigned)r1);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6FA8, "Reset__18TSerialChipVoyagerFv") {
+	printf("0x001D6FA8: TSerialChipVoyager::Reset(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6FAC, "SetBreak__18TSerialChipVoyagerFUc") {
+	printf("0x001D6FAC: TSerialChipVoyager::SetBreak(unsigned char)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D6FD4, "SetSpeed__18TSerialChipVoyagerFUl") {
+	UInt32 r1 = ioCPU->GetRegister(1);
+	printf("0x001D6FD4: TSerialChipVoyager::SetSpeed(%d)\n", (unsigned)r1);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7148, "SetIOParms__18TSerialChipVoyagerFP17TCMOSerialIOParms") {
+	printf("0x001D7148: TSerialChipVoyager::SetIOParms(TCMOSerialIOParms *)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7204, "Reconfigure__18TSerialChipVoyagerFv") {
+	printf("0x001D7204: TSerialChipVoyager::Reconfigure(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7364, "GetFeatures__18TSerialChipVoyagerFv") {
+	printf("0x001D7364: TSerialChipVoyager::GetFeatures(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D73DC, "ProcessOption__18TSerialChipVoyagerFP7TOption") {
+	printf("0x001D73DC: TSerialChipVoyager::ProcessOption(TOption *)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7808, "SetSerialMode__18TSerialChipVoyagerFUl") {
+	KUInt32 r1 = ioCPU->GetRegister(1);
+	char buf[128] = { 0 };
+	switch (r1&3) {
+		case 0: strcpy(buf, "kSerModeAsync"); break;
+		case 1: strcpy(buf, "kSerModeSync"); break;
+		case 2: strcpy(buf, "kSerModeLocalTalk"); break;
+		default: strcpy(buf, "unknown"); break;
+	}
+	if (r1&0x04) {
+		strcat(buf, " | kSerModeHalfDuplex");
+	}
+	if (r1&0x08) {
+		strcat(buf, " | kSerModePolled");
+	}
+	printf("0x001D7808: TSerialChipVoyager::SetSerialMode(0x%08X=\"%s\")\n", (unsigned)r1, buf);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7920, "SysEventNotify__18TSerialChipVoyagerFUl") {
+	printf("0x001D7920: TSerialChipVoyager::SysEventNotify(unsigned long)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D793C, "SetTxDTransceiverEnable__18TSerialChipVoyagerFUc") {
+	KUInt32 r1 = ioCPU->GetRegister(1);
+	printf("0x001D793C: TSerialChipVoyager::SetTxDTransceiverEnable(%d)\n", (unsigned)r1);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D799C, "GetByteAndStatus__18TSerialChipVoyagerFPUc") {
+	printf("0x001D799C: TSerialChipVoyager::GetByteAndStatus(unsigned char *)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D79DC, "SetIntSourceEnable__18TSerialChipVoyagerFUlUc") {
+	KUInt32 r1 = ioCPU->GetRegister(1);
+	KUInt32 r2 = ioCPU->GetRegister(2);
+	char buf[1024];
+	buf[0] = 0;
+	if (r1&0x001) strcat(buf, "Abort ");
+	if (r1&0x002) strcat(buf, "Hunt ");
+	if (r1&0x004) strcat(buf, "UnderRun ");
+	if (r1&0x008) strcat(buf, "CTS ");
+	if (r1&0x010) strcat(buf, "DCD ");
+	if (r1&0x020) strcat(buf, "RxSpecial ");
+	if (r1&0x040) strcat(buf, "RxOnAllChars ");
+	if (r1&0x080) strcat(buf, "TxBufEmpty ");
+	if (r1&0x100) strcat(buf, "RxOnFirstChar ");
+	printf("0x001D79DC: TSerialChipVoyager::SetIntSourceEnable(0x%08X=\"%s\", enable=%d)\n", (unsigned)r1, buf, (unsigned)r2);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7A5C, "AllSent__18TSerialChipVoyagerFv") {
+	printf("0x001D7A5C: TSerialChipVoyager::AllSent(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7A78, "WaitForAllSent__18TSerialChipVoyagerFv") {
+	printf("0x001D7A78: TSerialChipVoyager::WaitForAllSent(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7ABC, "ConfigureForOutput__18TSerialChipVoyagerFUc") {
+	printf("0x001D7ABC: TSerialChipVoyager::ConfigureForOutput(unsigned char)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7BCC, "SetSDLCAddress__18TSerialChipVoyagerFUc") {
+	printf("0x001D7BCC: TSerialChipVoyager::SetSDLCAddress(unsigned char)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7C00, "ReEnableReceiver__18TSerialChipVoyagerFUc") {
+	printf("0x001D7C00: TSerialChipVoyager::ReEnableReceiver(unsigned char)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7CC4, "InitTxDMA__18TSerialChipVoyagerFP10TCircleBufPFPv_v") {
+	KUInt32 r2 = ioCPU->GetRegister(2);
+	printf("0x001D7CC4: TSerialChipVoyager::InitTxDMA(TCircleBuf *, void (*)(void *)=0x%08X)\n", unsigned(r2));
+	// For the external serial port and the Docking app, this is:
+	// TxDMAInterrupt__13TAsyncSerToolFv:
+	// @ 0x0003A7C4: TAsyncSerTool::TxDMAInterrupt(void)
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7D70, "InitRxDMA__18TSerialChipVoyagerFP10TCircleBufUlPFPvUl_v") {
+	KUInt32 r2 = ioCPU->GetRegister(2);
+	KUInt32 r3 = ioCPU->GetRegister(3);
+	printf("0x001D7D70: TSerialChipVoyager::InitRxDMA(TCircleBuf *, notifyLevel=0x%08X, void (*)(void *, unsigned long)=0x%08X)\n", unsigned(r2), unsigned(r3));
+	// For the external serial port and the Docking app, this is:
+	// RxMultiByteInterrupt__13TAsyncSerToolFUl:
+	// @ 0x0003ABC8: TAsyncSerTool::RxMultiByteInterrupt(unsigned long)
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7DF0, "TxDMAControl__18TSerialChipVoyagerFUc") {
+	KUInt32 r1 = ioCPU->GetRegister(1);
+	char buf[64] = { 0 };
+	switch (r1&15) {
+		case 0: strcpy(buf, "kDMANoOp"); break;
+		case 1: strcpy(buf, "kDMAStart"); break;
+		case 2: strcpy(buf, "kDMAStop"); break;
+		case 3: strcpy(buf, "kDMASuspend"); break;
+		case 4: strcpy(buf, "kDMASync"); break;
+		case 5: strcpy(buf, "kDMAFlush"); break;
+		default: strcpy(buf, "unknown"); break;
+	}
+	if (r1&0x10) {
+		strcat(buf, " | kDMANotifyOnNext");
+	}
+	printf("0x001D7DF0: TSerialChipVoyager::TxDMAControl(0x%02X=\"%s\")\n", (unsigned)r1, buf);
+
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D7F28, "RxDMAControl__18TSerialChipVoyagerFUc") {
+	KUInt32 r1 = ioCPU->GetRegister(1);
+	char buf[64] = { 0 };
+	switch (r1&15) {
+		case 0: strcpy(buf, "kDMANoOp"); break;
+		case 1: strcpy(buf, "kDMAStart"); break;
+		case 2: strcpy(buf, "kDMAStop"); break;
+		case 3: strcpy(buf, "kDMASuspend"); break;
+		case 4: strcpy(buf, "kDMASync"); break;
+		case 5: strcpy(buf, "kDMAFlush"); break;
+		default: strcpy(buf, "unknown"); break;
+	}
+	if (r1&0x10) {
+		strcat(buf, " | kDMANotifyOnNext");
+	}
+	printf("0x001D7F28: TSerialChipVoyager::RxDMAControl(0x%02X=\"%s\")\n", (unsigned)r1, buf);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8088, "LinkIsFree__18TSerialChipVoyagerFUc") {
+	printf("0x001D8088: TSerialChipVoyager::LinkIsFree(unsigned char)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D80B4, "SendControlPacket__18TSerialChipVoyagerFUcN21") {
+	printf("0x001D80B4: TSerialChipVoyager::SendControlPacket(unsigned char, unsigned char, unsigned char)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8180, "WaitForPacket__18TSerialChipVoyagerFUl") {
+	printf("0x001D8180: TSerialChipVoyager::WaitForPacket(unsigned long)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D81C8, "RegisterPrimaryInterrupt__18TSerialChipVoyagerFv") {
+	printf("0x001D81C8: TSerialChipVoyager::RegisterPrimaryInterrupt(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8238, "ReconfigureIOParms__18TSerialChipVoyagerFv") {
+	printf("0x001D8238: TSerialChipVoyager::ReconfigureIOParms(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D82D4, "ReconfigureAll__18TSerialChipVoyagerFv") {
+	printf("0x001D82D4: TSerialChipVoyager::ReconfigureAll(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8380, "IRCmdTxInterrupt__18TSerialChipVoyagerFv") {
+	printf("0x001D8380: TSerialChipVoyager::IRCmdTxInterrupt(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D83E0, "IRCmdOtherInterrupt__18TSerialChipVoyagerFv") {
+	printf("0x001D83E0: TSerialChipVoyager::IRCmdOtherInterrupt(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8420, "ConfigureIRChip__18TSerialChipVoyagerFUc") {
+	printf("0x001D8420: TSerialChipVoyager::ConfigureIRChip(unsigned char)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D885C, "Sizeof__18TSerialChipVoyagerSFv") {
+	printf("0x001D885C: static TSerialChipVoyager::Sizeof(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8864, "EnableTVModeIR__18TSerialChipVoyagerFP17TCMOSlowIRBitBang") {
+	printf("0x001D8864: TSerialChipVoyager::EnableTVModeIR(TCMOSlowIRBitBang *)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8914, "WriteNextByteWithTimeOut__18TSerialChipVoyagerFUc") {
+	printf("0x001D8914: TSerialChipVoyager::WriteNextByteWithTimeOut(unsigned char)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8964, "ReadNextByteWithTimeOut__18TSerialChipVoyagerFPUc") {
+	printf("0x001D8964: TSerialChipVoyager::ReadNextByteWithTimeOut(unsigned char *)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D89BC, "WaitNextByteWithTimeOut__18TSerialChipVoyagerFv") {
+	printf("0x001D89BC: TSerialChipVoyager::WaitNextByteWithTimeOut(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8A00, "EnableRxDMA__18TSerialChipVoyagerFv") {
+	printf("0x001D8A00: TSerialChipVoyager::EnableRxDMA(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8A24, "DisableRxDMA__18TSerialChipVoyagerFv") {
+	printf("0x001D8A24: TSerialChipVoyager::DisableRxDMA(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8A48, "TxDMAEnable__18TSerialChipVoyagerFi") {
+	KUInt32 r1 = ioCPU->GetRegister(1);
+	printf("0x001D8A48: TSerialChipVoyager::TxDMAEnable(%d)\n", (unsigned)r1);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8A84, "StartSendDMAPacket__18TSerialChipVoyagerFv") {
+	printf("0x001D8A84: TSerialChipVoyager::StartSendDMAPacket(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8BB8, "ReceivePacket__18TSerialChipVoyagerFv") {
+	printf("0x001D8BB8: TSerialChipVoyager::ReceivePacket(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8D84, "DCDInterrupt__18TSerialChipVoyagerFv") {
+	printf("0x001D8D84: TSerialChipVoyager::DCDInterrupt(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8D90, "New__18TSerialChipVoyagerFv") {
+	printf("0x001D8D90: TSerialChipVoyager::New(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8E10, "SetModemDCDIntEnable__18TSerialChipVoyagerFUc") {
+	KUInt32 r1 = ioCPU->GetRegister(1);
+	printf("0x001D8E10: TSerialChipVoyager::SetModemDCDIntEnable(%d)\n", (unsigned)r1);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8E48, "SerialInterrupt__18TSerialChipVoyagerFv") {
+	printf("0x001D8E48: TSerialChipVoyager::SerialInterrupt(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8F8C, "AsyncDMAOutInt__18TSerialChipVoyagerFv") {
+	printf("0x001D8F8C: TSerialChipVoyager::AsyncDMAOutInt(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D8FC4, "AsyncDMAInInt__18TSerialChipVoyagerFv") {
+	printf("0x001D8FC4: TSerialChipVoyager::AsyncDMAInInt(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D9020, "LocalTalkInterrupt__18TSerialChipVoyagerFv") {
+	printf("0x001D9020: TSerialChipVoyager::LocalTalkInterrupt(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D90EC, "LocalTalkDMAOutInt__18TSerialChipVoyagerFv") {
+	printf("0x001D90EC: TSerialChipVoyager::LocalTalkDMAOutInt(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D916C, "LTReceiveTimer__18TSerialChipVoyagerFUl") {
+	printf("0x001D916C: TSerialChipVoyager::LTReceiveTimer(unsigned long)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D917C, "LocalTalkDMAInInt__18TSerialChipVoyagerFv") {
+	printf("0x001D917C: TSerialChipVoyager::LocalTalkDMAInInt(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D91B0, "StopRcvDataPacket__18TSerialChipVoyagerFv") {
+	printf("0x001D91B0: TSerialChipVoyager::StopRcvDataPacket(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D920C, "Delete__18TSerialChipVoyagerFv") {
+	printf("0x001D920C: TSerialChipVoyager::Delete(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D9278, "CardRemoved__18TSerialChipVoyagerFv") {
+	printf("0x001D9278: TSerialChipVoyager::CardRemoved(void)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x00384A00, "ClassInfo__18TSerialChipVoyagerSFv") {
+	printf("0x00384A00: static TSerialChipVoyager::ClassInfo(void)\n");
+	return ioUnit;
+}
+
+
+
+T_ROM_INJECTION(0x001B975C, "PutBytes__8TSerToolFP11CBufferList") {
+	printf("0x001B975C: TSerTool::PutBytes(CBufferList *)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001B9778, "PutFramedBytes__8TSerToolFP11CBufferListUc") {
+	printf("0x001B9778: TSerTool::PutFramedBytes(CBufferList *, unsigned char)\n");
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001B9794, "StartOutput__8TSerToolFP11CBufferList") {
+	KUInt32 r1 = ioCPU->GetRegister(1);
+	printf("0x001B9794: TSerTool::StartOutput(CBufferList *0x%08X)\n", (unsigned int)r1);
+	return ioUnit;
+}
+
+
+
+
+T_ROM_INJECTION(0x001D9304, "StopRxDMA__16TSerialDMAEngineFv") {
+	KUInt32 r0 = ioCPU->GetRegister(0);
+	printf("0x001D9304: (0x%08X) TSerialDMAEngine::StopRxDMA(void)\n", (unsigned int)r0);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D9440, "StartTxDMA__16TSerialDMAEngineFv") {
+	KUInt32 r0 = ioCPU->GetRegister(0);
+	printf("0x001D9440: (0x%08X) TSerialDMAEngine::StartTxDMA(void)\n", (unsigned int)r0);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D94D0, "StartTxDMA__16TSerialDMAEngineFv") {
+#if 0
+	TEmulator *emu = ioCPU->GetEmulator();
+	TDMAManager *dma = emu->GetDMAManager();
+	TMemory *mem = ioCPU->GetMemory();
+	KUInt32 bufferStart = dma->ReadChannel1Register(1, 0);
+	KUInt32 dataStart = dma->ReadChannel1Register(1, 1);
+	KUInt32 dataSize = dma->ReadChannel1Register(1, 4);
+	KUInt32 bytesToEndOfBuffer = dma->ReadChannel1Register(1, 5);
+	printf("Sending %d bytes:\n", (unsigned)dataSize);
+	for (int i=0;;++i) {
+		KUInt8 data;
+		if (dataSize==0) break;
+		mem->ReadBP(dataStart, data);
+		printf("  0x%08X (%.3d): 0x%02X\n", dataStart, i, data);
+		dataSize--;
+		dataStart++;
+		bytesToEndOfBuffer--;
+		if (bytesToEndOfBuffer==0)
+			dataStart = bufferStart;
+	}
+#endif
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D94D4, "StopTxDMA__16TSerialDMAEngineFUc") {
+	KUInt32 r0 = ioCPU->GetRegister(0);
+	printf("0x001D94D4: (0x%08X) TSerialDMAEngine::StopTxDMA(unsigned char)\n", (unsigned int)r0);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D9550, "DMAInterrupt__16TSerialDMAEngineFv") {
+	KUInt32 r0 = ioCPU->GetRegister(0);
+	printf("0x001D9550: (0x%08X) TSerialDMAEngine::DMAInterrupt(void)\n", (unsigned int)r0);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D9594, "Init__16TSerialDMAEngineFP21TDMAChannelDiscriptorPvUc") {
+	KUInt32 r0 = ioCPU->GetRegister(0);
+	printf("0x001D9594: (0x%08X) TSerialDMAEngine::Init(TDMAChannelDiscriptor *, void *, unsig\n", (unsigned int)r0);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D966C, "BindToBuffer__16TSerialDMAEngineFP10TCircleBufUc") {
+	KUInt32 r0 = ioCPU->GetRegister(0);
+	printf("0x001D966C: (0x%08X) TSerialDMAEngine::BindToBuffer(TCircleBuf *, unsigned char)\n", (unsigned int)r0);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D96F8, "ConfigureInterrupts__16TSerialDMAEngineFUlPFPv_l") {
+	KUInt32 r0 = ioCPU->GetRegister(0);
+	printf("0x001D96F8: (0x%08X) TSerialDMAEngine::ConfigureInterrupts(unsigned long, long (*)(void *))\n", (unsigned int)r0);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D970C, "PauseDMA__16TSerialDMAEngineFUc") {
+	KUInt32 r0 = ioCPU->GetRegister(0);
+	printf("0x001D970C: (0x%08X) TSerialDMAEngine::PauseDMA(unsigned char)\n", (unsigned int)r0);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D972C, "ShareEngine__16TSerialDMAEngineFPv") {
+	KUInt32 r0 = ioCPU->GetRegister(0);
+	printf("0x001D972C: (0x%08X) TSerialDMAEngine::ShareEngine(void *)\n", (unsigned int)r0);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D9734, "StartIn__16TSerialDMAEngineFv") {
+	KUInt32 r0 = ioCPU->GetRegister(0);
+	printf("0x001D9734: (0x%08X) TSerialDMAEngine::StartIn(void)\n", (unsigned int)r0);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D97E0, "StopIn__16TSerialDMAEngineFi") {
+	KUInt32 r0 = ioCPU->GetRegister(0);
+	printf("0x001D97E0: (0x%08X) TSerialDMAEngine::StopIn(int)\n", (unsigned int)r0);
+	return ioUnit;
+}
+
+T_ROM_INJECTION(0x001D987C, "StartRxDMA__16TSerialDMAEngineFUl") {
+	KUInt32 r0 = ioCPU->GetRegister(0);
+	printf("0x001D987C: (0x%08X) TSerialDMAEngine::StartRxDMA(unsigned long)\n", (unsigned int)r0);
+	return ioUnit;
+}
+
 #endif
 
-#include "../Log/TLog.h"
-#include "../TInterruptManager.h"
-#include "../TDMAManager.h"
-#include "TMemory.h"
-
-/*
- TSerialChipVoyager : TSerialChip : TProtocol
- ============================================
-
- +36    0x24: HW Base Address
- +56    0x38: Recieve buffer size
- +100    0x64: bit 7: set if Tx Buffer is full
- +116    0x74: Rx: TSerialDMAEngine*
- +120    0x78: Tx: TSerialDMAEngine*
- +136    0x88: TCircleBuf Rx
- +143    0x8F: b: 02 to handle rx int
- +144    0x90: w:
-
-
- Serial port registers starting at 0x0F1C0000
- ============================================
-
- ? kSerReg_BreakDuplex	= 0x2400,
-
- 0000:  w 40
- 0400:  w 06
- 0800:  w 00
- 0C00:  w 02
- 1000:  w 00
- 2000:  w 62 (EnableRxDMA writes 62)
- bit 1: write: Clear Rx Error Status?
- 2400: rw 25 (EnableTxDMA)
- bit 0: TxDMAEnable
- 2800:  w 23 (SetTxDTransceiverEnable writes 23)
- bit 1: write: set outputs? DTR, RTS?
- 3000: rw F9 (SetInterruptEnable writes F9) Writes the mask of all enabled interrupts
- 3400:  w F9
- 3800:  w 19
- 3C00:  w 40 (SetIntSourceEnable(0x00000040, 1) writes 40) Setting a bit here enables additional interrupt sources
- bit 7: write: Tx Buffer is empty
- 4400: r  00
- bit 7: read:  Tx Buffer is empty
- bit 6: read:  Rx Buffer is full
- bit 5: read:  Rx Byte available?
- bit 4: read:  DCD asserted
- bit 3: read:  CTS asserted
- bit 2: read:  Tx underrun (also in 3000)
- bit 0: read:  Serial abort (also in 3000)
- 4800: r  00
- bit 7, 6, 5, 4: read:  Rx Error Status
- 5000:  w 00
- 5400:  w 02
- 5800: r  00
- 5C00: r  00
- 6000:       tx byte buffer (non-DMA)
- 7000:       rx byte buffer (non-DAM)
- 8000:  w 00
-
- compare to Cirrus Logig EP93xx registers:
- quite a bunch of registers there...
-
-
- Serial port DMA
- ===============
-
- Address   Bank, Channel, Register
- Receive:
- F080000 = 1,0,0:  w: rx physical buffer address (InitRxDMA)
- F080400 = 1,0,1:  w: current buffer address? (RxDMAControl)
- F080800 = 1,0,2
- F080C00 = 1,0,3:  w: 00000080 (RxDMAControl), 00000000 (The interrupt that we trigger?)
- F081000 = 1,0,4: rw: 00000403 buffer count? (RxDMAControl) (reading when shutting down?)
- F081400 = 1,0,5:  w: 00000404 buffer size? (RxDMAControl)
- F081800 = 1,0,6:  w: 00000000 (InitRxDMA), 000000FF (RxDMAControl)
- F090000 = 2,0,0:  w: 00000006 (RxDMAControl), 00000000
- F090400 = 2,0,1: r : (RxDMAControl)
- F090800 = 2,0,2:  w: 00000000 (RxDMAControl)
- F090C00 = 2,0,3:  w: 00000006 (InitRxDMA)
- Transmit:
- F082000 = 1,1,0:  w: tx physical buffer address (InitTxDMA)
- F082400 = 1,1,1: rw: physical address of data start
- F082800 = 1,1,2
- F082C00 = 1,1,3:  w: 000000C0 (TxDMAControl) Some Control Register
- F083000 = 1,1,4: rw: number of bytes to write (TxDMAControl)
- F083400 = 1,1,5:  w: 204, buffer size? (TxDMAControl) bytes to end of buffer
- F083800 = 1,1,6:  w: 00000000 (InitTxDMA)
- F091000 = 2,1,0:  w: 00000002 (TxDMAControl)
- F091400 = 2,1,1: r : (TxDMAControl)
- F091800 = 2,1,2:  w: 00000000 (TxDMAControl) (whatever we read from 2,1,1)
- F091C00 = 2,1,3:  w: 00000002 (InitTxDMA)
-
- compare to Cirrus Logig EP93xx registers:
- CONTROL rw  flags that enable run modi and interrupts
- INTERRUPT rw  write bits to clear interrupt flag, read to see which int was triggered
- PPALLOC rw  declare the periphery that connects to this DMA
- STATUS ro  status of the state machine: running, stalling, stop, etc.
- REMAIN ro  number of bytes remaining in the current DMA transfer
- MAXCNT1 rw  maximum byte count for this buffer
- BASE1 rw  base address for the current and next DMA transfer
- CURRENT1 ro  current position, read BASE when DMA is started
-
- // ^^ control, base address, current pointer, size, count, word, compare, interrupt mask
-
- AssignmentRegister:     InitByOption is setting bit 2
- EnableRegister:      w: 00000001, 00000002 (RxDMAControl) // Bits set to 1 will start the DMA transfers.
- StatusRegister:         Bits set to 1 indicate pending dma transfers.
- DisableRegister:     w: 00000001, 00000002 // Bits set to 1 will abort the DMA transfers.
- WordStatusRegister: r : Bits set to 1 indicate words in channel word registers.
-
-
- Serial port interrupts
- ======================
-
- kDMAChannel0IntMask	= 0x00000080,						// Serial port 0 rcv
- kDMAChannel1IntMask	= 0x00000100,						// Serial port 0 tx
-
- compare to Cirrus Logig EP93xx registers:
- DMA interrupts are the exact same!
- There are two interrupts (23, 24) for bytebang serial IO
-	Registers:
- IRQ Status ro
- FIQ Status ro
- Raw Status ro
- Int Select rw
- Int Enable rw
- Int Clear Enable wo
- Software Int wo (write a 1 to trigger an int)
- Software Int clear wo
-
-
- Which register holds the values below?
- typedef ULong SerialIntSource;	// matches Voyager interrupt mask reg bits
- #define kSerIntSrcAbort		(0x00000001)	// break or abort
- #define kSerIntSrcHunt			(0x00000002)
- #define kSerIntSrcUnderRun		(0x00000004)
- #define kSerIntSrcCTS			(0x00000008)
- #define kSerIntSrcDCD			(0x00000010)
- #define kSerIntSrcRxSpecial		(0x00000020)
- #define kSerIntSrcRxOnAllChars		(0x00000040)
- #define kSerIntSrcTxBufEmpty		(0x00000080)
- #define kSerIntSrcRxOnFirstChar	(0x00000100)	// may go away
-
-
- */
-
-void crc16(unsigned short &crc, unsigned char d)
-{
-	static unsigned short crctab[256] = {
-		0x0000, 0xc0c1, 0xc181, 0x0140, 0xc301, 0x03c0, 0x0280, 0xc241,
-		0xc601, 0x06c0, 0x0780, 0xc741, 0x0500, 0xc5c1, 0xc481, 0x0440,
-		0xcc01, 0x0cc0, 0x0d80, 0xcd41, 0x0f00, 0xcfc1, 0xce81, 0x0e40,
-		0x0a00, 0xcac1, 0xcb81, 0x0b40, 0xc901, 0x09c0, 0x0880, 0xc841,
-		0xd801, 0x18c0, 0x1980, 0xd941, 0x1b00, 0xdbc1, 0xda81, 0x1a40,
-		0x1e00, 0xdec1, 0xdf81, 0x1f40, 0xdd01, 0x1dc0, 0x1c80, 0xdc41,
-		0x1400, 0xd4c1, 0xd581, 0x1540, 0xd701, 0x17c0, 0x1680, 0xd641,
-		0xd201, 0x12c0, 0x1380, 0xd341, 0x1100, 0xd1c1, 0xd081, 0x1040,
-		0xf001, 0x30c0, 0x3180, 0xf141, 0x3300, 0xf3c1, 0xf281, 0x3240,
-		0x3600, 0xf6c1, 0xf781, 0x3740, 0xf501, 0x35c0, 0x3480, 0xf441,
-		0x3c00, 0xfcc1, 0xfd81, 0x3d40, 0xff01, 0x3fc0, 0x3e80, 0xfe41,
-		0xfa01, 0x3ac0, 0x3b80, 0xfb41, 0x3900, 0xf9c1, 0xf881, 0x3840,
-		0x2800, 0xe8c1, 0xe981, 0x2940, 0xeb01, 0x2bc0, 0x2a80, 0xea41,
-		0xee01, 0x2ec0, 0x2f80, 0xef41, 0x2d00, 0xedc1, 0xec81, 0x2c40,
-		0xe401, 0x24c0, 0x2580, 0xe541, 0x2700, 0xe7c1, 0xe681, 0x2640,
-		0x2200, 0xe2c1, 0xe381, 0x2340, 0xe101, 0x21c0, 0x2080, 0xe041,
-		0xa001, 0x60c0, 0x6180, 0xa141, 0x6300, 0xa3c1, 0xa281, 0x6240,
-		0x6600, 0xa6c1, 0xa781, 0x6740, 0xa501, 0x65c0, 0x6480, 0xa441,
-		0x6c00, 0xacc1, 0xad81, 0x6d40, 0xaf01, 0x6fc0, 0x6e80, 0xae41,
-		0xaa01, 0x6ac0, 0x6b80, 0xab41, 0x6900, 0xa9c1, 0xa881, 0x6840,
-		0x7800, 0xb8c1, 0xb981, 0x7940, 0xbb01, 0x7bc0, 0x7a80, 0xba41,
-		0xbe01, 0x7ec0, 0x7f80, 0xbf41, 0x7d00, 0xbdc1, 0xbc81, 0x7c40,
-		0xb401, 0x74c0, 0x7580, 0xb541, 0x7700, 0xb7c1, 0xb681, 0x7640,
-		0x7200, 0xb2c1, 0xb381, 0x7340, 0xb101, 0x71c0, 0x7080, 0xb041,
-		0x5000, 0x90c1, 0x9181, 0x5140, 0x9301, 0x53c0, 0x5280, 0x9241,
-		0x9601, 0x56c0, 0x5780, 0x9741, 0x5500, 0x95c1, 0x9481, 0x5440,
-		0x9c01, 0x5cc0, 0x5d80, 0x9d41, 0x5f00, 0x9fc1, 0x9e81, 0x5e40,
-		0x5a00, 0x9ac1, 0x9b81, 0x5b40, 0x9901, 0x59c0, 0x5880, 0x9841,
-		0x8801, 0x48c0, 0x4980, 0x8941, 0x4b00, 0x8bc1, 0x8a81, 0x4a40,
-		0x4e00, 0x8ec1, 0x8f81, 0x4f40, 0x8d01, 0x4dc0, 0x4c80, 0x8c41,
-		0x4400, 0x84c1, 0x8581, 0x4540, 0x8701, 0x47c0, 0x4680, 0x8641,
-		0x8201, 0x42c0, 0x4380, 0x8341, 0x4100, 0x81c1, 0x8081, 0x4040,
-	};
-
-	crc = ((crc>>8)&0x00ff)^crctab[(crc&0xff)^d];
-}
-
-
-
-static const KUInt8 esc_ = 0x33;
-static KUInt32 txCnt_;
-static unsigned char buf[1024];
-static KUInt32 nBuf;
-
-void send_block(unsigned char *data, int size)
-{
-	txCnt_ = 0;
-
-	static unsigned char hdr[] = { 0x16, 0x10, 0x02 };
-	static unsigned char ftr[] = { 0x10, 0x03 };
-
-	unsigned char *d = buf;
-
-	int i;
-	*d++ = hdr[0];
-	*d++ = hdr[1];
-	*d++ = hdr[2];
-	unsigned short crc = 0;
-	for (i=0; i<size; i++) {
-		unsigned char c = data[i];
-		if (i==2 && data[1]==4)
-			c = ++txCnt_;
-		crc16(crc, c);
-		*d++ = c;
-		if (c==0x10)
-			*d++ = c;
-		if (c==esc_) {
-			*d++ = 1;
-			crc16(crc, 1);
-	  printf("--- CONTROL BLOCK *NOT* changing esc from 0x%02x to 0x%02x\n", esc_, esc_+51);
-			//esc_ += 51;
-		}
-	}
-	*d++ = ftr[0];
-	*d++ = ftr[1];
-	crc16(crc, ftr[1]);
-	*d++ = crc;
-	*d++ = crc>>8;
-	//	write(buf, d-buf);
-	nBuf = d-buf;
-}
-
-
-
-
-
-// -------------------------------------------------------------------------- //
-// Constantes
-// -------------------------------------------------------------------------- //
-
-// -------------------------------------------------------------------------- //
-//  * TVoyagerSerialPort( TLog*, ELocationID )
-// -------------------------------------------------------------------------- //
-TVoyagerSerialPort::TVoyagerSerialPort(
-									   TLog* inLog,
-									   ELocationID inLocationID,
-									   TInterruptManager* inInterruptManager,
-									   TDMAManager* inDMAManager,
-									   TMemory* inMemory)
-:
-mLog( inLog ),
-mLocationID( inLocationID ),
-mInterruptManager( inInterruptManager ),
-mDMAManager( inDMAManager ),
-mMemory(inMemory)
-{
-}
-
-// -------------------------------------------------------------------------- //
-//  * ~TVoyagerSerialPort( void )
-// -------------------------------------------------------------------------- //
-TVoyagerSerialPort::~TVoyagerSerialPort( void )
-{
-}
-
-// -------------------------------------------------------------------------- //
-//  * WriteRegister( KUInt32, KUInt8 )
-// -------------------------------------------------------------------------- //
-void
-TVoyagerSerialPort::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
-{
-	if (mLog)
-	{
-		mLog->FLogLine(
-					   "[%c%c%c%c] - Write %.2X to serial register %.4X",
-					   (char) ((mLocationID >> 24) & 0xFF),
-					   (char) ((mLocationID >> 16) & 0xFF),
-					   (char) ((mLocationID >> 8) & 0xFF),
-					   (char) ((mLocationID) & 0xFF),
-					   (unsigned int) inValue,
-					   (unsigned int) inOffset );
-	}
-	switch (inOffset) {
-		case 0x2400:
-			if (inValue & 0x01)
-				//if (mDMAManager->GetEnabledChannels() & 0x0001)
-			{
-				printf("===> Start Tx DMA\n");
-				KUInt32 dmaStart = mDMAManager->ReadChannel1Register(1, 1);
-				KUInt32 dmaSize = mDMAManager->ReadChannel1Register(1, 4);
-				for (KUInt32 i=0; i<dmaSize; i++) {
-					KUInt8 data = 0;
-					mMemory->ReadBP(dmaStart+i, data);
-					printf(" tx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
-					buf[i] = data;
-				}
-
-#if 1
-				KUInt32 bufferStart = mDMAManager->ReadChannel1Register(1, 0);
-				KUInt32 dataStart = mDMAManager->ReadChannel1Register(1, 1);
-				KUInt32 dataSize = mDMAManager->ReadChannel1Register(1, 4);
-				KUInt32 bytesToEndOfBuffer = mDMAManager->ReadChannel1Register(1, 5);
-				for (int i=0;;++i) {
-					KUInt8 data;
-					if (dataSize==0) break;
-					mMemory->ReadBP(dataStart, data);
-					buf[i] = data;
-					dataSize--;
-					dataStart++;
-					bytesToEndOfBuffer--;
-					if (bytesToEndOfBuffer==0)
-						dataStart = bufferStart;
-				}
-				mDMAManager->WriteChannel1Register(1, 1, bufferStart);
-				mDMAManager->WriteChannel1Register(1, 4, dataSize);
-				mDMAManager->WriteChannel2Register(1, 1, 0x00000080);
-				mInterruptManager->RaiseInterrupt(0x00000100); // 0x80 = TxBufEmpty, 0x00000180
-
-				// NCX default port: 3679
-
-				static int fd = -1;
-
-				if (fd==-1) {
-					fd = open("/dev/ttys008", O_RDWR | O_NOCTTY | O_NONBLOCK);
-				}
-				if (fd==-1) {
-					printf("Error opening serial port %s - %s (%d).\n", "/dev/ttyp8", strerror(errno), errno);
-				} else {
-					printf("\n\n\n\n---------------> writing %d bytes\n\n\n\n", dmaSize);
-					int err = write(fd, buf, dmaSize);
-					if (err==-1) {
-						printf("Error writing to serial port %s - %s (%d).\n", "/dev/ttyp8", strerror(errno), errno);
-					}
-					//close(fd);
-				}
-#endif
-
-
-
-				printf("===> End Tx DMA\n");
-
-#if 1
-				int n = -1;
-				for (int j=2; j>0; j--) {
-					n = read(fd, buf, 1024);
-					if (n<=0)
-						sleep(1);
-					else
-						break;
-				}
-				if (n==-1) {
-					printf("Error reading from serial port %s - %s (%d).\n", "/dev/ttyp8", strerror(errno), errno);
-				} else if (n==0) {
-					printf("No data yet\n");
-				} else {
-					printf("----> Received %d bytes data from NCX\n", n);
-					if (buf[0]==0x10) {
-						memmove(buf+1, buf, n);
-						buf[0] = 0x16;
-						n++;
-					}
-					KUInt32 dmaRxStart = mDMAManager->ReadChannel1Register(0, 0);
-					KUInt32 dmaRxSize = n; //sizeof(LR_ack);
-					for (KUInt32 i=0; i<dmaRxSize; i++) {
-						KUInt8 data = buf[i];
-						mMemory->WriteBP(dmaRxStart+i, data);
-						printf(" rx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
-					}
-					printf("===> Start Rx DMA\n");
-					KUInt32 dmaRxPos = mDMAManager->ReadChannel1Register(0, 1);
-					mDMAManager->WriteChannel1Register(0, 1, dmaRxPos + dmaRxSize);
-					KUInt32 dmaRxBuf = mDMAManager->ReadChannel1Register(0, 4);
-					mDMAManager->WriteChannel1Register(0, 4, dmaRxBuf - dmaRxSize);
-					mDMAManager->WriteChannel2Register(0, 1, 0x00000040); // ???
-					mInterruptManager->RaiseInterrupt(0x00000080); // 0x00000180
-					printf("===> End Rx DMA\n");
-				}
-#else
-				static unsigned char LR_ack[] = {
-					0x1d, 0x01, 0x02, 0x01, 0x06, 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x02, 0x01, 0x02, 0x03, 0x01,
-					0x08, 0x04, 0x02, 0x40, 0x00, 0x08, 0x01, 0x03, 0x0E, 0x04, 0x02, 0x04, 0x00, 0xFA,
-				};
-
-				send_block(LR_ack, sizeof(LR_ack));
-
-				KUInt32 dmaRxStart = mDMAManager->ReadChannel1Register(0, 0);
-				KUInt32 dmaRxSize = nBuf; //sizeof(LR_ack);
-				for (KUInt32 i=0; i<dmaRxSize; i++) {
-					mMemory->WriteBP(dmaRxStart+i, buf[i]);
-				}
-				printf("===> Start Rx DMA\n");
-				KUInt32 dmaRxPos = mDMAManager->ReadChannel1Register(0, 1);
-				mDMAManager->WriteChannel1Register(0, 1, dmaRxPos + dmaRxSize);
-				KUInt32 dmaRxBuf = mDMAManager->ReadChannel1Register(0, 4);
-				mDMAManager->WriteChannel1Register(0, 4, dmaRxBuf - dmaRxSize);
-				mDMAManager->WriteChannel2Register(0, 1, 0x00000040);
-				//mInterruptManager->RaiseInterrupt(0x00000100); // 0x00000180
-				printf("===> End Rx DMA\n");
-#endif
-
-			}
-			break;
-	}
-}
-
-// -------------------------------------------------------------------------- //
-//  * ReadRegister( KUInt32 )
-// -------------------------------------------------------------------------- //
-KUInt8
-TVoyagerSerialPort::ReadRegister( KUInt32 inOffset )
-{
-	KUInt8 theResult = 0;
-	/*	if (mLog)
-	 {
-		mLog->FLogLine(
-	 "[%c%c%c%c] - Read serial register %.4X : %.2X",
-	 (char) ((mLocationID >> 24) & 0xFF),
-	 (char) ((mLocationID >> 16) & 0xFF),
-	 (char) ((mLocationID >> 8) & 0xFF),
-	 (char) ((mLocationID) & 0xFF),
-	 (unsigned int) inOffset,
-	 (unsigned int) theResult );
-	 }
-	 */
-	if (inOffset == 0x4400)
-	{
-		// Both buffers are empty for now.
-		// We also don't want a beacon.
-		theResult = 0x80;
-	} else if (inOffset == 0x4800) {
-		// RxEOF
-		//		theResult = 0x80;
-		//		TDebugger::BreakInDebugger();
-	} else {
-		//		TDebugger::BreakInDebugger();
-		if (mLog)
-		{
-			mLog->FLogLine(
-						   "[%c%c%c%c] - Read unknown serial register %.4X : %.2X",
-						   (char) ((mLocationID >> 24) & 0xFF),
-						   (char) ((mLocationID >> 16) & 0xFF),
-						   (char) ((mLocationID >> 8) & 0xFF),
-						   (char) ((mLocationID) & 0xFF),
-						   (unsigned int) inOffset,
-						   (unsigned int) theResult );
-		}
-	}
-
-	return theResult;
-}
-
-
-/*
- TSerialDMAEngine Rx = 0x0CCACB38
- TSerialDMAEngine Tx = 0x0CCACAE8
- */
-
-#endif
 
 // ================================================================== //
-// We are experiencing system trouble -- do not adjust your terminal. //
+// You never finish a program, you just stop working on it.           //
+//  - Anonymous                                                       //
 // ================================================================== //

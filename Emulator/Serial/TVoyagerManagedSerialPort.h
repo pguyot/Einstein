@@ -127,6 +127,16 @@ private:
 	///
 	static void *SHandleDMA(void *This) { ((TVoyagerManagedSerialPort*)This)->HandleDMA(); return 0L; }
 
+	///
+	/// Find good names for the named pipes
+	///
+	void FindPipeNames();
+
+	///
+	/// Create the named pipes as nodes in the file system
+	///
+	bool CreateNamedPipes();
+
 	KUInt32 mTxDMAPhysicalBufferStart;		///< physical address of transmit DMA buffer start
 	KUInt32 mTxDMAPhysicalData;				///< address of byte currently written by DMA
 	KUInt32 mTxDMADataCountdown;			///< number of bytes that still need to be sent
@@ -142,9 +152,15 @@ private:
 	KUInt32 mRxDMAEvent;					///< the event that triggered the interrupt?
 
 	int mPipe[2];							///< communication between emulator and DMA thread
-	int mSerialPort;						///< seria port
+	int mTxPort;							///< named pipe or serial port
+	int mRxPort;							///< named pipe or serial port
+	int mNamedSendPipe;						///< serial port emulation ("/Users/matt/Library/Application Support/Einstein Emulator/ExtrSerPortSend")
+	int mNamedRecvPipe;						///< serial port emulation ("/Users/matt/Library/Application Support/Einstein Emulator/ExtrSerPortRecv")
 	bool mDMAIsRunning;						///< set if DMA thread is active
 	pthread_t mDMAThread;
+
+	char *mTxPortName;						///< named pipe for transmitting data
+	char *mRxPortName;						///< named pipe for receiving data
 };
 
 #endif

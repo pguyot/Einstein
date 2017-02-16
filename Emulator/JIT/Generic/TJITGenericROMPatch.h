@@ -124,6 +124,13 @@ public:
 };
 
 
+/**
+ This Macro makes it easy to replace code anywhere in ROM. The original ARM
+ command at the given address is no longer executed.
+ The C code can immediatly follow the Macro. The function must end in
+ <tt>SETPC(jumpDestAddress+4); MMUCALLNEXT_AFTERSETPC;</tt>. 
+ The available variables are <tt>ioCPU</tt> and <tt>ioUnit</tt>.
+ */
 #define T_ROM_PATCH(addr, name) \
 extern JITInstructionProto(p##addr); \
 TJITGenericROMPatch i##addr(addr, p##addr, name); \
@@ -149,11 +156,21 @@ public:
 };
 
 
+/**
+ This Macro makes it easy to insert code anywhere in ROM. The original ARM 
+ command at the given address is executed after the injected code is run.
+ The C code can immediatly follow the Macro. The function must end in
+ <tt>return ioUnit;</tt>. The other available variable is <tt>ioCPU</tt>.
+ */
 #define T_ROM_INJECTION(addr, name) \
 extern JITInstructionProto(p##addr); \
 TJITGenericROMInjection i##addr(addr, p##addr, name); \
 JITInstructionProto(p##addr)
 
+
+/**
+ (Matt: not sure anymore)
+ */
 #define T_ROM_INJECTION3(addr, name, nativeCall) \
 extern JITInstructionProto(p##addr); \
 TJITGenericROMInjection i##addr(addr, p##addr, name, nativeCall); \

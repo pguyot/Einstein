@@ -52,6 +52,9 @@
 #include "PCMCIA/TPCMCIAController.h"
 #include "PCMCIA/TLinearCard.h"
 #include "Serial/TVoyagerSerialPort.h"
+#if TARGET_OS_MAC
+#include "Serial/TVoyagerManagedSerialPort.h"
+#endif
 #include "TInterruptManager.h"
 #include "TDMAManager.h"
 #include "Platform/TPlatformManager.h"
@@ -100,28 +103,41 @@ TEmulator::TEmulator(
 	branchDestCount.SetEmulator(this);
 	branchLinkDestCount.SetEmulator(this);
 #endif
-	mDMAManager = new TDMAManager(inLog, &mMemory, mInterruptManager);
+	mDMAManager = new TDMAManager(inLog, this, &mMemory, mInterruptManager);
 	mPlatformManager = new TPlatformManager( inLog, inScreenManager );
+#if TARGET_OS_MAC
+	mExternalPort = new TVoyagerManagedSerialPort(
+		inLog,
+		TVoyagerSerialPort::kExternalSerialPort,
+		mInterruptManager,
+		mDMAManager,
+		&mMemory);
+#else
 	mExternalPort = new TVoyagerSerialPort(
 		inLog,
 		TVoyagerSerialPort::kExternalSerialPort,
 		mInterruptManager,
-		mDMAManager);
+		mDMAManager,
+		&mMemory);
+#endif
 	mInfraredPort = new TVoyagerSerialPort(
 		inLog,
 		TVoyagerSerialPort::kInfraredSerialPort,
 		mInterruptManager,
-		mDMAManager);
+		mDMAManager,
+		&mMemory);
 	mBuiltInExtraPort = new TVoyagerSerialPort(
 		inLog,
 		TVoyagerSerialPort::kBuiltInExtraSerialPort,
 		mInterruptManager,
-		mDMAManager);
+		mDMAManager,
+        &mMemory);
 	mModemPort = new TVoyagerSerialPort(
 		inLog,
 		TVoyagerSerialPort::kModemSerialPort,
 		mInterruptManager,
-		mDMAManager);
+		mDMAManager,
+		&mMemory);
 
 	mNewtonID[0] = kMyNewtonIDHigh;
 	mNewtonID[1] = kMyNewtonIDLow;
@@ -176,7 +192,7 @@ TEmulator::TEmulator(
 	branchDestCount.SetEmulator(this);
 	branchLinkDestCount.SetEmulator(this);
 #endif
-	mDMAManager = new TDMAManager(inLog, &mMemory, mInterruptManager);
+	mDMAManager = new TDMAManager(inLog, this, &mMemory, mInterruptManager);
 	mPlatformManager = new TPlatformManager( inLog, nil );
 	
 	mNewtonID[0] = kMyNewtonIDHigh;

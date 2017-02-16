@@ -26,6 +26,7 @@
 
 #include "Emulator/TEmulator.h"
 #include "Emulator/TARMProcessor.h"
+#include "Emulator/TDMAManager.h"
 #include "Emulator/Screen/TScreenManager.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
@@ -39,52 +40,26 @@ T_ROM_INJECTION(0x00018688, "Progress_ROMBoot") {
 	return ioUnit;
 }
 
+
 // avoid calibration screen early in the game
 TJITGenericROMPatch p001412f8(0x001412f8, 0xea000009, "Avoid screen calibration");
+
 // disable "FlushDCache" since we do not emulate a DCache 
 //TJITGenericROMPatch p00018994(0x00018994, 0xe1a0f00e, "Obsolete FlushDCache"); // #  mov pc, lr
+
 // disable "CleanPageInDCache" since we do not emulate a DCache 
 //TJITGenericROMPatch p0001894c(0x0001894c, 0xe1a0f00e, "Obsolete CleanPageInDCache"); // #  mov pc, lr
+
 // disable "TGeoPortDebugLink::BeaconDetect(long)"
 TJITGenericROMPatch p000db0d8(0x000db0d8, 0xe3a00000, "BeaconDetect (1/2)"); // #  mov r0, 0x00000000
 TJITGenericROMPatch p000db0dc(0x000db0dc, 0xe1a0f00e, "BeaconDetect (2/2)"); // #  mov pc, lr
 
 TJITGenericROMPatch gDebuggerPatch(0x000013f4, 1, "gDebugger patch");
-TJITGenericROMPatch gNewtConfigPatch(0x000013fc, 0x00000002 /*kEnableListener*/ | 0x00000200 /*kDefaultStdioOn*/ | 0x00008000 /*kEnableStdout*/, "gNewtConfig patch");
 
-/*
-//T_ROM_INJECTION(0x000E5CA4, "DispatchFIQ") {
-T_ROM_INJECTION(0x000E5BF4, "DispatchIRQ") {
-//T_ROM_INJECTION(0x0038D7A0, "DispatchFIQ") {
-	// pc = r1+16
-	static KUInt32 prev[32] = { 0 };
-	KUInt32 addr = ioCPU->mCurrentRegisters[TARMProcessor::kR1] + 16;
-	KUInt32 newPC;
-	ioCPU->GetMemory()->Read(addr, newPC);
-	int i;
-	for (i=0; i<32; i++) {
-		if (prev[i]==newPC) break;
-		if (prev[i]==0) {
-			prev[i] = newPC;
-			fprintf(stderr, "FIQ Handler found at 0x%08X\n", (unsigned int)newPC);
-			break;
-		}
-	}
-    return ioUnit;
-}
-*/
+TJITGenericROMPatch gNewtConfigPatch(0x000013fc, 0x00000002 /*kEnableListener*/ | 0x00000200 /*kDefaultStdioOn*/ | 0x00008000 /*kEnableStdout*/, "gNewtConfig patch");
 
 /* Example ROM injections. The return value is ignored. */
 /*
-T_ROM_INJECTION(0x00000000, "RESET") {
-    fprintf(stderr, "RESET called with r0=0x%08x\n", ioCPU->mCurrentRegisters[TARMProcessor::kR0]);
-    return ioUnit;
-}
-T_ROM_INJECTION(0x0000000c, "Prefetch Abort") {
-    fprintf(stderr, "PREFETCH ABORT: at 0x%08x\n", 
-            ioCPU->GetMemory()->GetFaultAddressRegister());
-    return ioUnit;
-}
 T_ROM_INJECTION(0x00000010, "Data Abort") {
     const char *what = "unknown";
     unsigned int addr = ioCPU->GetMemory()->GetFaultAddressRegister();
@@ -124,6 +99,9 @@ T_ROM_INJECTION(0x00000010, "Data Abort") {
             addr, ioCPU->mR14abt_Bkup-8, what);
     return ioUnit;
 }
+*/
+
+/*
 T_ROM_INJECTION(0x0038D8DC, "Floating Point Exception") {
     fprintf(stderr, "Floating Point Exception\n");
     return ioUnit;
@@ -170,6 +148,7 @@ T_ROM_INJECTION(0x001A726C, "Long loop end") {
 
 // Swap: 0x003AE204
 
+
 // -------------------------------------------------------------------------- //
 //  * TJITGenericROMPatch first member of database
 // -------------------------------------------------------------------------- //
@@ -177,6 +156,7 @@ TJITGenericROMPatch  *TJITGenericROMPatch::first_ = 0L;
 TJITGenericROMPatch **TJITGenericROMPatch::patch_ = 0L;
 KUInt32     TJITGenericROMPatch::nPatch = 0;
 KUInt32     TJITGenericROMPatch::NPatch = 0;
+
 
 // -------------------------------------------------------------------------- //
 //  * TJITGenericROMPatch constructor
@@ -191,6 +171,7 @@ TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, KUInt32 val)
 {
     first_ = this;
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * TJITGenericROMPatch constructor
@@ -207,6 +188,7 @@ TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, KUInt32 val, const char *
 	name_ = name;
     fprintf(stderr, "Adding ROM patch: %s\n", name);
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * TJITGenericROMPatch constructor for Simulator function calls
@@ -225,6 +207,7 @@ TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, JITFuncPtr stub, const ch
     value_ |= addPatch(this);
 }
 
+
 // -------------------------------------------------------------------------- //
 //  * TJITGenericROMPatch constructor for JIT instructions
 // -------------------------------------------------------------------------- //
@@ -241,6 +224,7 @@ TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, JITFuncPtr stub, const ch
 //    fprintf(stderr, "Adding ROM patch to JIT function: %3d = %s\n", (int)nPatch, name);
     value_ |= addPatch(this);
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * TJITGenericROMPatch constructor for Simulator method calls
@@ -259,6 +243,7 @@ method_(method)
 	value_ |= addPatch(this);
 }
 
+
 // -------------------------------------------------------------------------- //
 //  * TJITGenericROMPatch constructor for Simulator method calls
 // -------------------------------------------------------------------------- //
@@ -275,6 +260,7 @@ TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, JITFuncPtr stub, const ch
 //	fprintf(stderr, "Adding ROM patch to Simulator function:   %3d = %s\n", (int)nPatch, name);
 	value_ |= addPatch(this);
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * Destructor
@@ -294,6 +280,7 @@ JITFuncPtr TJITGenericROMPatch::GetSimulatorStubAt(KUInt32 index)
     return patch_[index]->stub_;
 }
 
+
 // -------------------------------------------------------------------------- //
 //  * Return the address of the Simulator function
 // -------------------------------------------------------------------------- //
@@ -305,6 +292,7 @@ AnyFunctionPtr TJITGenericROMPatch::GetSimulatorFunctionAt(KUInt32 index)
     return patch_[index]->function_;
 }
 
+
 // -------------------------------------------------------------------------- //
 //  * Return the address of the Simulator function
 // -------------------------------------------------------------------------- //
@@ -315,6 +303,7 @@ AnyMethodPtr TJITGenericROMPatch::GetSimulatorMethodAt(KUInt32 index)
         return 0L;
     return patch_[index]->method_;
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * Return the original instruction for this patch
@@ -339,6 +328,7 @@ KUInt32 TJITGenericROMPatch::GetOriginalInstructionAt(KUInt32 command, KUInt32 a
     return patch_[index]->originalInstruction_;
 }
 
+
 // -------------------------------------------------------------------------- //
 //  * Return the name of the Simulator function
 // -------------------------------------------------------------------------- //
@@ -349,6 +339,7 @@ const char* TJITGenericROMPatch::GetNameAt(KUInt32 index)
         return 0L;
     return patch_[index]->name_;
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * Add another stub to the array of stubs and return the index
@@ -370,6 +361,7 @@ KUInt32 TJITGenericROMPatch::addPatch(TJITGenericROMPatch *p)
     return (nPatch-1);
 }
 
+
 // -------------------------------------------------------------------------- //
 //  * Apply the patch to the ROM words
 // -------------------------------------------------------------------------- //
@@ -377,6 +369,7 @@ void TJITGenericROMPatch::apply(KUInt32 *ROM)
 {
     ROM[address()] = value();
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * DoPatchROM(KUInt32*, const std::string&)
@@ -396,6 +389,7 @@ TJITGenericROMPatch::DoPatchROM(KUInt32* inROMPtr, const std::string& inMachineN
 	}
 }
 
+
 // -------------------------------------------------------------------------- //
 //  * Apply the injection patch to the ROM words
 // -------------------------------------------------------------------------- //
@@ -404,6 +398,7 @@ void TJITGenericROMInjection::apply(KUInt32 *ROM)
     originalInstruction_ = ROM[address()];
     ROM[address()] = value() | 0xefc00000;
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * Apply the simulator injection patch to the ROM words

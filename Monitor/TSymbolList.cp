@@ -160,10 +160,10 @@ TSymbolList::LoadSymbols( void )
 		char prevSym[512];
 		prevSym[0] = '\0';
 		
-		if ( this->GetSymbolByAddress(mSymbolOffsets[mSymbolCount].fAddress, prevSym) )
-		{
-			::fprintf(stderr, "Warning: redefining symbol at %08X (was: %s)\n", mSymbolOffsets[mSymbolCount].fAddress, prevSym);
-		}
+//		if ( this->GetSymbolByAddress(mSymbolOffsets[mSymbolCount].fAddress, prevSym) )
+//		{
+//			::fprintf(stderr, "Warning: redefining symbol at %08X (was: %s)\n", mSymbolOffsets[mSymbolCount].fAddress, prevSym);
+//		}
 	
 		int theChar = fgetc( mFile );
 		if ( theChar == '\t' || theChar == ' ' )

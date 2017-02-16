@@ -30,6 +30,7 @@ class TLog;
 class TInterruptManager;
 class TMemory;
 class TStream;
+class TEmulator;
 
 ///
 /// Class for the DMA Manager.
@@ -59,6 +60,7 @@ public:
 	///
 	TDMAManager(
 		TLog* inLog,
+		TEmulator* inEmulator,
 		TMemory* inMemory,
 		TInterruptManager* inInterruptManager );
 
@@ -181,6 +183,7 @@ private:
 	TLog*				mLog;				///< Interface for logging.
 	TMemory*			mMemory;			///< Reference on the memory.
 	TInterruptManager*	mInterruptManager;	///< Reference on the interrupt mgr.
+	TEmulator*			mMemulator;			///< Reference the emulator
 	
 	KUInt32				mAssignmentReg;		///< Assignment register.
 };

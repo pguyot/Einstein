@@ -108,6 +108,8 @@
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
 		C932C4C211A1AB5D00F6A7E4 /* TNE2000Card.cp in Sources */ = {isa = PBXBuildFile; fileRef = C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */; };
+		C945F6731E53180C002505E9 /* TVoyagerManagedSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TVoyagerManagedSerialPort.cp */; };
+		C955C6511E55D06900F0BFFA /* TVoyagerManagedSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TVoyagerManagedSerialPort.cp */; };
 		C95E603F198B76DC004C6CEF /* button_backlight.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3160111B7346002165EC /* button_backlight.png */; };
 		C95E6040198B76DC004C6CEF /* button_backlight_on.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3161111B7346002165EC /* button_backlight_on.png */; };
 		C95E6041198B76DC004C6CEF /* button_install.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3162111B7346002165EC /* button_install.png */; };
@@ -713,6 +715,8 @@
 		C932824611D0CF0A003B93C3 /* button_network.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network.png; sourceTree = "<group>"; };
 		C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNE2000Card.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C932C4C111A1AB5D00F6A7E4 /* TNE2000Card.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNE2000Card.h; sourceTree = "<group>"; };
+		C945F6711E53180C002505E9 /* TVoyagerManagedSerialPort.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TVoyagerManagedSerialPort.cp; sourceTree = "<group>"; };
+		C945F6721E53180C002505E9 /* TVoyagerManagedSerialPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TVoyagerManagedSerialPort.h; sourceTree = "<group>"; };
 		C94ADB37123E9ADD00406839 /* iEinsteinAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinAppDelegate.mm; path = Classes/iEinsteinAppDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
 		C94ADB38123E9ADD00406839 /* iEinsteinView.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinView.mm; path = Classes/iEinsteinView.mm; sourceTree = "<group>"; tabWidth = 4; };
 		C94ADB39123E9ADD00406839 /* iEinsteinViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinViewController.mm; path = Classes/iEinsteinViewController.mm; sourceTree = "<group>"; tabWidth = 4; };
@@ -2004,6 +2008,8 @@
 			children = (
 				C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */,
 				C99E34A8111B7C08002165EC /* TVoyagerSerialPort.h */,
+				C945F6711E53180C002505E9 /* TVoyagerManagedSerialPort.cp */,
+				C945F6721E53180C002505E9 /* TVoyagerManagedSerialPort.h */,
 			);
 			path = Serial;
 			sourceTree = "<group>";
@@ -2707,6 +2713,7 @@
 				C99E3525111B7C08002165EC /* TCoreAudioSoundManager.cp in Sources */,
 				C99E3526111B7C08002165EC /* TNullSoundManager.cp in Sources */,
 				C99E3528111B7C08002165EC /* TSoundManager.cp in Sources */,
+				C945F6731E53180C002505E9 /* TVoyagerManagedSerialPort.cp in Sources */,
 				C99E352A111B7C08002165EC /* TARMProcessor.cp in Sources */,
 				C99E352B111B7C08002165EC /* TDMAManager.cp in Sources */,
 				C99E352C111B7C08002165EC /* TEmulator.cp in Sources */,
@@ -2854,6 +2861,7 @@
 				C98AB2A71A351EE6001BB1CD /* TInterpreter.cp in Sources */,
 				C98AB2C41A351EE6001BB1CD /* unsorted_011.cp in Sources */,
 				C98AB2CA1A351EE6001BB1CD /* unsorted_014.cp in Sources */,
+				C955C6511E55D06900F0BFFA /* TVoyagerManagedSerialPort.cp in Sources */,
 				C98AB2B01A351EE6001BB1CD /* unsorted_001.cp in Sources */,
 				C98AB2BC1A351EE6001BB1CD /* unsorted_007.cp in Sources */,
 				C95E60A5198B76DC004C6CEF /* TError.cp in Sources */,

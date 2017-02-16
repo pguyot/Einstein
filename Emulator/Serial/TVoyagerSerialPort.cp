@@ -49,12 +49,14 @@ TVoyagerSerialPort::TVoyagerSerialPort(
 		TLog* inLog,
 		ELocationID inLocationID,
 		TInterruptManager* inInterruptManager,
-		TDMAManager* inDMAManager )
+		TDMAManager* inDMAManager,
+		TMemory* inMemory)
 	:
 		mLog( inLog ),
 		mLocationID( inLocationID ),
 		mInterruptManager( inInterruptManager ),
-		mDMAManager( inDMAManager )
+		mDMAManager( inDMAManager ),
+		mMemory(inMemory)
 {
 }
 
@@ -91,18 +93,6 @@ KUInt8
 TVoyagerSerialPort::ReadRegister( KUInt32 inOffset )
 {
 	KUInt8 theResult = 0;
-/*	if (mLog)
-	{
-		mLog->FLogLine(
-			"[%c%c%c%c] - Read serial register %.4X : %.2X",
-			(char) ((mLocationID >> 24) & 0xFF),
-			(char) ((mLocationID >> 16) & 0xFF),
-			(char) ((mLocationID >> 8) & 0xFF),
-			(char) ((mLocationID) & 0xFF),
-			(unsigned int) inOffset,
-			(unsigned int) theResult );
-	}
-*/
 	if (inOffset == 0x4400)
 	{
 		// Both buffers are empty for now.
@@ -129,6 +119,42 @@ TVoyagerSerialPort::ReadRegister( KUInt32 inOffset )
 	
 	return theResult;
 }
+
+
+// -------------------------------------------------------------------------- //
+//  * ReadDMARegister( KUInt32, KUInt32, KUInt32 )
+// -------------------------------------------------------------------------- //
+KUInt32
+TVoyagerSerialPort::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister )
+{
+	KUInt32 theResult = 0L;
+	if (mLog)
+	{
+		mLog->FLogLine(
+					   "Read DMA register 2.%i for channel %i : %.8X",
+					   (int) inRegister, (int) inChannel,
+					   (unsigned int) theResult );
+	}
+	return theResult;
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * WriteDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
+// -------------------------------------------------------------------------- //
+void
+TVoyagerSerialPort::WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue )
+{
+	if (mLog)
+	{
+		mLog->FLogLine(
+					   "Write DMA bank 2, channel %i, register %i : %.8X",
+					   (int) inChannel, (int) inRegister,
+					   (unsigned int) inValue );
+	}
+}
+
+
 
 
 // ================================================================== //

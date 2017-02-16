@@ -227,8 +227,10 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 					case 0x00000307: progress=42; title = ""; break;
 					case 0x0000000d: progress=43; title = "Write Flash Memory"; break;
 					case 0x00000008: progress=44; title = "Write Flash Memory"; break;
-					case 0x0000000e: progress=45; title = "Setup Flash Memory"; break;
-					case 0x00000112: progress=46; traceProgress = false; break;
+					case 0x0000000e: progress=45; title = "Setup Flash Memory"; //break;
+					case 0x00000112: progress=46; traceProgress = false;
+						mScreenManager->OverlayOff();
+						break;
 					default:
 						//printf("Unmanaged progress indicator: 0x%08x at %d\n", (unsigned int)inInstruction, progress);
 						break;
@@ -1993,6 +1995,10 @@ TNativePrimitives::ExecuteTabletDriverNative( KUInt32 inInstruction )
 
 // -------------------------------------------------------------------------- //
 //  * ExecuteSerialDriverNative( KUInt32 )
+// Matt: to the best of my knowledge, the serial port drivers can not, or at
+//		least not with some additional effort, be replaced by drivers from
+//		a ROM extension. TVoyagerManagedSerialPort was written to emulate
+//		the serial port on the lowest hardware level.
 // -------------------------------------------------------------------------- //
 void
 TNativePrimitives::ExecuteSerialDriverNative( KUInt32 inInstruction )
