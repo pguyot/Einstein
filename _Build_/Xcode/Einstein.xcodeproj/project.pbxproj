@@ -651,6 +651,8 @@
 		F1E2C2A31E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */ = {isa = PBXBuildFile; fileRef = F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cp */; };
 		F1E2C2A41E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */ = {isa = PBXBuildFile; fileRef = F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cp */; };
 		F1E2C2A51E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */ = {isa = PBXBuildFile; fileRef = F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cp */; };
+		F1E2C2A61E5B9B350074F2D3 /* TCocoaPathHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F19F1C281E5B574000E8C9BE /* TCocoaPathHelper.mm */; };
+		F1E2C2A71E5B9B410074F2D3 /* TVoyagerManagedSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TVoyagerManagedSerialPort.cp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -2607,6 +2609,7 @@
 				2389E95E1A1E4D4A0001A8C5 /* TJITGeneric_Multiply.cp in Sources */,
 				2389E9601A1E4D4A0001A8C5 /* TJITCache.cp in Sources */,
 				2389E9611A1E4D4A0001A8C5 /* TJITPage.cp in Sources */,
+				F1E2C2A61E5B9B350074F2D3 /* TCocoaPathHelper.mm in Sources */,
 				DA52C8A51A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */,
 				2389E9621A1E4D4A0001A8C5 /* TScreenManager.cp in Sources */,
 				2389E9631A1E4D4A0001A8C5 /* TSoundManager.cp in Sources */,
@@ -2631,6 +2634,7 @@
 				2389E9741A1E4D4A0001A8C5 /* TInterruptManager.cp in Sources */,
 				2389E9751A1E4D4A0001A8C5 /* TFlash.cp in Sources */,
 				2389E9761A1E4D4A0001A8C5 /* TEmulator.cp in Sources */,
+				F1E2C2A71E5B9B410074F2D3 /* TVoyagerManagedSerialPort.cp in Sources */,
 				2389E9771A1E4D4A0001A8C5 /* TDMAManager.cp in Sources */,
 				2389E9781A1E4D4A0001A8C5 /* TARMProcessor.cp in Sources */,
 				2389E9791A1E4D4A0001A8C5 /* TVoyagerSerialPort.cp in Sources */,

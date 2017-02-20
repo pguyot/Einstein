@@ -36,7 +36,9 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <sys/stat.h>
+#if !TARGET_OS_IOS
 #include <CoreServices/CoreServices.h>
+#endif
 #endif
 
 #include "Emulator/Log/TLog.h"
