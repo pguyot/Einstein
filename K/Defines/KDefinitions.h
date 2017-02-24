@@ -269,7 +269,7 @@
                         #define TARGET_OS_OPENSTEP_PPC 0
                         #define TARGET_OS_OPENSTEP_I386 1
                         #define TARGET_OS_OPENSTEP_ARM 0
-                #elif (defined (__arm__) )
+                #elif (defined (__arm__) || defined (__arm64__))
                         #define TARGET_OS_OPENSTEP_PPC 0
                         #define TARGET_OS_OPENSTEP_I386 0
                         #define TARGET_OS_OPENSTEP_ARM 1
@@ -277,7 +277,7 @@
 			#error "Unknown MacOS X architecture"
 		#endif
 
-		#if (defined(__ppc64__) || defined (__x86_64__))
+		#if (defined(__ppc64__) || defined (__x86_64__) || defined (__arm64__))
 			#define KUIntPtr	KUInt64
 		#else
 			#define KUIntPtr	KUInt32
