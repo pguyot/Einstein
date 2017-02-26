@@ -637,7 +637,6 @@
 		F150BC3C1CF630CC0077CDB7 /* TObjCBridgeCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = F150BC3B1CF630CC0077CDB7 /* TObjCBridgeCalls.mm */; };
 		F150BC3E1CF630CC0077CDB7 /* TObjCBridgeCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = F150BC3B1CF630CC0077CDB7 /* TObjCBridgeCalls.mm */; };
 		F150BC401CF6315C0077CDB7 /* TObjCBridgeTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = F150BC3F1CF6315C0077CDB7 /* TObjCBridgeTests.mm */; };
-		F15676661CF4E86D0067508C /* iOSEinstein Storyboards-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F15676651CF4E86D0067508C /* iOSEinstein Storyboards-Info.plist */; };
 		F156B8111CFA48B0004661E8 /* TFileManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = F156B80F1CFA48B0004661E8 /* TFileManager.cp */; };
 		F156B8161CFA48BD004661E8 /* TCocoaFileManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F156B8131CFA48BD004661E8 /* TCocoaFileManager.mm */; };
 		F156B8171CFA48BD004661E8 /* TCocoaListenerWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = F156B8151CFA48BD004661E8 /* TCocoaListenerWindow.mm */; };
@@ -645,8 +644,15 @@
 		F15C09631B4B03FD00F95B00 /* TMacMonitorView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F119E9BC1B41FA0D00192514 /* TMacMonitorView.mm */; };
 		F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */ = {isa = PBXBuildFile; fileRef = F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */; };
 		F164801A13199758001603BE /* TMacMonitor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F164801813199758001603BE /* TMacMonitor.mm */; };
+		F19F1C291E5B574000E8C9BE /* TCocoaPathHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F19F1C281E5B574000E8C9BE /* TCocoaPathHelper.mm */; };
 		F1C2423E1E3167B700D074C6 /* TCocoaListenerWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = F1C2423C1E3167B700D074C6 /* TCocoaListenerWindow.xib */; };
 		F1C2423F1E3167B700D074C6 /* TCocoaListenerWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = F1C2423C1E3167B700D074C6 /* TCocoaListenerWindow.xib */; };
+		F1E2C2A21E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */ = {isa = PBXBuildFile; fileRef = F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cp */; };
+		F1E2C2A31E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */ = {isa = PBXBuildFile; fileRef = F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cp */; };
+		F1E2C2A41E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */ = {isa = PBXBuildFile; fileRef = F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cp */; };
+		F1E2C2A51E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */ = {isa = PBXBuildFile; fileRef = F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cp */; };
+		F1E2C2A61E5B9B350074F2D3 /* TCocoaPathHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F19F1C281E5B574000E8C9BE /* TCocoaPathHelper.mm */; };
+		F1E2C2A71E5B9B410074F2D3 /* TVoyagerManagedSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TVoyagerManagedSerialPort.cp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -1209,10 +1215,14 @@
 		F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaMonitorController.mm; sourceTree = "<group>"; };
 		F164801813199758001603BE /* TMacMonitor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TMacMonitor.mm; sourceTree = "<group>"; };
 		F164801913199758001603BE /* TMacMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TMacMonitor.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		F19F1C261E5B570300E8C9BE /* TPathHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPathHelper.h; sourceTree = "<group>"; };
+		F19F1C281E5B574000E8C9BE /* TCocoaPathHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaPathHelper.mm; sourceTree = "<group>"; };
+		F19F1C2A1E5B575B00E8C9BE /* TCocoaPathHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TCocoaPathHelper.h; sourceTree = "<group>"; };
 		F1AD645D1A2E4F4A00C32AD5 /* Einstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Einstein_Prefix.pch; sourceTree = "<group>"; };
 		F1C2423D1E3167B700D074C6 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = ../../Resources/en.lproj/TCocoaListenerWindow.xib; sourceTree = "<group>"; };
 		F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		F1CAFCF8124200C100A0382E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPathHelper.cp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1721,6 +1731,10 @@
 				F156B8131CFA48BD004661E8 /* TCocoaFileManager.mm */,
 				F156B8141CFA48BD004661E8 /* TCocoaListenerWindow.h */,
 				F156B8151CFA48BD004661E8 /* TCocoaListenerWindow.mm */,
+				F19F1C2A1E5B575B00E8C9BE /* TCocoaPathHelper.h */,
+				F19F1C281E5B574000E8C9BE /* TCocoaPathHelper.mm */,
+				F19F1C261E5B570300E8C9BE /* TPathHelper.h */,
+				F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cp */,
 				C99E33D3111B7C07002165EC /* Scripting */,
 			);
 			name = "Mac OS X";
@@ -2335,7 +2349,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0820;
 				TargetAttributes = {
 					C98AB2361A351D20001BB1CD = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -2376,7 +2390,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2389E9391A1E4D4A0001A8C5 /* iEinsteinViewController.xib in Resources */,
-				F15676661CF4E86D0067508C /* iOSEinstein Storyboards-Info.plist in Resources */,
 				2389E93A1A1E4D4A0001A8C5 /* MainWindow.xib in Resources */,
 				2360EB2A1A1E85EB00893927 /* Launch Screen.xib in Resources */,
 				2389E93B1A1E4D4A0001A8C5 /* Icon.png in Resources */,
@@ -2596,6 +2609,7 @@
 				2389E95E1A1E4D4A0001A8C5 /* TJITGeneric_Multiply.cp in Sources */,
 				2389E9601A1E4D4A0001A8C5 /* TJITCache.cp in Sources */,
 				2389E9611A1E4D4A0001A8C5 /* TJITPage.cp in Sources */,
+				F1E2C2A61E5B9B350074F2D3 /* TCocoaPathHelper.mm in Sources */,
 				DA52C8A51A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */,
 				2389E9621A1E4D4A0001A8C5 /* TScreenManager.cp in Sources */,
 				2389E9631A1E4D4A0001A8C5 /* TSoundManager.cp in Sources */,
@@ -2620,6 +2634,7 @@
 				2389E9741A1E4D4A0001A8C5 /* TInterruptManager.cp in Sources */,
 				2389E9751A1E4D4A0001A8C5 /* TFlash.cp in Sources */,
 				2389E9761A1E4D4A0001A8C5 /* TEmulator.cp in Sources */,
+				F1E2C2A71E5B9B410074F2D3 /* TVoyagerManagedSerialPort.cp in Sources */,
 				2389E9771A1E4D4A0001A8C5 /* TDMAManager.cp in Sources */,
 				2389E9781A1E4D4A0001A8C5 /* TARMProcessor.cp in Sources */,
 				2389E9791A1E4D4A0001A8C5 /* TVoyagerSerialPort.cp in Sources */,
@@ -2629,6 +2644,7 @@
 				2389E97D1A1E4D4A0001A8C5 /* TLinearCard.cp in Sources */,
 				2389E97E1A1E4D4A0001A8C5 /* TNE2000Card.cp in Sources */,
 				2389E97F1A1E4D4A0001A8C5 /* TNetworkManager.cp in Sources */,
+				F1E2C2A31E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */,
 				2389E9801A1E4D4A0001A8C5 /* iEinsteinAppDelegate.mm in Sources */,
 				2389E9811A1E4D4A0001A8C5 /* iEinsteinView.mm in Sources */,
 				2389E9821A1E4D4A0001A8C5 /* iEinsteinViewController.mm in Sources */,
@@ -2666,7 +2682,9 @@
 				C99E34D8111B7C08002165EC /* THostInfo.cp in Sources */,
 				C99E34DE111B7C08002165EC /* TJITGeneric.cp in Sources */,
 				C99E34DF111B7C08002165EC /* TJITGeneric_BlockDataTransfer.cp in Sources */,
+				F19F1C291E5B574000E8C9BE /* TCocoaPathHelper.mm in Sources */,
 				C99E34E0111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer.cp in Sources */,
+				F1E2C2A21E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */,
 				C99E34E1111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp in Sources */,
 				C99E34E3111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp in Sources */,
 				C99E34E5111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cp in Sources */,
@@ -2760,6 +2778,7 @@
 				C95E6051198B76DC004C6CEF /* TJITGenericRetarget.cp in Sources */,
 				C95E6052198B76DC004C6CEF /* TMutex.cp in Sources */,
 				C95E6053198B76DC004C6CEF /* TThread.cp in Sources */,
+				F1E2C2A41E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */,
 				C95E6054198B76DC004C6CEF /* einstein.mm in Sources */,
 				C98AB2D21A351EE6001BB1CD /* unsorted_018.cp in Sources */,
 				C98AB2DE1A351EE6001BB1CD /* unsorted_024.cp in Sources */,
@@ -2981,6 +3000,7 @@
 			files = (
 				DA4BA4681A3A3853002BDB80 /* TUsermodeNetwork.cp in Sources */,
 				DA4FF1241A35EAF600092B5A /* TJITGeneric_Other.cp in Sources */,
+				F1E2C2A51E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */,
 				DA4FF1451A35EC2B00092B5A /* TCondVar.cp in Sources */,
 				DA4FF1561A35ED5400092B5A /* EinsteinTests.mm in Sources */,
 				DA4FF13A1A35EBBA00092B5A /* TScreenManager.cp in Sources */,
@@ -3131,7 +3151,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "armv6 armv7 i386";
+				VALID_ARCHS = "arm64 armv7 armv7s";
 			};
 			name = Debug;
 		};
@@ -3171,7 +3191,7 @@
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = NO;
-				VALID_ARCHS = "armv6 armv7 i386";
+				VALID_ARCHS = "arm64 armv7 armv7s";
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -3212,7 +3232,7 @@
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = NO;
-				VALID_ARCHS = "armv6 armv7 i386";
+				VALID_ARCHS = "arm64 armv7 armv7s";
 				ZERO_LINK = NO;
 			};
 			name = Distribution;

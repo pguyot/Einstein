@@ -23,6 +23,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TVoyagerManagedSerialPort.h"
+#include "TPathHelper.h"
 
 // POSIX
 #include <sys/types.h>
@@ -35,7 +36,9 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <sys/stat.h>
+#if !TARGET_OS_IOS
 #include <CoreServices/CoreServices.h>
+#endif
 #endif
 
 #include "Emulator/Log/TLog.h"
@@ -400,12 +403,10 @@ TVoyagerManagedSerialPort::FindPipeNames()
 	if (mTxPortName && mRxPort)
 		return;
 
-	FSRef ref;
-	OSType folderType = kApplicationSupportFolderType;
 	char path[PATH_MAX];
 
-	FSFindFolder( kUserDomain, folderType, kCreateFolder, &ref );
-	FSRefMakePath( &ref, (UInt8*)&path, PATH_MAX );
+	std::string basePath = TPathHelper::GetSerialPipeBasePath();
+	::strncpy(path, basePath.c_str(), PATH_MAX);
 
 	char *end = path + strlen(path);
 
