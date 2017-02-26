@@ -85,7 +85,10 @@
 		communicate with a device. More investigation needed.
 		https://github.com/ekoeppen/tntk/
 		http://40hz.org/Pages/Mottek:%202011-01-16 etc.
-
+ NewTen More information needed.
+		https://github.com/panicsteve/NewTen/blob/master/Instructions.rtf
+ UnixNPI by Victor Rehorst, More information needed.
+		http://unixnpi.sourceforge.net
 
 
  TSerialChipVoyager : TSerialChip : TProtocol
@@ -419,6 +422,7 @@ TVoyagerManagedSerialPort::FindPipeNames()
 	}
 
 	// create the name for the transmitting pipe
+	// FIXME: "Einstein Platform"
 	strcpy(end, "/Einstein Emulator/ExtrSerPortSend");
 	if (!mTxPortName)
 		mTxPortName = strdup(path);
@@ -924,7 +928,7 @@ TVoyagerManagedSerialPort::HandleDMA()
 			for (int j=2; j>0; j--) {
 				// FIXME: reading 1024 bytes will overflow the buffer
 				// FIXME: reading less bytes must make sure that the next select() call triggers on data left in the buffer
-				n = read(mRxPort, buf, 1024);
+				n = (int)read(mRxPort, buf, 1024);
 //				n = read(mRxPort, buf, 1);
 				if (n<=0)
 					usleep(100000); // 1/10th of a second
@@ -969,7 +973,7 @@ TVoyagerManagedSerialPort::HandleDMA()
 			if (err==-1) {
 			} else {
 				for (int i=0; i<nAvail; i++) {
-					int n = read(mPipe[0], &cmd, 1);
+					int n = (int)read(mPipe[0], &cmd, 1);
 					if (n==-1) {
 						printf("***** Error reading pipe - %s (%d).\n", strerror(errno), errno);
 					} else if (n) {
