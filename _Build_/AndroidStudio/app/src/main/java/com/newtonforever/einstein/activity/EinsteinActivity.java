@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Timer;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -18,8 +19,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -57,6 +60,8 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 {    
     // Be aware that dialog ID values are arbitrary, but need to be unique within the Activity.
     private static final int DIALOG_DOWNLOAD_PROGRESS_ID = 0;
+
+    private static final int REQUEST_WRITE = 1;
 
     private static EinsteinActivity pInstance = null;
     private Einstein pEinstein = null;
@@ -123,21 +128,30 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 
         super.onCreate(savedInstanceState);
 
-        DebugUtils.logGreen("EinsteinActivity: ", "Creating Einstein application.");
-        final EinsteinApplication app = (EinsteinApplication)getApplication();
-        pEinstein = app.getEinstein();
-
         // Download the ROM
         //DebugUtils.logGreen("ERR", "A");
         //DownloadFile("http://www.matthiasm.com/717006", "/mnt/sdcard/Download/Einstein/717006.rom");
         //DebugUtils.logGreen("ERR", "B");
-        
 
         // Create an instance of EinsteinPreferencesActivity. If we do not do this, the preferences that are calculated
         // at runtime wouldn't exist until the user has invoked the preferences window for the first time.
         this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkCallingOrSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE);
+                return;
+            }
+        }
         // Install all required assets, initialize host device dependent values, ...
+        init();
+    }
+
+    private void init() {
+        DebugUtils.logGreen("EinsteinActivity: ", "Creating Einstein application.");
+        final EinsteinApplication app = (EinsteinApplication) getApplication();
+        pEinstein = app.getEinstein();
+
         final Startup startup = new Startup(this);
         final AssetManager assetManager = getAssets();
         final LoadResult result = startup.installAssets(assetManager);
@@ -437,5 +451,19 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         }
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving onKeyDown().");
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_WRITE) {
+            if (Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[0]) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                init();
+                return;
+            }
+            finish();
+        }
     }
 }
