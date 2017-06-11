@@ -64,7 +64,7 @@ TTapNetwork::~TTapNetwork()
  */
 int TTapNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 {
-    int nbWritten = write(mTapFileDescriptor, data, size);
+    ssize_t nbWritten = write(mTapFileDescriptor, data, size);
     if (nbWritten != size && mLog) {
 		mLog->FLogLine("Sending packet failed. (%i)", errno);
     }
@@ -93,7 +93,7 @@ KUInt32 TTapNetwork::DataAvailable()
     if (mBufferSize == 0) {
         ssize_t nbRead = read(mTapFileDescriptor, mBuffer, sizeof(mBuffer));
         if (nbRead > 0) {
-            mBufferSize = nbRead;
+            mBufferSize = (KUInt32)nbRead;
         }
     }
     return mBufferSize;
