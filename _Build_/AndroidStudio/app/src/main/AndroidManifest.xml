@@ -17,7 +17,8 @@
         android:name="com.newtonforever.einstein.EinsteinApplication"
         android:allowBackup="true"
         android:alwaysRetainTaskState="true"
-        android:label="@string/app_name">
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher">
         <!-- android:icon="@drawable/ic_launcher_newtonemulator" -->
         <activity
             android:name="com.newtonforever.einstein.activity.EinsteinActivity"
