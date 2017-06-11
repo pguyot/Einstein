@@ -1,15 +1,6 @@
 // TODO FG Review
 package com.newtonforever.einstein.activity;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Timer;
-
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -21,12 +12,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.Window;
@@ -48,6 +37,8 @@ import com.newtonforever.einstein.utils.screen.ScreenDimensions;
 import com.newtonforever.einstein.utils.screen.ScreenDimensionsInitializer;
 import com.newtonforever.einstein.view.EinsteinView;
 
+import java.io.File;
+import java.util.Timer;
 
 /**
  * The main user interface to the emulator.
@@ -71,6 +62,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     private Timer mScreenRefreshTimer = null;
     private EinsteinActionHandler mScreenRefreshTask = null;
     private SharedPreferences sharedPrefs;
+    private Startup startup;
 
     // Used to load the 'native-lib' library on application startup.
     /*
@@ -138,6 +130,17 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         // at runtime wouldn't exist until the user has invoked the preferences window for the first time.
         this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
+        this.startup = new Startup(this);
+
+        // Create view
+        this.pEinsteinView = new EinsteinView(this);
+
+        // Show or hide Android status bar. Note that this must take place before we call setContentView
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        final boolean statusBarVisible = sharedPrefs.getBoolean("androidstatusbar", true);
+        updateFullscreenStatus(statusBarVisible);
+        setContentView(pEinsteinView);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkCallingOrSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE);
@@ -153,9 +156,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         final EinsteinApplication app = (EinsteinApplication) getApplication();
         pEinstein = app.getEinstein();
 
-        final Startup startup = new Startup(this);
-        final AssetManager assetManager = getAssets();
-        final LoadResult result = startup.installAssets(assetManager);
+        final LoadResult result = startup.installAssets();
         if (LoadResult.OK != result) {
             DebugUtils.logRed("EinsteinActivity: ", "Problem with installing assets.");
             return;
@@ -168,15 +169,6 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         if (!pEinstein.isRunning()) {
             Native.initEmulator("CONSOLE");
         }
-
-        // Create view
-        this.pEinsteinView = new EinsteinView(this);
-
-        // Show or hide Android status bar. Note that this must take place before we call setContentView
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        final boolean statusBarVisible = sharedPrefs.getBoolean("androidstatusbar", true);
-        updateFullscreenStatus(statusBarVisible);
-        setContentView(pEinsteinView);
 
         // Start the emulator
         if (pEinstein.isRunning()) { // Wake up
@@ -306,8 +298,8 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         DebugUtils.logGreen("EinsteinActivity: ", "Entering updateFullscreenStatus().");
         final int fullscreen = WindowManager.LayoutParams.FLAG_FULLSCREEN;
         final int notFullscreen = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
-        super.getWindow().addFlags(statusBarVisible ? notFullscreen : fullscreen);
-        super.getWindow().clearFlags(statusBarVisible ? fullscreen : notFullscreen);
+        getWindow().addFlags(statusBarVisible ? notFullscreen : fullscreen);
+        getWindow().clearFlags(statusBarVisible ? fullscreen : notFullscreen);
         pEinsteinView.requestLayout();
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving updateFullscreenStatus().");
     }
