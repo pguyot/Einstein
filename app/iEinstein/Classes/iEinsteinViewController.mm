@@ -39,9 +39,9 @@
 
 @implementation iEinsteinViewController
 
-- (void)viewDidLoad 
+- (void)viewDidAppear:(BOOL)animated
 {
-	[super viewDidLoad];
+	[super viewDidAppear:animated];
 #ifdef USE_STORYBOARDS
 	[self initEmulator];
 #endif
