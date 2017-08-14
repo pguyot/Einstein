@@ -76,6 +76,7 @@
 - (void)setScreenManager:(TScreenManager*)sm
 {
 	mScreenManager = sm;
+	[self setNeedsDisplay];
 }
 
 - (void)setEmulator:(TEmulator*)em
