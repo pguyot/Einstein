@@ -62,40 +62,46 @@
 	if ( self = [super initWithFrame:frameRect] )
 	{
 		font = [NSFont userFixedPitchFontOfSize:11.0];
+		
 #if !__has_feature(objc_arc)
 		[font retain];
 #endif
 
 		labelAttrs =
 		@{
-		  NSFontAttributeName: font,
-		  NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.22 green:0.75 blue:1.0 alpha:1.0]
-		  };
+			NSFontAttributeName: font,
+			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.22 green:0.75 blue:1.0 alpha:1.0]
+		};
+		
 #if !__has_feature(objc_arc)
 		[labelAttrs retain];
 #endif
 
 		symbolAttrs =
 		@{
-		  NSFontAttributeName: font,
-		  NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:0.8 blue:0.22 alpha:1.0]
-		  };
+			NSFontAttributeName: font,
+			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:0.8 blue:0.22 alpha:1.0]
+		};
+		
 #if !__has_feature(objc_arc)
 		[symbolAttrs retain];
 #endif
+		
 		valueAttrs =
 		@{
-		  NSFontAttributeName: font,
-		  NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.7 green:0.7 blue:0.7 alpha:1.0]
-		  };
+			NSFontAttributeName: font,
+			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.6 green:0.6 blue:0.6 alpha:1.0]
+		};
+		
 #if !__has_feature(objc_arc)
 		[valueAttrs retain];
 #endif
+		
 		changedValueAttrs =
 		@{
-		  NSFontAttributeName: font,
-		  NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:1.0 green:1.0 blue:1.0 alpha:1.0]
-		  };
+			NSFontAttributeName: font,
+			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:1.0 green:1.0 blue:1.0 alpha:1.0]
+		};
 
 #if !__has_feature(objc_arc)
 		[changedValueAttrs retain];
@@ -103,42 +109,50 @@
 
 		disasmAddrAttrs =
 		@{
-		  NSFontAttributeName: font,
-		  NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.5 green:0.7 blue:0.3 alpha:1.0]
-		  };
+			NSFontAttributeName: font,
+			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.5 green:0.7 blue:0.3 alpha:1.0]
+		};
+		
 #if !__has_feature(objc_arc)
 		[disasmAddrAttrs retain];
 #endif
+		
 		disasmBaseHighlightedAttrs =
 		@{
-		  NSFontAttributeName: font,
-		  NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:1.0 blue:0.6 alpha:1.0],
-		  };
+			NSFontAttributeName: font,
+			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:1.0 blue:0.6 alpha:1.0],
+		};
+		
 #if !__has_feature(objc_arc)
 		[disasmBaseHighlightedAttrs retain];
 #endif
+		
 		disasmBaseAttrs =
 		@{
-		  NSFontAttributeName: font,
-		  NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.1 green:0.7 blue:0.1 alpha:1.0]
-		  };
+			NSFontAttributeName: font,
+			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.1 green:0.7 blue:0.1 alpha:1.0]
+		};
+
 #if !__has_feature(objc_arc)
 		[disasmBaseAttrs retain];
 #endif
+		
 		disasmStatusAttrs =
 		@{
-		  NSFontAttributeName: font,
-		  NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:0.5 blue:0.2 alpha:1.0]
-		  };
+			NSFontAttributeName: font,
+			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:0.5 blue:0.2 alpha:1.0]
+		};
 
 #if !__has_feature(objc_arc)
 		[disasmStatusAttrs retain];
 #endif
+		
 		errorAttrs =
 		@{
-		  NSFontAttributeName: font,
-		  NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:0.2 blue:0.2 alpha:1.0]
-		  };
+			NSFontAttributeName: font,
+			NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:0.2 blue:0.2 alpha:1.0]
+		};
+		
 #if !__has_feature(objc_arc)
 		[errorAttrs retain];
 #endif
@@ -169,36 +183,66 @@
 	
 	NSRect frame = [self frame];
 	historyVisible = (frame.size.height - (FONT_HEIGHT * 9)) / FONT_HEIGHT;
-	
 	historyOffset = (CGFloat)(HISTORY_SIZE - historyVisible);
 
 	// Scroll up
+	
 #if !__has_feature(objc_arc)
 	[history[0] release];
 #endif
+	
 	for ( int i = 1; i < HISTORY_SIZE; ++i )
 	{
 		history[i - 1] = history[i];
 	}
 
-	// Add new
+	// Add new line
+	
+	NSAttributedString *attrLine = nil;
 
 	if ( type == MONITOR_LOG_ERROR )
 	{
-		history[HISTORY_SIZE - 1] = [[NSAttributedString alloc] initWithString:line attributes:errorAttrs];
+		attrLine = [[NSAttributedString alloc] initWithString:line attributes:errorAttrs];
 	}
 	else if ( type == MONITOR_LOG_CODE )
 	{
-		history[HISTORY_SIZE - 1] = [[NSAttributedString alloc] initWithString:line attributes:disasmBaseAttrs];
+		NSMutableAttributedString *mutableLine = [[NSMutableAttributedString alloc] initWithString:line attributes:disasmBaseAttrs];
+		
+		[self annotateCodeLine:mutableLine];
+
+		attrLine = mutableLine;
 	}
 	else if ( type == MONITOR_LOG_USER_INPUT )
 	{
-		history[HISTORY_SIZE - 1] = [[NSAttributedString alloc] initWithString:line attributes:labelAttrs];
+		attrLine = [[NSAttributedString alloc] initWithString:line attributes:labelAttrs];
 	}
 	else
 	{
-		history[HISTORY_SIZE - 1] = [[NSAttributedString alloc] initWithString:line attributes:valueAttrs];
+		attrLine = [[NSAttributedString alloc] initWithString:line attributes:valueAttrs];
 	}
+	
+	history[HISTORY_SIZE - 1] = attrLine;
+}
+
+
+- (void)annotateCodeLine:(NSMutableAttributedString *)tempStr
+{
+	[tempStr setAttributes:disasmAddrAttrs range:NSMakeRange(0, 10)];
+
+	NSRange statusRange = [[tempStr string] rangeOfString:@"  ="];
+	if ( statusRange.location != NSNotFound )
+	{
+		statusRange.length = [tempStr length] - statusRange.location;
+		[tempStr setAttributes:symbolAttrs range:statusRange];
+	}
+	
+	statusRange = [[tempStr string] rangeOfString:@"(will skip)"];
+	if ( statusRange.location != NSNotFound )
+		[tempStr setAttributes:disasmStatusAttrs range:statusRange];
+	
+	statusRange = [[tempStr string] rangeOfString:@"(will do it)"];
+	if ( statusRange.location != NSNotFound )
+		[tempStr setAttributes:disasmStatusAttrs range:statusRange];
 }
 
 
@@ -419,20 +463,7 @@
 
 		[tempStr setAttributes:disasmAddrAttrs range:NSMakeRange(0, 8)];
 
-		NSRange statusRange = [[tempStr string] rangeOfString:@"  ="];
-		if ( statusRange.location != NSNotFound )
-		{
-			statusRange.length = [tempStr length] - statusRange.location;
-			[tempStr setAttributes:symbolAttrs range:statusRange];
-		}
-
-		statusRange = [[tempStr string] rangeOfString:@"(will skip)"];
-		if ( statusRange.location != NSNotFound )
-			[tempStr setAttributes:disasmStatusAttrs range:statusRange];
-
-		statusRange = [[tempStr string] rangeOfString:@"(will do it)"];
-		if ( statusRange.location != NSNotFound )
-			[tempStr setAttributes:disasmStatusAttrs range:statusRange];
+		[self annotateCodeLine:tempStr];
 
 		[tempStr drawAtPoint:textPoint];
 
@@ -534,6 +565,7 @@
 	[self setNeedsDisplay:YES];
 }
 
+
 - (void)scrollWheel:(NSEvent *)event
 {
 	if ( !started || !halted )
@@ -583,14 +615,17 @@
 #endif
 		regVal[i] = newRegVal;
 	}
+	
 #if !__has_feature(objc_arc)
 	[cpsr release];
 #endif
 	cpsr = [monitor->GetCPSR() copy];
+	
 #if !__has_feature(objc_arc)
 	[spsr release];
 #endif
 	spsr = [monitor->GetSPSR() copy];
+	
 #if !__has_feature(objc_arc)
 	[frozenTimer release];
 #endif
@@ -603,38 +638,47 @@
 #endif
 		tmRegVal[i] = [monitor->GetTimerMatchRegister(i) copy];
 	}
+	
 #if !__has_feature(objc_arc)
 	[rtc release];
 #endif
 	rtc = [monitor->GetRealTimeClock() copy];
+	
 #if !__has_feature(objc_arc)
 	[alarm release];
 #endif
 	alarm = [monitor->GetAlarm() copy];
+	
 #if !__has_feature(objc_arc)
 	[intRaised release];
 #endif
 	intRaised = [monitor->GetIntRaised() copy];
+	
 #if !__has_feature(objc_arc)
 	[intCtrlReg release];
 #endif
 	intCtrlReg = [monitor->GetIntCtrlReg() copy];
+	
 #if !__has_feature(objc_arc)
 	[fm release];
 #endif
 	fm = [monitor->GetFIQMask() copy];
+	
 #if !__has_feature(objc_arc)
 	[ic1 release];
 #endif
 	ic1 = [monitor->GetIntEDReg1() copy];
+	
 #if !__has_feature(objc_arc)
 	[ic2 release];
 #endif
 	ic2 = [monitor->GetIntEDReg2() copy];
+	
 #if !__has_feature(objc_arc)
 	[ic3 release];
 #endif
 	ic3 = [monitor->GetIntEDReg3() copy];
+	
 #if !__has_feature(objc_arc)
 	[symbol release];
 #endif

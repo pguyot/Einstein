@@ -1823,10 +1823,12 @@ TMonitor::PrintInstruction( KUInt32 inAddress )
 	if (theOffset == 0)
 	{
 		(void) ::sprintf(
-			theLine,
-			"%s\t; %s",
-			theSymbol,
-			theComment );
+				theLine,
+				"%s\t%c %s",
+				theSymbol,
+				(theComment[0] == '\0') ? ' ' : ';',
+				theComment );
+		
 		PrintLine( theLine, MONITOR_LOG_INFO );
 	}
 
