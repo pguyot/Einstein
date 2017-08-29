@@ -39,12 +39,16 @@
 
 @implementation iEinsteinViewController
 
-- (void)viewDidAppear:(BOOL)animated
+- (void)viewWillAppear:(BOOL)animated
 {
 	[super viewDidAppear:animated];
 #ifdef USE_STORYBOARDS
 	[self initEmulator];
 #endif
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
 }
 
 
