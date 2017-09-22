@@ -341,6 +341,8 @@ JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_isPowerOn( JNI
 {
 	if (theApp) {
 		return theApp->IsPowerOn();
+	} else {
+		return 0;
 	}
 }
 
