@@ -1042,6 +1042,34 @@ TARMProcessor::TransferState( TStream* inStream )
 	inStream->TransferInt32BE( mPendingInterrupts );
 }
 
+// -------------------------------------------------------------------------- //
+//  * IsIRQEnabled()
+// -------------------------------------------------------------------------- //
+bool TARMProcessor::IsIRQEnabled()
+{
+	return (mCPSR_I==0);
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * IsFIQEnabled()
+// -------------------------------------------------------------------------- //
+bool TARMProcessor::IsFIQEnabled()
+{
+	return (mCPSR_F==0);
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * AnyInterruptEnabled()
+// -------------------------------------------------------------------------- //
+bool TARMProcessor::IsAnyInterruptEnabled()
+{
+	return (mCPSR_F==0) || (mCPSR_I==0);
+}
+
+
+
 
 
 

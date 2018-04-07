@@ -223,7 +223,7 @@
 		C98AB24A1A351E39001BB1CD /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		C98AB24B1A351E39001BB1CD /* UDisasm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cp */; };
 		C98AB2AD1A351EE6001BB1CD /* swi.cp in Sources */ = {isa = PBXBuildFile; fileRef = C98AB2581A351EE6001BB1CD /* swi.cp */; };
-		C98AB2AE1A351EE6001BB1CD /* swi.rts in Resources */ = {isa = PBXBuildFile; fileRef = C98AB25A1A351EE6001BB1CD /* swi.rts */; };
+		C98AB2AE1A351EE6001BB1CD /* swi_rt.rts in Resources */ = {isa = PBXBuildFile; fileRef = C98AB25A1A351EE6001BB1CD /* swi_rt.rts */; };
 		C99E316A111B7346002165EC /* button_backlight.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3160111B7346002165EC /* button_backlight.png */; };
 		C99E316B111B7346002165EC /* button_backlight_on.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3161111B7346002165EC /* button_backlight_on.png */; };
 		C99E316C111B7346002165EC /* button_install.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3162111B7346002165EC /* button_install.png */; };
@@ -689,7 +689,7 @@
 		C98AB2421A351D61001BB1CD /* MemSnap.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MemSnap.cp; sourceTree = "<group>"; };
 		C98AB2581A351EE6001BB1CD /* swi.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = swi.cp; sourceTree = "<group>"; };
 		C98AB2591A351EE6001BB1CD /* swi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = swi.h; sourceTree = "<group>"; };
-		C98AB25A1A351EE6001BB1CD /* swi.rts */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = swi.rts; sourceTree = "<group>"; };
+		C98AB25A1A351EE6001BB1CD /* swi_rt.rts */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = swi_rt.rts; sourceTree = "<group>"; };
 		C98AB25D1A351EE6001BB1CD /* SimulatorGlue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimulatorGlue.h; sourceTree = "<group>"; };
 		C9956719123F71D2009A5668 /* TIOSScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TIOSScreenManager.h; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C995672B123F793D009A5668 /* TIOSScreenManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TIOSScreenManager.mm; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1298,7 +1298,7 @@
 				C98AB2591A351EE6001BB1CD /* swi.h */,
 				C9E7AC10207573E400590E5B /* swi_rt.cp */,
 				C9E7AC11207573F400590E5B /* swi_rt.h */,
-				C98AB25A1A351EE6001BB1CD /* swi.rts */,
+				C98AB25A1A351EE6001BB1CD /* swi_rt.rts */,
 			);
 			path = core;
 			sourceTree = "<group>";
@@ -2190,7 +2190,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C98AB2AE1A351EE6001BB1CD /* swi.rts in Resources */,
+				C98AB2AE1A351EE6001BB1CD /* swi_rt.rts in Resources */,
 				C95E603F198B76DC004C6CEF /* button_backlight.png in Resources */,
 				C95E6040198B76DC004C6CEF /* button_backlight_on.png in Resources */,
 				C95E6041198B76DC004C6CEF /* button_install.png in Resources */,

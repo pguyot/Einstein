@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open swi
+rt open swi_rt_tmp
 rt cjit 00000008-0000000C
 rt cjit 0x003AD698-0x003AE158 SWIBoot
 

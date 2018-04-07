@@ -116,7 +116,7 @@ JITInstructionProto(CallHostInjection)
 			// that was here before we injected code.
 			JITUnit *ret = stub(ioUnit, ioCPU);
 			if (ret==0L) {
-				MMUCALLNEXT_AFTERSETPC;
+				MMUCALLNEXT_AFTERSETPC; // returns from function
 			}
 		} catch (const char *err) {
 			KUInt32 pc = ioCPU->GetRegister(15)-4;
