@@ -1,7 +1,7 @@
 #
 # Retarget functions as they appear
 #
-rt open swi_rt_tmp
+rt open swi_rt
 rt cjit 00000008-0000000C
 rt cjit 0x003AD698-0x003AE158 SWIBoot
 
@@ -46,6 +46,8 @@ rt cjit 0x003AE14C-0x003AE158 SWI34_Scheduler
 rt cjit 0039401C-0x00394050 SystemPanic
 # this is partially duplicating SWI2. It's called by SWI22
 rt cjit 0x003AE098-0x003AE138 SWI2_PortReceive_2
+
+rt cjit QuickEnableInterrupt
 
 rt cjit DoDeferrals
 rt cjit Scheduler
