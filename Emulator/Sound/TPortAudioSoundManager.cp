@@ -3,6 +3,7 @@
 // Project:			Einstein
 //
 // Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2018 by Victor Rehorst (victor@chuma.org).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,6 +34,12 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+// only need this if we use the hexdump routine for debugging
+#ifdef DEBUG_SOUND
+#include <ctype.h>
+void hexdump(void *mem, unsigned int len);
+#endif
+
 // K
 #include <K/Defines/UByteSex.h>
 #include <K/Misc/TCircleBuffer.h>
@@ -41,15 +48,16 @@
 // Einstein.
 #include "Emulator/Log/TLog.h"
 
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
 
-#define kHostChannelCount				2	/* stereo, mono doesn't work on Mac */
-#define	kHostSampleRate					(44100.0)
-#define	kHostResamplingMultiplier		2
+#define kHostChannelCount				1
+#define kHostSampleRate                 (22050.0)
+#define	kHostResamplingMultiplier		1
 #define kHostMultiplier					(kHostResamplingMultiplier * kHostChannelCount)
-										/* stereo + 44KHz instead of 22 */
 // twice the Newton's buffer should be enough.
 #define kMultiplexedBufferSizeInBytes	(kNewtonBufferSizeInFrames * kHostMultiplier * sizeof(KSInt16))
 
@@ -68,6 +76,13 @@ TPortAudioSoundManager::TPortAudioSoundManager( TLog* inLog /* = nil */ )
 		mOutputIsRunning( false )
 {
 	do {
+
+#ifdef DEBUG_SOUND
+
+    printf("TPortAudioSoundManager: chans %d, sample rate %.2f, resampling_multi %d, host_multi %d\n", kHostChannelCount, kHostSampleRate, kHostResamplingMultiplier, kHostMultiplier);
+    printf("                        newton_buf_size_bytes %d, multiplex_buf_size %d, output_buf_size_initial %ld\n", kNewtonBufferSize, kMultiplexedBufferSizeInBytes,  (kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16)));
+
+#endif
 		PaStreamParameters outputParameters;
 		PaError theErr = Pa_Initialize();
 		if( theErr != paNoError )
@@ -81,20 +96,41 @@ TPortAudioSoundManager::TPortAudioSoundManager( TLog* inLog /* = nil */ )
 			break;
 		}
 
+
+        // int numDevices = Pa_GetDeviceCount();
+        // printf("PortAudio reports %d devices\n", numDevices);
 		outputParameters.device           = Pa_GetDefaultOutputDevice();/* Default output device. */
+#ifdef DEBUG_SOUND
+        if (outputParameters.device == paNoDevice)
+        {
+            printf("No default PortAudio output device!\n");
+        }
+#endif
 		outputParameters.channelCount     = kHostChannelCount;
 		outputParameters.sampleFormat     = paInt16;					/* 16bits ints. */
 		outputParameters.suggestedLatency =
-			Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
+			Pa_GetDeviceInfo(outputParameters.device)->defaultHighOutputLatency;
 		outputParameters.hostApiSpecificStreamInfo = NULL;
+
+#ifdef DEBUG_SOUND
+        printf("PortAudio device latency is %.3f\n", outputParameters.suggestedLatency);
+#endif
+
+        theErr = Pa_IsFormatSupported(NULL, &outputParameters, kHostSampleRate);
+
+        if (theErr != paFormatIsSupported)
+        {
+            printf("PortAudio output parameters not supported!\n");
+        }
 
 		theErr = Pa_OpenStream(
 			&mOutputStream,
 			NULL,				// no input
 			&outputParameters,
 			kHostSampleRate,	// sample rate
-			kNewtonBufferSizeInFrames * kHostResamplingMultiplier,
-								/* frames per buffer (newton buffer size) */
+            paFramesPerBufferUnspecified,
+            // kNewtonBufferSizeInFrames*4,
+            //kNewtonBufferSizeInFrames/4,
 			paClipOff | paPrimeOutputBuffersUsingStreamCallback,
 			SPACallBack,		// callback method.
 			this );				// callback data
@@ -109,7 +145,7 @@ TPortAudioSoundManager::TPortAudioSoundManager( TLog* inLog /* = nil */ )
 			}
 			break;
 		}
-		
+
 #if (kHostMultiplier > 1) || TARGET_RT_LITTLE_ENDIAN
 		mMultiplexedBuffer = (KSInt16*) ::malloc( kMultiplexedBufferSizeInBytes );
 #endif
@@ -124,7 +160,7 @@ TPortAudioSoundManager::~TPortAudioSoundManager( void )
 	if (mOutputStream)
 	{
 		PaError theErr = Pa_CloseStream(mOutputStream);
-		if( theErr != paNoError )
+		if ( theErr != paNoError )
 		{
 			if (GetLog())
 			{
@@ -145,7 +181,7 @@ TPortAudioSoundManager::~TPortAudioSoundManager( void )
 			}
 		}
 	}
-	
+
 	if (mDataMutex)
 	{
 		delete mDataMutex;
@@ -172,11 +208,17 @@ TPortAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
 		{
 			// Write to the output buffer.
 			// Resample buffer.
+#ifdef DEBUG_SOUND
+            printf("***** FROM NOS: ScheduleOutput size:%ld, frames:%ld, outputBuffer size:%ld\n", inSize, (inSize / sizeof(KSInt16)), inSize * kHostMultiplier );
+            // printf("Start of inBuffer:\n");
+            // hexdump((void *) inBuffer, 32);
+#endif
 #if (kHostMultiplier > 1) || TARGET_RT_LITTLE_ENDIAN
+            // printf("ScheduleOutput Changing byte order\n");
 			KUInt32 framesCount = inSize / sizeof( KSInt16 );
 			KSInt16* multiplexedCursor = mMultiplexedBuffer;
 			KSInt16* bufferCursor = (KSInt16*) inBuffer;
-			
+
 			while (--framesCount)
 			{
 				KSInt16 theFrame = *bufferCursor++;
@@ -191,12 +233,16 @@ TPortAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
 #endif
 #endif
 			}
-	
+#ifdef DEBUG_SOUND
+            // printf("Start of mMultiplexedBuffer\n");
+            // hexdump((void *) mMultiplexedBuffer, 32);
+#endif
 			// Copy data.
 			mDataMutex->Lock();
 			mOutputBuffer->Produce(
 				mMultiplexedBuffer,
 				inSize * kHostMultiplier );
+
 			mDataMutex->Unlock();
 #else
 			// Copy data.
@@ -207,8 +253,9 @@ TPortAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
 		}
 
 		// Ask for more data.
-		RaiseOutputInterrupt();
+		// RaiseOutputInterrupt();
 	}
+
 }
 
 // -------------------------------------------------------------------------- //
@@ -217,10 +264,14 @@ TPortAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
 void
 TPortAudioSoundManager::StartOutput( void )
 {
-	printf( "StartOutput...\n" );
+#ifdef DEBUG_SOUND
+	printf( "***** FROM NOS -> StartOutput BEGIN ..." );
+#endif
 	if (!mOutputIsRunning)
 	{
-		printf( "	Pa_StartStream\n" );
+#ifdef DEBUG_SOUND
+        printf(" Pa_StartStream...   ");
+#endif
 		PaError theErr = Pa_StartStream(mOutputStream);
 		if (theErr != paNoError)
 		{
@@ -232,10 +283,17 @@ TPortAudioSoundManager::StartOutput( void )
 					Pa_GetErrorText( theErr ) );
 			}
 		}
-		
-		mOutputIsRunning = true;
+
+        mOutputIsRunning = true;
+
 	}
-	printf( "...StartOutput\n" );
+#ifdef DEBUG_SOUND
+    else
+    {
+        printf("\n");
+    }
+	printf( "\n***** FROM NOS -> ... END StartOutput\n" );
+#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -244,10 +302,13 @@ TPortAudioSoundManager::StartOutput( void )
 void
 TPortAudioSoundManager::StopOutput( void )
 {
+#ifdef DEBUG_SOUND
+    // printf( "StopOutput..." );
+    printf( "***** FROM NOS -> StopOutput BEGIN ..." );
+#endif
 	if (mOutputIsRunning)
 	{
-		mOutputIsRunning = false;
-
+        printf( " Pa_StopStream...   " );
 		PaError theErr = Pa_StopStream(mOutputStream);
 		if (theErr != paNoError)
 		{
@@ -258,7 +319,16 @@ TPortAudioSoundManager::StopOutput( void )
 					Pa_GetErrorText( theErr ) );
 			}
 		}
+        mOutputIsRunning = false;
+
 	}
+#ifdef DEBUG_SOUND
+    else
+    {
+        printf("\n");
+    }
+    printf( "\n***** FROM NOS -> ... END StopOutput\n" );
+#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -267,7 +337,9 @@ TPortAudioSoundManager::StopOutput( void )
 Boolean
 TPortAudioSoundManager::OutputIsRunning( void )
 {
-	printf( "OutputIsRunning: %i\n", !mOutputBuffer->IsEmpty() );
+#ifdef DEBUG_SOUND
+	printf( "***** FROM NOS -> OutputIsRunning: !(outputBuffer empty): %i, mOutputIsRunning: %s\n", !mOutputBuffer->IsEmpty(), mOutputIsRunning ? "true" : "false" );
+#endif
 	return !mOutputBuffer->IsEmpty();
 }
 
@@ -282,32 +354,101 @@ TPortAudioSoundManager::PACallBack(
 				const PaStreamCallbackTimeInfo* /* timeInfo */,
 				PaStreamCallbackFlags /* statusFlags */ )
 {
-	// Ask for more data.
-	RaiseOutputInterrupt();
+	// Ask for more data / prime OutputBuffers
+	// RaiseOutputInterrupt();
 
 	// Copy data.
 	// The size in bytes.
-	KUInt32 amount = frameCount * sizeof( KSInt16 );
-	int result;
+	// KUInt32 amount = frameCount * sizeof( KSInt16 );
+
+	int result = paContinue;
 	mDataMutex->Lock();
+    KUInt32 bytesInBuffer = mOutputBuffer->AvailableBytes();
+    mDataMutex->Unlock();
+    KUIntPtr amount = MIN(bytesInBuffer, frameCount * sizeof( KSInt16 ));
+
 	if (mOutputIsRunning)
 	{
 		result = paContinue;
-	} else {
+	}
+    else
+    {
 		result = paComplete;
 	}
+#ifdef DEBUG_SOUND
+    printf("PACALLBACK %ld available, wants %ld frames, consuming %ld\n", bytesInBuffer, frameCount, amount);
+#endif
+    mDataMutex->Lock();
 	KUInt32 available = mOutputBuffer->Consume( outputBuffer, amount );
 	mDataMutex->Unlock();
 	KUInt32 delta = amount - available;
 	if (delta > 0)
 	{
 		// Zero the remaining of the buffer.
+        printf("ZEROING DELTA %ld bytes\n", delta);
 		::bzero( &((KUInt8*) outputBuffer)[available], delta );
 	}
-	
+
+    if (bytesInBuffer < kNewtonBufferSize) {
+		// Ask for more data.
+        printf("PACALLBACK RAISEOUTPUTINTERRUPT\n");
+		RaiseOutputInterrupt();
+	}
+
 	return result;
 }
 
+#ifdef DEBUG_SOUND
+
+#ifndef HEXDUMP_COLS
+#define HEXDUMP_COLS 8
+#endif
+
+void hexdump(void *mem, unsigned int len)
+{
+        unsigned int i, j;
+
+        for(i = 0; i < len + ((len % HEXDUMP_COLS) ? (HEXDUMP_COLS - len % HEXDUMP_COLS) : 0); i++)
+        {
+                /* print offset */
+                if(i % HEXDUMP_COLS == 0)
+                {
+                        printf("0x%06x: ", i);
+                }
+
+                /* print hex data */
+                if(i < len)
+                {
+                        printf("%02x ", 0xFF & ((char*)mem)[i]);
+                }
+                else /* end of block, just aligning for ASCII dump */
+                {
+                        printf("   ");
+                }
+
+                /* print ASCII dump */
+                if(i % HEXDUMP_COLS == (HEXDUMP_COLS - 1))
+                {
+                        for(j = i - (HEXDUMP_COLS - 1); j <= i; j++)
+                        {
+                                if(j >= len) /* end of block, not really printing */
+                                {
+                                        putchar(' ');
+                                }
+                                else if(isprint(((char*)mem)[j])) /* printable char */
+                                {
+                                        putchar(0xFF & ((char*)mem)[j]);
+                                }
+                                else /* other char */
+                                {
+                                        putchar('.');
+                                }
+                        }
+                        putchar('\n');
+                }
+        }
+}
+#endif
 // ============================================================================= //
 // As in Protestant Europe, by contrast, where sects divided endlessly into      //
 // smaller competing sects and no church dominated any other, all is different   //
