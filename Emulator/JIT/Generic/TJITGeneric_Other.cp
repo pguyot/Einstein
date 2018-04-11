@@ -84,7 +84,7 @@ JITInstructionProto(CallHostNative)
 	// Set the PC before jumping to the handler....
 	KUInt32 callIndex;
 	POPVALUE(callIndex);
-	JITFuncPtr stub = TJITGenericROMPatch::GetSimulatorStubAt(callIndex);
+	JITFuncPtr stub = TJITGenericPatchManager::GetPatchAt(callIndex)->GetStub();
 	//printf("Simulator: %3d:0x%08x\n", (int)callIndex, stub);
 	if (!stub) {
 		CALLNEXTUNIT;
@@ -106,7 +106,7 @@ JITInstructionProto(CallHostInjection)
 	// Set the PC before jumping to the handler....
 	KUInt32 callIndex;
 	POPVALUE(callIndex);
-	JITFuncPtr stub = TJITGenericROMPatch::GetSimulatorStubAt(callIndex);
+	JITFuncPtr stub = TJITGenericPatchManager::GetPatchAt(callIndex)->GetStub();
 	if (stub) {
 		try {
 			// The stub calls a native function.
@@ -235,7 +235,7 @@ Translate_Injection(
 	KUInt32 ix = inInstruction & 0x001fffff;
 	PUSHFUNC(CallHostInjection);
 	PUSHVALUE(ix);
-	return TJITGenericROMPatch::GetOriginalInstructionAt(ix);
+	return TJITGenericPatchManager::GetPatchAt(ix)->GetOriginalInstruction();
 }
 
 
@@ -252,7 +252,7 @@ Translate_SimulatorInjection(
 	KUInt32 ix = inInstruction & 0x001fffff;
 	PUSHFUNC(CallHostSimulatorInjection);
 	PUSHVALUE(ix);
-	return TJITGenericROMPatch::GetOriginalInstructionAt(ix);
+	return TJITGenericPatchManager::GetPatchAt(ix)->GetOriginalInstruction();
 }
 
 

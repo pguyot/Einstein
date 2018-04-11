@@ -23,12 +23,40 @@
 #include <K/Defines/KDefinitions.h>
 #include "JIT.h"
 
-// The three lines below are tricking the compiler into letting
-// us handle a whole range of function calls. This may not work
-// with all compilers out there!
 typedef void (*AnyFunctionPtr)();
-class TAnyClass { };
-typedef void (TAnyClass::*AnyMethodPtr)();
+
+class TJITGenericROMPatch;
+
+
+/**
+ \briefManage all code patches.
+
+ This class is completely static and does not need to be instatiated anywhere.
+ It keeps track of all patches as they are created, and applies them after the
+ ROM is initialized.
+ */
+class TJITGenericPatchManager
+{
+	friend TJITGenericROMPatch;
+	
+private:
+	static TJITGenericROMPatch **mPatchList;
+	static KUInt32 mPatchListTop, mPatchListSize;
+
+	/// Add a new patch to the patch list.
+	static KUInt32 add(TJITGenericROMPatch *patch);
+
+public:
+	/// Get number of patches
+	static KUInt32 GetNumPatches() { return mPatchListTop; }
+
+	/// Get patch at a given index.
+	static TJITGenericROMPatch *GetPatchAt(KUInt32 ix);
+
+	/// Loop through all patched and actually apply them.
+	static void DoPatchROM(KUInt32* inROMPtr, const std::string& inMachineName);
+};
+
 
 ///
 /// This class defines a patch location.
@@ -40,23 +68,34 @@ typedef void (TAnyClass::*AnyMethodPtr)();
 /// These ROM patches provide the original instruction and are used when
 /// translating code.
 ///
-class TJITGenericROMPatch {
+class TJITGenericROMPatch
+{
+	friend TJITGenericPatchManager;
+
+private:
+	KUInt32 mIndex;
+	KUInt32 mAddress;
+	KUInt32 mOriginalInstruction;
+	KUInt32 mNewInstruction;
+	const char *mName;
+	
+	JITFuncPtr mStub;
+	AnyFunctionPtr mFunction;
+
+	/// Add this patch to the patch manager and return the new index.
+	KUInt32 addToManager() { return TJITGenericPatchManager::add(this); }
 
 protected:
-	static TJITGenericROMPatch *first_;
-	TJITGenericROMPatch *next_;
-	KUInt32 address_;
-	KUInt32 value_;
-	KUInt32 originalInstruction_;
-	JITFuncPtr stub_;
-	AnyFunctionPtr function_;
-	AnyMethodPtr method_;
-	const char *name_;
-	
-	static TJITGenericROMPatch **patch_;
-	static KUInt32 nPatch, NPatch;
-	static KUInt32 addPatch(TJITGenericROMPatch *patch);
-	
+
+	/// Remember the priginal instruction at this address before the patch was applied.
+	void SetOrigialInstruction(KUInt32 instr) { mOriginalInstruction = instr; }
+
+	/// Return the offset of the instruction into the ROM word array.
+	KUInt32 GetOffsetInROM() { return mAddress>>2; }
+
+	/// Return the new instruction that replaces the original one.
+	KUInt32 GetNewInstruction() { return mNewInstruction; }
+
 public:
 	/// Create and add a new patch
 	TJITGenericROMPatch(KUInt32 address, KUInt32 value);
@@ -70,57 +109,32 @@ public:
 	/// Create and add a call to a Simulator function or static method
 	TJITGenericROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyFunctionPtr function);
 	
-	/// Create and add a call to a Simulator class method
-	TJITGenericROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, AnyMethodPtr function);
-	
 	/// Create and add a call to a Simulator function or static method
 	TJITGenericROMPatch(KUInt32 address, JITFuncPtr stub, const char *name, JITSimPtr function);
 	
 	/// Destructor
 	virtual ~TJITGenericROMPatch();
 
-	/// Return the first patch in the list.
-	/// @return NULL if no patches
-	static TJITGenericROMPatch *first() { return first_; }
-	
-	/// Return the next patch in the list
-	/// @return NULL if no more patches in the database
-	TJITGenericROMPatch *next() { return next_; }
-	
 	/// Return the address of this patch (must be dividable by four)
-	KUInt32 address() { return address_; }
-	
-	/// Return the 32-bit patch value for this address
-	KUInt32 value() { return value_; }
-	
-	/// Set the original code for this address
-	void originalInstruction(KUInt32 instr) { originalInstruction_ = instr; }
-	
-	/// Return the Simulator stub by index
-	static JITFuncPtr GetSimulatorStubAt(KUInt32 index);
-	
-	/// Return the Simulator function by index
-	static AnyFunctionPtr GetSimulatorFunctionAt(KUInt32 index);
-	
-	/// Return the Simulator class method by index
-	static AnyMethodPtr GetSimulatorMethodAt(KUInt32 index);
-	
-	/// Return the original ROM instruction
-	static KUInt32 GetOriginalInstructionAt(KUInt32 command, KUInt32 address=0xFFFFFFFF);
-	
-	/// Return the name for this patch
-	static const char* GetNameAt(KUInt32 index);
+	//KUInt32 address() { return address_; }
 	
 	/// Patch the ROM word
 	virtual void apply(KUInt32 *ROM);
-	
-	// Get number of patches
-	static KUInt32 GetNumPatches() { return nPatch; }
-	
-	///
-	/// Loop through all patched and actually apply them.
-	///
-	static void DoPatchROM(KUInt32* inROMPtr, const std::string& inMachineName);
+
+	/// Return the name of this patch.
+	/// Names can be given at creation time and can be choosen artbitrarily.
+	/// They are used to help in the debugging process.
+	const char *GatName() { return mName; }
+
+	/// Return the data word at the patch address before the patch was applied.
+	KUInt32 GetOriginalInstruction() { return mOriginalInstruction; }
+
+	/// Return the JIT Stub address for this patch.
+	JITFuncPtr GetStub() { return mStub; }
+
+	/// Return the function address for this patch.
+	AnyFunctionPtr GetFunction() { return mFunction; }
+
 };
 
 

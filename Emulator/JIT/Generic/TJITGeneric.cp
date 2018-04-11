@@ -300,7 +300,7 @@ void
 TJITGeneric::DoPatchROM(KUInt32* romPtr, const std::string& inMachineName) {
 	fprintf(stderr, "PATCHING THE ROM\n");
 
-	TJITGenericROMPatch::DoPatchROM(romPtr, inMachineName);
+	TJITGenericPatchManager::DoPatchROM(romPtr, inMachineName);
 	TVirtualizedCallsPatches::DoPatchROM(romPtr, inMachineName);
 }
 

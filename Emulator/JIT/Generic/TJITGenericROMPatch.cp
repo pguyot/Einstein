@@ -152,24 +152,23 @@ T_ROM_INJECTION(0x001A726C, "Long loop end") {
 // -------------------------------------------------------------------------- //
 //  * TJITGenericROMPatch first member of database
 // -------------------------------------------------------------------------- //
-TJITGenericROMPatch  *TJITGenericROMPatch::first_ = 0L;
-TJITGenericROMPatch **TJITGenericROMPatch::patch_ = 0L;
-KUInt32     TJITGenericROMPatch::nPatch = 0;
-KUInt32     TJITGenericROMPatch::NPatch = 0;
+TJITGenericROMPatch **TJITGenericPatchManager::mPatchList = 0L;
+KUInt32     TJITGenericPatchManager::mPatchListTop = 0;
+KUInt32     TJITGenericPatchManager::mPatchListSize = 0;
 
 
 // -------------------------------------------------------------------------- //
 //  * TJITGenericROMPatch constructor
 // -------------------------------------------------------------------------- //
 TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, KUInt32 val)
-:	next_(first_),
-	address_(addr>>2),
-	value_(val),
-	stub_(0L),
-	function_(0L),
-	method_(0L)
+:	mIndex(addToManager()),
+	mOriginalInstruction(0xFFFFFFFF),
+	mName(0L),
+	mStub(0L),
+	mFunction(0L),
+	mAddress(addr),
+	mNewInstruction(val)
 {
-    first_ = this;
 }
 
 
@@ -177,15 +176,14 @@ TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, KUInt32 val)
 //  * TJITGenericROMPatch constructor
 // -------------------------------------------------------------------------- //
 TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, KUInt32 val, const char *name)
-:   next_(first_),
-    address_(addr>>2),
-    value_(val),
-    stub_(0L),
-    function_(0L),
-    method_(0L)
+:	mIndex(addToManager()),
+	mOriginalInstruction(0xFFFFFFFF),
+	mName(name),
+	mStub(0L),
+	mFunction(0L),
+    mAddress(addr),
+    mNewInstruction(val)
 {
-    first_ = this;
-	name_ = name;
     fprintf(stderr, "Adding ROM patch: %s\n", name);
 }
 
@@ -194,17 +192,15 @@ TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, KUInt32 val, const char *
 //  * TJITGenericROMPatch constructor for Simulator function calls
 // -------------------------------------------------------------------------- //
 TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyFunctionPtr function)
-:   next_(first_),
-    address_(addr>>2),
-    value_(0xef800000),
-    stub_(stub),
-    function_(function),
-    method_(0L)
+:	mIndex(addToManager()),
+	mOriginalInstruction(0xFFFFFFFF),
+	mName(name),
+	mStub(stub),
+	mFunction(0L),
+	mAddress(addr),
+    mNewInstruction(0xef800000|mIndex)
 {
-    first_ = this;
-	name_ = name;
 //    fprintf(stderr, "Adding ROM patch to Simulator function: %3d = %s\n", (int)nPatch, name);
-    value_ |= addPatch(this);
 }
 
 
@@ -212,35 +208,15 @@ TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, JITFuncPtr stub, const ch
 //  * TJITGenericROMPatch constructor for JIT instructions
 // -------------------------------------------------------------------------- //
 TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name)
-:   next_(first_),
-    address_(addr>>2),
-    value_(0xef800000),
-    stub_(stub),
-    function_(0L),
-    method_(0L)
+:	mIndex(addToManager()),
+	mOriginalInstruction(0xFFFFFFFF),
+	mName(name),
+	mStub(stub),
+	mFunction(0L),
+    mAddress(addr),
+    mNewInstruction(0xef800000|mIndex)
 {
-    first_ = this;
-	name_ = name;
 //    fprintf(stderr, "Adding ROM patch to JIT function: %3d = %s\n", (int)nPatch, name);
-    value_ |= addPatch(this);
-}
-
-
-// -------------------------------------------------------------------------- //
-//  * TJITGenericROMPatch constructor for Simulator method calls
-// -------------------------------------------------------------------------- //
-TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, AnyMethodPtr method)
-:   next_(first_),
-address_(addr>>2),
-value_(0xef800000),
-stub_(stub),
-function_(0L),
-method_(method)
-{
-	first_ = this;
-	name_ = name;
-//	fprintf(stderr, "Adding ROM patch to Simulator method:   %3d = %s\n", (int)nPatch, name);
-	value_ |= addPatch(this);
 }
 
 
@@ -248,117 +224,58 @@ method_(method)
 //  * TJITGenericROMPatch constructor for Simulator method calls
 // -------------------------------------------------------------------------- //
 TJITGenericROMPatch::TJITGenericROMPatch(KUInt32 addr, JITFuncPtr stub, const char *name, JITSimPtr function)
-:   next_(first_),
-	address_(addr>>2),
-	value_(0xef800000),
-	stub_(stub),
-	function_((AnyFunctionPtr)function),
-	method_(0L)
+:	mIndex(addToManager()),
+	mOriginalInstruction(0xFFFFFFFF),
+	mName(name),
+	mStub(stub),
+	mFunction(0L),
+	mAddress(addr),
+	mNewInstruction(0xef800000|mIndex)
 {
-	first_ = this;
-	name_ = name;
 //	fprintf(stderr, "Adding ROM patch to Simulator function:   %3d = %s\n", (int)nPatch, name);
-	value_ |= addPatch(this);
 }
 
 
 // -------------------------------------------------------------------------- //
 //  * Destructor
 // -------------------------------------------------------------------------- //
-TJITGenericROMPatch::~TJITGenericROMPatch() { 
+TJITGenericROMPatch::~TJITGenericROMPatch() {
+	// This should never be called except when quitting the app.
+	// We don't worry about reversing the patch or unmanaging the patch.
 }
 
 
 // -------------------------------------------------------------------------- //
-//  * Return the native stub in Simulator
+//  * Get patch at a given index.
 // -------------------------------------------------------------------------- //
-JITFuncPtr TJITGenericROMPatch::GetSimulatorStubAt(KUInt32 index) 
+TJITGenericROMPatch *TJITGenericPatchManager::GetPatchAt(KUInt32 ix)
 {
-    index = index & 0x003fffff;
-    if (index>=nPatch)
-        return 0L;
-    return patch_[index]->stub_;
-}
-
-
-// -------------------------------------------------------------------------- //
-//  * Return the address of the Simulator function
-// -------------------------------------------------------------------------- //
-AnyFunctionPtr TJITGenericROMPatch::GetSimulatorFunctionAt(KUInt32 index)
-{
-    index = index & 0x003fffff;
-    if (index>=nPatch)
-        return 0L;
-    return patch_[index]->function_;
-}
-
-
-// -------------------------------------------------------------------------- //
-//  * Return the address of the Simulator function
-// -------------------------------------------------------------------------- //
-AnyMethodPtr TJITGenericROMPatch::GetSimulatorMethodAt(KUInt32 index) 
-{
-    index = index & 0x003fffff;
-    if (index>=nPatch)
-        return 0L;
-    return patch_[index]->method_;
-}
-
-
-// -------------------------------------------------------------------------- //
-//  * Return the original instruction for this patch
-// -------------------------------------------------------------------------- //
-KUInt32 TJITGenericROMPatch::GetOriginalInstructionAt(KUInt32 command, KUInt32 address)
-{
-	// extract the patch index from the command (this assumes that we already
-	// know that this is a high-digit SWI)
-    KUInt32 index = command & 0x001fffff;
-	
-	// check if the index is in range
-    if (index>=nPatch)
-        return command;
-	
-	// if the address of the pacth is known, verify that we have the correct patch
-	if (address!=0xFFFFFFFF) {
-		if (patch_[index]->address_ != (address>>2))
-			return command;
+	if (ix<mPatchListTop) {
+		return mPatchList[ix];
+	} else {
+		fprintf(stderr, "ERROR in %s %d: accessing invalid patch index %d of %d\n", __FILE__, __LINE__, ix, mPatchListTop);
+		return 0;
 	}
-	
-	// return the word that we patched out
-    return patch_[index]->originalInstruction_;
-}
-
-
-// -------------------------------------------------------------------------- //
-//  * Return the name of the Simulator function
-// -------------------------------------------------------------------------- //
-const char* TJITGenericROMPatch::GetNameAt(KUInt32 index)
-{
-    index = index & 0x003fffff;
-    if (index>=nPatch)
-        return 0L;
-    return patch_[index]->name_;
 }
 
 
 // -------------------------------------------------------------------------- //
 //  * Add another stub to the array of stubs and return the index
 // -------------------------------------------------------------------------- //
-KUInt32 TJITGenericROMPatch::addPatch(TJITGenericROMPatch *p)
+KUInt32 TJITGenericPatchManager::add(TJITGenericROMPatch *p)
 {
 	if (p==0)
 		return 0;
-    if (nPatch==NPatch) {
-		if (NPatch) {
-			NPatch *= 2;
-			patch_ = (TJITGenericROMPatch**)realloc(patch_, NPatch*sizeof(TJITGenericROMPatch*));
+    if (mPatchListTop==mPatchListSize) {
+		if (mPatchListTop) {
+			mPatchListTop *= 2;
 		} else {
-			NPatch = 64;
-			patch_ = (TJITGenericROMPatch**)malloc(NPatch*sizeof(TJITGenericROMPatch*));
+			mPatchListSize = 64;
 		}
+		mPatchList = (TJITGenericROMPatch**)realloc(mPatchList, mPatchListSize*sizeof(TJITGenericROMPatch*));
     }
-    patch_[nPatch++] = p;
-    return (nPatch-1);
+    mPatchList[mPatchListTop++] = p;
+    return (mPatchListTop-1);
 }
 
 
@@ -367,7 +284,8 @@ KUInt32 TJITGenericROMPatch::addPatch(TJITGenericROMPatch *p)
 // -------------------------------------------------------------------------- //
 void TJITGenericROMPatch::apply(KUInt32 *ROM)
 {
-    ROM[address()] = value();
+	SetOrigialInstruction(ROM[mAddress]);
+    ROM[mAddress] = GetNewInstruction();
 }
 
 
@@ -375,17 +293,12 @@ void TJITGenericROMPatch::apply(KUInt32 *ROM)
 //  * DoPatchROM(KUInt32*, const std::string&)
 // -------------------------------------------------------------------------- //
 void
-TJITGenericROMPatch::DoPatchROM(KUInt32* inROMPtr, const std::string& inMachineName) {
+TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, const std::string& inMachineName) {
 	if (inMachineName == "717006") {
-		// Iterate on patches.
-		TJITGenericROMPatch *p;
-		for (p=TJITGenericROMPatch::first(); p; p=p->next())
-		{
-			p->apply(inROMPtr);
+		for (KUInt32 i=0; i<mPatchListTop; i++) {
+			mPatchList[i]->apply(inROMPtr);
 		}
-		
-		fprintf(stderr, "%u/19300 patches added %.2f%%.\n",
-				(unsigned int)GetNumPatches(), GetNumPatches()/193.00);
+		fprintf(stderr, "%u patches applied\n", GetNumPatches());
 	}
 #if TARGET_OS_MAC
 	// Matt: this is an ugly hack that removes a reference from the 'extr'
@@ -411,8 +324,8 @@ TJITGenericROMPatch::DoPatchROM(KUInt32* inROMPtr, const std::string& inMachineN
 // -------------------------------------------------------------------------- //
 void TJITGenericROMInjection::apply(KUInt32 *ROM)
 {
-    originalInstruction_ = ROM[address()];
-    ROM[address()] = value() | 0xefc00000;
+    SetOrigialInstruction(ROM[GetOffsetInROM()]);
+    ROM[GetOffsetInROM()] = GetNewInstruction() | 0xefc00000;
 }
 
 
@@ -421,8 +334,8 @@ void TJITGenericROMInjection::apply(KUInt32 *ROM)
 // -------------------------------------------------------------------------- //
 void TJITGenericROMSimulatorInjection::apply(KUInt32 *ROM)
 {
-    originalInstruction_ = ROM[address()];
-    ROM[address()] = value() | 0xefa00000;
+	SetOrigialInstruction(ROM[GetOffsetInROM()]);
+    ROM[GetOffsetInROM()] = GetNewInstruction() | 0xefa00000;
 }
 
 

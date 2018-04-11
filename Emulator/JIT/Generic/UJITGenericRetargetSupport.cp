@@ -222,7 +222,7 @@ UJITGenericRetargetSupport::JumpToCalculatedAddress(TARMProcessor* ioCPU, KUInt3
 		KUInt32 instruction = ManagedMemoryRead(ioCPU, inPC-4);
 		if ((instruction & 0xffe00000)==0xefc00000) {
 			KUInt32 simIndex = instruction & 0x001fffff;
-			JITSimPtr nativeTarget = (JITSimPtr)TJITGenericROMPatch::GetSimulatorFunctionAt(simIndex);
+			JITSimPtr nativeTarget = (JITSimPtr)TJITGenericPatchManager::GetPatchAt(simIndex)->GetFunction();
 			if (nativeTarget) {
 				ioCPU->SetRegister(TARMProcessor::kR15, inPC);
 				return nativeTarget(ioCPU, ret);
