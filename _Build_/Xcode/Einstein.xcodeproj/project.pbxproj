@@ -222,7 +222,6 @@
 		C98AB2491A351E26001BB1CD /* TJITGenericRetargetMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C965D3FF1970A47000348893 /* TJITGenericRetargetMap.cpp */; };
 		C98AB24A1A351E39001BB1CD /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		C98AB24B1A351E39001BB1CD /* UDisasm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cp */; };
-		C98AB2AD1A351EE6001BB1CD /* swi.cp in Sources */ = {isa = PBXBuildFile; fileRef = C98AB2581A351EE6001BB1CD /* swi.cp */; };
 		C98AB2AE1A351EE6001BB1CD /* swi_rt.rts in Resources */ = {isa = PBXBuildFile; fileRef = C98AB25A1A351EE6001BB1CD /* swi_rt.rts */; };
 		C99E316A111B7346002165EC /* button_backlight.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3160111B7346002165EC /* button_backlight.png */; };
 		C99E316B111B7346002165EC /* button_backlight_on.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3161111B7346002165EC /* button_backlight_on.png */; };
@@ -301,6 +300,7 @@
 		C99E3706111C18D2002165EC /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E3705111C18D2002165EC /* AudioUnit.framework */; };
 		C99E3750111C1F0E002165EC /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E374F111C1F0E002165EC /* Carbon.framework */; };
 		C99E377B111C2289002165EC /* Einstein.rex in Resources */ = {isa = PBXBuildFile; fileRef = C99E377A111C2289002165EC /* Einstein.rex */; };
+		C9A8C4C8207E871C0085E7DD /* swi.cp in Sources */ = {isa = PBXBuildFile; fileRef = C98AB2581A351EE6001BB1CD /* swi.cp */; };
 		C9B4AB88123D674400D8D2C7 /* TBufferLog.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3460111B7C07002165EC /* TBufferLog.cp */; };
 		C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cp */; };
 		C9CEB43F19601CA3002198A7 /* TJITGenericRetarget.cp in Sources */ = {isa = PBXBuildFile; fileRef = C9CEB43D19601CA3002198A7 /* TJITGenericRetarget.cp */; };
@@ -2519,7 +2519,6 @@
 				C95E6054198B76DC004C6CEF /* einstein.mm in Sources */,
 				C9E7AC0D2075706900590E5B /* TCocoaPathHelper.mm in Sources */,
 				C95E6055198B76DC004C6CEF /* EinsteinDoNewtonScriptCommand.mm in Sources */,
-				C98AB2AD1A351EE6001BB1CD /* swi.cp in Sources */,
 				C95E6056198B76DC004C6CEF /* EinsteinInstallPackageCommand.mm in Sources */,
 				C95E6057198B76DC004C6CEF /* TCocoaAppController.mm in Sources */,
 				C95E6058198B76DC004C6CEF /* TJITGenericRetargetMap.cpp in Sources */,
@@ -2577,6 +2576,7 @@
 				C95E608A198B76DC004C6CEF /* TARMProcessor.cp in Sources */,
 				C95E608B198B76DC004C6CEF /* TDMAManager.cp in Sources */,
 				C95E608C198B76DC004C6CEF /* TEmulator.cp in Sources */,
+				C9A8C4C8207E871C0085E7DD /* swi.cp in Sources */,
 				C95E608D198B76DC004C6CEF /* TFlash.cp in Sources */,
 				C95E608E198B76DC004C6CEF /* TInterruptManager.cp in Sources */,
 				C95E608F198B76DC004C6CEF /* TMemory.cp in Sources */,

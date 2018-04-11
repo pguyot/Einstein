@@ -155,14 +155,8 @@ TJITGenericPage::Translate(
 #endif
 
 	// handle injections before anything else
-	if ((inInstruction & 0xffe00000)==0xefc00000) {
-		inInstruction = Translate_Injection(
-											this,
-											ioUnitCrsr,
-											inInstruction,
-											inVAddr);
-	} else if ((inInstruction & 0xffe00000)==0xefa00000) {
-		inInstruction = Translate_SimulatorInjection(
+	if (TJITGenericPatchObject::IsNativeInjection(inInstruction)) {
+		inInstruction = Translate_PatchNativeCall(
 											this,
 											ioUnitCrsr,
 											inInstruction,

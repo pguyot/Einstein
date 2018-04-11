@@ -33,14 +33,7 @@
 #include "TJITGeneric_Macros.h"
 
 KUInt32
-Translate_Injection(
-					JITPageClass* inPage,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr );
-
-KUInt32
-Translate_SimulatorInjection(
+Translate_PatchNativeCall(
 					JITPageClass* inPage,
 					KUInt16* ioUnitCrsr,
 					KUInt32 inInstruction,

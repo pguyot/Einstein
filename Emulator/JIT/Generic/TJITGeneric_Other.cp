@@ -69,7 +69,7 @@ JITInstructionProto(SWI)
 }
 
 // -------------------------------------------------------------------------- //
-//  * CallHostNative
+//  * CallNativePatch
 //
 //  This function allows for quick calls into host-native "C" and "C++" 
 //  functions without patching more than a single instruction in the 
@@ -79,89 +79,22 @@ JITInstructionProto(SWI)
 //  from other native functions, allowing full execution speed without 
 //  any register emulation.
 // -------------------------------------------------------------------------- //
-JITInstructionProto(CallHostNative)
+JITInstructionProto(CallPatchNative)
 {
-	// Set the PC before jumping to the handler....
-	KUInt32 callIndex;
-	POPVALUE(callIndex);
-	JITFuncPtr stub = TJITGenericPatchManager::GetPatchAt(callIndex)->GetStub();
-	//printf("Simulator: %3d:0x%08x\n", (int)callIndex, stub);
-	if (!stub) {
+	KUInt32 patchIndex;
+	POPVALUE(patchIndex);
+	TJITGenericPatchObject *patch = TJITGenericPatchManager::GetPatchAt(patchIndex);
+	if (!patch) {
+		fprintf(stderr, "ERROR in %s %d: no patch found for index %d\n",
+				__FILE__, __LINE__, patchIndex);
+		CALLNEXTUNIT; // returns from this function
+	}
+	ioUnit = patch->Call(ioUnit, ioCPU);
+	if (ioUnit) {
 		CALLNEXTUNIT;
+	} else {
+		MMUCALLNEXT_AFTERSETPC;
 	}
-	//TARMProcessor::current = ioCPU;
-	return stub(ioUnit, ioCPU);
-}
-
-// -------------------------------------------------------------------------- //
-//  * CallHostInjection
-//
-//  An Injection allows for a quick native call without disturbing the original
-//  instruction at the point of the injection.
-// -------------------------------------------------------------------------- //
-JITInstructionProto(CallHostInjection)
-{
-	static KUInt32 errCnt = 0;
-	
-	// Set the PC before jumping to the handler....
-	KUInt32 callIndex;
-	POPVALUE(callIndex);
-	JITFuncPtr stub = TJITGenericPatchManager::GetPatchAt(callIndex)->GetStub();
-	if (stub) {
-		try {
-			// The stub calls a native function.
-			// If it returns 0L, the PC changed within the native code and we need
-			// to find the next ioUnit.
-			// Otherwise, we simply continue by running the already JIT'ed instruction
-			// that was here before we injected code.
-			JITUnit *ret = stub(ioUnit, ioCPU);
-			if (ret==0L) {
-				MMUCALLNEXT_AFTERSETPC; // returns from function
-			}
-		} catch (const char *err) {
-			KUInt32 pc = ioCPU->GetRegister(15)-4;
-			if (pc!=8 && (pc<0x00800000 || pc>0x008fffff)) { // don't chat about every SWI
-				char *symbol = 0;
-				int offset = 0;
-				if (TSymbolList::List) {
-					symbol = (char*)::malloc(1024);
-					TSymbolList::List->GetNearestSymbolByAddress(pc, symbol, 0L, &offset);
-					fprintf(stderr, "SIM_INFO[%u]: %s caught at 0x%08X, lr=0x%08X (pcAbort=0x%08X)\n",
-							(unsigned int)errCnt++, err, (unsigned int)pc, (unsigned int)ioCPU->GetRegister(14)-4, (unsigned int)ioCPU->mR14abt_Bkup);
-					if (symbol) {
-						if (offset) {
-							fprintf(stderr, "SIM_INFO: ... at %s%+d\n", symbol, offset);
-						} else {
-							fprintf(stderr, "SIM_INFO: try: rt cjit %s\n", symbol);
-						}
-						::free(symbol);
-					}
-				}
-			}
-			MMUCALLNEXT_AFTERSETPC;
-		}
-	}
-	CALLNEXTUNIT;
-}
-
-
-JITUnit* (*SimLink)(JITUnit* ioUnit, TARMProcessor* ioCPU, KUInt32 ix);
-// -------------------------------------------------------------------------- //
-//  * CallHostSimulatorInjection
-//
-//  A Simulator Injection calls native code that simulates a segment of code.
-//  To avoid recursions, it can also continue in JIT mode.
-// -------------------------------------------------------------------------- //
-JITInstructionProto(CallHostSimulatorInjection)
-{
-	KUInt32 callIndex;
-	POPVALUE(callIndex);
-	if (SimLink) {
-		if (SimLink(ioUnit, ioCPU, callIndex)==0L) {
-			MMUCALLNEXT_AFTERSETPC;
-		}
-	}
-	CALLNEXTUNIT;
 }
 
 // -------------------------------------------------------------------------- //
@@ -226,31 +159,14 @@ JITInstructionProto(CoprocRegisterTransfer)
 //  * Translate a native code injection
 // -------------------------------------------------------------------------- //
 KUInt32
-Translate_Injection(
+Translate_PatchNativeCall(
 					JITPageClass* inPage,
 					KUInt16* ioUnitCrsr,
 					KUInt32 inInstruction,
 					KUInt32 inVAddr )
 {
-	KUInt32 ix = inInstruction & 0x001fffff;
-	PUSHFUNC(CallHostInjection);
-	PUSHVALUE(ix);
-	return TJITGenericPatchManager::GetPatchAt(ix)->GetOriginalInstruction();
-}
-
-
-// -------------------------------------------------------------------------- //
-//  * Translate a simulator native code injection
-// -------------------------------------------------------------------------- //
-KUInt32
-Translate_SimulatorInjection(
-					JITPageClass* inPage,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr )
-{
-	KUInt32 ix = inInstruction & 0x001fffff;
-	PUSHFUNC(CallHostSimulatorInjection);
+	KUInt32 ix = TJITGenericPatchObject::GetIndex(inInstruction);
+	PUSHFUNC(CallPatchNative);
 	PUSHVALUE(ix);
 	return TJITGenericPatchManager::GetPatchAt(ix)->GetOriginalInstruction();
 }
@@ -277,10 +193,10 @@ Translate_SWIAndCoproc(
 	{
 		if (inInstruction & 0x01000000)
 		{
-			if ((inInstruction & 0x00C00000)==0x00800000) {
+			if (TJITGenericPatchObject::IsNativeCall(inInstruction)) {
 				// quick host native call
-				PUSHFUNC(CallHostNative);
-				PUSHVALUE(inInstruction & 0x003fffff);
+				PUSHFUNC(CallPatchNative);
+				PUSHVALUE(TJITGenericPatchObject::GetIndex(inInstruction));
 				return; // do not push the current PC
 			} else {
 				// SWI.
