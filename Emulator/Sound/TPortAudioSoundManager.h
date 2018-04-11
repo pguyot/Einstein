@@ -28,6 +28,7 @@
 
 // PortAudio
 #include <portaudio.h>
+// #include <pa_linux_alsa.h>
 
 // Einstein
 #include "TBufferedSoundManager.h"
@@ -43,7 +44,7 @@ class TMutex;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 147 $
 ///
-/// \test	aucun test dŽfini.
+/// \test	aucun test dï¿½fini.
 ///
 class TPortAudioSoundManager
 	:
@@ -66,7 +67,7 @@ public:
 	/// Schedule output of some buffer.
 	///
 	virtual void	ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize );
-	
+
 	///
 	/// Start output.
 	///
@@ -101,7 +102,7 @@ private:
 											timeInfo,
 											statusFlags );
 		};
-	
+
 	///
 	/// Callback routine.
 	///

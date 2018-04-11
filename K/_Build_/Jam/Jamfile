@@ -1,10 +1,10 @@
 # ==============================
-# Fichier:			Jamfile
-# Projet:			K
-# 
-# Créé le:			5/6/2003
+# File:			Jamfile
+# Project:			K
+#
+# Created on:			5/6/2003
 # Tabulation:		4 espaces
-# 
+#
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1
 #
@@ -26,6 +26,7 @@
 #
 # Contributor(s):
 #   Paul Guyot <pguyot@kallisys.net> (original author)
+#   Victor Rehorst <victor@chuma.org> (Linux, cleanups)
 #
 # ***** END LICENSE BLOCK *****
 # ===========
@@ -152,13 +153,13 @@ if $(compiler) = "unknown"
 	compiler = "gcc" ;
 }
 
-# ——————————————————————————————————————————————————————————————————————————— #
+# ##########################################################################
 
 # Dependencies
 
 EXPAT_BASE = $(EXPAT:E="/opt/local/") ;
 
-# Source (bibliothèque)
+# Source (library)
 
 KLIBS_BASE = "../../../" ;
 
@@ -249,7 +250,7 @@ C_SOURCES = $(COMMON_C_SOURCES) ;
 
 OBJC_SOURCES = $(COMMON_OBJC_SOURCES) ;
 
-# ——————————————————————————————————————————————————————————————————————————— #
+# ##########################################################################
 
 # Source (tests)
 TESTS_BASE			= "$(KLIBS_BASE)_Tests_/" ;
@@ -269,13 +270,12 @@ TESTS_SOURCES		+= "$(TESTS_BASE)tests.cp" ;
 #TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UUInt64Test.cp" ;
 #TESTS_SOURCES		+= "$(TESTS_BASE)Tests/UUTF16Test.cp" ;
 
-# ——————————————————————————————————————————————————————————————————————————— #
-
-# Définitions, inclusions additionelles et paramètres supplémentaires.
+#
+# Definitions, additional includes, and supplementary parameters.
 
 if $(OS) = "MACOSX"
 {
-	# Spécificités OS X
+	# OS X target
 	# use g++ 4.0 for both compiling and linking
 	if $(compiler) = "gcc"
 	{
@@ -287,7 +287,7 @@ if $(OS) = "MACOSX"
 	_frameworks += "-F/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks" ;
 	_frameworks += "-F/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks" ;
 	_frameworks += "-F/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks" ;
-	
+
 	local _link_frameworks ;
 	_link_frameworks += -framework CoreServices ;
 	_link_frameworks += -framework IOKit ;
@@ -295,7 +295,7 @@ if $(OS) = "MACOSX"
 	_link_frameworks += -framework Cocoa ;
 	_link_frameworks += -framework Carbon ;
 
-	# Drapeaux pour gcc/g++
+	# Flags for gcc/g++
 	local _commonflags ;
 	_commonflags += -DTARGET_OS_OPENSTEP=1 ;
 	_commonflags += $(_frameworks) ;
@@ -326,14 +326,14 @@ if $(OS) = "MACOSX"
 
 		# Define CPU
 		_commonflags += -DTARGET_CPU_PPC=1 ;
-		
+
 		# Define architecture.
 		_commonflags += -DTARGET_RT_MAC_MACHO ;
 
 		# Define Endianness
 		_commonflags += -DTARGET_RT_BIG_ENDIAN=1 ;
 		_commonflags += -DTARGET_RT_LITTLE_ENDIAN=0 ;
-		
+
 		_commonflags += -qnopic ;
 	}
 
@@ -371,7 +371,7 @@ if $(OS) = "MACOSX"
 	OBJC++FLAGS += $(_commonflags) ;
 	LINKFLAGS += $(_frameworks) $(_link_frameworks) $(_linkflags) ;
 
-	# Fichiers source spécifiques à OS X
+	# Source file specifications for OS X
 	CPP_SOURCES += $(MACOS_CPP_SOURCES) ;
 	CPP_SOURCES += $(MACOSX_CPP_SOURCES) ;
 	CPP_SOURCES += $(POSIX_CPP_SOURCES) ;
@@ -383,12 +383,12 @@ if $(OS) = "MACOSX"
 
 } else if $(OS) = "LINUX" {
 
-	# Spécificité Linux
+	# Linux target
 
-	# Drapeaux pour gcc/g++
+	# Flags for gcc/g++
 	local _commonflags ;
-	_commonflags += -I$(EXPAT_BASE)/include ;
-	_commonflags += -I/usr/include/i686-linux-gnu/ ;
+#	_commonflags += -I$(EXPAT_BASE)/include ;
+#	_commonflags += -I/usr/include/i686-linux-gnu/ ;
 	_commonflags += -DTARGET_OS_LINUX=1 ;
 	_commonflags += -Wall ;
 	_commonflags += -Wno-multichar ;
@@ -399,11 +399,11 @@ if $(OS) = "MACOSX"
 	_commonflags += -Wpointer-arith ;
 	_commonflags += -Wwrite-strings ;
 	_commonflags += -Wconversion ;
+    _commonflags += -DHAS_C99_LONGLONG=1 ;
 
-        if $(target:E="unknown") = "raspberry-pi" || $(OS) = "LINUX"
-        {
+	if $(target:E="unknown") = "raspberry-pi"
+	{
 		_commonflags += -DRASPBERRY_PI=1 ;
-		_commonflags += -DHAS_C99_LONGLONG=1 ;
 	}
 
 	if $(target:E="unknown") != "raspberry-pi"
@@ -416,7 +416,7 @@ if $(OS) = "MACOSX"
 		if $(debug:E=no) = "yes"
 		{
 			_commonflags += -g ;
-		}		
+		}
 		if $(optimize:E=no) = "yes"
 		{
 			_commonflags += -O3 ;
@@ -425,7 +425,11 @@ if $(OS) = "MACOSX"
 
 	local _linkflags ;
 	_linkflags += -lstdc++ -lm -lpthread ;
-	_linkflags += -L/usr/X11R6/lib/ -L/usr/lib/i386-linux-gnu/ -L$(EXPAT_BASE)/lib ;
+	_linkflags += -L/usr/X11R6/lib/ -L/usr/lib/ -L$(EXPAT_BASE) ;
+    if $(target:E="unknown") != "raspberry-pi"
+    {
+        _linkflags += -m32 ;
+    }
 
 	CCFLAGS += $(_commonflags) ;
 	CCFLAGS += -Wmissing-declarations ;
@@ -440,9 +444,9 @@ if $(OS) = "MACOSX"
 
 } else if $(OS) = "ARM-LINUX" {
 
-	# Specificite Linux
+	# ARM-Linux target
 
-	# Drapeaux pour gcc/g++
+	# Flags for gcc/g++
 	local _commonflags ;
 	_commonflags += -I$(EXPAT_BASE)/include ;
 	_commonflags += -DTARGET_OS_LINUX=1 ;
@@ -462,7 +466,7 @@ if $(OS) = "MACOSX"
 		if $(compiler) = "gcc"
 		{
 			_commonflags += -g ;
-		}		
+		}
 	}
 	if $(optimize:E=no) = "yes"
 	{
@@ -489,9 +493,9 @@ if $(OS) = "MACOSX"
 
 } else if ( $(OS) = "NETBSD" ) || ( $(OS) = "FREEBSD" ) {
 
-	# Spécificité *BSD
+	# *BSD target
 
-	# Drapeaux pour gcc/g++
+	# Flags for gcc/g++
 	local _commonflags ;
 	_commonflags += -DTARGET_OS_BSD=1 ;
 	_commonflags += -Wall ;
@@ -520,7 +524,7 @@ if $(OS) = "MACOSX"
 	# Cygwin rules
 	LINK = g++ ;
 
-	# Drapeaux pour gcc/g++
+	# Flags for gcc/g++
 	local _commonflags ;
 	_commonflags += -I$(EXPAT_BASE)/include ;
 	_commonflags += -DTARGET_OS_CYGWIN=1 ;
@@ -540,7 +544,7 @@ if $(OS) = "MACOSX"
 		if $(debug:E=no) = "yes"
 		{
 			_commonflags += -g ;
-		}		
+		}
 		if $(optimize:E=no) = "yes"
 		{
 			_commonflags += -O3 ;
@@ -568,13 +572,13 @@ if $(OS) = "MACOSX"
 
 }
 
-# ——————————————————————————————————————————————————————————————————————————— #
+# ##########################################################################
 
 # Configuration pour jam.
 # On garde les .o
 KEEPOBJS = 1 ;
 
-# Répertoire pour les binaires et les objets.
+# Repository for binaries and objects
 LOCATE_TARGET = "build.$(OS)$(SUBTARGET:E=)" ;
 
 # Compilateur ObjC++
@@ -582,14 +586,14 @@ OBJC++ = $(C++) ;
 
 SOURCES = $(CPP_SOURCES) $(C_SOURCES) $(OBJC_SOURCES) ;
 
-# ——————————————————————————————————————————————————————————————————————————— #
+# ##########################################################################
 
-# ==== Correction des règles de Jam pour s'adapter aux conventions K ====
+# ==== Correcting Jam's regular rules to adapt to K's conventions ====
 
-# L'idée est: (a) de gérer les espaces dans les noms et (b) de rajouter un suffixe
+# L'idÔøΩe est: (a) de gÔøΩrer les espaces dans les noms et (b) de rajouter un suffixe
 # au lieu de juste le remplacer.
 
-# Correction de la règle Library.
+# Correcting the Library rule.
 rule Library
 {
 	local _source ;
@@ -599,12 +603,12 @@ rule Library
 	{
 		_objects += $(_source:B)$(_source:S)$(SUFOBJ) ;
 	}
-	
+
 	LibraryFromObjects $(<) : $(_objects) ;
 	Objects $(>) ;
 }
 
-# Idem pour la règle Main.
+# Idem pour la rÔøΩgle Main.
 rule Main
 {
 	MainFromObjects $(<) : [ FGristObjectFiles $(>) ] ;
@@ -642,8 +646,8 @@ rule ObjectHdrs
 	CCHDRS on $(s) = [ on $(s) FIncludes $(HDRS) ] ;
 }
 
-# Correction de la règle Objects pour ajouter un suffixe (au lieu d'en remplacer un)
-# et pour gérer un chemin relatif (qui descend)
+# Correction de la rÔøΩgle Objects pour ajouter un suffixe (au lieu d'en remplacer un)
+# et pour gÔøΩrer un chemin relatif (qui descend)
 rule Objects
 {
 	local _source ;
@@ -657,13 +661,13 @@ rule Objects
 	}
 }
 
-# Guillements pour la règle FIncludes
+# Guillements pour la rÔøΩgle FIncludes
 if $(UNIX)
 {
 	rule FIncludes { return -I\"$(<)\" ; }
 }
 
-# Récupère les fichiers objets.
+# RÔøΩcupÔøΩre les fichiers objets.
 rule FGristObjectFiles
 {
 	local _source ;
@@ -677,7 +681,7 @@ rule FGristObjectFiles
 	return $(_objects) ;
 }
 
-# Définition de la règle pour .cp et pour .mm
+# DÔøΩfinition de la rÔøΩgle pour .cp et pour .mm
 rule UserObject
 {
 	switch $(>:S)
@@ -688,13 +692,13 @@ rule UserObject
 	}
 }
 
-# Correction de la règle C++ (ajout de guillemets)
+# Correction de la rÔøΩgle C++ (ajout de guillemets)
 actions C++
 {
 	$(C++) -c -o "$(<)" $(C++FLAGS) $(CCDEFS) $(CCHDRS) "$(>)"
 }
 
-# Nouvelle règle pour ObjC++.
+# Nouvelle rÔøΩgle pour ObjC++.
 rule ObjC++
 {
 	Depends $(<) : $(>) ;
@@ -702,7 +706,7 @@ rule ObjC++
 
 	if $(RELOCATE)
 	{
-	    CcMv $(<) : $(>) ;
+		CcMv $(<) : $(>) ;
 	}
 
 	OBJC++FLAGS on $(<) += $(OBJC++FLAGS) $(SUBDIROBJC++FLAGS) $(OPTIM) ;
@@ -716,13 +720,13 @@ actions ObjC++
 	$(OBJC++) -c -o "$(<)" $(OBJC++FLAGS) $(CCDEFS) $(CCHDRS) "$(>)"
 }
 
-# ——————————————————————————————————————————————————————————————————————————— #
+# ##########################################################################
 
-# ==== Construction de la bibliothèque ====
+# ==== Building the Library ====
 
 Library libk : $(SOURCES) ;
 
-# ==== Construction des tests ====
+# ==== Building the tests ====
 
 LinkLibraries KLibsTests : libk ;
 Main KLibsTests : $(TESTS_SOURCES) ;
