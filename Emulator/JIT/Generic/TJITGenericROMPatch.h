@@ -157,6 +157,28 @@ public:
 
 
 /**
+ \brief Find and replace word in an area of the ROM.
+ */
+class TJITGenericPatchFindAndReplace : public TJITGenericPatch
+{
+private:
+	KUInt32 mStart;
+	KUInt32 mEnd;
+	KUInt32 *mKey;
+	KUInt32 *mReplacement;
+
+public:
+	/// Create and add a new patch
+	TJITGenericPatchFindAndReplace(KUInt32 startAddress, KUInt32 endAddress,
+								   KUInt32 *key, KUInt32 *replacement,
+								   const char *name=0L);
+
+	/// Patch the ROM
+	virtual void Apply(KUInt32 *ROM);
+};
+
+
+/**
  \brief This patch type is used to call a JIT stub \b instead of an instruction.
 
  Use the patch type to replace the ARM instruction at the give address in ROM

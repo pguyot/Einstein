@@ -84,6 +84,20 @@ TJITGenericPatch gNewtConfigPatch(0x000013fc,
 								  | 0x00008000 /*kEnableStdout*/,
 								  "gNewtConfig patch");
 
+#if TARGET_OS_MAC
+/*
+ * This is a hack that removes a reference from the 'extr' serial port driver
+ * from the REx. This is required to make low level comm emulation possible.
+ * Removing this patch is not harmful beyond disabling comm emulation.
+ * Keeping the patch should not be harmful either.
+ *
+ * Find the pattern 'extr\0\0\0\0' in the first 1MB of the REx.
+ */
+TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00900000,
+												 (KUInt32[]){2, 'extr', 0},
+												 (KUInt32[]){1, '~xtr'},
+												 "Enable 'extr' serial port.\n");
+#endif
 
 // ========================================================================== //
 // MARK: -
@@ -153,23 +167,6 @@ void TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, const std::string& i
 		}
 		fprintf(stderr, "%u patches applied\n", GetNumPatches());
 	}
-#if TARGET_OS_MAC
-	// FIXME: create a patch class that allows for serach and replace patches
-	// Matt: this is an ugly hack that removes a reference from the 'extr'
-	//		serial port driver from the REx. This is required to make low level
-	//		comm emulation possible. Removing this patch is not harmful beyond
-	//		disabling comm emulation. Keeping the patch should not be harmful
-	//		either.
-	KUInt32 *ROM = inROMPtr;
-	// Find the pattern 'extr\0\0\0\0' in the first 1MB of the REx.
-	for (KUInt32 addr = 0x00800634/4; addr<0x00900000/4; ++addr) {
-		if (ROM[addr]=='extr' && ROM[addr+1]==0) {
-			ROM[addr]='~xtr'; // just change this into an unlikely FourCC
-			fprintf(stderr, "Removing 'extr' serial port driver from REx.\n");
-			break;
-		}
-	}
-#endif
 }
 
 
@@ -246,6 +243,68 @@ void TJITGenericPatch::Apply(KUInt32 *ROM)
 {
 	SetOrigialInstruction(ROM[GetOffsetInROM()]);
 	ROM[GetOffsetInROM()] = GetNewInstruction();
+}
+
+
+// ========================================================================== //
+// MARK: -
+// TJITGenericPatchFindAndReplace
+
+
+/**
+ \brief Find and replace word in an area of the ROM.
+
+ Find a sequence of words in ROM and replace them with a new sequence.
+
+ \param startAddress start searching here
+ \param endAddress stop searching before reaching this address
+ \param key an array of `KUInt32`, where the first entry is the size of the
+ remaining array. This is what we are looking for.
+ \param replacement an array of `KUInt32`, where the first entry is the size
+ of the remaining array. This is the replacement data.
+ \param name an optional name for this patch
+ */
+TJITGenericPatchFindAndReplace::TJITGenericPatchFindAndReplace(
+								KUInt32 startAddress, KUInt32 endAddress,
+								KUInt32 *key, KUInt32 *replacement,
+								const char *name)
+: 	TJITGenericPatch(startAddress, 0, name),
+	mStart(startAddress),
+	mEnd(endAddress),
+	mKey(key),
+	mReplacement(replacement)
+{
+}
+
+
+/**
+ Patch the ROM
+ */
+void TJITGenericPatchFindAndReplace::Apply(KUInt32 *ROM)
+{
+	KUInt32 keyLen = mKey[0];
+	KUInt32 rplLen = mReplacement[0];
+	KUInt32 len = keyLen>rplLen ? keyLen : rplLen;
+	KUInt32 start = mStart/4, end = (mEnd - len)/4;
+	KUInt32 addr;
+
+	for (addr = start; addr<end; ++addr) {
+		KUInt32 i;
+		for (i=0; i<keyLen; ++i) {
+			if (ROM[addr+i] != mKey[i+1])
+				break;
+		}
+		if (i==keyLen) {
+			for (KUInt32 j=0; j<rplLen; ++j) {
+				ROM[addr+j] = mReplacement[j+1];
+			}
+			break;
+		}
+	}
+	if (addr==end && GetName()) {
+		fprintf(stderr, "WARNING in %s %d: Pattern not found, patch \"%s\" not applied.\n",
+			__FILE__, __LINE__, GetName());
+	}
 }
 
 
