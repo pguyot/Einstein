@@ -685,7 +685,7 @@ TCLIApp::Help( void )
 				"%s [options] [data_path] (or set the environment variable EINSTEIN_HOME)\n",
 				mProgramName );
 	(void) ::printf(
-				"  -a | --audio=audiodriver        (null, portaudio, coreaudio, ao)\n" );
+				"  -a | --audio=audiodriver        (null, portaudio, coreaudio, pulseaudio)\n" );
 	(void) ::printf(
 				"  -s | --screen=screen driver     (x11)\n" );
 	(void) ::printf(
