@@ -260,6 +260,7 @@ TPulseAudioSoundManager::StartOutput( void )
 #ifdef DEBUG_SOUND
     printf("           Triggering!\n");
 #endif
+    mPAOperationDescr = "TRIGGER";
     mPAOperation = pa_stream_trigger(mOutputStream, &SPAStreamOpCB, this);
 
     pa_threaded_mainloop_unlock(mPAMainLoop);
