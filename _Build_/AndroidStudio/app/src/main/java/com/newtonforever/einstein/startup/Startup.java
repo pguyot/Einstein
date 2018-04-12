@@ -2,32 +2,30 @@
 
 package com.newtonforever.einstein.startup;
 
-import java.io.File;
-
-import android.app.Activity;
-import android.content.res.AssetManager;
+import android.content.Context;
 import android.content.res.Resources;
 
 import com.newtonforever.einstein.R;
-
 import com.newtonforever.einstein.startup.IStartup.LoadResult;
 import com.newtonforever.einstein.utils.StringUtils;
 import com.newtonforever.einstein.utils.debug.DebugUtils;
 import com.newtonforever.einstein.utils.screen.ScreenDimensionsInitializer;
 
+import java.io.File;
+
 public class Startup {
 
-	private final Activity activity;
+	private final Context context;
 
-	public Startup(final Activity activity) {
+	public Startup(final Context context) {
 		super();
-		this.activity = activity;
-		ScreenDimensionsInitializer.initScreenDimensions(activity);
+		this.context = context;
+		ScreenDimensionsInitializer.initScreenDimensions(context);
 	}
 
 	/** Checks if we have a ROM file, a REX file and an application icon in the folder where we expect them. */
-	public final LoadResult installAssets(final AssetManager assetManager) {
-		final Resources resources = this.activity.getResources();
+	public final LoadResult installAssets() {
+		final Resources resources = context.getResources();
 		final File dataDir = new File(StartupConstants.DATA_FILE_PATH);
 		dataDir.mkdirs();
 		final String line2 = StringUtils.getLocalizedString(resources, R.string.Startup_expectedPath);
@@ -36,7 +34,7 @@ public class Startup {
 			DebugUtils.appendLog("Startup.installAssets: ROM file not found");
 			final String line1 = StringUtils.getLocalizedString(resources, R.string.Startup_romFileMissing);
 			final String message = line1 + "\n" + line2;
-			DebugUtils.showInfoDialog(activity, message);
+			DebugUtils.showInfoDialog(context, message);
 			return LoadResult.ROM_FILE_MISSING;
 		}
 		// Make sure we have a REX file
@@ -44,7 +42,7 @@ public class Startup {
 			DebugUtils.appendLog("Startup.installAssets: REX file not found");
 			final String line1 = StringUtils.getLocalizedString(resources, R.string.Startup_rexFileMissing);
 			final String message = line1 + "\n" + line2;
-			DebugUtils.showInfoDialog(activity, message);
+			DebugUtils.showInfoDialog(context, message);
 			return LoadResult.REX_FILE_MISSING;
 		}
 		return LoadResult.OK;
