@@ -69,7 +69,7 @@
 // -------------------------------------------------------------------------- //
 - (void)setupRAMSizeWidgets
 {
-	int theRAMSize = [[mUserDefaultsController defaults] integerForKey: kRAMSizeKey];
+	int theRAMSize = (int)[[mUserDefaultsController defaults] integerForKey: kRAMSizeKey];
 	[mRAMSizeSlider setIntValue: theRAMSize];
 	[self updateRAMSizeTextField: theRAMSize];
 }
