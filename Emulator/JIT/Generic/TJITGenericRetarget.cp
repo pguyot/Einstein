@@ -305,9 +305,9 @@ void TJITGenericRetarget::Translate(KUInt32 inVAddr, KUInt32 inInstruction)
 #ifndef EINSTEIN_RETARGET
 	// Make sure that injections are handled in a transparent manner
 	if ((inInstruction & 0xffe00000)==0xefc00000) {
-		inInstruction = TJITGenericROMPatch::GetOriginalInstructionAt(inInstruction);
+		inInstruction = TJITGenericPatchManager::GetPatchAt(inInstruction & 0x001fffff)->GetOriginalInstruction();
 	} else if ((inInstruction & 0xffe00000)==0xefa00000) {
-		inInstruction = TJITGenericROMPatch::GetOriginalInstructionAt(inInstruction);
+		inInstruction = TJITGenericPatchManager::GetPatchAt(inInstruction & 0x001fffff)->GetOriginalInstruction();
 	}
 #endif
 	

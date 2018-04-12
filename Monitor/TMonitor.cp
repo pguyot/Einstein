@@ -622,7 +622,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 						KUInt32 addr = pg*4096+i*4;
 						mMemory->Read(addr, v);
 						if ( ((v & 0xff000000)==0xef000000) && ((v & 0x00e00000)!=0) ) {
-							v = TJITGenericROMPatch::GetOriginalInstructionAt(v, addr);
+							v = TJITGenericPatchManager::GetPatchAt(v & 0x001fffff)->GetOriginalInstruction();
 						}
 						if (i>0 && (i&7)==0) fprintf(f, "\n  ");
 						fprintf(f, "0x%08X, ", (unsigned int)v);
@@ -1823,10 +1823,12 @@ TMonitor::PrintInstruction( KUInt32 inAddress )
 	if (theOffset == 0)
 	{
 		(void) ::sprintf(
-			theLine,
-			"%s\t; %s",
-			theSymbol,
-			theComment );
+				theLine,
+				"%s\t%c %s",
+				theSymbol,
+				(theComment[0] == '\0') ? ' ' : ';',
+				theComment );
+		
 		PrintLine( theLine, MONITOR_LOG_INFO );
 	}
 

@@ -398,7 +398,6 @@ TVoyagerManagedSerialPort::~TVoyagerManagedSerialPort()
 //		"/Users/{username}/Library/Application Support/Einstein Emulator/ExtrSerPortRecv";
 // TODO: currently we care about the 'extr' port, but we may want to provide
 //		pipes for a virtual modem
-// TODO: does someone know the non-deprecated way in C++?
 // -------------------------------------------------------------------------- //
 void
 TVoyagerManagedSerialPort::FindPipeNames()
@@ -807,7 +806,7 @@ TVoyagerManagedSerialPort::RunDMA()
 	}
 	tcflush(mRxPort, TCIOFLUSH);
 #else // use two named pipes
-	// FIXME: the pipe names must be generated at run tim, based on the actual
+	// FIXME: the pipe names must be generated at run time, based on the actual
 	//		location of the "Application Support" directory
 	// FIXME: the pipe nodes must be created programmatically if they do not
 	//		exist yet
@@ -854,7 +853,7 @@ TVoyagerManagedSerialPort::RunDMA()
 //  * HandleDMA()
 //		This endless loop watches DMA registers as they are changed by the
 //		OS, and read and writes data via the outside communication ports.
-//		It can also trigger interrupts when buffers empty, filll, or overflow.
+//		It can also trigger interrupts when buffers empty, fill, or overflow.
 // -------------------------------------------------------------------------- //
 void
 TVoyagerManagedSerialPort::HandleDMA()
@@ -917,8 +916,8 @@ TVoyagerManagedSerialPort::HandleDMA()
 		// FIXME: This routine is currently a mess. it needs to be rewritten
 		// and retested. Note though that the original Newton hardware and OS
 		// did have timing issues whan the server PC communicated faster as
-		// expected in 1996, which lead to CPU cycle buring software like
-		// "slowdown.exe".
+		// expected in the year 1996, which lead to CPU cycle burning software
+		// like "slowdown.exe".
 
 		if (FD_ISSET(mRxPort, &readSet)) {
 			// read bytes that come in through the serial port
@@ -936,7 +935,7 @@ TVoyagerManagedSerialPort::HandleDMA()
 					break;
 			}
 			if (n==-1) {
-				printf("***** Error reading from serial port %s - %s (%d).\n", "/dev/ttyp8", strerror(errno), errno);
+				printf("***** Error reading from serial port %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
 			} else if (n==0) {
 				printf("***** No data yet\n");
 			} else {
@@ -1006,19 +1005,6 @@ TVoyagerManagedSerialPort::HandleDMA()
 //		TJITGenericROMPatch::DoPatchROM(...)
 // -------------------------------------------------------------------------- //
 // TJITGenericROMPatch p00800634(0x00800634, 'Matt', "No Ser Port");
-
-
-// -------------------------------------------------------------------------- //
-// SCPCheck__8TCMWorldFUl:	@ 0x0006C48C: TCMWorld::SCPCheck(unsigned long)
-// This method gets stuck when using the current very incomplete serial port
-// emulation.. With the improved emulation developed over the last days, this
-// patch is no longer required.
-// -------------------------------------------------------------------------- //
-//T_ROM_PATCH(0x0006C48C, "SCPCheck__8TCMWorldFUl") {
-//	ioCPU->SetRegister(0, -18000);
-//	SETPC(0x001D73D0+4); // return
-//	MMUCALLNEXT_AFTERSETPC;
-//}
 
 
 // -------------------------------------------------------------------------- //

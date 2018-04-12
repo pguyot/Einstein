@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 // Einstein
 #include "Emulator/ROM/TROMImage.h"

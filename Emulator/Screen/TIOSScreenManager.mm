@@ -56,6 +56,7 @@ TIOSScreenManager::TIOSScreenManager(
 	// Create the image.
 	size_t theBufferSize = inPortraitWidth * inPortraitHeight * sizeof(KUInt32);
 	mImageBuffer = (KUInt32*) ::malloc( theBufferSize );
+	bzero(mImageBuffer, theBufferSize);
 	
 	// Create the direct access data provider.
 	mDataProviderRef = CGDataProviderCreateWithData(

@@ -29,6 +29,7 @@
 #include "Monitor/TSymbolList.h"
 
 #include <stdarg.h>
+#include <unistd.h>
 
 
 #ifdef JIT_PERFORMANCE

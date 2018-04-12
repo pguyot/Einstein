@@ -388,6 +388,21 @@ public:
 	KUInt32		mSPSRirq;					///< Saved PSR for irq mode
 	KUInt32		mSPSRfiq;					///< Saved PSR for fiq mode
 
+	///
+	/// return true if the IRQ interrupt is enabled
+	///
+	bool IsIRQEnabled();
+
+	///
+	/// return true if the FIQ interrupt is enabled
+	///
+	bool IsFIQEnabled();
+
+	///
+	/// return true if any of the interrupts is enabled
+	///
+	bool IsAnyInterruptEnabled();
+
 private:
 	/// \name Variables
 	EMode		mMode;						///< Current mode.

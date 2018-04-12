@@ -27,6 +27,7 @@
 #include "UDisasm.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #if RASPBERRY_PI || TARGET_OS_LINUX
 #include <string.h>
@@ -160,16 +161,18 @@ TSymbolList::LoadSymbols( void )
 		char prevSym[512];
 		prevSym[0] = '\0';
 		
-//		if ( this->GetSymbolByAddress(mSymbolOffsets[mSymbolCount].fAddress, prevSym) )
-//		{
-//			::fprintf(stderr, "Warning: redefining symbol at %08X (was: %s)\n", mSymbolOffsets[mSymbolCount].fAddress, prevSym);
-//		}
-	
 		int theChar = fgetc( mFile );
 		if ( theChar == '\t' || theChar == ' ' )
 		{
 			char sym[512], cmt[512];
 			ReadSymbolData( mFile, sym, cmt);
+
+			if ( this->GetSymbolByAddress(mSymbolOffsets[mSymbolCount].fAddress, prevSym) )
+			{
+#if 0
+				::fprintf(stderr, "Warning: redefining symbol at %08X (was: %s, now: %s)\n", mSymbolOffsets[mSymbolCount].fAddress, prevSym, sym);
+#endif
+			}
 
 			if ( sym[0] )
 			{
