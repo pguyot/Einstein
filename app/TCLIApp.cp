@@ -41,7 +41,12 @@
 #if TARGET_OS_OPENSTEP
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
 #endif
+#if AUDIO_PORTAUDIO
 #include "Emulator/Sound/TPortAudioSoundManager.h"
+#endif
+#if AUDIO_PULSEAUDIO
+#include "Emulator/Sound/TPulseAudioSoundManager.h"
+#endif
 #include "Emulator/Sound/TNullSoundManager.h"
 #ifndef NOX11
 #include "Emulator/Screen/TX11ScreenManager.h"
@@ -127,7 +132,7 @@ void
 TCLIApp::Run( int argc, char* argv[] )
 {
 	mProgramName = argv[0];
-	
+
 	const char* defaultMachineString = "717006";
 	const char* theMachineString = nil;
 	const char* theRestoreFile = nil;
@@ -147,8 +152,8 @@ TCLIApp::Run( int argc, char* argv[] )
 		SyntaxError();
 	}
 	if (theDataPath == NULL) theDataPath = argv[argc - 1];
-	
-	
+
+
 	while (indexArgs < argc)
 	{
 		// TODO: add code for network manager
@@ -164,14 +169,14 @@ TCLIApp::Run( int argc, char* argv[] )
 			{
 				SyntaxError( argv[indexArgs-1] );
 			}
-			
+
 			theSoundManagerClass = argv[indexArgs];
 		} else if (::strncmp(argv[indexArgs], "--audio=", 8) == 0) {
 			if (mSoundManager != nil)
 			{
 				SyntaxError( argv[indexArgs] );
 			}
-			
+
 			theSoundManagerClass = &argv[indexArgs][8];
 		} else if (::strcmp(argv[indexArgs], "-s") == 0) {
 			indexArgs++;
@@ -179,14 +184,14 @@ TCLIApp::Run( int argc, char* argv[] )
 			{
 				SyntaxError( argv[indexArgs-1] );
 			}
-			
+
 			theScreenManagerClass = argv[indexArgs];
 		} else if (::strncmp(argv[indexArgs], "--screen=", 9) == 0) {
 			if (mScreenManager != nil)
 			{
 				SyntaxError( argv[indexArgs] );
 			}
-			
+
 			theScreenManagerClass = &argv[indexArgs][9];
 		} else if (::strcmp(argv[indexArgs], "-l") == 0) {
 			indexArgs++;
@@ -194,14 +199,14 @@ TCLIApp::Run( int argc, char* argv[] )
 			{
 				SyntaxError( argv[indexArgs-1] );
 			}
-			
+
 			CreateLog( argv[indexArgs] );
 		} else if (::strncmp(argv[indexArgs], "--log=", 6) == 0) {
 			if (mLog != nil)
 			{
 				SyntaxError( argv[indexArgs] );
 			}
-			
+
 			CreateLog( &argv[indexArgs][6] );
 		} else if (::strcmp(argv[indexArgs], "--monitor") == 0) {
 			if (mLog)
@@ -217,14 +222,14 @@ TCLIApp::Run( int argc, char* argv[] )
 			{
 				SyntaxError( argv[indexArgs-1] );
 			}
-			
+
 			theRestoreFile = argv[indexArgs];
 		} else if (::strncmp(argv[indexArgs], "--restore=", 10) == 0) {
 			if (theRestoreFile != nil)
 			{
 				SyntaxError( argv[indexArgs] );
 			}
-			
+
 			theRestoreFile = &argv[indexArgs][10];
 		} else if (::strcmp(argv[indexArgs], "-m") == 0) {
 			indexArgs++;
@@ -232,14 +237,14 @@ TCLIApp::Run( int argc, char* argv[] )
 			{
 				SyntaxError( argv[indexArgs-1] );
 			}
-			
+
 			theMachineString = argv[indexArgs];
 		} else if (::strncmp(argv[indexArgs], "--machine=", 10) == 0) {
 			if (theMachineString != nil)
 			{
 				SyntaxError( argv[indexArgs] );
 			}
-			
+
 			theMachineString = &argv[indexArgs][10];
 		} else if (::sscanf(argv[indexArgs], "--width=%i", &portraitWidth) == 1) {
 			if (portraitWidth < (int) TScreenManager::kDefaultPortraitWidth)
@@ -279,16 +284,16 @@ TCLIApp::Run( int argc, char* argv[] )
 					|| (::strcmp(argv[indexArgs], "-v") == 0)) {
 			Version();
 		}
-		
+
 		indexArgs++;
 	}
-	
+
 	if (faceless && useMonitor)
 	{
 		(void) ::printf( "--monitor and --faceless are exclusive.\n" );
 		::exit(0);
 	}
-	
+
 	if (portraitHeight < portraitWidth)
 	{
 		(void) ::fprintf(
@@ -325,7 +330,7 @@ TCLIApp::Run( int argc, char* argv[] )
 	char theFlashPath[512];
 	(void) ::snprintf( theREX1Path, 512, "%s/Einstein.rex", theDataPath );
 	(void) ::snprintf( theFlashPath, 512, "%s/flash", theDataPath );
-	
+
 	if (useAIFROMFile)
 	{
 		char theREX0Path[512];
@@ -343,7 +348,7 @@ TCLIApp::Run( int argc, char* argv[] )
 				mLog, mROMImage, theFlashPath,
 				mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
 	mPlatformManager = mEmulator->GetPlatformManager();
-	
+
 	if (useMonitor)
 	{
 		char theSymbolListPath[512];
@@ -354,7 +359,7 @@ TCLIApp::Run( int argc, char* argv[] )
 	} else {
 		(void) ::printf( "Booting...\n" );
 	}
-	
+
 	pthread_t theThread;
 	int theErr = ::pthread_create( &theThread, NULL, SThreadEntry, this );
 	if (theErr)
@@ -362,12 +367,12 @@ TCLIApp::Run( int argc, char* argv[] )
 		(void) ::fprintf( stderr, "Error with pthread_create (%i)\n", theErr );
 		::exit(2);
 	}
-	
+
 	if (!faceless)
 	{
 		MenuLoop();
 	}
-	
+
 	// Wait for the thread to finish.
 	(void) ::pthread_join( theThread, NULL );
 }
@@ -395,7 +400,7 @@ void
 TCLIApp::MenuLoop( void )
 {
 	PrintLine( "Type help for help on available commands." );
-	
+
 	mQuit = false;
 
 	if (mMonitor)
@@ -423,10 +428,10 @@ TCLIApp::MonitorMenuLoop( void )
 	// Only one byte.
 	theNewOptions.c_cc[VMIN] = 1;
 	(void) ::tcsetattr( STDIN_FILENO, TCSANOW, &theNewOptions );
-	
+
 	int monitor_fd = mMonitor->GetMonitorSocket();
 	int max_fd = monitor_fd;
-	
+
 	char theCommand[2048];
 	KUInt32 theIndex = 0;
 	while( !mQuit )
@@ -452,13 +457,13 @@ TCLIApp::MonitorMenuLoop( void )
 			{
 				// Read one byte.
 				ssize_t amount = ::read( STDIN_FILENO, &theCommand[theIndex], 1);
-				
+
 				if (amount < 1)
 				{
 					// File was closed.
 					break;
 				}
-				
+
 				// Seek a return.
 				if ((theIndex == 2047) || (theCommand[theIndex] == '\n'))
 				{
@@ -487,7 +492,7 @@ TCLIApp::MonitorMenuLoop( void )
 					}
 				}
 			}
-			
+
 			if (FD_ISSET( monitor_fd, &theSocketSet))
 			{
 				// Read one (garbage) byte.
@@ -538,13 +543,13 @@ TCLIApp::AppMenuLoop( void )
 			mQuit = true;
 			break;
 		}
-		
+
 		// Strip the end line.
 		int theLength = ::strlen(theCommand);
 		if (theLength > 1)
 		{
 			theCommand[theLength - 1] = '\0';
-	
+
 			Boolean knownCommand = ExecuteCommand(theCommand);
 			if (!knownCommand)
 			{
@@ -565,7 +570,7 @@ Boolean
 TCLIApp::ExecuteCommand( const char* inCommand )
 {
 	char theArg[2048];
-		
+
 	Boolean knownCommand = true;
 	if (::strcmp(inCommand, "help") == 0)
 	{
@@ -591,7 +596,7 @@ TCLIApp::ExecuteCommand( const char* inCommand )
 			knownCommand = mMonitor->ExecuteCommand(inCommand);
 		}
 	}
-		
+
 	return knownCommand;
 }
 
@@ -680,7 +685,7 @@ TCLIApp::Help( void )
 				"%s [options] [data_path] (or set the environment variable EINSTEIN_HOME)\n",
 				mProgramName );
 	(void) ::printf(
-				"  -a | --audio=audiodriver        (null, portaudio)\n" );
+				"  -a | --audio=audiodriver        (null, portaudio, coreaudio, pulseaudio)\n" );
 	(void) ::printf(
 				"  -s | --screen=screen driver     (x11)\n" );
 	(void) ::printf(
@@ -740,8 +745,14 @@ TCLIApp::CreateSoundManager( const char* inClass )
 	} else if (::strcmp( inClass, "coreaudio" ) == 0) {
 		mSoundManager = new TCoreAudioSoundManager( mLog );
 #endif
+#if AUDIO_PORTAUDIO
 	} else if (::strcmp( inClass, "portaudio" ) == 0) {
 		mSoundManager = new TPortAudioSoundManager( mLog );
+#endif
+#if AUDIO_PULSEAUDIO
+} else if (::strcmp(inClass, "pulseaudio") == 0) {
+        mSoundManager = new TPulseAudioSoundManager(mLog);
+#endif
 	} else {
 		(void) ::fprintf( stderr, "Unknown sound manager class %s\n", inClass );
 		::exit( 1 );
@@ -757,7 +768,7 @@ TCLIApp::CreateScreenManager(
 				int inPortraitWidth,
 				int inPortraitHeight,
 				Boolean inFullScreen)
-{	
+{
 	if (::strcmp( inClass, "x11" ) == 0)
 	{
 		Boolean screenIsLandscape = true;
