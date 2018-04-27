@@ -10,6 +10,11 @@ via a serial cable and a USB-to-serail converter.
 This allows existing apps like NCX, or NCU or NTK via BasiliskII, to use
 Einstein emulation just as if a physical machine was connected.
 
+Note: the KEXT makes Einstein look like a physical device to the host machine.
+This is different from making the host look like an actual MessagePad to the
+outside world (for example, running Einstein on an Android device with a serial
+cable plugged into it), which is not implemented either, but much easier to do.
+
 
 Prerequisites
 -------------
@@ -64,7 +69,7 @@ Development Status
 The driver skeleton is launching as a driver in an unprotected machine. It
 creates the BSD device files for a durect serial connection and a terminal
 connection. It receives commands to set the baud rate and other serial port
-settings via "ioctl" to "/dev/cu.Einstein", and it tries to recive serial
+settings via "ioctl" to "/dev/cu.Einstein", and it tries to receive serial
 data sent from an external app,
 
 FIXME: but is not received by the KEXT yet.
@@ -83,7 +88,49 @@ communication the the KEXT. This shall also replace the system level logging
 which is rather complex and unneccessary.
 
 
+Resources
+---------
 
+Why we must do this, and why there is no shortcut:
+https://forums.developer.apple.com/thread/89944
+
+How to disable System Integrity Protection (SIP) on a Parallels VM?
+https://forum.parallels.com/threads/how-to-disable-system-integrity-protection-sip.339840/
+
+Serial Drivers:
+https://developer.apple.com/library/content/documentation/DeviceDrivers/Conceptual/IOKitFundamentals/Features/Features.html#//apple_ref/doc/uid/TP0000012-TPXREF101
+https://developer.apple.com/library/content/documentation/DeviceDrivers/Conceptual/WritingDeviceDriver/DebuggingDrivers/DebuggingDrivers.html
+https://www.alauda.ro/2014/09/writing-serial-drivers-for-os-x-1/
+
+Creating a Kernel Extension:
+https://developer.apple.com/library/content/documentation/Darwin/Conceptual/KEXTConcept/KEXTConceptIOKit/iokit_tutorial.html#//apple_ref/doc/uid/20002366-SW6
+
+Base Class for the KEXT
+https://developer.apple.com/documentation/kernel/ioserialdriversync?language=objc
+
+System Sockets
+https://developer.apple.com/library/content/documentation/Darwin/Conceptual/NKEConceptual/control/control.html
+
+Sample code:
+https://opensource.apple.com/source/AppleUSBCDCDriver/
+https://github.com/landonf/mac-cp210x
+https://github.com/sideeffect42/osx-pl2303
+https://github.com/pablomarx/BelkinF5U103Driver/tree/master/BelkinF5U103Driver
+
+We are not alone:
+https://stackoverflow.com/questions/10388889/mac-virtual-serial-port
+
+Relaunching the KEXT on the virtual machine:
+	sudo bash
+	kextunload -v 6 /tmp/SerialDriver.kext/
+	rm -R /tmp/SerialDriver.kext
+	cp -R /Volumes/Shared\ Folders/Home/Library/Developer/Xcode/.../Debug/SerialDriver.kext /tmp/
+	chmod -R a-rw /tmp/SerialDriver.kext
+	chown -R root:wheel /tmp/SerialDriver.kext
+	kextutil -tn /tmp/SerialDriver.kext/  || { echo 'FAILED' ; exit 1; }
+	kextload -v 6 /tmp/SerialDriver.kext/  || { echo 'FAILED' ; exit 1; }
+	ioreg -bl  || { echo 'FAILED' ; exit 1; }
+	log show --predicate 'eventMessage contains "matthiasm"' --last 5m --info --debug
 
 
 
