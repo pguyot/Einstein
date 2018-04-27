@@ -98,6 +98,7 @@ static TCocoaAppController* gInstance = nil;
 			[NSNumber numberWithInt:kCoreAudioDriverTag], kAudioDriverKey,
 			[NSNumber numberWithInt:kCocoaScreenDriverTag], kScreenDriverKey,
 			[NSNumber numberWithInt:kUsermodeNetworkDriverTag], kNetworkDriverKey,
+			[NSNumber numberWithInt:kPtySerialDriverTag], kSerialDriverKey,
 			[NSNumber numberWithBool:NO], kDontShowAtStartupKey,
 			[NSNumber numberWithBool:NO], kEnableListenersKey,
 			nil];

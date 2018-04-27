@@ -252,7 +252,7 @@ TVoyagerManagedSerialPortPty::HandleDMA()
 			if (n==-1) {
 				printf("***** Error reading from serial port %s - %s (%d).\n", mPtyName, strerror(errno), errno);
 			} else if (n==0) {
-				printf("***** No data yet\n");
+				// printf("***** No data yet\n");
 			} else {
 				//printf("----> Received %d bytes data from NCX\n", n);
 				for (KUInt32 i=0; i<n; i++) {
