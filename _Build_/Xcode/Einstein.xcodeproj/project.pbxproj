@@ -107,6 +107,8 @@
 		C901E530132656710074513E /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
 		C92FC6F5208CDD3600EF4BB1 /* SerialDriver.h in Headers */ = {isa = PBXBuildFile; fileRef = C92FC6F4208CDD3600EF4BB1 /* SerialDriver.h */; };
 		C92FC6F7208CDD3600EF4BB1 /* SerialDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC6F6208CDD3600EF4BB1 /* SerialDriver.cpp */; };
+		C92FC71E209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp */; };
+		C92FC71F209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
 		C932C4C211A1AB5D00F6A7E4 /* TNE2000Card.cp in Sources */ = {isa = PBXBuildFile; fileRef = C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */; };
@@ -672,6 +674,8 @@
 		C92FC6F6208CDD3600EF4BB1 /* SerialDriver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SerialDriver.cpp; sourceTree = "<group>"; };
 		C92FC6F8208CDD3600EF4BB1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C92FC71620932ADD00EF4BB1 /* README.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		C92FC717209374B500EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TVoyagerManagedSerialPortNamedPipes.h; sourceTree = "<group>"; };
+		C92FC71B209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TVoyagerManagedSerialPortNamedPipes.cp; sourceTree = "<group>"; };
 		C932824511D0CF0A003B93C3 /* button_network_in.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network_in.png; sourceTree = "<group>"; };
 		C932824611D0CF0A003B93C3 /* button_network.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network.png; sourceTree = "<group>"; };
 		C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNE2000Card.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
@@ -1824,6 +1828,8 @@
 				C99E34A8111B7C08002165EC /* TVoyagerSerialPort.h */,
 				C945F6711E53180C002505E9 /* TVoyagerManagedSerialPort.cp */,
 				C945F6721E53180C002505E9 /* TVoyagerManagedSerialPort.h */,
+				C92FC71B209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp */,
+				C92FC717209374B500EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.h */,
 			);
 			path = Serial;
 			sourceTree = "<group>";
@@ -2496,6 +2502,7 @@
 				C99E34D8111B7C08002165EC /* THostInfo.cp in Sources */,
 				C99E34DE111B7C08002165EC /* TJITGeneric.cp in Sources */,
 				C99E34DF111B7C08002165EC /* TJITGeneric_BlockDataTransfer.cp in Sources */,
+				C92FC71E209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp in Sources */,
 				F19F1C291E5B574000E8C9BE /* TCocoaPathHelper.mm in Sources */,
 				C99E34E0111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer.cp in Sources */,
 				F1E2C2A21E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */,
@@ -2691,6 +2698,7 @@
 				DA52C8941A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */,
 				C95E60A9198B76DC004C6CEF /* TEOFException.cp in Sources */,
 				C95E60AA198B76DC004C6CEF /* TJITPerformance.cp in Sources */,
+				C92FC71F209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp in Sources */,
 				C95E60AB198B76DC004C6CEF /* TFiber.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

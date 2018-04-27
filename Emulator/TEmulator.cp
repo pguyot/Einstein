@@ -53,7 +53,7 @@
 #include "PCMCIA/TLinearCard.h"
 #include "Serial/TVoyagerSerialPort.h"
 #if TARGET_OS_MAC
-#include "Serial/TVoyagerManagedSerialPort.h"
+#include "Serial/TVoyagerManagedSerialPortNamedPipes.h"
 #endif
 #include "TInterruptManager.h"
 #include "TDMAManager.h"
@@ -106,7 +106,7 @@ TEmulator::TEmulator(
 	mDMAManager = new TDMAManager(inLog, this, &mMemory, mInterruptManager);
 	mPlatformManager = new TPlatformManager( inLog, inScreenManager );
 #if TARGET_OS_MAC
-	mExternalPort = new TVoyagerManagedSerialPort(
+	mExternalPort = new TVoyagerManagedSerialPortNamedPipes(
 		inLog,
 		TVoyagerSerialPort::kExternalSerialPort,
 		mInterruptManager,
