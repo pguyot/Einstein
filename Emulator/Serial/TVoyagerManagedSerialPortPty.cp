@@ -1,5 +1,5 @@
 // ==============================
-// File:			TVoyagerManagedSerialPortNamedPipes.cp
+// File:			TVoyagerManagedSerialPortPty.cp
 // Project:			Einstein
 //
 // Copyright 2018 by Matthias Melcher (mm@matthiasm.com).
@@ -22,7 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "TVoyagerManagedSerialPortNamedPipes.h"
+#include "TVoyagerManagedSerialPortPty.h"
 #include "TPathHelper.h"
 
 // POSIX
@@ -36,23 +36,25 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <sys/stat.h>
+#if !TARGET_OS_IOS
+#include <CoreServices/CoreServices.h>
+#endif
 #endif
 
 #include "Emulator/Log/TLog.h"
 #include "Emulator/TInterruptManager.h"
+#include "Emulator/TDMAManager.h"
 #include "Emulator/TMemory.h"
-
+#include "Emulator/TARMProcessor.h"
 
 
 // -------------------------------------------------------------------------- //
-//  * TVoyagerManagedSerialPortNamedPipes()
-// Emulate a serial connection using two named pipes via "mkfifo". The pipes
-// are named:
-// 	$(HOME)/Library/Application Support/Einstein Emulator/ExtrSerPortSend
-// and
-//  $(HOME)/Library/Application Support/Einstein Emulator/ExtrSerPortRecv")
+//  * TVoyagerManagedSerialPortPty()
+// Emulate a serial port via a pseudo terminal.
+// For example, opening /dev/ptyp0 as a master will give access to the
+// corresponding slave port /dev/ttyp0.
 // -------------------------------------------------------------------------- //
-TVoyagerManagedSerialPortNamedPipes::TVoyagerManagedSerialPortNamedPipes(
+TVoyagerManagedSerialPortPty::TVoyagerManagedSerialPortPty(
 													 TLog* inLog,
 													 ELocationID inLocationID,
 													 TInterruptManager* inInterruptManager,
@@ -61,35 +63,31 @@ TVoyagerManagedSerialPortNamedPipes::TVoyagerManagedSerialPortNamedPipes(
 :	TVoyagerManagedSerialPort(inLog, inLocationID, inInterruptManager, inDMAManager, inMemory),
 
 	mPipe{-1,-1},
-	mTxPort(-1),
-	mRxPort(-1),
+	mPtyPort(-1),
 	mDMAIsRunning(false),
 	mDMAThread(0L),
-	mTxPortName(0L),
-	mRxPortName(0L)
+	mPtyName(0L)
 {
 	RunDMA();
 }
 
 
 // -------------------------------------------------------------------------- //
-//  * ~TVoyagerManagedSerialPortNamedPipes( void )
+//  * ~TVoyagerManagedSerialPortPty( void )
 //		Don't worry about releasing  resources. All drivers will live
 //		throughout the run time of the app.
 // -------------------------------------------------------------------------- //
-TVoyagerManagedSerialPortNamedPipes::~TVoyagerManagedSerialPortNamedPipes()
+TVoyagerManagedSerialPortPty::~TVoyagerManagedSerialPortPty()
 {
-	if (mTxPortName)
-		free(mTxPortName);
-	if (mRxPortName)
-		free(mRxPortName);
+	if (mPtyName)
+		free(mPtyName);
 }
 
 
 // -------------------------------------------------------------------------- //
-// DMA or interrupts trigger a command that must be handled by a derived class.
+// DMA or interrupts were triggered
 // -------------------------------------------------------------------------- //
-void TVoyagerManagedSerialPortNamedPipes::TriggerEvent(KUInt8 cmd)
+void TVoyagerManagedSerialPortPty::TriggerEvent(KUInt8 cmd)
 {
 	if (mPipe[1]!=-1) {
 		write(mPipe[1], &cmd, 1);
@@ -98,68 +96,25 @@ void TVoyagerManagedSerialPortNamedPipes::TriggerEvent(KUInt8 cmd)
 
 
 // -------------------------------------------------------------------------- //
-// * FindPipeNames()
-//		Find names that will be available for external apps for this user.
-// TODO: currently we care about the 'extr' port, but we may want to provide
-//		pipes for a virtual modem
+// * FindPtyName()
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPortNamedPipes::FindPipeNames()
+TVoyagerManagedSerialPortPty::FindPtyName()
 {
-	if (mTxPortName && mRxPort)
+	if (mPtyName)
 		return;
-
-	char path[PATH_MAX];
-
-	std::string basePath = TPathHelper::GetSerialPipeBasePath();
-	::strncpy(path, basePath.c_str(), PATH_MAX);
-
-	char *end = path + strlen(path);
-
-	// crete the file path to the sending and receiving node
-	strcpy(end, "/Einstein Emulator");
-	if (access(path, S_IRUSR|S_IWUSR|S_IXUSR)==-1) {
-		if (mkdir(path, S_IRUSR|S_IWUSR|S_IXUSR)==-1) {
-			printf("***** Error creating named pipe directory %s - %s (%d).\n", path, strerror(errno), errno);
-		}
-	}
-
-	// create the name for the transmitting pipe
-	// FIXME: "Einstein Platform"
-	strcpy(end, "/Einstein Emulator/ExtrSerPortSend");
-	if (!mTxPortName)
-		mTxPortName = strdup(path);
-
-	// create the name for the receiving pipe
-	strcpy(end, "/Einstein Emulator/ExtrSerPortRecv");
-	if (!mRxPortName)
-		mRxPortName = strdup(path);
+	// TODO: hardcode the name for now
+	mPtyName = strdup("/dev/ttyp0");
 }
 
 
 // -------------------------------------------------------------------------- //
-// * CreateNamedPipes
-//		Create the named pipes as nodes in the file system.
+// * CreatePty
 // -------------------------------------------------------------------------- //
 bool
-TVoyagerManagedSerialPortNamedPipes::CreateNamedPipes()
+TVoyagerManagedSerialPortPty::CreatePty()
 {
-	// crete the sending node if it does not exist yet
-	if (access(mTxPortName, S_IRUSR|S_IWUSR)==-1) {
-		if (mkfifo(mTxPortName, S_IRUSR|S_IWUSR)==-1) {
-			printf("***** Error creating named pipe %s - %s (%d).\n", mTxPortName, strerror(errno), errno);
-			return false;
-		}
-	}
-
-	// crete the receiving node if it does not exist yet
-	if (access(mRxPortName, S_IRUSR|S_IWUSR)==-1) {
-		if (mkfifo(mRxPortName, S_IRUSR|S_IWUSR)==-1) {
-			printf("***** Error creating named pipe %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
-			return false;
-		}
-	}
-
+	// TODO: Remove this function. There is nothing to create.
 	return true;
 }
 
@@ -171,31 +126,27 @@ TVoyagerManagedSerialPortNamedPipes::CreateNamedPipes()
 //		handles all DMA access independently of anything else going on
 //		inside Einstein - just as a hardware DMA would.
 //
-//		Not to be confused with RunDMC which is an American Hip Hop band from
-//		the eighties.
+//		"When you feel you fail sometimes it hurts
+//		For a meaning in life is why you search
+//		Take the boys on the train, drive to school on the church
+//		It's like that, and that's the way it is"
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPortNamedPipes::RunDMA()
+TVoyagerManagedSerialPortPty::RunDMA()
 {
 	// create named pipe nodes
-	FindPipeNames();
-	if (!CreateNamedPipes()) {
+	FindPtyName();
+	if (!CreatePty()) {
 		return;
 	}
 
 	// open the named pipes
-	mTxPort = open(mTxPortName, O_RDWR | O_NOCTTY | O_NONBLOCK);
-	if (mTxPort==-1) {
-		printf("***** Error opening named sending pipe %s - %s (%d).\n", mTxPortName, strerror(errno), errno);
+	mPtyPort = open(mPtyName, O_RDWR | O_NOCTTY | O_NONBLOCK);
+	if (mPtyPort==-1) {
+		printf("***** Error opening pseudo terminal %s - %s (%d).\n", mPtyName, strerror(errno), errno);
 		return;
 	}
-	mRxPort = open(mRxPortName, O_RDWR | O_NOCTTY | O_NONBLOCK);
-	if (mRxPort==-1) {
-		printf("***** Error opening named receiving pipe %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
-		return;
-	}
-	tcflush(mTxPort, TCIOFLUSH);
-	tcflush(mRxPort, TCIOFLUSH);
+	tcflush(mPtyPort, TCIOFLUSH);
 
 	// open the thread communication pipe
 	int err = pipe(mPipe);
@@ -221,12 +172,11 @@ TVoyagerManagedSerialPortNamedPipes::RunDMA()
 //		It can also trigger interrupts when buffers empty, fill, or overflow.
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPortNamedPipes::HandleDMA()
+TVoyagerManagedSerialPortPty::HandleDMA()
 {
 	static int maxFD = -1;
 
-	if (mTxPort>maxFD) maxFD = mTxPort;
-	if (mRxPort>maxFD) maxFD = mRxPort;
+	if (mPtyPort>maxFD) maxFD = mPtyPort;
 	if (mPipe[0]>maxFD) maxFD = mPipe[0];
 
 	// thread loops and handles pipe, port, and DMA
@@ -244,7 +194,7 @@ TVoyagerManagedSerialPortNamedPipes::HandleDMA()
 		// wait for the next event
 		FD_ZERO(&readSet);
 		FD_SET(mPipe[0], &readSet);
-		FD_SET(mRxPort, &readSet);
+		FD_SET(mPtyPort, &readSet);
 		if (needTimer) {
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 260; // one byte at 38400bps serial port speed
@@ -259,7 +209,7 @@ TVoyagerManagedSerialPortNamedPipes::HandleDMA()
 				KUInt8 data = 0;
 				mMemory->ReadBP(mTxDMAPhysicalData, data);
 				//printf(":::::>> TX: 0x%02X '%c'\n", data, isprint(data)?data:'.');
-				write(mTxPort, &data, 1);
+				write(mPtyPort, &data, 1);
 				mTxDMAPhysicalData++;
 				mTxDMABufferSize--;
 				if (mTxDMABufferSize==0) {
@@ -284,7 +234,7 @@ TVoyagerManagedSerialPortNamedPipes::HandleDMA()
 		// expected in the year 1996, which lead to CPU cycle burning software
 		// like "slowdown.exe".
 
-		if (FD_ISSET(mRxPort, &readSet)) {
+		if (FD_ISSET(mPtyPort, &readSet)) {
 			// read bytes that come in through the serial port
 			KUInt8 buf[1026];
 			int n = -1;
@@ -292,14 +242,15 @@ TVoyagerManagedSerialPortNamedPipes::HandleDMA()
 			for (int j=2; j>0; j--) {
 				// FIXME: reading 1024 bytes will overflow the buffer
 				// FIXME: reading less bytes must make sure that the next select() call triggers on data left in the buffer
-				n = (int)read(mRxPort, buf, 1024);
+				n = (int)read(mPtyPort, buf, 1024);
+//				n = read(mRxPort, buf, 1);
 				if (n<=0)
 					usleep(100000); // 1/10th of a second
 				else
 					break;
 			}
 			if (n==-1) {
-				printf("***** Error reading from serial port %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
+				printf("***** Error reading from serial port %s - %s (%d).\n", mPtyName, strerror(errno), errno);
 			} else if (n==0) {
 				printf("***** No data yet\n");
 			} else {
@@ -340,13 +291,6 @@ TVoyagerManagedSerialPortNamedPipes::HandleDMA()
 					if (n==-1) {
 						printf("***** Error reading pipe - %s (%d).\n", strerror(errno), errno);
 					} else if (n) {
-						// TODO: add a command that is sent whenever a relevant
-						//		 DMA register is written in order to launch the
-						//		 DMA management loop again.
-						// TODO: add a command for power on and use it to open
-						//		 files and ports.
-						// TODO: add a command for power off and use it to close
-						//		 files and ports.
 						//printf(":::::>> pipe commend '%c'\n", cmd);
 					}
 				}
@@ -357,11 +301,11 @@ TVoyagerManagedSerialPortNamedPipes::HandleDMA()
 }
 
 
-
 // ================================================================== //
-// You never finish a program, you just stop working on it.           //
-//  - Anonymous                                                       //
-//                                                                    //
-// So true!                                                           //
-//  - Matthias Melcher                                                //
+//  You should've gone to school, you could've learned a trade        //
+//  But you laid in bed where the bums have laid                      //
+//  Now all the time you're crying that you're underpaid              //
+//  It's like that (what?) and that's the way it is                   //
+//  Huh!                                                              //
+//   - Run D.M.C.                                                     //
 // ================================================================== //
