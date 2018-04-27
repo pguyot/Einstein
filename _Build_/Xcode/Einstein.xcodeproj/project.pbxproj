@@ -105,6 +105,8 @@
 		C901E52E1326566D0074513E /* TIOException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BD111B7570002165EC /* TIOException.cp */; };
 		C901E52F1326566F0074513E /* TMemError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B8111B7570002165EC /* TMemError.cp */; };
 		C901E530132656710074513E /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
+		C92FC6F5208CDD3600EF4BB1 /* SerialDriver.h in Headers */ = {isa = PBXBuildFile; fileRef = C92FC6F4208CDD3600EF4BB1 /* SerialDriver.h */; };
+		C92FC6F7208CDD3600EF4BB1 /* SerialDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC6F6208CDD3600EF4BB1 /* SerialDriver.cpp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
 		C932C4C211A1AB5D00F6A7E4 /* TNE2000Card.cp in Sources */ = {isa = PBXBuildFile; fileRef = C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */; };
@@ -665,6 +667,11 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* Einstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Einstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C92FC6F2208CDD3600EF4BB1 /* SerialDriver.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SerialDriver.kext; sourceTree = BUILT_PRODUCTS_DIR; };
+		C92FC6F4208CDD3600EF4BB1 /* SerialDriver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SerialDriver.h; sourceTree = "<group>"; };
+		C92FC6F6208CDD3600EF4BB1 /* SerialDriver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SerialDriver.cpp; sourceTree = "<group>"; };
+		C92FC6F8208CDD3600EF4BB1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C92FC71620932ADD00EF4BB1 /* README.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
 		C932824511D0CF0A003B93C3 /* button_network_in.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network_in.png; sourceTree = "<group>"; };
 		C932824611D0CF0A003B93C3 /* button_network.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network.png; sourceTree = "<group>"; };
 		C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNE2000Card.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
@@ -1114,6 +1121,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C92FC6EE208CDD3600EF4BB1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C95E60AC198B76DC004C6CEF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1192,6 +1206,7 @@
 				C98AB2371A351D20001BB1CD /* retarget */,
 				DA4FF0691A35E73900092B5A /* EinsteinTests.xctest */,
 				DA4BA4051A3A0153002BDB80 /* CLITest */,
+				C92FC6F2208CDD3600EF4BB1 /* SerialDriver.kext */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1208,6 +1223,7 @@
 			isa = PBXGroup;
 			children = (
 				C99E3154111B72C0002165EC /* Sources */,
+				C92FC686208CDCD800EF4BB1 /* Drivers */,
 				C98AB23F1A351D61001BB1CD /* Tools */,
 				C99E3156111B72CC002165EC /* Libraries */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -1238,6 +1254,26 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C92FC686208CDCD800EF4BB1 /* Drivers */ = {
+			isa = PBXGroup;
+			children = (
+				C92FC6D8208CDCD800EF4BB1 /* MacOS Serial Driver */,
+			);
+			name = Drivers;
+			path = ../../Drivers;
+			sourceTree = "<group>";
+		};
+		C92FC6D8208CDCD800EF4BB1 /* MacOS Serial Driver */ = {
+			isa = PBXGroup;
+			children = (
+				C92FC71620932ADD00EF4BB1 /* README.txt */,
+				C92FC6F4208CDD3600EF4BB1 /* SerialDriver.h */,
+				C92FC6F6208CDD3600EF4BB1 /* SerialDriver.cpp */,
+				C92FC6F8208CDD3600EF4BB1 /* Info.plist */,
+			);
+			path = "MacOS Serial Driver";
 			sourceTree = "<group>";
 		};
 		C962429411B69A6E00EE66F3 /* Network */ = {
@@ -1999,6 +2035,17 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		C92FC6EF208CDD3600EF4BB1 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C92FC6F5208CDD3600EF4BB1 /* SerialDriver.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
 		2389E9371A1E4D4A0001A8C5 /* iOSEinstein */ = {
 			isa = PBXNativeTarget;
@@ -2034,6 +2081,24 @@
 			productName = Einstein;
 			productReference = 8D1107320486CEB800E47090 /* Einstein.app */;
 			productType = "com.apple.product-type.application";
+		};
+		C92FC6F1208CDD3600EF4BB1 /* SerialDriver */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C92FC6F9208CDD3600EF4BB1 /* Build configuration list for PBXNativeTarget "SerialDriver" */;
+			buildPhases = (
+				C92FC6ED208CDD3600EF4BB1 /* Sources */,
+				C92FC6EE208CDD3600EF4BB1 /* Frameworks */,
+				C92FC6EF208CDD3600EF4BB1 /* Headers */,
+				C92FC6F0208CDD3600EF4BB1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SerialDriver;
+			productName = SerialDriver;
+			productReference = C92FC6F2208CDD3600EF4BB1 /* SerialDriver.kext */;
+			productType = "com.apple.product-type.kernel-extension";
 		};
 		C95E603C198B76DC004C6CEF /* EinsteinDev (Matthias) */ = {
 			isa = PBXNativeTarget;
@@ -2115,6 +2180,11 @@
 			attributes = {
 				LastUpgradeCheck = 0830;
 				TargetAttributes = {
+					C92FC6F1208CDD3600EF4BB1 = {
+						CreatedOnToolsVersion = 9.3;
+						DevelopmentTeam = BK4ST6N599;
+						ProvisioningStyle = Manual;
+					};
 					C98AB2361A351D20001BB1CD = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -2144,6 +2214,7 @@
 				C98AB2361A351D20001BB1CD /* retarget */,
 				DA4FF0681A35E73900092B5A /* EinsteinTests */,
 				DA4BA4041A3A0153002BDB80 /* CLITest */,
+				C92FC6F1208CDD3600EF4BB1 /* SerialDriver */,
 			);
 		};
 /* End PBXProject section */
@@ -2183,6 +2254,13 @@
 				C99E377B111C2289002165EC /* Einstein.rex in Resources */,
 				C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */,
 				C932824811D0CF0A003B93C3 /* button_network.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C92FC6F0208CDD3600EF4BB1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2499,6 +2577,14 @@
 				C901E530132656710074513E /* TEOFException.cp in Sources */,
 				C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */,
 				C9D54E1415FA23E700D91131 /* TFiber.cp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C92FC6ED208CDD3600EF4BB1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C92FC6F7208CDD3600EF4BB1 /* SerialDriver.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3094,6 +3180,143 @@
 				SDKROOT = macosx;
 			};
 			name = Release;
+		};
+		C92FC6FA208CDD3600EF4BB1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1.0.0d1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = BK4ST6N599;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = "$(SRCROOT)/../../Drivers/MacOS Serial Driver/Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MODULE_NAME = com.matthiasm.elektriktrick.SerialDriver;
+				MODULE_VERSION = 1.0.0d1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.matthiasm.elektriktrick.SerialDriver;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				WRAPPER_EXTENSION = kext;
+			};
+			name = Debug;
+		};
+		C92FC6FB208CDD3600EF4BB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1.0.0d1;
+				DEVELOPMENT_TEAM = BK4ST6N599;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = "$(SRCROOT)/../../Drivers/MacOS Serial Driver/Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MODULE_NAME = com.matthiasm.elektriktrick.SerialDriver;
+				MODULE_VERSION = 1.0.0d1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.matthiasm.elektriktrick.SerialDriver;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				WRAPPER_EXTENSION = kext;
+			};
+			name = Release;
+		};
+		C92FC6FC208CDD3600EF4BB1 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1.0.0d1;
+				DEVELOPMENT_TEAM = BK4ST6N599;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = "$(SRCROOT)/../../Drivers/MacOS Serial Driver/Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MODULE_NAME = com.matthiasm.elektriktrick.SerialDriver;
+				MODULE_VERSION = 1.0.0d1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.matthiasm.elektriktrick.SerialDriver;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				WRAPPER_EXTENSION = kext;
+			};
+			name = Distribution;
 		};
 		C95E60B4198B76DC004C6CEF /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -3700,6 +3923,16 @@
 				C01FCF4F08A954540054247B /* Debug */,
 				C01FCF5008A954540054247B /* Release */,
 				C9F9102C12FB780F0061A18D /* Distribution */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C92FC6F9208CDD3600EF4BB1 /* Build configuration list for PBXNativeTarget "SerialDriver" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C92FC6FA208CDD3600EF4BB1 /* Debug */,
+				C92FC6FB208CDD3600EF4BB1 /* Release */,
+				C92FC6FC208CDD3600EF4BB1 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
