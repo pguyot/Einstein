@@ -1,5 +1,5 @@
 // ==============================
-// File:			TVoyagerManagedSerialPort.cp
+// File:			TBasicSerialPortManager.cp
 // Project:			Einstein
 //
 // Copyright 2017 by Matthias Melcher (mm@matthiasm.com).
@@ -22,7 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "TVoyagerManagedSerialPort.h"
+#include "TBasicSerialPortManager.h"
 #include "TPathHelper.h"
 
 // POSIX
@@ -337,7 +337,7 @@ TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00900000,
 
 
 // -------------------------------------------------------------------------- //
-//  * TVoyagerManagedSerialPort()
+//  * TBasicSerialPortManager()
 //		Create a DMA and Interrupt emulation for a serial port.
 //		The original Newton ROM does not seem to have the driver system via
 //		ROM Extension sufficiently implemented. To circumvent patching a
@@ -360,13 +360,10 @@ TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00900000,
 //		Android, and iOS support, or at least make sure that compilation
 //		on those systems does not break.
 // -------------------------------------------------------------------------- //
-TVoyagerManagedSerialPort::TVoyagerManagedSerialPort(
+TBasicSerialPortManager::TBasicSerialPortManager(
 													 TLog* inLog,
-													 ELocationID inLocationID,
-													 TInterruptManager* inInterruptManager,
-													 TDMAManager* inDMAManager,
-													 TMemory* inMemory)
-:	TVoyagerSerialPort(inLog, inLocationID, inInterruptManager, inDMAManager, inMemory),
+													 ELocationID inLocationID)
+:	TSerialPortManager(inLog, inLocationID),
 
 	mTxDMAPhysicalBufferStart(0),
 	mTxDMAPhysicalData(0),
@@ -384,14 +381,26 @@ TVoyagerManagedSerialPort::TVoyagerManagedSerialPort(
 
 
 // -------------------------------------------------------------------------- //
-//  * ~TVoyagerManagedSerialPort( void )
+//  * ~TBasicSerialPortManager( void )
 //		Don't worry about releasing  resources. All drivers will live
 //		throughout the run time of the app.
 // -------------------------------------------------------------------------- //
-TVoyagerManagedSerialPort::~TVoyagerManagedSerialPort()
+TBasicSerialPortManager::~TBasicSerialPortManager()
 {
 }
 
+// -------------------------------------------------------------------------- //
+//  * run( TInterruptManager*, TDMAManager*, TMemory* )
+// -------------------------------------------------------------------------- //
+void TBasicSerialPortManager::run(TInterruptManager* inInterruptManager,
+							 TDMAManager* inDMAManager,
+							 TMemory* inMemory)
+{
+	mInterruptManager = inInterruptManager;
+	mDMAManager = inDMAManager;
+	mMemory = inMemory;
+	// nothing to do here
+}
 
 // -------------------------------------------------------------------------- //
 //  * WriteRegister( KUInt32, KUInt8 )
@@ -414,7 +423,7 @@ TVoyagerManagedSerialPort::~TVoyagerManagedSerialPort()
 //		emulation can stay at a minimum.
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPort::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
+TBasicSerialPortManager::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
 {
 //	printf("***** 'extr' serial, writing unknown register 0x%08X = 0x%08X\n", inOffset, inValue);
 
@@ -444,7 +453,7 @@ TVoyagerManagedSerialPort::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
 //		associted with this serial port.
 // -------------------------------------------------------------------------- //
 KUInt8
-TVoyagerManagedSerialPort::ReadRegister( KUInt32 inOffset )
+TBasicSerialPortManager::ReadRegister( KUInt32 inOffset )
 {
 //	printf("***** 'extr' serial, reading unknown register 0x%08X\n", inOffset);
 
@@ -486,14 +495,14 @@ TVoyagerManagedSerialPort::ReadRegister( KUInt32 inOffset )
 //		This function dispatches to the DMA emulation.
 // -------------------------------------------------------------------------- //
 KUInt32
-TVoyagerManagedSerialPort::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister )
+TBasicSerialPortManager::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister )
 {
 	if (inChannel==TDMAManager::kSerialPort0Receive) {
 		return ReadRxDMARegister(inBank, inRegister);
 	} else if (inChannel==TDMAManager::kSerialPort0Transmit) {
 		return ReadTxDMARegister(inBank, inRegister);
 	} else {
-		return TVoyagerSerialPort::ReadDMARegister(inBank, inChannel, inRegister);
+		return TSerialPortManager::ReadDMARegister(inBank, inChannel, inRegister);
 	}
 }
 
@@ -505,14 +514,14 @@ TVoyagerManagedSerialPort::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, K
 //		This function dispatches to the DMA emulation.
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPort::WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue )
+TBasicSerialPortManager::WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue )
 {
 	if (inChannel==TDMAManager::kSerialPort0Receive) {
 		return WriteRxDMARegister(inBank, inRegister, inValue);
 	} else if (inChannel==TDMAManager::kSerialPort0Transmit) {
 		return WriteTxDMARegister(inBank, inRegister, inValue);
 	} else {
-		return TVoyagerSerialPort::WriteDMARegister(inBank, inChannel, inRegister, inValue);
+		return TSerialPortManager::WriteDMARegister(inBank, inChannel, inRegister, inValue);
 	}
 }
 
@@ -521,7 +530,7 @@ TVoyagerManagedSerialPort::WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, 
 //  * ReadRxDMARegister( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TVoyagerManagedSerialPort::ReadRxDMARegister( KUInt32 inBank, KUInt32 inRegister )
+TBasicSerialPortManager::ReadRxDMARegister( KUInt32 inBank, KUInt32 inRegister )
 {
 	KUInt32 result = 0;
 
@@ -560,7 +569,7 @@ TVoyagerManagedSerialPort::ReadRxDMARegister( KUInt32 inBank, KUInt32 inRegister
 //  * WriteRxDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPort::WriteRxDMARegister( KUInt32 inBank, KUInt32 inRegister, KUInt32 inValue )
+TBasicSerialPortManager::WriteRxDMARegister( KUInt32 inBank, KUInt32 inRegister, KUInt32 inValue )
 {
 	if (inBank==1) {
 		switch (inRegister) {
@@ -616,7 +625,7 @@ TVoyagerManagedSerialPort::WriteRxDMARegister( KUInt32 inBank, KUInt32 inRegiste
 //  * ReadTxDMARegister( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TVoyagerManagedSerialPort::ReadTxDMARegister( KUInt32 inBank, KUInt32 inRegister )
+TBasicSerialPortManager::ReadTxDMARegister( KUInt32 inBank, KUInt32 inRegister )
 {
 	KUInt32 result = 0;
 
@@ -657,7 +666,7 @@ TVoyagerManagedSerialPort::ReadTxDMARegister( KUInt32 inBank, KUInt32 inRegister
 //  * WriteTxDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPort::WriteTxDMARegister( KUInt32 inBank, KUInt32 inRegister, KUInt32 inValue )
+TBasicSerialPortManager::WriteTxDMARegister( KUInt32 inBank, KUInt32 inRegister, KUInt32 inValue )
 {
 	if (inBank==1) {
 		switch (inRegister) {

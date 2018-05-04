@@ -71,7 +71,7 @@
 		2389E9761A1E4D4A0001A8C5 /* TEmulator.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34BA111B7C08002165EC /* TEmulator.cp */; };
 		2389E9771A1E4D4A0001A8C5 /* TDMAManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34B8111B7C08002165EC /* TDMAManager.cp */; };
 		2389E9781A1E4D4A0001A8C5 /* TARMProcessor.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34B6111B7C08002165EC /* TARMProcessor.cp */; };
-		2389E9791A1E4D4A0001A8C5 /* TVoyagerSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */; };
+		2389E9791A1E4D4A0001A8C5 /* TSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortManager.cp */; };
 		2389E97A1A1E4D4A0001A8C5 /* TVirtualizedCalls.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E346C111B7C07002165EC /* TVirtualizedCalls.cp */; };
 		2389E97C1A1E4D4A0001A8C5 /* TATACard.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3470111B7C07002165EC /* TATACard.cp */; };
 		2389E97D1A1E4D4A0001A8C5 /* TLinearCard.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3472111B7C07002165EC /* TLinearCard.cp */; };
@@ -107,15 +107,18 @@
 		C901E530132656710074513E /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
 		C92FC6F5208CDD3600EF4BB1 /* SerialDriver.h in Headers */ = {isa = PBXBuildFile; fileRef = C92FC6F4208CDD3600EF4BB1 /* SerialDriver.h */; };
 		C92FC6F7208CDD3600EF4BB1 /* SerialDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC6F6208CDD3600EF4BB1 /* SerialDriver.cpp */; };
-		C92FC71E209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp */; };
-		C92FC71F209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp */; };
+		C92FC71E209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */; };
+		C92FC71F209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
 		C932C4C211A1AB5D00F6A7E4 /* TNE2000Card.cp in Sources */ = {isa = PBXBuildFile; fileRef = C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */; };
-		C945F6731E53180C002505E9 /* TVoyagerManagedSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TVoyagerManagedSerialPort.cp */; };
-		C94C96DD20937E780099001D /* TVoyagerManagedSerialPortPty.cp in Sources */ = {isa = PBXBuildFile; fileRef = C94C96DB20937E780099001D /* TVoyagerManagedSerialPortPty.cp */; };
-		C94C96DE20937E780099001D /* TVoyagerManagedSerialPortPty.cp in Sources */ = {isa = PBXBuildFile; fileRef = C94C96DB20937E780099001D /* TVoyagerManagedSerialPortPty.cp */; };
-		C955C6511E55D06900F0BFFA /* TVoyagerManagedSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TVoyagerManagedSerialPort.cp */; };
+		C935F77C2099F5F200351905 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C935F77B2099F5F200351905 /* main.cpp */; };
+		C935F783209CD68900351905 /* TBasiliskIISerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C935F782209CD68900351905 /* TBasiliskIISerialPortManager.cp */; };
+		C935F784209CD68900351905 /* TBasiliskIISerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C935F782209CD68900351905 /* TBasiliskIISerialPortManager.cp */; };
+		C945F6731E53180C002505E9 /* TBasicSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TBasicSerialPortManager.cp */; };
+		C94C96DD20937E780099001D /* TPtySerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C94C96DB20937E780099001D /* TPtySerialPortManager.cp */; };
+		C94C96DE20937E780099001D /* TPtySerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C94C96DB20937E780099001D /* TPtySerialPortManager.cp */; };
+		C955C6511E55D06900F0BFFA /* TBasicSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TBasicSerialPortManager.cp */; };
 		C95E603F198B76DC004C6CEF /* button_backlight.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3160111B7346002165EC /* button_backlight.png */; };
 		C95E6040198B76DC004C6CEF /* button_backlight_on.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3161111B7346002165EC /* button_backlight_on.png */; };
 		C95E6041198B76DC004C6CEF /* button_install.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3162111B7346002165EC /* button_install.png */; };
@@ -180,7 +183,7 @@
 		C95E6082198B76DC004C6CEF /* TCocoaScreenManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3495111B7C08002165EC /* TCocoaScreenManager.mm */; };
 		C95E6083198B76DC004C6CEF /* TCocoaScreenView.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3498111B7C08002165EC /* TCocoaScreenView.mm */; };
 		C95E6084198B76DC004C6CEF /* TScreenManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E349D111B7C08002165EC /* TScreenManager.cp */; };
-		C95E6085198B76DC004C6CEF /* TVoyagerSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */; };
+		C95E6085198B76DC004C6CEF /* TSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortManager.cp */; };
 		C95E6086198B76DC004C6CEF /* TBufferedSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AA111B7C08002165EC /* TBufferedSoundManager.cp */; };
 		C95E6087198B76DC004C6CEF /* TCoreAudioSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AC111B7C08002165EC /* TCoreAudioSoundManager.cp */; };
 		C95E6088198B76DC004C6CEF /* TNullSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AE111B7C08002165EC /* TNullSoundManager.cp */; };
@@ -288,7 +291,7 @@
 		C99E351B111B7C08002165EC /* TCocoaScreenManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3495111B7C08002165EC /* TCocoaScreenManager.mm */; };
 		C99E351C111B7C08002165EC /* TCocoaScreenView.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3498111B7C08002165EC /* TCocoaScreenView.mm */; };
 		C99E351F111B7C08002165EC /* TScreenManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E349D111B7C08002165EC /* TScreenManager.cp */; };
-		C99E3523111B7C08002165EC /* TVoyagerSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */; };
+		C99E3523111B7C08002165EC /* TSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortManager.cp */; };
 		C99E3524111B7C08002165EC /* TBufferedSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AA111B7C08002165EC /* TBufferedSoundManager.cp */; };
 		C99E3525111B7C08002165EC /* TCoreAudioSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AC111B7C08002165EC /* TCoreAudioSoundManager.cp */; };
 		C99E3526111B7C08002165EC /* TNullSoundManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AE111B7C08002165EC /* TNullSoundManager.cp */; };
@@ -366,7 +369,7 @@
 		DA4BA4411A3A02FD002BDB80 /* TNE2000Card.cp in Sources */ = {isa = PBXBuildFile; fileRef = C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */; };
 		DA4BA4421A3A02FD002BDB80 /* TPCMCIACard.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3474111B7C07002165EC /* TPCMCIACard.cp */; };
 		DA4BA4431A3A02FD002BDB80 /* TPCMCIAController.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3476111B7C07002165EC /* TPCMCIAController.cp */; };
-		DA4BA4441A3A02FD002BDB80 /* TVoyagerSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */; };
+		DA4BA4441A3A02FD002BDB80 /* TSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortManager.cp */; };
 		DA4BA4451A3A02FD002BDB80 /* TSymbolList.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cp */; };
 		DA4BA4461A3A02FD002BDB80 /* UDisasm.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cp */; };
 		DA4BA44F1A3A03C0002BDB80 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E374F111C1F0E002165EC /* Carbon.framework */; };
@@ -456,7 +459,7 @@
 		DA4FF13A1A35EBBA00092B5A /* TScreenManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E349D111B7C08002165EC /* TScreenManager.cp */; };
 		DA4FF13B1A35EBCC00092B5A /* TNetworkManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cp */; };
 		DA4FF13D1A35EBE600092B5A /* TPlatformManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347B111B7C07002165EC /* TPlatformManager.cp */; };
-		DA4FF13E1A35EBF800092B5A /* TVoyagerSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */; };
+		DA4FF13E1A35EBF800092B5A /* TSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortManager.cp */; };
 		DA4FF13F1A35EC0A00092B5A /* TFlatROMImageWithREX.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cp */; };
 		DA4FF1401A35EC0D00092B5A /* TFlatROMImage.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3482111B7C08002165EC /* TFlatROMImage.cp */; };
 		DA4FF1411A35EC1000092B5A /* TAIFROMImageWithREXes.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3480111B7C08002165EC /* TAIFROMImageWithREXes.cp */; };
@@ -606,7 +609,7 @@
 		F1E2C2A41E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */ = {isa = PBXBuildFile; fileRef = F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cp */; };
 		F1E2C2A51E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */ = {isa = PBXBuildFile; fileRef = F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cp */; };
 		F1E2C2A61E5B9B350074F2D3 /* TCocoaPathHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F19F1C281E5B574000E8C9BE /* TCocoaPathHelper.mm */; };
-		F1E2C2A71E5B9B410074F2D3 /* TVoyagerManagedSerialPort.cp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TVoyagerManagedSerialPort.cp */; };
+		F1E2C2A71E5B9B410074F2D3 /* TBasicSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TBasicSerialPortManager.cp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -642,6 +645,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		C935F7772099F5F200351905 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		C98AB2351A351D20001BB1CD /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -676,20 +688,24 @@
 		C92FC6F6208CDD3600EF4BB1 /* SerialDriver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SerialDriver.cpp; sourceTree = "<group>"; };
 		C92FC6F8208CDD3600EF4BB1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C92FC71620932ADD00EF4BB1 /* README.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
-		C92FC717209374B500EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TVoyagerManagedSerialPortNamedPipes.h; sourceTree = "<group>"; };
-		C92FC71B209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TVoyagerManagedSerialPortNamedPipes.cp; sourceTree = "<group>"; };
+		C92FC717209374B500EF4BB1 /* TPipesSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPipesSerialPortManager.h; sourceTree = "<group>"; };
+		C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPipesSerialPortManager.cp; sourceTree = "<group>"; };
 		C932824511D0CF0A003B93C3 /* button_network_in.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network_in.png; sourceTree = "<group>"; };
 		C932824611D0CF0A003B93C3 /* button_network.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network.png; sourceTree = "<group>"; };
 		C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNE2000Card.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C932C4C111A1AB5D00F6A7E4 /* TNE2000Card.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNE2000Card.h; sourceTree = "<group>"; };
-		C945F6711E53180C002505E9 /* TVoyagerManagedSerialPort.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TVoyagerManagedSerialPort.cp; sourceTree = "<group>"; };
-		C945F6721E53180C002505E9 /* TVoyagerManagedSerialPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TVoyagerManagedSerialPort.h; sourceTree = "<group>"; };
+		C935F7792099F5F200351905 /* BasiliskBridge */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BasiliskBridge; sourceTree = BUILT_PRODUCTS_DIR; };
+		C935F77B2099F5F200351905 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		C935F781209CD67300351905 /* TBasiliskIISerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBasiliskIISerialPortManager.h; sourceTree = "<group>"; };
+		C935F782209CD68900351905 /* TBasiliskIISerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TBasiliskIISerialPortManager.cp; sourceTree = "<group>"; };
+		C945F6711E53180C002505E9 /* TBasicSerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TBasicSerialPortManager.cp; sourceTree = "<group>"; };
+		C945F6721E53180C002505E9 /* TBasicSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBasicSerialPortManager.h; sourceTree = "<group>"; };
 		C94ADB37123E9ADD00406839 /* iEinsteinAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinAppDelegate.mm; path = Classes/iEinsteinAppDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
 		C94ADB38123E9ADD00406839 /* iEinsteinView.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinView.mm; path = Classes/iEinsteinView.mm; sourceTree = "<group>"; tabWidth = 4; };
 		C94ADB39123E9ADD00406839 /* iEinsteinViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinViewController.mm; path = Classes/iEinsteinViewController.mm; sourceTree = "<group>"; tabWidth = 4; };
 		C94ADB3E123E9AEC00406839 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
-		C94C96DB20937E780099001D /* TVoyagerManagedSerialPortPty.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TVoyagerManagedSerialPortPty.cp; sourceTree = "<group>"; };
-		C94C96DC20937E780099001D /* TVoyagerManagedSerialPortPty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TVoyagerManagedSerialPortPty.h; sourceTree = "<group>"; };
+		C94C96DB20937E780099001D /* TPtySerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPtySerialPortManager.cp; sourceTree = "<group>"; };
+		C94C96DC20937E780099001D /* TPtySerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPtySerialPortManager.h; sourceTree = "<group>"; };
 		C95E60B7198B76DC004C6CEF /* EinsteinDev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EinsteinDev.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TUsermodeNetwork.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429611B69A9D00EE66F3 /* TUsermodeNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TUsermodeNetwork.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
@@ -907,8 +923,8 @@
 		C99E3498111B7C08002165EC /* TCocoaScreenView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TCocoaScreenView.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E349D111B7C08002165EC /* TScreenManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TScreenManager.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E349E111B7C08002165EC /* TScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TScreenManager.h; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TVoyagerSerialPort.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		C99E34A8111B7C08002165EC /* TVoyagerSerialPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TVoyagerSerialPort.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		C99E34A7111B7C08002165EC /* TSerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TSerialPortManager.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		C99E34A8111B7C08002165EC /* TSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TSerialPortManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E34AA111B7C08002165EC /* TBufferedSoundManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TBufferedSoundManager.cp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E34AB111B7C08002165EC /* TBufferedSoundManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TBufferedSoundManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E34AC111B7C08002165EC /* TCoreAudioSoundManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TCoreAudioSoundManager.cp; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -1136,6 +1152,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C935F7762099F5F200351905 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C95E60AC198B76DC004C6CEF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1215,6 +1238,7 @@
 				DA4FF0691A35E73900092B5A /* EinsteinTests.xctest */,
 				DA4BA4051A3A0153002BDB80 /* CLITest */,
 				C92FC6F2208CDD3600EF4BB1 /* SerialDriver.kext */,
+				C935F7792099F5F200351905 /* BasiliskBridge */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1235,6 +1259,7 @@
 				C98AB23F1A351D61001BB1CD /* Tools */,
 				C99E3156111B72CC002165EC /* Libraries */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
+				C935F77A2099F5F200351905 /* BasiliskBridge */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
@@ -1282,6 +1307,14 @@
 				C92FC6F8208CDD3600EF4BB1 /* Info.plist */,
 			);
 			path = "MacOS Serial Driver";
+			sourceTree = "<group>";
+		};
+		C935F77A2099F5F200351905 /* BasiliskBridge */ = {
+			isa = PBXGroup;
+			children = (
+				C935F77B2099F5F200351905 /* main.cpp */,
+			);
+			path = BasiliskBridge;
 			sourceTree = "<group>";
 		};
 		C962429411B69A6E00EE66F3 /* Network */ = {
@@ -1828,14 +1861,16 @@
 		C99E34A3111B7C08002165EC /* Serial */ = {
 			isa = PBXGroup;
 			children = (
-				C99E34A7111B7C08002165EC /* TVoyagerSerialPort.cp */,
-				C99E34A8111B7C08002165EC /* TVoyagerSerialPort.h */,
-				C945F6711E53180C002505E9 /* TVoyagerManagedSerialPort.cp */,
-				C945F6721E53180C002505E9 /* TVoyagerManagedSerialPort.h */,
-				C92FC71B209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp */,
-				C92FC717209374B500EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.h */,
-				C94C96DB20937E780099001D /* TVoyagerManagedSerialPortPty.cp */,
-				C94C96DC20937E780099001D /* TVoyagerManagedSerialPortPty.h */,
+				C99E34A7111B7C08002165EC /* TSerialPortManager.cp */,
+				C99E34A8111B7C08002165EC /* TSerialPortManager.h */,
+				C945F6711E53180C002505E9 /* TBasicSerialPortManager.cp */,
+				C945F6721E53180C002505E9 /* TBasicSerialPortManager.h */,
+				C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */,
+				C92FC717209374B500EF4BB1 /* TPipesSerialPortManager.h */,
+				C94C96DB20937E780099001D /* TPtySerialPortManager.cp */,
+				C94C96DC20937E780099001D /* TPtySerialPortManager.h */,
+				C935F782209CD68900351905 /* TBasiliskIISerialPortManager.cp */,
+				C935F781209CD67300351905 /* TBasiliskIISerialPortManager.h */,
 			);
 			path = Serial;
 			sourceTree = "<group>";
@@ -2112,6 +2147,23 @@
 			productReference = C92FC6F2208CDD3600EF4BB1 /* SerialDriver.kext */;
 			productType = "com.apple.product-type.kernel-extension";
 		};
+		C935F7782099F5F200351905 /* BasiliskBridge */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C935F7802099F5F200351905 /* Build configuration list for PBXNativeTarget "BasiliskBridge" */;
+			buildPhases = (
+				C935F7752099F5F200351905 /* Sources */,
+				C935F7762099F5F200351905 /* Frameworks */,
+				C935F7772099F5F200351905 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BasiliskBridge;
+			productName = BasiliskBridge;
+			productReference = C935F7792099F5F200351905 /* BasiliskBridge */;
+			productType = "com.apple.product-type.tool";
+		};
 		C95E603C198B76DC004C6CEF /* EinsteinDev (Matthias) */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C95E60B3198B76DC004C6CEF /* Build configuration list for PBXNativeTarget "EinsteinDev (Matthias)" */;
@@ -2197,6 +2249,11 @@
 						DevelopmentTeam = BK4ST6N599;
 						ProvisioningStyle = Manual;
 					};
+					C935F7782099F5F200351905 = {
+						CreatedOnToolsVersion = 9.3;
+						DevelopmentTeam = BK4ST6N599;
+						ProvisioningStyle = Automatic;
+					};
 					C98AB2361A351D20001BB1CD = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -2227,6 +2284,7 @@
 				DA4FF0681A35E73900092B5A /* EinsteinTests */,
 				DA4BA4041A3A0153002BDB80 /* CLITest */,
 				C92FC6F1208CDD3600EF4BB1 /* SerialDriver */,
+				C935F7782099F5F200351905 /* BasiliskBridge */,
 			);
 		};
 /* End PBXProject section */
@@ -2460,10 +2518,10 @@
 				2389E9741A1E4D4A0001A8C5 /* TInterruptManager.cp in Sources */,
 				2389E9751A1E4D4A0001A8C5 /* TFlash.cp in Sources */,
 				2389E9761A1E4D4A0001A8C5 /* TEmulator.cp in Sources */,
-				F1E2C2A71E5B9B410074F2D3 /* TVoyagerManagedSerialPort.cp in Sources */,
+				F1E2C2A71E5B9B410074F2D3 /* TBasicSerialPortManager.cp in Sources */,
 				2389E9771A1E4D4A0001A8C5 /* TDMAManager.cp in Sources */,
 				2389E9781A1E4D4A0001A8C5 /* TARMProcessor.cp in Sources */,
-				2389E9791A1E4D4A0001A8C5 /* TVoyagerSerialPort.cp in Sources */,
+				2389E9791A1E4D4A0001A8C5 /* TSerialPortManager.cp in Sources */,
 				2389E97A1A1E4D4A0001A8C5 /* TVirtualizedCalls.cp in Sources */,
 				2389E97C1A1E4D4A0001A8C5 /* TATACard.cp in Sources */,
 				DA4BA4721A3A3B78002BDB80 /* TNullScreenManager.cp in Sources */,
@@ -2492,6 +2550,7 @@
 			files = (
 				C99E317B111B73A1002165EC /* TMonitor.cp in Sources */,
 				C99E317C111B73A1002165EC /* TSymbolList.cp in Sources */,
+				C935F783209CD68900351905 /* TBasiliskIISerialPortManager.cp in Sources */,
 				C99E317D111B73A1002165EC /* UDisasm.cp in Sources */,
 				C99E3391111B7570002165EC /* TCondVar.cp in Sources */,
 				C9CEB43F19601CA3002198A7 /* TJITGenericRetarget.cp in Sources */,
@@ -2508,14 +2567,14 @@
 				C99E34D8111B7C08002165EC /* THostInfo.cp in Sources */,
 				C99E34DE111B7C08002165EC /* TJITGeneric.cp in Sources */,
 				C99E34DF111B7C08002165EC /* TJITGeneric_BlockDataTransfer.cp in Sources */,
-				C92FC71E209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp in Sources */,
+				C92FC71E209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */,
 				F19F1C291E5B574000E8C9BE /* TCocoaPathHelper.mm in Sources */,
 				C99E34E0111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer.cp in Sources */,
 				F1E2C2A21E5B5D7A0074F2D3 /* TPathHelper.cp in Sources */,
 				C99E34E1111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp in Sources */,
 				C99E34E3111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp in Sources */,
 				C99E34E5111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cp in Sources */,
-				C94C96DD20937E780099001D /* TVoyagerManagedSerialPortPty.cp in Sources */,
+				C94C96DD20937E780099001D /* TPtySerialPortManager.cp in Sources */,
 				C99E34E7111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MRS.cp in Sources */,
 				C99E34E9111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MSR.cp in Sources */,
 				C99E34EB111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cp in Sources */,
@@ -2554,12 +2613,12 @@
 				C99E351C111B7C08002165EC /* TCocoaScreenView.mm in Sources */,
 				C99E351F111B7C08002165EC /* TScreenManager.cp in Sources */,
 				DA52C8991A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
-				C99E3523111B7C08002165EC /* TVoyagerSerialPort.cp in Sources */,
+				C99E3523111B7C08002165EC /* TSerialPortManager.cp in Sources */,
 				C99E3524111B7C08002165EC /* TBufferedSoundManager.cp in Sources */,
 				C99E3525111B7C08002165EC /* TCoreAudioSoundManager.cp in Sources */,
 				C99E3526111B7C08002165EC /* TNullSoundManager.cp in Sources */,
 				C99E3528111B7C08002165EC /* TSoundManager.cp in Sources */,
-				C945F6731E53180C002505E9 /* TVoyagerManagedSerialPort.cp in Sources */,
+				C945F6731E53180C002505E9 /* TBasicSerialPortManager.cp in Sources */,
 				C99E352A111B7C08002165EC /* TARMProcessor.cp in Sources */,
 				C99E352B111B7C08002165EC /* TDMAManager.cp in Sources */,
 				C99E352C111B7C08002165EC /* TEmulator.cp in Sources */,
@@ -2602,6 +2661,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C935F7752099F5F200351905 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C935F77C2099F5F200351905 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C95E604A198B76DC004C6CEF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2627,6 +2694,7 @@
 				C95E605C198B76DC004C6CEF /* THostInfo.cp in Sources */,
 				C95E605D198B76DC004C6CEF /* TJITGeneric.cp in Sources */,
 				C95E605E198B76DC004C6CEF /* TJITGeneric_BlockDataTransfer.cp in Sources */,
+				C935F784209CD68900351905 /* TBasiliskIISerialPortManager.cp in Sources */,
 				C9E7AC0F2075709700590E5B /* TFileManager.cp in Sources */,
 				C95E605F198B76DC004C6CEF /* TJITGeneric_DataProcessingPSRTransfer.cp in Sources */,
 				C95E6060198B76DC004C6CEF /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp in Sources */,
@@ -2668,7 +2736,7 @@
 				C95E6082198B76DC004C6CEF /* TCocoaScreenManager.mm in Sources */,
 				C95E6083198B76DC004C6CEF /* TCocoaScreenView.mm in Sources */,
 				C95E6084198B76DC004C6CEF /* TScreenManager.cp in Sources */,
-				C95E6085198B76DC004C6CEF /* TVoyagerSerialPort.cp in Sources */,
+				C95E6085198B76DC004C6CEF /* TSerialPortManager.cp in Sources */,
 				C95E6086198B76DC004C6CEF /* TBufferedSoundManager.cp in Sources */,
 				C95E6087198B76DC004C6CEF /* TCoreAudioSoundManager.cp in Sources */,
 				C95E6088198B76DC004C6CEF /* TNullSoundManager.cp in Sources */,
@@ -2696,17 +2764,17 @@
 				C95E60A2198B76DC004C6CEF /* TFileStream.cp in Sources */,
 				C95E60A3198B76DC004C6CEF /* TCircleBuffer.cp in Sources */,
 				C95E60A4198B76DC004C6CEF /* TMappedFile.cp in Sources */,
-				C955C6511E55D06900F0BFFA /* TVoyagerManagedSerialPort.cp in Sources */,
+				C955C6511E55D06900F0BFFA /* TBasicSerialPortManager.cp in Sources */,
 				C95E60A5198B76DC004C6CEF /* TError.cp in Sources */,
 				C95E60A6198B76DC004C6CEF /* TException.cp in Sources */,
 				C95E60A7198B76DC004C6CEF /* TIOException.cp in Sources */,
 				C95E60A8198B76DC004C6CEF /* TMemError.cp in Sources */,
 				DA52C8A61A409C18008A17D0 /* UJITGenericRetargetSupport.cp in Sources */,
-				C94C96DE20937E780099001D /* TVoyagerManagedSerialPortPty.cp in Sources */,
+				C94C96DE20937E780099001D /* TPtySerialPortManager.cp in Sources */,
 				DA52C8941A409164008A17D0 /* TJITGenericROMPatch.cp in Sources */,
 				C95E60A9198B76DC004C6CEF /* TEOFException.cp in Sources */,
 				C95E60AA198B76DC004C6CEF /* TJITPerformance.cp in Sources */,
-				C92FC71F209374B600EF4BB1 /* TVoyagerManagedSerialPortNamedPipes.cp in Sources */,
+				C92FC71F209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */,
 				C95E60AB198B76DC004C6CEF /* TFiber.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2735,7 +2803,7 @@
 				DA4BA4171A3A028C002BDB80 /* TInterruptManager.cp in Sources */,
 				DA4BA40D1A3A0160002BDB80 /* tests.cp in Sources */,
 				DA4BA40F1A3A01F7002BDB80 /* UMemoryTests.cp in Sources */,
-				DA4BA4441A3A02FD002BDB80 /* TVoyagerSerialPort.cp in Sources */,
+				DA4BA4441A3A02FD002BDB80 /* TSerialPortManager.cp in Sources */,
 				DA4BA4431A3A02FD002BDB80 /* TPCMCIAController.cp in Sources */,
 				DA52C89F1A40935B008A17D0 /* TVirtualizedCallsPatches.cp in Sources */,
 				DA4BA4361A3A02FD002BDB80 /* TJITGeneric_MultiplyAndAccumulate.cp in Sources */,
@@ -2835,7 +2903,7 @@
 				DA4BA4661A3A37FF002BDB80 /* TNullSoundManager.cp in Sources */,
 				DA4FF12A1A35EAF600092B5A /* TJITGenericRetargetMap.cpp in Sources */,
 				DA4FF1191A35EAF600092B5A /* TJITGeneric.cp in Sources */,
-				DA4FF13E1A35EBF800092B5A /* TVoyagerSerialPort.cp in Sources */,
+				DA4FF13E1A35EBF800092B5A /* TSerialPortManager.cp in Sources */,
 				DA4FF11E1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cp in Sources */,
 				DA4FF1481A35EC4300092B5A /* UDisasm.cp in Sources */,
 				DA4FF10C1A35EA8800092B5A /* TInterruptManager.cp in Sources */,
@@ -3331,6 +3399,119 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				WRAPPER_EXTENSION = kext;
+			};
+			name = Distribution;
+		};
+		C935F77D2099F5F200351905 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = BK4ST6N599;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		C935F77E2099F5F200351905 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = BK4ST6N599;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		C935F77F2099F5F200351905 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = BK4ST6N599;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Distribution;
 		};
@@ -3949,6 +4130,16 @@
 				C92FC6FA208CDD3600EF4BB1 /* Debug */,
 				C92FC6FB208CDD3600EF4BB1 /* Release */,
 				C92FC6FC208CDD3600EF4BB1 /* Distribution */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C935F7802099F5F200351905 /* Build configuration list for PBXNativeTarget "BasiliskBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C935F77D2099F5F200351905 /* Debug */,
+				C935F77E2099F5F200351905 /* Release */,
+				C935F77F2099F5F200351905 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -21,12 +21,6 @@
 // $Id$
 // ==============================
 
-
-// define one of the macros below to choose one of these serial port emulations
-#undef EXTERNAL_SERIAL_PORT_NOT_EMULATED
-#undef EXTERNAL_SERIAL_PORT_NAMED_PIPES
-#define EXTERNAL_SERIAL_PORT_PTY 1
-
 #include <K/Defines/KDefinitions.h>
 #include "TEmulator.h"
 
@@ -57,10 +51,11 @@
 #include "Screen/TScreenManager.h"
 #include "PCMCIA/TPCMCIAController.h"
 #include "PCMCIA/TLinearCard.h"
-#include "Serial/TVoyagerSerialPort.h"
+#include "Serial/TSerialPortManager.h"
 #if TARGET_OS_MAC
-#include "Serial/TVoyagerManagedSerialPortNamedPipes.h"
-#include "Serial/TVoyagerManagedSerialPortPty.h"
+#include "Serial/TPipesSerialPortManager.h"
+#include "Serial/TPtySerialPortManager.h"
+#include "Serial/TBasiliskIISerialPortManager.h"
 #endif
 #include "TInterruptManager.h"
 #include "TDMAManager.h"
@@ -85,7 +80,8 @@ TEmulator::TEmulator(
 			TSoundManager* inSoundManager,
 			TScreenManager* inScreenManager,
 			TNetworkManager* inNetworkManager,
-			KUInt32 inRAMSize /* = 4194304 */ )
+			KUInt32 inRAMSize, /* = 4194304 */
+			TSerialPortManager* inExtrSerialPortManager)
 	:
 		mMemory( inLog, inROMImage, inFlashPath, inRAMSize ),
 		mProcessor( inLog, &mMemory ),
@@ -113,57 +109,29 @@ TEmulator::TEmulator(
 	mDMAManager = new TDMAManager(inLog, this, &mMemory, mInterruptManager);
 	mPlatformManager = new TPlatformManager( inLog, inScreenManager );
 
-#if TARGET_OS_MAC
+	if (inExtrSerialPortManager) {
+		mExternalPort = inExtrSerialPortManager;
+	} else {
+		mExternalPort = new TSerialPortManager(
+			inLog,
+			TSerialPortManager::kExternalSerialPort);
+	}
+	mExternalPort->run(mInterruptManager, mDMAManager, &mMemory);
 
-#if defined(EXTERNAL_SERIAL_PORT_NOT_EMULATED)
-	mExternalPort = new TVoyagerSerialPort(
-										   inLog,
-										   TVoyagerSerialPort::kExternalSerialPort,
-										   mInterruptManager,
-										   mDMAManager,
-										   &mMemory);
-#elif defined(EXTERNAL_SERIAL_PORT_NAMED_PIPES)
-	mExternalPort = new TVoyagerManagedSerialPortNamedPipes(
-															inLog,
-															TVoyagerSerialPort::kExternalSerialPort,
-															mInterruptManager,
-															mDMAManager,
-															&mMemory);
-#elif defined(EXTERNAL_SERIAL_PORT_PTY)
-	mExternalPort = new TVoyagerManagedSerialPortPty(
-													 inLog,
-													 TVoyagerSerialPort::kExternalSerialPort,
-													 mInterruptManager,
-													 mDMAManager,
-													 &mMemory);
-#endif
+	mInfraredPort = new TSerialPortManager(
+		inLog,
+		TSerialPortManager::kInfraredSerialPort);
+	mInfraredPort->run(mInterruptManager, mDMAManager, &mMemory);
 
-#else
-	mExternalPort = new TVoyagerSerialPort(
+	mBuiltInExtraPort = new TSerialPortManager(
 		inLog,
-		TVoyagerSerialPort::kExternalSerialPort,
-		mInterruptManager,
-		mDMAManager,
-		&mMemory);
-#endif
-	mInfraredPort = new TVoyagerSerialPort(
+		TSerialPortManager::kBuiltInExtraSerialPort);
+	mBuiltInExtraPort->run(mInterruptManager, mDMAManager, &mMemory);
+
+	mModemPort = new TSerialPortManager(
 		inLog,
-		TVoyagerSerialPort::kInfraredSerialPort,
-		mInterruptManager,
-		mDMAManager,
-		&mMemory);
-	mBuiltInExtraPort = new TVoyagerSerialPort(
-		inLog,
-		TVoyagerSerialPort::kBuiltInExtraSerialPort,
-		mInterruptManager,
-		mDMAManager,
-        &mMemory);
-	mModemPort = new TVoyagerSerialPort(
-		inLog,
-		TVoyagerSerialPort::kModemSerialPort,
-		mInterruptManager,
-		mDMAManager,
-		&mMemory);
+		TSerialPortManager::kModemSerialPort);
+	mModemPort->run(mInterruptManager, mDMAManager, &mMemory);
 
 	mNewtonID[0] = kMyNewtonIDHigh;
 	mNewtonID[1] = kMyNewtonIDLow;

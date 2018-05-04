@@ -43,6 +43,9 @@
 #ifdef OPTION_X11_SCREEN
 #include "Emulator/Screen/TX11ScreenManager.h"
 #endif
+#include "Emulator/Serial/TPipesSerialPortManager.h"
+#include "Emulator/Serial/TPtySerialPortManager.h"
+#include "Emulator/Serial/TBasiliskIISerialPortManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
@@ -98,7 +101,7 @@ static TCocoaAppController* gInstance = nil;
 			[NSNumber numberWithInt:kCoreAudioDriverTag], kAudioDriverKey,
 			[NSNumber numberWithInt:kCocoaScreenDriverTag], kScreenDriverKey,
 			[NSNumber numberWithInt:kUsermodeNetworkDriverTag], kNetworkDriverKey,
-			[NSNumber numberWithInt:kPtySerialDriverTag], kSerialDriverKey,
+			[NSNumber numberWithInt:kBasiliskIISerialDriverTag], kSerialDriverKey,
 			[NSNumber numberWithBool:NO], kDontShowAtStartupKey,
 			[NSNumber numberWithBool:NO], kEnableListenersKey,
 			nil];
@@ -120,6 +123,7 @@ static TCocoaAppController* gInstance = nil;
 		mNetworkManager = NULL;
 		mSoundManager = NULL;
 		mScreenManager = NULL;
+		mExtrSerialPortManager = NULL;
 		mROMImage = NULL;
 		mEmulator = NULL;
 		mPlatformManager = NULL;
@@ -161,6 +165,10 @@ static TCocoaAppController* gInstance = nil;
 	if (mScreenManager)
 	{
 		delete mScreenManager;
+	}
+	if (mExtrSerialPortManager)
+	{
+		delete mExtrSerialPortManager;
 	}
 	if (mNetworkManager)
 	{
@@ -409,13 +417,36 @@ static TCocoaAppController* gInstance = nil;
 #endif
 	}
 
+	// Create the serial port manager
+	NSInteger indexSerialPortDriver = [defaults integerForKey: kSerialDriverKey];
+	if (indexSerialPortDriver == kBasiliskIISerialDriverTag)
+	{
+		mExtrSerialPortManager = new TBasiliskIISerialPortManager(
+			mLog,
+			TSerialPortManager::kExternalSerialPort);
+	} else if (indexSerialPortDriver == kPtySerialDriverTag) {
+		mExtrSerialPortManager = new TPtySerialPortManager(
+			mLog,
+			TSerialPortManager::kExternalSerialPort);
+	} else if (indexSerialPortDriver == kPipesSerialDriverTag) {
+		mExtrSerialPortManager = new TPipesSerialPortManager(
+			mLog,
+			TSerialPortManager::kExternalSerialPort);
+	} else {
+		mExtrSerialPortManager = new TSerialPortManager(
+			mLog,
+			TSerialPortManager::kExternalSerialPort);
+	}
+
 	// Create the emulator.
 	KUInt32 ramSize = (KUInt32)[defaults integerForKey: kRAMSizeKey];
 	const char* theFlashPath =
 		[[defaults stringForKey: kInternalFlashPathKey] UTF8String];
 	mEmulator = new TEmulator(
-				mLog, mROMImage, theFlashPath,
-				mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
+							  mLog, mROMImage, theFlashPath,
+							  mSoundManager, mScreenManager, mNetworkManager,
+							  ramSize << 16,
+							  mExtrSerialPortManager );
 	
 	if ([defaults boolForKey: kEnableListenersKey])
 	{

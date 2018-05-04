@@ -1,5 +1,5 @@
 // ==============================
-// File:			TVoyagerManagedSerialPortPty.h
+// File:			TPtySerialPortManager.h
 // Project:			Einstein
 //
 // Copyright 2018 by Matthias Melcher (mm@matthiasm.com).
@@ -21,10 +21,10 @@
 // $Id$
 // ==============================
 
-#ifndef _TVoyagerManagedSerialPortPty_H
-#define _TVoyagerManagedSerialPortPty_H
+#ifndef _TPtySerialPortManager_H
+#define _TPtySerialPortManager_H
 
-#include "TVoyagerManagedSerialPort.h"
+#include "TBasicSerialPortManager.h"
 
 #include <pthread.h>
 
@@ -38,24 +38,27 @@ class TMemory;
 ///
 /// \author Matthias Melcher
 ///
-class TVoyagerManagedSerialPortPty : public TVoyagerManagedSerialPort
+class TPtySerialPortManager : public TBasicSerialPortManager
 {
 public:
 
 	///
 	/// Constructor.
 	///
-	TVoyagerManagedSerialPortPty(
-							  TLog* inLog,
-							  ELocationID inLocationID,
-							  TInterruptManager* inInterruptManager,
-							  TDMAManager* inDMAManager,
-							  TMemory* inMemory);
+	TPtySerialPortManager(TLog* inLog,
+						  ELocationID inLocationID);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TVoyagerManagedSerialPortPty( void );
+	virtual ~TPtySerialPortManager( void );
+
+	///
+	/// Start emulation.
+	///
+	virtual void run(TInterruptManager* inInterruptManager,
+					 TDMAManager* inDMAManager,
+					 TMemory* inMemory);
 
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
@@ -77,7 +80,7 @@ protected:
 	///
 	/// PThread hook.
 	///
-	static void *SHandleDMA(void *This) { ((TVoyagerManagedSerialPortPty*)This)->HandleDMA(); return 0L; }
+	static void *SHandleDMA(void *This) { ((TPtySerialPortManager*)This)->HandleDMA(); return 0L; }
 
 	///
 	/// Find good names for the named pipes
@@ -97,7 +100,7 @@ protected:
 };
 
 #endif
-// _TVoyagerManagedSerialPortPty_H
+// _TPtySerialPortManager_H
 
 // ================= //
 // Byte your tongue. //

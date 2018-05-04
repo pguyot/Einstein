@@ -1,5 +1,5 @@
 // ==============================
-// File:			TVoyagerManagedSerialPortPty.cp
+// File:			TBasiliskIISerialPortManager.cp
 // Project:			Einstein
 //
 // Copyright 2018 by Matthias Melcher (mm@matthiasm.com).
@@ -22,7 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "TVoyagerManagedSerialPortPty.h"
+#include "TBasiliskIISerialPortManager.h"
 #include "TPathHelper.h"
 
 // POSIX
@@ -49,18 +49,15 @@
 
 
 // -------------------------------------------------------------------------- //
-//  * TVoyagerManagedSerialPortPty()
+//  * TBasiliskIISerialPortManager()
 // Emulate a serial port via a pseudo terminal.
 // For example, opening /dev/ptyp0 as a master will give access to the
 // corresponding slave port /dev/ttyp0.
 // -------------------------------------------------------------------------- //
-TVoyagerManagedSerialPortPty::TVoyagerManagedSerialPortPty(
+TBasiliskIISerialPortManager::TBasiliskIISerialPortManager(
 													 TLog* inLog,
-													 ELocationID inLocationID,
-													 TInterruptManager* inInterruptManager,
-													 TDMAManager* inDMAManager,
-													 TMemory* inMemory)
-:	TVoyagerManagedSerialPort(inLog, inLocationID, inInterruptManager, inDMAManager, inMemory),
+													 ELocationID inLocationID)
+:	TBasicSerialPortManager(inLog, inLocationID),
 
 	mPipe{-1,-1},
 	mPtyPort(-1),
@@ -68,26 +65,38 @@ TVoyagerManagedSerialPortPty::TVoyagerManagedSerialPortPty(
 	mDMAThread(0L),
 	mPtyName(0L)
 {
-	RunDMA();
 }
 
 
 // -------------------------------------------------------------------------- //
-//  * ~TVoyagerManagedSerialPortPty( void )
+//  * ~TBasiliskIISerialPortManager( void )
 //		Don't worry about releasing  resources. All drivers will live
 //		throughout the run time of the app.
 // -------------------------------------------------------------------------- //
-TVoyagerManagedSerialPortPty::~TVoyagerManagedSerialPortPty()
+TBasiliskIISerialPortManager::~TBasiliskIISerialPortManager()
 {
 	if (mPtyName)
 		free(mPtyName);
 }
 
+// -------------------------------------------------------------------------- //
+//  * run( TInterruptManager*, TDMAManager*, TMemory* )
+// -------------------------------------------------------------------------- //
+void TBasiliskIISerialPortManager::run(TInterruptManager* inInterruptManager,
+								TDMAManager* inDMAManager,
+								TMemory* inMemory)
+{
+	mInterruptManager = inInterruptManager;
+	mDMAManager = inDMAManager;
+	mMemory = inMemory;
+
+	RunDMA();
+}
 
 // -------------------------------------------------------------------------- //
 // DMA or interrupts were triggered
 // -------------------------------------------------------------------------- //
-void TVoyagerManagedSerialPortPty::TriggerEvent(KUInt8 cmd)
+void TBasiliskIISerialPortManager::TriggerEvent(KUInt8 cmd)
 {
 	if (mPipe[1]!=-1) {
 		write(mPipe[1], &cmd, 1);
@@ -99,12 +108,13 @@ void TVoyagerManagedSerialPortPty::TriggerEvent(KUInt8 cmd)
 // * FindPtyName()
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPortPty::FindPtyName()
+TBasiliskIISerialPortManager::FindBasiliskIIName()
 {
 	if (mPtyName)
 		return;
 	// TODO: hardcode the name for now
-	mPtyName = strdup("/dev/ttyp0");
+//	mPtyName = strdup("/dev/ttyp0");
+	mPtyName = strdup("/tmp/BBridge.Einstein");
 }
 
 
@@ -112,7 +122,7 @@ TVoyagerManagedSerialPortPty::FindPtyName()
 // * CreatePty
 // -------------------------------------------------------------------------- //
 bool
-TVoyagerManagedSerialPortPty::CreatePty()
+TBasiliskIISerialPortManager::CreateBasiliskII()
 {
 	// TODO: Remove this function. There is nothing to create.
 	return true;
@@ -132,11 +142,11 @@ TVoyagerManagedSerialPortPty::CreatePty()
 //		It's like that, and that's the way it is"
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPortPty::RunDMA()
+TBasiliskIISerialPortManager::RunDMA()
 {
 	// create named pipe nodes
-	FindPtyName();
-	if (!CreatePty()) {
+	FindBasiliskIIName();
+	if (!CreateBasiliskII()) {
 		return;
 	}
 
@@ -172,7 +182,7 @@ TVoyagerManagedSerialPortPty::RunDMA()
 //		It can also trigger interrupts when buffers empty, fill, or overflow.
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPortPty::HandleDMA()
+TBasiliskIISerialPortManager::HandleDMA()
 {
 	static int maxFD = -1;
 

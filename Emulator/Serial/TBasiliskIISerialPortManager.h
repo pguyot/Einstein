@@ -1,5 +1,5 @@
 // ==============================
-// File:			TVoyagerManagedSerialPortNamedPipes.h
+// File:			TBasiliskIISerialPortManager.h
 // Project:			Einstein
 //
 // Copyright 2018 by Matthias Melcher (mm@matthiasm.com).
@@ -21,10 +21,10 @@
 // $Id$
 // ==============================
 
-#ifndef _TVOYAGERMANAGEDSERIALPORTNAMEDPIPES_H
-#define _TVOYAGERMANAGEDSERIALPORTNAMEDPIPES_H
+#ifndef _TBasiliskIISerialPortManager_H
+#define _TBasiliskIISerialPortManager_H
 
-#include "TVoyagerManagedSerialPort.h"
+#include "TBasicSerialPortManager.h"
 
 #include <pthread.h>
 
@@ -34,28 +34,31 @@ class TDMAManager;
 class TMemory;
 
 ///
-/// Emulate a serial port via named pipes in MacOS
+/// Emulate a serial port via a pseudo terminal (pty) in MacOS
 ///
 /// \author Matthias Melcher
 ///
-class TVoyagerManagedSerialPortNamedPipes : public TVoyagerManagedSerialPort
+class TBasiliskIISerialPortManager : public TBasicSerialPortManager
 {
 public:
 
 	///
 	/// Constructor.
 	///
-	TVoyagerManagedSerialPortNamedPipes(
-							  TLog* inLog,
-							  ELocationID inLocationID,
-							  TInterruptManager* inInterruptManager,
-							  TDMAManager* inDMAManager,
-							  TMemory* inMemory);
+	TBasiliskIISerialPortManager(TLog* inLog,
+								 ELocationID inLocationID);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TVoyagerManagedSerialPortNamedPipes( void );
+	virtual ~TBasiliskIISerialPortManager( void );
+
+	///
+	/// Start emulation.
+	///
+	virtual void run(TInterruptManager* inInterruptManager,
+					 TDMAManager* inDMAManager,
+					 TMemory* inMemory);
 
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
@@ -77,30 +80,27 @@ protected:
 	///
 	/// PThread hook.
 	///
-	static void *SHandleDMA(void *This) { ((TVoyagerManagedSerialPortNamedPipes*)This)->HandleDMA(); return 0L; }
+	static void *SHandleDMA(void *This) { ((TBasiliskIISerialPortManager*)This)->HandleDMA(); return 0L; }
 
 	///
 	/// Find good names for the named pipes
 	///
-	void FindPipeNames();
+	void FindBasiliskIIName();
 
 	///
 	/// Create the named pipes as nodes in the file system
 	///
-	bool CreateNamedPipes();
+	bool CreateBasiliskII();
 
 	int mPipe[2];							///< communication between emulator and DMA thread
-	int mTxPort;							///< named pipe or serial port
-	int mRxPort;							///< named pipe or serial port
+	int mPtyPort;							///< pseudo terminal file id
 	bool mDMAIsRunning;						///< set if DMA thread is active
 	pthread_t mDMAThread;
-
-	char *mTxPortName;						///< named pipe for transmitting data
-	char *mRxPortName;						///< named pipe for receiving data
+	char *mPtyName;							///< named of pseudo terminal
 };
 
 #endif
-// _TVOYAGERMANAGEDSERIALPORTNAMEDPIPES_H
+// _TBasiliskIISerialPortManager_H
 
 // ================= //
 // Byte your tongue. //

@@ -1,5 +1,5 @@
 // ==============================
-// File:			TVoyagerManagedSerialPortNamedPipes.cp
+// File:			TPipesSerialPortManager.cp
 // Project:			Einstein
 //
 // Copyright 2018 by Matthias Melcher (mm@matthiasm.com).
@@ -22,7 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "TVoyagerManagedSerialPortNamedPipes.h"
+#include "TPipesSerialPortManager.h"
 #include "TPathHelper.h"
 
 // POSIX
@@ -45,20 +45,17 @@
 
 
 // -------------------------------------------------------------------------- //
-//  * TVoyagerManagedSerialPortNamedPipes()
+//  * TPipesSerialPortManager()
 // Emulate a serial connection using two named pipes via "mkfifo". The pipes
 // are named:
 // 	$(HOME)/Library/Application Support/Einstein Emulator/ExtrSerPortSend
 // and
 //  $(HOME)/Library/Application Support/Einstein Emulator/ExtrSerPortRecv")
 // -------------------------------------------------------------------------- //
-TVoyagerManagedSerialPortNamedPipes::TVoyagerManagedSerialPortNamedPipes(
+TPipesSerialPortManager::TPipesSerialPortManager(
 													 TLog* inLog,
-													 ELocationID inLocationID,
-													 TInterruptManager* inInterruptManager,
-													 TDMAManager* inDMAManager,
-													 TMemory* inMemory)
-:	TVoyagerManagedSerialPort(inLog, inLocationID, inInterruptManager, inDMAManager, inMemory),
+													 ELocationID inLocationID)
+:	TBasicSerialPortManager(inLog, inLocationID),
 
 	mPipe{-1,-1},
 	mTxPort(-1),
@@ -68,16 +65,15 @@ TVoyagerManagedSerialPortNamedPipes::TVoyagerManagedSerialPortNamedPipes(
 	mTxPortName(0L),
 	mRxPortName(0L)
 {
-	RunDMA();
 }
 
 
 // -------------------------------------------------------------------------- //
-//  * ~TVoyagerManagedSerialPortNamedPipes( void )
+//  * ~TPipesSerialPortManager( void )
 //		Don't worry about releasing  resources. All drivers will live
 //		throughout the run time of the app.
 // -------------------------------------------------------------------------- //
-TVoyagerManagedSerialPortNamedPipes::~TVoyagerManagedSerialPortNamedPipes()
+TPipesSerialPortManager::~TPipesSerialPortManager()
 {
 	if (mTxPortName)
 		free(mTxPortName);
@@ -85,11 +81,24 @@ TVoyagerManagedSerialPortNamedPipes::~TVoyagerManagedSerialPortNamedPipes()
 		free(mRxPortName);
 }
 
+// -------------------------------------------------------------------------- //
+//  * run( TInterruptManager*, TDMAManager*, TMemory* )
+// -------------------------------------------------------------------------- //
+void TPipesSerialPortManager::run(TInterruptManager* inInterruptManager,
+								  TDMAManager* inDMAManager,
+								  TMemory* inMemory)
+{
+	mInterruptManager = inInterruptManager;
+	mDMAManager = inDMAManager;
+	mMemory = inMemory;
+
+	RunDMA();
+}
 
 // -------------------------------------------------------------------------- //
 // DMA or interrupts trigger a command that must be handled by a derived class.
 // -------------------------------------------------------------------------- //
-void TVoyagerManagedSerialPortNamedPipes::TriggerEvent(KUInt8 cmd)
+void TPipesSerialPortManager::TriggerEvent(KUInt8 cmd)
 {
 	if (mPipe[1]!=-1) {
 		write(mPipe[1], &cmd, 1);
@@ -104,7 +113,7 @@ void TVoyagerManagedSerialPortNamedPipes::TriggerEvent(KUInt8 cmd)
 //		pipes for a virtual modem
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPortNamedPipes::FindPipeNames()
+TPipesSerialPortManager::FindPipeNames()
 {
 	if (mTxPortName && mRxPort)
 		return;
@@ -142,7 +151,7 @@ TVoyagerManagedSerialPortNamedPipes::FindPipeNames()
 //		Create the named pipes as nodes in the file system.
 // -------------------------------------------------------------------------- //
 bool
-TVoyagerManagedSerialPortNamedPipes::CreateNamedPipes()
+TPipesSerialPortManager::CreateNamedPipes()
 {
 	// crete the sending node if it does not exist yet
 	if (access(mTxPortName, S_IRUSR|S_IWUSR)==-1) {
@@ -175,7 +184,7 @@ TVoyagerManagedSerialPortNamedPipes::CreateNamedPipes()
 //		the eighties.
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPortNamedPipes::RunDMA()
+TPipesSerialPortManager::RunDMA()
 {
 	// create named pipe nodes
 	FindPipeNames();
@@ -221,7 +230,7 @@ TVoyagerManagedSerialPortNamedPipes::RunDMA()
 //		It can also trigger interrupts when buffers empty, fill, or overflow.
 // -------------------------------------------------------------------------- //
 void
-TVoyagerManagedSerialPortNamedPipes::HandleDMA()
+TPipesSerialPortManager::HandleDMA()
 {
 	static int maxFD = -1;
 

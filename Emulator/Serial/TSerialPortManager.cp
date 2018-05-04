@@ -1,5 +1,5 @@
 // ==============================
-// File:			TVoyagerSerialPort.cp
+// File:			TSerialPortManager.cp
 // Project:			Einstein
 //
 // Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
@@ -22,7 +22,7 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "TVoyagerSerialPort.h"
+#include "TSerialPortManager.h"
 
 // POSIX
 #include <sys/types.h>
@@ -43,35 +43,45 @@
 // -------------------------------------------------------------------------- //
 
 // -------------------------------------------------------------------------- //
-//  * TVoyagerSerialPort( TLog*, ELocationID )
+//  * TSerialPortManager( TLog*, ELocationID )
 // -------------------------------------------------------------------------- //
-TVoyagerSerialPort::TVoyagerSerialPort(
+TSerialPortManager::TSerialPortManager(
 		TLog* inLog,
-		ELocationID inLocationID,
-		TInterruptManager* inInterruptManager,
-		TDMAManager* inDMAManager,
-		TMemory* inMemory)
-	:
+		ELocationID inLocationID)
+:
 		mLog( inLog ),
 		mLocationID( inLocationID ),
-		mInterruptManager( inInterruptManager ),
-		mDMAManager( inDMAManager ),
-		mMemory(inMemory)
+		mInterruptManager( NULL ),
+		mDMAManager( NULL ),
+		mMemory( NULL )
 {
 }
 
 // -------------------------------------------------------------------------- //
-//  * ~TVoyagerSerialPort( void )
+//  * ~TSerialPortManager( void )
 // -------------------------------------------------------------------------- //
-TVoyagerSerialPort::~TVoyagerSerialPort( void )
+TSerialPortManager::~TSerialPortManager( void )
 {
+}
+
+// -------------------------------------------------------------------------- //
+//  * run( TInterruptManager*, TDMAManager*, TMemory* )
+// -------------------------------------------------------------------------- //
+void TSerialPortManager::run(TInterruptManager* inInterruptManager,
+							 TDMAManager* inDMAManager,
+							 TMemory* inMemory)
+{
+	mInterruptManager = inInterruptManager;
+	mDMAManager = inDMAManager;
+	mMemory = inMemory;
+	// nothing to do here
 }
 
 // -------------------------------------------------------------------------- //
 //  * WriteRegister( KUInt32, KUInt8 )
 // -------------------------------------------------------------------------- //
 void
-TVoyagerSerialPort::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
+TSerialPortManager::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
 {
 	if (mLog)
 	{
@@ -90,7 +100,7 @@ TVoyagerSerialPort::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
 //  * ReadRegister( KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt8
-TVoyagerSerialPort::ReadRegister( KUInt32 inOffset )
+TSerialPortManager::ReadRegister( KUInt32 inOffset )
 {
 	KUInt8 theResult = 0;
 	if (inOffset == 0x4400)
@@ -125,7 +135,7 @@ TVoyagerSerialPort::ReadRegister( KUInt32 inOffset )
 //  * ReadDMARegister( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TVoyagerSerialPort::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister )
+TSerialPortManager::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister )
 {
 	KUInt32 theResult = 0L;
 	if (mLog)
@@ -143,7 +153,7 @@ TVoyagerSerialPort::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 
 //  * WriteDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TVoyagerSerialPort::WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue )
+TSerialPortManager::WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue )
 {
 	if (mLog)
 	{

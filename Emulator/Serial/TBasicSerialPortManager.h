@@ -1,5 +1,5 @@
 // ==============================
-// File:			TVoyagerManagedSerialPort.h
+// File:			TBasicSerialPortManager.h
 // Project:			Einstein
 //
 // Copyright 2017-2018 by Matthias Melcher (mm@matthiasm.com).
@@ -24,7 +24,7 @@
 #ifndef _TVOYAGERMANAGEDSERIALPORT_H
 #define _TVOYAGERMANAGEDSERIALPORT_H
 
-#include "TVoyagerSerialPort.h"
+#include "TSerialPortManager.h"
 
 #include <pthread.h>
 
@@ -38,7 +38,7 @@ class TMemory;
 ///
 /// \author Matthias Melcher
 ///
-class TVoyagerManagedSerialPort : public TVoyagerSerialPort
+class TBasicSerialPortManager : public TSerialPortManager
 {
 public:
 
@@ -47,17 +47,20 @@ public:
 	///
 	/// Constructor.
 	///
-	TVoyagerManagedSerialPort(
-							  TLog* inLog,
-							  ELocationID inLocationID,
-							  TInterruptManager* inInterruptManager,
-							  TDMAManager* inDMAManager,
-							  TMemory* inMemory);
+	TBasicSerialPortManager(TLog* inLog,
+							ELocationID inLocationID);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TVoyagerManagedSerialPort( void );
+	virtual ~TBasicSerialPortManager( void );
+
+	///
+	/// Start emulation.
+	///
+	virtual void run(TInterruptManager* inInterruptManager,
+					 TDMAManager* inDMAManager,
+					 TMemory* inMemory);
 
 	///
 	/// Write register.

@@ -563,19 +563,21 @@ Gw
                                 <popUpButton verticalHuggingPriority="750" misplaced="YES" id="AiJ-OL-4f1" userLabel="Serial Port Menu">
                                     <rect key="frame" x="199" y="3" width="166" height="26"/>
                                     <autoresizingMask key="autoresizingMask"/>
-                                    <string key="toolTip">A Pseudo Terminal connects to /dev/ttyp0, the named pipes create the fifos $(HOME)/Library/Application Support/Einstein Emulator/ExtrSerPortSend and ...Recv</string>
-                                    <popUpButtonCell key="cell" type="push" title="Pseudo Terminal" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="1" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="gyx-Vg-Z3T" id="BiY-T4-NAk" userLabel="Serial Port Menu">
+                                    <popUpButtonCell key="cell" type="push" title="BasiliskII" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="3" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="gyx-Vg-Z3T" id="BiY-T4-NAk" userLabel="Serial Port Menu">
                                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                         <font key="font" metaFont="menu"/>
                                         <menu key="menu" title="OtherViews" id="3zZ-5O-REa">
                                             <items>
-                                                <menuItem title="Pseudo Terminal" state="on" tag="1" id="gyx-Vg-Z3T">
+                                                <menuItem title="BasiliskII" state="on" tag="3" toolTip="connects to &quot;/tmp/pty.BasiliskII&quot;" id="gyx-Vg-Z3T">
                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                 </menuItem>
-                                                <menuItem title="Named Pipes" tag="2" id="1oS-fH-RAo">
+                                                <menuItem title="Pseudo Terminal" tag="2" toolTip="connects to &quot;/dev/ttyp0&quot;" id="TRz-cg-puM">
                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                 </menuItem>
-                                                <menuItem title="None" tag="3" id="YzN-kk-1nQ">
+                                                <menuItem title="Named Pipes" tag="1" toolTip="connects to &quot;$(HOME)/Library/Application Support/Einstein Emulator/ExtrSerPortSend&quot; and &quot;...Recv&quot;" id="1oS-fH-RAo">
+                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                </menuItem>
+                                                <menuItem title="None" toolTip="no serial port emulation" id="YzN-kk-1nQ">
                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                 </menuItem>
                                             </items>

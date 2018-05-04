@@ -1,5 +1,5 @@
 // ==============================
-// File:			TVoyagerSerialPort.h
+// File:			TSerialPortManager.h
 // Project:			Einstein
 //
 // Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
@@ -21,8 +21,8 @@
 // $Id$
 // ==============================
 
-#ifndef _TVOYAGERSERIALPORT_H
-#define _TVOYAGERSERIALPORT_H
+#ifndef _TSERIALPORTMANAGER_H
+#define _TSERIALPORTMANAGER_H
 
 #include <K/Defines/KDefinitions.h>
 
@@ -39,7 +39,7 @@ class TMemory;
 ///
 /// \test	aucun test défini.
 ///
-class TVoyagerSerialPort
+class TSerialPortManager
 {
 public:
 	///
@@ -53,26 +53,25 @@ public:
 	};
 	
 	///
-	/// Constructor from a log, a location ID, the DMA manager and the
-	/// interrupt manager.
+	/// Constructor.
 	///
-	TVoyagerSerialPort(
+	TSerialPortManager(
 			TLog* inLog,
-			ELocationID inLocationID,
-			TInterruptManager* inInterruptManager,
-			TDMAManager* inDMAManager,
-			TMemory* inMemory);
+			ELocationID inLocationID);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TVoyagerSerialPort( void );
+	virtual ~TSerialPortManager( void );
+
+	///
+	/// Start emulation.
+	///
+	virtual void run(TInterruptManager* inInterruptManager,
+					 TDMAManager* inDMAManager,
+					 TMemory* inMemory);
 
 	/// \name Low-level routines.
-
-//	virtual KUInt32 HandleDMACtrlRead(regsiter);
-//	virtual void HandleDMACtrlWrite(regsiter, value);
-//	virtual void HandleInterruptWrite(regsiter, addr);
 
 	///
 	/// Write register.
@@ -109,14 +108,14 @@ protected:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TVoyagerSerialPort( const TVoyagerSerialPort& inCopy );
+	TSerialPortManager( const TSerialPortManager& inCopy );
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TVoyagerSerialPort& operator = ( const TVoyagerSerialPort& inCopy );
+	TSerialPortManager& operator = ( const TSerialPortManager& inCopy );
 
 	/// \name Variables
 	TLog*				mLog;				///< Reference to the log object
@@ -128,7 +127,7 @@ protected:
 };
 
 #endif
-		// _TVOYAGERSERIALPORT_H
+		// _TSERIALPORTMANAGER_H
 
 // ================= //
 // Byte your tongue. //

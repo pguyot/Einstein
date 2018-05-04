@@ -29,7 +29,7 @@
 #include "TInterruptManager.h"
 #include "TMemory.h"
 #include "TEmulator.h"
-#include "Serial/TVoyagerSerialPort.h"
+#include "Serial/TSerialPortManager.h"
 #include "Log/TLog.h"
 
 // TDMAManager is invoked by TMemory when physical addresses corresponding
@@ -174,7 +174,7 @@ TDMAManager::ReadChannel1Register( KUInt32 inChannel, KUInt32 inRegister )
 	KUInt32 theResult = 0;
 
 	if (inChannel==kSerialPort0Receive || inChannel==kSerialPort0Transmit) {
-		TVoyagerSerialPort *extr = mMemulator->GetExternalSerialPort();
+		TSerialPortManager *extr = mMemulator->GetExternalSerialPort();
 		if (extr)
 			return extr->ReadDMARegister(1, inChannel, inRegister);
 	}
@@ -202,7 +202,7 @@ TDMAManager::WriteChannel1Register(
 						KUInt32 inValue )
 {
 	if (inChannel==kSerialPort0Receive || inChannel==kSerialPort0Transmit) {
-		TVoyagerSerialPort *extr = mMemulator->GetExternalSerialPort();
+		TSerialPortManager *extr = mMemulator->GetExternalSerialPort();
 		if (extr)
 			return extr->WriteDMARegister(1, inChannel, inRegister, inValue);
 	}
@@ -228,7 +228,7 @@ TDMAManager::ReadChannel2Register( KUInt32 inChannel, KUInt32 inRegister )
 	KUInt32 theResult = 0;
 
 	if (inChannel==kSerialPort0Receive || inChannel==kSerialPort0Transmit) {
-		TVoyagerSerialPort *extr = mMemulator->GetExternalSerialPort();
+		TSerialPortManager *extr = mMemulator->GetExternalSerialPort();
 		if (extr)
 			return extr->ReadDMARegister(2, inChannel, inRegister);
 	}
@@ -257,7 +257,7 @@ TDMAManager::WriteChannel2Register(
 						KUInt32 inValue )
 {
 	if (inChannel==kSerialPort0Receive || inChannel==kSerialPort0Transmit) {
-		TVoyagerSerialPort *extr = mMemulator->GetExternalSerialPort();
+		TSerialPortManager *extr = mMemulator->GetExternalSerialPort();
 		if (extr)
 			return extr->WriteDMARegister(2, inChannel, inRegister, inValue);
 	}

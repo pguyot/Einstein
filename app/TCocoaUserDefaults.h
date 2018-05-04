@@ -52,9 +52,10 @@
 #define kNullNetworkDriverTag		3
 
 #define kSerialDriverKey			@"SerialDriver"
-#define kPtySerialDriverTag			1
-#define kPipesSerialDriverTag		2
-#define kNullSerialDriverTag		3
+#define kBasiliskIISerialDriverTag	3
+#define kPtySerialDriverTag			2
+#define kPipesSerialDriverTag		1
+#define kNullSerialDriverTag		0
 
 #define kDontShowAtStartupKey		@"DontShowAtStartup"
 #define kEnableListenersKey			@"EnableListeners"
