@@ -36,10 +36,26 @@ class TMemory;
 ///
 /// Emulate a serial port via a pseudo terminal (pty) in MacOS
 ///
+/// This driver works around a bug in BasiliskII, where Basilisk will hang
+/// forever when closing a serial port.
+///
+/// This driver provides a PTY via /tmp/pty.BasiliskII . It will try to
+/// determine when an app inside Basilisk closes the serial port. The Einstein
+/// driver will then remove the PTY, which will in turn break the endless
+/// loop in Basilisk.
+///
+/// This workaround functions well for NTK and NCU, running inside BasiliskII.
+///
 /// \author Matthias Melcher
 ///
 class TBasiliskIISerialPortManager : public TBasicSerialPortManager
 {
+	typedef enum {
+		kStateInit = 0,
+		kStateOpen,
+		kStateFlushRW
+	} ComState;
+
 public:
 
 	///
@@ -83,20 +99,26 @@ protected:
 	static void *SHandleDMA(void *This) { ((TBasiliskIISerialPortManager*)This)->HandleDMA(); return 0L; }
 
 	///
-	/// Find good names for the named pipes
+	/// Open a PTY that is linked to /tmp/pty.BasiliskII
 	///
-	void FindBasiliskIIName();
+	bool OpenPTY();
 
 	///
-	/// Create the named pipes as nodes in the file system
+	/// Close the BasiliskII special PTY, breaking Basilisks endless loop.
 	///
-	bool CreateBasiliskII();
+	void ClosePTY();
 
 	int mPipe[2];							///< communication between emulator and DMA thread
-	int mPtyPort;							///< pseudo terminal file id
+//	int mPtyPort;							///< pseudo terminal file id
 	bool mDMAIsRunning;						///< set if DMA thread is active
 	pthread_t mDMAThread;
-	char *mPtyName;							///< named of pseudo terminal
+//	char *mPtyName;							///< named of pseudo terminal
+
+	static const char *kBasiliskPipe;		///< Base name of the pasilisk pty
+	char *pBasiliskSlaveName;				///< PTY slave filename
+	int pBasiliskMaster; 					///< PTY master file id
+	int pBasiliskSlave;						///< PTY slave file id
+	ComState pComState;						///< state of the connection to Basilisk
 };
 
 #endif

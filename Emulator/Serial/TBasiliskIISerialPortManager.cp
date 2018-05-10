@@ -48,11 +48,26 @@
 #include "Emulator/TARMProcessor.h"
 
 
+const char *TBasiliskIISerialPortManager::kBasiliskPipe = "/tmp/pty.BasiliskII";
+
+
 // -------------------------------------------------------------------------- //
 //  * TBasiliskIISerialPortManager()
-// Emulate a serial port via a pseudo terminal.
-// For example, opening /dev/ptyp0 as a master will give access to the
-// corresponding slave port /dev/ttyp0.
+//
+// Emulate a serial port via a pseudo terminal (pty) in MacOS
+//
+// This driver works around a bug in BasiliskII, where Basilisk will hang
+// forever when closing a serial port.
+//
+// This driver provides a PTY via /tmp/pty.BasiliskII . It will try to
+// determine when an app inside Basilisk closes the serial port. The Einstein
+// driver will then remove the PTY, which will in turn break the endless
+// loop in Basilisk.
+//
+// This workaround functions well for NTK and NCU, running inside BasiliskII.
+//
+// \author Matthias Melcher
+//
 // -------------------------------------------------------------------------- //
 TBasiliskIISerialPortManager::TBasiliskIISerialPortManager(
 													 TLog* inLog,
@@ -60,10 +75,12 @@ TBasiliskIISerialPortManager::TBasiliskIISerialPortManager(
 :	TBasicSerialPortManager(inLog, inLocationID),
 
 	mPipe{-1,-1},
-	mPtyPort(-1),
 	mDMAIsRunning(false),
 	mDMAThread(0L),
-	mPtyName(0L)
+	pBasiliskSlaveName(nullptr),
+	pBasiliskMaster(-1),
+	pBasiliskSlave(-1),
+	pComState(kStateInit)
 {
 }
 
@@ -75,9 +92,10 @@ TBasiliskIISerialPortManager::TBasiliskIISerialPortManager(
 // -------------------------------------------------------------------------- //
 TBasiliskIISerialPortManager::~TBasiliskIISerialPortManager()
 {
-	if (mPtyName)
-		free(mPtyName);
+	if (mDMAIsRunning)
+		TriggerEvent('Q');
 }
+
 
 // -------------------------------------------------------------------------- //
 //  * run( TInterruptManager*, TDMAManager*, TMemory* )
@@ -93,6 +111,7 @@ void TBasiliskIISerialPortManager::run(TInterruptManager* inInterruptManager,
 	RunDMA();
 }
 
+
 // -------------------------------------------------------------------------- //
 // DMA or interrupts were triggered
 // -------------------------------------------------------------------------- //
@@ -105,27 +124,105 @@ void TBasiliskIISerialPortManager::TriggerEvent(KUInt8 cmd)
 
 
 // -------------------------------------------------------------------------- //
-// * FindPtyName()
+// * OpenPTY
 // -------------------------------------------------------------------------- //
-void
-TBasiliskIISerialPortManager::FindBasiliskIIName()
+bool
+TBasiliskIISerialPortManager::OpenPTY()
 {
-	if (mPtyName)
-		return;
-	// TODO: hardcode the name for now
-//	mPtyName = strdup("/dev/ttyp0");
-	mPtyName = strdup("/tmp/BBridge.Einstein");
+	int ret = -1;
+
+	// TODO: if we ever decide to suppirt more than the internal serial port, we
+	// will have to generate diffwerent names for different ports.
+	ret = unlink(kBasiliskPipe);
+	if (ret==-1 && errno!=2) {
+		perror("TBasiliskIISerialPortManager: Can't unlink Basilisk Pipe");
+//		return false;
+	}
+
+	pBasiliskMaster = posix_openpt(O_RDWR | O_NOCTTY);
+	if (pBasiliskMaster==-1) {
+		perror("TBasiliskIISerialPortManager: Can't open Basilisk Master");
+		return false;
+	}
+
+	ret = grantpt(pBasiliskMaster);
+	if (ret==-1) {
+		perror("TBasiliskIISerialPortManager: Can't grant Basilisk Master pseudo terminal");
+		return false;
+	}
+
+	ret = unlockpt(pBasiliskMaster);
+	if (ret==-1) {
+		perror("TBasiliskIISerialPortManager: Can't unlock Basilisk Master pseudo terminal");
+		return false;
+	}
+
+	const char *slaveName = ptsname(pBasiliskMaster);
+	if (slaveName==nullptr) {
+		perror("TBasiliskIISerialPortManager: Can't get name of Basilisk Slave pseudo terminal");
+		return false;
+	}
+	pBasiliskSlaveName = strdup(slaveName);
+
+	pBasiliskSlave = open(slaveName, O_RDWR | O_NOCTTY);
+	if (pBasiliskSlave==-1) {
+		perror("TBasiliskIISerialPortManager: Can't open Basilisk Slave pseudo terminal");
+		return false;
+	}
+
+	ret = symlink(slaveName, kBasiliskPipe);
+	if (ret==-1) {
+		perror("TBasiliskIISerialPortManager: Can't link Basilisk pipe");
+		return false;
+	}
+
+	//	tcgetattr(fd, &struct termios)
+	struct termios tios;
+
+	ret = tcgetattr(pBasiliskMaster, &tios);
+	if (ret==-1) { perror("TBasiliskIISerialPortManager: tcgetattr"); return false; }
+	cfmakeraw(&tios);
+	tios.c_cflag |= (HUPCL | CLOCAL);
+	ret = tcsetattr(pBasiliskMaster, TCSANOW, &tios);
+	if (ret==-1) { perror("TBasiliskIISerialPortManager: tcsetattr"); return false; }
+
+	ret = tcgetattr(pBasiliskSlave, &tios);
+	if (ret==-1) { perror("TBasiliskIISerialPortManager: tcgetattr"); return false; }
+	cfmakeraw(&tios);
+	tios.c_cflag |= (HUPCL | CLOCAL);
+	ret = tcsetattr(pBasiliskSlave, TCSANOW, &tios);
+	if (ret==-1) { perror("TBasiliskIISerialPortManager: tcsetattr"); return false; }
+
+	int pkt = 1;
+	ret = ioctl(pBasiliskMaster, TIOCPKT, &pkt);
+	if (ret==-1) { perror("TBasiliskIISerialPortManager: TIOCPKT"); return false; }
+
+	return true;
 }
 
 
 // -------------------------------------------------------------------------- //
-// * CreatePty
+// * ClosePTY
 // -------------------------------------------------------------------------- //
-bool
-TBasiliskIISerialPortManager::CreateBasiliskII()
+void
+TBasiliskIISerialPortManager::ClosePTY()
 {
-	// TODO: Remove this function. There is nothing to create.
-	return true;
+	unlink(kBasiliskPipe);
+
+	if (pBasiliskMaster!=-1) {
+		close(pBasiliskMaster);
+		pBasiliskMaster = -1;
+	}
+
+	if (pBasiliskSlave!=-1) {
+		close(pBasiliskSlave);
+		pBasiliskSlave = -1;
+	}
+
+	if (pBasiliskSlaveName!=nullptr) {
+		free(pBasiliskSlaveName);
+		pBasiliskSlaveName = nullptr;
+	}
 }
 
 
@@ -144,31 +241,24 @@ TBasiliskIISerialPortManager::CreateBasiliskII()
 void
 TBasiliskIISerialPortManager::RunDMA()
 {
-	// create named pipe nodes
-	FindBasiliskIIName();
-	if (!CreateBasiliskII()) {
+	// create PTY and named pipe
+	bool hasPty = OpenPTY();
+	if (!hasPty) {
+		printf("***** TBasiliskIISerialPortManager::RunDMA: Error creating pseudo terminal %s.\n", kBasiliskPipe);
 		return;
 	}
-
-	// open the named pipes
-	mPtyPort = open(mPtyName, O_RDWR | O_NOCTTY | O_NONBLOCK);
-	if (mPtyPort==-1) {
-		printf("***** Error opening pseudo terminal %s - %s (%d).\n", mPtyName, strerror(errno), errno);
-		return;
-	}
-	tcflush(mPtyPort, TCIOFLUSH);
 
 	// open the thread communication pipe
 	int err = pipe(mPipe);
 	if (err==-1) {
-		printf("***** Error opening pipe - %s (%d).\n", strerror(errno), errno);
+		printf("***** TBasiliskIISerialPortManager::RunDMA: Error opening pipe - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
 
 	// create the actual thread and let it run forever
 	int ptErr = ::pthread_create( &mDMAThread, NULL, &SHandleDMA, this );
 	if (ptErr==-1) {
-		printf("***** Error creating pthread - %s (%d).\n", strerror(errno), errno);
+		printf("***** TBasiliskIISerialPortManager::RunDMA: Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
 	pthread_detach( mDMAThread );
@@ -184,15 +274,19 @@ TBasiliskIISerialPortManager::RunDMA()
 void
 TBasiliskIISerialPortManager::HandleDMA()
 {
+	bool shutdownThread = false;
+	pComState = kStateInit;
 	static int maxFD = -1;
 
-	if (mPtyPort>maxFD) maxFD = mPtyPort;
+	if (pBasiliskMaster>maxFD) maxFD = pBasiliskMaster;
+	if (pBasiliskSlave>maxFD) maxFD = pBasiliskSlave;
 	if (mPipe[0]>maxFD) maxFD = mPipe[0];
 
 	// thread loops and handles pipe, port, and DMA
 	fd_set readSet;
 	struct timeval timeout;
-	for (;;) {
+
+	while (!shutdownThread) {
 		bool needTimer = false;
 
 		if (mTxDMAControl&0x00000002) { // DMA is enabled
@@ -204,7 +298,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 		// wait for the next event
 		FD_ZERO(&readSet);
 		FD_SET(mPipe[0], &readSet);
-		FD_SET(mPtyPort, &readSet);
+		FD_SET(pBasiliskMaster, &readSet);
 		if (needTimer) {
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 260; // one byte at 38400bps serial port speed
@@ -218,8 +312,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 				// write a byte
 				KUInt8 data = 0;
 				mMemory->ReadBP(mTxDMAPhysicalData, data);
-				//printf(":::::>> TX: 0x%02X '%c'\n", data, isprint(data)?data:'.');
-				write(mPtyPort, &data, 1);
+				write(pBasiliskMaster, &data, 1);
 				mTxDMAPhysicalData++;
 				mTxDMABufferSize--;
 				if (mTxDMABufferSize==0) {
@@ -228,8 +321,6 @@ TBasiliskIISerialPortManager::HandleDMA()
 				mTxDMADataCountdown--;
 				if (mTxDMADataCountdown==0) {
 					// trigger a "send buffer empty" interrupt
-					//mDMAManager->WriteChannel2Register(1, 1, 0x00000080); // 0x80 = TxBufEmpty, 0x00000180
-					//printf(":::::>> buffer is now empty\n");
 					mTxDMAEvent = 0x00000080;
 					mInterruptManager->RaiseInterrupt(0x00000100);
 				}
@@ -238,41 +329,54 @@ TBasiliskIISerialPortManager::HandleDMA()
 
 		// handle receiving DMA
 
-		// FIXME: This routine is currently a mess. it needs to be rewritten
-		// and retested. Note though that the original Newton hardware and OS
-		// did have timing issues whan the server PC communicated faster as
-		// expected in the year 1996, which lead to CPU cycle burning software
-		// like "slowdown.exe".
-
-		if (FD_ISSET(mPtyPort, &readSet)) {
+		if (FD_ISSET(pBasiliskMaster, &readSet)) {
 			// read bytes that come in through the serial port
 			KUInt8 buf[1026];
 			int n = -1;
 			usleep(100000); // 1/10th of a second
-			for (int j=2; j>0; j--) {
-				// FIXME: reading 1024 bytes will overflow the buffer
-				// FIXME: reading less bytes must make sure that the next select() call triggers on data left in the buffer
-				n = (int)read(mPtyPort, buf, 1024);
-//				n = read(mRxPort, buf, 1);
-				if (n<=0)
-					usleep(100000); // 1/10th of a second
-				else
-					break;
-			}
-			if (n==-1) {
-				printf("***** Error reading from serial port %s - %s (%d).\n", mPtyName, strerror(errno), errno);
-			} else if (n==0) {
-				// printf("***** No data yet\n");
+			n = (int)read(pBasiliskMaster, buf, 1024);
+			if (n<=0) {
+				usleep(100000); // 1/10th of a second
+			} else if (n==1) {
+				const uint8_t FLUSHRW = TIOCPKT_FLUSHREAD|TIOCPKT_FLUSHWRITE;
+				uint8_t c = buf[0];
+				switch (pComState) {
+					case kStateInit:
+						// Initial state. Wait for Basilisk to open and setup its COM port
+						if ((c&TIOCPKT_NOSTOP) == TIOCPKT_NOSTOP) pComState = kStateOpen;
+						break;
+					case kStateOpen:
+						// The port is open. Wait for Basilisk to flush the COM port after initialising
+						if ((c&FLUSHRW) == FLUSHRW) pComState = kStateFlushRW;
+						break;
+					case kStateFlushRW:
+						// wait for a second flushing of the COM port. This indicates to us that Basilisk
+						// is very likely trying to close the port, but may be deadloking. Help Basilisk
+						// out by closing and reopening the pipe.
+						if ((c&FLUSHRW) == FLUSHRW) {
+							ClosePTY();
+							usleep(500000); // half a second
+							OpenPTY();
+							pComState = kStateInit;
+						}
+						break;
+				}
+				// handle control command in buf[0]
+//				printf("BasiliskII sent control code (%d):", pComState);
+//				if (c&TIOCPKT_FLUSHREAD) puts("     - TIOCPKT_FLUSHREAD");
+//				if (c&TIOCPKT_FLUSHWRITE) puts("     - TIOCPKT_FLUSHWRITE");
+//				if (c&TIOCPKT_STOP) puts("     - TIOCPKT_STOP");
+//				if (c&TIOCPKT_START) puts("     - TIOCPKT_START");
+//				if (c&TIOCPKT_DOSTOP) puts("     - TIOCPKT_DOSTOP");
+//				if (c&TIOCPKT_NOSTOP) puts("     - TIOCPKT_NOSTOP");
 			} else {
-				//printf("----> Received %d bytes data from NCX\n", n);
-				for (KUInt32 i=0; i<n; i++) {
+				// handle incomming data (ignore buf[0]!)
+				for (KUInt32 i=1; i<n; i++) {
 					KUInt8 data = buf[i];
 					mMemory->WriteBP(mRxDMAPhysicalData, data);
-					//printf(" rx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
 					mRxDMAPhysicalData++;
 					mRxDMABufferSize--;
 					if (mRxDMABufferSize==0) { // or mRxDMADataCountdown?
-//					if (mRxDMADataCountdown==0) { // or mRxDMADataCountdown does not work!
 						mRxDMAPhysicalData = mRxDMAPhysicalBufferStart;
 					}
 					mRxDMADataCountdown--;
@@ -280,10 +384,8 @@ TBasiliskIISerialPortManager::HandleDMA()
 						// buffer overflow?
 					}
 				}
-				//printf("===> Start Rx DMA\n");
 				mRxDMAEvent = 0x00000040;
 				mInterruptManager->RaiseInterrupt(0x00000080); // 0x00000180
-				//printf("===> End Rx DMA\n");
 			}
 		}
 
@@ -301,13 +403,17 @@ TBasiliskIISerialPortManager::HandleDMA()
 					if (n==-1) {
 						printf("***** Error reading pipe - %s (%d).\n", strerror(errno), errno);
 					} else if (n) {
-						//printf(":::::>> pipe commend '%c'\n", cmd);
+						if (cmd=='Q') {
+							shutdownThread = true;
+						}
 					}
 				}
 			}
 		}
 
 	}
+	ClosePTY();
+	mDMAIsRunning = false;
 }
 
 
