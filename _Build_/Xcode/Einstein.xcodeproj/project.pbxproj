@@ -687,6 +687,11 @@
 		C94ADB3E123E9AEC00406839 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		C94C96DB20937E780099001D /* TPtySerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPtySerialPortManager.cp; sourceTree = "<group>"; };
 		C94C96DC20937E780099001D /* TPtySerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPtySerialPortManager.h; sourceTree = "<group>"; };
+		C950C22120A6536B00D8096B /* DumpROMMenuItem.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DumpROMMenuItem.png; sourceTree = "<group>"; };
+		C950C22220A6536B00D8096B /* UserManual.html */ = {isa = PBXFileReference; lastKnownFileType = text.html.documentation; path = UserManual.html; sourceTree = "<group>"; };
+		C950C22420A6536B00D8096B /* SetupWindow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SetupWindow.png; sourceTree = "<group>"; };
+		C950C22520A6536B00D8096B /* DumpROMPanel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DumpROMPanel.png; sourceTree = "<group>"; };
+		C950C22720A6536B00D8096B /* ROMDumper.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ROMDumper.png; sourceTree = "<group>"; };
 		C95E60B7198B76DC004C6CEF /* EinsteinDev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EinsteinDev.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TUsermodeNetwork.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C962429611B69A9D00EE66F3 /* TUsermodeNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TUsermodeNetwork.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
@@ -1219,8 +1224,8 @@
 		29B97314FDCFA39411CA2CEA /* Einstein */ = {
 			isa = PBXGroup;
 			children = (
+				C950C21F20A6536B00D8096B /* Documentation */,
 				C99E3154111B72C0002165EC /* Sources */,
-				C92FC686208CDCD800EF4BB1 /* Drivers */,
 				C98AB23F1A351D61001BB1CD /* Tools */,
 				C99E3156111B72CC002165EC /* Libraries */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -1253,12 +1258,17 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		C92FC686208CDCD800EF4BB1 /* Drivers */ = {
+		C950C21F20A6536B00D8096B /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
+				C950C22220A6536B00D8096B /* UserManual.html */,
+				C950C22120A6536B00D8096B /* DumpROMMenuItem.png */,
+				C950C22420A6536B00D8096B /* SetupWindow.png */,
+				C950C22520A6536B00D8096B /* DumpROMPanel.png */,
+				C950C22720A6536B00D8096B /* ROMDumper.png */,
 			);
-			name = Drivers;
-			path = ../../Drivers;
+			name = Documentation;
+			path = ../../Documentation;
 			sourceTree = "<group>";
 		};
 		C962429411B69A6E00EE66F3 /* Network */ = {
