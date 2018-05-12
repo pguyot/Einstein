@@ -688,7 +688,7 @@
 		C94C96DB20937E780099001D /* TPtySerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPtySerialPortManager.cp; sourceTree = "<group>"; };
 		C94C96DC20937E780099001D /* TPtySerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPtySerialPortManager.h; sourceTree = "<group>"; };
 		C950C22120A6536B00D8096B /* DumpROMMenuItem.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DumpROMMenuItem.png; sourceTree = "<group>"; };
-		C950C22220A6536B00D8096B /* UserManual.html */ = {isa = PBXFileReference; lastKnownFileType = text.html.documentation; path = UserManual.html; sourceTree = "<group>"; };
+		C950C22220A6536B00D8096B /* UserManual.html */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = text.html.documentation; path = UserManual.html; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		C950C22420A6536B00D8096B /* SetupWindow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SetupWindow.png; sourceTree = "<group>"; };
 		C950C22520A6536B00D8096B /* DumpROMPanel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DumpROMPanel.png; sourceTree = "<group>"; };
 		C950C22720A6536B00D8096B /* ROMDumper.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ROMDumper.png; sourceTree = "<group>"; };
