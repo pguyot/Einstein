@@ -2152,6 +2152,10 @@
 			attributes = {
 				LastUpgradeCheck = 0830;
 				TargetAttributes = {
+					8D1107260486CEB800E47090 = {
+						DevelopmentTeam = BK4ST6N599;
+						ProvisioningStyle = Automatic;
+					};
 					C98AB2361A351D20001BB1CD = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -2998,8 +3002,11 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = BK4ST6N599;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -3027,6 +3034,7 @@
 				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = Einstein;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -3038,9 +3046,12 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = BK4ST6N599;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3065,6 +3076,7 @@
 				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = Einstein;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -3421,9 +3433,12 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = BK4ST6N599;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3448,6 +3463,7 @@
 				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = Einstein;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
