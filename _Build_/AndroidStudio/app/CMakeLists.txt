@@ -64,7 +64,7 @@ SET (SourceFiles
 	${LOCAL_PATH}/Emulator/ROM/TFlatROMImageWithREX.cp
 	${LOCAL_PATH}/Emulator/ROM/TROMImage.cp
 	${LOCAL_PATH}/Emulator/Screen/TScreenManager.cp
-	${LOCAL_PATH}/Emulator/Serial/TVoyagerSerialPort.cp
+	${LOCAL_PATH}/Emulator/Serial/TSerialPortManager.cp
 	${LOCAL_PATH}/Emulator/Sound/TBufferedSoundManager.cp
 	${LOCAL_PATH}/Emulator/Sound/TAndroidSoundManager.cp
 	${LOCAL_PATH}/Emulator/Sound/TSoundManager.cp
