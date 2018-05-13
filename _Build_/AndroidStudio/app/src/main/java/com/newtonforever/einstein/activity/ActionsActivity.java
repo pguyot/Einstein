@@ -41,7 +41,7 @@ public class ActionsActivity extends FragmentActivity {
 	    // TODO FG Check if it is OK to use the class Intent with flags from the class IntentCompat.
 	    // Since the flag wasn't available when the Intent class was written, it is difficult to
 	    // believe that this will be able to do anything useful with this flag.
-	    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
+	    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
 	    startActivity(intent);
 	}
 	
@@ -89,7 +89,7 @@ public class ActionsActivity extends FragmentActivity {
 		Native.powerOffEmulator();
 		app.normalPriority();
 	    Intent intent = new Intent(v.getContext(), EinsteinActivity.class);
-	    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
+	    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
 	    intent.putExtra("EXIT", true);
 	    startActivity(intent);
 	    

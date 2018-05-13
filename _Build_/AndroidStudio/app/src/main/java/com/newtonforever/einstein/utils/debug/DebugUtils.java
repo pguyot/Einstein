@@ -119,7 +119,7 @@ public class DebugUtils {
     	File dir = new File(path);
     	dir.mkdirs();
     	if (!dir.isDirectory()) {
-    		Log.e("ERROR", "Can't create path");
+    		Log.e("ERROR", "Can't create path: " + path);
     	}
     }
     
