@@ -82,69 +82,64 @@ import android.util.Log;
 
 /**
  * This class provides resources that must be available for the lifetime of this app.
- * 
- * @author Matthias Melcher
  *
+ * @author Matthias Melcher
  */
 public class EinsteinApplication extends Application {
 
-	private Einstein pEinstein = null;
-	
-	/**
-	 * Get a link to the native emulator interface.
-	 * 
-	 * @return access to the emulator 
-	 */
-	public Einstein getEinstein() 
-	{
-		return pEinstein;
-	}
-	
-	/**
-	 * Initialize what we need besides the Activity.
-	 * 
-	 * Create the Einstein instance that is shared across Activities.
-	 * Create a Service that will keep this app in the foreground as 
-	 * long as possible to avoid lengty emulator reboots.
-	 */
-	@Override
-	public void onCreate()
-	{
-		//Log.i("einstein", "--------> App.onCreate()");
+    private Einstein pEinstein = null;
 
-	    super.onCreate();
+    /**
+     * Get a link to the native emulator interface.
+     *
+     * @return access to the emulator
+     */
+    public Einstein getEinstein() {
+        return pEinstein;
+    }
 
-	    // create and load the Emulator
-		pEinstein = new Einstein();
-		
-		// create the keep-alive Service (will be created asynchronously)
-	    Intent intent = new Intent(getApplicationContext(), EinsteinService.class);
-	    intent.putExtra("task", EinsteinService.TASK_LAUNCH);
-	    ComponentName name = startService(intent);
-	    if (name==null) {
-			Log.i("einstein", "--------< App.onCreate() - CANT LAUNCH SERVICE");
-	    }
-		//Log.i("einstein", "--------< App.onCreate()");
-	}
-	
-	/**
-	 * Use the Service to keep this application around as long as possible.
-	 */
-	public void raisePriority()
-	{
-		Intent intent = new Intent(getApplicationContext(), EinsteinService.class);
+    /**
+     * Initialize what we need besides the Activity.
+     * <p>
+     * Create the Einstein instance that is shared across Activities.
+     * Create a Service that will keep this app in the foreground as
+     * long as possible to avoid lengty emulator reboots.
+     */
+    @Override
+    public void onCreate() {
+        //Log.i("einstein", "--------> App.onCreate()");
+
+        super.onCreate();
+
+        // create and load the Emulator
+        pEinstein = new Einstein();
+
+        // create the keep-alive Service (will be created asynchronously)
+        Intent intent = new Intent(getApplicationContext(), EinsteinService.class);
+        intent.putExtra("task", EinsteinService.TASK_LAUNCH);
+        ComponentName name = startService(intent);
+        if (name == null) {
+            Log.i("einstein", "--------< App.onCreate() - CANT LAUNCH SERVICE");
+        }
+        //Log.i("einstein", "--------< App.onCreate()");
+    }
+
+    /**
+     * Use the Service to keep this application around as long as possible.
+     */
+    public void raisePriority() {
+        Intent intent = new Intent(getApplicationContext(), EinsteinService.class);
         intent.putExtra("task", EinsteinService.TASK_RAISE_PRIORITY);
-	    startService(intent);
-	}
-	
-	/**
-	 * Return this app to normal priority by sending the service to the background.
-	 */
-	public void normalPriority()
-	{
-	    Intent intent = new Intent(getApplicationContext(), EinsteinService.class);
+        startService(intent);
+    }
+
+    /**
+     * Return this app to normal priority by sending the service to the background.
+     */
+    public void normalPriority() {
+        Intent intent = new Intent(getApplicationContext(), EinsteinService.class);
         intent.putExtra("task", EinsteinService.TASK_NORMAL_PRIORITY);
-	    startService(intent);
-	}
+        startService(intent);
+    }
 
 }

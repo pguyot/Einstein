@@ -27,7 +27,7 @@ import com.newtonforever.einstein.EinsteinApplication;
 import com.newtonforever.einstein.R;
 import com.newtonforever.einstein.action.EinsteinActionHandler;
 import com.newtonforever.einstein.jni.Native;
-import com.newtonforever.einstein.startup.IStartup.LoadResult;
+import com.newtonforever.einstein.startup.LoadResult;
 import com.newtonforever.einstein.startup.Startup;
 import com.newtonforever.einstein.startup.StartupConstants;
 import com.newtonforever.einstein.utils.MiscUtils;
@@ -42,14 +42,13 @@ import java.util.Timer;
 
 /**
  * The main user interface to the emulator.
- * 
+ * <p>
  * This class manages the visual representation of the emulator and
  * the screen interface.
- * 
+ *
  * @author matt
  */
-public class EinsteinActivity extends Activity implements OnSharedPreferenceChangeListener
-{    
+public class EinsteinActivity extends Activity implements OnSharedPreferenceChangeListener {
     // Be aware that dialog ID values are arbitrary, but need to be unique within the Activity.
     private static final int DIALOG_DOWNLOAD_PROGRESS_ID = 0;
 
@@ -58,7 +57,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     private static EinsteinActivity pInstance = null;
     private Einstein pEinstein = null;
     private EinsteinView pEinsteinView = null;
-    private ProgressDialog mProgressDialog; 
+    private ProgressDialog mProgressDialog;
     private Timer mScreenRefreshTimer = null;
     private EinsteinActionHandler mScreenRefreshTask = null;
     private SharedPreferences sharedPrefs;
@@ -103,19 +102,18 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 */
     // --- beginning of life cycle
 
-    /** 
+    /**
      * \brief Android creates a new activity, launching or waking Einstein.
-     * 
+     * <p>
      * If called for the first time, it starts Einstein.
-     * 
+     * <p>
      * The Activity then creates a view and connect Einstein to that view.
-     * 
+     * <p>
      * \todo Preferences are not managed well yet, just as proof of concept.
      * \todo No ROM management is implemented yet.
      */
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering onCreate().");
         pInstance = this;
 
@@ -172,7 +170,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 
         // Start the emulator
         if (pEinstein.isRunning()) { // Wake up
-            Toast.makeText(getApplicationContext(), "Reconnecting to Einstein", Toast.LENGTH_SHORT).show();		
+            Toast.makeText(getApplicationContext(), "Reconnecting to Einstein", Toast.LENGTH_SHORT).show();
         } else {
             String id = sharedPrefs.getString("newtonid", StartupConstants.DEFAULT_NEWTON_ID);
             Native.setNewtonID(id);
@@ -188,23 +186,21 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         //DebugUtils.logGreen("EinsteinActivity: ", "Sleeping for 2s after starting screen refresh because we're using Frank's ROM...");
 
         app.raisePriority();
-        
+
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving onCreate().");
     }
 
     @Override
-    public void onStart()
-    {
+    public void onStart() {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering onStart().");
         super.onStart();
         int rate = Integer.valueOf(sharedPrefs.getString("screenrefreshrate", StartupConstants.DEFAULT_SCREEN_REFRESH_RATE));
-        startScreenRefresh(rate);	
+        startScreenRefresh(rate);
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving onStart().");
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering onResume().");
         super.onResume();
         int rate = Integer.valueOf(sharedPrefs.getString("screenrefreshrate", StartupConstants.DEFAULT_SCREEN_REFRESH_RATE));
@@ -214,15 +210,14 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     }
 
     @Override
-    public void onNewIntent(Intent intent) 
-    {
+    public void onNewIntent(Intent intent) {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering onNewIntent().");
         if (intent.getBooleanExtra("EXIT", false)) {
             DebugUtils.logGreen("EinsteinActivity: ", "We need to exit...");
             finish();
         }
-        String file = intent.getStringExtra("FILE"); 
-        if (file!=null) {
+        String file = intent.getStringExtra("FILE");
+        if (file != null) {
             Native.installPackage(file);
             intent.removeExtra("FILE");
         }
@@ -230,30 +225,27 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     }
 
     @Override
-    public void onPause()
-    {
+    public void onPause() {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering onPause().");
         super.onPause();
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving onPause().");
     }
 
     @Override
-    public void onStop()
-    {
+    public void onStop() {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering onStop().");
-        stopScreenRefresh();	
+        stopScreenRefresh();
         super.onStop();
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving onStop().");
     }
 
     @Override
-    public void onDestroy()
-    {
+    public void onDestroy() {
         // December 2011 Frank Gruendel This is because Android Applications do not really stop. They only
         // retreat into the background. To really stop them one has to use the Android Settings Manager.
         DebugUtils.logGreen("EinsteinActivity: ", "Entering onDestroy().");
         Native.powerOffEmulator();
-        stopScreenRefresh();	
+        stopScreenRefresh();
         super.onDestroy();
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving onDestroy().");
     }
@@ -265,24 +257,24 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     // the ROM and REX files. Shamelessly copied from http://www.blackmoonit.com/android/filebrowser/intents#intent.pick_file
 
     @SuppressWarnings("unused")
-    private void  pickFile(File aFile) {
+    private void pickFile(File aFile) {
         Intent theIntent = new Intent(Intent.ACTION_PICK);
         theIntent.setData(Uri.fromFile(aFile));  //default file / jump directly to this file/folder
-        theIntent.putExtra(Intent.EXTRA_TITLE,"A Custom Title"); //optional
+        theIntent.putExtra(Intent.EXTRA_TITLE, "A Custom Title"); //optional
         theIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS); //optional
         try {
-            startActivityForResult(theIntent,Activity.RESULT_FIRST_USER);
+            startActivityForResult(theIntent, Activity.RESULT_FIRST_USER);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         final int PICK_FILE_RESULT_CODE = Activity.RESULT_FIRST_USER; // ??
         switch (requestCode) {
             case PICK_FILE_RESULT_CODE: {
-                if (resultCode==RESULT_OK && data!=null && data.getData()!=null) {
+                if (resultCode == RESULT_OK && data != null && data.getData() != null) {
                     //String theFilePath = data.getData().getPath();
                     // TODO Check if we can use the file. If we can, copy it where it belongs
                 }
@@ -291,10 +283,11 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         }
     }
 
-    /** Updates the fullscreen status. The app is shown fullscreen if <code>statusBarVisible</code> is <code>false</code>.
-     * Note that this method must be called before invoking <code>setContentView</code> in the <code>onCreate</code> method. */
-    private void updateFullscreenStatus(boolean statusBarVisible)
-    {  
+    /**
+     * Updates the fullscreen status. The app is shown fullscreen if <code>statusBarVisible</code> is <code>false</code>.
+     * Note that this method must be called before invoking <code>setContentView</code> in the <code>onCreate</code> method.
+     */
+    private void updateFullscreenStatus(boolean statusBarVisible) {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering updateFullscreenStatus().");
         final int fullscreen = WindowManager.LayoutParams.FLAG_FULLSCREEN;
         final int notFullscreen = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
@@ -310,8 +303,10 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving registerPreferenceChangeListener().");
     }
 
-    /** Callback method invoked whenever a preference changes. Note that this method might
-     *  even be called if the actual value of the preference has not changed. */
+    /**
+     * Callback method invoked whenever a preference changes. Note that this method might
+     * even be called if the actual value of the preference has not changed.
+     */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering onSharedPreferenceChanged().");
@@ -322,9 +317,9 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
             DebugUtils.logGreen("EinsteinActivity: ", "Screen resolution setting changed.");
             stopScreenRefresh();
             // Send the emulator to sleep so that everything ist saved
-            if (Native.isPowerOn()!=0) {
+            if (Native.isPowerOn() != 0) {
                 Native.sendPowerSwitchEvent();
-                while (Native.isPowerOn()!=0) {
+                while (Native.isPowerOn() != 0) {
                     MiscUtils.sleepForMillis(100);
                     DebugUtils.logGreen("EinsteinActivity: ", "Waiting for power down.");
                 }
@@ -332,10 +327,10 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
             ScreenDimensionsInitializer.initNewtonScreenDimensions(this);
             Native.changeScreenSize(ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
             pEinsteinView.updateDimensions();
-            Toast.makeText(getApplicationContext(), "Rebooting NewtonOS", Toast.LENGTH_LONG).show();		
+            Toast.makeText(getApplicationContext(), "Rebooting NewtonOS", Toast.LENGTH_LONG).show();
             Native.rebootEmulator();
             Native.powerOnEmulator();
-            while (Native.isPowerOn()==0) {
+            while (Native.isPowerOn() == 0) {
                 MiscUtils.sleepForMillis(100);
                 DebugUtils.logGreen("EinsteinActivity: ", "Waiting for power up.");
             }
@@ -374,40 +369,40 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
                 this.mProgressDialog.setCancelable(false);
                 this.mProgressDialog.show();
                 DebugUtils.logGreen("EinsteinActivity: ", "Leaving onCreateDialog().");
-                return this.mProgressDialog;		
+                return this.mProgressDialog;
             default:
                 DebugUtils.logGreen("EinsteinActivity: ", "Leaving onCreateDialog().");
                 return null;
-       }
+        }
     }
 
     private void startScreenRefresh(int rate) {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering startScreenRefresh().");
-        if (mScreenRefreshTask==null) {
+        if (mScreenRefreshTask == null) {
             mScreenRefreshTask = new EinsteinActionHandler(pEinsteinView);
         }
-        if (mScreenRefreshTimer==null) {
+        if (mScreenRefreshTimer == null) {
             mScreenRefreshTimer = new Timer(true);
-            mScreenRefreshTimer.schedule(mScreenRefreshTask, 1000, 1000/rate);
+            mScreenRefreshTimer.schedule(mScreenRefreshTask, 1000, 1000 / rate);
         }
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving startScreenRefresh().");
     }
 
     private void changeScreenRefresh(int rate) {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering changeScreenRefresh().");
-        if (mScreenRefreshTimer!=null) {
+        if (mScreenRefreshTimer != null) {
             mScreenRefreshTimer.cancel();
             mScreenRefreshTimer.purge();
             mScreenRefreshTimer = null;
             mScreenRefreshTimer = new Timer(true);
-            mScreenRefreshTimer.schedule(mScreenRefreshTask, 1000/rate, 1000/rate);
+            mScreenRefreshTimer.schedule(mScreenRefreshTask, 1000 / rate, 1000 / rate);
         }
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving changeScreenRefresh().");
-   }
+    }
 
     private void stopScreenRefresh() {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering stopScreenRefresh().");
-        if (mScreenRefreshTimer!=null) {
+        if (mScreenRefreshTimer != null) {
             mScreenRefreshTimer.cancel();
             mScreenRefreshTimer.purge();
             mScreenRefreshTimer = null;
@@ -420,16 +415,22 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         DebugUtils.logGreen("EinsteinActivity: ", "Entering finishWithMessage().");
         class MyOnClickListener implements DialogInterface.OnClickListener {
             Activity pv = null;
-            MyOnClickListener(Activity v) { pv = v; }
-            @Override public void onClick(DialogInterface dialog, int which) {
+
+            MyOnClickListener(Activity v) {
+                pv = v;
+            }
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 pv.finish();
             }
-        };
-        AlertDialog ad = new AlertDialog.Builder(this).create();  
+        }
+        ;
+        AlertDialog ad = new AlertDialog.Builder(this).create();
         ad.setCancelable(false);
-        ad.setMessage(msg);  
-        ad.setButton("Quit", new MyOnClickListener(this));  
+        ad.setMessage(msg);
+        ad.setButton("Quit", new MyOnClickListener(this));
         ad.show();
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving finishWithMessage().");
     }
@@ -437,8 +438,8 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering onKeyDown().");
-        if ( keyCode == KeyEvent.KEYCODE_MENU ) {
-            Intent intent = new Intent(this, ActionsActivity.class);  
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            Intent intent = new Intent(this, ActionsActivity.class);
             startActivity(intent);
             return true;
         }
