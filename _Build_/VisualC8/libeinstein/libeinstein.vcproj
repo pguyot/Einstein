@@ -857,11 +857,11 @@
 				Name="Serial"
 				>
 				<File
-					RelativePath="..\..\..\Emulator\Serial\TVoyagerSerialPort.cp"
+					RelativePath="..\..\..\Emulator\Serial\TSerialPortManager.cp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Emulator\Serial\TVoyagerSerialPort.h"
+					RelativePath="..\..\..\Emulator\Serial\TSerialPortManager.h"
 					>
 				</File>
 			</Filter>
