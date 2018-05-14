@@ -23,7 +23,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 /**
- * Install packages and other files by slecting them in a file browser or clicking on them in a web browser.
+ * Install packages and other files by selecting them in a file browser or clicking on them in a web browser.
  */
 public class LoadPackageActivity extends Activity {
 
