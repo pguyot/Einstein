@@ -51,8 +51,6 @@ import java.util.Timer;
  * @author matt
  */
 public class EinsteinActivity extends Activity implements OnSharedPreferenceChangeListener {
-    // Be aware that dialog ID values are arbitrary, but need to be unique within the Activity.
-    private static final int DIALOG_DOWNLOAD_PROGRESS_ID = 0;
 
     private static final int REQUEST_WRITE = 1;
 
@@ -213,37 +211,6 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 
     // --- End of application life cycle
 
-
-    // The following two methods aren't used yet, but we'll need them when we implement picking
-    // the ROM and REX files. Shamelessly copied from http://www.blackmoonit.com/android/filebrowser/intents#intent.pick_file
-
-    @SuppressWarnings("unused")
-    private void pickFile(File aFile) {
-        Intent theIntent = new Intent(Intent.ACTION_PICK);
-        theIntent.setData(Uri.fromFile(aFile));  //default file / jump directly to this file/folder
-        theIntent.putExtra(Intent.EXTRA_TITLE, "A Custom Title"); //optional
-        theIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS); //optional
-        try {
-            startActivityForResult(theIntent, Activity.RESULT_FIRST_USER);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        final int PICK_FILE_RESULT_CODE = Activity.RESULT_FIRST_USER; // ??
-        switch (requestCode) {
-            case PICK_FILE_RESULT_CODE: {
-                if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                    //String theFilePath = data.getData().getPath();
-                    // TODO Check if we can use the file. If we can, copy it where it belongs
-                }
-                break;
-            }
-        }
-    }
-
     /**
      * Updates the fullscreen status. The app is shown fullscreen if <code>statusBarVisible</code> is <code>false</code>.
      * Note that this method must be called before invoking <code>setContentView</code> in the <code>onCreate</code> method.
@@ -312,31 +279,6 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving onSharedPreferenceChanged().");
     }
 
-    @Override
-    /** Used to create the menu. */
-    public boolean onCreateOptionsMenu(Menu menu) {
-        DebugUtils.logGreen("EinsteinActivity: ", "Entering onCreateOptionsMenu() and returning true.");
-        return true;
-    }
-
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        DebugUtils.logGreen("EinsteinActivity: ", "Entering onCreateDialog().");
-        switch (id) {
-            case DIALOG_DOWNLOAD_PROGRESS_ID:
-                ProgressDialog mProgressDialog = new ProgressDialog(this);
-                mProgressDialog.setMessage(StringUtils.getLocalizedString(this.getResources(), R.string.Startup_downloadingFile));
-                mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                mProgressDialog.setCancelable(false);
-                mProgressDialog.show();
-                DebugUtils.logGreen("EinsteinActivity: ", "Leaving onCreateDialog().");
-                return mProgressDialog;
-            default:
-                DebugUtils.logGreen("EinsteinActivity: ", "Leaving onCreateDialog().");
-                return null;
-        }
-    }
-
     private void startScreenRefresh(int rate) {
         DebugUtils.logGreen("EinsteinActivity: ", "Entering startScreenRefresh().");
         if (mScreenRefreshTask == null) {
@@ -372,41 +314,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         DebugUtils.logGreen("EinsteinActivity: ", "Leaving stopScreenRefresh().");
     }
 
-    void finishWithMessage(String msg) {
-        DebugUtils.logGreen("EinsteinActivity: ", "Entering finishWithMessage().");
-        class MyOnClickListener implements DialogInterface.OnClickListener {
-            Activity pv = null;
-
-            MyOnClickListener(Activity v) {
-                pv = v;
-            }
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                pv.finish();
-            }
-        }
-        ;
-        AlertDialog ad = new AlertDialog.Builder(this).create();
-        ad.setCancelable(false);
-        ad.setMessage(msg);
-        ad.setButton("Quit", new MyOnClickListener(this));
-        ad.show();
-        DebugUtils.logGreen("EinsteinActivity: ", "Leaving finishWithMessage().");
-    }
-
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        DebugUtils.logGreen("EinsteinActivity: ", "Entering onKeyDown().");
-        if (keyCode == KeyEvent.KEYCODE_MENU) {
-            Intent intent = new Intent(this, ActionsActivity.class);
-            startActivity(intent);
-            return true;
-        }
-        DebugUtils.logGreen("EinsteinActivity: ", "Leaving onKeyDown().");
-        return super.onKeyDown(keyCode, event);
-    }
 
     @Override
     @TargetApi(Build.VERSION_CODES.M)
