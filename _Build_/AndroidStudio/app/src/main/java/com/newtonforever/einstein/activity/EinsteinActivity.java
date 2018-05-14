@@ -57,7 +57,6 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     private static EinsteinActivity pInstance = null;
     private Einstein pEinstein = null;
     private EinsteinView pEinsteinView = null;
-    private ProgressDialog mProgressDialog;
     private Timer mScreenRefreshTimer = null;
     private EinsteinActionHandler mScreenRefreshTask = null;
     private SharedPreferences sharedPrefs;
@@ -363,13 +362,13 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         DebugUtils.logGreen("EinsteinActivity: ", "Entering onCreateDialog().");
         switch (id) {
             case DIALOG_DOWNLOAD_PROGRESS_ID:
-                this.mProgressDialog = new ProgressDialog(this);
-                this.mProgressDialog.setMessage(StringUtils.getLocalizedString(this.getResources(), R.string.Startup_downloadingFile));
-                this.mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                this.mProgressDialog.setCancelable(false);
-                this.mProgressDialog.show();
+                ProgressDialog mProgressDialog = new ProgressDialog(this);
+                mProgressDialog.setMessage(StringUtils.getLocalizedString(this.getResources(), R.string.Startup_downloadingFile));
+                mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                mProgressDialog.setCancelable(false);
+                mProgressDialog.show();
                 DebugUtils.logGreen("EinsteinActivity: ", "Leaving onCreateDialog().");
-                return this.mProgressDialog;
+                return mProgressDialog;
             default:
                 DebugUtils.logGreen("EinsteinActivity: ", "Leaving onCreateDialog().");
                 return null;
