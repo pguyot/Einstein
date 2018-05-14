@@ -18,7 +18,7 @@ public class SoundManager {
     private int volume;
 
     public SoundManager() {
-        volume = 100; //Native.getSoundVolume();
+        volume = 100;
         toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, volume);
         final int streamType = AudioManager.STREAM_MUSIC;
         final int sampleRateInHz = 22050;
@@ -28,39 +28,41 @@ public class SoundManager {
         final int bufferMode = AudioTrack.MODE_STREAM;
         audioTrack = new AudioTrack(streamType, sampleRateInHz, channelConfig, audioFormat, minBufferSize, bufferMode);
         audioTrack.setStereoVolume(volume / 100.0f, volume / 100.0f);
-        audioTrack.play(); // Note that this only puts the AudioTrack into play mode. It won't play anything yet.
+
+        // Put AudioTrack into play mode (it won't play anything yet)
+        audioTrack.play();
     }
 
     public void playSound(final int soundBufferSize) {
         if (0 == soundBufferSize) {
             return;
         }
-        Log.i(TAG, "Entering playSound()");
-        Log.i(TAG, "Sound buffer size: " + soundBufferSize);
+
         final short[] soundBuffer = new short[soundBufferSize];
         final int bytesReceived = Native.fillSoundBuffer(soundBuffer);
         final int samplesReceived = bytesReceived / 2;
         final int samplesWritten = audioTrack.write(soundBuffer, 0, samplesReceived);
         final int bytesWritten = 2 * samplesWritten;
-        // AudioTrack does not start playing a sound until the buffer is half full. This is a hack to flush the buffer.
+
+        // AudioTrack does not start playing a sound until the buffer is half full.
+        // This is a hack to flush the buffer.
         if (bytesWritten < StartupConstants.AUDIO_TRACK_MIN_BUFFER_SIZE) {
-            final int tmpBufferSize = (StartupConstants.AUDIO_TRACK_MIN_BUFFER_SIZE - bytesWritten) / 2;
+            final int tmpBufferSize =
+                    (StartupConstants.AUDIO_TRACK_MIN_BUFFER_SIZE - bytesWritten) / 2;
             final short[] tmpBuffer = new short[tmpBufferSize];
             audioTrack.setStereoVolume(volume / 100.0f, volume / 100.0f);
             audioTrack.write(tmpBuffer, 0, tmpBufferSize);
             audioTrack.flush();
         }
-        Log.i(TAG, "Leaving playSound()");
     }
 
     public void stopSound() {
-        Log.e(TAG, "Entering stopSound()");
         toneGenerator.stopTone();
     }
 
     public void changeVolume() {
         volume = Native.getSoundVolume();
-        Log.e(TAG, "changeVolume: Changed volume to " + volume);
+        Log.i(TAG, "changeVolume: Changed volume to " + volume);
     }
 }
 

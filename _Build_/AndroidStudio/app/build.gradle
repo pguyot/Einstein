@@ -33,7 +33,7 @@ android {
             path "CMakeLists.txt"
         }
     }
-    lintOptions{
+    lintOptions {
         disable 'MissingTranslation'
     }
     compileOptions {
