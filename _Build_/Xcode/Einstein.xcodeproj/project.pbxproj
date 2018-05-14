@@ -688,7 +688,7 @@
 		C94C96DB20937E780099001D /* TPtySerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPtySerialPortManager.cp; sourceTree = "<group>"; };
 		C94C96DC20937E780099001D /* TPtySerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPtySerialPortManager.h; sourceTree = "<group>"; };
 		C950C22120A6536B00D8096B /* DumpROMMenuItem.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DumpROMMenuItem.png; sourceTree = "<group>"; };
-		C950C22220A6536B00D8096B /* UserManual.html */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = text.html.documentation; path = UserManual.html; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
+		C950C22220A6536B00D8096B /* UserManual.html */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text.html.documentation; path = UserManual.html; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		C950C22420A6536B00D8096B /* SetupWindow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SetupWindow.png; sourceTree = "<group>"; };
 		C950C22520A6536B00D8096B /* DumpROMPanel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DumpROMPanel.png; sourceTree = "<group>"; };
 		C950C22720A6536B00D8096B /* ROMDumper.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ROMDumper.png; sourceTree = "<group>"; };
@@ -2152,10 +2152,6 @@
 			attributes = {
 				LastUpgradeCheck = 0830;
 				TargetAttributes = {
-					8D1107260486CEB800E47090 = {
-						DevelopmentTeam = BK4ST6N599;
-						ProvisioningStyle = Automatic;
-					};
 					C98AB2361A351D20001BB1CD = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -3002,11 +2998,8 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = BK4ST6N599;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -3034,7 +3027,6 @@
 				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = Einstein;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -3046,12 +3038,9 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = BK4ST6N599;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3076,7 +3065,6 @@
 				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = Einstein;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -3433,12 +3421,9 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = BK4ST6N599;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3463,7 +3448,6 @@
 				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = Einstein;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
