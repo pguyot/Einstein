@@ -385,7 +385,7 @@ JITInstructionProto(CallHostInjection)
 						if (offset) {
 							fprintf(stderr, "SIM_INFO: ... at %s%+d\n", symbol, offset);
 						} else {
-							fprintf(stderr, "SIM_INFO: try: rt cjit %s\n", symbol);
+							fprintf(stderr, "SIM_INFO: ... at %s\n", symbol);
 						}
 						::free(symbol);
 					}
