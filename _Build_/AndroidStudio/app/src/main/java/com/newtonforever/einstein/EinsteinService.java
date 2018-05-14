@@ -83,7 +83,9 @@ public class EinsteinService extends Service {
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
-// TODO: deprecated	    mBuilder.setSmallIcon(R.drawable.ic_stat_einstein);
+
+        mBuilder.setSmallIcon(R.drawable.ic_stat_einstein);
+
         mBuilder.setContentTitle("Einstein NewtonOS Emulator");
         mBuilder.setContentText("Options and Settings");
 
