@@ -3,11 +3,9 @@ package com.newtonforever.einstein.activity;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
-import android.util.Log;
 
 import com.newtonforever.einstein.R;
 import com.newtonforever.einstein.utils.Dimension;
-import com.newtonforever.einstein.utils.debug.DebugUtils;
 import com.newtonforever.einstein.utils.screen.ScreenDimensions;
 
 import java.util.Vector;
@@ -17,47 +15,30 @@ import java.util.Vector;
  */
 public class EinsteinPreferencesActivity extends PreferenceActivity {
 
-    public EinsteinPreferencesActivity() {
-        super();
-        DebugUtils.appendLog("EinsteinPreferencesActivity: Leaving constructor");
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        DebugUtils.appendLog("EinsteinPreferencesActivity.onCreate: Entered method");
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences);
-        DebugUtils.appendLog("EinsteinPreferencesActivity.onCreate: Calling initDeviceDependentPreferences");
-        this.initDeviceDependentPreferences();
-    }
 
-    /**
-     * Initializes all preferences that we can only know at runtime.
-     */
-    public void initDeviceDependentPreferences() {
-        DebugUtils.appendLog("EinsteinPreferencesActivity.initDeviceDependentPreferences: Calling initScreenSizePreferences");
-        this.initScreenSizePreferences();
+        addPreferencesFromResource(R.xml.preferences);
+        initScreenSizePreferences();
     }
 
     /**
      * Initializes the emulator screen size preferences.
      */
-    private final void initScreenSizePreferences() {
-        DebugUtils.appendLog("EinsteinPreferencesActivity: Entering initScreenSizePreferences");
+    private void initScreenSizePreferences() {
         final Dimension hostScreenSize = ScreenDimensions.HOST_SCREEN_SIZE;
         final boolean isPortrait = hostScreenSize.width <= hostScreenSize.height;
         final int minWidth = isPortrait ? 320 : 480;
         final int minHeight = isPortrait ? 480 : 320;
         int w = minWidth;
         int h = minHeight;
-        DebugUtils.appendLog("EinsteinPreferencesActivity: Calculating entries");
-        Log.i("SIZE", "Screen: " + hostScreenSize.width + " x " + hostScreenSize.height);
+
         final Vector<String> temp = new Vector<String>();
         int i, currentSize = 0;
         temp.add(String.valueOf(w) + " x " + String.valueOf(h) + " (original size)"); // always add the native NewtonOS size
         double d = Math.abs(ScreenDimensions.NEWTON_SCREEN_WIDTH - w) + Math.abs(ScreenDimensions.NEWTON_SCREEN_HEIGHT - h);
-        Log.i("SIZE", "Choice: " + w + " x " + h);
-        Log.i("SIZE", "Newton: " + ScreenDimensions.NEWTON_SCREEN_WIDTH + " x " + ScreenDimensions.NEWTON_SCREEN_HEIGHT);
+
         for (i = 10; i >= 3; i--) {
             int f = i / 3;
             switch (i % 3) {
@@ -85,7 +66,6 @@ public class EinsteinPreferencesActivity extends PreferenceActivity {
             }
         }
         final int entryCount = temp.size();
-        DebugUtils.appendLog("EinsteinPreferencesActivity: Preparing " + entryCount + " preference entries");
         final CharSequence[] entryValues = new CharSequence[entryCount];
         final CharSequence[] entries = new CharSequence[entryCount];
         // Note that entries only contains the string the user sees, whereas entryValues contains what will be returned
@@ -95,12 +75,10 @@ public class EinsteinPreferencesActivity extends PreferenceActivity {
             entryValues[i] = temp.get(i);
             entries[i] = temp.get(i);
         }
-        DebugUtils.appendLog("EinsteinPreferencesActivity: Setting preference entries");
         final ListPreference screenPresets = (ListPreference) (super.findPreference("screenpresets"));
         screenPresets.setEntries(entries);
         screenPresets.setEntryValues(entryValues);
         screenPresets.setValue(temp.get(currentSize));
-        DebugUtils.appendLog("EinsteinPreferencesActivity: Leaving EinsteinPreferencesActivity");
     }
 
 }

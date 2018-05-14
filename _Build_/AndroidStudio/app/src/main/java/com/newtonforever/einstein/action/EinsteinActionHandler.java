@@ -2,16 +2,15 @@ package com.newtonforever.einstein.action;
 
 import com.newtonforever.einstein.jni.Native;
 import com.newtonforever.einstein.sound.SoundManager;
-import com.newtonforever.einstein.utils.debug.DebugUtils;
 import com.newtonforever.einstein.view.EinsteinView;
 
 import java.util.TimerTask;
 
 /**
  * Polls the C side and handles actions that the C side wants us to do. @author Frank Gruendel.
+ *
+ * Currently our run method is called at every screen refresh request. This must urgently be changed.
  */
-
-/** Currently our run method is called at every screen refresh request. This must urgently be changed. */
 // TODO FG 2013_10_19 Put sound issues into a separate Thread. */
 public class EinsteinActionHandler extends TimerTask {
 
@@ -31,16 +30,16 @@ public class EinsteinActionHandler extends TimerTask {
     private final int CHANGE_VOLUME_MASK = 0x08;
 
     /** Our Einstein view. */
-    private final EinsteinView m_einsteinView;
+    private final EinsteinView einsteinView;
 
     /** The sound manager that takes care of all sound issues. */
-    private final SoundManager m_soundManager = new SoundManager();
+    private final SoundManager soundManager = new SoundManager();
 
     /** A helper flag for logging a message the first time a screen refresh is requested. */
-    private boolean m_screenRefreshStarted = false;
+    private boolean screenRefreshStarted = false;
 
     public EinsteinActionHandler(EinsteinView view) {
-        this.m_einsteinView = view;
+        einsteinView = view;
     }
 
     @Override
@@ -51,53 +50,50 @@ public class EinsteinActionHandler extends TimerTask {
         }
         // Note that multiple actions might be required if more than one bit is set in actionMask.
         // So don't even think of using else if here...
-        if (this.isPlaySound(actionMask)) {
+        if (isPlaySound(actionMask)) {
             // NewtonOS wants to start a sound or (if a sound is currently played) add more samples to the buffers.
-            DebugUtils.logGreen("EinsteinActionHandler: ", "Requesting sound output with " + actionMask);
-            this.m_soundManager.playSound(Native.getSoundBufferSize());
+            soundManager.playSound(Native.getSoundBufferSize());
             Native.soundBufferFinishedOrCanceled();
         }
-        if (this.isStopSound(actionMask)) {
+        if (isStopSound(actionMask)) {
             // NewtonOS has stopped the current sound. This must be done before starting a new sound.
-            //DebugUtils.logGreen("EinsteinActionHandler: ", "Stopping sound output");
-            this.m_soundManager.stopSound();
+            soundManager.stopSound();
         }
-        if (this.isVolumeChanged(actionMask)) {
+        if (isVolumeChanged(actionMask)) {
             // NewtonOS has changed the volume setting. Android must be notified.
-            this.m_soundManager.changeVolume();
+            soundManager.changeVolume();
         }
-        if (this.isScreenRefresh(actionMask)) {
+        if (isScreenRefresh(actionMask)) {
             // NewtonOS changed the Newton's screen content. Java must refresh the Android screen.
-            this.handleScreenRefresh();
+            handleScreenRefresh();
         }
     }
 
     /** Returns <code>true</code> if the bit for a screen refresh is set in <code>mask</code> */
     private boolean isScreenRefresh(final int mask) {
-        return 0 != (mask & REFRESH_SCREEN_MASK);
+        return (mask & REFRESH_SCREEN_MASK) != 0;
     }
 
     /** Returns <code>true</code> if the bit for stopping the sound is set in <code>mask</code> */
     private boolean isStopSound(final int mask) {
-        return 0 != (mask & STOP_SOUND_MASK);
+        return (mask & STOP_SOUND_MASK) != 0;
     }
 
     /** Returns <code>true</code> if the bit for starting or continuing a sound is set in <code>mask</code> */
     private boolean isPlaySound(final int mask) {
-        return 0 != (mask & PLAY_SOUND_MASK);
+        return (mask & PLAY_SOUND_MASK) != 0;
     }
 
     /** Returns <code>true</code> if the bit for changing the volume is set in <code>mask</code> */
     private boolean isVolumeChanged(final int mask) {
-        return 0 != (mask & CHANGE_VOLUME_MASK);
+        return (mask & CHANGE_VOLUME_MASK) != 0;
     }
 
     /** Refreshes the Android screen area inhabited by our Einstein view. */
     private void handleScreenRefresh() {
-        if (!m_screenRefreshStarted) {
-            //DebugUtils.logGreen("EinsteinActionHandler: ", "First time screen refresh");
-            m_screenRefreshStarted = true;
+        if (!screenRefreshStarted) {
+            screenRefreshStarted = true;
         }
-        this.m_einsteinView.postInvalidate();
+        einsteinView.postInvalidate();
     }
 }
