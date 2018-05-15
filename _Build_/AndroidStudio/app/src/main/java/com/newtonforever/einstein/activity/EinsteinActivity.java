@@ -45,10 +45,10 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     
     private static final int REQUEST_WRITE = 1;
 
-    private Einstein pEinstein = null;
-    private EinsteinView pEinsteinView = null;
-    private Timer mScreenRefreshTimer = null;
-    private EinsteinActionHandler mScreenRefreshTask = null;
+    private Einstein einstein = null;
+    private EinsteinView einsteinView = null;
+    private Timer screenRefreshTimer = null;
+    private EinsteinActionHandler screenRefreshTask = null;
     private SharedPreferences sharedPrefs;
     private Startup startup;
 
@@ -72,18 +72,18 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 
         // Create an instance of EinsteinPreferencesActivity. If we do not do this, the preferences that are calculated
         // at runtime wouldn't exist until the user has invoked the preferences window for the first time.
-        this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        this.startup = new Startup(this);
+        startup = new Startup(this);
 
         // Create view
-        this.pEinsteinView = new EinsteinView(this);
+        einsteinView = new EinsteinView(this);
 
         // Show or hide Android status bar. Note that this must take place before we call setContentView
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         final boolean statusBarVisible = sharedPrefs.getBoolean("androidstatusbar", true);
         updateFullscreenStatus(statusBarVisible);
-        setContentView(pEinsteinView);
+        setContentView(einsteinView);
 
         int permission =
                 ContextCompat.checkSelfPermission(this,
@@ -102,7 +102,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     private void init() {
         Log.i(TAG, "Creating Einstein application.");
         final EinsteinApplication app = (EinsteinApplication) getApplication();
-        pEinstein = app.getEinstein();
+        einstein = app.getEinstein();
 
         final LoadResult result = startup.installAssets();
         if (LoadResult.OK != result) {
@@ -114,17 +114,17 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         registerPreferenceChangeListener();
 
         // Initialize emulator
-        if (!pEinstein.isRunning()) {
+        if (!einstein.isRunning()) {
             Native.initEmulator("CONSOLE");
         }
 
         // Start the emulator
-        if (pEinstein.isRunning()) { // Wake up
+        if (einstein.isRunning()) { // Wake up
             Toast.makeText(getApplicationContext(), "Reconnecting to Einstein", Toast.LENGTH_SHORT).show();
         } else {
             String id = sharedPrefs.getString("newtonid", StartupConstants.DEFAULT_NEWTON_ID);
             Native.setNewtonID(id);
-            pEinstein.run(StartupConstants.DATA_FILE_PATH, ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
+            einstein.run(StartupConstants.DATA_FILE_PATH, ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
             // TODO FG 2013_10_19 Only required when using Frank's Flash ROM board data. Remove in a final version.
             //MiscUtils.sleepForMillis(2000);
             //Log.i(TAG, "Sleeping for 2s after calling run because we're using Frank's ROM...");
@@ -191,8 +191,9 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 
     @Override
     public void onDestroy() {
-        // December 2011 Frank Gruendel This is because Android Applications do not really stop. They only
-        // retreat into the background. To really stop them one has to use the Android Settings Manager.
+        // December 2011 Frank Gruendel This is because Android Applications do not really stop.
+        // They only retreat into the background. To really stop them one has to use the
+        // Android Settings Manager.
         Log.i(TAG, "Entering onDestroy().");
         Native.powerOffEmulator();
         stopScreenRefresh();
@@ -203,8 +204,9 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     // --- End of application life cycle
 
     /**
-     * Updates the fullscreen status. The app is shown fullscreen if <code>statusBarVisible</code> is <code>false</code>.
-     * Note that this method must be called before invoking <code>setContentView</code> in the <code>onCreate</code> method.
+     * Updates the fullscreen status. The app is shown fullscreen if <code>statusBarVisible</code>
+     * is <code>false</code>. Note that this method must be called before invoking
+     * <code>setContentView</code> in the <code>onCreate</code> method.
      */
     private void updateFullscreenStatus(boolean statusBarVisible) {
         Log.i(TAG, "Entering updateFullscreenStatus().");
@@ -212,7 +214,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         final int notFullscreen = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
         getWindow().addFlags(statusBarVisible ? notFullscreen : fullscreen);
         getWindow().clearFlags(statusBarVisible ? fullscreen : notFullscreen);
-        pEinsteinView.requestLayout();
+        einsteinView.requestLayout();
         Log.i(TAG, "Leaving updateFullscreenStatus().");
     }
 
@@ -244,8 +246,11 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
                 }
             }
             ScreenDimensionsInitializer.initNewtonScreenDimensions(this);
-            Native.changeScreenSize(ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
-            pEinsteinView.updateDimensions();
+            Native.changeScreenSize(
+                    ScreenDimensions.NEWTON_SCREEN_WIDTH,
+                    ScreenDimensions.NEWTON_SCREEN_HEIGHT
+            );
+            einsteinView.updateDimensions();
             Toast.makeText(getApplicationContext(), "Rebooting NewtonOS", Toast.LENGTH_LONG).show();
             Native.rebootEmulator();
             Native.powerOnEmulator();
@@ -272,36 +277,36 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 
     private void startScreenRefresh(int rate) {
         Log.i(TAG, "Entering startScreenRefresh().");
-        if (mScreenRefreshTask == null) {
-            mScreenRefreshTask = new EinsteinActionHandler(pEinsteinView);
+        if (screenRefreshTask == null) {
+            screenRefreshTask = new EinsteinActionHandler(einsteinView);
         }
-        if (mScreenRefreshTimer == null) {
-            mScreenRefreshTimer = new Timer(true);
-            mScreenRefreshTimer.schedule(mScreenRefreshTask, 1000, 1000 / rate);
+        if (screenRefreshTimer == null) {
+            screenRefreshTimer = new Timer(true);
+            screenRefreshTimer.schedule(screenRefreshTask, 1000, 1000 / rate);
         }
         Log.i(TAG, "Leaving startScreenRefresh().");
     }
 
     private void changeScreenRefresh(int rate) {
         Log.i(TAG, "Entering changeScreenRefresh().");
-        if (mScreenRefreshTimer != null) {
-            mScreenRefreshTimer.cancel();
-            mScreenRefreshTimer.purge();
-            mScreenRefreshTimer = null;
-            mScreenRefreshTimer = new Timer(true);
-            mScreenRefreshTimer.schedule(mScreenRefreshTask, 1000 / rate, 1000 / rate);
+        if (screenRefreshTimer != null) {
+            screenRefreshTimer.cancel();
+            screenRefreshTimer.purge();
+            screenRefreshTimer = null;
+            screenRefreshTimer = new Timer(true);
+            screenRefreshTimer.schedule(screenRefreshTask, 1000 / rate, 1000 / rate);
         }
         Log.i(TAG, "Leaving changeScreenRefresh().");
     }
 
     private void stopScreenRefresh() {
         Log.i(TAG, "Entering stopScreenRefresh().");
-        if (mScreenRefreshTimer != null) {
-            mScreenRefreshTimer.cancel();
-            mScreenRefreshTimer.purge();
-            mScreenRefreshTimer = null;
+        if (screenRefreshTimer != null) {
+            screenRefreshTimer.cancel();
+            screenRefreshTimer.purge();
+            screenRefreshTimer = null;
         }
-        mScreenRefreshTask = null;
+        screenRefreshTask = null;
         Log.i(TAG, "Leaving stopScreenRefresh().");
     }
 

@@ -99,16 +99,17 @@ public class EinsteinService extends Service {
         stackBuilder.addParentStack(EinsteinActivity.class);
         // Adds the Intent that starts the Activity to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(resultPendingIntent);
 
-        this.startForeground(0x4e256cc5, mBuilder.build());
+        startForeground(0x4e256cc5, mBuilder.build());
     }
 
     public void normalPriority() {
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNM.cancel(0x4e256cc5);
-        this.stopForeground(true);
+        stopForeground(true);
     }
 
 }

@@ -8,22 +8,22 @@ import com.newtonforever.einstein.jni.Native;
  * @author Matthias Melcher
  */
 public class Einstein {
-    /** Load the entire native program as a library at startup. */
+    /* Load the entire native program as a library at startup. */
     static {
         System.loadLibrary("native-lib");
     }
 
-    private boolean pRunning = false;
+    private boolean isRunning = false;
 
     public void run(String dataPath, int screenWidth, int screenHeight) {
         Native.runEmulator(dataPath, screenWidth, screenHeight);
-        this.pRunning = true;
+        isRunning = true;
     }
 
     /**
      * Returns <code>true</code> if the emulator is currently running.
      */
     public boolean isRunning() {
-        return this.pRunning;
+        return isRunning;
     }
 }

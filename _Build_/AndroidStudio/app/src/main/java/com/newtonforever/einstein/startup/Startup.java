@@ -34,7 +34,7 @@ public class Startup {
         final String line2 = StringUtils.getLocalizedString(resources, R.string.Startup_expectedPath);
 
         // Make sure we have a ROM file
-        if (!this.romFileAvailable(dataDir)) {
+        if (!romFileAvailable(dataDir)) {
             Log.e(TAG, "installAssets: ROM file not found");
             final String line1 = StringUtils.getLocalizedString(resources, R.string.Startup_romFileMissing);
             final String message = line1 + "\n" + line2;
@@ -43,7 +43,7 @@ public class Startup {
         }
 
         // Make sure we have a REX file
-        if (!this.rexFileAvailable(dataDir)) {
+        if (!rexFileAvailable(dataDir)) {
             Log.e(TAG, "installAssets: REX file not found");
             final String line1 = StringUtils.getLocalizedString(resources, R.string.Startup_rexFileMissing);
             final String message = line1 + "\n" + line2;

@@ -77,7 +77,7 @@ public class ActionsActivity extends FragmentActivity {
         // We should probably be in Einstein instead.
         Intent intent = new Intent(this, EinsteinPreferencesActivity.class);
         startActivity(intent);
-        this.finish();
+        finish();
     }
 
     private void onClickQuit(View view) {
