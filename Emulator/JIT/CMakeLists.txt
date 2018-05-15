@@ -3,8 +3,8 @@
 set(elib_JIT_sources
 "TJITCache.cp"
 "TJITPage.cp"
-"Generic/TJITGenericRetarget.cp"
-"Generic/TJITGenericRetargetMap.cpp"
+#"Generic/TJITGenericRetarget.cp"
+#"Generic/TJITGenericRetargetMap.cpp"
 "Generic/TJITGenericROMPatch.cp"
 "Generic/TJITGeneric_BlockDataTransfer.cp"
 "Generic/TJITGeneric_DataProcessingPSRTransfer.cp"

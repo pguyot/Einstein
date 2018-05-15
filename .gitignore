@@ -8,3 +8,5 @@ DerivedData/
 *.xcuserdatad
 .DS_Store
 _Build_/Jam/build.LINUX/
+_Build_/CMake/cmake*
+_Build_/CMake/CMake*
