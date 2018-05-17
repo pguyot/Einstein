@@ -1,5 +1,7 @@
 *.swp
 build/
+bin/
+lib/
 DerivedData/
 *.mode1v3
 *.mode2v3
@@ -8,5 +10,5 @@ DerivedData/
 *.xcuserdatad
 .DS_Store
 _Build_/Jam/build.LINUX/
-_Build_/CMake/cmake*
-_Build_/CMake/CMake*
+_Build_/CMake/
+!_Build/CMake/build.sh

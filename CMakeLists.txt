@@ -14,7 +14,6 @@ option(armlejit "Use ARMLE JIT" OFF)
 option(appX11 "X11+CLI application" ON)
 option(appFLTK "FLTK application" OFF)
 
-set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 
 # Release / Debug compile flags.
@@ -63,13 +62,13 @@ add_subdirectory(K)
 ## 1) Gather all common sources
 
 file(GLOB elib_common_sources "Emulator/*.cp")
-file(GLOB elib_Monitor_sources "Monitor/*.cp")
+# file(GLOB elib_Monitor_sources "Monitor/*.cp")
 
 set_source_files_properties(${elib_common_sources} PROPERTIES LANGUAGE CXX)
-set_source_files_properties(${elib_Monitor_sources} PROPERTIES LANGUAGE CXX)
+# set_source_files_properties(${elib_Monitor_sources} PROPERTIES LANGUAGE CXX)
 
 # Add "einsteinlib" as a library target
-add_library(einsteinlib STATIC ${elib_common_sources} ${elib_Monitor_sources})
+add_library(einsteinlib STATIC ${elib_common_sources})
 
 # add include directories ... do I need this?
 target_include_directories(einsteinlib PUBLIC
@@ -97,7 +96,8 @@ if(${WIN32})
 elseif(${UNIX})
 
     if (${APPLE})
-        set(EINSTEIN_TARGET "MACOSX")
+        # FIXME OS X is called OPENSTEP ...
+        set(EINSTEIN_TARGET "OPENSTEP")
         # FIXME add OS X sources here.
         set(EINSTEIN_SCREEN_MANAGER "Cocoa")
     else()
@@ -126,18 +126,19 @@ endif()
 
 # Add the Emulator/ sub-dir, which has CMakeLists all the way down
 add_subdirectory(Emulator)
+add_subdirectory(Monitor)
 
-string(TOUPPER ${CMAKE_HOST_SYSTEM_NAME} _LOCAL_LIB_DIR_SUFFIX)
-install(TARGETS einsteinlib DESTINATION lib.${_LOCAL_LIB_DIR_SUFFIX})
+install(TARGETS einsteinlib DESTINATION lib/${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_BUILD_TYPE})
 
-target_link_libraries(einsteinlib files host jit log nativecalls network pcmcia platform rom screen serial sound ${LINKLIBS} k)
+target_link_libraries(einsteinlib monitor files host jit log nativecalls network pcmcia platform rom screen serial sound ${LINKLIBS} k)
 
 
 ############################
 # EINSTEIN EMULATOR
 add_executable(einstein app/einstein.cp app/TCLIApp.cp)
 
-install(TARGETS einstein DESTINATION einstein-${CMAKE_BUILD_TYPE})
+install(TARGETS einstein
+DESTINATION bin/${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_BUILD_TYPE})
 
 set_source_files_properties(app/einstein.cp app/TCLIApp.cp PROPERTIES LANGUAGE CXX)
 target_link_libraries(einstein k einsteinlib)

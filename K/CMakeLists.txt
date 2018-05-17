@@ -43,7 +43,7 @@ if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
     add_definitions (-DTARGET_OS_LINUX -DHAS_C99_LONGLONG -Wno-multichar)
 elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
     add_definitions (-DTARGET_OS_OPENSTEP)
-    set(SOURCES ${SOURCES} Misc/UpStrings.cp)
+    set(SOURCES ${SOURCES} Misc/UPStrings.cp)
 endif()
 
 set_source_files_properties(${SOURCES} PROPERTIES LANGUAGE CXX)
@@ -56,4 +56,4 @@ target_link_libraries(k ${M_LIB} ${PTHREAD_LIB})
 
 string(TOUPPER ${CMAKE_HOST_SYSTEM_NAME} _LOCAL_LIB_DIR_SUFFIX)
 
-install(TARGETS k DESTINATION lib.${_LOCAL_LIB_DIR_SUFFIX})
+install(TARGETS k DESTINATION lib/${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_BUILD_TYPE})
