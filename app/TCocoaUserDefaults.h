@@ -40,7 +40,7 @@
 #define kAudioDriverKey				@"AudioDriver"
 #define kCoreAudioDriverTag			1
 #define kPortAudioDriverTag			2
-#define kNullSounDriverTag			3
+#define kNullSoundDriverTag			3
 
 #define kScreenDriverKey			@"ScreenDriver"
 #define kCocoaScreenDriverTag		1
@@ -50,6 +50,12 @@
 #define kUsermodeNetworkDriverTag	1
 #define kTapNetworkDriverTag		2
 #define kNullNetworkDriverTag		3
+
+#define kSerialDriverKey			@"SerialDriver"
+#define kBasiliskIISerialDriverTag	3
+#define kPtySerialDriverTag			2
+#define kPipesSerialDriverTag		1
+#define kNullSerialDriverTag		0
 
 #define kDontShowAtStartupKey		@"DontShowAtStartup"
 #define kEnableListenersKey			@"EnableListeners"

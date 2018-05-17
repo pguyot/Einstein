@@ -264,7 +264,7 @@ COMMON_CPP_SOURCES	+= "$(BASE)Emulator/ROM/TAIFROMImageWithREXes.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/ROM/TFlatROMImage.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/ROM/TFlatROMImageWithREX.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/ROM/TROMImage.cp" ;
-COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Serial/TVoyagerSerialPort.cp" ;
+COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Serial/TSerialPortManager.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Sound/TSoundManager.cp" ;
 COMMON_CPP_SOURCES	+= "$(BASE)Emulator/Sound/TBufferedSoundManager.cp" ;
 if $(portaudio:E="yes") = "yes"

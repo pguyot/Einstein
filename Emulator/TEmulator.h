@@ -31,7 +31,7 @@
 #include "TMemory.h"
 #include "Log/TLog.h"
 
-class TVoyagerSerialPort;
+class TSerialPortManager;
 class TInterruptManager;
 class TDMAManager;
 class TPlatformManager;
@@ -70,6 +70,7 @@ public:
 	/// \param inSoundManager		sound manager.
 	/// \param inScreenManager		screen manager.
 	/// \param inRAMSize			size of the RAM installed (in bytes)
+	/// \param inExtrSerialPortManager	serial port manager
 	///
 	TEmulator(
 			TLog* inLog,
@@ -78,7 +79,8 @@ public:
 			TSoundManager* inSoundManager,
 			TScreenManager* inScreenManager,
 			TNetworkManager* inNetworkManager,
-			KUInt32 inRAMSize = 0x00400000 );
+			KUInt32 inRAMSize = 0x00400000,
+			TSerialPortManager* inExtrSerialPortManager = 0L);
 
 	///
 	/// Constructor from a rom image buffer.
@@ -340,7 +342,7 @@ public:
 	///
 	/// \return a pointer to the serial port.
 	///
-	TVoyagerSerialPort*	GetExternalSerialPort( void )
+	TSerialPortManager*	GetExternalSerialPort( void )
 		{
 			return mExternalPort;
 		}
@@ -350,7 +352,7 @@ public:
 	///
 	/// \return a pointer to the serial port.
 	///
-	TVoyagerSerialPort*	GetInfraredSerialPort( void )
+	TSerialPortManager*	GetInfraredSerialPort( void )
 		{
 			return mInfraredPort;
 		}
@@ -360,7 +362,7 @@ public:
 	///
 	/// \return a pointer to the serial port.
 	///
-	TVoyagerSerialPort*	GetBuiltInExtraSerialPort( void )
+	TSerialPortManager*	GetBuiltInExtraSerialPort( void )
 		{
 			return mBuiltInExtraPort;
 		}
@@ -370,7 +372,7 @@ public:
 	///
 	/// \return a pointer to the serial port.
 	///
-	TVoyagerSerialPort*	GetModemSerialPort( void )
+	TSerialPortManager*	GetModemSerialPort( void )
 		{
 			return mModemPort;
 		}
@@ -449,10 +451,10 @@ private:
 	TInterruptManager*	mInterruptManager;	///< Interrupt manager.
 	TDMAManager*		mDMAManager;		///< DMA manager.
 	TPlatformManager*	mPlatformManager;	///< Platform manager.
-	TVoyagerSerialPort*	mExternalPort;		///< External serial port.
-	TVoyagerSerialPort*	mInfraredPort;		///< Infrared serial port.
-	TVoyagerSerialPort*	mBuiltInExtraPort;	///< Built-in Extra serial port.
-	TVoyagerSerialPort*	mModemPort;			///< Modem serial port.
+	TSerialPortManager*	mExternalPort;		///< External serial port.
+	TSerialPortManager*	mInfraredPort;		///< Infrared serial port.
+	TSerialPortManager*	mBuiltInExtraPort;	///< Built-in Extra serial port.
+	TSerialPortManager*	mModemPort;			///< Modem serial port.
 	TNetworkManager*	mNetworkManager;	///< Network manager.
 	TSoundManager*		mSoundManager;		///< Sound manager.
 	TScreenManager*		mScreenManager;		///< Screen manager.

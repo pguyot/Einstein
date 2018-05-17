@@ -35,7 +35,6 @@ class TMemory;
 class TARMProcessor;
 class TInterruptManager;
 class TSymbolList;
-class TJITGenericRetarget;
 
 ///
 /// Class for the monitor (in monitor mode).
@@ -105,11 +104,6 @@ public:
 	/// Print help for the watchpoint commands.
 	///
 	void		PrintWatchpointHelp( void );
-	
-	///
-	/// Print help for the retargeting commands.
-	///
-	void		PrintRetargetHelp( void );
 	
 	///
 	/// Output a line.

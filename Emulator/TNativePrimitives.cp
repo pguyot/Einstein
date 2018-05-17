@@ -1997,7 +1997,7 @@ TNativePrimitives::ExecuteTabletDriverNative( KUInt32 inInstruction )
 //  * ExecuteSerialDriverNative( KUInt32 )
 // Matt: to the best of my knowledge, the serial port drivers can not, or at
 //		least not with some additional effort, be replaced by drivers from
-//		a ROM extension. TVoyagerManagedSerialPort was written to emulate
+//		a ROM extension. TBasicSerialPortManager was written to emulate
 //		the serial port on the lowest hardware level.
 // -------------------------------------------------------------------------- //
 void

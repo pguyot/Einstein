@@ -46,26 +46,16 @@
 #include "Monitor/TSymbolList.h"
 #include "Emulator/JIT/JIT.h"
 
-#ifdef JITTARGET_GENERIC
-#include "Emulator/JIT/Generic/TJITGenericRetarget.h"
-#endif
 
 TMonitorCore::TMonitorCore(TSymbolList* inSymbolList)
 :	mMemory(0L),
 	mSymbolList(inSymbolList)
-#ifdef JITTARGET_GENERIC
-	,mRetarget(0L)
-#endif
 {
 }
 
 
 TMonitorCore::~TMonitorCore()
 {
-#ifdef JITTARGET_GENERIC
-	if (mRetarget)
-		delete mRetarget;
-#endif
 }
 
 
@@ -120,11 +110,8 @@ TMonitorCore::ExecuteCommand( const char* inCommand )
 #else
 	Boolean theResult = true;
 	
-	if (inCommand[0]=='#') {	// script comment
-#ifdef JITTARGET_GENERIC
-	} else if (::strncmp(inCommand, "rt ", 3)==0) {
-		theResult = ExecuteRetargetCommand(inCommand+3);
-#endif
+	if (inCommand[0]=='#') {
+		// script comment
 	} else if (::strcmp(inCommand, "cd") == 0) {
 		const char *home = ::getenv("HOME");
 		::chdir(home);
@@ -144,164 +131,6 @@ TMonitorCore::ExecuteCommand( const char* inCommand )
 #endif
 }
 
-#ifdef JITTARGET_GENERIC
-// -------------------------------------------------------------------------- //
-// ExecuteRetargetCommand( const char* inCommand )
-// -------------------------------------------------------------------------- //
-Boolean
-TMonitorCore::ExecuteRetargetCommand( const char* inCommand )
-{
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-	return 0;
-#else
-	if (!mRetarget)
-		mRetarget = new TJITGenericRetarget(mMemory, mSymbolList);
-	Boolean theResult = true;
-	if (::strncmp(inCommand, "open ", 5) == 0) {
-		if (mRetarget->OpenFiles(inCommand+5)) {
-			PrintLine("Can't open file", MONITOR_LOG_ERROR);
-			theResult = false;
-		} else {
-			PrintLine("Retarget files opened", MONITOR_LOG_INFO);
-		}
-	} else if (::strcmp(inCommand, "close") == 0) {
-		mRetarget->CloseFiles();
-		PrintLine("Retarget files closed", MONITOR_LOG_INFO);
-	} else if (::strncmp(inCommand, "code ", 5) == 0) {
-		unsigned long first, last;
-		int n = 0;
-		n = sscanf(inCommand+5, "%lx-%lx", &first, &last);
-		if (n==0) {
-			char buf[512];
-			::sprintf(buf, "rt code: Can't read memory range - undefined symbol? %s", inCommand);
-			PrintLine(buf, MONITOR_LOG_ERROR);
-			theResult = false;
-		} else {
-			mRetarget->SetRetargetMap((KUInt32)first, (KUInt32)last, 1);
-		}
-	} else if (::strncmp(inCommand, "cjit ", 5) == 0) {
-		unsigned long first = 0, last = 4;
-		int arg = 5;
-		bool dontLink = 0;
-		if (inCommand[arg]=='!') { dontLink = 1; arg++; }
-		bool continueAfterFunction = 0;
-		if (inCommand[arg]=='^') { continueAfterFunction = 1; arg++; }
-		bool isJumpTable = 0;
-		if (inCommand[arg]=='#') { isJumpTable = 1; arg++; }
-		int n = 0;
-		if (n==0) {
-			first = mSymbolList->GetSymbolByName(inCommand+arg);
-			if (first!=TSymbolList::kNoSymbol) {
-				n = 1;
-				last = (KUInt32)mSymbolList->GetNextSymbol((KUInt32)first);
-				if (last!=TSymbolList::kNoSymbol) {
-					n = 2;
-				}
-			}
-		}
-		if (n==0) {
-			n = sscanf(inCommand+arg, "%lx-%lx", &first, &last);
-		}
-		if (n==0) {
-			char buf[512];
-			::sprintf(buf, "rt cjit: Can't read memory range - undefined symbol? %s", inCommand);
-			PrintLine(buf, MONITOR_LOG_ERROR);
-			theResult = false;
-		} else {
-			if (n==1) last = first + 80;
-			char name[512], cmt[512];
-			int off;
-			const char *n = inCommand+arg;
-			for (;;n++) { // skip the start and end address and find the function name
-				if (*n==0) break;
-				if (*n==' ') break;
-			}
-			if (isJumpTable) {
-				for ( ; first<last; first+=4) {
-					sprintf(name, "JumpTable_0x%08lX", first);
-					mRetarget->TranslateFunction((KUInt32)first, (KUInt32)first+4, name, continueAfterFunction, dontLink);
-				}
-			} else {
-				while (*n==' ') n++;
-				if (*n) {
-					strcpy(name, n);
-				} else if (mSymbolList->GetSymbolByAddress((KUInt32)first, name, cmt, &off)) {
-					// symbol name is in 'name'
-				} else {
-					sprintf(name, "Func_0x%08lX", first);
-				}
-				mRetarget->TranslateFunction((KUInt32)first, (KUInt32)last, name, continueAfterFunction, dontLink);
-			}
-		}
-	} else if (::strncmp(inCommand, "cjitr ", 6) == 0) {
-		unsigned long first = 0;
-		int n = 0;
-		if (n==0) {
-			first = mSymbolList->GetSymbolByName(inCommand+6);
-			if (first!=TSymbolList::kNoSymbol) {
-				n = 1;
-			}
-		}
-		if (n==0) {
-			n = sscanf(inCommand+6, "%lx", &first);
-		}
-		if (n==0) {
-			char buf[64];
-			snprintf(buf, 64, "Start address not found: %s", inCommand);
-			PrintLine(buf, MONITOR_LOG_ERROR);
-			theResult = false;
-		} else {
-			char name[512], cmt[512];
-			int off;
-			const char *n = inCommand+6;
-			for (;;n++) { // skip the start address and find the function name
-				if (*n==0) break;
-				if (*n==' ') break;
-			}
-			while (*n==' ') n++;
-			if (*n) {
-				strcpy(name, n);
-			} else if (mSymbolList->GetSymbolByAddress((KUInt32)first, name, cmt, &off)) {
-				// symbol name is in 'name'
-			} else {
-				sprintf(name, "Func_0x%08X", (unsigned int)first);
-			}
-			mRetarget->ReturnToEmulator((KUInt32)first, name);
-		}
-	} else if (::strcmp(inCommand, "monty") == 0) {
-		int i, j, si;
-		KUInt32 addr = 0;
-		FILE *f = fopen("/Users/matt/dev/Einstein/_Data_/monty", "wb");
-		for (i=0; i<16; i++) {
-			for (j=0; j<16; j++) {
-				fprintf(f, "\n\nrt open /Users/matt/dev/Einstein/Newt/Monty/Grp%X/Fn%X\n", i, j);
-				for (si=0; si<100; si++) {
-					char sym[1024];
-					mSymbolList->GetSymbolByAddress(addr, sym);
-					if (addr<0x003AE58C) {
-						fprintf(f, "rt cjit %s\n", sym);
-						addr = mSymbolList->GetNextSymbol(addr);
-					}
-				}
-				fprintf(f, "rt close\n\n");
-			}
-		}
-		fclose(f);
-		f = fopen("/Users/matt/dev/Einstein/_Data_/monty.h", "wb");
-		for (i=0; i<16; i++) {
-			for (j=0; j<16; j++) {
-				fprintf(f, "#include \"Monty/Grp%X/Fn%X.h\"\n", i, j);
-			}
-		}
-		fclose(f);
-	} else {
-		theResult = false;
-	}
-	return theResult;
-#endif
-}
-#endif
 
 // ==================================================================== //
 // I am not now, nor have I ever been, a member of the demigodic party. //

@@ -43,6 +43,9 @@
 #ifdef OPTION_X11_SCREEN
 #include "Emulator/Screen/TX11ScreenManager.h"
 #endif
+#include "Emulator/Serial/TPipesSerialPortManager.h"
+#include "Emulator/Serial/TPtySerialPortManager.h"
+#include "Emulator/Serial/TBasiliskIISerialPortManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
@@ -98,6 +101,7 @@ static TCocoaAppController* gInstance = nil;
 			[NSNumber numberWithInt:kCoreAudioDriverTag], kAudioDriverKey,
 			[NSNumber numberWithInt:kCocoaScreenDriverTag], kScreenDriverKey,
 			[NSNumber numberWithInt:kUsermodeNetworkDriverTag], kNetworkDriverKey,
+			[NSNumber numberWithInt:kBasiliskIISerialDriverTag], kSerialDriverKey,
 			[NSNumber numberWithBool:NO], kDontShowAtStartupKey,
 			[NSNumber numberWithBool:NO], kEnableListenersKey,
 			nil];
@@ -119,6 +123,7 @@ static TCocoaAppController* gInstance = nil;
 		mNetworkManager = NULL;
 		mSoundManager = NULL;
 		mScreenManager = NULL;
+		mExtrSerialPortManager = NULL;
 		mROMImage = NULL;
 		mEmulator = NULL;
 		mPlatformManager = NULL;
@@ -160,6 +165,10 @@ static TCocoaAppController* gInstance = nil;
 	if (mScreenManager)
 	{
 		delete mScreenManager;
+	}
+	if (mExtrSerialPortManager)
+	{
+		delete mExtrSerialPortManager;
 	}
 	if (mNetworkManager)
 	{
@@ -274,14 +283,14 @@ static TCocoaAppController* gInstance = nil;
 	NSString* theREX0Path = nil;
 	if ([theROMPath hasSuffix: @".aif"])
 	{
-		int theLength = [theROMPath length];
+		NSUInteger theLength = [theROMPath length];
 		theREX0Path = [[theROMPath substringToIndex: (theLength - 4)] stringByAppendingString: @".rex"];
 		if (![theFileManager fileExistsAtPath: theREX0Path])
 		{
 			theREX0Path = nil;
 		}
 	} else if ([theROMPath hasSuffix: @" image"]) {
-		int theLength = [theROMPath length];
+		NSUInteger theLength = [theROMPath length];
 		theREX0Path = [[theROMPath substringToIndex: (theLength - 6)] stringByAppendingString: @" high"];
 		if (![theFileManager fileExistsAtPath: theREX0Path])
 		{
@@ -291,8 +300,8 @@ static TCocoaAppController* gInstance = nil;
 	
 	// Load the ROM
 	
-	int theMachine = [defaults integerForKey: kMachineKey]; // e.g; 717006
-	NSString* machineStr = [NSString stringWithFormat:@"%d", theMachine];
+	NSInteger theMachine = [defaults integerForKey: kMachineKey]; //e.g; 717006
+	NSString* machineStr = [NSString stringWithFormat:@"%ld", theMachine];
 	
 	if (theREX0Path)
 	{
@@ -319,7 +328,7 @@ static TCocoaAppController* gInstance = nil;
 #endif
 	
 	// Create the network manager.
-	int indexNetworkDriver = [defaults integerForKey: kNetworkDriverKey];
+	NSInteger indexNetworkDriver = [defaults integerForKey: kNetworkDriverKey];
 	if (indexNetworkDriver == kUsermodeNetworkDriverTag)
 	{
 		mNetworkManager = new TUsermodeNetwork(new TStdOutLog());
@@ -330,7 +339,7 @@ static TCocoaAppController* gInstance = nil;
 	}
 	
 	// Create the sound manager.
-	int indexAudioDriver = [defaults integerForKey: kAudioDriverKey];
+	NSInteger indexAudioDriver = [defaults integerForKey: kAudioDriverKey];
 	if (indexAudioDriver == kCoreAudioDriverTag)
 	{
 		mSoundManager = new TCoreAudioSoundManager(mLog);
@@ -345,11 +354,11 @@ static TCocoaAppController* gInstance = nil;
 	// Create the screen manager.
 	Boolean fullScreen = [defaults boolForKey: kFullScreenKey] == YES ? true : false;
 	Boolean screenIsLandscape = true;
-	int indexScreenDriver = [defaults integerForKey: kScreenDriverKey];
+	NSInteger indexScreenDriver = [defaults integerForKey: kScreenDriverKey];
 	if (indexScreenDriver == kCocoaScreenDriverTag)
 	{
-		int theWidth;
-		int theHeight;
+		KUInt32 theWidth;
+		KUInt32 theHeight;
 		if (fullScreen)
 		{
 			// Mac/eMate orientation.
@@ -357,16 +366,16 @@ static TCocoaAppController* gInstance = nil;
 			if (theRect.size.width > theRect.size.height)
 			{
 				screenIsLandscape = true;
-				theWidth = (int) theRect.size.height;
-				theHeight = (int) theRect.size.width;
+				theWidth = (KUInt32) theRect.size.height;
+				theHeight = (KUInt32) theRect.size.width;
 			} else {
 				screenIsLandscape = false;
-				theWidth = (int) theRect.size.width;
-				theHeight = (int) theRect.size.height;
+				theWidth = (KUInt32) theRect.size.width;
+				theHeight = (KUInt32) theRect.size.height;
 			}
 		} else {
-			theWidth = [defaults integerForKey: kScreenWidthKey];
-			theHeight = [defaults integerForKey: kScreenHeightKey];
+			theWidth = (KUInt32)[defaults integerForKey: kScreenWidthKey];
+			theHeight = (KUInt32)[defaults integerForKey: kScreenHeightKey];
 		}
 		mScreenManager = new TCocoaScreenManager(
 									mProxy,
@@ -408,13 +417,36 @@ static TCocoaAppController* gInstance = nil;
 #endif
 	}
 
+	// Create the serial port manager
+	NSInteger indexSerialPortDriver = [defaults integerForKey: kSerialDriverKey];
+	if (indexSerialPortDriver == kBasiliskIISerialDriverTag)
+	{
+		mExtrSerialPortManager = new TBasiliskIISerialPortManager(
+			mLog,
+			TSerialPortManager::kExternalSerialPort);
+	} else if (indexSerialPortDriver == kPtySerialDriverTag) {
+		mExtrSerialPortManager = new TPtySerialPortManager(
+			mLog,
+			TSerialPortManager::kExternalSerialPort);
+	} else if (indexSerialPortDriver == kPipesSerialDriverTag) {
+		mExtrSerialPortManager = new TPipesSerialPortManager(
+			mLog,
+			TSerialPortManager::kExternalSerialPort);
+	} else {
+		mExtrSerialPortManager = new TSerialPortManager(
+			mLog,
+			TSerialPortManager::kExternalSerialPort);
+	}
+
 	// Create the emulator.
-	int ramSize = [defaults integerForKey: kRAMSizeKey];
+	KUInt32 ramSize = (KUInt32)[defaults integerForKey: kRAMSizeKey];
 	const char* theFlashPath =
 		[[defaults stringForKey: kInternalFlashPathKey] UTF8String];
 	mEmulator = new TEmulator(
-				mLog, mROMImage, theFlashPath,
-				mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
+							  mLog, mROMImage, theFlashPath,
+							  mSoundManager, mScreenManager, mNetworkManager,
+							  ramSize << 16,
+							  mExtrSerialPortManager );
 	
 	if ([defaults boolForKey: kEnableListenersKey])
 	{

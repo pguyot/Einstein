@@ -82,7 +82,7 @@ LOCAL_SRC_FILES := \
 	Emulator/ROM/TFlatROMImageWithREX.cp \
 	Emulator/ROM/TROMImage.cp \
 	Emulator/Screen/TScreenManager.cp \
-	Emulator/Serial/TVoyagerSerialPort.cp \
+	Emulator/Serial/TSerialPortManager.cp \
 	Emulator/Sound/TBufferedSoundManager.cp \
 	Emulator/Sound/TAndroidSoundManager.cp \
 	Emulator/Sound/TSoundManager.cp \

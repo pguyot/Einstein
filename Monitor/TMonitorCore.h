@@ -34,7 +34,6 @@ class TMemory;
 class TARMProcessor;
 class TInterruptManager;
 class TSymbolList;
-class TJITGenericRetarget;
 
 // Logging types for PrintLine()
 
@@ -82,21 +81,9 @@ public:
 	///
 	virtual Boolean ExecuteCommand( const char* inCommand );
 
-#ifdef JITTARGET_GENERIC
-	///
-	/// Execute a retargeting command.
-	///
-	/// \return true if the command was known.
-	///
-	Boolean ExecuteRetargetCommand( const char* inCommand );
-#endif
-
 	/// \name Variables
 	TMemory*				mMemory;			///< Memory.
 	TSymbolList*			mSymbolList;		///< List of symbols.
-#ifdef JITTARGET_GENERIC
-	TJITGenericRetarget*	mRetarget;			///< retargeting source code generator
-#endif
 };
 
 #endif

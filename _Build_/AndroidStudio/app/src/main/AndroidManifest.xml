@@ -1,101 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.newtonforever.einstein">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.newtonforever.einstein">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true"/>
 
     <application
-        android:name="EinsteinApplication"
+        android:name="com.newtonforever.einstein.EinsteinApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:alwaysRetainTaskState="true"
         android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".activity.EinsteinActivity">
+        android:icon="@mipmap/ic_launcher">
+        <!-- android:icon="@drawable/ic_launcher_newtonemulator" -->
+        <activity
+            android:name="com.newtonforever.einstein.activity.EinsteinActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.newtonforever.einstein.activity.ActionsActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Dialog">
+        </activity>
+        <activity android:name="com.newtonforever.einstein.activity.EinsteinPreferencesActivity">
+        </activity>
+        <activity
+            android:name="com.newtonforever.einstein.activity.LoadPackageActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Dialog">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.pkg"
+                    android:scheme="http"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\..*\\.pkg"
+                    android:scheme="http"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\..*\\..*\\.pkg"
+                    android:scheme="http"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\..*\\..*\\..*\\.pkg"
+                    android:scheme="http"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\..*\\.PKG"
+                    android:scheme="http"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\..*\\..*\\.PKG"
+                    android:scheme="http"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\..*\\..*\\..*\\.PKG"
+                    android:scheme="http"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.pkg"
+                    android:scheme="https"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\..*\\.pkg"
+                    android:scheme="https"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\..*\\..*\\.pkg"
+                    android:scheme="https"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\..*\\..*\\..*\\.pkg"
+                    android:scheme="https"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.PKG"
+                    android:scheme="https"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\..*\\.PKG"
+                    android:scheme="https"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\..*\\..*\\.PKG"
+                    android:scheme="https"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\..*\\..*\\..*\\.PKG"
+                    android:scheme="https"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.pkg"
+                    android:scheme="content"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.pkg"
+                    android:scheme="file"/>
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.PKG"
+                    android:scheme="file"/>
+            </intent-filter>
+            <!-- allow 717006 with the extension .rom, .aif, and .zip, also allow .rex? -->
+        </activity>
+
+        <service
+            android:name="com.newtonforever.einstein.EinsteinService"
+            android:process=":remote">
+            <intent-filter>
+                <action android:name="com.newtonforever.einstein.EinsteinService"/>
+            </intent-filter>
+        </service>
     </application>
-
-</manifest> -->
-
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-package="com.newtonforever.einstein"
-android:versionCode="1"
-android:versionName="1.0">
-<!-- <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17" /> -->
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.INTERNET" />
-<supports-screens android:anyDensity="true"
-    android:resizeable="true"
-    android:smallScreens="true"
-    android:largeScreens="true"
-    android:normalScreens="true">
-</supports-screens>
-<application
-    android:name="com.newtonforever.einstein.EinsteinApplication"
-    android:label="@string/app_name"
-    android:alwaysRetainTaskState="true"
-    android:allowBackup="true">
-    <!-- android:icon="@drawable/ic_launcher_newtonemulator" -->
-    <activity android:name="com.newtonforever.einstein.activity.EinsteinActivity"
-        android:label="@string/app_name"
-        android:screenOrientation="portrait"
-        android:configChanges="keyboardHidden|orientation"
-        android:theme="@android:style/Theme.NoTitleBar"
-        android:launchMode="singleTop">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-    </activity>
-    <activity android:name="com.newtonforever.einstein.activity.ActionsActivity"
-        android:label="@string/app_name"
-        android:theme="@android:style/Theme.Dialog"
-        android:launchMode="singleInstance">
-    </activity>
-    <activity android:name="com.newtonforever.einstein.activity.EinsteinPreferencesActivity">
-    </activity>
-    <activity android:name="com.newtonforever.einstein.activity.LoadPackageActivity"
-        android:label="@string/app_name"
-        android:theme="@android:style/Theme.Dialog"
-        android:launchMode="singleInstance">
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.pkg" />
-            <data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\.pkg" />
-            <data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\.pkg" />
-            <data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\.pkg" />
-            <data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\.PKG" />
-            <data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\.PKG" />
-            <data android:scheme="http" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\.PKG" />
-            <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.pkg" />
-            <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\.pkg" />
-            <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\.pkg" />
-            <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\.pkg" />
-            <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.PKG" />
-            <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\.PKG" />
-            <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\.PKG" />
-            <data android:scheme="https" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\.PKG" />
-            <data android:scheme="content"
-                android:mimeType="*/*"
-                android:host="*"
-                android:pathPattern=".*\\.pkg" />
-            <data android:scheme="file" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.pkg" />
-            <data android:scheme="file" android:mimeType="*/*" android:host="*" android:pathPattern=".*\\.PKG" />
-        </intent-filter>
-        <!-- allow 717006 with the extension .rom, .aif, and .zip, also allow .rex? -->
-    </activity>
-    <service
-        android:name="com.newtonforever.einstein.EinsteinService"
-        android:process=":remote">
-        <intent-filter>
-            <action android:name="com.newtonforever.einstein.EinsteinService" />
-        </intent-filter>
-    </service>
-</application>
 </manifest>

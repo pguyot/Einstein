@@ -45,7 +45,7 @@ class TLog;
 class TARMProcessor;
 class TInterruptManager;
 class TDMAManager;
-class TVoyagerSerialPort;
+class TSerialPortManager;
 class TEmulator;
 class TPCMCIAController;
 class TStream;
@@ -849,10 +849,10 @@ private:
 	KUInt32				mBankCtrlRegister;  ///< Bank control register.
 	TInterruptManager*	mInterruptManager;	///< Interface to the interrupt mgr.
 	TDMAManager*		mDMAManager;		///< Interface to the DMA mgr.
-	TVoyagerSerialPort*	mExternalPort;		///< External serial port.
-	TVoyagerSerialPort*	mInfraredPort;		///< Infrared serial port.
-	TVoyagerSerialPort*	mBuiltInExtraPort;	///< Built-in Extra serial port.
-	TVoyagerSerialPort*	mModemPort;			///< Modem serial port.
+	TSerialPortManager*	mExternalPort;		///< External serial port.
+	TSerialPortManager*	mInfraredPort;		///< Infrared serial port.
+	TSerialPortManager*	mBuiltInExtraPort;	///< Built-in Extra serial port.
+	TSerialPortManager*	mModemPort;			///< Modem serial port.
 	TPCMCIAController*	mPCMCIACtrls[kNbSockets];
 											///< PCMCIA controllers.
 	KUInt32				mSerialNumberIx;	///< Index to serial number.

@@ -51,9 +51,11 @@
 #include "Screen/TScreenManager.h"
 #include "PCMCIA/TPCMCIAController.h"
 #include "PCMCIA/TLinearCard.h"
-#include "Serial/TVoyagerSerialPort.h"
+#include "Serial/TSerialPortManager.h"
 #if TARGET_OS_MAC
-#include "Serial/TVoyagerManagedSerialPort.h"
+#include "Serial/TPipesSerialPortManager.h"
+#include "Serial/TPtySerialPortManager.h"
+#include "Serial/TBasiliskIISerialPortManager.h"
 #endif
 #include "TInterruptManager.h"
 #include "TDMAManager.h"
@@ -78,7 +80,8 @@ TEmulator::TEmulator(
 			TSoundManager* inSoundManager,
 			TScreenManager* inScreenManager,
 			TNetworkManager* inNetworkManager,
-			KUInt32 inRAMSize /* = 4194304 */ )
+			KUInt32 inRAMSize, /* = 4194304 */
+			TSerialPortManager* inExtrSerialPortManager)
 	:
 		mMemory( inLog, inROMImage, inFlashPath, inRAMSize ),
 		mProcessor( inLog, &mMemory ),
@@ -105,39 +108,30 @@ TEmulator::TEmulator(
 #endif
 	mDMAManager = new TDMAManager(inLog, this, &mMemory, mInterruptManager);
 	mPlatformManager = new TPlatformManager( inLog, inScreenManager );
-#if TARGET_OS_MAC
-	mExternalPort = new TVoyagerManagedSerialPort(
+
+	if (inExtrSerialPortManager) {
+		mExternalPort = inExtrSerialPortManager;
+	} else {
+		mExternalPort = new TSerialPortManager(
+			inLog,
+			TSerialPortManager::kExternalSerialPort);
+	}
+	mExternalPort->run(mInterruptManager, mDMAManager, &mMemory);
+
+	mInfraredPort = new TSerialPortManager(
 		inLog,
-		TVoyagerSerialPort::kExternalSerialPort,
-		mInterruptManager,
-		mDMAManager,
-		&mMemory);
-#else
-	mExternalPort = new TVoyagerSerialPort(
+		TSerialPortManager::kInfraredSerialPort);
+	mInfraredPort->run(mInterruptManager, mDMAManager, &mMemory);
+
+	mBuiltInExtraPort = new TSerialPortManager(
 		inLog,
-		TVoyagerSerialPort::kExternalSerialPort,
-		mInterruptManager,
-		mDMAManager,
-		&mMemory);
-#endif
-	mInfraredPort = new TVoyagerSerialPort(
+		TSerialPortManager::kBuiltInExtraSerialPort);
+	mBuiltInExtraPort->run(mInterruptManager, mDMAManager, &mMemory);
+
+	mModemPort = new TSerialPortManager(
 		inLog,
-		TVoyagerSerialPort::kInfraredSerialPort,
-		mInterruptManager,
-		mDMAManager,
-		&mMemory);
-	mBuiltInExtraPort = new TVoyagerSerialPort(
-		inLog,
-		TVoyagerSerialPort::kBuiltInExtraSerialPort,
-		mInterruptManager,
-		mDMAManager,
-        &mMemory);
-	mModemPort = new TVoyagerSerialPort(
-		inLog,
-		TVoyagerSerialPort::kModemSerialPort,
-		mInterruptManager,
-		mDMAManager,
-		&mMemory);
+		TSerialPortManager::kModemSerialPort);
+	mModemPort->run(mInterruptManager, mDMAManager, &mMemory);
 
 	mNewtonID[0] = kMyNewtonIDHigh;
 	mNewtonID[1] = kMyNewtonIDLow;

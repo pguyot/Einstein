@@ -280,7 +280,7 @@
     NSPasteboard *pboard = [sender draggingPasteboard];
     if ( [[pboard types] containsObject:NSFilenamesPboardType] ) {
         NSArray *files = [pboard propertyListForType:NSFilenamesPboardType];
-        int numberOfFiles = [files count];
+        NSUInteger numberOfFiles = [files count];
         // Perform operation using the list of files
 		int indexFiles;
 		for(indexFiles = 0 ; indexFiles < numberOfFiles ; indexFiles++)

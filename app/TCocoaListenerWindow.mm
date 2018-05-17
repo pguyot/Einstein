@@ -157,10 +157,10 @@
 	return NO;
 }
 
-- (int32_t) writeInputIntoBuffer:(void *)buffer
-					   maxLength:(uint32_t)maxLength
+- (KSInt32) writeInputIntoBuffer:(void *)buffer
+					   maxLength:(KUInt32)maxLength
 {
-	NSInteger availableData = 0;
+	NSUInteger availableData = 0;
 	@synchronized(_pendingInput) {
 		availableData = [_pendingInput length];
 	}
@@ -190,7 +190,7 @@
 		fileManager->set_listener_has_input(self.newt_fdesc, false);
 	}
 	
-	return readLength + 1;
+	return (KSInt32) readLength + 1;
 }
 
 @end

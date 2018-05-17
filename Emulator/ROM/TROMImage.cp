@@ -96,8 +96,7 @@ TROMImage::IsImageOutdated(
 #ifdef _DEBUG
 	// allow patching the ROM at every run
 	return result;
-#endif
-
+#else  // not _DEBUG
 	do {
 		// Check the file exists.
 		struct stat theInfos;
@@ -159,6 +158,7 @@ TROMImage::IsImageOutdated(
 	} while ( false );
 	
 	return result;
+#endif // _DEBUG
 }
 
 // -------------------------------------------------------------------------- //
@@ -187,7 +187,7 @@ TROMImage::CreateImage(
 	}
 	
 	// Fill with zeroes.
-	bzero(theImagePtr, sizeof(*theImagePtr));
+	bzero(theImagePtr, theImageFile.GetSize());
 	
 	// inBuffer contains 16 MB consisting of the ROM followed by the REX.
 	// Write this at the start of the image.

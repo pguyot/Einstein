@@ -2,15 +2,13 @@
 
 package com.newtonforever.einstein.utils.screen;
 
-
-import com.newtonforever.einstein.utils.Dimension;
-import com.newtonforever.einstein.utils.debug.DebugUtils;
-
-import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
-import android.view.WindowManager;
+
+import com.newtonforever.einstein.utils.Dimension;
+import com.newtonforever.einstein.utils.debug.DebugUtils;
 
 /**
  * @brief Find the sizes of the Newton and the host screen.
@@ -27,9 +25,9 @@ public class ScreenDimensionsInitializer {
 		// No instances, please;
     }
     
-    public static void initScreenDimensions(Activity activity) {
-		initHostScreenDimensions(activity);
-		initNewtonScreenDimensions(activity);
+    public static void initScreenDimensions(Context context) {
+		initHostScreenDimensions(context);
+		initNewtonScreenDimensions(context);
     }
     
 	/** Returns the size of the Newton screen. This value depends on the setting in the preferences. */
@@ -49,19 +47,12 @@ public class ScreenDimensionsInitializer {
 	}
     
     /** Initializes the host screen dimensions. */
-    private static void initHostScreenDimensions(Activity activity) {
-		if (null == activity) {
-			DebugUtils.appendLog("ScreenDimensionInitializer.initHostScreenDimensions: activity is null");
+    private static void initHostScreenDimensions(Context context) {
+		if (null == context) {
+			DebugUtils.appendLog("ScreenDimensionInitializer.initHostScreenDimensions: context is null");
 			return;
 		}
-		final WindowManager windowManager = activity.getWindowManager();
-		if (null == windowManager) {
-			DebugUtils.appendLog("ScreenDimensionInitializer.initHostScreenDimensions: windowManager is null");
-			return;
-		}
-		// Could someone please tell me why getMetrics doesn't return a DisplayMetrics object? Hgrmpff...
-		final DisplayMetrics metrics = new DisplayMetrics();
-		windowManager.getDefaultDisplay().getMetrics(metrics);
+		final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
 		ScreenDimensions.HOST_SCREEN_WIDTH = metrics.widthPixels;
 		ScreenDimensions.HOST_SCREEN_HEIGHT = metrics.heightPixels;
 		ScreenDimensions.HOST_SCREEN_SIZE = new Dimension(metrics.widthPixels, metrics.heightPixels);
@@ -69,8 +60,8 @@ public class ScreenDimensionsInitializer {
     }
     
     /** Initializes the host screen dimensions. */
-    public static void initNewtonScreenDimensions(Activity activity) {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+    public static void initNewtonScreenDimensions(Context context) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		final String value = prefs.getString("screenpresets", "320 x 480");
 		DebugUtils.appendLog("ScreenDimensionInitializer.initNewtonScreenDimensions: Current preference is " + value);
 		final int separatorPosition = value.indexOf(" x ");

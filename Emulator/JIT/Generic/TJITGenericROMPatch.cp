@@ -84,20 +84,6 @@ TJITGenericPatch gNewtConfigPatch(0x000013fc,
 								  | 0x00008000 /*kEnableStdout*/,
 								  "gNewtConfig patch");
 
-#if TARGET_OS_MAC
-/*
- * This is a hack that removes a reference from the 'extr' serial port driver
- * from the REx. This is required to make low level comm emulation possible.
- * Removing this patch is not harmful beyond disabling comm emulation.
- * Keeping the patch should not be harmful either.
- *
- * Find the pattern 'extr\0\0\0\0' in the first 1MB of the REx.
- */
-TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00900000,
-												 (KUInt32[]){2, 'extr', 0},
-												 (KUInt32[]){1, '~xtr'},
-												 "Enable 'extr' serial port.\n");
-#endif
 
 // ========================================================================== //
 // MARK: -
@@ -399,7 +385,7 @@ JITInstructionProto(CallHostInjection)
 						if (offset) {
 							fprintf(stderr, "SIM_INFO: ... at %s%+d\n", symbol, offset);
 						} else {
-							fprintf(stderr, "SIM_INFO: try: rt cjit %s\n", symbol);
+							fprintf(stderr, "SIM_INFO: ... at %s\n", symbol);
 						}
 						::free(symbol);
 					}

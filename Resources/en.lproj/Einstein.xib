@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14109"/>
         <capability name="box content view" minToolsVersion="7.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -311,174 +311,13 @@
         <window title="Einstein Platform Setup" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="252" userLabel="Setup Window">
             <windowStyleMask key="styleMask" titled="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="223" y="230" width="416" height="536"/>
+            <rect key="contentRect" x="223" y="230" width="416" height="570"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <value key="minSize" type="size" width="213" height="107"/>
-            <view key="contentView" id="251">
-                <rect key="frame" x="0.0" y="0.0" width="416" height="536"/>
+            <view key="contentView" misplaced="YES" id="251">
+                <rect key="frame" x="0.0" y="0.0" width="416" height="570"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <box title="Memory" id="339">
-                        <rect key="frame" x="209" y="247" width="190" height="85"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <view key="contentView" id="5D2-4V-mhH">
-                            <rect key="frame" x="2" y="2" width="186" height="68"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        </view>
-                    </box>
-                    <box title="Internal Flash File" id="336">
-                        <rect key="frame" x="17" y="335" width="382" height="80"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <view key="contentView" id="ege-Af-Tgt">
-                            <rect key="frame" x="2" y="2" width="378" height="63"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        </view>
-                    </box>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="277">
-                        <rect key="frame" x="28" y="347" width="356" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" controlSize="small" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" id="530">
-                            <font key="font" metaFont="smallSystem"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                        <connections>
-                            <binding destination="436" name="value" keyPath="values.InternalFlashPath" id="452"/>
-                        </connections>
-                    </textField>
-                    <box title="ROM" id="334">
-                        <rect key="frame" x="17" y="419" width="382" height="107"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <view key="contentView" id="37N-yI-rwm">
-                            <rect key="frame" x="2" y="2" width="378" height="90"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            <subviews>
-                                <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="481">
-                                    <rect key="frame" x="14" y="13" width="177" height="17"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Machine:" id="535">
-                                        <font key="font" metaFont="system"/>
-                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                    </textFieldCell>
-                                </textField>
-                            </subviews>
-                        </view>
-                    </box>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="259">
-                        <rect key="frame" x="28" y="458" width="356" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" controlSize="small" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" id="523">
-                            <font key="font" metaFont="smallSystem"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        </textFieldCell>
-                        <connections>
-                            <binding destination="436" name="value" keyPath="values.ROMImagePath" id="453"/>
-                        </connections>
-                    </textField>
-                    <box title="Drivers:" id="343">
-                        <rect key="frame" x="17" y="123" width="382" height="120"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <view key="contentView" id="uSn-GK-zQn">
-                            <rect key="frame" x="2" y="2" width="378" height="103"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            <subviews>
-                                <popUpButton verticalHuggingPriority="750" id="313">
-                                    <rect key="frame" x="198" y="69" width="166" height="26"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <popUpButtonCell key="cell" type="push" title="Cocoa" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="1" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="312" id="533">
-                                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="menu"/>
-                                        <menu key="menu" title="OtherViews" id="310">
-                                            <items>
-                                                <menuItem title="Cocoa" state="on" tag="1" id="312"/>
-                                                <menuItem title="X11" tag="2" hidden="YES" id="314"/>
-                                            </items>
-                                        </menu>
-                                    </popUpButtonCell>
-                                    <connections>
-                                        <binding destination="436" name="selectedTag" keyPath="values.ScreenDriver" id="462"/>
-                                    </connections>
-                                </popUpButton>
-                                <popUpButton verticalHuggingPriority="750" id="271">
-                                    <rect key="frame" x="198" y="39" width="166" height="26"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <popUpButtonCell key="cell" type="push" title="CoreAudio" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="1" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="418" id="527">
-                                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="menu"/>
-                                        <menu key="menu" title="OtherViews" id="270">
-                                            <items>
-                                                <menuItem title="CoreAudio" state="on" tag="1" id="418">
-                                                    <modifierMask key="keyEquivalentModifierMask"/>
-                                                </menuItem>
-                                                <menuItem title="Portaudio" tag="2" hidden="YES" id="268">
-                                                    <modifierMask key="keyEquivalentModifierMask"/>
-                                                </menuItem>
-                                                <menuItem title="None" tag="3" id="269">
-                                                    <modifierMask key="keyEquivalentModifierMask"/>
-                                                </menuItem>
-                                            </items>
-                                        </menu>
-                                    </popUpButtonCell>
-                                    <connections>
-                                        <binding destination="436" name="selectedTag" keyPath="values.AudioDriver" id="461"/>
-                                    </connections>
-                                </popUpButton>
-                                <popUpButton verticalHuggingPriority="750" id="554">
-                                    <rect key="frame" x="198" y="9" width="166" height="26"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <popUpButtonCell key="cell" type="push" title="User Mode" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="1" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="557" id="555">
-                                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="menu"/>
-                                        <menu key="menu" title="OtherViews" id="556">
-                                            <items>
-                                                <menuItem title="User Mode" state="on" tag="1" id="557">
-                                                    <modifierMask key="keyEquivalentModifierMask"/>
-                                                </menuItem>
-                                                <menuItem title="TAP Device" tag="2" id="559">
-                                                    <modifierMask key="keyEquivalentModifierMask"/>
-                                                </menuItem>
-                                                <menuItem title="None" tag="3" id="558">
-                                                    <modifierMask key="keyEquivalentModifierMask"/>
-                                                </menuItem>
-                                            </items>
-                                        </menu>
-                                    </popUpButtonCell>
-                                    <connections>
-                                        <binding destination="436" name="selectedTag" keyPath="values.NetworkDriver" id="574"/>
-                                    </connections>
-                                </popUpButton>
-                                <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="563">
-                                    <rect key="frame" x="14" y="75" width="177" height="17"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Screen Driver:" id="564">
-                                        <font key="font" metaFont="system"/>
-                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                    </textFieldCell>
-                                </textField>
-                                <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="565">
-                                    <rect key="frame" x="14" y="45" width="177" height="17"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Audio Driver:" id="566">
-                                        <font key="font" metaFont="system"/>
-                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                    </textFieldCell>
-                                </textField>
-                                <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="567">
-                                    <rect key="frame" x="14" y="15" width="177" height="17"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Network Driver:" id="568">
-                                        <font key="font" metaFont="system"/>
-                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                    </textFieldCell>
-                                </textField>
-                            </subviews>
-                        </view>
-                    </box>
                     <box title="Developer:" id="ya7-FY-DVb">
                         <rect key="frame" x="17" y="65" width="382" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -500,147 +339,6 @@
                             </subviews>
                         </view>
                     </box>
-                    <box title="Screen" id="338">
-                        <rect key="frame" x="17" y="247" width="190" height="85"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <view key="contentView" id="HYM-AC-qmm">
-                            <rect key="frame" x="2" y="2" width="186" height="68"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            <subviews>
-                                <button id="499">
-                                    <rect key="frame" x="7" y="41" width="165" height="18"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <buttonCell key="cell" type="check" title="Full screen" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="536">
-                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                        <font key="font" metaFont="smallSystem"/>
-                                    </buttonCell>
-                                    <connections>
-                                        <binding destination="436" name="value" keyPath="values.FullScreen" id="502"/>
-                                    </connections>
-                                </button>
-                            </subviews>
-                        </view>
-                    </box>
-                    <button verticalHuggingPriority="750" id="253">
-                        <rect key="frame" x="288" y="450" width="100" height="32"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <buttonCell key="cell" type="push" title="Choose..." bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="522">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="chooseROMFile:" target="419" id="421"/>
-                        </connections>
-                    </button>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="264">
-                        <rect key="frame" x="31" y="262" width="70" height="22"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" title="320" drawsBackground="YES" id="524">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                        <connections>
-                            <binding destination="436" name="enabled" keyPath="values.FullScreen" id="505">
-                                <dictionary key="options">
-                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
-                                </dictionary>
-                            </binding>
-                            <binding destination="436" name="value" keyPath="values.ScreenWidth" id="451"/>
-                            <outlet property="formatter" destination="293" id="295"/>
-                            <outlet property="nextKeyView" destination="267" id="291"/>
-                        </connections>
-                    </textField>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="266">
-                        <rect key="frame" x="105" y="265" width="16" height="17"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="x" id="525">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="267">
-                        <rect key="frame" x="123" y="263" width="70" height="22"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" title="480" drawsBackground="YES" id="526">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                        <connections>
-                            <binding destination="436" name="enabled" keyPath="values.FullScreen" id="508">
-                                <dictionary key="options">
-                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
-                                </dictionary>
-                            </binding>
-                            <binding destination="436" name="value" keyPath="values.ScreenHeight" id="450"/>
-                            <outlet property="formatter" destination="293" id="296"/>
-                        </connections>
-                    </textField>
-                    <slider verticalHuggingPriority="750" id="275">
-                        <rect key="frame" x="223" y="260" width="161" height="26"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <sliderCell key="cell" continuous="YES" alignment="left" minValue="1" maxValue="255" doubleValue="64.5" tickMarkPosition="above" numberOfTickMarks="17" sliderType="linear" id="528">
-                            <font key="font" size="12" name="Helvetica"/>
-                        </sliderCell>
-                        <connections>
-                            <action selector="updateRAMSizeSlider:" target="419" id="468"/>
-                        </connections>
-                    </slider>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="276">
-                        <rect key="frame" x="279" y="294" width="72" height="13"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="4 MB" id="529">
-                            <font key="font" metaFont="label"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <button verticalHuggingPriority="750" id="278">
-                        <rect key="frame" x="288" y="341" width="100" height="32"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <buttonCell key="cell" type="push" title="Choose..." bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="531">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="chooseFlashFile:" target="419" id="469"/>
-                        </connections>
-                    </button>
-                    <popUpButton verticalHuggingPriority="750" id="475">
-                        <rect key="frame" x="219" y="428" width="166" height="26"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <popUpButtonCell key="cell" type="push" title="MP2x00 US" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="717006" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="477" id="537">
-                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="menu"/>
-                            <menu key="menu" title="OtherViews" id="476">
-                                <items>
-                                    <menuItem title="MP2x00 US" state="on" tag="717006" id="477">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                    </menuItem>
-                                    <menuItem title="MP2100 D" tag="737041" id="478">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                    </menuItem>
-                                    <menuItem title="eMate 300" tag="747129" id="479">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                    </menuItem>
-                                </items>
-                            </menu>
-                        </popUpButtonCell>
-                        <connections>
-                            <binding destination="436" name="selectedTag" keyPath="values.Machine" id="496"/>
-                        </connections>
-                    </popUpButton>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="497">
-                        <rect key="frame" x="225" y="294" width="51" height="13"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="RAM Size" id="538">
-                            <font key="font" metaFont="label"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                     <button verticalHuggingPriority="750" id="280">
                         <rect key="frame" x="303" y="13" width="100" height="32"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -685,7 +383,7 @@ Gw
                             <action selector="revertOrQuit:" target="419" id="510"/>
                         </connections>
                     </button>
-                    <textField hidden="YES" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="511">
+                    <textField hidden="YES" verticalHuggingPriority="750" id="511">
                         <rect key="frame" x="18" y="47" width="190" height="14"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Preferences only apply at restart" id="540">
@@ -694,9 +392,348 @@ Gw
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <box misplaced="YES" title="Memory" id="339">
+                        <rect key="frame" x="209" y="271" width="190" height="85"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <view key="contentView" id="5D2-4V-mhH">
+                            <rect key="frame" x="2" y="2" width="186" height="68"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        </view>
+                    </box>
+                    <box misplaced="YES" title="Internal Flash File" id="336">
+                        <rect key="frame" x="17" y="359" width="382" height="80"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <view key="contentView" id="ege-Af-Tgt">
+                            <rect key="frame" x="2" y="2" width="378" height="63"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        </view>
+                    </box>
+                    <textField verticalHuggingPriority="750" misplaced="YES" id="277">
+                        <rect key="frame" x="28" y="371" width="356" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" controlSize="small" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" id="530">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <connections>
+                            <binding destination="436" name="value" keyPath="values.InternalFlashPath" id="452"/>
+                        </connections>
+                    </textField>
+                    <box misplaced="YES" title="ROM" id="334">
+                        <rect key="frame" x="17" y="443" width="382" height="107"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <view key="contentView" id="37N-yI-rwm">
+                            <rect key="frame" x="2" y="2" width="378" height="90"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <textField verticalHuggingPriority="750" id="481">
+                                    <rect key="frame" x="14" y="13" width="177" height="17"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Machine:" id="535">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                            </subviews>
+                        </view>
+                    </box>
+                    <textField verticalHuggingPriority="750" misplaced="YES" id="259">
+                        <rect key="frame" x="28" y="482" width="356" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" controlSize="small" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" id="523">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        </textFieldCell>
+                        <connections>
+                            <binding destination="436" name="value" keyPath="values.ROMImagePath" id="453"/>
+                        </connections>
+                    </textField>
+                    <box misplaced="YES" title="Drivers:" id="343">
+                        <rect key="frame" x="17" y="123" width="382" height="144"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <view key="contentView" id="uSn-GK-zQn">
+                            <rect key="frame" x="2" y="2" width="378" height="127"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <textField verticalHuggingPriority="750" misplaced="YES" id="563">
+                                    <rect key="frame" x="15" y="101" width="177" height="17"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Screen Driver:" id="564">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <popUpButton verticalHuggingPriority="750" misplaced="YES" id="313">
+                                    <rect key="frame" x="199" y="96" width="166" height="26"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <popUpButtonCell key="cell" type="push" title="Cocoa" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="1" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="312" id="533">
+                                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                        <font key="font" metaFont="menu"/>
+                                        <menu key="menu" title="OtherViews" id="310">
+                                            <items>
+                                                <menuItem title="Cocoa" state="on" tag="1" id="312"/>
+                                                <menuItem title="X11" tag="2" hidden="YES" id="314"/>
+                                            </items>
+                                        </menu>
+                                    </popUpButtonCell>
+                                    <connections>
+                                        <binding destination="436" name="selectedTag" keyPath="values.ScreenDriver" id="462"/>
+                                    </connections>
+                                </popUpButton>
+                                <textField verticalHuggingPriority="750" misplaced="YES" id="565">
+                                    <rect key="frame" x="15" y="70" width="177" height="17"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Audio Driver:" id="566">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <popUpButton verticalHuggingPriority="750" misplaced="YES" id="271">
+                                    <rect key="frame" x="199" y="65" width="166" height="26"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <popUpButtonCell key="cell" type="push" title="CoreAudio" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="1" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="418" id="527">
+                                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                        <font key="font" metaFont="menu"/>
+                                        <menu key="menu" title="OtherViews" id="270">
+                                            <items>
+                                                <menuItem title="CoreAudio" state="on" tag="1" id="418">
+                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                </menuItem>
+                                                <menuItem title="Portaudio" tag="2" hidden="YES" id="268">
+                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                </menuItem>
+                                                <menuItem title="None" tag="3" id="269">
+                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                </menuItem>
+                                            </items>
+                                        </menu>
+                                    </popUpButtonCell>
+                                    <connections>
+                                        <binding destination="436" name="selectedTag" keyPath="values.AudioDriver" id="461"/>
+                                    </connections>
+                                </popUpButton>
+                                <textField verticalHuggingPriority="750" misplaced="YES" id="567">
+                                    <rect key="frame" x="15" y="39" width="177" height="17"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Network Driver:" id="568">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <popUpButton verticalHuggingPriority="750" misplaced="YES" id="554">
+                                    <rect key="frame" x="199" y="34" width="166" height="26"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <popUpButtonCell key="cell" type="push" title="User Mode" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="1" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="557" id="555">
+                                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                        <font key="font" metaFont="menu"/>
+                                        <menu key="menu" title="OtherViews" id="556">
+                                            <items>
+                                                <menuItem title="User Mode" state="on" tag="1" id="557">
+                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                </menuItem>
+                                                <menuItem title="TAP Device" tag="2" id="559">
+                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                </menuItem>
+                                                <menuItem title="None" tag="3" id="558">
+                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                </menuItem>
+                                            </items>
+                                        </menu>
+                                    </popUpButtonCell>
+                                    <connections>
+                                        <binding destination="436" name="selectedTag" keyPath="values.NetworkDriver" id="574"/>
+                                    </connections>
+                                </popUpButton>
+                                <textField verticalHuggingPriority="750" misplaced="YES" id="fXn-YQ-zQh" userLabel="External Serial Port Driver:">
+                                    <rect key="frame" x="15" y="8" width="177" height="17"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <string key="toolTip">A Pseudo Terminal connects to /dev/ttyp0, the named pipes create the fifos $(HOME)/Library/Application Support/Einstein Emulator/ExtrSerPortSend and ...Recv</string>
+                                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="External Serial Port Driver:" id="zl9-t2-Gev" userLabel="External Serial Port Driver:">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <popUpButton verticalHuggingPriority="750" misplaced="YES" id="AiJ-OL-4f1" userLabel="Serial Port Menu">
+                                    <rect key="frame" x="199" y="3" width="166" height="26"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <popUpButtonCell key="cell" type="push" title="BasiliskII" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="3" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="gyx-Vg-Z3T" id="BiY-T4-NAk" userLabel="Serial Port Menu">
+                                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                        <font key="font" metaFont="menu"/>
+                                        <menu key="menu" title="OtherViews" id="3zZ-5O-REa">
+                                            <items>
+                                                <menuItem title="BasiliskII" state="on" tag="3" toolTip="connects to &quot;/tmp/pty.BasiliskII&quot;" id="gyx-Vg-Z3T">
+                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                </menuItem>
+                                                <menuItem title="Pseudo Terminal" tag="2" toolTip="connects to &quot;/dev/ttyp0&quot;" id="TRz-cg-puM">
+                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                </menuItem>
+                                                <menuItem title="Named Pipes" tag="1" toolTip="connects to &quot;$(HOME)/Library/Application Support/Einstein Emulator/ExtrSerPortSend&quot; and &quot;...Recv&quot;" id="1oS-fH-RAo">
+                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                </menuItem>
+                                                <menuItem title="None" toolTip="no serial port emulation" id="YzN-kk-1nQ">
+                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                </menuItem>
+                                            </items>
+                                        </menu>
+                                    </popUpButtonCell>
+                                    <connections>
+                                        <binding destination="436" name="selectedTag" keyPath="values.SerialDriver" id="P51-Cp-5EJ"/>
+                                    </connections>
+                                </popUpButton>
+                            </subviews>
+                        </view>
+                    </box>
+                    <box misplaced="YES" title="Screen" id="338">
+                        <rect key="frame" x="17" y="271" width="190" height="85"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <view key="contentView" id="HYM-AC-qmm">
+                            <rect key="frame" x="2" y="2" width="186" height="68"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <button id="499">
+                                    <rect key="frame" x="7" y="41" width="165" height="18"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <buttonCell key="cell" type="check" title="Full screen" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="536">
+                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                        <font key="font" metaFont="smallSystem"/>
+                                    </buttonCell>
+                                    <connections>
+                                        <binding destination="436" name="value" keyPath="values.FullScreen" id="502"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                        </view>
+                    </box>
+                    <button verticalHuggingPriority="750" misplaced="YES" id="253">
+                        <rect key="frame" x="288" y="474" width="100" height="32"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <buttonCell key="cell" type="push" title="Choose..." bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="522">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="chooseROMFile:" target="419" id="421"/>
+                        </connections>
+                    </button>
+                    <textField verticalHuggingPriority="750" misplaced="YES" id="264">
+                        <rect key="frame" x="31" y="286" width="70" height="22"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" title="320" drawsBackground="YES" id="524">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <connections>
+                            <binding destination="436" name="enabled" keyPath="values.FullScreen" id="505">
+                                <dictionary key="options">
+                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                </dictionary>
+                            </binding>
+                            <binding destination="436" name="value" keyPath="values.ScreenWidth" id="451"/>
+                            <outlet property="formatter" destination="293" id="295"/>
+                            <outlet property="nextKeyView" destination="267" id="291"/>
+                        </connections>
+                    </textField>
+                    <textField verticalHuggingPriority="750" misplaced="YES" id="266">
+                        <rect key="frame" x="105" y="289" width="16" height="17"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="x" id="525">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" misplaced="YES" id="267">
+                        <rect key="frame" x="123" y="287" width="70" height="22"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" title="480" drawsBackground="YES" id="526">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <connections>
+                            <binding destination="436" name="enabled" keyPath="values.FullScreen" id="508">
+                                <dictionary key="options">
+                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                </dictionary>
+                            </binding>
+                            <binding destination="436" name="value" keyPath="values.ScreenHeight" id="450"/>
+                            <outlet property="formatter" destination="293" id="296"/>
+                        </connections>
+                    </textField>
+                    <slider verticalHuggingPriority="750" misplaced="YES" id="275">
+                        <rect key="frame" x="223" y="284" width="161" height="26"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <sliderCell key="cell" continuous="YES" alignment="left" minValue="1" maxValue="255" doubleValue="64.5" tickMarkPosition="above" numberOfTickMarks="17" sliderType="linear" id="528">
+                            <font key="font" size="12" name="Helvetica"/>
+                        </sliderCell>
+                        <connections>
+                            <action selector="updateRAMSizeSlider:" target="419" id="468"/>
+                        </connections>
+                    </slider>
+                    <textField verticalHuggingPriority="750" misplaced="YES" id="276">
+                        <rect key="frame" x="279" y="318" width="72" height="13"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="4 MB" id="529">
+                            <font key="font" metaFont="label"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <button verticalHuggingPriority="750" misplaced="YES" id="278">
+                        <rect key="frame" x="288" y="365" width="100" height="32"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <buttonCell key="cell" type="push" title="Choose..." bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="531">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="chooseFlashFile:" target="419" id="469"/>
+                        </connections>
+                    </button>
+                    <popUpButton verticalHuggingPriority="750" misplaced="YES" id="475">
+                        <rect key="frame" x="219" y="452" width="166" height="26"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <popUpButtonCell key="cell" type="push" title="MP2x00 US" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" tag="717006" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="477" id="537">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="menu"/>
+                            <menu key="menu" title="OtherViews" id="476">
+                                <items>
+                                    <menuItem title="MP2x00 US" state="on" tag="717006" id="477">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="MP2100 D" tag="737041" id="478">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem title="eMate 300" tag="747129" id="479">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                        <connections>
+                            <binding destination="436" name="selectedTag" keyPath="values.Machine" id="496"/>
+                        </connections>
+                    </popUpButton>
+                    <textField verticalHuggingPriority="750" misplaced="YES" id="497">
+                        <rect key="frame" x="225" y="318" width="51" height="13"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="RAM Size" id="538">
+                            <font key="font" metaFont="label"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="460" y="362"/>
+            <point key="canvasLocation" x="460" y="379"/>
         </window>
         <window title="Dump ROM" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="372" userLabel="Dump ROM Window">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
@@ -712,7 +749,7 @@ Gw
                         <rect key="frame" x="18" y="16" width="205" height="20"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </progressIndicator>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="375">
+                    <textField verticalHuggingPriority="750" id="375">
                         <rect key="frame" x="17" y="76" width="285" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="541">
@@ -723,7 +760,7 @@ See the User's Manual for details.</string>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="376">
+                    <textField verticalHuggingPriority="750" id="376">
                         <rect key="frame" x="93" y="59" width="36" height="22"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="542">
@@ -736,7 +773,7 @@ See the User's Manual for details.</string>
                             <outlet property="formatter" destination="293" id="379"/>
                         </connections>
                     </textField>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="377">
+                    <textField verticalHuggingPriority="750" id="377">
                         <rect key="frame" x="17" y="62" width="80" height="17"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Newton IP:" id="543">
@@ -745,7 +782,7 @@ See the User's Manual for details.</string>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="380">
+                    <textField verticalHuggingPriority="750" id="380">
                         <rect key="frame" x="130" y="62" width="12" height="17"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="." id="544">
@@ -754,7 +791,7 @@ See the User's Manual for details.</string>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="383">
+                    <textField verticalHuggingPriority="750" id="383">
                         <rect key="frame" x="139" y="59" width="36" height="22"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="545">
@@ -767,7 +804,7 @@ See the User's Manual for details.</string>
                             <outlet property="formatter" destination="293" id="414"/>
                         </connections>
                     </textField>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="384">
+                    <textField verticalHuggingPriority="750" id="384">
                         <rect key="frame" x="176" y="62" width="12" height="17"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="." id="546">
@@ -776,7 +813,7 @@ See the User's Manual for details.</string>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="394">
+                    <textField verticalHuggingPriority="750" id="394">
                         <rect key="frame" x="185" y="59" width="36" height="22"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="547">
@@ -789,7 +826,7 @@ See the User's Manual for details.</string>
                             <outlet property="formatter" destination="293" id="415"/>
                         </connections>
                     </textField>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="395">
+                    <textField verticalHuggingPriority="750" id="395">
                         <rect key="frame" x="222" y="62" width="12" height="17"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="." id="548">
@@ -798,7 +835,7 @@ See the User's Manual for details.</string>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="396">
+                    <textField verticalHuggingPriority="750" id="396">
                         <rect key="frame" x="230" y="59" width="36" height="22"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="549">

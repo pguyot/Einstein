@@ -44,7 +44,7 @@
 #include "TARMProcessor.h"
 #include "TInterruptManager.h"
 #include "TDMAManager.h"
-#include "Serial/TVoyagerSerialPort.h"
+#include "Serial/TSerialPortManager.h"
 #include "TEmulator.h"
 #include "ROM/TROMImage.h"
 #include "Log/TLog.h"
