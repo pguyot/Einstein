@@ -9,7 +9,6 @@
         android:id="@+id/toEmulatorAction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onClickToEmulator"
         android:text="@string/mainmenu.toEmulator.title" />
 
     <Button
@@ -17,7 +16,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:onClick="onClickInsertNetworkCard"
         android:text="@string/mainmenu.insertNetworkCard.title" />
         <!-- android:drawableLeft="@drawable/button_network" -->
     
@@ -25,21 +23,18 @@
         android:id="@+id/backlightAction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onClickBacklight"
         android:text="@string/mainmenu.backlight.title" />
 
     <Button
         android:id="@+id/installPackagesAction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onClickInstallPackages"
         android:text="@string/mainmenu.installPackages.title" />
 
     <Button
         android:id="@+id/preferencesAction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onClickPreferences"
         android:text="@string/mainmenu.preferences.title" />
  
     <Button
@@ -47,7 +42,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:onClick="onClickOpenURL"
         android:text="@string/mainmenu.openWebsite.title" />
     
     <Button
@@ -55,7 +49,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:onClick="onClickQuit"
         android:text="@string/mainmenu.quitEinstein.title" />
     
 </LinearLayout>
