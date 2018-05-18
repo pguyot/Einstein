@@ -62,26 +62,26 @@ class TFLSettings;
 ///
 class TFLApp
 {
-  class TFLAppPipeServer {
-  public:
-    TFLAppPipeServer(TFLApp*);
-    ~TFLAppPipeServer();
-    int open();
-    void close();
-  private:
-    static void thread_(void *);
-    static void awake_(void *);
-    static const int BUFSIZE = 4096;
-    TFLApp *app_;
-#if TARGET_OS_WIN32
-    OVERLAPPED over_;
-    HANDLE hPipeInst;
-    HANDLE hPipe;
-    TCHAR chRequest[BUFSIZE];
-    DWORD cbRead;
-    TCHAR chReply[BUFSIZE];
-#endif
-  };
+//   class TFLAppPipeServer {
+//   public:
+//     TFLAppPipeServer(TFLApp*);
+//     ~TFLAppPipeServer();
+//     int open();
+//     void close();
+//   private:
+//     static void thread_(void *);
+//     static void awake_(void *);
+//     static const int BUFSIZE = 4096;
+//     TFLApp *app_;
+// #if TARGET_OS_WIN32
+//     OVERLAPPED over_;
+//     HANDLE hPipeInst;
+//     HANDLE hPipe;
+//     TCHAR chRequest[BUFSIZE];
+//     DWORD cbRead;
+//     TCHAR chReply[BUFSIZE];
+// #endif
+//   };
 public:
 	///
 	/// Constructeur par d�faut.
@@ -253,7 +253,7 @@ private:
 	Boolean				mQuit;				///< If we should quit.
 
 	TFLSettings			*flSettings;		///< settings dialog box
-    TFLAppPipeServer mPipeServer;
+    // TFLAppPipeServer mPipeServer;
 };
 
 #endif

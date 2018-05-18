@@ -145,8 +145,8 @@ TFLApp::TFLApp( void )
 		mLog( nil ),
 		mMonitor( nil ),
 		mSymbolList( nil ),
-		flSettings(0L),
-    mPipeServer(this)
+		flSettings(0L)
+        // ,    mPipeServer(this)
 {
 }
 
@@ -221,7 +221,7 @@ TFLApp::Run( int argc, char* argv[] )
 	const Fl_Menu_Item *theMachineMenu = flSettings->wMachineChoice->menu()+theMachineID;
 	const char* theMachineString = strdup((char*)theMachineMenu->user_data());
 	const char* theRestoreFile = nil;
-	const char* theSoundManagerClass = nil;
+	const char* theSoundManagerClass = "pulseaudio";
 	const char* theScreenManagerClass = nil;
 	const char *theROMImagePath = strdup(flSettings->ROMPath);
 	const char *theFlashPath = strdup(flSettings->FlashPath);
@@ -368,11 +368,11 @@ TFLApp::Run( int argc, char* argv[] )
 		}
 #endif
 
-    mPipeServer.open();
+    // mPipeServer.open();
 
 		Fl::run();
 
-    mPipeServer.close();
+    // mPipeServer.close();
 
 		// FIXME Tell the emulator that the power was switched off
 		// FIXME Then wait for it to quit gracefully
