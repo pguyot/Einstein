@@ -44,15 +44,28 @@
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/Sound/TNullSoundManager.h"
+#if TARGET_OS_WIN32
 #include "Emulator/Sound/TWaveSoundManager.h"
+#define strcasecmp stricmp
+#endif
+#if TARGET_OS_OPENSTEP
+#include "Emulator/Sound/TCoreAudioSoundManager.h"
+#endif
+#if AUDIO_PORTAUDIO
+#include "Emulator/Sound/TPortAudioSoundManager.h"
+#endif
+#if AUDIO_PULSEAUDIO
+#include "Emulator/Sound/TPulseAudioSoundManager.h"
+#endif
+
 #include "Emulator/Screen/TFLScreenManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
+#include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Log/TFileLog.h"
 #include "Emulator/Log/TBufferLog.h"
-
 #include "Monitor/TMonitor.h"
 #include "Monitor/TSymbolList.h"
 
@@ -68,24 +81,24 @@
 // Local Classes
 // -------------------------------------------------------------------------- //
 
-class Fl_Einstein_Window : public Fl_Window 
+class Fl_Einstein_Window : public Fl_Window
 {
 public:
 	Fl_Einstein_Window(int ww, int hh, TFLApp *App, const char *ll=0)
-		:	Fl_Window(ww, hh, ll), 
+		:	Fl_Window(ww, hh, ll),
 			app(App)
 	{
 	}
 	Fl_Einstein_Window(int xx, int yy, int ww, int hh, TFLApp *App, const char *ll=0)
-		:	Fl_Window(xx, yy, ww, hh, ll), 
+		:	Fl_Window(xx, yy, ww, hh, ll),
 			app(App)
 	{
 	}
-	int handle(int event) 
+	int handle(int event)
 	{
 		if ( event==FL_PUSH && (
-				(Fl::event_button()==3) || 
-				(Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==FL_CTRL) 
+				(Fl::event_button()==3) ||
+				(Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==FL_CTRL)
 			)
 		{
 			const Fl_Menu_Item *choice = TFLSettings::menu_RMB->popup(Fl::event_x(), Fl::event_y());
@@ -96,7 +109,7 @@ public:
 		}
 		switch (event) {
 			case FL_ENTER:
-				if (hideMouse_) 
+				if (hideMouse_)
 					fl_cursor(FL_CURSOR_NONE);
 				break;
 			case FL_LEAVE:
@@ -243,7 +256,7 @@ TFLApp::Run( int argc, char* argv[] )
 
 	if (theSoundManagerClass == nil)
 	{
-		mSoundManager = new TWaveSoundManager( mLog );
+        mSoundManager = new TNullSoundManager( mLog );
 	} else {
 		CreateSoundManager( theSoundManagerClass );
 	}
@@ -260,15 +273,15 @@ TFLApp::Run( int argc, char* argv[] )
 	}
 	{
 		// will we use an AIF image?
-		{ 
+		{
 			const char *ext = fl_filename_ext(theROMImagePath);
-			if ( ext && stricmp(ext, ".aif")==0 )
+			if ( ext && strcasecmp(ext, ".aif")==0 )
 			{
 				useAIFROMFile = 1;
 			}
 			const char *name = fl_filename_name(theROMImagePath);
-			if (	name 
-					&& strncmp(name, "Senior Cirrus", 13)==0 
+			if (	name
+					&& strncmp(name, "Senior Cirrus", 13)==0
 					&& strstr(name, "image"))
 			{
 				useAIFROMFile = 2;
@@ -306,19 +319,20 @@ TFLApp::Run( int argc, char* argv[] )
 				}
 				break;
 		}
-		
+
+        mNetworkManager = new TNullNetwork(mLog);
 		mEmulator = new TEmulator(
 					mLog, mROMImage, theFlashPath,
-					mSoundManager, mScreenManager, ramSize << 16 );
+					mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
 		mPlatformManager = mEmulator->GetPlatformManager();
-		
+
 		if (useMonitor)
 		{
 			char theSymbolListPath[512];
 			(void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
 								theROMImagePath, theMachineString );
 			mSymbolList = new TSymbolList( theSymbolListPath );
-			mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList );
+			mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList, NULL );
 		} else {
 			(void) ::printf( "Booting...\n" );
 		}
@@ -455,8 +469,22 @@ TFLApp::CreateSoundManager( const char* inClass )
 	if (::strcmp( inClass, "null" ) == 0)
 	{
 		mSoundManager = new TNullSoundManager( mLog );
+#if TARGET_OS_OPENSTEP
+	} else if (::strcmp( inClass, "coreaudio" ) == 0) {
+		mSoundManager = new TCoreAudioSoundManager( mLog );
+#endif
+#if AUDIO_PORTAUDIO
+	} else if (::strcmp( inClass, "portaudio" ) == 0) {
+		mSoundManager = new TPortAudioSoundManager( mLog );
+#endif
+#if AUDIO_PULSEAUDIO
+} else if (::strcmp(inClass, "pulseaudio") == 0) {
+        mSoundManager = new TPulseAudioSoundManager(mLog);
+#endif
+#if TARGET_OS_WIN32
 	} else if (::strcmp( inClass, "wave" ) == 0) {
 		mSoundManager = new TWaveSoundManager( mLog );
+#endif
 	} else {
 		(void) ::fprintf( stderr, "Unknown sound manager class %s\n", inClass );
 		::exit( 1 );
@@ -472,7 +500,7 @@ TFLApp::CreateScreenManager(
 				int inPortraitWidth,
 				int inPortraitHeight,
 				Boolean inFullScreen)
-{	
+{
 	if (::strcmp( inClass, "FL" ) == 0)
 	{
 		Boolean screenIsLandscape = true;
@@ -555,7 +583,7 @@ void TFLApp::SyntaxError( void )
 }
 
 
-void TFLApp::quit_cb(Fl_Widget *, void *p) 
+void TFLApp::quit_cb(Fl_Widget *, void *p)
 {
 	TFLApp *my = (TFLApp*)p;
 //	my->mPlatformManager->PowerOff();
@@ -598,7 +626,7 @@ void TFLApp::menuAbout()
 	flAbout->show();
 }
 
-void TFLApp::menuShowSettings() 
+void TFLApp::menuShowSettings()
 {
 	flSettings->show();
 }
@@ -636,8 +664,8 @@ int main(int argc, char** argv )
 	return 0;
 }
 
-VOID WINAPI CompletedWriteRoutine(DWORD, DWORD, LPOVERLAPPED); 
-VOID WINAPI CompletedReadRoutine(DWORD, DWORD, LPOVERLAPPED); 
+VOID WINAPI CompletedWriteRoutine(DWORD, DWORD, LPOVERLAPPED);
+VOID WINAPI CompletedReadRoutine(DWORD, DWORD, LPOVERLAPPED);
 
 TFLApp::TFLAppPipeServer::TFLAppPipeServer(TFLApp *app)
 : app_(app),
@@ -662,7 +690,7 @@ void TFLApp::TFLAppPipeServer::thread_(void *ps) {
   //over_.hEvent = CreateEvent(0L, TRUE, FALSE, 0L);
   //Fl::add_handler(
   TFLAppPipeServer *This = (TFLAppPipeServer*)ps;
-  LPTSTR name = TEXT("\\\\.\\pipe\\einstein"); 
+  LPTSTR name = TEXT("\\\\.\\pipe\\einstein");
   This->hPipe = CreateNamedPipe(
     name,
     PIPE_ACCESS_DUPLEX /*| FILE_FLAG_OVERLAPPED*/,
@@ -713,7 +741,7 @@ void TFLApp::TFLAppPipeServer::close()
   if (hPipe!=INVALID_HANDLE_VALUE) {
     char inbuf[4096];
     DWORD n;
-    LPTSTR name = TEXT("\\\\.\\pipe\\einstein"); 
+    LPTSTR name = TEXT("\\\\.\\pipe\\einstein");
     CallNamedPipe(
       name,
       "quit", 5,
@@ -727,7 +755,7 @@ void TFLApp::TFLAppPipeServer::close()
 
 
 // ======================================================================= //
-// We build our computer (systems) the way we build our cities: over time, 
+// We build our computer (systems) the way we build our cities: over time,
 // without a plan, on top of ruins.
 //   -- Ellen Ullman
 // ======================================================================= //

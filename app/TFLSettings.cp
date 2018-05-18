@@ -25,15 +25,25 @@
 
 #include "TFLSettings.h"
 #include "TFLApp.h"
+
+#if TARGET_OS_WIN32
 #include "winsock2.h"
+#endif
+
+#if TARGET_OS_LINUX
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#endif
+
 #include <string.h>
 #include <FL/filename.h>
 #include <FL/fl_file_chooser.h>
 #include <FL/Fl_Preferences.H>
-static Fl_Window *wProgressWindow = 0L; 
-static FILE *fROM; 
-static SOCKET sData; 
-static int recvd; 
+static Fl_Window *wProgressWindow = 0L;
+static FILE *fROM;
+static SOCKET sData;
+static int recvd;
 
 static void cb_TFLSettings(Fl_Window*, void* v) {
   TFLSettings *me = (TFLSettings*)v;
@@ -354,7 +364,7 @@ void TFLSettings::setApp(TFLApp *App, const char *AppPath) {
   app = App;
 appPath = strdup(AppPath);
 char *end = (char*)fl_filename_name(appPath);
-if (end) 
+if (end)
   *end = 0;
 }
 
@@ -1342,7 +1352,7 @@ host_addr.sin_addr.s_addr = htonl((ip3<<24)|(ip2<<16)|(ip1<<8)|ip0);
 // now connect the socket to the Newton TCP/IP port
 wProgressCancel->deactivate();
 Fl::flush();
-if (::connect(sData, (struct sockaddr*)&host_addr, addr_len) == SOCKET_ERROR) 
+if (::connect(sData, (struct sockaddr*)&host_addr, addr_len) == SOCKET_ERROR)
 {
   fl_alert("Can't connect socket to Newton.\nDid you start ROMdump?");
   closesocket(sData);
@@ -1387,7 +1397,7 @@ void dataExceptCB(int p, void *user_data) {
 if (sData!=INVALID_SOCKET) {
   closesocket(sData);
   Fl::remove_fd(sData);
-  sData = INVALID_SOCKET;  
+  sData = INVALID_SOCKET;
 }
 wProgressWindow->hide();
 if (recvd==8*1024*1024) {
@@ -1431,5 +1441,3 @@ Fl_Double_Window* createROMDownloadProgressWindow() {
 // Of course the code works. It just compiled, didn't it?   //
 // --helixcode123, 11/8/2001 on slashdot.                   //
 // ======================================================== //
-
-
