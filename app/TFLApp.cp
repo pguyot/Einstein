@@ -38,6 +38,9 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_File_Chooser.H>
 
+#if TARGET_OS_LINUX
+#include "Resources/icons/EinsteinApp64.fl.h"
+#endif
 
 // Einstein
 #include "Emulator/ROM/TROMImage.h"
@@ -48,6 +51,7 @@
 #include "Emulator/Sound/TWaveSoundManager.h"
 #define strcasecmp stricmp
 #endif
+
 #if TARGET_OS_OPENSTEP
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
 #endif
@@ -194,7 +198,11 @@ TFLApp::Run( int argc, char* argv[] )
 	Fl::get_system_colors();
 
 	flSettings = new TFLSettings(425, 392, "Einstein Platform Settings");
+#if TARGET_OS_WIN32
 	flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+#elif TARGET_OS_LINUX
+    flSettings->icon(image_EinsteinApp64.copy());
+#endif
 	flSettings->setApp(this, mProgramName);
 	flSettings->loadPreferences();
 	flSettings->revertDialog();
@@ -251,7 +259,13 @@ TFLApp::Run( int argc, char* argv[] )
 	} else {
 		win = new Fl_Einstein_Window(portraitWidth, portraitHeight, this, "Einstein");
 	}
-	win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+
+#if TARGET_OS_WIN32
+    win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+#elif TARGET_OS_LINUX
+    win->icon(image_EinsteinApp64.copy());
+#endif
+
 	win->callback(quit_cb, this);
 
 	if (theSoundManagerClass == nil)
@@ -664,6 +678,7 @@ int main(int argc, char** argv )
 	return 0;
 }
 
+#if TARGET_OS_WIN32
 VOID WINAPI CompletedWriteRoutine(DWORD, DWORD, LPOVERLAPPED);
 VOID WINAPI CompletedReadRoutine(DWORD, DWORD, LPOVERLAPPED);
 
@@ -753,6 +768,7 @@ void TFLApp::TFLAppPipeServer::close()
 }
 
 
+#endif
 
 // ======================================================================= //
 // We build our computer (systems) the way we build our cities: over time,
