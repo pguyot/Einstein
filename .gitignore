@@ -1,5 +1,7 @@
 *.swp
-/build/
+build/
+bin/
+lib/
 DerivedData/
 *.mode1v3
 *.mode2v3
@@ -7,7 +9,9 @@ DerivedData/
 *.moved-aside
 *.xcuserdatad
 .DS_Store
-/_Build_/Jam/build.LINUX
+/_Build_/Jam/build.LINUX/
+/_Build_/CMake/
+!/_Build/CMake/build.sh
 /K/_Build_/Jam/build.LINUX
 /_Build_/AndroidStudio/app/.externalNativeBuild
 /_Build_/AndroidStudio/build
