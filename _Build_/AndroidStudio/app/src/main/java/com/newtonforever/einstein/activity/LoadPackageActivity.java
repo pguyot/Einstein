@@ -132,7 +132,7 @@ public class LoadPackageActivity extends Activity {
 		    // TODO FG Check if it is OK to use the class Intent with flags from the class IntentCompat.
 		    // Since the flag wasn't available when the Intent class was written, it is difficult to
 		    // believe that this will be able to do anything useful with this flag.
-		    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
+		    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
 		    startActivity(intent);
 			finish();
 		}
@@ -148,7 +148,7 @@ public class LoadPackageActivity extends Activity {
 			// call Einstein and install
 		    Intent intent = new Intent(getApplicationContext(), EinsteinActivity.class);
 		    intent.putExtra("FILE", pUri.getPath());
-		    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | IntentCompat.FLAG_ACTIVITY_TASK_ON_HOME);
+		    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
 		    startActivity(intent);
 			finish();
 		}
