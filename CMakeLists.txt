@@ -101,8 +101,14 @@ elseif(${UNIX})
         # FIXME add OS X sources here.
         set(EINSTEIN_SCREEN_MANAGER "Cocoa")
     else()
+        if (appX11 AND appFLTK)
+            message(FATAL_ERROR "You must specify either X11+CLI or FLTK application build.")
+        endif()
+
         if (appX11)
             set(EINSTEIN_SCREEN_MANAGER "X11")
+        elseif(appFLTK)
+            set(EINSTEIN_SCREEN_MANAGER "FL")
         endif()
 
         if(${CMAKE_HOST_SYSTEM_NAME} MATCHES "BSD")
@@ -135,10 +141,23 @@ target_link_libraries(einsteinlib monitor files host jit log nativecalls network
 
 ############################
 # EINSTEIN EMULATOR
-add_executable(einstein app/einstein.cp app/TCLIApp.cp)
+
+if (appX11)
+    set(einstein_app_sources app/einstein.cp app/TCLIApp.cp)
+elseif(appFLTK)
+    find_package(FLTK)
+    if(FLTK_FOUND)
+        set(einstein_app_sources app/TFLApp.cp app/TFLSettings.cp)
+    else()
+        message(FATAL_ERROR "Missing library: fltk")
+    endif()
+endif()
+
+set_source_files_properties(${einstein_app_sources} PROPERTIES LANGUAGE CXX)
+
+add_executable(einstein ${einstein_app_sources})
 
 install(TARGETS einstein
-DESTINATION bin/${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_BUILD_TYPE})
+    DESTINATION bin/${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_BUILD_TYPE})
 
-set_source_files_properties(app/einstein.cp app/TCLIApp.cp PROPERTIES LANGUAGE CXX)
 target_link_libraries(einstein k einsteinlib)

@@ -34,6 +34,9 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#ifdef TARGET_OS_LINUX
+#include <ctype.h>
+#endif
 
 // K
 #include <K/Defines/UByteSex.h>
@@ -52,38 +55,38 @@
 // -------------------------------------------------------------------------- //
 
 static const struct {unsigned short vk, fltk;} vktab[] = {
-  { 49, ' ' }, { 39, '\'' }, { 43, ',' }, { 27, '-' }, { 47, '.' }, { 44, '/' }, 
-  { 29, '0' }, { 18, '1'  }, { 19, '2'  }, { 20, '3'  }, 
-  { 21, '4' }, { 23, '5'  }, { 22, '6'  }, { 26, '7'  }, 
+  { 49, ' ' }, { 39, '\'' }, { 43, ',' }, { 27, '-' }, { 47, '.' }, { 44, '/' },
+  { 29, '0' }, { 18, '1'  }, { 19, '2'  }, { 20, '3'  },
+  { 21, '4' }, { 23, '5'  }, { 22, '6'  }, { 26, '7'  },
   { 28, '8' }, { 25, '9'  }, { 41, ';'  }, { 24, '='  },
-  {  0, 'A' }, { 11, 'B'  }, {  8, 'C'  }, {  2, 'D'  }, 
-  { 14, 'E' }, {  3, 'F'  }, {  5, 'G'  }, {  4, 'H'  }, 
-  { 34, 'I' }, { 38, 'J'  }, { 40, 'K'  }, { 37, 'L'  }, 
-  { 46, 'M' }, { 45, 'N'  }, { 31, 'O'  }, { 35, 'P'  }, 
-  { 12, 'Q' }, { 15, 'R'  }, {  1, 'S'  }, { 17, 'T'  }, 
-  { 32, 'U' }, {  9, 'V'  }, { 13, 'W'  }, {  7, 'X'  }, 
-  { 16, 'Y' }, {  6, 'Z'  }, 
+  {  0, 'A' }, { 11, 'B'  }, {  8, 'C'  }, {  2, 'D'  },
+  { 14, 'E' }, {  3, 'F'  }, {  5, 'G'  }, {  4, 'H'  },
+  { 34, 'I' }, { 38, 'J'  }, { 40, 'K'  }, { 37, 'L'  },
+  { 46, 'M' }, { 45, 'N'  }, { 31, 'O'  }, { 35, 'P'  },
+  { 12, 'Q' }, { 15, 'R'  }, {  1, 'S'  }, { 17, 'T'  },
+  { 32, 'U' }, {  9, 'V'  }, { 13, 'W'  }, {  7, 'X'  },
+  { 16, 'Y' }, {  6, 'Z'  },
   { 33, '[' }, { 30, ']' }, { 50, '`' },  { 42, '|' },
   { 51, FL_BackSpace }, { 48, FL_Tab }, { 36, FL_Enter }, { 127, FL_Pause },
   { 107, FL_Scroll_Lock }, { 53, FL_Escape }, { 0x73, FL_Home }, { 123, FL_Left },
   { 126, FL_Up }, { 124, FL_Right }, { 125, FL_Down }, { 0x74, FL_Page_Up },
   { 0x79, FL_Page_Down },  { 119, FL_End }, { 0x71, FL_Print }, { 127, FL_Insert },
-  { 0x6e, FL_Menu }, { 114, FL_Help }, { 0x47, FL_Num_Lock }, 
-  { 76, FL_KP_Enter }, { 67, FL_KP+'*' }, { 69, FL_KP+'+'}, { 78, FL_KP+'-' }, { 65, FL_KP+'.' }, { 75, FL_KP+'/' }, 
-  { 82, FL_KP+'0' }, { 83, FL_KP+'1' }, { 84, FL_KP+'2' }, { 85, FL_KP+'3' }, 
-  { 86, FL_KP+'4' }, { 87, FL_KP+'5' }, { 88, FL_KP+'6' }, { 89, FL_KP+'7' }, 
-  { 91, FL_KP+'8' }, { 92, FL_KP+'9' }, { 81, FL_KP+'=' }, 
-  { 0x7a, FL_F+1 }, { 0x78, FL_F+2  }, { 0x63, FL_F+3  }, { 0x76, FL_F+4  }, 
-  { 0x60, FL_F+5 }, { 0x61, FL_F+6  }, { 0x62, FL_F+7  }, { 0x64, FL_F+8  }, 
-  { 0x65, FL_F+9 }, { 0x6D, FL_F+10 }, { 0x67, FL_F+11 }, { 0x6f, FL_F+12 }, 
-  { 56, FL_Shift_L }, { 56, FL_Shift_R }, { 59, FL_Control_L }, { 59, FL_Control_R }, 
+  { 0x6e, FL_Menu }, { 114, FL_Help }, { 0x47, FL_Num_Lock },
+  { 76, FL_KP_Enter }, { 67, FL_KP+'*' }, { 69, FL_KP+'+'}, { 78, FL_KP+'-' }, { 65, FL_KP+'.' }, { 75, FL_KP+'/' },
+  { 82, FL_KP+'0' }, { 83, FL_KP+'1' }, { 84, FL_KP+'2' }, { 85, FL_KP+'3' },
+  { 86, FL_KP+'4' }, { 87, FL_KP+'5' }, { 88, FL_KP+'6' }, { 89, FL_KP+'7' },
+  { 91, FL_KP+'8' }, { 92, FL_KP+'9' }, { 81, FL_KP+'=' },
+  { 0x7a, FL_F+1 }, { 0x78, FL_F+2  }, { 0x63, FL_F+3  }, { 0x76, FL_F+4  },
+  { 0x60, FL_F+5 }, { 0x61, FL_F+6  }, { 0x62, FL_F+7  }, { 0x64, FL_F+8  },
+  { 0x65, FL_F+9 }, { 0x6D, FL_F+10 }, { 0x67, FL_F+11 }, { 0x6f, FL_F+12 },
+  { 56, FL_Shift_L }, { 56, FL_Shift_R }, { 59, FL_Control_L }, { 59, FL_Control_R },
   { 57, FL_Caps_Lock }, { 55, FL_Meta_L }, { 55, FL_Meta_R },
   { 58, FL_Alt_L }, { 58, FL_Alt_R }, { 0x75, FL_Delete },
 };
 
 
 ///
-/// This class generates an FLTK widget which is then automatically added to 
+/// This class generates an FLTK widget which is then automatically added to
 /// the active group widget.
 ///
 class Fl_Newton_Screen_Widget : public Fl_Box
@@ -94,7 +97,7 @@ class Fl_Newton_Screen_Widget : public Fl_Box
 	int					penX, penY, penIsDown;
 
 public:
-	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char *l, TFLScreenManager *s) 
+	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char *l, TFLScreenManager *s)
 		: Fl_Box(x, y, w, h, l),
 		rgbData_(0L),
 		screenManager_(s),
@@ -105,7 +108,7 @@ public:
 		rgbData_ = (unsigned char*)calloc(w*h, 3);
 	}
 
-	Fl_Newton_Screen_Widget::~Fl_Newton_Screen_Widget()
+	~Fl_Newton_Screen_Widget()
 	{
 		screenManager_->unlinkWidget();
 	}
@@ -120,7 +123,7 @@ public:
 		return rgbHeight_;
 	}
 
-	void draw() 
+	void draw()
 	{
 		// FIXME draw borders if the widget is larger than our bitmap
 		// FIXME enable clipping if the widget is smaller
@@ -129,7 +132,7 @@ public:
 		draw_label();
 	}
 
-	unsigned char *getRGBData() 
+	unsigned char *getRGBData()
 	{
 		return rgbData_;
 	}
@@ -204,7 +207,7 @@ public:
 		((Fl_Newton_Screen_Widget*)me)->penDownTimer();
 	}
 
-	int handle(int event) 
+	int handle(int event)
 	{
 		switch (event) {
 			case FL_PUSH:
@@ -295,9 +298,9 @@ TFLScreenManager::TFLScreenManager(
 	}
 
 	mWidget = new Fl_Newton_Screen_Widget(
-		xo, yo, inPortraitWidth, inPortraitHeight, 
+		xo, yo, inPortraitWidth, inPortraitHeight,
 		0L, this);
-	
+
 	mWidget->label(
 		"booting...\n"
 		"\n"
@@ -420,13 +423,13 @@ TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 		height = inUpdateRect->fBottom - top;
 		width = inUpdateRect->fRight - left;
 	} else {
-		top = 0; 
+		top = 0;
 		left = 0;
 		height = GetScreenHeight();
 		width = GetScreenWidth();
 	}
 
-	KUInt8 rs, gs, bs; 
+	KUInt8 rs, gs, bs;
 	if (GetBacklight()) {
 		rs = 1; gs = 0; bs = 1;
 	} else {
@@ -444,7 +447,7 @@ TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 	{
 		width += 1;
 	}
-	
+
 	KUInt8* theScreenBuffer = GetScreenBuffer();
 	KUInt32 theScreenWidth = GetScreenWidth();
 	KUInt32 dstRowBytes = theScreenWidth * mBitsPerPixel / 8;
@@ -489,7 +492,7 @@ TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 
 
 // ========================================================================= //
-// The most likely way for the world to be destroyed, most experts agree, is 
-// by accident. That's where we come in; we're computer professionals. We 
+// The most likely way for the world to be destroyed, most experts agree, is
+// by accident. That's where we come in; we're computer professionals. We
 // cause accidents.
 // ========================================================================= //
