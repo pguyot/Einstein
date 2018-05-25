@@ -80,7 +80,7 @@ namespace packt {
 	mOutputMixObj(NULL)
 	{}
 	status SoundService::start() {
-		Log::info(“Starting SoundService.”);
+		Log::info("Starting SoundService.");
 		SLresult lRes;
 		const SLuint32      lEngineMixIIDCount = 1;
 		const SLInterfaceID lEngineMixIIDs[]={SL_IID_ENGINE};
@@ -102,7 +102,7 @@ namespace packt {
 									   SL_BOOLEAN_FALSE);
 		return STATUS_OK;
 	ERROR:
-		Packt::Log::error(“Error while starting SoundService.”);
+		Packt::Log::error("Error while starting SoundService.");
 		stop();
 		return STATUS_KO;
 	}
