@@ -144,7 +144,7 @@ me->hide();} open
     }
   }
   Fl_Group {} {
-    label {  ROM}
+    label {  ROM} open
     xywh {10 30 405 95} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Box wROMPath {
@@ -209,7 +209,7 @@ if (path) {
     }
   }
   Fl_Group {} {
-    label {  Screen and Sound}
+    label {  Screen} selected
     xywh {10 235 200 120} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Input wWidth {
@@ -510,7 +510,7 @@ Function {createAboutDialog()} {open
       xywh {77 125 45 20} labelsize 11
     }
     Fl_Box wAboutVersionBox {
-      label {2018.1.1} selected
+      label {2018.1.1}
       xywh {125 125 50 20} labelsize 11
       code0 {o->label(VERSION_STRING_SHORT);}
     }

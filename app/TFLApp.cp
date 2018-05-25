@@ -147,7 +147,9 @@ TFLApp::TFLApp( void )
 		mMonitor( nil ),
 		mSymbolList( nil ),
 		flSettings(0L)
-        // ,    mPipeServer(this)
+#if TARGET_OS_WIN32
+        ,    mPipeServer(this)
+#endif
 {
 }
 
@@ -362,6 +364,7 @@ TFLApp::Run( int argc, char* argv[] )
 
 #if TARGET_OS_WIN32
 		HANDLE theThread = CreateThread(0L, 0, (LPTHREAD_START_ROUTINE)SThreadEntry, this, 0, 0L);
+        mPipeServer.open();
 #else
 		pthread_t theThread;
 		int theErr = ::pthread_create( &theThread, NULL, SThreadEntry, this );
@@ -371,11 +374,7 @@ TFLApp::Run( int argc, char* argv[] )
 		}
 #endif
 
-    // mPipeServer.open();
-
 		Fl::run();
-
-    // mPipeServer.close();
 
 		// FIXME Tell the emulator that the power was switched off
 		// FIXME Then wait for it to quit gracefully
@@ -385,6 +384,7 @@ TFLApp::Run( int argc, char* argv[] )
 
 		// Wait for the thread to finish.
 #if TARGET_OS_WIN32
+        mPipeServer.close();
 		WaitForSingleObject(theThread, INFINITE);
 #else
 		(void) ::pthread_join( theThread, NULL );

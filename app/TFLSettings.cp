@@ -261,7 +261,7 @@ this->when(FL_WHEN_RELEASE);
   } // Fl_Button* wFlashPathChoose
   o->end();
 } // Fl_Group* o
-{ Fl_Group* o = new Fl_Group(10, 235, 200, 120, "  Screen and Sound");
+{ Fl_Group* o = new Fl_Group(10, 235, 200, 120, "  Screen");
   o->box(FL_GTK_DOWN_BOX);
   o->labelsize(11);
   o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
