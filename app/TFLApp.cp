@@ -47,6 +47,7 @@
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/Sound/TNullSoundManager.h"
+
 #if TARGET_OS_WIN32
 #include "Emulator/Sound/TWaveSoundManager.h"
 #define strcasecmp stricmp
@@ -196,12 +197,12 @@ TFLApp::Run( int argc, char* argv[] )
 	Fl::scheme("gtk+");
 	Fl::args(1, argv);
 	Fl::get_system_colors();
-
-	flSettings = new TFLSettings(425, 392, "Einstein Platform Settings");
+	flSettings = new TFLSettings(425, 412, "Einstein Platform Settings");
 #if TARGET_OS_WIN32
 	flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #elif TARGET_OS_LINUX
-    flSettings->icon(image_EinsteinApp64.copy());
+    Fl_Window::default_xclass("Einstein");
+    flSettings->default_icon(&image_EinsteinApp64);
 #endif
 	flSettings->setApp(this, mProgramName);
 	flSettings->loadPreferences();
@@ -221,7 +222,6 @@ TFLApp::Run( int argc, char* argv[] )
 	const Fl_Menu_Item *theMachineMenu = flSettings->wMachineChoice->menu()+theMachineID;
 	const char* theMachineString = strdup((char*)theMachineMenu->user_data());
 	const char* theRestoreFile = nil;
-	const char* theSoundManagerClass = "pulseaudio";
 	const char* theScreenManagerClass = nil;
 	const char *theROMImagePath = strdup(flSettings->ROMPath);
 	const char *theFlashPath = strdup(flSettings->FlashPath);
@@ -231,6 +231,7 @@ TFLApp::Run( int argc, char* argv[] )
 	Boolean fullscreen = (bool)flSettings->fullScreen;
 	Boolean hidemouse = (bool)flSettings->hideMouse;
 	Boolean useMonitor = (bool)flSettings->useMonitor;
+    Boolean soundEnabled = (bool)flSettings->soundEnabled;
 	int useAIFROMFile = 0;	// 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
 
 	int xx, yy, ww, hh;
@@ -263,24 +264,26 @@ TFLApp::Run( int argc, char* argv[] )
 #if TARGET_OS_WIN32
     win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #elif TARGET_OS_LINUX
-    win->icon(image_EinsteinApp64.copy());
+    win->default_icon(&image_EinsteinApp64);
 #endif
 
 	win->callback(quit_cb, this);
 
-	if (theSoundManagerClass == nil)
-	{
-        mSoundManager = new TNullSoundManager( mLog );
-	} else {
-		CreateSoundManager( theSoundManagerClass );
-	}
+    if (soundEnabled)
+    {
+        // use default for whichever platform we compiled for
+        CreateSoundManager();
+    } else {
+        CreateSoundManager( "null" );
+    }
+
 	if (theScreenManagerClass == nil)
 	{
-		//CreateScreenManager( "FL", portraitWidth, portraitHeight, fullscreen );
 		CreateScreenManager( "FL", portraitWidth, portraitHeight, 0 );
 	} else {
 		CreateScreenManager( theScreenManagerClass, portraitWidth, portraitHeight, fullscreen );
 	}
+
 	if (theMachineString == nil)
 	{
 		theMachineString = defaultMachineString;
@@ -472,6 +475,27 @@ TFLApp::CreateLog( const char* inFilePath )
 		::exit(1);
 	}
 	mLog = new TFileLog( inFilePath );
+}
+
+
+// -------------------------------------------------------------------------- //
+// CreateSoundManager( )
+// -------------------------------------------------------------------------- //
+void TFLApp::CreateSoundManager()
+{
+
+#if TARGET_OS_OPENSTEP
+        mSoundManager = new TCoreAudioSoundManager( mLog );
+#elif TARGET_OS_WIN32
+        mSoundManager = new TWaveSoundManager( mLog );
+#elif AUDIO_PULSEAUDIO
+        mSoundManager = new TPulseAudioSoundManager( mLog );
+#elif AUDIO_PORTAUDIO
+        mSoundManager = new TCoreAudioSoundManager( mLog );
+#else
+        mSoundManager = new TNullSoundManager( mLog );
+#endif
+
 }
 
 // -------------------------------------------------------------------------- //

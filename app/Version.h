@@ -24,12 +24,12 @@
 #ifndef _VERSION_H
 #define _VERSION_H
 
-#define VERSION_STRING		"Einstein Platform 2017.1.0"
-#define VERSION_STRING_SHORT	"2017.1.0"
-#define COPYRIGHT_STRING		"Copyright 2003-2017 by Paul Guyot and contributors"
+#define VERSION_STRING		"Einstein Platform 2018.1.0"
+#define VERSION_STRING_SHORT	"2018.1.0"
+#define COPYRIGHT_STRING		"Copyright 2003-2018 by Paul Guyot and contributors"
 
 #endif
-		// _VERSION_H
+// _VERSION_H
 
 // ================================================ //
 // Work continues in this area.                     //

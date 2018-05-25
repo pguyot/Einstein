@@ -175,6 +175,7 @@ private:
 	///
 	/// Cr�e le gestionnaire de son.
 	///
+    void CreateSoundManager( void );
 	void CreateSoundManager( const char* inClass );
 
 	///

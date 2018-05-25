@@ -1,7 +1,7 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0108 
-use_FL_COMMAND 
-header_name {.h} 
+version 1.0304
+use_FL_COMMAND
+header_name {.h}
 code_name {.cp}
 comment {// ==============================
 // File:			TFLSettings
@@ -26,30 +26,53 @@ comment {// ==============================
 // $Id$
 // ==============================
 } {in_source in_header
-} 
+}
 
 decl {class TFLApp;} {public global
-} 
+}
 
-decl {\#include "TFLApp.h"} {} 
+decl {const char* prefVendor = "kallisys.net";} {private local
+}
 
-decl {\#include "winsock2.h"} {} 
+decl {const char* prefAppName = "einstein";} {private local
+}
 
-decl {\#include <string.h>} {} 
+decl {\#include "Resources/icons/EinsteinApp64.fl.h"} {private local
+}
 
-decl {\#include <FL/filename.h>} {} 
+decl {\#include "TFLApp.h"} {private local
+}
 
-decl {\#include <FL/fl_file_chooser.h>} {} 
+decl {\#include "Version.h"} {private local
+}
 
-decl {\#include <FL/Fl_Preferences.H>} {} 
+declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
+} {
+  decl {\#include "winsock2.h"} {private local
+  }
+  decl {SOCKET sData;} {private local
+  }
+  decl {FILE *fROM;} {private local
+  }
+}
 
-decl {Fl_Window *wProgressWindow = 0L;} {} 
+decl {\#include <string.h>} {private local
+}
 
-decl {FILE *fROM;} {} 
+decl {\#include <FL/filename.h>} {private local
+}
 
-decl {SOCKET sData;} {} 
+decl {\#include <FL/fl_file_chooser.h>} {private local
+}
 
-decl {int recvd;} {} 
+decl {\#include <FL/Fl_Preferences.H>} {private local
+}
+
+decl {Fl_Window *wProgressWindow = 0L;} {private local
+}
+
+decl {int recvd;} {private local
+}
 
 widget_class TFLSettings {
   label {Einstein Platform Setup}
@@ -58,7 +81,7 @@ widget_class TFLSettings {
 me->revertDialog();
 me->redraw();
 me->hide();} open
-  xywh {411 145 425 393} type Double color 50 align 80
+  xywh {1312 193 425 400} type Double color 50 align 80
   class Fl_Window non_modal visible
 } {
   Fl_Menu_Button RMB {
@@ -186,8 +209,8 @@ if (path) {
     }
   }
   Fl_Group {} {
-    label {  Screen}
-    xywh {10 235 200 100} box GTK_DOWN_BOX labelsize 11 align 5
+    label {  Screen and Sound}
+    xywh {10 235 200 120} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Input wWidth {
       xywh {20 245 80 20} type Int labelsize 12 textsize 12
@@ -205,13 +228,13 @@ if (path) {
       xywh {20 290 175 20} down_box DOWN_BOX labelsize 12
     }
     Fl_Check_Button wUseMonitor {
-      label {Debug Terminal} selected
+      label {Debug Terminal}
       xywh {20 310 175 20} down_box DOWN_BOX labelsize 12 deactivate
     }
   }
   Fl_Group {} {
-    label {  Memory}
-    xywh {215 235 200 100} box GTK_DOWN_BOX labelsize 11 align 5
+    label {  Memory} open
+    xywh {215 235 200 80} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Box {} {
       label {RAM Size}
@@ -240,38 +263,42 @@ if (path) {
   }
   Fl_Check_Button wDontShow {
     label {Don't show at startup}
-    xywh {10 350 140 20} down_box DOWN_BOX labelsize 12
+    xywh {215 320 150 20} down_box DOWN_BOX labelsize 12
+  }
+  Fl_Check_Button wSoundEnabled {
+    label Sound
+    xywh {215 340 70 15} down_box DOWN_BOX value 1 labelsize 12
   }
   Fl_Button wQuit {
     label Quit
     callback {exit(0);}
-    xywh {215 355 95 25} color 50 labelsize 12
+    xywh {215 365 95 25} color 50 labelsize 12
   }
   Fl_Button wStart {
     label Start
     callback {applyDialog();
 savePreferences();
 hide();}
-    xywh {320 355 95 25} color 50 labelsize 12
+    xywh {320 365 95 25} color 50 labelsize 12
   }
   Fl_Box wRestartWarning {
-    label {Preferences only apply at restart}
-    xywh {10 370 200 20} labelfont 1 labelsize 12 align 20 hide
+    label {Changes only apply after restarting emulator}
+    xywh {10 365 200 25} labelfont 1 labelsize 12 align 148 hide
   }
   Fl_Button wRevert {
     label Revert
     callback {revertDialog();
 redraw();}
-    xywh {215 355 95 25} color 50 labelsize 12 hide
+    xywh {215 365 95 25} color 50 labelsize 12 hide
   }
   Fl_Button wSave {
     label Save
     callback {applyDialog();
 savePreferences();
 hide();}
-    xywh {320 355 95 25} color 50 labelsize 12 hide
+    xywh {320 365 95 25} color 50 labelsize 12 hide
   }
-  Function {setApp(TFLApp *App, const char *AppPath)} {return_type void
+  Function {setApp(TFLApp *App, const char *AppPath)} {open return_type void
   } {
     code {app = App;
 appPath = strdup(AppPath);
@@ -279,14 +306,16 @@ char *end = (char*)fl_filename_name(appPath);
 if (end) 
   *end = 0;} {}
   }
-  Function {loadPreferences()} {return_type void
+  Function {loadPreferences()} {open return_type void
   } {
     code {char buf[FL_PATH_MAX];
 
-Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+Fl_Preferences prefs(Fl_Preferences::USER, prefVendor, prefAppName);
 
 // general preferences
 prefs.get("dontShow", dontShow, 0);
+
+prefs.get("soundEnabled", soundEnabled, 1);
 
 // ROM Preferences
 Fl_Preferences rom(prefs, "ROM");
@@ -316,12 +345,13 @@ screen.get("useMonitor", useMonitor, 0);
 Fl_Preferences memory(prefs, "Memory");
 memory.get("RAMSize", RAMSize, 64);} {}
   }
-  Function {savePreferences()} {return_type void
+  Function {savePreferences()} {open return_type void
   } {
-    code {Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+    code {Fl_Preferences prefs(Fl_Preferences::USER, prefVendor, prefAppName);
 
 // general preferences
 prefs.set("dontShow", dontShow);
+prefs.set("soundEnabled", soundEnabled);
 
 // ROM Preferences
 Fl_Preferences rom(prefs, "ROM");
@@ -344,7 +374,7 @@ screen.set("useMonitor", useMonitor);
 Fl_Preferences memory(prefs, "Memory");
 memory.set("RAMSize", RAMSize);} {}
   }
-  Function {revertDialog()} {return_type void
+  Function {revertDialog()} {open return_type void
   } {
     code {char buf[32];
 
@@ -364,9 +394,10 @@ wUseMonitor->value(useMonitor);
 wRAMSize->value(RAMSize);
 updateRAMSizeLabel();
 
-wDontShow->value(dontShow);} {}
+wDontShow->value(dontShow);
+wSoundEnabled->value(soundEnabled);} {}
   }
-  Function {applyDialog()} {return_type void
+  Function {applyDialog()} {open return_type void
   } {
     code {free(ROMPath);
 ROMPath = strdup(wROMPath->label());
@@ -383,7 +414,8 @@ useMonitor = wUseMonitor->value();
 
 RAMSize = (int)wRAMSize->value();
 
-dontShow = wDontShow->value();} {}
+dontShow = wDontShow->value();
+soundEnabled = wSoundEnabled->value();} {}
   }
   Function {runningMode()} {open return_type void
   } {
@@ -413,11 +445,13 @@ wSave->show();} {}
   }
   decl {int dontShow;} {public global
   }
-  decl {TFLApp *app;} {global
+  decl {int soundEnabled;} {public local
   }
-  decl {char *appPath;} {global
+  decl {TFLApp *app;} {private global
   }
-  Function {updateRAMSizeLabel()} {private return_type void
+  decl {char *appPath;} {private global
+  }
+  Function {updateRAMSizeLabel()} {open private return_type void
   } {
     code {char buf[32];
 int ram = (int)(wRAMSize->value());
@@ -437,44 +471,57 @@ if (k==0) {
   wRAMSizeKBLabel->show();
 }} {}
   }
-} 
+}
 
-Function {close_window_cb(Fl_Widget*, void *user)} {private return_type void
+Function {close_window_cb(Fl_Widget*, void *user)} {open private return_type void
 } {
   code {Fl_Window *win = (Fl_Window*)user;
 win->hide();} {}
-} 
+}
 
-Function {createAboutDialog()} {} {
+Function {createAboutDialog()} {open
+} {
   Fl_Window wAbout {
+    label About
     user_data wAbout
     callback close_window_cb open
-    xywh {-32000 -32000 254 166} type Double hide modal
+    xywh {891 490 250 180} type Double modal visible
   } {
     Fl_Box {} {
-      image {../Resources/icons/EinsteinApp64.png} xywh {92 5 69 75}
+      xywh {92 5 69 75}
+      code0 {o->image(&image_EinsteinApp64);}
     }
     Fl_Box {} {
       label Einstein
       xywh {32 80 190 25} labelfont 1
     }
-    Fl_Box {} {
-      label {Version 2007.7.6}
-      xywh {32 105 190 20} labelsize 11
-    }
     Fl_Button {} {
       label Close
       user_data wAbout
       callback close_window_cb
-      xywh {190 135 55 20} labelsize 12
+      xywh {190 155 55 20} labelsize 12
+    }
+    Fl_Box {} {
+      label {Emulating the Newton N2 Platform}
+      xywh {32 104 190 20} labelsize 12
+    }
+    Fl_Box {} {
+      label Version
+      xywh {77 125 45 20} labelsize 11
+    }
+    Fl_Box wAboutVersionBox {
+      label {2018.1.1} selected
+      xywh {125 125 50 20} labelsize 11
+      code0 {o->label(VERSION_STRING_SHORT);}
     }
   }
-} 
+}
 
-Function {createROMDownloadDialog()} {} {
+Function {createROMDownloadDialog()} {open
+} {
   Fl_Window wROMDownloadWindow {
     label {Download ROM via TCP/IP} open
-    xywh {384 325 417 394} type Double modal visible
+    xywh {1323 677 415 390} type Double modal visible
   } {
     Fl_Box {} {
       label {How to download the Newton ROM using a network connection}
@@ -551,15 +598,19 @@ wProgressSlider->value(0);}
 wProgressSlider->label("Connecting...");
 wProgressSlider->value(0);
 wProgressWindow->show();
-startDump();}
+\#if TARGET_OS_WIN32
+startDump();
+\#endif}
       xywh {315 355 95 25} color 50 labelsize 12
     }
   }
-} 
+}
 
-Function {startDump()} {return_type void
+declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
 } {
-  code {sData = INVALID_SOCKET;
+  Function {startDump()} {open return_type void
+  } {
+    code {sData = INVALID_SOCKET;
 
 // open the file that we will dump the ROM into
 fROM = fopen(wDownloadPath->label(), "rb");
@@ -631,10 +682,10 @@ Fl::add_fd(sData, FL_READ, dataReadCB, 0);
 Fl::add_fd(sData, FL_EXCEPT, dataExceptCB, 0);
 fROM = fopen(wDownloadPath->label(), "wb");
 recvd = 0;} {}
-} 
-
-Function {dataReadCB(int p, void *user_data)} {} {
-  code {unsigned long n;
+  }
+  Function {dataReadCB(int p, void *user_data)} {open
+  } {
+    code {unsigned long n;
 DWORD rcvd;
 int ret = WSAIoctl(sData, FIONREAD, 0, 0, &n, sizeof(n), &rcvd, 0, 0);
 if (ret || n==0) {
@@ -650,10 +701,10 @@ free(buf);
 recvd += n;
 printf("Received %d/%d (%d)\\n", n, n1, recvd);
 wProgressSlider->value(recvd/1024);} {}
-} 
-
-Function {dataExceptCB(int p, void *user_data)} {} {
-  code {if (fROM) {
+  }
+  Function {dataExceptCB(int p, void *user_data)} {open
+  } {
+    code {if (fROM) {
   fclose(fROM);
   fROM = 0L;
 }
@@ -669,11 +720,13 @@ if (recvd==8*1024*1024) {
 } else {
   fl_message("Invalid ROM size.\\n%d bytes expected, but %d bytes received.", 8*1024*1024, recvd);
 }} {}
-} 
+  }
+}
 
-Function {createROMDownloadProgressWindow()} {} {
+Function {createROMDownloadProgressWindow()} {open
+} {
   Fl_Window {} {open
-    xywh {862 545 285 111} type Double modal visible
+    xywh {1980 659 285 110} type Double modal visible
   } {
     Fl_Slider wProgressSlider {
       label {Connecting...}
@@ -685,7 +738,7 @@ Function {createROMDownloadProgressWindow()} {} {
       xywh {180 70 95 25} color 50 labelsize 12
     }
   }
-} 
+}
 
 comment {
 // ======================================================== //
@@ -694,4 +747,4 @@ comment {
 // ======================================================== //
 
 } {in_source in_header
-} 
+}

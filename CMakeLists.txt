@@ -145,11 +145,11 @@ target_link_libraries(einsteinlib monitor files host jit log nativecalls network
 if (appX11)
     set(einstein_app_sources app/einstein.cp app/TCLIApp.cp)
 elseif(appFLTK)
-    find_package(FLTK)
+    find_package(FLTK 1.3.4 REQUIRED)
     if(FLTK_FOUND)
         set(einstein_app_sources app/TFLApp.cp app/TFLSettings.cp)
     else()
-        message(FATAL_ERROR "Missing library: fltk")
+        message(FATAL_ERROR "Missing library: fltk.  FLTK 1.3.4+ is required, found ")
     endif()
 endif()
 
