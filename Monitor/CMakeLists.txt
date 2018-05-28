@@ -13,4 +13,9 @@ target_include_directories(monitor PUBLIC
 ../Emulator/JIT/Generic/
 ../Emulator/)
 
+if(${WIN32})
+    target_include_directories(monitor PUBLIC
+        ../Win32)
+endif()
+
 target_link_libraries(monitor k)

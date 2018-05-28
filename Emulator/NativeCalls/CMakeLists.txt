@@ -13,4 +13,9 @@ target_include_directories(nativecalls PUBLIC
     ../../
     )
 
+if(${WIN32})
+    target_include_directories(nativecalls PUBLIC
+        ../Win32)
+endif()
+
 target_link_libraries(nativecalls k)
