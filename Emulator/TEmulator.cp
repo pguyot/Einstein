@@ -95,6 +95,7 @@ TEmulator::TEmulator(
 		mNetworkManager( inNetworkManager ),
 		mSoundManager( inSoundManager ),
 		mScreenManager( inScreenManager ),
+		mFileManager( NULL ),
 		mLog( inLog ),
 		mMonitor( NULL ),
 		mRunning( false ),
