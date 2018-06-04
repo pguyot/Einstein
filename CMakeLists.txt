@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.7)
 
 project(einstein)
 
@@ -44,10 +44,8 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         message(FATAL_ERROR "Missing library: pthread")
     endif()
 
-
-    find_library(FFI_LIB ffi)
     find_library(DL_LIB dl)
-    list(APPEND LINKLIBS ${DL_LIB} ${PTHREAD_LIB} ${FFI_LIB})
+    list(APPEND LINKLIBS ${DL_LIB} ${PTHREAD_LIB})
 endif()
 
 TEST_BIG_ENDIAN(_IS_BIG_ENDIAN)
@@ -62,10 +60,8 @@ add_subdirectory(K)
 ## 1) Gather all common sources
 
 file(GLOB elib_common_sources "Emulator/*.cp")
-# file(GLOB elib_Monitor_sources "Monitor/*.cp")
 
 set_source_files_properties(${elib_common_sources} PROPERTIES LANGUAGE CXX)
-# set_source_files_properties(${elib_Monitor_sources} PROPERTIES LANGUAGE CXX)
 
 # Add "einsteinlib" as a library target
 add_library(einsteinlib STATIC ${elib_common_sources})
@@ -149,7 +145,7 @@ elseif(appFLTK)
     if(FLTK_FOUND)
         set(einstein_app_sources app/TFLApp.cp app/TFLSettings.cp)
     else()
-        message(FATAL_ERROR "Missing library: fltk.  FLTK 1.3.4+ is required, found ")
+        message(FATAL_ERROR "Missing library: fltk.  FLTK 1.3.4+ is required")
     endif()
 endif()
 
@@ -160,4 +156,4 @@ add_executable(einstein ${einstein_app_sources})
 install(TARGETS einstein
     DESTINATION bin/${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_BUILD_TYPE})
 
-target_link_libraries(einstein k einsteinlib)
+target_link_libraries(einstein k einsteinlib ${FLTK_LIBRARIES})
