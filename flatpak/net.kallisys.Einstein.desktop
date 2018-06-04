@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Einstein Newton MessagePad Emulator
+Comment=Einstein Newton MessagePad Emulator
+Exec=einstein
+Type=Application
+Icon=net.kallisys.Einstein

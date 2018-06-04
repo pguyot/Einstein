@@ -1,0 +1,76 @@
+{
+    "app-id": "net.kallisys.Einstein",
+    "runtime": "org.freedesktop.Platform",
+    "runtime-version": "1.6",
+    "sdk": "org.freedesktop.Sdk",
+    "command": "einstein",
+    "build-options": {
+        "arch": {
+            "i386":{
+                "cflags": "-O3",
+                "cxxflags": "-O3"
+            }
+        }
+    },
+    "cleanup":[
+        "/include",
+        "/share/doc",
+        "/share/man",
+        "/lib/debug",
+        "/bin/fluid",
+        "/bin/fltk-config",
+        "/lib/*.a",
+        "/lib/pkgconfig"
+    ],
+    "modules": [
+        {
+            "name":"fltk",
+            "config-opts": ["--with-links", "--enable-shared"],
+            "sources": [
+            {
+                "url": "http://fltk.org/pub/fltk/1.3.4/fltk-1.3.4-2-source.tar.bz2",
+                "type":"archive",
+                "md5":"69128be72365cbedd1d380739f0164e3"
+            }]
+        },
+        {
+            "name":"Einstein",
+            "buildsystem": "cmake",
+            "config-opts": [
+                "-DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-32-linux.cmake",
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-Dpulseaudio=ON",
+                "-DappFLTK=ON",
+                "-DappX11=OFF",
+                "-DCMAKE_INSTALL_PREFIX=/app"
+            ],
+            "build-commands": [
+                "install -Dm644 Resources/icons/EinsteinApp96.png /app/share/icons/hicolor/96x96/apps/net.kallisys.Einstein.png",
+                "install -Dm644 -t /app/share/applications flatpak/net.kallisys.Einstein.desktop",
+                "install -Dm644 -t /app/share/metainfo flatpak/net.kallisys.Einstein.appdata.xml"
+            ],
+            "post-install": [
+                "install -m755 bin/Linux-Release/einstein /app/bin/einstein"
+            ],
+            "sources": [
+            {
+                "only-arches": ["i386"],
+                "type":"git",
+                "path":"/home/victor/sources/Einstein-github/Einstein-chuma",
+                "branch": "Linux-FLTK"
+            },
+            {
+                "type":"patch",
+                "path":"/home/victor/sources/Einstein-github/Einstein-chuma/flatpak-build-fix.patch"
+
+            }]
+        }
+    ],
+    "finish-args": [
+        "--socket=pulseaudio",
+        "--socket=x11",
+        "--share=network",
+        "--filesystem=~/.einstein/",
+        "--filesystem=~/.fltk/"
+    ]
+}

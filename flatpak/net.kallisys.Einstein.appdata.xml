@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>net.kallisys.Postman</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-2.0</project_license>
+  <name>Einstein</name>
+  <summary>Einstein is an Apple Newton MessagePad emulator</summary>
+  <description>
+    <p>
+      Einstein emulates Apple Newton MessagePad hardware, specifically the "N2" platform,
+      originally used by the Apple Newton MessagePad 2000, 2100, and Apple eMate.  Einstein
+      can boot and run a copy (not supplied) of NewtonOS 2.1.
+
+      Sound output is supported.
+
+      You need an original Newton MessagePad 2000, 2100, or eMate in order to extract its
+      operating system image in order to use Einstein.  Einstein itself can be used for this
+      task.
+    </p>
+  </description>
+  <url type="homepage">https://github.com/pguyot/Einstein</url>
+  <releases>
+    <release version="2018.1.0" date="2018-06-04"/>
+  </releases>
+ </component>
