@@ -58,11 +58,6 @@
                 "type":"git",
                 "path":"/home/victor/sources/Einstein-github/Einstein-chuma",
                 "branch": "Linux-FLTK"
-            },
-            {
-                "type":"patch",
-                "path":"/home/victor/sources/Einstein-github/Einstein-chuma/flatpak-build-fix.patch"
-
             }]
         }
     ],
