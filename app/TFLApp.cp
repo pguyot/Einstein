@@ -206,7 +206,7 @@ TFLApp::Run( int argc, char* argv[] )
     Fl_Window::default_xclass("Einstein");
     flSettings->default_icon(&image_EinsteinApp64);
 #endif
-	flSettings->setApp(this, mProgramName);
+	flSettings->setApp(this);
 	flSettings->loadPreferences();
 	flSettings->revertDialog();
 	Fl::focus(flSettings->wStart);
@@ -679,9 +679,8 @@ void TFLApp::menuDownloadROM()
 		wDownloadIP1->value("0");
 		wDownloadIP0->value("24");
 		wDownloadPort->value("10080");
-		char path[FL_PATH_MAX]; path[0] = 0;
-		fl_filename_absolute(path, ".");
-		strcat(path, "myROM");
+		char path[FL_PATH_MAX] = {0};
+        snprintf(path, FL_PATH_MAX, "%s/%s", flSettings->dataDirPath, "myROM");
 		wDownloadPath->copy_label(path);
 	}
 	downloadDialog->show();

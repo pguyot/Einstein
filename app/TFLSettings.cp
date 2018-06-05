@@ -44,8 +44,8 @@ typedef int _the_tcp_socket;
 #endif
 static FILE *fROM; 
 _the_tcp_socket sData;
+#include <stdlib.h>
 #include <string.h>
-#include <FL/filename.h>
 #include <FL/fl_file_chooser.h>
 #include <FL/Fl_Preferences.H>
 static const char* prefVendor = "kallisys.net"; 
@@ -379,38 +379,45 @@ set_non_modal();
 end();
 }
 
-void TFLSettings::setApp(TFLApp *App, const char *AppPath) {
+void TFLSettings::setApp(TFLApp *App) {
   app = App;
+  
+  setDefaultPaths();
+  
+  /*
   appPath = strdup(AppPath);
   char *end = (char*)fl_filename_name(appPath);
   if (end)
     *end = 0;
+  */
 }
 
 void TFLSettings::loadPreferences() {
   char buf[FL_PATH_MAX];
   
-  Fl_Preferences prefs(Fl_Preferences::USER, prefVendor, prefAppName);
+  // Fl_Preferences prefs(Fl_Preferences::USER, prefVendor, prefAppName);
+  Fl_Preferences prefs(configDirPath, prefVendor, prefAppName);
   
   // general preferences
   prefs.get("dontShow", dontShow, 0);
-  
   prefs.get("soundEnabled", soundEnabled, 1);
   
   // ROM Preferences
   Fl_Preferences rom(prefs, "ROM");
   
-  strcpy(buf, appPath);
-  strcat(buf, "717006");
-  rom.get("path", ROMPath, buf);
+  // strcpy(buf, appPath);
+  strcpy(buf, dataDirPath);
+  strcat(buf, "/717006");
   
+  rom.get("path", ROMPath, buf);
   rom.get("machine", machine, 0);
   
   // Flash Preferences
   Fl_Preferences flash(prefs, "Flash");
   
-  prefs.getUserdataPath(buf, FL_PATH_MAX-15);
-  strcat(buf, "internal.flash");
+  //prefs.getUserdataPath(buf, FL_PATH_MAX-15);
+  strcpy(buf, dataDirPath);
+  strcat(buf, "/internal.flash");
   flash.get("path", FlashPath, buf);
   
   // screen preferences
@@ -427,7 +434,8 @@ void TFLSettings::loadPreferences() {
 }
 
 void TFLSettings::savePreferences() {
-  Fl_Preferences prefs(Fl_Preferences::USER, prefVendor, prefAppName);
+  // Fl_Preferences prefs(Fl_Preferences::USER, prefVendor, prefAppName);
+  Fl_Preferences prefs(configDirPath, prefVendor, prefAppName);
   
   // general preferences
   prefs.set("dontShow", dontShow);
@@ -506,6 +514,36 @@ void TFLSettings::runningMode() {
   wSave->show();
 }
 
+void TFLSettings::setDefaultPaths() {
+  // configDirPath, dataDirPath
+  
+  // config: XDG_CONFIG_HOME, fall back to HOME/.einstein/
+  // data: XDG_DATA_HOME, fall back to HOME/.einstein/
+  
+  char *cfghome = getenv("XDG_CONFIG_HOME");
+  char *datahome = getenv("XDG_DATA_HOME");
+  
+  if (cfghome)
+  {
+      snprintf(configDirPath, FL_PATH_MAX, "%s", cfghome);
+  }
+  else
+  {
+      cfghome = getenv("HOME");
+      snprintf(configDirPath, FL_PATH_MAX, "%s/.%s", cfghome, prefAppName);
+  }
+  
+  if (datahome)
+  {
+      snprintf(dataDirPath, FL_PATH_MAX, "%s", datahome);
+  }
+  else
+  {
+      datahome = getenv("HOME");
+      snprintf(dataDirPath, FL_PATH_MAX, "%s/.%s", datahome, prefAppName);
+  }
+}
+
 void TFLSettings::updateRAMSizeLabel() {
   char buf[32];
   int ram = (int)(wRAMSize->value());
@@ -558,7 +596,6 @@ Fl_Double_Window* createAboutDialog() {
       wAboutVersionBox->labelsize(11);
       o->label(VERSION_STRING_SHORT);
     } // Fl_Box* wAboutVersionBox
-    wAbout->set_modal();
     wAbout->end();
   } // Fl_Double_Window* wAbout
   return wAbout;

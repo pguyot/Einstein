@@ -62,10 +62,10 @@
         }
     ],
     "finish-args": [
+        "--filesystem=home",
         "--socket=pulseaudio",
         "--socket=x11",
-        "--share=network",
-        "--filesystem=~/.einstein/",
-        "--filesystem=~/.fltk/"
+        "--share=network"
+
     ]
 }

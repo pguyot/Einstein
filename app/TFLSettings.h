@@ -27,6 +27,7 @@
 #define TFLSettings_h
 #include <FL/Fl.H>
 class TFLApp;
+#include <FL/filename.h>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Menu_Button.H>
 #include <FL/Fl_Group.H>
@@ -118,6 +119,8 @@ private:
 public:
   char *ROMPath; 
   char *FlashPath; 
+  char configDirPath[FL_PATH_MAX] = {0}; 
+  char dataDirPath[FL_PATH_MAX] = {0}; 
   int machine; 
   int screenWidth; 
   int screenHeight; 
@@ -131,12 +134,13 @@ private:
   TFLApp *app; 
   char *appPath; 
 public:
-  void setApp(TFLApp *App, const char *AppPath);
+  void setApp(TFLApp *App);
   void loadPreferences();
   void savePreferences();
   void revertDialog();
   void applyDialog();
   void runningMode();
+  void setDefaultPaths();
 private:
   void updateRAMSizeLabel();
 };

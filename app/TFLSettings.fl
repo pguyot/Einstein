@@ -40,7 +40,7 @@ decl {\#include "TFLApp.h"} {private local
 decl {\#include "Version.h"} {private local
 }
 
-declblock {\#if TARGET_OS_WIN32} {after {\#endif}
+declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
 } {
   decl {\#include "winsock2.h"} {private local
   }
@@ -48,7 +48,7 @@ declblock {\#if TARGET_OS_WIN32} {after {\#endif}
   }
 }
 
-declblock {\#if TARGET_OS_LINUX} {after {\#endif}
+declblock {\#if TARGET_OS_LINUX} {open after {\#endif}
 } {
   decl {\#include <sys/types.h>} {private local
   }
@@ -76,10 +76,13 @@ decl {FILE *fROM;} {private local
 decl {_the_tcp_socket sData;} {private local
 }
 
+decl {\#include <stdlib.h>} {private local
+}
+
 decl {\#include <string.h>} {private local
 }
 
-decl {\#include <FL/filename.h>} {private local
+decl {\#include <FL/filename.h>} {public global
 }
 
 decl {\#include <FL/fl_file_chooser.h>} {private local
@@ -106,7 +109,7 @@ widget_class TFLSettings {
   callback {TFLSettings *me = (TFLSettings*)v;
 me->revertDialog();
 me->redraw();
-me->hide();}
+me->hide();} open
   xywh {940 193 425 400} type Double color 50 align 80
   class Fl_Window non_modal visible
 } {
@@ -219,7 +222,7 @@ if (name) {
     }
   }
   Fl_Group {} {
-    label {  Internal Flash File}
+    label {  Internal Flash File} open
     xywh {10 145 405 70} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Box wFlashPath {
@@ -235,7 +238,7 @@ if (path) {
     }
   }
   Fl_Group {} {
-    label {  Screen}
+    label {  Screen} open
     xywh {10 235 200 120} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Input wWidth {
@@ -259,7 +262,7 @@ if (path) {
     }
   }
   Fl_Group {} {
-    label {  Memory} open
+    label {  Memory}
     xywh {215 235 200 80} box GTK_DOWN_BOX labelsize 11 align 5
   } {
     Fl_Box {} {
@@ -324,39 +327,46 @@ savePreferences();
 hide();}
     xywh {320 365 95 25} color 50 labelsize 12 hide
   }
-  Function {setApp(TFLApp *App, const char *AppPath)} {open return_type void
+  Function {setApp(TFLApp *App)} {open return_type void
   } {
     code {app = App;
+
+setDefaultPaths();
+
+/*
 appPath = strdup(AppPath);
 char *end = (char*)fl_filename_name(appPath);
 if (end)
-  *end = 0;} {}
+  *end = 0;
+*/} {}
   }
   Function {loadPreferences()} {open return_type void
   } {
     code {char buf[FL_PATH_MAX];
 
-Fl_Preferences prefs(Fl_Preferences::USER, prefVendor, prefAppName);
+// Fl_Preferences prefs(Fl_Preferences::USER, prefVendor, prefAppName);
+Fl_Preferences prefs(configDirPath, prefVendor, prefAppName);
 
 // general preferences
 prefs.get("dontShow", dontShow, 0);
-
 prefs.get("soundEnabled", soundEnabled, 1);
 
 // ROM Preferences
 Fl_Preferences rom(prefs, "ROM");
 
-strcpy(buf, appPath);
-strcat(buf, "717006");
-rom.get("path", ROMPath, buf);
+// strcpy(buf, appPath);
+strcpy(buf, dataDirPath);
+strcat(buf, "/717006");
 
+rom.get("path", ROMPath, buf);
 rom.get("machine", machine, 0);
 
 // Flash Preferences
 Fl_Preferences flash(prefs, "Flash");
 
-prefs.getUserdataPath(buf, FL_PATH_MAX-15);
-strcat(buf, "internal.flash");
+//prefs.getUserdataPath(buf, FL_PATH_MAX-15);
+strcpy(buf, dataDirPath);
+strcat(buf, "/internal.flash");
 flash.get("path", FlashPath, buf);
 
 // screen preferences
@@ -373,7 +383,8 @@ memory.get("RAMSize", RAMSize, 64);} {}
   }
   Function {savePreferences()} {open return_type void
   } {
-    code {Fl_Preferences prefs(Fl_Preferences::USER, prefVendor, prefAppName);
+    code {// Fl_Preferences prefs(Fl_Preferences::USER, prefVendor, prefAppName);
+Fl_Preferences prefs(configDirPath, prefVendor, prefAppName);
 
 // general preferences
 prefs.set("dontShow", dontShow);
@@ -451,9 +462,44 @@ wStart->hide();
 wRevert->show();
 wSave->show();} {}
   }
+  Function {setDefaultPaths()} {open
+  } {
+    code {// configDirPath, dataDirPath
+
+// config: XDG_CONFIG_HOME, fall back to HOME/.einstein/
+// data: XDG_DATA_HOME, fall back to HOME/.einstein/
+
+char *cfghome = getenv("XDG_CONFIG_HOME");
+char *datahome = getenv("XDG_DATA_HOME");
+
+if (cfghome)
+{
+    snprintf(configDirPath, FL_PATH_MAX, "%s", cfghome);
+}
+else
+{
+    cfghome = getenv("HOME");
+    snprintf(configDirPath, FL_PATH_MAX, "%s/.%s", cfghome, prefAppName);
+}
+
+if (datahome)
+{
+    snprintf(dataDirPath, FL_PATH_MAX, "%s", datahome);
+}
+else
+{
+    datahome = getenv("HOME");
+    snprintf(dataDirPath, FL_PATH_MAX, "%s/.%s", datahome, prefAppName);
+}} {selected
+    }
+  }
   decl {char *ROMPath;} {public global
   }
   decl {char *FlashPath;} {public global
+  }
+  decl {char configDirPath[FL_PATH_MAX] = {0};} {public local
+  }
+  decl {char dataDirPath[FL_PATH_MAX] = {0};} {public local
   }
   decl {int machine;} {public global
   }
@@ -499,7 +545,7 @@ if (k==0) {
   }
 }
 
-Function {close_window_cb(Fl_Widget*, void *user)} {private return_type void
+Function {close_window_cb(Fl_Widget*, void *user)} {open private return_type void
 } {
   code {Fl_Window *win = (Fl_Window*)user;
 win->hide();} {}
@@ -510,8 +556,8 @@ Function {createAboutDialog()} {open
   Fl_Window wAbout {
     label About
     user_data wAbout
-    callback close_window_cb open
-    xywh {571 405 250 180} type Double hide modal
+    callback close_window_cb
+    xywh {571 405 250 180} type Double visible
   } {
     Fl_Box {} {
       xywh {92 5 69 75}
@@ -550,7 +596,7 @@ Function {createROMDownloadDialog()} {open
     xywh {520 256 415 390} type Double modal visible
   } {
     Fl_Box {} {
-      label {Downloading the Newton ROM using a network connection} selected
+      label {Downloading the Newton ROM using a network connection}
       xywh {5 5 405 25} labelfont 1 labelsize 12
     }
     Fl_Box {} {
@@ -708,8 +754,7 @@ fROM = fopen(wDownloadPath->label(), "wb");
 recvd = 0;} {}
 }
 
-Function {dataReadCB(int p, void *user_data)} {open
-} {
+Function {dataReadCB(int p, void *user_data)} {} {
   code {unsigned long n;
 
 \#if TARGET_OS_WIN32
@@ -755,8 +800,7 @@ if (recvd==8*1024*1024) {
 }} {}
 }
 
-Function {createROMDownloadProgressWindow()} {open
-} {
+Function {createROMDownloadProgressWindow()} {} {
   Fl_Window {} {open
     xywh {1080 657 285 110} type Double modal visible
   } {
