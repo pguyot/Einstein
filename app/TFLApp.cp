@@ -36,7 +36,7 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
-#include <FL/Fl_File_Chooser.H>
+#include <FL/Fl_Native_File_Chooser.H>
 
 #if TARGET_OS_LINUX
 #include "Resources/icons/EinsteinApp64.fl.h"
@@ -646,14 +646,32 @@ void TFLApp::menuBacklight()
 void TFLApp::menuInstallPackage()
 {
 	static char *filename = 0L;
-	const char *newname = fl_file_chooser("Install Package...", "Package (*.pkg)", filename);
-	if (newname) {
-		if (!filename)
-			filename = (char*)calloc(FL_PATH_MAX, 1);
-		strncpy(filename, newname, FL_PATH_MAX);
-		filename[FL_PATH_MAX] = 0;
-		mPlatformManager->InstallPackage(filename);
-	}
+    const char* newname;
+    Fl_Native_File_Chooser pkgFileChooser;
+    pkgFileChooser.title("Install Package...");
+    pkgFileChooser.filter("Newton Package\t*.pkg");
+    pkgFileChooser.directory(flSettings->dataDirPath);
+
+    switch(pkgFileChooser.show())
+    {
+        case -1:
+            (void) ::fprintf(stderr,
+                "Error when picking package to install: %s\n", pkgFileChooser.errmsg());
+            break;
+        case 1:
+            // cancelled
+            break;
+        default:
+            newname = pkgFileChooser.filename();
+            if (!filename)
+            {
+                filename = (char*)calloc(FL_PATH_MAX, 1);
+            }
+            strncpy(filename, newname, FL_PATH_MAX);
+            filename[FL_PATH_MAX] = 0;
+            mPlatformManager->InstallPackage(filename);
+            break;
+    }
 }
 
 void TFLApp::menuAbout()
