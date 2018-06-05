@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.7)
-cmake_policy(SET CMP0072 NEW)
+if(POLICY CMP0072)
+    cmake_policy(SET CMP0072 NEW)
+endif()
+
 project(einstein)
 
 set(INCLUDEPKGS TestBigEndian FindPkgConfig CheckLibraryExists)
