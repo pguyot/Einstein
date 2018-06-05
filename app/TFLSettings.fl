@@ -85,7 +85,7 @@ decl {\#include <string.h>} {private local
 decl {\#include <FL/filename.h>} {public global
 }
 
-decl {\#include <FL/fl_file_chooser.h>} {private local
+decl {\#include <FL/Fl_Native_File_Chooser.H>} {private local
 }
 
 decl {\#include <FL/Fl_Preferences.H>} {private local
@@ -186,9 +186,20 @@ me->hide();} open
     }
     Fl_Button wROMPathChoose {
       label {Choose...}
-      callback {const char *path = fl_file_chooser("Choose ROM file", "*", wROMPath->label());
-if (path) {
-  wROMPath->copy_label(path);
+      callback {Fl_Native_File_Chooser romPathChooser;
+romPathChooser.title("Choose ROM file");
+romPathChooser.preset_file(wROMPath->label());
+
+switch(romPathChooser.show())
+{
+    case -1:
+    case 1:
+    	return;
+    	break;
+    default:
+    	const char* path = romPathChooser.filename();
+    	wROMPath->copy_label(path);
+    	break;
 }}
       xywh {325 70 80 20} labelsize 12
     }
@@ -230,9 +241,20 @@ if (name) {
     }
     Fl_Button wFlashPathChoose {
       label {Choose...}
-      callback {const char *path = fl_file_chooser("Choose Flash file", "*", wFlashPath->label());
-if (path) {
-  wFlashPath->copy_label(path);
+      callback {Fl_Native_File_Chooser flashPathChooser;
+flashPathChooser.title("Choose Flash file");
+flashPathChooser.preset_file(wFlashPath->label());
+
+switch(flashPathChooser.show())
+{
+    case -1:
+    case 1:
+    	return;
+    	break;
+    default:
+    	const char* path = flashPathChooser.filename();
+    	wFlashPath->copy_label(path);
+    	break;
 }}
       xywh {325 185 80 20} labelsize 12
     }
@@ -490,8 +512,7 @@ else
 {
     datahome = getenv("HOME");
     snprintf(dataDirPath, FL_PATH_MAX, "%s/.%s", datahome, prefAppName);
-}} {selected
-    }
+}} {}
   }
   decl {char *ROMPath;} {public global
   }
@@ -551,7 +572,7 @@ Function {close_window_cb(Fl_Widget*, void *user)} {open private return_type voi
 win->hide();} {}
 }
 
-Function {createAboutDialog()} {open
+Function {createAboutDialog()} {open selected
 } {
   Fl_Window wAbout {
     label About
@@ -593,7 +614,7 @@ Function {createROMDownloadDialog()} {open
 } {
   Fl_Window wROMDownloadWindow {
     label {Download ROM via TCP/IP} open
-    xywh {520 256 415 390} type Double modal visible
+    xywh {31 197 415 390} type Double modal visible
   } {
     Fl_Box {} {
       label {Downloading the Newton ROM using a network connection}
@@ -648,12 +669,22 @@ Function {createROMDownloadDialog()} {open
       }
       Fl_Button wDownloadChoose {
         label {Choose...}
-        callback {const char *path = fl_file_chooser("Choose ROM file destination", "*", wDownloadPath->label());
-if (path) {
-  wDownloadPath->copy_label(path);
-}
-//wProgressSlider->label("Connecting...");
-//wProgressSlider->value(0);}
+        callback {Fl_Native_File_Chooser romPathChooser;
+romPathChooser.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+romPathChooser.title("Choose ROM file destination");
+romPathChooser.preset_file(wDownloadPath->label());
+
+switch(romPathChooser.show())
+{
+    case -1:
+    case 1:
+    	return;
+    	break;
+    default:
+    	const char* path = romPathChooser.filename();
+    	wDownloadPath->copy_label(path);
+    	break;
+}}
         xywh {320 300 80 20} labelsize 12
       }
     }
@@ -684,11 +715,18 @@ Function {startDump()} {open return_type void
 fROM = fopen(wDownloadPath->label(), "rb");
 if (fROM) {
   fclose(fROM);
-  if (fl_ask("The file\\n%s\\nalready exists.\\nDo you want to erase this file now?", wDownloadPath->label())==0) {
-    wProgressWindow->hide();
-    return;
+  if (fl_choice("The file\\n%s\\nalready exists.\\nDo you want to erase this file now?", "Yes", "No", 0, wDownloadPath->label() ))
+  {
+  	// 1 = No
+  	wProgressWindow->hide();
+  	return;
   }
+//  if (fl_ask("The file\\n%s\\nalready exists.\\nDo you want to erase this file now?", wDownloadPath->label())==0) {
+//    wProgressWindow->hide();
+//    return;
+//  }
 }
+
 // erase the file now
 fROM = fopen(wDownloadPath->label(), "wb");
 if (!fROM) {

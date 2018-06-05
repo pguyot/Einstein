@@ -46,7 +46,7 @@ static FILE *fROM;
 _the_tcp_socket sData;
 #include <stdlib.h>
 #include <string.h>
-#include <FL/fl_file_chooser.h>
+#include <FL/Fl_Native_File_Chooser.H>
 #include <FL/Fl_Preferences.H>
 static const char* prefVendor = "kallisys.net"; 
 static const char* prefAppName = "einstein"; 
@@ -120,9 +120,20 @@ void TFLSettings::cb_wROMDownload(Fl_Button* o, void* v) {
 }
 
 void TFLSettings::cb_wROMPathChoose_i(Fl_Button*, void*) {
-  const char *path = fl_file_chooser("Choose ROM file", "*", wROMPath->label());
-if (path) {
-  wROMPath->copy_label(path);
+  Fl_Native_File_Chooser romPathChooser;
+romPathChooser.title("Choose ROM file");
+romPathChooser.preset_file(wROMPath->label());
+
+switch(romPathChooser.show())
+{
+    case -1:
+    case 1:
+    	return;
+    	break;
+    default:
+    	const char* path = romPathChooser.filename();
+    	wROMPath->copy_label(path);
+    	break;
 };
 }
 void TFLSettings::cb_wROMPathChoose(Fl_Button* o, void* v) {
@@ -151,9 +162,20 @@ Fl_Menu_Item TFLSettings::menu_wMachineChoice[] = {
 };
 
 void TFLSettings::cb_wFlashPathChoose_i(Fl_Button*, void*) {
-  const char *path = fl_file_chooser("Choose Flash file", "*", wFlashPath->label());
-if (path) {
-  wFlashPath->copy_label(path);
+  Fl_Native_File_Chooser flashPathChooser;
+flashPathChooser.title("Choose Flash file");
+flashPathChooser.preset_file(wFlashPath->label());
+
+switch(flashPathChooser.show())
+{
+    case -1:
+    case 1:
+    	return;
+    	break;
+    default:
+    	const char* path = flashPathChooser.filename();
+    	wFlashPath->copy_label(path);
+    	break;
 };
 }
 void TFLSettings::cb_wFlashPathChoose(Fl_Button* o, void* v) {
@@ -618,12 +640,22 @@ Fl_Box *wDownloadPath=(Fl_Box *)0;
 Fl_Button *wDownloadChoose=(Fl_Button *)0;
 
 static void cb_wDownloadChoose(Fl_Button*, void*) {
-  const char *path = fl_file_chooser("Choose ROM file destination", "*", wDownloadPath->label());
-if (path) {
-  wDownloadPath->copy_label(path);
-}
-//wProgressSlider->label("Connecting...");
-//wProgressSlider->value(0);
+  Fl_Native_File_Chooser romPathChooser;
+romPathChooser.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+romPathChooser.title("Choose ROM file destination");
+romPathChooser.preset_file(wDownloadPath->label());
+
+switch(romPathChooser.show())
+{
+    case -1:
+    case 1:
+    	return;
+    	break;
+    default:
+    	const char* path = romPathChooser.filename();
+    	wDownloadPath->copy_label(path);
+    	break;
+};
 }
 
 static void cb_Cancel(Fl_Button* o, void*) {
@@ -729,11 +761,18 @@ void startDump() {
   fROM = fopen(wDownloadPath->label(), "rb");
   if (fROM) {
     fclose(fROM);
-    if (fl_ask("The file\n%s\nalready exists.\nDo you want to erase this file now?", wDownloadPath->label())==0) {
-      wProgressWindow->hide();
-      return;
+    if (fl_choice("The file\n%s\nalready exists.\nDo you want to erase this file now?", "Yes", "No", 0, wDownloadPath->label() ))
+    {
+    	// 1 = No
+    	wProgressWindow->hide();
+    	return;
     }
+  //  if (fl_ask("The file\n%s\nalready exists.\nDo you want to erase this file now?", wDownloadPath->label())==0) {
+  //    wProgressWindow->hide();
+  //    return;
+  //  }
   }
+  
   // erase the file now
   fROM = fopen(wDownloadPath->label(), "wb");
   if (!fROM) {
