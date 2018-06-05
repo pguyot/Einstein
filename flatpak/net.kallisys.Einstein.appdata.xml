@@ -2,7 +2,7 @@
 <component type="desktop">
   <id>net.kallisys.Einstein</id>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>GPL-2.0-only</project_license>
+  <project_license>GPL-2.0-or-later</project_license>
   <name>Einstein</name>
   <summary>Einstein is an Apple Newton MessagePad emulator</summary>
   <launchable type="desktop-id">net.kallisys.Einstein.desktop</launchable>
