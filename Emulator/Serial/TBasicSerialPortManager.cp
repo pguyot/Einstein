@@ -36,7 +36,7 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <sys/stat.h>
-#if !TARGET_OS_IOS
+#if !TARGET_OS_IOS && TARGET_OS_MAC
 #include <CoreServices/CoreServices.h>
 #endif
 #endif
@@ -53,7 +53,7 @@
 
 
 /*
- 
+
  TODO: change named pipe path from "Einstein Emulator" to "Einstein Platform"
 		(see: TCococaAppController: + (NSString *)getAppSupportDirectory)
 
@@ -78,7 +78,7 @@
 		transfering large data set. Speed is also still an issue that needs
 		to be fixed in Einstein.
 		https://github.com/jake-b/NewtonInspector
- DyneTK	Currently not compilable, and, according to the author, the 
+ DyneTK	Currently not compilable, and, according to the author, the
 		wrong approach to modern app development
  tntk	Eckhart Koeppen's approach to develop apps for NewtonOS on OS X. It is a
 		combination of the NewtonScript compiler newt/0, and the DCL tools to
@@ -235,7 +235,7 @@
  - enables individual DMA channels using a mask
  - works as a status register: reading it determins if a channel is enabled
  - when DMA operation completes, the corresponding bit is cleared
- 
+
  DMA disable Register (global)
  - setting a bit will pause DMA operation on that channel and clear the Enable Register bit
  - DMA also automatically disables when:
@@ -246,44 +246,44 @@
  Word Status Register (global)
  - a bit is set if a valid word still exists in the word register of that channel
    read that word to complete and= interrupted DMA operation
- 
+
 // - per channel registers
- 
+
  Control Register
  - used to configure the channel (varies per channel)
- 
+
  Base Register
  - physical start address of DMA buffer (or next buffer during chained DMA)
  - word aligned
- 
+
  Pointer Register
  - can point anywhere in the buffer
  - word aligned! Read a word and store it in the Word Register, increment by four!
  - if wrapping is enabled, will be loaded with Base Register on wrap
- 
+
  Count Register
  - number of byte remaining to be transferred, decremented by one after every byte sent
  - after wrapping, will be set to the vaule in Size Register
- 
+
  Size Register
  - can be configure to hold the buffer size. Count is loaded with Size after a wrap
  - or size in byte of DMA packet, decrements by 4 if a word is read into the word buffer until0
- 
+
  Word Register
- - four bytes are received and stored in the word register 
+ - four bytes are received and stored in the word register
  - when the register is 'full', data is copied to memory
  - if the received data had a non-module 4 size, the word register must be read as it contains the remaining bytes!
 
  Compare Register
  - generate an interrupt when the size register equals this value.
- 
- 
+
+
  DMA Interface SCC registers are:
  Tx_CMD
  Rx_CMD
 
 // ---
- 
+
 
 
  Serial port interrupts
@@ -483,7 +483,7 @@ TBasicSerialPortManager::ReadRegister( KUInt32 inOffset )
 						   (unsigned int) theResult );
 		}
 	}
-	
+
 	return theResult;
 }
 

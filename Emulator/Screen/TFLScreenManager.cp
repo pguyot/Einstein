@@ -274,7 +274,8 @@ TFLScreenManager::TFLScreenManager(
 			KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 			KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
 			Boolean inFullScreen /* = false */,
-			Boolean inScreenIsLandscape /* = true */)
+			Boolean inScreenIsLandscape /* = true */,
+            int yOffset)
 	:
 		TScreenManager(
 			inLog,
@@ -291,7 +292,7 @@ TFLScreenManager::TFLScreenManager(
 	}
 	Fl_Group *parent = Fl_Group::current();
 
-	int xo = 0, yo = 0;
+	int xo = 0, yo = 0 + yOffset;
 	if (parent->type()<FL_WINDOW) {
 		xo = parent->x();
 		yo = parent->y();
@@ -317,6 +318,7 @@ TFLScreenManager::TFLScreenManager(
 		Fl::get_system_colors();
 		((Fl_Window*)parent)->show();
 	}
+    mWidget->take_focus();
 }
 
 // -------------------------------------------------------------------------- //

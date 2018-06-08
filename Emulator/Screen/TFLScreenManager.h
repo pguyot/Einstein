@@ -64,7 +64,8 @@ public:
 				KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 				KUInt32 inPortraitHeight = kDefaultPortraitHeight,
 				Boolean inFullScreen = false,
-				Boolean inScreenIsLandscape = true);
+				Boolean inScreenIsLandscape = true,
+                int yOffset = 0);
 
 
 	///
@@ -147,19 +148,19 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet ˆ copier
+	/// \param inCopy		objet ï¿½ copier
 	///
 	TFLScreenManager( const TFLScreenManager& inCopy );
 
 	///
-	/// OpŽrateur d'assignation volontairement indisponible.
+	/// Opï¿½rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet ˆ copier
+	/// \param inCopy		objet ï¿½ copier
 	///
 	TFLScreenManager& operator = ( const TFLScreenManager& inCopy );
 
 	void unlinkWidget() { mWidget = 0L; }
-	
+
 	///
 	/// FLTK Widget class that will hold the Newton screen image
 	///

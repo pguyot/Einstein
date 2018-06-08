@@ -34,9 +34,12 @@
 #include <FL/x.H>
 #include <FL/fl_draw.h>
 #include <FL/Fl.H>
+#include <FL/Fl_Group.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Native_File_Chooser.H>
+
+#include "Resources/icons/EinsteinFLTKMenuIcons.h"
 
 #if TARGET_OS_LINUX
 #include "Resources/icons/EinsteinApp64.fl.h"
@@ -63,6 +66,10 @@
 #include "Emulator/Sound/TPulseAudioSoundManager.h"
 #endif
 
+#include "Emulator/Serial/TPipesSerialPortManager.h"
+#include "Emulator/Serial/TPtySerialPortManager.h"
+#include "Emulator/Serial/TBasiliskIISerialPortManager.h"
+
 #include "Emulator/Screen/TFLScreenManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/Network/TNetworkManager.h"
@@ -86,19 +93,121 @@
 // Local Classes
 // -------------------------------------------------------------------------- //
 
+class Fl_Einstein_ButtonBar //: public Fl_Group
+{
+
+    static void cb_BB_PowerButton(Fl_Button* o, void* v)
+    {
+        ((Fl_Einstein_ButtonBar *)v)->app->menuPower();
+    }
+    static void cb_BB_BacklightButton(Fl_Button* o, void* v)
+    {
+        ((Fl_Einstein_ButtonBar *)v)->app->menuBacklight();
+    }
+    static void cb_BB_PrefsButton(Fl_Button* o, void* v)
+    {
+        ((Fl_Einstein_ButtonBar *)v)->app->menuShowSettings();
+    }
+    static void cb_BB_PkgInstallButton(Fl_Button* o, void* v)
+    {
+        ((Fl_Einstein_ButtonBar *)v)->app->menuInstallPackage();
+    }
+
+public:
+    Fl_Einstein_ButtonBar(int xPos, int yPos, int width, int height, TFLApp *App)
+        // : Fl_Group(xPos, yPos, width, height),
+        : app(App)
+    {
+        int xOffset = 0;
+
+        // Fl_Group::current(0);
+        PowerButton = new Fl_Button(xPos+xOffset, yPos, 55, 50, "Power");
+        PowerButton->type(1);
+        PowerButton->box(FL_GTK_THIN_UP_BOX);
+        PowerButton->down_box(FL_GTK_THIN_DOWN_BOX);
+        PowerButton->image( image_button_power_on() );
+        PowerButton->labelsize(11);
+        PowerButton->callback((Fl_Callback *)cb_BB_PowerButton, (void *)this);
+
+        xOffset = xOffset + 55;
+
+        BacklightButton = new Fl_Button(xPos+xOffset, 0, 55, 50, "Backlight");
+        BacklightButton->type(1);
+        BacklightButton->box(FL_GTK_THIN_UP_BOX);
+        BacklightButton->down_box(FL_GTK_THIN_DOWN_BOX);
+        BacklightButton->image( image_button_backlight() );
+        BacklightButton->labelsize(11);
+        BacklightButton->callback((Fl_Callback *)cb_BB_BacklightButton, (void *)this);
+        xOffset = xOffset + 55;
+
+        PrefsButton = new Fl_Button(xPos+xOffset, 0, 55, 50, "Prefs");
+        PrefsButton->box(FL_GTK_THIN_UP_BOX);
+        PrefsButton->down_box(FL_GTK_THIN_DOWN_BOX);
+        PrefsButton->image( image_button_prefs() );
+        PrefsButton->labelsize(11);
+        PrefsButton->callback((Fl_Callback *)cb_BB_PrefsButton, (void *)this);
+        xOffset = xOffset + 55;
+
+        PkgInstallButton = new Fl_Button(xPos+xOffset, 0, 88, 50, "Install Package");
+        PkgInstallButton->box(FL_GTK_THIN_UP_BOX);
+        PkgInstallButton->down_box(FL_GTK_THIN_DOWN_BOX);
+        PkgInstallButton->image( image_button_install() );
+        PkgInstallButton->labelsize(11);
+        PkgInstallButton->callback((Fl_Callback *)cb_BB_PkgInstallButton, (void *)this);
+
+        xOffset = xOffset + 88;
+
+
+        yOffset = 50;
+    }
+
+    void BacklightState(Boolean new_blState)
+    {
+        if (new_blState)
+        {
+            BacklightButton->image( image_button_backlight_on() );
+        }
+        else
+        {
+            BacklightButton->image( image_button_backlight_on() );
+        }
+        blState = new_blState;
+    }
+
+    int yOffset = 0;
+
+private:
+    TFLApp *app;
+    Fl_Button *PowerButton;
+    Fl_Button *BacklightButton;
+    Fl_Button *PrefsButton;
+    Fl_Button *PkgInstallButton;
+    Boolean blState = false;
+
+};
+
 class Fl_Einstein_Window : public Fl_Window
 {
 public:
 	Fl_Einstein_Window(int ww, int hh, TFLApp *App, const char *ll=0)
-		:	Fl_Window(ww, hh, ll),
+		:	Fl_Window(ww, hh+50, ll),
 			app(App)
 	{
+        // buttonBar = new Fl_Einstein_ButtonBar(0, 0, ww, )
+        buttonBar = new Fl_Einstein_ButtonBar(0, 0, ww, hh+50, app);
+
 	}
 	Fl_Einstein_Window(int xx, int yy, int ww, int hh, TFLApp *App, const char *ll=0)
 		:	Fl_Window(xx, yy, ww, hh, ll),
 			app(App)
 	{
 	}
+
+    int getYOffset()
+    {
+        return buttonBar->yOffset;
+    }
+
 	int handle(int event)
 	{
 		if ( event==FL_PUSH && (
@@ -129,6 +238,7 @@ public:
 	}
 private:
 	TFLApp	*app;
+    Fl_Einstein_ButtonBar *buttonBar;
 	int		hideMouse_ = 0;
 };
 
@@ -281,9 +391,9 @@ TFLApp::Run( int argc, char* argv[] )
 
 	if (theScreenManagerClass == nil)
 	{
-		CreateScreenManager( "FL", portraitWidth, portraitHeight, 0 );
+		CreateScreenManager( "FL", portraitWidth, portraitHeight, 0, win->getYOffset() );
 	} else {
-		CreateScreenManager( theScreenManagerClass, portraitWidth, portraitHeight, fullscreen );
+		CreateScreenManager( theScreenManagerClass, portraitWidth, portraitHeight, fullscreen, 0);
 	}
 
 	if (theMachineString == nil)
@@ -340,9 +450,13 @@ TFLApp::Run( int argc, char* argv[] )
 		}
 
         mNetworkManager = new TNullNetwork(mLog);
+
+        mSerialPortManager = new TBasiliskIISerialPortManager(mLog, TSerialPortManager::kExternalSerialPort);
+
 		mEmulator = new TEmulator(
 					mLog, mROMImage, theFlashPath,
-					mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
+					mSoundManager, mScreenManager, mNetworkManager, ramSize << 16,
+                    mSerialPortManager);
 		mPlatformManager = mEmulator->GetPlatformManager();
 
 		if (useMonitor)
@@ -537,7 +651,8 @@ TFLApp::CreateScreenManager(
 				const char* inClass,
 				int inPortraitWidth,
 				int inPortraitHeight,
-				Boolean inFullScreen)
+				Boolean inFullScreen,
+                int yOffset)
 {
 	if (::strcmp( inClass, "FL" ) == 0)
 	{
@@ -576,7 +691,8 @@ TFLApp::CreateScreenManager(
 									theWidth,
 									theHeight,
 									inFullScreen,
-									screenIsLandscape);
+									screenIsLandscape,
+                                    yOffset);
 	} else {
 		(void) ::fprintf( stderr, "Unknown screen manager class %s\n", inClass );
 		::exit( 1 );

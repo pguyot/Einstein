@@ -46,6 +46,7 @@ class TScreenManager;
 class TLog;
 class TPlatformManager;
 class TNetworkManager;
+class TSerialPortManager;
 class TMonitor;
 class TSymbolList;
 
@@ -186,7 +187,8 @@ private:
 				const char* inClass,
 				int inPortraitWidth,
 				int inPortraitHeight,
-				Boolean inFullScreen);
+				Boolean inFullScreen,
+                int yOffset = 0);
 
 	///
 	/// Cr�e le log.
@@ -249,6 +251,7 @@ private:
 	TScreenManager*		mScreenManager;		///< Gestionnaire d'�cran.
 	TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
     TNetworkManager*    mNetworkManager;    ///< Network manager.
+    TSerialPortManager* mSerialPortManager; ///< Serial port manager.
 	TLog*				mLog;				///< Log.
 	TMonitor*			mMonitor;			///< Monitor.
 	TSymbolList*		mSymbolList;		///< List of symbols.
