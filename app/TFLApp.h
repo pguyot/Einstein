@@ -256,7 +256,6 @@ private:
 	TMonitor*			mMonitor;			///< Monitor.
 	TSymbolList*		mSymbolList;		///< List of symbols.
 	Boolean				mQuit;				///< If we should quit.
-
 	TFLSettings			*flSettings;		///< settings dialog box
 #if TARGET_OS_WIN32
     TFLAppPipeServer mPipeServer;

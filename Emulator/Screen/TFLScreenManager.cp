@@ -210,6 +210,11 @@ public:
 	int handle(int event)
 	{
 		switch (event) {
+            case FL_ENTER:
+            // Now that we are not the only widget in the window, we need to be really grabby with
+            // the keyboard focus...
+                take_focus();
+                return 0;
 			case FL_PUSH:
 				screenManager_->PenDown(penXPos(), penYPos());
 				penIsDown = true;

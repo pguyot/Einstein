@@ -77,6 +77,7 @@
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Log/TFileLog.h"
+#include "Emulator/Log/TStdOutLog.h"
 #include "Emulator/Log/TBufferLog.h"
 #include "Monitor/TMonitor.h"
 #include "Monitor/TSymbolList.h"
@@ -92,17 +93,28 @@
 // -------------------------------------------------------------------------- //
 // Local Classes
 // -------------------------------------------------------------------------- //
-
-class Fl_Einstein_ButtonBar //: public Fl_Group
+#define BUTTON_BAR_HEIGHT 50
+class Fl_Einstein_ButtonBar : public Fl_Group
 {
 
     static void cb_BB_PowerButton(Fl_Button* o, void* v)
     {
         ((Fl_Einstein_ButtonBar *)v)->app->menuPower();
+
     }
     static void cb_BB_BacklightButton(Fl_Button* o, void* v)
     {
         ((Fl_Einstein_ButtonBar *)v)->app->menuBacklight();
+        Fl::lock();
+        if (o->value())
+        {
+            o->image(image_button_backlight_on());
+        }
+        else
+        {
+            o->image(image_button_backlight());
+        }
+        Fl::unlock();
     }
     static void cb_BB_PrefsButton(Fl_Button* o, void* v)
     {
@@ -115,14 +127,13 @@ class Fl_Einstein_ButtonBar //: public Fl_Group
 
 public:
     Fl_Einstein_ButtonBar(int xPos, int yPos, int width, int height, TFLApp *App)
-        // : Fl_Group(xPos, yPos, width, height),
-        : app(App)
+        : Fl_Group(xPos, yPos, width, height),
+        app(App),
+        yOffset(height)
     {
         int xOffset = 0;
 
-        // Fl_Group::current(0);
-        PowerButton = new Fl_Button(xPos+xOffset, yPos, 55, 50, "Power");
-        PowerButton->type(1);
+        PowerButton = new Fl_Button(xPos+xOffset, yPos, 55, height, "Power");
         PowerButton->box(FL_GTK_THIN_UP_BOX);
         PowerButton->down_box(FL_GTK_THIN_DOWN_BOX);
         PowerButton->image( image_button_power_on() );
@@ -131,16 +142,17 @@ public:
 
         xOffset = xOffset + 55;
 
-        BacklightButton = new Fl_Button(xPos+xOffset, 0, 55, 50, "Backlight");
-        BacklightButton->type(1);
+        BacklightButton = new Fl_Button(xPos+xOffset, 0, 55, height, "Backlight");
+        BacklightButton->type(FL_TOGGLE_BUTTON);
         BacklightButton->box(FL_GTK_THIN_UP_BOX);
         BacklightButton->down_box(FL_GTK_THIN_DOWN_BOX);
         BacklightButton->image( image_button_backlight() );
         BacklightButton->labelsize(11);
         BacklightButton->callback((Fl_Callback *)cb_BB_BacklightButton, (void *)this);
+        BacklightButton->when(FL_WHEN_CHANGED);
         xOffset = xOffset + 55;
 
-        PrefsButton = new Fl_Button(xPos+xOffset, 0, 55, 50, "Prefs");
+        PrefsButton = new Fl_Button(xPos+xOffset, 0, 55, height, "Prefs");
         PrefsButton->box(FL_GTK_THIN_UP_BOX);
         PrefsButton->down_box(FL_GTK_THIN_DOWN_BOX);
         PrefsButton->image( image_button_prefs() );
@@ -148,17 +160,15 @@ public:
         PrefsButton->callback((Fl_Callback *)cb_BB_PrefsButton, (void *)this);
         xOffset = xOffset + 55;
 
-        PkgInstallButton = new Fl_Button(xPos+xOffset, 0, 88, 50, "Install Package");
+        PkgInstallButton = new Fl_Button(xPos+xOffset, 0, 88, height, "Install Package");
         PkgInstallButton->box(FL_GTK_THIN_UP_BOX);
         PkgInstallButton->down_box(FL_GTK_THIN_DOWN_BOX);
         PkgInstallButton->image( image_button_install() );
         PkgInstallButton->labelsize(11);
         PkgInstallButton->callback((Fl_Callback *)cb_BB_PkgInstallButton, (void *)this);
 
+        end();
         xOffset = xOffset + 88;
-
-
-        yOffset = 50;
     }
 
     void BacklightState(Boolean new_blState)
@@ -169,15 +179,29 @@ public:
         }
         else
         {
-            BacklightButton->image( image_button_backlight_on() );
+            BacklightButton->image( image_button_backlight() );
         }
         blState = new_blState;
     }
 
-    int yOffset = 0;
+    int getYOffset()
+    {
+        return yOffset;
+    }
+
+    int handle(int event)
+    {
+        switch(event) {
+            case FL_FOCUS:
+                return 0;
+        }
+        return Fl_Group::handle(event);
+    }
+
 
 private:
     TFLApp *app;
+    int yOffset = 0;
     Fl_Button *PowerButton;
     Fl_Button *BacklightButton;
     Fl_Button *PrefsButton;
@@ -190,23 +214,16 @@ class Fl_Einstein_Window : public Fl_Window
 {
 public:
 	Fl_Einstein_Window(int ww, int hh, TFLApp *App, const char *ll=0)
-		:	Fl_Window(ww, hh+50, ll),
+		:	Fl_Window(ww, hh+BUTTON_BAR_HEIGHT, ll),
 			app(App)
 	{
-        // buttonBar = new Fl_Einstein_ButtonBar(0, 0, ww, )
-        buttonBar = new Fl_Einstein_ButtonBar(0, 0, ww, hh+50, app);
-
 	}
 	Fl_Einstein_Window(int xx, int yy, int ww, int hh, TFLApp *App, const char *ll=0)
-		:	Fl_Window(xx, yy, ww, hh, ll),
+		:	Fl_Window(xx, yy, ww, hh+BUTTON_BAR_HEIGHT, ll),
 			app(App)
 	{
 	}
 
-    int getYOffset()
-    {
-        return buttonBar->yOffset;
-    }
 
 	int handle(int event)
 	{
@@ -238,7 +255,6 @@ public:
 	}
 private:
 	TFLApp	*app;
-    Fl_Einstein_ButtonBar *buttonBar;
 	int		hideMouse_ = 0;
 };
 
@@ -306,10 +322,12 @@ TFLApp::Run( int argc, char* argv[] )
 {
 	mProgramName = argv[0];
 
+    mLog = new TStdOutLog();
+
 	Fl::scheme("gtk+");
 	Fl::args(1, argv);
 	Fl::get_system_colors();
-	flSettings = new TFLSettings(425, 412, "Einstein Platform Settings");
+	flSettings = new TFLSettings(425, 400, "Einstein Platform Settings");
 #if TARGET_OS_WIN32
 	flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #elif TARGET_OS_LINUX
@@ -366,12 +384,15 @@ TFLApp::Run( int argc, char* argv[] )
 	(void) ::printf( "This is %s.\n", VERSION_STRING );
 
 	Fl_Einstein_Window *win;
+    Fl_Einstein_ButtonBar *bbar;
 	if (fullscreen) {
 		win = new Fl_Einstein_Window(xx, yy, portraitWidth, portraitHeight, this);
 		win->border(0);
 	} else {
 		win = new Fl_Einstein_Window(portraitWidth, portraitHeight, this, "Einstein");
+        bbar = new Fl_Einstein_ButtonBar(0, 0, portraitWidth, BUTTON_BAR_HEIGHT, this);
 	}
+
 
 #if TARGET_OS_WIN32
     win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
@@ -391,7 +412,8 @@ TFLApp::Run( int argc, char* argv[] )
 
 	if (theScreenManagerClass == nil)
 	{
-		CreateScreenManager( "FL", portraitWidth, portraitHeight, 0, win->getYOffset() );
+        // offset by the button bar height
+		CreateScreenManager( "FL", portraitWidth, portraitHeight, 0, (bbar ? bbar->h() : 0) );
 	} else {
 		CreateScreenManager( theScreenManagerClass, portraitWidth, portraitHeight, fullscreen, 0);
 	}
