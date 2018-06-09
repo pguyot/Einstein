@@ -238,6 +238,7 @@ public:
 			}
 			return 1;
 		}
+        // FIXME show/hiding the cursor needs to happen up in the screen manager now
 		switch (event) {
 			case FL_ENTER:
 				if (hideMouse_)
@@ -322,7 +323,28 @@ TFLApp::Run( int argc, char* argv[] )
 {
 	mProgramName = argv[0];
 
-    mLog = new TStdOutLog();
+    int indexArgs = 1;
+
+    while (indexArgs < argc)
+    {
+        if (::strcmp(argv[indexArgs], "-l") == 0) {
+			indexArgs++;
+			if ((indexArgs == argc - 1) || (mLog != nil))
+			{
+				SyntaxError( argv[indexArgs-1] );
+			}
+
+			CreateLog( argv[indexArgs] );
+		} else if (::strncmp(argv[indexArgs], "--log=", 6) == 0) {
+			if (mLog != nil)
+			{
+				SyntaxError( argv[indexArgs] );
+			}
+
+			CreateLog( &argv[indexArgs][6] );
+		}
+        indexArgs++;
+    }
 
 	Fl::scheme("gtk+");
 	Fl::args(1, argv);
@@ -610,7 +632,16 @@ TFLApp::CreateLog( const char* inFilePath )
 		(void) ::printf( "A log already exists (--monitor & --log are exclusive)\n" );
 		::exit(1);
 	}
-	mLog = new TFileLog( inFilePath );
+
+    if (inFilePath[0] == '-')
+    {
+        (void) ::printf("Logging to standard output\n");
+        mLog = new TStdOutLog();
+    }
+    else
+    {
+        mLog = new TFileLog( inFilePath );
+    }
 }
 
 

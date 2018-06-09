@@ -350,7 +350,7 @@ TFLScreenManager::PowerOn( void )
 void
 TFLScreenManager::PowerOff( void )
 {
-	// This space for rent.
+    // mWidget->window()->hide();
 }
 
 // -------------------------------------------------------------------------- //
@@ -359,6 +359,9 @@ TFLScreenManager::PowerOff( void )
 void
 TFLScreenManager::PowerOnScreen( void )
 {
+    // just the screen widget, not the entire window
+    // or show() / hide() JUST THE WIDGET?
+    // mWidget->activate();
 	printf("Power on Screen\n");
 }
 
@@ -370,6 +373,8 @@ void
 TFLScreenManager::PowerOffScreen( void )
 {
 	mWidget->window()->hide();
+    // just the screen!
+    // mWidget->deactivate();
 	printf("Power off Screen\n");
 }
 

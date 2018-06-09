@@ -16,12 +16,18 @@ option(pulseaudio "PulseAudio output support" ON)
 option(armlejit "Use ARMLE JIT" OFF)
 option(appX11 "X11+CLI application" ON)
 option(appFLTK "FLTK application" OFF)
+option(debugsound "Sound debug logging" OFF)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 
 # Release / Debug compile flags.
-set(_FLAGS_DEBUG "-g -O0 -DDEBUG -DDEBUG_SOUND -DPA_ENABLE_DEBUG_OUTPUT -DHAS_C99_LONGLONG")
+set(_FLAGS_DEBUG "-g -O0 -DDEBUG -DHAS_C99_LONGLONG")
 set(_FLAGS_RELEASE "-O3 -DRELEASE -DHAS_C99_LONGLONG")
+
+if(debugsound)
+    set(_FLAGS_DEBUG "${_FLAGS_DEBUG} -DDEBUG_SOUND -DPA_ENABLE_DEBUG_OUTPUT")
+    set(_FLAGS_RELEASE "${_FLAGS_RELEASE} -DDEBUG_SOUND -DPA_ENABLE_DEBUG_OUTPUT")
+endif()
 
 set(CMAKE_CXX_FLAGS_RELEASE "${_FLAGS_RELEASE}")
 set(CMAKE_C_FLAGS_RELEASE "${_FLAGS_RELEASE}")
