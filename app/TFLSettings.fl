@@ -488,8 +488,11 @@ wSave->show();} {}
   } {
     code {// configDirPath, dataDirPath
 
-// config: XDG_CONFIG_HOME, fall back to HOME/.einstein/
-// data: XDG_DATA_HOME, fall back to HOME/.einstein/
+// config: check XDG_CONFIG_HOME,
+//    1) fall back to $HOME/.config/VENDOR/ (per XDG spec)
+
+// data: XDG_DATA_HOME,
+//    1) fall back to $HOME/.local/share/VENDOR/ (per XDG spec)
 
 char *cfghome = getenv("XDG_CONFIG_HOME");
 char *datahome = getenv("XDG_DATA_HOME");
@@ -501,7 +504,7 @@ if (cfghome)
 else
 {
     cfghome = getenv("HOME");
-    snprintf(configDirPath, FL_PATH_MAX, "%s/.%s", cfghome, prefAppName);
+    snprintf(configDirPath, FL_PATH_MAX, "%s/.config/%s", cfghome, prefVendor);
 }
 
 if (datahome)
@@ -511,7 +514,7 @@ if (datahome)
 else
 {
     datahome = getenv("HOME");
-    snprintf(dataDirPath, FL_PATH_MAX, "%s/.%s", datahome, prefAppName);
+    snprintf(dataDirPath, FL_PATH_MAX, "%s/.local/share/%s", datahome, prefVendor);
 }} {}
   }
   decl {char *ROMPath;} {public global
@@ -542,7 +545,7 @@ else
   }
   decl {TFLApp *app;} {private global
   }
-  decl {char *appPath;} {private global
+  decl {char *appPath;} {selected private global
   }
   Function {updateRAMSizeLabel()} {open private return_type void
   } {
@@ -572,7 +575,7 @@ Function {close_window_cb(Fl_Widget*, void *user)} {open private return_type voi
 win->hide();} {}
 }
 
-Function {createAboutDialog()} {open selected
+Function {createAboutDialog()} {open
 } {
   Fl_Window wAbout {
     label About

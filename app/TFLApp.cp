@@ -345,8 +345,8 @@ TFLApp::Run( int argc, char* argv[] )
 		}
         indexArgs++;
     }
-
 	Fl::scheme("gtk+");
+    Fl::option(Fl::OPTION_FNFC_USES_GTK, true);
 	Fl::args(1, argv);
 	Fl::get_system_colors();
 	flSettings = new TFLSettings(425, 400, "Einstein Platform Settings");

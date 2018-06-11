@@ -539,8 +539,11 @@ void TFLSettings::runningMode() {
 void TFLSettings::setDefaultPaths() {
   // configDirPath, dataDirPath
   
-  // config: XDG_CONFIG_HOME, fall back to HOME/.einstein/
-  // data: XDG_DATA_HOME, fall back to HOME/.einstein/
+  // config: check XDG_CONFIG_HOME,
+  //    1) fall back to $HOME/.config/VENDOR/ (per XDG spec)
+  
+  // data: XDG_DATA_HOME,
+  //    1) fall back to $HOME/.local/share/VENDOR/ (per XDG spec)
   
   char *cfghome = getenv("XDG_CONFIG_HOME");
   char *datahome = getenv("XDG_DATA_HOME");
@@ -552,7 +555,7 @@ void TFLSettings::setDefaultPaths() {
   else
   {
       cfghome = getenv("HOME");
-      snprintf(configDirPath, FL_PATH_MAX, "%s/.%s", cfghome, prefAppName);
+      snprintf(configDirPath, FL_PATH_MAX, "%s/.config/%s", cfghome, prefVendor);
   }
   
   if (datahome)
@@ -562,7 +565,7 @@ void TFLSettings::setDefaultPaths() {
   else
   {
       datahome = getenv("HOME");
-      snprintf(dataDirPath, FL_PATH_MAX, "%s/.%s", datahome, prefAppName);
+      snprintf(dataDirPath, FL_PATH_MAX, "%s/.local/share/%s", datahome, prefVendor);
   }
 }
 
