@@ -373,6 +373,8 @@ void
 TFLScreenManager::PowerOffScreen( void )
 {
 	mWidget->window()->hide();
+    // mWidget->hide();
+    Fl::awake();
     // just the screen!
     // mWidget->deactivate();
 	printf("Power off Screen\n");
