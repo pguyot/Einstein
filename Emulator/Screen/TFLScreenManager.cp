@@ -101,9 +101,19 @@ public:
         : Fl_Box(x, y, w, h, l),
         screenManager_(s)
     {
+        int i,j;
+
         myArea = fl_create_offscreen(w, h);
         oWidth = w;
         oHeight = h;
+
+        // have to flip each character bitmap around.  Reason: FLTK???
+        // Credit: http://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith32Bits
+        for (i = 0; i < 128; i++)
+            for (j = 0; j < 13; j++)
+            {
+                screenManager_->mFontData[i][j] = ((screenManager_->mFontData[i][j] * 0x0802LU & 0x22110LU) | (screenManager_->mFontData[i][j] * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
+            }
     }
     ~Fl_Screen_Overlay_Widget()
     {
@@ -164,17 +174,7 @@ public:
         {
             xPos = (i * 8);
             c = overlayLine[i] & 0x7f;
-
-            // We have to reverse the bitmap order of each row
-            // because... FLTK or something?  Maybe it thinks bitmap is like
-            // Windows BMP?
-            for (j = 0; j < 13; j++)
-            {
-                b = screenManager_->mFontData[c][j];
-                // Credit: http://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith32Bits
-                flipped[j] = ((b * 0x0802LU & 0x22110LU) | (b * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
-            }
-            mCharBitmap = new Fl_Bitmap(flipped, 8, 13);
+            mCharBitmap = new Fl_Bitmap(screenManager_->mFontData[c], 8, 13);
             mCharBitmap->draw(xPos, yPos);
         }
         fl_end_offscreen();
