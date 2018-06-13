@@ -29,6 +29,7 @@
 
 class TThread;
 class Fl_Newton_Screen_Widget;
+class Fl_Screen_Overlay_Widget;
 
 ///
 /// Class for a screen manager using FLTK.
@@ -41,6 +42,7 @@ class TFLScreenManager
 		public TScreenManager
 {
 	friend Fl_Newton_Screen_Widget;
+    friend Fl_Screen_Overlay_Widget;
 public:
 	///
 	/// Get the dimension of the screen.
@@ -86,7 +88,17 @@ public:
 	/// This method is called by the platform manager when the emulator is
 	/// turned on.
 	///
-	virtual void	PowerOn( void );
+    virtual void	PowerOn( void );
+
+    ///
+	/// Switch the status overlay on
+	///
+	virtual void		OverlayOn();
+
+	///
+	/// Switch the status overlay off
+	///
+	virtual void		OverlayOff();
 
 	///
 	/// This method is called by the platform manager when the emulator is

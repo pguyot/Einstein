@@ -26,6 +26,7 @@
 
 // FLTK interface
 #include <FL/Fl.H>
+#include <Fl/Fl_Bitmap.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Group.H>
@@ -84,6 +85,101 @@ static const struct {unsigned short vk, fltk;} vktab[] = {
   { 58, FL_Alt_L }, { 58, FL_Alt_R }, { 0x75, FL_Delete },
 };
 
+//
+// this class generates an FLTK widget for the "overlay" area.
+//
+
+class Fl_Screen_Overlay_Widget : public Fl_Box
+{
+    friend class TScreenManager;
+    TFLScreenManager *screenManager_;
+    Fl_Offscreen myArea;
+    int oWidth, oHeight;
+
+public:
+    Fl_Screen_Overlay_Widget(int x, int y, int w, int h, const char *l, TFLScreenManager *s)
+        : Fl_Box(x, y, w, h, l),
+        screenManager_(s)
+    {
+        myArea = fl_create_offscreen(w, h);
+        oWidth = w;
+        oHeight = h;
+    }
+    ~Fl_Screen_Overlay_Widget()
+    {
+        fl_delete_offscreen(myArea);
+    }
+
+    void draw()
+    {
+        int i;
+        // update offscreen area:
+        if (screenManager_->OverlayIsOn())
+        {
+            for (i = 0; i < 4; i++)
+            {
+                if (screenManager_->mOverlayIsDirty[i])
+                {
+                    updateLine(i);
+                }
+            }
+        }
+        fl_copy_offscreen(this->x(), this->y(), this->w(), this->h(), myArea, 0, 0);
+    }
+
+    void unlinkSelf()
+	{
+		screenManager_ = 0L;
+		Fl::lock();
+		if (parent()) {
+			parent()->remove(this);
+			parent()->redraw();
+		}
+		Fl::delete_widget(this);
+		Fl::unlock();
+		Fl::awake();
+	}
+
+
+    void updateLine(int lineIdx)
+    {
+        int i, xPos, yPos, j;
+        char c;
+        KUInt8 b;
+        KUInt8 flipped[13];
+        Fl_Bitmap *mCharBitmap;
+
+        if (lineIdx > 3 || lineIdx < 0) { return; }
+        char *overlayLine = screenManager_->mOverlay[lineIdx];
+
+        xPos = 0;
+        yPos = 0 + (lineIdx * 13);
+
+        fl_begin_offscreen(myArea);
+        fl_rectf(xPos, yPos, 40*8, 13, 0, 0, 0);
+        fl_color(FL_RED);
+
+        // for each character
+        for (i = 0; i < 40; i++)
+        {
+            xPos = (i * 8);
+            c = overlayLine[i] & 0x7f;
+
+            // We have to reverse the bitmap order of each row
+            // because... FLTK or something?  Maybe it thinks bitmap is like
+            // Windows BMP?
+            for (j = 0; j < 13; j++)
+            {
+                b = screenManager_->mFontData[c][j];
+                // Credit: http://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith32Bits
+                flipped[j] = ((b * 0x0802LU & 0x22110LU) | (b * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
+            }
+            mCharBitmap = new Fl_Bitmap(flipped, 8, 13);
+            mCharBitmap->draw(xPos, yPos);
+        }
+        fl_end_offscreen();
+    }
+};
 
 ///
 /// This class generates an FLTK widget which is then automatically added to
@@ -93,10 +189,12 @@ class Fl_Newton_Screen_Widget : public Fl_Box
 {
 	unsigned char		*rgbData_;
 	TFLScreenManager	*screenManager_;
+    Fl_Screen_Overlay_Widget *mOverlayWidget;
 	int					rgbWidth_, rgbHeight_;
 	int					penX, penY, penIsDown;
 
 public:
+
 	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char *l, TFLScreenManager *s)
 		: Fl_Box(x, y, w, h, l),
 		rgbData_(0L),
@@ -106,6 +204,13 @@ public:
 		rgbWidth_ = w;
 		rgbHeight_ = h;
 		rgbData_ = (unsigned char*)calloc(w*h, 3);
+
+        TScreenManager::SRect mOverlayRect = screenManager_->mOverlayRect;
+        mOverlayWidget = new Fl_Screen_Overlay_Widget(mOverlayRect.fLeft,
+            mOverlayRect.fTop,
+            mOverlayRect.fRight-mOverlayRect.fLeft,
+            mOverlayRect.fBottom-mOverlayRect.fTop, l, s);
+
 	}
 
 	~Fl_Newton_Screen_Widget()
@@ -123,12 +228,23 @@ public:
 		return rgbHeight_;
 	}
 
+    void OverlayOn()
+    {
+        mOverlayWidget->show();
+    }
+
+    void OverlayOff()
+    {
+        mOverlayWidget->hide();
+    }
+
 	void draw()
 	{
 		// FIXME draw borders if the widget is larger than our bitmap
 		// FIXME enable clipping if the widget is smaller
 		// FIXME center the bitmap if it is smaller
 		fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_);
+        mOverlayWidget->redraw();
 		draw_label();
 	}
 
@@ -257,7 +373,6 @@ public:
 
 };
 
-
 // -------------------------------------------------------------------------- //
 //  * GetDisplaySize( void )
 // -------------------------------------------------------------------------- //
@@ -303,6 +418,11 @@ TFLScreenManager::TFLScreenManager(
 		yo = parent->y();
 	}
 
+    mOverlayRect.fLeft = GetScreenWidth()/2 - 20*8;
+	mOverlayRect.fRight = mOverlayRect.fLeft+40*8;
+	mOverlayRect.fTop = GetScreenHeight() - 16*5;
+	mOverlayRect.fBottom = mOverlayRect.fTop + 16*4;
+
 	mWidget = new Fl_Newton_Screen_Widget(
 		xo, yo, inPortraitWidth, inPortraitHeight,
 		0L, this);
@@ -322,7 +442,8 @@ TFLScreenManager::TFLScreenManager(
 	if (createWindow) {
 		Fl::get_system_colors();
 		((Fl_Window*)parent)->show();
-	}
+    }
+
     mWidget->take_focus();
 }
 
@@ -333,6 +454,20 @@ TFLScreenManager::~TFLScreenManager( void )
 {
 	//if (mWidget)
 	//	mWidget->unlinkSelf();
+}
+
+void TFLScreenManager::OverlayOn(void)
+{
+    // show the overlay
+    mWidget->OverlayOn();
+    TScreenManager::OverlayOn();
+}
+
+void TFLScreenManager::OverlayOff(void)
+{
+    // hide the overlay
+    mWidget->OverlayOff();
+    TScreenManager::OverlayOff();
 }
 
 // -------------------------------------------------------------------------- //

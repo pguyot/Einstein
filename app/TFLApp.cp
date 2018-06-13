@@ -514,6 +514,12 @@ TFLApp::Run( int argc, char* argv[] )
 			(void) ::printf( "Booting...\n" );
 		}
 
+        mScreenManager->OverlayClear();
+        mScreenManager->OverlayOn();
+        mScreenManager->OverlayPrintAt(0, 0, "Booting...", true);
+        mScreenManager->OverlayPrintProgress(1, 0);
+        mScreenManager->OverlayFlush();
+
 		Fl::lock();
 		win->show(1, argv);
 		if (hidemouse) {
