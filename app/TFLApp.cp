@@ -238,25 +238,11 @@ public:
 			}
 			return 1;
 		}
-        // FIXME show/hiding the cursor needs to happen up in the screen manager now
-		switch (event) {
-			case FL_ENTER:
-				if (hideMouse_)
-					fl_cursor(FL_CURSOR_NONE);
-				break;
-			case FL_LEAVE:
-				fl_cursor(FL_CURSOR_DEFAULT);
-				break;
-		}
 		return Fl_Window::handle(event);
 	}
-	void hideMouse() {
-		fl_cursor(FL_CURSOR_NONE);
-		hideMouse_ = 1;
-	}
+
 private:
 	TFLApp	*app;
-	int		hideMouse_ = 0;
 };
 
 // -------------------------------------------------------------------------- //
@@ -374,7 +360,6 @@ TFLApp::Run( int argc, char* argv[] )
 	const Fl_Menu_Item *theMachineMenu = flSettings->wMachineChoice->menu()+theMachineID;
 	const char* theMachineString = strdup((char*)theMachineMenu->user_data());
 	const char* theRestoreFile = nil;
-	const char* theScreenManagerClass = nil;
 	const char *theROMImagePath = strdup(flSettings->ROMPath);
 	const char *theFlashPath = strdup(flSettings->FlashPath);
 	int portraitWidth = flSettings->screenWidth;
@@ -432,13 +417,7 @@ TFLApp::Run( int argc, char* argv[] )
         CreateSoundManager( "null" );
     }
 
-	if (theScreenManagerClass == nil)
-	{
-        // offset by the button bar height
-		CreateScreenManager( "FL", portraitWidth, portraitHeight, 0, (bbar ? bbar->h() : 0) );
-	} else {
-		CreateScreenManager( theScreenManagerClass, portraitWidth, portraitHeight, fullscreen, 0);
-	}
+    CreateScreenManager( "FL", portraitWidth, portraitHeight, 0, hidemouse, (bbar ? bbar->h() : 0) );
 
 	if (theMachineString == nil)
 	{
@@ -522,9 +501,6 @@ TFLApp::Run( int argc, char* argv[] )
 
 		Fl::lock();
 		win->show(1, argv);
-		if (hidemouse) {
-			win->hideMouse();
-		}
 
 #if TARGET_OS_WIN32
 		HANDLE theThread = CreateThread(0L, 0, (LPTHREAD_START_ROUTINE)SThreadEntry, this, 0, 0L);
@@ -711,7 +687,9 @@ TFLApp::CreateScreenManager(
 				int inPortraitWidth,
 				int inPortraitHeight,
 				Boolean inFullScreen,
-                int yOffset)
+                Boolean hideMouse,
+                int yOffset
+                )
 {
 	if (::strcmp( inClass, "FL" ) == 0)
 	{
@@ -751,6 +729,7 @@ TFLApp::CreateScreenManager(
 									theHeight,
 									inFullScreen,
 									screenIsLandscape,
+                                    hideMouse,
                                     yOffset);
 	} else {
 		(void) ::fprintf( stderr, "Unknown screen manager class %s\n", inClass );

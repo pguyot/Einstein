@@ -192,13 +192,15 @@ class Fl_Newton_Screen_Widget : public Fl_Box
     Fl_Screen_Overlay_Widget *mOverlayWidget;
 	int					rgbWidth_, rgbHeight_;
 	int					penX, penY, penIsDown;
+    Boolean             hideMouse;
 
 public:
 
-	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char *l, TFLScreenManager *s)
+	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char *l, Boolean hideMouse, TFLScreenManager *s)
 		: Fl_Box(x, y, w, h, l),
 		rgbData_(0L),
 		screenManager_(s),
+        hideMouse(hideMouse),
 		penX(0), penY(0), penIsDown(0)
 	{
 		rgbWidth_ = w;
@@ -206,7 +208,8 @@ public:
 		rgbData_ = (unsigned char*)calloc(w*h, 3);
 
         TScreenManager::SRect mOverlayRect = screenManager_->mOverlayRect;
-        mOverlayWidget = new Fl_Screen_Overlay_Widget(mOverlayRect.fLeft,
+        mOverlayWidget = new Fl_Screen_Overlay_Widget(
+            mOverlayRect.fLeft,
             mOverlayRect.fTop,
             mOverlayRect.fRight-mOverlayRect.fLeft,
             mOverlayRect.fBottom-mOverlayRect.fTop, l, s);
@@ -327,10 +330,17 @@ public:
 	{
 		switch (event) {
             case FL_ENTER:
-            // Now that we are not the only widget in the window, we need to be really grabby with
-            // the keyboard focus...
+            // Now that we are not the only widget in the window, we need to be
+            // really grabby with the keyboard focus...
                 take_focus();
-                return 0;
+                if (hideMouse)
+                {
+                    fl_cursor(FL_CURSOR_NONE);
+                }
+                return 1;
+            case FL_LEAVE:
+                fl_cursor(FL_CURSOR_DEFAULT);
+                return 1;
 			case FL_PUSH:
 				screenManager_->PenDown(penXPos(), penYPos());
 				penIsDown = true;
@@ -395,6 +405,7 @@ TFLScreenManager::TFLScreenManager(
 			KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
 			Boolean inFullScreen /* = false */,
 			Boolean inScreenIsLandscape /* = true */,
+            Boolean hideMouse /* = false */,
             int yOffset)
 	:
 		TScreenManager(
@@ -425,7 +436,7 @@ TFLScreenManager::TFLScreenManager(
 
 	mWidget = new Fl_Newton_Screen_Widget(
 		xo, yo, inPortraitWidth, inPortraitHeight,
-		0L, this);
+		0L, hideMouse, this);
 
 	mWidget->label(
 		"booting...\n"

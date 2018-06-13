@@ -67,6 +67,7 @@ public:
 				KUInt32 inPortraitHeight = kDefaultPortraitHeight,
 				Boolean inFullScreen = false,
 				Boolean inScreenIsLandscape = true,
+                Boolean hideMouse = false,
                 int yOffset = 0);
 
 

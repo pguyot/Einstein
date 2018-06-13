@@ -188,6 +188,7 @@ private:
 				int inPortraitWidth,
 				int inPortraitHeight,
 				Boolean inFullScreen,
+                Boolean hideMouse,
                 int yOffset = 0);
 
 	///
