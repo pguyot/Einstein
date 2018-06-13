@@ -3,4 +3,4 @@ Name=Einstein
 Comment=Einstein Newton MessagePad Emulator
 Exec=einstein
 Type=Application
-Icon=net.kallisys.Einstein
+Icon=com.einsteindev.Einstein
