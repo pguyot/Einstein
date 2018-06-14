@@ -55,6 +55,10 @@ TSerialPortManager::TSerialPortManager(
 		mDMAManager( NULL ),
 		mMemory( NULL )
 {
+	if ( mLog )
+	{
+		mLog->FLogLine("TSerialPortManager initializing for port %c%c%c%c", (inLocationID & 0xff000000) >> 24, (inLocationID & 0x00ff0000) >> 16, (inLocationID & 0x0000ff00) >> 8, inLocationID & 0x000000ff);
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -141,7 +145,10 @@ TSerialPortManager::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 
 	if (mLog)
 	{
 		mLog->FLogLine(
-					   "Read DMA register 2.%i for channel %i : %.8X",
+					   "[%c%c%c%c] - Read DMA register %i.%i for channel %i : %.8X",
+					   (mLocationID & 0xff000000) >> 24, (mLocationID & 0x00ff0000) >> 16,
+					   (mLocationID & 0x0000ff00) >> 8, mLocationID & 0x000000ff,
+					   (int) inBank,
 					   (int) inRegister, (int) inChannel,
 					   (unsigned int) theResult );
 	}
@@ -158,7 +165,10 @@ TSerialPortManager::WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32
 	if (mLog)
 	{
 		mLog->FLogLine(
-					   "Write DMA bank 2, channel %i, register %i : %.8X",
+					   "[%c%c%c%c] - Write DMA bank %i, channel %i, register %i : %.8X",
+					   (mLocationID & 0xff000000) >> 24, (mLocationID & 0x00ff0000) >> 16,
+					   (mLocationID & 0x0000ff00) >> 8, mLocationID & 0x000000ff,
+					   (int) inBank,
 					   (int) inChannel, (int) inRegister,
 					   (unsigned int) inValue );
 	}

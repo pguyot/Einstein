@@ -658,14 +658,7 @@ static TCocoaAppController* gInstance = nil;
 
 	NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
 	
-	if ( [itemIdentifier isEqualToString:@"Preferences"] ) {
-		[item setLabel:NSLocalizedString(@"Preferences",nil)];
-		[item setPaletteLabel:[item label]];
-		[item setTarget:self];
-		[item setAction:@selector(showPreferences:)];
-		[item setImage:[NSImage imageNamed:@"button_prefs"]];
-		[item setEnabled:NO];
-	} else if ( [itemIdentifier isEqualToString:@"Install"] ) {
+	if ( [itemIdentifier isEqualToString:@"Install"] ) {
 		[item setLabel:NSLocalizedString(@"Install Package",nil)];
 		[item setPaletteLabel:[item label]];
 		[item setTarget:self];
@@ -774,7 +767,7 @@ static TCocoaAppController* gInstance = nil;
 			NSToolbarSpaceItemIdentifier,
 			NSToolbarFlexibleSpaceItemIdentifier,
 			NSToolbarCustomizeToolbarItemIdentifier, 
-			@"Preferences", @"Install", @"Power", 
+			@"Install", @"Power",
 			@"Backlight", @"Network", nil];
 }
 

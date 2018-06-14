@@ -136,7 +136,7 @@
 					[mROMFilePath release];
 				}
 #endif
-				mROMFilePath = [[thePanel URL] path];
+				self->mROMFilePath = [[thePanel URL] path];
 #if !__has_feature(objc_arc)
 				[mROMFilePath retain];
 #endif
