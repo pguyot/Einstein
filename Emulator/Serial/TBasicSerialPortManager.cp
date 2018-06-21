@@ -320,7 +320,7 @@
  */
 
 
-#if TARGET_OS_MAC
+#if TARGET_OS_MAC || TARGET_OS_LINUX
 /*
  * This is a hack that removes a reference from the 'extr' serial port driver
  * from the REx. This is required to make low level comm emulation possible.

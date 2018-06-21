@@ -474,6 +474,7 @@ TFLApp::Run( int argc, char* argv[] )
 
         mNetworkManager = new TNullNetwork(mLog);
 
+        //mSerialPortManager = new TPtySerialPortManager(mLog, TSerialPortManager::kExternalSerialPort);
         mSerialPortManager = new TBasiliskIISerialPortManager(mLog, TSerialPortManager::kExternalSerialPort);
 
 		mEmulator = new TEmulator(
