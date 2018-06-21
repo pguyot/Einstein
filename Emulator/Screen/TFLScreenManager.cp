@@ -431,7 +431,7 @@ TFLScreenManager::TFLScreenManager(
 
     mOverlayRect.fLeft = GetScreenWidth()/2 - 20*8;
 	mOverlayRect.fRight = mOverlayRect.fLeft+40*8;
-	mOverlayRect.fTop = GetScreenHeight() - 16*5;
+	mOverlayRect.fTop = GetScreenHeight() - 16*4;
 	mOverlayRect.fBottom = mOverlayRect.fTop + 16*4;
 
 	mWidget = new Fl_Newton_Screen_Widget(
