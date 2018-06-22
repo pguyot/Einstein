@@ -134,7 +134,7 @@ public:
         int xOffset = 0;
 
         PowerButton = new Fl_Button(xPos+xOffset, yPos, 55, height, "Power");
-        PowerButton->box(FL_GTK_THIN_UP_BOX);
+        PowerButton->box(FL_FLAT_BOX);
         PowerButton->down_box(FL_GTK_THIN_DOWN_BOX);
         PowerButton->image( image_button_power_on() );
         PowerButton->labelsize(11);
@@ -144,7 +144,7 @@ public:
 
         BacklightButton = new Fl_Button(xPos+xOffset, 0, 55, height, "Backlight");
         BacklightButton->type(FL_TOGGLE_BUTTON);
-        BacklightButton->box(FL_GTK_THIN_UP_BOX);
+        BacklightButton->box(FL_FLAT_BOX);
         BacklightButton->down_box(FL_GTK_THIN_DOWN_BOX);
         BacklightButton->image( image_button_backlight() );
         BacklightButton->labelsize(11);
@@ -153,15 +153,15 @@ public:
         xOffset = xOffset + 55;
 
         PrefsButton = new Fl_Button(xPos+xOffset, 0, 55, height, "Prefs");
-        PrefsButton->box(FL_GTK_THIN_UP_BOX);
+        PrefsButton->box(FL_FLAT_BOX);
         PrefsButton->down_box(FL_GTK_THIN_DOWN_BOX);
         PrefsButton->image( image_button_prefs() );
         PrefsButton->labelsize(11);
         PrefsButton->callback((Fl_Callback *)cb_BB_PrefsButton, (void *)this);
         xOffset = xOffset + 55;
 
-        PkgInstallButton = new Fl_Button(xPos+xOffset, 0, 88, height, "Install Package");
-        PkgInstallButton->box(FL_GTK_THIN_UP_BOX);
+        PkgInstallButton = new Fl_Button(width-88, 0, 88, height, "Install Package");
+        PkgInstallButton->box(FL_FLAT_BOX);
         PkgInstallButton->down_box(FL_GTK_THIN_DOWN_BOX);
         PkgInstallButton->image( image_button_install() );
         PkgInstallButton->labelsize(11);
