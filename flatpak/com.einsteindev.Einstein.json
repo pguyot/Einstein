@@ -4,6 +4,7 @@
     "runtime-version": "1.6",
     "sdk": "org.freedesktop.Sdk",
     "command": "einstein",
+
     "build-options": {
         "arch": {
             "i386":{
@@ -48,8 +49,11 @@
                 "install -Dm644 -t /app/share/applications flatpak/com.einsteindev.Einstein.desktop",
                 "install -Dm644 -t /app/share/metainfo flatpak/com.einsteindev.Einstein.appdata.xml"
             ],
+
+
             "post-install": [
-                "install -m755 bin/Linux-Release/einstein /app/bin/einstein"
+                "install -m755 bin/Linux-Release/einstein /app/bin/einstein",
+                "install -D Drivers/Einstein.rex /app/share/einstein/Einstein.rex"
             ],
             "sources": [
             {

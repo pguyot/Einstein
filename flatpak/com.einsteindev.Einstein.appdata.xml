@@ -12,7 +12,7 @@
       originally used by the Apple Newton MessagePad 2000, 2100, and Apple eMate.  Einstein
       can boot and run a copy (not supplied) of NewtonOS 2.1.
 
-      Sound output is supported.
+      Sound output and serial port emulation are also supported.
 
       You need an original Newton MessagePad 2000, 2100, or eMate in order to extract its
       operating system image in order to use Einstein.  Einstein itself can be used for this
@@ -21,11 +21,11 @@
   </description>
   <url type="homepage">https://github.com/pguyot/Einstein</url>
   <releases>
-    <release version="2018.1.0" date="2018-06-04"/>
+    <release version="2018.6.0" date="2018-06-25"/>
   </releases>
   <screenshots>
     <screenshot type="default">
-      <image type="source">https://raw.githubusercontent.com/chuma/Einstein/Linux-FLTK/Screenshots/Linux%202018-06-08.png</image>
+      <image type="source">https://raw.githubusercontent.com/chuma/Einstein/Linux-FLTK/Screenshots/Linux%202018-06-25.png</image>
     </screenshot>
   </screenshots>
  </component>

@@ -22,8 +22,11 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
+
+// FLTK Application
 #include "TFLApp.h"
 #include "TFLSettings.h"
+#include "Resources/icons/EinsteinFLTKMenuIcons.h"
 
 // ANSI C & POSIX
 #include <stdio.h>
@@ -31,6 +34,7 @@
 #include <string.h>
 #include <sys/types.h>
 
+// FLTK
 #include <FL/x.H>
 #include <FL/fl_draw.h>
 #include <FL/Fl.H>
@@ -38,8 +42,6 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Native_File_Chooser.H>
-
-#include "Resources/icons/EinsteinFLTKMenuIcons.h"
 
 #if TARGET_OS_LINUX
 #include "Resources/icons/EinsteinApp64.fl.h"
@@ -124,6 +126,21 @@ class Fl_Einstein_ButtonBar : public Fl_Group
     {
         ((Fl_Einstein_ButtonBar *)v)->app->menuInstallPackage();
     }
+    static void cb_BB_NetworkButton(Fl_Button* o, void* v)
+    {
+        ((Fl_Einstein_ButtonBar *)v)->app->menuNetwork();
+        Fl::lock();
+        if (o->value())
+        {
+            o->image(image_button_network_in());
+        }
+        else
+        {
+            o->image(image_button_network());
+        }
+        Fl::unlock();
+    }
+
 
 public:
     Fl_Einstein_ButtonBar(int xPos, int yPos, int width, int height, TFLApp *App)
@@ -150,6 +167,18 @@ public:
         BacklightButton->labelsize(11);
         BacklightButton->callback((Fl_Callback *)cb_BB_BacklightButton, (void *)this);
         BacklightButton->when(FL_WHEN_CHANGED);
+        xOffset = xOffset + 55;
+
+        NetworkButton = new Fl_Button(xPos+xOffset, yPos, 55, height, "Network");
+        NetworkButton->type(FL_TOGGLE_BUTTON);
+        NetworkButton->box(FL_FLAT_BOX);
+        NetworkButton->down_box(FL_GTK_THIN_DOWN_BOX);
+        NetworkButton->image(image_button_network());
+        NetworkButton->labelsize(11);
+        NetworkButton->callback((Fl_Callback *)cb_BB_NetworkButton, (void *) this);
+        NetworkButton->when(FL_WHEN_CHANGED);
+        // Deactivate network button, since inserting the card crashes my emulator
+        NetworkButton->deactivate();
         xOffset = xOffset + 55;
 
         PrefsButton = new Fl_Button(xPos+xOffset, 0, 55, height, "Prefs");
@@ -203,6 +232,7 @@ private:
     TFLApp *app;
     int yOffset = 0;
     Fl_Button *PowerButton;
+    Fl_Button *NetworkButton;
     Fl_Button *BacklightButton;
     Fl_Button *PrefsButton;
     Fl_Button *PkgInstallButton;
@@ -796,6 +826,11 @@ void TFLApp::menuPower()
 void TFLApp::menuBacklight()
 {
 	mPlatformManager->SendBacklightEvent();
+}
+
+void TFLApp::menuNetwork()
+{
+    mPlatformManager->SendNetworkCardEvent();
 }
 
 void TFLApp::menuInstallPackage()

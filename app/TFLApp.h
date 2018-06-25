@@ -115,6 +115,11 @@ public:
 	///
 	void menuBacklight();
 
+    ///
+    /// user requested inserting / removing network card
+    ///
+    void menuNetwork();
+
 	///
 	/// user requested to install a package
 	///
