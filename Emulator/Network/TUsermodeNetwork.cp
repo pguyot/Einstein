@@ -105,9 +105,10 @@
 
 
 #ifdef __ANDROID__ 
-# include <stdio.h>
 # include <fcntl.h>
+# include <stdio.h>
 # include <stdlib.h>
+# include <string.h>
 #else
 #if !RASPBERRY_PI && !TARGET_OS_LINUX
 # include <sys/sockio.h>

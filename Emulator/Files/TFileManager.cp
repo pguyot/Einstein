@@ -216,7 +216,7 @@ KSInt32
 TFileManager::do_sys_close( KUInt32 fp )
 {
 	if (FILE_LOGGING) {
-		fprintf(stdout, "%s fp=%i\n", __PRETTY_FUNCTION__, fp);
+		fprintf(stdout, "%s fp=%lu\n", __PRETTY_FUNCTION__, fp);
 	}
 	if (mLog) {
 		mLog->LogLine( "do_sys_close" );
@@ -250,7 +250,7 @@ KSInt32
 TFileManager::do_sys_istty( KUInt32 fp )
 {
 	if (FILE_LOGGING) {
-		fprintf(stdout, "%s fp=%i\n", __PRETTY_FUNCTION__, fp);
+		fprintf(stdout, "%s fp=%lu\n", __PRETTY_FUNCTION__, fp);
 	}
 	if (mLog) {
 		mLog->LogLine( "do_sys_istty" );
@@ -273,7 +273,7 @@ KSInt32
 TFileManager::do_sys_read( KUInt32 fp, void *buf, KUInt32 nbyte )
 {
 	if (FILE_LOGGING) {
-		fprintf(stdout, "%s fp=%i, buf=%p, nbyte=%i\n", __PRETTY_FUNCTION__, fp, buf, nbyte);
+		fprintf(stdout, "%s fp=%lu, buf=%p, nbyte=%lu\n", __PRETTY_FUNCTION__, fp, buf, nbyte);
 	}
 	if (mLog) {
 		mLog->LogLine( "do_sys_read" );
@@ -309,7 +309,7 @@ KSInt32
 TFileManager::do_sys_write( KUInt32 fp, const void *buf, KUInt32 nbyte )
 {
 	if (FILE_LOGGING) {
-		fprintf(stdout, "%s fp=%i, buf=%p, nbyte=%i\n", __PRETTY_FUNCTION__, fp, buf, nbyte);
+		fprintf(stdout, "%s fp=%lu, buf=%p, nbyte=%lu\n", __PRETTY_FUNCTION__, fp, buf, nbyte);
 	}
 	if (mLog) {
 		mLog->LogLine( "do_sys_write" );
@@ -338,7 +338,7 @@ KSInt32
 TFileManager::do_sys_set_input_notify( KUInt32 fp, KUInt32 address )
 {
 	if (FILE_LOGGING) {
-		fprintf(stdout, "%s fp=%i, address=0x%08x\n", __PRETTY_FUNCTION__, fp, address);
+		fprintf(stdout, "%s fp=%lu, address=0x%08lx\n", __PRETTY_FUNCTION__, fp, address);
 	}
 	if (mLog) {
 		mLog->LogLine( "do_sys_set_input_notify" );
@@ -359,7 +359,7 @@ KSInt32
 TFileManager::do_sys_seek( KUInt32 fp, KUInt32 pos )
 {
 	if (FILE_LOGGING) {
-		fprintf(stdout, "%s fp=%i, pos=%i\n", __PRETTY_FUNCTION__, fp, pos);
+		fprintf(stdout, "%s fp=%lu, pos=%lu\n", __PRETTY_FUNCTION__, fp, pos);
 	}
 	if (mLog) {
 		mLog->LogLine( "do_sys_seek" );
@@ -388,7 +388,7 @@ KSInt32
 TFileManager::do_sys_flen( KUInt32 fp )
 {
 	if (FILE_LOGGING) {
-		fprintf(stdout, "%s fp=%i\n", __PRETTY_FUNCTION__, fp);
+		fprintf(stdout, "%s fp=%lu\n", __PRETTY_FUNCTION__, fp);
 	}
 	if (mLog) {
 		mLog->LogLine( "do_sys_flen" );

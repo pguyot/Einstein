@@ -462,7 +462,7 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 			
 			// Unhandled :(
 			else {
-				fprintf(stderr, "unknown TapFileCntl command: 0x%02x\n", command);
+				fprintf(stderr, "unknown TapFileCntl command: 0x%02lx\n", command);
 				BreakInMonitor();
 				result = -1;
 			}

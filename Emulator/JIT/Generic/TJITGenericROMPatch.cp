@@ -108,7 +108,7 @@ TJITGenericPatchObject *TJITGenericPatchManager::GetPatchAt(KUInt32 ix)
 	if (ix<mPatchListTop) {
 		return mPatchList[ix];
 	} else {
-		fprintf(stderr, "ERROR in %s %d: accessing invalid patch index %d of %d\n",
+		fprintf(stderr, "ERROR in %s %d: accessing invalid patch index %lu of %lu\n",
 				__FILE__, __LINE__, ix, mPatchListTop);
 		return 0;
 	}
@@ -151,7 +151,7 @@ void TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, const std::string& i
 		for (KUInt32 i=0; i<mPatchListTop; i++) {
 			mPatchList[i]->Apply(inROMPtr);
 		}
-		fprintf(stderr, "%u patches applied\n", GetNumPatches());
+		fprintf(stderr, "%lu patches applied\n", GetNumPatches());
 	}
 }
 
@@ -191,12 +191,12 @@ TJITGenericPatchObject::~TJITGenericPatchObject()
 KUInt32 TJITGenericPatchObject::GetOffsetInROM()
 {
 	if (mAddress>=TMemoryConsts::kHighROMEnd) {
-		fprintf(stderr, "ERROR in %s %d: patch address not in ROM at 0x%08X in patch '%s'\n",
+		fprintf(stderr, "ERROR in %s %d: patch address not in ROM at 0x%08lX in patch '%s'\n",
 				__FILE__, __LINE__, mAddress, mName?mName:"(unnamed)");
 		return 0;
 	}
 	if (mAddress&0x00000003) {
-		fprintf(stderr, "ERROR in %s %d: patch address not word-aligned at 0x%08X in patch '%s'\n",
+		fprintf(stderr, "ERROR in %s %d: patch address not word-aligned at 0x%08lX in patch '%s'\n",
 				__FILE__, __LINE__, mAddress, mName?mName:"(unnamed)");
 		return 0;
 	}

@@ -278,7 +278,7 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_setNewtonID( J
 		jboolean isCopy;
 		KUInt32 id0, id1;
 		const char *cID = env->GetStringUTFChars(jID, &isCopy);
-		sscanf(cID, "%08x%08x", &id0, &id1);
+		sscanf(cID, "%08lx%08lx", &id0, &id1);
 		theApp->SetNewtonID(id0, id1);
 		env->ReleaseStringUTFChars(jID, cID);
 	}
