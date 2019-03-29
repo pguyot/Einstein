@@ -1,5 +1,5 @@
 // ==============================
-// File:			proteus.cpp
+// File:			squash.cpp
 // Project:			Einstein
 //
 // Copyright 2019 by Matthais Melcher (proteus@matthiasm.com).
@@ -21,39 +21,33 @@
 // $Id$
 // ==============================
 
+/*
+ The "squash" tool removes all .aif ROM image based information from
+ a give proteus file.
 
-#include "proteus.h"
+ The "proteus.cpp" file is a monolithic handwritten C++ code file that can
+ also contain a readable copy of the .aif image, created by "analyze".
 
-// --- general includes
+ Task (- = implemented, * = still to do):
+  * read proteus file line by line
+  * compress lines that start with "// /+ 0x00000000-0x11111111 +/"
+  * hand-written code is never changed
+  * save squashed file, replacing the original proteus file
 
-
-// --- macros
-
-
-// --- class predeclarations
-
-
-// --- typedefs
-
-
-// --- classes
+ */
 
 
-// --- globals
+/*
+ // /* 0x0071FC4C-0x007EE048...
+ */
 
-// /* 0x0c008400-0x0c107e18 */
+#include <iostream>
 
-// --- ROM
-
-// /* 0x00000000-0x0071FC4C */
-
-// --- RExBlock
-
-// /* 0x0071FC4C-0x007EE048 */
-
-// --- Jump Table (not used here)
-
-//-/* 0x01a00000-0x01c1085C */
+int main(int argc, const char * argv[]) {
+    // insert code here...
+    std::cout << argv[0] << " " << argv[1] << " " << argv[2] << "\n";
+    return 0;
+}
 
 // ============================================================================== //
 // I've ended up calling my cat Brexit. It wakes me up meowing like crazy every
