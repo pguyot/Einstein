@@ -105,9 +105,10 @@
 		C901E52E1326566D0074513E /* TIOException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BD111B7570002165EC /* TIOException.cp */; };
 		C901E52F1326566F0074513E /* TMemError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B8111B7570002165EC /* TMemError.cp */; };
 		C901E530132656710074513E /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
-		C9258B40224EAEC4000C7F95 /* analyze.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B3F224EAEC4000C7F95 /* analyze.cpp */; };
-		C9258B4F224EAF20000C7F95 /* squash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B4E224EAF20000C7F95 /* squash.cpp */; };
 		C9258B57224EB093000C7F95 /* proteus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B55224EB093000C7F95 /* proteus.cpp */; };
+		C9258B5B225028CC000C7F95 /* Analyze.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B5A225028CC000C7F95 /* Analyze.cpp */; };
+		C9258B5C225028CC000C7F95 /* Analyze.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B5A225028CC000C7F95 /* Analyze.cpp */; };
+		C9258B5D225028D4000C7F95 /* Squash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B58225028B7000C7F95 /* Squash.cpp */; };
 		C92FC71E209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
@@ -522,11 +523,11 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* Einstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Einstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9258B3D224EAEC4000C7F95 /* analyze */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = analyze; sourceTree = BUILT_PRODUCTS_DIR; };
-		C9258B3F224EAEC4000C7F95 /* analyze.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = analyze.cpp; sourceTree = "<group>"; };
 		C9258B4C224EAF20000C7F95 /* squash */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = squash; sourceTree = BUILT_PRODUCTS_DIR; };
-		C9258B4E224EAF20000C7F95 /* squash.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = squash.cpp; sourceTree = "<group>"; };
 		C9258B55224EB093000C7F95 /* proteus.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = proteus.cpp; sourceTree = "<group>"; };
 		C9258B56224EB093000C7F95 /* proteus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = proteus.h; sourceTree = "<group>"; };
+		C9258B58225028B7000C7F95 /* Squash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Squash.cpp; path = ../../../../Tools/Squash/Squash.cpp; sourceTree = "<group>"; };
+		C9258B5A225028CC000C7F95 /* Analyze.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Analyze.cpp; path = ../../../../Tools/Analyze/Analyze.cpp; sourceTree = "<group>"; };
 		C92FC717209374B500EF4BB1 /* TPipesSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPipesSerialPortManager.h; sourceTree = "<group>"; };
 		C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPipesSerialPortManager.cp; sourceTree = "<group>"; };
 		C932824511D0CF0A003B93C3 /* button_network_in.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network_in.png; sourceTree = "<group>"; };
@@ -1104,7 +1105,7 @@
 		C9258B46224EAEED000C7F95 /* Squash */ = {
 			isa = PBXGroup;
 			children = (
-				C9258B4E224EAF20000C7F95 /* squash.cpp */,
+				C9258B58225028B7000C7F95 /* Squash.cpp */,
 			);
 			path = Squash;
 			sourceTree = "<group>";
@@ -1112,7 +1113,7 @@
 		C9258B47224EAEED000C7F95 /* Analyze */ = {
 			isa = PBXGroup;
 			children = (
-				C9258B3F224EAEC4000C7F95 /* analyze.cpp */,
+				C9258B5A225028CC000C7F95 /* Analyze.cpp */,
 			);
 			path = Analyze;
 			sourceTree = "<group>";
@@ -2322,6 +2323,7 @@
 				C99E3531111B7C08002165EC /* TNativePrimitives.cp in Sources */,
 				C932C4C211A1AB5D00F6A7E4 /* TNE2000Card.cp in Sources */,
 				C962429711B69A9D00EE66F3 /* TUsermodeNetwork.cp in Sources */,
+				C9258B5B225028CC000C7F95 /* Analyze.cpp in Sources */,
 				C96242A011B6A20A00EE66F3 /* TNetworkManager.cp in Sources */,
 				DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */,
 				C9B4AB88123D674400D8D2C7 /* TBufferLog.cp in Sources */,
@@ -2350,7 +2352,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C9258B40224EAEC4000C7F95 /* analyze.cpp in Sources */,
+				C9258B5C225028CC000C7F95 /* Analyze.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2358,7 +2360,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C9258B4F224EAF20000C7F95 /* squash.cpp in Sources */,
+				C9258B5D225028D4000C7F95 /* Squash.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
