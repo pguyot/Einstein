@@ -36,11 +36,6 @@
 
  */
 
-
-/*
- // /* 0x0071FC4C-0x007EE048...
- */
-
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
@@ -110,6 +105,9 @@ int squash(const char *filename)
 			}
 			::fputs(line, out);
 		}
+	}
+	if (segPending) {
+		::fprintf(out, "// /* 0x%08X-0x%08X */\n", startSeg, endSeg);
 	}
 	fclose(f);
 	fclose(out);

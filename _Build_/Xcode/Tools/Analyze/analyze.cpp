@@ -56,17 +56,130 @@
 
  */
 
-#include <iostream>
-
 // Topic, Issue, Knowledge, Effect, Conclusion, Finding, Discovery, Clue
 // gROMMagicPointerTable
 // gROMSoupData
 // gROMSoupDataSize
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
-    return 0;
+#include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
+#include <vector>
+
+std::vector<const char*> proteusFileList;
+
+int readArgs(int argc, const char * argv[])
+{
+	for (int i=1; i<argc; i++) {
+		const char *arg = argv[i];
+		if (arg==nullptr || arg[0]==0) {
+			fprintf(stderr, "Error: invalid parameter %d\n", i);
+			return 30;
+		}
+		// everything that is not a recognized flag is saved a a path to a proteus flag
+		if (::access(arg, R_OK)!=0) {
+			fprintf(stderr, "Error: can't read file \"%s\": %s\n", arg, strerror(errno));
+			return 30;
+		}
+		proteusFileList.push_back(argv[i]);
+	}
+	return 0;
+}
+
+
+int writeSeg(FILE *out, uint32_t startSeg, uint32_t endSeg)
+{
+	// TODO: loop through all clues in the given range and write the clue to 'out'
+	::fprintf(out, "// /* 0x%08X-0x%08X */\n", startSeg, endSeg);
+
+	return 0;
+}
+
+
+int replenish(const char *filename)
+{
+	int ret = 0;
+
+	FILE *f = fopen(filename, "r");
+	if (!f) {
+		fprintf(stderr, "Error: can't open file \"%s\" for reading: %s\n", filename, strerror(errno));
+		return 30;
+	}
+	char targetfilename[2048];
+	strcpy(targetfilename, filename);
+	strcat(targetfilename, ".sq");
+	FILE *out = fopen(targetfilename, "wb");
+	if (!out) {
+		fprintf(stderr, "Error: can't open file \"%s\" for writing: %s\n", targetfilename, strerror(errno));
+		fclose(f);
+		return 30;
+	}
+
+	char line[2049];
+	uint32_t startLine, endLine, startSeg = 0, endSeg = 0;
+	bool segPending = false;
+	for (;;) {
+		if (::feof(f)) break;
+		char *fret = ::fgets(line, 2048, f);
+		if (fret==nullptr) break; // we could handle eof and errors separately here
+		int n = ::sscanf(line, "// /* 0x%08X-0x%08X ", &startLine, &endLine);
+		if (n==1) { endLine = startLine+4; n = 2; }
+		if (n==2) {
+			if (segPending) {
+				endSeg = endLine;
+			} else {
+				startSeg = startLine;
+				endSeg = endLine;
+				segPending = true;
+			}
+		} else {
+			if (segPending) {
+				writeSeg(out, startSeg, endSeg);
+				segPending = false;
+			}
+			::fputs(line, out);
+		}
+	}
+	if (segPending) {
+		writeSeg(out, startSeg, endSeg);
+	}
+	fclose(f);
+	fclose(out);
+
+	ret = ::remove(filename);
+	if (ret!=0) {
+		fprintf(stderr, "Error: can't remove file \"%s\": %s\n", filename, strerror(errno));
+		return 30;
+	}
+
+	ret = ::rename(targetfilename, filename);
+	if (ret!=0) {
+		fprintf(stderr, "Error: can't rename file \"%s\" to \"%s\": %s\n", targetfilename, filename, strerror(errno));
+		return 30;
+	}
+
+	return ret;
+}
+
+
+int main(int argc, const char * argv[])
+{
+	int ret = 0;
+	ret = readArgs(argc, argv);
+	if (ret!=0) {
+		fprintf(stderr, "Usage: analyze "
+				"[--aif path_to_ARM_image_file.aif] "
+				"[path_to_proteus_file.cpp ...]\n");
+		return ret;
+	}
+	for (auto &filename: proteusFileList) {
+		ret = replenish(filename);
+		if (ret!=0) {
+			fprintf(stderr, "Aborting: can't replenish file \"%s\"\n", filename);
+			return ret;
+		}
+	}
+	return ret;
 }
 
 

@@ -1,5 +1,5 @@
 // ==============================
-// File:			proteus.cpp
+// File:			Proteus.cpp
 // Project:			Einstein
 //
 // Copyright 2019 by Matthais Melcher (proteus@matthiasm.com).
@@ -22,7 +22,7 @@
 // ==============================
 
 
-#include "proteus.h"
+#include "Proteus.h"
 
 // --- general includes
 
