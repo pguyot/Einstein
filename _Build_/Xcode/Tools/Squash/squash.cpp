@@ -29,10 +29,10 @@
  also contain a readable copy of the .aif image, created by "analyze".
 
  Task (- = implemented, * = still to do):
-  * read proteus file line by line
-  * compress lines that start with "// /+ 0x00000000-0x11111111 +/"
-  * hand-written code is never changed
-  * save squashed file, replacing the original proteus file
+  - read proteus file line by line
+  - compress lines that start with "// /+ 0x00000000-0x11111111 +/"
+  - hand-written code is never changed
+  - save squashed file, replacing the original proteus file
 
  */
 
@@ -41,12 +41,111 @@
  // /* 0x0071FC4C-0x007EE048...
  */
 
-#include <iostream>
+#include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
+#include <vector>
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << argv[0] << " " << argv[1] << " " << argv[2] << "\n";
-    return 0;
+std::vector<const char*> proteusFileList;
+
+int readArgs(int argc, const char * argv[])
+{
+	for (int i=1; i<argc; i++) {
+		const char *arg = argv[i];
+		if (arg==nullptr || arg[0]==0) {
+			fprintf(stderr, "Error: invalid parameter %d\n", i);
+			return 30;
+		}
+		// everything that is not a recognized flag is saved a a path to a proteus flag
+		if (::access(arg, R_OK)!=0) {
+			fprintf(stderr, "Error: can't read file \"%s\": %s\n", arg, strerror(errno));
+			return 30;
+		}
+		proteusFileList.push_back(argv[i]);
+	}
+	return 0;
+}
+
+
+int squash(const char *filename)
+{
+	int ret = 0;
+
+	FILE *f = fopen(filename, "r");
+	if (!f) {
+		fprintf(stderr, "Error: can't open file \"%s\" for reading: %s\n", filename, strerror(errno));
+		return 30;
+	}
+	char targetfilename[2048];
+	strcpy(targetfilename, filename);
+	strcat(targetfilename, ".sq");
+	FILE *out = fopen(targetfilename, "wb");
+	if (!out) {
+		fprintf(stderr, "Error: can't open file \"%s\" for writing: %s\n", targetfilename, strerror(errno));
+		fclose(f);
+		return 30;
+	}
+
+	char line[2049];
+	uint32_t startLine, endLine, startSeg = 0, endSeg = 0;
+	bool segPending = false;
+	for (;;) {
+		if (::feof(f)) break;
+		char *fret = ::fgets(line, 2048, f);
+		if (fret==nullptr) break; // we could handle eof and errors separately here
+		int n = ::sscanf(line, "// /* 0x%08X-0x%08X ", &startLine, &endLine);
+		if (n==1) { endLine = startLine+4; n = 2; }
+		if (n==2) {
+			if (segPending) {
+				endSeg = endLine;
+			} else {
+				startSeg = startLine;
+				endSeg = endLine;
+				segPending = true;
+			}
+		} else {
+			if (segPending) {
+				::fprintf(out, "// /* 0x%08X-0x%08X */\n", startSeg, endSeg);
+				segPending = false;
+			}
+			::fputs(line, out);
+		}
+	}
+	fclose(f);
+	fclose(out);
+
+	ret = ::remove(filename);
+	if (ret!=0) {
+		fprintf(stderr, "Error: can't remove file \"%s\": %s\n", filename, strerror(errno));
+		return 30;
+	}
+
+	ret = ::rename(targetfilename, filename);
+	if (ret!=0) {
+		fprintf(stderr, "Error: can't rename file \"%s\" to \"%s\": %s\n", targetfilename, filename, strerror(errno));
+		return 30;
+	}
+
+	return ret;
+}
+
+
+int main(int argc, const char * argv[])
+{
+	int ret = 0;
+	ret = readArgs(argc, argv);
+	if (ret!=0) {
+		fprintf(stderr, "Usage: squash [path_to_proteus_file.cpp ...]\n");
+		return ret;
+	}
+	for (auto &filename: proteusFileList) {
+		ret = squash(filename);
+		if (ret!=0) {
+			fprintf(stderr, "Aborting: can't squash file \"%s\"\n", filename);
+			return ret;
+		}
+	}
+    return ret;
 }
 
 // ============================================================================== //

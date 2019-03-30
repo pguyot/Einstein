@@ -58,6 +58,7 @@
 
 #include <iostream>
 
+// Topic, Issue, Knowledge, Effect, Conclusion, Finding, Discovery, Clue
 // gROMMagicPointerTable
 // gROMSoupData
 // gROMSoupDataSize
