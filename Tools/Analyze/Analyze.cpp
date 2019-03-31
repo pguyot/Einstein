@@ -61,12 +61,21 @@
 // gROMSoupData
 // gROMSoupDataSize
 
+#include "Analyze.h"
+#include "AifFileReader.h"
+#include "Database.h"
+
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <errno.h>
 #include <vector>
 
 std::vector<const char*> proteusFileList;
+
+const char *gAifFilepath = nullptr;
+const char *gRexFilepath = nullptr;
+
 
 int readArgs(int argc, const char * argv[])
 {
@@ -76,12 +85,19 @@ int readArgs(int argc, const char * argv[])
 			fprintf(stderr, "Error: invalid parameter %d\n", i);
 			return 30;
 		}
-		// everything that is not a recognized flag is saved a a path to a proteus flag
-		if (::access(arg, R_OK)!=0) {
-			fprintf(stderr, "Error: can't read file \"%s\": %s\n", arg, strerror(errno));
-			return 30;
+		if (strcmp(arg, "--aif")==0 && i+1<argc) {
+			gAifFilepath = strdup(argv[i+1]);
+			i++;
+		} else if (strcmp(arg, "--rex")==0 && i+1<argc) {
+			gRexFilepath = strdup(argv[i+1]);
+			i++;
+		} else {
+			if (::access(arg, R_OK)!=0) { // everything that is not a recognized flag is saved a a path to a proteus flag
+				fprintf(stderr, "Error: can't read file \"%s\": %s\n", arg, strerror(errno));
+				return 30;
+			}
+			proteusFileList.push_back(argv[i]);
 		}
-		proteusFileList.push_back(argv[i]);
 	}
 	return 0;
 }
@@ -90,7 +106,8 @@ int readArgs(int argc, const char * argv[])
 int writeSeg(FILE *out, uint32_t startSeg, uint32_t endSeg)
 {
 	// TODO: loop through all clues in the given range and write the clue to 'out'
-	::fprintf(out, "// /* 0x%08X-0x%08X */\n", startSeg, endSeg);
+	//::fprintf(out, "// /* 0x%08X-0x%08X */\n", startSeg, endSeg);
+	DB.write(out, startSeg, endSeg);
 
 	return 0;
 }
@@ -162,16 +179,35 @@ int replenish(const char *filename)
 }
 
 
+int printUsage() {
+	fprintf(stderr, "Usage: analyze "
+			"--aif path_to_ARM_image_file.aif "
+			"--rex path_to_ROM_extension_file.rex "
+			"path_to_proteus_file.cpp [...]\n");
+	return 30;
+}
+
 int main(int argc, const char * argv[])
 {
 	int ret = 0;
 	ret = readArgs(argc, argv);
 	if (ret!=0) {
-		fprintf(stderr, "Usage: analyze "
-				"[--aif path_to_ARM_image_file.aif] "
-				"[path_to_proteus_file.cpp ...]\n");
-		return ret;
+		return printUsage();
 	}
+
+	if (!gAifFilepath) {
+		fprintf(stderr, "Error: aif filename not provided\n");
+		return printUsage();
+	}
+	if (!gRexFilepath) {
+		fprintf(stderr, "Error: Rex filename not provided\n");
+		return printUsage();
+	}
+	ret = readARMImageFile(gAifFilepath);
+	if (ret!=0) return ret;
+	ret = readREXFile(gRexFilepath);
+	if (ret!=0) return ret;
+
 	for (auto &filename: proteusFileList) {
 		ret = replenish(filename);
 		if (ret!=0) {

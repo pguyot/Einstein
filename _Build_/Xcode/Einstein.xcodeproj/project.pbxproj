@@ -109,6 +109,9 @@
 		C9258B5B225028CC000C7F95 /* Analyze.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B5A225028CC000C7F95 /* Analyze.cpp */; };
 		C9258B5C225028CC000C7F95 /* Analyze.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B5A225028CC000C7F95 /* Analyze.cpp */; };
 		C9258B5D225028D4000C7F95 /* Squash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B58225028B7000C7F95 /* Squash.cpp */; };
+		C9258B6122502A81000C7F95 /* AifFileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B6022502A81000C7F95 /* AifFileReader.cpp */; };
+		C9258B662250303D000C7F95 /* Database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B632250303D000C7F95 /* Database.cpp */; };
+		C9258B672250303D000C7F95 /* Memory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B642250303D000C7F95 /* Memory.cpp */; };
 		C92FC71E209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
@@ -528,6 +531,13 @@
 		C9258B56224EB093000C7F95 /* proteus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = proteus.h; sourceTree = "<group>"; };
 		C9258B58225028B7000C7F95 /* Squash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Squash.cpp; path = ../../../../Tools/Squash/Squash.cpp; sourceTree = "<group>"; };
 		C9258B5A225028CC000C7F95 /* Analyze.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Analyze.cpp; path = ../../../../Tools/Analyze/Analyze.cpp; sourceTree = "<group>"; };
+		C9258B5E22502A80000C7F95 /* AifFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AifFileReader.h; path = ../../../../Tools/Analyze/AifFileReader.h; sourceTree = "<group>"; };
+		C9258B5F22502A81000C7F95 /* Analyze.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Analyze.h; path = ../../../../Tools/Analyze/Analyze.h; sourceTree = "<group>"; };
+		C9258B6022502A81000C7F95 /* AifFileReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AifFileReader.cpp; path = ../../../../Tools/Analyze/AifFileReader.cpp; sourceTree = "<group>"; };
+		C9258B622250303D000C7F95 /* Database.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Database.h; path = ../../../../Tools/Analyze/Database.h; sourceTree = "<group>"; };
+		C9258B632250303D000C7F95 /* Database.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Database.cpp; path = ../../../../Tools/Analyze/Database.cpp; sourceTree = "<group>"; };
+		C9258B642250303D000C7F95 /* Memory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Memory.cpp; path = ../../../../Tools/Analyze/Memory.cpp; sourceTree = "<group>"; };
+		C9258B652250303D000C7F95 /* Memory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Memory.h; path = ../../../../Tools/Analyze/Memory.h; sourceTree = "<group>"; };
 		C92FC717209374B500EF4BB1 /* TPipesSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPipesSerialPortManager.h; sourceTree = "<group>"; };
 		C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPipesSerialPortManager.cp; sourceTree = "<group>"; };
 		C932824511D0CF0A003B93C3 /* button_network_in.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network_in.png; sourceTree = "<group>"; };
@@ -1114,6 +1124,13 @@
 			isa = PBXGroup;
 			children = (
 				C9258B5A225028CC000C7F95 /* Analyze.cpp */,
+				C9258B5F22502A81000C7F95 /* Analyze.h */,
+				C9258B6022502A81000C7F95 /* AifFileReader.cpp */,
+				C9258B5E22502A80000C7F95 /* AifFileReader.h */,
+				C9258B632250303D000C7F95 /* Database.cpp */,
+				C9258B622250303D000C7F95 /* Database.h */,
+				C9258B642250303D000C7F95 /* Memory.cpp */,
+				C9258B652250303D000C7F95 /* Memory.h */,
 			);
 			path = Analyze;
 			sourceTree = "<group>";
@@ -2352,7 +2369,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C9258B672250303D000C7F95 /* Memory.cpp in Sources */,
 				C9258B5C225028CC000C7F95 /* Analyze.cpp in Sources */,
+				C9258B662250303D000C7F95 /* Database.cpp in Sources */,
+				C9258B6122502A81000C7F95 /* AifFileReader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2867,7 +2887,7 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2895,7 +2915,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2923,7 +2943,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2956,7 +2976,7 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2984,7 +3004,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -3012,7 +3032,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

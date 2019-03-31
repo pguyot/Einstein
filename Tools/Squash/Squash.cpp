@@ -37,6 +37,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <errno.h>
 #include <vector>
@@ -51,12 +52,15 @@ int readArgs(int argc, const char * argv[])
 			fprintf(stderr, "Error: invalid parameter %d\n", i);
 			return 30;
 		}
-		// everything that is not a recognized flag is saved a a path to a proteus flag
-		if (::access(arg, R_OK)!=0) {
-			fprintf(stderr, "Error: can't read file \"%s\": %s\n", arg, strerror(errno));
-			return 30;
+		if (strcmp(arg, "--help")==0) {
+			// print help
+		} else { // everything that is not a recognized flag is saved a a path to a proteus flag
+			if (::access(arg, R_OK)!=0) {
+				fprintf(stderr, "Error: can't read file \"%s\": %s\n", arg, strerror(errno));
+				return 30;
+			}
+			proteusFileList.push_back(argv[i]);
 		}
-		proteusFileList.push_back(argv[i]);
 	}
 	return 0;
 }
