@@ -121,7 +121,7 @@ static int print_insn_arm(unsigned int pc,
                 if ((given & 0x00800000) == 0)
                   offset = -offset;
                 unsigned int addr = offset + pc + 8;
-                const char *sym = DB.getLabelAt(addr);
+                const char *sym = DB.findLabelAt(addr);
                 if (sym) 
                   sprintf(tmpStr, "%s", sym);
                 else
@@ -129,7 +129,7 @@ static int print_insn_arm(unsigned int pc,
                 str = strcat(str, tmpStr);
                 if (addr<0x00800000) {
                   unsigned int val = MEM.getWord(addr);
-                  const char *vsym = DB.getLabelAt(val);
+                  const char *vsym = DB.findLabelAt(val);
                   if (vsym) {
                     sprintf(cmt, " [ %s (0x%08X) ]", vsym, val);
                   } else {
@@ -251,7 +251,7 @@ static int print_insn_arm(unsigned int pc,
             case 'b': 
             {
               unsigned int dst = BDISP(given) * 4 + pc + 8;
-              const char *sym = DB.getLabelAt(dst);
+              const char *sym = DB.findLabelAt(dst);
               if (sym) {
                 if (dst<0x00800000)
                   sprintf(tmpStr, "%s", sym);

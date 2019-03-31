@@ -23,6 +23,7 @@ int Entry::write(FILE *out, uint32_t start, uint32_t end)
 		written = true;
 	}
 	if (getLabel()) {
+		::fprintf(out, "// /* 0x%08X-0x%08X */\n", start, end);
 		::fprintf(out, "// /* 0x%08X-0x%08X */ %s:\n", start, end, getLabel());
 		written = true;
 	} else if (isJumpTarget()) {
@@ -41,6 +42,7 @@ int Entry::write(FILE *out, uint32_t start, uint32_t end)
 			written = true;
 			break;
 		case TYPE_ARM_INLINE_TEXT:
+			// FIXME: output the text
 			::fprintf(out, "// /* 0x%08X-0x%08X */     ARM_Text\n", start, end);
 			written = true;
 			break;
