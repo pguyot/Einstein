@@ -41,14 +41,17 @@
 
 // --- globals
 
+//-/* 0x0C008400-0x0C107E18 */ Range of global variables in memory
 // /* 0x0C008400-0x0C107E18 */
 
 // --- ROM
 
+//-/* 0x00000000-0x0071FC4C */ NewtonOS in ROM
 // /* 0x00000000-0x0071FC4C */
 
 // --- RExBlock
 
+//-/* 0x0071FC4C-0x007EE048 */ NewtonOS ROM Extensions
 // /* 0x0071FC4C-0x007EE048 */
 
 // --- Jump Table (not used here)
