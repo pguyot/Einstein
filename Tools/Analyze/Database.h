@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 #include <map>
+#include <vector>
 
 
 typedef enum {
@@ -17,6 +18,7 @@ typedef enum {
 
 class Entry
 {
+	std::vector<char*> pCommentList;
 	EType pType = TYPE_NONE;
 	char *pLabel = nullptr;
 	bool pJumpTarget = false;
@@ -29,7 +31,7 @@ public:
 	EType getType() { return pType; }
 	void setAsJumpTarget() { pJumpTarget = true; }
 	bool isJumpTarget() { return pJumpTarget; }
-	void addComment(const char *pattern, ...) { return; } // TODO: implement this
+	void addComment(const char *pattern, ...);
 };
 
 

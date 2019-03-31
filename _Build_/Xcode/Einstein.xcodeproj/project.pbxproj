@@ -112,6 +112,7 @@
 		C9258B662250303D000C7F95 /* Database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B632250303D000C7F95 /* Database.cpp */; };
 		C9258B672250303D000C7F95 /* Memory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B642250303D000C7F95 /* Memory.cpp */; };
 		C9258B6A22512155000C7F95 /* ARMCode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B6822512155000C7F95 /* ARMCode.cpp */; };
+		C9258B6D22516890000C7F95 /* Disarm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B6B22516890000C7F95 /* Disarm.cpp */; };
 		C92FC71E209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
@@ -540,6 +541,8 @@
 		C9258B652250303D000C7F95 /* Memory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Memory.h; path = ../../../../Tools/Analyze/Memory.h; sourceTree = "<group>"; };
 		C9258B6822512155000C7F95 /* ARMCode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ARMCode.cpp; path = ../../../../Tools/Analyze/ARMCode.cpp; sourceTree = "<group>"; };
 		C9258B6922512155000C7F95 /* ARMCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ARMCode.h; path = ../../../../Tools/Analyze/ARMCode.h; sourceTree = "<group>"; };
+		C9258B6B22516890000C7F95 /* Disarm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Disarm.cpp; path = ../../../../Tools/Analyze/Disarm.cpp; sourceTree = "<group>"; };
+		C9258B6C22516890000C7F95 /* Disarm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Disarm.h; path = ../../../../Tools/Analyze/Disarm.h; sourceTree = "<group>"; };
 		C92FC717209374B500EF4BB1 /* TPipesSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPipesSerialPortManager.h; sourceTree = "<group>"; };
 		C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPipesSerialPortManager.cp; sourceTree = "<group>"; };
 		C932824511D0CF0A003B93C3 /* button_network_in.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network_in.png; sourceTree = "<group>"; };
@@ -1133,6 +1136,8 @@
 				C9258B6922512155000C7F95 /* ARMCode.h */,
 				C9258B632250303D000C7F95 /* Database.cpp */,
 				C9258B622250303D000C7F95 /* Database.h */,
+				C9258B6B22516890000C7F95 /* Disarm.cpp */,
+				C9258B6C22516890000C7F95 /* Disarm.h */,
 				C9258B642250303D000C7F95 /* Memory.cpp */,
 				C9258B652250303D000C7F95 /* Memory.h */,
 			);
@@ -2375,6 +2380,7 @@
 				C9258B6A22512155000C7F95 /* ARMCode.cpp in Sources */,
 				C9258B672250303D000C7F95 /* Memory.cpp in Sources */,
 				C9258B5C225028CC000C7F95 /* Analyze.cpp in Sources */,
+				C9258B6D22516890000C7F95 /* Disarm.cpp in Sources */,
 				C9258B662250303D000C7F95 /* Database.cpp in Sources */,
 				C9258B6122502A81000C7F95 /* AifFileReader.cpp in Sources */,
 			);

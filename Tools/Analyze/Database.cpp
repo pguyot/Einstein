@@ -3,6 +3,7 @@
 #include "Database.h"
 
 #include "Memory.h"
+#include "Disarm.h"
 
 
 Database DB;
@@ -15,7 +16,12 @@ Entry::Entry()
 
 int Entry::write(FILE *out, uint32_t start, uint32_t end)
 {
+	char line[1024];
 	bool written = false;
+	for (auto &c: pCommentList) {
+		::fprintf(out, "// /* 0x%08X-0x%08X */ // %s\n", start, end, c);
+		written = true;
+	}
 	if (getLabel()) {
 		::fprintf(out, "// /* 0x%08X-0x%08X */ %s:\n", start, end, getLabel());
 		written = true;
@@ -25,11 +31,13 @@ int Entry::write(FILE *out, uint32_t start, uint32_t end)
 	}
 	switch (pType) {
 		case TYPE_ARM_CODE:
-			::fprintf(out, "// /* 0x%08X-0x%08X */     ARM_Code\n", start, end);
+			disarm(line, start, MEM.getWord(start));
+			::fprintf(out, "// /* 0x%08X-0x%08X */     %s\n", start, end, line);
 			written = true;
 			break;
 		case TYPE_ARM_INLINE_DATA:
-			::fprintf(out, "// /* 0x%08X-0x%08X */     ARM_Data 0x%08X\n", start, end, MEM.getWord(start));
+			disarm_word(line, start, MEM.getWord(start));
+			::fprintf(out, "// /* 0x%08X-0x%08X */     %s\n", start, end, line);
 			written = true;
 			break;
 		case TYPE_ARM_INLINE_TEXT:
@@ -54,6 +62,20 @@ void Entry::setLabel(const char *sym)
 		pLabel = nullptr;
 	}
 }
+
+void Entry::addComment(const char *pattern, ...)
+{
+	static char buf[4096];
+	va_list va;
+	va_start(va, pattern);
+	vsnprintf(buf, 4096, pattern, va);
+	va_end(va);
+	pCommentList.push_back(strdup(buf));
+}
+
+
+
+
 
 
 
@@ -113,8 +135,12 @@ const char *Database::findLabelAt(uint32_t addr)
 
 const char *Database::getLabelAt(uint32_t addr)
 {
+	static char genericLabel[12];
 	const char *label = findLabelAt(addr);
-	if (!label) label = "<no_label>";
+	if (!label) {
+		sprintf(genericLabel, "L%08X", addr);
+		label = genericLabel;
+	}
 	return label;
 }
 
