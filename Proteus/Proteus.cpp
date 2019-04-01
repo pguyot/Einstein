@@ -26,9 +26,18 @@
 
 // --- general includes
 
+#include "TARMProcessor.h"
+#include "TMemory.h"
+#include "TJITGeneric_Macros.h"
+#include "TJITGenericROMPatch.h"
 
 // --- macros
 
+
+// --- proteus variables
+
+TARMProcessor *CPU = nullptr;
+TMemory *MEM = nullptr;
 
 // --- class predeclarations
 
@@ -47,6 +56,17 @@
 // --- ROM
 
 //-/* 0x00000000-0x0071FC4C */ NewtonOS in ROM
+
+/*
+ * This injection initializes the Proteus system by setting up a few
+ * variables for fast acces in later calls.
+ */
+T_ROM_INJECTION(0x00000000, "Initialize Proteus") {
+	CPU = ioCPU;
+	MEM = ioCPU->GetMemory();
+	return ioUnit;
+}
+
 // /* 0x00000000-0x0071FC4C */
 
 // --- RExBlock

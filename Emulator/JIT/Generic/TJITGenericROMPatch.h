@@ -135,8 +135,8 @@ public:
  \brief This patch replaces one instruction in ROM with another instruction.
 
  This is the simpelest form of a patch. It replaces one word in ROM with a
- new word. The JIT system will interprete the new instruction instead of
- the original. No furtehr action is taken.
+ new word. If te new data is an ARM instruction, the JIT system will interprete
+ the new instruction instead of the original one. No further action is taken.
  */
 class TJITGenericPatch : public TJITGenericPatchObject
 {
@@ -237,6 +237,7 @@ public:
  // mov     pc, lr
 
  T_ROM_PATCH(0x00000010, "TADSPEndpoint::RemoveFromAppWorld(void)") {
+ 	 // this is called with JITUnit* ioUnit, TARMProcessor* ioCPU
      ioCPU->SetRegister(0, -36018);
      ioCPU->SetRegister(15, ioCPU->GetRegister(14));
      return 0L;
@@ -247,6 +248,9 @@ public:
  		be word-aligned
  \param name naming the patch makes debugging easier
 
+ \return either return the unmodified \c ioUnit, or return \c NULL if the
+ 		instruction pointer was modified in the code. The emulator then
+ 		calls \c CALLNEXTUNIT or \c MMUCALLNEXT_AFTERSETPC respectively
  */
 #define T_ROM_PATCH(addr, name) \
 extern JITInstructionProto(p##addr); \
@@ -257,8 +261,8 @@ JITInstructionProto(p##addr)
 /**
  \brief This patch type is used to call a JIT stub \b before another instruction.
 
- An Injection is different to a Patch. It will call native code, but then
- return and execute the original code.
+ An Injection is different from a Patch in that it will call native code, but
+ then return and execute the original code as well.
 
  Use the patch type to place a native call just before the ARM instruction at
  the give address in ROM. The native code has full access to the entire
@@ -301,6 +305,7 @@ public:
 
  \code
  T_ROM_INJECTION(0x00000010, "Data Abort") {
+     // this is called with JITUnit* ioUnit, TARMProcessor* ioCPU
      fprintf(stderr, "DATA ABORT at 0x%08X\n", ioCPU->mR14abt_Bkup-8);
      return ioUnit;
  }
@@ -309,6 +314,12 @@ public:
  \param addr this is the address in ROM that we want to patch, must
  		be word-aligned
  \param name naming the patch makes debugging easier
+
+ \return either return the unmodified \c ioUnit, or return \c NULL if the
+		instruction pointer was modified in the code. The emulator then
+		calls \c CALLNEXTUNIT or \c MMUCALLNEXT_AFTERSETPC respectively
+ }
+
  */
 #define T_ROM_INJECTION(addr, name) \
 extern JITInstructionProto(p##addr); \
