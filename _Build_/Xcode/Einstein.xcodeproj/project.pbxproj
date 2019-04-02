@@ -528,7 +528,7 @@
 		8D1107320486CEB800E47090 /* Einstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Einstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9258B3D224EAEC4000C7F95 /* analyze */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = analyze; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9258B4C224EAF20000C7F95 /* squash */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = squash; sourceTree = BUILT_PRODUCTS_DIR; };
-		C9258B55224EB093000C7F95 /* proteus.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = proteus.cpp; sourceTree = "<group>"; };
+		C9258B55224EB093000C7F95 /* proteus.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = proteus.cpp; sourceTree = "<group>"; usesTabs = 1; };
 		C9258B56224EB093000C7F95 /* proteus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = proteus.h; sourceTree = "<group>"; };
 		C9258B58225028B7000C7F95 /* Squash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Squash.cpp; path = ../../../../Tools/Squash/Squash.cpp; sourceTree = "<group>"; };
 		C9258B5A225028CC000C7F95 /* Analyze.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Analyze.cpp; path = ../../../../Tools/Analyze/Analyze.cpp; sourceTree = "<group>"; };
