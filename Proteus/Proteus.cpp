@@ -28,6 +28,7 @@
 
 #include "TARMProcessor.h"
 #include "TMemory.h"
+#include "TInterruptManager.h"
 #include "TJITGeneric_Macros.h"
 #include "TJITGenericROMPatch.h"
 
@@ -35,6 +36,7 @@
 
 TARMProcessor *CPU = nullptr;
 TMemory *MEM = nullptr;
+TInterruptManager *INT = nullptr;
 
 // --- macros
 
@@ -79,12 +81,19 @@ inline KUInt32 PEEK_W(KUInt32 addr) { KUInt32 w; MEM->Read(addr, w); return w; }
  \param type type of that variable
  \param name name of the variable without the leading 'g'
  */
-#define GLOBAL_GET_W(addr, type, name) \
+#define GLOBAL_GETSET_W(addr, type, name) \
     const TMemory::VAddr g##name = addr; \
-	type GetG##name() { KUInt32 w; MEM->Read(g##name, w); return (type)w; }
+	type GetG##name() { KUInt32 w; MEM->Read(g##name, w); return (type)w; } \
+	void SetG##name(type v) { KUInt32 w=(KUInt32)v; MEM->Write(g##name, w); }
 
+/** Define a class memeber variable and its getter and setter */
+#define	T_GETSET_MEMVAR_W(offset, type, name) \
+	type Get##name() { KUInt32 w; MEM->Read(((KUInt32)(uintptr_t)this)+offset, w); return (type)w; } \
+	void Set##name(type w) { KUInt32 v = (KUInt32)w; MEM->Write(((KUInt32)(uintptr_t)this)+offset, v); }
 
 // --- class predeclarations
+
+class ImageParamBlock;
 
 
 // --- typedefs
@@ -92,7 +101,17 @@ inline KUInt32 PEEK_W(KUInt32 addr) { KUInt32 w; MEM->Read(addr, w); return w; }
 
 // --- function declaraitions
 
-JITUnit *SWI_Scheduler();
+/** Call an SWI with a given ID */
+JITUnit *SWI(KUInt32 id);
+
+/** These are the innards of the SWI, don't call directly */
+JITUnit *_SWI(KUInt32 id);
+
+/** This is the Scheduler call within the SWI, don't call directly */
+JITUnit *_SWIScheduler();
+
+/** Make sure that the following commands are run uninterrupted. */
+void _EnterAtomicFast();
 
 /** TODO: write me */
 void DoDeferrals();
@@ -109,35 +128,45 @@ void DoDeferrals();
 
 // --- classes
 
+class ImageParamBlock
+{
+public:
+	T_GETSET_MEMVAR_W(176, KUInt32, CurrentDomainAccessControl);
+};
 
 // --- globals
 
 //-/* 0x0C008400-0x0C107E18 */ Range of global variables in memory
-// /* 0x0C008400-0x0C100E58 */
+// /* 0x0C008400-0x0C0084E4 */
+ImageParamBlock *gParamBlockFromImage = (ImageParamBlock*)0x0C008400;
+// /* 0x0C0084E4-0x0C100E54 */
+
+/** TODO: write docs */
+GLOBAL_GETSET_W(0x0C100E54, KUInt32, IntMaskShadowReg);
 
 /** Return the number of nestings into the Fast Interrupt */
-GLOBAL_GET_W(0x0C100E58, KSInt32, AtomicFIQNestCountFast);
+GLOBAL_GETSET_W(0x0C100E58, KSInt32, AtomicFIQNestCountFast);
 
 /** Return the number of nestings into the Regular Interrupt */
-GLOBAL_GET_W(0x0C100E5C, KSInt32, AtomicIRQNestCountFast);
+GLOBAL_GETSET_W(0x0C100E5C, KSInt32, AtomicIRQNestCountFast);
 
 // /* 0x0C100E60-0x0C100FE4 */
 
 /** TODO: write docs (this is a booloean?!) */
-GLOBAL_GET_W(0x0C100FE4, KUInt32, Schedule);
+GLOBAL_GETSET_W(0x0C100FE4, KUInt32, Schedule);
 
 /** Return the number of nestings into the Atomic function */
-GLOBAL_GET_W(0x0C100FE8, KSInt32, AtomicNestCount);
+GLOBAL_GETSET_W(0x0C100FE8, KSInt32, AtomicNestCount);
 
 // /* 0x0C100FEC-0x0C100FF0 */
 
 /** Return the number of nestings into the Fast Interrupt */
-GLOBAL_GET_W(0x0C100FF0, KSInt32, AtomicFIQNestCount);
+GLOBAL_GETSET_W(0x0C100FF0, KSInt32, AtomicFIQNestCount);
 
 // /* 0x0C100FF4-0x0C101028 */
 
 /** TODO: write docs (this is a booloean?!) */
-GLOBAL_GET_W(0x0C101028, KUInt32, WantDeferred);
+GLOBAL_GETSET_W(0x0C101028, KUInt32, WantDeferred);
 
 // /* 0x0C10102C-0x0C107E18 */
 
@@ -152,21 +181,92 @@ GLOBAL_GET_W(0x0C101028, KUInt32, WantDeferred);
 T_ROM_INJECTION(0x00000000, "Initialize Proteus") {
 	CPU = ioCPU;
 	MEM = ioCPU->GetMemory();
+	INT = MEM->GetInterruptManager();
 	return ioUnit;
 }
 
 // /* 0x00000000-0x0014829C */
 // TODO: implememt this to finish SWIs
-// /* 0x00148298-0x003AD698 */
+// /* 0x00148298-0x00392AC0 */
 
-/* movs pc, lr
-T_ROM_INJECTION(0x003ADA6C, "movs")
-{
-	PC = LR+4;
-	CPU->SetCPSR( CPU->GetSPSR() );
-	return nullptr;
+
+T_ROM_INJECTION(0x00392AC0, "_EnterAtomicFast") {
+	_EnterAtomicFast();
+	EXIT(LR);
 }
-*/
+
+/**
+ * Start an atomic operation, asequence of commands that will not be iterrupted.
+ * End the atomic operation by calling _LeaveAtomicFast().
+ */
+void _EnterAtomicFast() 
+{
+	if (GetGAtomicFIQNestCountFast()!=0) {
+		SetGAtomicIRQNestCountFast( GetGAtomicIRQNestCountFast()+1 );
+	} else {
+		INT->SetIntCtrlReg( 0x0C400000 );
+		KUInt32 interruptCtrl = GetGIntMaskShadowReg() & INT->GetFIQMask();
+		SetGAtomicIRQNestCountFast( GetGAtomicIRQNestCountFast()+1 );
+		INT->SetIntCtrlReg( interruptCtrl | 0x0C400000 );
+	}
+}
+
+
+// /* 0x00392B1C-0x003AD698 */
+
+/**
+ * This is the native entry point for the swi call.
+ *
+ * At this point, the Emulator has set the CPU into svc mode and has
+ * changed register banks to svc as well. The code below implements
+ * some tests and the goes on to call the native implementation
+ * of the actual swi.
+ */
+T_ROM_INJECTION(0x003AD698, "SWIBoot")
+{
+	// Get the binary version of the original swi command that called us.
+	KUInt32 swi = PEEK_W(LR-4);
+
+	// Make sure that this is really an swi call, and nut just aregular branch command.
+    if ( (swi&0x0F000000) != 0x0F000000 ) {
+		LR -= 4;
+		PC = LR+4;
+		CPU->SetCPSR( CPU->GetSPSR() );
+		return nullptr;
+	}
+
+	// Get the condition code from the original swi command.
+    KUInt32 cc = swi & 0xF0000000;
+    if ( cc != 0xE0000000 ) {
+		bool cond = false;
+		KUInt32 flags = CPU->GetSPSR();
+		switch ( cc>>24 ) {
+			case 0x00: cond = (flags!=0x40000000); break; // EQ
+			case 0x01: cond = (flags==0x40000000); break; // NE
+			case 0x02: cond = (flags!=0x20000000); break; // CS
+			case 0x03: cond = (flags==0x20000000); break; // CC
+			case 0x04: cond = (flags!=0x80000000); break; // MI
+			case 0x05: cond = (flags==0x80000000); break; // PL
+			case 0x06: cond = (flags!=0x10000000); break; // VS
+			case 0x07: cond = (flags==0x10000000); break; // VC
+			case 0x08: cond = ((flags&~(flags>>1))!=0x20000000); break; // HI
+			case 0x09: cond = ((flags&~(flags>>1))==0x20000000); break; // LS
+			case 0x0A: cond = ((flags^(flags<<3))!=0x80000000); break; // GE
+			case 0x0B: cond = ((flags^(flags<<3))==0x80000000); break; // LT
+			case 0x0C: cond = (((flags^(flags<<3))|(flags<<1))!=0x80000000); break; // GT
+			case 0x0D: cond = (((flags^(flags<<3))|(flags<<1))==0x80000000); break; // LE
+			case 0x0E: cond = true; break; // AL
+			case 0x0F: cond = false; break; // NV
+		}
+		if (cond==false) {
+			LR -= 4;
+			PC = LR+4;
+			CPU->SetCPSR(CPU->GetSPSR());
+			return nullptr;
+		}
+	} 
+	return _SWI( swi & 0x00FFFFFF );
+}
 
 
 /**
@@ -179,115 +279,55 @@ T_ROM_INJECTION(0x003ADA6C, "movs")
  * NewtonOS to switch to another task if needed. With Proteus running NewtonOS
  * in native mode inside the Einstein emulator, it is essential that task switching
  * is reimplemented so that we can switch between native and emulated tasks.
+ *
+ * \return FIXME: unitl fully implemented, we always return null for simplicity.
  */
-T_ROM_INJECTION(0x003AD698, "SWIBoot")
+JITUnit *SWI(KUInt32 cmd)
 {
-// /* 0x003AD698-0x003AD69C */
+	CPU->DoSWI();	// Change the CPU into svc mode.
+	return _SWI(cmd);;
+}
+
+
+/** 
+ * SWI native implementation.
+ *
+ * This is only used when teh CPU is already in svc mode. Use SWI(KUInt32) instead.
+ *
+ * \return FIXME: unitl fully implemented, we always return null for simplicity.
+ */
+JITUnit *_SWI(KUInt32 cmd)
+{
+	// TODO: until final, the individual commands expect r0 and r1 on the stack
     PUSH(SP, R1);
     PUSH(SP, R0);
-// /* 0x003AD69C-0x003AD6A0 */
-    R0 = PEEK_W(LR-4);
-// /* 0x003AD6A0-0x003AD6A4 */
-    R1 = R0 & 0x0F000000;
-// /* 0x003AD6A4-0x003AD6AC */
-    if (R1!=0x0F000000) {
-		POP(SP, R0);
-		POP(SP, R1);
-		LR -= 4;
-		PC = LR+4;
-		CPU->SetCPSR( CPU->GetSPSR() );
-		return nullptr;
-	}
-L003AD6AC:
-// /* 0x003AD6AC-0x003AD6B0 */
-    R1 = R0 & 0xF0000000;
-// /* 0x003AD6B0-0x003AD6B8 */
-    if (R1!=0xE0000000) {
-		bool cond = false;
-		R0 = CPU->GetSPSR();
-		switch (R1>>24) {
-			case 0x00: cond = (R0!=0x40000000); break; // EQ
-			case 0x01: cond = (R0==0x40000000); break; // NE
-			case 0x02: cond = (R0!=0x20000000); break; // CS
-			case 0x03: cond = (R0==0x20000000); break; // CC
-			case 0x04: cond = (R0!=0x80000000); break; // MI
-			case 0x05: cond = (R0==0x80000000); break; // PL
-			case 0x06: cond = (R0!=0x10000000); break; // VS
-			case 0x07: cond = (R0==0x10000000); break; // VC
-			case 0x08: cond = ((R0&~(R0>>1))!=0x20000000); break; // HI
-			case 0x09: cond = ((R0&~(R0>>1))==0x20000000); break; // LS
-			case 0x0A: cond = ((R0^(R0<<3))!=0x80000000); break; // GE
-			case 0x0B: cond = ((R0^(R0<<3))==0x80000000); break; // LT
-			case 0x0C: cond = (((R0^(R0<<3))|(R0<<1))!=0x80000000); break; // GT
-			case 0x0D: cond = (((R0^(R0<<3))|(R0<<1))==0x80000000); break; // LE
-			case 0x0E: cond = true; break; // AL
-			case 0x0F: cond = false; break; // NV
-		}
-		if (cond==false) {
-			POP(SP, R0);
-			POP(SP, R1);
-			LR -= 4;
-			PC = LR+4;
-			CPU->SetCPSR( CPU->GetSPSR() );
-			return nullptr;
-		}
-	} 
-L003AD6B8:
-// /* 0x003AD6B8-0x003AD6BC */
-    R1 = CPU->GetSPSR();
-// /* 0x003AD6BC-0x003AD6C0 */
-    R1 = R1 & 0x1F; // get the CPU mode before calling the SWI
-// /* 0x003AD6C0-0x003AD6CC */
-    if (R1!=0x10 && R1!=0)
+
+	KUInt32 prevCPUMode = CPU->GetSPSR() & 0x0000001F;
+    if (prevCPUMode!=TARMProcessor::kUserMode && prevCPUMode!=0)
 		throw "SWI from non-user mode (rebooting)";
-L003AD6CC:
-// /* 0x003AD6CC-0x003AD6D0 */
-    R1 = 0x55555555;
-// /* 0x003AD6D0-0x003AD6E0 */
-    PUSH(SP, R1);
-    PUSH(SP, R0);
-// /* 0x003AD6E0-0x003AD6E4 */
-    R0 = R1;
-// /* 0x003AD6E4-0x003AD6E8 */
-    R1 = 0x0C008400;
-// /* 0x003AD6E8-0x003AD6EC */
-    POKE_W(R1+176, R0); // current domain access control setting (gParamBlockFromImage+176)
-// /* 0x003AD6EC-0x003AD6F0 */
-    POP(SP, R0);
-    POP(SP, R1);
-// /* 0x003AD6F0-0x003AD6F4 */
-    MEM->SetDomainAccessControl(R1);
-// /* 0x003AD6F4-0x003AD6FC */
-    if (   GetGAtomicFIQNestCountFast()!=0
-        || GetGAtomicIRQNestCountFast()!=0
-        || GetGAtomicNestCount()!=0
-        || GetGAtomicFIQNestCount()!=0 )
-        goto L003AD734;
-// /* 0x003AD6FC-0x003AD72C */
-    // bit7=IRQ, bit6=FIQ, bit0-4=mode (10=usr, 11=FIQ, 12=IRQ, 13=abt, 17=svc, 1b=und, 1f=system)
-    CPU->SetCPSR( (CPU->GetCPSR()&~0xff) | 0x13 ); // Enable all interrupts
-// /* 0x003AD72C-0x003AD738 */
-L003AD734:
-    R1 = LR;
-// /* 0x003AD738-0x003AD73C */
-    R1 = PEEK_W(R1-4);
-// /* 0x003AD73C-0x003AD740 */
-    R1 = R1 & 0x00FFFFFF;
-    // r1 contains the ID of the desired swi function
-// /* 0x003AD740-0x003AD744 */
-    // if the ID is out of range, the OS throws a System Panic. 
-// /* 0x003AD744-0x003AD748 */
+
+    KUInt32 dac = 0x55555555;
+	gParamBlockFromImage->SetCurrentDomainAccessControl( dac );
+    MEM->SetDomainAccessControl( dac );
+
+    if (   GetGAtomicFIQNestCountFast()==0
+        && GetGAtomicIRQNestCountFast()==0
+        && GetGAtomicNestCount()==0
+        && GetGAtomicFIQNestCount()==0 )
+	{
+		CPU->SetCPSR( (CPU->GetCPSR()&~0xff) | TARMProcessor::kSupervisorMode );
+	}
+
+	R1 = cmd;
     if (R1>=35)
 		throw "Undefined SWI";
-// /* 0x003AD748-0x003AD74C */
     R0 = 0x003AD56C; // address of jump table
-    // use the function id to index into a large jump table at 0x003AD56C
 
 	switch (R1) {
 		case 34: // L003AE14C
 			POP(SP, R0);
 			POP(SP, R1);
-			return SWI_Scheduler();
+			return _SWIScheduler();
 		default:
 			EXIT(0x003AD74C);
     }
@@ -295,7 +335,7 @@ L003AD734:
 }
 
 
-T_ROM_INJECTION(0x003AD750, "SWI_Scheduler") { return SWI_Scheduler(); }
+T_ROM_INJECTION(0x003AD750, "_SWIScheduler") { return _SWIScheduler(); }
 /**
  * This function is called at the end of SWIs.
  *
@@ -316,7 +356,7 @@ T_ROM_INJECTION(0x003AD750, "SWI_Scheduler") { return SWI_Scheduler(); }
  * implementing any user code. Otherwies, user code could trigger a memory exeception
  * at any time and crash teh system if not handled correctly.
  */
-JITUnit *SWI_Scheduler()
+JITUnit *_SWIScheduler()
 {
     PUSH(SP, R1);
     PUSH(SP, R0);

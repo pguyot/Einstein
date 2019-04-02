@@ -125,6 +125,14 @@ public:
 		}
 
 	///
+	/// Return the interrupt manager.
+	///
+	TInterruptManager* GetInterruptManager()
+		{
+			return mInterruptManager;
+		}
+
+	///
 	/// Accessor to the PCMCIA socket.
 	///
 	TPCMCIAController* GetPCMCIAController( int inIndex )
