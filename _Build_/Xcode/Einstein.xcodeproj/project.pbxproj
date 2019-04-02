@@ -105,7 +105,7 @@
 		C901E52E1326566D0074513E /* TIOException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BD111B7570002165EC /* TIOException.cp */; };
 		C901E52F1326566F0074513E /* TMemError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B8111B7570002165EC /* TMemError.cp */; };
 		C901E530132656710074513E /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
-		C9258B57224EB093000C7F95 /* proteus1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B55224EB093000C7F95 /* proteus1.cpp */; };
+		C9258B57224EB093000C7F95 /* Proteus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B55224EB093000C7F95 /* Proteus.cpp */; };
 		C9258B5C225028CC000C7F95 /* Analyze.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B5A225028CC000C7F95 /* Analyze.cpp */; };
 		C9258B5D225028D4000C7F95 /* Squash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B58225028B7000C7F95 /* Squash.cpp */; };
 		C9258B6122502A81000C7F95 /* AifFileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B6022502A81000C7F95 /* AifFileReader.cpp */; };
@@ -528,8 +528,8 @@
 		8D1107320486CEB800E47090 /* Einstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Einstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9258B3D224EAEC4000C7F95 /* analyze */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = analyze; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9258B4C224EAF20000C7F95 /* squash */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = squash; sourceTree = BUILT_PRODUCTS_DIR; };
-		C9258B55224EB093000C7F95 /* proteus1.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = proteus1.cpp; sourceTree = "<group>"; usesTabs = 1; };
-		C9258B56224EB093000C7F95 /* proteus1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = proteus1.h; sourceTree = "<group>"; };
+		C9258B55224EB093000C7F95 /* Proteus.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Proteus.cpp; sourceTree = "<group>"; usesTabs = 1; };
+		C9258B56224EB093000C7F95 /* Proteus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Proteus.h; sourceTree = "<group>"; };
 		C9258B58225028B7000C7F95 /* Squash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Squash.cpp; path = ../../../../Tools/Squash/Squash.cpp; sourceTree = "<group>"; };
 		C9258B5A225028CC000C7F95 /* Analyze.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Analyze.cpp; path = ../../../../Tools/Analyze/Analyze.cpp; sourceTree = "<group>"; };
 		C9258B5E22502A80000C7F95 /* AifFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AifFileReader.h; path = ../../../../Tools/Analyze/AifFileReader.h; sourceTree = "<group>"; };
@@ -1147,8 +1147,8 @@
 		C9258B54224EAF99000C7F95 /* Proteus */ = {
 			isa = PBXGroup;
 			children = (
-				C9258B55224EB093000C7F95 /* proteus1.cpp */,
-				C9258B56224EB093000C7F95 /* proteus1.h */,
+				C9258B55224EB093000C7F95 /* Proteus.cpp */,
+				C9258B56224EB093000C7F95 /* Proteus.h */,
 			);
 			name = Proteus;
 			path = ../../Proteus;
@@ -2304,7 +2304,7 @@
 				C99E34F3111B7C08002165EC /* TJITGeneric_Other.cp in Sources */,
 				C99E34F4111B7C08002165EC /* TJITGeneric_SingleDataSwap.cp in Sources */,
 				C99E34F6111B7C08002165EC /* TJITGeneric_SingleDataTransfer.cp in Sources */,
-				C9258B57224EB093000C7F95 /* proteus1.cpp in Sources */,
+				C9258B57224EB093000C7F95 /* Proteus.cpp in Sources */,
 				C99E34FB111B7C08002165EC /* TJITGeneric_Test.cp in Sources */,
 				C99E34FD111B7C08002165EC /* TJITGenericPage.cp in Sources */,
 				C99E3503111B7C08002165EC /* TJITCache.cp in Sources */,
