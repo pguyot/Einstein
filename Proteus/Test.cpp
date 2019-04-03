@@ -123,6 +123,44 @@
  being able to access pNext should make up for the improved readability. This
  even works in 64-bit mode, emulating a 32-bit machine.
 
+
+ How to Use
+ ----------
+
+ Replacing any ARM code with native code requires a patch in ROM and an adapter
+ that converts ARM calling convention into C++. Let's write a native version
+ of 'TDoubleQContainer::GetNext(void *)' at 0x0009C89C. This is a C++ method,
+ so R0 holds the 'this' pointer, R1 holds the item pointer, and the next item
+ in the queue is returned in R0.
+
+ void TDoubleQContainer::GetNext(void *item)
+ {
+ 	// ... some native code...
+ 	return nextItem;
+ }
+ // Stub that patches the ROM to make JIT call the native function instead:
+ T_JIT_TO_NATIVE(0x0009C89C, "TDoubleQContainer::GetNext(void *)") {
+ 	TDoubleQContainer *This = (TDoubleQContainer*)(uintptr_t)R0;
+ 	void *item = (TDoubleQContainer*)(uintptr_t)R1;
+ 	void *ret = This->GetNext(item);
+ 	R0 = (KUInt32)(uintptr_t)ret;
+ 	EXIT(LR);
+ }
+
+ To call JIT code from mative code, we need similar code to convert native
+ parameters into ARM calling convention. Here we replace a call to
+ TSingleQContainer::Peek() at 0x001E2C18:
+
+ void someNativeFunction() {
+ 	// ...
+ 	// Replace 'void *p = myQueue->Peek()' which was originally
+ 	// 'bl 0x001E2C18 ; TSingleQContainer::Peek()'
+ 	R0 = (KUInt32)(uintptr_t)myQueue;
+ 	FindFiber()->SwitchToJIT(0x001E2C18);
+ 	void *p = (void*)(uintptr_t)R0;
+ 	// ...
+ }
+
  */
 
 // --- proteus variables
@@ -130,6 +168,21 @@
 TARMProcessor *CPU = nullptr;
 TMemory *MEM = nullptr;
 TInterruptManager *INT = nullptr;
+
+#define T_JIT_TO_NATIVE(addr, name) \
+extern JITInstructionProto(p##addr); \
+extern void P##addr(); \
+TJITGenericPatchNativeInjection i##addr(addr, p##addr, name); \
+JITInstructionProto(p##addr) { \
+	if (TProteusFiber *fiber = FindFiber()) { \
+		fiber->Resume(kFiberCallNative, (void*)P##addr); \
+		return nullptr; \
+	} else return ioUnit; \
+} \
+void P##addr()
+
+
+
 
 typedef void (*FPtr)();
 
@@ -151,7 +204,9 @@ public:
 		SwitchToJIT();
 		return 0;
 	}
-	void SwitchToJIT() {
+	void SwitchToJIT(KUInt32 pc=0xFFFFFFFF) {
+		LR = 0x007FFFF0;
+		if (pc!=0xFFFFFFFF) PC = pc+4;
 		for (;;) {
 			FPtr fn;
 			int reason = Suspend(kFiberCallJIT);
@@ -186,7 +241,7 @@ T_ROM_INJECTION(0x00000000, "Initialize Proteus") {
 	return ioUnit;
 }
 
-TProteusFiber *findCurrentFiber()
+TProteusFiber *FindFiber()
 {
 	if (CPU->GetMode()==CPU->kSupervisorMode)
 		return svcFiber;
@@ -204,30 +259,22 @@ void swi_native_test()
 {
 	PUSH(SP, R0);
 
-	LR = 0x007FFFF0;
-	PC = 0x001CC4A8+4;
-
-	TProteusFiber *fiber = findCurrentFiber();
-	fiber->SwitchToJIT();
+	FindFiber()->SwitchToJIT(0x001CC4A8);
 
 	POP(SP, R0);
 	PC = 0x003AD818+4;
 }
 
 T_ROM_INJECTION(0x007FFFF0, "ReturnToFiber") {
-	findCurrentFiber()->Resume(kFiberReturn, nullptr);
+	FindFiber()->Resume(kFiberReturn, nullptr);
 	return nullptr;
 }
 
-T_ROM_INJECTION(0x003AD80C, "SWI Test") {
-	// Make sure that the current task has an associated fiber
-	TFiber *fiber = findCurrentFiber();
-	// if no fiber is found, fall back to the JIT emulation
-	if (!fiber) return ioUnit;
-	// if we have a fiber, tell it to run the native code
-	fiber->Resume(kFiberCallNative, (void*)swi_native_test);
-	return nullptr;
+
+T_JIT_TO_NATIVE(0x003AD80C, "SWI Test") {
+	swi_native_test();
 }
+
 
 /*
 mov     r4, r0                          @ 0x000E589C 0xE1A04000 - ..@.
@@ -238,14 +285,9 @@ void swi_native_test_2()
 	PC = 0x000E58A0 + 4;
 }
 
-T_ROM_INJECTION(0x000E589C, "SWI Test 2") {
-	// Make sure that the current task has an associated fiber
-	TFiber *fiber = findCurrentFiber();
-	// if no fiber is found, fall back to the JIT emulation
-	if (!fiber) return ioUnit;
-	// if we have a fiber, tell it to run the native code
-	fiber->Resume(kFiberCallNative, (void*)swi_native_test_2);
-	return nullptr;
+
+T_JIT_TO_NATIVE(0x000E589C, "SWI Test 2") {
+	swi_native_test_2();
 }
 
 
