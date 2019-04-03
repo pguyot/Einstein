@@ -142,7 +142,7 @@ public:
 	 \return 0 if the fiber function exited normally.
 	 \return a user defined value given as a prameter to Suspend().
 	 */
-	KSInt32 Run( KSInt32 inReason=0, void* inUserData=0L );
+	KSInt32 Run( KSInt32 inReason=0, void* inUserData=(void*)(uintptr_t)-1 );
 
 	/**
 	 Suspend a fiber.
@@ -170,11 +170,13 @@ public:
 	 \return 0 if the fiber function exited normally.
 	 \return a user defined value given as a prameter to a further Suspend().
 	 */
-	KSInt32 Resume( KSInt32 inReason );
+	KSInt32 Resume( KSInt32 inReason, void* inUserData=0L );
 	
 	/**
 	 Abort execution of a fiber.
 	 
+	 This method is called by the main thread. The fiber must be suspended.
+
 	 This method will abort any currently running task.
 	 
 	 This method transforms a suspended Fiber into stopped mode. This is helpful
@@ -183,6 +185,11 @@ public:
 	 the simulator.
 	 */
 	void Abort( KSInt32 reason );
+
+	/**
+	 Retrieve the Userdata information.
+	 */
+	void* GetUserData() { return mUserData; }
 	
 private:
 	

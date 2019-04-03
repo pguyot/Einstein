@@ -6,15 +6,16 @@
 
 #include "TARMProcessor.h"
 #include "TMemory.h"
+#include "TEmulator.h"
 #include "TInterruptManager.h"
 #include "TJITGeneric_Macros.h"
 #include "TJITGenericROMPatch.h"
 
-// --- proteus variables
+#include "K/Threads/TFiber.h"
 
-TARMProcessor *CPU = nullptr;
-TMemory *MEM = nullptr;
-TInterruptManager *INT = nullptr;
+extern TARMProcessor *CPU;
+extern TMemory *MEM;
+extern TInterruptManager *INT;
 
 // --- macros
 

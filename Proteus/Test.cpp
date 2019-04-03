@@ -125,8 +125,128 @@
 
  */
 
+// --- proteus variables
 
+TARMProcessor *CPU = nullptr;
+TMemory *MEM = nullptr;
+TInterruptManager *INT = nullptr;
 
+typedef void (*FPtr)();
+
+enum {
+	kFiberAbort = 1,
+	kFiberIdle,
+	kFiberCallNative,
+	kFiberCallJIT,
+	kFiberReturn,
+	kFiberUnknown
+};
+
+class TProteusFiber : public TFiber
+{
+public:
+	TProteusFiber() { }
+	KSInt32 Task(KSInt32 inReason=0, void* inUserData=0L)
+	{
+		SwitchToJIT();
+		return 0;
+	}
+	void SwitchToJIT() {
+		for (;;) {
+			FPtr fn;
+			int reason = Suspend(kFiberCallJIT);
+			switch (reason) {
+				case kFiberReturn:
+					return;
+				case kFiberCallNative:
+					fn = (FPtr)GetUserData();
+					fn();
+					break;
+				default:
+					fprintf(stderr, "ERROR: TSVCFiber::SwitchToJIT, unexpected Resume(%d)\n", reason);
+			}
+		}
+	}
+};
+
+TProteusFiber *svcFiber = nullptr;
+
+/*
+ * This injection initializes the Proteus system by setting up a few
+ * variables for fast acces in later calls.
+ */
+T_ROM_INJECTION(0x00000000, "Initialize Proteus") {
+	CPU = ioCPU;
+	MEM = ioCPU->GetMemory();
+	INT = MEM->GetInterruptManager();
+	if (!svcFiber) {
+		svcFiber = new TProteusFiber();
+		svcFiber->Run(kFiberCallJIT);
+	}
+	return ioUnit;
+}
+
+TProteusFiber *findCurrentFiber()
+{
+	if (CPU->GetMode()==CPU->kSupervisorMode)
+		return svcFiber;
+	return nullptr;
+}
+
+/*
+ Let's implement this part of the SWI:
+ stmdb   sp!, {r0}                       @ 0x003AD80C 0xE92D0001 - .-..
+ bl      VEC_StartScheduler              @ 0x003AD810 0xEB5D66F1 - .]f.
+ ldmia   sp!, {r0}                       @ 0x003AD814 0xE8BD0001 - ....
+*/
+
+void swi_native_test()
+{
+	PUSH(SP, R0);
+
+	LR = 0x007FFFF0;
+	PC = 0x001CC4A8+4;
+
+	TProteusFiber *fiber = findCurrentFiber();
+	fiber->SwitchToJIT();
+
+	POP(SP, R0);
+	PC = 0x003AD818+4;
+}
+
+T_ROM_INJECTION(0x007FFFF0, "ReturnToFiber") {
+	findCurrentFiber()->Resume(kFiberReturn, nullptr);
+	return nullptr;
+}
+
+T_ROM_INJECTION(0x003AD80C, "SWI Test") {
+	// Make sure that the current task has an associated fiber
+	TFiber *fiber = findCurrentFiber();
+	// if no fiber is found, fall back to the JIT emulation
+	if (!fiber) return ioUnit;
+	// if we have a fiber, tell it to run the native code
+	fiber->Resume(kFiberCallNative, (void*)swi_native_test);
+	return nullptr;
+}
+
+/*
+mov     r4, r0                          @ 0x000E589C 0xE1A04000 - ..@.
+*/
+void swi_native_test_2()
+{
+	R4 = R0;
+	PC = 0x000E58A0 + 4;
+}
+
+T_ROM_INJECTION(0x000E589C, "SWI Test 2") {
+	// Make sure that the current task has an associated fiber
+	TFiber *fiber = findCurrentFiber();
+	// if no fiber is found, fall back to the JIT emulation
+	if (!fiber) return ioUnit;
+	// if we have a fiber, tell it to run the native code
+	fiber->Resume(kFiberCallNative, (void*)swi_native_test_2);
+	return nullptr;
+}
 
 
 

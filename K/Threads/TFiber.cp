@@ -215,7 +215,7 @@ KSInt32 TFiber::Suspend( KSInt32 inReason )
 // -------------------------------------------------------------------------- //
 //  * void Resume( void )
 // -------------------------------------------------------------------------- //
-KSInt32 TFiber::Resume( KSInt32 inReason )
+KSInt32 TFiber::Resume( KSInt32 inReason, void *inUserData )
 {
 	if (mState!=kSuspended) {
 		fprintf(stderr, "ERROR in TFiber: Resume() called, but fiber isn't suspended.\n");
@@ -223,6 +223,7 @@ KSInt32 TFiber::Resume( KSInt32 inReason )
 	}
 	mState = kRunning;
 	mReason = inReason;
+	if (inUserData!=(void*)(uintptr_t)-1) mUserData = inUserData;
 #ifdef FIBER_USE_UCONTEXT
 #endif
 #ifdef FIBER_USE_PTHREAD
