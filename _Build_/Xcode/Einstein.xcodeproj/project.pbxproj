@@ -105,7 +105,6 @@
 		C901E52E1326566D0074513E /* TIOException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BD111B7570002165EC /* TIOException.cp */; };
 		C901E52F1326566F0074513E /* TMemError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B8111B7570002165EC /* TMemError.cp */; };
 		C901E530132656710074513E /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
-		C9258B57224EB093000C7F95 /* Proteus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B55224EB093000C7F95 /* Proteus.cpp */; };
 		C9258B5C225028CC000C7F95 /* Analyze.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B5A225028CC000C7F95 /* Analyze.cpp */; };
 		C9258B5D225028D4000C7F95 /* Squash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B58225028B7000C7F95 /* Squash.cpp */; };
 		C9258B6122502A81000C7F95 /* AifFileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B6022502A81000C7F95 /* AifFileReader.cpp */; };
@@ -113,6 +112,7 @@
 		C9258B672250303D000C7F95 /* Memory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B642250303D000C7F95 /* Memory.cpp */; };
 		C9258B6A22512155000C7F95 /* ARMCode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B6822512155000C7F95 /* ARMCode.cpp */; };
 		C9258B6D22516890000C7F95 /* Disarm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B6B22516890000C7F95 /* Disarm.cpp */; };
+		C9258B7022551E06000C7F95 /* Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B6F22551E06000C7F95 /* Test.cpp */; };
 		C92FC71E209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
@@ -543,6 +543,8 @@
 		C9258B6922512155000C7F95 /* ARMCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ARMCode.h; path = ../../../../Tools/Analyze/ARMCode.h; sourceTree = "<group>"; };
 		C9258B6B22516890000C7F95 /* Disarm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Disarm.cpp; path = ../../../../Tools/Analyze/Disarm.cpp; sourceTree = "<group>"; };
 		C9258B6C22516890000C7F95 /* Disarm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Disarm.h; path = ../../../../Tools/Analyze/Disarm.h; sourceTree = "<group>"; };
+		C9258B6E22551E05000C7F95 /* Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Test.h; sourceTree = "<group>"; };
+		C9258B6F22551E06000C7F95 /* Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Test.cpp; sourceTree = "<group>"; };
 		C92FC717209374B500EF4BB1 /* TPipesSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPipesSerialPortManager.h; sourceTree = "<group>"; };
 		C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPipesSerialPortManager.cp; sourceTree = "<group>"; };
 		C932824511D0CF0A003B93C3 /* button_network_in.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network_in.png; sourceTree = "<group>"; };
@@ -1147,6 +1149,8 @@
 		C9258B54224EAF99000C7F95 /* Proteus */ = {
 			isa = PBXGroup;
 			children = (
+				C9258B6F22551E06000C7F95 /* Test.cpp */,
+				C9258B6E22551E05000C7F95 /* Test.h */,
 				C9258B55224EB093000C7F95 /* Proteus.cpp */,
 				C9258B56224EB093000C7F95 /* Proteus.h */,
 			);
@@ -2275,6 +2279,7 @@
 				C935F783209CD68900351905 /* TBasiliskIISerialPortManager.cp in Sources */,
 				C99E317D111B73A1002165EC /* UDisasm.cp in Sources */,
 				C99E3391111B7570002165EC /* TCondVar.cp in Sources */,
+				C9258B7022551E06000C7F95 /* Test.cpp in Sources */,
 				C99E3392111B7570002165EC /* TMutex.cp in Sources */,
 				C99E3393111B7570002165EC /* TThread.cp in Sources */,
 				C99E34C9111B7C08002165EC /* einstein.mm in Sources */,
@@ -2304,7 +2309,6 @@
 				C99E34F3111B7C08002165EC /* TJITGeneric_Other.cp in Sources */,
 				C99E34F4111B7C08002165EC /* TJITGeneric_SingleDataSwap.cp in Sources */,
 				C99E34F6111B7C08002165EC /* TJITGeneric_SingleDataTransfer.cp in Sources */,
-				C9258B57224EB093000C7F95 /* Proteus.cpp in Sources */,
 				C99E34FB111B7C08002165EC /* TJITGeneric_Test.cp in Sources */,
 				C99E34FD111B7C08002165EC /* TJITGenericPage.cp in Sources */,
 				C99E3503111B7C08002165EC /* TJITCache.cp in Sources */,
