@@ -55,4 +55,19 @@ extern TProteusFiber *FindFiber();
 
 extern TProteusFiber *svcFiber;
 
+#define T_JIT_TO_NATIVE(addr, name) \
+extern JITInstructionProto(p##addr); \
+extern void P##addr(); \
+TJITGenericPatchNativeInjection i##addr(addr, p##addr, name); \
+JITInstructionProto(p##addr) { \
+if (TProteusFiber *fiber = FindFiber()) { \
+fiber->Resume(kFiberCallNative, (void*)P##addr); \
+return nullptr; \
+} else return ioUnit; \
+} \
+void P##addr()
+
+
+
+
 #endif /* T_PROTEUS_FIBER_H */

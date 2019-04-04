@@ -107,6 +107,7 @@
 		C901E530132656710074513E /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
 		C91B1F5622565075006001BA /* TProteusFiber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F5422565075006001BA /* TProteusFiber.cpp */; };
 		C91B1F5922565198006001BA /* TProteusMacros.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F5722565198006001BA /* TProteusMacros.cpp */; };
+		C91B1F5A22565301006001BA /* Proteus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B55224EB093000C7F95 /* Proteus.cpp */; };
 		C9258B7022551E06000C7F95 /* Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B6F22551E06000C7F95 /* Test.cpp */; };
 		C92FC71E209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
@@ -2366,6 +2367,7 @@
 				C99E3530111B7C08002165EC /* TMMU.cp in Sources */,
 				C99E3531111B7C08002165EC /* TNativePrimitives.cp in Sources */,
 				C932C4C211A1AB5D00F6A7E4 /* TNE2000Card.cp in Sources */,
+				C91B1F5A22565301006001BA /* Proteus.cpp in Sources */,
 				C962429711B69A9D00EE66F3 /* TUsermodeNetwork.cp in Sources */,
 				C96242A011B6A20A00EE66F3 /* TNetworkManager.cp in Sources */,
 				DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */,

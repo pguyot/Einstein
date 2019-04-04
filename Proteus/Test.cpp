@@ -165,40 +165,9 @@
 
 // --- proteus variables
 
-TARMProcessor *CPU = nullptr;
-TMemory *MEM = nullptr;
-TInterruptManager *INT = nullptr;
-
-#define T_JIT_TO_NATIVE(addr, name) \
-extern JITInstructionProto(p##addr); \
-extern void P##addr(); \
-TJITGenericPatchNativeInjection i##addr(addr, p##addr, name); \
-JITInstructionProto(p##addr) { \
-	if (TProteusFiber *fiber = FindFiber()) { \
-		fiber->Resume(kFiberCallNative, (void*)P##addr); \
-		return nullptr; \
-	} else return ioUnit; \
-} \
-void P##addr()
 
 
 
-
-
-/*
- * This injection initializes the Proteus system by setting up a few
- * variables for fast acces in later calls.
- */
-T_ROM_INJECTION(0x00000000, "Initialize Proteus") {
-	CPU = ioCPU;
-	MEM = ioCPU->GetMemory();
-	INT = MEM->GetInterruptManager();
-	if (!svcFiber) {
-		svcFiber = new TProteusFiber();
-		svcFiber->Run(kFiberCallJIT);
-	}
-	return ioUnit;
-}
 
 /*
  Let's implement this part of the SWI:
