@@ -108,6 +108,7 @@
 		C91B1F5622565075006001BA /* TProteusFiber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F5422565075006001BA /* TProteusFiber.cpp */; };
 		C91B1F5922565198006001BA /* TProteusMacros.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F5722565198006001BA /* TProteusMacros.cpp */; };
 		C91B1F5A22565301006001BA /* Proteus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B55224EB093000C7F95 /* Proteus.cpp */; };
+		C91B1F5E2256A6B4006001BA /* SWI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F5C2256A6B4006001BA /* SWI.cpp */; };
 		C9258B7022551E06000C7F95 /* Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B6F22551E06000C7F95 /* Test.cpp */; };
 		C92FC71E209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
@@ -533,6 +534,8 @@
 		C91B1F5522565075006001BA /* TProteusFiber.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TProteusFiber.h; sourceTree = "<group>"; };
 		C91B1F5722565198006001BA /* TProteusMacros.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TProteusMacros.cpp; sourceTree = "<group>"; };
 		C91B1F5822565198006001BA /* TProteusMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TProteusMacros.h; sourceTree = "<group>"; };
+		C91B1F5C2256A6B4006001BA /* SWI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SWI.cpp; sourceTree = "<group>"; };
+		C91B1F5D2256A6B4006001BA /* SWI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SWI.h; sourceTree = "<group>"; };
 		C9258B3D224EAEC4000C7F95 /* analyze */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = analyze; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9258B4C224EAF20000C7F95 /* squash */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = squash; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9258B55224EB093000C7F95 /* Proteus.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Proteus.cpp; sourceTree = "<group>"; usesTabs = 1; };
@@ -1117,9 +1120,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		C91B1F5B2256A69E006001BA /* OS */ = {
+			isa = PBXGroup;
+			children = (
+				C91B1F5C2256A6B4006001BA /* SWI.cpp */,
+				C91B1F5D2256A6B4006001BA /* SWI.h */,
+			);
+			path = OS;
+			sourceTree = "<group>";
+		};
 		C9258B54224EAF99000C7F95 /* Proteus */ = {
 			isa = PBXGroup;
 			children = (
+				C91B1F5B2256A69E006001BA /* OS */,
 				C9258B6F22551E06000C7F95 /* Test.cpp */,
 				C9258B6E22551E05000C7F95 /* Test.h */,
 				C9258B55224EB093000C7F95 /* Proteus.cpp */,
@@ -2378,6 +2391,7 @@
 				C901E51D132655E00074513E /* UUTF16Conv.cp in Sources */,
 				C901E5221326560B0074513E /* TStream.cp in Sources */,
 				C901E5231326560C0074513E /* TFileStream.cp in Sources */,
+				C91B1F5E2256A6B4006001BA /* SWI.cpp in Sources */,
 				C901E5261326562E0074513E /* TCircleBuffer.cp in Sources */,
 				C901E527132656310074513E /* TMappedFile.cp in Sources */,
 				F156B8171CFA48BD004661E8 /* TCocoaListenerWindow.mm in Sources */,

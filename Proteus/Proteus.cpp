@@ -40,7 +40,11 @@
 // --- ROM
 
 //-/* 0x00000000-0x0071FC4C */ NewtonOS in ROM
-// /* 0x00000000-0x0071FC4C */
+// /* 0x00000000-0x003AD750 */
+
+// MATT: _SWI_Scheduler from 0x003AD750 to 0x003ADBB4 has been moved to "OS/SWI.cpp"
+
+// /* 0x003ADBB4-0x0071FC4C */
 
 // --- RExBlock
 

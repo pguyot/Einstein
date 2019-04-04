@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-extern void check_code_coverage(unsigned int addr, unsigned int flags=0);
+extern void check_code_coverage(unsigned int addr, bool isJumpTarget=false);
 extern int analyzeAllARMCodeCoverage();
 
 
