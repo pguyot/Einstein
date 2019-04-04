@@ -22,12 +22,13 @@
 // ==============================
 
 
-#ifndef proteus_h
-#define proteus_h
+#ifndef _PROTEUS_H
+#define _PROTEUS_H
 
-// (...)
+#include "TProteusMacros.h"
+#include "TProteusFiber.h"
 
-#endif /* proteus_h */
+#endif /* _PROTEUS_H */
 
 
 // ============================================================================== //

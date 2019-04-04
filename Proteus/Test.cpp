@@ -2,7 +2,7 @@
 
 
 #include "Test.h"
-
+#include "Proteus.h"
 
 /*
 
@@ -184,47 +184,6 @@ void P##addr()
 
 
 
-typedef void (*FPtr)();
-
-enum {
-	kFiberAbort = 1,
-	kFiberIdle,
-	kFiberCallNative,
-	kFiberCallJIT,
-	kFiberReturn,
-	kFiberUnknown
-};
-
-class TProteusFiber : public TFiber
-{
-public:
-	TProteusFiber() { }
-	KSInt32 Task(KSInt32 inReason=0, void* inUserData=0L)
-	{
-		SwitchToJIT();
-		return 0;
-	}
-	void SwitchToJIT(KUInt32 pc=0xFFFFFFFF) {
-		LR = 0x007FFFF0;
-		if (pc!=0xFFFFFFFF) PC = pc+4;
-		for (;;) {
-			FPtr fn;
-			int reason = Suspend(kFiberCallJIT);
-			switch (reason) {
-				case kFiberReturn:
-					return;
-				case kFiberCallNative:
-					fn = (FPtr)GetUserData();
-					fn();
-					break;
-				default:
-					fprintf(stderr, "ERROR: TSVCFiber::SwitchToJIT, unexpected Resume(%d)\n", reason);
-			}
-		}
-	}
-};
-
-TProteusFiber *svcFiber = nullptr;
 
 /*
  * This injection initializes the Proteus system by setting up a few
@@ -239,13 +198,6 @@ T_ROM_INJECTION(0x00000000, "Initialize Proteus") {
 		svcFiber->Run(kFiberCallJIT);
 	}
 	return ioUnit;
-}
-
-TProteusFiber *FindFiber()
-{
-	if (CPU->GetMode()==CPU->kSupervisorMode)
-		return svcFiber;
-	return nullptr;
 }
 
 /*
