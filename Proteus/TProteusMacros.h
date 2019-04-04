@@ -72,6 +72,11 @@ const TMemory::VAddr g##name = addr; \
 type GetG##name() { KUInt32 w; MEM->Read(g##name, w); return (type)w; } \
 void SetG##name(type v) { KUInt32 w=(KUInt32)v; MEM->Write(g##name, w); }
 
+#define GLOBAL_GETSET_W_DECL(addr, type, name) \
+extern const TMemory::VAddr g##name; \
+extern type GetG##name(); \
+extern void SetG##name(type v);
+
 /** Define a class memeber variable and its getter and setter */
 #define	T_GETSET_MEMVAR_W(offset, type, name) \
 type Get##name() { KUInt32 w; MEM->Read(((KUInt32)(uintptr_t)this)+offset, w); return (type)w; } \

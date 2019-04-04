@@ -166,7 +166,7 @@
 // --- proteus variables
 
 
-
+#if 0
 
 
 /*
@@ -211,7 +211,7 @@ T_JIT_TO_NATIVE(0x000E589C, "SWI Test 2") {
 	swi_native_test_2();
 }
 
-
+#endif
 
 
 

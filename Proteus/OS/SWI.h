@@ -10,4 +10,6 @@
 
 #include "Proteus.h"
 
+extern void _SWI_Scheduler();
+
 #endif /* PROTEUS_SWI_H */

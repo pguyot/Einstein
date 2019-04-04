@@ -32,10 +32,6 @@
 
 // --- classes
 
-// --- globals
-
-//-/* 0x0C008400-0x0C107E18 */ Range of global variables in memory
-// /* 0x0C008400-0x0C107E18 */
 
 // --- ROM
 

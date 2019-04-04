@@ -394,9 +394,29 @@ public:
 	bool IsIRQEnabled();
 
 	///
+	/// enable IRQ interrupts
+	///
+	void EnableIRQ() { mCPSR_I = 0; }
+
+	///
+	/// disable IRQ interrupts
+	///
+	void DisableIRQ() { mCPSR_I = 1; }
+
+	///
 	/// return true if the FIQ interrupt is enabled
 	///
 	bool IsFIQEnabled();
+
+	///
+	/// enable FIQ interrupts
+	///
+	void EnableFIQ() { mCPSR_F = 0; }
+
+	///
+	/// disable FIQ interrupts
+	///
+	void DisableFIQ() { mCPSR_F = 1; }
 
 	///
 	/// return true if any of the interrupts is enabled
