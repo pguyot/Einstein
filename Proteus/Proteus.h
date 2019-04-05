@@ -28,6 +28,8 @@
 #include "TProteusMacros.h"
 #include "TProteusFiber.h"
 
+class TTask;
+
 #endif /* _PROTEUS_H */
 
 

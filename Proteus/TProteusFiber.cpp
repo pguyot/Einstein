@@ -17,4 +17,9 @@ TProteusFiber *FindFiber()
 
 TProteusFiber *svcFiber = nullptr;
 
+T_ROM_INJECTION(0x007FFFF0, "ReturnToFiber") {
+	FindFiber()->Resume(kFiberReturn, nullptr);
+	return nullptr;
+}
+
 

@@ -180,17 +180,11 @@ void swi_native_test()
 {
 	PUSH(SP, R0);
 
-	FindFiber()->SwitchToJIT(0x001CC4A8);
+	FindFiber()->SwitchToJIT(0x001CC4A8); // StartScheduler
 
 	POP(SP, R0);
 	PC = 0x003AD818+4;
 }
-
-T_ROM_INJECTION(0x007FFFF0, "ReturnToFiber") {
-	FindFiber()->Resume(kFiberReturn, nullptr);
-	return nullptr;
-}
-
 
 T_JIT_TO_NATIVE(0x003AD80C, "SWI Test") {
 	swi_native_test();
