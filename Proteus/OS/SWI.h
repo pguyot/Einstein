@@ -10,6 +10,10 @@
 
 #include "Proteus.h"
 
+namespace NewtOS {
+
 extern void _SWI_Scheduler();
+
+} // namespace
 
 #endif /* PROTEUS_SWI_H */

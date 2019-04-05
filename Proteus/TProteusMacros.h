@@ -17,6 +17,8 @@
 #include "TJITGeneric_Macros.h"
 #include "TJITGenericROMPatch.h"
 
+namespace NewtOS {
+
 extern TARMProcessor *CPU;
 extern TMemory *MEM;
 extern TInterruptManager *INT;
@@ -88,11 +90,15 @@ extern type GetG##name(); \
 extern void SetG##name(type v);
 
 /** Define a class memeber variable and its getter and setter */
-#define	T_GETSET_MEMVAR_W(offset, type, name) \
+#define	T_GETSET_MEMBER_W(offset, type, name) \
 type Get##name() { KUInt32 w; MEM->Read(((KUInt32)(uintptr_t)this)+offset, w); return (type)w; } \
 void Set##name(type w) { KUInt32 v = (KUInt32)w; MEM->Write(((KUInt32)(uintptr_t)this)+offset, v); }
-#define	T_GETSET_MEMVAR_P(offset, type, name) \
+#define	T_GETSET_MEMBER_P(offset, type, name) \
 type Get##name() { KUInt32 w; MEM->Read(((KUInt32)(uintptr_t)this)+offset, w); return (type)(uintptr_t)w; } \
 void Set##name(type w) { KUInt32 v = (KUInt32)(uintptr_t)w; MEM->Write(((KUInt32)(uintptr_t)this)+offset, v); }
+
+
+} // namespace;
+
 
 #endif /* PROTEUS_MACROS_H */

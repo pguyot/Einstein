@@ -8,6 +8,9 @@
 #include "TProteusFiber.h"
 
 
+namespace NewtOS {
+
+
 TProteusFiber *FindFiber()
 {
 	if (CPU->GetMode()==CPU->kSupervisorMode)
@@ -22,4 +25,6 @@ T_ROM_INJECTION(0x007FFFF0, "ReturnToFiber") {
 	return nullptr;
 }
 
+
+};
 

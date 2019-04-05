@@ -28,7 +28,11 @@
 #include "TProteusMacros.h"
 #include "TProteusFiber.h"
 
+namespace NewtOS {
+
 class TTask;
+
+};
 
 #endif /* _PROTEUS_H */
 

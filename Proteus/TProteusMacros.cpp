@@ -8,6 +8,10 @@
 #include "TProteusMacros.h"
 #include "TProteusFiber.h"
 
+
+namespace NewtOS {
+
+
 TARMProcessor *CPU = nullptr;
 TMemory *MEM = nullptr;
 TInterruptManager *INT = nullptr;
@@ -27,4 +31,6 @@ T_ROM_INJECTION(0x00000000, "Initialize Proteus") {
 	return ioUnit;
 }
 
+
+} // namespace
 

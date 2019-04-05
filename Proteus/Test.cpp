@@ -17,11 +17,9 @@
  I realized that I had been tinkering with the Newton for 14 years by now. I
  ported Einstein to MSWindows and Android with the help of other Newton fans.
  I wrote a disassembler for the ROM, and I wrote serial port drivers among other
- code that requiered disassembling and understanding the ROM.
-
- Others have done similar things, Paul Guyot, Walter Smith, Eckhart Köppen,
- Makoto Nukui, and Pablo Marx come to mind first. They all have a fantastic
- understanding on what is going on inside NewtonOS.
+ code that requiered disassembling and understanding the ROM. At least five
+ developers come to mind who have a fantastic understanding on what is going on
+ inside NewtonOS.
 
  So I said another thing in "Love Notes", along the lines of "Newton is samll
  enough for a single person to comprehend, it's my 2-million-fields Sudoku".
@@ -45,11 +43,25 @@
  to this effort... .
 
 
+ Main Goal
+ ---------
+
+  * full source code of ROM in C++ and NewtonScript
+     * able to run code native inside Einstein
+     * recompile parts and improvements back into ARM code for a new ROM
+     * compile an entirely native NewtonOS
+
+
+ Milestones
+ ----------
+
+
  Resources
  ---------
 
 
- So Apple has abandoned us, but they left us some great resources. (...)
+ So Apple has abandoned us, but they left us some great resources - and
+ challenges. (...)
 
 
  Proteus

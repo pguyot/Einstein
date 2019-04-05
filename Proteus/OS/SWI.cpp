@@ -8,7 +8,9 @@
 #include "SWI.h"
 
 #include "Globals.h"
+#include "KernelTask.h"
 
+namespace NewtOS {
 
 void DoDeferrals()
 {
@@ -36,7 +38,7 @@ T_JIT_TO_NATIVE(0x003AD750, "_SWI_Scheduler") {
 // _SWI_Scheduler starts here:
 void _SWI_Scheduler()
 {
-	TTask *task;
+	TTask *oldTask, *newTask;
 // /* 0x003AD750-0x003AD754 */
 	PUSH(SP, R1);
 	PUSH(SP, R0);
@@ -88,8 +90,8 @@ L003AD7C8:
 		goto L003ADA70;
 // /* 0x003AD7F8-0x003AD7FC */
 L003AD7F8:
-	task = Scheduler();
-	R0 = (KUInt32)(uintptr_t)task;
+	newTask = Scheduler();
+	R0 = (KUInt32)(uintptr_t)newTask;
 // /* 0x003AD7FC-0x003AD80C */
 	if (GetGWantSchedulerToRun()==0)
 		goto L003AD818;
@@ -102,16 +104,17 @@ L003AD7F8:
 // /* 0x003AD818-0x003AD81C */
 L003AD818:
 // /* 0x003AD81C-0x003AD820 */
-	R1 = (KUInt32)(uintptr_t)GetGCurrentTask();
+	oldTask = GetGCurrentTask();
+	R1 = (KUInt32)(uintptr_t)oldTask;
 // /* 0x003AD820-0x003AD828 */
-	if (R0==R1)
+	if ( oldTask==newTask )
 		goto L003ADA70;
 // /* 0x003AD828-0x003AD82C */
 	R2 = 0x0C100FF8;
 // /* 0x003AD82C-0x003AD830 */
-	SetGCurrentTask((TTask*)(uintptr_t)R0);
+	SetGCurrentTask( newTask );
 // /* 0x003AD830-0x003AD834 */
-	if (R1==0) {
+	if ( oldTask==nullptr ) {
 // /* 0x003AD834-0x003AD838 */
 		SP += 32;
 // /* 0x003AD838-0x003AD83C */
@@ -125,16 +128,14 @@ L003AD818:
 	POP(SP, R12);
 	POP(SP, LR);
 // /* 0x003AD840-0x003AD844 */
-	R0 = R1;
-// /* 0x003AD844-0x003AD84C */
-	R1 = GetGCopyDone();
-// /* 0x003AD84C-0x003AD854 */
+	R0 = R1; // R0 = oldTask;
+// /* 0x003AD844-0x003AD854 */
 	if (GetGCopyDone()!=0)
 		goto L003AD8E0;
 // /* 0x003AD854-0x003AD858 */
 	R1 = CPU->GetSPSR();
 // /* 0x003AD858-0x003AD85C */
-	POKE_W(R0+80, R1); // oldTask->SetPSR(R1);
+	oldTask->SetPSR( R1 );
 	PC = 0x003AD854+4;
 	return;
 // /* 0x003AD85C-0x003AD8E0 */
@@ -171,4 +172,8 @@ L003ADA74:
 // /* 0x003ADB14-0x003ADBB4 */
 // return from SWI
 }
+
+
+} // namespace
+
 

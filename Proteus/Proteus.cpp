@@ -24,6 +24,10 @@
 
 #include "Proteus.h"
 
+
+using namespace NewtOS;
+
+
 // --- class predeclarations
 
 // --- typedefs

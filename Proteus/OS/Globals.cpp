@@ -7,6 +7,10 @@
 
 #include "Globals.h"
 
+
+namespace NewtOS {
+
+
 //-/* 0x0C008400-0x0C107E18 */ Range of global variables in memory
 // /* 0x0C008400-0x0C100E58 */
 
@@ -41,4 +45,6 @@ GLOBAL_GETSET_W(0x0C101040, KUInt32, CopyDone);
 GLOBAL_GETSET_W(0x0C101A2C, KUInt32, WantSchedulerToRun);
 
 // /* 0x0C101A30-0x0C107E18 */
+
+} // namespace
 

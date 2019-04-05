@@ -11,6 +11,10 @@
 #include "TProteusMacros.h"
 #include "K/Threads/TFiber.h"
 
+
+namespace NewtOS {
+
+
 typedef void (*FPtr)();
 
 enum {
@@ -67,7 +71,6 @@ return nullptr; \
 } \
 void P##addr()
 
-
-
+} // namespace;
 
 #endif /* T_PROTEUS_FIBER_H */
