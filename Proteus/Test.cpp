@@ -6,6 +6,55 @@
 
 /*
 
+ Back Story
+ ----------
+
+ On April 1st 2019 it hit me. I was watching Noah's "Love Notes to Newton" yet
+ again to show my kids the only movie credit that I ever got, and that finally
+ got me an entry into the IMDB despite working 10 years in Hollywood as a
+ software engineer in the movies.
+
+ I realized that I had been tinkering with the Newton for 14 years by now. I
+ ported Einstein to MSWindows and Android with the help of other Newton fans.
+ I wrote a disassembler for the ROM, and I wrote serial port drivers among other
+ code that requiered disassembling and understanding the ROM.
+
+ Others have done similar things, Paul Guyot, Walter Smith, Eckhart Köppen,
+ Makoto Nukui, and Pablo Marx come to mind first. They all have a fantastic
+ understanding on what is going on inside NewtonOS.
+
+ So I said another thing in "Love Notes", along the lines of "Newton is samll
+ enough for a single person to comprehend, it's my 2-million-fields Sudoku".
+ Let's do the math: NewtonOS is smaller than 8MB. Half of that is ARM machine
+ code. One machine code command is 4 bytes, leaving us with less than 1 million
+ ARM instructions. If in the last 14 years, instead of wasting my time on real
+ Sudoku, I would have needed to decode 1'000'000 / 14 / 365 = 200 instructions
+ a day to completely translate the ROM. That is an absolutely realistic number.
+ ARM assembly is very easy to understand and translate into C++.
+
+ Just for fun. let's divide that by the number of people listed above, and
+ assume we have 5 years to do it. Every person would have to deliver less than
+ 100 lines a day, which compresses down to about 25 lines of C++ code.
+
+ Whoa! All of a sudden, the complete reimplementation of the Newton ROM in
+ C++ is actually within somewhat reasonable reach! If we would have started
+ this in 2005, we would have had the new Newton OS completed in 2010, just by
+ writing a few lines of code instead of sitting in the bathroom, solving Sudoku.
+
+ Now imagine just for giggles if any of the original developers would join in
+ to this effort... .
+
+
+ Resources
+ ---------
+
+
+ So Apple has abandoned us, but they left us some great resources. (...)
+
+
+ Proteus
+ -------
+
  So here I want to try a concept I have that will make it possible to jump
  between JIT emulated ARM code and native code in Einstein. I have shown that
  this works before, but this will hopefully a much cleaner approach.
