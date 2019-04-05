@@ -12,8 +12,13 @@
 
 namespace NewtOS {
 
+	class TTask;
+
 //-/* 0x0C008400-0x0C107E18 */ Range of global variables in memory
-// /* 0x0C008400-0x0C100E58 */
+
+	extern TImageParamBlock *gParamBlockFromImage;
+
+// /* 0x0C0084E4-0x0C100E58 */
 
 GLOBAL_GETSET_W_DECL(0x0C100E58, KSInt32, AtomicFIQNestCountFast);
 

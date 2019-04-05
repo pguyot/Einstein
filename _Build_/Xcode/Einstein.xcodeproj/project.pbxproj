@@ -111,6 +111,7 @@
 		C91B1F5E2256A6B4006001BA /* SWI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F5C2256A6B4006001BA /* SWI.cpp */; };
 		C91B1F612256BCA1006001BA /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F5F2256BCA1006001BA /* Globals.cpp */; };
 		C91B1F642257A210006001BA /* KernelTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F622257A210006001BA /* KernelTask.cpp */; };
+		C91B1F672257FAC3006001BA /* Environment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F652257FAC3006001BA /* Environment.cpp */; };
 		C9258B7022551E06000C7F95 /* Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B6F22551E06000C7F95 /* Test.cpp */; };
 		C92FC71E209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
@@ -542,6 +543,8 @@
 		C91B1F602256BCA1006001BA /* Globals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Globals.h; sourceTree = "<group>"; };
 		C91B1F622257A210006001BA /* KernelTask.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = KernelTask.cpp; sourceTree = "<group>"; };
 		C91B1F632257A210006001BA /* KernelTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KernelTask.h; sourceTree = "<group>"; };
+		C91B1F652257FAC3006001BA /* Environment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Environment.cpp; sourceTree = "<group>"; };
+		C91B1F662257FAC3006001BA /* Environment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Environment.h; sourceTree = "<group>"; };
 		C9258B3D224EAEC4000C7F95 /* analyze */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = analyze; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9258B4C224EAF20000C7F95 /* squash */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = squash; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9258B55224EB093000C7F95 /* Proteus.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Proteus.cpp; sourceTree = "<group>"; usesTabs = 1; };
@@ -1135,6 +1138,8 @@
 				C91B1F602256BCA1006001BA /* Globals.h */,
 				C91B1F622257A210006001BA /* KernelTask.cpp */,
 				C91B1F632257A210006001BA /* KernelTask.h */,
+				C91B1F652257FAC3006001BA /* Environment.cpp */,
+				C91B1F662257FAC3006001BA /* Environment.h */,
 			);
 			path = OS;
 			sourceTree = "<group>";
@@ -2409,6 +2414,7 @@
 				F156B8171CFA48BD004661E8 /* TCocoaListenerWindow.mm in Sources */,
 				C901E52C1326566B0074513E /* TError.cp in Sources */,
 				F119E9BD1B41FA0D00192514 /* TMacMonitorView.mm in Sources */,
+				C91B1F672257FAC3006001BA /* Environment.cpp in Sources */,
 				C901E52D1326566C0074513E /* TException.cp in Sources */,
 				C901E52E1326566D0074513E /* TIOException.cp in Sources */,
 				F156B8161CFA48BD004661E8 /* TCocoaFileManager.mm in Sources */,

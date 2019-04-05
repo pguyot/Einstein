@@ -12,7 +12,10 @@ namespace NewtOS {
 
 
 //-/* 0x0C008400-0x0C107E18 */ Range of global variables in memory
-// /* 0x0C008400-0x0C100E58 */
+
+	TImageParamBlock *gParamBlockFromImage = (TImageParamBlock*)0x0C008400;
+
+// /* 0x0C0084E4-0x0C100E58 */
 
 GLOBAL_GETSET_W(0x0C100E58, KSInt32, AtomicFIQNestCountFast);
 

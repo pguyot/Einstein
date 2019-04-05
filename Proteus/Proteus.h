@@ -30,9 +30,13 @@
 
 namespace NewtOS {
 
-class TTask;
+	class TImageParamBlock
+	{
+	public:
+		T_GETSET_MEMBER_W(0xB0, KUInt32, 176xB0);
+	};
 
-};
+}
 
 #endif /* _PROTEUS_H */
 
