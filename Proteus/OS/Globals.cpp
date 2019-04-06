@@ -1,9 +1,26 @@
+// ==============================
+// File:			Globals.cpp
+// Project:			Einstein
 //
-//  Globals.cpp
-//  Einstein
+// Copyright 2019 by Matthais Melcher (proteus@matthiasm.com).
 //
-//  Created by Matthias Melcher on 4/5/19.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
 //
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// ==============================
+// $Id$
+// ==============================
+
 
 #include "Globals.h"
 
@@ -43,11 +60,25 @@ GLOBAL_GETSET_W(0x0C101028, KUInt32, WantDeferred);
 
 GLOBAL_GETSET_W(0x0C101040, KUInt32, CopyDone);
 
-// /* 0x0C101044-0x0C101A2C */
+// /* 0x0C101044-0x0C101054 */
 
-GLOBAL_GETSET_W(0x0C101A2C, KUInt32, WantSchedulerToRun);
+	GLOBAL_GETSET_W(0x0C101054, ObjectId, CurrentTaskId);
 
-// /* 0x0C101A30-0x0C107E18 */
+	GLOBAL_GETSET_W(0x0C101058, ObjectId, gCurrentMonitorId);
+
+	GLOBAL_GETSET_P(0x0C10105C, void*, CurrentGlobals);
+
+// /* 0x0C101060-0x0C101A2C */
+
+	GLOBAL_GETSET_W(0x0C101A2C, KUInt32, WantSchedulerToRun);
+
+	GLOBAL_GETSET_W(0x0C101A30, KUInt32, SchedulerRunning);
+
+// /* 0x0C101A34-0x0C107E18 */
 
 } // namespace
 
+
+// ======================================================================= //
+//                       - insert insane quote here -                      //
+// ======================================================================= //

@@ -1,5 +1,5 @@
 // ==============================
-// File:			KernelTask.cpp
+// File:			KernelObject.h
 // Project:			Einstein
 //
 // Copyright 2019 by Matthais Melcher (proteus@matthiasm.com).
@@ -22,8 +22,29 @@
 // ==============================
 
 
-#include "KernelTask.h"
+#ifndef NEWT_OS_KERNEL_OBJECT_H
+#define NEWT_OS_KERNEL_OBJECT_H
 
+#include "Proteus.h"
+
+
+typedef KUInt32 ObjectId;
+
+namespace NewtOS {
+
+	class TObject // : public SingleObject
+{
+public:
+	T_GETSET_MEMBER_W(0x00, ObjectId, 00_Id);
+	T_GETSET_MEMBER_P(0x04, TObject*, 04_Next);
+	T_GETSET_MEMBER_P(0x08, ObjectId, 08_OwnerId);
+	T_GETSET_MEMBER_P(0x0C, ObjectId, 0C_AssignedOwnerId);
+};
+
+
+} // namespace
+
+#endif /* NEWT_OS_KERNEL_OBJECT_H */
 
 // ======================================================================= //
 //                       - insert insane quote here -                      //
