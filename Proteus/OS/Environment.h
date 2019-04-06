@@ -16,7 +16,7 @@ namespace NewtOS {
 	class TEnvironment
 	{
 	public:
-		T_GETSET_MEMBER_W(0x10, KUInt32, DomainAccess);
+		T_GETSET_MEMBER_W(0x10, KUInt32, 10_DomainAccess);
 	};
 
 

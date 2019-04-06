@@ -33,7 +33,7 @@ namespace NewtOS {
 	class TImageParamBlock
 	{
 	public:
-		T_GETSET_MEMBER_W(0xB0, KUInt32, 176xB0);
+		T_GETSET_MEMBER_W(0xB0, KUInt32, B0_DomainAccess);
 	};
 
 }

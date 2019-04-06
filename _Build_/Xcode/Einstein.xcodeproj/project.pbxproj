@@ -831,7 +831,7 @@
 		C9CD5A6122564FC400B9A9D5 /* AifFileReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AifFileReader.cpp; sourceTree = "<group>"; };
 		C9CD5A6222564FC400B9A9D5 /* Database.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Database.h; sourceTree = "<group>"; };
 		C9CD5A6322564FC400B9A9D5 /* Memory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Memory.h; sourceTree = "<group>"; };
-		C9CD5A6422564FC400B9A9D5 /* Disarm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Disarm.cpp; sourceTree = "<group>"; };
+		C9CD5A6422564FC400B9A9D5 /* Disarm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = Disarm.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		C9CD5A6522564FC400B9A9D5 /* ARMCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARMCode.h; sourceTree = "<group>"; };
 		C9CD5A6622564FC400B9A9D5 /* Analyze.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Analyze.cpp; sourceTree = "<group>"; };
 		C9CD5A6722564FC400B9A9D5 /* ARMCode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ARMCode.cpp; sourceTree = "<group>"; };

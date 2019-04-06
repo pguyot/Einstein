@@ -28,6 +28,9 @@
 #include <string.h>
 
 
+#define HEX 1
+
+
 //const char *get_symbol_at(unsigned int addr);
 //const char *get_plain_symbol_at(unsigned int addr);
 //unsigned int rom_w(unsigned int addr);
@@ -148,7 +151,11 @@ static int print_insn_arm(unsigned int pc,
                     int offset = given & 0xfff;
                     if (offset)
                     {
+#ifdef HEX
+                      sprintf(tmpStr, ", #%s0x%02X", (((given & 0x00800000) == 0) ? "-" : ""), offset);
+#else
                       sprintf(tmpStr, ", #%s%d", (((given & 0x00800000) == 0) ? "-" : ""), offset);
+#endif
                       str = strcat(str, tmpStr);
                     }
                   }
