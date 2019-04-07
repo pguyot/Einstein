@@ -113,6 +113,7 @@
 		C91B1F642257A210006001BA /* KernelTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F622257A210006001BA /* KernelTask.cpp */; };
 		C91B1F672257FAC3006001BA /* Environment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F652257FAC3006001BA /* Environment.cpp */; };
 		C91B1F6A225A240F006001BA /* KernelObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F68225A240F006001BA /* KernelObject.cpp */; };
+		C91B1F6D225A5BFE006001BA /* Interrupt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91B1F6B225A5BFE006001BA /* Interrupt.cpp */; };
 		C9258B7022551E06000C7F95 /* Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9258B6F22551E06000C7F95 /* Test.cpp */; };
 		C92FC71E209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
@@ -548,6 +549,8 @@
 		C91B1F662257FAC3006001BA /* Environment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Environment.h; sourceTree = "<group>"; };
 		C91B1F68225A240F006001BA /* KernelObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = KernelObject.cpp; sourceTree = "<group>"; };
 		C91B1F69225A240F006001BA /* KernelObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KernelObject.h; sourceTree = "<group>"; };
+		C91B1F6B225A5BFE006001BA /* Interrupt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Interrupt.cpp; sourceTree = "<group>"; };
+		C91B1F6C225A5BFE006001BA /* Interrupt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Interrupt.h; sourceTree = "<group>"; };
 		C9258B3D224EAEC4000C7F95 /* analyze */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = analyze; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9258B4C224EAF20000C7F95 /* squash */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = squash; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9258B55224EB093000C7F95 /* Proteus.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Proteus.cpp; sourceTree = "<group>"; usesTabs = 1; };
@@ -1145,6 +1148,8 @@
 				C91B1F662257FAC3006001BA /* Environment.h */,
 				C91B1F68225A240F006001BA /* KernelObject.cpp */,
 				C91B1F69225A240F006001BA /* KernelObject.h */,
+				C91B1F6B225A5BFE006001BA /* Interrupt.cpp */,
+				C91B1F6C225A5BFE006001BA /* Interrupt.h */,
 			);
 			path = OS;
 			sourceTree = "<group>";
@@ -2407,6 +2412,7 @@
 				C96242A011B6A20A00EE66F3 /* TNetworkManager.cp in Sources */,
 				DA0D944011B9A12D00835522 /* TTapNetwork.cp in Sources */,
 				C9B4AB88123D674400D8D2C7 /* TBufferLog.cp in Sources */,
+				C91B1F6D225A5BFE006001BA /* Interrupt.cpp in Sources */,
 				F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */,
 				F164801A13199758001603BE /* TMacMonitor.mm in Sources */,
 				C901E51A132655D50074513E /* UUTF16CStr.cp in Sources */,

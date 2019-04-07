@@ -40,7 +40,13 @@ using namespace NewtOS;
 // --- ROM
 
 //-/* 0x00000000-0x0071FC4C */ NewtonOS in ROM
-// /* 0x00000000-0x003AD750 */
+// /* 0x00000000-0x001CC4A8 */
+
+// StartScheduler:
+// /* 0x001CC514-0x0025215C */
+
+// SwapInGlobals:
+// /* 0x00252190-0x003AD750 */
 
 // MATT: _SWI_Scheduler from 0x003AD750 to 0x003ADBB4 has been moved to "OS/SWI.cpp"
 

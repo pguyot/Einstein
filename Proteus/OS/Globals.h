@@ -27,6 +27,8 @@
 
 #include "Proteus.h"
 #include "KernelObject.h"
+#include "Interrupt.h"
+
 
 namespace NewtOS {
 
@@ -42,7 +44,11 @@ GLOBAL_GETSET_W_DECL(0x0C100E58, KSInt32, AtomicFIQNestCountFast);
 
 GLOBAL_GETSET_W_DECL(0x0C100E5C, KSInt32, AtomicIRQNestCountFast);
 
-// /* 0x0C100E60-0x0C100FE4 */
+// /* 0x0C100E60-0x0C100E6C */
+
+	GLOBAL_GETSET_P_DECL(0x0C100E6C, InterruptObject*, SchedulerIntObj);
+
+// /* 0x0C100E70-0x0C100FE4 */
 
 GLOBAL_GETSET_W_DECL(0x0C100FE4, KUInt32, Schedule);
 

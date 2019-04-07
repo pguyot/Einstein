@@ -10,6 +10,7 @@
 #include "Globals.h"
 #include "KernelTask.h"
 #include "KernelObject.h"
+#include "Interrupt.h"
 
 namespace NewtOS {
 
@@ -27,11 +28,39 @@ namespace NewtOS {
 	}
 
 
-	void JIT_StartScheduler() // TODO: implemet natively, so we don;t have to save registers
+	void JIT_DisableInterrupt(InterruptObject *intr)
 	{
-		FindFiber()->SwitchToJIT(0x001CC4A8);
+		R0 = (KUInt32)(uintptr_t)intr;
+		FindFiber()->SwitchToJIT(0x000E5890);
+		return;
 	}
 
+	
+	void JIT_QuickEnableInterrupt(InterruptObject *intr)
+	{
+		R0 = (KUInt32)(uintptr_t)intr;
+		FindFiber()->SwitchToJIT(0x000E57BC);
+		return;
+	}
+
+
+	void JIT_StartScheduler() // TODO: implemet natively, so we don;t have to save registers
+	{
+		PUSH(SP, R5);
+		PUSH(SP, R4);
+		if ( GetGSchedulerRunning() ) {
+			InterruptObject *intr = GetGSchedulerIntObj();
+			JIT_DisableInterrupt( intr );
+			KUInt32 nextIntr = INT->GetTimer() + 73720; // add 20ms
+			INT->SetTimerMatchRegister( 3, nextIntr );
+			SetGSchedulerRunning( 1 );
+			JIT_QuickEnableInterrupt( intr );
+		}
+		SetGWantSchedulerToRun( 0 );
+		POP(SP, R4);
+		POP(SP, R5);
+	}
+	
 
 	/**
 	 * Replace some global variablea with values from the current task.
