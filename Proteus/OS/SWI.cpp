@@ -1,26 +1,9 @@
-// ==============================
-// File:			SWI.cpp
-// Project:			Einstein
 //
-// Copyright 2019 by Matthais Melcher (proteus@matthiasm.com).
+//  SWI.cpp
+//  Einstein
 //
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
+//  Created by Matthias Melcher on 4/4/19.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License along
-// with this program; if not, write to the Free Software Foundation, Inc.,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-// ==============================
-// $Id$
-// ==============================
-
 
 #include "SWI.h"
 
@@ -44,81 +27,10 @@ namespace NewtOS {
 	}
 
 
-
-//DisableInterrupt:
-//	@ label = 'DisableInterrupt'
-//	mov     r12, sp                         @ 0x000E5890 0xE1A0C00D - ....
-
-
-//QuickEnableInterrupt:
-//	@ label = 'QuickEnableInterrupt'
-//	mov     r12, sp                         @ 0x000E57BC 0xE1A0C00D - ....
-
-//	InterruptObject *	RegisterInterrupt(ULong inArg1, void * inArg2, NewtonInterruptHandler inHandler, ULong inArg4);
-//	void					QuickEnableInterrupt(InterruptObject * interrupt);
-//	NewtonErr			EnableInterrupt(InterruptObject * interrupt, ULong inBits);
-//	NewtonErr			DisableInterrupt(InterruptObject * interrupt);
-//	NewtonErr			ClearInterrupt(InterruptObject * interrupt);
-
-//	struct InterruptObject
-//	{
-//		ULong					x00;
-//		int32_t				x04;
-//		ULong					x08;			// +08	0x80 -> enabled
-//		InterruptObject *	next;			// +0C	next interrupt in queue
-//		NewtonInterruptHandler	handler;		// +10
-//		InterruptObject *	queue;		// +14	queue this interrupt belongs to
-//		int32_t				x18;
-//		short					x1C;			// priority?
-//		short					x1E;			// |
-//	};
-
 	void JIT_StartScheduler() // TODO: implemet natively, so we don;t have to save registers
 	{
-
-
-//		if (!gSchedulerRunning)
-//		{
-//			DisableInterrupt(gSchedulerIntObj);
-//			g0F182C00 = g0F181800 + 20 * kMilliseconds;
-//			gSchedulerRunning = YES;
-//			QuickEnableInterrupt(gSchedulerIntObj);
-//		}
-//		gWantSchedulerToRun = NO;
-
 		FindFiber()->SwitchToJIT(0x001CC4A8);
-		return;
-// /* 0x001CC4A8-0x001CC4AC */
-		R12 = SP;
-// /* 0x001CC4AC-0x001CC4B0 */
-		PUSH(SP, PC);
-		PUSH(SP, LR);
-		PUSH(SP, R12);
-		PUSH(SP, R11);
-		PUSH(SP, R5);
-		PUSH(SP, R4);
-// /* 0x001CC4B0-0x001CC4B4 */
-		R11 = R12 - 4;
-		R0 = GetGSchedule
-		if (!GetGSchedulerRunning()) {
-// /* 0x001CC4C4-0x001CC4C8 */
-			InterrupObject*
-
-// /* 0x001CC4C8-0x001CC4F8 */
-		}
-		SetGWantSchedulerToRun( 0 );
-// /* 0x001CC500-0x001CC504 */
-		R11 += 4*4;
-		//RPOP(R11, PC);
-		RPOP(R11, SP);
-		RPOP(R11, R11);
-		RPOP(R11, R5);
-		RPOP(R11, R4);
-}
-
-
-// /* 0x001CC4A8-0x001CC518 */
-
+	}
 
 
 	/**
@@ -141,19 +53,12 @@ namespace NewtOS {
 	}
 
 
-	/**
-	 * This is the part that switches tasks at the end of every SWI.
-	 *
-	 * This function handles deferred calls and invokes the task scheduler.
-	 * If the scheduler retrurns a new task, this function will save all
-	 * registers and task states, restore the state of the new task, and
-	 * continue execution in the new task when returning from the SWI.
-	 *
-	 * \note Thia must be called from the main SWI dispatch.
-	 * \note fully native, depends on JIT calls
-	 * \todo romove goto's
-	 * \todo what is the idea behing gCopyDone?
-	 */
+
+	T_JIT_TO_NATIVE(0x003AD750, "_SWI_Scheduler") {
+		_SWI_Scheduler();
+	}
+
+	// _SWI_Scheduler starts here:
 	void _SWI_Scheduler()
 	{
 		TTask *oldTask, *newTask, *mTask;
@@ -451,14 +356,8 @@ namespace NewtOS {
 		CPU->SetCPSR( CPU->GetSPSR() );
 		return;
 	}
-	T_JIT_TO_NATIVE(0x003AD750, "_SWI_Scheduler") {
-		_SWI_Scheduler();
-	}
 
 
 } // namespace
 
 
-// ======================================================================= //
-//                       - insert insane quote here -                      //
-// ======================================================================= //
