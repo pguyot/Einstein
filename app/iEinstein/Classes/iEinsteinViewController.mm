@@ -41,7 +41,7 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
-	[super viewDidAppear:animated];
+	[super viewWillAppear:animated];
 #ifdef USE_STORYBOARDS
 	[self initEmulator];
 #endif
@@ -49,6 +49,7 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+	[super viewDidAppear:animated];
 }
 
 
@@ -76,12 +77,15 @@
         case 2:
             switch (buttonIndex) {
                 case 0: break;
-                case 1: [self stopEmulator]; break;            
+                case 1: [self stopEmulator]; break;
+                default: break;
             }
             break;
         case 3:
             [[UIApplication sharedApplication] performSelector:@selector(terminateWithSuccess)];
             break;
+		default:
+			break;
     }
 }
 
@@ -105,7 +109,7 @@
 }
 
 
-- (void)explainMissingROM
+- (void)explainMissingROM:(id)sender
 {
     UIActionSheet *actionSheet = [[UIActionSheet alloc] 
                                   initWithTitle:@"Newton ROM not found.\r\r"
@@ -115,11 +119,10 @@
                                   "For more information please read the instructions at "
                                   "https://github.com/pguyot/Einstein/wiki/Build-Instructions"
                                   delegate:self 
-                                  cancelButtonTitle:@"Quit Einstein" 
-                                  destructiveButtonTitle:nil 
+                                  cancelButtonTitle:nil
+                                  destructiveButtonTitle:@"Quit Einstein"
                                   otherButtonTitles:nil];
     [actionSheet setTag:3];
-    actionSheet.actionSheetStyle = UIActionSheetStyleBlackOpaque;
     [actionSheet showInView:self.view];
 #if !__has_feature(objc_arc)
     [actionSheet release];
@@ -284,8 +287,13 @@
                 [theROMPath fileSystemRepresentation],
                 [theDebugROMPath fileSystemRepresentation],
                 [theDebugHighROMPath fileSystemRepresentation]);
-		//[self abortWithMessage: @"ROM file not found"];
-        [self explainMissingROM];
+
+		// Defer this call to explainMissingROM because self.view is not in the
+		// visible view hierarchy yet. (We arrive here from viewWillAppear due to
+		// other order-of-operations issues -- see issue #31)
+		
+		[self performSelector:@selector(explainMissingROM:) withObject:self afterDelay:0];
+
         mROMImage = 0L;
         return 0;
     }
