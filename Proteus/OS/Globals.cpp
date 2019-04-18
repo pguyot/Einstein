@@ -32,11 +32,13 @@ namespace NewtOS {
 
 	TImageParamBlock *gParamBlockFromImage = (TImageParamBlock*)0x0C008400;
 
-// /* 0x0C0084E4-0x0C100E58 */
+// /* 0x0C0084E4-0x0C100E54 */
 
-GLOBAL_GETSET_W(0x0C100E58, KSInt32, AtomicFIQNestCountFast);
+	GLOBAL_GETSET_W(0x0C100E54, KUInt32, IntMaskShadowReg);
 
-GLOBAL_GETSET_W(0x0C100E5C, KSInt32, AtomicIRQNestCountFast);
+	GLOBAL_GETSET_W(0x0C100E58, KSInt32, AtomicFIQNestCountFast);
+
+	GLOBAL_GETSET_W(0x0C100E5C, KSInt32, AtomicIRQNestCountFast);
 
 // /* 0x0C100E60-0x0C100E6C */
 

@@ -12,6 +12,25 @@
 #include "KernelObject.h"
 #include "Interrupt.h"
 
+/*
+ SWI5_68_PowerOffSystem:
+ @; switch at 0x000D8AAC: case 68 (0x44)
+ @ label = 'SWI5_68_PowerOffSystem'
+ bl      VEC_PowerOffSystemKernelGlue__Fv  @ 0x000D919C 0xEB6CD571 - .l.q
+ b       L000D91E4                   @ 0x000D91A0 0xEA00000F - ....
+
+ SaveCPUStateAndStopSystem:
+ @ label = 'SaveCPUStateAndStopSystem'
+ msr     cpsr_ctl, #211              @ [ 0x000000D3 ] 0x00018F48 0xE321F0D3 - .!..
+
+ SWI5_69_PauseSystem:
+ @; switch at 0x000D8AAC: case 69 (0x45)
+ @ label = 'SWI5_69_PauseSystem'
+ bl      VEC_PauseSystemKernelGlue__Fv   @ 0x000D91A4 0xEB6CD571 - .l.q
+ b       L000D91E4                   @ 0x000D91A8 0xEA00000D - ....
+*/
+
+
 namespace NewtOS {
 
 
@@ -35,15 +54,54 @@ namespace NewtOS {
 		return;
 	}
 
-	
-	void JIT_QuickEnableInterrupt(InterruptObject *intr)
+	// 0x00392B90
+	void _EnterFIQAtomicFast()
 	{
-		R0 = (KUInt32)(uintptr_t)intr;
-		FindFiber()->SwitchToJIT(0x000E57BC);
+		INT->SetIntCtrlReg(0x0C400000);
+		SetGAtomicFIQNestCountFast( GetGAtomicFIQNestCountFast()+1 );
+	}
+
+	void JIT_ExitFIQAtomicFast()
+	{
+		FindFiber()->SwitchToJIT(0x00392BB0);
 		return;
 	}
 
 
+	void JIT_SetAndClearBitsAtomic(KUInt32 addr, KUInt32 inSetMask, KUInt32 inClearMask)
+	{
+		R0 = (KUInt32)(uintptr_t)addr;
+		R1 = (KUInt32)(uintptr_t)inSetMask;
+		R2 = (KUInt32)(uintptr_t)inClearMask;
+		FindFiber()->SwitchToJIT(0x003AE4A8);
+		return;
+// /* 0x003AE4A8-0x003AE4F8 */
+	}
+
+	// 0x000E57BC
+	void JIT_QuickEnableInterrupt(InterruptObject *intr)
+	{
+		_EnterFIQAtomicFast();
+		KUInt32 mask = intr->Get08() | 0x00000080;
+		intr->Set08( mask );
+		KUInt32 bits = intr->Get00();
+		if (bits==0x00400000 || bits==0x08000000 || bits==0x04000000) {
+			if (mask&1) {
+				JIT_SetAndClearBitsAtomic(0x0F184000, bits, 0);
+			}
+			if (mask&2) {
+				JIT_SetAndClearBitsAtomic(0x0F184400, bits, 0);
+			}
+			if (mask&0x0400) {
+				JIT_SetAndClearBitsAtomic(0x0F184800, bits, 0);
+			}
+			SetGIntMaskShadowReg( GetGIntMaskShadowReg() | bits );
+		}
+		JIT_ExitFIQAtomicFast();
+	}
+
+
+	// 0x001CC4A8
 	void JIT_StartScheduler() // TODO: implemet natively, so we don;t have to save registers
 	{
 		PUSH(SP, R5);
@@ -62,6 +120,7 @@ namespace NewtOS {
 	}
 	
 
+	// 0x0025215C
 	/**
 	 * Replace some global variablea with values from the current task.
 	 *
@@ -76,10 +135,10 @@ namespace NewtOS {
 		ObjectId monitor = inTask->GetD8_MonitorId();
 		SetGgCurrentMonitorId( monitor );
 	}
-	T_JIT_TO_NATIVE(0x0025215C, "SwapInGlobals") {
-		TTask *inTask = (TTask*)(uintptr_t)R0;
-		SwapInGlobals(inTask);
-	}
+//	T_JIT_TO_NATIVE(0x0025215C, "SwapInGlobals") {
+//		TTask *inTask = (TTask*)(uintptr_t)R0;
+//		SwapInGlobals(inTask);
+//	}
 
 
 

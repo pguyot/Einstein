@@ -149,7 +149,7 @@ TMMU::SetROMProtection( Boolean inProtection )
 
 // -------------------------------------------------------------------------- //
 //  * TranslateR( KUInt32, KUInt32& )
-// Performanc: this function eats around 9% of the overall performance!
+// Performance: this function eats around 9% of the overall performance!
 // -------------------------------------------------------------------------- //
 Boolean
 TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )

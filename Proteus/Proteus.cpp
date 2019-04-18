@@ -40,17 +40,23 @@ using namespace NewtOS;
 // --- ROM
 
 //-/* 0x00000000-0x0071FC4C */ NewtonOS in ROM
-// /* 0x00000000-0x001CC4A8 */
+// /* 0x00000000-0x000E57BC */
 
-// StartScheduler:
+// QuickEnableInterrupt:
+
+// /* 0x000E5868-0x001CC4A8 */
+
+// MATT: StartScheduler
 // /* 0x001CC514-0x0025215C */
 
 // SwapInGlobals:
 // /* 0x00252190-0x003AD750 */
 
-// MATT: _SWI_Scheduler from 0x003AD750 to 0x003ADBB4 has been moved to "OS/SWI.cpp"
+// MATT: _SWI_Scheduler
 
-// /* 0x003ADBB4-0x0071FC4C */
+// /* 0x003ADBB4-0x003AE4AC */
+// SetAndClearBitsAtomic:
+// /* 0x003AE4F8-0x0071FC4C */
 
 // --- RExBlock
 
