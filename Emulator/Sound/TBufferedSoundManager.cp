@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TBufferedSoundManager.h"
 
 // ANSI C & POSIX

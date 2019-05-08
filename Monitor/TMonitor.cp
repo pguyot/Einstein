@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include <K/Streams/TFileStream.h>
 #include "TMonitor.h"
 
