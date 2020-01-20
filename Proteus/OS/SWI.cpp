@@ -61,21 +61,43 @@ namespace NewtOS {
 		SetGAtomicFIQNestCountFast( GetGAtomicFIQNestCountFast()+1 );
 	}
 
+// /* 0x003AD658-0x003AD660 */
+
 	void JIT_ExitFIQAtomicFast()
 	{
 		FindFiber()->SwitchToJIT(0x00392BB0);
 		return;
+// /* 0x00392BB0-0x00392C30 */
+// ExitAtomic underflow
+// /* 0x00392C48-0x00392C4C */
 	}
 
 
 	void JIT_SetAndClearBitsAtomic(KUInt32 addr, KUInt32 inSetMask, KUInt32 inClearMask)
 	{
-		R0 = (KUInt32)(uintptr_t)addr;
-		R1 = (KUInt32)(uintptr_t)inSetMask;
-		R2 = (KUInt32)(uintptr_t)inClearMask;
-		FindFiber()->SwitchToJIT(0x003AE4A8);
-		return;
-// /* 0x003AE4A8-0x003AE4F8 */
+		int anyInterruptsEnabled = CPU->IsIRQEnabled() || CPU->IsFIQEnabled();
+		if (anyInterruptsEnabled)
+			_EnterFIQAtomicFast();
+		KUInt32 w = PEEK_W(addr);
+		w |= inSetMask;
+		w &= ~inClearMask;
+		POKE_W(addr, w);
+		if (anyInterruptsEnabled)
+			JIT_ExitFIQAtomicFast();
+	}
+
+	int SetAndClearBitsAtomicBegin()
+	{
+		int anyInterruptsEnabled = CPU->IsIRQEnabled() || CPU->IsFIQEnabled();
+		if (anyInterruptsEnabled)
+			_EnterFIQAtomicFast();
+		return anyInterruptsEnabled;
+	}
+
+	void SetAndClearBitsAtomicEnd(int anyInterruptsEnabled)
+	{
+		if (anyInterruptsEnabled)
+			JIT_ExitFIQAtomicFast();
 	}
 
 	// 0x000E57BC
@@ -87,13 +109,13 @@ namespace NewtOS {
 		KUInt32 bits = intr->Get00();
 		if (bits==0x00400000 || bits==0x08000000 || bits==0x04000000) {
 			if (mask&1) {
-				JIT_SetAndClearBitsAtomic(0x0F184000, bits, 0);
+				INT->SetIntEDReg1( INT->GetIntEDReg1() | bits );
 			}
 			if (mask&2) {
-				JIT_SetAndClearBitsAtomic(0x0F184400, bits, 0);
+				INT->SetIntEDReg2( INT->GetIntEDReg2() | bits );
 			}
 			if (mask&0x0400) {
-				JIT_SetAndClearBitsAtomic(0x0F184800, bits, 0);
+				INT->SetIntEDReg3( INT->GetIntEDReg3() | bits );
 			}
 			SetGIntMaskShadowReg( GetGIntMaskShadowReg() | bits );
 		}
@@ -102,7 +124,7 @@ namespace NewtOS {
 
 
 	// 0x001CC4A8
-	void JIT_StartScheduler() // TODO: implemet natively, so we don;t have to save registers
+	void JIT_StartScheduler() // TODO: implemet natively, so we don't have to save registers
 	{
 		PUSH(SP, R5);
 		PUSH(SP, R4);
