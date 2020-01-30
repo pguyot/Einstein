@@ -145,13 +145,13 @@ public class EinsteinApplication extends Application {
         pEinstein = new Einstein();
 
         // create the keep-alive Service (will be created asynchronously)
-        //Intent intent = new Intent(getApplicationContext(), EinsteinService.class);
-        //intent.putExtra("task", EinsteinService.TASK_LAUNCH);
-        //ComponentName name = startService(intent);
-        //if (name == null) {
-        //    Log.i("einstein", "--------< App.onCreate() - CANT LAUNCH SERVICE");
-        //}
-        //Log.i("einstein", "--------< App.onCreate()");
+//        Intent intent = new Intent(getApplicationContext(), EinsteinService.class);
+//        intent.putExtra("task", EinsteinService.TASK_LAUNCH);
+//        ComponentName name = startService(intent);
+//        if (name == null) {
+//            Log.i("einstein", "--------< App.onCreate() - CANT LAUNCH SERVICE");
+//        }
+        Log.i("einstein", "--------< App.onCreate()");
     }
 
     /**
