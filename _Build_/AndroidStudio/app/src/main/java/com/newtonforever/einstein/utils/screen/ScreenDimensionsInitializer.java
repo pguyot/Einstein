@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.newtonforever.einstein.EinsteinApplication;
 import com.newtonforever.einstein.utils.Dimension;
 
 /**
@@ -79,6 +80,19 @@ public class ScreenDimensionsInitializer {
         ScreenDimensions.NEWTON_SCREEN_WIDTH = Integer.valueOf(sw);
         ScreenDimensions.NEWTON_SCREEN_HEIGHT = Integer.valueOf(sh);
         ScreenDimensions.NEWTON_SCREEN_SIZE = new Dimension(ScreenDimensions.NEWTON_SCREEN_WIDTH, ScreenDimensions.NEWTON_SCREEN_HEIGHT);
+
+        // This is an awkward location for this code... .
+        switch (android.os.Build.DEVICE) {
+            case "ntx_6sl":
+                // Scale from 480x320 at 2.8x3.3, so we use factor 2.5 (542x432)
+                // or factor 2 (678x540)
+                ScreenDimensions.NEWTON_SCREEN_HEIGHT = ScreenDimensions.NEWTON_SCREEN_SIZE.height = 542;
+                ScreenDimensions.NEWTON_SCREEN_WIDTH = ScreenDimensions.NEWTON_SCREEN_SIZE.width = 432;
+                break;
+            default:
+                break;
+        }
+
         Log.i(TAG, "initNewtonScreenDimensions: Newton window size is " + ScreenDimensions.NEWTON_SCREEN_SIZE);
     }
 
