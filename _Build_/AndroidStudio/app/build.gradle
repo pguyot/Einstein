@@ -1,14 +1,6 @@
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
-        release {
-            storeFile file('/Users/matt/Android/upload-keystore.jks')
-            storePassword 'cif3cizu'
-            keyAlias = 'upload'
-            keyPassword 'dgy648!jfko'
-        }
-    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.newtonforever.einstein"
@@ -33,7 +25,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
         }
     }
     externalNativeBuild {
