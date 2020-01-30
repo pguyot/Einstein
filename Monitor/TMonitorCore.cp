@@ -79,7 +79,7 @@ TMonitorCore::ExecuteScript( const char* inScriptFile )
 				int n = (int)strlen(buf);
 				if (n) {
 					if (buf[n-1]=='\n') n--;
-					if (buf[n-1]=='\r') n--;
+					if ((n>0) && (buf[n-1]=='\r')) n--;
 					buf[n] = 0;
 					char *s = buf;
 					while (*s=='\t' || *s==' ') s++;
