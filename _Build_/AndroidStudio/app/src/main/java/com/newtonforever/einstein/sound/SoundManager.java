@@ -13,27 +13,37 @@ public class SoundManager {
 
     private static final String TAG = SoundManager.class.toString();
 
-    private ToneGenerator toneGenerator;
-    private final AudioTrack audioTrack;
+    private ToneGenerator toneGenerator = null;
+    private AudioTrack audioTrack = null;
     private int volume;
 
     public SoundManager() {
         volume = 100;
-        toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, volume);
+        try {
+            toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, volume);
+        } catch(Exception e) {
+            Log.i(TAG, "No tone generator available on this device.");
+        }
         final int streamType = AudioManager.STREAM_MUSIC;
         final int sampleRateInHz = 22050;
         final int channelConfig = AudioFormat.CHANNEL_CONFIGURATION_MONO;
         final int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
         final int minBufferSize = StartupConstants.AUDIO_TRACK_MIN_BUFFER_SIZE;
         final int bufferMode = AudioTrack.MODE_STREAM;
-        audioTrack = new AudioTrack(streamType, sampleRateInHz, channelConfig, audioFormat, minBufferSize, bufferMode);
-        audioTrack.setStereoVolume(volume / 100.0f, volume / 100.0f);
 
-        // Put AudioTrack into play mode (it won't play anything yet)
-        audioTrack.play();
+        if (toneGenerator!=null) {
+            audioTrack = new AudioTrack(streamType, sampleRateInHz, channelConfig, audioFormat, minBufferSize, bufferMode);
+            audioTrack.setStereoVolume(volume / 100.0f, volume / 100.0f);
+            // Put AudioTrack into play mode (it won't play anything yet)
+            audioTrack.play();
+        }
     }
 
     public void playSound(final int soundBufferSize) {
+        if (toneGenerator==null) {
+            return;
+        }
+
         if (0 == soundBufferSize) {
             return;
         }
@@ -57,7 +67,7 @@ public class SoundManager {
     }
 
     public void stopSound() {
-        toneGenerator.stopTone();
+        if (toneGenerator!=null) toneGenerator.stopTone();
     }
 
     public void changeVolume() {
