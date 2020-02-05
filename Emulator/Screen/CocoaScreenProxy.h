@@ -50,6 +50,7 @@ class TCocoaScreenManager;
 - (void)sendInvocation:(NSInvocation*)inInvocation;
 - (NSInvocation*) createInvocationWithTarget: (id) inTarget withSelector: (SEL) inSelector;
 - (void)setNeedsDisplay:(BOOL)inNeedsDisplay forView:(NSView*)inView;
+- (void)setNeedsDisplayInRect:(NSRect)inNeedsDisplay forView:(NSView*)inView;
 - (void)setHidden:(BOOL)inSetHidden forView:(NSView*)inView;
 - (void)setStringValue: (NSString*)inString forControl: (NSControl*) inControl;
 - (void)forwardPowerChange: (BOOL)inState toListener: (id<CocoaEmulatorApp>)inApp;

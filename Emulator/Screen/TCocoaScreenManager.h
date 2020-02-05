@@ -197,6 +197,12 @@ public:
 	///
 	void	DraggedFile( const char* inPath );
 
+	///
+	///	Direct access to teh RGB buffer.
+	///
+	KUInt32* GetImageBuffer() { return mImageBuffer; }
+
+
 private:
 	/// \name Variables
 	id						mProxy;					///< Cocoa proxy.

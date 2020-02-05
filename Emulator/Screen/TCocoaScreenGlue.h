@@ -42,6 +42,7 @@ id		TCocoaScreenView_Create(
 			int inWindowWidth,
 			int inWindowHeight);
 void	TCocoaScreenView_SetNeedsDisplay( id inProxy, id inView );
+void    TCocoaScreenView_SetNeedsDisplayInRect( id inProxy, id inView, NSRect inRect );
 void	TCocoaScreenView_SetHidden( id inProxy, id inView, bool inHidden );
 void	EmulatorApp_PowerChange( id inProxy, id inListener, bool inState );
 void	EmulatorApp_BacklightChange( id inProxy, id inListener, bool inState );

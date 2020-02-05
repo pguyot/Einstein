@@ -132,6 +132,15 @@ TCocoaScreenView_SetNeedsDisplay( id inProxy, id inView )
 }
 
 // -------------------------------------------------------------------------- //
+//  * TCocoaScreenView_SetNeedsDisplayInRect( id, id, NSRect )
+// -------------------------------------------------------------------------- //
+void
+TCocoaScreenView_SetNeedsDisplayInRect( id inProxy, id inView, NSRect inRect )
+{
+	[((CocoaScreenProxy*) inProxy) setNeedsDisplayInRect: inRect forView: inView];
+}
+
+// -------------------------------------------------------------------------- //
 //  * TCocoaScreenView_SetHidden( id, bool )
 // -------------------------------------------------------------------------- //
 void
@@ -290,7 +299,9 @@ EmulatorWindow_Close( id inWindow )
 void
 EmulatorWindow_SetFirstResponder( id inWindow, id inView )
 {
-	[((NSWindow*) inWindow) makeFirstResponder: inView];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[((NSWindow*) inWindow) makeFirstResponder: inView];
+	});
 }
 
 // -------------------------------------------------------------------------- //
@@ -303,7 +314,9 @@ ResizeForRotation( id inWindow, id inView, int inWidth, int inHeight )
 	theSize.width = inWidth;
 	theSize.height = inHeight;
 	[((TCocoaScreenView*) inView) setScreenWidth: inWidth height: inHeight orientation: kNormal];
-	[((NSWindow*) inWindow) setContentSize: theSize];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[((NSWindow*) inWindow) setContentSize: theSize];
+	});
 }
 
 // -------------------------------------------------------------------------- //
