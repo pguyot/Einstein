@@ -4,13 +4,13 @@ android {
   compileSdkVersion 26
   defaultConfig {
     applicationId 'com.matthiasm.einstein'
-    minSdkVersion 14
+    minSdkVersion 19
     targetSdkVersion 26
     externalNativeBuild {
       cmake {
         arguments '-DANDROID_STL=c++_shared'
-        cppFlags "-std=c++11 -fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1 -O3"
-        cFlags "-fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1 -O3"
+        cppFlags "-std=c++11 -fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1"
+        cFlags "-fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1"
         targets 'einstein'
       }
     }

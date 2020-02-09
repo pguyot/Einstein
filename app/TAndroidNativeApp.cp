@@ -33,6 +33,7 @@
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sys/resource.h>
+#include <sys/system_properties.h>
 
 // Java Native Interface
 #include <jni.h>
@@ -62,8 +63,9 @@ static const char *LOG_TAG = "Einstein";
 // Variable intialisation
 // -------------------------------------------------------------------------- //
 
-KUInt32 TAndroidNativeCore::kScreenWidth = 320;
-KUInt32 TAndroidNativeCore::kScreenHeight = 480;
+KUInt32 TAndroidNativeCore::pScreenTopPadding = 25;
+KUInt32 TAndroidNativeCore::pScreenWidth = 320;
+KUInt32 TAndroidNativeCore::pScreenHeight = 480;
 
 // The ANativeActivity object instance that this app is running in.
 ANativeActivity *TAndroidNativeCore::pActivity = 0L;
@@ -119,6 +121,8 @@ ANativeWindow *TAndroidNativeCore::pPendingWindow = 0;
 
 int TAndroidNativeCore::pTimerReadPipe = -1;
 int TAndroidNativeCore::pTimerWritePipe = -1;
+
+int TAndroidNativeCore::pHostID = HOST_ID_UNKNOWN;
 
 TAndroidNativeApp *TAndroidNativeActivity::einstein = nullptr;
 TLog *TAndroidNativeActivity::theLog = nullptr;
@@ -215,6 +219,21 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
     snprintf(theROMPath, 1024, "%s/717006.rom", dataPath);
     if (mLog) mLog->FLogLine("  ROM exists at %s?", theROMPath);
     if (access(theROMPath, R_OK)==-1) {
+        char buf[2048];
+        if (errno==EACCES) {
+            snprintf(buf, 2048,
+                    "Einstein needs permission to read and write external storage.\n\n"
+                    "Please activate \"Storage\" in the Einstein app permissions panel "
+                    "of the settings dialog.");
+            // FIXME: find the code that allows permission requests on the fly
+            TAndroidNativeActivity::alert(buf);
+        } else {
+            snprintf(buf, 2048,
+                    "Can't find ROM file at \"%s\". The ROM files is not part "
+                    "of EInstein and needs to be installed separately.",
+                    theROMPath);
+            TAndroidNativeActivity::alert(buf);
+        }
         if (mLog) mLog->FLogLine("Can't read ROM file %s", theROMPath);
         return;
     }
@@ -222,8 +241,16 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
 
     char theREXPath[1024];
     snprintf(theREXPath, 1024, "%s/Einstein.rex", dataPath);
-    if (mLog) mLog->FLogLine("  ROM exists at %s?", theREXPath);
+    if (mLog) mLog->FLogLine("  REX exists at %s?", theREXPath);
     if (access(theREXPath, R_OK)==-1) {
+        char buf[2048];
+        snprintf(buf, 2048,
+                 "Can't find REX file at \"%s\". The ROM files is not part "
+                 "of EInstein and needs to be installed separately.",
+                 theROMPath);
+        TAndroidNativeActivity::alert(buf);
+        if (mLog) mLog->FLogLine("Can't read ROM file %s", theROMPath);
+        return;
         if (mLog) mLog->FLogLine("Can't read REX file %s", theREXPath);
         return;
     }
@@ -514,10 +541,10 @@ void TAndroidNativeCore::pre_exec_cmd(int8_t cmd)
             // Einstein will appear "under" those toolbars. We need to find teh height of the top
             // and bottom toolbar and avoid drawing into them (or keeping them at a matching
             // background color)
-            ANativeActivity_setWindowFlags(get_activity(), AWINDOW_FLAG_FORCE_NOT_FULLSCREEN, 0);
+            //ANativeActivity_setWindowFlags(get_activity(), AWINDOW_FLAG_FORCE_NOT_FULLSCREEN, 0);
             ANativeWindow_setBuffersGeometry(pNativeWindow,
-                                             (int32_t)kScreenWidth,
-                                             (int32_t)kScreenHeight,
+                                             (int32_t)pScreenWidth,
+                                             (int32_t)pScreenHeight+pScreenTopPadding,
                                              WINDOW_FORMAT_RGB_565);
             break;
 
@@ -671,10 +698,10 @@ void *TAndroidNativeCore::thread_entry(void* param)
  */
 void TAndroidNativeCore::allocate_screen()
 {
-    pApplicationWindowBuffer.bits = calloc(kScreenWidth*kScreenHeight, 2); // one uint16_t per pixel
-    pApplicationWindowBuffer.width =  (int32_t)kScreenWidth;
-    pApplicationWindowBuffer.height = (int32_t)kScreenHeight;
-    pApplicationWindowBuffer.stride = (int32_t)kScreenWidth;
+    pApplicationWindowBuffer.bits = calloc(pScreenWidth*pScreenHeight, 2); // one uint16_t per pixel
+    pApplicationWindowBuffer.width =  (int32_t)pScreenWidth;
+    pApplicationWindowBuffer.height = (int32_t)pScreenHeight;
+    pApplicationWindowBuffer.stride = (int32_t)pScreenWidth;
     pApplicationWindowBuffer.format = WINDOW_FORMAT_RGB_565;
 }
 
@@ -688,15 +715,18 @@ bool TAndroidNativeCore::copy_screen()
         // We are wasting time by copying the entire screen contents at every dirty frame
         // We can identify previously written buffers and copy only those pixels
         // that actually changed.
-        const uint16_t *src = (uint16_t*)pApplicationWindowBuffer.bits;
         int srcStride = pApplicationWindowBuffer.stride;
         int ww = pApplicationWindowBuffer.width;
         int hh = pApplicationWindowBuffer.height;
+        const uint16_t *src = (uint16_t*)pApplicationWindowBuffer.bits;
 
-        uint16_t *dst = (uint16_t*)pNativeWindowBuffer.bits;
         int dstStride = pNativeWindowBuffer.stride;
+        uint16_t *dst = (uint16_t*)pNativeWindowBuffer.bits
+                        + pScreenTopPadding*dstStride;
+
+        // FIXME: bad clipping
         if (pNativeWindowBuffer.width<ww) ww = pNativeWindowBuffer.width;
-        if (pNativeWindowBuffer.height<ww) ww = pNativeWindowBuffer.height;
+        if (pNativeWindowBuffer.height<hh) hh = pNativeWindowBuffer.height;
 
         for (int row=hh; row>0; --row) {
             memcpy(dst, src, size_t(ww * 2));
@@ -1007,11 +1037,50 @@ void TAndroidNativeActivity::onInputQueueDestroyed(ANativeActivity* activity, AI
 void TAndroidNativeActivity::create(ANativeActivity* activity, void* savedState,
                                  size_t savedStateSize)
 {
-    static const char *FLTK = "FLTK";
-    activity->instance = (void*)FLTK;
-
+    static const char *sEinstein = "Einstein";
+    activity->instance = (void*)sEinstein;
     set_activity(activity);
     set_callbacks();
+
+    // We use the top padding because NativeActivity will always be under a translucent status bar.
+    // By offsetting the content, we don;t disturb that bar
+    char host[1024] = { 0 };
+    int statusBarHeight = -1;
+    int navigationBarHeight = -1;
+    int screenHeight = -1;
+    {   // This is already the main Java thread. No need to attach.
+        JNIEnv *env = get_activity()->env;
+        jclass clazz = env->GetObjectClass(pActivity->clazz);
+        jmethodID methodID = env->GetMethodID(clazz, "getStatusBarHeight", "()I");
+        statusBarHeight = env->CallIntMethod(pActivity->clazz, methodID);
+        methodID = env->GetMethodID(clazz, "getNavigationBarHeight", "()I");
+        navigationBarHeight = env->CallIntMethod(pActivity->clazz, methodID);
+        methodID = env->GetMethodID(clazz, "getScreenHeight", "()I");
+        screenHeight = env->CallIntMethod(pActivity->clazz, methodID);
+        jmethodID midToString = env->GetMethodID(clazz, "getDeviceName", "()Ljava/lang/String;");
+        jstring jstr = (jstring) env->CallObjectMethod(pActivity->clazz, midToString);
+        if (jstr != 0) {
+            const char* cstr = env->GetStringUTFChars(jstr, 0);
+            strncpy(host, cstr, sizeof(host));
+            env->ReleaseStringUTFChars(jstr, cstr);
+            env->DeleteLocalRef(jstr);
+        }
+    }
+
+    if (strcmp(host, "Freescale EVK_MX6SL")==0) {
+        // MobiScribe API Level: 19
+        // Scale from 480x320 at 2.8x3.3, so we use factor 2.5 (542x432) or factor 2 (678x540)
+        pHostID = HOST_ID_EVK_MX6SL;
+        pScreenHeight = 542;
+        pScreenWidth = 432;
+    } else if (strcmp(host, "")==0) {
+        // Emulator
+    }
+    log_v("HostID is \"%s\"", host);
+
+    // 63, 126, 1794 (1920) on our emulator
+    //pad/hgt = stat/shgt
+    pScreenTopPadding = (pScreenHeight * statusBarHeight / screenHeight) +2;
 
     allocate_screen(); // TODO: we may need to change this to when the actual screen is allocated
 
@@ -1113,8 +1182,8 @@ void TAndroidNativeActivity::initEmulator()
 {
     log_i("Entering initEmulator(): Initializing Einstein application.");
 
-//    einstein->Run( "/storage/emulated/0/Download/Einstein", kScreenWidth, kScreenHeight, theLog );
-    einstein->Run( "/sdcard/Download/Einstein", (int)kScreenWidth, (int)kScreenHeight, theLog );
+//    einstein->Run( "/storage/emulated/0/Download/Einstein", pScreenWidth, pScreenHeight, theLog );
+    einstein->Run( "/sdcard/Download/Einstein", (int)pScreenWidth, (int)pScreenHeight, theLog );
     //MiscUtils.sleepForMillis(2000);
 
     log_i("Leaving initEmulator().");
@@ -1164,10 +1233,10 @@ int TAndroidNativeActivity::handleLooperInputEvents()
 
 int TAndroidNativeActivity::handleLooperMouseEvent(AInputQueue *queue, AInputEvent *event)
 {
-    int ex = (int)(AMotionEvent_getX(event, 0) * kScreenWidth /
+    int ex = (int)(AMotionEvent_getX(event, 0) * pScreenWidth /
                    ANativeWindow_getWidth(TAndroidNativeCore::native_window()));
-    int ey = (int)(AMotionEvent_getY(event, 0) * kScreenHeight /
-                   ANativeWindow_getHeight(TAndroidNativeCore::native_window()));
+    int ey = (int)(AMotionEvent_getY(event, 0) * (pScreenHeight+pScreenTopPadding) /
+                   ANativeWindow_getHeight(TAndroidNativeCore::native_window()) - pScreenTopPadding);
 
     int consumed = 0;
     if (einstein) {
@@ -1204,7 +1273,7 @@ int TAndroidNativeActivity::handleLooperMouseEvent(AInputQueue *queue, AInputEve
 
 void TAndroidNativeActivity::runEmulator()
 {
-    for (;;) {
+    while (pDestroyRequested==0) {
         int done = false;
         int ident = 0;
         int events;
@@ -1233,7 +1302,7 @@ void TAndroidNativeActivity::runEmulator()
                     done = true;
                     break;
                 case ALOOPER_POLL_TIMEOUT:
-                    done = true; // timer expired, return to FLTK
+                    done = true; // timer expired, interrupt the loop
                     break;
                 case ALOOPER_POLL_ERROR:
                     TAndroidNativeCore::log_e(
@@ -1259,10 +1328,23 @@ void TAndroidNativeActivity::runEmulator()
             einstein->updateScreen(static_cast<unsigned short *>(pApplicationWindowBuffer.bits));
             copy_screen();
         }
+        //log_i("PC=%08x", einstein->GetEmulator()->GetProcessor()->GetRegister(15));
     }
 
 }
 
+
+void TAndroidNativeActivity::alert(const char* text)
+{
+    TAndroidNativeToJava java;
+    if (java.is_attached()) {
+        jclass clazz = java.env()->GetObjectClass(pActivity->clazz);
+        jstring jmessage = java.env()->NewStringUTF(text);
+        jmethodID methodID = java.env()->GetMethodID(clazz, "showAlert", "(Ljava/lang/String;)V");
+        java.env()->CallVoidMethod(pActivity->clazz, methodID, jmessage);
+        java.env()->DeleteLocalRef(jmessage);
+    }
+}
 
 // ---- Java Stuff ---------------------------------------------------------------------------------
 
@@ -1309,7 +1391,7 @@ TAndroidNativeToJava::TAndroidNativeToJava()
             .group = nullptr
     };
 
-    lResult = pJavaVM->AttachCurrentThread(&pJNIEnv, &lJavaVMAttachArgs);
+    lResult = pJavaVM->AttachCurrentThread(&pJNIEnv, NULL); //&lJavaVMAttachArgs);
     if (lResult == JNI_ERR) return;
 
     pNativeActivity = TAndroidNativeCore::get_activity()->clazz;

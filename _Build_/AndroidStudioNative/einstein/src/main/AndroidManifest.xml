@@ -16,16 +16,16 @@
         android:hasCode="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name">
+        <!-- try to find the correct theme -->
         <activity
+            android:theme="@style/EinsteinStyle"
             android:name=".NativeDebug"
             android:label="@string/app_name">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="einstein" />
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

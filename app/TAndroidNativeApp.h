@@ -141,6 +141,8 @@ public:
         mNewtonID1 = id1;
     }
 
+    TEmulator *GetEmulator() { return mEmulator; }
+
 private:
     ///
     /// Constructeur par copie volontairement indisponible.
@@ -288,9 +290,16 @@ private:
 class TAndroidNativeCore
 {
 public:
+    enum {
+        HOST_ID_UNKNOWN = 0,
+        HOST_ID_EVK_MX6SL         // MobiScribe w/ 6.8" e-ink display
+    };
+    static int getHostID() { return pHostID; }
+    static int pHostID;
 
-    static KUInt32 kScreenWidth;
-    static KUInt32 kScreenHeight;
+    static KUInt32 pScreenTopPadding;
+    static KUInt32 pScreenWidth;
+    static KUInt32 pScreenHeight;
 
     enum {
         /**
@@ -431,6 +440,8 @@ public:
     static void createEmulator();
     static void initEmulator();
     static void runEmulator();
+
+    static void alert(const char *text);
 
     static TAndroidNativeApp *einstein;
     static TLog *theLog;
