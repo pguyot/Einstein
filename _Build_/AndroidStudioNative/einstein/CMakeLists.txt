@@ -8,6 +8,9 @@ PROJECT(Einstein C CXX)
 
 SET (LOCAL_PATH "../../..")
 
+# Debug flags
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3")
+
 include_directories(
     ${LOCAL_PATH}/
 	${LOCAL_PATH}/Emulator/

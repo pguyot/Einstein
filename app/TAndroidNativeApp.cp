@@ -67,6 +67,10 @@ KUInt32 TAndroidNativeCore::pScreenTopPadding = 25;
 KUInt32 TAndroidNativeCore::pScreenWidth = 320;
 KUInt32 TAndroidNativeCore::pScreenHeight = 480;
 
+ARect TAndroidNativeCore::pDirtyRect[] = { 0 };
+bool TAndroidNativeCore::pScreenIsDirty = false;
+TMutex TAndroidNativeCore::pScreenMutex;
+
 // The ANativeActivity object instance that this app is running in.
 ANativeActivity *TAndroidNativeCore::pActivity = 0L;
 
@@ -382,26 +386,15 @@ TAndroidNativeApp::ThreadEntry( void )
 }
 
 
-int TAndroidNativeApp::updateScreen(unsigned short *buffer)
+int TAndroidNativeApp::updateScreen(unsigned short *buffer, const ARect &r)
 {
     int ret = 0;
     if (mScreenManager) {
         TAndroidNativeScreenManager *tasm = (TAndroidNativeScreenManager*)mScreenManager;
-        ret = tasm->update(buffer);
+        ret = tasm->update(buffer, r);
     }
     return ret;
 }
-
-int TAndroidNativeApp::screenIsDirty()
-{
-    int ret = 0;
-    if (mScreenManager) {
-        TAndroidNativeScreenManager *tasm = (TAndroidNativeScreenManager*)mScreenManager;
-        ret = tasm->isDirty();
-    }
-    return ret;
-}
-
 
 // ---- TAndroidNativeCore -------------------------------------------------------------------------
 
@@ -705,11 +698,55 @@ void TAndroidNativeCore::allocate_screen()
     pApplicationWindowBuffer.format = WINDOW_FORMAT_RGB_565;
 }
 
-
 bool TAndroidNativeCore::copy_screen()
 {
     bool ret = false;
     if (lock_screen()) {
+        ARect r;
+        popDirtyRect(r);
+
+        /*Now follow a horrible hack.
+         *
+         * OK, so here is the long story for this optimisations. We used to spend a lot of time
+         * copying screen content from the Activity RGB buffer into the hardware buffer when we
+         * really only needed to copy the bits that were changed since the last call.
+         *
+         * Well, it turns out that Android keeps up to three hardware buffers around, and does not
+         * accumulate the changes. So in the worst case, the third buffer is three changes behind.
+         * We fixed that by accumulating screen changes for the first, second, and third buffer.
+         *
+         * But Android doe not guarantee that we will always get the same three buffers. So in the
+         * hack below, we store the most recent buffers as 'known buffers'. If any buffer in that
+         * list changes, we forget all buffers and start anew. So far, this seems to work ok,
+         * although it does not take into account that the order of buffers could change as well.
+         *
+         * If it works, it reduces CPU load by up to 60% in some special cases. Writing on the
+         * screen is one of those cases, and should now be much faster, even on slow hosts.
+         */
+        static void *knownScreenBuffer[pNScreenBuffer] = { NULL };
+        void *bits = pNativeWindowBuffer.bits;
+        int i;
+        for (i=0; i<pNScreenBuffer; i++) {
+            if (knownScreenBuffer[i]==bits) break;
+        }
+        if (i==pNScreenBuffer) {
+            // - this is a previously unknown screen buffer, which messes up our entire assumption
+            for (i = 0; i < pNScreenBuffer; i++) {
+                if (knownScreenBuffer[i] == 0L) {
+                    knownScreenBuffer[i] = bits;
+                    break;
+                }
+            }
+            if (i == pNScreenBuffer) {
+                knownScreenBuffer[0] = bits;
+                for (i = 1; i < pNScreenBuffer; i++) {
+                    knownScreenBuffer[i] = NULL;
+                }
+            }
+            r.left = 0; r.right = (int32_t)pScreenWidth; r.top = 0; r.bottom = (int32_t)pScreenHeight;
+        }
+
+        //log_i("Redrawing %d %d %d %d", r.left, r.right, r.top, r.bottom);
 
         // TODO: there are endless possibilities to optimize the following code
         // We are wasting time by copying the entire screen contents at every dirty frame
@@ -718,17 +755,26 @@ bool TAndroidNativeCore::copy_screen()
         int srcStride = pApplicationWindowBuffer.stride;
         int ww = pApplicationWindowBuffer.width;
         int hh = pApplicationWindowBuffer.height;
-        const uint16_t *src = (uint16_t*)pApplicationWindowBuffer.bits;
 
         int dstStride = pNativeWindowBuffer.stride;
-        uint16_t *dst = (uint16_t*)pNativeWindowBuffer.bits
-                        + pScreenTopPadding*dstStride;
 
         // FIXME: bad clipping
         if (pNativeWindowBuffer.width<ww) ww = pNativeWindowBuffer.width;
         if (pNativeWindowBuffer.height<hh) hh = pNativeWindowBuffer.height;
 
-        for (int row=hh; row>0; --row) {
+        int32_t top = r.top; if (top<0) top = 0;
+        int32_t bottom = r.bottom; if (bottom>hh) bottom = hh;
+        int32_t left = r.left; if (left<0) left = 0;
+        int32_t right = r.right; if (right>ww) right = ww;
+
+        const uint16_t *src = (uint16_t*)pApplicationWindowBuffer.bits
+                              + top*srcStride + left ;
+        uint16_t *dst = (uint16_t*)pNativeWindowBuffer.bits
+                        + pScreenTopPadding*dstStride
+                        + top*dstStride + left;
+        ww = right - left;
+
+        for (int32_t y=top; y<bottom; ++y) {
             memcpy(dst, src, size_t(ww * 2));
             src += srcStride;
             dst += dstStride;
@@ -790,6 +836,57 @@ bool TAndroidNativeCore::screen_is_locked()
 {
     return (pNativeWindowBuffer.bits!=0L);
 }
+
+static void rectUnion(ARect &d, const ARect &s) {
+    if (d.right==0) {
+        d = s;
+    } else {
+        if (s.top<d.top) d.top = s.top;
+        if (s.left<d.left) d.left = s.left;
+        if (s.bottom>d.bottom) d.bottom = s.bottom;
+        if (s.right>d.right) d.right = s.right;
+    }
+}
+
+/**
+ * Mark an area of the screen dirty, so that it will be redrawn.
+ * Dirty rectangles are merged into one bounding box rectangle.
+ * @param r
+ */
+void TAndroidNativeCore::addDirtyRect(const ARect &r)
+{
+    pScreenMutex.Lock();
+    for (int i=0; i<pNScreenBuffer; ++i) {
+        rectUnion(pDirtyRect[i], r);
+    }
+    pScreenIsDirty = true;
+    pScreenMutex.Unlock();
+}
+
+/**
+ * Tell Android to redraw the entire screen.
+ * @param r
+ */
+void TAndroidNativeCore::addDirtyScreen()
+{
+    ARect r = { 0, 0, (int32_t)pScreenWidth, (int32_t)pScreenHeight };
+    addDirtyRect(r);
+}
+
+/**
+ * Pop the topmost rectangle from the stack and add an empty rect at the bottom.
+ * @param r
+ */
+void TAndroidNativeCore::popDirtyRect(ARect &r)
+{
+    pScreenMutex.Lock();
+    r = pDirtyRect[0];
+    //log_i("Dirty: %d %d %d %d", r.left, r.top, r.right, r.bottom);
+    memmove(pDirtyRect+0, pDirtyRect+1, pNScreenBuffer*sizeof(ARect));
+    pScreenIsDirty = false;
+    pScreenMutex.Unlock();
+}
+
 
 
 // ---- TAndroidNativeActivity ---------------------------------------------------------------------
@@ -867,7 +964,12 @@ void TAndroidNativeActivity::close_activity()
 void TAndroidNativeActivity::onContentRectChanged(ANativeActivity *activity, const ARect *rect)
 {
     // TODO: implement me
-    log_w("unhandled onContentRectChanged");
+    //log_w("unhandled onContentRectChanged");
+    if (rect) {
+        addDirtyRect(*rect);
+    } else {
+        addDirtyScreen();
+    }
 }
 
 /**
@@ -876,7 +978,8 @@ void TAndroidNativeActivity::onContentRectChanged(ANativeActivity *activity, con
 void TAndroidNativeActivity::onNativeWindowRedrawNeeded(ANativeActivity *activity, ANativeWindow *window)
 {
     // TODO: implement me
-    log_w("unhandled onNativeWindowRedrawNeeded");
+    //log_w("unhandled onNativeWindowRedrawNeeded");
+    addDirtyScreen();
 }
 
 /**
@@ -886,6 +989,7 @@ void TAndroidNativeActivity::onNativeWindowResized(ANativeActivity *activity, AN
 {
     // TODO: implement me
     log_w("unhandled onNativeWindowResized");
+    addDirtyScreen();
 }
 
 /**
@@ -914,6 +1018,7 @@ void TAndroidNativeActivity::onResume(ANativeActivity* activity)
 {
     log_v("Resume: %p\n", activity);
     set_activity_state(APP_CMD_RESUME);
+    addDirtyScreen();
 }
 
 /**
@@ -989,6 +1094,7 @@ void TAndroidNativeActivity::onWindowFocusChanged(ANativeActivity* activity, int
 {
     log_v("WindowFocusChanged: %p -- %d\n", activity, focused);
     write_cmd(focused ? APP_CMD_GAINED_FOCUS : APP_CMD_LOST_FOCUS);
+    addDirtyScreen();
 }
 
 /**
@@ -998,6 +1104,7 @@ void TAndroidNativeActivity::onNativeWindowCreated(ANativeActivity* activity, AN
 {
     log_v("NativeWindowCreated: %p -- %p\n", activity, window);
     set_window(window);
+    addDirtyScreen();
 }
 
 /**
@@ -1073,16 +1180,16 @@ void TAndroidNativeActivity::create(ANativeActivity* activity, void* savedState,
         pHostID = HOST_ID_EVK_MX6SL;
         pScreenHeight = 542;
         pScreenWidth = 432;
-    } else if (strcmp(host, "")==0) {
+    } else if (strcmp(host, "unknown Android SDK built for x86_64")==0) {
         // Emulator
     }
-    log_v("HostID is \"%s\"", host);
+    log_i("HostID is \"%s\"", host);
 
     // 63, 126, 1794 (1920) on our emulator
     //pad/hgt = stat/shgt
     pScreenTopPadding = (pScreenHeight * statusBarHeight / screenHeight) +2;
 
-    allocate_screen(); // TODO: we may need to change this to when the actual screen is allocated
+    allocate_screen();
 
     pthread_mutex_init(&pMutex, NULL);
     pthread_cond_init(&pCond, NULL);
@@ -1273,6 +1380,7 @@ int TAndroidNativeActivity::handleLooperMouseEvent(AInputQueue *queue, AInputEve
 
 void TAndroidNativeActivity::runEmulator()
 {
+    addDirtyScreen();
     while (pDestroyRequested==0) {
         int done = false;
         int ident = 0;
@@ -1324,8 +1432,13 @@ void TAndroidNativeActivity::runEmulator()
             // events are pending.
             delay = 0;
         }
-        if (einstein->screenIsDirty()) {
-            einstein->updateScreen(static_cast<unsigned short *>(pApplicationWindowBuffer.bits));
+        if (pScreenIsDirty) {
+            // - copy Einstein screen memory into a local RGB buffer
+            // This is a direct buffer, so we only need to copy the current dirty region
+            einstein->updateScreen((KUInt16*)pApplicationWindowBuffer.bits, pDirtyRect[pNScreenBuffer-1]);
+            // - copy from local RGB buffer into Android hardware buffer
+            // Android triple-buffers in hardware, so copy_screen must copy all current changes
+            // plus the changes from the two previous dirty regions
             copy_screen();
         }
         //log_i("PC=%08x", einstein->GetEmulator()->GetProcessor()->GetRegister(15));

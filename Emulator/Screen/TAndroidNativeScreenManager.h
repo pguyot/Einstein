@@ -25,6 +25,7 @@
 #define _TANDROID_NATIVE_SCREENMANAGER_H
 
 #include <K/Defines/KDefinitions.h>
+#include <android/rect.h>
 #include "TScreenManager.h"
 
 class TThread;
@@ -131,11 +132,9 @@ public:
     ///
     void	Run( void );
 
-    int update(unsigned short *buffer);
+    int update(unsigned short *buffer, const ARect &r);
 
     int updateOverlay(unsigned short *buffer);
-
-    int isDirty() { return changed; }
 
 private:
     ///
@@ -151,8 +150,6 @@ private:
     /// \param inCopy		objet � copier
     ///
     TAndroidNativeScreenManager& operator = ( const TAndroidNativeScreenManager& inCopy );
-
-    char changed;
 };
 
 

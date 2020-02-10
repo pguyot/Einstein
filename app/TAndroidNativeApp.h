@@ -34,6 +34,7 @@
 #include <android/window.h>
 
 #include <K/Defines/KDefinitions.h>
+#include <K/Threads/TMutex.h>
 
 #include "AndroidGlue.h"
 #include "Version.h"
@@ -132,9 +133,7 @@ public:
 
     TScreenManager *getScreenManager() { return mScreenManager; }
 
-    int updateScreen(unsigned short *buffer);
-
-    int screenIsDirty();
+    int updateScreen(unsigned short *buffer, const ARect &r);
 
     void SetNewtonID(KUInt32 id0, KUInt32 id1) {
         mNewtonID0 = id0;
@@ -300,6 +299,14 @@ public:
     static KUInt32 pScreenTopPadding;
     static KUInt32 pScreenWidth;
     static KUInt32 pScreenHeight;
+    static const int pNScreenBuffer = 3;
+
+    static void addDirtyRect(const ARect &r);
+    static void addDirtyScreen();
+    static void popDirtyRect(ARect &r);
+    static ARect pDirtyRect[pNScreenBuffer+1];
+    static bool pScreenIsDirty;
+    static TMutex pScreenMutex;
 
     enum {
         /**

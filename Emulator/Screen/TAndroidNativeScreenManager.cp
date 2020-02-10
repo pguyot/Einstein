@@ -32,6 +32,7 @@
 // K
 #include <K/Defines/UByteSex.h>
 #include <K/Threads/TThread.h>
+#include <app/TAndroidNativeApp.h>
 
 // Einstein
 #include "Emulator/Log/TLog.h"
@@ -113,7 +114,7 @@ void
 TAndroidNativeScreenManager::BacklightChanged( Boolean )
 {
     if (GetLog()) GetLog()->FLogLine("UpdateScreenRect(0L)");
-    changed = 1;
+    TAndroidNativeActivity::addDirtyScreen();
 }
 
 // -------------------------------------------------------------------------- //
@@ -132,7 +133,7 @@ void
 TAndroidNativeScreenManager::ScreenOrientationChanged( EOrientation inNewOrientation )
 {
     if (GetLog()) GetLog()->FLogLine("New orientation %d is %dx%d\n", inNewOrientation, GetScreenWidth(), GetScreenHeight());
-    changed = 1;
+    TAndroidNativeActivity::addDirtyScreen();
 }
 
 // -------------------------------------------------------------------------- //
@@ -145,10 +146,10 @@ TAndroidNativeScreenManager::TabletOrientationChanged( EOrientation )
 }
 
 
-int TAndroidNativeScreenManager::update(unsigned short *buffer)
+int TAndroidNativeScreenManager::update(unsigned short *buffer, const ARect &r)
 {
 #define ROT(a) (a<<12) | (a<<7) | (a<<1)
-    static unsigned short lut_wt[16] = {
+    static const unsigned short lut_wt[16] = {
             ROT(0), ROT(1), ROT(2), ROT(3),
             ROT(4), ROT(5), ROT(6), ROT(7),
             ROT(8), ROT(9), ROT(10), ROT(11),
@@ -156,21 +157,26 @@ int TAndroidNativeScreenManager::update(unsigned short *buffer)
     };
 #undef ROT
 #define ROT(a) (a<<11) | (a<<7) | (a<<0)
-    static unsigned short lut_gn[16] = {
+    static const unsigned short lut_gn[16] = {
             ROT(0), ROT(1), ROT(2), ROT(3),
             ROT(4), ROT(5), ROT(6), ROT(7),
             ROT(8), ROT(9), ROT(10), ROT(11),
             ROT(12), ROT(13), ROT(14), ROT(15),
     };
-    if (!changed)
-        return 0;
-    unsigned short *lut = GetBacklight() ? lut_gn : lut_wt;
+    const unsigned short *lut = GetBacklight() ? lut_gn : lut_wt;
     KUInt8* src = GetScreenBuffer();
     unsigned short *dst = buffer;
-    int i, j, wdt = (int)GetScreenWidth(), hgt = (int)GetScreenHeight();
+    int x, y, i, j, wdt = (int)GetScreenWidth(), hgt = (int)GetScreenHeight();
+
+    int32_t top = r.top; if (top<0) top = 0;
+    int32_t bottom = r.bottom; if (bottom>hgt) bottom = hgt;
+    int32_t left = r.left; if (left<0) left = 0; if (left&1) left--; // must be even
+    int32_t right = r.right; if (right>wdt) right = wdt;
+
+    //TAndroidNativeCore::log_i("Redrawing %d %d %d %d", r.left, r.right, r.top, r.bottom);
 
     switch (GetScreenOrientation()) {
-        case kOrientation_AppleRight:
+        case kOrientation_AppleRight: // FIME: only draw dirty area
             for (i=0; i<hgt; i++) {
                 dst = buffer + hgt*(wdt-1) + i;
                 for (j=wdt; j>0; j-=2) {
@@ -180,7 +186,7 @@ int TAndroidNativeScreenManager::update(unsigned short *buffer)
                 }
             }
             break;
-        case kOrientation_AppleLeft:
+        case kOrientation_AppleLeft: // FIME: only draw dirty area
             for (i=hgt; i>0; i--) {
                 dst = buffer + i - 1;
                 for (j=wdt; j>0; j-=2) {
@@ -190,7 +196,7 @@ int TAndroidNativeScreenManager::update(unsigned short *buffer)
                 }
             }
             break;
-        case kOrientation_AppleTop:
+        case kOrientation_AppleTop: // FIME: only draw dirty area
             dst = buffer + wdt*hgt - 1;
             for (i=hgt; i>0; i--) {
                 for (j=wdt; j>0; j-=2) {
@@ -201,9 +207,10 @@ int TAndroidNativeScreenManager::update(unsigned short *buffer)
             }
             break;
         case kOrientation_AppleBottom:
-            dst = buffer;
-            for (i=hgt; i>0; i--) {
-                for (j=wdt; j>0; j-=2) {
+            for (y=top; y<bottom; y++) {
+                src = GetScreenBuffer() + (y*wdt + left)/2;
+                dst = buffer + y*wdt + left;
+                for (x=right-left; x>0; x-=2) {
                     KUInt8 theByte = *src++;
                     *dst++ = lut[theByte>>4];
                     *dst++ = lut[theByte&0x0F];
@@ -213,7 +220,6 @@ int TAndroidNativeScreenManager::update(unsigned short *buffer)
     }
 
     updateOverlay(buffer);
-    changed = 0;
     return 1;
 }
 
@@ -275,11 +281,11 @@ int TAndroidNativeScreenManager::updateOverlay(unsigned short *buffer)
 //  * UpdateScreenRect( SRect* )
 // -------------------------------------------------------------------------- //
 void
-TAndroidNativeScreenManager::UpdateScreenRect( SRect* inUpdateRect )
+TAndroidNativeScreenManager::UpdateScreenRect( SRect* s )
 {
-    changed = 1;
     // Just tell AndroidNativeActivity that the screen changed
-    // TODO: add support for bounding rectangles, so that we have to copy less screen content around
+    ARect r = { s->fLeft, s->fTop, s->fRight, s->fBottom };
+    TAndroidNativeActivity::addDirtyRect(r);
 }
 
 
