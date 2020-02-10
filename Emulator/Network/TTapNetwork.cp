@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TTapNetwork.h"
 #include "Emulator/Log/TLog.h"
 

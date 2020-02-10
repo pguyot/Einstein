@@ -44,13 +44,13 @@ class TNetworkManager;
 /// \author Matthias Melcher <einstein@matthiasm.com>
 /// \version $Revision: 113 $
 ///
-/// \test	aucun test dŽfini.
+/// \test	aucun test dï¿½fini.
 ///
 class TAndroidApp
 {
 public:
 	///
-	/// Constructeur par dŽfaut.
+	/// Constructeur par dï¿½faut.
 	///
 	TAndroidApp( void );
 	
@@ -60,7 +60,7 @@ public:
 	~TAndroidApp( void );
 	
 	///
-	/// Point d'entrŽe.
+	/// Point d'entrï¿½e.
 	///
 	void Run(const char *dataPath, int screenWidth, int screenHeight, TLog *inLog);
 	
@@ -135,14 +135,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet ˆ copier
+	/// \param inCopy		objet ï¿½ copier
 	///
 	TAndroidApp( const TAndroidApp& inCopy );
 	
 	///
-	/// OpŽrateur d'assignation volontairement indisponible.
+	/// Opï¿½rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet ˆ copier
+	/// \param inCopy		objet ï¿½ copier
 	///
 	TAndroidApp& operator = ( const TAndroidApp& inCopy );
 	
@@ -170,12 +170,12 @@ private:
 	void Version( void );
 	
 	///
-	/// CrŽe le gestionnaire de son.
+	/// Crï¿½e le gestionnaire de son.
 	///
 	void CreateSoundManager( const char* inClass );
 	
 	///
-	/// CrŽe le gestionnaire d'Žcran.
+	/// Crï¿½e le gestionnaire d'ï¿½cran.
 	///
 	void CreateScreenManager(
 							 const char* inClass,
@@ -184,12 +184,12 @@ private:
 							 Boolean inFullScreen);
 	
 	///
-	/// CrŽe le log.
+	/// Crï¿½e le log.
 	///
 	void CreateLog( const char* inPath );
 	
 	///
-	/// Point d'entrŽe du processus lŽger.
+	/// Point d'entrï¿½e du processus lï¿½ger.
 	///
 	static void* SThreadEntry( void* inUserData )
 	{
@@ -198,7 +198,7 @@ private:
 	}
 	
 	///
-	/// Point d'entrŽe du processus lŽger.
+	/// Point d'entrï¿½e du processus lï¿½ger.
 	///
 	void ThreadEntry( void );
 	
@@ -239,7 +239,7 @@ private:
 	TROMImage*			mROMImage;			///< Image ROM.
 	TEmulator*			mEmulator;			///< Emulateur.
 	TSoundManager*		mSoundManager;		///< Gestionnaire de son.
-	TScreenManager*		mScreenManager;		///< Gestionnaire d'Žcran.
+	TScreenManager*		mScreenManager;		///< Gestionnaire d'ï¿½cran.
 	TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
 	TLog*				mLog;				///< Log.
 	TNetworkManager*	mNetworkManager;	///< network connection

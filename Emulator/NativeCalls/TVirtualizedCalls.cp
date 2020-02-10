@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TVirtualizedCalls.h"
 #include "TVirtualizedCallsPatches.h"
 

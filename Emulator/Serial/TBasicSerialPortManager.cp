@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TBasicSerialPortManager.h"
 #include "TPathHelper.h"
 

@@ -799,9 +799,10 @@
 		DAE9EF021A3B29150095BFAF /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Tests-Info.plist"; path = "../../Resources/Tests-Info.plist"; sourceTree = "<group>"; };
 		DAE9EF221A3CFACC0095BFAF /* TRAMLog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TRAMLog.cp; sourceTree = "<group>"; };
 		DAE9EF231A3CFACC0095BFAF /* TRAMLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRAMLog.h; sourceTree = "<group>"; };
-		F115FF121A2EA415001F3D65 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = ../../Resources/en.lproj/Einstein.xib; sourceTree = "<group>"; };
 		F119E9BB1B41FA0D00192514 /* TMacMonitorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMacMonitorView.h; sourceTree = "<group>"; };
 		F119E9BC1B41FA0D00192514 /* TMacMonitorView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TMacMonitorView.mm; sourceTree = "<group>"; };
+		F12BD09F22838CD6007DC719 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = ../../Resources/Base.lproj/Einstein.xib; sourceTree = "<group>"; };
+		F12BD0A022838CD6007DC719 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = ../../Resources/Base.lproj/TCocoaListenerWindow.xib; sourceTree = "<group>"; };
 		F13599791B2A356B00EFD22D /* master-test-execute-instruction_0A000007 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "master-test-execute-instruction_0A000007"; path = "scripts/master-test-execute-instruction_0A000007"; sourceTree = "<group>"; };
 		F135997A1B2A356B00EFD22D /* master-test-execute-instruction_1A000007 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "master-test-execute-instruction_1A000007"; path = "scripts/master-test-execute-instruction_1A000007"; sourceTree = "<group>"; };
 		F135997B1B2A356B00EFD22D /* master-test-execute-instruction_01F94573 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "master-test-execute-instruction_01F94573"; path = "scripts/master-test-execute-instruction_01F94573"; sourceTree = "<group>"; };
@@ -913,7 +914,6 @@
 		F19F1C281E5B574000E8C9BE /* TCocoaPathHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TCocoaPathHelper.mm; sourceTree = "<group>"; };
 		F19F1C2A1E5B575B00E8C9BE /* TCocoaPathHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TCocoaPathHelper.h; sourceTree = "<group>"; };
 		F1AD645D1A2E4F4A00C32AD5 /* Einstein_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Einstein_Prefix.pch; sourceTree = "<group>"; };
-		F1C2423D1E3167B700D074C6 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = ../../Resources/en.lproj/TCocoaListenerWindow.xib; sourceTree = "<group>"; };
 		F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		F1CAFCF8124200C100A0382E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPathHelper.cp; sourceTree = "<group>"; };
@@ -1870,10 +1870,11 @@
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Einstein" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Einstein */;
 			projectDirPath = "";
@@ -2394,7 +2395,7 @@
 		F115FF111A2EA415001F3D65 /* Einstein.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				F115FF121A2EA415001F3D65 /* en */,
+				F12BD09F22838CD6007DC719 /* Base */,
 			);
 			name = Einstein.xib;
 			sourceTree = "<group>";
@@ -2402,7 +2403,7 @@
 		F1C2423C1E3167B700D074C6 /* TCocoaListenerWindow.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				F1C2423D1E3167B700D074C6 /* en */,
+				F12BD0A022838CD6007DC719 /* Base */,
 			);
 			name = TCocoaListenerWindow.xib;
 			sourceTree = "<group>";
@@ -2413,7 +2414,7 @@
 		2389E9931A1E4D4A0001A8C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -2536,7 +2537,7 @@
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -2576,7 +2577,7 @@
 		C01FCF4C08A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -2614,6 +2615,7 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -2657,6 +2659,7 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -2698,6 +2701,7 @@
 		C9F9102C12FB780F0061A18D /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -2738,7 +2742,7 @@
 		C9F9102D12FB780F0061A18D /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -2776,6 +2780,7 @@
 		DA4BA4091A3A0153002BDB80 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2818,6 +2823,7 @@
 		DA4BA40A1A3A0153002BDB80 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2854,6 +2860,7 @@
 		DA4BA40B1A3A0153002BDB80 /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2890,6 +2897,7 @@
 		DA4FF0721A35E73A00092B5A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -2943,6 +2951,7 @@
 		DA4FF0731A35E73A00092B5A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -2990,6 +2999,7 @@
 		DA4FF0741A35E73A00092B5A /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;

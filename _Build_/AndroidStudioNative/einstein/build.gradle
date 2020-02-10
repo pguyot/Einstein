@@ -1,0 +1,33 @@
+apply plugin: 'com.android.application'
+
+android {
+  compileSdkVersion 26
+  defaultConfig {
+    applicationId 'com.matthiasm.einstein'
+    minSdkVersion 19
+    targetSdkVersion 26
+    externalNativeBuild {
+      cmake {
+        arguments '-DANDROID_STL=c++_shared'
+        cppFlags "-std=c++11 -fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1"
+        cFlags "-fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1"
+        targets 'einstein'
+      }
+    }
+    ndk {
+      abiFilters 'x86', 'armeabi-v7a'
+    }
+  }
+  buildTypes {
+    release {
+      minifyEnabled false
+    }
+    debug {
+    }
+  }
+  externalNativeBuild {
+    cmake {
+      path './CMakeLists.txt'
+    }
+  }
+}

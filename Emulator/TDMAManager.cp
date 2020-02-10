@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include <K/Streams/TStream.h>
 #include "TDMAManager.h"
 

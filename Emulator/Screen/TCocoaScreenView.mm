@@ -57,72 +57,76 @@
 // -------------------------------------------------------------------------- //
 - (void)drawRect:(NSRect)rect
 {
-	if (mScreenManager != NULL)
+	if (!mScreenManager)
+		return;
+
+	// rect is in macOS coordintes, but we want NewtonOS coordinates
+	//int w = (int)rect.size.width;
+	int h = (int)rect.size.height;
+	int x = (int)rect.origin.x;
+	int y = mHeight - (int)rect.origin.y - h;
+
+	// Create a reference to the source image map (KUInt32: 0RGB)
+	CGDataProviderRef src;
+	src = CGDataProviderCreateWithData(NULL,
+									   mScreenManager->GetImageBuffer()
+											+ x + mWidth * y,
+									   mWidth * h * sizeof(KUInt32),
+									   NULL );
+
+	CGContextRef theContext = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+	CGContextSaveGState(theContext);
+
+	CGColorSpaceRef theColorSpace = CGColorSpaceCreateDeviceRGB();
+	mScreenImage = CGImageCreate(
+								 rect.size.width, //mWidth,
+								 rect.size.height, //mHeight,
+								 8,
+								 32,
+								 //rect.size.width * sizeof(KUInt32),
+								 mWidth * sizeof(KUInt32),
+								 theColorSpace,
+								 kAlphaNoneSkipFirstPlusHostByteOrder,
+								 src, //mScreenManager->GetDataProvider(),
+								 NULL,
+								 false,
+								 kCGRenderingIntentAbsoluteColorimetric );
+
+	switch (mOrientation)
 	{
-		CGContextRef theContext = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-		CGContextSaveGState(theContext);
-		if(mScreenImage == NULL)
-		{
-			CGColorSpaceRef theColorSpace = CGColorSpaceCreateDeviceRGB();
-			mScreenImage = CGImageCreate(
-								mWidth,
-								mHeight,
-								8,
-								32,
-								mWidth * sizeof(KUInt32),
-								theColorSpace,
-								kAlphaNoneSkipFirstPlusHostByteOrder,
-								mScreenManager->GetDataProvider(),
-								NULL,
-								false,
-								kCGRenderingIntentAbsoluteColorimetric );
-			CGColorSpaceRelease(theColorSpace);
-			
-		}
-		
-		switch (mOrientation)
-		{
-			case kNormal:
-				break;
+		case kNormal:
+			break;
 
-			case k90Clockwise:
-				CGContextTranslateCTM(theContext, 0, mWidth);
-				CGContextRotateCTM(theContext, -M_PI/2.0);
-				break;
+		case k90Clockwise:
+			CGContextTranslateCTM(theContext, 0, mWidth);
+			CGContextRotateCTM(theContext, -M_PI/2.0);
+			break;
 
-			case k180Clockwise:
-				CGContextTranslateCTM(theContext, mWidth, mHeight);
-				CGContextRotateCTM(theContext, M_PI);
-				break;
+		case k180Clockwise:
+			CGContextTranslateCTM(theContext, mWidth, mHeight);
+			CGContextRotateCTM(theContext, M_PI);
+			break;
 
-			case k270Clockwise:
-				CGContextTranslateCTM(theContext, mHeight, 0);
-				CGContextRotateCTM(theContext, M_PI/2.0);
-				break;
-		}
-		
-		CGContextSetInterpolationQuality(theContext, kCGInterpolationNone);
-
-		CGContextDrawImage(theContext,
-			CGRectMake(
-				0.0,
-				0.0,
-				mWidth,
-				mHeight),
-				mScreenImage);
-
-		// Matt: it turns out that CGContextDrawImage uses a cached image under
-		// certain conditions. Under Mountain Lion, this seems to be true at all
-		// times. Apart from using OpenGL, the only way I know to invalidate the
-		// cache is to destroy the CGImage. I assume we are tripple and
-		// quadruple buffering the Newton screen now. A better solution should
-		// be found.
-		// FIXME: use CGLayer or CGBitmapContext or glCopy?
-		CGImageRelease(mScreenImage);
-		mScreenImage = NULL;
-
-		CGContextRestoreGState(theContext);
+		case k270Clockwise:
+			CGContextTranslateCTM(theContext, mHeight, 0);
+			CGContextRotateCTM(theContext, M_PI/2.0);
+			break;
 	}
+
+	CGContextSetInterpolationQuality(theContext, kCGInterpolationNone);
+
+	// Write all the pixels in the rectangle that macOS marked invalid
+	CGContextDrawImage(theContext,
+					   rect,
+					   mScreenImage);
+
+	CGColorSpaceRelease(theColorSpace);
+	CGImageRelease(mScreenImage);
+	mScreenImage = NULL;
+
+	CGContextRestoreGState(theContext);
+
+	CGDataProviderRelease(src);
 }
 
 // -------------------------------------------------------------------------- //

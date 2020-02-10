@@ -3,10 +3,13 @@
 package com.newtonforever.einstein;
 
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.util.Log;
+
+import com.newtonforever.einstein.activity.EinsteinActivity;
 
 /*
  * EinsteinApplication manages Einstein (the native interface to the emulator) and EinsteinService, 
@@ -87,7 +90,17 @@ import android.util.Log;
  */
 public class EinsteinApplication extends Application {
 
+    // known values for hostDevice
+    public enum HostDevice {
+        UNKNOWN,
+        NTX_6SL  // MobiScribe with eInk display
+    }
+
+    public HostDevice hostDevice = HostDevice.UNKNOWN;
+
     private Einstein pEinstein = null;
+
+    private static final String TAG = EinsteinApplication.class.toString();
 
     /**
      * Get a link to the native emulator interface.
@@ -109,19 +122,36 @@ public class EinsteinApplication extends Application {
     public void onCreate() {
         //Log.i("einstein", "--------> App.onCreate()");
 
+        String s="\nDebug-infos:";
+        s += "\n OS Version: " + System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
+        s += "\n OS API Level: " + android.os.Build.VERSION.SDK_INT;
+        s += "\n Device: " + android.os.Build.DEVICE;
+        s += "\n Model (and Product): " + android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")";
+        switch (android.os.Build.DEVICE) {
+            case "ntx_6sl":
+                // ---- MobiScribe 6.8":
+                // OS Version: 3.0.35(113)
+                // OS API Level: 19
+                // Device: ntx_6sl
+                // Model (and Product): EVK_MX6SL (ntx_6sl)
+                // available screen is 1357x1080 (1440x1080) at 213 (185, 265)dpi
+                hostDevice = HostDevice.NTX_6SL; break;
+        }
+        Log.i(TAG, s);
+
         super.onCreate();
 
         // create and load the Emulator
         pEinstein = new Einstein();
 
         // create the keep-alive Service (will be created asynchronously)
-        Intent intent = new Intent(getApplicationContext(), EinsteinService.class);
-        intent.putExtra("task", EinsteinService.TASK_LAUNCH);
-        ComponentName name = startService(intent);
-        if (name == null) {
-            Log.i("einstein", "--------< App.onCreate() - CANT LAUNCH SERVICE");
-        }
-        //Log.i("einstein", "--------< App.onCreate()");
+//        Intent intent = new Intent(getApplicationContext(), EinsteinService.class);
+//        intent.putExtra("task", EinsteinService.TASK_LAUNCH);
+//        ComponentName name = startService(intent);
+//        if (name == null) {
+//            Log.i("einstein", "--------< App.onCreate() - CANT LAUNCH SERVICE");
+//        }
+        Log.i("einstein", "--------< App.onCreate()");
     }
 
     /**

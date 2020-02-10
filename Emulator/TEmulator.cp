@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TEmulator.h"
 
 // POSIX
@@ -98,9 +97,12 @@ TEmulator::TEmulator(
 		mFileManager( NULL ),
 		mLog( inLog ),
 		mMonitor( NULL ),
+		mSignal( 0 ),
+		mInterrupted( 0 ),
 		mRunning( false ),
 		mPaused( false ),
-		mBPHalted( false )
+		mBPHalted( false ),
+		mBPID( 0 )
 {
 	mInterruptManager = new TInterruptManager(inLog, &mProcessor);
 #ifdef JIT_PERFORMANCE
@@ -178,9 +180,12 @@ TEmulator::TEmulator(
 		mScreenManager( nil ),
 		mLog( inLog ),
 		mMonitor( NULL ),
+		mSignal( 0 ),
+		mInterrupted( 0 ),
 		mRunning( false ),
 		mPaused( false ),
-		mBPHalted( false )
+		mBPHalted( false ),
+		mBPID( 0 )
 {
 	mInterruptManager = new TInterruptManager(inLog, &mProcessor);
 #ifdef JIT_PERFORMANCE

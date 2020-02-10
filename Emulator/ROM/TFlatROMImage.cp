@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TFlatROMImage.h"
 
 // ANSI C & POSIX

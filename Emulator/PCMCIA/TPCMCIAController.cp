@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TPCMCIAController.h"
 
 // ANSI C & POSIX

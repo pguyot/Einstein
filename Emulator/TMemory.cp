@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TMemory.h"
 
 // POSIX & ANSI C
@@ -701,6 +700,7 @@ TMemory::ReadInstruction( KUInt32 inBankNumber, KUInt32 inOffsetInBank )
 Boolean
 TMemory::Read( VAddr inAddress, KUInt32& outWord )
 {
+#ifdef _DEBUG
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
@@ -708,6 +708,7 @@ TMemory::Read( VAddr inAddress, KUInt32& outWord )
 			mEmulator->BreakInMonitor();
 		}
 	}
+#endif
 	
 	PAddr theAddress;
 
@@ -739,6 +740,7 @@ TMemory::Read( VAddr inAddress, KUInt32& outWord )
 Boolean
 TMemory::ReadAligned( VAddr inAddress, KUInt32& outWord )
 {
+#ifdef _DEBUG
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
@@ -746,6 +748,7 @@ TMemory::ReadAligned( VAddr inAddress, KUInt32& outWord )
 			mEmulator->BreakInMonitor();
 		}
 	}
+#endif
 
 	PAddr theAddress;
 
@@ -777,6 +780,7 @@ TMemory::ReadAligned( VAddr inAddress, KUInt32& outWord )
 inline Boolean
 TMemory::ReadROMRAM( VAddr inAddress, KUInt32& outWord )
 {
+#ifdef _DEBUG
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
@@ -784,6 +788,7 @@ TMemory::ReadROMRAM( VAddr inAddress, KUInt32& outWord )
 			mEmulator->BreakInMonitor();
 		}
 	}
+#endif
 
 	PAddr theAddress;
 
@@ -1333,6 +1338,7 @@ TMemory::ReadROMRAMP( PAddr inAddress, Boolean& outFault )
 Boolean
 TMemory::ReadB( VAddr inAddress, KUInt8& outByte )
 {
+#ifdef _DEBUG
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
@@ -1340,6 +1346,7 @@ TMemory::ReadB( VAddr inAddress, KUInt8& outByte )
 			mEmulator->BreakInMonitor();
 		}
 	}
+#endif
 
 	PAddr theAddress;
 
@@ -1526,6 +1533,7 @@ TMemory::ReadBP( PAddr inAddress, KUInt8& outByte )
 Boolean
 TMemory::Write( VAddr inAddress, KUInt32 inWord )
 {
+#ifdef _DEBUG
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
@@ -1533,6 +1541,7 @@ TMemory::Write( VAddr inAddress, KUInt32 inWord )
 			mEmulator->BreakInMonitor();
 		}
 	}
+#endif
 
 	PAddr theAddress;
 
@@ -1561,6 +1570,7 @@ TMemory::Write( VAddr inAddress, KUInt32 inWord )
 Boolean
 TMemory::WriteAligned( VAddr inAddress, KUInt32 inWord )
 {
+#ifdef _DEBUG
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
@@ -1568,7 +1578,8 @@ TMemory::WriteAligned( VAddr inAddress, KUInt32 inWord )
 			mEmulator->BreakInMonitor();
 		}
 	}
-	
+#endif
+
 	PAddr theAddress;
 
 	if (IsMMUEnabled())
@@ -1596,6 +1607,7 @@ TMemory::WriteAligned( VAddr inAddress, KUInt32 inWord )
 inline Boolean
 TMemory::WriteRAM( VAddr inAddress, KUInt32 inWord )
 {
+#ifdef _DEBUG
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
@@ -1603,7 +1615,8 @@ TMemory::WriteRAM( VAddr inAddress, KUInt32 inWord )
 			mEmulator->BreakInMonitor();
 		}
 	}
-	
+#endif
+
 	PAddr theAddress;
 
 	if (IsMMUEnabled())
@@ -2108,6 +2121,7 @@ TMemory::WriteRAMP( PAddr inAddress, KUInt32 inWord )
 Boolean
 TMemory::WriteB( VAddr inAddress, KUInt8 inByte )
 {
+#ifdef _DEBUG
 	int i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
@@ -2115,7 +2129,8 @@ TMemory::WriteB( VAddr inAddress, KUInt8 inByte )
 			mEmulator->BreakInMonitor();
 		}
 	}
-	
+#endif
+
 	PAddr theAddress;
 	if (IsMMUEnabled())
 	{

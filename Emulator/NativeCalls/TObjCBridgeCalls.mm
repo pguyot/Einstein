@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TObjCBridgeCalls.h"
 #import <Foundation/Foundation.h>
 
