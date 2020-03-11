@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TSymbolList.h"
 
 #include "UDisasm.h"

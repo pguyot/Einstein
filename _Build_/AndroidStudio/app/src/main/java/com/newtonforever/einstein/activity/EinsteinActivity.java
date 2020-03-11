@@ -51,6 +51,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
     private EinsteinActionHandler screenRefreshTask = null;
     private SharedPreferences sharedPrefs;
     private Startup startup;
+    private EinsteinApplication einsteinApplication;
 
     // --- beginning of life cycle
 
@@ -101,8 +102,8 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
 
     private void init() {
         Log.i(TAG, "Creating Einstein application.");
-        final EinsteinApplication app = (EinsteinApplication) getApplication();
-        einstein = app.getEinstein();
+        einsteinApplication = (EinsteinApplication) getApplication();
+        einstein = einsteinApplication.getEinstein();
 
         final LoadResult result = startup.installAssets();
         if (LoadResult.OK != result) {
@@ -135,7 +136,7 @@ public class EinsteinActivity extends Activity implements OnSharedPreferenceChan
         //MiscUtils.sleepForMillis(2000);
         //Log.i(TAG, "Sleeping for 2s after starting screen refresh because we're using Frank's ROM...");
 
-        app.raisePriority();
+        einsteinApplication.raisePriority();
 
         Log.i(TAG, "Leaving onCreate().");
     }

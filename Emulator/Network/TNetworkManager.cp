@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include <K/Threads/TThread.h>
 #include <K/Threads/TCondVar.h>
 #include <K/Threads/TMutex.h>

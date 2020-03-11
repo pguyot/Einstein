@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="EinsteinStyle" parent="@android:style/Theme.Holo">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowTranslucentNavigation">false</item> <!-- not working -->
+        <item name="android:fitsSystemWindows">true</item> <!-- not working -->
+        <item name="android:paddingTop">24dp</item> <!-- not working -->
+    </style>
+</resources>

@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TMMU.h"
 
 // K
@@ -42,7 +41,7 @@
 static KUInt32 gNbHits = 0;				///< Nombre de hits.
 static KUInt32 gNbPerm = 0;				///< Nombre d'erreurs de permission.
 static KUInt32 gNbInvalidate = 0;		///< Nombre d'invalidations.
-static KUInt32 gNbMiss = 0;				///< Nombre de ratŽs.
+static KUInt32 gNbMiss = 0;				///< Nombre de ratï¿½s.
 static KUInt32 gNbHitsTotal = 0;
 static KUInt32 gNbMissTotal = 0;
 
@@ -873,9 +872,6 @@ TMMU::TranslateInstruction(
 			KUInt32 inVAddress,
 			KUInt32* outPAddress )
 {
-#if !TARGET_OS_MAC
-	register
-#endif
 	KUInt32 theAddress = inVAddress;
 
 	// Optimization: avoid translation when reading unprotected ROM

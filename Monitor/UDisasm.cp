@@ -58,7 +58,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "UDisasm.h"
 
 // Einstein

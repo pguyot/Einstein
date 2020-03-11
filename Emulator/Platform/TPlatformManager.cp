@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TPlatformManager.h"
 
 // ANSI C & POSIX

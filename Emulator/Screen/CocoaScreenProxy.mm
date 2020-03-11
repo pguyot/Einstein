@@ -100,6 +100,35 @@
 }
 
 // ------------------------------------------------------------------------- //
+//  * setNeedsDisplayInRect: (NSRect) forView: (NSView*)
+// ------------------------------------------------------------------------- //
+- (void) setNeedsDisplayInRect: (NSRect) inRect forView: (NSView*) inView
+{
+	// Instead of invalidating and later redrawing the eintire Newton screen,
+	// we only invalidate the part of the screen that actually changed. MacoOS
+	// will accumulate those rectangles for us and call
+	// TCocoaScreenManager::UpdateScreenRect(SRect* inUpdateRect) later with
+	// a rectangular area that include all previously invalidated rects.
+	//
+	// This optimization brings UpdateScreenRect() from 50% CPU time down
+	// to 2% in some cases. Writing on the screen, for example, only invalidates
+	// a 16 by 16 pixel rect instead of the entire screen contents.
+	//
+	// inRect is in macOS screen coordinates, origin is bottom left
+	if (mRunLoop == [NSRunLoop currentRunLoop])
+	{
+		// invalidate a single rectangle
+		[inView setNeedsDisplayInRect: inRect];
+	} else {
+		// let the main thread invalidate a single rectangle
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[inView setNeedsDisplayInRect: inRect];
+		});
+	}
+}
+
+
+// ------------------------------------------------------------------------- //
 //  * setHidden: (BOOL) forView: (NSView*)
 // ------------------------------------------------------------------------- //
 - (void) setHidden: (BOOL) inSetHidden forView: (NSView*) inView
