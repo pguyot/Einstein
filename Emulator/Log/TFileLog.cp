@@ -35,7 +35,7 @@
 // -------------------------------------------------------------------------- //
 TFileLog::TFileLog( const char* inFilePath )
 {
-	mFile = ::fopen( inFilePath, "a" );;
+	mFile = ::fopen( inFilePath, "a" );
 	if (mFile == NULL)
 	{
 		(void) ::fprintf(
@@ -44,6 +44,7 @@ TFileLog::TFileLog( const char* inFilePath )
 					inFilePath,
 					errno );
 	}
+	mLineCount = 0;
 }
 
 // -------------------------------------------------------------------------- //
@@ -57,6 +58,11 @@ TFileLog::~TFileLog( void )
 	}
 }
 
+void TFileLog::Flush(void)
+{
+	(void) ::fflush( mFile );
+}
+
 // -------------------------------------------------------------------------- //
 //  * DoLogLine( const char* )
 // -------------------------------------------------------------------------- //
@@ -64,6 +70,12 @@ void
 TFileLog::DoLogLine( const char* inLine )
 {
 	(void) ::fprintf( mFile, "%s\n", inLine );
+	mLineCount++;
+
+	if ((mLineCount % 10) == 0)
+	{
+		Flush();
+	}
 }
 
 // ========================================================================= //
