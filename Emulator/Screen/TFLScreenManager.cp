@@ -26,6 +26,7 @@
 
 // FLTK interface
 #include <FL/Fl.H>
+#include <Fl/Fl_Bitmap.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Group.H>
@@ -34,6 +35,9 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#ifdef TARGET_OS_LINUX
+#include <ctype.h>
+#endif
 
 // K
 #include <K/Defines/UByteSex.h>
@@ -52,60 +56,167 @@
 // -------------------------------------------------------------------------- //
 
 static const struct {unsigned short vk, fltk;} vktab[] = {
-  { 49, ' ' }, { 39, '\'' }, { 43, ',' }, { 27, '-' }, { 47, '.' }, { 44, '/' }, 
-  { 29, '0' }, { 18, '1'  }, { 19, '2'  }, { 20, '3'  }, 
-  { 21, '4' }, { 23, '5'  }, { 22, '6'  }, { 26, '7'  }, 
+  { 49, ' ' }, { 39, '\'' }, { 43, ',' }, { 27, '-' }, { 47, '.' }, { 44, '/' },
+  { 29, '0' }, { 18, '1'  }, { 19, '2'  }, { 20, '3'  },
+  { 21, '4' }, { 23, '5'  }, { 22, '6'  }, { 26, '7'  },
   { 28, '8' }, { 25, '9'  }, { 41, ';'  }, { 24, '='  },
-  {  0, 'A' }, { 11, 'B'  }, {  8, 'C'  }, {  2, 'D'  }, 
-  { 14, 'E' }, {  3, 'F'  }, {  5, 'G'  }, {  4, 'H'  }, 
-  { 34, 'I' }, { 38, 'J'  }, { 40, 'K'  }, { 37, 'L'  }, 
-  { 46, 'M' }, { 45, 'N'  }, { 31, 'O'  }, { 35, 'P'  }, 
-  { 12, 'Q' }, { 15, 'R'  }, {  1, 'S'  }, { 17, 'T'  }, 
-  { 32, 'U' }, {  9, 'V'  }, { 13, 'W'  }, {  7, 'X'  }, 
-  { 16, 'Y' }, {  6, 'Z'  }, 
+  {  0, 'A' }, { 11, 'B'  }, {  8, 'C'  }, {  2, 'D'  },
+  { 14, 'E' }, {  3, 'F'  }, {  5, 'G'  }, {  4, 'H'  },
+  { 34, 'I' }, { 38, 'J'  }, { 40, 'K'  }, { 37, 'L'  },
+  { 46, 'M' }, { 45, 'N'  }, { 31, 'O'  }, { 35, 'P'  },
+  { 12, 'Q' }, { 15, 'R'  }, {  1, 'S'  }, { 17, 'T'  },
+  { 32, 'U' }, {  9, 'V'  }, { 13, 'W'  }, {  7, 'X'  },
+  { 16, 'Y' }, {  6, 'Z'  },
   { 33, '[' }, { 30, ']' }, { 50, '`' },  { 42, '|' },
   { 51, FL_BackSpace }, { 48, FL_Tab }, { 36, FL_Enter }, { 127, FL_Pause },
   { 107, FL_Scroll_Lock }, { 53, FL_Escape }, { 0x73, FL_Home }, { 123, FL_Left },
   { 126, FL_Up }, { 124, FL_Right }, { 125, FL_Down }, { 0x74, FL_Page_Up },
   { 0x79, FL_Page_Down },  { 119, FL_End }, { 0x71, FL_Print }, { 127, FL_Insert },
-  { 0x6e, FL_Menu }, { 114, FL_Help }, { 0x47, FL_Num_Lock }, 
-  { 76, FL_KP_Enter }, { 67, FL_KP+'*' }, { 69, FL_KP+'+'}, { 78, FL_KP+'-' }, { 65, FL_KP+'.' }, { 75, FL_KP+'/' }, 
-  { 82, FL_KP+'0' }, { 83, FL_KP+'1' }, { 84, FL_KP+'2' }, { 85, FL_KP+'3' }, 
-  { 86, FL_KP+'4' }, { 87, FL_KP+'5' }, { 88, FL_KP+'6' }, { 89, FL_KP+'7' }, 
-  { 91, FL_KP+'8' }, { 92, FL_KP+'9' }, { 81, FL_KP+'=' }, 
-  { 0x7a, FL_F+1 }, { 0x78, FL_F+2  }, { 0x63, FL_F+3  }, { 0x76, FL_F+4  }, 
-  { 0x60, FL_F+5 }, { 0x61, FL_F+6  }, { 0x62, FL_F+7  }, { 0x64, FL_F+8  }, 
-  { 0x65, FL_F+9 }, { 0x6D, FL_F+10 }, { 0x67, FL_F+11 }, { 0x6f, FL_F+12 }, 
-  { 56, FL_Shift_L }, { 56, FL_Shift_R }, { 59, FL_Control_L }, { 59, FL_Control_R }, 
+  { 0x6e, FL_Menu }, { 114, FL_Help }, { 0x47, FL_Num_Lock },
+  { 76, FL_KP_Enter }, { 67, FL_KP+'*' }, { 69, FL_KP+'+'}, { 78, FL_KP+'-' }, { 65, FL_KP+'.' }, { 75, FL_KP+'/' },
+  { 82, FL_KP+'0' }, { 83, FL_KP+'1' }, { 84, FL_KP+'2' }, { 85, FL_KP+'3' },
+  { 86, FL_KP+'4' }, { 87, FL_KP+'5' }, { 88, FL_KP+'6' }, { 89, FL_KP+'7' },
+  { 91, FL_KP+'8' }, { 92, FL_KP+'9' }, { 81, FL_KP+'=' },
+  { 0x7a, FL_F+1 }, { 0x78, FL_F+2  }, { 0x63, FL_F+3  }, { 0x76, FL_F+4  },
+  { 0x60, FL_F+5 }, { 0x61, FL_F+6  }, { 0x62, FL_F+7  }, { 0x64, FL_F+8  },
+  { 0x65, FL_F+9 }, { 0x6D, FL_F+10 }, { 0x67, FL_F+11 }, { 0x6f, FL_F+12 },
+  { 56, FL_Shift_L }, { 56, FL_Shift_R }, { 59, FL_Control_L }, { 59, FL_Control_R },
   { 57, FL_Caps_Lock }, { 55, FL_Meta_L }, { 55, FL_Meta_R },
   { 58, FL_Alt_L }, { 58, FL_Alt_R }, { 0x75, FL_Delete },
 };
 
+//
+// this class generates an FLTK widget for the "overlay" area.
+//
+
+class Fl_Screen_Overlay_Widget : public Fl_Box
+{
+    friend class TScreenManager;
+    TFLScreenManager *screenManager_;
+    Fl_Offscreen myArea;
+    int oWidth, oHeight;
+
+public:
+    Fl_Screen_Overlay_Widget(int x, int y, int w, int h, const char *l, TFLScreenManager *s)
+        : Fl_Box(x, y, w, h, l),
+        screenManager_(s)
+    {
+        int i,j;
+
+        myArea = fl_create_offscreen(w, h);
+        oWidth = w;
+        oHeight = h;
+
+        // have to flip each character bitmap around.  Reason: FLTK???
+        // Credit: http://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith32Bits
+        for (i = 0; i < 128; i++)
+            for (j = 0; j < 13; j++)
+            {
+                screenManager_->mFontData[i][j] = ((screenManager_->mFontData[i][j] * 0x0802LU & 0x22110LU) | (screenManager_->mFontData[i][j] * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
+            }
+    }
+    ~Fl_Screen_Overlay_Widget()
+    {
+        fl_delete_offscreen(myArea);
+    }
+
+    void draw()
+    {
+        int i;
+        // update offscreen area:
+        if (screenManager_->OverlayIsOn())
+        {
+            for (i = 0; i < 4; i++)
+            {
+                if (screenManager_->mOverlayIsDirty[i])
+                {
+                    updateLine(i);
+                }
+            }
+        }
+        fl_copy_offscreen(this->x(), this->y(), this->w(), this->h(), myArea, 0, 0);
+    }
+
+    void unlinkSelf()
+	{
+		screenManager_ = 0L;
+		Fl::lock();
+		if (parent()) {
+			parent()->remove(this);
+			parent()->redraw();
+		}
+		Fl::delete_widget(this);
+		Fl::unlock();
+		Fl::awake();
+	}
+
+
+    void updateLine(int lineIdx)
+    {
+        int i, xPos, yPos, j;
+        char c;
+        KUInt8 b;
+        KUInt8 flipped[13];
+        Fl_Bitmap *mCharBitmap;
+
+        if (lineIdx > 3 || lineIdx < 0) { return; }
+        char *overlayLine = screenManager_->mOverlay[lineIdx];
+
+        xPos = 0;
+        yPos = 0 + (lineIdx * 13);
+
+        fl_begin_offscreen(myArea);
+        fl_rectf(xPos, yPos, 40*8, 13, 0, 0, 0);
+        fl_color(FL_RED);
+
+        // for each character
+        for (i = 0; i < 40; i++)
+        {
+            xPos = (i * 8);
+            c = overlayLine[i] & 0x7f;
+            mCharBitmap = new Fl_Bitmap(screenManager_->mFontData[c], 8, 13);
+            mCharBitmap->draw(xPos, yPos);
+        }
+        fl_end_offscreen();
+    }
+};
 
 ///
-/// This class generates an FLTK widget which is then automatically added to 
+/// This class generates an FLTK widget which is then automatically added to
 /// the active group widget.
 ///
 class Fl_Newton_Screen_Widget : public Fl_Box
 {
 	unsigned char		*rgbData_;
 	TFLScreenManager	*screenManager_;
+    Fl_Screen_Overlay_Widget *mOverlayWidget;
 	int					rgbWidth_, rgbHeight_;
 	int					penX, penY, penIsDown;
+    Boolean             hideMouse;
 
 public:
-	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char *l, TFLScreenManager *s) 
+
+	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char *l, Boolean hideMouse, TFLScreenManager *s)
 		: Fl_Box(x, y, w, h, l),
 		rgbData_(0L),
 		screenManager_(s),
+        hideMouse(hideMouse),
 		penX(0), penY(0), penIsDown(0)
 	{
 		rgbWidth_ = w;
 		rgbHeight_ = h;
 		rgbData_ = (unsigned char*)calloc(w*h, 3);
+
+        TScreenManager::SRect mOverlayRect = screenManager_->mOverlayRect;
+        mOverlayWidget = new Fl_Screen_Overlay_Widget(
+            mOverlayRect.fLeft,
+            mOverlayRect.fTop,
+            mOverlayRect.fRight-mOverlayRect.fLeft,
+            mOverlayRect.fBottom-mOverlayRect.fTop, l, s);
+
 	}
 
-	Fl_Newton_Screen_Widget::~Fl_Newton_Screen_Widget()
+	~Fl_Newton_Screen_Widget()
 	{
 		screenManager_->unlinkWidget();
 	}
@@ -120,16 +231,27 @@ public:
 		return rgbHeight_;
 	}
 
-	void draw() 
+    void OverlayOn()
+    {
+        mOverlayWidget->show();
+    }
+
+    void OverlayOff()
+    {
+        mOverlayWidget->hide();
+    }
+
+	void draw()
 	{
 		// FIXME draw borders if the widget is larger than our bitmap
 		// FIXME enable clipping if the widget is smaller
 		// FIXME center the bitmap if it is smaller
 		fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_);
+        mOverlayWidget->redraw();
 		draw_label();
 	}
 
-	unsigned char *getRGBData() 
+	unsigned char *getRGBData()
 	{
 		return rgbData_;
 	}
@@ -204,9 +326,21 @@ public:
 		((Fl_Newton_Screen_Widget*)me)->penDownTimer();
 	}
 
-	int handle(int event) 
+	int handle(int event)
 	{
 		switch (event) {
+            case FL_ENTER:
+            // Now that we are not the only widget in the window, we need to be
+            // really grabby with the keyboard focus...
+                take_focus();
+                if (hideMouse)
+                {
+                    fl_cursor(FL_CURSOR_NONE);
+                }
+                return 1;
+            case FL_LEAVE:
+                fl_cursor(FL_CURSOR_DEFAULT);
+                return 1;
 			case FL_PUSH:
 				screenManager_->PenDown(penXPos(), penYPos());
 				penIsDown = true;
@@ -249,7 +383,6 @@ public:
 
 };
 
-
 // -------------------------------------------------------------------------- //
 //  * GetDisplaySize( void )
 // -------------------------------------------------------------------------- //
@@ -271,7 +404,9 @@ TFLScreenManager::TFLScreenManager(
 			KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 			KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
 			Boolean inFullScreen /* = false */,
-			Boolean inScreenIsLandscape /* = true */)
+			Boolean inScreenIsLandscape /* = true */,
+            Boolean hideMouse /* = false */,
+            int yOffset)
 	:
 		TScreenManager(
 			inLog,
@@ -288,16 +423,21 @@ TFLScreenManager::TFLScreenManager(
 	}
 	Fl_Group *parent = Fl_Group::current();
 
-	int xo = 0, yo = 0;
+	int xo = 0, yo = 0 + yOffset;
 	if (parent->type()<FL_WINDOW) {
 		xo = parent->x();
 		yo = parent->y();
 	}
 
+    mOverlayRect.fLeft = GetScreenWidth()/2 - 20*8;
+	mOverlayRect.fRight = mOverlayRect.fLeft+40*8;
+	mOverlayRect.fTop = GetScreenHeight() - 16*4;
+	mOverlayRect.fBottom = mOverlayRect.fTop + 16*4;
+
 	mWidget = new Fl_Newton_Screen_Widget(
-		xo, yo, inPortraitWidth, inPortraitHeight, 
-		0L, this);
-	
+		xo, yo, inPortraitWidth, inPortraitHeight,
+		0L, hideMouse, this);
+
 	mWidget->label(
 		"booting...\n"
 		"\n"
@@ -313,7 +453,9 @@ TFLScreenManager::TFLScreenManager(
 	if (createWindow) {
 		Fl::get_system_colors();
 		((Fl_Window*)parent)->show();
-	}
+    }
+
+    mWidget->take_focus();
 }
 
 // -------------------------------------------------------------------------- //
@@ -323,6 +465,20 @@ TFLScreenManager::~TFLScreenManager( void )
 {
 	//if (mWidget)
 	//	mWidget->unlinkSelf();
+}
+
+void TFLScreenManager::OverlayOn(void)
+{
+    // show the overlay
+    mWidget->OverlayOn();
+    TScreenManager::OverlayOn();
+}
+
+void TFLScreenManager::OverlayOff(void)
+{
+    // hide the overlay
+    mWidget->OverlayOff();
+    TScreenManager::OverlayOff();
 }
 
 // -------------------------------------------------------------------------- //
@@ -340,7 +496,7 @@ TFLScreenManager::PowerOn( void )
 void
 TFLScreenManager::PowerOff( void )
 {
-	// This space for rent.
+    // mWidget->window()->hide();
 }
 
 // -------------------------------------------------------------------------- //
@@ -349,6 +505,9 @@ TFLScreenManager::PowerOff( void )
 void
 TFLScreenManager::PowerOnScreen( void )
 {
+    // just the screen widget, not the entire window
+    // or show() / hide() JUST THE WIDGET?
+    // mWidget->activate();
 	printf("Power on Screen\n");
 }
 
@@ -360,6 +519,10 @@ void
 TFLScreenManager::PowerOffScreen( void )
 {
 	mWidget->window()->hide();
+    // mWidget->hide();
+    Fl::awake();
+    // just the screen!
+    // mWidget->deactivate();
 	printf("Power off Screen\n");
 }
 
@@ -420,13 +583,13 @@ TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 		height = inUpdateRect->fBottom - top;
 		width = inUpdateRect->fRight - left;
 	} else {
-		top = 0; 
+		top = 0;
 		left = 0;
 		height = GetScreenHeight();
 		width = GetScreenWidth();
 	}
 
-	KUInt8 rs, gs, bs; 
+	KUInt8 rs, gs, bs;
 	if (GetBacklight()) {
 		rs = 1; gs = 0; bs = 1;
 	} else {
@@ -444,7 +607,7 @@ TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 	{
 		width += 1;
 	}
-	
+
 	KUInt8* theScreenBuffer = GetScreenBuffer();
 	KUInt32 theScreenWidth = GetScreenWidth();
 	KUInt32 dstRowBytes = theScreenWidth * mBitsPerPixel / 8;
@@ -489,7 +652,7 @@ TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 
 
 // ========================================================================= //
-// The most likely way for the world to be destroyed, most experts agree, is 
-// by accident. That's where we come in; we're computer professionals. We 
+// The most likely way for the world to be destroyed, most experts agree, is
+// by accident. That's where we come in; we're computer professionals. We
 // cause accidents.
 // ========================================================================= //

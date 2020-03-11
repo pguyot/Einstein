@@ -91,7 +91,7 @@ protected:
 	///
 	/// Emulate the DMA hardware
 	///
-	void HandleDMA();
+	int HandleDMA();
 
 	///
 	/// PThread hook.

@@ -1,0 +1,75 @@
+{
+    "app-id": "com.einsteindev.Einstein",
+    "runtime": "org.freedesktop.Platform",
+    "runtime-version": "1.6",
+    "sdk": "org.freedesktop.Sdk",
+    "command": "einstein",
+
+    "build-options": {
+        "arch": {
+            "i386":{
+                "cflags": "-O3",
+                "cxxflags": "-O3"
+            }
+        }
+    },
+    "cleanup":[
+        "/include",
+        "/share/doc",
+        "/share/man",
+        "/lib/debug",
+        "/bin/fluid",
+        "/bin/fltk-config",
+        "/lib/*.a",
+        "/lib/pkgconfig"
+    ],
+    "modules": [
+        {
+            "name":"fltk",
+            "config-opts": ["--with-links", "--enable-shared"],
+            "sources": [
+            {
+                "url": "http://fltk.org/pub/fltk/1.3.4/fltk-1.3.4-2-source.tar.bz2",
+                "type":"archive",
+                "md5":"69128be72365cbedd1d380739f0164e3"
+            }]
+        },
+        {
+            "name":"Einstein",
+            "buildsystem": "cmake",
+            "config-opts": [
+                "-DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-32-linux.cmake",
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-Dpulseaudio=ON",
+                "-DappFLTK=ON",
+                "-DappX11=OFF"
+            ],
+            "build-commands": [
+                "install -Dm644 Resources/icons/EinsteinApp96.png /app/share/icons/hicolor/96x96/apps/com.einsteindev.Einstein.png",
+                "install -Dm644 -t /app/share/applications flatpak/com.einsteindev.Einstein.desktop",
+                "install -Dm644 -t /app/share/metainfo flatpak/com.einsteindev.Einstein.appdata.xml"
+            ],
+
+
+            "post-install": [
+                "install -m755 bin/Linux-Release/einstein /app/bin/einstein",
+                "install -D Drivers/Einstein.rex /app/share/einstein/Einstein.rex"
+            ],
+            "sources": [
+            {
+                "only-arches": ["i386"],
+                "type":"git",
+                "url": "https://github.com/pguyot/Einstein.git",
+                "branch": "Linux-FLTK"
+            }]
+        }
+    ],
+    "finish-args": [
+        "--filesystem=home",
+        "--socket=pulseaudio",
+        "--socket=x11",
+        "--share=ipc",
+        "--share=network"
+
+    ]
+}

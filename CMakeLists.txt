@@ -1,4 +1,7 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.7)
+if(POLICY CMP0072)
+    cmake_policy(SET CMP0072 NEW)
+endif()
 
 project(einstein)
 
@@ -13,12 +16,18 @@ option(pulseaudio "PulseAudio output support" ON)
 option(armlejit "Use ARMLE JIT" OFF)
 option(appX11 "X11+CLI application" ON)
 option(appFLTK "FLTK application" OFF)
+option(debugsound "Sound debug logging" OFF)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 
 # Release / Debug compile flags.
-set(_FLAGS_DEBUG "-g -O0 -DDEBUG -DDEBUG_SOUND -DPA_ENABLE_DEBUG_OUTPUT -DHAS_C99_LONGLONG")
+set(_FLAGS_DEBUG "-g -O0 -DDEBUG -DHAS_C99_LONGLONG")
 set(_FLAGS_RELEASE "-O3 -DRELEASE -DHAS_C99_LONGLONG")
+
+if(debugsound)
+    set(_FLAGS_DEBUG "${_FLAGS_DEBUG} -DDEBUG_SOUND -DPA_ENABLE_DEBUG_OUTPUT")
+    set(_FLAGS_RELEASE "${_FLAGS_RELEASE} -DDEBUG_SOUND -DPA_ENABLE_DEBUG_OUTPUT")
+endif()
 
 set(CMAKE_CXX_FLAGS_RELEASE "${_FLAGS_RELEASE}")
 set(CMAKE_C_FLAGS_RELEASE "${_FLAGS_RELEASE}")
@@ -44,10 +53,8 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         message(FATAL_ERROR "Missing library: pthread")
     endif()
 
-
-    find_library(FFI_LIB ffi)
     find_library(DL_LIB dl)
-    list(APPEND LINKLIBS ${DL_LIB} ${PTHREAD_LIB} ${FFI_LIB})
+    list(APPEND LINKLIBS ${DL_LIB} ${PTHREAD_LIB})
 endif()
 
 TEST_BIG_ENDIAN(_IS_BIG_ENDIAN)
@@ -62,10 +69,8 @@ add_subdirectory(K)
 ## 1) Gather all common sources
 
 file(GLOB elib_common_sources "Emulator/*.cp")
-# file(GLOB elib_Monitor_sources "Monitor/*.cp")
 
 set_source_files_properties(${elib_common_sources} PROPERTIES LANGUAGE CXX)
-# set_source_files_properties(${elib_Monitor_sources} PROPERTIES LANGUAGE CXX)
 
 # Add "einsteinlib" as a library target
 add_library(einsteinlib STATIC ${elib_common_sources})
@@ -101,8 +106,14 @@ elseif(${UNIX})
         # FIXME add OS X sources here.
         set(EINSTEIN_SCREEN_MANAGER "Cocoa")
     else()
+        if (appX11 AND appFLTK)
+            message(FATAL_ERROR "You must specify either X11+CLI or FLTK application build.")
+        endif()
+
         if (appX11)
             set(EINSTEIN_SCREEN_MANAGER "X11")
+        elseif(appFLTK)
+            set(EINSTEIN_SCREEN_MANAGER "FL")
         endif()
 
         if(${CMAKE_HOST_SYSTEM_NAME} MATCHES "BSD")
@@ -135,10 +146,23 @@ target_link_libraries(einsteinlib monitor files host jit log nativecalls network
 
 ############################
 # EINSTEIN EMULATOR
-add_executable(einstein app/einstein.cp app/TCLIApp.cp)
+
+if (appX11)
+    set(einstein_app_sources app/einstein.cp app/TCLIApp.cp)
+elseif(appFLTK)
+    find_package(FLTK 1.3.4 REQUIRED)
+    if(FLTK_FOUND)
+        set(einstein_app_sources app/TFLApp.cp app/TFLSettings.cp)
+    else()
+        message(FATAL_ERROR "Missing library: fltk.  FLTK 1.3.4+ is required")
+    endif()
+endif()
+
+set_source_files_properties(${einstein_app_sources} PROPERTIES LANGUAGE CXX)
+
+add_executable(einstein ${einstein_app_sources})
 
 install(TARGETS einstein
-DESTINATION bin/${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_BUILD_TYPE})
+    DESTINATION bin/${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_BUILD_TYPE})
 
-set_source_files_properties(app/einstein.cp app/TCLIApp.cp PROPERTIES LANGUAGE CXX)
-target_link_libraries(einstein k einsteinlib)
+target_link_libraries(einstein k einsteinlib ${FLTK_LIBRARIES})

@@ -15,7 +15,6 @@ if (pulseaudio)
 
     set(Sound_sources_addl_cpp "TPulseAudioSoundManager.cp")
     add_definitions("-DAUDIO_PULSEAUDIO=1")
-
 endif()
 
 if (portaudio OR nativeportaudio)
@@ -39,6 +38,10 @@ if (portaudio OR nativeportaudio)
             "${CMAKE_SOURCE_DIR}/portaudio/pa_unix/pa_unix_hostapis.c")
 
     endif()
+endif()
+
+if(${WIN32})
+    set(Sound_sources_addl_cpp ${Sound_sources_addl_cpp} TWaveSoundManager.cp)
 endif()
 
 set_source_files_properties(${Sound_sources_addl_cpp} PROPERTIES LANGUAGE CXX)

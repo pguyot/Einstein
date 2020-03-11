@@ -29,6 +29,7 @@
 
 class TThread;
 class Fl_Newton_Screen_Widget;
+class Fl_Screen_Overlay_Widget;
 
 ///
 /// Class for a screen manager using FLTK.
@@ -41,6 +42,7 @@ class TFLScreenManager
 		public TScreenManager
 {
 	friend Fl_Newton_Screen_Widget;
+    friend Fl_Screen_Overlay_Widget;
 public:
 	///
 	/// Get the dimension of the screen.
@@ -64,7 +66,9 @@ public:
 				KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 				KUInt32 inPortraitHeight = kDefaultPortraitHeight,
 				Boolean inFullScreen = false,
-				Boolean inScreenIsLandscape = true);
+				Boolean inScreenIsLandscape = true,
+                Boolean hideMouse = false,
+                int yOffset = 0);
 
 
 	///
@@ -85,7 +89,17 @@ public:
 	/// This method is called by the platform manager when the emulator is
 	/// turned on.
 	///
-	virtual void	PowerOn( void );
+    virtual void	PowerOn( void );
+
+    ///
+	/// Switch the status overlay on
+	///
+	virtual void		OverlayOn();
+
+	///
+	/// Switch the status overlay off
+	///
+	virtual void		OverlayOff();
 
 	///
 	/// This method is called by the platform manager when the emulator is
@@ -147,19 +161,19 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet ˆ copier
+	/// \param inCopy		objet ï¿½ copier
 	///
 	TFLScreenManager( const TFLScreenManager& inCopy );
 
 	///
-	/// OpŽrateur d'assignation volontairement indisponible.
+	/// Opï¿½rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet ˆ copier
+	/// \param inCopy		objet ï¿½ copier
 	///
 	TFLScreenManager& operator = ( const TFLScreenManager& inCopy );
 
 	void unlinkWidget() { mWidget = 0L; }
-	
+
 	///
 	/// FLTK Widget class that will hold the Newton screen image
 	///

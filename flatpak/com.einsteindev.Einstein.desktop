@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Einstein
+Comment=Einstein Newton MessagePad Emulator
+Exec=einstein
+Type=Application
+Icon=com.einsteindev.Einstein

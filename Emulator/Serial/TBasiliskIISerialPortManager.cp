@@ -35,7 +35,7 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <sys/stat.h>
-#if !TARGET_OS_IOS
+#if !TARGET_OS_IOS && TARGET_OS_MAC
 #include <CoreServices/CoreServices.h>
 #endif
 #endif
@@ -91,8 +91,13 @@ TBasiliskIISerialPortManager::TBasiliskIISerialPortManager(
 // -------------------------------------------------------------------------- //
 TBasiliskIISerialPortManager::~TBasiliskIISerialPortManager()
 {
-	if (mDMAIsRunning)
-		TriggerEvent('Q');
+    void *threadStatus;
+
+    // always shut down the thread properly, so we clean up the filesystem after ourselves.
+	TriggerEvent(kSerCmd_StopThread);
+    pthread_join(mDMAThread, &threadStatus);
+    // clean up the symlink
+    unlink(kBasiliskPipe);
 }
 
 
@@ -161,6 +166,7 @@ TBasiliskIISerialPortManager::OpenPTY()
 		perror("TBasiliskIISerialPortManager: Can't get name of Basilisk Slave pseudo terminal");
 		return false;
 	}
+    printf("External serial port available on %s (%s)\n", TBasiliskIISerialPortManager::kBasiliskPipe, slaveName);
 	pBasiliskSlaveName = strdup(slaveName);
 
 	pBasiliskSlave = open(slaveName, O_RDWR | O_NOCTTY);
@@ -260,7 +266,6 @@ TBasiliskIISerialPortManager::RunDMA()
 		printf("***** TBasiliskIISerialPortManager::RunDMA: Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
-	pthread_detach( mDMAThread );
 }
 
 
@@ -270,7 +275,7 @@ TBasiliskIISerialPortManager::RunDMA()
 //		OS, and read and writes data via the outside communication ports.
 //		It can also trigger interrupts when buffers empty, fill, or overflow.
 // -------------------------------------------------------------------------- //
-void
+int
 TBasiliskIISerialPortManager::HandleDMA()
 {
 	bool shutdownThread = false;
@@ -305,7 +310,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 		/*int s =*/ select(maxFD+1, &readSet, 0L, 0L, needTimer ? &timeout : 0L);
 
 		// handle transmitting DMA
-		
+
 		if (mTxDMAControl&0x00000002) { // DMA is enabled
 			if (mTxDMADataCountdown) {
 				// write a byte
@@ -342,17 +347,17 @@ TBasiliskIISerialPortManager::HandleDMA()
 				switch (pComState) {
 					case kStateInit:
 						// Initial state. Wait for Basilisk to open and setup its COM port
-						if ((c&TIOCPKT_NOSTOP) == TIOCPKT_NOSTOP) pComState = kStateOpen;
+						if ((c & TIOCPKT_NOSTOP) == TIOCPKT_NOSTOP) pComState = kStateOpen;
 						break;
 					case kStateOpen:
 						// The port is open. Wait for Basilisk to flush the COM port after initialising
-						if ((c&FLUSHRW) == FLUSHRW) pComState = kStateFlushRW;
+						if ((c & FLUSHRW) == FLUSHRW) pComState = kStateFlushRW;
 						break;
 					case kStateFlushRW:
 						// wait for a second flushing of the COM port. This indicates to us that Basilisk
 						// is very likely trying to close the port, but may be deadloking. Help Basilisk
 						// out by closing and reopening the pipe.
-						if ((c&FLUSHRW) == FLUSHRW) {
+						if ((c & FLUSHRW) == FLUSHRW) {
 							ClosePTY();
 							usleep(500000); // half a second
 							OpenPTY();
@@ -413,6 +418,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 	}
 	ClosePTY();
 	mDMAIsRunning = false;
+    return 0;
 }
 
 

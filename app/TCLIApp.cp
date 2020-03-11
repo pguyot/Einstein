@@ -38,6 +38,9 @@
 #include "Emulator/ROM/TROMImage.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
+#if TARGET_OS_WIN32
+#include "Emulator/Sound/TWaveSoundManager.h"
+#endif
 #if TARGET_OS_OPENSTEP
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
 #endif
@@ -752,6 +755,10 @@ TCLIApp::CreateSoundManager( const char* inClass )
 #if AUDIO_PULSEAUDIO
 } else if (::strcmp(inClass, "pulseaudio") == 0) {
         mSoundManager = new TPulseAudioSoundManager(mLog);
+#endif
+#if TARGET_OS_WIN32
+	} else if (::strcmp( inClass, "wave" ) == 0) {
+		mSoundManager = new TWaveSoundManager( mLog );
 #endif
 	} else {
 		(void) ::fprintf( stderr, "Unknown sound manager class %s\n", inClass );

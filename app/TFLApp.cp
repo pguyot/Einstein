@@ -22,8 +22,11 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
+
+// FLTK Application
 #include "TFLApp.h"
 #include "TFLSettings.h"
+#include "Resources/icons/EinsteinFLTKMenuIcons.h"
 
 // ANSI C & POSIX
 #include <stdio.h>
@@ -31,28 +34,53 @@
 #include <string.h>
 #include <sys/types.h>
 
+// FLTK
 #include <FL/x.H>
 #include <FL/fl_draw.h>
 #include <FL/Fl.H>
+#include <FL/Fl_Group.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
-#include <FL/Fl_File_Chooser.H>
+#include <FL/Fl_Native_File_Chooser.H>
 
+#if TARGET_OS_LINUX
+#include "Resources/icons/EinsteinApp64.fl.h"
+#endif
 
 // Einstein
 #include "Emulator/ROM/TROMImage.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/Sound/TNullSoundManager.h"
+
+#if TARGET_OS_WIN32
 #include "Emulator/Sound/TWaveSoundManager.h"
+#define strcasecmp stricmp
+#endif
+
+#if TARGET_OS_OPENSTEP
+#include "Emulator/Sound/TCoreAudioSoundManager.h"
+#endif
+#if AUDIO_PORTAUDIO
+#include "Emulator/Sound/TPortAudioSoundManager.h"
+#endif
+#if AUDIO_PULSEAUDIO
+#include "Emulator/Sound/TPulseAudioSoundManager.h"
+#endif
+
+#include "Emulator/Serial/TPipesSerialPortManager.h"
+#include "Emulator/Serial/TPtySerialPortManager.h"
+#include "Emulator/Serial/TBasiliskIISerialPortManager.h"
+
 #include "Emulator/Screen/TFLScreenManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
+#include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Log/TFileLog.h"
+#include "Emulator/Log/TStdOutLog.h"
 #include "Emulator/Log/TBufferLog.h"
-
 #include "Monitor/TMonitor.h"
 #include "Monitor/TSymbolList.h"
 
@@ -67,25 +95,171 @@
 // -------------------------------------------------------------------------- //
 // Local Classes
 // -------------------------------------------------------------------------- //
+#define BUTTON_BAR_HEIGHT 50
+class Fl_Einstein_ButtonBar : public Fl_Group
+{
 
-class Fl_Einstein_Window : public Fl_Window 
+    static void cb_BB_PowerButton(Fl_Button* o, void* v)
+    {
+        ((Fl_Einstein_ButtonBar *)v)->app->menuPower();
+
+    }
+    static void cb_BB_BacklightButton(Fl_Button* o, void* v)
+    {
+        ((Fl_Einstein_ButtonBar *)v)->app->menuBacklight();
+        Fl::lock();
+        if (o->value())
+        {
+            o->image(image_button_backlight_on());
+        }
+        else
+        {
+            o->image(image_button_backlight());
+        }
+        Fl::unlock();
+    }
+    static void cb_BB_PrefsButton(Fl_Button* o, void* v)
+    {
+        ((Fl_Einstein_ButtonBar *)v)->app->menuShowSettings();
+    }
+    static void cb_BB_PkgInstallButton(Fl_Button* o, void* v)
+    {
+        ((Fl_Einstein_ButtonBar *)v)->app->menuInstallPackage();
+    }
+    static void cb_BB_NetworkButton(Fl_Button* o, void* v)
+    {
+        ((Fl_Einstein_ButtonBar *)v)->app->menuNetwork();
+        Fl::lock();
+        if (o->value())
+        {
+            o->image(image_button_network_in());
+        }
+        else
+        {
+            o->image(image_button_network());
+        }
+        Fl::unlock();
+    }
+
+
+public:
+    Fl_Einstein_ButtonBar(int xPos, int yPos, int width, int height, TFLApp *App)
+        : Fl_Group(xPos, yPos, width, height),
+        app(App),
+        yOffset(height)
+    {
+        int xOffset = 0;
+
+        PowerButton = new Fl_Button(xPos+xOffset, yPos, 55, height, "Power");
+        PowerButton->box(FL_FLAT_BOX);
+        PowerButton->down_box(FL_GTK_THIN_DOWN_BOX);
+        PowerButton->image( image_button_power_on() );
+        PowerButton->labelsize(11);
+        PowerButton->callback((Fl_Callback *)cb_BB_PowerButton, (void *)this);
+
+        xOffset = xOffset + 55;
+
+        BacklightButton = new Fl_Button(xPos+xOffset, 0, 55, height, "Backlight");
+        BacklightButton->type(FL_TOGGLE_BUTTON);
+        BacklightButton->box(FL_FLAT_BOX);
+        BacklightButton->down_box(FL_GTK_THIN_DOWN_BOX);
+        BacklightButton->image( image_button_backlight() );
+        BacklightButton->labelsize(11);
+        BacklightButton->callback((Fl_Callback *)cb_BB_BacklightButton, (void *)this);
+        BacklightButton->when(FL_WHEN_CHANGED);
+        xOffset = xOffset + 55;
+
+        NetworkButton = new Fl_Button(xPos+xOffset, yPos, 55, height, "Network");
+        NetworkButton->type(FL_TOGGLE_BUTTON);
+        NetworkButton->box(FL_FLAT_BOX);
+        NetworkButton->down_box(FL_GTK_THIN_DOWN_BOX);
+        NetworkButton->image(image_button_network());
+        NetworkButton->labelsize(11);
+        NetworkButton->callback((Fl_Callback *)cb_BB_NetworkButton, (void *) this);
+        NetworkButton->when(FL_WHEN_CHANGED);
+        // Deactivate network button, since inserting the card crashes my emulator
+        NetworkButton->deactivate();
+        xOffset = xOffset + 55;
+
+        PrefsButton = new Fl_Button(xPos+xOffset, 0, 55, height, "Prefs");
+        PrefsButton->box(FL_FLAT_BOX);
+        PrefsButton->down_box(FL_GTK_THIN_DOWN_BOX);
+        PrefsButton->image( image_button_prefs() );
+        PrefsButton->labelsize(11);
+        PrefsButton->callback((Fl_Callback *)cb_BB_PrefsButton, (void *)this);
+        xOffset = xOffset + 55;
+
+        PkgInstallButton = new Fl_Button(width-88, 0, 88, height, "Install Package");
+        PkgInstallButton->box(FL_FLAT_BOX);
+        PkgInstallButton->down_box(FL_GTK_THIN_DOWN_BOX);
+        PkgInstallButton->image( image_button_install() );
+        PkgInstallButton->labelsize(11);
+        PkgInstallButton->callback((Fl_Callback *)cb_BB_PkgInstallButton, (void *)this);
+
+        end();
+        xOffset = xOffset + 88;
+    }
+
+    void BacklightState(Boolean new_blState)
+    {
+        if (new_blState)
+        {
+            BacklightButton->image( image_button_backlight_on() );
+        }
+        else
+        {
+            BacklightButton->image( image_button_backlight() );
+        }
+        blState = new_blState;
+    }
+
+    int getYOffset()
+    {
+        return yOffset;
+    }
+
+    int handle(int event)
+    {
+        switch(event) {
+            case FL_FOCUS:
+                return 0;
+        }
+        return Fl_Group::handle(event);
+    }
+
+
+private:
+    TFLApp *app;
+    int yOffset = 0;
+    Fl_Button *PowerButton;
+    Fl_Button *NetworkButton;
+    Fl_Button *BacklightButton;
+    Fl_Button *PrefsButton;
+    Fl_Button *PkgInstallButton;
+    Boolean blState = false;
+
+};
+
+class Fl_Einstein_Window : public Fl_Window
 {
 public:
 	Fl_Einstein_Window(int ww, int hh, TFLApp *App, const char *ll=0)
-		:	Fl_Window(ww, hh, ll), 
+		:	Fl_Window(ww, hh+BUTTON_BAR_HEIGHT, ll),
 			app(App)
 	{
 	}
 	Fl_Einstein_Window(int xx, int yy, int ww, int hh, TFLApp *App, const char *ll=0)
-		:	Fl_Window(xx, yy, ww, hh, ll), 
+		:	Fl_Window(xx, yy, ww, hh+BUTTON_BAR_HEIGHT, ll),
 			app(App)
 	{
 	}
-	int handle(int event) 
+
+
+	int handle(int event)
 	{
 		if ( event==FL_PUSH && (
-				(Fl::event_button()==3) || 
-				(Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==FL_CTRL) 
+				(Fl::event_button()==3) ||
+				(Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==FL_CTRL)
 			)
 		{
 			const Fl_Menu_Item *choice = TFLSettings::menu_RMB->popup(Fl::event_x(), Fl::event_y());
@@ -94,24 +268,11 @@ public:
 			}
 			return 1;
 		}
-		switch (event) {
-			case FL_ENTER:
-				if (hideMouse_) 
-					fl_cursor(FL_CURSOR_NONE);
-				break;
-			case FL_LEAVE:
-				fl_cursor(FL_CURSOR_DEFAULT);
-				break;
-		}
 		return Fl_Window::handle(event);
 	}
-	void hideMouse() {
-		fl_cursor(FL_CURSOR_NONE);
-		hideMouse_ = 1;
-	}
+
 private:
 	TFLApp	*app;
-	int		hideMouse_;
 };
 
 // -------------------------------------------------------------------------- //
@@ -128,8 +289,10 @@ TFLApp::TFLApp( void )
 		mLog( nil ),
 		mMonitor( nil ),
 		mSymbolList( nil ),
-		flSettings(0L),
-    mPipeServer(this)
+		flSettings(0L)
+#if TARGET_OS_WIN32
+        ,    mPipeServer(this)
+#endif
 {
 }
 
@@ -176,13 +339,40 @@ TFLApp::Run( int argc, char* argv[] )
 {
 	mProgramName = argv[0];
 
+    int indexArgs = 1;
+
+    while (indexArgs < argc)
+    {
+        if (::strcmp(argv[indexArgs], "-l") == 0) {
+			indexArgs++;
+			if ((indexArgs == argc - 1) || (mLog != nil))
+			{
+				SyntaxError( argv[indexArgs-1] );
+			}
+
+			CreateLog( argv[indexArgs] );
+		} else if (::strncmp(argv[indexArgs], "--log=", 6) == 0) {
+			if (mLog != nil)
+			{
+				SyntaxError( argv[indexArgs] );
+			}
+
+			CreateLog( &argv[indexArgs][6] );
+		}
+        indexArgs++;
+    }
 	Fl::scheme("gtk+");
+    Fl::option(Fl::OPTION_FNFC_USES_GTK, true);
 	Fl::args(1, argv);
 	Fl::get_system_colors();
-
-	flSettings = new TFLSettings(425, 392, "Einstein Platform Settings");
+	flSettings = new TFLSettings(425, 400, "Einstein Platform Settings");
+#if TARGET_OS_WIN32
 	flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
-	flSettings->setApp(this, mProgramName);
+#elif TARGET_OS_LINUX
+    Fl_Window::default_xclass("Einstein");
+    flSettings->default_icon(&image_EinsteinApp64);
+#endif
+	flSettings->setApp(this);
 	flSettings->loadPreferences();
 	flSettings->revertDialog();
 	Fl::focus(flSettings->wStart);
@@ -200,8 +390,6 @@ TFLApp::Run( int argc, char* argv[] )
 	const Fl_Menu_Item *theMachineMenu = flSettings->wMachineChoice->menu()+theMachineID;
 	const char* theMachineString = strdup((char*)theMachineMenu->user_data());
 	const char* theRestoreFile = nil;
-	const char* theSoundManagerClass = nil;
-	const char* theScreenManagerClass = nil;
 	const char *theROMImagePath = strdup(flSettings->ROMPath);
 	const char *theFlashPath = strdup(flSettings->FlashPath);
 	int portraitWidth = flSettings->screenWidth;
@@ -210,6 +398,7 @@ TFLApp::Run( int argc, char* argv[] )
 	Boolean fullscreen = (bool)flSettings->fullScreen;
 	Boolean hidemouse = (bool)flSettings->hideMouse;
 	Boolean useMonitor = (bool)flSettings->useMonitor;
+    Boolean soundEnabled = (bool)flSettings->soundEnabled;
 	int useAIFROMFile = 0;	// 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
 
 	int xx, yy, ww, hh;
@@ -232,43 +421,49 @@ TFLApp::Run( int argc, char* argv[] )
 	(void) ::printf( "This is %s.\n", VERSION_STRING );
 
 	Fl_Einstein_Window *win;
+    Fl_Einstein_ButtonBar *bbar;
 	if (fullscreen) {
 		win = new Fl_Einstein_Window(xx, yy, portraitWidth, portraitHeight, this);
 		win->border(0);
 	} else {
 		win = new Fl_Einstein_Window(portraitWidth, portraitHeight, this, "Einstein");
+        bbar = new Fl_Einstein_ButtonBar(0, 0, portraitWidth, BUTTON_BAR_HEIGHT, this);
 	}
-	win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+
+
+#if TARGET_OS_WIN32
+    win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+#elif TARGET_OS_LINUX
+    win->default_icon(&image_EinsteinApp64);
+#endif
+
 	win->callback(quit_cb, this);
 
-	if (theSoundManagerClass == nil)
-	{
-		mSoundManager = new TWaveSoundManager( mLog );
-	} else {
-		CreateSoundManager( theSoundManagerClass );
-	}
-	if (theScreenManagerClass == nil)
-	{
-		//CreateScreenManager( "FL", portraitWidth, portraitHeight, fullscreen );
-		CreateScreenManager( "FL", portraitWidth, portraitHeight, 0 );
-	} else {
-		CreateScreenManager( theScreenManagerClass, portraitWidth, portraitHeight, fullscreen );
-	}
+    if (soundEnabled)
+    {
+        // use default for whichever platform we compiled for
+        CreateSoundManager();
+    } else {
+        CreateSoundManager( "null" );
+    }
+
+    CreateScreenManager( "FL", portraitWidth, portraitHeight, 0, hidemouse, (bbar ? bbar->h() : 0) );
+
 	if (theMachineString == nil)
 	{
 		theMachineString = defaultMachineString;
 	}
 	{
 		// will we use an AIF image?
-		{ 
+		{
 			const char *ext = fl_filename_ext(theROMImagePath);
-			if ( ext && stricmp(ext, ".aif")==0 )
+			if ( ext && strcasecmp(ext, ".aif")==0 )
 			{
 				useAIFROMFile = 1;
 			}
 			const char *name = fl_filename_name(theROMImagePath);
-			if (	name 
-					&& strncmp(name, "Senior Cirrus", 13)==0 
+			if (	name
+					&& strncmp(name, "Senior Cirrus", 13)==0
 					&& strstr(name, "image"))
 			{
 				useAIFROMFile = 2;
@@ -306,31 +501,41 @@ TFLApp::Run( int argc, char* argv[] )
 				}
 				break;
 		}
-		
+
+        mNetworkManager = new TNullNetwork(mLog);
+
+        //mSerialPortManager = new TPtySerialPortManager(mLog, TSerialPortManager::kExternalSerialPort);
+        mSerialPortManager = new TBasiliskIISerialPortManager(mLog, TSerialPortManager::kExternalSerialPort);
+
 		mEmulator = new TEmulator(
 					mLog, mROMImage, theFlashPath,
-					mSoundManager, mScreenManager, ramSize << 16 );
+					mSoundManager, mScreenManager, mNetworkManager, ramSize << 16,
+                    mSerialPortManager);
 		mPlatformManager = mEmulator->GetPlatformManager();
-		
+
 		if (useMonitor)
 		{
 			char theSymbolListPath[512];
 			(void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
 								theROMImagePath, theMachineString );
 			mSymbolList = new TSymbolList( theSymbolListPath );
-			mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList );
+			mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList, NULL );
 		} else {
 			(void) ::printf( "Booting...\n" );
 		}
 
+        mScreenManager->OverlayClear();
+        mScreenManager->OverlayOn();
+        mScreenManager->OverlayPrintAt(0, 0, "Booting...", true);
+        mScreenManager->OverlayPrintProgress(1, 0);
+        mScreenManager->OverlayFlush();
+
 		Fl::lock();
 		win->show(1, argv);
-		if (hidemouse) {
-			win->hideMouse();
-		}
 
 #if TARGET_OS_WIN32
 		HANDLE theThread = CreateThread(0L, 0, (LPTHREAD_START_ROUTINE)SThreadEntry, this, 0, 0L);
+        mPipeServer.open();
 #else
 		pthread_t theThread;
 		int theErr = ::pthread_create( &theThread, NULL, SThreadEntry, this );
@@ -340,11 +545,7 @@ TFLApp::Run( int argc, char* argv[] )
 		}
 #endif
 
-    mPipeServer.open();
-
 		Fl::run();
-
-    mPipeServer.close();
 
 		// FIXME Tell the emulator that the power was switched off
 		// FIXME Then wait for it to quit gracefully
@@ -354,6 +555,7 @@ TFLApp::Run( int argc, char* argv[] )
 
 		// Wait for the thread to finish.
 #if TARGET_OS_WIN32
+        mPipeServer.close();
 		WaitForSingleObject(theThread, INFINITE);
 #else
 		(void) ::pthread_join( theThread, NULL );
@@ -443,7 +645,37 @@ TFLApp::CreateLog( const char* inFilePath )
 		(void) ::printf( "A log already exists (--monitor & --log are exclusive)\n" );
 		::exit(1);
 	}
-	mLog = new TFileLog( inFilePath );
+
+    if (inFilePath[0] == '-')
+    {
+        (void) ::printf("Logging to standard output\n");
+        mLog = new TStdOutLog();
+    }
+    else
+    {
+        mLog = new TFileLog( inFilePath );
+    }
+}
+
+
+// -------------------------------------------------------------------------- //
+// CreateSoundManager( )
+// -------------------------------------------------------------------------- //
+void TFLApp::CreateSoundManager()
+{
+
+#if TARGET_OS_OPENSTEP
+        mSoundManager = new TCoreAudioSoundManager( mLog );
+#elif TARGET_OS_WIN32
+        mSoundManager = new TWaveSoundManager( mLog );
+#elif AUDIO_PULSEAUDIO
+        mSoundManager = new TPulseAudioSoundManager( mLog );
+#elif AUDIO_PORTAUDIO
+        mSoundManager = new TCoreAudioSoundManager( mLog );
+#else
+        mSoundManager = new TNullSoundManager( mLog );
+#endif
+
 }
 
 // -------------------------------------------------------------------------- //
@@ -455,8 +687,22 @@ TFLApp::CreateSoundManager( const char* inClass )
 	if (::strcmp( inClass, "null" ) == 0)
 	{
 		mSoundManager = new TNullSoundManager( mLog );
+#if TARGET_OS_OPENSTEP
+	} else if (::strcmp( inClass, "coreaudio" ) == 0) {
+		mSoundManager = new TCoreAudioSoundManager( mLog );
+#endif
+#if AUDIO_PORTAUDIO
+	} else if (::strcmp( inClass, "portaudio" ) == 0) {
+		mSoundManager = new TPortAudioSoundManager( mLog );
+#endif
+#if AUDIO_PULSEAUDIO
+} else if (::strcmp(inClass, "pulseaudio") == 0) {
+        mSoundManager = new TPulseAudioSoundManager(mLog);
+#endif
+#if TARGET_OS_WIN32
 	} else if (::strcmp( inClass, "wave" ) == 0) {
 		mSoundManager = new TWaveSoundManager( mLog );
+#endif
 	} else {
 		(void) ::fprintf( stderr, "Unknown sound manager class %s\n", inClass );
 		::exit( 1 );
@@ -471,8 +717,11 @@ TFLApp::CreateScreenManager(
 				const char* inClass,
 				int inPortraitWidth,
 				int inPortraitHeight,
-				Boolean inFullScreen)
-{	
+				Boolean inFullScreen,
+                Boolean hideMouse,
+                int yOffset
+                )
+{
 	if (::strcmp( inClass, "FL" ) == 0)
 	{
 		Boolean screenIsLandscape = true;
@@ -510,7 +759,9 @@ TFLApp::CreateScreenManager(
 									theWidth,
 									theHeight,
 									inFullScreen,
-									screenIsLandscape);
+									screenIsLandscape,
+                                    hideMouse,
+                                    yOffset);
 	} else {
 		(void) ::fprintf( stderr, "Unknown screen manager class %s\n", inClass );
 		::exit( 1 );
@@ -555,7 +806,7 @@ void TFLApp::SyntaxError( void )
 }
 
 
-void TFLApp::quit_cb(Fl_Widget *, void *p) 
+void TFLApp::quit_cb(Fl_Widget *, void *p)
 {
 	TFLApp *my = (TFLApp*)p;
 //	my->mPlatformManager->PowerOff();
@@ -577,17 +828,40 @@ void TFLApp::menuBacklight()
 	mPlatformManager->SendBacklightEvent();
 }
 
+void TFLApp::menuNetwork()
+{
+    mPlatformManager->SendNetworkCardEvent();
+}
+
 void TFLApp::menuInstallPackage()
 {
 	static char *filename = 0L;
-	const char *newname = fl_file_chooser("Install Package...", "Package (*.pkg)", filename);
-	if (newname) {
-		if (!filename)
-			filename = (char*)calloc(FL_PATH_MAX, 1);
-		strncpy(filename, newname, FL_PATH_MAX);
-		filename[FL_PATH_MAX] = 0;
-		mPlatformManager->InstallPackage(filename);
-	}
+    const char* newname;
+    Fl_Native_File_Chooser pkgFileChooser;
+    pkgFileChooser.title("Install Package...");
+    pkgFileChooser.filter("Newton Package\t*.pkg");
+    pkgFileChooser.directory(flSettings->dataDirPath);
+
+    switch(pkgFileChooser.show())
+    {
+        case -1:
+            (void) ::fprintf(stderr,
+                "Error when picking package to install: %s\n", pkgFileChooser.errmsg());
+            break;
+        case 1:
+            // cancelled
+            break;
+        default:
+            newname = pkgFileChooser.filename();
+            if (!filename)
+            {
+                filename = (char*)calloc(FL_PATH_MAX, 1);
+            }
+            strncpy(filename, newname, FL_PATH_MAX);
+            filename[FL_PATH_MAX] = 0;
+            mPlatformManager->InstallPackage(filename);
+            break;
+    }
 }
 
 void TFLApp::menuAbout()
@@ -598,7 +872,7 @@ void TFLApp::menuAbout()
 	flAbout->show();
 }
 
-void TFLApp::menuShowSettings() 
+void TFLApp::menuShowSettings()
 {
 	flSettings->show();
 }
@@ -613,9 +887,8 @@ void TFLApp::menuDownloadROM()
 		wDownloadIP1->value("0");
 		wDownloadIP0->value("24");
 		wDownloadPort->value("10080");
-		char path[FL_PATH_MAX]; path[0] = 0;
-		fl_filename_absolute(path, ".");
-		strcat(path, "myROM");
+		char path[FL_PATH_MAX] = {0};
+        snprintf(path, FL_PATH_MAX, "%s/%s", flSettings->dataDirPath, "myROM");
 		wDownloadPath->copy_label(path);
 	}
 	downloadDialog->show();
@@ -636,8 +909,9 @@ int main(int argc, char** argv )
 	return 0;
 }
 
-VOID WINAPI CompletedWriteRoutine(DWORD, DWORD, LPOVERLAPPED); 
-VOID WINAPI CompletedReadRoutine(DWORD, DWORD, LPOVERLAPPED); 
+#if TARGET_OS_WIN32
+VOID WINAPI CompletedWriteRoutine(DWORD, DWORD, LPOVERLAPPED);
+VOID WINAPI CompletedReadRoutine(DWORD, DWORD, LPOVERLAPPED);
 
 TFLApp::TFLAppPipeServer::TFLAppPipeServer(TFLApp *app)
 : app_(app),
@@ -662,7 +936,7 @@ void TFLApp::TFLAppPipeServer::thread_(void *ps) {
   //over_.hEvent = CreateEvent(0L, TRUE, FALSE, 0L);
   //Fl::add_handler(
   TFLAppPipeServer *This = (TFLAppPipeServer*)ps;
-  LPTSTR name = TEXT("\\\\.\\pipe\\einstein"); 
+  LPTSTR name = TEXT("\\\\.\\pipe\\einstein");
   This->hPipe = CreateNamedPipe(
     name,
     PIPE_ACCESS_DUPLEX /*| FILE_FLAG_OVERLAPPED*/,
@@ -713,7 +987,7 @@ void TFLApp::TFLAppPipeServer::close()
   if (hPipe!=INVALID_HANDLE_VALUE) {
     char inbuf[4096];
     DWORD n;
-    LPTSTR name = TEXT("\\\\.\\pipe\\einstein"); 
+    LPTSTR name = TEXT("\\\\.\\pipe\\einstein");
     CallNamedPipe(
       name,
       "quit", 5,
@@ -725,9 +999,10 @@ void TFLApp::TFLAppPipeServer::close()
 }
 
 
+#endif
 
 // ======================================================================= //
-// We build our computer (systems) the way we build our cities: over time, 
+// We build our computer (systems) the way we build our cities: over time,
 // without a plan, on top of ruins.
 //   -- Ellen Ullman
 // ======================================================================= //

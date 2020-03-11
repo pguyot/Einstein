@@ -35,7 +35,7 @@
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 111 $
 ///
-/// \test	aucun test dŽfini.
+/// \test	aucun test dï¿½fini.
 ///
 class TFileLog
 	:
@@ -53,6 +53,9 @@ public:
 	///
 	virtual ~TFileLog( void );
 
+	///
+	void Flush(void);
+
 private:
 	///
 	/// Log a line.
@@ -63,6 +66,8 @@ private:
 
 	/// \name Variables
 	FILE*			mFile; ///< Reference to the file.
+
+	int mLineCount;
 };
 
 #endif

@@ -1,7 +1,12 @@
 # Serial CMakeLists.txt
 
 # Only this one compiles for now ...
-set(sources TSerialPortManager.cp)
+set(sources
+    TSerialPortManager.cp
+    TBasicSerialPortManager.cp
+    TBasiliskIISerialPortManager.cp
+    TPipesSerialPortManager.cp
+    TPtySerialPortManager.cp)
 
 # TODO virtual serial port
 
@@ -18,6 +23,8 @@ add_library(serial STATIC ${sources})
 
 target_include_directories(serial PUBLIC
     ../
+    ../JIT/
+    ../JIT/Generic/
     ../../
     ../../app/
     )
