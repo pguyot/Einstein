@@ -36,6 +36,8 @@ class TMemory;
 class TLog;
 class TMutex;
 
+typedef KUInt32 NewtRef;
+
 ///
 /// Class for the native-side of the platform driver.
 /// This class handles events.
@@ -216,6 +218,34 @@ public:
 				KUInt32 inDataClass,
 				KUInt32 inSize,
 				const KUInt8* inData );
+
+	///
+	/// Allow NewtonScript to call methods within Einstein.
+	///
+	NewtRef NewtonScriptCall(NewtRef rcvr, NewtRef arg0, NewtRef arg1);
+
+	///
+	/// Some minimal NewtonScript support
+	///
+	bool NewtRefIsInt(NewtRef);
+	KSInt32 NewtRefToInt(NewtRef);
+	NewtRef NewtMskeInt(KSInt32);
+
+	bool NewtRefIsSymbol(NewtRef);
+	char *NewtRefToSymbolDup(NewtRef);
+
+	bool NewtRefIsString(NewtRef);
+	KUInt32 NewtRefStringLength(NewtRef);
+	char *NewtRefToStringDup(NewtRef);
+	NewtRef NewtRefReplaceString(NewtRef, const char*);
+
+	bool NewtRefIsPointer(NewtRef);
+	KUInt32 NewtRefToPointer(NewtRef);
+	NewtRef NewtMakePointer(KUInt32);
+
+	static const NewtRef kNewtRefNIL = 0x0002;
+	static const NewtRef kNewtRefTRUE = 0x001A;
+	static const NewtRef kNewtSymbolClass = 0x55552;
 
 private:
 	struct SBuffer {

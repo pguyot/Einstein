@@ -52,6 +52,8 @@
 #define kNullNetworkDriverTag		3
 
 #define kSerialDriverKey			@"SerialDriver"
+#define kTcpServerSerialDriverTag	5
+#define kTcpClientSerialDriverTag	4
 #define kBasiliskIISerialDriverTag	3
 #define kPtySerialDriverTag			2
 #define kPipesSerialDriverTag		1
