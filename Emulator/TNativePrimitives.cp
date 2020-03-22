@@ -298,7 +298,7 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 				ExecuteHostiOSNativeiOS( inInstruction );
 				break;
 #endif
-				
+
 			default:
 				if (mLog)
 				{
@@ -1013,6 +1013,26 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 				mLog->FLogLine("TMainPlatformDriver::OpenEinsteinMenu()");
 			}
 			mPlatformManager->OpenEinsteinMenu();
+			break;
+
+		case 0x22:
+			if (mLog)
+			{
+				mLog->FLogLine("TMainPlatformDriver::NewtonScriptCall()");
+			}
+			{
+				KUInt32 rcvr = 0;
+				mMemory->Read(mProcessor->GetRegister(0), rcvr);
+				KUInt32 arg0ptr = 0, arg0 = 0;
+				mMemory->Read(mProcessor->GetRegister(1), arg0ptr);
+				mMemory->Read(arg0ptr, arg0);
+				KUInt32 arg1ptr = 0, arg1 = 0;
+				mMemory->Read(mProcessor->GetRegister(2), arg1ptr);
+				mMemory->Read(arg1ptr, arg1);
+
+				mProcessor->SetRegister( 0,
+					mPlatformManager->NewtonScriptCall(rcvr, arg0, arg1));
+		    }
 			break;
 
 		default:
@@ -2598,8 +2618,7 @@ TNativePrimitives::ExecuteHostCallNative( KUInt32 inInstruction )
 			{
 				mLog->LogLine( "TEinsteinNativeCalls::Call_string" );
 			}
-			// TODO: We have a real 64bits problem here.
-			mProcessor->SetRegister(0, 
+			mProcessor->SetRegister(0,
 				/* (KUInt32) */ mNativeCalls->Call_pointer(
 							mProcessor->GetRegister(1)));
 			break;

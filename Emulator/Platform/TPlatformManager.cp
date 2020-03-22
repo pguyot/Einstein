@@ -668,6 +668,151 @@ TPlatformManager::SetDocDir(const char *inDocDir)
 	mDocDir = strdup(inDocDir);
 }
 
+// -------------------------------------------------------------------------- //
+//  * SetDocDir(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
+// -------------------------------------------------------------------------- //
+NewtRef
+TPlatformManager::NewtonScriptCall(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
+{
+	// arg0 is a Newt sybol that indicates the function call
+	// arg1 depends on the function call and can be just a value, or an Array
+	// or a Frame of values. Immediate values are returned from the function.
+	// More complex values must be returned via arg1 because we can not safely
+	// allocate heap memory from here.
+	if (NewtRefIsSymbol(arg0)) {
+		char *sym = NewtRefToSymbolDup(arg0);
+		if (sym) {
+			printf("Hello world: '%s, 0x%08x\n", sym, arg1);
+			if (strcmp(sym, "getFrameRate")==0) {
+				return NewtMskeInt(50);
+			} else if (strcmp(sym, "setFrameRate")==0) {
+				KSInt32 v = NewtRefToInt(arg1);
+				printf("setFrameRate: '%s, %d\n", sym, v);
+				return kNewtRefTRUE;
+			}
+			::free(sym);
+		}
+	}
+	return kNewtRefTRUE;
+
+#if 0
+	//		r0: 0x0cdfec58 = 0x0cde6058 = 0x00000002
+	//		r1: 0x0ce30408 = 0x0ce17808 = 0x60007b15 // arg0: symbol getScreenPrefs
+	//		r2: 0x0ce3040c = 0x0ce1780c = 0x00000190 // arg1: integer value of slider
+	//		r3: 0x0c105560 = 0x00010002 = 0xb70dea92
+	{
+		// **r2 = integer value of slider
+		KUInt32 v5, v4, v3, v2, v, r;
+		for (int i=0; i<4; i++) {
+			r = mProcessor->GetRegister(i);
+			v  = 0xdeadbeef; mMemory->Read(r&0xfffffffc, v);
+			v2 = 0xdeadbeef; mMemory->Read(v&0xfffffffc, v2);
+			v3 = 0xdeadbeef; mMemory->Read(v2&0xfffffffc, v3);
+			v4 = 0xdeadbeef; mMemory->Read((v2&0xfffffffc)+4, v4);
+			v5 = 0xdeadbeef; mMemory->Read((v2&0xfffffffc)+8, v5);
+			printf("r%d: 0x%08x = 0x%08x = 0x%08x 0x%08x 0x%08x 0x%08x\n", i, r, v, v2, v3, v4, v5);
+		}
+		KUInt32 ret = mProcessor->GetRegister(14);
+		KUInt32 pc = mProcessor->GetRegister(15);
+		printf(" 0x%08x  0x%08x\n", ret, pc);
+		KUInt32 sp = mProcessor->GetRegister(13);
+		for (int i=0; i<16; i++) {
+			mMemory->Read(sp+4*i, v);
+			mMemory->Read(v, v2);
+			printf("SP+%d: 0x%08x 0x%08x\n", i, v, v2);
+		}
+		mProcessor->SetRegister(0, 0);
+		//			mMemoryIntf->FastWriteBuffer(address, sizeof(id), (KUInt8*)&objectPtr);
+		//			void* objectPtr;
+		//			mMemoryIntf->FastReadBuffer(address, sizeof(id), (KUInt8*)&objectPtr);
+		//			mPlatformManager->DisposeBuffer(mProcessor->GetRegister(1)));
+	}
+#endif
+	return 0;
+}
+
+
+
+bool TPlatformManager::NewtRefIsInt(NewtRef r)
+{
+	return ((r&3)==0);
+}
+
+KSInt32 TPlatformManager::NewtRefToInt(NewtRef r)
+{
+	KSInt32 v = (KSInt32)r;
+	return v>>2;
+}
+
+NewtRef TPlatformManager::NewtMskeInt(KSInt32 v)
+{
+	return ((KSInt32)v<<2) & 0xFFFFFFFC;
+}
+
+bool TPlatformManager::NewtRefIsSymbol(NewtRef r)
+{
+	if (!NewtRefIsPointer(r)) return false;
+	KUInt32 p = NewtRefToPointer(r);
+	KUInt32 newtPtrClass = 0;
+	mMemory->Read(p+8, newtPtrClass);
+	if (newtPtrClass!=kNewtSymbolClass) return false;
+	return true;
+}
+
+char *TPlatformManager::NewtRefToSymbolDup(NewtRef r)
+{
+	if (!NewtRefIsPointer(r)) return 0L;
+	KUInt32 p = NewtRefToPointer(r);
+	KUInt32 newtPtrClass = 0;
+	mMemory->Read(p+8, newtPtrClass);
+	if (newtPtrClass!=kNewtSymbolClass) return 0L;
+	KUInt32 newtSize = 0;
+	mMemory->Read(p, newtSize);
+	int size = newtSize>>8;
+	char *str = (char*)calloc(size+1, 1);
+	mMemory->FastReadBuffer(p+16, size, (KUInt8*)str);
+	return str;
+}
+
+bool TPlatformManager::NewtRefIsString(NewtRef r)
+{
+	// TODO: write this
+	return false;
+}
+
+KUInt32 TPlatformManager::NewtRefStringLength(NewtRef r)
+{
+	// TODO: write this
+	return 0;
+}
+
+char *TPlatformManager::NewtRefToStringDup(NewtRef r)
+{
+	// TODO: write this
+	return 0;
+}
+
+NewtRef TPlatformManager::NewtRefReplaceString(NewtRef, const char*)
+{
+	// TODO: write this
+	return kNewtRefNIL;
+}
+
+bool TPlatformManager::NewtRefIsPointer(NewtRef r)
+{
+	return ((((KUInt32)r)&3)==1);
+}
+
+KUInt32 TPlatformManager::NewtRefToPointer(NewtRef r)
+{
+	return ((KUInt32)r)&0xFFFFFFFC;
+}
+
+NewtRef TPlatformManager::NewtMakePointer(KUInt32 r)
+{
+	return (NewtRef)((r&0xFFFFFFFC)|1);
+}
+
 
 // ====================================================================== //
 // Nurse Donna:    Oh, Groucho, I'm afraid I'm gonna wind up an old maid. //
