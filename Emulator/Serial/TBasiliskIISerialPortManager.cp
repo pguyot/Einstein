@@ -130,7 +130,7 @@ TBasiliskIISerialPortManager::OpenPTY()
 {
 	int ret = -1;
 
-	// TODO: if we ever decide to suppirt more than the internal serial port, we
+	// TODO: if we ever decide to support more than the internal serial port, we
 	// will have to generate diffwerent names for different ports.
 	ret = unlink(kBasiliskPipe);
 	if (ret==-1 && errno!=2) {
