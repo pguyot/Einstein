@@ -31,12 +31,16 @@
 #include "Emulator/Host/UserInfoDefinitions.h"
 
 class TInterruptManager;
+class TARMProcessor;
 class TScreenManager;
 class TMemory;
 class TLog;
 class TMutex;
 
+typedef KUInt32 VAddr;
 typedef KUInt32 NewtRef;
+typedef KUInt32 NewtRefVar;
+typedef const NewtRefVar &NewtRefArg;
 
 ///
 /// Class for the native-side of the platform driver.
@@ -84,6 +88,14 @@ public:
 		{
 			mMemory = inMemory;
 		}
+
+	///
+	/// Set the SPU
+	///
+	void	SetProcessor( TARMProcessor* inCPU )
+	{
+		mCPU = inCPU;
+	}
 
 	///
 	/// Power off the system.
@@ -227,12 +239,25 @@ public:
 	///
 	/// Some minimal NewtonScript support
 	///
+	KUInt32 CallNewton(VAddr functionVector, const char *args, ...);
+	NewtRef MakeString(const char *);
+	NewtRef MakeSymbol(const char *);
+	NewtRef MakeReal(double);
+	NewtRefVar AllocateRefHandle(NewtRef);
+	void DisposeRefHandle(NewtRefVar);
+	NewtRef AllocateFrame();
+	KUInt32 AddSlot(NewtRefArg, NewtRefArg);
+	NewtRef AddArraySlot(NewtRefArg, NewtRefArg);
+	NewtRef AllocateArray(NewtRefArg, KUInt32);
+	NewtRef SetArrySlotRef(NewtRef, KUInt32, NewtRef);
+	NewtRef SetArrySlot(NewtRefArg, KUInt32, NewtRefArg);
+
 	bool NewtRefIsInt(NewtRef);
 	KSInt32 NewtRefToInt(NewtRef);
 	NewtRef NewtMskeInt(KSInt32);
 
 	bool NewtRefIsSymbol(NewtRef);
-	char *NewtRefToSymbolDup(NewtRef);
+	bool NewtSymbolToCString(NewtRef, char *buf, int size);
 
 	bool NewtRefIsString(NewtRef);
 	KUInt32 NewtRefStringLength(NewtRef);
@@ -284,6 +309,7 @@ private:
 	TScreenManager*		mScreenManager;		///< Reference to the screen manager.
 	TInterruptManager*	mInterruptManager;	///< Reference to the interrupt mgr.
 	TMemory*			mMemory;			///< Reference to the memory interface.
+	TARMProcessor*		mCPU;				///< Reference to the processor
 	SEvent*				mEventQueue;		///< Liste des ŽvŽnements.
 	KUInt32				mEventQueueCCrsr;	///< Consumer queue cursor (Newton)
 	KUInt32				mEventQueuePCrsr;	///< Producer queue cursor (Host)
