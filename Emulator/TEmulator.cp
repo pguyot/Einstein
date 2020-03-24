@@ -154,6 +154,7 @@ TEmulator::TEmulator(
 
 	mPlatformManager->SetInterruptManager( mInterruptManager );
 	mPlatformManager->SetMemory( &mMemory );
+	mPlatformManager->SetProcessor( &mProcessor );
 	
 	mProcessor.SetEmulator( this );
 }
@@ -203,7 +204,8 @@ TEmulator::TEmulator(
 	
 	mPlatformManager->SetInterruptManager( mInterruptManager );
 	mPlatformManager->SetMemory( &mMemory );
-	
+	mPlatformManager->SetProcessor( &mProcessor );
+
 	mProcessor.SetEmulator( this );
 }
 
