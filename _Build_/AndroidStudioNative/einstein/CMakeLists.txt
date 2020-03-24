@@ -97,6 +97,7 @@ SET (SourceFiles
 		${LOCAL_PATH}/Emulator/Screen/TAndroidNativeScreenManager.cp
 		# Serial Port Emulation
 		${LOCAL_PATH}/Emulator/Serial/TSerialPortManager.cp
+		${LOCAL_PATH}/Emulator/Serial/TTcpClientSerialPortManager.cp
 		# Sound Emulation
 		${LOCAL_PATH}/Emulator/Sound/TBufferedSoundManager.cp
 		${LOCAL_PATH}/Emulator/Sound/TAndroidNativeSoundManager.cp
