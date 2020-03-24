@@ -22,7 +22,7 @@
 // ==============================
 
 #include "TBasicSerialPortManager.h"
-#include "TPathHelper.h"
+#include "app/TPathHelper.h"
 
 // POSIX
 #include <sys/types.h>
@@ -35,7 +35,7 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <sys/stat.h>
-#if !TARGET_OS_IOS
+#if TARGET_OS_MAC
 #include <CoreServices/CoreServices.h>
 #endif
 #endif
@@ -319,7 +319,7 @@
  */
 
 
-#if TARGET_OS_MAC
+#if TARGET_OS_MAC || TARGET_OS_ANDROID
 /*
  * This is a hack that removes a reference from the 'extr' serial port driver
  * from the REx. This is required to make low level comm emulation possible.
