@@ -22,7 +22,7 @@
 // ==============================
 
 #include "TTcpClientSerialPortManager.h"
-#include "TPathHelper.h"
+#include "app/TPathHelper.h"
 
 // POSIX
 #include <sys/types.h>
@@ -199,6 +199,7 @@ TTcpClientSerialPortManager::Connect()
 	memset(&server, 0, sizeof(struct sockaddr_in));
 	server.sin_family = AF_INET;
 	server.sin_port = htons(3679);
+
 	if (inet_pton(AF_INET, "127.0.0.1", &server.sin_addr)<=0)
 	{
 		printf("***** TTcpClientSerialPortManager::Connect: Error in inet_pton.\n");
