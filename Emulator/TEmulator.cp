@@ -55,6 +55,7 @@
 #include "Serial/TPipesSerialPortManager.h"
 #include "Serial/TPtySerialPortManager.h"
 #include "Serial/TBasiliskIISerialPortManager.h"
+#include "Serial/TTcpClientSerialPortManager.h"
 #endif
 #include "TInterruptManager.h"
 #include "TDMAManager.h"
@@ -153,6 +154,7 @@ TEmulator::TEmulator(
 
 	mPlatformManager->SetInterruptManager( mInterruptManager );
 	mPlatformManager->SetMemory( &mMemory );
+	mPlatformManager->SetProcessor( &mProcessor );
 	
 	mProcessor.SetEmulator( this );
 }
@@ -202,7 +204,8 @@ TEmulator::TEmulator(
 	
 	mPlatformManager->SetInterruptManager( mInterruptManager );
 	mPlatformManager->SetMemory( &mMemory );
-	
+	mPlatformManager->SetProcessor( &mProcessor );
+
 	mProcessor.SetEmulator( this );
 }
 

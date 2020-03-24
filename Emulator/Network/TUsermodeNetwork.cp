@@ -107,6 +107,8 @@
 # include <stdio.h>
 # include <fcntl.h>
 # include <stdlib.h>
+# include <malloc.h>
+# include <string.h>
 #else
 #if !RASPBERRY_PI && !TARGET_OS_LINUX
 # include <sys/sockio.h>
@@ -124,6 +126,7 @@
 #include <string.h>
 #include <stdlib.h>
 #endif
+
 
 const KUInt32 kUDPExpirationTime = 100;
 

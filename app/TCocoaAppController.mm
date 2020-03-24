@@ -46,6 +46,7 @@
 #include "Emulator/Serial/TPipesSerialPortManager.h"
 #include "Emulator/Serial/TPtySerialPortManager.h"
 #include "Emulator/Serial/TBasiliskIISerialPortManager.h"
+#include "Emulator/Serial/TTcpClientSerialPortManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
@@ -102,6 +103,7 @@ static TCocoaAppController* gInstance = nil;
 			[NSNumber numberWithInt:kCocoaScreenDriverTag], kScreenDriverKey,
 			[NSNumber numberWithInt:kUsermodeNetworkDriverTag], kNetworkDriverKey,
 			[NSNumber numberWithInt:kBasiliskIISerialDriverTag], kSerialDriverKey,
+			//[NSNumber numberWithInt:kTcpClientSerialDriverTag], kSerialDriverKey,
 			[NSNumber numberWithBool:NO], kDontShowAtStartupKey,
 			[NSNumber numberWithBool:NO], kEnableListenersKey,
 			nil];
@@ -258,11 +260,22 @@ static TCocoaAppController* gInstance = nil;
 	// Create the ROM.
 	NSString* einsteinRExPath;
 	NSBundle* thisBundle = [NSBundle mainBundle];
+#if 1
 	if (!(einsteinRExPath = [thisBundle pathForResource:@"Einstein" ofType:@"rex"]))
 	{
 		[self abortWithMessage: @"Couldn't load Einstein REX"];
 		return;
 	}
+#else
+	NSString* ROMPath = [defaults stringForKey: kROMImagePathKey];
+	NSString* Path = [ROMPath stringByDeletingLastPathComponent];
+	einsteinRExPath = [Path stringByAppendingPathComponent: @"Einstein.rex"];
+	if (einsteinRExPath == nil)
+	{
+		[self abortWithMessage: @"No path set for REX"];
+		return;
+	}
+#endif
 	
 	NSString* theROMPath = [defaults stringForKey: kROMImagePathKey];
 	if (theROMPath == nil)
@@ -422,6 +435,10 @@ static TCocoaAppController* gInstance = nil;
 	if (indexSerialPortDriver == kBasiliskIISerialDriverTag)
 	{
 		mExtrSerialPortManager = new TBasiliskIISerialPortManager(
+			mLog,
+			TSerialPortManager::kExternalSerialPort);
+	} else if (indexSerialPortDriver == kTcpClientSerialDriverTag) {
+		mExtrSerialPortManager = new TTcpClientSerialPortManager(
 			mLog,
 			TSerialPortManager::kExternalSerialPort);
 	} else if (indexSerialPortDriver == kPtySerialDriverTag) {

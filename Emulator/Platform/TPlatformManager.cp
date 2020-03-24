@@ -37,6 +37,8 @@
 // Einstein
 #include "TInterruptManager.h"
 #include "TMemory.h"
+#include "TARMProcessor.h"
+#include "TEmulator.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Host/THostInfo.h"
 #include "Emulator/Screen/TScreenManager.h"
@@ -666,6 +668,301 @@ TPlatformManager::SetDocDir(const char *inDocDir)
 {
 	if (mDocDir) ::free(mDocDir);
 	mDocDir = strdup(inDocDir);
+}
+
+
+/*
+ Ags is a "C" string that indicates the type of the argument list
+ - s: 0-terminated "C" string
+ ? u: 0-terminated "C" string in utf8 that is passed as a MSB utf16 string
+ ? i: 32 bit integer
+ - d: 64 bit double precission floating point valu
+ ? R: a NewtonsScript Ref
+ */
+KUInt32 TPlatformManager::CallNewton(VAddr functionVector, const char *args, ...)
+{
+	KUInt32 regs[16];
+	va_list ap;
+	KUInt32 sp = mCPU->GetRegister(13);
+	KUInt32 pc = functionVector;
+	KUInt32 r0 = 0;
+
+	// backing up all registers
+	memcpy(regs, mCPU->mCurrentRegisters, sizeof(regs));
+
+	// Convert the list of arguments into ARM function call convention
+	va_start (ap, args);
+	for (int i=0; ;i++) {
+		char c = args[i];
+		if (c==0) break;
+		if (i>3) {
+			fprintf(stderr, "ERROR in TPlatformManager::CallNewton: too many arguments\n");
+			break;
+		}
+		switch (c) {
+			case 's': { // C utf-8 string
+				const char *s = va_arg(ap, char*);
+				if (s) {
+					KUInt32 n = (KUInt32)strlen(s)+1, n4 = (n+3) & ~3;
+					sp -= n4;
+					mMemory->FastWriteString(sp, &n, s);
+					mCPU->SetRegister(i, sp);
+				} else {
+					mCPU->SetRegister(i, 0);
+				}
+				break; }
+			case 'd': { // double precission floating point
+				union { double d; KUInt32 i[2]; } u;
+				u.d = va_arg(ap, double);
+				// FIXME: make sure that this order is the same on LSB and MSB machines (tested ok for Intelorder (LSB))
+				mCPU->SetRegister(i+1, u.i[0]);
+				mCPU->SetRegister(  i, u.i[1]);
+				// FIXME: wrong argument counting!
+				i++;
+				break; }
+			case 'A': { // NewtRefArg
+				KUInt32 v = va_arg(ap, KUInt32);
+				sp -= 4;
+				mMemory->Write(sp, v);
+				mCPU->SetRegister(i, sp);
+				sp -= 4;
+				break; }
+			case '0': { // zero indirection, just copy to register
+				KUInt32 v = va_arg(ap, KUInt32);
+				mCPU->SetRegister(i, v);
+				break; }
+			case 'i': { // int
+				KUInt32 v = va_arg(ap, KUInt32);
+				mCPU->SetRegister(i, v);
+				break; }
+			default:
+				fprintf(stderr, "ERROR in TPlatformManager::CallNewton: unspported argument type '%c'\n", c);
+				break;
+		}
+	}
+	va_end(ap);
+
+	// Preset the return address for the emulator loop
+    mCPU->SetRegister(13, sp);
+	mCPU->SetRegister(14, 0x00fffffc); // magic address at the end of the REx
+	mCPU->SetRegister(15, pc);
+
+	TJITGeneric *mJit = mMemory->GetJITObject();
+	JITUnit* theJITUnit = mJit->GetJITUnitForPC( mCPU, mMemory, pc+4);
+	for(;;)
+	{
+		theJITUnit = theJITUnit->fFuncPtr( theJITUnit, mCPU );
+		if (mCPU->mCurrentRegisters[15]==0x00fffffc+4) break;
+	}
+
+	r0 = mCPU->GetRegister(0);
+
+	// Restoring all registers
+	memcpy(mCPU->mCurrentRegisters, regs, sizeof(regs));
+	return r0;
+}
+
+// Tested and OK
+NewtRef TPlatformManager::MakeString(const char *txt)
+{
+	return (NewtRef)CallNewton(0x0180099c, "s", txt);
+}
+
+// Tested and OK
+NewtRef TPlatformManager::MakeSymbol(const char *txt)
+{
+	return (NewtRef)CallNewton(0x018029cc, "s", txt);
+}
+
+// Tested and OK
+NewtRef TPlatformManager::MakeReal(double v)
+{
+	return (NewtRef)CallNewton(0x01800998, "d", v);
+}
+
+// TODO: implement argument types and RefVar
+NewtRefVar TPlatformManager::AllocateRefHandle(NewtRef r)
+{
+	return (NewtRefVar)CallNewton(0x01800818, "0", r); // AllocateRefHandle_Fl
+}
+
+// TODO: implement argument types and RefVar
+void TPlatformManager::DisposeRefHandle(NewtRefVar v) // DisposeRefHandle_FP9RefHandle
+{
+	CallNewton(0x01800888, "0", v);
+}
+
+// TODO: implement argument types and RefVar
+NewtRef TPlatformManager::AllocateFrame()
+{
+	return (NewtRef)CallNewton(0x0180080c, ""); // AllocateFrame_Fv
+}
+
+// TODO: implement argument types and RefVar
+KUInt32 TPlatformManager::AddSlot(NewtRefArg frame, NewtRefArg slot)
+{
+	return CallNewton(0x018007fc, "AA", frame, slot); // AddSlot__FRC6RefVarTl
+}
+
+NewtRef TPlatformManager::AddArraySlot(NewtRefArg array, NewtRefArg value)
+{
+	return (NewtRef)CallNewton(0x018007f4, "AA"); // AddArraySlot__FRC6RefVarT1
+}
+
+NewtRef TPlatformManager::AllocateArray(NewtRefArg symbol, KUInt32 nSlots)
+{
+	// FIXME: make sure that the symbol is put in properly
+	return (NewtRef)CallNewton(0x01800804, "Ai", 0x00681F10, nSlots); // AllocateArray__FRC6RefVarl
+}
+
+NewtRef TPlatformManager::SetArrySlotRef(NewtRef array, KUInt32 index, NewtRef value)
+{
+	return (NewtRef)CallNewton(0x01800a24, "0i0", array, index, value);
+}
+
+NewtRef TPlatformManager::SetArrySlot(NewtRefArg array, KUInt32 index, NewtRefArg value)
+{
+	return (NewtRef)CallNewton(0x018029e4, "AiA", array, index, value); // SetArraySlot__FRC6RefVarlT1
+}
+
+// -------------------------------------------------------------------------- //
+//  * SetDocDir(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
+// -------------------------------------------------------------------------- //
+NewtRef
+TPlatformManager::NewtonScriptCall(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
+{
+	// The implemenatation and calls into Newton OS should be in their own class!
+
+	// arg0 is a Newt symbol that indicates the function call
+	// arg1 depends on the function call and can be just a value, or an Array
+	// or a Frame of values. This call can return complex values by using
+	// Newton ROM functions at known locations (as set by Apple) to create
+	// Binary Objects like Text or Reals, an if multiple values are need,
+	// by building Arrays and Frames.
+
+	// More official addresses from the universal object file:
+	//  - MakeString(const unsigned short *) @ 0x018009a0
+	//  - AddArraySlot(const RefVar &, const RefVar &) @ 0x018007f4
+	//  - AllocateArray(const RefVar &, long) & 01800804
+	// TODO: get the RefVar class emulated in a nice way
+
+	if (NewtRefIsSymbol(arg0)) {
+		char sym[64];
+		if (NewtSymbolToCString(arg0, sym, 64)) {
+			if (strcmp(sym, "getFrameRate")==0) {
+				return NewtMskeInt(50);
+			} else if (strcmp(sym, "setFrameRate")==0) {
+				KSInt32 v = NewtRefToInt(arg1);
+				printf("setFrameRate: '%s, %d\n", sym, v);
+				return kNewtRefTRUE;
+			} else if (strcmp(sym, "getSymbol")==0) {
+				//NewtRef symRef = MakeSymbol("test");
+				//NewtRefVar symVar = AllocateRefHandle( symRef );
+				NewtRef arrRef = AllocateArray(0, 3);
+				NewtRefVar arrVar = AllocateRefHandle( arrRef );
+				NewtRef txtRef = MakeString("Will this ever work?");
+				NewtRefVar txtVar = AllocateRefHandle( txtRef );
+//				SetArrySlotRef(arrRef, 1, txtRef);
+				SetArrySlot(arrVar, 1, txtVar);
+				// FIXME: doubles are counted wrong (see above)
+				SetArrySlotRef(arrRef, 2, MakeReal(3.141592654));
+				return arrRef;
+//				return MakeSymbol("Matt:MM");
+//				return MakeString("This is Einstein talking...!");
+			}
+		}
+	}
+	return kNewtRefNIL;
+}
+
+
+
+bool TPlatformManager::NewtRefIsInt(NewtRef r)
+{
+	return ((r&3)==0);
+}
+
+KSInt32 TPlatformManager::NewtRefToInt(NewtRef r)
+{
+	KSInt32 v = (KSInt32)r;
+	return v>>2;
+}
+
+NewtRef TPlatformManager::NewtMskeInt(KSInt32 v)
+{
+	return ((KSInt32)v<<2) & 0xFFFFFFFC;
+}
+
+bool TPlatformManager::NewtRefIsSymbol(NewtRef r)
+{
+	if (!NewtRefIsPointer(r)) return false;
+	KUInt32 p = NewtRefToPointer(r);
+	KUInt32 newtPtrClass = 0;
+	mMemory->Read(p+8, newtPtrClass);
+	if (newtPtrClass!=kNewtSymbolClass) return false;
+	return true;
+}
+
+bool TPlatformManager::NewtSymbolToCString(NewtRef r, char *buf, int bufSize)
+{
+	if (!NewtRefIsPointer(r))
+		return false;
+
+	KUInt32 p = NewtRefToPointer(r);
+
+	KUInt32 newtPtrClass = 0;
+	mMemory->Read(p+8, newtPtrClass);
+	if (newtPtrClass!=kNewtSymbolClass)
+		return false;
+
+	KUInt32 newtSize = 0;
+	mMemory->Read(p, newtSize);
+	int strSize = (newtSize>>8)-16;
+	if (strSize>bufSize)
+		return false;
+
+	mMemory->FastReadBuffer(p+16, strSize, (KUInt8*)buf);
+
+	return true;
+}
+
+bool TPlatformManager::NewtRefIsString(NewtRef r)
+{
+	// TODO: write this
+	return false;
+}
+
+KUInt32 TPlatformManager::NewtRefStringLength(NewtRef r)
+{
+	// TODO: write this
+	return 0;
+}
+
+char *TPlatformManager::NewtRefToStringDup(NewtRef r)
+{
+	// TODO: write this
+	return 0;
+}
+
+NewtRef TPlatformManager::NewtRefReplaceString(NewtRef, const char*)
+{
+	// TODO: write this
+	return kNewtRefNIL;
+}
+
+bool TPlatformManager::NewtRefIsPointer(NewtRef r)
+{
+	return ((((KUInt32)r)&3)==1);
+}
+
+KUInt32 TPlatformManager::NewtRefToPointer(NewtRef r)
+{
+	return ((KUInt32)r)&0xFFFFFFFC;
+}
+
+NewtRef TPlatformManager::NewtMakePointer(KUInt32 r)
+{
+	return (NewtRef)((r&0xFFFFFFFC)|1);
 }
 
 
