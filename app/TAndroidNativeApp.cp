@@ -178,6 +178,10 @@ TAndroidNativeApp::~TAndroidNativeApp( void )
     {
         delete mScreenManager;
     }
+    if (mExtrSerialPortManager)
+    {
+        delete mExtrSerialPortManager;
+    }
     if (mSoundManager)
     {
         delete mSoundManager;

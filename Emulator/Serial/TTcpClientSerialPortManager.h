@@ -21,8 +21,8 @@
 // $Id$
 // ==============================
 
-#ifndef _TVOYAGERMANAGEDSERIALPORTTCPCLIENTPIPES_H
-#define _TVOYAGERMANAGEDSERIALPORTTCPCLIENTPIPES_H
+#ifndef _T_TCP_CLIENT_SERIAL_PORT_MANAGER_H
+#define _T_TCP_CLIENT_SERIAL_PORT_MANAGER_H
 
 #include "TBasicSerialPortManager.h"
 
@@ -111,7 +111,7 @@ protected:
 };
 
 #endif
-// _TVOYAGERMANAGEDSERIALPORTTCPCLIENTPIPES_H
+// _T_TCP_CLIENT_SERIAL_PORT_MANAGER_H
 
 // ================= //
 // Byte your tongue. //
