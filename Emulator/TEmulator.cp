@@ -51,12 +51,6 @@
 #include "PCMCIA/TPCMCIAController.h"
 #include "PCMCIA/TLinearCard.h"
 #include "Serial/TSerialPortManager.h"
-#if TARGET_OS_MAC
-#include "Serial/TPipesSerialPortManager.h"
-#include "Serial/TPtySerialPortManager.h"
-#include "Serial/TBasiliskIISerialPortManager.h"
-#include "Serial/TTcpClientSerialPortManager.h"
-#endif
 #include "TInterruptManager.h"
 #include "TDMAManager.h"
 #include "Platform/TPlatformManager.h"
