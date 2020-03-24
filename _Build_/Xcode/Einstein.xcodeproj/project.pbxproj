@@ -1023,8 +1023,6 @@
 		29B97314FDCFA39411CA2CEA /* Einstein */ = {
 			isa = PBXGroup;
 			children = (
-				C99656A324277DC800D216A2 /* EinsteinDistribution.entitlements */,
-				C99656A224277D2F00D216A2 /* Einstein.entitlements */,
 				C950C21F20A6536B00D8096B /* Documentation */,
 				C99E3154111B72C0002165EC /* Sources */,
 				C99E3156111B72CC002165EC /* Libraries */,
@@ -1747,6 +1745,8 @@
 		F1CB7613131730100017B0BB /* Mac OS X */ = {
 			isa = PBXGroup;
 			children = (
+				C99656A324277DC800D216A2 /* EinsteinDistribution.entitlements */,
+				C99656A224277D2F00D216A2 /* Einstein.entitlements */,
 				F115FF111A2EA415001F3D65 /* Einstein.xib */,
 				F1C2423C1E3167B700D074C6 /* TCocoaListenerWindow.xib */,
 				C99E315F111B7346002165EC /* Icons */,
