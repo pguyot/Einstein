@@ -47,6 +47,7 @@
 #include "Emulator/Network/TUsermodeNetwork.h"
 #include "Emulator/Sound/TAndroidNativeSoundManager.h"
 #include "Emulator/Screen/TAndroidNativeScreenManager.h"
+#include "Emulator/Serial/TTcpClientSerialPortManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
@@ -208,6 +209,7 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
     mSoundManager = NULL;
     mScreenManager = NULL;
     mPlatformManager = NULL;
+    mExtrSerialPortManager = nullptr;
     mLog = nullptr; // this is a quite detailed log, so keep it NULL unless you are debugging
 
     if (inLog) inLog->LogLine("Loading assets...");
@@ -286,6 +288,11 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
     mNetworkManager = new TUsermodeNetwork(mLog);
     if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mNetworkManager);
 
+    if (mLog) mLog->FLogLine("  mExtrSerialPortManager:");
+    mExtrSerialPortManager = new TTcpClientSerialPortManager(mLog,
+            TSerialPortManager::kExternalSerialPort);
+    if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mExtrSerialPortManager);
+
     if (mLog) mLog->FLogLine("  mEmulator:");
     mEmulator = new TEmulator(
             mLog,
@@ -294,7 +301,9 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
             mSoundManager,
             mScreenManager,
             mNetworkManager,
-            0x40 << 16);
+            0x40 << 16,
+            mExtrSerialPortManager
+            );
     if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mEmulator);
     mEmulator->SetNewtonID(mNewtonID0, mNewtonID1);
 
