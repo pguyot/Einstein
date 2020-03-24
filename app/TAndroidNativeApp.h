@@ -35,6 +35,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include <K/Threads/TMutex.h>
+#include <Emulator/Serial/TSerialPortManager.h>
 
 #include "AndroidGlue.h"
 #include "Version.h"
@@ -47,6 +48,7 @@ class TScreenManager;
 class TLog;
 class TPlatformManager;
 class TNetworkManager;
+class TSerialPortManager;
 
 ///
 /// Classe pour le programme einstein en ligne de commande.
@@ -252,6 +254,7 @@ private:
     TSoundManager*		mSoundManager;		///< Gestionnaire de son.
     TScreenManager*		mScreenManager;		///< Gestionnaire d'�cran.
     TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
+    TSerialPortManager* mExtrSerialPortManager = nullptr;
     TLog*				mLog;				///< Log.
     TNetworkManager*	mNetworkManager;	///< network connection
     Boolean				mQuit;				///< If we should quit.
