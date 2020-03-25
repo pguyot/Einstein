@@ -90,6 +90,7 @@ TTcpClientSerialPortManager::TTcpClientSerialPortManager(
 TTcpClientSerialPortManager::~TTcpClientSerialPortManager()
 {
 	if (mWorkerThreadIsRunning) {
+		Disconnect();
 		TriggerEvent('q');
 		pthread_join(mWorkerThread, 0L);
 		mWorkerThreadIsRunning = false;
@@ -134,6 +135,8 @@ void TTcpClientSerialPortManager::run(TInterruptManager* inInterruptManager,
 		printf("***** TTcpClientSerialPortManager::run: Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
+
+	mWorkerThreadIsRunning = true;
 }
 
 // -------------------------------------------------------------------------- //

@@ -327,6 +327,8 @@
  * Keeping the patch should not be harmful either.
  *
  * Find the pattern 'extr\0\0\0\0' in the first 1MB of the REx.
+ *
+ * FIXME: PLEASE fix the REx instead of this weak patch (please integrate the REx into the app)
  */
 TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00900000,
 												 (KUInt32[]){2, 'extr', 0},
