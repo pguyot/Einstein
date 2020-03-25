@@ -849,7 +849,6 @@ private:
 	KUInt32				mBankCtrlRegister;  ///< Bank control register.
 	TInterruptManager*	mInterruptManager;	///< Interface to the interrupt mgr.
 	TDMAManager*		mDMAManager;		///< Interface to the DMA mgr.
-	TSerialPortManager*	mExternalPort;		///< External serial port.
 	TSerialPortManager*	mInfraredPort;		///< Infrared serial port.
 	TSerialPortManager*	mBuiltInExtraPort;	///< Built-in Extra serial port.
 	TSerialPortManager*	mModemPort;			///< Modem serial port.

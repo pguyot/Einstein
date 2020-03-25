@@ -429,7 +429,17 @@ public:
 	/// Set a new NewtonID
 	///
 	void		SetNewtonID(KUInt32 inID0, KUInt32 inID1);
-	
+
+	///
+	/// Replace the current serial port driver
+	///
+	void SetSerialPortDriver(KUInt32 port, TSerialPortManager *driver);
+
+	///
+	/// Return the driver for the given serial port
+	///
+	TSerialPortManager *GetSerialPortDriver(KUInt32 port);
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.

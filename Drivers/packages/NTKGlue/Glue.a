@@ -53,25 +53,23 @@ NSGlueVersion
 	; returns a NS integer that increments over time
 	AREA		Version, CODE, READONLY
 	EXPORT		Version
-	stmdb		sp!, {r1, lr}
-	ldr			lr, REXStart	; standard MessagePads have no Rom Extension, right?
-	ldr			lr, [lr]		; read the first bytes at 8MB			
-	ldr			r1, REXB		
-	cmp			r1, lr			; is it 'REXB' (the entire tag is 'REXBlock'
-	ldrne		r0, Minus1		; return -1 if this is not Einstein
-	bne			Quit
-	ldr			r1, EinsteinVersion ; if there is a REXBlock, return some version number we have hidden in the ROM
-	ldr			r0, [r1]
-Quit
-	ldmia		sp!, {r1, pc}
-REXStart
-	DCD			0x00800000
-REXB
-	DCD			0x52457842
-EinsteinVersion
-	DCD			0x007FFFE0
-Minus1
-	DCD			0xFFFFFFF8
+	stmdb		sp!, {r1, r2, lr}
+	ldr			r1, =0x00800000		; start of ROM Extension
+	ldr			r0, [r1]			; get the value (on physical devices, this mirrors the first 4 bytes of the OS ROM)
+	ldr			r1, =0x52457842		; 'REXB' of "REXBlock"
+	cmp			r0, r1				; did we find the Sig?
+	beq			RExFound
+	ldr			r0, =0xFFFFFFFC		; nope, so set the return value to -1 in NewtonScript
+	b			Done				; bye
+RExFound
+	ldr			r1, =0x0F000008		; yes, it's the Sig, read the magic address kHdWr_PlatformVers
+	ldr			r0, [r1]			; get the value
+	ldr			r1, =0xFFFFFFFF		; if it is -1, make it 0, so we don't confuse the caller
+	cmp			r0, r1
+	moveq		r0, #0
+	mov			r0, r0, lsl #2		; convert to NS int
+Done
+	ldmia		sp!, {r1, r2, pc}	; return
 
 	; To call platform functions, use   call Einstein.Platform with('SomeFunc, [parameters]);
 	; If the function does not exist, this returns the NS integer -48808: Undefined global function
