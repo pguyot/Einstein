@@ -18,4 +18,10 @@ DerivedData/
 /_Build_/AndroidStudio/.gradle
 /_Build_/AndroidStudio/.idea
 /_Build_/AndroidStudio/local.properties
+/_Build_/AndroidStudioNative/.gradle
+/_Build_/AndroidStudioNative/.idea
+/_Build_/AndroidStudioNative/gradle/wrapper/gradle-wrapper.jar
+/_Build_/AndroidStudioNative/gradle/wrapper/gradle-wrapper.properties
+/_Build_/AndroidStudioNative/local.properties
+/_Build_/AndroidStudioNative/einstein/.cxx
 *.iml
