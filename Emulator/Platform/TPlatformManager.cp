@@ -45,9 +45,15 @@
 #include "Emulator/PCMCIA/TPCMCIAController.h"
 #include "Emulator/PCMCIA/TNE2000Card.h"
 
+#include "Emulator/Serial/TSerialPortManager.h"
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
+
+static const KSInt32 kNSErrUndefinedMethod = -48809;
+static const KSInt32 kNSErrNotASymbol = -48410;
+
 
 // -------------------------------------------------------------------------- //
 //  * TPlatformManager( TLog*, TScreenManager* )
@@ -108,6 +114,16 @@ TPlatformManager::~TPlatformManager( void )
 		delete mMutex;
 	}
 }
+
+
+// -------------------------------------------------------------------------- //
+//  * GetVersion()
+// -------------------------------------------------------------------------- //
+KUInt32 TPlatformManager::GetVersion()
+{
+	return 5;
+}
+
 
 // -------------------------------------------------------------------------- //
 //  * GetNextEvent( KUInt32 )
@@ -847,15 +863,49 @@ TPlatformManager::NewtonScriptCall(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
 	// TODO: get the RefVar class emulated in a nice way
 
 	if (NewtRefIsSymbol(arg0)) {
-		char sym[64];
+		char sym[64] = { 0 };
 		if (NewtSymbolToCString(arg0, sym, 64)) {
-			if (strcmp(sym, "getFrameRate")==0) {
-				return NewtMskeInt(50);
-			} else if (strcmp(sym, "setFrameRate")==0) {
+			fprintf(stderr, "Platform call '%s'\n", sym);
+			if (strcmp(sym, "getframerate")==0) {
+				return NewtMakeInt(50);
+			} else if (strcmp(sym, "setframerate")==0) {
 				KSInt32 v = NewtRefToInt(arg1);
 				printf("setFrameRate: '%s, %d\n", sym, v);
 				return kNewtRefTRUE;
-			} else if (strcmp(sym, "getSymbol")==0) {
+			} else if (strcmp(sym, "getserialportdriver")==0) {
+				// get current driver for main port
+				KUInt32 id = TSerialPortManager::CurrentDriver(
+				    TSerialPortManager::kExternalSerialPort)->GetID();
+				return NewtMakeInt(id);
+			} else if (strcmp(sym, "setserialportdriver")==0) {
+				// set driver for main port to driver with index ix
+				KSInt32 id = NewtRefToInt(arg1);
+				printf("ID: %d\n", id);
+				TSerialPortManager::ReplaceDriver(
+                    TSerialPortManager::kExternalSerialPort,
+				    TSerialPortManager::CreateByID(id, 0L,
+					    TSerialPortManager::kExternalSerialPort));
+				return kNewtRefNIL;
+			} else if (strcmp(sym, "getserialportdrivernames")==0) {
+				char const* const *names = TSerialPortManager::DriverName;
+				int nNames = 5;
+				NewtRef arrayRef = AllocateArray(0, nNames);
+				NewtRefVar array = AllocateRefHandle(arrayRef);
+				for (int i=0; i<nNames; i++) {
+					SetArrySlotRef(arrayRef, i, MakeString(names[i]) );
+				}
+				DisposeRefHandle(array);
+				return arrayRef;
+			} else if (strcmp(sym, "getserialportdriverlist")==0) {
+				int n = TSerialPortManager::DriverListSize;
+				NewtRef arrayRef = AllocateArray(0, n);
+				NewtRefVar array = AllocateRefHandle(arrayRef);
+				for (int i=0; i<n; i++) {
+					SetArrySlotRef(arrayRef, i, NewtMakeInt(TSerialPortManager::DriverList[i]) );
+				}
+				DisposeRefHandle(array);
+				return arrayRef;
+			} else if (strcmp(sym, "getsymbol")==0) {
 				//NewtRef symRef = MakeSymbol("test");
 				//NewtRefVar symVar = AllocateRefHandle( symRef );
 				NewtRef arrRef = AllocateArray(0, 3);
@@ -869,10 +919,13 @@ TPlatformManager::NewtonScriptCall(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
 				return arrRef;
 //				return MakeSymbol("Matt:MM");
 //				return MakeString("This is Einstein talking...!");
+			} else {
+				fprintf(stderr, "Unknown command: %s\n", sym);
+				return NewtMakeInt(kNSErrUndefinedMethod);
 			}
 		}
 	}
-	return kNewtRefNIL;
+	return NewtMakeInt(kNSErrNotASymbol);
 }
 
 
@@ -888,9 +941,9 @@ KSInt32 TPlatformManager::NewtRefToInt(NewtRef r)
 	return v>>2;
 }
 
-NewtRef TPlatformManager::NewtMskeInt(KSInt32 v)
+NewtRef TPlatformManager::NewtMakeInt(KSInt32 v)
 {
-	return ((KSInt32)v<<2) & 0xFFFFFFFC;
+	return ((KUInt32)v<<2) & 0xFFFFFFFC;
 }
 
 bool TPlatformManager::NewtRefIsSymbol(NewtRef r)
@@ -922,6 +975,9 @@ bool TPlatformManager::NewtSymbolToCString(NewtRef r, char *buf, int bufSize)
 		return false;
 
 	mMemory->FastReadBuffer(p+16, strSize, (KUInt8*)buf);
+
+	for (int i=0; i<strSize; i++)
+		buf[i] = tolower(buf[i]&0x7f);
 
 	return true;
 }

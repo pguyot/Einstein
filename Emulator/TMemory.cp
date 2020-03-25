@@ -45,6 +45,7 @@
 #include "TDMAManager.h"
 #include "Serial/TSerialPortManager.h"
 #include "TEmulator.h"
+#include "TPlatformManager.h"
 #include "ROM/TROMImage.h"
 #include "Log/TLog.h"
 #include "JIT/JIT.h"
@@ -116,7 +117,6 @@ TMemory::TMemory(
 		mBankCtrlRegister( 0 ),
 		mInterruptManager( 0 ),
 		mDMAManager( 0 ),
-		mExternalPort( 0 ),
 		mInfraredPort( 0 ),
 		mBuiltInExtraPort( 0 ),
 		mModemPort( 0 ),
@@ -148,7 +148,6 @@ TMemory::TMemory(
 		mBankCtrlRegister( 0 ),
 		mInterruptManager( 0 ),
 		mDMAManager( 0 ),
-		mExternalPort( 0 ),
 		mInfraredPort( 0 ),
 		mBuiltInExtraPort( 0 ),
 		mModemPort( 0 ),
@@ -189,7 +188,6 @@ TMemory::SetEmulator( TEmulator* inEmulator )
 	{
 		mInterruptManager = inEmulator->GetInterruptManager();
 		mDMAManager = inEmulator->GetDMAManager();
-		mExternalPort = inEmulator->GetExternalSerialPort();
 		mInfraredPort = inEmulator->GetInfraredSerialPort();
 		mBuiltInExtraPort = inEmulator->GetBuiltInExtraSerialPort();
 		mModemPort = inEmulator->GetModemSerialPort();
@@ -206,7 +204,6 @@ TMemory::SetEmulator( TEmulator* inEmulator )
 	} else {
 		mInterruptManager = nil;
 		mDMAManager = nil;
-		mExternalPort = nil;
 		mInfraredPort = nil;
 		mBuiltInExtraPort = nil;
 		mModemPort = nil;
@@ -945,6 +942,8 @@ TMemory::ReadP( PAddr inAddress, Boolean& outFault )
 			return mInterruptManager->GetGPIOCtrlReg();
 		} else if (inAddress == TMemoryConsts::kHdWr_P0F18D400) {
 			return 0xffffffff; // PCMCIA Door Locked?
+		} else if (inAddress == TMemoryConsts::kHdWr_PlatformVers) {
+			return mEmulator->GetPlatformManager()->GetVersion();
 		} else {
 			if (mLog)
 			{
@@ -1162,6 +1161,8 @@ TMemory::ReadPAligned( PAddr inAddress, Boolean& outFault )
 			return mInterruptManager->GetGPIORaised();
 		} else if (inAddress == TMemoryConsts::kHdWr_GPIO_EReg) {
 			return mInterruptManager->GetGPIOCtrlReg();
+		} else if (inAddress == TMemoryConsts::kHdWr_PlatformVers) {
+			return mEmulator->GetPlatformManager()->GetVersion();
 		} else {
 			if (mLog)
 			{
@@ -1444,7 +1445,7 @@ TMemory::ReadBP( PAddr inAddress, KUInt8& outByte )
 	} else if (inAddress < TMemoryConsts::kSerialEnd) {
 		if (inAddress < TMemoryConsts::kInfraredSerialBase)
 		{
-			outByte = mExternalPort->ReadRegister(
+			outByte = mEmulator->GetExternalSerialPort()->ReadRegister(
 				inAddress - TMemoryConsts::kExternalSerialBase );
 		} else if (inAddress < TMemoryConsts::kBuiltInSerialBase) {
 			outByte = mInfraredPort->ReadRegister(
@@ -2236,7 +2237,7 @@ TMemory::WriteBP( PAddr inAddress, KUInt8 inByte )
 	} else if (inAddress < TMemoryConsts::kSerialEnd) {
 		if (inAddress < TMemoryConsts::kInfraredSerialBase)
 		{
-			mExternalPort->WriteRegister(
+			mEmulator->GetExternalSerialPort()->WriteRegister(
 				inAddress - TMemoryConsts::kExternalSerialBase, inByte );
 		} else if (inAddress < TMemoryConsts::kBuiltInSerialBase) {
 			mInfraredPort->WriteRegister(

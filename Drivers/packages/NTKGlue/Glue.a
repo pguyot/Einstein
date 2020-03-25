@@ -1,0 +1,84 @@
+;  ==============================
+;  File:			EinsteinCall.a
+;  Project:			Einstein
+; 
+;  Copyright 2003-2020 by Paul Guyot (pguyot@kallisys.net).
+; 
+;  This program is free software; you can redistribute it and/or modify
+;  it under the terms of the GNU General Public License as published by
+;  the Free Software Foundation; either version 2 of the License, or
+;  (at your option) any later version.
+; 
+;  This program is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;  GNU General Public License for more details.
+; 
+;  You should have received a copy of the GNU General Public License along
+;  with this program; if not, write to the Free Software Foundation, Inc.,
+;  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+;  ==============================
+;  $Id$
+;  ==============================
+
+
+	MACRO
+	NATIVE_PRIM	$id, $symbol
+	AREA		$symbol, CODE, READONLY
+	EXPORT		$symbol
+	stmdb		sp!, {lr}
+	ldr			lr, id_for_$symbol
+	mcr			p10, 0, lr, c0, c0
+	ldmia		sp!, {pc}
+id_for_$symbol
+	DCD			$id
+	MEND
+
+	; Return the version number of this little piece of glue between worlds
+	; The argument for this call should be NIL
+	; this returns an NewtonScript integer, increasing as this interface improves
+	AREA		Glue, CODE, READONLY
+	EXPORT		Glue
+	ENTRY
+	ldr			r0, NSGlueVersion
+	mov			r0, r0, lsl #2
+	mov			pc, lr
+NSGlueVersion
+	DCD			1
+
+	; Return the version of the Einstein interface to this code
+	; The argument for this call should be NIL
+	; returns -1 if this is running on a MessagePad: don't do 'Platform' calls!
+	; returns 0 if this is running on an oleder version of Einstein: don;t do 'Platform' calls!
+	; returns a NS integer that increments over time
+	AREA		Version, CODE, READONLY
+	EXPORT		Version
+	stmdb		sp!, {r1, r2, lr}
+	ldr			r1, =0x00800000		; start of ROM Extension
+	ldr			r0, [r1]			; get the value (on physical devices, this mirrors the first 4 bytes of the OS ROM)
+	ldr			r1, =0x52457842		; 'REXB' of "REXBlock"
+	cmp			r0, r1				; did we find the Sig?
+	beq			RExFound
+	ldr			r0, =0xFFFFFFFC		; nope, so set the return value to -1 in NewtonScript
+	b			Done				; bye
+RExFound
+	ldr			r1, =0x0F000008		; yes, it's the Sig, read the magic address kHdWr_PlatformVers
+	ldr			r0, [r1]			; get the value
+	ldr			r1, =0xFFFFFFFF		; if it is -1, make it 0, so we don't confuse the caller
+	cmp			r0, r1
+	moveq		r0, #0
+	mov			r0, r0, lsl #2		; convert to NS int
+Done
+	ldmia		sp!, {r1, r2, pc}	; return
+
+	; To call platform functions, use   call Einstein.Platform with('SomeFunc, [parameters]);
+	; If the function does not exist, this returns the NS integer -48808: Undefined global function
+	; If the function exists, it can return any valid NS Ref
+    NATIVE_PRIM    0x00000122, Platform
+
+
+	END
+
+; ===================================
+; The world is not octal despite DEC.
+; ===================================

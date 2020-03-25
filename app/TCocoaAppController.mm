@@ -432,6 +432,9 @@ static TCocoaAppController* gInstance = nil;
 
 	// Create the serial port manager
 	NSInteger indexSerialPortDriver = [defaults integerForKey: kSerialDriverKey];
+	mExtrSerialPortManager = TSerialPortManager::CreateByID(
+	    kTcpClientSerialDriverTag, mLog, TSerialPortManager::kExternalSerialPort);
+	/*
 	if (indexSerialPortDriver == kBasiliskIISerialDriverTag)
 	{
 		mExtrSerialPortManager = new TBasiliskIISerialPortManager(
@@ -454,6 +457,7 @@ static TCocoaAppController* gInstance = nil;
 			mLog,
 			TSerialPortManager::kExternalSerialPort);
 	}
+	 */
 
 	// Create the emulator.
 	KUInt32 ramSize = (KUInt32)[defaults integerForKey: kRAMSizeKey];
@@ -464,6 +468,8 @@ static TCocoaAppController* gInstance = nil;
 							  mSoundManager, mScreenManager, mNetworkManager,
 							  ramSize << 16,
 							  mExtrSerialPortManager );
+
+	TSerialPortManager::SetEmulator(mEmulator);
 	
 	if ([defaults boolForKey: kEnableListenersKey])
 	{
