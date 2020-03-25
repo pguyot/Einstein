@@ -56,6 +56,11 @@ public:
 	virtual ~TBasicSerialPortManager( void );
 
 	///
+	/// Return the Identification of this driver
+	///
+	virtual KUInt32 GetID() = 0;
+
+	///
 	/// Start emulation.
 	///
 	virtual void run(TInterruptManager* inInterruptManager,

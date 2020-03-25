@@ -68,6 +68,11 @@ public:
 	virtual ~TPlatformManager( void );
 
 	///
+	/// The version number of the Newt Platform interface
+	///
+	KUInt32 GetVersion();
+
+	///
 	/// Set the interrupt manager.
 	/// This method is called once the interrupt manager is created.
 	///
@@ -254,7 +259,7 @@ public:
 
 	bool NewtRefIsInt(NewtRef);
 	KSInt32 NewtRefToInt(NewtRef);
-	NewtRef NewtMskeInt(KSInt32);
+	NewtRef NewtMakeInt(KSInt32);
 
 	bool NewtRefIsSymbol(NewtRef);
 	bool NewtSymbolToCString(NewtRef, char *buf, int size);

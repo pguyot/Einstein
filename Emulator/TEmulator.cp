@@ -51,12 +51,6 @@
 #include "PCMCIA/TPCMCIAController.h"
 #include "PCMCIA/TLinearCard.h"
 #include "Serial/TSerialPortManager.h"
-#if TARGET_OS_MAC
-#include "Serial/TPipesSerialPortManager.h"
-#include "Serial/TPtySerialPortManager.h"
-#include "Serial/TBasiliskIISerialPortManager.h"
-#include "Serial/TTcpClientSerialPortManager.h"
-#endif
 #include "TInterruptManager.h"
 #include "TDMAManager.h"
 #include "Platform/TPlatformManager.h"
@@ -605,10 +599,63 @@ TEmulator::Quit( void )
 }
 
 
+// -------------------------------------------------------------------------- //
+//  * SetNewtonID(KUInt32 inID0, KUInt32 inID1)
+// -------------------------------------------------------------------------- //
 void TEmulator::SetNewtonID(KUInt32 inID0, KUInt32 inID1) {
 	mNewtonID[0] = inID0;
 	mNewtonID[1] = inID1;
 	mMemory.ComputeSerialNumber( GetNewtonID() );
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * SetSerialPortDriver(KUInt32 port, TSerialPortManager *driver)
+// -------------------------------------------------------------------------- //
+void TEmulator::SetSerialPortDriver(KUInt32 location, TSerialPortManager *driver)
+{
+	TSerialPortManager **dst;
+	switch (location) {
+		case TSerialPortManager::kExternalSerialPort:
+			dst = &mExternalPort; break;
+		case TSerialPortManager::kModemSerialPort:
+			dst = &mModemPort; break;
+		case TSerialPortManager::kInfraredSerialPort:
+			dst = &mInfraredPort; break;
+		case TSerialPortManager::kBuiltInExtraSerialPort:
+			dst = &mBuiltInExtraPort; break;
+		default:
+			printf("SetSerialPortDriver: Serial port index out of range\n");
+			return;
+	}
+	if (*dst) {
+		delete *dst;
+	}
+	*dst = driver;
+	driver->run(mInterruptManager, mDMAManager, &mMemory);
+
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * getSerialPortDriver(KUInt32 location)
+// -------------------------------------------------------------------------- //
+TSerialPortManager *TEmulator::GetSerialPortDriver(KUInt32 location)
+{
+	switch (location) {
+		case TSerialPortManager::kExternalSerialPort:
+			return mExternalPort;
+		case TSerialPortManager::kModemSerialPort:
+			return mModemPort;
+		case TSerialPortManager::kInfraredSerialPort:
+			return mInfraredPort;
+		case TSerialPortManager::kBuiltInExtraSerialPort:
+			return mBuiltInExtraPort;
+		default:
+			printf("SetSerialPortDriver: Serial port index out of range\n");
+			return NULL;
+	}
+	return mExternalPort;
 }
 
 // ====================================================================== //
