@@ -54,6 +54,11 @@ public:
 	virtual ~TTcpClientSerialPortManager( void );
 
 	///
+	/// Return the Identification of this driver
+	///
+	virtual KUInt32 GetID() { return kTcpClientDriver; }
+
+	///
 	/// Start emulation.
 	///
 	virtual void run(TInterruptManager* inInterruptManager,

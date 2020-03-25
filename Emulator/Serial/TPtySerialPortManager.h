@@ -54,6 +54,11 @@ public:
 	virtual ~TPtySerialPortManager( void );
 
 	///
+	/// Return the Identification of this driver
+	///
+	virtual KUInt32 GetID() { return kPtyDriver; }
+
+	///
 	/// Start emulation.
 	///
 	virtual void run(TInterruptManager* inInterruptManager,
