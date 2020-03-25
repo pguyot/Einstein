@@ -52,6 +52,7 @@ public:
 		kRAMStart			= 0x04000000,
 		// bank #3
 		kHardwareBase		= 0x0F000000,
+		kHdWr_PlatformVers	= 0x0F000008,   ///< Not actually a hardware address, but a transparent way for native apps to read the Platform dirver version
 		kHdWr_P0F001000		= 0x0F001000,   ///< R/W
 		kHdWr_04RAMSize		= 0x0F001800,   ///< We say 0xXYXY00XY
 											///< (also written with 0x40)
