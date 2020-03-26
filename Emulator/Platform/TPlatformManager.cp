@@ -825,21 +825,38 @@ NewtRef TPlatformManager::AddArraySlot(NewtRefArg array, NewtRefArg value)
 	return (NewtRef)CallNewton(0x018007f4, "AA"); // AddArraySlot__FRC6RefVarT1
 }
 
+// Works
 NewtRef TPlatformManager::AllocateArray(NewtRefArg symbol, KUInt32 nSlots)
 {
-	// FIXME: make sure that the symbol is put in properly
-	return (NewtRef)CallNewton(0x01800804, "Ai", 0x00681F10, nSlots); // AllocateArray__FRC6RefVarl
+	return (NewtRef)CallNewton(0x01800804, "Ai", symbol, nSlots); // AllocateArray__FRC6RefVarl
 }
 
-NewtRef TPlatformManager::SetArrySlotRef(NewtRef array, KUInt32 index, NewtRef value)
+NewtRef TPlatformManager::AllocateArray(KUInt32 nSlots)
+{
+	NewtRefVar sym = AllocateRefHandle(MakeSymbol("array"));
+	NewtRef arrRef = AllocateArray(sym, 3);
+	DisposeRefHandle(sym);
+	return arrRef;
+}
+
+// works
+NewtRef TPlatformManager::SetArraySlotRef(NewtRef array, KUInt32 index, NewtRef value)
 {
 	return (NewtRef)CallNewton(0x01800a24, "0i0", array, index, value);
 }
 
-NewtRef TPlatformManager::SetArrySlot(NewtRefArg array, KUInt32 index, NewtRefArg value)
+// works
+NewtRef TPlatformManager::SetArraySlot(NewtRefArg array, KUInt32 index, NewtRefArg value)
 {
 	return (NewtRef)CallNewton(0x018029e4, "AiA", array, index, value); // SetArraySlot__FRC6RefVarlT1
 }
+
+// works
+NewtRef TPlatformManager::SetFrameSlot(NewtRefArg frame, NewtRefArg key, NewtRefArg value)
+{
+	return (NewtRef)CallNewton(0x01800a34, "AAA", frame, key, value);
+}
+
 
 // -------------------------------------------------------------------------- //
 //  * SetDocDir(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
@@ -889,33 +906,63 @@ TPlatformManager::NewtonScriptCall(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
 			} else if (strcmp(sym, "getserialportdrivernames")==0) {
 				char const* const *names = TSerialPortManager::DriverName;
 				int nNames = 5;
-				NewtRef arrayRef = AllocateArray(0, nNames);
+				NewtRef arrayRef = AllocateArray(nNames);
 				NewtRefVar array = AllocateRefHandle(arrayRef);
 				for (int i=0; i<nNames; i++) {
-					SetArrySlotRef(arrayRef, i, MakeString(names[i]) );
+					SetArraySlotRef(arrayRef, i, MakeString(names[i]) );
 				}
 				DisposeRefHandle(array);
 				return arrayRef;
 			} else if (strcmp(sym, "getserialportdriverlist")==0) {
 				int n = TSerialPortManager::DriverListSize;
-				NewtRef arrayRef = AllocateArray(0, n);
+				NewtRef arrayRef = AllocateArray(n);
 				NewtRefVar array = AllocateRefHandle(arrayRef);
 				for (int i=0; i<n; i++) {
-					SetArrySlotRef(arrayRef, i, NewtMakeInt(TSerialPortManager::DriverList[i]) );
+					SetArraySlotRef(arrayRef, i, NewtMakeInt(TSerialPortManager::DriverList[i]) );
 				}
 				DisposeRefHandle(array);
 				return arrayRef;
+			} else if (strcmp(sym, "getserialportdriveroptions")==0) {
+				// parameter is the fourCC symbol of the serial port
+				// returns nil if there are no settings
+				// for TCP, this returns { driver:4, server:"127.0.0.1", port:"3679" }
+				// 4 is the ID for a TCP client driver
+				fprintf(stderr, "TODO: get serial port driver options\n");
+//				NewtRefVar port = AllocateRefHandle( MakeString("Welt") );
+
+				NewtRef fRef = AllocateFrame();
+				NewtRefVar f = AllocateRefHandle( fRef );
+
+				NewtRefVar sym = AllocateRefHandle(MakeSymbol("driver"));
+				NewtRefVar server = AllocateRefHandle( MakeString("Hallo") );
+				SetFrameSlot(f, sym, server);
+				DisposeRefHandle(server);
+				DisposeRefHandle(sym);
+
+				//SetFrameSlot(f, MakeSymbol("server"), server);
+				//SetFrameSlot(f, MakeSymbol("port"), port);
+//				DisposeRefHandle(port);
+
+				DisposeRefHandle(f);
+				return fRef;
+			} else if (strcmp(sym, "setserialportdriveroptions")==0) {
+				// for TCP, send { serPort:'extr, serverAddr:"127.0.0.1", sereverPort:"3679" }
+				fprintf(stderr, "TODO: set serial port driver options\n");
+				return kNewtRefNIL;
 			} else if (strcmp(sym, "getsymbol")==0) {
 				//NewtRef symRef = MakeSymbol("test");
 				//NewtRefVar symVar = AllocateRefHandle( symRef );
-				NewtRef arrRef = AllocateArray(0, 3);
+
+				NewtRef arrRef = AllocateArray(3);
+				// TODO: Symbol caching!
+
 				NewtRefVar arrVar = AllocateRefHandle( arrRef );
 				NewtRef txtRef = MakeString("Will this ever work?");
 				NewtRefVar txtVar = AllocateRefHandle( txtRef );
 //				SetArrySlotRef(arrRef, 1, txtRef);
-				SetArrySlot(arrVar, 1, txtVar);
+				SetArraySlot(arrVar, 1, txtVar);
 				// FIXME: doubles are counted wrong (see above)
-				SetArrySlotRef(arrRef, 2, MakeReal(3.141592654));
+				SetArraySlotRef(arrRef, 2, MakeReal(3.141592654));
 				return arrRef;
 //				return MakeSymbol("Matt:MM");
 //				return MakeString("This is Einstein talking...!");
