@@ -42,6 +42,10 @@ typedef KUInt32 NewtRef;
 typedef KUInt32 NewtRefVar;
 typedef const NewtRefVar &NewtRefArg;
 
+static const NewtRef kNewtRefNIL = 0x0002;
+static const NewtRef kNewtRefTRUE = 0x001A;
+static const NewtRef kNewtSymbolClass = 0x55552;
+
 ///
 /// Class for the native-side of the platform driver.
 /// This class handles events.
@@ -254,8 +258,10 @@ public:
 	KUInt32 AddSlot(NewtRefArg, NewtRefArg);
 	NewtRef AddArraySlot(NewtRefArg, NewtRefArg);
 	NewtRef AllocateArray(NewtRefArg, KUInt32);
-	NewtRef SetArrySlotRef(NewtRef, KUInt32, NewtRef);
-	NewtRef SetArrySlot(NewtRefArg, KUInt32, NewtRefArg);
+	NewtRef AllocateArray(KUInt32);
+	NewtRef SetArraySlotRef(NewtRef, KUInt32, NewtRef);
+	NewtRef SetArraySlot(NewtRefArg, KUInt32, NewtRefArg);
+	NewtRef SetFrameSlot(NewtRefArg, NewtRefArg, NewtRefArg);
 
 	bool NewtRefIsInt(NewtRef);
 	KSInt32 NewtRefToInt(NewtRef);
@@ -272,10 +278,6 @@ public:
 	bool NewtRefIsPointer(NewtRef);
 	KUInt32 NewtRefToPointer(NewtRef);
 	NewtRef NewtMakePointer(KUInt32);
-
-	static const NewtRef kNewtRefNIL = 0x0002;
-	static const NewtRef kNewtRefTRUE = 0x001A;
-	static const NewtRef kNewtSymbolClass = 0x55552;
 
 private:
 	struct SBuffer {
