@@ -51,24 +51,29 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TTcpClientSerialPortManager( void );
+	~TTcpClientSerialPortManager( void ) override;
 
 	///
 	/// Return the Identification of this driver
 	///
-	virtual KUInt32 GetID() { return TSerialPorts::kTcpClientDriver; }
+	KUInt32 GetID() override { return TSerialPorts::kTcpClientDriver; }
 
 	///
 	/// Start emulation.
 	///
-	virtual void run(TInterruptManager* inInterruptManager,
-					 TDMAManager* inDMAManager,
-					 TMemory* inMemory);
+	void run(TInterruptManager* inInterruptManager,
+			 TDMAManager* inDMAManager,
+			 TMemory* inMemory) override;
 
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
 	///
-	virtual void TriggerEvent(KUInt8 cmd);
+	void TriggerEvent(KUInt8 cmd) override;
+
+	///
+	/// GIve NewtonScrip access to our list of options
+	///
+	void NSAddOptions(TNewt::RefArg frame) override;
 
 protected:
 

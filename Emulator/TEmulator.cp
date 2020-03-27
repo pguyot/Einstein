@@ -118,6 +118,7 @@ TEmulator::TEmulator(
 	mScreenManager->SetMemory( &mMemory );
 	mScreenManager->SetPlatformManager( mPlatformManager );
 
+	mPlatformManager->SetEmulator( this );
 	mPlatformManager->SetInterruptManager( mInterruptManager );
 	mPlatformManager->SetMemory( &mMemory );
 	mPlatformManager->SetProcessor( &mProcessor );
@@ -167,6 +168,7 @@ TEmulator::TEmulator(
 	
 	mMemory.SetEmulator( this );
 	
+	mPlatformManager->SetEmulator( this );
 	mPlatformManager->SetInterruptManager( mInterruptManager );
 	mPlatformManager->SetMemory( &mMemory );
 	mPlatformManager->SetProcessor( &mProcessor );

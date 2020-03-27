@@ -184,6 +184,94 @@ TSerialPorts::EDriverID *TSerialPorts::ValidDriversByPort[] =
 };
 
 
+/**
+ Get a list of human-readable names for all available serial port drivers.
+
+ \return Ref to an array of strings; the length of the array is also the number of available drivers
+ */
+NewtRef TSerialPorts::NSGetDriverNames(TNewt::RefArg arg)
+{
+	// ignore the arg (should be NIL)
+	int nNames = (int)DriverNames.size();
+	TNewt::RefVar array( TNewt::AllocateArray(nNames) );
+	for (int i=0; i<nNames; i++) {
+		TNewt::RefVar str( TNewt::MakeString(DriverNames[i]) );
+		TNewt::SetArraySlot(array, i,  str);
+	}
+	return array.Ref();
+}
+
+
+/**
+ NewtonScript call to return all valid drivers for a port.
+ Get a list of valid drivers for this particular emulation.
+ \return Ref to an array of DriverIDs as integers
+ */
+NewtRef TSerialPorts::NSGetDriverList(TNewt::RefArg arg)
+{
+	using namespace TNewt;
+
+	NewtRef argRef = arg.Ref();
+	int portIndex = 0;
+	if (RefIsInt(argRef)) {
+		portIndex = RefToInt(argRef);
+		if (portIndex<0 || portIndex>=kNPortIndex)
+			portIndex = 0;
+	} else if (argRef==kNewtRefNIL) {
+		portIndex = 0;
+	}
+
+	EDriverID *validDrivers = ValidDriversByPort[portIndex];
+	// Count valid drivers
+	int nDriver;
+	for (nDriver = 0; (int)validDrivers[nDriver]!=-1; nDriver++) { }
+	// Create the arrays
+	RefVar array( AllocateArray(nDriver) );
+	for (int i=0; i<nDriver; i++) {
+		TNewt::SetArraySlotRef(array.Ref(), i,  TNewt::MakeInt((int)validDrivers[i]));
+	}
+	return array.Ref();
+}
+
+/**
+ NewtonScript call to retrieve the current driver and its settings.
+
+ \param arg is an integer with the index of the serial port that we find interesting
+ \return the minimal return value is the frame { driver: ix }; where ix is an integre
+	index into the list of available drivers. Individual drivers may add more optiosns
+	The TCP Client adds { tcpServer: "address", tcpPort: number };
+ */
+NewtRef TSerialPorts::NSGetDriverOptions(TNewt::RefArg arg)
+{
+	using namespace TNewt;
+
+	NewtRef argRef = arg.Ref();
+	int portIndex = 0;
+	if (RefIsInt(argRef)) {
+		portIndex = RefToInt(argRef);
+		if (portIndex<0 || portIndex>=kNPortIndex)
+			portIndex = 0;
+	} else if (argRef==kNewtRefNIL) {
+		portIndex = 0;
+	}
+
+	TSerialPortManager *driver = GetDriverFor((EPortIndex)portIndex);
+	RefVar f( AllocateFrame() );
+	SetFrameSlot(f, RefVar( MakeSymbol("driver")),  RefVar(MakeInt(driver->GetID())));
+	driver->NSAddOptions(f);
+	return f.Ref();
+}
+
+// NewtonScript call to cahnge the current driver and/or its settings
+NewtRef TSerialPorts::NSSetDriverOptions(TNewt::RefArg arg)
+{
+	using namespace TNewt;
+	return kNewtRefNIL;
+}
+
+
+
 // ================================================================== //
-// We are experiencing system trouble -- do not adjust your terminal. //
+// Apple's port names are Thunderbolt and Lightning.                  //
+// They're starting to very, very frighten me.                        //
 // ================================================================== //
