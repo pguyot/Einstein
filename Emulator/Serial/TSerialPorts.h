@@ -26,6 +26,8 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include "TNewt.h"
+
 #include <vector>
 
 class TLog;
@@ -96,6 +98,17 @@ public:
 	// Replace an existing driver with a new driver
 	void ReplaceDriver(EPortIndex inPort, EDriverID inDriverId);
 
+	// NewtonScript call to return all driver names
+	NewtRef NSGetDriverNames(TNewt::RefArg arg);
+
+	// NewtonScript call to return all valid drivers for a port
+	NewtRef NSGetDriverList(TNewt::RefArg arg);
+
+	// NewtonScript call to retrive the current driver and its settings
+	NewtRef NSGetDriverOptions(TNewt::RefArg arg);
+
+	// NewtonScript call to cahnge the current driver and/or its settings
+	NewtRef NSSetDriverOptions(TNewt::RefArg arg);
 
 private:
 	TSerialPortManager 	*mDriver[4] = { nullptr, nullptr, nullptr, nullptr };

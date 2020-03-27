@@ -378,6 +378,16 @@ TTcpClientSerialPortManager::HandleDMAReceive()
 	}
 }
 
+///
+/// GIve NewtonScrip access to our list of options
+///
+void TTcpClientSerialPortManager::NSAddOptions(TNewt::RefArg frame)
+{
+	using namespace TNewt;
+	SetFrameSlot(frame, RefVar(MakeSymbol("tcpServer")), RefVar(MakeString("127.0.0.1")));
+	SetFrameSlot(frame, RefVar(MakeSymbol("tcpPort")), RefVar(MakeInt(3679)));
+}
+
 
 // ================================================================== //
 // You never finish a program, you just stop working on it.           //

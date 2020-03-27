@@ -1021,17 +1021,13 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 				mLog->FLogLine("TMainPlatformDriver::NewtonScriptCall()");
 			}
 			{
-				KUInt32 rcvr = 0;
-				mMemory->Read(mProcessor->GetRegister(0), rcvr);
-				KUInt32 arg0ptr = 0, arg0 = 0;
-				mMemory->Read(mProcessor->GetRegister(1), arg0ptr);
-				mMemory->Read(arg0ptr, arg0);
-				KUInt32 arg1ptr = 0, arg1 = 0;
-				mMemory->Read(mProcessor->GetRegister(2), arg1ptr);
-				mMemory->Read(arg1ptr, arg1);
-
-				mProcessor->SetRegister( 0,
-					mPlatformManager->NewtonScriptCall(rcvr, arg0, arg1));
+				using namespace TNewt;
+				NewtRef ret = mPlatformManager->NewtonScriptCall(
+                    RefVar::FromPtr(mProcessor->GetRegister(0)),
+					RefVar::FromPtr(mProcessor->GetRegister(1)),
+					RefVar::FromPtr(mProcessor->GetRegister(2))
+                );
+				mProcessor->SetRegister( 0, ret);
 		    }
 			break;
 
