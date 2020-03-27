@@ -46,7 +46,7 @@ public:
 	/// Constructor.
 	///
 	TPipesSerialPortManager(TLog* inLog,
-							ELocationID inLocationID);
+							TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.
@@ -56,7 +56,7 @@ public:
 	///
 	/// Return the Identification of this driver
 	///
-	virtual KUInt32 GetID() { return kPipesDriver; }
+	virtual KUInt32 GetID() { return TSerialPorts::kPipesDriver; }
 
 	///
 	/// Start emulation.

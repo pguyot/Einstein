@@ -363,8 +363,8 @@ TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00900000,
 // -------------------------------------------------------------------------- //
 TBasicSerialPortManager::TBasicSerialPortManager(
 													 TLog* inLog,
-													 ELocationID inLocationID)
-:	TSerialPortManager(inLog, inLocationID),
+													 TSerialPorts::EPortIndex inPortIx)
+:	TSerialPortManager(inLog, inPortIx),
 
 	mTxDMAPhysicalBufferStart(0),
 	mTxDMAPhysicalData(0),
@@ -431,11 +431,8 @@ TBasicSerialPortManager::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
 	if (mLog)
 	{
 		mLog->FLogLine(
-					   "[%c%c%c%c] - Write %.2X to serial register %.4X",
-					   (char) ((mLocationID >> 24) & 0xFF),
-					   (char) ((mLocationID >> 16) & 0xFF),
-					   (char) ((mLocationID >> 8) & 0xFF),
-					   (char) ((mLocationID) & 0xFF),
+					   "[%d] - Write %.2X to serial register %.4X",
+					   mNewtPortIndex,
 					   (unsigned int) inValue,
 					   (unsigned int) inOffset );
 	}
@@ -475,11 +472,8 @@ TBasicSerialPortManager::ReadRegister( KUInt32 inOffset )
 		if (mLog)
 		{
 			mLog->FLogLine(
-						   "[%c%c%c%c] - Read unknown serial register %.4X : %.2X",
-						   (char) ((mLocationID >> 24) & 0xFF),
-						   (char) ((mLocationID >> 16) & 0xFF),
-						   (char) ((mLocationID >> 8) & 0xFF),
-						   (char) ((mLocationID) & 0xFF),
+						   "[%d] - Read unknown serial register %.4X : %.2X",
+						   mNewtPortIndex,
 						   (unsigned int) inOffset,
 						   (unsigned int) theResult );
 		}

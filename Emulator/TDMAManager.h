@@ -183,7 +183,7 @@ private:
 	TLog*				mLog;				///< Interface for logging.
 	TMemory*			mMemory;			///< Reference on the memory.
 	TInterruptManager*	mInterruptManager;	///< Reference on the interrupt mgr.
-	TEmulator*			mMemulator;			///< Reference the emulator
+	TEmulator*			mEmulator;			///< Reference the emulator
 	
 	KUInt32				mAssignmentReg;		///< Assignment register.
 };
