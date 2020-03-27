@@ -70,8 +70,8 @@ const char *TBasiliskIISerialPortManager::kBasiliskPipe = "/tmp/pty.BasiliskII";
 // -------------------------------------------------------------------------- //
 TBasiliskIISerialPortManager::TBasiliskIISerialPortManager(
 													 TLog* inLog,
-													 ELocationID inLocationID)
-:	TBasicSerialPortManager(inLog, inLocationID),
+													 TSerialPorts::EPortIndex inPortIx)
+:	TBasicSerialPortManager(inLog, inPortIx),
 
 	mPipe{-1,-1},
 	mDMAIsRunning(false),

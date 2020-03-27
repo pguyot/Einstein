@@ -43,10 +43,7 @@
 #ifdef OPTION_X11_SCREEN
 #include "Emulator/Screen/TX11ScreenManager.h"
 #endif
-#include "Emulator/Serial/TPipesSerialPortManager.h"
-#include "Emulator/Serial/TPtySerialPortManager.h"
-#include "Emulator/Serial/TBasiliskIISerialPortManager.h"
-#include "Emulator/Serial/TTcpClientSerialPortManager.h"
+#include "Emulator/Serial/TSerialPorts.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
@@ -125,7 +122,6 @@ static TCocoaAppController* gInstance = nil;
 		mNetworkManager = NULL;
 		mSoundManager = NULL;
 		mScreenManager = NULL;
-		mExtrSerialPortManager = NULL;
 		mROMImage = NULL;
 		mEmulator = NULL;
 		mPlatformManager = NULL;
@@ -167,10 +163,6 @@ static TCocoaAppController* gInstance = nil;
 	if (mScreenManager)
 	{
 		delete mScreenManager;
-	}
-	if (mExtrSerialPortManager)
-	{
-		delete mExtrSerialPortManager;
 	}
 	if (mNetworkManager)
 	{
@@ -430,47 +422,21 @@ static TCocoaAppController* gInstance = nil;
 #endif
 	}
 
-	// Create the serial port manager
-	NSInteger indexSerialPortDriver = [defaults integerForKey: kSerialDriverKey];
-	mExtrSerialPortManager = TSerialPortManager::CreateByID(
-	    kTcpClientSerialDriverTag, mLog, TSerialPortManager::kExternalSerialPort);
-	/*
-	if (indexSerialPortDriver == kBasiliskIISerialDriverTag)
-	{
-		mExtrSerialPortManager = new TBasiliskIISerialPortManager(
-			mLog,
-			TSerialPortManager::kExternalSerialPort);
-	} else if (indexSerialPortDriver == kTcpClientSerialDriverTag) {
-		mExtrSerialPortManager = new TTcpClientSerialPortManager(
-			mLog,
-			TSerialPortManager::kExternalSerialPort);
-	} else if (indexSerialPortDriver == kPtySerialDriverTag) {
-		mExtrSerialPortManager = new TPtySerialPortManager(
-			mLog,
-			TSerialPortManager::kExternalSerialPort);
-	} else if (indexSerialPortDriver == kPipesSerialDriverTag) {
-		mExtrSerialPortManager = new TPipesSerialPortManager(
-			mLog,
-			TSerialPortManager::kExternalSerialPort);
-	} else {
-		mExtrSerialPortManager = new TSerialPortManager(
-			mLog,
-			TSerialPortManager::kExternalSerialPort);
-	}
-	 */
-
 	// Create the emulator.
 	KUInt32 ramSize = (KUInt32)[defaults integerForKey: kRAMSizeKey];
 	const char* theFlashPath =
 		[[defaults stringForKey: kInternalFlashPathKey] UTF8String];
-	mEmulator = new TEmulator(
-							  mLog, mROMImage, theFlashPath,
-							  mSoundManager, mScreenManager, mNetworkManager,
-							  ramSize << 16,
-							  mExtrSerialPortManager );
-
-	TSerialPortManager::SetEmulator(mEmulator);
 	
+	mEmulator = new TEmulator( mLog, mROMImage, theFlashPath,
+							   mSoundManager, mScreenManager, mNetworkManager,
+							   ramSize << 16 );
+
+	// Basic initialization of all serial ports
+	mEmulator->SerialPorts.Initialize( (TSerialPorts::EDriverID)[defaults integerForKey: kSerialDriverKey],
+									   TSerialPorts::kNullDriver,
+									   TSerialPorts::kNullDriver,
+									   TSerialPorts::kNullDriver );
+
 	if ([defaults boolForKey: kEnableListenersKey])
 	{
 		mFileManager = new TCocoaFileManager();

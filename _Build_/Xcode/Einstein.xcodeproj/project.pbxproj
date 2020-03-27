@@ -106,10 +106,12 @@
 		C901E52F1326566F0074513E /* TMemError.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32B8111B7570002165EC /* TMemError.cp */; };
 		C901E530132656710074513E /* TEOFException.cp in Sources */ = {isa = PBXBuildFile; fileRef = C99E32BB111B7570002165EC /* TEOFException.cp */; };
 		C92FC71E209374B600EF4BB1 /* TPipesSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */; };
+		C92FD823242D50CF00D18F58 /* TSerialPorts.cp in Sources */ = {isa = PBXBuildFile; fileRef = C92FD821242D50CF00D18F58 /* TSerialPorts.cp */; };
 		C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824511D0CF0A003B93C3 /* button_network_in.png */; };
 		C932824811D0CF0A003B93C3 /* button_network.png in Resources */ = {isa = PBXBuildFile; fileRef = C932824611D0CF0A003B93C3 /* button_network.png */; };
 		C932C4C211A1AB5D00F6A7E4 /* TNE2000Card.cp in Sources */ = {isa = PBXBuildFile; fileRef = C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */; };
 		C935F783209CD68900351905 /* TBasiliskIISerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C935F782209CD68900351905 /* TBasiliskIISerialPortManager.cp */; };
+		C93AAD86242D7F4100B77558 /* TNewt.cp in Sources */ = {isa = PBXBuildFile; fileRef = C93AAD84242D7F4000B77558 /* TNewt.cp */; };
 		C945F6731E53180C002505E9 /* TBasicSerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TBasicSerialPortManager.cp */; };
 		C94C96DD20937E780099001D /* TPtySerialPortManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = C94C96DB20937E780099001D /* TPtySerialPortManager.cp */; };
 		C962429711B69A9D00EE66F3 /* TUsermodeNetwork.cp in Sources */ = {isa = PBXBuildFile; fileRef = C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cp */; };
@@ -504,12 +506,16 @@
 		8D1107320486CEB800E47090 /* Einstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Einstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C92FC717209374B500EF4BB1 /* TPipesSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPipesSerialPortManager.h; sourceTree = "<group>"; };
 		C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPipesSerialPortManager.cp; sourceTree = "<group>"; };
+		C92FD821242D50CF00D18F58 /* TSerialPorts.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TSerialPorts.cp; sourceTree = "<group>"; };
+		C92FD822242D50CF00D18F58 /* TSerialPorts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSerialPorts.h; sourceTree = "<group>"; };
 		C932824511D0CF0A003B93C3 /* button_network_in.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network_in.png; sourceTree = "<group>"; };
 		C932824611D0CF0A003B93C3 /* button_network.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_network.png; sourceTree = "<group>"; };
 		C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNE2000Card.cp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C932C4C111A1AB5D00F6A7E4 /* TNE2000Card.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNE2000Card.h; sourceTree = "<group>"; };
 		C935F781209CD67300351905 /* TBasiliskIISerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBasiliskIISerialPortManager.h; sourceTree = "<group>"; };
 		C935F782209CD68900351905 /* TBasiliskIISerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TBasiliskIISerialPortManager.cp; sourceTree = "<group>"; };
+		C93AAD84242D7F4000B77558 /* TNewt.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNewt.cp; sourceTree = "<group>"; };
+		C93AAD85242D7F4000B77558 /* TNewt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNewt.h; sourceTree = "<group>"; };
 		C945F6711E53180C002505E9 /* TBasicSerialPortManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TBasicSerialPortManager.cp; sourceTree = "<group>"; };
 		C945F6721E53180C002505E9 /* TBasicSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBasicSerialPortManager.h; sourceTree = "<group>"; };
 		C94ADB37123E9ADD00406839 /* iEinsteinAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iEinsteinAppDelegate.mm; path = Classes/iEinsteinAppDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
@@ -1519,6 +1525,8 @@
 				C99E347A111B7C07002165EC /* PlatformGestalt.h */,
 				C99E347B111B7C07002165EC /* TPlatformManager.cp */,
 				C99E347C111B7C07002165EC /* TPlatformManager.h */,
+				C93AAD84242D7F4000B77558 /* TNewt.cp */,
+				C93AAD85242D7F4000B77558 /* TNewt.h */,
 			);
 			path = Platform;
 			sourceTree = "<group>";
@@ -1567,6 +1575,8 @@
 		C99E34A3111B7C08002165EC /* Serial */ = {
 			isa = PBXGroup;
 			children = (
+				C92FD821242D50CF00D18F58 /* TSerialPorts.cp */,
+				C92FD822242D50CF00D18F58 /* TSerialPorts.h */,
 				C99E34A7111B7C08002165EC /* TSerialPortManager.cp */,
 				C99E34A8111B7C08002165EC /* TSerialPortManager.h */,
 				C945F6711E53180C002505E9 /* TBasicSerialPortManager.cp */,
@@ -1869,7 +1879,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1130;
+				LastUpgradeCheck = 1140;
 				TargetAttributes = {
 					DA4BA4041A3A0153002BDB80 = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -2204,6 +2214,7 @@
 				C99E352B111B7C08002165EC /* TDMAManager.cp in Sources */,
 				C99E352C111B7C08002165EC /* TEmulator.cp in Sources */,
 				C99E352D111B7C08002165EC /* TFlash.cp in Sources */,
+				C92FD823242D50CF00D18F58 /* TSerialPorts.cp in Sources */,
 				C99E352E111B7C08002165EC /* TInterruptManager.cp in Sources */,
 				C99E352F111B7C08002165EC /* TMemory.cp in Sources */,
 				C99E3530111B7C08002165EC /* TMMU.cp in Sources */,
@@ -2231,6 +2242,7 @@
 				C901E530132656710074513E /* TEOFException.cp in Sources */,
 				C9BE33D0133E64F60052EA2F /* TJITPerformance.cp in Sources */,
 				C9D54E1415FA23E700D91131 /* TFiber.cp in Sources */,
+				C93AAD86242D7F4100B77558 /* TNewt.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

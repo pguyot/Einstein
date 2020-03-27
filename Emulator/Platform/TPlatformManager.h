@@ -28,6 +28,7 @@
 
 // Einstein
 #include "PlatformEvents.h"
+#include "TNewt.h"
 #include "Emulator/Host/UserInfoDefinitions.h"
 
 class TInterruptManager;
@@ -37,14 +38,6 @@ class TMemory;
 class TLog;
 class TMutex;
 
-typedef KUInt32 VAddr;
-typedef KUInt32 NewtRef;
-typedef KUInt32 NewtRefVar;
-typedef const NewtRefVar &NewtRefArg;
-
-static const NewtRef kNewtRefNIL = 0x0002;
-static const NewtRef kNewtRefTRUE = 0x001A;
-static const NewtRef kNewtSymbolClass = 0x55552;
 
 ///
 /// Class for the native-side of the platform driver.
@@ -244,40 +237,6 @@ public:
 	/// Allow NewtonScript to call methods within Einstein.
 	///
 	NewtRef NewtonScriptCall(NewtRef rcvr, NewtRef arg0, NewtRef arg1);
-
-	///
-	/// Some minimal NewtonScript support
-	///
-	KUInt32 CallNewton(VAddr functionVector, const char *args, ...);
-	NewtRef MakeString(const char *);
-	NewtRef MakeSymbol(const char *);
-	NewtRef MakeReal(double);
-	NewtRefVar AllocateRefHandle(NewtRef);
-	void DisposeRefHandle(NewtRefVar);
-	NewtRef AllocateFrame();
-	KUInt32 AddSlot(NewtRefArg, NewtRefArg);
-	NewtRef AddArraySlot(NewtRefArg, NewtRefArg);
-	NewtRef AllocateArray(NewtRefArg, KUInt32);
-	NewtRef AllocateArray(KUInt32);
-	NewtRef SetArraySlotRef(NewtRef, KUInt32, NewtRef);
-	NewtRef SetArraySlot(NewtRefArg, KUInt32, NewtRefArg);
-	NewtRef SetFrameSlot(NewtRefArg, NewtRefArg, NewtRefArg);
-
-	bool NewtRefIsInt(NewtRef);
-	KSInt32 NewtRefToInt(NewtRef);
-	NewtRef NewtMakeInt(KSInt32);
-
-	bool NewtRefIsSymbol(NewtRef);
-	bool NewtSymbolToCString(NewtRef, char *buf, int size);
-
-	bool NewtRefIsString(NewtRef);
-	KUInt32 NewtRefStringLength(NewtRef);
-	char *NewtRefToStringDup(NewtRef);
-	NewtRef NewtRefReplaceString(NewtRef, const char*);
-
-	bool NewtRefIsPointer(NewtRef);
-	KUInt32 NewtRefToPointer(NewtRef);
-	NewtRef NewtMakePointer(KUInt32);
 
 private:
 	struct SBuffer {

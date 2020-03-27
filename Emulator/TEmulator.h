@@ -30,8 +30,8 @@
 #include "TARMProcessor.h"
 #include "TMemory.h"
 #include "Log/TLog.h"
+#include "Serial/TSerialPorts.h"
 
-class TSerialPortManager;
 class TInterruptManager;
 class TDMAManager;
 class TPlatformManager;
@@ -70,7 +70,6 @@ public:
 	/// \param inSoundManager		sound manager.
 	/// \param inScreenManager		screen manager.
 	/// \param inRAMSize			size of the RAM installed (in bytes)
-	/// \param inExtrSerialPortManager	serial port manager
 	///
 	TEmulator(
 			TLog* inLog,
@@ -79,8 +78,7 @@ public:
 			TSoundManager* inSoundManager,
 			TScreenManager* inScreenManager,
 			TNetworkManager* inNetworkManager,
-			KUInt32 inRAMSize = 0x00400000,
-			TSerialPortManager* inExtrSerialPortManager = 0L);
+			KUInt32 inRAMSize = 0x00400000);
 
 	///
 	/// Constructor from a rom image buffer.
@@ -336,46 +334,6 @@ public:
 		{
 			return mDMAManager;
 		}
-	
-	///
-	/// Accessor on the external serial port.
-	///
-	/// \return a pointer to the serial port.
-	///
-	TSerialPortManager*	GetExternalSerialPort( void )
-		{
-			return mExternalPort;
-		}
-
-	///
-	/// Accessor on the infrared serial port.
-	///
-	/// \return a pointer to the serial port.
-	///
-	TSerialPortManager*	GetInfraredSerialPort( void )
-		{
-			return mInfraredPort;
-		}
-
-	///
-	/// Accessor on the built-in extra serial port.
-	///
-	/// \return a pointer to the serial port.
-	///
-	TSerialPortManager*	GetBuiltInExtraSerialPort( void )
-		{
-			return mBuiltInExtraPort;
-		}
-
-	///
-	/// Accessor on the modem serial port.
-	///
-	/// \return a pointer to the serial port.
-	///
-	TSerialPortManager*	GetModemSerialPort( void )
-		{
-			return mModemPort;
-		}
 
 	///
 	/// Accessor to the NewtonID.
@@ -431,14 +389,9 @@ public:
 	void		SetNewtonID(KUInt32 inID0, KUInt32 inID1);
 
 	///
-	/// Replace the current serial port driver
+	/// Managed access to all serial port drivers
 	///
-	void SetSerialPortDriver(KUInt32 port, TSerialPortManager *driver);
-
-	///
-	/// Return the driver for the given serial port
-	///
-	TSerialPortManager *GetSerialPortDriver(KUInt32 port);
+	TSerialPorts	SerialPorts;		///< Serial port driver access
 
 private:
 	///
@@ -461,10 +414,6 @@ private:
 	TInterruptManager*	mInterruptManager;	///< Interrupt manager.
 	TDMAManager*		mDMAManager;		///< DMA manager.
 	TPlatformManager*	mPlatformManager;	///< Platform manager.
-	TSerialPortManager*	mExternalPort;		///< External serial port.
-	TSerialPortManager*	mInfraredPort;		///< Infrared serial port.
-	TSerialPortManager*	mBuiltInExtraPort;	///< Built-in Extra serial port.
-	TSerialPortManager*	mModemPort;			///< Modem serial port.
 	TNetworkManager*	mNetworkManager;	///< Network manager.
 	TSoundManager*		mSoundManager;		///< Sound manager.
 	TScreenManager*		mScreenManager;		///< Screen manager.

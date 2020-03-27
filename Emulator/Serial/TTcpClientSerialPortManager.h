@@ -46,7 +46,7 @@ public:
 	/// Constructor.
 	///
 	TTcpClientSerialPortManager(TLog* inLog,
-							ELocationID inLocationID);
+								TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.
@@ -56,7 +56,7 @@ public:
 	///
 	/// Return the Identification of this driver
 	///
-	virtual KUInt32 GetID() { return kTcpClientDriver; }
+	virtual KUInt32 GetID() { return TSerialPorts::kTcpClientDriver; }
 
 	///
 	/// Start emulation.
