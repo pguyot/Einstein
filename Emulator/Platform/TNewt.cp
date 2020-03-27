@@ -312,6 +312,14 @@ NewtRef TNewt::MakePointer(KUInt32 r)
 }
 
 
+NewtRef TNewt::RefVar::Ref()
+{
+	NewtRef ref;
+	mMemory->Read(mRefHandle, ref);
+	return ref;
+}
+
+
 // ====================================================================== //
 // Nurse Donna:    Oh, Groucho, I'm afraid I'm gonna wind up an old maid. //
 // Groucho:        Well, bring her in and we'll wind her up together.     //
