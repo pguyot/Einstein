@@ -26,94 +26,192 @@
 
 #include <K/Defines/KDefinitions.h>
 
-// Einstein
+#include <map>
 
+// Einstein
 class TEmulator;
 class TMemory;
 class TARMProcessor;
 
+// Some very basic types
 typedef KUInt32 VAddr;
 typedef KUInt32 NewtRef;
-typedef KUInt32 NewtRefVar;	// FIXME: nonono!
-typedef const NewtRefVar &NewtRefArg;
 
+// Some constant Refs
 static const NewtRef kNewtRefNIL = 0x0002;
 static const NewtRef kNewtRefTRUE = 0x001A;
 static const NewtRef kNewtSymbolClass = 0x55552;
 
+// A list of useful error codes
 static const KSInt32 kNSErrUndefinedMethod = -48809;
 static const KSInt32 kNSErrNotASymbol = -48410;
 
+#define kNSErrBase					(-48000)
+#define kNSErrNotAFrame				(kNSErrBase - 400)	// Expected a frame
+#define kNSErrNotAnArray			(kNSErrBase - 401)	// Expected an array
+#define kNSErrNotAString			(kNSErrBase - 402)	// Expected a string
+#define kNSErrNotAPointer			(kNSErrBase - 403)	// Expected a pointer, array, or binary object
+#define kNSErrNotANumber			(kNSErrBase - 404)	// Expected a number
+#define kNSErrNotAReal				(kNSErrBase - 405)	// Expected a real
+#define kNSErrNotAnInteger			(kNSErrBase - 406)	// Expected an integer
+#define kNSErrNotACharacter			(kNSErrBase - 407)	// Expected a character
+#define kNSErrNotABinaryObject		(kNSErrBase - 408)	// Expected a binary object
+#define kNSErrNotAPathExpr			(kNSErrBase - 409)	// Expected a path expression (or a symbol or integer)
+#define kNSErrNotASymbol			(kNSErrBase - 410)	// Expected a symbol
+#define kNSErrNotAFunction			(kNSErrBase - 411)	// Expected a function
+#define kNSErrNotAFrameOrArray		(kNSErrBase - 412)	// Expected a frame or an array
+#define kNSErrNotAnArrayOrNil		(kNSErrBase - 413)	// Expected an array or NIL
+#define kNSErrNotAStringOrNil		(kNSErrBase - 414)	// Expected a string or NIL
+#define kNSErrNotABinaryObjectOrNil	(kNSErrBase - 415)	// Expected a binary object or NIL
+#define kNSErrUnexpectedFrame		(kNSErrBase - 416)	// Unexpected frame
+#define kNSErrUnexpectedBinaryObject	(kNSErrBase - 417)	// Unexpected binary object
+#define kNSErrUnexpectedImmediate	(kNSErrBase - 418)	// Unexpected immediate
+#define kNSErrNotAnArrayOrString	(kNSErrBase - 419)	// Expected an array or string
+#define kNSErrNotAVBO				(kNSErrBase - 420)	// Expected a vbo
+#define kNSErrNotAPackage			(kNSErrBase - 421)	// Expected a package
+#define kNSErrNotNil				(kNSErrBase - 422)	// Expected a NIL
+#define kNSErrNotASymbolOrNil		(kNSErrBase - 423)  // expected NIL or a Symbol
+#define kNSErrNotTrueOrNil			(kNSErrBase - 424)  // expected NIL or True
+#define kNSErrNotAnIntegerOrArray	(kNSErrBase - 425)  // expected an integer or an array
+
+
 /**
- A static class that provides access to a running Newton system.
+ A namespace that provides access to a running Newton system.
 
  This interface allows us to read and create NewtonScript objects right inside
  a running OS. Some functions are reimplemented on the host machine and use
  the memory manager to access emulated RAM and ROM, and some functions
  call code inside the ROM via a minimalized JIT emulator loop. These functions
  can only be called from within the JIT itself, for example from within
- TPlatformManager::NewtonScriptCall(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
+ TPlatformManager::NewtonScriptCall(RefArg rcvr, RefArg arg0, RefArg arg1)
+
+ \note At some point, we want to cahe sybols, so we don't doe the expensive NewtonOS lookup.
  */
 namespace TNewt
 {
-// TODO: Symbol caching!
 
-	extern TEmulator *mEmulator;
-	extern TMemory *mMemory;
-	extern TARMProcessor *mCPU;
+// Back references into the emulator
+extern TEmulator *mEmulator;
+extern TMemory *mMemory;
+extern TARMProcessor *mCPU;
 
-	void SetEmulator(TEmulator *inEmulator);
+// Setthe all back references into the emulator.
+void SetEmulator(TEmulator *inEmulator);
 
-	KUInt32 CallNewton(VAddr functionVector, const char *args, ...);
-	NewtRef MakeString(const char *);
-	NewtRef MakeSymbol(const char *);
-	NewtRef MakeReal(double);
-	NewtRefVar AllocateRefHandle(NewtRef);
-	void DisposeRefHandle(NewtRefVar);
-	NewtRef AllocateFrame();
-	KUInt32 AddSlot(NewtRefArg, NewtRefArg);
-	NewtRef AddArraySlot(NewtRefArg, NewtRefArg);
-	NewtRef AllocateArray(NewtRefArg, KUInt32);
-	NewtRef AllocateArray(KUInt32);
-	NewtRef SetArraySlotRef(NewtRef, KUInt32, NewtRef);
-	NewtRef SetArraySlot(NewtRefArg, KUInt32, NewtRefArg);
-	NewtRef SetFrameSlot(NewtRefArg, NewtRefArg, NewtRefArg);
+// Add a Ref to the Garbe Collection system and mark it used
+VAddr AllocateRefHandle(NewtRef);
 
-	bool RefIsInt(NewtRef);
-	KSInt32 RefToInt(NewtRef);
-	NewtRef MakeInt(KSInt32);
+// Mark the corresponding Ref unused and ready to be deleted (unless linked otherwise)
+void DisposeRefHandle(VAddr);
 
-	bool RefIsSymbol(NewtRef);
-	bool SymbolToCString(NewtRef, char *buf, int size);
-
-	bool RefIsString(NewtRef);
-	KUInt32 RefStringLength(NewtRef);
-	char *RefToStringDup(NewtRef);
-	NewtRef RefReplaceString(NewtRef, const char*);
-
-	bool RefIsPointer(NewtRef);
-	KUInt32 RefToPointer(NewtRef);
-	NewtRef MakePointer(KUInt32);
-
+/**
+ Create and dispose RefHandles automatically.
+ */
 class RefVar {
+protected:
 	KUInt32 mRefHandle;
+	bool mAllocated;
+	RefVar(KUInt32 inRefHandle, bool inAllocated);
 public:
-	RefVar(NewtRef ref) {
-		mRefHandle = AllocateRefHandle( ref );
-	}
-	~RefVar() {
-		DisposeRefHandle( mRefHandle );
-	}
-	operator NewtRefArg() {
-		return mRefHandle;
-	}
-	NewtRef Ref();
+	// Named Constrcutor
+	static RefVar FromPtr(KUInt32 ptr);
+	// Standard Constructor
+	RefVar(NewtRef ref);
+	// Destructor
+	~RefVar();
+	// Return the address of the RefHandle in emulated memory
+	KUInt32 Handle() const;
+	// Return the Ref for this Handle
+	NewtRef Ref() const;
 };
+
+// Use this to pass arguments to functions
+typedef const RefVar &RefArg;
+
+// Call a NewtonOS function in ROM via the Apple sanction jumptable
+KUInt32 CallNewton(VAddr functionVector, const char *args, ...);
+
+// Print any RefVar
+void Print(RefArg, int depth=2, int indent = 0);
+
+// Print any Ref
+void PrintRef(NewtRef, int depth=2, int indent = 0);
+
+// Create a string object from a C style ASCII string
+NewtRef MakeString(const char *);
+
+// Create a symbol from a C style ASCII string
+NewtRef MakeSymbol(const char *);
+
+// Create a binary object containing a double precission floating point value
+NewtRef MakeReal(double);
+
+// Allocate an empty Frame object
+NewtRef AllocateFrame();
+
+// Add a Slot to an array at the specified position
+NewtRef AddArraySlot(RefArg, RefArg);
+
+// Allocate an array of a given size, marked with a symbol
+NewtRef AllocateArray(RefArg, KUInt32);
+
+// Allocate an array of the give size, marked 'Array
+NewtRef AllocateArray(KUInt32);
+
+// Quickly set a slot in an array
+NewtRef SetArraySlotRef(NewtRef, KUInt32, NewtRef);
+
+// Set a slot in an array
+NewtRef SetArraySlot(RefArg, KUInt32, RefArg);
+
+// Set a slot in a Frame
+NewtRef SetFrameSlot(RefArg, RefArg, RefArg);
+
+// Return true if the Ref is an integer
+bool RefIsInt(NewtRef);
+
+// Convert the Ref to a signed integer value, no error checking
+KSInt32 RefToInt(NewtRef);
+
+// Convert a signed integer into a Ref
+NewtRef MakeInt(KSInt32);
+
+// Return true, if the Ref is an NSSymbol
+bool RefIsSymbol(NewtRef);
+
+// Copy the name of a symbol into a buffer in host space
+bool SymbolToCString(NewtRef, char *buf, int size);
+
+// Return true if the Ref is a utf16 string
+bool RefIsString(NewtRef);
+
+// Return the number of characters in the string
+KUInt32 RefStringLength(NewtRef);
+
+// FIXME: return a string that must be fee'd by the caller
+char *RefToStringDup(NewtRef);
+
+// Return true if the Ref is a pointer into NewtonOS memeory
+bool RefIsPointer(NewtRef);
+
+// Convert a Ref into a pointer
+KUInt32 RefToPointer(NewtRef);
+
+// Convert a pointer into a Ref
+NewtRef MakePointer(KUInt32);
+
+// FIXME: don't use thsi yet, it will hang the emulator
+NewtRef ThrowBadTypeWithFrameData(long, RefArg);
+
+// Jump table from the Platform Manager calls into their implementation
+typedef NewtRef (*PlatformCall)(RefArg rcvr, RefArg arg);
+typedef std::map<std::string, PlatformCall> PlatformCallMap;
+extern PlatformCallMap CallMap;
 
 };
 
 #endif
-		// _T_NEWT_H
+// _T_NEWT_H
 
 // ======================================================================= //
 // FORTRAN is not a flower but a weed -- it is hardy, occasionally blooms, //

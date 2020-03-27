@@ -39,10 +39,66 @@
 
 using namespace TNewt;
 
-TEmulator *TNewt::mEmulator = nullptr;
-TMemory *TNewt::mMemory = nullptr;
-TARMProcessor *TNewt::mCPU = nullptr;
 
+TEmulator *TNewt::mEmulator = nullptr;	///< Reference back to the Emulator
+TMemory *TNewt::mMemory = nullptr;		///< Reference back to emulated memeory
+TARMProcessor *TNewt::mCPU = nullptr;	///< Reference back to the emulated CPU
+
+
+/**
+ This object is used to look up and call host functions by symbol name.
+
+ This is a list of function calls from NewtonOS via teh EinsteinGlue.ntkc into functions
+ inside the EInstein emulator. All calls have exactly one argument which can contain
+ literals but alos complex hierarchies of arrays and frames. If the argument is unused,
+ it should be NIL.
+
+ On the Einstein side of thiks, these functions shall be names in camlecase starting
+ with 'NS...'. They commonly make extensive use of the tools in the TNewt namespace
+ to read paramaters from Newton memory into host space, and generate results that
+ the calling NewtonScript can understand.
+
+ A typical NewtonScript call into Einstein look like this:
+	local index := call EInstein.Platform with ('GetSerialPortDriver, 'extr);
+
+ Also available are
+	call Einstein.Glue with (nil);
+ which returns the version number of EinsteinGlue.ntkc, and
+	call Einstein.Version with (nil);
+ which return -1 if this is not running on Einstein, 0 if this is Einstein, but without TNewt, or
+ simpe integer version number that will increase over time.
+
+ The source code for EinsteinGlue.ntkc is in /Dirvers/packages/NTKGlue
+ */
+PlatformCallMap TNewt::CallMap = {
+	{ "getserialportdrivernames", [](RefArg, RefArg arg)->NewtRef {
+		return mEmulator->SerialPorts.NSGetDriverNames(arg); }
+	},
+	{ "getserialportdriverlist", [](RefArg, RefArg arg)->NewtRef {
+		return mEmulator->SerialPorts.NSGetDriverList(arg); }
+	},
+	{ "getserialportdriveroptions", [](RefArg, RefArg arg)->NewtRef {
+		return mEmulator->SerialPorts.NSGetDriverOptions(arg); }
+	},
+	{ "setserialportdriveroptions", [](RefArg, RefArg arg)->NewtRef {
+		return mEmulator->SerialPorts.NSSetDriverOptions(arg); }
+		// for TCP, send { serPort:'extr, serverAddr:"127.0.0.1", sereverPort:"3679" }
+		// fprintf(stderr, "TODO: set serial port driver options\n");
+	},
+	{ "getsymbol", [](RefArg, RefArg arg)->NewtRef {
+		// Just some silly testing of our implementatiosn
+		RefVar array( AllocateArray(3) );
+		RefVar text( MakeString("Will this ever work?") );
+		SetArraySlot( array, 1, text );
+		SetArraySlotRef(array.Ref(), 2, MakeReal(3.141592654));
+		return array.Ref(); }
+	},
+};
+
+
+/**
+ Connect the TNewt namespace to the emulator, called by TEmulator upon creation.
+ */
 void TNewt::SetEmulator(TEmulator *inEmulator)
 {
 	mEmulator = inEmulator;
@@ -50,13 +106,48 @@ void TNewt::SetEmulator(TEmulator *inEmulator)
 	mCPU = inEmulator->GetProcessor();
 }
 
-/*
- Ags is a "C" string that indicates the type of the argument list
- - s: 0-terminated "C" string
- ? u: 0-terminated "C" string in utf8 that is passed as a MSB utf16 string
- ? i: 32 bit integer
- - d: 64 bit double precission floating point valu
- ? R: a NewtonsScript Ref
+
+/**
+ Add a Ref to the Garbe Collection system and mark it used.
+ */
+VAddr TNewt::AllocateRefHandle(NewtRef r)
+{
+	return (VAddr)CallNewton(0x01800818, "0", r);
+}
+
+/**
+ Mark the corresponding Ref unused and ready to be deleted (unless linked otherwise).
+ */
+void TNewt::DisposeRefHandle(VAddr v)
+{
+	CallNewton(0x01800888, "0", v);
+}
+
+
+/**
+ Call functions inside the Newton ROM.
+
+ Apple has left us a fixed jump table for over 3000 functions in ROM. They are
+ meant to be called by native applications running on physical MessagePad.
+ Since these jump tables are guaranteed to stay the same on every ROM, we
+ use them to jump from Einstein right into ROM code.
+
+ 'args'' is a "C" string that indicates the type of the argument list
+   's': 0-terminated "C" string
+   'd': 64 bit double precission floating point value
+   'A': RefArg.Handler()
+   '0': Zero indirection, just use the 32-bit value
+   'i': integer
+
+ ARM 'C' calling conventions
+   - the first four arguments are passed using R0 to R3
+   - the following argument are passed through the stack
+   - 'double' values take two registers or 64 bit on the stack
+   - in 'C++' methods, 'this' is the first argument, followed by the rest
+   - values are returned in R0 or R0/R1 for 'double'
+
+ \note we need to implement a utf-8 to utf-16 option
+ \note we need to set up an exception handler or exceptions will hang the machine
  */
 KUInt32 TNewt::CallNewton(VAddr functionVector, const char *args, ...)
 {
@@ -70,12 +161,15 @@ KUInt32 TNewt::CallNewton(VAddr functionVector, const char *args, ...)
 	memcpy(regs, mCPU->mCurrentRegisters, sizeof(regs));
 
 	// Convert the list of arguments into ARM function call convention
+	int outArg = 0;
 	va_start (ap, args);
 	for (int i=0; ;i++) {
 		char c = args[i];
 		if (c==0) break;
-		if (i>3) {
-			fprintf(stderr, "ERROR in TNewt::CallNewton: too many arguments\n");
+		if (outArg>3 || (c=='d' && outArg>2)) {
+			fprintf(stderr,
+					"ERROR in TNewt::CallNewton: too many arguments "
+					"(fix this by implementing arguments on the stack).\n");
 			break;
 		}
 		switch (c) {
@@ -85,34 +179,32 @@ KUInt32 TNewt::CallNewton(VAddr functionVector, const char *args, ...)
 					KUInt32 n = (KUInt32)strlen(s)+1, n4 = (n+3) & ~3;
 					sp -= n4;
 					mMemory->FastWriteString(sp, &n, s);
-					mCPU->SetRegister(i, sp);
+					mCPU->SetRegister(outArg++, sp);
 				} else {
-					mCPU->SetRegister(i, 0);
+					mCPU->SetRegister(outArg++, 0);
 				}
 				break; }
-			case 'd': { // double precission floating point
+			case 'd': { // double precission floating point (needs two regsiters!
 				union { double d; KUInt32 i[2]; } u;
 				u.d = va_arg(ap, double);
 				// FIXME: make sure that this order is the same on LSB and MSB machines (tested ok for Intelorder (LSB))
-				mCPU->SetRegister(i+1, u.i[0]);
-				mCPU->SetRegister(  i, u.i[1]);
-				// FIXME: wrong argument counting!
-				i++;
+				mCPU->SetRegister(outArg++, u.i[1]);
+				mCPU->SetRegister(outArg++, u.i[0]);
 				break; }
-			case 'A': { // NewtRefArg
+			case 'A': { // TNewt::RefArg
 				KUInt32 v = va_arg(ap, KUInt32);
 				sp -= 4;
 				mMemory->Write(sp, v);
-				mCPU->SetRegister(i, sp);
+				mCPU->SetRegister(outArg++, sp);
 				sp -= 4;
 				break; }
 			case '0': { // zero indirection, just copy to register
 				KUInt32 v = va_arg(ap, KUInt32);
-				mCPU->SetRegister(i, v);
+				mCPU->SetRegister(outArg++, v);
 				break; }
 			case 'i': { // int
 				KUInt32 v = va_arg(ap, KUInt32);
-				mCPU->SetRegister(i, v);
+				mCPU->SetRegister(outArg++, v);
 				break; }
 			default:
 				fprintf(stderr, "ERROR in TNewt::CallNewton: unspported argument type '%c'\n", c);
@@ -126,6 +218,12 @@ KUInt32 TNewt::CallNewton(VAddr functionVector, const char *args, ...)
 	mCPU->SetRegister(14, 0x00fffffc); // magic address at the end of the REx
 	mCPU->SetRegister(15, pc);
 
+	// If we want to allow any of the code taht we will be calling to throw
+	// exception, the current system will crash. We need to add an exception
+	// handler before calling anything in this space. If an exception
+	// occurs, a longjump is executed in Newton space, making it impossible
+	// to end the emulation loop here.
+	
 	TJITGeneric *mJit = mMemory->GetJITObject();
 	JITUnit* theJITUnit = mJit->GetJITUnitForPC( mCPU, mMemory, pc+4);
 	for(;;)
@@ -141,101 +239,138 @@ KUInt32 TNewt::CallNewton(VAddr functionVector, const char *args, ...)
 	return r0;
 }
 
-// Tested and OK
+/**
+ Print any RefVar.
+ \param arg print this
+ \param depth optional print depth
+ \param indent indent text this much for formatting
+ */
+void TNewt::Print(RefArg arg, int depth, int indent)
+{
+	// TODO: write me
+}
+
+/**
+ Print any Ref.
+ \param ref print this
+ \param depth optional print depth
+ \param indent indent text this much for formatting
+ */
+void TNewt::PrintRef(NewtRef ref, int depth, int indent)
+{
+	// TODO: write me
+}
+
+/**
+ Create a string object from a C style ASCII string.
+ */
 NewtRef TNewt::MakeString(const char *txt)
 {
 	return (NewtRef)CallNewton(0x0180099c, "s", txt);
 }
 
-// Tested and OK
+/**
+ Create a symbol from a C style ASCII string.
+ */
 NewtRef TNewt::MakeSymbol(const char *txt)
 {
 	return (NewtRef)CallNewton(0x018029cc, "s", txt);
 }
 
-// Tested and OK
+/**
+ Create a binary object containing a double precission floating point value.
+ */
 NewtRef TNewt::MakeReal(double v)
 {
 	return (NewtRef)CallNewton(0x01800998, "d", v);
 }
 
-// TODO: implement argument types and RefVar
-NewtRefVar TNewt::AllocateRefHandle(NewtRef r)
-{
-	return (NewtRefVar)CallNewton(0x01800818, "0", r); // AllocateRefHandle_Fl
-}
-
-// TODO: implement argument types and RefVar
-void TNewt::DisposeRefHandle(NewtRefVar v) // DisposeRefHandle_FP9RefHandle
-{
-	CallNewton(0x01800888, "0", v);
-}
-
-// TODO: implement argument types and RefVar
+/**
+ Allocate an empty Frame object.
+ */
 NewtRef TNewt::AllocateFrame()
 {
 	return (NewtRef)CallNewton(0x0180080c, ""); // AllocateFrame_Fv
 }
 
-// TODO: implement argument types and RefVar
-KUInt32 TNewt::AddSlot(NewtRefArg frame, NewtRefArg slot)
+/**
+ Add a Slot to an array at the specified position.
+ */
+NewtRef TNewt::AddArraySlot(RefArg array, RefArg value)
 {
-	return CallNewton(0x018007fc, "AA", frame, slot); // AddSlot__FRC6RefVarTl
+	return CallNewton(0x018007f4, "AA", array.Handle(), value.Handle()); // AddArraySlot__FRC6RefVarT1
 }
 
-NewtRef TNewt::AddArraySlot(NewtRefArg array, NewtRefArg value)
+/**
+ Allocate an array of a given size, marked with a symbol.
+ */
+NewtRef TNewt::AllocateArray(RefArg symbol, KUInt32 nSlots)
 {
-	return (NewtRef)CallNewton(0x018007f4, "AA"); // AddArraySlot__FRC6RefVarT1
+	return (NewtRef)CallNewton(0x01800804, "Ai", symbol.Handle(), nSlots); // AllocateArray__FRC6RefVarl
 }
 
-// Works
-NewtRef TNewt::AllocateArray(NewtRefArg symbol, KUInt32 nSlots)
-{
-	return (NewtRef)CallNewton(0x01800804, "Ai", symbol, nSlots); // AllocateArray__FRC6RefVarl
-}
-
+/**
+ Allocate an array of the give size, marked 'Array.
+ */
 NewtRef TNewt::AllocateArray(KUInt32 nSlots)
 {
-	NewtRefVar sym = AllocateRefHandle(MakeSymbol("array"));
+	RefVar sym(MakeSymbol("array"));
 	NewtRef arrRef = AllocateArray(sym, nSlots);
-	DisposeRefHandle(sym);
 	return arrRef;
 }
 
-// works
+/**
+ Quickly set a slot in an array.
+ */
 NewtRef TNewt::SetArraySlotRef(NewtRef array, KUInt32 index, NewtRef value)
 {
-	return (NewtRef)CallNewton(0x01800a24, "0i0", array, index, value);
+	return CallNewton(0x01800a24, "0i0", array, index, value);
 }
 
-// works
-NewtRef TNewt::SetArraySlot(NewtRefArg array, KUInt32 index, NewtRefArg value)
+/**
+ Set a slot in an array.
+ */
+NewtRef TNewt::SetArraySlot(RefArg array, KUInt32 index, RefArg value)
 {
-	return (NewtRef)CallNewton(0x018029e4, "AiA", array, index, value); // SetArraySlot__FRC6RefVarlT1
+	return CallNewton(0x018029e4, "AiA", array.Handle(), index, value.Handle()); // SetArraySlot__FRC6RefVarlT1
 }
 
-// works
-NewtRef TNewt::SetFrameSlot(NewtRefArg frame, NewtRefArg key, NewtRefArg value)
+/**
+ Set a slot in a Frame.
+ */
+NewtRef TNewt::SetFrameSlot(RefArg frame, RefArg key, RefArg value)
 {
-	return (NewtRef)CallNewton(0x01800a34, "AAA", frame, key, value);
+	return CallNewton(0x01800a34, "AAA", frame.Handle(), key.Handle(), value.Handle());
 }
 
+/**
+ Return true if the Ref is an integer.
+ */
 bool TNewt::RefIsInt(NewtRef r)
 {
 	return ((r&3)==0);
 }
 
+/**
+ Convert the Ref to a signed integer value, no error checking.
+ */
 KSInt32 TNewt::RefToInt(NewtRef r)
 {
 	KSInt32 v = (KSInt32)r;
 	return v>>2;
 }
 
+/**
+ Convert a signed integer into a Ref.
+ */
 NewtRef TNewt::MakeInt(KSInt32 v)
 {
 	return ((KUInt32)v<<2) & 0xFFFFFFFC;
 }
 
+/**
+ Return true, if the Ref is an NSSymbol.
+ */
 bool TNewt::RefIsSymbol(NewtRef r)
 {
 	if (!TNewt::RefIsPointer(r)) return false;
@@ -246,6 +381,9 @@ bool TNewt::RefIsSymbol(NewtRef r)
 	return true;
 }
 
+/**
+ Copy the name of a symbol into a buffer in host space.
+ */
 bool TNewt::SymbolToCString(NewtRef r, char *buf, int bufSize)
 {
 	if (!TNewt::RefIsPointer(r))
@@ -272,52 +410,121 @@ bool TNewt::SymbolToCString(NewtRef r, char *buf, int bufSize)
 	return true;
 }
 
+/**
+ Return true if the Ref is a utf16 string.
+ */
 //bool TNewt::RefIsString(NewtRef r)
 //{
 //	// TODO: write this
 //	return false;
 //}
-//
+
+/**
+ Return the number of characters in the string.
+ */
 //KUInt32 TNewt::RefStringLength(NewtRef r)
 //{
 //	// TODO: write this
 //	return 0;
 //}
-//
+
+/**
+ FIXME: return a string that must be fee'd by the caller.
+ */
 //char *TNewt::RefToStringDup(NewtRef r)
 //{
 //	// TODO: write this
 //	return 0;
 //}
-//
-//NewtRef TNewt::RefReplaceString(NewtRef, const char*)
-//{
-//	// TODO: write this
-//	return kNewtRefNIL;
-//}
 
+/**
+ Return true if the Ref is a pointer into NewtonOS memeory.
+ */
 bool TNewt::RefIsPointer(NewtRef r)
 {
 	return ((((KUInt32)r)&3)==1);
 }
 
+/**
+ Convert a Ref into a pointer.
+ */
 KUInt32 TNewt::RefToPointer(NewtRef r)
 {
 	return ((KUInt32)r)&0xFFFFFFFC;
 }
 
+/**
+ Convert a pointer into a Ref
+ */
 NewtRef TNewt::MakePointer(KUInt32 r)
 {
 	return (NewtRef)((r&0xFFFFFFFC)|1);
 }
 
+/**
+ FIXME: don't use thsi yet, it will hang the emulator.
+ */
+NewtRef TNewt::ThrowBadTypeWithFrameData(long err, RefArg var)
+{
+	return (NewtRef)CallNewton(0x01802b28, "0A", err, var.Handle());
+}
 
-NewtRef TNewt::RefVar::Ref()
+
+/**
+ Create a RefVar from scratch. Not for the casual coder.
+ */
+TNewt::RefVar::RefVar(KUInt32 inRefHandle, bool inAllocated)
+:	mRefHandle( inRefHandle )
+,	mAllocated( inAllocated )
+{
+}
+
+/**
+ Create a RefVar from a Ref, protecting the Ref from deletion.
+ */
+TNewt::RefVar::RefVar(NewtRef ref)
+{
+	mAllocated = true;
+	mRefHandle = AllocateRefHandle( ref );
+}
+
+/**
+ Destroy the RefVar, making the Ref free for deletion (unless used elsewhere).
+ */
+TNewt::RefVar::~RefVar()
+{
+	if (mAllocated)
+		DisposeRefHandle( mRefHandle );
+}
+
+/**
+ Return the address of teh RefVar in Newton memory.
+ */
+KUInt32 TNewt::RefVar::Handle() const {
+	return mRefHandle;
+}
+
+/**
+ Return the Ref that we protect.
+ */
+NewtRef TNewt::RefVar::Ref() const
 {
 	NewtRef ref;
 	mMemory->Read(mRefHandle, ref);
 	return ref;
 }
+
+/**
+ Named Constructor: create a RefArg form a RefVar.
+ */
+RefVar RefVar::FromPtr(KUInt32 ptr)
+{
+	KUInt32 hdl;
+	mMemory->Read(ptr, hdl);
+	return RefVar(hdl, false);
+}
+
+
 
 
 // ====================================================================== //

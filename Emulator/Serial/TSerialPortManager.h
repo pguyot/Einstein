@@ -92,6 +92,11 @@ public:
 	///
 	virtual void WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue );
 
+	///
+	/// GIve NewtonScrip access to our list of options
+	///
+	virtual void NSAddOptions(TNewt::RefArg /*frame*/) { }
+
 protected:
 
 	///

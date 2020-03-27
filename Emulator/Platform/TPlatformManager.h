@@ -70,6 +70,14 @@ public:
 	KUInt32 GetVersion();
 
 	///
+	/// Set the reference to the emulator.
+	///
+	void	SetEmulator( TEmulator *inEmulator )
+	{
+		mEmulator = inEmulator;
+	}
+
+	///
 	/// Set the interrupt manager.
 	/// This method is called once the interrupt manager is created.
 	///
@@ -236,7 +244,7 @@ public:
 	///
 	/// Allow NewtonScript to call methods within Einstein.
 	///
-	NewtRef NewtonScriptCall(NewtRef rcvr, NewtRef arg0, NewtRef arg1);
+	NewtRef NewtonScriptCall(TNewt::RefArg rcvr, TNewt::RefArg arg0, TNewt::RefArg arg1);
 
 private:
 	struct SBuffer {
@@ -272,6 +280,7 @@ private:
 
 	/// \name Variables
 	TLog*				mLog;				///< Reference to the log.
+	TEmulator*			mEmulator;			///< Reference to the emulator
 	TScreenManager*		mScreenManager;		///< Reference to the screen manager.
 	TInterruptManager*	mInterruptManager;	///< Reference to the interrupt mgr.
 	TMemory*			mMemory;			///< Reference to the memory interface.
