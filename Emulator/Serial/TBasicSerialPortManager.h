@@ -48,7 +48,7 @@ public:
 	/// Constructor.
 	///
 	TBasicSerialPortManager(TLog* inLog,
-							ELocationID inLocationID);
+							TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.

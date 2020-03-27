@@ -26,6 +26,8 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include "TSerialPorts.h"
+
 class TLog;
 class TInterruptManager;
 class TDMAManager;
@@ -43,86 +45,13 @@ class TEmulator;
 class TSerialPortManager
 {
 public:
-	
-	///
-	/// Built-in location IDs
-	///
-	enum ELocationID {
-		kExternalSerialPort		= 'extr',
-		kInfraredSerialPort		= 'infr',
-		kBuiltInExtraSerialPort	= 'tblt',
-		kModemSerialPort		= 'mdem'
-	};
-
-	///
-	/// Implemented driver types
-	///
-	enum EDriverID {
-		kNullDriver = 0,
-		kPipesDriver,
-		kPtyDriver,
-		kBasiliskIIDriver,
-		kTcpClientDriver
-	};
-
-	///
-	/// Names for all driver types
-	///
-	static char const* DriverName[];
-
-	///
-	/// List of drivers available on this platform
-	///
-	static KUInt32 DriverList[];
-
-	///
-	/// Number of elements in the driver list
-	///
-	static KUInt32 DriverListSize;
-
-	///
-	/// List of default driver for every location
-	///
-	static KUInt32 DefaultDriver[];
-
-	///
-	/// Create a new driver given the type-ID
-	///
-	static TSerialPortManager *CreateByID(KUInt32 id, TLog* inLog, ELocationID location);
-
-	///
-	/// Replace a driver in the Emulator with a new one, calling the callback function
-	///
-	static void ReplaceDriver(ELocationID location, TSerialPortManager *drv);
-
-	///
-	/// Return the current driver type by location
-	///
-	static TSerialPortManager *CurrentDriver(ELocationID location);
-
-	///
-	/// Callback type for driver changes
-	///
-	typedef void (*DriverChangedCallbackType)(KUInt32 location, KUInt32 ID, void *user);
-
-	///
-	/// Request of the UI to be called back when the driver configuration changes
-	///
-	static void SetDriverChangedCallback(DriverChangedCallbackType, void *);
-
-	///
-	/// Give us access to the emulator
-	///
-	static void SetEmulator(TEmulator *inEmulator) { mEmulator = inEmulator; }
-
-	// ---- non-static members
 
 	///
 	/// Constructor.
 	///
 	TSerialPortManager(
 			TLog* inLog,
-			ELocationID inLocationID);
+			TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.
@@ -132,7 +61,7 @@ public:
 	///
 	/// Return the Identification of this driver
 	///
-	virtual KUInt32 GetID() { return kNullDriver; }
+	virtual KUInt32 GetID() { return TSerialPorts::kNullDriver; }
 
 	///
 	/// Start emulation.
@@ -190,15 +119,10 @@ protected:
 	/// \name Variables
 	TLog*				mLog;				///< Reference to the log object
 											///< (or NULL)
-	ELocationID			mLocationID;		///< Location ID (which serial port)
+	TSerialPorts::EPortIndex mNewtPortIndex;///< remember to which port we are connected
 	TInterruptManager*	mInterruptManager;	///< Interface to the interrupt mgr.
 	TDMAManager*		mDMAManager;		///< Interface to the DMA mgr.
 	TMemory*			mMemory;			///< Interface to the memory mgr.
-
-	/// call this when drivers change, so the UI can update itself and save the new choice
-	static DriverChangedCallbackType *mDriverChangedCallback;
-
-	static TEmulator *mEmulator;
 };
 
 #endif

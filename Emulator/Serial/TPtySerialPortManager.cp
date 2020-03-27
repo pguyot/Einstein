@@ -53,11 +53,9 @@
 // For example, opening /dev/ptyp0 as a master will give access to the
 // corresponding slave port /dev/ttyp0.
 // -------------------------------------------------------------------------- //
-TPtySerialPortManager::TPtySerialPortManager(
-													 TLog* inLog,
-													 ELocationID inLocationID)
-:	TBasicSerialPortManager(inLog, inLocationID),
-
+TPtySerialPortManager::TPtySerialPortManager(TLog* inLog,
+													 TSerialPorts::EPortIndex inPortIx)
+:	TBasicSerialPortManager(inLog, inPortIx),
 	mPipe{-1,-1},
 	mPtyPort(-1),
 	mDMAIsRunning(false),

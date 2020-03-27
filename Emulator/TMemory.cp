@@ -117,9 +117,6 @@ TMemory::TMemory(
 		mBankCtrlRegister( 0 ),
 		mInterruptManager( 0 ),
 		mDMAManager( 0 ),
-		mInfraredPort( 0 ),
-		mBuiltInExtraPort( 0 ),
-		mModemPort( 0 ),
 		mSerialNumberIx( 64 ),
 		mBPCount( 0 ),
 		mWPCount( 0 )
@@ -148,9 +145,6 @@ TMemory::TMemory(
 		mBankCtrlRegister( 0 ),
 		mInterruptManager( 0 ),
 		mDMAManager( 0 ),
-		mInfraredPort( 0 ),
-		mBuiltInExtraPort( 0 ),
-		mModemPort( 0 ),
 		mSerialNumberIx( 64 ),
 		mBPCount( 0 ),
 		mWPCount( 0 )
@@ -188,9 +182,6 @@ TMemory::SetEmulator( TEmulator* inEmulator )
 	{
 		mInterruptManager = inEmulator->GetInterruptManager();
 		mDMAManager = inEmulator->GetDMAManager();
-		mInfraredPort = inEmulator->GetInfraredSerialPort();
-		mBuiltInExtraPort = inEmulator->GetBuiltInExtraSerialPort();
-		mModemPort = inEmulator->GetModemSerialPort();
 		mEmulator = inEmulator;
 
 		int socketIx;
@@ -204,9 +195,6 @@ TMemory::SetEmulator( TEmulator* inEmulator )
 	} else {
 		mInterruptManager = nil;
 		mDMAManager = nil;
-		mInfraredPort = nil;
-		mBuiltInExtraPort = nil;
-		mModemPort = nil;
 		mEmulator = nil;
 
 		int socketIx;
@@ -1445,17 +1433,17 @@ TMemory::ReadBP( PAddr inAddress, KUInt8& outByte )
 	} else if (inAddress < TMemoryConsts::kSerialEnd) {
 		if (inAddress < TMemoryConsts::kInfraredSerialBase)
 		{
-			outByte = mEmulator->GetExternalSerialPort()->ReadRegister(
-				inAddress - TMemoryConsts::kExternalSerialBase );
+			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+			outByte = driver->ReadRegister(inAddress - TMemoryConsts::kExternalSerialBase );
 		} else if (inAddress < TMemoryConsts::kBuiltInSerialBase) {
-			outByte = mInfraredPort->ReadRegister(
-				inAddress - TMemoryConsts::kInfraredSerialBase );
+			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kInfr);
+			outByte = driver->ReadRegister(inAddress - TMemoryConsts::kInfraredSerialBase );
 		} else if (inAddress < TMemoryConsts::kModemSerialBase) {
-			outByte = mBuiltInExtraPort->ReadRegister(
-				inAddress - TMemoryConsts::kBuiltInSerialBase );
+			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kTblt);
+			outByte = driver->ReadRegister(inAddress - TMemoryConsts::kBuiltInSerialBase );
 		} else {
-			outByte = mModemPort->ReadRegister(
-				inAddress - TMemoryConsts::kModemSerialBase );
+			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kMdem);
+			outByte = driver->ReadRegister(inAddress - TMemoryConsts::kModemSerialBase );
 		}
 	} else if (inAddress < TMemoryConsts::kFlashBank2) {
 		if (mLog)
@@ -2237,17 +2225,17 @@ TMemory::WriteBP( PAddr inAddress, KUInt8 inByte )
 	} else if (inAddress < TMemoryConsts::kSerialEnd) {
 		if (inAddress < TMemoryConsts::kInfraredSerialBase)
 		{
-			mEmulator->GetExternalSerialPort()->WriteRegister(
-				inAddress - TMemoryConsts::kExternalSerialBase, inByte );
+			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+			driver->WriteRegister( inAddress - TMemoryConsts::kExternalSerialBase, inByte );
 		} else if (inAddress < TMemoryConsts::kBuiltInSerialBase) {
-			mInfraredPort->WriteRegister(
-				inAddress - TMemoryConsts::kInfraredSerialBase, inByte );
+			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kInfr);
+			driver->WriteRegister( inAddress - TMemoryConsts::kInfraredSerialBase, inByte );
 		} else if (inAddress < TMemoryConsts::kModemSerialBase) {
-			mBuiltInExtraPort->WriteRegister(
-				inAddress - TMemoryConsts::kBuiltInSerialBase, inByte );
+			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kTblt);
+			driver->WriteRegister( inAddress - TMemoryConsts::kBuiltInSerialBase, inByte );
 		} else {
-			mModemPort->WriteRegister(
-				inAddress - TMemoryConsts::kModemSerialBase, inByte );
+			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kMdem);
+			driver->WriteRegister( inAddress - TMemoryConsts::kModemSerialBase, inByte );
 		}
 	} else if (inAddress < TMemoryConsts::kFlashBank2) {
 		if (mLog)

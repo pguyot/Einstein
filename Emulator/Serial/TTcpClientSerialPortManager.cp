@@ -72,8 +72,8 @@
 // -------------------------------------------------------------------------- //
 TTcpClientSerialPortManager::TTcpClientSerialPortManager(
 													 TLog* inLog,
-													 ELocationID inLocationID)
-:	TBasicSerialPortManager(inLog, inLocationID),
+													 TSerialPorts::EPortIndex inPortIx)
+:	TBasicSerialPortManager(inLog, inPortIx),
 	mCommandPipe{ -1, -1 },
 	mTcpSocket( -1 ),
 	mWorkerThreadIsRunning( false ),

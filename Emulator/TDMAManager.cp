@@ -51,7 +51,7 @@ TDMAManager::TDMAManager(
 			TInterruptManager* inInterruptManager )
 	:
 		mLog( inLog ),
-		mMemulator( inEmulator ),
+		mEmulator( inEmulator ),
 		mMemory( inMemory ),
 		mInterruptManager( inInterruptManager )
 {
@@ -173,7 +173,7 @@ TDMAManager::ReadChannel1Register( KUInt32 inChannel, KUInt32 inRegister )
 	KUInt32 theResult = 0;
 
 	if (inChannel==kSerialPort0Receive || inChannel==kSerialPort0Transmit) {
-		TSerialPortManager *extr = mMemulator->GetExternalSerialPort();
+		TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		if (extr)
 			return extr->ReadDMARegister(1, inChannel, inRegister);
 	}
@@ -201,7 +201,7 @@ TDMAManager::WriteChannel1Register(
 						KUInt32 inValue )
 {
 	if (inChannel==kSerialPort0Receive || inChannel==kSerialPort0Transmit) {
-		TSerialPortManager *extr = mMemulator->GetExternalSerialPort();
+		TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		if (extr)
 			return extr->WriteDMARegister(1, inChannel, inRegister, inValue);
 	}
@@ -227,7 +227,7 @@ TDMAManager::ReadChannel2Register( KUInt32 inChannel, KUInt32 inRegister )
 	KUInt32 theResult = 0;
 
 	if (inChannel==kSerialPort0Receive || inChannel==kSerialPort0Transmit) {
-		TSerialPortManager *extr = mMemulator->GetExternalSerialPort();
+		TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		if (extr)
 			return extr->ReadDMARegister(2, inChannel, inRegister);
 	}
@@ -256,7 +256,7 @@ TDMAManager::WriteChannel2Register(
 						KUInt32 inValue )
 {
 	if (inChannel==kSerialPort0Receive || inChannel==kSerialPort0Transmit) {
-		TSerialPortManager *extr = mMemulator->GetExternalSerialPort();
+		TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		if (extr)
 			return extr->WriteDMARegister(2, inChannel, inRegister, inValue);
 	}
@@ -281,27 +281,6 @@ void TDMAManager::TransferState( TStream* inStream )
 	inStream->TransferInt32BE(mAssignmentReg);
 }
 
-#if 0
-// -------------------------------------------------------------------------- //
-//  * Log a more detailed channel description
-// -------------------------------------------------------------------------- //
-void TDMAManager::LogChannel(KUInt32 inChannel)
-{
-	static const char *channelName[] = {
-		"SerialPort0Receive",
-		"SerialPort0Transmit",
-		"InfraredReceiveAndTransmit",
-		"AudioTransmit",
-		"AudioReceive",
-		"TabletDigitizerReceive",
-		"SerialPort3Receive",
-		"SerialPort3Transmit"
-	};
-	if (mLog && inChannel<=7) {
-		mLog->FLogLine("    Channel %d is %s", inChannel, channelName[inChannel]);
-	}
-}
-#endif
 
 // ======================================================== //
 // The moving cursor writes, and having written, blinks on. //

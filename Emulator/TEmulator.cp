@@ -50,10 +50,10 @@
 #include "Screen/TScreenManager.h"
 #include "PCMCIA/TPCMCIAController.h"
 #include "PCMCIA/TLinearCard.h"
-#include "Serial/TSerialPortManager.h"
 #include "TInterruptManager.h"
 #include "TDMAManager.h"
 #include "Platform/TPlatformManager.h"
+#include "Platform/TNewt.h"
 #include "Files/TFileManager.h"
 
 // -------------------------------------------------------------------------- //
@@ -74,18 +74,14 @@ TEmulator::TEmulator(
 			TSoundManager* inSoundManager,
 			TScreenManager* inScreenManager,
 			TNetworkManager* inNetworkManager,
-			KUInt32 inRAMSize, /* = 4194304 */
-			TSerialPortManager* inExtrSerialPortManager)
+			KUInt32 inRAMSize /* = 4194304 */ )
 	:
 		mMemory( inLog, inROMImage, inFlashPath, inRAMSize ),
 		mProcessor( inLog, &mMemory ),
 		mInterruptManager( nil ),
 		mDMAManager( nil ),
 		mPlatformManager( nil ),
-		mExternalPort( nil ),
-		mInfraredPort( nil ),
-		mBuiltInExtraPort( nil ),
-		mModemPort( nil ),
+		SerialPorts( this, inLog ),
 		mNetworkManager( inNetworkManager ),
 		mSoundManager( inSoundManager ),
 		mScreenManager( inScreenManager ),
@@ -107,30 +103,6 @@ TEmulator::TEmulator(
 	mDMAManager = new TDMAManager(inLog, this, &mMemory, mInterruptManager);
 	mPlatformManager = new TPlatformManager( inLog, inScreenManager );
 
-	if (inExtrSerialPortManager) {
-		mExternalPort = inExtrSerialPortManager;
-	} else {
-		mExternalPort = new TSerialPortManager(
-			inLog,
-			TSerialPortManager::kExternalSerialPort);
-	}
-	mExternalPort->run(mInterruptManager, mDMAManager, &mMemory);
-
-	mInfraredPort = new TSerialPortManager(
-		inLog,
-		TSerialPortManager::kInfraredSerialPort);
-	mInfraredPort->run(mInterruptManager, mDMAManager, &mMemory);
-
-	mBuiltInExtraPort = new TSerialPortManager(
-		inLog,
-		TSerialPortManager::kBuiltInExtraSerialPort);
-	mBuiltInExtraPort->run(mInterruptManager, mDMAManager, &mMemory);
-
-	mModemPort = new TSerialPortManager(
-		inLog,
-		TSerialPortManager::kModemSerialPort);
-	mModemPort->run(mInterruptManager, mDMAManager, &mMemory);
-
 	mNewtonID[0] = kMyNewtonIDHigh;
 	mNewtonID[1] = kMyNewtonIDLow;
 
@@ -149,7 +121,9 @@ TEmulator::TEmulator(
 	mPlatformManager->SetInterruptManager( mInterruptManager );
 	mPlatformManager->SetMemory( &mMemory );
 	mPlatformManager->SetProcessor( &mProcessor );
-	
+
+	TNewt::SetEmulator( this );
+
 	mProcessor.SetEmulator( this );
 }
 
@@ -167,10 +141,7 @@ TEmulator::TEmulator(
 		mInterruptManager( nil ),
 		mDMAManager( nil ),
 		mPlatformManager( nil ),
-		mExternalPort( nil ),
-		mInfraredPort( nil ),
-		mBuiltInExtraPort( nil ),
-		mModemPort( nil ),
+		SerialPorts( this, inLog ),
 		mNetworkManager( nil ),
 		mSoundManager( nil ),
 		mScreenManager( nil ),
@@ -214,14 +185,6 @@ TEmulator::~TEmulator( void )
 		delete mDMAManager;
 	if (mPlatformManager)
 		delete mPlatformManager;
-	if (mExternalPort)
-		delete mExternalPort;
-	if (mInfraredPort)
-		delete mInfraredPort;
-	if (mBuiltInExtraPort)
-		delete mBuiltInExtraPort;
-	if (mModemPort)
-		delete mModemPort;
 }
 
 // -------------------------------------------------------------------------- //
@@ -608,55 +571,6 @@ void TEmulator::SetNewtonID(KUInt32 inID0, KUInt32 inID1) {
 	mMemory.ComputeSerialNumber( GetNewtonID() );
 }
 
-
-// -------------------------------------------------------------------------- //
-//  * SetSerialPortDriver(KUInt32 port, TSerialPortManager *driver)
-// -------------------------------------------------------------------------- //
-void TEmulator::SetSerialPortDriver(KUInt32 location, TSerialPortManager *driver)
-{
-	TSerialPortManager **dst;
-	switch (location) {
-		case TSerialPortManager::kExternalSerialPort:
-			dst = &mExternalPort; break;
-		case TSerialPortManager::kModemSerialPort:
-			dst = &mModemPort; break;
-		case TSerialPortManager::kInfraredSerialPort:
-			dst = &mInfraredPort; break;
-		case TSerialPortManager::kBuiltInExtraSerialPort:
-			dst = &mBuiltInExtraPort; break;
-		default:
-			printf("SetSerialPortDriver: Serial port index out of range\n");
-			return;
-	}
-	if (*dst) {
-		delete *dst;
-	}
-	*dst = driver;
-	driver->run(mInterruptManager, mDMAManager, &mMemory);
-
-}
-
-
-// -------------------------------------------------------------------------- //
-//  * getSerialPortDriver(KUInt32 location)
-// -------------------------------------------------------------------------- //
-TSerialPortManager *TEmulator::GetSerialPortDriver(KUInt32 location)
-{
-	switch (location) {
-		case TSerialPortManager::kExternalSerialPort:
-			return mExternalPort;
-		case TSerialPortManager::kModemSerialPort:
-			return mModemPort;
-		case TSerialPortManager::kInfraredSerialPort:
-			return mInfraredPort;
-		case TSerialPortManager::kBuiltInExtraSerialPort:
-			return mBuiltInExtraPort;
-		default:
-			printf("SetSerialPortDriver: Serial port index out of range\n");
-			return NULL;
-	}
-	return mExternalPort;
-}
 
 // ====================================================================== //
 // A computer without COBOL and Fortran is like a piece of chocolate cake //

@@ -51,11 +51,9 @@
 // and
 //  $(HOME)/Library/Application Support/Einstein Emulator/ExtrSerPortRecv")
 // -------------------------------------------------------------------------- //
-TPipesSerialPortManager::TPipesSerialPortManager(
-													 TLog* inLog,
-													 ELocationID inLocationID)
-:	TBasicSerialPortManager(inLog, inLocationID),
-
+TPipesSerialPortManager::TPipesSerialPortManager(TLog* inLog,
+												 TSerialPorts::EPortIndex inPortIx)
+:	TBasicSerialPortManager(inLog, inPortIx),
 	mPipe{-1,-1},
 	mTxPort(-1),
 	mRxPort(-1),

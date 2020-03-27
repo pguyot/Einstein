@@ -51,9 +51,6 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
-static const KSInt32 kNSErrUndefinedMethod = -48809;
-static const KSInt32 kNSErrNotASymbol = -48410;
-
 
 // -------------------------------------------------------------------------- //
 //  * TPlatformManager( TLog*, TScreenManager* )
@@ -687,177 +684,6 @@ TPlatformManager::SetDocDir(const char *inDocDir)
 }
 
 
-/*
- Ags is a "C" string that indicates the type of the argument list
- - s: 0-terminated "C" string
- ? u: 0-terminated "C" string in utf8 that is passed as a MSB utf16 string
- ? i: 32 bit integer
- - d: 64 bit double precission floating point valu
- ? R: a NewtonsScript Ref
- */
-KUInt32 TPlatformManager::CallNewton(VAddr functionVector, const char *args, ...)
-{
-	KUInt32 regs[16];
-	va_list ap;
-	KUInt32 sp = mCPU->GetRegister(13);
-	KUInt32 pc = functionVector;
-	KUInt32 r0 = 0;
-
-	// backing up all registers
-	memcpy(regs, mCPU->mCurrentRegisters, sizeof(regs));
-
-	// Convert the list of arguments into ARM function call convention
-	va_start (ap, args);
-	for (int i=0; ;i++) {
-		char c = args[i];
-		if (c==0) break;
-		if (i>3) {
-			fprintf(stderr, "ERROR in TPlatformManager::CallNewton: too many arguments\n");
-			break;
-		}
-		switch (c) {
-			case 's': { // C utf-8 string
-				const char *s = va_arg(ap, char*);
-				if (s) {
-					KUInt32 n = (KUInt32)strlen(s)+1, n4 = (n+3) & ~3;
-					sp -= n4;
-					mMemory->FastWriteString(sp, &n, s);
-					mCPU->SetRegister(i, sp);
-				} else {
-					mCPU->SetRegister(i, 0);
-				}
-				break; }
-			case 'd': { // double precission floating point
-				union { double d; KUInt32 i[2]; } u;
-				u.d = va_arg(ap, double);
-				// FIXME: make sure that this order is the same on LSB and MSB machines (tested ok for Intelorder (LSB))
-				mCPU->SetRegister(i+1, u.i[0]);
-				mCPU->SetRegister(  i, u.i[1]);
-				// FIXME: wrong argument counting!
-				i++;
-				break; }
-			case 'A': { // NewtRefArg
-				KUInt32 v = va_arg(ap, KUInt32);
-				sp -= 4;
-				mMemory->Write(sp, v);
-				mCPU->SetRegister(i, sp);
-				sp -= 4;
-				break; }
-			case '0': { // zero indirection, just copy to register
-				KUInt32 v = va_arg(ap, KUInt32);
-				mCPU->SetRegister(i, v);
-				break; }
-			case 'i': { // int
-				KUInt32 v = va_arg(ap, KUInt32);
-				mCPU->SetRegister(i, v);
-				break; }
-			default:
-				fprintf(stderr, "ERROR in TPlatformManager::CallNewton: unspported argument type '%c'\n", c);
-				break;
-		}
-	}
-	va_end(ap);
-
-	// Preset the return address for the emulator loop
-    mCPU->SetRegister(13, sp);
-	mCPU->SetRegister(14, 0x00fffffc); // magic address at the end of the REx
-	mCPU->SetRegister(15, pc);
-
-	TJITGeneric *mJit = mMemory->GetJITObject();
-	JITUnit* theJITUnit = mJit->GetJITUnitForPC( mCPU, mMemory, pc+4);
-	for(;;)
-	{
-		theJITUnit = theJITUnit->fFuncPtr( theJITUnit, mCPU );
-		if (mCPU->mCurrentRegisters[15]==0x00fffffc+4) break;
-	}
-
-	r0 = mCPU->GetRegister(0);
-
-	// Restoring all registers
-	memcpy(mCPU->mCurrentRegisters, regs, sizeof(regs));
-	return r0;
-}
-
-// Tested and OK
-NewtRef TPlatformManager::MakeString(const char *txt)
-{
-	return (NewtRef)CallNewton(0x0180099c, "s", txt);
-}
-
-// Tested and OK
-NewtRef TPlatformManager::MakeSymbol(const char *txt)
-{
-	return (NewtRef)CallNewton(0x018029cc, "s", txt);
-}
-
-// Tested and OK
-NewtRef TPlatformManager::MakeReal(double v)
-{
-	return (NewtRef)CallNewton(0x01800998, "d", v);
-}
-
-// TODO: implement argument types and RefVar
-NewtRefVar TPlatformManager::AllocateRefHandle(NewtRef r)
-{
-	return (NewtRefVar)CallNewton(0x01800818, "0", r); // AllocateRefHandle_Fl
-}
-
-// TODO: implement argument types and RefVar
-void TPlatformManager::DisposeRefHandle(NewtRefVar v) // DisposeRefHandle_FP9RefHandle
-{
-	CallNewton(0x01800888, "0", v);
-}
-
-// TODO: implement argument types and RefVar
-NewtRef TPlatformManager::AllocateFrame()
-{
-	return (NewtRef)CallNewton(0x0180080c, ""); // AllocateFrame_Fv
-}
-
-// TODO: implement argument types and RefVar
-KUInt32 TPlatformManager::AddSlot(NewtRefArg frame, NewtRefArg slot)
-{
-	return CallNewton(0x018007fc, "AA", frame, slot); // AddSlot__FRC6RefVarTl
-}
-
-NewtRef TPlatformManager::AddArraySlot(NewtRefArg array, NewtRefArg value)
-{
-	return (NewtRef)CallNewton(0x018007f4, "AA"); // AddArraySlot__FRC6RefVarT1
-}
-
-// Works
-NewtRef TPlatformManager::AllocateArray(NewtRefArg symbol, KUInt32 nSlots)
-{
-	return (NewtRef)CallNewton(0x01800804, "Ai", symbol, nSlots); // AllocateArray__FRC6RefVarl
-}
-
-NewtRef TPlatformManager::AllocateArray(KUInt32 nSlots)
-{
-	NewtRefVar sym = AllocateRefHandle(MakeSymbol("array"));
-	NewtRef arrRef = AllocateArray(sym, 3);
-	DisposeRefHandle(sym);
-	return arrRef;
-}
-
-// works
-NewtRef TPlatformManager::SetArraySlotRef(NewtRef array, KUInt32 index, NewtRef value)
-{
-	return (NewtRef)CallNewton(0x01800a24, "0i0", array, index, value);
-}
-
-// works
-NewtRef TPlatformManager::SetArraySlot(NewtRefArg array, KUInt32 index, NewtRefArg value)
-{
-	return (NewtRef)CallNewton(0x018029e4, "AiA", array, index, value); // SetArraySlot__FRC6RefVarlT1
-}
-
-// works
-NewtRef TPlatformManager::SetFrameSlot(NewtRefArg frame, NewtRefArg key, NewtRefArg value)
-{
-	return (NewtRef)CallNewton(0x01800a34, "AAA", frame, key, value);
-}
-
-
 // -------------------------------------------------------------------------- //
 //  * SetDocDir(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
 // -------------------------------------------------------------------------- //
@@ -879,193 +705,146 @@ TPlatformManager::NewtonScriptCall(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
 	//  - AllocateArray(const RefVar &, long) & 01800804
 	// TODO: get the RefVar class emulated in a nice way
 
-	if (NewtRefIsSymbol(arg0)) {
+	if (TNewt::RefIsSymbol(arg0)) {
 		char sym[64] = { 0 };
-		if (NewtSymbolToCString(arg0, sym, 64)) {
+		if (TNewt::SymbolToCString(arg0, sym, 64)) {
 			fprintf(stderr, "Platform call '%s'\n", sym);
 			if (strcmp(sym, "getframerate")==0) {
-				return NewtMakeInt(50);
+				return TNewt::MakeInt(50);
 			} else if (strcmp(sym, "setframerate")==0) {
-				KSInt32 v = NewtRefToInt(arg1);
+				KSInt32 v = TNewt::RefToInt(arg1);
 				printf("setFrameRate: '%s, %d\n", sym, v);
 				return kNewtRefTRUE;
-			} else if (strcmp(sym, "getserialportdriver")==0) {
-				// get current driver for main port
-				KUInt32 id = TSerialPortManager::CurrentDriver(
-				    TSerialPortManager::kExternalSerialPort)->GetID();
-				return NewtMakeInt(id);
-			} else if (strcmp(sym, "setserialportdriver")==0) {
-				// set driver for main port to driver with index ix
-				KSInt32 id = NewtRefToInt(arg1);
-				printf("ID: %d\n", id);
-				TSerialPortManager::ReplaceDriver(
-                    TSerialPortManager::kExternalSerialPort,
-				    TSerialPortManager::CreateByID(id, 0L,
-					    TSerialPortManager::kExternalSerialPort));
-				return kNewtRefNIL;
-			} else if (strcmp(sym, "getserialportdrivernames")==0) {
-				char const* const *names = TSerialPortManager::DriverName;
-				int nNames = 5;
-				NewtRef arrayRef = AllocateArray(nNames);
-				NewtRefVar array = AllocateRefHandle(arrayRef);
+
+			// serial port driver support
+
+				// ('print, Ref)
+				// ('SetSerialPortDriver, driverId)
+				// names := call Einstein.Platform with ('GetSerialPortDriverNames, nil); 			ok
+				// idx := call Einstein.Platform with ('GetSerialPortDriver, nil);					ok
+				// names := call EInstein.Platform with ('GetSerialPortDriverNames, nil);			ok
+				// drivers := call Einstein.Platform with ('GetSerialPortDriverList, nil);
+				// opt := call Einstein.Platform with ('GetSerialPortDriverOptions, 'extr);
+				// call Einstein.Platform with ('SetSerialPortDriverOptions,
+				//							 { id:'extr, server:wServer.text, port:wPort.text }
+
+
+			} else if (strcmp(sym, "getserialportdrivernames")==0) { // do me
+//				// return an array of names, one for every driver available
+				int nNames = (int)TSerialPorts::DriverNames.size();
+				NewtRef arrayRef = TNewt::AllocateArray(nNames);
+				NewtRefVar array = TNewt::AllocateRefHandle(arrayRef);
 				for (int i=0; i<nNames; i++) {
-					SetArraySlotRef(arrayRef, i, MakeString(names[i]) );
+					NewtRef strRef = TNewt::MakeString(TSerialPorts::DriverNames[i]);
+					NewtRefVar str = TNewt::AllocateRefHandle(strRef);
+					//TNewt::SetArraySlotRef(arrayRef, i,  strRef);
+					TNewt::SetArraySlot(array, i,  str);
+					TNewt::DisposeRefHandle(str);
 				}
-				DisposeRefHandle(array);
+				TNewt::DisposeRefHandle(array);
 				return arrayRef;
-			} else if (strcmp(sym, "getserialportdriverlist")==0) {
-				int n = TSerialPortManager::DriverListSize;
-				NewtRef arrayRef = AllocateArray(n);
-				NewtRefVar array = AllocateRefHandle(arrayRef);
-				for (int i=0; i<n; i++) {
-					SetArraySlotRef(arrayRef, i, NewtMakeInt(TSerialPortManager::DriverList[i]) );
+			} else if (strcmp(sym, "getserialportdriverlist")==0) { // do me
+				int nNames = 5; // FIXME:
+				NewtRef arrayRef = TNewt::AllocateArray(nNames);
+				NewtRefVar array = TNewt::AllocateRefHandle(arrayRef);
+				for (int i=0; i<nNames; i++) {
+					NewtRef strRef = TNewt::MakeInt(TSerialPorts::ValidDrivers[i]);
+					NewtRefVar str = TNewt::AllocateRefHandle(strRef);
+					//TNewt::SetArraySlotRef(arrayRef, i,  strRef);
+					TNewt::SetArraySlot(array, i,  str);
+					TNewt::DisposeRefHandle(str);
 				}
-				DisposeRefHandle(array);
+				TNewt::DisposeRefHandle(array);
 				return arrayRef;
-			} else if (strcmp(sym, "getserialportdriveroptions")==0) {
-				// parameter is the fourCC symbol of the serial port
-				// returns nil if there are no settings
-				// for TCP, this returns { driver:4, server:"127.0.0.1", port:"3679" }
-				// 4 is the ID for a TCP client driver
-				fprintf(stderr, "TODO: get serial port driver options\n");
-//				NewtRefVar port = AllocateRefHandle( MakeString("Welt") );
-
-				NewtRef fRef = AllocateFrame();
-				NewtRefVar f = AllocateRefHandle( fRef );
-
-				NewtRefVar sym = AllocateRefHandle(MakeSymbol("driver"));
-				NewtRefVar server = AllocateRefHandle( MakeString("Hallo") );
-				SetFrameSlot(f, sym, server);
-				DisposeRefHandle(server);
-				DisposeRefHandle(sym);
-
-				//SetFrameSlot(f, MakeSymbol("server"), server);
-				//SetFrameSlot(f, MakeSymbol("port"), port);
-//				DisposeRefHandle(port);
-
-				DisposeRefHandle(f);
-				return fRef;
-			} else if (strcmp(sym, "setserialportdriveroptions")==0) {
-				// for TCP, send { serPort:'extr, serverAddr:"127.0.0.1", sereverPort:"3679" }
-				fprintf(stderr, "TODO: set serial port driver options\n");
+			} else if (strcmp(sym, "setserialportdriver")==0) { // do me
+				// send the index of the driver to query 0...3, external, infrared, internal, modem
+				// example: { port:0, driver:4, config:{ server:127.0.0.1, port:3679 } }
+				// example: { port:0, driver:4, config:'default }
+				// if values are missing, keep the current config
+				// receive negative error code, or 0 for success
+				return kNewtRefNIL;
+			} else if (strcmp(sym, "getserialportdriver")==0) { // do me
+				// send the index of the driver to query 0...3, external, infrared, internal, modem
+				// recive nil for unavailable port
+				// receive a recored with the current driver, containing a record with its parameters, and an array with available drivers for this port
+				// example: { driver:4, config:{ server:127.0.0.1, port:3679 }, valid:[0, 3, 4] }
+//				int n = TSerialPortManager::DriverListSize;
+//				NewtRef arrayRef = AllocateArray(n);
+//				NewtRefVar array = AllocateRefHandle(arrayRef);
+//				for (int i=0; i<n; i++) {
+//					SetArraySlotRef(arrayRef, i, NewtMakeInt(TSerialPortManager::DriverList[i]) );
+//				}
+//				DisposeRefHandle(array);
+//				return arrayRef;
+				return TNewt::MakeInt(3);
+			// remove the remaining options!
+//			} else if (strcmp(sym, "getserialportdriver")==0) {
+//				// get current driver for main port
+//				KUInt32 id = TSerialPortManager::CurrentDriver(
+//				    TSerialPortManager::kExternalSerialPort)->GetID();
+//				return NewtMakeInt(id);
+//				return kNewtRefNIL;
+//			} else if (strcmp(sym, "setserialportdriver")==0) {
+//				// set driver for main port to driver with index ix
+//				KSInt32 id = NewtRefToInt(arg1);
+//				printf("ID: %d\n", id);
+//				TSerialPortManager::ReplaceDriver(
+//                    TSerialPortManager::kExternalSerialPort,
+//				    TSerialPortManager::CreateByID(id, 0L,
+//					    TSerialPortManager::kExternalSerialPort));
+//				return kNewtRefNIL;
+			} else if (strcmp(sym, "getserialportdriveroptions")==0) { // do me
+//				// parameter is the fourCC symbol of the serial port
+//				// returns nil if there are no settings
+//				// for TCP, this returns { driver:4, server:"127.0.0.1", port:"3679" }
+//				// 4 is the ID for a TCP client driver
+//				fprintf(stderr, "TODO: get serial port driver options\n");
+////				NewtRefVar port = AllocateRefHandle( MakeString("Welt") );
+//
+//				NewtRef fRef = AllocateFrame();
+//				NewtRefVar f = AllocateRefHandle( fRef );
+//
+//				NewtRefVar sym = AllocateRefHandle(MakeSymbol("driver"));
+//				NewtRefVar server = AllocateRefHandle( MakeString("Hallo") );
+//				SetFrameSlot(f, sym, server);
+//				DisposeRefHandle(server);
+//				DisposeRefHandle(sym);
+//
+//				//SetFrameSlot(f, MakeSymbol("server"), server);
+//				//SetFrameSlot(f, MakeSymbol("port"), port);
+////				DisposeRefHandle(port);
+//
+//				DisposeRefHandle(f);
+//				return fRef;
+				return TNewt::AllocateArray(2);
+				return kNewtRefNIL;
+			} else if (strcmp(sym, "setserialportdriveroptions")==0) { // do me
+//				// for TCP, send { serPort:'extr, serverAddr:"127.0.0.1", sereverPort:"3679" }
+//				fprintf(stderr, "TODO: set serial port driver options\n");
 				return kNewtRefNIL;
 			} else if (strcmp(sym, "getsymbol")==0) {
 				//NewtRef symRef = MakeSymbol("test");
 				//NewtRefVar symVar = AllocateRefHandle( symRef );
 
-				NewtRef arrRef = AllocateArray(3);
-				// TODO: Symbol caching!
+				NewtRef arrRef = TNewt::AllocateArray(3);
 
-				NewtRefVar arrVar = AllocateRefHandle( arrRef );
-				NewtRef txtRef = MakeString("Will this ever work?");
-				NewtRefVar txtVar = AllocateRefHandle( txtRef );
+				NewtRefVar arrVar = TNewt::AllocateRefHandle( arrRef );
+				NewtRef txtRef = TNewt::MakeString("Will this ever work?");
+				NewtRefVar txtVar = TNewt::AllocateRefHandle( txtRef );
 //				SetArrySlotRef(arrRef, 1, txtRef);
-				SetArraySlot(arrVar, 1, txtVar);
+				TNewt::SetArraySlot(arrVar, 1, txtVar);
 				// FIXME: doubles are counted wrong (see above)
-				SetArraySlotRef(arrRef, 2, MakeReal(3.141592654));
+				TNewt::SetArraySlotRef(arrRef, 2, TNewt::MakeReal(3.141592654));
 				return arrRef;
 //				return MakeSymbol("Matt:MM");
 //				return MakeString("This is Einstein talking...!");
 			} else {
 				fprintf(stderr, "Unknown command: %s\n", sym);
-				return NewtMakeInt(kNSErrUndefinedMethod);
+				return TNewt::MakeInt(kNSErrUndefinedMethod);
 			}
 		}
 	}
-	return NewtMakeInt(kNSErrNotASymbol);
-}
-
-
-
-bool TPlatformManager::NewtRefIsInt(NewtRef r)
-{
-	return ((r&3)==0);
-}
-
-KSInt32 TPlatformManager::NewtRefToInt(NewtRef r)
-{
-	KSInt32 v = (KSInt32)r;
-	return v>>2;
-}
-
-NewtRef TPlatformManager::NewtMakeInt(KSInt32 v)
-{
-	return ((KUInt32)v<<2) & 0xFFFFFFFC;
-}
-
-bool TPlatformManager::NewtRefIsSymbol(NewtRef r)
-{
-	if (!NewtRefIsPointer(r)) return false;
-	KUInt32 p = NewtRefToPointer(r);
-	KUInt32 newtPtrClass = 0;
-	mMemory->Read(p+8, newtPtrClass);
-	if (newtPtrClass!=kNewtSymbolClass) return false;
-	return true;
-}
-
-bool TPlatformManager::NewtSymbolToCString(NewtRef r, char *buf, int bufSize)
-{
-	if (!NewtRefIsPointer(r))
-		return false;
-
-	KUInt32 p = NewtRefToPointer(r);
-
-	KUInt32 newtPtrClass = 0;
-	mMemory->Read(p+8, newtPtrClass);
-	if (newtPtrClass!=kNewtSymbolClass)
-		return false;
-
-	KUInt32 newtSize = 0;
-	mMemory->Read(p, newtSize);
-	int strSize = (newtSize>>8)-16;
-	if (strSize>bufSize)
-		return false;
-
-	mMemory->FastReadBuffer(p+16, strSize, (KUInt8*)buf);
-
-	for (int i=0; i<strSize; i++)
-		buf[i] = tolower(buf[i]&0x7f);
-
-	return true;
-}
-
-bool TPlatformManager::NewtRefIsString(NewtRef r)
-{
-	// TODO: write this
-	return false;
-}
-
-KUInt32 TPlatformManager::NewtRefStringLength(NewtRef r)
-{
-	// TODO: write this
-	return 0;
-}
-
-char *TPlatformManager::NewtRefToStringDup(NewtRef r)
-{
-	// TODO: write this
-	return 0;
-}
-
-NewtRef TPlatformManager::NewtRefReplaceString(NewtRef, const char*)
-{
-	// TODO: write this
-	return kNewtRefNIL;
-}
-
-bool TPlatformManager::NewtRefIsPointer(NewtRef r)
-{
-	return ((((KUInt32)r)&3)==1);
-}
-
-KUInt32 TPlatformManager::NewtRefToPointer(NewtRef r)
-{
-	return ((KUInt32)r)&0xFFFFFFFC;
-}
-
-NewtRef TPlatformManager::NewtMakePointer(KUInt32 r)
-{
-	return (NewtRef)((r&0xFFFFFFFC)|1);
+	return TNewt::MakeInt(kNSErrNotASymbol);
 }
 
 
