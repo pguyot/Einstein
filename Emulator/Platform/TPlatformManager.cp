@@ -732,17 +732,20 @@ TPlatformManager::NewtonScriptCall(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
 			} else if (strcmp(sym, "getserialportdrivernames")==0) { // do me
 //				// return an array of names, one for every driver available
 				int nNames = (int)TSerialPorts::DriverNames.size();
-				NewtRef arrayRef = TNewt::AllocateArray(nNames);
-				NewtRefVar array = TNewt::AllocateRefHandle(arrayRef);
+				TNewt::RefVar array( TNewt::AllocateArray(nNames) );
+//				NewtRef arrayRef = TNewt::AllocateArray(nNames);
+//				NewtRefVar array = TNewt::AllocateRefHandle(arrayRef);
 				for (int i=0; i<nNames; i++) {
-					NewtRef strRef = TNewt::MakeString(TSerialPorts::DriverNames[i]);
-					NewtRefVar str = TNewt::AllocateRefHandle(strRef);
+					TNewt::RefVar str( TNewt::MakeString(TSerialPorts::DriverNames[i]) );
+//					NewtRef strRef = TNewt::MakeString(TSerialPorts::DriverNames[i]);
+//					NewtRefVar str = TNewt::AllocateRefHandle(strRef);
 					//TNewt::SetArraySlotRef(arrayRef, i,  strRef);
 					TNewt::SetArraySlot(array, i,  str);
-					TNewt::DisposeRefHandle(str);
+//					NewtRef ref = str.Ref();
 				}
-				TNewt::DisposeRefHandle(array);
-				return arrayRef;
+//				TNewt::DisposeRefHandle(array);
+				return array.Ref();
+//				return arrayRef;
 			} else if (strcmp(sym, "getserialportdriverlist")==0) { // do me
 				int nNames = 5; // FIXME:
 				NewtRef arrayRef = TNewt::AllocateArray(nNames);

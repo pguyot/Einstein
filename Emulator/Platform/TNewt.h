@@ -107,6 +107,7 @@ public:
 	operator NewtRefArg() {
 		return mRefHandle;
 	}
+	NewtRef Ref();
 };
 
 };
