@@ -71,27 +71,20 @@ TARMProcessor *TNewt::mCPU = nullptr;	///< Reference back to the emulated CPU
  The source code for EinsteinGlue.ntkc is in /Dirvers/packages/NTKGlue
  */
 PlatformCallMap TNewt::CallMap = {
+	{ "print", [](RefArg, RefArg arg)->NewtRef {
+		TNewt::Print(arg); return kNewtRefNIL; }
+	},
 	{ "getserialportdrivernames", [](RefArg, RefArg arg)->NewtRef {
 		return mEmulator->SerialPorts.NSGetDriverNames(arg); }
 	},
 	{ "getserialportdriverlist", [](RefArg, RefArg arg)->NewtRef {
 		return mEmulator->SerialPorts.NSGetDriverList(arg); }
 	},
-	{ "getserialportdriveroptions", [](RefArg, RefArg arg)->NewtRef {
-		return mEmulator->SerialPorts.NSGetDriverOptions(arg); }
+	{ "getserialportdriverandoptions", [](RefArg, RefArg arg)->NewtRef {
+		return mEmulator->SerialPorts.NSGetDriverAndOptions(arg); }
 	},
-	{ "setserialportdriveroptions", [](RefArg, RefArg arg)->NewtRef {
-		return mEmulator->SerialPorts.NSSetDriverOptions(arg); }
-		// for TCP, send { serPort:'extr, serverAddr:"127.0.0.1", sereverPort:"3679" }
-		// fprintf(stderr, "TODO: set serial port driver options\n");
-	},
-	{ "getsymbol", [](RefArg, RefArg arg)->NewtRef {
-		// Just some silly testing of our implementatiosn
-		RefVar array( AllocateArray(3) );
-		RefVar text( MakeString("Will this ever work?") );
-		SetArraySlot( array, 1, text );
-		SetArraySlotRef(array.Ref(), 2, MakeReal(3.141592654));
-		return array.Ref(); }
+	{ "setserialportdriverandoptions", [](RefArg, RefArg arg)->NewtRef {
+		return mEmulator->SerialPorts.NSSetDriverAndOptions(arg); }
 	},
 };
 
@@ -121,6 +114,19 @@ VAddr TNewt::AllocateRefHandle(NewtRef r)
 void TNewt::DisposeRefHandle(VAddr v)
 {
 	CallNewton(0x01800888, "0", v);
+}
+
+
+// WITH_LOCKED_BINARY
+KUInt32 TNewt::LockedBinaryPtr(RefArg arg)
+{
+	return (VAddr)CallNewton(0x018029bc, "A", arg.Handle());
+}
+
+// END_WITH_LOCKED_BINARY
+void TNewt::UnlockRefArg(RefArg arg)
+{
+	CallNewton(0x01802b54, "A", arg.Handle());
 }
 
 
@@ -247,7 +253,7 @@ KUInt32 TNewt::CallNewton(VAddr functionVector, const char *args, ...)
  */
 void TNewt::Print(RefArg arg, int depth, int indent)
 {
-	// TODO: write me
+	PrintRef(arg.Ref(), depth, indent);
 }
 
 /**
@@ -258,7 +264,80 @@ void TNewt::Print(RefArg arg, int depth, int indent)
  */
 void TNewt::PrintRef(NewtRef ref, int depth, int indent)
 {
-	// TODO: write me
+	static char space[] = "                                        ";
+	char buffer[128];
+
+	if (depth<0) {
+		printf("%.*s0x%08x\n", indent, space, ref);
+		return;
+	}
+
+	if (RefIsInt(ref)) {
+		printf("%.*s%d\n", indent, space, RefToInt(ref));
+	} else if (ref==kNewtRefNIL) {
+		printf("%.*snil\n", indent, space);
+	} else if (ref==kNewtRefTRUE) {
+		printf("%.*strue\n", indent, space);
+	} else if (RefIsReal(ref)) {
+		printf("%.*s%f\n", indent, space, RefToReal(ref));
+	} else if (RefIsString(ref)) {
+		RefToString(ref, buffer, 128);
+		printf("%.*s\"%s\"\n", indent, space, buffer);
+	} else if (RefIsSymbol(ref)) {
+		SymbolToCString(ref, buffer, 128);
+		printf("%.*s'%s\n", indent, space, buffer);
+//	} else if (RefIsChar(ref)) {
+//		KUInt32 u = SymbolToChar(ref);
+//		printf("%.*s#%s\n", unicodeToUtf8(u));
+	} else if (RefIsPointer(ref)) {
+		VAddr obj = RefToPointer(ref);
+		if (RefIsBinary(ref)) { // TODO: use 'ObjIsBinary()' etc.
+			NewtRef s = RefArrayGetSlot(ref, -1);
+			SymbolToCString(s, buffer, 128);
+			KUInt32 n = RefArrayGetNumSlots(ref);
+			printf("%.*s{ Binary: '%s, %d bytes }\n", indent, space, buffer, n*4);
+		} else if (RefIsArray(ref)) {
+			NewtRef sym = RefArrayGetSlot(ref, -1);
+			SymbolToCString(sym, buffer, 128);
+			printf("%.*s[ '%s\n", indent, space, buffer);
+			KUInt32 n = RefArrayGetNumSlots(ref);
+			for (KUInt32 i=0; i<n; i++) {
+				NewtRef s = RefArrayGetSlot(ref, i);
+				PrintRef(s, depth-1, indent+2);
+			}
+			printf("%.*s]\n", indent, space);
+		} else if (RefIsFrame(ref)) {
+			NewtRef sym = RefArrayGetSlot(ref, -1);
+			SymbolToCString(sym, buffer, 128);
+			printf("%.*s{ '%s\n", indent, space, buffer);
+			KUInt32 n = RefArrayGetNumSlots(ref);
+			NewtRef map = RefArrayGetSlot(ref, -1);
+			for (KUInt32 i=0; i<n; i++) {
+				NewtRef key = RefArrayGetSlot(map, i+1);
+				NewtRef value = RefArrayGetSlot(ref, i);
+				SymbolToCString(key, buffer, 128);
+				printf("%.*s%s:\n", indent+2, space, buffer);
+				PrintRef(value, depth-1, indent+4);
+			}
+			printf("%.*s}\n", indent, space);
+		} else {
+			KUInt32 flags = 0;
+			mMemory->Read(obj, flags);
+			printf("WARNING: TNewt::PrintRef: Unknown Object type at 0x%08x: 0x%08x\n", obj, flags);
+		}
+	} else {
+		printf("WARNING: TNewt::PrintRef: Unknown Ref type: 0x%08x\n", ref);
+	}
+	/*
+	kObjSlotted		= 0x01, \ 0 = binary, 1 = array, 2 = large binary, 3 = frame
+	kObjFrame		= 0x02, /
+	kObjFree		= 0x04,
+	kObjMarked		= 0x08,
+	kObjLocked		= 0x10,
+	kObjForward		= 0x20, -> Handled in RefToPointer
+	kObjReadOnly	= 0x40,
+	kObjDirty		= 0x80,
+	*/
 }
 
 /**
@@ -275,6 +354,43 @@ NewtRef TNewt::MakeString(const char *txt)
 NewtRef TNewt::MakeSymbol(const char *txt)
 {
 	return (NewtRef)CallNewton(0x018029cc, "s", txt);
+}
+
+/**
+ Return true if the Ref is a floating point value.
+ */
+bool TNewt::RefIsReal(NewtRef r)
+{
+	// TODO: duplicating code!
+	if (!TNewt::RefIsPointer(r))
+		return false;
+	KUInt32 p = TNewt::RefToPointer(r);
+	KUInt32 type = 0;
+	mMemory->Read(p, type);
+	if ((type&3)!=0) return false;
+	KUInt32 newtPtrClass = 0;
+	mMemory->Read(p+8, newtPtrClass);
+	if (!TNewt::RefIsPointer(newtPtrClass))
+		return false;
+
+	char buffer[80];
+	SymbolToLowerCaseCString(newtPtrClass, buffer, 80);
+	return (strcmp(buffer, "real")==0);
+}
+
+/**
+ Return a floating point value.
+ */
+double TNewt::RefToReal(NewtRef r)
+{
+	if (!TNewt::RefIsReal(r))
+		return false;
+	KUInt32 p = TNewt::RefToPointer(r);
+
+	union { double d; KUInt32 i[2]; } u;
+	mMemory->Read(p+12, u.i[1]);
+	mMemory->Read(p+16, u.i[0]);
+	return u.d;
 }
 
 /**
@@ -344,6 +460,22 @@ NewtRef TNewt::SetFrameSlot(RefArg frame, RefArg key, RefArg value)
 }
 
 /**
+ Get the slot in a frame.
+ */
+NewtRef TNewt::GetFrameSlotRef(NewtRef frame, NewtRef symbol)
+{
+	return CallNewton(0x0180092c, "00", frame, symbol);
+}
+
+/**
+ Get the slot in a frame.
+ */
+NewtRef TNewt::GetFrameSlot(RefArg frame, RefArg symbol)
+{
+	return CallNewton(0x01802988, "AA", frame.Handle(), symbol.Handle());
+}
+
+/**
  Return true if the Ref is an integer.
  */
 bool TNewt::RefIsInt(NewtRef r)
@@ -375,6 +507,9 @@ bool TNewt::RefIsSymbol(NewtRef r)
 {
 	if (!TNewt::RefIsPointer(r)) return false;
 	KUInt32 p = TNewt::RefToPointer(r);
+	KUInt32 type = 0;
+	mMemory->Read(p, type);
+	if ((type&3)!=0) return false;
 	KUInt32 newtPtrClass = 0;
 	mMemory->Read(p+8, newtPtrClass);
 	if (newtPtrClass!=kNewtSymbolClass) return false;
@@ -386,6 +521,7 @@ bool TNewt::RefIsSymbol(NewtRef r)
  */
 bool TNewt::SymbolToCString(NewtRef r, char *buf, int bufSize)
 {
+	*buf = 0;
 	if (!TNewt::RefIsPointer(r))
 		return false;
 
@@ -404,20 +540,43 @@ bool TNewt::SymbolToCString(NewtRef r, char *buf, int bufSize)
 
 	mMemory->FastReadBuffer(p+16, strSize, (KUInt8*)buf);
 
-	for (int i=0; i<strSize; i++)
-		buf[i] = tolower(buf[i]&0x7f);
-
 	return true;
+}
+
+/**
+ Copy the name of a symbol and convert it to all lower case characters.
+ */
+bool TNewt::SymbolToLowerCaseCString(NewtRef r, char *buf, int size)
+{
+	bool ret;
+	if ( (ret = SymbolToCString(r, buf, size)) ) {
+		int strSize = (int) strlen(buf);
+		for (int i=0; i<strSize; i++)
+			buf[i] = tolower(buf[i]&0x7f);
+	}
+	return ret;
 }
 
 /**
  Return true if the Ref is a utf16 string.
  */
-//bool TNewt::RefIsString(NewtRef r)
-//{
-//	// TODO: write this
-//	return false;
-//}
+bool TNewt::RefIsString(NewtRef r)
+{
+	if (!TNewt::RefIsPointer(r))
+		return false;
+	KUInt32 p = TNewt::RefToPointer(r);
+	KUInt32 type = 0;
+	mMemory->Read(p, type);
+	if ((type&3)!=0) return false;
+	KUInt32 newtPtrClass = 0;
+	mMemory->Read(p+8, newtPtrClass);
+	if (!TNewt::RefIsPointer(newtPtrClass))
+		return false;
+
+	char buffer[80];
+	SymbolToLowerCaseCString(newtPtrClass, buffer, 80);
+	return (strcmp(buffer, "string")==0);
+}
 
 /**
  Return the number of characters in the string.
@@ -428,14 +587,27 @@ bool TNewt::SymbolToCString(NewtRef r, char *buf, int bufSize)
 //	return 0;
 //}
 
-/**
- FIXME: return a string that must be fee'd by the caller.
- */
-//char *TNewt::RefToStringDup(NewtRef r)
-//{
-//	// TODO: write this
-//	return 0;
-//}
+// Return a string in utf-8
+bool TNewt::RefToString(NewtRef r, char *buf, int bufSize)
+{
+	*buf = 0;
+	if (!TNewt::RefIsString(r))
+		return false;
+
+	KUInt32 p = TNewt::RefToPointer(r);
+	KUInt32 newtSize = 0;
+	mMemory->Read(p, newtSize);
+	int strSize = ((newtSize>>8)-12)/2;
+	if (strSize>=bufSize)
+		strSize = bufSize-1;
+	for (int i=0; i<strSize; i++) {
+		KUInt8 c;
+		mMemory->ReadB(p+13+2*i, c);
+		buf[i] = c;
+	}
+	buf[strSize] = 0;
+	return true;
+}
 
 /**
  Return true if the Ref is a pointer into NewtonOS memeory.
@@ -447,10 +619,33 @@ bool TNewt::RefIsPointer(NewtRef r)
 
 /**
  Convert a Ref into a pointer.
+ If the result points toa forwarding object, follow the link until we find the actual object.
  */
 KUInt32 TNewt::RefToPointer(NewtRef r)
 {
-	return ((KUInt32)r)&0xFFFFFFFC;
+	for (;;) {
+		// Make sure that this is a Ref, return kNewtNullptr if not
+		if ((r&3)!=1) {
+			printf("ERROR: TNewt::RefToPointer: not a pointer (0x%08x)!\n", r);
+			return kNewtNullptr;
+		}
+		VAddr ptr = (r&~3);
+		KUInt32 objFlags;
+		// return 'true' if there was a fault reading this address
+		if (mMemory->Read(ptr, objFlags)==true) {
+			printf("ERROR: TNewt::RefToPointer: invalid object address for flags: 0x%08x!\n", ptr);
+			return kNewtNullptr;
+		}
+		// check, if the 'forward' flag is clear
+		if ( (objFlags&0x20)==0 ) // 0x00000c20
+			return ptr;
+		// read the Ref that forwards to the requested object
+		if (mMemory->Read(ptr+8, r)==true) {
+			printf("ERROR: TNewt::RefToPointer: invalid object address for indirection: 0x%08x!\n", ptr+8);
+			return kNewtNullptr;
+		}
+		// repeat until satisfied
+	}
 }
 
 /**
@@ -460,6 +655,62 @@ NewtRef TNewt::MakePointer(KUInt32 r)
 {
 	return (NewtRef)((r&0xFFFFFFFC)|1);
 }
+
+/**
+ Return true if the Ref is an array
+ */
+bool TNewt::RefIsArray(NewtRef r)
+{
+	if (!TNewt::RefIsPointer(r))
+		return false;
+	KUInt32 p = TNewt::RefToPointer(r);
+	KUInt32 size = 0;
+	mMemory->Read(p, size);
+	return ( (size&0x03)==0x01 );
+}
+
+/**
+ Return true if the Ref is a frame.
+ */
+bool TNewt::RefIsFrame(NewtRef r)
+{
+	if (!TNewt::RefIsPointer(r))
+		return false;
+	KUInt32 p = TNewt::RefToPointer(r);
+	KUInt32 size = 0;
+	mMemory->Read(p, size);
+	return ( (size&0x03)==0x03 );
+}
+
+/**
+ Return true if the Ref is a frame.
+ */
+bool TNewt::RefIsBinary(NewtRef r)
+{
+	if (!TNewt::RefIsPointer(r))
+		return false;
+	KUInt32 p = TNewt::RefToPointer(r);
+	KUInt32 size = 0;
+	mMemory->Read(p, size);
+	return ( (size&0x03)==0x00 );
+}
+
+KUInt32 TNewt::RefArrayGetNumSlots(NewtRef r)
+{
+	KUInt32 p = TNewt::RefToPointer(r);
+	KUInt32 size = 0;
+	mMemory->Read(p, size);
+	return ((size>>8)-12)/4;
+}
+
+NewtRef TNewt::RefArrayGetSlot(NewtRef r, int i)
+{
+	KUInt32 p = TNewt::RefToPointer(r);
+	KUInt32 ret = 0;
+	mMemory->Read(p+12+4*i, ret);
+	return ret;
+}
+
 
 /**
  FIXME: don't use thsi yet, it will hang the emulator.

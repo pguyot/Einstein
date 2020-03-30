@@ -42,6 +42,8 @@ static const NewtRef kNewtRefNIL = 0x0002;
 static const NewtRef kNewtRefTRUE = 0x001A;
 static const NewtRef kNewtSymbolClass = 0x55552;
 
+static const VAddr kNewtNullptr = 0;
+
 // A list of useful error codes
 static const KSInt32 kNSErrUndefinedMethod = -48809;
 static const KSInt32 kNSErrNotASymbol = -48410;
@@ -128,6 +130,11 @@ public:
 // Use this to pass arguments to functions
 typedef const RefVar &RefArg;
 
+KUInt32 LockedBinaryPtr(RefArg);
+
+void UnlockRefArg(RefArg);
+
+
 // Call a NewtonOS function in ROM via the Apple sanction jumptable
 KUInt32 CallNewton(VAddr functionVector, const char *args, ...);
 
@@ -142,6 +149,12 @@ NewtRef MakeString(const char *);
 
 // Create a symbol from a C style ASCII string
 NewtRef MakeSymbol(const char *);
+
+// Return true if the Ref is a floating point value
+bool RefIsReal(NewtRef);
+
+// Return a floating point value
+double RefToReal(NewtRef);
 
 // Create a binary object containing a double precission floating point value
 NewtRef MakeReal(double);
@@ -167,6 +180,12 @@ NewtRef SetArraySlot(RefArg, KUInt32, RefArg);
 // Set a slot in a Frame
 NewtRef SetFrameSlot(RefArg, RefArg, RefArg);
 
+// Get the slot in a frame
+NewtRef GetFrameSlotRef(NewtRef frame, NewtRef symbol);
+
+// Get the slot in a frame
+NewtRef GetFrameSlot(RefArg frame, RefArg symbol);
+
 // Return true if the Ref is an integer
 bool RefIsInt(NewtRef);
 
@@ -182,14 +201,17 @@ bool RefIsSymbol(NewtRef);
 // Copy the name of a symbol into a buffer in host space
 bool SymbolToCString(NewtRef, char *buf, int size);
 
+// Copy the name of a symbol and convert it to all lower case characters
+bool SymbolToLowerCaseCString(NewtRef, char *buf, int size);
+
 // Return true if the Ref is a utf16 string
 bool RefIsString(NewtRef);
 
 // Return the number of characters in the string
 KUInt32 RefStringLength(NewtRef);
 
-// FIXME: return a string that must be fee'd by the caller
-char *RefToStringDup(NewtRef);
+// Return a string in utf-8
+bool RefToString(NewtRef, char *buf, int size);
 
 // Return true if the Ref is a pointer into NewtonOS memeory
 bool RefIsPointer(NewtRef);
@@ -199,6 +221,19 @@ KUInt32 RefToPointer(NewtRef);
 
 // Convert a pointer into a Ref
 NewtRef MakePointer(KUInt32);
+
+// Return true if the Ref is an array
+bool RefIsArray(NewtRef);
+
+// Return true if the Ref is a frame
+bool RefIsFrame(NewtRef);
+
+// Return true if the Ref is a frame
+bool RefIsBinary(NewtRef);
+
+KUInt32 RefArrayGetNumSlots(NewtRef r);
+NewtRef RefArrayGetSlot(NewtRef r, int i);
+
 
 // FIXME: don't use thsi yet, it will hang the emulator
 NewtRef ThrowBadTypeWithFrameData(long, RefArg);

@@ -684,143 +684,46 @@ TPlatformManager::SetDocDir(const char *inDocDir)
 }
 
 
-// -------------------------------------------------------------------------- //
-//  * NewtonScriptCall(NewtRef rcvr, NewtRef arg0, NewtRef arg1)
-// -------------------------------------------------------------------------- //
+/**
+ NewtonOS can call this method to get access into the EInstein system.
+ The NTK project must link with NTKGlue.ntkc whic provides access to Einstein
+ by calling <tt>call Einstein.Platform with ('command, args);</tt> .
+
+ \a arg0 is a Newt symbol that indicates the function call,
+ \a arg1 depends on the function call and can be just a value, or an Array
+ or a Frame of values. This call can return complex values by using
+ Newton ROM functions at known locations (as set by Apple) to create
+ Binary Objects like Text or Reals, and if multiple values are need,
+ by building Arrays and Frames.
+
+ \param inRcvr the receiver of this call, so basically the calling function
+ \param inArg0 a symbol that declares the Einstein command that we want to call
+ \param inArg1 the argument fo the call as a NewtonRef
+ \return the result of the call as a NewtonRef
+
+ \see TNewt
+ */
 NewtRef
 TPlatformManager::NewtonScriptCall(TNewt::RefArg inRcvr, TNewt::RefArg inArg0, TNewt::RefArg inArg1)
 {
 	using namespace TNewt;
 
-	// The implemenatation and calls into Newton OS should be in their own class!
-
-	// arg0 is a Newt symbol that indicates the function call
-	// arg1 depends on the function call and can be just a value, or an Array
-	// or a Frame of values. This call can return complex values by using
-	// Newton ROM functions at known locations (as set by Apple) to create
-	// Binary Objects like Text or Reals, an if multiple values are need,
-	// by building Arrays and Frames.
-
-	// More official addresses from the universal object file:
-	//  - MakeString(const unsigned short *) @ 0x018009a0
-	//  - AddArraySlot(const RefVar &, const RefVar &) @ 0x018007f4
-	//  - AllocateArray(const RefVar &, long) & 01800804
-	// TODO: get the RefVar class emulated in a nice way
-
 	NewtRef arg0 = inArg0.Ref();
-
 	if (TNewt::RefIsSymbol(arg0)) {
 		char sym[64] = { 0 };
-		if (TNewt::SymbolToCString(arg0, sym, 64)) {
-			printf("Command: '%s\n", sym);
+		if (TNewt::SymbolToLowerCaseCString(arg0, sym, 64)) {
 			auto it = CallMap.find(sym);
 			if (it!=CallMap.end()) {
 				PlatformCall call = it->second;
 				return call(inRcvr, inArg1);
 			} else {
-#if 0
-			if (strcmp(sym, "getframerate")==0) {
-				return TNewt::MakeInt(50);
-			} else if (strcmp(sym, "setframerate")==0) {
-				KSInt32 v = TNewt::RefToInt(arg1);
-				printf("setFrameRate: '%s, %d\n", sym, v);
-				return kNewtRefTRUE;
-
-			// serial port driver support
-
-				// ('print, Ref)
-				// ('SetSerialPortDriver, driverId)
-				// names := call Einstein.Platform with ('GetSerialPortDriverNames, nil); 			ok
-				// idx := call Einstein.Platform with ('GetSerialPortDriver, nil);					ok
-				// names := call EInstein.Platform with ('GetSerialPortDriverNames, nil);			ok
-				// drivers := call Einstein.Platform with ('GetSerialPortDriverList, nil);
-				// opt := call Einstein.Platform with ('GetSerialPortDriverOptions, 'extr);
-				// call Einstein.Platform with ('SetSerialPortDriverOptions,
-				//							 { id:'extr, server:wServer.text, port:wPort.text }
-
-
-			} else if (strcmp(sym, "getserialportdrivernames")==0) {
-				return mEmulator->SerialPorts.NSGetDriverNames(inArg1);
-			} else if (strcmp(sym, "getserialportdriverlist")==0) { // do me
-				return mEmulator->SerialPorts.NSGetDriverList(inArg1);
-			} else if (strcmp(sym, "setserialportdriver")==0) { // do me
-				// send the index of the driver to query 0...3, external, infrared, internal, modem
-				// example: { port:0, driver:4, config:{ server:127.0.0.1, port:3679 } }
-				// example: { port:0, driver:4, config:'default }
-				// if values are missing, keep the current config
-				// receive negative error code, or 0 for success
-				return kNewtRefNIL;
-			} else if (strcmp(sym, "getserialportdriver")==0) { // do me
-				// send the index of the driver to query 0...3, external, infrared, internal, modem
-				// recive nil for unavailable port
-				// receive a recored with the current driver, containing a record with its parameters, and an array with available drivers for this port
-				// example: { driver:4, config:{ server:127.0.0.1, port:3679 }, valid:[0, 3, 4] }
-//				int n = TSerialPortManager::DriverListSize;
-//				NewtRef arrayRef = AllocateArray(n);
-//				NewtRefVar array = AllocateRefHandle(arrayRef);
-//				for (int i=0; i<n; i++) {
-//					SetArraySlotRef(arrayRef, i, NewtMakeInt(TSerialPortManager::DriverList[i]) );
-//				}
-//				DisposeRefHandle(array);
-//				return arrayRef;
-				return TNewt::MakeInt(3);
-			// remove the remaining options!
-//			} else if (strcmp(sym, "getserialportdriver")==0) {
-//				// get current driver for main port
-//				KUInt32 id = TSerialPortManager::CurrentDriver(
-//				    TSerialPortManager::kExternalSerialPort)->GetID();
-//				return NewtMakeInt(id);
-//				return kNewtRefNIL;
-//			} else if (strcmp(sym, "setserialportdriver")==0) {
-//				// set driver for main port to driver with index ix
-//				KSInt32 id = NewtRefToInt(arg1);
-//				printf("ID: %d\n", id);
-//				TSerialPortManager::ReplaceDriver(
-//                    TSerialPortManager::kExternalSerialPort,
-//				    TSerialPortManager::CreateByID(id, 0L,
-//					    TSerialPortManager::kExternalSerialPort));
-//				return kNewtRefNIL;
-			} else if (strcmp(sym, "getserialportdriveroptions")==0) { // do me
-				// parameter is the fourCC symbol of the serial port
-				// returns nil if there are no settings
-				// for TCP, this returns { driver:4, server:"127.0.0.1", port:"3679" }
-				// 4 is the ID for a TCP client driver
-				fprintf(stderr, "TODO: get serial port driver options\n");
-//				NewtRefVar port = AllocateRefHandle( MakeString("Welt") );
-
-				NewtRef fRef = AllocateFrame();
-				NewtRefVar f = AllocateRefHandle( fRef );
-
-				NewtRefVar sym = AllocateRefHandle(MakeSymbol("driver"));
-				NewtRefVar server = AllocateRefHandle( MakeString("Hallo") );
-				SetFrameSlot(f, sym, server);
-				DisposeRefHandle(server);
-				DisposeRefHandle(sym);
-
-				//SetFrameSlot(f, MakeSymbol("server"), server);
-				//SetFrameSlot(f, MakeSymbol("port"), port);
-//				DisposeRefHandle(port);
-
-				DisposeRefHandle(f);
-				return fRef;
-				return TNewt::AllocateArray(2);
-				return kNewtRefNIL;
-			} else if (strcmp(sym, "setserialportdriveroptions")==0) { // do me
-//				// for TCP, send { serPort:'extr, serverAddr:"127.0.0.1", sereverPort:"3679" }
-//				fprintf(stderr, "TODO: set serial port driver options\n");
-				return kNewtRefNIL;
-			} else if (strcmp(sym, "getsymbol")==0) {
-				RefVar array( AllocateArray(3) );
-				RefVar text( MakeString("Will this ever work?") );
-				SetArraySlot( array, 1, text );
-				SetArraySlotRef(array.Ref(), 2, MakeReal(3.141592654));
-				return array.Ref();
-			} else {
-#endif
-				fprintf(stderr, "Unknown command: %s\n", sym);
+				TNewt::SymbolToCString(arg0, sym, 64);
+				fprintf(stderr, "WARNING: TPlatformManager::NewtonScriptCall: Unknown command: %s\n", sym);
 				return TNewt::MakeInt(kNSErrUndefinedMethod);
 			}
 		}
+	} else {
+		fprintf(stderr, "WARNING: TPlatformManager::NewtonScriptCall: First argument must be a symbol: 0x%08x\n", arg0);
 	}
 	return TNewt::MakeInt(kNSErrNotASymbol);
 }
