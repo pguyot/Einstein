@@ -679,9 +679,13 @@ TMemory::ReadInstruction( KUInt32 inBankNumber, KUInt32 inOffsetInBank )
 	}
 }
 
-// -------------------------------------------------------------------------- //
-//  * Read( VAddr, KUInt32& )
-// -------------------------------------------------------------------------- //
+/**
+ Read a word in memory.
+
+ \param[in] inAddress adress before applying any MMU tables
+ \param[out] outWord if the read operation was successful, this is set to the value we found
+ \return \c true if there was a fault reading this address, and \c false if the operation was successful
+ */
 Boolean
 TMemory::Read( VAddr inAddress, KUInt32& outWord )
 {

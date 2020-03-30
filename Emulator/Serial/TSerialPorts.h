@@ -96,7 +96,7 @@ public:
 					EDriverID mdemDriver);
 
 	// Replace an existing driver with a new driver
-	void ReplaceDriver(EPortIndex inPort, EDriverID inDriverId);
+	TSerialPortManager *ReplaceDriver(EPortIndex inPort, EDriverID inDriverId);
 
 	// NewtonScript call to return all driver names
 	NewtRef NSGetDriverNames(TNewt::RefArg arg);
@@ -105,10 +105,10 @@ public:
 	NewtRef NSGetDriverList(TNewt::RefArg arg);
 
 	// NewtonScript call to retrive the current driver and its settings
-	NewtRef NSGetDriverOptions(TNewt::RefArg arg);
+	NewtRef NSGetDriverAndOptions(TNewt::RefArg arg);
 
-	// NewtonScript call to cahnge the current driver and/or its settings
-	NewtRef NSSetDriverOptions(TNewt::RefArg arg);
+	// NewtonScript call to change the current driver and/or its settings
+	NewtRef NSSetDriverAndOptions(TNewt::RefArg arg);
 
 private:
 	TSerialPortManager 	*mDriver[4] = { nullptr, nullptr, nullptr, nullptr };

@@ -28,6 +28,7 @@
 
 #include <pthread.h>
 
+
 class TLog;
 class TInterruptManager;
 class TDMAManager;
@@ -73,7 +74,12 @@ public:
 	///
 	/// GIve NewtonScrip access to our list of options
 	///
-	void NSAddOptions(TNewt::RefArg frame) override;
+	void NSGetOptions(TNewt::RefArg frame) override;
+
+	///
+	/// Set options from NewtonScript
+	///
+	void NSSetOptions(TNewt::RefArg frame) override;
 
 protected:
 
@@ -111,6 +117,9 @@ protected:
 	/// Return true if we are connected to teh server.
 	///
 	bool IsConnected() { return mIsConnected; }
+
+	char *mServer = nullptr;
+	int mPort = 0;
 
 	int mCommandPipe[2];			///< communication between emulator and DMA thread
 	int mTcpSocket;					///< TCP socket for client side
