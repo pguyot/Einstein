@@ -95,7 +95,12 @@ public:
 	///
 	/// GIve NewtonScrip access to our list of options
 	///
-	virtual void NSAddOptions(TNewt::RefArg /*frame*/) { }
+	virtual void NSGetOptions(TNewt::RefArg /*frame*/) { }
+
+	///
+	/// Set options from NewtonScript
+	///
+	virtual void NSSetOptions(TNewt::RefArg /*frame*/) { }
 
 protected:
 

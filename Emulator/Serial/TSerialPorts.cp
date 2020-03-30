@@ -106,16 +106,23 @@ void TSerialPorts::Initialize(EDriverID extrDriver,
 
 /**
  Replace an existing driver with a new driver.
+ If the ID of the old and new driver are the same, the old driver is kept and nothing will happen.
 
- @param port the index into the port that we will emulate
- @param driver create thsi driver, attach it, and run it
+ \param port the index into the port that we will emulate
+ \param driver create this driver, attach it, and run it
+
+ \return a pointer to the new driver, or the previous driver if the driver did not change
  */
-void TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
+TSerialPortManager *TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 {
-	TSerialPortManager *&currentDriver = mDriver[inPort];
+	TSerialPortManager *currentDriver = mDriver[inPort];
+
+	if (currentDriver && currentDriver->GetID() == inDriverId)
+		return currentDriver;
+
 	if (currentDriver) {
 		delete currentDriver;
-		currentDriver = nullptr;
+		mDriver[inPort] = nullptr;
 	}
 	switch (inDriverId) {
 		case kNullDriver:
@@ -141,9 +148,13 @@ void TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 			currentDriver = new TSerialPortManager(mLog, inPort);
 			mLog->FLogLine("ERROR: request for unsupported serial driver type %d on port %d\n", inDriverId, inPort);
 	}
+	mDriver[inPort] = currentDriver;
+
 	currentDriver->run(mEmulator->GetInterruptManager(),
 					   mEmulator->GetDMAManager(),
 					   mEmulator->GetMemory());
+
+	return currentDriver;
 }
 
 KUInt32 TSerialPorts::NDrivers = kNDriverID;
@@ -175,12 +186,16 @@ TSerialPorts::EDriverID TSerialPorts::ValidDrivers[] = {
 };
 
 TSerialPorts::EDriverID TSerialPorts::NoValidDrivers[] =
-	{ (EDriverID)-1 };
+	{ kNullDriver, (EDriverID)-1 };
 
 TSerialPorts::EDriverID *TSerialPorts::ValidDriversByPort[] =
 {
 	// Depending
+#if 0
 	ValidDrivers, NoValidDrivers, NoValidDrivers, NoValidDrivers
+#else
+	ValidDrivers, ValidDrivers, ValidDrivers, ValidDrivers
+#endif
 };
 
 
@@ -239,9 +254,9 @@ NewtRef TSerialPorts::NSGetDriverList(TNewt::RefArg arg)
  \param arg is an integer with the index of the serial port that we find interesting
  \return the minimal return value is the frame { driver: ix }; where ix is an integre
 	index into the list of available drivers. Individual drivers may add more optiosns
-	The TCP Client adds { tcpServer: "address", tcpPort: number };
+	The TCP Client adds { tcpServer: "address", tcpPort: "numberAsText" };
  */
-NewtRef TSerialPorts::NSGetDriverOptions(TNewt::RefArg arg)
+NewtRef TSerialPorts::NSGetDriverAndOptions(TNewt::RefArg arg)
 {
 	using namespace TNewt;
 
@@ -258,14 +273,42 @@ NewtRef TSerialPorts::NSGetDriverOptions(TNewt::RefArg arg)
 	TSerialPortManager *driver = GetDriverFor((EPortIndex)portIndex);
 	RefVar f( AllocateFrame() );
 	SetFrameSlot(f, RefVar( MakeSymbol("driver")),  RefVar(MakeInt(driver->GetID())));
-	driver->NSAddOptions(f);
+	driver->NSGetOptions(f);
 	return f.Ref();
 }
 
-// NewtonScript call to cahnge the current driver and/or its settings
-NewtRef TSerialPorts::NSSetDriverOptions(TNewt::RefArg arg)
+/**
+ NewtonScript call to change the current driver and/or its settings
+
+ \param arg is a record with a slot 'port that holds the index of the serail port to be updated,
+	a slot 'driver, holding an integer with the index to the driver that we want for this slot,
+	and possibly other options that are specific for that driver.
+ */
+NewtRef TSerialPorts::NSSetDriverAndOptions(TNewt::RefArg arg)
 {
 	using namespace TNewt;
+
+	int portIndex = -1;
+	int driverId = -1;
+
+	NewtRef frame = arg.Ref();
+	if (!RefIsFrame(frame)) {
+		return MakeInt(kNSErrNotAFrame);
+	}
+
+	NewtRef fPort = GetFrameSlotRef(frame, MakeSymbol("Port"));
+	if (RefIsInt(fPort))
+		portIndex = (EPortIndex)RefToInt(fPort);
+
+	NewtRef fDriver = GetFrameSlotRef(frame, MakeSymbol("Driver"));
+	if (RefIsInt(fDriver))
+		driverId = (EDriverID)RefToInt(fDriver);
+
+	if (portIndex!=-1 && driverId!=-1) {
+		TSerialPortManager *d = ReplaceDriver((EPortIndex)portIndex, (EDriverID)driverId);
+		d->NSSetOptions(arg);
+	}
+
 	return kNewtRefNIL;
 }
 

@@ -81,6 +81,8 @@ TTcpClientSerialPortManager::TTcpClientSerialPortManager(
 	mIsConnected( false ),
 	mReconnectTimeout( 0 )
 {
+	mServer = strdup("127.0.0.1");
+	mPort = 3679;
 }
 
 
@@ -99,6 +101,8 @@ TTcpClientSerialPortManager::~TTcpClientSerialPortManager()
 		::close(mCommandPipe[0]);
 	if (mCommandPipe[1]!=-1)
 		::close(mCommandPipe[1]);
+	if (mServer)
+		free(mServer);
 }
 
 // -------------------------------------------------------------------------- //
@@ -201,9 +205,9 @@ TTcpClientSerialPortManager::Connect()
 	struct sockaddr_in server;
 	memset(&server, 0, sizeof(struct sockaddr_in));
 	server.sin_family = AF_INET;
-	server.sin_port = htons(3679);
+	server.sin_port = htons(mPort);
 
-	if (inet_pton(AF_INET, "127.0.0.1", &server.sin_addr)<=0)
+	if (inet_pton(AF_INET, mServer, &server.sin_addr)<=0)
 	{
 		printf("***** TTcpClientSerialPortManager::Connect: Error in inet_pton.\n");
 		Disconnect();
@@ -381,11 +385,45 @@ TTcpClientSerialPortManager::HandleDMAReceive()
 ///
 /// GIve NewtonScrip access to our list of options
 ///
-void TTcpClientSerialPortManager::NSAddOptions(TNewt::RefArg frame)
+void TTcpClientSerialPortManager::NSGetOptions(TNewt::RefArg frame)
 {
 	using namespace TNewt;
-	SetFrameSlot(frame, RefVar(MakeSymbol("tcpServer")), RefVar(MakeString("127.0.0.1")));
-	SetFrameSlot(frame, RefVar(MakeSymbol("tcpPort")), RefVar(MakeInt(3679)));
+	char buf[32];
+	snprintf(buf, 30, "%d", mPort);
+	SetFrameSlot(frame, RefVar(MakeSymbol("tcpServer")), RefVar(MakeString(mServer)));
+	SetFrameSlot(frame, RefVar(MakeSymbol("tcpPort")), RefVar(MakeString(buf)));
+}
+
+///
+/// Set options from NewtonScript
+///
+void TTcpClientSerialPortManager::NSSetOptions(TNewt::RefArg inFrame)
+{
+	using namespace TNewt;
+	char server[256] = { 0 };
+	char portStr[80] = { 0 };
+	KSInt32 port = 0;
+
+	NewtRef frame = inFrame.Ref();
+	NewtRef tcpServerRef = GetFrameSlotRef(frame, MakeSymbol("tcpServer"));
+	if (RefIsString(tcpServerRef))
+		RefToString(tcpServerRef, server, sizeof(server));
+	NewtRef tcpPortRef = GetFrameSlot(frame, MakeSymbol("tcpPort"));
+	if (RefIsString(tcpPortRef))
+		RefToString(tcpPortRef, portStr, sizeof(portStr));
+	port = atoi(portStr);
+	if (port==0) port = 3679;
+
+	//if (port>0 && server[0])
+		printf("INFO: TTcpClientSerialPortManager::NSSetOptions: Setting port %d on \"%s\".\n", port, server);
+
+	if (mPort!=port || strcmp(mServer, server)!=0) {
+		mPort = port;
+		if (mServer) ::free(mServer);
+		mServer = strdup(server);
+		Disconnect(); // force the server to reconnect
+		printf("INFO: TTcpClientSerialPortManager::NSSetOptions: calling Disconnect()\n");
+	}
 }
 
 
