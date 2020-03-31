@@ -403,27 +403,66 @@ void TTcpClientSerialPortManager::NSSetOptions(TNewt::RefArg inFrame)
 	char server[256] = { 0 };
 	char portStr[80] = { 0 };
 	KSInt32 port = 0;
+	bool setServer = false;
+	bool setPort = false;
+	bool mustReconnect = false;
 
 	NewtRef frame = inFrame.Ref();
 	NewtRef tcpServerRef = GetFrameSlotRef(frame, MakeSymbol("tcpServer"));
-	if (RefIsString(tcpServerRef))
+	if (RefIsString(tcpServerRef)) {
 		RefToString(tcpServerRef, server, sizeof(server));
-	NewtRef tcpPortRef = GetFrameSlot(frame, MakeSymbol("tcpPort"));
-	if (RefIsString(tcpPortRef))
-		RefToString(tcpPortRef, portStr, sizeof(portStr));
-	port = atoi(portStr);
-	if (port==0) port = 3679;
-
-	//if (port>0 && server[0])
-		printf("INFO: TTcpClientSerialPortManager::NSSetOptions: Setting port %d on \"%s\".\n", port, server);
-
-	if (mPort!=port || strcmp(mServer, server)!=0) {
-		mPort = port;
-		if (mServer) ::free(mServer);
-		mServer = strdup(server);
-		Disconnect(); // force the server to reconnect
-		printf("INFO: TTcpClientSerialPortManager::NSSetOptions: calling Disconnect()\n");
+		setServer = true;
 	}
+	NewtRef tcpPortRef = GetFrameSlot(frame, MakeSymbol("tcpPort"));
+	if (RefIsString(tcpPortRef)) {
+		RefToString(tcpPortRef, portStr, sizeof(portStr));
+		port = atoi(portStr);
+		if (port==0) port = 3679;
+		setPort = true;
+	}
+
+	printf("INFO: TTcpClientSerialPortManager::NSSetOptions: (\"%s\", %d)\n", mServer, mPort);
+	if (setServer) {
+		if (strcmp(mServer, server)!=0) {
+			if (mServer) ::free(mServer);
+			mServer = strdup(server);
+			mustReconnect = true;
+		}
+		printf("INFO:             Setting server to \"%s\".\n", server);
+	}
+	if (setPort) {
+		if (mPort!=port) {
+			mPort = port;
+			mustReconnect = true;
+		}
+		printf("INFO:             Setting port to %d.\n", port);
+	}
+
+	if (mustReconnect) {
+		Disconnect(); // force the server to reconnect
+		printf("INFO: TTcpClientSerialPortManager::NSSetOptions: must reconnect\n");
+	}
+}
+
+void TTcpClientSerialPortManager::SetServerAddress(const char *inAddress)
+{
+	if (mServer) ::free(mServer);
+	mServer = strdup(inAddress);
+}
+
+void TTcpClientSerialPortManager::SetServerPort(int inPort)
+{
+	mPort = inPort;
+}
+
+char *TTcpClientSerialPortManager::GetServerAddressDup()
+{
+	return strdup(mServer);
+}
+
+int TTcpClientSerialPortManager::GetServerPort()
+{
+	return mPort;
 }
 
 

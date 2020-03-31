@@ -29,6 +29,7 @@
 #include "TNewt.h"
 
 #include <vector>
+#include <functional>
 
 class TLog;
 class TEmulator;
@@ -110,10 +111,15 @@ public:
 	// NewtonScript call to change the current driver and/or its settings
 	NewtRef NSSetDriverAndOptions(TNewt::RefArg arg);
 
+	void PortChangedCallback(std::function<void(int)> inCallback) {
+		mPortChangedCallback = inCallback;
+	}
+
 private:
 	TSerialPortManager 	*mDriver[4] = { nullptr, nullptr, nullptr, nullptr };
 	TLog				*mLog = nullptr;
 	TEmulator 			*mEmulator = nullptr;
+	std::function<void(int)> mPortChangedCallback;
 
 };
 
