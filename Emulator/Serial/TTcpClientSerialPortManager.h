@@ -81,6 +81,14 @@ public:
 	///
 	void NSSetOptions(TNewt::RefArg frame) override;
 
+	void SetServerAddress(const char *inAddress);
+
+	void SetServerPort(int inPort);
+
+	char *GetServerAddressDup();
+
+	int GetServerPort();
+
 protected:
 
 	///

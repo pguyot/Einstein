@@ -44,6 +44,8 @@
 #include "Emulator/Screen/TX11ScreenManager.h"
 #endif
 #include "Emulator/Serial/TSerialPorts.h"
+#include "Emulator/Serial/TSerialPortManager.h"
+#include "Emulator/Serial/TTcpClientSerialPortManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
@@ -103,6 +105,8 @@ static TCocoaAppController* gInstance = nil;
 			//[NSNumber numberWithInt:kTcpClientSerialDriverTag], kSerialDriverKey,
 			[NSNumber numberWithBool:NO], kDontShowAtStartupKey,
 			[NSNumber numberWithBool:NO], kEnableListenersKey,
+			[NSString stringWithUTF8String:"127.0.0.1"], kExtrTCPServerAddress,
+			[NSNumber numberWithInt:3679], kExtrTCPServerPort,
 			nil];
 	
 	[defaults registerDefaults:appDefaults];
@@ -436,6 +440,35 @@ static TCocoaAppController* gInstance = nil;
 									   TSerialPorts::kNullDriver,
 									   TSerialPorts::kNullDriver,
 									   TSerialPorts::kNullDriver );
+
+	TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+	if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
+	{
+		TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+		tcp->SetServerAddress([[defaults stringForKey: kExtrTCPServerAddress] UTF8String]);
+		tcp->SetServerPort((int)[defaults integerForKey: kExtrTCPServerPort]);
+	}
+	mEmulator->SerialPorts.PortChangedCallback(
+        // THIS IS A LAMBDA FUNCTION. This function is called when an application
+		// on the emulated Newton changes the serial port settings
+		[self](int serPort)->void
+		{
+			if (serPort==TSerialPorts::kExtr) {
+				TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+				if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver) {
+					TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+
+					char *tcpServer = tcp->GetServerAddressDup();
+					NSString *nsTcpServer = [NSString stringWithUTF8String:tcpServer];
+					[[mUserDefaultsController defaults] setValue:nsTcpServer forKey:kExtrTCPServerAddress];
+					::free(tcpServer);
+
+					int tcpPort = tcp->GetServerPort();
+					[[mUserDefaultsController defaults] setInteger:tcpPort forKey:kExtrTCPServerPort];
+				}
+			}
+	    }
+	);
 
 	if ([defaults boolForKey: kEnableListenersKey])
 	{

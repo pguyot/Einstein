@@ -32,6 +32,9 @@
 #define kFullScreenKey				@"FullScreen"
 #define kRAMSizeKey					@"RAMSize"
 
+#define kExtrTCPServerAddress		@"ExtrServerAddress"
+#define kExtrTCPServerPort			@"ExtrServerPort"
+
 #define kMachineKey					@"Machine"
 #define k717006Tag					717006
 #define k737041Tag					737041
