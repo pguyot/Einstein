@@ -307,6 +307,8 @@ NewtRef TSerialPorts::NSSetDriverAndOptions(TNewt::RefArg arg)
 	if (portIndex!=-1 && driverId!=-1) {
 		TSerialPortManager *d = ReplaceDriver((EPortIndex)portIndex, (EDriverID)driverId);
 		d->NSSetOptions(arg);
+		if (mPortChangedCallback)
+			mPortChangedCallback(portIndex);
 	}
 
 	return kNewtRefNIL;
