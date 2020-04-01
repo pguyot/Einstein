@@ -29,7 +29,7 @@
 // Includes the proper header depending on the platform and define the JIT
 // class accordingly.
 	// Default case.
-	#include "TJITGeneric.h"
+	#include "Emulator/JIT/Generic/TJITGeneric.h"
 	#define	JITClass		TJITGeneric
 	#define	JITPageClass	TJITGenericPage
 	#define JITTARGET_GENERIC

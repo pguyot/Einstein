@@ -25,10 +25,10 @@
 #define _TJITGENERICPAGE_H
 
 #include <K/Defines/KDefinitions.h>
-#include "TJITPage.h"
+#include "Emulator/JIT/TJITPage.h"
 
 #if defined(_MSC_VER) && defined(_DEBUG)
-#include "TJITPerformance.h"
+#include "Emulator/JIT/TJITPerformance.h"
 #endif
 
 class TARMProcessor;

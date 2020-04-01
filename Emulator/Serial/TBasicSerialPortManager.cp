@@ -319,7 +319,8 @@
  */
 
 
-#if TARGET_OS_MAC || TARGET_OS_ANDROID
+#if TARGET_OS_MAC || TARGET_OS_ANDROID 
+// || TARGET_OS_LINUX // TODO: hangs!
 /*
  * This is a hack that removes a reference from the 'extr' serial port driver
  * from the REx. This is required to make low level comm emulation possible.

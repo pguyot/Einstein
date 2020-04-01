@@ -26,7 +26,7 @@
 
 #include <K/Defines/KDefinitions.h>
 
-#include "TNewt.h"
+#include "Emulator/Platform/TNewt.h"
 
 #include <vector>
 #include <functional>
