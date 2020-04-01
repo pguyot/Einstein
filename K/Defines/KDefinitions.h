@@ -534,6 +534,7 @@
 #endif
 
 #if TARGET_OS_LINUX
+#include <stdint.h>
 	#define TARGET_OS_ANDROID 0
 	#define TARGET_OS_BEOS 0
 	#define TARGET_OS_BSD 0
@@ -560,13 +561,14 @@
 	#define _XOPEN_SOURCE_EXTENDED 1
 
 	// J'espère que ceci passe:
-	typedef	unsigned long			KUInt32;
-	typedef	signed long				KSInt32;
-	typedef	unsigned short			KUInt16;
-	typedef	signed short			KSInt16;
-	typedef	signed char				KSInt8;
-	typedef	unsigned char			KUInt8;
-	typedef	bool					Boolean;
+	typedef	uint32_t	KUInt32;
+	typedef	int32_t		KSInt32;
+	typedef	uint16_t	KUInt16;
+	typedef	int16_t		KSInt16;
+	typedef	int8_t		KSInt8;
+	typedef	uint8_t		KUInt8;
+	typedef	bool		Boolean;
+	#define KUIntPtr uintptr_t
 	#define FOUR_CHAR_CODE(x)		((long)(x))
 
 	// Détermination du sexe via endian.h
@@ -690,6 +692,12 @@
 #ifndef KUIntPtr
 	#define KUIntPtr	KUInt32
 #endif
+
+static_assert(sizeof(KUInt8)==1);
+static_assert(sizeof(KUInt16)==2);
+static_assert(sizeof(KUInt32)==4);
+static_assert(sizeof(KUInt64)==8);
+static_assert(sizeof(KUIntPtr)==sizeof(void*));
 
 #endif
 		// __KDEFINITIONS__

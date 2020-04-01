@@ -28,7 +28,7 @@
 
 #include "TMemory.h"
 #include "TNativePrimitives.h"
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 class TStream;
 

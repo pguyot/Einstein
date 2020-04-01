@@ -35,7 +35,7 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <sys/stat.h>
-#if !TARGET_OS_IOS
+#if defined(__APPLE__) && !TARGET_OS_IOS
 #include <CoreServices/CoreServices.h>
 #endif
 #endif

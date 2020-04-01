@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <string.h>
+#include <assert.h>
 
 #if !TARGET_OS_WIN32
 	#include <unistd.h>
@@ -45,7 +46,7 @@
 #include "Emulator/Serial/TPtySerialPortManager.h"
 #include "Emulator/Serial/TBasiliskIISerialPortManager.h"
 #endif
-#if TARGET_OS_MAC || TAGRET_OS_ANDROID
+#if TARGET_OS_MAC || TAGRET_OS_ANDROID || TARGET_OS_LINUX
 #include "Emulator/Serial/TTcpClientSerialPortManager.h"
 #endif
 
@@ -139,7 +140,7 @@ TSerialPortManager *TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inD
 			currentDriver = new TBasiliskIISerialPortManager(mLog, inPort);
 			break;
 #endif
-#if TARGET_OS_MAC || TAGRET_OS_ANDROID
+#if TARGET_OS_MAC || TAGRET_OS_ANDROID || TARGET_OS_LINUX
 		case kTcpClientDriver:
 			currentDriver = new TTcpClientSerialPortManager(mLog, inPort);
 			break;
@@ -178,7 +179,7 @@ std::vector<const char*>TSerialPorts::ShortPortNames =
 TSerialPorts::EDriverID TSerialPorts::ValidDrivers[] = {
 #if TARGET_OS_MAC
 	kNullDriver, kPipesDriver, kPtyDriver, kBasiliskIIDriver, kTcpClientDriver, (EDriverID)-1
-#elif TARGET_OS_ANDROID
+#elif TARGET_OS_ANDROID || TARGET_OS_LINUX
 	kNullDriver, kTcpClientDriver, (EDriverID)-1
 #else
 	kNullDriver, (EDriverID)-1

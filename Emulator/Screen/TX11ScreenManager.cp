@@ -804,7 +804,7 @@ TX11ScreenManager::FreePalette( void )
 		Colormap theColormap =
 			DefaultColormap(mDisplay, DefaultScreen(mDisplay));
 		(void) XFreeColors(
-					mDisplay, theColormap, mPalette, sizeof(mPalette), 0);
+					mDisplay, theColormap, (long unsigned int*)mPalette, sizeof(mPalette), 0);
 	}
 }
 

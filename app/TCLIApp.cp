@@ -349,6 +349,11 @@ TCLIApp::Run( int argc, char* argv[] )
 				mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
 	mPlatformManager = mEmulator->GetPlatformManager();
 
+	mEmulator->SerialPorts.Initialize(TSerialPorts::kNullDriver, 
+					   TSerialPorts::kNullDriver,
+					   TSerialPorts::kNullDriver,
+					   TSerialPorts::kNullDriver );
+
 	if (useMonitor)
 	{
 		char theSymbolListPath[512];

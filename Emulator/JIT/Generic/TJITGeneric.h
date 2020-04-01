@@ -25,10 +25,10 @@
 #define _TJITGENERIC_H
 
 #include <K/Defines/KDefinitions.h>
-#include "TJIT.h"
+#include "Emulator/JIT/TJIT.h"
 
 // Einstein
-#include "TJITGenericPage.h"
+#include "Emulator/JIT/Generic/TJITGenericPage.h"
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 
 class TMemory;

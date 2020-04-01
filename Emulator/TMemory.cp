@@ -45,7 +45,7 @@
 #include "TDMAManager.h"
 #include "Serial/TSerialPortManager.h"
 #include "TEmulator.h"
-#include "TPlatformManager.h"
+#include "Emulator/Platform/TPlatformManager.h"
 #include "ROM/TROMImage.h"
 #include "Log/TLog.h"
 #include "JIT/JIT.h"
