@@ -1,15 +1,14 @@
 # Serial CMakeLists.txt
 
-# Only this one compiles for now ...
-set(sources TSerialPortManager.cp)
-
-# TODO virtual serial port
-
-if(${UNIX})
-    if (${APPLE})
-        set (sources ${sources} TBasicSerialPortManager.cp)
-    endif()
-endif()
+set(sources 
+	TSerialPorts.cp 
+	TSerialPortManager.cp
+        TBasicSerialPortManager.cp 
+  	TPipesSerialPortManager.cp
+  	TTcpClientSerialPortManager.cp
+	TBasiliskIISerialPortManager.cp  
+	TPtySerialPortManager.cp
+	)
 
 
 set_source_files_properties(${sources} PROPERTIES LANGUAGE CXX)
