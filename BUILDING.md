@@ -24,6 +24,8 @@ of Einstein inside the folder `Products > Application`.
 
 Continue with setting up the ROM as described in the manual. Enjoy.
 
+(BasiliskII: open `.../BasiliskII/src/MacOSX/BasiliskII.xcodeproj` in Xcode and Apple-R to run)
+
 
 Building Einstein on Linux in 64 bit
 ------------------------------------
@@ -52,3 +54,6 @@ make
 
 A lot of warnings may appear that you can ignore. In the end, you will have a file named
 `einstein` in `_Build_/Makefile`. Just launch it by typing `./einstein path_to_my_rom`.
+
+(BasiliskII: in `.../BasiliskII/src/Unix`, run `./autogen.sh --without-gtk --without-x --disable-standalone-gui --disable-gtk-test --with-sdl-static --with-sdl-video --with-sdl-audio --with-sdl-framework` and `make`)
+
