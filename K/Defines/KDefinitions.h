@@ -110,9 +110,6 @@
 /// On a aussi KDebugOn qui détermine si on veut du déverminage.
 /// Par défaut à 1 sauf si NDEBUG vaut 1.
 
-///\def HAS_C99_LONGLONG
-/// Macro qui vaut \c 1 si on a l'extension C99 long long, \c 0 sinon.
-
 ///\def HAS_C99_SNPRINTF
 ///	Macro qui vaut \c 1 si on a l'extension C99 snprintf, \c 0 sinon.
 
@@ -197,21 +194,9 @@
 
 	#include <Newton.h>
 
-	typedef	unsigned long	KUInt32;
-	typedef	signed long		KSInt32;
-	typedef	unsigned short	KUInt16;
-	typedef	signed short	KSInt16;
-	typedef	signed char		KSInt8;
-	typedef unsigned char	KUInt8;
-
 	#define TARGET_RT_LITTLE_ENDIAN 0
 	#define TARGET_RT_BIG_ENDIAN 1
-	#define FOUR_CHAR_CODE(x)		(x)
 
-	#ifndef HAS_C99_LONGLONG
-		#define HAS_C99_LONGLONG 0
-	#endif
-	
 	// La bibliothèque C n'a pas snprintf
 	#ifndef HAS_C99_SNPRINTF
 		#define HAS_C99_SNPRINTF 0
@@ -222,8 +207,6 @@
 		#define HAS_NAMESPACES 0
 	#endif
 	
-	// void* est en 32 bits sur cette plateforme.
-	#define KUIntPtr			KUInt32
 #endif
 
 #if TARGET_OS_MAC
@@ -277,11 +260,6 @@
 			#error "Unknown MacOS X architecture"
 		#endif
 
-		#if (defined(__ppc64__) || defined (__x86_64__) || defined (__arm64__))
-			#define KUIntPtr	KUInt64
-		#else
-			#define KUIntPtr	KUInt32
-		#endif
 	#else
 		#define TARGET_OS_ANDROID 0
 		#define TARGET_OS_BEOS 0
@@ -296,33 +274,10 @@
 		#define TARGET_OS_COMPAT_POSIX 0
 		#undef	TARGET_OS_UNDEFINED
 		
-		// Sur MacOS, on a forcément du 32 bits.
-		#define KUIntPtr	KUInt32
 	#endif
 
-	// FOUR_CHAR_CODE est déjà défini.
-	
 	#if TARGET_OS_MACOS
 		#include <MacTypes.h>
-	#endif
-	
-	typedef	UInt32			KUInt32;
-	typedef	SInt32			KSInt32;
-	typedef	UInt16			KUInt16;
-	typedef	SInt16			KSInt16;
-	typedef	SInt8			KSInt8;
-	typedef UInt8			KUInt8;
-
-	#ifndef HAS_C99_LONGLONG
-		#if TYPE_LONGLONG
-			#if defined(_MSC_VER) && !defined(__MWERKS__) && defined(_M_IX86)
-				#define HAS_C99_LONGLONG 0
-			#else
-				#define HAS_C99_LONGLONG 1
-			#endif
-		#else
-			#define HAS_C99_LONGLONG 0
-		#endif
 	#endif
 	
 	#if TARGET_OS_OPENSTEP
@@ -375,30 +330,6 @@
 	#endif
 
 	#define HAS_COND_TIMEDWAIT_RELATIVE_NP 1
-
-#	if _MSC_VER
-		typedef	unsigned __int32		KUInt32;
-		typedef	signed __int32			KSInt32;
-		typedef	unsigned __int16		KUInt16;
-		typedef	signed __int16			KSInt16;
-		typedef unsigned __int8			KUInt8;
-		typedef	signed __int8			KSInt8;
-		typedef	bool					Boolean;
-		#define FOUR_CHAR_CODE(x)		((__int32)(x))
-#	else
-		typedef	unsigned long			KUInt32;
-		typedef	signed long				KSInt32;
-		typedef	unsigned short			KUInt16;
-		typedef	signed short			KSInt16;
-		typedef	signed char				KSInt8;
-		typedef unsigned char			KUInt8;
-		typedef	bool					Boolean;
-		#define FOUR_CHAR_CODE(x)		((long)(x))
-#	endif
-
-	// We probably have long long on Windows.
-	// We have it on Cygwin for sure.
-	#define HAS_C99_LONGLONG 1
 #endif
 
 #if TARGET_OS_ANDROID
@@ -416,17 +347,6 @@
 
 	#undef HAS_EXCEPTION_HANDLING
 	#define HAS_EXCEPTION_HANDLING 0
-
-	#define HAS_C99_LONGLONG 1
-
-	typedef	unsigned long			KUInt32;
-	typedef	signed long				KSInt32;
-	typedef	unsigned short			KUInt16;
-	typedef	signed short			KSInt16;
-	typedef	signed char				KSInt8;
-	typedef	unsigned char			KUInt8;
-	typedef	bool					Boolean;
-	#define FOUR_CHAR_CODE(x)		((long)(x))
 
 	#include <endian.h>
 	#if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -470,14 +390,6 @@
 	#endif
 	
 	#include <SupportDefs.h>
-	typedef uint32					KUInt32;
-	typedef signed long				KSInt32;
-	typedef uint16					KUInt16;
-	typedef signed short			KSInt16;
-	typedef signed char				KSInt8;
-	typedef unsigned char			KUInt8;
-	typedef bool					Boolean;
-	#define FOUR_CHAR_CODE(x)		((long)(x))
 #endif
 
 #if TARGET_OS_BSD
@@ -492,16 +404,6 @@
 	#define TARGET_OS_CYGWIN 0
 	#define TARGET_OS_COMPAT_POSIX 1
 	#undef	TARGET_OS_UNDEFINED
-
-	// J'espère que ceci passe:
-	typedef	unsigned long			KUInt32;
-	typedef	signed long				KSInt32;
-	typedef	unsigned short			KUInt16;
-	typedef	signed short			KSInt16;
-	typedef	signed char				KSInt8;
-	typedef	unsigned char			KUInt8;
-	typedef	bool					Boolean;
-	#define FOUR_CHAR_CODE(x)		((long)(x))
 
 	// Détermination du sexe via endian.h
 	#include <sys/endian.h>
@@ -524,17 +426,10 @@
 			#error "Could not guess endianness on BSD platform with <sys/endian.h>"
 		#endif
 	#endif
-
-	// Test de unsigned long long sur Linux: on utilise __GLIBC_HAVE_LONG_LONG.
-	// Pas parfait.
-	#ifndef HAS_C99_LONGLONG
-		#include <sys/types.h>
-		#include <sys/cdefs.h>
-	#endif
 #endif
 
 #if TARGET_OS_LINUX
-#include <stdint.h>
+#include <cstdint>
 	#define TARGET_OS_ANDROID 0
 	#define TARGET_OS_BEOS 0
 	#define TARGET_OS_BSD 0
@@ -559,17 +454,6 @@
 		#undef _XOPEN_SOURCE_EXTENDED
 	#endif
 	#define _XOPEN_SOURCE_EXTENDED 1
-
-	// J'espère que ceci passe:
-	typedef	uint32_t	KUInt32;
-	typedef	int32_t		KSInt32;
-	typedef	uint16_t	KUInt16;
-	typedef	int16_t		KSInt16;
-	typedef	int8_t		KSInt8;
-	typedef	uint8_t		KUInt8;
-	typedef	bool		Boolean;
-	#define KUIntPtr uintptr_t
-	#define FOUR_CHAR_CODE(x)		((long)(x))
 
 	// Détermination du sexe via endian.h
 	#include <endian.h>
@@ -607,40 +491,11 @@
 	#define TARGET_OS_CYGWIN 0
 	#define TARGET_OS_COMPAT_POSIX 1
 	#undef	TARGET_OS_UNDEFINED
-
-	// J'espère que ceci passe:
-	typedef	unsigned long			KUInt32;
-	typedef	signed long				KSInt32;
-	typedef	unsigned short			KUInt16;
-	typedef	signed short			KSInt16;
-	typedef	signed char				KSInt8;
-	typedef	unsigned char			KUInt8;
-	typedef	bool					Boolean;
-	#define FOUR_CHAR_CODE(x)		((long)(x))
-#endif
-
-// Entiers 64 bits.
-#ifndef HAS_C99_LONGLONG
-	#if defined(__GLIBC_HAVE_LONG_LONG) || defined(__LONG_LONG_SUPPORTED)
-		#define HAS_C99_LONGLONG 1
-	#else
-		#define HAS_C99_LONGLONG 0
-	#endif
 #endif
 
 // snprintf
 #ifndef HAS_C99_SNPRINTF
 	#define HAS_C99_SNPRINTF 1
-#endif
-
-#if HAS_C99_LONGLONG
-	typedef unsigned long long		KUInt64;
-	typedef signed long long		KSInt64;
-#else
-	#include <K/Math/TUInt64.h>
-	#include <K/Math/TSInt64.h>
-	typedef TUInt64					KUInt64;
-	typedef TSInt64					KSInt64;
 #endif
 
 #ifdef TARGET_OS_UNDEFINED
@@ -667,10 +522,10 @@
 #endif
 
 #ifndef NULL
-	#define NULL		0L
+	#define NULL		nullptr
 #endif
 #ifndef nil
-	#define nil			NULL
+	#define nil			nullptr
 #endif
 
 #ifndef HAS_COND_TIMEDWAIT_RELATIVE_NP
@@ -678,20 +533,17 @@
 #endif
 
 
-// Par défaut, on a les portées.
-#ifndef HAS_NAMESPACES
-	#define HAS_NAMESPACES 1
-#endif
+typedef	uint64_t	KUInt64;
+typedef	int64_t		KSInt64;
+typedef	uint32_t	KUInt32;
+typedef	int32_t		KSInt32;
+typedef	uint16_t	KUInt16;
+typedef	int16_t		KSInt16;
+typedef uint8_t     KUInt8;
+typedef	int8_t		KSInt8;
+typedef	bool		Boolean;
+typedef uintptr_t   KUIntPtr;
 
-#if HAS_NAMESPACES
-	#define NAMESPACE(__name) namespace __name
-#else
-#endif
-
-// Cas par défaut: 32 bits.
-#ifndef KUIntPtr
-	#define KUIntPtr	KUInt32
-#endif
 
 static_assert(sizeof(KUInt8)==1, "Size of KUInt8 must be 1 byte");
 static_assert(sizeof(KUInt16)==2, "Size of KUInt16 must be 2 bytes");

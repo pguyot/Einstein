@@ -99,7 +99,7 @@ private:
 
     static void SPAStreamWriteCallback(pa_stream* s, size_t requested_bytes, void* userData)
     {
-        return ((TPulseAudioSoundManager*) userData)->PAStreamWriteCallback(s, requested_bytes);
+        return ((TPulseAudioSoundManager*) userData)->PAStreamWriteCallback(s, (unsigned)requested_bytes);
     }
 
     void PAContextStateCallback(pa_context* context, pa_threaded_mainloop* mainloop);

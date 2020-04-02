@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 
+# We need a minimum C++ standard to avoid tons of #ifdef's
+set(CMAKE_CXX_STANDARD 14)
+# We want CMake to complain if our compiler can not provide at least that
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Since this is a cross-platform app, we want to get an error for any compiler specific extensions
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 project(einstein)
 
 set(INCLUDEPKGS TestBigEndian FindPkgConfig CheckLibraryExists)
@@ -17,8 +24,8 @@ option(appFLTK "FLTK application" OFF)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 
 # Release / Debug compile flags.
-set(_FLAGS_DEBUG "-g -O0 -DDEBUG -DDEBUG_SOUND -DPA_ENABLE_DEBUG_OUTPUT -DHAS_C99_LONGLONG")
-set(_FLAGS_RELEASE "-O3 -DRELEASE -DHAS_C99_LONGLONG")
+set(_FLAGS_DEBUG "-g -O0 -DDEBUG -DDEBUG_SOUND -DPA_ENABLE_DEBUG_OUTPUT")
+set(_FLAGS_RELEASE "-O3 -DRELEASE")
 
 set(CMAKE_CXX_FLAGS_RELEASE "${_FLAGS_RELEASE}")
 set(CMAKE_C_FLAGS_RELEASE "${_FLAGS_RELEASE}")

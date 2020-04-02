@@ -617,7 +617,7 @@ TCLIApp::AppMenuLoop( void )
 		}
 
 		// Strip the end line.
-		int theLength = ::strlen(theCommand);
+		auto theLength = ::strlen(theCommand);
 		if (theLength > 1)
 		{
 			theCommand[theLength - 1] = '\0';

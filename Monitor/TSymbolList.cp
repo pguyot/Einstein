@@ -676,7 +676,7 @@ TSymbolList::ReadSymbolData(
 		
 		if ( (theChar != EOF) && (theChar != '\t') && (cursor < 510) && (theChar != '\n') && (theChar != '\r') )
 		{
-			outSymbol[cursor] = theChar;
+			outSymbol[cursor] = (char)theChar;
 		}
 		else
 		{
@@ -703,7 +703,7 @@ TSymbolList::ReadSymbolData(
 
 			if ( (theChar != EOF) && (theChar != '\n') && (theChar != '\r') && (cursor < 510) )
 			{
-				outComment[cursor] = theChar;
+				outComment[cursor] = (char)theChar;
 			}
 			else
 			{

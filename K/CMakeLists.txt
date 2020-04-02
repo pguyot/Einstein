@@ -38,13 +38,10 @@ Threads/TMutex.cp
 Threads/TThread.cp
 Unicode/UUTF16Conv.cp
 Unicode/UUTF16CStr.cp
-Math/TInt64.cpp
-Math/TUInt64.cpp
-Math/TSInt64.cpp
 )
 
 if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
-    add_definitions (-DTARGET_OS_LINUX -DHAS_C99_LONGLONG -Wno-multichar)
+    add_definitions (-DTARGET_OS_LINUX -Wno-multichar)
 elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
     add_definitions (-DTARGET_OS_OPENSTEP)
     set(SOURCES ${SOURCES} Misc/UPStrings.cp)
