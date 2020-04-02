@@ -46,7 +46,7 @@ class TMutex;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 147 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TPlatformManager
 {
@@ -256,14 +256,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TPlatformManager( const TPlatformManager& inCopy );
 
 	///
-	/// Opérateur d'assignation volontairement indisponible.
+	/// Op√©rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TPlatformManager& operator = ( const TPlatformManager& inCopy );
 
@@ -285,7 +285,7 @@ private:
 	TInterruptManager*	mInterruptManager;	///< Reference to the interrupt mgr.
 	TMemory*			mMemory;			///< Reference to the memory interface.
 	TARMProcessor*		mCPU;				///< Reference to the processor
-	SEvent*				mEventQueue;		///< Liste des événements.
+	SEvent*				mEventQueue;		///< Liste des √©v√©nements.
 	KUInt32				mEventQueueCCrsr;	///< Consumer queue cursor (Newton)
 	KUInt32				mEventQueuePCrsr;	///< Producer queue cursor (Host)
 	KUInt32				mEventQueueSize;	///< Size of the event queue.

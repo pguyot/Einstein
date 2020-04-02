@@ -44,13 +44,13 @@ class TSymbolList;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 113 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TCLIApp
 {
 public:
 	///
-	/// Constructeur par défaut.
+	/// Constructeur par d√©faut.
 	///
 	TCLIApp( void );
 
@@ -60,7 +60,7 @@ public:
 	~TCLIApp( void );
 
 	///
-	/// Point d'entrée.
+	/// Point d'entr√©e.
 	///
 	void Run( int argc, char* argv[] );
 
@@ -68,14 +68,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TCLIApp( const TCLIApp& inCopy );
 
 	///
-	/// Opérateur d'assignation volontairement indisponible.
+	/// Op√©rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TCLIApp& operator = ( const TCLIApp& inCopy );
 
@@ -103,12 +103,12 @@ private:
 	void Version( void );
 	
 	///
-	/// Crée le gestionnaire de son.
+	/// Cr√©e le gestionnaire de son.
 	///
 	void CreateSoundManager( const char* inClass );
 	
 	///
-	/// Crée le gestionnaire d'écran.
+	/// Cr√©e le gestionnaire d'√©cran.
 	///
 	void CreateScreenManager(
 				const char* inClass,
@@ -117,12 +117,12 @@ private:
 				Boolean inFullScreen);
 	
 	///
-	/// Crée le log.
+	/// Cr√©e le log.
 	///
 	void CreateLog( const char* inPath );
 	
 	///
-	/// Point d'entrée du processus léger.
+	/// Point d'entr√©e du processus l√©ger.
 	///
 	static void* SThreadEntry( void* inUserData )
 		{
@@ -131,7 +131,7 @@ private:
 		}
 
 	///
-	/// Point d'entrée du processus léger.
+	/// Point d'entr√©e du processus l√©ger.
 	///
 	void ThreadEntry( void );
 
@@ -173,12 +173,13 @@ private:
 	TEmulator*			mEmulator;			///< Emulateur.
 	TNetworkManager*	mNetworkManager;	///< Network Manager.
 	TSoundManager*		mSoundManager;		///< Gestionnaire de son.
-	TScreenManager*		mScreenManager;		///< Gestionnaire d'écran.
+	TScreenManager*		mScreenManager;		///< Gestionnaire d'√©cran.
 	TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
 	TLog*				mLog;				///< Log.
 	TMonitor*			mMonitor;			///< Monitor.
 	TSymbolList*		mSymbolList;		///< List of symbols.
 	Boolean				mQuit;				///< If we should quit.
+	int                 mCmdPipe[2] {-1, -1}; ///< Make the command line wait for keyboard an a possible Quit event
 };
 
 #endif
