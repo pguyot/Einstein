@@ -25,6 +25,7 @@
 #define _TEMULATOR_H
 
 #include <K/Defines/KDefinitions.h>
+#include <functional>
 
 // Einstein
 #include "TARMProcessor.h"
@@ -51,7 +52,7 @@ class TFileManager;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 151 $
 ///
-/// \test	aucun test dŽfini.
+/// \test	aucun test dï¿½fini.
 ///
 class TEmulator
 {
@@ -393,18 +394,23 @@ public:
 	///
 	TSerialPorts	SerialPorts;		///< Serial port driver access
 
+	///
+	/// Lets the Host App set a callback, so it knows when to quit
+	///
+	void CallOnQuit(std::function<void()> inCallback);
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet ˆ copier
+	/// \param inCopy		objet ï¿½ copier
 	///
 	TEmulator( const TEmulator& inCopy );
 
 	///
-	/// OpŽrateur d'assignation volontairement indisponible.
+	/// Opï¿½rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet ˆ copier
+	/// \param inCopy		objet ï¿½ copier
 	///
 	TEmulator& operator = ( const TEmulator& inCopy );
 
@@ -427,6 +433,7 @@ private:
 	KUInt32				mPaused;			///< If we're paused (until next interrupt).
 	KUInt32				mBPHalted;			///< If we're halted because of a breakpoint.
 	KUInt16				mBPID;				///< ID of the breakpoint.
+	std::function<void()> mCallOnQuit;      ///< Call this when the user quits Einstein
 };
 
 #endif

@@ -225,6 +225,11 @@ TEmulator::Run( void )
 	}
 	
 	mInterruptManager->SuspendTimer();
+
+	if (mCallOnQuit)
+	    mCallOnQuit();
+
+	// end the thread that runs the emulation
 }
 
 // -------------------------------------------------------------------------- //
@@ -571,6 +576,18 @@ void TEmulator::SetNewtonID(KUInt32 inID0, KUInt32 inID1) {
 	mNewtonID[0] = inID0;
 	mNewtonID[1] = inID1;
 	mMemory.ComputeSerialNumber( GetNewtonID() );
+}
+
+
+/**
+ * Set a callback function that is called when the emulator thread is no longer running.
+ * This can be used by the host user interface manager (TCLIApp, TCocoaAppController, etc.)
+ * to close the window and quit the app.
+ * @param inCallback we can call any kind of function here
+ */
+void TEmulator::CallOnQuit(std::function<void()> inCallback)
+{
+    mCallOnQuit = std::move(inCallback);
 }
 
 

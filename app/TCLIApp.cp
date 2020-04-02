@@ -85,6 +85,7 @@ TCLIApp::TCLIApp( void )
 		mMonitor( nil ),
 		mSymbolList( nil )
 {
+    ::pipe(mCmdPipe);
 }
 
 // -------------------------------------------------------------------------- //
@@ -92,6 +93,8 @@ TCLIApp::TCLIApp( void )
 // -------------------------------------------------------------------------- //
 TCLIApp::~TCLIApp( void )
 {
+    ::close(mCmdPipe[0]);
+    ::close(mCmdPipe[1]);
 	if (mEmulator)
 	{
 		delete mEmulator;
@@ -355,7 +358,14 @@ TCLIApp::Run( int argc, char* argv[] )
 	mEmulator = new TEmulator(
 				mLog, mROMImage, theFlashPath,
 				mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
+
 	mPlatformManager = mEmulator->GetPlatformManager();
+
+	mEmulator->CallOnQuit(
+	        [this]() {
+                ::write(mCmdPipe[1], "Q", 1);
+	        }
+    );
 
 	// the commandline argument is --serial=tcp:server:port . We currently support only TCP connections
 	// theSerialDriver is either nil or text in the format 'server' or 'server:port' without single quotes
@@ -520,9 +530,10 @@ TCLIApp::MonitorMenuLoop( void )
 		// Wait for a command via select.
 		FD_ZERO( &theSocketSet );
 		FD_SET( STDIN_FILENO, &theSocketSet );
-		FD_SET( monitor_fd, &theSocketSet );
+        FD_SET( monitor_fd, &theSocketSet );
+        FD_SET( mCmdPipe[0], &theSocketSet );
 
-		int readyFd = ::select( max_fd + 1, &theSocketSet, NULL, NULL, NULL );
+		int readyFd = ::select( FD_SETSIZE, &theSocketSet, NULL, NULL, NULL );
 		if (readyFd > 0)
 		{
 			if (FD_ISSET( STDIN_FILENO, &theSocketSet))
@@ -571,6 +582,13 @@ TCLIApp::MonitorMenuLoop( void )
 				char theByte;
 				(void) ::read( monitor_fd, &theByte, 1 );
 			}
+
+            if (FD_ISSET(mCmdPipe[0], &theSocketSet))
+            {
+                // Emulator is quitting, so leave the loop, too.
+                mQuit = true;
+                break;
+            }
 		} else {
 			// Interrupted.
 			// Let's exit the loop.
@@ -603,18 +621,31 @@ TCLIApp::MonitorMenuLoop( void )
 void
 TCLIApp::AppMenuLoop( void )
 {
-	char theCommand[2048];
+    char theCommand[2048];
 	while( !mQuit )
 	{
 		// Prompt.
 		(void) ::printf( "einstein> " );
 		(void) ::fflush( stdout );
 
-		if (::fgets(theCommand, 2048, stdin) == NULL)
-		{
-			mQuit = true;
-			break;
-		}
+		// This input loop blocks until the user enters text or we receive anything through the mCmdPipe
+        fd_set watchFDs;
+        FD_ZERO(&watchFDs);
+        FD_SET(STDIN_FILENO, &watchFDs);
+        FD_SET(mCmdPipe[0], &watchFDs);
+        int ret = select(FD_SETSIZE, &watchFDs, 0L, 0L, nullptr);
+        if (ret==-1)
+            continue;
+        if (FD_ISSET(mCmdPipe[0], &watchFDs)) {
+            mQuit = true;
+            return;
+        }
+        if (FD_ISSET(STDIN_FILENO, &watchFDs)) {
+            if (::fgets(theCommand, 2048, stdin) == NULL) {
+                mQuit = true;
+                break;
+            }
+        }
 
 		// Strip the end line.
 		auto theLength = ::strlen(theCommand);
