@@ -33,7 +33,7 @@
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 140 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TStdOutLog
 	:

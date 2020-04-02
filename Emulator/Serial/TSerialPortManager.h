@@ -40,7 +40,7 @@ class TEmulator;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 107 $
 ///
-/// \test	aucun test dŽfini.
+/// \test	aucun test dï¿½fini.
 ///
 class TSerialPortManager
 {
@@ -56,19 +56,19 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TSerialPortManager( void );
+	virtual ~TSerialPortManager( );
 
 	///
 	/// Return the Identification of this driver
 	///
-	virtual KUInt32 GetID() { return TSerialPorts::kNullDriver; }
+	virtual KUInt32 GetID() = 0;
 
 	///
 	/// Start emulation.
 	///
 	virtual void run(TInterruptManager* inInterruptManager,
 					 TDMAManager* inDMAManager,
-					 TMemory* inMemory);
+					 TMemory* inMemory) = 0;
 
 	/// \name Low-level routines.
 
@@ -102,6 +102,20 @@ public:
 	///
 	virtual void NSSetOptions(TNewt::RefArg /*frame*/) { }
 
+    ///
+    /// Constructeur par copie volontairement indisponible.
+    ///
+    /// \param inCopy		objet ï¿½ copier
+    ///
+    TSerialPortManager( const TSerialPortManager& inCopy ) = delete;
+
+    ///
+    /// Opï¿½rateur d'assignation volontairement indisponible.
+    ///
+    /// \param inCopy		objet ï¿½ copier
+    ///
+    TSerialPortManager& operator = ( const TSerialPortManager& inCopy ) = delete;
+
 protected:
 
 	///
@@ -112,20 +126,6 @@ protected:
 		kSerReg_BreakDuplex	= 0x2400,
 	};
 	
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet ˆ copier
-	///
-	TSerialPortManager( const TSerialPortManager& inCopy );
-
-	///
-	/// OpŽrateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet ˆ copier
-	///
-	TSerialPortManager& operator = ( const TSerialPortManager& inCopy );
-
 	/// \name Variables
 	TLog*				mLog;				///< Reference to the log object
 											///< (or NULL)

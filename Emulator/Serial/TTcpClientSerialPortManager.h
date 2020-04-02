@@ -52,7 +52,7 @@ public:
 	///
 	/// Destructor.
 	///
-	~TTcpClientSerialPortManager( void ) override;
+	~TTcpClientSerialPortManager( ) override;
 
 	///
 	/// Return the Identification of this driver
