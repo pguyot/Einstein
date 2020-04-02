@@ -45,7 +45,7 @@ Now run CMake. If your missing resources, CMake will tell you. Install tehm and 
 until you get a list of stuff ending with `-- Build files have been written to:...`. The run `make`.
 
 ```bash
-CMake -DCMAKE_BUILD_TYPE=Release ../..
+cmake -DCMAKE_BUILD_TYPE=Release ../..
 # repeat until you have all resources
 make 
 ```
