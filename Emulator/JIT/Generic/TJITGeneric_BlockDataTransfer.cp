@@ -82,7 +82,7 @@ Translate_BlockDataTransfer(
 	KUInt32 flag_puw =	flag_pu << 1 | ((inInstruction & 0x00200000) >> (21 - 4));
 	KUInt32 Rn =		(inInstruction & 0x000F0000) >> 16;
 	KUInt32 regList =	(inInstruction & 0x0000FFFF);
-	KUInt32 nbRegs = CountBits(regList);
+	KUInt32 nbRegs = CountBits((KUInt16)regList);
 	// Different cases.
 	if (inInstruction & 0x00100000)
 	{

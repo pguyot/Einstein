@@ -143,8 +143,8 @@ void TScreenManager::ChangeScreenSize(int inPortraitWidth, int inPortraitHeight)
 	// FIXME: calculate the actual overlay dimensions
 	mOverlayRect.fTop = 0;
 	mOverlayRect.fLeft = 0;
-	mOverlayRect.fRight = GetScreenWidth();
-	mOverlayRect.fBottom = GetScreenHeight();
+	mOverlayRect.fRight = static_cast<KUInt16>(GetScreenWidth());
+	mOverlayRect.fBottom = static_cast<KUInt16>(GetScreenHeight());
 }
 
 // -------------------------------------------------------------------------- //

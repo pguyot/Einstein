@@ -3,7 +3,7 @@
 // Projet:			K
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 // 
-// CrŽŽ le:			14/2/2005
+// Crï¿½ï¿½ le:			14/2/2005
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****
@@ -154,7 +154,7 @@ TMappedFile::TMappedFile(
 #endif // _MSC_VER
 		mMapped = true;
 	
-		if (((KUIntPtr) mBuffer) == -1)
+		if (mBuffer==(void*)-1)
 		{
 			mMapped = false;
 
