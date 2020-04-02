@@ -596,6 +596,7 @@ SetCPSRBitsForArithmeticOp(
 inline KUInt32
 CountBits( KUInt16 inWord )
 {
+#if 0
 	// http://www.caam.rice.edu/~dougm/twiddle/BitCount.html
 	#define T unsigned
 	#define ONES ((T)(-1))
@@ -608,6 +609,14 @@ CountBits( KUInt16 inWord )
 	BSUM(inWord,3);
 	
 	return inWord;
+#else
+	// c++20: return std::popcount(inWord);
+    static const KUInt8 nibbleLUT[16] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
+    return nibbleLUT[ inWord & 0x000f ]
+           + nibbleLUT[ (inWord>>4) & 0x0000f ]
+             + nibbleLUT[ (inWord>>8) & 0x000f ]
+               + nibbleLUT[ (inWord>>12) & 0x000f ];
+#endif
 }
 
 #endif

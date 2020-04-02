@@ -551,13 +551,11 @@ if $(OS) = "MACOSX"
 
     if $(target:E="unknown") = "raspberry-pi"
     {
-		_commonflags += -DHAS_C99_LONGLONG=1 ;
 		_commonflags += -DRASPBERRY_PI=1 ;
 	}
 
 	if $(target:E="unknown") = "linux"
 	{
-		_commonflags += -DHAS_C99_LONGLONG=1 ;
 	}
 
 	if $(target:E="unknown") != "raspberry-pi"

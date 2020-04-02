@@ -353,8 +353,8 @@ TMonitor::LoadEmulatorState( const char *inFilename )
 	TScreenManager::SRect rect;
 	rect.fLeft = 0;
 	rect.fTop = 0;
-	rect.fBottom = screen->GetScreenHeight()-1;
-	rect.fRight = screen->GetScreenWidth()-1;
+	rect.fBottom = static_cast<KUInt16>(screen->GetScreenHeight() - 1);
+	rect.fRight = static_cast<KUInt16>(screen->GetScreenWidth() - 1);
 	screen->UpdateScreenRect(&rect);
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
@@ -401,8 +401,8 @@ TMonitor::RevertEmulatorState( const char *inFilename )
 	TScreenManager::SRect rect;
 	rect.fLeft = 0;
 	rect.fTop = 0;
-	rect.fBottom = screen->GetScreenHeight()-1;
-	rect.fRight = screen->GetScreenWidth()-1;
+	rect.fBottom = static_cast<KUInt16>(screen->GetScreenHeight() - 1);
+	rect.fRight = static_cast<KUInt16>(screen->GetScreenWidth() - 1);
 	screen->UpdateScreenRect(&rect);
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
@@ -1090,7 +1090,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 	} else if (::sscanf(inCommand, "watch %i %X", &theArgInt2, &theArgInt) == 2) {
 		if ((theArgInt2 >= 0) && (theArgInt2 <= 3))
 		{
-			if (mMemory->SetBreakpoint( theArgInt, kWatch0BP + theArgInt2 ))
+			if (mMemory->SetBreakpoint( theArgInt, KUInt16(kWatch0BP + theArgInt2) ))
 			{
 				(void) ::sprintf(
 					theLine, "Setting breakpoint at %.8X failed",

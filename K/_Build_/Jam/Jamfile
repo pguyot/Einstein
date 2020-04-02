@@ -399,7 +399,6 @@ if $(OS) = "MACOSX"
 	_commonflags += -Wpointer-arith ;
 	_commonflags += -Wwrite-strings ;
 	_commonflags += -Wconversion ;
-    _commonflags += -DHAS_C99_LONGLONG=1 ;
 
 	if $(target:E="unknown") = "raspberry-pi"
 	{

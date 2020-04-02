@@ -352,7 +352,7 @@ Translate_DataProcessingPSRTransfer(
 			{
 				// Software breakpoint
 				KUInt16 theID = inInstruction & 0x0000000F;
-				theID |= (inInstruction & 0x000FFF00) >> 4;
+				theID |= KUInt16((inInstruction & 0x000FFF00) >> 4);
 				thePushedValue = theID;
 				PUSHFUNC(SoftwareBreakpoint);
 				doPushPC = true;
