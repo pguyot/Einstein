@@ -11,4 +11,9 @@ target_include_directories(host PUBLIC
     ../../
     )
 
+if(${WIN32})
+    target_include_directories(host PUBLIC
+        ../Win32)
+endif()
+
 target_link_libraries(host k)

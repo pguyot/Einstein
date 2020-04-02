@@ -14,4 +14,9 @@ target_include_directories(rom PUBLIC
     ../../
     )
 
+if(${WIN32})
+    target_include_directories(rom PUBLIC
+        ../Win32)
+endif()
+
 target_link_libraries(rom k)

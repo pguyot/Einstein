@@ -102,8 +102,11 @@ TPulseAudioSoundManager::TPulseAudioSoundManager( TLog* inLog /* = nil */ )
     buffer_attr.minreq = (uint32_t) -1;
 
 #ifdef DEBUG_SOUND
-    printf("PulseAudio Buffer: maxlength=%d, tlength=%d, prebuf=%d, minreq=%d\n",
-        buffer_attr.maxlength, buffer_attr.tlength, buffer_attr.prebuf, buffer_attr.minreq);
+    if (GetLog()) {
+        GetLog()->FLogLine("PulseAudio Buffer: maxlength=%d, tlength=%d, prebuf=%d, minreq=%d",
+            buffer_attr.maxlength, buffer_attr.tlength, buffer_attr.prebuf, buffer_attr.minreq);
+    }
+
 #endif
 
     int stream_flags =  (PA_STREAM_INTERPOLATE_TIMING | PA_STREAM_NOT_MONOTONIC | PA_STREAM_AUTO_TIMING_UPDATE);
@@ -168,12 +171,17 @@ TPulseAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize 
             size_t roomInPAStream = pa_stream_writable_size(mOutputStream);
             KUInt8* outBuffer = NULL;
 #ifdef DEBUG_SOUND
-printf("***** FROM NOS: ScheduleOutput size:%d, frames:%ld, PA out buffer size:%d\n", inputSize, (inSize / sizeof(KSInt16)), roomInPAStream );
+            if (GetLog()) {
+                GetLog()->FLogLine("***** FROM NOS: ScheduleOutput size:%d, frames:%ld, PA out buffer size:%d",
+                inputSize, (inSize / sizeof(KSInt16)), roomInPAStream );
+            }
 #endif
             if (roomInPAStream >= inputSize)
             {
 #ifdef DEBUG_SOUND
-                printf("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (lots of space)\n", inputSize);
+                if (GetLog()) {
+                    GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (lots of space)", inputSize);
+                }
 #endif
                 pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &inputSize);
                 ::memcpy(outBuffer, inBuffer, inputSize);
@@ -182,7 +190,9 @@ printf("***** FROM NOS: ScheduleOutput size:%d, frames:%ld, PA out buffer size:%
             else
             {
 #ifdef DEBUG_SOUND
-                printf("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (LACK of space)\nRAISEOUTPUTINTERRUPT SCHEDULEOUTPUT\n", roomInPAStream);
+                if (GetLog()) {
+                    GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (LACK of space) - RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT", roomInPAStream);
+                }
 #endif
                 pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &roomInPAStream);
                 ::memcpy(outBuffer, inBuffer, roomInPAStream);
@@ -193,7 +203,9 @@ printf("***** FROM NOS: ScheduleOutput size:%d, frames:%ld, PA out buffer size:%
             if (inSize < kNewtonBufferSize)
             {
 #ifdef DEBUG_SOUND
-                printf("RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT\n");
+                if (GetLog()) {
+                    GetLog()->FLogLine("RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT");
+                }
 #endif
                 RaiseOutputInterrupt();
             }
@@ -202,35 +214,13 @@ printf("***** FROM NOS: ScheduleOutput size:%d, frames:%ld, PA out buffer size:%
     else if (mOutputIsRunning)
     {
 #ifdef DEBUG_SOUND
-        printf("***** FROM NOS: ScheduleOutput no incoming data, STOP Output?\n");
+        if (GetLog()) {
+            GetLog()->FLogLine("***** FROM NOS: ScheduleOutput no incoming data, STOP Output?");
+        }
 #endif
         StopOutput();
     }
 }
-
-// void TPulseAudioSoundManager::PAStreamWriteCallback(pa_stream* s, size_t requestedBytes)
-// {
-//     int bytesRemaining = requestedBytes;
-// printf("PAStreamWriteCallback YASSSSSSSS\n");
-//     mDataMutex->Lock();
-//     KUInt32 bytesAvailable = mOutputBuffer->AvailableBytes();
-//     mDataMutex->Unlock();
-//     size_t bytesToWrite = MIN(bytesAvailable, bytesRemaining);
-//     if (bytesToWrite > 0)
-//     {
-//         printf("PAStreamWriteCallback writin' %d bytes YASSSSSSSS\n", bytesToWrite);
-//         KUInt8 *outBuffer = NULL;
-//         size_t i;
-//
-//         pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &bytesToWrite);
-//
-//         mDataMutex->Lock();
-//         mOutputBuffer->Produce(outBuffer, bytesToWrite);
-//         mDataMutex->Unlock();
-//
-//         pa_stream_write(mOutputStream, outBuffer, bytesToWrite, NULL, 0LL, PA_SEEK_RELATIVE);
-//     }
-// }
 
 // -------------------------------------------------------------------------- //
 //  * StartOutput( void )
@@ -240,14 +230,15 @@ TPulseAudioSoundManager::StartOutput( void )
 {
     pa_operation *o;
 #ifdef DEBUG_SOUND
-    printf("   _____  StartOutput  _____\n");
+    if (GetLog()) {
+        GetLog()->FLogLine("   _____  StartOutput  _____");
+    }
 #endif
     mOutputIsRunning = true;
     pa_threaded_mainloop_lock(mPAMainLoop);
 
     if (pa_stream_is_corked(mOutputStream))
     {
-        printf("           Uncorking!\n");
         mPAOperationDescr = "UNCORK";
         mPAOperation = pa_stream_cork(mOutputStream, 0, &SPAStreamOpCB, this);
 
@@ -258,15 +249,19 @@ TPulseAudioSoundManager::StartOutput( void )
         pa_operation_unref(mPAOperation);
     }
 #ifdef DEBUG_SOUND
-    printf("           Triggering!\n");
+    if (GetLog()) {
+        GetLog()->FLogLine("           Triggering!");
+    }
 #endif
     mPAOperationDescr = "TRIGGER";
     mPAOperation = pa_stream_trigger(mOutputStream, &SPAStreamOpCB, this);
 
     pa_threaded_mainloop_unlock(mPAMainLoop);
 #ifdef DEBUG_SOUND
-    printf("   ^^^^^  StartOutput  ^^^^^\n");
-#endif;
+    if (GetLog()) {
+        GetLog()->FLogLine("   ^^^^^  StartOutput  ^^^^^");
+    }
+#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -277,7 +272,9 @@ TPulseAudioSoundManager::StopOutput( void )
 {
     pa_operation *o;
 #ifdef DEBUG_SOUND
-    printf("   _____  StopOutput BEGIN _____\n");
+    if (GetLog()) {
+        GetLog()->FLogLine("   _____  StopOutput BEGIN _____");
+    }
 #endif
 
     pa_threaded_mainloop_lock(mPAMainLoop);
@@ -294,7 +291,9 @@ TPulseAudioSoundManager::StopOutput( void )
     mOutputIsRunning = false;
     pa_threaded_mainloop_unlock(mPAMainLoop);
 #ifdef DEBUG_SOUND
-    printf("   ^^^^^  StopOutput END ^^^^^\n");
+    if (GetLog()) {
+        GetLog()->FLogLine("   ^^^^^  StopOutput END ^^^^^");
+    }
 #endif
 }
 
@@ -306,10 +305,12 @@ TPulseAudioSoundManager::OutputIsRunning( void )
 {
     Boolean streamCorked = (Boolean)pa_stream_is_corked(mOutputStream);
 #ifdef DEBUG_SOUND
-    printf( "   *****  OutputIsRunning: (PA Stream Corked? %s) (mOutputIsRunning? %s)\n",
-        streamCorked ? "true" : "false",
-        mOutputIsRunning ? "true" : "false" );
-    printf("   *****  OutputIsRunning returns %s\n", mOutputIsRunning ? "true" : "false");
+    if (GetLog()) {
+        GetLog()->FLogLine("   *****  OutputIsRunning: (PA Stream Corked? %s) (mOutputIsRunning? %s)",
+            streamCorked ? "true" : "false",
+            mOutputIsRunning ? "true" : "false" );
+        GetLog()->FLogLine("   *****  OutputIsRunning returns %s\n", mOutputIsRunning ? "true" : "false");
+    }
 #endif
 
     return mOutputIsRunning;
@@ -343,7 +344,9 @@ void TPulseAudioSoundManager::PAStreamStateCallback(pa_stream* s, pa_threaded_ma
             break;
     }
 #ifdef DEBUG_SOUND
-    printf("  *** StreamStateCallback: %s\n", sStateStr);
+    if (GetLog()) {
+        GetLog()->FLogLine("  *** StreamStateCallback: %s", sStateStr);
+    }
 #endif
     if (mainloop)
     {
@@ -354,8 +357,10 @@ void TPulseAudioSoundManager::PAStreamStateCallback(pa_stream* s, pa_threaded_ma
 void TPulseAudioSoundManager::PAStreamUnderflowCallback(pa_stream* s, pa_threaded_mainloop* mainloop)
 {
 #ifdef DEBUG_SOUND
-    printf("   *** PA Underflow occurred!\n");
-#endif;
+    if (GetLog()) {
+        GetLog()->FLogLine("   *** PA Underflow occurred!");
+    }
+#endif
     RaiseOutputInterrupt();
     if (mainloop)
     {
@@ -366,7 +371,9 @@ void TPulseAudioSoundManager::PAStreamUnderflowCallback(pa_stream* s, pa_threade
 void TPulseAudioSoundManager::PAStreamOpCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop)
 {
 #ifdef DEBUG_SOUND
-    printf("   %s returned %d\n", mPAOperationDescr, success);
+    if (GetLog()) {
+        GetLog()->FLogLine("   %s returned %d", mPAOperationDescr, success);
+    }
 #endif
     if (mainloop)
     {
