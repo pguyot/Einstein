@@ -693,11 +693,11 @@
 	#define KUIntPtr	KUInt32
 #endif
 
-static_assert(sizeof(KUInt8)==1);
-static_assert(sizeof(KUInt16)==2);
-static_assert(sizeof(KUInt32)==4);
-static_assert(sizeof(KUInt64)==8);
-static_assert(sizeof(KUIntPtr)==sizeof(void*));
+static_assert(sizeof(KUInt8)==1, "Size of KUInt8 must be 1 byte");
+static_assert(sizeof(KUInt16)==2, "Size of KUInt16 must be 2 bytes");
+static_assert(sizeof(KUInt32)==4, "Size of KUInt32 must be 4 bytes");
+static_assert(sizeof(KUInt64)==8, "Size of KUInt64 must be 8 bytes");
+static_assert(sizeof(KUIntPtr)==sizeof(void*), "Size of KUIntPtr must the same as the size of a pointer");
 
 #endif
 		// __KDEFINITIONS__

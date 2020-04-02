@@ -362,7 +362,7 @@ TTcpClientSerialPortManager::HandleDMAReceive()
 		printf("***** Server side disconnect.\n");
 		Disconnect();
 	} else {
-		usleep(static_cast<__useconds_t>(n * 100)); // up to 1/10th of a second, so that we do not overwhelm the Newton
+		usleep(n * 100); // up to 1/10th of a second, so that we do not overwhelm the Newton
 		for (KUInt32 i=0; i<n; i++) {
 			KUInt8 data = buf[i];
 			//printf("Received 0x%02x\n", data);
