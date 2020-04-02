@@ -23,6 +23,8 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TX11ScreenManager.h"
+#include <Emulator/TMemory.h>
+#include <TEmulator.h>
 
 // X11 interface
 #if __QUICKDRAW__
@@ -183,123 +185,112 @@ TX11ScreenManager::Run( void )
 	fd_set myFdSet;
 	Boolean loop = true;
 	
-	while (loop)
-	{
-		XEvent theEvent;
-		// If the pen is down, wait for the sample rate, otherwise,
-		// wait forever.
-		if (penIsDown)
-		{
-			// Select.
-			FD_ZERO( &myFdSet );
-			FD_SET( displayFd, &myFdSet );
-			// 250 ns
-			KUInt32 theSampleRateInTicks = GetTabletSampleRate();
-			waitTime.tv_sec = theSampleRateInTicks / 4000000;
-			waitTime.tv_usec = (theSampleRateInTicks / 4) % 1000000;
-			if (::select( displayFd + 1, &myFdSet, NULL, NULL, &waitTime) > 0)
-			{
-				if (XPending( mDisplay ))
-				{
-					XNextEvent( mDisplay, &theEvent );
-					gotAnEvent = true;
-				}
-			} else {
-				// No event.
-				gotAnEvent = false;
-			}
-		} else {
-			XNextEvent( mDisplay, &theEvent );
-			gotAnEvent = true;
-		}
-		
-		if (gotAnEvent)
-		{
-			switch (theEvent.type)
-			{
-				case MotionNotify:
-					// Motion event (while button 1 is down)
-					// (maybe check coordinates)
-					xcoord = theEvent.xmotion.x;
-					ycoord = theEvent.xmotion.y;
-					PenDown( xcoord, ycoord );
-					break;
-				case ButtonPress:
-					// (maybe check coordinates & button that was pressed)
-					xcoord = theEvent.xbutton.x;
-					ycoord = theEvent.xbutton.y;
-					PenDown( xcoord, ycoord );
-					penIsDown = true;
-					break;
-				case ButtonRelease:
-					// (maybe check button that was released)
-					PenUp();
-					penIsDown = false;
-					break;
-				
-				case UnmapNotify:
-					loop = false;
-					break;
+	while (loop) {
+        XEvent theEvent;
+        // If the pen is down, wait for the sample rate, otherwise,
+        // wait forever.
+        if (penIsDown) {
+            // Select.
+            FD_ZERO(&myFdSet);
+            FD_SET(displayFd, &myFdSet);
+            // 250 ns
+            KUInt32 theSampleRateInTicks = GetTabletSampleRate();
+            waitTime.tv_sec = theSampleRateInTicks / 4000000;
+            waitTime.tv_usec = (theSampleRateInTicks / 4) % 1000000;
+            if (::select(displayFd + 1, &myFdSet, NULL, NULL, &waitTime) > 0) {
+                if (XPending(mDisplay)) {
+                    XNextEvent(mDisplay, &theEvent);
+                    gotAnEvent = true;
+                }
+            } else {
+                // No event.
+                gotAnEvent = false;
+            }
+        } else {
+            XNextEvent(mDisplay, &theEvent);
+            gotAnEvent = true;
+        }
 
-				case Expose:
-					// Redraw the bits that were lost.
-					{
-						int theErr = XPutImage(
-											mDisplay,
-											mWindow,
-											mGC,
-											mImage,
-											theEvent.xexpose.x,
-											theEvent.xexpose.y,
-											theEvent.xexpose.x,
-											theEvent.xexpose.y,
-											theEvent.xexpose.width,
-											theEvent.xexpose.height
-											);
-						if (theErr != 0)
-						{
-							(void) ::fprintf(
-										stderr,
-										"XPutImage returned an error (%i)\n",
-										theErr );
-							::abort();
-						}
-					}
-					break;
+        if (gotAnEvent) {
+            switch (theEvent.type) {
+                case MotionNotify:
+                    // Motion event (while button 1 is down)
+                    // (maybe check coordinates)
+                    xcoord = theEvent.xmotion.x;
+                    ycoord = theEvent.xmotion.y;
+                    PenDown(xcoord, ycoord);
+                    break;
+                case ButtonPress:
+                    // (maybe check coordinates & button that was pressed)
+                    xcoord = theEvent.xbutton.x;
+                    ycoord = theEvent.xbutton.y;
+                    PenDown(xcoord, ycoord);
+                    penIsDown = true;
+                    break;
+                case ButtonRelease:
+                    // (maybe check button that was released)
+                    PenUp();
+                    penIsDown = false;
+                    break;
 
-				case KeyPress:
-					{
-						KeyDown( TranslateKeyCode(theEvent.xkey.keycode) );
-					}
-					break;
+                case UnmapNotify:
+                    loop = false;
+                    break;
 
-				case KeyRelease:
-					{
-						KeyUp( TranslateKeyCode(theEvent.xkey.keycode) );
-					}
-					break;
+                case Expose:
+                    // Redraw the bits that were lost.
+                {
+                    int theErr = XPutImage(
+                            mDisplay,
+                            mWindow,
+                            mGC,
+                            mImage,
+                            theEvent.xexpose.x,
+                            theEvent.xexpose.y,
+                            theEvent.xexpose.x,
+                            theEvent.xexpose.y,
+                            theEvent.xexpose.width,
+                            theEvent.xexpose.height
+                    );
+                    if (theErr != 0) {
+                        (void) ::fprintf(
+                                stderr,
+                                "XPutImage returned an error (%i)\n",
+                                theErr);
+                        ::abort();
+                    }
+                }
+                    break;
 
-				case ClientMessage:
-				    // FIXME: this does not quit the app!
-				    // We need to call X11ScreenManager::PowerOffScreen()
-				    // Then mPlatform::Quit();
-				    // and then we are still stuck in TCLIApp::AppMenuLoop oder MonitorMenuLoop
+                case KeyPress: {
+                    KeyDown(TranslateKeyCode(theEvent.xkey.keycode));
+                }
+                    break;
+
+                case KeyRelease: {
+                    KeyUp(TranslateKeyCode(theEvent.xkey.keycode));
+                }
+                    break;
+
+                case ClientMessage:
+                    // FIXME: this does not quit the app!
+                    // We need to call X11ScreenManager::PowerOffScreen()
+                    // Then mPlatform::Quit();
+                    // and then we are still stuck in TCLIApp::AppMenuLoop oder MonitorMenuLoop
                     if (theEvent.xclient.data.l[0] == mWMDeleteWindow) {
-                        loop = false;
-                        XUnmapWindow( mDisplay, mWindow );
-                        mPowerIsOn = false;
+                        GetMemory()->GetEmulator()->Quit();
                     }
                     break;
-				default:
+                default:
 //					(void) ::printf( "Other event: type=%i\n", theEvent.type );
-					// Do nothing.
-					break;
-			} // switch
-		} else {
-			// The pen is still down, generate a new message.
-			PenDown( xcoord, ycoord );				
-		}
-	}
+                    // Do nothing.
+                    break;
+            } // switch
+        } else {
+            // The pen is still down, generate a new message.
+            PenDown(xcoord, ycoord);
+        }
+    }
 }
 
 // -------------------------------------------------------------------------- //

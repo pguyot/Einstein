@@ -61,7 +61,7 @@ class TStream;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 151 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TMemory
 {
@@ -111,6 +111,11 @@ public:
 	/// \param inEmulator emulator (access to hardware managers).
 	///
 	void		SetEmulator( TEmulator* inEmulator );
+
+	///
+	/// \return the emulator
+	///
+	TEmulator* GetEmulator() { return mEmulator; }
 
 	///
 	/// Set the interrupt manager.
@@ -819,14 +824,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TMemory( const TMemory& inCopy );
 
 	///
-	/// Opérateur d'assignation volontairement indisponible.
+	/// Op√©rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TMemory& operator = ( const TMemory& inCopy );
 
