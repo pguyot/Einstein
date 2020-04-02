@@ -277,7 +277,7 @@
 	#endif
 
 	#if TARGET_OS_MACOS
-		#include <MacTypes.h>
+//		#include <MacTypes.h>
 	#endif
 	
 	#if TARGET_OS_OPENSTEP
@@ -541,7 +541,7 @@ typedef	uint16_t	KUInt16;
 typedef	int16_t		KSInt16;
 typedef uint8_t     KUInt8;
 typedef	int8_t		KSInt8;
-typedef	bool		Boolean;
+typedef	bool		BooleanMacTypes;
 typedef uintptr_t   KUIntPtr;
 
 
