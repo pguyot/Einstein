@@ -33,6 +33,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <termios.h>
+#include <Emulator/Serial/TTcpClientSerialPortManager.h>
 
 // Einstein
 #include "Emulator/ROM/TROMImage.h"
@@ -139,6 +140,7 @@ TCLIApp::Run( int argc, char* argv[] )
 	const char* theSoundManagerClass = nil;
 	const char* theScreenManagerClass = nil;
 	const char* theDataPath = ::getenv( "EINSTEIN_HOME" );
+	const char* theSerialPortDriver = "tcp";  // default settings,
 	int portraitWidth = TScreenManager::kDefaultPortraitWidth;
 	int portraitHeight = TScreenManager::kDefaultPortraitHeight;
 	int ramSize = 0x40;
@@ -271,7 +273,13 @@ TCLIApp::Run( int argc, char* argv[] )
 					"first bank is handled)\nI'll boot with 4 MB (64).\n");
 				ramSize = 0x40;
 			}
-		} else if (::strcmp(argv[indexArgs], "--aif") == 0) {
+        } else if (::strncmp(argv[indexArgs], "--serial=tcp:", 13) == 0) {
+            theSerialPortDriver = argv[indexArgs]+9;
+        } else if (::strcmp(argv[indexArgs], "--serial=tcp") == 0) {
+            theSerialPortDriver = argv[indexArgs]+9;
+        } else if (::strcmp(argv[indexArgs], "--serial=null") == 0) {
+            theSerialPortDriver = nil; // no string sets null driver
+        } else if (::strcmp(argv[indexArgs], "--aif") == 0) {
 			useAIFROMFile = true;
 		} else if (::strcmp(argv[indexArgs], "--faceless") == 0) {
 			faceless = true;
@@ -349,13 +357,77 @@ TCLIApp::Run( int argc, char* argv[] )
 				mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
 	mPlatformManager = mEmulator->GetPlatformManager();
 
+	// the commandline argument is --serial=tcp:server:port . We currently support only TCP connections
+	// theSerialDriver is either nil or text in the format 'server' or 'server:port' without single quotes
+	auto extrPortDriverType = TSerialPorts::kNullDriver;
+	if (theSerialPortDriver && strncmp(theSerialPortDriver, "tcp", 3)==0)
+    	extrPortDriverType = TSerialPorts::kTcpClientDriver;
+	mEmulator->SerialPorts.Initialize(
+            extrPortDriverType,
+	        TSerialPorts::kNullDriver,
+	        TSerialPorts::kNullDriver,
+	        TSerialPorts::kNullDriver );
+	if (extrPortDriverType==TSerialPorts::kTcpClientDriver) {
+	    TSerialPortManager *sDriver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+        TTcpClientSerialPortManager *tcp = dynamic_cast<TTcpClientSerialPortManager*>(sDriver);
+        if (tcp) {
+            int port = 3679;
+            theSerialPortDriver += 3; // skip 'tcp'
+            if (theSerialPortDriver[0]==':') theSerialPortDriver++; // skip the ':' in 'tcp:'
+            char *server = strdup(theSerialPortDriver);
+            char *sep = strrchr(server, ':');
+            if (sep) {
+                port = atoi(sep + 1);
+                *sep = 0;
+            }
+            if (server[0]==0) {
+                ::free(server);
+                server = strdup("127.0.0.1");
+            }
+            tcp->SetServerPort(port);
+            tcp->SetServerAddress(server);
+            ::free(server);
+        }
+	}
+#if 0
+    // TODO: translate this code from whatever we did in macOS
+    TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+    if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
+    {
+        TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+        tcp->SetServerAddress([[defaults stringForKey: kExtrTCPServerAddress] UTF8String]);
+        tcp->SetServerPort((int)[defaults integerForKey: kExtrTCPServerPort]);
+    }
+    mEmulator->SerialPorts.PortChangedCallback(
+            // THIS IS A LAMBDA FUNCTION. This function is called when an application
+            // on the emulated Newton changes the serial port settings
+            [self](int serPort)->void
+            {
+                if (serPort==TSerialPorts::kExtr) {
+                    TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+                    if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver) {
+                        TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+
+                        char *tcpServer = tcp->GetServerAddressDup();
+                        NSString *nsTcpServer = [NSString stringWithUTF8String:tcpServer];
+                        [[mUserDefaultsController defaults] setValue:nsTcpServer forKey:kExtrTCPServerAddress];
+                        ::free(tcpServer);
+
+                        int tcpPort = tcp->GetServerPort();
+                        [[mUserDefaultsController defaults] setInteger:tcpPort forKey:kExtrTCPServerPort];
+                    }
+                }
+            }
+    );
+#endif
+
 	if (useMonitor)
 	{
 		char theSymbolListPath[512];
 		(void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
 							theDataPath, theMachineString );
 		mSymbolList = new TSymbolList( theSymbolListPath );
-		mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList, NULL );
+		mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList, theDataPath );
 	} else {
 		(void) ::printf( "Booting...\n" );
 	}
@@ -688,6 +760,8 @@ TCLIApp::Help( void )
 				"  -a | --audio=audiodriver        (null, portaudio, coreaudio, pulseaudio)\n" );
 	(void) ::printf(
 				"  -s | --screen=screen driver     (x11)\n" );
+    (void) ::printf(
+                "  --serial=serialdriver           (null, tcp:server:port, default is tcp:127.0.0.1:3679)\n" );
 	(void) ::printf(
 				"  --width=portrait width          (default is 320)\n" );
 	(void) ::printf(
@@ -696,8 +770,8 @@ TCLIApp::Help( void )
 				"  -l | --log=log file             (default to no log)\n" );
 	(void) ::printf(
 				"  -r | --restore=restore file     (default to start from scratch)\n" );
-	(void) ::printf(
-				"  -m | --machine=machine string   (717006, 737041, 747129)\n" );
+    (void) ::printf(
+                "  -m | --machine=machine string   (717006, 737041, 747129)\n" );
 	(void) ::printf(
 				"  --monitor                       monitor mode\n" );
 	(void) ::printf(

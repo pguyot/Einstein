@@ -51,24 +51,24 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TPtySerialPortManager( void );
+	~TPtySerialPortManager( ) override;
 
 	///
 	/// Return the Identification of this driver
 	///
-	virtual KUInt32 GetID() { return TSerialPorts::kPtyDriver; }
+	KUInt32 GetID() override { return TSerialPorts::kPtyDriver; }
 
 	///
 	/// Start emulation.
 	///
-	virtual void run(TInterruptManager* inInterruptManager,
+	void run(TInterruptManager* inInterruptManager,
 					 TDMAManager* inDMAManager,
-					 TMemory* inMemory);
+					 TMemory* inMemory) override;
 
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
 	///
-	virtual void TriggerEvent(KUInt8 cmd);
+	void TriggerEvent(KUInt8 cmd) override;
 
 protected:
 

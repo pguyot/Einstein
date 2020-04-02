@@ -35,8 +35,8 @@
 #endif
 
 // Einstein
+#include "Emulator/JIT/JIT.h"
 #include "TFlash.h"
-#include "JIT.h"
 #include "TMemoryConsts.h"
 #include "TMMU.h"
 

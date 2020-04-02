@@ -26,8 +26,9 @@
 
 #include <K/Defines/KDefinitions.h>
 
-#include "TNewt.h"
+#include "Emulator/Platform/TNewt.h"
 
+#include <utility>
 #include <vector>
 #include <functional>
 
@@ -100,10 +101,10 @@ public:
 	TSerialPortManager *ReplaceDriver(EPortIndex inPort, EDriverID inDriverId);
 
 	// NewtonScript call to return all driver names
-	NewtRef NSGetDriverNames(TNewt::RefArg arg);
+	static NewtRef NSGetDriverNames(TNewt::RefArg arg);
 
 	// NewtonScript call to return all valid drivers for a port
-	NewtRef NSGetDriverList(TNewt::RefArg arg);
+	static NewtRef NSGetDriverList(TNewt::RefArg arg);
 
 	// NewtonScript call to retrive the current driver and its settings
 	NewtRef NSGetDriverAndOptions(TNewt::RefArg arg);
@@ -112,7 +113,7 @@ public:
 	NewtRef NSSetDriverAndOptions(TNewt::RefArg arg);
 
 	void PortChangedCallback(std::function<void(int)> inCallback) {
-		mPortChangedCallback = inCallback;
+		mPortChangedCallback = std::move(inCallback);
 	}
 
 private:

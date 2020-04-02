@@ -25,12 +25,12 @@
 
 // POSIX
 #include <sys/types.h>
-#include <signal.h>
-#include <string.h>
+#include <csignal>
+#include <cstring>
+#include <cassert>
 
 #if !TARGET_OS_WIN32
-	#include <unistd.h>
-	#include <sys/time.h>
+	#include <ctime>
 #endif
 
 #include "../Log/TLog.h"
@@ -45,7 +45,7 @@
 #include "Emulator/Serial/TPtySerialPortManager.h"
 #include "Emulator/Serial/TBasiliskIISerialPortManager.h"
 #endif
-#if TARGET_OS_MAC || TAGRET_OS_ANDROID
+#if TARGET_OS_MAC || TAGRET_OS_ANDROID || TARGET_OS_LINUX
 #include "Emulator/Serial/TTcpClientSerialPortManager.h"
 #endif
 
@@ -68,8 +68,8 @@ TSerialPorts::TSerialPorts(TEmulator *inEmulator, TLog* inLog)
  */
 TSerialPorts::~TSerialPorts()
 {
-	for (int i=0; i<4; ++i)
-		delete mDriver[i];
+	for (auto & i : mDriver)
+		delete i;
 }
 
 
@@ -126,7 +126,7 @@ TSerialPortManager *TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inD
 	}
 	switch (inDriverId) {
 		case kNullDriver:
-			currentDriver = new TSerialPortManager(mLog, inPort);
+			currentDriver = new TBasicSerialPortManager(mLog, inPort);
 			break;
 #if TARGET_OS_MAC
 		case kPipesDriver:
@@ -139,13 +139,13 @@ TSerialPortManager *TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inD
 			currentDriver = new TBasiliskIISerialPortManager(mLog, inPort);
 			break;
 #endif
-#if TARGET_OS_MAC || TAGRET_OS_ANDROID
+#if TARGET_OS_MAC || TAGRET_OS_ANDROID || TARGET_OS_LINUX
 		case kTcpClientDriver:
 			currentDriver = new TTcpClientSerialPortManager(mLog, inPort);
 			break;
 #endif
 		default:
-			currentDriver = new TSerialPortManager(mLog, inPort);
+			currentDriver = new TBasicSerialPortManager(mLog, inPort);
 			mLog->FLogLine("ERROR: request for unsupported serial driver type %d on port %d\n", inDriverId, inPort);
 	}
 	mDriver[inPort] = currentDriver;
@@ -159,26 +159,27 @@ TSerialPortManager *TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inD
 
 KUInt32 TSerialPorts::NDrivers = kNDriverID;
 
-std::vector<const char*>TSerialPorts::DriverNames =
+std::vector<const char*>TSerialPorts::DriverNames = /* NOLINT */
 {
 	"None", "Named Pipes", "Pseudoterminal", "BasiliskII", "Network Client"
 };
 
 KUInt32 TSerialPorts::NPorts = kNPortIndex;
 
-std::vector<const char*>TSerialPorts::PortNames = {
-	"external", "infrared", "internal", "modem"
+std::vector<const char*>TSerialPorts::PortNames = /* NOLINT */
+{
+    "external", "infrared", "internal", "modem"
 };
 
-std::vector<const char*>TSerialPorts::ShortPortNames =
+std::vector<const char*>TSerialPorts::ShortPortNames = /* NOLINT */
 {
-	"extr", "infr", "tblt", "mdem"
+    "extr", "infr", "tblt", "mdem"
 };
 
 TSerialPorts::EDriverID TSerialPorts::ValidDrivers[] = {
 #if TARGET_OS_MAC
 	kNullDriver, kPipesDriver, kPtyDriver, kBasiliskIIDriver, kTcpClientDriver, (EDriverID)-1
-#elif TARGET_OS_ANDROID
+#elif TARGET_OS_ANDROID || TARGET_OS_LINUX
 	kNullDriver, kTcpClientDriver, (EDriverID)-1
 #else
 	kNullDriver, (EDriverID)-1
@@ -207,9 +208,9 @@ TSerialPorts::EDriverID *TSerialPorts::ValidDriversByPort[] =
 NewtRef TSerialPorts::NSGetDriverNames(TNewt::RefArg arg)
 {
 	// ignore the arg (should be NIL)
-	int nNames = (int)DriverNames.size();
+	auto nNames = (unsigned)DriverNames.size();
 	TNewt::RefVar array( TNewt::AllocateArray(nNames) );
-	for (int i=0; i<nNames; i++) {
+	for (unsigned i=0; i<nNames; i++) {
 		TNewt::RefVar str( TNewt::MakeString(DriverNames[i]) );
 		TNewt::SetArraySlot(array, i,  str);
 	}
@@ -238,11 +239,11 @@ NewtRef TSerialPorts::NSGetDriverList(TNewt::RefArg arg)
 
 	EDriverID *validDrivers = ValidDriversByPort[portIndex];
 	// Count valid drivers
-	int nDriver;
+	unsigned nDriver;
 	for (nDriver = 0; (int)validDrivers[nDriver]!=-1; nDriver++) { }
 	// Create the arrays
 	RefVar array( AllocateArray(nDriver) );
-	for (int i=0; i<nDriver; i++) {
+	for (unsigned i=0; i<nDriver; i++) {
 		TNewt::SetArraySlotRef(array.Ref(), i,  TNewt::MakeInt((int)validDrivers[i]));
 	}
 	return array.Ref();
@@ -272,7 +273,7 @@ NewtRef TSerialPorts::NSGetDriverAndOptions(TNewt::RefArg arg)
 
 	TSerialPortManager *driver = GetDriverFor((EPortIndex)portIndex);
 	RefVar f( AllocateFrame() );
-	SetFrameSlot(f, RefVar( MakeSymbol("driver")),  RefVar(MakeInt(driver->GetID())));
+	SetFrameSlot(f, RefVar( MakeSymbol("driver")),  RefVar(MakeInt((KSInt32)driver->GetID())));
 	driver->NSGetOptions(f);
 	return f.Ref();
 }
@@ -313,7 +314,6 @@ NewtRef TSerialPorts::NSSetDriverAndOptions(TNewt::RefArg arg)
 
 	return kNewtRefNIL;
 }
-
 
 
 // ================================================================== //

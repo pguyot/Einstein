@@ -319,7 +319,7 @@
  */
 
 
-#if TARGET_OS_MAC || TARGET_OS_ANDROID
+#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX
 /*
  * This is a hack that removes a reference from the 'extr' serial port driver
  * from the REx. This is required to make low level comm emulation possible.
@@ -330,7 +330,7 @@
  *
  * FIXME: PLEASE fix the REx instead of this weak patch (please integrate the REx into the app)
  */
-TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00900000,
+TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00900000, /* NOLINT */
 												 (KUInt32[]){2, 'extr', 0},
 												 (KUInt32[]){1, '~xtr'},
 												 "Enable 'extr' serial port.\n");
@@ -355,11 +355,7 @@ TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00900000,
 //		three new classes to emulate the external serial port, the modem,
 //		and possibly the third internal port.
 // TODO: it would be nice to implement access to a host hardware serial
-//		port, especially for mobile device. Maybe a remote serial port
-//		via TCP/IP would be useful?
-// FIXME: the current implementation is for MacOS only. We should add MSWindows,
-//		Android, and iOS support, or at least make sure that compilation
-//		on those systems does not break.
+//		port, especially for mobile devices over the USB tether.
 // -------------------------------------------------------------------------- //
 TBasicSerialPortManager::TBasicSerialPortManager(
 													 TLog* inLog,
@@ -383,11 +379,10 @@ TBasicSerialPortManager::TBasicSerialPortManager(
 
 // -------------------------------------------------------------------------- //
 //  * ~TBasicSerialPortManager( void )
-//		Don't worry about releasing  resources. All drivers will live
-//		throughout the run time of the app.
 // -------------------------------------------------------------------------- //
 TBasicSerialPortManager::~TBasicSerialPortManager()
 {
+    // TODO: clean up!
 }
 
 // -------------------------------------------------------------------------- //
@@ -407,7 +402,7 @@ void TBasicSerialPortManager::run(TInterruptManager* inInterruptManager,
 //  * WriteRegister( KUInt32, KUInt8 )
 //		This function is called whenever the TMemory class determines a write
 //		operation to a memory address that represents a hardware register
-//		associted with this serial port.
+//		associated with this serial port.
 //
 //		Hardware registers control the baud rate, modem signals, but also
 //		some DMA activity. All serial ports can be configured to use no DMA
@@ -419,7 +414,7 @@ void TBasicSerialPortManager::run(TInterruptManager* inInterruptManager,
 //		"Inspector" use DMA transfer only.
 //
 // TODO: If we decide to support the host's serial port hardware, we will have
-//		to put a sizeable amount of reasearch into understanding the hardware
+//		to put a sizeable amount of research into understanding the hardware
 //		registers. For communication via named pipe or software null modem,
 //		emulation can stay at a minimum.
 // -------------------------------------------------------------------------- //
@@ -486,7 +481,7 @@ TBasicSerialPortManager::ReadRegister( KUInt32 inOffset )
 // -------------------------------------------------------------------------- //
 //  * ReadDMARegister( KUInt32, KUInt32, KUInt32 )
 //		TDMAManage has determined that the CPU reads a memory address that
-//		refers to a DMA register associted with this serial port.
+//		refers to a DMA register associated with this serial port.
 //		This function dispatches to the DMA emulation.
 // -------------------------------------------------------------------------- //
 KUInt32
@@ -505,7 +500,7 @@ TBasicSerialPortManager::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUI
 // -------------------------------------------------------------------------- //
 //  * WriteDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
 //		TDMAManage has determined that the CPU writes a memory address that
-//		refers to a DMA register associted with this serial port.
+//		refers to a DMA register associated with this serial port.
 //		This function dispatches to the DMA emulation.
 // -------------------------------------------------------------------------- //
 void
@@ -548,7 +543,7 @@ TBasicSerialPortManager::ReadRxDMARegister( KUInt32 inBank, KUInt32 inRegister )
 			case 1: // TSerialDMAEngine::StartRxDMA reading
 				//printf("----- 'extr' serial Rx DMA, reading interrupt reason (?) %d %d %d (0x%08X)\n", inBank, 0, inRegister, mRxDMAEvent);
 				result = mRxDMAEvent; break; // FIXME: additional action needed?
-			case 2: result = 0; break;
+			case 2:
 			case 3: result = 0; break;
 			default:
 				printf("***** 'extr' serial Rx, reading unknown DMA register %d %d %d\n", inBank, 0, inRegister);
@@ -645,7 +640,7 @@ TBasicSerialPortManager::ReadTxDMARegister( KUInt32 inBank, KUInt32 inRegister )
 				// TSerialDMAEngine::DMAInterrupt reads this register as a very first step!
 				//printf("----- 'extr' serial Tx DMA, reading interrupt reason (?) %d %d %d (0x%08X)\n", inBank, 1, inRegister, mTxDMAEvent);
 				result = mTxDMAEvent; break; // FIXME: additional action needed?
-			case 2: result = 0; break;
+			case 2:
 			case 3: result = 0; break;
 			default:
 				printf("***** 'extr' serial Tx, reading unknown DMA register %d %d %d\n", inBank, 1, inRegister);
@@ -713,7 +708,6 @@ TBasicSerialPortManager::WriteTxDMARegister( KUInt32 inBank, KUInt32 inRegister,
 				break;
 		}
 	}
-	return;
 }
 
 

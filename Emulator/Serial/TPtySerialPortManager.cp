@@ -35,7 +35,7 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <sys/stat.h>
-#if !TARGET_OS_IOS
+#if defined(__APPLE__) && !TARGET_OS_IOS
 #include <CoreServices/CoreServices.h>
 #endif
 #endif
@@ -163,7 +163,7 @@ TPtySerialPortManager::RunDMA()
 	}
 
 	// create the actual thread and let it run forever
-	int ptErr = ::pthread_create( &mDMAThread, NULL, &SHandleDMA, this );
+	int ptErr = ::pthread_create( &mDMAThread, nullptr, &SHandleDMA, this );
 	if (ptErr==-1) {
 		printf("***** Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
@@ -188,7 +188,7 @@ TPtySerialPortManager::HandleDMA()
 
 	// thread loops and handles pipe, port, and DMA
 	fd_set readSet;
-	struct timeval timeout;
+	struct timeval timeout{};
 	for (;;) {
 		bool needTimer = false;
 
@@ -298,6 +298,7 @@ TPtySerialPortManager::HandleDMA()
 					if (n==-1) {
 						printf("***** Error reading pipe - %s (%d).\n", strerror(errno), errno);
 					} else if (n) {
+					    if (cmd=='q') return;
 						//printf(":::::>> pipe commend '%c'\n", cmd);
 					}
 				}

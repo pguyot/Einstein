@@ -21,7 +21,7 @@
 #define _TJITGENERICROMPATCH_H
 
 #include <K/Defines/KDefinitions.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 typedef void (*AnyFunctionPtr)();
 
