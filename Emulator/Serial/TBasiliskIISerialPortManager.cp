@@ -176,7 +176,7 @@ TBasiliskIISerialPortManager::OpenPTY()
 	}
 
 	//	tcgetattr(fd, &struct termios)
-	struct termios tios;
+	struct termios tios{};
 
 	ret = tcgetattr(pBasiliskMaster, &tios);
 	if (ret==-1) { perror("TBasiliskIISerialPortManager: tcgetattr"); return false; }
@@ -255,7 +255,7 @@ TBasiliskIISerialPortManager::RunDMA()
 	}
 
 	// create the actual thread and let it run forever
-	int ptErr = ::pthread_create( &mDMAThread, NULL, &SHandleDMA, this );
+	int ptErr = ::pthread_create( &mDMAThread, nullptr, &SHandleDMA, this );
 	if (ptErr==-1) {
 		printf("***** TBasiliskIISerialPortManager::RunDMA: Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
