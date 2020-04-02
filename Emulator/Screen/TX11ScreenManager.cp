@@ -175,7 +175,7 @@ void
 TX11ScreenManager::Run( void )
 {
 	int displayFd = ConnectionNumber(mDisplay);
-	struct timeval waitTime;
+	struct timeval waitTime{};
 	Boolean gotAnEvent = true;
 	Boolean penIsDown = false;
 	KUInt16 xcoord = 0;
@@ -280,10 +280,16 @@ TX11ScreenManager::Run( void )
 					break;
 
 				case ClientMessage:
-	//				if (theEvent.xclient.data.l[0] == WM_DELETE_WINDOW)
-	//				{
-	//					TDebugger::BreakInDebugger();
-	//				}
+				    // FIXME: this does not quit the app!
+				    // We need to call X11ScreenManager::PowerOffScreen()
+				    // Then mPlatform::Quit();
+				    // and then we are still stuck in TCLIApp::AppMenuLoop oder MonitorMenuLoop
+                    if (theEvent.xclient.data.l[0] == mWMDeleteWindow) {
+                        loop = false;
+                        XUnmapWindow( mDisplay, mWindow );
+                        mPowerIsOn = false;
+                    }
+                    break;
 				default:
 //					(void) ::printf( "Other event: type=%i\n", theEvent.type );
 					// Do nothing.
@@ -1016,7 +1022,7 @@ TX11ScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 			break;
 		
 		case kBlitRotation90:
-			// 90¡ clockwise.
+			// 90Â° clockwise.
 			{
 				// Iterate on pixels.
 				int indexX;
@@ -1090,7 +1096,7 @@ TX11ScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 			break;
 
 		case kBlitRotation270:
-			// 90¡ counter-clockwise.
+			// 90Â° counter-clockwise.
 			{
 				// Iterate on pixels.
 				int indexX;
@@ -1274,6 +1280,10 @@ TX11ScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 		(void) ::fprintf( stderr, "XPutImage returned an error (%i)\n", theErr );
 		::abort();
 	}
+	// Make sure that every rectangle of data is actually sent immediatly,
+	// (this can be optimized by merging multiple requests into a singel one that is
+	// sent no more than 50 times per second, for example)
+	XFlush(mDisplay);
 }
 
 // -------------------------------------------------------------------------- //

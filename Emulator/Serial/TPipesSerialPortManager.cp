@@ -59,8 +59,8 @@ TPipesSerialPortManager::TPipesSerialPortManager(TLog* inLog,
 	mRxPort(-1),
 	mDMAIsRunning(false),
 	mDMAThread(0L),
-	mTxPortName(0L),
-	mRxPortName(0L)
+	mTxPortName(nullptr),
+	mRxPortName(nullptr)
 {
 }
 
@@ -211,7 +211,7 @@ TPipesSerialPortManager::RunDMA()
 	}
 
 	// create the actual thread and let it run forever
-	int ptErr = ::pthread_create( &mDMAThread, NULL, &SHandleDMA, this );
+	int ptErr = ::pthread_create( &mDMAThread, nullptr, &SHandleDMA, this );
 	if (ptErr==-1) {
 		printf("***** Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
@@ -237,7 +237,7 @@ TPipesSerialPortManager::HandleDMA()
 
 	// thread loops and handles pipe, port, and DMA
 	fd_set readSet;
-	struct timeval timeout;
+	struct timeval timeout = { 0 };
 	for (;;) {
 		bool needTimer = false;
 
@@ -354,6 +354,7 @@ TPipesSerialPortManager::HandleDMA()
 						// TODO: add a command for power off and use it to close
 						//		 files and ports.
 						//printf(":::::>> pipe commend '%c'\n", cmd);
+						if (cmd=='q') return;
 					}
 				}
 			}

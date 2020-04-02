@@ -94,7 +94,7 @@ TTcpClientSerialPortManager::~TTcpClientSerialPortManager()
 	if (mWorkerThreadIsRunning) {
 		Disconnect();
 		TriggerEvent('q');
-		pthread_join(mWorkerThread, 0L);
+		pthread_join(mWorkerThread, nullptr);
 		mWorkerThreadIsRunning = false;
 	}
 	if (mCommandPipe[0]!=-1)
@@ -134,7 +134,7 @@ void TTcpClientSerialPortManager::run(TInterruptManager* inInterruptManager,
 	}
 
 	// create the thread and let it run until we send it the quit signal
-	int ptErr = ::pthread_create( &mWorkerThread, NULL, &SHandleDMA, this );
+	int ptErr = ::pthread_create( &mWorkerThread, nullptr, &SHandleDMA, this );
 	if (ptErr==-1) {
 		printf("***** TTcpClientSerialPortManager::run: Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
@@ -202,10 +202,10 @@ TTcpClientSerialPortManager::Connect()
 	}
 
 	// Create the address information to our server
-	struct sockaddr_in server;
+	struct sockaddr_in server{};
 	memset(&server, 0, sizeof(struct sockaddr_in));
 	server.sin_family = AF_INET;
-	server.sin_port = htons(mPort);
+	server.sin_port = htons(static_cast<uint16_t>(mPort));
 
 	if (inet_pton(AF_INET, mServer, &server.sin_addr)<=0)
 	{
@@ -246,10 +246,10 @@ void
 TTcpClientSerialPortManager::HandleDMA()
 {
 	static struct sigaction action { sigpipe_handler };
-	sigaction(SIGPIPE, &action, NULL);
+	sigaction(SIGPIPE, &action, nullptr);
 
 	// thread loops and handles pipe, port, and DMA
-	struct timeval timeout;
+	struct timeval timeout{};
 	for (;;)
 	{
 		bool needTimer = false;
@@ -362,7 +362,7 @@ TTcpClientSerialPortManager::HandleDMAReceive()
 		printf("***** Server side disconnect.\n");
 		Disconnect();
 	} else {
-		usleep(n*100); // up to 1/10th of a second, so that we do not overwhelm the Newton
+		usleep(static_cast<__useconds_t>(n * 100)); // up to 1/10th of a second, so that we do not overwhelm the Newton
 		for (KUInt32 i=0; i<n; i++) {
 			KUInt8 data = buf[i];
 			//printf("Received 0x%02x\n", data);

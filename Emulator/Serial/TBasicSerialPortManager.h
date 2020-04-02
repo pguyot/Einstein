@@ -21,8 +21,8 @@
 // $Id$
 // ==============================
 
-#ifndef _TVOYAGERMANAGEDSERIALPORT_H
-#define _TVOYAGERMANAGEDSERIALPORT_H
+#ifndef _T_BASIC_SERIAL_PORT_MANAGER_H
+#define _T_BASIC_SERIAL_PORT_MANAGER_H
 
 #include "TSerialPortManager.h"
 
@@ -53,44 +53,44 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TBasicSerialPortManager( void );
+	~TBasicSerialPortManager( ) override;
 
 	///
 	/// Return the Identification of this driver
 	///
-	virtual KUInt32 GetID() = 0;
+	KUInt32 GetID() override { return TSerialPorts::kNullDriver; }
 
 	///
 	/// Start emulation.
 	///
-	virtual void run(TInterruptManager* inInterruptManager,
+	void run(TInterruptManager* inInterruptManager,
 					 TDMAManager* inDMAManager,
-					 TMemory* inMemory);
+					 TMemory* inMemory) override;
 
 	///
 	/// Write register.
 	///
-	virtual void WriteRegister( KUInt32 inOffset, KUInt8 inValue );
+	void WriteRegister( KUInt32 inOffset, KUInt8 inValue ) override;
 
 	///
 	/// Read DMA register.
 	///
-	virtual KUInt8 ReadRegister( KUInt32 inOffset );
+	KUInt8 ReadRegister( KUInt32 inOffset ) override;
 
 	///
 	/// Read DMA register.
 	///
-	virtual KUInt32 ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister );
+	KUInt32 ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister ) override;
 
 	///
 	/// Write DMA register.
 	///
-	virtual void WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue );
+	void WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue ) override;
 
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
 	///
-	virtual void TriggerEvent(KUInt8 cmd) = 0;
+	virtual void TriggerEvent(KUInt8 cmd) { }
 
 protected:
 
@@ -117,20 +117,20 @@ protected:
 	KUInt32 mTxDMAPhysicalBufferStart;		///< physical address of transmit DMA buffer start
 	KUInt32 mTxDMAPhysicalData;				///< address of byte currently written by DMA
 	KUInt32 mTxDMADataCountdown;			///< number of bytes that still need to be sent
-	KUInt32 mTxDMABufferSize;				///< size of physical buffer
+	KUInt32 mTxDMABufferSize{};				///< size of physical buffer
 	KUInt32 mTxDMAControl;					///< bit 1 enables the DMA port
 	KUInt32 mTxDMAEvent;					///< the event that triggered the interrupt?
 
 	KUInt32 mRxDMAPhysicalBufferStart;		///< physical address of receive DMA buffer start
 	KUInt32 mRxDMAPhysicalData;				///< address to store next byte read from periphery
 	KUInt32 mRxDMADataCountdown;			///< number of bytes available until end of buffer
-	KUInt32 mRxDMABufferSize;				///< size of physical buffer
+	KUInt32 mRxDMABufferSize{};				///< size of physical buffer
 	KUInt32 mRxDMAControl;					///< bit 1 enables the DMA port
 	KUInt32 mRxDMAEvent;					///< the event that triggered the interrupt?
 };
 
 #endif
-// _TVOYAGERMANAGEDSERIALPORT_H
+// _T_BASIC_SERIAL_PORT_MANAGER_H
 
 // ================= //
 // Byte your tongue. //

@@ -23,10 +23,13 @@
 
 #include "TSerialPortManager.h"
 
+#include "Emulator/Log/TStdOutLog.h"
+#include "Emulator/Log/TFileLog.h"
+
 // POSIX
 #include <sys/types.h>
-#include <signal.h>
-#include <string.h>
+#include <csignal>
+#include <cstring>
 
 #if !TARGET_OS_WIN32
 	#include <unistd.h>
@@ -53,73 +56,6 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
-//// Names for all driver types
-//char const* TSerialPortManager::DriverName[] =
-//{
-//	"None", "Named Pipes", "Pseudoterminal", "BasiliskII", "Network Client"
-//};
-//
-//// List of drivers available on this platform
-//KUInt32 TSerialPortManager::DriverList[] =
-//{
-//#if TARGET_OS_MAC
-//	kNullDriver, kPipesDriver, kPtyDriver, kBasiliskIIDriver, kTcpClientDriver
-//#elif TARGET_OS_ANDROID
-//	kNullDriver, kTcpClientDriver
-//#else
-//	kNullDriver
-//#endif
-//};
-//
-//// Number of elements in the driver list
-//KUInt32 TSerialPortManager::DriverListSize = sizeof(DriverList) / sizeof(KUInt32);
-//
-//// List of default driver for every location
-//KUInt32 TSerialPortManager::DefaultDriver[] =
-//{
-//#if TARGET_OS_MAC
-//	kTcpClientDriver, kNullDriver, kNullDriver, kNullDriver
-//#elif TARGET_OS_ANDROID
-//	kTcpClientDriver, kNullDriver, kNullDriver, kNullDriver
-//#else
-//	kNullDriver, kNullDriver, kNullDriver, kNullDriver
-//#endif
-//};
-
-// -------------------------------------------------------------------------- //
-// Static Members
-// -------------------------------------------------------------------------- //
-
-//TSerialPortManager::DriverChangedCallbackType
-//	*TSerialPortManager::mDriverChangedCallback = NULL;
-//
-//TEmulator *TSerialPortManager::mEmulator = NULL;
-//
-//// Create a new driver given the type-ID
-//TSerialPortManager *TSerialPortManager::CreateByID(KUInt32 id, TLog* inLog, ELocationID location)
-//{
-//	switch (id) {
-//		default:
-//			return new TSerialPortManager(inLog, location);
-//#if TARGET_OS_MAC
-//		case kPipesDriver:
-//			return new TPipesSerialPortManager(inLog, location);
-//		case kPtyDriver:
-//			return new TPtySerialPortManager(inLog, location);
-//		case kBasiliskIIDriver:
-//			return new TBasiliskIISerialPortManager(inLog, location);
-//#endif
-//#if TARGET_OS_MAC || TAGRET_OS_ANDROID
-//		case kTcpClientDriver:
-//			return new TTcpClientSerialPortManager(inLog, location);
-//	}
-//#endif
-//}
-//
-//// Request of the UI to be called back when the driver configuration changes
-//void TSerialPortManager::SetDriverChangedCallback(DriverChangedCallbackType, void *)
-//{
-//}
 
 // -------------------------------------------------------------------------- //
 //  * TSerialPortManager( TLog*, ELocationID )
@@ -130,9 +66,9 @@ TSerialPortManager::TSerialPortManager(
 :
 		mLog( inLog ),
 		mNewtPortIndex( inPortIx ),
-		mInterruptManager( NULL ),
-		mDMAManager( NULL ),
-		mMemory( NULL )
+		mInterruptManager( nullptr ),
+		mDMAManager( nullptr ),
+		mMemory( nullptr )
 {
 	if ( mLog )
 	{
@@ -143,22 +79,8 @@ TSerialPortManager::TSerialPortManager(
 // -------------------------------------------------------------------------- //
 //  * ~TSerialPortManager( void )
 // -------------------------------------------------------------------------- //
-TSerialPortManager::~TSerialPortManager( void )
-{
-}
+TSerialPortManager::~TSerialPortManager() = default;
 
-// -------------------------------------------------------------------------- //
-//  * run( TInterruptManager*, TDMAManager*, TMemory* )
-// -------------------------------------------------------------------------- //
-void TSerialPortManager::run(TInterruptManager* inInterruptManager,
-							 TDMAManager* inDMAManager,
-							 TMemory* inMemory)
-{
-	mInterruptManager = inInterruptManager;
-	mDMAManager = inDMAManager;
-	mMemory = inMemory;
-	// nothing to do here
-}
 
 // -------------------------------------------------------------------------- //
 //  * WriteRegister( KUInt32, KUInt8 )
