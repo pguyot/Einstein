@@ -24,8 +24,8 @@
 #ifndef _VERSION_H
 #define _VERSION_H
 
-#define VERSION_STRING		"Einstein Platform 2020.1.0"
-#define VERSION_STRING_SHORT	"2020.1.0"
+#define VERSION_STRING		"Einstein Platform 2020.2.0"
+#define VERSION_STRING_SHORT	"2020.2.0"
 #define COPYRIGHT_STRING		"Copyright 2003-2020 by Paul Guyot and contributors"
 
 #endif

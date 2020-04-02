@@ -2597,7 +2597,7 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				MARKETING_VERSION = 2020.1;
+				MARKETING_VERSION = 2020.2;
 				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = Einstein;
@@ -2644,7 +2644,7 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				MARKETING_VERSION = 2020.1;
+				MARKETING_VERSION = 2020.2;
 				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = Einstein;
@@ -2821,7 +2821,7 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				MARKETING_VERSION = 2020.1;
+				MARKETING_VERSION = 2020.2;
 				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kallisys.einstein;
 				PRODUCT_NAME = Einstein;
