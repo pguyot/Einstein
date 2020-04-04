@@ -236,7 +236,7 @@ private:
 	///
 	/// Translate key codes (from X11 to Newton).
 	///
-	KUInt8	TranslateKeyCode( int inX11KeyCode );
+	KUInt8	TranslateKeyCode( XEvent inEvent );
 
 	///
 	/// Load the key codes translation (from a file or whatever).
@@ -264,7 +264,7 @@ private:
 	char*					mImageBuffer;		///< Image buffer.
 	X11Prefix XColor		mColors[32];		///< Grays & greens.
 	KUInt32					mPalette[32];		///< Grays & greens, as stored.
-	KUInt8					mKeycodes[237];		///< Keycodes.
+	static const KUInt8		mKeycodes[128];		///< Keycodes.
 };
 
 #endif

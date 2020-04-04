@@ -263,12 +263,12 @@ TX11ScreenManager::Run( void )
                     break;
 
                 case KeyPress: {
-                    KeyDown(TranslateKeyCode(theEvent.xkey.keycode));
+                    KeyDown(TranslateKeyCode(theEvent));
                 }
                     break;
 
                 case KeyRelease: {
-                    KeyUp(TranslateKeyCode(theEvent.xkey.keycode));
+                    KeyUp(TranslateKeyCode(theEvent));
                 }
                     break;
 
@@ -1277,13 +1277,21 @@ TX11ScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 	XFlush(mDisplay);
 }
 
+static const KUInt8 none = 0x2f; // send a '.' for unexpected keycodes
+
 // -------------------------------------------------------------------------- //
 //  * TranslateKeyCode( int )
 // -------------------------------------------------------------------------- //
 KUInt8
-TX11ScreenManager::TranslateKeyCode( int inX11KeyCode )
+TX11ScreenManager::TranslateKeyCode( XEvent inEvent )
 {
-	return mKeycodes[ inX11KeyCode - 8 ];
+    static int macKeycode = 0;
+    auto X11KeyCode = inEvent.xkey.keycode;
+    //printf("X11 Keycode 0x%08x %d\n", X11KeyCode, X11KeyCode);
+    if (X11KeyCode < sizeof(mKeycodes))
+    	return mKeycodes[ X11KeyCode ];
+    else
+        return none;
 }
 
 // -------------------------------------------------------------------------- //
@@ -1295,12 +1303,126 @@ TX11ScreenManager::LoadKeyCodesTranslation( void )
 	// Open file ~/.einstein.keycodes
 	
 	// If it cannot be found, fill with X == X (what we have on Apple X11).
-	int index;
-	for (index = 0; index < 237; index++)
-	{
-		mKeycodes[index] = index;
-	}
+	//int index;
+	//for (index = 0; index < 255; index++)
+	//{
+	//if (mKeycodes[index]==0xff)
+	//	    mKeycodes[index] = index;
+	//}
 }
+
+const KUInt8 TX11ScreenManager::mKeycodes[128] = {
+        none, none, none, none, none, none, none, none, none,
+        53,	// 9: Esc
+        18,	// 10: 1
+        19,	// 11: 2
+        20,	// 12: 3
+        21,	// 13: 4
+        23,	// 14: 5
+        22,	// 15: 6
+        26,	// 16: 7
+        28,	// 17: 8
+        25,	// 18: 9
+        29,	// 19: 0
+        27,	// 20: -
+        24,	// 21: =
+        51,	// 22: Backspace
+        48,	// 23: Tab
+        12,	// 24: Q
+        13,	// 25: W
+        14,	// 26: E
+        15,	// 27: R
+        17,	// 28: T
+        16,	// 29: Y
+        32,	// 30: U
+        34,	// 31: I
+        31,	// 32: O
+        35,	// 33: P
+        33,	// 34: [
+        30,	// 35: ]
+        36,	// 36: Return
+        0x37,	// 37: Ctrl Left
+        0,	// 38: A
+        1,	// 39: S
+        2,	// 40: D
+        3,	// 41: F
+        5,	// 42: G
+        4,	// 43: H
+        38,	// 44: J
+        40,	// 45: K
+        37,	// 46: L
+        41,	// 47: ;
+        39,	// 48: '
+        0x32,	// 49: `
+        56,	// 50: Shift Left
+        42,	// 51: '\'
+        6,	// 52: Z
+        7,	// 53: X
+        8,	// 54: C
+        9,	// 55: V
+        11,	// 56: B
+        45,	// 57: N
+        46,	// 58: M
+        43,	// 59: ,
+        47,	// 60: .
+        44,	// 61: /
+        56,	// 62: Shift Right
+        67,	// 63: KP *
+        0x3a,	// 64: Alt Left
+        49,	// 65: Space
+        57,	// 66: Caps Lock
+        122,	// 67: F1
+        120,	// 68: F2
+        99,	// 69: F3
+        118,	// 70: F4
+        96,	// 71: F5
+        97,	// 72: F6
+        98,	// 73: F7
+        100,	// 74: F8
+        101,	// 75: F9
+        109,	// 76: F10
+        71,	// 77: Num Lock
+        107,	// 78: Scroll Lock
+        89,	// 79: KP 7
+        91,	// 80: KP 8
+        92,	// 81: KP 9
+        78,	// 82: KP -
+        86,	// 83: KP 4
+        87,	// 84: KP 5
+        88,	// 85: KP 6
+        69,	// 86: KP +
+        83,	// 87: KP 1
+        84,	// 88: KP 2
+        85,	// 89: KP 3
+        82,	// 90: KP 0
+        65,	// 91: KP .
+        none, none, // 92, 93
+        50,	// 94: International
+        103,	// 95: F11
+        111,	// 96: F12
+        115,	// 97: Home
+        62,	// 98: Cursor Up
+        116,	// 99: Page Up
+        59,	// 100: Cursor Left
+        none, // 101
+        60,	// 102: Cursor Right
+        119,	// 103: End
+        61,	// 104: Cursor Down
+        121,	// 105: Page Down
+        114,	// 106: Insert
+        117,	// 107: Delete
+        0x3a,	// 108: KP Enter
+        54,	// 109: Ctrl Right
+        113,	// 110: Pause
+        0x7e,	// 111: up
+        75,	// 112: KP /
+        0x7b, // 113: arrow left
+        0x7c, // 114: arrow right
+        58,	// 115: Logo Left (-> Option)
+        0x7d,	// 116: down
+        50,	// 117: Menu (-> International)
+        none, none, none, none, none, none, none, none, none, none // 118..127
+};
 
 // ========================================================================= //
 // ... Any resemblance between the above views and those of my employer,     //
