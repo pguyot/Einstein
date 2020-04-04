@@ -541,7 +541,7 @@ typedef	uint16_t	KUInt16;
 typedef	int16_t		KSInt16;
 typedef uint8_t     KUInt8;
 typedef	int8_t		KSInt8;
-typedef	bool		BooleanMacTypes;
+typedef	bool		Boolean;
 typedef uintptr_t   KUIntPtr;
 
 
