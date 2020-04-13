@@ -24,8 +24,8 @@
 
 #include "TJITPerformance.h"
 
-#include "TEmulator.h"
-#include "TInterruptManager.h"
+#include "Emulator/TEmulator.h"
+#include "Emulator/TInterruptManager.h"
 #include "Monitor/TSymbolList.h"
 
 #include <stdarg.h>

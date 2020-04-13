@@ -245,7 +245,7 @@ private:
 	TabletCalibration   mTabletCalibration; ///< Tablet calibration.
 	KUInt32				mTabletSampleRate;  ///< Tablet sample rate.
 	KUInt8				mInputVolume;		///< Input volume (0-255)
-	Boolean				mQuit;				///< Whether to quit.
+	bool				mQuit;				///< Whether to quit.
 	KUInt32				mSoundOutputBuffer1Addr;	///< Output buffer #1: the addr.
 	KUInt32				mSoundOutputBuffer2Addr;	///< Output buffer #2: the addr.
 };

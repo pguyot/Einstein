@@ -22,13 +22,13 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "TNativeCalls.h"
+#include "Emulator/NativeCalls/TNativeCalls.h"
 
 
 #if TARGET_OS_ANDROID
 
 // Einstein
-#include "TMemory.h"
+#include "Emulator/TMemory.h"
 
 TNativeCalls::TNativeCalls( TMemory* inMemoryIntf ) { }
 TNativeCalls::~TNativeCalls( ) { }
@@ -68,7 +68,7 @@ ffi_type ffi_type_pointer;
 #endif
 
 // Einstein
-#include "TMemory.h"
+#include "Emulator/TMemory.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes

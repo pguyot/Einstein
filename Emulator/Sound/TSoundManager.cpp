@@ -32,7 +32,7 @@
 #endif
 
 // Einstein.
-#include "TInterruptManager.h"
+#include "Emulator/TInterruptManager.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes

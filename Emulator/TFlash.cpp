@@ -71,7 +71,7 @@ TFlash::TFlash(
 		mFlash( (KUInt8*) mFlashFile.GetBuffer() )
 {
 	KUInt32 checksums[10];
-	Boolean corruptedRex = false;
+	bool corruptedRex = false;
 	if (inROMImage)
 	{
 		// Update the checksums if required.
@@ -102,7 +102,7 @@ TFlash::TFlash(
 		}
 	}
 
-	Boolean nullChecksums = false;
+	bool nullChecksums = false;
 	if (inROMImage)
 	{
 		// Update the checksums if required.

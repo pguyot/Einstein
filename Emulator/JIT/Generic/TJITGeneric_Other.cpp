@@ -22,17 +22,17 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 #ifdef JITTARGET_GENERIC
 
 // Einstein
-#include "TARMProcessor.h"
-#include "TEmulator.h"
-#include "TJITGenericROMPatch.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TEmulator.h"
+#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 #include "Monitor/TSymbolList.h"
 
-#include "TJITGeneric_Macros.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
 /*
  Floating point math emulation

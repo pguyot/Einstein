@@ -82,7 +82,7 @@ public:
 	///
 	/// \return \c true if the buffer is empty, false otherwise.
 	///
-	inline Boolean		IsEmpty( void ) const
+	inline bool		IsEmpty( void ) const
 		{
 			return mProducerCrsr == mConsumerCrsr;
 		}

@@ -78,7 +78,7 @@ public:
 	///
 	/// Is output running?
 	///
-	virtual Boolean	OutputIsRunning( void );
+	virtual bool	OutputIsRunning( void );
 	
 	static bool soundOutputDataAvailable();
 	static int soundOutputBytesAvailable();
@@ -112,7 +112,7 @@ public:
 	void StartOutput() { }
 	void StopOutput() { }
 	void OutputVolumeChanged() { }
-	virtual Boolean	OutputIsRunning() { return false; }
+	virtual bool	OutputIsRunning() { return false; }
 };
 
 #endif

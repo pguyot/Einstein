@@ -95,7 +95,7 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	// Reading from RAM is really expensive. The LDM command reads usually multiple
 	// words at once. We optimize by calculating the source address only once
 	// per MMU page.
-	Boolean isFirst = 1;
+	bool isFirst = 1;
 	int indexReg = 0;
 	KUInt32 theAddress = 0;
 	while (curRegList)
@@ -115,7 +115,7 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 					theAddress = baseAddress & ~0x03;
 				}
 				
-				Boolean fault = false;
+				bool fault = false;
 				ioCPU->mCurrentRegisters[indexReg] = theMemoryInterface->ReadPAligned( theAddress, fault );
 				if (fault)
 				{
@@ -131,7 +131,7 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 					//fprintf(stderr, "+");
 					ioCPU->mCurrentRegisters[indexReg] = *((KUInt32*) (theMemoryInterface->GetRAMOffset() + theAddress));
 				} else {
-					Boolean fault = false;
+					bool fault = false;
 					ioCPU->mCurrentRegisters[indexReg] = theMemoryInterface->ReadPAligned( theAddress, fault );
 					if (fault)
 					{

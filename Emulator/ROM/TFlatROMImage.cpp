@@ -51,12 +51,12 @@
 // -------------------------------------------------------------------------- //
 
 // -------------------------------------------------------------------------- //
-//  * TFlatROMImage( const char*, const char [6], Boolean )
+//  * TFlatROMImage( const char*, const char [6], bool )
 // -------------------------------------------------------------------------- //
 TFlatROMImage::TFlatROMImage(
 					const char* inROMPath,
 					const char inMachineString[6],
-					Boolean inMonitorMode /* = false */ )
+					bool inMonitorMode /* = false */ )
 {
 	struct stat theInfos;
 	int err = ::stat( inROMPath, &theInfos );

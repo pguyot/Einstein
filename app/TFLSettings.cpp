@@ -25,14 +25,18 @@
 
 #include "TFLSettings.h"
 #include "TFLApp.h"
+#if TARGET_OS_WINDOWS
 #include "winsock2.h"
+#endif
 #include <string.h>
 #include <FL/filename.h>
 #include <FL/fl_file_chooser.h>
 #include <FL/Fl_Preferences.H>
 static Fl_Window *wProgressWindow = 0L; 
 static FILE *fROM; 
+#if TARGET_OS_WINDOWS
 static SOCKET sData; 
+#endif
 static int recvd; 
 
 static void cb_TFLSettings(Fl_Window*, void* v) {
@@ -1286,6 +1290,8 @@ choose a\n   connection method\n* copy the IP address and the port number into\
 }
 
 void startDump() {
+#if TARGET_OS_WINDOWS
+
   sData = INVALID_SOCKET;
 
 // open the file that we will dump the ROM into
@@ -1358,9 +1364,11 @@ Fl::add_fd(sData, FL_READ, dataReadCB, 0);
 Fl::add_fd(sData, FL_EXCEPT, dataExceptCB, 0);
 fROM = fopen(wDownloadPath->label(), "wb");
 recvd = 0;
+#endif
 }
 
 void dataReadCB(int p, void *user_data) {
+#if TARGET_OS_WINDOWS
   unsigned long n;
 DWORD rcvd;
 int ret = WSAIoctl(sData, FIONREAD, 0, 0, &n, sizeof(n), &rcvd, 0, 0);
@@ -1377,9 +1385,11 @@ free(buf);
 recvd += n;
 printf("Received %d/%d (%d)\n", n, n1, recvd);
 wProgressSlider->value(recvd/1024);
+#endif
 }
 
 void dataExceptCB(int p, void *user_data) {
+#if TARGET_OS_WINDOWS
   if (fROM) {
   fclose(fROM);
   fROM = 0L;
@@ -1396,6 +1406,7 @@ if (recvd==8*1024*1024) {
 } else {
   fl_message("Invalid ROM size.\n%d bytes expected, but %d bytes received.", 8*1024*1024, recvd);
 }
+#endif
 }
 
 Fl_Slider *wProgressSlider=(Fl_Slider *)0;

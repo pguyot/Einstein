@@ -1,151 +1,431 @@
-cmake_minimum_required(VERSION 3.5)
 
-# We need a minimum C++ standard to avoid tons of #ifdef's
-set(CMAKE_CXX_STANDARD 14)
-# We want CMake to complain if our compiler can not provide at least that
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# Since this is a cross-platform app, we want to get an error for any compiler specific extensions
-set(CMAKE_CXX_EXTENSIONS OFF)
+cmake_minimum_required(VERSION 3.1)
 
-project(einstein)
+project(Einstein)
 
-set(INCLUDEPKGS TestBigEndian FindPkgConfig CheckLibraryExists)
-foreach(pname IN LISTS INCLUDEPKGS)
-    include(${pname})
-endforeach()
-
-option(portaudio "PortAudio output support" OFF)
-option(nativeportaudio "PortAudio (native library) support" OFF)
-option(pulseaudio "PulseAudio output support" ON)
-option(armlejit "Use ARMLE JIT" OFF)
-option(appX11 "X11+CLI application" ON)
-option(appFLTK "FLTK application" OFF)
-
-set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
-
-# Release / Debug compile flags.
-set(_FLAGS_DEBUG "-g -O0 -DDEBUG -DDEBUG_SOUND -DPA_ENABLE_DEBUG_OUTPUT")
-set(_FLAGS_RELEASE "-O3 -DRELEASE")
-
-set(CMAKE_CXX_FLAGS_RELEASE "${_FLAGS_RELEASE}")
-set(CMAKE_C_FLAGS_RELEASE "${_FLAGS_RELEASE}")
-set(CMAKE_CXX_FLAGS_DEBUG "${_FLAGS_DEBUG}")
-set(CMAKE_C_FLAGS_DEBUG "${_FLAGS_DEBUG}")
-
-if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
-    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wwrite-strings -Wno-multichar -Wfloat-equal -Wshadow -Wpointer-arith -Wconversion")
+if(CMAKE_BUILD_TYPE STREQUAL "")
+	set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-set(LINKLIBS)
+set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_OSX_ARCHITECTURES=x86_64)
 
-find_library(M_LIB m)
-list(APPEND LINKLIBS ${M_LIB})
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-
-    set(CMAKE_THREAD_PREFER_PTHREAD)
-    find_package(Threads)
-    if (Threads_FOUND)
-        list(APPEND LINKLIBS pthread)
-    else()
-        message(FATAL_ERROR "Missing library: pthread")
-    endif()
-
-
-    find_library(FFI_LIB ffi)
-    find_library(DL_LIB dl)
-    list(APPEND LINKLIBS ${DL_LIB} ${PTHREAD_LIB} ${FFI_LIB})
-endif()
-
-TEST_BIG_ENDIAN(_IS_BIG_ENDIAN)
-add_definitions(-DTARGET_RT_BIG_ENDIAN=$<BOOL:${_IS_BIG_ENDIAN}> -DTARGET_RT_LITTLE_ENDIAN=$<NOT:${_IS_BIG_ENDIAN}>)
-
-# K Libs
-add_subdirectory(K)
-
-###########################
-# Einstein library code
-
-## 1) Gather all common sources
-
-file(GLOB elib_common_sources "Emulator/*.cp")
-# file(GLOB elib_Monitor_sources "Monitor/*.cp")
-
-set_source_files_properties(${elib_common_sources} PROPERTIES LANGUAGE CXX)
-# set_source_files_properties(${elib_Monitor_sources} PROPERTIES LANGUAGE CXX)
-
-# Add "einsteinlib" as a library target
-add_library(einsteinlib STATIC ${elib_common_sources})
-
-# add include directories ... do I need this?
-target_include_directories(einsteinlib PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:einsteinlib>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/Emulator
-    $<INSTALL_INTERFACE:einsteinlib>/Emulator
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/Emulator/JIT/Generic
-    $<INSTALL_INTERFACE:einsteinlib>/Emulator/JIT/Generic
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/Monitor/
-    $<INSTALL_INTERFACE:einsteinlib>/Monitor/
+set ( sources 
+./Emulator/Files/TFileManager.cpp
+./Emulator/Files/TFileManager.h
+./Emulator/Host/THostInfo.cpp
+./Emulator/Host/THostInfo.h
+./Emulator/Host/UserInfoDefinitions.h
+./Emulator/JIT/Generic/IncludeMask.h
+./Emulator/JIT/Generic/IncludeMaskRm.h
+./Emulator/JIT/Generic/IncludeModeRd.h
+./Emulator/JIT/Generic/IncludeModeRn.h
+./Emulator/JIT/Generic/IncludeModeRnRd.h
+./Emulator/JIT/Generic/IncludeRd.h
+./Emulator/JIT/Generic/IncludeRdRm.h
+./Emulator/JIT/Generic/IncludeRdRnRsRm15.h
+./Emulator/JIT/Generic/IncludeRdRsRm15.h
+./Emulator/JIT/Generic/IncludeRm.h
+./Emulator/JIT/Generic/IncludeRm15.h
+./Emulator/JIT/Generic/IncludeRn.h
+./Emulator/JIT/Generic/IncludeRn15.h
+./Emulator/JIT/Generic/IncludeRnRd.h
+./Emulator/JIT/Generic/IncludeRnRdRm.h
+./Emulator/JIT/Generic/IncludeRnRsRm15.h
+./Emulator/JIT/Generic/IncludeRsRm15.h
+./Emulator/JIT/Generic/RepeatMacros.h
+./Emulator/JIT/Generic/TJITGeneric.cpp
+./Emulator/JIT/Generic/TJITGeneric.h
+./Emulator/JIT/Generic/TJITGenericPage.cpp
+./Emulator/JIT/Generic/TJITGenericPage.h
+./Emulator/JIT/Generic/TJITGenericROMPatch.cpp
+./Emulator/JIT/Generic/TJITGenericROMPatch.h
+./Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.cpp
+./Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.cpp
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp_template.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp_template.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.cpp
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS_template.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.cpp
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR_template.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp_template.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp_template.h
+./Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_common.h
+./Emulator/JIT/Generic/TJITGeneric_LDM1_template.h
+./Emulator/JIT/Generic/TJITGeneric_LDM2_template.h
+./Emulator/JIT/Generic/TJITGeneric_LDM3_template.h
+./Emulator/JIT/Generic/TJITGeneric_Macros.h
+./Emulator/JIT/Generic/TJITGeneric_Multiply.cpp
+./Emulator/JIT/Generic/TJITGeneric_Multiply.h
+./Emulator/JIT/Generic/TJITGeneric_MultiplyAndAccumulate.cpp
+./Emulator/JIT/Generic/TJITGeneric_MultiplyAndAccumulate.h
+./Emulator/JIT/Generic/TJITGeneric_Multiply_template.h
+./Emulator/JIT/Generic/TJITGeneric_Other.cpp
+./Emulator/JIT/Generic/TJITGeneric_Other.h
+./Emulator/JIT/Generic/TJITGeneric_STM1_template.h
+./Emulator/JIT/Generic/TJITGeneric_STM2_template.h
+./Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.cpp
+./Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.h
+./Emulator/JIT/Generic/TJITGeneric_SingleDataSwap_template.h
+./Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.cpp
+./Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.h
+./Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer_template.h
+./Emulator/JIT/Generic/TJITGeneric_Test.cpp
+./Emulator/JIT/Generic/TJITGeneric_Test.h
+./Emulator/JIT/Generic/TJITGeneric_Test_template.h
+./Emulator/JIT/JIT.h
+./Emulator/JIT/TJIT.h
+./Emulator/JIT/TJITCache.cpp
+./Emulator/JIT/TJITCache.h
+./Emulator/JIT/TJITPage.cpp
+./Emulator/JIT/TJITPage.h
+./Emulator/JIT/TJITPerformance.cpp
+./Emulator/JIT/TJITPerformance.h
+./Emulator/Log/TBufferLog.cpp
+./Emulator/Log/TBufferLog.h
+./Emulator/Log/TFileLog.cpp
+./Emulator/Log/TFileLog.h
+./Emulator/Log/TLog.cpp
+./Emulator/Log/TLog.h
+./Emulator/Log/TRAMLog.cpp
+./Emulator/Log/TRAMLog.h
+./Emulator/Log/TStdOutLog.cpp
+./Emulator/Log/TStdOutLog.h
+#./Emulator/NativeCalls/NativeCallsDefines.h
+#./Emulator/NativeCalls/TNativeCalls.cpp
+#./Emulator/NativeCalls/TNativeCalls.h
+./Emulator/NativeCalls/TObjCBridgeCalls.mm
+./Emulator/NativeCalls/TObjCBridgeCalls.h
+./Emulator/NativeCalls/TVirtualizedCalls.cpp
+./Emulator/NativeCalls/TVirtualizedCalls.h
+./Emulator/NativeCalls/TVirtualizedCallsPatches.cpp
+./Emulator/NativeCalls/TVirtualizedCallsPatches.h
+./Emulator/Network/TNetworkManager.cpp
+./Emulator/Network/TNetworkManager.h
+./Emulator/Network/TTapNetwork.cpp
+./Emulator/Network/TTapNetwork.h
+./Emulator/Network/TUsermodeNetwork.cpp
+./Emulator/Network/TUsermodeNetwork.h
+./Emulator/PCMCIA/TATACard.cpp
+./Emulator/PCMCIA/TATACard.h
+./Emulator/PCMCIA/TLinearCard.cpp
+./Emulator/PCMCIA/TLinearCard.h
+./Emulator/PCMCIA/TNE2000Card.cpp
+./Emulator/PCMCIA/TNE2000Card.h
+./Emulator/PCMCIA/TPCMCIACard.cpp
+./Emulator/PCMCIA/TPCMCIACard.h
+./Emulator/PCMCIA/TPCMCIAController.cpp
+./Emulator/PCMCIA/TPCMCIAController.h
+./Emulator/Platform/PlatformEvents.h
+./Emulator/Platform/PlatformGestalt.h
+./Emulator/Platform/TNewt.cpp
+./Emulator/Platform/TNewt.h
+./Emulator/Platform/TPlatformManager.cpp
+./Emulator/Platform/TPlatformManager.h
+./Emulator/ROM/PrecompiledPatches.cpp
+./Emulator/ROM/PrecompiledPatches.h
+./Emulator/ROM/TAIFFile.cpp
+./Emulator/ROM/TAIFFile.h
+./Emulator/ROM/TAIFROMImageWithREXes.cpp
+./Emulator/ROM/TAIFROMImageWithREXes.h
+./Emulator/ROM/TFlatROMImage.cpp
+./Emulator/ROM/TFlatROMImage.h
+./Emulator/ROM/TFlatROMImageWithREX.cpp
+./Emulator/ROM/TFlatROMImageWithREX.h
+./Emulator/ROM/TROMImage.cpp
+./Emulator/ROM/TROMImage.h
+#./Emulator/Scheduler/TScheduler.cpp
+#./Emulator/Scheduler/TScheduler.h
+#./Emulator/Scheduler/TTask.cpp
+#./Emulator/Scheduler/TTask.h
+#./Emulator/Screen/CocoaEmulatorApp.h
+#./Emulator/Screen/CocoaScreenProxy.h
+#./Emulator/Screen/TAndroidNativeScreenManager.cpp
+#./Emulator/Screen/TAndroidNativeScreenManager.h
+#./Emulator/Screen/TAndroidScreenManager.cpp
+#./Emulator/Screen/TAndroidScreenManager.h
+#./Emulator/Screen/TCocoaPowerButtonNSView.h
+#./Emulator/Screen/TCocoaScreenGlue.h
+#./Emulator/Screen/TCocoaScreenManager.h
+#./Emulator/Screen/TCocoaScreenView.h
+#./Emulator/Screen/TFBScreenManager.cpp
+#./Emulator/Screen/TFBScreenManager.h
+./Emulator/Screen/TFLScreenManager.cpp
+./Emulator/Screen/TFLScreenManager.h
+#./Emulator/Screen/TIOSScreenManager.h
+./Emulator/Screen/TNullScreenManager.cpp
+./Emulator/Screen/TNullScreenManager.h
+#./Emulator/Screen/TSDLScreenManager.cpp
+#./Emulator/Screen/TSDLScreenManager.h
+./Emulator/Screen/TScreenManager.cpp
+./Emulator/Screen/TScreenManager.h
+#./Emulator/Screen/TX11ScreenManager.cpp
+#./Emulator/Screen/TX11ScreenManager.h
+./Emulator/Serial/TBasicSerialPortManager.cpp
+./Emulator/Serial/TBasicSerialPortManager.h
+./Emulator/Serial/TBasiliskIISerialPortManager.cpp
+./Emulator/Serial/TBasiliskIISerialPortManager.h
+./Emulator/Serial/TPipesSerialPortManager.cpp
+./Emulator/Serial/TPipesSerialPortManager.h
+./Emulator/Serial/TPtySerialPortManager.cpp
+./Emulator/Serial/TPtySerialPortManager.h
+./Emulator/Serial/TSerialPortManager.cpp
+./Emulator/Serial/TSerialPortManager.h
+./Emulator/Serial/TSerialPorts.cpp
+./Emulator/Serial/TSerialPorts.h
+./Emulator/Serial/TTcpClientSerialPortManager.cpp
+./Emulator/Serial/TTcpClientSerialPortManager.h
+#./Emulator/Sound/TAndroidNativeSoundManager.cpp
+#./Emulator/Sound/TAndroidNativeSoundManager.h
+#./Emulator/Sound/TAndroidSoundManager.cpp
+#./Emulator/Sound/TAndroidSoundManager.h
+./Emulator/Sound/TBufferedSoundManager.cpp
+./Emulator/Sound/TBufferedSoundManager.h
+./Emulator/Sound/TCoreAudioSoundManager.cpp
+./Emulator/Sound/TCoreAudioSoundManager.h
+./Emulator/Sound/TNullSoundManager.cpp
+./Emulator/Sound/TNullSoundManager.h
+#./Emulator/Sound/TPortAudioSoundManager.cpp
+#./Emulator/Sound/TPortAudioSoundManager.h
+#./Emulator/Sound/TPulseAudioSoundManager.cpp
+#./Emulator/Sound/TPulseAudioSoundManager.h
+./Emulator/Sound/TSoundManager.cpp
+./Emulator/Sound/TSoundManager.h
+#./Emulator/Sound/TWaveSoundManager.cpp
+#./Emulator/Sound/TWaveSoundManager.h
+./Emulator/TARMProcessor.cpp
+./Emulator/TARMProcessor.h
+./Emulator/TDMAManager.cpp
+./Emulator/TDMAManager.h
+./Emulator/TEmulator.cpp
+./Emulator/TEmulator.h
+./Emulator/TFlash.cpp
+./Emulator/TFlash.h
+./Emulator/THashMapCache.h
+./Emulator/TInterruptManager.cpp
+./Emulator/TInterruptManager.h
+./Emulator/TMMU.cpp
+./Emulator/TMMU.h
+./Emulator/TMemory.cpp
+./Emulator/TMemory.h
+./Emulator/TMemoryConsts.h
+./Emulator/TNativePrimitives.cpp
+./Emulator/TNativePrimitives.h
+#./Emulator/Win32/CompatibilityWin32.cpp
+#./Emulator/Win32/CompatibilityWin32.h
+./K/Defines/KDefinitions.cpp
+./K/Defines/KDefinitions.h
+./K/Defines/UByteSex.h
+./K/Exceptions/Errors/TError.cpp
+./K/Exceptions/Errors/TError.h
+./K/Exceptions/Errors/TMemError.cpp
+./K/Exceptions/Errors/TMemError.h
+./K/Exceptions/IO/TEOFException.cpp
+./K/Exceptions/IO/TEOFException.h
+./K/Exceptions/IO/TIOException.cpp
+./K/Exceptions/IO/TIOException.h
+./K/Exceptions/TException.cpp
+./K/Exceptions/TException.h
+./K/Misc/RelocHack.h
+./K/Misc/TCircleBuffer.cpp
+./K/Misc/TCircleBuffer.h
+./K/Misc/TDoubleLinkedList.h
+./K/Misc/TMappedFile.cpp
+./K/Misc/TMappedFile.h
+#./K/Misc/TNameServerSingleton.cpp
+#./K/Misc/TNameServerSingleton.h
+#./K/Misc/UPStrings.cpp
+#./K/Misc/UPStrings.h
+./K/Streams/TFileStream.cpp
+./K/Streams/TFileStream.h
+./K/Streams/TRandomAccessStream.h
+./K/Streams/TStream.cpp
+./K/Streams/TStream.h
+#./K/Tests/KDebug.h
+#./K/Tests/TFunctionMonitor.h
+#./K/Tests/TMonitorMethodClient.cpp
+#./K/Tests/TMonitorMethodClient.h
+#./K/Tests/TNewtonTraceMonitor.cpp
+#./K/Tests/TNewtonTraceMonitor.h
+#./K/Tests/TTraceMonitor.cpp
+#./K/Tests/TTraceMonitor.h
+./K/Threads/TCondVar.cpp
+./K/Threads/TCondVar.h
+./K/Threads/TFiber.cpp
+./K/Threads/TFiber.h
+./K/Threads/TMutex.cpp
+./K/Threads/TMutex.h
+./K/Threads/TThread.cpp
+./K/Threads/TThread.h
+./K/Unicode/UUTF16CStr.cpp
+./K/Unicode/UUTF16CStr.h
+./K/Unicode/UUTF16Conv.cpp
+./K/Unicode/UUTF16Conv.h
+./K/Unicode/UnicodeDefinitions.h
+#./Monitor/TMacMonitor.h
+#./Monitor/TMacMonitorView.h
+./Monitor/TMonitor.cpp
+./Monitor/TMonitor.h
+./Monitor/TMonitorCore.cpp
+./Monitor/TMonitorCore.h
+./Monitor/TSymbolList.cpp
+./Monitor/TSymbolList.h
+./Monitor/UDisasm.cpp
+./Monitor/UDisasm.h
+#./app/AndroidGlue.cpp
+#./app/AndroidGlue.h
+#./app/Scripting/EinsteinDoNewtonScriptCommand.h
+#./app/Scripting/EinsteinInstallPackageCommand.h
+#./app/TAndroidApp.cpp
+#./app/TAndroidApp.h
+#./app/TAndroidNativeApp.cpp
+#./app/TAndroidNativeApp.h
+#./app/TCLIApp.cpp
+#./app/TCLIApp.h
+#./app/TCocoaAppController.h
+#./app/TCocoaFileManager.h
+#./app/TCocoaListenerWindow.h
+#./app/TCocoaMonitorController.h
+#./app/TCocoaPathHelper.h
+#./app/TCocoaROMDumperController.h
+#./app/TCocoaSetupController.h
+#./app/TCocoaUserDefaults.h
+./app/TFLApp.cpp
+./app/TFLApp.h
+./app/TFLSettings.cpp
+./app/TFLSettings.h
+#./app/TMaemoApp.cpp
+#./app/TMaemoApp.h
+./app/TPathHelper.cpp
+./app/TPathHelper.h
+./app/Version.h
+#./app/einstein.cpp
+#./app/einstein_maemo.cpp
+#./app/iEinstein/Classes/iEinsteinAppDelegate.h
+#./app/iEinstein/Classes/iEinsteinView.h
+#./app/iEinstein/Classes/iEinsteinViewController.h
+#./libffi-armlinux/include/ffi.h
+#./libffi-armlinux/include/ffitarget.h
+#./libffi-cygwin/include/ffi.h
+#./libffi-cygwin/include/ffitarget.h
+#./libffi-linux/include/ffi.h
+#./libffi-linux/include/ffitarget.h
+#./libffi-nokia/include/ffi.h
+#./libffi-nokia/include/ffi_common.h
+#./libffi-nokia/include/fficonfig.h
+#./libffi-nokia/include/ffitarget.h
+#./libffi-nokia2006/include/ffi.h
+#./libffi-nokia2006/include/ffi_common.h
+#./libffi-nokia2006/include/fficonfig.h
+#./libffi-nokia2006/include/ffitarget.h
+#./libffi-osx/include/ffi.h
+#./libffi-osx/include/ffi_common.h
+#./libffi-osx/include/fficonfig.h
+#./libffi-osx/include/ffitarget.h
+#./libffi-osx/src/powerpc/asm.h
+#./libffi-osx/src/powerpc/ffitarget.h
+#./libffi-osx/src/x86/ffitarget.h
+#./libffi-win32/include/ffi.h
+#./libffi-win32/include/ffitarget.h
+#./libffi/acconfig.h
+#./libffi/confdefs.h
+#./libffi/include/ffi_common.h
+#./libffi/include/ffi_mips.h
+#./libffi/src/alpha/ffitarget.h
+#./libffi/src/arm/ffitarget.h
+#./libffi/src/fficonfig.h
+#./libffi/src/ia64/ffitarget.h
+#./libffi/src/ia64/ia64_flags.h
+#./libffi/src/include/ffi.h
+#./libffi/src/include/fficonfig.h
+#./libffi/src/m68k/ffitarget.h
+#./libffi/src/mips/ffitarget.h
+#./libffi/src/pa/ffitarget.h
+#./libffi/src/powerpc/asm.h
+#./libffi/src/powerpc/ffitarget.h
+#./libffi/src/s390/ffitarget.h
+#./libffi/src/sh/ffitarget.h
+#./libffi/src/sh64/ffitarget.h
+#./libffi/src/sparc/ffitarget.h
+#./libffi/src/x86/ffitarget.h
+#./libffi/testsuite/libffi.call/ffitest.h
+#./libffi/testsuite/libffi.special/ffitestcxx.h
+#./portaudio/pa_asio/iasiothiscallresolver.cpp
+#./portaudio/pa_asio/iasiothiscallresolver.h
+#./portaudio/pa_asio/pa_asio.cpp
+#./portaudio/pa_asio/pa_asio.h
+#./portaudio/pa_beos/PlaybackNode.h
+#./portaudio/pa_common/pa_allocation.h
+#./portaudio/pa_common/pa_converters.h
+#./portaudio/pa_common/pa_cpuload.h
+#./portaudio/pa_common/pa_dither.h
+#./portaudio/pa_common/pa_endianness.h
+#./portaudio/pa_common/pa_hostapi.h
+#./portaudio/pa_common/pa_process.h
+#./portaudio/pa_common/pa_stream.h
+#./portaudio/pa_common/pa_trace.h
+#./portaudio/pa_common/pa_types.h
+#./portaudio/pa_common/pa_util.h
+#./portaudio/pa_common/portaudio.h
+#./portaudio/pa_dll_switch/PaDllEntry.h
+#./portaudio/pa_dll_switch/loadPA_DLL.cpp
+#./portaudio/pa_dll_switch/portaudio.h
+#./portaudio/pa_linux_alsa/pa_linux_alsa.h
+#./portaudio/pa_mac_core/pa_mac_core.h
+#./portaudio/pa_unix/pa_unix_util.h
+#./portaudio/pa_win/pa_x86_plain_converters.h
+#./portaudio/pa_win_ds/dsound_wrapper.h
+#./portaudio/pa_win_wmme/pa_win_wmme.h
+#./portaudio/pablio/pablio.h
+#./portaudio/pablio/ringbuffer.h
 )
 
-# Platform-specific stuff
-if(${WIN32})
-    target_sources(einsteinlib PUBLIC "Emulator/Win32/CompatibilityWin32.cp")
-    set(EINSTEIN_TARGET "WIN32")
-    set(EINSTEIN_SCREEN_MANAGER "FL")
+add_executable(Einstein MACOSX_BUNDLE ${sources} ${data})
 
-    target_include_directories(einsteinlib PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/Emulator/Win32
-        $<INSTALL_INTERFACE:einsteinlib>/Emulator/Win32
-    )
-    set_source_files_properties("Emulator/Win32/CompatibilityWin32.cp" PROPERTIES LANGUAGE CXX)
-elseif(${UNIX})
+find_package(FLTK REQUIRED NO_MODULE)
 
-    if (${APPLE})
-        # FIXME OS X is called OPENSTEP ...
-        set(EINSTEIN_TARGET "OPENSTEP")
-        # FIXME add OS X sources here.
-        set(EINSTEIN_SCREEN_MANAGER "Cocoa")
-    else()
-        if (appX11)
-            set(EINSTEIN_SCREEN_MANAGER "X11")
-        endif()
+#include_directories(${FLTK_INCLUDE_DIRS})
 
-        if(${CMAKE_HOST_SYSTEM_NAME} MATCHES "BSD")
-            set(EINSTEIN_TARGET "BSD")
+target_compile_options(Einstein PUBLIC -Wall)
+target_compile_definitions(Einstein PRIVATE NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 NS_BLOCK_ASSERTIONS=1)
+target_include_directories(Einstein PUBLIC ${CMAKE_SOURCE_DIR} ${FLTK_INCLUDE_DIRS})
+#link_directories(AFTER /usr/local/lib)
+#target_link_directories(Einstein PRIVATE /usr/local/lib)
+target_link_libraries(Einstein 
+	/usr/local/lib/libfltk.a
+	pthread
+	"-framework AddressBook"
+	"-framework AudioUnit"
+#	"-framework AudioToolbox"
+	"-framework AppKit"
+#	"-framework CoreData"
+#	"-framework Foundation"
+	"-framework CoreAudio"
+	"-framework Cocoa"
+)
 
-        else()
-            set(EINSTEIN_TARGET "LINUX")
-        endif()
-    endif()
-endif()
+set_target_properties(Einstein PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/FLInfo.plist.in")
 
-add_definitions(-DTARGET_OS_${EINSTEIN_TARGET})
+#MACOSX_BUNDLE_INFO_STRING
+#MACOSX_BUNDLE_ICON_FILE
+#MACOSX_BUNDLE_GUI_IDENTIFIER
+#MACOSX_BUNDLE_LONG_VERSION_STRING
+#MACOSX_BUNDLE_BUNDLE_NAME
+#MACOSX_BUNDLE_SHORT_VERSION_STRING
+#MACOSX_BUNDLE_BUNDLE_VERSION
+#MACOSX_BUNDLE_COPYRIGHT
 
-if (portaudio OR nativeportaudio)
-    add_definitions("-DAUDIO_PORTAUDIO=1")
-endif()
+# message ( ${CMAKE_CURRENT_BINARY_DIR} " --- " ${bundleName} )
 
-if (pulseaudio)
-    add_definitions("-DAUDIO_PULSEAUDIO=1")
-endif()
-
-# Add the Emulator/ sub-dir, which has CMakeLists all the way down
-add_subdirectory(Emulator)
-add_subdirectory(Monitor)
-
-install(TARGETS einsteinlib DESTINATION lib/${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_BUILD_TYPE})
-
-target_link_libraries(einsteinlib monitor files host jit log nativecalls network pcmcia platform rom screen serial sound ${LINKLIBS} k)
-
-
-############################
-# EINSTEIN EMULATOR
-add_executable(einstein app/einstein.cp app/TCLIApp.cp)
-
-install(TARGETS einstein
-DESTINATION bin/${CMAKE_HOST_SYSTEM_NAME}-${CMAKE_BUILD_TYPE})
-
-set_source_files_properties(app/einstein.cp app/TCLIApp.cp PROPERTIES LANGUAGE CXX)
-target_link_libraries(einstein k einsteinlib)

@@ -25,10 +25,10 @@
 #define _TJITGENERIC_DATAPROCESSINGPSRTRANSFER_H
 
 #include <K/Defines/KDefinitions.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 // Einstein
-#include "TARMProcessor.h"
+#include "Emulator/TARMProcessor.h"
 
 void
 Translate_DataProcessingPSRTransfer(

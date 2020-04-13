@@ -28,8 +28,8 @@
 #include <functional>
 
 // Einstein
-#include "TARMProcessor.h"
-#include "TMemory.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TMemory.h"
 #include "Log/TLog.h"
 #include "Serial/TSerialPorts.h"
 
@@ -203,7 +203,7 @@ public:
 	///
 	/// \return \c true if we are.
 	///
-	inline Boolean	IsBPHalted( void )
+	inline bool	IsBPHalted( void )
 		{
 			return mBPHalted;
 		}
@@ -213,7 +213,7 @@ public:
 	///
 	/// \return \c true if we are.
 	///
-	inline Boolean	IsInterrupted( void )
+	inline bool	IsInterrupted( void )
 		{
 			return mInterrupted;
 		}
@@ -233,7 +233,7 @@ public:
 	///
 	/// \return \c true if we are.
 	///
-	inline Boolean	IsPaused( void )
+	inline bool	IsPaused( void )
 		{
 			return mPaused;
 		}
@@ -243,7 +243,7 @@ public:
 	///
 	/// \return \c true if we are.
 	///
-	inline Boolean	IsRunning( void )
+	inline bool	IsRunning( void )
 		{
 			return mRunning;
 		}

@@ -33,9 +33,9 @@
 #include <K/Unicode/UUTF16CStr.h>
 
 // Einstein
-#include "TMemory.h"
-#include "TARMProcessor.h"
-#include "TEmulator.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TEmulator.h"
 
 
 using namespace TNewt;

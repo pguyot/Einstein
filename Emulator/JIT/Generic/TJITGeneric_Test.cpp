@@ -22,18 +22,18 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 #ifdef JITTARGET_GENERIC
 
 // Einstein
-#include "TARMProcessor.h"
-#include "TEmulator.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TEmulator.h"
 
-#include "TJITGeneric_Macros.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
 #define IMPLEMENTATION 1
-#include "TJITGeneric_Test_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_Test_template.t"
 #undef IMPLEMENTATION
 
 #endif

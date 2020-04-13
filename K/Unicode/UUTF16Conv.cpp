@@ -236,7 +236,7 @@ UUTF16Conv::ToISO88592(
 												// Input buffer is big endian, so I might need to convert it.
 		if (theUnicodeChar > 0x00A0)			// 0x00A0 and anything below is translated to the same value casted to 8 bits.
 		{
-			Boolean unrepresentable = false;		// Flag to know if an unrepresentable character has been met.
+			bool unrepresentable = false;		// Flag to know if an unrepresentable character has been met.
 			// Two cases: the Unicode char is < 0x0100: check that we have 0x00XX -> 0xXX with the From table.
 			// the Unicode char is >= 0x0100: use the To table.
 
@@ -553,7 +553,7 @@ UUTF16Conv::ToMacRoman(
 			// anything below 0x0080 is translated to the same value casted to 8 bits.
 			// unicode characters between 0x80 and 0x9F cannot be represented in MacRoman
 		{
-			Boolean unrepresentable = false;	// Whether the char is unrepresentable or not.
+			bool unrepresentable = false;	// Whether the char is unrepresentable or not.
 			
 			if (theUnicodeChar >= 0x00A0)
 			{

@@ -52,8 +52,8 @@ public:
 						  TLog* inLog = nil,
 						  KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 						  KUInt32 inPortraitHeight = kDefaultPortraitHeight,
-						  Boolean inFullScreen = false,
-						  Boolean inScreenIsLandscape = true);
+						  bool inFullScreen = false,
+						  bool inScreenIsLandscape = true);
 	
 	
 	///
@@ -117,7 +117,7 @@ public:
 	///
 	/// \param inNewBacklight the new state of the backlight.
 	///
-	virtual void	BacklightChanged( Boolean inNewBacklight );
+	virtual void	BacklightChanged( bool inNewBacklight );
 	
 	///
 	/// Notify that some screen bits changed.

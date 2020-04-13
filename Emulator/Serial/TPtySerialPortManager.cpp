@@ -22,7 +22,7 @@
 // ==============================
 
 #include "TPtySerialPortManager.h"
-#include "TPathHelper.h"
+#include "app/TPathHelper.h"
 
 // POSIX
 #include <sys/types.h>

@@ -22,25 +22,21 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 #ifdef JITTARGET_GENERIC
 
 // Einstein
-#include "TMemory.h"
-#include "TJITGeneric.h"
-#include "TJITGenericPage.h"
-#include "TARMProcessor.h"
-#include "TEmulator.h"
-#include "TMemoryConsts.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/JIT/Generic/TJITGeneric.h"
+#include "Emulator/JIT/Generic/TJITGenericPage.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TEmulator.h"
+#include "Emulator/TMemoryConsts.h"
 
-#include "TJITGenericROMPatch.h"
+#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 
-#if RASPBERRY_PI || TARGET_OS_LINUX
-#include "../../NativeCalls/TVirtualizedCallsPatches.h"
-#else
-#include "TVirtualizedCallsPatches.h"
-#endif
+#include "Emulator/NativeCalls/TVirtualizedCallsPatches.h"
 
 #if 0
 //

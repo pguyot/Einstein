@@ -45,7 +45,7 @@
 /// par TARGET_OS_XXX.
 ///
 /// Ce qui est définit ici:
-/// Boolean		(taille quelconque, sur certaines plateformes, un mot
+/// bool		(taille quelconque, sur certaines plateformes, un mot
 ///				de 32 bits est plus efficace qu'un octet)
 /// false et true (normalement définis par le compilateur C++)
 /// KUInt64		un entier non signé de 64 bits
@@ -243,23 +243,6 @@
 		#define TARGET_OS_COMPAT_POSIX 1
 		#undef	TARGET_OS_UNDEFINED
 		
-		// MacOS X could be on x86 or on ppc
-		#if (defined (__ppc__) || defined (__ppc64__))
-			#define TARGET_OS_OPENSTEP_PPC 1
-                        #define TARGET_OS_OPENSTEP_I386 0
-                        #define TARGET_OS_OPENSTEP_ARM 0
-                #elif (defined (__i386__) || defined (__x86_64__))
-                        #define TARGET_OS_OPENSTEP_PPC 0
-                        #define TARGET_OS_OPENSTEP_I386 1
-                        #define TARGET_OS_OPENSTEP_ARM 0
-                #elif (defined (__arm__) || defined (__arm64__))
-                        #define TARGET_OS_OPENSTEP_PPC 0
-                        #define TARGET_OS_OPENSTEP_I386 0
-                        #define TARGET_OS_OPENSTEP_ARM 1
-                #else
-			#error "Unknown MacOS X architecture"
-		#endif
-
 	#else
 		#define TARGET_OS_ANDROID 0
 		#define TARGET_OS_BEOS 0
@@ -532,6 +515,7 @@
 	#define HAS_COND_TIMEDWAIT_RELATIVE_NP 0
 #endif
 
+#include <cstdint>
 
 typedef	uint64_t	KUInt64;
 typedef	int64_t		KSInt64;
@@ -541,7 +525,6 @@ typedef	uint16_t	KUInt16;
 typedef	int16_t		KSInt16;
 typedef uint8_t     KUInt8;
 typedef	int8_t		KSInt8;
-typedef	bool		Boolean;
 typedef uintptr_t   KUIntPtr;
 
 

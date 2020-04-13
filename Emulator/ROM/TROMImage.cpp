@@ -45,14 +45,14 @@
 #include <K/Defines/UByteSex.h>
 
 // Einstein
-#include "TMemoryConsts.h"
+#include "Emulator/TMemoryConsts.h"
 
-#include "TMemory.h"
-#include "TARMProcessor.h"
-#include "TJITGeneric_Macros.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
-#include "TEmulator.h"
-#include "TScreenManager.h"
+#include "Emulator/TEmulator.h"
+#include "Emulator/Screen/TScreenManager.h"
 
 // -------------------------------------------------------------------------- //
 //  * TROMImage( void )
@@ -84,13 +84,13 @@ TROMImage::~TROMImage( void )
 // -------------------------------------------------------------------------- //
 //  * IsImageOutdated( const char*, time_t )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TROMImage::IsImageOutdated(
 				const char* inPath,
 				time_t inModDate,
 				const char inMachineString[6] )
 {
-	Boolean result = true;
+	bool result = true;
 
 #ifdef _DEBUG
 	// allow patching the ROM at every run
@@ -226,10 +226,10 @@ TROMImage::CreateImage(
 }
 
 // -------------------------------------------------------------------------- //
-//  * Init( const char*, Boolean )
+//  * Init( const char*, bool )
 // -------------------------------------------------------------------------- //
 void
-TROMImage::Init( const char* inPath, Boolean inMonitorMode )
+TROMImage::Init( const char* inPath, bool inMonitorMode )
 {
 	// Create the mmap file.
 	TMappedFile* theMappedFile = new TMappedFile(

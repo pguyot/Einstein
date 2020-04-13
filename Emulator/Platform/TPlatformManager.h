@@ -120,7 +120,7 @@ public:
 	///
 	/// Is the system powered on?
 	///
-	Boolean IsPowerOn( void ) { return mPowerOn; }
+	bool IsPowerOn( void ) { return mPowerOn; }
 	
 	///
 	/// Lock the event queue. New events won't be sent to the Newton.
@@ -202,19 +202,19 @@ public:
 	/// Get next event from the queue (and remove it).
 	/// Address is wired (and physical).
 	///
-	Boolean	GetNextEvent( KUInt32 outEventPAddr );
+	bool	GetNextEvent( KUInt32 outEventPAddr );
 
 	///
 	/// Dispose a buffer from the queue.
 	/// \return true if the buffer was found and removed.
 	///
-	Boolean	DisposeBuffer( KUInt32 inID );
+	bool	DisposeBuffer( KUInt32 inID );
 
 	///
 	/// Copy some buffer data (and remove the buffer).
 	/// \return true if the write operation succeeded.
 	///
-	Boolean	CopyBufferData( KUInt32 inID, KUInt32 outVAddress, KUInt32 inOffset, KUInt32 inAmount );
+	bool	CopyBufferData( KUInt32 inID, KUInt32 outVAddress, KUInt32 inOffset, KUInt32 inAmount );
 
 	///
 	/// Display a choice of options on the host platform. This is for devices
@@ -293,7 +293,7 @@ private:
 	KUInt32				mBufferCount;		///< Number of buffers.
 	KUInt32				mBufferQueueSize;	///< Size of the buffer queue.
 	KUInt32				mBufferNextID;		///< Next ID for buffers.
-	Boolean				mPowerOn;			///< If power is on.
+	bool				mPowerOn;			///< If power is on.
 	KUInt32				mQueueLockCount;	///< Lock count for the queue.
 	TMutex*				mMutex;				///< Mutex of the queue.
 	char*				mDocDir;			///< Directory on host containing all kinds of documents

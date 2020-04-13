@@ -36,11 +36,11 @@
 	#include <sys/time.h>
 #endif
 
-#include "../Log/TLog.h"
-#include "../TInterruptManager.h"
-#include "../TDMAManager.h"
+#include "Emulator/Log/TLog.h"
+#include "Emulator/TInterruptManager.h"
+#include "Emulator/TDMAManager.h"
 
-#include "TEmulator.h"
+#include "Emulator/TEmulator.h"
 
 #include "Emulator/Serial/TBasicSerialPortManager.h"
 #if TARGET_OS_MAC

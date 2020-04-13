@@ -180,11 +180,11 @@ private:
 };
 
 
-class TNullNetwork : public TNetworkManager
+class TNullNetworkManager : public TNetworkManager
 {
 public:
- 	TNullNetwork(TLog* inLog) : TNetworkManager(inLog) {}
-	virtual ~TNullNetwork() { }
+ 	TNullNetworkManager(TLog* inLog) : TNetworkManager(inLog) {}
+	virtual ~TNullNetworkManager() { }
 	virtual int SendPacket(KUInt8 *data, KUInt32 size) { return -1; }
 	virtual int GetDeviceAddress(KUInt8 *data, KUInt32 size) { return -1; }
 	virtual KUInt32 DataAvailable() { return 0; }

@@ -143,13 +143,13 @@
 #endif
 
 // -------------------------------------------------------------------------- //
-//  * GetShift( TARMProcessor*, KUInt32, Boolean* )
+//  * GetShift( TARMProcessor*, KUInt32, bool* )
 // -------------------------------------------------------------------------- //
 inline KUInt32
 GetShift(
 				TARMProcessor* ioCPU,
 				KUInt32 inShift,
-				Boolean* outCarry,
+				bool* outCarry,
 				KUInt32 inPC )
 {
 	KUInt32 Shift = ((inShift & 0x00000FFF) >> 4);
@@ -302,10 +302,10 @@ GetShift(
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetShiftNoCarry( KUInt32, KUInt32[32], Boolean )
+//  * GetShiftNoCarry( KUInt32, KUInt32[32], bool )
 // -------------------------------------------------------------------------- //
 inline KUInt32
-GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt32 inPC )
+GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, bool inCPSR_C, KUInt32 inPC )
 {
 	KUInt32 Shift = ((inShift & 0x00000FFF) >> 4);
 	KUInt32 Rm = inShift & 0x0000000F;
@@ -428,10 +428,10 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetShiftNoCarryNoR15( KUInt32, KUInt32[32], Boolean )
+//  * GetShiftNoCarryNoR15( KUInt32, KUInt32[32], bool )
 // -------------------------------------------------------------------------- //
 inline KUInt32
-GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean inCPSR_C )
+GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], bool inCPSR_C )
 {
 	KUInt32 Shift = ((inShift & 0x00000FFF) >> 5);
 	KUInt32 Rm = inShift & 0x0000000F;
@@ -520,10 +520,10 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 }
 
 // -------------------------------------------------------------------------- //
-//  * SetCPSRBitsForLogicalOp( TARMProcessor*, KUInt32, Boolean )
+//  * SetCPSRBitsForLogicalOp( TARMProcessor*, KUInt32, bool )
 // -------------------------------------------------------------------------- //
 inline void
-SetCPSRBitsForLogicalOp( TARMProcessor* ioCPU, KUInt32 inResult, Boolean inCarry )
+SetCPSRBitsForLogicalOp( TARMProcessor* ioCPU, KUInt32 inResult, bool inCarry )
 {
 	if (inResult == 0)
 	{
@@ -564,14 +564,14 @@ SetCPSRBitsForLogicalOpLeaveCarry( TARMProcessor* ioCPU, KUInt32 inResult )
 }
 
 // -------------------------------------------------------------------------- //
-//  * SetCPSRBitsForArithmeticOp( TARMProcessor*, KUInt32, Boolean, Boolean )
+//  * SetCPSRBitsForArithmeticOp( TARMProcessor*, KUInt32, bool, bool )
 // -------------------------------------------------------------------------- //
 inline void
 SetCPSRBitsForArithmeticOp(
 					TARMProcessor* ioCPU,
 					KUInt32 inResult,
-					Boolean inCarry,
-					Boolean inOverflow )
+					bool inCarry,
+					bool inOverflow )
 {
 	if (inResult == 0)
 	{

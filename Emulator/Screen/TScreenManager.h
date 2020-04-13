@@ -121,8 +121,8 @@ public:
 				TLog* inLog = nil,
 				KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 				KUInt32 inPortraitHeight = kDefaultPortraitHeight,
-				Boolean inFullScreen = false,
-				Boolean inScreenIsLandscape = true );
+				bool inFullScreen = false,
+				bool inScreenIsLandscape = true );
 
 	///
 	/// Destructor.
@@ -220,7 +220,7 @@ public:
 	/// \param outTimeInTicks	time in ticks.
 	/// \return \c true if there was a sample left, \c false otherwise.
 	///
-	Boolean	GetSample( KUInt32* outPackedSample, KUInt32* outTimeInTicks );
+	bool	GetSample( KUInt32* outPackedSample, KUInt32* outTimeInTicks );
 
 	///
 	/// Notify that the tablet orientation changed.
@@ -300,7 +300,7 @@ public:
 	///
 	/// \param inNewBacklight the new state of the backlight.
 	///
-	virtual void	BacklightChanged( Boolean inNewBacklight ) = 0;
+	virtual void	BacklightChanged( bool inNewBacklight ) = 0;
 
 	///
 	/// Get the screen orientation.
@@ -355,7 +355,7 @@ public:
 	/// Get the state of the backlight.
 	/// This method is called by the display driver.
 	///
-	Boolean	GetBacklight( void ) const
+	bool	GetBacklight( void ) const
 		{
 			return mBacklight;
 		}
@@ -364,7 +364,7 @@ public:
 	/// Set the state of the backlight.
 	/// This method is called by the display driver.
 	///
-	void	SetBacklight( Boolean inBacklight )
+	void	SetBacklight( bool inBacklight )
 		{
 			if (inBacklight != mBacklight)
 			{
@@ -445,7 +445,7 @@ public:
 	///
 	/// \return true if the display is full screen.
 	///
-	Boolean	IsFullScreen( void ) const
+	bool	IsFullScreen( void ) const
 		{
 			return mFullScreen;
 		}
@@ -503,7 +503,7 @@ public:
 	///
 	/// Switch the status overlay on
 	///
-	Boolean		OverlayIsOn() { return mOverlayIsOn; }
+	bool		OverlayIsOn() { return mOverlayIsOn; }
 	
 	///
 	/// Push the overlay changes to the screen
@@ -518,7 +518,7 @@ public:
 	///
 	/// print some text into the status overlay
 	///
-	void		OverlayPrintAt(KSInt32 x, KSInt32 y, const char *text, Boolean centered=0);
+	void		OverlayPrintAt(KSInt32 x, KSInt32 y, const char *text, bool centered=0);
 	
 	///
 	/// print a progress bar
@@ -667,11 +667,11 @@ private:
 	KUInt32				mPortraitHeight;	///< Height in portrait mode.
 	KUInt32				mPhysicalWidth;		///< Actual screen width (full screen).
 	KUInt32				mPhysicalHeight;	///< Actual screen height (full screen).
-	Boolean				mFullScreen;		///< Full screen mode.
-	Boolean				mScreenIsLandscape;	///< Whether screen is landscape.
-	Boolean				mBypassTablet;		///< Whether we bypass the tablet.
-	Boolean				mTabletIsDown;		///< Whether the tablet is down.
-	Boolean				mPenIsDown;			///< If pen is down.
+	bool				mFullScreen;		///< Full screen mode.
+	bool				mScreenIsLandscape;	///< Whether screen is landscape.
+	bool				mBypassTablet;		///< Whether we bypass the tablet.
+	bool				mTabletIsDown;		///< Whether the tablet is down.
+	bool				mPenIsDown;			///< If pen is down.
 	KUInt32				mTabletSampleRate;	///< Sample rate (in ticks) of the
 											///< tablet.
 	KUInt32*			mTabletBuffer;		///< (Circular) buffer for the
@@ -681,13 +681,13 @@ private:
 	EOrientation		mTabletOrientation;	///< Current tablet orientation.
 	EOrientation		mScreenOrientation;	///< Current screen orientation.
 	KUInt32				mContrast;			///< Current screen contrast.
-	Boolean				mBacklight;			///< Current screen backlight.
-	Boolean				mKbdIsConnected;	///< If keyboard is connected.
+	bool				mBacklight;			///< Current screen backlight.
+	bool				mKbdIsConnected;	///< If keyboard is connected.
 	KUInt8*				mScreenBuffer;		///< Buffer of the screen.
 	
 protected:
-	Boolean				mOverlayIsOn;		///< Show overlay on screen
-	Boolean				mOverlayIsDirty[4];	///< There is something visible in the overlay buffer line
+	bool				mOverlayIsOn;		///< Show overlay on screen
+	bool				mOverlayIsDirty[4];	///< There is something visible in the overlay buffer line
 	char				mOverlay[4][40];	///< Overlay text buffer
 	SRect				mOverlayRect;		///< Position and size of overlay on screen
 	static KUInt8		mFontData[128][13]; ///< Pixeldata for overlay font

@@ -147,10 +147,10 @@ TCLIApp::Run( int argc, char* argv[] )
 	int portraitWidth = TScreenManager::kDefaultPortraitWidth;
 	int portraitHeight = TScreenManager::kDefaultPortraitHeight;
 	int ramSize = 0x40;
-	Boolean fullscreen = false;		// Default is not full screen.
-	Boolean useAIFROMFile = false;	// Default is to use flat rom format.
-	Boolean faceless = false;		// Default is to have an interface.
-	Boolean useMonitor = false;		// Default is to not have a monitor.
+	bool fullscreen = false;		// Default is not full screen.
+	bool useAIFROMFile = false;	// Default is to use flat rom format.
+	bool faceless = false;		// Default is to have an interface.
+	bool useMonitor = false;		// Default is to not have a monitor.
 	int indexArgs = 1;
 	if (argc < 2 && theDataPath == NULL)
 	{
@@ -519,7 +519,7 @@ TCLIApp::MonitorMenuLoop( void )
 	while( !mQuit )
 	{
 		theCommand[theIndex] = 0;
-		Boolean hasCommand = false;
+		bool hasCommand = false;
 		mMonitor->DrawScreen();
 
 		// Prompt.
@@ -598,7 +598,7 @@ TCLIApp::MonitorMenuLoop( void )
 
 		if (hasCommand)
 		{
-			Boolean knownCommand = ExecuteCommand(theCommand);
+			bool knownCommand = ExecuteCommand(theCommand);
 			if (!knownCommand)
 			{
 				char buffer[256];
@@ -653,7 +653,7 @@ TCLIApp::AppMenuLoop( void )
 		{
 			theCommand[theLength - 1] = '\0';
 
-			Boolean knownCommand = ExecuteCommand(theCommand);
+			bool knownCommand = ExecuteCommand(theCommand);
 			if (!knownCommand)
 			{
 				char buffer[256];
@@ -669,12 +669,12 @@ TCLIApp::AppMenuLoop( void )
 // -------------------------------------------------------------------------- //
 // ExecuteCommand( const char* inCommand )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TCLIApp::ExecuteCommand( const char* inCommand )
 {
 	char theArg[2048];
 
-	Boolean knownCommand = true;
+	bool knownCommand = true;
 	if (::strcmp(inCommand, "help") == 0)
 	{
 		PrintHelp();
@@ -865,18 +865,18 @@ TCLIApp::CreateSoundManager( const char* inClass )
 }
 
 // -------------------------------------------------------------------------- //
-// CreateScreenManager( const char*, int, int, Boolean )
+// CreateScreenManager( const char*, int, int, bool )
 // -------------------------------------------------------------------------- //
 void
 TCLIApp::CreateScreenManager(
 				const char* inClass,
 				int inPortraitWidth,
 				int inPortraitHeight,
-				Boolean inFullScreen)
+				bool inFullScreen)
 {
 	if (::strcmp( inClass, "x11" ) == 0)
 	{
-		Boolean screenIsLandscape = true;
+		bool screenIsLandscape = true;
 
 		KUInt32 theWidth;
 		KUInt32 theHeight;

@@ -28,6 +28,7 @@
 
 // K
 #include <K/Misc/TDoubleLinkedList.h>
+#include <K/Threads/TThread.h>
 
 ///
 /// Class for a task in Einstein.
@@ -53,7 +54,7 @@ public:
 	///
 	/// Determine if we're the current task.
 	///
-	Boolean IsCurrentTask( void ) const;
+	bool IsCurrentTask( void ) const;
 
 	///
 	/// Suspend for EnterAtomic.
@@ -87,7 +88,7 @@ private:
 
 	/// \name Variables
 	TThread<TTask>	mThread;			///< Thread associated with this task.
-	Boolean			mAtomicSuspended;	///< If the task was suspended with
+	bool			mAtomicSuspended;	///< If the task was suspended with
 										///< SuspendAtomic.
 };
 

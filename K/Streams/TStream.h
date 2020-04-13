@@ -391,8 +391,8 @@ public:
 	/// Return 1 if this stream can write to a file
 	KUInt32 IsWriting() { return (mIsWriting==1); }
 
-	/// Transfer a boolean.
-	void TransferBoolean(Boolean &inByte);
+	/// Transfer a bool.
+	void TransferBoolean(bool &inByte);
 	
 	/// Transfer a byte.
 	void TransferByte(KUInt8 &inByte);

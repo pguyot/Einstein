@@ -22,24 +22,24 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 #ifdef JITTARGET_GENERIC
 
 // Einstein
-#include "TARMProcessor.h"
-#include "TJITGenericPage.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/JIT/Generic/TJITGenericPage.h"
 
-#include "TJITGeneric_Macros.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
-#include "TJITGeneric_Test.h"
-#include "TJITGeneric_Other.h"
-#include "TJITGeneric_DataProcessingPSRTransfer.h"
-#include "TJITGeneric_SingleDataTransfer.h"
-#include "TJITGeneric_SingleDataSwap.h"
-#include "TJITGeneric_Multiply.h"
-#include "TJITGeneric_MultiplyAndAccumulate.h"
-#include "TJITGeneric_BlockDataTransfer.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Test.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Other.h"
+#include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.h"
+#include "Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.h"
+#include "Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Multiply.h"
+#include "Emulator/JIT/Generic/TJITGeneric_MultiplyAndAccumulate.h"
+#include "Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.h"
 
 #ifdef JIT_PERFORMANCE
 #include "TJITPerformance.h"

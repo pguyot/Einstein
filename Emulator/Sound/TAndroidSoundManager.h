@@ -78,7 +78,7 @@ public:
 	///
 	/// Is output running?
 	///
-	virtual Boolean	OutputIsRunning( void );
+	virtual bool	OutputIsRunning( void );
 	
 	static bool soundOutputDataAvailable();
 	static int soundOutputBytesAvailable();

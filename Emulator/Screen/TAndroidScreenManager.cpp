@@ -44,8 +44,8 @@ TAndroidScreenManager::TAndroidScreenManager(
 											 TLog* inLog /* = nil */,
 											 KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 											 KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
-											 Boolean inFullScreen /* = false */,
-											 Boolean inScreenIsLandscape /* = true */)
+											 bool inFullScreen /* = false */,
+											 bool inScreenIsLandscape /* = true */)
 :
 TScreenManager(
 			   inLog,
@@ -107,10 +107,10 @@ TAndroidScreenManager::PowerOffScreen( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * BacklightChanged( Boolean )
+//  * BacklightChanged( bool )
 // -------------------------------------------------------------------------- //
 void
-TAndroidScreenManager::BacklightChanged( Boolean )
+TAndroidScreenManager::BacklightChanged( bool )
 {
 	if (GetLog()) GetLog()->FLogLine("UpdateScreenRect(0L)");
 	changed = 1;

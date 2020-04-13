@@ -32,7 +32,7 @@
 #include <sys/types.h>
 
 #include <FL/x.H>
-#include <FL/fl_draw.h>
+#include <FL/fl_draw.H>
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
@@ -44,7 +44,12 @@
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/Sound/TNullSoundManager.h"
+#if TARGET_OS_WINDOWS
 #include "Emulator/Sound/TWaveSoundManager.h"
+#else
+#include "Emulator/Sound/TCoreAudioSoundManager.h"
+#endif
+#include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Screen/TFLScreenManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
@@ -52,6 +57,9 @@
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Log/TFileLog.h"
 #include "Emulator/Log/TBufferLog.h"
+#include "Emulator/Serial/TSerialPorts.h"
+#include "Emulator/Serial/TSerialPortManager.h"
+#include "Emulator/Serial/TTcpClientSerialPortManager.h"
 
 #include "Monitor/TMonitor.h"
 #include "Monitor/TSymbolList.h"
@@ -174,14 +182,18 @@ TFLApp::~TFLApp( void )
 void
 TFLApp::Run( int argc, char* argv[] )
 {
+
 	mProgramName = argv[0];
 
 	Fl::scheme("gtk+");
 	Fl::args(1, argv);
 	Fl::get_system_colors();
+    Fl::use_high_res_GL(1);
 
 	flSettings = new TFLSettings(425, 392, "Einstein Platform Settings");
+#if TARGET_OS_WINDOWS
 	flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+#endif
 	flSettings->setApp(this, mProgramName);
 	flSettings->loadPreferences();
 	flSettings->revertDialog();
@@ -207,9 +219,9 @@ TFLApp::Run( int argc, char* argv[] )
 	int portraitWidth = flSettings->screenWidth;
 	int portraitHeight = flSettings->screenHeight;
 	int ramSize = flSettings->RAMSize;
-	Boolean fullscreen = (bool)flSettings->fullScreen;
-	Boolean hidemouse = (bool)flSettings->hideMouse;
-	Boolean useMonitor = (bool)flSettings->useMonitor;
+	bool fullscreen = (bool)flSettings->fullScreen;
+	bool hidemouse = (bool)flSettings->hideMouse;
+	bool useMonitor = (bool)flSettings->useMonitor;
 	int useAIFROMFile = 0;	// 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
 
 	int xx, yy, ww, hh;
@@ -232,21 +244,29 @@ TFLApp::Run( int argc, char* argv[] )
 	(void) ::printf( "This is %s.\n", VERSION_STRING );
 
 	Fl_Einstein_Window *win;
+    Fl_Group::current(nullptr);
 	if (fullscreen) {
 		win = new Fl_Einstein_Window(xx, yy, portraitWidth, portraitHeight, this);
 		win->border(0);
 	} else {
 		win = new Fl_Einstein_Window(portraitWidth, portraitHeight, this, "Einstein");
 	}
+#if TARGET_OS_WINDOWS
 	win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+#endif
 	win->callback(quit_cb, this);
 
 	if (theSoundManagerClass == nil)
 	{
+#if TARGET_OS_WINDOWS
 		mSoundManager = new TWaveSoundManager( mLog );
+#else
+		mSoundManager = new TCoreAudioSoundManager( mLog );
+#endif
 	} else {
 		CreateSoundManager( theSoundManagerClass );
 	}
+	mNetworkManager = new TNullNetworkManager(mLog);
 	if (theScreenManagerClass == nil)
 	{
 		//CreateScreenManager( "FL", portraitWidth, portraitHeight, fullscreen );
@@ -262,10 +282,17 @@ TFLApp::Run( int argc, char* argv[] )
 		// will we use an AIF image?
 		{ 
 			const char *ext = fl_filename_ext(theROMImagePath);
+#if TARGET_OS_WINDOWS
 			if ( ext && stricmp(ext, ".aif")==0 )
 			{
 				useAIFROMFile = 1;
 			}
+#else
+			if ( ext && strcasecmp(ext, ".aif")==0 )
+			{
+				useAIFROMFile = 1;
+			}
+#endif
 			const char *name = fl_filename_name(theROMImagePath);
 			if (	name 
 					&& strncmp(name, "Senior Cirrus", 13)==0 
@@ -309,16 +336,53 @@ TFLApp::Run( int argc, char* argv[] )
 		
 		mEmulator = new TEmulator(
 					mLog, mROMImage, theFlashPath,
-					mSoundManager, mScreenManager, ramSize << 16 );
+					mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
 		mPlatformManager = mEmulator->GetPlatformManager();
-		
+
+        // Basic initialization of all serial ports
+        mEmulator->SerialPorts.Initialize(TSerialPorts::kNullDriver, //kTcpClientDriver,
+                                          TSerialPorts::kNullDriver,
+                                          TSerialPorts::kNullDriver,
+                                          TSerialPorts::kNullDriver );
+#if 0
+        TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+        if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
+        {
+            TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+            tcp->SetServerAddress([[defaults stringForKey: kExtrTCPServerAddress] UTF8String]);
+            tcp->SetServerPort((int)[defaults integerForKey: kExtrTCPServerPort]);
+        }
+        mEmulator->SerialPorts.PortChangedCallback(
+                                                   // THIS IS A LAMBDA FUNCTION. This function is called when an application
+                                                   // on the emulated Newton changes the serial port settings
+                                                   [self](int serPort)->void
+                                                   {
+            if (serPort==TSerialPorts::kExtr) {
+                TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+                if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver) {
+                    TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+
+                    char *tcpServer = tcp->GetServerAddressDup();
+                    NSString *nsTcpServer = [NSString stringWithUTF8String:tcpServer];
+                    [[mUserDefaultsController defaults] setValue:nsTcpServer forKey:kExtrTCPServerAddress];
+                    ::free(tcpServer);
+
+                    int tcpPort = tcp->GetServerPort();
+                    [[mUserDefaultsController defaults] setInteger:tcpPort forKey:kExtrTCPServerPort];
+                }
+            }
+        }
+                                                   );
+#endif
+
+
 		if (useMonitor)
 		{
 			char theSymbolListPath[512];
 			(void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
 								theROMImagePath, theMachineString );
 			mSymbolList = new TSymbolList( theSymbolListPath );
-			mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList );
+			mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList, theROMImagePath);
 		} else {
 			(void) ::printf( "Booting...\n" );
 		}
@@ -342,7 +406,7 @@ TFLApp::Run( int argc, char* argv[] )
 
     mPipeServer.open();
 
-		Fl::run();
+    Fl::run();
 
     mPipeServer.close();
 
@@ -455,8 +519,10 @@ TFLApp::CreateSoundManager( const char* inClass )
 	if (::strcmp( inClass, "null" ) == 0)
 	{
 		mSoundManager = new TNullSoundManager( mLog );
+#if TARGET_OS_WINDOWS
 	} else if (::strcmp( inClass, "wave" ) == 0) {
 		mSoundManager = new TWaveSoundManager( mLog );
+#endif
 	} else {
 		(void) ::fprintf( stderr, "Unknown sound manager class %s\n", inClass );
 		::exit( 1 );
@@ -464,18 +530,18 @@ TFLApp::CreateSoundManager( const char* inClass )
 }
 
 // -------------------------------------------------------------------------- //
-// CreateScreenManager( const char*, int, int, Boolean )
+// CreateScreenManager( const char*, int, int, bool )
 // -------------------------------------------------------------------------- //
 void
 TFLApp::CreateScreenManager(
 				const char* inClass,
 				int inPortraitWidth,
 				int inPortraitHeight,
-				Boolean inFullScreen)
+				bool inFullScreen)
 {	
 	if (::strcmp( inClass, "FL" ) == 0)
 	{
-		Boolean screenIsLandscape = true;
+		bool screenIsLandscape = true;
 
 		KUInt32 theWidth;
 		KUInt32 theHeight;
@@ -636,15 +702,21 @@ int main(int argc, char** argv )
 	return 0;
 }
 
+#if TARGET_OS_WINDOWS
 VOID WINAPI CompletedWriteRoutine(DWORD, DWORD, LPOVERLAPPED); 
 VOID WINAPI CompletedReadRoutine(DWORD, DWORD, LPOVERLAPPED); 
+#endif
 
 TFLApp::TFLAppPipeServer::TFLAppPipeServer(TFLApp *app)
-: app_(app),
+#if TARGET_OS_WINDOWS
+: app_(app)
   hPipeInst(INVALID_HANDLE_VALUE),
   hPipe(INVALID_HANDLE_VALUE)
+#endif
 {
+#if TARGET_OS_WINDOWS
   memset(&over_, 0, sizeof(over_));
+#endif
 }
 
 TFLApp::TFLAppPipeServer::~TFLAppPipeServer()
@@ -654,11 +726,15 @@ TFLApp::TFLAppPipeServer::~TFLAppPipeServer()
 
 int TFLApp::TFLAppPipeServer::open()
 {
+#if TARGET_OS_WINDOWS
   CreateThread(0, 0, (LPTHREAD_START_ROUTINE)thread_, this, 0, 0);
+#endif
   return 0;
 }
 
 void TFLApp::TFLAppPipeServer::thread_(void *ps) {
+#if TARGET_OS_WINDOWS
+
   //over_.hEvent = CreateEvent(0L, TRUE, FALSE, 0L);
   //Fl::add_handler(
   TFLAppPipeServer *This = (TFLAppPipeServer*)ps;
@@ -694,6 +770,7 @@ void TFLApp::TFLAppPipeServer::thread_(void *ps) {
 //    Fl::awake(awake_, ps);
     DisconnectNamedPipe(This->hPipe);
   }
+#endif
   return;
 }
 
@@ -710,6 +787,7 @@ void TFLApp::TFLAppPipeServer::awake_(void *ps) {
 
 void TFLApp::TFLAppPipeServer::close()
 {
+#if TARGET_OS_WINDOWS
   if (hPipe!=INVALID_HANDLE_VALUE) {
     char inbuf[4096];
     DWORD n;
@@ -722,6 +800,7 @@ void TFLApp::TFLAppPipeServer::close()
     puts(inbuf);
     //CloseHandle(hPipe); // FIXME: unsafe!
   }
+#endif
 }
 
 

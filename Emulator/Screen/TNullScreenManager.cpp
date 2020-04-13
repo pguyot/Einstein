@@ -63,10 +63,10 @@ TNullScreenManager::PowerOffScreen( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * BacklightChanged( Boolean )
+//  * BacklightChanged( bool )
 // -------------------------------------------------------------------------- //
 void
-TNullScreenManager::BacklightChanged( Boolean backlight )
+TNullScreenManager::BacklightChanged( bool backlight )
 {
 	GetLog()->FLogLine("TNullScreenManager::BacklightChanged(%d)", (int) backlight);
 }

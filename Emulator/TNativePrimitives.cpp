@@ -38,8 +38,8 @@
 // Einstein
 #include "Log/TLog.h"
 #include "TEmulator.h"
-#include "TMemory.h"
-#include "TARMProcessor.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TARMProcessor.h"
 #include "Screen/TScreenManager.h"
 #include "Network/TNetworkManager.h"
 #include "Sound/TSoundManager.h"
@@ -163,7 +163,7 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 		// This block updates the progress bar overlay as the
 		// virtual Newton is going through its early boot phases.
 		
-		static Boolean traceProgress = true;
+		static bool traceProgress = true;
 		if (traceProgress) {
 			int nn = n[inInstruction&0xfff]++;
 			static int prevProgress = 2;
@@ -436,7 +436,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 				// MP2100D			0001E3C8	0001E3E0
 				// MP2x00US			0001E3BC	0001E3D4
 				// EM300			0001E168	0001E180
-				Boolean is32bits =
+				bool is32bits =
 					(virtualTable == 0x0001E3D4)
 					|| (virtualTable == 0x0001E3E0)
 					|| (virtualTable == 0x0001E180);
@@ -452,7 +452,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 						is32bits ? "32bits" : "16bits" );
 				}
 #endif
-				Boolean theResult;
+				bool theResult;
 				if (is32bits)
 				{
 					theResult = mMemory->WriteToFlash32Bits(
@@ -489,7 +489,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 				// MP2100D			0001E3C8	0001E3E0
 				// MP2x00US			0001E3BC	0001E3D4
 				// EM300			0001E168	0001E180
-				Boolean is32bits =
+				bool is32bits =
 					(virtualTable == 0x0001E3D4)
 					|| (virtualTable == 0x0001E3E0)
 					|| (virtualTable == 0x0001E180);
@@ -503,7 +503,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 						is32bits ? "32bits" : "16bits" );
 				}
 #endif
-				Boolean theResult;
+				bool theResult;
 				if (is32bits)
 				{
 					theResult = mMemory->EraseFlash(
@@ -621,7 +621,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 						(unsigned int) mProcessor->GetRegister( 2 ) );
 				}
 #endif
-				Boolean theResult = mMemory->EraseFlash(
+				bool theResult = mMemory->EraseFlash(
 						(unsigned int) mProcessor->GetRegister( 1 ),
 						(unsigned int) mProcessor->GetRegister( 2 ));
 				
@@ -892,7 +892,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			{
 				KUInt32 theWiredAddress;
 				(void) mMemory->TranslateW( mProcessor->GetRegister(1), theWiredAddress );
-				Boolean gotSomeEvent =
+				bool gotSomeEvent =
 						mPlatformManager->GetNextEvent( theWiredAddress );
 				mProcessor->SetRegister( 0, gotSomeEvent );
 			}
@@ -1984,7 +1984,7 @@ TNativePrimitives::ExecuteTabletDriverNative( KUInt32 inInstruction )
 //				mEmulator->BreakInMonitor();
 				KUInt32 theSampleRecord = 0;
 				KUInt32 theSampleTime = 0;
-				Boolean gotSomeSample =
+				bool gotSomeSample =
 					mScreenManager->GetSample(&theSampleRecord, &theSampleTime);
 				if (gotSomeSample)
 				{

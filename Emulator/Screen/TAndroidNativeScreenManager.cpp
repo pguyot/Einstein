@@ -45,8 +45,8 @@ TAndroidNativeScreenManager::TAndroidNativeScreenManager(
         TLog* inLog /* = nil */,
         KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
         KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
-        Boolean inFullScreen /* = true */,
-        Boolean inScreenIsLandscape /* = true */)
+        bool inFullScreen /* = true */,
+        bool inScreenIsLandscape /* = true */)
         :
         TScreenManager(
                 inLog,
@@ -108,10 +108,10 @@ TAndroidNativeScreenManager::PowerOffScreen( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * BacklightChanged( Boolean )
+//  * BacklightChanged( bool )
 // -------------------------------------------------------------------------- //
 void
-TAndroidNativeScreenManager::BacklightChanged( Boolean )
+TAndroidNativeScreenManager::BacklightChanged( bool )
 {
     if (GetLog()) GetLog()->FLogLine("UpdateScreenRect(0L)");
     TAndroidNativeActivity::addDirtyScreen();

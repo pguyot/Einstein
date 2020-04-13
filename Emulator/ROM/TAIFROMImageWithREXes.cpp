@@ -57,7 +57,7 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
 						const char* inREX0Path,
 						const char* inREX1Path,
 						const char inMachineString[6],
-						Boolean inMonitorMode /* = false */ )
+						bool inMonitorMode /* = false */ )
 {
 	// Check the modification dates.
 	struct stat theInfos;

@@ -95,7 +95,7 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	// Writing to RAM is really expensive. The STM command stores usually multiple
 	// words at once. We optimize by calculating the target address only once
 	// per MMU page.
-	Boolean isFirst = 1;
+	bool isFirst = 1;
 	int indexReg = 0;
 	KUInt32 theAddress = 0;
 	while (curRegList)

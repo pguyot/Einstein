@@ -29,7 +29,7 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Group.H>
-#include <FL/fl_draw.h>
+#include <FL/fl_draw.H>
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -105,7 +105,7 @@ public:
 		rgbData_ = (unsigned char*)calloc(w*h, 3);
 	}
 
-	Fl_Newton_Screen_Widget::~Fl_Newton_Screen_Widget()
+	~Fl_Newton_Screen_Widget()
 	{
 		screenManager_->unlinkWidget();
 	}
@@ -270,8 +270,8 @@ TFLScreenManager::TFLScreenManager(
 			TLog* inLog /* = nil */,
 			KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 			KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
-			Boolean inFullScreen /* = false */,
-			Boolean inScreenIsLandscape /* = true */)
+			bool inFullScreen /* = false */,
+			bool inScreenIsLandscape /* = true */)
 	:
 		TScreenManager(
 			inLog,
@@ -319,7 +319,7 @@ TFLScreenManager::TFLScreenManager(
 // -------------------------------------------------------------------------- //
 //  * ~TX11ScreenManager( void )
 // -------------------------------------------------------------------------- //
-TFLScreenManager::~TFLScreenManager( void )
+TFLScreenManager::~TFLScreenManager( )
 {
 	//if (mWidget)
 	//	mWidget->unlinkSelf();
@@ -364,10 +364,10 @@ TFLScreenManager::PowerOffScreen( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * BacklightChanged( Boolean )
+//  * BacklightChanged( bool )
 // -------------------------------------------------------------------------- //
 void
-TFLScreenManager::BacklightChanged( Boolean )
+TFLScreenManager::BacklightChanged( bool )
 {
 	UpdateScreenRect(0L);
 }

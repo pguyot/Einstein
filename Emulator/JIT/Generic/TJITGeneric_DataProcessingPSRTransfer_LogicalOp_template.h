@@ -82,7 +82,7 @@ LogicalOp(OP, MODE, FLAG_S, Rn, Rd)
 	KUInt32 theInstruction;
 	POPVALUE(theInstruction);
 	POPPC();
-	Boolean carry = false;
+	bool carry = false;
 	const KUInt32 Opnd2 = GetShift( ioCPU, theInstruction, &carry, GETPC() );
 #else
 	KUInt32 theInstruction;

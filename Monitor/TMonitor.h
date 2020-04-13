@@ -65,12 +65,12 @@ public:
 	/// Draw screen.
 	/// Return true if the screen was erased.
 	///
-	Boolean		DrawScreen( void );
+	bool		DrawScreen( void );
 
 	///
 	/// Determine if the machine is halted.
 	///
-	Boolean		IsHalted( void ) const
+	bool		IsHalted( void ) const
 		{
 			return mHalted;
 		}
@@ -126,21 +126,21 @@ public:
 	///
 	/// \return true if /ROMPath/monitorrc was found and run.
 	///
-	Boolean		ExecuteStartupScript();
+	bool		ExecuteStartupScript();
 	
 	///
 	/// Execute a command.
 	///
 	/// \return true if the command was known.
 	///
-	Boolean		ExecuteCommand( const char* inCommand );
+	bool		ExecuteCommand( const char* inCommand );
 	
 	///
 	/// Execute the help command.
 	///
 	/// \return true if the command was known.
 	///
-	Boolean		ExecuteHelpCommand( const char* inCommand );
+	bool		ExecuteHelpCommand( const char* inCommand );
 	
 	///
 	/// Save the current state of the Emulator to a file.
@@ -229,7 +229,7 @@ public:
 	/// \param inBPAddr		address of the breakpoint.
 	/// \return true if the machine should be stopped.
 	///
-	virtual Boolean		ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr );
+	virtual bool		ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr );
 
 	/// \name Platform threading primitives
 
@@ -282,7 +282,7 @@ public:
 	TARMProcessor*			mProcessor;			///< CPU.
 	TInterruptManager*		mInterruptManager;	///< Interrupt manager.
 	TBufferLog*				mLog;				///< Interface to the log.
-	Boolean					mHalted;			///< If the emulator is halted.
+	bool					mHalted;			///< If the emulator is halted.
 #if TARGET_OS_WIN32
 	// FIXME: we must still implement this
 #else
@@ -294,7 +294,7 @@ public:
 	char*					mFilename;			///< Argument for next command.
 	int						mSocketPair[2];		///< Socket pair for monitor
 												///< state changes.
-	Boolean					mLastScreenHalted;	///< If last screen was halted.
+	bool					mLastScreenHalted;	///< If last screen was halted.
 	char*					mROMPath;			///< path to the ROM fle directory
 };
 

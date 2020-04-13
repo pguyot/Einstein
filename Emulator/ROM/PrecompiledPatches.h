@@ -27,8 +27,8 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TROMImage.h"
-#include "TARMProcessor.h"
-#include "TJITGeneric_Macros.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
 
 #define PRECOMPILED_FUNCTION(address) \

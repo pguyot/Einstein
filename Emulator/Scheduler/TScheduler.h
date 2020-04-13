@@ -29,6 +29,9 @@
 // K
 #include <K/Misc/TDoubleLinkedList.h>
 
+class TTask;
+
+
 ///
 /// Class for the Relativity Scheduler.
 ///

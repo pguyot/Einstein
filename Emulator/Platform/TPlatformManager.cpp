@@ -35,10 +35,10 @@
 #include <K/Threads/TMutex.h>
 
 // Einstein
-#include "TInterruptManager.h"
-#include "TMemory.h"
-#include "TARMProcessor.h"
-#include "TEmulator.h"
+#include "Emulator/TInterruptManager.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TEmulator.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Host/THostInfo.h"
 #include "Emulator/Screen/TScreenManager.h"
@@ -125,10 +125,10 @@ KUInt32 TPlatformManager::GetVersion()
 // -------------------------------------------------------------------------- //
 //  * GetNextEvent( KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
 {
-	Boolean theResult = false;
+	bool theResult = false;
 
 	mMutex->Lock();
 
@@ -188,10 +188,10 @@ TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
 // -------------------------------------------------------------------------- //
 //  * DisposeBuffer( KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TPlatformManager::DisposeBuffer( KUInt32 inID )
 {
-	Boolean theResult = false;
+	bool theResult = false;
 
 	mMutex->Lock();
 
@@ -225,14 +225,14 @@ TPlatformManager::DisposeBuffer( KUInt32 inID )
 // -------------------------------------------------------------------------- //
 //  * CopyBufferData( KUInt32, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TPlatformManager::CopyBufferData(
 						KUInt32 inID,
 						KUInt32 outVAddress,
 						KUInt32 inOffset,
 						KUInt32 inAmount)
 {
-	Boolean theResult = false;
+	bool theResult = false;
 
 	mMutex->Lock();
 

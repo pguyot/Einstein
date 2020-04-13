@@ -74,7 +74,7 @@ TestOp(OP, MODE, Rn)
 #elif OP == TST || OP == TEQ
 	KUInt32 theInstruction;
 	POPVALUE(theInstruction);
-	Boolean carry = false;
+	bool carry = false;
 	POPPC();
 	KUInt32 Opnd2 = GetShift( ioCPU, theInstruction, &carry, GETPC() );
 #else

@@ -81,7 +81,7 @@ public:
 	///
 	/// Is output running?
 	///
-	virtual Boolean	OutputIsRunning( void );
+	virtual bool	OutputIsRunning( void );
 
 private:
 	///
@@ -118,7 +118,7 @@ private:
 	TCircleBuffer*		mOutputBuffer;		///< Output buffer.
 	TMutex*				mDataMutex;			///< Mutex on shared structures.
 	KSInt16*			mMultiplexedBuffer;	///< Buffer to resample.
-	Boolean				mOutputIsRunning;	///< If output is running.
+	bool				mOutputIsRunning;	///< If output is running.
 };
 
 #endif

@@ -22,19 +22,19 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 #ifdef JITTARGET_GENERIC
 
 // Einstein
-#include "TARMProcessor.h"
+#include "Emulator/TARMProcessor.h"
 
-#include "TJITGeneric_Macros.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
-#include "TJITGeneric_DataProcessingPSRTransfer_common.h"
+#include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_common.h"
 
 #define IMPLEMENTATION	1
-#include "TJITGeneric_DataProcessingPSRTransfer_TestOp_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp_template.t"
 #undef IMPLEMENTATION
 
 #endif

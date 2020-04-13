@@ -114,7 +114,7 @@ private:
 				const char* inClass,
 				int inPortraitWidth,
 				int inPortraitHeight,
-				Boolean inFullScreen);
+				bool inFullScreen);
 	
 	///
 	/// Crée le log.
@@ -155,7 +155,7 @@ private:
 	///
 	/// \return true if the command was known.
 	///
-	Boolean ExecuteCommand( const char* inCommand );
+	bool ExecuteCommand( const char* inCommand );
 
 	///
 	/// Affiche l'aide (du menu)
@@ -178,7 +178,7 @@ private:
 	TLog*				mLog;				///< Log.
 	TMonitor*			mMonitor;			///< Monitor.
 	TSymbolList*		mSymbolList;		///< List of symbols.
-	Boolean				mQuit;				///< If we should quit.
+	bool				mQuit;				///< If we should quit.
 	int                 mCmdPipe[2] {-1, -1}; ///< Make the command line wait for keyboard an a possible Quit event
 };
 

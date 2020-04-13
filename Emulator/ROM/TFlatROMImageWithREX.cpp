@@ -51,7 +51,7 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 			    const char* inROMPath,
 			    const char* inREXPath,
 			    const char inMachineString[6],
-			    Boolean inMonitorMode /* = false */,
+			    bool inMonitorMode /* = false */,
 			    const char *inImagePath /* 0L */ )
 {
     struct stat theInfos;

@@ -54,7 +54,7 @@ class TMappedFile
 {
 public:
 	///
-	/// Constructor from a path and a boolean to determine if the file
+	/// Constructor from a path and a bool to determine if the file
 	/// could be written.
 	///
 	/// \param inFilePath	path to the file.
@@ -103,7 +103,7 @@ public:
 	///
 	/// \return \c true if the file was created/grown, \c false otherwise.
 	///
-	Boolean	GetCreated( void ) const
+	bool	GetCreated( void ) const
 		{
 			return mCreated;
 		}
@@ -131,9 +131,9 @@ private:
 	/// \name Variables
 	void*		mBuffer;	///< Buffer to access the file.
 	size_t		mSize;		///< Size of the file.
-	Boolean		mMapped;	///< If file is actually mapped.
-	Boolean		mReadOnly;	///< If file is read only.
-	Boolean		mCreated;	///< Whether the file was created/grown.
+	bool		mMapped;	///< If file is actually mapped.
+	bool		mReadOnly;	///< If file is read only.
+	bool		mCreated;	///< Whether the file was created/grown.
 	int			mFileFd;	///< fd to the file.
 };
 

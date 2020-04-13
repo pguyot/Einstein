@@ -78,8 +78,8 @@ public:
 				TLog* inLog = nil,
 				KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 				KUInt32 inPortraitHeight = kDefaultPortraitHeight,
-				Boolean inFullScreen = false,
-				Boolean inScreenIsLandscape = true);
+				bool inFullScreen = false,
+				bool inScreenIsLandscape = true);
 
 
 	///
@@ -144,7 +144,7 @@ public:
 	///
 	/// \param inNewBacklight the new state of the backlight.
 	///
-	virtual void	BacklightChanged( Boolean inNewBacklight );
+	virtual void	BacklightChanged( bool inNewBacklight );
 
 	///
 	/// Notify that some screen bits changed.
@@ -248,7 +248,7 @@ private:
 	X11Prefix Window		mWindow;			///< The X11 window
 	X11Prefix Window		mRootWindow;		///< The X11 root window
 	TThread*				mThread;			///< The X11 event thread.
-	Boolean					mPowerIsOn;			///< Whether the window is opened.
+	bool					mPowerIsOn;			///< Whether the window is opened.
 	X11Prefix Atom			mWMDeleteWindow;	///< Window manager delete protocol.
 	X11Prefix Atom			mWMState;			///< Window manager state message.
 	X11Prefix Atom			mWMFullScreen;		///< Window manager full screen state.
@@ -260,7 +260,7 @@ private:
 	KUInt32					mRedMask;			///< Red mask for the visual.
 	KUInt32					mBlueMask;			///< Blue mask for the visual.
 	KUInt32					mGreenMask;			///< Green mask for the visual.
-	Boolean					mAllocColor;		///< If we use a palette.
+	bool					mAllocColor;		///< If we use a palette.
 	char*					mImageBuffer;		///< Image buffer.
 	X11Prefix XColor		mColors[32];		///< Grays & greens.
 	KUInt32					mPalette[32];		///< Grays & greens, as stored.

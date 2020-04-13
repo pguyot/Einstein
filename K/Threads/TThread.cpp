@@ -81,7 +81,7 @@ TThread::~TThread( void )
 // -------------------------------------------------------------------------- //
 //  * IsCurrentThread( void ) const
 // -------------------------------------------------------------------------- //
-Boolean
+bool
 TThread::IsCurrentThread( void ) const
 {
 #if TARGET_OS_WIN32
@@ -235,14 +235,14 @@ TThread::PreRun( void )
 // ------------------------------------------------------------------------- //
 //  * Sleep( KUInt32 )
 // ------------------------------------------------------------------------- //
-Boolean
+bool
 TThread::Sleep( KUInt32 inMilliseconds /* = kForever */ )
 {
 	assert(IsCurrentThread());
 	
-	Boolean theResult;
+	bool theResult;
 	
-	Boolean forever = (inMilliseconds == kForever);
+	bool forever = (inMilliseconds == kForever);
 	
 	// Acquire the mutex.
 	mMutex.Lock();

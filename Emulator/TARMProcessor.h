@@ -26,7 +26,7 @@
 
 #include <K/Defines/KDefinitions.h>
 
-#include "TMemory.h"
+#include "Emulator/TMemory.h"
 #include "TNativePrimitives.h"
 #include "Emulator/JIT/JIT.h"
 
@@ -262,7 +262,7 @@ public:
 	///
 	/// \return \c true if there is, \c false otherwise.
 	///
-	Boolean IsThereAnyHardwareInterruptAsserted( void ) const
+	bool IsThereAnyHardwareInterruptAsserted( void ) const
 		{
 			return mPendingInterrupts != 0;
 		}
@@ -328,20 +328,20 @@ public:
 	/// Inline functions for all tests in the condition field of ARM commands.
 	/// Used in precompiled code.
 	///
-	Boolean TestEQ() { return mCPSR_Z; }
-	Boolean TestNE() { return !mCPSR_Z; }
-	Boolean TestCS() { return mCPSR_C; }
-	Boolean TestCC() { return !mCPSR_C; }
-	Boolean TestMI() { return mCPSR_N; }
-	Boolean TestPL() { return !mCPSR_N; }
-	Boolean TestVS() { return mCPSR_V; }
-	Boolean TestVC() { return !mCPSR_V; }
-	Boolean TestHI() { return ((mCPSR_C) && !(mCPSR_Z)); }
-	Boolean TestLS() { return (!(mCPSR_C) || (mCPSR_Z)); }
-	Boolean TestGE() { return (mCPSR_N == mCPSR_V); }
-	Boolean TestLT() { return (mCPSR_N != mCPSR_V); }
-	Boolean TestGT() { return ((!mCPSR_Z) && (mCPSR_N == mCPSR_V)); }
-	Boolean TestLE() { return ((mCPSR_Z) || (mCPSR_N != mCPSR_V)); }
+	bool TestEQ() { return mCPSR_Z; }
+	bool TestNE() { return !mCPSR_Z; }
+	bool TestCS() { return mCPSR_C; }
+	bool TestCC() { return !mCPSR_C; }
+	bool TestMI() { return mCPSR_N; }
+	bool TestPL() { return !mCPSR_N; }
+	bool TestVS() { return mCPSR_V; }
+	bool TestVC() { return !mCPSR_V; }
+	bool TestHI() { return ((mCPSR_C) && !(mCPSR_Z)); }
+	bool TestLS() { return (!(mCPSR_C) || (mCPSR_Z)); }
+	bool TestGE() { return (mCPSR_N == mCPSR_V); }
+	bool TestLT() { return (mCPSR_N != mCPSR_V); }
+	bool TestGT() { return ((!mCPSR_Z) && (mCPSR_N == mCPSR_V)); }
+	bool TestLE() { return ((mCPSR_Z) || (mCPSR_N != mCPSR_V)); }
 
 	/// \name Registers
 	
@@ -353,13 +353,13 @@ public:
 											///< currently visible 16 general
 											///< purpose registers.
 
-	Boolean		mCPSR_N;					///< N Flag of CPSR.
-	Boolean		mCPSR_Z;					///< Z Flag of CPSR.
-	Boolean		mCPSR_C;					///< C Flag of CPSR.
-	Boolean		mCPSR_V;					///< V Flag of CPSR.
-	Boolean		mCPSR_I;					///< I Bit of CPSR.
-	Boolean		mCPSR_F;					///< F Bit of CPSR.
-	Boolean		mCPSR_T;					///< T Bit of CPSR.
+	bool		mCPSR_N;					///< N Flag of CPSR.
+	bool		mCPSR_Z;					///< Z Flag of CPSR.
+	bool		mCPSR_C;					///< C Flag of CPSR.
+	bool		mCPSR_V;					///< V Flag of CPSR.
+	bool		mCPSR_I;					///< I Bit of CPSR.
+	bool		mCPSR_F;					///< F Bit of CPSR.
+	bool		mCPSR_T;					///< T Bit of CPSR.
 	KUInt32		mR8_Bkup;					///< A copy of R8
 	KUInt32		mR9_Bkup;					///< A copy of R9
 	KUInt32		mR10_Bkup;					///< A copy of R10

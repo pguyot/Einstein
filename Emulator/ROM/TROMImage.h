@@ -34,8 +34,8 @@
 #endif
 
 // Einstein
-#include "TMemoryConsts.h"
-#include "JIT.h"
+#include "Emulator/TMemoryConsts.h"
+#include "Emulator/JIT/JIT.h"
 
 class TMappedFile;
 
@@ -79,7 +79,7 @@ protected:
 	///							modification date of the map).
 	/// \param inMachineString	identification of the machine (and of the ROM).
 	///
-	static Boolean IsImageOutdated(
+	static bool IsImageOutdated(
 				const char* inPath,
 				time_t inModDate,
 				const char inMachineString[6] );
@@ -99,7 +99,7 @@ protected:
 	/// \param inMonitorMode	if we are in monitor mode (more things are
 	///							allowed then)
 	///
-	void Init( const char* inPath, Boolean inMonitorMode );
+	void Init( const char* inPath, bool inMonitorMode );
 
 	///
 	/// Check the modification date of a file.

@@ -87,8 +87,8 @@ TX11ScreenManager::TX11ScreenManager(
 			TLog* inLog /* = nil */,
 			KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 			KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
-			Boolean inFullScreen /* = false */,
-			Boolean inScreenIsLandscape /* = true */)
+			bool inFullScreen /* = false */,
+			bool inScreenIsLandscape /* = true */)
 	:
 		TScreenManager(
 			inLog,
@@ -178,12 +178,12 @@ TX11ScreenManager::Run( void )
 {
 	int displayFd = ConnectionNumber(mDisplay);
 	struct timeval waitTime{};
-	Boolean gotAnEvent = true;
-	Boolean penIsDown = false;
+	bool gotAnEvent = true;
+	bool penIsDown = false;
 	KUInt16 xcoord = 0;
 	KUInt16 ycoord = 0;
 	fd_set myFdSet;
-	Boolean loop = true;
+	bool loop = true;
 	
 	while (loop) {
         XEvent theEvent;
@@ -734,7 +734,7 @@ TX11ScreenManager::CreatePalette( void )
 			mPalette[index + 16] = mColors[index + 16].pixel;
 		}
 	} else {
-		Boolean swapBytes;
+		bool swapBytes;
 #if TARGET_RT_LITTLE_ENDIAN
 		swapBytes = mImage->byte_order == MSBFirst;
 #else
@@ -910,10 +910,10 @@ TX11ScreenManager::PowerOffScreen( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * BacklightChanged( Boolean )
+//  * BacklightChanged( bool )
 // -------------------------------------------------------------------------- //
 void
-TX11ScreenManager::BacklightChanged( Boolean )
+TX11ScreenManager::BacklightChanged( bool )
 {
 	// Redraw the screen.
 	SRect wholeScreen;

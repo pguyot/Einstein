@@ -38,7 +38,7 @@
 #include "Emulator/JIT/JIT.h"
 #include "TFlash.h"
 #include "TMemoryConsts.h"
-#include "TMMU.h"
+#include "Emulator/TMMU.h"
 
 class TROMImage;
 class TLog;
@@ -170,7 +170,7 @@ public:
 	/// \param outPTR the actual address in the RAM buffer
 	/// \return true if the address couldn't be accessed.
 	///
-	Boolean		GetDirectPointerToRAM( VAddr inAddress, KUInt8** outPtr );
+	bool		GetDirectPointerToRAM( VAddr inAddress, KUInt8** outPtr );
 
 	///
 	/// Get a direct pointer to a buffer in RAM or ROM.
@@ -179,7 +179,7 @@ public:
 	/// \param outPTR the actual address in the RAM buffer or in the ROM buffer.
 	/// \return true if the address couldn't be accessed.
 	///
-	Boolean		GetDirectPointerToROMRAM( VAddr inAddress, const KUInt8** outPtr );
+	bool		GetDirectPointerToROMRAM( VAddr inAddress, const KUInt8** outPtr );
 
 	///
 	/// Get a direct pointer to a page.
@@ -200,7 +200,7 @@ public:
 	/// \param inAddress		virtual address.
 	/// \return true if reading failed.
 	///
-	Boolean		FastReadBuffer(
+	bool		FastReadBuffer(
 					VAddr inAddress,
 					KUInt32 inAmount,
 					KUInt8* outBuffer );
@@ -211,7 +211,7 @@ public:
 	/// \param inAddress		virtual address.
 	/// \return true if reading failed.
 	///
-	Boolean		FastReadString(
+	bool		FastReadString(
 					VAddr inAddress,
 					char** outString );
 
@@ -221,7 +221,7 @@ public:
 	/// \param inAddress		virtual address.
 	/// \return true if reading failed.
 	///
-	Boolean		FastReadString(
+	bool		FastReadString(
 					VAddr inAddress,
 					KUInt32* ioCount,
 					char* outString );
@@ -232,7 +232,7 @@ public:
 	/// \param inAddress		virtual address.
 	/// \return true if writing failed.
 	///
-	Boolean		FastWriteBuffer(
+	bool		FastWriteBuffer(
 					VAddr inAddress,
 					KUInt32 inAmount,
 					const KUInt8* inBuffer );
@@ -243,7 +243,7 @@ public:
 	/// \param inAddress		virtual address.
 	/// \return true if writing failed.
 	///
-	Boolean		FastWriteString(
+	bool		FastWriteString(
 					VAddr inAddress,
 					KUInt32* ioCount,
 					const char* inString );
@@ -270,7 +270,7 @@ public:
 	/// \param outWord		32 bits word that was read.
 	/// \return true if the address couldn't be accessed for reading.
 	///		
-	Boolean		Read( VAddr inAddress, KUInt32& outWord );
+	bool		Read( VAddr inAddress, KUInt32& outWord );
 	
 	///
 	/// Read 32 bits from memory, ignoring two last bits.
@@ -280,7 +280,7 @@ public:
 	/// \param outWord		32 bits word that was read.
 	/// \return true if the address couldn't be accessed for reading.
 	///		
-	Boolean		ReadAligned( VAddr inAddress, KUInt32& outWord );
+	bool		ReadAligned( VAddr inAddress, KUInt32& outWord );
 	
 	///
 	/// Read 32 bits from memory, with a direct physical address.
@@ -290,7 +290,7 @@ public:
 	///						(unchanged otherwise)
 	/// \return the word that was read, 0 in case of error.
 	///		
-	KUInt32		ReadP( PAddr inAddress, Boolean& outFault );
+	KUInt32		ReadP( PAddr inAddress, bool& outFault );
 	
 	///
 	/// Read 32 bits from memory, with a direct physical aligned address.
@@ -300,7 +300,7 @@ public:
 	///						(unchanged otherwise)
 	/// \return the word that was read, 0 in case of error.
 	///		
-	KUInt32		ReadPAligned( PAddr inAddress, Boolean& outFault );
+	KUInt32		ReadPAligned( PAddr inAddress, bool& outFault );
 	
 	///
 	/// Read 8 bits from memory.
@@ -310,7 +310,7 @@ public:
 	/// \param outByte		byte that was read.
 	/// \return true if the address couldn't be accessed for reading.
 	///		
-	Boolean		ReadB( VAddr inAddress, KUInt8& outByte );
+	bool		ReadB( VAddr inAddress, KUInt8& outByte );
 	
 	///
 	/// Read 8 bits from memory, with a direct physical address.
@@ -319,7 +319,7 @@ public:
 	/// \param outByte		byte that was read.
 	/// \return true if the address couldn't be accessed for reading.
 	///		
-	Boolean		ReadBP( PAddr inAddress, KUInt8& outByte );
+	bool		ReadBP( PAddr inAddress, KUInt8& outByte );
 	
 	///
 	/// Write 32 bits to memory.
@@ -329,7 +329,7 @@ public:
 	/// \param inWord		32 bits word to write.
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	Boolean		Write( VAddr inAddress, KUInt32 inWord );
+	bool		Write( VAddr inAddress, KUInt32 inWord );
 
 	///
 	/// Write 32 bits to memory, ignoring two last bits.
@@ -339,7 +339,7 @@ public:
 	/// \param inWord		32 bits word to write.
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	Boolean		WriteAligned( VAddr inAddress, KUInt32 inWord );
+	bool		WriteAligned( VAddr inAddress, KUInt32 inWord );
 
 	///
 	/// Write 32 bits to memory, with a direct physical address.
@@ -348,7 +348,7 @@ public:
 	/// \param inWord		32 bits word to write.
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	Boolean		WriteP( PAddr inAddress, KUInt32 inWord );
+	bool		WriteP( PAddr inAddress, KUInt32 inWord );
 
 	///
 	/// Write 32 bits to memory, with a direct physical aligned address.
@@ -357,7 +357,7 @@ public:
 	/// \param inWord		32 bits word to write.
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	Boolean		WritePAligned( PAddr inAddress, KUInt32 inWord );
+	bool		WritePAligned( PAddr inAddress, KUInt32 inWord );
 
 	///
 	/// Write 8 bits to memory.
@@ -367,7 +367,7 @@ public:
 	/// \param inByte		byte to write.
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	Boolean		WriteB( VAddr inAddress, KUInt8 inByte );
+	bool		WriteB( VAddr inAddress, KUInt8 inByte );
 
 	///
 	/// Write 8 bits to memory, with a direct physical address.
@@ -376,7 +376,7 @@ public:
 	/// \param inByte		byte to write.
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	Boolean		WriteBP( PAddr inAddress, KUInt8 inByte );
+	bool		WriteBP( PAddr inAddress, KUInt8 inByte );
 
 	///
 	/// Translate a flash address and check its validity.
@@ -385,7 +385,7 @@ public:
 	/// \param outAddress   physical (translated) address. Can be nil.
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	Boolean		TranslateAndCheckFlashAddress( KUInt32 inAddress, PAddr* outAddress );
+	bool		TranslateAndCheckFlashAddress( KUInt32 inAddress, PAddr* outAddress );
 
 	///
 	/// Write to flash, 32 bits (address is unmodified).
@@ -395,7 +395,7 @@ public:
 	/// \param inAddress	flash address to write to.
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	Boolean		WriteToFlash32Bits(
+	bool		WriteToFlash32Bits(
 					KUInt32 inWord,
 					KUInt32 inMask,
 					KUInt32 inAddress );
@@ -408,7 +408,7 @@ public:
 	/// \param inAddress	flash address to write to.
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	Boolean		WriteToFlash16Bits(
+	bool		WriteToFlash16Bits(
 					KUInt32 inWord,
 					KUInt32 inMask,
 					KUInt32 inAddress );
@@ -420,7 +420,7 @@ public:
 	/// \param inBlockSize  number of bytes to erase (block size).
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	Boolean		EraseFlash(
+	bool		EraseFlash(
 					KUInt32 inAddress,
 					KUInt32 inBlockSize );
 	
@@ -431,7 +431,7 @@ public:
 	/// \param outPAddress			physical address.
 	/// \return true if the address couldn't be accessed for reading.
 	///		
-	Boolean		TranslateInstruction(
+	bool		TranslateInstruction(
 					VAddr inVAddress,
 					PAddr* outPAddress )
 		{
@@ -447,7 +447,7 @@ public:
 	/// \return true if the MMU tables couldn't be accessed for
 	///			reading or if the target address is not accessible.
 	///
-	Boolean		TranslateR( VAddr inVAddress, PAddr& outPAddress )
+	bool		TranslateR( VAddr inVAddress, PAddr& outPAddress )
 		{
 			return mMMU.TranslateR( inVAddress, outPAddress );
 		}
@@ -460,7 +460,7 @@ public:
 	/// \return true if the MMU tables couldn't be accessed for
 	///			reading or if the target address is not accessible.
 	///
-	Boolean		TranslateW( VAddr inVAddress, PAddr& outPAddress )
+	bool		TranslateW( VAddr inVAddress, PAddr& outPAddress )
 		{
 			return mMMU.TranslateW( inVAddress, outPAddress );
 		}
@@ -470,7 +470,7 @@ public:
 	///
 	/// \param inEnableMMU  whether we want to enable the MMU.
 	///
-	void		SetMMUEnabled( Boolean inEnableMMU )
+	void		SetMMUEnabled( bool inEnableMMU )
 		{
 			mMMU.SetMMUEnabled( inEnableMMU );
 		}
@@ -480,7 +480,7 @@ public:
 	///
 	/// \return \c true if the MMU is enabled, \c false otherwise.
 	///
-	Boolean		IsMMUEnabled( void )
+	bool		IsMMUEnabled( void )
 		{
 			return mMMU.IsMMUEnabled();
 		}
@@ -490,7 +490,7 @@ public:
 	///
 	/// \param inPrivilege  whether we are in a privileged mode.
 	///
-	void		SetPrivilege( Boolean inPrivilege )
+	void		SetPrivilege( bool inPrivilege )
 		{
 			mMMU.SetPrivilege( inPrivilege );
 		}
@@ -500,7 +500,7 @@ public:
 	///
 	/// \return true if we are in a privileged mode.
 	///
-	Boolean		GetPrivilege( void ) const
+	bool		GetPrivilege( void ) const
 		{
 			return mMMU.GetPrivilege();
 		}
@@ -510,7 +510,7 @@ public:
 	///
 	/// \param inProtection the new protection.
 	///
-	void		SetSystemProtection( Boolean inProtection )
+	void		SetSystemProtection( bool inProtection )
 		{
 			mMMU.SetSystemProtection( inProtection );
 		}
@@ -520,7 +520,7 @@ public:
 	///
 	/// \return \c true if the protection is enabled, \c false otherwise.
 	///
-	Boolean		GetSystemProtection( void ) const
+	bool		GetSystemProtection( void ) const
 		{
 			return mMMU.GetSystemProtection();
 		}
@@ -530,7 +530,7 @@ public:
 	///
 	/// \param inProtection the new protection.
 	///
-	void		SetROMProtection( Boolean inProtection )
+	void		SetROMProtection( bool inProtection )
 		{
 			mMMU.SetROMProtection( inProtection );
 		}
@@ -540,7 +540,7 @@ public:
 	///
 	/// \return \c true if the protection is enabled, \c false otherwise.
 	///
-	Boolean		GetROMProtection( void ) const
+	bool		GetROMProtection( void ) const
 		{
 			return mMMU.GetROMProtection();
 		}
@@ -663,7 +663,7 @@ public:
 	/// \param outWord		32 bits word that was read.
 	/// \return true if the address couldn't be accessed for reading.
 	///		
-	Boolean		ReadBreakpoint( VAddr inAddress, KUInt32& outWord );
+	bool		ReadBreakpoint( VAddr inAddress, KUInt32& outWord );
 
 	///
 	/// Set a Breakpoint at a given address.
@@ -671,7 +671,7 @@ public:
 	/// \param inAddress	virtual address to set the Breakpoint to.
 	/// \return true if the address couldn't be accessed for writing.
 	///		
-	Boolean		SetBreakpoint( VAddr inAddress, KUInt16 inID = 0 );
+	bool		SetBreakpoint( VAddr inAddress, KUInt16 inID = 0 );
 
 	///
 	/// Clear the Breakpoint at a given address.
@@ -679,7 +679,7 @@ public:
 	/// \param inAddress	virtual address to clear the Breakpoint of.
 	/// \return true if the address couldn't be accessed for writing.
 	///		
-	Boolean		ClearBreakpoint( VAddr inAddress );
+	bool		ClearBreakpoint( VAddr inAddress );
 
 	///
 	/// Disable the Breakpoint at a given address.
@@ -687,7 +687,7 @@ public:
 	/// \param inAddress	virtual address to disable the Breakpoint of.
 	/// \return true if the address couldn't be accessed for writing.
 	///		
-	Boolean		DisableBreakpoint( VAddr inAddress );
+	bool		DisableBreakpoint( VAddr inAddress );
 
 	///
 	/// Enable the Breakpoint at a given address.
@@ -695,24 +695,24 @@ public:
 	/// \param inAddress	virtual address to enable the Breakpoint of.
 	/// \return true if the address couldn't be accessed for writing.
 	///		
-	Boolean		EnableBreakpoint( VAddr inAddress );
+	bool		EnableBreakpoint( VAddr inAddress );
 
 	static const int kMaxWatchpoints = 32;
 	
 	///
 	/// Create a memory watchpoint for a specific address
 	///
-	Boolean		AddWatchpoint( VAddr inAddress, KUInt8 inMode);
+	bool		AddWatchpoint( VAddr inAddress, KUInt8 inMode);
 	
 	///
 	/// Clear a memory watchpoint for a specific address
 	///
-	Boolean		ClearWatchpoint( VAddr inAddress);
+	bool		ClearWatchpoint( VAddr inAddress);
 	
 	///
 	/// Return teh memory watchpoint at index i
 	///
-	Boolean		GetWatchpoint( int inIndex, VAddr &outAddress, KUInt8 &outMode );
+	bool		GetWatchpoint( int inIndex, VAddr &outAddress, KUInt8 &outMode );
 	
 	///
 	/// Accessor on the RAM size.
@@ -730,13 +730,13 @@ public:
 	///
 	/// Check that two addresses are very probably on the same page.
 	///
-	static Boolean	SamePage( KUInt32 inAddr1, KUInt32 inAddr2 )
+	static bool	SamePage( KUInt32 inAddr1, KUInt32 inAddr2 )
 		{
 			return (inAddr1 & TMemoryConsts::kMMUSmallestPageMask)
 				== (inAddr2 & TMemoryConsts::kMMUSmallestPageMask);
 		}
 	
-	static Boolean	IsPageInROM( KUInt32 inAddress ) 
+	static bool	IsPageInROM( KUInt32 inAddress ) 
 		{
 			return !((inAddress < 0x00002000) || (inAddress & TMemoryConsts::kROMEndMask));
 		}
@@ -787,7 +787,7 @@ private:
 	/// \param outWord		32 bits word that was read.
 	/// \return true if the address couldn't be accessed for reading.
 	///		
-	Boolean		ReadROMRAM( VAddr inAddress, KUInt32& outWord );
+	bool		ReadROMRAM( VAddr inAddress, KUInt32& outWord );
 
 	///
 	/// Read 32 bits from memory, with a direct physical address.
@@ -798,7 +798,7 @@ private:
 	///						(unchanged otherwise)
 	/// \return the word that was read, 0 in case of error.
 	///		
-	KUInt32		ReadROMRAMP( PAddr inAddress, Boolean& outFault );
+	KUInt32		ReadROMRAMP( PAddr inAddress, bool& outFault );
 
 	///
 	/// Write 32 bits to memory.
@@ -809,7 +809,7 @@ private:
 	/// \param inWord		32 bits word to write.
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	Boolean		WriteRAM( VAddr inAddress, KUInt32 inWord );
+	bool		WriteRAM( VAddr inAddress, KUInt32 inWord );
 
 	///
 	/// Write 32 bits to memory, with a direct physical address.
@@ -819,7 +819,7 @@ private:
 	/// \param inWord		32 bits word to write.
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	Boolean		WriteRAMP( PAddr inAddress, KUInt32 inWord );
+	bool		WriteRAMP( PAddr inAddress, KUInt32 inWord );
 
 	///
 	/// Constructeur par copie volontairement indisponible.

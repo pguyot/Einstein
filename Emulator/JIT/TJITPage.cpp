@@ -24,8 +24,8 @@
 #include "TJITPage.h"
 
 // Einstein
-#include "TMemory.h"
-#include "JIT.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/JIT/JIT.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes

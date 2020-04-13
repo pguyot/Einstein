@@ -122,10 +122,10 @@ TFBScreenManager::PowerOffScreen( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * BacklightChanged( Boolean )
+//  * BacklightChanged( bool )
 // -------------------------------------------------------------------------- //
 void
-TFBScreenManager::BacklightChanged( Boolean )
+TFBScreenManager::BacklightChanged( bool )
 {
 	// Just ignore it.
 	(void) ::fprintf( stderr, "BacklightChanged\n" );

@@ -77,7 +77,7 @@ public:
 	///
 	/// Is output running?
 	///
-	virtual Boolean	OutputIsRunning( void );
+	virtual bool	OutputIsRunning( void );
 
 private:
 
@@ -129,7 +129,7 @@ private:
     pa_mainloop_api*        mPAMainLoopAPI;
     pa_context*             mPAContext;
     TMutex*                 mDataMutex;
-	Boolean			        mOutputIsRunning;
+	bool			        mOutputIsRunning;
 };
 
 #endif

@@ -24,7 +24,10 @@
 #ifndef _TFLAPP_H
 #define _TFLAPP_H
 
+#if TARGET_OS_WINDOWS
 #include <winsock2.h>
+#else
+#endif
 #include <FL/x.H>
 #include <K/Defines/KDefinitions.h>
 #include <FL/Fl_Widget.H>
@@ -37,6 +40,7 @@ class TSoundManager;
 class TScreenManager;
 class TLog;
 class TPlatformManager;
+class TNetworkManager;
 class TMonitor;
 class TSymbolList;
 
@@ -63,6 +67,7 @@ class TFLApp
     static void thread_(void *);
     static void awake_(void *);
     static const int BUFSIZE = 4096;
+#if TARGET_OS_WINDOWS
     TFLApp *app_;
     OVERLAPPED over_; 
     HANDLE hPipeInst; 
@@ -71,6 +76,7 @@ class TFLApp
     DWORD cbRead;
     TCHAR chReply[BUFSIZE]; 
     DWORD cbToWrite; 
+#endif
   };
 public:
 	///
@@ -174,7 +180,7 @@ private:
 				const char* inClass,
 				int inPortraitWidth,
 				int inPortraitHeight,
-				Boolean inFullScreen);
+				bool inFullScreen);
 	
 	///
 	/// Crée le log.
@@ -215,7 +221,7 @@ private:
 	///
 	/// \return true if the command was known.
 	///
-	Boolean ExecuteCommand( const char* inCommand );
+	bool ExecuteCommand( const char* inCommand );
 
 	///
 	/// Affiche l'aide (du menu)
@@ -236,10 +242,11 @@ private:
 	TSoundManager*		mSoundManager;		///< Gestionnaire de son.
 	TScreenManager*		mScreenManager;		///< Gestionnaire d'écran.
 	TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
+	TNetworkManager*	mNetworkManager;	
 	TLog*				mLog;				///< Log.
 	TMonitor*			mMonitor;			///< Monitor.
 	TSymbolList*		mSymbolList;		///< List of symbols.
-	Boolean				mQuit;				///< If we should quit.
+	bool				mQuit;				///< If we should quit.
 
 	TFLSettings			*flSettings;		///< settings dialog box
   TFLAppPipeServer mPipeServer;

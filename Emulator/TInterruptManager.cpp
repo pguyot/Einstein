@@ -22,7 +22,7 @@
 // ==============================
 
 #include "TInterruptManager.h"
-#include "TARMProcessor.h"
+#include "Emulator/TARMProcessor.h"
 
 // POSIX & ANSI C
 #include <stdio.h>
@@ -241,10 +241,10 @@ TInterruptManager::SuspendTimer( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * WaitUntilInterrupt( Boolean, Boolean )
+//  * WaitUntilInterrupt( bool, bool )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::WaitUntilInterrupt( Boolean inMaskIRQ, Boolean inMaskFIQ )
+TInterruptManager::WaitUntilInterrupt( bool inMaskIRQ, bool inMaskFIQ )
 {
 	if (mLog)
 	{
@@ -602,7 +602,7 @@ TInterruptManager::Run( void )
 				ticks = newTicks;
 
 				// Raise the interrupts.
-				Boolean gotAnInterrupt = false;
+				bool gotAnInterrupt = false;
 				if (mIntRaised & mIntCtrlReg & mFIQMask)
 				{
 					mProcessor->FIQInterrupt();
@@ -642,7 +642,7 @@ TInterruptManager::Run( void )
 				ticks = newTicks;
 
 				// Raise the interrupts.
-				Boolean gotAnInterrupt = false;
+				bool gotAnInterrupt = false;
 				if (mIntRaised & mIntCtrlReg & mFIQMask)
 				{
 					mProcessor->FIQInterrupt();
@@ -851,13 +851,13 @@ TInterruptManager::TicksWaitOnCondVar( KUInt32 inTicks )
 // -------------------------------------------------------------------------- //
 //  * FireTimersAndFindNext( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
-inline Boolean
+inline bool
 TInterruptManager::FireTimersAndFindNext(
 							KUInt32 inOldTicks,
 							KUInt32 inNewTicks,
 							KUInt32* outNextMatch )
 {
-	Boolean hasNextTimer = false;
+	bool hasNextTimer = false;
 	KUInt32 nextTicksValue = 0;
 	KUInt32 intRaised = mIntRaised;
 	KUInt32 ticksValue;

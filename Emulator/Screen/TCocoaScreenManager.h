@@ -64,8 +64,8 @@ public:
 				TLog* inLog = nil,
 				KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 				KUInt32 inPortraitHeight = kDefaultPortraitHeight,
-				Boolean inFullScreen = false,
-				Boolean inScreenIsLandscape = true);
+				bool inFullScreen = false,
+				bool inScreenIsLandscape = true);
 
 	///
 	/// Destructeur.
@@ -129,7 +129,7 @@ public:
 	///
 	/// \param inNewBacklight the new state of the backlight.
 	///
-	virtual void	BacklightChanged( Boolean inNewBacklight );
+	virtual void	BacklightChanged( bool inNewBacklight );
 
 	///
 	/// Notify that some screen bits changed.
@@ -211,7 +211,7 @@ private:
 	id						mEmulatorScreenView;	///< View of the emulator.
 	id						mEmulatorScreenText;	///< "Screen if off" text.
 	TPlatformManager*		mPlatformManager;		///< Reference to the platform manager.
-	Boolean					mPowerIsOn;				///< Whether the window is opened.
+	bool					mPowerIsOn;				///< Whether the window is opened.
 	KUInt32*				mImageBuffer;			///< Image buffer.
 	CGDataProviderRef		mDataProviderRef;		///< Direct access data provider.
 };

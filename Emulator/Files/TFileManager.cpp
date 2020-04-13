@@ -21,16 +21,11 @@
 // $Id$
 // ==============================
 
-#include "TFileManager.h"
+#include "Emulator/Files/TFileManager.h"
 
 // Einstein
-#include "TMemory.h"
-
-#if RASPBERRY_PI || TARGET_OS_LINUX
-#include "../Log/TLog.h"
-#else
-#include "TLog.h"
-#endif
+#include "Emulator/TMemory.h"
+#include "Emulator/Log/TLog.h"
 
 //
 #include <sys/types.h>
