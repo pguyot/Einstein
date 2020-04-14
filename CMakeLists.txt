@@ -115,6 +115,8 @@ set ( sources
     Emulator/NativeCalls/TVirtualizedCalls.h
     Emulator/NativeCalls/TVirtualizedCallsPatches.cpp
     Emulator/NativeCalls/TVirtualizedCallsPatches.h
+	Emulator/Serial/TTcpClientSerialPortManager.cpp
+	Emulator/Serial/TTcpClientSerialPortManager.h
     Emulator/Network/TNetworkManager.cpp
     Emulator/Network/TNetworkManager.h
     Emulator/PCMCIA/TATACard.cpp
@@ -406,8 +408,6 @@ else()
 		Emulator/Network/TTapNetwork.h
 		Emulator/Network/TUsermodeNetwork.cpp
 		Emulator/Network/TUsermodeNetwork.h
-		Emulator/Serial/TTcpClientSerialPortManager.cpp
-		Emulator/Serial/TTcpClientSerialPortManager.h
 		Emulator/Serial/TBasiliskIISerialPortManager.cpp
 		Emulator/Serial/TBasiliskIISerialPortManager.h
 		Emulator/Serial/TPipesSerialPortManager.cpp

@@ -1,6 +1,6 @@
 
 
-#include "Resources/MSWindows/resources.h"
+#include "Resources/MSWindows/resource.h"
 
 IDI_ICON1 ICON Resources/MSWindows/EinsteinApp32.ico
 
