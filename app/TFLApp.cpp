@@ -193,9 +193,7 @@ TFLApp::Run( int argc, char* argv[] )
     Fl::use_high_res_GL(1);
 
 	flSettings = new TFLSettings(425, 392, "Einstein Platform Settings");
-#if TARGET_OS_WINDOWS
 	flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
-#endif
 	flSettings->setApp(this, mProgramName);
 	flSettings->loadPreferences();
 	flSettings->revertDialog();
@@ -254,9 +252,7 @@ TFLApp::Run( int argc, char* argv[] )
 	} else {
 		win = new Fl_Einstein_Window(portraitWidth, portraitHeight, this, "Einstein");
 	}
-#if TARGET_OS_WINDOWS
 	win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
-#endif
 	win->callback(quit_cb, this);
 
 	if (theSoundManagerClass == nil)

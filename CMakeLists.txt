@@ -291,6 +291,7 @@ set ( sources
 #    app/TCocoaUserDefaults.h
     app/TFLApp.cpp
     app/TFLApp.h
+#    app/TFLSettings.fl
     app/TFLSettings.cpp
     app/TFLSettings.h
 #    app/TMaemoApp.cpp
@@ -419,19 +420,22 @@ endif()
 if (APPLE)
 	add_executable(Einstein MACOSX_BUNDLE ${sources} ${data})
 else()
-	add_executable(Einstein WIN32 ${sources} ${data})
+    configure_file(
+	    Resources/MSWindows/Einstein.rc.in
+	    Einstein.rc
+	)
+	add_executable(Einstein WIN32
+        ${sources} ${data}
+        ${CMAKE_CURRENT_BINARY_DIR}/Einstein.rc
+        )
 endif()
 
 if (WIN32)
 	set(FLTK_DIR "C:/Program Files/FLTK")
-	add_definitions(/bigobj)
-	set_target_properties(Einstein PROPERTIES LINK_FLAGS /SUBSYSTEM:WINDOWS )
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /subsystem:windows") 
+	add_compile_options(-bigobj)
 endif()
 
 find_package(FLTK REQUIRED NO_MODULE)
-
-#include_directories(${FLTK_INCLUDE_DIRS})
 
 if (WIN32)
 	#target_compile_options(Einstein PUBLIC -Wall)
@@ -442,30 +446,42 @@ if (APPLE)
 	target_compile_definitions(Einstein PRIVATE NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 NS_BLOCK_ASSERTIONS=1)
 endif()
 target_include_directories(Einstein PUBLIC ${CMAKE_SOURCE_DIR} ${FLTK_INCLUDE_DIRS})
-#link_directories(AFTER /usr/local/lib)
-#target_link_directories(Einstein PRIVATE /usr/local/lib)
+
 if (WIN32)
 target_link_libraries(Einstein 
 	fltk
 	winmm
 )
 endif()
+
 if (APPLE)
 target_link_libraries(Einstein 
 	/usr/local/lib/libfltk.a
 	pthread
 	"-framework AddressBook"
 	"-framework AudioUnit"
-#	"-framework AudioToolbox"
 	"-framework AppKit"
-#	"-framework CoreData"
-#	"-framework Foundation"
 	"-framework CoreAudio"
 	"-framework Cocoa"
 )
 endif()
 
 set_target_properties(Einstein PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/FLInfo.plist.in")
+
+
+#add_custom_command(
+#    MAIN_DEPENDENCY "app/TFLSettings.fl"
+#	OUTPUT "app/TFLSettings.cpp" "app/TFLSettings.h"
+#	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/app
+#	COMMAND fluid -c TFLSettings.fl
+#)
+#add_custom_target(
+#  TFLSettings
+#  DEPENDS "app/TFLSettings.cpp" "app/TFLSettings.h"
+#)
+#add_dependencies(Einstein TFLSettings)
+
+
 
 #MACOSX_BUNDLE_INFO_STRING
 #MACOSX_BUNDLE_ICON_FILE

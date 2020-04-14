@@ -27,6 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 #include <map>
+#include <string>
 
 // Einstein
 class TEmulator;

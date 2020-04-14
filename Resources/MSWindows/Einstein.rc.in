@@ -1,0 +1,63 @@
+
+
+#include "Resources/MSWindows/resources.h"
+
+IDI_ICON1 ICON Resources/MSWindows/EinsteinApp32.ico
+
+
+#if 0
+#define VER_COMMENT "@COMMENT@"
+
+#define VER_COMPANY_NAME "@COMPANY_NAME@"
+
+#define VER_FILE_DESCRIPTION "@FILE_DESCRIPTION@"
+
+#define VER_FILE_VERSION @FILE_VERSION@
+#define VER_FILE_VERSION_STR "@FILE_VERSION@"
+
+#define VER_PRODUCT_VERSION @PRODUCT_VERSION@
+#define VER_PRODUCT_VERSION_STR "@PRODUCT_VERSION_TEXT@"
+
+#define VER_INTERNAL_NAME "@INTERNAL_NAME@"
+
+#define VER_COPYRIGHT_STR "Copyright (c) @COPYRIGHT_YEAR@ @COMPANY_NAME@. All rights reserved."
+
+#define VER_ORIGINAL_FILENAME "@ORIGINAL_FILENAME@"
+
+#define VER_PRODUCT_NAME "@PRODUCT_NAME@"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION VER_FILE_VERSION
+PRODUCTVERSION VER_PRODUCT_VERSION
+FILEFLAGSMASK VER_FILE_FLAGS_MASK
+FILEFLAGS VER_FILE_FLAGS
+FILEOS VER_FILE_OS
+FILETYPE VER_FILE_TYPE
+FILESUBTYPE VER_FILE_SUBTYPE
+
+BEGIN
+        BLOCK "StringFileInfo"
+        BEGIN
+                BLOCK "040904B0"   /* LANG_ENGLISH/SUBLANG_ENGLISH_US, Unicode CP */
+                BEGIN
+                    VALUE "Comment",          VER_COMMENT
+                    VALUE "CompanyName",      VER_COMPANY_NAME
+                    VALUE "FileDescription",  VER_FILE_DESCRIPTION
+                    VALUE "FileVersion",      VER_FILE_VERSION
+                    VALUE "InternalName",     VER_INTERNAL_NAME
+                    VALUE "LegalCopyright",   VER_COPYRIGHT_STR
+                    VALUE "OriginalFilename", VER_ORIGINAL_FILENAME
+                    VALUE "ProductName",      VER_PRODUCT_NAME
+                    VALUE "ProductVersion",   VER_PRODUCT_VERSION_STR
+                    VER_SPECIAL_BUILD_LINE
+                    VER_PRIVATE_BUILD_LINE
+                END
+
+        END
+
+        BLOCK "VarFileInfo"
+        BEGIN
+                VALUE "Translation", 0x0409, 0x04B0
+        END
+END
+#endif

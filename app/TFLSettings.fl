@@ -1,8 +1,8 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0108 
-use_FL_COMMAND 
-header_name {.h} 
-code_name {.cp}
+version 1.0400
+use_FL_COMMAND
+header_name {.h}
+code_name {.cpp}
 comment {// ==============================
 // File:			TFLSettings
 // Project:			Einstein
@@ -26,30 +26,40 @@ comment {// ==============================
 // $Id$
 // ==============================
 } {in_source in_header
-} 
+}
 
 decl {class TFLApp;} {public global
-} 
+}
 
-decl {\#include "TFLApp.h"} {} 
+decl {\#include "TFLApp.h"} {private local
+}
 
-decl {\#include "winsock2.h"} {} 
+decl {\#include "winsock2.h"} {private local
+}
 
-decl {\#include <string.h>} {} 
+decl {\#include <string.h>} {private local
+}
 
-decl {\#include <FL/filename.h>} {} 
+decl {\#include <FL/filename.h>} {private local
+}
 
-decl {\#include <FL/fl_file_chooser.h>} {} 
+decl {\#include <FL/fl_file_chooser.h>} {private local
+}
 
-decl {\#include <FL/Fl_Preferences.H>} {} 
+decl {\#include <FL/Fl_Preferences.H>} {private local
+}
 
-decl {Fl_Window *wProgressWindow = 0L;} {} 
+decl {Fl_Window *wProgressWindow = 0L;} {private local
+}
 
-decl {FILE *fROM;} {} 
+decl {FILE *fROM;} {private local
+}
 
-decl {SOCKET sData;} {} 
+decl {SOCKET sData;} {private local
+}
 
-decl {int recvd;} {} 
+decl {int recvd;} {private local
+}
 
 widget_class TFLSettings {
   label {Einstein Platform Setup}
@@ -58,7 +68,7 @@ widget_class TFLSettings {
 me->revertDialog();
 me->redraw();
 me->hide();} open
-  xywh {411 145 425 393} type Double color 50 align 80
+  xywh {410 144 425 392} type Double color 50 align 80
   class Fl_Window non_modal visible
 } {
   Fl_Menu_Button RMB {
@@ -205,7 +215,7 @@ if (path) {
       xywh {20 290 175 20} down_box DOWN_BOX labelsize 12
     }
     Fl_Check_Button wUseMonitor {
-      label {Debug Terminal} selected
+      label {Debug Terminal}
       xywh {20 310 175 20} down_box DOWN_BOX labelsize 12 deactivate
     }
   }
@@ -413,9 +423,9 @@ wSave->show();} {}
   }
   decl {int dontShow;} {public global
   }
-  decl {TFLApp *app;} {global
+  decl {TFLApp *app;} {private global
   }
-  decl {char *appPath;} {global
+  decl {char *appPath;} {private global
   }
   Function {updateRAMSizeLabel()} {private return_type void
   } {
@@ -437,13 +447,13 @@ if (k==0) {
   wRAMSizeKBLabel->show();
 }} {}
   }
-} 
+}
 
 Function {close_window_cb(Fl_Widget*, void *user)} {private return_type void
 } {
   code {Fl_Window *win = (Fl_Window*)user;
 win->hide();} {}
-} 
+}
 
 Function {createAboutDialog()} {} {
   Fl_Window wAbout {
@@ -469,12 +479,13 @@ Function {createAboutDialog()} {} {
       xywh {190 135 55 20} labelsize 12
     }
   }
-} 
+}
 
-Function {createROMDownloadDialog()} {} {
+Function {createROMDownloadDialog()} {open
+} {
   Fl_Window wROMDownloadWindow {
     label {Download ROM via TCP/IP} open
-    xywh {384 325 417 394} type Double modal visible
+    xywh {384 324 417 393} type Double modal visible
   } {
     Fl_Box {} {
       label {How to download the Newton ROM using a network connection}
@@ -555,7 +566,7 @@ startDump();}
       xywh {315 355 95 25} color 50 labelsize 12
     }
   }
-} 
+}
 
 Function {startDump()} {return_type void
 } {
@@ -631,9 +642,9 @@ Fl::add_fd(sData, FL_READ, dataReadCB, 0);
 Fl::add_fd(sData, FL_EXCEPT, dataExceptCB, 0);
 fROM = fopen(wDownloadPath->label(), "wb");
 recvd = 0;} {}
-} 
+}
 
-Function {dataReadCB(int p, void *user_data)} {} {
+Function {dataReadCB(FL_SOCKET p, void *user_data)} {} {
   code {unsigned long n;
 DWORD rcvd;
 int ret = WSAIoctl(sData, FIONREAD, 0, 0, &n, sizeof(n), &rcvd, 0, 0);
@@ -650,9 +661,10 @@ free(buf);
 recvd += n;
 printf("Received %d/%d (%d)\\n", n, n1, recvd);
 wProgressSlider->value(recvd/1024);} {}
-} 
+}
 
-Function {dataExceptCB(int p, void *user_data)} {} {
+Function {dataExceptCB(FL_SOCKET p, void *user_data)} {selected
+} {
   code {if (fROM) {
   fclose(fROM);
   fROM = 0L;
@@ -669,11 +681,11 @@ if (recvd==8*1024*1024) {
 } else {
   fl_message("Invalid ROM size.\\n%d bytes expected, but %d bytes received.", 8*1024*1024, recvd);
 }} {}
-} 
+}
 
 Function {createROMDownloadProgressWindow()} {} {
   Fl_Window {} {open
-    xywh {862 545 285 111} type Double modal visible
+    xywh {861 544 285 111} type Double modal visible
   } {
     Fl_Slider wProgressSlider {
       label {Connecting...}
@@ -685,7 +697,7 @@ Function {createROMDownloadProgressWindow()} {} {
       xywh {180 70 95 25} color 50 labelsize 12
     }
   }
-} 
+}
 
 comment {
 // ======================================================== //
@@ -694,4 +706,4 @@ comment {
 // ======================================================== //
 
 } {in_source in_header
-} 
+}
