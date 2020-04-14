@@ -44,7 +44,7 @@
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/Sound/TNullSoundManager.h"
-#if TARGET_OS_WINDOWS
+#if TARGET_OS_WIN32
 #include "Emulator/Sound/TWaveSoundManager.h"
 #else
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
@@ -59,7 +59,9 @@
 #include "Emulator/Log/TBufferLog.h"
 #include "Emulator/Serial/TSerialPorts.h"
 #include "Emulator/Serial/TSerialPortManager.h"
+#if !TARGET_OS_WIN32
 #include "Emulator/Serial/TTcpClientSerialPortManager.h"
+#endif
 
 #include "Monitor/TMonitor.h"
 #include "Monitor/TSymbolList.h"
@@ -191,14 +193,13 @@ TFLApp::Run( int argc, char* argv[] )
     Fl::use_high_res_GL(1);
 
 	flSettings = new TFLSettings(425, 392, "Einstein Platform Settings");
-#if TARGET_OS_WINDOWS
 	flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
-#endif
 	flSettings->setApp(this, mProgramName);
 	flSettings->loadPreferences();
 	flSettings->revertDialog();
 	Fl::focus(flSettings->wStart);
 
+	//flSettings->dontShow = false;
 	if (!flSettings->dontShow) {
 		flSettings->show(1, argv);
 		while (flSettings->visible())
@@ -251,14 +252,12 @@ TFLApp::Run( int argc, char* argv[] )
 	} else {
 		win = new Fl_Einstein_Window(portraitWidth, portraitHeight, this, "Einstein");
 	}
-#if TARGET_OS_WINDOWS
 	win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
-#endif
 	win->callback(quit_cb, this);
 
 	if (theSoundManagerClass == nil)
 	{
-#if TARGET_OS_WINDOWS
+#if TARGET_OS_WIN32
 		mSoundManager = new TWaveSoundManager( mLog );
 #else
 		mSoundManager = new TCoreAudioSoundManager( mLog );
@@ -282,7 +281,7 @@ TFLApp::Run( int argc, char* argv[] )
 		// will we use an AIF image?
 		{ 
 			const char *ext = fl_filename_ext(theROMImagePath);
-#if TARGET_OS_WINDOWS
+#if TARGET_OS_WIN32
 			if ( ext && stricmp(ext, ".aif")==0 )
 			{
 				useAIFROMFile = 1;
@@ -519,7 +518,7 @@ TFLApp::CreateSoundManager( const char* inClass )
 	if (::strcmp( inClass, "null" ) == 0)
 	{
 		mSoundManager = new TNullSoundManager( mLog );
-#if TARGET_OS_WINDOWS
+#if TARGET_OS_WIN32
 	} else if (::strcmp( inClass, "wave" ) == 0) {
 		mSoundManager = new TWaveSoundManager( mLog );
 #endif
@@ -693,28 +692,28 @@ int main(int argc, char** argv )
 	theApp.Run( argc, argv );
 
 #if defined(_MSC_VER) && defined(_DEBUG)
-	FILE *log = fopen("einsteinPerfLog.txt", "wb");
-	branchDestCount.print(log, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
-	branchLinkDestCount.print(log, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
-	fclose(log);
+//	FILE *log = fopen("einsteinPerfLog.txt", "wb");
+//	branchDestCount.print(log, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
+//	branchLinkDestCount.print(log, TJITPerfHitCounter::kStyleMostHit+TJITPerfHitCounter::kStyleHex, 100);
+//	fclose(log);
 #endif
 
 	return 0;
 }
 
-#if TARGET_OS_WINDOWS
+#if TARGET_OS_WIN32
 VOID WINAPI CompletedWriteRoutine(DWORD, DWORD, LPOVERLAPPED); 
 VOID WINAPI CompletedReadRoutine(DWORD, DWORD, LPOVERLAPPED); 
 #endif
 
 TFLApp::TFLAppPipeServer::TFLAppPipeServer(TFLApp *app)
-#if TARGET_OS_WINDOWS
-: app_(app)
+#if TARGET_OS_WIN32
+: app_(app),
   hPipeInst(INVALID_HANDLE_VALUE),
   hPipe(INVALID_HANDLE_VALUE)
 #endif
 {
-#if TARGET_OS_WINDOWS
+#if TARGET_OS_WIN32
   memset(&over_, 0, sizeof(over_));
 #endif
 }
@@ -726,14 +725,14 @@ TFLApp::TFLAppPipeServer::~TFLAppPipeServer()
 
 int TFLApp::TFLAppPipeServer::open()
 {
-#if TARGET_OS_WINDOWS
+#if TARGET_OS_WIN32
   CreateThread(0, 0, (LPTHREAD_START_ROUTINE)thread_, this, 0, 0);
 #endif
   return 0;
 }
 
 void TFLApp::TFLAppPipeServer::thread_(void *ps) {
-#if TARGET_OS_WINDOWS
+#if TARGET_OS_WIN32
 
   //over_.hEvent = CreateEvent(0L, TRUE, FALSE, 0L);
   //Fl::add_handler(
@@ -787,7 +786,7 @@ void TFLApp::TFLAppPipeServer::awake_(void *ps) {
 
 void TFLApp::TFLAppPipeServer::close()
 {
-#if TARGET_OS_WINDOWS
+#if TARGET_OS_WIN32
   if (hPipe!=INVALID_HANDLE_VALUE) {
     char inbuf[4096];
     DWORD n;

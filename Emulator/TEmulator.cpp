@@ -412,7 +412,7 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 				}
 				else if (command == do_sys_write) {
 					KUInt32 index = 0;
-					KUInt8 buffer[nbyte];
+					KUInt8 *buffer = (KUInt8*)malloc(nbyte);
 					
 					while (index < nbyte) {
 						if (mMemory.ReadB( bufAddress + index, buffer[index] )) {
@@ -429,6 +429,7 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 						amount = 0;
 					}
 					result = nbyte - amount;
+					free(buffer);
 				}
 			}
 			

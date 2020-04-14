@@ -37,7 +37,10 @@
 #include "TThread.h"
 
 // ANSI C & POSIX
-#if !TARGET_OS_WIN32
+#if TARGET_OS_WIN32
+	#include <ctime>
+	#include <sys/timeb.h>
+#else
 	#include <sys/time.h>
 	#include <stdlib.h>
 #endif

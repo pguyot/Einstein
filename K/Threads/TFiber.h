@@ -50,6 +50,9 @@
 #if TARGET_OS_WIN32
 	#include <windows.h>
 	#include <process.h>
+	#define FIBER_USE_UCONTEXT
+	#undef FIBER_USE_PTHREAD
+	#undef FIBER_USE_LONGJMP
 #else
 	#ifdef FIBER_USE_UCONTEXT
 		#define _XOPEN_SOURCE

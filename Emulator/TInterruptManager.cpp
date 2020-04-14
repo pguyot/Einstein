@@ -28,11 +28,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <sys/time.h>
 
 #if TARGET_OS_WIN32
 	#include <time.h>
 	#include <sys/timeb.h>
+#else
+	#include <sys/time.h>
 #endif
 
 // Mach

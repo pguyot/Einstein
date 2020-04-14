@@ -30,7 +30,12 @@
 //
 #include <sys/types.h>
 #include <sys/stat.h>
+#if TARGET_OS_WIN32
+#define __PRETTY_FUNCTION__ __FUNCTION__
+#else
 #include <unistd.h>
+#endif
+
 
 #define FILE_LOGGING 0
 

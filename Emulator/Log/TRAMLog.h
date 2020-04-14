@@ -28,6 +28,10 @@
 #include <stdio.h>
 #include <string>
 
+#if TARGET_OS_WIN32
+typedef signed long ssize_t;
+#endif
+
 ///
 /// Class for logging to an infinite buffer.
 /// Compared to TBufferLog, this will log everything (while TBufferLog is

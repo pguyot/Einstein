@@ -28,6 +28,7 @@
 
 // Windows Multimedia library waveOut interface
 #include <Windows.h>
+#include <mmeapi.h>
 
 // Einstein
 #include "TSoundManager.h"
@@ -112,7 +113,7 @@ private:
 
 	static void CALLBACK waveOutProcCB(
 						HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance,  
-						DWORD dwParam1, DWORD dwParam2);
+						DWORD_PTR dwParam1, DWORD_PTR dwParam2);
 
 	void		waveOutProc(UINT uMsg, int ix);
 

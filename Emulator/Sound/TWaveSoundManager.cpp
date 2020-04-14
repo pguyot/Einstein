@@ -220,7 +220,7 @@ TWaveSoundManager::OutputIsRunning( void )
 
 void TWaveSoundManager::waveOutProcCB(
 		HWAVEOUT, UINT uMsg, DWORD_PTR dwInstance, 
-		DWORD dwParam1, DWORD dwParam2)
+		DWORD_PTR dwParam1, DWORD_PTR dwParam2)
 {
 	TWaveSoundManager *me = (TWaveSoundManager*)dwInstance;
 	WAVEHDR *wh = (WAVEHDR*)dwParam1;
@@ -372,7 +372,7 @@ void TWaveSoundManager::openWaveOut()
 	if (!waveOut) {
 		static WAVEFORMATEX waveFormat = {
 			WAVE_FORMAT_PCM, 1, 
-			22050, 44100, 1, 16, 0
+			22050, 44100, 2, 16, 0
 		};
 		MMRESULT err = waveOutOpen( 
 			&waveOut, WAVE_MAPPER, &waveFormat,
@@ -389,6 +389,8 @@ void TWaveSoundManager::openWaveOut()
 
 void TWaveSoundManager::logError(const char *msg, MMRESULT err)
 {
+	if (!GetLog())
+		return;
 	TCHAR desc[MAXERRORLENGTH];
 	MMRESULT errText = waveOutGetErrorText(err, (LPTSTR)desc, MAXERRORLENGTH);
 	GetLog()->FLogLine("%s", msg);

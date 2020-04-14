@@ -101,6 +101,9 @@ TFileStream::TFileStream( FILE* inFile )
 		mFile( inFile ),
 		mWeOpenedTheFile( false )
 {
+#if TARGET_OS_WIN32
+	mIsWriting = mIsReading = 1; // FIXME: actually, we have no clue
+#else
 	int fileflags = fcntl (fileno(inFile), F_GETFL, 0);
 	if (fileflags!=-1) {
 		switch (fileflags & (O_RDWR|O_WRONLY|O_RDONLY) ) {
@@ -109,6 +112,7 @@ TFileStream::TFileStream( FILE* inFile )
 			case O_RDWR: mIsWriting = mIsReading = 1; break;
 		}
 	}
+#endif
 }
 
 // -------------------------------------------------------------------------- //

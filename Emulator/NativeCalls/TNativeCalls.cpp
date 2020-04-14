@@ -25,7 +25,7 @@
 #include "Emulator/NativeCalls/TNativeCalls.h"
 
 
-#if TARGET_OS_ANDROID
+#if TARGET_OS_ANDROID || TARGET_OS_WIN32
 
 // Einstein
 #include "Emulator/TMemory.h"
@@ -43,7 +43,7 @@ TNativeCalls::~TNativeCalls( ) { }
 #include <string.h>
 
 #if TARGET_OS_WIN32
-	#include "CompatibilityWin32.h"
+	//#include "CompatibilityWin32.h"
 	#include <stdlib.h>
 	#include <assert.h>
 	ffi_type ffi_type_uint8; // FIXME these should be in libffi

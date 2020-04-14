@@ -40,7 +40,7 @@
 
 #if TARGET_OS_WIN32
 	#include <windows.h>
-	#include "CompatibilityWin32.h"
+//	#include "CompatibilityWin32.h"
 	#include <time.h>
 #else
 	#include <unistd.h>

@@ -24,6 +24,8 @@
 #include "TTapNetwork.h"
 #include "Emulator/Log/TLog.h"
 
+#if TARGET_OS_WIN32
+#else
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/sockio.h>
@@ -31,6 +33,7 @@
 #include <net/if.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#endif
 #include "Emulator/TMemory.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
 
