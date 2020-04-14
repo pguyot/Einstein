@@ -25,11 +25,20 @@
 #define _TNETWORKMANAGER_H
 
 #include <K/Defines/KDefinitions.h>
+#if TARGET_OS_WIN32
+#ifdef _WINSOCKAPI_
+#error winsock.h included before winsock2.h - you must define WIN32_LEAN_AND_MEAN somewhere!
+#endif
+#include <WinSock2.h>
+#else
 #include <sys/select.h>
 
 #if RASPBERRY_PI || TARGET_OS_LINUX
 #include <sys/socket.h>
 #endif
+
+#endif
+
 
 class TLog;
 class TInterruptManager;

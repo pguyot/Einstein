@@ -527,6 +527,9 @@ typedef uint8_t     KUInt8;
 typedef	int8_t		KSInt8;
 typedef uintptr_t   KUIntPtr;
 
+#if TARGET_OS_WIN32
+typedef signed long ssize_t;
+#endif
 
 static_assert(sizeof(KUInt8)==1, "Size of KUInt8 must be 1 byte");
 static_assert(sizeof(KUInt16)==2, "Size of KUInt16 must be 2 bytes");

@@ -27,7 +27,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#if TARGET_OS_WIN32
+#else
 #include <dirent.h>
+#endif
 #include <sys/stat.h>
 
 // K
@@ -606,6 +609,7 @@ TPlatformManager::InstallPackage( const char* inPackagePath )
 void
 TPlatformManager::InstallNewPackages( const char* inPackageDir )
 {
+#if !TARGET_OS_WIN32
 	// -- find the directory
 	if ( !inPackageDir ) 
 		inPackageDir = mDocDir;
@@ -660,6 +664,7 @@ TPlatformManager::InstallNewPackages( const char* inPackageDir )
 	sprintf(buf, "%s/.lastInstall", inPackageDir);
 	FILE *f = fopen(buf, "wb");
 	if (f) fclose(f);
+#endif
 }
 
 

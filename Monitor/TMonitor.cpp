@@ -33,6 +33,9 @@
 
 #if TARGET_OS_WIN32
 	#include <assert.h>
+	#include  <io.h>
+	#include  <stdio.h>
+	#include  <stdlib.h>
 #else
 	#include <strings.h>
 	#include <sys/socket.h>
@@ -539,7 +542,7 @@ TMonitor::ExecuteStartupScript()
 	bool theResult = true;
 	char buf[2048];
 	snprintf(buf, 2048, "%s/monitorrc", mROMPath);
-	if (::access(buf, R_OK)==0) {
+	if (::access(buf, 4 /*R_OK*/)==0) {
 		theResult = ExecuteScript(buf);
 	}
 	return theResult;

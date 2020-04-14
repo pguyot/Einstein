@@ -33,7 +33,7 @@
 #include <string.h>
 
 #if TARGET_OS_WIN32
-	#include "CompatibilityWin32.h"
+//	#include "CompatibilityWin32.h"
 	#include <io.h>
 #else
 	#include <sys/uio.h>
@@ -186,7 +186,7 @@ TROMImage::CreateImage(
 	}
 	
 	// Fill with zeroes.
-	bzero(theImagePtr, theImageFile.GetSize());
+	memset(theImagePtr, 0, theImageFile.GetSize());
 	
 	// inBuffer contains 16 MB consisting of the ROM followed by the REX.
 	// Write this at the start of the image.

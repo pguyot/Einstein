@@ -67,7 +67,7 @@ class TFLApp
     static void thread_(void *);
     static void awake_(void *);
     static const int BUFSIZE = 4096;
-#if TARGET_OS_WINDOWS
+#if TARGET_OS_WIN32
     TFLApp *app_;
     OVERLAPPED over_; 
     HANDLE hPipeInst; 

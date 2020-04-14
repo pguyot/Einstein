@@ -67,7 +67,7 @@
 #include <stdio.h>
 
 #if TARGET_OS_WIN32
-	#include "CompatibilityWin32.h"
+	//#include "CompatibilityWin32.h"
 #else
 	#include <sys/param.h>
 #endif

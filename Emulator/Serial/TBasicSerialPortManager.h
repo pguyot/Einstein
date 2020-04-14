@@ -26,7 +26,6 @@
 
 #include "TSerialPortManager.h"
 
-#include <pthread.h>
 
 class TLog;
 class TInterruptManager;

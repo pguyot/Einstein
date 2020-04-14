@@ -28,7 +28,10 @@
 #include "Emulator/Log/TLog.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
+#if TARGET_OS_WIN32
+#else
 #include <sys/select.h>
+#endif
 
 // -------------------------------------------------------------------------- //
 //  * TNetworkManager(TLog* inLog)
