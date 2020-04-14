@@ -1,4 +1,5 @@
 *.swp
+.vs/
 build/
 bin/
 lib/
@@ -25,3 +26,5 @@ DerivedData/
 /_Build_/AndroidStudioNative/local.properties
 /_Build_/AndroidStudioNative/einstein/.cxx
 *.iml
+/CMakeSettings.json
+/app/._TFLSettings.fl
