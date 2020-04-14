@@ -319,7 +319,7 @@
  */
 
 
-#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX
+#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
 /*
  * This is a hack that removes a reference from the 'extr' serial port driver
  * from the REx. This is required to make low level comm emulation possible.
@@ -330,9 +330,10 @@
  *
  * FIXME: PLEASE fix the REx instead of this weak patch (please integrate the REx into the app)
  */
+static KUInt32 searchThis[] = { 2, 'extr', 0 };
+static KUInt32 replaceWith[] = { 1, '~xtr' };
 TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00900000, /* NOLINT */
-												 (KUInt32[]){2, 'extr', 0},
-												 (KUInt32[]){1, '~xtr'},
+												 searchThis, replaceWith,
 												 "Enable 'extr' serial port.\n");
 #endif
 

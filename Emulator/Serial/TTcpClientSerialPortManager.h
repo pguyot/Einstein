@@ -26,6 +26,10 @@
 
 #include "TBasicSerialPortManager.h"
 
+#if TARGET_OS_WIN32
+#include <Windows.h>
+#include <Winsock2.h>
+#endif
 #include <thread>
 
 class TLog;
@@ -91,6 +95,11 @@ public:
 protected:
 
 	///
+	/// Host user interface erroro message
+	///
+	void LogError(const char* text, bool systemError=false);
+
+	///
 	/// Emulate the DMA hardware
 	///
 	void HandleDMA();
@@ -123,8 +132,15 @@ protected:
 	char *mServer = nullptr;
 	int mPort = 0;
 
+#if TARGET_OS_WIN32
+	WSAEVENT mTcpEvent = INVALID_HANDLE_VALUE;
+	WSAEVENT mQuitEvent = INVALID_HANDLE_VALUE;
+	WSAEVENT mOtherEvent = INVALID_HANDLE_VALUE;
+	SOCKET mTcpSocket = INVALID_SOCKET;
+#else
     int mCommandPipe[2] = { -1, -1 };       ///< communication between emulator and DMA thread
     int mTcpSocket = -1;                    ///< TCP socket for client side
+#endif
 	std::thread *mWorkerThread = nullptr;   ///< the thread that does all the work
 	bool mIsConnected = false;              ///< set to true if there is a connection to a server
 	time_t mReconnectTimeout = 0;   		///< next time we allow another connection attempt

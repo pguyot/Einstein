@@ -182,7 +182,7 @@ TFLApp::~TFLApp( void )
 void
 TFLApp::Run( int argc, char* argv[] )
 {
-
+	CreateLog("C:\\Users\\matt\\alog.txt");
 	mProgramName = argv[0];
 
 	Fl::scheme("gtk+");

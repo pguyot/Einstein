@@ -432,13 +432,13 @@ endif()
 
 if (WIN32)
 	set(FLTK_DIR "C:/Program Files/FLTK")
-	add_compile_options(-bigobj)
 endif()
 
 find_package(FLTK REQUIRED NO_MODULE)
 
 if (WIN32)
 	#target_compile_options(Einstein PUBLIC -Wall)
+	target_compile_options(Einstein PUBLIC "/bigobj")
 	target_compile_definitions(Einstein PRIVATE TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1)
 endif()
 if (APPLE)
