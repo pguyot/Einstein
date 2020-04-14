@@ -73,13 +73,7 @@
 TTcpClientSerialPortManager::TTcpClientSerialPortManager(
 													 TLog* inLog,
 													 TSerialPorts::EPortIndex inPortIx)
-:	TBasicSerialPortManager(inLog, inPortIx),
-	mCommandPipe{ -1, -1 },
-	mTcpSocket( -1 ),
-	mWorkerThreadIsRunning( false ),
-	mWorkerThread( 0L ),
-	mIsConnected( false ),
-	mReconnectTimeout( 0 )
+:	TBasicSerialPortManager(inLog, inPortIx)
 {
 	mServer = strdup("127.0.0.1");
 	mPort = 3679;
@@ -91,11 +85,12 @@ TTcpClientSerialPortManager::TTcpClientSerialPortManager(
 // -------------------------------------------------------------------------- //
 TTcpClientSerialPortManager::~TTcpClientSerialPortManager()
 {
-	if (mWorkerThreadIsRunning) {
+    if (mWorkerThread) {
 		Disconnect();
 		TriggerEvent('q');
-		pthread_join(mWorkerThread, nullptr);
-		mWorkerThreadIsRunning = false;
+        mWorkerThread->join();
+        delete mWorkerThread;
+        mWorkerThread = nullptr;
 	}
 	if (mCommandPipe[0]!=-1)
 		::close(mCommandPipe[0]);
@@ -116,7 +111,7 @@ void TTcpClientSerialPortManager::run(TInterruptManager* inInterruptManager,
 	mDMAManager = inDMAManager;
 	mMemory = inMemory;
 
-	if (mWorkerThreadIsRunning) {
+	if (mWorkerThread) {
 		printf("***** Error: TTcpClientSerialPortManager::run worker thread is already running.\n");
 		return;
 	}
@@ -134,13 +129,11 @@ void TTcpClientSerialPortManager::run(TInterruptManager* inInterruptManager,
 	}
 
 	// create the thread and let it run until we send it the quit signal
-	int ptErr = ::pthread_create( &mWorkerThread, nullptr, &SHandleDMA, this );
-	if (ptErr==-1) {
+    mWorkerThread = new std::thread(&TTcpClientSerialPortManager::HandleDMA, this);
+	if (!mWorkerThread) {
 		printf("***** TTcpClientSerialPortManager::run: Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
-
-	mWorkerThreadIsRunning = true;
 }
 
 // -------------------------------------------------------------------------- //
@@ -245,7 +238,7 @@ static void sigpipe_handler(int unused)
 void
 TTcpClientSerialPortManager::HandleDMA()
 {
-	static struct sigaction action { sigpipe_handler };
+    static struct sigaction action { {sigpipe_handler} };
 	sigaction(SIGPIPE, &action, nullptr);
 
 	// thread loops and handles pipe, port, and DMA

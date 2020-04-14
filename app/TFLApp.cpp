@@ -59,9 +59,7 @@
 #include "Emulator/Log/TBufferLog.h"
 #include "Emulator/Serial/TSerialPorts.h"
 #include "Emulator/Serial/TSerialPortManager.h"
-#if !TARGET_OS_WIN32
 #include "Emulator/Serial/TTcpClientSerialPortManager.h"
-#endif
 
 #include "Monitor/TMonitor.h"
 #include "Monitor/TSymbolList.h"
@@ -193,7 +191,9 @@ TFLApp::Run( int argc, char* argv[] )
     Fl::use_high_res_GL(1);
 
 	flSettings = new TFLSettings(425, 392, "Einstein Platform Settings");
+#if TARGET_OS_WIN32
 	flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+#endif
 	flSettings->setApp(this, mProgramName);
 	flSettings->loadPreferences();
 	flSettings->revertDialog();
@@ -252,7 +252,9 @@ TFLApp::Run( int argc, char* argv[] )
 	} else {
 		win = new Fl_Einstein_Window(portraitWidth, portraitHeight, this, "Einstein");
 	}
+#if TARGET_OS_WIN32
 	win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+#endif
 	win->callback(quit_cb, this);
 
 	if (theSoundManagerClass == nil)
@@ -338,8 +340,9 @@ TFLApp::Run( int argc, char* argv[] )
 					mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
 		mPlatformManager = mEmulator->GetPlatformManager();
 
+        // TODO: add preferences for the current driver, port and server address
         // Basic initialization of all serial ports
-        mEmulator->SerialPorts.Initialize(TSerialPorts::kNullDriver, //kTcpClientDriver,
+        mEmulator->SerialPorts.Initialize(TSerialPorts::kTcpClientDriver,
                                           TSerialPorts::kNullDriver,
                                           TSerialPorts::kNullDriver,
                                           TSerialPorts::kNullDriver );

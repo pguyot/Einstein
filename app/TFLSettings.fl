@@ -34,16 +34,19 @@ decl {class TFLApp;} {public global
 decl {\#include "TFLApp.h"} {private local
 }
 
-decl {\#include "winsock2.h"} {private local
+declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
+} {
+  decl {\#include "winsock2.h"} {private local
+  }
 }
 
 decl {\#include <string.h>} {private local
 }
 
-decl {\#include <FL/filename.h>} {private local
+decl {\#include <FL/filename.H>} {private local
 }
 
-decl {\#include <FL/fl_file_chooser.h>} {private local
+decl {\#include <FL/fl_file_chooser.H>} {private local
 }
 
 decl {\#include <FL/Fl_Preferences.H>} {private local
@@ -55,7 +58,7 @@ decl {Fl_Window *wProgressWindow = 0L;} {private local
 decl {FILE *fROM;} {private local
 }
 
-decl {SOCKET sData;} {private local
+decl {FL_SOCKET sData;} {private local
 }
 
 decl {int recvd;} {private local
@@ -568,9 +571,10 @@ startDump();}
   }
 }
 
-Function {startDump()} {return_type void
+Function {startDump()} {open return_type void
 } {
-  code {sData = INVALID_SOCKET;
+  code {\#if TARGET_OS_WIN32
+sData = INVALID_SOCKET;
 
 // open the file that we will dump the ROM into
 fROM = fopen(wDownloadPath->label(), "rb");
@@ -641,11 +645,14 @@ wProgressSlider->label("Downloading...");
 Fl::add_fd(sData, FL_READ, dataReadCB, 0);
 Fl::add_fd(sData, FL_EXCEPT, dataExceptCB, 0);
 fROM = fopen(wDownloadPath->label(), "wb");
-recvd = 0;} {}
+recvd = 0;
+\#endif} {}
 }
 
-Function {dataReadCB(FL_SOCKET p, void *user_data)} {} {
-  code {unsigned long n;
+Function {dataReadCB(FL_SOCKET p, void *user_data)} {open
+} {
+  code {\#if TARGET_OS_WIN32
+unsigned long n;
 DWORD rcvd;
 int ret = WSAIoctl(sData, FIONREAD, 0, 0, &n, sizeof(n), &rcvd, 0, 0);
 if (ret || n==0) {
@@ -660,12 +667,14 @@ free(buf);
 
 recvd += n;
 printf("Received %d/%d (%d)\\n", n, n1, recvd);
-wProgressSlider->value(recvd/1024);} {}
+wProgressSlider->value(recvd/1024);
+\#endif} {}
 }
 
-Function {dataExceptCB(FL_SOCKET p, void *user_data)} {selected
+Function {dataExceptCB(FL_SOCKET p, void *user_data)} {open
 } {
-  code {if (fROM) {
+  code {\#if TARGET_OS_WIN32
+if (fROM) {
   fclose(fROM);
   fROM = 0L;
 }
@@ -680,10 +689,13 @@ if (recvd==8*1024*1024) {
   wROMDownloadWindow->hide();
 } else {
   fl_message("Invalid ROM size.\\n%d bytes expected, but %d bytes received.", 8*1024*1024, recvd);
-}} {}
+}
+\#endif} {selected
+  }
 }
 
-Function {createROMDownloadProgressWindow()} {} {
+Function {createROMDownloadProgressWindow()} {open
+} {
   Fl_Window {} {open
     xywh {861 544 285 111} type Double modal visible
   } {

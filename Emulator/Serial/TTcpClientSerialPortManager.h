@@ -26,8 +26,7 @@
 
 #include "TBasicSerialPortManager.h"
 
-#include <pthread.h>
-
+#include <thread>
 
 class TLog;
 class TInterruptManager;
@@ -107,11 +106,6 @@ protected:
 	void HandleDMAReceive();
 
 	///
-	/// PThread hook.
-	///
-	static void *SHandleDMA(void *This) { ((TTcpClientSerialPortManager*)This)->HandleDMA(); return 0L; }
-
-	///
 	/// Create a socket and try to connect it to the server.
 	///
 	bool Connect();
@@ -122,19 +116,18 @@ protected:
 	bool Disconnect();
 
 	///
-	/// Return true if we are connected to teh server.
+	/// Return true if we are connected to the server.
 	///
 	bool IsConnected() { return mIsConnected; }
 
 	char *mServer = nullptr;
 	int mPort = 0;
 
-	int mCommandPipe[2];			///< communication between emulator and DMA thread
-	int mTcpSocket;					///< TCP socket for client side
-	bool mWorkerThreadIsRunning;	///< set if DMA thread is active
-	pthread_t mWorkerThread;		///< the thread that does all the work
-	bool mIsConnected;
-	time_t mReconnectTimeout;		///< next time we allow another connection attempt
+    int mCommandPipe[2] = { -1, -1 };       ///< communication between emulator and DMA thread
+    int mTcpSocket = -1;                    ///< TCP socket for client side
+	std::thread *mWorkerThread = nullptr;   ///< the thread that does all the work
+	bool mIsConnected = false;              ///< set to true if there is a connection to a server
+	time_t mReconnectTimeout = 0;   		///< next time we allow another connection attempt
 };
 
 #endif
