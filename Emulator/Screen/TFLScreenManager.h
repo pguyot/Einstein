@@ -27,7 +27,6 @@
 #include <K/Defines/KDefinitions.h>
 #include "TScreenManager.h"
 
-class TThread;
 class Fl_Newton_Screen_Widget;
 
 ///

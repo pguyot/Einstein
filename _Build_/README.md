@@ -13,7 +13,7 @@ macOS
 Install FLTK first: get it from GitHub, go into the root directory, 
 ```bash
 mkdir build
-cd build, 
+cd build
 mkdir Makefiles
 cd Makefiles
 cmake ../..
@@ -40,6 +40,13 @@ open Einstein.xcodeproj
 
 MSWindows
 ---------
+
+Install FLTK first: get it from GitHub, then launch VisualC 2017. Select the menu `File > Open > CMake...`
+and select `CMakeLists.txt` in the FLTK directory. Select the menu item `Cmake > Build All`.
+If all goes well, select `CMake > Install > FLTK`.
+
+
+
 
 
 Android
