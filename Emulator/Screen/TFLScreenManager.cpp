@@ -51,8 +51,16 @@
 // FLTK Class
 // -------------------------------------------------------------------------- //
 
+// FLTK has a bug where the keycode for single quote, back quote, and backslash are mixed up
+#if TARGET_OS_WIN32
+#define vkTick 0x2A
+#define vkBackTick 0x27
+#define vkBackSlash 0x32
+#else 
+#endif
+
 static const struct {unsigned short vk, fltk;} vktab[] = {
-  { 49, ' ' }, { 39, '\'' }, { 43, ',' }, { 27, '-' }, { 47, '.' }, { 44, '/' }, 
+  { 49, ' ' }, { vkTick, '\'' }, { 43, ',' }, { 27, '-' }, { 47, '.' }, { 44, '/' }, 
   { 29, '0' }, { 18, '1'  }, { 19, '2'  }, { 20, '3'  }, 
   { 21, '4' }, { 23, '5'  }, { 22, '6'  }, { 26, '7'  }, 
   { 28, '8' }, { 25, '9'  }, { 41, ';'  }, { 24, '='  },
@@ -63,7 +71,7 @@ static const struct {unsigned short vk, fltk;} vktab[] = {
   { 12, 'Q' }, { 15, 'R'  }, {  1, 'S'  }, { 17, 'T'  }, 
   { 32, 'U' }, {  9, 'V'  }, { 13, 'W'  }, {  7, 'X'  }, 
   { 16, 'Y' }, {  6, 'Z'  }, 
-  { 33, '[' }, { 30, ']' }, { 50, '`' },  { 42, '|' },
+  { 33, '[' }, { vkBackSlash, '\\' }, { 30, ']' }, { vkBackTick, '`' },  { 50, '|' },
   { 51, FL_BackSpace }, { 48, FL_Tab }, { 36, FL_Enter }, { 127, FL_Pause },
   { 107, FL_Scroll_Lock }, { 53, FL_Escape }, { 0x73, FL_Home }, { 123, FL_Left },
   { 126, FL_Up }, { 124, FL_Right }, { 125, FL_Down }, { 0x74, FL_Page_Up },
@@ -176,6 +184,7 @@ public:
 
 	unsigned int eventKeyToMac() {
 		unsigned int fltk = Fl::event_key();
+		printf("Event key %d %c\n", fltk, fltk);
 		if (fltk<256 && isalpha(fltk))
 			fltk = toupper(fltk);
 		int a = 0;
@@ -183,6 +192,7 @@ public:
 		while (a < b) {
 			int c = (a+b)/2;
 			if (vktab[c].fltk == fltk) {
+				printf("  returns %d 0x%02x\n", vktab[c].vk, vktab[c].vk);
 				return vktab[c].vk;
 			}
 			if (vktab[c].fltk < fltk) a = c+1; else b = c;

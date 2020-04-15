@@ -448,10 +448,29 @@ endif()
 target_include_directories(Einstein PUBLIC ${CMAKE_SOURCE_DIR} ${FLTK_INCLUDE_DIRS})
 
 if (WIN32)
-target_link_libraries(Einstein 
-	fltk
-	winmm
-)
+    target_link_libraries(Einstein 
+	    fltk
+	    winmm
+    )
+    if (CMAKE_BUILD_TYPE MATCHES Debug)
+        target_link_options(Einstein PUBLIC /NODEFAULTLIB:msvcrt.lib )
+    else()
+        target_link_options(Einstein PUBLIC /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib)
+    endif()
+    set(CompilerFlags
+        CMAKE_CXX_FLAGS
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_RELWITHDEBINFO
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_C_FLAGS
+        CMAKE_C_FLAGS_DEBUG
+        CMAKE_C_FLAGS_RELWITHDEBINFO
+        CMAKE_C_FLAGS_RELEASE
+    )
+    foreach(CompilerFlag ${CompilerFlags})
+        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+    endforeach()
+
 endif()
 
 if (APPLE)
