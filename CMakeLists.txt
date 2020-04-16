@@ -383,149 +383,138 @@ set ( sources
 #    portaudio/pablio/ringbuffer.h
 )
 
-if (APPLE)
-	list (APPEND sources 
-		Emulator/NativeCalls/TObjCBridgeCalls.mm
-		Emulator/NativeCalls/TObjCBridgeCalls.h
-		Emulator/Sound/TCoreAudioSoundManager.cpp
-		Emulator/Sound/TCoreAudioSoundManager.h
-	)
-else()
-	list (APPEND sources 
-		Emulator/NativeCalls/NativeCallsDefines.h
-		Emulator/NativeCalls/TNativeCalls.cpp
-		Emulator/NativeCalls/TNativeCalls.h
-	)
-endif()
 
-if (WIN32)
+if (UNIX)
+
+	# additional source code
 	list (APPEND sources
-		Emulator/Sound/TWaveSoundManager.cpp
-		Emulator/Sound/TWaveSoundManager.h
-	)
-else()
+			# calling native functions (very limited support in this version of EInsten)
+			Emulator/NativeCalls/NativeCallsDefines.h
+			Emulator/NativeCalls/TNativeCalls.cpp
+			Emulator/NativeCalls/TNativeCalls.h
+			# Unix sound support
+			Emulator/Sound/TPulseAudioSoundManager.cpp
+			Emulator/Sound/TPulseAudioSoundManager.h
+			)
+
+	# create the application
+	add_executable(Einstein ${sources})
+
+	# configure to use FLTK as the GUI
+	set(FLTK_SKIP_OPENGL true)
+	find_package(FLTK REQUIRED NO_MODULE)
+
+	# how to compile and link
+	target_compile_options(Einstein PUBLIC -Wall -pedantic -Wno-multichar)
+	target_compile_definitions(Einstein PRIVATE TARGET_OS_LINUX=1)
+	target_link_libraries(Einstein
+			fltk
+			pulse # sound
+			)
+
+elseif (APPLE)
+
+	# additional source code
 	list (APPEND sources
-		Emulator/Network/TTapNetwork.cpp
-		Emulator/Network/TTapNetwork.h
-		Emulator/Network/TUsermodeNetwork.cpp
-		Emulator/Network/TUsermodeNetwork.h
-		Emulator/Serial/TBasiliskIISerialPortManager.cpp
-		Emulator/Serial/TBasiliskIISerialPortManager.h
-		Emulator/Serial/TPipesSerialPortManager.cpp
-		Emulator/Serial/TPipesSerialPortManager.h
-		Emulator/Serial/TPtySerialPortManager.cpp
-		Emulator/Serial/TPtySerialPortManager.h
-	)
-endif()
+			# calling ObjectiveC native functions (very limited support in this version of EInsten)
+			Emulator/NativeCalls/TObjCBridgeCalls.mm
+			Emulator/NativeCalls/TObjCBridgeCalls.h
+			# macOS sound support
+			Emulator/Sound/TCoreAudioSoundManager.cpp
+			Emulator/Sound/TCoreAudioSoundManager.h
+			# Network card emulations
+			Emulator/Network/TTapNetwork.cpp
+			Emulator/Network/TTapNetwork.h
+			Emulator/Network/TUsermodeNetwork.cpp
+			Emulator/Network/TUsermodeNetwork.h
+			# Serial port emulation
+			Emulator/Serial/TBasiliskIISerialPortManager.cpp
+			Emulator/Serial/TBasiliskIISerialPortManager.h
+			Emulator/Serial/TPipesSerialPortManager.cpp
+			Emulator/Serial/TPipesSerialPortManager.h
+			Emulator/Serial/TPtySerialPortManager.cpp
+			Emulator/Serial/TPtySerialPortManager.h
+			)
 
-if (APPLE)
-	add_executable(Einstein MACOSX_BUNDLE ${sources} ${data})
-else()
-    configure_file(
-	    Resources/MSWindows/Einstein.rc.in
-	    Einstein.rc
-	)
-	add_executable(Einstein WIN32
-        ${sources} ${data}
-        ${CMAKE_CURRENT_BINARY_DIR}/Einstein.rc
-        )
-endif()
+	# create the application
+	add_executable(Einstein MACOSX_BUNDLE ${sources})
 
-if (WIN32)
-	set(FLTK_DIR "C:/Program Files/FLTK")
-endif()
+	# configure to use FLTK as the GUI
+	set(FLTK_SKIP_OPENGL true)
+	find_package(FLTK REQUIRED NO_MODULE)
 
-set(FLTK_SKIP_OPENGL true)
-find_package(FLTK REQUIRED NO_MODULE)
-
-# message ("FLTK: " ${FLTK_BASE_LIBRARY_RELEASE})
-# message ("FLTK: " ${FLTK_BASE_LIBRARY_DEBUG})
-
-if (WIN32)
-	#target_compile_options(Einstein PUBLIC -Wall)
-	target_compile_options(Einstein PUBLIC "/bigobj")
-	target_compile_definitions(Einstein PRIVATE TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1)
-endif()
-if (APPLE)
+	# how to compile and link
 	target_compile_options(Einstein PUBLIC -Wall)
 	target_compile_definitions(Einstein PRIVATE NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 NS_BLOCK_ASSERTIONS=1)
-endif()
+	target_link_libraries(Einstein
+			# /usr/local/lib/libfltk.a
+			fltk
+			pthread
+			"-framework AddressBook"
+			"-framework AudioUnit"
+			"-framework AppKit"
+			"-framework CoreAudio"
+			"-framework Cocoa"
+			)
+	set_target_properties(Einstein PROPERTIES
+			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/FLInfo.plist.in")
+
+elseif (WIN32)
+
+	# additional source code
+	list (APPEND sources
+			# calling native functions (very limited support in this version of EInsten)
+			Emulator/NativeCalls/NativeCallsDefines.h
+			Emulator/NativeCalls/TNativeCalls.cpp
+			Emulator/NativeCalls/TNativeCalls.h
+			# Windows sound support
+			Emulator/Sound/TWaveSoundManager.cpp
+			Emulator/Sound/TWaveSoundManager.h
+			)
+
+	# Create a resources file for Windows
+	configure_file(
+			Resources/MSWindows/Einstein.rc.in
+			Einstein.rc
+	)
+
+	# create the application
+	add_executable(Einstein WIN32
+			${sources} ${data}
+			${CMAKE_CURRENT_BINARY_DIR}/Einstein.rc
+			)
+
+	# configure to use FLTK as the GUI
+	set(FLTK_DIR "C:/Program Files/FLTK")
+	set(FLTK_SKIP_OPENGL true)
+	find_package(FLTK REQUIRED NO_MODULE)
+
+	# how to compile and link
+	target_compile_options(Einstein PUBLIC "/bigobj")
+	target_compile_definitions(Einstein PRIVATE TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1)
+	target_link_libraries(Einstein
+			# this vvv always includes the debug version, even in release mode
+			# fltk
+			# alternatively, this loads the correct library but needs additional libs that would be included automatically in the line above
+			"${FLTK_BASE_LIBRARY_RELEASE}" # FIXME: or it will select the debug version even in release mode!
+			comctl32
+			ws2_32
+			# end of alternative
+			winmm
+			)
+	if (CMAKE_BUILD_TYPE MATCHES Debug)
+		target_link_options(Einstein PUBLIC /NODEFAULTLIB:msvcrt.lib )
+	else()
+		target_link_options(Einstein PUBLIC /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib)
+	endif()
+
+else()
+
+	message ("Einstein CMake is not configured for this platform.")
+
+endif(UNIX)
+
+
+
 target_include_directories(Einstein PUBLIC ${CMAKE_SOURCE_DIR} ${FLTK_INCLUDE_DIRS})
-
-if (WIN32)
-    target_link_libraries(Einstein 
-    # this vvv always includes the debug version, even in release mode
-	    # fltk 
-    # alternatively, this loads the correct library but needs additional libs that would be included automatically in the line above
-        "${FLTK_BASE_LIBRARY_RELEASE}" # FIXME: or it will select the debug version even in release mode!
-        comctl32
-        ws2_32
-    # end of alternative
-	    winmm
-    )
-    #  [2/2] cmd.exe /C "cd . && "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\Einstein.dir --rc=C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x64\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x64\mt.exe --manifests  -- C:\PROGRA~2\MIB055~1\2019\COMMUN~1\VC\Tools\MSVC\1425~1.286\bin\Hostx64\x64\link.exe /nologo CMakeFiles\Einstein.dir\Emulator\Files\TFileManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Host\THostInfo.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGenericPage.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGenericROMPatch.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_BlockDataTransfer.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer_MRS.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer_MSR.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_Multiply.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_MultiplyAndAccumulate.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_Other.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_SingleDataSwap.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_SingleDataTransfer.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_Test.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\TJITCache.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\TJITPage.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\TJITPerformance.cpp.obj CMakeFiles\Einstein.dir\Emulator\Log\TBufferLog.cpp.obj CMakeFiles\Einstein.dir\Emulator\Log\TFileLog.cpp.obj CMakeFiles\Einstein.dir\Emulator\Log\TLog.cpp.obj CMakeFiles\Einstein.dir\Emulator\Log\TRAMLog.cpp.obj CMakeFiles\Einstein.dir\Emulator\Log\TStdOutLog.cpp.obj CMakeFiles\Einstein.dir\Emulator\NativeCalls\TVirtualizedCalls.cpp.obj CMakeFiles\Einstein.dir\Emulator\NativeCalls\TVirtualizedCallsPatches.cpp.obj CMakeFiles\Einstein.dir\Emulator\Serial\TTcpClientSerialPortManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Network\TNetworkManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\PCMCIA\TATACard.cpp.obj CMakeFiles\Einstein.dir\Emulator\PCMCIA\TLinearCard.cpp.obj CMakeFiles\Einstein.dir\Emulator\PCMCIA\TNE2000Card.cpp.obj CMakeFiles\Einstein.dir\Emulator\PCMCIA\TPCMCIACard.cpp.obj CMakeFiles\Einstein.dir\Emulator\PCMCIA\TPCMCIAController.cpp.obj CMakeFiles\Einstein.dir\Emulator\Platform\TNewt.cpp.obj CMakeFiles\Einstein.dir\Emulator\Platform\TPlatformManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\ROM\PrecompiledPatches.cpp.obj CMakeFiles\Einstein.dir\Emulator\ROM\TAIFFile.cpp.obj CMakeFiles\Einstein.dir\Emulator\ROM\TAIFROMImageWithREXes.cpp.obj CMakeFiles\Einstein.dir\Emulator\ROM\TFlatROMImage.cpp.obj CMakeFiles\Einstein.dir\Emulator\ROM\TFlatROMImageWithREX.cpp.obj CMakeFiles\Einstein.dir\Emulator\ROM\TROMImage.cpp.obj CMakeFiles\Einstein.dir\Emulator\Screen\TFLScreenManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Screen\TNullScreenManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Screen\TScreenManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Serial\TBasicSerialPortManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Serial\TSerialPortManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Serial\TSerialPorts.cpp.obj CMakeFiles\Einstein.dir\Emulator\Sound\TBufferedSoundManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Sound\TNullSoundManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Sound\TSoundManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\TARMProcessor.cpp.obj CMakeFiles\Einstein.dir\Emulator\TDMAManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\TEmulator.cpp.obj CMakeFiles\Einstein.dir\Emulator\TFlash.cpp.obj CMakeFiles\Einstein.dir\Emulator\TInterruptManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\TMMU.cpp.obj CMakeFiles\Einstein.dir\Emulator\TMemory.cpp.obj CMakeFiles\Einstein.dir\Emulator\TNativePrimitives.cpp.obj CMakeFiles\Einstein.dir\K\Defines\KDefinitions.cpp.obj CMakeFiles\Einstein.dir\K\Exceptions\Errors\TError.cpp.obj CMakeFiles\Einstein.dir\K\Exceptions\Errors\TMemError.cpp.obj CMakeFiles\Einstein.dir\K\Exceptions\IO\TEOFException.cpp.obj CMakeFiles\Einstein.dir\K\Exceptions\IO\TIOException.cpp.obj CMakeFiles\Einstein.dir\K\Exceptions\TException.cpp.obj CMakeFiles\Einstein.dir\K\Misc\TCircleBuffer.cpp.obj CMakeFiles\Einstein.dir\K\Misc\TMappedFile.cpp.obj CMakeFiles\Einstein.dir\K\Streams\TFileStream.cpp.obj CMakeFiles\Einstein.dir\K\Streams\TStream.cpp.obj CMakeFiles\Einstein.dir\K\Threads\TCondVar.cpp.obj CMakeFiles\Einstein.dir\K\Threads\TMutex.cpp.obj CMakeFiles\Einstein.dir\K\Threads\TThread.cpp.obj CMakeFiles\Einstein.dir\K\Unicode\UUTF16CStr.cpp.obj CMakeFiles\Einstein.dir\K\Unicode\UUTF16Conv.cpp.obj CMakeFiles\Einstein.dir\Monitor\TMonitor.cpp.obj CMakeFiles\Einstein.dir\Monitor\TMonitorCore.cpp.obj CMakeFiles\Einstein.dir\Monitor\TSymbolList.cpp.obj CMakeFiles\Einstein.dir\Monitor\UDisasm.cpp.obj CMakeFiles\Einstein.dir\app\TFLApp.cpp.obj CMakeFiles\Einstein.dir\app\TFLSettings.cpp.obj CMakeFiles\Einstein.dir\app\TPathHelper.cpp.obj CMakeFiles\Einstein.dir\Emulator\NativeCalls\TNativeCalls.cpp.obj CMakeFiles\Einstein.dir\Emulator\Sound\TWaveSoundManager.cpp.obj CMakeFiles\Einstein.dir\Einstein.rc.res  /out:Einstein.exe /implib:Einstein.lib /pdb:Einstein.pdb /version:0.0  /machine:x64 /INCREMENTAL:NO /subsystem:windows  /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib  "C:\Program Files\FLTK\lib\fltkd.lib"  winmm.lib  comctl32.lib  ws2_32.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
-    #  [2/2] cmd.exe /C "cd . && "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\Einstein.dir --rc=C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x64\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x64\mt.exe --manifests  -- C:\PROGRA~2\MIB055~1\2019\COMMUN~1\VC\Tools\MSVC\1425~1.286\bin\Hostx64\x64\link.exe /nologo CMakeFiles\Einstein.dir\Emulator\Files\TFileManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Host\THostInfo.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGenericPage.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGenericROMPatch.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_BlockDataTransfer.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer_MRS.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer_MSR.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_Multiply.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_MultiplyAndAccumulate.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_Other.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_SingleDataSwap.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_SingleDataTransfer.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\Generic\TJITGeneric_Test.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\TJITCache.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\TJITPage.cpp.obj CMakeFiles\Einstein.dir\Emulator\JIT\TJITPerformance.cpp.obj CMakeFiles\Einstein.dir\Emulator\Log\TBufferLog.cpp.obj CMakeFiles\Einstein.dir\Emulator\Log\TFileLog.cpp.obj CMakeFiles\Einstein.dir\Emulator\Log\TLog.cpp.obj CMakeFiles\Einstein.dir\Emulator\Log\TRAMLog.cpp.obj CMakeFiles\Einstein.dir\Emulator\Log\TStdOutLog.cpp.obj CMakeFiles\Einstein.dir\Emulator\NativeCalls\TVirtualizedCalls.cpp.obj CMakeFiles\Einstein.dir\Emulator\NativeCalls\TVirtualizedCallsPatches.cpp.obj CMakeFiles\Einstein.dir\Emulator\Serial\TTcpClientSerialPortManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Network\TNetworkManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\PCMCIA\TATACard.cpp.obj CMakeFiles\Einstein.dir\Emulator\PCMCIA\TLinearCard.cpp.obj CMakeFiles\Einstein.dir\Emulator\PCMCIA\TNE2000Card.cpp.obj CMakeFiles\Einstein.dir\Emulator\PCMCIA\TPCMCIACard.cpp.obj CMakeFiles\Einstein.dir\Emulator\PCMCIA\TPCMCIAController.cpp.obj CMakeFiles\Einstein.dir\Emulator\Platform\TNewt.cpp.obj CMakeFiles\Einstein.dir\Emulator\Platform\TPlatformManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\ROM\PrecompiledPatches.cpp.obj CMakeFiles\Einstein.dir\Emulator\ROM\TAIFFile.cpp.obj CMakeFiles\Einstein.dir\Emulator\ROM\TAIFROMImageWithREXes.cpp.obj CMakeFiles\Einstein.dir\Emulator\ROM\TFlatROMImage.cpp.obj CMakeFiles\Einstein.dir\Emulator\ROM\TFlatROMImageWithREX.cpp.obj CMakeFiles\Einstein.dir\Emulator\ROM\TROMImage.cpp.obj CMakeFiles\Einstein.dir\Emulator\Screen\TFLScreenManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Screen\TNullScreenManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Screen\TScreenManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Serial\TBasicSerialPortManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Serial\TSerialPortManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Serial\TSerialPorts.cpp.obj CMakeFiles\Einstein.dir\Emulator\Sound\TBufferedSoundManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Sound\TNullSoundManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\Sound\TSoundManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\TARMProcessor.cpp.obj CMakeFiles\Einstein.dir\Emulator\TDMAManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\TEmulator.cpp.obj CMakeFiles\Einstein.dir\Emulator\TFlash.cpp.obj CMakeFiles\Einstein.dir\Emulator\TInterruptManager.cpp.obj CMakeFiles\Einstein.dir\Emulator\TMMU.cpp.obj CMakeFiles\Einstein.dir\Emulator\TMemory.cpp.obj CMakeFiles\Einstein.dir\Emulator\TNativePrimitives.cpp.obj CMakeFiles\Einstein.dir\K\Defines\KDefinitions.cpp.obj CMakeFiles\Einstein.dir\K\Exceptions\Errors\TError.cpp.obj CMakeFiles\Einstein.dir\K\Exceptions\Errors\TMemError.cpp.obj CMakeFiles\Einstein.dir\K\Exceptions\IO\TEOFException.cpp.obj CMakeFiles\Einstein.dir\K\Exceptions\IO\TIOException.cpp.obj CMakeFiles\Einstein.dir\K\Exceptions\TException.cpp.obj CMakeFiles\Einstein.dir\K\Misc\TCircleBuffer.cpp.obj CMakeFiles\Einstein.dir\K\Misc\TMappedFile.cpp.obj CMakeFiles\Einstein.dir\K\Streams\TFileStream.cpp.obj CMakeFiles\Einstein.dir\K\Streams\TStream.cpp.obj CMakeFiles\Einstein.dir\K\Threads\TCondVar.cpp.obj CMakeFiles\Einstein.dir\K\Threads\TMutex.cpp.obj CMakeFiles\Einstein.dir\K\Threads\TThread.cpp.obj CMakeFiles\Einstein.dir\K\Unicode\UUTF16CStr.cpp.obj CMakeFiles\Einstein.dir\K\Unicode\UUTF16Conv.cpp.obj CMakeFiles\Einstein.dir\Monitor\TMonitor.cpp.obj CMakeFiles\Einstein.dir\Monitor\TMonitorCore.cpp.obj CMakeFiles\Einstein.dir\Monitor\TSymbolList.cpp.obj CMakeFiles\Einstein.dir\Monitor\UDisasm.cpp.obj CMakeFiles\Einstein.dir\app\TFLApp.cpp.obj CMakeFiles\Einstein.dir\app\TFLSettings.cpp.obj CMakeFiles\Einstein.dir\app\TPathHelper.cpp.obj CMakeFiles\Einstein.dir\Emulator\NativeCalls\TNativeCalls.cpp.obj CMakeFiles\Einstein.dir\Emulator\Sound\TWaveSoundManager.cpp.obj CMakeFiles\Einstein.dir\Einstein.rc.res  /out:Einstein.exe /implib:Einstein.lib /pdb:Einstein.pdb /version:0.0  /machine:x64 /INCREMENTAL:NO /subsystem:windows  /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib  "C:\Program Files\fltk\lib\fltk.lib"   winmm.lib                            kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
-    if (CMAKE_BUILD_TYPE MATCHES Debug)
-        target_link_options(Einstein PUBLIC /NODEFAULTLIB:msvcrt.lib )
-    else()
-        target_link_options(Einstein PUBLIC /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib)
-    endif()
-    if(0)
-    set(CompilerFlags
-        CMAKE_CXX_FLAGS
-        CMAKE_CXX_FLAGS_DEBUG
-        CMAKE_CXX_FLAGS_RELWITHDEBINFO
-        CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_C_FLAGS
-        CMAKE_C_FLAGS_DEBUG
-        CMAKE_C_FLAGS_RELWITHDEBINFO
-        CMAKE_C_FLAGS_RELEASE
-    )
-    foreach(CompilerFlag ${CompilerFlags})
-        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
-    endforeach()
-    else()
-    set_property(TARGET Einstein PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    endif()
-endif()
-
-if (APPLE)
-target_link_libraries(Einstein 
-	/usr/local/lib/libfltk.a
-	pthread
-	"-framework AddressBook"
-	"-framework AudioUnit"
-	"-framework AppKit"
-	"-framework CoreAudio"
-	"-framework Cocoa"
-)
-endif()
-
-set_target_properties(Einstein PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/FLInfo.plist.in")
-
-
-#add_custom_command(
-#    MAIN_DEPENDENCY "app/TFLSettings.fl"
-#	OUTPUT "app/TFLSettings.cpp" "app/TFLSettings.h"
-#	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/app
-#	COMMAND fluid -c TFLSettings.fl
-#)
-#add_custom_target(
-#  TFLSettings
-#  DEPENDS "app/TFLSettings.cpp" "app/TFLSettings.h"
-#)
-#add_dependencies(Einstein TFLSettings)
-
-
-
-#MACOSX_BUNDLE_INFO_STRING
-#MACOSX_BUNDLE_ICON_FILE
-#MACOSX_BUNDLE_GUI_IDENTIFIER
-#MACOSX_BUNDLE_LONG_VERSION_STRING
-#MACOSX_BUNDLE_BUNDLE_NAME
-#MACOSX_BUNDLE_SHORT_VERSION_STRING
-#MACOSX_BUNDLE_BUNDLE_VERSION
-#MACOSX_BUNDLE_COPYRIGHT
-
-# message ( ${CMAKE_CURRENT_BINARY_DIR} " --- " ${bundleName} )
 

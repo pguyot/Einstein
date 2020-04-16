@@ -32,8 +32,8 @@
 #include <FL/fl_draw.H>
 
 #include <stdio.h>
-#include <sys/types.h>
 #include <stdlib.h>
+#include <cctype>
 
 // K
 #include <K/Defines/UByteSex.h>
@@ -188,7 +188,7 @@ public:
 
 	unsigned int eventKeyToMac() {
 		unsigned int fltk = Fl::event_key();
-		printf("Event key %d %c\n", fltk, fltk);
+//		printf("Event key %d %c\n", fltk, fltk);
 		if (fltk<256 && isalpha(fltk))
 			fltk = toupper(fltk);
 		int a = 0;
@@ -196,7 +196,7 @@ public:
 		while (a < b) {
 			int c = (a+b)/2;
 			if (vktab[c].fltk == fltk) {
-				printf("  returns %d 0x%02x\n", vktab[c].vk, vktab[c].vk);
+//				printf("  returns %d 0x%02x\n", vktab[c].vk, vktab[c].vk);
 				return vktab[c].vk;
 			}
 			if (vktab[c].fltk < fltk) a = c+1; else b = c;

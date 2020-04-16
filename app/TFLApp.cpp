@@ -46,8 +46,12 @@
 #include "Emulator/Sound/TNullSoundManager.h"
 #if TARGET_OS_WIN32
 #include "Emulator/Sound/TWaveSoundManager.h"
-#else
+#elif TARGET_OS_LINUX
+#include "Emulator/Sound/TPulseAudioSoundManager.h"
+#elif TARGET_OS_MAC
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
+#else
+#error Selected target OS not implemented, or no target OS selected
 #endif
 #include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Screen/TFLScreenManager.h"
@@ -118,8 +122,8 @@ public:
 		hideMouse_ = 1;
 	}
 private:
-	TFLApp	*app;
-	int		hideMouse_;
+	TFLApp	*app = nullptr;
+	int		hideMouse_ = 0;
 };
 
 // -------------------------------------------------------------------------- //
@@ -212,8 +216,6 @@ TFLApp::Run( int argc, char* argv[] )
 	int theMachineID = flSettings->wMachineChoice->value();
 	const Fl_Menu_Item *theMachineMenu = flSettings->wMachineChoice->menu()+theMachineID;
 	const char* theMachineString = strdup((char*)theMachineMenu->user_data());
-	const char* theRestoreFile = nil;
-	const char* theSoundManagerClass = nil;
 	const char* theScreenManagerClass = nil;
 	const char *theROMImagePath = strdup(flSettings->ROMPath);
 	const char *theFlashPath = strdup(flSettings->FlashPath);
@@ -257,16 +259,16 @@ TFLApp::Run( int argc, char* argv[] )
 #endif
 	win->callback(quit_cb, this);
 
-	if (theSoundManagerClass == nil)
-	{
 #if TARGET_OS_WIN32
-		mSoundManager = new TWaveSoundManager( mLog );
+    mSoundManager = new TWaveSoundManager( mLog );
+#elif TARGET_OS_LINUX
+    mSoundManager = new TPulseAudioSoundManager( mLog );
+#elif TARGET_OS_MAC
+    mSoundManager = new TCoreAudioSoundManager( mLog );
 #else
-		mSoundManager = new TCoreAudioSoundManager( mLog );
+#   error Selected target OS support not implemented, or no target OS selected
 #endif
-	} else {
-		CreateSoundManager( theSoundManagerClass );
-	}
+
 	mNetworkManager = new TNullNetworkManager(mLog);
 	if (theScreenManagerClass == nil)
 	{
@@ -510,25 +512,6 @@ TFLApp::CreateLog( const char* inFilePath )
 		::exit(1);
 	}
 	mLog = new TFileLog( inFilePath );
-}
-
-// -------------------------------------------------------------------------- //
-// CreateSoundManager( const char* )
-// -------------------------------------------------------------------------- //
-void
-TFLApp::CreateSoundManager( const char* inClass )
-{
-	if (::strcmp( inClass, "null" ) == 0)
-	{
-		mSoundManager = new TNullSoundManager( mLog );
-#if TARGET_OS_WIN32
-	} else if (::strcmp( inClass, "wave" ) == 0) {
-		mSoundManager = new TWaveSoundManager( mLog );
-#endif
-	} else {
-		(void) ::fprintf( stderr, "Unknown sound manager class %s\n", inClass );
-		::exit( 1 );
-	}
 }
 
 // -------------------------------------------------------------------------- //

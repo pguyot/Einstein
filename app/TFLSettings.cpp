@@ -30,7 +30,7 @@
 #endif
 #include <string.h>
 #include <FL/filename.H>
-#include <FL/fl_file_chooser.H>
+#include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_Preferences.H>
 static Fl_Window *wProgressWindow = 0L; 
 static FILE *fROM; 

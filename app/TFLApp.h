@@ -53,7 +53,7 @@ class TFLSettings;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 113 $
 ///
-/// \test	aucun test dŽfini.
+/// \test	aucun test dï¿½fini.
 ///
 class TFLApp
 {
@@ -80,7 +80,7 @@ class TFLApp
   };
 public:
 	///
-	/// Constructeur par dŽfaut.
+	/// Constructeur par dï¿½faut.
 	///
 	TFLApp( void );
 
@@ -90,7 +90,7 @@ public:
 	~TFLApp( void );
 
 	///
-	/// Point d'entrŽe.
+	/// Point d'entrï¿½e.
 	///
 	void Run( int argc, char* argv[] );
 
@@ -134,14 +134,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet ˆ copier
+	/// \param inCopy		objet ï¿½ copier
 	///
 	TFLApp( const TFLApp& inCopy );
 
 	///
-	/// OpŽrateur d'assignation volontairement indisponible.
+	/// Opï¿½rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet ˆ copier
+	/// \param inCopy		objet ï¿½ copier
 	///
 	TFLApp& operator = ( const TFLApp& inCopy );
 
@@ -169,12 +169,7 @@ private:
 	void Version( void );
 	
 	///
-	/// CrŽe le gestionnaire de son.
-	///
-	void CreateSoundManager( const char* inClass );
-	
-	///
-	/// CrŽe le gestionnaire d'Žcran.
+	/// Crï¿½e le gestionnaire d'ï¿½cran.
 	///
 	void CreateScreenManager(
 				const char* inClass,
@@ -183,12 +178,12 @@ private:
 				bool inFullScreen);
 	
 	///
-	/// CrŽe le log.
+	/// Crï¿½e le log.
 	///
 	void CreateLog( const char* inPath );
 	
 	///
-	/// Point d'entrŽe du processus lŽger.
+	/// Point d'entrï¿½e du processus lï¿½ger.
 	///
 	static void* SThreadEntry( void* inUserData )
 		{
@@ -197,7 +192,7 @@ private:
 		}
 
 	///
-	/// Point d'entrŽe du processus lŽger.
+	/// Point d'entrï¿½e du processus lï¿½ger.
 	///
 	void ThreadEntry( void );
 
@@ -240,7 +235,7 @@ private:
 	TROMImage*			mROMImage;			///< Image ROM.
 	TEmulator*			mEmulator;			///< Emulateur.
 	TSoundManager*		mSoundManager;		///< Gestionnaire de son.
-	TScreenManager*		mScreenManager;		///< Gestionnaire d'Žcran.
+	TScreenManager*		mScreenManager;		///< Gestionnaire d'ï¿½cran.
 	TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
 	TNetworkManager*	mNetworkManager;	
 	TLog*				mLog;				///< Log.

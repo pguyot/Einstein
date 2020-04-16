@@ -240,6 +240,8 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 						mScreenManager->OverlayPrintProgress(1, progress*100/46);
 						if (*title) mScreenManager->OverlayPrintAt(0, 3, title, true);
 						mScreenManager->OverlayFlush();
+					} else {
+                        //printf("Progress: %d%%, %s\n", progress*100/46, title);
 					}
 				}
 			}
