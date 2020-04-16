@@ -384,35 +384,7 @@ set ( sources
 )
 
 
-if (UNIX)
-
-	# additional source code
-	list (APPEND sources
-			# calling native functions (very limited support in this version of EInsten)
-			Emulator/NativeCalls/NativeCallsDefines.h
-			Emulator/NativeCalls/TNativeCalls.cpp
-			Emulator/NativeCalls/TNativeCalls.h
-			# Unix sound support
-			Emulator/Sound/TPulseAudioSoundManager.cpp
-			Emulator/Sound/TPulseAudioSoundManager.h
-			)
-
-	# create the application
-	add_executable(Einstein ${sources})
-
-	# configure to use FLTK as the GUI
-	set(FLTK_SKIP_OPENGL true)
-	find_package(FLTK REQUIRED NO_MODULE)
-
-	# how to compile and link
-	target_compile_options(Einstein PUBLIC -Wall -pedantic -Wno-multichar)
-	target_compile_definitions(Einstein PRIVATE TARGET_OS_LINUX=1)
-	target_link_libraries(Einstein
-			fltk
-			pulse # sound
-			)
-
-elseif (APPLE)
+if (APPLE)
 
 	# additional source code
 	list (APPEND sources
@@ -458,6 +430,34 @@ elseif (APPLE)
 			)
 	set_target_properties(Einstein PROPERTIES
 			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/FLInfo.plist.in")
+
+elseif (UNIX)
+
+	# additional source code
+	list (APPEND sources
+			# calling native functions (very limited support in this version of EInsten)
+			Emulator/NativeCalls/NativeCallsDefines.h
+			Emulator/NativeCalls/TNativeCalls.cpp
+			Emulator/NativeCalls/TNativeCalls.h
+			# Unix sound support
+			Emulator/Sound/TPulseAudioSoundManager.cpp
+			Emulator/Sound/TPulseAudioSoundManager.h
+			)
+
+	# create the application
+	add_executable(Einstein ${sources})
+
+	# configure to use FLTK as the GUI
+	set(FLTK_SKIP_OPENGL true)
+	find_package(FLTK REQUIRED NO_MODULE)
+
+	# how to compile and link
+	target_compile_options(Einstein PUBLIC -Wall -pedantic -Wno-multichar)
+	target_compile_definitions(Einstein PRIVATE TARGET_OS_LINUX=1)
+	target_link_libraries(Einstein
+			fltk
+			pulse # sound
+			)
 
 elseif (WIN32)
 
@@ -512,7 +512,7 @@ else()
 
 	message ("Einstein CMake is not configured for this platform.")
 
-endif(UNIX)
+endif(APPLE)
 
 
 
