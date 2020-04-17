@@ -509,18 +509,18 @@ elseif (WIN32)
 	target_compile_definitions(Einstein PRIVATE TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1)
 	target_link_libraries(Einstein
 			# this vvv always includes the debug version, even in release mode
-			# fltk
+			fltk
 			# alternatively, this loads the correct library but needs additional libs that would be included automatically in the line above
-			"${FLTK_BASE_LIBRARY_RELEASE}" # FIXME: or it will select the debug version even in release mode!
-			comctl32
-			ws2_32
+			#"${FLTK_BASE_LIBRARY_RELEASE}" # FIXME: or it will select the debug version even in release mode!
+			#comctl32
+			#ws2_32
 			# end of alternative
 			winmm
 			)
 	if (CMAKE_BUILD_TYPE MATCHES Debug)
 		target_link_options(Einstein PUBLIC /NODEFAULTLIB:msvcrt.lib )
 	else()
-		target_link_options(Einstein PUBLIC /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib)
+		target_link_options(Einstein PUBLIC /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib)
 	endif()
 
 else()

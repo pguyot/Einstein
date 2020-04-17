@@ -174,7 +174,7 @@ TFLApp::Run( int argc, char* argv[] )
 
     mFLSettingsDialog = new TFLSettings(425, 392, "Einstein Platform Settings");
 #if TARGET_OS_WIN32
-    flSettings->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+    mFLSettingsDialog->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #endif
     mFLSettingsDialog->setApp(this, mProgramName);
     mFLSettingsDialog->loadPreferences();
