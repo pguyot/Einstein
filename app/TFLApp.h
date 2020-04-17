@@ -2,7 +2,7 @@
 // File:			TFLApp.h
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,12 +24,9 @@
 #ifndef _TFLAPP_H
 #define _TFLAPP_H
 
-#if TARGET_OS_WINDOWS
-#include <winsock2.h>
-#else
-#endif
-#include <FL/x.H>
 #include <K/Defines/KDefinitions.h>
+
+#include <FL/x.H>
 #include <FL/Fl_Widget.H>
 
 #include "Version.h"
@@ -47,204 +44,85 @@ class TSymbolList;
 class Fl_Widget;
 class TFLSettings;
 
-///
-/// Classe pour le programme einstein en ligne de commande.
-///
-/// \author Paul Guyot <pguyot@kallisys.net>
-/// \version $Revision: 113 $
-///
-/// \test	aucun test d�fini.
-///
+
+/**
+ This is the central class that manages application launch and the user interface.
+ */
 class TFLApp
 {
-  class TFLAppPipeServer {
-  public:
-    TFLAppPipeServer(TFLApp*);
-    ~TFLAppPipeServer();
-    int open();
-    void close();
-  private:
-    static void thread_(void *);
-    static void awake_(void *);
-    static const int BUFSIZE = 4096;
-#if TARGET_OS_WIN32
-    TFLApp *app_;
-    OVERLAPPED over_; 
-    HANDLE hPipeInst; 
-    HANDLE hPipe; 
-    TCHAR chRequest[BUFSIZE]; 
-    DWORD cbRead;
-    TCHAR chReply[BUFSIZE]; 
-    DWORD cbToWrite; 
-#endif
-  };
 public:
-	///
-	/// Constructeur par d�faut.
-	///
-	TFLApp( void );
+    // Constructor.
+	TFLApp();
 
-	///
-	/// Destructeur.
-	///
-	~TFLApp( void );
+    // Destructor.
+	~TFLApp();
 
-	///
-	/// Point d'entr�e.
-	///
+    // Launch the app.
 	void Run( int argc, char* argv[] );
 
-	///
-	/// run a callback from any of the menu items in our pulldown
-	///
+    // User selected something from the menu
 	void do_callback(Fl_Callback *cb, void *user=0L);
 
-	///
-	/// user requested simulating the power button
-	///
+    // user pull power switch
 	void menuPower();
 
-	///
-	/// user requested simulating holding the power button longer
-	///
+    // user toggles backlight
 	void menuBacklight();
 
-	///
-	/// user requested to install a package
-	///
-	void menuInstallPackage();
+    // install a package
+    void InstallPackagesFromURI(const char *filenames);
 
-	///
-	/// show the "About..." screen
-	///
+    // user wants to install a package
+    void menuInstallPackage();
+
+    // user wants to see the About window
 	void menuAbout();
 
-	///
-	/// user wants to see the Settings dialog box
-	///
+    // user wants to see the Setting window
 	void menuShowSettings();
 
-	///
-	/// Open the dialog to download the ROM via TCP/IP 
-	///
+    // user wants to download a ROM file from a physical device
 	void menuDownloadROM();
 
-  TPlatformManager *getPlatformManager() { return mPlatformManager; }
+    // get the interface to the running emulations
+    TPlatformManager *getPlatformManager() { return mPlatformManager; }
+
+    // no copy constructor
+    TFLApp( const TFLApp& inCopy ) = delete;
+
+    // no assignment constructor
+    TFLApp& operator = ( const TFLApp& inCopy ) = delete;
+
 private:
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet � copier
-	///
-	TFLApp( const TFLApp& inCopy );
 
-	///
-	/// Op�rateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet � copier
-	///
-	TFLApp& operator = ( const TFLApp& inCopy );
-
-	///
-	/// Affiche un message d'erreur sur la syntaxe et sort.
-	///
-	void SyntaxError( void );
-	
-	///
-	/// Affiche un message d'erreur sur la syntaxe (une option en particulier)
-	/// et sort.
-	///
-	/// \param inBadOption	bad option
-	///
-	void SyntaxError( const char* inBadOption );
-	
-	///
-	/// Affiche l'aide et sort.
-	///
-	void Help( void );
-	
-	///
-	/// Affiche la version et sort.
-	///
-	void Version( void );
-	
-	///
-	/// Cr�e le gestionnaire d'�cran.
-	///
+    // create the driver for our screen output
 	void CreateScreenManager(
 				const char* inClass,
 				int inPortraitWidth,
 				int inPortraitHeight,
 				bool inFullScreen);
-	
-	///
-	/// Cr�e le log.
-	///
+
+    // create a log file
 	void CreateLog( const char* inPath );
-	
-	///
-	/// Point d'entr�e du processus l�ger.
-	///
-	static void* SThreadEntry( void* inUserData )
-		{
-			((TFLApp*) inUserData)->ThreadEntry();
-			return NULL;
-		}
 
-	///
-	/// Point d'entr�e du processus l�ger.
-	///
-	void ThreadEntry( void );
+    // run the emulation in a new thread
+	void EmulatorThreadEntry( void );
 
-	///
-	/// Boucle du menu.
-	///
-	void MenuLoop( void );
-
-	///
-	/// Boucle du menu (moniteur)
-	///
-	void MonitorMenuLoop( void );
-
-	///
-	/// Boucle du menu (app)
-	///
-	void AppMenuLoop( void );
-
-	///
-	/// Execute a command.
-	///
-	/// \return true if the command was known.
-	///
-	bool ExecuteCommand( const char* inCommand );
-
-	///
-	/// Affiche l'aide (du menu)
-	///
-	void PrintHelp( void );
-
-	///
-	/// Affiche une ligne (dans stdout ou via le moniteur)
-	///
-	void PrintLine( const char* inLine );
-
+    // called when the user wants to quit Einstein (close button on window decoration)
 	void static quit_cb(Fl_Widget *w, void *p);
 
-	/// \name Variables
-	const char*			mProgramName;		///< Nom du programme.
-	TROMImage*			mROMImage;			///< Image ROM.
-	TEmulator*			mEmulator;			///< Emulateur.
-	TSoundManager*		mSoundManager;		///< Gestionnaire de son.
-	TScreenManager*		mScreenManager;		///< Gestionnaire d'�cran.
-	TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
-	TNetworkManager*	mNetworkManager;	
-	TLog*				mLog;				///< Log.
-	TMonitor*			mMonitor;			///< Monitor.
-	TSymbolList*		mSymbolList;		///< List of symbols.
-	bool				mQuit;				///< If we should quit.
-
-	TFLSettings			*flSettings;		///< settings dialog box
-  TFLAppPipeServer mPipeServer;
+	// Variables
+    const char*			mProgramName = nullptr;
+    TROMImage*			mROMImage = nullptr;
+    TEmulator*			mEmulator = nullptr;
+    TSoundManager*		mSoundManager = nullptr;
+    TScreenManager*		mScreenManager = nullptr;
+    TPlatformManager*	mPlatformManager = nullptr;
+    TNetworkManager*	mNetworkManager = nullptr;
+    TLog*				mLog = nullptr;
+    TMonitor*			mMonitor = nullptr;
+    TSymbolList*		mSymbolList = nullptr;
+    TFLSettings*        mFLSettingsDialog = nullptr;
 };
 
 #endif

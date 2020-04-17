@@ -41,6 +41,7 @@
 
 // Einstein
 #include "Emulator/Log/TLog.h"
+#include "app/TFLApp.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -101,15 +102,17 @@ static const struct {unsigned short vk, fltk;} vktab[] = {
 class Fl_Newton_Screen_Widget : public Fl_Box
 {
 	unsigned char		*rgbData_;
-	TFLScreenManager	*screenManager_;
+    TFLScreenManager    *screenManager_;
+    TFLApp              *mApp = nullptr;
 	int					rgbWidth_, rgbHeight_;
 	int					penX, penY, penIsDown;
 
 public:
-	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char *l, TFLScreenManager *s) 
+	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char *l, TFLScreenManager *s, TFLApp *inApp)
 		: Fl_Box(x, y, w, h, l),
 		rgbData_(0L),
 		screenManager_(s),
+        mApp(inApp),
 		penX(0), penY(0), penIsDown(0)
 	{
 		rgbWidth_ = w;
@@ -258,6 +261,15 @@ public:
 				return 1;
 			case FL_FOCUS:
 				return 1;
+            case FL_DND_ENTER: // receive all DND events and ask for more
+            case FL_DND_DRAG:
+            case FL_DND_RELEASE:
+                // on MacOS, Fl::event_text() is empty
+                // TODO: on other platforms, we may want to peek at the file extension and only allow valid types
+                return 1;
+            case FL_PASTE: // user dropped something onto the widget
+                mApp->InstallPackagesFromURI(Fl::event_text());
+                return 1;
 		}
 		return Fl_Box::handle(event);
 	}
@@ -297,6 +309,7 @@ TFLScreenManager::GetScreenSize(
 //  * TFLScreenManager( TLog* )
 // -------------------------------------------------------------------------- //
 TFLScreenManager::TFLScreenManager(
+                                   TFLApp *inApp,
 			TLog* inLog /* = nil */,
 			KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
 			KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
@@ -309,7 +322,8 @@ TFLScreenManager::TFLScreenManager(
 			inPortraitHeight,
 			inFullScreen,
 			inScreenIsLandscape ),
-		mWidget(0L)
+            mApp(inApp),
+            mWidget(0L)
 {
 	bool createWindow = (Fl_Group::current()==0L);
 
@@ -326,7 +340,7 @@ TFLScreenManager::TFLScreenManager(
 
 	mWidget = new Fl_Newton_Screen_Widget(
 		xo, yo, inPortraitWidth, inPortraitHeight, 
-		0L, this);
+		0L, this, mApp);
 	
 	mWidget->label(
 		"booting...\n"
@@ -389,7 +403,11 @@ TFLScreenManager::PowerOnScreen( void )
 void
 TFLScreenManager::PowerOffScreen( void )
 {
-	mWidget->window()->hide();
+    // tell the GUI thread to close the main window
+    Fl::awake(
+              [](void *This)->void {
+        ((TFLScreenManager*)(This))->mWidget->window()->hide();
+    }, this);
 	printf("Power off Screen\n");
 }
 

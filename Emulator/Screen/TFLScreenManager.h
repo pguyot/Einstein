@@ -28,6 +28,7 @@
 #include "TScreenManager.h"
 
 class Fl_Newton_Screen_Widget;
+class TFLApp;
 
 ///
 /// Class for a screen manager using FLTK.
@@ -59,6 +60,7 @@ public:
 	/// \param inScreenIsLandscape	whether the physical screen is in landscape.
 	///
 	TFLScreenManager(
+                     TFLApp *inApp,
 				TLog* inLog = nil,
 				KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 				KUInt32 inPortraitHeight = kDefaultPortraitHeight,
@@ -159,10 +161,13 @@ private:
 
 	void unlinkWidget() { mWidget = 0L; }
 	
+    TFLApp *mApp = nullptr;
+    
 	///
 	/// FLTK Widget class that will hold the Newton screen image
 	///
 	Fl_Newton_Screen_Widget	*mWidget;
+
 };
 
 #endif

@@ -406,10 +406,21 @@ if (APPLE)
 			Emulator/Serial/TPipesSerialPortManager.h
 			Emulator/Serial/TPtySerialPortManager.cpp
 			Emulator/Serial/TPtySerialPortManager.h
+            # Apple macOS required resources
+            Resources/macOS/Info.plist.in
+            Resources/macOS/Einstein.icns
 			)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources})
+
+    # take care of the app icon
+    set (MACOSX_BUNDLE_ICON_FILE Einstein.icns)
+    set_source_files_properties(Resources/macOS/${MACOSX_BUNDLE_ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
 	# create the application
-	add_executable(Einstein MACOSX_BUNDLE ${sources})
+	add_executable(Einstein MACOSX_BUNDLE
+        ${sources}
+        )
 
 	# configure to use FLTK as the GUI
 	set(FLTK_SKIP_OPENGL true)
@@ -429,7 +440,7 @@ if (APPLE)
 			"-framework Cocoa"
 			)
 	set_target_properties(Einstein PROPERTIES
-			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/FLInfo.plist.in")
+			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Info.plist.in")
 
 elseif (UNIX)
 
@@ -443,6 +454,8 @@ elseif (UNIX)
 			Emulator/Sound/TPulseAudioSoundManager.cpp
 			Emulator/Sound/TPulseAudioSoundManager.h
 			)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources})
 
 	# create the application
 	add_executable(Einstein ${sources})
@@ -471,6 +484,8 @@ elseif (WIN32)
 			Emulator/Sound/TWaveSoundManager.cpp
 			Emulator/Sound/TWaveSoundManager.h
 			)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources} Resources/MSWindows/Einstein.rc.in)
 
 	# Create a resources file for Windows
 	configure_file(
