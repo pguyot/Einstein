@@ -21,6 +21,31 @@
 // $Id$
 // ==============================
 
+/*
+
+ Menubar:
+
+ Einstein -> About Einstein / Prefrences... (CMD-,) / Quit (CMD-Q)
+ File -> Close (Cmd-W) / Page Setup... (Shift Cmd-P) / Print... (Cmd-P)
+ Edit -> (all grayed out, Apple requirement, but we could implement cut, copy, paste for slected text?)
+ Platform -> Insatll Package... // Action Power Button / Switch Backlight / Switch Network Card (cmd-2)
+ Window -> Minimize (cmd-M) / Zoom // Bring all to front // Dump ROM... / Monitor (alt cmd-M) // Einstein Platform
+ Help -> Einstein Help (Cmd-?) (dead)
+
+ Toolbar (background is medium gray or light gray if inactive):
+
+ Power / Backlight / Network (PCMCI) / ... / Install Package
+
+ Additions:
+ File -> New, Open, Save, Save As..., Recent List could provide access to many
+            Falsh files, and switching between Flash files and rebooting
+ Platform -> should have buttons for hard and soft reset
+ Help -> should link to some pages, even if it is just GitHub
+ Window -> Dump Rom shou;d probably be called Fetch ROM
+            I would like to support a Toolbox window here as well
+ Clipboard icon into the toolbar? Drag'n'drop of text in general?
+ */
+
 #include <K/Defines/KDefinitions.h>
 #include "TFLApp.h"
 #include "TFLSettings.h"
