@@ -1,0 +1,216 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0400
+header_name {.h}
+code_name {.cpp}
+decl {\#include "TFLApp.h"} {private global
+}
+
+decl {\#include "TFLAppWindow.h"} {public global
+}
+
+Function {CreateApplicationWindow()} {open
+} {
+  Fl_Window wAppWindow {open selected
+    xywh {454 329 320 558} type Double resizable
+    class TFLAppWindow visible
+  } {
+    Fl_Menu_Bar wMenubar {open
+      xywh {0 0 320 24} color 52
+      code0 {o->box(FL_FREE_BOXTYPE);}
+    } {
+      Submenu {} {
+        label File open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label {New...}
+          xywh {0 0 100 20} shortcut 0x40006e deactivate
+        }
+        MenuItem {} {
+          label {Open...}
+          xywh {0 0 100 20} shortcut 0x40006f deactivate divider
+        }
+        MenuItem {} {
+          label Save
+          xywh {0 0 100 20} shortcut 0x400073 deactivate
+        }
+        MenuItem {} {
+          label {Save As...}
+          xywh {0 0 100 20} shortcut 0x410073 deactivate divider
+        }
+        MenuItem {} {
+          label Close
+          xywh {0 0 100 20} shortcut 0x400077 deactivate divider
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate divider
+        }
+        MenuItem {} {
+          label {Page Setup...}
+          xywh {0 0 100 20} shortcut 0x410070 deactivate
+        }
+        MenuItem {} {
+          label {Print...}
+          xywh {0 0 100 20} shortcut 0x400070 deactivate divider
+        }
+        MenuItem {} {
+          label Quit
+          callback {gApp->MenuQuit();}
+          xywh {0 0 100 20} shortcut 0x400071
+        }
+      }
+      Submenu {} {
+        label Edit open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label Cut
+          xywh {0 0 100 20} shortcut 0x400078 deactivate
+        }
+        MenuItem {} {
+          label Copy
+          xywh {0 0 100 20} shortcut 0x400063 deactivate
+        }
+        MenuItem {} {
+          label Paste
+          xywh {0 0 100 20} shortcut 0x400076 deactivate divider
+        }
+        MenuItem {} {
+          label {Preferences...}
+          callback {gApp->MenuShowSettings();}
+          xywh {0 0 100 20} shortcut 0x40002c
+        }
+      }
+      Submenu {} {
+        label Platform open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label {Install Package...}
+          callback {gApp->MenuInstallPackage();}
+          xywh {0 0 100 20} shortcut 0x400069 divider
+        }
+        MenuItem {} {
+          label {Power Button}
+          xywh {0 0 100 20} deactivate
+        }
+        MenuItem {} {
+          label Backlight
+          callback {gApp->MenuToggleBacklight();}
+          xywh {0 0 100 20}
+        }
+        MenuItem {} {
+          label {Network Card}
+          callback {gApp->MenuToggleNetworkCard();}
+          xywh {0 0 100 20} shortcut 0x400032 divider
+        }
+        MenuItem {} {
+          label {Fetch ROM...}
+          xywh {4 4 100 20} deactivate
+        }
+      }
+      Submenu {} {
+        label Window open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label Zoom
+          xywh {0 0 100 20} deactivate
+        }
+        MenuItem {} {
+          label Fullscreen
+          xywh {0 0 100 20} shortcut 0x400066 deactivate divider
+        }
+        MenuItem {} {
+          label Monitor
+          xywh {0 0 100 20} shortcut 0x40006d deactivate
+        }
+        MenuItem {} {
+          label Toolbox
+          xywh {0 0 100 20} shortcut 0x400074 deactivate divider
+        }
+        MenuItem {} {
+          label {Bring All To Front}
+          xywh {0 0 100 20} deactivate
+        }
+      }
+      Submenu {} {
+        label Help open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label {About Einstein...}
+          callback {gApp->MenuAbout();}
+          xywh {0 0 100 20}
+        }
+        MenuItem {} {
+          label {About Newton...}
+          xywh {0 0 100 20} deactivate
+        }
+      }
+    }
+    Fl_Group wToolbox {open
+      xywh {0 24 320 54} box THIN_UP_BOX color 52
+      code0 {o->box(FL_FREE_BOXTYPE);}
+    } {
+      Fl_Button {} {
+        label Power
+        image {../Resources/icons/button_power_on.png} xywh {10 25 36 36} color 52 labelsize 11 align 514
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+      }
+      Fl_Button {} {
+        label Backlight
+        callback {gApp->MenuToggleBacklight();}
+        image {../Resources/icons/button_backlight.png} xywh {55 25 36 36} color 52 labelsize 11 align 514
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+      }
+      Fl_Button {} {
+        label Network
+        callback {gApp->MenuToggleNetworkCard();}
+        image {../Resources/icons/button_network.png} xywh {104 25 36 36} color 52 labelsize 11 align 514
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+      }
+      Fl_Button {} {
+        label {Install Package}
+        callback {gApp->MenuInstallPackage();}
+        image {../Resources/icons/button_install.png} xywh {257 25 36 36} color 52 labelsize 11 align 514
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+      }
+      Fl_Box wSpacer {
+        xywh {184 24 28 54} box THIN_UP_BOX hide resizable
+      }
+      Fl_Button {} {
+        image {../Resources/icons/button_power_on.png} xywh {188 34 14 15} hide
+      }
+      Fl_Button {} {
+        image {../Resources/icons/button_backlight_on.png} xywh {192 34 14 15} hide
+      }
+      Fl_Button {} {
+        image {../Resources/icons/button_network_in.png} xywh {196 39 14 15} hide
+      }
+    }
+    Fl_Box {} {
+      xywh {0 78 320 480} hide resizable
+    }
+  }
+}

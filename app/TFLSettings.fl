@@ -46,7 +46,7 @@ decl {\#include <string.h>} {private local
 decl {\#include <FL/filename.H>} {private local
 }
 
-decl {\#include <FL/fl_file_chooser.H>} {private local
+decl {\#include <FL/Fl_File_Chooser.H>} {selected private local
 }
 
 decl {\#include <FL/Fl_Preferences.H>} {private local
@@ -690,8 +690,7 @@ if (recvd==8*1024*1024) {
 } else {
   fl_message("Invalid ROM size.\\n%d bytes expected, but %d bytes received.", 8*1024*1024, recvd);
 }
-\#endif} {selected
-  }
+\#endif} {}
 }
 
 Function {createROMDownloadProgressWindow()} {open

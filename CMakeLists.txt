@@ -264,8 +264,10 @@ set ( sources
     K/Unicode/UUTF16Conv.cpp
     K/Unicode/UUTF16Conv.h
     K/Unicode/UnicodeDefinitions.h
-#    Monitor/TMacMonitor.h
-#    Monitor/TMacMonitorView.h
+    Monitor/TFLMonitor.cpp
+    Monitor/TFLMonitor.h
+    Monitor/TFLMonitorView.cpp
+    Monitor/TFLMonitorView.h
     Monitor/TMonitor.cpp
     Monitor/TMonitor.h
     Monitor/TMonitorCore.cpp
@@ -294,7 +296,12 @@ set ( sources
 #    app/TCocoaUserDefaults.h
     app/TFLApp.cpp
     app/TFLApp.h
-#    app/TFLSettings.fl
+    app/TFLAppWindow.cpp
+    app/TFLAppWindow.h
+    app/TFLAppUI.cpp
+    app/TFLAppUI.h
+    app/TFLAppUI.fl
+    app/TFLSettings.fl
     app/TFLSettings.cpp
     app/TFLSettings.h
 #    app/TMaemoApp.cpp
@@ -384,7 +391,28 @@ set ( sources
 )
 
 
+macro (build_with_fluid name dir)
+    add_custom_target(${name} DEPENDS ${dir}/${name}.cpp ${dir}/${name}.h)
+    add_custom_command(
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
+        COMMAND ${FLTK_FLUID_EXECUTABLE} -c ${name}.fl
+        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.fl"
+        OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.cpp"
+        OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.h"
+    )
+    list(APPEND fluid_dependencies ${name})
+endmacro()
+
+
 if (APPLE)
+
+	# configure to use FLTK as the GUI
+	set(FLTK_SKIP_OPENGL true)
+    set(FLTK_FLUID_EXECUTABLE /usr/local/bin/fluid)
+	find_package(FLTK REQUIRED NO_MODULE)
+
+    build_with_fluid(TFLAppUI app)
+    build_with_fluid(TFLSettings app)
 
 	# additional source code
 	list (APPEND sources
@@ -422,9 +450,8 @@ if (APPLE)
         ${sources}
         )
 
-	# configure to use FLTK as the GUI
-	set(FLTK_SKIP_OPENGL true)
-	find_package(FLTK REQUIRED NO_MODULE)
+    # add all the source file that Fluid generates for us
+    add_dependencies(Einstein ${fluid_dependencies})
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC -Wall)
@@ -444,6 +471,13 @@ if (APPLE)
 
 elseif (UNIX)
 
+	# configure to use FLTK as the GUI
+	set(FLTK_SKIP_OPENGL true)
+	find_package(FLTK REQUIRED NO_MODULE)
+
+    build_with_fluid(TFLAppUI app)
+    build_with_fluid(TFLSettings app)
+
 	# additional source code
 	list (APPEND sources
 			# calling native functions (very limited support in this version of EInsten)
@@ -460,12 +494,11 @@ elseif (UNIX)
 	# create the application
 	add_executable(Einstein ${sources})
 
-	# configure to use FLTK as the GUI
-	set(FLTK_SKIP_OPENGL true)
-	find_package(FLTK REQUIRED NO_MODULE)
+    # add all the source file that Fluid generates for us
+    add_dependencies(Einstein ${fluid_dependencies})
 
 	# how to compile and link
-	target_compile_options(Einstein PUBLIC -Wall -pedantic -Wno-multichar)
+	target_compile_options(Einstein PUBLIC -Wall -Wno-multichar)
 	target_compile_definitions(Einstein PRIVATE TARGET_OS_LINUX=1)
 	target_link_libraries(Einstein
 			fltk
@@ -473,6 +506,14 @@ elseif (UNIX)
 			)
 
 elseif (WIN32)
+
+	# configure to use FLTK as the GUI
+	set(FLTK_DIR "C:/Program Files/FLTK")
+	set(FLTK_SKIP_OPENGL true)
+	find_package(FLTK REQUIRED NO_MODULE)
+
+    build_with_fluid(TFLAppUI app)
+    build_with_fluid(TFLSettings app)
 
 	# additional source code
 	list (APPEND sources
@@ -499,10 +540,8 @@ elseif (WIN32)
 			${CMAKE_CURRENT_BINARY_DIR}/Einstein.rc
 			)
 
-	# configure to use FLTK as the GUI
-	set(FLTK_DIR "C:/Program Files/FLTK")
-	set(FLTK_SKIP_OPENGL true)
-	find_package(FLTK REQUIRED NO_MODULE)
+    # add all the source file that Fluid generates for us
+    add_dependencies(Einstein ${fluid_dependencies})
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC "/bigobj")
@@ -530,6 +569,13 @@ else()
 endif(APPLE)
 
 
-
 target_include_directories(Einstein PUBLIC ${CMAKE_SOURCE_DIR} ${FLTK_INCLUDE_DIRS})
+
+
+# nice code to output every know variable in this CMake session
+#get_cmake_property(_variableNames VARIABLES)
+#list (SORT _variableNames)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
 

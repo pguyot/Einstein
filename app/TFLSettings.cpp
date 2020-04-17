@@ -45,28 +45,28 @@ me->hide();
 }
 
 void TFLSettings::cb_Install_i(Fl_Menu_*, void*) {
-  app->menuInstallPackage();
+  app->MenuInstallPackage();
 }
 void TFLSettings::cb_Install(Fl_Menu_* o, void* v) {
   ((TFLSettings*)(o->parent()))->cb_Install_i(o,v);
 }
 
 void TFLSettings::cb_Backlight_i(Fl_Menu_*, void*) {
-  app->menuBacklight();
+  app->MenuToggleBacklight();
 }
 void TFLSettings::cb_Backlight(Fl_Menu_* o, void* v) {
   ((TFLSettings*)(o->parent()))->cb_Backlight_i(o,v);
 }
 
 void TFLSettings::cb_Settings_i(Fl_Menu_*, void*) {
-  app->menuShowSettings();
+  app->MenuShowSettings();
 }
 void TFLSettings::cb_Settings(Fl_Menu_* o, void* v) {
   ((TFLSettings*)(o->parent()))->cb_Settings_i(o,v);
 }
 
 void TFLSettings::cb_About_i(Fl_Menu_*, void*) {
-  app->menuAbout();
+  app->MenuAbout();
 }
 void TFLSettings::cb_About(Fl_Menu_* o, void* v) {
   ((TFLSettings*)(o->parent()))->cb_About_i(o,v);

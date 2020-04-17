@@ -48,6 +48,8 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TFLApp.h"
+#include "TFLAppUI.h"
+#include "TFLAppWindow.h"
 #include "TFLSettings.h"
 
 // ANSI C & POSIX
@@ -109,56 +111,7 @@
 // -------------------------------------------------------------------------- //
 
 
-/**
- This is the the window that contain the Newton main screen.
-
- \todo Move this into its own file.
- */
-class Fl_Einstein_Window : public Fl_Window 
-{
-public:
-    Fl_Einstein_Window(int ww, int hh, TFLApp *App, const char *ll=0)
-    :	Fl_Window(ww, hh, ll),
-    app(App)
-    {
-    }
-    Fl_Einstein_Window(int xx, int yy, int ww, int hh, TFLApp *App, const char *ll=0)
-    :	Fl_Window(xx, yy, ww, hh, ll),
-    app(App)
-    {
-    }
-    int handle(int event)
-    {
-        if ( event==FL_PUSH && (
-                                (Fl::event_button()==3) ||
-                                (Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==FL_CTRL)
-            )
-        {
-            const Fl_Menu_Item *choice = TFLSettings::menu_RMB->popup(Fl::event_x(), Fl::event_y());
-            if (choice && choice->callback()) {
-                app->do_callback(choice->callback());
-            }
-            return 1;
-        }
-        switch (event) {
-            case FL_ENTER:
-                if (hideMouse_)
-                    fl_cursor(FL_CURSOR_NONE);
-                break;
-            case FL_LEAVE:
-                fl_cursor(FL_CURSOR_DEFAULT);
-                break;
-        }
-        return Fl_Window::handle(event);
-    }
-    void hideMouse() {
-        fl_cursor(FL_CURSOR_NONE);
-        hideMouse_ = 1;
-    }
-private:
-    TFLApp	*app = nullptr;
-    int		hideMouse_ = 0;
-};
+TFLApp *gApp = nullptr;
 
 
 /**
@@ -182,6 +135,14 @@ TFLApp::~TFLApp( void )
 }
 
 
+static void draw_ramp(int x, int y, int w, int h, Fl_Color c) {
+    for (int i=y; i<y+h; i++) {
+        fl_color(fl_color_average(FL_BACKGROUND_COLOR, c, i/100.0));
+        //fl_rectf(x, y, w, h, Fl::box_color(c));
+        fl_xyline(x, i, x+w);
+    }
+}
+
 /**
  Run EInstein.
 
@@ -196,6 +157,8 @@ TFLApp::Run( int argc, char* argv[] )
     Fl::args(1, argv);
     Fl::get_system_colors();
     Fl::use_high_res_GL(1);
+    Fl::set_boxtype(FL_FREE_BOXTYPE, draw_ramp, 0, 0, 0, 0);
+    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+1), draw_ramp, 0, 0, 0, 0);
 
     mFLSettingsDialog = new TFLSettings(425, 392, "Einstein Platform Settings");
 #if TARGET_OS_WIN32
@@ -249,18 +212,20 @@ TFLApp::Run( int argc, char* argv[] )
     (void) ::printf( "Welcome to Einstein console.\n" );
     (void) ::printf( "This is %s.\n", VERSION_STRING );
 
-    Fl_Einstein_Window *win;
     Fl_Group::current(nullptr);
-    if (fullscreen) {
-        win = new Fl_Einstein_Window(xx, yy, portraitWidth, portraitHeight, this);
-        win->border(0);
-    } else {
-        win = new Fl_Einstein_Window(portraitWidth, portraitHeight, this, "Einstein");
-    }
+    TFLAppWindow *win = CreateApplicationWindow();
+    win->SetApp( this );
+    win->size(portraitWidth, portraitHeight + wToolbox->y() + wToolbox->h());
+    win->resizable(nullptr);
 #if TARGET_OS_WIN32
     win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #endif
     win->callback(quit_cb, this);
+    win->begin();
+    TFLScreenManager *flScreenManager = new TFLScreenManager(this, mLog, portraitWidth, portraitHeight, false, false);
+    mScreenManager = flScreenManager;
+    flScreenManager->GetWidget()->position(wToolbox->x(), wToolbox->y()+wToolbox->h());
+    win->end();
 
 #if TARGET_OS_WIN32
     mSoundManager = new TWaveSoundManager( mLog );
@@ -273,13 +238,6 @@ TFLApp::Run( int argc, char* argv[] )
 #endif
 
     mNetworkManager = new TNullNetworkManager(mLog);
-    if (theScreenManagerClass == nil)
-    {
-        //CreateScreenManager( "FL", portraitWidth, portraitHeight, fullscreen );
-        CreateScreenManager( "FL", portraitWidth, portraitHeight, 0 );
-    } else {
-        CreateScreenManager( theScreenManagerClass, portraitWidth, portraitHeight, fullscreen );
-    }
     if (theMachineString == nil)
     {
         theMachineString = defaultMachineString;
@@ -394,7 +352,7 @@ TFLApp::Run( int argc, char* argv[] )
     Fl::lock();
     win->show(1, argv);
     if (hidemouse) {
-        win->hideMouse();
+        win->HideMousePointer();
     }
 
     // launch the actual emulation in the background
@@ -508,9 +466,7 @@ void TFLApp::CreateScreenManager(
  */
 void TFLApp::quit_cb(Fl_Widget *, void *p) 
 {
-    TFLApp *my = (TFLApp*)p;
-    //	my->mPlatformManager->PowerOff();
-    my->mPlatformManager->SendPowerSwitchEvent();
+    gApp->MenuQuit();
 }
 
 
@@ -524,7 +480,27 @@ void TFLApp::do_callback(Fl_Callback *cb, void *user)
 
 
 /**
+ User wants to quit the emulator and leave the app.
+
+ */
+void TFLApp::MenuQuit()
+{
+    mPlatformManager->SendPowerSwitchEvent();
+}
+
+
+/**
+ User wants us to slide the network card in or out
+ */
+void TFLApp::MenuToggleNetworkCard()
+{
+    mPlatformManager->SendNetworkCardEvent();
+}
+
+
+/**
  User wants us to toggle the power switch.
+ \fixme This is currently the same as Menu Quit
  */
 void TFLApp::menuPower()
 {
@@ -535,7 +511,7 @@ void TFLApp::menuPower()
 /**
  User wants us to toggle the backlight.
  */
-void TFLApp::menuBacklight()
+void TFLApp::MenuToggleBacklight()
 {
     mPlatformManager->SendBacklightEvent();
 }
@@ -600,7 +576,7 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
 
  \todo Use the system native file chooser!
  */
-void TFLApp::menuInstallPackage()
+void TFLApp::MenuInstallPackage()
 {
     static char *filename = 0L;
     const char *newname = fl_file_chooser("Install Package...", "Package (*.pkg)", filename);
@@ -624,7 +600,7 @@ void TFLApp::menuInstallPackage()
  to give the user complete information on teh project. We should also provide version
  information for teh REx and maybe otehr interfaces.
  */
-void TFLApp::menuAbout()
+void TFLApp::MenuAbout()
 {
     static Fl_Window *flAbout = 0L;
     if (!flAbout)
@@ -636,7 +612,7 @@ void TFLApp::menuAbout()
 /**
  User wants to see the setting window.
  */
-void TFLApp::menuShowSettings() 
+void TFLApp::MenuShowSettings() 
 {
     mFLSettingsDialog->show();
 }
@@ -670,6 +646,15 @@ void TFLApp::menuDownloadROM()
 }
 
 
+void TFLApp::PopupContextMenu()
+{
+    const Fl_Menu_Item *choice = TFLSettings::menu_RMB->popup(Fl::event_x(), Fl::event_y());
+    if (choice && choice->callback()) {
+        do_callback(choice->callback());
+    }
+}
+
+
 /**
  This is the first function that is called on all platforms.
 
@@ -680,6 +665,7 @@ void TFLApp::menuDownloadROM()
 int main(int argc, char** argv )
 {
     TFLApp theApp;
+    gApp = &theApp;
     theApp.Run( argc, argv );
     return 0;
 }

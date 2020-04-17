@@ -166,9 +166,9 @@ void TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, const std::string& i
  */
 TJITGenericPatchObject::TJITGenericPatchObject(KUInt32 addr, const char *name)
 :	mIndex(AddToManager()),
-	mOriginalInstruction(0xFFFFFFFF),
-	mName(name),
-    mAddress(addr)
+    mAddress(addr),
+    mOriginalInstruction(0xFFFFFFFF),
+	mName(name)
 {
 //    fprintf(stderr, "Adding ROM patch: %s\n", name);
 }

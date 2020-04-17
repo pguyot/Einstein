@@ -29,6 +29,7 @@
 
 class Fl_Newton_Screen_Widget;
 class TFLApp;
+class Fl_Widget;
 
 ///
 /// Class for a screen manager using FLTK.
@@ -143,6 +144,8 @@ public:
 	/// Thread loop entry point.
 	///
 	void	Run( void );
+
+    Fl_Widget *GetWidget();
 
 private:
 	///

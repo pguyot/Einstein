@@ -535,6 +535,10 @@ TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 	mWidget->redraw();
 }
 
+Fl_Widget *TFLScreenManager::GetWidget()
+{
+    return mWidget;
+}
 
 // ========================================================================= //
 // The most likely way for the world to be destroyed, most experts agree, is 

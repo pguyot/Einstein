@@ -42,7 +42,11 @@ class TMonitor;
 class TSymbolList;
 
 class Fl_Widget;
+class TFLApp;
 class TFLSettings;
+
+
+extern TFLApp *gApp;
 
 
 /**
@@ -63,23 +67,29 @@ public:
     // User selected something from the menu
 	void do_callback(Fl_Callback *cb, void *user=0L);
 
+    // user wants to quit the emulator
+    void MenuQuit();
+
     // user pull power switch
 	void menuPower();
 
     // user toggles backlight
-	void menuBacklight();
+    void MenuToggleBacklight();
+
+    // user toggles network card
+    void MenuToggleNetworkCard();
 
     // install a package
     void InstallPackagesFromURI(const char *filenames);
 
     // user wants to install a package
-    void menuInstallPackage();
+    void MenuInstallPackage();
 
     // user wants to see the About window
-	void menuAbout();
+	void MenuAbout();
 
     // user wants to see the Setting window
-	void menuShowSettings();
+	void MenuShowSettings();
 
     // user wants to download a ROM file from a physical device
 	void menuDownloadROM();
@@ -92,6 +102,9 @@ public:
 
     // no assignment constructor
     TFLApp& operator = ( const TFLApp& inCopy ) = delete;
+
+    // react to a right-click on the main screen
+    void PopupContextMenu();
 
 private:
 
