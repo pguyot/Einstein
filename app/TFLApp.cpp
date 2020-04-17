@@ -546,12 +546,13 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
         // on some platforms, the filename starts with "file://" or other prefixes, so remove them
         char *prefix = fn;
         for (;;) {
-            KUInt8 p = *prefix++;
+            KUInt8 p = *prefix;
             if (p==0 || p>=0x80 || (!isalnum(p) && p!='_')) {
                 if (strncmp(prefix, "://", 3)==0)
                     fn = prefix + 3;
                 break;
             }
+            prefix++;
         }
 
         // install the package
