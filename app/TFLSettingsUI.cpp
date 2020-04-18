@@ -970,7 +970,6 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
       o->box(FL_GTK_DOWN_BOX);
       o->labelsize(11);
       o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-      o->deactivate();
       { Fl_Box* o = new Fl_Box(229, 251, 55, 20, "RAM Size");
         o->labelsize(11);
         o->align(Fl_Align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE));
@@ -995,9 +994,9 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
       } // Fl_Box* wRAMSizeKBLabel
       { wRAMSize = new Fl_Slider(229, 276, 180, 20);
         wRAMSize->type(1);
-        wRAMSize->minimum(1);
-        wRAMSize->maximum(255);
-        wRAMSize->step(1);
+        wRAMSize->minimum(16);
+        wRAMSize->maximum(240);
+        wRAMSize->step(16);
         wRAMSize->value(64);
         wRAMSize->callback((Fl_Callback*)cb_wRAMSize);
       } // Fl_Slider* wRAMSize
@@ -1125,7 +1124,7 @@ Fl_Double_Window* TFLSettingsUI::createAboutDialog() {
     { Fl_Box* o = new Fl_Box(32, 80, 190, 25, "Einstein");
       o->labelfont(1);
     } // Fl_Box* o
-    { Fl_Box* o = new Fl_Box(32, 105, 190, 20, "Version 2020.3.1");
+    { Fl_Box* o = new Fl_Box(32, 105, 190, 20, "Version 2020.3.4");
       o->labelsize(11);
     } // Fl_Box* o
     { Fl_Button* o = new Fl_Button(190, 135, 55, 20, "Close");

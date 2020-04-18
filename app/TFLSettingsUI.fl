@@ -79,7 +79,7 @@ mSettingsPanel = CreateSettingsPanel();} {}
   } {
     Fl_Window {} {
       label {Einstein Settings} open
-      xywh {547 234 425 392} type Double visible
+      xywh {547 233 425 392} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu} open
@@ -217,7 +217,7 @@ if (path) {
           xywh {119 246 80 20} type Int labelsize 12 textsize 12
         }
         Fl_Check_Button wFullScreen {
-          label {Full screen} selected
+          label {Full screen}
           xywh {24 271 175 20} down_box DOWN_BOX labelsize 12 deactivate
         }
         Fl_Check_Button wHideMouse {
@@ -230,8 +230,8 @@ if (path) {
         }
       }
       Fl_Group {} {
-        label {  Memory}
-        xywh {219 236 200 100} box GTK_DOWN_BOX labelsize 11 align 5 deactivate
+        label {  Memory} open
+        xywh {219 236 200 100} box GTK_DOWN_BOX labelsize 11 align 5
       } {
         Fl_Box {} {
           label {RAM Size}
@@ -254,8 +254,8 @@ if (path) {
           xywh {349 251 20 20} labelsize 11 align 20 hide
         }
         Fl_Slider wRAMSize {
-          callback {updateRAMSizeLabel();}
-          xywh {229 276 180 20} type Horizontal minimum 1 maximum 255 step 1 value 64
+          callback {updateRAMSizeLabel();} selected
+          xywh {229 276 180 20} type Horizontal minimum 16 maximum 240 step 16 value 64
         }
       }
       Fl_Check_Button wDontShow {
@@ -374,7 +374,7 @@ win->hide();} {}
     Fl_Window wAbout {
       user_data wAbout
       callback {o->hide();} open
-      xywh {554 314 254 166} type Double modal visible
+      xywh {482 262 254 166} type Double modal visible
     } {
       Fl_Box {} {
         image {../Resources/icons/EinsteinApp64.png} xywh {92 5 69 75}
@@ -384,7 +384,7 @@ win->hide();} {}
         xywh {32 80 190 25} labelfont 1
       }
       Fl_Box {} {
-        label {Version 2020.3.1}
+        label {Version 2020.3.4}
         xywh {32 105 190 20} labelsize 11
       }
       Fl_Button {} {

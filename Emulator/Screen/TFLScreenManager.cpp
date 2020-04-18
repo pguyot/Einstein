@@ -101,6 +101,8 @@ static const struct {unsigned short vk, fltk;} vktab[] = {
 ///
 class Fl_Newton_Screen_Widget : public Fl_Box
 {
+    typedef Fl_Box      super;
+
 	unsigned char		*rgbData_;
     TFLScreenManager    *screenManager_;
     TFLApp              *mApp = nullptr;
@@ -138,7 +140,7 @@ public:
 		return rgbHeight_;
 	}
 
-	void draw() 
+	void draw() override
 	{
 		// FIXME draw borders if the widget is larger than our bitmap
 		// FIXME enable clipping if the widget is smaller
@@ -226,7 +228,7 @@ public:
 		((Fl_Newton_Screen_Widget*)me)->penDownTimer();
 	}
 
-	int handle(int event) 
+	int handle(int event) override
 	{
 		switch (event) {
 			case FL_PUSH:
@@ -243,6 +245,12 @@ public:
 				penIsDown = false;
 				return 1;
 			case FL_KEYDOWN:
+                // let Shift-Command key combinations through
+                if ( (Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==(FL_COMMAND|FL_SHIFT))
+                    return 0;
+                // allow for Command-Q to quit the app which is not used in NewtonOS AFAIK.
+                if ( ((Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==FL_COMMAND) && (Fl::event_key()=='q') )
+                    return 0;
 #if TARGET_OS_MAC
                 // FLTK on MacOS sends only one keystroke down when the capslock is typed
                 // and a key_up event when it is typed again
@@ -255,6 +263,12 @@ public:
                 screenManager_->KeyDown(eventKeyToMac());
 				return 1;
 			case FL_KEYUP:
+                // let Shift-Command key combinations through
+                if ( (Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==(FL_COMMAND|FL_SHIFT))
+                    return 0;
+                // allow for Command-Q to quit the app which is not used in NewtonOS AFAIK.
+                if ( ((Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==FL_COMMAND) && (Fl::event_key()=='q') )
+                    return 0;
 #if TARGET_OS_MAC
                 if (Fl::event_key()==65509) {
                     screenManager_->KeyDown(eventKeyToMac());
@@ -279,20 +293,31 @@ public:
 		return Fl_Box::handle(event);
 	}
 
-	void newRGBSize(int w, int h)
-	{
-		// FIXME bad interface!
-		if (w*h != rgbWidth_*rgbHeight_) {
-			free(rgbData_);
-			rgbData_ = (unsigned char*)calloc(w*h, 3);
-		} else {
-			memset(rgbData_, 0, w*h*3);
-		}
-		rgbWidth_ = w;
-		rgbHeight_ = h;
-		window()->size(w, h);
-		size(w, h);
-	}
+    /**
+     Someone has resized this widget.
+
+     This is a rather uncommon event because NewtonOS does not support resizing.
+     One reason could be rotating the screen, so we let the system rotate and be fine.
+     If there is an actual change in the number of pixels, we must either resize the screen buffer to
+     hold more or less pixels, or we must scale the screen buffer to the widget, or we must crop
+     or frame the original image.
+
+     Also, things are different in fullscreen mode!
+     */
+    void resize(int x, int y, int w, int h) override
+    {
+        // TODO: see comment for strategies when resizing.
+        if (w*h != rgbWidth_*rgbHeight_) {
+            free(rgbData_);
+            rgbData_ = (unsigned char*)calloc(w*h, 3);
+        } else {
+            memset(rgbData_, 0, w*h*3);
+        }
+        rgbWidth_ = w;
+        rgbHeight_ = h;
+        // TODO: the code above is some minimal version of what should be done.
+        super::resize(x, y, w, h);
+    }
 
     void PowerOn()
     {
@@ -449,8 +474,17 @@ TFLScreenManager::ContrastChanged( KUInt32 )
 void
 TFLScreenManager::ScreenOrientationChanged( EOrientation inNewOrientation )
 {
-	printf("New orientation %d is %dx%d\n", inNewOrientation, GetScreenWidth(), GetScreenHeight());
-	mWidget->newRGBSize(GetScreenWidth(), GetScreenHeight());
+    Fl::awake(
+              [](void *inScreenManager)->void
+    {
+        TFLScreenManager *mgr = (TFLScreenManager*)inScreenManager;
+        mgr->mApp->ResizeFromNewton(mgr->GetScreenWidth(), mgr->GetScreenHeight());
+    },
+              this
+              );
+//    mApp->
+//	printf("New orientation %d is %dx%d\n", inNewOrientation, GetScreenWidth(), GetScreenHeight());
+//	mWidget->newRGBSize(GetScreenWidth(), GetScreenHeight());
 }
 
 // -------------------------------------------------------------------------- //

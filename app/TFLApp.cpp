@@ -151,7 +151,7 @@ TFLApp::Run( int argc, char* argv[] )
 
     mFLSettings = new TFLSettingsUI();
 #if TARGET_OS_WIN32
-    mFLSettingsDialog->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+    mFLSettings->mSettingsPanel->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #endif
     mFLSettings->setApp(this, mProgramName);
     mFLSettings->loadPreferences();
@@ -209,6 +209,7 @@ TFLApp::Run( int argc, char* argv[] )
     win->callback(quit_cb, this);
     win->begin();
     TFLScreenManager *flScreenManager = new TFLScreenManager(this, mLog, portraitWidth, portraitHeight, false, false);
+    mNewtonScreen = flScreenManager->GetWidget();
     mScreenManager = flScreenManager;
     flScreenManager->GetWidget()->position(wToolbox->x(), wToolbox->y()+wToolbox->h());
     win->end();
@@ -292,7 +293,15 @@ TFLApp::Run( int argc, char* argv[] )
                                       TSerialPorts::kNullDriver,
                                       TSerialPorts::kNullDriver,
                                       TSerialPorts::kNullDriver );
+
+    // yes, this is valid C++ code; it tells the emulator to call us so we can FLTK to
+    // call us again later from the main thread which then closes all windows, terminating
+    // the main application loop which then terminates the thread that called us to begin with.
+    // Or a sMony says: "Would That It Were So Simple"
+    mEmulator->CallOnQuit([](){Fl::awake([](void*){gApp->UserActionQuit();});});
+
 #if 0
+    // TODO: save the serial port setting in a save place
     TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
     if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
     {
@@ -696,6 +705,21 @@ void TFLApp::UserActionPopupMenu()
 {
     mFLSettings->HandlePopupMenu();
 }
+
+
+void TFLApp::ResizeFromNewton(int w, int h)
+{
+    if (mNewtonScreen->w()==w && mNewtonScreen->h()==h)
+        return;
+    Fl::lock();
+    wAppWindow->resizable(mNewtonScreen);
+    int dw = w - mNewtonScreen->w();
+    int dh = h - mNewtonScreen->h();
+    wAppWindow->size( wAppWindow->w() + dw, wAppWindow->h() + dh );
+    wAppWindow->resizable(nullptr);
+    Fl::unlock();
+}
+
 
 
 /**

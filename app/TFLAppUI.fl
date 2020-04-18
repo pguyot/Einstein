@@ -24,23 +24,23 @@ Function {CreateApplicationWindow()} {open
       } {
         MenuItem {} {
           label {New...}
-          xywh {0 0 100 20} shortcut 0x40006e deactivate
+          xywh {0 0 100 20} shortcut 0x41006e deactivate
         }
         MenuItem {} {
           label {Open...}
-          xywh {0 0 100 20} shortcut 0x40006f deactivate divider
+          xywh {0 0 100 20} shortcut 0x41006f deactivate divider
         }
         MenuItem {} {
           label Save
-          xywh {0 0 100 20} shortcut 0x400073 deactivate
+          xywh {0 0 100 20} shortcut 0x410073 deactivate
         }
         MenuItem {} {
           label {Save As...}
-          xywh {0 0 100 20} shortcut 0x410073 deactivate divider
+          xywh {0 0 100 20} deactivate divider
         }
         MenuItem {} {
           label Close
-          xywh {0 0 100 20} shortcut 0x400077 deactivate divider
+          xywh {0 0 100 20} shortcut 0x410077 deactivate divider
         }
         MenuItem {} {
           xywh {0 0 100 20} hide deactivate
@@ -59,11 +59,11 @@ Function {CreateApplicationWindow()} {open
         }
         MenuItem {} {
           label {Page Setup...}
-          xywh {0 0 100 20} shortcut 0x410070 deactivate
+          xywh {0 0 100 20} deactivate
         }
         MenuItem {} {
           label {Print...}
-          xywh {0 0 100 20} shortcut 0x400070 deactivate divider
+          xywh {0 0 100 20} shortcut 0x410070 deactivate divider
         }
         MenuItem {} {
           label Quit
@@ -77,15 +77,15 @@ Function {CreateApplicationWindow()} {open
       } {
         MenuItem {} {
           label Cut
-          xywh {0 0 100 20} shortcut 0x400078 deactivate
+          xywh {0 0 100 20} shortcut 0x410078 deactivate
         }
         MenuItem {} {
           label Copy
-          xywh {0 0 100 20} shortcut 0x400063 deactivate
+          xywh {0 0 100 20} shortcut 0x410063 deactivate
         }
         MenuItem {} {
           label Paste
-          xywh {0 0 100 20} shortcut 0x400076 deactivate divider
+          xywh {0 0 100 20} shortcut 0x410076 deactivate divider
         }
       }
       Submenu {} {
@@ -95,7 +95,7 @@ Function {CreateApplicationWindow()} {open
         MenuItem {} {
           label {Install Package...}
           callback {gApp->UserActionInstallPackage();}
-          xywh {0 0 100 20} shortcut 0x400069 divider
+          xywh {0 0 100 20} shortcut 0x410069 divider
         }
         MenuItem {} {
           label {Power Button}
@@ -110,7 +110,7 @@ Function {CreateApplicationWindow()} {open
         MenuItem {} {
           label {Network Card}
           callback {gApp->UserActionToggleNetworkCard();}
-          xywh {0 0 100 20} shortcut 0x400032 divider
+          xywh {0 0 100 20} divider
         }
         MenuItem {} {
           label {Fetch ROM...}
@@ -119,7 +119,7 @@ Function {CreateApplicationWindow()} {open
         MenuItem {} {
           label {Settings...}
           callback {gApp->UserActionShowSettingsPanel();}
-          xywh {4 4 100 20} shortcut 0x40002c
+          xywh {4 4 100 20}
         }
       }
       Submenu {} {
@@ -132,15 +132,15 @@ Function {CreateApplicationWindow()} {open
         }
         MenuItem {} {
           label Fullscreen
-          xywh {0 0 100 20} shortcut 0x400066 deactivate divider
+          xywh {0 0 100 20} shortcut 0x410066 deactivate divider
         }
         MenuItem {} {
           label Monitor
-          xywh {0 0 100 20} shortcut 0x40006d deactivate
+          xywh {0 0 100 20} shortcut 0x41006d deactivate
         }
         MenuItem {} {
           label Toolbox
-          xywh {0 0 100 20} shortcut 0x400074 deactivate divider
+          xywh {0 0 100 20} shortcut 0x410074 deactivate divider
         }
         MenuItem {} {
           label {Bring All To Front}
@@ -165,7 +165,7 @@ Function {CreateApplicationWindow()} {open
         }
         MenuItem {} {
           label {About Einstein...}
-          callback {gApp->UserActionShowAboutPanel();}
+          callback {gApp->UserActionShowAboutPanel();} selected
           xywh {0 0 100 20}
         }
       }
@@ -212,7 +212,7 @@ Function {CreateApplicationWindow()} {open
       }
       Fl_Button {} {
         label {Install Package}
-        callback {gApp->UserActionInstallPackage();} selected
+        callback {gApp->UserActionInstallPackage();}
         image {../Resources/icons/button_install.png} xywh {257 25 36 36} color 52 labelsize 11 align 514
         code0 {o->box(FL_FREE_BOXTYPE);}
         code1 {o->down_box(FL_FREE_BOXTYPE);}

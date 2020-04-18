@@ -109,6 +109,9 @@ public:
     // react to a right-click on the main screen
     void UserActionPopupMenu();
 
+    // Newton OS needs a new screen size (usually by rotating the screen)
+    void ResizeFromNewton(int w, int h);
+
 private:
 
     // create the driver for our screen output
@@ -139,6 +142,7 @@ private:
     TMonitor*			mMonitor = nullptr;
     TSymbolList*		mSymbolList = nullptr;
     TFLSettings*        mFLSettings = nullptr;
+    Fl_Widget*          mNewtonScreen = nullptr;
 };
 
 #endif
