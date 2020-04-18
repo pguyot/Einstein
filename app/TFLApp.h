@@ -64,9 +64,6 @@ public:
     // Launch the app.
 	void Run( int argc, char* argv[] );
 
-    // User selected something from the menu
-	void do_callback(Fl_Callback *cb, void *user=0L);
-
     // user wants to quit the emulator
     void UserActionQuit();
 
@@ -141,7 +138,7 @@ private:
     TLog*				mLog = nullptr;
     TMonitor*			mMonitor = nullptr;
     TSymbolList*		mSymbolList = nullptr;
-    TFLSettings*        mFLSettingsDialog = nullptr;
+    TFLSettings*        mFLSettings = nullptr;
 };
 
 #endif

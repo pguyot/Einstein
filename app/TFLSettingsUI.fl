@@ -1,0 +1,632 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0400
+use_FL_COMMAND
+header_name {.h}
+code_name {.cpp}
+comment {// ==============================
+// File:			TFLSettings
+// Project:			Einstein
+//
+// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// ==============================
+// $Id$
+// ==============================
+} {in_source in_header
+}
+
+decl {class TFLApp;} {public global
+}
+
+decl {\#include "TFLSettings.h"} {public global
+}
+
+decl {\#include "TFLApp.h"} {private local
+}
+
+declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
+} {
+  decl {\#include "winsock2.h"} {private local
+  }
+}
+
+decl {\#include <string.h>} {private local
+}
+
+decl {\#include <FL/filename.H>} {private local
+}
+
+decl {\#include <FL/Fl_File_Chooser.H>} {private local
+}
+
+decl {\#include <FL/Fl.H>} {private local
+}
+
+decl {Fl_Window *wProgressWindow = 0L;} {private local
+}
+
+decl {FILE *fROM;} {private local
+}
+
+decl {FL_SOCKET sData;} {private local
+}
+
+decl {int recvd;} {private local
+}
+
+class TFLSettingsUI {open : {public TFLSettings}
+} {
+  Function {TFLSettingsUI()} {open
+  } {
+    code {// create the setting dialog so we have it available for the user
+mSettingsPanel = CreateSettingsPanel();} {}
+  }
+  Function {CreateSettingsPanel()} {
+    comment override open
+  } {
+    Fl_Window {} {
+      label {Einstein Settings} open
+      xywh {547 234 425 392} type Double visible
+    } {
+      Fl_Menu_Button RMB {
+        label {RMB Menu} open
+        xywh {4 1 10 10} labelsize 12 hide deactivate
+      } {
+        MenuItem {} {
+          label {Install Package...}
+          callback {app->UserActionInstallPackage();}
+          xywh {12 12 100 20} labelsize 12
+        }
+        MenuItem {} {
+          label Backlight
+          callback {app->UserActionToggleBacklight();}
+          xywh {12 12 100 20} labelsize 12 divider
+        }
+        Submenu {} {
+          label Reset open
+          xywh {12 12 100 20} labelsize 12 hide deactivate
+        } {
+          MenuItem {} {
+            label {Soft Reset}
+            xywh {12 12 100 20} labelsize 12 deactivate
+          }
+          MenuItem {} {
+            label {Deep Reset}
+            xywh {12 12 100 20} labelsize 12 deactivate
+          }
+          MenuItem {} {
+            label {Reset w/o Extensions}
+            xywh {12 12 100 20} labelsize 12 deactivate
+          }
+          MenuItem {} {
+            label {Power Drain Reset}
+            xywh {12 12 100 20} labelsize 12 deactivate
+          }
+          MenuItem {} {
+            label {Hard Reset (Brain Wipe)}
+            xywh {12 12 100 20} labelsize 12 deactivate
+          }
+          MenuItem {} {
+            label {Cold Boot}
+            xywh {12 12 100 20} labelsize 12 deactivate
+          }
+        }
+        MenuItem {} {
+          label {Settings...}
+          callback {app->UserActionShowSettingsPanel();}
+          xywh {12 12 100 20} labelsize 12
+        }
+        MenuItem {} {
+          label {About...}
+          callback {app->UserActionShowAboutPanel();}
+          xywh {12 12 100 20} labelsize 12 divider
+        }
+        MenuItem {} {
+          label Power
+          callback {app->UserActionTogglePower();}
+          xywh {12 12 100 20} labelsize 12
+        }
+      }
+      Fl_Group {} {
+        label {  ROM}
+        xywh {14 31 405 95} box GTK_DOWN_BOX labelsize 11 align 5
+      } {
+        Fl_Box wROMPath {
+          xywh {19 36 395 35} labelfont 1 labelsize 12 align 212
+        }
+        Fl_Button wROMDownload {
+          label {Download...}
+          callback {app->UserActionFetchROM();}
+          xywh {239 71 80 20} labelsize 12 deactivate
+        }
+        Fl_Button wROMPathChoose {
+          label {Choose...}
+          callback {const char *path = fl_file_chooser("Choose ROM file", "*", wROMPath->label());
+if (path) {
+  wROMPath->copy_label(path);
+}}
+          xywh {329 71 80 20} labelsize 12
+        }
+        Fl_Choice wMachineChoice {
+          label {Machine:}
+          callback {char buf[FL_PATH_MAX];
+strcpy(buf, wROMPath->label());
+char *name = (char*)fl_filename_name(buf);
+if (name) {
+  strcpy(name, (char*)o->menu()[o->value()].user_data());
+  wROMPath->copy_label(buf);
+  wROMPath->redraw();
+}} open
+          xywh {284 96 125 20} down_box BORDER_BOX labelsize 12
+        } {
+          MenuItem {} {
+            label {MP2x00 US}
+            user_data {"717006"}
+            xywh {17 17 100 20} labelsize 12
+          }
+          MenuItem {} {
+            label {MP2100 D}
+            user_data {"737041"}
+            xywh {17 17 100 20} labelsize 12
+          }
+          MenuItem {} {
+            label {eMate 300}
+            user_data {"747129"}
+            xywh {17 17 100 20} labelsize 12
+          }
+        }
+      }
+      Fl_Group {} {
+        label {  Internal Flash File}
+        xywh {14 146 405 70} box GTK_DOWN_BOX labelsize 11 align 5
+      } {
+        Fl_Box wFlashPath {
+          xywh {19 151 395 35} labelfont 1 labelsize 12 align 212
+        }
+        Fl_Button wFlashPathChoose {
+          label {Choose...}
+          callback {const char *path = fl_file_chooser("Choose Flash file", "*", wFlashPath->label());
+if (path) {
+  wFlashPath->copy_label(path);
+}}
+          xywh {329 186 80 20} labelsize 12
+        }
+      }
+      Fl_Group {} {
+        label {  Screen}
+        xywh {14 236 200 100} box GTK_DOWN_BOX labelsize 11 align 5
+      } {
+        Fl_Input wWidth {
+          xywh {24 246 80 20} type Int labelsize 12 textsize 12
+        }
+        Fl_Input wHeight {
+          label {x }
+          xywh {119 246 80 20} type Int labelsize 12 textsize 12
+        }
+        Fl_Check_Button wFullScreen {
+          label {Full screen} selected
+          xywh {24 271 175 20} down_box DOWN_BOX labelsize 12 deactivate
+        }
+        Fl_Check_Button wHideMouse {
+          label {Hide mouse pointer}
+          xywh {24 291 175 20} down_box DOWN_BOX labelsize 12
+        }
+        Fl_Check_Button wUseMonitor {
+          label {Debug Terminal}
+          xywh {24 311 175 20} down_box DOWN_BOX labelsize 12 deactivate
+        }
+      }
+      Fl_Group {} {
+        label {  Memory}
+        xywh {219 236 200 100} box GTK_DOWN_BOX labelsize 11 align 5 deactivate
+      } {
+        Fl_Box {} {
+          label {RAM Size}
+          xywh {229 251 55 20} labelsize 11 align 24
+        }
+        Fl_Box wRAMSizeMB {
+          label 4
+          xywh {284 251 18 20} labelsize 11 align 24
+        }
+        Fl_Box {} {
+          label MB
+          xywh {301 251 20 20} labelsize 11 align 20
+        }
+        Fl_Box wRAMSizeKB {
+          label 0
+          xywh {324 251 25 20} labelsize 11 align 24 hide
+        }
+        Fl_Box wRAMSizeKBLabel {
+          label KB
+          xywh {349 251 20 20} labelsize 11 align 20 hide
+        }
+        Fl_Slider wRAMSize {
+          callback {updateRAMSizeLabel();}
+          xywh {229 276 180 20} type Horizontal minimum 1 maximum 255 step 1 value 64
+        }
+      }
+      Fl_Check_Button wDontShow {
+        label {Don't show at startup}
+        xywh {14 351 140 20} down_box DOWN_BOX labelsize 12
+      }
+      Fl_Button wQuit {
+        label Quit
+        callback {exit(0);}
+        xywh {219 356 95 25} color 50 labelsize 12
+      }
+      Fl_Button wStart {
+        label Start
+        callback {applyDialog();
+savePreferences();
+mSettingsPanel->hide();}
+        xywh {324 356 95 25} color 50 labelsize 12
+        code0 {Fl::focus(wStart);}
+      }
+      Fl_Box wRestartWarning {
+        label {Preferences only apply at restart}
+        xywh {14 371 200 20} labelfont 1 labelsize 12 align 20 hide
+      }
+      Fl_Button wRevert {
+        label Revert
+        callback {revertDialog();
+mSettingsPanel->redraw();}
+        xywh {219 356 95 25} color 50 labelsize 12 hide
+      }
+      Fl_Button wSave {
+        label Save
+        callback {applyDialog();
+savePreferences();
+mSettingsPanel->hide();}
+        xywh {324 356 95 25} color 50 labelsize 12 hide
+      }
+    }
+  }
+  Function {revertDialog()} {open return_type void
+  } {
+    code {char buf[32];
+
+wROMPath->copy_label(ROMPath);
+wMachineChoice->value(machine);
+
+wFlashPath->copy_label(FlashPath);
+
+sprintf(buf, "%d", screenWidth);
+wWidth->value(buf);
+sprintf(buf, "%d", screenHeight);
+wHeight->value(buf);
+wFullScreen->value(fullScreen);
+wHideMouse->value(hideMouse);
+wUseMonitor->value(useMonitor);
+
+wRAMSize->value(RAMSize);
+updateRAMSizeLabel();
+
+wDontShow->value(dontShow);} {}
+  }
+  Function {applyDialog()} {open return_type void
+  } {
+    code {free(ROMPath);
+ROMPath = strdup(wROMPath->label());
+machine = wMachineChoice->value();
+SetMachineID(machine);
+
+free(FlashPath);
+FlashPath = strdup(wFlashPath->label());
+
+screenWidth = atoi(wWidth->value());
+screenHeight = atoi(wHeight->value());
+fullScreen = wFullScreen->value();
+hideMouse = wHideMouse->value();
+useMonitor = wUseMonitor->value();
+
+RAMSize = (int)wRAMSize->value();
+
+dontShow = wDontShow->value();} {}
+  }
+  Function {runningMode()} {open return_type void
+  } {
+    code {wRestartWarning->show();
+wQuit->hide();
+wStart->hide();
+wRevert->show();
+wSave->show();} {}
+  }
+  Function {updateRAMSizeLabel()} {private return_type void
+  } {
+    code {char buf[32];
+int ram = (int)(wRAMSize->value());
+int m = ram/16;
+sprintf(buf, "%d", m);
+wRAMSizeMB->copy_label(buf);
+
+int k = (ram*64)%1024;
+sprintf(buf, "%d", k);
+wRAMSizeKB->copy_label(buf);
+
+if (k==0) {
+  wRAMSizeKB->hide();
+  wRAMSizeKBLabel->hide();
+} else {
+  wRAMSizeKB->show();
+  wRAMSizeKBLabel->show();
+}} {}
+  }
+  Function {close_window_cb(Fl_Widget*, void *user)} {private return_type void
+  } {
+    code {Fl_Window *win = (Fl_Window*)user;
+win->hide();} {}
+  }
+  Function {createAboutDialog()} {open
+  } {
+    Fl_Window wAbout {
+      user_data wAbout
+      callback {o->hide();} open
+      xywh {554 314 254 166} type Double modal visible
+    } {
+      Fl_Box {} {
+        image {../Resources/icons/EinsteinApp64.png} xywh {92 5 69 75}
+      }
+      Fl_Box {} {
+        label Einstein
+        xywh {32 80 190 25} labelfont 1
+      }
+      Fl_Box {} {
+        label {Version 2020.3.1}
+        xywh {32 105 190 20} labelsize 11
+      }
+      Fl_Button {} {
+        label Close
+        user_data wAbout
+        callback {o->window()->hide();}
+        xywh {190 135 55 20} labelsize 12
+      }
+    }
+  }
+  Function {createROMDownloadDialog()} {} {
+    Fl_Window wROMDownloadWindow {
+      label {Download ROM via TCP/IP} open
+      xywh {510 467 417 393} type Double modal visible
+    } {
+      Fl_Box {} {
+        label {How to download the Newton ROM using a network connection}
+        xywh {5 5 405 25} labelfont 1 labelsize 12
+      }
+      Fl_Box {} {
+        label {* install ROMDumper.pkg on your Newton
+* tap the ROMDumper icon in your Extras Drawer
+* tap Start
+* if your Newton is not connected to the network yet, choose a
+   connection method
+* copy the IP address and the port number into the form below
+* choose a filename for your new ROM dump
+* click Download}
+        xywh {20 35 370 120} labelsize 11 align 149
+      }
+      Fl_Group {} {
+        label {  TCP/IP Connection}
+        xywh {5 170 405 70} box GTK_DOWN_BOX labelsize 11 align 5
+      } {
+        Fl_Group {} {
+          label {IP Address:} open
+          xywh {160 184 145 20} box DOWN_BOX color 7 labelsize 12 align 4
+        } {
+          Fl_Input wDownloadIP3 {
+            xywh {162 186 28 16} type Int box FLAT_BOX textsize 12
+          }
+          Fl_Input wDownloadIP2 {
+            label {.}
+            xywh {197 186 28 16} type Int box FLAT_BOX textsize 12
+          }
+          Fl_Input wDownloadIP1 {
+            label {.}
+            xywh {232 186 28 16} type Int box FLAT_BOX textsize 12
+          }
+          Fl_Input wDownloadIP0 {
+            label {.}
+            xywh {270 186 28 16} type Int box FLAT_BOX textsize 12
+          }
+        }
+        Fl_Input wDownloadPort {
+          label {Port:}
+          xywh {160 209 80 20} type Int labelsize 12 textsize 12
+        }
+      }
+      Fl_Group {} {
+        label {  ROM File Destination} open
+        xywh {5 260 405 70} box GTK_DOWN_BOX labelsize 11 align 5
+      } {
+        Fl_Box wDownloadPath {
+          xywh {10 265 395 35} labelfont 1 labelsize 12 align 212
+        }
+        Fl_Button wDownloadChoose {
+          label {Choose...}
+          callback {const char *path = fl_file_chooser("Choose ROM file destination", "*", wDownloadPath->label());
+if (path) {
+  wDownloadPath->copy_label(path);
+}
+wProgressSlider->label("Connecting...");
+wProgressSlider->value(0);}
+          xywh {320 300 80 20} labelsize 12
+        }
+      }
+      Fl_Button {} {
+        label Cancel
+        callback {o->window()->hide();}
+        xywh {210 355 95 25} color 50 labelsize 12
+      }
+      Fl_Button {} {
+        label Download
+        callback {if (!wProgressWindow) {
+  wProgressWindow = createROMDownloadProgressWindow();
+}
+wProgressSlider->label("Connecting...");
+wProgressSlider->value(0);
+wProgressWindow->show();
+startDump();}
+        xywh {315 355 95 25} color 50 labelsize 12
+      }
+    }
+  }
+  Function {startDump()} {return_type void
+  } {
+    code {\#if TARGET_OS_WIN32
+sData = INVALID_SOCKET;
+
+// open the file that we will dump the ROM into
+fROM = fopen(wDownloadPath->label(), "rb");
+if (fROM) {
+  fclose(fROM);
+  if (fl_ask("The file\\n%s\\nalready exists.\\nDo you want to erase this file now?", wDownloadPath->label())==0) {
+    wProgressWindow->hide();
+    return;
+  }
+}
+// erase the file now
+fROM = fopen(wDownloadPath->label(), "wb");
+if (!fROM) {
+  fl_alert("The file\\n%s\\ncan not be written. Operation aborted.", wDownloadPath->label());
+  wProgressWindow->hide();
+  return;
+}
+fclose(fROM);
+
+
+Fl::flush();
+// open the WSA socket library
+WORD wVersionRequested;
+WSADATA wsaData;
+int err;
+wVersionRequested = MAKEWORD( 2, 2 );
+err = WSAStartup( wVersionRequested, &wsaData );
+if (err) {
+  fl_alert("Can't start network communications.");
+  wProgressWindow->hide();
+  return;
+}
+// open the socket itself
+sData = socket(AF_INET, SOCK_STREAM, 0);
+if (sData==INVALID_SOCKET) {
+  fl_alert("Can't open network socket.");
+  wProgressWindow->hide();
+  return;
+}
+// read all TCP/IP settings from the dialog
+unsigned char ip3 = atoi(wDownloadIP3->value());
+unsigned char ip2 = atoi(wDownloadIP2->value());
+unsigned char ip1 = atoi(wDownloadIP1->value());
+unsigned char ip0 = atoi(wDownloadIP0->value());
+unsigned short port = atoi(wDownloadPort->value());
+// copy the data into the structures
+struct sockaddr_in host_addr;
+int addr_len = sizeof(host_addr);
+memset(&host_addr, 0, addr_len);
+host_addr.sin_family = AF_INET;
+host_addr.sin_port = htons(port);
+host_addr.sin_addr.s_addr = htonl((ip3<<24)|(ip2<<16)|(ip1<<8)|ip0);
+// now connect the socket to the Newton TCP/IP port
+wProgressCancel->deactivate();
+Fl::flush();
+if (::connect(sData, (struct sockaddr*)&host_addr, addr_len) == SOCKET_ERROR) 
+{
+  fl_alert("Can't connect socket to Newton.\\nDid you start ROMdump?");
+  closesocket(sData);
+  sData = INVALID_SOCKET;
+  wProgressWindow->hide();
+  wProgressCancel->activate();
+  return;
+}
+wProgressCancel->activate();
+// add callbacks that will be called when we receive data and when we lose the connection
+wProgressSlider->label("Downloading...");
+Fl::add_fd(sData, FL_READ, dataReadCB, 0);
+Fl::add_fd(sData, FL_EXCEPT, dataExceptCB, 0);
+fROM = fopen(wDownloadPath->label(), "wb");
+recvd = 0;
+\#endif} {}
+  }
+  Function {dataReadCB(FL_SOCKET p, void *user_data)} {} {
+    code {\#if TARGET_OS_WIN32
+unsigned long n;
+DWORD rcvd;
+int ret = WSAIoctl(sData, FIONREAD, 0, 0, &n, sizeof(n), &rcvd, 0, 0);
+if (ret || n==0) {
+  dataExceptCB(p, user_data);
+  return;
+}
+
+char *buf = (char*)malloc(n);
+int n1 = ::recv(sData, buf, n, 0);
+fwrite(buf, n, 1, fROM);
+free(buf);
+
+recvd += n;
+printf("Received %d/%d (%d)\\n", n, n1, recvd);
+wProgressSlider->value(recvd/1024);
+\#endif} {}
+  }
+  Function {dataExceptCB(FL_SOCKET p, void *user_data)} {} {
+    code {\#if TARGET_OS_WIN32
+if (fROM) {
+  fclose(fROM);
+  fROM = 0L;
+}
+if (sData!=INVALID_SOCKET) {
+  closesocket(sData);
+  Fl::remove_fd(sData);
+  sData = INVALID_SOCKET;  
+}
+wProgressWindow->hide();
+if (recvd==8*1024*1024) {
+  fl_message("Complete ROM received.");
+  wROMDownloadWindow->hide();
+} else {
+  fl_message("Invalid ROM size.\\n%d bytes expected, but %d bytes received.", 8*1024*1024, recvd);
+}
+\#endif} {}
+  }
+  Function {createROMDownloadProgressWindow()} {} {
+    Fl_Window {} {open
+      xywh {565 814 285 111} type Double modal visible
+    } {
+      Fl_Slider wProgressSlider {
+        label {Connecting...}
+        xywh {10 25 265 20} type {Horz Fill} labelsize 12 align 1 maximum 8192
+      }
+      Fl_Button wProgressCancel {
+        label Cancel
+        callback {o->window()->hide();}
+        xywh {180 70 95 25} color 50 labelsize 12
+      }
+    }
+  }
+  Function {HandlePopupMenu()} {
+    comment override open return_type void
+  } {
+    code {const Fl_Menu_Item *choice = TFLSettingsUI::menu_RMB->popup(Fl::event_x(), Fl::event_y());
+if (choice && choice->callback()) {
+    choice->callback_(RMB, choice->user_data_);
+}} {}
+  }
+}
+
+comment {
+// ======================================================== //
+// Of course the code works. It just compiled, didn't it?   //
+// --helixcode123, 11/8/2001 on slashdot.                   //
+// ======================================================== //
+
+} {in_source in_header
+}

@@ -23,19 +23,6 @@
 
 /*
 
- Menubar:
-
- Einstein -> About Einstein / Prefrences... (CMD-,) / Quit (CMD-Q)
- File -> Close (Cmd-W) / Page Setup... (Shift Cmd-P) / Print... (Cmd-P)
- Edit -> (all grayed out, Apple requirement, but we could implement cut, copy, paste for slected text?)
- Platform -> Insatll Package... // Action Power Button / Switch Backlight / Switch Network Card (cmd-2)
- Window -> Minimize (cmd-M) / Zoom // Bring all to front // Dump ROM... / Monitor (alt cmd-M) // Einstein Platform
- Help -> Einstein Help (Cmd-?) (dead)
-
- Toolbar (background is medium gray or light gray if inactive):
-
- Power / Backlight / Network (PCMCI) / ... / Install Package
-
  Additions:
  File -> New, Open, Save, Save As..., Recent List could provide access to many
             Falsh files, and switching between Flash files and rebooting
@@ -44,13 +31,14 @@
  Window -> Dump Rom shou;d probably be called Fetch ROM
             I would like to support a Toolbox window here as well
  Clipboard icon into the toolbar? Drag'n'drop of text in general?
+
  */
 
 #include <K/Defines/KDefinitions.h>
 #include "TFLApp.h"
 #include "TFLAppUI.h"
 #include "TFLAppWindow.h"
-#include "TFLSettings.h"
+#include "TFLSettingsUI.h"
 
 // ANSI C & POSIX
 #include <stdio.h>
@@ -68,6 +56,7 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_File_Chooser.H>
+#include <FL/Fl_Native_File_Chooser.H>
 
 // Einstein
 #include "Emulator/ROM/TROMImage.h"
@@ -160,37 +149,34 @@ TFLApp::Run( int argc, char* argv[] )
     Fl::set_boxtype(FL_FREE_BOXTYPE, draw_ramp, 0, 0, 0, 0);
     Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+1), draw_ramp, 0, 0, 0, 0);
 
-    mFLSettingsDialog = new TFLSettings(425, 392, "Einstein Platform Settings");
+    mFLSettings = new TFLSettingsUI();
 #if TARGET_OS_WIN32
     mFLSettingsDialog->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #endif
-    mFLSettingsDialog->setApp(this, mProgramName);
-    mFLSettingsDialog->loadPreferences();
-    mFLSettingsDialog->revertDialog();
-    Fl::focus(mFLSettingsDialog->wStart);
+    mFLSettings->setApp(this, mProgramName);
+    mFLSettings->loadPreferences();
+    mFLSettings->revertDialog();
 
     //flSettings->dontShow = false;
-    if (!mFLSettingsDialog->dontShow) {
-        mFLSettingsDialog->show(1, argv);
-        while (mFLSettingsDialog->visible())
-            Fl::wait();
+    if (!mFLSettings->dontShow) {
+        mFLSettings->ShowSettingsPanelModal();
+//        mFLSettingsDialog->show(1, argv);
+//        while (mFLSettingsDialog->visible())
+//            Fl::wait();
     }
-    mFLSettingsDialog->runningMode();
-    Fl::focus(mFLSettingsDialog->wSave);
 
     const char* defaultMachineString = "717006";
-    int theMachineID = mFLSettingsDialog->wMachineChoice->value();
-    const Fl_Menu_Item *theMachineMenu = mFLSettingsDialog->wMachineChoice->menu()+theMachineID;
-    const char* theMachineString = strdup((char*)theMachineMenu->user_data());
+    int theMachineID = mFLSettings->machine;
+    const char* theMachineString = strdup(mFLSettings->MachineID);
     const char* theScreenManagerClass = nil;
-    const char *theROMImagePath = strdup(mFLSettingsDialog->ROMPath);
-    const char *theFlashPath = strdup(mFLSettingsDialog->FlashPath);
-    int portraitWidth = mFLSettingsDialog->screenWidth;
-    int portraitHeight = mFLSettingsDialog->screenHeight;
-    int ramSize = mFLSettingsDialog->RAMSize;
-    bool fullscreen = (bool)mFLSettingsDialog->fullScreen;
-    bool hidemouse = (bool)mFLSettingsDialog->hideMouse;
-    bool useMonitor = (bool)mFLSettingsDialog->useMonitor;
+    const char *theROMImagePath = strdup(mFLSettings->ROMPath);
+    const char *theFlashPath = strdup(mFLSettings->FlashPath);
+    int portraitWidth = mFLSettings->screenWidth;
+    int portraitHeight = mFLSettings->screenHeight;
+    int ramSize = mFLSettings->RAMSize;
+    bool fullscreen = (bool)mFLSettings->fullScreen;
+    bool hidemouse = (bool)mFLSettings->hideMouse;
+    bool useMonitor = (bool)mFLSettings->useMonitor;
     int useAIFROMFile = 0;	// 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
 
     int xx, yy, ww, hh;
@@ -471,15 +457,6 @@ void TFLApp::quit_cb(Fl_Widget *, void *p)
 
 
 /**
- User clicked the right mouse button on the emulator screen.
- */
-void TFLApp::do_callback(Fl_Callback *cb, void *user)
-{
-    cb(mFLSettingsDialog->RMB, user);
-}
-
-
-/**
  User wants to quit the emulator and leave the app.
  */
 void TFLApp::UserActionQuit()
@@ -638,16 +615,26 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
 void TFLApp::UserActionInstallPackage()
 {
     static char *filename = 0L;
-    const char *newname = fl_file_chooser("Install Package...", "Package (*.pkg)", filename);
-    if (newname) {
-        if (!filename)
-            filename = (char*)calloc(FL_PATH_MAX, 1);
-        strncpy(filename, newname, FL_PATH_MAX);
-        filename[FL_PATH_MAX] = 0;
-        // TODO: do we want to allow multiple files?
-        // TODO: is it utf8 or URI format?
-        // TODO: again, what about backslashes?
-        mPlatformManager->InstallPackage(filename);
+
+    const char *newname = nullptr;
+    Fl_Native_File_Chooser fnfc;
+    fnfc.title("Install Package...");
+    fnfc.type(Fl_Native_File_Chooser::BROWSE_MULTI_FILE);
+    fnfc.filter("Package\t*.pkg"); // "Compressed Package\t*.{sit,sae,hqx,zip,sit.hqx,hqx.sit}");
+    //fnfc.directory("/var/tmp");   // FIXME: save this in the preferences
+    switch ( fnfc.show() ) {
+        case -1: return; // Error text is in fnfc.errmsg()
+        case  1: return; // user canceled
+    }
+    for (int i=0; i<fnfc.count(); i++) {
+        newname = fnfc.filename(i);
+        if (newname && *newname) {
+            if (!filename)
+                filename = (char*)calloc(FL_PATH_MAX, 1);
+            strncpy(filename, newname, FL_PATH_MAX);
+            filename[FL_PATH_MAX] = 0;
+            mPlatformManager->InstallPackage(filename);
+        }
     }
 }
 
@@ -661,10 +648,7 @@ void TFLApp::UserActionInstallPackage()
  */
 void TFLApp::UserActionShowAboutPanel()
 {
-    static Fl_Window *flAbout = 0L;
-    if (!flAbout)
-        flAbout = createAboutDialog();
-    flAbout->show();
+    mFLSettings->ShowAboutDialog();
 }
 
 
@@ -673,7 +657,7 @@ void TFLApp::UserActionShowAboutPanel()
  */
 void TFLApp::UserActionShowSettingsPanel() 
 {
-    mFLSettingsDialog->show();
+    mFLSettings->ShowSettingsPanel();
 }
 
 
@@ -688,6 +672,8 @@ void TFLApp::UserActionShowSettingsPanel()
  */
 void TFLApp::UserActionFetchROM()
 {
+    // not yet implemented
+#if 0
     static Fl_Window *downloadDialog = 0L;
     if (!downloadDialog) {
         downloadDialog = createROMDownloadDialog();
@@ -702,15 +688,13 @@ void TFLApp::UserActionFetchROM()
         wDownloadPath->copy_label(path);
     }
     downloadDialog->show();
+#endif
 }
 
 
 void TFLApp::UserActionPopupMenu()
 {
-    const Fl_Menu_Item *choice = TFLSettings::menu_RMB->popup(Fl::event_x(), Fl::event_y());
-    if (choice && choice->callback()) {
-        do_callback(choice->callback());
-    }
+    mFLSettings->HandlePopupMenu();
 }
 
 
