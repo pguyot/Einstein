@@ -80,12 +80,12 @@ me->hide();} open
   } {
     MenuItem {} {
       label {Install Package...}
-      callback {app->menuInstallPackage();}
+      callback {app->MenuInstallPackage();}
       xywh {0 0 100 20} labelsize 12
     }
     MenuItem {} {
       label Backlight
-      callback {app->menuBacklight();}
+      callback {app->MenuToggleBacklight();}
       xywh {0 0 100 20} labelsize 12 divider
     }
     Submenu {} {
@@ -119,12 +119,12 @@ me->hide();} open
     }
     MenuItem {} {
       label {Settings...}
-      callback {app->menuShowSettings();}
+      callback {app->MenuShowSettings();}
       xywh {0 0 100 20} labelsize 12
     }
     MenuItem {} {
       label {About...}
-      callback {app->menuAbout();}
+      callback {app->MenuAbout();}
       xywh {0 0 100 20} labelsize 12 divider
     }
     MenuItem {} {

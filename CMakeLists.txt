@@ -509,6 +509,7 @@ elseif (WIN32)
 
 	# configure to use FLTK as the GUI
 	set(FLTK_DIR "C:/Program Files/FLTK")
+    set(FLTK_FLUID_EXECUTABLE "C:/Program Files/FLTK/bin/fluid.exe")
 	set(FLTK_SKIP_OPENGL true)
 	find_package(FLTK REQUIRED NO_MODULE)
 
