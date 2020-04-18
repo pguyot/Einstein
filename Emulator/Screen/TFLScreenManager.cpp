@@ -101,11 +101,14 @@ static const struct {unsigned short vk, fltk;} vktab[] = {
 ///
 class Fl_Newton_Screen_Widget : public Fl_Box
 {
+    typedef Fl_Box      super;
+
 	unsigned char		*rgbData_;
     TFLScreenManager    *screenManager_;
     TFLApp              *mApp = nullptr;
 	int					rgbWidth_, rgbHeight_;
 	int					penX, penY, penIsDown;
+    bool                mPowerState = false;
 
 public:
 	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char *l, TFLScreenManager *s, TFLApp *inApp)
@@ -115,6 +118,8 @@ public:
         mApp(inApp),
 		penX(0), penY(0), penIsDown(0)
 	{
+        box(FL_FLAT_BOX);
+        color(FL_BLACK);
 		rgbWidth_ = w;
 		rgbHeight_ = h;
 		rgbData_ = (unsigned char*)calloc(w*h, 3);
@@ -135,14 +140,25 @@ public:
 		return rgbHeight_;
 	}
 
-	void draw() 
+	void draw() override
 	{
 		// FIXME draw borders if the widget is larger than our bitmap
 		// FIXME enable clipping if the widget is smaller
 		// FIXME center the bitmap if it is smaller
-		fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_);
-		draw_label();
-	}
+        if (mPowerState) {
+#if 1
+            fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_);
+#else
+            // This actually works quite well on MacOS...
+            Fl_RGB_Image img(rgbData_, rgbWidth_, rgbHeight_);
+            img.scale(w(), h(), 0, 1);
+            img.draw(x(), y(), w(), h());
+
+#endif
+        } else {
+            super::draw();
+        }
+    }
 
 	unsigned char *getRGBData() 
 	{
@@ -221,7 +237,7 @@ public:
 		((Fl_Newton_Screen_Widget*)me)->penDownTimer();
 	}
 
-	int handle(int event) 
+	int handle(int event) override
 	{
 		switch (event) {
 			case FL_PUSH:
@@ -238,6 +254,12 @@ public:
 				penIsDown = false;
 				return 1;
 			case FL_KEYDOWN:
+                // let Shift-Command key combinations through
+                if ( (Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==(FL_COMMAND|FL_SHIFT))
+                    return 0;
+                // allow for Command-Q to quit the app which is not used in NewtonOS AFAIK.
+                if ( ((Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==FL_COMMAND) && (Fl::event_key()=='q') )
+                    return 0;
 #if TARGET_OS_MAC
                 // FLTK on MacOS sends only one keystroke down when the capslock is typed
                 // and a key_up event when it is typed again
@@ -250,6 +272,12 @@ public:
                 screenManager_->KeyDown(eventKeyToMac());
 				return 1;
 			case FL_KEYUP:
+                // let Shift-Command key combinations through
+                if ( (Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==(FL_COMMAND|FL_SHIFT))
+                    return 0;
+                // allow for Command-Q to quit the app which is not used in NewtonOS AFAIK.
+                if ( ((Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==FL_COMMAND) && (Fl::event_key()=='q') )
+                    return 0;
 #if TARGET_OS_MAC
                 if (Fl::event_key()==65509) {
                     screenManager_->KeyDown(eventKeyToMac());
@@ -274,21 +302,45 @@ public:
 		return Fl_Box::handle(event);
 	}
 
-	void newRGBSize(int w, int h)
-	{
-		// FIXME bad interface!
-		if (w*h != rgbWidth_*rgbHeight_) {
-			free(rgbData_);
-			rgbData_ = (unsigned char*)calloc(w*h, 3);
-		} else {
-			memset(rgbData_, 0, w*h*3);
-		}
-		rgbWidth_ = w;
-		rgbHeight_ = h;
-		window()->size(w, h);
-		size(w, h);
-	}
+    /**
+     Someone has resized this widget.
 
+     This is a rather uncommon event because NewtonOS does not support resizing.
+     One reason could be rotating the screen, so we let the system rotate and be fine.
+     If there is an actual change in the number of pixels, we must either resize the screen buffer to
+     hold more or less pixels, or we must scale the screen buffer to the widget, or we must crop
+     or frame the original image.
+
+     Also, things are different in fullscreen mode!
+     */
+    void resize(int x, int y, int w, int h) override
+    {
+        // TODO: see comment for strategies when resizing.
+#if 0
+        if (w*h != rgbWidth_*rgbHeight_) {
+            free(rgbData_);
+            rgbData_ = (unsigned char*)calloc(w*h, 3);
+        } else {
+            memset(rgbData_, 0, w*h*3);
+        }
+        rgbWidth_ = w;
+        rgbHeight_ = h;
+#endif
+        // TODO: the code above is some minimal version of what should be done.
+        super::resize(x, y, w, h);
+    }
+
+    void PowerOn()
+    {
+        mPowerState = true;
+        redraw();
+    }
+
+    void PowerOff()
+    {
+        mPowerState = false;
+        redraw();
+    }
 };
 
 
@@ -375,7 +427,6 @@ TFLScreenManager::~TFLScreenManager( )
 void
 TFLScreenManager::PowerOn( void )
 {
-	// This space for rent.
 }
 
 // -------------------------------------------------------------------------- //
@@ -384,7 +435,6 @@ TFLScreenManager::PowerOn( void )
 void
 TFLScreenManager::PowerOff( void )
 {
-	// This space for rent.
 }
 
 // -------------------------------------------------------------------------- //
@@ -393,7 +443,9 @@ TFLScreenManager::PowerOff( void )
 void
 TFLScreenManager::PowerOnScreen( void )
 {
-	printf("Power on Screen\n");
+    mWidget->label("");
+    mWidget->PowerOn();
+    gApp->PowerChangedEvent(true);
 }
 
 
@@ -403,20 +455,18 @@ TFLScreenManager::PowerOnScreen( void )
 void
 TFLScreenManager::PowerOffScreen( void )
 {
-    // tell the GUI thread to close the main window
-    Fl::awake(
-              [](void *This)->void {
-        ((TFLScreenManager*)(This))->mWidget->window()->hide();
-    }, this);
-	printf("Power off Screen\n");
+    mWidget->label("Newton is sleeping...");
+    mWidget->PowerOff();
+    gApp->PowerChangedEvent(false);
 }
 
 // -------------------------------------------------------------------------- //
 //  * BacklightChanged( bool )
 // -------------------------------------------------------------------------- //
 void
-TFLScreenManager::BacklightChanged( bool )
+TFLScreenManager::BacklightChanged( bool inState)
 {
+    gApp->BacklightChangedEvent(inState);
 	UpdateScreenRect(0L);
 }
 
@@ -435,8 +485,17 @@ TFLScreenManager::ContrastChanged( KUInt32 )
 void
 TFLScreenManager::ScreenOrientationChanged( EOrientation inNewOrientation )
 {
-	printf("New orientation %d is %dx%d\n", inNewOrientation, GetScreenWidth(), GetScreenHeight());
-	mWidget->newRGBSize(GetScreenWidth(), GetScreenHeight());
+    Fl::awake(
+              [](void *inScreenManager)->void
+    {
+        TFLScreenManager *mgr = (TFLScreenManager*)inScreenManager;
+        mgr->mApp->ResizeFromNewton(mgr->GetScreenWidth(), mgr->GetScreenHeight());
+    },
+              this
+              );
+//    mApp->
+//	printf("New orientation %d is %dx%d\n", inNewOrientation, GetScreenWidth(), GetScreenHeight());
+//	mWidget->newRGBSize(GetScreenWidth(), GetScreenHeight());
 }
 
 // -------------------------------------------------------------------------- //
@@ -454,11 +513,6 @@ TFLScreenManager::TabletOrientationChanged( EOrientation )
 void
 TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 {
-	static bool firstTime = true;
-	if (firstTime) {
-		mWidget->label("");
-		firstTime = false;
-	}
 	int mBitsPerPixel = 24;
 
 	KUInt16 top, left, height, width;

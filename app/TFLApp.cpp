@@ -23,19 +23,6 @@
 
 /*
 
- Menubar:
-
- Einstein -> About Einstein / Prefrences... (CMD-,) / Quit (CMD-Q)
- File -> Close (Cmd-W) / Page Setup... (Shift Cmd-P) / Print... (Cmd-P)
- Edit -> (all grayed out, Apple requirement, but we could implement cut, copy, paste for slected text?)
- Platform -> Insatll Package... // Action Power Button / Switch Backlight / Switch Network Card (cmd-2)
- Window -> Minimize (cmd-M) / Zoom // Bring all to front // Dump ROM... / Monitor (alt cmd-M) // Einstein Platform
- Help -> Einstein Help (Cmd-?) (dead)
-
- Toolbar (background is medium gray or light gray if inactive):
-
- Power / Backlight / Network (PCMCI) / ... / Install Package
-
  Additions:
  File -> New, Open, Save, Save As..., Recent List could provide access to many
             Falsh files, and switching between Flash files and rebooting
@@ -44,13 +31,14 @@
  Window -> Dump Rom shou;d probably be called Fetch ROM
             I would like to support a Toolbox window here as well
  Clipboard icon into the toolbar? Drag'n'drop of text in general?
+
  */
 
 #include <K/Defines/KDefinitions.h>
 #include "TFLApp.h"
 #include "TFLAppUI.h"
 #include "TFLAppWindow.h"
-#include "TFLSettings.h"
+#include "TFLSettingsUI.h"
 
 // ANSI C & POSIX
 #include <stdio.h>
@@ -68,6 +56,7 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_File_Chooser.H>
+#include <FL/Fl_Native_File_Chooser.H>
 
 // Einstein
 #include "Emulator/ROM/TROMImage.h"
@@ -157,40 +146,35 @@ TFLApp::Run( int argc, char* argv[] )
     Fl::args(1, argv);
     Fl::get_system_colors();
     Fl::use_high_res_GL(1);
+    Fl::visual(FL_RGB);
     Fl::set_boxtype(FL_FREE_BOXTYPE, draw_ramp, 0, 0, 0, 0);
     Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+1), draw_ramp, 0, 0, 0, 0);
 
-    mFLSettingsDialog = new TFLSettings(425, 392, "Einstein Platform Settings");
+    mFLSettings = new TFLSettingsUI();
 #if TARGET_OS_WIN32
-    mFLSettingsDialog->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+    mFLSettings->mSettingsPanel->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #endif
-    mFLSettingsDialog->setApp(this, mProgramName);
-    mFLSettingsDialog->loadPreferences();
-    mFLSettingsDialog->revertDialog();
-    Fl::focus(mFLSettingsDialog->wStart);
+    mFLSettings->setApp(this, mProgramName);
+    mFLSettings->loadPreferences();
+    mFLSettings->revertDialog();
 
     //flSettings->dontShow = false;
-    if (!mFLSettingsDialog->dontShow) {
-        mFLSettingsDialog->show(1, argv);
-        while (mFLSettingsDialog->visible())
-            Fl::wait();
+    if (!mFLSettings->dontShow) {
+        mFLSettings->ShowSettingsPanelModal();
     }
-    mFLSettingsDialog->runningMode();
-    Fl::focus(mFLSettingsDialog->wSave);
 
     const char* defaultMachineString = "717006";
-    int theMachineID = mFLSettingsDialog->wMachineChoice->value();
-    const Fl_Menu_Item *theMachineMenu = mFLSettingsDialog->wMachineChoice->menu()+theMachineID;
-    const char* theMachineString = strdup((char*)theMachineMenu->user_data());
+    int theMachineID = mFLSettings->machine;
+    const char* theMachineString = strdup(mFLSettings->MachineID);
     const char* theScreenManagerClass = nil;
-    const char *theROMImagePath = strdup(mFLSettingsDialog->ROMPath);
-    const char *theFlashPath = strdup(mFLSettingsDialog->FlashPath);
-    int portraitWidth = mFLSettingsDialog->screenWidth;
-    int portraitHeight = mFLSettingsDialog->screenHeight;
-    int ramSize = mFLSettingsDialog->RAMSize;
-    bool fullscreen = (bool)mFLSettingsDialog->fullScreen;
-    bool hidemouse = (bool)mFLSettingsDialog->hideMouse;
-    bool useMonitor = (bool)mFLSettingsDialog->useMonitor;
+    const char *theROMImagePath = strdup(mFLSettings->ROMPath);
+    const char *theFlashPath = strdup(mFLSettings->FlashPath);
+    int portraitWidth = mFLSettings->screenWidth;
+    int portraitHeight = mFLSettings->screenHeight;
+    int ramSize = mFLSettings->RAMSize;
+    bool fullscreen = (bool)mFLSettings->fullScreen;
+    bool hidemouse = (bool)mFLSettings->hideMouse;
+    bool useMonitor = (bool)mFLSettings->useMonitor;
     int useAIFROMFile = 0;	// 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
 
     int xx, yy, ww, hh;
@@ -223,9 +207,11 @@ TFLApp::Run( int argc, char* argv[] )
     win->callback(quit_cb, this);
     win->begin();
     TFLScreenManager *flScreenManager = new TFLScreenManager(this, mLog, portraitWidth, portraitHeight, false, false);
+    mNewtonScreen = flScreenManager->GetWidget();
     mScreenManager = flScreenManager;
     flScreenManager->GetWidget()->position(wToolbox->x(), wToolbox->y()+wToolbox->h());
     win->end();
+//    win->resizable(flScreenManager->GetWidget()); // play with this...
 
 #if TARGET_OS_WIN32
     mSoundManager = new TWaveSoundManager( mLog );
@@ -306,7 +292,15 @@ TFLApp::Run( int argc, char* argv[] )
                                       TSerialPorts::kNullDriver,
                                       TSerialPorts::kNullDriver,
                                       TSerialPorts::kNullDriver );
+
+    // yes, this is valid C++ code; it tells the emulator to call us so we can FLTK to
+    // call us again later from the main thread which then closes all windows, terminating
+    // the main application loop which then terminates the thread that called us to begin with.
+    // Or a sMony says: "Would That It Were So Simple"
+    mEmulator->CallOnQuit([](){Fl::awake([](void*){gApp->UserActionQuit();});});
+
 #if 0
+    // TODO: save the serial port setting in a save place
     TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
     if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
     {
@@ -466,33 +460,33 @@ void TFLApp::CreateScreenManager(
  */
 void TFLApp::quit_cb(Fl_Widget *, void *p) 
 {
-    gApp->MenuQuit();
-}
-
-
-/**
- User clicked the right mouse button on the emulator screen.
- */
-void TFLApp::do_callback(Fl_Callback *cb, void *user)
-{
-    cb(mFLSettingsDialog->RMB, user);
+    gApp->UserActionQuit();
 }
 
 
 /**
  User wants to quit the emulator and leave the app.
-
  */
-void TFLApp::MenuQuit()
+void TFLApp::UserActionQuit()
 {
-    mPlatformManager->SendPowerSwitchEvent();
+    // tell the emulator to shut everything down
+    if ( mEmulator ) {
+        mEmulator->Quit();
+    }
+    // closing all windows will end Fl::run();
+    Fl_Window *w;
+    while ( (w=Fl::first_window()) ) {
+        w->hide();
+    }
+    // afte Fl::run() if finished, TFLApp waits for the emulator
+    // process to finish as well.
 }
 
 
 /**
  User wants us to slide the network card in or out
  */
-void TFLApp::MenuToggleNetworkCard()
+void TFLApp::UserActionToggleNetworkCard()
 {
     mPlatformManager->SendNetworkCardEvent();
 }
@@ -502,18 +496,68 @@ void TFLApp::MenuToggleNetworkCard()
  User wants us to toggle the power switch.
  \fixme This is currently the same as Menu Quit
  */
-void TFLApp::menuPower()
+void TFLApp::UserActionTogglePower()
 {
     mPlatformManager->SendPowerSwitchEvent();
 }
 
 
 /**
+ This is called by the screen manager when the state of the backlight changed.
+ */
+void TFLApp::PowerChangedEvent(bool inState)
+{
+    // we have a hidden button in the FLuid file that does nothing but keep
+    // track of the "on" image.
+    static Fl_Image *onImage = nullptr;
+    static Fl_Image *offImage = nullptr;
+    Fl::lock();
+    if (!onImage) {
+        onImage = wPowerOnTool->image();
+        offImage = wPowerTool->image();
+    }
+    if (inState) {
+        wPowerTool->image(onImage);
+    } else {
+        wPowerTool->image(offImage);
+    }
+    wPowerTool->redraw();
+    Fl::awake();
+    Fl::unlock();
+}
+
+
+/**
  User wants us to toggle the backlight.
  */
-void TFLApp::MenuToggleBacklight()
+void TFLApp::UserActionToggleBacklight()
 {
     mPlatformManager->SendBacklightEvent();
+}
+
+
+/**
+ This is called by the screen manager when the state of the backlight changed.
+ */
+void TFLApp::BacklightChangedEvent(bool inState)
+{
+    // we have a hidden button in the FLuid file that does nothing but keep
+    // track of the "on" image.
+    static Fl_Image *onImage = nullptr;
+    static Fl_Image *offImage = nullptr;
+    Fl::lock();
+    if (!onImage) {
+        onImage = wBacklightOnTool->image();
+        offImage = wBacklightTool->image();
+    }
+    if (inState) {
+        wBacklightTool->image(onImage);
+    } else {
+        wBacklightTool->image(offImage);
+    }
+    wBacklightTool->redraw();
+    Fl::awake();
+    Fl::unlock();
 }
 
 
@@ -576,19 +620,29 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
 
  \todo Use the system native file chooser!
  */
-void TFLApp::MenuInstallPackage()
+void TFLApp::UserActionInstallPackage()
 {
     static char *filename = 0L;
-    const char *newname = fl_file_chooser("Install Package...", "Package (*.pkg)", filename);
-    if (newname) {
-        if (!filename)
-            filename = (char*)calloc(FL_PATH_MAX, 1);
-        strncpy(filename, newname, FL_PATH_MAX);
-        filename[FL_PATH_MAX] = 0;
-        // TODO: do we want to allow multiple files?
-        // TODO: is it utf8 or URI format?
-        // TODO: again, what about backslashes?
-        mPlatformManager->InstallPackage(filename);
+
+    const char *newname = nullptr;
+    Fl_Native_File_Chooser fnfc;
+    fnfc.title("Install Package...");
+    fnfc.type(Fl_Native_File_Chooser::BROWSE_MULTI_FILE);
+    fnfc.filter("Package\t*.pkg"); // "Compressed Package\t*.{sit,sae,hqx,zip,sit.hqx,hqx.sit}");
+    //fnfc.directory("/var/tmp");   // FIXME: save this in the preferences
+    switch ( fnfc.show() ) {
+        case -1: return; // Error text is in fnfc.errmsg()
+        case  1: return; // user canceled
+    }
+    for (int i=0; i<fnfc.count(); i++) {
+        newname = fnfc.filename(i);
+        if (newname && *newname) {
+            if (!filename)
+                filename = (char*)calloc(FL_PATH_MAX, 1);
+            strncpy(filename, newname, FL_PATH_MAX);
+            filename[FL_PATH_MAX] = 0;
+            mPlatformManager->InstallPackage(filename);
+        }
     }
 }
 
@@ -600,21 +654,18 @@ void TFLApp::MenuInstallPackage()
  to give the user complete information on teh project. We should also provide version
  information for teh REx and maybe otehr interfaces.
  */
-void TFLApp::MenuAbout()
+void TFLApp::UserActionShowAboutPanel()
 {
-    static Fl_Window *flAbout = 0L;
-    if (!flAbout)
-        flAbout = createAboutDialog();
-    flAbout->show();
+    mFLSettings->ShowAboutDialog();
 }
 
 
 /**
  User wants to see the setting window.
  */
-void TFLApp::MenuShowSettings() 
+void TFLApp::UserActionShowSettingsPanel() 
 {
-    mFLSettingsDialog->show();
+    mFLSettings->ShowSettingsPanel();
 }
 
 
@@ -627,8 +678,10 @@ void TFLApp::MenuShowSettings()
 
  \todo we should remove ROM download support.
  */
-void TFLApp::menuDownloadROM()
+void TFLApp::UserActionFetchROM()
 {
+    // not yet implemented
+#if 0
     static Fl_Window *downloadDialog = 0L;
     if (!downloadDialog) {
         downloadDialog = createROMDownloadDialog();
@@ -643,14 +696,53 @@ void TFLApp::menuDownloadROM()
         wDownloadPath->copy_label(path);
     }
     downloadDialog->show();
+#endif
 }
 
 
-void TFLApp::PopupContextMenu()
+void TFLApp::UserActionPopupMenu()
 {
-    const Fl_Menu_Item *choice = TFLSettings::menu_RMB->popup(Fl::event_x(), Fl::event_y());
-    if (choice && choice->callback()) {
-        do_callback(choice->callback());
+    mFLSettings->HandlePopupMenu();
+}
+
+
+void TFLApp::ResizeFromNewton(int w, int h)
+{
+    if (mNewtonScreen->w()==w && mNewtonScreen->h()==h)
+        return;
+    Fl::lock();
+    wAppWindow->resizable(mNewtonScreen);
+    int dw = w - mNewtonScreen->w();
+    int dh = h - mNewtonScreen->h();
+    wAppWindow->size( wAppWindow->w() + dw, wAppWindow->h() + dh );
+    wAppWindow->resizable(nullptr);
+    Fl::unlock();
+}
+
+/**
+ User wants the app into or out of fullscreen mode.
+
+ Remove the decoration from the main window and set it into fullscreen mode.
+ Switch the menubar and the toolbar off.
+ Scale the pixel output to the Newton screen.
+ Rotating the screen should actually rotate it upside down and left-sdie right in fullscreen mode.
+ */
+void TFLApp::UserActionToggleFullscreen()
+{
+    static int x =0, y = 0, w = 320, h = 480;
+    if (wAppWindow->fullscreen_active()) {
+        wAppWindow->resizable(mNewtonScreen);
+        wAppWindow->fullscreen_off(x, y, w, h);
+        wAppWindow->resizable(nullptr);
+    } else {
+        x = wAppWindow->x();
+        y = wAppWindow->y();
+        w = wAppWindow->w();
+        h = wAppWindow->h();
+//        int sx, sy, sw, sh;
+        wAppWindow->resizable(mNewtonScreen);
+        wAppWindow->fullscreen();
+        wAppWindow->resizable(nullptr);
     }
 }
 

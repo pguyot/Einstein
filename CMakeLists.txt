@@ -301,7 +301,9 @@ set ( sources
     app/TFLAppUI.cpp
     app/TFLAppUI.h
     app/TFLAppUI.fl
-    app/TFLSettings.fl
+    app/TFLSettingsUI.fl
+    app/TFLSettingsUI.cpp
+    app/TFLSettingsUI.h
     app/TFLSettings.cpp
     app/TFLSettings.h
 #    app/TMaemoApp.cpp
@@ -412,7 +414,7 @@ if (APPLE)
 	find_package(FLTK REQUIRED NO_MODULE)
 
     build_with_fluid(TFLAppUI app)
-    build_with_fluid(TFLSettings app)
+    build_with_fluid(TFLSettingsUI app)
 
 	# additional source code
 	list (APPEND sources
@@ -476,7 +478,7 @@ elseif (UNIX)
 	find_package(FLTK REQUIRED NO_MODULE)
 
     build_with_fluid(TFLAppUI app)
-    build_with_fluid(TFLSettings app)
+    build_with_fluid(TFLSettingsUI app)
 
 	# additional source code
 	list (APPEND sources
@@ -514,7 +516,7 @@ elseif (WIN32)
 	find_package(FLTK REQUIRED NO_MODULE)
 
     build_with_fluid(TFLAppUI app)
-    build_with_fluid(TFLSettings app)
+    build_with_fluid(TFLSettingsUI app)
 
 	# additional source code
 	list (APPEND sources
