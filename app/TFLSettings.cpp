@@ -45,35 +45,35 @@ me->hide();
 }
 
 void TFLSettings::cb_Install_i(Fl_Menu_*, void*) {
-  app->MenuInstallPackage();
+  app->UserActionInstallPackage();
 }
 void TFLSettings::cb_Install(Fl_Menu_* o, void* v) {
   ((TFLSettings*)(o->parent()))->cb_Install_i(o,v);
 }
 
 void TFLSettings::cb_Backlight_i(Fl_Menu_*, void*) {
-  app->MenuToggleBacklight();
+  app->UserActionToggleBacklight();
 }
 void TFLSettings::cb_Backlight(Fl_Menu_* o, void* v) {
   ((TFLSettings*)(o->parent()))->cb_Backlight_i(o,v);
 }
 
 void TFLSettings::cb_Settings_i(Fl_Menu_*, void*) {
-  app->MenuShowSettings();
+  app->UserActionShowSettingsPanel();
 }
 void TFLSettings::cb_Settings(Fl_Menu_* o, void* v) {
   ((TFLSettings*)(o->parent()))->cb_Settings_i(o,v);
 }
 
 void TFLSettings::cb_About_i(Fl_Menu_*, void*) {
-  app->MenuAbout();
+  app->UserActionShowAboutPanel();
 }
 void TFLSettings::cb_About(Fl_Menu_* o, void* v) {
   ((TFLSettings*)(o->parent()))->cb_About_i(o,v);
 }
 
 void TFLSettings::cb_Power_i(Fl_Menu_*, void*) {
-  app->menuPower();
+  app->UserActionTogglePower();
 }
 void TFLSettings::cb_Power(Fl_Menu_* o, void* v) {
   ((TFLSettings*)(o->parent()))->cb_Power_i(o,v);
@@ -97,7 +97,7 @@ Fl_Menu_Item TFLSettings::menu_RMB[] = {
 };
 
 void TFLSettings::cb_wROMDownload_i(Fl_Button*, void*) {
-  app->menuDownloadROM();
+  app->UserActionFetchROM();
 }
 void TFLSettings::cb_wROMDownload(Fl_Button* o, void* v) {
   ((TFLSettings*)(o->parent()->parent()))->cb_wROMDownload_i(o,v);

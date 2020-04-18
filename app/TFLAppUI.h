@@ -10,6 +10,12 @@ extern Fl_Menu_Bar *wMenubar;
 #include <FL/Fl_Group.H>
 extern Fl_Group *wToolbox;
 #include <FL/Fl_Button.H>
+extern Fl_Button *wPowerTool;
+extern Fl_Button *wPowerOnTool;
+extern Fl_Button *wBacklightTool;
+extern Fl_Button *wBacklightOnTool;
+extern Fl_Button *wNetworkTool;
+extern Fl_Button *wNetworkOnTool;
 #include <FL/Fl_Box.H>
 extern Fl_Box *wSpacer;
 TFLAppWindow* CreateApplicationWindow();

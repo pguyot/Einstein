@@ -10,7 +10,7 @@ decl {\#include "TFLAppWindow.h"} {public global
 
 Function {CreateApplicationWindow()} {open
 } {
-  Fl_Window wAppWindow {open selected
+  Fl_Window wAppWindow {open
     xywh {454 329 320 558} type Double resizable
     class TFLAppWindow visible
   } {
@@ -67,7 +67,7 @@ Function {CreateApplicationWindow()} {open
         }
         MenuItem {} {
           label Quit
-          callback {gApp->MenuQuit();}
+          callback {gApp->UserActionQuit();}
           xywh {0 0 100 20} shortcut 0x400071
         }
       }
@@ -87,11 +87,6 @@ Function {CreateApplicationWindow()} {open
           label Paste
           xywh {0 0 100 20} shortcut 0x400076 deactivate divider
         }
-        MenuItem {} {
-          label {Preferences...}
-          callback {gApp->MenuShowSettings();}
-          xywh {0 0 100 20} shortcut 0x40002c
-        }
       }
       Submenu {} {
         label Platform open
@@ -99,26 +94,32 @@ Function {CreateApplicationWindow()} {open
       } {
         MenuItem {} {
           label {Install Package...}
-          callback {gApp->MenuInstallPackage();}
+          callback {gApp->UserActionInstallPackage();}
           xywh {0 0 100 20} shortcut 0x400069 divider
         }
         MenuItem {} {
           label {Power Button}
-          xywh {0 0 100 20} deactivate
+          callback {gApp->UserActionTogglePower();}
+          xywh {0 0 100 20}
         }
         MenuItem {} {
           label Backlight
-          callback {gApp->MenuToggleBacklight();}
+          callback {gApp->UserActionToggleBacklight();}
           xywh {0 0 100 20}
         }
         MenuItem {} {
           label {Network Card}
-          callback {gApp->MenuToggleNetworkCard();}
+          callback {gApp->UserActionToggleNetworkCard();}
           xywh {0 0 100 20} shortcut 0x400032 divider
         }
         MenuItem {} {
           label {Fetch ROM...}
-          xywh {4 4 100 20} deactivate
+          xywh {4 4 100 20} deactivate divider
+        }
+        MenuItem {} {
+          label {Settings...}
+          callback {gApp->UserActionShowSettingsPanel();}
+          xywh {4 4 100 20} shortcut 0x40002c
         }
       }
       Submenu {} {
@@ -151,13 +152,21 @@ Function {CreateApplicationWindow()} {open
         xywh {0 0 100 20}
       } {
         MenuItem {} {
-          label {About Einstein...}
-          callback {gApp->MenuAbout();}
-          xywh {0 0 100 20}
+          label {User Manual...}
+          xywh {12 12 100 20} deactivate
         }
         MenuItem {} {
-          label {About Newton...}
+          label {Newton History and Links...}
           xywh {0 0 100 20} deactivate
+        }
+        MenuItem {} {
+          label {United Newton Network Archives...}
+          xywh {12 12 100 20} deactivate divider
+        }
+        MenuItem {} {
+          label {About Einstein...}
+          callback {gApp->UserActionShowAboutPanel();}
+          xywh {0 0 100 20}
         }
       }
     }
@@ -165,48 +174,49 @@ Function {CreateApplicationWindow()} {open
       xywh {0 24 320 54} box THIN_UP_BOX color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
     } {
-      Fl_Button {} {
+      Fl_Button wPowerTool {
         label Power
-        image {../Resources/icons/button_power_on.png} xywh {10 25 36 36} color 52 labelsize 11 align 514
+        callback {gApp->UserActionTogglePower();}
+        image {../Resources/icons/button_power.png} xywh {10 25 36 36} color 52 labelsize 11 align 514
         code0 {o->box(FL_FREE_BOXTYPE);}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}
       }
-      Fl_Button {} {
+      Fl_Button wPowerOnTool {
+        image {../Resources/icons/button_power_on.png} xywh {188 34 14 15} hide
+      }
+      Fl_Button wBacklightTool {
         label Backlight
-        callback {gApp->MenuToggleBacklight();}
+        callback {gApp->UserActionToggleBacklight();}
         image {../Resources/icons/button_backlight.png} xywh {55 25 36 36} color 52 labelsize 11 align 514
         code0 {o->box(FL_FREE_BOXTYPE);}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}
       }
-      Fl_Button {} {
+      Fl_Button wBacklightOnTool {
+        image {../Resources/icons/button_backlight_on.png} xywh {192 34 14 15} hide
+      }
+      Fl_Button wNetworkTool {
         label Network
-        callback {gApp->MenuToggleNetworkCard();}
+        callback {gApp->UserActionToggleNetworkCard();}
         image {../Resources/icons/button_network.png} xywh {104 25 36 36} color 52 labelsize 11 align 514
         code0 {o->box(FL_FREE_BOXTYPE);}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}
       }
-      Fl_Button {} {
-        label {Install Package}
-        callback {gApp->MenuInstallPackage();}
-        image {../Resources/icons/button_install.png} xywh {257 25 36 36} color 52 labelsize 11 align 514
-        code0 {o->box(FL_FREE_BOXTYPE);}
-        code1 {o->down_box(FL_FREE_BOXTYPE);}
-        code2 {o->clear_visible_focus();}
+      Fl_Button wNetworkOnTool {
+        image {../Resources/icons/button_network_in.png} xywh {196 39 14 15} hide
       }
       Fl_Box wSpacer {
         xywh {184 24 28 54} box THIN_UP_BOX hide resizable
       }
       Fl_Button {} {
-        image {../Resources/icons/button_power_on.png} xywh {188 34 14 15} hide
-      }
-      Fl_Button {} {
-        image {../Resources/icons/button_backlight_on.png} xywh {192 34 14 15} hide
-      }
-      Fl_Button {} {
-        image {../Resources/icons/button_network_in.png} xywh {196 39 14 15} hide
+        label {Install Package}
+        callback {gApp->UserActionInstallPackage();} selected
+        image {../Resources/icons/button_install.png} xywh {257 25 36 36} color 52 labelsize 11 align 514
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
       }
     }
     Fl_Box {} {

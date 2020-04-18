@@ -56,7 +56,7 @@ int TFLAppWindow::handle(int event)
             if (   (Fl::event_button()==3)
                 || ((Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==FL_CTRL) )
             {
-                mApp->PopupContextMenu();
+                mApp->UserActionPopupMenu();
                 return 1;
             }
             break;

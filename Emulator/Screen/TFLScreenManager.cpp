@@ -106,6 +106,7 @@ class Fl_Newton_Screen_Widget : public Fl_Box
     TFLApp              *mApp = nullptr;
 	int					rgbWidth_, rgbHeight_;
 	int					penX, penY, penIsDown;
+    bool                mPowerState = false;
 
 public:
 	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char *l, TFLScreenManager *s, TFLApp *inApp)
@@ -115,6 +116,8 @@ public:
         mApp(inApp),
 		penX(0), penY(0), penIsDown(0)
 	{
+        box(FL_FLAT_BOX);
+        color(FL_BLACK);
 		rgbWidth_ = w;
 		rgbHeight_ = h;
 		rgbData_ = (unsigned char*)calloc(w*h, 3);
@@ -140,9 +143,11 @@ public:
 		// FIXME draw borders if the widget is larger than our bitmap
 		// FIXME enable clipping if the widget is smaller
 		// FIXME center the bitmap if it is smaller
-		fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_);
-		draw_label();
-	}
+        if (mPowerState)
+            fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_);
+        else
+            Fl_Box::draw();
+    }
 
 	unsigned char *getRGBData() 
 	{
@@ -289,6 +294,17 @@ public:
 		size(w, h);
 	}
 
+    void PowerOn()
+    {
+        mPowerState = true;
+        redraw();
+    }
+
+    void PowerOff()
+    {
+        mPowerState = false;
+        redraw();
+    }
 };
 
 
@@ -375,7 +391,6 @@ TFLScreenManager::~TFLScreenManager( )
 void
 TFLScreenManager::PowerOn( void )
 {
-	// This space for rent.
 }
 
 // -------------------------------------------------------------------------- //
@@ -384,7 +399,6 @@ TFLScreenManager::PowerOn( void )
 void
 TFLScreenManager::PowerOff( void )
 {
-	// This space for rent.
 }
 
 // -------------------------------------------------------------------------- //
@@ -393,7 +407,9 @@ TFLScreenManager::PowerOff( void )
 void
 TFLScreenManager::PowerOnScreen( void )
 {
-	printf("Power on Screen\n");
+    mWidget->label("");
+    mWidget->PowerOn();
+    gApp->PowerChangedEvent(true);
 }
 
 
@@ -403,20 +419,18 @@ TFLScreenManager::PowerOnScreen( void )
 void
 TFLScreenManager::PowerOffScreen( void )
 {
-    // tell the GUI thread to close the main window
-    Fl::awake(
-              [](void *This)->void {
-        ((TFLScreenManager*)(This))->mWidget->window()->hide();
-    }, this);
-	printf("Power off Screen\n");
+    mWidget->label("Newton is sleeping...");
+    mWidget->PowerOff();
+    gApp->PowerChangedEvent(false);
 }
 
 // -------------------------------------------------------------------------- //
 //  * BacklightChanged( bool )
 // -------------------------------------------------------------------------- //
 void
-TFLScreenManager::BacklightChanged( bool )
+TFLScreenManager::BacklightChanged( bool inState)
 {
+    gApp->BacklightChangedEvent(inState);
 	UpdateScreenRect(0L);
 }
 
@@ -454,11 +468,6 @@ TFLScreenManager::TabletOrientationChanged( EOrientation )
 void
 TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 {
-	static bool firstTime = true;
-	if (firstTime) {
-		mWidget->label("");
-		firstTime = false;
-	}
 	int mBitsPerPixel = 24;
 
 	KUInt16 top, left, height, width;

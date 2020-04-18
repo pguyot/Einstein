@@ -466,7 +466,7 @@ void TFLApp::CreateScreenManager(
  */
 void TFLApp::quit_cb(Fl_Widget *, void *p) 
 {
-    gApp->MenuQuit();
+    gApp->UserActionQuit();
 }
 
 
@@ -481,18 +481,27 @@ void TFLApp::do_callback(Fl_Callback *cb, void *user)
 
 /**
  User wants to quit the emulator and leave the app.
-
  */
-void TFLApp::MenuQuit()
+void TFLApp::UserActionQuit()
 {
-    mPlatformManager->SendPowerSwitchEvent();
+    // tell the emulator to shut everything down
+    if ( mEmulator ) {
+        mEmulator->Quit();
+    }
+    // closing all windows will end Fl::run();
+    Fl_Window *w;
+    while ( (w=Fl::first_window()) ) {
+        w->hide();
+    }
+    // afte Fl::run() if finished, TFLApp waits for the emulator
+    // process to finish as well.
 }
 
 
 /**
  User wants us to slide the network card in or out
  */
-void TFLApp::MenuToggleNetworkCard()
+void TFLApp::UserActionToggleNetworkCard()
 {
     mPlatformManager->SendNetworkCardEvent();
 }
@@ -502,18 +511,68 @@ void TFLApp::MenuToggleNetworkCard()
  User wants us to toggle the power switch.
  \fixme This is currently the same as Menu Quit
  */
-void TFLApp::menuPower()
+void TFLApp::UserActionTogglePower()
 {
     mPlatformManager->SendPowerSwitchEvent();
 }
 
 
 /**
+ This is called by the screen manager when the state of the backlight changed.
+ */
+void TFLApp::PowerChangedEvent(bool inState)
+{
+    // we have a hidden button in the FLuid file that does nothing but keep
+    // track of the "on" image.
+    static Fl_Image *onImage = nullptr;
+    static Fl_Image *offImage = nullptr;
+    Fl::lock();
+    if (!onImage) {
+        onImage = wPowerOnTool->image();
+        offImage = wPowerTool->image();
+    }
+    if (inState) {
+        wPowerTool->image(onImage);
+    } else {
+        wPowerTool->image(offImage);
+    }
+    wPowerTool->redraw();
+    Fl::awake();
+    Fl::unlock();
+}
+
+
+/**
  User wants us to toggle the backlight.
  */
-void TFLApp::MenuToggleBacklight()
+void TFLApp::UserActionToggleBacklight()
 {
     mPlatformManager->SendBacklightEvent();
+}
+
+
+/**
+ This is called by the screen manager when the state of the backlight changed.
+ */
+void TFLApp::BacklightChangedEvent(bool inState)
+{
+    // we have a hidden button in the FLuid file that does nothing but keep
+    // track of the "on" image.
+    static Fl_Image *onImage = nullptr;
+    static Fl_Image *offImage = nullptr;
+    Fl::lock();
+    if (!onImage) {
+        onImage = wBacklightOnTool->image();
+        offImage = wBacklightTool->image();
+    }
+    if (inState) {
+        wBacklightTool->image(onImage);
+    } else {
+        wBacklightTool->image(offImage);
+    }
+    wBacklightTool->redraw();
+    Fl::awake();
+    Fl::unlock();
 }
 
 
@@ -576,7 +635,7 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
 
  \todo Use the system native file chooser!
  */
-void TFLApp::MenuInstallPackage()
+void TFLApp::UserActionInstallPackage()
 {
     static char *filename = 0L;
     const char *newname = fl_file_chooser("Install Package...", "Package (*.pkg)", filename);
@@ -600,7 +659,7 @@ void TFLApp::MenuInstallPackage()
  to give the user complete information on teh project. We should also provide version
  information for teh REx and maybe otehr interfaces.
  */
-void TFLApp::MenuAbout()
+void TFLApp::UserActionShowAboutPanel()
 {
     static Fl_Window *flAbout = 0L;
     if (!flAbout)
@@ -612,7 +671,7 @@ void TFLApp::MenuAbout()
 /**
  User wants to see the setting window.
  */
-void TFLApp::MenuShowSettings() 
+void TFLApp::UserActionShowSettingsPanel() 
 {
     mFLSettingsDialog->show();
 }
@@ -627,7 +686,7 @@ void TFLApp::MenuShowSettings()
 
  \todo we should remove ROM download support.
  */
-void TFLApp::menuDownloadROM()
+void TFLApp::UserActionFetchROM()
 {
     static Fl_Window *downloadDialog = 0L;
     if (!downloadDialog) {
@@ -646,7 +705,7 @@ void TFLApp::menuDownloadROM()
 }
 
 
-void TFLApp::PopupContextMenu()
+void TFLApp::UserActionPopupMenu()
 {
     const Fl_Menu_Item *choice = TFLSettings::menu_RMB->popup(Fl::event_x(), Fl::event_y());
     if (choice && choice->callback()) {

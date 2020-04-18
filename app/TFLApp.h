@@ -68,31 +68,37 @@ public:
 	void do_callback(Fl_Callback *cb, void *user=0L);
 
     // user wants to quit the emulator
-    void MenuQuit();
+    void UserActionQuit();
 
     // user pull power switch
-	void menuPower();
+	void UserActionTogglePower();
+
+    // this is called by the screen manager when the state of the backlight changed
+    void PowerChangedEvent(bool);
 
     // user toggles backlight
-    void MenuToggleBacklight();
+    void UserActionToggleBacklight();
+
+    // this is called by the screen manager when the state of the backlight changed
+    void BacklightChangedEvent(bool);
 
     // user toggles network card
-    void MenuToggleNetworkCard();
+    void UserActionToggleNetworkCard();
 
     // install a package
     void InstallPackagesFromURI(const char *filenames);
 
     // user wants to install a package
-    void MenuInstallPackage();
+    void UserActionInstallPackage();
 
     // user wants to see the About window
-	void MenuAbout();
+	void UserActionShowAboutPanel();
 
     // user wants to see the Setting window
-	void MenuShowSettings();
+	void UserActionShowSettingsPanel();
 
     // user wants to download a ROM file from a physical device
-	void menuDownloadROM();
+	void UserActionFetchROM();
 
     // get the interface to the running emulations
     TPlatformManager *getPlatformManager() { return mPlatformManager; }
@@ -104,7 +110,7 @@ public:
     TFLApp& operator = ( const TFLApp& inCopy ) = delete;
 
     // react to a right-click on the main screen
-    void PopupContextMenu();
+    void UserActionPopupMenu();
 
 private:
 
