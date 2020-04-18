@@ -145,10 +145,19 @@ public:
 		// FIXME draw borders if the widget is larger than our bitmap
 		// FIXME enable clipping if the widget is smaller
 		// FIXME center the bitmap if it is smaller
-        if (mPowerState)
+        if (mPowerState) {
+#if 0
             fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_);
-        else
-            Fl_Box::draw();
+#else
+            // This actually works quite well on MacOS...
+            Fl_RGB_Image img(rgbData_, rgbWidth_, rgbHeight_);
+            img.scale(rgbWidth_*2/3, rgbHeight_*2/3);
+            img.draw(x(), y(), w()*2/3, h()*2/3);
+
+#endif
+        } else {
+            super::draw();
+        }
     }
 
 	unsigned char *getRGBData() 

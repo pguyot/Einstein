@@ -146,6 +146,7 @@ TFLApp::Run( int argc, char* argv[] )
     Fl::args(1, argv);
     Fl::get_system_colors();
     Fl::use_high_res_GL(1);
+    Fl::visual(FL_RGB);
     Fl::set_boxtype(FL_FREE_BOXTYPE, draw_ramp, 0, 0, 0, 0);
     Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+1), draw_ramp, 0, 0, 0, 0);
 
