@@ -92,7 +92,10 @@ public:
 	void UserActionShowAboutPanel();
 
     // user wants to see the Setting window
-	void UserActionShowSettingsPanel();
+    void UserActionShowSettingsPanel();
+
+    // user wants Einstein to take over the entire screen
+    void UserActionToggleFullscreen();
 
     // user wants to download a ROM file from a physical device
 	void UserActionFetchROM();

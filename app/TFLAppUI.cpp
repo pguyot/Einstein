@@ -31,6 +31,10 @@ static void cb_Settings(Fl_Menu_*, void*) {
   gApp->UserActionShowSettingsPanel();
 }
 
+static void cb_Fullscreen(Fl_Menu_*, void*) {
+  gApp->UserActionToggleFullscreen();
+}
+
 static void cb_About(Fl_Menu_*, void*) {
   gApp->UserActionShowAboutPanel();
 }
@@ -66,7 +70,7 @@ Fl_Menu_Item menu_wMenubar[] = {
  {0,0,0,0,0,0,0,0,0},
  {"Window", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Zoom", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Fullscreen", 0x410066,  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Fullscreen", 0x410066,  (Fl_Callback*)cb_Fullscreen, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Monitor", 0x41006d,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Toolbox", 0x410074,  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Bring All To Front", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},

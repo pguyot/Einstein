@@ -146,13 +146,13 @@ public:
 		// FIXME enable clipping if the widget is smaller
 		// FIXME center the bitmap if it is smaller
         if (mPowerState) {
-#if 0
+#if 1
             fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_);
 #else
             // This actually works quite well on MacOS...
             Fl_RGB_Image img(rgbData_, rgbWidth_, rgbHeight_);
-            img.scale(rgbWidth_*2/3, rgbHeight_*2/3);
-            img.draw(x(), y(), w()*2/3, h()*2/3);
+            img.scale(w(), h(), 0, 1);
+            img.draw(x(), y(), w(), h());
 
 #endif
         } else {
@@ -316,6 +316,7 @@ public:
     void resize(int x, int y, int w, int h) override
     {
         // TODO: see comment for strategies when resizing.
+#if 0
         if (w*h != rgbWidth_*rgbHeight_) {
             free(rgbData_);
             rgbData_ = (unsigned char*)calloc(w*h, 3);
@@ -324,6 +325,7 @@ public:
         }
         rgbWidth_ = w;
         rgbHeight_ = h;
+#endif
         // TODO: the code above is some minimal version of what should be done.
         super::resize(x, y, w, h);
     }

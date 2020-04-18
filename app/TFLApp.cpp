@@ -161,9 +161,6 @@ TFLApp::Run( int argc, char* argv[] )
     //flSettings->dontShow = false;
     if (!mFLSettings->dontShow) {
         mFLSettings->ShowSettingsPanelModal();
-//        mFLSettingsDialog->show(1, argv);
-//        while (mFLSettingsDialog->visible())
-//            Fl::wait();
     }
 
     const char* defaultMachineString = "717006";
@@ -214,6 +211,7 @@ TFLApp::Run( int argc, char* argv[] )
     mScreenManager = flScreenManager;
     flScreenManager->GetWidget()->position(wToolbox->x(), wToolbox->y()+wToolbox->h());
     win->end();
+//    win->resizable(flScreenManager->GetWidget()); // play with this...
 
 #if TARGET_OS_WIN32
     mSoundManager = new TWaveSoundManager( mLog );
@@ -721,6 +719,32 @@ void TFLApp::ResizeFromNewton(int w, int h)
     Fl::unlock();
 }
 
+/**
+ User wants the app into or out of fullscreen mode.
+
+ Remove the decoration from the main window and set it into fullscreen mode.
+ Switch the menubar and the toolbar off.
+ Scale the pixel output to the Newton screen.
+ Rotating the screen should actually rotate it upside down and left-sdie right in fullscreen mode.
+ */
+void TFLApp::UserActionToggleFullscreen()
+{
+    static int x =0, y = 0, w = 320, h = 480;
+    if (wAppWindow->fullscreen_active()) {
+        wAppWindow->resizable(mNewtonScreen);
+        wAppWindow->fullscreen_off(x, y, w, h);
+        wAppWindow->resizable(nullptr);
+    } else {
+        x = wAppWindow->x();
+        y = wAppWindow->y();
+        w = wAppWindow->w();
+        h = wAppWindow->h();
+//        int sx, sy, sw, sh;
+        wAppWindow->resizable(mNewtonScreen);
+        wAppWindow->fullscreen();
+        wAppWindow->resizable(nullptr);
+    }
+}
 
 
 /**
