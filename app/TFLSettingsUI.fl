@@ -79,7 +79,7 @@ mSettingsPanel = CreateSettingsPanel();} {}
   } {
     Fl_Window {} {
       label {Einstein Settings} open
-      xywh {547 233 425 392} type Double visible
+      xywh {546 232 425 392} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu} open
@@ -254,7 +254,7 @@ if (path) {
           xywh {349 251 20 20} labelsize 11 align 20 hide
         }
         Fl_Slider wRAMSize {
-          callback {updateRAMSizeLabel();} selected
+          callback {updateRAMSizeLabel();}
           xywh {229 276 180 20} type Horizontal minimum 16 maximum 240 step 16 value 64
         }
       }
@@ -398,7 +398,7 @@ win->hide();} {}
   Function {createROMDownloadDialog()} {} {
     Fl_Window wROMDownloadWindow {
       label {Download ROM via TCP/IP} open
-      xywh {510 467 417 393} type Double modal visible
+      xywh {473 232 417 393} type Double modal visible
     } {
       Fl_Box {} {
         label {How to download the Newton ROM using a network connection}
@@ -557,13 +557,14 @@ fROM = fopen(wDownloadPath->label(), "wb");
 recvd = 0;
 \#endif} {}
   }
-  Function {dataReadCB(FL_SOCKET p, void *user_data)} {} {
+  Function {dataRead(FL_SOCKET p)} {open
+  } {
     code {\#if TARGET_OS_WIN32
 unsigned long n;
 DWORD rcvd;
 int ret = WSAIoctl(sData, FIONREAD, 0, 0, &n, sizeof(n), &rcvd, 0, 0);
 if (ret || n==0) {
-  dataExceptCB(p, user_data);
+  dataExcept(p);
   return;
 }
 
@@ -575,9 +576,11 @@ free(buf);
 recvd += n;
 printf("Received %d/%d (%d)\\n", n, n1, recvd);
 wProgressSlider->value(recvd/1024);
-\#endif} {}
+\#endif} {selected
+    }
   }
-  Function {dataExceptCB(FL_SOCKET p, void *user_data)} {} {
+  Function {dataExcept(FL_SOCKET p)} {open
+  } {
     code {\#if TARGET_OS_WIN32
 if (fROM) {
   fclose(fROM);
@@ -597,9 +600,19 @@ if (recvd==8*1024*1024) {
 }
 \#endif} {}
   }
+  Function {dataReadCB(FL_SOCKET p, void *user_data)} {open return_type {static void}
+  } {
+    code {TFLSettingsUI *This = (TFLSettingsUI*)user_data;
+This->dataRead(p);} {}
+  }
+  Function {dataExceptCB(FL_SOCKET p, void *user_data)} {open return_type {static void}
+  } {
+    code {TFLSettingsUI *This = (TFLSettingsUI*)user_data;
+This->dataExcept(p);} {}
+  }
   Function {createROMDownloadProgressWindow()} {} {
     Fl_Window {} {open
-      xywh {565 814 285 111} type Double modal visible
+      xywh {564 650 285 111} type Double modal visible
     } {
       Fl_Slider wProgressSlider {
         label {Connecting...}
