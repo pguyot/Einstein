@@ -475,6 +475,7 @@ elseif (UNIX)
 
 	# configure to use FLTK as the GUI
 	set(FLTK_SKIP_OPENGL true)
+	set(FLTK_FLUID_EXECUTABLE /usr/local/bin/fluid)
 	find_package(FLTK REQUIRED NO_MODULE)
 
     build_with_fluid(TFLAppUI app)
