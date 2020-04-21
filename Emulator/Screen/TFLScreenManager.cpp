@@ -43,6 +43,14 @@
 #include "Emulator/Log/TLog.h"
 #include "app/TFLApp.h"
 
+
+#if TARGET_OS_WIN32
+#define SRC_BITMAP_FORMAT_RGBA 1
+#else
+#define SRC_BITMAP_FORMAT_RGBA 0
+#endif
+
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -122,7 +130,11 @@ public:
         color(FL_BLACK);
 		rgbWidth_ = w;
 		rgbHeight_ = h;
-		rgbData_ = (unsigned char*)calloc(w*h, 3);
+#if SRC_BITMAP_FORMAT_RGBA
+		rgbData_ = (unsigned char*)calloc(w*h, 4);
+#else
+		rgbData_ = (unsigned char*)calloc(w * h, 3);
+#endif
 	}
 
 	~Fl_Newton_Screen_Widget()
@@ -142,21 +154,47 @@ public:
 
 	void draw() override
 	{
+		// TODO: if we are in fullscreen mode with a portrait Newton on a landscape host screen,
+		//       we should keep the aspect ration and draw black borders (and vice versa).
+		//       Currently we stretch the image very badly. Maybe we should always keep the aspect ration 
+		//		 when going fullscreen? 
 		// FIXME draw borders if the widget is larger than our bitmap
 		// FIXME enable clipping if the widget is smaller
 		// FIXME center the bitmap if it is smaller
         if (mPowerState) {
-#if 1
-            fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_);
+#if TARGET_OS_WIN32
+			// Windows GDI provides a function that scales the bitmap while the hardware blits it to the screen
+			static int useGDI = -1; // initially, we don't know
+			if (useGDI == -1) {
+				useGDI = ((GetDeviceCaps(fl_gc, RASTERCAPS) & RC_STRETCHDIB) != 0);
+				OutputDebugString(useGDI ? "Using accelerated image scaling" : "Using FLTK image scaling\n");
+			}
+			if (useGDI == 1) {
+				float s = fl_graphics_driver->scale();
+				static BITMAPINFO info = { { sizeof(BITMAPINFOHEADER) } };
+				info.bmiHeader.biBitCount = 32;
+				info.bmiHeader.biWidth = rgbWidth_;
+				info.bmiHeader.biHeight = rgbHeight_;
+				info.bmiHeader.biPlanes = 1;
+				info.bmiHeader.biSizeImage = rgbWidth_ * rgbHeight_ * 4;
+				info.bmiHeader.biCompression = BI_RGB;
+				StretchDIBits(fl_gc, int(x()*s), int(y()*s), int(w()*s), int(h()*s),
+					0, rgbHeight_, rgbWidth_, -rgbHeight_, rgbData_, &info, DIB_RGB_COLORS, SRCCOPY);
+			} else {
+				fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_, 4); // 32 bits: RGBx
+			}
 #else
-            // This actually works quite well on MacOS...
+			fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_); // 24 bit: RGB
+#endif
+#if 0
+            // This actually works quite well on MacOS... (well, it's slow as heck)
             Fl_RGB_Image img(rgbData_, rgbWidth_, rgbHeight_);
             img.scale(w(), h(), 0, 1);
             img.draw(x(), y(), w(), h());
 
 #endif
         } else {
-            super::draw();
+			super::draw();
         }
     }
 
@@ -189,7 +227,7 @@ public:
 
 	int penXPos()
 	{
-		int mx = Fl::event_x()-x();
+		int mx = (Fl::event_x() - x()) * rgbWidth_ / w();
 		if (mx<0) mx = 0;
 		if (mx>=rgbWidth_) mx = rgbWidth_-1;
 		penX = mx;
@@ -198,7 +236,7 @@ public:
 
 	int penYPos()
 	{
-		int my = Fl::event_y()-y();
+		int my = (Fl::event_y() - y()) * rgbHeight_ / h();
 		if (my<0) my = 0;
 		if (my>=rgbHeight_) my = rgbHeight_-1;
 		penY = my;
@@ -315,20 +353,23 @@ public:
      */
     void resize(int x, int y, int w, int h) override
     {
-        // TODO: see comment for strategies when resizing.
-#if 0
-        if (w*h != rgbWidth_*rgbHeight_) {
-            free(rgbData_);
-            rgbData_ = (unsigned char*)calloc(w*h, 3);
-        } else {
-            memset(rgbData_, 0, w*h*3);
-        }
-        rgbWidth_ = w;
-        rgbHeight_ = h;
-#endif
-        // TODO: the code above is some minimal version of what should be done.
+		// As I am adding accelerated rendering on all platforms, I decided that the output simply scales with the render area,
+		// so there is no need to change the rgb data parameters here. ::draw() will take care of the scaling.
+		// On devices that don;t have hardware accelerated scaling, this may be a bit more complicated.
         super::resize(x, y, w, h);
     }
+
+	void newRGBSize(int w, int h) {
+		if (w * h != rgbWidth_ * rgbHeight_) {
+			if (rgbData_) 
+				::free(rgbData_);
+			rgbData_ = (KUInt8*)calloc(4, w * h);
+		} else {
+			memset(rgbData_, 0, w * h);
+		}
+		rgbWidth_ = w;
+		rgbHeight_ = h;
+	}
 
     void PowerOn()
     {
@@ -367,15 +408,15 @@ TFLScreenManager::TFLScreenManager(
 			KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */,
 			bool inFullScreen /* = false */,
 			bool inScreenIsLandscape /* = true */)
-	:
-		TScreenManager(
-			inLog,
-			inPortraitWidth,
-			inPortraitHeight,
-			inFullScreen,
-			inScreenIsLandscape ),
-            mApp(inApp),
-            mWidget(0L)
+:	TScreenManager(
+		inLog,
+		inPortraitWidth,
+		inPortraitHeight,
+		inFullScreen,
+		inScreenIsLandscape )
+,	mApp(inApp)
+,	mWidget(0L)
+,	mScreenWasLandscape(inScreenIsLandscape)
 {
 	bool createWindow = (Fl_Group::current()==0L);
 
@@ -391,7 +432,7 @@ TFLScreenManager::TFLScreenManager(
 	}
 
 	mWidget = new Fl_Newton_Screen_Widget(
-		xo, yo, inPortraitWidth, inPortraitHeight, 
+		xo, yo, GetScreenWidth(), GetScreenHeight(),
 		0L, this, mApp);
 	
 	mWidget->label(
@@ -485,17 +526,26 @@ TFLScreenManager::ContrastChanged( KUInt32 )
 void
 TFLScreenManager::ScreenOrientationChanged( EOrientation inNewOrientation )
 {
+	static int newWidth, newHeight;
+
+	bool screenWillBeLandscape = ((inNewOrientation & kOrientation_LandscapeBit) != 0);
+	if (screenWillBeLandscape != mScreenWasLandscape) {
+		newWidth = mWidget->h();
+		newHeight = mWidget->w();
+	} else {
+		newWidth = mWidget->w();
+		newHeight = mWidget->h();
+	}
     Fl::awake(
               [](void *inScreenManager)->void
     {
         TFLScreenManager *mgr = (TFLScreenManager*)inScreenManager;
-        mgr->mApp->ResizeFromNewton(mgr->GetScreenWidth(), mgr->GetScreenHeight());
+        mgr->mApp->ResizeFromNewton(newWidth, newHeight);
     },
               this
               );
-//    mApp->
-//	printf("New orientation %d is %dx%d\n", inNewOrientation, GetScreenWidth(), GetScreenHeight());
-//	mWidget->newRGBSize(GetScreenWidth(), GetScreenHeight());
+	mWidget->newRGBSize(GetScreenWidth(), GetScreenHeight());
+	mScreenWasLandscape = screenWillBeLandscape;
 }
 
 // -------------------------------------------------------------------------- //
@@ -513,19 +563,33 @@ TFLScreenManager::TabletOrientationChanged( EOrientation )
 void
 TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 {
-	int mBitsPerPixel = 24;
+#if SRC_BITMAP_FORMAT_RGBA
+	const int mBitsPerPixel = 32;
+#else
+	const int mBitsPerPixel = 24;
+#endif
 
-	KUInt16 top, left, height, width;
+	KUInt16 top, left, bottom, right, height, width;
 	if (inUpdateRect) {
 		top = inUpdateRect->fTop;
+		// clip the vertical bounds
+		if (top < 0) top = 0;
+		bottom = inUpdateRect->fBottom;
+		if (bottom >= mWidget->getRGBHeight()) bottom = mWidget->getRGBHeight() - 1;
+		if (top > bottom) return;
+		height = bottom - top;
+		// clip the horizontal bounds
 		left = inUpdateRect->fLeft;
-		height = inUpdateRect->fBottom - top;
-		width = inUpdateRect->fRight - left;
+		if (left < 0) left = 0;
+		right = inUpdateRect->fRight;
+		if (right >= mWidget->getRGBWidth()) right = mWidget->getRGBWidth() - 1;
+		if (left > right) return;
+		width = right - left;
 	} else {
 		top = 0; 
 		left = 0;
-		height = GetScreenHeight();
-		width = GetScreenWidth();
+		height = mWidget->getRGBHeight();
+		width = mWidget->getRGBWidth();
 	}
 
 	KUInt8 rs, gs, bs; 
@@ -576,11 +640,13 @@ TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 			*dstCursor++ = thePixel>>rs;
 			*dstCursor++ = thePixel>>gs;
 			*dstCursor++ = thePixel>>bs;
+			if (mBitsPerPixel == 32) *dstCursor++ = 0;
 			// Second pixel
 			thePixel = (theByte<<4) | (theByte & 0x0f);
 			*dstCursor++ = thePixel>>rs;
 			*dstCursor++ = thePixel>>gs;
 			*dstCursor++ = thePixel>>bs;
+			if (mBitsPerPixel == 32) *dstCursor++ = 0;
 		} while (srcCursor < srcEnd);
 		srcRowPtr += srcRowBytes;
 		dstRowPtr += dstRowBytes;

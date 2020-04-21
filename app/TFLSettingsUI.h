@@ -147,8 +147,10 @@ private:
   static void cb_Download(Fl_Button*, void*);
 public:
   void startDump();
-  void dataReadCB(FL_SOCKET p, void *user_data);
-  void dataExceptCB(FL_SOCKET p, void *user_data);
+  void dataRead(FL_SOCKET p);
+  void dataExcept(FL_SOCKET p);
+  static void dataReadCB(FL_SOCKET p, void *user_data);
+  static void dataExceptCB(FL_SOCKET p, void *user_data);
   Fl_Double_Window* createROMDownloadProgressWindow();
   Fl_Slider *wProgressSlider;
   Fl_Button *wProgressCancel;

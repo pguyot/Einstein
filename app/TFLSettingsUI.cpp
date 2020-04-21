@@ -1297,13 +1297,13 @@ void TFLSettingsUI::startDump() {
   #endif
 }
 
-void TFLSettingsUI::dataReadCB(FL_SOCKET p, void *user_data) {
+void TFLSettingsUI::dataRead(FL_SOCKET p) {
   #if TARGET_OS_WIN32
   unsigned long n;
   DWORD rcvd;
   int ret = WSAIoctl(sData, FIONREAD, 0, 0, &n, sizeof(n), &rcvd, 0, 0);
   if (ret || n==0) {
-    dataExceptCB(p, user_data);
+    dataExcept(p);
     return;
   }
   
@@ -1318,7 +1318,7 @@ void TFLSettingsUI::dataReadCB(FL_SOCKET p, void *user_data) {
   #endif
 }
 
-void TFLSettingsUI::dataExceptCB(FL_SOCKET p, void *user_data) {
+void TFLSettingsUI::dataExcept(FL_SOCKET p) {
   #if TARGET_OS_WIN32
   if (fROM) {
     fclose(fROM);
@@ -1337,6 +1337,16 @@ void TFLSettingsUI::dataExceptCB(FL_SOCKET p, void *user_data) {
     fl_message("Invalid ROM size.\n%d bytes expected, but %d bytes received.", 8*1024*1024, recvd);
   }
   #endif
+}
+
+void TFLSettingsUI::dataReadCB(FL_SOCKET p, void *user_data) {
+  TFLSettingsUI *This = (TFLSettingsUI*)user_data;
+  This->dataRead(p);
+}
+
+void TFLSettingsUI::dataExceptCB(FL_SOCKET p, void *user_data) {
+  TFLSettingsUI *This = (TFLSettingsUI*)user_data;
+  This->dataExcept(p);
 }
 
 Fl_Double_Window* TFLSettingsUI::createROMDownloadProgressWindow() {
