@@ -44,10 +44,14 @@
 #include "app/TFLApp.h"
 
 
-#if TARGET_OS_WIN32
+#if TARGET_OS_WIN32 || TARGET_OS_MAC
 #define SRC_BITMAP_FORMAT_RGBA 1
 #else
 #define SRC_BITMAP_FORMAT_RGBA 0
+#endif
+
+#if TARGET_OS_MAC
+#include <CoreGraphics/CoreGraphics.h>
 #endif
 
 
@@ -183,6 +187,38 @@ public:
 			} else {
 				fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_, 4); // 32 bits: RGBx
 			}
+#elif TARGET_OS_MAC
+            CGColorSpaceRef lut = 0;
+            lut = CGColorSpaceCreateDeviceRGB();
+
+            // we need to set up a data provider that grabs our raw RGBs
+            CGDataProviderRef src = CGDataProviderCreateWithData( nullptr, rgbData_, rgbWidth_*rgbHeight_*4, nullptr);
+
+            // now wrap that all insode an image format
+            CGImageRef img = CGImageCreate(rgbWidth_, rgbHeight_, 8, 32, rgbWidth_*4,
+                                           lut, kCGImageAlphaNoneSkipLast, src, nullptr,
+                                           false, kCGRenderingIntentDefault);
+            CGColorSpaceRelease(lut);
+            CGDataProviderRelease(src);
+
+            // draw the image into the destination context
+            if (img) {
+                CGContextSaveGState(fl_gc);
+                CGContextSetInterpolationQuality(fl_gc, kCGInterpolationNone /*kCGInterpolationLow*/ );
+                CGContextTranslateCTM(fl_gc, x(), y());
+                CGContextScaleCTM(fl_gc, 1, 1);
+
+                CGRect rect = CGRectMake(0, 0, w(), h());
+                CGContextClipToRect(fl_gc, CGRectOffset(rect, -0.5, -0.5 ));
+                CGContextTranslateCTM(fl_gc, -0.5, h() - 0.5);
+                CGContextScaleCTM(fl_gc, double(w())/double(rgbWidth_), -double(h())/double(rgbHeight_));
+                CGContextDrawImage(fl_gc, CGRectMake(0, 0, rgbWidth_, rgbHeight_), img);
+
+                CGImageRelease(img);
+                CGContextRestoreGState(fl_gc);
+            } else {
+                fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_, 4); // 32 bit: RGB
+            }
 #else
 			fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_); // 24 bit: RGB
 #endif

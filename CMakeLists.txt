@@ -421,6 +421,8 @@ if (APPLE)
 			# calling ObjectiveC native functions (very limited support in this version of EInsten)
 			Emulator/NativeCalls/TObjCBridgeCalls.mm
 			Emulator/NativeCalls/TObjCBridgeCalls.h
+            app/TCocoaPathHelper.mm
+            app/TCocoaPathHelper.h
 			# macOS sound support
 			Emulator/Sound/TCoreAudioSoundManager.cpp
 			Emulator/Sound/TCoreAudioSoundManager.h
@@ -457,7 +459,7 @@ if (APPLE)
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC -Wall)
-	target_compile_definitions(Einstein PRIVATE NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 NS_BLOCK_ASSERTIONS=1)
+	target_compile_definitions(Einstein PRIVATE NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1)
 	target_link_libraries(Einstein
 			# /usr/local/lib/libfltk.a
 			fltk

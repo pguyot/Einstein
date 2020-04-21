@@ -7,6 +7,7 @@
 //
 
 #include <string>
+#include <Foundation/Foundation.h>
 
 #import "TCocoaPathHelper.h"
 
