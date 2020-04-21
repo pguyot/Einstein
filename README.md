@@ -15,3 +15,5 @@ Once you have Einstein up and running, refer to the
 [user manual](https://github.com/pguyot/Einstein/blob/master/Documentation/UserManual.pdf).
 
 [![Screenshot](https://raw.githubusercontent.com/pguyot/Einstein/master/Screenshots/Mac%202015-06-29.png)](https://raw.githubusercontent.com/pguyot/Einstein/master/Screenshots/Mac%202015-06-29.png)
+
+

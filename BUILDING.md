@@ -57,3 +57,90 @@ A lot of warnings may appear that you can ignore. In the end, you will have a fi
 
 (BasiliskII: in `.../BasiliskII/src/Unix`, run `./autogen.sh --without-gtk --without-x --disable-standalone-gui --disable-gtk-test --with-sdl-static --with-sdl-video --with-sdl-audio --with-sdl-framework` and `make`)
 
+
+
+
+(please ignore the text below. This will eventually be the Windows installation instructions. Maybe.)
+
+Prerequisites: 7-zip, ability to switch to US keyboard.
+
+Installing Einstein on Windows 10:
+
+Downlaod the binary from http://www.elektriktrick.com/Newton_Installs.html :
+
+Einstein.Windows.2020.3.4.zip
+and uncompress into $HOME/Newton
+Einstein.rex.zip
+and uncompress into $HOME/Newton
+Find the ROM: 717006.rom
+and save in $HOME/Newton
+
+"Windows protected your PC" -> More Info... -> Run Anyway
+"The code execution cannot procede because VCRUNTIME140_1.dll was not found"
+-> download and run (CFLAGS: -d2FH4- LDFLAGS: -d2:-FH4-)
+http://aka.ms/vs/16/release/vc_redist.x64.exe (requires restart - moan!)
+
+Einstein settings will pop up: In the "ROM" section, choose your 717006.rom file.
+Keep "Machine" at MP2x00 US.
+I like to change the location of the Flash file to the same directory, but you can leave it as is ((FLTK Preferences?!) c:\users\micro\AppData\Roaming\robowerk.com\einstein\internal.flash)
+Screen is 320x480 for the original feeling. I prefer 480x720.
+Leave the RAM size alone (only 1MB and 4MB seem to work, just like the original)
+
+If the screen resolution is not working out, Ctrl-'+' and Ctrl-'-' change the screen scaling.
+
+Install apps by simply dragging the package onto the Newton screen.
+
+
+Installing BasiliskII with NTK on Windows 10:
+
+Download the binary from http://www.elektriktrick.com/Newton_Installs.html :
+
+BasiliskII.Windows.E.4.zip
+
+Download from Unna:
+boot disk
+dev disk (WinZIp universal will not work, use 7-zip from www.7-zip.org)
+
+Find and download Performa.rom
+
+Unpack into $HOME/Newton.
+
+Open BasiliskII_prefs with Notepad and adjust the netries for rom, disk, again disk, and extfs. Leave
+seriala at tcp:3679
+
+If you like, create a fake MacOS Classic disk that the emulated Mac and your PC can see in $HOME/Newton/MacDisk.
+
+Launch BasiliskII. Windows Firewall will complain. Allow basiliskii.exe to communicate within private networks.
+
+
+
+Build from scratch:
+
+Prerequisites: VisualC 2019 (Community) with Universal Windows Platform development and C++, and the 
+Additional Components "CMake" and "git for Windows"
+
+go inot $HOME/dev
+git clone fltk > $HOME/dev/fltk-1.4.git
+git clone Einstein branch matt2020
+
+
+
+git clone macemu >$HOME/dev/macemu (includes BasiliskII)
+grab the SDL2 sourcecode and put it in $HOME/dev/macemu/external
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
