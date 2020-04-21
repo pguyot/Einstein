@@ -34,6 +34,13 @@
 
  */
 
+#if TARGET_OS_WIN32
+#define SCREEN_CAN_STRETCH 1
+#else
+#define SCREEN_CAN_STRETCH 0
+#endif
+
+
 #include <K/Defines/KDefinitions.h>
 #include "TFLApp.h"
 #include "TFLAppUI.h"
@@ -211,7 +218,11 @@ TFLApp::Run( int argc, char* argv[] )
     mScreenManager = flScreenManager;
     flScreenManager->GetWidget()->position(wToolbox->x(), wToolbox->y()+wToolbox->h());
     win->end();
-//    win->resizable(flScreenManager->GetWidget()); // play with this...
+#if SCREEN_CAN_STRETCH
+    win->resizable(flScreenManager->GetWidget());
+#else
+    win->resizable(nullptr);
+#endif
 
 #if TARGET_OS_WIN32
     mSoundManager = new TWaveSoundManager( mLog );
@@ -715,7 +726,11 @@ void TFLApp::ResizeFromNewton(int w, int h)
     int dw = w - mNewtonScreen->w();
     int dh = h - mNewtonScreen->h();
     wAppWindow->size( wAppWindow->w() + dw, wAppWindow->h() + dh );
+#if SCREEN_CAN_STRETCH
+    wAppWindow->resizable(mNewtonScreen);
+#else
     wAppWindow->resizable(nullptr);
+#endif
     Fl::unlock();
 }
 
@@ -733,7 +748,11 @@ void TFLApp::UserActionToggleFullscreen()
     if (wAppWindow->fullscreen_active()) {
         wAppWindow->resizable(mNewtonScreen);
         wAppWindow->fullscreen_off(x, y, w, h);
+#if SCREEN_CAN_STRETCH
+        wAppWindow->resizable(mNewtonScreen);
+#else
         wAppWindow->resizable(nullptr);
+#endif
     } else {
         x = wAppWindow->x();
         y = wAppWindow->y();
@@ -742,7 +761,11 @@ void TFLApp::UserActionToggleFullscreen()
 //        int sx, sy, sw, sh;
         wAppWindow->resizable(mNewtonScreen);
         wAppWindow->fullscreen();
+#if SCREEN_CAN_STRETCH
+        wAppWindow->resizable(mNewtonScreen);
+#else
         wAppWindow->resizable(nullptr);
+#endif
     }
 }
 

@@ -171,6 +171,9 @@ private:
 	///
 	Fl_Newton_Screen_Widget	*mWidget;
 
+	// Store the value of the last time that the orientation was set.
+	bool mScreenWasLandscape = false;
+
 };
 
 #endif
