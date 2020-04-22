@@ -73,6 +73,9 @@ public:
 
     // user can go into fullscreen mode and back to windowed mode
     bool mAllowFullscreen = true;
+
+    // if this is set, use the Einstein.rex within the app, otherwise load an external fiie
+    bool mBuiltinEinsteinRex = true;
 };
 
 #endif // T_FL_SETTINGS_H

@@ -148,51 +148,22 @@ set ( sources
     Emulator/ROM/TFlatROMImageWithREX.h
     Emulator/ROM/TROMImage.cpp
     Emulator/ROM/TROMImage.h
-#    Emulator/Scheduler/TScheduler.cpp
-#    Emulator/Scheduler/TScheduler.h
-#    Emulator/Scheduler/TTask.cpp
-#    Emulator/Scheduler/TTask.h
-#    Emulator/Screen/CocoaEmulatorApp.h
-#    Emulator/Screen/CocoaScreenProxy.h
-#    Emulator/Screen/TAndroidNativeScreenManager.cpp
-#    Emulator/Screen/TAndroidNativeScreenManager.h
-#    Emulator/Screen/TAndroidScreenManager.cpp
-#    Emulator/Screen/TAndroidScreenManager.h
-#    Emulator/Screen/TCocoaPowerButtonNSView.h
-#    Emulator/Screen/TCocoaScreenGlue.h
-#    Emulator/Screen/TCocoaScreenManager.h
-#    Emulator/Screen/TCocoaScreenView.h
-#    Emulator/Screen/TFBScreenManager.cpp
-#    Emulator/Screen/TFBScreenManager.h
     Emulator/Screen/TFLScreenManager.cpp
     Emulator/Screen/TFLScreenManager.h
-#    Emulator/Screen/TIOSScreenManager.h
     Emulator/Screen/TNullScreenManager.cpp
     Emulator/Screen/TNullScreenManager.h
-#    Emulator/Screen/TSDLScreenManager.cpp
-#    Emulator/Screen/TSDLScreenManager.h
     Emulator/Screen/TScreenManager.cpp
     Emulator/Screen/TScreenManager.h
-#    Emulator/Screen/TX11ScreenManager.cpp
-#    Emulator/Screen/TX11ScreenManager.h
     Emulator/Serial/TBasicSerialPortManager.cpp
     Emulator/Serial/TBasicSerialPortManager.h
     Emulator/Serial/TSerialPortManager.cpp
     Emulator/Serial/TSerialPortManager.h
     Emulator/Serial/TSerialPorts.cpp
     Emulator/Serial/TSerialPorts.h
-#    Emulator/Sound/TAndroidNativeSoundManager.cpp
-#    Emulator/Sound/TAndroidNativeSoundManager.h
-#    Emulator/Sound/TAndroidSoundManager.cpp
-#    Emulator/Sound/TAndroidSoundManager.h
     Emulator/Sound/TBufferedSoundManager.cpp
     Emulator/Sound/TBufferedSoundManager.h
     Emulator/Sound/TNullSoundManager.cpp
     Emulator/Sound/TNullSoundManager.h
-#    Emulator/Sound/TPortAudioSoundManager.cpp
-#    Emulator/Sound/TPortAudioSoundManager.h
-#    Emulator/Sound/TPulseAudioSoundManager.cpp
-#    Emulator/Sound/TPulseAudioSoundManager.h
     Emulator/Sound/TSoundManager.cpp
     Emulator/Sound/TSoundManager.h
     Emulator/TARMProcessor.cpp
@@ -213,8 +184,6 @@ set ( sources
     Emulator/TMemoryConsts.h
     Emulator/TNativePrimitives.cpp
     Emulator/TNativePrimitives.h
-#    Emulator/Win32/CompatibilityWin32.cpp
-#    Emulator/Win32/CompatibilityWin32.h
     K/Defines/KDefinitions.cpp
     K/Defines/KDefinitions.h
     K/Defines/UByteSex.h
@@ -234,27 +203,13 @@ set ( sources
     K/Misc/TDoubleLinkedList.h
     K/Misc/TMappedFile.cpp
     K/Misc/TMappedFile.h
-#    K/Misc/TNameServerSingleton.cpp
-#    K/Misc/TNameServerSingleton.h
-#    K/Misc/UPStrings.cpp
-#    K/Misc/UPStrings.h
     K/Streams/TFileStream.cpp
     K/Streams/TFileStream.h
     K/Streams/TRandomAccessStream.h
     K/Streams/TStream.cpp
     K/Streams/TStream.h
-#    K/Tests/KDebug.h
-#    K/Tests/TFunctionMonitor.h
-#    K/Tests/TMonitorMethodClient.cpp
-#    K/Tests/TMonitorMethodClient.h
-#    K/Tests/TNewtonTraceMonitor.cpp
-#    K/Tests/TNewtonTraceMonitor.h
-#    K/Tests/TTraceMonitor.cpp
-#    K/Tests/TTraceMonitor.h
     K/Threads/TCondVar.cpp
     K/Threads/TCondVar.h
-#    K/Threads/TFiber.cpp
-#    K/Threads/TFiber.h
     K/Threads/TMutex.cpp
     K/Threads/TMutex.h
     K/Threads/TThread.cpp
@@ -276,24 +231,6 @@ set ( sources
     Monitor/TSymbolList.h
     Monitor/UDisasm.cpp
     Monitor/UDisasm.h
-#    app/AndroidGlue.cpp
-#    app/AndroidGlue.h
-#    app/Scripting/EinsteinDoNewtonScriptCommand.h
-#    app/Scripting/EinsteinInstallPackageCommand.h
-#    app/TAndroidApp.cpp
-#    app/TAndroidApp.h
-#    app/TAndroidNativeApp.cpp
-#    app/TAndroidNativeApp.h
-#    app/TCLIApp.cpp
-#    app/TCLIApp.h
-#    app/TCocoaAppController.h
-#    app/TCocoaFileManager.h
-#    app/TCocoaListenerWindow.h
-#    app/TCocoaMonitorController.h
-#    app/TCocoaPathHelper.h
-#    app/TCocoaROMDumperController.h
-#    app/TCocoaSetupController.h
-#    app/TCocoaUserDefaults.h
     app/TFLApp.cpp
     app/TFLApp.h
     app/TFLAppWindow.cpp
@@ -306,90 +243,11 @@ set ( sources
     app/TFLSettingsUI.h
     app/TFLSettings.cpp
     app/TFLSettings.h
-#    app/TMaemoApp.cpp
-#    app/TMaemoApp.h
     app/TPathHelper.cpp
     app/TPathHelper.h
     app/Version.h
-#    app/einstein.cpp
-#    app/einstein_maemo.cpp
-#    app/iEinstein/Classes/iEinsteinAppDelegate.h
-#    app/iEinstein/Classes/iEinsteinView.h
-#    app/iEinstein/Classes/iEinsteinViewController.h
-#    libffi-armlinux/include/ffi.h
-#    libffi-armlinux/include/ffitarget.h
-#    libffi-cygwin/include/ffi.h
-#    libffi-cygwin/include/ffitarget.h
-#    libffi-linux/include/ffi.h
-#    libffi-linux/include/ffitarget.h
-#    libffi-nokia/include/ffi.h
-#    libffi-nokia/include/ffi_common.h
-#    libffi-nokia/include/fficonfig.h
-#    libffi-nokia/include/ffitarget.h
-#    libffi-nokia2006/include/ffi.h
-#    libffi-nokia2006/include/ffi_common.h
-#    libffi-nokia2006/include/fficonfig.h
-#    libffi-nokia2006/include/ffitarget.h
-#    libffi-osx/include/ffi.h
-#    libffi-osx/include/ffi_common.h
-#    libffi-osx/include/fficonfig.h
-#    libffi-osx/include/ffitarget.h
-#    libffi-osx/src/powerpc/asm.h
-#    libffi-osx/src/powerpc/ffitarget.h
-#    libffi-osx/src/x86/ffitarget.h
-#    libffi-win32/include/ffi.h
-#    libffi-win32/include/ffitarget.h
-#    libffi/acconfig.h
-#    libffi/confdefs.h
-#    libffi/include/ffi_common.h
-#    libffi/include/ffi_mips.h
-#    libffi/src/alpha/ffitarget.h
-#    libffi/src/arm/ffitarget.h
-#    libffi/src/fficonfig.h
-#    libffi/src/ia64/ffitarget.h
-#    libffi/src/ia64/ia64_flags.h
-#    libffi/src/include/ffi.h
-#    libffi/src/include/fficonfig.h
-#    libffi/src/m68k/ffitarget.h
-#    libffi/src/mips/ffitarget.h
-#    libffi/src/pa/ffitarget.h
-#    libffi/src/powerpc/asm.h
-#    libffi/src/powerpc/ffitarget.h
-#    libffi/src/s390/ffitarget.h
-#    libffi/src/sh/ffitarget.h
-#    libffi/src/sh64/ffitarget.h
-#    libffi/src/sparc/ffitarget.h
-#    libffi/src/x86/ffitarget.h
-#    libffi/testsuite/libffi.call/ffitest.h
-#    libffi/testsuite/libffi.special/ffitestcxx.h
-#    portaudio/pa_asio/iasiothiscallresolver.cpp
-#    portaudio/pa_asio/iasiothiscallresolver.h
-#    portaudio/pa_asio/pa_asio.cpp
-#    portaudio/pa_asio/pa_asio.h
-#    portaudio/pa_beos/PlaybackNode.h
-#    portaudio/pa_common/pa_allocation.h
-#    portaudio/pa_common/pa_converters.h
-#    portaudio/pa_common/pa_cpuload.h
-#    portaudio/pa_common/pa_dither.h
-#    portaudio/pa_common/pa_endianness.h
-#    portaudio/pa_common/pa_hostapi.h
-#    portaudio/pa_common/pa_process.h
-#    portaudio/pa_common/pa_stream.h
-#    portaudio/pa_common/pa_trace.h
-#    portaudio/pa_common/pa_types.h
-#    portaudio/pa_common/pa_util.h
-#    portaudio/pa_common/portaudio.h
-#    portaudio/pa_dll_switch/PaDllEntry.h
-#    portaudio/pa_dll_switch/loadPA_DLL.cpp
-#    portaudio/pa_dll_switch/portaudio.h
-#    portaudio/pa_linux_alsa/pa_linux_alsa.h
-#    portaudio/pa_mac_core/pa_mac_core.h
-#    portaudio/pa_unix/pa_unix_util.h
-#    portaudio/pa_win/pa_x86_plain_converters.h
-#    portaudio/pa_win_ds/dsound_wrapper.h
-#    portaudio/pa_win_wmme/pa_win_wmme.h
-#    portaudio/pablio/pablio.h
-#    portaudio/pablio/ringbuffer.h
+    Drivers/EinsteinRex.cpp
+    Drivers/EinsteinRex.h
 )
 
 

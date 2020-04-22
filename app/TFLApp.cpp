@@ -254,11 +254,20 @@ TFLApp::Run( int argc, char* argv[] )
             useAIFROMFile = 2;
         }
     }
-    char theREX1Path[FL_PATH_MAX];
-    strcpy(theREX1Path, theROMImagePath);
-    char *rexName = (char*)fl_filename_name(theREX1Path);
-    if (rexName) {
-        strcpy(rexName, "Einstein.rex");
+
+    // If we use the builtin REX, set the REX path to null
+    // If we want an external file, take the ROM path with the filename "Einstein.rex"
+    char *theREX1Path = nullptr;
+    char theREX1PathBuffer[FL_PATH_MAX];
+    if (mFLSettings->mBuiltinEinsteinRex) {
+        theREX1Path = nullptr;
+    } else {
+        strcpy(theREX1PathBuffer, theROMImagePath);
+        char *rexName = (char *) fl_filename_name(theREX1PathBuffer);
+        if (rexName) {
+            strcpy(rexName, "Einstein.rex");
+        }
+        theREX1Path = theREX1PathBuffer;
     }
 
     switch (useAIFROMFile) {

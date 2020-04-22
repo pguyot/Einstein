@@ -46,6 +46,7 @@
 
 // Einstein
 #include "TAIFFile.h"
+#include "Drivers/EinsteinRex.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -77,7 +78,7 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
 		(void) ::fprintf( stderr, "Can't stat REX0 file (%s)\n", inREX0Path );
 		::exit( 1 );
 	}
-	if (GetLatestModDate( &theModDate, inREX1Path ) < 0)
+	if (inREX1Path && GetLatestModDate( &theModDate, inREX1Path ) < 0)
 	{
 		(void) ::fprintf( stderr, "Can't stat REX1 file (%s)\n", inREX1Path );
 		::exit( 1 );
@@ -151,22 +152,27 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
 		(void) ::close( fd );
 
 		// Read second rex.
+        if (inREX1Path==nullptr) {
+            // use the builtin Einstein.rex
+            memcpy(theData+0x00800000, Einstein_rex, Einstein_rex_len);
+        } else {
+            // load the Einstein.rex from a file
 #if TARGET_OS_WIN32
-		fd = ::open( inREX1Path, O_RDONLY|O_BINARY, 0 );
+            fd = ::open( inREX1Path, O_RDONLY|O_BINARY, 0 );
 #else
-		fd = ::open( inREX1Path, O_RDONLY, 0 );
+            fd = ::open(inREX1Path, O_RDONLY, 0);
 #endif
-		if (fd < 0)
-		{
-			(void) ::fprintf( stderr, "Can't open REX 1 file '%s'\n", inREX1Path );
-			::exit( 1 );
-		}
-		
-		(void) ::read(
-							fd,
-							(void*) &theData[0x00800000],
-							0x00800000 );
-		(void) ::close( fd );
+            if (fd < 0) {
+                (void) ::fprintf(stderr, "Can't open REX 1 file '%s'\n", inREX1Path);
+                ::exit(1);
+            }
+
+            (void) ::read(
+                    fd,
+                    (void *) &theData[0x00800000],
+                    0x00800000);
+            (void) ::close(fd);
+        }
 		
 		CreateImage( theImagePath, theData, 0x01000000, inMachineString );
 
