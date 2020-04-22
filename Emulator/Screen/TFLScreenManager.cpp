@@ -54,6 +54,10 @@
 #include <CoreGraphics/CoreGraphics.h>
 #endif
 
+#if TARGET_OS_LINUX
+#include <X11/extensions/Xrender.h>
+#endif
+
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -188,6 +192,8 @@ public:
 				fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_, 4); // 32 bits: RGBx
 			}
 #elif TARGET_OS_MAC
+			// TODO: this code is faster than the FLTK version, but slower than expected. We should invest
+			//       some time to find the perfect setup for maximum speed and full GPU support.
             CGColorSpaceRef lut = 0;
             lut = CGColorSpaceCreateDeviceRGB();
 
@@ -219,74 +225,56 @@ public:
             } else {
                 fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_, 4); // 32 bit: RGB
             }
+//#elif TARGET_OS_LINUX
 #if 0
-#include     <stdio.h>
-#include     <stdlib.h>
-#include     <string.h>
-#include     <X11/Xlib.h>
-
-            XImage *CreateTrueColorImage(Display *display, Visual *visual, unsigned char *image, int width, int height)
-            {
-                int i, j;
-                unsigned char *image32=(unsigned char *)malloc(width*height*4);
-                unsigned char *p=image32;
-                for(i=0; i<width; i++)
-                {
-                    for(j=0; j<height; j++)
-                    {
-                        if((i<256)&&(j<256))
-                        {
-                            *p++=rand()%256; // blue
-                            *p++=rand()%256; // green
-                            *p++=rand()%256; // red
-                        }
-                        else
-                        {
-                            *p++=i%256; // blue
-                            *p++=j%256; // green
-                            if(i<256)
-                                *p++=i%256; // red
-                            else if(j<256)
-                                *p++=j%256; // red
-                            else
-                                *p++=(256-j)%256; // red
-                        }
-                        p++;
-                    }
-                }
-                return XCreateImage(display, visual, 24, ZPixmap, 0, image32, width, height, 32, 0);
-            }
-
-            XPutImage(display, window, DefaultGC(display, 0), ximage, 0, 0, 0, 0, width, height);
-            XvPutImage can scale, but:
-            The capability exposed by XvPutImage results in the scaled image being drawn to an overlay plane. Most video cards also provide support for a scaled blit into the normal output planes, but this is not exposed via XvPutImage
-                ?? XPutImageScaled Extension
-                ?? XCopyAreaScaled Extension
-
-                // XRender extension:
-            double xscale= (double)abmp.W/(double)loc.w;
-            double yscale= (double)abmp.H/(double)loc.h;
+    // TODO: Nothing implemented yet for X11/Xlib. XRender extension seems to be the way to go.
+            double xscale= 1.0;
+            double yscale= 1.0;
             XTransform xform = {{
-                { XDoubleToFixed( xscale ), XDoubleToFixed( 0 ), XDoubleToFixed( 0 ) },
-                { XDoubleToFixed( 0 ), XDoubleToFixed( yscale ), XDoubleToFixed( 0 ) },
-                { XDoubleToFixed( 0 ), XDoubleToFixed( 0 ), XDoubleToFixed(1.0) }
-            }};
-            XRenderSetPictureTransform(App::pDisplay, xrp, &xform);
-            XRenderComposite(App::pDisplay, PictOpOver,
-                             xrp, 0, XftDrawPicture(xftc), // src, mask, dest
+                                        { XDoubleToFixed( xscale ), XDoubleToFixed( 0 ), XDoubleToFixed( 0 ) },
+                                        { XDoubleToFixed( 0 ), XDoubleToFixed( yscale ), XDoubleToFixed( 0 ) },
+                                        { XDoubleToFixed( 0 ), XDoubleToFixed( 0 ), XDoubleToFixed(1.0) }
+                                }};
+
+            XRenderPictFormat *picFormat = XRenderFindVisualFormat(fl_display, (const Visual*)fl_visual);
+            XRenderPictureAttributes pa = { };
+            //pa.subwindow_mode = IncludeInferiors;
+            Pixmap pixmap = XCreatePixmapFromBitmapData(
+                    fl_display		/* display */,
+                    fl_window		/* d */,
+                    reinterpret_cast<char *>(rgbData_)        /* data */,
+                    rgbWidth_	/* width */,
+                    rgbHeight_	/* height */,
+                    0	/* fg */,
+                    0	/* bg */,
+                    3	/* depth */
+            );
+            Picture srcPic = XRenderCreatePicture(fl_display, pixmap, picFormat, CPSubwindowMode, &pa);
+            Picture dstPic = XRenderCreatePicture(fl_display, fl_window, picFormat, CPSubwindowMode, &pa);
+
+            XRenderSetPictureTransform(fl_display, srcPic, &xform);
+            XRenderComposite(fl_display, PictOpOver,
+                             srcPic, 0, dstPic, // src, mask, dest
                              0, 0, // src xy (in destination space!)
                              0, 0, // mask xy
-                             loc.x, loc.y, loc.w, loc.h);
+                             x(), y(), rgbWidth_, rgbHeight_);
+
+            XRenderFreePicture(fl_display, srcPic);
+            XRenderFreePicture(fl_display, dstPic);
 #endif
 #else
-			fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_); // 24 bit: RGB
-#endif
-#if 0
-            // This actually works quite well on MacOS... (well, it's slow as heck)
-            Fl_RGB_Image img(rgbData_, rgbWidth_, rgbHeight_);
-            img.scale(w(), h(), 0, 1);
-            img.draw(x(), y(), w(), h());
-
+            if ( (rgbWidth_==w()) && (rgbHeight_==h())) {
+                fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_, 3);
+            } else {
+                // This code very inefficiently copies the RGB data,
+                // scales it using the CPU, and then reders it to
+                // the screen, which in turn may scale it onece
+                // more in FLTK. It would be preferable to find an
+                // accelerated GPU version or disable scaling.
+                Fl_RGB_Image img(rgbData_, rgbWidth_, rgbHeight_);
+                img.scale(w(), h(), 0, 1);
+                img.draw(x(), y(), w(), h());
+            }
 #endif
         } else {
 			super::draw();

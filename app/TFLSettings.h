@@ -68,6 +68,11 @@ public:
     int RAMSize;
     int dontShow;
 
+    // user can drag the corners of the emulator window to stretch the Newton screen
+    bool mAllowScreenResize = true;
+
+    // user can go into fullscreen mode and back to windowed mode
+    bool mAllowFullscreen = true;
 };
 
 #endif // T_FL_SETTINGS_H

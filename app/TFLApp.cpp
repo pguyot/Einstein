@@ -34,14 +34,6 @@
 
  */
 
-//#if TARGET_OS_WIN32 || TARGET_OS_MAC
-#if TARGET_OS_MAC
-#define SCREEN_CAN_STRETCH 1
-#else
-#define SCREEN_CAN_STRETCH 0
-#endif
-
-
 #include <K/Defines/KDefinitions.h>
 #include "TFLApp.h"
 #include "TFLAppUI.h"
@@ -94,7 +86,7 @@
 #error Selected target OS not implemented, or no target OS selected
 #endif
 
-// Monito system for debugging ARM code
+// Monitor system for debugging ARM code
 #include "Monitor/TMonitor.h"
 #include "Monitor/TSymbolList.h"
 
@@ -219,11 +211,10 @@ TFLApp::Run( int argc, char* argv[] )
     mScreenManager = flScreenManager;
     flScreenManager->GetWidget()->position(wToolbox->x(), wToolbox->y()+wToolbox->h());
     win->end();
-#if SCREEN_CAN_STRETCH
-    win->resizable(flScreenManager->GetWidget());
-#else
-    win->resizable(nullptr);
-#endif
+    if (mFLSettings->mAllowScreenResize)
+        win->resizable(flScreenManager->GetWidget());
+    else
+        win->resizable(nullptr);
 
 #if TARGET_OS_WIN32
     mSoundManager = new TWaveSoundManager( mLog );
@@ -727,11 +718,8 @@ void TFLApp::ResizeFromNewton(int w, int h)
     int dw = w - mNewtonScreen->w();
     int dh = h - mNewtonScreen->h();
     wAppWindow->size( wAppWindow->w() + dw, wAppWindow->h() + dh );
-#if SCREEN_CAN_STRETCH
-    wAppWindow->resizable(mNewtonScreen);
-#else
-    wAppWindow->resizable(nullptr);
-#endif
+    if (!mFLSettings->mAllowScreenResize)
+        wAppWindow->resizable(nullptr);
     Fl::unlock();
 }
 
@@ -749,11 +737,8 @@ void TFLApp::UserActionToggleFullscreen()
     if (wAppWindow->fullscreen_active()) {
         wAppWindow->resizable(mNewtonScreen);
         wAppWindow->fullscreen_off(x, y, w, h);
-#if SCREEN_CAN_STRETCH
-        wAppWindow->resizable(mNewtonScreen);
-#else
-        wAppWindow->resizable(nullptr);
-#endif
+        if (!mFLSettings->mAllowScreenResize)
+            wAppWindow->resizable(nullptr);
     } else {
         x = wAppWindow->x();
         y = wAppWindow->y();
@@ -762,11 +747,8 @@ void TFLApp::UserActionToggleFullscreen()
 //        int sx, sy, sw, sh;
         wAppWindow->resizable(mNewtonScreen);
         wAppWindow->fullscreen();
-#if SCREEN_CAN_STRETCH
-        wAppWindow->resizable(mNewtonScreen);
-#else
-        wAppWindow->resizable(nullptr);
-#endif
+        if (!mFLSettings->mAllowScreenResize)
+            wAppWindow->resizable(nullptr);
     }
 }
 
