@@ -219,6 +219,65 @@ public:
             } else {
                 fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_, 4); // 32 bit: RGB
             }
+#if 0
+#include     <stdio.h>
+#include     <stdlib.h>
+#include     <string.h>
+#include     <X11/Xlib.h>
+
+            XImage *CreateTrueColorImage(Display *display, Visual *visual, unsigned char *image, int width, int height)
+            {
+                int i, j;
+                unsigned char *image32=(unsigned char *)malloc(width*height*4);
+                unsigned char *p=image32;
+                for(i=0; i<width; i++)
+                {
+                    for(j=0; j<height; j++)
+                    {
+                        if((i<256)&&(j<256))
+                        {
+                            *p++=rand()%256; // blue
+                            *p++=rand()%256; // green
+                            *p++=rand()%256; // red
+                        }
+                        else
+                        {
+                            *p++=i%256; // blue
+                            *p++=j%256; // green
+                            if(i<256)
+                                *p++=i%256; // red
+                            else if(j<256)
+                                *p++=j%256; // red
+                            else
+                                *p++=(256-j)%256; // red
+                        }
+                        p++;
+                    }
+                }
+                return XCreateImage(display, visual, 24, ZPixmap, 0, image32, width, height, 32, 0);
+            }
+
+            XPutImage(display, window, DefaultGC(display, 0), ximage, 0, 0, 0, 0, width, height);
+            XvPutImage can scale, but:
+            The capability exposed by XvPutImage results in the scaled image being drawn to an overlay plane. Most video cards also provide support for a scaled blit into the normal output planes, but this is not exposed via XvPutImage
+                ?? XPutImageScaled Extension
+                ?? XCopyAreaScaled Extension
+
+                // XRender extension:
+            double xscale= (double)abmp.W/(double)loc.w;
+            double yscale= (double)abmp.H/(double)loc.h;
+            XTransform xform = {{
+                { XDoubleToFixed( xscale ), XDoubleToFixed( 0 ), XDoubleToFixed( 0 ) },
+                { XDoubleToFixed( 0 ), XDoubleToFixed( yscale ), XDoubleToFixed( 0 ) },
+                { XDoubleToFixed( 0 ), XDoubleToFixed( 0 ), XDoubleToFixed(1.0) }
+            }};
+            XRenderSetPictureTransform(App::pDisplay, xrp, &xform);
+            XRenderComposite(App::pDisplay, PictOpOver,
+                             xrp, 0, XftDrawPicture(xftc), // src, mask, dest
+                             0, 0, // src xy (in destination space!)
+                             0, 0, // mask xy
+                             loc.x, loc.y, loc.w, loc.h);
+#endif
 #else
 			fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_); // 24 bit: RGB
 #endif
