@@ -42,6 +42,7 @@
 #endif
 
 #include "Drivers/EinsteinRex.h"
+#include "app/Version.h"
 
 
 // -------------------------------------------------------------------------- //
@@ -79,10 +80,19 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 
     time_t theModTime = theInfos.st_mtime;
 
-    if (inREXPath && GetLatestModDate( &theModTime, inREXPath ) < 0)
-    {
-        (void) ::fprintf( stderr, "Can't stat REX file (%s)\n", inREXPath );
-        ::exit( 1 );
+    if (inREXPath) {
+        // get the date when the REX file was last modified
+        if (GetLatestModDate(&theModTime, inREXPath) < 0) {
+            (void) ::fprintf(stderr, "Can't stat REX file (%s)\n", inREXPath);
+            ::exit(1);
+        }
+    } else {
+        // if we don;t have a REX file, get the date when the app was compiled
+        struct tm appCompileTime = { };
+        appCompileTime.tm_year = COMPILE_TIME_YYYY;
+        appCompileTime.tm_mon = COMPILE_TIME_MM;
+        appCompileTime.tm_mday = COMPILE_TIME_DD;
+        theModTime = ::mktime(&appCompileTime);
     }
 
     // Create the image path. We're going to create a separate image of

@@ -25,6 +25,7 @@
 
 #include "TFLSettingsUI.h"
 #include "TFLApp.h"
+#include "app/Version.h"
 #if TARGET_OS_WIN32
 #include "winsock2.h"
 #endif
@@ -886,7 +887,7 @@ TFLSettingsUI::TFLSettingsUI() {
 */
 Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
   Fl_Double_Window* w;
-  { Fl_Double_Window* o = new Fl_Double_Window(425, 392, "Einstein Settings");
+  { Fl_Double_Window* o = new Fl_Double_Window(425, 390, "Einstein Settings");
     w = o; if (w) {/* empty */}
     o->user_data((void*)(this));
     { RMB = new Fl_Menu_Button(4, 1, 10, 10, "RMB Menu");
@@ -1116,21 +1117,27 @@ void TFLSettingsUI::close_window_cb(Fl_Widget*, void *user) {
 }
 
 Fl_Double_Window* TFLSettingsUI::createAboutDialog() {
-  { wAbout = new Fl_Double_Window(254, 166);
+  { wAbout = new Fl_Double_Window(335, 200);
     wAbout->callback((Fl_Callback*)cb_wAbout, (void*)(this));
-    { Fl_Box* o = new Fl_Box(92, 5, 69, 75);
+    { Fl_Box* o = new Fl_Box(133, 5, 69, 75);
       o->image( image_EinsteinApp64() );
     } // Fl_Box* o
-    { Fl_Box* o = new Fl_Box(32, 80, 190, 25, "Einstein");
+    { Fl_Box* o = new Fl_Box(72, 81, 190, 25, "Einstein Platform");
       o->labelfont(1);
+      o->label(PROJECT_NAME);
     } // Fl_Box* o
-    { Fl_Box* o = new Fl_Box(32, 105, 190, 20, "Version 2020.3.4");
+    { Fl_Box* o = new Fl_Box(72, 108, 190, 20, "Version xxxx.xx.xx");
       o->labelsize(11);
+      o->label("Version " PROJECT_VER);
     } // Fl_Box* o
-    { Fl_Button* o = new Fl_Button(190, 135, 55, 20, "Close");
+    { Fl_Button* o = new Fl_Button(215, 165, 95, 20, "Close");
       o->labelsize(12);
       o->callback((Fl_Callback*)cb_Close, (void*)(wAbout));
     } // Fl_Button* o
+    { Fl_Box* o = new Fl_Box(20, 130, 295, 20, "Copyright 2003-2020 by Paul Guyot and others");
+      o->labelsize(11);
+      o->label(COPYRIGHT_STRING);
+    } // Fl_Box* o
     wAbout->set_modal();
     wAbout->end();
   } // Fl_Double_Window* wAbout
@@ -1138,7 +1145,7 @@ Fl_Double_Window* TFLSettingsUI::createAboutDialog() {
 }
 
 Fl_Double_Window* TFLSettingsUI::createROMDownloadDialog() {
-  { wROMDownloadWindow = new Fl_Double_Window(417, 393, "Download ROM via TCP/IP");
+  { wROMDownloadWindow = new Fl_Double_Window(415, 390, "Download ROM via TCP/IP");
     wROMDownloadWindow->user_data((void*)(this));
     { Fl_Box* o = new Fl_Box(5, 5, 405, 25, "How to download the Newton ROM using a network connection");
       o->labelfont(1);
@@ -1351,7 +1358,7 @@ void TFLSettingsUI::dataExceptCB(FL_SOCKET p, void *user_data) {
 
 Fl_Double_Window* TFLSettingsUI::createROMDownloadProgressWindow() {
   Fl_Double_Window* w;
-  { Fl_Double_Window* o = new Fl_Double_Window(285, 111);
+  { Fl_Double_Window* o = new Fl_Double_Window(285, 110);
     w = o; if (w) {/* empty */}
     o->user_data((void*)(this));
     { wProgressSlider = new Fl_Slider(10, 25, 265, 20, "Connecting...");

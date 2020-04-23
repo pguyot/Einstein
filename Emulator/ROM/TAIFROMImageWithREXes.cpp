@@ -47,6 +47,7 @@
 // Einstein
 #include "TAIFFile.h"
 #include "Drivers/EinsteinRex.h"
+#include "app/Version.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -78,11 +79,20 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
 		(void) ::fprintf( stderr, "Can't stat REX0 file (%s)\n", inREX0Path );
 		::exit( 1 );
 	}
-	if (inREX1Path && GetLatestModDate( &theModDate, inREX1Path ) < 0)
-	{
-		(void) ::fprintf( stderr, "Can't stat REX1 file (%s)\n", inREX1Path );
-		::exit( 1 );
-	}
+    if (inREX1Path) {
+        // get the date when the REX file was last modified
+        if (GetLatestModDate(&theModDate, inREX1Path) < 0) {
+            (void) ::fprintf(stderr, "Can't stat REX1 file (%s)\n", inREX1Path);
+            ::exit(1);
+        }
+    } else {
+        // if we don;t have a REX file, get the date when the app was compiled
+        struct tm appCompileTime = { };
+        appCompileTime.tm_year = COMPILE_TIME_YYYY;
+        appCompileTime.tm_mon = COMPILE_TIME_MM;
+        appCompileTime.tm_mday = COMPILE_TIME_DD;
+        theModDate = ::mktime(&appCompileTime);
+    }
 
 	// Create the image path.
 	char theImagePath[PATH_MAX];

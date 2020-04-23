@@ -14,7 +14,7 @@
 cmake_minimum_required(VERSION 3.15)
 cmake_policy(SET CMP0091 NEW) 
 
-project(Einstein)
+project("Einstein Platform" VERSION "2020.3.5")
 
 set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_OSX_ARCHITECTURES=x86_64)
@@ -245,7 +245,8 @@ set ( sources
     app/TFLSettings.h
     app/TPathHelper.cpp
     app/TPathHelper.h
-    app/Version.h
+	app/Version.h
+    app/Version.h.in
     Drivers/EinsteinRex.cpp
     Drivers/EinsteinRex.h
 )
@@ -257,11 +258,21 @@ macro (build_with_fluid name dir)
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
         COMMAND ${FLTK_FLUID_EXECUTABLE} -c ${name}.fl
         DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.fl"
+		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h"
         OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.cpp"
         OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.h"
     )
     list(APPEND fluid_dependencies ${name})
 endmacro()
+
+
+string(TIMESTAMP COMPILE_TIME_YYYY "%Y")
+string(TIMESTAMP COMPILE_TIME_MM "%m")
+string(TIMESTAMP COMPILE_TIME_DD "%d")
+configure_file(
+		${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h.in
+		${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h
+)
 
 
 if (APPLE)

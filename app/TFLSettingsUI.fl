@@ -37,6 +37,9 @@ decl {\#include "TFLSettings.h"} {public global
 decl {\#include "TFLApp.h"} {private local
 }
 
+decl {\#include "app/Version.h"} {private global
+}
+
 declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
 } {
   decl {\#include "winsock2.h"} {private local
@@ -69,17 +72,16 @@ decl {int recvd;} {private local
 
 class TFLSettingsUI {open : {public TFLSettings}
 } {
-  Function {TFLSettingsUI()} {open
-  } {
+  Function {TFLSettingsUI()} {} {
     code {// create the setting dialog so we have it available for the user
 mSettingsPanel = CreateSettingsPanel();} {}
   }
   Function {CreateSettingsPanel()} {
-    comment override open
+    comment override
   } {
     Fl_Window {} {
       label {Einstein Settings} open
-      xywh {546 232 425 392} type Double visible
+      xywh {546 232 425 390} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu} open
@@ -294,7 +296,7 @@ mSettingsPanel->hide();}
       }
     }
   }
-  Function {revertDialog()} {open return_type void
+  Function {revertDialog()} {return_type void
   } {
     code {char buf[32];
 
@@ -316,7 +318,7 @@ updateRAMSizeLabel();
 
 wDontShow->value(dontShow);} {}
   }
-  Function {applyDialog()} {open return_type void
+  Function {applyDialog()} {return_type void
   } {
     code {free(ROMPath);
 ROMPath = strdup(wROMPath->label());
@@ -336,7 +338,7 @@ RAMSize = (int)wRAMSize->value();
 
 dontShow = wDontShow->value();} {}
   }
-  Function {runningMode()} {open return_type void
+  Function {runningMode()} {return_type void
   } {
     code {wRestartWarning->show();
 wQuit->hide();
@@ -374,31 +376,38 @@ win->hide();} {}
     Fl_Window wAbout {
       user_data wAbout
       callback {o->hide();} open
-      xywh {482 262 254 166} type Double modal visible
+      xywh {482 262 335 200} type Double modal visible
     } {
       Fl_Box {} {
-        image {../Resources/icons/EinsteinApp64.png} xywh {92 5 69 75}
+        image {../Resources/icons/EinsteinApp64.png} xywh {133 5 69 75}
       }
       Fl_Box {} {
-        label Einstein
-        xywh {32 80 190 25} labelfont 1
+        label {Einstein Platform}
+        xywh {72 81 190 25} labelfont 1
+        code0 {o->label(PROJECT_NAME);}
       }
       Fl_Box {} {
-        label {Version 2020.3.4}
-        xywh {32 105 190 20} labelsize 11
+        label {Version xxxx.xx.xx}
+        xywh {72 108 190 20} labelsize 11
+        code0 {o->label("Version " PROJECT_VER);}
       }
       Fl_Button {} {
         label Close
         user_data wAbout
         callback {o->window()->hide();}
-        xywh {190 135 55 20} labelsize 12
+        xywh {215 165 95 20} labelsize 12
+      }
+      Fl_Box {} {
+        label {Copyright 2003-2020 by Paul Guyot and others} selected
+        xywh {20 130 295 20} labelsize 11
+        code0 {o->label(COPYRIGHT_STRING);}
       }
     }
   }
   Function {createROMDownloadDialog()} {} {
     Fl_Window wROMDownloadWindow {
       label {Download ROM via TCP/IP} open
-      xywh {473 232 417 393} type Double modal visible
+      xywh {473 232 415 390} type Double modal visible
     } {
       Fl_Box {} {
         label {How to download the Newton ROM using a network connection}
@@ -576,8 +585,7 @@ free(buf);
 recvd += n;
 printf("Received %d/%d (%d)\\n", n, n1, recvd);
 wProgressSlider->value(recvd/1024);
-\#endif} {selected
-    }
+\#endif} {}
   }
   Function {dataExcept(FL_SOCKET p)} {open
   } {
@@ -612,7 +620,7 @@ This->dataExcept(p);} {}
   }
   Function {createROMDownloadProgressWindow()} {} {
     Fl_Window {} {open
-      xywh {564 650 285 111} type Double modal visible
+      xywh {564 650 285 110} type Double modal visible
     } {
       Fl_Slider wProgressSlider {
         label {Connecting...}

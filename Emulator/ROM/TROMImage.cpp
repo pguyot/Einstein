@@ -43,6 +43,7 @@
 // K
 #include <K/Misc/TMappedFile.h>
 #include <K/Defines/UByteSex.h>
+#include <app/Version.h>
 
 // Einstein
 #include "Emulator/TMemoryConsts.h"
@@ -171,6 +172,31 @@ TROMImage::CreateImage(
 				const char inMachineString[6] )
 {
 	fprintf(stderr, "Creating image from ROM and REX...\n" );
+
+	// Patch the version number
+	// TODO: we could have a much more complete REX amangement that can add or remove packages
+	//       from the REX file as needed, so that we can, for example, include the internet enabler.
+	// TODO: at some point, we must also patch known ROMs for the current decade to fix the Y10k bug
+    if (inBufferSize>0x00806b80 && memcmp(inBuffer+0x00806b74, "2020.2", 7)==0) {
+        char *d = (char*)inBuffer+0x00806b74;
+        const char *vv = PROJECT_VER_MAJOR;
+        // copy no more than four characters; should be the full year
+        if (vv[0]) { *d++ = vv[0];
+            if (vv[1]) { *d++ = vv[1];
+                if (vv[2]) { *d++ = vv[2];
+                    if (vv[3]) { *d++ = vv[3]; }
+                }
+            }
+        }
+        *d++ = '.';
+        const char *vm = PROJECT_VER_MINOR;
+        // copy no more than two characters for the minor version number
+        if (vm[0]) { *d++ = vm[0];
+            if (vm[1]) { *d++ = vm[1]; }
+        }
+        // end of text
+        *d = 0;
+    }
 
 	// Create the mmap file.
 	TMappedFile theImageFile(
