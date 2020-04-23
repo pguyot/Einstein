@@ -8,10 +8,11 @@ decl {\#include "TFLApp.h"} {private global
 decl {\#include "TFLAppWindow.h"} {public global
 }
 
-Function {CreateApplicationWindow()} {open
+Function {CreateApplicationWindow(int x, int y)} {open
 } {
-  Fl_Window wAppWindow {open
+  Fl_Window wAppWindow {selected
     xywh {454 329 320 558} type Double resizable
+    code0 {wAppWindow->position(x, y);}
     class TFLAppWindow visible
   } {
     Fl_Menu_Bar wMenubar {open
@@ -132,7 +133,7 @@ Function {CreateApplicationWindow()} {open
         }
         MenuItem {} {
           label Fullscreen
-          callback {gApp->UserActionToggleFullscreen();} selected
+          callback {gApp->UserActionToggleFullscreen();}
           xywh {0 0 100 20} shortcut 0x410066 divider
         }
         MenuItem {} {

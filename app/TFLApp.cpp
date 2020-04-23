@@ -197,7 +197,9 @@ TFLApp::Run( int argc, char* argv[] )
     (void) ::printf( "This is %s.\n", VERSION_STRING );
 
     Fl_Group::current(nullptr);
-    TFLAppWindow *win = CreateApplicationWindow();
+    TFLAppWindow *win = CreateApplicationWindow(
+        mFLSettings->mAppWindowPosX,
+        mFLSettings->mAppWindowPosY);
     win->SetApp( this );
     win->size(portraitWidth, portraitHeight + wToolbox->y() + wToolbox->h());
     win->resizable(nullptr);
@@ -259,7 +261,7 @@ TFLApp::Run( int argc, char* argv[] )
     // If we want an external file, take the ROM path with the filename "Einstein.rex"
     char *theREX1Path = nullptr;
     char theREX1PathBuffer[FL_PATH_MAX];
-    if (mFLSettings->mBuiltinEinsteinRex) {
+    if (mFLSettings->mUseBuiltinRex) {
         theREX1Path = nullptr;
     } else {
         strcpy(theREX1PathBuffer, theROMImagePath);
@@ -370,7 +372,11 @@ TFLApp::Run( int argc, char* argv[] )
     // if the emulator does not know yet, tell it to wrap things up and quit
     mEmulator->Quit();
 
-    // TODO: this would be a great time to save preferences that might have changed while running
+    // This is a good time to save preferences that might have changed while running
+    // TODO: don't write the window position when currently in fullscreen mode!
+    mFLSettings->mAppWindowPosX = win->x();
+    mFLSettings->mAppWindowPosY = win->y();
+    mFLSettings->savePreferences();
 
     // wait for the emulator to finish before we leave the house, too and lock the doors
     // FIXME: we must have a timeout on this!

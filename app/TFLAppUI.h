@@ -18,6 +18,6 @@ extern Fl_Button *wNetworkTool;
 extern Fl_Button *wNetworkOnTool;
 #include <FL/Fl_Box.H>
 extern Fl_Box *wSpacer;
-TFLAppWindow* CreateApplicationWindow();
+TFLAppWindow* CreateApplicationWindow(int x, int y);
 extern Fl_Menu_Item menu_wMenubar[];
 #endif

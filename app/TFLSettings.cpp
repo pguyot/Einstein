@@ -77,32 +77,43 @@ void TFLSettings::loadPreferences() {
 
     // ROM Preferences
     Fl_Preferences rom(prefs, "ROM");
+    {
+        strcpy(buf, appPath);
+        strcat(buf, "717006");
+        rom.get("path", ROMPath, buf);
 
-    strcpy(buf, appPath);
-    strcat(buf, "717006");
-    rom.get("path", ROMPath, buf);
-
-    rom.get("machine", machine, 0);
-    SetMachineID(machine);
+        rom.get("machine", machine, 0);
+        SetMachineID(machine);
+    }
 
     // Flash Preferences
     Fl_Preferences flash(prefs, "Flash");
-
-    prefs.getUserdataPath(buf, FL_PATH_MAX-15);
-    strcat(buf, "internal.flash");
-    flash.get("path", FlashPath, buf);
+    {
+        prefs.getUserdataPath(buf, FL_PATH_MAX-15);
+        strcat(buf, "internal.flash");
+        flash.get("path", FlashPath, buf);
+    }
 
     // screen preferences
     Fl_Preferences screen(prefs, "Screen");
-    screen.get("width", screenWidth, 320);
-    screen.get("height", screenHeight, 480);
-    screen.get("fullScreen", fullScreen, 0);
-    screen.get("hideMouse", hideMouse, 0);
-    screen.get("useMonitor", useMonitor, 0);
+    {
+        screen.get("width", screenWidth, 320);
+        screen.get("height", screenHeight, 480);
+        screen.get("fullScreen", fullScreen, 0);
+        screen.get("hideMouse", hideMouse, 0);
+        screen.get("useMonitor", useMonitor, 0);
+
+        screen.get("AppWindowPosX", mAppWindowPosX, 150);
+        screen.get("AppWindowPosY", mAppWindowPosY, 150);
+        screen.get("AllowScreenResize", mAllowScreenResize, true);
+        screen.get("AllowFullscreen", mAllowFullscreen, true);
+    }
 
     // Memory preferences
     Fl_Preferences memory(prefs, "Memory");
-    memory.get("RAMSize", RAMSize, 64);
+    {
+        memory.get("RAMSize", RAMSize, 64);
+    }
 }
 
 void TFLSettings::savePreferences() {
@@ -113,24 +124,37 @@ void TFLSettings::savePreferences() {
 
     // ROM Preferences
     Fl_Preferences rom(prefs, "ROM");
-    rom.set("path", ROMPath);
-    rom.set("machine", machine);
+    {
+        rom.set("path", ROMPath);
+        rom.set("machine", machine);
+    }
 
     // Flash Preferences
     Fl_Preferences flash(prefs, "Flash");
-    flash.set("path", FlashPath);
+    {
+        flash.set("path", FlashPath);
+    }
 
     // screen preferences
     Fl_Preferences screen(prefs, "Screen");
-    screen.set("width", screenWidth);
-    screen.set("height", screenHeight);
-    screen.set("fullScreen", fullScreen);
-    screen.set("hideMouse", hideMouse);
-    screen.set("useMonitor", useMonitor);
+    {
+        screen.set("width", screenWidth);
+        screen.set("height", screenHeight);
+        screen.set("fullScreen", fullScreen);
+        screen.set("hideMouse", hideMouse);
+        screen.set("useMonitor", useMonitor);
+
+        screen.set("AppWindowPosX", mAppWindowPosX);
+        screen.set("AppWindowPosY", mAppWindowPosY);
+        screen.set("AllowScreenResize", mAllowScreenResize);
+        screen.set("AllowFullscreen", mAllowFullscreen);
+    }
 
     // Memory preferences
     Fl_Preferences memory(prefs, "Memory");
-    memory.set("RAMSize", RAMSize);
+    {
+        memory.set("RAMSize", RAMSize);
+    }
 }
 
 void TFLSettings::SetMachineID(int inMachine)

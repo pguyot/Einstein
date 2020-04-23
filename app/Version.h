@@ -24,7 +24,7 @@
 #ifndef _VERSION_H
 #define _VERSION_H
 
-#define PROJECT_NAME "Einstein Platform"
+#define PROJECT_NAME "Einstein"
 #define PROJECT_VER  "2020.3.5"
 #define PROJECT_VER_MAJOR "2020"
 #define PROJECT_VER_MINOR "3"

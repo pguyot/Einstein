@@ -1370,7 +1370,7 @@ static Fl_Image *image_button_install() {
   return image;
 }
 
-TFLAppWindow* CreateApplicationWindow() {
+TFLAppWindow* CreateApplicationWindow(int x, int y) {
   { wAppWindow = new TFLAppWindow(320, 558);
     wAppWindow->box(FL_FLAT_BOX);
     wAppWindow->color(FL_BACKGROUND_COLOR);
@@ -1453,6 +1453,7 @@ TFLAppWindow* CreateApplicationWindow() {
       o->hide();
       Fl_Group::current()->resizable(o);
     } // Fl_Box* o
+    wAppWindow->position(x, y);
     wAppWindow->end();
   } // TFLAppWindow* wAppWindow
   return wAppWindow;

@@ -68,14 +68,18 @@ public:
     int RAMSize;
     int dontShow;
 
+    // some initial position for our application screen
+    int mAppWindowPosX = 150;
+    int mAppWindowPosY = 150;
+
     // user can drag the corners of the emulator window to stretch the Newton screen
-    bool mAllowScreenResize = true;
+    int mAllowScreenResize = true;
 
     // user can go into fullscreen mode and back to windowed mode
-    bool mAllowFullscreen = true;
+    int mAllowFullscreen = true;
 
     // if this is set, use the Einstein.rex within the app, otherwise load an external fiie
-    bool mBuiltinEinsteinRex = true;
+    bool mUseBuiltinRex = true;
 };
 
 #endif // T_FL_SETTINGS_H

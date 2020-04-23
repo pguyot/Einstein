@@ -12,9 +12,11 @@
 #
 
 cmake_minimum_required(VERSION 3.15)
-cmake_policy(SET CMP0091 NEW) 
+cmake_policy(SET CMP0091 NEW)
 
-project("Einstein Platform" VERSION "2020.3.5")
+set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
+
+project("Einstein" VERSION "2020.3.5")
 
 set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_OSX_ARCHITECTURES=x86_64)
