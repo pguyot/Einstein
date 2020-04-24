@@ -51,6 +51,7 @@
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/Sound/TNullSoundManager.h"
 #include "Emulator/Network/TNetworkManager.h"
+#include "Emulator/Network/TUsermodeNetwork.h"
 #include "Emulator/Screen/TFLScreenManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
@@ -550,7 +551,18 @@ void TFLApp::InitSound()
 
 
 void TFLApp::InitNetwork() {
+#if TARGET_OS_MAC
+    mNetworkManager = new TUsermodeNetwork(mLog);
+#elif TARGET_OS_LINUX
+#   error Please configure a network driver
+#error Please configure a network driver
+#   error Please configure a network driver
+#elif TARGET_OS_WINDOWS
+#   error Please configure a network driver
+#else
+#   warn Please configure a network driver
     mNetworkManager = new TNullNetworkManager(mLog);
+#endif
 }
 
 
