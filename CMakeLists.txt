@@ -16,7 +16,7 @@ cmake_policy(SET CMP0091 NEW)
 
 set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
 
-project("Einstein" VERSION "2020.3.5")
+project("Einstein" VERSION "2020.3.6")
 
 set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_OSX_ARCHITECTURES=x86_64)

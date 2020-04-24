@@ -8,6 +8,21 @@ Building Einstein on macOS in 64 bit with Xcode
 
 Tested on macOS 10.15.3 Catalina with Xcode 11.4.
 
+TODO: install FLTK first
+
+```bash
+git clone https://github.com/fltk/fltk.git fltk
+cd fltk
+ex -s -c '1i|set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)' -c x CMakeLists.txt
+mkdir build
+cd build
+mkdir Makefiles
+cd Makefiles
+cmake ../..
+make 
+sudo make install
+```
+
 Find the file `Einstein.xcodeproj` in the directory `_Build_/Xcode/Einstein.xcodeproj` 
 inside your Einstein archive.
 

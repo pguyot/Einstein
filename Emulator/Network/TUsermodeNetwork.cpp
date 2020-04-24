@@ -30,7 +30,7 @@
  the NE2000 card, the driver will be activated and all network calls
  will be forwarded to the Network Handler that was loaded at startup.
  
- All packats from the Newton are at the lowest network level. It is up to
+ All packets from the Newton are at the lowest network level. It is up to
  the handler to simulate or forward packets to the host or host network.
  The Newton expects to receive packets on the same low level, so we must
  generate the network header, IPv4 header, and TCP or UDP header ourselves.
