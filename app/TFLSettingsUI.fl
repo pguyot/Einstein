@@ -81,7 +81,7 @@ mSettingsPanel = CreateSettingsPanel();} {}
   } {
     Fl_Window {} {
       label {Einstein Settings} open
-      xywh {546 232 425 390} type Double visible
+      xywh {651 306 425 390} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu} open
@@ -375,8 +375,8 @@ win->hide();} {}
   } {
     Fl_Window wAbout {
       user_data wAbout
-      callback {o->hide();} open
-      xywh {482 262 335 200} type Double modal visible
+      callback {o->hide();} open selected
+      xywh {482 262 335 200} type Double non_modal visible
     } {
       Fl_Box {} {
         image {../Resources/icons/EinsteinApp64.png} xywh {133 5 69 75}
@@ -398,7 +398,7 @@ win->hide();} {}
         xywh {215 165 95 20} labelsize 12
       }
       Fl_Box {} {
-        label {Copyright 2003-2020 by Paul Guyot and others} selected
+        label {Copyright 2003-2020 by Paul Guyot and others}
         xywh {20 130 295 20} labelsize 11
         code0 {o->label(COPYRIGHT_STRING);}
       }

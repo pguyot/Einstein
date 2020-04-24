@@ -82,4 +82,42 @@ public:
     bool mUseBuiltinRex = true;
 };
 
+/*
+
+ Setting dialog panel:
+
+         Assets     Screen    Emulator
+ ----------------------------------------------
+ * Einstein Assets *                      .___.  (allow dnd, update the dropboxes below if a ROM is found)
+ This is where Einstein stores all assets |   |  (show a folder if directory exists and writable)
+ needed to run the emulator  [Choose...]  |___|  (show a folder with a questionmark if the user needs to select one)
+ MP2x00                   /Users/matt/Einsetin/  (Choose... opens a file choose in HOME that allow creating directories)
+
+ * Newton ROM *                           .___.  (allow dnd to copy a ROM, right button menu?)
+ Path to the Newton ROM                   |   |  (show a MessagePad or EMate with a ROM chip superimposed
+               [Download...] [Choose...]  |___|  (show a chip with a questionmark is no ROM)
+                                (assets)/717003
+
+ * Newton FLash *                         .___.  (DND to copy a flash file)
+ The Flash file stores all apps and data  |   |  (show icon for new file to be created or existing file)
+                             [Choose...]  |___|
+                        (assets)/internal.flash
+
+ * Screen *
+Screen Size [ width] x [height]  [original size]
+            [x] hide mouse
+            [x] lock screen stretching
+full screen [x] can switch to fullscreen mode
+            [x] launch in full screen
+
+* Emulator *
+ Y10k Patch [ automatic |V]                      (automatic / 2010-2025 / 2025-2030 / don't patch)
+   RAM Size [  4 MB |V]                          (pulldown for 1MB, 4MB, or 8MB)
+
+ [x] show this panel before launching emulator
+ [x] Geek Mode                                   (allow a number of configurations, create a column on the left with that list)
+
+ [ Revert ] [ Save ] [ Run ] [ Restart ]...
+
+ */
 #endif // T_FL_SETTINGS_H

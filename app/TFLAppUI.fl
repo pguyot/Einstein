@@ -5,12 +5,27 @@ code_name {.cpp}
 decl {\#include "TFLApp.h"} {private global
 }
 
+decl {\#include <FL/fl_draw.H>} {selected private global
+}
+
 decl {\#include "TFLAppWindow.h"} {public global
+}
+
+Function {draw_ramp(int x, int y, int w, int h, Fl_Color c)} {
+  comment {a gradient box type} return_type {static void}
+} {
+  code {for (int i=y; i<y+h; i++) {
+        fl_color(fl_color_average(FL_BACKGROUND_COLOR, c, i/100.0));
+        //fl_rectf(x, y, w, h, Fl::box_color(c));
+        fl_xyline(x, i, x+w);
+    }} {}
 }
 
 Function {CreateApplicationWindow(int x, int y)} {open
 } {
-  Fl_Window wAppWindow {selected
+  code {Fl::set_boxtype(FL_FREE_BOXTYPE, draw_ramp, 0, 0, 0, 0);
+    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+1), draw_ramp, 0, 0, 0, 0);} {}
+  Fl_Window wAppWindow {open
     xywh {454 329 320 558} type Double resizable
     code0 {wAppWindow->position(x, y);}
     class TFLAppWindow visible
@@ -115,12 +130,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         }
         MenuItem {} {
           label {Fetch ROM...}
-          xywh {4 4 100 20} deactivate divider
-        }
-        MenuItem {} {
-          label {Settings...}
-          callback {gApp->UserActionShowSettingsPanel();}
-          xywh {4 4 100 20}
+          xywh {4 4 100 20} deactivate
         }
       }
       Submenu {} {
@@ -128,10 +138,11 @@ Function {CreateApplicationWindow(int x, int y)} {open
         xywh {0 0 100 20}
       } {
         MenuItem {} {
-          label Zoom
-          xywh {0 0 100 20} deactivate
+          label {Original SIze}
+          callback {gApp->UserActionOriginalScreenSize();}
+          xywh {0 0 100 20}
         }
-        MenuItem {} {
+        MenuItem wMenuItemFullscreen {
           label Fullscreen
           callback {gApp->UserActionToggleFullscreen();}
           xywh {0 0 100 20} shortcut 0x410066 divider
@@ -142,7 +153,12 @@ Function {CreateApplicationWindow(int x, int y)} {open
         }
         MenuItem {} {
           label Toolbox
-          xywh {0 0 100 20} shortcut 0x410074 deactivate divider
+          xywh {0 0 100 20} shortcut 0x410074 deactivate
+        }
+        MenuItem {} {
+          label {Settings...}
+          callback {gApp->UserActionShowSettingsPanel();}
+          xywh {8 8 100 20} divider
         }
         MenuItem {} {
           label {Bring All To Front}
@@ -172,7 +188,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         }
       }
     }
-    Fl_Group wToolbox {open
+    Fl_Group wToolbar {open
       xywh {0 24 320 54} box THIN_UP_BOX color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
     } {

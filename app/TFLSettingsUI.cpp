@@ -1138,7 +1138,7 @@ Fl_Double_Window* TFLSettingsUI::createAboutDialog() {
       o->labelsize(11);
       o->label(COPYRIGHT_STRING);
     } // Fl_Box* o
-    wAbout->set_modal();
+    wAbout->set_non_modal();
     wAbout->end();
   } // Fl_Double_Window* wAbout
   return wAbout;

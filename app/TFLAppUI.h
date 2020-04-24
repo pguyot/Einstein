@@ -4,11 +4,12 @@
 #define TFLAppUI_h
 #include <FL/Fl.H>
 #include "TFLAppWindow.h"
+void draw_ramp(int x, int y, int w, int h, Fl_Color c);
 extern TFLAppWindow *wAppWindow;
 #include <FL/Fl_Menu_Bar.H>
 extern Fl_Menu_Bar *wMenubar;
 #include <FL/Fl_Group.H>
-extern Fl_Group *wToolbox;
+extern Fl_Group *wToolbar;
 #include <FL/Fl_Button.H>
 extern Fl_Button *wPowerTool;
 extern Fl_Button *wPowerOnTool;
@@ -20,4 +21,5 @@ extern Fl_Button *wNetworkOnTool;
 extern Fl_Box *wSpacer;
 TFLAppWindow* CreateApplicationWindow(int x, int y);
 extern Fl_Menu_Item menu_wMenubar[];
+#define wMenuItemFullscreen (menu_wMenubar+29)
 #endif

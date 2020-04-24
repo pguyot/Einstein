@@ -55,14 +55,26 @@ extern TFLApp *gApp;
 class TFLApp
 {
 public:
+    // --- Constructor and destructor
+
     // Constructor.
 	TFLApp();
 
     // Destructor.
 	~TFLApp();
 
+    // no copy constructor
+    TFLApp( const TFLApp& inCopy ) = delete;
+
+    // no assignment constructor
+    TFLApp& operator = ( const TFLApp& inCopy ) = delete;
+
+    // --- Startup and run the emulator.
+
     // Launch the app.
 	void Run( int argc, char* argv[] );
+
+    // --- User Actions
 
     // user wants to quit the emulator
     void UserActionQuit();
@@ -70,14 +82,8 @@ public:
     // user pull power switch
 	void UserActionTogglePower();
 
-    // this is called by the screen manager when the state of the backlight changed
-    void PowerChangedEvent(bool);
-
     // user toggles backlight
     void UserActionToggleBacklight();
-
-    // this is called by the screen manager when the state of the backlight changed
-    void BacklightChangedEvent(bool);
 
     // user toggles network card
     void UserActionToggleNetworkCard();
@@ -89,33 +95,51 @@ public:
     void UserActionInstallPackage();
 
     // user wants to see the About window
-	void UserActionShowAboutPanel();
+    void UserActionShowAboutPanel();
 
     // user wants to see the Setting window
     void UserActionShowSettingsPanel();
+
+    // user wants screen to be its original size
+    void UserActionOriginalScreenSize();
 
     // user wants Einstein to take over the entire screen
     void UserActionToggleFullscreen();
 
     // user wants to download a ROM file from a physical device
-	void UserActionFetchROM();
-
-    // get the interface to the running emulations
-    TPlatformManager *getPlatformManager() { return mPlatformManager; }
-
-    // no copy constructor
-    TFLApp( const TFLApp& inCopy ) = delete;
-
-    // no assignment constructor
-    TFLApp& operator = ( const TFLApp& inCopy ) = delete;
+    void UserActionFetchROM();
 
     // react to a right-click on the main screen
     void UserActionPopupMenu();
+
+    // ---  Events from within the meulator
+
+    // this is called by the screen manager when the state of the backlight changed
+    void PowerChangedEvent(bool);
+
+    // this is called by the screen manager when the state of the backlight changed
+    void BacklightChangedEvent(bool);
 
     // Newton OS needs a new screen size (usually by rotating the screen)
     void ResizeFromNewton(int w, int h);
 
 private:
+
+    void InitSettings();
+
+    void InitFLTK(int argc, char **argv);
+
+    void InitScreen();
+
+    void InitSound();
+    
+    void InitNetwork();
+
+    void LoadROMAndREX(const char *&theMachineString, const char *&theROMImagePath, bool useMonitor);
+
+    void InitSerialPorts();
+
+    void InitMonitor(const char *theMachineString, const char *theROMImagePath);
 
     // create the driver for our screen output
 	void CreateScreenManager(
@@ -133,6 +157,9 @@ private:
     // called when the user wants to quit Einstein (close button on window decoration)
 	void static quit_cb(Fl_Widget *w, void *p);
 
+    // store the current size of the app window in mWindowed...
+    void StoreAppWindowSize();
+
 	// Variables
     const char*			mProgramName = nullptr;
     TROMImage*			mROMImage = nullptr;
@@ -146,6 +173,10 @@ private:
     TSymbolList*		mSymbolList = nullptr;
     TFLSettings*        mFLSettings = nullptr;
     Fl_Widget*          mNewtonScreen = nullptr;
+    int                 mWindowedX = 150;
+    int                 mWindowedY = 150;
+    int                 mWindowedWidth = 320;
+    int                 mWindowedHeight = 480;
 };
 
 #endif

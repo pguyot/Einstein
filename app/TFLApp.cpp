@@ -21,19 +21,6 @@
 // $Id$
 // ==============================
 
-/*
-
- Additions:
- File -> New, Open, Save, Save As..., Recent List could provide access to many
-            Falsh files, and switching between Flash files and rebooting
- Platform -> should have buttons for hard and soft reset
- Help -> should link to some pages, even if it is just GitHub
- Window -> Dump Rom shou;d probably be called Fetch ROM
-            I would like to support a Toolbox window here as well
- Clipboard icon into the toolbar? Drag'n'drop of text in general?
-
- */
-
 #include <K/Defines/KDefinitions.h>
 #include "TFLApp.h"
 #include "TFLAppUI.h"
@@ -99,8 +86,11 @@
 // Local Classes
 // -------------------------------------------------------------------------- //
 
-
 TFLApp *gApp = nullptr;
+
+
+// MARK: - Public: -
+// --- Constructor and destructor
 
 
 /**
@@ -124,13 +114,9 @@ TFLApp::~TFLApp( void )
 }
 
 
-static void draw_ramp(int x, int y, int w, int h, Fl_Color c) {
-    for (int i=y; i<y+h; i++) {
-        fl_color(fl_color_average(FL_BACKGROUND_COLOR, c, i/100.0));
-        //fl_rectf(x, y, w, h, Fl::box_color(c));
-        fl_xyline(x, i, x+w);
-    }
-}
+// MARK: -
+// --- Startup and run the emulator.
+
 
 /**
  Run EInstein.
@@ -142,170 +128,38 @@ TFLApp::Run( int argc, char* argv[] )
 {
     mProgramName = argv[0];
 
-    Fl::scheme("gtk+");
-    Fl::args(1, argv);
-    Fl::get_system_colors();
-    Fl::use_high_res_GL(1);
-    Fl::visual(FL_RGB);
-    Fl::set_boxtype(FL_FREE_BOXTYPE, draw_ramp, 0, 0, 0, 0);
-    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+1), draw_ramp, 0, 0, 0, 0);
+    InitFLTK(argc, argv);
 
-    mFLSettings = new TFLSettingsUI();
-#if TARGET_OS_WIN32
-    mFLSettings->mSettingsPanel->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
-#endif
-    mFLSettings->setApp(this, mProgramName);
-    mFLSettings->loadPreferences();
-    mFLSettings->revertDialog();
+    InitSettings();
 
     //flSettings->dontShow = false;
     if (!mFLSettings->dontShow) {
+        // TODO: also must show the settings if there is something wrong with the ROM files.
         mFLSettings->ShowSettingsPanelModal();
     }
 
-    const char* defaultMachineString = "717006";
-    int theMachineID = mFLSettings->machine;
-    const char* theMachineString = strdup(mFLSettings->MachineID);
-    const char* theScreenManagerClass = nil;
-    const char *theROMImagePath = strdup(mFLSettings->ROMPath);
     const char *theFlashPath = strdup(mFLSettings->FlashPath);
-    int portraitWidth = mFLSettings->screenWidth;
-    int portraitHeight = mFLSettings->screenHeight;
     int ramSize = mFLSettings->RAMSize;
-    bool fullscreen = (bool)mFLSettings->fullScreen;
     bool hidemouse = (bool)mFLSettings->hideMouse;
-    bool useMonitor = (bool)mFLSettings->useMonitor;
-    int useAIFROMFile = 0;	// 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
-
-    int xx, yy, ww, hh;
-    if (fullscreen) {
-        Fl::screen_xywh(xx, yy, ww, hh, 0);
-        portraitWidth = ww;
-        portraitHeight = hh;
-    }
-
-    if (portraitHeight < portraitWidth)
-    {
-        (void) ::fprintf(
-                         stderr,
-                         "Warning, (portrait) height (%i) is smaller than width (%i). Boot screen won't be displayed properly\n",
-                         portraitHeight,
-                         portraitWidth );
-    }
 
     (void) ::printf( "Welcome to Einstein console.\n" );
     (void) ::printf( "This is %s.\n", VERSION_STRING );
 
-    Fl_Group::current(nullptr);
-    TFLAppWindow *win = CreateApplicationWindow(
-        mFLSettings->mAppWindowPosX,
-        mFLSettings->mAppWindowPosY);
-    win->SetApp( this );
-    win->size(portraitWidth, portraitHeight + wToolbox->y() + wToolbox->h());
-    win->resizable(nullptr);
-#if TARGET_OS_WIN32
-    win->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
-#endif
-    win->callback(quit_cb, this);
-    win->begin();
-    TFLScreenManager *flScreenManager = new TFLScreenManager(this, mLog, portraitWidth, portraitHeight, false, false);
-    mNewtonScreen = flScreenManager->GetWidget();
-    mScreenManager = flScreenManager;
-    flScreenManager->GetWidget()->position(wToolbox->x(), wToolbox->y()+wToolbox->h());
-    win->end();
-    if (mFLSettings->mAllowScreenResize)
-        win->resizable(flScreenManager->GetWidget());
-    else
-        win->resizable(nullptr);
+    InitScreen();
 
-#if TARGET_OS_WIN32
-    mSoundManager = new TWaveSoundManager( mLog );
-#elif TARGET_OS_LINUX
-    mSoundManager = new TPulseAudioSoundManager( mLog );
-#elif TARGET_OS_MAC
-    mSoundManager = new TCoreAudioSoundManager( mLog );
-#else
-#   error Selected target OS support not implemented, or no target OS selected
-#endif
+    InitSound();
+    
+    InitNetwork();
 
-    mNetworkManager = new TNullNetworkManager(mLog);
-    if (theMachineString == nil)
-    {
-        theMachineString = defaultMachineString;
-    }
-
-    // will we use an AIF image?
-    {
-        const char *ext = fl_filename_ext(theROMImagePath);
-#if TARGET_OS_WIN32
-        if ( ext && stricmp(ext, ".aif")==0 )
-        {
-            useAIFROMFile = 1;
-        }
-#else
-        if ( ext && strcasecmp(ext, ".aif")==0 )
-        {
-            useAIFROMFile = 1;
-        }
-#endif
-        const char *name = fl_filename_name(theROMImagePath);
-        if (	name
-            && strncmp(name, "Senior Cirrus", 13)==0
-            && strstr(name, "image"))
-        {
-            useAIFROMFile = 2;
-        }
-    }
-
-    // If we use the builtin REX, set the REX path to null
-    // If we want an external file, take the ROM path with the filename "Einstein.rex"
-    char *theREX1Path = nullptr;
-    char theREX1PathBuffer[FL_PATH_MAX];
-    if (mFLSettings->mUseBuiltinRex) {
-        theREX1Path = nullptr;
-    } else {
-        strcpy(theREX1PathBuffer, theROMImagePath);
-        char *rexName = (char *) fl_filename_name(theREX1PathBuffer);
-        if (rexName) {
-            strcpy(rexName, "Einstein.rex");
-        }
-        theREX1Path = theREX1PathBuffer;
-    }
-
-    switch (useAIFROMFile) {
-        case 0:
-            mROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path, theMachineString, useMonitor);
-            break;
-        case 1:
-        {
-            char theREX0Path[FL_PATH_MAX];
-            strcpy(theREX0Path, theROMImagePath);
-            fl_filename_setext(theREX0Path, FL_PATH_MAX, ".rex");
-            mROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path, theMachineString, useMonitor );
-        }
-            break;
-        case 2:
-        {
-            char theREX0Path[FL_PATH_MAX];
-            strcpy(theREX0Path, theROMImagePath);
-            char *image = strstr(theREX0Path, "image");
-            strcpy(image, "high");
-            mROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path, theMachineString, useMonitor );
-        }
-            break;
-    }
+    const char * theROMImagePath;
+    const char * theMachineString;
+    
+    LoadROMAndREX(theMachineString, theROMImagePath, mFLSettings->useMonitor);
 
     mEmulator = new TEmulator(
                               mLog, mROMImage, theFlashPath,
                               mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
     mPlatformManager = mEmulator->GetPlatformManager();
-
-    // TODO: add preferences for the current driver, port and server address
-    // Basic initialization of all serial ports
-    mEmulator->SerialPorts.Initialize(TSerialPorts::kTcpClientDriver,
-                                      TSerialPorts::kNullDriver,
-                                      TSerialPorts::kNullDriver,
-                                      TSerialPorts::kNullDriver );
 
     // yes, this is valid C++ code; it tells the emulator to call us so we can FLTK to
     // call us again later from the main thread which then closes all windows, terminating
@@ -313,54 +167,15 @@ TFLApp::Run( int argc, char* argv[] )
     // Or a sMony says: "Would That It Were So Simple"
     mEmulator->CallOnQuit([](){Fl::awake([](void*){gApp->UserActionQuit();});});
 
-#if 0
-    // TODO: save the serial port setting in a save place
-    TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
-    if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
-    {
-        TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
-        tcp->SetServerAddress([[defaults stringForKey: kExtrTCPServerAddress] UTF8String]);
-        tcp->SetServerPort((int)[defaults integerForKey: kExtrTCPServerPort]);
-    }
-    mEmulator->SerialPorts.PortChangedCallback(
-                                               // THIS IS A LAMBDA FUNCTION. This function is called when an application
-                                               // on the emulated Newton changes the serial port settings
-                                               [self](int serPort)->void
-                                               {
-        if (serPort==TSerialPorts::kExtr) {
-            TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
-            if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver) {
-                TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+    InitSerialPorts(); // do this after creating the emulator
 
-                char *tcpServer = tcp->GetServerAddressDup();
-                NSString *nsTcpServer = [NSString stringWithUTF8String:tcpServer];
-                [[mUserDefaultsController defaults] setValue:nsTcpServer forKey:kExtrTCPServerAddress];
-                ::free(tcpServer);
-
-                int tcpPort = tcp->GetServerPort();
-                [[mUserDefaultsController defaults] setInteger:tcpPort forKey:kExtrTCPServerPort];
-            }
-        }
-    }
-                                               );
-#endif
-
-
-    if (useMonitor)
-    {
-        char theSymbolListPath[512];
-        (void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
-                          theROMImagePath, theMachineString );
-        mSymbolList = new TSymbolList( theSymbolListPath );
-        mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList, theROMImagePath);
-    } else {
-        (void) ::printf( "Booting...\n" );
-    }
+    InitMonitor(theMachineString, theROMImagePath);
 
     Fl::lock();
-    win->show(1, argv);
+    wAppWindow->show(1, argv);
+    StoreAppWindowSize();
     if (hidemouse) {
-        win->HideMousePointer();
+        wAppWindow->HideMousePointer();
     }
 
     // launch the actual emulation in the background
@@ -373,113 +188,22 @@ TFLApp::Run( int argc, char* argv[] )
     mEmulator->Quit();
 
     // This is a good time to save preferences that might have changed while running
-    // TODO: don't write the window position when currently in fullscreen mode!
-    mFLSettings->mAppWindowPosX = win->x();
-    mFLSettings->mAppWindowPosY = win->y();
+    if (wAppWindow->fullscreen_active()) {
+        mFLSettings->mAppWindowPosX = mWindowedX;
+        mFLSettings->mAppWindowPosY = mWindowedY;
+    } else {
+        mFLSettings->mAppWindowPosX = wAppWindow->x();
+        mFLSettings->mAppWindowPosY = wAppWindow->y();
+    }
     mFLSettings->savePreferences();
 
     // wait for the emulator to finish before we leave the house, too and lock the doors
-    // FIXME: we must have a timeout on this!
     emulatorThread->join();
 }
 
 
-/**
- Launch the emulator or monitor thread.
- */
-void
-TFLApp::EmulatorThreadEntry()
-{
-    if (mMonitor) {
-        mMonitor->Run();
-    } else {
-        mEmulator->Run();
-    }
-}
-
-
-/**
- Create a file for logging all important events at runtime.
- */
-void
-TFLApp::CreateLog( const char* inFilePath )
-{
-    if (mLog)
-    {
-        (void) ::printf( "A log already exists (--monitor & --log are exclusive)\n" );
-        ::exit(1);
-    }
-    mLog = new TFileLog( inFilePath );
-}
-
-
-/**
- Creta ethe appropriate screen manager for this platform.
-
- In FLTK world, that would always be the FLTK Screen driver.
-
- \todo do we have to do any fullscreen management here? RaspberryPI? Linux tablets? Pen PCs?
- */
-void TFLApp::CreateScreenManager(
-                                 const char* inClass,
-                                 int inPortraitWidth,
-                                 int inPortraitHeight,
-                                 bool inFullScreen)
-{	
-    if (::strcmp( inClass, "FL" ) == 0)
-    {
-        bool screenIsLandscape = true;
-
-        KUInt32 theWidth;
-        KUInt32 theHeight;
-
-#if 0
-        if (inFullScreen)
-        {
-            KUInt32 theScreenWidth;
-            KUInt32 theScreenHeight;
-            TFLScreenManager::GetScreenSize(&theScreenWidth, &theScreenHeight);
-            if (theScreenWidth >= theScreenHeight)
-            {
-                screenIsLandscape = true;
-                theWidth = inPortraitHeight;
-                theHeight = inPortraitWidth;
-            } else {
-                screenIsLandscape = false;
-                theWidth = inPortraitWidth;
-                theHeight = inPortraitHeight;
-            }
-        } else {
-            theWidth = inPortraitWidth;
-            theHeight = inPortraitHeight;
-        }
-#else
-        theWidth = inPortraitWidth;
-        theHeight = inPortraitHeight;
-#endif
-
-        mScreenManager = new TFLScreenManager(this,
-                                              mLog,
-                                              theWidth,
-                                              theHeight,
-                                              inFullScreen,
-                                              screenIsLandscape);
-    } else {
-        (void) ::fprintf( stderr, "Unknown screen manager class %s\n", inClass );
-        ::exit( 1 );
-    }
-}
-
-
-/**
- User wants us to quit.
-
- This may be a menu item or the Cllose button on the window decoration.
- */
-void TFLApp::quit_cb(Fl_Widget *, void *p) 
-{
-    gApp->UserActionQuit();
-}
+// MARK: -
+// --- User Actions
 
 
 /**
@@ -502,46 +226,12 @@ void TFLApp::UserActionQuit()
 
 
 /**
- User wants us to slide the network card in or out
- */
-void TFLApp::UserActionToggleNetworkCard()
-{
-    mPlatformManager->SendNetworkCardEvent();
-}
-
-
-/**
  User wants us to toggle the power switch.
  \fixme This is currently the same as Menu Quit
  */
 void TFLApp::UserActionTogglePower()
 {
     mPlatformManager->SendPowerSwitchEvent();
-}
-
-
-/**
- This is called by the screen manager when the state of the backlight changed.
- */
-void TFLApp::PowerChangedEvent(bool inState)
-{
-    // we have a hidden button in the FLuid file that does nothing but keep
-    // track of the "on" image.
-    static Fl_Image *onImage = nullptr;
-    static Fl_Image *offImage = nullptr;
-    Fl::lock();
-    if (!onImage) {
-        onImage = wPowerOnTool->image();
-        offImage = wPowerTool->image();
-    }
-    if (inState) {
-        wPowerTool->image(onImage);
-    } else {
-        wPowerTool->image(offImage);
-    }
-    wPowerTool->redraw();
-    Fl::awake();
-    Fl::unlock();
 }
 
 
@@ -555,27 +245,11 @@ void TFLApp::UserActionToggleBacklight()
 
 
 /**
- This is called by the screen manager when the state of the backlight changed.
+ User wants us to slide the network card in or out
  */
-void TFLApp::BacklightChangedEvent(bool inState)
+void TFLApp::UserActionToggleNetworkCard()
 {
-    // we have a hidden button in the FLuid file that does nothing but keep
-    // track of the "on" image.
-    static Fl_Image *onImage = nullptr;
-    static Fl_Image *offImage = nullptr;
-    Fl::lock();
-    if (!onImage) {
-        onImage = wBacklightOnTool->image();
-        offImage = wBacklightTool->image();
-    }
-    if (inState) {
-        wBacklightTool->image(onImage);
-    } else {
-        wBacklightTool->image(offImage);
-    }
-    wBacklightTool->redraw();
-    Fl::awake();
-    Fl::unlock();
+    mPlatformManager->SendNetworkCardEvent();
 }
 
 
@@ -681,9 +355,54 @@ void TFLApp::UserActionShowAboutPanel()
 /**
  User wants to see the setting window.
  */
-void TFLApp::UserActionShowSettingsPanel() 
+void TFLApp::UserActionShowSettingsPanel()
 {
     mFLSettings->ShowSettingsPanel();
+}
+
+
+/**
+ User wants the screen to be the original scale, so resize it back to 1:1; mapping.
+
+ Depending on the preferences, we would leave fullscreen mode.
+ */
+void TFLApp::UserActionOriginalScreenSize()
+{
+    if (wAppWindow->fullscreen_active()) {
+        UserActionToggleFullscreen();
+    }
+    if (!wAppWindow->fullscreen_active()) {
+        wAppWindow->resizable(mNewtonScreen);
+        wAppWindow->size( mScreenManager->GetScreenWidth(), wMenubar->h() + wToolbar->h() + mScreenManager->GetScreenHeight() );
+        if (!mFLSettings->mAllowScreenResize)
+            wAppWindow->resizable(nullptr);
+        StoreAppWindowSize();
+    }
+}
+
+
+/**
+ User wants the app into or out of fullscreen mode.
+
+ Remove the decoration from the main window and set it into fullscreen mode.
+ Switch the menubar and the toolbar off.
+ Scale the pixel output to the Newton screen.
+ Rotating the screen should actually rotate it upside down and left-sdie right in fullscreen mode.
+ */
+void TFLApp::UserActionToggleFullscreen()
+{
+    if (wAppWindow->fullscreen_active()) {
+        wAppWindow->resizable(mNewtonScreen);
+        wAppWindow->fullscreen_off(mWindowedX, mWindowedY, mWindowedWidth, mWindowedHeight);
+        if (!mFLSettings->mAllowScreenResize)
+            wAppWindow->resizable(nullptr);
+    } else {
+        StoreAppWindowSize();
+        wAppWindow->resizable(mNewtonScreen);
+        wAppWindow->fullscreen();
+        if (!mFLSettings->mAllowScreenResize)
+            wAppWindow->resizable(nullptr);
+    }
 }
 
 
@@ -724,6 +443,60 @@ void TFLApp::UserActionPopupMenu()
 }
 
 
+// MARK: -
+// ---  Events from within the meulator
+
+
+/**
+ This is called by the screen manager when the state of the backlight changed.
+ */
+void TFLApp::PowerChangedEvent(bool inState)
+{
+    // we have a hidden button in the FLuid file that does nothing but keep
+    // track of the "on" image.
+    static Fl_Image *onImage = nullptr;
+    static Fl_Image *offImage = nullptr;
+    Fl::lock();
+    if (!onImage) {
+        onImage = wPowerOnTool->image();
+        offImage = wPowerTool->image();
+    }
+    if (inState) {
+        wPowerTool->image(onImage);
+    } else {
+        wPowerTool->image(offImage);
+    }
+    wPowerTool->redraw();
+    Fl::awake();
+    Fl::unlock();
+}
+
+
+/**
+ This is called by the screen manager when the state of the backlight changed.
+ */
+void TFLApp::BacklightChangedEvent(bool inState)
+{
+    // we have a hidden button in the FLuid file that does nothing but keep
+    // track of the "on" image.
+    static Fl_Image *onImage = nullptr;
+    static Fl_Image *offImage = nullptr;
+    Fl::lock();
+    if (!onImage) {
+        onImage = wBacklightOnTool->image();
+        offImage = wBacklightTool->image();
+    }
+    if (inState) {
+        wBacklightTool->image(onImage);
+    } else {
+        wBacklightTool->image(offImage);
+    }
+    wBacklightTool->redraw();
+    Fl::awake();
+    Fl::unlock();
+}
+
+
 void TFLApp::ResizeFromNewton(int w, int h)
 {
     if (mNewtonScreen->w()==w && mNewtonScreen->h()==h)
@@ -738,35 +511,334 @@ void TFLApp::ResizeFromNewton(int w, int h)
     Fl::unlock();
 }
 
-/**
- User wants the app into or out of fullscreen mode.
 
- Remove the decoration from the main window and set it into fullscreen mode.
- Switch the menubar and the toolbar off.
- Scale the pixel output to the Newton screen.
- Rotating the screen should actually rotate it upside down and left-sdie right in fullscreen mode.
- */
-void TFLApp::UserActionToggleFullscreen()
+// MARK: - Private: -
+
+
+void TFLApp::InitFLTK(int argc, char **argv) {
+    Fl::scheme("gtk+");
+    Fl::args(1, argv);
+    Fl::get_system_colors();
+    Fl::use_high_res_GL(1);
+    Fl::visual(FL_RGB);
+}
+
+
+void TFLApp::InitSettings() {
+    mFLSettings = new TFLSettingsUI();
+#if TARGET_OS_WIN32
+    mFLSettings->mSettingsPanel->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+#endif
+    mFLSettings->setApp(this, mProgramName);
+    mFLSettings->loadPreferences();
+    mFLSettings->revertDialog();
+}
+
+
+void TFLApp::InitSound()
 {
-    static int x =0, y = 0, w = 320, h = 480;
-    if (wAppWindow->fullscreen_active()) {
-        wAppWindow->resizable(mNewtonScreen);
-        wAppWindow->fullscreen_off(x, y, w, h);
-        if (!mFLSettings->mAllowScreenResize)
-            wAppWindow->resizable(nullptr);
+#if TARGET_OS_WIN32
+    mSoundManager = new TWaveSoundManager( mLog );
+#elif TARGET_OS_LINUX
+    mSoundManager = new TPulseAudioSoundManager( mLog );
+#elif TARGET_OS_MAC
+    mSoundManager = new TCoreAudioSoundManager( mLog );
+#else
+#   error Selected target OS support not implemented, or no target OS selected
+#endif
+}
+
+
+void TFLApp::InitNetwork() {
+    mNetworkManager = new TNullNetworkManager(mLog);
+}
+
+
+/**
+ Initialize the application window and the screen driver.
+ */
+void TFLApp::InitScreen()
+{
+    int portraitWidth = mFLSettings->screenWidth;
+    int portraitHeight = mFLSettings->screenHeight;
+    if (portraitHeight < portraitWidth)
+    {
+        (void) ::fprintf(
+                         stderr,
+                         "Warning, (portrait) height (%i) is smaller than width (%i). Boot screen won't be displayed properly\n",
+                         portraitHeight,
+                         portraitWidth );
+    }
+
+    Fl_Group::current(nullptr);
+    wAppWindow = CreateApplicationWindow(
+                                         mFLSettings->mAppWindowPosX,
+                                         mFLSettings->mAppWindowPosY);
+    wAppWindow->SetApp( this );
+    wAppWindow->size(portraitWidth, portraitHeight + wToolbar->y() + wToolbar->h());
+    wAppWindow->resizable(nullptr);
+#if TARGET_OS_WIN32
+    wAppWindow->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+#endif
+    wAppWindow->callback(quit_cb, this);
+    if (mFLSettings->mAllowFullscreen)
+        wMenuItemFullscreen->activate();
+    else
+        wMenuItemFullscreen->deactivate();
+    wAppWindow->begin();
+    TFLScreenManager *flScreenManager = new TFLScreenManager(this, mLog, portraitWidth, portraitHeight, false, false);
+    mNewtonScreen = flScreenManager->GetWidget();
+    mScreenManager = flScreenManager;
+    flScreenManager->GetWidget()->position(wToolbar->x(), wToolbar->y()+wToolbar->h());
+    wAppWindow->end();
+    if (mFLSettings->mAllowScreenResize)
+        wAppWindow->resizable(flScreenManager->GetWidget());
+    else
+        wAppWindow->resizable(nullptr);
+    StoreAppWindowSize();
+}
+
+
+void TFLApp::InitSerialPorts()
+{
+    // TODO: add preferences for the current driver, port and server address
+    // Basic initialization of all serial ports
+
+    mEmulator->SerialPorts.Initialize(TSerialPorts::kTcpClientDriver,
+                                      TSerialPorts::kNullDriver,
+                                      TSerialPorts::kNullDriver,
+                                      TSerialPorts::kNullDriver );
+#if 0
+    // TODO: save the serial port setting in a save place
+    TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+    if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
+    {
+        TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+        tcp->SetServerAddress([[defaults stringForKey: kExtrTCPServerAddress] UTF8String]);
+        tcp->SetServerPort((int)[defaults integerForKey: kExtrTCPServerPort]);
+    }
+    mEmulator->SerialPorts.PortChangedCallback(
+                                               // THIS IS A LAMBDA FUNCTION. This function is called when an application
+                                               // on the emulated Newton changes the serial port settings
+                                               [self](int serPort)->void
+                                               {
+        if (serPort==TSerialPorts::kExtr) {
+            TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+            if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver) {
+                TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+
+                char *tcpServer = tcp->GetServerAddressDup();
+                NSString *nsTcpServer = [NSString stringWithUTF8String:tcpServer];
+                [[mUserDefaultsController defaults] setValue:nsTcpServer forKey:kExtrTCPServerAddress];
+                ::free(tcpServer);
+
+                int tcpPort = tcp->GetServerPort();
+                [[mUserDefaultsController defaults] setInteger:tcpPort forKey:kExtrTCPServerPort];
+            }
+        }
+    }
+                                               );
+#endif
+}
+
+
+void TFLApp::InitMonitor(const char *theMachineString, const char *theROMImagePath) {
+    bool useMonitor = (bool)mFLSettings->useMonitor;
+    if (useMonitor)
+    {
+        char theSymbolListPath[512];
+        (void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
+                          theROMImagePath, theMachineString );
+        mSymbolList = new TSymbolList( theSymbolListPath );
+        mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList, theROMImagePath);
     } else {
-        x = wAppWindow->x();
-        y = wAppWindow->y();
-        w = wAppWindow->w();
-        h = wAppWindow->h();
-//        int sx, sy, sw, sh;
-        wAppWindow->resizable(mNewtonScreen);
-        wAppWindow->fullscreen();
-        if (!mFLSettings->mAllowScreenResize)
-            wAppWindow->resizable(nullptr);
+        (void) ::printf( "Booting...\n" );
     }
 }
 
+
+/**
+ Launch the emulator or monitor thread.
+ */
+void
+TFLApp::EmulatorThreadEntry()
+{
+    if (mMonitor) {
+        mMonitor->Run();
+    } else {
+        mEmulator->Run();
+    }
+}
+
+
+/**
+ Create a file for logging all important events at runtime.
+ */
+void
+TFLApp::CreateLog( const char* inFilePath )
+{
+    if (mLog)
+    {
+        (void) ::printf( "A log already exists (--monitor & --log are exclusive)\n" );
+        ::exit(1);
+    }
+    mLog = new TFileLog( inFilePath );
+}
+
+
+void TFLApp::LoadROMAndREX(const char *&theMachineString, const char *&theROMImagePath, bool useMonitor) {
+    theROMImagePath = strdup(mFLSettings->ROMPath);
+    const char* defaultMachineString = "717006";
+    theMachineString = strdup(mFLSettings->MachineID);
+    int useAIFROMFile = 0;    // 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
+
+    if (theMachineString==nil || *theMachineString==0)
+    {
+        theMachineString = defaultMachineString;
+    }
+
+    // will we use an AIF image?
+    {
+        const char *ext = fl_filename_ext(theROMImagePath);
+#if TARGET_OS_WIN32
+        if ( ext && stricmp(ext, ".aif")==0 )
+        {
+            useAIFROMFile = 1;
+        }
+#else
+        if ( ext && strcasecmp(ext, ".aif")==0 )
+        {
+            useAIFROMFile = 1;
+        }
+#endif
+        const char *name = fl_filename_name(theROMImagePath);
+        if (    name
+            && strncmp(name, "Senior Cirrus", 13)==0
+            && strstr(name, "image"))
+        {
+            useAIFROMFile = 2;
+        }
+    }
+
+    // If we use the builtin REX, set the REX path to null
+    // If we want an external file, take the ROM path with the filename "Einstein.rex"
+    char *theREX1Path = nullptr;
+    char theREX1PathBuffer[FL_PATH_MAX];
+    if (mFLSettings->mUseBuiltinRex) {
+        theREX1Path = nullptr;
+    } else {
+        strcpy(theREX1PathBuffer, theROMImagePath);
+        char *rexName = (char *) fl_filename_name(theREX1PathBuffer);
+        if (rexName) {
+            strcpy(rexName, "Einstein.rex");
+        }
+        theREX1Path = theREX1PathBuffer;
+    }
+
+    switch (useAIFROMFile) {
+        case 0:
+            mROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path, theMachineString, useMonitor);
+            break;
+        case 1:
+        {
+            char theREX0Path[FL_PATH_MAX];
+            strcpy(theREX0Path, theROMImagePath);
+            fl_filename_setext(theREX0Path, FL_PATH_MAX, ".rex");
+            mROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path, theMachineString, useMonitor );
+        }
+            break;
+        case 2:
+        {
+            char theREX0Path[FL_PATH_MAX];
+            strcpy(theREX0Path, theROMImagePath);
+            char *image = strstr(theREX0Path, "image");
+            strcpy(image, "high");
+            mROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path, theMachineString, useMonitor );
+        }
+            break;
+    }
+}
+
+
+/**
+ Creta ethe appropriate screen manager for this platform.
+
+ In FLTK world, that would always be the FLTK Screen driver.
+
+ \todo do we have to do any fullscreen management here? RaspberryPI? Linux tablets? Pen PCs?
+ */
+void TFLApp::CreateScreenManager(
+                                 const char* inClass,
+                                 int inPortraitWidth,
+                                 int inPortraitHeight,
+                                 bool inFullScreen)
+{	
+    if (::strcmp( inClass, "FL" ) == 0)
+    {
+        bool screenIsLandscape = true;
+
+        KUInt32 theWidth;
+        KUInt32 theHeight;
+
+#if 0
+        if (inFullScreen)
+        {
+            KUInt32 theScreenWidth;
+            KUInt32 theScreenHeight;
+            TFLScreenManager::GetScreenSize(&theScreenWidth, &theScreenHeight);
+            if (theScreenWidth >= theScreenHeight)
+            {
+                screenIsLandscape = true;
+                theWidth = inPortraitHeight;
+                theHeight = inPortraitWidth;
+            } else {
+                screenIsLandscape = false;
+                theWidth = inPortraitWidth;
+                theHeight = inPortraitHeight;
+            }
+        } else {
+            theWidth = inPortraitWidth;
+            theHeight = inPortraitHeight;
+        }
+#else
+        theWidth = inPortraitWidth;
+        theHeight = inPortraitHeight;
+#endif
+
+        mScreenManager = new TFLScreenManager(this,
+                                              mLog,
+                                              theWidth,
+                                              theHeight,
+                                              inFullScreen,
+                                              screenIsLandscape);
+    } else {
+        (void) ::fprintf( stderr, "Unknown screen manager class %s\n", inClass );
+        ::exit( 1 );
+    }
+}
+
+
+/**
+ User wants us to quit.
+
+ This may be a menu item or the Cllose button on the window decoration.
+ */
+void TFLApp::quit_cb(Fl_Widget *, void *p) 
+{
+    gApp->UserActionQuit();
+}
+
+
+/**
+ Store the current size of the app window in mWindowed... .
+ */
+void TFLApp::StoreAppWindowSize()
+{
+    mWindowedX = wAppWindow->x();
+    mWindowedY = wAppWindow->y();
+    mWindowedWidth = wAppWindow->w();
+    mWindowedHeight = wAppWindow->h();
+}
 
 /**
  This is the first function that is called on all platforms.

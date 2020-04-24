@@ -2,6 +2,18 @@
 
 #include "TFLAppUI.h"
 #include "TFLApp.h"
+#include <FL/fl_draw.H>
+
+/**
+ a gradient box type
+*/
+void draw_ramp(int x, int y, int w, int h, Fl_Color c) {
+  for (int i=y; i<y+h; i++) {
+          fl_color(fl_color_average(FL_BACKGROUND_COLOR, c, i/100.0));
+          //fl_rectf(x, y, w, h, Fl::box_color(c));
+          fl_xyline(x, i, x+w);
+      }
+}
 
 TFLAppWindow *wAppWindow=(TFLAppWindow *)0;
 
@@ -27,12 +39,16 @@ static void cb_Network(Fl_Menu_*, void*) {
   gApp->UserActionToggleNetworkCard();
 }
 
-static void cb_Settings(Fl_Menu_*, void*) {
-  gApp->UserActionShowSettingsPanel();
+static void cb_Original(Fl_Menu_*, void*) {
+  gApp->UserActionOriginalScreenSize();
 }
 
-static void cb_Fullscreen(Fl_Menu_*, void*) {
+static void cb_wMenuItemFullscreen(Fl_Menu_*, void*) {
   gApp->UserActionToggleFullscreen();
+}
+
+static void cb_Settings(Fl_Menu_*, void*) {
+  gApp->UserActionShowSettingsPanel();
 }
 
 static void cb_About(Fl_Menu_*, void*) {
@@ -65,14 +81,14 @@ Fl_Menu_Item menu_wMenubar[] = {
  {"Power Button", 0,  (Fl_Callback*)cb_Power, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Backlight", 0,  (Fl_Callback*)cb_Backlight, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Network Card", 0,  (Fl_Callback*)cb_Network, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Fetch ROM...", 0,  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Settings...", 0,  (Fl_Callback*)cb_Settings, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Fetch ROM...", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {"Window", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Zoom", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Fullscreen", 0x410066,  (Fl_Callback*)cb_Fullscreen, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Original SIze", 0,  (Fl_Callback*)cb_Original, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Fullscreen", 0x410066,  (Fl_Callback*)cb_wMenuItemFullscreen, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Monitor", 0x41006d,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Toolbox", 0x410074,  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Toolbox", 0x410074,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Settings...", 0,  (Fl_Callback*)cb_Settings, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Bring All To Front", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {"Help", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
@@ -84,7 +100,7 @@ Fl_Menu_Item menu_wMenubar[] = {
  {0,0,0,0,0,0,0,0,0}
 };
 
-Fl_Group *wToolbox=(Fl_Group *)0;
+Fl_Group *wToolbar=(Fl_Group *)0;
 
 Fl_Button *wPowerTool=(Fl_Button *)0;
 
@@ -1371,6 +1387,8 @@ static Fl_Image *image_button_install() {
 }
 
 TFLAppWindow* CreateApplicationWindow(int x, int y) {
+  Fl::set_boxtype(FL_FREE_BOXTYPE, draw_ramp, 0, 0, 0, 0);
+      Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+1), draw_ramp, 0, 0, 0, 0);
   { wAppWindow = new TFLAppWindow(320, 558);
     wAppWindow->box(FL_FLAT_BOX);
     wAppWindow->color(FL_BACKGROUND_COLOR);
@@ -1386,9 +1404,9 @@ TFLAppWindow* CreateApplicationWindow(int x, int y) {
       wMenubar->menu(menu_wMenubar);
       o->box(FL_FREE_BOXTYPE);
     } // Fl_Menu_Bar* wMenubar
-    { Fl_Group* o = wToolbox = new Fl_Group(0, 24, 320, 54);
-      wToolbox->box(FL_THIN_UP_BOX);
-      wToolbox->color(FL_LIGHT2);
+    { Fl_Group* o = wToolbar = new Fl_Group(0, 24, 320, 54);
+      wToolbar->box(FL_THIN_UP_BOX);
+      wToolbar->color(FL_LIGHT2);
       { Fl_Button* o = wPowerTool = new Fl_Button(10, 25, 36, 36, "Power");
         wPowerTool->color(FL_LIGHT2);
         wPowerTool->image( image_button_power() );
@@ -1447,8 +1465,8 @@ TFLAppWindow* CreateApplicationWindow(int x, int y) {
         o->clear_visible_focus();
       } // Fl_Button* o
       o->box(FL_FREE_BOXTYPE);
-      wToolbox->end();
-    } // Fl_Group* wToolbox
+      wToolbar->end();
+    } // Fl_Group* wToolbar
     { Fl_Box* o = new Fl_Box(0, 78, 320, 480);
       o->hide();
       Fl_Group::current()->resizable(o);
