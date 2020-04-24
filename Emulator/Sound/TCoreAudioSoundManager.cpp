@@ -287,6 +287,13 @@ TCoreAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
 void
 TCoreAudioSoundManager::StartOutput( void )
 {
+    // Set the volume before starting to render the sound
+    AudioUnitSetParameter(mOutputUnit,
+                          kHALOutputParam_Volume,
+                          kAudioUnitScope_Output,
+                          0,
+                          OutputVolumeNormalized(), 0);
+
 	// Start the rendering
 	// The DefaultOutputUnit will do any format conversions to the format of the
 	// default device
@@ -308,9 +315,7 @@ TCoreAudioSoundManager::StartOutput( void )
 void
 TCoreAudioSoundManager::StopOutput( void )
 {
-	// Start the rendering
-	// The DefaultOutputUnit will do any format conversions to the format of the
-	// default device
+	// Stop the rendering
 	OSStatus err = AudioOutputUnitStop( mOutputUnit );
 	if (err != noErr)
 	{
@@ -330,6 +335,22 @@ bool
 TCoreAudioSoundManager::OutputIsRunning( void )
 {
 	return !mOutputBuffer->IsEmpty();
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * OutputVolumeChanged() override
+// -------------------------------------------------------------------------- //
+void TCoreAudioSoundManager::OutputVolumeChanged()
+{
+    // Adjust the sound if there is an AudioUnit
+    if (mOutputUnit) {
+        AudioUnitSetParameter(mOutputUnit,
+                              kHALOutputParam_Volume,
+                              kAudioUnitScope_Output,
+                              0,
+                              OutputVolumeNormalized(), 0);
+    }
 }
 
 // ====================================================== //

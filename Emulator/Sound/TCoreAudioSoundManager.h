@@ -51,32 +51,37 @@ public:
 	///
 	/// \param inLog				log interface (can be null)
 	///
-	TCoreAudioSoundManager( TLog* inLog = nil );
+	TCoreAudioSoundManager( TLog* inLog = nullptr );
 
 	///
 	/// Destructor.
 	///
-	virtual ~TCoreAudioSoundManager( void );
+	~TCoreAudioSoundManager() override;
 
 	///
 	/// Schedule output of some buffer.
 	///
-	virtual void	ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize );
+	void ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize ) override;
 	
 	///
 	/// Start output.
 	///
-	virtual void	StartOutput( void );
+	void StartOutput() override;
 
 	///
 	/// Stop output.
 	///
-	virtual void	StopOutput( void );
+	void StopOutput() override;
 
 	///
 	/// Is output running?
 	///
-	virtual bool	OutputIsRunning( void );
+	bool OutputIsRunning() override;
+
+    ///
+    /// Method called to signal a change in the output volume.
+    ///
+    void OutputVolumeChanged() override;
 
 private:
 	///
