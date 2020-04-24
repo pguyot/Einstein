@@ -74,6 +74,23 @@ TSoundManager::RaiseOutputInterrupt( void ) const
 	mInterruptManager->RaiseInterrupt( mOutputIntMask );
 }
 
+// -------------------------------------------------------------------------- //
+//  * OutputVolumeNormalized()
+// -------------------------------------------------------------------------- //
+float TSoundManager::OutputVolumeNormalized()
+{
+    float volume = 0.0f;
+    if (mOutputVolume==kOutputVolume_Zero) {
+        volume = 0.0;
+    } else if (mOutputVolume==kOutputVolume_Max) {
+        volume = 1.0;
+    } else {
+        volume = (mOutputVolume-kOutputVolume_Min)/(double)(0xffffffff-kOutputVolume_Min);
+    }
+    return volume;
+}
+
+
 // ============================================================================= //
 // As in Protestant Europe, by contrast, where sects divided endlessly into      //
 // smaller competing sects and no church dominated any other, all is different   //

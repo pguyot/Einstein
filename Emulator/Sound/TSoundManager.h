@@ -121,6 +121,11 @@ public:
 			return mOutputVolume;
 		}
 
+    ///
+    /// Get output volume in the range from 0.0 to 1.0
+    ///
+    float OutputVolumeNormalized();
+
 	///
 	/// Set output volume.
 	///
@@ -133,7 +138,7 @@ public:
 protected:
 	enum {
 		kOutputVolume_Zero	= 0x80000000,
-		kOutputVolume_Min	= 0xFFE24EDA,
+        kOutputVolume_Min	= 0xFFDDBD71, // Matt: was 0xFFE24EDA, but I found a lower value
 		kOutputVolume_Max	= 0x00000000
 	};
 	
