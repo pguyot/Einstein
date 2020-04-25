@@ -554,9 +554,7 @@ void TFLApp::InitNetwork() {
 #if TARGET_OS_MAC
     mNetworkManager = new TUsermodeNetwork(mLog);
 #elif TARGET_OS_LINUX
-#   error Please configure a network driver
-#error Please configure a network driver
-#   error Please configure a network driver
+    mNetworkManager = new TUsermodeNetwork(mLog);
 #elif TARGET_OS_WINDOWS
 #   error Please configure a network driver
 #else

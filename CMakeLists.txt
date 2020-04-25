@@ -363,6 +363,9 @@ elseif (UNIX)
 			# Unix sound support
 			Emulator/Sound/TPulseAudioSoundManager.cpp
 			Emulator/Sound/TPulseAudioSoundManager.h
+			# Network card emulations
+			Emulator/Network/TUsermodeNetwork.cpp
+			Emulator/Network/TUsermodeNetwork.h
 			)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
     source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources})

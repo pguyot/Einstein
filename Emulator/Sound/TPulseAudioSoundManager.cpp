@@ -163,6 +163,7 @@ TPulseAudioSoundManager::TPulseAudioSoundManager( TLog* inLog /* = nil */ )
 
     pa_threaded_mainloop_unlock(mPAMainLoop);
     // ready for processing!
+    OutputVolumeChanged();
     return;
 
     error:
@@ -223,50 +224,47 @@ TPulseAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize 
     int error;
     if (inSize > 0)
     {
-        if (OutputVolume() != kOutputVolume_Zero)
+        size_t inputSize = inSize;
+        size_t roomInPAStream = pa_stream_writable_size(mOutputStream);
+        KUInt8* outBuffer = NULL;
+#ifdef DEBUG_SOUND
+        if (GetLog()) {
+                GetLog()->FLogLine("***** FROM NOS: ScheduleOutput size:%d, frames:%ld, PA out buffer size:%d",
+                        inputSize, (inSize / sizeof(KSInt16)), roomInPAStream );
+        }
+#endif
+        if (roomInPAStream >= inputSize)
         {
-            size_t inputSize = inSize;
-            size_t roomInPAStream = pa_stream_writable_size(mOutputStream);
-            KUInt8* outBuffer = NULL;
 #ifdef DEBUG_SOUND
             if (GetLog()) {
-                GetLog()->FLogLine("***** FROM NOS: ScheduleOutput size:%d, frames:%ld, PA out buffer size:%d",
-                inputSize, (inSize / sizeof(KSInt16)), roomInPAStream );
-            }
-#endif
-            if (roomInPAStream >= inputSize)
-            {
-#ifdef DEBUG_SOUND
-                if (GetLog()) {
                     GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (lots of space)", inputSize);
-                }
-#endif
-                pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &inputSize);
-                ::memcpy(outBuffer, inBuffer, inputSize);
-                pa_stream_write(mOutputStream, outBuffer, inputSize, NULL, 0LL, PA_SEEK_RELATIVE);
             }
-            else
-            {
+#endif
+            pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &inputSize);
+            ::memcpy(outBuffer, inBuffer, inputSize);
+            pa_stream_write(mOutputStream, outBuffer, inputSize, NULL, 0LL, PA_SEEK_RELATIVE);
+        }
+        else
+        {
 #ifdef DEBUG_SOUND
-                if (GetLog()) {
+            if (GetLog()) {
                     GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (LACK of space) - RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT", roomInPAStream);
-                }
-#endif
-                pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &roomInPAStream);
-                ::memcpy(outBuffer, inBuffer, roomInPAStream);
-                pa_stream_write(mOutputStream, outBuffer, inputSize, NULL, 0LL, PA_SEEK_RELATIVE);
-                RaiseOutputInterrupt();
             }
+#endif
+            pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &roomInPAStream);
+            ::memcpy(outBuffer, inBuffer, roomInPAStream);
+            pa_stream_write(mOutputStream, outBuffer, inputSize, NULL, 0LL, PA_SEEK_RELATIVE);
+            RaiseOutputInterrupt();
+        }
 
-            if (inSize < kNewtonBufferSize)
-            {
+        if (inSize < kNewtonBufferSize)
+        {
 #ifdef DEBUG_SOUND
-                if (GetLog()) {
+            if (GetLog()) {
                     GetLog()->FLogLine("RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT");
-                }
-#endif
-                RaiseOutputInterrupt();
             }
+#endif
+            RaiseOutputInterrupt();
         }
     }
     else if (mOutputIsRunning)
@@ -438,6 +436,18 @@ void TPulseAudioSoundManager::PAStreamOpCB(pa_stream* s, int success, pa_threade
         pa_threaded_mainloop_signal(mainloop, 0);
     }
 }
+
+void TPulseAudioSoundManager::OutputVolumeChanged()
+{
+    if (!mOutputStream)
+        return;
+    pa_threaded_mainloop_lock(mPAMainLoop);
+    pa_cvolume cvolume;
+    pa_cvolume_set(&cvolume, 1, pa_sw_volume_from_linear(OutputVolumeNormalized()));
+    pa_context_set_sink_input_volume(mPAContext, pa_stream_get_index(mOutputStream), &cvolume, NULL, NULL);
+    pa_threaded_mainloop_unlock(mPAMainLoop);
+}
+
 
 // ============================================================================= //
 // <dark> "Let's form the Linux Standard Linux Standardization Association       //

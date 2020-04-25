@@ -57,27 +57,32 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TPulseAudioSoundManager( void );
+	~TPulseAudioSoundManager( void ) override;
 
 	///
 	/// Schedule output of some buffer.
 	///
-	virtual void	ScheduleOutput( const KUInt8* inBufferAddr, KUInt32 inSize );
+	void	ScheduleOutput( const KUInt8* inBufferAddr, KUInt32 inSize ) override;
 
 	///
 	/// Start output.
 	///
-	virtual void	StartOutput( void );
+	void	StartOutput( void ) override;
 
 	///
 	/// Stop output.
 	///
-	virtual void	StopOutput( void );
+	void	StopOutput( void ) override;
 
 	///
 	/// Is output running?
 	///
-	virtual bool	OutputIsRunning( void );
+	bool	OutputIsRunning( void ) override;
+
+    ///
+    /// Method called to signal a change in the output volume.
+    ///
+    void OutputVolumeChanged( void ) override;
 
 private:
 
