@@ -266,16 +266,12 @@ void
 TCoreAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
 {
 	if (inSize > 0)
-	{
-		if (OutputVolume() != kOutputVolume_Zero)
-		{
-			// Write to the output buffer.
-			// Copy data.
-			mDataMutex->Lock();
-			mOutputBuffer->Produce( inBuffer, inSize );
-			mDataMutex->Unlock();
-		}
-
+    {
+        // Write to the output buffer.
+        // Copy data.
+        mDataMutex->Lock();
+        mOutputBuffer->Produce( inBuffer, inSize );
+        mDataMutex->Unlock();
 		// Ask for more data.
 		//RaiseOutputInterrupt();
 	}
@@ -288,11 +284,7 @@ void
 TCoreAudioSoundManager::StartOutput( void )
 {
     // Set the volume before starting to render the sound
-    AudioUnitSetParameter(mOutputUnit,
-                          kHALOutputParam_Volume,
-                          kAudioUnitScope_Output,
-                          0,
-                          OutputVolumeNormalized(), 0);
+    OutputVolumeChanged();
 
 	// Start the rendering
 	// The DefaultOutputUnit will do any format conversions to the format of the
