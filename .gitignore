@@ -1,5 +1,6 @@
 *.swp
 .vs/
+.idea/
 build/
 bin/
 lib/
@@ -25,6 +26,7 @@ DerivedData/
 /_Build_/AndroidStudioNative/gradle/wrapper/gradle-wrapper.properties
 /_Build_/AndroidStudioNative/local.properties
 /_Build_/AndroidStudioNative/einstein/.cxx
+/cmake_build_*/
 *.iml
 /CMakeSettings.json
 /app/._TFLSettings.fl
