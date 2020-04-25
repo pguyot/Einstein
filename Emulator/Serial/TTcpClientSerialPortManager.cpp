@@ -363,15 +363,11 @@ TTcpClientSerialPortManager::HandleDMA()
 		}
 
 		// if there is still (or already) data in the receive buffer, just trigger the message
+		//  - this should happen automatically, but we had situation where it didn't, so just make sure
 		if (mTcpEvent != INVALID_HANDLE_VALUE) {
-			char buf[8];
-			DWORD nRequested = 1;
-			DWORD nReceived = 0;
-			DWORD flags = MSG_PEEK;
-			WSABUF abuf = { nRequested, (CHAR*)buf };
-			int ret = WSARecv(mTcpSocket, &abuf, 1, &nReceived, &flags, nullptr, nullptr);
-			int n = (ret == 0) ? nReceived : -1;
-			if (n == 1) WSASetEvent(mTcpEvent);
+			u_long nAvailable = 0;
+			ioctlsocket(mTcpSocket, FIONREAD, &nAvailable);
+			if (nAvailable>0) WSASetEvent(mTcpEvent);
 		}
 
 		int nEvent = (mTcpEvent == INVALID_HANDLE_VALUE) ? 2 : 3;

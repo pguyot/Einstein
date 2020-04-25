@@ -93,6 +93,19 @@
 // Handle all kinds of network packages
 //
 
+#if TARGET_OS_WIN32
+
+#include <WinSock2.h>
+#include <Ws2tcpip.h>
+# include <stdio.h>
+# include <fcntl.h>
+# include <stdlib.h>
+# include <malloc.h>
+# include <string.h>
+typedef int socklen_t;
+
+#else
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -127,6 +140,7 @@
 #include <stdlib.h>
 #endif
 
+#endif //! TARGET_OS_WIN32
 
 const KUInt32 kUDPExpirationTime = 100;
 
@@ -520,13 +534,23 @@ public:
 	 */
 	~TCPPacketHandler() 
 	{
-		if ( mSocket != -1 ) {
-			if ( state!=kStateDisconnected ) {
-				shutdown( mSocket, SHUT_RDWR);
+#if TARGET_OS_WIN32
+		if (mSocket != INVALID_SOCKET) {
+			if (state != kStateDisconnected) {
+				shutdown(mSocket, SD_BOTH);
+			}
+			::closesocket(mSocket);
+			mSocket = INVALID_SOCKET;
+		}
+#else
+		if (mSocket != -1) {
+			if (state != kStateDisconnected) {
+				shutdown(mSocket, SHUT_RDWR);
 			}
 			close(mSocket);
 			mSocket = -1;
 		}
+#endif
 	}
 	
 	/**
@@ -601,10 +625,16 @@ public:
 		}
 		
 		// perform some presets for the socket
+		// - get the current settings and add the flag to keep the socket from blocking on send and receive
+#if TARGET_OS_WIN32
+		u_long arg = 1;
+		ioctlsocket(mSocket, FIONBIO, &arg);
+#else
 		int fl = fcntl(mSocket, F_GETFL);
 		err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
 		if (err==-1)
 			return -1;
+#endif
 		
 		// succesful connection, return a SYN ACK to the Newton.
 		mySeqNr++; 
@@ -645,7 +675,7 @@ public:
 				} else { // this is a data package, ack needed
 					// FIXME: if FIN is set, we need to start disconnecting
 					packet.LogPayload(net->GetLog(), "W<E N");
-					write(mSocket, packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize());					
+					::send(mSocket, (char*)packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize(), 0);					
 					Packet *reply = NewPacket(0);
 					mySeqNr += packet.GetTCPPayloadSize(); 
 					reply->SetTCPAck(mySeqNr);
@@ -677,8 +707,13 @@ public:
 					sa.sin_addr.s_addr = htonl(theirIP);
 					/* int err = */ ::connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
 					// perform some presets for the socket
+#if TARGET_OS_WIN32
+					u_long arg = 1;
+					ioctlsocket(mSocket, FIONBIO, &arg);
+#else
 					int fl = fcntl(mSocket, F_GETFL);
 					/* err = */ fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
+#endif
 					state = kStateConnected;
 					return 1;
 				}
@@ -688,8 +723,12 @@ public:
 				reply->SetTCPFlags(Packet::TCPFlagACK);
 				UpdateChecksums(reply);
 				reply->LogPayload(net->GetLog(), "W E>N");
-				net->Enqueue(reply);				
+				net->Enqueue(reply);
+#if TARGET_OS_WIN32
+				::closesocket(mSocket);
+#else
 				close(mSocket);
+#endif
 				net->RemovePacketHandler(this);
 				printf("Net: Peer closing. Removing TCP handler for port %u to %u.%u.%u.%u\n", 
 					   theirPort,
@@ -729,7 +768,7 @@ public:
 		}
 		// ok, the state is kStateConnected. See if there are any icomming messages
 		KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
-		ssize_t avail = recv(mSocket, buf, sizeof(buf), 0);
+		ssize_t avail = recv(mSocket, (char*)buf, sizeof(buf), 0);
 		if (avail==0) {
 			// Peer has closed connection.
 			Packet *reply = NewPacket(0);
@@ -825,10 +864,17 @@ public:
 	 */
 	~UDPPacketHandler() 
 	{
+#if TARGET_OS_WIN32
+		if (mSocket != INVALID_SOCKET) {
+			::closesocket(mSocket);
+			mSocket = INVALID_SOCKET;
+		}
+#else
 		if ( mSocket != -1 ) {
 			close(mSocket);
 			mSocket = -1;
 		}
+#endif
 	}
 	
 	/**
@@ -885,10 +931,15 @@ public:
 			mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			if (mSocket==-1)
 				return -1;
+#if TARGET_OS_WIN32
+			u_long arg = 1;
+			ioctlsocket(mSocket, FIONBIO, &arg);
+#else
 			int fl = fcntl(mSocket, F_GETFL);
 			int err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
 			if (err==-1)
 				return -1;
+#endif
 			memset(&theirSockAddr, 0, sizeof(theirSockAddr));
 			theirSockAddr.sin_family = AF_INET;
 			theirSockAddr.sin_addr.s_addr = htonl(theirIP);
@@ -897,7 +948,7 @@ public:
 		mExpire = kUDPExpirationTime;
 		packet.LogPayload(net->GetLog(), "W<E N");
 		ssize_t ret =
-			sendto(mSocket, packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
+			sendto(mSocket, (char*)packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
 				   0, (struct sockaddr*)&theirSockAddr, sizeof(theirSockAddr));
 		if (ret==-1) 
 			return -1;
@@ -919,7 +970,7 @@ public:
 		int maxTry = 5;
 		for (;maxTry>0; maxTry--) {
 			ssize_t avail =
-				recvfrom(mSocket, buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
+				recvfrom(mSocket, (char*)buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
 			if (avail<1) {
 				if ( --mExpire == 0 ) {
 					printf("Net: Timer expired. Removing UDP handler for port %u to %u.%u.%u.%u\n",
@@ -1460,6 +1511,11 @@ TUsermodeNetwork::TUsermodeNetwork(TLog* inLog) :
 	mFirstPacket( 0L ),
 	mLastPacket( 0L )
 {
+#if TARGET_OS_WIN32
+	WSADATA wsaData;
+	WORD wVersionRequested = MAKEWORD(2, 2);
+	WSAStartup(wVersionRequested, &wsaData);
+#endif
 	// to implement DHCP, look at getifaddrs()
 	// http://www.developerweb.net/forum/showthread.php?t=5085
 }
@@ -1476,6 +1532,9 @@ TUsermodeNetwork::~TUsermodeNetwork()
 	// release all package handlers
 	// TODO: delete handlers
 	// release all other resources
+#if TARGET_OS_WIN32
+	WSACleanup();
+#endif
 }
 
 

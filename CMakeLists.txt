@@ -404,6 +404,9 @@ elseif (WIN32)
 			# Windows sound support
 			Emulator/Sound/TWaveSoundManager.cpp
 			Emulator/Sound/TWaveSoundManager.h
+			# Network card emulations
+			Emulator/Network/TUsermodeNetwork.cpp
+			Emulator/Network/TUsermodeNetwork.h
 			)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
     source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources} Resources/MSWindows/Einstein.rc.in)
