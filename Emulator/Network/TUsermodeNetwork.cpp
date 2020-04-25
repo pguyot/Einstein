@@ -1501,6 +1501,8 @@ public:
 };
 
 
+// MARK: - TUsermodeNetwork -
+
 
 /**
  * Create an interface betweenthe Newton network driver and Einstein.

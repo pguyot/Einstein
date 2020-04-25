@@ -22,4 +22,5 @@ extern Fl_Box *wSpacer;
 TFLAppWindow* CreateApplicationWindow(int x, int y);
 extern Fl_Menu_Item menu_wMenubar[];
 #define wMenuItemFullscreen (menu_wMenubar+29)
+#define wMenuItemMonitor (menu_wMenubar+30)
 #endif

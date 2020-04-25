@@ -103,8 +103,12 @@ void TNetworkManager::LogIPv4Packet(KUInt8 *d, KUInt32 n) {
 		switch (d[23]) {
 			case  6: LogTCPPacket(d, n); break;
 			case 17: LogUDPPacket(d, n); break;
+            case  1:
+                mLog->FLogLine("    > **** Unsupported Protocol: 'ICMP' ****\n");
+                break;
 			default:
-				mLog->FLogLine("    > **** Unknown Protocol ****\n");
+				mLog->FLogLine("    > **** Unknown Protocol: %d ****\n", d[23]);
+                break;
 		}
 	}
 }

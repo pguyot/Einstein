@@ -112,6 +112,9 @@ public:
     // react to a right-click on the main screen
     void UserActionPopupMenu();
 
+    // Show or raise or hide the Monitor window
+    void UserActionToggleMonitor();
+
     // ---  Events from within the meulator
 
     // this is called by the screen manager when the state of the backlight changed

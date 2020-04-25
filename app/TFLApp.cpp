@@ -75,7 +75,7 @@
 #endif
 
 // Monitor system for debugging ARM code
-#include "Monitor/TMonitor.h"
+#include "Monitor/TFLMonitor.h"
 #include "Monitor/TSymbolList.h"
 
 
@@ -132,6 +132,10 @@ TFLApp::Run( int argc, char* argv[] )
     InitFLTK(argc, argv);
 
     InitSettings();
+#if 1
+    mFLSettings->useMonitor = 1;
+    mLog = new TBufferLog();
+#endif
 
     //flSettings->dontShow = false;
     if (!mFLSettings->dontShow) {
@@ -165,12 +169,14 @@ TFLApp::Run( int argc, char* argv[] )
     // yes, this is valid C++ code; it tells the emulator to call us so we can FLTK to
     // call us again later from the main thread which then closes all windows, terminating
     // the main application loop which then terminates the thread that called us to begin with.
-    // Or a sMony says: "Would That It Were So Simple"
-    mEmulator->CallOnQuit([](){Fl::awake([](void*){gApp->UserActionQuit();});});
+    // Or as Mony says: "Would That It Were So Simple"
+    //mEmulator->CallOnQuit([](){Fl::awake([](void*){gApp->UserActionQuit();});});
 
     InitSerialPorts(); // do this after creating the emulator
 
     InitMonitor(theMachineString, theROMImagePath);
+    if (mMonitor)
+        mMonitor->RunOnStartup(true);
 
     Fl::lock();
     wAppWindow->show(1, argv);
@@ -182,11 +188,16 @@ TFLApp::Run( int argc, char* argv[] )
     // launch the actual emulation in the background
     auto emulatorThread = new std::thread(&TFLApp::EmulatorThreadEntry, this);
 
-    // run the user interface untill all windows are close
+    // run the user interface until all windows are close
+
     Fl::run();
 
     // if the emulator does not know yet, tell it to wrap things up and quit
     mEmulator->Quit();
+
+    // also, let the Monitor know that we are leaving
+    if (mMonitor)
+        mMonitor->Stop();
 
     // This is a good time to save preferences that might have changed while running
     if (wAppWindow->fullscreen_active()) {
@@ -444,6 +455,13 @@ void TFLApp::UserActionPopupMenu()
 }
 
 
+void TFLApp::UserActionToggleMonitor()
+{
+    if (mMonitor)
+        mMonitor->Show();
+}
+
+
 // MARK: -
 // ---  Events from within the meulator
 
@@ -551,11 +569,7 @@ void TFLApp::InitSound()
 
 
 void TFLApp::InitNetwork() {
-#if TARGET_OS_MAC
-    mNetworkManager = new TUsermodeNetwork(mLog);
-#elif TARGET_OS_LINUX
-    mNetworkManager = new TUsermodeNetwork(mLog);
-#elif TARGET_OS_WIN32
+#if TARGET_OS_MAC || TARGET_OS_LINUX || TARGET_OS_WIN32
     mNetworkManager = new TUsermodeNetwork(mLog);
 #else
 #   warn Please configure a network driver
@@ -657,10 +671,16 @@ void TFLApp::InitMonitor(const char *theMachineString, const char *theROMImagePa
     if (useMonitor)
     {
         char theSymbolListPath[512];
-        (void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
+        strcpy(theSymbolListPath, theROMImagePath);
+        char *name = (char*)fl_filename_name(theSymbolListPath);
+        if (name) {
+            ::snprintf( name, 512, "%s.symbols", theMachineString );
+        } else {
+            (void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
                           theROMImagePath, theMachineString );
+        }
         mSymbolList = new TSymbolList( theSymbolListPath );
-        mMonitor = new TMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList, theROMImagePath);
+        mMonitor = new TFLMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList, theROMImagePath);
     } else {
         (void) ::printf( "Booting...\n" );
     }
@@ -678,6 +698,8 @@ TFLApp::EmulatorThreadEntry()
     } else {
         mEmulator->Run();
     }
+    // wake up the FLTK mainloop and have it call GUI Quit.
+    Fl::awake([](void*){gApp->UserActionQuit();});
 }
 
 

@@ -21,56 +21,69 @@
 // $Id$
 // ==============================
 
-#if 0 // rewrite this for FLTK
+#ifndef T_FL_MONITOR_H
+#define T_FL_MONITOR_H
 
-#ifndef _TMACMONITOR_H
-#define _TMACMONITOR_H
-
-#import <Cocoa/Cocoa.h>
 
 #include <K/Defines/KDefinitions.h>
 #include "Monitor/TMonitor.h"
 
-@class TCocoaMonitorController;
 
-class TMacMonitor : public TMonitor
+class Fl_Window;
+class Fl_Simple_Terminal;
+class Fl_Button;
+class Fl_Input;
+
+
+class TFLMonitor : public TMonitor
 {
 public:
-	TMacMonitor(
-			TBufferLog* inLog,
-			TEmulator* inEmulator,
-			TSymbolList* inSymbolList,
-			const char *inROMPath );
+    TFLMonitor(TBufferLog* inLog,
+               TEmulator* inEmulator,
+               TSymbolList* inSymbolList,
+               const char *inROMPath );
 
-	virtual ~TMacMonitor( void );
-	
-	virtual void PrintLine(const char *inLine, int type);
-	void SetController(TCocoaMonitorController *inController);
+    ~TFLMonitor() override;
 
-	bool ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr );
+    ///
+    /// Draw screen.
+    /// Return true if the screen was erased.
+    ///
+    bool DrawScreen() override;
 
-	NSString* GetAlarm();
-	NSString* GetCPSR();
-	NSString* GetDisasmLine(int offset);
-	NSString* GetFIQMask();
-	NSString* GetFrozenTimer();
-	NSString* GetIntCtrlReg();
-	NSString* GetIntRaised();
-	NSString* GetIntEDReg1();
-	NSString* GetIntEDReg2();
-	NSString* GetIntEDReg3();
-	NSString* GetRealTimeClock();
-	NSString* GetRegister(int rn);
-	NSString* GetSPSR();
-	NSString* GetSymbol();
-	NSString* GetTimerMatchRegister(int rn);
-	
+    ///
+    /// Show the Monitor window
+    ///
+    void Show() override;
+
+    ///
+    /// Hide the Monitor window
+    ///
+    void Hide() override;
+
+    ///
+    /// Output a line.
+    ///
+    void PrintLine( const char* inLine, int type ) override;
+
 private:
-	TCocoaMonitorController *controller;
+    ///
+    /// Draw screen when the emulator is halted.
+    ///
+    void        DrawScreenHalted( void );
+
+    ///
+    /// Draw screen when the emulator is running.
+    ///
+    void        DrawScreenRunning( void );
+
+    Fl_Window *mwWindow = nullptr;
+    Fl_Simple_Terminal *mwTerminal = nullptr;
+    Fl_Button *mwPause = nullptr;
+    Fl_Button *mwRun = nullptr;
+    Fl_Input *mwInput = nullptr;
 };
 
-#endif
-		// _TMACMONITOR_H
 
-#endif
+#endif // T_FL_MONITOR_H
 

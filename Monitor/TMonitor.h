@@ -65,7 +65,7 @@ public:
 	/// Draw screen.
 	/// Return true if the screen was erased.
 	///
-	bool		DrawScreen( void );
+	virtual bool DrawScreen();
 
 	///
 	/// Determine if the machine is halted.
@@ -162,6 +162,21 @@ public:
 	///
 	void		RevertEmulatorState( const char *inFilename=0L );
 	
+    ///
+    /// Run the emulator as soon as we run the monitor
+    ///
+    void RunOnStartup(bool inRun) { mRunOnStartup = inRun; }
+
+    ///
+    /// Show the Monitor window
+    ///
+    virtual void Show() { }
+
+    ///
+    /// Hide the Monitor window
+    ///
+    virtual void Hide() { }
+
 protected:
 	/// Constants.
 	static const char* kEraseLine;
@@ -296,6 +311,8 @@ public:
 												///< state changes.
 	bool					mLastScreenHalted;	///< If last screen was halted.
 	char*					mROMPath;			///< path to the ROM fle directory
+
+    bool                    mRunOnStartup = false; ///< Run the emulation as soon as the monitor starts
 };
 
 #endif

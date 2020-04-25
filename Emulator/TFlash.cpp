@@ -90,12 +90,12 @@ TFlash::TFlash(
 
 #else
 */
-			for (int indexChecksum = 0; indexChecksum < 10; indexChecksum++)
-			{
-				(void) ::fprintf( stderr, "Checksum-%i: %.8X\n",
-					indexChecksum,
-					(unsigned int) checksums[indexChecksum] );
-			}
+//			for (int indexChecksum = 0; indexChecksum < 10; indexChecksum++)
+//			{
+//				(void) ::fprintf( stderr, "Checksum-%i: %.8X\n",
+//					indexChecksum,
+//					(unsigned int) checksums[indexChecksum] );
+//			}
 /*
 #endif
 */

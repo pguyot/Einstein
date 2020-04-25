@@ -226,6 +226,8 @@ TEmulator::Run( void )
 	
 	mInterruptManager->SuspendTimer();
 
+    // FIXME: The code below is harmful when we call the emulator through the monitor!
+    // Instead, the caller of this function, or of TMonitor::run() should call the Quir function.
 	if (mCallOnQuit)
 	    mCallOnQuit();
 

@@ -169,10 +169,17 @@ TMonitor::Run( void )
 	// If the user put a script at /ROMPath/monitorrc, run it.
 	// This is used to set the default path, breakpoints, etc.
 	ExecuteStartupScript();
+
+    if (mRunOnStartup) {
+        mCommand = kRun;
+        DrawScreen();
+        RunEmulator();
+    }
 	
 	bool loop = true;
 	while (loop)
 	{
+        DrawScreen();
 		// Wait forever for a command.
 		WaitOnCondVar();
 		
