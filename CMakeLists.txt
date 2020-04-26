@@ -223,8 +223,6 @@ set ( sources
     K/Unicode/UnicodeDefinitions.h
     Monitor/TFLMonitor.cpp
     Monitor/TFLMonitor.h
-    Monitor/TFLMonitorView.cpp
-    Monitor/TFLMonitorView.h
     Monitor/TMonitor.cpp
     Monitor/TMonitor.h
     Monitor/TMonitorCore.cpp
@@ -253,6 +251,8 @@ set ( sources
     Drivers/EinsteinRex.h
 )
 
+set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h PROPERTIES GENERATED TRUE)
+
 
 macro (build_with_fluid name dir)
     add_custom_target(${name} DEPENDS ${dir}/${name}.cpp ${dir}/${name}.h)
@@ -265,6 +265,8 @@ macro (build_with_fluid name dir)
         OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.h"
     )
     list(APPEND fluid_dependencies ${name})
+    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.cpp PROPERTIES GENERATED TRUE)
+    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.h PROPERTIES GENERATED TRUE)
 endmacro()
 
 

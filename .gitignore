@@ -26,7 +26,15 @@ DerivedData/
 /_Build_/AndroidStudioNative/gradle/wrapper/gradle-wrapper.properties
 /_Build_/AndroidStudioNative/local.properties
 /_Build_/AndroidStudioNative/einstein/.cxx
+/_Build_/Makefiles
+/_Build_/Xcode
 /cmake_build_*/
 *.iml
 /CMakeSettings.json
 /app/._TFLSettings.fl
+/app/Version.h
+/app/TFLAppUI.cpp
+/app/TFLAppUI.h
+/app/TFLSettingsUI.cpp
+/app/TFLSettingsUI.h
+

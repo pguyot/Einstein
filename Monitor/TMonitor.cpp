@@ -522,12 +522,12 @@ TMonitor::Stop( void )
 		mEmulator->Stop();
 	}
 
-	AcquireMutex();
+	//AcquireMutex();
 	// I have the mutex, so the loop is waiting.
 	
 	SignalCondVar();
 	
-	ReleaseMutex();
+	//ReleaseMutex();
 #endif
 }
 

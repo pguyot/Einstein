@@ -81,7 +81,11 @@ private:
     Fl_Simple_Terminal *mwTerminal = nullptr;
     Fl_Button *mwPause = nullptr;
     Fl_Button *mwRun = nullptr;
+    Fl_Button *mwStepOver = nullptr;
+    Fl_Button *mwStep = nullptr;
+    Fl_Button *mwLeave = nullptr;
     Fl_Input *mwInput = nullptr;
+    Fl_Button *mwHelp = nullptr;
 };
 
 
