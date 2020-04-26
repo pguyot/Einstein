@@ -1762,6 +1762,7 @@ TMonitor::CreateCondVarAndMutex()
 inline void
 TMonitor::DeleteCondVarAndMutex()
 {
+    mMutex->Unlock();
 	delete mMutex;
 	delete mCondVar;
 }

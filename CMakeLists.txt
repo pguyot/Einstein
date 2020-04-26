@@ -138,8 +138,6 @@ set ( sources
     Emulator/Platform/TNewt.h
     Emulator/Platform/TPlatformManager.cpp
     Emulator/Platform/TPlatformManager.h
-    Emulator/ROM/PrecompiledPatches.cpp
-    Emulator/ROM/PrecompiledPatches.h
     Emulator/ROM/TAIFFile.cpp
     Emulator/ROM/TAIFFile.h
     Emulator/ROM/TAIFROMImageWithREXes.cpp
