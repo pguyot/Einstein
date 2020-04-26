@@ -1,5 +1,6 @@
 # data file for the Fltk User Interface Designer (fluid)
 version 1.0400
+use_FL_COMMAND
 header_name {.h}
 code_name {.cpp}
 decl {\#include "TFLApp.h"} {private global
@@ -39,7 +40,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         xywh {0 0 100 20}
       } {
         MenuItem {} {
-          label {New...}
+          label {New...} selected
           xywh {0 0 100 20} shortcut 0x41006e deactivate
         }
         MenuItem {} {
@@ -110,7 +111,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
       } {
         MenuItem {} {
           label {Install Package...}
-          callback {gApp->UserActionInstallPackage();} selected
+          callback {gApp->UserActionInstallPackage();}
           xywh {0 0 100 20} shortcut 0x410069 divider
         }
         MenuItem {} {

@@ -24,6 +24,10 @@
 #include <K/Streams/TFileStream.h>
 #include "TMonitor.h"
 
+// C++11 and up
+#include <chrono>
+#include <thread>
+
 // ANSI C & POSIX
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,10 +36,12 @@
 #include <sys/types.h>
 
 #if TARGET_OS_WIN32
-	#include <assert.h>
-	#include  <io.h>
-	#include  <stdio.h>
-	#include  <stdlib.h>
+#	include <Windows.h>
+#	include <assert.h>
+#	include <io.h>
+#	include <stdio.h>
+#	include <stdlib.h>
+#	include <direct.h>
 #else
 	#include <strings.h>
 	#include <sys/socket.h>
@@ -596,7 +602,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				// wait a bit until we power down
 				for (i=300; i>0; --i) { // max. 3 seconds
 					if (!pm->IsPowerOn()) break;
-					usleep(10000);
+					std::this_thread::sleep_for(std::chrono::milliseconds(10));
 				}
 				if (i==0) {
 					PrintLine("ERROR: Failed to power down!\n", MONITOR_LOG_ERROR);
@@ -607,7 +613,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			mEmulator->Stop();
 			// wait for the emulator to stop
 			for (i=10; i>0; --i) { // 1/10th of a second
-				usleep(10000);
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 			PrintLine("Saving emulator snapshot", MONITOR_LOG_INFO);
 			SaveEmulatorState();
@@ -624,7 +630,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			// wait a bit until we power down
 			for (i=300; i>0; --i) { // max. 3 seconds
 				if (!pm->IsPowerOn()) break;
-				usleep(10000);
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 			if (i==0) {
 				PrintLine("ERROR: Failed to power down!", MONITOR_LOG_ERROR);
@@ -636,7 +642,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			mEmulator->Stop();
 			// wait for the emulator to stop
 			for (i=10; i>0; --i) { // 1/10th of a second
-				usleep(10000);
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 		}
 		PrintLine("Loading emulator snapshot", MONITOR_LOG_INFO);
@@ -649,7 +655,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 		}
 		// wait for the emulator to start
 		for (i=300; i>0; --i) { // 1/10th of a second
-			usleep(10000);
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 		PrintLine("Powering up", MONITOR_LOG_INFO);
 		if (!pm->IsPowerOn())
@@ -1746,21 +1752,8 @@ TMonitor::PrintBacktrace(KSInt32 inNWords)
 inline void
 TMonitor::CreateCondVarAndMutex()
 {
-	// Create the condition variable.
-	int theErr = ::pthread_cond_init( &mCondVar, NULL );
-	if (theErr)
-	{
-		(void) ::fprintf( stderr, "Error with pthread_cond_init" );
-		::abort();
-	}
-	
-	// Create the mutex.
-	theErr = ::pthread_mutex_init( &mMutex, NULL );
-	if (theErr)
-	{
-		(void) ::fprintf( stderr, "Error with pthread_mutex_init" );
-		::abort();
-	}
+	mCondVar = new TCondVar();
+	mMutex = new TMutex();
 }
 
 // -------------------------------------------------------------------------- //
@@ -1769,8 +1762,8 @@ TMonitor::CreateCondVarAndMutex()
 inline void
 TMonitor::DeleteCondVarAndMutex()
 {
-	(void) ::pthread_mutex_destroy( &mMutex );
-	(void) ::pthread_cond_destroy( &mCondVar );
+	delete mMutex;
+	delete mCondVar;
 }
 
 // -------------------------------------------------------------------------- //
@@ -1779,12 +1772,7 @@ TMonitor::DeleteCondVarAndMutex()
 inline void
 TMonitor::SignalCondVar()
 {
-	int theErr = ::pthread_cond_signal( &mCondVar );
-	if (theErr)
-	{
-		(void) ::fprintf( stderr, "Error with pthread_cond_signal" );
-		::abort();
-	}
+	mCondVar->Signal();
 }
 
 // -------------------------------------------------------------------------- //
@@ -1793,12 +1781,7 @@ TMonitor::SignalCondVar()
 inline void
 TMonitor::WaitOnCondVar()
 {
-	int theErr = ::pthread_cond_wait( &mCondVar, &mMutex );
-	if (theErr)
-	{
-		(void) ::fprintf( stderr, "Error with pthread_cond_wait" );
-		::abort();
-	}
+	mCondVar->Wait(mMutex);
 }
 
 // -------------------------------------------------------------------------- //
@@ -1807,12 +1790,7 @@ TMonitor::WaitOnCondVar()
 inline void
 TMonitor::AcquireMutex()
 {
-	int theErr = ::pthread_mutex_lock( &mMutex );
-	if (theErr)
-	{
-		(void) ::fprintf( stderr, "Error with pthread_mutex_lock" );
-		::abort();
-	}
+	mMutex->Lock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -1821,12 +1799,7 @@ TMonitor::AcquireMutex()
 inline void
 TMonitor::ReleaseMutex()
 {
-	int theErr = ::pthread_mutex_unlock( &mMutex );
-	if (theErr)
-	{
-		(void) ::fprintf( stderr, "Error with pthread_mutex_unlock" );
-		::abort();
-	}
+	mMutex->Unlock();
 }
 
 // ==================================================================== //

@@ -26,6 +26,9 @@
 #define _TMONITOR_H
 
 #include <K/Defines/KDefinitions.h>
+#include <K/Threads/TThread.h>
+#include <K/Threads/TMutex.h>
+#include <K/Threads/TCondVar.h>
 
 #include "TMonitorCore.h"
 #include "Emulator/Log/TBufferLog.h"
@@ -302,12 +305,8 @@ public:
 	TInterruptManager*		mInterruptManager;	///< Interrupt manager.
 	TBufferLog*				mLog;				///< Interface to the log.
 	bool					mHalted;			///< If the emulator is halted.
-#if TARGET_OS_WIN32
-	// FIXME: we must still implement this
-#else
-	pthread_cond_t			mCondVar;			///< Condition variable
-	pthread_mutex_t			mMutex;				///< Mutex for the loop.
-#endif
+	TCondVar				*mCondVar = nullptr;
+	TMutex					*mMutex = nullptr;
 	ECommand				mCommand;			///< Next command for the
 												///< monitor thread.
 	char*					mFilename;			///< Argument for next command.
