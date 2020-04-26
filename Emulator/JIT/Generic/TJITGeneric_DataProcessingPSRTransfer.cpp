@@ -274,183 +274,183 @@ Translate_DataProcessingPSRTransfer(
 		thePushedValue = __Rm;
 	}
 
-	switch ((inInstruction & 0x01E00000) >> 21)
-	{
-	case 0x0:	// 0b0000
-				// AND
-		PUSHFUNC(AND_Func(theMode, theFlagS, __RnRd));
-		doPushPC = ShouldPushPC_LogicalOp(theMode, __Rn);
-		break;
+    switch ((inInstruction & 0x01E00000) >> 21)
+    {
+        case 0x0:	// 0b0000
+            // AND
+            PUSHFUNC(AND_Func(theMode, theFlagS, __RnRd));
+            doPushPC = ShouldPushPC_LogicalOp(theMode, __Rn);
+            break;
 
-	case 0x1:	// 0b0001
-				// EOR
-		PUSHFUNC(EOR_Func(theMode, theFlagS, __RnRd));
-		doPushPC = ShouldPushPC_LogicalOp(theMode, __Rn);
-		break;
+        case 0x1:	// 0b0001
+            // EOR
+            PUSHFUNC(EOR_Func(theMode, theFlagS, __RnRd));
+            doPushPC = ShouldPushPC_LogicalOp(theMode, __Rn);
+            break;
 
-	case 0x2:	// 0b0010
-				// SUB
-		PUSHFUNC(SUB_Func(theMode, theFlagS, __RnRd));
-		doPushPC = ShouldPushPC_ArithmeticOp(theMode, __Rn);
-		break;
+        case 0x2:	// 0b0010
+            // SUB
+            PUSHFUNC(SUB_Func(theMode, theFlagS, __RnRd));
+            doPushPC = ShouldPushPC_ArithmeticOp(theMode, __Rn);
+            break;
 
-	case 0x3:	// 0b0011
-				// RSB
-		PUSHFUNC(RSB_Func(theMode, theFlagS, __RnRd));
-		doPushPC = ShouldPushPC_ArithmeticOp(theMode, __Rn);
-		break;
+        case 0x3:	// 0b0011
+            // RSB
+            PUSHFUNC(RSB_Func(theMode, theFlagS, __RnRd));
+            doPushPC = ShouldPushPC_ArithmeticOp(theMode, __Rn);
+            break;
 
-	case 0x4:	// 0b01000
-				// ADD
-		PUSHFUNC(ADD_Func(theMode, theFlagS, __RnRd));
-		doPushPC = ShouldPushPC_ArithmeticOp(theMode, __Rn);
-		break;
+        case 0x4:	// 0b01000
+            // ADD
+            PUSHFUNC(ADD_Func(theMode, theFlagS, __RnRd));
+            doPushPC = ShouldPushPC_ArithmeticOp(theMode, __Rn);
+            break;
 
-	case 0x5:	// 0b01010
-				// ADC
-		PUSHFUNC(ADC_Func(theMode, theFlagS, __RnRd));
-		doPushPC = ShouldPushPC_ArithmeticOp(theMode, __Rn);
-		break;
+        case 0x5:	// 0b01010
+            // ADC
+            PUSHFUNC(ADC_Func(theMode, theFlagS, __RnRd));
+            doPushPC = ShouldPushPC_ArithmeticOp(theMode, __Rn);
+            break;
 
-	case 0x6:	// 0b01100
-				// SBC
-		PUSHFUNC(SBC_Func(theMode, theFlagS, __RnRd));
-		doPushPC = ShouldPushPC_ArithmeticOp(theMode, __Rn);
-		break;
+        case 0x6:	// 0b01100
+            // SBC
+            PUSHFUNC(SBC_Func(theMode, theFlagS, __RnRd));
+            doPushPC = ShouldPushPC_ArithmeticOp(theMode, __Rn);
+            break;
 
-	case 0x7:	// 0b0111
-				// RSC
-		PUSHFUNC(RSC_Func(theMode, theFlagS, __RnRd));
-		doPushPC = ShouldPushPC_ArithmeticOp(theMode, __Rn);
-		break;
+        case 0x7:	// 0b0111
+            // RSC
+            PUSHFUNC(RSC_Func(theMode, theFlagS, __RnRd));
+            doPushPC = ShouldPushPC_ArithmeticOp(theMode, __Rn);
+            break;
 
-	case 0x8:	// 0b1000
-				// MRS (CPSR) & TST
-		if (theFlagS == 0)
-		{
-			if (theMode != NoShift)
-			{
-				// Undefined Instruction (there is no MRS with Imm bit set or low bits set)
-				PUSHFUNC(UndefinedInstruction);
-				doPush = false;
-				doPushPC = true;
-			} else {
-				PUSHFUNC(MRS_Func(0, __Rd));
-				doPush = false;
-			}
-		} else {
-			PUSHFUNC(TST_Func(theMode, __Rn));
-			doPushPC = ShouldPushPC_LogicalOp(theMode, __Rn);
-		}
-		break;
+        case 0x8:	// 0b1000
+            // MRS (CPSR) & TST
+            if (theFlagS == 0)
+            {
+                if (theMode != NoShift)
+                {
+                    // Undefined Instruction (there is no MRS with Imm bit set or low bits set)
+                    PUSHFUNC(UndefinedInstruction);
+                    doPush = false;
+                    doPushPC = true;
+                } else {
+                    PUSHFUNC(MRS_Func(0, __Rd));
+                    doPush = false;
+                }
+            } else {
+                PUSHFUNC(TST_Func(theMode, __Rn));
+                doPushPC = ShouldPushPC_LogicalOp(theMode, __Rn);
+            }
+            break;
 
-	case 0x9:	// 0b1001
-				// MSR (CPSR) & TEQ
-		if (theFlagS == 0)
-		{
-			if (theMode == Regular)
-			{
-				// Software breakpoint
-				KUInt16 theID = inInstruction & 0x0000000F;
-				theID |= KUInt16((inInstruction & 0x000FFF00) >> 4);
-				thePushedValue = theID;
-				PUSHFUNC(SoftwareBreakpoint);
-				doPushPC = true;
-			} else {
-				if (theMode == NoShift)
-				{
-					PUSHFUNC(MSR_NoShift_Func(0, (inInstruction & 0x000F0000) >> 16, __Rm));
-					doPushPC = ShouldPushPC_MSR_NoShift(__Rm);
-					doPush = false;
-				} else {
-					PUSHFUNC(MSR_Imm_Func(0, (inInstruction & 0x000F0000) >> 16));
-					doPushPC = false;
-				}
-			}
-		} else {
-			PUSHFUNC(TEQ_Func(theMode, __Rn));
-			doPushPC = ShouldPushPC_TestOp(theMode, __Rn);
-		}
-		break;
+        case 0x9:	// 0b1001
+            // MSR (CPSR) & TEQ
+            if (theFlagS == 0)
+            {
+                if (theMode == Regular)
+                {
+                    // Software breakpoint
+                    KUInt16 theID = inInstruction & 0x0000000F;
+                    theID |= KUInt16((inInstruction & 0x000FFF00) >> 4);
+                    thePushedValue = theID;
+                    PUSHFUNC(SoftwareBreakpoint);
+                    doPushPC = true;
+                } else {
+                    if (theMode == NoShift)
+                    {
+                        PUSHFUNC(MSR_NoShift_Func(0, (inInstruction & 0x000F0000) >> 16, __Rm));
+                        doPushPC = ShouldPushPC_MSR_NoShift(__Rm);
+                        doPush = false;
+                    } else {
+                        PUSHFUNC(MSR_Imm_Func(0, (inInstruction & 0x000F0000) >> 16));
+                        doPushPC = false;
+                    }
+                }
+            } else {
+                PUSHFUNC(TEQ_Func(theMode, __Rn));
+                doPushPC = ShouldPushPC_TestOp(theMode, __Rn);
+            }
+            break;
 
-	case 0xA:	// 0b1010
-				// MRS (SPSR) & CMP
-		if (theFlagS == 0)
-		{
-			if (theMode != NoShift)
-			{
-				// Undefined Instruction (there is no MRS with Imm bit set or low bits set)
-				PUSHFUNC(UndefinedInstruction);
-				doPush = false;
-				doPushPC = true;
-			} else {
-				PUSHFUNC(MRS_Func(1, __Rd));
-				doPush = false;
-			}
-		} else {
-			PUSHFUNC(CMP_Func(theMode, __Rn));
-			doPushPC = ShouldPushPC_TestOp(theMode, __Rn);
-		}
-		break;
+        case 0xA:	// 0b1010
+            // MRS (SPSR) & CMP
+            if (theFlagS == 0)
+            {
+                if (theMode != NoShift)
+                {
+                    // Undefined Instruction (there is no MRS with Imm bit set or low bits set)
+                    PUSHFUNC(UndefinedInstruction);
+                    doPush = false;
+                    doPushPC = true;
+                } else {
+                    PUSHFUNC(MRS_Func(1, __Rd));
+                    doPush = false;
+                }
+            } else {
+                PUSHFUNC(CMP_Func(theMode, __Rn));
+                doPushPC = ShouldPushPC_TestOp(theMode, __Rn);
+            }
+            break;
 
-	case 0xB:	// 0b1011
-				// MSR (SPSR) & CMN
-		if (theFlagS == 0)
-		{
-			if (theMode == Regular)
-			{
-				// Undefined Instruction (there is no MSR with shift)
-				PUSHFUNC(UndefinedInstruction);
-				doPush = false;
-				doPushPC = true;
-			} else {
-				if (theMode == NoShift)
-				{
-					PUSHFUNC(MSR_NoShift_Func(1, (inInstruction & 0x000F0000) >> 16, __Rm));
-					doPush = false;
-				} else {
-					PUSHFUNC(MSR_Imm_Func(1, (inInstruction & 0x000F0000) >> 16));
-				}
-			}
-		} else {
-			PUSHFUNC(CMN_Func(theMode, __Rn));
-			doPushPC = ShouldPushPC_TestOp(theMode, __Rn);
-		}
-		break;
+        case 0xB:	// 0b1011
+            // MSR (SPSR) & CMN
+            if (theFlagS == 0)
+            {
+                if (theMode == Regular)
+                {
+                    // Undefined Instruction (there is no MSR with shift)
+                    PUSHFUNC(UndefinedInstruction);
+                    doPush = false;
+                    doPushPC = true;
+                } else {
+                    if (theMode == NoShift)
+                    {
+                        PUSHFUNC(MSR_NoShift_Func(1, (inInstruction & 0x000F0000) >> 16, __Rm));
+                        doPush = false;
+                    } else {
+                        PUSHFUNC(MSR_Imm_Func(1, (inInstruction & 0x000F0000) >> 16));
+                    }
+                }
+            } else {
+                PUSHFUNC(CMN_Func(theMode, __Rn));
+                doPushPC = ShouldPushPC_TestOp(theMode, __Rn);
+            }
+            break;
 
-	case 0xC:	// 0b1100
-				// ORR
-		PUSHFUNC(ORR_Func(theMode, theFlagS, __RnRd));
-		doPushPC = ShouldPushPC_LogicalOp(theMode, __Rn);
-		break;
+        case 0xC:	// 0b1100
+            // ORR
+            PUSHFUNC(ORR_Func(theMode, theFlagS, __RnRd));
+            doPushPC = ShouldPushPC_LogicalOp(theMode, __Rn);
+            break;
 
-	case 0xD:	// 0b11010
-				// MOV
-		PUSHFUNC(MOV_Func(theMode, theFlagS, __Rd));
-		doPushPC = ShouldPushPC_MoveOp(theMode);
-		break;
+        case 0xD:	// 0b11010
+            // MOV
+            PUSHFUNC(MOV_Func(theMode, theFlagS, __Rd));
+            doPushPC = ShouldPushPC_MoveOp(theMode);
+            break;
 
-	case 0xE:	// 0b1110
-				// BIC
-		PUSHFUNC(BIC_Func(theMode, theFlagS, __RnRd));
-		doPushPC = ShouldPushPC_LogicalOp(theMode, __Rn);
-		break;
+        case 0xE:	// 0b1110
+            // BIC
+            PUSHFUNC(BIC_Func(theMode, theFlagS, __RnRd));
+            doPushPC = ShouldPushPC_LogicalOp(theMode, __Rn);
+            break;
 
-	case 0xF:	// 0b11110
-				// MVN
-		PUSHFUNC(MVN_Func(theMode, theFlagS, __Rd));
-		doPushPC = ShouldPushPC_MoveOp(theMode);
-		break;
-	}
-	
-	if (doPush)
-	{
-		PUSHVALUE(thePushedValue);
-	}
-	if (doPushPC)
-	{
-		PUSHVALUE(inVAddr + 8);
-	}
+        case 0xF:	// 0b11110
+            // MVN
+            PUSHFUNC(MVN_Func(theMode, theFlagS, __Rd));
+            doPushPC = ShouldPushPC_MoveOp(theMode);
+            break;
+    }
+
+    if (doPush)
+    {
+        PUSHVALUE(thePushedValue);
+    }
+    if (doPushPC)
+    {
+        PUSHVALUE(inVAddr + 8);
+    }
 }
 
 #endif

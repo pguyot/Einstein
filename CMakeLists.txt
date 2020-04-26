@@ -332,7 +332,7 @@ if (APPLE)
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC -Wall)
-	target_compile_definitions(Einstein PRIVATE NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1)
+	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1)
 	target_link_libraries(Einstein
 			# /usr/local/lib/libfltk.a
 			fltk
@@ -380,7 +380,7 @@ elseif (UNIX)
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC -Wall -Wno-multichar)
-	target_compile_definitions(Einstein PRIVATE TARGET_OS_LINUX=1)
+	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 TARGET_OS_LINUX=1)
 	target_link_libraries(Einstein
 			fltk
 			pulse # sound
@@ -430,7 +430,7 @@ elseif (WIN32)
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC "/bigobj")
-	target_compile_definitions(Einstein PRIVATE TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1)
+	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1)
 	target_link_libraries(Einstein
 			# this vvv always includes the debug version, even in release mode
 			fltk

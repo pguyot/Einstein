@@ -113,6 +113,9 @@ public:
 			mLog->LogLine( inLine );
 		}
 
+#if TARGET_UI_FLTK
+    // no support for signalling yet
+#else
 	///
 	/// Get monitor socket (notified of state changes).
 	///
@@ -120,7 +123,8 @@ public:
 		{
 			return mSocketPair[0];
 		}
-	
+#endif
+
 	///
 	/// Execute startup script.
 	///
@@ -307,8 +311,11 @@ public:
 	ECommand				mCommand;			///< Next command for the
 												///< monitor thread.
 	char*					mFilename;			///< Argument for next command.
-	int						mSocketPair[2];		///< Socket pair for monitor
-												///< state changes.
+#if TARGET_UI_FLTK
+    // no signalling between monitor and log yet
+#else
+	int						mSocketPair[2];		///< Socket pair for monitor state changes.
+#endif
 	bool					mLastScreenHalted;	///< If last screen was halted.
 	char*					mROMPath;			///< path to the ROM fle directory
 
