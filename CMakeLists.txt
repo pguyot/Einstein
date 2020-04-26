@@ -197,6 +197,8 @@ set ( sources
     K/Exceptions/IO/TIOException.h
     K/Exceptions/TException.cpp
     K/Exceptions/TException.h
+    K/Misc/CRC32.h
+    K/Misc/CRC32.cpp
     K/Misc/RelocHack.h
     K/Misc/TCircleBuffer.cpp
     K/Misc/TCircleBuffer.h

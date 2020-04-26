@@ -50,6 +50,20 @@ public:
 	///
 	TROMImage( void );
 
+    ///
+    /// Constructeur par copie volontairement indisponible.
+    ///
+    /// \param inCopy        objet à copier
+    ///
+    TROMImage( const TROMImage& inCopy ) = delete;
+
+    ///
+    /// Opérateur d'assignation volontairement indisponible.
+    ///
+    /// \param inCopy        objet à copier
+    ///
+    TROMImage& operator = ( const TROMImage& inCopy ) = delete;
+
 	///
 	/// Destructor.
 	///
@@ -162,20 +176,6 @@ private:
 						KUInt32 outRexBases[4],
 						KUInt32 outRexSizes[4] );
 
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TROMImage( const TROMImage& inCopy );
-
-	///
-	/// Opérateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TROMImage& operator = ( const TROMImage& inCopy );
-	
 	TMappedFile*	mMappedFile;	///< mapped file with the rom.
 	SImage*			mImage; 		///< image structure.
 };

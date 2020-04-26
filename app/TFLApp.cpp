@@ -50,6 +50,7 @@
 // TODO: is the drop-down menu still on par?
 // TODO: printer support
 // TODO: wkae-up/launch on appointment in the future
+// TODO: add preferences to point to a UNAA archive image, so we can browse that and install quickly
 
 
 #include <K/Defines/KDefinitions.h>
@@ -749,7 +750,10 @@ TFLApp::CreateLog( const char* inFilePath )
 }
 
 
-void TFLApp::LoadROMAndREX(const char *&theMachineString, const char *&theROMImagePath, bool useMonitor) {
+void TFLApp::LoadROMAndREX(const char *&theMachineString, const char *&theROMImagePath, bool useMonitor)
+{
+//    mROMImage = TROMImage::CreateImageFromFile(theROMImagePath);
+
     theROMImagePath = strdup(mFLSettings->ROMPath);
     const char* defaultMachineString = "717006";
     theMachineString = strdup(mFLSettings->MachineID);
