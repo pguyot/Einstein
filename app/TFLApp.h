@@ -138,8 +138,6 @@ private:
     
     void InitNetwork();
 
-    void LoadROMAndREX(const char *&theROMImagePath, bool useMonitor);
-
     void InitSerialPorts();
 
     void InitMonitor(const char *theROMImagePath);

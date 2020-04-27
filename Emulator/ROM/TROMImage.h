@@ -80,11 +80,21 @@ public:
 			return mImage->fROM;
 		}
 
+    ///
+    /// Return the error code that may have been set when loading the ROM
+    ///
+    KUInt32 GetErrorCode() { return mErrorCode; }
+
+    static const KUInt32 kNoError = 0;
+    static const KUInt32 kErrorLoadingROMFile = 1;
+    static const KUInt32 kErrorLoadingNewtonREXFile = 2;
+    static const KUInt32 kErrorLoadingEinsteinREXFile = 3;
+    static const KUInt32 kErrorWrongSize = 4;
+
 	///
 	/// Compute the checksums.
 	///
 	void	ComputeChecksums( KUInt32 outChecksums[10] ) const;
-
 
     ///
     /// Return the ID of the ROM as calculated by a CRC32 checksum
@@ -92,7 +102,7 @@ public:
     KSInt32 GetROMId() { return mROMId; }
 
     static const KSInt32 kUnknownROM = -1;
-    static const KSInt32 kMP2x00USROM = 0;
+    static const KSInt32 k717006 = 0;
     static const KSInt32 kMP2x00DROM = 1;
     static const KSInt32 kEMate300ROM = 2;
 
@@ -100,6 +110,8 @@ public:
     /// Find out what ROM we have by calculating its CRC of a file
     ///
     static KSInt32 ComputeROMId(const char *inFilename);
+
+    static TROMImage *LoadROMAndREX(const char *theROMImagePath, bool useMonitor, bool useExternalERex);
 
 protected:
 
@@ -120,6 +132,8 @@ protected:
     /// Find out what ROM we have by calculating its CRC
     ///
     static KSInt32 ComputeROMId(KUInt8 *data);
+
+    KUInt32         mErrorCode = kNoError;
 
 private:
 	///

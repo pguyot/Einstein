@@ -41,6 +41,10 @@ class TFLSettingsUI : public TFLSettings {
 public:
   TFLSettingsUI();
   Fl_Double_Window* CreateSettingsPanel();
+private:
+  inline void cb_Einstein_i(Fl_Double_Window*, void*);
+  static void cb_Einstein(Fl_Double_Window*, void*);
+public:
   Fl_Menu_Button *RMB;
   static Fl_Menu_Item menu_RMB[];
 private:

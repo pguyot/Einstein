@@ -332,7 +332,7 @@
  */
 static KUInt32 searchThis[] = { 2, 'extr', 0 };
 static KUInt32 replaceWith[] = { 1, '~xtr' };
-TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00900000, /* NOLINT */
+TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00800634, 0x00800634, /* NOLINT */
 												 searchThis, replaceWith,
 												 "Enable 'extr' serial port.\n");
 #endif

@@ -61,7 +61,7 @@ void
 TVirtualizedCallsPatches::DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId) {
 	const KUInt32* patches = NULL;
 	
-	if (inROMId == TROMImage::kMP2x00USROM) {
+	if (inROMId == TROMImage::k717006) {
 		patches = k717006VirtualizationPatches;
 	}
 	

@@ -56,8 +56,7 @@
 // -------------------------------------------------------------------------- //
 //  * TAIFROMImageWithREXes( const char*, const char*, const char*, ... )
 // -------------------------------------------------------------------------- //
-TAIFROMImageWithREXes::TAIFROMImageWithREXes(
-                                             const char* inAIFPath,
+TAIFROMImageWithREXes::TAIFROMImageWithREXes(const char* inAIFPath,
                                              const char* inREX0Path,
                                              const char* inREX1Path)
 {
@@ -67,7 +66,8 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
     if (err < 0)
     {
         (void) ::fprintf( stderr, "Can't stat AIF file (%s)\n", inAIFPath );
-        ::exit( 1 );
+        mErrorCode = kErrorLoadingROMFile;
+        return;
     }
 
     time_t theModDate = theInfos.st_mtime;
@@ -75,16 +75,18 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
     if (GetLatestModDate( &theModDate, inREX0Path ) < 0)
     {
         (void) ::fprintf( stderr, "Can't stat REX0 file (%s)\n", inREX0Path );
-        ::exit( 1 );
+        mErrorCode = kErrorLoadingNewtonREXFile;
+        return;
     }
     if (inREX1Path) {
         // get the date when the REX file was last modified
         if (GetLatestModDate(&theModDate, inREX1Path) < 0) {
             (void) ::fprintf(stderr, "Can't stat REX1 file (%s)\n", inREX1Path);
-            ::exit(1);
+            mErrorCode = kErrorLoadingEinsteinREXFile;
+            return;
         }
     } else {
-        // if we don;t have a REX file, get the date when the app was compiled
+        // if we don't have a REX file, get the date when the app was compiled
         struct tm appCompileTime = { };
         appCompileTime.tm_year = COMPILE_TIME_YYYY;
         appCompileTime.tm_mon = COMPILE_TIME_MM;
@@ -92,19 +94,19 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
         theModDate = ::mktime(&appCompileTime);
     }
 
-    // Create the image path.
-    char theImagePath[PATH_MAX];
-    (void) ::sprintf( theImagePath, "%s.img", inAIFPath );
-
     // A priori, on a 16 Mo de ROM.
-    KUInt8* theData = (KUInt8*) ::calloc(1, TMemoryConsts::kROMEnd);
+    KUInt8* theData = (KUInt8*) ::malloc(TMemoryConsts::kROMEnd);
+    memset(theData, 0xff, TMemoryConsts::kLowROMEnd); // default fill is 0xff
 
     // On ouvre le fichier ROM.
     FILE* theFile = ::fopen(inAIFPath, "rb");
     if (theFile == NULL)
     {
         (void) ::fprintf( stderr, "Can't open AIF file '%s'\n", inAIFPath );
-        ::exit( 1 );
+        ::fclose( theFile );
+        ::free(theData);
+        mErrorCode = kErrorLoadingROMFile;
+        return;
     }
 
     KUInt32 theTotalSize;
@@ -118,7 +120,10 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
         (void) ::fprintf( stderr,
                          "Read/only image from AIF file seems too big (%.8X > 8MB)\n",
                          (unsigned int) theROSize );
-        ::exit( 1 );
+        ::fclose( theFile );
+        ::free(theData);
+        mErrorCode = kErrorWrongSize;
+        return;
     }
 
     theAIFFile.ReadROImage( theData );
@@ -130,7 +135,10 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
         (void) ::fprintf( stderr,
                          "Read/write image from AIF file seems too big (data+code=%.8X > 8MB)\n",
                          (unsigned int) theTotalSize );
-        ::exit( 1 );
+        ::fclose( theFile );
+        ::free(theData);
+        mErrorCode = kErrorLoadingROMFile;
+        return;
     }
 
     theAIFFile.ReadRWImage( &theData[theROSize] );
@@ -146,7 +154,9 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
     if (fd < 0)
     {
         (void) ::fprintf( stderr, "Can't open REX 0 file '%s'\n", inREX0Path );
-        ::exit( 1 );
+        ::free(theData);
+        mErrorCode = kErrorLoadingEinsteinREXFile;
+        return;
     }
 
     (void) ::read(
@@ -168,7 +178,9 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
 #endif
         if (fd < 0) {
             (void) ::fprintf(stderr, "Can't open REX 1 file '%s'\n", inREX1Path);
-            ::exit(1);
+            ::free(theData);
+            mErrorCode = kErrorLoadingEinsteinREXFile;
+            return;
         }
 
         (void) ::read(

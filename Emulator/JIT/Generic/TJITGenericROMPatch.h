@@ -27,6 +27,12 @@ typedef void (*AnyFunctionPtr)();
 
 class TJITGenericPatchObject;
 
+// number of ROM IDs that the patch system supports
+// see: TROMImage::kUnknownROM etc.
+const int kROMPatchNumIDs = 3;
+
+// if a patch does not exist for a specific platform, mark it void
+const KUInt32 kROMPatchVoid = ~0;
 
 /**
  \brief Manage all code patches.
@@ -68,7 +74,7 @@ class TJITGenericPatchObject
 {
 private:
 	KUInt32 mIndex;
-	KUInt32 mAddress;
+	KUInt32 mAddress[kROMPatchNumIDs];
 	KUInt32 mOriginalInstruction;
 	const char *mName;
 
@@ -93,20 +99,21 @@ protected:
 	void SetOrigialInstruction(KUInt32 instr) { mOriginalInstruction = instr; }
 
 	/// Return the offset of the instruction into the ROM word array.
-	KUInt32 GetOffsetInROM();
+	KUInt32 GetOffsetInROM(KSInt32 inROMId);
 
 	/// Return the index into the manager
 	KUInt32 GetIndex() { return mIndex; }
 
 public:
 	/// Create and add a new patch
-	TJITGenericPatchObject(KUInt32 address, const char *name=0L);
+	TJITGenericPatchObject(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
+                           const char *name=0L);
 
 	/// Destructor
 	virtual ~TJITGenericPatchObject();
 
 	/// Patch the ROM word
-	virtual void Apply(KUInt32 *ROM) = 0;
+	virtual void Apply(KUInt32 *ROM, KSInt32 inROMId) = 0;
 
 	/// Call the patch code
 	virtual JITUnit *Call(JITUnit *ioUnit, TARMProcessor *ioCPU) { return 0; }
@@ -136,7 +143,7 @@ public:
 
  This is the simpelest form of a patch. It replaces one word in ROM with a
  new word. The JIT system will interprete the new instruction instead of
- the original. No furtehr action is taken.
+ the original. No further action is taken.
  */
 class TJITGenericPatch : public TJITGenericPatchObject
 {
@@ -149,32 +156,31 @@ protected:
 
 public:
 	/// Create and add a new patch
-	TJITGenericPatch(KUInt32 address, KUInt32 value, const char *name=0L);
+	TJITGenericPatch(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
+                     KUInt32 value, const char *name=0L);
 
 	/// Patch the ROM word
-	virtual void Apply(KUInt32 *ROM);
+	void Apply(KUInt32 *ROM, KSInt32 inROMId) override;
 };
 
 
 /**
- \brief Find and replace word in an area of the ROM.
+ \brief Find and replace words in an area of the ROM.
  */
 class TJITGenericPatchFindAndReplace : public TJITGenericPatch
 {
 private:
-	KUInt32 mStart;
-	KUInt32 mEnd;
 	KUInt32 *mKey;
 	KUInt32 *mReplacement;
 
 public:
 	/// Create and add a new patch
-	TJITGenericPatchFindAndReplace(KUInt32 startAddress, KUInt32 endAddress,
+	TJITGenericPatchFindAndReplace(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
 								   KUInt32 *key, KUInt32 *replacement,
 								   const char *name=0L);
 
 	/// Patch the ROM
-	virtual void Apply(KUInt32 *ROM);
+	void Apply(KUInt32 *ROM, KSInt32 inROMId) override;
 };
 
 
@@ -207,14 +213,15 @@ protected:
 
 public:
 	/// Create and add a call to a JIT instruction
-	TJITGenericPatchNativeCall(KUInt32 address, JITFuncPtr stub, const char *name)
-	: TJITGenericPatchObject(address, name), mStub(stub)  { }
+	TJITGenericPatchNativeCall(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
+                               JITFuncPtr stub, const char *name)
+	: TJITGenericPatchObject(inAddr0, inAddr1, inAddr2, name), mStub(stub)  { }
 
 	/// Patch the ROM word
-	virtual void Apply(KUInt32 *ROM);
+	void Apply(KUInt32 *ROM, KSInt32 inROMId) override;
 
 	/// Call the patch code
-	virtual JITUnit *Call(JITUnit *ioUnit, TARMProcessor *ioCPU);
+	JITUnit *Call(JITUnit *ioUnit, TARMProcessor *ioCPU) override;
 };
 
 
@@ -248,10 +255,10 @@ public:
  \param name naming the patch makes debugging easier
 
  */
-#define T_ROM_PATCH(addr, name) \
-extern JITInstructionProto(p##addr); \
-TJITGenericPatchNativeCall i##addr(addr, p##addr, name); \
-JITInstructionProto(p##addr)
+#define T_ROM_PATCH(inAddr0, inAddr1, inAddr2, name) \
+extern JITInstructionProto(patch_##inAddr0); \
+TJITGenericPatchNativeCall i##inAddr0(inAddr0, inAddr1, inAddr2, patch_##inAddr0, name); \
+JITInstructionProto(patch_##inAddr0)
 
 
 /**
@@ -280,11 +287,12 @@ class TJITGenericPatchNativeInjection : public TJITGenericPatchNativeCall {
 	
 public:
 	/// Create and add a call to a JIT instruction as an injection
-	TJITGenericPatchNativeInjection(KUInt32 address, JITFuncPtr stub, const char *name)
-	: TJITGenericPatchNativeCall(address, stub, name) { }
+	TJITGenericPatchNativeInjection(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
+                                    JITFuncPtr stub, const char *name)
+	: TJITGenericPatchNativeCall(inAddr0, inAddr1, inAddr2, stub, name) { }
 	
 	/// Patch the ROM word
-	virtual void Apply(KUInt32 *ROM);
+	void Apply(KUInt32 *ROM, KSInt32 inROMId) override;
 };
 
 
@@ -310,10 +318,10 @@ public:
  		be word-aligned
  \param name naming the patch makes debugging easier
  */
-#define T_ROM_INJECTION(addr, name) \
-extern JITInstructionProto(p##addr); \
-TJITGenericPatchNativeInjection i##addr(addr, p##addr, name); \
-JITInstructionProto(p##addr)
+#define T_ROM_INJECTION(inAddr0, inAddr1, inAddr2, name) \
+extern JITInstructionProto(patch_##inAddr0); \
+TJITGenericPatchNativeInjection i##addr(inAddr0, inAddr1, inAddr2, patch_##inAddr0, name); \
+JITInstructionProto(patch_##inAddr0)
 
 
 #endif

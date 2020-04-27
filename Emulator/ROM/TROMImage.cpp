@@ -39,12 +39,17 @@
 	#include <unistd.h>
 #endif
 
+// FLTK (only filename handling, can be removed)
+#include <FL/filename.H>
+
 // K
 #include <K/Misc/TMappedFile.h>
 #include <K/Defines/UByteSex.h>
 #include <K/Misc/CRC32.h>
 
 // Einstein
+#include "TFlatROMImageWithREX.h"
+#include "TAIFROMImageWithREXes.h"
 #include "Emulator/TMemoryConsts.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/TARMProcessor.h"
@@ -357,6 +362,9 @@ KSInt32 TROMImage::ComputeROMId(KUInt8 *inROMPtr)
 
     // Get a neutral CRC32 of the ROM minus the variables
     KUInt32 crc = GetCRC32(inROMPtr, 0x00800000);
+//    FILE *f = fopen("/Users/matt/img", "wb");
+//    fwrite(inROMPtr, 1, 0x00800000, f);
+//    fclose(f);
 
     // Now restore the variable content
     memcpy(inROMPtr+0x000013fC, tmpManufacturer, sizeof(tmpManufacturer));
@@ -365,7 +373,7 @@ KSInt32 TROMImage::ComputeROMId(KUInt8 *inROMPtr)
     KSInt32 romID = kUnknownROM;
     switch (crc) {
         case 0x2bab2cee: // MP2x00(US): 2.1(711000)-1, can be updated to 2.1/710031
-            romID = kMP2x00USROM;
+            romID = k717006;
             break;
         case 0x62081e10: // eMate 300(US): v2.2.00-0(737041) can be updated to v2.1/737246
             romID = kEMate300ROM;
@@ -399,6 +407,60 @@ KSInt32 TROMImage::ComputeROMId(const char *inFilename)
         ::fclose(f);
     }
     return id;
+}
+
+
+#if TARGET_OS_WIN32
+static int strcasecmp(const char *a, const char *b) { return stricmp(a, b); }
+#endif
+
+
+TROMImage *TROMImage::LoadROMAndREX(const char *theROMImagePath, bool useMonitor, bool useBuiltinERex)
+{
+    TROMImage *theROMImage = nullptr;
+
+    // If we use the builtin REX, set the REX path to null
+    // If we want an external file, take the ROM path with the filename "Einstein.rex"
+    char *theREX1Path = nullptr;
+    char theREX1PathBuffer[FL_PATH_MAX];
+    if (useBuiltinERex) {
+        theREX1Path = nullptr;
+    } else {
+        strcpy(theREX1PathBuffer, theROMImagePath);
+        char *rexName = (char *) fl_filename_name(theREX1PathBuffer);
+        if (rexName) {
+            strcpy(rexName, "Einstein.rex");
+        }
+        theREX1Path = theREX1PathBuffer;
+    }
+
+    // Read an .aif image
+    const char *ext = fl_filename_ext(theROMImagePath);
+    if ( ext && strcasecmp(ext, ".aif")==0 ) {
+        char theREX0Path[FL_PATH_MAX];
+        strcpy(theREX0Path, theROMImagePath);
+        fl_filename_setext(theREX0Path, FL_PATH_MAX, ".rex");
+        theROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path);
+        return theROMImage;
+    }
+
+    // Or is it the pair of "Senior CirrusNoDebug image" and "Senior CirrusNoDebug high"?
+    const char *name = fl_filename_name(theROMImagePath);
+    if (   name
+        && strncmp(name, "Senior Cirrus", 13)==0
+        && strstr(name, "image"))
+    {
+        char theREX0Path[FL_PATH_MAX];
+        strcpy(theREX0Path, theROMImagePath);
+        char *image = strstr(theREX0Path, "image");
+        strcpy(image, "high");
+        theROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path);
+        return theROMImage;
+    }
+
+    // If it's none of the above, just load a file verbatim and hope it's a ROM
+    theROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path);
+    return theROMImage;
 }
 
 

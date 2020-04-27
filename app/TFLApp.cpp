@@ -25,7 +25,7 @@
 // TODO: launch Monitor stopped at boot point
 // TODO: menu and action to reboot Newton
 // TODO: patch ROMs for Y10k bug
-// TODO: integrate Toolbox
+// TODO: integrate Inspector
 // TODO: integrate newt/64
 // TODO: cleanup settings dialog
 // TODO: drag'n'drop of multiple files and archives
@@ -76,6 +76,7 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_Native_File_Chooser.H>
+#include <FL/Fl_Tooltip.H>
 
 // Einstein
 #include "Emulator/ROM/TROMImage.h"
@@ -168,18 +169,44 @@ TFLApp::Run( int argc, char* argv[] )
     mFLSettings->useMonitor = 1;
     mLog = new TBufferLog();
 
-    //mFLSettings->dontShow = false;
-    if (!mFLSettings->dontShow) {
-        // TODO: also must show the settings if there is something wrong with the ROM files.
-        mFLSettings->ShowSettingsPanelModal();
-    }
-
-    const char *theFlashPath = strdup(mFLSettings->FlashPath);
     int ramSize = mFLSettings->RAMSize;
     bool hidemouse = (bool)mFLSettings->hideMouse;
 
     (void) ::printf( "Welcome to Einstein console.\n" );
     (void) ::printf( "This is %s.\n", VERSION_STRING );
+
+    static char theROMImagePath[FL_PATH_MAX];
+
+    for (bool firstAttempt=true;;firstAttempt=false) {
+        if (!firstAttempt || !mFLSettings->dontShow)
+            mFLSettings->ShowSettingsPanelModal();
+        strncpy(theROMImagePath, mFLSettings->ROMPath, FL_PATH_MAX);
+        mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, mFLSettings->useMonitor, mFLSettings->mUseBuiltinRex);
+        if (!mROMImage) {
+            fl_alert("Can't load ROM image.\nFile format not supported.");
+            continue;
+        }
+        if (mROMImage->GetErrorCode()==TROMImage::kNoError)
+            break;
+        switch (mROMImage->GetErrorCode()) {
+            case TROMImage::kErrorLoadingROMFile:
+                fl_alert("Can't load ROM file\n%s\n%s", theROMImagePath, strerror(errno));
+                break;
+            case TROMImage::kErrorLoadingNewtonREXFile:
+                fl_alert("Can't load Newton REX file\n%s\n%s", theROMImagePath, strerror(errno));
+                break;
+            case TROMImage::kErrorLoadingEinsteinREXFile:
+                fl_alert("Can't load Einstein REX file\n%s\n%s", theROMImagePath, strerror(errno));
+                break;
+            case TROMImage::kErrorWrongSize:
+                fl_alert("Can't load ROM file\n%s\nUnexpected file size.", theROMImagePath);
+                break;
+        }
+        delete mROMImage;
+        // go back to showing the settings panel
+    }
+
+    const char *theFlashPath = strdup(mFLSettings->FlashPath);
 
     InitScreen();
 
@@ -187,11 +214,7 @@ TFLApp::Run( int argc, char* argv[] )
     
     InitNetwork();
 
-    const char * theROMImagePath;
-    LoadROMAndREX(theROMImagePath, mFLSettings->useMonitor);
-
-    mEmulator = new TEmulator(
-                              mLog, mROMImage, theFlashPath,
+    mEmulator = new TEmulator(mLog, mROMImage, theFlashPath,
                               mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
     mPlatformManager = mEmulator->GetPlatformManager();
 
@@ -568,6 +591,7 @@ void TFLApp::InitFLTK(int argc, char **argv) {
     Fl::get_system_colors();
     Fl::use_high_res_GL(1);
     Fl::visual(FL_RGB);
+    Fl_Tooltip::size(12);
 }
 
 
@@ -741,78 +765,8 @@ TFLApp::CreateLog( const char* inFilePath )
 }
 
 
-void TFLApp::LoadROMAndREX(const char *&theROMImagePath, bool useMonitor)
-{
-//    mROMImage = TROMImage::CreateImageFromFile(theROMImagePath);
-
-    theROMImagePath = strdup(mFLSettings->ROMPath);
-    int useAIFROMFile = 0;    // 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
-
-    // will we use an AIF image?
-    {
-        const char *ext = fl_filename_ext(theROMImagePath);
-#if TARGET_OS_WIN32
-        if ( ext && stricmp(ext, ".aif")==0 )
-        {
-            useAIFROMFile = 1;
-        }
-#else
-        if ( ext && strcasecmp(ext, ".aif")==0 )
-        {
-            useAIFROMFile = 1;
-        }
-#endif
-        const char *name = fl_filename_name(theROMImagePath);
-        if (    name
-            && strncmp(name, "Senior Cirrus", 13)==0
-            && strstr(name, "image"))
-        {
-            useAIFROMFile = 2;
-        }
-    }
-
-    // If we use the builtin REX, set the REX path to null
-    // If we want an external file, take the ROM path with the filename "Einstein.rex"
-    char *theREX1Path = nullptr;
-    char theREX1PathBuffer[FL_PATH_MAX];
-    if (mFLSettings->mUseBuiltinRex) {
-        theREX1Path = nullptr;
-    } else {
-        strcpy(theREX1PathBuffer, theROMImagePath);
-        char *rexName = (char *) fl_filename_name(theREX1PathBuffer);
-        if (rexName) {
-            strcpy(rexName, "Einstein.rex");
-        }
-        theREX1Path = theREX1PathBuffer;
-    }
-
-    switch (useAIFROMFile) {
-        case 0:
-            mROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path);
-            break;
-        case 1:
-        {
-            char theREX0Path[FL_PATH_MAX];
-            strcpy(theREX0Path, theROMImagePath);
-            fl_filename_setext(theREX0Path, FL_PATH_MAX, ".rex");
-            mROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path);
-        }
-            break;
-        case 2:
-        {
-            char theREX0Path[FL_PATH_MAX];
-            strcpy(theREX0Path, theROMImagePath);
-            char *image = strstr(theREX0Path, "image");
-            strcpy(image, "high");
-            mROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path);
-        }
-            break;
-    }
-}
-
-
 /**
- Creta ethe appropriate screen manager for this platform.
+ Create the appropriate screen manager for this platform.
 
  In FLTK world, that would always be the FLTK Screen driver.
 

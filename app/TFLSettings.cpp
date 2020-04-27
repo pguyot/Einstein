@@ -160,34 +160,70 @@ void TFLSettings::savePreferences() {
 
 const char *TFLSettings::GetROMDetails(const char *inFilename)
 {
+    const int text_size = 2*FL_PATH_MAX;
     static char *text = nullptr;
-    bool allocated = false;
-    if (allocated) {
-        ::free(text);
-        text = nullptr;
-        allocated = false;
+    if (!text) {
+        text = (char*)malloc(text_size);
     }
-    int ret = fl_access(inFilename, R_OK);
-    if (ret==-1) {
-        ::asprintf(&text, "Can't read ROM file:\n%s", strerror(errno));
-        if (text) allocated = true;
-    } else {
-        switch (TROMImage::ComputeROMId(inFilename)) {
-            case TROMImage::kMP2x00USROM:
-                text = (char*)"This is a fully supported MP2x00 US ROM\nVersion 717006\n...";
+
+    TROMImage *theROMImage = TROMImage::LoadROMAndREX(inFilename, true, true);
+    if (!theROMImage) {
+        strncpy(text, "Can't load ROM image.\nFile format not supported.", text_size);
+        return text;
+    }
+    if (theROMImage->GetErrorCode()==TROMImage::kNoError) {
+        switch (theROMImage->GetROMId()) {
+            case TROMImage::k717006:
+                strncpy(text,
+                        "MessagePad MP2x00 US ROM found.\n"
+                        "ROM Version 2.1 (717006)-0\n"
+                        "Can be updated to 2.1 (710031).",
+                        text_size);
                 break;
             case TROMImage::kMP2x00DROM:
-                text = (char*)"This is a supported MP2x00 D ROM\nVersion 7xxxxx\n...";
+                strncpy(text,
+                        "This is a supported MP2x00 D ROM\nVersion 7xxxxx\n...",
+                        text_size);
                 break;
             case TROMImage::kEMate300ROM:
-                text = (char*)"This is a supported eMate 300 ROM\nVersion 7xxxxx\n...";
+                strncpy(text,
+                        "eMate 300 ROM found.\n"
+                        "ROM Version 2.2.00 (737041)\n"
+                        "Can be updated to 2.1 (737246).",
+                        text_size);
                 break;
             default:
-                text = (char*)"Unknown ROM";
+                strncpy(text,
+                        "Unknown ROM.\n"
+                        "Please contact the developer team if this is a\n"
+                        "valid ROM that is not yet recognized by Einstein",
+                        text_size);
+                break;
+        }
+    } else {
+        switch (theROMImage->GetErrorCode()) {
+            case TROMImage::kErrorLoadingROMFile:
+                snprintf(text, text_size,
+                         "Can't load ROM file\n%s",
+                         strerror(errno));
+                break;
+            case TROMImage::kErrorLoadingNewtonREXFile:
+                snprintf(text, text_size,
+                         "Can't load Newton REX file\n%s",
+                         strerror(errno));
+                break;
+            case TROMImage::kErrorLoadingEinsteinREXFile:
+                snprintf(text, text_size,
+                         "Can't load Einstein REX file\n%s",
+                         strerror(errno));
+                break;
+            case TROMImage::kErrorWrongSize:
+                snprintf(text, text_size,
+                         "Can't load ROM file\nUnexpected file size.");
                 break;
         }
     }
-
+    delete theROMImage;
     return text;
 }
 

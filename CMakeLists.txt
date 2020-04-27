@@ -16,7 +16,7 @@ cmake_policy(SET CMP0091 NEW)
 
 set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
 
-project("Einstein" VERSION "2020.3.6")
+project("Einstein" VERSION "2020.4.0")
 
 set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_OSX_ARCHITECTURES=x86_64)
@@ -251,9 +251,21 @@ set ( sources
 
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h PROPERTIES GENERATED TRUE)
 
+string(TIMESTAMP COMPILE_TIME_YYYY "%Y")
+string(TIMESTAMP COMPILE_TIME_MM "%m")
+string(TIMESTAMP COMPILE_TIME_DD "%d")
+configure_file(
+		${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h.in
+		${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h
+)
+
 
 macro (build_with_fluid name dir)
-    add_custom_target(${name} DEPENDS ${dir}/${name}.cpp ${dir}/${name}.h)
+    add_custom_target(${name} DEPENDS
+        ${dir}/${name}.cpp
+        ${dir}/${name}.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h
+        )
     add_custom_command(
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
         COMMAND ${FLTK_FLUID_EXECUTABLE} -c ${name}.fl
@@ -266,15 +278,6 @@ macro (build_with_fluid name dir)
     set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.cpp PROPERTIES GENERATED TRUE)
     set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.h PROPERTIES GENERATED TRUE)
 endmacro()
-
-
-string(TIMESTAMP COMPILE_TIME_YYYY "%Y")
-string(TIMESTAMP COMPILE_TIME_MM "%m")
-string(TIMESTAMP COMPILE_TIME_DD "%d")
-configure_file(
-		${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h.in
-		${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h
-)
 
 
 if (APPLE)

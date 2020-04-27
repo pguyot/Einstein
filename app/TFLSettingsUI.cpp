@@ -38,6 +38,18 @@ static FILE *fROM;
 static FL_SOCKET sData; 
 static int recvd; 
 
+void TFLSettingsUI::cb_Einstein_i(Fl_Double_Window*, void*) {
+  if (wQuit->visible()){
+    exit(0);
+} else {
+    revertDialog();
+    mSettingsPanel->hide();
+};
+}
+void TFLSettingsUI::cb_Einstein(Fl_Double_Window* o, void* v) {
+  ((TFLSettingsUI*)(o->user_data()))->cb_Einstein_i(o,v);
+}
+
 void TFLSettingsUI::cb_Install_i(Fl_Menu_*, void*) {
   app->UserActionInstallPackage();
 }
@@ -131,7 +143,18 @@ void TFLSettingsUI::cb_wROMPathChoose(Fl_Button* o, void* v) {
 }
 
 void TFLSettingsUI::cb_wFlashPathCreate_i(Fl_Button*, void*) {
-  char buf[FL_PATH_MAX];
+  #if TARGET_OS_MAC
+
+const char *filename = fl_file_chooser(
+    "Create a new Flash Memory file",
+    nullptr,
+    wFlashPath->label());
+if (filename)
+    wFlashPath->copy_label(filename);
+    
+#else
+
+char buf[FL_PATH_MAX];
     strncpy(buf, wFlashPath->label(), FL_PATH_MAX);
     char *name = (char*)fl_filename_name(buf);
     if (name && name>buf)
@@ -151,6 +174,8 @@ void TFLSettingsUI::cb_wFlashPathCreate_i(Fl_Button*, void*) {
         case  1: return; // user canceled
     }
     wFlashPath->copy_label(fnfc.filename());
+    
+#endif
 }
 void TFLSettingsUI::cb_wFlashPathCreate(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->user_data()))->cb_wFlashPathCreate_i(o,v);
@@ -907,26 +932,26 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
   Fl_Double_Window* w;
   { Fl_Double_Window* o = new Fl_Double_Window(431, 414, "Einstein Settings");
     w = o; if (w) {/* empty */}
-    o->user_data((void*)(this));
+    o->callback((Fl_Callback*)cb_Einstein, (void*)(this));
     { RMB = new Fl_Menu_Button(4, 1, 10, 10, "RMB Menu");
       RMB->labelsize(12);
       RMB->hide();
       RMB->deactivate();
       RMB->menu(menu_RMB);
     } // Fl_Menu_Button* RMB
-    { Fl_Group* o = new Fl_Group(14, 31, 405, 95, "  ROM");
+    { Fl_Group* o = new Fl_Group(14, 30, 405, 95, "  ROM");
       o->box(FL_GTK_DOWN_BOX);
-      o->labelsize(11);
+      o->labelsize(12);
       o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-      { wROMPath = new Fl_Box(19, 36, 395, 35, "ROM");
-        wROMPath->labelsize(12);
+      { wROMPath = new Fl_Box(19, 35, 395, 35, "/here/goes/the/path/and/filename/of/the/ROM");
         wROMPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
       } // Fl_Box* wROMPath
-      { wROMDetails = new Fl_Box(19, 76, 305, 45, "Test");
-        wROMDetails->labelsize(11);
+      { wROMDetails = new Fl_Box(19, 75, 305, 45, "ROM file found\nEnjoy Einstein\nOr choose another file.");
+        wROMDetails->labelsize(12);
         wROMDetails->align(Fl_Align(193|FL_ALIGN_INSIDE));
       } // Fl_Box* wROMDetails
-      { wROMPathChoose = new Fl_Button(329, 80, 80, 20, "Choose...");
+      { wROMPathChoose = new Fl_Button(329, 95, 80, 20, "Choose...");
+        wROMPathChoose->tooltip("Select a Newton ROM image file.\nEinstein does not include any ROMs.");
         wROMPathChoose->labelsize(12);
         wROMPathChoose->callback((Fl_Callback*)cb_wROMPathChoose);
       } // Fl_Button* wROMPathChoose
@@ -934,10 +959,9 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
     } // Fl_Group* o
     { Fl_Group* o = new Fl_Group(14, 146, 405, 70, "  Internal Flash File");
       o->box(FL_GTK_DOWN_BOX);
-      o->labelsize(11);
+      o->labelsize(12);
       o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-      { wFlashPath = new Fl_Box(19, 151, 395, 35);
-        wFlashPath->labelsize(12);
+      { wFlashPath = new Fl_Box(19, 151, 395, 35, "/here/goes/the/path/and/filename/of/the/FlashFile");
         wFlashPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
       } // Fl_Box* wFlashPath
       { wFlashPathCreate = new Fl_Button(240, 184, 80, 20, "Create...");
@@ -945,69 +969,76 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
         wFlashPathCreate->callback((Fl_Callback*)cb_wFlashPathCreate);
         wFlashPathCreate->hide();
       } // Fl_Button* wFlashPathCreate
-      { wFlashPathChoose = new Fl_Button(329, 184, 80, 20, "Choose...");
+      { wFlashPathChoose = new Fl_Button(329, 186, 80, 20, "Choose...");
+        wFlashPathChoose->tooltip("Create a new file, or select an existing file that\nwill hold 8MB MessagePad \
+Flash data");
         wFlashPathChoose->labelsize(12);
         wFlashPathChoose->callback((Fl_Callback*)cb_wFlashPathChoose);
       } // Fl_Button* wFlashPathChoose
       o->end();
     } // Fl_Group* o
-    { Fl_Group* o = new Fl_Group(14, 236, 200, 100, "  Screen");
+    { Fl_Group* o = new Fl_Group(14, 238, 200, 100, "  Screen");
       o->box(FL_GTK_DOWN_BOX);
-      o->labelsize(11);
+      o->labelsize(12);
       o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-      { wWidth = new Fl_Int_Input(24, 246, 80, 20);
+      { wWidth = new Fl_Int_Input(24, 248, 80, 20);
+        wWidth->tooltip("Screen width in pixels,\nOriginal screen size is 320x480");
         wWidth->type(2);
         wWidth->labelsize(12);
         wWidth->textsize(12);
       } // Fl_Int_Input* wWidth
-      { wHeight = new Fl_Int_Input(119, 246, 80, 20, "x ");
+      { wHeight = new Fl_Int_Input(119, 248, 80, 20, "x ");
+        wHeight->tooltip("Screen height in pixels,\nOriginal screen size is 320x480");
         wHeight->type(2);
         wHeight->labelsize(12);
         wHeight->textsize(12);
       } // Fl_Int_Input* wHeight
-      { wFullScreen = new Fl_Check_Button(24, 271, 175, 20, "Full screen");
+      { wFullScreen = new Fl_Check_Button(24, 273, 175, 20, "Full screen");
         wFullScreen->down_box(FL_DOWN_BOX);
         wFullScreen->labelsize(12);
         wFullScreen->deactivate();
       } // Fl_Check_Button* wFullScreen
-      { wHideMouse = new Fl_Check_Button(24, 291, 175, 20, "Hide mouse pointer");
+      { wHideMouse = new Fl_Check_Button(24, 293, 175, 20, "Hide mouse pointer");
+        wHideMouse->tooltip("Hide mouse pointer over MessagePad screen\nUsed on pen or touch screen device\
+s.");
         wHideMouse->down_box(FL_DOWN_BOX);
         wHideMouse->labelsize(12);
       } // Fl_Check_Button* wHideMouse
-      { wUseMonitor = new Fl_Check_Button(24, 311, 175, 20, "Debug Terminal");
+      { wUseMonitor = new Fl_Check_Button(24, 313, 175, 20, "Debug Terminal");
         wUseMonitor->down_box(FL_DOWN_BOX);
         wUseMonitor->labelsize(12);
         wUseMonitor->deactivate();
       } // Fl_Check_Button* wUseMonitor
       o->end();
     } // Fl_Group* o
-    { Fl_Group* o = new Fl_Group(219, 236, 200, 100, "  Memory");
+    { Fl_Group* o = new Fl_Group(219, 238, 200, 100, "  Memory");
       o->box(FL_GTK_DOWN_BOX);
-      o->labelsize(11);
+      o->labelsize(12);
       o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-      { Fl_Box* o = new Fl_Box(229, 251, 55, 20, "RAM Size");
+      { Fl_Box* o = new Fl_Box(229, 253, 55, 20, "RAM Size");
         o->labelsize(11);
         o->align(Fl_Align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE));
       } // Fl_Box* o
-      { wRAMSizeMB = new Fl_Box(284, 251, 18, 20, "4");
+      { wRAMSizeMB = new Fl_Box(284, 253, 18, 20, "4");
         wRAMSizeMB->labelsize(11);
         wRAMSizeMB->align(Fl_Align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE));
       } // Fl_Box* wRAMSizeMB
-      { Fl_Box* o = new Fl_Box(301, 251, 20, 20, "MB");
+      { Fl_Box* o = new Fl_Box(301, 253, 20, 20, "MB");
         o->labelsize(11);
         o->align(Fl_Align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE));
       } // Fl_Box* o
-      { wRAMSizeKB = new Fl_Box(324, 251, 25, 20, "0");
+      { wRAMSizeKB = new Fl_Box(324, 253, 25, 20, "0");
         wRAMSizeKB->labelsize(11);
         wRAMSizeKB->align(Fl_Align(FL_ALIGN_RIGHT|FL_ALIGN_INSIDE));
         wRAMSizeKB->hide();
       } // Fl_Box* wRAMSizeKB
-      { wRAMSizeKBLabel = new Fl_Box(349, 251, 20, 20, "KB");
+      { wRAMSizeKBLabel = new Fl_Box(349, 253, 20, 20, "KB");
         wRAMSizeKBLabel->labelsize(11);
         wRAMSizeKBLabel->align(Fl_Align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE));
         wRAMSizeKBLabel->hide();
       } // Fl_Box* wRAMSizeKBLabel
-      { wRAMSize = new Fl_Slider(229, 276, 180, 20);
+      { wRAMSize = new Fl_Slider(229, 278, 180, 20);
+        wRAMSize->tooltip("Tested RAM sizes are 1MB and 4MB, other sizes may crash");
         wRAMSize->type(1);
         wRAMSize->minimum(16);
         wRAMSize->maximum(240);

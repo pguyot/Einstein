@@ -80,8 +80,14 @@ mSettingsPanel = CreateSettingsPanel();} {}
     comment override open
   } {
     Fl_Window {} {
-      label {Einstein Settings} open
-      xywh {448 451 431 414} type Double visible
+      label {Einstein Settings}
+      callback {if (wQuit->visible()){
+    exit(0);
+} else {
+    revertDialog();
+    mSettingsPanel->hide();
+}} open selected
+      xywh {447 451 431 414} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu} open
@@ -144,15 +150,17 @@ mSettingsPanel = CreateSettingsPanel();} {}
       }
       Fl_Group {} {
         label {  ROM} open
-        xywh {14 31 405 95} box GTK_DOWN_BOX labelsize 11 align 5
+        xywh {14 30 405 95} box GTK_DOWN_BOX labelsize 12 align 5
       } {
         Fl_Box wROMPath {
-          label ROM
-          xywh {19 36 395 35} labelsize 12 align 212
+          label {/here/goes/the/path/and/filename/of/the/ROM}
+          xywh {19 35 395 35} align 212
         }
         Fl_Box wROMDetails {
-          label Test selected
-          xywh {19 76 305 45} labelsize 11 align 209
+          label {ROM file found
+Enjoy Einstein
+Or choose another file.}
+          xywh {19 75 305 45} labelsize 12 align 209
         }
         Fl_Button wROMPathChoose {
           label {Choose...}
@@ -190,19 +198,32 @@ char buf[FL_PATH_MAX];
     wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
     
 \#endif}
-          xywh {329 80 80 20} labelsize 12
+          tooltip {Select a Newton ROM image file.
+Einstein does not include any ROMs.} xywh {329 95 80 20} labelsize 12
         }
       }
       Fl_Group {} {
         label {  Internal Flash File} open
-        xywh {14 146 405 70} box GTK_DOWN_BOX labelsize 11 align 5
+        xywh {14 146 405 70} box GTK_DOWN_BOX labelsize 12 align 5
       } {
         Fl_Box wFlashPath {
-          xywh {19 151 395 35} labelsize 12 align 212
+          label {/here/goes/the/path/and/filename/of/the/FlashFile}
+          xywh {19 151 395 35} align 212
         }
         Fl_Button wFlashPathCreate {
           label {Create...}
-          callback {char buf[FL_PATH_MAX];
+          callback {\#if TARGET_OS_MAC
+
+const char *filename = fl_file_chooser(
+    "Create a new Flash Memory file",
+    nullptr,
+    wFlashPath->label());
+if (filename)
+    wFlashPath->copy_label(filename);
+    
+\#else
+
+char buf[FL_PATH_MAX];
     strncpy(buf, wFlashPath->label(), FL_PATH_MAX);
     char *name = (char*)fl_filename_name(buf);
     if (name && name>buf)
@@ -221,7 +242,9 @@ char buf[FL_PATH_MAX];
         case -1: return; // Error text is in fnfc.errmsg()
         case  1: return; // user canceled
     }
-    wFlashPath->copy_label(fnfc.filename());}
+    wFlashPath->copy_label(fnfc.filename());
+    
+\#endif}
           xywh {240 184 80 20} labelsize 12 hide
         }
         Fl_Button wFlashPathChoose {
@@ -259,60 +282,64 @@ char buf[FL_PATH_MAX];
     wFlashPath->copy_label(fnfc.filename());
     
 \#endif}
-          xywh {329 184 80 20} labelsize 12
+          tooltip {Create a new file, or select an existing file that
+will hold 8MB MessagePad Flash data} xywh {329 186 80 20} labelsize 12
         }
       }
       Fl_Group {} {
         label {  Screen}
-        xywh {14 236 200 100} box GTK_DOWN_BOX labelsize 11 align 5
+        xywh {14 238 200 100} box GTK_DOWN_BOX labelsize 12 align 5
       } {
         Fl_Input wWidth {
-          xywh {24 246 80 20} type Int labelsize 12 textsize 12
+          tooltip {Screen width in pixels,
+Original screen size is 320x480} xywh {24 248 80 20} type Int labelsize 12 textsize 12
         }
         Fl_Input wHeight {
           label {x }
-          xywh {119 246 80 20} type Int labelsize 12 textsize 12
+          tooltip {Screen height in pixels,
+Original screen size is 320x480} xywh {119 248 80 20} type Int labelsize 12 textsize 12
         }
         Fl_Check_Button wFullScreen {
           label {Full screen}
-          xywh {24 271 175 20} down_box DOWN_BOX labelsize 12 deactivate
+          xywh {24 273 175 20} down_box DOWN_BOX labelsize 12 deactivate
         }
         Fl_Check_Button wHideMouse {
           label {Hide mouse pointer}
-          xywh {24 291 175 20} down_box DOWN_BOX labelsize 12
+          tooltip {Hide mouse pointer over MessagePad screen
+Used on pen or touch screen devices.} xywh {24 293 175 20} down_box DOWN_BOX labelsize 12
         }
         Fl_Check_Button wUseMonitor {
           label {Debug Terminal}
-          xywh {24 311 175 20} down_box DOWN_BOX labelsize 12 deactivate
+          xywh {24 313 175 20} down_box DOWN_BOX labelsize 12 deactivate
         }
       }
       Fl_Group {} {
         label {  Memory}
-        xywh {219 236 200 100} box GTK_DOWN_BOX labelsize 11 align 5
+        xywh {219 238 200 100} box GTK_DOWN_BOX labelsize 12 align 5
       } {
         Fl_Box {} {
           label {RAM Size}
-          xywh {229 251 55 20} labelsize 11 align 24
+          xywh {229 253 55 20} labelsize 11 align 24
         }
         Fl_Box wRAMSizeMB {
           label 4
-          xywh {284 251 18 20} labelsize 11 align 24
+          xywh {284 253 18 20} labelsize 11 align 24
         }
         Fl_Box {} {
           label MB
-          xywh {301 251 20 20} labelsize 11 align 20
+          xywh {301 253 20 20} labelsize 11 align 20
         }
         Fl_Box wRAMSizeKB {
           label 0
-          xywh {324 251 25 20} labelsize 11 align 24 hide
+          xywh {324 253 25 20} labelsize 11 align 24 hide
         }
         Fl_Box wRAMSizeKBLabel {
           label KB
-          xywh {349 251 20 20} labelsize 11 align 20 hide
+          xywh {349 253 20 20} labelsize 11 align 20 hide
         }
         Fl_Slider wRAMSize {
           callback {updateRAMSizeLabel();}
-          xywh {229 276 180 20} type Horizontal minimum 16 maximum 240 step 16 value 64
+          tooltip {Tested RAM sizes are 1MB and 4MB, other sizes may crash} xywh {229 278 180 20} type Horizontal minimum 16 maximum 240 step 16 value 64
         }
       }
       Fl_Check_Button wDontShow {
