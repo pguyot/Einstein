@@ -210,16 +210,11 @@ public:
             // draw the image into the destination context
             if (img) {
                 CGContextSaveGState(fl_gc);
-                CGContextSetInterpolationQuality(fl_gc, kCGInterpolationNone /*kCGInterpolationLow*/ );
-                CGContextTranslateCTM(fl_gc, x(), y());
-                CGContextScaleCTM(fl_gc, 1, 1);
-
-                CGRect rect = CGRectMake(0, 0, w(), h());
-                CGContextClipToRect(fl_gc, CGRectOffset(rect, -0.5, -0.5 ));
-                CGContextTranslateCTM(fl_gc, -0.5, h() - 0.5);
-                CGContextScaleCTM(fl_gc, double(w())/double(rgbWidth_), -double(h())/double(rgbHeight_));
-                CGContextDrawImage(fl_gc, CGRectMake(0, 0, rgbWidth_, rgbHeight_), img);
-
+                
+                CGContextSetInterpolationQuality(fl_gc, kCGInterpolationNone);
+                CGContextScaleCTM(fl_gc, 1, -1);
+                CGContextDrawImage(fl_gc, CGRectMake(0, -h() - y(), w(), h()), img);
+                
                 CGImageRelease(img);
                 CGContextRestoreGState(fl_gc);
             } else {
