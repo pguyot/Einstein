@@ -91,7 +91,19 @@ Fl_Menu_Item TFLSettingsUI::menu_RMB[] = {
 };
 
 void TFLSettingsUI::cb_wROMPathChoose_i(Fl_Button*, void*) {
-  char buf[FL_PATH_MAX];
+  #if TARGET_OS_MAC
+
+const char *filename = fl_file_chooser(
+    "Choose a ROM file",
+    nullptr,
+    wROMPath->label());
+if (filename)
+    wROMPath->copy_label(filename);
+    wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
+    
+#else
+
+char buf[FL_PATH_MAX];
     strncpy(buf, wROMPath->label(), FL_PATH_MAX);
     char *name = (char*)fl_filename_name(buf);
     if (name && name>buf)
@@ -111,6 +123,8 @@ void TFLSettingsUI::cb_wROMPathChoose_i(Fl_Button*, void*) {
     }
     wROMPath->copy_label(fnfc.filename());
     wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
+    
+#endif
 }
 void TFLSettingsUI::cb_wROMPathChoose(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->user_data()))->cb_wROMPathChoose_i(o,v);
@@ -143,7 +157,18 @@ void TFLSettingsUI::cb_wFlashPathCreate(Fl_Button* o, void* v) {
 }
 
 void TFLSettingsUI::cb_wFlashPathChoose_i(Fl_Button*, void*) {
-  char buf[FL_PATH_MAX];
+  #if TARGET_OS_MAC
+
+const char *filename = fl_file_chooser(
+    "Choose a Flash Memory file",
+    nullptr,
+    wFlashPath->label());
+if (filename)
+    wFlashPath->copy_label(filename);
+    
+#else
+
+char buf[FL_PATH_MAX];
     strncpy(buf, wFlashPath->label(), FL_PATH_MAX);
     char *name = (char*)fl_filename_name(buf);
     if (name && name>buf)
@@ -163,6 +188,8 @@ void TFLSettingsUI::cb_wFlashPathChoose_i(Fl_Button*, void*) {
         case  1: return; // user canceled
     }
     wFlashPath->copy_label(fnfc.filename());
+    
+#endif
 }
 void TFLSettingsUI::cb_wFlashPathChoose(Fl_Button* o, void* v) {
   ((TFLSettingsUI*)(o->parent()->parent()->user_data()))->cb_wFlashPathChoose_i(o,v);
@@ -891,13 +918,13 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
       o->box(FL_GTK_DOWN_BOX);
       o->labelsize(11);
       o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
-      { wROMPath = new Fl_Box(19, 36, 395, 35);
+      { wROMPath = new Fl_Box(19, 36, 395, 35, "ROM");
         wROMPath->labelsize(12);
         wROMPath->align(Fl_Align(196|FL_ALIGN_INSIDE));
       } // Fl_Box* wROMPath
-      { wROMDetails = new Fl_Box(19, 76, 305, 45);
-        wROMDetails->labelsize(10);
-        wROMDetails->align(Fl_Align(192|FL_ALIGN_INSIDE));
+      { wROMDetails = new Fl_Box(19, 76, 305, 45, "Test");
+        wROMDetails->labelsize(11);
+        wROMDetails->align(Fl_Align(193|FL_ALIGN_INSIDE));
       } // Fl_Box* wROMDetails
       { wROMPathChoose = new Fl_Button(329, 80, 80, 20, "Choose...");
         wROMPathChoose->labelsize(12);
@@ -916,6 +943,7 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
       { wFlashPathCreate = new Fl_Button(240, 184, 80, 20, "Create...");
         wFlashPathCreate->labelsize(12);
         wFlashPathCreate->callback((Fl_Callback*)cb_wFlashPathCreate);
+        wFlashPathCreate->hide();
       } // Fl_Button* wFlashPathCreate
       { wFlashPathChoose = new Fl_Button(329, 184, 80, 20, "Choose...");
         wFlashPathChoose->labelsize(12);

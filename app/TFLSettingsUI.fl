@@ -147,14 +147,28 @@ mSettingsPanel = CreateSettingsPanel();} {}
         xywh {14 31 405 95} box GTK_DOWN_BOX labelsize 11 align 5
       } {
         Fl_Box wROMPath {
+          label ROM
           xywh {19 36 395 35} labelsize 12 align 212
         }
         Fl_Box wROMDetails {
-          xywh {19 76 305 45} labelsize 10 align 208
+          label Test selected
+          xywh {19 76 305 45} labelsize 11 align 209
         }
         Fl_Button wROMPathChoose {
           label {Choose...}
-          callback {char buf[FL_PATH_MAX];
+          callback {\#if TARGET_OS_MAC
+
+const char *filename = fl_file_chooser(
+    "Choose a ROM file",
+    nullptr,
+    wROMPath->label());
+if (filename)
+    wROMPath->copy_label(filename);
+    wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
+    
+\#else
+
+char buf[FL_PATH_MAX];
     strncpy(buf, wROMPath->label(), FL_PATH_MAX);
     char *name = (char*)fl_filename_name(buf);
     if (name && name>buf)
@@ -173,7 +187,9 @@ mSettingsPanel = CreateSettingsPanel();} {}
         case  1: return; // user canceled
     }
     wROMPath->copy_label(fnfc.filename());
-    wROMDetails->copy_label(GetROMDetails(wROMPath->label()));} selected
+    wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
+    
+\#endif}
           xywh {329 80 80 20} labelsize 12
         }
       }
@@ -206,11 +222,22 @@ mSettingsPanel = CreateSettingsPanel();} {}
         case  1: return; // user canceled
     }
     wFlashPath->copy_label(fnfc.filename());}
-          xywh {240 184 80 20} labelsize 12
+          xywh {240 184 80 20} labelsize 12 hide
         }
         Fl_Button wFlashPathChoose {
           label {Choose...}
-          callback {char buf[FL_PATH_MAX];
+          callback {\#if TARGET_OS_MAC
+
+const char *filename = fl_file_chooser(
+    "Choose a Flash Memory file",
+    nullptr,
+    wFlashPath->label());
+if (filename)
+    wFlashPath->copy_label(filename);
+    
+\#else
+
+char buf[FL_PATH_MAX];
     strncpy(buf, wFlashPath->label(), FL_PATH_MAX);
     char *name = (char*)fl_filename_name(buf);
     if (name && name>buf)
@@ -229,7 +256,9 @@ mSettingsPanel = CreateSettingsPanel();} {}
         case -1: return; // Error text is in fnfc.errmsg()
         case  1: return; // user canceled
     }
-    wFlashPath->copy_label(fnfc.filename());}
+    wFlashPath->copy_label(fnfc.filename());
+    
+\#endif}
           xywh {329 184 80 20} labelsize 12
         }
       }

@@ -33,6 +33,8 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include "Emulator/ROM/TROMImage.h"
+
 
 TFLSettings::TFLSettings() = default;
 
@@ -170,7 +172,20 @@ const char *TFLSettings::GetROMDetails(const char *inFilename)
         ::asprintf(&text, "Can't read ROM file:\n%s", strerror(errno));
         if (text) allocated = true;
     } else {
-        text = "File is readable.";
+        switch (TROMImage::ComputeROMId(inFilename)) {
+            case TROMImage::kMP2x00USROM:
+                text = (char*)"This is a fully supported MP2x00 US ROM\nVersion 717006\n...";
+                break;
+            case TROMImage::kMP2x00DROM:
+                text = (char*)"This is a supported MP2x00 D ROM\nVersion 7xxxxx\n...";
+                break;
+            case TROMImage::kEMate300ROM:
+                text = (char*)"This is a supported eMate 300 ROM\nVersion 7xxxxx\n...";
+                break;
+            default:
+                text = (char*)"Unknown ROM";
+                break;
+        }
     }
 
     return text;
