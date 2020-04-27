@@ -164,12 +164,11 @@ TFLApp::Run( int argc, char* argv[] )
     InitFLTK(argc, argv);
 
     InitSettings();
-#if 1
+
     mFLSettings->useMonitor = 1;
     mLog = new TBufferLog();
-#endif
 
-    mFLSettings->dontShow = false;
+    //mFLSettings->dontShow = false;
     if (!mFLSettings->dontShow) {
         // TODO: also must show the settings if there is something wrong with the ROM files.
         mFLSettings->ShowSettingsPanelModal();
@@ -189,9 +188,7 @@ TFLApp::Run( int argc, char* argv[] )
     InitNetwork();
 
     const char * theROMImagePath;
-    const char * theMachineString;
-    
-    LoadROMAndREX(theMachineString, theROMImagePath, mFLSettings->useMonitor);
+    LoadROMAndREX(theROMImagePath, mFLSettings->useMonitor);
 
     mEmulator = new TEmulator(
                               mLog, mROMImage, theFlashPath,
@@ -206,7 +203,7 @@ TFLApp::Run( int argc, char* argv[] )
 
     InitSerialPorts(); // do this after creating the emulator
 
-    InitMonitor(theMachineString, theROMImagePath);
+    InitMonitor(theROMImagePath);
     if (mMonitor)
         mMonitor->RunOnStartup(true);
 
@@ -221,7 +218,6 @@ TFLApp::Run( int argc, char* argv[] )
     auto emulatorThread = new std::thread(&TFLApp::EmulatorThreadEntry, this);
 
     // run the user interface until all windows are close
-
     Fl::run();
 
     // if the emulator does not know yet, tell it to wrap things up and quit
@@ -698,19 +694,14 @@ void TFLApp::InitSerialPorts()
 }
 
 
-void TFLApp::InitMonitor(const char *theMachineString, const char *theROMImagePath) {
+void TFLApp::InitMonitor(const char *theROMImagePath)
+{
     bool useMonitor = (bool)mFLSettings->useMonitor;
     if (useMonitor)
     {
-        char theSymbolListPath[512];
-        strcpy(theSymbolListPath, theROMImagePath);
-        char *name = (char*)fl_filename_name(theSymbolListPath);
-        if (name) {
-            ::snprintf( name, 512, "%s.symbols", theMachineString );
-        } else {
-            (void) ::snprintf( theSymbolListPath, 512, "%s/%s.symbols",
-                          theROMImagePath, theMachineString );
-        }
+        char theSymbolListPath[FL_PATH_MAX];
+        strncpy(theSymbolListPath, theROMImagePath, FL_PATH_MAX);
+        fl_filename_setext(theSymbolListPath, FL_PATH_MAX, ".symbols");
         mSymbolList = new TSymbolList( theSymbolListPath );
         mMonitor = new TFLMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList, theROMImagePath);
     } else {
@@ -750,19 +741,12 @@ TFLApp::CreateLog( const char* inFilePath )
 }
 
 
-void TFLApp::LoadROMAndREX(const char *&theMachineString, const char *&theROMImagePath, bool useMonitor)
+void TFLApp::LoadROMAndREX(const char *&theROMImagePath, bool useMonitor)
 {
 //    mROMImage = TROMImage::CreateImageFromFile(theROMImagePath);
 
     theROMImagePath = strdup(mFLSettings->ROMPath);
-    const char* defaultMachineString = "717006";
-    theMachineString = strdup(mFLSettings->MachineID);
     int useAIFROMFile = 0;    // 0 uses flat rom, 1 uses .aif/.rex naming, 2 uses Cirrus naming scheme
-
-    if (theMachineString==nil || *theMachineString==0)
-    {
-        theMachineString = defaultMachineString;
-    }
 
     // will we use an AIF image?
     {
@@ -804,14 +788,14 @@ void TFLApp::LoadROMAndREX(const char *&theMachineString, const char *&theROMIma
 
     switch (useAIFROMFile) {
         case 0:
-            mROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path, theMachineString, useMonitor);
+            mROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path);
             break;
         case 1:
         {
             char theREX0Path[FL_PATH_MAX];
             strcpy(theREX0Path, theROMImagePath);
             fl_filename_setext(theREX0Path, FL_PATH_MAX, ".rex");
-            mROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path, theMachineString, useMonitor );
+            mROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path);
         }
             break;
         case 2:
@@ -820,7 +804,7 @@ void TFLApp::LoadROMAndREX(const char *&theMachineString, const char *&theROMIma
             strcpy(theREX0Path, theROMImagePath);
             char *image = strstr(theREX0Path, "image");
             strcpy(image, "high");
-            mROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path, theMachineString, useMonitor );
+            mROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path);
         }
             break;
     }

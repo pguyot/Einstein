@@ -138,11 +138,11 @@ private:
     
     void InitNetwork();
 
-    void LoadROMAndREX(const char *&theMachineString, const char *&theROMImagePath, bool useMonitor);
+    void LoadROMAndREX(const char *&theROMImagePath, bool useMonitor);
 
     void InitSerialPorts();
 
-    void InitMonitor(const char *theMachineString, const char *theROMImagePath);
+    void InitMonitor(const char *theROMImagePath);
 
     // create the driver for our screen output
 	void CreateScreenManager(

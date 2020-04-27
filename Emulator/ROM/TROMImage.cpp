@@ -33,7 +33,6 @@
 #include <string.h>
 
 #if TARGET_OS_WIN32
-//	#include "CompatibilityWin32.h"
 	#include <io.h>
 #else
 	#include <sys/uio.h>
@@ -43,24 +42,23 @@
 // K
 #include <K/Misc/TMappedFile.h>
 #include <K/Defines/UByteSex.h>
-#include <app/Version.h>
+#include <K/Misc/CRC32.h>
 
 // Einstein
 #include "Emulator/TMemoryConsts.h"
-
 #include "Emulator/TMemory.h"
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
-
 #include "Emulator/TEmulator.h"
 #include "Emulator/Screen/TScreenManager.h"
+
+#include "app/Version.h"
 
 // -------------------------------------------------------------------------- //
 //  * TROMImage( void )
 // -------------------------------------------------------------------------- //
 TROMImage::TROMImage( void )
 	:
-		mMappedFile( NULL ),
 		mImage( NULL )
 {
 	// I'll create the mmap file later, when asked to.
@@ -71,113 +69,23 @@ TROMImage::TROMImage( void )
 // -------------------------------------------------------------------------- //
 TROMImage::~TROMImage( void )
 {
-	if (mMappedFile)
-	{
-		delete mMappedFile;
-		mMappedFile = NULL;
-		mImage = NULL;
-	} else if (mImage) {
+    if (mImage) {
 		::free( mImage );
 		mImage = NULL;
 	}
 }
 
 // -------------------------------------------------------------------------- //
-//  * IsImageOutdated( const char*, time_t )
-// -------------------------------------------------------------------------- //
-bool
-TROMImage::IsImageOutdated(
-				const char* inPath,
-				time_t inModDate,
-				const char inMachineString[6] )
-{
-	bool result = true;
-
-#ifdef _DEBUG
-	// allow patching the ROM at every run
-	return result;
-#else  // not _DEBUG
-	do {
-		// Check the file exists.
-		struct stat theInfos;
-		int err = ::stat( inPath, &theInfos );
-		if (err < 0)
-		{
-			// The file (probably) doesn't exist.
-			break;
-		}
-		
-		// Check the modification date.
-		if (theInfos.st_mtime < inModDate)
-		{
-			// The file is older.
-			break;
-		}
-
-		// Check the size.
-		if (theInfos.st_size != sizeof(SImage))
-		{
-			// The size doesn't match.
-			break;
-		}
-		
-		// Read magic & the version.
-#if TARGET_OS_WIN32
-		int fd = ::open( inPath, O_RDONLY|O_BINARY, 0 );
-#else
-		int fd = ::open( inPath, O_RDONLY, 0 );
-#endif
-		if (fd < 0)
-		{
-			// Can't open the file.
-			break;
-		}
-		
-		(void) ::lseek( fd, TMemoryConsts::kHighROMEnd, SEEK_SET );
-		SImageInfo info;
-		
-		if (((KUInt32) ::read( fd, &info, sizeof(info) )) != sizeof(info)) {
-			// Can't read.
-			(void) ::close( fd );
-			break;
-		}
-		if ((info.fMagic != kMagic)
-		    || (info.fVersion != kVersion)
-		    || (info.fJITID != JITClass::GetID())
-		    || (info.fJITVersion != JITClass::GetVersion())
-		    || memcmp(info.fMachineString, inMachineString, 6)) {
-			// Mismatch
-			(void) ::close( fd );
-			break;
-		}
-
-		// Good.
-		(void) ::close( fd );
-
-		result = false;
-	} while ( false );
-	
-	return result;
-#endif // _DEBUG
-}
-
-// -------------------------------------------------------------------------- //
 //  * CreateImage( const char*, const KUInt8*, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TROMImage::CreateImage(
-				const char* inPath,
-				const KUInt8* inBuffer,
-				KUInt32 inBufferSize,
-				const char inMachineString[6] )
+TROMImage::CreateImage(const KUInt8* inBuffer)
 {
-	fprintf(stderr, "Creating image from ROM and REX...\n" );
-
 	// Patch the version number
 	// TODO: we could have a much more complete REX amangement that can add or remove packages
 	//       from the REX file as needed, so that we can, for example, include the internet enabler.
 	// TODO: at some point, we must also patch known ROMs for the current decade to fix the Y10k bug
-    if (inBufferSize>0x00806b80 && memcmp(inBuffer+0x00806b74, "2020.2", 7)==0) {
+    if (memcmp(inBuffer+0x00806b74, "2020.2", 7)==0) {
         char *d = (char*)inBuffer+0x00806b74;
         const char *vv = PROJECT_VER_MAJOR;
         // copy no more than four characters; should be the full year
@@ -198,86 +106,36 @@ TROMImage::CreateImage(
         *d = 0;
     }
 
-	// Create the mmap file.
-	TMappedFile theImageFile(
-							inPath,
-							sizeof(SImage),
-							O_RDWR | O_CREAT );
-	
-	SImage* theImagePtr = (SImage*) theImageFile.GetBuffer();
-	if (theImagePtr == NULL)
-	{
-		fprintf(stderr, "Can't create the image at %s\n", inPath );
-		::exit(1);
-	}
-	
-	// Fill with zeroes.
-	memset(theImagePtr, 0, theImageFile.GetSize());
-	
+    SImage* theImagePtr = (SImage*)::calloc(1, sizeof(SImage));
+
 	// inBuffer contains 16 MB consisting of the ROM followed by the REX.
 	// Write this at the start of the image.
-	
+
+    // TODO: we can save the time for flipping the Einstein REX if we keep it in the desired byte order already
+
 #if TARGET_RT_LITTLE_ENDIAN
-	{
-		// Endian swap it first
-		
-		KUInt32* src = (KUInt32*) inBuffer;
-		KUInt32* dest = (KUInt32*) theImagePtr;
-		KUInt32* end = (KUInt32*) &inBuffer[inBufferSize];
-		do {
-			*dest = UByteSex::Swap( *src );
-			++dest;
-		} while (++src < end);
-	}
+    // Endian swap it first
+    KUInt32* src = (KUInt32*) inBuffer;
+    KUInt32* dest = (KUInt32*) theImagePtr;
+    KUInt32* end = (KUInt32*) &inBuffer[TMemoryConsts::kROMEnd];
+    do {
+        *dest = UByteSex::Swap( *src );
+        ++dest;
+    } while (++src < end);
 #else
 	(void) ::memcpy(theImagePtr, inBuffer, inBufferSize);
 #endif
 
-	// Set the magic & the version.
-	theImagePtr->fInfo.fMagic = kMagic;
-	theImagePtr->fInfo.fVersion = kVersion;
-	theImagePtr->fInfo.fJITID = JITClass::GetID();
-	theImagePtr->fInfo.fJITVersion = JITClass::GetVersion();
-	
-	// Copy the machine string.
-	(void) ::memcpy(
-				theImagePtr->fInfo.fMachineString,
-				inMachineString,	// like "717006"
-				6);
-	
-	JITClass::PatchROM((KUInt32*) theImagePtr->fROM, inMachineString);
+    mROMId = ComputeROMId(theImagePtr->fROM);
+
+	JITClass::PatchROM((KUInt32*)theImagePtr->fROM, mROMId);
 	
 	// Compute the checksum.
 	DoComputeChecksums(theImagePtr);
+
+    mImage = theImagePtr;
 }
 
-// -------------------------------------------------------------------------- //
-//  * Init( const char*, bool )
-// -------------------------------------------------------------------------- //
-void
-TROMImage::Init( const char* inPath, bool inMonitorMode )
-{
-	// Create the mmap file.
-	TMappedFile* theMappedFile = new TMappedFile(
-							inPath,
-							sizeof(SImage) );
-	SImage* theImage = (SImage*) theMappedFile->GetBuffer();
-	if (theImage == NULL)
-	{
-		fprintf(stderr, "Can't load the image at %s\n", inPath );
-		::exit(1);
-	}
-
-	if (inMonitorMode)
-	{
-		mImage = (SImage*) ::malloc( sizeof(SImage) );
-		(void) ::memcpy( mImage, theImage, sizeof(SImage) );
-		delete theMappedFile;
-	} else {
-		mMappedFile = theMappedFile;
-		mImage = theImage;
-	}
-}
 
 // -------------------------------------------------------------------------- //
 //  * GetLatestModDate( struct timespec*, const char* )
@@ -481,6 +339,45 @@ TROMImage::LookForREXes(
 
 	return nbRexes;
 }
+
+
+KSInt32 TROMImage::ComputeROMId(KUInt8 *inROMPtr)
+{
+    // Identify the ROM by taking the CRC32 of the ROM and internal REX.
+
+    // The manufacturer of the ROM may change, but the remaining content is the same
+    KUInt32 tmpManufacturer[1];
+    memcpy(tmpManufacturer, inROMPtr+0x000013fC, sizeof(tmpManufacturer));
+    memset(inROMPtr+0x000013fC, 0, sizeof(tmpManufacturer));
+
+    // Also, make a copy of the diagnostics and checksums (they are unset in the developer ROM)
+    KUInt32 tmpDiagCheckTag[12];
+    memcpy(tmpDiagCheckTag, inROMPtr+0x00018420, sizeof(tmpDiagCheckTag));
+    memset(inROMPtr+0x00018420, 0, sizeof(tmpDiagCheckTag));
+
+    // Get a neutral CRC32 of the ROM minus the variables
+    KUInt32 crc = GetCRC32(inROMPtr, 0x00800000);
+
+    // Now restore the variable content
+    memcpy(inROMPtr+0x000013fC, tmpManufacturer, sizeof(tmpManufacturer));
+    memcpy(inROMPtr+0x00018420, tmpDiagCheckTag, sizeof(tmpDiagCheckTag));
+
+    KSInt32 romID = kUnknownROM;
+    switch (crc) {
+        case 0x2bab2cee: // MP2x00(US): 2.1(711000)-1, can be updated to 2.1/710031
+            romID = kMP2x00USROM;
+            break;
+        case 0x62081e10: // eMate 300(US): v2.2.00-0(737041) can be updated to v2.1/737246
+            romID = kEMate300ROM;
+            break;
+        // case : // MP2100(D): (747129)  (747260)
+        default:
+            fprintf(stderr, "Unknown ROM with CRC 0x%08x. No patches will be applied.\n", crc);
+            break;
+    }
+    return romID;
+}
+
 
 // ====================================================== //
 // Is a computer language with goto's totally Wirth-less? //

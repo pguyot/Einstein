@@ -18,7 +18,6 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include <K/Misc/CRC32.h>
 
 #include "Emulator/JIT/JIT.h"
 
@@ -27,6 +26,7 @@
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 
 #include "Emulator/TEmulator.h"
+#include "Emulator/ROM/TROMImage.h"
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/TDMAManager.h"
 #include "Emulator/Screen/TScreenManager.h"
@@ -147,42 +147,9 @@ KUInt32 TJITGenericPatchManager::Add(TJITGenericPatchObject *p)
  		April 2018, we only support patches for 717006 which is the ROM file
  		that comes with the Native Developer Kit.
  */
-void TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, const std::string& inMachineName)
+void TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId)
 {
-    // FIXME: there must be a routine that already get the ROM ID from the file
-    //        and set the ID for all accessible after loading the ROM
-    // FIXME: loose the MachineName stuff. It is set by the user and doesn't
-    //        neccessarily correspond to the actual ROM version
-
-    // Identify the ROM by taking the CRC32 of the ROM and internal REX.
-
-    // The manufacturer of the ROM may change, but the remaining content is the same
-    KUInt32 tmpManufacturer[1];
-    memcpy(tmpManufacturer, inROMPtr+(0x000013fC/4), sizeof(tmpManufacturer));
-    memset(inROMPtr+(0x000013fC/4), 0, sizeof(tmpManufacturer));
-
-    // Also, make a copy of the diagnostics and checksums (they are unset in the developer ROM)
-    KUInt32 tmpDiagCheckTag[12];
-    memcpy(tmpDiagCheckTag, inROMPtr+(0x00018420/4), sizeof(tmpDiagCheckTag));
-    memset(inROMPtr+(0x00018420/4), 0, sizeof(tmpDiagCheckTag));
-
-    // Get a neutral CRC32 of the ROM minus the variables
-    KUInt32 crc = GetCRC32(inROMPtr, 0x00800000);
-
-    // Now restore the variable content
-    memcpy(inROMPtr+(0x000013fC/4), tmpManufacturer, sizeof(tmpManufacturer));
-    memcpy(inROMPtr+(0x00018420/4), tmpDiagCheckTag, sizeof(tmpDiagCheckTag));
-
-    switch (crc) {
-        case 0x2bab2cee: // MP2x00(US): 2.1(711000)-1, can be updated to 2.1/710031
-//        case : // MP2100(D): (747129)  (747260)
-        case 0x62081e10: // eMate 300(US): v2.2.00-0(737041) can be updated to v2.1/737246
-        default:
-            fprintf(stderr, "Unknown ROM with CRC 0x%08x. No patches will be applied.\n", crc);
-            break;
-    }
-
-	if (inMachineName == "717006") {
+    if (inROMId==TROMImage::kMP2x00USROM) {
 		for (KUInt32 i=0; i<mPatchListTop; i++) {
 			mPatchList[i]->Apply(inROMPtr);
 		}

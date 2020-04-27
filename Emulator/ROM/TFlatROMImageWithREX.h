@@ -48,12 +48,9 @@ public:
 	/// \param inREXPath	path to the REX file.
 	/// \param inMachineString	machine string.
 	///
-	TFlatROMImageWithREX(
-					const char* inROMPath,
-					const char* inREXPath,
-					const char inMachineString[6],
-					bool inMonitorMode = false,
-                             const char *inImagePath = 0);
+	TFlatROMImageWithREX(const char* inROMPath,
+                         const char* inREXPath,
+                         const char *inImagePath = 0);
 
 	///
 	/// Destructor.

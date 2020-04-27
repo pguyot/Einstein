@@ -32,13 +32,13 @@
 
 #if TARGET_OS_WIN32
 #include <Windows.h>
-	#define PATH_MAX MAX_PATH
+#define PATH_MAX MAX_PATH
 //    #include "CompatibilityWin32.h"
-    #include <io.h>
+#include <io.h>
 #else
-    #include <sys/uio.h>
-    #include <unistd.h>
-    #include <sys/param.h>
+#include <sys/uio.h>
+#include <unistd.h>
+#include <sys/param.h>
 #endif
 
 #include "Drivers/EinsteinRex.h"
@@ -53,11 +53,9 @@
 //  * TFlatROMImageWithREX( const char*, const char*, const char[6], ... )
 // -------------------------------------------------------------------------- //
 TFlatROMImageWithREX::TFlatROMImageWithREX(
-			    const char* inROMPath,
-			    const char* inREXPath,
-			    const char inMachineString[6],
-			    bool inMonitorMode /* = false */,
-			    const char *inImagePath /* 0L */ )
+                                           const char* inROMPath,
+                                           const char* inREXPath,
+                                           const char *inImagePath /* 0L */ )
 {
     struct stat theInfos;
     int err = ::stat( inROMPath, &theInfos );
@@ -106,70 +104,64 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 
     // Check if we need to re-create the image file
 
-    if (IsImageOutdated(theImagePath, theModTime, inMachineString))
+    // Create a 16 MB buffer
+
+    KUInt8* theData = (KUInt8*) ::calloc(1, TMemoryConsts::kROMEnd);
+
+    // Let's read the ROM file.
+#if TARGET_OS_WIN32
+    int fd = ::open( inROMPath, O_RDONLY|O_BINARY, 0 );
+#else
+    int fd = ::open( inROMPath, O_RDONLY, 0 );
+#endif
+    if (fd < 0)
     {
-        // Create a 16 MB buffer
-
-        KUInt8* theData = (KUInt8*) ::calloc(1, 0x01000000);
-
-        // Let's read the ROM file.
-#if TARGET_OS_WIN32
-        int fd = ::open( inROMPath, O_RDONLY|O_BINARY, 0 );
-#else
-        int fd = ::open( inROMPath, O_RDONLY, 0 );
-#endif
-        if (fd < 0)
-        {
-            (void) ::fprintf( stderr, "Can't open ROM file '%s'\n", inROMPath );
-            ::exit( 1 );
-        }
-
-        // Read the 8 MB ROM into the first half of the buffer
-
-        if (::read(fd, (void*) theData, 0x00800000 ) != 0x00800000)
-        {
-            (void) ::close( fd );
-            (void) ::fprintf( stderr, "Error while reading ROM file '%s'\n", inROMPath );
-            ::exit( 1 );
-        }
-
-        (void) ::close( fd );
-
-        // Let's read the REX (ROM Extension) file.
-        if (inREXPath==nullptr) {
-            // use the builtin Einstein.rex
-            memcpy(theData+0x00800000, Einstein_rex, Einstein_rex_len);
-        } else {
-            // load the Einstein.rex from a file
-#if TARGET_OS_WIN32
-            fd = ::open( inREXPath, O_RDONLY|O_BINARY, 0 );
-#else
-            fd = ::open(inREXPath, O_RDONLY, 0);
-#endif
-            if (fd < 0) {
-                (void) ::fprintf(stderr, "Can't open REX file '%s'\n", inREXPath);
-                ::exit(1);
-            }
-
-            // Read the REX into the second half of the buffer
-
-            (void) ::read(fd, (void *) &theData[0x00800000], 0x00800000);
-            (void) ::close(fd);
-        }
-
-        // The .img file consists of:
-        // - The ROM (8MB)
-        // - The REX (8MB)
-        // - Some metadata (a magic number, ROM version string, padding)
-        // - Checksums
-
-        CreateImage( theImagePath, theData, 0x01000000, inMachineString );
-
-        ::free(theData);
+        (void) ::fprintf( stderr, "Can't open ROM file '%s'\n", inROMPath );
+        ::exit( 1 );
     }
 
-    // Finally load the image.
-    Init(theImagePath, inMonitorMode);
+    // Read the 8 MB ROM into the first half of the buffer
+
+    if (::read(fd, (void*) theData, 0x00800000 ) != 0x00800000)
+    {
+        (void) ::close( fd );
+        (void) ::fprintf( stderr, "Error while reading ROM file '%s'\n", inROMPath );
+        ::exit( 1 );
+    }
+
+    (void) ::close( fd );
+
+    // Let's read the REX (ROM Extension) file.
+    if (inREXPath==nullptr) {
+        // use the builtin Einstein.rex
+        memcpy(theData+0x00800000, Einstein_rex, Einstein_rex_len);
+    } else {
+        // load the Einstein.rex from a file
+#if TARGET_OS_WIN32
+        fd = ::open( inREXPath, O_RDONLY|O_BINARY, 0 );
+#else
+        fd = ::open(inREXPath, O_RDONLY, 0);
+#endif
+        if (fd < 0) {
+            (void) ::fprintf(stderr, "Can't open REX file '%s'\n", inREXPath);
+            ::exit(1);
+        }
+
+        // Read the REX into the second half of the buffer
+
+        (void) ::read(fd, (void *) &theData[0x00800000], 0x00800000);
+        (void) ::close(fd);
+    }
+    
+    // The .img file consists of:
+    // - The ROM (8MB)
+    // - The REX (8MB)
+    // - Some metadata (a magic number, ROM version string, padding)
+    // - Checksums
+
+    CreateImage( theData );
+
+    ::free(theData);
 }
 
 // -------------------------------------------------------------------------- //

@@ -45,6 +45,7 @@ class TMappedFile;
 class TROMImage
 {
 public:
+
 	///
 	/// Default constructor.
 	///
@@ -84,36 +85,23 @@ public:
 	///
 	void	ComputeChecksums( KUInt32 outChecksums[10] ) const;
 
+
+    ///
+    /// Return the ID of the ROM as calculated by a CRC32 checksum
+    ///
+    KSInt32 GetROMId() { return mROMId; }
+
+    static const KSInt32 kUnknownROM = -1;
+    static const KSInt32 kMP2x00USROM = 0;
+    static const KSInt32 kMP2x00DROM = 1;
+    static const KSInt32 kEMate300ROM = 2;
+
 protected:
-	///
-	/// Determine if the mmap is outdated and should be redone.
-	///
-	/// \param inPath			path to the map.
-	/// \param inModDate		modification date (to compare with the
-	///							modification date of the map).
-	/// \param inMachineString	identification of the machine (and of the ROM).
-	///
-	static bool IsImageOutdated(
-				const char* inPath,
-				time_t inModDate,
-				const char inMachineString[6] );
-	
-	///
-	/// Create the mmap file.
-	///
-	static void CreateImage(
-						const char* inPath,
-						const KUInt8* inBuffer,
-						KUInt32 inBufferSize,
-						const char inMachineString[6] );
 
 	///
-	/// Init from the mmap path.
+	/// Create the image, flip the endian, and apply patches if available
 	///
-	/// \param inMonitorMode	if we are in monitor mode (more things are
-	///							allowed then)
-	///
-	void Init( const char* inPath, bool inMonitorMode );
+	void CreateImage(const KUInt8* inBuffer);
 
 	///
 	/// Check the modification date of a file.
@@ -123,17 +111,16 @@ protected:
 				time_t* ioModDate,
 				const char* inPath );
 
+    ///
+    /// Find out what ROM we have by calculating its CRC
+    ///
+    static KSInt32 ComputeROMId(KUInt8 *data);
+
 private:
 	///
 	/// Structure of the image.
 	///
 	struct SImageInfo {
-		KUInt32		fMagic;
-		KUInt32		fVersion;
-		KUInt32     fJITID;
-		KUInt32     fJITVersion;
-		char		fMachineString[6];
-		char		fPadding[2];
 		KUInt32		fChecksums[10];
 	};
 	
@@ -176,8 +163,9 @@ private:
 						KUInt32 outRexBases[4],
 						KUInt32 outRexSizes[4] );
 
-	TMappedFile*	mMappedFile;	///< mapped file with the rom.
 	SImage*			mImage; 		///< image structure.
+
+    KSInt32         mROMId = kUnknownROM;
 };
 
 #endif

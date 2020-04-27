@@ -32,13 +32,13 @@
 
 #if TARGET_OS_WIN32
 #include <Windows.h>
-	//#include "CompatibilityWin32.h"
-	#include <io.h>
-	#define PATH_MAX MAX_PATH
+//#include "CompatibilityWin32.h"
+#include <io.h>
+#define PATH_MAX MAX_PATH
 #else
-	#include <sys/uio.h>
-	#include <unistd.h>
-	#include <sys/param.h>
+#include <sys/uio.h>
+#include <unistd.h>
+#include <sys/param.h>
 #endif
 
 // K
@@ -57,28 +57,26 @@
 //  * TAIFROMImageWithREXes( const char*, const char*, const char*, ... )
 // -------------------------------------------------------------------------- //
 TAIFROMImageWithREXes::TAIFROMImageWithREXes(
-						const char* inAIFPath,
-						const char* inREX0Path,
-						const char* inREX1Path,
-						const char inMachineString[6],
-						bool inMonitorMode /* = false */ )
+                                             const char* inAIFPath,
+                                             const char* inREX0Path,
+                                             const char* inREX1Path)
 {
-	// Check the modification dates.
-	struct stat theInfos;
-	int err = ::stat( inAIFPath, &theInfos );
-	if (err < 0)
-	{
-		(void) ::fprintf( stderr, "Can't stat AIF file (%s)\n", inAIFPath );
-		::exit( 1 );
-	}
+    // Check the modification dates.
+    struct stat theInfos;
+    int err = ::stat( inAIFPath, &theInfos );
+    if (err < 0)
+    {
+        (void) ::fprintf( stderr, "Can't stat AIF file (%s)\n", inAIFPath );
+        ::exit( 1 );
+    }
 
-	time_t theModDate = theInfos.st_mtime;
+    time_t theModDate = theInfos.st_mtime;
 
-	if (GetLatestModDate( &theModDate, inREX0Path ) < 0)
-	{
-		(void) ::fprintf( stderr, "Can't stat REX0 file (%s)\n", inREX0Path );
-		::exit( 1 );
-	}
+    if (GetLatestModDate( &theModDate, inREX0Path ) < 0)
+    {
+        (void) ::fprintf( stderr, "Can't stat REX0 file (%s)\n", inREX0Path );
+        ::exit( 1 );
+    }
     if (inREX1Path) {
         // get the date when the REX file was last modified
         if (GetLatestModDate(&theModDate, inREX1Path) < 0) {
@@ -94,103 +92,95 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(
         theModDate = ::mktime(&appCompileTime);
     }
 
-	// Create the image path.
-	char theImagePath[PATH_MAX];
-	(void) ::sprintf( theImagePath, "%s.img", inAIFPath );
-	
-	// Check if we need to read the ROM file.
-	if (IsImageOutdated(theImagePath, theModDate, inMachineString))
-	{	
-		// A priori, on a 16 Mo de ROM.
-		KUInt8* theData = (KUInt8*) ::calloc(1, 0x01000000);
-	
-		// On ouvre le fichier ROM.
-		FILE* theFile = ::fopen(inAIFPath, "rb");
-		if (theFile == NULL)
-		{
-			(void) ::fprintf( stderr, "Can't open AIF file '%s'\n", inAIFPath );
-			::exit( 1 );
-		}
-		
-		KUInt32 theTotalSize;
-		{
-			TAIFFile theAIFFile( theFile );
-			
-			// Read the R/O part of the file.
-			KUInt32 theROSize = theAIFFile.GetROImageSize();
-			if (theROSize > 0x00800000)
-			{
-				(void) ::fprintf( stderr,
-									"Read/only image from AIF file seems too big (%.8X > 8MB)\n",
-									(unsigned int) theROSize );
-				::exit( 1 );
-			}
-			
-			theAIFFile.ReadROImage( theData );
-		
-			// Read the R/W part of the file.
-			theTotalSize = theROSize + theAIFFile.GetRWImageSize();
-			if (theTotalSize > 0x00800000)
-			{
-				(void) ::fprintf( stderr,
-									"Read/write image from AIF file seems too big (data+code=%.8X > 8MB)\n",
-									(unsigned int) theTotalSize );
-				::exit( 1 );
-			}
-			
-			theAIFFile.ReadRWImage( &theData[theROSize] );
-		}
-		
-		::fclose( theFile );
-		
-		// Read first rex and put it just afterwards.
-#if TARGET_OS_WIN32
-		int fd = ::open( inREX0Path, O_RDONLY|O_BINARY, 0 );
-#else
-		int fd = ::open( inREX0Path, O_RDONLY, 0 );
-#endif
-		if (fd < 0)
-		{
-			(void) ::fprintf( stderr, "Can't open REX 0 file '%s'\n", inREX0Path );
-			::exit( 1 );
-		}
-		
-		(void) ::read(
-							fd,
-							(void*) &theData[theTotalSize],
-							(0x00800000 - theTotalSize) );
-		(void) ::close( fd );
+    // Create the image path.
+    char theImagePath[PATH_MAX];
+    (void) ::sprintf( theImagePath, "%s.img", inAIFPath );
 
-		// Read second rex.
-        if (inREX1Path==nullptr) {
-            // use the builtin Einstein.rex
-            memcpy(theData+0x00800000, Einstein_rex, Einstein_rex_len);
-        } else {
-            // load the Einstein.rex from a file
-#if TARGET_OS_WIN32
-            fd = ::open( inREX1Path, O_RDONLY|O_BINARY, 0 );
-#else
-            fd = ::open(inREX1Path, O_RDONLY, 0);
-#endif
-            if (fd < 0) {
-                (void) ::fprintf(stderr, "Can't open REX 1 file '%s'\n", inREX1Path);
-                ::exit(1);
-            }
+    // A priori, on a 16 Mo de ROM.
+    KUInt8* theData = (KUInt8*) ::calloc(1, TMemoryConsts::kROMEnd);
 
-            (void) ::read(
-                    fd,
-                    (void *) &theData[0x00800000],
-                    0x00800000);
-            (void) ::close(fd);
+    // On ouvre le fichier ROM.
+    FILE* theFile = ::fopen(inAIFPath, "rb");
+    if (theFile == NULL)
+    {
+        (void) ::fprintf( stderr, "Can't open AIF file '%s'\n", inAIFPath );
+        ::exit( 1 );
+    }
+
+    KUInt32 theTotalSize;
+
+    TAIFFile theAIFFile( theFile );
+
+    // Read the R/O part of the file.
+    KUInt32 theROSize = theAIFFile.GetROImageSize();
+    if (theROSize > 0x00800000)
+    {
+        (void) ::fprintf( stderr,
+                         "Read/only image from AIF file seems too big (%.8X > 8MB)\n",
+                         (unsigned int) theROSize );
+        ::exit( 1 );
+    }
+
+    theAIFFile.ReadROImage( theData );
+
+    // Read the R/W part of the file.
+    theTotalSize = theROSize + theAIFFile.GetRWImageSize();
+    if (theTotalSize > 0x00800000)
+    {
+        (void) ::fprintf( stderr,
+                         "Read/write image from AIF file seems too big (data+code=%.8X > 8MB)\n",
+                         (unsigned int) theTotalSize );
+        ::exit( 1 );
+    }
+
+    theAIFFile.ReadRWImage( &theData[theROSize] );
+
+    ::fclose( theFile );
+
+    // Read first rex and put it just afterwards.
+#if TARGET_OS_WIN32
+    int fd = ::open( inREX0Path, O_RDONLY|O_BINARY, 0 );
+#else
+    int fd = ::open( inREX0Path, O_RDONLY, 0 );
+#endif
+    if (fd < 0)
+    {
+        (void) ::fprintf( stderr, "Can't open REX 0 file '%s'\n", inREX0Path );
+        ::exit( 1 );
+    }
+
+    (void) ::read(
+                  fd,
+                  (void*) &theData[theTotalSize],
+                  (0x00800000 - theTotalSize) );
+    (void) ::close( fd );
+
+    // Read second rex.
+    if (inREX1Path==nullptr) {
+        // use the builtin Einstein.rex
+        memcpy(theData+0x00800000, Einstein_rex, Einstein_rex_len);
+    } else {
+        // load the Einstein.rex from a file
+#if TARGET_OS_WIN32
+        fd = ::open( inREX1Path, O_RDONLY|O_BINARY, 0 );
+#else
+        fd = ::open(inREX1Path, O_RDONLY, 0);
+#endif
+        if (fd < 0) {
+            (void) ::fprintf(stderr, "Can't open REX 1 file '%s'\n", inREX1Path);
+            ::exit(1);
         }
-		
-		CreateImage( theImagePath, theData, 0x01000000, inMachineString );
 
-		::free(theData);
-	}
-	
-	// Finally load the image.
-	Init(theImagePath, inMonitorMode);
+        (void) ::read(
+                      fd,
+                      (void *) &theData[0x00800000],
+                      0x00800000);
+        (void) ::close(fd);
+    }
+
+    CreateImage( theData );
+
+    ::free(theData);
 }
 
 // -------------------------------------------------------------------------- //

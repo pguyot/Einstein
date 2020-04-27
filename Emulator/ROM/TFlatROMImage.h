@@ -50,8 +50,7 @@ public:
 	///
 	TFlatROMImage(
 		const char* inROMPath,
-		const char inMachineString[6],
-		bool inMonitorMode = false );
+		const char inMachineString[6]);
 
 	///
 	/// Destructor.

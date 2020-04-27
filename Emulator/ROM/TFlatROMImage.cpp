@@ -57,8 +57,7 @@
 // -------------------------------------------------------------------------- //
 TFlatROMImage::TFlatROMImage(
 					const char* inROMPath,
-					const char inMachineString[6],
-					bool inMonitorMode /* = false */ )
+					const char inMachineString[6])
 {
 	struct stat theInfos;
 	int err = ::stat( inROMPath, &theInfos );
@@ -81,19 +80,9 @@ TFlatROMImage::TFlatROMImage(
 	char theImagePath[PATH_MAX];
 	(void) ::sprintf( theImagePath, "%s.img", inROMPath );
 	
-	// Check if we need to read the ROM file.
-	if (IsImageOutdated(theImagePath, theInfos.st_mtime, inMachineString))
-	{	
-		TMappedFile theImageFile( inROMPath );
-		CreateImage(
-			theImagePath,
-			(const KUInt8*) theImageFile.GetBuffer(),
-			theSize,
-			inMachineString );
-	}
-
-	// Finally load the image.
-	Init(theImagePath, inMonitorMode);
+    TMappedFile theImageFile( inROMPath );
+    CreateImage((const KUInt8*)theImageFile.GetBuffer(),
+                inMachineString );
 }
 
 // -------------------------------------------------------------------------- //

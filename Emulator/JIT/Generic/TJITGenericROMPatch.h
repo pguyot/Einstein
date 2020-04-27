@@ -50,7 +50,7 @@ public:
 	static KUInt32 Add(TJITGenericPatchObject *patch);
 
 	/// Loop through all patched and actually apply them.
-	static void DoPatchROM(KUInt32* inROMPtr, const std::string& inMachineName);
+	static void DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId);
 
 	/// Get patch at a given index.
 	static TJITGenericPatchObject *GetPatchAt(KUInt32 ix);

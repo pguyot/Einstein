@@ -29,6 +29,9 @@
 #include <FL/Fl_Preferences.H>
 #include <FL/filename.H>
 
+#include <unistd.h>
+#include <stdio.h>
+#include <errno.h>
 
 
 TFLSettings::TFLSettings() = default;
@@ -81,9 +84,6 @@ void TFLSettings::loadPreferences() {
         strcpy(buf, appPath);
         strcat(buf, "717006");
         rom.get("path", ROMPath, buf);
-
-        rom.get("machine", machine, 0);
-        SetMachineID(machine);
     }
 
     // Flash Preferences
@@ -126,7 +126,6 @@ void TFLSettings::savePreferences() {
     Fl_Preferences rom(prefs, "ROM");
     {
         rom.set("path", ROMPath);
-        rom.set("machine", machine);
     }
 
     // Flash Preferences
@@ -157,17 +156,23 @@ void TFLSettings::savePreferences() {
     }
 }
 
-void TFLSettings::SetMachineID(int inMachine)
+const char *TFLSettings::GetROMDetails(const char *inFilename)
 {
-    if (MachineID) {
-        free(MachineID);
-        MachineID = nullptr;
+    static char *text = nullptr;
+    bool allocated = false;
+    if (allocated) {
+        ::free(text);
+        text = nullptr;
+        allocated = false;
     }
-    switch (inMachine) {
-        case 0: MachineID = strdup("717006"); break;
-        case 1: MachineID = strdup("737041"); break;
-        case 2: MachineID = strdup("747129"); break;
+    int ret = fl_access(inFilename, R_OK);
+    if (ret==-1) {
+        ::asprintf(&text, "Can't read ROM file:\n%s", strerror(errno));
+        if (text) allocated = true;
+    } else {
+        text = "File is readable.";
     }
-}
 
+    return text;
+}
 

@@ -142,8 +142,6 @@ set ( sources
     Emulator/ROM/TAIFFile.h
     Emulator/ROM/TAIFROMImageWithREXes.cpp
     Emulator/ROM/TAIFROMImageWithREXes.h
-    Emulator/ROM/TFlatROMImage.cpp
-    Emulator/ROM/TFlatROMImage.h
     Emulator/ROM/TFlatROMImageWithREX.cpp
     Emulator/ROM/TFlatROMImageWithREX.h
     Emulator/ROM/TROMImage.cpp

@@ -33,7 +33,6 @@ class TFLApp;
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
-#include <FL/Fl_Choice.H>
 #include <FL/Fl_Int_Input.H>
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Slider.H>
@@ -57,23 +56,18 @@ private:
   static void cb_Power(Fl_Menu_*, void*);
 public:
   Fl_Box *wROMPath;
-  Fl_Button *wROMDownload;
-private:
-  inline void cb_wROMDownload_i(Fl_Button*, void*);
-  static void cb_wROMDownload(Fl_Button*, void*);
-public:
+  Fl_Box *wROMDetails;
   Fl_Button *wROMPathChoose;
 private:
   inline void cb_wROMPathChoose_i(Fl_Button*, void*);
   static void cb_wROMPathChoose(Fl_Button*, void*);
 public:
-  Fl_Choice *wMachineChoice;
-private:
-  inline void cb_wMachineChoice_i(Fl_Choice*, void*);
-  static void cb_wMachineChoice(Fl_Choice*, void*);
-  static Fl_Menu_Item menu_wMachineChoice[];
-public:
   Fl_Box *wFlashPath;
+  Fl_Button *wFlashPathCreate;
+private:
+  inline void cb_wFlashPathCreate_i(Fl_Button*, void*);
+  static void cb_wFlashPathCreate(Fl_Button*, void*);
+public:
   Fl_Button *wFlashPathChoose;
 private:
   inline void cb_wFlashPathChoose_i(Fl_Button*, void*);
@@ -128,35 +122,6 @@ private:
   static void cb_wAbout(Fl_Double_Window*, void*);
   inline void cb_Close_i(Fl_Button*, void*);
   static void cb_Close(Fl_Button*, void*);
-public:
-  Fl_Double_Window* createROMDownloadDialog();
-  Fl_Double_Window *wROMDownloadWindow;
-  Fl_Int_Input *wDownloadIP3;
-  Fl_Int_Input *wDownloadIP2;
-  Fl_Int_Input *wDownloadIP1;
-  Fl_Int_Input *wDownloadIP0;
-  Fl_Int_Input *wDownloadPort;
-  Fl_Box *wDownloadPath;
-  Fl_Button *wDownloadChoose;
-private:
-  inline void cb_wDownloadChoose_i(Fl_Button*, void*);
-  static void cb_wDownloadChoose(Fl_Button*, void*);
-  inline void cb_Cancel_i(Fl_Button*, void*);
-  static void cb_Cancel(Fl_Button*, void*);
-  inline void cb_Download_i(Fl_Button*, void*);
-  static void cb_Download(Fl_Button*, void*);
-public:
-  void startDump();
-  void dataRead(FL_SOCKET p);
-  void dataExcept(FL_SOCKET p);
-  static void dataReadCB(FL_SOCKET p, void *user_data);
-  static void dataExceptCB(FL_SOCKET p, void *user_data);
-  Fl_Double_Window* createROMDownloadProgressWindow();
-  Fl_Slider *wProgressSlider;
-  Fl_Button *wProgressCancel;
-private:
-  inline void cb_wProgressCancel_i(Fl_Button*, void*);
-  static void cb_wProgressCancel(Fl_Button*, void*);
 public:
   void HandlePopupMenu();
 };

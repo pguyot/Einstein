@@ -49,7 +49,7 @@ public:
     void loadPreferences();
     void savePreferences();
 
-    void SetMachineID(int inMachine);
+    const char *GetROMDetails(const char *inFilename);
 
 //protected:
     Fl_Double_Window *mSettingsPanel = nullptr;
@@ -58,8 +58,6 @@ public:
     char *appPath = nullptr;
     char *ROMPath = nullptr;
     char *FlashPath = nullptr;
-    char *MachineID = nullptr;
-    int machine;
     int screenWidth;
     int screenHeight;
     int hideMouse;
