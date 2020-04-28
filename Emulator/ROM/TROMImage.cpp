@@ -387,29 +387,6 @@ KSInt32 TROMImage::ComputeROMId(KUInt8 *inROMPtr)
 }
 
 
-KSInt32 TROMImage::ComputeROMId(const char *inFilename)
-{
-    KSInt32 id = kUnknownROM;
-
-    FILE *f = fopen(inFilename, "rb");
-    if (f) {
-        // TODO: this will not read aif or debugger images!
-        KUInt8 *ROM = (KUInt8*)::calloc(1, TMemoryConsts::kLowROMEnd);
-        ::fread(ROM, 1, TMemoryConsts::kLowROMEnd, f);
-
-        KUInt32 *c = (KUInt32*)ROM;
-        for (int i=TMemoryConsts::kLowROMEnd/4; i>0; --i) {
-            *c = htonl(*c);
-            c++;
-        }
-        id = ComputeROMId(ROM);
-        ::free(ROM);
-        ::fclose(f);
-    }
-    return id;
-}
-
-
 #if TARGET_OS_WIN32
 static int strcasecmp(const char *a, const char *b) { return stricmp(a, b); }
 #endif

@@ -29,7 +29,10 @@
 #include <FL/Fl_Preferences.H>
 #include <FL/filename.H>
 
+#if TARGET_OS_WIN32
+#else
 #include <unistd.h>
+#endif
 #include <stdio.h>
 #include <errno.h>
 

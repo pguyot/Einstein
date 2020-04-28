@@ -106,11 +106,6 @@ public:
     static const KSInt32 kMP2x00DROM = 1;
     static const KSInt32 kEMate300ROM = 2;
 
-    ///
-    /// Find out what ROM we have by calculating its CRC of a file
-    ///
-    static KSInt32 ComputeROMId(const char *inFilename);
-
     static TROMImage *LoadROMAndREX(const char *theROMImagePath, bool useMonitor, bool useExternalERex);
 
 protected:
