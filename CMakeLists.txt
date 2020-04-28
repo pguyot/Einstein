@@ -254,6 +254,7 @@ set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h PROPERTIES
 string(TIMESTAMP COMPILE_TIME_YYYY "%Y")
 string(TIMESTAMP COMPILE_TIME_MM "%m")
 string(TIMESTAMP COMPILE_TIME_DD "%d")
+
 configure_file(
 		${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h.in
 		${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h
