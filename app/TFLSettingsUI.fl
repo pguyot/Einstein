@@ -58,18 +58,6 @@ decl {\#include <FL/Fl_Native_File_Chooser.H>} {private local
 decl {\#include <FL/Fl.H>} {private local
 }
 
-decl {Fl_Window *wProgressWindow = 0L;} {private local
-}
-
-decl {FILE *fROM;} {private local
-}
-
-decl {FL_SOCKET sData;} {private local
-}
-
-decl {int recvd;} {private local
-}
-
 class TFLSettingsUI {open : {public TFLSettings}
 } {
   Function {TFLSettingsUI()} {} {
@@ -86,7 +74,7 @@ mSettingsPanel = CreateSettingsPanel();} {}
 } else {
     revertDialog();
     mSettingsPanel->hide();
-}} open selected
+}} open
       xywh {447 451 431 414} type Double visible
     } {
       Fl_Menu_Button RMB {

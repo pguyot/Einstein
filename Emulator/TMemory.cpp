@@ -113,13 +113,13 @@ TMemory::TMemory(
 		mRAMSize( inRAMSize ),
 		mRAMEnd( TMemoryConsts::kRAMStart + inRAMSize ),
 		mMMU( this ),
-		mJIT( this, &mMMU ),
 		mBankCtrlRegister( 0 ),
 		mInterruptManager( 0 ),
 		mDMAManager( 0 ),
 		mSerialNumberIx( 64 ),
 		mBPCount( 0 ),
-		mWPCount( 0 )
+		mWPCount( 0 ),
+        mJIT( this, &mMMU )
 {
 	Init();
 }
@@ -141,13 +141,13 @@ TMemory::TMemory(
 		mRAMSize( inRAMSize ),
 		mRAMEnd( TMemoryConsts::kRAMStart + inRAMSize ),
 		mMMU( this ),
-		mJIT( this, &mMMU ),
 		mBankCtrlRegister( 0 ),
 		mInterruptManager( 0 ),
 		mDMAManager( 0 ),
 		mSerialNumberIx( 64 ),
 		mBPCount( 0 ),
-		mWPCount( 0 )
+		mWPCount( 0 ),
+        mJIT( this, &mMMU )
 {
 	Init();
 }

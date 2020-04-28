@@ -52,6 +52,29 @@
 // TODO: wkae-up/launch on appointment in the future
 // TODO: add preferences to point to a UNAA archive image, so we can browse that and install quickly
 
+/*
+ Einstein threads:
+
+ - Mainthread: GUI
+    The main thread at startup runs all code that creates windows, destroys windows,
+    or handles user interaction. In FLTK, callbacks are always running in the main
+    thread. If other threads need to call FLTK, the you should do it by guarding
+    the call with `Fl::lock(); ... ; Fl::unlocka();` and possibly `myWidget->redraw();`
+
+- Emulator/Monitor thread:
+    The Emulator runs inside its own thread. If the Monitor is enabled, the Emulator
+    runs within the Monitor thread.
+
+ - Interrupt Manager:
+    The interrupt manager runs within its own thread.
+
+ - UsermodeNetwork thread:
+    Parts of the usermode network driver run within a thread.
+
+ - TCP Serial Port:
+    All TCP communications runs within a thread
+
+ */
 
 #include <K/Defines/KDefinitions.h>
 #include "TFLApp.h"
