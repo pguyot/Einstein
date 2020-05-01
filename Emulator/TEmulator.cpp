@@ -76,12 +76,12 @@ TEmulator::TEmulator(
 			TNetworkManager* inNetworkManager,
 			KUInt32 inRAMSize /* = 4194304 */ )
 	:
+        SerialPorts( this, inLog ),
 		mMemory( inLog, inROMImage, inFlashPath, inRAMSize ),
 		mProcessor( inLog, &mMemory ),
 		mInterruptManager( nil ),
 		mDMAManager( nil ),
 		mPlatformManager( nil ),
-		SerialPorts( this, inLog ),
 		mNetworkManager( inNetworkManager ),
 		mSoundManager( inSoundManager ),
 		mScreenManager( inScreenManager ),
@@ -137,12 +137,12 @@ TEmulator::TEmulator(
 					 const char* inFlashPath,
 					 KUInt32 inRAMSize)
 	:
+        SerialPorts( this, inLog ),
 		mMemory( inLog, inROMImageBuffer, inFlashPath, inRAMSize ),
 		mProcessor( inLog, &mMemory ),
 		mInterruptManager( nil ),
 		mDMAManager( nil ),
 		mPlatformManager( nil ),
-		SerialPorts( this, inLog ),
 		mNetworkManager( nil ),
 		mSoundManager( nil ),
 		mScreenManager( nil ),

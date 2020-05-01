@@ -33,10 +33,6 @@
 #include <FL/filename.H>
 #include <FL/Fl_Native_File_Chooser.H>
 #include <FL/Fl.H>
-static Fl_Window *wProgressWindow = 0L; 
-static FILE *fROM; 
-static FL_SOCKET sData; 
-static int recvd; 
 
 void TFLSettingsUI::cb_Einstein_i(Fl_Double_Window*, void*) {
   if (wQuit->visible()){

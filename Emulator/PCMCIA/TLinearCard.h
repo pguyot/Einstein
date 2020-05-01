@@ -125,7 +125,7 @@ private:
 	static const KUInt8 kCISData[0x61];
 
 	/// \name Variables
-	const KUInt32		mSize;	///< Size of the linear card.
+//	const KUInt32		mSize;	///< Size of the linear card.
 };
 
 #endif

@@ -21,37 +21,72 @@
 // $Id$
 // ==============================
 
+// ----- ASAPs
+// TODO: compile for Android
+
+// ----- User Interface improvements
 // TODO: store Monitor location and state in settings
 // TODO: launch Monitor stopped at boot point
-// TODO: menu and action to reboot Newton
-// TODO: patch ROMs for Y10k bug
-// TODO: integrate Inspector
-// TODO: integrate newt/64
 // TODO: cleanup settings dialog
-// TODO: drag'n'drop of multiple files and archives
-// TODO: compile for Android
-// TODO: complete error messages on startup for missing and unknown ROMs
-// TODO: help pages for use of Einstein, Monitor, etc.
-// TODO: help for getting started with NewtonOS, links
-// TODO: about panel must have all authors and references to the linked libraries (FLTK, ...)
-// TODO: cleanup all compile warnings on all platforms
-// TODO: release notes
-// TODO: refine and test the BUILD.md build instructions
-// TODO: drag'n'drop from network locations
-// TODO: drag'n'drop for the Unna Archive
-// TODO: multiple machines/dessions
-// TODO: automated Internet access (install and setup)
-// TODO: install essentials
-// TODO: Windows: static linking without installer/VC Libs
-// TODO: Linux: App Icon, Flatpak
-// TODO: Usermode network gobbles up first byte: https://github.com/pguyot/Einstein/issues/58
 // TODO: make menubar and toolbar optional
 // TODO: make FKey Bar for eMate emulation with volume slider (screenshot)
 // TODO: is the drop-down menu still on par?
-// TODO: printer support
-// TODO: wkae-up/launch on appointment in the future
+
+// ----- Minor Improvemnts in Usability
+// TODO: menu and action to reboot Newton
+// TODO: install essentials
+// TODO: drag'n'drop of multiple files and archives
+// TODO: drag'n'drop from network locations
+// TODO: drag'n'drop for the Unna Archive
+// TODO: automated Internet access (install and setup)
 // TODO: add preferences to point to a UNAA archive image, so we can browse that and install quickly
 
+// ----- Major new Features
+// TODO: patch ROMs for Y10k bug
+// TODO: integrate Inspector
+// TODO: integrate newt/64
+// TODO: printer support
+// TODO: wake-up/launch on appointment in the future
+
+// ----- Imporvemnets to the inner workings
+// TODO: Full Android support as a address book and calender app
+// TODO: Fix lockas and race conditions
+// TODO: cleanup all compile warnings on all platforms
+// TODO: Windows: static linking without installer/VC Libs (should work now?!)
+// TODO: Linux: App Icon, Flatpak
+// TODO: Usermode network gobbles up first byte: https://github.com/pguyot/Einstein/issues/58
+
+// ----- Documentations
+// TODO: refine and test the BUILD.md build instructions
+// TODO: about panel must have all authors and references to the linked libraries (FLTK, ...)
+// TODO: release notes
+// TODO: help pages for use of Einstein, Monitor, etc.
+// TODO: help for getting started with NewtonOS, links
+
+
+/*
+ Einstein threads:
+
+ - Mainthread: GUI
+    The main thread at startup runs all code that creates windows, destroys windows,
+    or handles user interaction. In FLTK, callbacks are always running in the main
+    thread. If other threads need to call FLTK, the you should do it by guarding
+    the call with `Fl::lock(); ... ; Fl::unlocka();` and possibly `myWidget->redraw();`
+
+- Emulator/Monitor thread:
+    The Emulator runs inside its own thread. If the Monitor is enabled, the Emulator
+    runs within the Monitor thread.
+
+ - Interrupt Manager:
+    The interrupt manager runs within its own thread.
+
+ - UsermodeNetwork thread:
+    Parts of the usermode network driver run within a thread.
+
+ - TCP Serial Port:
+    All TCP communications runs within a thread
+
+ */
 
 #include <K/Defines/KDefinitions.h>
 #include "TFLApp.h"
@@ -261,7 +296,7 @@ TFLApp::Run( int argc, char* argv[] )
     mFLSettings->savePreferences();
 
     // wait for the emulator to finish before we leave the house, too and lock the doors
-    //emulatorThread->join();
+    emulatorThread->join();
 }
 
 
