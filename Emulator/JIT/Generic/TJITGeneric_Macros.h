@@ -47,6 +47,7 @@
 		lref = ioUnit[1].fValue;							\
 		ioUnit++;											\
 	}
+#define POPNIL() { ioUnit++; }
 #define PUSHFUNC(func)										\
 	inPage->PushUnit(ioUnitCrsr, func)
 

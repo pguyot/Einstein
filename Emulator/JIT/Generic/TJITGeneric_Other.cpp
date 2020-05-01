@@ -255,8 +255,7 @@ JITInstructionProto(BranchWithinPageFindDelta)
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
 	
-	KSInt32 theDelta;
-	POPVALUE(theDelta);
+	POPNIL();
 	
 	// MMUCALLNEXT()
 	TMemory *theMemIntf = ioCPU->GetMemory();
@@ -312,8 +311,7 @@ JITInstructionProto(BranchWithLinkWithinPageFindDelta)
 	POPVALUE(theNewLR);
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-	KSInt32 theDelta;
-	POPVALUE(theDelta);
+	POPNIL();
 	
 	// set the link register
 	ioCPU->mCurrentRegisters[14] = theNewLR;

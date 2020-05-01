@@ -207,19 +207,19 @@ KUInt32 TJITGenericPatchObject::GetOffsetInROM(KSInt32 inROMId)
     if (address==kROMPatchVoid)
         return kROMPatchVoid;
 
-	if (address>=TMemoryConsts::kHighROMEnd) {
-		fprintf(stderr, "ERROR in %s %d: patch address not in ROM at 0x%08X in patch '%s'\n",
-				__FILE__, __LINE__, (unsigned)address, mName?mName:"(unnamed)");
-		return kROMPatchVoid;
-	}
+    if (address>=TMemoryConsts::kHighROMEnd) {
+        fprintf(stderr, "ERROR in %s %d: patch address not in ROM at 0x%08X in patch '%s'\n",
+                __FILE__, __LINE__, (unsigned)address, mName?mName:"(unnamed)");
+        return kROMPatchVoid;
+    }
 
     if (address&0x00000003) {
-		fprintf(stderr, "ERROR in %s %d: patch address not word-aligned at 0x%08X in patch '%s'\n",
-				__FILE__, __LINE__, (unsigned)address, mName?mName:"(unnamed)");
-		return kROMPatchVoid;
-	}
+        fprintf(stderr, "ERROR in %s %d: patch address not word-aligned at 0x%08X in patch '%s'\n",
+                __FILE__, __LINE__, (unsigned)address, mName?mName:"(unnamed)");
+        return kROMPatchVoid;
+    }
 
-	return address>>2;
+    return address>>2;
 }
 
 
