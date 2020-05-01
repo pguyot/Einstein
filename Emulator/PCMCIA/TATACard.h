@@ -122,7 +122,7 @@ public:
 
 private:
 	/// \name Variables
-	const KUInt32		mSize;	///< Size of the ATA card.
+//	const KUInt32		mSize;	///< Size of the ATA card.
 };
 
 #endif

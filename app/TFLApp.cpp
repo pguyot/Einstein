@@ -284,7 +284,7 @@ TFLApp::Run( int argc, char* argv[] )
     mFLSettings->savePreferences();
 
     // wait for the emulator to finish before we leave the house, too and lock the doors
-    //emulatorThread->join();
+    emulatorThread->join();
 }
 
 

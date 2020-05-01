@@ -286,8 +286,6 @@ TMonitor::RunEmulator()
 // -------------------------------------------------------------------------- //
 void TMonitor::StepEmulator()
 {
-	char someByte = 0;
-
 	// Get the PC.
 	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
 	
@@ -315,6 +313,7 @@ void TMonitor::StepEmulator()
 
 #if !TARGET_UI_FLTK
 	// Write a byte to the socket pair.
+    char someByte = 0;
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
 }
@@ -344,7 +343,6 @@ TMonitor::LoadEmulatorState( const char *inFilename )
 	if (inFilename==0) {
 		inFilename = "/tmp/einstein.state";
 	}
-	char someByte = 0;
 	if (TFileStream::Exists(inFilename)) {
 		mEmulator->LoadState(inFilename);
 	}
@@ -356,6 +354,7 @@ TMonitor::LoadEmulatorState( const char *inFilename )
 	rect.fRight = static_cast<KUInt16>(screen->GetScreenWidth() - 1);
 	screen->UpdateScreenRect(&rect);
 #if !TARGET_UI_FLTK
+    char someByte = 0;
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
 }
@@ -373,9 +372,9 @@ TMonitor::SnapEmulatorState( const char *inFilename )
 	// TODO: save state
 	// TODO: pause emulator
 	// TODO: signal caller
-	char someByte = 0;
 	mEmulator->SaveState(inFilename);
 #if !TARGET_UI_FLTK
+    char someByte = 0;
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
 }
@@ -390,7 +389,6 @@ TMonitor::RevertEmulatorState( const char *inFilename )
 	// TODO: load state
 	// TODO: bring emulator out of sleep state
 	// TODO: signal caller
-	char someByte = 0;
 	mEmulator->LoadState(inFilename);
 	TScreenManager *screen = mEmulator->GetScreenManager();
 	TScreenManager::SRect rect;
@@ -400,6 +398,7 @@ TMonitor::RevertEmulatorState( const char *inFilename )
 	rect.fRight = static_cast<KUInt16>(screen->GetScreenWidth() - 1);
 	screen->UpdateScreenRect(&rect);
 #if !TARGET_UI_FLTK
+    char someByte = 0;
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
 }

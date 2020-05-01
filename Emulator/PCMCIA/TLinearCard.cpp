@@ -51,8 +51,8 @@ const KUInt8 TLinearCard::kCISData[0x61] = {
 //  * TLinearCard( KUInt32 )
 // -------------------------------------------------------------------------- //
 TLinearCard::TLinearCard( KUInt32 inSize )
-	:
-		mSize( inSize )
+//	:
+//		mSize( inSize )
 {
 }
 
