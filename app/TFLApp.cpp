@@ -21,36 +21,48 @@
 // $Id$
 // ==============================
 
+// ----- ASAPs
+// TODO: compile for Android
+
+// ----- User Interface improvements
 // TODO: store Monitor location and state in settings
 // TODO: launch Monitor stopped at boot point
-// TODO: menu and action to reboot Newton
-// TODO: patch ROMs for Y10k bug
-// TODO: integrate Inspector
-// TODO: integrate newt/64
 // TODO: cleanup settings dialog
-// TODO: drag'n'drop of multiple files and archives
-// TODO: compile for Android
-// TODO: complete error messages on startup for missing and unknown ROMs
-// TODO: help pages for use of Einstein, Monitor, etc.
-// TODO: help for getting started with NewtonOS, links
-// TODO: about panel must have all authors and references to the linked libraries (FLTK, ...)
-// TODO: cleanup all compile warnings on all platforms
-// TODO: release notes
-// TODO: refine and test the BUILD.md build instructions
-// TODO: drag'n'drop from network locations
-// TODO: drag'n'drop for the Unna Archive
-// TODO: multiple machines/dessions
-// TODO: automated Internet access (install and setup)
-// TODO: install essentials
-// TODO: Windows: static linking without installer/VC Libs
-// TODO: Linux: App Icon, Flatpak
-// TODO: Usermode network gobbles up first byte: https://github.com/pguyot/Einstein/issues/58
 // TODO: make menubar and toolbar optional
 // TODO: make FKey Bar for eMate emulation with volume slider (screenshot)
 // TODO: is the drop-down menu still on par?
-// TODO: printer support
-// TODO: wkae-up/launch on appointment in the future
+
+// ----- Minor Improvemnts in Usability
+// TODO: menu and action to reboot Newton
+// TODO: install essentials
+// TODO: drag'n'drop of multiple files and archives
+// TODO: drag'n'drop from network locations
+// TODO: drag'n'drop for the Unna Archive
+// TODO: automated Internet access (install and setup)
 // TODO: add preferences to point to a UNAA archive image, so we can browse that and install quickly
+
+// ----- Major new Features
+// TODO: patch ROMs for Y10k bug
+// TODO: integrate Inspector
+// TODO: integrate newt/64
+// TODO: printer support
+// TODO: wake-up/launch on appointment in the future
+
+// ----- Imporvemnets to the inner workings
+// TODO: Full Android support as a address book and calender app
+// TODO: Fix lockas and race conditions
+// TODO: cleanup all compile warnings on all platforms
+// TODO: Windows: static linking without installer/VC Libs (should work now?!)
+// TODO: Linux: App Icon, Flatpak
+// TODO: Usermode network gobbles up first byte: https://github.com/pguyot/Einstein/issues/58
+
+// ----- Documentations
+// TODO: refine and test the BUILD.md build instructions
+// TODO: about panel must have all authors and references to the linked libraries (FLTK, ...)
+// TODO: release notes
+// TODO: help pages for use of Einstein, Monitor, etc.
+// TODO: help for getting started with NewtonOS, links
+
 
 /*
  Einstein threads:
