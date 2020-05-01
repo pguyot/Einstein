@@ -185,7 +185,9 @@ const char *TFLSettings::GetROMDetails(const char *inFilename)
                 break;
             case TROMImage::kMP2x00DROM:
                 strncpy(text,
-                        "This is a supported MP2x00 D ROM\nVersion 7xxxxx\n...",
+                        "MessagePad MP2x00 D ROM found.\n"
+                        "ROM Version D-2.1 (747129)-0\n"
+                        "Can be updated to D-2.1 (747260).",
                         text_size);
                 break;
             case TROMImage::kEMate300ROM:

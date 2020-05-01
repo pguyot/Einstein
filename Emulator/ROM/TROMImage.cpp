@@ -378,7 +378,9 @@ KSInt32 TROMImage::ComputeROMId(KUInt8 *inROMPtr)
         case 0x62081e10: // eMate 300(US): v2.2.00-0(737041) can be updated to v2.1/737246
             romID = kEMate300ROM;
             break;
-        // case : // MP2100(D): (747129)  (747260)
+        case 0xa9862ccc: // MP2100(D): (747129)  (747260)
+            romID = kMP2x00DROM;
+            break;
         default:
             fprintf(stderr, "Unknown ROM with CRC 0x%08x. No patches will be applied.\n", crc);
             break;
@@ -424,7 +426,8 @@ TROMImage *TROMImage::LoadROMAndREX(const char *theROMImagePath, bool useMonitor
     // Or is it the pair of "Senior CirrusNoDebug image" and "Senior CirrusNoDebug high"?
     const char *name = fl_filename_name(theROMImagePath);
     if (   name
-        && strncmp(name, "Senior Cirrus", 13)==0
+        &&  (   strncmp(name, "Senior Cirrus", 13)==0
+             || strncmp(name, "Senior DCirrus", 14)==0 )
         && strstr(name, "image"))
     {
         char theREX0Path[FL_PATH_MAX];
