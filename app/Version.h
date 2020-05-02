@@ -25,10 +25,10 @@
 #define _VERSION_H
 
 #define PROJECT_NAME "Einstein"
-#define PROJECT_VER  "2020.4.0"
+#define PROJECT_VER  "2020.4.1"
 #define PROJECT_VER_MAJOR "2020"
 #define PROJECT_VER_MINOR "4"
-#define PROJECT_VER_PATCH "0"
+#define PROJECT_VER_PATCH "1"
 
 #define COMPILE_TIME_YYYY 2020
 #define COMPILE_TIME_MM 05
