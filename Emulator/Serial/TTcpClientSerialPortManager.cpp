@@ -49,8 +49,6 @@
 #include "Emulator/TInterruptManager.h"
 #include "Emulator/TMemory.h"
 
-#include <FL/fl_ask.H>
-
 
 /*
  The TCP Client class emulates a serial port by connecting to the server
@@ -595,7 +593,7 @@ void TTcpClientSerialPortManager::NSSetOptions(TNewt::RefArg inFrame)
 	}
 	NewtRef tcpPortRef = GetFrameSlot(frame, MakeSymbol("tcpPort"));
 	if (RefIsString(tcpPortRef)) {
-		RefToString(tcpPortRef, portStr, sizeof(portStr));
+		RefToString(tcpPortRef, portStr, (int)sizeof(portStr));
 		port = atoi(portStr);
 		if (port==0) port = 3679;
 		setPort = true;

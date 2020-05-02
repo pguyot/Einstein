@@ -45,7 +45,7 @@
 #include "Emulator/Serial/TPtySerialPortManager.h"
 #include "Emulator/Serial/TBasiliskIISerialPortManager.h"
 #endif
-#if TARGET_OS_MAC || TAGRET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
+#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
 #include "Emulator/Serial/TTcpClientSerialPortManager.h"
 #endif
 
@@ -139,15 +139,18 @@ TSerialPortManager *TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inD
 			currentDriver = new TBasiliskIISerialPortManager(mLog, inPort);
 			break;
 #endif
-#if TARGET_OS_MAC || TAGRET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
+#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
 		case kTcpClientDriver:
 			currentDriver = new TTcpClientSerialPortManager(mLog, inPort);
 			break;
 #endif
 		default:
 			currentDriver = new TBasicSerialPortManager(mLog, inPort);
-			mLog->FLogLine("ERROR: request for unsupported serial driver type %d on port %d\n", inDriverId, inPort);
-	}
+			if (mLog)
+    			mLog->FLogLine("ERROR: request for unsupported serial driver type %d on port %d\n", inDriverId, inPort);
+			else
+			    fprintf(stderr, "ERROR: request for unsupported serial driver type %d on port %d\n", inDriverId, inPort);
+    }
 	mDriver[inPort] = currentDriver;
 
 	currentDriver->run(mEmulator->GetInterruptManager(),

@@ -30,92 +30,97 @@ include_directories(
 
 SET (SourceFiles
 		# Host support
-		${LOCAL_PATH}/app/TAndroidNativeApp.cp
+		${LOCAL_PATH}/app/TAndroidNativeApp.cpp
+		${LOCAL_PATH}/app/json11.cpp
 		# Einstein Emulator Base Code
-		${LOCAL_PATH}/Emulator/TARMProcessor.cp
-		${LOCAL_PATH}/Emulator/TDMAManager.cp
-		${LOCAL_PATH}/Emulator/TEmulator.cp
-		${LOCAL_PATH}/Emulator/TFlash.cp
-		${LOCAL_PATH}/Emulator/TInterruptManager.cp
-		${LOCAL_PATH}/Emulator/TMemory.cp
-		${LOCAL_PATH}/Emulator/TMMU.cp
-		${LOCAL_PATH}/Emulator/TNativePrimitives.cp
+		${LOCAL_PATH}/Emulator/TARMProcessor.cpp
+		${LOCAL_PATH}/Emulator/TDMAManager.cpp
+		${LOCAL_PATH}/Emulator/TEmulator.cpp
+		${LOCAL_PATH}/Emulator/TFlash.cpp
+		${LOCAL_PATH}/Emulator/TInterruptManager.cpp
+		${LOCAL_PATH}/Emulator/TMemory.cpp
+		${LOCAL_PATH}/Emulator/TMMU.cpp
+		${LOCAL_PATH}/Emulator/TNativePrimitives.cpp
 		# Manage Paths and File Access
-		${LOCAL_PATH}/Emulator/Files/TFileManager.cp
+		${LOCAL_PATH}/Emulator/Files/TFileManager.cpp
 		# GRab Owner Information form the Host and make it available to NewtonOS
-		${LOCAL_PATH}/Emulator/Host/THostInfo.cp
+		${LOCAL_PATH}/Emulator/Host/THostInfo.cpp
 		# Just In Time Compiler and Emulator of ARM CPU
-		${LOCAL_PATH}/Emulator/JIT/TJITCache.cp
-		${LOCAL_PATH}/Emulator/JIT/TJITPage.cp
-		${LOCAL_PATH}/Emulator/JIT/TJITPerformance.cp
+		${LOCAL_PATH}/Emulator/JIT/TJITCache.cpp
+		${LOCAL_PATH}/Emulator/JIT/TJITPage.cpp
+		${LOCAL_PATH}/Emulator/JIT/TJITPerformance.cpp
 		# EMulating ARM with "C" Code
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_Multiply.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_MultiplyAndAccumulate.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_Other.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_Test.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGenericPage.cp
-		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGenericROMPatch.cp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_Multiply.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_MultiplyAndAccumulate.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_Other.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_Test.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGenericPage.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGenericROMPatch.cpp
 		# Logging what's happening during EMulation
-		${LOCAL_PATH}/Emulator/Log/TBufferLog.cp
-		${LOCAL_PATH}/Emulator/Log/TFileLog.cp
-		${LOCAL_PATH}/Emulator/Log/TLog.cp
-		${LOCAL_PATH}/Emulator/Log/TStdOutLog.cp
+		${LOCAL_PATH}/Emulator/Log/TBufferLog.cpp
+		${LOCAL_PATH}/Emulator/Log/TFileLog.cpp
+		${LOCAL_PATH}/Emulator/Log/TLog.cpp
+		${LOCAL_PATH}/Emulator/Log/TStdOutLog.cpp
 		# Base COde to allow NewtonOS to call EInstein EMulation Code
-		${LOCAL_PATH}/Emulator/NativeCalls/TNativeCalls.cp
-		${LOCAL_PATH}/Emulator/NativeCalls/TVirtualizedCalls.cp
-		${LOCAL_PATH}/Emulator/NativeCalls/TVirtualizedCallsPatches.cp
+		${LOCAL_PATH}/Emulator/NativeCalls/TNativeCalls.cpp
+		${LOCAL_PATH}/Emulator/NativeCalls/TVirtualizedCalls.cpp
+		${LOCAL_PATH}/Emulator/NativeCalls/TVirtualizedCallsPatches.cpp
 		# Network EMulation
-		${LOCAL_PATH}/Emulator/Network/TNetworkManager.cp
-		${LOCAL_PATH}/Emulator/Network/TUsermodeNetwork.cp
+		${LOCAL_PATH}/Emulator/Network/TNetworkManager.cpp
+		${LOCAL_PATH}/Emulator/Network/TUsermodeNetwork.cpp
 		# PCMCIA Card Slot and Card Emulation
-		${LOCAL_PATH}/Emulator/PCMCIA/TATACard.cp
-		${LOCAL_PATH}/Emulator/PCMCIA/TLinearCard.cp
-		${LOCAL_PATH}/Emulator/PCMCIA/TNE2000Card.cp
-		${LOCAL_PATH}/Emulator/PCMCIA/TPCMCIACard.cp
-		${LOCAL_PATH}/Emulator/PCMCIA/TPCMCIAController.cp
+		${LOCAL_PATH}/Emulator/PCMCIA/TATACard.cpp
+		${LOCAL_PATH}/Emulator/PCMCIA/TLinearCard.cpp
+		${LOCAL_PATH}/Emulator/PCMCIA/TNE2000Card.cpp
+		${LOCAL_PATH}/Emulator/PCMCIA/TPCMCIACard.cpp
+		${LOCAL_PATH}/Emulator/PCMCIA/TPCMCIAController.cpp
 		# Information Interchange between NewtonOS and the Host
-		${LOCAL_PATH}/Emulator/Platform/TPlatformManager.cp
+        ${LOCAL_PATH}/Emulator/Platform/TPlatformManager.cpp
+        ${LOCAL_PATH}/Emulator/Platform/TNewt.cpp
 		# Support for loading various ROM Files
-		${LOCAL_PATH}/Emulator/ROM/TAIFFile.cp
-		${LOCAL_PATH}/Emulator/ROM/TAIFROMImageWithREXes.cp
-		${LOCAL_PATH}/Emulator/ROM/TFlatROMImage.cp
-		${LOCAL_PATH}/Emulator/ROM/TFlatROMImageWithREX.cp
-		${LOCAL_PATH}/Emulator/ROM/TROMImage.cp
+		${LOCAL_PATH}/Emulator/ROM/TAIFFile.cpp
+		${LOCAL_PATH}/Emulator/ROM/TAIFROMImageWithREXes.cpp
+		${LOCAL_PATH}/Emulator/ROM/TFlatROMImageWithREX.cpp
+		${LOCAL_PATH}/Emulator/ROM/TROMImage.cpp
 		# Screen EMulation
-		${LOCAL_PATH}/Emulator/Screen/TScreenManager.cp
-		${LOCAL_PATH}/Emulator/Screen/TAndroidNativeScreenManager.cp
+		${LOCAL_PATH}/Emulator/Screen/TScreenManager.cpp
+		${LOCAL_PATH}/Emulator/Screen/TAndroidNativeScreenManager.cpp
 		# Serial Port Emulation
-		${LOCAL_PATH}/Emulator/Serial/TSerialPortManager.cp
-		${LOCAL_PATH}/Emulator/Serial/TBasicSerialPortManager.cp
-		${LOCAL_PATH}/Emulator/Serial/TTcpClientSerialPortManager.cp
+        ${LOCAL_PATH}/Emulator/Serial/TSerialPorts.cpp
+        ${LOCAL_PATH}/Emulator/Serial/TSerialPortManager.cpp
+		${LOCAL_PATH}/Emulator/Serial/TBasicSerialPortManager.cpp
+		${LOCAL_PATH}/Emulator/Serial/TTcpClientSerialPortManager.cpp
 		# Sound Emulation
-		${LOCAL_PATH}/Emulator/Sound/TBufferedSoundManager.cp
-		${LOCAL_PATH}/Emulator/Sound/TAndroidNativeSoundManager.cp
-		${LOCAL_PATH}/Emulator/Sound/TSoundManager.cp
+		${LOCAL_PATH}/Emulator/Sound/TBufferedSoundManager.cpp
+		${LOCAL_PATH}/Emulator/Sound/TAndroidNativeSoundManager.cpp
+		${LOCAL_PATH}/Emulator/Sound/TSoundManager.cpp
 		# Debug EInstein while running
-		${LOCAL_PATH}/Monitor/TSymbolList.cp
-		${LOCAL_PATH}/Monitor/UDisasm.cp
+		${LOCAL_PATH}/Monitor/TSymbolList.cpp
+		${LOCAL_PATH}/Monitor/UDisasm.cpp
 		# Cross Platform Support Code
-		${LOCAL_PATH}/K/Misc/TCircleBuffer.cp
-		${LOCAL_PATH}/K/Misc/TMappedFile.cp
-		${LOCAL_PATH}/K/Streams/TFileStream.cp
-		${LOCAL_PATH}/K/Streams/TStream.cp
-		${LOCAL_PATH}/K/Threads/TCondVar.cp
-		${LOCAL_PATH}/K/Threads/TMutex.cp
-		${LOCAL_PATH}/K/Threads/TThread.cp
-		${LOCAL_PATH}/K/Unicode/UUTF16Conv.cp
-		${LOCAL_PATH}/K/Unicode/UUTF16CStr.cp
+		${LOCAL_PATH}/K/Misc/TCircleBuffer.cpp
+        ${LOCAL_PATH}/K/Misc/TMappedFile.cpp
+        ${LOCAL_PATH}/K/Misc/CRC32.cpp
+		${LOCAL_PATH}/K/Streams/TFileStream.cpp
+		${LOCAL_PATH}/K/Streams/TStream.cpp
+		${LOCAL_PATH}/K/Threads/TCondVar.cpp
+		${LOCAL_PATH}/K/Threads/TMutex.cpp
+		${LOCAL_PATH}/K/Threads/TThread.cpp
+		${LOCAL_PATH}/K/Unicode/UUTF16Conv.cpp
+		${LOCAL_PATH}/K/Unicode/UUTF16CStr.cpp
+
+        ${LOCAL_PATH}/Drivers/EinsteinRex.cpp
 )
 
 set_source_files_properties(${SourceFiles} PROPERTIES LANGUAGE CXX)

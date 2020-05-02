@@ -40,7 +40,9 @@
 #endif
 
 // FLTK (only filename handling, can be removed)
+#if TARGET_UI_FLTK
 #include <FL/filename.H>
+#endif
 
 // K
 #include <K/Misc/TMappedFile.h>
@@ -87,7 +89,7 @@ void
 TROMImage::CreateImage(const KUInt8* inBuffer)
 {
 	// Patch the version number
-	// TODO: we could have a much more complete REX amangement that can add or remove packages
+	// TODO: we could have a much more complete REX management that can add or remove packages
 	//       from the REX file as needed, so that we can, for example, include the internet enabler.
 	// TODO: at some point, we must also patch known ROMs for the current decade to fix the Y10k bug
     if (memcmp(inBuffer+0x00806b74, "2020.2", 7)==0) {
@@ -393,6 +395,31 @@ KSInt32 TROMImage::ComputeROMId(KUInt8 *inROMPtr)
 static int strcasecmp(const char *a, const char *b) { return stricmp(a, b); }
 #endif
 
+#if !TARGET_UI_FLTK
+#define FL_PATH_MAX PATH_MAX
+const char *fl_filename_name(const char *path)
+{
+    const char *win = strrchr(path, '\\');
+    const char *bsd = strrchr(path, '/');
+    const char *name = (win>bsd) ? win : bsd;
+    if (name==nullptr) name = path;
+    return name;
+}
+const char *fl_filename_ext(const char *path)
+{
+    const char *name = fl_filename_name(path);
+    const char *dot = strrchr(path, '/');
+    if (dot>name)
+        return dot;
+    else
+        return path + strlen(path);
+}
+void fl_filename_setext(char *buf, int size, const char *ext)
+{
+    char *d = (char*)fl_filename_ext(buf);
+    strcpy(d, ext);
+}
+#endif
 
 TROMImage *TROMImage::LoadROMAndREX(const char *theROMImagePath, bool useMonitor, bool useBuiltinERex)
 {

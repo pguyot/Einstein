@@ -254,7 +254,6 @@ private:
     TSoundManager*		mSoundManager;		///< Gestionnaire de son.
     TScreenManager*		mScreenManager;		///< Gestionnaire d'�cran.
     TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
-    TSerialPortManager* mExtrSerialPortManager = nullptr;
     TLog*				mLog;				///< Log.
     TNetworkManager*	mNetworkManager;	///< network connection
     bool				mQuit;				///< If we should quit.
@@ -300,6 +299,7 @@ public:
     static int pHostID;
 
     static KUInt32 pScreenTopPadding;
+    static KUInt32 pScreenBottomPadding;
     static KUInt32 pScreenWidth;
     static KUInt32 pScreenHeight;
     static const int pNScreenBuffer = 3;
