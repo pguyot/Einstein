@@ -21,7 +21,7 @@ set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
 
 set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-project("Einstein" VERSION "2020.4.1")
+project("Einstein" VERSION "2020.4.2")
 
 set ( sources 
 	Emulator/Files/TFileManager.cpp

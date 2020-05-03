@@ -186,11 +186,17 @@ public:
 	///
 	void	EvalNewtonScript( const char* inNewtonScriptCode );
 
-	///
-	/// Install a package (the package will be added to a queue, sliced, read by
-	/// the newtonscript task).
-	///
-	void	InstallPackage( const char* inPackagePath );
+    ///
+    /// Install a package (the package will be added to a queue, sliced, read by
+    /// the newtonscript task).
+    ///
+    void    InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSize);
+
+    ///
+    /// Install a package (the package will be added to a queue, sliced, read by
+    /// the newtonscript task).
+    ///
+    void    InstallPackage( const char* inPackagePath );
 
 	///
 	/// Install all packages that were added to the directory on the host computer

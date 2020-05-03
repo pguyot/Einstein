@@ -131,6 +131,9 @@
 #include "Emulator/Serial/TSerialPortManager.h"
 #include "Emulator/Serial/TTcpClientSerialPortManager.h"
 
+// Http Client GET
+#include "HTTPRequest.hpp"
+
 // Additional managers for every supported platform
 #if TARGET_OS_WIN32
 #include "Emulator/Sound/TWaveSoundManager.h"
@@ -357,6 +360,7 @@ void TFLApp::UserActionToggleNetworkCard()
  \param filenames This is a list of filenames, separated by \n.
 
  \todo Support packages that are compressed in the common old compression formats .hqx, .sit, .zip, .sit.hqx, .sae(?)
+ \todo grab apckages from the net using https://github.com/elnormous/HTTPRequest
  */
 void TFLApp::InstallPackagesFromURI(const char *filenames)
 {
@@ -368,9 +372,6 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
     // Check the filename extension! Do that in the event handler too.
     char *fName = strdup(filenames);
 
-    // remove all the %nn encoding and insert the corresponding characters
-    fl_decode_uri(fName);
-
     // grab the start of the first filename
     char *fn = fName;
     for (;;) {
@@ -378,20 +379,35 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
         char *nl = strchr(fn, '\n');
         if (nl) *nl = 0;
 
-        // on some platforms, the filename starts with "file://" or other prefixes, so remove them
-        char *prefix = fn;
-        for (;;) {
-            KUInt8 p = *prefix;
-            if (p==0 || p>=0x80 || (!isalnum(p) && p!='_')) {
-                if (strncmp(prefix, "://", 3)==0)
-                    fn = prefix + 3;
-                break;
-            }
-            prefix++;
-        }
+        // remove all the %nn encoding and insert the corresponding characters
+        fl_decode_uri(fn);
 
-        // install the package
-        mPlatformManager->InstallPackage(fn);
+        // On macOS, dropped files are just absolute BSD paths, starting with a '/'
+        // URLs start with http://, for example "http://www.unna.org/unna/games/Pyramid/Pyramid.pkg"
+        if (strncmp(fn, "http://", 7)==0) {
+            if (strcmp(fl_filename_ext(fn), ".pkg")==0) {
+                try {
+                    http::Request request(fn);
+                    const http::Response response = request.send("GET");
+                    const KUInt8 *package = reinterpret_cast<const KUInt8*>(response.body.data());
+                    KUInt32 packageSize = static_cast<KUInt32>(response.body.size());
+                    if (memcmp(package, "package", 7)!=0) {
+                        fl_message("Can't install\n%s\nThis is not a Newton package.", fn);
+                    } else {
+                        mPlatformManager->InstallPackage(package, packageSize);
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    fl_message("Can't install\n%s\n%s", fn, e.what());
+                }
+            } else {
+                fl_message("Can't install\n%s\nNetwork download supports only .pkg files.", fn);
+            }
+        } else {
+            // install the package
+            mPlatformManager->InstallPackage(fn);
+        }
 
         // if there is another filename, loop around
         if (nl)
@@ -404,7 +420,7 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
 
 
 /**
- User asks EIntein to install a package.
+ User asks Einstein to install a package.
 
  We open a file chooser dialog and then take the package selected and push it to the emulator.
 

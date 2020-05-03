@@ -563,6 +563,21 @@ TPlatformManager::EvalNewtonScript( const char* inNewtonScriptCode )
 }
 
 // -------------------------------------------------------------------------- //
+//  * InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSIze)
+// -------------------------------------------------------------------------- //
+void TPlatformManager::InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSize)
+{
+    // TODO: we should probably do some basic check if this is really package data
+    // TODO: we should return meaningful erroro codes, so the app can inform the user
+    SendBufferAEvent(kNewtPort,
+                     kEinsteinNSEventClass,
+                     kEventRuntimeWithSData,
+                     kPackageInstallData,
+                     inPackageSize,
+                     inPackageData );
+}
+
+// -------------------------------------------------------------------------- //
 //  * InstallPackage( const char* )
 // -------------------------------------------------------------------------- //
 void
@@ -585,13 +600,7 @@ TPlatformManager::InstallPackage( const char* inPackagePath )
 			if ( mLog )
 				mLog->FLogLine( "Problem while reading '%s'", inPackagePath );
 		} else {
-			SendBufferAEvent(
-				kNewtPort,
-				kEinsteinNSEventClass,
-				kEventRuntimeWithSData,
-				kPackageInstallData,
-				(KUInt32) theSize,
-				theBuffer );
+            InstallPackage(theBuffer, (KUInt32)theSize);
 		}
 		
 		(void) ::fclose( thePackageFile );
