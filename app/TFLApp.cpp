@@ -132,6 +132,7 @@
 #include "Emulator/Serial/TTcpClientSerialPortManager.h"
 
 // Http Client GET
+#undef min
 #include "HTTPRequest.hpp"
 
 // Additional managers for every supported platform
@@ -383,8 +384,9 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
         fl_decode_uri(fn);
 
         // On macOS, dropped files are just absolute BSD paths, starting with a '/'
+        // On MSWindows, dropped files are absolute file paths, starting with 'C:\' or anothor drive name
         // URLs start with http://, for example "http://www.unna.org/unna/games/Pyramid/Pyramid.pkg"
-        if (strncmp(fn, "http://", 7)==0) {
+        if (strncmp(fn, "http://", 7)==0 || strncmp(fn, "https://", 8) == 0) {
             if (strcmp(fl_filename_ext(fn), ".pkg")==0) {
                 try {
                     http::Request request(fn);
