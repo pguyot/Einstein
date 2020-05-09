@@ -108,9 +108,9 @@ TJITGenericPatchObject *TJITGenericPatchManager::GetPatchAt(KUInt32 ix)
 	if (ix<mPatchListTop) {
 		return mPatchList[ix];
 	} else {
-		fprintf(stderr, "ERROR in %s %d: accessing invalid patch index %d of %d\n",
-				__FILE__, __LINE__, (int)ix, (int)mPatchListTop);
-		return 0;
+//		fprintf(stderr, "ERROR in %s %d: accessing invalid patch index %d of %d\n",
+//				__FILE__, __LINE__, (int)ix, (int)mPatchListTop);
+		return NULL;
 	}
 }
 
