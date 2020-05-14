@@ -699,6 +699,7 @@ void *TAndroidNativeCore::thread_entry(void* param)
 /**
  Allocate memory for our internal screen buffer.
  TODO: react to screen changes
+ TODO: user should be able to change screen margins on the fly
  */
 void TAndroidNativeCore::allocate_screen()
 {
@@ -716,7 +717,7 @@ bool TAndroidNativeCore::copy_screen()
         ARect r;
         popDirtyRect(r);
 
-        /*Now follow a horrible hack.
+        /* Now follows a horrible hack.
          *
          * OK, so here is the long story for this optimisations. We used to spend a lot of time
          * copying screen content from the Activity RGB buffer into the hardware buffer when we
@@ -733,6 +734,14 @@ bool TAndroidNativeCore::copy_screen()
          *
          * If it works, it reduces CPU load by up to 60% in some special cases. Writing on the
          * screen is one of those cases, and should now be much faster, even on slow hosts.
+         *
+         * FIXME: Android of course optimizes buffer use, and we need to take into account that
+         * the user might focus on another app. When the focus goes back to Einstein, we may get
+         * the same buffers, but their content may be completely different.
+         *
+         * TODO: make sure that the entire screen is redrawn after focus events and similar
+         * TODO: hide a buffer serial identifier in the blue channel of the screen buffer to verify
+         *       that buffer content hasn't changed completely
          */
         static void *knownScreenBuffer[pNScreenBuffer] = { NULL };
         void *bits = pNativeWindowBuffer.bits;

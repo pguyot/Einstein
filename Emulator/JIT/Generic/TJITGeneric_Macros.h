@@ -277,10 +277,14 @@ GetShift(
 					// ROR by more than 32 are like ROR between 1 and 32.
 					amount = ((amount - 1) & 0x1F) + 1;
 				}
-				
 				carry = theResult & (1 << (32 - amount));
-				theResult = (theResult >> amount)
-					| (theResult << (32 - amount));
+				// If n is 32, then the value of the result is same as the value in Rm, 
+                // and if the carry flag is updated, it is updated to bit[31] of Rm.
+ 				if (amount < 32)
+ 				{
+ 					theResult = (theResult >> amount)
+ 						| (theResult << (32 - amount));
+ 				}				
 			} else if (!registerBased) {
 				// ROR #0 actually is RRX
 				carry = theResult & 0x1;
@@ -410,9 +414,13 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, bool inCPSR_C, KUInt32 i
 					// ROR by more than 32 are like ROR between 1 and 32.
 					amount = ((amount - 1) & 0x1F) + 1;
 				}
-				
-				theResult = (theResult >> amount)
-								| (theResult << (32 - amount));
+                // If n is 32, then the value of the result is same as the value in Rm, 
+                // and if the carry flag is updated, it is updated to bit[31] of Rm.
+ 				if (amount < 32)
+ 				{
+ 					theResult = (theResult >> amount)
+ 								| (theResult << (32 - amount));
+ 				}	
 			} else if (!registerBased) {
 				// ROR #0 actually is RRX
 				if (inCPSR_C)
