@@ -199,10 +199,10 @@
 		C9BE33D0133E64F60052EA2F /* TJITPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cpp */; };
 		C9D54E1415FA23E700D91131 /* TFiber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cpp */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cpp */; };
-		DA4BA40D1A3A0160002BDB80 /* tests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B61A35E76400092B5A /* tests.cp */; };
-		DA4BA40E1A3A01F7002BDB80 /* UHostInfoTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B81A35E76400092B5A /* UHostInfoTests.cp */; };
-		DA4BA40F1A3A01F7002BDB80 /* UMemoryTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0BA1A35E76400092B5A /* UMemoryTests.cp */; };
-		DA4BA4101A3A01F7002BDB80 /* UProcessorTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0BC1A35E76400092B5A /* UProcessorTests.cp */; };
+		DA4BA40D1A3A0160002BDB80 /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B61A35E76400092B5A /* tests.cpp */; };
+		DA4BA40E1A3A01F7002BDB80 /* UHostInfoTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B81A35E76400092B5A /* UHostInfoTests.cpp */; };
+		DA4BA40F1A3A01F7002BDB80 /* UMemoryTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0BA1A35E76400092B5A /* UMemoryTests.cpp */; };
+		DA4BA4101A3A01F7002BDB80 /* UProcessorTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0BC1A35E76400092B5A /* UProcessorTests.cpp */; };
 		DA4BA4121A3A028C002BDB80 /* TNativePrimitives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34C6111B7C08002165EC /* TNativePrimitives.cpp */; };
 		DA4BA4131A3A028C002BDB80 /* TMemory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34C1111B7C08002165EC /* TMemory.cpp */; };
 		DA4BA4141A3A028C002BDB80 /* TMMU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34C4111B7C08002165EC /* TMMU.cpp */; };
@@ -280,9 +280,9 @@
 		DA4BA4721A3A3B78002BDB80 /* TNullScreenManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4BA46E1A3A3B78002BDB80 /* TNullScreenManager.cpp */; };
 		DA4BA4741A3A3B78002BDB80 /* TNullScreenManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4BA46E1A3A3B78002BDB80 /* TNullScreenManager.cpp */; };
 		DA4BA4751A3A3B78002BDB80 /* TNullScreenManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4BA46E1A3A3B78002BDB80 /* TNullScreenManager.cpp */; };
-		DA4FF1001A35E76400092B5A /* UHostInfoTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B81A35E76400092B5A /* UHostInfoTests.cp */; };
-		DA4FF1011A35E76400092B5A /* UMemoryTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0BA1A35E76400092B5A /* UMemoryTests.cp */; };
-		DA4FF1021A35E76400092B5A /* UProcessorTests.cp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0BC1A35E76400092B5A /* UProcessorTests.cp */; };
+		DA4FF1001A35E76400092B5A /* UHostInfoTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B81A35E76400092B5A /* UHostInfoTests.cpp */; };
+		DA4FF1011A35E76400092B5A /* UMemoryTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0BA1A35E76400092B5A /* UMemoryTests.cpp */; };
+		DA4FF1021A35E76400092B5A /* UProcessorTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0BC1A35E76400092B5A /* UProcessorTests.cpp */; };
 		DA4FF1041A35E9CD00092B5A /* TLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3464111B7C07002165EC /* TLog.cpp */; };
 		DA4FF1051A35E9CD00092B5A /* TStdOutLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3466111B7C07002165EC /* TStdOutLog.cpp */; };
 		DA4FF1091A35E9E600092B5A /* UUTF16Conv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334D111B7570002165EC /* UUTF16Conv.cpp */; };
@@ -360,6 +360,16 @@
 		DA52C89E1A40935B008A17D0 /* TVirtualizedCallsPatches.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cpp */; };
 		DA52C89F1A40935B008A17D0 /* TVirtualizedCallsPatches.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cpp */; };
 		DA6F86431A34FBB7006BC81E /* TMonitorCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86421A34FBB7006BC81E /* TMonitorCore.cpp */; };
+		DAD09651246F615600CADBF3 /* TFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F156B80F1CFA48B0004661E8 /* TFileManager.cpp */; };
+		DAD09652246F61A300CADBF3 /* TSerialPorts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92FD821242D50CF00D18F58 /* TSerialPorts.cpp */; };
+		DAD09653246F61AB00CADBF3 /* TBasicSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TBasicSerialPortManager.cpp */; };
+		DAD09654246F61AE00CADBF3 /* TPipesSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cpp */; };
+		DAD09655246F61B400CADBF3 /* TPtySerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C94C96DB20937E780099001D /* TPtySerialPortManager.cpp */; };
+		DAD09656246F61B800CADBF3 /* TBasiliskIISerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C935F782209CD68900351905 /* TBasiliskIISerialPortManager.cpp */; };
+		DAD09657246F61BB00CADBF3 /* TTcpClientSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99656A024258CC900D216A2 /* TTcpClientSerialPortManager.cpp */; };
+		DAD09658246F61D500CADBF3 /* TPathHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F1E2C2A11E5B5D7A0074F2D3 /* TPathHelper.cpp */; };
+		DAD0965A246F620A00CADBF3 /* TNewt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C93AAD84242D7F4000B77558 /* TNewt.cpp */; };
+		DAD0965B246F622100CADBF3 /* TObjCBridgeCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = F150BC3B1CF630CC0077CDB7 /* TObjCBridgeCalls.mm */; };
 		DAE9EF031A3B29150095BFAF /* Tests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAE9EF021A3B29150095BFAF /* Tests-Info.plist */; };
 		DAE9EF251A3CFCC70095BFAF /* TRAMLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DAE9EF221A3CFACC0095BFAF /* TRAMLog.cpp */; };
 		F115FF131A2EA415001F3D65 /* Einstein.xib in Resources */ = {isa = PBXBuildFile; fileRef = F115FF111A2EA415001F3D65 /* Einstein.xib */; };
@@ -793,15 +803,15 @@
 		DA4BA46E1A3A3B78002BDB80 /* TNullScreenManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNullScreenManager.cpp; sourceTree = "<group>"; };
 		DA4BA46F1A3A3B78002BDB80 /* TNullScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNullScreenManager.h; sourceTree = "<group>"; };
 		DA4FF0691A35E73900092B5A /* EinsteinTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EinsteinTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DA4FF0B61A35E76400092B5A /* tests.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cp; sourceTree = "<group>"; };
+		DA4FF0B61A35E76400092B5A /* tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cpp; sourceTree = "<group>"; };
 		DA4FF0B71A35E76400092B5A /* tests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tests.h; sourceTree = "<group>"; };
-		DA4FF0B81A35E76400092B5A /* UHostInfoTests.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UHostInfoTests.cp; sourceTree = "<group>"; };
+		DA4FF0B81A35E76400092B5A /* UHostInfoTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UHostInfoTests.cpp; sourceTree = "<group>"; };
 		DA4FF0B91A35E76400092B5A /* UHostInfoTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UHostInfoTests.h; sourceTree = "<group>"; };
-		DA4FF0BA1A35E76400092B5A /* UMemoryTests.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UMemoryTests.cp; sourceTree = "<group>"; };
+		DA4FF0BA1A35E76400092B5A /* UMemoryTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UMemoryTests.cpp; sourceTree = "<group>"; };
 		DA4FF0BB1A35E76400092B5A /* UMemoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UMemoryTests.h; sourceTree = "<group>"; };
-		DA4FF0BC1A35E76400092B5A /* UProcessorTests.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UProcessorTests.cp; sourceTree = "<group>"; };
+		DA4FF0BC1A35E76400092B5A /* UProcessorTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UProcessorTests.cpp; sourceTree = "<group>"; };
 		DA4FF0BD1A35E76400092B5A /* UProcessorTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UProcessorTests.h; sourceTree = "<group>"; };
-		DA4FF0BE1A35E76400092B5A /* UScreenTests.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UScreenTests.cp; sourceTree = "<group>"; };
+		DA4FF0BE1A35E76400092B5A /* UScreenTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UScreenTests.cpp; sourceTree = "<group>"; };
 		DA4FF0BF1A35E76400092B5A /* UScreenTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UScreenTests.h; sourceTree = "<group>"; };
 		DA4FF1551A35ED5400092B5A /* EinsteinTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EinsteinTests.mm; sourceTree = "<group>"; };
 		DA52C88F1A409164008A17D0 /* TJITGenericROMPatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGenericROMPatch.cpp; sourceTree = "<group>"; };
@@ -1281,8 +1291,8 @@
 				C99E33DC111B7C07002165EC /* TCocoaAppController.mm */,
 				C99E33DD111B7C07002165EC /* TCocoaROMDumperController.h */,
 				C99E33DE111B7C07002165EC /* TCocoaROMDumperController.mm */,
-				C99E33DF111B7C07002165EC /* TCocoaSetupController.h */,
 				C99E33E0111B7C07002165EC /* TCocoaSetupController.mm */,
+				C99E33DF111B7C07002165EC /* TCocoaSetupController.h */,
 				F1647FC313198E6A001603BE /* TCocoaMonitorController.h */,
 				F1647FC413198E6A001603BE /* TCocoaMonitorController.mm */,
 				C99E33E1111B7C07002165EC /* TCocoaUserDefaults.h */,
@@ -1628,16 +1638,16 @@
 			isa = PBXGroup;
 			children = (
 				DA4FF1551A35ED5400092B5A /* EinsteinTests.mm */,
-				DA4FF0B61A35E76400092B5A /* tests.cp */,
+				DA4FF0B61A35E76400092B5A /* tests.cpp */,
 				DA4FF0B71A35E76400092B5A /* tests.h */,
 				F150BC3F1CF6315C0077CDB7 /* TObjCBridgeTests.mm */,
-				DA4FF0B81A35E76400092B5A /* UHostInfoTests.cp */,
+				DA4FF0B81A35E76400092B5A /* UHostInfoTests.cpp */,
 				DA4FF0B91A35E76400092B5A /* UHostInfoTests.h */,
-				DA4FF0BA1A35E76400092B5A /* UMemoryTests.cp */,
+				DA4FF0BA1A35E76400092B5A /* UMemoryTests.cpp */,
 				DA4FF0BB1A35E76400092B5A /* UMemoryTests.h */,
-				DA4FF0BC1A35E76400092B5A /* UProcessorTests.cp */,
+				DA4FF0BC1A35E76400092B5A /* UProcessorTests.cpp */,
 				DA4FF0BD1A35E76400092B5A /* UProcessorTests.h */,
-				DA4FF0BE1A35E76400092B5A /* UScreenTests.cp */,
+				DA4FF0BE1A35E76400092B5A /* UScreenTests.cpp */,
 				DA4FF0BF1A35E76400092B5A /* UScreenTests.h */,
 				F1359A2F1B2A357400EFD22D /* Expected Results */,
 			);
@@ -2253,8 +2263,9 @@
 				DA4BA4691A3A3854002BDB80 /* TUsermodeNetwork.cpp in Sources */,
 				DA4BA4421A3A02FD002BDB80 /* TPCMCIACard.cpp in Sources */,
 				DA4BA4171A3A028C002BDB80 /* TInterruptManager.cpp in Sources */,
-				DA4BA40D1A3A0160002BDB80 /* tests.cp in Sources */,
-				DA4BA40F1A3A01F7002BDB80 /* UMemoryTests.cp in Sources */,
+				DA4BA40D1A3A0160002BDB80 /* tests.cpp in Sources */,
+				DA4BA40F1A3A01F7002BDB80 /* UMemoryTests.cpp in Sources */,
+				DAD0965A246F620A00CADBF3 /* TNewt.cpp in Sources */,
 				DA4BA4441A3A02FD002BDB80 /* TSerialPortManager.cpp in Sources */,
 				DA4BA4431A3A02FD002BDB80 /* TPCMCIAController.cpp in Sources */,
 				DA52C89F1A40935B008A17D0 /* TVirtualizedCallsPatches.cpp in Sources */,
@@ -2264,7 +2275,7 @@
 				DA4BA4641A3A37F8002BDB80 /* TSoundManager.cpp in Sources */,
 				DA4BA45F1A3A0407002BDB80 /* TMutex.cpp in Sources */,
 				DA4BA41D1A3A028C002BDB80 /* TFlatROMImageWithREX.cpp in Sources */,
-				DA4BA40E1A3A01F7002BDB80 /* UHostInfoTests.cp in Sources */,
+				DA4BA40E1A3A01F7002BDB80 /* UHostInfoTests.cpp in Sources */,
 				DA4BA4261A3A02FD002BDB80 /* TPlatformManager.cpp in Sources */,
 				DA4BA42C1A3A02FD002BDB80 /* TJITGeneric.cpp in Sources */,
 				DA4BA4311A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp in Sources */,
@@ -2278,7 +2289,9 @@
 				DA4BA42B1A3A02FD002BDB80 /* TStdOutLog.cpp in Sources */,
 				DA4BA4341A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp in Sources */,
 				DA4BA4551A3A03EF002BDB80 /* TEOFException.cpp in Sources */,
+				DAD09658246F61D500CADBF3 /* TPathHelper.cpp in Sources */,
 				DA4BA4391A3A02FD002BDB80 /* TJITGeneric_SingleDataTransfer.cpp in Sources */,
+				DAD09655246F61B400CADBF3 /* TPtySerialPortManager.cpp in Sources */,
 				DA4BA4561A3A03EF002BDB80 /* TIOException.cpp in Sources */,
 				DA4BA4181A3A028C002BDB80 /* TFlash.cpp in Sources */,
 				DA4BA42F1A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp in Sources */,
@@ -2288,19 +2301,25 @@
 				DA4BA4141A3A028C002BDB80 /* TMMU.cpp in Sources */,
 				DA4BA4541A3A03EA002BDB80 /* TException.cpp in Sources */,
 				DA4BA4131A3A028C002BDB80 /* TMemory.cpp in Sources */,
-				DA4BA4101A3A01F7002BDB80 /* UProcessorTests.cp in Sources */,
+				DA4BA4101A3A01F7002BDB80 /* UProcessorTests.cpp in Sources */,
 				DA4BA4331A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_MSR.cpp in Sources */,
+				DAD09652246F61A300CADBF3 /* TSerialPorts.cpp in Sources */,
 				DA4BA4621A3A040C002BDB80 /* UUTF16CStr.cpp in Sources */,
 				DA4BA41F1A3A028C002BDB80 /* TJITCache.cpp in Sources */,
 				DA4BA4351A3A02FD002BDB80 /* TJITGeneric_Multiply.cpp in Sources */,
 				DA4BA45C1A3A03FD002BDB80 /* TStream.cpp in Sources */,
+				DAD0965B246F622100CADBF3 /* TObjCBridgeCalls.mm in Sources */,
 				DA4BA42A1A3A02FD002BDB80 /* TLog.cpp in Sources */,
 				DA4BA4151A3A028C002BDB80 /* TDMAManager.cpp in Sources */,
 				DA4BA4371A3A02FD002BDB80 /* TJITGeneric_Other.cpp in Sources */,
+				DAD09656246F61B800CADBF3 /* TBasiliskIISerialPortManager.cpp in Sources */,
 				DA4BA4631A3A041A002BDB80 /* TScreenManager.cpp in Sources */,
 				DA4BA4401A3A02FD002BDB80 /* TLinearCard.cpp in Sources */,
 				DA4BA43B1A3A02FD002BDB80 /* TJITGenericPage.cpp in Sources */,
 				DA4BA4301A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp in Sources */,
+				DAD09654246F61AE00CADBF3 /* TPipesSerialPortManager.cpp in Sources */,
+				DAD09653246F61AB00CADBF3 /* TBasicSerialPortManager.cpp in Sources */,
+				DAD09657246F61BB00CADBF3 /* TTcpClientSerialPortManager.cpp in Sources */,
 				DA4BA4571A3A03F3002BDB80 /* TError.cpp in Sources */,
 				DA4BA43E1A3A02FD002BDB80 /* TNetworkManager.cpp in Sources */,
 				DA4BA4411A3A02FD002BDB80 /* TNE2000Card.cpp in Sources */,
@@ -2309,6 +2328,7 @@
 				DA4BA43F1A3A02FD002BDB80 /* TATACard.cpp in Sources */,
 				DA4BA4581A3A03F3002BDB80 /* TMemError.cpp in Sources */,
 				DA4BA41A1A3A028C002BDB80 /* TAIFFile.cpp in Sources */,
+				DAD09651246F615600CADBF3 /* TFileManager.cpp in Sources */,
 				DA4BA4121A3A028C002BDB80 /* TNativePrimitives.cpp in Sources */,
 				DA4BA45E1A3A0407002BDB80 /* TCondVar.cpp in Sources */,
 				DA4BA4291A3A02FD002BDB80 /* THostInfo.cpp in Sources */,
@@ -2368,8 +2388,8 @@
 				DA4FF13B1A35EBCC00092B5A /* TNetworkManager.cpp in Sources */,
 				DA4FF1181A35EAD500092B5A /* TJITPerformance.cpp in Sources */,
 				DA4FF12C1A35EB3D00092B5A /* TATACard.cpp in Sources */,
-				DA4FF1011A35E76400092B5A /* UMemoryTests.cp in Sources */,
-				DA4FF1001A35E76400092B5A /* UHostInfoTests.cp in Sources */,
+				DA4FF1011A35E76400092B5A /* UMemoryTests.cpp in Sources */,
+				DA4FF1001A35E76400092B5A /* UHostInfoTests.cpp in Sources */,
 				DA4FF1221A35EAF600092B5A /* TJITGeneric_Multiply.cpp in Sources */,
 				DA4FF1251A35EAF600092B5A /* TJITGeneric_SingleDataSwap.cpp in Sources */,
 				DA4FF12D1A35EB3D00092B5A /* TNE2000Card.cpp in Sources */,
@@ -2380,7 +2400,7 @@
 				DA4FF12E1A35EB3D00092B5A /* TPCMCIACard.cpp in Sources */,
 				DA4FF1051A35E9CD00092B5A /* TStdOutLog.cpp in Sources */,
 				DA4FF10B1A35EA7B00092B5A /* TARMProcessor.cpp in Sources */,
-				DA4FF1021A35E76400092B5A /* UProcessorTests.cp in Sources */,
+				DA4FF1021A35E76400092B5A /* UProcessorTests.cpp in Sources */,
 				DA4FF1271A35EAF600092B5A /* TJITGeneric_Test.cpp in Sources */,
 				DA4FF1151A35EAD500092B5A /* TJITCache.cpp in Sources */,
 				DA4FF11B1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer.cpp in Sources */,
