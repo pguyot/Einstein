@@ -360,6 +360,16 @@
 		DA52C89E1A40935B008A17D0 /* TVirtualizedCallsPatches.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cpp */; };
 		DA52C89F1A40935B008A17D0 /* TVirtualizedCallsPatches.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cpp */; };
 		DA6F86431A34FBB7006BC81E /* TMonitorCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86421A34FBB7006BC81E /* TMonitorCore.cpp */; };
+		DAD09645246F586000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DAD09642246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp */; };
+		DAD09646246F586000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg_template.t in Resources */ = {isa = PBXBuildFile; fileRef = DAD09643246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg_template.t */; };
+		DAD09648246F5ABA00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DAD09647246F5ABA00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp */; };
+		DAD0964A246F5AC300CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm_template.t in Resources */ = {isa = PBXBuildFile; fileRef = DAD09649246F5AC200CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm_template.t */; };
+		DAD0964B246F612F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DAD09647246F5ABA00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp */; };
+		DAD0964C246F612F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DAD09642246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp */; };
+		DAD0964D246F613000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DAD09647246F5ABA00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp */; };
+		DAD0964E246F613000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DAD09642246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp */; };
+		DAD0964F246F613000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DAD09647246F5ABA00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp */; };
+		DAD09650246F613000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DAD09642246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp */; };
 		DAD09651246F615600CADBF3 /* TFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F156B80F1CFA48B0004661E8 /* TFileManager.cpp */; };
 		DAD09652246F61A300CADBF3 /* TSerialPorts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92FD821242D50CF00D18F58 /* TSerialPorts.cpp */; };
 		DAD09653246F61AB00CADBF3 /* TBasicSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TBasicSerialPortManager.cpp */; };
@@ -688,7 +698,6 @@
 		C99E3442111B7C07002165EC /* TJITGeneric_SingleDataTransfer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITGeneric_SingleDataTransfer.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3443111B7C07002165EC /* TJITGeneric_SingleDataTransfer_template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITGeneric_SingleDataTransfer_template.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3444111B7C07002165EC /* TJITGeneric_SingleDataTransfer_template.t */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; lineEnding = 0; path = TJITGeneric_SingleDataTransfer_template.t; sourceTree = "<group>"; };
-		C99E3445111B7C07002165EC /* TJITGeneric_SingleDataTransfer_template_flags.t */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; lineEnding = 0; path = TJITGeneric_SingleDataTransfer_template_flags.t; sourceTree = "<group>"; };
 		C99E3446111B7C07002165EC /* TJITGeneric_STM1_template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITGeneric_STM1_template.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3447111B7C07002165EC /* TJITGeneric_STM1_template.t */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; lineEnding = 0; path = TJITGeneric_STM1_template.t; sourceTree = "<group>"; };
 		C99E3448111B7C07002165EC /* TJITGeneric_STM2_template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TJITGeneric_STM2_template.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -819,6 +828,13 @@
 		DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TVirtualizedCallsPatches.cpp; sourceTree = "<group>"; };
 		DA6F86411A34FBB7006BC81E /* TMonitorCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMonitorCore.h; sourceTree = "<group>"; };
 		DA6F86421A34FBB7006BC81E /* TMonitorCore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TMonitorCore.cpp; sourceTree = "<group>"; };
+		DAD09640246F583900CADBF3 /* IncludeRnRd63.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IncludeRnRd63.h; sourceTree = "<group>"; };
+		DAD09641246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransfer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGeneric_HalfwordAndSignedDataTransfer.h; sourceTree = "<group>"; };
+		DAD09642246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGeneric_HalfwordAndSignedDataTransferReg.cpp; sourceTree = "<group>"; };
+		DAD09643246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg_template.t */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TJITGeneric_HalfwordAndSignedDataTransferReg_template.t; sourceTree = "<group>"; };
+		DAD09644246F586000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransfer_template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TJITGeneric_HalfwordAndSignedDataTransfer_template.h; sourceTree = "<group>"; };
+		DAD09647246F5ABA00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TJITGeneric_HalfwordAndSignedDataTransferImm.cpp; sourceTree = "<group>"; };
+		DAD09649246F5AC200CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm_template.t */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TJITGeneric_HalfwordAndSignedDataTransferImm_template.t; sourceTree = "<group>"; };
 		DAE9EF021A3B29150095BFAF /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Tests-Info.plist"; path = "../../Resources/Tests-Info.plist"; sourceTree = "<group>"; };
 		DAE9EF221A3CFACC0095BFAF /* TRAMLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TRAMLog.cpp; sourceTree = "<group>"; };
 		DAE9EF231A3CFACC0095BFAF /* TRAMLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRAMLog.h; sourceTree = "<group>"; };
@@ -1408,6 +1424,7 @@
 				C99E3408111B7C07002165EC /* IncludeRn.h */,
 				C99E3409111B7C07002165EC /* IncludeRn15.h */,
 				C99E340A111B7C07002165EC /* IncludeRnRd.h */,
+				DAD09640246F583900CADBF3 /* IncludeRnRd63.h */,
 				C99E340B111B7C07002165EC /* IncludeRnRdRm.h */,
 				C99E340C111B7C07002165EC /* IncludeRnRsRm15.h */,
 				C99E340D111B7C07002165EC /* IncludeRsRm15.h */,
@@ -1443,6 +1460,12 @@
 				C99E342B111B7C07002165EC /* TJITGeneric_DataProcessingPSRTransfer_TestOp.h */,
 				C99E342C111B7C07002165EC /* TJITGeneric_DataProcessingPSRTransfer_TestOp_template.h */,
 				C99E342D111B7C07002165EC /* TJITGeneric_DataProcessingPSRTransfer_TestOp_template.t */,
+				DAD09647246F5ABA00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp */,
+				DAD09642246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp */,
+				DAD09641246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransfer.h */,
+				DAD09644246F586000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransfer_template.h */,
+				DAD09649246F5AC200CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm_template.t */,
+				DAD09643246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg_template.t */,
 				C99E342E111B7C07002165EC /* TJITGeneric_LDM1_template.h */,
 				C99E342F111B7C07002165EC /* TJITGeneric_LDM1_template.t */,
 				C99E3430111B7C07002165EC /* TJITGeneric_LDM2_template.h */,
@@ -1466,7 +1489,6 @@
 				C99E3442111B7C07002165EC /* TJITGeneric_SingleDataTransfer.h */,
 				C99E3443111B7C07002165EC /* TJITGeneric_SingleDataTransfer_template.h */,
 				C99E3444111B7C07002165EC /* TJITGeneric_SingleDataTransfer_template.t */,
-				C99E3445111B7C07002165EC /* TJITGeneric_SingleDataTransfer_template_flags.t */,
 				C99E3446111B7C07002165EC /* TJITGeneric_STM1_template.h */,
 				C99E3447111B7C07002165EC /* TJITGeneric_STM1_template.t */,
 				C99E3448111B7C07002165EC /* TJITGeneric_STM2_template.h */,
@@ -1949,10 +1971,12 @@
 				F115FF131A2EA415001F3D65 /* Einstein.xib in Resources */,
 				C99E316E111B7346002165EC /* button_power_on.png in Resources */,
 				C99E316F111B7346002165EC /* button_prefs.png in Resources */,
+				DAD0964A246F5AC300CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm_template.t in Resources */,
 				C99E3170111B7346002165EC /* Einstein.icns in Resources */,
 				C99E34CB111B7C08002165EC /* Einstein.sdef in Resources */,
 				DAE9EF031A3B29150095BFAF /* Tests-Info.plist in Resources */,
 				C99E377B111C2289002165EC /* Einstein.rex in Resources */,
+				DAD09646246F586000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg_template.t in Resources */,
 				C99656A52427804700D216A2 /* README.md in Resources */,
 				C932824711D0CF0A003B93C3 /* button_network_in.png in Resources */,
 				C932824811D0CF0A003B93C3 /* button_network.png in Resources */,
@@ -2065,6 +2089,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2389E9421A1E4D4A0001A8C5 /* TMemError.cpp in Sources */,
+				DAD0964C246F612F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp in Sources */,
 				234B67611CFA4F06007A835B /* TFileManager.cpp in Sources */,
 				2389E9431A1E4D4A0001A8C5 /* UDisasm.cpp in Sources */,
 				2389E9441A1E4D4A0001A8C5 /* TIOException.cpp in Sources */,
@@ -2094,6 +2119,7 @@
 				2389E95B1A1E4D4A0001A8C5 /* TJITGeneric_Other.cpp in Sources */,
 				2389E95C1A1E4D4A0001A8C5 /* TJITGeneric_SingleDataSwap.cpp in Sources */,
 				2389E95D1A1E4D4A0001A8C5 /* TJITGeneric_SingleDataTransfer.cpp in Sources */,
+				DAD0964B246F612F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp in Sources */,
 				2389E95E1A1E4D4A0001A8C5 /* TJITGeneric_Multiply.cpp in Sources */,
 				2389E9601A1E4D4A0001A8C5 /* TJITCache.cpp in Sources */,
 				2389E9611A1E4D4A0001A8C5 /* TJITPage.cpp in Sources */,
@@ -2173,6 +2199,7 @@
 				C99E34E0111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer.cpp in Sources */,
 				F1E2C2A21E5B5D7A0074F2D3 /* TPathHelper.cpp in Sources */,
 				C99656A124258CC900D216A2 /* TTcpClientSerialPortManager.cpp in Sources */,
+				DAD09648246F5ABA00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp in Sources */,
 				C99E34E1111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp in Sources */,
 				C99E34E3111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp in Sources */,
 				C99E34E5111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp in Sources */,
@@ -2222,6 +2249,7 @@
 				C945F6731E53180C002505E9 /* TBasicSerialPortManager.cpp in Sources */,
 				C99E352A111B7C08002165EC /* TARMProcessor.cpp in Sources */,
 				C99E352B111B7C08002165EC /* TDMAManager.cpp in Sources */,
+				DAD09645246F586000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp in Sources */,
 				C99E352C111B7C08002165EC /* TEmulator.cpp in Sources */,
 				C99E352D111B7C08002165EC /* TFlash.cpp in Sources */,
 				C92FD823242D50CF00D18F58 /* TSerialPorts.cpp in Sources */,
@@ -2278,6 +2306,7 @@
 				DA4BA40E1A3A01F7002BDB80 /* UHostInfoTests.cpp in Sources */,
 				DA4BA4261A3A02FD002BDB80 /* TPlatformManager.cpp in Sources */,
 				DA4BA42C1A3A02FD002BDB80 /* TJITGeneric.cpp in Sources */,
+				DAD09650246F613000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp in Sources */,
 				DA4BA4311A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp in Sources */,
 				DA4BA43A1A3A02FD002BDB80 /* TJITGeneric_Test.cpp in Sources */,
 				DA4BA4221A3A028C002BDB80 /* TJITPerformance.cpp in Sources */,
@@ -2332,6 +2361,7 @@
 				DA4BA4121A3A028C002BDB80 /* TNativePrimitives.cpp in Sources */,
 				DA4BA45E1A3A0407002BDB80 /* TCondVar.cpp in Sources */,
 				DA4BA4291A3A02FD002BDB80 /* THostInfo.cpp in Sources */,
+				DAD0964F246F613000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp in Sources */,
 				DA4BA45A1A3A03F8002BDB80 /* TMappedFile.cpp in Sources */,
 				DA4BA45B1A3A03FD002BDB80 /* TFileStream.cpp in Sources */,
 				DA4BA42D1A3A02FD002BDB80 /* TJITGeneric_BlockDataTransfer.cpp in Sources */,
@@ -2351,6 +2381,7 @@
 			files = (
 				DA4BA4681A3A3853002BDB80 /* TUsermodeNetwork.cpp in Sources */,
 				DA4FF1241A35EAF600092B5A /* TJITGeneric_Other.cpp in Sources */,
+				DAD0964D246F613000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp in Sources */,
 				F1E2C2A51E5B5D7A0074F2D3 /* TPathHelper.cpp in Sources */,
 				DA4FF1451A35EC2B00092B5A /* TCondVar.cpp in Sources */,
 				DA4FF1561A35ED5400092B5A /* EinsteinTests.mm in Sources */,
@@ -2360,6 +2391,7 @@
 				DA4FF1041A35E9CD00092B5A /* TLog.cpp in Sources */,
 				DA4FF12F1A35EB3D00092B5A /* TPCMCIAController.cpp in Sources */,
 				DA4FF1321A35EB7600092B5A /* TSymbolList.cpp in Sources */,
+				DAD0964E246F613000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp in Sources */,
 				DA4BA4651A3A37FA002BDB80 /* TSoundManager.cpp in Sources */,
 				DA4FF1311A35EB4D00092B5A /* TCircleBuffer.cpp in Sources */,
 				DA4FF1491A35EC4A00092B5A /* THostInfo.cpp in Sources */,

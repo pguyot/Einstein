@@ -1,8 +1,8 @@
 // ==============================
-// File:			TJITGeneric_SingleDataTransfer_template.t
+// File:			Translate_HalfwordAndSignedDataTransfer.h
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2007,2020 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,24 +21,28 @@
 // $Id$
 // ==============================
 
-#define SingleDataTransfer_TemplateName(flags, rn, rd) \
-	SingleDataTransfer_ ## flags ## _ ## rn ## _ ## rd
-	
-#if DECLARATION
-	#define SingleDataTransfer_Template(flags, rn, rd) \
-		JITInstructionProto(SingleDataTransfer_TemplateName(flags, rn, rd));
-#endif
-#if IMPLEMENTATION
-	#define SingleDataTransfer_Template(flags, rn, rd) \
-		JITInstructionProto(SingleDataTransfer_TemplateName(flags, rn, rd))
-#endif
-#if TRANSLATION_ARRAY
-	#define SingleDataTransfer_Template(flags, rn, rd) \
-		SingleDataTransfer_TemplateName(flags, rn, rd),
-#endif
+#include <K/Defines/KDefinitions.h>
+#include "JIT.h"
 
-#define INCLUDE_TEMPLATE "TJITGeneric_SingleDataTransfer_template.h"
-#include "IncludeRnRd63.h"
+// Einstein
+#include "TARMProcessor.h"
 
-#undef SingleDataTransfer_Template
-#undef SingleDataTransfer_TemplateName
+#include "TJITGeneric_Macros.h"
+
+void
+Translate_HalfwordAndSignedDataTransferReg(
+					JITPageClass* inPage,
+					KUInt16* ioUnitCrsr,
+					KUInt32 inInstruction,
+					KUInt32 inVAddr );
+
+void
+Translate_HalfwordAndSignedDataTransferImm(
+					JITPageClass* inPage,
+					KUInt16* ioUnitCrsr,
+					KUInt32 inInstruction,
+					KUInt32 inVAddr );
+
+// =============================== //
+// 1: No code table for op: ++post //
+// =============================== //
