@@ -1480,25 +1480,65 @@ TMemory::ReadBP( PAddr inAddress, KUInt8& outByte )
 		outByte = 0;
 	} else if (inAddress < TMemoryConsts::kPCMCIA1Base) {
 #if kNbSockets > 0
-		outByte = mPCMCIACtrls[0]->ReadB( inAddress - TMemoryConsts::kPCMCIA0Base );
+		if (mPCMCIACtrls[0] == NULL) {
+			if (mLog)
+			{
+				mLog->FLogLine(
+					"Read byte access to PCMCIA with missing controller, at P0x%.8X",
+					(unsigned int) inAddress );
+			}
+			outByte = 0;
+		} else {
+			outByte = mPCMCIACtrls[0]->ReadB( inAddress - TMemoryConsts::kPCMCIA0Base );
+		}
 #else
 		outByte = 0;
 #endif
 	} else if (inAddress < TMemoryConsts::kPCMCIA2Base) {
 #if kNbSockets > 1
-		outByte = mPCMCIACtrls[1]->ReadB( inAddress - TMemoryConsts::kPCMCIA1Base );
+		if (mPCMCIACtrls[1] == NULL) {
+			if (mLog)
+			{
+				mLog->FLogLine(
+					"Read byte access to PCMCIA with missing controller, at P0x%.8X",
+					(unsigned int) inAddress );
+			}
+			outByte = 0;
+		} else {
+			outByte = mPCMCIACtrls[1]->ReadB( inAddress - TMemoryConsts::kPCMCIA1Base );
+		}
 #else
 		outByte = 0;
 #endif
 	} else if (inAddress < TMemoryConsts::kPCMCIA3Base) {
 #if kNbSockets > 2
-		outByte = mPCMCIACtrls[2]->ReadB( inAddress - TMemoryConsts::kPCMCIA2Base );
+		if (mPCMCIACtrls[2] == NULL) {
+			if (mLog)
+			{
+				mLog->FLogLine(
+					"Read byte access to PCMCIA with missing controller, at P0x%.8X",
+					(unsigned int) inAddress );
+			}
+			outByte = 0;
+		} else {
+			outByte = mPCMCIACtrls[2]->ReadB( inAddress - TMemoryConsts::kPCMCIA2Base );
+		}
 #else
 		outByte = 0;
 #endif
 	} else if (inAddress < TMemoryConsts::kPCMCIA3End) {
 #if kNbSockets > 3
-		outByte = mPCMCIACtrls[3]->ReadB( inAddress - TMemoryConsts::kPCMCIA3Base );
+		if (mPCMCIACtrls[3] == NULL) {
+			if (mLog)
+			{
+				mLog->FLogLine(
+					"Read byte access to PCMCIA with missing controller, at P0x%.8X",
+					(unsigned int) inAddress );
+			}
+			outByte = 0;
+		} else {
+			outByte = mPCMCIACtrls[3]->ReadB( inAddress - TMemoryConsts::kPCMCIA3Base );
+		}
 #else
 		outByte = 0;
 #endif
