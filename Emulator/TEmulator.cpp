@@ -456,7 +456,10 @@ TEmulator::BreakInMonitor( void )
 	if (mMonitor)
 	{
 		mSignal = false;
-		mRunning = false;	
+		mRunning = false;
+		mBPHalted = true;
+		mBPID = 0;
+		mInterruptManager->WakeEmulatorThread();
 	}
 }
 
