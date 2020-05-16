@@ -40,6 +40,7 @@
 #include "Emulator/JIT/Generic/TJITGeneric_Multiply.h"
 #include "Emulator/JIT/Generic/TJITGeneric_MultiplyAndAccumulate.h"
 #include "Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.h"
+#include "Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransfer.h"
 
 #ifdef JIT_PERFORMANCE
 #include "TJITPerformance.h"
@@ -340,40 +341,54 @@ TJITGenericPage::DoTranslate_00(
 	// 31 - 28 27 26 25 24 23 22 21 20 19 - 16 15 - 12 11 - 08 07 06 05 04 03 - 00
 	// -Cond-- 0  0  I  --Opcode--- S  --Rn--- --Rd--- ----------Operand 2-------- Data Processing PSR Transfer
 	// -Cond-- 0  0  0  0  0  0  A  S  --Rd--- --Rn--- --Rs--- 1  0  0  1  --Rm--- Multiply
-	// -Cond-- 0  0  0  1  0  B  0  0  --Rn--- --Rd--- 0 0 0 0 1  0  0  1  --Rm---
-	if ((inInstruction & 0x020000F0) == 0x90)	// I=0 & 0b1001----
+	// -Cond-- 0  0  0  P  U  0  W  L  --Rn--- --Rd--- 0 0 0 0 1  S  H  1  --Rm--- Halfword and Signed Data Transfer (armv4)
+	// -Cond-- 0  0  0  P  U  1  W  L  --Rn--- --Rd--- -Offst- 1  S  H  1  -Offst- Halfword and Signed Data Transfer (armv4)
+	// -Cond-- 0  0  0  1  0  B  0  0  --Rn--- --Rd--- 0 0 0 0 1  0  0  1  --Rm--- Single Data Swap
+	if ((inInstruction & 0x0FC000F0) == 0x90)
 	{
-		if (inInstruction & 0x01000000)
+		// Multiply
+		if (inInstruction & 0x00200000)
 		{
-			// Single Data Swap
-			Translate_SingleDataSwap(
-					this,
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr );
+			Translate_MultiplyAndAccumulate(
+				this,
+				ioUnitCrsr,
+				inInstruction,
+				inVAddr);
 		} else {
-			// Multiply
-			if (inInstruction & 0x00200000)
-			{
-				Translate_MultiplyAndAccumulate(
-					this,
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr);
-			} else {
-				Translate_Multiply(
-					this,
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr);
-			}
+			Translate_Multiply(
+				this,
+				ioUnitCrsr,
+				inInstruction,
+				inVAddr);
 		}
-	} else {
+	} else if ((inInstruction & 0x0FB00FF0) == 0x01000090) {
+		// Single Data Swap
+		Translate_SingleDataSwap(
+				this,
+				ioUnitCrsr,
+				inInstruction,
+				inVAddr );
+	} else if ((inInstruction & 0x0E400F90) == 0x90) {
+		Translate_HalfwordAndSignedDataTransferReg(
+				this,
+				ioUnitCrsr,
+				inInstruction,
+				inVAddr);
+	} else if ((inInstruction & 0x0E400090) == 0x00400090) {
+		Translate_HalfwordAndSignedDataTransferImm(
+				this,
+				ioUnitCrsr,
+				inInstruction,
+				inVAddr);
+	} else if ((inInstruction & 0xC000000) == 0) {
 		Translate_DataProcessingPSRTransfer(
 					this,
 					ioUnitCrsr,
 					inInstruction,
 					inVAddr );
+	} else {
+		PushUnit(ioUnitCrsr, UndefinedInstruction);
+		PushUnit(ioUnitCrsr, inVAddr + 8);
 	}
 }
 

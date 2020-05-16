@@ -1,8 +1,8 @@
 // ==============================
-// File:			TJITGeneric_SingleDataTransfer_template_flags.t
+// File:			IncludeRnRd63.h
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2007, 2020 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,8 +20,6 @@
 // ==============================
 // $Id$
 // ==============================
-
-#define INCLUDE_TEMPLATE "TJITGeneric_SingleDataTransfer_template.h"
 
 #define BITS_FLAGS	0
 #include "IncludeRnRd.h"
