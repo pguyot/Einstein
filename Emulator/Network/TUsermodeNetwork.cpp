@@ -404,7 +404,7 @@ private:
 /**
  * This is a generic handler for network packets.
  *
- * To handle new types of packats, a new class should be derived.
+ * To handle new types of packets, a new class should be derived.
  */
 class PacketHandler 
 {
@@ -557,7 +557,7 @@ public:
 	 * Create a generic TCP packet.
 	 * This is a working TCP packet for this particular connection. Space is 
 	 * allocated for the payload. The payload must be copied into this 
-	 * packet an the checksums must be updated.
+	 * packet and the checksums must be updated.
 	 * \param size this is the desired size of the payload.
 	 * \see UpdateChecksums(Packet *p)
 	 * \see Packet::SetTCPPayload(KUInt8 *, KUInt32)

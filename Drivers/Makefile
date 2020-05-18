@@ -81,7 +81,7 @@ headers = \
 
 %.o : %.c ${headers}
 	${ARMCpp} $< ${CPlusOptions} ${CPlusIncludes} -o $(@F)
-%.o : %.cp ${headers}
+%.o : %.cpp ${headers}
 	${ARMCpp} $< ${CPlusOptions} ${CPlusIncludes} -o $(@F)
 %.o : %.a
 	${ARM6Asm} $< ${AsmIncludes} -o $(@F)
