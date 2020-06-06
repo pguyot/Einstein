@@ -1185,6 +1185,44 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
 		}
+	} else if (::sscanf(inCommand, "po **%X", &theArgInt) == 1) {
+		KUInt32 theData;
+		if (mMemory->Read(
+				(TMemory::VAddr) theArgInt, theData ))
+		{
+			(void) ::sprintf(
+				theLine, "Memory error when accessing %.8X [%.8X]",
+				(unsigned int) theArgInt,
+				(unsigned int) mMemory->GetFaultStatusRegister() );
+			PrintLine(theLine, MONITOR_LOG_ERROR);
+		} else {
+			if (mMemory->Read(
+					(TMemory::VAddr) theData, theData ))
+			{
+				(void) ::sprintf(
+					theLine, "Memory error when accessing %.8X [%.8X]",
+					(unsigned int) theData,
+					(unsigned int) mMemory->GetFaultStatusRegister() );
+				PrintLine(theLine, MONITOR_LOG_ERROR);
+			} else {
+				PrintNSRef(theData);
+			}
+		}
+	} else if (::sscanf(inCommand, "po *%X", &theArgInt) == 1) {
+		KUInt32 theData;
+		if (mMemory->Read(
+				(TMemory::VAddr) theArgInt, theData ))
+		{
+			(void) ::sprintf(
+				theLine, "Memory error when accessing %.8X [%.8X]",
+				(unsigned int) theArgInt,
+				(unsigned int) mMemory->GetFaultStatusRegister() );
+			PrintLine(theLine, MONITOR_LOG_ERROR);
+		} else {
+			PrintNSRef(theData);
+		}
+	} else if (::sscanf(inCommand, "po %X", &theArgInt) == 1) {
+		PrintNSRef(theArgInt);
 	} else if (::strcmp(inCommand, "cdr") == 0) {
 		::chdir(mROMPath);
 	} else if (inCommand[0]=='!') {
@@ -1254,6 +1292,9 @@ TMonitor::PrintHelp( void )
 	PrintLine(" dm <addr>[-<addr>] display memory at address/between addresses", MONITOR_LOG_INFO);
 	PrintLine(" dm P<addr>[-<add>] display memory at physical address(es)", MONITOR_LOG_INFO);
 	PrintLine(" sl [P]<addr> <val> set long at [physical] address", MONITOR_LOG_INFO);
+	PrintLine(" po <ref>           print NS reference", MONITOR_LOG_INFO);
+	PrintLine(" po *<addr>         print NS object at address (Ref)", MONITOR_LOG_INFO);
+	PrintLine(" po **<addr>        print NS object handle at address (RefVar)", MONITOR_LOG_INFO);
 	PrintLine(" raise <val>        raise the interrupts", MONITOR_LOG_INFO);
 	PrintLine(" gpio <val>         raise the gpio interrupts", MONITOR_LOG_INFO);
 	PrintLine(" load|save path     load or save the emulator state", MONITOR_LOG_INFO);
@@ -1805,6 +1846,243 @@ TMonitor::PrintBacktrace(KSInt32 inNWords)
 	PrintLine(theLine, MONITOR_LOG_INFO);
 }
 
+// -------------------------------------------------------------------------- //
+//  * PrintNSRef(KUInt32 inRef)
+// -------------------------------------------------------------------------- //
+void
+TMonitor::PrintNSRef(KUInt32 inRef)
+{
+	char* objectDesc = (char*) ::malloc(4096);
+	int n = FormatNSRef(objectDesc, 4096, inRef, 0, 50);
+	if (n > 0) {
+		char* str = objectDesc;
+		for (int index = 0; index < n; index++) {
+			if (objectDesc[index] == '\n') {
+				objectDesc[index] = 0;
+				PrintLine(str, MONITOR_LOG_ERROR);
+				str = &objectDesc[index + 1];
+			}
+		}
+		if (*str != 0) {
+			PrintLine(str, MONITOR_LOG_ERROR);
+		}
+	}
+	::free(objectDesc);
+}
+
+int
+TMonitor::FormatNSRef(char* buffer, size_t bufferSize, KUInt32 inRef, int indent, int maxDepth)
+{
+	switch(inRef & 0x3) {
+		case kTagInteger:
+		{
+			KSInt32 value = ((KSInt32) inRef) >> 2;
+			return snprintf(buffer, bufferSize, "%ld", (long) value);
+		}
+
+		case kTagPointer:
+		{
+			TMemory::VAddr addr = (TMemory::VAddr) (inRef - kTagPointer);
+			KUInt32 objectHeader;
+			if (mMemory->Read(addr, objectHeader))
+			{
+				char theLine[512];
+				(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) addr);
+				PrintLine(theLine, MONITOR_LOG_ERROR);
+				return -1;
+			}
+			bool slotted = objectHeader & 1;
+			bool frame = objectHeader & 2;
+//			bool locked = objectHeader & 16;
+//			bool readOnly = objectHeader & 64;
+//			bool dirty = objectHeader & 128;
+			unsigned int size = objectHeader >> 8;
+			// Binary
+			KUInt32 nextRef;
+			if (mMemory->Read(addr + 8, nextRef))
+			{
+				char theLine[512];
+				(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) addr + 8);
+				PrintLine(theLine, MONITOR_LOG_ERROR);
+				return -1;
+			}
+			if (!slotted) {
+				unsigned int length = size - 8;
+				return FormatNSBinary(buffer, bufferSize, addr, length, nextRef, indent, maxDepth);
+			} else if (!frame) {
+				int r = ::snprintf(buffer, bufferSize, "[array, class ");
+				r += FormatNSRef(buffer + r, bufferSize - r, nextRef, indent, maxDepth);
+				r += ::snprintf(buffer + r, bufferSize - r, ", length %d]", size);
+				return r;
+			} else {
+				return FormatNSFrame(buffer, bufferSize, addr, (size / sizeof(KUInt32)) - 3, nextRef, indent, maxDepth);
+			}
+		}
+
+		case kTagImmed:
+		{
+			if (inRef == 0x2) {
+				return snprintf(buffer, bufferSize, "NIL");
+			}
+			if (inRef == 0x1A) {
+				return snprintf(buffer, bufferSize, "TRUE");
+			}
+			if (inRef == 0x55552) {
+				return snprintf(buffer, bufferSize, "kSymbolClass");
+			}
+			if ((inRef & 0xFF) == 0x32) {
+				KUInt32 funcKind = inRef >> 8;
+				return snprintf(buffer, bufferSize, "kFuncClass<%d>", funcKind);
+			}
+			if ((inRef & 0xF) == 0x6) {
+				KUInt32 immedValue = inRef >> 4;
+				if (immedValue > 32 && immedValue < 127) {
+					return snprintf(buffer, bufferSize, "$%c", (char) immedValue);
+				} else if (immedValue < 0x100) {
+					return snprintf(buffer, bufferSize, "$\\%.2X", (unsigned int) immedValue);
+				} else {
+					return snprintf(buffer, bufferSize, "$\\u%.4lX", (unsigned long) immedValue);
+				}
+			}
+			return snprintf(buffer, bufferSize, "Immed<%lX>", (unsigned long)(inRef >> 2));
+		}
+
+		case kTagMagicPtr:
+		{
+			KSInt32 index = inRef >> 2;
+			return snprintf(buffer, bufferSize, "@%ld", (long)index);
+		}
+	}
+	return 0;
+}
+
+int
+TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigned int length, KUInt32 mapRef, int indent, int maxDepth)
+{
+
+	KUInt32 flattenMap[length];
+	int mapIndex = length;
+	while (true) {
+		if ((mapRef & 0x3) != kTagPointer) {
+			return snprintf(buffer, bufferSize, "{frame with invalid map ref, length = %d}", length);
+		}
+		KUInt32 mapObjectHeader;
+		KUInt32 mapAddr = mapRef - kTagPointer;
+		if (mMemory->Read((TMemory::VAddr) mapAddr, mapObjectHeader))
+		{
+			char theLine[512];
+			(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) mapAddr);
+			PrintLine(theLine, MONITOR_LOG_ERROR);
+			return -1;
+		}
+		if ((mapObjectHeader & 0x3) != 1) {
+			return snprintf(buffer, bufferSize, "{frame with invalid map ref, length = %d}", length);
+		}
+		unsigned int mapObjectSize = mapObjectHeader >> 8;
+		unsigned int mapObjectLength = (mapObjectSize / sizeof(KUInt32)) - 3;
+		for (unsigned int i = mapObjectLength - 1; i > 0; i--) {
+			KUInt32 refAddr = mapAddr + (3 + i) * sizeof(KUInt32);
+			KUInt32 refValue;
+			if (mMemory->Read((TMemory::VAddr) refAddr, refValue))
+			{
+				char theLine[512];
+				(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) refAddr);
+				PrintLine(theLine, MONITOR_LOG_ERROR);
+				return -1;
+			}
+			if (mapIndex <= 0) {
+				return snprintf(buffer, bufferSize, "{frame with invalid map, length = %d}", length);
+			}
+			flattenMap[--mapIndex] = refValue;
+		}
+		KUInt32 supermapRef;
+		KUInt32 supermapAddr = mapAddr + (3 * sizeof(KUInt32));
+		if (mMemory->Read((TMemory::VAddr) supermapAddr, supermapRef))
+		{
+			char theLine[512];
+			(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) supermapAddr);
+			PrintLine(theLine, MONITOR_LOG_ERROR);
+			return -1;
+		}
+		if (supermapRef == 0x2) {
+			break;
+		}
+		mapRef = supermapRef;
+	}
+	if (mapIndex > 0) {
+		return snprintf(buffer, bufferSize, "{frame with invalid map, length = %d}", length);
+	}
+
+	int r = ::snprintf(buffer, bufferSize, "{");
+	for (unsigned int i = 0; i < length; i++) {
+		int symbolStart = r;
+		r += FormatNSRef(buffer + r, bufferSize - r, flattenMap[i], indent + 1, maxDepth);
+		r += ::snprintf(buffer + r, bufferSize - r, ": ");
+		KUInt32 valueRef;
+		KUInt32 valueAddr = inAddr + ((3 + i) * sizeof(KUInt32));
+		if (mMemory->Read((TMemory::VAddr) valueAddr, valueRef))
+		{
+			char theLine[512];
+			(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) valueAddr);
+			PrintLine(theLine, MONITOR_LOG_ERROR);
+			return -1;
+		}
+		int symbolLen = r - symbolStart;
+		r += FormatNSRef(buffer + r, bufferSize - r, valueRef, indent + symbolLen, maxDepth - 1);
+		if (i < length - 1) {
+			r += ::snprintf(buffer + r, bufferSize - r, ",\n");
+			for (int j = 0; j <= indent; j++) {
+				r += ::snprintf(buffer + r, bufferSize - r, " ");
+			}
+		} else {
+			r += ::snprintf(buffer + r, bufferSize - r, "}");
+		}
+	}
+	return r;
+}
+
+int
+TMonitor::FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigned int length, KUInt32 classRef, int indent, int maxDepth)
+{
+	if (classRef == 0x55552) {
+		// Symbol, skip hash value.
+		bool needEscape = false;
+		char symbolStr[length];
+		for (int i = 0; i < length; i++) {
+			KUInt8 byte;
+			KUInt32 byteAddr = inAddr + 16 + i;
+			if (mMemory->ReadB((TMemory::VAddr) byteAddr, byte))
+			{
+				char theLine[512];
+				(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) byteAddr);
+				PrintLine(theLine, MONITOR_LOG_ERROR);
+				return -1;
+			}
+			if (i == (length - 1) && byte != 0) {
+				return ::snprintf(buffer, bufferSize, "<invalid symbol not null terminated, length %d>", length);
+			}
+			if (i == 0) {
+				needEscape = (byte < 'a' || byte > 'z') && (byte < 'A' || byte > 'Z') && (byte != '_');
+			} else if (i < length - 1) {
+				needEscape = needEscape || (
+											(byte < 'a' || byte > 'z')
+											&& (byte < 'A' || byte > 'Z')
+											&& (byte != '_')
+											&& (byte < '0' || byte > '9')
+											);
+			}
+			symbolStr[i] = byte;
+		}
+		if (needEscape) {
+			return ::snprintf(buffer, bufferSize, "'|%s|", symbolStr);
+		}
+		return ::snprintf(buffer, bufferSize, "'%s", symbolStr);
+	}
+	int r = ::snprintf(buffer, bufferSize, "<binary, class ");
+	r += FormatNSRef(buffer + r, bufferSize - r, classRef, indent, maxDepth);
+	r += ::snprintf(buffer + r, bufferSize - r, ", length %d, ptr %.8X>", length, (unsigned int) (inAddr + 12));
+	return r;
+}
 
 // -------------------------------------------------------------------------- //
 //  * CreateCondVarAndMutex( void )
