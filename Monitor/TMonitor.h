@@ -211,7 +211,30 @@ protected:
 	///
 	void		PrintBacktrace(KSInt32 inNWords=0);
 	
-public:
+	///
+	/// Accessor on interrupt manager.
+	///
+	inline TInterruptManager* GetInterruptManager() const {
+		return mInterruptManager;
+	}
+
+	///
+	/// Accessor on processor.
+	///
+	inline TARMProcessor* GetProcessor() const {
+		return mProcessor;
+	}
+
+	///
+	/// Process a breakpoint.
+	///
+	/// \param inBPID		ID of the breakpoint.
+	/// \param inBPAddr		address of the breakpoint.
+	/// \return true if the machine should be stopped.
+	///
+	virtual Boolean		ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr );
+
+private:
 	///
 	/// Run the emulator (handle breakpoint if we're on a BP).
 	///
@@ -221,15 +244,6 @@ public:
 	/// Step the emulator (handle breakpoint if we're on a BP).
 	///
 	void		StepEmulator( void );
-	
-	///
-	/// Process a breakpoint.
-	///
-	/// \param inBPID		ID of the breakpoint.
-	/// \param inBPAddr		address of the breakpoint.
-	/// \return true if the machine should be stopped.
-	///
-	virtual Boolean		ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr );
 
 	/// \name Platform threading primitives
 
