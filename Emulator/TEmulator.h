@@ -196,7 +196,7 @@ public:
 	///
 	/// Break in monitor, if present (don't do anything otherwise).
 	///
-	void		BreakInMonitor( void );
+	void		BreakInMonitor( const char* msg = NULL );
 	
 	///
 	/// Determine if we're stopped in a breakpoint.

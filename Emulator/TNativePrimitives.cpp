@@ -903,7 +903,8 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			{
 				mLog->LogLine( "TMainPlatformDriver::Hop!" );
 			}
-			mEmulator->BreakInMonitor();
+			mProcessor->SetRegister( 15, mProcessor->GetRegister( 15 ) + 4 );
+			mEmulator->BreakInMonitor("TMainPlatformDriver::Hop!");
 			break;
 			
 		case 0x17:
