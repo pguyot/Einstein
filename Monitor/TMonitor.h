@@ -243,12 +243,17 @@ protected:
 	/// Output instruction at a given address.
 	///
 	void		PrintInstruction( KUInt32 inAddr );
-	
+
 	///
 	/// Output the contents of the current stack.
 	///
 	void		PrintBacktrace(KSInt32 inNWords=0);
-	
+
+	///
+	/// Display a NS reference
+	///
+	void		PrintNSRef(KUInt32 inRef);
+
 	///
 	/// Accessor on interrupt manager.
 	///
@@ -321,6 +326,28 @@ private:
 	/// Release the mutex.
 	///
 	void		ReleaseMutex( void );
+
+	enum {
+		kTagInteger,
+		kTagPointer,
+		kTagImmed,
+		kTagMagicPtr
+	};
+
+	///
+	/// Format an NS Ref, using snprintf
+	///
+	int			FormatNSRef(char* buffer, size_t bufferSize, KUInt32 inRef, int ident, int maxDepth);
+
+	///
+	/// Format an NS frame.
+	///
+	int 		FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 addr, unsigned int length, KUInt32 mapRef, int indent, int maxDepth);
+
+	///
+	/// Format an NS binary.
+	///
+	int 		FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 addr, unsigned int length, KUInt32 classRef, int indent, int maxDepth);
 
 	///
 	/// Constructeur par copie volontairement indisponible.
