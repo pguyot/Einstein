@@ -729,7 +729,7 @@ public:
 		}
 		// ok, the state is kStateConnected. See if there are any icomming messages
 		KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
-		ssize_t avail = recv(mSocket, buf, sizeof(buf), 0);
+		ssize_t avail = read(mSocket, buf, sizeof(buf));
 		if (avail==0) {
 			// Peer has closed connection.
 			Packet *reply = NewPacket(0);
