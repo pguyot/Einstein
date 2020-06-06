@@ -89,22 +89,22 @@ public:
 	/// Print help for the available commands.
 	///
 	void		PrintHelp( void );
-	
+
 	///
 	/// Print help for the log commands.
 	///
 	void		PrintLoggingHelp( void );
-	
+
 	///
 	/// Print help for the script commands.
 	///
 	void		PrintScriptingHelp( void );
-	
+
 	///
 	/// Print help for the watchpoint commands.
 	///
 	void		PrintWatchpointHelp( void );
-	
+
 	///
 	/// Output a line.
 	///
@@ -120,54 +120,54 @@ public:
 		{
 			return mSocketPair[0];
 		}
-	
+
 	///
 	/// Execute startup script.
 	///
 	/// \return true if /ROMPath/monitorrc was found and run.
 	///
 	Boolean		ExecuteStartupScript();
-	
+
 	///
 	/// Execute a command.
 	///
 	/// \return true if the command was known.
 	///
 	Boolean		ExecuteCommand( const char* inCommand );
-	
+
 	///
 	/// Execute the help command.
 	///
 	/// \return true if the command was known.
 	///
 	Boolean		ExecuteHelpCommand( const char* inCommand );
-	
+
 	///
 	/// Save the current state of the Emulator to a file.
 	///
 	void		SaveEmulatorState( const char *inFilename=0L );
-	
+
 	///
 	/// Read the current emulator state from a file.
 	///
 	void		LoadEmulatorState( const char *inFilename=0L );
-	
+
 	///
 	/// Save the current state of the Emulator to a file.
 	///
 	void		SnapEmulatorState( const char *inFilename=0L );
-	
+
 	///
 	/// Read the current emulator state from a file.
 	///
 	void		RevertEmulatorState( const char *inFilename=0L );
-	
+
 protected:
 	/// Constants.
 	static const char* kEraseLine;
 	static const char* const kRegisterNames[16];
 	static const char* const kModesNames[32];
-	
+
 	enum ECommand {
 		kNop,
 		kRun,
@@ -176,7 +176,7 @@ protected:
 		kSaveState,
 		kLoadState
 	};
-	
+
 	enum {
 		kPermanentBP	= 0,
 		kTemporaryBP	= 1,
@@ -261,7 +261,7 @@ private:
 	/// Delete the condition variable and the mutex.
 	///
 	void		DeleteCondVarAndMutex( void );
-	
+
 	///
 	/// Signal the condition varaible.
 	///
