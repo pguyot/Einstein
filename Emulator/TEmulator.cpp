@@ -55,6 +55,7 @@
 #include "Platform/TPlatformManager.h"
 #include "Platform/TNewt.h"
 #include "Files/TFileManager.h"
+#include "TMonitor.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -448,10 +449,10 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 }
 
 // -------------------------------------------------------------------------- //
-//  * BreakInMonitor( void )
+//  * BreakInMonitor( const char* msg = NULL )
 // -------------------------------------------------------------------------- //
 void
-TEmulator::BreakInMonitor( void )
+TEmulator::BreakInMonitor( const char* msg )
 {
 	if (mMonitor)
 	{
@@ -460,6 +461,8 @@ TEmulator::BreakInMonitor( void )
 		mBPHalted = true;
 		mBPID = 0;
 		mInterruptManager->WakeEmulatorThread();
+		if (msg != NULL)
+			mMonitor->PrintLine(msg, 0);
 	}
 }
 
