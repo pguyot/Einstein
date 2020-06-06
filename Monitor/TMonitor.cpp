@@ -120,10 +120,10 @@ TMonitor::TMonitor(
 		(void) ::fprintf( stderr, "Error with socketpair: %i\n", errno );
 		::abort();
 	}
-	
+
 	mLog->BindWithRefreshSocket( mSocketPair[1] );
 #endif
-	
+
 	CreateCondVarAndMutex();
 
 #if !TARGET_UI_FLTK
@@ -131,7 +131,7 @@ TMonitor::TMonitor(
 	(void) ::printf( "\033[1;1H" );
 	(void) ::printf( "\033[2J" );
 #endif
-	
+
 	// Tell the emulator it's being monitored.
 	inEmulator->SetMonitor( this );
 }
@@ -159,10 +159,10 @@ TMonitor::Run()
 {
 	// Acquire the mutex.
 	AcquireMutex();
-	
+
 	// At first, we're halted.
 	mHalted = true;
-		
+
 	// If the user put a script at /ROMPath/monitorrc, run it.
 	// This is used to set the default path, breakpoints, etc.
 	ExecuteStartupScript();
@@ -179,7 +179,7 @@ TMonitor::Run()
         DrawScreen();
 		// Wait forever for a command.
 		WaitOnCondVar();
-		
+
 		switch (mCommand)
 		{
 			case kNop:
@@ -188,25 +188,25 @@ TMonitor::Run()
 			case kRun:
 				RunEmulator();
 				break;
-			
+
 			case kStep:
 				StepEmulator();
 				break;
-			
+
 			case kExit:
 				loop = false;
 				break;
-				
+
 			case kSaveState:
 				SaveEmulatorState(mFilename);
 				break;
-				
+
 			case kLoadState:
 				LoadEmulatorState(mFilename);
 				break;
 		}
 	}
-	
+
 	// Release the mutex.
 	ReleaseMutex();
 }
@@ -228,7 +228,7 @@ TMonitor::RunEmulator()
 
 	// Get the PC.
 	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
-	
+
 	// Get the instruction.
 	KUInt32 instruction;
 	bool instructionIsBP = false;
@@ -239,7 +239,7 @@ TMonitor::RunEmulator()
 			instructionIsBP = true;
 		}
 	}
-	
+
 	while (true)
 	{
 		if (instructionIsBP)
@@ -253,7 +253,7 @@ TMonitor::RunEmulator()
 			// Just run.
 			mEmulator->Run();
 		}
-		
+
 		// We're halted now. Check if it was because of a BP.
 		if (mEmulator->IsBPHalted())
 		{
@@ -262,7 +262,7 @@ TMonitor::RunEmulator()
 			mProcessor->SetRegister(15, realPC);
 			realPC -= 4;
 			instructionIsBP = true;
-			
+
 			// Process the breakpoint.
 			if (ProcessBreakpoint(mEmulator->GetBPID(), realPC))
 			{
@@ -273,7 +273,7 @@ TMonitor::RunEmulator()
 			break;
 		}
 	}
-	
+
 	mHalted = true;
 #if !TARGET_UI_FLTK
 	// Write a byte to the socket pair.
@@ -288,7 +288,7 @@ void TMonitor::StepEmulator()
 {
 	// Get the PC.
 	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
-	
+
 	// Get the instruction.
 	KUInt32 instruction;
 	bool instructionIsBP = false;
@@ -299,7 +299,7 @@ void TMonitor::StepEmulator()
 			instructionIsBP = true;
 		}
 	}
-	
+
 	if (instructionIsBP)
 	{
 		// Disable, step, enable.
@@ -421,12 +421,12 @@ TMonitor::ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr )
 				PrintLine( theLine, MONITOR_LOG_INFO );
 			}
 			break;
-		
+
 		case 1:
 			// Temporary breakpoint.
 			(void) mMemory->ClearBreakpoint(inBPAddr);
 			break;
-		
+
 		case 2:
 			// Watch pc without any parameter.
 			{
@@ -482,7 +482,7 @@ TMonitor::ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr )
 			stop = false;
 			break;
 	}
-	
+
 	return stop;
 }
 
@@ -493,7 +493,7 @@ void
 TMonitor::Stop()
 {
 	mCommand = kExit;
-	
+
 	while (!mHalted)
 	{
 		mEmulator->Stop();
@@ -501,9 +501,9 @@ TMonitor::Stop()
 
 	//AcquireMutex();
 	// I have the mutex, so the loop is waiting.
-	
+
 	SignalCondVar();
-	
+
 	//ReleaseMutex();
 }
 
@@ -541,9 +541,9 @@ TMonitor::ExecuteCommand( const char* inCommand )
 	bool theResult = true;
 	int theArgInt, theArgInt2;
 	char theLine[256];
-	
+
 	static KUInt32 lastDisStart = 0;
-	
+
 	if (inCommand[0]=='#') {	// script comment
 	} else if ((::strcmp(inCommand, "run") == 0) 	// commands when the emulator is halted.
 
@@ -664,7 +664,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 		|| (::strcmp(inCommand, "trace") == 0)) {
 		// Is it a jump?
 		bool putBPAndRun = false;
-		
+
 		KUInt32 instruction;
 		KUInt32 realPC = mProcessor->GetRegister(15) - 4;
 		if (!mMemory->Read((TMemory::VAddr) realPC, instruction ))
@@ -1361,7 +1361,7 @@ TMonitor::DrawScreen()
 		mLastScreenHalted = false;
 		DrawScreenRunning();
 	}
-	
+
 	return theResult;
 }
 
@@ -1427,77 +1427,77 @@ TMonitor::DrawScreenHalted( void )
 	(void) ::printf( "%s==============| %s\n",
 				kEraseLine,
 				mLog->GetLine(18) );
-	
+
 	(void) ::printf( "%sTmr= %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetFrozenTimer(),
 				mLog->GetLine(19) );
-	
+
 	(void) ::printf( "%sTM0= %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetTimerMatchRegister(0),
 				mLog->GetLine(20) );
-	
+
 	(void) ::printf( "%sTM1= %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetTimerMatchRegister(1),
 				mLog->GetLine(21) );
-	
+
 	(void) ::printf( "%sTM2= %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetTimerMatchRegister(2),
 				mLog->GetLine(22) );
-	
+
 	(void) ::printf( "%sTM3= %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetTimerMatchRegister(3),
 				mLog->GetLine(23) );
-	
+
 	(void) ::printf( "%sRTC= %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetRealTimeClock(),
 				mLog->GetLine(24) );
-	
+
 	(void) ::printf( "%sAlm= %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetAlarm(),
 				mLog->GetLine(25) );
-	
+
 	(void) ::printf( "%sIR = %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetIntRaised(),
 				mLog->GetLine(26) );
-	
+
 	(void) ::printf( "%sICR= %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetIntCtrlReg(),
 				mLog->GetLine(27) );
-	
+
 	(void) ::printf( "%sFM = %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetFIQMask(),
 				mLog->GetLine(28) );
-	
+
 	(void) ::printf( "%sIC1= %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetIntEDReg1(),
 				mLog->GetLine(29) );
-	
+
 	(void) ::printf( "%sIC2= %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetIntEDReg2(),
 				mLog->GetLine(30) );
-	
+
 	(void) ::printf( "%sIC3= %.8X | %s\n",
 				kEraseLine,
 				(unsigned int) mInterruptManager->GetIntEDReg3(),
 				mLog->GetLine(31) );
-	
+
 	(void) ::printf( "%s-------------------------------------------------------------------------------\n", kEraseLine );
 
 	char theInstr[512];
 	theInstr[0] = 0;
-	
+
 	char theSymbol[512];
 	char theComment[512];
 	int theOffset;
@@ -1523,9 +1523,9 @@ TMonitor::DrawScreenHalted( void )
 	(void) ::printf(
 		"%s%s+%X\n",
 		kEraseLine, theSymbol, theOffset );
-	
+
 	KUInt32 instruction;
-	
+
 	// Write 5 lines.
 	int indexLines;
 	for (indexLines = 0; indexLines < 20; indexLines += 4)
@@ -1568,7 +1568,7 @@ TMonitor::DrawScreenHalted( void )
 						case 0x0:
 							skip = !(theCPSR & TARMProcessor::kPSR_ZBit);
 							break;
-							
+
 							// 0001 = NE - Z clear (not equal)
 						case 0x1:
 							skip = theCPSR & TARMProcessor::kPSR_ZBit;
@@ -1577,76 +1577,76 @@ TMonitor::DrawScreenHalted( void )
 						case 0x2:
 							skip = !(theCPSR & TARMProcessor::kPSR_CBit);
 							break;
-							
+
 							// 0011 = CC - C clear (unsigned lower)
 						case 0x3:
 							skip = theCPSR & TARMProcessor::kPSR_CBit;
 							break;
-							
+
 							// 0100 = MI - N set (negative)
 						case 0x4:
 							skip = !(theCPSR & TARMProcessor::kPSR_NBit);
 							break;
-							
+
 							// 0101 = PL - N clear (positive or zero)
 						case 0x5:
 							skip = theCPSR & TARMProcessor::kPSR_NBit;
 							break;
-							
+
 							// 0110 = VS - V set (overflow)
 						case 0x6:
 							skip = !(theCPSR & TARMProcessor::kPSR_VBit);
 							break;
-							
+
 							// 0111 = VC - V clear (no overflow)
 						case 0x7:
 							skip = theCPSR & TARMProcessor::kPSR_VBit;
 							break;
-							
+
 							// 1000 = HI - C set and Z clear (unsigned higher)
 						case 0x8:
 							skip = !(theCPSR & TARMProcessor::kPSR_CBit)
 								|| (theCPSR & TARMProcessor::kPSR_ZBit);
 							break;
-							
+
 							// 1001 = LS - C clear or Z set (unsigned lower or same)
 						case 0x9:
 							skip = (theCPSR & TARMProcessor::kPSR_CBit)
 								&& !(theCPSR & TARMProcessor::kPSR_ZBit);
 							break;
-							
+
 							// 1010 = GE - N set and V set, or N clear and V clear (greater or equal)
 						case 0xA:
 							skip = ((theCPSR & TARMProcessor::kPSR_NBit) != 0)
 								!= ((theCPSR & TARMProcessor::kPSR_VBit) != 0);
 							break;
-							
+
 							// 1011 = LT - N set and V clear, or N clear and V set (less than)
 						case 0xB:
 							skip = ((theCPSR & TARMProcessor::kPSR_NBit) != 0)
 								== ((theCPSR & TARMProcessor::kPSR_VBit) != 0);
 							break;
-							
+
 							// 1100 = GT - Z clear, and either N set and V set, or N clear and V clear (greater than)
 						case 0xC:
 							skip = (theCPSR & TARMProcessor::kPSR_ZBit) ||
 								(((theCPSR & TARMProcessor::kPSR_NBit) != 0)
 									!= ((theCPSR & TARMProcessor::kPSR_VBit) != 0));
 							break;
-							
+
 							// 1101 = LE - Z set, or N set and V clear, or N clear and V set (less than or equal)
 						case 0xD:
 							skip = (!(theCPSR & TARMProcessor::kPSR_ZBit))
 								&& (((theCPSR & TARMProcessor::kPSR_NBit) != 0)
 									== ((theCPSR & TARMProcessor::kPSR_VBit) != 0));
 							break;
-							
+
 							// 1111 = NV - never
 						case 0xF:
 						default:
 							skip = 1;
 					}
-					
+
 					if (skip)
 					{
 						(void) ::sprintf( status, " (will skip)" );
@@ -1684,7 +1684,7 @@ TMonitor::DrawScreenRunning( void )
 {
 	// Go to the uppermost position.
 	(void) ::printf( "\033[1;1H" );
-	
+
 	(void) ::printf( "%sMachine is running. Use stop to halt it.\n", kEraseLine );
 	(void) ::printf( "%s-------------------------------------------------------------------------------\n", kEraseLine );
 	int indexLog;
@@ -1725,12 +1725,12 @@ TMonitor::PrintInstruction( KUInt32 inAddress )
 				theSymbol,
 				(theComment[0] == '\0') ? ' ' : ';',
 				theComment );
-		
+
 		PrintLine( theLine, MONITOR_LOG_INFO );
 	}
 
 	KUInt32 instruction;
-		
+
 	if (mMemory->Read((TMemory::VAddr) inAddress, instruction ))
 	{
 		(void) ::sprintf(
