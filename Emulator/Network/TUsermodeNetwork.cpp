@@ -461,11 +461,10 @@ public:
 	enum State {
 		kStateDisconnected = 0,		// handler just created, no socket
 									// we expect a SYN package from the Newt and will reply with SYN ACK (or timeout)
+		kStateConnectionWaitACK,	// we expect the ACK connection packet
 		kStateConnected,			// socket was opened successfully
-		kStatePeerDiscWaitForACK,	// Peer disconnected, send a FIN and wait for an ACK
-		kStatePeerDiscWaitForFIN,	// Perr disconnected, now wait for the FIN from the Newt and ACK it.
-									// Newt requests a disconnect
-									// Peer request a disconnect
+		kStatePeerDiscWaitForACK,	// Peer disconnected, we sent a FIN, wait for a FIN+ACK
+		kStateNewwtonDiscWaitForACK,// Newton requested a disconnect, we sent a FIN+ACK, waiting for final ACK
 		kStateError,
 		
 		kStateClosed,				// States according to TCP State Transition Diagram
@@ -492,7 +491,8 @@ public:
 	myMAC(0),	theirMAC(0),
 	myIP(0),	theirIP(0),
 	myPort(0),	theirPort(0),
-	mySeqNr(0),	theirSeqNr(0),
+	mEinsteinPacketsSeq(0),		// Randomly choose 0 for our seqs
+	mNewtonPacketsSeq(0),
 	theirID(0),
 	state(kStateDisconnected),
 	mSocket(-1)
@@ -500,14 +500,15 @@ public:
 		myMAC = packet.GetSrcMAC();
 		myIP = packet.GetIPSrcIP();
 		myPort = packet.GetTCPSrcPort();
-		mySeqNr = packet.GetTCPSeq();
 		
 		theirMAC = packet.GetDstMAC();
 		theirIP = packet.GetIPDstIP();
 		theirPort = packet.GetTCPDstPort();
-		theirSeqNr = packet.GetTCPAck();
 		theirID = 1000;
-		printf("Net: Adding TCP handler for port %u to %u.%u.%u.%u\n", 
+
+		// SYN-ACK packet should have ACK set to client SEQ + 1
+		mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
+		printf("Net: Adding TCP handler for port %u to %u.%u.%u.%u\n",
 			   theirPort,
 			   (unsigned int)((theirIP>>24)&0xff), 
 			   (unsigned int)((theirIP>>16)&0xff), 
@@ -558,8 +559,8 @@ public:
 		
 		p->SetTCPSrcPort(theirPort);
 		p->SetTCPDstPort(myPort);
-		p->SetTCPSeq(theirSeqNr);
-		p->SetTCPAck(mySeqNr);
+		p->SetTCPSeq(mEinsteinPacketsSeq);
+		p->SetTCPAck(mNewtonPacketsSeq);
 		p->SetTCPHeaderLength(20);
 		p->SetTCPFlags(Packet::TCPFlagACK);
 		p->SetTCPWindow(0x1000);		
@@ -607,7 +608,6 @@ public:
 			return -1;
 		
 		// succesful connection, return a SYN ACK to the Newton.
-		mySeqNr++; 
 		Packet *reply = NewPacket(4); // 4 bytes are reserved for the extended TCP header
 		reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagSYN);
 		reply->SetTCPHeaderLength(24);
@@ -615,7 +615,7 @@ public:
 		UpdateChecksums(reply);
 		reply->LogPayload(net->GetLog(), "W E>N");
 		net->Enqueue(reply);
-		state = kStateConnected;
+		state = kStateConnectionWaitACK;
 		return 1;
 	}
 	
@@ -637,68 +637,74 @@ public:
 			case kStateDisconnected:
 				// FIXME: we assume that the original packet is a correct SYN packet
 				return connect(packet);
+			case kStateConnectionWaitACK:
+				mEinsteinPacketsSeq = packet.GetTCPAck();
+				state = kStateConnected;
+				return 1;
 			case kStateConnected:
 				// The socket is connected. Traffic can come from either side
-				if (packet.GetTCPPayloadSize()==0) { 
-					// this is an acknowledge package
-					theirSeqNr = packet.GetTCPAck();
-				} else { // this is a data package, ack needed
-					// FIXME: if FIN is set, we need to start disconnecting
-					packet.LogPayload(net->GetLog(), "W<E N");
-					write(mSocket, packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize());					
+				if (packet.GetTCPFlags() & Packet::TCPFlagFIN) {
+					// Newton initiates a disconnection.
+					// We don't support half-duplex
+					close(mSocket);
+					// Peer has closed connection.
+					mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
 					Packet *reply = NewPacket(0);
-					mySeqNr += packet.GetTCPPayloadSize(); 
-					reply->SetTCPAck(mySeqNr);
+					// Send a FIN request to the Newton
+					reply->SetTCPFlags(Packet::TCPFlagFIN|Packet::TCPFlagACK);
+					UpdateChecksums(reply);
+					reply->LogPayload(net->GetLog(), "W E>N");
+					net->Enqueue(reply);
+					// Wait for the newton to acknowledge the FIN and close on its side.
+					state = kStateNewwtonDiscWaitForACK;
+					break;
+				} else {
+					if (packet.GetTCPPayloadSize() > 0) {
+						// this is a data packet: send data to the socket
+						packet.LogPayload(net->GetLog(), "W<E N");
+						write(mSocket, packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize());
+						mNewtonPacketsSeq = packet.GetTCPSeq() + (KUInt32) packet.GetTCPPayloadSize();
+					}
+					// To avoid flooding the Newton, we send it data everytime it sends a packet
+					// (including empty ACKs)
+					if (packet.GetTCPAck() == mEinsteinPacketsSeq) {
+						timer();
+					}
+				}
+				return 1;
+			case kStateNewwtonDiscWaitForACK:
+				// Just close down.
+				// FIXME: we assume that this is an ACK packet
+				net->RemovePacketHandler(this);
+				printf("Net: Newton closed. Removing TCP handler for port %u to %u.%u.%u.%u\n",
+					   theirPort,
+					   (unsigned int)((theirIP>>24)&0xff),
+					   (unsigned int)((theirIP>>16)&0xff),
+					   (unsigned int)((theirIP>>8)&0xff),
+					   (unsigned int)(theirIP&0xff));
+				delete this;
+				return 1;
+			case kStatePeerDiscWaitForACK:
+				if ((packet.GetTCPFlags() & Packet::TCPFlagFIN)) {
+					// Newton also disconnected, send final ACK.
+					mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
+					Packet *reply = NewPacket(0);
 					reply->SetTCPFlags(Packet::TCPFlagACK);
 					UpdateChecksums(reply);
 					reply->LogPayload(net->GetLog(), "W E>N");
 					net->Enqueue(reply);
-					// TODO: now enqueue the reply from the remote client
+					close(mSocket);
+					net->RemovePacketHandler(this);
+					printf("Net: Peer closing. Removing TCP handler for port %u to %u.%u.%u.%u\n",
+						   theirPort,
+						   (unsigned int)((theirIP>>24)&0xff),
+						   (unsigned int)((theirIP>>16)&0xff),
+						   (unsigned int)((theirIP>>8)&0xff),
+						   (unsigned int)(theirIP&0xff));
+					delete this;
+
 				}
 				return 1;
-			case kStatePeerDiscWaitForACK:
-				// TODO: make sure that this really is the FIN ACK packege (FIN's not set!)
-				theirSeqNr = packet.GetTCPAck();
-				state = kStatePeerDiscWaitForFIN;
-				return 1;
-			case kStatePeerDiscWaitForFIN: {
-				theirSeqNr = packet.GetTCPAck();
-				// TODO: make sure that this really is the FIN packege from the Newton!
-				// FIXME: actually, instead of a FIN we may get a second ACK which would
-				// mean that the Newton does not agree to closing the connection. So we have
-				// to reopen the socket (or find a way to keep the peer from closing the socket).
-				// SO_LINGER, TIME_WAIT, SO_REUSEADDR, close vs. shutdown, getpeername()
-				// http://www.faqs.org/faqs/unix-faq/socket/
-				if ( (packet.GetTCPFlags()&Packet::TCPFlagFIN)==0 ) {
-					struct sockaddr_in sa;
-					memset(&sa, 0, sizeof(sa));
-					sa.sin_family = AF_INET;
-					sa.sin_port = htons(theirPort);
-					sa.sin_addr.s_addr = htonl(theirIP);
-					/* int err = */ ::connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
-					// perform some presets for the socket
-					int fl = fcntl(mSocket, F_GETFL);
-					/* err = */ fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
-					state = kStateConnected;
-					return 1;
-				}
-				// Acknowledge the FIN request
-				Packet *reply = NewPacket(0);
-				reply->SetTCPAck(mySeqNr+1);
-				reply->SetTCPFlags(Packet::TCPFlagACK);
-				UpdateChecksums(reply);
-				reply->LogPayload(net->GetLog(), "W E>N");
-				net->Enqueue(reply);				
-				close(mSocket);
-				net->RemovePacketHandler(this);
-				printf("Net: Peer closing. Removing TCP handler for port %u to %u.%u.%u.%u\n", 
-					   theirPort,
-					   (unsigned int)((theirIP>>24)&0xff), 
-					   (unsigned int)((theirIP>>16)&0xff), 
-					   (unsigned int)((theirIP>>8)&0xff), 
-					   (unsigned int)(theirIP&0xff));
-				delete this;
-				return 1; }
 			default:
 				printf("---> TCP send: unsupported state in 'send()'\n");
 				break;
@@ -718,38 +724,45 @@ public:
 			case kStatePeerDiscWaitForACK:
 				// TODO: count down the timer and remove myself if expired
 				return;
-			case kStatePeerDiscWaitForFIN:
+			case kStateNewwtonDiscWaitForACK:
 				// TODO: count down the timer and remove myself if expired
 				return;
 			case kStateDisconnected:
 				// TODO: this should not happen
 				return;
+			case kStateConnected:
+			{
+				KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
+				ssize_t avail = read(mSocket, buf, sizeof(buf));
+				if (avail==0) {
+					// Peer has closed connection.
+					Packet *reply = NewPacket(0);
+					// Send a FIN request to the Newton
+					reply->SetTCPFlags(Packet::TCPFlagFIN|Packet::TCPFlagACK);
+					UpdateChecksums(reply);
+					reply->LogPayload(net->GetLog(), "W E>N");
+					net->Enqueue(reply);
+					// Increment sequence number for last packet.
+					mEinsteinPacketsSeq++;
+					// Wait for the newton to acknowledge the FIN and close on its side.
+					state = kStatePeerDiscWaitForACK;
+					break;
+				} else if (avail>0) {
+					printf("Net: W>E N Data %d bytes\n", (int) avail);
+					//if (avail>200) avail = 200;
+					Packet *reply = NewPacket(avail);
+					// /*ssize_t n =*/ read(mSocket, reply->GetTCPPayloadStart(), avail);
+					memcpy(reply->GetTCPPayloadStart(), buf, avail);
+					reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagPSH);
+					UpdateChecksums(reply);
+					reply->LogPayload(net->GetLog(), "W E>N");
+					net->Enqueue(reply);
+					mEinsteinPacketsSeq += avail;
+				}
+				break;
+			}
 			default:
 				break;
-		}
-		// ok, the state is kStateConnected. See if there are any icomming messages
-		KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
-		ssize_t avail = read(mSocket, buf, sizeof(buf));
-		if (avail==0) {
-			// Peer has closed connection.
-			Packet *reply = NewPacket(0);
-			// Send a FIN request to the Newton
-			reply->SetTCPFlags(Packet::TCPFlagFIN|Packet::TCPFlagACK);
-			UpdateChecksums(reply);
-			reply->LogPayload(net->GetLog(), "W E>N");
-			net->Enqueue(reply);
-			// Wait for the newton to acknowledge the FIN
-			state = kStatePeerDiscWaitForACK;
-		} else if (avail>0) {
-			printf("Net: W>E N Data %d bytes\n", (int) avail);
-			//if (avail>200) avail = 200;
-			Packet *reply = NewPacket(avail);
-			// /*ssize_t n =*/ read(mSocket, reply->GetTCPPayloadStart(), avail);
-			memcpy(reply->GetTCPPayloadStart(), buf, avail);
-			reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagPSH);
-			UpdateChecksums(reply);
-			reply->LogPayload(net->GetLog(), "W E>N");
-			net->Enqueue(reply);
 		}
 	}
 	
@@ -779,7 +792,8 @@ public:
 	KUInt64		myMAC, theirMAC;
 	KUInt32		myIP, theirIP;
 	KUInt16		myPort, theirPort;
-	KUInt32		mySeqNr, theirSeqNr;
+	KUInt32		mEinsteinPacketsSeq;	///<! sequence number of our packets, incremented after each send
+	KUInt32		mNewtonPacketsSeq;		///<! sequence number of Newton packets for our ACKs
 	KUInt16		theirID;
 	enum State	state;
 	int			mSocket;
