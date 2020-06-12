@@ -904,24 +904,11 @@ void TFLApp::StoreAppWindowSize()
 }
 
 
-//#include "Emulator/JIT/JIT.h"
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
-//#include "Emulator/TEmulator.h"
-//#include "Emulator/ROM/TROMImage.h"
-#include "Emulator/TARMProcessor.h"
-//#include "Emulator/TDMAManager.h"
-//#include "Emulator/Screen/TScreenManager.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
-// 0x001D15EC
-T_ROM_INJECTION(0x001EE2BC, kROMPatchVoid, kROMPatchVoid, "FSetClipboard")
-{
-    fprintf(stderr, "FSetClipboard\n");
-    return ioUnit;
-}
-
-
-T_ROM_INJECTION(0x001B37FC, kROMPatchVoid, kROMPatchVoid, "AddClipboard__9TRootViewFRC6RefVarT1")
+/* FIXME: this nice idea works well on MP2100US, but not at all on eMates. How come? MP2100D not yet tested. */
+T_ROM_INJECTION(0x001B37FC, kROMPatchVoid, 0x001A1650, "AddClipboard__9TRootViewFRC6RefVarT1")
 {
 //    fprintf(stderr, "AddClipboard__9TRootViewFRC6RefVarT1\n");
     // r0 is a pointer to TRootView
