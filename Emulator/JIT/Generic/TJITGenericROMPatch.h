@@ -308,19 +308,21 @@ public:
  continues execution of the ROM code.
 
  \code
- T_ROM_INJECTION(0x00000010, "Data Abort") {
+ T_ROM_INJECTION(0x00000010, 0x00000010, 0x00000010, "Data Abort") {
      fprintf(stderr, "DATA ABORT at 0x%08X\n", ioCPU->mR14abt_Bkup-8);
      return ioUnit;
  }
  \endcode
 
- \param addr this is the address in ROM that we want to patch, must
+ \param addr this is the address in the MP2x00US ROM that we want to patch, must
  		be word-aligned
+ \param addr this is the address in the MP2x00D ROM
+ \param addr this is the address in the eMate300 ROM
  \param name naming the patch makes debugging easier
  */
 #define T_ROM_INJECTION(inAddr0, inAddr1, inAddr2, name) \
 extern JITInstructionProto(patch_##inAddr0); \
-TJITGenericPatchNativeInjection i##addr(inAddr0, inAddr1, inAddr2, patch_##inAddr0, name); \
+TJITGenericPatchNativeInjection i##inAddr0(inAddr0, inAddr1, inAddr2, patch_##inAddr0, name); \
 JITInstructionProto(patch_##inAddr0)
 
 

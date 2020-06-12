@@ -2,7 +2,7 @@
 // File:			TNetworkManager.cp
 // Project:			Einstein
 //
-// Copyright 2010 by Matthias Melcher (mm@matthiasm.com).
+// Copyright 2010-2020 by Matthias Melcher (mm@matthiasm.com).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

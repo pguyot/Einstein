@@ -149,9 +149,9 @@ KUInt32 TJITGenericPatchManager::Add(TJITGenericPatchObject *p)
 /**
  Apply all patches to the ROM.
  \param inROMPtr pointer to an array of ROM words
- \param inMachineName this is actually the version number of the ROM. As of
- 		April 2018, we only support patches for 717006 which is the ROM file
- 		that comes with the Native Developer Kit.
+ \param inROMId this is actually the version number of the ROM.
+            This can be used to apply a patch to the MP2100 ROM, the eMate ROM,
+            and the German ROM selectively.
  */
 void TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId)
 {

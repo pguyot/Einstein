@@ -2,7 +2,7 @@
 // File:			TNetworkManager.h
 // Project:			Einstein
 //
-// Copyright 2010 by Matthias Melcher (mm@matthiasm.com).
+// Copyright 2010-2020 by Matthias Melcher (mm@matthiasm.com).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -155,13 +155,13 @@ public:
 	/// Asynchronously wait for sockets to be readable and call IsReadyToRead in the async thread.
 	/// This function returns immediatly. The fd_set is copied.
 	///
-	void				AsyncWaitForReadyToRead(int nfds, const fd_set* inFDSet);
+	void                AsyncWaitForReadyToRead(int nfds, const fd_set* inFDSet);
 	
 	///
 	/// Thread loop entry point.
 	/// Select on fds.
 	///
-	virtual void				Run( void );
+	virtual void        Run();
 	
 protected:
 	///
