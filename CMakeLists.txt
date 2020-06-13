@@ -233,8 +233,6 @@ set ( sources
     Monitor/UDisasm.h
     app/TFLApp.cpp
     app/TFLApp.h
-    app/TFLAppWindow.cpp
-    app/TFLAppWindow.h
     app/TFLAppUI.cpp
     app/TFLAppUI.h
     app/TFLAppUI.fl
@@ -243,6 +241,13 @@ set ( sources
     app/TFLSettingsUI.h
     app/TFLSettings.cpp
     app/TFLSettings.h
+    app/TFLInspector.cpp
+    app/TFLInspector.h
+    app/TFLInspectorUI.cpp
+    app/TFLInspectorUI.h
+    app/TFLInspectorUI.fl
+    app/TFLAppWindow.cpp
+    app/TFLAppWindow.h
     app/TPathHelper.cpp
     app/TPathHelper.h
 	app/Version.h
@@ -263,12 +268,15 @@ configure_file(
 )
 
 
+#    add_custom_target(ProcessFluidUI DEPENDS
+#        ${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h
+#        )
 macro (build_with_fluid name dir)
-    add_custom_target(${name} DEPENDS
-        ${dir}/${name}.cpp
-        ${dir}/${name}.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h
-        )
+#    add_custom_target(${name} DEPENDS
+#        ${dir}/${name}.cpp
+#        ${dir}/${name}.h
+#        ${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h
+#        )
     add_custom_command(
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
         COMMAND ${FLTK_FLUID_EXECUTABLE} -c ${name}.fl
@@ -277,9 +285,15 @@ macro (build_with_fluid name dir)
         OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.cpp"
         OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.h"
     )
-    list(APPEND fluid_dependencies ${name})
+#    list(APPEND fluid_dependencies ${name})
+#    list(APPEND fluid_sources ${dir}/${name}.cpp ${dir}/${name}.h)
     set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.cpp PROPERTIES GENERATED TRUE)
     set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.h PROPERTIES GENERATED TRUE)
+#    add_dependencies(
+#        ProcessFluidUI
+#        ${dir}/${name}.cpp
+#        ${dir}/${name}.h
+#    )
 endmacro()
 
 
@@ -292,6 +306,7 @@ if (APPLE)
 
     build_with_fluid(TFLAppUI app)
     build_with_fluid(TFLSettingsUI app)
+    build_with_fluid(TFLInspectorUI app)
 
 	# additional source code
 	list (APPEND sources
@@ -332,7 +347,7 @@ if (APPLE)
         )
 
     # add all the source file that Fluid generates for us
-    add_dependencies(Einstein ${fluid_dependencies})
+    #add_dependencies(Einstein ${fluid_dependencies})
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC -Wall)
@@ -340,6 +355,8 @@ if (APPLE)
 	target_link_libraries(Einstein
 			# /usr/local/lib/libfltk.a
 			fltk
+            /usr/local/lib/libnewt64.a
+            iconv
 			pthread
 			"-framework AddressBook"
 			"-framework AudioUnit"
@@ -359,6 +376,7 @@ elseif (UNIX)
 
     build_with_fluid(TFLAppUI app)
     build_with_fluid(TFLSettingsUI app)
+    build_with_fluid(TFLInspectorUI app)
 
 	# additional source code
 	list (APPEND sources
@@ -400,6 +418,7 @@ elseif (WIN32)
 
     build_with_fluid(TFLAppUI app)
     build_with_fluid(TFLSettingsUI app)
+    build_with_fluid(TFLInspectorUI app)
 
 	# additional source code
 	list (APPEND sources
@@ -458,7 +477,13 @@ else()
 endif(APPLE)
 
 
-target_include_directories(Einstein PUBLIC ${CMAKE_SOURCE_DIR} ${FLTK_INCLUDE_DIRS})
+target_include_directories(
+    Einstein PUBLIC
+    ${CMAKE_SOURCE_DIR}
+    ${FLTK_INCLUDE_DIRS}
+    /usr/local/include/newt64
+    /usr/local/include/newt64/darwin
+)
 
 
 # nice code to output every know variable in this CMake session

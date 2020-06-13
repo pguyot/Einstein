@@ -40,7 +40,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         xywh {0 0 100 20}
       } {
         MenuItem {} {
-          label {New...} selected
+          label {New...}
           xywh {0 0 100 20} shortcut 0x41006e deactivate
         }
         MenuItem {} {
@@ -153,9 +153,10 @@ Function {CreateApplicationWindow(int x, int y)} {open
           callback {gApp->UserActionToggleMonitor();}
           xywh {0 0 100 20} shortcut 0x41006d
         }
-        MenuItem {} {
-          label Toolbox
-          xywh {0 0 100 20} shortcut 0x410074 deactivate
+        MenuItem wMenuItemInspector {
+          label Inspector
+          callback {gApp->UserActionToggleInspector();} selected
+          xywh {0 0 100 20} shortcut 0x410074
         }
         MenuItem {} {
           label {Settings...}

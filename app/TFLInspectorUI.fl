@@ -1,0 +1,147 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0400
+use_FL_COMMAND
+header_name {.h}
+code_name {.cpp}
+decl {\#include "TFLApp.h"} {private global
+}
+
+decl {\#include <FL/fl_draw.H>} {private global
+}
+
+Function {CreateInspectorWindow(int x, int y)} {open
+} {
+  Fl_Window wInspectorWindow {open selected
+    xywh {444 152 720 600} type Double resizable
+    code0 {wInspectorWindow->position(x, y);} visible
+  } {
+    Fl_Menu_Bar wInspectorMenubar {open
+      xywh {0 0 720 24} color 52
+      code0 {o->box(FL_FREE_BOXTYPE);}
+    } {
+      Submenu {} {
+        label File open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label {New...}
+          xywh {0 0 100 20} shortcut 0x41006e deactivate
+        }
+        MenuItem {} {
+          label {Open...}
+          xywh {0 0 100 20} shortcut 0x41006f deactivate divider
+        }
+        MenuItem {} {
+          label Save
+          xywh {0 0 100 20} shortcut 0x410073 deactivate
+        }
+        MenuItem {} {
+          label {Save As...}
+          xywh {0 0 100 20} deactivate divider
+        }
+        MenuItem {} {
+          label Close
+          xywh {0 0 100 20} shortcut 0x410077 deactivate divider
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate divider
+        }
+        MenuItem {} {
+          label {Page Setup...}
+          xywh {0 0 100 20} deactivate
+        }
+        MenuItem {} {
+          label {Print...}
+          xywh {0 0 100 20} shortcut 0x410070 deactivate divider
+        }
+        MenuItem {} {
+          label Quit
+          callback {gApp->UserActionQuit();}
+          xywh {0 0 100 20} shortcut 0x400071
+        }
+      }
+      Submenu {} {
+        label Edit open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label Cut
+          xywh {0 0 100 20} shortcut 0x410078 deactivate
+        }
+        MenuItem {} {
+          label Copy
+          xywh {0 0 100 20} shortcut 0x410063 deactivate
+        }
+        MenuItem {} {
+          label Paste
+          xywh {0 0 100 20} shortcut 0x410076 deactivate
+        }
+      }
+      Submenu {} {
+        label Application open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label Build
+          xywh {0 0 100 20} shortcut 0x400062
+        }
+        MenuItem {} {
+          label Install
+          xywh {0 0 100 20} shortcut 0x400032
+        }
+        MenuItem {} {
+          label Run
+          callback {gApp->UserActionInspectorRun();}
+          xywh {0 0 100 20} shortcut 0x400072
+        }
+      }
+      Submenu {} {
+        label Help open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label {Inspector Manual...}
+          xywh {12 12 100 20} deactivate
+        }
+        MenuItem {} {
+          label {About Inspector...}
+          xywh {0 0 100 20} deactivate
+        }
+      }
+    }
+    Fl_Group wInspectorToolbar {open
+      xywh {0 24 720 54} box THIN_UP_BOX color 52
+      code0 {o->box(FL_FREE_BOXTYPE);}
+    } {
+      Fl_Button wInspectorRun {
+        label {@>}
+        callback {gApp->UserActionInspectorRun();}
+        xywh {10 25 36 36} color 52 labelsize 24 labelcolor 48 align 528
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+      }
+    }
+    Fl_Box {} {
+      xywh {0 78 320 480} hide
+    }
+    Fl_Text_Editor wInspectorEditor {
+      xywh {0 78 720 422} box THIN_DOWN_FRAME selection_color 246 textfont 4 resizable
+    }
+    Fl_Text_Display wInspectorTerminal {
+      xywh {0 500 720 100} box THIN_DOWN_FRAME selection_color 246 textfont 4
+    }
+  }
+}

@@ -115,6 +115,12 @@ public:
     // Show or raise or hide the Monitor window
     void UserActionToggleMonitor();
 
+    // Show or raise or hide the Inspector window
+    void UserActionToggleInspector();
+
+    // Compile, upload, and run the current script in the Inspector
+    void UserActionInspectorRun();
+
     // ---  Events from within the meulator
 
     // this is called by the screen manager when the state of the backlight changed

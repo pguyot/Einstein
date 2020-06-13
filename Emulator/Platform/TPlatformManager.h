@@ -28,7 +28,9 @@
 
 // Einstein
 #include "PlatformEvents.h"
+#ifndef IGNORE_TNEWT
 #include "TNewt.h"
+#endif
 #include "Emulator/Host/UserInfoDefinitions.h"
 
 class TInterruptManager;
@@ -250,7 +252,9 @@ public:
 	///
 	/// Allow NewtonScript to call methods within Einstein.
 	///
+#ifndef IGNORE_TNEWT
 	NewtRef NewtonScriptCall(TNewt::RefArg rcvr, TNewt::RefArg arg0, TNewt::RefArg arg1);
+#endif
 
 private:
 	struct SBuffer {

@@ -1,8 +1,8 @@
 // ==============================
-// File:			TCLIApp.h
+// File:			TFLInspector.h
 // Project:			Einstein
 //
-// Copyright 2003-2020 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,29 +21,27 @@
 // $Id$
 // ==============================
 
-#ifndef _VERSION_H
-#define _VERSION_H
+#ifndef _TFLINSPECTOR_H
+#define _TFLINSPECTOR_H
 
-#define PROJECT_NAME "Einstein"
-#define PROJECT_VER  "2020.4.2"
-#define PROJECT_VER_MAJOR "2020"
-#define PROJECT_VER_MINOR "4"
-#define PROJECT_VER_PATCH "2"
+#include <K/Defines/KDefinitions.h>
 
-#define COMPILE_TIME_YYYY 2020
-#define COMPILE_TIME_MM 06
-#define COMPILE_TIME_DD 13
+#include <FL/x.H>
+#include <FL/Fl_Widget.H>
 
-#define VERSION_STRING		PROJECT_NAME " " PROJECT_VER
-#define VERSION_STRING_SHORT	PROJECT_VER
-#define COPYRIGHT_STRING		"Copyright 2003-2020 by Paul Guyot and contributors"
+#include "Version.h"
+
+
+#include "TFLApp.h"
+
 
 #endif
-		// _VERSION_H
+		// _TFLINSPECTOR_H
 
-// ================================================ //
-// Work continues in this area.                     //
-//                 -- DEC's SPR-Answering-Automaton //
-// ================================================ //
-
-
+// ============================================================================ //
+// Mac Airways:                                                                 //
+// The cashiers, flight attendants and pilots all look the same, feel the same  //
+// and act the same. When asked questions about the flight, they reply that you //
+// don't want to know, don't need to know and would you please return to your   //
+// seat and watch the movie.                                                    //
+// ============================================================================ //

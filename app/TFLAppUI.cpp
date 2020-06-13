@@ -51,6 +51,10 @@ static void cb_wMenuItemMonitor(Fl_Menu_*, void*) {
   gApp->UserActionToggleMonitor();
 }
 
+static void cb_wMenuItemInspector(Fl_Menu_*, void*) {
+  gApp->UserActionToggleInspector();
+}
+
 static void cb_Settings(Fl_Menu_*, void*) {
   gApp->UserActionShowSettingsPanel();
 }
@@ -91,7 +95,7 @@ Fl_Menu_Item menu_wMenubar[] = {
  {"Original SIze", 0,  (Fl_Callback*)cb_Original, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Fullscreen", FL_COMMAND|0x10066,  (Fl_Callback*)cb_wMenuItemFullscreen, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Monitor", FL_COMMAND|0x1006d,  (Fl_Callback*)cb_wMenuItemMonitor, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Toolbox", FL_COMMAND|0x10074,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Inspector", FL_COMMAND|0x10074,  (Fl_Callback*)cb_wMenuItemInspector, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Settings...", 0,  (Fl_Callback*)cb_Settings, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Bring All To Front", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
