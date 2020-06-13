@@ -1,5 +1,5 @@
 // ==============================
-// File:			TFLInspector.cp
+// File:			TFLToolkit.cp
 // Project:			Einstein
 //
 // Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
@@ -22,8 +22,8 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "TFLInspector.h"
-#include "TFLInspectorUI.h"
+#include "TFLToolkit.h"
+#include "TFLToolkitUI.h"
 
 #define IGNORE_TNEWT
 #include "Emulator/Platform/TPlatformManager.h"
@@ -375,35 +375,35 @@ style_update(int        pos,        // I - Position of update
 
 
 
-void TFLApp::UserActionToggleInspector()
+void TFLApp::UserActionToggleToolkit()
 {
-    if (!wInspectorWindow) {
-        CreateInspectorWindow(400, 80);
-        wInspectorEditor->buffer( gSourcecodeBuffer = new Fl_Text_Buffer() );
+    if (!wToolkitWindow) {
+        CreateToolkitWindow(400, 80);
+        wToolkitEditor->buffer( gSourcecodeBuffer = new Fl_Text_Buffer() );
         stylebuf = new Fl_Text_Buffer();
-        wInspectorEditor->highlight_data(stylebuf, styletable,
+        wToolkitEditor->highlight_data(stylebuf, styletable,
                                   sizeof(styletable) / sizeof(styletable[0]),
                                   'A', style_unfinished_cb, 0);
-        wInspectorEditor->linenumber_width(40);    // enable
-        wInspectorEditor->linenumber_size(wInspectorEditor->textsize()-2);
-        wInspectorEditor->wrap_mode(Fl_Text_Display::WRAP_NONE, 0);
+        wToolkitEditor->linenumber_width(40);    // enable
+        wToolkitEditor->linenumber_size(wToolkitEditor->textsize()-2);
+        wToolkitEditor->wrap_mode(Fl_Text_Display::WRAP_NONE, 0);
 
-        gSourcecodeBuffer->add_modify_callback(style_update, wInspectorEditor);
+        gSourcecodeBuffer->add_modify_callback(style_update, wToolkitEditor);
         //gSourcecodeBuffer->add_modify_callback(changed_cb, w);
         gSourcecodeBuffer->call_modify_callbacks();
         gSourcecodeBuffer->loadfile("/Users/matt/dev/newton-test/mini.ns");
 
-        wInspectorTerminal->buffer( gTerminalBuffer = new Fl_Text_Buffer() );
+        wToolkitTerminal->buffer( gTerminalBuffer = new Fl_Text_Buffer() );
     }
-    if (wInspectorWindow->visible()) {
-        wInspectorWindow->hide();
+    if (wToolkitWindow->visible()) {
+        wToolkitWindow->hide();
     } else {
-        wInspectorWindow->show();
+        wToolkitWindow->show();
     }
 }
 
 
-void TFLApp::UserActionInspectorRun()
+void TFLApp::UserActionToolkitRun()
 {
     // ---- build
     gTerminalBuffer->append("Compiling...\n");
@@ -448,7 +448,11 @@ extern "C" void yyerror(char * s)
 
 
 // ======================================================================= //
-// Apple is like a ship with a hole in the bottom, leaking water and my
-// job is to get the ship pointed in the right direction.
-//   -- Steve Jobs
+// Newton Toolkit
+//
+// A development environment created by Apple for writing NewtonScript programs
+// for Newton OS. A prototype for Newton Toolkit called EtchASketch was written
+// using Macintosh Common Lisp. Also referred to as NTK.
+//
+//   -- Newton Glossary
 // ======================================================================= //

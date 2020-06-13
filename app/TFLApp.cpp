@@ -43,7 +43,7 @@
 
 // ----- Major new Features
 // TODO: patch ROMs for Y10k bug
-// TODO: integrate Inspector
+// TODO: integrate Toolkit
 // TODO: integrate newt/64
 // TODO: printer support
 // TODO: wake-up/launch on appointment in the future

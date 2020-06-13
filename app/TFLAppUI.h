@@ -23,5 +23,5 @@ TFLAppWindow* CreateApplicationWindow(int x, int y);
 extern Fl_Menu_Item menu_wMenubar[];
 #define wMenuItemFullscreen (menu_wMenubar+29)
 #define wMenuItemMonitor (menu_wMenubar+30)
-#define wMenuItemInspector (menu_wMenubar+31)
+#define wMenuItemToolkit (menu_wMenubar+31)
 #endif

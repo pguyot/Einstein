@@ -115,11 +115,11 @@ public:
     // Show or raise or hide the Monitor window
     void UserActionToggleMonitor();
 
-    // Show or raise or hide the Inspector window
-    void UserActionToggleInspector();
+    // Show or raise or hide the Toolkit window
+    void UserActionToggleToolkit();
 
-    // Compile, upload, and run the current script in the Inspector
-    void UserActionInspectorRun();
+    // Compile, upload, and run the current script in the Toolkit
+    void UserActionToolkitRun();
 
     // ---  Events from within the meulator
 

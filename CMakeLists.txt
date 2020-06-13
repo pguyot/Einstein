@@ -241,11 +241,11 @@ set ( sources
     app/TFLSettingsUI.h
     app/TFLSettings.cpp
     app/TFLSettings.h
-    app/TFLInspector.cpp
-    app/TFLInspector.h
-    app/TFLInspectorUI.cpp
-    app/TFLInspectorUI.h
-    app/TFLInspectorUI.fl
+    Toolkit/TFLToolkit.cpp
+    Toolkit/TFLToolkit.h
+    Toolkit/TFLToolkitUI.cpp
+    Toolkit/TFLToolkitUI.h
+    Toolkit/TFLToolkitUI.fl
     app/TFLAppWindow.cpp
     app/TFLAppWindow.h
     app/TPathHelper.cpp
@@ -306,7 +306,7 @@ if (APPLE)
 
     build_with_fluid(TFLAppUI app)
     build_with_fluid(TFLSettingsUI app)
-    build_with_fluid(TFLInspectorUI app)
+    build_with_fluid(TFLToolkitUI Toolkit)
 
 	# additional source code
 	list (APPEND sources
@@ -376,7 +376,7 @@ elseif (UNIX)
 
     build_with_fluid(TFLAppUI app)
     build_with_fluid(TFLSettingsUI app)
-    build_with_fluid(TFLInspectorUI app)
+    build_with_fluid(TFLToolkitUI Toolkit)
 
 	# additional source code
 	list (APPEND sources
@@ -418,7 +418,7 @@ elseif (WIN32)
 
     build_with_fluid(TFLAppUI app)
     build_with_fluid(TFLSettingsUI app)
-    build_with_fluid(TFLInspectorUI app)
+    build_with_fluid(TFLToolkitUI Toolkit)
 
 	# additional source code
 	list (APPEND sources
