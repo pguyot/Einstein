@@ -23,6 +23,19 @@ set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 project("Einstein" VERSION "2020.4.2")
 
+find_library(newt64_lib NAME newt64 PATHS /usr/local/lib)
+find_file(newt64_incl NAMES NewtCore.h PATHS /usr/local/include PATH_SUFFIXES newt64)
+if(newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND")
+    message(STATUS "NEWT/64 not found!")
+    set ( USE_NEWT64 false )
+else()
+    message(STATUS "newt64 found!")
+    set ( USE_NEWT64 true )
+    get_filename_component(newt64_lib_path ${newt64_lib} DIRECTORY)
+    get_filename_component(newt64_incl_path ${newt64_incl} DIRECTORY)
+endif()
+
+
 set ( sources 
 	Emulator/Files/TFileManager.cpp
 	Emulator/Files/TFileManager.h
@@ -355,8 +368,6 @@ if (APPLE)
 	target_link_libraries(Einstein
 			# /usr/local/lib/libfltk.a
 			fltk
-            /usr/local/lib/libnewt64.a
-            iconv
 			pthread
 			"-framework AddressBook"
 			"-framework AudioUnit"
@@ -366,6 +377,15 @@ if (APPLE)
 			)
 	set_target_properties(Einstein PROPERTIES
 			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Info.plist.in")
+
+    if ( USE_NEWT64 MATCHES true )
+        message(STATUS ${newt64_lib_path})
+        target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
+        target_link_libraries(Einstein
+            ${newt64_lib}
+            iconv
+            )
+    endif ()
 
 elseif (UNIX)
 
@@ -481,8 +501,6 @@ target_include_directories(
     Einstein PUBLIC
     ${CMAKE_SOURCE_DIR}
     ${FLTK_INCLUDE_DIRS}
-    /usr/local/include/newt64
-    /usr/local/include/newt64/darwin
 )
 
 
