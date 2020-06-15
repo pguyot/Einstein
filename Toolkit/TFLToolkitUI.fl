@@ -3,7 +3,10 @@ version 1.0400
 use_FL_COMMAND
 header_name {.h}
 code_name {.cpp}
-decl {\#include "app/TFLApp.h"} {selected private global
+decl {\#include "Toolkit/TToolkit.h"} {private global
+}
+
+decl {\#include "app/TFLApp.h"} {private global
 }
 
 decl {\#include <FL/fl_draw.H>} {private global
@@ -95,16 +98,25 @@ Function {CreateToolkitWindow(int x, int y)} {open
       } {
         MenuItem {} {
           label Build
+          callback {gToolkit->AppBuild();}
           xywh {0 0 100 20} shortcut 0x400062
         }
         MenuItem {} {
           label Install
+          callback {gToolkit->AppInstall();}
           xywh {0 0 100 20} shortcut 0x400032
         }
         MenuItem {} {
           label Run
-          callback {gApp->UserActionToolkitRun();}
+          callback {gToolkit->AppBuild();
+gToolkit->AppInstall();
+gToolkit->AppRun();}
           xywh {0 0 100 20} shortcut 0x400072
+        }
+        MenuItem {} {
+          label Stop
+          callback {gToolkit->AppStop();}
+          xywh {12 12 100 20} shortcut 0x40002e
         }
       }
       Submenu {} {
@@ -127,8 +139,16 @@ Function {CreateToolkitWindow(int x, int y)} {open
     } {
       Fl_Button wToolkitRun {
         label {@>}
-        callback {gApp->UserActionToolkitRun();}
+        callback {gToolkit->AppRun();} selected
         xywh {10 25 36 36} color 52 labelsize 24 labelcolor 48 align 528
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+      }
+      Fl_Button wToolkitStop {
+        label {@square}
+        callback {gToolkit->AppStop();}
+        xywh {46 25 36 36} color 52 labelsize 16 labelcolor 48 align 528
         code0 {o->box(FL_FREE_BOXTYPE);}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}

@@ -50,7 +50,7 @@
 
 // ----- Imporvemnets to the inner workings
 // TODO: Full Android support as a address book and calender app
-// TODO: Fix lockas and race conditions
+// TODO: Fix locks and race conditions
 // TODO: cleanup all compile warnings on all platforms
 // TODO: Windows: static linking without installer/VC Libs (should work now?!)
 // TODO: Linux: App Icon, Flatpak
@@ -93,6 +93,9 @@
 #include "TFLAppUI.h"
 #include "TFLAppWindow.h"
 #include "TFLSettingsUI.h"
+#if USE_NEWT64
+#include "Toolkit/TToolkit.h"
+#endif
 
 // ANSI C & POSIX
 #include <stdio.h>
@@ -318,15 +321,23 @@ TFLApp::Run( int argc, char* argv[] )
  */
 void TFLApp::UserActionQuit()
 {
+#if USE_NEWT64
+    // Close the Toolkit window, so it can save its coordinates in the prefrences
+    if ( mToolkit )
+        mToolkit->Hide();
+#endif
+
     // tell the emulator to shut everything down
     if ( mEmulator ) {
         mEmulator->Quit();
     }
+
     // closing all windows will end Fl::run();
     Fl_Window *w;
     while ( (w=Fl::first_window()) ) {
         w->hide();
     }
+    
     // afte Fl::run() if finished, TFLApp waits for the emulator
     // process to finish as well.
 }
@@ -570,6 +581,14 @@ void TFLApp::UserActionToggleMonitor()
         mMonitor->Show();
 }
 
+void TFLApp::UserActionShowToolkit()
+{
+#if USE_NEWT64
+    if (!mToolkit)
+        mToolkit = new TToolkit(this);
+    mToolkit->Show();
+#endif
+}
 
 // MARK: -
 // ---  Events from within the meulator

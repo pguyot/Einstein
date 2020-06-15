@@ -52,7 +52,7 @@ static void cb_wMenuItemMonitor(Fl_Menu_*, void*) {
 }
 
 static void cb_wMenuItemToolkit(Fl_Menu_*, void*) {
-  gApp->UserActionToggleToolkit();
+  gApp->UserActionShowToolkit();
 }
 
 static void cb_Settings(Fl_Menu_*, void*) {

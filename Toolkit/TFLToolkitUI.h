@@ -11,6 +11,7 @@ extern Fl_Menu_Bar *wToolkitMenubar;
 extern Fl_Group *wToolkitToolbar;
 #include <FL/Fl_Button.H>
 extern Fl_Button *wToolkitRun;
+extern Fl_Button *wToolkitStop;
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Text_Editor.H>
 extern Fl_Text_Editor *wToolkitEditor;

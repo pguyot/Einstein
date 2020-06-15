@@ -1,5 +1,5 @@
 // ==============================
-// File:			TFLToolkit.h
+// File:			TToolkitFile.h
 // Project:			Einstein
 //
 // Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
@@ -21,19 +21,22 @@
 // $Id$
 // ==============================
 
-#ifndef _TFLTOOLKIT_H
-#define _TFLTOOLKIT_H
-
-#include <K/Defines/KDefinitions.h>
-
-#include <FL/x.H>
-#include <FL/Fl_Widget.H>
+#ifndef _T_TOOLKIT_FILE_H
+#define _T_TOOLKIT_FILE_H
 
 #include "app/Version.h"
 #include "app/TFLApp.h"
 
+class TToolkitFile
+{
+public:
+    TToolkitFile();
+    ~TToolkitFile();
+};
+
+
 #endif
-		// _TFLTOOLKIT_H
+		// _T_TOOLKIT_FILE_H
 
 // ============================================================================ //
 // Inspector

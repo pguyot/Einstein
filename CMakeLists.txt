@@ -254,11 +254,6 @@ set ( sources
     app/TFLSettingsUI.h
     app/TFLSettings.cpp
     app/TFLSettings.h
-    Toolkit/TFLToolkit.cpp
-    Toolkit/TFLToolkit.h
-    Toolkit/TFLToolkitUI.cpp
-    Toolkit/TFLToolkitUI.h
-    Toolkit/TFLToolkitUI.fl
     app/TFLAppWindow.cpp
     app/TFLAppWindow.h
     app/TPathHelper.cpp
@@ -268,6 +263,24 @@ set ( sources
     Drivers/EinsteinRex.cpp
     Drivers/EinsteinRex.h
 )
+
+if ( USE_NEWT64 MATCHES true )
+    list(APPEND sources
+        Toolkit/TToolkit.cpp
+        Toolkit/TToolkit.h
+        Toolkit/TToolkitFile.cpp
+        Toolkit/TToolkitFile.h
+        Toolkit/TFLToolkitUI.cpp
+        Toolkit/TFLToolkitUI.h
+        Toolkit/TFLToolkitUI.fl
+        Toolkit/TFLScriptPanel.cpp
+        Toolkit/TFLScriptPanel.h
+        Toolkit/TProjectFile.cpp
+        Toolkit/TProjectFile.h
+        Toolkit/TScriptFile.cpp
+        Toolkit/TScriptFile.h
+        )
+endif ()
 
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h PROPERTIES GENERATED TRUE)
 
@@ -385,6 +398,7 @@ if (APPLE)
             ${newt64_lib}
             iconv
             )
+        target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
     endif ()
 
 elseif (UNIX)

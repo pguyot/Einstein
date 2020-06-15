@@ -21,8 +21,36 @@
 // $Id$
 // ==============================
 
+
+// TODO: Build, Install, Run, Stop must know the state we are in to avoid building twice
+// TODO: Horizontal scrollbar in Inspector must go
+// TODO: ScriptEditor needs its own class and Find/Replace, Cut/Copy/Paste, etc.
+// TODO: Better syntax highlighting
+
+/* NOTE:
+ This is where the MP2100US ROM interpretes bytecodes "fast"
+    cmp     r0, #207                    @ [ 0x000000CF ] 0x002EE1DC 0xE35000CF - .P..
+ and this is the slow version:
+    cmp     r2, #207                    @ [ 0x000000CF ] 0x002F2028 0xE35200CF - .R..
+ We can add a new BC command, BC26 (0xD0nnnn), where nnnn is the line in the
+ source code. This would allow the debugger to show where bytecode execution is
+ at right now. We should have a BC27 at the start of every bytecode stream that
+ gives us an index to teh source file, and an array of source files at the start
+ of the NSOF part in the package. BC31 is the highest possible bytecode.
+ TODO: __LINE__ implement a "current line"
+ TODO: __FILE__ implement a "current file" as a stack (call...return)
+ TODO: the Newt/64 #include statement must push and pop the current filename and line number
+ TODO: can we implement single-stepping by just pausing at __LINE__ bytecode?
+ TODO: can we use the top bit of the __LINE__ bytecode (or another BC) to indicate a breakpoint?
+ */
+
+/*
+ TFLToolkit is an integrated NewtonScript compiler, decompiler, and debugger
+ for Einstein.
+ */
+
 #include <K/Defines/KDefinitions.h>
-#include "TFLToolkit.h"
+#include "TToolkit.h"
 #include "TFLToolkitUI.h"
 
 #define IGNORE_TNEWT
@@ -36,6 +64,8 @@
 
 Fl_Text_Buffer *gSourcecodeBuffer = nullptr;
 Fl_Text_Buffer *gTerminalBuffer = nullptr;
+
+TToolkit *gToolkit = nullptr;
 
 
 // FIXME: the syntax highlighting was taken from the FLTK "C" editor demo and needs to be updated to NewtonScript
@@ -374,11 +404,21 @@ style_update(int        pos,        // I - Position of update
 }
 
 
-
-void TFLApp::UserActionToggleToolkit()
+void TToolkit::Show() //TFLApp::UserActionToggleToolkit()
 {
     if (!wToolkitWindow) {
-        CreateToolkitWindow(400, 80);
+        Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+        Fl_Preferences toolkit(prefs, "Toolkit");
+        Fl_Preferences tkWindow(toolkit, "Window");
+        int x, y, w, h;
+        tkWindow.get("x", x, 400);
+        tkWindow.get("y", y, 80);
+        tkWindow.get("w", w, 720);
+        tkWindow.get("h", h, 600);
+
+        wToolkitWindow = CreateToolkitWindow(x, y);
+        wToolkitWindow->resize(x, y, w, h);
+
         wToolkitEditor->buffer( gSourcecodeBuffer = new Fl_Text_Buffer() );
         stylebuf = new Fl_Text_Buffer();
         wToolkitEditor->highlight_data(stylebuf, styletable,
@@ -395,46 +435,86 @@ void TFLApp::UserActionToggleToolkit()
 
         wToolkitTerminal->buffer( gTerminalBuffer = new Fl_Text_Buffer() );
     }
-    if (wToolkitWindow->visible()) {
+    wToolkitWindow->show();
+}
+
+
+void TToolkit::Hide()
+{
+    Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+    Fl_Preferences toolkit(prefs, "Toolkit");
+    Fl_Preferences tkWindow(toolkit, "Window");
+    if (wToolkitWindow) {
+        tkWindow.set("x", wToolkitWindow->x());
+        tkWindow.set("y", wToolkitWindow->y());
+        tkWindow.set("w", wToolkitWindow->w());
+        tkWindow.set("h", wToolkitWindow->h());
         wToolkitWindow->hide();
-    } else {
-        wToolkitWindow->show();
     }
 }
 
 
-void TFLApp::UserActionToolkitRun()
+void TToolkit::AppBuild()
 {
-    // ---- build
     gTerminalBuffer->append("Compiling...\n");
     newtRefVar    result;
     newtErr    err;
     NewtInit(0, 0L, 0);
-//    newt_chdir();
+    //    newt_chdir();
     //result = NVMInterpretFile("/Users/matt/dev/newton-test/mini.ns", &err);
     result = NVMInterpretStr(gSourcecodeBuffer->text(), &err);
-//    newt_result_message(result, err);
+    //    newt_result_message(result, err);
     NewtCleanup();
+}
 
-    // ---- uninstall old
+
+void TToolkit::AppInstall()
+{
     gTerminalBuffer->append("Installing...\n");
-    TPlatformManager *mgr = mPlatformManager;
+    TPlatformManager *mgr = mApp->GetPlatformManager();
     mgr->EvalNewtonScript(
                           "if HasSlot(GetRoot(), '|PictIndex:PIEDTS|) then begin\n"
                           "  GetRoot().|PictIndex:PIEDTS|:Close();\n"
                           "  SafeRemovePackage(GetPkgRef(\"PictIndex:PIEDTS\", GetStores()[0]))\n"
                           "end;\n"
                           );
+    mApp->InstallPackagesFromURI("/Users/matt/dev/newton-test/mini.pkg");
+}
 
-    // ---- install new
-    InstallPackagesFromURI("/Users/matt/dev/newton-test/mini.pkg");
 
-    // ---- run new
+void TToolkit::AppRun()
+{
     gTerminalBuffer->append("Run...\n");
+    TPlatformManager *mgr = mApp->GetPlatformManager();
     mgr->EvalNewtonScript(
                           "GetRoot().|PictIndex:PIEDTS|:Open();\n"
                           );
 }
+
+
+void TToolkit::AppStop()
+{
+    gTerminalBuffer->append("Stop...\n");
+    TPlatformManager *mgr = mApp->GetPlatformManager();
+    mgr->EvalNewtonScript(
+                          "if HasSlot(GetRoot(), '|PictIndex:PIEDTS|) then begin\n"
+                          "  GetRoot().|PictIndex:PIEDTS|:Close();\n"
+                          "end;\n"
+                          );
+}
+
+
+TToolkit::TToolkit(TFLApp *inApp)
+:   mApp(inApp)
+{
+    gToolkit = this;
+}
+
+
+TToolkit::~TToolkit()
+{
+}
+
 
 
 extern "C" void yyerror(char * s)

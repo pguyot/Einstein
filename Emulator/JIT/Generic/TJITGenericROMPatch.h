@@ -37,7 +37,7 @@ const KUInt32 kROMPatchVoid = ~0;
 /**
  \brief Manage all code patches.
 
- This class is completely static and does not need to be instatiated anywhere.
+ This class is completely static and does not need to be instantiated.
  It keeps track of all patches as they are created, and applies them after the
  ROM is initialized.
  */
@@ -66,9 +66,9 @@ public:
 /**
  \brief This abstract class is the base implementation for all types of patches.
 
- New types of patches can be based on this class or any of the derived classes.
+ New types of patch can be based on this class or any of the derived classes.
  The only method that must be overridden is `Apply(KUInt32 *ROM)`, which
- replaces onw instruction word in ROM with another instruction.
+ replaces one instruction word in ROM with another instruction.
  */
 class TJITGenericPatchObject
 {
@@ -187,7 +187,7 @@ public:
 /**
  \brief This patch type is used to call a JIT stub \b instead of an instruction.
 
- Use the patch type to replace the ARM instruction at the give address in ROM
+ Use this patch type to replace the ARM instruction at the give address in ROM
  with a call to native code. The native code has full access to the entire
  emulator including CPU and Memory.
 
@@ -250,8 +250,10 @@ public:
  }
  \endcode
 
- \param addr this is the address in ROM that we want to patch, must
+ \param inAddr0 this is the address in the MP2100US ROM that we want to patch, must
  		be word-aligned
+ \param inAddr1 this is the address in the MP2100DE ROM or kROMPatchVoid
+ \param inAddr2 this is the address in the eMate300 ROM or kROMPatchVoid
  \param name naming the patch makes debugging easier
 
  */
@@ -267,7 +269,7 @@ JITInstructionProto(patch_##inAddr0)
  An Injection is different to a Patch. It will call native code, but then
  return and execute the original code.
 
- Use the patch type to place a native call just before the ARM instruction at
+ Use this patch type to insert a native call just before the ARM instruction at
  the give address in ROM. The native code has full access to the entire
  emulator including CPU and Memory.
 
@@ -299,8 +301,8 @@ public:
 /**
  \brief This Macro makes it easy to insert native code anywhere in ROM.
 
- The original ARM command at the given address is executed after the injected
- code ran. The 'C' code can immediatly follow the Macro. The function must end
+ The original ARM instruction at the given address is executed after the injected
+ code returns. The 'C' code can immediatly follow the Macro. The function must end
  in `return ioUnit;`. Two prameters are available to the function:
  'JITUnit* ioUnit' and 'TARMProcessor* ioCPU'.
 
@@ -309,13 +311,15 @@ public:
 
  \code
  T_ROM_INJECTION(0x00000010, 0x00000010, 0x00000010, "Data Abort") {
-     fprintf(stderr, "DATA ABORT at 0x%08X\n", ioCPU->mR14abt_Bkup-8);
+     fprintf(stderr, "DATA ABORT called from 0x%08X\n", ioCPU->mR14abt_Bkup-8);
      return ioUnit;
  }
  \endcode
 
- \param addr this is the address in the MP2x00US ROM that we want to patch, must
- 		be word-aligned
+ \param inAddr0 this is the address in the MP2100US ROM that we want to patch, must
+        be word-aligned
+ \param inAddr1 this is the address in the MP2100DE ROM or kROMPatchVoid
+ \param inAddr2 this is the address in the eMate300 ROM or kROMPatchVoid
  \param addr this is the address in the MP2x00D ROM
  \param addr this is the address in the eMate300 ROM
  \param name naming the patch makes debugging easier
