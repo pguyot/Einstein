@@ -31,6 +31,20 @@ static void cb_Stop(Fl_Menu_*, void*) {
   gToolkit->AppStop();
 }
 
+static void cb_Process(Fl_Menu_*, void*) {
+  gToolkit->AppInstall();
+}
+
+static void cb_Process1(Fl_Menu_*, void*) {
+  gToolkit->AppBuild();
+gToolkit->AppInstall();
+gToolkit->AppRun();
+}
+
+static void cb_Project(Fl_Menu_*, void*) {
+  gToolkit->AppStop();
+}
+
 Fl_Menu_Item menu_wToolkitMenubar[] = {
  {"File", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"New...", FL_COMMAND|0x1006e,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
@@ -38,25 +52,31 @@ Fl_Menu_Item menu_wToolkitMenubar[] = {
  {"Save", FL_COMMAND|0x10073,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Save As...", 0,  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Close", FL_COMMAND|0x10077,  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"", 0,  0, 0, 17, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"", 0,  0, 0, 17, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"", 0,  0, 0, 17, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"", 0,  0, 0, 17, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"", 0,  0, 0, 145, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Page Setup...", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Print...", FL_COMMAND|0x10070,  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Quit", FL_COMMAND|0x71,  (Fl_Callback*)cb_Quit, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {"Edit", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Cut", FL_COMMAND|0x10078,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Copy", FL_COMMAND|0x10063,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Paste", FL_COMMAND|0x10076,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Cut", FL_COMMAND|0x78,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Copy", FL_COMMAND|0x63,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Paste", FL_COMMAND|0x76,  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Find....", FL_COMMAND|0x66,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
- {"Application", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Build", FL_COMMAND|0x62,  (Fl_Callback*)cb_Build, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Install", FL_COMMAND|0x32,  (Fl_Callback*)cb_Install, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Run", FL_COMMAND|0x72,  (Fl_Callback*)cb_Run, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Stop", FL_COMMAND|0x2e,  (Fl_Callback*)cb_Stop, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Project", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"New Project...", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Open Project...", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Decompile Package...", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Sample Projects", 0,  0, 0, 192, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Hello World", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {0,0,0,0,0,0,0,0,0},
+ {"Add File...", 0,  0, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Build", FL_COMMAND|0x62,  (Fl_Callback*)cb_Build, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Install", FL_COMMAND|0x32,  (Fl_Callback*)cb_Install, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Run", FL_COMMAND|0x72,  (Fl_Callback*)cb_Run, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Stop", FL_COMMAND|0x2e,  (Fl_Callback*)cb_Stop, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Process Earlier", FL_COMMAND|0x32,  (Fl_Callback*)cb_Process, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Process Later", FL_COMMAND|0x72,  (Fl_Callback*)cb_Process1, 0, 129, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Project Settings...", FL_COMMAND|0x2e,  (Fl_Callback*)cb_Project, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {"Help", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Toolkit Manual...", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
@@ -79,9 +99,9 @@ static void cb_wToolkitStop(Fl_Button*, void*) {
   gToolkit->AppStop();
 }
 
-Fl_Text_Editor *wToolkitEditor=(Fl_Text_Editor *)0;
+TFLScriptEditor *wToolkitEditor=(TFLScriptEditor *)0;
 
-Fl_Text_Display *wToolkitTerminal=(Fl_Text_Display *)0;
+TFLTerminalEditor *wToolkitTerminal=(TFLTerminalEditor *)0;
 
 Fl_Double_Window* CreateToolkitWindow(int x, int y) {
   { wToolkitWindow = new Fl_Double_Window(720, 600);
@@ -119,17 +139,31 @@ Fl_Double_Window* CreateToolkitWindow(int x, int y) {
     { Fl_Box* o = new Fl_Box(0, 78, 320, 480);
       o->hide();
     } // Fl_Box* o
-    { wToolkitEditor = new Fl_Text_Editor(0, 78, 720, 422);
+    { wToolkitEditor = new TFLScriptEditor(0, 78, 720, 422);
       wToolkitEditor->box(FL_THIN_DOWN_FRAME);
+      wToolkitEditor->color(FL_BACKGROUND2_COLOR);
       wToolkitEditor->selection_color((Fl_Color)246);
+      wToolkitEditor->labeltype(FL_NORMAL_LABEL);
+      wToolkitEditor->labelfont(0);
+      wToolkitEditor->labelsize(14);
+      wToolkitEditor->labelcolor(FL_FOREGROUND_COLOR);
       wToolkitEditor->textfont(4);
+      wToolkitEditor->align(Fl_Align(FL_ALIGN_TOP));
+      wToolkitEditor->when(FL_WHEN_RELEASE);
       Fl_Group::current()->resizable(wToolkitEditor);
-    } // Fl_Text_Editor* wToolkitEditor
-    { wToolkitTerminal = new Fl_Text_Display(0, 500, 720, 100);
+    } // TFLScriptEditor* wToolkitEditor
+    { wToolkitTerminal = new TFLTerminalEditor(0, 500, 720, 100);
       wToolkitTerminal->box(FL_THIN_DOWN_FRAME);
+      wToolkitTerminal->color(FL_BACKGROUND2_COLOR);
       wToolkitTerminal->selection_color((Fl_Color)246);
+      wToolkitTerminal->labeltype(FL_NORMAL_LABEL);
+      wToolkitTerminal->labelfont(0);
+      wToolkitTerminal->labelsize(14);
+      wToolkitTerminal->labelcolor(FL_FOREGROUND_COLOR);
       wToolkitTerminal->textfont(4);
-    } // Fl_Text_Display* wToolkitTerminal
+      wToolkitTerminal->align(Fl_Align(FL_ALIGN_TOP));
+      wToolkitTerminal->when(FL_WHEN_RELEASE);
+    } // TFLTerminalEditor* wToolkitTerminal
     wToolkitWindow->position(x, y);
     wToolkitWindow->end();
   } // Fl_Double_Window* wToolkitWindow

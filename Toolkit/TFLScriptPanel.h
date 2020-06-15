@@ -31,6 +31,8 @@
 #include <FL/Fl_Text_Editor.H>
 #include <FL/Fl_Text_Buffer.H>
 
+class TFLScriptBuffer;
+
 
 /**
  * This class provides and FLTK UI to edit NewtonScript source code.
@@ -38,7 +40,7 @@
 class TFLScriptPanel: public Fl_Group
 {
 public:
-    TFLScriptPanel();
+    TFLScriptPanel(int x, int y, int w, int h, const char *label = nullptr);
     ~TFLScriptPanel();
 };
 
@@ -49,19 +51,26 @@ public:
 class TFLScriptEditor : public Fl_Text_Editor
 {
 public:
-    TFLScriptEditor();
+    TFLScriptEditor(int x, int y, int w, int h, const char *label = nullptr);
     ~TFLScriptEditor();
-};
+    
+private:
+    void style_parse(const char *text, char *style, int length);
+    void style_init();
+    void style_update(int pos, int nInserted, int nDeleted,
+                             int nRestyled, const char *deletedText);
 
+    Fl_Text_Buffer *mTextBuffer  = nullptr;
+    Fl_Text_Buffer *mStyleBuffer = nullptr;
 
-/**
- * This class manages the text buffer for NewtonScript source code.
- */
-class TFLScriptBuffer : public Fl_Text_Buffer
-{
-public:
-    TFLScriptBuffer();
-    ~TFLScriptBuffer();
+// static:
+    static Fl_Text_Display::Style_Table_Entry styletable[];
+    static const char *code_keywords[];
+    static const char *code_types[];
+    static void style_update_cb(int pos, int nInserted, int nDeleted,
+                      int nRestyled, const char *deletedText, void *This)
+        { ((TFLScriptEditor*)This)->style_update(pos, nInserted, nDeleted, nRestyled, deletedText); }
+    static void style_unfinished_cb(int, void*);
 };
 
 

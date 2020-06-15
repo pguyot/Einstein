@@ -1,5 +1,5 @@
 // ==============================
-// File:			TScriptFile.cp
+// File:			TFLTerminalPanel.cp
 // Project:			Einstein
 //
 // Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
@@ -22,42 +22,62 @@
 // ==============================
 
 
-#include "TScriptFile.h"
+#include "TFLTerminalPanel.h"
 
-/*
- //#include "/Users/matt/dev/newt64/defs/newt.2.2.ns"
- //#include "/Users/matt/dev/newt64/defs/newt.bc.2.2.ns"
 
- p("Start");
+// MARK: - TFLTerminalPanel -
 
- global bc := {
- ...
- };
 
- p("Interprete...");
+/**
+ * Terminal is a direct connection to the NEWT/64 environment.
+ */
+TFLTerminalPanel::TFLTerminalPanel(int x, int y, int w, int h, const char *label)
+:   Fl_Group(x, y, w, h, label)
+{
+}
 
- src :=
- {
-...
- };
+TFLTerminalPanel::~TFLTerminalPanel()
+{
+}
 
- p("Build package...");
 
- pkg := MakePkg(src);
+// MARK: - TFLTerminalEditor -
 
- p("Save Package...");
 
- SaveBinary(pkg, "/Users/matt/dev/newton-test/mini.pkg");
+/**
+ * This class displays output from the Toolkit and allows users to enter commands.
+ */
+TFLTerminalEditor::TFLTerminalEditor(int x, int y, int w, int h, const char *label)
+:   Fl_Text_Editor(x, y, w, h, label)
+{
+}
 
- p("DONE");
-*/
+TFLTerminalEditor::~TFLTerminalEditor()
+{
+}
 
+
+// MARK: - TFLTerminalBuffer -
+
+
+/**
+ * This class manages the text buffer for the Terminal Panel.
+ */
+TFLTerminalBuffer::TFLTerminalBuffer()
+:   Fl_Text_Buffer()
+{
+}
+
+TFLTerminalBuffer::~TFLTerminalBuffer()
+{
+}
 
 // ============================================================================ //
-// NewtonScript
+// Inspector
 //
-// A dynamic, object-oriented programming language developed for the Newton
-// platform. Lovingly nicknamed WallyScript after its designer Walter Smith.
+// A debugging window in the Newton Toolkit development environment that allows
+// a user to browse the object storage system and execute NewtonScript code on
+// a Newton device.
 //
 //   -- Newton Glossary
 // ============================================================================ //

@@ -3,6 +3,8 @@
 #ifndef TFLToolkitUI_h
 #define TFLToolkitUI_h
 #include <FL/Fl.H>
+#include "Toolkit/TFLTerminalPanel.h"
+#include "Toolkit/TFLScriptPanel.h"
 #include <FL/Fl_Double_Window.H>
 extern Fl_Double_Window *wToolkitWindow;
 #include <FL/Fl_Menu_Bar.H>
@@ -13,10 +15,9 @@ extern Fl_Group *wToolkitToolbar;
 extern Fl_Button *wToolkitRun;
 extern Fl_Button *wToolkitStop;
 #include <FL/Fl_Box.H>
-#include <FL/Fl_Text_Editor.H>
-extern Fl_Text_Editor *wToolkitEditor;
-#include <FL/Fl_Text_Display.H>
-extern Fl_Text_Display *wToolkitTerminal;
+extern TFLScriptEditor *wToolkitEditor;
+extern TFLTerminalEditor *wToolkitTerminal;
 Fl_Double_Window* CreateToolkitWindow(int x, int y);
 extern Fl_Menu_Item menu_wToolkitMenubar[];
+void CreateProjectSettingsWindow();
 #endif

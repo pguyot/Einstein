@@ -273,14 +273,16 @@ if ( USE_NEWT64 MATCHES true )
         Toolkit/TFLToolkitUI.cpp
         Toolkit/TFLToolkitUI.h
         Toolkit/TFLToolkitUI.fl
-        Toolkit/TFLScriptPanel.cpp
-        Toolkit/TFLScriptPanel.h
         Toolkit/TProjectFile.cpp
         Toolkit/TProjectFile.h
         Toolkit/TScriptFile.cpp
         Toolkit/TScriptFile.h
         Toolkit/TFLInspectorPanel.cpp
         Toolkit/TFLInspectorPanel.h
+        Toolkit/TFLTerminalPanel.cpp
+        Toolkit/TFLTerminalPanel.h
+        Toolkit/TFLScriptPanel.cpp
+        Toolkit/TFLScriptPanel.h
         )
 endif ()
 
