@@ -27,6 +27,10 @@
 #include "app/Version.h"
 #include "app/TFLApp.h"
 
+
+/**
+ * This class manages NewtonScript source code files for the Einstein Toolkit.
+ */
 class TScriptFile
 {
 public:
@@ -38,11 +42,10 @@ public:
 		// _T_SCRIPT_FILE_H
 
 // ============================================================================ //
-// Inspector
+// NewtonScript
 //
-// A debugging window in the Newton Toolkit development environment that allows
-// a user to browse the object storage system and execute NewtonScript code on
-// a Newton device.
+// A dynamic, object-oriented programming language developed for the Newton
+// platform. Lovingly nicknamed WallyScript after its designer Walter Smith.
 //
 //   -- Newton Glossary
 // ============================================================================ //

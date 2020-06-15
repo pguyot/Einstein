@@ -27,6 +27,10 @@
 #include "app/Version.h"
 #include "app/TFLApp.h"
 
+
+/**
+ * This class manages Toolkit projects and the included source code files.
+ */
 class TProjectFile
 {
 public:

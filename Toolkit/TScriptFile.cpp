@@ -25,12 +25,11 @@
 #include "TScriptFile.h"
 
 
-// ======================================================================= //
-// Newton Toolkit
+// ============================================================================ //
+// NewtonScript
 //
-// A development environment created by Apple for writing NewtonScript programs
-// for Newton OS. A prototype for Newton Toolkit called EtchASketch was written
-// using Macintosh Common Lisp. Also referred to as NTK.
+// A dynamic, object-oriented programming language developed for the Newton
+// platform. Lovingly nicknamed WallyScript after its designer Walter Smith.
 //
 //   -- Newton Glossary
-// ======================================================================= //
+// ============================================================================ //

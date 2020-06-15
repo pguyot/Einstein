@@ -279,6 +279,8 @@ if ( USE_NEWT64 MATCHES true )
         Toolkit/TProjectFile.h
         Toolkit/TScriptFile.cpp
         Toolkit/TScriptFile.h
+        Toolkit/TFLInspectorPanel.cpp
+        Toolkit/TFLInspectorPanel.h
         )
 endif ()
 

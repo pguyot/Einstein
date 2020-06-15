@@ -32,6 +32,9 @@
 #include <FL/Fl_Text_Buffer.H>
 
 
+/**
+ * This class provides and FLTK UI to edit NewtonScript source code.
+ */
 class TFLScriptPanel: public Fl_Group
 {
 public:
@@ -39,6 +42,10 @@ public:
     ~TFLScriptPanel();
 };
 
+
+/**
+ * This class displays and provides editing capabilities for NewtonScript source code.
+ */
 class TFLScriptEditor : public Fl_Text_Editor
 {
 public:
@@ -46,6 +53,10 @@ public:
     ~TFLScriptEditor();
 };
 
+
+/**
+ * This class manages the text buffer for NewtonScript source code.
+ */
 class TFLScriptBuffer : public Fl_Text_Buffer
 {
 public:
@@ -58,11 +69,10 @@ public:
 		// _T_FL_SCRIPT_PANEL_H
 
 // ============================================================================ //
-// Inspector
+// NewtonScript
 //
-// A debugging window in the Newton Toolkit development environment that allows
-// a user to browse the object storage system and execute NewtonScript code on
-// a Newton device.
+// A dynamic, object-oriented programming language developed for the Newton
+// platform. Lovingly nicknamed WallyScript after its designer Walter Smith.
 //
 //   -- Newton Glossary
 // ============================================================================ //

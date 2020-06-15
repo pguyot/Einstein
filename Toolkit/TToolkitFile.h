@@ -27,6 +27,10 @@
 #include "app/Version.h"
 #include "app/TFLApp.h"
 
+
+/**
+ * THis class manages any kind of file used by the Toolkit.
+ */
 class TToolkitFile
 {
 public:

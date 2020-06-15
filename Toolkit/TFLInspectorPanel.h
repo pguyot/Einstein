@@ -1,5 +1,5 @@
 // ==============================
-// File:			TFLScriptPanel.cpp
+// File:			TFLInspectorPanel.h
 // Project:			Einstein
 //
 // Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
@@ -21,15 +21,32 @@
 // $Id$
 // ==============================
 
+#ifndef _T_FL_INSPECTOR_PANEL
+#define _T_FL_INSPECTOR_PANEL
 
-#include "TFLScriptPanel.h"
+#include "app/Version.h"
+#include "app/TFLApp.h"
 
+
+/**
+ * Inspector is a debugging connection to an emulated or physical Newton.
+ */
+class TFLInspectorPanel
+{
+public:
+    TFLInspectorPanel();
+    ~TFLInspectorPanel();
+};
+
+#endif
+		// _T_FL_INSPECTOR_PANEL
 
 // ============================================================================ //
-// NewtonScript
+// Inspector
 //
-// A dynamic, object-oriented programming language developed for the Newton
-// platform. Lovingly nicknamed WallyScript after its designer Walter Smith.
+// A debugging window in the Newton Toolkit development environment that allows
+// a user to browse the object storage system and execute NewtonScript code on
+// a Newton device.
 //
 //   -- Newton Glossary
 // ============================================================================ //
