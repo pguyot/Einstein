@@ -24,6 +24,8 @@
 
 #include "TFLScriptPanel.h"
 
+#include "TTkScript.h"
+
 
 // MARK: - TFLScriptPanel -
 
@@ -33,11 +35,49 @@
  */
 TFLScriptPanel::TFLScriptPanel(int x, int y, int w, int h, const char *label)
 :   Fl_Group(x, y, w, h, label)
+,   mEditor( new TFLScriptEditor(x, y, w, h) )
 {
+    mEditor->SetPanel(this);
+    resizable(mEditor);
 }
 
 TFLScriptPanel::~TFLScriptPanel()
 {
+}
+
+
+/**
+ * Load a script form a file into the text buffer.
+ */
+void TFLScriptPanel::LoadFile(const char *filename)
+{
+    // TODO: there is no error handling yet
+    mEditor->buffer()->loadfile(filename);
+}
+
+/**
+ * Return a duplicate of the current source code in the editor.
+ *
+ * Caller is responsible to \c free() the text that was returned.
+ *
+ * \return a copy of the current source code
+ * \note the code is not saved to a file before it is returned!
+ */
+char *TFLScriptPanel::DupSourceCode()
+{
+    return mEditor->buffer()->text();
+}
+
+
+void TFLScriptPanel::SetSourceCode(const char *sourcecode)
+{
+    mEditor->buffer()->text(sourcecode);
+}
+
+
+void TFLScriptPanel::SetDirty()
+{
+    mScript->SetDirty();
 }
 
 
@@ -113,6 +153,15 @@ const char *TFLScriptEditor::code_types[] = {    // List of known C/C++ types...
 TFLScriptEditor::TFLScriptEditor(int x, int y, int w, int h, const char *label)
 :   Fl_Text_Editor(x, y, w, h, label)
 {
+    box( FL_FLAT_BOX);
+    color( fl_color_average(FL_BACKGROUND2_COLOR, FL_WHITE, 0.9) );
+    selection_color( 0xCCCCFF00 );
+    textfont( FL_COURIER );
+    textsize( TS );
+    linenumber_width(40);    // enable
+    linenumber_size(textsize()-2);
+    wrap_mode(Fl_Text_Display::WRAP_NONE, 0);
+
     mTextBuffer = new Fl_Text_Buffer();
     buffer( mTextBuffer );
 
@@ -120,9 +169,6 @@ TFLScriptEditor::TFLScriptEditor(int x, int y, int w, int h, const char *label)
     highlight_data(mStyleBuffer, styletable,
                                    sizeof(styletable) / sizeof(styletable[0]),
                                    'A', style_unfinished_cb, 0);
-    linenumber_width(40);    // enable
-    linenumber_size(textsize()-2);
-    wrap_mode(Fl_Text_Display::WRAP_NONE, 0);
 
     mTextBuffer->add_modify_callback(style_update_cb, this);
     mTextBuffer->call_modify_callbacks();
@@ -340,6 +386,8 @@ void TFLScriptEditor::style_update(int        pos,        // I - Position of upd
         mStyleBuffer->unselect();
         return;
     }
+
+    mPanel->SetDirty();
 
     // Track changes in the text buffer...
     if (nInserted > 0) {

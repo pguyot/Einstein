@@ -268,15 +268,15 @@ if ( USE_NEWT64 MATCHES true )
     list(APPEND sources
         Toolkit/TToolkit.cpp
         Toolkit/TToolkit.h
-        Toolkit/TToolkitFile.cpp
-        Toolkit/TToolkitFile.h
+        Toolkit/TTkElement.cpp
+        Toolkit/TTkElement.h
         Toolkit/TFLToolkitUI.cpp
         Toolkit/TFLToolkitUI.h
         Toolkit/TFLToolkitUI.fl
-        Toolkit/TProjectFile.cpp
-        Toolkit/TProjectFile.h
-        Toolkit/TScriptFile.cpp
-        Toolkit/TScriptFile.h
+        Toolkit/TTkProject.cpp
+        Toolkit/TTkProject.h
+        Toolkit/TTkScript.cpp
+        Toolkit/TTkScript.h
         Toolkit/TFLInspectorPanel.cpp
         Toolkit/TFLInspectorPanel.h
         Toolkit/TFLTerminalPanel.cpp

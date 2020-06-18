@@ -1,5 +1,5 @@
 // ==============================
-// File:			TScriptFile.h
+// File:			TTkElement.h
 // Project:			Einstein
 //
 // Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
@@ -21,31 +21,33 @@
 // $Id$
 // ==============================
 
-#ifndef _T_SCRIPT_FILE_H
-#define _T_SCRIPT_FILE_H
+#ifndef _T_TOOLKIT_FILE_H
+#define _T_TOOLKIT_FILE_H
 
 #include "app/Version.h"
 #include "app/TFLApp.h"
 
 
 /**
- * This class manages NewtonScript source code files for the Einstein Toolkit.
+ * THis class manages any kind of file used by the Toolkit.
  */
-class TScriptFile
+class TTkElement
 {
 public:
-    TScriptFile(TFLApp *inApp);
-    ~TScriptFile();
+    TTkElement();
+    ~TTkElement();
 };
 
+
 #endif
-		// _T_SCRIPT_FILE_H
+		// _T_TOOLKIT_FILE_H
 
 // ============================================================================ //
-// NewtonScript
+// Inspector
 //
-// A dynamic, object-oriented programming language developed for the Newton
-// platform. Lovingly nicknamed WallyScript after its designer Walter Smith.
+// A debugging window in the Newton Toolkit development environment that allows
+// a user to browse the object storage system and execute NewtonScript code on
+// a Newton device.
 //
 //   -- Newton Glossary
 // ============================================================================ //

@@ -1,5 +1,5 @@
 // ==============================
-// File:			TProjectFile.h
+// File:			TTkScript.h
 // Project:			Einstein
 //
 // Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
@@ -21,33 +21,50 @@
 // $Id$
 // ==============================
 
-#ifndef _T_PROJECT_FILE_H
-#define _T_PROJECT_FILE_H
+#ifndef _T_SCRIPT_FILE_H
+#define _T_SCRIPT_FILE_H
 
-#include "app/Version.h"
-#include "app/TFLApp.h"
-
+class TToolkit;
+class TTkProject;
+class TFLScriptPanel;
 
 /**
- * This class manages Toolkit projects and the included source code files.
+ * This class manages NewtonScript source code files for the Einstein Toolkit.
+ *
+ * ScriptFiles can contain the entire command set for generating a package.
  */
-class TProjectFile
+class TTkScript
 {
 public:
-    TProjectFile();
-    ~TProjectFile();
+    TTkScript(TToolkit *toolkit);
+    ~TTkScript();
+
+    void SetPanel(TFLScriptPanel *panel) { mPanel = panel; }
+    void LoadFile(const char *filename);
+    void SetSourceCode(const char *sourcecode);
+    char *DupSourceCode();
+    char *GetFilename() { return mFilename; }
+    void SetFilename(const char *filename);
+    bool IsDirty() { return mIsDirty; }
+    void SetDirty();
+    void ClearDirty();
+    int Save();
+
+private:
+    TToolkit *mToolkit = nullptr;
+    TFLScriptPanel *mPanel = nullptr;
+    char *mFilename = nullptr;
+    bool mIsDirty = false;
 };
 
-
 #endif
-		// _T_PROJECT_FILE_H
+		// _T_SCRIPT_FILE_H
 
 // ============================================================================ //
-// Inspector
+// NewtonScript
 //
-// A debugging window in the Newton Toolkit development environment that allows
-// a user to browse the object storage system and execute NewtonScript code on
-// a Newton device.
+// A dynamic, object-oriented programming language developed for the Newton
+// platform. Lovingly nicknamed WallyScript after its designer Walter Smith.
 //
 //   -- Newton Glossary
 // ============================================================================ //

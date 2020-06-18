@@ -29,8 +29,8 @@
 #include <FL/x.H>
 #include <FL/Fl_Widget.H>
 
-#include "app/Version.h"
-#include "app/TFLApp.h"
+class TFLApp;
+class TTkScript;
 
 /**
  * Toolkit is an integrated developer environment for Einstein, loosely based on NTK.
@@ -43,13 +43,38 @@ public:
     void Show();
     void Hide();
 
+    int UserActionNew();
+    int UserActionOpen();
+    int UserActionSave();
+    int UserActionSaveAs();
+    int UserActionClose();
+    void UserActionQuit();
+
+    void UserActionUndo();
+    void UserActionRedo();
+    void UserActionCut();
+    void UserActionCopy();
+    void UserActionPaste();
+    void UserActionFind();
+
+    void UserActionBuild();
+    void UserActionInstall();
+    void UserActionRun();
+    void UserActionStop();
+
     void AppBuild();
     void AppInstall();
     void AppRun();
     void AppStop();
 
+    void LoadSampleCode(int n);
+    void UpdateTitle();
+
 private:
     TFLApp *mApp = nullptr;
+
+    // TODO: we currently allow one single script to be loaded. Add support for multiple files, and file hierarchies managed inside projects.
+    TTkScript *mScript = nullptr;
 };
 
 

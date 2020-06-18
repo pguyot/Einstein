@@ -14,8 +14,7 @@ extern Fl_Group *wToolkitToolbar;
 #include <FL/Fl_Button.H>
 extern Fl_Button *wToolkitRun;
 extern Fl_Button *wToolkitStop;
-#include <FL/Fl_Box.H>
-extern TFLScriptEditor *wToolkitEditor;
+extern TFLScriptPanel *wScriptPanel;
 extern TFLTerminalEditor *wToolkitTerminal;
 Fl_Double_Window* CreateToolkitWindow(int x, int y);
 extern Fl_Menu_Item menu_wToolkitMenubar[];

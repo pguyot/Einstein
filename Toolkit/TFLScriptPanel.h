@@ -31,7 +31,11 @@
 #include <FL/Fl_Text_Editor.H>
 #include <FL/Fl_Text_Buffer.H>
 
+class TFLScriptPanel;
+class TFLScriptEditor;
 class TFLScriptBuffer;
+
+class TTkScript;
 
 
 /**
@@ -42,6 +46,17 @@ class TFLScriptPanel: public Fl_Group
 public:
     TFLScriptPanel(int x, int y, int w, int h, const char *label = nullptr);
     ~TFLScriptPanel();
+
+    void SetScript(TTkScript *script) { mScript = script; }
+
+    void LoadFile(const char *filename);
+    char *DupSourceCode();
+    void SetSourceCode(const char *sourcecode);
+    void SetDirty();
+    
+private:
+    TFLScriptEditor *mEditor = nullptr;
+    TTkScript *mScript = nullptr;
 };
 
 
@@ -53,6 +68,8 @@ class TFLScriptEditor : public Fl_Text_Editor
 public:
     TFLScriptEditor(int x, int y, int w, int h, const char *label = nullptr);
     ~TFLScriptEditor();
+
+    void SetPanel(TFLScriptPanel *panel) { mPanel = panel; }
     
 private:
     void style_parse(const char *text, char *style, int length);
@@ -62,6 +79,7 @@ private:
 
     Fl_Text_Buffer *mTextBuffer  = nullptr;
     Fl_Text_Buffer *mStyleBuffer = nullptr;
+    TFLScriptPanel *mPanel = nullptr;
 
 // static:
     static Fl_Text_Display::Style_Table_Entry styletable[];

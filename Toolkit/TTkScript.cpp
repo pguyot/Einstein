@@ -1,5 +1,5 @@
 // ==============================
-// File:			TScriptFile.cp
+// File:			TTkScript.cp
 // Project:			Einstein
 //
 // Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
@@ -22,7 +22,11 @@
 // ==============================
 
 
-#include "TScriptFile.h"
+#include "TTkScript.h"
+
+#include "TToolkit.h"
+#include "TFLScriptPanel.h"
+
 
 /*
  //#include "/Users/matt/dev/newt64/defs/newt.2.2.ns"
@@ -51,6 +55,91 @@
 
  p("DONE");
 */
+
+TTkScript::TTkScript(TToolkit *toolkit)
+:   mToolkit(toolkit)
+{
+}
+
+
+TTkScript::~TTkScript()
+{
+    if (mFilename)
+        ::free(mFilename);
+}
+
+
+
+char *TTkScript::DupSourceCode()
+{
+    return mPanel->DupSourceCode();
+}
+
+
+void TTkScript::SetSourceCode(const char *sourcecode)
+{
+    mPanel->SetSourceCode(sourcecode);
+}
+
+
+void TTkScript::LoadFile(const char *filename)
+{
+    SetFilename(filename);
+    mPanel->LoadFile(filename);
+    ClearDirty();
+}
+
+
+void TTkScript::SetFilename(const char *filename)
+{
+    if (mFilename) ::free(mFilename);
+    mFilename = nullptr;
+    if (filename) mFilename = ::strdup(filename);
+    mToolkit->UpdateTitle();
+}
+
+
+/**
+ * Save the current text to a file on disk.
+ *
+ * \return a negative number if we could not save the file for any reason
+ * \return 0 if we saved the file
+ */
+int TTkScript::Save()
+{
+    if (mFilename) {
+        FILE *f = fopen(mFilename, "wb");
+        if (!f)
+            return -1;
+        char *src = DupSourceCode();
+        int len = strlen(src);
+        int n = ::fwrite(src, 1, len, f);
+        ::fclose(f);
+        ::free(src);
+        if (n!=len) return -1;
+    }
+    mIsDirty = false;
+    mToolkit->UpdateTitle();
+    return 0;
+}
+
+
+void TTkScript::SetDirty()
+{
+    if (!mIsDirty) {
+        mIsDirty = true;
+        mToolkit->UpdateTitle();
+    }
+}
+
+
+void TTkScript::ClearDirty()
+{
+    if (mIsDirty) {
+        mIsDirty = false;
+        mToolkit->UpdateTitle();
+    }
+}
 
 
 // ============================================================================ //

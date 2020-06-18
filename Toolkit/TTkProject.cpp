@@ -1,5 +1,5 @@
 // ==============================
-// File:			TProjectFile.cp
+// File:			TTkProject.cp
 // Project:			Einstein
 //
 // Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
@@ -22,7 +22,7 @@
 // ==============================
 
 
-#include "TProjectFile.h"
+#include "TTkProject.h"
 
 // ======================================================================= //
 // Newton Toolkit

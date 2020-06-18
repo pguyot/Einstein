@@ -1,5 +1,5 @@
 // ==============================
-// File:			TToolkitFile.h
+// File:			TTkElement.cp
 // Project:			Einstein
 //
 // Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
@@ -21,33 +21,16 @@
 // $Id$
 // ==============================
 
-#ifndef _T_TOOLKIT_FILE_H
-#define _T_TOOLKIT_FILE_H
 
-#include "app/Version.h"
-#include "app/TFLApp.h"
+#include "TTkElement.h"
 
 
-/**
- * THis class manages any kind of file used by the Toolkit.
- */
-class TToolkitFile
-{
-public:
-    TToolkitFile();
-    ~TToolkitFile();
-};
-
-
-#endif
-		// _T_TOOLKIT_FILE_H
-
-// ============================================================================ //
-// Inspector
+// ======================================================================= //
+// Newton Toolkit
 //
-// A debugging window in the Newton Toolkit development environment that allows
-// a user to browse the object storage system and execute NewtonScript code on
-// a Newton device.
+// A development environment created by Apple for writing NewtonScript programs
+// for Newton OS. A prototype for Newton Toolkit called EtchASketch was written
+// using Macintosh Common Lisp. Also referred to as NTK.
 //
 //   -- Newton Glossary
-// ============================================================================ //
+// ======================================================================= //
