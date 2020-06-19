@@ -58,6 +58,7 @@ public:
     void UserActionPaste();
     void UserActionFind();
 
+    int UserActionDecompilePkg();
     void UserActionBuild();
     void UserActionInstall();
     void UserActionRun();
@@ -80,7 +81,7 @@ private:
     // TODO: we currently allow one single script to be loaded. Add support for multiple files, and file hierarchies managed inside projects.
     TTkScript *mCurrentScript = nullptr;
     // TODO: implement a default project that collects all data required from the source code.
-    TTkProject *mProject = nullptr;
+    // TTkProject *mProject = nullptr;
 };
 
 

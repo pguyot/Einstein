@@ -418,7 +418,7 @@ void TToolkit::AppBuild()
     newtRef errRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
     if (NewtRefIsString(errRef)) {
         const char *errStr = NewtRefToString(errRef);
-        PrintStd(errStr);
+        PrintErr(errStr);
     }
 
     NewtCleanup();
@@ -508,6 +508,59 @@ void TToolkit::PrintErr(const char *text)
     PrintStd(text);
 }
 
+
+int TToolkit::UserActionDecompilePkg()
+{
+    if (UserActionClose()<0)
+        return -1;
+    char *filename = fl_file_chooser("Selct a Newton Package file", "Package (*.pkg)", nullptr);
+    if (!filename)
+        return -1;
+
+    const char *cmd =
+    "global _STDERR_ := \"\";\n"
+    "global _STDOUT_ := \"\";\n"
+    "printDepth := 9999;\n"
+    "printLength := 9999;\n"
+    "printBinaries := 1;\n"
+    "printUnique := 1;\n"
+    "pkg := ReadPkg(LoadBinary(\"%s\"));\n"
+    "print(\"//\\n// This NewtonScript code was created by decompiling\\n\");\n"
+    "print(\"// %s\\n//\\n\\n\");\n"
+    "print(\"newt.app := \\n\");\n"
+    "p(pkg);\n"
+    "print(\";\\n\");\n"
+    ;
+    char *buf = (char*)::malloc(strlen(cmd)+2*FL_PATH_MAX);
+    sprintf(buf, cmd, filename, filename);
+
+    newtRefVar    result;
+    newtErr    err;
+    NewtInit(0, 0L, 0);
+    NsUndefGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
+    NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
+    NsUndefGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
+    NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
+    result = NVMInterpretStr(buf, &err);
+
+    ::free(buf);
+
+    newtRef outRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
+    if (NewtRefIsString(outRef)) {
+        const char *outStr = NewtRefToString(outRef);
+        mCurrentScript->SetSourceCode(outStr);
+    }
+
+    newtRef errRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
+    if (NewtRefIsString(errRef)) {
+        const char *errStr = NewtRefToString(errRef);
+        PrintErr(errStr);
+    }
+
+    NewtCleanup();
+    
+    return 0;
+}
 
 
 extern "C" void yyerror(char * s)

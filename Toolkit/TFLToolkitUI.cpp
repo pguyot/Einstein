@@ -57,6 +57,10 @@ static void cb_Find(Fl_Menu_*, void*) {
   gToolkit->UserActionFind();
 }
 
+static void cb_Decompile(Fl_Menu_*, void*) {
+  gToolkit->UserActionDecompilePkg();
+}
+
 static void cb_Hello(Fl_Menu_*, void*) {
   gToolkit->LoadSampleCode(1);
 }
@@ -113,7 +117,7 @@ Fl_Menu_Item menu_wToolkitMenubar[] = {
  {"Project", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"New Project...", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Open Project...", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Decompile Package...", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Decompile Package...", 0,  (Fl_Callback*)cb_Decompile, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Sample Projects", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Hello World", 0,  (Fl_Callback*)cb_Hello, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},

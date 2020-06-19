@@ -120,7 +120,8 @@ Function {CreateToolkitWindow(int x, int y)} {open
         }
         MenuItem {} {
           label {Decompile Package...}
-          xywh {0 0 100 20} deactivate
+          callback {gToolkit->UserActionDecompilePkg();} selected
+          xywh {0 0 100 20}
         }
         Submenu {} {
           label {Sample Projects} open
@@ -208,7 +209,7 @@ gToolkit->AppRun();}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}
       }
-      Fl_Box {} {selected
+      Fl_Box {} {
         xywh {92 33 608 28} hide resizable
       }
     }
