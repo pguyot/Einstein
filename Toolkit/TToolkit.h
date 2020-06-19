@@ -71,6 +71,9 @@ public:
     void LoadSampleCode(int n);
     void UpdateTitle();
 
+    void PrintStd(const char *text);
+    void PrintErr(const char *text);
+
 private:
     TFLApp *mApp = nullptr;
 

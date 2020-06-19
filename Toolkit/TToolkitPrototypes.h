@@ -30,6 +30,7 @@ namespace TToolkitPrototype
 extern const char *NewtonDefs21;
 extern const char *BytecodeDefs;
 extern const char *ToolkitDefs;
+extern const char *ToolkitDone;
 
 }
 

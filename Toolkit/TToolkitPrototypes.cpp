@@ -1764,7 +1764,35 @@ const char *TToolkitPrototype::ToolkitDefs =
 // newt/64 will write all text that would otherwise go to stderr and stdout into these strings instead
 "global _STDERR_ := \"\";\n"
 "global _STDOUT_ := \"\";\n"
+// catch execptions that happen while compiling the code
+"try begin\n"
 ;
+
+
+const char *TToolkitPrototype::ToolkitDone =
+"end\n"
+"onexception |evt.ex| do begin\n"
+"    ex := CurrentException();\n"
+"    print(\"Exception \");\n"
+"    print(ex.name);\n"
+"    if HasSlot(ex, 'data) then begin\n"
+"        if HasSlot(ex.data, 'errorCode) then begin\n"
+"            print(\": \");\n"
+"            print(ex.data.errorCode);\n"
+"        end;\n"
+"        if HasSlot(ex.data, 'errorMessage) then begin\n"
+"            print(\": \");\n"
+"            print(ex.data.errorMessage);\n"
+"        end;\n"
+"        if HasSlot(ex.data, 'value) then begin\n"
+"            print(\": \");\n"
+"            print(ex.data.value);\n"
+"        end;\n"
+"    end;\n"
+"    print(\"\\n\");\n"
+"end;\n"
+;
+
 
 // ======================================================================= //
 // Newton Toolkit

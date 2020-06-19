@@ -90,6 +90,7 @@ void TToolkit::Show()
         wToolkitWindow->size_range(150, 78+150);
 
         wToolkitTerminal->buffer( gTerminalBuffer = new Fl_Text_Buffer() );
+        wToolkitTerminal->scrollbar_align(FL_ALIGN_RIGHT);
 
         // FIXME: allow multiple scripts and multiple panels in a Tab, and a hierarchy of scripts in a Project
         mCurrentScript = new TTkScript(this);
@@ -379,7 +380,7 @@ void TToolkit::AppBuild()
     src.append( "#line 0\n" );
 
     if (mCurrentScript->GetFilename()) {
-        gTerminalBuffer->append("Compiling file...\n");
+        PrintStd("Compiling file...\n");
         if (mCurrentScript->IsDirty()) {
             mCurrentScript->Save();
         }
@@ -388,11 +389,13 @@ void TToolkit::AppBuild()
                         std::istreambuf_iterator<char>());
         src.append(str);
     } else {
-        gTerminalBuffer->append("Compiling inline...\n");
+        PrintStd("Compiling inline...\n");
         char *sourceCode = mCurrentScript->DupSourceCode();
         src.append(sourceCode);
         free(sourceCode);
     }
+    src.append( TToolkitPrototype::ToolkitDone );
+
     // FIXME: somewhere inside this call, _STDERR_ and _STDOUT_ are cleared by Newt/64
     result = NVMInterpretStr(src.c_str(), &err);
 
@@ -409,13 +412,13 @@ void TToolkit::AppBuild()
     newtRef outRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
     if (NewtRefIsString(outRef)) {
         const char *outStr = NewtRefToString(outRef);
-        gTerminalBuffer->append(outStr);
+        PrintStd(outStr);
     }
 
     newtRef errRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
     if (NewtRefIsString(errRef)) {
         const char *errStr = NewtRefToString(errRef);
-        gTerminalBuffer->append(errStr);
+        PrintStd(errStr);
     }
 
     NewtCleanup();
@@ -424,7 +427,7 @@ void TToolkit::AppBuild()
 
 void TToolkit::AppInstall()
 {
-    gTerminalBuffer->append("Installing...\n");
+    PrintStd("Installing...\n");
     TPlatformManager *mgr = mApp->GetPlatformManager();
     mgr->EvalNewtonScript(
                           "if HasSlot(GetRoot(), '|PictIndex:PIEDTS|) then begin\n"
@@ -438,7 +441,7 @@ void TToolkit::AppInstall()
 
 void TToolkit::AppRun()
 {
-    gTerminalBuffer->append("Run...\n");
+    PrintStd("Run...\n");
     TPlatformManager *mgr = mApp->GetPlatformManager();
     mgr->EvalNewtonScript(
                           "GetRoot().|PictIndex:PIEDTS|:Open();\n"
@@ -448,7 +451,7 @@ void TToolkit::AppRun()
 
 void TToolkit::AppStop()
 {
-    gTerminalBuffer->append("Stop...\n");
+    PrintStd("Stop...\n");
     TPlatformManager *mgr = mApp->GetPlatformManager();
     mgr->EvalNewtonScript(
                           "if HasSlot(GetRoot(), '|PictIndex:PIEDTS|) then begin\n"
@@ -489,6 +492,23 @@ void TToolkit::UpdateTitle()
         wToolkitWindow->label("Einstein Toolkit");
     }
 }
+
+void TToolkit::PrintStd(const char *text)
+{
+    gTerminalBuffer->append(text);
+    int c = gTerminalBuffer->length();
+    c = gTerminalBuffer->line_start(c);
+    wToolkitTerminal->insert_position(c);
+    wToolkitTerminal->show_insert_position();
+}
+
+void TToolkit::PrintErr(const char *text)
+{
+    // TODO: highlight text that went to stderr vs. stdout
+    PrintStd(text);
+}
+
+
 
 extern "C" void yyerror(char * s)
 {
