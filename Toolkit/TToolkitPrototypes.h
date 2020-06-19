@@ -1,5 +1,5 @@
 // ==============================
-// File:			TToolkit.h
+// File:			TToolkitPrototypes.h
 // Project:			Einstein
 //
 // Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
@@ -21,68 +21,21 @@
 // $Id$
 // ==============================
 
-#ifndef _TFLTOOLKIT_H
-#define _TFLTOOLKIT_H
+#ifndef _T_TOOLKIT_PROTOTYPE_H
+#define _T_TOOLKIT_PROTOTYPE_H
 
-#include <K/Defines/KDefinitions.h>
-
-#include <FL/x.H>
-#include <FL/Fl_Widget.H>
-
-class TFLApp;
-class TTkScript;
-
-/**
- * Toolkit is an integrated developer environment for Einstein, loosely based on NTK.
- */
-class TToolkit
+namespace TToolkitPrototype
 {
-public:
-    TToolkit(TFLApp *inApp);
-    ~TToolkit();
-    void Show();
-    void Hide();
 
-    int UserActionNew();
-    int UserActionOpen();
-    int UserActionSave();
-    int UserActionSaveAs();
-    int UserActionClose();
-    void UserActionQuit();
+extern const char *NewtonDefs21;
+extern const char *BytecodeDefs;
+extern const char *ToolkitDefs;
 
-    void UserActionUndo();
-    void UserActionRedo();
-    void UserActionCut();
-    void UserActionCopy();
-    void UserActionPaste();
-    void UserActionFind();
-
-    void UserActionBuild();
-    void UserActionInstall();
-    void UserActionRun();
-    void UserActionStop();
-
-    void AppBuild();
-    void AppInstall();
-    void AppRun();
-    void AppStop();
-
-    void LoadSampleCode(int n);
-    void UpdateTitle();
-
-private:
-    TFLApp *mApp = nullptr;
-
-    // TODO: we currently allow one single script to be loaded. Add support for multiple files, and file hierarchies managed inside projects.
-    TTkScript *mScript = nullptr;
-};
-
-
-extern TToolkit *gToolkit;
+}
 
 
 #endif
-		// _TFLTOOLKIT_H
+		// _T_TOOLKIT_PROTOTYPE_H
 
 // ======================================================================= //
 // Newton Toolkit

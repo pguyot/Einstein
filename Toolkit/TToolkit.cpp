@@ -54,6 +54,7 @@
 #include "TFLToolkitUI.h"
 #include "TFLScriptPanel.h"
 #include "TTkScript.h"
+#include "TToolkitPrototypes.h"
 
 #define IGNORE_TNEWT
 #include "Emulator/Platform/TPlatformManager.h"
@@ -303,22 +304,85 @@ void TToolkit::UserActionStop()
     AppStop();
 }
 
+#include <string>
+#include <fstream>
+#include <streambuf>
+
+// This is a simple function because newt/64 stores strings internally as UTF8 already
+/**
+ * The 'info' element in the Package header wants a binary object containing ASCII without a trailing 0.
+ */
+static newtRef NewtMakeBinaryFromString(newtRefArg klass, const char *text, bool literal)
+{
+    uint32_t size = (uint32_t)strlen(text);
+    newtRef obj = NewtMakeBinary(klass, 0, size, literal);
+    if (obj) {
+        uint8_t *dst = NewtRefToBinary(obj);
+        memcpy(dst, text, size);
+        return obj;
+    }
+    return kNewtRefUnbind;
+}
+
+static newtRef NsMakeBinaryFromString(newtRefArg rcvr, newtRefArg text, newtRefArg klass)
+{
+    if (!NewtRefIsString(text))
+        return NewtThrow(kNErrNotAString, text);
+    return NewtMakeBinaryFromString(klass, NewtRefToString(text), false);
+}
+
+//printDepth := 9999;
+//printLength := 9999;
+//printBinaries := 1;
+//printUnique := 1;
+//pkg := ReadPkg(LoadBinary("/Users/matt/dev/Einstein/pguyot.mattAndroid/Packages/ROMDumper/ROMDumper.pkg"));
+//p(pkg);
+//     NewtPrintObject(stdout, r);
+
+
 
 void TToolkit::AppBuild()
 {
-    gTerminalBuffer->append("Compiling...\n");
     newtRefVar    result;
     newtErr    err;
     NewtInit(0, 0L, 0);
-    //    newt_chdir();
-    //result = NVMInterpretFile("/Users/matt/dev/newton-test/mini.ns", &err);
 
-    char *sourceCode = mScript->DupSourceCode();
-    result = NVMInterpretStr(sourceCode, &err);
-    free(sourceCode);
+    NewtDefGlobalFunc0(NSSYM(MakeBinaryFromString), (void*)NsMakeBinaryFromString, 2, false, (char*)"MakeBinaryFromString(str, sym)");
 
 
-    //    newt_result_message(result, err);
+//    constant kClassSymbol := kAppSymbol ;
+//    constant kUserSoupName := kAppName ;
+
+
+    // #file ...
+    // #line 1
+    std::string src;
+    src.append( TToolkitPrototype::NewtonDefs21 );
+    src.append( TToolkitPrototype::BytecodeDefs );
+    src.append( TToolkitPrototype::ToolkitDefs );
+    src.append( "#line 0\n" );
+
+    if (mScript->GetFilename()) {
+        gTerminalBuffer->append("Compiling file...\n");
+        if (mScript->IsDirty()) {
+            mScript->Save();
+        }
+        std::ifstream t(mScript->GetFilename());
+        std::string str((std::istreambuf_iterator<char>(t)),
+                        std::istreambuf_iterator<char>());
+        src.append(str);
+    } else {
+        gTerminalBuffer->append("Compiling inline...\n");
+        char *sourceCode = mScript->DupSourceCode();
+        src.append(sourceCode);
+        free(sourceCode);
+    }
+    result = NVMInterpretStr(src.c_str(), &err);
+
+    // TODO: get the app symbol to install and uninstall it
+    // TODO: get the app name
+    // TODO: get the package path, or build a temp package
+
     NewtCleanup();
 }
 

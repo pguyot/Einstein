@@ -283,6 +283,8 @@ if ( USE_NEWT64 MATCHES true )
         Toolkit/TFLTerminalPanel.h
         Toolkit/TFLScriptPanel.cpp
         Toolkit/TFLScriptPanel.h
+        Toolkit/TToolkitPrototypes.cpp
+        Toolkit/TToolkitPrototypes.h
         )
 endif ()
 
