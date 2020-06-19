@@ -40,7 +40,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
         MenuItem {} {
           label {Open...}
           callback {gToolkit->UserActionOpen();}
-          xywh {0 0 100 20} shortcut 0x40006f divider
+          xywh {0 0 100 20} shortcut 0x40006f
         }
         MenuItem {} {
           label Save
@@ -50,12 +50,12 @@ Function {CreateToolkitWindow(int x, int y)} {open
         MenuItem {} {
           label {Save As...}
           callback {gToolkit->UserActionSaveAs();}
-          xywh {0 0 100 20} shortcut 0x410073 divider
+          xywh {0 0 100 20} shortcut 0x410073
         }
         MenuItem {} {
           label Close
           callback {gToolkit->UserActionClose();}
-          xywh {0 0 100 20} shortcut 0x400077 divider
+          xywh {0 0 100 20} shortcut 0x400077
         }
         MenuItem {} {
           label {Page Setup...}
@@ -63,11 +63,11 @@ Function {CreateToolkitWindow(int x, int y)} {open
         }
         MenuItem {} {
           label {Print...}
-          xywh {0 0 100 20} shortcut 0x400070 deactivate divider
+          xywh {0 0 100 20} shortcut 0x400070 deactivate
         }
         MenuItem {} {
           label Quit
-          callback {gToolkit->UserActionQuit();} selected
+          callback {gToolkit->UserActionQuit();}
           xywh {0 0 100 20} shortcut 0x400071
         }
       }
@@ -83,7 +83,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
         MenuItem {} {
           label Redo
           callback {gToolkit->UserActionRedo();}
-          xywh {12 12 100 20} shortcut 0x41007a deactivate divider
+          xywh {12 12 100 20} shortcut 0x41007a deactivate
         }
         MenuItem {} {
           label Cut
@@ -98,7 +98,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
         MenuItem {} {
           label Paste
           callback {gToolkit->UserActionPaste();}
-          xywh {0 0 100 20} shortcut 0x400076 deactivate divider
+          xywh {0 0 100 20} shortcut 0x400076 deactivate
         }
         MenuItem {} {
           label {Find....}
@@ -124,7 +124,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
         }
         Submenu {} {
           label {Sample Projects} open
-          xywh {0 0 100 20} divider
+          xywh {0 0 100 20}
         } {
           MenuItem {} {
             label {Hello World}
@@ -134,7 +134,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
         }
         MenuItem {} {
           label {Add File...}
-          xywh {0 0 100 20} deactivate divider
+          xywh {0 0 100 20} deactivate
         }
         MenuItem {} {
           label Build
@@ -166,7 +166,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
           callback {gToolkit->AppBuild();
 gToolkit->AppInstall();
 gToolkit->AppRun();}
-          xywh {16 16 100 20} shortcut 0x400072 deactivate divider
+          xywh {16 16 100 20} shortcut 0x400072 deactivate
         }
         MenuItem {} {
           label {Project Settings...}
@@ -208,14 +208,25 @@ gToolkit->AppRun();}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}
       }
+      Fl_Box {} {selected
+        xywh {92 33 608 28} hide resizable
+      }
     }
-    Fl_Group wScriptPanel {
-      xywh {0 78 720 422} resizable
-      class TFLScriptPanel
-    } {}
-    Fl_Text_Display wToolkitTerminal {
-      xywh {0 500 720 100} box THIN_DOWN_FRAME selection_color 246 textfont 4
-      class TFLTerminalEditor
+    Fl_Tile wTile {open
+      xywh {0 78 720 522} resizable
+      class TFLTile
+    } {
+      Fl_Box {} {
+        xywh {50 128 620 422} hide resizable
+      }
+      Fl_Group wScriptPanel {
+        xywh {0 78 720 422}
+        class TFLScriptPanel
+      } {}
+      Fl_Text_Display wToolkitTerminal {
+        xywh {0 500 720 100} box THIN_DOWN_FRAME selection_color 246 textfont 4
+        class TFLTerminalEditor
+      }
     }
   }
 }

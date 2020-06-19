@@ -1761,6 +1761,9 @@ const char *TToolkitPrototype::ToolkitDefs =
 "        }\n"
 "    },\n"
 "};\n"
+// newt/64 will write all text that would otherwise go to stderr and stdout into these strings instead
+"global _STDERR_ := \"\";\n"
+"global _STDOUT_ := \"\";\n"
 ;
 
 // ======================================================================= //

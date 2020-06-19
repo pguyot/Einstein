@@ -28,6 +28,7 @@
 #include "app/TFLApp.h"
 
 #include <FL/Fl_Group.H>
+#include <FL/Fl_Tile.H>
 #include <FL/Fl_Text_Editor.H>
 #include <FL/Fl_Text_Buffer.H>
 
@@ -63,6 +64,15 @@ public:
     TFLTerminalBuffer();
     ~TFLTerminalBuffer();
 };
+
+
+class TFLTile : public Fl_Tile
+{
+public:
+    TFLTile(int x, int y, int w, int h, const char *label = nullptr);
+    void resize(int x, int y, int w, int h) override;
+};
+
 #endif
 		// _T_FL_TERMINAL_PANEL
 

@@ -72,6 +72,30 @@ TFLTerminalBuffer::~TFLTerminalBuffer()
 {
 }
 
+
+// MARK: - TFLTerminalBuffer -
+
+
+TFLTile::TFLTile(int x, int y, int w, int h, const char *label)
+:   Fl_Tile(x, y, w, h, label)
+{
+
+}
+
+void TFLTile::resize(int x, int y, int w, int h)
+{
+    // try to differentiate between the user resizing the window or programmatically resizing
+    if ( 1 ) {
+        Fl_Widget *monitor = child(2);
+        int mh = monitor->h();
+        Fl_Tile::resize(x, y, w, h);
+        child(1)->resize(x, y, w, h-mh);
+        child(2)->resize(x, y+h-mh, w, mh);
+    } else {
+        Fl_Tile::resize(x, y, w, h);
+    }
+}
+
 // ============================================================================ //
 // Inspector
 //

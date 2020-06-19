@@ -31,6 +31,7 @@
 
 class TFLApp;
 class TTkScript;
+class TTkProject;
 
 /**
  * Toolkit is an integrated developer environment for Einstein, loosely based on NTK.
@@ -74,7 +75,9 @@ private:
     TFLApp *mApp = nullptr;
 
     // TODO: we currently allow one single script to be loaded. Add support for multiple files, and file hierarchies managed inside projects.
-    TTkScript *mScript = nullptr;
+    TTkScript *mCurrentScript = nullptr;
+    // TODO: implement a default project that collects all data required from the source code.
+    TTkProject *mProject = nullptr;
 };
 
 

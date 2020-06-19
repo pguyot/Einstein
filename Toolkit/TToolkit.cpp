@@ -79,22 +79,28 @@ void TToolkit::Show()
         Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
         Fl_Preferences toolkit(prefs, "Toolkit");
         Fl_Preferences tkWindow(toolkit, "Window");
-        int x, y, w, h;
+        int x, y, w, h, hTileSep;
         tkWindow.get("x", x, 400);
         tkWindow.get("y", y, 80);
         tkWindow.get("w", w, 720);
         tkWindow.get("h", h, 600);
+        tkWindow.get("hTileSep", hTileSep, 500);
 
         wToolkitWindow = CreateToolkitWindow(x, y);
-        wToolkitWindow->resize(x, y, w, h);
+        wToolkitWindow->size_range(150, 78+150);
 
         wToolkitTerminal->buffer( gTerminalBuffer = new Fl_Text_Buffer() );
 
         // FIXME: allow multiple scripts and multiple panels in a Tab, and a hierarchy of scripts in a Project
-        mScript = new TTkScript(this);
-        wScriptPanel->SetScript(mScript);
-        mScript->SetPanel( wScriptPanel );
-        mScript->LoadFile("/Users/matt/dev/newton-test/mini.ns");
+        mCurrentScript = new TTkScript(this);
+        wScriptPanel->SetScript(mCurrentScript);
+        mCurrentScript->SetPanel( wScriptPanel );
+        mCurrentScript->LoadFile("/Users/matt/dev/newton-test/mini.ns");
+
+        wToolkitWindow->show();
+        wToolkitWindow->resize(x, y, w, h);
+        wTile->init_sizes();
+        wTile->position(0, wToolkitTerminal->y(), 0, hTileSep);
     }
     UpdateTitle();
     wToolkitWindow->show();
@@ -111,6 +117,7 @@ void TToolkit::Hide()
         tkWindow.set("y", wToolkitWindow->y());
         tkWindow.set("w", wToolkitWindow->w());
         tkWindow.set("h", wToolkitWindow->h());
+        tkWindow.set("hTileSep", wToolkitTerminal->y());
         wToolkitWindow->hide();
     }
 }
@@ -136,7 +143,7 @@ int TToolkit::UserActionNew()
         return -1;
 
     // set script to the new filename and load the file
-    mScript->SetFilename(filename);
+    mCurrentScript->SetFilename(filename);
     FILE *f = fopen(filename, "rb");
     if (f) {
         fclose(f);
@@ -145,8 +152,8 @@ int TToolkit::UserActionNew()
                         "with a new, empty script?",
                         "Open existing Script", "Overwrite Script", "Abort");
         if (ret==0) return -1;
-        if (ret==1) mScript->SetDirty();
-        if (ret==2) mScript->LoadFile(filename);
+        if (ret==1) mCurrentScript->SetDirty();
+        if (ret==2) mCurrentScript->LoadFile(filename);
     }
     return 0;
 }
@@ -172,13 +179,13 @@ int TToolkit::UserActionOpen()
         return -1;
 
     // set script to the new filename and load the file
-    mScript->SetFilename(filename);
+    mCurrentScript->SetFilename(filename);
     FILE *f = fopen(filename, "rb");
     if (!f) {
-        fl_alert("Error reading file\n%s\n%s", mScript->GetFilename(), strerror(errno));
+        fl_alert("Error reading file\n%s\n%s", mCurrentScript->GetFilename(), strerror(errno));
     } else {
         fclose(f);
-        mScript->LoadFile(filename);
+        mCurrentScript->LoadFile(filename);
     }
     return 0;
 }
@@ -192,11 +199,11 @@ int TToolkit::UserActionOpen()
 int TToolkit::UserActionSave()
 {
     int result = 0;
-    if (mScript->GetFilename()) {
+    if (mCurrentScript->GetFilename()) {
         // we have a filename, so just save the file to disk
-        result = mScript->Save();
+        result = mCurrentScript->Save();
         if (result<0) {
-            fl_alert("Error writing file\n%s\n%s", mScript->GetFilename(), strerror(errno));
+            fl_alert("Error writing file\n%s\n%s", mCurrentScript->GetFilename(), strerror(errno));
         }
     } else {
         // if there is no filename given, run SaveAs instead
@@ -214,11 +221,11 @@ int TToolkit::UserActionSaveAs()
     // TODO: Fix FLTK to allow selecting new & existing files in OS X
     const char *filename = fl_file_chooser("Save NewtonScript As...",
                                            "NewtonScript (*.{ns,nscript,script})",
-                                           mScript->GetFilename());
+                                           mCurrentScript->GetFilename());
     if (!filename)
         return -1;
-    mScript->SetFilename(filename);
-    mScript->SetDirty();
+    mCurrentScript->SetFilename(filename);
+    mCurrentScript->SetDirty();
     return UserActionSave();
 }
 
@@ -232,7 +239,7 @@ int TToolkit::UserActionSaveAs()
  */
 int TToolkit::UserActionClose()
 {
-    if (mScript->IsDirty()) {
+    if (mCurrentScript->IsDirty()) {
         int ret = fl_choice(
                             "Unsaved changes.\n\n"
                             "Do you want to save your changes before\n"
@@ -242,8 +249,8 @@ int TToolkit::UserActionClose()
         if (ret==1) if (UserActionSave()<0) return -1;
     }
     // set script to empty and filename to null
-    mScript->SetSourceCode("");
-    mScript->SetFilename(nullptr);
+    mCurrentScript->SetSourceCode("");
+    mCurrentScript->SetFilename(nullptr);
     return 0;
 }
 
@@ -348,11 +355,20 @@ void TToolkit::AppBuild()
     NewtInit(0, 0L, 0);
 
     NewtDefGlobalFunc0(NSSYM(MakeBinaryFromString), (void*)NsMakeBinaryFromString, 2, false, (char*)"MakeBinaryFromString(str, sym)");
+//    NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("stdout\n", false));
+//    NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("stderr\n", false));
+//    errRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
+    NsUndefGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
+    NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
+    NsUndefGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
+    NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
+//    errRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
+//    char *errs2 = NewtRefToString(errRef);
 
-
-//    constant kClassSymbol := kAppSymbol ;
-//    constant kUserSoupName := kAppName ;
-
+//    constant kClassSymbol := kAppSymbol ;  '|Llama:NEWTONDTS|
+//    constant kUserSoupName := kAppName ;   "Llama:NEWTONDTS"
+//    NcDefGlobalVar(NSSYM0(_STDOUT_), kNewtRefNIL);
+//    NcDefGlobalVar(NSSYM0(_STDERR_), kNewtRefNIL);
 
     // #file ...
     // #line 1
@@ -362,26 +378,45 @@ void TToolkit::AppBuild()
     src.append( TToolkitPrototype::ToolkitDefs );
     src.append( "#line 0\n" );
 
-    if (mScript->GetFilename()) {
+    if (mCurrentScript->GetFilename()) {
         gTerminalBuffer->append("Compiling file...\n");
-        if (mScript->IsDirty()) {
-            mScript->Save();
+        if (mCurrentScript->IsDirty()) {
+            mCurrentScript->Save();
         }
-        std::ifstream t(mScript->GetFilename());
+        std::ifstream t(mCurrentScript->GetFilename());
         std::string str((std::istreambuf_iterator<char>(t)),
                         std::istreambuf_iterator<char>());
         src.append(str);
     } else {
         gTerminalBuffer->append("Compiling inline...\n");
-        char *sourceCode = mScript->DupSourceCode();
+        char *sourceCode = mCurrentScript->DupSourceCode();
         src.append(sourceCode);
         free(sourceCode);
     }
+    // FIXME: somewhere inside this call, _STDERR_ and _STDOUT_ are cleared by Newt/64
     result = NVMInterpretStr(src.c_str(), &err);
 
     // TODO: get the app symbol to install and uninstall it
     // TODO: get the app name
     // TODO: get the package path, or build a temp package
+
+    newtRef newt = NsGetGlobalVar(kNewtRefNIL, NSSYM(newt));
+    if (NewtRefIsFrame(newt)) {
+        newtRef app = NsGetSlot(kNewtRefNIL, newt, NSSYM(app));
+        newtRef pkgFile = NsGetSlot(kNewtRefNIL, newt, NSSYM(pkgFile));
+    }
+
+    newtRef outRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
+    if (NewtRefIsString(outRef)) {
+        const char *outStr = NewtRefToString(outRef);
+        gTerminalBuffer->append(outStr);
+    }
+
+    newtRef errRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
+    if (NewtRefIsString(errRef)) {
+        const char *errStr = NewtRefToString(errRef);
+        gTerminalBuffer->append(errStr);
+    }
 
     NewtCleanup();
 }
@@ -432,7 +467,7 @@ TToolkit::TToolkit(TFLApp *inApp)
 
 TToolkit::~TToolkit()
 {
-    delete mScript;
+    delete mCurrentScript;
 }
 
 /**
@@ -441,10 +476,10 @@ TToolkit::~TToolkit()
 void TToolkit::UpdateTitle()
 {
     char buf[2048];
-    const char *filename = mScript->GetFilename();
+    const char *filename = mCurrentScript->GetFilename();
     if (!filename) filename = "<memory>";
-    if (mScript) {
-        if (mScript->IsDirty()) {
+    if (mCurrentScript) {
+        if (mCurrentScript->IsDirty()) {
             snprintf(buf, 2048, "Einstein Toolkit - %s*", filename);
         } else {
             snprintf(buf, 2048, "Einstein Toolkit - %s", filename);
