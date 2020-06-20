@@ -69,6 +69,9 @@
 #include <FL/fl_ask.H>
 #include <FL/Fl_File_Chooser.H>
 
+#include <errno.h>
+
+
 Fl_Text_Buffer *gTerminalBuffer = nullptr;
 
 TToolkit *gToolkit = nullptr;

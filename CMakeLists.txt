@@ -438,7 +438,7 @@ elseif (UNIX)
 	add_executable(Einstein ${sources})
 
     # add all the source file that Fluid generates for us
-    add_dependencies(Einstein ${fluid_dependencies})
+    #add_dependencies(Einstein ${fluid_dependencies})
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC -Wall -Wno-multichar)
@@ -447,6 +447,16 @@ elseif (UNIX)
 			fltk
 			pulse # sound
 			)
+
+    if ( USE_NEWT64 MATCHES true )
+        message(STATUS ${newt64_lib_path})
+        target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
+        target_link_libraries(Einstein
+            ${newt64_lib}
+            iconv
+            )
+        target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
+    endif ()
 
 elseif (WIN32)
 
