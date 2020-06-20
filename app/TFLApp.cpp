@@ -208,7 +208,7 @@ TFLApp::Run( int argc, char* argv[] )
 
     InitSettings();
 
-#if 0
+#if 1
     mFLSettings->useMonitor = 1;
     mLog = new TBufferLog();
 #else
