@@ -372,6 +372,12 @@ elseif (UNIX)
 			# Network card emulations
 			Emulator/Network/TUsermodeNetwork.cpp
 			Emulator/Network/TUsermodeNetwork.h
+			Emulator/Serial/TBasiliskIISerialPortManager.cpp
+			Emulator/Serial/TBasiliskIISerialPortManager.h
+			Emulator/Serial/TPipesSerialPortManager.cpp
+			Emulator/Serial/TPipesSerialPortManager.h
+			Emulator/Serial/TPtySerialPortManager.cpp
+			Emulator/Serial/TPtySerialPortManager.h
 			)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
     source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources})
