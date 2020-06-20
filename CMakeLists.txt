@@ -21,7 +21,7 @@ set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
 
 set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-project("Einstein" VERSION "2020.4.2")
+project("Einstein" VERSION "2020.4.3")
 
 find_library(newt64_lib NAME newt64 PATHS /usr/local/lib)
 find_file(newt64_incl NAMES NewtCore.h PATHS /usr/local/include PATH_SUFFIXES newt64)

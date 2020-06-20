@@ -64,6 +64,7 @@
 #include "NewtBC.h"
 #include "NewtVM.h"
 #include "NewtParser.h"
+#include "NewtPkg.h"
 
 #include <FL/fl_ask.H>
 #include <FL/Fl_File_Chooser.H>
@@ -71,6 +72,26 @@
 Fl_Text_Buffer *gTerminalBuffer = nullptr;
 
 TToolkit *gToolkit = nullptr;
+
+TToolkit::TToolkit(TFLApp *inApp)
+:   mApp(inApp)
+{
+    gToolkit = this;
+}
+
+
+TToolkit::~TToolkit()
+{
+    delete mCurrentScript;
+    if (mPkgPath)
+        ::free(mPkgPath);
+    if (mPkgName)
+        ::free(mPkgName);
+    if (mPkgSymbol)
+        ::free(mPkgSymbol);
+    if (mPkgLabel)
+        ::free(mPkgLabel);
+}
 
 
 void TToolkit::Show()
@@ -96,7 +117,8 @@ void TToolkit::Show()
         mCurrentScript = new TTkScript(this);
         wScriptPanel->SetScript(mCurrentScript);
         mCurrentScript->SetPanel( wScriptPanel );
-        mCurrentScript->LoadFile("/Users/matt/dev/newton-test/mini.ns");
+        mCurrentScript->SetSourceCode(TToolkitPrototype::HelloWorld);
+        //mCurrentScript->LoadFile("/Users/matt/dev/newton-test/mini.ns");
 
         wToolkitWindow->show();
         wToolkitWindow->resize(x, y, w, h);
@@ -339,37 +361,19 @@ static newtRef NsMakeBinaryFromString(newtRefArg rcvr, newtRefArg text, newtRefA
     return NewtMakeBinaryFromString(klass, NewtRefToString(text), false);
 }
 
-//printDepth := 9999;
-//printLength := 9999;
-//printBinaries := 1;
-//printUnique := 1;
-//pkg := ReadPkg(LoadBinary("/Users/matt/dev/Einstein/pguyot.mattAndroid/Packages/ROMDumper/ROMDumper.pkg"));
-//p(pkg);
-//     NewtPrintObject(stdout, r);
-
-
 
 void TToolkit::AppBuild()
 {
-    newtRefVar    result;
-    newtErr    err;
+    wToolkitTerminal->buffer()->text("");
+
+    char buf[2*FL_PATH_MAX];
+    newtRefVar result;
+    newtErr err;
     NewtInit(0, 0L, 0);
 
     NewtDefGlobalFunc0(NSSYM(MakeBinaryFromString), (void*)NsMakeBinaryFromString, 2, false, (char*)"MakeBinaryFromString(str, sym)");
-//    NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("stdout\n", false));
-//    NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("stderr\n", false));
-//    errRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
-    NsUndefGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
     NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
-    NsUndefGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
     NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
-//    errRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
-//    char *errs2 = NewtRefToString(errRef);
-
-//    constant kClassSymbol := kAppSymbol ;  '|Llama:NEWTONDTS|
-//    constant kUserSoupName := kAppName ;   "Llama:NEWTONDTS"
-//    NcDefGlobalVar(NSSYM0(_STDOUT_), kNewtRefNIL);
-//    NcDefGlobalVar(NSSYM0(_STDERR_), kNewtRefNIL);
 
     // #file ...
     // #line 1
@@ -377,7 +381,11 @@ void TToolkit::AppBuild()
     src.append( TToolkitPrototype::NewtonDefs21 );
     src.append( TToolkitPrototype::BytecodeDefs );
     src.append( TToolkitPrototype::ToolkitDefs );
-    src.append( "#line 0\n" );
+    src.append( TToolkitPrototype::DefaultPackage );
+    SetTempPkgPath();
+    sprintf(buf, "newt.pkgPath := \"%s\";\n", mPkgPath);
+    src.append( buf );
+    src.append( TToolkitPrototype::ToolkitLaunch );
 
     if (mCurrentScript->GetFilename()) {
         PrintStd("Compiling file...\n");
@@ -399,15 +407,11 @@ void TToolkit::AppBuild()
     // FIXME: somewhere inside this call, _STDERR_ and _STDOUT_ are cleared by Newt/64
     result = NVMInterpretStr(src.c_str(), &err);
 
+//    puts(src.c_str());
+
     // TODO: get the app symbol to install and uninstall it
     // TODO: get the app name
     // TODO: get the package path, or build a temp package
-
-    newtRef newt = NsGetGlobalVar(kNewtRefNIL, NSSYM(newt));
-    if (NewtRefIsFrame(newt)) {
-        newtRef app = NsGetSlot(kNewtRefNIL, newt, NSSYM(app));
-        newtRef pkgFile = NsGetSlot(kNewtRefNIL, newt, NSSYM(pkgFile));
-    }
 
     newtRef outRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
     if (NewtRefIsString(outRef)) {
@@ -421,6 +425,24 @@ void TToolkit::AppBuild()
         PrintErr(errStr);
     }
 
+    if (ReadScriptResults()==0) {
+        newtRef newt = NsGetGlobalVar(kNewtRefNIL, NSSYM(newt));
+        NcSend0(newt, NSSYM(writePkg));
+    }
+    NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
+    NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
+    outRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
+    if (NewtRefIsString(outRef)) {
+        const char *outStr = NewtRefToString(outRef);
+        PrintStd(outStr);
+    }
+    errRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
+    if (NewtRefIsString(errRef)) {
+        const char *errStr = NewtRefToString(errRef);
+        PrintErr(errStr);
+    }
+    //PrintErr(mPkgPath);
+
     NewtCleanup();
 }
 
@@ -429,13 +451,20 @@ void TToolkit::AppInstall()
 {
     PrintStd("Installing...\n");
     TPlatformManager *mgr = mApp->GetPlatformManager();
-    mgr->EvalNewtonScript(
-                          "if HasSlot(GetRoot(), '|PictIndex:PIEDTS|) then begin\n"
-                          "  GetRoot().|PictIndex:PIEDTS|:Close();\n"
-                          "  SafeRemovePackage(GetPkgRef(\"PictIndex:PIEDTS\", GetStores()[0]))\n"
-                          "end;\n"
-                          );
-    mApp->InstallPackagesFromURI("/Users/matt/dev/newton-test/mini.pkg");
+
+    const char *cmd =
+    "if HasSlot(GetRoot(), '|%s|) then begin\n"
+    "  GetRoot().|%s|:Close();\n"
+    "  SafeRemovePackage(GetPkgRef(\"%s\", GetStores()[0]))\n"
+    "end;\n";
+
+    char *buf = (char*)::malloc(strlen(cmd)+1024);
+    sprintf(buf, cmd, mPkgSymbol, mPkgSymbol, mPkgName);
+    mgr->EvalNewtonScript(buf);
+    puts(buf);
+    ::free(buf);
+
+    mApp->InstallPackagesFromURI(mPkgPath);
 }
 
 
@@ -443,9 +472,13 @@ void TToolkit::AppRun()
 {
     PrintStd("Run...\n");
     TPlatformManager *mgr = mApp->GetPlatformManager();
-    mgr->EvalNewtonScript(
-                          "GetRoot().|PictIndex:PIEDTS|:Open();\n"
-                          );
+
+    const char *cmd = "GetRoot().|%s|:Open();\n";
+    char *buf = (char*)::malloc(strlen(cmd)+1024);
+    sprintf(buf, cmd, mPkgSymbol);
+    mgr->EvalNewtonScript(buf);
+    puts(buf);
+    ::free(buf);
 }
 
 
@@ -453,25 +486,18 @@ void TToolkit::AppStop()
 {
     PrintStd("Stop...\n");
     TPlatformManager *mgr = mApp->GetPlatformManager();
-    mgr->EvalNewtonScript(
-                          "if HasSlot(GetRoot(), '|PictIndex:PIEDTS|) then begin\n"
-                          "  GetRoot().|PictIndex:PIEDTS|:Close();\n"
-                          "end;\n"
-                          );
+
+    const char *cmd =
+    "if HasSlot(GetRoot(), '|%s|) then begin\n"
+    "  GetRoot().|%s|:Close();\n"
+    "end;\n";
+    char *buf = (char*)::malloc(strlen(cmd)+1024);
+    sprintf(buf, cmd, mPkgSymbol, mPkgSymbol);
+    mgr->EvalNewtonScript(buf);
+    puts(buf);
+    ::free(buf);
 }
 
-
-TToolkit::TToolkit(TFLApp *inApp)
-:   mApp(inApp)
-{
-    gToolkit = this;
-}
-
-
-TToolkit::~TToolkit()
-{
-    delete mCurrentScript;
-}
 
 /**
  * Tell the Toolkit UI to redraw the titlebar.
@@ -480,7 +506,7 @@ void TToolkit::UpdateTitle()
 {
     char buf[2048];
     const char *filename = mCurrentScript->GetFilename();
-    if (!filename) filename = "<memory>";
+    if (!filename) filename = "(no file)";
     if (mCurrentScript) {
         if (mCurrentScript->IsDirty()) {
             snprintf(buf, 2048, "Einstein Toolkit - %s*", filename);
@@ -571,84 +597,125 @@ extern "C" void yyerror(char * s)
         NPSErrorStr('E', s);
 }
 
-
 void TToolkit::LoadSampleCode(int n)
 {
-#if 0
-    wToolkitEditor->buffer()->text
-    (
-     "//#include \"/Users/matt/dev/newt64/defs/newt.2.2.ns\"\n"
-     "//#include \"/Users/matt/dev/newt64/defs/newt.bc.2.2.ns\"\n"
-     "\n"
-     "helloButton := {\n"
-     "    text: \"Say Hello\",\n"
-     "    viewBounds: {\n"
-     "        left: 42, top: 82, right: 210, bottom: 138\n"
-     "    },\n"
-     "    buttonClickScript: func()\n"
-     "        begin\n"
-     // TODO: pop up a dialog
-     "        end,\n"
-     "    _proto: @226 /* protoTextButton */\n"
-     "};\n"
-     "\n"
-     "mainWindow := {\n"
-     "    viewBounds: {\n"
-     "        left: -16, top: 38, right: 212, bottom: 322\n"
-     "    },\n"
-     "    stepChildren: [\n"
-     "        helloText,\n"
-     "    },\n"
-     "    _proto: @180 /* protoFloatNGo */\n"
-     "};\n"
-     "\n"
-     "app := {\n"
-     "    class: 'PackageHeader,\n"
-     "    type: 2021161080,\n"
-     "    pkg_version: 0,\n"
-     "    version: 1,\n"
-     "    copyright: \"Written in 2020 by Matthias Melcher, licensed under GPL.\",\n"
-     "    name: \"Hello:WONKO\",\n"
-     "    flags: 0,\n"
-     "    parts: [\n"
-     "        {\n"
-     "            class: 'PackagePart,\n"
-     "            info: MakeBinaryFromHex(\"41204E6577746F6E20546F6F6C6B6974206170706C69636174696F6E\", 'binary),\n"
-     "            flags: 129,\n"
-     "            type: 1718579821,\n"
-     "            align: 8,\n"
-     "            data: {\n"
-     "                app: '|Hello:WONKO|,\n"
-     "                text: \"Hello\",\n"
-     "                icon: {\n"
-     "                    mask: MakeBinaryFromHex(\"000000000004000300030005001F001A007000000070000007FF00001FFFC0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0003FFFE0007FFFF0007FFFF0007FFFF000\", 'mask),\n"
-     "                    bits: MakeBinaryFromHex(\"000000000004000300030005001F001A007000000070000007FF00001FFFC0003FFFE0003B76E0003B76E0003FFFE0003B76E0003B76E0003FFFE0003D75E0003AFAE0003D75E0003AFAE0003FFFE0003D75E0003AFAE0003D75E0003AFAE0003FFFE0003D75E0003AFAE0003D75E0003AFAE0007FFFF0007FFFF0007FFFF000\", 'bits),\n"
-     "                    bounds: {\n"
-     "                        left: 0, top: 0, right: 21, bottom: 28\n"
-     "                    }\n"
-     "                },\n"
-     "                theForm: mainWindow\n"
-     "            },\n"
-     "        }\n"
-     "    ]\n"
-     "    InstallScript: func(partFrame)\n"
-     "    begin\n"
-     "        partFrame.removeFrame := (partFrame.theForm):NewtInstallScript(partFrame.theForm);\n"
-     "    end;\n"
-     "    RemoveScript: func(partFrame)\n"
-     "    begin\n"
-     "        (partFrame.removeFrame):NewtRemoveScript(removeFrame);\n"
-     "    end;\n"
-     "};\n"
-     "\n"
-     "p(\"Build package...\");\n"
-     "pkg := MakePkg(app);\n"
-     "p(\"Save Package...\");\n"
-     "SaveBinary(pkg, \"/Users/matt/dev/newton-test/mini.pkg\");\n"
-     "p(\"DONE\");\n"
-     );
-#endif
 }
+
+void TToolkit::SetTempPkgPath()
+{
+    char buf[FL_PATH_MAX];
+    Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+    prefs.getUserdataPath(buf, FL_PATH_MAX);
+    strcat(buf, "tmp.pkg");
+    SetPkgPath(buf);
+    ::remove(buf);
+}
+
+void TToolkit::SetPkgPath(const char *name)
+{
+    if (name==mPkgPath) return;
+    if (mPkgPath)
+        ::free(mPkgPath);
+    mPkgPath = nullptr;
+    if (name)
+        mPkgPath = strdup(name);
+}
+
+void TToolkit::SetPkgName(const char *name)
+{
+    if (name==mPkgName) return;
+    if (mPkgName)
+        ::free(mPkgName);
+    mPkgName = nullptr;
+    if (name)
+        mPkgName = strdup(name);
+}
+
+void TToolkit::SetPkgSymbol(const char *name)
+{
+    if (name==mPkgSymbol) return;
+    if (mPkgSymbol)
+        ::free(mPkgSymbol);
+    mPkgSymbol = nullptr;
+    if (name)
+        mPkgSymbol = strdup(name);
+}
+
+void TToolkit::SetPkgLabel(const char *name)
+{
+    if (name==mPkgLabel) return;
+    if (mPkgLabel)
+        ::free(mPkgLabel);
+    mPkgLabel = nullptr;
+    if (name)
+        mPkgLabel = strdup(name);
+}
+
+
+/**
+ * Extract project settings from the newt environment.
+ */
+int TToolkit::ReadScriptResults()
+{
+    newtRef newt = NsGetGlobalVar(kNewtRefNIL, NSSYM(newt));
+    if (!NewtRefIsFrame(newt)) {
+        PrintErr("Error: can't build package, 'newt' not defined!\n");
+        return -1;
+    }
+    // if newt.pkPath is a string, the package will be written to this path
+    newtRef pkgPath = NsGetSlot(kNewtRefNIL, newt, NSSYM(pkgPath));
+    if (NewtRefIsString(pkgPath)) {
+        const char *pkgPathStr = NewtRefToString(pkgPath);
+        SetPkgPath(pkgPathStr);
+    }
+    // check if we the user has created an app
+    newtRef app = NsGetSlot(kNewtRefNIL, newt, NSSYM(app));
+    if (!NewtRefIsFrame(app)) {
+        PrintErr("Error: can't build package, 'newt.app' not defined!\n");
+        return -1;
+    }
+    newtRef pkgName = NsGetSlot(kNewtRefNIL, app, NSSYM(name));
+    if (NewtRefIsString(pkgName)) {
+        const char *pkgNameStr = NewtRefToString(pkgName);
+        SetPkgName(pkgNameStr);
+    } else {
+        PrintErr("Error: can't build package, 'newt.app.name' not defined!\n");
+        return -1;
+    }
+    newtRef pkgParts = NsGetSlot(kNewtRefNIL, app, NSSYM(parts));
+    if (!NewtRefIsArray(pkgParts)) {
+        PrintErr("Error: can't build package, 'newt.app.parts' not defined!\n");
+        return -1;
+    }
+    newtRef pkgPart0 = NewtGetArraySlot(pkgParts, 0);
+    if (!NewtRefIsFrame(pkgPart0)) {
+        PrintErr("Error: can't build package, 'newt.app.parts[0]' not defined!\n");
+        return -1;
+    }
+    newtRef data = NsGetSlot(kNewtRefNIL, pkgPart0, NSSYM(data));
+    if (!NewtRefIsFrame(data)) {
+        PrintErr("Error: can't build package, 'newt.app.parts[0].data' not defined!\n");
+        return -1;
+    }
+    newtRef pkgSymbol = NsGetSlot(kNewtRefNIL, data, NSSYM(app));
+    if (NewtRefIsSymbol(pkgSymbol)) {
+        const char *pkgSymbolStr = NewtSymbolGetName(pkgSymbol);
+        SetPkgSymbol(pkgSymbolStr);
+    } else {
+        PrintErr("Error: can't build package, package symbol not defined! Expected in 'newt.app.parts[0].data'.\n");
+        return -1;
+    }
+    newtRef pkgLabel = NsGetSlot(kNewtRefNIL, data, NSSYM(text));
+    if (NewtRefIsString(pkgLabel)) {
+        const char *pkgLabelStr = NewtRefToString(pkgLabel);
+        SetPkgLabel(pkgLabelStr);
+    } else {
+        SetPkgLabel("<unknown>");
+    }
+    PrintStd("Info: package compiled.\n");
+    return 0;
+}
+
 
 
 // ======================================================================= //

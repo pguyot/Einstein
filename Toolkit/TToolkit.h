@@ -76,12 +76,24 @@ public:
     void PrintErr(const char *text);
 
 private:
+    int ReadScriptResults();
+    void SetTempPkgPath();
+    void SetPkgPath(const char *name);
+    void SetPkgName(const char *name);
+    void SetPkgSymbol(const char *name);
+    void SetPkgLabel(const char *name);
+
     TFLApp *mApp = nullptr;
 
     // TODO: we currently allow one single script to be loaded. Add support for multiple files, and file hierarchies managed inside projects.
     TTkScript *mCurrentScript = nullptr;
     // TODO: implement a default project that collects all data required from the source code.
     // TTkProject *mProject = nullptr;
+
+    char *mPkgPath = nullptr;
+    char *mPkgName = nullptr;
+    char *mPkgSymbol = nullptr;
+    char *mPkgLabel = nullptr;
 };
 
 

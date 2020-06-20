@@ -1750,8 +1750,15 @@ const char *TToolkitPrototype::BytecodeDefs =
 "};\n"
 ;
 
+//    constant kClassSymbol := kAppSymbol ;  '|Llama:NEWTONDTS|
+//    constant kUserSoupName := kAppName ;   "Llama:NEWTONDTS"
+
 const char *TToolkitPrototype::ToolkitDefs =
 "global newt := {\n"
+"    writePkg: func() begin\n"
+"       local pkg := MakePkg(app);\n"
+"       SaveBinary(pkg, pkgPath);\n"
+"    end,\n"
 "    defaultIcon: {\n"
 "        mask: MakeBinaryFromHex(\"000000000004000000000000001B0018000000000000000000001C0000003F0000003F001FFF7F003FFF7E003FFFFE003FFFFC003FFFFC003FFFF8003FFFF8003FFFF0003FFFF0003FFFE0003FFFE0003FFFC0003FFFC0003FFF80003FFF00003FFF80003FFF80003FFF80001FFF00001FFF00000FFE000000000000\", 'mask),\n"
 "        bits: MakeBinaryFromHex(\"000000000004000000000000001B0018000000000000000000001C0000003F00000033001FFF7B003FFF6E003000CE0037FCCC0037FD9C0034059800355338003403300035567000340660003554E000340CC000354FC000340B8000360F000037FE800037FD8000300B8000180300001FFF00000FFE000000000000\", 'bits),\n"
@@ -1763,8 +1770,42 @@ const char *TToolkitPrototype::ToolkitDefs =
 // newt/64 will write all text that would otherwise go to stderr and stdout into these strings instead
 "global _STDERR_ := \"\";\n"
 "global _STDOUT_ := \"\";\n"
+;
+
+
+const char *TToolkitPrototype::DefaultPackage =
+"newt.theForm := NIL;\n"
+"newt.app := {\n"
+"    class: 'PackageHeader,\n"
+"    type: 2021161080,\n"
+"    pkg_version: 0,\n"
+"    version: 1,\n"
+"    copyright: \"Written in 2020 by Matthias Melcher, licensed under GPL.\",\n"
+"    name: \"Hello:WONKO\",\n"
+"    flags: 0,\n"
+"    parts: [\n"
+"        {\n"
+"            class: 'PackagePart,\n"
+"            info: MakeBinaryFromHex(\"41204E6577746F6E20546F6F6C6B6974206170706C69636174696F6E\", 'binary),\n"
+"            flags: 129,\n"
+"            type: 1718579821,\n"
+"            align: 8,\n"
+"            data: {\n"
+"                app: '|Hello:WONKO|,\n"
+"                text: \"Hello\",\n"
+"                icon: newt.defaultIcon,\n"
+"                theForm: newt.theForm\n"
+"            },\n"
+"        }\n"
+"    ]\n"
+"};\n"
+;
+
+
+const char *TToolkitPrototype::ToolkitLaunch =
 // catch execptions that happen while compiling the code
 "try begin\n"
+"#line 0\n"
 ;
 
 
@@ -1790,6 +1831,47 @@ const char *TToolkitPrototype::ToolkitDone =
 "    end;\n"
 "    print(\"\\n\");\n"
 "end;\n"
+"if newt.theForm<>NIL then newt.app.parts[0].data.theForm := newt.theForm;\n"
+"if kAppSymbol exists then newt.app.parts[0].data.app := kAppSymbol;\n"
+"if kAppName exists then newt.app.name := kAppName;\n"
+"if kAppLabel exists then newt.app.parts[0].data.text := kAppLabel;\n"
+;
+
+
+const char *TToolkitPrototype::HelloWorld =
+"//\n"
+"// NewtonScript example: Hello, World!\n"
+"//\n"
+"\n"
+"kAppName := \"Hello:WONKO\";\n"
+"kAppSymbol := '|Hello:WONKO|;\n"
+"kAppLabel := \"Hello\";\n"
+"\n"
+"helloButton := {\n"
+"    text: \"Say Hello\",\n"
+"    viewBounds: {\n"
+"        left: 50, top: 25, right: 150, bottom: 50\n"
+"    },\n"
+"    buttonClickScript: func()\n"
+"        begin\n"
+"        ModalConfirm(\n"
+"            \"Hello World of NewtonScript\rHow exciting to see you\",\n"
+"            [ \"OK\" ]\n"
+"        );\n"
+"        end,\n"
+"    _proto: protoTextButton\n"
+"};\n"
+"\n"
+"newt.theForm := {\n"
+"    viewBounds: {\n"
+"        left: 0, top: 50, right: 200, bottom: 120\n"
+"    },\n"
+"    stepChildren: [\n"
+"        helloButton,\n"
+"    ],\n"
+"    _proto: protoFloatNGo\n"
+"};\n"
+"\n"
 ;
 
 
