@@ -208,3 +208,32 @@ Grab the SDL2 sourcecode and put it in `.../macemu/external`.
 Then load and compile the VisualStudio Solution in `macemu/BasiliskII/src/Windows`.
 
 
+ A L P H A - building with Toolkit
+-----------------------------------
+
+To build the 'matt2020_Toolkit' branch, some additional installs are required.
+
+On MacOS X, get MatthiasWM/newt64, build the library, and copy it to '/usr/local/lib/libnewt64.s'
+Also, copy all files in '.../src/newt_core/incs/' into '/usr/local/include/newt64/'.
+You may have to install libiconv, but it seemed to be installed already on my machine.
+
+On Linux, get MatthiasWM/newt64 and build it by calling
+  git clone https://github.com/MatthiasWM/NEWT64.git
+  cd NEWT64/
+  autoconf
+  CPPFLAGS=-m64 ./configure
+  make libnewt 
+  sudo cp build/libnewt.a /usr/local/lib/libnewt64.a
+  sudo mkdir /usr/local/include/newt64
+  sudo cp -R src/newt_core/incs/* /usr/local/include/newt64/
+
+Also, get libiconv, build and install it by running these shell commands:
+  wget http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.16.tar.gz
+  tar xvzf libiconv-1.16.tar.gz 
+  cd libiconv-1.16/
+  ./configure --prefix=/usr/local/
+  make
+  sudo make install
+
+No instructions for MSWindows yet.
+
