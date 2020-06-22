@@ -77,7 +77,7 @@ public:
     int mAllowFullscreen = true;
 
     // if this is set, use the Einstein.rex within the app, otherwise load an external fiie
-    bool mUseBuiltinRex = true;
+    int mUseBuiltinRex = true;
 };
 
 /*
