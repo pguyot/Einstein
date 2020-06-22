@@ -226,6 +226,7 @@ private:
 	/// \name Variables
 	TARMProcessor*		mProcessor;			///< Reference to the CPU.
 	TLog*				mLog;				///< Interface for logging.
+	KUInt32				mLogMask;			///< Bitmask for enabled logs
 	TMemory*			mMemory;			///< Interface to the memory.
 	TEmulator*			mEmulator;			///< Emulator (interface to hardware).
 	TNetworkManager*	mNetworkManager;	///< Network manager.
