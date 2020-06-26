@@ -19,6 +19,11 @@ list ( APPEND common_sources
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	list (APPEND common_sources
+		Emulator/Serial/TSerialHostPort.h
+		Emulator/Serial/TSerialHostPortDirect.h
+		Emulator/Serial/TSerialHostPortDirect.cpp
+		Emulator/Serial/TSerialHostPortPTY.h
+		Emulator/Serial/TSerialHostPortPTY.cpp
 		Emulator/Serial/TBasiliskIISerialPortManager.cpp
 		Emulator/Serial/TBasiliskIISerialPortManager.h
 		Emulator/Serial/TPipesSerialPortManager.cpp
@@ -28,6 +33,11 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	)
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	list (APPEND common_sources
+		Emulator/Serial/TSerialHostPort.h
+		Emulator/Serial/TSerialHostPortDirect.h
+		Emulator/Serial/TSerialHostPortDirect.cpp
+		Emulator/Serial/TSerialHostPortPTY.h
+		Emulator/Serial/TSerialHostPortPTY.cpp
 		Emulator/Serial/TBasiliskIISerialPortManager.cpp
 		Emulator/Serial/TBasiliskIISerialPortManager.h
 		Emulator/Serial/TPipesSerialPortManager.cpp

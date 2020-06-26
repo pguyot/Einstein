@@ -1178,6 +1178,18 @@ TFLApp::InitSerialPorts()
 		TSerialPorts::kNullDriver,
 		TSerialPorts::kNullDriver,
 		TSerialPorts::kNullDriver);
+
+	// Add default host driver types for the standard four serial port locations.
+	// These settings will be used in case no dedicated other settings are used during
+	// driver instantiation.
+	mEmulator->SerialPorts.SetHostPortSettings('extr',
+		{ TSerialPorts::kPtyDriver, std::string("/tmp/einstein-extr.pty") });
+	mEmulator->SerialPorts.SetHostPortSettings('mdem',
+		{ TSerialPorts::kPtyDriver, std::string("/tmp/einstein-mdem.pty") });
+	mEmulator->SerialPorts.SetHostPortSettings('infr',
+		{ TSerialPorts::kPtyDriver, std::string("/tmp/einstein-infr.pty") });
+	mEmulator->SerialPorts.SetHostPortSettings('tblt',
+		{ TSerialPorts::kPtyDriver, std::string("/tmp/einstein-tblt.pty") });
 #if 0
     // TODO: save the serial port setting in a safe place
     TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);

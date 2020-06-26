@@ -93,6 +93,12 @@
 		2389E98F1A1E4D4A0001A8C5 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFCF8124200C100A0382E /* CoreGraphics.framework */; };
 		2389E9911A1E4D4A0001A8C5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C97C7E1B124282A600CDCD05 /* Foundation.framework */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		A78AB268278074400047B122 /* TSerialHostPortDirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB265278074400047B122 /* TSerialHostPortDirect.cpp */; };
+		A78AB269278074400047B122 /* TSerialHostPortDirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB265278074400047B122 /* TSerialHostPortDirect.cpp */; };
+		A78AB26A278074400047B122 /* TSerialHostPortDirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB265278074400047B122 /* TSerialHostPortDirect.cpp */; };
+		A78AB26B278074400047B122 /* TSerialHostPortPTY.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB266278074400047B122 /* TSerialHostPortPTY.cpp */; };
+		A78AB26C278074400047B122 /* TSerialHostPortPTY.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB266278074400047B122 /* TSerialHostPortPTY.cpp */; };
+		A78AB26D278074400047B122 /* TSerialHostPortPTY.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB266278074400047B122 /* TSerialHostPortPTY.cpp */; };
 		C901E51A132655D50074513E /* UUTF16CStr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334F111B7570002165EC /* UUTF16CStr.cpp */; };
 		C901E51D132655E00074513E /* UUTF16Conv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E334D111B7570002165EC /* UUTF16Conv.cpp */; };
 		C901E5221326560B0074513E /* TStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3333111B7570002165EC /* TStream.cpp */; };
@@ -450,6 +456,11 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* Einstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Einstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A78AB263278074400047B122 /* TSerialHostPortDirect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSerialHostPortDirect.h; sourceTree = "<group>"; };
+		A78AB264278074400047B122 /* TSerialHostPortPTY.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSerialHostPortPTY.h; sourceTree = "<group>"; };
+		A78AB265278074400047B122 /* TSerialHostPortDirect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TSerialHostPortDirect.cpp; sourceTree = "<group>"; };
+		A78AB266278074400047B122 /* TSerialHostPortPTY.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TSerialHostPortPTY.cpp; sourceTree = "<group>"; };
+		A78AB267278074400047B122 /* TSerialHostPort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSerialHostPort.h; sourceTree = "<group>"; };
 		C92FC717209374B500EF4BB1 /* TPipesSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPipesSerialPortManager.h; sourceTree = "<group>"; };
 		C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPipesSerialPortManager.cpp; sourceTree = "<group>"; };
 		C92FD821242D50CF00D18F58 /* TSerialPorts.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TSerialPorts.cpp; sourceTree = "<group>"; };
@@ -1459,6 +1470,11 @@
 				C935F781209CD67300351905 /* TBasiliskIISerialPortManager.h */,
 				C99656A024258CC900D216A2 /* TTcpClientSerialPortManager.cpp */,
 				C996569F24258CC900D216A2 /* TTcpClientSerialPortManager.h */,
+				A78AB267278074400047B122 /* TSerialHostPort.h */,
+				A78AB265278074400047B122 /* TSerialHostPortDirect.cpp */,
+				A78AB263278074400047B122 /* TSerialHostPortDirect.h */,
+				A78AB266278074400047B122 /* TSerialHostPortPTY.cpp */,
+				A78AB264278074400047B122 /* TSerialHostPortPTY.h */,
 			);
 			path = Serial;
 			sourceTree = "<group>";
@@ -1855,6 +1871,7 @@
 				C99E34D0111B7C08002165EC /* TCocoaROMDumperController.mm in Sources */,
 				DA4BA4701A3A3B78002BDB80 /* TNullScreenManager.cpp in Sources */,
 				C99E34D1111B7C08002165EC /* TCocoaSetupController.mm in Sources */,
+				A78AB268278074400047B122 /* TSerialHostPortDirect.cpp in Sources */,
 				C99E34D8111B7C08002165EC /* THostInfo.cpp in Sources */,
 				C99E34DE111B7C08002165EC /* TJITGeneric.cpp in Sources */,
 				C99E34DF111B7C08002165EC /* TJITGeneric_BlockDataTransfer.cpp in Sources */,
@@ -1869,6 +1886,7 @@
 				C99E34E3111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp in Sources */,
 				C99E34E5111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp in Sources */,
 				C94C96DD20937E780099001D /* TPtySerialPortManager.cpp in Sources */,
+				A78AB26B278074400047B122 /* TSerialHostPortPTY.cpp in Sources */,
 				C99E34E7111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MRS.cpp in Sources */,
 				C99E34E9111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MSR.cpp in Sources */,
 				C99E34EB111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp in Sources */,
@@ -1981,6 +1999,7 @@
 				DA4BA42E1A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer.cpp in Sources */,
 				DA4BA4191A3A028C002BDB80 /* TEmulator.cpp in Sources */,
 				DA4BA42B1A3A02FD002BDB80 /* TStdOutLog.cpp in Sources */,
+				A78AB26D278074400047B122 /* TSerialHostPortPTY.cpp in Sources */,
 				DA4BA4341A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp in Sources */,
 				DA4BA4551A3A03EF002BDB80 /* TEOFException.cpp in Sources */,
 				DAD09658246F61D500CADBF3 /* TPathHelper.cpp in Sources */,
@@ -2022,6 +2041,7 @@
 				DA4BA4461A3A02FD002BDB80 /* UDisasm.cpp in Sources */,
 				DA4BA43F1A3A02FD002BDB80 /* TATACard.cpp in Sources */,
 				DA4BA4581A3A03F3002BDB80 /* TMemError.cpp in Sources */,
+				A78AB26A278074400047B122 /* TSerialHostPortDirect.cpp in Sources */,
 				DA4BA41A1A3A028C002BDB80 /* TAIFFile.cpp in Sources */,
 				DAD09651246F615600CADBF3 /* TFileManager.cpp in Sources */,
 				DA4BA4121A3A028C002BDB80 /* TNativePrimitives.cpp in Sources */,
@@ -2076,6 +2096,7 @@
 				DA4FF13E1A35EBF800092B5A /* TSerialPortManager.cpp in Sources */,
 				DA4FF11E1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp in Sources */,
 				DA4FF1481A35EC4300092B5A /* UDisasm.cpp in Sources */,
+				A78AB26C278074400047B122 /* TSerialHostPortPTY.cpp in Sources */,
 				DA4FF10C1A35EA8800092B5A /* TInterruptManager.cpp in Sources */,
 				DA4FF1301A35EB4900092B5A /* TMappedFile.cpp in Sources */,
 				DA4FF11D1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp in Sources */,
@@ -2096,6 +2117,7 @@
 				DA4FF1011A35E76400092B5A /* UMemoryTests.cpp in Sources */,
 				DA4FF1001A35E76400092B5A /* UHostInfoTests.cpp in Sources */,
 				DA4FF1221A35EAF600092B5A /* TJITGeneric_Multiply.cpp in Sources */,
+				A78AB269278074400047B122 /* TSerialHostPortDirect.cpp in Sources */,
 				DA4FF1251A35EAF600092B5A /* TJITGeneric_SingleDataSwap.cpp in Sources */,
 				DA4FF12D1A35EB3D00092B5A /* TNE2000Card.cpp in Sources */,
 				DA4FF1091A35E9E600092B5A /* UUTF16Conv.cpp in Sources */,
@@ -2168,6 +2190,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -2212,6 +2235,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
@@ -2256,6 +2280,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
@@ -2300,6 +2325,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = Einstein.entitlements;
@@ -2344,6 +2370,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = Einstein.entitlements;
@@ -2531,6 +2558,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = Einstein.entitlements;
@@ -2571,6 +2599,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2615,6 +2644,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2653,6 +2683,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2691,6 +2722,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2748,6 +2780,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2802,6 +2835,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;

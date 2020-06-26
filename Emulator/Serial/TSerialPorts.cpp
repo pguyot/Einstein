@@ -44,6 +44,8 @@
 #include "Emulator/Serial/TBasiliskIISerialPortManager.h"
 #include "Emulator/Serial/TPipesSerialPortManager.h"
 #include "Emulator/Serial/TPtySerialPortManager.h"
+#include "Emulator/Serial/TSerialHostPortDirect.h"
+#include "Emulator/Serial/TSerialHostPortPTY.h"
 #endif
 #if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
 #include "Emulator/Serial/TTcpClientSerialPortManager.h"
@@ -80,6 +82,12 @@ TSerialPorts::GetDriverFor(EPortIndex ix)
 {
 	assert(ix >= 0 && ix < 4);
 	return mDriver[ix];
+}
+
+TSerialHostPort*
+TSerialPorts::GetDriverFor(KUInt32 location)
+{
+	return mHostPorts[location];
 }
 
 /**
@@ -161,6 +169,98 @@ TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 	return currentDriver;
 }
 
+/**
+ Set the driver for a given hardware location (any location can be used). The NewtonOS
+ will see this as a serial chip at the location. Any serial chip such as the Voyager chip
+ registered at the location needs to be de-registered first.
+
+ \param inLocation location for which to create the driver.
+ \param inDeiver driver type
+ \param inConfigData a string of generic configuration data to be used by the driver
+
+ \return a pointer to the new driver, or the previous driver if the driver did not change
+ */
+TSerialHostPort*
+TSerialPorts::SetDriver(KUInt32 inLocation, EDriverID inDriver, std::string inConfigData)
+{
+	TSerialHostPort* port;
+	std::string settings = inConfigData;
+	EDriverID driverID = inDriver;
+
+	if (mHostPorts[inLocation] != nullptr)
+	{
+		KPrintf("Driver already initialized for location %x\n", inLocation);
+		return nullptr;
+	}
+	auto defaults = mHostPortSettings.find(inLocation);
+	if (driverID == TSerialPorts::kDefaultDriver)
+	{
+		if (defaults == mHostPortSettings.end())
+		{
+			KPrintf("Error requesting not configured default driver for location %x\n", inLocation);
+			return nullptr;
+		}
+		driverID = defaults->second.first;
+	}
+	if (settings.length() == 0 && defaults != mHostPortSettings.end())
+	{
+		settings = defaults->second.second;
+	}
+
+	printf("TSerialPorts::SetDriver at location %08x with driver %d and config data %s\n", inLocation, driverID, settings.c_str());
+	switch (driverID)
+	{
+#if (TARGET_OS_MAC && !TARGET_IOS) || TARGET_OS_LINUX
+		case kDirectDriver:
+			port = new TSerialHostPortDirect(mLog, inLocation, settings.c_str(), mEmulator);
+			break;
+		case kPtyDriver:
+			port = new TSerialHostPortPTY(mLog, inLocation, settings.c_str(), mEmulator);
+			break;
+#endif
+		default:
+			port = nullptr;
+			break;
+	}
+
+	if (port != nullptr)
+	{
+		EPortIndex voyagerPort;
+		mHostPorts[inLocation] = port;
+		switch (inLocation)
+		{
+			case 'extr':
+				voyagerPort = EPortIndex::kExtr;
+				break;
+			case 'mdem':
+				voyagerPort = EPortIndex::kMdem;
+				break;
+			case 'infr':
+				voyagerPort = EPortIndex::kInfr;
+				break;
+			case 'tblt':
+				voyagerPort = EPortIndex::kTblt;
+				break;
+			default:
+				voyagerPort = EPortIndex::kNPortIndex;
+		}
+		if (voyagerPort != EPortIndex::kNPortIndex)
+		{
+			ReplaceDriver(voyagerPort, EDriverID::kNullDriver);
+		}
+	} else
+	{
+		if (mLog)
+		{
+			mLog->FLogLine("ERROR: request for unsupported serial driver type %d on port %08x\n", inDriver, inLocation);
+		} else
+		{
+			KPrintf("ERROR: request for unsupported serial driver type %d on port %08x\n", inDriver, inLocation);
+		}
+	}
+	return port;
+}
+
 KUInt32 TSerialPorts::NDrivers = kNDriverID;
 
 std::vector<const char*> TSerialPorts::DriverNames = /* NOLINT */
@@ -200,6 +300,12 @@ TSerialPorts::EDriverID* TSerialPorts::ValidDriversByPort[] = {
 	ValidDrivers, ValidDrivers, ValidDrivers, ValidDrivers
 #endif
 };
+
+void
+TSerialPorts::SetHostPortSettings(KUInt32 inLocation, std::pair<EDriverID, std::string> inSettings)
+{
+	mHostPortSettings.insert({ inLocation, inSettings });
+}
 
 /**
  Get a list of human-readable names for all available serial port drivers.

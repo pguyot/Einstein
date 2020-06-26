@@ -65,10 +65,11 @@ define_driver(EinsteinSoundDriver PMainSoundDriver.cpp PMainSoundDriver.impl.s P
 define_driver(EinsteinScreenDriver TMainDisplayDriver.cpp TMainDisplayDriver.impl.s TMainDisplayDriverPrims.s)
 define_driver(EinsteinTabletDriver TMainTabletDriver.cpp TMainTabletDriver.impl.s TMainTabletDriverPrims.s)
 define_driver(EinsteinVersionString TMainVersionString.cpp TMainVersionString.impl.s)
-define_driver(EinsteinSerialDriver TSerialChipVoyager.cpp TSerialChipVoyager.impl.s TSerialChipVoyagerPrims.s)
+define_driver(EinsteinSerialVoyager TSerialChipVoyager.cpp TSerialChipVoyager.impl.s TSerialChipVoyagerPrims.s)
 define_driver(EinsteinInTranslator PEinsteinInTranslator.cpp PEinsteinInTranslator.impl.s PEinsteinInTranslatorPrims.s)
 define_driver(EinsteinOutTranslator PEinsteinOutTranslator.cpp PEinsteinOutTranslator.impl.s PEinsteinOutTranslatorPrims.s)
 define_driver(EinsteinNativeCalls TEinsteinNativeCalls.cpp TEinsteinNativeCalls.impl.s TEinsteinNativeCallsPrims.s)
+define_driver(EinsteinSerialDriver  TSerialChipEinstein.cpp TSerialChipEinstein.impl.s TSerialChipEinsteinPrims.s)
 define_driver(EinsteinFlashDriver TEinsteinFlashDriver.cpp TEinsteinFlashDriver.impl.s TEinsteinFlashDriverPrims.s)
 add_custom_command(TARGET EinsteinFlashDriver POST_BUILD
     COMMAND ${OBJCOPY} -O binary $<TARGET_FILE:EinsteinFlashDriver> ${CMAKE_SOURCE_DIR}/obj/$<TARGET_FILE_NAME:EinsteinFlashDriver>.bin)
@@ -87,6 +88,7 @@ add_dependencies(Einstein
     EinsteinTabletDriver
     EinsteinVersionString
     EinsteinSerialDriver
+    EinsteinSerialVoyager
     EinsteinInTranslator
     EinsteinOutTranslator
     EinsteinNativeCalls)

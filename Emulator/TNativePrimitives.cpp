@@ -38,10 +38,12 @@
 // Einstein
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/TEmulator.h"
+#include "Emulator/TInterruptManager.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Screen/TScreenManager.h"
+#include "Emulator/Serial/TSerialHostPortDirect.h"
 #include "Emulator/Sound/TSoundManager.h"
 #if !TARGET_OS_MAC
 #include "Emulator/NativeCalls/TNativeCalls.h"
@@ -2022,207 +2024,426 @@ TNativePrimitives::ExecuteTabletDriverNative(KUInt32 inInstruction)
 
 // -------------------------------------------------------------------------- //
 //  * ExecuteSerialDriverNative( KUInt32 )
-// Matt: to the best of my knowledge, the serial port drivers can not, or at
-//		least not with some additional effort, be replaced by drivers from
-//		a ROM extension. TBasicSerialPortManager was written to emulate
-//		the serial port on the lowest hardware level.
 // -------------------------------------------------------------------------- //
 void
 TNativePrimitives::ExecuteSerialDriverNative(KUInt32 inInstruction)
 {
-	if (LOG_SERIAL)
-	{
-		KUInt32 theLocation = -1;
-		(void) mMemory->Read(mProcessor->GetRegister(0) + 16, theLocation);
-		mLog->FLogLine(
-			"Hardware location (?) %.8X",
-			(unsigned int) theLocation);
-	}
+	KUInt32 r = 0;
+	KUInt32 chip = mProcessor->GetRegister(0);
 
+	// Ignore calls for the Voyager chipset as it needs to be handled on
+	// the lower levels of the emulator.
+	if ((inInstruction & 0xFF) < 0x30)
+	{
+		mProcessor->SetRegister(0, -10000);
+		return;
+	}
+	if ((inInstruction & 0xFF) == 0x4C || (inInstruction & 0xFF) == 0x4D)
+	{
+		// Intercept the option calls to set the correct host driver
+		KUInt32 optionAddr = mProcessor->GetRegister(1);
+		KUInt32 label;
+		KUInt32 flags;
+		mMemory->ReadAligned(optionAddr, label);
+		mMemory->ReadAligned(optionAddr + 8, flags);
+		if (LOG_SERIAL)
+		{
+			mLog->FLogLine("TSerialChipEinstein::Process/InitByOption %08x %08x %08x", chip, label, flags);
+		}
+
+		switch (label)
+		{
+			// The 'eloc' (Einstein location) option determines which host driver to use
+			case 'eloc': {
+				KUInt32 location;
+				KUInt32 type;
+				mMemory->ReadAligned(optionAddr + 12, location);
+				mMemory->ReadAligned(optionAddr + 16, type);
+				if (LOG_SERIAL)
+				{
+					mLog->FLogLine("  'eloc' %08x %d", location, (KSInt32) type);
+				}
+				char c[61];
+				KUInt32 configDataSize = 0;
+				memset(c, 0, sizeof(c));
+
+				// Update the driver on the Newton side with the requested location
+				mMemory->WriteAligned(chip + 0x10, location);
+
+				// If configuration data is set, use it during initialization
+				mMemory->ReadAligned(optionAddr + 20, configDataSize);
+				if (configDataSize > 0)
+				{
+					mMemory->FastReadString(optionAddr + 24, &configDataSize, c);
+				}
+				std::string configData(c);
+
+				// Enable the driver on the Einstein side with the available configuration data
+				TSerialHostPort* port = mEmulator->SerialPorts.SetDriver(location,
+					static_cast<TSerialPorts::EDriverID>(type), configData);
+				if (port == NULL)
+				{
+					mProcessor->SetRegister(0, -16022);
+					return;
+				}
+
+				// Update the driver on the Newton side with the interrupt ID
+				mMemory->WriteAligned(chip + 0x14, port->GetInterruptID());
+			}
+			break;
+			case 'sers':
+				KUInt32 features, location, supported, type;
+				mMemory->ReadAligned(optionAddr + 12, location);
+				if (LOG_SERIAL)
+				{
+					mMemory->ReadAligned(optionAddr + 16, features);
+					mMemory->ReadAligned(optionAddr + 20, supported);
+					mMemory->ReadAligned(optionAddr + 24, type);
+					mLog->FLogLine("  'sers' %08x %08x %08x %08x", location, features, supported, type);
+				}
+
+				// Update the serial chip spec option with some reasonable defaults, using the
+				// location as stored in the driver on the Newton side
+				mMemory->ReadAligned(chip + 0x10, location);
+				mMemory->WriteAligned(optionAddr + 8, 0x0C000100); // fFlags: kOptionType | opSetNegotiate
+				mMemory->WriteAligned(optionAddr + 12, location);
+				mMemory->WriteAligned(optionAddr + 16, 0x80000003); // fSerFeatures: Einstein | kSerFeatureVersion2 | kSerFeatureDefault
+				mMemory->WriteAligned(optionAddr + 20, 0x02200018); // f...Support: kSerOutRTS | kSerInCTS | kSerCap_DataBits_8 | kSerCap_StopBits_1
+				mMemory->WriteAligned(optionAddr + 24, 0x02010000); // fUARTType: kSerialChip16550, fChipNotInUse
+				break;
+			default:
+				break;
+		}
+		mProcessor->SetRegister(0, r);
+		return;
+	}
+	// Forward calls to the host driver
+	KUInt32 location;
+	mMemory->ReadAligned(chip + 0x10, location);
+	TSerialHostPort* port = mEmulator->SerialPorts.GetDriverFor(location);
+	if (port == NULL)
+	{
+		if (LOG_SERIAL)
+		{
+			mLog->FLogLine("TSerialChipEinstein: %08x %02x %08x", chip, inInstruction & 0xff, location);
+		}
+		mProcessor->SetRegister(0, r);
+		return;
+	}
 	switch (inInstruction & 0xFF)
 	{
-			//		case 0x01:
-			//			// New__18TSerialChipVoyagerFv
-			//			break;
-
-			//		case 0x02:
-			//			// Delete__18TSerialChipVoyagerFv
-			//			break;
-
-		case 0x03:
-			// InstallChipHandler__18TSerialChipVoyagerFPvP14SCCChannelInts
+		// TSerialChipEinstein primitives
+		case 0x33:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::InstallChipHandler %08x", chip);
+			}
 			break;
 
-		case 0x04:
-			// RemoveChipHandler__18TSerialChipVoyagerFPv
+		case 0x34:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::RemoveChipHandler %08x", chip);
+			}
 			break;
 
-		case 0x05:
-			// PutByte__18TSerialChipVoyagerFUc
+		case 0x35:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::PutByte %08x [%02x]", chip, mProcessor->GetRegister(1));
+			}
+			port->PutByte(mProcessor->GetRegister(1));
 			break;
 
-		case 0x06:
-			// ResetTxBEmpty__18TSerialChipVoyagerFv
+		case 0x36:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::ResetTxBEmpty %08x", chip);
+			}
+			port->ResetTxBEmpty();
 			break;
 
-		case 0x07:
-			// GetByte__18TSerialChipVoyagerFv
+		case 0x37:
+			r = port->GetByte();
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::GetByte %08x [%02x]", chip, r);
+			}
 			break;
 
-		case 0x08:
-			// TxBufEmpty__18TSerialChipVoyagerFv
+		case 0x38:
+			r = port->TxBufEmpty();
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::TxBufEmpty %08x %d", chip, r);
+			}
 			break;
 
-		case 0x09:
-			// RxBufFull__18TSerialChipVoyagerFv
+		case 0x39:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::RxBufFull %08x", chip);
+			}
+			r = port->RxBufFull();
 			break;
 
-		case 0x0A:
-			// GetRxErrorStatus__18TSerialChipVoyagerFv
+		case 0x3A:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::GetRxErrorStatus %08x", chip);
+			}
+			r = -10000;
 			break;
 
-		case 0x0B:
-			// GetSerialStatus__18TSerialChipVoyagerFv
+		case 0x3B:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::GetSerialStatus %08x", chip);
+			}
+			r = port->GetSerialStatus();
 			break;
 
-		case 0x0C:
-			// ResetSerialStatus__18TSerialChipVoyagerFv
+		case 0x3C:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::ResetSerialStatus %08x", chip);
+			}
+			port->ResetSerialStatus();
 			break;
 
-		case 0x0D:
-			// SetSerialOutputs__18TSerialChipVoyagerFUl
+		case 0x3D:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::SetSerialOutputs %08x", chip);
+			}
+			port->SetSerialOutputs(mProcessor->GetRegister(1));
 			break;
 
-		case 0x0E:
-			// ClearSerialOutputs__18TSerialChipVoyagerFUl
+		case 0x3E:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::ClearSerialOutputs %08x", chip);
+			}
+			port->ClearSerialOutputs(mProcessor->GetRegister(1));
 			break;
 
-		case 0x0F:
-			// GetSerialOutputs__18TSerialChipVoyagerFv
+		case 0x3F:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::GetSerialOutputs %08x", chip);
+			}
+			r = port->GetSerialOutputs();
 			break;
 
-		case 0x10:
-			// PowerOff__18TSerialChipVoyagerFv
+		case 0x40:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::PowerOff %08x", chip);
+			}
 			break;
 
-		case 0x11:
-			// PowerOn__18TSerialChipVoyagerFv
+		case 0x41:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::PowerOn %08x", chip);
+			}
 			break;
 
-		case 0x12:
-			// PowerIsOn__18TSerialChipVoyagerFv
+		case 0x42:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::PowerIsOn %08x", chip);
+			}
+			r = 1;
 			break;
 
-		case 0x13:
-			// SetInterruptEnable__18TSerialChipVoyagerFUc
+		case 0x43:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::SetInterruptEnable %08x", chip);
+			}
 			break;
 
-		case 0x14:
-			// Reset__18TSerialChipVoyagerFv
+		case 0x44:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::Reset %08x", chip);
+			}
+			port->Reset();
 			break;
 
-		case 0x15:
-			// SetBreak__18TSerialChipVoyagerFUc
+		case 0x45:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::SetBreak %08x", chip);
+			}
+			port->SetBreak(mProcessor->GetRegister(1));
 			break;
 
-		case 0x16:
-			// SetSpeed__18TSerialChipVoyagerFUl
+		case 0x46:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::SetSpeed %08x", chip);
+			}
+			port->SetSpeed(mProcessor->GetRegister(1));
 			break;
 
-		case 0x17:
-			// SetIOParms__18TSerialChipVoyagerFP17TCMOSerialIOParms
+		case 0x47:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::SetIOParms %08x", chip);
+			}
 			break;
 
-		case 0x18:
-			// Reconfigure__18TSerialChipVoyagerFv
+		case 0x48:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::Reconfigure %08x", chip);
+			}
+			port->Reconfigure();
 			break;
 
-		case 0x19:
-			// Init__18TSerialChipVoyagerFP11TCardSocketP12TCardHandlerPUc
+		case 0x49:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::Init %08x", chip);
+			}
 			break;
 
-		case 0x1A:
-			// CardRemoved__18TSerialChipVoyagerFv
+		case 0x4A:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::CardRemoved %08x", chip);
+			}
 			break;
 
-		case 0x1B:
-			// GetFeatures__18TSerialChipVoyagerFv
+		case 0x4B:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::GetFeatures %08x", chip);
+			}
+			r = port->GetFeatures();
 			break;
 
-		case 0x1C:
-			// InitByOption__18TSerialChipVoyagerFP7TOption
+		case 0x4E:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::SetSerialMode %08x", chip);
+			}
+			port->SetSerialMode(mProcessor->GetRegister(1));
 			break;
 
-		case 0x1D:
-			// ProcessOption__18TSerialChipVoyagerFP7TOption
+		case 0x4F:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::SysEventNotify %08x", chip);
+			}
 			break;
 
-		case 0x1E:
-			// SetSerialMode__18TSerialChipVoyagerFUl
+		case 0x50:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::SetTxDTransceiverEnable %08x", chip);
+			}
 			break;
 
-		case 0x1F:
-			// SysEventNotify__18TSerialChipVoyagerFUl
+		case 0x51:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::GetByteAndStatus %08x", chip);
+			}
 			break;
 
-		case 0x20:
-			// SetTxDTransceiverEnable__18TSerialChipVoyagerFUc
+		case 0x52:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::SetIntSourceEnable %08x", chip);
+			}
 			break;
 
-		case 0x21:
-			// GetByteAndStatus__18TSerialChipVoyagerFPUc
+		case 0x53:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::AllSent %08x", chip);
+			}
+			r = port->AllSent();
 			break;
 
-		case 0x22:
-			// SetIntSourceEnable__18TSerialChipVoyagerFUlUc
+		case 0x54:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::ConfigureForOutput %08x", chip);
+			}
 			break;
 
-		case 0x23:
-			// AllSent__18TSerialChipVoyagerFv
+		case 0x55:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::InitTxDMA %08x", chip);
+			}
 			break;
 
-		case 0x24:
-			// ConfigureForOutput__18TSerialChipVoyagerFUc
+		case 0x56:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::InitRxDMA %08x", chip);
+			}
 			break;
 
-		case 0x25:
-			// InitTxDMA__18TSerialChipVoyagerFP10TCircleBufPFPv_v
+		case 0x57:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::TxDMAControl %08x", chip);
+			}
 			break;
 
-		case 0x26:
-			// InitRxDMA__18TSerialChipVoyagerFP10TCircleBufUlPFPvUl_v
+		case 0x58:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::RxDMAControl %08x", chip);
+			}
 			break;
 
-		case 0x27:
-			// TxDMAControl__18TSerialChipVoyagerFUc
+		case 0x59:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::SetSDLCAddress %08x", chip);
+			}
 			break;
 
-		case 0x28:
-			// RxDMAControl__18TSerialChipVoyagerFUc
+		case 0x5A:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::ReEnableReceiver %08x", chip);
+			}
 			break;
 
-		case 0x29:
-			// SetSDLCAddress__18TSerialChipVoyagerFUc
+		case 0x5B:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::LinkIsFree %08x", chip);
+			}
 			break;
 
-		case 0x2A:
-			// ReEnableReceiver__18TSerialChipVoyagerFUc
+		case 0x5C:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::SendControlPacket %08x", chip);
+			}
 			break;
 
-		case 0x2B:
-			// LinkIsFree__18TSerialChipVoyagerFUc
+		case 0x5D:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::WaitForPacket %08x", chip);
+			}
 			break;
 
-		case 0x2C:
-			// SendControlPacket__18TSerialChipVoyagerFUcN21
-			break;
-
-		case 0x2D:
-			// WaitForPacket__18TSerialChipVoyagerFUl
-			break;
-
-		case 0x2E:
-			// WaitForAllSent__18TSerialChipVoyagerFv
+		case 0x5E:
+			if (LOG_SERIAL)
+			{
+				mLog->FLogLine("TSerialChipEinstein::WaitForAllSent %08x", chip);
+			}
 			break;
 
 		default:
@@ -2233,10 +2454,8 @@ TNativePrimitives::ExecuteSerialDriverNative(KUInt32 inInstruction)
 					(unsigned int) inInstruction,
 					(unsigned int) mProcessor->GetRegister(15));
 			}
-			mProcessor->SetRegister(0, 0);
 	}
-
-	mProcessor->SetRegister(0, 0);
+	mProcessor->SetRegister(0, r);
 }
 
 // -------------------------------------------------------------------------- //
