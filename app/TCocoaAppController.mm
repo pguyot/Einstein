@@ -477,6 +477,16 @@ TCocoaAppController ()
 			}
 		});
 
+	// Add default host drivers for the four standard serial port locations
+	mEmulator->SerialPorts.SetHostPortSettings('extr',
+		{ TSerialPorts::kPtyDriver, std::string("/tmp/einstein-extr.pty") });
+	mEmulator->SerialPorts.SetHostPortSettings('mdem',
+		{ TSerialPorts::kPtyDriver, std::string("/tmp/einstein-mdem.pty") });
+	mEmulator->SerialPorts.SetHostPortSettings('infr',
+		{ TSerialPorts::kPtyDriver, std::string("/tmp/einstein-infr.pty") });
+	mEmulator->SerialPorts.SetHostPortSettings('tblt',
+		{ TSerialPorts::kPtyDriver, std::string("/tmp/einstein-tblt.pty") });
+
 	if ([defaults boolForKey:kEnableListenersKey])
 	{
 		mFileManager = new TCocoaFileManager();

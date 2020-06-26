@@ -35,6 +35,7 @@
 class TLog;
 class TEmulator;
 class TSerialPortManager;
+class TSerialHostPort;
 
 /**
  The serial port superviser manages the four port of the MessagePad and their respective drivers.
@@ -56,11 +57,13 @@ public:
 
 	// Implemented driver types
 	enum EDriverID {
-		kNullDriver = 0,
+		kDefaultDriver = -1,
+		kNullDriver,
 		kPipesDriver,
 		kPtyDriver,
 		kBasiliskIIDriver,
 		kTcpClientDriver,
+		kDirectDriver,
 		kNDriverID
 	};
 
@@ -90,6 +93,9 @@ public:
 	// Return a driver for a given index
 	TSerialPortManager* GetDriverFor(EPortIndex ix);
 
+	// Return the driver for a dynamically allocated port
+	TSerialHostPort* GetDriverFor(KUInt32 location);
+
 	// Initialize all drivers and run them
 	void Initialize(EDriverID extrDriver,
 		EDriverID infrDriver,
@@ -98,6 +104,9 @@ public:
 
 	// Replace an existing driver with a new driver
 	TSerialPortManager* ReplaceDriver(EPortIndex inPort, EDriverID inDriverId);
+
+	// Set the driver for any hardware location
+	TSerialHostPort* SetDriver(KUInt32 inLocation, EDriverID inDriverId, std::string inConfigData);
 
 	// NewtonScript call to return all driver names
 	static NewtRef NSGetDriverNames(TNewt::RefArg arg);
@@ -117,11 +126,16 @@ public:
 		mPortChangedCallback = std::move(inCallback);
 	}
 
+	void
+	SetHostPortSettings(KUInt32 inLocation, std::pair<EDriverID, std::string> inSettings);
+
 private:
 	TSerialPortManager* mDriver[4] = { nullptr, nullptr, nullptr, nullptr };
 	TLog* mLog = nullptr;
 	TEmulator* mEmulator = nullptr;
 	std::function<void(int)> mPortChangedCallback;
+	std::map<KUInt32, TSerialHostPort*> mHostPorts;
+	std::map<KUInt32, std::pair<EDriverID, std::string>> mHostPortSettings;
 };
 
 #endif
