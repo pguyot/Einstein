@@ -453,7 +453,7 @@ elseif (UNIX)
         target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
         target_link_libraries(Einstein
             ${newt64_lib}
-            iconv
+            /usr/local/lib/libiconv.a
             )
         target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
     endif ()

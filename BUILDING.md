@@ -231,7 +231,7 @@ Also, get libiconv, build and install it by running these shell commands:
   wget http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.16.tar.gz
   tar xvzf libiconv-1.16.tar.gz 
   cd libiconv-1.16/
-  ./configure --prefix=/usr/local/
+  ./configure --prefix=/usr/local/ --enable-static
   make
   sudo make install
 
