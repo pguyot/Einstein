@@ -1,1 +1,47 @@
-// ==============================// Fichier:			Einstein.rex.src// Projet:			Einstein// Ecrit par:		Paul Guyot (pguyot@kallisys.net)// // Créé le:			31/7/2004// Tabulation:		4 espaces// // Copyright:		© 2004-2005 by Paul Guyot.// 					Tous droits réservés pour tous pays.// ===========// $Id: Einstein.rex.src 138 2005-05-08 00:47:10Z paul $// ===========// Source code for our REx.// This file should be processed with Rex MPW tool.// Make sure it has Macintosh line endings before invoking Rex.// Rex -o Einstein.rex Einstein.rex.srcid				1version			1start			0x00800000manufacturer	'Eins'// The class info is at +0x054block			'fdrv' <0000000100800054>block			'FDRV'	":EinsteinFlashDriver.bin"package			":EinsteinPlatformDriver.pkg"package			":EinsteinSoundDriver.pkg"package			":EinsteinBatteryDriver.pkg"package			":EinsteinScreenDriver.pkg"package			":EinsteinTabletDriver.pkg"// package			":EinsteinVersionString.pkg"package			":EinsteinStartupDriver.pkg"package			":EinsteinSerialDriver.pkg"package			":EinsteinInTranslator.pkg"package			":EinsteinOutTranslator.pkg"package			":EinsteinNativeCalls.pkg"// Handlers & NS runtime.package		":NSRuntime:Einstein NS Runtime.pkg"// NewtTest 1.1ipackage				":packages:NewtTest11i.pkg"package				":packages:NTHelp10.PKG"// Keyboards.package				"::Packages:Keyboards:Keyboards.pkg"// ViewFrame//package			":ViewFrame:VFKEYS.PKG"//package			":ViewFrame:VFEDITOR.PKG"//package			":ViewFrame:VFDANTE.PKG"//package			":ViewFrame:VFINTERC.PKG"//package			":ViewFrame:VFFUNCTI.PKG"//package			":ViewFrame:VFGENERA.PKG"//package			":ViewFrame:VIEWFRAM.PKG"// Speed test// package			":SpeedTests.pkg"// Nick's Test It// package			":NickTestIt.pkg"// ================================== //// New systems generate new problems. //// ================================== //
+// ==============================
+// Fichier:			Einstein.rex.src
+// Projet:			Einstein
+// Ecrit par:		Paul Guyot (pguyot@kallisys.net)
+//
+// Cr√©√© le:			31/7/2004
+// Tabulation:		4 espaces
+//
+// Copyright:		¬© 2004-2005 by Paul Guyot.
+// 					Tous droits r√©serv√©s pour tous pays.
+// ===========
+// $Id: Einstein.rex.src 138 2005-05-08 00:47:10Z paul $
+// ===========
+
+// Source code for our REx.
+// This file should be processed with DCL's Rex which replaces Rex MPW tool.
+// Rex -o Einstein.rex Einstein.rex.src
+
+id				1
+version			1
+start			0x00800000
+manufacturer	'Eins'
+// The class info is at +0x054
+block			'fdrv' <0000000100800054>
+block			'FDRV'	"obj/EinsteinFlashDriver.bin"
+package			"obj/EinsteinPlatformDriver.pkg"
+package			"obj/EinsteinSoundDriver.pkg"
+package			"obj/EinsteinBatteryDriver.pkg"
+package			"obj/EinsteinScreenDriver.pkg"
+package			"obj/EinsteinTabletDriver.pkg"
+// package			"obj/EinsteinVersionString.pkg"
+package			"obj/EinsteinStartupDriver.pkg"
+package			"obj/EinsteinSerialDriver.pkg"
+package			"obj/EinsteinInTranslator.pkg"
+package			"obj/EinsteinOutTranslator.pkg"
+package			"obj/EinsteinNativeCalls.pkg"
+// Handlers & NS runtime.
+package		"NSRuntime/Einstein NS Runtime.pkg"
+// NewtTest 1.1i
+package				"packages/NewtTest11i.pkg"
+package				"packages/NTHelp10.PKG"
+// Keyboards.
+package				"../Packages/Keyboards/Keyboards.pkg"
+
+// ================================== //
+// New systems generate new problems. //
+// ================================== //

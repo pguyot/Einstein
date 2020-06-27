@@ -6,297 +6,136 @@
 # Créé le:			1/8/2004
 # Tabulation:		4 espaces
 # 
-# Copyright:		© 2004-2005 by Paul Guyot.
+# Copyright:		© 2004-2005, 2020 by Paul Guyot.
 # 					Tous droits réservés pour tous pays.
 # ===========
-# $Id: Makefile 150 2006-01-10 05:55:43Z paul $
-# ===========
 
-# --- variables ---
-CPlusOptionsDefines	=	-d hasPCMCIA -d forARM -d TARGET_OS_NEWTON -d NO_ERRNO_H
-CPlusOptions		=	-facqy -zo -W -cfront ${CPlusOptionsDefines}
-LinkOptions			=	-dupok -remove -bin
+NCT_PROJECTS    ?= ../../../Projets/NewtonDev/NCT_Projects/
 
-DDK_Libraries-dir   ?=  ::NewtonDev:C++:NCT_Projects:DDKLibraries:
-DDK_Includes-dir    ?=  ::NewtonDev:C++:NCT_Projects:DDKIncludes:
-NCT_Includes        ?=  ::NewtonDev:C++:NCT_Projects:Includes:
-NCT_Libraries       ?=  ::NewtonDev:C++:NCT_Projects:Libraries:
+CC              := arm-none-eabi-gcc
+CXX             := arm-none-eabi-g++
+AS              := arm-none-eabi-as
+LINKER          := arm-none-eabi-ld
+OBJCOPY         := arm-none-eabi-objcopy
 
-NCTTools            ?=  ../NewtonDev/C++/For\ MPW/•\ Put\ into\ MPW\ folder\ •/NCT_Folder/Tools
-ARM6Asm             ?=  mosrun ---run ${NCTTools}/ARM6Asm
-ARM6c               ?=  mosrun ---run ${NCTTools}/ARM6c
-ARMCpp              ?=  mosrun ---run ${NCTTools}/ARMCpp
-ARMLink             ?=  mosrun ---run ${NCTTools}/ARMLink
-Packer              ?=  mosrun ---run ${NCTTools}/Packer
-ProtocolGenTool     ?=  mosrun ---run ${NCTTools}/ProtocolGenTool
-Rex                 ?=  mosrun ---run ${NCTTools}/Rex
+REX             := Rex
 
-# Package options:
-PackerCopyright		=	"Copyright (c) 2004-2007 Paul Guyot."
+MACHINEFLAGS    := -march=armv3 -mbig-endian
+ASFLAGS         := ${MACHINEFLAGS}
+CODEGENFLAGS    := -nostdinc -fPIC -fdata-sections -ffunction-sections -O3 -Os
+DEFINES         := -D__arm -DhasPCMCIA -DforARM -DNO_ERRNO_H -DSTDC -DTARGET_OS_NEWTON
+CFLAGS          := ${MACHINEFLAGS} ${CODEGENFLAGS} ${DEFINES}
+CXXFLAGS        := ${MACHINEFLAGS} ${CODEGENFLAGS} ${DEFINES} -fno-exceptions -fno-rtti
+OBJDIR          := obj
+LINKFLAGS       := -EB -shared --gc-sections --no-allow-shlib-undefined --no-export-dynamic -x --no-undefined
 
-KPath_Classic		=	::
-KPath_POSIX			=	../
+NEWTONINCLUDES  := -I$(NCT_PROJECTS)/DDKIncludes -I$(NCT_PROJECTS)/DDKIncludes/Bootstrap -I$(NCT_PROJECTS)/DDKIncludes/CLibrary -I$(NCT_PROJECTS)/DDKIncludes/CommAPI -I$(NCT_PROJECTS)/DDKIncludes/Communications -I$(NCT_PROJECTS)/DDKIncludes/Frames -I$(NCT_PROJECTS)/DDKIncludes/HAL -I$(NCT_PROJECTS)/DDKIncludes/Lantern -I$(NCT_PROJECTS)/DDKIncludes/OS600 -I$(NCT_PROJECTS)/DDKIncludes/Packages -I$(NCT_PROJECTS)/DDKIncludes/Power -I$(NCT_PROJECTS)/DDKIncludes/QD -I$(NCT_PROJECTS)/DDKIncludes/Toolbox -I$(NCT_PROJECTS)/DDKIncludes/UtilityClasses -I$(NCT_PROJECTS)/DDKIncludes/PCMCIA -I$(NCT_PROJECTS)/Includes -I$(NCT_PROJECTS)/Includes/CLibrary -I$(NCT_PROJECTS)/Includes/Frames -I$(NCT_PROJECTS)/Includes/Utilities -I$(NCT_PROJECTS)/LanternDriver_DDK/Includes -I$(NCT_PROJECTS)/NSandDDK
 
-# Include paths:
-AsmIncludes			=	-i "${DDK_Libraries-dir}"
-CPlusIncludes		=	\
-		-i "${DDK_Includes-dir}" \
-		-i "${DDK_Includes-dir}Bootstrap:" \
-		-i "${DDK_Includes-dir}CLibrary:" \
-		-i "${DDK_Includes-dir}CommAPI:" \
-		-i "${DDK_Includes-dir}Communications:" \
-		-i "${DDK_Includes-dir}Frames:" \
-		-i "${DDK_Includes-dir}HAL:" \
-		-i "${DDK_Includes-dir}OS600:" \
-		-i "${DDK_Includes-dir}Packages:" \
-		-i "${DDK_Includes-dir}Power:" \
-		-i "${DDK_Includes-dir}Printing:" \
-		-i "${DDK_Includes-dir}QD:" \
-		-i "${DDK_Includes-dir}Toolbox:" \
-		-i "${DDK_Includes-dir}UtilityClasses:" \
-		-i "${DDK_Includes-dir}PCMCIA:" \
-		-i "${NCT_Includes}" \
-		-i "${NCT_Includes}Frames:" \
-		-i "${NCT_Includes}Utilities:" \
-		-i "${NCT_Includes}:NSandDDK:" \
-		-i "${KPath_Classic}"
+RUNTIMESRCDIR   := NewtonRuntime/
+RUNTIMECXXSRCS  := $(shell find $(RUNTIMESRCDIR) -type f -name "*.cpp")
+RUNTIMEASMSRCS  := $(shell find $(RUNTIMESRCDIR) -type f -name "*.s")
+RUNTIMECXXOBJS  := $(patsubst $(RUNTIMESRCDIR)/%,$(OBJDIR)/%,$(RUNTIMECXXSRCS:.cpp=.cpp.o))
+RUNTIMEASMOBJS  := $(patsubst $(RUNTIMESRCDIR)/%,$(OBJDIR)/%,$(RUNTIMEASMSRCS:.s=.s.o))
+RUNTIMEOBJS     := $(RUNTIMECXXOBJS) $(RUNTIMEASMOBJS)
 
-Libraries			=	"${NCT_Libraries}Newton Public APIs.o"
-
-headers = \
-	Headers/NativeCallsDefines.h \
-	Headers/PlatformGestalt.h \
-	Headers/PlatformEvents.h \
-	Headers/UserInfoDefinitions.h \
-	Headers/Version.h
-
-# --- rules ---
-
-#%.impl.a	: %.impl.h ${headers}
-#	${ProtocolGen} -ImplementationGlue $< -package ${CPlusOptionsDefines} ${CPlusIncludes} -stdout > $@
-%.impl.pg	: %.impl.h ${headers}
-	${ARM6c} -e -em -w -d PROTOCOLGEN $< ${CPlusOptionsDefines} ${CPlusIncludes} ---stdout-raw > $@
-%.impl.a	: %.impl.pg ${headers}
-	${ProtocolGenTool} -date "`date +'%A, %B %d, %G %r'`" -trueinputfile $(basename $<).h $< -ServerGlue -package -stdout ---stdout-raw > $@
-
-%.o : %.c ${headers}
-	${ARMCpp} $< ${CPlusOptions} ${CPlusIncludes} -o $(@F)
-%.o : %.cp ${headers}
-	${ARMCpp} $< ${CPlusOptions} ${CPlusIncludes} -o $(@F)
-%.o : %.a
-	${ARM6Asm} $< ${AsmIncludes} -o $(@F)
+VPATH           := $(RUNTIMESRCDIR):../K/Misc/
 
 # --- specific ---	
 all : \
-	TNativeCalls.o \
-	Einstein.rex
-
-#TNativeCalls.a : TNativeCalls.h ${headers}
-#	${ProtocolGen} -InterfaceGlue $< ${CPlusOptionsDefines} ${CPlusIncludes} -stdout > $@
-TNativeCalls.pg : TNativeCalls.h ${headers}
-	${ARM6c} -e -em -w -d PROTOCOLGEN $< ${CPlusOptionsDefines} ${CPlusIncludes} ---stdout-raw > $@
-TNativeCalls.a : TNativeCalls.pg ${headers}
-	${ProtocolGenTool} -date "`date +'%A, %B %d, %G %r'`" -trueinputfile $(basename $<).h $< -ClientGlue -stdout ---stdout-raw > $@
-
-# --- cf headers ---	
-
-Headers/%.h	:	../Emulator/Platform/%.h
-	mkdir -p Headers/
-	tr '\n' '\r' < $< > $@
-
-Headers/%.h	:	../Emulator/Host/%.h
-	mkdir -p Headers/
-	tr '\n' '\r' < $< > $@
-
-Headers/%.h	:	../Emulator/NativeCalls/%.h
-	mkdir -p Headers/
-	tr '\n' '\r' < $< > $@
-
-Headers/%.h	:	../app/%.h
-	mkdir -p Headers/
-	tr '\n' '\r' < $< > $@
+	$(OBJDIR) Einstein.rex
 
 install : all
 	cp Einstein.rex ../_Data_/
 
+$(OBJDIR) :
+	mkdir $(OBJDIR)
+
 Einstein.rex : \
 	Einstein.rex.src \
-	EinsteinFlashDriver.bin \
-	EinsteinPlatformDriver.pkg \
-	EinsteinSoundDriver.pkg \
-	EinsteinBatteryDriver.pkg \
-	EinsteinScreenDriver.pkg \
-	EinsteinTabletDriver.pkg \
-	EinsteinVersionString.pkg \
-	EinsteinStartupDriver.pkg \
-	EinsteinSerialDriver.pkg \
-	EinsteinInTranslator.pkg \
-	EinsteinOutTranslator.pkg \
-	EinsteinNativeCalls.pkg \
+	$(OBJDIR)/EinsteinFlashDriver.bin \
+	$(OBJDIR)/EinsteinPlatformDriver.pkg \
+	$(OBJDIR)/EinsteinSoundDriver.pkg \
+	$(OBJDIR)/EinsteinBatteryDriver.pkg \
+	$(OBJDIR)/EinsteinScreenDriver.pkg \
+	$(OBJDIR)/EinsteinTabletDriver.pkg \
+	$(OBJDIR)/EinsteinVersionString.pkg \
+	$(OBJDIR)/EinsteinStartupDriver.pkg \
+	$(OBJDIR)/EinsteinSerialDriver.pkg \
+	$(OBJDIR)/EinsteinInTranslator.pkg \
+	$(OBJDIR)/EinsteinOutTranslator.pkg \
+	$(OBJDIR)/EinsteinNativeCalls.pkg \
 	NSRuntime/Einstein\ NS\ Runtime.pkg \
 	../Packages/Keyboards/Keyboards.pkg
-	${Rex} -o Einstein.rex Einstein.rex.src
+	rm -f Einstein.rex
+	${REX} -o Einstein.rex Einstein.rex.src
 
-RelocHack.o : ${KPath_POSIX}/K/Misc/RelocHack.a
-	${ARM6Asm} "${KPath_Classic}K:Misc:RelocHack.a" ${AsmIncludes} -o $@
-	
-EinsteinFlashDriver.bin :	TEinsteinFlashDriver.impl.o \
-							TEinsteinFlashDriver.o \
-							TEinsteinFlashDriverPrims.o
-	${ARMLink} ${LinkOptions} ${Libraries} \
-		$(^F) -o $(@F)
+$(OBJDIR)/%.pkg : $(OBJDIR)/%.elf
+	rm -f $@
+	ELFtoPKG -o $@ $(patsubst $(OBJDIR)/%,%,$(@:.pkg=:Einstein)) -protocol $< -autoLoad -autoRemove
+	SetFile -t 'pkg ' -c 'pkgX' $@
 
-EinsteinPlatformDriver.bin :	TMainPlatformDriver.impl.o \
-								TMainPlatformDriver.o \
-								TMainPlatformDriverPrims.o \
-								RelocHack.o \
-								Glue.o \
-								UGlue.o
-	${ARMLink} ${LinkOptions} ${Libraries} \
-		$(^F) -o $(@F)
+$(OBJDIR)/%.cpp.o : %.cpp
+	$(CXX) $(CXXFLAGS) $(NEWTONINCLUDES) -I.. -c $< -o $@
 
-EinsteinPlatformDriver.pkg	: EinsteinPlatformDriver.bin
-	${Packer} -o $(@F) \
-		"EinsteinPlatformDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
-		-version 01 -invisible \
-		-protocol $(<F) -autoload
-	SetFile -t "pkg " -c "pkgX" $@
+$(OBJDIR)/%.s.o : %.s
+	$(AS) $(ASFLAGS) -c $< -o $@
 
-EinsteinSoundDriver.bin :		PMainSoundDriver.impl.o \
-								PMainSoundDriver.o \
-								PMainSoundDriverPrims.o \
-								RelocHack.o \
-								Glue.o \
-								UGlue.o
-	${ARMLink} ${LinkOptions} ${Libraries} \
-		$(^F) -o $(@F)
+GLUEOBJS := $(OBJDIR)/Glue.s.o $(OBJDIR)/UGlue.cpp.o
+EINSTEIN_FLASH_DRIVER_OBJS := $(OBJDIR)/TEinsteinFlashDriver.impl.s.o $(OBJDIR)/TEinsteinFlashDriver.cpp.o $(OBJDIR)/TEinsteinFlashDriverPrims.s.o
+EINSTEIN_PLATFORM_DRIVER_OBJS := $(OBJDIR)/TMainPlatformDriver.impl.s.o $(OBJDIR)/TMainPlatformDriver.cpp.o $(OBJDIR)/TMainPlatformDriverPrims.s.o $(GLUEOBJS) $(RUNTIMEOBJS)
+EINSTEIN_SOUND_DRIVER_OBJS := $(OBJDIR)/PMainSoundDriver.impl.s.o $(OBJDIR)/PMainSoundDriver.cpp.o $(OBJDIR)/PMainSoundDriverPrims.s.o $(GLUEOBJS) $(RUNTIMEOBJS)
+EINSTEIN_BATTERY_DRIVER_OBJS := $(OBJDIR)/PMainBatteryDriver.impl.s.o $(OBJDIR)/PMainBatteryDriver.cpp.o $(OBJDIR)/PMainBatteryDriverPrims.s.o
+EINSTEIN_SCREEN_DRIVER_OBJS := $(OBJDIR)/TMainDisplayDriver.impl.s.o $(OBJDIR)/TMainDisplayDriver.cpp.o $(OBJDIR)/TMainDisplayDriverPrims.s.o $(RUNTIMEOBJS)
+EINSTEIN_TABLET_DRIVER_OBJS := $(OBJDIR)/TMainTabletDriver.impl.s.o $(OBJDIR)/TMainTabletDriver.cpp.o $(OBJDIR)/TMainTabletDriverPrims.s.o $(RUNTIMEOBJS)
+EINSTEIN_VERSION_STRING_OBJS := $(OBJDIR)/TMainVersionString.impl.s.o $(OBJDIR)/TMainVersionString.cpp.o $(RUNTIMEOBJS)
+EINSTEIN_STARTUP_DRIVER_OBJS := $(OBJDIR)/TMainStartupDriver.impl.s.o $(OBJDIR)/TMainStartupDriver.cpp.o
+EINSTEIN_SERIAL_DRIVER_OBJS := $(OBJDIR)/TSerialChipVoyager.impl.s.o $(OBJDIR)/TSerialChipVoyager.cpp.o $(OBJDIR)/TSerialChipVoyagerPrims.s.o
+EINSTEIN_IN_TRANSLATOR_OBJS := $(OBJDIR)/PEinsteinInTranslator.impl.s.o $(OBJDIR)/PEinsteinInTranslator.cpp.o  $(OBJDIR)/PEinsteinInTranslatorPrims.s.o
+EINSTEIN_OUT_TRANSLATOR_OBJS := $(OBJDIR)/PEinsteinOutTranslator.impl.s.o $(OBJDIR)/PEinsteinOutTranslator.cpp.o  $(OBJDIR)/PEinsteinOutTranslatorPrims.s.o $(RUNTIMEOBJS)
+EINSTEIN_NATIVE_CALLS_OBJS := $(OBJDIR)/TEinsteinNativeCalls.impl.s.o $(OBJDIR)/TEinsteinNativeCalls.cpp.o  $(OBJDIR)/TEinsteinNativeCallsPrims.s.o
 
-EinsteinSoundDriver.pkg	: EinsteinSoundDriver.bin
-	${Packer} -o $(@F) \
-		"EinsteinSoundDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
-		-version 01 -invisible \
-		-protocol $(<F) -autoload
-	SetFile -t "pkg " -c "pkgX" $@
+$(OBJDIR)/EinsteinFlashDriver.elf : $(EINSTEIN_FLASH_DRIVER_OBJS)
+	$(LINKER) $(LINKFLAGS) -Tprotocol.ld --version-script=protocol.map $^ -o $@
 
-EinsteinBatteryDriver.bin :		PMainBatteryDriver.impl.o \
-								PMainBatteryDriver.o \
-								PMainBatteryDriverPrims.o
-	${ARMLink} ${LinkOptions} ${Libraries} \
-		$(^F) -o $(@F)
+$(OBJDIR)/EinsteinFlashDriver.bin : $(OBJDIR)/EinsteinFlashDriver.elf
+	$(OBJCOPY) -O binary --only-section=.interp --only-section=.text $^ $@
 
-EinsteinBatteryDriver.pkg	: EinsteinBatteryDriver.bin
-	${Packer} -o $(@F) \
-		"EinsteinBatteryDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
-		-version 01 -invisible \
-		-protocol $(<F) -autoload
-	SetFile -t "pkg " -c "pkgX" $@
+$(OBJDIR)/EinsteinPlatformDriver.elf : $(EINSTEIN_PLATFORM_DRIVER_OBJS)
+	$(LINKER) $(LINKFLAGS) -Tprotocol.ld --version-script=protocol.map $^ -o $@
 
-EinsteinScreenDriver.bin :		TMainDisplayDriver.impl.o \
-								TMainDisplayDriver.o \
-								TMainDisplayDriverPrims.o
-	${ARMLink} ${LinkOptions} ${Libraries} \
-		$(^F) -o $(@F)
+$(OBJDIR)/EinsteinSoundDriver.elf : $(EINSTEIN_SOUND_DRIVER_OBJS)
+	$(LINKER) $(LINKFLAGS) -Tprotocol.ld --version-script=protocol.map $^ -o $@
 
-EinsteinScreenDriver.pkg	: EinsteinScreenDriver.bin
-	${Packer} -o $(@F) \
-		"EinsteinScreenDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
-		-version 01 -invisible \
-		-protocol $(<F) -autoload
-	SetFile -t "pkg " -c "pkgX" $@
+$(OBJDIR)/EinsteinBatteryDriver.elf : $(EINSTEIN_BATTERY_DRIVER_OBJS)
+	$(LINKER) $(LINKFLAGS) -Tprotocol.ld --version-script=protocol.map $^ -o $@
 
-EinsteinTabletDriver.bin :		TMainTabletDriver.impl.o \
-								TMainTabletDriver.o \
-								TMainTabletDriverPrims.o \
-								RelocHack.o
-	${ARMLink} ${LinkOptions} ${Libraries} \
-		$(^F) -o $(@F)
+$(OBJDIR)/EinsteinScreenDriver.elf : $(EINSTEIN_SCREEN_DRIVER_OBJS)
+	$(LINKER) $(LINKFLAGS) -Tprotocol.ld --version-script=protocol.map $^ -o $@
 
-EinsteinTabletDriver.pkg	: EinsteinTabletDriver.bin
-	${Packer} -o $(@F) \
-		"EinsteinTabletDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
-		-version 01 -invisible \
-		-protocol $(<F) -autoload
-	SetFile -t "pkg " -c "pkgX" $@
+$(OBJDIR)/EinsteinTabletDriver.elf : $(EINSTEIN_TABLET_DRIVER_OBJS)
+	$(LINKER) $(LINKFLAGS) -Tprotocol.ld --version-script=protocol.map $^ -o $@
 
-EinsteinVersionString.bin :		TMainVersionString.impl.o \
-								TMainVersionString.o
-	${ARMLink} ${LinkOptions} ${Libraries} \
-		$(^F) -o $(@F)
+$(OBJDIR)/EinsteinVersionString.elf : $(EINSTEIN_VERSION_STRING_OBJS)
+	$(LINKER) $(LINKFLAGS) -Tprotocol.ld --version-script=protocol.map $^ -o $@
 
-EinsteinVersionString.pkg	: EinsteinVersionString.bin
-	${Packer} -o $(@F) \
-		"EinsteinVersionString:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
-		-version 01 -invisible \
-		-protocol $(<F) -autoload
-	SetFile -t "pkg " -c "pkgX" $@
+$(OBJDIR)/EinsteinStartupDriver.elf : $(EINSTEIN_STARTUP_DRIVER_OBJS)
+	$(LINKER) $(LINKFLAGS) -Tprotocol.ld --version-script=protocol.map $^ -o $@
 
-EinsteinStartupDriver.bin :		TMainStartupDriver.impl.o \
-								TMainStartupDriver.o
-	${ARMLink} ${LinkOptions} ${Libraries} \
-		$(^F) -o $(@F)
+$(OBJDIR)/EinsteinSerialDriver.elf : $(EINSTEIN_SERIAL_DRIVER_OBJS)
+	$(LINKER) $(LINKFLAGS) -Tprotocol.ld --version-script=protocol.map $^ -o $@
 
-EinsteinStartupDriver.pkg	: EinsteinStartupDriver.bin
-	${Packer} -o $(@F) \
-		"EinsteinStartupDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
-		-version 01 -invisible \
-		-protocol $(<F) -autoload
-	SetFile -t "pkg " -c "pkgX" $@
+$(OBJDIR)/EinsteinInTranslator.elf : $(EINSTEIN_IN_TRANSLATOR_OBJS)
+	$(LINKER) $(LINKFLAGS) -Tprotocol.ld --version-script=protocol.map $^ -o $@
 
-EinsteinSerialDriver.bin :		TSerialChipVoyager.impl.o \
-								TSerialChipVoyager.o \
-								TSerialChipVoyagerPrims.o
-	${ARMLink} ${LinkOptions} ${Libraries} \
-		$(^F) -o $(@F)
+$(OBJDIR)/EinsteinOutTranslator.elf : $(EINSTEIN_OUT_TRANSLATOR_OBJS)
+	$(LINKER) $(LINKFLAGS) -Tprotocol.ld --version-script=protocol.map $^ -o $@
 
-EinsteinSerialDriver.pkg	: EinsteinSerialDriver.bin
-	${Packer} -o $(@F) \
-		"EinsteinSerialDriver:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
-		-version 01 -invisible \
-		-protocol $(<F) -autoload
-	SetFile -t "pkg " -c "pkgX" $@
-
-EinsteinInTranslator.bin :		PEinsteinInTranslator.impl.o \
-								PEinsteinInTranslator.o \
-								PEinsteinInTranslatorPrims.o
-	${ARMLink} ${LinkOptions} ${Libraries} \
-		$(^F) -o $(@F)
-
-EinsteinInTranslator.pkg	: EinsteinInTranslator.bin
-	${Packer} -o $(@F) \
-		"EinsteinInTranslator:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
-		-version 01 -invisible \
-		-protocol $(<F) -autoload
-	SetFile -t "pkg " -c "pkgX" $@
-
-EinsteinOutTranslator.bin :		PEinsteinOutTranslator.impl.o \
-								PEinsteinOutTranslator.o \
-								PEinsteinOutTranslatorPrims.o
-	${ARMLink} ${LinkOptions} ${Libraries} \
-		$(^F) -o $(@F)
-
-EinsteinOutTranslator.pkg	: EinsteinOutTranslator.bin
-	${Packer} -o $(@F) \
-		"EinsteinOutTranslator:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
-		-version 01 -invisible \
-		-protocol $(<F) -autoload
-	SetFile -t "pkg " -c "pkgX" $@
-
-EinsteinNativeCalls.bin :		TEinsteinNativeCalls.impl.o \
-								TEinsteinNativeCalls.o \
-								TEinsteinNativeCallsPrims.o
-	${ARMLink} ${LinkOptions} ${Libraries} \
-		$(^F) -o $(@F)
-
-EinsteinNativeCalls.pkg	: EinsteinNativeCalls.bin
-	${Packer} -o $(@F) \
-		"EinsteinNativeCalls:Einstein" -packageid ' no ' -copyright ${PackerCopyright} \
-		-version 01 -invisible \
-		-protocol $(<F) -autoload
-	SetFile -t "pkg " -c "pkgX" $@
+$(OBJDIR)/EinsteinNativeCalls.elf : $(EINSTEIN_NATIVE_CALLS_OBJS)
+	$(LINKER) $(LINKFLAGS) -Tprotocol.ld --version-script=protocol.map $^ -o $@
 
 # --- clean ---
 clean :
-	rm -f *.o *.impl.a *.bin *.pkg
+	rm -rf obj Einstein.rex
 
 ## =================================================== ##
 ## Can't open /usr/fortunes.  Lid stuck on cookie jar. ##
