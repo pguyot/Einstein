@@ -198,6 +198,16 @@
 		C9B4AB88123D674400D8D2C7 /* TBufferLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3460111B7C07002165EC /* TBufferLog.cpp */; };
 		C9BE33D0133E64F60052EA2F /* TJITPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9BE33CF133E64F60052EA2F /* TJITPerformance.cpp */; };
 		C9D54E1415FA23E700D91131 /* TFiber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9D54E1315FA23E700D91131 /* TFiber.cpp */; };
+		DA0CD1D924A783D900E8D593 /* TFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F156B80F1CFA48B0004661E8 /* TFileManager.cpp */; };
+		DA0CD1DA24A783E000E8D593 /* TNewt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C93AAD84242D7F4000B77558 /* TNewt.cpp */; };
+		DA0CD1DB24A783F500E8D593 /* TSerialPorts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92FD821242D50CF00D18F58 /* TSerialPorts.cpp */; };
+		DA0CD1DC24A7844300E8D593 /* TObjCBridgeCalls.mm in Sources */ = {isa = PBXBuildFile; fileRef = F150BC3B1CF630CC0077CDB7 /* TObjCBridgeCalls.mm */; };
+		DA0CD1DD24A7845A00E8D593 /* TPtySerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C94C96DB20937E780099001D /* TPtySerialPortManager.cpp */; };
+		DA0CD1DE24A7846B00E8D593 /* TBasicSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C945F6711E53180C002505E9 /* TBasicSerialPortManager.cpp */; };
+		DA0CD1DF24A7847B00E8D593 /* TPipesSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cpp */; };
+		DA0CD1E024A7847F00E8D593 /* TBasiliskIISerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C935F782209CD68900351905 /* TBasiliskIISerialPortManager.cpp */; };
+		DA0CD1E124A7848200E8D593 /* TTcpClientSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99656A024258CC900D216A2 /* TTcpClientSerialPortManager.cpp */; };
+		DA0CD1E224A7885E00E8D593 /* TCocoaPathHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F19F1C281E5B574000E8C9BE /* TCocoaPathHelper.mm */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cpp */; };
 		DA4BA40D1A3A0160002BDB80 /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B61A35E76400092B5A /* tests.cpp */; };
 		DA4BA40E1A3A01F7002BDB80 /* UHostInfoTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B81A35E76400092B5A /* UHostInfoTests.cpp */; };
@@ -1918,7 +1928,6 @@
 					};
 					DA4FF0681A35E73900092B5A = {
 						CreatedOnToolsVersion = 6.1.1;
-						TestTargetID = 8D1107260486CEB800E47090;
 					};
 				};
 			};
@@ -2379,6 +2388,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DA0CD1E024A7847F00E8D593 /* TBasiliskIISerialPortManager.cpp in Sources */,
 				DA4BA4681A3A3853002BDB80 /* TUsermodeNetwork.cpp in Sources */,
 				DA4FF1241A35EAF600092B5A /* TJITGeneric_Other.cpp in Sources */,
 				DAD0964D246F613000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp in Sources */,
@@ -2387,18 +2397,22 @@
 				DA4FF1561A35ED5400092B5A /* EinsteinTests.mm in Sources */,
 				DA4FF13A1A35EBBA00092B5A /* TScreenManager.cpp in Sources */,
 				DA4FF1131A35EAB600092B5A /* TFileStream.cpp in Sources */,
+				DA0CD1DE24A7846B00E8D593 /* TBasicSerialPortManager.cpp in Sources */,
 				DA4FF1121A35EA9100092B5A /* TDMAManager.cpp in Sources */,
 				DA4FF1041A35E9CD00092B5A /* TLog.cpp in Sources */,
 				DA4FF12F1A35EB3D00092B5A /* TPCMCIAController.cpp in Sources */,
 				DA4FF1321A35EB7600092B5A /* TSymbolList.cpp in Sources */,
 				DAD0964E246F613000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp in Sources */,
+				DA0CD1DB24A783F500E8D593 /* TSerialPorts.cpp in Sources */,
 				DA4BA4651A3A37FA002BDB80 /* TSoundManager.cpp in Sources */,
 				DA4FF1311A35EB4D00092B5A /* TCircleBuffer.cpp in Sources */,
+				DA0CD1DF24A7847B00E8D593 /* TPipesSerialPortManager.cpp in Sources */,
 				DA4FF1491A35EC4A00092B5A /* THostInfo.cpp in Sources */,
 				DA4FF10D1A35EA8C00092B5A /* TFlash.cpp in Sources */,
 				DA4FF1371A35EB9500092B5A /* TMemError.cpp in Sources */,
 				DA4FF1211A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp in Sources */,
 				DA52C89E1A40935B008A17D0 /* TVirtualizedCallsPatches.cpp in Sources */,
+				DA0CD1E124A7848200E8D593 /* TTcpClientSerialPortManager.cpp in Sources */,
 				DA4FF1281A35EAF600092B5A /* TJITGenericPage.cpp in Sources */,
 				DA4BA4661A3A37FF002BDB80 /* TNullSoundManager.cpp in Sources */,
 				DA4FF1191A35EAF600092B5A /* TJITGeneric.cpp in Sources */,
@@ -2411,12 +2425,15 @@
 				DA4FF11D1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp in Sources */,
 				DA4FF11C1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp in Sources */,
 				DA4FF13D1A35EBE600092B5A /* TPlatformManager.cpp in Sources */,
+				DA0CD1E224A7885E00E8D593 /* TCocoaPathHelper.mm in Sources */,
 				DA4FF1411A35EC1000092B5A /* TAIFROMImageWithREXes.cpp in Sources */,
 				F150BC401CF6315C0077CDB7 /* TObjCBridgeTests.mm in Sources */,
 				DA4FF1421A35EC1400092B5A /* TAIFFile.cpp in Sources */,
 				DA4BA4741A3A3B78002BDB80 /* TNullScreenManager.cpp in Sources */,
+				DA0CD1D924A783D900E8D593 /* TFileManager.cpp in Sources */,
 				DAE9EF251A3CFCC70095BFAF /* TRAMLog.cpp in Sources */,
 				DA4FF1141A35EABA00092B5A /* TStream.cpp in Sources */,
+				DA0CD1DC24A7844300E8D593 /* TObjCBridgeCalls.mm in Sources */,
 				DA4FF13B1A35EBCC00092B5A /* TNetworkManager.cpp in Sources */,
 				DA4FF1181A35EAD500092B5A /* TJITPerformance.cpp in Sources */,
 				DA4FF12C1A35EB3D00092B5A /* TATACard.cpp in Sources */,
@@ -2444,12 +2461,14 @@
 				DA4FF1431A35EC1700092B5A /* TROMImage.cpp in Sources */,
 				DA4FF1111A35EA9100092B5A /* TMMU.cpp in Sources */,
 				DA4FF10F1A35EA9100092B5A /* TNativePrimitives.cpp in Sources */,
+				DA0CD1DA24A783E000E8D593 /* TNewt.cpp in Sources */,
 				DA4FF1101A35EA9100092B5A /* TMemory.cpp in Sources */,
 				DA4FF10A1A35E9E600092B5A /* UUTF16CStr.cpp in Sources */,
 				DA4FF1361A35EB9200092B5A /* TError.cpp in Sources */,
 				DA4FF1171A35EAD500092B5A /* TJITPage.cpp in Sources */,
 				DA4FF11F1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_MRS.cpp in Sources */,
 				DA4FF12B1A35EB3200092B5A /* TLinearCard.cpp in Sources */,
+				DA0CD1DD24A7845A00E8D593 /* TPtySerialPortManager.cpp in Sources */,
 				DA4FF13F1A35EC0A00092B5A /* TFlatROMImageWithREX.cpp in Sources */,
 				DA52C8961A409164008A17D0 /* TJITGenericROMPatch.cpp in Sources */,
 				DA4FF10E1A35EA8C00092B5A /* TEmulator.cpp in Sources */,
@@ -2631,8 +2650,6 @@
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_DEBUG,
-					NO_PORT_AUDIO,
-					NO_X11,
 					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
@@ -2676,11 +2693,6 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					NO_PORT_AUDIO,
-					NO_X11,
-					"$(inherited)",
-				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
@@ -2738,6 +2750,8 @@
 					"TARGET_OS_OPENSTEP=1",
 					"NS_BLOCK_ASSERTIONS=1",
 					"NDEBUG=1",
+					NO_X11,
+					NO_PORT_AUDIO,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2781,6 +2795,8 @@
 					"TARGET_OS_OPENSTEP=1",
 					"NS_BLOCK_ASSERTIONS=1",
 					"NDEBUG=1",
+					NO_X11,
+					NO_PORT_AUDIO,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2824,6 +2840,8 @@
 					"TARGET_OS_OPENSTEP=1",
 					"NS_BLOCK_ASSERTIONS=1",
 					"NDEBUG=1",
+					NO_X11,
+					NO_PORT_AUDIO,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2852,11 +2870,6 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/Einstein_Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					NO_PORT_AUDIO,
-					NO_X11,
-					"$(inherited)",
-				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../",
 					"$(SRCROOT)/../../portaudio/pa_common/",
@@ -3005,7 +3018,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -3028,6 +3040,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
+					NO_USER_PERMISSION,
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -3055,7 +3068,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.kallisys.einstein.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Einstein.app/Contents/MacOS/Einstein";
 			};
 			name = Debug;
 		};
@@ -3063,7 +3075,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -3084,6 +3095,10 @@
 					"$(inherited)",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NO_USER_PERMISSION,
+					"$(inherited)",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -3107,7 +3122,6 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.kallisys.einstein.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Einstein.app/Contents/MacOS/Einstein";
 			};
 			name = Release;
 		};
@@ -3115,7 +3129,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -3136,6 +3149,10 @@
 					"$(inherited)",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NO_USER_PERMISSION,
+					"$(inherited)",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -3159,7 +3176,6 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.kallisys.einstein.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Einstein.app/Contents/MacOS/Einstein";
 			};
 			name = Distribution;
 		};

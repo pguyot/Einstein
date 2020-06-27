@@ -28,7 +28,7 @@
 // Einstein.
 #include "Emulator/TMemory.h"
 #include "Emulator/TMemoryConsts.h"
-#ifndef NOX11
+#ifndef NO_X11
 #include "Emulator/Screen/TX11ScreenManager.h"
 #else
 #include "Emulator/Screen/TFBScreenManager.h"
@@ -50,7 +50,7 @@
 void
 UScreenTests::TestX11( void )
 {
-#if NOX11
+#if NO_X11
 	assert(0); // FIXME later
 #else
 	// Create some memory.
