@@ -53,7 +53,7 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TUsermodeNetwork();
+	~TUsermodeNetwork() override;
 
 	///
 	/// Newton sends a block of data.
@@ -63,7 +63,7 @@ public:
 	/// \param data send this block of data from the Newton to the world
 	/// \param size of the block
 	///
-	virtual int SendPacket(KUInt8 *data, KUInt32 size);
+	int SendPacket(KUInt8 *data, KUInt32 size) override;
 	
 	///
 	/// Fill the buffer with the MAC address of the network card.
@@ -71,36 +71,36 @@ public:
 	/// \param data pointer to a six byte buffer
 	/// \param size ethernet MAC addresses are always 6 bytes
 	///
-	virtual int GetDeviceAddress(KUInt8 *data, KUInt32 size);
+	int GetDeviceAddress(KUInt8 *data, KUInt32 size) override;
 	
 	///
 	/// Number of bytes available for Newton.
 	/// This number is polled on a regular base. If no block is available,
 	/// return 0. If a block of data is waiting, return the size of the raw
 	/// ethernet datagram. Do not split blocks of data unless you create a
-	/// complete rwa ethernet datagramm for each of them.	
+	/// complete raw ethernet datagramm for each of them.
 	///
 	/// \return the number of bytes in the first block that is available for the Newton
 	///
-	virtual KUInt32 DataAvailable();
+	KUInt32 DataAvailable() override;
 	
 	///
 	/// Newton receives a block of data.
-	/// Copy the block that was received from the outside world int this buffer.
-	/// The Newton expects a raw ethernet datagramm. The size will always be
+	/// Copy the block that was received from the outside world into this buffer.
+	/// The Newton expects a raw ethernet datagramm. The size will always(?) be
 	/// whatever the menager returned in a previous call to DataAvailable().
 	///
 	/// \param data fill this buffer with the next available block of data
 	/// \param size the number of bytes that we expect in the buffer
 	///
-	virtual int ReceiveData(KUInt8 *data, KUInt32 size);
+	int ReceiveData(KUInt8 *data, KUInt32 size) override;
 	
 	///
 	/// Newton device timer expired.
 	/// Out of lazyness and for testing only, we use this timer to poll the open
 	/// sockets of all active protocols.
 	///
-	int TimerExpired();
+	int TimerExpired() override;
 	
 	void AddPacketHandler(PacketHandler*);
 	
@@ -111,8 +111,8 @@ public:
 	void DropPacket();
 	
 private:
-	PacketHandler	*mFirstPacketHandler, *mLastPacketHandler;
-	Packet			*mFirstPacket, *mLastPacket;
+	PacketHandler	*mFirstPacketHandler = nullptr, *mLastPacketHandler = nullptr;
+	Packet			*mFirstPacket = nullptr, *mLastPacket = nullptr;
 };
 
 #endif

@@ -230,7 +230,7 @@ public:
 	void OpenEinsteinMenu();
 	
 	///
-	/// Directory for al kinds of documents, in particular, a list of pakages
+	/// Directory for all kinds of documents, in particular, a list of pakages
 	/// to be installed with an iOS/iPhone host.
 	///
 	void SetDocDir(const char *inDocDir);

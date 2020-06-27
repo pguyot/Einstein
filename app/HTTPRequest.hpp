@@ -50,6 +50,8 @@ char* strdup(const char* src)
 #  include <netdb.h>
 #  include <unistd.h>
 #  include <errno.h>
+#  undef Status
+#  undef BadRequest
 #endif
 
 namespace http

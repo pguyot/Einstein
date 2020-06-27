@@ -205,8 +205,13 @@ TFLApp::Run( int argc, char* argv[] )
 
     InitSettings();
 
+#if 0
     mFLSettings->useMonitor = 1;
     mLog = new TBufferLog();
+#else
+    mFLSettings->useMonitor = 0;
+    mLog = new TFileLog("/Users/matt/dev/Einstein/a.txt");
+#endif
 
     int ramSize = mFLSettings->RAMSize;
     bool hidemouse = (bool)mFLSettings->hideMouse;
@@ -387,7 +392,7 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
         // On MSWindows, dropped files are absolute file paths, starting with 'C:\' or anothor drive name
         // URLs start with http://, for example "http://www.unna.org/unna/games/Pyramid/Pyramid.pkg"
         if (strncmp(fn, "http://", 7)==0 || strncmp(fn, "https://", 8) == 0) {
-            if (strcmp(fl_filename_ext(fn), ".pkg")==0) {
+            if (strcasecmp(fl_filename_ext(fn), ".pkg")==0) {
                 try {
                     http::Request request(fn);
                     const http::Response response = request.send("GET");
@@ -896,6 +901,55 @@ void TFLApp::StoreAppWindowSize()
     mWindowedY = wAppWindow->y();
     mWindowedWidth = wAppWindow->w();
     mWindowedHeight = wAppWindow->h();
+}
+
+
+#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
+
+/* FIXME: this nice idea works well on MP2100US, but not at all on eMates. How come? MP2100D not yet tested. */
+T_ROM_INJECTION(0x001B37FC, kROMPatchVoid, 0x001A1650, "AddClipboard__9TRootViewFRC6RefVarT1")
+{
+//    fprintf(stderr, "AddClipboard__9TRootViewFRC6RefVarT1\n");
+    // r0 is a pointer to TRootView
+    TNewt::RefArg a = TNewt::RefVar::FromPtr(ioCPU->GetRegister(1));
+    //TNewt::RefArg b = TNewt::RefVar::FromPtr(ioCPU->GetRegister(2));
+
+    NewtRef data = TNewt::GetFrameSlot(a, TNewt::MakeSymbol("data"));
+//    TNewt::PrintRef(data, 8);
+    if (!TNewt::RefIsArray(data)) return ioUnit; // expected an array
+    int nData = (int)TNewt::RefArrayGetNumSlots(data);
+
+    std::string clipboardText = "";
+    bool firstText = true;
+    for (int i=0; i<nData; i++) {
+        NewtRef dataSet = TNewt::RefArrayGetSlot(data, i);
+//        TNewt::PrintRef(dataSet, 8);
+        if (!TNewt::RefIsArray(dataSet)) continue;
+        int nDataSet = (int)TNewt::RefArrayGetNumSlots(dataSet);
+        for (int j=0; j<nDataSet; j++) {
+            NewtRef textRec = TNewt::RefArrayGetSlot(dataSet, j);
+//            TNewt::PrintRef(textRec, 8);
+            if (!TNewt::RefIsFrame(textRec)) continue;
+            NewtRef textRef = TNewt::GetFrameSlot(textRec, TNewt::MakeSymbol("text"));
+//            TNewt::PrintRef(textRef, 8);
+            if (TNewt::RefIsString(textRef)) {
+                int textLen = TNewt::RefStringLength(textRef);
+                char *text = (char*)malloc(textLen+1);
+                TNewt::RefToString(textRef, text, textLen);
+                if (firstText)
+                    firstText = false;
+                else
+                    clipboardText.append("\n");
+                clipboardText.append(text);
+                free(text);
+                break;
+            }
+        }
+    }
+    const char *cstring = clipboardText.c_str();
+    Fl::copy(cstring, strlen(cstring), 1);
+    return ioUnit;
 }
 
 /**

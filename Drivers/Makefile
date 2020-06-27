@@ -6,7 +6,7 @@
 # Créé le:			1/8/2004
 # Tabulation:		4 espaces
 # 
-# Copyright:		© 2004-2005 by Paul Guyot.
+# Copyright:		© 2004-2020 by Paul Guyot.
 # 					Tous droits réservés pour tous pays.
 # ===========
 # $Id: Makefile 150 2006-01-10 05:55:43Z paul $
@@ -32,7 +32,7 @@ ProtocolGenTool     ?=  mosrun ---run ${NCTTools}/ProtocolGenTool
 Rex                 ?=  mosrun ---run ${NCTTools}/Rex
 
 # Package options:
-PackerCopyright		=	"Copyright (c) 2004-2007 Paul Guyot."
+PackerCopyright		=	"Copyright (c) 2004-2020 Paul Guyot."
 
 KPath_Classic		=	::
 KPath_POSIX			=	../
@@ -81,7 +81,7 @@ headers = \
 
 %.o : %.c ${headers}
 	${ARMCpp} $< ${CPlusOptions} ${CPlusIncludes} -o $(@F)
-%.o : %.cp ${headers}
+%.o : %.cpp ${headers}
 	${ARMCpp} $< ${CPlusOptions} ${CPlusIncludes} -o $(@F)
 %.o : %.a
 	${ARM6Asm} $< ${AsmIncludes} -o $(@F)

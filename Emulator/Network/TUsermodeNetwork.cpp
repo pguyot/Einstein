@@ -404,7 +404,7 @@ private:
 /**
  * This is a generic handler for network packets.
  *
- * To handle new types of packats, a new class should be derived.
+ * To handle new types of packets, a new class should be derived.
  */
 class PacketHandler 
 {
@@ -423,9 +423,8 @@ public:
 	/**
 	 * Remove a packet handler, freeing all resources.
 	 */
-	virtual ~PacketHandler() {
-	}
-	
+    virtual ~PacketHandler() = default;
+
 	/**
 	 * Send a Newton packet to the outside world.
 	 * \param p send this packet
@@ -452,8 +451,8 @@ public:
 	 */
 	static int canHandle(Packet &p, TUsermodeNetwork *n) { return 0; }
 	
-	PacketHandler *prev, *next;
-	TUsermodeNetwork *net;
+	PacketHandler *prev = nullptr, *next = nullptr;
+	TUsermodeNetwork *net = nullptr;
 };
 
 
@@ -463,7 +462,7 @@ public:
  *
  * TCP is a connection that provides a nicely formed stream of data using all
  * kinds of handshake and tricks. 
- * 
+ *
  * In the emulation, we have a 100% connection
  * between Einstein and the Newton, so we only emulate a perfectly working
  * connection. The outside communication is done by the host, so no need for
@@ -502,7 +501,7 @@ public:
 	 * that we need to handle.
 	 */
 	TCPPacketHandler(TUsermodeNetwork *h, Packet &packet) :
-	PacketHandler(h),
+    PacketHandler(h),
 	myMAC(0),	theirMAC(0),
 	myIP(0),	theirIP(0),
 	myPort(0),	theirPort(0),
@@ -557,7 +556,7 @@ public:
 	 * Create a generic TCP packet.
 	 * This is a working TCP packet for this particular connection. Space is 
 	 * allocated for the payload. The payload must be copied into this 
-	 * packet an the checksums must be updated.
+	 * packet and the checksums must be updated.
 	 * \param size this is the desired size of the payload.
 	 * \see UpdateChecksums(Packet *p)
 	 * \see Packet::SetTCPPayload(KUInt8 *, KUInt32)
@@ -610,6 +609,7 @@ public:
 		if (mSocket==-1) 
 			return -1;
 		// FIXME: should we remove the handler? Should we remove some kind of not-ACK package?
+        // TODO: send a NACK package to the Newton
 		
 		// tell the socket who to connect to and connect
 		struct sockaddr_in sa;
@@ -656,7 +656,7 @@ public:
 	 * \return 0 if we don't know how to handle the packet
 	 * \return -1 if an error occured and no other handler should handle this packet
 	 */
-	virtual int send(Packet &packet) {
+	int send(Packet &packet) override {
 		if (   ( packet.GetType() != Packet::NetTypeIP ) 
 			|| ( packet.GetIPProtocol() != Packet::IPProtocolTCP ) 
 			|| ( myPort != packet.GetTCPSrcPort() )
@@ -752,7 +752,7 @@ public:
 	 * it would be better to used threads to read from the sockets and 
 	 * interrupts to send data to the Newton.
 	 */
-	virtual void timer() {
+	void timer() override {
 		switch (state) {
 			case kStatePeerDiscWaitForACK:
 				// TODO: count down the timer and remove myself if expired
@@ -862,7 +862,7 @@ public:
 	/**
 	 * Delete this handler.
 	 */
-	~UDPPacketHandler() 
+	~UDPPacketHandler() override
 	{
 #if TARGET_OS_WIN32
 		if (mSocket != INVALID_SOCKET) {
@@ -920,7 +920,7 @@ public:
 	 * \return 0 if we don't know how to handle the packet
 	 * \return -1 if an error occured and no other handler should handle this packet
 	 */
-	virtual int send(Packet &packet) {
+    int send(Packet &packet) override {
 		if (   ( packet.GetType() != Packet::NetTypeIP ) 
 			|| ( packet.GetIPProtocol() != Packet::IPProtocolUDP ) 
 			|| ( myPort != packet.GetUDPSrcPort() )
@@ -962,7 +962,7 @@ public:
 	 * it would be better to used threads to read from the sockets and 
 	 * interrupts to send data to the Newton.
 	 */
-	virtual void timer() {
+    void timer() override {
 		KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
 		socklen_t addrLen = sizeof(theirSockAddr);
 		if (mSocket==-1)
@@ -1508,10 +1508,7 @@ public:
  * Create an interface betweenthe Newton network driver and Einstein.
  */
 TUsermodeNetwork::TUsermodeNetwork(TLog* inLog) :
-	TNetworkManager( inLog ),
-	mFirstPacketHandler( 0L ),
-	mFirstPacket( 0L ),
-	mLastPacket( 0L )
+	TNetworkManager( inLog )
 {
 #if TARGET_OS_WIN32
 	WSADATA wsaData;
@@ -1532,7 +1529,11 @@ TUsermodeNetwork::~TUsermodeNetwork()
 	while (mFirstPacket)
 		DropPacket();
 	// release all package handlers
-	// TODO: delete handlers
+    while (mFirstPacketHandler) {
+        PacketHandler *ph = mFirstPacketHandler;
+        RemovePacketHandler(ph);
+        delete ph;
+    }
 	// release all other resources
 #if TARGET_OS_WIN32
 	WSACleanup();
@@ -1645,7 +1646,7 @@ int TUsermodeNetwork::ReceiveData(KUInt8 *data, KUInt32 size)
 {
 	Packet *pkt = mLastPacket;
 	if (pkt) {
-		//assert(pkt->Size()==size);
+		//assert(pkt->Size()==size); // FIXME: what do we do if it is not the same?
 		// copy the data over
 		memcpy(data, pkt->Data(), size);
 		// remove this package from the pipe
@@ -1688,7 +1689,7 @@ void TUsermodeNetwork::RemovePacketHandler(PacketHandler *ph)
 
 /**
  * Add a new packet to the beginning of the pipe.
- * This makes the give block ready to be sent at the next possible occasion.
+ * This makes the given block ready to be sent at the next possible occasion.
  *
  * \param inPacket the package that will be queued
  */
