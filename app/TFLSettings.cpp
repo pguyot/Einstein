@@ -89,6 +89,7 @@ void TFLSettings::loadPreferences() {
         strcpy(buf, appPath);
         strcat(buf, "717006");
         rom.get("path", ROMPath, buf);
+        rom.get("builtInRex", mUseBuiltinRex, true);
     }
 
     // Flash Preferences
@@ -131,6 +132,7 @@ void TFLSettings::savePreferences() {
     Fl_Preferences rom(prefs, "ROM");
     {
         rom.set("path", ROMPath);
+        rom.set("builtInRex", mUseBuiltinRex);
     }
 
     // Flash Preferences
