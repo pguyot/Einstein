@@ -182,6 +182,10 @@ TFLScriptEditor::~TFLScriptEditor()
 }
 
 
+#if TARGET_OS_WIN32
+static int strcasecmp(const char* a, const char* b) { return stricmp(a, b); }
+#endif
+
 extern "C"
 int compare_keywords(const void *a, const void *b)
 {

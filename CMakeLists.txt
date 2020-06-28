@@ -23,8 +23,8 @@ set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 project("Einstein" VERSION "2020.4.4")
 
-find_library(newt64_lib NAME newt64 PATHS /usr/local/lib)
-find_file(newt64_incl NAMES NewtCore.h PATHS /usr/local/include PATH_SUFFIXES newt64)
+find_library(newt64_lib NAME newt64 PATHS /usr/local/lib C:/Users/matt/dev/NEWT64/out/build/x64-Release)
+find_file(newt64_incl NAMES NewtCore.h PATHS /usr/local/include C:/Users/matt/dev/NEWT64/src/newt_core/incs PATH_SUFFIXES newt64)
 if(newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND")
     message(STATUS "NEWT/64 not found!")
     set ( USE_NEWT64 false )
@@ -499,7 +499,7 @@ elseif (WIN32)
 			)
 
     # add all the source file that Fluid generates for us
-    add_dependencies(Einstein ${fluid_dependencies})
+    #add_dependencies(Einstein ${fluid_dependencies})
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC "/bigobj")
@@ -519,6 +519,18 @@ elseif (WIN32)
 	else()
 		target_link_options(Einstein PUBLIC /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib)
 	endif()
+
+    if ( USE_NEWT64 MATCHES true )
+        message(STATUS ${newt64_lib_path})
+        target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
+        target_link_libraries(Einstein
+            ${newt64_lib}
+            #/usr/local/lib/libiconv.a
+            shlwapi
+            )
+        message(STATUS ${newt64_lib})
+        target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
+    endif ()
 
 else()
 
