@@ -210,7 +210,7 @@ TFLApp::Run( int argc, char* argv[] )
     mLog = new TBufferLog();
 #else
     mFLSettings->useMonitor = 0;
-    mLog = new TFileLog("/Users/matt/dev/Einstein/a.txt");
+    mLog = new TFileLog("/tmp/Einstein_log.txt");
 #endif
 
     int ramSize = mFLSettings->RAMSize;
