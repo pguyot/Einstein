@@ -235,5 +235,15 @@ Also, get libiconv, build and install it by running these shell commands:
   make
   sudo make install
 
-No instructions for MSWindows yet.
+
+On MSWindows, you need to install flexx and bison in C:/GnuWin32/ 
+and add C:/GnuWin32/bin to the Path variable in the user environment settings.
+
+We don't have iconv yet, so your NS files must not have anything but ASCII characters
+
+git clone https://github.com/MatthiasWM/NEWT64.git
+
+... and build the newt64 library using VisualStudio and CMake
+
+
 
