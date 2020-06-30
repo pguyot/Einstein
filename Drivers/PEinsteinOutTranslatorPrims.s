@@ -22,17 +22,7 @@
     .arch armv3
     .balign 4
 
-    .macro NATIVE_PRIM impl, id, symbol
-    .section ".text.\symbol\()", "ax"
-    .global \symbol
-\symbol\():
-    .balign 4
-    stmdb       sp!, {lr}
-    mov         lr, #\id\()
-    add         lr, lr, #\impl\() * 0x100
-    mcr         p10, 0, lr, c0, c0
-    ldmia       sp!, {pc}
-    .endm
+    .include "NativePrimitives.s"
 
     NATIVE_PRIM 0x8, 0x01, _ZN22PEinsteinOutTranslator3NewEv
     NATIVE_PRIM 0x8, 0x02, _ZN22PEinsteinOutTranslator6DeleteEv
