@@ -60,11 +60,14 @@
 #include "Emulator/Platform/TPlatformManager.h"
 #undef IGNORE_TNEWT
 
+extern "C" {
 #include "NewtCore.h"
 #include "NewtBC.h"
 #include "NewtVM.h"
 #include "NewtParser.h"
 #include "NewtPkg.h"
+#include "NewtEnv.h"
+}
 
 #include <FL/fl_ask.H>
 #include <FL/Fl_File_Chooser.H>

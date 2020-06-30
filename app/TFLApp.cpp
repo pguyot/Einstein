@@ -371,6 +371,11 @@ void TFLApp::UserActionToggleNetworkCard()
 }
 
 
+#if TARGET_OS_WIN32
+static int strcasecmp(const char* a, const char* b) { return stricmp(a, b); }
+#endif
+
+
 /**
  Install a package from a file.
 
