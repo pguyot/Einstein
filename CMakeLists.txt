@@ -514,11 +514,6 @@ elseif (WIN32)
 		# end of alternative
 		winmm
 	)
-#	if (CMAKE_BUILD_TYPE MATCHES Debug)
-#		target_link_options(Einstein PUBLIC /NODEFAULTLIB:msvcrt.lib )
-#	else()
-#		target_link_options(Einstein PUBLIC /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib)
-#	endif()
 
 	if ( USE_NEWT64 MATCHES true )
 		message(STATUS ${newt64_lib_path})
