@@ -505,7 +505,6 @@ elseif (WIN32)
 	target_compile_options(Einstein PUBLIC "/bigobj")
 	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1)
 	target_link_libraries(Einstein
-<<<<<<< HEAD
 		# this vvv always includes the debug version, even in release mode
 		fltk
 		# alternatively, this loads the correct library but needs additional libs that would be included automatically in the line above
@@ -531,34 +530,6 @@ elseif (WIN32)
 		message(STATUS ${newt64_lib})
 		target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
 	endif ()
-=======
-			# this vvv always includes the debug version, even in release mode
-			fltk
-			# alternatively, this loads the correct library but needs additional libs that would be included automatically in the line above
-			#"${FLTK_BASE_LIBRARY_RELEASE}" # FIXME: or it will select the debug version even in release mode!
-			#comctl32
-			#ws2_32
-			# end of alternative
-			winmm
-			)
-	if (CMAKE_BUILD_TYPE MATCHES Debug)
-		target_link_options(Einstein PUBLIC /NODEFAULTLIB:msvcrt.lib )
-	else()
-		target_link_options(Einstein PUBLIC /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib)
-	endif()
-
-    if ( USE_NEWT64 MATCHES true )
-        message(STATUS ${newt64_lib_path})
-        target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
-        target_link_libraries(Einstein
-            ${newt64_lib}
-            #/usr/local/lib/libiconv.a
-            shlwapi
-            )
-        message(STATUS ${newt64_lib})
-        target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
-    endif ()
->>>>>>> parent of 55d3b0a... Merge remote-tracking branch 'refs/remotes/origin/matt2020_Inspector'
 
 endif(APPLE)
 
