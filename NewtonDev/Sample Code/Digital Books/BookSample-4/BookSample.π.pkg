@@ -1,0 +1,1 @@
+->spaceGlyph = fontBlock.proc.charToGlyph(32, fontBlock.mapTable);			if (numStyles > 1)				styleFactors++;		}		if (incrementalGlyphs && arrayFill >= glyphsArrayLen)	{			Ptr	p;			glyphsArrayLen += kMaxScratchPadGlyphCount;		/* boost the table	*/			p = QDSetPtrSize((Ptr)objPtr->glyphCodes, glyphsArrayLen

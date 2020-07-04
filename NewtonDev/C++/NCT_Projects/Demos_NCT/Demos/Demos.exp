@@ -1,0 +1,1 @@
+Demos; replace the name above with the name of your code module; This name will be used in NewtonScript to call your C functions. ;    e.g. Ò Call myModuleName.aFunction(...) Ó ; Below, add one line per function naming each of your NewtonScript interface functions.DemonstrateRefsDemonstrateTypesDemonstrateRealsDemonstrateNSCalls

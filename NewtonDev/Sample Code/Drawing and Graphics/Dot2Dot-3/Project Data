@@ -1,0 +1,1 @@
+/*  Dot2Dot Project Data  Copyright: © Apple Computer, Inc. 1993-1995. All Rights Reserved. */refNum := OpenResFileX("Dot2Dot.rsrc");  DefConst('kMrT,GetPICTAsBits("MrT",true));CloseResFileX(refNum);42;

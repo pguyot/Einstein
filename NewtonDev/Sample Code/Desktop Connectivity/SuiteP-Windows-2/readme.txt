@@ -1,0 +1,131 @@
+/*
+**      Newton Developer Technical Support Sample Code
+**
+**      SuiteP - demonstrates the 2.0 DILs and provides basic Windows & Mac UI
+**
+**      by David Fedor, Newton Developer Technical Support
+**
+**      Copyright © 1997 by Apple Computer, Inc.  All rights reserved.
+**
+**      You may incorporate this sample code into your applications without
+**      restriction.  This sample code has been provided "AS IS" and the
+**      responsibility for its operation is 100% yours.  You are not
+**      permitted to modify and redistribute the source as "DTS Sample Code."
+**      If you are going to re-distribute the source, we require that you
+**      make it clear in the source that the code was descended from
+**      Apple Computer, Inc-provided sample code, but that you've made changes.
+*/
+
+  This project demonstrates the 2.0 DILs (CDIL and FDIL and PDIL), and also
+provides a basic UI framework for both Windows and MacOS that can be used as
+the basis for a standalone synchronization application or for DIL application
+debugging.
+
+  Known bugs:
+    - When disconnecting after a SoupDrink, it will report that an error
+      occurred and the next command couldn't be read.  This seems to be due
+      to a bug in the CDILs, and only happens on MacOS.  The CD_Read call
+      is returning a "Pipe is disconnected" error even though there is data
+      waiting to be read.
+    - There is a visual problem with scrolling the output window on MacOS
+      after a very large amount of text has been output.
+
+  To build and test this sample you need to:
+    - copy the 2.0 DIL headers and libraries to the same directory as this 
+      sample's source (you can get them from http://www.newton-inc.com/dev/)
+    - install the SoupDrink-4.pkg package included in this sample; it is from
+      the SoupDrink-4 DTS sample and is used by two of the four suites in this
+      sample.
+
+  The UI for SuiteP is implemented using MFC (on Windows) and PowerPlant (on
+MacOS), and all of the DIL code is completely cross-platform and separate from
+the UI code.  The MacOS project is built with CodeWarrior Pro 1, and on
+Windows with Visual C++ 4.0.
+
+  The most interesting file in this project is SuitePX.cpp; it contains all of
+the DIL calls and is cross-platform.  It specifies the UI (what the
+buttons and radio buttons say) and implements their functionality.  All of the
+other files in the project implement the UI framework.  Note that this is DIL
+sample code - the Windows and MacOS UI code may or may not show the "right" or
+best way to do things.
+
+  There are currently 6 operations in the demo suite.  Two implement
+functionality equivalent to an older piece of sample code called SoupDrink
+which used the 1.x DILs.  SuiteP will communicate with the SoupDrink package,
+using the same protocol as SoupDrink version 4 (current as of this sample's
+creation).  The suites in SuiteP are:
+  - SoupDrink
+       Download a new name card (by talking to the SoupDrink package)
+  - New Name SD
+       Upload a soup (by talking to the SoupDrink package)
+  - New Name PDIL
+       Download a new name card (with the PDILs)
+  - PDSurvey
+       Show the names of the stores and soups on the device (with the PDILs)
+  - RootSlots
+       Show how many slots are in the root view (with a PDIL protocol extension)
+  - Get Clip
+       Directly calls GetClipboard() on the device (with the PDILs)
+       This works only on Newton 2.1 OS or later devices.
+
+
+
+  When the application is run, a dialog lets the user choose which port to
+connect over, and then they can hit one of several buttons to perform various
+synch/download/upload actions.  There is a status display and a window used to
+log the progress and display the data obtained from the Newton device.
+
+  The majority of the platform-specific UI code is in SuitePDlg.cpp on
+Windows, and SuitePApp.cp on MacOS.  It calls four routines in the
+cross-platform code (SuitePX.cpp):
+
+  - DoStartupWork()  - when the app is starting up
+  - DoShutdownWork() - when the app is quitting
+  - DoIdleWork()     - called at idle time, each pass through the message loop
+  - DoButtonHit()    - the user pressed one of the buttons on the dialog
+
+  The cross-platform code calls the following platform-specific routines to
+control the UI:
+  - Msg()                  - add a string to the output window
+  - Msg2()                 - like Msg() but don't add a newline
+  - SetStatusText()        - change the status message to the given string
+  - SetBytesAvail()        - show how many bytes are waiting to be read
+  - ConfigureButton()      - set the text and visiblity of a pushbutton
+  - SetRadioBtnText()      - set the text and visibility of a radio button
+  - GetSelectedRadioBtn()  - ask which radio button is selected
+
+
+  During long operations (like the SoupDrink suite), the suite must stop
+running periodically so that the user can click "Disconnect" or use other
+applications on their computer.  This is done by setting a global variable
+called "idleAction" to an enumerated value, which DoIdleWork() checks.  If
+something is in progress, DoIdleWork() will call DoAnAction() which will let
+the suite continue its work.  This mechanism isn't perfect; the machine won't
+be as responsive as it could be to the user's action.  It would be better to
+have the suite run in its own thread on the desktop machine, and that's
+possible, but out of the scope of this sample.
+
+  Idling is done with a timer (on Windows) and a Periodical (on MacOS).  This
+is a slightly heavy-handed way to get regular calls to the DIL routines, but
+for this sample it suffices.  It's necessary to keep calling the DIL idle
+routines and/or performing the suite actions whenever the user isn't asking to
+stop and/or use another application.  A more complex application could extend
+this mechanism so that it more closely reflected whether the desktop was busy
+or not, and/or so that it called the idle routine less frequently if the
+application was in the background (thus giving the user better control over
+the desktop).
+
+  A protocol extension is also used in the "RootSlots" example.  The protocol
+extension is created by the "CompNRun" sample code, and the data for that
+extension is embedded directly in the SuitePX.cpp file.  CompNRun takes a
+string containing NewtonScript source code, compiles and evaluates it, and
+(optionally, not demonstrated here) will call it with parameters.  (Calling
+it with parameters would be appropriate if the given NewtonScript created a
+function, but not if the NewtonScript is a statement or block of statements.
+If this confuses you, don't worry about it - just don't start your source
+with "func()" and then you can ignore this whole point.)
+
+  
+Version history:
+  version 1 - initial release
+  version 2 - added AppleTalk support, and the "CompNRun" protocol extension.

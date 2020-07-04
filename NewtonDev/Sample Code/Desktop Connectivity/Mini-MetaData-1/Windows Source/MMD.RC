@@ -1,0 +1,51 @@
+// Resource script for Mini-MetaData sample
+// Copyright 1996 by Apple Computer, Inc.  All rights reserved.
+//
+
+#include "windows.h"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+MINI-METADATA MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       11
+    END
+    POPUP "&Connection"
+    BEGIN
+        MENUITEM "&Wait for Connection...",     21
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About Mini-MetaData...",     31
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+MINI-METADATA           ICON    DISCARDABLE     "mmd.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+ABOUTBOX DIALOG DISCARDABLE  20, 20, 170, 91
+STYLE DS_MODALFRAME | WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Mini-MetaData",-1,7,17,156,8
+    CTEXT           "DIL Sample Application",-1,7,41,156,8
+    CTEXT           "(c) Apple Computer, 1996",-1,7,53,156,8
+    DEFPUSHBUTTON   "OK",2,71,64,32,14,WS_GROUP
+END

@@ -1,0 +1,1 @@
+// Copyright © 1994 Apple Computer, Inc. All rights reserved.// scroll direction constantsconstant kScrollDown := 1;constant kScrollUp := -1; 

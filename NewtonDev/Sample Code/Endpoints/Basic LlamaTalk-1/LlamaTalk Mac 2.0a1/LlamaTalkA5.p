@@ -1,0 +1,1 @@
+{$SETC LT_UsingGlobals := 1}{$SETC LT_UsingUniversalHeaders := 1}

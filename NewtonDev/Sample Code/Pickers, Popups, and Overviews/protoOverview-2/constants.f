@@ -1,0 +1,1 @@
+// Copyright ©1996 by Apple Computer, Inc. All rights reserved.// total number of items to createconstant kNumItems := 40 ;// indent for text in the shape displayed in the overviewconstant kTextIndent := 5 ;

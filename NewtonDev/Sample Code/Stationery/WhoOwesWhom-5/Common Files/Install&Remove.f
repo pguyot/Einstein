@@ -1,0 +1,1 @@
+// Copyright ©1995 Apple Computer, Inc.  All rights reserved.InstallScript := func(partFrame)	begin		local theApp := partFrame.theForm;				partFrame.removeFrame := theApp:NewtInstallScript(partFrame.theForm);	end;RemoveScript := func(partFrame)	begin		(partFrame.removeFrame):NewtRemoveScript(removeFrame);	end;

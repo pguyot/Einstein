@@ -528,7 +528,7 @@ elseif (WIN32)
 
     if ( USE_NEWT64 MATCHES true )
         message(STATUS ${newt64_lib_path})
-        target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
+        target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/win)
         target_link_libraries(Einstein
             ${newt64_lib}
             #/usr/local/lib/libiconv.a
