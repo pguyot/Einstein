@@ -375,7 +375,8 @@ void TToolkit::AppBuild()
     char buf[2*FL_PATH_MAX];
     newtRefVar result;
     newtErr err;
-    NewtInit(0, 0L, 0);
+    const char* argv[] = { "Einstein" };
+    NewtInit(1, argv, 0);
 
     NewtDefGlobalFunc0(NSSYM(MakeBinaryFromString), (void*)NsMakeBinaryFromString, 2, false, (char*)"MakeBinaryFromString(str, sym)");
     NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
