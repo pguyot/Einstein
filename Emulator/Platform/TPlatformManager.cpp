@@ -63,25 +63,10 @@ TPlatformManager::TPlatformManager(
 			TScreenManager* inScreenManager)
 	:
 		mLog( inLog ),
-		mScreenManager(inScreenManager),
-		mInterruptManager( nil ),
-		mMemory( nil ),
-		mEventQueue( nil ),
-		mEventQueueCCrsr( 0 ),
-		mEventQueuePCrsr( 0 ),
-		mEventQueueSize( kDEFAULTEVENTQUEUESIZE ),
-		mBufferQueue( nil ),
-		mBufferCount( 0 ),
-		mBufferQueueSize( kDEFAULTBUFFERQUEUESIZE ),
-		mBufferNextID( 0 ),
-		mPowerOn( true ),
-		mQueueLockCount( 0 ),
-		mMutex( nil ),
-		mDocDir( nil )
+		mScreenManager(inScreenManager)
 {
 	mEventQueue = (SEvent*) ::malloc( sizeof(SEvent) * mEventQueueSize );
 	mBufferQueue = (SBuffer*) ::malloc( sizeof(SBuffer) * mBufferQueueSize );
-	
 	mMutex = new TMutex();
 }
 
@@ -99,6 +84,7 @@ TPlatformManager::~TPlatformManager( void )
 	{
 		::free(mEventQueue);
 	}
+    
 	if (mBufferQueue)
 	{
 		KUInt32 indexQueue;
