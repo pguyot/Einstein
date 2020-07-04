@@ -1,27 +1,33 @@
 #
 # Use a single CMake setup to compile Einstein on all supported platforms.
 # 
-# Einstein has forked unintentioanlly into a well supported Xcode version,
+# Einstein has evolved over time into a well supported Xcode version,
 # a much less supported MSWindows version, and a quite minimal Linux version.
-# For the sake of maintainability, this branch of Einstein compiles either
-# with FLTK as its cross-platform GUI, or with no GUI at all for 
-# handheld devices.
-#
-# This CMakeLists.txt will be complete when compiling Einstein from scratch 
-# can be explained in ten lines of text for every supported platform.
+# For the sake of maintainability, this branch of Einstein compiles using
+# FLTK as its cross-platform GUI for all three desktop platforms.
 #
 
 cmake_minimum_required(VERSION 3.15)
-cmake_policy(SET CMP0091 NEW)
+
+project("Einstein" VERSION "2020.4.5")
 
 set (CMAKE_CXX_STANDARD 14)
 
-set (CMAKE_OSX_ARCHITECTURES=x86_64)
-set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
+if (APPLE)
+	set (CMAKE_OSX_ARCHITECTURES=x86_64)
+	set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
+elseif (UNIX)
+	#
+elseif (WIN32)
+	cmake_policy(SET CMP0091 NEW)
+	set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+else()
+	message ("Einstein is not configured to build on this platform.")
+endif(APPLE)
 
-set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-project("Einstein" VERSION "2020.4.4")
+
+
 
 find_library(newt64_lib NAME newt64 PATHS /usr/local/lib C:/Users/matt/dev/NEWT64/out/build/x64-Release)
 find_file(newt64_incl NAMES NewtCore.h PATHS /usr/local/include C:/Users/matt/dev/NEWT64/src/newt_core/incs PATH_SUFFIXES newt64)
@@ -531,10 +537,6 @@ elseif (WIN32)
         message(STATUS ${newt64_lib})
         target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
     endif ()
-
-else()
-
-	message ("Einstein CMake is not configured for this platform.")
 
 endif(APPLE)
 
