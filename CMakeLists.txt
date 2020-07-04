@@ -40,11 +40,11 @@ endif ()
 # ---- Newt/64 library ---------------------------------------------------------
 #
 
-find_library(newt64_lib NAME newt64 PATHS /usr/local/lib C:/Users/matt/dev/NEWT64/out/build/x64-Release)
-find_file(newt64_incl NAMES NewtCore.h PATHS /usr/local/include C:/Users/matt/dev/NEWT64/src/newt_core/incs PATH_SUFFIXES newt64)
+find_library(newt64_lib NAME newt64) #PATHS /usr/local/lib C:/Users/matt/dev/NEWT64/out/build/x64-Release)
+find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64) # PATHS /usr/local/include C:/Users/matt/dev/NEWT64/src/newt_core/incs)
 
 if (newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND")
-	message(STATUS "NEWT/64 not found!")
+	message(WARNING "NEWT/64 not found!")
 	set ( USE_NEWT64 false )
 else()
 	message(STATUS "newt64 found!")
