@@ -375,7 +375,7 @@ void TToolkit::AppBuild()
     char buf[2*FL_PATH_MAX];
     newtRefVar result;
     newtErr err;
-    const char* argv[] = { "FIXME" }; // FIXME: we should put the project directory here?!
+    const char* argv[] = { "Einstein" };
     NewtInit(1, argv, 0);
 
     NewtDefGlobalFunc0(NSSYM(MakeBinaryFromString), (void*)NsMakeBinaryFromString, 2, false, (char*)"MakeBinaryFromString(str, sym)");
