@@ -1,1 +1,0 @@
-Notes for Printer DDK"FilesInBuild" has been modified from the generic one that MPW generates when you select "Create New Project…" from the NCT menu.  If you create a new project, you may need to make the following changes to the default FilesInBuild in order to build the project.• add this line to the include directories:-ic "{DDK_Includes-dir}Printing"

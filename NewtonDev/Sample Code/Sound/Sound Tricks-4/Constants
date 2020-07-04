@@ -1,1 +1,0 @@
-// copyright © 1993-1995 by Apple Computer, Inc.  All rights reserved.OpenResFile(home & "resources");DefConst('kOurSound, GetSound11("Droplet"));CloseResFile();

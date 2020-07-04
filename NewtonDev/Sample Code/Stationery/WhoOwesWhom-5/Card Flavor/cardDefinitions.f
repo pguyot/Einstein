@@ -1,1 +1,0 @@
-// Copyright ©1995 Apple Computer, Inc.  All rights reserved.constant kAppTitle := "Card Starter"; 

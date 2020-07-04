@@ -1,1 +1,0 @@
-Gauge TestCopyright © 1993, 1994 by Apple Computer, Inc.  All rights reserved.By Kent SandvikEnvironment:NTK 1.0b4PurposeThe Gauge sample shows the following techniques:¥ How to use a protoGauge¥ How to change the max (or min) values of a gauge dynamically¥ How to tie together this with smart use of a protoLabelInputLine 

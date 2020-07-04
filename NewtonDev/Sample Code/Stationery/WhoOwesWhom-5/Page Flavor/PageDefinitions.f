@@ -1,1 +1,0 @@
-// Copyright ©1995 Apple Computer, Inc.  All rights reserved.// App Specific Specific Stuffconstant kAppTitle := "Page Starter";
