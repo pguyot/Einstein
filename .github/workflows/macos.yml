@@ -25,3 +25,13 @@ jobs:
     # Runs a set of commands using the runners shell
     - name: Test
       run: xcodebuild test -project _Build_/Xcode/Einstein.xcodeproj -scheme Einstein
+
+    - name: Archive
+      run: |
+        mkdir artifacts
+        xcodebuild -project _Build_/Xcode/Einstein.xcodeproj -scheme Einstein -archivePath artifacts/Einstein.xcarchive archive
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Einstein.app
+        path: artifacts/Einstein.xcarchive/Products/Applications/Einstein.app
