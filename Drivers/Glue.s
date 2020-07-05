@@ -20,9 +20,20 @@
 // ==============================
 
 // Glue for various platforms.
-// We currently only support three platforms.
+// We currently only support four platforms.
 
-    .macro ROM_FUNC name, addr717006, addr737041, addr747129
+// Undefined instruction macro used as a vector
+    .macro UND ix
+    .word  0xE6000000+\ix\()
+    .endm
+// DebuggerUND is UND 0x510 followed by a null terminated string
+    .macro DebuggerUND str
+    UND 0x510
+    .asciz "\str\()"
+    .balign 4
+    .endm
+
+    .macro ROM_FUNC name, addr717006, addr737041, addr747129, addr717006F
     .section ".text.\name\()", "ax"
     .global \name
 \name\():
@@ -39,6 +50,10 @@
 	teq			r0, #7				// 747129
 	ldmeqia		sp!, {r0-r3,lr}		// restore registers & lr.
 	ldreq		pc, label_to_addr747129_\name
+	teq			r0, #8				// 717006-F
+	ldmeqia		sp!, {r0-r3,lr}		// restore registers & lr.
+	ldreq		pc, label_to_addr717006F_\name
+	DebuggerUND "Unsupported platform"
 	ldmia		sp!, {r0-r3,pc}		// restore registers & pc.
 label_to_addr717006_\name\():
 	.word		\addr717006
@@ -46,20 +61,22 @@ label_to_addr737041_\name\():
 	.word		\addr737041
 label_to_addr747129_\name\():
 	.word		\addr747129
+label_to_addr717006F_\name\():
+	.word		\addr717006F
     .endm
 
 	// Functions in the (private) jump table.
-	ROM_FUNC _Z12GetPowerPortv, 0x01C0E778, 0x01BEF7A4, 0x01B36B64
-	ROM_FUNC _ZN14TGPIOInterface17RegisterInterruptEhPvPFvS0_Em, 0x01A6D6F0, 0x01A6D6F0, 0x01A6D6FC
-	ROM_FUNC _ZN14TGPIOInterface15EnableInterruptEP13GPIOIntObject, 0x01A6D6F8, 0x01A6D6F8, 0x01A6E704
+	ROM_FUNC _Z12GetPowerPortv, 0x01C0E778, 0x01BEF7A4, 0x01B36B64, 0x01C0E744
+	ROM_FUNC _ZN14TGPIOInterface17RegisterInterruptEhPvPFvS0_Em, 0x01A6D6F0, 0x01A6D6F0, 0x01A6D6FC, 0x01A6D6F0
+	ROM_FUNC _ZN14TGPIOInterface15EnableInterruptEP13GPIOIntObject, 0x01A6D6F8, 0x01A6D6F8, 0x01A6E704, 0x01A6D6F8
 
-	ROM_FUNC _Z19GetDMAManagerObjectv, 0x01A6A51C, 0x01A6A51C, 0x01A6A528
-	ROM_FUNC _ZN11TDMAManager17RequestAssignmentEmP21TDMAChannelDiscriptor, 0x01A694A4, 0x01A694A4, 0x01A694B0
+	ROM_FUNC _Z19GetDMAManagerObjectv, 0x01A6A51C, 0x01A6A51C, 0x01A6A528, 0x01A6A51C
+	ROM_FUNC _ZN11TDMAManager17RequestAssignmentEmP21TDMAChannelDiscriptor, 0x01A694A4, 0x01A694A4, 0x01A694B0, 0x01A694A4
 
 	// Functions not in the jump table
 	// Actually, these are NONVIRTUAL methods of PSoundDriver interface.
-	ROM_FUNC _ZN12PSoundDriver26OutputIntHandlerDispatcherEv, 0x001E60FC, 0x001C943C, 0x001E8514
-	ROM_FUNC _ZN12PSoundDriver25InputIntHandlerDispatcherEv, 0x001E6130, 0x001C9470, 0x001E8548
+	ROM_FUNC _ZN12PSoundDriver26OutputIntHandlerDispatcherEv, 0x001E60FC, 0x001C943C, 0x001E8514, 0x001E7A0C
+	ROM_FUNC _ZN12PSoundDriver25InputIntHandlerDispatcherEv, 0x001E6130, 0x001C9470, 0x001E8548, 0x001E7A40
 
 // ======================================================================= //
 // Programmers used to batch environments may find it hard to live without //

@@ -436,6 +436,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 				// MP2100D			0001E3C8	0001E3E0
 				// MP2x00US			0001E3BC	0001E3D4
 				// EM300			0001E168	0001E180
+				// Watson			0001E3BC	0001E3D4
 				Boolean is32bits =
 					(virtualTable == 0x0001E3D4)
 					|| (virtualTable == 0x0001E3E0)
@@ -489,6 +490,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 				// MP2100D			0001E3C8	0001E3E0
 				// MP2x00US			0001E3BC	0001E3D4
 				// EM300			0001E168	0001E180
+				// Watson			0001E3BC	0001E3D4
 				Boolean is32bits =
 					(virtualTable == 0x0001E3D4)
 					|| (virtualTable == 0x0001E3E0)

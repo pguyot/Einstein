@@ -39,6 +39,7 @@
 #define k717006Tag					717006
 #define k737041Tag					737041
 #define k747129Tag					747129
+#define k717006FTag					7170061
 
 #define kAudioDriverKey				@"AudioDriver"
 #define kCoreAudioDriverTag			1

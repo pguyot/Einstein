@@ -66,6 +66,8 @@ int UGlue::DetermineMachineType( void )
                     if (mySystemInfo.fROMStage == kUSFinal)
                     {
                         theResult = kMP2x00US;
+                    } else if (mySystemInfo.fROMStage == kFrenchFinal) {
+                        theResult = kMP2x00FR;
                     } else if (mySystemInfo.fROMStage == kGermanFinal) {
                         theResult = kMP2100D;
                     }
@@ -129,6 +131,8 @@ UGlue::DetermineMachineTypeWithoutGestalt( void )
                 if (theROMStage == kUSFinal)
                 {
                     theResult = kMP2x00US;
+                } else if (theROMStage == kFrenchFinal) {
+                    theResult = kMP2x00FR;
                 } else if (theROMStage == kGermanFinal) {
                     theResult = kMP2100D;
                 }

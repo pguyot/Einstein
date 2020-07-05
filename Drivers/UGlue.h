@@ -44,7 +44,8 @@ public:
         kEM300      = 4,
         kMP120D     = 5,
         kMP130D     = 6,
-        kMP2100D    = 7
+        kMP2100D    = 7,
+        kMP2x00FR   = 8 // Watson
     };
 
     enum {
@@ -59,6 +60,7 @@ public:
         // So, a French alpha would be 0x00014000
         // and a Japanese beta would be 0x000E6000
         kUSFinal            = 0x00008000,
+        kFrenchFinal        = 0x00018000,
         kGermanFinal        = 0x00038000,
 
         // ===== Machine Type =====
