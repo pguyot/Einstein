@@ -34,4 +34,4 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: Einstein.app
-        path: artifacts/Einstein.xcarchive/Products/Applications/Einstein.app
+        path: artifacts/Einstein.xcarchive/Products/Applications
