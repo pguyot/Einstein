@@ -16,7 +16,7 @@
 // This file should be processed with DCL's Rex which replaces Rex MPW tool.
 // Rex -o Einstein.rex Einstein.rex.src
 
-id				1
+id				2
 version			1
 start			0x00800000
 manufacturer	'Eins'
