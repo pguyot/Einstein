@@ -247,15 +247,15 @@ void TFLScriptEditor::style_parse(const char *text,
                 continue;
             } else if (*text == '\"') {
                 current = 'D';
-            } else if (!last && (islower((*text)&255) || *text == '_')) {
+            } else if (!last && (isalpha((*text)&255) || *text == '_')) {
                 // Might be a keyword...
                 for (temp = text, bufptr = buf;
-                     (islower((*temp)&255) || *temp == '_') && bufptr < (buf + sizeof(buf) - 1);
+                     (isalnum((*temp)&255) || *temp == '_') && bufptr < (buf + sizeof(buf) - 1);
                      *bufptr++ = *temp++) {
                     // nothing
                 }
 
-                if (!islower((*temp)&255) && *temp != '_') {
+                if (!isalnum((*temp)&255) && *temp != '_') {
                     *bufptr = '\0';
 
                     bufptr = buf;

@@ -1856,7 +1856,7 @@ const char *TToolkitPrototype::HelloWorld =
 "    buttonClickScript: func()\n"
 "        begin\n"
 "        ModalConfirm(\n"
-"            \"Hello World of NewtonScript\rHow exciting to see you\",\n"
+"            \"Hello World of NewtonScript.\\r\\rHow exciting to see you!\",\n"
 "            [ \"OK\" ]\n"
 "        );\n"
 "        end,\n"
@@ -1875,6 +1875,12 @@ const char *TToolkitPrototype::HelloWorld =
 "\n"
 ;
 
+
+//"AddStepForm(%s, %s);\n", parent()->scriptName(), scriptName());
+//"StepDeclare(%s, %s, '%s);\n", parent()->scriptName(), scriptName(), scriptName());
+// stepAllocateContext [ 'symOfWidget, refToWidget, 'nextSym, nextRef, ...];
+// GetVariable(GetRoot().|Hello:WONKO|, '_open) -> FOpenX -> RealOpenX__FRC6RefVarUc
+// Sends aeShow to realDoCommand -> TView::Show() -> viewShowScript
 
 // ======================================================================= //
 // Newton Toolkit

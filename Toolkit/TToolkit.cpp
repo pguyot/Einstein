@@ -546,7 +546,7 @@ int TToolkit::UserActionDecompilePkg()
 {
     if (UserActionClose()<0)
         return -1;
-    char *filename = fl_file_chooser("Selct a Newton Package file", "Package (*.pkg)", nullptr);
+    char *filename = fl_file_chooser("Select a Newton Package file", "Package (*.pkg)", nullptr);
     if (!filename)
         return -1;
 
