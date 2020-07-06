@@ -28,7 +28,9 @@
 
 // Einstein
 #include "PlatformEvents.h"
+#ifndef IGNORE_TNEWT
 #include "TNewt.h"
+#endif
 #include "Emulator/Host/UserInfoDefinitions.h"
 
 class TInterruptManager;
@@ -250,7 +252,9 @@ public:
 	///
 	/// Allow NewtonScript to call methods within Einstein.
 	///
+#ifndef IGNORE_TNEWT
 	NewtRef NewtonScriptCall(TNewt::RefArg rcvr, TNewt::RefArg arg0, TNewt::RefArg arg1);
+#endif
 
 private:
 	struct SBuffer {
@@ -285,24 +289,24 @@ private:
 	void	RaisePlatformInterrupt( void );
 
 	/// \name Variables
-	TLog*				mLog;				///< Reference to the log.
-	TEmulator*			mEmulator;			///< Reference to the emulator
-	TScreenManager*		mScreenManager;		///< Reference to the screen manager.
-	TInterruptManager*	mInterruptManager;	///< Reference to the interrupt mgr.
-	TMemory*			mMemory;			///< Reference to the memory interface.
-	TARMProcessor*		mCPU;				///< Reference to the processor
-	SEvent*				mEventQueue;		///< Liste des événements.
-	KUInt32				mEventQueueCCrsr;	///< Consumer queue cursor (Newton)
-	KUInt32				mEventQueuePCrsr;	///< Producer queue cursor (Host)
-	KUInt32				mEventQueueSize;	///< Size of the event queue.
-	SBuffer*			mBufferQueue;		///< List of buffers.
-	KUInt32				mBufferCount;		///< Number of buffers.
-	KUInt32				mBufferQueueSize;	///< Size of the buffer queue.
-	KUInt32				mBufferNextID;		///< Next ID for buffers.
-	bool				mPowerOn;			///< If power is on.
-	KUInt32				mQueueLockCount;	///< Lock count for the queue.
-	TMutex*				mMutex;				///< Mutex of the queue.
-	char*				mDocDir;			///< Directory on host containing all kinds of documents
+	TLog*				mLog = nullptr;				///< Reference to the log.
+	TEmulator*			mEmulator = nullptr;		///< Reference to the emulator
+	TScreenManager*		mScreenManager = nullptr;	///< Reference to the screen manager.
+	TInterruptManager*	mInterruptManager = nullptr;///< Reference to the interrupt mgr.
+	TMemory*			mMemory = nullptr;			///< Reference to the memory interface.
+	TARMProcessor*		mCPU = nullptr;				///< Reference to the processor
+	SEvent*				mEventQueue = nullptr;		///< Liste des événements.
+	KUInt32				mEventQueueCCrsr = 0;	    ///< Consumer queue cursor (Newton)
+	KUInt32				mEventQueuePCrsr = 0;	    ///< Producer queue cursor (Host)
+	KUInt32				mEventQueueSize = kDEFAULTEVENTQUEUESIZE; ///< Size of the event queue.
+	SBuffer*			mBufferQueue = nullptr;		///< List of buffers.
+	KUInt32				mBufferCount = 0;		    ///< Number of buffers.
+	KUInt32				mBufferQueueSize = kDEFAULTBUFFERQUEUESIZE;	///< Size of the buffer queue.
+	KUInt32				mBufferNextID = 0;		    ///< Next ID for buffers.
+	bool				mPowerOn = true;			///< If power is on.
+	KUInt32				mQueueLockCount = 0;	    ///< Lock count for the queue.
+	TMutex*				mMutex = nullptr;			///< Mutex of the queue.
+	char*				mDocDir = nullptr;			///< Directory on host containing all kinds of documents
 };
 
 #endif

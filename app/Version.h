@@ -25,14 +25,14 @@
 #define _VERSION_H
 
 #define PROJECT_NAME "Einstein"
-#define PROJECT_VER  "2020.4.2"
+#define PROJECT_VER  "2020.4.5"
 #define PROJECT_VER_MAJOR "2020"
 #define PROJECT_VER_MINOR "4"
-#define PROJECT_VER_PATCH "2"
+#define PROJECT_VER_PATCH "5"
 
 #define COMPILE_TIME_YYYY 2020
-#define COMPILE_TIME_MM 05
-#define COMPILE_TIME_DD 14
+#define COMPILE_TIME_MM 07
+#define COMPILE_TIME_DD 06
 
 #define VERSION_STRING		PROJECT_NAME " " PROJECT_VER
 #define VERSION_STRING_SHORT	PROJECT_VER
@@ -41,9 +41,35 @@
 #endif
 		// _VERSION_H
 
-// ================================================ //
-// Work continues in this area.                     //
-//                 -- DEC's SPR-Answering-Automaton //
-// ================================================ //
+// ============================================================================ //
+// The numbering system originated as a response to customer irrationality. :-)
+// Because each patch applies to a single ROM image, there are multiple patches
+// that produce the same end result. The exact numbers may be off, but let's say
+// the OMP had version 1.0 software, then the MP100 came out with version 1.1.
+// We released an update for the OMP that brought it up to date, and gave
+// it version 1.01.
+//
+// The problem here is that even though 1.01 and 1.1 are functionally
+// equivalent, people with OMPs were unhappy because their version number was
+// lower. There was lots of misinformation floating around about "upgrading"
+// 1.01 to 1.1, meaningless though that actually was. It got even worse when
+// 1.1 was patched, so you had 1.03 vs. 1.12.
+//
+// To address this, we had to distinguish between the actual version number that
+// tells tech support what software the customer has and the end-user version
+// number that tells the customer what functionality they have. The six-digit
+// number is unique to a particular update (software version), and the x.y
+// number indicates what functionality you get when the update is
+// applied (end-user version).
+//
+// Unfortunately, some customers are a little too smart to fall for that, so
+// there's still all sorts of consternation over the supposedly meaningless
+// system update numbers.
+//
+// The actual scheme is some combination of the ROM version the update applies
+// to and the date the patch was generated.
+//
+//   -- Walter Smith
+// ============================================================================ //
 
 

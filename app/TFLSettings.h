@@ -89,7 +89,7 @@ public:
  * Einstein Assets *                      .___.  (allow dnd, update the dropboxes below if a ROM is found)
  This is where Einstein stores all assets |   |  (show a folder if directory exists and writable)
  needed to run the emulator  [Choose...]  |___|  (show a folder with a questionmark if the user needs to select one)
- MP2x00                   /Users/matt/Einsetin/  (Choose... opens a file choose in HOME that allow creating directories)
+ MP2x00                   /Users/matt/Einstein/  (Choose... opens a file choose in HOME that allow creating directories)
 
  * Newton ROM *                           .___.  (allow dnd to copy a ROM, right button menu?)
  Path to the Newton ROM                   |   |  (show a MessagePad or EMate with a ROM chip superimposed

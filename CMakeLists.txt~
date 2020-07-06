@@ -40,11 +40,11 @@ endif ()
 # ---- Newt/64 library ---------------------------------------------------------
 #
 
-find_library(newt64_lib NAME newt64) #PATHS /usr/local/lib C:/Users/matt/dev/NEWT64/out/build/x64-Release)
-find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64) # PATHS /usr/local/include C:/Users/matt/dev/NEWT64/src/newt_core/incs)
+find_library(newt64_lib NAME newt64 PATHS /usr/local/lib C:/Users/matt/dev/NEWT64/out/build/x64-Release)
+find_file(newt64_incl NAMES NewtCore.h PATHS /usr/local/include C:/Users/matt/dev/NEWT64/src/newt_core/incs PATH_SUFFIXES newt64)
 
 if (newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND")
-	message(WARNING "NEWT/64 not found!")
+	message(STATUS "NEWT/64 not found!")
 	set ( USE_NEWT64 false )
 else()
 	message(STATUS "newt64 found!")
@@ -427,25 +427,19 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 	# additional source code
 	list (APPEND sources
-			# calling native functions (very limited support in this version of EInsten)
-			Emulator/NativeCalls/NativeCallsDefines.h
-			Emulator/NativeCalls/TNativeCalls.cpp
-			Emulator/NativeCalls/TNativeCalls.h
-			# Unix sound support
-			Emulator/Sound/TPulseAudioSoundManager.cpp
-			Emulator/Sound/TPulseAudioSoundManager.h
-			# Network card emulations
-			Emulator/Network/TUsermodeNetwork.cpp
-			Emulator/Network/TUsermodeNetwork.h
-			Emulator/Serial/TBasiliskIISerialPortManager.cpp
-			Emulator/Serial/TBasiliskIISerialPortManager.h
-			Emulator/Serial/TPipesSerialPortManager.cpp
-			Emulator/Serial/TPipesSerialPortManager.h
-			Emulator/Serial/TPtySerialPortManager.cpp
-			Emulator/Serial/TPtySerialPortManager.h
-			)
-    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-    source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources})
+		# calling native functions (very limited support in this version of EInsten)
+		Emulator/NativeCalls/NativeCallsDefines.h
+		Emulator/NativeCalls/TNativeCalls.cpp
+		Emulator/NativeCalls/TNativeCalls.h
+		# Unix sound support
+		Emulator/Sound/TPulseAudioSoundManager.cpp
+		Emulator/Sound/TPulseAudioSoundManager.h
+		# Network card emulations
+		Emulator/Network/TUsermodeNetwork.cpp
+		Emulator/Network/TUsermodeNetwork.h
+	)
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+	source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources})
 
 	# create the application
 	add_executable(Einstein ${sources})
@@ -511,6 +505,7 @@ elseif (WIN32)
 	target_compile_options(Einstein PUBLIC "/bigobj")
 	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1)
 	target_link_libraries(Einstein
+<<<<<<< HEAD
 		# this vvv always includes the debug version, even in release mode
 		fltk
 		# alternatively, this loads the correct library but needs additional libs that would be included automatically in the line above
@@ -520,6 +515,11 @@ elseif (WIN32)
 		# end of alternative
 		winmm
 	)
+#	if (CMAKE_BUILD_TYPE MATCHES Debug)
+#		target_link_options(Einstein PUBLIC /NODEFAULTLIB:msvcrt.lib )
+#	else()
+#		target_link_options(Einstein PUBLIC /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib)
+#	endif()
 
 	if ( USE_NEWT64 MATCHES true )
 		message(STATUS ${newt64_lib_path})
@@ -531,6 +531,34 @@ elseif (WIN32)
 		message(STATUS ${newt64_lib})
 		target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
 	endif ()
+=======
+			# this vvv always includes the debug version, even in release mode
+			fltk
+			# alternatively, this loads the correct library but needs additional libs that would be included automatically in the line above
+			#"${FLTK_BASE_LIBRARY_RELEASE}" # FIXME: or it will select the debug version even in release mode!
+			#comctl32
+			#ws2_32
+			# end of alternative
+			winmm
+			)
+	if (CMAKE_BUILD_TYPE MATCHES Debug)
+		target_link_options(Einstein PUBLIC /NODEFAULTLIB:msvcrt.lib )
+	else()
+		target_link_options(Einstein PUBLIC /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib)
+	endif()
+
+    if ( USE_NEWT64 MATCHES true )
+        message(STATUS ${newt64_lib_path})
+        target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
+        target_link_libraries(Einstein
+            ${newt64_lib}
+            #/usr/local/lib/libiconv.a
+            shlwapi
+            )
+        message(STATUS ${newt64_lib})
+        target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
+    endif ()
+>>>>>>> parent of 55d3b0a... Merge remote-tracking branch 'refs/remotes/origin/matt2020_Inspector'
 
 endif(APPLE)
 
