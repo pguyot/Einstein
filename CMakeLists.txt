@@ -18,16 +18,19 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	# MacOS
 	set (CMAKE_OSX_ARCHITECTURES=x86_64)
 	set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
+	#set (CMAKE_PREFIX_PATH /usr/local)
 
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 	# Linux
+	#set (CMAKE_PREFIX_PATH /usr/local)
 
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
 	# MSWindows
 	cmake_policy(SET CMP0091 NEW)
 	set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+	set (CMAKE_PREFIX_PATH "c:\Program Files\Newt64;c:\Program Files\FLTK")
 
 else ()
 
@@ -40,17 +43,17 @@ endif ()
 # ---- Newt/64 library ---------------------------------------------------------
 #
 
-find_library(newt64_lib NAME newt64) #PATHS /usr/local/lib C:/Users/matt/dev/NEWT64/out/build/x64-Release)
-find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64) # PATHS /usr/local/include C:/Users/matt/dev/NEWT64/src/newt_core/incs)
+find_library(newt64_lib NAMES newt64 )
+find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64) 
 
 if (newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND")
 	message(WARNING "NEWT/64 not found!")
 	set ( USE_NEWT64 false )
 else()
-	message(STATUS "newt64 found!")
 	set ( USE_NEWT64 true )
 	get_filename_component(newt64_lib_path ${newt64_lib} DIRECTORY)
 	get_filename_component(newt64_incl_path ${newt64_incl} DIRECTORY)
+	message(STATUS "newt64 found in " ${newt64_lib_path} )
 endif()
 
 #
@@ -406,7 +409,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	)
 
 	if ( USE_NEWT64 MATCHES true )
-		message(STATUS ${newt64_lib_path})
 		target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
 		target_link_libraries(Einstein
 			${newt64_lib}
@@ -444,8 +446,8 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 			Emulator/Serial/TPtySerialPortManager.cpp
 			Emulator/Serial/TPtySerialPortManager.h
 			)
-    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-    source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources})
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+	source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources})
 
 	# create the application
 	add_executable(Einstein ${sources})
@@ -459,7 +461,6 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	)
 
 	if ( USE_NEWT64 MATCHES true )
-		message(STATUS ${newt64_lib_path})
 		target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
 		target_link_libraries(Einstein
 			${newt64_lib}
@@ -522,7 +523,6 @@ elseif (WIN32)
 	)
 
 	if ( USE_NEWT64 MATCHES true )
-		message(STATUS ${newt64_lib_path})
 		target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/win)
 		target_link_libraries(Einstein
 			${newt64_lib}
@@ -532,7 +532,7 @@ elseif (WIN32)
 		target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
 	endif ()
 
-endif(APPLE)
+endif ()
 
 
 target_include_directories(

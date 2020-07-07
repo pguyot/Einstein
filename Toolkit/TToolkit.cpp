@@ -468,7 +468,7 @@ void TToolkit::AppInstall()
     char *buf = (char*)::malloc(strlen(cmd)+1024);
     sprintf(buf, cmd, mPkgSymbol, mPkgSymbol, mPkgName);
     mgr->EvalNewtonScript(buf);
-    puts(buf);
+    //puts(buf);
     ::free(buf);
 
     mApp->InstallPackagesFromURI(mPkgPath);
