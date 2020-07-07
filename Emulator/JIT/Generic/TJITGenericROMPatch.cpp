@@ -43,19 +43,22 @@
  * Furter updates are displayed whenever NewtonOS jumps into native driver
  * functions.
  *
+ * \note This patch is disabled because the boot process is now fast enough,
+ *      and there is no visual indication needed anymore.
+ *
  * \see TNativePrimitives::ExecuteNative(KUInt32 inInstruction)
  */
-T_ROM_INJECTION(0x00018688, kROMPatchVoid, kROMPatchVoid,
-                "Progress_ROMBoot")
-{
-	TScreenManager *screen = ioCPU->GetEmulator()->GetScreenManager();
-	if (screen->OverlayIsOn()) {
-		screen->OverlayPrintProgress(1, 2);
-		screen->OverlayPrintAt(0, 3, "ROMBoot", 1);
-		screen->OverlayFlush();
-	}
-	return ioUnit;
-}
+//T_ROM_INJECTION(0x00018688, kROMPatchVoid, kROMPatchVoid,
+//                "Progress_ROMBoot")
+//{
+//	TScreenManager *screen = ioCPU->GetEmulator()->GetScreenManager();
+//	if (screen->OverlayIsOn()) {
+//		screen->OverlayPrintProgress(1, 2);
+//		screen->OverlayPrintAt(0, 3, "ROMBoot", 1);
+//		screen->OverlayFlush();
+//	}
+//	return ioUnit;
+//}
 
 
 /*
@@ -101,7 +104,7 @@ TJITGenericPatch gNewtConfigPatch(0x000013fc, kROMPatchVoid, kROMPatchVoid,
 /**
  Initialize static TJITGenericPatchObject member variables
  */
-TJITGenericPatchObject **TJITGenericPatchManager::mPatchList = 0L;
+TJITGenericPatchObject **TJITGenericPatchManager::mPatchList = nullptr;
 KUInt32     TJITGenericPatchManager::mPatchListTop = 0;
 KUInt32     TJITGenericPatchManager::mPatchListSize = 0;
 
@@ -149,9 +152,8 @@ KUInt32 TJITGenericPatchManager::Add(TJITGenericPatchObject *p)
 /**
  Apply all patches to the ROM.
  \param inROMPtr pointer to an array of ROM words
- \param inROMId this is actually the version number of the ROM.
-            This can be used to apply a patch to the MP2100 ROM, the eMate ROM,
-            and the German ROM selectively.
+ \param inROMId is an ID of the ROM that the user selected. This can be used to apply the same patch to
+        different locations in the  MP2100 US ROM, the German ROM, or the eMate ROM.
  */
 void TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId)
 {
@@ -230,7 +232,7 @@ KUInt32 TJITGenericPatchObject::GetOffsetInROM(KSInt32 inROMId)
 
 /**
  \brief Create and add a new patch
- \param address address in ROM, must be word aligned
+ \param inAddr0, inAddr1, inAddr2 patch address for MP2100US, MP2100D, and eMate ROMs
  \param value a new value for that address, can be data or instructions
  \param name a name for this patch
  */
@@ -261,14 +263,13 @@ void TJITGenericPatch::Apply(KUInt32 *ROM, KSInt32 inROMId)
 
 
 /**
- \brief Find and replace word in an area of the ROM.
+ \brief Verify and replace words in ROM.
 
- Find a sequence of words in ROM and replace them with a new sequence.
+ Verify a sequence of words in ROM and replace them with a new sequence.
 
- \param startAddress start searching here
- \param endAddress stop searching before reaching this address
+ \param inAddr0, inAddr1, inAddr2 patch address for MP2100US, MP2100D, and eMate ROMs
  \param key an array of `KUInt32`, where the first entry is the size of the
- remaining array. This is what we are looking for.
+ remaining array.
  \param replacement an array of `KUInt32`, where the first entry is the size
  of the remaining array. This is the replacement data.
  \param name an optional name for this patch
@@ -295,7 +296,7 @@ void TJITGenericPatchFindAndReplace::Apply(KUInt32 *ROM, KSInt32 inROMId)
 
     KUInt32 keyLen = mKey[0];
     if (memcmp(ROM+offset, mKey+1, keyLen*4)!=0) {
-        fprintf(stderr, "WARNING in %s %d: Pattern not found, patch \"%s\" not applied.\n",
+        fprintf(stderr, "WARNING in %s %d: Key pattern does not match, patch \"%s\" not applied.\n",
                 __FILE__, __LINE__, GetName());
         return;
     }

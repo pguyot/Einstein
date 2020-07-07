@@ -40,6 +40,7 @@ class TPlatformManager;
 class TNetworkManager;
 class TMonitor;
 class TSymbolList;
+class TToolkit;
 
 class Fl_Widget;
 class TFLApp;
@@ -115,7 +116,10 @@ public:
     // Show or raise or hide the Monitor window
     void UserActionToggleMonitor();
 
-    // ---  Events from within the meulator
+    // Show or raise or hide the Toolkit window
+    void UserActionShowToolkit();
+
+    // ---  Events from within the emulator
 
     // this is called by the screen manager when the state of the backlight changed
     void PowerChangedEvent(bool);
@@ -125,6 +129,10 @@ public:
 
     // Newton OS needs a new screen size (usually by rotating the screen)
     void ResizeFromNewton(int w, int h);
+
+    // --- Getter and setter
+
+    TPlatformManager *GetPlatformManager() { return mPlatformManager; }
 
 private:
 
@@ -173,6 +181,7 @@ private:
     TMonitor*			mMonitor = nullptr;
     TSymbolList*		mSymbolList = nullptr;
     TFLSettings*        mFLSettings = nullptr;
+    TToolkit*           mToolkit = nullptr;
     Fl_Widget*          mNewtonScreen = nullptr;
     int                 mWindowedX = 150;
     int                 mWindowedY = 150;

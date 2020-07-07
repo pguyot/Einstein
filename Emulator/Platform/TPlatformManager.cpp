@@ -63,25 +63,10 @@ TPlatformManager::TPlatformManager(
 			TScreenManager* inScreenManager)
 	:
 		mLog( inLog ),
-		mScreenManager(inScreenManager),
-		mInterruptManager( nil ),
-		mMemory( nil ),
-		mEventQueue( nil ),
-		mEventQueueCCrsr( 0 ),
-		mEventQueuePCrsr( 0 ),
-		mEventQueueSize( kDEFAULTEVENTQUEUESIZE ),
-		mBufferQueue( nil ),
-		mBufferCount( 0 ),
-		mBufferQueueSize( kDEFAULTBUFFERQUEUESIZE ),
-		mBufferNextID( 0 ),
-		mPowerOn( true ),
-		mQueueLockCount( 0 ),
-		mMutex( nil ),
-		mDocDir( nil )
+		mScreenManager(inScreenManager)
 {
 	mEventQueue = (SEvent*) ::malloc( sizeof(SEvent) * mEventQueueSize );
 	mBufferQueue = (SBuffer*) ::malloc( sizeof(SBuffer) * mBufferQueueSize );
-	
 	mMutex = new TMutex();
 }
 
@@ -99,6 +84,7 @@ TPlatformManager::~TPlatformManager( void )
 	{
 		::free(mEventQueue);
 	}
+    
 	if (mBufferQueue)
 	{
 		KUInt32 indexQueue;
@@ -460,6 +446,7 @@ TPlatformManager::PowerOn( void )
 
 // -------------------------------------------------------------------------- //
 //  * LockEventQueue( void )
+//  Called from JIT.
 // -------------------------------------------------------------------------- //
 void
 TPlatformManager::LockEventQueue( void )
@@ -568,7 +555,7 @@ TPlatformManager::EvalNewtonScript( const char* inNewtonScriptCode )
 void TPlatformManager::InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSize)
 {
     // TODO: we should probably do some basic check if this is really package data
-    // TODO: we should return meaningful erroro codes, so the app can inform the user
+    // TODO: we should return meaningful error codes, so the app can inform the user
     SendBufferAEvent(kNewtPort,
                      kEinsteinNSEventClass,
                      kEventRuntimeWithSData,

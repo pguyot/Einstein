@@ -43,14 +43,14 @@
 
 // ----- Major new Features
 // TODO: patch ROMs for Y10k bug
-// TODO: integrate Inspector
+// TODO: integrate Toolkit
 // TODO: integrate newt/64
 // TODO: printer support
 // TODO: wake-up/launch on appointment in the future
 
 // ----- Imporvemnets to the inner workings
 // TODO: Full Android support as a address book and calender app
-// TODO: Fix lockas and race conditions
+// TODO: Fix locks and race conditions
 // TODO: cleanup all compile warnings on all platforms
 // TODO: Windows: static linking without installer/VC Libs (should work now?!)
 // TODO: Linux: App Icon, Flatpak
@@ -93,6 +93,9 @@
 #include "TFLAppUI.h"
 #include "TFLAppWindow.h"
 #include "TFLSettingsUI.h"
+#if USE_NEWT64
+#include "Toolkit/TToolkit.h"
+#endif
 
 // ANSI C & POSIX
 #include <stdio.h>
@@ -205,12 +208,12 @@ TFLApp::Run( int argc, char* argv[] )
 
     InitSettings();
 
-#if 0
+#if 1
     mFLSettings->useMonitor = 1;
     mLog = new TBufferLog();
 #else
     mFLSettings->useMonitor = 0;
-    mLog = new TFileLog("/Users/matt/dev/Einstein/a.txt");
+    mLog = new TFileLog("/tmp/Einstein_log.txt");
 #endif
 
     int ramSize = mFLSettings->RAMSize;
@@ -318,15 +321,23 @@ TFLApp::Run( int argc, char* argv[] )
  */
 void TFLApp::UserActionQuit()
 {
+#if USE_NEWT64
+    // Close the Toolkit window, so it can save its coordinates in the prefrences
+    if ( mToolkit )
+        mToolkit->Hide();
+#endif
+
     // tell the emulator to shut everything down
     if ( mEmulator ) {
         mEmulator->Quit();
     }
+
     // closing all windows will end Fl::run();
     Fl_Window *w;
     while ( (w=Fl::first_window()) ) {
         w->hide();
     }
+    
     // afte Fl::run() if finished, TFLApp waits for the emulator
     // process to finish as well.
 }
@@ -358,6 +369,11 @@ void TFLApp::UserActionToggleNetworkCard()
 {
     mPlatformManager->SendNetworkCardEvent();
 }
+
+
+#if TARGET_OS_WIN32
+static int strcasecmp(const char* a, const char* b) { return stricmp(a, b); }
+#endif
 
 
 /**
@@ -570,6 +586,14 @@ void TFLApp::UserActionToggleMonitor()
         mMonitor->Show();
 }
 
+void TFLApp::UserActionShowToolkit()
+{
+#if USE_NEWT64
+    if (!mToolkit)
+        mToolkit = new TToolkit(this);
+    mToolkit->Show();
+#endif
+}
 
 // MARK: -
 // ---  Events from within the meulator
