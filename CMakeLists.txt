@@ -552,3 +552,34 @@ target_include_directories(
 #endforeach()
 
 
+#
+# --- MessagePad.org distribution system ---------------------------------------
+#
+
+set (EINSTEIN_DIST_DIR "/Users/matt/Sites/messagepad.org/htdocs/Downloads/Einstein/")
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+
+	# MacOS
+    add_custom_target(
+        dist ALL
+        COMMAND ${CMAKE_COMMAND} -E tar "cfv" "${EINSTEIN_DIST_DIR}/MacOS/Einstein.MacOS.${CMAKE_PROJECT_VERSION}.zip" --format=zip -- "Einstein.app"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+    add_dependencies(dist Einstein)
+
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+
+	# Linux
+
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+
+	# MSWindows
+
+else ()
+
+	# not supported
+	message ("Einstein is not configured to distribute for this platform: " ${CMAKE_SYSTEM_NAME} ".")
+
+endif ()
+
