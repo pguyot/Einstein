@@ -561,26 +561,32 @@ set (EINSTEIN_DIST_DIR "Sites/messagepad.org/htdocs/Downloads/Einstein")
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
 	# MacOS
-    add_custom_target(
-        dist
-        COMMAND ${CMAKE_COMMAND} -E tar "cfv" "/Users/matt/${EINSTEIN_DIST_DIR}/MacOS/Einstein.MacOS.${CMAKE_PROJECT_VERSION}.zip" --format=zip -- "Einstein.app"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    )
+	add_custom_target(
+		dist
+		COMMAND ${CMAKE_COMMAND} -E tar "cfv" "/Users/matt/${EINSTEIN_DIST_DIR}/MacOS/Einstein.MacOS.${CMAKE_PROJECT_VERSION}.zip" --format=zip -- "Einstein.app"
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	)
     add_dependencies(dist Einstein)
 
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 	# Linux
-    add_custom_target(
-        dist
-	COMMAND ${CMAKE_COMMAND} -E tar "cfv" "/media/psf/Home/${EINSTEIN_DIST_DIR}/Linux/Einstein.Linux.${CMAKE_PROJECT_VERSION}.zip" --format=zip -- "Einstein"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    )
+	add_custom_target(
+		dist
+		COMMAND ${CMAKE_COMMAND} -E tar "cfv" "/media/psf/Home/${EINSTEIN_DIST_DIR}/Linux/Einstein.Linux.${CMAKE_PROJECT_VERSION}.zip" --format=zip -- "Einstein"
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	)
     add_dependencies(dist Einstein)
 
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
 	# MSWindows
+	add_custom_target(
+		dist
+		COMMAND ${CMAKE_COMMAND} -E tar "cfv" "z:/${EINSTEIN_DIST_DIR}/MSWindows/Einstein.Windows.${CMAKE_PROJECT_VERSION}.zip" --format=zip -- "Einstein.exe"
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	)
+    add_dependencies(dist Einstein)
 
 else ()
 
