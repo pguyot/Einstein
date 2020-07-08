@@ -556,14 +556,14 @@ target_include_directories(
 # --- MessagePad.org distribution system ---------------------------------------
 #
 
-set (EINSTEIN_DIST_DIR "/Users/matt/Sites/messagepad.org/htdocs/Downloads/Einstein/")
+set (EINSTEIN_DIST_DIR "Sites/messagepad.org/htdocs/Downloads/Einstein")
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
 	# MacOS
     add_custom_target(
-        dist ALL
-        COMMAND ${CMAKE_COMMAND} -E tar "cfv" "${EINSTEIN_DIST_DIR}/MacOS/Einstein.MacOS.${CMAKE_PROJECT_VERSION}.zip" --format=zip -- "Einstein.app"
+        dist
+        COMMAND ${CMAKE_COMMAND} -E tar "cfv" "/Users/matt/${EINSTEIN_DIST_DIR}/MacOS/Einstein.MacOS.${CMAKE_PROJECT_VERSION}.zip" --format=zip -- "Einstein.app"
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
     add_dependencies(dist Einstein)
@@ -571,6 +571,12 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 	# Linux
+    add_custom_target(
+        dist
+	COMMAND ${CMAKE_COMMAND} -E tar "cfv" "/media/psf/Home/${EINSTEIN_DIST_DIR}/Linux/Einstein.Linux.${CMAKE_PROJECT_VERSION}.zip" --format=zip -- "Einstein"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+    add_dependencies(dist Einstein)
 
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
