@@ -24,13 +24,12 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 	# Linux
 	#set (CMAKE_PREFIX_PATH /usr/local)
-
+	
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
 	# MSWindows
 	cmake_policy(SET CMP0091 NEW)
 	set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-	set (CMAKE_PREFIX_PATH "c:\Program Files\Newt64;c:\Program Files\FLTK")
 
 else ()
 
@@ -43,17 +42,20 @@ endif ()
 # ---- Newt/64 library ---------------------------------------------------------
 #
 
-find_library(newt64_lib NAMES newt64 )
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+	find_package(Newt64 CONFIG) # -> Newt64_FOUND, Newt64_DIR
+endif()
+find_library(newt64_lib NAMES newt64 ) 
 find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64) 
 
 if (newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND")
-	message(WARNING "NEWT/64 not found!")
+	message(WARNING "Newt64 not found!")
 	set ( USE_NEWT64 false )
 else()
 	set ( USE_NEWT64 true )
 	get_filename_component(newt64_lib_path ${newt64_lib} DIRECTORY)
 	get_filename_component(newt64_incl_path ${newt64_incl} DIRECTORY)
-	message(STATUS "newt64 found in " ${newt64_lib_path} )
+	message(STATUS "Newt64 found in " ${newt64_lib_path} )
 endif()
 
 #

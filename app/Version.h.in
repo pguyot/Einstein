@@ -31,8 +31,8 @@
 #define PROJECT_VER_PATCH "@PROJECT_VERSION_PATCH@"
 
 #define COMPILE_TIME_YYYY @COMPILE_TIME_YYYY@
-#define COMPILE_TIME_MM @COMPILE_TIME_MM@
-#define COMPILE_TIME_DD @COMPILE_TIME_DD@
+#define COMPILE_TIME_MM (1@COMPILE_TIME_MM@-100)  // if the month is "09", C++ would interprete the number as octal, so we generate "109-100" instead.
+#define COMPILE_TIME_DD (1@COMPILE_TIME_DD@-100)
 
 #define VERSION_STRING		PROJECT_NAME " " PROJECT_VER
 #define VERSION_STRING_SHORT	PROJECT_VER
