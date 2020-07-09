@@ -147,7 +147,7 @@ mSettingsPanel = CreateSettingsPanel();} {}
         Fl_Box wROMDetails {
           label {ROM file found
 Enjoy Einstein
-Or choose another file.}
+Or choose another file.} selected
           xywh {19 75 305 45} labelsize 12 align 209
         }
         Fl_Button wROMPathChoose {
@@ -196,22 +196,11 @@ Einstein does not include any ROMs.} xywh {329 95 80 20} labelsize 12
       } {
         Fl_Box wFlashPath {
           label {/here/goes/the/path/and/filename/of/the/FlashFile}
-          xywh {19 151 395 35} align 212
+          xywh {19 151 297 35} align 212
         }
         Fl_Button wFlashPathCreate {
           label {Create...}
-          callback {\#if TARGET_OS_MAC
-
-const char *filename = fl_file_chooser(
-    "Create a new Flash Memory file",
-    nullptr,
-    wFlashPath->label());
-if (filename)
-    wFlashPath->copy_label(filename);
-    
-\#else
-
-char buf[FL_PATH_MAX];
+          callback {char buf[FL_PATH_MAX];
     strncpy(buf, wFlashPath->label(), FL_PATH_MAX);
     char *name = (char*)fl_filename_name(buf);
     if (name && name>buf)
@@ -230,25 +219,12 @@ char buf[FL_PATH_MAX];
         case -1: return; // Error text is in fnfc.errmsg()
         case  1: return; // user canceled
     }
-    wFlashPath->copy_label(fnfc.filename());
-    
-\#endif}
-          xywh {240 184 80 20} labelsize 12 hide
+    wFlashPath->copy_label(fnfc.filename());}
+          tooltip {Create a new Flash RAM image file.} xywh {240 186 80 20} labelsize 12
         }
         Fl_Button wFlashPathChoose {
           label {Choose...}
-          callback {\#if TARGET_OS_MAC
-
-const char *filename = fl_file_chooser(
-    "Choose a Flash Memory file",
-    nullptr,
-    wFlashPath->label());
-if (filename)
-    wFlashPath->copy_label(filename);
-    
-\#else
-
-char buf[FL_PATH_MAX];
+          callback {char buf[FL_PATH_MAX];
     strncpy(buf, wFlashPath->label(), FL_PATH_MAX);
     char *name = (char*)fl_filename_name(buf);
     if (name && name>buf)
@@ -267,11 +243,8 @@ char buf[FL_PATH_MAX];
         case -1: return; // Error text is in fnfc.errmsg()
         case  1: return; // user canceled
     }
-    wFlashPath->copy_label(fnfc.filename());
-    
-\#endif}
-          tooltip {Create a new file, or select an existing file that
-will hold 8MB MessagePad Flash data} xywh {329 186 80 20} labelsize 12
+    wFlashPath->copy_label(fnfc.filename());}
+          tooltip {Select an existing Flash RAM image file.} xywh {329 186 80 20} labelsize 12
         }
       }
       Fl_Group {} {

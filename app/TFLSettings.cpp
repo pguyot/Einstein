@@ -181,22 +181,19 @@ const char *TFLSettings::GetROMDetails(const char *inFilename)
             case TROMImage::k717006:
                 strncpy(text,
                         "MessagePad MP2x00 US ROM found.\n"
-                        "ROM Version 2.1 (717006)-0\n"
-                        "Can be updated to 2.1 (710031).",
+                        "ROM Version 2.1 (717006)-0.",
                         text_size);
                 break;
             case TROMImage::kMP2x00DROM:
                 strncpy(text,
                         "MessagePad MP2x00 D ROM found.\n"
-                        "ROM Version D-2.1 (747129)-0\n"
-                        "Can be updated to D-2.1 (747260).",
+                        "ROM Version D-2.1 (747129)-0.",
                         text_size);
                 break;
             case TROMImage::kEMate300ROM:
                 strncpy(text,
                         "eMate 300 ROM found.\n"
-                        "ROM Version 2.2.00 (737041)\n"
-                        "Can be updated to 2.1 (737246).",
+                        "ROM Version 2.2.00 (737041).",
                         text_size);
                 break;
             default:
