@@ -147,24 +147,12 @@ mSettingsPanel = CreateSettingsPanel();} {}
         Fl_Box wROMDetails {
           label {ROM file found
 Enjoy Einstein
-Or choose another file.} selected
+Or choose another file.}
           xywh {19 75 305 45} labelsize 12 align 209
         }
         Fl_Button wROMPathChoose {
           label {Choose...}
-          callback {\#if TARGET_OS_MAC
-
-const char *filename = fl_file_chooser(
-    "Choose a ROM file",
-    nullptr,
-    wROMPath->label());
-if (filename)
-    wROMPath->copy_label(filename);
-    wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
-    
-\#else
-
-char buf[FL_PATH_MAX];
+          callback {char buf[FL_PATH_MAX];
     strncpy(buf, wROMPath->label(), FL_PATH_MAX);
     char *name = (char*)fl_filename_name(buf);
     if (name && name>buf)
@@ -183,9 +171,7 @@ char buf[FL_PATH_MAX];
         case  1: return; // user canceled
     }
     wROMPath->copy_label(fnfc.filename());
-    wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
-    
-\#endif}
+    wROMDetails->copy_label(GetROMDetails(wROMPath->label()));} selected
           tooltip {Select a Newton ROM image file.
 Einstein does not include any ROMs.} xywh {329 95 80 20} labelsize 12
         }
