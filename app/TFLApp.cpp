@@ -926,13 +926,21 @@ void TFLApp::StoreAppWindowSize()
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
-/* FIXME: this nice idea works well on MP2100US, but not at all on eMates. How come? MP2100D not yet tested. */
-T_ROM_INJECTION(0x001B37FC, kROMPatchVoid, 0x001A1650, "AddClipboard__9TRootViewFRC6RefVarT1")
+/**
+ * Copy NewtonOS clipboard data to the system clipboard.
+ *
+ * If the user copies data to the clipboard, Einstein will extract all text it can find
+ * and post it to the host system clipboard, so it can be pated into other apps.
+ */
+/* FIXME: this nice idea works well on MP2100US, but not at all on eMates. How come? MP2100D not yet tested. eMate: 0x001A1650 ? */
+T_ROM_INJECTION(0x001B37FC, kROMPatchVoid, kROMPatchVoid, "AddClipboard__9TRootViewFRC6RefVarT1")
 {
 //    fprintf(stderr, "AddClipboard__9TRootViewFRC6RefVarT1\n");
+    // TRootView::AddClipboard(RefVar const &, RefVar const &): 0x01ABEF3C
     // r0 is a pointer to TRootView
+    // r1 is the clipboard data
+    // r2 ...
     TNewt::RefArg a = TNewt::RefVar::FromPtr(ioCPU->GetRegister(1));
-    //TNewt::RefArg b = TNewt::RefVar::FromPtr(ioCPU->GetRegister(2));
 
     NewtRef data = TNewt::GetFrameSlot(a, TNewt::MakeSymbol("data"));
 //    TNewt::PrintRef(data, 8);
