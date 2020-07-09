@@ -62,24 +62,24 @@ bool TFLMonitor::DrawScreen()
         return false;
 
     bool theResult = false;
-    if (mHalted)
+    if (IsHalted())
     {
-        if (!mLastScreenHalted)
+        if (!IsLastScreenHalted())
         {
             // Clear the terminal.
 //            mwTerminal->clear();
             theResult = true;
         }
-        mLastScreenHalted = true;
+        SetLastScreenHalted(true);
         DrawScreenHalted();
     } else {
-        if (mLastScreenHalted)
+        if (IsLastScreenHalted())
         {
             // Clear the terminal.
 //            mwTerminal->clear();
             theResult = true;
         }
-        mLastScreenHalted = false;
+        SetLastScreenHalted(false);
         DrawScreenRunning();
     }
     mwTerminal->redraw();
@@ -93,7 +93,7 @@ bool TFLMonitor::DrawScreen()
 void TFLMonitor::DrawScreenHalted()
 {
     Fl::lock();
-    KUInt32 realPC = mProcessor->GetRegister(15) - 4;
+    KUInt32 realPC = GetProcessor()->GetRegister(15) - 4;
 
     // Go to the uppermost position.
     mwTerminal->clear();
@@ -103,10 +103,10 @@ void TFLMonitor::DrawScreenHalted()
     {
         mwTerminal->printf( "%s= %.8X | %s\n",
                         kRegisterNames[indexRegisters],
-                        (unsigned int) mProcessor->GetRegister(indexRegisters),
-                        mLog->GetLine(indexRegisters) );
+                        (unsigned int) GetProcessor()->GetRegister(indexRegisters),
+                        GetLog()->GetLine(indexRegisters) );
     }
-    KUInt32 theCPSR = mProcessor->GetCPSR();
+    KUInt32 theCPSR = GetProcessor()->GetCPSR();
     KUInt32 theMode = theCPSR & TARMProcessor::kPSR_ModeMask;
     mwTerminal->printf( "%c%c%c%c %c%c%c %s  | %s\n",
                     theCPSR & TARMProcessor::kPSR_NBit ? 'N' : 'n',
@@ -117,17 +117,17 @@ void TFLMonitor::DrawScreenHalted()
                     theCPSR & TARMProcessor::kPSR_FBit ? 'F' : 'f',
                     theCPSR & TARMProcessor::kPSR_TBit ? 'T' : 't',
                     kModesNames[theMode],
-                    mLog->GetLine(16) );
+                    GetLog()->GetLine(16) );
     KUInt32 theSPSR = 0;
     if ((theMode != TARMProcessor::kSystemMode)
         && (theMode != TARMProcessor::kUserMode))
     {
-        theSPSR = mProcessor->GetSPSR();
+        theSPSR = GetProcessor()->GetSPSR();
     }
     if (theSPSR == 0)
     {
         mwTerminal->printf( "---- --- ---  | %s\n",
-                        mLog->GetLine(17) );
+                        GetLog()->GetLine(17) );
     } else {
         mwTerminal->printf( "%c%c%c%c %c%c%c %s  | %s\n",
                         theSPSR & TARMProcessor::kPSR_NBit ? 'N' : 'n',
@@ -138,63 +138,63 @@ void TFLMonitor::DrawScreenHalted()
                         theSPSR & TARMProcessor::kPSR_FBit ? 'F' : 'f',
                         theSPSR & TARMProcessor::kPSR_TBit ? 'T' : 't',
                         kModesNames[theSPSR & TARMProcessor::kPSR_ModeMask],
-                        mLog->GetLine(17) );
+                        GetLog()->GetLine(17) );
     }
 
     mwTerminal->printf( "==============| %s\n",
-                    mLog->GetLine(18) );
+                    GetLog()->GetLine(18) );
 
     mwTerminal->printf( "Tmr= %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetFrozenTimer(),
-                    mLog->GetLine(19) );
+                    (unsigned int) GetInterruptManager()->GetFrozenTimer(),
+                    GetLog()->GetLine(19) );
 
     mwTerminal->printf( "TM0= %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetTimerMatchRegister(0),
-                    mLog->GetLine(20) );
+                    (unsigned int) GetInterruptManager()->GetTimerMatchRegister(0),
+                    GetLog()->GetLine(20) );
 
     mwTerminal->printf( "TM1= %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetTimerMatchRegister(1),
-                    mLog->GetLine(21) );
+                    (unsigned int) GetInterruptManager()->GetTimerMatchRegister(1),
+                    GetLog()->GetLine(21) );
 
     mwTerminal->printf( "TM2= %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetTimerMatchRegister(2),
-                    mLog->GetLine(22) );
+                    (unsigned int) GetInterruptManager()->GetTimerMatchRegister(2),
+                    GetLog()->GetLine(22) );
 
     mwTerminal->printf( "TM3= %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetTimerMatchRegister(3),
-                    mLog->GetLine(23) );
+                    (unsigned int) GetInterruptManager()->GetTimerMatchRegister(3),
+                    GetLog()->GetLine(23) );
 
     mwTerminal->printf( "RTC= %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetRealTimeClock(),
-                    mLog->GetLine(24) );
+                    (unsigned int) GetInterruptManager()->GetRealTimeClock(),
+                    GetLog()->GetLine(24) );
 
     mwTerminal->printf( "Alm= %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetAlarm(),
-                    mLog->GetLine(25) );
+                    (unsigned int) GetInterruptManager()->GetAlarm(),
+                    GetLog()->GetLine(25) );
 
     mwTerminal->printf( "IR = %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetIntRaised(),
-                    mLog->GetLine(26) );
+                    (unsigned int) GetInterruptManager()->GetIntRaised(),
+                    GetLog()->GetLine(26) );
 
     mwTerminal->printf( "ICR= %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetIntCtrlReg(),
-                    mLog->GetLine(27) );
+                    (unsigned int) GetInterruptManager()->GetIntCtrlReg(),
+                    GetLog()->GetLine(27) );
 
     mwTerminal->printf( "FM = %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetFIQMask(),
-                    mLog->GetLine(28) );
+                    (unsigned int) GetInterruptManager()->GetFIQMask(),
+                    GetLog()->GetLine(28) );
 
     mwTerminal->printf( "IC1= %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetIntEDReg1(),
-                    mLog->GetLine(29) );
+                    (unsigned int) GetInterruptManager()->GetIntEDReg1(),
+                    GetLog()->GetLine(29) );
 
     mwTerminal->printf( "IC2= %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetIntEDReg2(),
-                    mLog->GetLine(30) );
+                    (unsigned int) GetInterruptManager()->GetIntEDReg2(),
+                    GetLog()->GetLine(30) );
 
     mwTerminal->printf( "IC3= %.8X | %s\n",
-                    (unsigned int) mInterruptManager->GetIntEDReg3(),
-                    mLog->GetLine(31) );
+                    (unsigned int) GetInterruptManager()->GetIntEDReg3(),
+                    GetLog()->GetLine(31) );
 
     mwTerminal->printf( "-------------------------------------------------------------------------------\n");
 
@@ -390,7 +390,7 @@ void TFLMonitor::DrawScreenRunning()
     int indexLog;
     for (indexLog = 0; indexLog < 32; indexLog++)
     {
-        mwTerminal->printf( "%s\n", mLog->GetLine(indexLog) );
+        mwTerminal->printf( "%s\n", GetLog()->GetLine(indexLog) );
     }
     mwTerminal->printf( "-------------------------------------------------------------------------------\n");
     Fl::unlock();

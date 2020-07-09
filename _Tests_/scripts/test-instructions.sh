@@ -42,6 +42,32 @@ perl tests.pl "$TESTSPATH" execute-instruction 0A000007
 # 00000000 bne      0x00000024 (will branch)
 perl tests.pl "$TESTSPATH" execute-instruction 1A000007
 
+# ldrh     r7, [r1]
+perl tests.pl "$TESTSPATH" execute-instruction E1D170B0
+
+# ldrh     r7, [r1, #2]
+perl tests.pl "$TESTSPATH" execute-instruction E1D170B2
+
+# ldrh     r7, 0x00000000
+# ldrh     r7, [r15, -#8]
+perl tests.pl "$TESTSPATH" execute-instruction E15F70B8
+
+# ldrh     r7, 0x00000002
+# ldrh     r7, [r15, -#6]
+perl tests.pl "$TESTSPATH" execute-instruction E15F70B6
+
+# 00000000 mov      r0, #128
+# 00000004 ldrh     r7, [r0, -#128]
+perl tests.pl "$TESTSPATH" execute-two-instructions E3A00080-E15078B0
+
+# 00000000 mov      r0, #128
+# 00000004 ldrh     r7, [r0, -#124]
+perl tests.pl "$TESTSPATH" execute-two-instructions E3A00080-E15077BC
+
+# 00000000 mov      r0, #128
+# 00000004 ldrh     r7, [r0, -#126]
+perl tests.pl "$TESTSPATH" execute-two-instructions E3A00080-E15077BE
+
 # 00000000 mov      r1, #12 (C)
 # 00000004 mov      r1, r1, lsl #1 (1)
 perl tests.pl "$TESTSPATH" execute-two-instructions E3A0100C-E1A01081

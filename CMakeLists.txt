@@ -115,6 +115,12 @@ set ( sources
 	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.h
 	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp_template.h
 	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_common.h
+	Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransfer.h
+	Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferImm.cpp
+	Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferImm_template.t
+	Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferReg.cpp
+	Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferReg_template.t
+	Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransfer_template.h
 	Emulator/JIT/Generic/TJITGeneric_LDM1_template.h
 	Emulator/JIT/Generic/TJITGeneric_LDM2_template.h
 	Emulator/JIT/Generic/TJITGeneric_LDM3_template.h

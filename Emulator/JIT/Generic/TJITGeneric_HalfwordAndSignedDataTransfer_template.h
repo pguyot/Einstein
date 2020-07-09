@@ -1,8 +1,8 @@
 // ==============================
-// File:			TJITGeneric_SingleDataTransfer_template.h
+// File:			TJITGeneric_HalfwordAndSignedDataTransfer_template.h
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2007, 2020 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,20 +21,23 @@
 // $Id$
 // ==============================
 
-// Use of PC for Rm is UNPREDICTABLE
+// R15 should not be specified as the register offset (Rm)
 
-#define FLAG_I	((BITS_FLAGS & 0x20) != 0)
-#define FLAG_P	((BITS_FLAGS & 0x10) != 0)
-#define FLAG_U	((BITS_FLAGS & 0x08) != 0)
-#define FLAG_B	((BITS_FLAGS & 0x04) != 0)
-#define FLAG_W	((BITS_FLAGS & 0x02) != 0)
-#define FLAG_L	((BITS_FLAGS & 0x01) != 0)
+#define FLAG_P	((BITS_FLAGS & 0x20) != 0)
+#define FLAG_U	((BITS_FLAGS & 0x10) != 0)
+#define FLAG_W	((BITS_FLAGS & 0x08) != 0)
+#define FLAG_L	((BITS_FLAGS & 0x04) != 0)
+#define FLAG_S	((BITS_FLAGS & 0x02) != 0)
+#define FLAG_H	((BITS_FLAGS & 0x01) != 0)
 
 // Post-indexed data transfers (P=0) always write back the modified base
 #define WRITEBACK		(!FLAG_P || FLAG_W)
-#define UNPRIVILEDGED	(!FLAG_P && FLAG_W)
 
-SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
+#if FLAG_I
+HalfwordAndSignedDataTransferImm_Template(BITS_FLAGS, Rn, Rd)
+#else
+HalfwordAndSignedDataTransferReg_Template(BITS_FLAGS, Rn, Rd)
+#endif
 #if IMPLEMENTATION
 {
 	KUInt32 theInstruction;
@@ -46,21 +49,10 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 
 #if FLAG_P || (WRITEBACK && Rn != 15)
 	#if FLAG_I
-		KUInt32 offset;
-
-		if ((theInstruction & 0x00000FFF) >> 4)
-		{
-			// Shift.
-			// PC should not be used as Rm.
-			offset = GetShiftNoCarryNoR15( theInstruction, ioCPU->mCurrentRegisters, ioCPU->mCPSR_C );
-		} else {
-			offset = ioCPU->mCurrentRegisters[theInstruction & 0x0000000F];
-		}
-	#else
-		KUInt32 offset;
-
 		// Immediate
-		offset = theInstruction & 0x00000FFF;
+		KUInt32 offset = ((theInstruction & 0x00000F00) >> 4) | (theInstruction & 0x0000000F);
+	#else
+        KUInt32 offset = ioCPU->mCurrentRegisters[theInstruction & 0x0000000F];
 	#endif
 #endif
 
@@ -80,48 +72,60 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 	#endif
 #endif
 
-#if UNPRIVILEDGED
-	if (ioCPU->GetMode() != TARMProcessor::kUserMode)
-	{
-		// Access should be unprivileged.
-		theMemoryInterface->SetPrivilege( false );
-	}
-#endif
-	
 #if FLAG_L
 	// Load.
-	#if FLAG_B
-		// Byte
-		KUInt8 theData;
-		if (theMemoryInterface->ReadB( theAddress, theData ))
+	KUInt32 theData;
+	#if !FLAG_S
+		// Unsigned half-word
+		KUInt8 highData;
+		if (theMemoryInterface->ReadB( theAddress, highData ))
 		{
-			// No need to restore mMemory->SetPrivilege since
-			// we'll access memory in privilege mode from now anyway.
 			SETPC(GETPC());
 			ioCPU->DataAbort();
 			MMUCALLNEXT_AFTERSETPC;
 		}
+		KUInt8 lowData;
+		if (theMemoryInterface->ReadB( theAddress + 1, lowData ))
+		{
+			SETPC(GETPC());
+			ioCPU->DataAbort();
+			MMUCALLNEXT_AFTERSETPC;
+		}
+		theData = highData << 8 | lowData;
+	#elif !FLAG_H
+	    // Signed byte
+		KUInt8 signedByte;
+		if (theMemoryInterface->ReadB( theAddress, signedByte ))
+		{
+			SETPC(GETPC());
+			ioCPU->DataAbort();
+			MMUCALLNEXT_AFTERSETPC;
+		}
+		theData = (KUInt32) ((KSInt32) ((KSInt8) signedByte));
 	#else
-		// Word
-		KUInt32 theData;
-		if (theMemoryInterface->Read( theAddress, theData ))
+	    // Signed halfwords
+		KUInt8 highData;
+		if (theMemoryInterface->ReadB( theAddress, highData ))
 		{
 			SETPC(GETPC());
 			ioCPU->DataAbort();
 			MMUCALLNEXT_AFTERSETPC;
 		}
+		KUInt8 lowData;
+		if (theMemoryInterface->ReadB( theAddress + 1, lowData ))
+		{
+			SETPC(GETPC());
+			ioCPU->DataAbort();
+			MMUCALLNEXT_AFTERSETPC;
+		}
+		KSInt16 signedData = (KSInt16) (((KUInt32) highData << 8) | lowData);
+		theData = (KUInt32) ((KSInt32) signedData);
 	#endif
 		
 	#if (Rd == 15)
-		#if FLAG_B
-			// UNPREDICTABLE
-		#else
-			// Clear high bits if required.
-			// +4 for PREFETCH
-			SETPC(theData + 4);
-		#endif
+        // +4 for PREFETCH
+        SETPC(theData + 4);
 	#else
-		// Clear high bits if required.
 		ioCPU->mCurrentRegisters[Rd] = theData;
 	#endif
 #else
@@ -133,25 +137,21 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 	#else
 		KUInt32 theValue = ioCPU->mCurrentRegisters[Rd];
 	#endif
-	
-	#if FLAG_B
-		// Byte
-		if (theMemoryInterface->WriteB(
-				theAddress, (KUInt8) (theValue & 0xFF) ))
-		{
-			SETPC(GETPC());
-			ioCPU->DataAbort();
-			MMUCALLNEXT_AFTERSETPC;
-		}
-	#else
-		// Word.
-		if (theMemoryInterface->Write( theAddress, theValue ))
-		{
-			SETPC(GETPC());
-			ioCPU->DataAbort();
-			MMUCALLNEXT_AFTERSETPC;
-		}
-	#endif
+
+    // The L bit should not be set low (Store) when Signed (S=1) operations have been selected
+    // Unsigned half-word
+    if (theMemoryInterface->WriteB( theAddress, (KUInt8) ((theValue > 8) & 0xFF) ))
+    {
+        SETPC(GETPC());
+        ioCPU->DataAbort();
+        MMUCALLNEXT_AFTERSETPC;
+    }
+    if (theMemoryInterface->WriteB( theAddress + 1, (KUInt8) (theValue & 0xFF) ))
+    {
+        SETPC(GETPC());
+        ioCPU->DataAbort();
+        MMUCALLNEXT_AFTERSETPC;
+    }
 #endif
 	
 #if WRITEBACK
@@ -171,14 +171,6 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 			ioCPU->mCurrentRegisters[Rn] = theAddress;
 		#endif
 	#endif
-#endif
-
-#if UNPRIVILEDGED
-	if (ioCPU->GetMode() != TARMProcessor::kUserMode)
-	{
-		// Restore privilege access.
-		theMemoryInterface->SetPrivilege( true );
-	}
 #endif
 
 #if (Rd == 15) && FLAG_L

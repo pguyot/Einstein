@@ -488,15 +488,11 @@ static TCocoaAppController* gInstance = nil;
 	mMonitorLog = new TBufferLog();
 	
 	NSString* theDataPath = [theROMPath stringByDeletingLastPathComponent];
-#ifdef _DEBUG
 	// If there is a file called symbols.txt next to the ROM file, we can
 	// load it to symbolicate addresses in the monitor
 	
 	NSString* theSymbolPath = [theDataPath stringByAppendingPathComponent:@"symbols.txt"];
 	mSymbolList = TSymbolList::List = new TSymbolList([theSymbolPath fileSystemRepresentation]);
-#else
-	mSymbolList = NULL;
-#endif
 	
 	mMonitor = new TMacMonitor(mMonitorLog, mEmulator, mSymbolList, theDataPath.UTF8String);
 	[mMonitorController setMonitor:mMonitor];

@@ -21,73 +21,73 @@ TMacMonitor::~TMacMonitor( void )
 
 NSString* TMacMonitor::GetAlarm()
 {
-	return [NSString stringWithFormat:@"%.8X", mInterruptManager->GetAlarm()];
+	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetAlarm()];
 }
 
 
 NSString* TMacMonitor::GetFrozenTimer()
 {
-	return [NSString stringWithFormat:@"%.8X", mInterruptManager->GetFrozenTimer()];
+	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetFrozenTimer()];
 }
 
 
 NSString* TMacMonitor::GetIntCtrlReg()
 {
-	return [NSString stringWithFormat:@"%.8X", mInterruptManager->GetIntCtrlReg()];
+	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetIntCtrlReg()];
 }
 
 
 NSString* TMacMonitor::GetIntRaised()
 {
-	return [NSString stringWithFormat:@"%.8X", mInterruptManager->GetIntRaised()];
+	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetIntRaised()];
 }
 
 
 NSString* TMacMonitor::GetRealTimeClock()
 {
-	return [NSString stringWithFormat:@"%.8X", mInterruptManager->GetRealTimeClock()];
+	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetRealTimeClock()];
 }
 
 
 NSString* TMacMonitor::GetRegister(int rn)
 {
-	return [NSString stringWithFormat:@"%.8X", mProcessor->GetRegister(rn)];
+	return [NSString stringWithFormat:@"%.8X", GetProcessor()->GetRegister(rn)];
 }
 
 
 NSString* TMacMonitor::GetTimerMatchRegister(int rn)
 {
-	return [NSString stringWithFormat:@"%.8X", mInterruptManager->GetTimerMatchRegister(rn)];
+	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetTimerMatchRegister(rn)];
 }
 
 
 NSString* TMacMonitor::GetFIQMask()
 {
-	return [NSString stringWithFormat:@"%.8X", mInterruptManager->GetFIQMask()];
+	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetFIQMask()];
 }
 
 
 NSString* TMacMonitor::GetIntEDReg1()
 {
-	return [NSString stringWithFormat:@"%.8X", mInterruptManager->GetIntEDReg1()];
+	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetIntEDReg1()];
 }
 
 
 NSString* TMacMonitor::GetIntEDReg2()
 {
-	return [NSString stringWithFormat:@"%.8X", mInterruptManager->GetIntEDReg2()];
+	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetIntEDReg2()];
 }
 
 
 NSString* TMacMonitor::GetIntEDReg3()
 {
-	return [NSString stringWithFormat:@"%.8X", mInterruptManager->GetIntEDReg3()];
+	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetIntEDReg3()];
 }
 
 
 NSString* TMacMonitor::GetCPSR()
 {
-	KUInt32 theCPSR = mProcessor->GetCPSR();
+	KUInt32 theCPSR = GetProcessor()->GetCPSR();
 	KUInt32 theMode = theCPSR & TARMProcessor::kPSR_ModeMask;
 	return [NSString stringWithFormat:@"%c%c%c%c %c%c%c %s",
 				theCPSR & TARMProcessor::kPSR_NBit ? 'N' : 'n',
@@ -103,13 +103,13 @@ NSString* TMacMonitor::GetCPSR()
 
 NSString* TMacMonitor::GetSPSR()
 {
-	KUInt32 theCPSR = mProcessor->GetCPSR();
+	KUInt32 theCPSR = GetProcessor()->GetCPSR();
 	KUInt32 theMode = theCPSR & TARMProcessor::kPSR_ModeMask;
 	KUInt32 theSPSR = 0;
 	if ((theMode != TARMProcessor::kSystemMode)
 		&& (theMode != TARMProcessor::kUserMode))
 	{
-		theSPSR = mProcessor->GetSPSR();
+		theSPSR = GetProcessor()->GetSPSR();
 	}
 	if (theSPSR == 0)
 	{
@@ -133,7 +133,7 @@ NSString* TMacMonitor::GetSymbol()
 	if ( mSymbolList == NULL )
 		return [@"" copy];
 		
-	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
+	KUInt32 realPC = GetProcessor()->GetRegister(15) - 4;
 	char theSymbol[512];
 	char theComment[512];
 	int theOffset;
@@ -155,10 +155,10 @@ NSString* TMacMonitor::GetDisasmLine(int offset)
 	char theLine[512];
 	KUInt32 instruction;
 
-	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
+	KUInt32 realPC = GetProcessor()->GetRegister(15) - 4;
 	int indexLines = offset * 4;
 	
-	KUInt32 theCPSR = mProcessor->GetCPSR();
+	KUInt32 theCPSR = GetProcessor()->GetCPSR();
 
 	NSMutableString *outString = [NSMutableString string];
 	

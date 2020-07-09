@@ -1,8 +1,8 @@
 // ==============================
-// File:			TJITGeneric_SingleDataTransfer_template.t
+// File:			TJITGeneric_HalfwordAndSignedDataTransferReg_template.t
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2007, 2020 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,24 +21,26 @@
 // $Id$
 // ==============================
 
-#define SingleDataTransfer_TemplateName(flags, rn, rd) \
-	SingleDataTransfer_ ## flags ## _ ## rn ## _ ## rd
+#define HalfwordAndSignedDataTransferReg_TemplateName(flags, rn, rd) \
+	HalfwordAndSignedDataTransferReg_ ## flags ## _ ## rn ## _ ## rd
 	
 #if DECLARATION
-	#define SingleDataTransfer_Template(flags, rn, rd) \
-		JITInstructionProto(SingleDataTransfer_TemplateName(flags, rn, rd));
+	#define HalfwordAndSignedDataTransferReg_Template(flags, rn, rd) \
+		JITInstructionProto(HalfwordAndSignedDataTransferReg_TemplateName(flags, rn, rd));
 #endif
 #if IMPLEMENTATION
-	#define SingleDataTransfer_Template(flags, rn, rd) \
-		JITInstructionProto(SingleDataTransfer_TemplateName(flags, rn, rd))
+	#define HalfwordAndSignedDataTransferReg_Template(flags, rn, rd) \
+		JITInstructionProto(HalfwordAndSignedDataTransferReg_TemplateName(flags, rn, rd))
 #endif
 #if TRANSLATION_ARRAY
-	#define SingleDataTransfer_Template(flags, rn, rd) \
-		SingleDataTransfer_TemplateName(flags, rn, rd),
+	#define HalfwordAndSignedDataTransferReg_Template(flags, rn, rd) \
+		HalfwordAndSignedDataTransferReg_TemplateName(flags, rn, rd),
 #endif
 
-#define INCLUDE_TEMPLATE "TJITGeneric_SingleDataTransfer_template.h"
+#define FLAG_I 0
+#define INCLUDE_TEMPLATE "TJITGeneric_HalfwordAndSignedDataTransfer_template.h"
 #include "IncludeRnRd63.h"
+#undef FLAG_I
 
-#undef SingleDataTransfer_Template
-#undef SingleDataTransfer_TemplateName
+#undef HalfwordAndSignedDataTransferReg_Template
+#undef HalfwordAndSignedDataTransferReg_TemplateName
