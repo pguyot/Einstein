@@ -37,4 +37,6 @@ DerivedData/
 /app/TFLAppUI.h
 /app/TFLSettingsUI.cpp
 /app/TFLSettingsUI.h
+/Toolkit/TFLToolkitUI.cpp
+/Toolkit/TFLToolkitUI.h
 
