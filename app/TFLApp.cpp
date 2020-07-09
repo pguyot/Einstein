@@ -25,8 +25,7 @@
 // TODO: compile for Android
 
 // ----- User Interface improvements
-// TODO: store Monitor location and state in settings
-// TODO: launch Monitor stopped at boot point
+// TODO: option to launch Monitor stopped at boot point
 // TODO: cleanup settings dialog
 // TODO: make menubar and toolbar optional
 // TODO: make FKey Bar for eMate emulation with volume slider (screenshot)
@@ -43,18 +42,14 @@
 
 // ----- Major new Features
 // TODO: patch ROMs for Y10k bug
-// TODO: integrate Toolkit
-// TODO: integrate newt/64
 // TODO: printer support
 // TODO: wake-up/launch on appointment in the future
 
-// ----- Imporvemnets to the inner workings
-// TODO: Full Android support as a address book and calender app
+// ----- Improvemnets to the inner workings
+// TODO: Full Android support as an address book and calender app
 // TODO: Fix locks and race conditions
 // TODO: cleanup all compile warnings on all platforms
-// TODO: Windows: static linking without installer/VC Libs (should work now?!)
 // TODO: Linux: App Icon, Flatpak
-// TODO: Usermode network gobbles up first byte: https://github.com/pguyot/Einstein/issues/58
 
 // ----- Documentations
 // TODO: refine and test the BUILD.md build instructions

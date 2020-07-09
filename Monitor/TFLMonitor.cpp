@@ -404,15 +404,43 @@ static void set_attributes(Fl_Button *w) {
     w->visible_focus(0);
 }
 
+class TFLMonitorWindow : public Fl_Double_Window
+{
+public:
+    TFLMonitorWindow(int x, int y, int w, int h, const char *l=nullptr)
+    : Fl_Double_Window(x, y, w, h, l) { }
+    void hide() override
+    {
+        Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+        Fl_Preferences monitor(prefs, "Monitor");
+        Fl_Preferences monWindow(monitor, "Window");
+        monWindow.set("x", x());
+        monWindow.set("y", y());
+        monWindow.set("w", w());
+        monWindow.set("h", h());
+        Fl_Double_Window::hide();
+    }
+};
+
 void TFLMonitor::Show()
 {
     if (!mwWindow) {
+        // TODO: this should probably be done in Fluid
         const int cw=9, ch=13, wh=44;
         int xp = 0;
-        // TODO: this should probably be done in Fluid
-        mwWindow = new Fl_Double_Window(cw*80, ch*(wh+2), "Einstein Monitor");
+        // ---- use the previous location of the monitor screen again
+        Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+        Fl_Preferences monitor(prefs, "Monitor");
+        Fl_Preferences monWindow(monitor, "Window");
+        int mx, my, mw, mh;
+        monWindow.get("x", mx, 400);
+        monWindow.get("y", my, 80);
+        monWindow.get("w", mw, cw*80);
+        monWindow.get("h", mh, ch*(wh+2));
+        // ---- create the monitor window
+        mwWindow = new TFLMonitorWindow(mx, my, mw, mh, "Einstein Monitor");
         // ---- terminal window for all text output
-        mwTerminal = new Fl_Simple_Terminal(0, 0, cw*80, ch*wh);
+        mwTerminal = new Fl_Simple_Terminal(0, 0, mwWindow->w(), mwWindow->h()-2*ch);
         mwTerminal->box(FL_FLAT_BOX);
         mwTerminal->hide_cursor();
         mwTerminal->color(FL_LIGHT3);
@@ -421,29 +449,29 @@ void TFLMonitor::Show()
         //mwTerminal->ansi(true);
         mwTerminal->stay_at_bottom(true);
         // --- group all this for perfect resizing
-        Fl_Group *mwToolbar = new Fl_Group(0, ch*wh, mwWindow->w(), 2*ch);
+        Fl_Group *mwToolbar = new Fl_Group(0, mwWindow->h()-2*ch, mwWindow->w(), 2*ch);
         // --- the stop button stops the emulation
-        mwPause = new Fl_Button(xp, ch*wh, 3*cw, 2*ch, "@||"); xp += 3*cw;
+        mwPause = new Fl_Button(xp, mwToolbar->y(), 3*cw, 2*ch, "@||"); xp += 3*cw;
         mwPause->callback([](Fl_Widget*,void*m) { ((TMonitor*)m)->ExecuteCommand("stop"); }, this);
         set_attributes(mwPause);
         // --- continue running the app
-        mwRun = new Fl_Button(xp, ch*wh, 3*cw, 2*ch, "@|>"); xp += 3*cw;
+        mwRun = new Fl_Button(xp, mwToolbar->y(), 3*cw, 2*ch, "@|>"); xp += 3*cw;
         mwRun->callback([](Fl_Widget*,void*m) { ((TMonitor*)m)->ExecuteCommand("run"); }, this);
         set_attributes(mwRun);
         // --- step over
-        mwStepOver = new Fl_Button(xp, ch*wh, 3*cw, 2*ch, "@3redo"); xp += 3*cw;
+        mwStepOver = new Fl_Button(xp, mwToolbar->y(), 3*cw, 2*ch, "@3redo"); xp += 3*cw;
         mwStepOver->callback([](Fl_Widget*,void*m) { ((TMonitor*)m)->ExecuteCommand("trace"); }, this);
         set_attributes(mwStepOver);
         // --- step into
-        mwStep = new Fl_Button(xp, ch*wh, 3*cw, 2*ch, "@2->|"); xp += 3*cw;
+        mwStep = new Fl_Button(xp, mwToolbar->y(), 3*cw, 2*ch, "@2->|"); xp += 3*cw;
         mwStep->callback([](Fl_Widget*,void*m) { ((TMonitor*)m)->ExecuteCommand("step"); }, this);
         set_attributes(mwStep);
         // --- leave
-        mwLeave = new Fl_Button(xp, ch*wh, 3*cw, 2*ch, "@8->|"); xp += 3*cw;
+        mwLeave = new Fl_Button(xp, mwToolbar->y(), 3*cw, 2*ch, "@8->|"); xp += 3*cw;
         mwLeave->callback([](Fl_Widget*,void*m) { ((TMonitor*)m)->ExecuteCommand("mr"); }, this);
         set_attributes(mwLeave);
         // --- enter your commands here
-        mwInput = new Fl_Input(xp, ch*wh, mwWindow->w()-xp-3*cw, 2*ch);
+        mwInput = new Fl_Input(xp, mwToolbar->y(), mwWindow->w()-xp-3*cw, 2*ch);
         mwInput->color(FL_LIGHT3);
         mwInput->textfont(mwTerminal->textfont());
         mwInput->textsize(mwTerminal->textsize());
@@ -457,7 +485,7 @@ void TFLMonitor::Show()
             Fl::focus(in);
         }, this);
         // --- help
-        mwHelp = new Fl_Button(mwWindow->w()-3*cw, ch*wh, 3*cw, 2*ch, "?");
+        mwHelp = new Fl_Button(mwWindow->w()-3*cw, mwToolbar->y(), 3*cw, 2*ch, "?");
         mwHelp->callback([](Fl_Widget*,void*m) { ((TMonitor*)m)->ExecuteCommand("help"); }, this);
         set_attributes(mwHelp);
         mwHelp->labelcolor(FL_BLACK);
@@ -468,7 +496,6 @@ void TFLMonitor::Show()
         mwWindow->end();
         Fl::focus(mwInput);
     }
-    // TODO: get the coordinates from TFLSettings
     DrawScreen();
     mwWindow->show();
 }
@@ -476,8 +503,9 @@ void TFLMonitor::Show()
 
 void TFLMonitor::Hide()
 {
-    if (mwWindow)
+    if (mwWindow) {
         mwWindow->hide();
+    }
 }
 
 void TFLMonitor::PrintLine( const char* inLine, int type )
