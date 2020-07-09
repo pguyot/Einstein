@@ -78,6 +78,22 @@ public:
 			return mHalted;
 		}
 
+    ///
+    /// Was the last screen update showing the "Halted..." screen?
+    ///
+    bool IsLastScreenHalted() const
+    {
+        return mLastScreenHalted;
+    }
+
+    ///
+    /// Was the last screen update showing the "Halted..." screen?
+    ///
+    void SetLastScreenHalted(bool v)
+    {
+        mLastScreenHalted = v;
+    }
+
 	///
 	/// Monitor loop.
 	///
@@ -240,12 +256,19 @@ protected:
 		return mInterruptManager;
 	}
 
-	///
-	/// Accessor on processor.
-	///
-	inline TARMProcessor* GetProcessor() const {
-		return mProcessor;
-	}
+    ///
+    /// Accessor on processor.
+    ///
+    inline TARMProcessor* GetProcessor() const {
+        return mProcessor;
+    }
+
+    ///
+    /// Accessor on Log
+    ///
+    inline TBufferLog* GetLog() const {
+        return mLog;
+    }
 
 	///
 	/// Process a breakpoint.
