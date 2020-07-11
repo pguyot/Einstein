@@ -4,5 +4,7 @@
 <dict>
 	<key>com.apple.security.files.all</key>
 	<true/>
+	<key>com.apple.developer.applesignin</key>
+	<string>entitlement.plist</string>
 </dict>
 </plist>

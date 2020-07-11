@@ -932,11 +932,12 @@ void TFLApp::StoreAppWindowSize()
  * If the user copies data to the clipboard, Einstein will extract all text it can find
  * and post it to the host system clipboard, so it can be pated into other apps.
  */
-/* FIXME: this nice idea works well on MP2100US, but not at all on eMates. How come? MP2100D not yet tested. eMate: 0x001A1650 ? */
-T_ROM_INJECTION(0x001B37FC, kROMPatchVoid, kROMPatchVoid, "AddClipboard__9TRootViewFRC6RefVarT1")
+// NS: Get/SetClipboard, FGet/SetClipboard, AddClipboard__9TRootViewFRC6RefVarT1, GetClipboard__9TRootViewFv, class TClipboard
+// gRootView (0x0C101934) 000A56DC 000A7A34
+T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, "AddClipboard__9TRootViewFRC6RefVarT1")
 {
 //    fprintf(stderr, "AddClipboard__9TRootViewFRC6RefVarT1\n");
-    // TRootView::AddClipboard(RefVar const &, RefVar const &): 0x01ABEF3C
+    // TRootView::AddClipboard(RefVar const &, RefVar const &): 0x01ABEF3C 
     // r0 is a pointer to TRootView
     // r1 is the clipboard data
     // r2 ...
@@ -988,6 +989,10 @@ T_ROM_INJECTION(0x001B37FC, kROMPatchVoid, kROMPatchVoid, "AddClipboard__9TRootV
  */
 int main(int argc, char** argv )
 {
+    if ( Fl::abi_check(FL_ABI_VERSION)==0 ) {
+        fl_alert("Warning: FLTK ABI versions don't match:\n%d", FL_ABI_VERSION);
+    }
+
     TFLApp theApp;
     gApp = &theApp;
     theApp.Run( argc, argv );

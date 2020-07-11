@@ -386,6 +386,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		# Apple macOS required resources
 		Resources/macOS/Info.plist.in
 		Resources/macOS/Einstein.icns
+        Resources/macOS/Entitlements.plist      
 	)
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources})
@@ -415,6 +416,9 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	set_target_properties(Einstein PROPERTIES
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Info.plist.in"
 	)
+    set_target_properties(Einstein PROPERTIES
+        CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/EntiXXXtlements.plist"
+    )
 
 	if ( USE_NEWT64 MATCHES true )
 		target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)

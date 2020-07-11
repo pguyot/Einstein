@@ -251,6 +251,7 @@ void TJITGenericPatch::Apply(KUInt32 *ROM, KSInt32 inROMId)
 {
     KUInt32 offset = GetOffsetInROM(inROMId);
     if (offset!=kROMPatchVoid) {
+        printf("Applying generig patch at 0x%08X: %s\n", offset*4, GetName());
         SetOrigialInstruction(ROM[offset]);
         ROM[offset] = GetNewInstruction();
     }
@@ -294,6 +295,8 @@ void TJITGenericPatchFindAndReplace::Apply(KUInt32 *ROM, KSInt32 inROMId)
     if (offset==kROMPatchVoid)
         return;
 
+    printf("Applying find-and-replace patch at 0x%08X: %s\n", offset*4, GetName());
+
     KUInt32 keyLen = mKey[0];
     if (memcmp(ROM+offset, mKey+1, keyLen*4)!=0) {
         fprintf(stderr, "WARNING in %s %d: Key pattern does not match, patch \"%s\" not applied.\n",
@@ -320,6 +323,7 @@ void TJITGenericPatchNativeCall::Apply(KUInt32 *ROM, KSInt32 inROMId)
 {
     KUInt32 offset = GetOffsetInROM(inROMId);
     if (offset!=kROMPatchVoid) {
+        printf("Applying native call patch at 0x%08X: %s\n", offset*4, GetName());
         SetOrigialInstruction(ROM[offset]);
         ROM[offset] = kSWINativeCall|GetIndex();
     }
@@ -354,6 +358,7 @@ void TJITGenericPatchNativeInjection::Apply(KUInt32 *ROM, KSInt32 inROMId)
 {
     KUInt32 offset = GetOffsetInROM(inROMId);
     if (offset!=kROMPatchVoid) {
+        printf("Applying native injection patch at 0x%08X: %s\n", offset*4, GetName());
         SetOrigialInstruction(ROM[offset]);
         ROM[offset] = kSWINativeInjection | GetIndex();
     }
