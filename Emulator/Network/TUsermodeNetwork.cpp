@@ -97,6 +97,7 @@
 
 #include <WinSock2.h>
 #include <Ws2tcpip.h>
+#include <io.h>
 # include <stdio.h>
 # include <fcntl.h>
 # include <stdlib.h>
@@ -676,7 +677,7 @@ public:
 				if (packet.GetTCPFlags() & Packet::TCPFlagFIN) {
 					// Newton initiates a disconnection.
 					// We don't support half-duplex
-					close(mSocket);
+					::close(mSocket);
 					// Peer has closed connection.
 					mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
 					Packet *reply = NewPacket(0);
@@ -692,7 +693,7 @@ public:
 					if (packet.GetTCPPayloadSize() > 0) {
 						// this is a data packet: send data to the socket
 						packet.LogPayload(net->GetLog(), "W<E N");
-						write(mSocket, packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize());
+						::write(mSocket, packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize());
 						mNewtonPacketsSeq = packet.GetTCPSeq() + (KUInt32) packet.GetTCPPayloadSize();
 					}
 					// To avoid flooding the Newton, we send it data everytime it sends a packet
@@ -723,7 +724,7 @@ public:
 					UpdateChecksums(reply);
 					reply->LogPayload(net->GetLog(), "W E>N");
 					net->Enqueue(reply);
-					close(mSocket);
+					::close(mSocket);
 					net->RemovePacketHandler(this);
 					printf("Net: Peer closing. Removing TCP handler for port %u to %u.%u.%u.%u\n",
 						   theirPort,
@@ -763,7 +764,7 @@ public:
 			case kStateConnected:
 			{
 				KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
-				ssize_t avail = read(mSocket, buf, sizeof(buf));
+				ssize_t avail = ::read(mSocket, buf, sizeof(buf));
 				if (avail==0) {
 					// Peer has closed connection.
 					Packet *reply = NewPacket(0);

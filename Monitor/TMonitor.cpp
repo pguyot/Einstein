@@ -1899,10 +1899,11 @@ int
 TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigned int length, KUInt32 mapRef, int indent, int maxDepth)
 {
 
-	KUInt32 flattenMap[length];
+	KUInt32 *flattenMap = (KUInt32*)::malloc(length*sizeof(KUInt32));
 	int mapIndex = length;
 	while (true) {
 		if ((mapRef & 0x3) != kTagPointer) {
+			::free(flattenMap);
 			return snprintf(buffer, bufferSize, "{frame with invalid map ref, length = %d}", length);
 		}
 		KUInt32 mapObjectHeader;
@@ -1912,9 +1913,11 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 			char theLine[512];
 			(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) mapAddr);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
+			::free(flattenMap);
 			return -1;
 		}
 		if ((mapObjectHeader & 0x3) != 1) {
+			::free(flattenMap);
 			return snprintf(buffer, bufferSize, "{frame with invalid map ref, length = %d}", length);
 		}
 		unsigned int mapObjectSize = mapObjectHeader >> 8;
@@ -1927,6 +1930,7 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 				char theLine[512];
 				(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) refAddr);
 				PrintLine(theLine, MONITOR_LOG_ERROR);
+				::free(flattenMap);
 				return -1;
 			}
 			if (mapIndex <= 0) {
@@ -1941,6 +1945,7 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 			char theLine[512];
 			(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) supermapAddr);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
+			::free(flattenMap);
 			return -1;
 		}
 		if (supermapRef == 0x2) {
@@ -1949,6 +1954,7 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 		mapRef = supermapRef;
 	}
 	if (mapIndex > 0) {
+		::free(flattenMap);
 		return snprintf(buffer, bufferSize, "{frame with invalid map, length = %d}", length);
 	}
 
@@ -1964,6 +1970,7 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 			char theLine[512];
 			(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) valueAddr);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
+			::free(flattenMap);
 			return -1;
 		}
 		int symbolLen = r - symbolStart;
@@ -1977,6 +1984,7 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 			r += ::snprintf(buffer + r, bufferSize - r, "}");
 		}
 	}
+	::free(flattenMap);
 	return r;
 }
 
@@ -1986,7 +1994,7 @@ TMonitor::FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 inAddr, unsign
 	if (classRef == 0x55552) {
 		// Symbol, skip hash value.
 		bool needEscape = false;
-		char symbolStr[length];
+		char *symbolStr = (char*)::malloc(length+1);
 		for (int i = 0; i < length; i++) {
 			KUInt8 byte;
 			KUInt32 byteAddr = inAddr + 16 + i;
@@ -2012,10 +2020,14 @@ TMonitor::FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 inAddr, unsign
 			}
 			symbolStr[i] = byte;
 		}
+		int ret = 0;
 		if (needEscape) {
-			return ::snprintf(buffer, bufferSize, "'|%s|", symbolStr);
+			ret = ::snprintf(buffer, bufferSize, "'|%s|", symbolStr);
+		} else {
+			ret = ::snprintf(buffer, bufferSize, "'%s", symbolStr);
 		}
-		return ::snprintf(buffer, bufferSize, "'%s", symbolStr);
+		::free(symbolStr);
+		return ret;
 	}
 	int r = ::snprintf(buffer, bufferSize, "<binary, class ");
 	r += FormatNSRef(buffer + r, bufferSize - r, classRef, indent, maxDepth);
