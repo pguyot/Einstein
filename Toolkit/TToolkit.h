@@ -64,6 +64,16 @@ public:
     void UserActionRun();
     void UserActionStop();
 
+    void UserActionFindTextChanged();
+    void UserActionReplaceTextChanged();
+    void UserActionCaseChanged();
+    void UserActionRegexChanged();
+    void UserActionFindPrev();
+    bool UserActionFindNext(bool fromLast = true);
+    void UserActionFindClose();
+    void UserActionReplaceNext();
+    void UserActionReplaceAll();
+
     void AppBuild();
     void AppInstall();
     void AppRun();

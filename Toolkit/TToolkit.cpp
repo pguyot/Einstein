@@ -301,7 +301,16 @@ void TToolkit::UserActionRedo() { }
 void TToolkit::UserActionCut() { }
 void TToolkit::UserActionCopy() { }
 void TToolkit::UserActionPaste() { }
-void TToolkit::UserActionFind() { }
+
+void TToolkit::UserActionFind()
+{
+    // select the text in the find text widget
+    wToolkitFindText->position(0, wToolkitFindText->size());
+    // find the first occurence of this text
+    UserActionFindNext(false);
+    // and activate the find-text input field
+    wToolkitFindText->take_focus();
+}
 
 
 void TToolkit::UserActionBuild()
@@ -723,6 +732,153 @@ int TToolkit::ReadScriptResults()
     return 0;
 }
 
+
+void TToolkit::UserActionFindTextChanged()
+{
+    if (Fl::event()==FL_KEYBOARD && Fl::event_key()==FL_Enter) {
+        UserActionFindNext(true);
+        int p = wToolkitFindText->position();
+        wToolkitFindText->take_focus();
+        wToolkitFindText->position(p);
+    } else {
+        UserActionFindNext(false);
+    }
+}
+
+void TToolkit::UserActionReplaceTextChanged()
+{
+    if (Fl::event()==FL_KEYBOARD && Fl::event_key()==FL_Enter) {
+        UserActionReplaceNext();
+        int p = wToolkitReplaceText->position();
+        wToolkitReplaceText->take_focus();
+        wToolkitReplaceText->position(p);
+    }
+}
+
+void TToolkit::UserActionCaseChanged()
+{
+    // empty
+}
+
+void TToolkit::UserActionRegexChanged()
+{
+    // not yet used
+}
+
+void TToolkit::UserActionFindPrev()
+{
+    TFLScriptEditor *editor = wScriptPanel->GetEditor();
+    Fl_Text_Buffer *buffer = editor->buffer();
+
+    const char *findText = wToolkitFindText->value();
+    if (findText==nullptr || *findText==0)
+        return;
+
+    int pos, dummy;
+    if (!buffer->selection_position(&pos, &dummy))
+        pos = editor->insert_position();
+
+    int found = 0;
+    if (pos>0)
+        found = buffer->search_backward(pos-1, findText, &pos, wToolkitFindCase->value());
+
+    // if not found to beginning of ile, wrap
+    if (!found)
+        found = buffer->search_backward(buffer->length(), findText, &pos, wToolkitFindCase->value());
+
+    // if found, select and set the cursor
+    if (found) {
+        buffer->select(pos, pos+strlen(findText));
+        editor->insert_position(pos);
+        editor->show_insert_position();
+    }
+}
+
+bool TToolkit::UserActionFindNext(bool fromLast)
+{
+    TFLScriptEditor *editor = wScriptPanel->GetEditor();
+    Fl_Text_Buffer *buffer = editor->buffer();
+
+    const char *findText = wToolkitFindText->value();
+    if (findText==nullptr || *findText==0)
+        return false;
+
+    int pos, first, last;
+    int selected = buffer->selection_position(&first, &last);
+    if (selected)
+        pos = fromLast ? last : first;
+    else
+        pos = editor->insert_position();
+
+    int found = buffer->search_forward(pos, findText, &pos, wToolkitFindCase->value());
+
+    // if not found to end of ile, wrap
+    if (!found)
+        found = buffer->search_forward(0, findText, &pos, wToolkitFindCase->value());
+
+    // if found, select and set the cursor
+    if (found) {
+        buffer->select(pos, pos+strlen(findText));
+        editor->insert_position(pos+strlen(findText));
+        editor->show_insert_position();
+    }
+    return (found==1);
+}
+
+void TToolkit::UserActionFindClose()
+{
+}
+
+void TToolkit::UserActionReplaceNext()
+{
+    TFLScriptEditor *editor = wScriptPanel->GetEditor();
+    Fl_Text_Buffer *buffer = editor->buffer();
+    const char *replaceText = wToolkitReplaceText->value();
+
+    if (UserActionFindNext(false)) {
+        int first, last;
+        if (buffer->selection_position(&first, &last)) {
+            buffer->remove_selection();
+        } else {
+            first = last = editor->insert_position();
+        }
+        buffer->insert(first, replaceText);
+        editor->insert_position(first+strlen(replaceText));
+        UserActionFindNext();
+    }
+}
+
+void TToolkit::UserActionReplaceAll()
+{
+    TFLScriptEditor *editor = wScriptPanel->GetEditor();
+    Fl_Text_Buffer *buffer = editor->buffer();
+    
+    const char *findText = wToolkitFindText->value();
+    if (findText==nullptr || *findText==0)
+        return;
+
+    const char *replaceText = wToolkitReplaceText->value();
+    int replLen = strlen(replaceText);
+    int pos = 0;
+    int line = buffer->count_lines(0, editor->insert_position());
+    int col = editor->insert_position()-buffer->line_start(editor->insert_position());
+
+    for (;;) {
+        int found = buffer->search_forward(pos, findText, &pos, wToolkitFindCase->value());
+        if (!found) break;
+        buffer->select(pos, pos+strlen(findText));
+        buffer->remove_selection();
+        buffer->insert(pos, replaceText);
+        pos = pos + replLen;
+    }
+    pos = buffer->skip_lines(0, line);
+    int max = buffer->line_end(pos);
+    if (pos+col>max) pos = max; else pos = pos+col;
+    if (buffer->text()[pos]<0) // we landed in the middle of a utf-8 sequence
+        pos = buffer->prev_char(pos);
+    editor->insert_position(pos);
+    editor->show_insert_position();
+}
 
 
 // ======================================================================= //

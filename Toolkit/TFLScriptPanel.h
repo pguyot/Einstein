@@ -48,6 +48,7 @@ public:
     ~TFLScriptPanel();
 
     void SetScript(TTkScript *script) { mScript = script; }
+    TFLScriptEditor *GetEditor() { return mEditor; }
 
     void LoadFile(const char *filename);
     char *DupSourceCode();
