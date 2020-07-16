@@ -582,6 +582,18 @@ bkpt 0
 	[self doTestProcessorRunCode:@"e3a01003 e3a00c02 e2800057 e1a02130 e1a031a0 e1a04150 e1a051c0 e1200070" master: @"20"];
 }
 
+/*
+ * half-word store
+   0:	e3a00301 	mov	r0, #67108864	; 0x4000000
+   4:	e28f1b01 	add	r1, pc, #1024	; 0x400
+   8:	e1c010b0 	strh	r1, [r0]
+   c:	e5902000 	ldr	r2, [r0]
+  10:   e1200070    bkpt 0
+**/
+- (void)testProcessorRunCode_21 {
+	[self doTestProcessorRunCode:@"e3a00301 e28f1b01 e1c010b0 e1c010b0 e5902000 e1200070" master: @"21"];
+}
+
 // Step tests require a ROM image
 
 - (void)testMemoryReadROM {

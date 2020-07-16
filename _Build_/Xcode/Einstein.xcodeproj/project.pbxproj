@@ -209,6 +209,7 @@
 		DA0CD1E124A7848200E8D593 /* TTcpClientSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99656A024258CC900D216A2 /* TTcpClientSerialPortManager.cpp */; };
 		DA0CD1E224A7885E00E8D593 /* TCocoaPathHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F19F1C281E5B574000E8C9BE /* TCocoaPathHelper.mm */; };
 		DA0D944011B9A12D00835522 /* TTapNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA0D943E11B9A12D00835522 /* TTapNetwork.cpp */; };
+		DA226EE124C0419800A3DD2D /* master-test-run-code_21 in Resources */ = {isa = PBXBuildFile; fileRef = DA226EE024C0419800A3DD2D /* master-test-run-code_21 */; };
 		DA4BA40D1A3A0160002BDB80 /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B61A35E76400092B5A /* tests.cpp */; };
 		DA4BA40E1A3A01F7002BDB80 /* UHostInfoTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0B81A35E76400092B5A /* UHostInfoTests.cpp */; };
 		DA4BA40F1A3A01F7002BDB80 /* UMemoryTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA4FF0BA1A35E76400092B5A /* UMemoryTests.cpp */; };
@@ -818,6 +819,7 @@
 		C9D54E1315FA23E700D91131 /* TFiber.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TFiber.cpp; sourceTree = "<group>"; };
 		DA0D943E11B9A12D00835522 /* TTapNetwork.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TTapNetwork.cpp; sourceTree = "<group>"; };
 		DA0D943F11B9A12D00835522 /* TTapNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TTapNetwork.h; sourceTree = "<group>"; };
+		DA226EE024C0419800A3DD2D /* master-test-run-code_21 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "master-test-run-code_21"; path = "scripts/master-test-run-code_21"; sourceTree = "<group>"; };
 		DA4BA4051A3A0153002BDB80 /* CLITest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CLITest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA4BA46E1A3A3B78002BDB80 /* TNullScreenManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TNullScreenManager.cpp; sourceTree = "<group>"; };
 		DA4BA46F1A3A3B78002BDB80 /* TNullScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNullScreenManager.h; sourceTree = "<group>"; };
@@ -1778,6 +1780,7 @@
 				F13599CE1B2A356B00EFD22D /* master-test-run-code_18 */,
 				F13599CF1B2A356B00EFD22D /* master-test-run-code_19 */,
 				F13599D01B2A356B00EFD22D /* master-test-run-code_20 */,
+				DA226EE024C0419800A3DD2D /* master-test-run-code_21 */,
 				F13599D11B2A356B00EFD22D /* master-test-step_1 */,
 				F13599D21B2A356B00EFD22D /* master-test-step_2 */,
 				F13599D31B2A356B00EFD22D /* master-test-step_3 */,
@@ -2012,6 +2015,7 @@
 				F13599FA1B2A356B00EFD22D /* master-test-execute-instruction-state1_E22D0311 in Resources */,
 				F1359A171B2A356B00EFD22D /* master-test-memory-read-write-ram in Resources */,
 				F1359A251B2A356B00EFD22D /* master-test-run-code_14 in Resources */,
+				DA226EE124C0419800A3DD2D /* master-test-run-code_21 in Resources */,
 				F1359A0F1B2A356B00EFD22D /* master-test-execute-two-instructions_E3A0D301-E8CD0100 in Resources */,
 				F13599FD1B2A356B00EFD22D /* master-test-execute-instruction-state1_E0049A22 in Resources */,
 				F13599E31B2A356B00EFD22D /* master-test-execute-instruction_E321F010 in Resources */,
