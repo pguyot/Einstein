@@ -376,6 +376,50 @@ static newtRef NsMakeBinaryFromString(newtRefArg rcvr, newtRefArg text, newtRefA
     return NewtMakeBinaryFromString(klass, NewtRefToString(text), false);
 }
 
+//"AddStepForm(%s, %s);\n", parent()->scriptName(), scriptName());
+//"StepDeclare(%s, %s, '%s);\n", parent()->scriptName(), scriptName(), scriptName());
+// stepAllocateContext [ 'symOfWidget, refToWidget, 'nextSym, nextRef, ...];
+//AddStepForm(mainView, scrollClipper);
+//StepDeclare(mainView, scrollClipper, 'scrollClipper);
+
+static newtRef NSAddStepForm(newtRefArg rcvr, newtRefArg form, newtRefArg child)
+{
+    if (!NewtRefIsFrame(form)) {
+        return NewtThrow(kNErrNotAFrame, NewtMakeString("First argument should be a view form", true));
+    }
+    if (!NewtRefIsFrame(child)) {
+        return NewtThrow(kNErrNotAFrame, NewtMakeString("Second argument should be a view form", true));
+    }
+    newtRef stepChildren = NcGetSlot(form, NSSYM(StepChildren));
+    if (!NewtRefIsArray(stepChildren)) {
+        stepChildren = NewtMakeArray(NSSYM(array), 0);
+        NcSetSlot(form, NSSYM(StepChildren), stepChildren);
+    }
+    NcAddArraySlot(stepChildren, child);
+    return kNewtRefNIL;
+}
+
+static newtRef NSStepDeclare(newtRefArg rcvr, newtRefArg form, newtRefArg ref, newtRefArg sym)
+{
+    if (!NewtRefIsFrame(form)) {
+        return NewtThrow(kNErrNotAFrame, NewtMakeString("First argument should be a view form", true));
+    }
+    if (!NewtRefIsFrame(ref)) {
+        return NewtThrow(kNErrNotAFrame, NewtMakeString("Second argument should be a view form", true));
+    }
+    if (!NewtRefIsSymbol(sym)) {
+        return NewtThrow(kNErrNotASymbol, NewtMakeString("Third argument should be a symbol", true));
+    }
+    newtRef stepAllocateContext = NcGetSlot(form, NSSYM(StepAllocateContext));
+    if (!NewtRefIsArray(stepAllocateContext)) {
+        stepAllocateContext = NewtMakeArray(NSSYM(array), 0);
+        NcSetSlot(form, NSSYM(StepAllocateContext), stepAllocateContext);
+    }
+    NcAddArraySlot(stepAllocateContext, sym);
+    NcAddArraySlot(stepAllocateContext, ref);
+    return kNewtRefNIL;
+}
+
 
 void TToolkit::AppBuild()
 {
@@ -388,6 +432,9 @@ void TToolkit::AppBuild()
     NewtInit(1, argv, 0);
 
     NewtDefGlobalFunc0(NSSYM(MakeBinaryFromString), (void*)NsMakeBinaryFromString, 2, false, (char*)"MakeBinaryFromString(str, sym)");
+    NewtDefGlobalFunc0(NSSYM(AddStepForm), (void*)NSAddStepForm, 2, false, (char*)"AddStepForm(mainView, scrollClipper);");
+    NewtDefGlobalFunc0(NSSYM(StepDeclare), (void*)NSStepDeclare, 3, false, (char*)"StepDeclare(mainView, scrollClipper, 'scrollClipper);");
+
     NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
     NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
 
@@ -874,8 +921,7 @@ void TToolkit::UserActionReplaceAll()
     pos = buffer->skip_lines(0, line);
     int max = buffer->line_end(pos);
     if (pos+col>max) pos = max; else pos = pos+col;
-    if (buffer->text()[pos]<0) // we landed in the middle of a utf-8 sequence
-        pos = buffer->prev_char(pos);
+    pos = buffer->utf8_align(pos);
     editor->insert_position(pos);
     editor->show_insert_position();
 }

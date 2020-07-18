@@ -1848,6 +1848,13 @@ const char *TToolkitPrototype::HelloWorld =
 "kAppSymbol := '|Hello:WONKO|;\n"
 "kAppLabel := \"Hello\";\n"
 "\n"
+"newt.theForm := {\n"
+"    viewBounds: {\n"
+"        left: 0, top: 50, right: 200, bottom: 120\n"
+"    },\n"
+"    _proto: protoFloatNGo\n"
+"};\n"
+"\n"
 "helloButton := {\n"
 "    text: \"Say Hello\",\n"
 "    viewBounds: {\n"
@@ -1862,23 +1869,12 @@ const char *TToolkitPrototype::HelloWorld =
 "        end,\n"
 "    _proto: protoTextButton\n"
 "};\n"
-"\n"
-"newt.theForm := {\n"
-"    viewBounds: {\n"
-"        left: 0, top: 50, right: 200, bottom: 120\n"
-"    },\n"
-"    stepChildren: [\n"
-"        helloButton,\n"
-"    ],\n"
-"    _proto: protoFloatNGo\n"
-"};\n"
+"AddStepForm( newt.theForm, helloButton);\n"
+"StepDeclare( newt.theForm, helloButton, 'helloButton);\n"
 "\n"
 ;
 
 
-//"AddStepForm(%s, %s);\n", parent()->scriptName(), scriptName());
-//"StepDeclare(%s, %s, '%s);\n", parent()->scriptName(), scriptName(), scriptName());
-// stepAllocateContext [ 'symOfWidget, refToWidget, 'nextSym, nextRef, ...];
 // GetVariable(GetRoot().|Hello:WONKO|, '_open) -> FOpenX -> RealOpenX__FRC6RefVarUc
 // Sends aeShow to realDoCommand -> TView::Show() -> viewShowScript
 
