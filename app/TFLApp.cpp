@@ -38,9 +38,13 @@
 // TODO: drag'n'drop from network locations
 // TODO: drag'n'drop for the Unna Archive
 // TODO: automated Internet access (install and setup)
-// TODO: add preferences to point to a UNAA archive image, so we can browse that and install quickly
+// TODO: add preferences to point to a UNNA archive image, so we can browse that and install quickly
+// TODO: add global functions to handle images, sounds and other external binary data
+// TODO: improve decompiler to generate external binary data and reference it
+// TODO: reverse bytecode to source code
 
 // ----- Major new Features
+// TODO: NTK Monitor
 // TODO: patch ROMs for Y10k bug
 // TODO: printer support
 // TODO: wake-up/launch on appointment in the future
@@ -205,7 +209,13 @@ TFLApp::Run( int argc, char* argv[] )
 
 #if 1
     mFLSettings->useMonitor = 1;
-    mLog = new TBufferLog();
+    TBufferLog *bl = new TBufferLog();
+#if !NDEBUG
+#if TARGET_OS_MAC
+    bl->OpenLog("/tmp/Einstein_log.txt");
+#endif
+#endif
+    mLog = bl;
 #else
     mFLSettings->useMonitor = 0;
     mLog = new TFileLog("/tmp/Einstein_log.txt");
@@ -354,6 +364,14 @@ void TFLApp::UserActionTogglePower()
 void TFLApp::UserActionToggleBacklight()
 {
     mPlatformManager->SendBacklightEvent();
+}
+
+/**
+ User wants us to slide the Flash Memory  card in or out
+ */
+void TFLApp::UserActionToggleFlashMemoryCard()
+{
+    mPlatformManager->SendFlashMemoryCardEvent();
 }
 
 
@@ -934,6 +952,10 @@ void TFLApp::StoreAppWindowSize()
  */
 // NS: Get/SetClipboard, FGet/SetClipboard, AddClipboard__9TRootViewFRC6RefVarT1, GetClipboard__9TRootViewFv, class TClipboard
 // gRootView (0x0C101934) 000A56DC 000A7A34
+// TView::FindDropView(TDragInfo const &, TPoint const &) is just a 'return' instruction. Drived functions in ListView and EditView are implemented.
+// TView::Drop(RefVar const &, RefVar const &, TPoint *)
+// There is a newtonscript function "ViewDropScript"
+// "Paste" : GetView('viewfrontmost)...
 T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, "AddClipboard__9TRootViewFRC6RefVarT1")
 {
 //    fprintf(stderr, "AddClipboard__9TRootViewFRC6RefVarT1\n");

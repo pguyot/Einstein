@@ -40,7 +40,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         xywh {0 0 100 20}
       } {
         MenuItem {} {
-          label {New...} selected
+          label {New...}
           xywh {0 0 100 20} shortcut 0x41006e deactivate
         }
         MenuItem {} {
@@ -125,9 +125,14 @@ Function {CreateApplicationWindow(int x, int y)} {open
           xywh {0 0 100 20}
         }
         MenuItem {} {
+          label {Flash Memory Card}
+          callback {gApp->UserActionToggleFlashMemoryCard();} selected
+          xywh {0 0 100 20} shortcut 0x410066
+        }
+        MenuItem {} {
           label {Network Card}
           callback {gApp->UserActionToggleNetworkCard();}
-          xywh {0 0 100 20} divider
+          xywh {12 12 100 20} divider
         }
         MenuItem {} {
           label {Fetch ROM...}

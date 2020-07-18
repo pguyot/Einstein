@@ -816,6 +816,12 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			break;
 			
 		case 0x11:
+            // kPCMCIA5VAvailable   =    0x0001,    // 5.0 V available
+            // kPCMCIA12VAvailable  =    0x0002,    // 12.0 V available
+            // kPCMCIA3p3VAvailable =    0x0004,    // 3.3 V available
+            // kPCMCIAXpXVAvailable =    0x0008,    // X.X V available
+            // kPCMCIAYpYVAvailable =    0x0010,    // Y.Y V available
+            // kPCMCIA0VAvailable   =    0x0020     // 0 V available (for example: 0 V Vpp)
 			if (mLog)
 			{
 				mLog->FLogLine(
@@ -827,15 +833,15 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			{
 				(void) mMemory->Write(
 					(unsigned int) mProcessor->GetRegister(2),
-					(unsigned int) 5 );
+					(unsigned int) 5 ); // 3.3V, 5V
 				mProcessor->SetRegister( 0, 0 );
 			} else if (mProcessor->GetRegister(1) == 1) {
 				(void) mMemory->Write(
 					(unsigned int) mProcessor->GetRegister(2),
-					(unsigned int) 7 );
+					(unsigned int) 7 ); // 3.3V, 5V, 12V
 				mProcessor->SetRegister( 0, 0 );
 			} else {
-				mProcessor->SetRegister( 0, (unsigned int) -10005 );
+				mProcessor->SetRegister( 0, (unsigned int) -10005 ); // "Call not implemented"
 			}
 			break;
 			

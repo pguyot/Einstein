@@ -86,6 +86,9 @@ public:
     // user toggles backlight
     void UserActionToggleBacklight();
 
+    // user oinserts or removes Flash Memory card
+    void UserActionToggleFlashMemoryCard();
+
     // user toggles network card
     void UserActionToggleNetworkCard();
 

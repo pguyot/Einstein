@@ -47,6 +47,7 @@
 #include "Emulator/Screen/TScreenManager.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
 #include "Emulator/PCMCIA/TNE2000Card.h"
+#include "Emulator/PCMCIA/TLinearCard.h"
 
 #include "Emulator/Serial/TSerialPortManager.h"
 
@@ -327,6 +328,30 @@ TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inDa
 		RaisePlatformInterrupt();
 	}
 }
+
+// -------------------------------------------------------------------------- //
+//  * SendFlashMemoryCardEvent( void )
+// -------------------------------------------------------------------------- //
+void
+TPlatformManager::SendFlashMemoryCardEvent( void )
+{
+    static TLinearCard *theCard = NULL;
+
+    // FIXME: Change check mark in Menu.
+    if (mMemory) {
+        TPCMCIAController *theController = mMemory->GetPCMCIAController(0); // FIXME: controller 1
+        if (theController) {
+            if (theCard==0L) {
+                theCard = new TLinearCard();
+                theController->InsertCard(theCard);
+            } else {
+                theController->RemoveCard();
+                theCard = NULL;
+            }
+        }
+    }
+}
+
 
 // -------------------------------------------------------------------------- //
 //  * SendNetworkCardEvent( void )

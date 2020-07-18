@@ -61,7 +61,7 @@ class TPCMCIACard;
  62  BVD2 !SPKR  <-  1c00 0002	Battery Voltage / Speaker Out
  63  BVD1 !STCH	 <-  1c00 0001	Battery Voltage / Card Status Changed
  67  !CD2        <-  1c00 0008  Card Detect
- 
+
  */
  
 ///
@@ -169,6 +169,11 @@ public:
 	/// Log register data.
 	///
 	void LogRegister(KUInt32 reg, KUInt32 value);
+
+    ///
+    /// Get memeory mapping access register
+    ///
+    KUInt32 GetReg2000() { return mReg_2000; }
 	
 	/// \name Constants
 	enum {
@@ -225,7 +230,7 @@ public:
 		k2000_HandshakeReady	= 0x0080,	///< kCardHandshakeReady
 		k2000_EndianConvert		= 0x0020,	///< !kCardNoEndianConvert
 		k2000_RdWrQueueCtrl		= 0x001F,	///< SetRdWrQueueControl
-		
+
 		// Register 2400
 		k2400_ResetPCMCIA		= 0x1000,	///< Asserted for 50 ticks.
 		k2400_EnableResetOut	= 0x0800,	///< !kCardDisableResetOut

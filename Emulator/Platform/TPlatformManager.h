@@ -163,6 +163,11 @@ public:
 	///
 	void	SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inData );
 
+    ///
+    /// Send a Flash Memory card insertion event.
+    ///
+    void    SendFlashMemoryCardEvent( void );
+
 	///
 	/// Send a Network card insertion event.
 	///
