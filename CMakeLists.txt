@@ -290,6 +290,8 @@ set ( sources
 	app/TFLAppWindow.h
 	app/TPathHelper.cpp
 	app/TPathHelper.h
+	app/TFLTabs.cpp
+	app/TFLTabs.h
 	app/Version.h
 	app/Version.h.in
 	Drivers/EinsteinRex.cpp

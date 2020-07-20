@@ -40,6 +40,9 @@ decl {\#include "TFLApp.h"} {private local
 decl {\#include "app/Version.h"} {private global
 }
 
+decl {\#include "app/TFLTabs.h"} {private global
+}
+
 declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
 } {
   decl {\#include "winsock2.h"} {private local
@@ -75,10 +78,10 @@ mSettingsPanel = CreateSettingsPanel();} {}
     revertDialog();
     mSettingsPanel->hide();
 }} open
-      xywh {447 451 431 414} type Double visible
+      xywh {447 451 450 455} type Double visible
     } {
       Fl_Menu_Button RMB {
-        label {RMB Menu} open
+        label {RMB Menu}
         xywh {4 1 10 10} labelsize 12 hide deactivate
       } {
         MenuItem {} {
@@ -136,192 +139,415 @@ mSettingsPanel = CreateSettingsPanel();} {}
           xywh {12 12 100 20} labelsize 12
         }
       }
-      Fl_Group {} {
-        label {  ROM} open
-        xywh {14 30 405 95} box GTK_DOWN_BOX labelsize 12 align 5
+      Fl_Tabs {} {open
+        xywh {10 10 430 400} box BORDER_BOX
+        code0 {o->box((Fl_Boxtype)(FL_FREE_BOXTYPE+2));}
+        class TFLTabs
       } {
-        Fl_Box wROMPath {
-          label {/here/goes/the/path/and/filename/of/the/ROM}
-          xywh {19 35 395 35} align 212
+        Fl_Group {} {
+          label {  MessagePad  }
+          comment {Add a field to select a REx} open
+          xywh {10 35 430 375}
+        } {
+          Fl_Group {} {open
+            xywh {120 50 275 25}
+          } {
+            Fl_Input wMPConfigName {
+              label Configuration
+              tooltip {give this MessagePad configuration a name} xywh {120 50 160 25} color 53 deactivate
+              code0 {o->value("default");}
+            }
+            Fl_Button wMPConfigMenuButton {
+              label {@2>}
+              tooltip {choose another configuration for editing} xywh {280 50 25 25} labelcolor 40 deactivate
+            }
+            Fl_Button wMPConfigAddButton {
+              label {+}
+              tooltip {add another hardware configuration} xywh {305 50 25 25} labelfont 4 labelsize 18 deactivate
+            }
+            Fl_Button wMPConfigRemoveButton {
+              label {-}
+              tooltip {delete this hardware configuration} xywh {330 50 25 25} labelfont 4 labelsize 18 deactivate
+            }
+          }
+          Fl_Group {} {open
+            xywh {22 90 408 77} box FLAT_BOX labelsize 12 align 5
+          } {
+            Fl_Output wROMName {
+              label {Newton ROM: }
+              xywh {120 95 235 20} color 51 labelsize 13 textsize 12
+            }
+            Fl_Box wROMPath {
+              label {/here/goes/the/path/and/filename/of/the/ROM}
+              xywh {120 115 310 15} labelsize 11 align 212
+            }
+            Fl_Box wROMDetails {
+              label {ROM file found
+Enjoy Einstein}
+              xywh {120 132 310 35} labelsize 12 align 212
+            }
+            Fl_Button wROMPathChoose {
+              label {Choose...}
+              callback {const char *filename = gApp->ChooseExistingFile(
+	"Choose ROM file",
+	nullptr,
+	wROMPath->label()
+);
+if (filename) {
+    wROMName->value(fl_filename_name(filename));
+    wROMPath->copy_label(filename);
+    wROMDetails->copy_label(GetROMDetails(filename));
+}}
+              tooltip {Select a Newton ROM image file.
+Einstein does not include any ROMs.} xywh {355 95 75 20} labelsize 12
+            }
+          }
+          Fl_Group {} {open
+            xywh {22 179 408 46} box FLAT_BOX labelsize 12 align 5
+          } {
+            Fl_Output wFlashName {
+              label {System Flash: }
+              xywh {120 180 160 20} color 51 labelsize 13 textsize 12
+            }
+            Fl_Box wFlashPath {
+              label {/here/goes/the/path/and/filename/of/the/FlashFile}
+              xywh {120 200 310 15} labelsize 11 align 212
+            }
+            Fl_Button wFlashPathCreate {
+              label {Create...}
+              callback {const char *filename = gApp->ChooseNewFile(
+	"Create a new Flash Memory file",
+	nullptr,
+	wFlashPath->label()
+);
+if (filename) {
+    wFlashName->value(fl_filename_name(filename));
+    wFlashPath->copy_label(filename);
+}}
+              tooltip {Create a new Flash RAM image file.} xywh {280 180 75 20} labelsize 12
+            }
+            Fl_Button wFlashPathChoose {
+              label {Choose...}
+              callback {const char *filename = gApp->ChooseExistingFile(
+	"Choose an existing Flash Memory file",
+	nullptr,
+	wFlashPath->label()
+);
+if (filename) {
+    wFlashName->value(fl_filename_name(filename));
+    wFlashPath->copy_label(filename);
+}}
+              tooltip {Select an existing Flash RAM image file.} xywh {355 180 75 20} labelsize 12
+            }
+          }
+          Fl_Group {} {open
+            xywh {22 230 408 20} box FLAT_BOX labelsize 12 align 5
+          } {
+            Fl_Choice wRAMSizeChoice {
+              label {System RAM: } open
+              tooltip {select the system memory size (heap)} xywh {120 230 180 20} down_box BORDER_BOX labelsize 13 textsize 12
+            } {
+              MenuItem {} {
+                label {1MB (MP2000/eMate)}
+                user_data 16 user_data_type long
+                xywh {12 12 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {4MB (MP2100)}
+                user_data 64 user_data_type long
+                xywh {0 0 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label 8MB
+                user_data 128 user_data_type long
+                xywh {20 20 100 20} labelsize 12 deactivate
+              }
+              MenuItem {} {
+                label {15.9MB (maximum)}
+                user_data 255 user_data_type long
+                xywh {32 32 100 20} labelsize 12 deactivate
+              }
+            }
+          }
+          Fl_Choice {} {
+            label {User Interface: } open
+            xywh {120 270 180 20} down_box BORDER_BOX deactivate
+          } {
+            MenuItem {} {
+              label MP2x00
+              xywh {0 0 100 20}
+            }
+            MenuItem {} {
+              label {eMate 300}
+              xywh {0 0 100 20}
+            }
+          }
+          Fl_Box wRestartWarning {
+            label {Setting changes apply only after a  restart} selected
+            xywh {216 378 200 20} labelfont 1 labelsize 12 align 20 hide
+          }
         }
-        Fl_Box wROMDetails {
-          label {ROM file found
-Enjoy Einstein
-Or choose another file.}
-          xywh {19 75 305 45} labelsize 12 align 209
+        Fl_Group {} {
+          label {  User Interface  } open
+          xywh {10 35 430 375} hide
+        } {
+          Fl_Group {} {open
+            xywh {60 90 356 222} box FLAT_BOX labelsize 12 align 5
+          } {
+            Fl_Input wWidth {
+              label {Screen Size: }
+              tooltip {Screen width in pixels,
+Original screen size is 320x480} xywh {120 90 80 20} type Int labelsize 13 textsize 12
+            }
+            Fl_Input wHeight {
+              label {x }
+              tooltip {Screen height in pixels,
+Original screen size is 320x480} xywh {215 90 80 20} type Int labelsize 12 textsize 12
+            }
+            Fl_Check_Button wFullScreen {
+              label {Full screen}
+              xywh {120 120 296 20} down_box DOWN_BOX labelsize 13 deactivate
+            }
+            Fl_Check_Button wHideMouse {
+              label {Hide mouse pointer}
+              tooltip {Hide mouse pointer over MessagePad screen
+Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX labelsize 13
+            }
+            Fl_Check_Button wUseMonitor {
+              label {Debug Terminal}
+              xywh {120 170 196 20} down_box DOWN_BOX labelsize 13 deactivate
+            }
+            Fl_Box {} {
+              label {add screen scale}
+              xywh {112 186 204 28} hide
+            }
+            Fl_Box {} {
+              label {toggle menubar, toolbar, and functionkey bar}
+              xywh {122 212 204 28} hide
+            }
+            Fl_Box {} {
+              label {maybe developer menu, novice menu, expert menu?}
+              xywh {128 240 204 28} hide
+            }
+            Fl_Box {} {
+              label {Show at startup: machine choice, settings, last open machine}
+              xywh {132 278 204 28} hide
+            }
+          }
+          Fl_Group {} {open
+            xywh {120 50 275 25}
+          } {
+            Fl_Input wUIConfigName {
+              label {Configuration }
+              tooltip {give this User Interface configuration a name} xywh {120 50 160 25} color 53 deactivate
+              code0 {o->value("default");}
+            }
+            Fl_Button wUIConfigMenuButton {
+              label {@2>}
+              tooltip {choose another configuration for editing} xywh {280 50 25 25} labelcolor 40 deactivate
+            }
+            Fl_Button wUIConfigAddButton {
+              label {+}
+              tooltip {add another interface configuration} xywh {305 50 25 25} labelfont 4 labelsize 18 deactivate
+            }
+            Fl_Button wUIConfigRemoveButton {
+              label {-}
+              tooltip {delete this interface configuration} xywh {330 50 25 25} labelfont 4 labelsize 18 deactivate
+            }
+          }
         }
-        Fl_Button wROMPathChoose {
-          label {Choose...}
-          callback {char buf[FL_PATH_MAX];
-    strncpy(buf, wROMPath->label(), FL_PATH_MAX);
-    char *name = (char*)fl_filename_name(buf);
-    if (name && name>buf)
-        name[-1] = 0;
-    else 
-        name = buf;
-
-    Fl_Native_File_Chooser fnfc;
-    fnfc.title("Choose ROM file");
-    fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
-    //fnfc.filter("Package\\t*.pkg");
-    fnfc.directory(buf);
-    fnfc.preset_file(name);
-    switch ( fnfc.show() ) {
-        case -1: return; // Error text is in fnfc.errmsg()
-        case  1: return; // user canceled
-    }
-    wROMPath->copy_label(fnfc.filename());
-    wROMDetails->copy_label(GetROMDetails(wROMPath->label()));} selected
-          tooltip {Select a Newton ROM image file.
-Einstein does not include any ROMs.} xywh {329 95 80 20} labelsize 12
+        Fl_Group {} {
+          label {  PC Cards  }
+          xywh {10 35 430 375} hide
+        } {
+          Fl_Scroll {} {open
+            xywh {20 48 408 352}
+          } {
+            Fl_Group {} {open
+              xywh {40 58 366 124} box FLAT_BOX color 50
+            } {
+              Fl_Box {} {
+                xywh {224 72 170 100} box BORDER_BOX color 53
+              }
+              Fl_Box {} {
+                xywh {244 78 144 88} box PLASTIC_THIN_DOWN_BOX color 53
+              }
+              Fl_Box {} {
+                xywh {250 83 82 79} box FLAT_BOX color 7
+              }
+              Fl_Box {} {
+                xywh {332 83 51 79} box FLAT_BOX color 238
+              }
+              Fl_Box {} {
+                label 2MB
+                xywh {248 83 136 79} color 7 labelsize 40 align 26
+              }
+              Fl_Box {} {
+                label {EinsteinFlash
+PCMCIA}
+                xywh {248 83 136 79} color 7 align 21
+              }
+              Fl_Button {} {
+                label {Format...}
+                xywh {52 152 81 20} deactivate
+              }
+              Fl_Choice {} {
+                label {Assigned Slot:} open
+                xywh {142 90 74 20} down_box BORDER_BOX deactivate
+              } {
+                MenuItem {} {
+                  label upper
+                  xywh {0 0 100 20}
+                }
+                MenuItem {} {
+                  label lower
+                  xywh {0 0 100 20}
+                }
+                MenuItem {} {
+                  label both
+                  xywh {12 12 100 20}
+                }
+              }
+              Fl_Button {} {
+                label Delete
+                xywh {143 152 65 20} deactivate
+              }
+              Fl_Button {} {
+                label {Choose...}
+                xywh {52 122 84 20} deactivate
+              }
+              Fl_Input {} {
+                label {Name:}
+                xywh {100 64 116 20} deactivate
+              }
+            }
+            Fl_Group {} {open
+              xywh {40 192 364 134} box FLAT_BOX color 50
+            } {
+              Fl_Box {} {
+                xywh {224 206 170 100} box BORDER_BOX color 53 deactivate
+              }
+              Fl_Box {} {
+                xywh {244 212 144 88} box PLASTIC_THIN_DOWN_BOX color 53 deactivate
+              }
+              Fl_Box {} {
+                xywh {250 217 82 79} box FLAT_BOX color 7 deactivate
+              }
+              Fl_Box {} {
+                xywh {332 217 51 79} box FLAT_BOX color 238 deactivate
+              }
+              Fl_Box {} {
+                label {+}
+                xywh {288 227 64 64} box OVAL_BOX color 51 selection_color 52 labelsize 40 align 16
+              }
+              Fl_Button {} {
+                label {Format...}
+                xywh {50 276 81 20} deactivate
+              }
+              Fl_Choice {} {
+                label {Assigned Slot:} open
+                xywh {140 214 74 20} down_box BORDER_BOX deactivate
+              } {
+                MenuItem {} {
+                  label upper
+                  xywh {16 16 100 20}
+                }
+                MenuItem {} {
+                  label lower
+                  xywh {16 16 100 20}
+                }
+                MenuItem {} {
+                  label both
+                  xywh {28 28 100 20}
+                }
+              }
+              Fl_Button {} {
+                label Delete
+                xywh {141 276 65 20} deactivate
+              }
+              Fl_Button {} {
+                label {Choose...}
+                xywh {50 246 84 20} deactivate
+              }
+            }
+          }
         }
-      }
-      Fl_Group {} {
-        label {  Internal Flash File} open
-        xywh {14 146 405 70} box GTK_DOWN_BOX labelsize 12 align 5
-      } {
-        Fl_Box wFlashPath {
-          label {/here/goes/the/path/and/filename/of/the/FlashFile}
-          xywh {19 151 297 35} align 212
-        }
-        Fl_Button wFlashPathCreate {
-          label {Create...}
-          callback {char buf[FL_PATH_MAX];
-    strncpy(buf, wFlashPath->label(), FL_PATH_MAX);
-    char *name = (char*)fl_filename_name(buf);
-    if (name && name>buf)
-        name[-1] = 0;
-    else 
-        name = buf;
-
-    Fl_Native_File_Chooser fnfc;
-    fnfc.title("Create a new Flash Memory file");
-    fnfc.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
-    //fnfc.filter("Package\\t*.pkg");
-    fnfc.directory(buf);
-    fnfc.preset_file(name);
-    fnfc.options(Fl_Native_File_Chooser::NEW_FOLDER);
-    switch ( fnfc.show() ) {
-        case -1: return; // Error text is in fnfc.errmsg()
-        case  1: return; // user canceled
-    }
-    wFlashPath->copy_label(fnfc.filename());}
-          tooltip {Create a new Flash RAM image file.} xywh {240 186 80 20} labelsize 12
-        }
-        Fl_Button wFlashPathChoose {
-          label {Choose...}
-          callback {char buf[FL_PATH_MAX];
-    strncpy(buf, wFlashPath->label(), FL_PATH_MAX);
-    char *name = (char*)fl_filename_name(buf);
-    if (name && name>buf)
-        name[-1] = 0;
-    else 
-        name = buf;
-
-    Fl_Native_File_Chooser fnfc;
-    fnfc.title("Choose an existing Flash Memory file");
-    fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
-    //fnfc.filter("Package\\t*.pkg");
-    fnfc.directory(buf);
-    fnfc.preset_file(name);
-    fnfc.options(Fl_Native_File_Chooser::NEW_FOLDER);
-    switch ( fnfc.show() ) {
-        case -1: return; // Error text is in fnfc.errmsg()
-        case  1: return; // user canceled
-    }
-    wFlashPath->copy_label(fnfc.filename());}
-          tooltip {Select an existing Flash RAM image file.} xywh {329 186 80 20} labelsize 12
-        }
-      }
-      Fl_Group {} {
-        label {  Screen}
-        xywh {14 238 200 100} box GTK_DOWN_BOX labelsize 12 align 5
-      } {
-        Fl_Input wWidth {
-          tooltip {Screen width in pixels,
-Original screen size is 320x480} xywh {24 248 80 20} type Int labelsize 12 textsize 12
-        }
-        Fl_Input wHeight {
-          label {x }
-          tooltip {Screen height in pixels,
-Original screen size is 320x480} xywh {119 248 80 20} type Int labelsize 12 textsize 12
-        }
-        Fl_Check_Button wFullScreen {
-          label {Full screen}
-          xywh {24 273 175 20} down_box DOWN_BOX labelsize 12 deactivate
-        }
-        Fl_Check_Button wHideMouse {
-          label {Hide mouse pointer}
-          tooltip {Hide mouse pointer over MessagePad screen
-Used on pen or touch screen devices.} xywh {24 293 175 20} down_box DOWN_BOX labelsize 12
-        }
-        Fl_Check_Button wUseMonitor {
-          label {Debug Terminal}
-          xywh {24 313 175 20} down_box DOWN_BOX labelsize 12 deactivate
-        }
-      }
-      Fl_Group {} {
-        label {  Memory}
-        xywh {219 238 200 100} box GTK_DOWN_BOX labelsize 12 align 5
-      } {
-        Fl_Box {} {
-          label {RAM Size}
-          xywh {229 253 55 20} labelsize 11 align 24
-        }
-        Fl_Box wRAMSizeMB {
-          label 4
-          xywh {284 253 18 20} labelsize 11 align 24
-        }
-        Fl_Box {} {
-          label MB
-          xywh {301 253 20 20} labelsize 11 align 20
-        }
-        Fl_Box wRAMSizeKB {
-          label 0
-          xywh {324 253 25 20} labelsize 11 align 24 hide
-        }
-        Fl_Box wRAMSizeKBLabel {
-          label KB
-          xywh {349 253 20 20} labelsize 11 align 20 hide
-        }
-        Fl_Slider wRAMSize {
-          callback {updateRAMSizeLabel();}
-          tooltip {Tested RAM sizes are 1MB and 4MB, other sizes may crash} xywh {229 278 180 20} type Horizontal minimum 16 maximum 240 step 16 value 64
+        Fl_Group {} {
+          label {  Resources  }
+          xywh {10 35 430 375} hide
+        } {
+          Fl_Input_Choice {} {
+            label {United Newton
+Network Archives} open
+            xywh {172 80 252 24} deactivate
+          } {
+            MenuItem {} {
+              label {http://www.unna.org/}
+              xywh {0 0 100 20}
+            }
+          }
+          Fl_Input_Choice {} {
+            label {local unna archive} open
+            xywh {172 124 252 24} deactivate
+          } {
+            MenuItem {} {
+              label {http://www.unna.org/}
+              xywh {12 12 100 20}
+            }
+          }
+          Fl_Input_Choice {} {
+            label {Pawels archive} open
+            xywh {172 168 252 24} deactivate
+          } {
+            MenuItem {} {
+              label {http://www.unna.org/}
+              xywh {24 24 100 20}
+            }
+          }
+          Fl_Input_Choice {} {
+            label {MessagePad.org} open
+            xywh {172 212 252 24} deactivate
+          } {
+            MenuItem {} {
+              label {http://www.unna.org/}
+              xywh {36 36 100 20}
+            }
+          }
         }
       }
       Fl_Check_Button wDontShow {
         label {Don't show at startup}
-        xywh {24 348 140 20} down_box DOWN_BOX labelsize 12
+        xywh {24 422 140 21} down_box DOWN_BOX labelsize 12
       }
       Fl_Button wQuit {
         label Quit
         callback {exit(0);}
-        xywh {217 377 95 25} color 50 labelsize 12
+        xywh {217 420 95 25} color 50 labelsize 12
       }
       Fl_Button wStart {
         label Start
         callback {applyDialog();
 savePreferences();
 mSettingsPanel->hide();}
-        xywh {322 377 95 25} color 50 labelsize 12
+        xywh {322 420 95 25} color 50 labelsize 12
         code0 {Fl::focus(wStart);}
-      }
-      Fl_Box wRestartWarning {
-        label {Preferences only apply at restart}
-        xywh {217 348 200 20} labelfont 1 labelsize 12 align 20 hide
       }
       Fl_Button wRevert {
         label Revert
         callback {revertDialog();
 mSettingsPanel->redraw();}
-        xywh {217 377 95 25} color 50 labelsize 12 hide
+        xywh {217 420 95 25} color 50 labelsize 12 hide
       }
       Fl_Button wSave {
         label Save
         callback {applyDialog();
 savePreferences();
 mSettingsPanel->hide();}
-        xywh {322 377 95 25} color 50 labelsize 12 hide
+        xywh {322 420 95 25} color 50 labelsize 12 hide
+      }
+      Fl_Box {} {
+        xywh {10 410 430 5}
+        code0 {o->box((Fl_Boxtype)(FL_FREE_BOXTYPE+2));}
       }
     }
   }
@@ -329,8 +555,10 @@ mSettingsPanel->hide();}
   } {
     code {char buf[32];
 
+wROMName->value(fl_filename_name(ROMPath));
 wROMPath->copy_label(ROMPath);
 
+wFlashName->value(fl_filename_name(FlashPath));
 wFlashPath->copy_label(FlashPath);
 
 sprintf(buf, "%d", screenWidth);
@@ -341,8 +569,14 @@ wFullScreen->value(fullScreen);
 wHideMouse->value(hideMouse);
 wUseMonitor->value(useMonitor);
 
-wRAMSize->value(RAMSize);
-updateRAMSizeLabel();
+if (RAMSize<=16)
+	wRAMSizeChoice->value(0);
+else if (RAMSize<=64)
+	wRAMSizeChoice->value(1);
+else if (RAMSize<=128)
+	wRAMSizeChoice->value(1);
+else 	
+	wRAMSizeChoice->value(1);
 
 wDontShow->value(dontShow);
 
@@ -362,7 +596,9 @@ fullScreen = wFullScreen->value();
 hideMouse = wHideMouse->value();
 useMonitor = wUseMonitor->value();
 
-RAMSize = (int)wRAMSize->value();
+const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
+if (m)
+	RAMSize = m->argument();
 
 dontShow = wDontShow->value();} {}
   }
@@ -374,32 +610,13 @@ wStart->hide();
 wRevert->show();
 wSave->show();} {}
   }
-  Function {updateRAMSizeLabel()} {open private return_type void
-  } {
-    code {char buf[32];
-int ram = (int)(wRAMSize->value());
-int m = ram/16;
-sprintf(buf, "%d", m);
-wRAMSizeMB->copy_label(buf);
-
-int k = (ram*64)%1024;
-sprintf(buf, "%d", k);
-wRAMSizeKB->copy_label(buf);
-
-if (k==0) {
-  wRAMSizeKB->hide();
-  wRAMSizeKBLabel->hide();
-} else {
-  wRAMSizeKB->show();
-  wRAMSizeKBLabel->show();
-}} {}
-  }
   Function {close_window_cb(Fl_Widget*, void *user)} {private return_type void
   } {
     code {Fl_Window *win = (Fl_Window*)user;
 win->hide();} {}
   }
-  Function {createAboutDialog()} {} {
+  Function {createAboutDialog()} {open
+  } {
     Fl_Window wAbout {
       user_data wAbout
       callback {o->hide();} open

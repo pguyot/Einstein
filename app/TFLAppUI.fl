@@ -12,20 +12,8 @@ decl {\#include <FL/fl_draw.H>} {private global
 decl {\#include "TFLAppWindow.h"} {public global
 }
 
-Function {draw_ramp(int x, int y, int w, int h, Fl_Color c)} {
-  comment {a gradient box type} return_type {static void}
+Function {CreateApplicationWindow(int x, int y)} {open selected
 } {
-  code {for (int i=y; i<y+h; i++) {
-        fl_color(fl_color_average(FL_BACKGROUND_COLOR, c, i/100.0));
-        //fl_rectf(x, y, w, h, Fl::box_color(c));
-        fl_xyline(x, i, x+w);
-    }} {}
-}
-
-Function {CreateApplicationWindow(int x, int y)} {open
-} {
-  code {Fl::set_boxtype(FL_FREE_BOXTYPE, draw_ramp, 0, 0, 0, 0);
-    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+1), draw_ramp, 0, 0, 0, 0);} {}
   Fl_Window wAppWindow {open
     xywh {454 329 320 558} type Double resizable
     code0 {wAppWindow->position(x, y);}
@@ -126,7 +114,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         }
         MenuItem {} {
           label {Flash Memory Card}
-          callback {gApp->UserActionToggleFlashMemoryCard();} selected
+          callback {gApp->UserActionToggleFlashMemoryCard();}
           xywh {0 0 100 20} shortcut 0x410066
         }
         MenuItem {} {

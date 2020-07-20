@@ -180,27 +180,26 @@ const char *TFLSettings::GetROMDetails(const char *inFilename)
         switch (theROMImage->GetROMId()) {
             case TROMImage::k717006:
                 strncpy(text,
-                        "MessagePad MP2x00 US ROM found.\n"
-                        "ROM Version 2.1 (717006)-0.",
+                        "MessagePad MP2x00 US ROM\n"
+                        "ROM Version 2.1 (717006)-0",
                         text_size);
                 break;
             case TROMImage::kMP2x00DROM:
                 strncpy(text,
-                        "MessagePad MP2x00 D ROM found.\n"
-                        "ROM Version D-2.1 (747129)-0.",
+                        "MessagePad MP2x00 D ROM\n"
+                        "ROM Version D-2.1 (747129)-0",
                         text_size);
                 break;
             case TROMImage::kEMate300ROM:
                 strncpy(text,
-                        "eMate 300 ROM found.\n"
-                        "ROM Version 2.2.00 (737041).",
+                        "eMate 300 ROM\n"
+                        "ROM Version 2.2.00 (737041)",
                         text_size);
                 break;
             default:
                 strncpy(text,
-                        "Unknown ROM.\n"
-                        "Please contact the developer team if this is a\n"
-                        "valid ROM that is not yet recognized by Einstein",
+                        "Unknown ROM or not a ROM\n"
+                        "File content not recognized",
                         text_size);
                 break;
         }

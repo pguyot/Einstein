@@ -944,6 +944,9 @@ void TFLApp::StoreAppWindowSize()
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
+
+
+
 /**
  * Copy NewtonOS clipboard data to the system clipboard.
  *
@@ -955,7 +958,12 @@ void TFLApp::StoreAppWindowSize()
 // TView::FindDropView(TDragInfo const &, TPoint const &) is just a 'return' instruction. Drived functions in ListView and EditView are implemented.
 // TView::Drop(RefVar const &, RefVar const &, TPoint *)
 // There is a newtonscript function "ViewDropScript"
+
 // "Paste" : GetView('viewfrontmost)...
+
+// GetClipboard__9TRootViewFv:         @ 0x001B58BC: TRootView::GetClipboard(void)
+//  is called, whenever we want to get the clipboard data
+// If Cmd-P is pressed, called from DoEditCommand__5TViewFl (arg=2 or 3) (009EA00), "FClipboardCommand(arg)"
 T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, "AddClipboard__9TRootViewFRC6RefVarT1")
 {
 //    fprintf(stderr, "AddClipboard__9TRootViewFRC6RefVarT1\n");
@@ -1002,6 +1010,104 @@ T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, "AddClipboard__9TRootViewFRC
     return ioUnit;
 }
 
+static void clip_callback(int source, void *data) {
+    if ( source == 1 ) {
+        printf("Clipboard: \"%s\"\n", (char*)data);
+    }
+}
+
+static void draw_ramp(int x, int y, int w, int h, Fl_Color c)
+{
+    for (int i=y; i<y+h; i++) {
+        fl_color(fl_color_average(FL_BACKGROUND_COLOR, c, i/100.0));
+        //fl_rectf(x, y, w, h, Fl::box_color(c));
+        fl_xyline(x, i, x+w);
+    }
+}
+
+static void tabs_box(int x, int y, int w, int h, Fl_Color c)
+{
+    const int barHgt = 1;
+    fl_rectf(x, y, w, barHgt, fl_color_average(FL_FOREGROUND_COLOR, c, 0.5));
+    fl_rectf(x, y+barHgt, w, h-barHgt, c);
+}
+
+static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, bool save)
+{
+#if 0
+    char pattern[FL_PATH_MAX]; pattern[0] = 0;
+    if (pat) {
+        const char *s = pat;
+        char *d = pattern;
+        bool brackets = false;
+        while (*s) {
+            char c = *s++;
+            if (c=='\t') {
+                *d++ = ' '; *d++ = '(';
+                brackets = true;
+            } else if (c=='\n' && brackets) {
+                *d++ = ')'; *d++ = '\t';
+            } else {
+                *d++ = c;
+            }
+        }
+        *d = 0;
+    }
+    return fl_file_chooser(message, pattern[0]?pattern:nullptr, fname);
+#else
+    static char tfl_file_chooser_filename[FL_PATH_MAX];
+    char name[FL_PATH_MAX]; name[0] = 0;
+    char fdir[FL_PATH_MAX]; fdir[0] = 0;
+
+    if (fname && *fname) {
+        const char *n = fl_filename_name(fname);
+        if (n) {
+            int len = n-fname;
+            strcpy(name, n);
+            strncpy(fdir, fname, len);
+            fdir[len] = 0;
+        } else {
+            strcpy(name, n);
+        }
+    }
+
+    Fl_Native_File_Chooser fnfc;
+    fnfc.title(message);
+    if (save) {
+        fnfc.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+        fnfc.options(Fl_Native_File_Chooser::NEW_FOLDER|Fl_Native_File_Chooser::USE_FILTER_EXT);
+    } else {
+        fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
+        fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
+    }
+    fnfc.filter(pat);
+    fnfc.directory(fdir);
+    fnfc.preset_file(name);
+    switch ( fnfc.show() ) {
+        case -1: return nullptr; // Error text is in fnfc.errmsg()
+        case  1: return nullptr; // user canceled
+    }
+    if (fnfc.filename()) {
+        strcpy(tfl_file_chooser_filename, fnfc.filename());
+        return tfl_file_chooser_filename;
+    } else {
+        return nullptr;
+    }
+#endif
+}
+
+const char *TFLApp::ChooseExistingFile(const char *message, const char *pat, const char *fname)
+{
+    return tfl_file_chooser(message, pat, fname, false);
+}
+
+const char *TFLApp::ChooseNewFile(const char *message, const char *pat, const char *fname)
+{
+    return tfl_file_chooser(message, pat, fname, true);
+}
+
+
+
 /**
  This is the first function that is called on all platforms.
 
@@ -1014,6 +1120,11 @@ int main(int argc, char** argv )
     if ( Fl::abi_check(FL_ABI_VERSION)==0 ) {
         fl_alert("Warning: FLTK ABI versions don't match:\n%d", FL_ABI_VERSION);
     }
+    Fl::add_clipboard_notify(clip_callback);
+    Fl::set_boxtype(FL_FREE_BOXTYPE, draw_ramp, 0, 0, 0, 0);
+    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+1), draw_ramp, 0, 0, 0, 0);
+    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+2), tabs_box, 0, 2, 0, 0);
+    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+3), tabs_box, 0, 2, 0, 0);
 
     TFLApp theApp;
     gApp = &theApp;
