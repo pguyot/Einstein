@@ -137,6 +137,8 @@ public:
 
     TPlatformManager *GetPlatformManager() { return mPlatformManager; }
 
+    TFLSettings *GetSettings() { return mFLSettings; }
+
     const char *ChooseExistingFile(const char *message, const char *pat, const char *fname);
     const char *ChooseNewFile(const char *message, const char *pat, const char *fname);
 

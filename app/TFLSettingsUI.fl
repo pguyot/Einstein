@@ -146,8 +146,8 @@ mSettingsPanel = CreateSettingsPanel();} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx} open
-          xywh {10 35 430 375}
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open
+          xywh {10 35 430 375} hide
         } {
           Fl_Group {} {open
             xywh {120 50 275 25}
@@ -283,7 +283,7 @@ if (filename) {
             }
           }
           Fl_Box wRestartWarning {
-            label {Setting changes apply only after a  restart} selected
+            label {Setting changes apply only after a  restart}
             xywh {216 378 200 20} labelfont 1 labelsize 12 align 20 hide
           }
         }
@@ -357,118 +357,160 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
           }
         }
         Fl_Group {} {
-          label {  PC Cards  }
-          xywh {10 35 430 375} hide
+          label {  PC Cards  } open
+          xywh {10 35 430 375}
         } {
-          Fl_Scroll {} {open
-            xywh {20 48 408 352}
+          Fl_Browser wPCCardList {
+            label {PCMCIA Cards:}
+            callback {int ix = wPCCardList->value()-1;
+if (ix==-1) {
+	wPCCardListRemove->deactivate();
+	wPCCardProperties->deactivate();
+} else {
+	TFLPCCardSettings *card = mCardList[ix];	
+	if (strcmp(card->GetUUID(), TFLPCCardSettings::kNetworkUUID)==0)
+		wPCCardListRemove->deactivate();
+	else
+		wPCCardListRemove->activate();
+	wPCCardProperties->activate();
+	wPCCardName->value( card->GetName() );
+}}
+            xywh {120 50 235 100} type Hold align 4 when 1
+          }
+          Fl_Button wPCCardListAdd {
+            label {+}
+            callback {const char *name = fl_input("Please choose a name for your new PCMCIA Card:", "Flash Memory Card");
+if (!name) return;
+
+TFLPCCardSettings *card = new TFLPCCardSettings(Fl_Preferences::newUUID(), name);
+card->SetType(TFLPCCardSettings::kLinearFlashCard);
+mCardList.push_back(card);
+wPCCardList->add(card->GetName());
+revertDialog();
+savePreferences();
+wPCCardList->value(mCardList.size());
+wPCCardList->do_callback();} selected
+            tooltip {add a new PCMCIA card} xywh {120 150 25 25} labelfont 4 labelsize 18
+          }
+          Fl_Button wPCCardListRemove {
+            label {-}
+            user_data this
+            callback {int ix = wPCCardList->value()-1;
+if (ix==-1) 
+	return;
+
+TFLPCCardSettings *card = mCardList[ix];	
+int choice = fl_choice(
+	"This removes the reference to the card\\n\\"%s\\".\\n"
+	"Do you also want to delete the card data?",
+	"Cancel",
+	"Remove Card",
+	"Delete Data",
+	card->GetName());
+	
+if (choice==0) {
+	return;
+}
+UnplugPCCard(ix);
+if (choice==2) { // Delete Card Data, too
+	// TODO: delete card dats
+}
+delete mCardList[ix];
+mCardList.erase(mCardList.begin()+ix);
+revertDialog();
+savePreferences();}
+            tooltip {remove and delete a PCMCIA card} xywh {145 150 25 25} labelfont 4 labelsize 18 deactivate
+          }
+          Fl_Group wPCCardProperties {open
+            xywh {10 203 430 140}
           } {
-            Fl_Group {} {open
-              xywh {40 58 366 124} box FLAT_BOX color 50
+            Fl_Input wPCCardName {
+              label {Name:}
+              tooltip {give this PCMCIA card a name} xywh {120 203 160 25} color 53
+            }
+            Fl_Choice {} {
+              label {Type:} open
+              xywh {120 238 160 25} down_box BORDER_BOX deactivate
             } {
-              Fl_Box {} {
-                xywh {224 72 170 100} box BORDER_BOX color 53
+              MenuItem {} {
+                label {Network Card}
+                xywh {0 0 100 20}
               }
-              Fl_Box {} {
-                xywh {244 78 144 88} box PLASTIC_THIN_DOWN_BOX color 53
+              MenuItem {} {
+                label {Linear Flash RAM}
+                xywh {0 0 100 20}
               }
-              Fl_Box {} {
-                xywh {250 83 82 79} box FLAT_BOX color 7
-              }
-              Fl_Box {} {
-                xywh {332 83 51 79} box FLAT_BOX color 238
-              }
-              Fl_Box {} {
-                label 2MB
-                xywh {248 83 136 79} color 7 labelsize 40 align 26
-              }
-              Fl_Box {} {
-                label {EinsteinFlash
-PCMCIA}
-                xywh {248 83 136 79} color 7 align 21
-              }
-              Fl_Button {} {
-                label {Format...}
-                xywh {52 152 81 20} deactivate
-              }
-              Fl_Choice {} {
-                label {Assigned Slot:} open
-                xywh {142 90 74 20} down_box BORDER_BOX deactivate
-              } {
-                MenuItem {} {
-                  label upper
-                  xywh {0 0 100 20}
-                }
-                MenuItem {} {
-                  label lower
-                  xywh {0 0 100 20}
-                }
-                MenuItem {} {
-                  label both
-                  xywh {12 12 100 20}
-                }
-              }
-              Fl_Button {} {
-                label Delete
-                xywh {143 152 65 20} deactivate
-              }
-              Fl_Button {} {
-                label {Choose...}
-                xywh {52 122 84 20} deactivate
-              }
-              Fl_Input {} {
-                label {Name:}
-                xywh {100 64 116 20} deactivate
+              MenuItem {} {
+                label {ROM Card}
+                xywh {12 12 100 20}
               }
             }
-            Fl_Group {} {open
-              xywh {40 192 364 134} box FLAT_BOX color 50
+            Fl_Input_Choice {} {
+              label {Size:} open
+              xywh {121 273 159 24} deactivate
             } {
-              Fl_Box {} {
-                xywh {224 206 170 100} box BORDER_BOX color 53 deactivate
+              MenuItem {} {
+                label {1 MB}
+                xywh {0 0 100 20}
               }
-              Fl_Box {} {
-                xywh {244 212 144 88} box PLASTIC_THIN_DOWN_BOX color 53 deactivate
+              MenuItem {} {
+                label {2 MB}
+                xywh {0 0 100 20}
               }
-              Fl_Box {} {
-                xywh {250 217 82 79} box FLAT_BOX color 7 deactivate
+              MenuItem {} {
+                label {4 MB}
+                xywh {0 0 100 20}
               }
-              Fl_Box {} {
-                xywh {332 217 51 79} box FLAT_BOX color 238 deactivate
+              MenuItem {} {
+                label {8 MB}
+                xywh {0 0 100 20}
               }
-              Fl_Box {} {
-                label {+}
-                xywh {288 227 64 64} box OVAL_BOX color 51 selection_color 52 labelsize 40 align 16
+              MenuItem {} {
+                label {16 MB}
+                xywh {0 0 100 20}
               }
-              Fl_Button {} {
-                label {Format...}
-                xywh {50 276 81 20} deactivate
+              MenuItem {} {
+                label {32 MB}
+                xywh {0 0 100 20}
               }
-              Fl_Choice {} {
-                label {Assigned Slot:} open
-                xywh {140 214 74 20} down_box BORDER_BOX deactivate
-              } {
-                MenuItem {} {
-                  label upper
-                  xywh {16 16 100 20}
-                }
-                MenuItem {} {
-                  label lower
-                  xywh {16 16 100 20}
-                }
-                MenuItem {} {
-                  label both
-                  xywh {28 28 100 20}
-                }
+              MenuItem {} {
+                label {64 MB}
+                xywh {0 0 100 20}
               }
-              Fl_Button {} {
-                label Delete
-                xywh {141 276 65 20} deactivate
-              }
-              Fl_Button {} {
-                label {Choose...}
-                xywh {50 246 84 20} deactivate
-              }
+            }
+            Fl_Output wPCCardImage {
+              label {Image File: }
+              xywh {120 308 160 20} color 51 labelsize 13 textsize 12 deactivate
+            }
+            Fl_Button wPCCardImageCreate {
+              label {Create...}
+              callback {const char *filename = gApp->ChooseNewFile(
+	"Create a new Flash Memory file",
+	nullptr,
+	wFlashPath->label()
+);
+if (filename) {
+    wFlashName->value(fl_filename_name(filename));
+    wFlashPath->copy_label(filename);
+}}
+              tooltip {Create a new Flash RAM image file.} xywh {280 308 75 20} labelsize 12 deactivate
+            }
+            Fl_Button wPCCardImageChoose {
+              label {Choose...}
+              callback {const char *filename = gApp->ChooseExistingFile(
+	"Choose an existing Flash Memory file",
+	nullptr,
+	wFlashPath->label()
+);
+if (filename) {
+    wFlashName->value(fl_filename_name(filename));
+    wFlashPath->copy_label(filename);
+}}
+              tooltip {Select an existing Flash RAM image file.} xywh {355 308 75 20} labelsize 12 deactivate
+            }
+            Fl_Box wPCCardImagePath {
+              label {/here/goes/the/path/and/filename/of/the/PCMCIACardImage}
+              xywh {120 328 310 15} labelsize 11 align 212 deactivate
             }
           }
         }
@@ -580,7 +622,15 @@ else
 
 wDontShow->value(dontShow);
 
-wROMDetails->copy_label(GetROMDetails(wROMPath->label()));} {}
+wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
+
+wPCCardList->clear();
+for (int i=0; i<mCardList.size(); i++) {
+	TFLPCCardSettings *card = mCardList[i];
+	wPCCardList->add(card->GetName());
+}
+wPCCardList->value(0);
+wPCCardList->do_callback();} {}
   }
   Function {applyDialog()} {open return_type void
   } {

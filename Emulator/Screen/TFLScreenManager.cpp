@@ -41,6 +41,7 @@
 
 // Einstein
 #include "Emulator/Log/TLog.h"
+#include "Emulator/Platform/TPlatformManager.h"
 #include "app/TFLApp.h"
 
 
@@ -358,6 +359,7 @@ public:
 		switch (event) {
 			case FL_PUSH:
 				screenManager_->PenDown(penXPos(), penYPos());
+                //printf("%d %d\n", penXPos(), penYPos());
 				penIsDown = true;
 				Fl::add_timeout(screenManager_->GetTabletSampleRate()/4000000.0, penDownTimerCB, this);
 				return 1;
@@ -365,8 +367,8 @@ public:
 				screenManager_->PenDown(penXPos(), penYPos());
 				return 1;
 			case FL_RELEASE:
+                Fl::remove_timeout(penDownTimerCB, this);
 				screenManager_->PenUp();
-				Fl::remove_timeout(penDownTimerCB, this);
 				penIsDown = false;
 				return 1;
 			case FL_KEYDOWN:
@@ -406,8 +408,30 @@ public:
 			case FL_FOCUS:
 				return 1;
             case FL_DND_ENTER: // receive all DND events and ask for more
+//                mApp->GetPlatformManager()->EvalNewtonScript
+//                (
+//                 "SetClipboard( { label: \"Test\", types: [ ['text] ], data: [ [ "
+//                 "    { viewFont: 18435, textFlags: 4, offset: -6, text: \"Hallo, Welt!\", "
+//                 "        viewBounds: { left: 109, top: 183, right: 145, bottom: 205 }"
+//                 "    } "
+//                 "] ], bounds: {left:109, right:145, top:183, bottom:205} } "
+//                 ");"
+//                 );
+//                usleep(100000);
+//                screenManager_->PenDown(2, 80);
+//                penIsDown = true;
+//                Fl::add_timeout(screenManager_->GetTabletSampleRate()/4000000.0, penDownTimerCB, this);
+                return 1;
             case FL_DND_DRAG:
+                //screenManager_->PenDown(penXPos(), penYPos());
+                return 1;
+            case FL_DND_LEAVE:
+                // cancel the dnd command somehow
             case FL_DND_RELEASE:
+//                Fl::remove_timeout(penDownTimerCB, this);
+//                screenManager_->PenUp();
+//                penIsDown = false;
+//                return 1;
                 // on MacOS, Fl::event_text() is empty
                 // TODO: on other platforms, we may want to peek at the file extension and only allow valid types
                 return 1;

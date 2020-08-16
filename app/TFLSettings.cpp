@@ -36,7 +36,48 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include "app/TFLApp.h"
 #include "Emulator/ROM/TROMImage.h"
+
+
+// MARK: - PC Card Settings
+
+
+TFLPCCardSettings::TFLPCCardSettings(Fl_Preferences &prefs)
+{
+    mUUID = strdup(prefs.name());
+    prefs.get("name", mName, "<unnamed>");
+}
+
+
+TFLPCCardSettings::TFLPCCardSettings(const char *uuid, const char *name)
+{
+    mUUID = strdup(uuid);
+    mName = strdup(name);
+}
+
+TFLPCCardSettings::TFLPCCardSettings()
+{
+    mUUID = strdup(Fl_Preferences::newUUID());
+    mName = strdup("<unnamed>");
+}
+
+
+TFLPCCardSettings::~TFLPCCardSettings()
+{
+    if (mUUID)
+        ::free(mUUID);
+    if (mName)
+        ::free(mName);
+}
+
+void TFLPCCardSettings::WritePrefs(Fl_Preferences &prefs)
+{
+    prefs.set("name", mName);
+}
+
+
+// MARK: - Application Settings 
 
 
 TFLSettings::TFLSettings() = default;
@@ -67,7 +108,8 @@ void TFLSettings::ShowAboutDialog()
 }
 
 
-void TFLSettings::setApp(TFLApp *App, const char *AppPath) {
+void TFLSettings::setApp(TFLApp *App, const char *AppPath)
+{
     app = App;
     appPath = strdup(AppPath);
     char *end = (char*)fl_filename_name(appPath);
@@ -75,7 +117,8 @@ void TFLSettings::setApp(TFLApp *App, const char *AppPath) {
         *end = 0;
 }
 
-void TFLSettings::loadPreferences() {
+void TFLSettings::loadPreferences()
+{
     char buf[FL_PATH_MAX];
 
     Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
@@ -120,9 +163,30 @@ void TFLSettings::loadPreferences() {
     {
         memory.get("RAMSize", RAMSize, 64);
     }
+
+    // --- PCMCIA Card settings
+    Fl_Preferences pcmcia(prefs, "PCMCIA");
+
+    // --- a list of known PCMCIA Cards
+    Fl_Preferences cardlist(pcmcia, "CardList");
+
+    bool networkCardFound = false;
+    for (int i=0; i<cardlist.groups(); i++) {
+        Fl_Preferences cardprefs(cardlist, i);
+        TFLPCCardSettings *card = new TFLPCCardSettings(cardprefs);
+        mCardList.push_back(card);
+        if (strcmp(cardprefs.name(), TFLPCCardSettings::kNetworkUUID)==0)
+            networkCardFound = true;
+    }
+    if (!networkCardFound) {
+        TFLPCCardSettings *card = new TFLPCCardSettings(TFLPCCardSettings::kNetworkUUID, "Einstein Network Card");
+        card->SetType(TFLPCCardSettings::kNetworkCard);
+        mCardList.push_back(card);
+    }
 }
 
-void TFLSettings::savePreferences() {
+void TFLSettings::savePreferences()
+{
     Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
 
     // general preferences
@@ -160,6 +224,19 @@ void TFLSettings::savePreferences() {
     Fl_Preferences memory(prefs, "Memory");
     {
         memory.set("RAMSize", RAMSize);
+    }
+
+    // --- PCMCIA Card settings
+    Fl_Preferences pcmcia(prefs, "PCMCIA");
+
+    // --- a list of known PCMCIA Cards
+    Fl_Preferences cardlist(pcmcia, "CardList");
+    cardlist.clear();
+
+    for (int i=0; i<mCardList.size(); i++) {
+        TFLPCCardSettings *card = mCardList[i];
+        Fl_Preferences cardPrefs(cardlist, card->GetUUID());
+        card->WritePrefs(cardPrefs);
     }
 }
 
@@ -228,5 +305,10 @@ const char *TFLSettings::GetROMDetails(const char *inFilename)
     }
     delete theROMImage;
     return text;
+}
+
+void TFLSettings::UnplugPCCard(int ix)
+{
+    // FIXME: write this
 }
 

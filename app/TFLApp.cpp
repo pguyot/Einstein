@@ -23,6 +23,7 @@
 
 // ----- ASAPs
 // TODO: compile for Android
+// TODO: FIX 8 and 16 MB internal Flash support
 
 // ----- User Interface improvements
 // TODO: option to launch Monitor stopped at boot point
@@ -70,7 +71,7 @@
     The main thread at startup runs all code that creates windows, destroys windows,
     or handles user interaction. In FLTK, callbacks are always running in the main
     thread. If other threads need to call FLTK, the you should do it by guarding
-    the call with `Fl::lock(); ... ; Fl::unlocka();` and possibly `myWidget->redraw();`
+    the call with `Fl::lock(); ... ; Fl::unlock();` and possibly `myWidget->redraw();`
 
 - Emulator/Monitor thread:
     The Emulator runs inside its own thread. If the Monitor is enabled, the Emulator
@@ -270,7 +271,7 @@ TFLApp::Run( int argc, char* argv[] )
                               mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
     mPlatformManager = mEmulator->GetPlatformManager();
 
-    // yes, this is valid C++ code; it tells the emulator to call us so we can FLTK to
+    // yes, this is valid C++ code; it tells the emulator to call us so we can tell FLTK to
     // call us again later from the main thread which then closes all windows, terminating
     // the main application loop which then terminates the thread that called us to begin with.
     // Or as Mony says: "Would That It Were So Simple"
@@ -288,7 +289,11 @@ TFLApp::Run( int argc, char* argv[] )
     if (hidemouse) {
         wAppWindow->HideMousePointer();
     }
-
+/*
+    GetPlatformManager()->SendFlashMemoryCardEvent();
+    mMonitor->Show();
+    mMonitor->Stop();
+*/
     // launch the actual emulation in the background
     auto emulatorThread = new std::thread(&TFLApp::EmulatorThreadEntry, this);
 

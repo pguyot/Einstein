@@ -662,6 +662,11 @@ extern "C" void yyerror(char * s)
 
 void TToolkit::LoadSampleCode(int n)
 {
+    switch (n) {
+        case 1:
+            wScriptPanel->SetSourceCode(TToolkitPrototype::HelloWorld);
+            break;
+    }
 }
 
 void TToolkit::SetTempPkgPath()

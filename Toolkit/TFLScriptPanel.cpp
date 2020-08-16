@@ -92,13 +92,15 @@ void TFLScriptPanel::SetDirty()
 
 #define TS 14 // default editor textsize
 
+static char sSymbolFirstChar = 0;
+
 Fl_Text_Display::Style_Table_Entry TFLScriptEditor::styletable[] =
 {
     { FL_BLACK,         FL_COURIER,           TS }, // A - Plain
     { FL_DARK_GREEN,    FL_COURIER,           TS }, // B - Line comments
     { FL_DARK_GREEN,    FL_COURIER,           TS }, // C - Block comments
     { 0x99000000,       FL_COURIER,           TS }, // D - Strings
-    { FL_DARK_MAGENTA,  FL_COURIER,           TS }, // E - Directives
+    { FL_DARK_MAGENTA,  FL_COURIER,           TS }, // E - Symbol
     { FL_BLUE,          FL_COURIER_BOLD,      TS }, // F - Types
     { FL_DARK_MAGENTA,  FL_COURIER_BOLD,      TS }, // G - Keywords
 };
@@ -219,7 +221,7 @@ void TFLScriptEditor::style_parse(const char *text,
     // B - Line comments
     // C - Block comments
     // D - Strings
-    // E - Directives
+    // E - Symbol
     // F - Types
     // G - Keywords
 
@@ -230,6 +232,7 @@ void TFLScriptEditor::style_parse(const char *text,
             if (*text == '\'') {
                 // Set style to directive
                 current = 'E';
+                sSymbolFirstChar = 0;
             } else if (strncmp(text, "//", 2) == 0) {
                 current = 'B';
                 for (; length > 0 && *text != '\n'; length --, text ++) *style++ = 'B';
@@ -318,8 +321,30 @@ void TFLScriptEditor::style_parse(const char *text,
                 continue;
             }
         } else if (current == 'E') {
-            if (!isalnum(*text) && *text!='_')
+            if (sSymbolFirstChar==0) {
+                // we don't know yet if this is a text-only symbol, or a symbol separted by vertical bars
+                if (*text=='|')
+                    // complex symbol name bracketed by '|', for example '|clock:MATT|
+                    sSymbolFirstChar = '|';
+                else if (isalpha(*text) || *text=='_')
+                    // alphanumeric symbol name
+                    sSymbolFirstChar = 'A';
+                else
+                    // not a symbol, my be a literal frame: ``x := '{ text: "a" );``
+                    current = 'A';
+            } else if (sSymbolFirstChar=='|') {
+                if (*text=='\\')
+                    sSymbolFirstChar = '\\';
+                else if (*text=='|')
+                    sSymbolFirstChar = '.';
+            } else if (sSymbolFirstChar=='\\') {
+                sSymbolFirstChar = '|';
+            } else if (sSymbolFirstChar=='.') {
                 current = 'A';
+            } else {
+                if (!isalnum(*text) && *text!='_')
+                    current = 'A';
+            }
         }
 
         // Copy style info...

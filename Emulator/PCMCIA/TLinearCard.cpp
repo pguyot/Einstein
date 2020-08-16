@@ -33,8 +33,18 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
-//#include "FlashCIS.cpp"
-//#include "FlashDump.cpp"
+
+//#define MATTS_2MB_CARD
+//#define DIAG_1MB_CARD
+
+#ifdef MATTS_2MB_CARD
+#include "FlashCIS.cpp"
+#include "FlashDump.cpp"
+#endif
+
+#ifdef DIAG_1MB_CARD
+#include "DiagCard.cpp"
+#endif
 
 const KUInt8 TLinearCard::kCISData[] = {
     // INTEL 2MD Linear Flash
@@ -81,6 +91,13 @@ TLinearCard::TLinearCard( KUInt32 inSize )
 {
     mMemoryMap = (KUInt8*)malloc(mSize);
     memset(mMemoryMap, 0xff, mSize);
+#ifdef MATTS_2MB_CARD
+    memcpy(mMemoryMap, FlashDump, mSize);
+#endif
+#ifdef DIAG_1MB_CARD
+    memcpy(mMemoryMap, DiagCard, mSize/2);
+#endif
+
 }
 
 // -------------------------------------------------------------------------- //
