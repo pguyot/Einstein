@@ -140,7 +140,7 @@ HalfwordAndSignedDataTransferReg_Template(BITS_FLAGS, Rn, Rd)
 
     // The L bit should not be set low (Store) when Signed (S=1) operations have been selected
     // Unsigned half-word
-    if (theMemoryInterface->WriteB( theAddress, (KUInt8) ((theValue > 8) & 0xFF) ))
+    if (theMemoryInterface->WriteB( theAddress, (KUInt8) ((theValue >> 8) & 0xFF) ))
     {
         SETPC(GETPC());
         ioCPU->DataAbort();

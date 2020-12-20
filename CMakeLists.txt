@@ -487,8 +487,13 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 elseif (WIN32)
 
 	# configure to use FLTK as the GUI
-	set(FLTK_DIR "C:/Program Files/FLTK")
-	set(FLTK_FLUID_EXECUTABLE "C:/Program Files/FLTK/bin/fluid.exe")
+	# In later versions of WIndows 10, C:\Program Files\ is not writable for the user.
+	# I used this command to create a symbolic link from within the Admin Command Prompt:
+	#    cd "c:\Program Files"
+	#    mklink /D FLTK "C:\Users\micro\dev\fltk-1.4 for Einstein.git\out\install\x64-Release"
+	# Update the link to point to your build directory as needed
+	set(FLTK_DIR "C:/Program Files/FLTK/CMake")
+	# set(FLTK_FLUID_EXECUTABLE "C:/Program Files/FLTK/bin/fluid.exe")
 	set(FLTK_SKIP_OPENGL true)
 	find_package(FLTK REQUIRED NO_MODULE)
 
