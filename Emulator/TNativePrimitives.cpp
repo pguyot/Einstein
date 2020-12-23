@@ -848,6 +848,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 
 		case 0x1A:
 			// Log
+#if TARGET_OS_WIN32
 		{
 			KUInt32 theAddress = mProcessor->GetRegister(1);
 			char theLine[74];
@@ -855,6 +856,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			(void)mMemory->FastReadString(theAddress, &amount, theLine);
 			OutputDebugString(theLine);
 		}
+#endif
 			if (mLog)
 			{
 				KUInt32 theAddress = mProcessor->GetRegister( 1 );
