@@ -487,7 +487,7 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 elseif (WIN32)
 
 	# configure to use FLTK as the GUI
-	# In later versions of WIndows 10, C:\Program Files\ is not writable for the user.
+	# In later versions of Windows 10, C:\Program Files\ is not writable for the user.
 	# I used this command to create a symbolic link from within the Admin Command Prompt:
 	#    cd "c:\Program Files"
 	#    mklink /D FLTK "C:\Users\micro\dev\fltk-1.4 for Einstein.git\out\install\x64-Release"

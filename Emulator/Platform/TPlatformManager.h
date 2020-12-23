@@ -124,16 +124,33 @@ public:
 	///
 	bool IsPowerOn( void ) { return mPowerOn; }
 	
-	///
-	/// Lock the event queue. New events won't be sent to the Newton.
-	///
-	void	LockEventQueue( void );
+	/**
+	 * Keep Einstein from triggering new Platform Interrupts.
+	 * 
+	 * This method is call from NewtonOS. A recursive lock is set
+	 * that will keep Einstein from triggering new interrupts
+	 * until UnlockEventQueue() is called.
+	 * 
+	 * These kind of Platform Interrupts send keyboard events, run
+	 * NewtonScript snippets, and install packages.
+	 * 
+	 * \see UnlockEventQueue()
+	 * \see TNativePrimitives::ExecutePlatformDriverNative()
+	 * \see TPlatformManager::NewtonScriptCall()
+	 */
+	void LockEventQueue();
 
-	///
-	/// Unlock the event queue.
-	/// Send first pending event.
-	///
-	void	UnlockEventQueue( void );
+	/**
+	 * Allow Einstein to send Platform Interrupts again.
+	 * 
+	 * This method is called from NewtonOS after a Platform Event was 
+	 * handled and NewtonOS is ready for new events. If any events are 
+	 * pending, the next event in the list is sent by triggering
+	 * a Platform Interrupt.
+	 *
+	 * \see LockEventQueue()
+	 */
+	void UnlockEventQueue();
 
 	///
 	/// Get some information about the user.
@@ -309,6 +326,7 @@ private:
 	KUInt32				mBufferQueueSize = kDEFAULTBUFFERQUEUESIZE;	///< Size of the buffer queue.
 	KUInt32				mBufferNextID = 0;		    ///< Next ID for buffers.
 	bool				mPowerOn = true;			///< If power is on.
+	bool				mQueuePreLock = false;		///< Non-recursive lock to keep interrupts from triggering twice 
 	KUInt32				mQueueLockCount = 0;	    ///< Lock count for the queue.
 	TMutex*				mMutex = nullptr;			///< Mutex of the queue.
 	char*				mDocDir = nullptr;			///< Directory on host containing all kinds of documents

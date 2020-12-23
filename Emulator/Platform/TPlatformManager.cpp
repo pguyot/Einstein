@@ -32,6 +32,7 @@
 #include <dirent.h>
 #endif
 #include <sys/stat.h>
+#include <assert.h>
 
 // K
 #include <K/Unicode/UUTF16CStr.h>
@@ -122,6 +123,8 @@ TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
 
 	mMutex->Lock();
 
+	// If there are still events in the fifo, copy the next pending event
+	// from Einstein space into NewtonOS space.
 	KUInt32 newCCrsr = mEventQueueCCrsr;
 	if (newCCrsr != mEventQueuePCrsr)
 	{
@@ -137,13 +140,8 @@ TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
 				theSize += 8 + theEvent->fData.aevent.fSize;
 				break;
 		}
-		
-		if (theSize & 0x03)
-		{
-			theSize = (theSize / 4) + 1;
-		} else {
-			theSize = theSize / 4;
-		}
+
+		theSize = ((theSize+3) / 4);
 		
 		KUInt32* theEventAsLongs = (KUInt32*) theEvent;
 		while (theSize-- > 0)
@@ -153,7 +151,9 @@ TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
 					*theEventAsLongs++ );
 			outEventPAddr += 4;
 		}
+		// FIXME: can the event be deleted after it was copied? Is it deleted elsewhere?
 	} else {
+		// FIXME: this code is never reached
 		// Reached the end.
 		// Reset the cursors.
 		mEventQueuePCrsr = 0;
@@ -302,31 +302,41 @@ TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inDa
 {
 	mMutex->Lock();
 
+	// Append the Event to the Einstein Platform queue
 	KUInt32 newPCrsr = mEventQueuePCrsr;
 	SEvent* theEvent = &mEventQueue[newPCrsr++];
 	theEvent->fType = kAEvent;
 	theEvent->fData.aevent.fPort = inPortId;
 	theEvent->fData.aevent.fSize = inSize;
 	(void) ::memcpy( theEvent->fData.aevent.fData, inData, inSize );
-	if (newPCrsr == mEventQueueSize)
-	{
-		// Queue overflow.
-		// Increase it.
+
+	// Expand the queue if there are no more entries available
+	if (newPCrsr == mEventQueueSize) {
 		mEventQueueSize += kEVENTQUEUESIZEINCREMENT;
-		mEventQueue =
-			(SEvent*) ::realloc(
+		mEventQueue = (SEvent*)::realloc(
 							mEventQueue,
-							sizeof(SEvent) * mEventQueueSize );
+							sizeof(SEvent)*mEventQueueSize 
+		);
 	}
 	mEventQueuePCrsr = newPCrsr;
 	
-	mMutex->Unlock();
+	// Trigger the Platform Interrupt to let NewtonOS know that a new event is pending.
+	//
+	// NewtonOS can only handle one interrupt at a time, so a locking echanism ensures
+	// that only one event is handled at a time.
+	//
+	// mQueuePreLock protects NewtonOS from repeated interrupts as soon as the current 
+	// interrupt is triggered until the last recursion of mQueueLockCount is unlocked.
+	//
+	// mQueueLockCount is a recursive lock that protects the NewtonOS interrupt routine 
+	// in ./Drivers/TMainPlatformDriver::InterruptHandler.cpp: TMainPlatformDriver::InterruptHandler()
 
-	// Tell the driver.
-	if (mQueueLockCount == 0)
-	{
+	if ( (mQueuePreLock==false) && (mQueueLockCount==0) ) {
+		mQueuePreLock = true;
 		RaisePlatformInterrupt();
 	}
+
+	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -471,12 +481,13 @@ TPlatformManager::PowerOn( void )
 
 // -------------------------------------------------------------------------- //
 //  * LockEventQueue( void )
-//  Called from JIT.
 // -------------------------------------------------------------------------- //
 void
 TPlatformManager::LockEventQueue( void )
 {
+	mMutex->Lock();
 	mQueueLockCount++;
+	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -485,15 +496,32 @@ TPlatformManager::LockEventQueue( void )
 void
 TPlatformManager::UnlockEventQueue( void )
 {
-	if (mQueueLockCount != 0) {
-		mQueueLockCount--;
-		if (mQueueLockCount == 0) {
-			if (mEventQueuePCrsr != mEventQueueCCrsr)
-			{
-				RaisePlatformInterrupt();
-			}
+	mMutex->Lock();
+
+	// mQueueLockCount should never be less than or equal to zero. If it is, we called 
+	// Unlock() more often than Lock(), which may triggere severe bugs
+	assert(mQueueLockCount > 0);
+
+	mQueueLockCount--;
+
+	// as soon as the lock is completely unlocked, we can trigger more pending interrupts
+	if (mQueueLockCount == 0) 
+	{
+		// allow Einstein to trigger new interrupts
+		mQueuePreLock = false;
+
+		// check if there are more platform events pending
+		if (mEventQueuePCrsr != mEventQueueCCrsr) 
+		{
+			// no further interrupts may be triggered
+			mQueuePreLock = true;
+
+			// trigger another interrupt that will take care of handling remaining events
+			RaisePlatformInterrupt();
 		}
 	}
+
+	mMutex->Unlock();
 }
 
 // -------------------------------------------------------------------------- //
@@ -711,8 +739,8 @@ TPlatformManager::SetDocDir(const char *inDocDir)
 
 
 /**
- NewtonOS can call this method to get access into the EInstein system.
- The NTK project must link with NTKGlue.ntkc whic provides access to Einstein
+ NewtonOS can call this method to get access into the Einstein system.
+ The NTK project must link with NTKGlue.ntkc which provides access to Einstein
  by calling <tt>call Einstein.Platform with ('command, args);</tt> .
 
  \a arg0 is a Newt symbol that indicates the function call,

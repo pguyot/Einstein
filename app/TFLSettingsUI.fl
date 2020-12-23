@@ -147,7 +147,7 @@ mSettingsPanel = CreateSettingsPanel();} {}
         Fl_Group {} {
           label {  MessagePad  }
           comment {Add a field to select a REx, choose matching PC Cards per slot} open
-          xywh {10 35 430 375} hide
+          xywh {10 35 430 375}
         } {
           Fl_Group {} {open
             xywh {120 50 275 25}
@@ -283,8 +283,8 @@ if (filename) {
             }
           }
           Fl_Box wRestartWarning {
-            label {Setting changes apply only after a  restart}
-            xywh {216 378 200 20} labelfont 1 labelsize 12 align 20 hide
+            label {Setting changes apply only after a  restart} selected
+            xywh {30 378 386 20} box FLAT_BOX labelfont 1 labelsize 12 align 16 hide
           }
         }
         Fl_Group {} {
@@ -358,7 +358,7 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
         }
         Fl_Group {} {
           label {  PC Cards  } open
-          xywh {10 35 430 375}
+          xywh {10 35 430 375} hide
         } {
           Fl_Browser wPCCardList {
             label {PCMCIA Cards:}
@@ -389,7 +389,7 @@ wPCCardList->add(card->GetName());
 revertDialog();
 savePreferences();
 wPCCardList->value(mCardList.size());
-wPCCardList->do_callback();} selected
+wPCCardList->do_callback();}
             tooltip {add a new PCMCIA card} xywh {120 150 25 25} labelfont 4 labelsize 18
           }
           Fl_Button wPCCardListRemove {

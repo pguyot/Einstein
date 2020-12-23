@@ -430,13 +430,11 @@ void TToolkit::AppBuild()
     newtErr err;
     const char* argv[] = { "Einstein" };
     NewtInit(1, argv, 0);
+    // NEWT_TRACE = true;
 
     NewtDefGlobalFunc0(NSSYM(MakeBinaryFromString), (void*)NsMakeBinaryFromString, 2, false, (char*)"MakeBinaryFromString(str, sym)");
     NewtDefGlobalFunc0(NSSYM(AddStepForm), (void*)NSAddStepForm, 2, false, (char*)"AddStepForm(mainView, scrollClipper);");
     NewtDefGlobalFunc0(NSSYM(StepDeclare), (void*)NSStepDeclare, 3, false, (char*)"StepDeclare(mainView, scrollClipper, 'scrollClipper);");
-
-    NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
-    NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
 
     // #file ...
     // #line 1
@@ -467,7 +465,7 @@ void TToolkit::AppBuild()
     }
     src.append( TToolkitPrototype::ToolkitDone );
 
-    // FIXME: somewhere inside this call, _STDERR_ and _STDOUT_ are cleared by Newt/64
+    // FIXME: NVMInterpretStr sets _STDERR_ and _STDOUT_ to NIL
     result = NVMInterpretStr(src.c_str(), &err);
 
 //    puts(src.c_str());
@@ -492,18 +490,6 @@ void TToolkit::AppBuild()
         newtRef newt = NsGetGlobalVar(kNewtRefNIL, NSSYM(newt));
         NcSend0(newt, NSSYM(writePkg));
     }
-    NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
-    NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
-    outRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
-    if (NewtRefIsString(outRef)) {
-        const char *outStr = NewtRefToString(outRef);
-        PrintStd(outStr);
-    }
-    errRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
-    if (NewtRefIsString(errRef)) {
-        const char *errStr = NewtRefToString(errRef);
-        PrintErr(errStr);
-    }
     //PrintErr(mPkgPath);
 
     NewtCleanup();
@@ -515,18 +501,42 @@ void TToolkit::AppInstall()
     PrintStd("Installing...\n");
     TPlatformManager *mgr = mApp->GetPlatformManager();
 
-    const char *cmd =
-    "if HasSlot(GetRoot(), '|%s|) then begin\n"
-    "  GetRoot().|%s|:Close();\n"
-    "  SafeRemovePackage(GetPkgRef(\"%s\", GetStores()[0]))\n"
-    "end;\n";
+#if 0
+    // This code installs a global function that can call the Einstein Platform Manager from NewtonScript.
+    // It is currently not needed, but may be used to synchronize and return data from NewtonOS to Einstein.
+    mgr->EvalNewtonScript(
+        "cdata := MakeBinary(20, 'nativeModule);\n"
+        "StuffLong(cdata,  0, 42);\n"
+        "StuffLong(cdata,  0, -0x16D2C000);\n"  //      stmdb	sp!, { lr }
+        "StuffLong(cdata,  4, -0x1A601FFC);\n"  //      ldr		lr, sym
+        "StuffLong(cdata,  8, -0x11FF15F0);\n"  //      mcr		p10, 0, lr, c0, c0
+        "StuffLong(cdata, 12, -0x17428000);\n"  //      ldmia	sp!, { pc }
+        "StuffLong(cdata, 16,  0x00000122);\n"  // sym: dcd     0x00000122
+        "ff := {\n"
+        "       class : 'BinCFunction,\n"
+        "       code : cdata,\n"
+        "       numArgs: 2,\n"
+        "       offset : 0\n"
+        "};\n"
+        "DefGlobalFn('CallEinstein, func(a, b) call ff with (a, b) );\n"
+        "CallEinstein('x, 'y);\n"
+    );
+#endif
 
+    // uninstall the current package first
+    const char* cmd =
+        "if HasSlot(GetRoot(), '|%s|) then begin\n"
+        "  GetRoot().|%s|:Close();\n"
+        "  SafeRemovePackage(GetPkgRef(\"%s\", GetStores()[0]))\n"
+        "end;\n"
+        ;
     char *buf = (char*)::malloc(strlen(cmd)+1024);
     sprintf(buf, cmd, mPkgSymbol, mPkgSymbol, mPkgName);
     mgr->EvalNewtonScript(buf);
     //puts(buf);
     ::free(buf);
 
+    // install the package that we just created
     mApp->InstallPackagesFromURI(mPkgPath);
 }
 
@@ -540,7 +550,7 @@ void TToolkit::AppRun()
     char *buf = (char*)::malloc(strlen(cmd)+1024);
     sprintf(buf, cmd, mPkgSymbol);
     mgr->EvalNewtonScript(buf);
-    puts(buf);
+    //puts(buf);
     ::free(buf);
 }
 
@@ -557,7 +567,7 @@ void TToolkit::AppStop()
     char *buf = (char*)::malloc(strlen(cmd)+1024);
     sprintf(buf, cmd, mPkgSymbol, mPkgSymbol);
     mgr->EvalNewtonScript(buf);
-    puts(buf);
+    //puts(buf);
     ::free(buf);
 }
 
@@ -623,9 +633,11 @@ int TToolkit::UserActionDecompilePkg()
     char *buf = (char*)::malloc(strlen(cmd)+2*FL_PATH_MAX);
     sprintf(buf, cmd, filename, filename);
 
-    newtRefVar    result;
-    newtErr    err;
-    NewtInit(0, 0L, 0);
+    newtRefVar result;
+    newtErr err;
+    const char *argv[] = { "Einstein", nullptr };
+    int argc = 1;
+    NewtInit(argc, argv, 0);
     NsUndefGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
     NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
     NsUndefGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));

@@ -69,8 +69,8 @@
 // FLTK Class
 // -------------------------------------------------------------------------- //
 
-// FLTK has a bug where the keycode for single quote, back quote, and backslash are mixed up
-#if TARGET_OS_WIN32
+// FLTK had (has) a bug where the keycode for single quote, back quote, and backslash were (are) mixed up
+#if TARGET_OS_WIN32_NO_MORE
 #define vkTick 0x2A
 #define vkBackTick 0x27
 #define vkBackSlash 0x32
@@ -372,9 +372,17 @@ public:
 				penIsDown = false;
 				return 1;
 			case FL_KEYDOWN:
-                // let Shift-Command key combinations through
-                if ( (Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==(FL_COMMAND|FL_SHIFT))
-                    return 0;
+                // send Shift-Command key combinations back to FLTK, so the UI can handle them
+				if ((Fl::event_state() & (FL_SHIFT | FL_CTRL | FL_ALT | FL_META)) == (FL_COMMAND | FL_SHIFT)) {
+					// send key-up events for shift and ctrl modifiers to NewtonOS, so that the UI shortcut
+					// becomes transparent and the following keystrokes have no modifiers for NewtonOS
+					screenManager_->KeyUp(56); // shift
+					if (FL_CTRL==FL_COMMAND)
+						screenManager_->KeyUp(59); // ctrl on Windows and Linux
+					else
+						screenManager_->KeyUp(55); // meta on macOS
+					return 0;
+				}
                 // allow for Command-Q to quit the app which is not used in NewtonOS AFAIK.
                 if ( ((Fl::event_state()&(FL_SHIFT|FL_CTRL|FL_ALT|FL_META))==FL_COMMAND) && (Fl::event_key()=='q') )
                     return 0;

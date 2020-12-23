@@ -1,15 +1,25 @@
 
-How to build Einstein on various platforms in 2020
-==================================================
+# How to build Einstein.matt2020 on various platforms in 2020
+
+## Table Of Contents
+* Building Einstein on macOS in 64 bit with Xcode
+* Building Einstein on Linux in 64 bit
+* Building Einstein on Windows 10
+* A L P H A - building with Toolkit
 
 
-Building Einstein on macOS in 64 bit with Xcode
------------------------------------------------
+## Building Einstein on macOS in 64 bit with Xcode
 
 Tested on macOS 10.15.3 Catalina with Xcode 11.4.
 
+### Prerequisites
+
+Install Xcode and Xcode's command line tools
+
+### FLTK
+
 Download, build, and install FLTK first. FLTK is a cross-platform user interface library
-that is easy to install and use and very light on resources. See https://www.fltk.org .
+which is easy to install and use and very light on resources. See https://www.fltk.org .
 
 ```bash
 # -- Get the source code for FLTK from GitHub
@@ -34,6 +44,8 @@ cd ../../..
 ln -s /usr/local/bin/fluid.app/Contents/MacOS/fluid /usr/local/bin/fluid
 ```
 
+### Einstein (Makefiles)
+
 Then download and build Einstein:
 
 ```bash
@@ -52,6 +64,8 @@ make
 open ./Einstein.app
 cd ../../..
 ```
+
+### Einstein (Xcode)
 
 If you are planning to develop code for Einstein, you may want to use Xcode instead of Makefiles:
 ```bash
@@ -81,6 +95,7 @@ of Einstein inside the folder `Products > Application`.
 
 Continue with setting up the ROM as described in the manual. Enjoy.
 
+### BasiliskII
 
 There is a version of the Macintosh Emulator BasiliskII for macOS that can connect directly
 to Einstein via serial port emulation:
@@ -91,13 +106,16 @@ open macemu/BasiliskII/src/MacOSX/BasiliskII.xcodeproj
 ```
 
 
-Building Einstein on Linux in 64 bit
-------------------------------------
+## Building Einstein on Linux in 64 bit
 
 Tested on Linux Ubuntun 18.04.4 LTS
 
+### Prerequisites
+
 Install Clang, Make, and CMake. CMake may ask for more resources in the process. Install
 them with `sudo apt-get install ...`.
+
+### FLTK
 
 Download, build, and install FLTK first. FLTK is a cross-platform user interface library
 that is easy to install and use and very light on resources. See https://www.fltk.org .
@@ -121,6 +139,8 @@ sudo make install
 cd ../../..
 ```
 
+### Einstein 
+
 Then download and build Einstein:
 
 ```bash
@@ -142,6 +162,7 @@ cd ../../..
 
 Continue with setting up the ROM as described in the manual. Enjoy.
 
+### BasiliskII
 
 There is a version of the Macintosh Emulator BasiliskII for Linux that can connect directly
 to Einstein via serial port emulation. You need to install SDL2 to compile BasiliskII:
@@ -156,14 +177,17 @@ make
 ```
 
 
-Building Einstein on Windows 10
--------------------------------
+## Building Einstein on Windows 10
+
+### Prerequisites
 
 Install VisualStudio 2019 with the C++ compiler, CMake, and Git components. 
 I like to install TortoiseGIT as well to make accessing GitHub easy.
 
+### FLTK 
+
 Download, build, and install FLTK first. FLTK is a cross-platform user interface library
-that is easy to install and use and very light on resources. See https://www.fltk.org .
+that is easy to use and very light on resources. See https://www.fltk.org .
 
 Clone `https://github.com/fltk/fltk.git` into a directory named `fltk`.
 
@@ -178,15 +202,45 @@ Launch VisualStudio 2019. Click on "Continue without code...". An
 empty project will open. Select `File > Open > CMake...` from the VisualStudio
 main menu and select `CMakeLists.txt` in the fltk root directory.
 
-Add a Release target if VC did not already create it. The build `fluid.exe`.
+Add a Release target if VC did not already create it. Then build and run `fluid.exe`
+in x64-Release mode to verify that FLTK built fine.
 
-Install FLTK by creating `C:\Program FIles\FLTK\` with the subdirectories
-`bin`, `lib` and `include`. Copy `fluid.exe` into `bin`, copy all libraries into
-`lib`, and copy the `FL` directory into `include`. Fianlly, copy `fltk\out\build\x64-Release\FL\abi-version.h`
-into `include\FL`.
+Next, chose `Project > CMake settings for FLTK` from the main menu. Scroll down
+in the settings window and find the entry for `CMAKE_INSTALL_PREFIX`. Copy
+the path. We will need it later. In my case, it was `C:\Users\micro\dev\fltk-1.4 for Einstein.git\out\install\x64-Release`,
+but it will be diffferent on your machine.
+
+Install FLTK by choosing `Build > Install FLTK`.
+
+For Einstein to find FLTK, we need to create a link in the file system. Open
+a Command Prompt in Administrator mode and type the following commands, but replace
+the last path with whatever your FLTK path is.
+
+```
+c:
+cd "c:\Program Files"
+mklink /D FLTK "C:\Users\micro\dev\fltk-1.4 for Einstein.git\out\install\x64-Release"
+```
+
+### Newt64 / Toolkit
+
+This step is optional. When including Newt64 into your Build, Einstein will be created
+with an integrated developer toolkit.
+
+You need to install _flex_ and _bison_ in `C:/GnuWin32/` and add `C:/GnuWin32/bin` to the Path variable in the user environment settings.
+
+As of December 2020, both tools can be downloaded from `https://github.com/lexxmark/winflexbison/releases/tag/v2.5.23`, unpacked, and then
+copy the content of the archive into `C:/GnuWin32/bin`. Remove the *win_* prefix from *yacc.exe* and *bison.exe*. 
+Next, launch `Advanced System Settings` from the _Window 10_ Search Bar, click on
+`Environmet Variables...`, the edit the _PATH_ variable and add `C:/GnuWin32/bin`. Close all dialogs.
+
+Open Visual Studio and clone the GitHub project `https://github.com/MatthiasWM/NEWT64.git`.
+Add the `x64-Release` configuration. Newt64 should find all resources now. Build and install.
 
 
-Then download and build Einstein:
+### Einstein
+
+Next, download and build Einstein:
 
 Clone the `matt2020` branch from `https://github.com/pguyot/Einstein.git` into a folder named `Einstein`.
 
@@ -194,12 +248,13 @@ Again, launch VisualStudio and click "Continue without code...", the select
 `File > Open > CMake...` from the VisualStudio
 main menu and select `CMakeLists.txt` in the Einstein root directory.
 
-VisualStudio shoudl find all resources including FLTK and Fluid. Set Einstein
+VisualStudio should find all resources including FLTK and Fluid. Set Einstein
 as your startup project and compile and run the program.
 
 Continue with setting up the ROM as described in the manual. Enjoy.
 
 
+### BasiliskII
 There is a version of the Macintosh Emulator BasiliskII for Windows that can connect directly
 to Einstein via serial port emulation. You need to install SDL2 to compile BasiliskII:
 
@@ -208,8 +263,10 @@ Grab the SDL2 sourcecode and put it in `.../macemu/external`.
 Then load and compile the VisualStudio Solution in `macemu/BasiliskII/src/Windows`.
 
 
- A L P H A - building with Toolkit
------------------------------------
+## A L P H A - building with Toolkit
+
+
+(Outdated) 
 
 To build the 'matt2020_Toolkit' branch, some additional installs are required.
 
