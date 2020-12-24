@@ -1,3 +1,43 @@
+
+* Einstein 2020.4.8:
+
+Fixed event handling that would make Toolkit lock up eventually
+Added log output to Toolkit
+Fixed international text support (tested on Windows)
+
+* Einstein 2020.4.7:
+
+new: NS Functions AddStepFor and StepDeclare
+new: find and replce for the source code editor
+experimental: PCMCIA Flash Card emulation added
+
+* Einstein 2020.4.6:
+
+new: clipboard on Newton can be pasted to host machine
+fixed: networking and other fixes lifted from the master branch
+fixed: Monitor window remers previous position
+
+* Einstein 2020.4.5:
+
+new: web-install: install packages by dragging a ... .pkg link from the browser
+development: better CMake finding dependencies
+
+* Einstein 2020.4.4:
+
+new: built-in Toolkit to write, compile, install, and run NewtonScript apps
+new: package decompiler
+
+* Einstein 2020.3:
+
+Einstein now uses FLTK on all platforms, making it possible to provide the same features on every platform
+Packages can be installe via drag'n'drop
+Full menubar for new and future functionality
+Toolbar for some essential functions
+"Quit" now quits correctly
+Known issue: fullscreen does not work well or work at all
+Known issue: the Setting panel is not very intuitive
+Known issue: no icon or desktop integration for Linux yet
+
 * Einstein 2007 (2007/7/9)
 - New version of the emulator module, which uses less RAM and is PC-agnostic.
 - Fixed the emulation of several instructions (and wrote regression tests).

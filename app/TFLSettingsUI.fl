@@ -283,7 +283,7 @@ if (filename) {
             }
           }
           Fl_Box wRestartWarning {
-            label {Setting changes apply only after a  restart} selected
+            label {Setting changes apply only after a  restart}
             xywh {30 378 386 20} box FLAT_BOX labelfont 1 labelsize 12 align 16 hide
           }
         }
@@ -681,7 +681,7 @@ win->hide();} {}
         code0 {o->label(PROJECT_NAME);}
       }
       Fl_Box {} {
-        label {Version xxxx.xx.xx}
+        label {Version xxxx.xx.xx} selected
         xywh {72 108 190 20} labelsize 11
         code0 {o->label("Version " PROJECT_VER);}
       }
