@@ -572,6 +572,14 @@ void TToolkit::AppStop()
 }
 
 
+void TToolkit::AppCmd(const char* cmd)
+{
+    TPlatformManager* mgr = mApp->GetPlatformManager();
+    mgr->EvalNewtonScript(cmd);
+}
+
+
+
 /**
  * Tell the Toolkit UI to redraw the titlebar.
  */
@@ -594,6 +602,7 @@ void TToolkit::UpdateTitle()
 
 void TToolkit::PrintStd(const char *text)
 {
+    // TODO: insert at the current position, or in the line after, in case we are editing text?
     gTerminalBuffer->append(text);
     int c = gTerminalBuffer->length();
     c = gTerminalBuffer->line_start(c);

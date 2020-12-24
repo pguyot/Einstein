@@ -78,6 +78,7 @@ public:
     void AppInstall();
     void AppRun();
     void AppStop();
+    void AppCmd(const char* cmd);
 
     void LoadSampleCode(int n);
     void UpdateTitle();

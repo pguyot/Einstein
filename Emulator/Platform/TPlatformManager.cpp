@@ -38,6 +38,9 @@
 #include <K/Unicode/UUTF16CStr.h>
 #include <K/Threads/TMutex.h>
 
+// FLTK
+#include <FL/fl_utf8.h>
+
 // Einstein
 #include "Emulator/TInterruptManager.h"
 #include "Emulator/TMemory.h"
@@ -591,15 +594,31 @@ TPlatformManager::SendBufferAEvent(
 //  * EvalNewtonScript( const char* )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::EvalNewtonScript( const char* inNewtonScriptCode )
+TPlatformManager::EvalNewtonScript(const char* inNewtonScriptCode)
 {
-	SendBufferAEvent(
-		kNewtPort,
-		kEinsteinNSEventClass,
-		kEventRuntimeWithSData,
-		kNewtonScriptEvalData,
-		(KUInt32) ::strlen( inNewtonScriptCode ),
-		(const KUInt8*) inNewtonScriptCode );
+	unsigned srcLen = strlen(inNewtonScriptCode);
+	unsigned dstLen = fl_utf8toa(inNewtonScriptCode, srcLen, nullptr, 0);
+
+	if (srcLen == dstLen) {
+		SendBufferAEvent(
+			kNewtPort,
+			kEinsteinNSEventClass,
+			kEventRuntimeWithSData,
+			kNewtonScriptEvalData,
+			(KUInt32) ::strlen(inNewtonScriptCode),
+			(const KUInt8*)inNewtonScriptCode);
+	} else {
+		char* dstScript = (char*)::malloc(dstLen + 1);
+		fl_utf8toa(inNewtonScriptCode, srcLen, dstScript, dstLen+1);
+		SendBufferAEvent(
+			kNewtPort,
+			kEinsteinNSEventClass,
+			kEventRuntimeWithSData,
+			kNewtonScriptEvalData,
+			(KUInt32)dstLen,
+			(const KUInt8*)dstScript);
+		free(dstScript);
+	}
 }
 
 // -------------------------------------------------------------------------- //

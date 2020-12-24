@@ -52,6 +52,9 @@ class TFLTerminalEditor : public Fl_Text_Editor
 public:
     TFLTerminalEditor(int x, int y, int w, int h, const char *label = nullptr);
     ~TFLTerminalEditor();
+protected:
+    int handle_command_enter(int key);
+    static int handle_command_enter_cb(int key, Fl_Text_Editor* w) { return ((TFLTerminalEditor*)w)->handle_command_enter(key); }
 };
 
 

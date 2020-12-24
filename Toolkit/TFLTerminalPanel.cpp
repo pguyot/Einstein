@@ -22,8 +22,10 @@
 // ==============================
 
 
-#include "TFLTerminalPanel.h"
+#include "Toolkit/TFLTerminalPanel.h"
+#include "Toolkit/TToolkit.h"
 
+#include <FL/Enumerations.H>
 
 // MARK: - TFLTerminalPanel -
 
@@ -43,6 +45,12 @@ TFLTerminalPanel::~TFLTerminalPanel()
 
 // MARK: - TFLTerminalEditor -
 
+static void kill_selection(Fl_Text_Editor* e) {
+    if (e->buffer()->selected()) {
+        e->insert_position(e->buffer()->primary_selection()->start());
+        e->buffer()->remove_selection();
+    }
+}
 
 /**
  * This class displays output from the Toolkit and allows users to enter commands.
@@ -50,11 +58,48 @@ TFLTerminalPanel::~TFLTerminalPanel()
 TFLTerminalEditor::TFLTerminalEditor(int x, int y, int w, int h, const char *label)
 :   Fl_Text_Editor(x, y, w, h, label)
 {
+    add_key_binding(FL_Enter, FL_COMMAND, handle_command_enter_cb);
 }
 
 TFLTerminalEditor::~TFLTerminalEditor()
 {
 }
+
+int TFLTerminalEditor::handle_command_enter(int key)
+{
+    if (!buffer()->selected()) {
+        // find the start and end of the given line and send it as a NewtonScript command
+        int p = insert_position();
+        int pStart = buffer()->line_start(p);
+        int pEnd = buffer()->line_end(p);
+        // TODO: extend selection if line endings have continuation characters
+        buffer()->select(pStart, pEnd);
+    }
+    if (buffer()->selected()) {
+        // copy the selection and send it as a NewtonScript text
+        char *cmd = buffer()->selection_text();
+        
+        //insert_position(buffer()->primary_selection()->end());
+        //buffer()->unselect();
+
+        if (cmd) {
+            gToolkit->AppCmd(cmd);
+            ::free(cmd);
+        }
+    } else {
+        // find the start and end of the given line and send it as a NewtonScript command
+        // if the previous line ends in a continuation character ('\'), select that line as well
+    }
+    /*
+    kill_selection(e);
+    insert("\\\n");
+    show_insert_position();
+    set_changed();
+    if (when() & FL_WHEN_CHANGED) do_callback();
+    */
+    return 1;
+}
+
 
 
 // MARK: - TFLTerminalBuffer -
