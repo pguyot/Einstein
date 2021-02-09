@@ -524,7 +524,6 @@ void TToolkit::AppInstall()
     // It is currently not needed, but may be used to synchronize and return data from NewtonOS to Einstein.
     mgr->EvalNewtonScript(
         "cdata := MakeBinary(20, 'nativeModule);\n"
-        "StuffLong(cdata,  0, 42);\n"
         "StuffLong(cdata,  0, -0x16D2C000);\n"  //      stmdb	sp!, { lr }
         "StuffLong(cdata,  4, -0x1A601FFC);\n"  //      ldr		lr, sym
         "StuffLong(cdata,  8, -0x11FF15F0);\n"  //      mcr		p10, 0, lr, c0, c0
