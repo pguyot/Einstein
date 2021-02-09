@@ -32,6 +32,7 @@
 #include "Emulator/Screen/TScreenManager.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
+#include <cassert>
 
 // MARK: -
 // ========================================================================== //
@@ -136,8 +137,8 @@ KUInt32 TJITGenericPatchManager::Add(TJITGenericPatchObject *p)
 	if (p==0)
 		return 0;
 	if (mPatchListTop==mPatchListSize) {
-		if (mPatchListTop) {
-			mPatchListTop *= 2;
+		if (mPatchListSize) {
+			mPatchListSize *= 2;
 		} else {
 			mPatchListSize = 64;
 		}
@@ -181,8 +182,11 @@ TJITGenericPatchObject::TJITGenericPatchObject(KUInt32 inAddr0, KUInt32 inAddr1,
     mOriginalInstruction(0xFFFFFFFF),
 	mName(name)
 {
-    static_assert(kROMPatchNumIDs==3, "Fix this constructor if the number of supported ROMs cahnged");
-//    fprintf(stderr, "Adding ROM patch: %s\n", name);
+    static_assert(kROMPatchNumIDs==3, "Fix this constructor if the number of supported ROMs changed");
+	assert(inAddr0 == kROMPatchVoid || inAddr0 < 16 * 1024 * 1024);
+	assert(inAddr1 == kROMPatchVoid || inAddr1 < 16 * 1024 * 1024);
+	assert(inAddr2 == kROMPatchVoid || inAddr2 < 16 * 1024 * 1024);
+	//    fprintf(stderr, "Adding ROM patch: %s\n", name);
 }
 
 

@@ -39,4 +39,5 @@ DerivedData/
 /app/TFLSettingsUI.h
 /Toolkit/TFLToolkitUI.cpp
 /Toolkit/TFLToolkitUI.h
+/CMakeSettings.json
 

@@ -436,6 +436,10 @@ void TToolkit::AppBuild()
     NewtDefGlobalFunc0(NSSYM(AddStepForm), (void*)NSAddStepForm, 2, false, (char*)"AddStepForm(mainView, scrollClipper);");
     NewtDefGlobalFunc0(NSSYM(StepDeclare), (void*)NSStepDeclare, 3, false, (char*)"StepDeclare(mainView, scrollClipper, 'scrollClipper);");
 
+	// FIXME: does this work?
+    NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
+    NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
+
     // #file ...
     // #line 1
     std::string src;
@@ -489,6 +493,20 @@ void TToolkit::AppBuild()
     if (ReadScriptResults()==0) {
         newtRef newt = NsGetGlobalVar(kNewtRefNIL, NSSYM(newt));
         NcSend0(newt, NSSYM(writePkg));
+    }
+
+	// FIXME: does this work?
+    NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
+    NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
+    outRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
+    if (NewtRefIsString(outRef)) {
+        const char *outStr = NewtRefToString(outRef);
+        PrintStd(outStr);
+    }
+    errRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
+    if (NewtRefIsString(errRef)) {
+        const char *errStr = NewtRefToString(errRef);
+        PrintErr(errStr);
     }
     //PrintErr(mPkgPath);
 
@@ -644,9 +662,10 @@ int TToolkit::UserActionDecompilePkg()
 
     newtRefVar result;
     newtErr err;
-    const char *argv[] = { "Einstein", nullptr };
+    static const char *argv[] = { "Einstein", nullptr };
     int argc = 1;
     NewtInit(argc, argv, 0);
+    
     NsUndefGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));
     NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
     NsUndefGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));

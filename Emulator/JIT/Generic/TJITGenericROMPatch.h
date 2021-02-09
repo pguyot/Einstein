@@ -320,8 +320,6 @@ public:
         be word-aligned
  \param inAddr1 this is the address in the MP2100DE ROM or kROMPatchVoid
  \param inAddr2 this is the address in the eMate300 ROM or kROMPatchVoid
- \param addr this is the address in the MP2x00D ROM
- \param addr this is the address in the eMate300 ROM
  \param name naming the patch makes debugging easier
  */
 #define T_ROM_INJECTION(inAddr0, inAddr1, inAddr2, name) \
