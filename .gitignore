@@ -41,3 +41,10 @@ DerivedData/
 /Toolkit/TFLToolkitUI.h
 /CMakeSettings.json
 
+/Emulator/PCMCIA/FlashDump.h
+/Emulator/PCMCIA/FlashDump.cpp
+/Emulator/PCMCIA/FlashCIS.h
+/Emulator/PCMCIA/FlashCIS.cpp
+/Emulator/PCMCIA/DiagCard.h
+/Emulator/PCMCIA/DiagCard.cpp
+/Emulator/PCMCIA/DiagCard
