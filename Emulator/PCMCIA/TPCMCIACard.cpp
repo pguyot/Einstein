@@ -21,6 +21,17 @@
 // $Id$
 // ==============================
 
+//
+// PCMCIA Cards are 54mm x 85.5mm big. 
+// The MP display is 480x320 pixel at 4.8" x 3.2" (100dpi).
+// So one screen pixel is 3.2/320*25.4 ~= 0.25mm wide.
+// The PCMCIA graphics should then be 342 x 216 pixels
+//
+// HuRes MessagePad image on German Wikipedia:
+// "Von Elvis untot auf Wikipedia auf Deutsch - selbst fotographiert, 
+// CC BY - SA 2.0 de, https://commons.wikimedia.org/w/index.php?curid=17730048"
+//
+
 #include "TPCMCIACard.h"
 
 // Einstein

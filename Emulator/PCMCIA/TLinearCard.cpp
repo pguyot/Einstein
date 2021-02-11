@@ -33,9 +33,11 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
+const char *TLinearCard::kIdent = "TLinearCard";
 
 //#define MATTS_2MB_CARD
 //#define DIAG_1MB_CARD
+#define APPLE_2MB_CARD
 
 #ifdef MATTS_2MB_CARD
 #include "FlashCIS.cpp"
@@ -46,7 +48,11 @@
 #include "DiagCard.cpp"
 #endif
 
-const KUInt8 TLinearCard::kCISData[] = {
+#ifdef APPLE_2MB_CARD
+#include "2MBCardApple.cpp"
+#endif
+
+const KUInt8 TLinearCard::kDefaultCISData[] = {
     // INTEL 2MD Linear Flash
     0x01, 0x03, // CISTPL_DEVICE
     0x52,   // Device Code = 5 (DTYPE_FLASH), WPS = 0 (WP Switch works), Speed = 2 (DSPEED_200NS)
@@ -86,6 +92,65 @@ const KUInt8 TLinearCard::kCISData[] = {
 // -------------------------------------------------------------------------- //
 //  * TLinearCard( KUInt32 )
 // -------------------------------------------------------------------------- //
+TLinearCard::TLinearCard(const char* inFilename, const char* inFilenameCIS)
+{
+    if (!inFilename)
+        inFilename = "C:/Users/micro/Downloads/MP2000-PCMCIA-Image_S.PILET/MP2000-PCMCIA-Image_S.PILET/Fodor94";
+    if (!inFilenameCIS)
+        inFilenameCIS = "C:/Users/micro/Downloads/MP2000-PCMCIA-Image_S.PILET/MP2000-PCMCIA-Image_S.PILET/Fodor94-CIS";
+
+    FILE *f = fopen(inFilename, "rb");
+    // FIXME: and what if we have an error?
+    fseek(f, 0, SEEK_END);
+    KUInt32 size = (KUInt32)ftell(f);
+    fseek(f, 0, SEEK_SET);
+    mSize = size;
+    mMemoryMap = (KUInt8*)malloc(mSize);
+    fread(mMemoryMap, 1, mSize, f);
+    fclose(f);
+
+#if 0
+    mCISDataSize = sizeof(kCISData);
+    mCISData = (KUInt8*)malloc(mCISDataSize);
+    memmove(mCISData, kCISData, mCISDataSize);
+
+    switch (mSize / 1024 / 1024) {
+    case  2: mCISData[3] = 0x06; break;
+    case  4: mCISData[3] = 0x0e; break;
+    case  8: mCISData[3] = 0x1e; break;
+    case 16: mCISData[3] = 0x3e; break;
+    case 24: mCISData[3] = 0x5e; break;
+    case 32: mCISData[3] = 0x7e; break;
+    case 48: mCISData[3] = 0xbe; break;
+    case 64: mCISData[3] = 0xfe; break;
+    }
+    //mCISData[3] = 1;
+    //scale = *p & 7;
+    //if (scale == 7)
+    //    return -EINVAL;
+    //device->dev[i].size = ((*p >> 3) + 1) * (512 << (scale * 2));
+     //   2MB=06(6)
+     //   8MB 1Eh
+     //   16MB 3Eh
+     //   24MB 5Eh
+     //   32MB 7Eh
+     //   48MB BEh
+     //   64MB FEh
+#else
+    mCISDataSize = 1024;
+    mCISData = (KUInt8*)malloc(mCISDataSize);
+    f = fopen(inFilenameCIS, "rb");
+    // FIXME: and what if we have an error?
+    fread(mCISData, 1, mCISDataSize, f);
+    for (int i = 0; i < 512; i++) {
+        mCISData[i] = mCISData[(i ^ 1) * 2 +1];
+    }
+    fclose(f);
+
+#endif
+}
+
+#if 0
 TLinearCard::TLinearCard( KUInt32 inSize )
 :   mSize(inSize)
 {
@@ -97,8 +162,13 @@ TLinearCard::TLinearCard( KUInt32 inSize )
 #ifdef DIAG_1MB_CARD
     memcpy(mMemoryMap, DiagCard, mSize/2);
 #endif
-
+#ifdef APPLE_2MB_CARD
+    memcpy(mMemoryMap, Apple2MB, mSize);
+#endif
 }
+#endif
+
+
 
 // -------------------------------------------------------------------------- //
 //  * ~TLinearCard( void )
@@ -107,6 +177,8 @@ TLinearCard::~TLinearCard( void )
 {
     if (mMemoryMap)
         ::free(mMemoryMap);
+    if (mCISData)
+        ::free(mCISData);
 }
 
 // -------------------------------------------------------------------------- //
@@ -163,8 +235,8 @@ TLinearCard::ReadAttrB( KUInt32 inOffset )
     KUInt8 theResult = 0;
 
     inOffset = (inOffset/2)^1; // byte addresses are 32bit-flipped
-    if (inOffset<sizeof(kCISData)) {
-        theResult = kCISData[ inOffset];
+    if (inOffset<mCISDataSize) {
+        theResult = mCISData[ inOffset];
     } else {
         theResult = 0;
     }
@@ -454,6 +526,115 @@ TLinearCard::WriteMemB( KUInt32 inOffset, KUInt8 inValue )
         }
     }
 }
+
+
+/**
+ * Static method to generate a PCMCIA Card Image file.
+ * 
+ * The PCMCIA Card Image starts with the data section, followed by the CIS,
+ * followed by an optional graphic (not yet), and more data that may be 
+ * relevant. The format is extendable.
+ * 
+ * The file ends in a lookup table. See ImageInfo.
+ * 
+ * \param inOutFilename the final image will be written to this file
+ * \param inDataFilename read PCMCIA Data block from this file, size is usually a multiple of 1MB
+ * \param inCISFilename read CIS data from this file and descramble it
+ */
+KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inDataFilename, const char* inCISFilename)
+{
+    KSInt32 err = 0;
+    FILE* fOut = nullptr;
+    FILE* fData = nullptr;
+    FILE* fCIS = nullptr;
+    KUInt8* dataBuffer = nullptr;
+    KUInt8* cisBuffer = nullptr;
+    ImageInfo imageInfo = { 0 };
+    imageInfo.pType = 0; // increment this when adding infomation to the file format
+    strcpy(imageInfo.pIdent, kIdent);
+
+    // --- create the image file
+    fOut = fopen(inOutFilename, "wb");
+    if (!fOut) { err = kErrCantCreateOutFile; goto cleanup; }
+
+    // --- read the Data part
+    fData = fopen(inDataFilename, "rb");
+    if (!fData) { err = kErrCantOpenDataFile; goto cleanup; }
+    fseek(fData, 0, SEEK_END);  // simple way to find file size
+    imageInfo.pDataSize = ftell(fData);
+    fseek(fData, 0, SEEK_SET);
+    if (imageInfo.pDataSize == 0) { err = kErrCorruptDataFile; goto cleanup; }
+    if (imageInfo.pDataSize > 128 * 1024 * 1024) { err = kErrDataFileTooBig; goto cleanup; }
+
+    // copy the data over verbatim
+    dataBuffer = (KUInt8*)malloc(imageInfo.pDataSize);
+    if (!dataBuffer) { err = kErrOutOfMemory; goto cleanup; }
+    if (fread(dataBuffer, imageInfo.pDataSize, 1, fData)!=1) { err = kErrCorruptDataFile; goto cleanup; }
+    if (fwrite(dataBuffer, imageInfo.pDataSize, 1, fOut)!=1) { err = kErrIncompleteImageFile; goto cleanup; }
+
+    // --- read the CIS data
+    // TODO: we can derive the CIS data (well, 'some' CIS data from the code above, in case this CIS is missing or corrupt)
+    imageInfo.pCISStart = imageInfo.pDataSize;
+    fCIS = fopen(inCISFilename, "rb");
+    if (!fCIS) { err = kErrCantOpenCISFile; goto cleanup; }
+    fseek(fCIS, 0, SEEK_END);  // simple way to find file size
+    KUInt32 rawCISSize = ftell(fCIS);
+    fseek(fCIS, 0, SEEK_SET);
+    if (rawCISSize == 0) { err = kErrCorruptCISFile; goto cleanup; }
+    if (rawCISSize > 4096) rawCISSize = 4096;
+
+    // read CIS data
+    cisBuffer = (KUInt8*)malloc(rawCISSize);
+    if (!cisBuffer) { err = kErrOutOfMemory; goto cleanup; }
+    if (fread(cisBuffer, rawCISSize, 1, fCIS) != 1) { err = kErrCorruptCISFile; goto cleanup; }
+
+    // find byte order and descramble (usually x1x0x3x2, but could be 0123...)
+    if (cisBuffer[3] == 1 && cisBuffer[1] > 0) {
+        for (int i=0; i<rawCISSize/2; ++i)
+            cisBuffer[i] = cisBuffer[(i ^ 1) * 2 + 1];
+        rawCISSize /= 2;
+    } else {
+        // TODO: we are cheating here a bit. Some diagnostic data would be nice, so we can add other descramblers.
+        err = kErrCorruptCISFile; goto cleanup;
+    }
+
+    // find the end of the CIS data (we can output all card information here, if needed)
+    // (even if the CIS is corrupt, this loop will not run forever)
+    imageInfo.pCISSize = rawCISSize;
+    for (int i=0;i<rawCISSize;) {
+        // get tuple type
+        KUInt8 tt = cisBuffer[i++];
+        KUInt8 st = cisBuffer[i++];
+        switch (tt) {
+        case 0x01: // CISTPL_DEVICE
+            imageInfo.pType = cisBuffer[i] >> 4; 
+            // TODO: cisBuffer[i+1] contains the encoded size of the Flash. Do we want to verify that this is the same as Data size?
+            break;
+        case 0x15: // CISTPL_VERS_1
+            // majr, minor version, manufacturer \0 product \0 product info 2 \0 product info 3 \0\ff 
+            break;
+        case 0xff: 
+            imageInfo.pCISSize = i; 
+            i = rawCISSize; // end the loop
+            break;
+        }
+        i += st;
+    }
+    if (fwrite(cisBuffer, imageInfo.pCISSize, 1, fOut) != 1) { err = kErrIncompleteImageFile; goto cleanup; }
+
+    // add our image info block to the end of the file
+    if (fwrite(&imageInfo, sizeof(imageInfo), 1, fOut) != 1) { err = kErrIncompleteImageFile; goto cleanup; }
+
+    // close all files and deallocate buffers
+cleanup:
+    if (fOut) fclose(fOut);
+    if (fData) fclose(fData);
+    if (fCIS) fclose(fData);
+    if (dataBuffer) ::free(dataBuffer);
+    if (cisBuffer) ::free(cisBuffer);
+    return err;
+}
+
 
 // ======================================================================= //
 // Flash Card                                                              //

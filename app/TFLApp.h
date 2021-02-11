@@ -41,6 +41,7 @@ class TNetworkManager;
 class TMonitor;
 class TSymbolList;
 class TToolkit;
+class TPCMCIACardList;
 
 class Fl_Widget;
 class TFLApp;
@@ -122,6 +123,12 @@ public:
     // Show or raise or hide the Toolkit window
     void UserActionShowToolkit();
 
+    // User wants to create a PCMCIA image from snapshot files and add it to the PCMCIA card list.
+    void UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data, const char* cis);
+
+    // User wants to add a PCMCIA image from an existing Image file.
+    void UserActionAddPCMCIAImage(const char* imagefile);
+
     // ---  Events from within the emulator
 
     // this is called by the screen manager when the state of the backlight changed
@@ -155,6 +162,8 @@ private:
     void InitNetwork();
 
     void InitSerialPorts();
+
+    void InitPCMCIACardList();
 
     void InitMonitor(const char *theROMImagePath);
 
@@ -190,6 +199,7 @@ private:
     TSymbolList*		mSymbolList = nullptr;
     TFLSettings*        mFLSettings = nullptr;
     TToolkit*           mToolkit = nullptr;
+    TPCMCIACardList*    mPCMCIACardList = nullptr;
     Fl_Widget*          mNewtonScreen = nullptr;
     int                 mWindowedX = 150;
     int                 mWindowedY = 150;

@@ -56,10 +56,42 @@ class TLinearCard
 		public TPCMCIACard
 {
 public:
+
+	typedef struct {
+		KUInt32 pIconSize;	// size of image data in bytes
+		KUInt32 pIconStart; // start of image data, optional, image is stored in PNG format
+		KUInt32 pCISSize;	// size of CIS data in bytes
+		KUInt32 pCISStart;  // start of CIS data, CIS data is stored in natural order(0123 < -x1x0 x3x2)
+		KUInt32 pDataSize;	// size of Data block in bytes
+		KUInt32 pDataStart;	// start of Data block, Flash Data is stored as seen by the Newton
+		KUInt8  pFIller1, pFiller2, pFiller3;
+		KUInt8  pType;		// type of card, according to CIS
+		KUInt32 pVersion;	// version of this format
+		char	pIdent[12]; // "TLinearCard\0"
+	} ImageInfo;
+	static const char *kIdent;
+	///
+	/// Compose PCMCIA file from Data, CIS, and Image
+	///
+	static KSInt32 ComposeImageFile(const char* inOutFilename, const char* inDataFilename, const char* inCISFilename);
+
+	static const KSInt32 kErrCantCreateOutFile = -1;
+	static const KSInt32 kErrCantOpenDataFile = -2;
+	static const KSInt32 kErrCantOpenCISFile = -3;
+	static const KSInt32 kErrCorruptDataFile = -4;
+	static const KSInt32 kErrDataFileTooBig = -5;
+	static const KSInt32 kErrOutOfMemory = -6;
+	static const KSInt32 kErrIncompleteImageFile = -7;
+	static const KSInt32 kErrCorruptCISFile = -8;
+	
+private:
+	static const KUInt8 kDefaultCISData[];
+
+public:
 	///
 	/// Constructor from the size.
 	///
-	TLinearCard( KUInt32 inSize=2*1024*1024 );
+	TLinearCard( const char *inFilename=nullptr, const char *inFilenameCIS=nullptr );
 
 	///
 	/// Destructor.
@@ -137,13 +169,17 @@ public:
 	virtual void		WriteMemB( KUInt32 inOffset, KUInt8 inValue );
 
 private:
-	/// \name Constants
-    static const KUInt8 kCISData[];
+	ImageInfo mImageInfo;
+
 
 	/// \name Variables
     KUInt32 mSize = 2*1024*1024;  ///< Size of the linear card in bytes.
 
     KUInt8 *mMemoryMap = nullptr;
+
+	KUInt8* mCISData = nullptr;
+
+	KUInt32 mCISDataSize = 0;
 
     enum {
         kReadArray,

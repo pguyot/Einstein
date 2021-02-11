@@ -179,6 +179,8 @@ set ( sources
 	Emulator/PCMCIA/TNE2000Card.h
 	Emulator/PCMCIA/TPCMCIACard.cpp
 	Emulator/PCMCIA/TPCMCIACard.h
+	Emulator/PCMCIA/TPCMCIACardList.cpp
+	Emulator/PCMCIA/TPCMCIACardList.h
 	Emulator/PCMCIA/TPCMCIAController.cpp
 	Emulator/PCMCIA/TPCMCIAController.h
 	Emulator/Platform/PlatformEvents.h

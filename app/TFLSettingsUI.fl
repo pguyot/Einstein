@@ -147,7 +147,7 @@ mSettingsPanel = CreateSettingsPanel();} {}
         Fl_Group {} {
           label {  MessagePad  }
           comment {Add a field to select a REx, choose matching PC Cards per slot} open
-          xywh {10 35 430 375}
+          xywh {10 35 430 375} hide
         } {
           Fl_Group {} {open
             xywh {120 50 275 25}
@@ -358,7 +358,7 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
         }
         Fl_Group {} {
           label {  PC Cards  } open
-          xywh {10 35 430 375} hide
+          xywh {10 35 430 375}
         } {
           Fl_Browser wPCCardList {
             label {PCMCIA Cards:}
@@ -375,22 +375,7 @@ if (ix==-1) {
 	wPCCardProperties->activate();
 	wPCCardName->value( card->GetName() );
 }}
-            xywh {120 50 235 100} type Hold align 4 when 1
-          }
-          Fl_Button wPCCardListAdd {
-            label {+}
-            callback {const char *name = fl_input("Please choose a name for your new PCMCIA Card:", "Flash Memory Card");
-if (!name) return;
-
-TFLPCCardSettings *card = new TFLPCCardSettings(Fl_Preferences::newUUID(), name);
-card->SetType(TFLPCCardSettings::kLinearFlashCard);
-mCardList.push_back(card);
-wPCCardList->add(card->GetName());
-revertDialog();
-savePreferences();
-wPCCardList->value(mCardList.size());
-wPCCardList->do_callback();}
-            tooltip {add a new PCMCIA card} xywh {120 150 25 25} labelfont 4 labelsize 18
+            xywh {120 50 235 165} type Hold align 4 when 1
           }
           Fl_Button wPCCardListRemove {
             label {-}
@@ -419,18 +404,18 @@ delete mCardList[ix];
 mCardList.erase(mCardList.begin()+ix);
 revertDialog();
 savePreferences();}
-            tooltip {remove and delete a PCMCIA card} xywh {145 150 25 25} labelfont 4 labelsize 18 deactivate
+            tooltip {remove and delete a PCMCIA card} xywh {145 215 25 25} labelfont 4 labelsize 18 deactivate
           }
-          Fl_Group wPCCardProperties {open
-            xywh {10 203 430 140}
+          Fl_Group wPCCardProperties {
+            xywh {10 255 430 140}
           } {
             Fl_Input wPCCardName {
               label {Name:}
-              tooltip {give this PCMCIA card a name} xywh {120 203 160 25} color 53
+              tooltip {give this PCMCIA card a name} xywh {120 255 160 25} color 53
             }
             Fl_Choice {} {
               label {Type:} open
-              xywh {120 238 160 25} down_box BORDER_BOX deactivate
+              xywh {120 290 160 25} down_box BORDER_BOX deactivate
             } {
               MenuItem {} {
                 label {Network Card}
@@ -447,7 +432,7 @@ savePreferences();}
             }
             Fl_Input_Choice {} {
               label {Size:} open
-              xywh {121 273 159 24} deactivate
+              xywh {121 325 159 24} deactivate
             } {
               MenuItem {} {
                 label {1 MB}
@@ -480,7 +465,7 @@ savePreferences();}
             }
             Fl_Output wPCCardImage {
               label {Image File: }
-              xywh {120 308 160 20} color 51 labelsize 13 textsize 12 deactivate
+              xywh {120 360 160 20} color 51 labelsize 13 textsize 12 deactivate
             }
             Fl_Button wPCCardImageCreate {
               label {Create...}
@@ -493,7 +478,7 @@ if (filename) {
     wFlashName->value(fl_filename_name(filename));
     wFlashPath->copy_label(filename);
 }}
-              tooltip {Create a new Flash RAM image file.} xywh {280 308 75 20} labelsize 12 deactivate
+              tooltip {Create a new Flash RAM image file.} xywh {280 360 75 20} labelsize 12 deactivate
             }
             Fl_Button wPCCardImageChoose {
               label {Choose...}
@@ -506,11 +491,53 @@ if (filename) {
     wFlashName->value(fl_filename_name(filename));
     wFlashPath->copy_label(filename);
 }}
-              tooltip {Select an existing Flash RAM image file.} xywh {355 308 75 20} labelsize 12 deactivate
+              tooltip {Select an existing Flash RAM image file.} xywh {355 360 75 20} labelsize 12 deactivate
             }
             Fl_Box wPCCardImagePath {
               label {/here/goes/the/path/and/filename/of/the/PCMCIACardImage}
-              xywh {120 328 310 15} labelsize 11 align 212 deactivate
+              xywh {120 380 310 15} labelsize 11 align 212 deactivate
+            }
+          }
+          Fl_Menu_Bar {} {open
+            xywh {120 215 25 25}
+          } {
+            Submenu {} {
+              label {+} open
+              xywh {0 0 100 20}
+            } {
+              MenuItem {} {
+                label {Add PCMCIA Image file...}
+                xywh {0 0 100 20} labelsize 12 deactivate
+              }
+              MenuItem {} {
+                label {New 8MB Flash Card...}
+                xywh {0 0 100 20} labelsize 12 deactivate
+              }
+              MenuItem {} {
+                label {New 16MB Flash Card...}
+                xywh {0 0 100 20} labelsize 12 deactivate
+              }
+              MenuItem {} {
+                label {Create Image from snapshot...}
+                callback {const char *a = fl_file_chooser("Create this PCMCIA Image file", "*.pcmcia", nullptr);
+if (!a) return;
+char *dstName = strdup(a);
+
+const char *b = fl_file_chooser("PCMCIA Card Data Snapshot", nullptr, nullptr);
+if (!b) { free(dstName); return; }
+char *dataName = strdup(b);
+
+const char *c = fl_file_chooser("PCMCIA Card CIS snapshot", nullptr, nullptr);
+char *cisName = nullptr;
+if (c) cisName = strdup(c);
+
+app->UserActionPCMCIAImageFromSnapshot(dstName, dataName, cisName);
+
+if (dstName) free(dstName);
+if (dataName) free(dataName);
+if (cisName) free(cisName);} selected
+                xywh {0 0 100 20} labelsize 12
+              }
             }
           }
         }
@@ -681,7 +708,7 @@ win->hide();} {}
         code0 {o->label(PROJECT_NAME);}
       }
       Fl_Box {} {
-        label {Version xxxx.xx.xx} selected
+        label {Version xxxx.xx.xx}
         xywh {72 108 190 20} labelsize 11
         code0 {o->label("Version " PROJECT_VER);}
       }

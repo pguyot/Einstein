@@ -553,7 +553,7 @@ TEmulator::InsertCard( void )
 	{
 		mLog->LogLine( "Insert card" );
 	}
-	mMemory.GetPCMCIAController(0)->InsertCard( new TLinearCard( 6 * 1024 * 1024 ) );
+	mMemory.GetPCMCIAController(0)->InsertCard( new TLinearCard( /* 6 * 1024 * 1024 */ ) );
 }
 
 // -------------------------------------------------------------------------- //

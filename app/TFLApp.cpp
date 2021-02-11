@@ -133,6 +133,8 @@
 #include "Emulator/Serial/TSerialPorts.h"
 #include "Emulator/Serial/TSerialPortManager.h"
 #include "Emulator/Serial/TTcpClientSerialPortManager.h"
+#include "Emulator/PCMCIA/TPCMCIACardList.h"
+#include "Emulator/PCMCIA/TLinearCard.h"
 
 // Http Client GET
 #undef min
@@ -260,6 +262,8 @@ TFLApp::Run( int argc, char* argv[] )
     }
 
     const char *theFlashPath = strdup(mFLSettings->FlashPath);
+
+    InitPCMCIACardList();
 
     InitScreen();
 
@@ -613,6 +617,34 @@ void TFLApp::UserActionShowToolkit()
 #endif
 }
 
+void TFLApp::UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data, const char* cis)
+{
+    // TODO: make sure that the extension actually .pcmcia if the file does not exist yet.
+    int err = TLinearCard::ComposeImageFile(dst, data, cis);
+    if (err) {
+        const char* msg = "An unspecified error occured.";
+        switch (err) {
+        case TLinearCard::kErrCantCreateOutFile: msg = "Can't create Image file."; break;
+        case TLinearCard::kErrCantOpenDataFile: msg = "Can't open Data file."; break;
+        case TLinearCard::kErrCantOpenCISFile: msg = "Can't open CIS file."; break;
+        case TLinearCard::kErrCorruptDataFile: msg = "Data file corrupt."; break;
+        case TLinearCard::kErrDataFileTooBig: msg = "Data file too large."; break;
+        case TLinearCard::kErrOutOfMemory: msg = "Out of memory."; break;
+        case TLinearCard::kErrIncompleteImageFile: msg = "Incomplete Image file."; break;
+        case TLinearCard::kErrCorruptCISFile: msg = "CIS file is corrupt."; break;
+        }
+        fl_alert("Can't create Card Image.\n%s", msg);
+        return;
+    }
+    UserActionAddPCMCIAImage(dst);
+}
+
+void TFLApp::UserActionAddPCMCIAImage(const char* imagefile)
+{
+    // TODO: create a TLinearCard, add it to the Card List, and update the Preferences and the Settings dialog.
+}
+
+
 // MARK: -
 // ---  Events from within the meulator
 
@@ -815,6 +847,17 @@ void TFLApp::InitSerialPorts()
     }
                                                );
 #endif
+}
+
+
+void TFLApp::InitPCMCIACardList()
+{
+    mPCMCIACardList = new TPCMCIACardList(nullptr, nullptr);
+    mPCMCIACardList->addDefaultCards();
+    //mPCMCIACardList->addMemoryCard(
+    //    "C:/Users/micro/Downloads/MP2000-PCMCIA-Image_S.PILET/MP2000-PCMCIA-Image_S.PILET/Fodor94"
+    //    "C:/Users/micro/Downloads/MP2000-PCMCIA-Image_S.PILET/MP2000-PCMCIA-Image_S.PILET/Fodor94-CIS"
+    //    );
 }
 
 
