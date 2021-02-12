@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project("Einstein" VERSION "2020.4.9")
 
-set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_STANDARD 17)
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 

@@ -66,6 +66,7 @@ TMutex::~TMutex( void )
 {
 #if TARGET_OS_WIN32
 	BOOL ret = CloseHandle(mMutex);
+	mMutex = INVALID_HANDLE_VALUE;
 	assert( ret != 0 );
 #else
 	int err = ::pthread_mutex_destroy( &mMutex );
@@ -81,8 +82,10 @@ void
 TMutex::Lock( void )
 {
 #if TARGET_OS_WIN32
-	DWORD ret = WaitForSingleObject(mMutex, INFINITE);
-	assert( ret == WAIT_OBJECT_0 );
+	if (mMutex != INVALID_HANDLE_VALUE) {
+		DWORD ret = WaitForSingleObject(mMutex, INFINITE);
+		assert(ret == WAIT_OBJECT_0);
+	}
 #else
 	int err = ::pthread_mutex_lock( &mMutex );
 	assert( err == 0 );
@@ -97,8 +100,10 @@ void
 TMutex::Unlock( void )
 {
 #if TARGET_OS_WIN32
-	BOOL ret = ReleaseMutex(mMutex);
-	assert( ret != 0 );
+	if (mMutex != INVALID_HANDLE_VALUE) {
+		BOOL ret = ReleaseMutex(mMutex);
+		//assert(ret != 0);
+	}
 #else
 	int err = ::pthread_mutex_unlock( &mMutex );
 	assert( err == 0 );

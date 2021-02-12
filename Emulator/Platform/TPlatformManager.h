@@ -39,6 +39,7 @@ class TScreenManager;
 class TMemory;
 class TLog;
 class TMutex;
+class TPCMCIACard;
 
 
 ///
@@ -179,6 +180,11 @@ public:
 	/// Data is copied.
 	///
 	void	SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inData );
+
+	///
+	/// Insert or replace a PCCard in a given slot, or remove a PCCard
+	/// 
+	int	InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard);
 
     ///
     /// Send a Flash Memory card insertion event.

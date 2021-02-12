@@ -33,6 +33,8 @@
 #endif
 #include <sys/stat.h>
 #include <assert.h>
+#include <thread>
+#include <chrono>
 
 // K
 #include <K/Unicode/UUTF16CStr.h>
@@ -342,6 +344,33 @@ TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inDa
 	mMutex->Unlock();
 }
 
+/**
+ * Insert or replace a PCCard in a given slot, or remove a PCCard
+ */
+int TPlatformManager::InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard)
+{
+	if (!mMemory) return -1;
+
+	TPCMCIAController* controller = mMemory->GetPCMCIAController(inSLot);
+	if (!controller) return -1;
+
+	bool doPause = (controller->CurrentCard()!=nullptr) && (inCard!=nullptr);
+
+	if (controller->CurrentCard()) {
+		controller->RemoveCard();
+	}
+
+	if (doPause)
+		std::this_thread::sleep_for(std::chrono::seconds(3));
+
+	if (inCard) {
+		controller->InsertCard(inCard);
+	}
+
+	return 0;
+}
+
+
 // -------------------------------------------------------------------------- //
 //  * SendFlashMemoryCardEvent( void )
 // -------------------------------------------------------------------------- //
@@ -355,7 +384,7 @@ TPlatformManager::SendFlashMemoryCardEvent( void )
         TPCMCIAController *theController = mMemory->GetPCMCIAController(0); // FIXME: controller 1
         if (theController) {
             if (theCard==0L) {
-                theCard = new TLinearCard();
+                theCard = new TLinearCard("A");
                 theController->InsertCard(theCard);
             } else {
                 theController->RemoveCard();

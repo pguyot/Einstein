@@ -24,6 +24,7 @@
 #ifndef T_FL_SETTINGS_H
 #define T_FL_SETTINGS_H
 
+#include <K/Defines/KDefinitions.h>
 
 #include <vector>
 
@@ -31,6 +32,7 @@
 class Fl_Double_Window;
 class Fl_Preferences;
 class TFLApp;
+class TPCMCIACard;
 
 
 /**
@@ -39,16 +41,22 @@ class TFLApp;
 class TFLPCCardSettings
 {
 public:
-    constexpr static const char *const kNetworkUUID = "3C709CD5-6573-4D91-B3B2-7B0D122C6AB5";
+    enum class CardType {
+        kUndefined,
+        kNetwork,
+        kLinear
+    };
 
-    static const int kUnknownCard = 0;
-    static const int kNetworkCard = 1;
-    static const int kLinearFlashCard = 2;
+    constexpr static const char *const kNetworkUUID = "3C709CD5-6573-4D91-B3B2-7B0D122C6AB5";
 
     TFLPCCardSettings(Fl_Preferences&);
     TFLPCCardSettings(const char *uuid, const char *name);
     TFLPCCardSettings();
+    static TFLPCCardSettings* LinkLinearPCCard(const char* inName, const char* inImageFilename);
+    static TFLPCCardSettings* NewLinearPCCard(const char* inName, const char* inImageFilename, KUInt32 inSizeMB);
     ~TFLPCCardSettings();
+
+    TPCMCIACard* GetCard();
 
     void WritePrefs(Fl_Preferences&);
 
@@ -56,13 +64,22 @@ public:
 
     const char *GetName() { return mName; }
 
-    void SetType(int type) { mType = type; }
+    void SetName(const char* inName);
+    
+    void SetType(CardType inType) { mType = inType; }
+
+    CardType GetType() { return mType; }
+
+    void SetImagePath(const char *inImagePath);
+
+    const char* GetImagePath() { return mImagePath; }
 
 private:
-
+    TPCMCIACard* mCard = nullptr;
     char *mUUID = nullptr;
     char *mName = nullptr;
-    int mType = kUnknownCard;
+    char* mImagePath = nullptr;
+    CardType mType = CardType::kUndefined;
 };
 
 
@@ -85,6 +102,11 @@ public:
     void savePreferences();
 
     const char *GetROMDetails(const char *inFilename);
+
+    TFLPCCardSettings* addLinearPCCard(const char* inName, const char* inImageFilename);
+    void startUpdateCardList();
+    void updateNextCard(const char* inName, TFLPCCardSettings* inCard);
+    void endUpdateCardList();
 
     void UnplugPCCard(int ix);
 

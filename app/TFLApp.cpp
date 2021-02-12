@@ -617,10 +617,10 @@ void TFLApp::UserActionShowToolkit()
 #endif
 }
 
-void TFLApp::UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data, const char* cis)
+int TFLApp::UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data, const char* cis, const char* name)
 {
     // TODO: make sure that the extension actually .pcmcia if the file does not exist yet.
-    int err = TLinearCard::ComposeImageFile(dst, data, cis);
+    int err = TLinearCard::ComposeImageFile(dst, data, cis, name);
     if (err) {
         const char* msg = "An unspecified error occured.";
         switch (err) {
@@ -634,15 +634,29 @@ void TFLApp::UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data
         case TLinearCard::kErrCorruptCISFile: msg = "CIS file is corrupt."; break;
         }
         fl_alert("Can't create Card Image.\n%s", msg);
-        return;
+        return -1;
     }
-    UserActionAddPCMCIAImage(dst);
+    return 0;
 }
 
-void TFLApp::UserActionAddPCMCIAImage(const char* imagefile)
+// User wants to insert or remove PCMCIA card into ot from controller 0.
+int TFLApp::UserActionPCCard(int inSlot, long inIndex)
 {
-    // TODO: create a TLinearCard, add it to the Card List, and update the Preferences and the Settings dialog.
+    if (inIndex==-1)
+        return mPlatformManager->InsertPCCard(inSlot, nullptr);
+
+    int ret = -1;
+    TPCMCIACard* card = GetSettings()->mCardList[inIndex]->GetCard();
+    if (card) 
+        ret = mPlatformManager->InsertPCCard(inSlot, card);
+    return ret;
 }
+
+
+//void TFLApp::UserActionAddPCMCIAImage(const char* inImageFilename, const char* inName)
+//{
+//    // TODO: create a TLinearCard, add it to the Card List, and update the Preferences and the Settings dialog.
+//}
 
 
 // MARK: -

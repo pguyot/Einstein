@@ -138,6 +138,11 @@ public:
 	///
 	void	RemoveCard( void );
 
+	///
+	/// Return the card in the slot or nullptr if empty.
+	/// 
+	TPCMCIACard* CurrentCard() { return mCard; }
+
 	// Card Interface.
 
 	///

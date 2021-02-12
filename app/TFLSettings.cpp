@@ -38,6 +38,8 @@
 
 #include "app/TFLApp.h"
 #include "Emulator/ROM/TROMImage.h"
+#include "Emulator/PCMCIA/TNE2000Card.h"
+#include "Emulator/PCMCIA/TLinearCard.h"
 
 
 // MARK: - PC Card Settings
@@ -47,6 +49,21 @@ TFLPCCardSettings::TFLPCCardSettings(Fl_Preferences &prefs)
 {
     mUUID = strdup(prefs.name());
     prefs.get("name", mName, "<unnamed>");
+    int type = 0;
+    prefs.get("type", type, 0);
+    switch (type) {
+    case 0:
+        SetType(CardType::kUndefined);
+        break;
+    case 1:
+        SetType(CardType::kNetwork);
+        break;
+    case 2:
+        SetType(CardType::kLinear);
+        if (mImagePath) ::free(mImagePath);
+        prefs.get("imagePath", mImagePath, "");
+        break;
+    }
 }
 
 
@@ -63,6 +80,38 @@ TFLPCCardSettings::TFLPCCardSettings()
 }
 
 
+TFLPCCardSettings* TFLPCCardSettings::LinkLinearPCCard(const char* inName, const char* inImageFilename)
+{
+    TFLPCCardSettings* card = new TFLPCCardSettings();
+    card->SetName(inName);
+    card->SetType(CardType::kLinear);
+    card->SetImagePath(inImageFilename);
+    return card;
+}
+
+TFLPCCardSettings* TFLPCCardSettings::NewLinearPCCard(const char* inName, const char* inImageFilename, KUInt32 inSizeMB)
+{
+    TLinearCard::CreateImageFile(inName, inImageFilename, inSizeMB);
+    return LinkLinearPCCard(inName, inImageFilename);
+}
+
+TPCMCIACard* TFLPCCardSettings::GetCard()
+{
+    if (!mCard) {
+        switch (mType) {
+        case CardType::kUndefined:
+            break;
+        case CardType::kNetwork:
+            mCard = new TNE2000Card();
+            break;
+        case CardType::kLinear:
+            mCard = new TLinearCard(mImagePath);
+            break;
+        }
+    }
+    return mCard;
+}
+
 TFLPCCardSettings::~TFLPCCardSettings()
 {
     if (mUUID)
@@ -74,6 +123,36 @@ TFLPCCardSettings::~TFLPCCardSettings()
 void TFLPCCardSettings::WritePrefs(Fl_Preferences &prefs)
 {
     prefs.set("name", mName);
+    switch (mType) {
+    case CardType::kUndefined:
+        prefs.set("type", 0);
+        break;
+    case CardType::kNetwork:
+        prefs.set("type", 1);
+        break;
+    case CardType::kLinear:
+        prefs.set("type", 2);
+        prefs.set("imagePath", mImagePath);
+        break;
+    }
+}
+
+void TFLPCCardSettings::SetName(const char* inName)
+{
+    if (mName) 
+        ::free(mName);
+    mName = nullptr;
+    if (inName)
+        mName = strdup(inName);
+}
+
+void TFLPCCardSettings::SetImagePath(const char* inImagePath)
+{
+    if (mImagePath)
+        ::free(mImagePath);
+    mImagePath = nullptr;
+    if (inImagePath)
+        mImagePath = strdup(inImagePath);
 }
 
 
@@ -175,12 +254,15 @@ void TFLSettings::loadPreferences()
         Fl_Preferences cardprefs(cardlist, i);
         TFLPCCardSettings *card = new TFLPCCardSettings(cardprefs);
         mCardList.push_back(card);
-        if (strcmp(cardprefs.name(), TFLPCCardSettings::kNetworkUUID)==0)
+        if (strcmp(cardprefs.name(), TFLPCCardSettings::kNetworkUUID) == 0) {
             networkCardFound = true;
+            // fix a wrong entry, created by older version of Einstein.
+            card->SetType(TFLPCCardSettings::CardType::kNetwork);
+        }
     }
     if (!networkCardFound) {
         TFLPCCardSettings *card = new TFLPCCardSettings(TFLPCCardSettings::kNetworkUUID, "Einstein Network Card");
-        card->SetType(TFLPCCardSettings::kNetworkCard);
+        card->SetType(TFLPCCardSettings::CardType::kNetwork);
         mCardList.push_back(card);
     }
 }
@@ -306,6 +388,49 @@ const char *TFLSettings::GetROMDetails(const char *inFilename)
     delete theROMImage;
     return text;
 }
+
+TFLPCCardSettings* TFLSettings::addLinearPCCard(const char* inName, const char* inImageFilename)
+{
+    return TFLPCCardSettings::LinkLinearPCCard(inName, inImageFilename);
+}
+
+
+static std::vector<TFLPCCardSettings*> gCardList;
+
+/**
+ * When creating a new list of PCCards, we must make sure that those cards,
+ * that were in the old list, but are no longer used in the new list, will
+ * be deleted, so we do not get a memory leak.
+ */
+void TFLSettings::startUpdateCardList()
+{
+    gCardList = mCardList;
+    mCardList.clear();
+}
+
+/**
+ * Make sure that we remove all cards from the old list if they go into the new list.
+ */
+void TFLSettings::updateNextCard(const char* inName, TFLPCCardSettings* inCard)
+{
+    mCardList.push_back(inCard);
+    auto it = find(gCardList.begin(), gCardList.end(), inCard);
+    if (it != gCardList.end())
+        gCardList.erase(it);
+}
+
+/**
+ * Delete all cards that are still in the old list.
+ */
+void TFLSettings::endUpdateCardList()
+{
+    // FIXME: make sure that this card is not inserted. If it is, we should mark it as unlisted, so it delets itself when ejected?
+    for (auto& card : gCardList)
+        delete card;
+    gCardList.clear();
+}
+
+
 
 void TFLSettings::UnplugPCCard(int ix)
 {

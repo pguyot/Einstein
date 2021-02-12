@@ -124,10 +124,10 @@ public:
     void UserActionShowToolkit();
 
     // User wants to create a PCMCIA image from snapshot files and add it to the PCMCIA card list.
-    void UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data, const char* cis);
+    int UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data, const char* cis, const char *name);
 
-    // User wants to add a PCMCIA image from an existing Image file.
-    void UserActionAddPCMCIAImage(const char* imagefile);
+    // User wants to insert or remove PCMCIA card into ot from controller 0.
+    int UserActionPCCard(int inSlot, long inIndex);
 
     // ---  Events from within the emulator
 

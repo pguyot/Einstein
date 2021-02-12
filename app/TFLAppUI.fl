@@ -12,14 +12,14 @@ decl {\#include <FL/fl_draw.H>} {private global
 decl {\#include "TFLAppWindow.h"} {public global
 }
 
-Function {CreateApplicationWindow(int x, int y)} {open selected
+Function {CreateApplicationWindow(int x, int y)} {open
 } {
   Fl_Window wAppWindow {open
     xywh {454 329 320 558} type Double resizable
     code0 {wAppWindow->position(x, y);}
     class TFLAppWindow visible
   } {
-    Fl_Menu_Bar wMenubar {open
+    Fl_Menu_Bar wMenubar {open selected
       xywh {0 0 320 24} color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
     } {
@@ -112,15 +112,13 @@ Function {CreateApplicationWindow(int x, int y)} {open selected
           callback {gApp->UserActionToggleBacklight();}
           xywh {0 0 100 20}
         }
-        MenuItem {} {
-          label {Flash Memory Card}
-          callback {gApp->UserActionToggleFlashMemoryCard();}
-          xywh {0 0 100 20} shortcut 0x410066
+        MenuItem wPCCardSlot0 {
+          label {PCCard Slot 0}
+          xywh {0 0 100 20}
         }
-        MenuItem {} {
-          label {Network Card}
-          callback {gApp->UserActionToggleNetworkCard();}
-          xywh {12 12 100 20} divider
+        MenuItem wPCCardSlot1 {
+          label {PCCard Slot 1}
+          xywh {10 10 100 20} deactivate divider
         }
         MenuItem {} {
           label {Fetch ROM...}
@@ -212,7 +210,22 @@ Function {CreateApplicationWindow(int x, int y)} {open selected
       }
       Fl_Button wNetworkTool {
         label Network
-        callback {gApp->UserActionToggleNetworkCard();}
+        callback {float y = (Fl::event_y()-o->y())/(float)o->h();
+  Fl_Menu_Item* menu = nullptr;
+  const Fl_Menu_Item* cardMenu = nullptr;
+  if (1) \{ // y < 0.5) \{ // TODO: enable this when both ports are working
+      menu = (Fl_Menu_Item*)wPCCardSlot0->user_data();
+      if (menu)
+        cardMenu = menu->popup(Fl::event_x(), Fl::event_y(), "PCPort 0");
+      if (cardMenu)
+      	gApp->UserActionPCCard(0, (long)cardMenu->user_data());
+  \} else \{
+      menu = (Fl_Menu_Item*)wPCCardSlot1->user_data();
+      if (menu)
+        cardMenu = menu->popup(Fl::event_x(), Fl::event_y(), "PCPort 1");
+      if (cardMenu)
+      	gApp->UserActionPCCard(1, (long)cardMenu->user_data());
+  \}}
         image {../Resources/icons/button_network.png} xywh {104 25 36 36} color 52 labelsize 11 align 514
         code0 {o->box(FL_FREE_BOXTYPE);}
         code1 {o->down_box(FL_FREE_BOXTYPE);}

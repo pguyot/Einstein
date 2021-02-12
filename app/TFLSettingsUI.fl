@@ -37,6 +37,9 @@ decl {\#include "TFLSettings.h"} {public global
 decl {\#include "TFLApp.h"} {private local
 }
 
+decl {\#include "TFLAppUI.h"} {private local
+}
+
 decl {\#include "app/Version.h"} {private global
 }
 
@@ -59,6 +62,16 @@ decl {\#include <FL/Fl_Native_File_Chooser.H>} {private local
 }
 
 decl {\#include <FL/Fl.H>} {private local
+}
+
+Function {cb_changePCCard0(Fl_Widget*, void* user_data)} {open private return_type void
+} {
+  code {gApp->UserActionPCCard(0, (long)user_data);} {}
+}
+
+Function {cb_changePCCard1(Fl_Widget*, void* user_data)} {open private return_type void
+} {
+  code {gApp->UserActionPCCard(1, (long)user_data);} {}
 }
 
 class TFLSettingsUI {open : {public TFLSettings}
@@ -146,8 +159,8 @@ mSettingsPanel = CreateSettingsPanel();} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open
-          xywh {10 35 430 375} hide
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
+          xywh {10 35 430 375}
         } {
           Fl_Group {} {open
             xywh {120 50 275 25}
@@ -358,11 +371,12 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
         }
         Fl_Group {} {
           label {  PC Cards  } open
-          xywh {10 35 430 375}
+          xywh {10 35 430 375} hide
         } {
           Fl_Browser wPCCardList {
             label {PCMCIA Cards:}
-            callback {int ix = wPCCardList->value()-1;
+            callback {\#if 0
+int ix = wPCCardList->value()-1;
 if (ix==-1) {
 	wPCCardListRemove->deactivate();
 	wPCCardProperties->deactivate();
@@ -374,129 +388,9 @@ if (ix==-1) {
 		wPCCardListRemove->activate();
 	wPCCardProperties->activate();
 	wPCCardName->value( card->GetName() );
-}}
-            xywh {120 50 235 165} type Hold align 4 when 1
-          }
-          Fl_Button wPCCardListRemove {
-            label {-}
-            user_data this
-            callback {int ix = wPCCardList->value()-1;
-if (ix==-1) 
-	return;
-
-TFLPCCardSettings *card = mCardList[ix];	
-int choice = fl_choice(
-	"This removes the reference to the card\\n\\"%s\\".\\n"
-	"Do you also want to delete the card data?",
-	"Cancel",
-	"Remove Card",
-	"Delete Data",
-	card->GetName());
-	
-if (choice==0) {
-	return;
 }
-UnplugPCCard(ix);
-if (choice==2) { // Delete Card Data, too
-	// TODO: delete card dats
-}
-delete mCardList[ix];
-mCardList.erase(mCardList.begin()+ix);
-revertDialog();
-savePreferences();}
-            tooltip {remove and delete a PCMCIA card} xywh {145 215 25 25} labelfont 4 labelsize 18 deactivate
-          }
-          Fl_Group wPCCardProperties {
-            xywh {10 255 430 140}
-          } {
-            Fl_Input wPCCardName {
-              label {Name:}
-              tooltip {give this PCMCIA card a name} xywh {120 255 160 25} color 53
-            }
-            Fl_Choice {} {
-              label {Type:} open
-              xywh {120 290 160 25} down_box BORDER_BOX deactivate
-            } {
-              MenuItem {} {
-                label {Network Card}
-                xywh {0 0 100 20}
-              }
-              MenuItem {} {
-                label {Linear Flash RAM}
-                xywh {0 0 100 20}
-              }
-              MenuItem {} {
-                label {ROM Card}
-                xywh {12 12 100 20}
-              }
-            }
-            Fl_Input_Choice {} {
-              label {Size:} open
-              xywh {121 325 159 24} deactivate
-            } {
-              MenuItem {} {
-                label {1 MB}
-                xywh {0 0 100 20}
-              }
-              MenuItem {} {
-                label {2 MB}
-                xywh {0 0 100 20}
-              }
-              MenuItem {} {
-                label {4 MB}
-                xywh {0 0 100 20}
-              }
-              MenuItem {} {
-                label {8 MB}
-                xywh {0 0 100 20}
-              }
-              MenuItem {} {
-                label {16 MB}
-                xywh {0 0 100 20}
-              }
-              MenuItem {} {
-                label {32 MB}
-                xywh {0 0 100 20}
-              }
-              MenuItem {} {
-                label {64 MB}
-                xywh {0 0 100 20}
-              }
-            }
-            Fl_Output wPCCardImage {
-              label {Image File: }
-              xywh {120 360 160 20} color 51 labelsize 13 textsize 12 deactivate
-            }
-            Fl_Button wPCCardImageCreate {
-              label {Create...}
-              callback {const char *filename = gApp->ChooseNewFile(
-	"Create a new Flash Memory file",
-	nullptr,
-	wFlashPath->label()
-);
-if (filename) {
-    wFlashName->value(fl_filename_name(filename));
-    wFlashPath->copy_label(filename);
-}}
-              tooltip {Create a new Flash RAM image file.} xywh {280 360 75 20} labelsize 12 deactivate
-            }
-            Fl_Button wPCCardImageChoose {
-              label {Choose...}
-              callback {const char *filename = gApp->ChooseExistingFile(
-	"Choose an existing Flash Memory file",
-	nullptr,
-	wFlashPath->label()
-);
-if (filename) {
-    wFlashName->value(fl_filename_name(filename));
-    wFlashPath->copy_label(filename);
-}}
-              tooltip {Select an existing Flash RAM image file.} xywh {355 360 75 20} labelsize 12 deactivate
-            }
-            Fl_Box wPCCardImagePath {
-              label {/here/goes/the/path/and/filename/of/the/PCMCIACardImage}
-              xywh {120 380 310 15} labelsize 11 align 212 deactivate
-            }
+\#endif}
+            xywh {120 50 235 165} type Hold labelsize 12 align 4 when 1 textsize 12
           }
           Fl_Menu_Bar {} {open
             xywh {120 215 25 25}
@@ -506,37 +400,225 @@ if (filename) {
               xywh {0 0 100 20}
             } {
               MenuItem {} {
-                label {Add PCMCIA Image file...}
-                xywh {0 0 100 20} labelsize 12 deactivate
+                label {Add existing PCCard Image...}
+                callback {char imageFilename[FL_PATH_MAX];
+char buf[FL_PATH_MAX];
+char *imageName = nullptr;
+
+char path[FL_PATH_MAX];
+strcpy(path, wFlashPath->label());
+char *nn = (char*)fl_filename_name(path);
+if (nn) *nn = 0;
+
+const char *a = app->ChooseExistingFile("Select a PCCard Image file", "*.pccard", path);
+if (!a) goto cleanup;
+strcpy(imageFilename, a);
+
+const char *suggestedName = "";
+const char *fn = fl_filename_name(imageFilename);
+if (fn) {
+  strcpy(buf, fn);
+  fl_filename_setext(buf, FL_PATH_MAX, "");
+  suggestedName = buf;
+}
+
+// TODO: we could preset the name with either the filename or whatever name we extract from the image
+const char *e = fl_input("Please enter a name for your PCCard Image", suggestedName);
+if (!e) goto cleanup;
+imageName = strdup(e);
+
+TFLPCCardSettings* card = TFLPCCardSettings::LinkLinearPCCard(imageName, imageFilename);
+wPCCardList->add(imageName, card);
+
+cleanup:
+if (imageName) free(imageName);}
+                xywh {0 0 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 2MB Flash Card...}
+                user_data 2 user_data_type long
+                callback {char imageFilename[FL_PATH_MAX];
+  char buf[FL_PATH_MAX];
+  char *imageName = nullptr;
+  int size = (long)v;
+
+  char path[FL_PATH_MAX];
+  strcpy(path, wFlashPath->label());
+  char *nn = (char*)fl_filename_name(path);
+  if (nn) *nn = 0;
+
+  const char *a = app->ChooseNewFile("Create a PCCard Image file", "*.pccard", path);
+  if (!a) goto cleanup;
+  strcpy(imageFilename, a);
+  if (fl_access(imageFilename, 6)!=0)
+  {
+    fl_filename_setext(imageFilename, FL_PATH_MAX, ".pccard");
+  }
+
+
+  const char *suggestedName = "";
+  const char *fn = fl_filename_name(imageFilename);
+  if (fn) {
+    strcpy(buf, fn);
+    fl_filename_setext(buf, FL_PATH_MAX, "");
+    suggestedName = buf;
+  }
+
+  // TODO: we could preset the name with either the filename or whatever name we extract from the image
+  const char *e = fl_input("Please enter a name for your PCCard Image", suggestedName);
+  if (!e) goto cleanup;
+  imageName = strdup(e);
+
+  TFLPCCardSettings* card = TFLPCCardSettings::NewLinearPCCard(imageName, imageFilename, size);
+  wPCCardList->add(imageName, card);
+
+  cleanup:
+  if (imageName) free(imageName);}
+                xywh {10 10 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 4MB Flash Card...}
+                user_data 4 user_data_type long
+                callback cb_New
+                xywh {20 20 100 20} labelsize 12
               }
               MenuItem {} {
                 label {New 8MB Flash Card...}
-                xywh {0 0 100 20} labelsize 12 deactivate
+                user_data 8 user_data_type long
+                callback cb_New
+                xywh {0 0 100 20} labelsize 12
               }
               MenuItem {} {
                 label {New 16MB Flash Card...}
-                xywh {0 0 100 20} labelsize 12 deactivate
+                user_data 16 user_data_type long
+                callback cb_New
+                xywh {0 0 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 24MB Flash Card...}
+                user_data 24 user_data_type long
+                callback cb_New
+                xywh {10 10 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 32MB Flash Card...}
+                user_data 32 user_data_type long
+                callback cb_New
+                xywh {20 20 100 20} labelsize 12
               }
               MenuItem {} {
                 label {Create Image from snapshot...}
-                callback {const char *a = fl_file_chooser("Create this PCMCIA Image file", "*.pcmcia", nullptr);
-if (!a) return;
-char *dstName = strdup(a);
+                callback {char imageFilename[FL_PATH_MAX];
+char *dataFilename = nullptr;
+char *cisFilename = nullptr;
+char *imageName = nullptr;
 
-const char *b = fl_file_chooser("PCMCIA Card Data Snapshot", nullptr, nullptr);
-if (!b) { free(dstName); return; }
-char *dataName = strdup(b);
+char path[FL_PATH_MAX];
+strcpy(path, wFlashPath->label());
+char *nn = (char*)fl_filename_name(path);
+if (nn) *nn = 0;
 
-const char *c = fl_file_chooser("PCMCIA Card CIS snapshot", nullptr, nullptr);
-char *cisName = nullptr;
-if (c) cisName = strdup(c);
+const char *b = app->ChooseExistingFile("PCMCIA Card Data Snapshot", nullptr, path);
+if (!b) goto cleanup;
+dataFilename = strdup(b);
 
-app->UserActionPCMCIAImageFromSnapshot(dstName, dataName, cisName);
+const char *c = app->ChooseExistingFile("PCMCIA Card CIS snapshot", nullptr, nullptr);
+if (!c) goto cleanup;
+cisFilename = strdup(c);
 
-if (dstName) free(dstName);
-if (dataName) free(dataName);
-if (cisName) free(cisName);} selected
+const char *e = fl_input("Please enter a name for your PCCard Image");
+if (!e) goto cleanup;
+imageName = strdup(e);
+
+strcat(path, imageName);
+
+const char *a = app->ChooseNewFile("Create this PCMCIA Image file", "*.pccard", path);
+if (!a) goto cleanup;
+strcpy(imageFilename, a);
+if (    fl_access(imageFilename, 6)!=0 
+     || strcmp(imageFilename, dataFilename)==0
+     || strcmp(imageFilename, cisFilename)==0 )
+{
+  fl_filename_setext(imageFilename, FL_PATH_MAX, ".pccard");
+}
+
+int ret = app->UserActionPCMCIAImageFromSnapshot(imageFilename, dataFilename, cisFilename, imageName);
+if (ret!=0) goto cleanup;
+
+TFLPCCardSettings* card = TFLPCCardSettings::LinkLinearPCCard(imageName, imageFilename);
+wPCCardList->add(imageName, card);
+
+cleanup:
+//if (imageFilename) free(imageFilename);
+if (dataFilename) free(dataFilename);
+if (cisFilename) free(cisFilename);
+if (imageName) free(imageName);}
                 xywh {0 0 100 20} labelsize 12
+              }
+            }
+          }
+          Fl_Button wPCCardListRemove {
+            label {-}
+            user_data this
+            callback {int ix = wPCCardList->value();
+if (ix>0 && ix<=wPCCardList->size()) {
+  wPCCardList->remove(ix);
+}}
+            tooltip {remove and delete a PCMCIA card} xywh {145 215 25 25} labelfont 4 labelsize 18
+          }
+          Fl_Button wPCCardMoveUp {
+            label {@-28>}
+            user_data this
+            callback {int ix = wPCCardList->value();
+if (ix>1) {
+  wPCCardList->swap(ix, ix-1);
+  wPCCardList->value(ix-1);
+  wPCCardList->do_callback();
+}}
+            xywh {170 215 25 25} labelfont 4 labelsize 18
+          }
+          Fl_Button wPCCardMoveDown {
+            label {@-22>}
+            user_data this
+            callback {int ix = wPCCardList->value();
+if (ix>0 && ix<wPCCardList->size()) {
+  wPCCardList->swap(ix, ix+1);
+  wPCCardList->value(ix+1);
+  wPCCardList->do_callback();
+}}
+            xywh {195 215 25 25} labelfont 4 labelsize 18
+          }
+          Fl_Menu_Bar {} {open
+            xywh {220 215 25 25}
+          } {
+            Submenu {} {
+              label {...} open
+              xywh {10 10 100 20}
+            } {
+              MenuItem wPCCardEditName {
+                label {Edit Card Name...}
+                callback {int ix = wPCCardList->value();
+if (ix>0 && ix<=wPCCardList->size()) {
+  const char *oldName = wPCCardList->text(ix);
+  const char *newName = fl_input("Please enter a new name for you PCCard", oldName);
+  if (newName)
+    wPCCardList->text(ix, newName);
+}}
+                xywh {10 10 100 20} labelsize 12
+              }
+              MenuItem wPCCardEditPath {
+                label {Edit Card Image Path...}
+                callback {int ix = wPCCardList->value();
+TFLPCCardSettings *card = (TFLPCCardSettings*)wPCCardList->data(ix);
+if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kLinear) {
+  const char *oldPath = card->GetImagePath();
+  const char *newPath = gApp->ChooseExistingFile(
+    "Please select another PCCard Image", "*.pccard", oldPath
+  );
+  if (newPath)
+    card->SetImagePath(newPath);
+}}
+                xywh {10 10 100 20} labelsize 12
               }
             }
           }
@@ -620,6 +702,33 @@ mSettingsPanel->hide();}
       }
     }
   }
+  Function {updateMenus()} {open return_type void
+  } {
+    code {\#define MENU_FONT FL_NORMAL_LABEL, FL_HELVETICA, 14, 0
+\#define MENU_HEADLINE FL_NORMAL_LABEL, FL_HELVETICA_BOLD_ITALIC, 14, 0
+
+  Fl_Menu_Item* slot0menu = (Fl_Menu_Item*)calloc(mCardList.size() + 5, sizeof(Fl_Menu_Item));
+  if (wPCCardSlot0->user_data()) ::free(wPCCardSlot0->user_data());
+  wPCCardSlot0->flags |= FL_SUBMENU_POINTER;
+  wPCCardSlot0->user_data(slot0menu);
+  slot0menu[0] = { "Eject Card", 0/* shortcut */, cb_changePCCard0, (void*)-1, FL_MENU_DIVIDER, MENU_FONT };
+  slot0menu[1] = { "Insert Card:", 0/* shortcut */, nullptr /* callback */, nullptr /* user_data */, FL_MENU_INACTIVE, MENU_HEADLINE };
+  slot0menu[2] = { "Replace Card:", 0/* shortcut */, nullptr /* callback */, nullptr /* user_data */, FL_MENU_INVISIBLE | FL_MENU_INACTIVE, MENU_HEADLINE };
+
+  Fl_Menu_Item* slot1menu = (Fl_Menu_Item*)calloc(mCardList.size() + 5, sizeof(Fl_Menu_Item));
+  if (wPCCardSlot1->user_data()) ::free(wPCCardSlot1->user_data());
+  wPCCardSlot1->flags |= FL_SUBMENU_POINTER;
+  wPCCardSlot1->user_data(slot1menu);
+  slot1menu[0] = { "Eject Card", 0/* shortcut */, cb_changePCCard1, (void*)-1, FL_MENU_DIVIDER, MENU_FONT };
+  slot1menu[1] = { "Insert Card:", 0/* shortcut */, nullptr /* callback */, nullptr /* user_data */, FL_MENU_INACTIVE, MENU_HEADLINE };
+  slot1menu[2] = { "Replace Card:", 0/* shortcut */, nullptr /* callback */, nullptr /* user_data */, FL_MENU_INVISIBLE | FL_MENU_INACTIVE, MENU_HEADLINE };
+
+  for (int i=0; i<mCardList.size(); i++) {
+  	TFLPCCardSettings *card = mCardList[i];
+  	slot0menu[i+3] = { card->GetName(), 0, cb_changePCCard0, (void*)i, 0 /* flags */, MENU_FONT };
+  	slot1menu[i+3] = { card->GetName(), 0, cb_changePCCard1, (void*)i, 0 /* flags */, MENU_FONT };
+  }} {}
+  }
   Function {revertDialog()} {open return_type void
   } {
     code {char buf[32];
@@ -654,10 +763,12 @@ wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
 wPCCardList->clear();
 for (int i=0; i<mCardList.size(); i++) {
 	TFLPCCardSettings *card = mCardList[i];
-	wPCCardList->add(card->GetName());
+	wPCCardList->add(card->GetName(), card);
 }
 wPCCardList->value(0);
-wPCCardList->do_callback();} {}
+wPCCardList->do_callback();
+
+updateMenus();} {}
   }
   Function {applyDialog()} {open return_type void
   } {
@@ -677,7 +788,17 @@ const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
 if (m)
 	RAMSize = m->argument();
 
-dontShow = wDontShow->value();} {}
+dontShow = wDontShow->value();
+
+startUpdateCardList();
+for (int i=0; i<wPCCardList->size(); i++) {
+	const char* name = wPCCardList->text(i + 1);
+	TFLPCCardSettings* card = (TFLPCCardSettings*)wPCCardList->data(i + 1);
+	updateNextCard(name, card);
+}
+endUpdateCardList();
+
+updateMenus();} {}
   }
   Function {runningMode()} {return_type void
   } {

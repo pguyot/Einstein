@@ -28,6 +28,9 @@
 #include <K/Defines/KDefinitions.h>
 #include "TPCMCIACard.h"
 
+#include <stdio.h>
+
+
 ///
 /// Class for a linear flash memory card.
 ///
@@ -57,23 +60,34 @@ class TLinearCard
 {
 public:
 
-	typedef struct {
-		KUInt32 pIconSize;	// size of image data in bytes
-		KUInt32 pIconStart; // start of image data, optional, image is stored in PNG format
-		KUInt32 pCISSize;	// size of CIS data in bytes
-		KUInt32 pCISStart;  // start of CIS data, CIS data is stored in natural order(0123 < -x1x0 x3x2)
-		KUInt32 pDataSize;	// size of Data block in bytes
-		KUInt32 pDataStart;	// start of Data block, Flash Data is stored as seen by the Newton
-		KUInt8  pFIller1, pFiller2, pFiller3;
-		KUInt8  pType;		// type of card, according to CIS
-		KUInt32 pVersion;	// version of this format
-		char	pIdent[12]; // "TLinearCard\0"
+	// everything ends on a 4 byte boundary, so we should not get any packing effects
+	typedef struct ImageInfo {
+		int read(FILE* f);
+		int write(FILE *f);
+		void flipByteOrder();
+		KUInt32 pNameSize = 0;	// size of image name in bytes
+		KUInt32 pNameStart = 0; // start of image name, name is stored as a utf8 C-string
+		KUInt32 pIconSize = 0;	// size of image data in bytes
+		KUInt32 pIconStart = 0; // start of image data, optional, image is stored in PNG format
+		KUInt32 pCISSize = 0;	// size of CIS data in bytes
+		KUInt32 pCISStart = 0;  // start of CIS data, CIS data is stored in natural order(0123 < -x1x0 x3x2)
+		KUInt32 pDataSize = 0;	// size of Data block in bytes
+		KUInt32 pDataStart = 0;	// start of Data block, Flash Data is stored as seen by the Newton
+		KUInt32 pType = 0;		// type of card, according to CIS (only uses the last 4 bits!)
+		KUInt32 pVersion = 1;	// version of this format
+		char	pIdent[12] = "TLinearCard"; // "TLinearCard\0"
 	} ImageInfo;
 	static const char *kIdent;
+
 	///
 	/// Compose PCMCIA file from Data, CIS, and Image
 	///
-	static KSInt32 ComposeImageFile(const char* inOutFilename, const char* inDataFilename, const char* inCISFilename);
+	static KSInt32 ComposeImageFile(const char* inOutFilename, const char* inDataFilename, const char* inCISFilename, const char *name);
+
+	///
+	/// Create a PCMCIA image file for a Flash Card with inSizeMB capacity. 
+	/// 
+	static KSInt32 CreateImageFile(const char *inName, const char *inImageFilename, KUInt32 inSizeMB);
 
 	static const KSInt32 kErrCantCreateOutFile = -1;
 	static const KSInt32 kErrCantOpenDataFile = -2;
@@ -91,7 +105,7 @@ public:
 	///
 	/// Constructor from the size.
 	///
-	TLinearCard( const char *inFilename=nullptr, const char *inFilenameCIS=nullptr );
+	TLinearCard( const char *inImagePath );
 
 	///
 	/// Destructor.
@@ -171,11 +185,9 @@ public:
 private:
 	ImageInfo mImageInfo;
 
+	KUInt32 mSize = 0;  ///< Size of the linear card in bytes.
 
-	/// \name Variables
-    KUInt32 mSize = 2*1024*1024;  ///< Size of the linear card in bytes.
-
-    KUInt8 *mMemoryMap = nullptr;
+	KUInt8* mMemoryMap = nullptr;
 
 	KUInt8* mCISData = nullptr;
 

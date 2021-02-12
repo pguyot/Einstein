@@ -29,28 +29,17 @@
 #include "Emulator/Log/TLog.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
 
+#if TARGET_OS_WIN32
+# include <Winsock2.h>
+#endif
+
+#include <errno.h>
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
 
 const char *TLinearCard::kIdent = "TLinearCard";
-
-//#define MATTS_2MB_CARD
-//#define DIAG_1MB_CARD
-#define APPLE_2MB_CARD
-
-#ifdef MATTS_2MB_CARD
-#include "FlashCIS.cpp"
-#include "FlashDump.cpp"
-#endif
-
-#ifdef DIAG_1MB_CARD
-#include "DiagCard.cpp"
-#endif
-
-#ifdef APPLE_2MB_CARD
-#include "2MBCardApple.cpp"
-#endif
 
 const KUInt8 TLinearCard::kDefaultCISData[] = {
     // INTEL 2MD Linear Flash
@@ -92,83 +81,36 @@ const KUInt8 TLinearCard::kDefaultCISData[] = {
 // -------------------------------------------------------------------------- //
 //  * TLinearCard( KUInt32 )
 // -------------------------------------------------------------------------- //
-TLinearCard::TLinearCard(const char* inFilename, const char* inFilenameCIS)
+TLinearCard::TLinearCard(const char* inImagePath)
 {
-    if (!inFilename)
-        inFilename = "C:/Users/micro/Downloads/MP2000-PCMCIA-Image_S.PILET/MP2000-PCMCIA-Image_S.PILET/Fodor94";
-    if (!inFilenameCIS)
-        inFilenameCIS = "C:/Users/micro/Downloads/MP2000-PCMCIA-Image_S.PILET/MP2000-PCMCIA-Image_S.PILET/Fodor94-CIS";
+    // FIXME: there is no error handling in here at all
+    // FIXME: modified image is never written back. Use file mapped to memory here instead?!
 
-    FILE *f = fopen(inFilename, "rb");
-    // FIXME: and what if we have an error?
-    fseek(f, 0, SEEK_END);
-    KUInt32 size = (KUInt32)ftell(f);
-    fseek(f, 0, SEEK_SET);
-    mSize = size;
-    mMemoryMap = (KUInt8*)malloc(mSize);
-    fread(mMemoryMap, 1, mSize, f);
-    fclose(f);
+    int ret = 0;
 
-#if 0
-    mCISDataSize = sizeof(kCISData);
-    mCISData = (KUInt8*)malloc(mCISDataSize);
-    memmove(mCISData, kCISData, mCISDataSize);
+    FILE *f = fopen(inImagePath, "rb");
+    if (!f)
+        return; // throw an exception?
+    
+    ret = mImageInfo.read(f);
+    if (ret != 1)
+        return;
 
-    switch (mSize / 1024 / 1024) {
-    case  2: mCISData[3] = 0x06; break;
-    case  4: mCISData[3] = 0x0e; break;
-    case  8: mCISData[3] = 0x1e; break;
-    case 16: mCISData[3] = 0x3e; break;
-    case 24: mCISData[3] = 0x5e; break;
-    case 32: mCISData[3] = 0x7e; break;
-    case 48: mCISData[3] = 0xbe; break;
-    case 64: mCISData[3] = 0xfe; break;
-    }
-    //mCISData[3] = 1;
-    //scale = *p & 7;
-    //if (scale == 7)
-    //    return -EINVAL;
-    //device->dev[i].size = ((*p >> 3) + 1) * (512 << (scale * 2));
-     //   2MB=06(6)
-     //   8MB 1Eh
-     //   16MB 3Eh
-     //   24MB 5Eh
-     //   32MB 7Eh
-     //   48MB BEh
-     //   64MB FEh
-#else
-    mCISDataSize = 1024;
-    mCISData = (KUInt8*)malloc(mCISDataSize);
-    f = fopen(inFilenameCIS, "rb");
-    // FIXME: and what if we have an error?
-    fread(mCISData, 1, mCISDataSize, f);
-    for (int i = 0; i < 512; i++) {
-        mCISData[i] = mCISData[(i ^ 1) * 2 +1];
-    }
-    fclose(f);
+    if (mImageInfo.pDataSize) {
+        mMemoryMap = (KUInt8*)malloc(mImageInfo.pDataSize);
+        fseek(f, mImageInfo.pDataStart, SEEK_SET);
+        fread(mMemoryMap, mImageInfo.pDataSize, 1, f);
+        mSize = mImageInfo.pDataSize;
+    } // else throw exception
 
-#endif
+    if (mImageInfo.pCISSize) {
+        mCISDataSize = mImageInfo.pCISSize;
+        mCISData = (KUInt8*)malloc(mCISDataSize);
+        fseek(f, mImageInfo.pCISStart, SEEK_SET);
+        fread(mCISData, mCISDataSize, 1, f);
+    } // else throw exception
+
 }
-
-#if 0
-TLinearCard::TLinearCard( KUInt32 inSize )
-:   mSize(inSize)
-{
-    mMemoryMap = (KUInt8*)malloc(mSize);
-    memset(mMemoryMap, 0xff, mSize);
-#ifdef MATTS_2MB_CARD
-    memcpy(mMemoryMap, FlashDump, mSize);
-#endif
-#ifdef DIAG_1MB_CARD
-    memcpy(mMemoryMap, DiagCard, mSize/2);
-#endif
-#ifdef APPLE_2MB_CARD
-    memcpy(mMemoryMap, Apple2MB, mSize);
-#endif
-}
-#endif
-
-
 
 // -------------------------------------------------------------------------- //
 //  * ~TLinearCard( void )
@@ -541,7 +483,7 @@ TLinearCard::WriteMemB( KUInt32 inOffset, KUInt8 inValue )
  * \param inDataFilename read PCMCIA Data block from this file, size is usually a multiple of 1MB
  * \param inCISFilename read CIS data from this file and descramble it
  */
-KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inDataFilename, const char* inCISFilename)
+KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inDataFilename, const char* inCISFilename, const char *name)
 {
     KSInt32 err = 0;
     FILE* fOut = nullptr;
@@ -549,9 +491,7 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
     FILE* fCIS = nullptr;
     KUInt8* dataBuffer = nullptr;
     KUInt8* cisBuffer = nullptr;
-    ImageInfo imageInfo = { 0 };
-    imageInfo.pType = 0; // increment this when adding infomation to the file format
-    strcpy(imageInfo.pIdent, kIdent);
+    ImageInfo imageInfo;
 
     // --- create the image file
     fOut = fopen(inOutFilename, "wb");
@@ -574,7 +514,7 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
 
     // --- read the CIS data
     // TODO: we can derive the CIS data (well, 'some' CIS data from the code above, in case this CIS is missing or corrupt)
-    imageInfo.pCISStart = imageInfo.pDataSize;
+    imageInfo.pCISStart = ftell(fOut);
     fCIS = fopen(inCISFilename, "rb");
     if (!fCIS) { err = kErrCantOpenCISFile; goto cleanup; }
     fseek(fCIS, 0, SEEK_END);  // simple way to find file size
@@ -622,8 +562,21 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
     }
     if (fwrite(cisBuffer, imageInfo.pCISSize, 1, fOut) != 1) { err = kErrIncompleteImageFile; goto cleanup; }
 
+    // --- possibly add an image that can be used as an icon
+    imageInfo.pIconStart = ftell(fOut);
+    imageInfo.pIconSize = 0; // not yet supported
+
+    // --- add the name of the image
+    imageInfo.pNameStart = ftell(fOut);
+    int sz = 0;
+    if (name && name[0]) {
+        sz = strlen(name);
+        fwrite(name, (KUInt64)sz + 1, 1, fOut);
+    }
+    imageInfo.pNameSize = sz + 1;
+
     // add our image info block to the end of the file
-    if (fwrite(&imageInfo, sizeof(imageInfo), 1, fOut) != 1) { err = kErrIncompleteImageFile; goto cleanup; }
+    if (imageInfo.write(fOut) != 1) { err = kErrIncompleteImageFile; goto cleanup; }
 
     // close all files and deallocate buffers
 cleanup:
@@ -633,6 +586,109 @@ cleanup:
     if (dataBuffer) ::free(dataBuffer);
     if (cisBuffer) ::free(cisBuffer);
     return err;
+}
+
+KSInt32 TLinearCard::CreateImageFile(const char *inName, const char *inImageFilename, KUInt32 inSizeMB)
+{
+    KSInt32 err = 0;
+    FILE* fOut = nullptr;
+    KUInt8* dataBuffer = nullptr;
+    KUInt8* cisBuffer = nullptr;
+    ImageInfo imageInfo;
+
+    // --- create the image file
+    fOut = fopen(inImageFilename, "wb");
+    if (!fOut) { err = kErrCantCreateOutFile; goto cleanup; }
+
+    // --- create the Data part
+    imageInfo.pDataSize = inSizeMB * 1024 * 1024;
+    dataBuffer = (KUInt8*)malloc(imageInfo.pDataSize);
+    if (!dataBuffer) { err = kErrOutOfMemory; goto cleanup; }
+    memset(dataBuffer, 0xff, imageInfo.pDataSize);
+    if (fwrite(dataBuffer, imageInfo.pDataSize, 1, fOut) != 1) { err = kErrIncompleteImageFile; goto cleanup; }
+
+    // --- create the CIS data
+    imageInfo.pCISStart = ftell(fOut);
+    imageInfo.pCISSize = sizeof(kDefaultCISData);
+    cisBuffer = (KUInt8*)malloc(imageInfo.pCISSize);
+    if (!cisBuffer) { err = kErrOutOfMemory; goto cleanup; }
+    memcpy(cisBuffer, kDefaultCISData, imageInfo.pCISSize);
+    switch (inSizeMB) {
+    case 2:  cisBuffer[3] = 0x06; break;
+    case 4:  cisBuffer[3] = 0x0e; break;
+    case 8:  cisBuffer[3] = 0x1e; break;
+    case 16: cisBuffer[3] = 0x3e; break;
+    case 24: cisBuffer[3] = 0x5e; break;
+    case 32: cisBuffer[3] = 0x7e; break;
+    // 48MB BEh, 64MB FEh
+    }
+    if (fwrite(cisBuffer, imageInfo.pCISSize, 1, fOut) != 1) { err = kErrIncompleteImageFile; goto cleanup; }
+
+    // --- possibly add an image that can be used as an icon
+    imageInfo.pIconStart = ftell(fOut);
+    imageInfo.pIconSize = 0; // not yet supported
+
+    // --- add the name of the image
+    imageInfo.pNameStart = ftell(fOut);
+    int sz = 0;
+    if (inName && inName[0]) {
+        sz = strlen(inName);
+        fwrite(inName, (KUInt64)sz + 1, 1, fOut);
+    }
+    imageInfo.pNameSize = sz + 1;
+
+    // add our image info block to the end of the file
+    if (imageInfo.write(fOut) != 1) { err = kErrIncompleteImageFile; goto cleanup; }
+
+    // close all files and deallocate buffers
+cleanup:
+    if (fOut) fclose(fOut);
+    if (dataBuffer) ::free(dataBuffer);
+    if (cisBuffer) ::free(cisBuffer);
+    return err;
+}
+
+
+
+void TLinearCard::ImageInfo::flipByteOrder()
+{
+    pNameSize = htonl(pNameSize);
+    pNameStart = htonl(pNameStart);
+    pIconSize = htonl(pIconSize);
+    pIconStart = htonl(pIconStart);
+    pCISSize = htonl(pCISSize);
+    pCISStart = htonl(pCISStart);
+    pDataSize = htonl(pDataSize);
+    pDataStart = htonl(pDataStart);
+    pType = htonl(pType);
+    pVersion = htonl(pVersion);
+}
+
+
+int TLinearCard::ImageInfo::read(FILE* f)
+{
+    int ret = 0;
+    int err = 0;
+
+    static_assert(sizeof(ImageInfo) == 10 * 4 + 12);
+
+    char buf[sizeof(ImageInfo)];
+    long pos = ftell(f);
+    ret = fseek(f, -sizeof(ImageInfo), SEEK_END);
+    ret = fread(this, sizeof(ImageInfo), 1, f);
+    if (ret == 1)
+        flipByteOrder();
+    fseek(f, pos, SEEK_SET);
+    return ret;
+}
+
+
+int TLinearCard::ImageInfo::write(FILE* f)
+{
+    flipByteOrder();
+    int ret = fwrite(this, sizeof(ImageInfo), 1, f);
+    flipByteOrder();
+    return ret;
 }
 
 
