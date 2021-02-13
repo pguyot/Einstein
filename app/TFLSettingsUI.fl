@@ -404,18 +404,23 @@ if (ix==-1) {
                 callback {char imageFilename[FL_PATH_MAX];
 char buf[FL_PATH_MAX];
 char *imageName = nullptr;
+const char *a;
+const char *suggestedName;
+const char *fn;
+const char *e;
+TFLPCCardSettings* card;
 
 char path[FL_PATH_MAX];
 strcpy(path, wFlashPath->label());
 char *nn = (char*)fl_filename_name(path);
 if (nn) *nn = 0;
 
-const char *a = app->ChooseExistingFile("Select a PCCard Image file", "*.pccard", path);
+a = app->ChooseExistingFile("Select a PCCard Image file", "*.pccard", path);
 if (!a) goto cleanup;
 strcpy(imageFilename, a);
 
-const char *suggestedName = "";
-const char *fn = fl_filename_name(imageFilename);
+suggestedName = "";
+fn = fl_filename_name(imageFilename);
 if (fn) {
   strcpy(buf, fn);
   fl_filename_setext(buf, FL_PATH_MAX, "");
@@ -423,11 +428,11 @@ if (fn) {
 }
 
 // TODO: we could preset the name with either the filename or whatever name we extract from the image
-const char *e = fl_input("Please enter a name for your PCCard Image", suggestedName);
+e = fl_input("Please enter a name for your PCCard Image", suggestedName);
 if (!e) goto cleanup;
 imageName = strdup(e);
 
-TFLPCCardSettings* card = TFLPCCardSettings::LinkLinearPCCard(imageName, imageFilename);
+card = TFLPCCardSettings::LinkLinearPCCard(imageName, imageFilename);
 wPCCardList->add(imageName, card);
 
 cleanup:
@@ -441,13 +446,18 @@ if (imageName) free(imageName);}
   char buf[FL_PATH_MAX];
   char *imageName = nullptr;
   int size = (long)v;
+  const char *a;
+  const char *suggestedName;
+  const char *fn;
+  const char *e;
+  TFLPCCardSettings* card;
 
   char path[FL_PATH_MAX];
   strcpy(path, wFlashPath->label());
   char *nn = (char*)fl_filename_name(path);
   if (nn) *nn = 0;
 
-  const char *a = app->ChooseNewFile("Create a PCCard Image file", "*.pccard", path);
+  a = app->ChooseNewFile("Create a PCCard Image file", "*.pccard", path);
   if (!a) goto cleanup;
   strcpy(imageFilename, a);
   if (fl_access(imageFilename, 6)!=0)
@@ -455,9 +465,8 @@ if (imageName) free(imageName);}
     fl_filename_setext(imageFilename, FL_PATH_MAX, ".pccard");
   }
 
-
-  const char *suggestedName = "";
-  const char *fn = fl_filename_name(imageFilename);
+  suggestedName = "";
+  fn = fl_filename_name(imageFilename);
   if (fn) {
     strcpy(buf, fn);
     fl_filename_setext(buf, FL_PATH_MAX, "");
@@ -465,11 +474,11 @@ if (imageName) free(imageName);}
   }
 
   // TODO: we could preset the name with either the filename or whatever name we extract from the image
-  const char *e = fl_input("Please enter a name for your PCCard Image", suggestedName);
+  e = fl_input("Please enter a name for your PCCard Image", suggestedName);
   if (!e) goto cleanup;
   imageName = strdup(e);
 
-  TFLPCCardSettings* card = TFLPCCardSettings::NewLinearPCCard(imageName, imageFilename, size);
+  card = TFLPCCardSettings::NewLinearPCCard(imageName, imageFilename, size);
   wPCCardList->add(imageName, card);
 
   cleanup:
@@ -512,27 +521,33 @@ if (imageName) free(imageName);}
 char *dataFilename = nullptr;
 char *cisFilename = nullptr;
 char *imageName = nullptr;
+const char *b;
+const char *c;
+const char *e;
+const char *a;
+int ret;
+TFLPCCardSettings* card;
 
 char path[FL_PATH_MAX];
 strcpy(path, wFlashPath->label());
 char *nn = (char*)fl_filename_name(path);
 if (nn) *nn = 0;
 
-const char *b = app->ChooseExistingFile("PCMCIA Card Data Snapshot", nullptr, path);
+b = app->ChooseExistingFile("PCMCIA Card Data Snapshot", nullptr, path);
 if (!b) goto cleanup;
 dataFilename = strdup(b);
 
-const char *c = app->ChooseExistingFile("PCMCIA Card CIS snapshot", nullptr, nullptr);
+c = app->ChooseExistingFile("PCMCIA Card CIS snapshot", nullptr, nullptr);
 if (!c) goto cleanup;
 cisFilename = strdup(c);
 
-const char *e = fl_input("Please enter a name for your PCCard Image");
+e = fl_input("Please enter a name for your PCCard Image");
 if (!e) goto cleanup;
 imageName = strdup(e);
 
 strcat(path, imageName);
 
-const char *a = app->ChooseNewFile("Create this PCMCIA Image file", "*.pccard", path);
+a = app->ChooseNewFile("Create this PCMCIA Image file", "*.pccard", path);
 if (!a) goto cleanup;
 strcpy(imageFilename, a);
 if (    fl_access(imageFilename, 6)!=0 
@@ -542,10 +557,10 @@ if (    fl_access(imageFilename, 6)!=0
   fl_filename_setext(imageFilename, FL_PATH_MAX, ".pccard");
 }
 
-int ret = app->UserActionPCMCIAImageFromSnapshot(imageFilename, dataFilename, cisFilename, imageName);
+ret = app->UserActionPCMCIAImageFromSnapshot(imageFilename, dataFilename, cisFilename, imageName);
 if (ret!=0) goto cleanup;
 
-TFLPCCardSettings* card = TFLPCCardSettings::LinkLinearPCCard(imageName, imageFilename);
+card = TFLPCCardSettings::LinkLinearPCCard(imageName, imageFilename);
 wPCCardList->add(imageName, card);
 
 cleanup:
