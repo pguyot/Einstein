@@ -318,6 +318,48 @@
  #define kSerIntSrcRxOnAllChars		(0x00000040)
  #define kSerIntSrcTxBufEmpty		(0x00000080)
  #define kSerIntSrcRxOnFirstChar	(0x00000100)	// may go away
+
+
+ Hammer Commands
+
+ These are commands recognized by debugging stub in Newton:
+
+ Open <0,..>
+ Close <1,...>
+ ReadMemory <2,addr,count>
+ WriteMemory <3,addr,count,data+>
+ ReadARM600Registers <8>
+ WriteARM600Registers <9,data+>
+ Execute <16,...>
+ Info
+ ReadPhysicalMemory <24,add,count>
+ WritePhysicalMemory <24,addr,count,data+>
+ SpecOperation <26,cmd,data+>
+ GetAndClearPreDebuggerPackageInfo <26,0,val,val>
+ SetgWantSerialDebuging <26,1,val,val>
+ ChangePrimaryMappingToPages <26,2,val,val>
+ RestorePrimaryMapping <26,3,...>
+ ChangePageMapping <26,4,...>
+ RestorePageMapping <26,5,...>
+ Stop <27,S,T,O,P>
+ Go <28,...>
+ XOpen
+ DownloadBootLoader
+ ImageCommand
+ Ping <120>
+ To each command Newton responds with one of these:
+
+ Pong <121>
+ Result <95,...,status>
+ Error <96,error>
+ Fatal <94,...>
+ ImageCommandDone
+ StopWithStatus <32,...>
+ Reset <127>
+ Inquiry <128>
+ Hammer link protocol
+
+ Hammer commands are transported exactly as Docking protocol frames, that is every frame starts with SYN DLE STX, every DLE in data is followed by another DLE, and at the end of frame is DLE ETX CHECKSUM.
  */
 
 

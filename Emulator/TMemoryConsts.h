@@ -100,6 +100,17 @@ public:
 		kHdWr_IntEDReg3		= 0x0F184800,   ///< Enable/Disable (Enable)
 		kHdWr_P0F184C00		= 0x0F184C00,   ///< R
 		kHdWr_P0F185000		= 0x0F185000,   ///< W (00000001)
+//        0       0x0f18c000 R  GPIO Interrupt status     #4
+//        1       0x0f18c400 GPIO Interrupt               #8
+//        2       0x0f18c800 Int ack?                     #12
+//        3       0x0f18cc00 RW GPIO Interrupt            #16
+//        4       0x0f18d000 RW GPIO Interrupt            #20
+//        5       0x0f18d400 RW GPIO Input Data           #24
+//        6       0x0f18d800 RW GPIO Interrupt            #28
+//        7       0x0f18dc00 RW GPIO Pullup
+//        8       0x0f18e000 RW GPIO Polarity
+//        A       0x0f18e800 RW GPIO Direction
+//        B       0x0f18ec00 RW GPIO Output Data
 		kHdWr_GPIO_RReg		= 0x0F18C000,	///< GPIO interface (1) (r) (raised reg?)
 		kHdWr_GPIO_EReg		= 0x0F18C400,   ///< GPIO interface (2) (r/w) (enable reg?)
 		kHdWr_GPIO_CReg		= 0x0F18C800,   ///< GPIO interface (3) (w) (clear reg?)
