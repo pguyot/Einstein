@@ -492,6 +492,8 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
     KUInt8* dataBuffer = nullptr;
     KUInt8* cisBuffer = nullptr;
     ImageInfo imageInfo;
+    int sz;
+    KUInt32 rawCISSize;
 
     // --- create the image file
     fOut = fopen(inOutFilename, "wb");
@@ -518,7 +520,7 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
     fCIS = fopen(inCISFilename, "rb");
     if (!fCIS) { err = kErrCantOpenCISFile; goto cleanup; }
     fseek(fCIS, 0, SEEK_END);  // simple way to find file size
-    KUInt32 rawCISSize = ftell(fCIS);
+    rawCISSize = ftell(fCIS);
     fseek(fCIS, 0, SEEK_SET);
     if (rawCISSize == 0) { err = kErrCorruptCISFile; goto cleanup; }
     if (rawCISSize > 4096) rawCISSize = 4096;
@@ -568,7 +570,7 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
 
     // --- add the name of the image
     imageInfo.pNameStart = ftell(fOut);
-    int sz = 0;
+    sz = 0;
     if (name && name[0]) {
         sz = strlen(name);
         fwrite(name, (KUInt64)sz + 1, 1, fOut);
@@ -595,6 +597,7 @@ KSInt32 TLinearCard::CreateImageFile(const char *inName, const char *inImageFile
     KUInt8* dataBuffer = nullptr;
     KUInt8* cisBuffer = nullptr;
     ImageInfo imageInfo;
+    int sz;
 
     // --- create the image file
     fOut = fopen(inImageFilename, "wb");
@@ -630,7 +633,7 @@ KSInt32 TLinearCard::CreateImageFile(const char *inName, const char *inImageFile
 
     // --- add the name of the image
     imageInfo.pNameStart = ftell(fOut);
-    int sz = 0;
+    sz = 0;
     if (inName && inName[0]) {
         sz = strlen(inName);
         fwrite(inName, (KUInt64)sz + 1, 1, fOut);
