@@ -550,7 +550,7 @@ public:
 			if (state != kStateDisconnected) {
 				shutdown(mSocket, SHUT_RDWR);
 			}
-			close(mSocket);
+			::close(mSocket);
 			mSocket = -1;
 		}
 #endif
@@ -693,7 +693,11 @@ public:
 				if (packet.GetTCPFlags() & Packet::TCPFlagFIN) {
 					// Newton initiates a disconnection.
 					// We don't support half-duplex
-					::close(mSocket);
+#if TARGET_OS_WIN32
+					::closesocket(mSocket); mSocket = INVALID_SOCKET;
+#else
+					::close(mSocket); mSocket = -1;
+#endif
 					// Peer has closed connection.
 					mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
 					Packet *reply = NewPacket(0);
@@ -709,7 +713,7 @@ public:
 					if (packet.GetTCPPayloadSize() > 0) {
 						// this is a data packet: send data to the socket
 						packet.LogPayload(net->GetLog(), "W<E N");
-						::write(mSocket, packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize());
+						::send(mSocket, (char*)packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize(), 0);
 						mNewtonPacketsSeq = packet.GetTCPSeq() + (KUInt32) packet.GetTCPPayloadSize();
 					}
 					// To avoid flooding the Newton, we send it data everytime it sends a packet
@@ -740,7 +744,11 @@ public:
 					UpdateChecksums(reply);
 					reply->LogPayload(net->GetLog(), "W E>N");
 					net->Enqueue(reply);
-					::close(mSocket);
+#if TARGET_OS_WIN32
+					::closesocket(mSocket); mSocket = INVALID_SOCKET;
+#else
+					::close(mSocket); mSocket = -1;
+#endif
 					net->RemovePacketHandler(this);
 					printf("Net: Peer closing. Removing TCP handler for port %u to %u.%u.%u.%u\n",
 						   theirPort,
@@ -780,7 +788,7 @@ public:
 			case kStateConnected:
 			{
 				KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
-				ssize_t avail = ::read(mSocket, buf, sizeof(buf));
+				ssize_t avail = ::recv(mSocket, (char*)buf, sizeof(buf), 0);
 				if (avail==0) {
 					// Peer has closed connection.
 					Packet *reply = NewPacket(0);
@@ -798,8 +806,8 @@ public:
 					printf("Net: W>E N Data %d bytes (TCP)\n", (int) avail);
 					//if (avail>200) avail = 200;
 					Packet *reply = NewPacket(avail);
-					// /*ssize_t n =*/ read(mSocket, reply->GetTCPPayloadStart(), avail);
-                    memcpy(reply->GetTCPPayloadStart(), buf, avail);
+					// /*ssize_t n =*/ ::recv(mSocket, reply->GetTCPPayloadStart(), avail, 0);
+					memcpy(reply->GetTCPPayloadStart(), buf, avail);
 					reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagPSH);
 					UpdateChecksums(reply);
 					reply->LogPayload(net->GetLog(), "W E>N");
