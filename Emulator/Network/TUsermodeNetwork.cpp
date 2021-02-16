@@ -115,6 +115,7 @@ typedef int socklen_t;
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
+#include <chrono>
 
 
 #ifdef __ANDROID__ 
@@ -165,8 +166,9 @@ public:
 	static const KUInt16 NetTypeARP = 0x0806;
 	
 	/** Used in GetIPProtocol() */
-	static const KUInt8 IPProtocolTCP =  6;
-	static const KUInt8 IPProtocolUDP = 17;
+    static const KUInt8 IPProtocolICMP =  1; // unhandled
+    static const KUInt8 IPProtocolTCP  =  6;
+	static const KUInt8 IPProtocolUDP  = 17;
 	
 	/** 
 	 * Create a new packet.
@@ -619,25 +621,39 @@ public:
 		sa.sin_family = AF_INET;
 		sa.sin_port = htons(theirPort);
 		sa.sin_addr.s_addr = htonl(theirIP);
-		// TODO: connect() will block. We can also put this socket into non-blocking first
-		int err = ::connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
-		if (err==-1) {
-			fprintf(stderr, "Can't connect: %s\n", strerror(errno));
-			return -1;
-		}
-		
-		// perform some presets for the socket
-		// - get the current settings and add the flag to keep the socket from blocking on send and receive
+
+        // perform some presets for the socket
+        // - connect() will block. Put this socket into non-blocking first
+        // - get the current settings and add the flag to avoid blocking
+        int err;
 #if TARGET_OS_WIN32
-		u_long arg = 1;
-		ioctlsocket(mSocket, FIONBIO, &arg);
+        u_long arg = 1;
+        ioctlsocket(mSocket, FIONBIO, &arg);
 #else
-		int fl = fcntl(mSocket, F_GETFL);
-		err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
-		if (err==-1)
-			return -1;
+        int fl = fcntl(mSocket, F_GETFL);
+        err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
+        if (err==-1)
+            return -1;
 #endif
-		
+
+		err = ::connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
+		if (err==-1) {
+            if (errno==EINPROGRESS) {
+                struct timeval timeout = {};
+                timeout.tv_sec = 6;
+                timeout.tv_usec = 0;
+                fd_set set;
+                FD_ZERO(&set);
+                FD_SET(mSocket, &set);
+                err = ::select(mSocket+1, NULL, &set, NULL, &timeout);
+            }
+            if (err==-1 || err==0) { // error or timeout
+                fprintf(stderr, "Can't connect: %s\n", strerror(errno));
+                return -1;
+            }
+            // no error, we are connected. Fall through.
+		}
+
 		// succesful connection, return a SYN ACK to the Newton.
 		Packet *reply = NewPacket(4); // 4 bytes are reserved for the extended TCP header
 		reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagSYN);
@@ -779,11 +795,11 @@ public:
 					state = kStatePeerDiscWaitForACK;
 					break;
 				} else if (avail>0) {
-					printf("Net: W>E N Data %d bytes\n", (int) avail);
+					printf("Net: W>E N Data %d bytes (TCP)\n", (int) avail);
 					//if (avail>200) avail = 200;
 					Packet *reply = NewPacket(avail);
 					// /*ssize_t n =*/ read(mSocket, reply->GetTCPPayloadStart(), avail);
-					memcpy(reply->GetTCPPayloadStart(), buf, avail);
+                    memcpy(reply->GetTCPPayloadStart(), buf, avail);
 					reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagPSH);
 					UpdateChecksums(reply);
 					reply->LogPayload(net->GetLog(), "W E>N");
@@ -990,7 +1006,7 @@ public:
 				}
 				return;
 			}
-			printf("Net: W>E N Data %d bytes\n", (int) avail);
+			printf("Net: W>E N Data %d bytes (UDP)\n", (int) avail);
 			Packet *reply = NewPacket(avail);
 			memcpy(reply->GetUDPPayloadStart(), buf, avail);
 			UpdateChecksums(reply);
@@ -1558,7 +1574,7 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 	int err = 0;
 	Packet packet(data, size, 0); // convert data into a packet
 	packet.LogPayload(GetLog(), "W E<N");
-	
+
 	// offer this package to all active handlers
 	PacketHandler *ph = mFirstPacketHandler;
 	while (ph) {
@@ -1591,9 +1607,13 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 		case 1:		return 0;	// packet was handled successfuly, leave
 		case 0:		break;		// another handler should deal with this packet
 	}
-	
+
 	// if we can't interprete the package, we offer some debugging information
 	printf("Net: Send Packet - I can't handle this packet:\n");
+//    int ss = size>70 ? 70 : size;
+//    for (int i=0; i<ss; i++) printf("%02x ", data[i]);
+//    printf("\n");
+
 	if (mLog) {
 		mLog->LogLine("\nTUsermodeNetwork: Newton is sending an unsupported package:");
 		LogBuffer(data, size);
@@ -1636,8 +1656,17 @@ int TUsermodeNetwork::GetDeviceAddress(KUInt8 *data, KUInt32 size)
  * Return the number of bytes available for the Newton driver.
  */
 KUInt32 TUsermodeNetwork::DataAvailable()
-{	
+{
+    //static std::chrono::time_point<std::chrono::steady_clock> delayBase = 0;
+    static auto delayBase = std::chrono::steady_clock::now();
+
 	if (mLastPacket) {
+        auto now = std::chrono::steady_clock::now();
+        std::chrono::duration<double> delayDelta = now - delayBase;
+        auto seconds = std::chrono::duration_cast<std::chrono::duration<double>>(delayDelta);
+        if ( seconds.count()<0.25 )
+            return 0;
+        delayBase = now;
 		return (KUInt32) mLastPacket->Size();
 	} else {
 		return 0;
@@ -1650,15 +1679,18 @@ KUInt32 TUsermodeNetwork::DataAvailable()
  */
 int TUsermodeNetwork::ReceiveData(KUInt8 *data, KUInt32 size)
 {
+    printf("NET: | Driver collects %d bytes\n", size);
 	Packet *pkt = mLastPacket;
 	if (pkt) {
-		//assert(pkt->Size()==size); // FIXME: what do we do if it is not the same?
+        printf("NET: +- Packet with %d bytes available\n", size);
+		assert(pkt->Size()==size); // FIXME: what do we do if it is not the same?
 		// copy the data over
 		memcpy(data, pkt->Data(), size);
 		// remove this package from the pipe
 		DropPacket();
 		return 0;
 	} else {
+        printf("NET: +- ERROR: NO PACKET AVAILABLE\n", size);
 		return -1;
 	}
 }

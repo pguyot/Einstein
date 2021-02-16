@@ -2776,7 +2776,7 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 			// a regular timer that can help us poll data and monitor integrity and throughput
 			if (mLog)
 			{
-				mLog->LogLine( "TNetworkManager::TimerExpired" );
+				//mLog->LogLine( "TNetworkManager::TimerExpired" );
 			}
 			mNetworkManager->TimerExpired();
 			break;
@@ -2806,7 +2806,8 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 			mProcessor->SetRegister(0, size);
 			if (mLog)
 			{
-				mLog->FLogLine( "TNetworkManager::DataAvailable(Avail: %d)", size );
+                if (size>0)
+                    mLog->FLogLine( "TNetworkManager::DataAvailable(Avail: %d)", size );
 			}
 			break; }
 		case 0x15: { 

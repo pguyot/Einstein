@@ -209,7 +209,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         image {../Resources/icons/button_backlight_on.png} xywh {192 34 14 15} hide
       }
       Fl_Button wNetworkTool {
-        label Network
+        label PCCards
         callback {float y = (Fl::event_y()-o->y())/(float)o->h();
   Fl_Menu_Item* menu = nullptr;
   const Fl_Menu_Item* cardMenu = nullptr;

@@ -9,7 +9,7 @@
 
 cmake_minimum_required(VERSION 3.15)
 
-project("Einstein" VERSION "2020.4.9")
+project("Einstein" VERSION "2020.4.10")
 
 set (CMAKE_CXX_STANDARD 17)
 
