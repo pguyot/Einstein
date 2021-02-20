@@ -79,8 +79,8 @@ TPortAudioSoundManager::TPortAudioSoundManager( TLog* inLog /* = nil */ )
 
 #ifdef DEBUG_SOUND
 
-    printf("TPortAudioSoundManager: chans %d, sample rate %.2f, resampling_multi %d, host_multi %d\n", kHostChannelCount, kHostSampleRate, kHostResamplingMultiplier, kHostMultiplier);
-    printf("                        newton_buf_size_bytes %d, multiplex_buf_size %d, output_buf_size_initial %ld\n", kNewtonBufferSize, kMultiplexedBufferSizeInBytes,  (kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16)));
+    ::KTrace("TPortAudioSoundManager: chans %d, sample rate %.2f, resampling_multi %d, host_multi %d\n", kHostChannelCount, kHostSampleRate, kHostResamplingMultiplier, kHostMultiplier);
+    ::KTrace("                        newton_buf_size_bytes %d, multiplex_buf_size %d, output_buf_size_initial %ld\n", kNewtonBufferSize, kMultiplexedBufferSizeInBytes,  (kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16)));
 
 #endif
 		PaStreamParameters outputParameters;
@@ -98,12 +98,12 @@ TPortAudioSoundManager::TPortAudioSoundManager( TLog* inLog /* = nil */ )
 
 
         // int numDevices = Pa_GetDeviceCount();
-        // printf("PortAudio reports %d devices\n", numDevices);
+        // ::KTrace("PortAudio reports %d devices\n", numDevices);
 		outputParameters.device           = Pa_GetDefaultOutputDevice();/* Default output device. */
 #ifdef DEBUG_SOUND
         if (outputParameters.device == paNoDevice)
         {
-            printf("No default PortAudio output device!\n");
+            ::KTrace("No default PortAudio output device!\n");
         }
 #endif
 		outputParameters.channelCount     = kHostChannelCount;
@@ -113,14 +113,14 @@ TPortAudioSoundManager::TPortAudioSoundManager( TLog* inLog /* = nil */ )
 		outputParameters.hostApiSpecificStreamInfo = NULL;
 
 #ifdef DEBUG_SOUND
-        printf("PortAudio device latency is %.3f\n", outputParameters.suggestedLatency);
+        ::KTrace("PortAudio device latency is %.3f\n", outputParameters.suggestedLatency);
 #endif
 
         theErr = Pa_IsFormatSupported(NULL, &outputParameters, kHostSampleRate);
 
         if (theErr != paFormatIsSupported)
         {
-            printf("PortAudio output parameters not supported!\n");
+            ::KTrace("PortAudio output parameters not supported!\n");
         }
 
 		theErr = Pa_OpenStream(
@@ -209,12 +209,12 @@ TPortAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
 			// Write to the output buffer.
 			// Resample buffer.
 #ifdef DEBUG_SOUND
-            printf("***** FROM NOS: ScheduleOutput size:%ld, frames:%ld, outputBuffer size:%ld\n", inSize, (inSize / sizeof(KSInt16)), inSize * kHostMultiplier );
-            // printf("Start of inBuffer:\n");
+            ::KTrace("***** FROM NOS: ScheduleOutput size:%ld, frames:%ld, outputBuffer size:%ld\n", inSize, (inSize / sizeof(KSInt16)), inSize * kHostMultiplier );
+            // ::KTrace("Start of inBuffer:\n");
             // hexdump((void *) inBuffer, 32);
 #endif
 #if (kHostMultiplier > 1) || TARGET_RT_LITTLE_ENDIAN
-            // printf("ScheduleOutput Changing byte order\n");
+            // ::KTrace("ScheduleOutput Changing byte order\n");
 			KUInt32 framesCount = inSize / sizeof( KSInt16 );
 			KSInt16* multiplexedCursor = mMultiplexedBuffer;
 			KSInt16* bufferCursor = (KSInt16*) inBuffer;
@@ -234,7 +234,7 @@ TPortAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
 #endif
 			}
 #ifdef DEBUG_SOUND
-            // printf("Start of mMultiplexedBuffer\n");
+            // ::KTrace("Start of mMultiplexedBuffer\n");
             // hexdump((void *) mMultiplexedBuffer, 32);
 #endif
 			// Copy data.
@@ -265,17 +265,17 @@ void
 TPortAudioSoundManager::StartOutput( void )
 {
 #ifdef DEBUG_SOUND
-	printf( "***** FROM NOS -> StartOutput BEGIN ..." );
+	::KTrace( "***** FROM NOS -> StartOutput BEGIN ..." );
 #endif
 	if (!mOutputIsRunning)
 	{
 #ifdef DEBUG_SOUND
-        printf(" Pa_StartStream...   ");
+        ::KTrace(" Pa_StartStream...   ");
 #endif
 		PaError theErr = Pa_StartStream(mOutputStream);
 		if (theErr != paNoError)
 		{
-			printf( "	error: %s\n", Pa_GetErrorText( theErr ) );
+			::KTrace( "	error: %s\n", Pa_GetErrorText( theErr ) );
 			if (GetLog())
 			{
 				GetLog()->FLogLine(
@@ -290,9 +290,9 @@ TPortAudioSoundManager::StartOutput( void )
 #ifdef DEBUG_SOUND
     else
     {
-        printf("\n");
+        ::KTrace("\n");
     }
-	printf( "\n***** FROM NOS -> ... END StartOutput\n" );
+	::KTrace( "\n***** FROM NOS -> ... END StartOutput\n" );
 #endif
 }
 
@@ -303,12 +303,12 @@ void
 TPortAudioSoundManager::StopOutput( void )
 {
 #ifdef DEBUG_SOUND
-    // printf( "StopOutput..." );
-    printf( "***** FROM NOS -> StopOutput BEGIN ..." );
+    // ::KTrace( "StopOutput..." );
+    ::KTrace( "***** FROM NOS -> StopOutput BEGIN ..." );
 #endif
 	if (mOutputIsRunning)
 	{
-        printf( " Pa_StopStream...   " );
+        ::KTrace( " Pa_StopStream...   " );
 		PaError theErr = Pa_StopStream(mOutputStream);
 		if (theErr != paNoError)
 		{
@@ -325,9 +325,9 @@ TPortAudioSoundManager::StopOutput( void )
 #ifdef DEBUG_SOUND
     else
     {
-        printf("\n");
+        ::KTrace("\n");
     }
-    printf( "\n***** FROM NOS -> ... END StopOutput\n" );
+    ::KTrace( "\n***** FROM NOS -> ... END StopOutput\n" );
 #endif
 }
 
@@ -338,7 +338,7 @@ bool
 TPortAudioSoundManager::OutputIsRunning( void )
 {
 #ifdef DEBUG_SOUND
-	printf( "***** FROM NOS -> OutputIsRunning: !(outputBuffer empty): %i, mOutputIsRunning: %s\n", !mOutputBuffer->IsEmpty(), mOutputIsRunning ? "true" : "false" );
+	::KTrace( "***** FROM NOS -> OutputIsRunning: !(outputBuffer empty): %i, mOutputIsRunning: %s\n", !mOutputBuffer->IsEmpty(), mOutputIsRunning ? "true" : "false" );
 #endif
 	return !mOutputBuffer->IsEmpty();
 }
@@ -376,7 +376,7 @@ TPortAudioSoundManager::PACallBack(
 		result = paComplete;
 	}
 #ifdef DEBUG_SOUND
-    printf("PACALLBACK %ld available, wants %ld frames, consuming %ld\n", bytesInBuffer, frameCount, amount);
+    ::KTrace("PACALLBACK %ld available, wants %ld frames, consuming %ld\n", bytesInBuffer, frameCount, amount);
 #endif
     mDataMutex->Lock();
 	KUInt32 available = mOutputBuffer->Consume( outputBuffer, amount );
@@ -385,13 +385,13 @@ TPortAudioSoundManager::PACallBack(
 	if (delta > 0)
 	{
 		// Zero the remaining of the buffer.
-        printf("ZEROING DELTA %ld bytes\n", delta);
+        ::KTrace("ZEROING DELTA %ld bytes\n", delta);
 		::bzero( &((KUInt8*) outputBuffer)[available], delta );
 	}
 
     if (bytesInBuffer < kNewtonBufferSize) {
 		// Ask for more data.
-        printf("PACALLBACK RAISEOUTPUTINTERRUPT\n");
+        ::KTrace("PACALLBACK RAISEOUTPUTINTERRUPT\n");
 		RaiseOutputInterrupt();
 	}
 
@@ -413,17 +413,17 @@ void hexdump(void *mem, unsigned int len)
                 /* print offset */
                 if(i % HEXDUMP_COLS == 0)
                 {
-                        printf("0x%06x: ", i);
+                        ::KTrace("0x%06x: ", i);
                 }
 
                 /* print hex data */
                 if(i < len)
                 {
-                        printf("%02x ", 0xFF & ((char*)mem)[i]);
+                        ::KTrace("%02x ", 0xFF & ((char*)mem)[i]);
                 }
                 else /* end of block, just aligning for ASCII dump */
                 {
-                        printf("   ");
+                        ::KTrace("   ");
                 }
 
                 /* print ASCII dump */

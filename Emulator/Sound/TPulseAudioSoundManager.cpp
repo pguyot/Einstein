@@ -175,9 +175,9 @@ TPulseAudioSoundManager::TPulseAudioSoundManager( TLog* inLog /* = nil */ )
         }
     } else {
         if (mPAContext) {
-            printf("TPulseAudioSoundManager: %s: %s\n", errorText, pa_context_errno(mPAContext));
+            ::KTrace("TPulseAudioSoundManager: %s: %s\n", errorText, pa_context_errno(mPAContext));
         } else {
-            printf("TPulseAudioSoundManager: %s.\n", errorText);
+            ::KTrace("TPulseAudioSoundManager: %s.\n", errorText);
         }
     }
     if (mPAMainLoop) {

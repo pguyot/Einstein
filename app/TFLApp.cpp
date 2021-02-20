@@ -27,17 +27,17 @@
 
 // ----- User Interface improvements
 // TODO: option to launch Monitor stopped at boot point
-// TODO: cleanup settings dialog
-// TODO: make menubar and toolbar optional
 // TODO: make FKey Bar for eMate emulation with volume slider (screenshot)
 // TODO: is the drop-down menu still on par?
+// TODO: allow skeuomorphism (use photo of MP as an outline in the UI)
 
 // ----- Minor Improvemnts in Usability
-// TODO: menu and action to reboot Newton
+// TODO: menu and action to reboot Newton (in different configurations)
 // TODO: install essentials
 // TODO: drag'n'drop of multiple files and archives
 // TODO: drag'n'drop from network locations
 // TODO: drag'n'drop for the Unna Archive
+// TODO: option to load and save complete images including ROM, RAM, Flash, and PCMCIA memory snapshots
 // TODO: automated Internet access (install and setup)
 // TODO: add preferences to point to a UNNA archive image, so we can browse that and install quickly
 // TODO: add global functions to handle images, sounds and other external binary data
@@ -46,7 +46,7 @@
 
 // ----- Major new Features
 // TODO: NTK Monitor
-// TODO: patch ROMs for Y10k bug
+// TODO: patch ROMs for Y10k bug (Y26k bug coming up quickly!)
 // TODO: printer support
 // TODO: wake-up/launch on appointment in the future
 
@@ -62,6 +62,20 @@
 // TODO: release notes
 // TODO: help pages for use of Einstein, Monitor, etc.
 // TODO: help for getting started with NewtonOS, links
+
+// ----- Flash Memeory Settings
+// TODO: even if internal Flash is set to 4MB, it reports 8MB in sum. Also, we can't allocate more than 4MB in settings without crash. Original Einstein works.
+
+// ----- PCMCIA
+// TODO: keep cards in between reboots
+
+// ----- UI
+// TODO: 2020.4.10 on mac About screen shows no version number
+
+// ----- Ethernet Emulation
+// TODO: Sending an EMail: Communication Problem occured: Connection may have been dropped
+// TODO: Sylvian provides EMail Account for testing
+// TODO: NPDS not working: incomming TCP/IP connections don't work
 
 
 /*
@@ -89,6 +103,8 @@
  */
 
 #include <K/Defines/KDefinitions.h>
+#include <K/Trace.h>
+
 #include "TFLApp.h"
 #include "TFLAppUI.h"
 #include "TFLAppWindow.h"
@@ -230,8 +246,8 @@ TFLApp::Run( int argc, char* argv[] )
     int ramSize = mFLSettings->RAMSize;
     bool hidemouse = (bool)mFLSettings->hideMouse;
 
-    (void) ::printf( "Welcome to Einstein console.\n" );
-    (void) ::printf( "This is %s.\n", VERSION_STRING );
+    ::KTrace( "Welcome to Einstein console.\n" );
+    ::KTrace( "This is %s.\n", VERSION_STRING );
 
     static char theROMImagePath[FL_PATH_MAX];
 
@@ -888,8 +904,9 @@ void TFLApp::InitMonitor(const char *theROMImagePath)
         fl_filename_setext(theSymbolListPath, FL_PATH_MAX, ".symbols");
         mSymbolList = new TSymbolList( theSymbolListPath );
         mMonitor = new TFLMonitor( (TBufferLog*) mLog, mEmulator, mSymbolList, theROMImagePath);
+        ::KTrace("Booting... (Monitor enabled)\n");
     } else {
-        (void) ::printf( "Booting...\n" );
+        ::KTrace( "Booting...\n" );
     }
 }
 
@@ -918,7 +935,7 @@ TFLApp::CreateLog( const char* inFilePath )
 {
     if (mLog)
     {
-        (void) ::printf( "A log already exists (--monitor & --log are exclusive)\n" );
+        ::KTrace( "A log already exists (--monitor & --log are exclusive)\n" );
         ::exit(1);
     }
     mLog = new TFileLog( inFilePath );
@@ -1077,7 +1094,7 @@ T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, "AddClipboard__9TRootViewFRC
 
 static void clip_callback(int source, void *data) {
     if ( source == 1 ) {
-        printf("Clipboard: \"%s\"\n", (char*)data);
+        ::KTrace("Clipboard: \"%s\"\n", (char*)data);
     }
 }
 

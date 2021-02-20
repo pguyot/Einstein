@@ -270,6 +270,8 @@ set ( sources
 	K/Unicode/UUTF16Conv.cpp
 	K/Unicode/UUTF16Conv.h
 	K/Unicode/UnicodeDefinitions.h
+	K/Trace.cpp
+	K/Trace.h
 	Monitor/TFLMonitor.cpp
 	Monitor/TFLMonitor.h
 	Monitor/TMonitor.cpp
@@ -533,6 +535,9 @@ elseif (WIN32)
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC "/bigobj")
+	if ($<CONFIG:Debug>) 
+		target_compile_options(Einstein PUBLIC "/ZI")
+	endif()
 	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1)
 	target_link_libraries(Einstein
 		# this vvv always includes the debug version, even in release mode

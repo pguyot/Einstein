@@ -99,9 +99,9 @@ TVirtualizedCalls::memmove_slow( KUInt32 inDst, KUInt32 inSrc, KUInt32 inLen )
 	
 //	if ((src & 0x3) || (dst & 0x3) || (len & 0x3))
 //	{
-//		printf( "unaligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
+//		KTrace( "unaligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
 //	} else {
-//		printf( "  aligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
+//		KTrace( "  aligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
 //	}
 
 	while (len > 3)

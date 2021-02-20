@@ -21,6 +21,8 @@
 // $Id$
 // ==============================
 
+#include <K/Trace.h>
+
 #include "TTcpClientSerialPortManager.h"
 #include "app/TPathHelper.h"
 
@@ -68,7 +70,7 @@
  does send a keep-alive message regularly if the connection should be kept.
 
  The class can be destroyed if the user changes settings in the preferences
- panel (this is not yet (3-21-2020) implemented).
+ panel.
  */
 
 
@@ -148,13 +150,13 @@ void TTcpClientSerialPortManager::LogError(const char* text, bool systemError)
 		if (mLog)
 			mLog->FLogLine("TTcpClientSerialPortManager::%s: %s (%d)\n", text, errorText, errorId);
 		else
-			fprintf(stderr, "TTcpClientSerialPortManager::%s: %s (%d)\n", text, errorText, errorId);
+			::KTrace("TTcpClientSerialPortManager::%s: %s (%d)\n", text, errorText, errorId);
 	}
 	else {
 		if (mLog)
 			mLog->FLogLine("TTcpClientSerialPortManager::%s\n", text);
 		else
-			fprintf(stderr, "TTcpClientSerialPortManager::%s\n", text);
+			::KTrace("TTcpClientSerialPortManager::%s\n", text);
 	}
 }
 
@@ -487,9 +489,9 @@ TTcpClientSerialPortManager::HandleDMASend()
 #else
 				::write(mTcpSocket, &data, 1);
 #endif
-				//printf("Sending 0x%02x\n", data);
+				//::KTrace("Sending 0x%02x\n", data);
 			} else {
-				//printf("Sending to null 0x%02x\n", data);
+				//::KTrace("Sending to null 0x%02x\n", data);
 			}
 			mTxDMAPhysicalData++;
 			mTxDMABufferSize--;
@@ -542,7 +544,7 @@ TTcpClientSerialPortManager::HandleDMAReceive()
 		std::this_thread::sleep_for(std::chrono::microseconds(n*100));
 		for (KUInt32 i=0; i<n; i++) {
 			KUInt8 data = buf[i];
-			//printf("Received 0x%02x\n", data);
+			//::KTrace("Received 0x%02x\n", data);
 			mMemory->WriteBP(mRxDMAPhysicalData, data);
 			mRxDMAPhysicalData++;
 			mRxDMABufferSize--;
@@ -599,26 +601,26 @@ void TTcpClientSerialPortManager::NSSetOptions(TNewt::RefArg inFrame)
 		setPort = true;
 	}
 
-	//printf("INFO: TTcpClientSerialPortManager::NSSetOptions: (\"%s\", %d)\n", mServer, mPort);
+	//::KTrace("INFO: TTcpClientSerialPortManager::NSSetOptions: (\"%s\", %d)\n", mServer, mPort);
 	if (setServer) {
 		if (strcmp(mServer, server)!=0) {
 			if (mServer) ::free(mServer);
 			mServer = strdup(server);
 			mustReconnect = true;
 		}
-		//printf("INFO:             Setting server to \"%s\".\n", server);
+		//::KTrace("INFO:             Setting server to \"%s\".\n", server);
 	}
 	if (setPort) {
 		if (mPort!=port) {
 			mPort = port;
 			mustReconnect = true;
 		}
-		//printf("INFO:             Setting port to %d.\n", port);
+		//::KTrace("INFO:             Setting port to %d.\n", port);
 	}
 
 	if (mustReconnect) {
 		Disconnect(); // force the server to reconnect
-		//printf("INFO: TTcpClientSerialPortManager::NSSetOptions: must reconnect\n");
+		//::KTrace("INFO: TTcpClientSerialPortManager::NSSetOptions: must reconnect\n");
 	}
 }
 

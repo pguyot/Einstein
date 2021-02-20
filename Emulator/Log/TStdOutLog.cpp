@@ -23,7 +23,7 @@
 
 #include "TStdOutLog.h"
 
-#include <stdio.h>
+#include <K/Trace.h>
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -42,7 +42,7 @@ TStdOutLog::TStdOutLog( void )
 void
 TStdOutLog::DoLogLine( const char* inLine )
 {
-	(void) ::printf( "%s\n", inLine );
+	::KTrace( "%s\n", inLine );
 }
 
 // ======================================================================= //

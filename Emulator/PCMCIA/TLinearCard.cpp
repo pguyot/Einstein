@@ -348,10 +348,10 @@ TLinearCard::WriteMem( KUInt32 inOffset, KUInt32 inValue )
 //    const char *states[] = {
 //        "Read", "Status", "Write", "Erase"
 //    };
-//    printf("TFlashWrite: pc: %08x  lr: %08x\n",
+//    ::KTrace("TFlashWrite: pc: %08x  lr: %08x\n",
 //           GetPCMCIAController()->GetEmulator()->GetProcessor()->GetRegister(15),
 //           GetPCMCIAController()->GetEmulator()->GetProcessor()->GetRegister(14));
-//    printf("TFlashWrite: a:%08x v:%08x, current:%08x, flags:%08x %s\n", inOffset, inValue, v, p, states[mState]);
+//    ::KTrace("TFlashWrite: a:%08x v:%08x, current:%08x, flags:%08x %s\n", inOffset, inValue, v, p, states[mState]);
 
 	if (GetLog())
 	{
@@ -413,10 +413,10 @@ TLinearCard::WriteMemB( KUInt32 inOffset, KUInt8 inValue )
 //    const char *states[] = {
 //        "Read", "Status", "Write", "Erase"
 //    };
-//    printf("TFlashWriteB: pc: %08x  lr: %08x\n",
+//    ::KTrace("TFlashWriteB: pc: %08x  lr: %08x\n",
 //           GetPCMCIAController()->GetEmulator()->GetProcessor()->GetRegister(15),
 //           GetPCMCIAController()->GetEmulator()->GetProcessor()->GetRegister(14));
-//    printf("TFlashWriteB: a:%08x v:%02x, current:%02x, flags:%08x %s\n", inOffset, inValue, v, p, states[mState]);
+//    ::KTrace("TFlashWriteB: a:%08x v:%02x, current:%02x, flags:%08x %s\n", inOffset, inValue, v, p, states[mState]);
 
 	if (GetLog())
 	{
