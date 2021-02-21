@@ -325,6 +325,8 @@ TFLApp::Run( int argc, char* argv[] )
 
     // if the emulator does not know yet, tell it to wrap things up and quit
     mEmulator->Quit();
+    mPlatformManager->InsertPCCard(0, nullptr); // Flush memory card contents
+    mPlatformManager->InsertPCCard(1, nullptr);
 
     // also, let the Monitor know that we are leaving
     if (mMonitor)
@@ -393,24 +395,6 @@ void TFLApp::UserActionToggleBacklight()
 {
     mPlatformManager->SendBacklightEvent();
 }
-
-/**
- User wants us to slide the Flash Memory  card in or out
- */
-void TFLApp::UserActionToggleFlashMemoryCard()
-{
-    mPlatformManager->SendFlashMemoryCardEvent();
-}
-
-
-/**
- User wants us to slide the network card in or out
- */
-void TFLApp::UserActionToggleNetworkCard()
-{
-    mPlatformManager->SendNetworkCardEvent();
-}
-
 
 #if TARGET_OS_WIN32
 static int strcasecmp(const char* a, const char* b) { return stricmp(a, b); }
@@ -661,13 +645,18 @@ int TFLApp::UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data,
 // User wants to insert or remove PCMCIA card into ot from controller 0.
 int TFLApp::UserActionPCCard(int inSlot, long inIndex)
 {
-    if (inIndex==-1)
-        return mPlatformManager->InsertPCCard(inSlot, nullptr);
-
     int ret = -1;
-    TPCMCIACard* card = GetSettings()->mCardList[inIndex]->GetCard();
-    if (card) 
-        ret = mPlatformManager->InsertPCCard(inSlot, card);
+
+    if (inIndex == -1) {
+        ret = mPlatformManager->InsertPCCard(inSlot, nullptr);
+    } else {
+        TPCMCIACard* card = GetSettings()->mCardList[inIndex]->GetCard();
+        if (card && !card->IsInserted())
+            ret = mPlatformManager->InsertPCCard(inSlot, card);
+    }
+
+    mFLSettings->updateMenus();
+
     return ret;
 }
 

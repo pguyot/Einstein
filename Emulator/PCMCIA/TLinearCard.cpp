@@ -83,33 +83,8 @@ const KUInt8 TLinearCard::kDefaultCISData[] = {
 // -------------------------------------------------------------------------- //
 TLinearCard::TLinearCard(const char* inImagePath)
 {
-    // FIXME: there is no error handling in here at all
-    // FIXME: modified image is never written back. Use file mapped to memory here instead?!
-
-    int ret = 0;
-
-    FILE *f = fopen(inImagePath, "rb");
-    if (!f)
-        return; // throw an exception?
-    
-    ret = mImageInfo.read(f);
-    if (ret != 1)
-        return;
-
-    if (mImageInfo.pDataSize) {
-        mMemoryMap = (KUInt8*)malloc(mImageInfo.pDataSize);
-        fseek(f, mImageInfo.pDataStart, SEEK_SET);
-        fread(mMemoryMap, mImageInfo.pDataSize, 1, f);
-        mSize = mImageInfo.pDataSize;
-    } // else throw exception
-
-    if (mImageInfo.pCISSize) {
-        mCISDataSize = mImageInfo.pCISSize;
-        mCISData = (KUInt8*)malloc(mCISDataSize);
-        fseek(f, mImageInfo.pCISStart, SEEK_SET);
-        fread(mCISData, mCISDataSize, 1, f);
-    } // else throw exception
-
+    if (inImagePath)
+        mFilePath = ::strdup(inImagePath);
 }
 
 // -------------------------------------------------------------------------- //
@@ -117,10 +92,110 @@ TLinearCard::TLinearCard(const char* inImagePath)
 // -------------------------------------------------------------------------- //
 TLinearCard::~TLinearCard( void )
 {
-    if (mMemoryMap)
+    Remove();
+    if (mFilePath)
+        ::free(mFilePath);
+}
+
+// -------------------------------------------------------------------------- //
+//  * Init( TPCMCIAController* )
+// -------------------------------------------------------------------------- //
+int TLinearCard::Init(TPCMCIAController* inController)
+{
+    int ret = super::Init(inController);
+    if (ret == -1)
+        return ret;
+
+    // File may still be open in write mode from a previous Flush.
+    if (mFile) 
+        ::fclose(mFile);
+
+    // Init() reads all required data from the file and the closes it again.
+    // \see Flush()
+    mFile = fopen(mFilePath, "rb");
+    if (!mFile)
+        return -1; // throw an exception?
+
+    ret = mImageInfo.read(mFile);
+    if (ret != 1) {
+        ::fclose(mFile);
+        mFile = nullptr;
+        return -1;
+    }
+
+    if (mImageInfo.pDataSize) {
+        mMemoryMap = (KUInt8*)malloc(mImageInfo.pDataSize);
+        fseek(mFile, mImageInfo.pDataStart, SEEK_SET);
+        fread(mMemoryMap, mImageInfo.pDataSize, 1, mFile);
+        mSize = mImageInfo.pDataSize;
+    } // else throw exception
+
+    if (mImageInfo.pCISSize) {
+        mCISDataSize = mImageInfo.pCISSize;
+        mCISData = (KUInt8*)malloc(mCISDataSize);
+        fseek(mFile, mImageInfo.pCISStart, SEEK_SET);
+        fread(mCISData, mCISDataSize, 1, mFile);
+    } // else throw exception
+
+    ::fclose(mFile);
+    mFile = nullptr;
+
+    return 0;
+}
+
+// -------------------------------------------------------------------------- //
+//  * Remove( void )
+// -------------------------------------------------------------------------- //
+void
+TLinearCard::Remove()
+{
+    Flush();
+
+    if (mFile) {
+        ::fclose(mFile);
+        mFile = nullptr;
+    }
+
+    if (mMemoryMap) {
         ::free(mMemoryMap);
-    if (mCISData)
+        mMemoryMap = nullptr;
+    }
+
+    if (mCISData) {
         ::free(mCISData);
+        mCISData = nullptr;
+    }
+
+    mSize = 0;
+    mCISDataSize = 0;
+    mState = kReadArray;
+
+    super::Remove();
+}
+
+// -------------------------------------------------------------------------- //
+//  * Flush( void )
+// -------------------------------------------------------------------------- //
+void
+TLinearCard::Flush()
+{
+    // Check if there is any data that we might want to write 
+    if (mFilePath && mMemoryMap && mSize) {
+        // Open the file for reading, writing, and updating.
+        if (!mFile)
+            mFile = fopen(mFilePath, "r+b");
+        // If the file could be opened, write the entire memeory chunk to the file.
+        if (mFile) {
+            ::fseek(mFile, mImageInfo.pDataStart, SEEK_SET);
+            ::fwrite(mMemoryMap, mSize, 1, mFile);
+            ::fflush(mFile);
+        }
+        // Keep the file open for possible additional calls to Flush(). 
+        // Destructor will close the file for us later.
+        // TODO: we should only write those blocks that were actually modified to save time
+        // TODO: we should write dirty blocks on a regular base, not just when closing the file 
+        //      that will ensure that Flash cards are saved, even if Einstein crashes
+    }
 }
 
 // -------------------------------------------------------------------------- //

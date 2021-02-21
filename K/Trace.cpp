@@ -23,6 +23,9 @@
 
 #include "Trace.h"
 
+#ifdef _DEBUG
+
+
 #if TARGET_OS_WIN32
 
 #include <Windows.h>
@@ -85,5 +88,6 @@ void KTrace(char* format, ...)
 #endif
 
 
+#endif
 
 // =================================================== //

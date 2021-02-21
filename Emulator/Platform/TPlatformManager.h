@@ -186,16 +186,11 @@ public:
 	/// 
 	int	InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard);
 
-    ///
-    /// Send a Flash Memory card insertion event.
-    ///
-    void    SendFlashMemoryCardEvent( void );
+	///
+	/// Return the card that is currently in the given PCMCIA slot.
+	/// 
+	TPCMCIACard* GetPCCard(KUInt32 inSlot);
 
-	///
-	/// Send a Network card insertion event.
-	///
-	void	SendNetworkCardEvent( void );
-	
 	///
 	/// Send a power switch event.
 	///

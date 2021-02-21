@@ -348,7 +348,11 @@ TPCMCIAController::InsertCard( TPCMCIACard* inCard )
 	// Init the card.
 	mCard->Init( this );
 	
-	RaiseInterrupt( kSocketCardDetectedIntVector );
+	// 
+	// 0x000C 
+	RaiseInterrupt(kSocketCardDetectedIntVector);
+	// Port 0: 0x0004 and/or 0x0008
+	//RaiseInterrupt(0x0010);
 }
 
 // -------------------------------------------------------------------------- //
@@ -359,6 +363,8 @@ TPCMCIAController::RemoveCard( void )
 {
 	assert (mCard != nil);
 	
+	mCard->Remove();
+
 	mCard = nil;
 	
 	// Raise interrupt.
@@ -391,8 +397,9 @@ TPCMCIAController::RaiseInterrupt( int inVector )
 		mEmulator->GetInterruptManager()->RaiseInterrupt(
 			TInterruptManager::kPCMCIA0IntMask );
 	} else if (mSocketIx == 1) {
-		mEmulator->GetInterruptManager()->RaiseInterrupt(
-			TInterruptManager::kPCMCIA1IntMask );
+		mEmulator->GetInterruptManager()->RaiseInterrupt(0x00010000);
+			//TInterruptManager::kPCMCIA1IntMask );
+		// 0x00010000 0x02000000
 	}
 }
 

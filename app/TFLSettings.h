@@ -58,6 +58,8 @@ public:
 
     TPCMCIACard* GetCard();
 
+    TPCMCIACard* Card() { return mCard; }
+
     void WritePrefs(Fl_Preferences&);
 
     const char *GetUUID() { return mUUID; }

@@ -45,7 +45,7 @@ class TPCMCIACardList;
 
 class Fl_Widget;
 class TFLApp;
-class TFLSettings;
+class TFLSettingsUI;
 
 
 extern TFLApp *gApp;
@@ -86,12 +86,6 @@ public:
 
     // user toggles backlight
     void UserActionToggleBacklight();
-
-    // user oinserts or removes Flash Memory card
-    void UserActionToggleFlashMemoryCard();
-
-    // user toggles network card
-    void UserActionToggleNetworkCard();
 
     // install a package
     void InstallPackagesFromURI(const char *filenames);
@@ -144,7 +138,7 @@ public:
 
     TPlatformManager *GetPlatformManager() { return mPlatformManager; }
 
-    TFLSettings *GetSettings() { return mFLSettings; }
+    TFLSettingsUI *GetSettings() { return mFLSettings; }
 
     const char *ChooseExistingFile(const char *message, const char *pat, const char *fname);
     const char *ChooseNewFile(const char *message, const char *pat, const char *fname);
@@ -197,7 +191,7 @@ private:
     TLog*				mLog = nullptr;
     TMonitor*			mMonitor = nullptr;
     TSymbolList*		mSymbolList = nullptr;
-    TFLSettings*        mFLSettings = nullptr;
+    TFLSettingsUI*      mFLSettings = nullptr;
     TToolkit*           mToolkit = nullptr;
     TPCMCIACardList*    mPCMCIACardList = nullptr;
     Fl_Widget*          mNewtonScreen = nullptr;

@@ -63,12 +63,13 @@ TPCMCIACard::~TPCMCIACard( void )
 // -------------------------------------------------------------------------- //
 //  * Init( TPCMCIAController* )
 // -------------------------------------------------------------------------- //
-void
+int
 TPCMCIACard::Init( TPCMCIAController* inController )
 {
 	mLog = inController->GetLog();
 	mEmulator = inController->GetEmulator();
 	mPCMCIAController = inController;
+	return 0;
 }
 
 // ======================== //

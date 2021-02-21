@@ -372,50 +372,18 @@ int TPlatformManager::InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard)
 
 
 // -------------------------------------------------------------------------- //
-//  * SendFlashMemoryCardEvent( void )
+//  * GetPCCard( KUInt32 )
 // -------------------------------------------------------------------------- //
-void
-TPlatformManager::SendFlashMemoryCardEvent( void )
+TPCMCIACard* 
+TPlatformManager::GetPCCard(KUInt32 inSlot)
 {
-    static TLinearCard *theCard = NULL;
+	if (!mMemory) return nullptr;
+	if (inSlot < 0 || inSlot>1) return nullptr;
 
-    // FIXME: Change check mark in Menu.
-    if (mMemory) {
-        TPCMCIAController *theController = mMemory->GetPCMCIAController(0); // FIXME: controller 1
-        if (theController) {
-            if (theCard==0L) {
-                theCard = new TLinearCard("A");
-                theController->InsertCard(theCard);
-            } else {
-                theController->RemoveCard();
-                theCard = NULL;
-            }
-        }
-    }
-}
+	TPCMCIAController* controller = mMemory->GetPCMCIAController(inSlot);
+	if (!controller) return nullptr;
 
-
-// -------------------------------------------------------------------------- //
-//  * SendNetworkCardEvent( void )
-// -------------------------------------------------------------------------- //
-void
-TPlatformManager::SendNetworkCardEvent( void )
-{
-	static TNE2000Card *theCard = NULL;
-
-	// FIXME: Change check mark in Menu.
-	if (mMemory) {
-		TPCMCIAController *theController = mMemory->GetPCMCIAController(0);
-		if (theController) {
-			if (theCard==0L) {
-				theCard = new TNE2000Card();
-				theController->InsertCard(theCard);
-			} else {
-				theController->RemoveCard();
-				theCard = NULL;
-			}
-		}
-	}
+	return controller->CurrentCard();
 }
 
 

@@ -397,12 +397,12 @@ public:
 		}
 	}
 	
-	Packet *prev, *next;
+	Packet *prev = nullptr, *next = nullptr;
 	
 private:
-	KUInt8 *mData;
-	ssize_t mSize;
-	KUInt8	mCopy;
+	KUInt8 *mData = nullptr;
+	ssize_t mSize = 0;
+	KUInt8	mCopy = 0;
 };
 
 
@@ -1070,13 +1070,13 @@ public:
 		return ph->send(packet);
 	}
 	
-	KUInt64		myMAC, theirMAC;
-	KUInt32		myIP, theirIP;
-	KUInt16		myPort, theirPort;
-	KUInt16		theirID;
-	int			mSocket;
-	KUInt32		mExpire;
-	struct sockaddr_in theirSockAddr;
+	KUInt64		myMAC = 0, theirMAC = 0;
+	KUInt32		myIP = 0, theirIP = 0;
+	KUInt16		myPort = 0, theirPort = 0;
+	KUInt16		theirID = 0;
+	int			mSocket = -1;
+	KUInt32		mExpire = 0;
+	struct sockaddr_in theirSockAddr = { };
 };
 
 

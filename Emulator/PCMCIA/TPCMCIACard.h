@@ -54,8 +54,18 @@ public:
 	///
 	/// Called by the controller to say we've been inserted.
 	///
-	virtual void		Init( TPCMCIAController* inController );
+	virtual int			Init( TPCMCIAController* inController );
 	
+	///
+	/// Called by the controller to say we've been removed.
+	///
+	virtual void		Remove() { mPCMCIAController = nullptr;  }
+
+	///
+	/// Return true, if the card is currently inserted
+	/// 
+	bool IsInserted() { return (mPCMCIAController != nullptr);  }
+
 	///
 	/// Get PCMCIA pins.
 	///
@@ -141,20 +151,21 @@ protected:
 		{
 			return mPCMCIAController;
 		}
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TPCMCIACard( const TPCMCIACard& inCopy );
+	TPCMCIACard( const TPCMCIACard& inCopy ) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TPCMCIACard& operator = ( const TPCMCIACard& inCopy );
+	TPCMCIACard& operator = ( const TPCMCIACard& inCopy ) = delete;
 
 	/// \name Variables
 	TLog*				mLog;				///< Ref to the log object.
