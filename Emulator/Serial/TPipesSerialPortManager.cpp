@@ -24,6 +24,8 @@
 #include "TPipesSerialPortManager.h"
 #include "app/TPathHelper.h"
 
+#include <K/Trace.h>
+
 // POSIX
 #include <sys/types.h>
 #include <signal.h>

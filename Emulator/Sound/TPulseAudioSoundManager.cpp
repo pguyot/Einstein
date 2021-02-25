@@ -36,6 +36,7 @@
 #include <string.h>
 
 // K
+#include <K/Trace.h>
 #include <K/Threads/TMutex.h>
 
 // Einstein.

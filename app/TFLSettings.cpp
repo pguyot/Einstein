@@ -35,6 +35,9 @@
 #endif
 #include <stdio.h>
 #include <errno.h>
+#include <algorithm>
+#include <vector>
+#include <iterator>
 
 #include "app/TFLApp.h"
 #include "Emulator/ROM/TROMImage.h"
@@ -414,7 +417,7 @@ void TFLSettings::startUpdateCardList()
 void TFLSettings::updateNextCard(const char* inName, TFLPCCardSettings* inCard)
 {
     mCardList.push_back(inCard);
-    auto it = find(gCardList.begin(), gCardList.end(), inCard);
+    auto it = std::find(gCardList.begin(), gCardList.end(), inCard);
     if (it != gCardList.end())
         gCardList.erase(it);
 }

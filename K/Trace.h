@@ -32,7 +32,7 @@
 #ifdef _DEBUG
 void KTrace(char *text, ...);
 #else
-inline void KTrace(char* text, ...) { } // will be optimized away
+inline void KTrace(const char* text, ...) { } // will be optimized away
 #endif
 
 #endif

@@ -33,7 +33,7 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <mutex>
-void KTrace(char* format, ...)
+void KTrace(const char* format, ...)
 {
     static char* textbuffer = nullptr;
     static int textbuffersize = 0;

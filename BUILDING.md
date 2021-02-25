@@ -198,7 +198,7 @@ mkdir Makefiles
 cd Makefiles/
 # -- Create the CMake build files
 cmake -DCMAKE_BUILD_TYPE=Release ../..
-# -- Build Einstein (this will take a while)
+# -- Build Einstein (this will take a while, you need 4GB or RAM)
 make
 # -- Run Einstein and enjoy
 ./Einstein
