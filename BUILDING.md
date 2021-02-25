@@ -5,7 +5,6 @@
 * Building Einstein on macOS in 64 bit with Xcode
 * Building Einstein on Linux in 64 bit
 * Building Einstein on Windows 10
-* A L P H A - building with Toolkit
 
 
 ## Building Einstein on macOS in 64 bit with Xcode
@@ -43,6 +42,18 @@ cd ../../..
 # -- make Fluid, the GUI editor, accessible from the command line
 ln -s /usr/local/bin/fluid.app/Contents/MacOS/fluid /usr/local/bin/fluid
 ```
+
+### Newt64/Toolkit (optional)
+
+Installing Newt64 will enable the built-in Developer Toolkit in Einstein 
+and a few other features that depend on NewtonScript compilation features.
+Even if you don't plan to use Toolkit, I highly recommend to build Newt64.
+
+Clone the Git repository in https://github.com/MatthiasWM/NEWT64.git, 
+build the library, and copy it to '/usr/local/lib/libnewt64.s'
+Also, copy all files in '.../src/newt_core/incs/' into '/usr/local/include/newt64/'.
+
+You may have to install libiconv, but it seemed to be installed already on my machine.
 
 ### Einstein (Makefiles)
 
@@ -124,6 +135,8 @@ sudo apt-get install libglu1-mesa-dev
 sudo apt-get install libasound2-dev
 sudo apt-get install libxft-dev
 sudo apt-get install bison flex
+sudo apt-get install pulseaudio
+sudo apt-get install libpulse-dev
 ```
 
 ### FLTK
@@ -254,10 +267,11 @@ cd "c:\Program Files"
 mklink /D FLTK "C:\Users\micro\dev\fltk-1.4 for Einstein.git\out\install\x64-Release"
 ```
 
-### Newt64 / Toolkit
+### Newt64/Toolkit (optional)
 
-This step is optional. When including Newt64 into your Build, Einstein will be created
-with an integrated developer toolkit.
+Installing Newt64 will enable the built-in Developer Toolkit in Einstein 
+and a few other features that depend on NewtonScript compilation features.
+Even if you don't plan to use Toolkit, I highly recommend to build Newt64.
 
 You need to install _flex_ and _bison_ in `C:/GnuWin32/` and add `C:/GnuWin32/bin` to the Path variable in the user environment settings.
 
