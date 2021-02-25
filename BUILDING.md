@@ -108,12 +108,23 @@ open macemu/BasiliskII/src/MacOSX/BasiliskII.xcodeproj
 
 ## Building Einstein on Linux in 64 bit
 
-Tested on Linux Ubuntun 18.04.4 LTS
+Tested on Linux Ubuntu 20.04.2 LTS on February 25th 2021
 
 ### Prerequisites
 
 Install Clang, Make, and CMake. CMake may ask for more resources in the process. Install
 them with `sudo apt-get install ...`.
+
+```bash
+sudo apt install git cmake 
+sudo apt install clang
+sudo apt-get install autoconf
+sudo apt-get install libx11-dev
+sudo apt-get install libglu1-mesa-dev
+sudo apt-get install libasound2-dev
+sudo apt-get install libxft-dev
+sudo apt-get install bison flex
+```
 
 ### FLTK
 
@@ -139,6 +150,27 @@ sudo make install
 cd ../../..
 ```
 
+### Newt64/Toolkit (optional)
+
+Installing Newt64 will enable the built-in Developer Toolkit in Einstein 
+and a few other features that depend on NewtonScript compilation features.
+Even if you don't plan to use Toolkit, I highly recommend to build Newt64.
+
+```bash
+# -- Get the source code for Newt64
+git clone https://github.com/MatthiasWM/NEWT64.git
+cd NEWT64/
+# -- Create the CMake build environment
+mkdir Build
+cd Build
+cmake ..
+# -- Build the library and the tools
+make
+# -- Install the library, so Einstein can find it
+sudo make install
+cd ../..
+```
+
 ### Einstein 
 
 Then download and build Einstein:
@@ -153,7 +185,7 @@ mkdir Makefiles
 cd Makefiles/
 # -- Create the CMake build files
 cmake -DCMAKE_BUILD_TYPE=Release ../..
-# -- Build Einstein
+# -- Build Einstein (this will take a while)
 make
 # -- Run Einstein and enjoy
 ./Einstein
@@ -162,7 +194,7 @@ cd ../../..
 
 Continue with setting up the ROM as described in the manual. Enjoy.
 
-### BasiliskII
+### BasiliskII (optional)
 
 There is a version of the Macintosh Emulator BasiliskII for Linux that can connect directly
 to Einstein via serial port emulation. You need to install SDL2 to compile BasiliskII:
