@@ -43,11 +43,10 @@ cd ../../..
 ln -s /usr/local/bin/fluid.app/Contents/MacOS/fluid /usr/local/bin/fluid
 ```
 
-### Newt64/Toolkit (optional)
+### Newt64/Toolkit
 
-Installing Newt64 will enable the built-in Developer Toolkit in Einstein 
+Newt64 will enable the built-in Developer Toolkit in Einstein 
 and a few other features that depend on NewtonScript compilation features.
-Even if you don't plan to use Toolkit, I highly recommend to build Newt64.
 
 Clone the Git repository in https://github.com/MatthiasWM/NEWT64.git, 
 build the library, and copy it to '/usr/local/lib/libnewt64.s'
@@ -163,11 +162,10 @@ sudo make install
 cd ../../..
 ```
 
-### Newt64/Toolkit (optional)
+### Newt64/Toolkit
 
-Installing Newt64 will enable the built-in Developer Toolkit in Einstein 
+Newt64 will enable the built-in Developer Toolkit in Einstein 
 and a few other features that depend on NewtonScript compilation features.
-Even if you don't plan to use Toolkit, I highly recommend to build Newt64.
 
 ```bash
 # -- Get the source code for Newt64
@@ -267,11 +265,10 @@ cd "c:\Program Files"
 mklink /D FLTK "C:\Users\micro\dev\fltk-1.4 for Einstein.git\out\install\x64-Release"
 ```
 
-### Newt64/Toolkit (optional)
+### Newt64/Toolkit
 
-Installing Newt64 will enable the built-in Developer Toolkit in Einstein 
+Newt64 will enable the built-in Developer Toolkit in Einstein 
 and a few other features that depend on NewtonScript compilation features.
-Even if you don't plan to use Toolkit, I highly recommend to build Newt64.
 
 You need to install _flex_ and _bison_ in `C:/GnuWin32/` and add `C:/GnuWin32/bin` to the Path variable in the user environment settings.
 
