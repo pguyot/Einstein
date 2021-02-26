@@ -1,5 +1,5 @@
 
-# How to build Einstein.matt2020 on various platforms in 2020
+# How to build Einstein.matt2020 on various platforms
 
 ## Table Of Contents
 * Building Einstein on macOS in 64 bit with Xcode
