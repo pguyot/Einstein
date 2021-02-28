@@ -30,7 +30,7 @@
  */
 
 #ifdef _DEBUG
-void KTrace(char *text, ...);
+void KTrace(const char *text, ...);
 #else
 inline void KTrace(const char* text, ...) { } // will be optimized away
 #endif

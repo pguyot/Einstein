@@ -49,3 +49,8 @@ DerivedData/
 /Emulator/PCMCIA/DiagCard.cpp
 /Emulator/PCMCIA/DiagCard
 /Emulator/PCMCIA/DiagCard.fl
+/Drivers/packages/MemDumper/ROMDumper.short.nscript
+/Drivers/packages/MemDumper/ROMDumper.reversed.nscript
+/Drivers/packages/MemDumper/ROMDumper.pkg
+/Drivers/packages/MemDumper/ROMDumper.nscript
+/Drivers/packages/MemDumper/desktop.ini

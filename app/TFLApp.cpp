@@ -1022,7 +1022,7 @@ void TFLApp::StoreAppWindowSize()
  * Copy NewtonOS clipboard data to the system clipboard.
  *
  * If the user copies data to the clipboard, Einstein will extract all text it can find
- * and post it to the host system clipboard, so it can be pated into other apps.
+ * and post it to the host system clipboard, so it can be pasted into other apps.
  */
 // NS: Get/SetClipboard, FGet/SetClipboard, AddClipboard__9TRootViewFRC6RefVarT1, GetClipboard__9TRootViewFv, class TClipboard
 // gRootView (0x0C101934) 000A56DC 000A7A34

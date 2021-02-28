@@ -30,3 +30,36 @@ from you. Email einstein at matthiasm dot com.
 
 Matthias
 
+## Dumping PCCards from a physical Newton into Einstein
+
+### Install Network
+
+Install NIE2 packages in this order:
+
+- inetenbl.pkg
+- newtdev.pkg
+- enetsup.pkg
+- inetstup.pkg
+
+and the driver for your network card
+
+- Tap Internet Setup, sleect New, select Generic, 
+- Give the setup a name, Configuraion: manual, Card: PCMCIA Ethernet
+- Local IP: 192.168.0.13
+- SUbnet Mask: 255.255.0.0
+- Gateway: 192.168.0.1
+- DNS: 8.8.8.8
+
+Insert Network Card: Error -48807 (F*CK)
+
+Working setup:
+- Ethernet Dock
+- Get Card Info
+- Internet Setup
+- ISP Templates
+- NE2K
+- Newton Devices
+- Newton Internet
+- NIE Ethernet
+- (NIE LocalTalk, NIE Modem)
+

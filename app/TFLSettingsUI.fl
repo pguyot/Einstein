@@ -81,7 +81,9 @@ class TFLSettingsUI {open : {public TFLSettings}
 } {
   Function {TFLSettingsUI()} {} {
     code {// create the setting dialog so we have it available for the user
-mSettingsPanel = CreateSettingsPanel();} {}
+mSettingsPanel = CreateSettingsPanel();
+wAbout = nullptr;
+} {}
   }
   Function {CreateSettingsPanel()} {
     comment override open
@@ -729,16 +731,21 @@ mSettingsPanel->hide();}
   if (wPCCardSlot0->user_data()) ::free(wPCCardSlot0->user_data());
   wPCCardSlot0->flags |= FL_SUBMENU_POINTER;
   wPCCardSlot0->user_data(slot0menu);
-  slot0menu[0] = { "Eject Card", 0/* shortcut */, cb_changePCCard0, (void*)-1, FL_MENU_DIVIDER, MENU_FONT };
+  slot0menu[0] = { "Eject Card", 0/* shortcut */, cb_changePCCard0, (void*)-1, FL_MENU_INVISIBLE | FL_MENU_DIVIDER, MENU_FONT };
   slot0menu[1] = { "Insert Card:", 0/* shortcut */, nullptr /* callback */, nullptr /* user_data */, FL_MENU_INACTIVE, MENU_HEADLINE };
   slot0menu[2] = { "Replace Card:", 0/* shortcut */, nullptr /* callback */, nullptr /* user_data */, FL_MENU_INVISIBLE | FL_MENU_INACTIVE, MENU_HEADLINE };
   TPlatformManager *pm = gApp->GetPlatformManager();
+  TPCMCIACard *c0 = nullptr;
   if (pm) {
-    TPCMCIACard *c0 = gApp->GetPlatformManager()->GetPCCard(0);
+    c0 = gApp->GetPlatformManager()->GetPCCard(0);
     if (c0) {
       slot0menu[0].flags &= ~FL_MENU_INVISIBLE;
+      slot0menu[1].flags |= FL_MENU_INVISIBLE;
+      slot0menu[2].flags &= ~FL_MENU_INVISIBLE;
     } else {
       slot0menu[0].flags |= FL_MENU_INVISIBLE;
+      slot0menu[1].flags &= ~FL_MENU_INVISIBLE;
+      slot0menu[2].flags |= FL_MENU_INVISIBLE;
     }
   }
 
@@ -746,15 +753,35 @@ mSettingsPanel->hide();}
   if (wPCCardSlot1->user_data()) ::free(wPCCardSlot1->user_data());
   wPCCardSlot1->flags |= FL_SUBMENU_POINTER;
   wPCCardSlot1->user_data(slot1menu);
-  slot1menu[0] = { "Eject Card", 0/* shortcut */, cb_changePCCard1, (void*)-1, FL_MENU_DIVIDER, MENU_FONT };
+  slot1menu[0] = { "Eject Card", 0/* shortcut */, cb_changePCCard1, (void*)-1, FL_MENU_INVISIBLE | FL_MENU_DIVIDER, MENU_FONT };
   slot1menu[1] = { "Insert Card:", 0/* shortcut */, nullptr /* callback */, nullptr /* user_data */, FL_MENU_INACTIVE, MENU_HEADLINE };
   slot1menu[2] = { "Replace Card:", 0/* shortcut */, nullptr /* callback */, nullptr /* user_data */, FL_MENU_INVISIBLE | FL_MENU_INACTIVE, MENU_HEADLINE };
+  TPCMCIACard *c1 = nullptr;
+  if (pm) {
+    c1 = gApp->GetPlatformManager()->GetPCCard(1);
+    if (c1) {
+      slot1menu[0].flags &= ~FL_MENU_INVISIBLE;
+      slot1menu[1].flags |= FL_MENU_INVISIBLE;
+      slot1menu[2].flags &= ~FL_MENU_INVISIBLE;
+    } else {
+      slot1menu[0].flags |= FL_MENU_INVISIBLE;
+      slot1menu[1].flags &= ~FL_MENU_INVISIBLE;
+      slot1menu[2].flags |= FL_MENU_INVISIBLE;
+    }
+  }
 
   for (int i=0; i<mCardList.size(); i++) {
   	TFLPCCardSettings *card = mCardList[i];
   	slot0menu[i+3] = { card->GetName(), 0, cb_changePCCard0, (void*)i, 0 /* flags */, MENU_FONT };
-    //if (c0 && c0==card->Card()) slot0menu[i+3] |= FL_MENU_INACTIVE;
   	slot1menu[i+3] = { card->GetName(), 0, cb_changePCCard1, (void*)i, 0 /* flags */, MENU_FONT };
+    if (c0 && c0==card->Card()) {
+        slot0menu[i+3].labelfont_ |= 1;
+        slot1menu[i+3].flags |= FL_MENU_INACTIVE;
+    }
+    if (c1 && c1==card->Card()) {
+        slot1menu[i+3].labelfont_ |= 1;
+        slot0menu[i+3].flags |= FL_MENU_INACTIVE;
+    }
   }} {}
   }
   Function {revertDialog()} {open return_type void

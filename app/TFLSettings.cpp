@@ -95,7 +95,8 @@ TFLPCCardSettings* TFLPCCardSettings::LinkLinearPCCard(const char* inName, const
 TFLPCCardSettings* TFLPCCardSettings::NewLinearPCCard(const char* inName, const char* inImageFilename, KUInt32 inSizeMB)
 {
     TLinearCard::CreateImageFile(inName, inImageFilename, inSizeMB);
-    return LinkLinearPCCard(inName, inImageFilename);
+    TFLPCCardSettings* card = LinkLinearPCCard(inName, inImageFilename);
+    return card;
 }
 
 TPCMCIACard* TFLPCCardSettings::GetCard()
@@ -103,6 +104,7 @@ TPCMCIACard* TFLPCCardSettings::GetCard()
     if (!mCard) {
         switch (mType) {
         case CardType::kUndefined:
+            if (mImagePath) mType = CardType::kLinear; // Fix an old bug that would create new linear cards as kUndefined
             break;
         case CardType::kNetwork:
             mCard = new TNE2000Card();
