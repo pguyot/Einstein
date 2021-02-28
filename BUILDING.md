@@ -33,7 +33,7 @@ cd build
 mkdir Makefiles
 cd Makefiles
 # -- Create the CMake build files
-cmake ../..
+cmake -DCMAKE_BUILD_TYPE=Release ../..
 # -- Build FLTK
 make 
 # -- Install the FLTK library, includes, and tools
@@ -154,7 +154,7 @@ cd build
 mkdir Makefiles
 cd Makefiles
 # -- Create the CMake build files
-cmake ../..
+cmake -DCMAKE_BUILD_TYPE=Release ../..
 # -- Build FLTK
 make 
 # -- Install the FLTK library, includes, and tools
@@ -174,7 +174,7 @@ cd NEWT64/
 # -- Create the CMake build environment
 mkdir Build
 cd Build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 # -- Build the library and the tools
 make
 # -- Install the library, so Einstein can find it
