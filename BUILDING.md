@@ -5,6 +5,7 @@
 * Building Einstein on macOS in 64 bit with Xcode
 * Building Einstein on Linux in 64 bit
 * Building Einstein on Windows 10
+* Distributing a new release (internal)
 
 
 ## Building Einstein on macOS in 64 bit with Xcode
@@ -305,4 +306,37 @@ Clone `https://github.com/MatthiasWM/macemu.git` into `macemu`.
 Grab the SDL2 sourcecode and put it in `.../macemu/external`.
 Then load and compile the VisualStudio Solution in `macemu/BasiliskII/src/Windows`.
 
+## Distributing a new release ##
+
+This is internal documentation for Matthias for releasing new version of 
+Einstein on the three main playforms, using a singl Macbook with Paralles 
+running Linux and Windows with their respective virtual paths, and using 
+flCMS for the web site content management. Please make sure that all apps 
+are indeed in Release mode, and not in Debug mode! 
+
+* edit CMakeLists.txt and change the version number in line 12
+* push the changes to github
+* on MacOS:
+  * pull the changes
+  * go to ```/Users/matt/dev/Einstein/matt2020/_Build_/Release ```
+  * ```cmake -DCMAKE_BUILD_TYPE=Release ../..```
+  * ```cmake --build . --target dist```
+* on Linux (launch "Ubuntu Linux" on Parallels)
+  * pull the changes
+  * go to ```/home/matt/dev/Einstein/matt2020/_Build_/Release```
+  * ```cmake -DCMAKE_BUILD_TYPE=Release ../..```
+  * ```cmake --build . --target dist```
+* on Windows (launch "Ubuntu Linux" on Parallels)
+  * pull the changes
+  * build the Release version of Einstein in VisualStudio
+  * launch ```Tools > Command Prompt > Developer Command Line``` in VisualStudio
+  * go to ```C:\Users\matt\dev\Einstein\matt2020\out\build\x64-Release```
+  * ```cmake --build . --target dist```
+* in flCMS
+  * Open recent site 'messagepad.org'
+  * On the page 'Downloads', change the version numbers for each platform
+  * Add entries to the segment 'Older Versions' and 'Release Notes'
+  * publish, and make sure that every file actually downloads
+* Now, set the Github Tag to the current version
+* Finally, let users know on Newtontalk 
 
