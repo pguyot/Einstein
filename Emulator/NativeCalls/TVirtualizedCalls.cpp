@@ -25,10 +25,10 @@
 #include "TVirtualizedCallsPatches.h"
 
 // Einstein
-#include "TARMProcessor.h"
-#include "TEmulator.h"
-#include "TMemory.h"
-#include "TMemoryConsts.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TEmulator.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TMemoryConsts.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes

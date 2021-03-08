@@ -24,8 +24,8 @@
 
 #include "TJITPerformance.h"
 
-#include "TEmulator.h"
-#include "TInterruptManager.h"
+#include "Emulator/TEmulator.h"
+#include "Emulator/TInterruptManager.h"
 #include "Monitor/TSymbolList.h"
 
 #include <stdarg.h>
@@ -86,7 +86,7 @@ void TJITPerfHitCounter::printOneHit(FILE *out, KUInt32 style, TSymbolList *inSy
 	char symbol[512];
 	char comment[80];
 	int offset;
-	bool exactSymbol = false;
+	Boolean exactSymbol = false;
 
 	if (count > 0 || !(style & kStyleNonZeroOnly)) {
 		if (inSymbols != NULL) exactSymbol = inSymbols->GetSymbolByAddress(addr, symbol, comment, &offset);

@@ -321,7 +321,7 @@ private:
 	/// If the binary should be disposed
 	struct SPointer {
 		void*		fPtr;
-		bool		fToFree;
+		Boolean		fToFree;
 	};
 
 	/// Storage for non pointer arguments
@@ -343,12 +343,12 @@ private:
 		void*			fArgValuesPtr[kNativeCalls_MaxArgs];
 		ffi_type*		fResultType;
 		void*			fFuncPtr;
-		bool			fFreeRec;
+		Boolean			fFreeRec;
 	};
 
 	struct SLibraryRec {
 		void*			fHandle;
-		bool			fFreeRec;
+		Boolean			fFreeRec;
 	};
 	
 	enum {

@@ -26,7 +26,7 @@
 
 #include <K/Defines/KDefinitions.h>
 
-#include "TMemory.h"
+#include "Emulator/TMemory.h"
 #include "TNativePrimitives.h"
 #include "Emulator/JIT/JIT.h"
 

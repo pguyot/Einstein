@@ -82,7 +82,7 @@ public:
 	///
 	virtual void	Run(
 						TARMProcessor* ioObject,
-						volatile bool* inSignal );
+						volatile Boolean* inSignal );
 
 	///
 	/// Get a JIT unit for a given PC.

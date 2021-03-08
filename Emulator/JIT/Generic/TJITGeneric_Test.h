@@ -25,16 +25,16 @@
 #define _TJITGENERIC_TEST_H
 
 #include <K/Defines/KDefinitions.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 // Einstein
-#include "TARMProcessor.h"
-#include "TEmulator.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TEmulator.h"
 
-#include "TJITGeneric_Macros.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
 #define DECLARATION 1
-#include "TJITGeneric_Test_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_Test_template.t"
 #undef DECLARATION
 
 #endif

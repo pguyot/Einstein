@@ -23,13 +23,13 @@
 
 #include <K/Defines/KDefinitions.h>
 #include <K/Tests/KDebug.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 #ifdef JITTARGET_GENERIC
 
 // Einstein
-#include "TARMProcessor.h"
-#include "TMemory.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TMemory.h"
 
 #include "TJITGeneric_Macros.h"
 

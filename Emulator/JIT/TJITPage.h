@@ -27,7 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 // Einstein
-#include "TMemoryConsts.h"
+#include "Emulator/TMemoryConsts.h"
 
 template< class TImplementation, class TPage > class TJIT;
 class TMemory;

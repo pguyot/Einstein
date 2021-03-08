@@ -62,7 +62,7 @@ public:
 
  New types of patches can be based on this class or any of the derived classes.
  The only method that must be overridden is `Apply(KUInt32 *ROM)`, which
- replaces onw instruction word in ROM with another instruction.
+ replaces one instruction word in ROM with another instruction.
  */
 class TJITGenericPatchObject
 {

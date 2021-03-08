@@ -28,8 +28,8 @@
 #include <functional>
 
 // Einstein
-#include "TARMProcessor.h"
-#include "TMemory.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TMemory.h"
 #include "Log/TLog.h"
 #include "Serial/TSerialPorts.h"
 

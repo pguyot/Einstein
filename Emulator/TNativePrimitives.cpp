@@ -36,22 +36,22 @@
 #include <K/Streams/TStream.h>
 
 // Einstein
-#include "Log/TLog.h"
-#include "TEmulator.h"
-#include "TMemory.h"
-#include "TARMProcessor.h"
-#include "Screen/TScreenManager.h"
-#include "Network/TNetworkManager.h"
-#include "Sound/TSoundManager.h"
+#include "Emulator/Log/TLog.h"
+#include "Emulator/TEmulator.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/Screen/TScreenManager.h"
+#include "Emulator/Network/TNetworkManager.h"
+#include "Emulator/Sound/TSoundManager.h"
 #if !TARGET_OS_MAC
-#include "NativeCalls/TNativeCalls.h"
+#include "Emulator/NativeCalls/TNativeCalls.h"
 #endif
-#include "NativeCalls/TVirtualizedCalls.h"
-#include "Platform/TPlatformManager.h"
-#include "Platform/PlatformGestalt.h"
+#include "Emulator/NativeCalls/TVirtualizedCalls.h"
+#include "Emulator/Platform/TPlatformManager.h"
+#include "Emulator/Platform/PlatformGestalt.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
 #if TARGET_OS_MAC
-#include "NativeCalls/TObjCBridgeCalls.h"
+#include "Emulator/NativeCalls/TObjCBridgeCalls.h"
 #endif
 
 // Native primitives implement stores to coprocessor #10

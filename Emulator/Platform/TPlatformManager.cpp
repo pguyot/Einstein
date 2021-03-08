@@ -35,10 +35,10 @@
 #include <K/Threads/TMutex.h>
 
 // Einstein
-#include "TInterruptManager.h"
-#include "TMemory.h"
-#include "TARMProcessor.h"
-#include "TEmulator.h"
+#include "Emulator/TInterruptManager.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TEmulator.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Host/THostInfo.h"
 #include "Emulator/Screen/TScreenManager.h"

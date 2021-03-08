@@ -21,13 +21,13 @@
 // $Id$
 // ==============================
 
-#include "TMMU.h"
+#include "Emulator/TMMU.h"
 
 // K
 #include <K/Streams/TStream.h>
 
 // Einstein
-#include "TMemory.h"
+#include "Emulator/TMemory.h"
 #include "Log/TLog.h"
 
 // -------------------------------------------------------------------------- //

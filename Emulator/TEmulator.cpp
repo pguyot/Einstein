@@ -55,7 +55,7 @@
 #include "Platform/TPlatformManager.h"
 #include "Platform/TNewt.h"
 #include "Files/TFileManager.h"
-#include "TMonitor.h"
+#include "Monitor/TMonitor.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes

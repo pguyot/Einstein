@@ -18,11 +18,11 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 #ifdef JITTARGET_GENERIC
 
-#include "TJITGenericROMPatch.h"
+#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 
 #include "Emulator/TEmulator.h"
 #include "Emulator/TARMProcessor.h"

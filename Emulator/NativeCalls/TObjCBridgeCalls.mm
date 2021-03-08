@@ -32,7 +32,7 @@
 #include <string.h>
 
 // Einstein
-#include "TMemory.h"
+#include "Emulator/TMemory.h"
 
 // Helper functions
 inline void WriteObjectToEmulatorMemory(TMemory* mMemoryIntf, KUInt32 address, id object);

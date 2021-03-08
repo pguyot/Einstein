@@ -27,9 +27,9 @@
 #include <utility>
 
 // Einstein
-#include "TMemory.h"
-#include "TMMU.h"
-#include "JIT.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TMMU.h"
+#include "Emulator/JIT/JIT.h"
 
 using namespace std;
 

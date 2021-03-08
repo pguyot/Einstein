@@ -21,16 +21,11 @@
 // $Id$
 // ==============================
 
-#include "TFileManager.h"
+#include "Emulator/Files/TFileManager.h"
 
 // Einstein
-#include "TMemory.h"
-
-#if RASPBERRY_PI || TARGET_OS_LINUX
-#include "../Log/TLog.h"
-#else
-#include "TLog.h"
-#endif
+#include "Emulator/TMemory.h"
+#include "Emulator/Log/TLog.h"
 
 //
 #include <sys/types.h>
@@ -412,7 +407,7 @@ TFileManager::do_sys_flen( KUInt32 fp )
 //  * listener_has_input( KUInt32 );
 // -------------------------------------------------------------------------- //
 void
-TFileManager::set_listener_has_input( KUInt32 fp, bool has_input )
+TFileManager::set_listener_has_input( KUInt32 fp, Boolean has_input )
 {
 	SFileDescriptors* desc = descriptor_for_newton_desc(fp);
 	if (desc != NULL && desc->fNotifyAddr != 0) {

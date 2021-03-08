@@ -150,7 +150,7 @@ public:
 	///
 	/// This method is called by the platform to send data to the Newton.
 	///
-	void set_listener_has_input( KUInt32 desc, bool has_input );
+	void set_listener_has_input( KUInt32 desc, Boolean has_input );
 		
 	///
 	/// Set the memory interface.

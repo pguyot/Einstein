@@ -21,7 +21,7 @@
 // $Id$
 // ==============================
 
-#include "TARMProcessor.h"
+#include "Emulator/TARMProcessor.h"
 
 // POSIX
 #include <sys/types.h>
@@ -35,10 +35,10 @@
 #include <K/Streams/TStream.h>
 
 // Einstein
-#include "Log/TLog.h"
-#include "TEmulator.h"
-#include "JIT/JIT.h"
-#include "TROMImage.h"
+#include "Emulator/Log/TLog.h"
+#include "Emulator/TEmulator.h"
+#include "Emulator/JIT/JIT.h"
+#include "Emulator/ROM/TROMImage.h"
 #include "Monitor/TSymbolList.h"
 
 // -------------------------------------------------------------------------- //

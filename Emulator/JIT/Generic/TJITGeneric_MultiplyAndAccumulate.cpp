@@ -22,15 +22,15 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 #ifdef JITTARGET_GENERIC
 
 // Einstein
-#include "TARMProcessor.h"
+#include "Emulator/TARMProcessor.h"
 
-#include "TJITGeneric_Macros.h"
-#include "TJITGeneric_Other.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Other.h"
 
 // -------------------------------------------------------------------------- //
 //  * MultiplyAndAccumulate
