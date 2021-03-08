@@ -427,7 +427,7 @@ private:
 	KUInt32				mNewtonID[2];		///< NewtonID (48 bits, 16+32).
 	TLog*				mLog;				///< Interface for logging.
 	TMonitor*			mMonitor;			///< Monitor (or \c nil).
-	bool				mSignal;			///< Signal for JIT (if we're running).
+	Boolean				mSignal;			///< Signal for JIT (if we're running).
 	KUInt32				mInterrupted;		///< We got a (processor) interrupt.
 	KUInt32				mRunning;			///< If we're running.
 	KUInt32				mPaused;			///< If we're paused (until next interrupt).
