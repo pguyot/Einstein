@@ -944,7 +944,6 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 				(void) mMemory->FastReadString(theAddress, &amount, theLine);
 				KPrintf("Log: %s\n", theLine);
 			}
-			}
 			break;
 
 		case 0x1B:

@@ -587,7 +587,7 @@
 		C99E3178111B73A1002165EC /* TSymbolList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TSymbolList.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3179111B73A1002165EC /* UDisasm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = UDisasm.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E317A111B73A1002165EC /* UDisasm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = UDisasm.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		C99E32B1111B7570002165EC /* KDefinitions.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KDefinitions.cp; sourceTree = "<group>"; };
+		C99E32B1111B7570002165EC /* KDefinitions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KDefinitions.cpp; sourceTree = "<group>"; };
 		C99E32B2111B7570002165EC /* KDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = KDefinitions.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C99E32B3111B7570002165EC /* UByteSex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UByteSex.h; sourceTree = "<group>"; };
 		C99E32B6111B7570002165EC /* TError.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TError.cpp; sourceTree = "<group>"; };
@@ -1212,7 +1212,7 @@
 		C99E32B0111B7570002165EC /* Defines */ = {
 			isa = PBXGroup;
 			children = (
-				C99E32B1111B7570002165EC /* KDefinitions.cp */,
+				C99E32B1111B7570002165EC /* KDefinitions.cpp */,
 				C99E32B2111B7570002165EC /* KDefinitions.h */,
 				C99E32B3111B7570002165EC /* UByteSex.h */,
 			);
