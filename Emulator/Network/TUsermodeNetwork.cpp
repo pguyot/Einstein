@@ -30,7 +30,7 @@
  the NE2000 card, the driver will be activated and all network calls
  will be forwarded to the Network Handler that was loaded at startup.
  
- All packats from the Newton are at the lowest network level. It is up to
+ All packets from the Newton are at the lowest network level. It is up to
  the handler to simulate or forward packets to the host or host network.
  The Newton expects to receive packets on the same low level, so we must
  generate the network header, IPv4 header, and TCP or UDP header ourselves.
@@ -390,7 +390,7 @@ private:
 /**
  * This is a generic handler for network packets.
  *
- * To handle new types of packats, a new class should be derived.
+ * To handle new types of packets, a new class should be derived.
  */
 class PacketHandler 
 {
@@ -534,7 +534,7 @@ public:
 	 * Create a generic TCP packet.
 	 * This is a working TCP packet for this particular connection. Space is 
 	 * allocated for the payload. The payload must be copied into this 
-	 * packet an the checksums must be updated.
+	 * packet and the checksums must be updated.
 	 * \param size this is the desired size of the payload.
 	 * \see UpdateChecksums(Packet *p)
 	 * \see Packet::SetTCPPayload(KUInt8 *, KUInt32)
@@ -1641,7 +1641,7 @@ void TUsermodeNetwork::RemovePacketHandler(PacketHandler *ph)
 
 /**
  * Add a new packet to the beginning of the pipe.
- * This makes the give block ready to be sent at the next possible occasion.
+ * This makes the given block ready to be sent at the next possible occasion.
  *
  * \param inPacket the package that will be queued
  */

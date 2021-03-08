@@ -443,7 +443,7 @@ TBasicSerialPortManager::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
 //  * ReadRegister( KUInt32 )
 //		This function is called whenever the TMemory class determines a read
 //		operation to a memory address that represents a hardware register
-//		associted with this serial port.
+//		associated with this serial port.
 // -------------------------------------------------------------------------- //
 KUInt8
 TBasicSerialPortManager::ReadRegister( KUInt32 inOffset )

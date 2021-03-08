@@ -122,7 +122,7 @@ protected:
 	bool Disconnect();
 
 	///
-	/// Return true if we are connected to teh server.
+	/// Return true if we are connected to the server.
 	///
 	bool IsConnected() { return mIsConnected; }
 

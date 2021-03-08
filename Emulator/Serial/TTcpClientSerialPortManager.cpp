@@ -383,7 +383,7 @@ TTcpClientSerialPortManager::HandleDMAReceive()
 }
 
 ///
-/// GIve NewtonScrip access to our list of options
+/// Give NewtonScript access to our list of options
 ///
 void TTcpClientSerialPortManager::NSGetOptions(TNewt::RefArg frame)
 {

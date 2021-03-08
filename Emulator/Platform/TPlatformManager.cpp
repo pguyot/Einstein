@@ -685,8 +685,8 @@ TPlatformManager::SetDocDir(const char *inDocDir)
 
 
 /**
- NewtonOS can call this method to get access into the EInstein system.
- The NTK project must link with NTKGlue.ntkc whic provides access to Einstein
+ NewtonOS can call this method to get access into the Einstein system.
+ The NTK project must link with NTKGlue.ntkc which provides access to Einstein
  by calling <tt>call Einstein.Platform with ('command, args);</tt> .
 
  \a arg0 is a Newt symbol that indicates the function call,

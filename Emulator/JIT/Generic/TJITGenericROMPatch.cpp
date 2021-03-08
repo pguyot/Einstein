@@ -125,8 +125,8 @@ KUInt32 TJITGenericPatchManager::Add(TJITGenericPatchObject *p)
 	if (p==0)
 		return 0;
 	if (mPatchListTop==mPatchListSize) {
-		if (mPatchListTop) {
-			mPatchListTop *= 2;
+		if (mPatchListSize) {
+			mPatchListSize *= 2;
 		} else {
 			mPatchListSize = 64;
 		}

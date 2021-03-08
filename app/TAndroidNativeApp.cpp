@@ -535,7 +535,7 @@ void TAndroidNativeCore::pre_exec_cmd(int8_t cmd)
             pthread_mutex_unlock(&pMutex);
 
             // The following line makes sure that the toolbars are drawn and receive events, however
-            // Einstein will appear "under" those toolbars. We need to find teh height of the top
+            // Einstein will appear "under" those toolbars. We need to find the height of the top
             // and bottom toolbar and avoid drawing into them (or keeping them at a matching
             // background color)
             //ANativeActivity_setWindowFlags(get_activity(), AWINDOW_FLAG_FORCE_NOT_FULLSCREEN, 0);
@@ -692,6 +692,7 @@ void *TAndroidNativeCore::thread_entry(void* param)
 /**
  Allocate memory for our internal screen buffer.
  TODO: react to screen changes
+ TODO: user should be able to change screen margins on the fly
  */
 void TAndroidNativeCore::allocate_screen()
 {
@@ -709,7 +710,7 @@ bool TAndroidNativeCore::copy_screen()
         ARect r;
         popDirtyRect(r);
 
-        /*Now follow a horrible hack.
+        /* Now follows a horrible hack.
          *
          * OK, so here is the long story for this optimisations. We used to spend a lot of time
          * copying screen content from the Activity RGB buffer into the hardware buffer when we

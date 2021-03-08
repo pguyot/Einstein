@@ -54,13 +54,13 @@ TARMProcessor *TNewt::mCPU = nullptr;	///< Reference back to the emulated CPU
  literals but alos complex hierarchies of arrays and frames. If the argument is unused,
  it should be NIL.
 
- On the Einstein side of thiks, these functions shall be names in camlecase starting
+ On the Einstein side, these functions shall be names in camelcase starting
  with 'NS...'. They commonly make extensive use of the tools in the TNewt namespace
  to read paramaters from Newton memory into host space, and generate results that
  the calling NewtonScript can understand.
 
  A typical NewtonScript call into Einstein look like this:
-	local index := call EInstein.Platform with ('GetSerialPortDriver, 'extr);
+	local index := call Einstein.Platform with ('GetSerialPortDriver, 'extr);
 
  Also available are
 	call Einstein.Glue with (nil);
@@ -714,7 +714,7 @@ NewtRef TNewt::RefArrayGetSlot(NewtRef r, int i)
 
 
 /**
- FIXME: don't use thsi yet, it will hang the emulator.
+ FIXME: don't use this yet, it will hang the emulator.
  */
 NewtRef TNewt::ThrowBadTypeWithFrameData(long err, RefArg var)
 {
