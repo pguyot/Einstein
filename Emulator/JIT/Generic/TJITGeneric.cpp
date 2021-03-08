@@ -76,7 +76,7 @@ test()
 	makecontext(&uc, (void(*)())assign, 2, 123L, &value);
 	swapcontext(&back, &uc);
 	
-	printf("done %d\n", value);
+	KPrintf("done %d\n", value);
 	
 	return (0);
 }

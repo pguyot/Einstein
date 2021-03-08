@@ -32,6 +32,9 @@ class TCircleBuffer;
 
 #if 0
 
+// https://developer.android.com/ndk/guides/audio/aaudio/aaudio
+// https://developer.android.com/ndk/reference/group/audio
+
 ///
 /// Class to handle sound input/output and redirect them to Java/Android8.
 ///

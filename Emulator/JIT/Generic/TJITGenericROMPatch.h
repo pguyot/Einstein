@@ -260,7 +260,7 @@ JITInstructionProto(p##addr)
  An Injection is different to a Patch. It will call native code, but then
  return and execute the original code.
 
- Use the patch type to place a native call just before the ARM instruction at
+ Use this patch type to insert a native call just before the ARM instruction at
  the give address in ROM. The native code has full access to the entire
  emulator including CPU and Memory.
 

@@ -28,7 +28,7 @@
 #if TARGET_OS_ANDROID
 
 // Einstein
-#include "TMemory.h"
+#include "Emulator/TMemory.h"
 
 TNativeCalls::TNativeCalls( TMemory* inMemoryIntf ) { }
 TNativeCalls::~TNativeCalls( ) { }

@@ -126,7 +126,7 @@ TPipesSerialPortManager::FindPipeNames()
 	strcpy(end, "/Einstein Emulator");
 	if (access(path, S_IRUSR|S_IWUSR|S_IXUSR)==-1) {
 		if (mkdir(path, S_IRUSR|S_IWUSR|S_IXUSR)==-1) {
-			printf("***** Error creating named pipe directory %s - %s (%d).\n", path, strerror(errno), errno);
+			KPrintf("***** Error creating named pipe directory %s - %s (%d).\n", path, strerror(errno), errno);
 		}
 	}
 
@@ -153,7 +153,7 @@ TPipesSerialPortManager::CreateNamedPipes()
 	// crete the sending node if it does not exist yet
 	if (access(mTxPortName, S_IRUSR|S_IWUSR)==-1) {
 		if (mkfifo(mTxPortName, S_IRUSR|S_IWUSR)==-1) {
-			printf("***** Error creating named pipe %s - %s (%d).\n", mTxPortName, strerror(errno), errno);
+			KPrintf("***** Error creating named pipe %s - %s (%d).\n", mTxPortName, strerror(errno), errno);
 			return false;
 		}
 	}
@@ -161,7 +161,7 @@ TPipesSerialPortManager::CreateNamedPipes()
 	// crete the receiving node if it does not exist yet
 	if (access(mRxPortName, S_IRUSR|S_IWUSR)==-1) {
 		if (mkfifo(mRxPortName, S_IRUSR|S_IWUSR)==-1) {
-			printf("***** Error creating named pipe %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
+			KPrintf("***** Error creating named pipe %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
 			return false;
 		}
 	}
@@ -192,12 +192,12 @@ TPipesSerialPortManager::RunDMA()
 	// open the named pipes
 	mTxPort = open(mTxPortName, O_RDWR | O_NOCTTY | O_NONBLOCK);
 	if (mTxPort==-1) {
-		printf("***** Error opening named sending pipe %s - %s (%d).\n", mTxPortName, strerror(errno), errno);
+		KPrintf("***** Error opening named sending pipe %s - %s (%d).\n", mTxPortName, strerror(errno), errno);
 		return;
 	}
 	mRxPort = open(mRxPortName, O_RDWR | O_NOCTTY | O_NONBLOCK);
 	if (mRxPort==-1) {
-		printf("***** Error opening named receiving pipe %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
+		KPrintf("***** Error opening named receiving pipe %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
 		return;
 	}
 	tcflush(mTxPort, TCIOFLUSH);
@@ -206,14 +206,14 @@ TPipesSerialPortManager::RunDMA()
 	// open the thread communication pipe
 	int err = pipe(mPipe);
 	if (err==-1) {
-		printf("***** Error opening pipe - %s (%d).\n", strerror(errno), errno);
+		KPrintf("***** Error opening pipe - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
 
 	// create the actual thread and let it run forever
 	int ptErr = ::pthread_create( &mDMAThread, nullptr, &SHandleDMA, this );
 	if (ptErr==-1) {
-		printf("***** Error creating pthread - %s (%d).\n", strerror(errno), errno);
+		KPrintf("***** Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
 	pthread_detach( mDMAThread );
@@ -264,7 +264,7 @@ TPipesSerialPortManager::HandleDMA()
 				// write a byte
 				KUInt8 data = 0;
 				mMemory->ReadBP(mTxDMAPhysicalData, data);
-				//printf(":::::>> TX: 0x%02X '%c'\n", data, isprint(data)?data:'.');
+				//KPrintf(":::::>> TX: 0x%02X '%c'\n", data, isprint(data)?data:'.');
 				write(mTxPort, &data, 1);
 				mTxDMAPhysicalData++;
 				mTxDMABufferSize--;
@@ -275,7 +275,7 @@ TPipesSerialPortManager::HandleDMA()
 				if (mTxDMADataCountdown==0) {
 					// trigger a "send buffer empty" interrupt
 					//mDMAManager->WriteChannel2Register(1, 1, 0x00000080); // 0x80 = TxBufEmpty, 0x00000180
-					//printf(":::::>> buffer is now empty\n");
+					//KPrintf(":::::>> buffer is now empty\n");
 					mTxDMAEvent = 0x00000080;
 					mInterruptManager->RaiseInterrupt(0x00000100);
 				}
@@ -305,15 +305,15 @@ TPipesSerialPortManager::HandleDMA()
 					break;
 			}
 			if (n==-1) {
-				printf("***** Error reading from serial port %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
+				KPrintf("***** Error reading from serial port %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
 			} else if (n==0) {
-				// printf("***** No data yet\n");
+				// KPrintf("***** No data yet\n");
 			} else {
-				//printf("----> Received %d bytes data from NCX\n", n);
+				//KPrintf("----> Received %d bytes data from NCX\n", n);
 				for (KUInt32 i=0; i<n; i++) {
 					KUInt8 data = buf[i];
 					mMemory->WriteBP(mRxDMAPhysicalData, data);
-					//printf(" rx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
+					//KPrintf(" rx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
 					mRxDMAPhysicalData++;
 					mRxDMABufferSize--;
 					if (mRxDMABufferSize==0) { // or mRxDMADataCountdown?
@@ -325,10 +325,10 @@ TPipesSerialPortManager::HandleDMA()
 						// buffer overflow?
 					}
 				}
-				//printf("===> Start Rx DMA\n");
+				//KPrintf("===> Start Rx DMA\n");
 				mRxDMAEvent = 0x00000040;
 				mInterruptManager->RaiseInterrupt(0x00000080); // 0x00000180
-				//printf("===> End Rx DMA\n");
+				//KPrintf("===> End Rx DMA\n");
 			}
 		}
 
@@ -344,7 +344,7 @@ TPipesSerialPortManager::HandleDMA()
 				for (int i=0; i<nAvail; i++) {
 					int n = (int)read(mPipe[0], &cmd, 1);
 					if (n==-1) {
-						printf("***** Error reading pipe - %s (%d).\n", strerror(errno), errno);
+						KPrintf("***** Error reading pipe - %s (%d).\n", strerror(errno), errno);
 					} else if (n) {
 						// TODO: add a command that is sent whenever a relevant
 						//		 DMA register is written in order to launch the
@@ -353,7 +353,7 @@ TPipesSerialPortManager::HandleDMA()
 						//		 files and ports.
 						// TODO: add a command for power off and use it to close
 						//		 files and ports.
-						//printf(":::::>> pipe commend '%c'\n", cmd);
+						//KPrintf(":::::>> pipe commend '%c'\n", cmd);
 						if (cmd=='q') return;
 					}
 				}

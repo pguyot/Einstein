@@ -553,6 +553,23 @@ static_assert(sizeof(KUInt32)==4, "Size of KUInt32 must be 4 bytes");
 static_assert(sizeof(KUInt64)==8, "Size of KUInt64 must be 8 bytes");
 static_assert(sizeof(KUIntPtr)==sizeof(void*), "Size of KUIntPtr must the same as the size of a pointer");
 
+
+// ---- Use this a simple printf() replacement.
+//      This is useful for platforms that don't support stdio out of the box.
+//      It is located in this file to make it universally available without extra #include's
+#ifdef _DEBUG
+#  ifdef _MSC_VER
+     // KPrintf is implemented in TTraceMonitor.cpp
+     extern void KPrintf(const char* format, ...);
+#  else // _MSC_VER
+#    define KPrintf(...) fprintf(stderr, __VA_ARGS__)
+#  endif // _MSC_VER
+#else // _DEBUG
+   // Make sure that the trailing semicolon is used up, the compiler will optimize this away
+#  define KPrintf(...) do {} while(0)
+#endif // _DEBUG
+
+
 #endif
 		// __KDEFINITIONS__
 

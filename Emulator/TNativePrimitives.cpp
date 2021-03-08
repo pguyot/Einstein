@@ -836,7 +836,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 					(unsigned int) 7 );
 				mProcessor->SetRegister( 0, 0 );
 			} else {
-				mProcessor->SetRegister( 0, (unsigned int) -10005 );
+				mProcessor->SetRegister( 0, (unsigned int) -10005 ); // "Call not implemented"
 			}
 			break;
 			
@@ -942,7 +942,8 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 				char theLine[512];
 				KUInt32 amount = sizeof(theLine);
 				(void) mMemory->FastReadString(theAddress, &amount, theLine);
-				printf("Log: %s\n", theLine);
+				KPrintf("Log: %s\n", theLine);
+			}
 			}
 			break;
 
@@ -2856,7 +2857,8 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 			mProcessor->SetRegister(0, size);
 			if (mLog)
 			{
-				mLog->FLogLine( "TNetworkManager::DataAvailable(Avail: %d)", size );
+                if (size>0)
+					mLog->FLogLine( "TNetworkManager::DataAvailable(Avail: %d)", size );
 			}
 			break; }
 		case 0x15: { 

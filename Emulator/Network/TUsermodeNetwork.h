@@ -86,8 +86,8 @@ public:
 	
 	///
 	/// Newton receives a block of data.
-	/// Copy the block that was received from the outside world int this buffer.
-	/// The Newton expects a raw ethernet datagramm. The size will always be
+	/// Copy the block that was received from the outside world into this buffer.
+	/// The Newton expects a raw ethernet datagramm. The size will always(?) be
 	/// whatever the menager returned in a previous call to DataAvailable().
 	///
 	/// \param data fill this buffer with the next available block of data
