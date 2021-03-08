@@ -62,7 +62,7 @@ public:
 
  New types of patches can be based on this class or any of the derived classes.
  The only method that must be overridden is `Apply(KUInt32 *ROM)`, which
- replaces onw instruction word in ROM with another instruction.
+ replaces one instruction word in ROM with another instruction.
  */
 class TJITGenericPatchObject
 {
@@ -136,7 +136,7 @@ public:
 
  This is the simpelest form of a patch. It replaces one word in ROM with a
  new word. The JIT system will interprete the new instruction instead of
- the original. No furtehr action is taken.
+ the original. No further action is taken.
  */
 class TJITGenericPatch : public TJITGenericPatchObject
 {
@@ -157,7 +157,7 @@ public:
 
 
 /**
- \brief Find and replace word in an area of the ROM.
+ \brief Find and replace words in an area of the ROM.
  */
 class TJITGenericPatchFindAndReplace : public TJITGenericPatch
 {
@@ -181,7 +181,7 @@ public:
 /**
  \brief This patch type is used to call a JIT stub \b instead of an instruction.
 
- Use the patch type to replace the ARM instruction at the give address in ROM
+ Use this patch type to replace the ARM instruction at the give address in ROM
  with a call to native code. The native code has full access to the entire
  emulator including CPU and Memory.
 
@@ -260,7 +260,7 @@ JITInstructionProto(p##addr)
  An Injection is different to a Patch. It will call native code, but then
  return and execute the original code.
 
- Use the patch type to place a native call just before the ARM instruction at
+ Use this patch type to insert a native call just before the ARM instruction at
  the give address in ROM. The native code has full access to the entire
  emulator including CPU and Memory.
 
@@ -291,8 +291,8 @@ public:
 /**
  \brief This Macro makes it easy to insert native code anywhere in ROM.
 
- The original ARM command at the given address is executed after the injected
- code ran. The 'C' code can immediatly follow the Macro. The function must end
+ The original ARM instruction at the given address is executed after the injected
+ code returns. The 'C' code can immediatly follow the Macro. The function must end
  in `return ioUnit;`. Two prameters are available to the function:
  'JITUnit* ioUnit' and 'TARMProcessor* ioCPU'.
 

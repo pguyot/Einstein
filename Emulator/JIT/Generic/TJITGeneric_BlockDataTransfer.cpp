@@ -23,51 +23,51 @@
 
 #include <K/Defines/KDefinitions.h>
 #include <K/Tests/KDebug.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 #ifdef JITTARGET_GENERIC
 
 // Einstein
-#include "TARMProcessor.h"
+#include "Emulator/TARMProcessor.h"
 
-#include "TJITGeneric_Macros.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
 #define IMPLEMENTATION	1
-#include "TJITGeneric_LDM1_template.t"
-#include "TJITGeneric_LDM2_template.t"
-#include "TJITGeneric_LDM3_template.t"
-#include "TJITGeneric_STM1_template.t"
-#include "TJITGeneric_STM2_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_LDM1_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_LDM2_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_LDM3_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_STM1_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_STM2_template.t"
 #undef IMPLEMENTATION
 
 // P,U,W,Rn
 static JITFuncPtr BlockDataTransfer_LDM1_Funcs[] = {
 #define TRANSLATION_ARRAY	1
-#include "TJITGeneric_LDM1_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_LDM1_template.t"
 #undef TRANSLATION_ARRAY
 };
 // P,U,Rn
 static JITFuncPtr BlockDataTransfer_LDM2_Funcs[] = {
 #define TRANSLATION_ARRAY	1
-#include "TJITGeneric_LDM2_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_LDM2_template.t"
 #undef TRANSLATION_ARRAY
 };
 // P,U,W,Rn
 static JITFuncPtr BlockDataTransfer_LDM3_Funcs[] = {
 #define TRANSLATION_ARRAY	1
-#include "TJITGeneric_LDM3_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_LDM3_template.t"
 #undef TRANSLATION_ARRAY
 };
 // P,U,W,Rn
 static JITFuncPtr BlockDataTransfer_STM1_Funcs[] = {
 #define TRANSLATION_ARRAY	1
-#include "TJITGeneric_STM1_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_STM1_template.t"
 #undef TRANSLATION_ARRAY
 };
 // P,U,Rn
 static JITFuncPtr BlockDataTransfer_STM2_Funcs[] = {
 #define TRANSLATION_ARRAY	1
-#include "TJITGeneric_STM2_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_STM2_template.t"
 #undef TRANSLATION_ARRAY
 };
 

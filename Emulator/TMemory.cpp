@@ -21,7 +21,7 @@
 // $Id$
 // ==============================
 
-#include "TMemory.h"
+#include "Emulator/TMemory.h"
 
 // POSIX & ANSI C
 #include <sys/types.h>
@@ -40,7 +40,7 @@
 #include <K/Defines/UByteSex.h>
 
 // Einstein
-#include "TARMProcessor.h"
+#include "Emulator/TARMProcessor.h"
 #include "TInterruptManager.h"
 #include "TDMAManager.h"
 #include "Serial/TSerialPortManager.h"

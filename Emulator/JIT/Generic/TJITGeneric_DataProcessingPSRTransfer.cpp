@@ -22,25 +22,25 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 #ifdef JITTARGET_GENERIC
 
 // Einstein
-#include "TARMProcessor.h"
+#include "Emulator/TARMProcessor.h"
 
-#include "TJITGeneric_Macros.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 #include "RepeatMacros.h"
 
-#include "TJITGeneric_DataProcessingPSRTransfer.h"
+#include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.h"
 
-#include "TJITGeneric_DataProcessingPSRTransfer_LogicalOp.h"
-#include "TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.h"
-#include "TJITGeneric_DataProcessingPSRTransfer_TestOp.h"
-#include "TJITGeneric_Other.h"
-#include "TJITGeneric_DataProcessingPSRTransfer_MoveOp.h"
-#include "TJITGeneric_DataProcessingPSRTransfer_MSR.h"
-#include "TJITGeneric_DataProcessingPSRTransfer_MRS.h"
+#include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.h"
+#include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.h"
+#include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Other.h"
+#include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.h"
+#include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.h"
+#include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.h"
 
 // MODE (4), FLAG_S (2), Rn * 16 + Rd (256)
 #define LogicalOp_ArrayEntry(op, mode, flag_s, rn, rd) \

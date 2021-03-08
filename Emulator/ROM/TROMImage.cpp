@@ -45,14 +45,12 @@
 #include <K/Defines/UByteSex.h>
 
 // Einstein
-#include "TMemoryConsts.h"
-
-#include "TMemory.h"
-#include "TARMProcessor.h"
-#include "TJITGeneric_Macros.h"
-
-#include "TEmulator.h"
-#include "TScreenManager.h"
+#include "Emulator/TMemoryConsts.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
+#include "Emulator/TEmulator.h"
+#include "Emulator/Screen/TScreenManager.h"
 
 // -------------------------------------------------------------------------- //
 //  * TROMImage( void )

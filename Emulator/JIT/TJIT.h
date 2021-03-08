@@ -103,7 +103,7 @@ public:
 	///
 	virtual void	Run(
 						TARMProcessor* ioObject,
-						volatile bool* inSignal ) = 0;
+						volatile Boolean* inSignal ) = 0;
 
 	///
 	/// Accessor to a page.

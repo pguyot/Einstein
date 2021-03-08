@@ -38,7 +38,7 @@
 #include "Emulator/JIT/JIT.h"
 #include "TFlash.h"
 #include "TMemoryConsts.h"
-#include "TMMU.h"
+#include "Emulator/TMMU.h"
 
 class TROMImage;
 class TLog;

@@ -65,12 +65,12 @@ TWaveSoundManager::TWaveSoundManager( TLog* inLog /* = nil */ )
 		mutex(0L)
 {
 	mutex = new TMutex();
-	LOG LOG fprintf(stderr, "v WAVE constructor\n");
+	LOG KPrintf("v WAVE constructor\n");
 	mutex->Lock();
 	for (int i=0; i<NWaveBuffer; i++) 
 		initWaveBuffer(i);
 	mutex->Unlock();
-	LOG fprintf(stderr, "^ WAVE constructor\n");
+	LOG KPrintf("^ WAVE constructor\n");
 }
 
 // -------------------------------------------------------------------------- //
@@ -78,7 +78,7 @@ TWaveSoundManager::TWaveSoundManager( TLog* inLog /* = nil */ )
 // -------------------------------------------------------------------------- //
 TWaveSoundManager::~TWaveSoundManager( void )
 {
-	LOG fprintf(stderr, "v WAVE destructor\n");
+	LOG KPrintf("v WAVE destructor\n");
 	StopOutput();
 
 	mutex->Lock();
@@ -91,7 +91,7 @@ TWaveSoundManager::~TWaveSoundManager( void )
 
 	delete mutex;
 
-	LOG fprintf(stderr, "^ WAVE destructor\n");
+	LOG KPrintf("^ WAVE destructor\n");
 }
 
 // -------------------------------------------------------------------------- //
@@ -108,13 +108,13 @@ TWaveSoundManager::ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize )
 	if (inSize==0)
 		return;
 
-	LOG fprintf(stderr, "v WAVE schedule %d bytes\n", inSize);
+	LOG KPrintf("v WAVE schedule %d bytes\n", inSize);
 
 	mutex->Lock();
 
 	// find an available buffer
 	if (wb[nextAvailable].state!=available) {
-		LOG fprintf(stderr, "^ WAVE schedule (no available buffer)\n");
+		LOG KPrintf("^ WAVE schedule (no available buffer)\n");
 		mutex->Unlock();
 		return;
 	}
@@ -122,7 +122,7 @@ TWaveSoundManager::ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize )
 	if (!waveOut) {
 		openWaveOut();
 		if (!waveOut) {
-			LOG fprintf(stderr, "^ WAVE schedule (no available audio device)\n");
+			LOG KPrintf("^ WAVE schedule (no available audio device)\n");
 			mutex->Unlock();
 			return;
 		}
@@ -148,7 +148,7 @@ TWaveSoundManager::ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize )
 
 	mutex->Unlock();
 
-	LOG fprintf(stderr, "^ WAVE schedule %d bytes\n", inSize);
+	LOG KPrintf("^ WAVE schedule %d bytes\n", inSize);
 }
 
 // -------------------------------------------------------------------------- //
@@ -157,12 +157,12 @@ TWaveSoundManager::ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize )
 void
 TWaveSoundManager::StartOutput( void )
 {
-	LOG fprintf(stderr, "v WAVE start\n");
+	LOG KPrintf("v WAVE start\n");
 
 	mutex->Lock();
 
 	if (playNext==-1) {
-		LOG fprintf(stderr, "^ WAVE start (nothing to play)\n");
+		LOG KPrintf("^ WAVE start (nothing to play)\n");
 		mutex->Unlock();
 		return;
 	}
@@ -173,7 +173,7 @@ TWaveSoundManager::StartOutput( void )
 
 	mutex->Unlock();
 
-	LOG fprintf(stderr, "^ WAVE start\n");
+	LOG KPrintf("^ WAVE start\n");
 }
 
 // -------------------------------------------------------------------------- //
@@ -182,7 +182,7 @@ TWaveSoundManager::StartOutput( void )
 void
 TWaveSoundManager::StopOutput( void )
 {
-	LOG fprintf(stderr, "v WAVE stop\n");
+	LOG KPrintf("v WAVE stop\n");
 
 	int i;
 	waveOutReset(waveOut);
@@ -196,7 +196,7 @@ TWaveSoundManager::StopOutput( void )
 
 	mutex->Unlock();
 
-	LOG fprintf(stderr, "^ WAVE stop\n");
+	LOG KPrintf("^ WAVE stop\n");
 }
 
 // -------------------------------------------------------------------------- //
@@ -205,16 +205,16 @@ TWaveSoundManager::StopOutput( void )
 Boolean
 TWaveSoundManager::OutputIsRunning( void )
 {
-	LOG fprintf(stderr, "v WAVE isRunning\n");
+	LOG KPrintf("v WAVE isRunning\n");
 	/*
 #if 0
-	printf( "OutputIsRunning: %i\n", !mOutputBuffer->IsEmpty() );
+	KPrintf( "OutputIsRunning: %i\n", !mOutputBuffer->IsEmpty() );
 	return !mOutputBuffer->IsEmpty();
 #endif
 	return wb[0].playing || wb[1].playing;
 	*/
 	Boolean ret = isPlaying;
-	LOG fprintf(stderr, "^ WAVE isRunning (%d)\n", ret);
+	LOG KPrintf("^ WAVE isRunning (%d)\n", ret);
 	return ret;
 }
 
@@ -234,7 +234,7 @@ void TWaveSoundManager::waveOutProc(UINT uMsg, int ix)
 	if (uMsg!=WOM_DONE)
 		return;
 
-	LOG fprintf(stderr, "v WAVE callback (%d: %d)\n", uMsg, ix);
+	LOG KPrintf("v WAVE callback (%d: %d)\n", uMsg, ix);
 
 	mutex->Lock();
 
@@ -262,13 +262,13 @@ void TWaveSoundManager::waveOutProc(UINT uMsg, int ix)
 
 	mutex->Unlock();
 
-	LOG fprintf(stderr, "^ WAVE callback\n");
+	LOG KPrintf("^ WAVE callback\n");
 }
 
 
 void TWaveSoundManager::initWaveBuffer(int ix)
 {
-	LOG fprintf(stderr, "  v init wave buffer %d\n", ix);
+	LOG KPrintf("  v init wave buffer %d\n", ix);
 
 	WaveBuffer &b = wb[ix];
 	memset(&b.waveHdr, 0, sizeof(b.waveHdr));
@@ -276,29 +276,29 @@ void TWaveSoundManager::initWaveBuffer(int ix)
 	b.nBuffer = 0L;
 	b.state = available;
 
-	LOG fprintf(stderr, "  ^ init wave buffer %d\n", ix);
+	LOG KPrintf("  ^ init wave buffer %d\n", ix);
 }
 
 
 void TWaveSoundManager::freeWaveBuffer(int ix)
 {
-	LOG fprintf(stderr, "  v free wave buffer %d\n", ix);
+	LOG KPrintf("  v free wave buffer %d\n", ix);
 
 	WaveBuffer &b = wb[ix];
 	if (b.state!=available) {
-		LOG fprintf(stderr, "  ^ free wave buffer %d (buffer still in use!)\n", ix);
+		LOG KPrintf("  ^ free wave buffer %d (buffer still in use!)\n", ix);
 	}
 	if (b.buffer) {
 		free(b.buffer);
 		b.buffer = 0;
 	}
 
-	LOG fprintf(stderr, "  ^ free wave buffer %d\n", ix);
+	LOG KPrintf("  ^ free wave buffer %d\n", ix);
 }
 
 void TWaveSoundManager::fillWaveBuffer(int ix, KUInt32 inBufferAddr, KUInt32 inSize)
 {
-	LOG fprintf(stderr, "  v fill wave buffer %d\n", ix);
+	LOG KPrintf("  v fill wave buffer %d\n", ix);
 
 	WaveBuffer &b = wb[ix];
 
@@ -307,7 +307,7 @@ void TWaveSoundManager::fillWaveBuffer(int ix, KUInt32 inBufferAddr, KUInt32 inS
 	}
 
 	if ( inSize > kNewtonBufferSize ) {
-		LOG fprintf(stderr, "| truncating buffer!\n");
+		LOG KPrintf("| truncating buffer!\n");
 		inSize = kNewtonBufferSize;
 	}
 
@@ -322,12 +322,12 @@ void TWaveSoundManager::fillWaveBuffer(int ix, KUInt32 inBufferAddr, KUInt32 inS
 
 	b.state = pending;
 
-	LOG fprintf(stderr, "  ^ fill wave buffer %d\n", ix);
+	LOG KPrintf("  ^ fill wave buffer %d\n", ix);
 }
 
 void TWaveSoundManager::sendWaveBuffer(int ix)
 {
-	LOG fprintf(stderr, "  v send wave buffer %d\n", ix);
+	LOG KPrintf("  v send wave buffer %d\n", ix);
 
 	WaveBuffer &b = wb[ix];
 
@@ -339,13 +339,13 @@ void TWaveSoundManager::sendWaveBuffer(int ix)
 
 	MMRESULT err = waveOutPrepareHeader(waveOut, &b.waveHdr, sizeof(b.waveHdr));
 	if (err) {
-		LOG fprintf(stderr, "ERROR: Prepare sound returned %d\n", err);
+		LOG KPrintf("ERROR: Prepare sound returned %d\n", err);
 		logError("Error preparing waveOut sound buffer", err);
 	}
 
 	err = waveOutWrite(waveOut, &b.waveHdr, sizeof(b.waveHdr));
 	if (err) {
-		LOG fprintf(stderr, "ERROR: Write sound returned %d\n", err);
+		LOG KPrintf("ERROR: Write sound returned %d\n", err);
 		logError("Error writing waveOut sound buffer", err);
 	}
 
@@ -353,7 +353,7 @@ void TWaveSoundManager::sendWaveBuffer(int ix)
 	b.state = playing;
 	playNext = next(ix);
 
-	LOG fprintf(stderr, "  ^ send wave buffer %d\n", ix);
+	LOG KPrintf("  ^ send wave buffer %d\n", ix);
 }
 
 
@@ -384,11 +384,13 @@ void TWaveSoundManager::openWaveOut()
 			noWaveOut = true;
 		}
 	}
-	LOG fprintf(stderr, "  ^ open wave out device\n");
+	LOG KPrintf("  ^ open wave out device\n");
 }
 
 void TWaveSoundManager::logError(const char *msg, MMRESULT err)
 {
+	if (!GetLog())
+		return;
 	TCHAR desc[MAXERRORLENGTH];
 	MMRESULT errText = waveOutGetErrorText(err, (LPTSTR)desc, MAXERRORLENGTH);
 	GetLog()->FLogLine("%s", msg);
@@ -411,7 +413,7 @@ void TWaveSoundManager::updateVolume()
 	} else {
 		volume = (vol - kOutputVolume_Min)/div;
 	}
-	LOG fprintf(stderr, "Newton volume = 0x%10x (%d) = PC volume 0x%04x (%d)\n", vol, vol, volume, volume);
+	LOG KPrintf("Newton volume = 0x%10x (%d) = PC volume 0x%04x (%d)\n", vol, vol, volume, volume);
 
 	if (waveOut) {
 		waveOutSetVolume(waveOut, volume);

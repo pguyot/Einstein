@@ -26,7 +26,6 @@
 
 #include "TSerialPortManager.h"
 
-#include <pthread.h>
 
 class TLog;
 class TInterruptManager;
@@ -73,7 +72,7 @@ public:
 	void WriteRegister( KUInt32 inOffset, KUInt8 inValue ) override;
 
 	///
-	/// Read DMA register.
+	/// Read register.
 	///
 	KUInt8 ReadRegister( KUInt32 inOffset ) override;
 

@@ -18,11 +18,11 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 #ifdef JITTARGET_GENERIC
 
-#include "TJITGenericROMPatch.h"
+#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 
 #include "Emulator/TEmulator.h"
 #include "Emulator/TARMProcessor.h"
@@ -125,8 +125,8 @@ KUInt32 TJITGenericPatchManager::Add(TJITGenericPatchObject *p)
 	if (p==0)
 		return 0;
 	if (mPatchListTop==mPatchListSize) {
-		if (mPatchListTop) {
-			mPatchListTop *= 2;
+		if (mPatchListSize) {
+			mPatchListSize *= 2;
 		} else {
 			mPatchListSize = 64;
 		}

@@ -34,8 +34,8 @@
 #endif
 
 // Einstein
-#include "TMemoryConsts.h"
-#include "JIT.h"
+#include "Emulator/TMemoryConsts.h"
+#include "Emulator/JIT/JIT.h"
 
 class TMappedFile;
 

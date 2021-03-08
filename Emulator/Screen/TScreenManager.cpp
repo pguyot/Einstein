@@ -32,8 +32,8 @@
 
 // Einstein
 #include "Emulator/Log/TLog.h"
-#include "TInterruptManager.h"
-#include "TMemory.h"
+#include "Emulator/TInterruptManager.h"
+#include "Emulator/TMemory.h"
 #include "Emulator/Platform/TPlatformManager.h"
 
 // -------------------------------------------------------------------------- //

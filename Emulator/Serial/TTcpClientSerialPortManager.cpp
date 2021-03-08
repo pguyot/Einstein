@@ -321,9 +321,9 @@ TTcpClientSerialPortManager::HandleDMASend()
 			// TODO: if we can't get a connection at this point, should we flush the entire buffer?
 			if (IsConnected()) {
 				::write(mTcpSocket, &data, 1);
-				//printf("Sending 0x%02x\n", data);
+				//KPrintf("Sending 0x%02x\n", data);
 			} else {
-				//printf("Sending to null 0x%02x\n", data);
+				//KPrintf("Sending to null 0x%02x\n", data);
 			}
 			mTxDMAPhysicalData++;
 			mTxDMABufferSize--;
@@ -356,16 +356,16 @@ TTcpClientSerialPortManager::HandleDMAReceive()
 	KUInt8 buf[1026];
 	int n = (int)::read(mTcpSocket, buf, 1024);
 	if (n==-1) {
-		printf("***** TTcpClientSerialPortManager::HandleDMAReceive: Error reading from TCP/IP socket - %s (%d).\n", strerror(errno), errno);
+		KPrintf("***** TTcpClientSerialPortManager::HandleDMAReceive: Error reading from TCP/IP socket - %s (%d).\n", strerror(errno), errno);
 		Disconnect();
 	} else if (n==0) {
-		printf("***** Server side disconnect.\n");
+		KPrintf("***** Server side disconnect.\n");
 		Disconnect();
 	} else {
 		usleep(n * 100); // up to 1/10th of a second, so that we do not overwhelm the Newton
 		for (KUInt32 i=0; i<n; i++) {
 			KUInt8 data = buf[i];
-			//printf("Received 0x%02x\n", data);
+			//KPrintf("Received 0x%02x\n", data);
 			mMemory->WriteBP(mRxDMAPhysicalData, data);
 			mRxDMAPhysicalData++;
 			mRxDMABufferSize--;
@@ -383,7 +383,7 @@ TTcpClientSerialPortManager::HandleDMAReceive()
 }
 
 ///
-/// GIve NewtonScrip access to our list of options
+/// Give NewtonScript access to our list of options
 ///
 void TTcpClientSerialPortManager::NSGetOptions(TNewt::RefArg frame)
 {
@@ -421,26 +421,26 @@ void TTcpClientSerialPortManager::NSSetOptions(TNewt::RefArg inFrame)
 		setPort = true;
 	}
 
-	printf("INFO: TTcpClientSerialPortManager::NSSetOptions: (\"%s\", %d)\n", mServer, mPort);
+	//KPrintf("INFO: TTcpClientSerialPortManager::NSSetOptions: (\"%s\", %d)\n", mServer, mPort);
 	if (setServer) {
 		if (strcmp(mServer, server)!=0) {
 			if (mServer) ::free(mServer);
 			mServer = strdup(server);
 			mustReconnect = true;
 		}
-		printf("INFO:             Setting server to \"%s\".\n", server);
+		//KPrintf("INFO:             Setting server to \"%s\".\n", server);
 	}
 	if (setPort) {
 		if (mPort!=port) {
 			mPort = port;
 			mustReconnect = true;
 		}
-		printf("INFO:             Setting port to %d.\n", port);
+		//KPrintf("INFO:             Setting port to %d.\n", port);
 	}
 
 	if (mustReconnect) {
 		Disconnect(); // force the server to reconnect
-		printf("INFO: TTcpClientSerialPortManager::NSSetOptions: must reconnect\n");
+		//KPrintf("INFO: TTcpClientSerialPortManager::NSSetOptions: must reconnect\n");
 	}
 }
 

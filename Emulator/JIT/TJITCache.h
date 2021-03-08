@@ -27,8 +27,8 @@
 #include <K/Defines/KDefinitions.h>
 
 // Einstein
-#include "TMemoryConsts.h"
-#include "THashMapCache.h"
+#include "Emulator/TMemoryConsts.h"
+#include "Emulator/THashMapCache.h"
 
 class TMemory;
 class TMMU;

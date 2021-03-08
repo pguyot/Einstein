@@ -30,7 +30,7 @@
  the NE2000 card, the driver will be activated and all network calls
  will be forwarded to the Network Handler that was loaded at startup.
  
- All packats from the Newton are at the lowest network level. It is up to
+ All packets from the Newton are at the lowest network level. It is up to
  the handler to simulate or forward packets to the host or host network.
  The Newton expects to receive packets on the same low level, so we must
  generate the network header, IPv4 header, and TCP or UDP header ourselves.
@@ -160,7 +160,7 @@ public:
 	 * \param copy if set, the packet data will be copied, otherwise this class
 	 *        will only point at the buffer
 	 */
-	Packet(KUInt8 *data, ssize_t size, bool copy=1) {
+	Packet(KUInt8 *data, ssize_t size, Boolean copy=1) {
 		if (copy) {
 			mData = (KUInt8*)malloc(size);
 			if (data) {
@@ -390,7 +390,7 @@ private:
 /**
  * This is a generic handler for network packets.
  *
- * To handle new types of packats, a new class should be derived.
+ * To handle new types of packets, a new class should be derived.
  */
 class PacketHandler 
 {
@@ -508,7 +508,7 @@ public:
 
 		// SYN-ACK packet should have ACK set to client SEQ + 1
 		mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
-		printf("Net: Adding TCP handler for port %u to %u.%u.%u.%u\n",
+		KPrintf("Net: Adding TCP handler for port %u to %u.%u.%u.%u\n",
 			   theirPort,
 			   (unsigned int)((theirIP>>24)&0xff), 
 			   (unsigned int)((theirIP>>16)&0xff), 
@@ -534,7 +534,7 @@ public:
 	 * Create a generic TCP packet.
 	 * This is a working TCP packet for this particular connection. Space is 
 	 * allocated for the payload. The payload must be copied into this 
-	 * packet an the checksums must be updated.
+	 * packet and the checksums must be updated.
 	 * \param size this is the desired size of the payload.
 	 * \see UpdateChecksums(Packet *p)
 	 * \see Packet::SetTCPPayload(KUInt8 *, KUInt32)
@@ -676,7 +676,7 @@ public:
 				// Just close down.
 				// FIXME: we assume that this is an ACK packet
 				net->RemovePacketHandler(this);
-				printf("Net: Newton closed. Removing TCP handler for port %u to %u.%u.%u.%u\n",
+				KPrintf("Net: Newton closed. Removing TCP handler for port %u to %u.%u.%u.%u\n",
 					   theirPort,
 					   (unsigned int)((theirIP>>24)&0xff),
 					   (unsigned int)((theirIP>>16)&0xff),
@@ -695,7 +695,7 @@ public:
 					net->Enqueue(reply);
 					close(mSocket);
 					net->RemovePacketHandler(this);
-					printf("Net: Peer closing. Removing TCP handler for port %u to %u.%u.%u.%u\n",
+					KPrintf("Net: Peer closing. Removing TCP handler for port %u to %u.%u.%u.%u\n",
 						   theirPort,
 						   (unsigned int)((theirIP>>24)&0xff),
 						   (unsigned int)((theirIP>>16)&0xff),
@@ -706,7 +706,7 @@ public:
 				}
 				return 1;
 			default:
-				printf("---> TCP send: unsupported state in 'send()'\n");
+				KPrintf("---> TCP send: unsupported state in 'send()'\n");
 				break;
 		}
 		return -1;
@@ -748,7 +748,7 @@ public:
 					state = kStatePeerDiscWaitForACK;
 					break;
 				} else if (avail>0) {
-					printf("Net: W>E N Data %d bytes\n", (int) avail);
+					KPrintf("Net: W>E N Data %d bytes (TCP)\n", (int) avail);
 					//if (avail>200) avail = 200;
 					Packet *reply = NewPacket(avail);
 					// /*ssize_t n =*/ read(mSocket, reply->GetTCPPayloadStart(), avail);
@@ -826,7 +826,7 @@ public:
 		theirMAC = packet.GetDstMAC();
 		theirIP = packet.GetIPDstIP();
 		theirPort = packet.GetUDPDstPort();
-		printf("Net: Adding UDP handler for port %d to %u.%u.%u.%u\n", 
+		KPrintf("Net: Adding UDP handler for port %d to %u.%u.%u.%u\n", 
 			   theirPort,
 			   (unsigned int)((theirIP>>24)&0xff), 
 			   (unsigned int)((theirIP>>16)&0xff), 
@@ -936,7 +936,7 @@ public:
 				recvfrom(mSocket, buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
 			if (avail<1) {
 				if ( --mExpire == 0 ) {
-					printf("Net: Timer expired. Removing UDP handler for port %u to %u.%u.%u.%u\n",
+					KPrintf("Net: Timer expired. Removing UDP handler for port %u to %u.%u.%u.%u\n",
 						   theirPort,
 						   (unsigned int)((theirIP>>24)&0xff),
 						   (unsigned int)((theirIP>>16)&0xff),
@@ -947,7 +947,7 @@ public:
 				}
 				return;
 			}
-			printf("Net: W>E N Data %d bytes\n", (int) avail);
+			KPrintf("Net: W>E N Data %d bytes (UDP)\n", (int) avail);
 			Packet *reply = NewPacket(avail);
 			memcpy(reply->GetUDPPayloadStart(), buf, avail);
 			UpdateChecksums(reply);
@@ -1050,7 +1050,7 @@ public:
 		reply->LogPayload(net->GetLog(), "W E>N");
 		net->Enqueue(reply);
 		KUInt32 theirIP = packet.GetARPTPA();
-		printf("Net: ARP request for IP %u.%u.%u.%u\n",
+		KPrintf("Net: ARP request for IP %u.%u.%u.%u\n",
 			   (unsigned int)((theirIP>>24)&0xff),
 			   (unsigned int)((theirIP>>16)&0xff),
 			   (unsigned int)((theirIP>>8)&0xff),
@@ -1116,7 +1116,7 @@ public:
 	{
 //		char buf[1024];
 //		GetPrimaryIp(buf, 1023);
-//		printf("My primary IP seems to be %s\n", buf);
+//		KPrintf("My primary IP seems to be %s\n", buf);
 //		void GetPrimaryIp(char* buffer, size_t buflen)
 //		{
 //			assert(buflen >= 16);
@@ -1177,24 +1177,24 @@ public:
 		
 		switch (packet.Get8(0x011c)) {
 			case 1:
-				printf("Newt->World DHCP Discover\n"); break;
+				KPrintf("Newt->World DHCP Discover\n"); break;
 			case 2:
-				printf("Router -> Newt: DCHP Offer\n"); break;
+				KPrintf("Router -> Newt: DCHP Offer\n"); break;
 			case 3:
-				printf("Newt->World DHCP Request\n"); break;
+				KPrintf("Newt->World DHCP Request\n"); break;
 			case 5:
-				printf("Router -> Newt: DHCP ACK\n"); break;
-			default: printf("UNKNOWN BOOT TYPE: %d\n", packet.Get8(0x011c)); break;
+				KPrintf("Router -> Newt: DHCP ACK\n"); break;
+			default: KPrintf("UNKNOWN BOOT TYPE: %d\n", packet.Get8(0x011c)); break;
 		}
 		
-		printf("Net: DHCP request (%u bytes)\n", (unsigned int)packet.Size());
+		KPrintf("Net: DHCP request (%u bytes)\n", (unsigned int)packet.Size());
 		int i;
 		for (i=0; i<packet.Size(); i++) {
 			KUInt8 d = packet.Data()[i];
-			printf("0x%02x, ", d);
-			if ((i&15)==15) printf("\n");
+			KPrintf("0x%02x, ", d);
+			if ((i&15)==15) KPrintf("\n");
 		}
-		printf("\n");
+		KPrintf("\n");
 		
 		// Create a DHCP offer from the DHCP Discover packet
 		
@@ -1305,25 +1305,25 @@ public:
 //		// DHCP end option:
 //		*d++ = 0xff;
 //		if ( d>=reply->Data()+reply->Size())
-//			printf("ERRROR: reply package too short\n");
+//			KPrintf("ERRROR: reply package too short\n");
 //		
 		if (packet.Get8(0x011c)==3)
 			reply->Set8(0x011c, 5); // ACK
 		
-		printf("Net: DHCP checksums %04X %04X\n", reply->GetIPChecksum(), reply->GetUDPChecksum());
+		KPrintf("Net: DHCP checksums %04X %04X\n", reply->GetIPChecksum(), reply->GetUDPChecksum());
 		net->SetIPv4Checksum(reply->Data(), reply->Size());
 		net->SetUDPChecksum(reply->Data(), reply->Size());
-		printf("Net: DHCP checksums %04X %04X\n", reply->GetIPChecksum(), reply->GetUDPChecksum());
+		KPrintf("Net: DHCP checksums %04X %04X\n", reply->GetIPChecksum(), reply->GetUDPChecksum());
 		
 		net->Enqueue(reply);
 
-		printf("Net: DHCP reply (%u bytes)\n", (unsigned int)reply->Size());
+		KPrintf("Net: DHCP reply (%u bytes)\n", (unsigned int)reply->Size());
 		for (i=0; i<reply->Size(); i++) {
 			KUInt8 d = reply->Data()[i];
-			printf("%02x %c  ", d, ((d>=32)&&(d<127))?d:'.');
-			if ((i&15)==15) printf("\n");
+			KPrintf("%02x %c  ", d, ((d>=32)&&(d<127))?d:'.');
+			if ((i&15)==15) KPrintf("\n");
 		}
-		printf("\n");
+		KPrintf("\n");
 
 		/* Newton DHCP capture:
 
@@ -1539,7 +1539,11 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 	}
 	
 	// if we can't interprete the package, we offer some debugging information
-	printf("Net: Send Packet - I can't handle this packet:\n");
+	KPrintf("Net: Send Packet - I can't handle this packet:\n");
+//    int ss = size>70 ? 70 : size;
+//    for (int i=0; i<ss; i++) KPrintf("%02x ", data[i]);
+//    KPrintf("\n");
+
 	if (mLog) {
 		mLog->LogLine("\nTUsermodeNetwork: Newton is sending an unsupported package:");
 		LogBuffer(data, size);
@@ -1641,7 +1645,7 @@ void TUsermodeNetwork::RemovePacketHandler(PacketHandler *ph)
 
 /**
  * Add a new packet to the beginning of the pipe.
- * This makes the give block ready to be sent at the next possible occasion.
+ * This makes the given block ready to be sent at the next possible occasion.
  *
  * \param inPacket the package that will be queued
  */

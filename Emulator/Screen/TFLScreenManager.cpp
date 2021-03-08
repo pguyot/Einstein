@@ -29,7 +29,7 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Group.H>
-#include <FL/fl_draw.h>
+#include <FL/fl_draw.H>
 
 #include <stdio.h>
 #include <sys/types.h>

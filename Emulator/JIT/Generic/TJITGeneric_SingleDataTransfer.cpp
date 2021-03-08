@@ -23,23 +23,23 @@
 
 #include <K/Defines/KDefinitions.h>
 #include <K/Tests/KDebug.h>
-#include "JIT.h"
+#include "Emulator/JIT/JIT.h"
 
 #ifdef JITTARGET_GENERIC
 
 // Einstein
-#include "TARMProcessor.h"
-#include "TMemory.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TMemory.h"
 
-#include "TJITGeneric_Macros.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
 #define IMPLEMENTATION	1
-#include "TJITGeneric_SingleDataTransfer_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer_template.t"
 #undef IMPLEMENTATION
 
 static JITFuncPtr SingleDataTransfer_Funcs[] = {
 #define TRANSLATION_ARRAY	1
-#include "TJITGeneric_SingleDataTransfer_template.t"
+#include "Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer_template.t"
 #undef TRANSLATION_ARRAY
 };
 

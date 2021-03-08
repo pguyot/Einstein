@@ -35,10 +35,10 @@
 #include <K/Threads/TMutex.h>
 
 // Einstein
-#include "TInterruptManager.h"
-#include "TMemory.h"
-#include "TARMProcessor.h"
-#include "TEmulator.h"
+#include "Emulator/TInterruptManager.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TEmulator.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Host/THostInfo.h"
 #include "Emulator/Screen/TScreenManager.h"
@@ -685,8 +685,8 @@ TPlatformManager::SetDocDir(const char *inDocDir)
 
 
 /**
- NewtonOS can call this method to get access into the EInstein system.
- The NTK project must link with NTKGlue.ntkc whic provides access to Einstein
+ NewtonOS can call this method to get access into the Einstein system.
+ The NTK project must link with NTKGlue.ntkc which provides access to Einstein
  by calling <tt>call Einstein.Platform with ('command, args);</tt> .
 
  \a arg0 is a Newt symbol that indicates the function call,

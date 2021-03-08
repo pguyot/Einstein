@@ -756,18 +756,18 @@ disasm_interface_t::di_printaddr( unsigned int inAddress )
 	char theComment[512];
 	int theOffset = 0;
 	
-	if ( mSymbolList )
-	{
+	if (mSymbolList) {
 		mSymbolList->GetNearestSymbolByAddress( inAddress, theSymbol, theComment, &theOffset );
-	}
+        if (theOffset == 0) {
+            di_printf( theSymbol );
+        } else {
+            di_printf( "%08X  =", inAddress );
+            di_printf( "%s+%X", theSymbol, theOffset );
+        }
+    } else {
+        di_printf( "%08X", inAddress );
+    }
 	
-	if (theOffset == 0)
-	{
-		di_printf( theSymbol );
-	} else {
-		di_printf( "%08X  =", inAddress );
-		di_printf( "%s+%X", theSymbol, theOffset );
-	}
 }
 
 // -------------------------------------------------------------------------- //

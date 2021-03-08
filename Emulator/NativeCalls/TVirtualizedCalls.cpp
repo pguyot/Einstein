@@ -25,10 +25,10 @@
 #include "TVirtualizedCallsPatches.h"
 
 // Einstein
-#include "TARMProcessor.h"
-#include "TEmulator.h"
-#include "TMemory.h"
-#include "TMemoryConsts.h"
+#include "Emulator/TARMProcessor.h"
+#include "Emulator/TEmulator.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TMemoryConsts.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -99,9 +99,9 @@ TVirtualizedCalls::memmove_slow( KUInt32 inDst, KUInt32 inSrc, KUInt32 inLen )
 	
 //	if ((src & 0x3) || (dst & 0x3) || (len & 0x3))
 //	{
-//		printf( "unaligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
+//		KPrintf( "unaligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
 //	} else {
-//		printf( "  aligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
+//		KPrintf( "  aligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
 //	}
 
 	while (len > 3)

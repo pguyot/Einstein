@@ -22,7 +22,7 @@
 // ==============================
 
 #include "TBasiliskIISerialPortManager.h"
-#include "TPathHelper.h"
+#include "app/TPathHelper.h"
 
 // POSIX
 #include <sys/types.h>
@@ -243,21 +243,21 @@ TBasiliskIISerialPortManager::RunDMA()
 	// create PTY and named pipe
 	bool hasPty = OpenPTY();
 	if (!hasPty) {
-		printf("***** TBasiliskIISerialPortManager::RunDMA: Error creating pseudo terminal %s.\n", kBasiliskPipe);
+        KPrintf("***** TBasiliskIISerialPortManager::RunDMA: Error creating pseudo terminal %s.\n", kBasiliskPipe);
 		return;
 	}
 
 	// open the thread communication pipe
 	int err = pipe(mPipe);
 	if (err==-1) {
-		printf("***** TBasiliskIISerialPortManager::RunDMA: Error opening pipe - %s (%d).\n", strerror(errno), errno);
+		KPrintf("***** TBasiliskIISerialPortManager::RunDMA: Error opening pipe - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
 
 	// create the actual thread and let it run forever
 	int ptErr = ::pthread_create( &mDMAThread, nullptr, &SHandleDMA, this );
 	if (ptErr==-1) {
-		printf("***** TBasiliskIISerialPortManager::RunDMA: Error creating pthread - %s (%d).\n", strerror(errno), errno);
+		KPrintf("***** TBasiliskIISerialPortManager::RunDMA: Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
 	pthread_detach( mDMAThread );
@@ -361,7 +361,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 						break;
 				}
 				// handle control command in buf[0]
-//				printf("BasiliskII sent control code (%d):", pComState);
+//				KPrintf("BasiliskII sent control code (%d):", pComState);
 //				if (c&TIOCPKT_FLUSHREAD) puts("     - TIOCPKT_FLUSHREAD");
 //				if (c&TIOCPKT_FLUSHWRITE) puts("     - TIOCPKT_FLUSHWRITE");
 //				if (c&TIOCPKT_STOP) puts("     - TIOCPKT_STOP");
@@ -400,7 +400,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 				for (int i=0; i<nAvail; i++) {
 					int n = (int)read(mPipe[0], &cmd, 1);
 					if (n==-1) {
-						printf("***** Error reading pipe - %s (%d).\n", strerror(errno), errno);
+						KPrintf("***** Error reading pipe - %s (%d).\n", strerror(errno), errno);
 					} else if (n) {
 						if (cmd=='Q') {
 							shutdownThread = true;

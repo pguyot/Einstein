@@ -62,6 +62,52 @@ void KDefinitions_compile_time_assertions( void )
     KCOMPILE_TIME_ASSERT_SIZE_EQUAL( void*, KUIntPtr );
 }
 
+
+#if defined _DEBUG && defined _MSC_VER
+
+#undef KPrintf
+
+#include <Windows.h>
+#include <varargs.h>
+#include <stdio.h>
+#include <malloc.h>
+#include <mutex>
+
+// ------------------------------------------------------------------------- //
+//  * KPrintf( const char* format, ... )
+// ------------------------------------------------------------------------- //
+void KPrintf(const char* format, ...)
+{
+	static char* textbuffer = nullptr;
+	static int textbuffersize = 0;
+	static std::mutex mutex;
+
+	mutex.lock();
+
+	if (textbuffersize == 0) {
+		textbuffersize = 1023;
+		textbuffer = (char*)::malloc(textbuffersize + 1U);
+	}
+
+	va_list args;
+	va_start(args, format);
+	int ret = ::_vsnprintf(textbuffer, textbuffersize, format, args);
+	if (ret > textbuffersize) {
+		textbuffersize = ret + 1023;
+		::free(textbuffer);
+		textbuffer = (char*)::malloc(textbuffersize + 1U);
+		ret = ::_vsnprintf(textbuffer, textbuffersize, format, args);
+	}
+	va_end(args);
+	OutputDebugString(textbuffer);
+
+	mutex.unlock();
+}
+
+#endif
+// _MSC_VER
+
+
 // ====================== //
 // Loose bits sink chips. //
 // ====================== //
