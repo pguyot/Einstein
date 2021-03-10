@@ -441,6 +441,9 @@ TROMImage::LookForREXes(
 								(unsigned int) rexCursor);
 					::abort();
 				}
+				// Patch the REx to have a sequential ID, or NewtonOS will
+				// be very confused an erase the user's Flash image.
+				swappedROM[(rexCursor / 4) + 7] = nbRexes;
 				
 				outRexBases[nbRexes] = rexCursor;
 				outRexSizes[nbRexes++] = theRexSize;
