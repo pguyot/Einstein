@@ -503,13 +503,6 @@ static TCocoaAppController* gInstance = nil;
 	// Close the window.
 	[mSetupController closeSetupWindow];
 	
-	// Create the Overlay text window
-	mScreenManager->OverlayClear();
-	mScreenManager->OverlayOn();
-	mScreenManager->OverlayPrintAt(0, 0, "Booting...", true);
-	mScreenManager->OverlayPrintProgress(1, 0);
-	mScreenManager->OverlayFlush();
-	
 	// FIXME: to launch with the last saved state, enable these commands (will reboot! Something's missing!)
 	//mMonitor->LoadEmulatorState();
 	//mEmulator->GetProcessor()->SetRegister(15, 0x800AAC); //0x800AB4
