@@ -27,8 +27,9 @@
 #include <K/Defines/KDefinitions.h>
 #include "TScreenManager.h"
 
-class TThread;
 class Fl_Newton_Screen_Widget;
+class TFLApp;
+class Fl_Widget;
 
 ///
 /// Class for a screen manager using FLTK.
@@ -60,6 +61,7 @@ public:
 	/// \param inScreenIsLandscape	whether the physical screen is in landscape.
 	///
 	TFLScreenManager(
+                     TFLApp *inApp,
 				TLog* inLog = nil,
 				KUInt32 inPortraitWidth = kDefaultPortraitWidth,
 				KUInt32 inPortraitHeight = kDefaultPortraitHeight,
@@ -143,6 +145,8 @@ public:
 	///
 	void	Run( void );
 
+    Fl_Widget *GetWidget();
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
@@ -160,10 +164,16 @@ private:
 
 	void unlinkWidget() { mWidget = 0L; }
 	
+    TFLApp *mApp = nullptr;
+    
 	///
 	/// FLTK Widget class that will hold the Newton screen image
 	///
 	Fl_Newton_Screen_Widget	*mWidget;
+
+	// Store the value of the last time that the orientation was set.
+	Boolean mScreenWasLandscape = false;
+
 };
 
 #endif
