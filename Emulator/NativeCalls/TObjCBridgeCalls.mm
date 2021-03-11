@@ -150,9 +150,11 @@ KUInt32 TObjCBridgeCalls::HostReleaseObject(KUInt32 objectToReleaseAddr) {
 	void* objectPtr;
 	mMemoryIntf->FastReadBuffer(objectToReleaseAddr, sizeof(id), (KUInt8*)&objectPtr);
 	
-	id object = (__bridge_transfer id)objectPtr;
 #if !__has_feature(objc_arc)
+    id object = (id)objectPtr;
 	[object release];
+#else
+    id object = (__bridge_transfer id)objectPtr;
 #endif
 	object = nil;
 	
@@ -191,8 +193,10 @@ NSString* ReadUTF16(TMemory* memoryIntf, KUInt32 address) {
 inline void WriteObjectToEmulatorMemory(TMemory* mMemoryIntf, KUInt32 address, id object) {
 #if !__has_feature(objc_arc)
 	[object retain];
-#endif
+    void* objectPtr = ((void*)object);
+#else
 	void* objectPtr = ((__bridge_retained void*)object);
+#endif
 	mMemoryIntf->FastWriteBuffer(address, sizeof(id), (KUInt8*)&objectPtr);
 }
 

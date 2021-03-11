@@ -21,6 +21,23 @@
 // $Id$
 // ==============================
 
+//
+// The original Newton MP2x00 is an LCD screen with 480x320 resolution, 16
+// shades of gray, and a backlight. The resistive touchscreen is glued to the
+// front of the display. The viewing area of the display is 129mm x 87mm.
+// The screen diagonal is about 6.1 inches.
+//
+// Markings on the display are 4C112522AH52, LCDFAT650MC, an M650-LOA, 93 11 18
+// LM48019K STN480X C, 97H00928 a, 5.4"
+//
+// The display data is sent via a AWM 2896 80C VW 1 flatband cable (20pin).
+// Backlight and touchscreen use additional wires.
+//
+// ??? Sharp LM5H40TA LQ057V3DG02, similar (same?) pinout
+// SHARP 5.5 inch display panel recommendation:
+// LS055R1SX04 LS055R1SX03 LS055T1SX01 LS055R3SX01 LQ055K3SX02 LQ055T3SX02 LS055R1SC01 LQ055T3SX03 LQ055T3SX02Z LM32C041 LS055T3SX05 LS055D1SX02 LS055R3SX01 (G) LM6Q32 LS055R1SX08 LS055T1SX01A LS055D1SX05(G) LM6Q401 LM32C04P LM6Q40A LQ055W1GC01 LS055T1SX10 LQ055T3SX02Z(G) LS055D1SX04 LS055T3SX13 LS055T3SX09 LQ055T3SX05 LS055T1SX13 LQ055W1GC01Z LM5H40TA LM5H40TB LM6Q31 LM6Q33 LM6Q35 LM6Q40 LQ055T1SX05 LQ055T3SX02(G) LS055T3SX01(G) LS055T1SX09
+//
+
 #include "TScreenManager.h"
 
 // ANSI C

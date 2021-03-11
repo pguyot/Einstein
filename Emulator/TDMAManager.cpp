@@ -51,9 +51,9 @@ TDMAManager::TDMAManager(
 			TInterruptManager* inInterruptManager )
 	:
 		mLog( inLog ),
-		mEmulator( inEmulator ),
 		mMemory( inMemory ),
-		mInterruptManager( inInterruptManager )
+		mInterruptManager( inInterruptManager ),
+        mEmulator( inEmulator )
 {
 }
 

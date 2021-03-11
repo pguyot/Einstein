@@ -40,11 +40,9 @@
 #include <assert.h>
 #include <sys/types.h>
 #if TARGET_OS_WIN32
-	#if _MSC_VER
+	#include <ctime>
+	#include <sys/types.h>
 		#include <sys/timeb.h>
-	#else
-		#include <sys/time.h>
-#endif
 #else
 	#include <sys/time.h>
 	#include <unistd.h>

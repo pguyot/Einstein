@@ -103,7 +103,7 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 		if (curRegList & 1)
 		{
 			if (isFirst) {				
-				//fprintf(stderr, "A\n");
+				//KPrintf("A\n");
 				if (theMemoryInterface->IsMMUEnabled())
 				{
 					if (theMemoryInterface->TranslateW( baseAddress &~ 0x03, theAddress ))

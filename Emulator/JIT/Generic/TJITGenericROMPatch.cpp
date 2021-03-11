@@ -37,24 +37,6 @@
 
 
 /*
- * This ROM injection creates a boot progress indicator.
- * Furter updates are displayed whenever NewtonOS jumps into native driver
- * functions.
- *
- * \see TNativePrimitives::ExecuteNative(KUInt32 inInstruction)
- */
-T_ROM_INJECTION(0x00018688, "Progress_ROMBoot") {
-	TScreenManager *screen = ioCPU->GetEmulator()->GetScreenManager();
-	if (screen->OverlayIsOn()) {
-		screen->OverlayPrintProgress(1, 2);
-		screen->OverlayPrintAt(0, 3, "ROMBoot", 1);
-		screen->OverlayFlush();
-	}
-	return ioUnit;
-}
-
-
-/*
  * Avoid calibration screen early in the game.
  * This patch changes a branch instruction in CheckTabletCalibration(void).
  */
@@ -108,7 +90,7 @@ TJITGenericPatchObject *TJITGenericPatchManager::GetPatchAt(KUInt32 ix)
 	if (ix<mPatchListTop) {
 		return mPatchList[ix];
 	} else {
-//		fprintf(stderr, "ERROR in %s %d: accessing invalid patch index %d of %d\n",
+//		KPrintf("ERROR in %s %d: accessing invalid patch index %d of %d\n",
 //				__FILE__, __LINE__, (int)ix, (int)mPatchListTop);
 		return NULL;
 	}
@@ -151,7 +133,7 @@ void TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, const std::string& i
 		for (KUInt32 i=0; i<mPatchListTop; i++) {
 			mPatchList[i]->Apply(inROMPtr);
 		}
-		fprintf(stderr, "%u patches applied\n", (unsigned)GetNumPatches());
+		KPrintf("%u patches applied\n", (unsigned)GetNumPatches());
 	}
 }
 
@@ -379,13 +361,13 @@ JITInstructionProto(CallHostInjection)
 				if (TSymbolList::List) {
 					symbol = (char*)::malloc(1024);
 					TSymbolList::List->GetNearestSymbolByAddress(pc, symbol, 0L, &offset);
-					fprintf(stderr, "SIM_INFO[%u]: %s caught at 0x%08X, lr=0x%08X (pcAbort=0x%08X)\n",
+					KPrintf("SIM_INFO[%u]: %s caught at 0x%08X, lr=0x%08X (pcAbort=0x%08X)\n",
 							(unsigned int)errCnt++, err, (unsigned int)pc, (unsigned int)ioCPU->GetRegister(14)-4, (unsigned int)ioCPU->mR14abt_Bkup);
 					if (symbol) {
 						if (offset) {
-							fprintf(stderr, "SIM_INFO: ... at %s%+d\n", symbol, offset);
+							KPrintf("SIM_INFO: ... at %s%+d\n", symbol, offset);
 						} else {
-							fprintf(stderr, "SIM_INFO: ... at %s\n", symbol);
+							KPrintf("SIM_INFO: ... at %s\n", symbol);
 						}
 						::free(symbol);
 					}

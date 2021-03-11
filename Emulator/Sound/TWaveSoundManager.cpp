@@ -220,7 +220,7 @@ TWaveSoundManager::OutputIsRunning( void )
 
 void TWaveSoundManager::waveOutProcCB(
 		HWAVEOUT, UINT uMsg, DWORD_PTR dwInstance, 
-		DWORD dwParam1, DWORD dwParam2)
+		DWORD_PTR dwParam1, DWORD_PTR dwParam2)
 {
 	TWaveSoundManager *me = (TWaveSoundManager*)dwInstance;
 	WAVEHDR *wh = (WAVEHDR*)dwParam1;
@@ -367,12 +367,12 @@ int TWaveSoundManager::next(int ix)
 
 void TWaveSoundManager::openWaveOut() 
 {
-	LOG fprintf(stderr, "  v open wave out device\n");
+	LOG KPrintf("  v open wave out device\n");
 	// we will play some sound, so open the sound device now
 	if (!waveOut) {
 		static WAVEFORMATEX waveFormat = {
 			WAVE_FORMAT_PCM, 1, 
-			22050, 44100, 1, 16, 0
+			22050, 44100, 2, 16, 0
 		};
 		MMRESULT err = waveOutOpen( 
 			&waveOut, WAVE_MAPPER, &waveFormat,

@@ -138,6 +138,11 @@ public:
 	///
 	void	RemoveCard( void );
 
+	///
+	/// Return the card in the slot or nullptr if empty.
+	/// 
+	TPCMCIACard* CurrentCard() { return mCard; }
+
 	// Card Interface.
 
 	///
@@ -169,6 +174,11 @@ public:
 	/// Log register data.
 	///
 	void LogRegister(KUInt32 reg, KUInt32 value);
+	
+    ///
+    /// Get memory mapping register access
+    ///
+    KUInt32 GetReg2000() { return mReg_2000; }
 	
 	/// \name Constants
 	enum {
@@ -252,14 +262,14 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TPCMCIAController( const TPCMCIAController& inCopy );
+	TPCMCIAController( const TPCMCIAController& inCopy ) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TPCMCIAController& operator = ( const TPCMCIAController& inCopy );
+	TPCMCIAController& operator = ( const TPCMCIAController& inCopy ) = delete;
 
 	/// \name Variables
 	TLog*				mLog;			///< Interface to the log.

@@ -29,7 +29,13 @@
 #include "Monitor/TSymbolList.h"
 
 #include <stdarg.h>
+#if TARGET_OS_WIN32
+#else
 #include <unistd.h>
+#endif
+#include <chrono>
+#include <thread>
+
 
 
 #ifdef JIT_PERFORMANCE
@@ -115,7 +121,7 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, TSymbolList *inSymbols,
 	if (mEmulator) {
 		mEmulator->PauseSystem();
 		mEmulator->GetInterruptManager()->SuspendTimer();
-		usleep(1000000);
+		std::this_thread::sleep_for(std::chrono::microseconds(1000000));
 	}
 		
 	va_list vl;

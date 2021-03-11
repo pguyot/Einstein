@@ -24,19 +24,19 @@
 #ifndef _VERSION_H
 #define _VERSION_H
 
-#define PROJECT_NAME "Einstein"
-#define PROJECT_VER  "2020.4.12"
-#define PROJECT_VER_MAJOR "2020"
-#define PROJECT_VER_MINOR "4"
-#define PROJECT_VER_PATCH "12"
+#define PROJECT_NAME "@PROJECT_NAME@"
+#define PROJECT_VER  "@PROJECT_VERSION@"
+#define PROJECT_VER_MAJOR "@PROJECT_VERSION_MAJOR@"
+#define PROJECT_VER_MINOR "@PROJECT_VERSION_MINOR@"
+#define PROJECT_VER_PATCH "@PROJECT_VERSION_PATCH@"
 
-#define COMPILE_TIME_YYYY 2021
-#define COMPILE_TIME_MM (103-100)  // if the month is "09", C++ would interprete the number as octal, so we generate "109-100" instead.
-#define COMPILE_TIME_DD (108-100)
+#define COMPILE_TIME_YYYY @COMPILE_TIME_YYYY@
+#define COMPILE_TIME_MM (1@COMPILE_TIME_MM@-100)  // if the month is "09", C++ would interprete the number as octal, so we generate "109-100" instead.
+#define COMPILE_TIME_DD (1@COMPILE_TIME_DD@-100)
 
 #define VERSION_STRING		PROJECT_NAME " " PROJECT_VER
 #define VERSION_STRING_SHORT	PROJECT_VER
-#define COPYRIGHT_STRING		"Copyright 2003-2021 by Paul Guyot and contributors"
+#define COPYRIGHT_STRING		"Copyright 2003-2020 by Paul Guyot and contributors"
 
 #endif
 		// _VERSION_H

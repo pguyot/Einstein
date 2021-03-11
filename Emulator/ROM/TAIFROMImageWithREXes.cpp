@@ -31,8 +31,9 @@
 #include <stdlib.h>
 
 #if TARGET_OS_WIN32
-	#include "CompatibilityWin32.h"
+	#include <Windows.h>
 	#include <io.h>
+	#define PATH_MAX MAX_PATH
 #else
 	#include <sys/uio.h>
 	#include <unistd.h>

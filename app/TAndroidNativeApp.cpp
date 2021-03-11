@@ -47,10 +47,12 @@
 #include "Emulator/Network/TUsermodeNetwork.h"
 #include "Emulator/Sound/TAndroidNativeSoundManager.h"
 #include "Emulator/Screen/TAndroidNativeScreenManager.h"
+#include "Emulator/Serial/TTcpClientSerialPortManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
 #include "Log/TLog.h"
+#include "app/json11.hpp"
 
 
 // -------------------------------------------------------------------------- //
@@ -64,6 +66,7 @@ static const char *LOG_TAG = "Einstein";
 // -------------------------------------------------------------------------- //
 
 KUInt32 TAndroidNativeCore::pScreenTopPadding = 25;
+KUInt32 TAndroidNativeCore::pScreenBottomPadding = 35;
 KUInt32 TAndroidNativeCore::pScreenWidth = 320;
 KUInt32 TAndroidNativeCore::pScreenHeight = 480;
 
@@ -177,10 +180,6 @@ TAndroidNativeApp::~TAndroidNativeApp( void )
     {
         delete mScreenManager;
     }
-    if (mExtrSerialPortManager)
-    {
-        delete mExtrSerialPortManager;
-    }
     if (mSoundManager)
     {
         delete mSoundManager;
@@ -271,7 +270,7 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
     snprintf(theFlashPath, 1024, "%s/flash", dataPath);
 
     if (mLog) mLog->FLogLine("  mROMImage:");
-    mROMImage = new TFlatROMImageWithREX(theROMPath, theREXPath, "717006", false, theImagePath);
+    mROMImage = new TFlatROMImageWithREX(theROMPath, theREXPath, theImagePath);
     if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mROMImage);
 
     if (mLog) mLog->FLogLine("  mSoundManager:");
@@ -298,12 +297,19 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
             mSoundManager,
             mScreenManager,
             mNetworkManager,
-            0x40 << 16);
+            0x40 << 16
+            );
+
     if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mEmulator);
     mEmulator->SetNewtonID(mNewtonID0, mNewtonID1);
 
     mPlatformManager = mEmulator->GetPlatformManager();
     mPlatformManager->SetDocDir(dataPath);
+
+        mEmulator->SerialPorts.Initialize(TSerialPorts::kTcpClientDriver,
+                                      TSerialPorts::kNullDriver,
+                                      TSerialPorts::kNullDriver,
+                                      TSerialPorts::kNullDriver );
 
     // Create the Overlay text window
     mScreenManager->OverlayClear();
@@ -539,9 +545,10 @@ void TAndroidNativeCore::pre_exec_cmd(int8_t cmd)
             // and bottom toolbar and avoid drawing into them (or keeping them at a matching
             // background color)
             //ANativeActivity_setWindowFlags(get_activity(), AWINDOW_FLAG_FORCE_NOT_FULLSCREEN, 0);
+            //ANativeActivity_setWindowFlags(get_activity(), AWINDOW_FLAG_FULLSCREEN, 0);
             ANativeWindow_setBuffersGeometry(pNativeWindow,
                                              (int32_t)pScreenWidth,
-                                             (int32_t)pScreenHeight+pScreenTopPadding,
+                                             (int32_t)pScreenHeight+pScreenTopPadding+pScreenBottomPadding,
                                              WINDOW_FORMAT_RGB_565);
             break;
 
@@ -727,6 +734,14 @@ bool TAndroidNativeCore::copy_screen()
          *
          * If it works, it reduces CPU load by up to 60% in some special cases. Writing on the
          * screen is one of those cases, and should now be much faster, even on slow hosts.
+         *
+         * FIXME: Android of course optimizes buffer use, and we need to take into account that
+         * the user might focus on another app. When the focus goes back to Einstein, we may get
+         * the same buffers, but their content may be completely different.
+         *
+         * TODO: make sure that the entire screen is redrawn after focus events and similar
+         * TODO: hide a buffer serial identifier in the blue channel of the screen buffer to verify
+         *       that buffer content hasn't changed completely
          */
         static void *knownScreenBuffer[pNScreenBuffer] = { NULL };
         void *bits = pNativeWindowBuffer.bits;
@@ -1185,6 +1200,10 @@ void TAndroidNativeActivity::create(ANativeActivity* activity, void* savedState,
         pHostID = HOST_ID_EVK_MX6SL;
         pScreenHeight = 542;
         pScreenWidth = 432;
+    } else if (strcmp(host, "samsung SM-N975F")==0) {
+        // 2280 x 1080
+        pScreenHeight = (int)((2280-4*24)/3);
+        pScreenWidth = (int)(1080/3);
     } else if (strcmp(host, "unknown Android SDK built for x86_64")==0) {
         // Emulator
     }
@@ -1193,6 +1212,7 @@ void TAndroidNativeActivity::create(ANativeActivity* activity, void* savedState,
     // 63, 126, 1794 (1920) on our emulator
     //pad/hgt = stat/shgt
     pScreenTopPadding = (pScreenHeight * statusBarHeight / screenHeight) +2;
+    //pScreenBottomPadding = (pScreenHeight * 32 / screenHeight) +2;
 
     allocate_screen();
 
@@ -1347,8 +1367,9 @@ int TAndroidNativeActivity::handleLooperMouseEvent(AInputQueue *queue, AInputEve
 {
     int ex = (int)(AMotionEvent_getX(event, 0) * pScreenWidth /
                    ANativeWindow_getWidth(TAndroidNativeCore::native_window()));
-    int ey = (int)(AMotionEvent_getY(event, 0) * (pScreenHeight+pScreenTopPadding) /
-                   ANativeWindow_getHeight(TAndroidNativeCore::native_window()) - pScreenTopPadding);
+    int ey = (int)(AMotionEvent_getY(event, 0) * (pScreenHeight+pScreenTopPadding+pScreenBottomPadding) /
+                   ANativeWindow_getHeight(TAndroidNativeCore::native_window()) - pScreenTopPadding + pScreenBottomPadding)
+                           - pScreenBottomPadding;
 
     int consumed = 0;
     if (einstein) {
@@ -1463,6 +1484,7 @@ void TAndroidNativeActivity::alert(const char* text)
         java.env()->DeleteLocalRef(jmessage);
     }
 }
+
 
 // ---- Java Stuff ---------------------------------------------------------------------------------
 

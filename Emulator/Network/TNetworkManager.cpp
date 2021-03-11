@@ -2,7 +2,7 @@
 // File:			TNetworkManager.cp
 // Project:			Einstein
 //
-// Copyright 2010 by Matthias Melcher (mm@matthiasm.com).
+// Copyright 2010-2020 by Matthias Melcher (mm@matthiasm.com).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,7 +28,10 @@
 #include "Emulator/Log/TLog.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
+#if TARGET_OS_WIN32
+#else
 #include <sys/select.h>
+#endif
 
 // -------------------------------------------------------------------------- //
 //  * TNetworkManager(TLog* inLog)
@@ -100,8 +103,12 @@ void TNetworkManager::LogIPv4Packet(KUInt8 *d, KUInt32 n) {
 		switch (d[23]) {
 			case  6: LogTCPPacket(d, n); break;
 			case 17: LogUDPPacket(d, n); break;
+            case  1:
+                mLog->FLogLine("    > **** Unsupported Protocol: 'ICMP' ****\n");
+                break;
 			default:
-				mLog->FLogLine("    > **** Unknown Protocol ****\n");
+				mLog->FLogLine("    > **** Unknown Protocol: %d ****\n", d[23]);
+                break;
 		}
 	}
 }

@@ -145,7 +145,7 @@ TFiber::~TFiber( void )
 KSInt32 TFiber::Run( KSInt32 inReason, void* inUserData )
 {
 	if (mState!=kStopped) {
-		fprintf(stderr, "ERROR in TFiber: Run() called, but fiber isn't stopped.\n");
+		KPrintf("ERROR in TFiber: Run() called, but fiber isn't stopped.\n");
 		return -1;
 	}
 	mReason = inReason;
@@ -184,7 +184,7 @@ KSInt32 TFiber::Run( KSInt32 inReason, void* inUserData )
 KSInt32 TFiber::Suspend( KSInt32 inReason )
 {
 	if (mState!=kRunning) {
-		fprintf(stderr, "ERROR in TFiber: Suspend() called, but fiber isn't running.\n");
+		KPrintf("ERROR in TFiber: Suspend() called, but fiber isn't running.\n");
 		return -1;
 	}
 	mState = kSuspended;
@@ -218,7 +218,7 @@ KSInt32 TFiber::Suspend( KSInt32 inReason )
 KSInt32 TFiber::Resume( KSInt32 inReason )
 {
 	if (mState!=kSuspended) {
-		fprintf(stderr, "ERROR in TFiber: Resume() called, but fiber isn't suspended.\n");
+		KPrintf("ERROR in TFiber: Resume() called, but fiber isn't suspended.\n");
 		return -1;
 	}
 	mState = kRunning;
@@ -337,7 +337,7 @@ void* TFiber::TaskCaller(void* inFiber)
 void TFiber::Abort(KSInt32 inReason)
 {
 	if (!IsSuspended()) {
-		fprintf(stderr, "ERROR in TFiber: Abort() called, but fiber isn't suspended.\n");
+		KPrintf("ERROR in TFiber: Abort() called, but fiber isn't suspended.\n");
 		return;
 	}
 	mReason = inReason;

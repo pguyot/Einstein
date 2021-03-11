@@ -392,8 +392,9 @@ TPCMCIAController::RaiseInterrupt( int inVector )
 		mEmulator->GetInterruptManager()->RaiseInterrupt(
 			TInterruptManager::kPCMCIA0IntMask );
 	} else if (mSocketIx == 1) {
-		mEmulator->GetInterruptManager()->RaiseInterrupt(
-			TInterruptManager::kPCMCIA1IntMask );
+		mEmulator->GetInterruptManager()->RaiseInterrupt(0x00010000);
+			//TInterruptManager::kPCMCIA1IntMask );
+		// 0x00010000 0x02000000
 	}
 }
 

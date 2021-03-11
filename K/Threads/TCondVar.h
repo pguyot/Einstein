@@ -49,12 +49,6 @@
 	  HANDLE waiters_done_;
 	  size_t was_broadcast_;
 	} win_pthread_cond_t;
-	#if _MSC_VER
-		typedef struct timespec {
-			long tv_sec;  // seconds
-			long tv_nsec; // nanoseconds
-		} timespec;
-	#endif
 	#ifndef ETIMEDOUT
 		#define ETIMEDOUT 60
 	#endif

@@ -106,7 +106,7 @@ TJITGenericPage::Init(
 #ifdef COLLECT_STATS_ON_PAGES
 	if (unitCrsr > gMaxUnitsCount) {
 		gMaxUnitsCount = unitCrsr;
-		fprintf(stderr, "Max units count = %i\n", unitCrsr);
+		KPrintf("Max units count = %i\n", unitCrsr);
 	}
 #endif
 }
@@ -237,7 +237,7 @@ TJITGenericPage::Translate(
 			__PutTest_line(func, 6);					\
 			__PutTest_line(func, 7);					\
 			default:									\
-				fprintf(stderr, "Test overflow!\n");	\
+				KPrintf("Test overflow!\n");	\
 				abort();								\
 		}
 

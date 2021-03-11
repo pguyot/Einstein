@@ -175,9 +175,9 @@ TInterruptManager::Init( void )
 	mThread = new TThread(this);
 	
 	// Wait on the condition variable for the thread to be running.
-//	fprintf(stderr, "%i-Emulator-Sleep-1\n", (int) time(NULL));
+//	KPrintf("%i-Emulator-Sleep-1\n", (int) time(NULL));
 	mEmulatorCondVar->Wait(mMutex);
-//	fprintf(stderr, "%i-Emulator-WakeUp-1\n", (int) time(NULL));
+//	KPrintf("%i-Emulator-WakeUp-1\n", (int) time(NULL));
 	
 	// Release the mutex, so the timer thread will get it back.
 	mMutex->Unlock();
@@ -203,9 +203,9 @@ TInterruptManager::ResumeTimer( void )
 		mTimerCondVar->Signal();
 
 		// Wait for the thread to have been resumed.
-//		fprintf(stderr, "%i-Emulator-Sleep-2\n", (int) time(NULL));
+//		KPrintf("%i-Emulator-Sleep-2\n", (int) time(NULL));
 		mEmulatorCondVar->Wait(mMutex);
-//		fprintf(stderr, "%i-Emulator-WakeUp-2\n", (int) time(NULL));
+//		KPrintf("%i-Emulator-WakeUp-2\n", (int) time(NULL));
 
 		// Release the mutex, so the timer thread will get it back.
 		mMutex->Unlock();
@@ -232,9 +232,9 @@ TInterruptManager::SuspendTimer( void )
 		mTimerCondVar->Signal();
 
 		// Wait for the thread to have been suspended.
-//		fprintf(stderr, "%i-Emulator-Sleep-3\n", (int) time(NULL));
+//		KPrintf("%i-Emulator-Sleep-3\n", (int) time(NULL));
 		mEmulatorCondVar->Wait(mMutex);
-//		fprintf(stderr, "%i-Emulator-WakeUp-3\n", (int) time(NULL));
+//		KPrintf("%i-Emulator-WakeUp-3\n", (int) time(NULL));
 
 		// Release the mutex.
 		mMutex->Unlock();		
@@ -267,9 +267,9 @@ TInterruptManager::WaitUntilInterrupt( Boolean inMaskIRQ, Boolean inMaskFIQ )
 	mTimerCondVar->Signal();
 	
 	// Wait for the thread to signal us.
-//	fprintf(stderr, "%i-Emulator-Sleep-4\n", (int) time(NULL));
+//	KPrintf("%i-Emulator-Sleep-4\n", (int) time(NULL));
 	mEmulatorCondVar->Wait(mMutex);
-//	fprintf(stderr, "%i-Emulator-WakeUp-4\n", (int) time(NULL));
+//	KPrintf("%i-Emulator-WakeUp-4\n", (int) time(NULL));
 	
 	// We're no longer waiting.
 	mWaiting = false;
@@ -321,9 +321,9 @@ TInterruptManager::SetRealTimeClock( KUInt32 inValue )
 
 	// newton = host - delta
 	// delta = host - newton
-//  fprintf(stderr, "mCalendarDelta was %i\n", (int) mCalendarDelta);
+//  KPrintf("mCalendarDelta was %i\n", (int) mCalendarDelta);
 	mCalendarDelta = (KSInt32) (time(NULL) - inValue);
-//  fprintf(stderr, "mCalendarDelta now is %i\n", (int) mCalendarDelta);
+//  KPrintf("mCalendarDelta now is %i\n", (int) mCalendarDelta);
 	
 	// Signal the condition variable to wake the timer thread.
 	mTimerCondVar->Signal();
@@ -679,7 +679,7 @@ TInterruptManager::Run( void )
 				// No interrupt is planned.
 				// Wait forever on the condition variable.
 				mTimerCondVar->Wait(mMutex);
-//				fprintf(stderr, "%i-Timer-WakeUp-1\n", (int) time(NULL));
+//				KPrintf("%i-Timer-WakeUp-1\n", (int) time(NULL));
 			}
 
 			if (mExiting)
@@ -716,7 +716,7 @@ TInterruptManager::Run( void )
 
 		// Then wait forever on the condition variable.
 		mTimerCondVar->Wait(mMutex);
-//		fprintf(stderr, "%i-Timer-WakeUp-2\n", (int) time(NULL));
+//		KPrintf("%i-Timer-WakeUp-2\n", (int) time(NULL));
 
 		if (mExiting)
 		{
@@ -773,12 +773,12 @@ TInterruptManager::GetTimeInTicks( void )
 
 //	ret = host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &aClock);
 //	if (ret != KERN_SUCCESS) {
-//		fprintf(stderr, "host_get_clock_service() failed: %s\n", mach_error_string(ret));
+//		KPrintf("host_get_clock_service() failed: %s\n", mach_error_string(ret));
 //		abort();
 //	}
 //	ret = clock_get_time(aClock, &now);
 //	if (ret != KERN_SUCCESS) {
-//		fprintf(stderr, "clock_get_time() failed: %s\n", mach_error_string(ret));
+//		KPrintf("clock_get_time() failed: %s\n", mach_error_string(ret));
 //		abort();
 //	}
 
@@ -843,10 +843,10 @@ TInterruptManager::TicksWaitOnCondVar( KUInt32 inTicks )
 	amount.tv_sec = inTicks / 4000000;
 #endif
 
-//	fprintf(stderr, "TicksWaitOnCondVar begin (%f)\n", inTicks/4000000.0f);
+//	KPrintf("TicksWaitOnCondVar begin (%f)\n", inTicks/4000000.0f);
 	mTimerCondVar->TimedWaitRelative( mMutex, &amount );
-//	fprintf(stderr, "TicksWaitOnCondVar\n" );
-//	fprintf(stderr, "%i-Timer-WakeUp-3\n", (int) time(NULL));
+//	KPrintf("TicksWaitOnCondVar\n" );
+//	KPrintf("%i-Timer-WakeUp-3\n", (int) time(NULL));
 }
 
 // -------------------------------------------------------------------------- //

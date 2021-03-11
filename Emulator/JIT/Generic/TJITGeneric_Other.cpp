@@ -85,7 +85,7 @@ JITInstructionProto(CallPatchNative)
 	POPVALUE(patchIndex);
 	TJITGenericPatchObject *patch = TJITGenericPatchManager::GetPatchAt(patchIndex);
 	if (!patch) {
-		fprintf(stderr, "ERROR in %s %d: no patch found for index %d\n",
+		KPrintf("ERROR in %s %d: no patch found for index %d\n",
 				__FILE__, __LINE__, (int)patchIndex);
 		CALLNEXTUNIT; // returns from this function
 	}
@@ -260,8 +260,7 @@ JITInstructionProto(BranchWithinPageFindDelta)
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
 	
-	KSInt32 theDelta;
-	POPVALUE(theDelta);
+	POPNIL();
 	
 	// MMUCALLNEXT()
 	TMemory *theMemIntf = ioCPU->GetMemory();
@@ -317,8 +316,7 @@ JITInstructionProto(BranchWithLinkWithinPageFindDelta)
 	POPVALUE(theNewLR);
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-	KSInt32 theDelta;
-	POPVALUE(theDelta);
+	POPNIL();
 	
 	// set the link register
 	ioCPU->mCurrentRegisters[14] = theNewLR;

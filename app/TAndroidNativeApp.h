@@ -35,6 +35,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include <K/Threads/TMutex.h>
+#include <Emulator/Serial/TSerialPortManager.h>
 
 #include "AndroidGlue.h"
 #include "Version.h"
@@ -47,6 +48,7 @@ class TScreenManager;
 class TLog;
 class TPlatformManager;
 class TNetworkManager;
+class TSerialPortManager;
 
 ///
 /// Classe pour le programme einstein en ligne de commande.
@@ -297,6 +299,7 @@ public:
     static int pHostID;
 
     static KUInt32 pScreenTopPadding;
+    static KUInt32 pScreenBottomPadding;
     static KUInt32 pScreenWidth;
     static KUInt32 pScreenHeight;
     static const int pNScreenBuffer = 3;

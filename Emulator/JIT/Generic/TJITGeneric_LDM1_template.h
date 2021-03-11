@@ -128,7 +128,7 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 					isFirst = 0;
 			} else {
 				if ((theAddress&0xff000000) == 0x04000000) { // fast RAM write
-					//fprintf(stderr, "+");
+					//KPrintf("+");
 					ioCPU->mCurrentRegisters[indexReg] = *((KUInt32*) (theMemoryInterface->GetRAMOffset() + theAddress));
 				} else {
 					Boolean fault = false;

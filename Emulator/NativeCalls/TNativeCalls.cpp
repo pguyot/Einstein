@@ -43,7 +43,6 @@ TNativeCalls::~TNativeCalls( ) { }
 #include <string.h>
 
 #if TARGET_OS_WIN32
-	#include "CompatibilityWin32.h"
 	#include <stdlib.h>
 	#include <assert.h>
 	ffi_type ffi_type_uint8; // FIXME these should be in libffi
@@ -558,7 +557,7 @@ TNativeCalls::Call(KUInt32 inFFIStructure, SStorage* outResult)
 	SFunctionRec* theStructure = &mNativeFuncs[inFFIStructure];
 	if (theStructure->fFuncPtr == NULL)
 	{
-		fprintf(stderr, "Cannot call a null function.\n");
+		KPrintf("Cannot call a null function.\n");
 	} else {
 		if (ffi_prep_cif(
 				&theCif,
@@ -572,7 +571,7 @@ TNativeCalls::Call(KUInt32 inFFIStructure, SStorage* outResult)
 				outResult, theStructure->fArgValuesPtr);
 		} else {
 			// FIXME: handle errors.
-			fprintf(stderr, "Error with ffi_prep_cif\n");
+			KPrintf("Error with ffi_prep_cif\n");
 		}
 	}
 #endif

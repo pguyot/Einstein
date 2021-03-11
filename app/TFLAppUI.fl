@@ -1,0 +1,276 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0400
+use_FL_COMMAND
+header_name {.h}
+code_name {.cpp}
+decl {\#include "TFLApp.h"} {private global
+}
+
+decl {\#include <FL/fl_draw.H>} {private global
+}
+
+decl {\#include "TFLAppWindow.h"} {public global
+}
+
+decl {\#include "TFLTabs.h"} {public global
+}
+
+data imgPCCardTopIn {selected public local filename {../Resources/icons/button_pccard_top_in.png}
+}
+
+data imgPCCardTopOut {public local filename {../Resources/icons/button_pccard_top_out.png}
+}
+
+data imgPCCardTopHilite {public local filename {../Resources/icons/button_pccard_top_hilight.png}
+}
+
+data imgPCCardBotIn {public local filename {../Resources/icons/button_pccard_bottom_in.png}
+}
+
+data imgPCCardBotOut {public local filename {../Resources/icons/button_pccard_bottom_out.png}
+}
+
+data imgPCCardBotHilite {public local filename {../Resources/icons/button_pccard_bottom_hilight.png}
+}
+
+Function {CreateApplicationWindow(int x, int y)} {open
+} {
+  Fl_Window wAppWindow {open
+    xywh {454 329 320 558} type Double resizable
+    code0 {wAppWindow->position(x, y);}
+    class TFLAppWindow visible
+  } {
+    Fl_Menu_Bar wMenubar {open
+      xywh {0 0 320 24} color 52
+      code0 {o->box(FL_FREE_BOXTYPE);}
+    } {
+      Submenu {} {
+        label File open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label {New...}
+          xywh {0 0 100 20} shortcut 0x41006e deactivate
+        }
+        MenuItem {} {
+          label {Open...}
+          xywh {0 0 100 20} shortcut 0x41006f deactivate divider
+        }
+        MenuItem {} {
+          label Save
+          xywh {0 0 100 20} shortcut 0x410073 deactivate
+        }
+        MenuItem {} {
+          label {Save As...}
+          xywh {0 0 100 20} deactivate divider
+        }
+        MenuItem {} {
+          label Close
+          xywh {0 0 100 20} shortcut 0x410077 deactivate divider
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate
+        }
+        MenuItem {} {
+          xywh {0 0 100 20} hide deactivate divider
+        }
+        MenuItem {} {
+          label {Page Setup...}
+          xywh {0 0 100 20} deactivate
+        }
+        MenuItem {} {
+          label {Print...}
+          xywh {0 0 100 20} shortcut 0x410070 deactivate divider
+        }
+        MenuItem {} {
+          label Quit
+          callback {gApp->UserActionQuit();}
+          xywh {0 0 100 20} shortcut 0x400071
+        }
+      }
+      Submenu {} {
+        label Edit open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label Cut
+          xywh {0 0 100 20} shortcut 0x410078 deactivate
+        }
+        MenuItem {} {
+          label Copy
+          xywh {0 0 100 20} shortcut 0x410063 deactivate
+        }
+        MenuItem {} {
+          label Paste
+          xywh {0 0 100 20} shortcut 0x410076 deactivate divider
+        }
+      }
+      Submenu {} {
+        label Platform open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label {Install Package...}
+          callback {gApp->UserActionInstallPackage();}
+          xywh {0 0 100 20} shortcut 0x410069 divider
+        }
+        MenuItem {} {
+          label {Power Button}
+          callback {gApp->UserActionTogglePower();}
+          xywh {0 0 100 20}
+        }
+        MenuItem {} {
+          label Backlight
+          callback {gApp->UserActionToggleBacklight();}
+          xywh {0 0 100 20}
+        }
+        MenuItem wPCCardSlot0 {
+          label {PCCard Slot 0}
+          xywh {0 0 100 20}
+        }
+        MenuItem wPCCardSlot1 {
+          label {PCCard Slot 1}
+          xywh {10 10 100 20} divider
+        }
+        MenuItem {} {
+          label {Fetch ROM...}
+          xywh {4 4 100 20} deactivate
+        }
+      }
+      Submenu {} {
+        label Window open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label {Original SIze}
+          callback {gApp->UserActionOriginalScreenSize();}
+          xywh {0 0 100 20}
+        }
+        MenuItem wMenuItemFullscreen {
+          label Fullscreen
+          callback {gApp->UserActionToggleFullscreen();}
+          xywh {0 0 100 20} shortcut 0x410066 divider
+        }
+        MenuItem wMenuItemMonitor {
+          label Monitor
+          callback {gApp->UserActionToggleMonitor();}
+          xywh {0 0 100 20} shortcut 0x41006d
+        }
+        MenuItem wMenuItemToolkit {
+          label Toolkit
+          callback {gApp->UserActionShowToolkit();}
+          xywh {0 0 100 20} shortcut 0x410074
+        }
+        MenuItem {} {
+          label {Settings...}
+          callback {gApp->UserActionShowSettingsPanel();}
+          xywh {8 8 100 20} divider
+        }
+        MenuItem {} {
+          label {Bring All To Front}
+          xywh {0 0 100 20} deactivate
+        }
+      }
+      Submenu {} {
+        label Help open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label {User Manual...}
+          xywh {12 12 100 20} deactivate
+        }
+        MenuItem {} {
+          label {Newton History and Links...}
+          xywh {0 0 100 20} deactivate
+        }
+        MenuItem {} {
+          label {United Newton Network Archives...}
+          xywh {12 12 100 20} deactivate divider
+        }
+        MenuItem {} {
+          label {About Einstein...}
+          callback {gApp->UserActionShowAboutPanel();}
+          xywh {0 0 100 20}
+        }
+      }
+    }
+    Fl_Group wToolbar {open
+      xywh {0 24 320 54} box THIN_UP_BOX color 52
+      code0 {o->box(FL_FREE_BOXTYPE);}
+    } {
+      Fl_Button wPowerTool {
+        label Power
+        callback {gApp->UserActionTogglePower();}
+        image {../Resources/icons/button_power.png} xywh {10 25 36 36} color 52 labelsize 11 align 514
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+      }
+      Fl_Button wPowerOnTool {
+        image {../Resources/icons/button_power_on.png} xywh {188 34 14 15} hide
+      }
+      Fl_Button wBacklightTool {
+        label Backlight
+        callback {gApp->UserActionToggleBacklight();}
+        image {../Resources/icons/button_backlight.png} xywh {55 25 36 36} color 52 labelsize 11 align 514
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+      }
+      Fl_Button wBacklightOnTool {
+        image {../Resources/icons/button_backlight_on.png} xywh {192 34 14 15} hide
+      }
+      Fl_Button wNetworkTool {
+        label {PCCards  }
+        callback {float y = (Fl::event_y()-o->y())/(float)o->h();
+  Fl_Menu_Item* menu = nullptr;
+  const Fl_Menu_Item* cardMenu = nullptr;
+  if (y < 0.5) {
+      menu = (Fl_Menu_Item*)wPCCardSlot0->user_data();
+      if (menu)
+        cardMenu = menu->popup(Fl::event_x(), Fl::event_y(), "PCPort 0");
+      if (cardMenu)
+        cardMenu->callback()((Fl_Widget*)cardMenu, cardMenu->user_data());
+  } else {
+      menu = (Fl_Menu_Item*)wPCCardSlot1->user_data();
+      if (menu)
+        cardMenu = menu->popup(Fl::event_x(), Fl::event_y(), "PCPort 1");
+      if (cardMenu)
+        cardMenu->callback()((Fl_Widget*)cardMenu, cardMenu->user_data());
+  }}
+        xywh {100 25 60 36} color 52 labelsize 11 align 578
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+        code3 {o->images(imgPCCardTopIn, imgPCCardTopOut, imgPCCardTopHilite, imgPCCardBotIn, imgPCCardBotOut, imgPCCardBotHilite);}
+        class TFLPCMCIAButton
+      }
+      Fl_Button wNetworkOnTool {
+        image {../Resources/icons/button_network_in.png} xywh {196 39 14 15} hide
+      }
+      Fl_Box wSpacer {
+        xywh {184 24 28 54} box THIN_UP_BOX hide resizable
+      }
+      Fl_Button {} {
+        label {Install Package}
+        callback {gApp->UserActionInstallPackage();}
+        image {../Resources/icons/button_install.png} xywh {257 25 36 36} color 52 labelsize 11 align 514
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+      }
+    }
+    Fl_Box {} {
+      xywh {0 78 320 480} hide resizable
+    }
+  }
+}

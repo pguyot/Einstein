@@ -77,12 +77,12 @@ TEmulator::TEmulator(
 			TNetworkManager* inNetworkManager,
 			KUInt32 inRAMSize /* = 4194304 */ )
 	:
+        SerialPorts( this, inLog ),
 		mMemory( inLog, inROMImage, inFlashPath, inRAMSize ),
 		mProcessor( inLog, &mMemory ),
 		mInterruptManager( nil ),
 		mDMAManager( nil ),
 		mPlatformManager( nil ),
-		SerialPorts( this, inLog ),
 		mNetworkManager( inNetworkManager ),
 		mSoundManager( inSoundManager ),
 		mScreenManager( inScreenManager ),
@@ -138,12 +138,12 @@ TEmulator::TEmulator(
 					 const char* inFlashPath,
 					 KUInt32 inRAMSize)
 	:
+        SerialPorts( this, inLog ),
 		mMemory( inLog, inROMImageBuffer, inFlashPath, inRAMSize ),
 		mProcessor( inLog, &mMemory ),
 		mInterruptManager( nil ),
 		mDMAManager( nil ),
 		mPlatformManager( nil ),
-		SerialPorts( this, inLog ),
 		mNetworkManager( nil ),
 		mSoundManager( nil ),
 		mScreenManager( nil ),
@@ -227,6 +227,8 @@ TEmulator::Run( void )
 	
 	mInterruptManager->SuspendTimer();
 
+    // FIXME: The code below may be harmful when we call the emulator through the monitor!
+    // Instead, the caller of this function, or of TMonitor::run() should call the Quir function.
 	if (mCallOnQuit)
 	    mCallOnQuit();
 
@@ -413,7 +415,7 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 				}
 				else if (command == do_sys_write) {
 					KUInt32 index = 0;
-					KUInt8 buffer[nbyte];
+					KUInt8 *buffer = (KUInt8*)malloc(nbyte);
 					
 					while (index < nbyte) {
 						if (mMemory.ReadB( bufAddress + index, buffer[index] )) {
@@ -430,12 +432,13 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 						amount = 0;
 					}
 					result = nbyte - amount;
+					free(buffer);
 				}
 			}
 			
 			// Unhandled :(
 			else {
-				fprintf(stderr, "unknown TapFileCntl command: 0x%02x\n", (unsigned)command);
+				KPrintf("unknown TapFileCntl command: 0x%02x\n", (unsigned)command);
 				BreakInMonitor();
 				result = -1;
 			}
@@ -491,17 +494,17 @@ TEmulator::LoadState( const char* inPath )
 	TStream* theStream = new TFileStream( inPath, "rb" );
 	id = theStream->GetInt32BE();
 	if (id!='EINI') {
-		fprintf(stderr, "This is not a file created by Einstein!\n");
+		KPrintf("This is not a file created by Einstein!\n");
 		return;
 	}
 	type = theStream->GetInt32BE();
 	if (type!='SNAP') {
-		fprintf(stderr, "This is not an Einstein State file!\n");
+		KPrintf("This is not an Einstein State file!\n");
 		return;
 	}
 	theStream->Version(theStream->GetInt32BE());
 	if (theStream->Version()!=1) {
-		fprintf(stderr, "This Einstein State file is not supported. Please upgarde your Einstein version.\n");
+		KPrintf("This Einstein State file is not supported. Please upgarde your Einstein version.\n");
 		return;
 	}
 	TransferState( theStream );

@@ -532,6 +532,7 @@
 	#define HAS_COND_TIMEDWAIT_RELATIVE_NP 0
 #endif
 
+#include <cstdint>
 
 typedef	uint64_t	KUInt64;
 typedef	int64_t		KSInt64;
@@ -546,6 +547,10 @@ typedef	bool		Boolean;
 #endif
 typedef uintptr_t   KUIntPtr;
 
+#if TARGET_OS_WIN32
+typedef	bool		Boolean;
+typedef signed long ssize_t;
+#endif
 
 static_assert(sizeof(KUInt8)==1, "Size of KUInt8 must be 1 byte");
 static_assert(sizeof(KUInt16)==2, "Size of KUInt16 must be 2 bytes");

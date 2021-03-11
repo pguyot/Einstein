@@ -87,17 +87,6 @@ TAIFFile::ReadROImage( KUInt8* outImage )
 					"Couldn't read AIF RO Image (is it really an AIF image?)\n" );
 		::abort();
 	}
-
-	// Do not swap the image here.
-	// The image will be swapped in TROMImage::CreateImage
-#if 0 //TARGET_RT_LITTLE_ENDIAN
-	// Swap the image.
-	KUInt32* cursor = (KUInt32*)(outImage);
-	KUInt32* end = (KUInt32*)(outImage+mHeader.fReadOnlySize);
-	do {
-		*cursor = UByteSex::Swap( *cursor );
-	} while (++cursor < end);
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -130,17 +119,6 @@ TAIFFile::ReadRWImage( KUInt8* outImage )
 					"Couldn't read AIF RW Image (is it really an AIF image?)\n" );
 		::abort();
 	}
-
-	// Do not swap the image here.
-	// The image will be swapped in TROMImage::CreateImage
-#if 0 // TARGET_RT_LITTLE_ENDIAN
-	// Swap the image.
-	KUInt32* cursor = (KUInt32*)(outImage);
-	KUInt32* end = (KUInt32*)(outImage+mHeader.fReadWriteSize);
-	do {
-		*cursor = UByteSex::Swap( *cursor );
-	} while (++cursor < end);
-#endif
 }
 
 // ========== //

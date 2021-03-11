@@ -34,8 +34,6 @@
 //  * TATACard( KUInt32 )
 // -------------------------------------------------------------------------- //
 TATACard::TATACard( KUInt32 inSize )
-	:
-		mSize( inSize )
 {
 }
 

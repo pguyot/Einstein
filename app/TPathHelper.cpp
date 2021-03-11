@@ -8,6 +8,8 @@
 
 #include "TPathHelper.h"
 
+#include <K/Defines/KDefinitions.h>
+
 #if TARGET_OS_MAC
 #include "TCocoaPathHelper.h"
 #endif
@@ -17,7 +19,7 @@ std::string TPathHelper::GetSerialPipeBasePath()
 #if TARGET_OS_MAC
 	return TCocoaPathHelper::GetSerialPipeBasePath();
 #else
-	fprintf(stderr, "TPathHelper::GetSerialPipeBasePath() not implemented on this platform!\n");
+	KPrintf("TPathHelper::GetSerialPipeBasePath() not implemented on this platform!\n");
 	return ".";
 #endif
 }

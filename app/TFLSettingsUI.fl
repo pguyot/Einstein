@@ -1,0 +1,978 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0400
+use_FL_COMMAND
+header_name {.h}
+code_name {.cpp}
+comment {// ==============================
+// File:			TFLSettings
+// Project:			Einstein
+//
+// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// ==============================
+// $Id$
+// ==============================
+} {in_source in_header
+}
+
+decl {class TFLApp;} {public global
+}
+
+decl {\#include "TFLSettings.h"} {public global
+}
+
+decl {\#include "TFLApp.h"} {private local
+}
+
+decl {\#include "TFLAppUI.h"} {private local
+}
+
+decl {\#include "Emulator/Platform/TPlatformManager.h"} {private local
+}
+
+decl {\#include "app/Version.h"} {private global
+}
+
+decl {\#include "app/TFLTabs.h"} {private global
+}
+
+declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
+} {
+  decl {\#include "winsock2.h"} {private local
+  }
+}
+
+decl {\#include <string.h>} {private local
+}
+
+decl {\#include <FL/filename.H>} {private local
+}
+
+decl {\#include <FL/Fl_Native_File_Chooser.H>} {private local
+}
+
+decl {\#include <FL/Fl.H>} {private local
+}
+
+Function {cb_keepInSlot0(Fl_Menu_Item* mi, void* user_data)} {open private return_type void
+} {
+  code {if (mi->value()) {
+      mi->clear();
+      gApp->UserActionKeepPCCardInSlot(-1, (long)user_data);
+    } else {
+      mi->set();
+      gApp->UserActionKeepPCCardInSlot(0, (long)user_data);
+    }} {}
+}
+
+Function {cb_keepInSlot1(Fl_Menu_Item* mi, void* user_data)} {open private return_type void
+} {
+  code {if (mi->value()) {
+      mi->clear();
+      gApp->UserActionKeepPCCardInSlot(-1, (long)user_data);
+    } else {
+      mi->set();
+      gApp->UserActionKeepPCCardInSlot(1, (long)user_data);
+    }} {}
+}
+
+Function {cb_changePCCard0(Fl_Widget*, void* user_data)} {open private return_type void
+} {
+  code {gApp->UserActionPCCard(0, (long)user_data);} {}
+}
+
+Function {cb_changePCCard1(Fl_Widget*, void* user_data)} {open private return_type void
+} {
+  code {gApp->UserActionPCCard(1, (long)user_data);} {}
+}
+
+class TFLSettingsUI {open : {public TFLSettings}
+} {
+  Function {TFLSettingsUI()} {} {
+    code {// create the setting dialog so we have it available for the user
+mSettingsPanel = CreateSettingsPanel();
+wAbout = nullptr;} {}
+  }
+  Function {CreateSettingsPanel()} {
+    comment override open
+  } {
+    Fl_Window {} {
+      label {Einstein Settings}
+      callback {if (wQuit->visible()){
+    exit(0);
+} else {
+    revertDialog();
+    mSettingsPanel->hide();
+}} open
+      xywh {447 451 450 455} type Double visible
+    } {
+      Fl_Menu_Button RMB {
+        label {RMB Menu}
+        xywh {4 1 10 10} labelsize 12 hide deactivate
+      } {
+        MenuItem {} {
+          label {Install Package...}
+          callback {app->UserActionInstallPackage();}
+          xywh {12 12 100 20} labelsize 12
+        }
+        MenuItem {} {
+          label Backlight
+          callback {app->UserActionToggleBacklight();}
+          xywh {12 12 100 20} labelsize 12 divider
+        }
+        Submenu {} {
+          label Reset open
+          xywh {12 12 100 20} labelsize 12 hide deactivate
+        } {
+          MenuItem {} {
+            label {Soft Reset}
+            xywh {12 12 100 20} labelsize 12 deactivate
+          }
+          MenuItem {} {
+            label {Deep Reset}
+            xywh {12 12 100 20} labelsize 12 deactivate
+          }
+          MenuItem {} {
+            label {Reset w/o Extensions}
+            xywh {12 12 100 20} labelsize 12 deactivate
+          }
+          MenuItem {} {
+            label {Power Drain Reset}
+            xywh {12 12 100 20} labelsize 12 deactivate
+          }
+          MenuItem {} {
+            label {Hard Reset (Brain Wipe)}
+            xywh {12 12 100 20} labelsize 12 deactivate
+          }
+          MenuItem {} {
+            label {Cold Boot}
+            xywh {12 12 100 20} labelsize 12 deactivate
+          }
+        }
+        MenuItem {} {
+          label {Settings...}
+          callback {app->UserActionShowSettingsPanel();}
+          xywh {12 12 100 20} labelsize 12
+        }
+        MenuItem {} {
+          label {About...}
+          callback {app->UserActionShowAboutPanel();}
+          xywh {12 12 100 20} labelsize 12 divider
+        }
+        MenuItem {} {
+          label Power
+          callback {app->UserActionTogglePower();}
+          xywh {12 12 100 20} labelsize 12
+        }
+      }
+      Fl_Tabs {} {open
+        xywh {10 10 430 400} box BORDER_BOX
+        code0 {o->box((Fl_Boxtype)(FL_FREE_BOXTYPE+2));}
+        class TFLTabs
+      } {
+        Fl_Group {} {
+          label {  MessagePad  }
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
+          xywh {10 35 430 375}
+        } {
+          Fl_Group {} {open
+            xywh {120 50 275 25}
+          } {
+            Fl_Input wMPConfigName {
+              label Configuration
+              tooltip {give this MessagePad configuration a name} xywh {120 50 160 25} color 53 deactivate
+              code0 {o->value("default");}
+            }
+            Fl_Button wMPConfigMenuButton {
+              label {@2>}
+              tooltip {choose another configuration for editing} xywh {280 50 25 25} labelcolor 40 deactivate
+            }
+            Fl_Button wMPConfigAddButton {
+              label {+}
+              tooltip {add another hardware configuration} xywh {305 50 25 25} labelfont 4 labelsize 18 deactivate
+            }
+            Fl_Button wMPConfigRemoveButton {
+              label {-}
+              tooltip {delete this hardware configuration} xywh {330 50 25 25} labelfont 4 labelsize 18 deactivate
+            }
+          }
+          Fl_Group {} {open
+            xywh {22 90 408 77} box FLAT_BOX labelsize 12 align 5
+          } {
+            Fl_Output wROMName {
+              label {Newton ROM: }
+              xywh {120 95 235 20} color 51 labelsize 13 textsize 12
+            }
+            Fl_Box wROMPath {
+              label {/here/goes/the/path/and/filename/of/the/ROM}
+              xywh {120 115 310 15} labelsize 11 align 212
+            }
+            Fl_Box wROMDetails {
+              label {ROM file found
+Enjoy Einstein}
+              xywh {120 132 310 35} labelsize 12 align 212
+            }
+            Fl_Button wROMPathChoose {
+              label {Choose...}
+              callback {const char *filename = gApp->ChooseExistingFile(
+	"Choose ROM file",
+	nullptr,
+	wROMPath->label()
+);
+if (filename) {
+    wROMName->value(fl_filename_name(filename));
+    wROMPath->copy_label(filename);
+    wROMDetails->copy_label(GetROMDetails(filename));
+}}
+              tooltip {Select a Newton ROM image file.
+Einstein does not include any ROMs.} xywh {355 95 75 20} labelsize 12
+            }
+          }
+          Fl_Group {} {open
+            xywh {22 179 408 46} box FLAT_BOX labelsize 12 align 5
+          } {
+            Fl_Output wFlashName {
+              label {System Flash: }
+              xywh {120 180 160 20} color 51 labelsize 13 textsize 12
+            }
+            Fl_Box wFlashPath {
+              label {/here/goes/the/path/and/filename/of/the/FlashFile}
+              xywh {120 200 310 15} labelsize 11 align 212
+            }
+            Fl_Button wFlashPathCreate {
+              label {Create...}
+              callback {const char *filename = gApp->ChooseNewFile(
+	"Create a new Flash Memory file",
+	nullptr,
+	wFlashPath->label()
+);
+if (filename) {
+    wFlashName->value(fl_filename_name(filename));
+    wFlashPath->copy_label(filename);
+}}
+              tooltip {Create a new Flash RAM image file.} xywh {280 180 75 20} labelsize 12
+            }
+            Fl_Button wFlashPathChoose {
+              label {Choose...}
+              callback {const char *filename = gApp->ChooseExistingFile(
+	"Choose an existing Flash Memory file",
+	nullptr,
+	wFlashPath->label()
+);
+if (filename) {
+    wFlashName->value(fl_filename_name(filename));
+    wFlashPath->copy_label(filename);
+}}
+              tooltip {Select an existing Flash RAM image file.} xywh {355 180 75 20} labelsize 12
+            }
+          }
+          Fl_Group {} {open
+            xywh {22 230 408 20} box FLAT_BOX labelsize 12 align 5
+          } {
+            Fl_Choice wRAMSizeChoice {
+              label {System RAM: } open
+              tooltip {select the system memory size (heap)} xywh {120 230 180 20} down_box BORDER_BOX labelsize 13 textsize 12
+            } {
+              MenuItem {} {
+                label {1MB (MP2000/eMate)}
+                user_data 16 user_data_type long
+                xywh {12 12 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {4MB (MP2100)}
+                user_data 64 user_data_type long
+                xywh {0 0 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label 8MB
+                user_data 128 user_data_type long
+                xywh {20 20 100 20} labelsize 12 deactivate
+              }
+              MenuItem {} {
+                label {15.9MB (maximum)}
+                user_data 255 user_data_type long
+                xywh {32 32 100 20} labelsize 12 deactivate
+              }
+            }
+          }
+          Fl_Choice {} {
+            label {User Interface: } open
+            xywh {120 270 180 20} down_box BORDER_BOX deactivate
+          } {
+            MenuItem {} {
+              label MP2x00
+              xywh {0 0 100 20}
+            }
+            MenuItem {} {
+              label {eMate 300}
+              xywh {0 0 100 20}
+            }
+          }
+          Fl_Box wRestartWarning {
+            label {Setting changes apply only after a  restart}
+            xywh {30 378 386 20} box FLAT_BOX labelfont 1 labelsize 12 align 16 hide
+          }
+        }
+        Fl_Group {} {
+          label {  User Interface  } open
+          xywh {10 35 430 375} hide
+        } {
+          Fl_Group {} {open
+            xywh {60 90 356 222} box FLAT_BOX labelsize 12 align 5
+          } {
+            Fl_Input wWidth {
+              label {Screen Size: }
+              tooltip {Screen width in pixels,
+Original screen size is 320x480} xywh {120 90 80 20} type Int labelsize 13 textsize 12
+            }
+            Fl_Input wHeight {
+              label {x }
+              tooltip {Screen height in pixels,
+Original screen size is 320x480} xywh {215 90 80 20} type Int labelsize 12 textsize 12
+            }
+            Fl_Check_Button wFullScreen {
+              label {Full screen}
+              xywh {120 120 296 20} down_box DOWN_BOX labelsize 13 deactivate
+            }
+            Fl_Check_Button wHideMouse {
+              label {Hide mouse pointer}
+              tooltip {Hide mouse pointer over MessagePad screen
+Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX labelsize 13
+            }
+            Fl_Check_Button wLaunchMonitorAtBoot {
+              label {Launch Monitor at Boot}
+              xywh {120 170 196 20} down_box DOWN_BOX labelsize 13
+            }
+            Fl_Check_Button wBreatAtROMBoot {
+              label {Break at ROMBoot}
+              xywh {145 195 196 20} down_box DOWN_BOX labelsize 13 deactivate
+            }
+            Fl_Box {} {
+              label {add screen scale}
+              xywh {112 186 204 28} hide
+            }
+            Fl_Box {} {
+              label {toggle menubar, toolbar, and functionkey bar}
+              xywh {122 212 204 28} hide
+            }
+            Fl_Box {} {
+              label {maybe developer menu, novice menu, expert menu?}
+              xywh {128 240 204 28} hide
+            }
+            Fl_Box {} {
+              label {Show at startup: machine choice, settings, last open machine}
+              xywh {132 278 204 28} hide
+            }
+          }
+          Fl_Group {} {open
+            xywh {120 50 275 25}
+          } {
+            Fl_Input wUIConfigName {
+              label {Configuration }
+              tooltip {give this User Interface configuration a name} xywh {120 50 160 25} color 53 deactivate
+              code0 {o->value("default");}
+            }
+            Fl_Button wUIConfigMenuButton {
+              label {@2>}
+              tooltip {choose another configuration for editing} xywh {280 50 25 25} labelcolor 40 deactivate
+            }
+            Fl_Button wUIConfigAddButton {
+              label {+}
+              tooltip {add another interface configuration} xywh {305 50 25 25} labelfont 4 labelsize 18 deactivate
+            }
+            Fl_Button wUIConfigRemoveButton {
+              label {-}
+              tooltip {delete this interface configuration} xywh {330 50 25 25} labelfont 4 labelsize 18 deactivate
+            }
+          }
+        }
+        Fl_Group {} {
+          label {  PC Cards  } open
+          xywh {10 35 430 375} hide
+        } {
+          Fl_Browser wPCCardList {
+            label {PCMCIA Cards:}
+            callback {\#if 0
+int ix = wPCCardList->value()-1;
+if (ix==-1) {
+	wPCCardListRemove->deactivate();
+	wPCCardProperties->deactivate();
+} else {
+	TFLPCCardSettings *card = mCardList[ix];	
+	if (strcmp(card->GetUUID(), TFLPCCardSettings::kNetworkUUID)==0)
+		wPCCardListRemove->deactivate();
+	else
+		wPCCardListRemove->activate();
+	wPCCardProperties->activate();
+	wPCCardName->value( card->GetName() );
+}
+\#endif}
+            xywh {120 50 235 165} type Hold labelsize 12 align 4 when 1 textsize 12
+          }
+          Fl_Menu_Bar {} {open
+            xywh {120 215 25 25}
+          } {
+            Submenu {} {
+              label {+} open
+              xywh {0 0 100 20}
+            } {
+              MenuItem {} {
+                label {Add existing PCCard Image...}
+                callback {char imageFilename[FL_PATH_MAX];
+char buf[FL_PATH_MAX];
+char *imageName = nullptr;
+const char *a;
+const char *suggestedName;
+const char *fn;
+const char *e;
+TFLPCCardSettings* card;
+
+char path[FL_PATH_MAX];
+strcpy(path, wFlashPath->label());
+char *nn = (char*)fl_filename_name(path);
+if (nn) *nn = 0;
+
+a = app->ChooseExistingFile("Select a PCCard Image file", "*.pccard", path);
+if (!a) goto cleanup;
+strcpy(imageFilename, a);
+
+suggestedName = "";
+fn = fl_filename_name(imageFilename);
+if (fn) {
+  strcpy(buf, fn);
+  fl_filename_setext(buf, FL_PATH_MAX, "");
+  suggestedName = buf;
+}
+
+// TODO: we could preset the name with either the filename or whatever name we extract from the image
+e = fl_input("Please enter a name for your PCCard Image", suggestedName);
+if (!e) goto cleanup;
+imageName = strdup(e);
+
+card = TFLPCCardSettings::LinkLinearPCCard(imageName, imageFilename);
+wPCCardList->add(imageName, card);
+
+cleanup:
+if (imageName) free(imageName);}
+                xywh {0 0 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 2MB Flash Card...}
+                user_data 2 user_data_type long
+                callback {char imageFilename[FL_PATH_MAX];
+  char buf[FL_PATH_MAX];
+  char *imageName = nullptr;
+  int size = (long)v;
+  const char *a;
+  const char *suggestedName;
+  const char *fn;
+  const char *e;
+  TFLPCCardSettings* card;
+
+  char path[FL_PATH_MAX];
+  strcpy(path, wFlashPath->label());
+  char *nn = (char*)fl_filename_name(path);
+  if (nn) *nn = 0;
+
+  a = app->ChooseNewFile("Create a PCCard Image file", "*.pccard", path);
+  if (!a) goto cleanup;
+  strcpy(imageFilename, a);
+  if (fl_access(imageFilename, 6)!=0)
+  {
+    fl_filename_setext(imageFilename, FL_PATH_MAX, ".pccard");
+  }
+
+  suggestedName = "";
+  fn = fl_filename_name(imageFilename);
+  if (fn) {
+    strcpy(buf, fn);
+    fl_filename_setext(buf, FL_PATH_MAX, "");
+    suggestedName = buf;
+  }
+
+  // TODO: we could preset the name with either the filename or whatever name we extract from the image
+  e = fl_input("Please enter a name for your PCCard Image", suggestedName);
+  if (!e) goto cleanup;
+  imageName = strdup(e);
+
+  card = TFLPCCardSettings::NewLinearPCCard(imageName, imageFilename, size);
+  wPCCardList->add(imageName, card);
+
+  cleanup:
+  if (imageName) free(imageName);}
+                xywh {10 10 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 4MB Flash Card...}
+                user_data 4 user_data_type long
+                callback cb_New
+                xywh {20 20 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 8MB Flash Card...}
+                user_data 8 user_data_type long
+                callback cb_New
+                xywh {0 0 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 16MB Flash Card...}
+                user_data 16 user_data_type long
+                callback cb_New
+                xywh {0 0 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 24MB Flash Card...}
+                user_data 24 user_data_type long
+                callback cb_New
+                xywh {10 10 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 32MB Flash Card...}
+                user_data 32 user_data_type long
+                callback cb_New
+                xywh {20 20 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {Create Image from snapshot...}
+                callback {char imageFilename[FL_PATH_MAX];
+char *dataFilename = nullptr;
+char *cisFilename = nullptr;
+char *imageName = nullptr;
+const char *b;
+const char *c;
+const char *e;
+const char *a;
+int ret;
+TFLPCCardSettings* card;
+
+char path[FL_PATH_MAX];
+strcpy(path, wFlashPath->label());
+char *nn = (char*)fl_filename_name(path);
+if (nn) *nn = 0;
+
+b = app->ChooseExistingFile("PCMCIA Card Data Snapshot", nullptr, path);
+if (!b) goto cleanup;
+dataFilename = strdup(b);
+
+c = app->ChooseExistingFile("PCMCIA Card CIS snapshot", nullptr, nullptr);
+if (!c) goto cleanup;
+cisFilename = strdup(c);
+
+e = fl_input("Please enter a name for your PCCard Image");
+if (!e) goto cleanup;
+imageName = strdup(e);
+
+strcat(path, imageName);
+
+a = app->ChooseNewFile("Create this PCMCIA Image file", "*.pccard", path);
+if (!a) goto cleanup;
+strcpy(imageFilename, a);
+if (    fl_access(imageFilename, 6)!=0 
+     || strcmp(imageFilename, dataFilename)==0
+     || strcmp(imageFilename, cisFilename)==0 )
+{
+  fl_filename_setext(imageFilename, FL_PATH_MAX, ".pccard");
+}
+
+ret = app->UserActionPCMCIAImageFromSnapshot(imageFilename, dataFilename, cisFilename, imageName);
+if (ret!=0) goto cleanup;
+
+card = TFLPCCardSettings::LinkLinearPCCard(imageName, imageFilename);
+wPCCardList->add(imageName, card);
+
+cleanup:
+//if (imageFilename) free(imageFilename);
+if (dataFilename) free(dataFilename);
+if (cisFilename) free(cisFilename);
+if (imageName) free(imageName);}
+                xywh {0 0 100 20} labelsize 12
+              }
+            }
+          }
+          Fl_Button wPCCardListRemove {
+            label {-}
+            user_data this
+            callback {int ix = wPCCardList->value();
+if (ix>0 && ix<=wPCCardList->size()) {
+  wPCCardList->remove(ix);
+}}
+            tooltip {remove and delete a PCMCIA card} xywh {145 215 25 25} labelfont 4 labelsize 18
+          }
+          Fl_Button wPCCardMoveUp {
+            label {@-28>}
+            user_data this
+            callback {int ix = wPCCardList->value();
+if (ix>1) {
+  wPCCardList->swap(ix, ix-1);
+  wPCCardList->value(ix-1);
+  wPCCardList->do_callback();
+}}
+            xywh {170 215 25 25} labelfont 4 labelsize 18
+          }
+          Fl_Button wPCCardMoveDown {
+            label {@-22>}
+            user_data this
+            callback {int ix = wPCCardList->value();
+if (ix>0 && ix<wPCCardList->size()) {
+  wPCCardList->swap(ix, ix+1);
+  wPCCardList->value(ix+1);
+  wPCCardList->do_callback();
+}}
+            xywh {195 215 25 25} labelfont 4 labelsize 18
+          }
+          Fl_Menu_Bar {} {open
+            xywh {220 215 25 25}
+          } {
+            Submenu {} {
+              label {...} open
+              xywh {10 10 100 20}
+            } {
+              MenuItem wPCCardEditName {
+                label {Edit Card Name...}
+                callback {int ix = wPCCardList->value();
+if (ix>0 && ix<=wPCCardList->size()) {
+  const char *oldName = wPCCardList->text(ix);
+  const char *newName = fl_input("Please enter a new name for you PCCard", oldName);
+  if (newName)
+    wPCCardList->text(ix, newName);
+}}
+                xywh {10 10 100 20} labelsize 12
+              }
+              MenuItem wPCCardEditTag {
+                label {Edit Card Tag...}
+                callback {int ix = wPCCardList->value();
+if (ix>0 && ix<=wPCCardList->size()) {
+  TFLPCCardSettings *card = (TFLPCCardSettings*)wPCCardList->data(ix);
+  const char *oldTag = card->GetTag();
+  const char *newTag = fl_input(
+  	"Please enter a new Tag for you PCCard\\n\\n"
+  	"Tags should be at most four upper case\\n"
+  	"characters long.\\n", oldTag);
+  if (newTag)
+    card->SetTag(newTag);
+}}
+                xywh {20 20 100 20} labelsize 12
+              }
+              MenuItem wPCCardEditPath {
+                label {Edit Card Image Path...}
+                callback {int ix = wPCCardList->value();
+TFLPCCardSettings *card = (TFLPCCardSettings*)wPCCardList->data(ix);
+if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kLinear) {
+  const char *oldPath = card->GetImagePath();
+  const char *newPath = gApp->ChooseExistingFile(
+    "Please select another PCCard Image", "*.pccard", oldPath
+  );
+  if (newPath)
+    card->SetImagePath(newPath);
+}}
+                xywh {10 10 100 20} labelsize 12
+              }
+            }
+          }
+        }
+        Fl_Group {} {
+          label {  Resources  }
+          xywh {10 35 430 375} hide
+        } {
+          Fl_Input_Choice {} {
+            label {United Newton
+Network Archives} open
+            xywh {172 80 252 24} deactivate
+          } {
+            MenuItem {} {
+              label {http://www.unna.org/}
+              xywh {0 0 100 20}
+            }
+          }
+          Fl_Input_Choice {} {
+            label {local unna archive} open
+            xywh {172 124 252 24} deactivate
+          } {
+            MenuItem {} {
+              label {http://www.unna.org/}
+              xywh {12 12 100 20}
+            }
+          }
+          Fl_Input_Choice {} {
+            label {Pawels archive} open
+            xywh {172 168 252 24} deactivate
+          } {
+            MenuItem {} {
+              label {http://www.unna.org/}
+              xywh {24 24 100 20}
+            }
+          }
+          Fl_Input_Choice {} {
+            label {MessagePad.org} open
+            xywh {172 212 252 24} deactivate
+          } {
+            MenuItem {} {
+              label {http://www.unna.org/}
+              xywh {36 36 100 20}
+            }
+          }
+        }
+      }
+      Fl_Check_Button wDontShow {
+        label {Don't show at startup}
+        xywh {24 422 140 21} down_box DOWN_BOX labelsize 12
+      }
+      Fl_Button wQuit {
+        label Quit
+        callback {exit(0);}
+        xywh {217 420 95 25} color 50 labelsize 12
+      }
+      Fl_Button wStart {
+        label Start
+        callback {applyDialog();
+savePreferences();
+mSettingsPanel->hide();}
+        xywh {322 420 95 25} color 50 labelsize 12
+        code0 {Fl::focus(wStart);}
+      }
+      Fl_Button wRevert {
+        label Revert
+        callback {revertDialog();
+mSettingsPanel->redraw();}
+        xywh {217 420 95 25} color 50 labelsize 12 hide
+      }
+      Fl_Button wSave {
+        label Save
+        callback {applyDialog();
+savePreferences();
+mSettingsPanel->hide();}
+        xywh {322 420 95 25} color 50 labelsize 12 hide
+      }
+      Fl_Box {} {
+        xywh {10 410 430 5}
+        code0 {o->box((Fl_Boxtype)(FL_FREE_BOXTYPE+2));}
+      }
+    }
+  }
+  Function {updateMenus()} {open return_type void
+  } {
+    code {\#define MENU_FONT FL_NORMAL_LABEL, FL_HELVETICA, 14, 0
+\#define MENU_HEADLINE FL_NORMAL_LABEL, FL_HELVETICA_BOLD_ITALIC, 14, 0
+
+  if (wNetworkTool) wNetworkTool->clearTopID();
+  if (wNetworkTool) wNetworkTool->clearBottomID();
+
+  Fl_Menu_Item* slot0menu = (Fl_Menu_Item*)calloc(mCardList.size() + 6, sizeof(Fl_Menu_Item));
+  if (wPCCardSlot0->user_data()) ::free(wPCCardSlot0->user_data());
+  wPCCardSlot0->flags |= FL_SUBMENU_POINTER;
+  wPCCardSlot0->user_data(slot0menu);
+  slot0menu[0] = { "Eject Card", 0/* shortcut */, cb_changePCCard0, (void*)-1, FL_MENU_INVISIBLE, MENU_FONT };
+  slot0menu[1] = { "Keep in Slot", 0/* shortcut */, (Fl_Callback*)cb_keepInSlot0, (void*)-1, FL_MENU_INVISIBLE | FL_MENU_TOGGLE | FL_MENU_DIVIDER, MENU_FONT };
+  slot0menu[2] = { "Insert Card:", 0/* shortcut */, nullptr /* callback */, nullptr /* user_data */, FL_MENU_INACTIVE, MENU_HEADLINE };
+  slot0menu[3] = { "Replace Card:", 0/* shortcut */, nullptr /* callback */, nullptr /* user_data */, FL_MENU_INVISIBLE | FL_MENU_INACTIVE, MENU_HEADLINE };
+  TPlatformManager *pm = gApp->GetPlatformManager();
+  TPCMCIACard *c0 = nullptr;
+  if (pm) {
+    c0 = gApp->GetPlatformManager()->GetPCCard(0);
+    if (c0) {
+      slot0menu[0].flags &= ~FL_MENU_INVISIBLE;
+      slot0menu[1].flags &= ~FL_MENU_INVISIBLE;
+      slot0menu[2].flags |= FL_MENU_INVISIBLE;
+      slot0menu[3].flags &= ~FL_MENU_INVISIBLE;
+    } else {
+      slot0menu[0].flags |= FL_MENU_INVISIBLE;
+      slot0menu[1].flags |= FL_MENU_INVISIBLE;
+      slot0menu[2].flags &= ~FL_MENU_INVISIBLE;
+      slot0menu[3].flags |= FL_MENU_INVISIBLE;
+    }
+  }
+
+  Fl_Menu_Item* slot1menu = (Fl_Menu_Item*)calloc(mCardList.size() + 6, sizeof(Fl_Menu_Item));
+  if (wPCCardSlot1->user_data()) ::free(wPCCardSlot1->user_data());
+  wPCCardSlot1->flags |= FL_SUBMENU_POINTER;
+  wPCCardSlot1->user_data(slot1menu);
+  slot1menu[0] = { "Eject Card", 0/* shortcut */, cb_changePCCard1, (void*)-1, FL_MENU_INVISIBLE, MENU_FONT };
+  slot1menu[1] = { "Keep in Slot", 0/* shortcut */, (Fl_Callback*)cb_keepInSlot1, (void*)-1, FL_MENU_INVISIBLE | FL_MENU_TOGGLE | FL_MENU_DIVIDER, MENU_FONT };
+  slot1menu[2] = { "Insert Card:", 0/* shortcut */, nullptr /* callback */, nullptr /* user_data */, FL_MENU_INACTIVE, MENU_HEADLINE };
+  slot1menu[3] = { "Replace Card:", 0/* shortcut */, nullptr /* callback */, nullptr /* user_data */, FL_MENU_INVISIBLE | FL_MENU_INACTIVE, MENU_HEADLINE };
+  TPCMCIACard *c1 = nullptr;
+  if (pm) {
+    c1 = gApp->GetPlatformManager()->GetPCCard(1);
+    if (c1) {
+      slot1menu[0].flags &= ~FL_MENU_INVISIBLE;
+      slot1menu[1].flags &= ~FL_MENU_INVISIBLE;
+      slot1menu[2].flags |= FL_MENU_INVISIBLE;
+      slot1menu[3].flags &= ~FL_MENU_INVISIBLE;
+    } else {
+      slot1menu[0].flags |= FL_MENU_INVISIBLE;
+      slot1menu[1].flags |= FL_MENU_INVISIBLE;
+      slot1menu[2].flags &= ~FL_MENU_INVISIBLE;
+      slot1menu[3].flags |= FL_MENU_INVISIBLE;
+    }
+  }
+
+  for (int i=0; i<mCardList.size(); i++) {
+  	TFLPCCardSettings *card = mCardList[i];
+  	slot0menu[i+4] = { card->GetName(), 0, cb_changePCCard0, (void*)i, 0 /* flags */, MENU_FONT };
+  	slot1menu[i+4] = { card->GetName(), 0, cb_changePCCard1, (void*)i, 0 /* flags */, MENU_FONT };
+    if (c0 && c0==card->Card()) {
+        slot0menu[i+4].labelfont_ |= 1;
+        slot1menu[i+4].flags |= FL_MENU_INACTIVE;
+        if (card->KeepInSlot()==0) slot0menu[1].set();
+        if (wNetworkTool) wNetworkTool->setTopID(card->GetTag());
+        slot0menu[1].user_data((void*)i);
+    }
+    if (c1 && c1==card->Card()) {
+        slot1menu[i+4].labelfont_ |= 1;
+        slot0menu[i+4].flags |= FL_MENU_INACTIVE;
+        if (card->KeepInSlot()==1) slot1menu[1].set();
+        if (wNetworkTool) wNetworkTool->setBottomID(card->GetTag());
+        slot1menu[1].user_data((void*)i);
+    }
+  }} {}
+  }
+  Function {revertDialog()} {open return_type void
+  } {
+    code {char buf[32];
+
+wROMName->value(fl_filename_name(ROMPath));
+wROMPath->copy_label(ROMPath);
+
+wFlashName->value(fl_filename_name(FlashPath));
+wFlashPath->copy_label(FlashPath);
+
+sprintf(buf, "%d", screenWidth);
+wWidth->value(buf);
+sprintf(buf, "%d", screenHeight);
+wHeight->value(buf);
+wFullScreen->value(fullScreen);
+wHideMouse->value(hideMouse);
+wLaunchMonitorAtBoot->value(mLaunchMonitorAtBoot);
+wBreatAtROMBoot->value(mBreatAtROMBoot);
+
+if (RAMSize<=16)
+	wRAMSizeChoice->value(0);
+else if (RAMSize<=64)
+	wRAMSizeChoice->value(1);
+else if (RAMSize<=128)
+	wRAMSizeChoice->value(1);
+else 	
+	wRAMSizeChoice->value(1);
+
+wDontShow->value(dontShow);
+
+wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
+
+wPCCardList->clear();
+for (int i=0; i<mCardList.size(); i++) {
+	TFLPCCardSettings *card = mCardList[i];
+	wPCCardList->add(card->GetName(), card);
+}
+wPCCardList->value(0);
+wPCCardList->do_callback();
+
+updateMenus();} {}
+  }
+  Function {applyDialog()} {open return_type void
+  } {
+    code {free(ROMPath);
+ROMPath = strdup(wROMPath->label());
+
+free(FlashPath);
+FlashPath = strdup(wFlashPath->label());
+
+screenWidth = atoi(wWidth->value());
+screenHeight = atoi(wHeight->value());
+fullScreen = wFullScreen->value();
+hideMouse = wHideMouse->value();
+mLaunchMonitorAtBoot = wLaunchMonitorAtBoot->value();
+mBreatAtROMBoot = wBreatAtROMBoot->value();
+
+const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
+if (m)
+	RAMSize = m->argument();
+
+dontShow = wDontShow->value();
+
+startUpdateCardList();
+for (int i=0; i<wPCCardList->size(); i++) {
+	const char* name = wPCCardList->text(i + 1);
+	TFLPCCardSettings* card = (TFLPCCardSettings*)wPCCardList->data(i + 1);
+	updateNextCard(name, card);
+}
+endUpdateCardList();
+
+updateMenus();} {}
+  }
+  Function {runningMode()} {return_type void
+  } {
+    code {wRestartWarning->show();
+wQuit->hide();
+wStart->hide();
+wRevert->show();
+wSave->show();} {}
+  }
+  Function {close_window_cb(Fl_Widget*, void *user)} {private return_type void
+  } {
+    code {Fl_Window *win = (Fl_Window*)user;
+win->hide();} {}
+  }
+  Function {createAboutDialog()} {open
+  } {
+    Fl_Window wAbout {
+      user_data wAbout
+      callback {o->hide();} open
+      xywh {484 208 335 200} type Double non_modal visible
+    } {
+      Fl_Box {} {
+        image {../Resources/icons/EinsteinApp64.png} xywh {133 5 69 75}
+      }
+      Fl_Box {} {
+        label {Einstein Platform}
+        xywh {72 81 190 25} labelfont 1
+        code0 {o->label(PROJECT_NAME);}
+      }
+      Fl_Box {} {
+        label {Version xxxx.xx.xx}
+        xywh {72 108 190 20} labelsize 11
+        code0 {o->label("Version " PROJECT_VER);}
+      }
+      Fl_Button {} {
+        label Close
+        user_data wAbout
+        callback {o->window()->hide();}
+        xywh {215 165 95 20} labelsize 12
+      }
+      Fl_Box {} {
+        label {Copyright 2003-2020 by Paul Guyot and others}
+        xywh {20 130 295 20} labelsize 11
+        code0 {o->label(COPYRIGHT_STRING);}
+      }
+    }
+  }
+  Function {HandlePopupMenu()} {
+    comment override return_type void
+  } {
+    code {const Fl_Menu_Item *choice = TFLSettingsUI::menu_RMB->popup(Fl::event_x(), Fl::event_y());
+if (choice && choice->callback()) {
+    choice->callback_(RMB, choice->user_data_);
+}} {}
+  }
+}
+
+comment {
+// ======================================================== //
+// Of course the code works. It just compiled, didn't it?   //
+// --helixcode123, 11/8/2001 on slashdot.                   //
+// ======================================================== //
+
+} {in_source in_header
+}
