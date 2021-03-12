@@ -43,7 +43,7 @@
  * Avoid calibration screen early in the game.
  * This patch changes a branch instruction in CheckTabletCalibration(void).
  */
-TJITGenericPatch p001412f8(0x001412f8, kROMPatchVoid, kROMPatchVoid,
+TJITGenericPatch p001412f8(0x001412f8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
                            0xea000009, "Avoid screen calibration");
 
 
@@ -51,23 +51,23 @@ TJITGenericPatch p001412f8(0x001412f8, kROMPatchVoid, kROMPatchVoid,
  * Disable "TGeoPortDebugLink::BeaconDetect(long)"
  * Replace the function with a `return 0;` equivalent.
  */
-TJITGenericPatch p000db0d8(0x000db0d8, kROMPatchVoid, kROMPatchVoid,
+TJITGenericPatch p000db0d8(0x000db0d8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
                            0xe3a00000, "BeaconDetect (1/2)"); // #  mov r0, 0x00000000
-TJITGenericPatch p000db0dc(0x000db0dc, kROMPatchVoid, kROMPatchVoid,
+TJITGenericPatch p000db0dc(0x000db0dc, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
                            0xe1a0f00e, "BeaconDetect (2/2)"); // #  mov pc, lr
 
 
 /*
  * This patch seems to disable runtime debugging statistics.
  */
-TJITGenericPatch gDebuggerPatch(0x000013f4, kROMPatchVoid, kROMPatchVoid,
+TJITGenericPatch gDebuggerPatch(0x000013f4, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
                                 1, "gDebugger patch");
 
 
 /*
  * This patch seems to enable stdin and stdout for NewtonOS.
  */
-TJITGenericPatch gNewtConfigPatch(0x000013fc, kROMPatchVoid, kROMPatchVoid, 
+TJITGenericPatch gNewtConfigPatch(0x000013fc, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
 								    0x00000002 /*kEnableListener*/
 								  | 0x00000200 /*kDefaultStdioOn*/
 								  | 0x00008000 /*kEnableStdout*/,
@@ -152,17 +152,18 @@ void TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId)
 /**
  TJITGenericPatchObject constructor
  */
-TJITGenericPatchObject::TJITGenericPatchObject(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
+TJITGenericPatchObject::TJITGenericPatchObject(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
                                                const char *name)
 :	mIndex(AddToManager()),
     mAddress{inAddr0, inAddr1, inAddr2},
 	mOriginalInstruction(0xFFFFFFFF),
 	mName(name)
 {
-    static_assert(kROMPatchNumIDs==3, "Fix this constructor if the number of supported ROMs changed");
+    static_assert(kROMPatchNumIDs==4, "Fix this constructor if the number of supported ROMs changed");
 	assert(inAddr0 == kROMPatchVoid || inAddr0 < 16 * 1024 * 1024);
 	assert(inAddr1 == kROMPatchVoid || inAddr1 < 16 * 1024 * 1024);
 	assert(inAddr2 == kROMPatchVoid || inAddr2 < 16 * 1024 * 1024);
+	assert(inAddr3 == kROMPatchVoid || inAddr3 < 16 * 1024 * 1024);
 	//    KPrintf("Adding ROM patch: %s\n", name);
 }
 
@@ -217,9 +218,9 @@ KUInt32 TJITGenericPatchObject::GetOffsetInROM(KSInt32 inROMId)
  \param value a new value for that address, can be data or instructions
  \param name a name for this patch
  */
-TJITGenericPatch::TJITGenericPatch(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
+TJITGenericPatch::TJITGenericPatch(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
                                    KUInt32 value, const char *name)
-: 	TJITGenericPatchObject(inAddr0, inAddr1, inAddr2, name),
+: 	TJITGenericPatchObject(inAddr0, inAddr1, inAddr2, inAddr3, name),
 	mNewInstruction(value)
 {
 }
@@ -232,7 +233,7 @@ void TJITGenericPatch::Apply(KUInt32 *ROM, KSInt32 inROMId)
 {
     KUInt32 offset = GetOffsetInROM(inROMId);
     if (offset!=kROMPatchVoid) {
-        KPrintf("Applying generig patch at 0x%08X: %s\n", offset*4, GetName());
+        KPrintf("Applying patch at 0x%08X: %s\n", offset*4, GetName());
         SetOrigialInstruction(ROM[offset]);
         ROM[offset] = GetNewInstruction();
     }
@@ -257,10 +258,10 @@ void TJITGenericPatch::Apply(KUInt32 *ROM, KSInt32 inROMId)
  \param name an optional name for this patch
  */
 TJITGenericPatchFindAndReplace::TJITGenericPatchFindAndReplace(
-								KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
+								KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
 								KUInt32 *key, KUInt32 *replacement,
 								const char *name)
-: 	TJITGenericPatch(inAddr0, inAddr1, inAddr2, 0, name),
+: 	TJITGenericPatch(inAddr0, inAddr1, inAddr2, inAddr3, 0, name),
 	mKey(key),
 	mReplacement(replacement)
 {

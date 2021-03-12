@@ -29,7 +29,7 @@ class TJITGenericPatchObject;
 
 // number of ROM IDs that the patch system supports
 // see: TROMImage::kUnknownROM etc.
-const int kROMPatchNumIDs = 3;
+const int kROMPatchNumIDs = 4;
 
 // if a patch does not exist for a specific platform, mark it void
 const KUInt32 kROMPatchVoid = ~0;
@@ -106,7 +106,7 @@ protected:
 
 public:
 	/// Create and add a new patch
-	TJITGenericPatchObject(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
+	TJITGenericPatchObject(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
                            const char *name=0L);
 
 	/// Destructor
@@ -156,7 +156,7 @@ protected:
 
 public:
 	/// Create and add a new patch
-	TJITGenericPatch(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
+	TJITGenericPatch(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
                      KUInt32 value, const char *name=0L);
 
 	/// Patch the ROM word
@@ -175,7 +175,7 @@ private:
 
 public:
 	/// Create and add a new patch
-	TJITGenericPatchFindAndReplace(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
+	TJITGenericPatchFindAndReplace(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
 								   KUInt32 *key, KUInt32 *replacement,
 								   const char *name=0L);
 
@@ -213,9 +213,9 @@ protected:
 
 public:
 	/// Create and add a call to a JIT instruction
-	TJITGenericPatchNativeCall(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
+	TJITGenericPatchNativeCall(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
                                JITFuncPtr stub, const char *name)
-	: TJITGenericPatchObject(inAddr0, inAddr1, inAddr2, name), mStub(stub)  { }
+	: TJITGenericPatchObject(inAddr0, inAddr1, inAddr2,  inAddr3, name), mStub(stub)  { }
 
 	/// Patch the ROM word
 	void Apply(KUInt32 *ROM, KSInt32 inROMId) override;
@@ -243,7 +243,10 @@ public:
  // sub     r0, r0, #35840
  // mov     pc, lr
 
- T_ROM_PATCH(0x00000010, "TADSPEndpoint::RemoveFromAppWorld(void)") {
+ T_ROM_PATCH(
+     0x00000010, 0x00000010, 0x00000010, 0x00000010,
+     "TADSPEndpoint::RemoveFromAppWorld(void)")
+ {
      ioCPU->SetRegister(0, -36018);
      ioCPU->SetRegister(15, ioCPU->GetRegister(14));
      return 0L;
@@ -254,12 +257,13 @@ public:
  		be word-aligned
  \param inAddr1 this is the address in the MP2100DE ROM or kROMPatchVoid
  \param inAddr2 this is the address in the eMate300 ROM or kROMPatchVoid
+ \param inAddr3 this is the address in the Watson ROM or kROMPatchVoid
  \param name naming the patch makes debugging easier
 
  */
-#define T_ROM_PATCH(inAddr0, inAddr1, inAddr2, name) \
+#define T_ROM_PATCH(inAddr0, inAddr1, inAddr2,  inAddr3, name) \
 extern JITInstructionProto(patch_##inAddr0); \
-TJITGenericPatchNativeCall i##inAddr0(inAddr0, inAddr1, inAddr2, patch_##inAddr0, name); \
+TJITGenericPatchNativeCall i##inAddr0(inAddr0, inAddr1, inAddr2, inAddr3, patch_##inAddr0, name); \
 JITInstructionProto(patch_##inAddr0)
 
 
@@ -289,9 +293,9 @@ class TJITGenericPatchNativeInjection : public TJITGenericPatchNativeCall {
 	
 public:
 	/// Create and add a call to a JIT instruction as an injection
-	TJITGenericPatchNativeInjection(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2,
+	TJITGenericPatchNativeInjection(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
                                     JITFuncPtr stub, const char *name)
-	: TJITGenericPatchNativeCall(inAddr0, inAddr1, inAddr2, stub, name) { }
+	: TJITGenericPatchNativeCall(inAddr0, inAddr1, inAddr2, inAddr3, stub, name) { }
 	
 	/// Patch the ROM word
 	void Apply(KUInt32 *ROM, KSInt32 inROMId) override;
@@ -310,7 +314,10 @@ public:
  continues execution of the ROM code.
 
  \code
- T_ROM_INJECTION(0x00000010, 0x00000010, 0x00000010, "Data Abort") {
+ T_ROM_INJECTION(
+     0x00000010, 0x00000010, 0x00000010, 0x00000010,
+     "Data Abort")
+ {
      KPrintf("DATA ABORT called from 0x%08X\n", ioCPU->mR14abt_Bkup-8);
      return ioUnit;
  }
@@ -320,11 +327,12 @@ public:
  		be word-aligned
  \param inAddr1 this is the address in the MP2100DE ROM or kROMPatchVoid
  \param inAddr2 this is the address in the eMate300 ROM or kROMPatchVoid
+ \param inAddr3 this is the address in the Watson ROM or kROMPatchVoid
  \param name naming the patch makes debugging easier
  */
-#define T_ROM_INJECTION(inAddr0, inAddr1, inAddr2, name) \
+#define T_ROM_INJECTION(inAddr0, inAddr1, inAddr2, inAddr3, name) \
 extern JITInstructionProto(patch_##inAddr0); \
-TJITGenericPatchNativeInjection i##inAddr0(inAddr0, inAddr1, inAddr2, patch_##inAddr0, name); \
+TJITGenericPatchNativeInjection i##inAddr0(inAddr0, inAddr1, inAddr2, inAddr3, patch_##inAddr0, name); \
 JITInstructionProto(patch_##inAddr0)
 
 

@@ -364,7 +364,7 @@
  */
 
 
-#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX
+#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
 /*
  * This is a hack that removes a reference from the 'extr' serial port driver
  * from the REx. This is required to make low level comm emulation possible.
@@ -375,9 +375,10 @@
  *
  * FIXME: PLEASE fix the REx instead of this weak patch (please integrate the REx into the app)
  */
-static KUInt32 searchThis[] = { 2, 'extr', 0 };
+static KUInt32 searchThis[] = { 1, 'extr' };
 static KUInt32 replaceWith[] = { 1, '~xtr' };
-TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00800634, 0x00800634, /* NOLINT */
+//TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00800634, 0x00800634, 0x00800634, /* NOLINT */
+TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800c98, 0x00800c98, 0x00800c98, 0x00800c98, /* NOLINT */
 												 searchThis, replaceWith,
 												 "Enable 'extr' serial port.\n");
 #endif
@@ -766,144 +767,144 @@ TBasicSerialPortManager::WriteTxDMARegister( KUInt32 inBank, KUInt32 inRegister,
 
 #if 0
 
-T_ROM_INJECTION(0x001D6780, kROMPatchVoid, kROMPatchVoid, "Init__18TSerialChipVoyagerFP11TCardSocketP12TCardHandlerPUc") {
+T_ROM_INJECTION(0x001D6780, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "Init__18TSerialChipVoyagerFP11TCardSocketP12TCardHandlerPUc") {
 	KPrintf("0x001D6780: TSerialChipVoyager::Init(TCardSocket *, TCardHandler *, unsigned char *)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D678C, kROMPatchVoid, kROMPatchVoid, "InitByOption__18TSerialChipVoyagerFP7TOption") {
+T_ROM_INJECTION(0x001D678C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "InitByOption__18TSerialChipVoyagerFP7TOption") {
 	KPrintf("0x001D678C: TSerialChipVoyager::InitByOption(TOption *)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6A14, kROMPatchVoid, kROMPatchVoid, "InstallChipHandler__18TSerialChipVoyagerFPvP14SCCChannelInts") {
+T_ROM_INJECTION(0x001D6A14, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "InstallChipHandler__18TSerialChipVoyagerFPvP14SCCChannelInts") {
 	KPrintf("0x001D6A14: TSerialChipVoyager::InstallChipHandler(void *, SCCChannelInts *)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6A5C, kROMPatchVoid, kROMPatchVoid, "RemoveChipHandler__18TSerialChipVoyagerFPv") {
+T_ROM_INJECTION(0x001D6A5C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "RemoveChipHandler__18TSerialChipVoyagerFPv") {
 	KPrintf("0x001D6A5C: TSerialChipVoyager::RemoveChipHandler(void *)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6A88, kROMPatchVoid, kROMPatchVoid, "InitializeForNextHandler__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6A88, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "InitializeForNextHandler__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6A88: TSerialChipVoyager::InitializeForNextHandler(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6AF0, kROMPatchVoid, kROMPatchVoid, "PutByte__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D6AF0, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "PutByte__18TSerialChipVoyagerFUc") {
 	KPrintf("0x001D6AF0: TSerialChipVoyager::PutByte(unsigned char)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6B3C, kROMPatchVoid, kROMPatchVoid, "ResetTxBEmpty__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6B3C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ResetTxBEmpty__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6B3C: TSerialChipVoyager::ResetTxBEmpty(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6B60, kROMPatchVoid, kROMPatchVoid, "GetByte__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6B60, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "GetByte__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6B60: TSerialChipVoyager::GetByte(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6B70, kROMPatchVoid, kROMPatchVoid, "TxBufEmpty__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6B70, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "TxBufEmpty__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6B70: TSerialChipVoyager::TxBufEmpty(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6B84, kROMPatchVoid, kROMPatchVoid, "RxBufFull__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6B84, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "RxBufFull__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6B84: TSerialChipVoyager::RxBufFull(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6BAC, kROMPatchVoid, kROMPatchVoid, "GetRxErrorStatus__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6BAC, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "GetRxErrorStatus__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6BAC: TSerialChipVoyager::GetRxErrorStatus(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6BD8, kROMPatchVoid, kROMPatchVoid, "GetSerialStatus__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6BD8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "GetSerialStatus__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6BD8: TSerialChipVoyager::GetSerialStatus(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6C6C, kROMPatchVoid, kROMPatchVoid, "ResetSerialStatus__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6C6C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ResetSerialStatus__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6C6C: TSerialChipVoyager::ResetSerialStatus(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6C70, kROMPatchVoid, kROMPatchVoid, "SetSerialOutputs__18TSerialChipVoyagerFUl") {
+T_ROM_INJECTION(0x001D6C70, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SetSerialOutputs__18TSerialChipVoyagerFUl") {
 	KPrintf("0x001D6C70: TSerialChipVoyager::SetSerialOutputs(unsigned long)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6CA0, kROMPatchVoid, kROMPatchVoid, "ClearSerialOutputs__18TSerialChipVoyagerFUl") {
+T_ROM_INJECTION(0x001D6CA0, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ClearSerialOutputs__18TSerialChipVoyagerFUl") {
 	KPrintf("0x001D6CA0: TSerialChipVoyager::ClearSerialOutputs(unsigned long)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6CCC, kROMPatchVoid, kROMPatchVoid, "GetSerialOutputs__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6CCC, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "GetSerialOutputs__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6CCC: TSerialChipVoyager::GetSerialOutputs(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6CFC, kROMPatchVoid, kROMPatchVoid, "PowerOff__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6CFC, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "PowerOff__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6CFC: TSerialChipVoyager::PowerOff(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6E58, kROMPatchVoid, kROMPatchVoid, "PowerOn__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6E58, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "PowerOn__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6E58: TSerialChipVoyager::PowerOn(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6F70, kROMPatchVoid, kROMPatchVoid, "PowerIsOn__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6F70, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "PowerIsOn__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6F70: TSerialChipVoyager::PowerIsOn(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6F78, kROMPatchVoid, kROMPatchVoid, "SetInterruptEnable__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D6F78, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SetInterruptEnable__18TSerialChipVoyagerFUc") {
 	KUInt32 r1 = ioCPU->GetRegister(1);
 	KPrintf("0x001D6F78: TSerialChipVoyager::SetInterruptEnable(%d)\n", (unsigned)r1);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6FA8, kROMPatchVoid, kROMPatchVoid, "Reset__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D6FA8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "Reset__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D6FA8: TSerialChipVoyager::Reset(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6FAC, kROMPatchVoid, kROMPatchVoid, "SetBreak__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D6FAC, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SetBreak__18TSerialChipVoyagerFUc") {
 	KPrintf("0x001D6FAC: TSerialChipVoyager::SetBreak(unsigned char)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D6FD4, kROMPatchVoid, kROMPatchVoid, "SetSpeed__18TSerialChipVoyagerFUl") {
+T_ROM_INJECTION(0x001D6FD4, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SetSpeed__18TSerialChipVoyagerFUl") {
 	KUInt32 r1 = ioCPU->GetRegister(1);
 	KPrintf("0x001D6FD4: TSerialChipVoyager::SetSpeed(%d)\n", (unsigned)r1);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7148, kROMPatchVoid, kROMPatchVoid, "SetIOParms__18TSerialChipVoyagerFP17TCMOSerialIOParms") {
+T_ROM_INJECTION(0x001D7148, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SetIOParms__18TSerialChipVoyagerFP17TCMOSerialIOParms") {
 	KPrintf("0x001D7148: TSerialChipVoyager::SetIOParms(TCMOSerialIOParms *)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7204, kROMPatchVoid, kROMPatchVoid, "Reconfigure__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D7204, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "Reconfigure__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D7204: TSerialChipVoyager::Reconfigure(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7364, kROMPatchVoid, kROMPatchVoid, "GetFeatures__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D7364, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "GetFeatures__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D7364: TSerialChipVoyager::GetFeatures(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D73DC, kROMPatchVoid, kROMPatchVoid, "ProcessOption__18TSerialChipVoyagerFP7TOption") {
+T_ROM_INJECTION(0x001D73DC, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ProcessOption__18TSerialChipVoyagerFP7TOption") {
 	KPrintf("0x001D73DC: TSerialChipVoyager::ProcessOption(TOption *)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7808, kROMPatchVoid, kROMPatchVoid, "SetSerialMode__18TSerialChipVoyagerFUl") {
+T_ROM_INJECTION(0x001D7808, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SetSerialMode__18TSerialChipVoyagerFUl") {
 	KUInt32 r1 = ioCPU->GetRegister(1);
 	char buf[128] = { 0 };
 	switch (r1&3) {
@@ -922,23 +923,23 @@ T_ROM_INJECTION(0x001D7808, kROMPatchVoid, kROMPatchVoid, "SetSerialMode__18TSer
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7920, kROMPatchVoid, kROMPatchVoid, "SysEventNotify__18TSerialChipVoyagerFUl") {
+T_ROM_INJECTION(0x001D7920, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SysEventNotify__18TSerialChipVoyagerFUl") {
 	KPrintf("0x001D7920: TSerialChipVoyager::SysEventNotify(unsigned long)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D793C, kROMPatchVoid, kROMPatchVoid, "SetTxDTransceiverEnable__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D793C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SetTxDTransceiverEnable__18TSerialChipVoyagerFUc") {
 	KUInt32 r1 = ioCPU->GetRegister(1);
 	KPrintf("0x001D793C: TSerialChipVoyager::SetTxDTransceiverEnable(%d)\n", (unsigned)r1);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D799C, kROMPatchVoid, kROMPatchVoid, "GetByteAndStatus__18TSerialChipVoyagerFPUc") {
+T_ROM_INJECTION(0x001D799C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "GetByteAndStatus__18TSerialChipVoyagerFPUc") {
 	KPrintf("0x001D799C: TSerialChipVoyager::GetByteAndStatus(unsigned char *)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D79DC, kROMPatchVoid, kROMPatchVoid, "SetIntSourceEnable__18TSerialChipVoyagerFUlUc") {
+T_ROM_INJECTION(0x001D79DC, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SetIntSourceEnable__18TSerialChipVoyagerFUlUc") {
 	KUInt32 r1 = ioCPU->GetRegister(1);
 	KUInt32 r2 = ioCPU->GetRegister(2);
 	char buf[1024];
@@ -956,32 +957,32 @@ T_ROM_INJECTION(0x001D79DC, kROMPatchVoid, kROMPatchVoid, "SetIntSourceEnable__1
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7A5C, kROMPatchVoid, kROMPatchVoid, "AllSent__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D7A5C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "AllSent__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D7A5C: TSerialChipVoyager::AllSent(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7A78, kROMPatchVoid, kROMPatchVoid, "WaitForAllSent__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D7A78, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "WaitForAllSent__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D7A78: TSerialChipVoyager::WaitForAllSent(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7ABC, kROMPatchVoid, kROMPatchVoid, "ConfigureForOutput__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D7ABC, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ConfigureForOutput__18TSerialChipVoyagerFUc") {
 	KPrintf("0x001D7ABC: TSerialChipVoyager::ConfigureForOutput(unsigned char)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7BCC, kROMPatchVoid, kROMPatchVoid, "SetSDLCAddress__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D7BCC, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SetSDLCAddress__18TSerialChipVoyagerFUc") {
 	KPrintf("0x001D7BCC: TSerialChipVoyager::SetSDLCAddress(unsigned char)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7C00, kROMPatchVoid, kROMPatchVoid, "ReEnableReceiver__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D7C00, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ReEnableReceiver__18TSerialChipVoyagerFUc") {
 	KPrintf("0x001D7C00: TSerialChipVoyager::ReEnableReceiver(unsigned char)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7CC4, kROMPatchVoid, kROMPatchVoid, "InitTxDMA__18TSerialChipVoyagerFP10TCircleBufPFPv_v") {
+T_ROM_INJECTION(0x001D7CC4, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "InitTxDMA__18TSerialChipVoyagerFP10TCircleBufPFPv_v") {
 	KUInt32 r2 = ioCPU->GetRegister(2);
 	KPrintf("0x001D7CC4: TSerialChipVoyager::InitTxDMA(TCircleBuf *, void (*)(void *)=0x%08X)\n", unsigned(r2));
 	// For the external serial port and the Docking app, this is:
@@ -990,7 +991,7 @@ T_ROM_INJECTION(0x001D7CC4, kROMPatchVoid, kROMPatchVoid, "InitTxDMA__18TSerialC
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7D70, kROMPatchVoid, kROMPatchVoid, "InitRxDMA__18TSerialChipVoyagerFP10TCircleBufUlPFPvUl_v") {
+T_ROM_INJECTION(0x001D7D70, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "InitRxDMA__18TSerialChipVoyagerFP10TCircleBufUlPFPvUl_v") {
 	KUInt32 r2 = ioCPU->GetRegister(2);
 	KUInt32 r3 = ioCPU->GetRegister(3);
 	KPrintf("0x001D7D70: TSerialChipVoyager::InitRxDMA(TCircleBuf *, notifyLevel=0x%08X, void (*)(void *, unsigned long)=0x%08X)\n", unsigned(r2), unsigned(r3));
@@ -1000,7 +1001,7 @@ T_ROM_INJECTION(0x001D7D70, kROMPatchVoid, kROMPatchVoid, "InitRxDMA__18TSerialC
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7DF0, kROMPatchVoid, kROMPatchVoid, "TxDMAControl__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D7DF0, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "TxDMAControl__18TSerialChipVoyagerFUc") {
 	KUInt32 r1 = ioCPU->GetRegister(1);
 	char buf[64] = { 0 };
 	switch (r1&15) {
@@ -1020,7 +1021,7 @@ T_ROM_INJECTION(0x001D7DF0, kROMPatchVoid, kROMPatchVoid, "TxDMAControl__18TSeri
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D7F28, kROMPatchVoid, kROMPatchVoid, "RxDMAControl__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D7F28, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "RxDMAControl__18TSerialChipVoyagerFUc") {
 	KUInt32 r1 = ioCPU->GetRegister(1);
 	char buf[64] = { 0 };
 	switch (r1&15) {
@@ -1039,186 +1040,186 @@ T_ROM_INJECTION(0x001D7F28, kROMPatchVoid, kROMPatchVoid, "RxDMAControl__18TSeri
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8088, kROMPatchVoid, kROMPatchVoid, "LinkIsFree__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D8088, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "LinkIsFree__18TSerialChipVoyagerFUc") {
 	KPrintf("0x001D8088: TSerialChipVoyager::LinkIsFree(unsigned char)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D80B4, kROMPatchVoid, kROMPatchVoid, "SendControlPacket__18TSerialChipVoyagerFUcN21") {
+T_ROM_INJECTION(0x001D80B4, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SendControlPacket__18TSerialChipVoyagerFUcN21") {
 	KPrintf("0x001D80B4: TSerialChipVoyager::SendControlPacket(unsigned char, unsigned char, unsigned char)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8180, kROMPatchVoid, kROMPatchVoid, "WaitForPacket__18TSerialChipVoyagerFUl") {
+T_ROM_INJECTION(0x001D8180, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "WaitForPacket__18TSerialChipVoyagerFUl") {
 	KPrintf("0x001D8180: TSerialChipVoyager::WaitForPacket(unsigned long)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D81C8, kROMPatchVoid, kROMPatchVoid, "RegisterPrimaryInterrupt__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D81C8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "RegisterPrimaryInterrupt__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D81C8: TSerialChipVoyager::RegisterPrimaryInterrupt(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8238, kROMPatchVoid, kROMPatchVoid, "ReconfigureIOParms__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D8238, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ReconfigureIOParms__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D8238: TSerialChipVoyager::ReconfigureIOParms(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D82D4, kROMPatchVoid, kROMPatchVoid, "ReconfigureAll__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D82D4, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ReconfigureAll__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D82D4: TSerialChipVoyager::ReconfigureAll(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8380, kROMPatchVoid, kROMPatchVoid, "IRCmdTxInterrupt__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D8380, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "IRCmdTxInterrupt__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D8380: TSerialChipVoyager::IRCmdTxInterrupt(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D83E0, kROMPatchVoid, kROMPatchVoid, "IRCmdOtherInterrupt__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D83E0, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "IRCmdOtherInterrupt__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D83E0: TSerialChipVoyager::IRCmdOtherInterrupt(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8420, kROMPatchVoid, kROMPatchVoid, "ConfigureIRChip__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D8420, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ConfigureIRChip__18TSerialChipVoyagerFUc") {
 	KPrintf("0x001D8420: TSerialChipVoyager::ConfigureIRChip(unsigned char)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D885C, kROMPatchVoid, kROMPatchVoid, "Sizeof__18TSerialChipVoyagerSFv") {
+T_ROM_INJECTION(0x001D885C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "Sizeof__18TSerialChipVoyagerSFv") {
 	KPrintf("0x001D885C: static TSerialChipVoyager::Sizeof(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8864, kROMPatchVoid, kROMPatchVoid, "EnableTVModeIR__18TSerialChipVoyagerFP17TCMOSlowIRBitBang") {
+T_ROM_INJECTION(0x001D8864, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "EnableTVModeIR__18TSerialChipVoyagerFP17TCMOSlowIRBitBang") {
 	KPrintf("0x001D8864: TSerialChipVoyager::EnableTVModeIR(TCMOSlowIRBitBang *)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8914, kROMPatchVoid, kROMPatchVoid, "WriteNextByteWithTimeOut__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D8914, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "WriteNextByteWithTimeOut__18TSerialChipVoyagerFUc") {
 	KPrintf("0x001D8914: TSerialChipVoyager::WriteNextByteWithTimeOut(unsigned char)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8964, kROMPatchVoid, kROMPatchVoid, "ReadNextByteWithTimeOut__18TSerialChipVoyagerFPUc") {
+T_ROM_INJECTION(0x001D8964, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ReadNextByteWithTimeOut__18TSerialChipVoyagerFPUc") {
 	KPrintf("0x001D8964: TSerialChipVoyager::ReadNextByteWithTimeOut(unsigned char *)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D89BC, kROMPatchVoid, kROMPatchVoid, "WaitNextByteWithTimeOut__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D89BC, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "WaitNextByteWithTimeOut__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D89BC: TSerialChipVoyager::WaitNextByteWithTimeOut(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8A00, kROMPatchVoid, kROMPatchVoid, "EnableRxDMA__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D8A00, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "EnableRxDMA__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D8A00: TSerialChipVoyager::EnableRxDMA(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8A24, kROMPatchVoid, kROMPatchVoid, "DisableRxDMA__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D8A24, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "DisableRxDMA__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D8A24: TSerialChipVoyager::DisableRxDMA(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8A48, kROMPatchVoid, kROMPatchVoid, "TxDMAEnable__18TSerialChipVoyagerFi") {
+T_ROM_INJECTION(0x001D8A48, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "TxDMAEnable__18TSerialChipVoyagerFi") {
 	KUInt32 r1 = ioCPU->GetRegister(1);
 	KPrintf("0x001D8A48: TSerialChipVoyager::TxDMAEnable(%d)\n", (unsigned)r1);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8A84, kROMPatchVoid, kROMPatchVoid, "StartSendDMAPacket__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D8A84, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "StartSendDMAPacket__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D8A84: TSerialChipVoyager::StartSendDMAPacket(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8BB8, kROMPatchVoid, kROMPatchVoid, "ReceivePacket__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D8BB8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ReceivePacket__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D8BB8: TSerialChipVoyager::ReceivePacket(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8D84, kROMPatchVoid, kROMPatchVoid, "DCDInterrupt__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D8D84, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "DCDInterrupt__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D8D84: TSerialChipVoyager::DCDInterrupt(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8D90, kROMPatchVoid, kROMPatchVoid, "New__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D8D90, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "New__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D8D90: TSerialChipVoyager::New(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8E10, kROMPatchVoid, kROMPatchVoid, "SetModemDCDIntEnable__18TSerialChipVoyagerFUc") {
+T_ROM_INJECTION(0x001D8E10, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SetModemDCDIntEnable__18TSerialChipVoyagerFUc") {
 	KUInt32 r1 = ioCPU->GetRegister(1);
 	KPrintf("0x001D8E10: TSerialChipVoyager::SetModemDCDIntEnable(%d)\n", (unsigned)r1);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8E48, kROMPatchVoid, kROMPatchVoid, "SerialInterrupt__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D8E48, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "SerialInterrupt__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D8E48: TSerialChipVoyager::SerialInterrupt(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8F8C, kROMPatchVoid, kROMPatchVoid, "AsyncDMAOutInt__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D8F8C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "AsyncDMAOutInt__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D8F8C: TSerialChipVoyager::AsyncDMAOutInt(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D8FC4, kROMPatchVoid, kROMPatchVoid, "AsyncDMAInInt__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D8FC4, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "AsyncDMAInInt__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D8FC4: TSerialChipVoyager::AsyncDMAInInt(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D9020, kROMPatchVoid, kROMPatchVoid, "LocalTalkInterrupt__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D9020, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "LocalTalkInterrupt__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D9020: TSerialChipVoyager::LocalTalkInterrupt(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D90EC, kROMPatchVoid, kROMPatchVoid, "LocalTalkDMAOutInt__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D90EC, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "LocalTalkDMAOutInt__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D90EC: TSerialChipVoyager::LocalTalkDMAOutInt(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D916C, kROMPatchVoid, kROMPatchVoid, "LTReceiveTimer__18TSerialChipVoyagerFUl") {
+T_ROM_INJECTION(0x001D916C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "LTReceiveTimer__18TSerialChipVoyagerFUl") {
 	KPrintf("0x001D916C: TSerialChipVoyager::LTReceiveTimer(unsigned long)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D917C, kROMPatchVoid, kROMPatchVoid, "LocalTalkDMAInInt__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D917C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "LocalTalkDMAInInt__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D917C: TSerialChipVoyager::LocalTalkDMAInInt(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D91B0, kROMPatchVoid, kROMPatchVoid, "StopRcvDataPacket__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D91B0, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "StopRcvDataPacket__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D91B0: TSerialChipVoyager::StopRcvDataPacket(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D920C, kROMPatchVoid, kROMPatchVoid, "Delete__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D920C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "Delete__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D920C: TSerialChipVoyager::Delete(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D9278, kROMPatchVoid, kROMPatchVoid, "CardRemoved__18TSerialChipVoyagerFv") {
+T_ROM_INJECTION(0x001D9278, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "CardRemoved__18TSerialChipVoyagerFv") {
 	KPrintf("0x001D9278: TSerialChipVoyager::CardRemoved(void)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x00384A00, kROMPatchVoid, kROMPatchVoid, "ClassInfo__18TSerialChipVoyagerSFv") {
+T_ROM_INJECTION(0x00384A00, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ClassInfo__18TSerialChipVoyagerSFv") {
 	KPrintf("0x00384A00: static TSerialChipVoyager::ClassInfo(void)\n");
 	return ioUnit;
 }
 
 
 
-T_ROM_INJECTION(0x001B975C, kROMPatchVoid, kROMPatchVoid, "PutBytes__8TSerToolFP11CBufferList") {
+T_ROM_INJECTION(0x001B975C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "PutBytes__8TSerToolFP11CBufferList") {
 	KPrintf("0x001B975C: TSerTool::PutBytes(CBufferList *)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001B9778, kROMPatchVoid, kROMPatchVoid, "PutFramedBytes__8TSerToolFP11CBufferListUc") {
+T_ROM_INJECTION(0x001B9778, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "PutFramedBytes__8TSerToolFP11CBufferListUc") {
 	KPrintf("0x001B9778: TSerTool::PutFramedBytes(CBufferList *, unsigned char)\n");
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001B9794, kROMPatchVoid, kROMPatchVoid, "StartOutput__8TSerToolFP11CBufferList") {
+T_ROM_INJECTION(0x001B9794, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "StartOutput__8TSerToolFP11CBufferList") {
 	KUInt32 r1 = ioCPU->GetRegister(1);
 	KPrintf("0x001B9794: TSerTool::StartOutput(CBufferList *0x%08X)\n", (unsigned int)r1);
 	return ioUnit;
@@ -1227,19 +1228,19 @@ T_ROM_INJECTION(0x001B9794, kROMPatchVoid, kROMPatchVoid, "StartOutput__8TSerToo
 
 
 
-T_ROM_INJECTION(0x001D9304, kROMPatchVoid, kROMPatchVoid, "StopRxDMA__16TSerialDMAEngineFv") {
+T_ROM_INJECTION(0x001D9304, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "StopRxDMA__16TSerialDMAEngineFv") {
 	KUInt32 r0 = ioCPU->GetRegister(0);
 	KPrintf("0x001D9304: (0x%08X) TSerialDMAEngine::StopRxDMA(void)\n", (unsigned int)r0);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D9440, kROMPatchVoid, kROMPatchVoid, "StartTxDMA__16TSerialDMAEngineFv") {
+T_ROM_INJECTION(0x001D9440, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "StartTxDMA__16TSerialDMAEngineFv") {
 	KUInt32 r0 = ioCPU->GetRegister(0);
 	KPrintf("0x001D9440: (0x%08X) TSerialDMAEngine::StartTxDMA(void)\n", (unsigned int)r0);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D94D0, kROMPatchVoid, kROMPatchVoid, "StartTxDMA__16TSerialDMAEngineFv") {
+T_ROM_INJECTION(0x001D94D0, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "StartTxDMA__16TSerialDMAEngineFv") {
 #if 0
 	TEmulator *emu = ioCPU->GetEmulator();
 	TDMAManager *dma = emu->GetDMAManager();
@@ -1264,61 +1265,61 @@ T_ROM_INJECTION(0x001D94D0, kROMPatchVoid, kROMPatchVoid, "StartTxDMA__16TSerial
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D94D4, kROMPatchVoid, kROMPatchVoid, "StopTxDMA__16TSerialDMAEngineFUc") {
+T_ROM_INJECTION(0x001D94D4, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "StopTxDMA__16TSerialDMAEngineFUc") {
 	KUInt32 r0 = ioCPU->GetRegister(0);
 	KPrintf("0x001D94D4: (0x%08X) TSerialDMAEngine::StopTxDMA(unsigned char)\n", (unsigned int)r0);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D9550, kROMPatchVoid, kROMPatchVoid, "DMAInterrupt__16TSerialDMAEngineFv") {
+T_ROM_INJECTION(0x001D9550, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "DMAInterrupt__16TSerialDMAEngineFv") {
 	KUInt32 r0 = ioCPU->GetRegister(0);
 	KPrintf("0x001D9550: (0x%08X) TSerialDMAEngine::DMAInterrupt(void)\n", (unsigned int)r0);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D9594, kROMPatchVoid, kROMPatchVoid, "Init__16TSerialDMAEngineFP21TDMAChannelDiscriptorPvUc") {
+T_ROM_INJECTION(0x001D9594, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "Init__16TSerialDMAEngineFP21TDMAChannelDiscriptorPvUc") {
 	KUInt32 r0 = ioCPU->GetRegister(0);
 	KPrintf("0x001D9594: (0x%08X) TSerialDMAEngine::Init(TDMAChannelDiscriptor *, void *, unsig\n", (unsigned int)r0);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D966C, kROMPatchVoid, kROMPatchVoid, "BindToBuffer__16TSerialDMAEngineFP10TCircleBufUc") {
+T_ROM_INJECTION(0x001D966C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "BindToBuffer__16TSerialDMAEngineFP10TCircleBufUc") {
 	KUInt32 r0 = ioCPU->GetRegister(0);
 	KPrintf("0x001D966C: (0x%08X) TSerialDMAEngine::BindToBuffer(TCircleBuf *, unsigned char)\n", (unsigned int)r0);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D96F8, kROMPatchVoid, kROMPatchVoid, "ConfigureInterrupts__16TSerialDMAEngineFUlPFPv_l") {
+T_ROM_INJECTION(0x001D96F8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ConfigureInterrupts__16TSerialDMAEngineFUlPFPv_l") {
 	KUInt32 r0 = ioCPU->GetRegister(0);
 	KPrintf("0x001D96F8: (0x%08X) TSerialDMAEngine::ConfigureInterrupts(unsigned long, long (*)(void *))\n", (unsigned int)r0);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D970C, kROMPatchVoid, kROMPatchVoid, "PauseDMA__16TSerialDMAEngineFUc") {
+T_ROM_INJECTION(0x001D970C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "PauseDMA__16TSerialDMAEngineFUc") {
 	KUInt32 r0 = ioCPU->GetRegister(0);
 	KPrintf("0x001D970C: (0x%08X) TSerialDMAEngine::PauseDMA(unsigned char)\n", (unsigned int)r0);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D972C, kROMPatchVoid, kROMPatchVoid, "ShareEngine__16TSerialDMAEngineFPv") {
+T_ROM_INJECTION(0x001D972C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "ShareEngine__16TSerialDMAEngineFPv") {
 	KUInt32 r0 = ioCPU->GetRegister(0);
 	KPrintf("0x001D972C: (0x%08X) TSerialDMAEngine::ShareEngine(void *)\n", (unsigned int)r0);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D9734, kROMPatchVoid, kROMPatchVoid, "StartIn__16TSerialDMAEngineFv") {
+T_ROM_INJECTION(0x001D9734, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "StartIn__16TSerialDMAEngineFv") {
 	KUInt32 r0 = ioCPU->GetRegister(0);
 	KPrintf("0x001D9734: (0x%08X) TSerialDMAEngine::StartIn(void)\n", (unsigned int)r0);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D97E0, kROMPatchVoid, kROMPatchVoid, "StopIn__16TSerialDMAEngineFi") {
+T_ROM_INJECTION(0x001D97E0, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "StopIn__16TSerialDMAEngineFi") {
 	KUInt32 r0 = ioCPU->GetRegister(0);
 	KPrintf("0x001D97E0: (0x%08X) TSerialDMAEngine::StopIn(int)\n", (unsigned int)r0);
 	return ioUnit;
 }
 
-T_ROM_INJECTION(0x001D987C, kROMPatchVoid, kROMPatchVoid, "StartRxDMA__16TSerialDMAEngineFUl") {
+T_ROM_INJECTION(0x001D987C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "StartRxDMA__16TSerialDMAEngineFUl") {
 	KUInt32 r0 = ioCPU->GetRegister(0);
 	KPrintf("0x001D987C: (0x%08X) TSerialDMAEngine::StartRxDMA(unsigned long)\n", (unsigned int)r0);
 	return ioUnit;

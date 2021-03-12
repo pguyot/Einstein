@@ -225,7 +225,7 @@ TROMImage::CreateImage(
 		if (strcmp(inMachineString, "717006")==0) machineID = TROMImage::k717006;
 		else if (strcmp(inMachineString, "737041")==0) machineID = TROMImage::kMP2x00DROM;
 		else if (strcmp(inMachineString, "747129")==0) machineID = TROMImage::kEMate300ROM;
-		//else if (strcmp(inMachineString, "7170061")==0) machineID = TROMImage::kWatsonROM;
+		else if (strcmp(inMachineString, "7170061")==0) machineID = TROMImage::kWatsonROM;
 	}
 	JITClass::PatchROM((KUInt32*) theImagePtr->fROM, machineID);
 	
