@@ -28,7 +28,9 @@
 
 // Einstein
 #include "PlatformEvents.h"
+#ifndef IGNORE_TNEWT
 #include "TNewt.h"
+#endif
 #include "Emulator/Host/UserInfoDefinitions.h"
 
 class TInterruptManager;
@@ -37,6 +39,7 @@ class TScreenManager;
 class TMemory;
 class TLog;
 class TMutex;
+class TPCMCIACard;
 
 
 ///
@@ -122,16 +125,33 @@ public:
 	///
 	Boolean IsPowerOn( void ) { return mPowerOn; }
 	
-	///
-	/// Lock the event queue. New events won't be sent to the Newton.
-	///
-	void	LockEventQueue( void );
+	/**
+	 * Keep Einstein from triggering new Platform Interrupts.
+	 * 
+	 * This method is call from NewtonOS. A recursive lock is set
+	 * that will keep Einstein from triggering new interrupts
+	 * until UnlockEventQueue() is called.
+	 * 
+	 * These kind of Platform Interrupts send keyboard events, run
+	 * NewtonScript snippets, and install packages.
+	 * 
+	 * \see UnlockEventQueue()
+	 * \see TNativePrimitives::ExecutePlatformDriverNative()
+	 * \see TPlatformManager::NewtonScriptCall()
+	 */
+	void LockEventQueue();
 
-	///
-	/// Unlock the event queue.
-	/// Send first pending event.
-	///
-	void	UnlockEventQueue( void );
+	/**
+	 * Allow Einstein to send Platform Interrupts again.
+	 * 
+	 * This method is called from NewtonOS after a Platform Event was 
+	 * handled and NewtonOS is ready for new events. If any events are 
+	 * pending, the next event in the list is sent by triggering
+	 * a Platform Interrupt.
+	 *
+	 * \see LockEventQueue()
+	 */
+	void UnlockEventQueue();
 
 	///
 	/// Get some information about the user.
@@ -167,6 +187,16 @@ public:
 	void	SendNetworkCardEvent( void );
 	
 	///
+	/// Insert or replace a PCCard in a given slot, or remove a PCCard
+	/// 
+	int	InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard);
+
+	///
+	/// Return the card that is currently in the given PCMCIA slot.
+	/// 
+	TPCMCIACard* GetPCCard(KUInt32 inSlot);
+	
+	///
 	/// Send a power switch event.
 	///
 	void	SendPowerSwitchEvent( void );
@@ -190,6 +220,12 @@ public:
 	/// Install a package (the package will be added to a queue, sliced, read by
 	/// the newtonscript task).
 	///
+    void    InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSize);
+
+    ///
+    /// Install a package (the package will be added to a queue, sliced, read by
+    /// the newtonscript task).
+    ///
 	void	InstallPackage( const char* inPackagePath );
 
 	///
@@ -244,7 +280,9 @@ public:
 	///
 	/// Allow NewtonScript to call methods within Einstein.
 	///
+#ifndef IGNORE_TNEWT
 	NewtRef NewtonScriptCall(TNewt::RefArg rcvr, TNewt::RefArg arg0, TNewt::RefArg arg1);
+#endif
 
 private:
 	struct SBuffer {
@@ -279,24 +317,25 @@ private:
 	void	RaisePlatformInterrupt( void );
 
 	/// \name Variables
-	TLog*				mLog;				///< Reference to the log.
-	TEmulator*			mEmulator;			///< Reference to the emulator
-	TScreenManager*		mScreenManager;		///< Reference to the screen manager.
-	TInterruptManager*	mInterruptManager;	///< Reference to the interrupt mgr.
-	TMemory*			mMemory;			///< Reference to the memory interface.
-	TARMProcessor*		mCPU;				///< Reference to the processor
-	SEvent*				mEventQueue;		///< Liste des événements.
-	KUInt32				mEventQueueCCrsr;	///< Consumer queue cursor (Newton)
-	KUInt32				mEventQueuePCrsr;	///< Producer queue cursor (Host)
-	KUInt32				mEventQueueSize;	///< Size of the event queue.
-	SBuffer*			mBufferQueue;		///< List of buffers.
-	KUInt32				mBufferCount;		///< Number of buffers.
-	KUInt32				mBufferQueueSize;	///< Size of the buffer queue.
-	KUInt32				mBufferNextID;		///< Next ID for buffers.
-	Boolean				mPowerOn;			///< If power is on.
-	KUInt32				mQueueLockCount;	///< Lock count for the queue.
-	TMutex*				mMutex;				///< Mutex of the queue.
-	char*				mDocDir;			///< Directory on host containing all kinds of documents
+	TLog*				mLog = nullptr;				///< Reference to the log.
+	TEmulator*			mEmulator = nullptr;		///< Reference to the emulator
+	TScreenManager*		mScreenManager = nullptr;	///< Reference to the screen manager.
+	TInterruptManager*	mInterruptManager = nullptr;///< Reference to the interrupt mgr.
+	TMemory*			mMemory = nullptr;			///< Reference to the memory interface.
+	TARMProcessor*		mCPU = nullptr;				///< Reference to the processor
+	SEvent*				mEventQueue = nullptr;		///< Liste des événements.
+	KUInt32				mEventQueueCCrsr = 0;	    ///< Consumer queue cursor (Newton)
+	KUInt32				mEventQueuePCrsr = 0;	    ///< Producer queue cursor (Host)
+	KUInt32				mEventQueueSize = kDEFAULTEVENTQUEUESIZE; ///< Size of the event queue.
+	SBuffer*			mBufferQueue = nullptr;		///< List of buffers.
+	KUInt32				mBufferCount = 0;		    ///< Number of buffers.
+	KUInt32				mBufferQueueSize = kDEFAULTBUFFERQUEUESIZE;	///< Size of the buffer queue.
+	KUInt32				mBufferNextID = 0;		    ///< Next ID for buffers.
+	Boolean				mPowerOn = true;			///< If power is on.
+	Boolean				mQueuePreLock = false;		///< Non-recursive lock to keep interrupts from triggering twice 
+	KUInt32				mQueueLockCount = 0;	    ///< Lock count for the queue.
+	TMutex*				mMutex = nullptr;			///< Mutex of the queue.
+	char*				mDocDir = nullptr;			///< Directory on host containing all kinds of documents
 };
 
 #endif

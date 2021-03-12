@@ -27,6 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 #include <map>
+#include <string>
 
 // Einstein
 class TEmulator;
@@ -243,7 +244,7 @@ typedef NewtRef (*PlatformCall)(RefArg rcvr, RefArg arg);
 typedef std::map<std::string, PlatformCall> PlatformCallMap;
 extern PlatformCallMap CallMap;
 
-};
+}
 
 #endif
 // _T_NEWT_H

@@ -581,11 +581,16 @@ Boolean TNewt::RefIsString(NewtRef r)
 /**
  Return the number of characters in the string.
  */
-//KUInt32 TNewt::RefStringLength(NewtRef r)
-//{
-//	// TODO: write this
-//	return 0;
-//}
+KUInt32 TNewt::RefStringLength(NewtRef r)
+{
+    if (!TNewt::RefIsString(r))
+        return false;
+    KUInt32 p = TNewt::RefToPointer(r);
+    KUInt32 newtSize = 0;
+    mMemory->Read(p, newtSize);
+    int strSize = ((newtSize>>8)-12)/2;
+	return strSize;
+}
 
 // Return a string in utf-8
 Boolean TNewt::RefToString(NewtRef r, char *buf, int bufSize)
@@ -600,6 +605,7 @@ Boolean TNewt::RefToString(NewtRef r, char *buf, int bufSize)
 	int strSize = ((newtSize>>8)-12)/2;
 	if (strSize>=bufSize)
 		strSize = bufSize-1;
+    // TODO: this is only a bad ASCII interpretation, write the utf8 conversion!
 	for (int i=0; i<strSize; i++) {
 		KUInt8 c;
 		mMemory->ReadB(p+13+2*i, c);
