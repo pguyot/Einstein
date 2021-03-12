@@ -42,7 +42,7 @@ public:
 		ksymcmp__FPcT1,
 	};
 
-	static void DoPatchROM(KUInt32* romPtr, const std::string& inMachineName);
+	static void DoPatchROM(KUInt32* romPtr, KSInt32 inROMId);
 
 };
 

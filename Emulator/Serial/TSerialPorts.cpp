@@ -146,7 +146,10 @@ TSerialPortManager *TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inD
 #endif
 		default:
 			currentDriver = new TBasicSerialPortManager(mLog, inPort);
-			mLog->FLogLine("ERROR: request for unsupported serial driver type %d on port %d\n", inDriverId, inPort);
+			if (mLog)
+				mLog->FLogLine("ERROR: request for unsupported serial driver type %d on port %d\n", inDriverId, inPort);
+			else
+			    KPrintf("ERROR: request for unsupported serial driver type %d on port %d\n", inDriverId, inPort);
 	}
 	mDriver[inPort] = currentDriver;
 

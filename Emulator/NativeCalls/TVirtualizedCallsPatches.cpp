@@ -20,6 +20,7 @@
 // ==============================
 
 #include "TVirtualizedCallsPatches.h"
+#include "Emulator/ROM/TROMImage.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -57,10 +58,10 @@ const KUInt32 k717006VirtualizationPatches[] = {
 //  * DoPatchROM(KUInt32*, const std::string&)
 // -------------------------------------------------------------------------- //
 void
-TVirtualizedCallsPatches::DoPatchROM(KUInt32* inROMPtr, const std::string& inMachineName) {
+TVirtualizedCallsPatches::DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId) {
 	const KUInt32* patches = NULL;
 	
-	if (inMachineName == "717006") {
+	if (inROMId == TROMImage::k717006) {
 		patches = k717006VirtualizationPatches;
 	}
 	

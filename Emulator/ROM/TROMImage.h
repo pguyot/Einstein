@@ -70,6 +70,12 @@ public:
 	///
 	void	ComputeChecksums( KUInt32 outChecksums[10] ) const;
 
+	static const KSInt32 kUnknownROM 	= -1;
+	static const KSInt32 k717006 		=  0;
+	static const KSInt32 kMP2x00DROM 	=  1;
+	static const KSInt32 kEMate300ROM 	=  2;
+	static const KSInt32 kWatsonROM 	=  3;
+
 protected:
 	///
 	/// Determine if the mmap is outdated and should be redone.
@@ -83,7 +89,7 @@ protected:
 				const char* inPath,
 				time_t inModDate,
 				const char inMachineString[6] );
-	
+
 	///
 	/// Create the mmap file.
 	///
@@ -167,14 +173,14 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TROMImage( const TROMImage& inCopy );
+	TROMImage( const TROMImage& inCopy ) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TROMImage& operator = ( const TROMImage& inCopy );
+	TROMImage& operator = ( const TROMImage& inCopy ) = delete;
 	
 	TMappedFile*	mMappedFile;	///< mapped file with the rom.
 	SImage*			mImage; 		///< image structure.

@@ -383,6 +383,7 @@ void TWaveSoundManager::openWaveOut()
 			logError("Error opening waveOut sound device", err);
 			noWaveOut = true;
 		}
+		updateVolume();
 	}
 	LOG KPrintf("  ^ open wave out device\n");
 }
@@ -416,7 +417,7 @@ void TWaveSoundManager::updateVolume()
 	LOG KPrintf("Newton volume = 0x%10x (%d) = PC volume 0x%04x (%d)\n", vol, vol, volume, volume);
 
 	if (waveOut) {
-		waveOutSetVolume(waveOut, volume);
+		waveOutSetVolume(waveOut, volume | (volume<<16));
 	}
 }
 

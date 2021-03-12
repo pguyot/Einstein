@@ -128,8 +128,8 @@ public:
 	/// This function is called to modify the ROM before it is saved on disk.
 	/// It is only called when the image is created.
 	///
-	static void PatchROM(KUInt32* romPointer, const std::string& machineName) {
-	    TImplementation::DoPatchROM(romPointer, machineName);
+	static void PatchROM(KUInt32* romPointer, KSInt32 inROMId) {
+	    TImplementation::DoPatchROM(romPointer, inROMId);
 	}
 
     ///	

@@ -718,12 +718,12 @@ TPlatformManager::NewtonScriptCall(TNewt::RefArg inRcvr, TNewt::RefArg inArg0, T
 				return call(inRcvr, inArg1);
 			} else {
 				TNewt::SymbolToCString(arg0, sym, 64);
-				fprintf(stderr, "WARNING: TPlatformManager::NewtonScriptCall: Unknown command: %s\n", sym);
+				KPrintf("WARNING: TPlatformManager::NewtonScriptCall: Unknown command: %s\n", sym);
 				return TNewt::MakeInt(kNSErrUndefinedMethod);
 			}
 		}
 	} else {
-		fprintf(stderr, "WARNING: TPlatformManager::NewtonScriptCall: First argument must be a symbol: 0x%08x\n", arg0);
+		KPrintf("WARNING: TPlatformManager::NewtonScriptCall: First argument must be a symbol: 0x%08x\n", arg0);
 	}
 	return TNewt::MakeInt(kNSErrNotASymbol);
 }

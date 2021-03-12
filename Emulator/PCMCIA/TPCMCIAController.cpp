@@ -359,7 +359,8 @@ TPCMCIAController::RemoveCard( void )
 {
 	assert (mCard != nil);
 	
-	delete mCard;
+	mCard->Remove();
+
 	mCard = nil;
 	
 	// Raise interrupt.

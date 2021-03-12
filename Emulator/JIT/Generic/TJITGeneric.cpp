@@ -293,11 +293,10 @@ TJITGeneric::GetJITUnitDelta(
 //  * DoPatchROM(KUInt32* romPtr, const std::string& inMachineName)
 // -------------------------------------------------------------------------- //
 void
-TJITGeneric::DoPatchROM(KUInt32* romPtr, const std::string& inMachineName) {
-	fprintf(stderr, "PATCHING THE ROM\n");
-
-	TJITGenericPatchManager::DoPatchROM(romPtr, inMachineName);
-	TVirtualizedCallsPatches::DoPatchROM(romPtr, inMachineName);
+TJITGeneric::DoPatchROM(KUInt32* romPtr, KSInt32 inROMId)
+{
+	TJITGenericPatchManager::DoPatchROM(romPtr, inROMId);
+	TVirtualizedCallsPatches::DoPatchROM(romPtr, inROMId);
 }
 
 

@@ -216,7 +216,6 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Emulator/Serial/TSerialPorts.h"
 #include "Emulator/Serial/TSerialPortManager.h"
 #include "Emulator/Serial/TTcpClientSerialPortManager.h"
-#include "Emulator/PCMCIA/TPCMCIACardList.h"
 #include "Emulator/PCMCIA/TLinearCard.h"
 
 // Http Client GET
@@ -346,8 +345,6 @@ TFLApp::Run( int argc, char* argv[] )
     }
 
     const char *theFlashPath = strdup(mFLSettings->FlashPath);
-
-    InitPCMCIACardList();
 
     InitScreen();
 
@@ -955,13 +952,6 @@ void TFLApp::MountPCCardsKeptInSlot()
     int c1 = mFLSettings->GetCardKeptInSlot(1);
     if (c1 != -1)
         UserActionPCCard(1, c1);
-}
-
-
-void TFLApp::InitPCMCIACardList()
-{
-    mPCMCIACardList = new TPCMCIACardList(nullptr, nullptr);
-    mPCMCIACardList->addDefaultCards();
 }
 
 

@@ -114,7 +114,7 @@ public:
 	/// This function is called to modify the ROM before it is saved on disk.
 	/// It is only called when the image is created.
 	///
-	static void DoPatchROM(KUInt32* romPtr, const std::string& inMachineName);
+	static void DoPatchROM(KUInt32* romPtr, KSInt32 inROMId);
 	
 private:
 	///

@@ -41,7 +41,6 @@ class TNetworkManager;
 class TMonitor;
 class TSymbolList;
 class TToolkit;
-class TPCMCIACardList;
 
 class Fl_Widget;
 class TFLApp;
@@ -160,8 +159,6 @@ private:
 
     void InitSerialPorts();
 
-    void InitPCMCIACardList();
-
     void InitMonitor(const char *theROMImagePath);
 
     void MountPCCardsKeptInSlot();
@@ -198,7 +195,6 @@ private:
     TSymbolList*		mSymbolList = nullptr;
     TFLSettingsUI*      mFLSettings = nullptr;
     TToolkit*           mToolkit = nullptr;
-    TPCMCIACardList*    mPCMCIACardList = nullptr;
     Fl_Widget*          mNewtonScreen = nullptr;
     int                 mWindowedX = 150;
     int                 mWindowedY = 150;
