@@ -29,7 +29,12 @@
 #include <signal.h>
 #include <string.h>
 
-#if !TARGET_OS_WIN32
+#include <chrono>
+
+#if TARGET_OS_WIN32
+#include <WinSock2.h>
+#include <ws2tcpip.h>
+#else
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/ioctl.h>
@@ -43,6 +48,7 @@
 #include "Emulator/Log/TLog.h"
 #include "Emulator/TInterruptManager.h"
 #include "Emulator/TMemory.h"
+
 
 /*
  The TCP Client class emulates a serial port by connecting to the server
@@ -62,7 +68,7 @@
  does send a keep-alive message regularly if the connection should be kept.
 
  The class can be destroyed if the user changes settings in the preferences
- panel (this is not yet (3-21-2020) implemented).
+ panel.
  */
 
 
@@ -73,15 +79,16 @@
 TTcpClientSerialPortManager::TTcpClientSerialPortManager(
 													 TLog* inLog,
 													 TSerialPorts::EPortIndex inPortIx)
-:	TBasicSerialPortManager(inLog, inPortIx),
-	mCommandPipe{ -1, -1 },
-	mTcpSocket( -1 ),
-	mWorkerThreadIsRunning( false ),
-	mWorkerThread( 0L ),
-	mIsConnected( false ),
-	mReconnectTimeout( 0 )
+:	TBasicSerialPortManager(inLog, inPortIx)
 {
+#if TARGET_OS_WIN32
+	WSADATA wsaData;
+	WORD wVersionRequested = MAKEWORD(2, 2);
+	WSAStartup(wVersionRequested, &wsaData);
+#endif
+
 	mServer = strdup("127.0.0.1");
+//	mServer = strdup("192.168.178.63"); // testing connections over Wifi
 	mPort = 3679;
 }
 
@@ -91,18 +98,64 @@ TTcpClientSerialPortManager::TTcpClientSerialPortManager(
 // -------------------------------------------------------------------------- //
 TTcpClientSerialPortManager::~TTcpClientSerialPortManager()
 {
-	if (mWorkerThreadIsRunning) {
+    if (mWorkerThread) {
 		Disconnect();
 		TriggerEvent('q');
-		pthread_join(mWorkerThread, nullptr);
-		mWorkerThreadIsRunning = false;
+        mWorkerThread->join();
+        delete mWorkerThread;
+        mWorkerThread = nullptr;
 	}
+#if TARGET_OS_WIN32
+	if (mTcpEvent != INVALID_HANDLE_VALUE)
+		WSACloseEvent(mTcpEvent);
+	if (mQuitEvent != INVALID_HANDLE_VALUE)
+		WSACloseEvent(mQuitEvent);
+	if (mOtherEvent != INVALID_HANDLE_VALUE)
+		WSACloseEvent(mOtherEvent);
+	WSACleanup();
+#else
 	if (mCommandPipe[0]!=-1)
 		::close(mCommandPipe[0]);
 	if (mCommandPipe[1]!=-1)
 		::close(mCommandPipe[1]);
+#endif
 	if (mServer)
 		free(mServer);
+}
+
+void TTcpClientSerialPortManager::LogError(const char* text, bool systemError)
+{
+	if (systemError) {
+		int errorId = 0;
+		const char* errorText = "undocumented";
+#if TARGET_OS_WIN32
+		auto res = WSAGetLastError();
+		char buf[1024];
+		buf[0] = 0;
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, res, 0, buf, 1024, nullptr);
+		if (buf[0]) {
+			errorText = buf;
+			int n = strlen(buf);
+			if ((n > 0) && (buf[n - 1] == '\n')) buf[n - 1] = 0;
+			if ((n > 1) && (buf[n - 2] == '\r')) buf[n - 2] = 0;
+		}
+		errorId = res;
+#else
+		const char* e = strerror(errno);
+		if (e) errorText = e;
+		errorId = errno;
+#endif
+		if (mLog)
+			mLog->FLogLine("TTcpClientSerialPortManager::%s: %s (%d)\n", text, errorText, errorId);
+		else
+			KPrintf("TTcpClientSerialPortManager::%s: %s (%d)\n", text, errorText, errorId);
+	}
+	else {
+		if (mLog)
+			mLog->FLogLine("TTcpClientSerialPortManager::%s\n", text);
+		else
+			KPrintf("TTcpClientSerialPortManager::%s\n", text);
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -116,31 +169,42 @@ void TTcpClientSerialPortManager::run(TInterruptManager* inInterruptManager,
 	mDMAManager = inDMAManager;
 	mMemory = inMemory;
 
-	if (mWorkerThreadIsRunning) {
-		printf("***** Error: TTcpClientSerialPortManager::run worker thread is already running.\n");
+	if (mWorkerThread) {
+		LogError("run: worker thread is already running.");
 		return;
 	}
 
+#if TARGET_OS_WIN32
+	if (mQuitEvent!=INVALID_HANDLE_VALUE) {
+		LogError("run: trying to create the Quit Event again.");
+		return;
+	}
+
+	// create the thread communication pipe
+	mQuitEvent = WSACreateEvent();
+	WSAResetEvent(mQuitEvent);
+	mOtherEvent = WSACreateEvent();
+	WSAResetEvent(mOtherEvent);
+#else
 	if (mCommandPipe[0]!=-1 || mCommandPipe[1]!=-1) {
-		printf("***** Error: TTcpClientSerialPortManager::run trying to open command pipe again.\n");
+		LogError("run: trying to open command pipe again.");
 		return;
 	}
 
 	// create the thread communication pipe
 	int err = pipe(mCommandPipe);
 	if (err==-1) {
-		printf("***** TTcpClientSerialPortManager::run: Error opening pipe - %s (%d).\n", strerror(errno), errno);
+		LogError("run: Error opening pipe", true);
 		return;
 	}
+#endif
 
 	// create the thread and let it run until we send it the quit signal
-	int ptErr = ::pthread_create( &mWorkerThread, nullptr, &SHandleDMA, this );
-	if (ptErr==-1) {
-		printf("***** TTcpClientSerialPortManager::run: Error creating pthread - %s (%d).\n", strerror(errno), errno);
+    mWorkerThread = new std::thread(&TTcpClientSerialPortManager::HandleDMA, this);
+	if (!mWorkerThread) {
+		LogError("run: error creating std::thread", true);
 		return;
 	}
-
-	mWorkerThreadIsRunning = true;
 }
 
 // -------------------------------------------------------------------------- //
@@ -148,12 +212,24 @@ void TTcpClientSerialPortManager::run(TInterruptManager* inInterruptManager,
 // -------------------------------------------------------------------------- //
 void TTcpClientSerialPortManager::TriggerEvent(KUInt8 cmd)
 {
-	if (mCommandPipe[0]==-1 || mCommandPipe[1]==-1) {
-		printf("***** Error: TTcpClientSerialPortManager::TriggerEvent called without pipes.\n");
+#if TARGET_OS_WIN32
+	if (mQuitEvent==INVALID_HANDLE_VALUE) {
+		LogError("TriggerEvent: called without initialization");
 		return;
 	}
-
+	switch (cmd) {
+		case 'q': WSASetEvent(mQuitEvent); break;
+		default:
+			WSASetEvent(mOtherEvent);
+			break;
+	}
+#else
+	if (mCommandPipe[0]==-1 || mCommandPipe[1]==-1) {
+		LogError("TriggerEvent: called without pipes.");
+		return;
+	}
 	::write(mCommandPipe[1], &cmd, 1);
+#endif
 }
 
 
@@ -169,7 +245,13 @@ TTcpClientSerialPortManager::Disconnect()
 		time_t now;
 		time(&now);
 		mReconnectTimeout = now+3;
+#if TARGET_OS_WIN32
+		closesocket(mTcpSocket);
+		WSACloseEvent(mTcpEvent);
+		mTcpEvent = INVALID_HANDLE_VALUE;
+#else
 		::close(mTcpSocket);
+#endif
 		mTcpSocket = -1;
 	}
 	mIsConnected = false;
@@ -192,14 +274,21 @@ TTcpClientSerialPortManager::Connect()
 	if (now < mReconnectTimeout)
 		return false;
 
-	printf("***** connect?\n");
-
 	// Create a new socket
-	mTcpSocket = ::socket(PF_INET, SOCK_STREAM, 0);
-	if (mTcpSocket==-1) {
-		printf("***** TTcpClientSerialPortManager::Connect: Error creating socket - %s (%d).\n", strerror(errno), errno);
+#if TARGET_OS_WIN32
+	mTcpSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
+	if (mTcpSocket == INVALID_SOCKET)
+	{
+		LogError("Connect: can't create TCP/IP socket", true);
 		return false;
 	}
+#else
+	mTcpSocket = ::socket(PF_INET, SOCK_STREAM, 0);
+	if (mTcpSocket==-1) {
+		LogError("Connect: error creating socket", true);
+		return false;
+	}
+#endif
 
 	// Create the address information to our server
 	struct sockaddr_in server{};
@@ -209,21 +298,33 @@ TTcpClientSerialPortManager::Connect()
 
 	if (inet_pton(AF_INET, mServer, &server.sin_addr)<=0)
 	{
-		printf("***** TTcpClientSerialPortManager::Connect: Error in inet_pton.\n");
+		LogError("Connect: Error in inet_pton", true);
 		Disconnect();
 		return false;
 	}
 
+#if TARGET_OS_WIN32
+	int res = WSAConnect(mTcpSocket, (struct sockaddr*) & server, sizeof(server), NULL, NULL, NULL, NULL);
+	if (res == SOCKET_ERROR)
+	{
+		LogError("Connect: can't connect to TCP/IP server", true);
+		Disconnect();
+		return false;
+	}
+	mTcpEvent = WSACreateEvent();
+	WSAEventSelect(mTcpSocket, mTcpEvent, FD_READ|FD_CLOSE);
+#else
 	// Try to connect to the server
 	int err = ::connect(mTcpSocket, (struct sockaddr *)&server, sizeof(server));
 	if (err==-1) {
-		printf("***** TTcpClientSerialPortManager::Connect: Error connecting to server - %s (%d).\n", strerror(errno), errno);
+		LogError("Connect: can't connect to server", true);
 		Disconnect();
 		return false;
 	}
+#endif
 
 	mIsConnected = true;
-	printf("***** connected!\n");
+	TriggerEvent('c');
 
 	return true;
 }
@@ -245,7 +346,63 @@ static void sigpipe_handler(int unused)
 void
 TTcpClientSerialPortManager::HandleDMA()
 {
-	static struct sigaction action { sigpipe_handler };
+#if TARGET_OS_WIN32
+	// thread loops and handles pipe, port, and DMA
+	DWORD timeout = 0;
+	for (;;)
+	{
+		bool needTimer = false;
+
+		if (mTxDMAControl & 0x00000002) { // DMA is enabled
+			if (mTxDMADataCountdown) {
+				needTimer = true;
+				timeout = 1;
+			}
+		}
+
+		// if there is still (or already) data in the receive buffer, just trigger the message
+		//  - this should happen automatically, but we had situation where it didn't, so just make sure
+		if (mTcpEvent != INVALID_HANDLE_VALUE) {
+			u_long nAvailable = 0;
+			ioctlsocket(mTcpSocket, FIONREAD, &nAvailable);
+			if (nAvailable>0) WSASetEvent(mTcpEvent);
+		}
+
+		int nEvent = (mTcpEvent == INVALID_HANDLE_VALUE) ? 2 : 3;
+		HANDLE watchFDs[] = { mQuitEvent, mOtherEvent, mTcpEvent  };
+		DWORD ret = WSAWaitForMultipleEvents(nEvent, watchFDs, FALSE, needTimer ? timeout : WSA_INFINITE, FALSE);
+		if (ret == WSA_WAIT_FAILED) {
+			LogError("HandleDMA: TCP/IP scoket wait failed", true);
+			continue;
+		}
+
+		// handle receiving DMA
+		if (ret == WSA_WAIT_EVENT_0+2) {
+			if (IsConnected()) {
+				HandleDMAReceive();
+			}
+			WSAResetEvent(mTcpEvent);
+		}
+
+		// handle transmitting DMA
+		HandleDMASend(); // timer resolution is too coarse, so send up to 4 bytes now
+		HandleDMASend();
+		HandleDMASend();
+		HandleDMASend();
+
+		// handle commands from mQuitEvent 
+		if (ret == WSA_WAIT_EVENT_0) {
+			Disconnect();
+			WSAResetEvent(mQuitEvent);
+			break;
+		}
+		if (ret == WSA_WAIT_EVENT_0+1) {
+			WSAResetEvent(mOtherEvent);
+			// just break the wait
+		}
+	}
+#else
+    static struct sigaction action { {sigpipe_handler} };
 	sigaction(SIGPIPE, &action, nullptr);
 
 	// thread loops and handles pipe, port, and DMA
@@ -270,7 +427,7 @@ TTcpClientSerialPortManager::HandleDMA()
 
 		int ret = select(FD_SETSIZE, &watchFDs, 0L, 0L, needTimer ? &timeout : 0L);
 		if (ret==-1) {
-			printf("***** TTcpClientSerialPortManager::HandleDMA: Error waiting for sockets - %s (%d).\n", strerror(errno), errno);
+			LogError("HandleDMA: error waiting for sockets", true);
 			continue;
 		}
 		
@@ -290,16 +447,16 @@ TTcpClientSerialPortManager::HandleDMA()
 					Disconnect();
 					return;
 				case 'c':
-					//printf("Update control\n");
-					// we may want to do something smart when the serial controls change
+					// connect, continue, cycle, just any event but quit
 					break;
 				default:
-					printf("***** TTcpClientSerialPortManager::HandleDMA: Error reading pipe - '%c': %s.\n", cmd, strerror(errno));
+					LogError("HandleDMA: Error reading pipe", true);
 					break;
 			}
 		}
 
 	}
+#endif
 }
 
 
@@ -320,7 +477,16 @@ TTcpClientSerialPortManager::HandleDMASend()
 				Connect();
 			// TODO: if we can't get a connection at this point, should we flush the entire buffer?
 			if (IsConnected()) {
+#if TARGET_OS_WIN32
+				WSABUF buf = { 1, (CHAR*)&data };
+				DWORD nSent = 0;
+				if (WSASend(mTcpSocket, &buf, 1, &nSent, 0, nullptr, nullptr) != 0) {
+					// FIXME: WSAGetLastError()==10053: connection aborted by host
+					LogError("HandleDMASend: Can't write to TCP/IP socket!", true);
+				}
+#else
 				::write(mTcpSocket, &data, 1);
+#endif
 				//KPrintf("Sending 0x%02x\n", data);
 			} else {
 				//KPrintf("Sending to null 0x%02x\n", data);
@@ -354,15 +520,26 @@ TTcpClientSerialPortManager::HandleDMAReceive()
 
 	// read up to 1024 bytes that come in through the serial port
 	KUInt8 buf[1026];
+#if TARGET_OS_WIN32
+	DWORD nRequested = 32;
+	DWORD nReceived = 0;
+	DWORD flags = 0;
+	WSABUF abuf = { nRequested, (CHAR*)buf };
+	// FIXME: WSABUF abuf = { 1024, (CHAR*)buf };
+	int ret = WSARecv(mTcpSocket, &abuf, 1, &nReceived, &flags, nullptr, nullptr);
+	int n = (ret == 0) ? nReceived : -1;
+#else
 	int n = (int)::read(mTcpSocket, buf, 1024);
+#endif
 	if (n==-1) {
-		KPrintf("***** TTcpClientSerialPortManager::HandleDMAReceive: Error reading from TCP/IP socket - %s (%d).\n", strerror(errno), errno);
+		LogError("HandleDMAReceive: TCP/IP socket receive failed", true);
 		Disconnect();
 	} else if (n==0) {
-		KPrintf("***** Server side disconnect.\n");
+		LogError("HandleDMAReceive: Server side disconnect.");
 		Disconnect();
 	} else {
-		usleep(n * 100); // up to 1/10th of a second, so that we do not overwhelm the Newton
+		// delay up to 1/10th of a second, so that we do not overwhelm the Newton
+		std::this_thread::sleep_for(std::chrono::microseconds(n*100));
 		for (KUInt32 i=0; i<n; i++) {
 			KUInt8 data = buf[i];
 			//KPrintf("Received 0x%02x\n", data);
@@ -375,6 +552,7 @@ TTcpClientSerialPortManager::HandleDMAReceive()
 			mRxDMADataCountdown--;
 			if (mRxDMADataCountdown==0) {
 				// buffer overflow?
+				LogError("HandleDMAReceive: DMA Overflow on Receive?");
 			}
 		}
 		mRxDMAEvent = 0x00000040;
@@ -415,7 +593,7 @@ void TTcpClientSerialPortManager::NSSetOptions(TNewt::RefArg inFrame)
 	}
 	NewtRef tcpPortRef = GetFrameSlot(frame, MakeSymbol("tcpPort"));
 	if (RefIsString(tcpPortRef)) {
-		RefToString(tcpPortRef, portStr, sizeof(portStr));
+		RefToString(tcpPortRef, portStr, (int)sizeof(portStr));
 		port = atoi(portStr);
 		if (port==0) port = 3679;
 		setPort = true;

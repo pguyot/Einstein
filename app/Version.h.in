@@ -36,7 +36,7 @@
 
 #define VERSION_STRING		PROJECT_NAME " " PROJECT_VER
 #define VERSION_STRING_SHORT	PROJECT_VER
-#define COPYRIGHT_STRING		"Copyright 2003-2020 by Paul Guyot and contributors"
+#define COPYRIGHT_STRING		"Copyright 2003-2021 by Paul Guyot and contributors"
 
 #endif
 		// _VERSION_H
