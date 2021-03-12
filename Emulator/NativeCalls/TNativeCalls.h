@@ -27,7 +27,8 @@
 #include <K/Defines/KDefinitions.h>
 
 // libffi
-#if !TARGET_OS_ANDROID && !TARGET_OS_MAC
+// FIXME: actually, this could work in MSWindows
+#if !TARGET_OS_ANDROID && !TARGET_OS_MAC && !TARGET_OS_WIN32
   #include "ffi.h"
 #endif
 
@@ -56,7 +57,7 @@ public:
 	///
 	~TNativeCalls( void );
   
-#if !TARGET_OS_ANDROID
+#if !TARGET_OS_ANDROID && !TARGET_OS_WIN32
  
 #if !__LP64__
 

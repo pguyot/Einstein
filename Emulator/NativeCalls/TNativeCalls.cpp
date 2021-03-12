@@ -25,7 +25,7 @@
 #include "Emulator/NativeCalls/TNativeCalls.h"
 
 
-#if TARGET_OS_ANDROID
+#if TARGET_OS_ANDROID || TARGET_OS_WIN32
 
 // Einstein
 #include "Emulator/TMemory.h"

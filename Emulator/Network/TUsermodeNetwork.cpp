@@ -2,7 +2,7 @@
 // File:			TUsermodeNetwork.cp
 // Project:			Einstein
 //
-// Copyright 2010 by Matthias Melcher (mm@matthiasm.com).
+// Copyright 2010-2021 by Matthias Melcher (mm@matthiasm.com).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -93,6 +93,22 @@
 // Handle all kinds of network packages
 //
 
+#include <chrono>
+
+#if TARGET_OS_WIN32
+
+#include <WinSock2.h>
+#include <Ws2tcpip.h>
+#include <io.h>
+# include <stdio.h>
+# include <fcntl.h>
+# include <stdlib.h>
+# include <malloc.h>
+# include <string.h>
+typedef int socklen_t;
+
+#else
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -127,6 +143,7 @@
 #include <stdlib.h>
 #endif
 
+#endif //! TARGET_OS_WIN32
 
 const KUInt32 kUDPExpirationTime = 100;
 
@@ -150,6 +167,7 @@ public:
 	static const KUInt16 NetTypeARP = 0x0806;
 	
 	/** Used in GetIPProtocol() */
+    static const KUInt8 IPProtocolICMP =  1; // unhandled
 	static const KUInt8 IPProtocolTCP =  6;
 	static const KUInt8 IPProtocolUDP = 17;
 	
@@ -377,12 +395,12 @@ public:
 		}
 	}
 	
-	Packet *prev, *next;
+	Packet *prev = nullptr, *next = nullptr;
 	
 private:
-	KUInt8 *mData;
-	ssize_t mSize;
-	KUInt8	mCopy;
+	KUInt8 *mData = nullptr;
+	ssize_t mSize = 0;
+	KUInt8	mCopy = 0;
 };
 
 
@@ -409,8 +427,7 @@ public:
 	/**
 	 * Remove a packet handler, freeing all resources.
 	 */
-	virtual ~PacketHandler() {
-	}
+    virtual ~PacketHandler() = default;
 	
 	/**
 	 * Send a Newton packet to the outside world.
@@ -438,8 +455,8 @@ public:
 	 */
 	static int canHandle(Packet &p, TUsermodeNetwork *n) { return 0; }
 	
-	PacketHandler *prev, *next;
-	TUsermodeNetwork *net;
+	PacketHandler *prev = nullptr, *next = nullptr;
+	TUsermodeNetwork *net = nullptr;
 };
 
 
@@ -521,13 +538,23 @@ public:
 	 */
 	~TCPPacketHandler() 
 	{
+#if TARGET_OS_WIN32
+		if (mSocket != INVALID_SOCKET) {
+			if (state != kStateDisconnected) {
+				shutdown(mSocket, SD_BOTH);
+			}
+			::closesocket(mSocket);
+			mSocket = INVALID_SOCKET;
+		}
+#else
 		if ( mSocket != -1 ) {
 			if ( state!=kStateDisconnected ) {
 				shutdown( mSocket, SHUT_RDWR);
 			}
-			close(mSocket);
+			::close(mSocket);
 			mSocket = -1;
 		}
+#endif
 	}
 	
 	/**
@@ -587,6 +614,7 @@ public:
 		if (mSocket==-1) 
 			return -1;
 		// FIXME: should we remove the handler? Should we remove some kind of not-ACK package?
+        // TODO: send a NACK package to the Newton
 		
 		// tell the socket who to connect to and connect
 		struct sockaddr_in sa;
@@ -594,18 +622,58 @@ public:
 		sa.sin_family = AF_INET;
 		sa.sin_port = htons(theirPort);
 		sa.sin_addr.s_addr = htonl(theirIP);
-		// TODO: connect() will block. We can also put this socket into non-blocking first
-		int err = ::connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
-		if (err==-1) {
-			fprintf(stderr, "Can't connect: %s\n", strerror(errno));
-			return -1;
-		}
 		
 		// perform some presets for the socket
+        // - connect() will block. Put this socket into non-blocking first
+        // - get the current settings and add the flag to avoid blocking
+        int err;
+#if TARGET_OS_WIN32
+        u_long arg = 1;
+        ioctlsocket(mSocket, FIONBIO, &arg);
+#else
 		int fl = fcntl(mSocket, F_GETFL);
 		err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
 		if (err==-1)
 			return -1;
+#endif
+
+		// Since we are in non-blocking mode, ::connect will return with an error
+		err = ::connect(mSocket, (struct sockaddr*)&sa, sizeof(sa));
+		// We expect an error
+		if (err==-1) {
+			// ::connect is initiated, but we have no reply yet
+#if TARGET_OS_WIN32
+			if (WSAGetLastError() == WSAEWOULDBLOCK)
+#else
+            if (errno==EINPROGRESS) 
+#endif
+			{
+                struct timeval timeout = {};
+                timeout.tv_sec = 10;
+                timeout.tv_usec = 0;
+                fd_set set;
+                FD_ZERO(&set);
+                FD_SET(mSocket, &set);
+				// wait for a few seconds for a reply
+                err = ::select(mSocket+1, NULL, &set, NULL, &timeout);
+				// if ::select failed, it return -1
+				// if there was a timout, ::select returns 0
+				// if the connection was established, ::select returns 1
+            } else {
+				KPrintf("TTCPPacketHandler::connect: Can't connect (%d.%d.%d.%d:%d): %s\n", 
+					theirIP>>24, (theirIP >> 16) & 255, (theirIP >> 8) & 255, theirIP & 255, theirPort,
+					strerror(errno));
+				return -1;
+			}
+			// No connection could be established
+			if (err==-1 || err==0) { // error or timeout
+				KPrintf("TTCPPacketHandler::connect: Can't connect (::select) (%d.%d.%d.%d:%d): %s\n",
+					theirIP >> 24, (theirIP >> 16) & 255, (theirIP >> 8) & 255, theirIP & 255, theirPort,
+					strerror(errno));
+                return -1;
+            }
+            // no error, we are connected. Fall through.
+		}
 		
 		// succesful connection, return a SYN ACK to the Newton.
 		Packet *reply = NewPacket(4); // 4 bytes are reserved for the extended TCP header
@@ -626,7 +694,7 @@ public:
 	 * \return 0 if we don't know how to handle the packet
 	 * \return -1 if an error occured and no other handler should handle this packet
 	 */
-	virtual int send(Packet &packet) {
+	int send(Packet &packet) override {
 		if (   ( packet.GetType() != Packet::NetTypeIP ) 
 			|| ( packet.GetIPProtocol() != Packet::IPProtocolTCP ) 
 			|| ( myPort != packet.GetTCPSrcPort() )
@@ -646,7 +714,11 @@ public:
 				if (packet.GetTCPFlags() & Packet::TCPFlagFIN) {
 					// Newton initiates a disconnection.
 					// We don't support half-duplex
-					close(mSocket);
+#if TARGET_OS_WIN32
+					::closesocket(mSocket); mSocket = INVALID_SOCKET;
+#else
+					::close(mSocket); mSocket = -1;
+#endif
 					// Peer has closed connection.
 					mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
 					Packet *reply = NewPacket(0);
@@ -662,7 +734,7 @@ public:
 					if (packet.GetTCPPayloadSize() > 0) {
 						// this is a data packet: send data to the socket
 						packet.LogPayload(net->GetLog(), "W<E N");
-						write(mSocket, packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize());
+						::send(mSocket, (char*)packet.GetTCPPayloadStart(), packet.GetTCPPayloadSize(), 0);
 						mNewtonPacketsSeq = packet.GetTCPSeq() + (KUInt32) packet.GetTCPPayloadSize();
 					}
 					// To avoid flooding the Newton, we send it data everytime it sends a packet
@@ -693,7 +765,11 @@ public:
 					UpdateChecksums(reply);
 					reply->LogPayload(net->GetLog(), "W E>N");
 					net->Enqueue(reply);
-					close(mSocket);
+#if TARGET_OS_WIN32
+					::closesocket(mSocket); mSocket = INVALID_SOCKET;
+#else
+					::close(mSocket); mSocket = -1;
+#endif
 					net->RemovePacketHandler(this);
 					KPrintf("Net: Peer closing. Removing TCP handler for port %u to %u.%u.%u.%u\n",
 						   theirPort,
@@ -719,7 +795,7 @@ public:
 	 * it would be better to used threads to read from the sockets and 
 	 * interrupts to send data to the Newton.
 	 */
-	virtual void timer() {
+	void timer() override {
 		switch (state) {
 			case kStatePeerDiscWaitForACK:
 				// TODO: count down the timer and remove myself if expired
@@ -733,7 +809,7 @@ public:
 			case kStateConnected:
 			{
 				KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
-				ssize_t avail = read(mSocket, buf, sizeof(buf));
+				ssize_t avail = ::recv(mSocket, (char*)buf, sizeof(buf), 0);
 				if (avail==0) {
 					// Peer has closed connection.
 					Packet *reply = NewPacket(0);
@@ -751,7 +827,7 @@ public:
 					KPrintf("Net: W>E N Data %d bytes (TCP)\n", (int) avail);
 					//if (avail>200) avail = 200;
 					Packet *reply = NewPacket(avail);
-					// /*ssize_t n =*/ read(mSocket, reply->GetTCPPayloadStart(), avail);
+					// /*ssize_t n =*/ ::recv(mSocket, reply->GetTCPPayloadStart(), avail, 0);
 					memcpy(reply->GetTCPPayloadStart(), buf, avail);
 					reply->SetTCPFlags(Packet::TCPFlagACK|Packet::TCPFlagPSH);
 					UpdateChecksums(reply);
@@ -837,12 +913,19 @@ public:
 	/**
 	 * Delete this handler.
 	 */
-	~UDPPacketHandler() 
+	~UDPPacketHandler() override
 	{
+#if TARGET_OS_WIN32
+		if (mSocket != INVALID_SOCKET) {
+			::closesocket(mSocket);
+			mSocket = INVALID_SOCKET;
+		}
+#else
 		if ( mSocket != -1 ) {
 			close(mSocket);
 			mSocket = -1;
 		}
+#endif
 	}
 	
 	/**
@@ -888,7 +971,7 @@ public:
 	 * \return 0 if we don't know how to handle the packet
 	 * \return -1 if an error occured and no other handler should handle this packet
 	 */
-	virtual int send(Packet &packet) {
+    int send(Packet &packet) override {
 		if (   ( packet.GetType() != Packet::NetTypeIP ) 
 			|| ( packet.GetIPProtocol() != Packet::IPProtocolUDP ) 
 			|| ( myPort != packet.GetUDPSrcPort() )
@@ -899,10 +982,15 @@ public:
 			mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			if (mSocket==-1)
 				return -1;
+#if TARGET_OS_WIN32
+			u_long arg = 1;
+			ioctlsocket(mSocket, FIONBIO, &arg);
+#else
 			int fl = fcntl(mSocket, F_GETFL);
 			int err = fcntl(mSocket, F_SETFL, fl|O_NONBLOCK);
 			if (err==-1)
 				return -1;
+#endif
 			memset(&theirSockAddr, 0, sizeof(theirSockAddr));
 			theirSockAddr.sin_family = AF_INET;
 			theirSockAddr.sin_addr.s_addr = htonl(theirIP);
@@ -911,7 +999,7 @@ public:
 		mExpire = kUDPExpirationTime;
 		packet.LogPayload(net->GetLog(), "W<E N");
 		ssize_t ret =
-			sendto(mSocket, packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
+			sendto(mSocket, (char*)packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
 				   0, (struct sockaddr*)&theirSockAddr, sizeof(theirSockAddr));
 		if (ret==-1) 
 			return -1;
@@ -925,7 +1013,7 @@ public:
 	 * it would be better to used threads to read from the sockets and 
 	 * interrupts to send data to the Newton.
 	 */
-	virtual void timer() {
+    void timer() override {
 		KUInt8 buf[TUsermodeNetwork::kMaxTxBuffer];
 		socklen_t addrLen = sizeof(theirSockAddr);
 		if (mSocket==-1)
@@ -933,7 +1021,7 @@ public:
 		int maxTry = 5;
 		for (;maxTry>0; maxTry--) {
 			ssize_t avail =
-				recvfrom(mSocket, buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
+				recvfrom(mSocket, (char*)buf, sizeof(buf), 0, (struct sockaddr*)&theirSockAddr, &addrLen);
 			if (avail<1) {
 				if ( --mExpire == 0 ) {
 					KPrintf("Net: Timer expired. Removing UDP handler for port %u to %u.%u.%u.%u\n",
@@ -980,13 +1068,13 @@ public:
 		return ph->send(packet);
 	}
 	
-	KUInt64		myMAC, theirMAC;
-	KUInt32		myIP, theirIP;
-	KUInt16		myPort, theirPort;
-	KUInt16		theirID;
-	int			mSocket;
-	KUInt32		mExpire;
-	struct sockaddr_in theirSockAddr;
+	KUInt64		myMAC = 0, theirMAC = 0;
+	KUInt32		myIP = 0, theirIP = 0;
+	KUInt16		myPort = 0, theirPort = 0;
+	KUInt16		theirID = 0;
+	int			mSocket = -1;
+	KUInt32		mExpire = 0;
+	struct sockaddr_in theirSockAddr = { };
 };
 
 
@@ -1464,16 +1552,20 @@ public:
 };
 
 
+// MARK: - TUsermodeNetwork -
+
 
 /**
  * Create an interface betweenthe Newton network driver and Einstein.
  */
 TUsermodeNetwork::TUsermodeNetwork(TLog* inLog) :
-	TNetworkManager( inLog ),
-	mFirstPacketHandler( 0L ),
-	mFirstPacket( 0L ),
-	mLastPacket( 0L )
+	TNetworkManager( inLog )
 {
+#if TARGET_OS_WIN32
+	WSADATA wsaData;
+	WORD wVersionRequested = MAKEWORD(2, 2);
+	WSAStartup(wVersionRequested, &wsaData);
+#endif
 	// to implement DHCP, look at getifaddrs()
 	// http://www.developerweb.net/forum/showthread.php?t=5085
 }
@@ -1488,8 +1580,15 @@ TUsermodeNetwork::~TUsermodeNetwork()
 	while (mFirstPacket)
 		DropPacket();
 	// release all package handlers
-	// TODO: delete handlers
+    while (mFirstPacketHandler) {
+        PacketHandler *ph = mFirstPacketHandler;
+        RemovePacketHandler(ph);
+        delete ph;
+    }
 	// release all other resources
+#if TARGET_OS_WIN32
+	WSACleanup();
+#endif
 }
 
 
@@ -1587,7 +1686,16 @@ int TUsermodeNetwork::GetDeviceAddress(KUInt8 *data, KUInt32 size)
  */
 KUInt32 TUsermodeNetwork::DataAvailable()
 {	
+    //static std::chrono::time_point<std::chrono::steady_clock> delayBase = 0;
+    static auto delayBase = std::chrono::steady_clock::now();
+
 	if (mLastPacket) {
+        auto now = std::chrono::steady_clock::now();
+        std::chrono::duration<double> delayDelta = now - delayBase;
+        auto seconds = std::chrono::duration_cast<std::chrono::duration<double>>(delayDelta);
+        if ( seconds.count()<0.25 )
+            return 0;
+        delayBase = now;
 		return (KUInt32) mLastPacket->Size();
 	} else {
 		return 0;
@@ -1600,15 +1708,18 @@ KUInt32 TUsermodeNetwork::DataAvailable()
  */
 int TUsermodeNetwork::ReceiveData(KUInt8 *data, KUInt32 size)
 {
+    // KPrintf("NET: | Driver collects %d bytes\n", size);
 	Packet *pkt = mLastPacket;
 	if (pkt) {
-		//assert(pkt->Size()==size);
+        // KPrintf("NET: +- Packet with %d bytes available\n", size);
+		//assert(pkt->Size()==size); // FIXME: what do we do if it is not the same?
 		// copy the data over
 		memcpy(data, pkt->Data(), size);
 		// remove this package from the pipe
 		DropPacket();
 		return 0;
 	} else {
+        // KPrintf("NET: +- ERROR: NO PACKET AVAILABLE\n", size);
 		return -1;
 	}
 }

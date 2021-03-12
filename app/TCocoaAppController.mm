@@ -344,7 +344,7 @@ static TCocoaAppController* gInstance = nil;
 	} else if (indexNetworkDriver == kTapNetworkDriverTag) {
 		mNetworkManager = new TTapNetwork(mLog);
 	} else {
-		mNetworkManager = new TNullNetwork(mLog);
+		mNetworkManager = new TNullNetworkManager(mLog);
 	}
 	
 	// Create the sound manager.
