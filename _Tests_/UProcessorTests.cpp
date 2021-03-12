@@ -220,7 +220,7 @@ UProcessorTests::Step( const char* inCount, TLog* inLog )
 	} else {
 		// Load the ROM.
 		TFlatROMImageWithREX theROM(
-			"../../_Data_/717006", "../../_Data_/Einstein.rex", "717006" );
+			"../../_Data_/717006", "../../_Data_/Einstein.rex");
 		TNullSoundManager soundManager;
 		TUsermodeNetwork networkManager(inLog);
 		TNullScreenManager screenManager(inLog);

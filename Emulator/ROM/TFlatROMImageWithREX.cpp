@@ -40,6 +40,12 @@
     #include <sys/param.h>
 #endif
 
+#if TARGET_UI_FLTK
+# include "Drivers/EinsteinRex.h"
+#endif
+
+#include "app/Version.h"
+
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -50,17 +56,15 @@
 // -------------------------------------------------------------------------- //
 TFlatROMImageWithREX::TFlatROMImageWithREX(
 			    const char* inROMPath,
-			    const char* inREXPath,
-			    const char inMachineString[6],
-			    Boolean inMonitorMode /* = false */,
-			    const char *inImagePath /* 0L */ )
+			    const char* inREXPath)
 {
     struct stat theInfos;
     int err = ::stat( inROMPath, &theInfos );
     if (err < 0)
     {
 	(void) ::fprintf( stderr, "Can't stat ROM file '%s'\n", inROMPath );
-	::exit( 1 );
+        mErrorCode = kErrorLoadingROMFile;
+        return;
     }
     
     // Validate size of ROM file
@@ -68,7 +72,8 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
     if (theInfos.st_size != 0x00800000)
     {
 	(void) ::fprintf( stderr, "ROM file should be 8MB long\n" );
-	::exit( 1 );
+        mErrorCode = kErrorWrongSize;
+        return;
     }
     
     // Which has the more recent modification time: the ROM or the REX?
@@ -76,28 +81,24 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 
     time_t theModTime = theInfos.st_mtime;
 
-    if (GetLatestModDate( &theModTime, inREXPath ) < 0)
-    {
-	(void) ::fprintf( stderr, "Can't stat REX file (%s)\n", inREXPath );
-	::exit( 1 );
+    if (inREXPath) {
+        // get the date when the REX file was last modified
+        if (GetLatestModDate(&theModTime, inREXPath) < 0) {
+            KPrintf("Can't stat Einstein REX file (%s)\n", inREXPath);
+            mErrorCode = kErrorLoadingEinsteinREXFile;
+            return;
+        }
+    } else {
+        // if we don't have a REX file, get the date when the app was compiled
+        struct tm appCompileTime = { };
+        appCompileTime.tm_year = COMPILE_TIME_YYYY;
+        appCompileTime.tm_mon = COMPILE_TIME_MM; 
+        appCompileTime.tm_mday = COMPILE_TIME_DD;
+        theModTime = ::mktime(&appCompileTime);
     }
 
-    // Create the image path. We're going to create a separate image of
-    // the ROM at this path.
-
-    char theImagePath[PATH_MAX];
-    if (inImagePath) 
-	strcpy(theImagePath, inImagePath);
-    else
-	(void) ::sprintf( theImagePath, "%s.img", inROMPath );
-    
-    // Check if we need to re-create the image file
-    
-    if (IsImageOutdated(theImagePath, theModTime, inMachineString))
-    {
 	// Create a 16 MB buffer
-	
-	KUInt8* theData = (KUInt8*) ::calloc(1, 0x01000000);
+    KUInt8* theData = (KUInt8*) ::calloc(1, TMemoryConsts::kROMEnd);
 
 	// Let's read the ROM file.
 #if TARGET_OS_WIN32
@@ -107,51 +108,57 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 #endif
 	if (fd < 0)
 	{
-	    (void) ::fprintf( stderr, "Can't open ROM file '%s'\n", inROMPath );
-	    ::exit( 1 );
+        ::free(theData);
+        ::fprintf( stderr, "Can't open ROM file '%s'\n", inROMPath );
+        mErrorCode = kErrorLoadingROMFile;
+        return;
 	}
 
 	// Read the 8 MB ROM into the first half of the buffer
-	
 	if (::read(fd, (void*) theData, 0x00800000 ) != 0x00800000)
 	{
-	    (void) ::close( fd );
-	    (void) ::fprintf( stderr, "Error while reading ROM file '%s'\n", inROMPath );
-	    ::exit( 1 );
+        ::close( fd );
+        ::free(theData);
+        ::fprintf( stderr, "Error while reading ROM file '%s'\n", inROMPath );
+        mErrorCode = kErrorLoadingROMFile;
+        return;
 	}
 	
 	(void) ::close( fd );
 	
 	// Let's read the REX (ROM Extension) file.
+    if (inREXPath==nullptr) {
+#if TARGET_UI_FLTK
+        // use the builtin Einstein.rex
+        memcpy(theData+0x00800000, Einstein_rex, Einstein_rex_len);
+#else
+	// TODO: we can find the Rex in the MacOS .app resources
+	::free(theData);
+	mErrorCode = kErrorLoadingEinsteinREXFile;
+	return;
+#endif
+    } else {
+        // load the Einstein.rex from a file
 #if TARGET_OS_WIN32
 	fd = ::open( inREXPath, O_RDONLY|O_BINARY, 0 );
 #else
 	fd = ::open( inREXPath, O_RDONLY, 0 );
 #endif
-	if (fd < 0)
-	{
-	    (void) ::fprintf( stderr, "Can't open REX file '%s'\n", inREXPath );
-	    ::exit( 1 );
+        if (fd < 0) {
+            ::free(theData);
+            KPrintf("Can't open Einstein REX file '%s'\n", inREXPath);
+            mErrorCode = kErrorLoadingEinsteinREXFile;
+            return;
 	}
 	
 	// Read the REX into the second half of the buffer
+        ::read(fd, (void *) &theData[0x00800000], 0x00800000);
+        ::close(fd);
+    }
 	
-	(void) ::read( fd, (void*) &theData[0x00800000], 0x00800000 );
-	(void) ::close( fd );
-	
-	// The .img file consists of:
-	// - The ROM (8MB)
-	// - The REX (8MB)
-	// - Some metadata (a magic number, ROM version string, padding)
-	// - Checksums
-
-	CreateImage( theImagePath, theData, 0x01000000, inMachineString );
+    CreateImage( theData );
 
 	::free(theData);
-    }
-    
-    // Finally load the image.
-    Init(theImagePath, inMonitorMode);
 }
 
 // -------------------------------------------------------------------------- //

@@ -319,15 +319,13 @@ static TCocoaAppController* gInstance = nil;
 		mROMImage = new TAIFROMImageWithREXes(
 							[theROMPath UTF8String],
 							[theREX0Path UTF8String],
-							[einsteinRExPath UTF8String],
-							[machineStr UTF8String]);
+							[einsteinRExPath UTF8String]);
 	} else {
 		// .rom file
 		
 		mROMImage = new TFlatROMImageWithREX(
 							[theROMPath UTF8String],
-							[einsteinRExPath UTF8String],
-							[machineStr UTF8String]);
+							[einsteinRExPath UTF8String]);
 	}
 	
 	// Create a log if possible

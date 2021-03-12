@@ -60,7 +60,6 @@
 		2389E96B1A1E4D4A0001A8C5 /* TPlatformManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347B111B7C07002165EC /* TPlatformManager.cpp */; };
 		2389E96C1A1E4D4A0001A8C5 /* TROMImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3486111B7C08002165EC /* TROMImage.cpp */; };
 		2389E96D1A1E4D4A0001A8C5 /* TFlatROMImageWithREX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cpp */; };
-		2389E96E1A1E4D4A0001A8C5 /* TFlatROMImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3482111B7C08002165EC /* TFlatROMImage.cpp */; };
 		2389E96F1A1E4D4A0001A8C5 /* TAIFROMImageWithREXes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3480111B7C08002165EC /* TAIFROMImageWithREXes.cpp */; };
 		2389E9701A1E4D4A0001A8C5 /* TAIFFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347E111B7C08002165EC /* TAIFFile.cpp */; };
 		2389E9711A1E4D4A0001A8C5 /* TNativePrimitives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34C6111B7C08002165EC /* TNativePrimitives.cpp */; };
@@ -116,6 +115,10 @@
 		C94C96DD20937E780099001D /* TPtySerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C94C96DB20937E780099001D /* TPtySerialPortManager.cpp */; };
 		C962429711B69A9D00EE66F3 /* TUsermodeNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cpp */; };
 		C96242A011B6A20A00EE66F3 /* TNetworkManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cpp */; };
+		C9869C9A25FC2B9E0061F7E6 /* CRC32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9869C9925FC2B9E0061F7E6 /* CRC32.cpp */; };
+		C9869C9B25FC2B9E0061F7E6 /* CRC32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9869C9925FC2B9E0061F7E6 /* CRC32.cpp */; };
+		C9869C9C25FC2B9E0061F7E6 /* CRC32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9869C9925FC2B9E0061F7E6 /* CRC32.cpp */; };
+		C9869C9D25FC2B9E0061F7E6 /* CRC32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9869C9925FC2B9E0061F7E6 /* CRC32.cpp */; };
 		C99656A124258CC900D216A2 /* TTcpClientSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99656A024258CC900D216A2 /* TTcpClientSerialPortManager.cpp */; };
 		C99656A52427804700D216A2 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C99656A42427804700D216A2 /* README.md */; };
 		C99E316A111B7346002165EC /* button_backlight.png in Resources */ = {isa = PBXBuildFile; fileRef = C99E3160111B7346002165EC /* button_backlight.png */; };
@@ -168,7 +171,6 @@
 		C99E3510111B7C08002165EC /* TPlatformManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347B111B7C07002165EC /* TPlatformManager.cpp */; };
 		C99E3511111B7C08002165EC /* TAIFFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347E111B7C08002165EC /* TAIFFile.cpp */; };
 		C99E3512111B7C08002165EC /* TAIFROMImageWithREXes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3480111B7C08002165EC /* TAIFROMImageWithREXes.cpp */; };
-		C99E3513111B7C08002165EC /* TFlatROMImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3482111B7C08002165EC /* TFlatROMImage.cpp */; };
 		C99E3514111B7C08002165EC /* TFlatROMImageWithREX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cpp */; };
 		C99E3515111B7C08002165EC /* TROMImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3486111B7C08002165EC /* TROMImage.cpp */; };
 		C99E3518111B7C08002165EC /* CocoaScreenProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3490111B7C08002165EC /* CocoaScreenProxy.mm */; };
@@ -224,7 +226,6 @@
 		DA4BA4191A3A028C002BDB80 /* TEmulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34BA111B7C08002165EC /* TEmulator.cpp */; };
 		DA4BA41A1A3A028C002BDB80 /* TAIFFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347E111B7C08002165EC /* TAIFFile.cpp */; };
 		DA4BA41B1A3A028C002BDB80 /* TAIFROMImageWithREXes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3480111B7C08002165EC /* TAIFROMImageWithREXes.cpp */; };
-		DA4BA41C1A3A028C002BDB80 /* TFlatROMImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3482111B7C08002165EC /* TFlatROMImage.cpp */; };
 		DA4BA41D1A3A028C002BDB80 /* TFlatROMImageWithREX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cpp */; };
 		DA4BA41E1A3A028C002BDB80 /* TROMImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3486111B7C08002165EC /* TROMImage.cpp */; };
 		DA4BA41F1A3A028C002BDB80 /* TJITCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3459111B7C07002165EC /* TJITCache.cpp */; };
@@ -346,7 +347,6 @@
 		DA4FF13D1A35EBE600092B5A /* TPlatformManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347B111B7C07002165EC /* TPlatformManager.cpp */; };
 		DA4FF13E1A35EBF800092B5A /* TSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortManager.cpp */; };
 		DA4FF13F1A35EC0A00092B5A /* TFlatROMImageWithREX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cpp */; };
-		DA4FF1401A35EC0D00092B5A /* TFlatROMImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3482111B7C08002165EC /* TFlatROMImage.cpp */; };
 		DA4FF1411A35EC1000092B5A /* TAIFROMImageWithREXes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3480111B7C08002165EC /* TAIFROMImageWithREXes.cpp */; };
 		DA4FF1421A35EC1400092B5A /* TAIFFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347E111B7C08002165EC /* TAIFFile.cpp */; };
 		DA4FF1431A35EC1700092B5A /* TROMImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3486111B7C08002165EC /* TROMImage.cpp */; };
@@ -566,6 +566,8 @@
 		C962429F11B6A20A00EE66F3 /* TNetworkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = TNetworkManager.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		C97C7E1B124282A600CDCD05 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		C97C7EA2124283FE00CDCD05 /* MainWindow_iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow_iPad.xib; sourceTree = "<group>"; };
+		C9869C9825FC2B9E0061F7E6 /* CRC32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CRC32.h; sourceTree = "<group>"; };
+		C9869C9925FC2B9E0061F7E6 /* CRC32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CRC32.cpp; sourceTree = "<group>"; };
 		C9956719123F71D2009A5668 /* TIOSScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TIOSScreenManager.h; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C995672B123F793D009A5668 /* TIOSScreenManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TIOSScreenManager.mm; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C996569F24258CC900D216A2 /* TTcpClientSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TTcpClientSerialPortManager.h; sourceTree = "<group>"; };
@@ -752,8 +754,6 @@
 		C99E347F111B7C08002165EC /* TAIFFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TAIFFile.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3480111B7C08002165EC /* TAIFROMImageWithREXes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TAIFROMImageWithREXes.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E3481111B7C08002165EC /* TAIFROMImageWithREXes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TAIFROMImageWithREXes.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		C99E3482111B7C08002165EC /* TFlatROMImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TFlatROMImage.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		C99E3483111B7C08002165EC /* TFlatROMImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TFlatROMImage.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TFlatROMImageWithREX.cpp; sourceTree = "<group>"; tabWidth = 8; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E3485111B7C08002165EC /* TFlatROMImageWithREX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TFlatROMImageWithREX.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E3486111B7C08002165EC /* TROMImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TROMImage.cpp; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -1255,6 +1255,8 @@
 		C99E331E111B7570002165EC /* Misc */ = {
 			isa = PBXGroup;
 			children = (
+				C9869C9925FC2B9E0061F7E6 /* CRC32.cpp */,
+				C9869C9825FC2B9E0061F7E6 /* CRC32.h */,
 				C99E3321111B7570002165EC /* TCircleBuffer.cpp */,
 				C99E3322111B7570002165EC /* TCircleBuffer.h */,
 				C99E3324111B7570002165EC /* TMappedFile.cpp */,
@@ -1582,8 +1584,6 @@
 				C99E347F111B7C08002165EC /* TAIFFile.h */,
 				C99E3480111B7C08002165EC /* TAIFROMImageWithREXes.cpp */,
 				C99E3481111B7C08002165EC /* TAIFROMImageWithREXes.h */,
-				C99E3482111B7C08002165EC /* TFlatROMImage.cpp */,
-				C99E3483111B7C08002165EC /* TFlatROMImage.h */,
 				C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cpp */,
 				C99E3485111B7C08002165EC /* TFlatROMImageWithREX.h */,
 				C99E3486111B7C08002165EC /* TROMImage.cpp */,
@@ -2151,7 +2151,6 @@
 				2389E96B1A1E4D4A0001A8C5 /* TPlatformManager.cpp in Sources */,
 				2389E96C1A1E4D4A0001A8C5 /* TROMImage.cpp in Sources */,
 				2389E96D1A1E4D4A0001A8C5 /* TFlatROMImageWithREX.cpp in Sources */,
-				2389E96E1A1E4D4A0001A8C5 /* TFlatROMImage.cpp in Sources */,
 				2389E96F1A1E4D4A0001A8C5 /* TAIFROMImageWithREXes.cpp in Sources */,
 				2389E9701A1E4D4A0001A8C5 /* TAIFFile.cpp in Sources */,
 				2389E9711A1E4D4A0001A8C5 /* TNativePrimitives.cpp in Sources */,
@@ -2175,6 +2174,7 @@
 				2389E9811A1E4D4A0001A8C5 /* iEinsteinView.mm in Sources */,
 				2389E9821A1E4D4A0001A8C5 /* iEinsteinViewController.mm in Sources */,
 				2389E9831A1E4D4A0001A8C5 /* main.mm in Sources */,
+				C9869C9B25FC2B9E0061F7E6 /* CRC32.cpp in Sources */,
 				2389E9841A1E4D4A0001A8C5 /* TIOSScreenManager.mm in Sources */,
 				2389E9851A1E4D4A0001A8C5 /* TCoreAudioSoundManager.cpp in Sources */,
 				2389E9861A1E4D4A0001A8C5 /* TBufferedSoundManager.cpp in Sources */,
@@ -2213,6 +2213,7 @@
 				F1E2C2A21E5B5D7A0074F2D3 /* TPathHelper.cpp in Sources */,
 				C99656A124258CC900D216A2 /* TTcpClientSerialPortManager.cpp in Sources */,
 				DAD09648246F5ABA00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp in Sources */,
+				C9869C9A25FC2B9E0061F7E6 /* CRC32.cpp in Sources */,
 				C99E34E1111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp in Sources */,
 				C99E34E3111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp in Sources */,
 				C99E34E5111B7C08002165EC /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp in Sources */,
@@ -2244,7 +2245,6 @@
 				F150BC3C1CF630CC0077CDB7 /* TObjCBridgeCalls.mm in Sources */,
 				C99E3511111B7C08002165EC /* TAIFFile.cpp in Sources */,
 				C99E3512111B7C08002165EC /* TAIFROMImageWithREXes.cpp in Sources */,
-				C99E3513111B7C08002165EC /* TFlatROMImage.cpp in Sources */,
 				C99E3514111B7C08002165EC /* TFlatROMImageWithREX.cpp in Sources */,
 				C99E3515111B7C08002165EC /* TROMImage.cpp in Sources */,
 				C99E3518111B7C08002165EC /* CocoaScreenProxy.mm in Sources */,
@@ -2324,6 +2324,7 @@
 				DA4BA43A1A3A02FD002BDB80 /* TJITGeneric_Test.cpp in Sources */,
 				DA4BA4221A3A028C002BDB80 /* TJITPerformance.cpp in Sources */,
 				DA4BA4671A3A3800002BDB80 /* TNullSoundManager.cpp in Sources */,
+				C9869C9D25FC2B9E0061F7E6 /* CRC32.cpp in Sources */,
 				DA52C8971A409164008A17D0 /* TJITGenericROMPatch.cpp in Sources */,
 				DA4BA4591A3A03F8002BDB80 /* TCircleBuffer.cpp in Sources */,
 				DA4BA42E1A3A02FD002BDB80 /* TJITGeneric_DataProcessingPSRTransfer.cpp in Sources */,
@@ -2378,7 +2379,6 @@
 				DA4BA45A1A3A03F8002BDB80 /* TMappedFile.cpp in Sources */,
 				DA4BA45B1A3A03FD002BDB80 /* TFileStream.cpp in Sources */,
 				DA4BA42D1A3A02FD002BDB80 /* TJITGeneric_BlockDataTransfer.cpp in Sources */,
-				DA4BA41C1A3A028C002BDB80 /* TFlatROMImage.cpp in Sources */,
 				DA4BA4211A3A028C002BDB80 /* TJITPage.cpp in Sources */,
 				DA4BA4451A3A02FD002BDB80 /* TSymbolList.cpp in Sources */,
 				DA4BA45D1A3A0407002BDB80 /* TFiber.cpp in Sources */,
@@ -2412,6 +2412,7 @@
 				DA4FF1311A35EB4D00092B5A /* TCircleBuffer.cpp in Sources */,
 				DA0CD1DF24A7847B00E8D593 /* TPipesSerialPortManager.cpp in Sources */,
 				DA4FF1491A35EC4A00092B5A /* THostInfo.cpp in Sources */,
+				C9869C9C25FC2B9E0061F7E6 /* CRC32.cpp in Sources */,
 				DA4FF10D1A35EA8C00092B5A /* TFlash.cpp in Sources */,
 				DA4FF1371A35EB9500092B5A /* TMemError.cpp in Sources */,
 				DA4FF1211A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp in Sources */,
@@ -2424,7 +2425,6 @@
 				DA4FF11E1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp in Sources */,
 				DA4FF1481A35EC4300092B5A /* UDisasm.cpp in Sources */,
 				DA4FF10C1A35EA8800092B5A /* TInterruptManager.cpp in Sources */,
-				DA4FF1401A35EC0D00092B5A /* TFlatROMImage.cpp in Sources */,
 				DA4FF1301A35EB4900092B5A /* TMappedFile.cpp in Sources */,
 				DA4FF11D1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp in Sources */,
 				DA4FF11C1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp in Sources */,
