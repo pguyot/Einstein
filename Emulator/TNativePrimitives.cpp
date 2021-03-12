@@ -54,6 +54,12 @@
 #include "Emulator/NativeCalls/TObjCBridgeCalls.h"
 #endif
 
+#ifdef TARGET_UI_FLTK
+# include "app/TFLApp.h"
+# include "Toolkit/TToolkit.h"
+# include <FL/fl_utf8.h>
+#endif
+
 // Native primitives implement stores to coprocessor #10
 
 
@@ -86,13 +92,12 @@ TNativePrimitives::TNativePrimitives(
 		mSoundManager( nil ),
 		mScreenManager( nil ),
 		mPlatformManager( nil ),
-#if !TARGET_OS_MAC
-		mNativeCalls( new TNativeCalls(inMemory) ),
-#endif
+		mVirtualizedCalls( nil ),
 #if TARGET_OS_MAC
 		mObjCBridgeCalls( new TObjCBridgeCalls(inMemory)),
+#else
+        mNativeCalls( new TNativeCalls(inMemory) ),
 #endif
-		mVirtualizedCalls( nil ),
 		mInputVolume( 0 ),
 		mQuit( false )
 {
@@ -851,6 +856,31 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 
 		case 0x1A:
 			// Log
+		{
+#ifdef TARGET_UI_FLTK
+			KUInt32 theAddress = mProcessor->GetRegister(1);
+			char theLine[512];
+			KUInt32 amount = sizeof(theLine);
+			(void)mMemory->FastReadString(theAddress, &amount, theLine);
+			// theLine is encoded in ISO format
+			// if the Toolkit is available, send the text to the monitor
+			if (gToolkit) {
+				unsigned srcLen = strlen(theLine);
+				unsigned dstLen = fl_utf8froma(nullptr, 0, theLine, srcLen);
+
+				char* dstText = (char*)::malloc(dstLen + 1);
+				fl_utf8froma(dstText, dstLen+1, theLine, srcLen);
+				for (char* t = dstText; *t; t++) if (*t == '\r') *t = '\n';
+				gToolkit->PrintStd(dstText);
+				free(dstText);
+				//gToolkit->PrintStd("\n");
+			} else {
+				// output directly to the debuggging console
+			    KPrintf("%s", theLine);
+            }
+#endif
+			// this is older code, dealing with logs and stdout
+			// should we convert the output text into another encoding?
 			if (mLog)
 			{
 				KUInt32 theAddress = mProcessor->GetRegister( 1 );
@@ -865,6 +895,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 				(void) mMemory->FastReadString(theAddress, &amount, theLine);
 				KPrintf("Log: %s\n", theLine);
 			}
+		}
 			break;
 
 		case 0x1B:
@@ -2197,7 +2228,7 @@ TNativePrimitives::ExecuteOutTranslatorNative( KUInt32 inInstruction )
 void
 TNativePrimitives::ExecuteHostCallNative( KUInt32 inInstruction )
 {
-#if !TARGET_OS_ANDROID && !TARGET_OS_MAC && !__LP64__
+#if !TARGET_OS_ANDROID && !TARGET_OS_MAC && !__LP64__ && !TARGET_OS_WIN32
 	switch (inInstruction & 0xFF)
 	{
 		case 0x01:
@@ -2747,7 +2778,7 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 			// a regular timer that can help us poll data and monitor integrity and throughput
 			if (mLog)
 			{
-				mLog->LogLine( "TNetworkManager::TimerExpired" );
+				//mLog->LogLine( "TNetworkManager::TimerExpired" );
 			}
 			mNetworkManager->TimerExpired();
 			break;
