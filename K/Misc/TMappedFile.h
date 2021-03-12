@@ -54,8 +54,12 @@ class TMappedFile
 {
 public:
 	///
-	/// Constructor from a path and a boolean to determine if the file
-	/// could be written.
+	/// Constructor.
+	///
+	TMappedFile() = default;
+
+	///
+	/// Constructor.
 	///
 	/// \param inFilePath	path to the file.
 	/// \param inSize		amount of the file mapped (also used when the file
@@ -76,8 +80,29 @@ public:
 	/// Destructor.
 	/// Close the file (write it if mmap failed).
 	///
-	~TMappedFile( void );
+	~TMappedFile();
 	
+	///
+	/// Map a file into memory.
+	///
+	/// \param inFilePath	path to the file.
+	/// \param inSize		amount of the file mapped, 0 means map all the file.
+	/// \param inFlags		flags for the file (O_RDONLY/O_WRONLY/O_RDWR)
+	/// \param preferredAddress	address where to map the file, if possible.
+	/// 
+	/// \return 0 if mapping was successful, -1 if an error occured
+	///
+	int Map(
+		const char* inFilePath,
+		size_t inSize = 0,
+		int inFlags = O_RDONLY,
+		void* preferredAddress = NULL);
+
+	///
+	/// Unmap file.
+	///
+	void Unmap();
+
 	///
 	/// Accessor on the file buffer pointer, NULL if a problem occurred.
 	///
@@ -119,22 +144,22 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TMappedFile( const TMappedFile& inCopy );
+	TMappedFile( const TMappedFile& inCopy ) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TMappedFile& operator = ( const TMappedFile& inCopy );
+	TMappedFile& operator = ( const TMappedFile& inCopy ) = delete;
 
 	/// \name Variables
-	void*		mBuffer;	///< Buffer to access the file.
-	size_t		mSize;		///< Size of the file.
-	Boolean		mMapped;	///< If file is actually mapped.
-	Boolean		mReadOnly;	///< If file is read only.
-	Boolean		mCreated;	///< Whether the file was created/grown.
-	int			mFileFd;	///< fd to the file.
+	void*		mBuffer = nullptr;	///< Buffer to access the file.
+	size_t		mSize = 0;			///< Size of the file.
+	Boolean		mMapped = false;	///< If file is actually mapped.
+	Boolean		mReadOnly = false;	///< If file is read only.
+	Boolean		mCreated = false;	///< Whether the file was created/grown.
+	int			mFileFd = -1;		///< fd to the file.
 };
 
 #endif
