@@ -380,11 +380,6 @@ public:
 	void		TransferState( TStream* inStream );
 	
 	///
-	/// Insert a card.
-	///
-	void		InsertCard( void );
-	
-	///
 	/// Set a new NewtonID
 	///
 	void		SetNewtonID(KUInt32 inID0, KUInt32 inID1);

@@ -1102,7 +1102,7 @@ void TFLApp::StoreAppWindowSize()
 // GetClipboard__9TRootViewFv:         @ 0x001B58BC: TRootView::GetClipboard(void)
 //  is called, whenever we want to get the clipboard data
 // If Cmd-P is pressed, called from DoEditCommand__5TViewFl (arg=2 or 3) (009EA00), "FClipboardCommand(arg)"
-T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, "AddClipboard__9TRootViewFRC6RefVarT1")
+T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, kROMPatchVoid, "AddClipboard__9TRootViewFRC6RefVarT1")
 {
 //    KPrintf("AddClipboard__9TRootViewFRC6RefVarT1\n");
     // TRootView::AddClipboard(RefVar const &, RefVar const &): 0x01ABEF3C 
