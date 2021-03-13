@@ -27,9 +27,6 @@ and an assembly language Monitor. If you are interested in
 emulating PCMCIA Flash Memory cards, or would like to try 
 some programming in NewtonScript, Einstein with FLTK is the better choice.
 
-### Prerequisites
-
-Install Xcode and Xcode's command line tools
 
 ## Building Einstein on macOS in 64 bit with Xcode
 
