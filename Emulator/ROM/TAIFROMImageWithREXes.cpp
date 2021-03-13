@@ -46,7 +46,7 @@
 // Einstein
 #include "TAIFFile.h"
 #if TARGET_UI_FLTK
-# include "Drivers/EinsteinRex.h"
+#include "app/TFLRexImage.h"
 #endif
 #include "app/Version.h"
 
@@ -170,7 +170,7 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(const char* inAIFPath,
     if (inREX1Path==nullptr) {
 #if TARGET_UI_FLTK
 		// use the builtin Einstein.rex
-		memcpy(theData+0x00800000, Einstein_rex, Einstein_rex_len);
+        memcpy(theData+0x00800000, gEinsteinRexImage, sizeof(gEinsteinRexImage));
 #else
 		// TODO: we can find the Rex in the MacOS .app resources
 		::free(theData);

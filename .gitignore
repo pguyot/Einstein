@@ -39,3 +39,5 @@ DerivedData/
 /Toolkit/TFLToolkitUI.cpp
 /Toolkit/TFLToolkitUI.h
 /Drivers/packages/MemDumper
+/app/TFLRexImage.h
+/app/TFLRexImage.cpp
