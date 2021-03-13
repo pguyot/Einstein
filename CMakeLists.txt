@@ -363,6 +363,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	find_package(FLTK REQUIRED NO_MODULE)
 
 	build_with_fluid(TFLAppUI app)
+	build_with_fluid(TFLRexImage app)
 	build_with_fluid(TFLSettingsUI app)
 	build_with_fluid(TFLToolkitUI Toolkit)
 
@@ -444,6 +445,7 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	find_package(FLTK REQUIRED NO_MODULE)
 
 	build_with_fluid(TFLAppUI app)
+	build_with_fluid(TFLRexImage app)
 	build_with_fluid(TFLSettingsUI app)
 	build_with_fluid(TFLToolkitUI Toolkit)
 
@@ -505,6 +507,7 @@ elseif (WIN32)
 	find_package(FLTK REQUIRED NO_MODULE)
 
 	build_with_fluid(TFLAppUI app)
+	build_with_fluid(TFLRexImage app)
 	build_with_fluid(TFLSettingsUI app)
 	build_with_fluid(TFLToolkitUI Toolkit)
 

@@ -1,0 +1,307 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0400
+use_FL_COMMAND
+header_name {.h}
+code_name {.cpp}
+decl {\#include "Toolkit/TToolkit.h"} {private global
+}
+
+decl {\#include "app/TFLApp.h"} {private global
+}
+
+decl {\#include "Toolkit/TFLTerminalPanel.h"} {public global
+}
+
+decl {\#include "Toolkit/TFLScriptPanel.h"} {public global
+}
+
+decl {\#include <FL/fl_draw.H>} {private global
+}
+
+Function {CreateToolkitWindow(int x, int y)} {open
+} {
+  Fl_Window wToolkitWindow {open
+    xywh {443 229 720 600} type Double resizable
+    code0 {wToolkitWindow->position(x, y);} visible
+  } {
+    Fl_Menu_Bar wToolkitMenubar {open
+      xywh {0 0 720 24} color 52
+      code0 {o->box(FL_FREE_BOXTYPE);}
+    } {
+      Submenu {} {
+        label File open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label {New...}
+          callback {gToolkit->UserActionNew();}
+          xywh {0 0 100 20} shortcut 0x40006e
+        }
+        MenuItem {} {
+          label {Open...}
+          callback {gToolkit->UserActionOpen();}
+          xywh {0 0 100 20} shortcut 0x40006f divider
+        }
+        MenuItem {} {
+          label Save
+          callback {gToolkit->UserActionSave();}
+          xywh {0 0 100 20} shortcut 0x400073
+        }
+        MenuItem {} {
+          label {Save As...}
+          callback {gToolkit->UserActionSaveAs();}
+          xywh {0 0 100 20} shortcut 0x410073
+        }
+        MenuItem {} {
+          label Close
+          callback {gToolkit->UserActionClose();}
+          xywh {0 0 100 20} shortcut 0x400077 divider
+        }
+        MenuItem {} {
+          label {Page Setup...}
+          xywh {0 0 100 20} deactivate
+        }
+        MenuItem {} {
+          label {Print...}
+          xywh {0 0 100 20} shortcut 0x400070 deactivate divider
+        }
+        MenuItem {} {
+          label Quit
+          callback {gToolkit->UserActionQuit();}
+          xywh {0 0 100 20} shortcut 0x400071
+        }
+      }
+      Submenu {} {
+        label Edit open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label Undo
+          callback {gToolkit->UserActionUndo();}
+          xywh {12 12 100 20} shortcut 0x40007a deactivate
+        }
+        MenuItem {} {
+          label Redo
+          callback {gToolkit->UserActionRedo();}
+          xywh {12 12 100 20} shortcut 0x41007a deactivate divider
+        }
+        MenuItem {} {
+          label Cut
+          callback {gToolkit->UserActionCut();}
+          xywh {0 0 100 20} shortcut 0x400078 deactivate
+        }
+        MenuItem {} {
+          label Copy
+          callback {gToolkit->UserActionCopy();}
+          xywh {0 0 100 20} shortcut 0x400063 deactivate
+        }
+        MenuItem {} {
+          label Paste
+          callback {gToolkit->UserActionPaste();}
+          xywh {0 0 100 20} shortcut 0x400076 deactivate divider
+        }
+        MenuItem {} {
+          label Find
+          callback {gToolkit->UserActionFind();}
+          xywh {12 12 100 20} shortcut 0x400066
+        }
+        MenuItem {} {
+          label {Find Next}
+          callback {gToolkit->UserActionFindNext();}
+          xywh {24 24 100 20} shortcut 0x400067
+        }
+        MenuItem {} {
+          label {Find And Replace}
+          callback {gToolkit->UserActionReplaceNext();}
+          xywh {36 36 100 20} shortcut 0x480066
+        }
+      }
+      Submenu {} {
+        label Project open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label {New Project...}
+          xywh {0 0 100 20} deactivate
+        }
+        MenuItem {} {
+          label {Open Project...}
+          xywh {0 0 100 20} deactivate
+        }
+        MenuItem {} {
+          label {Decompile Package...}
+          callback {gToolkit->UserActionDecompilePkg();}
+          xywh {0 0 100 20}
+        }
+        Submenu {} {
+          label {Sample Projects} open
+          xywh {0 0 100 20}
+        } {
+          MenuItem {} {
+            label {Hello World}
+            callback {gToolkit->LoadSampleCode(1);}
+            xywh {0 0 100 20}
+          }
+        }
+        MenuItem {} {
+          label {Add File...}
+          xywh {0 0 100 20} deactivate
+        }
+        MenuItem {} {
+          label Build
+          callback {gToolkit->UserActionBuild();}
+          xywh {4 4 100 20} shortcut 0x400062
+        }
+        MenuItem {} {
+          label Install
+          callback {gToolkit->UserActionInstall();}
+          xywh {4 4 100 20} shortcut 0x400032
+        }
+        MenuItem {} {
+          label Run
+          callback {gToolkit->UserActionRun();}
+          xywh {4 4 100 20} shortcut 0x400072
+        }
+        MenuItem {} {
+          label Stop
+          callback {gToolkit->UserActionStop();}
+          xywh {16 16 100 20} shortcut 0x40002e divider
+        }
+        MenuItem {} {
+          label {Process Earlier}
+          callback {gToolkit->AppInstall();}
+          xywh {16 16 100 20} shortcut 0x400032 deactivate
+        }
+        MenuItem {} {
+          label {Process Later}
+          callback {gToolkit->AppBuild();
+gToolkit->AppInstall();
+gToolkit->AppRun();}
+          xywh {16 16 100 20} shortcut 0x400072 deactivate divider
+        }
+        MenuItem {} {
+          label {Project Settings...}
+          callback {gToolkit->AppStop();}
+          xywh {28 28 100 20} shortcut 0x40002e deactivate
+        }
+      }
+      Submenu {} {
+        label Help open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label {Toolkit Manual...}
+          xywh {12 12 100 20} deactivate
+        }
+        MenuItem {} {
+          label {About Toolkit...}
+          xywh {0 0 100 20} deactivate
+        }
+      }
+    }
+    Fl_Group wToolkitToolbar {open
+      xywh {0 24 720 37} box THIN_UP_BOX color 52
+      code0 {o->box(FL_FREE_BOXTYPE);}
+    } {
+      Fl_Button wToolkitRun {
+        label {@>}
+        callback {gToolkit->UserActionRun();}
+        xywh {10 30 32 20} color 52 labelsize 16 labelcolor 48 align 528
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+      }
+      Fl_Button wToolkitStop {
+        label {@square}
+        callback {gToolkit->UserActionStop();}
+        xywh {46 30 32 20} color 52 labelsize 10 labelcolor 48 align 528
+        code0 {o->box(FL_FREE_BOXTYPE);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+      }
+      Fl_Box {} {
+        xywh {92 33 608 28} hide resizable
+      }
+    }
+    Fl_Group wToolkitFindGroup {open
+      xywh {0 56 720 58} box FLAT_BOX color 50
+    } {
+      Fl_Box {} {
+        label Replace
+        xywh {6 62 50 20} labelsize 11 align 24
+      }
+      Fl_Box {} {
+        label With
+        xywh {6 88 50 20} labelsize 11 align 24
+      }
+      Fl_Group {} {open
+        xywh {58 62 488 46} resizable
+      } {
+        Fl_Input wToolkitFindText {
+          callback {gToolkit->UserActionFindTextChanged();}
+          xywh {58 62 488 20} color 54 labelsize 11 when 0 textfont 4 textsize 12
+          code0 {wToolkitFindText->when(FL_WHEN_ENTER_KEY_CHANGED);}
+        }
+        Fl_Input wToolkitReplaceText {
+          callback {gToolkit->UserActionReplaceTextChanged();}
+          xywh {58 88 488 20} color 54 labelsize 11 when 1 textfont 4 textsize 12
+        }
+      }
+      Fl_Button wToolkitFindCase {
+        label Aa
+        callback {gToolkit->UserActionCaseChanged();}
+        xywh {556 62 32 20} type Toggle color 50 labelsize 12
+      }
+      Fl_Button wToolkitFindRegex {
+        label {[a]}
+        callback {gToolkit->UserActionRegexChanged();}
+        xywh {588 62 32 20} type Toggle color 50 labelsize 12 deactivate
+      }
+      Fl_Button wToolkitFindPrev {
+        label {<}
+        callback {gToolkit->UserActionFindPrev();}
+        xywh {626 62 32 20} color 50 labelsize 12
+      }
+      Fl_Button wToolkitFindNext {
+        label {>}
+        callback {gToolkit->UserActionFindNext();}
+        xywh {658 62 32 20} color 50 labelsize 12
+      }
+      Fl_Button wToolkitFindClose {
+        label X
+        callback {gToolkit->UserActionFindClose();}
+        xywh {701 58 18 18} box FLAT_BOX down_box DOWN_BOX color 51 labelsize 11 hide
+      }
+      Fl_Button wToolkitReplaceNext {
+        label Replace
+        callback {gToolkit->UserActionReplaceNext();}
+        xywh {626 88 64 20} color 50 labelsize 12
+      }
+      Fl_Button wToolkitReplaceAll {
+        label All
+        callback {gToolkit->UserActionReplaceAll();}
+        xywh {690 88 24 20} color 50 labelsize 12
+      }
+    }
+    Fl_Tile wTile {open
+      xywh {0 114 720 486} resizable
+      class TFLTile
+    } {
+      Fl_Box {} {
+        xywh {50 146 620 404} hide resizable
+      }
+      Fl_Group wScriptPanel {selected
+        xywh {0 114 720 386}
+        class TFLScriptPanel
+      } {}
+      Fl_Text_Display wToolkitTerminal {
+        xywh {0 500 720 100} box THIN_DOWN_FRAME selection_color 246 textfont 4
+        class TFLTerminalEditor
+      }
+    }
+  }
+  code {wScriptPanel->GetEditor()->take_focus();} {}
+}
+
+Function {CreateProjectSettingsWindow()} {open
+} {}
