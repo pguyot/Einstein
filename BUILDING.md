@@ -6,7 +6,7 @@
 * Building Einstein with FLTK on macOS in 64 bit with Xcode
 * Building Einstein on Linux in 64 bit
 * Building Einstein on Windows 10
-* Buidling Einstein for Android
+* <a href="#Android">Buidling Einstein for Android</a>
 * Building Einstein for iOS
 
 
@@ -81,7 +81,7 @@ Then download and build Einstein:
 
 ```bash
 # -- Get the source code from GitHub
-git clone https://github.com/pguyot/Einstein.git -b matt2020 Einstein
+git clone https://github.com/pguyot/Einstein.git Einstein
 cd Einstein/
 # -- Create CMake paths
 cd _Build_/
@@ -101,7 +101,7 @@ cd ../../..
 If you are planning to develop code for Einstein, you may want to use Xcode instead of Makefiles:
 ```bash
 # -- Get the source code from GitHub
-git clone https://github.com/pguyot/Einstein.git -b matt2020 Einstein
+git clone https://github.com/pguyot/Einstein.git Einstein
 cd Einstein/
 # -- Create CMake paths
 cd _Build_/
@@ -179,6 +179,7 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       -D OPTION_USE_SYSTEM_LIBJPEG=Off \
       -D OPTION_USE_SYSTEM_ZLIB=Off \
       -D OPTION_USE_SYSTEM_LIBPNG=Off \
+      -D FLTK_BUILD_TEST=Off \
       ../..
 # -- Build FLTK
 make 
@@ -213,7 +214,7 @@ Then download and build Einstein:
 
 ```bash
 # -- Get the source code from GitHub
-git clone https://github.com/pguyot/Einstein.git -b matt2020 Einstein
+git clone https://github.com/pguyot/Einstein.git Einstein
 cd Einstein/
 # -- Create CMake paths
 cd _Build_/
@@ -310,7 +311,7 @@ Add the `x64-Release` configuration. Newt64 should find all resources now. Build
 
 Next, download and build Einstein:
 
-Clone the `matt2020` branch from `https://github.com/pguyot/Einstein.git` into a folder named `Einstein`.
+Clone the Einstein source code from `https://github.com/pguyot/Einstein.git` into a folder named `Einstein`.
 
 Again, launch VisualStudio and click "Continue without code...", the select
 `File > Open > CMake...` from the VisualStudio
@@ -331,11 +332,7 @@ Grab the SDL2 sourcecode and put it in `.../macemu/external`.
 Then load and compile the VisualStudio Solution in `macemu/BasiliskII/src/Windows`.
 
 
-* Buidling Einstein for Android
-* Building Einstein for iOS
-
-
-## Building Einstein for Android
+## <a target=Android/>Building Einstein for Android
 
 The ```_Build_``` folder contains the current setup for Einstein on Android. Open
 Android Studio and launch the project in the ```_Build_/AndroidStudioNative```.
@@ -347,7 +344,7 @@ Note that changes in the source tree are sometimes not propageted
 to the Android build for a while.
 
 
-## Building Einstein for Android
+## Building Einstein for iOS
 
 Not yet tested on macOS 10.15.3 Catalina with Xcode 11.4.
 
