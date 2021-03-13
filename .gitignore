@@ -11,6 +11,7 @@ DerivedData/
 *.moved-aside
 *.xcuserdatad
 .DS_Store
+/_Data_/717006.rom
 /_Build_/Jam/build.LINUX/
 /_Build_/CMake/
 !/_Build/CMake/build.sh
