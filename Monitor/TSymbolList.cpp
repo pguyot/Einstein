@@ -169,7 +169,7 @@ TSymbolList::LoadSymbols( void )
 			if ( this->GetSymbolByAddress(mSymbolOffsets[mSymbolCount].fAddress, prevSym) )
 			{
 #if 0
-				::fprintf(stderr, "Warning: redefining symbol at %08X (was: %s, now: %s)\n", mSymbolOffsets[mSymbolCount].fAddress, prevSym, sym);
+				KPrintf("Warning: redefining symbol at %08X (was: %s, now: %s)\n", mSymbolOffsets[mSymbolCount].fAddress, prevSym, sym);
 #endif
 			}
 

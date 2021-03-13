@@ -24,6 +24,10 @@
 #include <K/Streams/TFileStream.h>
 #include "TMonitor.h"
 
+// C++11 and up
+#include <chrono>
+#include <thread>
+
 // ANSI C & POSIX
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +36,12 @@
 #include <sys/types.h>
 
 #if TARGET_OS_WIN32
-	#include <assert.h>
+#	include <Windows.h>
+#	include <assert.h>
+#	include <io.h>
+#	include <stdio.h>
+#	include <stdlib.h>
+#	include <direct.h>
 #else
 	#include <strings.h>
 	#include <sys/socket.h>
@@ -99,15 +108,13 @@ TMonitor::TMonitor(
 		mLog( inLog ),
 		mHalted( true ),
 		mCommand( kNop ),
-		mFilename(0L),
+		mFilename( nullptr ),
 		mLastScreenHalted( true ),
 		mROMPath(strdup(inROMPath))
 {
-#if TARGET_OS_WIN32
-	assert(0);	// FIXME later
-#else
 	mMemory = inEmulator->GetMemory();
 
+#if !TARGET_UI_FLTK
 	if (::socketpair( AF_UNIX, SOCK_STREAM, PF_UNSPEC, mSocketPair ) != 0)
 	{
 		(void) ::fprintf( stderr, "Error with socketpair: %i\n", errno );
@@ -115,10 +122,11 @@ TMonitor::TMonitor(
 	}
 
 	mLog->BindWithRefreshSocket( mSocketPair[1] );
+#endif
 
 	CreateCondVarAndMutex();
 
-#if !TARGET_OS_MAC
+#if !TARGET_UI_FLTK
 	// Clear the terminal and go to the uppermost position.
 	(void) ::printf( "\033[1;1H" );
 	(void) ::printf( "\033[2J" );
@@ -126,25 +134,20 @@ TMonitor::TMonitor(
 
 	// Tell the emulator it's being monitored.
 	inEmulator->SetMonitor( this );
-#endif
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TMonitor( void )
 // -------------------------------------------------------------------------- //
-TMonitor::~TMonitor( void )
+TMonitor::~TMonitor()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	DeleteCondVarAndMutex();
 	if (mFilename) free(mFilename);
 
-#if !TARGET_OS_MAC
+#if !TARGET_UI_FLTK
 	// Clear the terminal and go to the uppermost position.
 	(void) ::printf( "\033[1;1H" );
 	(void) ::printf( "\033[2J" );
-#endif
 #endif
 }
 
@@ -152,11 +155,8 @@ TMonitor::~TMonitor( void )
 // Run( void )
 // -------------------------------------------------------------------------- //
 void
-TMonitor::Run( void )
+TMonitor::Run()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	// Acquire the mutex.
 	AcquireMutex();
 
@@ -167,9 +167,16 @@ TMonitor::Run( void )
 	// This is used to set the default path, breakpoints, etc.
 	ExecuteStartupScript();
 
+    if (mRunOnStartup) {
+        mCommand = kRun;
+        DrawScreen();
+        RunEmulator();
+    }
+	
 	Boolean loop = true;
 	while (loop)
 	{
+        DrawScreen();
 		// Wait forever for a command.
 		WaitOnCondVar();
 
@@ -202,23 +209,22 @@ TMonitor::Run( void )
 
 	// Release the mutex.
 	ReleaseMutex();
-#endif
 }
 
 // -------------------------------------------------------------------------- //
 // RunEmulator( void )
 // -------------------------------------------------------------------------- //
 void
-TMonitor::RunEmulator( void )
+TMonitor::RunEmulator()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	// We aren't stopped.
 	mHalted = false;
+
+#if !TARGET_UI_FLTK
 	char someByte = 0;
 	// Write a byte to the socket pair.
 	(void) ::write( mSocketPair[1], &someByte, 1 );
+#endif
 
 	// Get the PC.
 	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
@@ -269,6 +275,7 @@ TMonitor::RunEmulator( void )
 	}
 
 	mHalted = true;
+#if !TARGET_UI_FLTK
 	// Write a byte to the socket pair.
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
@@ -277,14 +284,8 @@ TMonitor::RunEmulator( void )
 // -------------------------------------------------------------------------- //
 // StepEmulator( void )
 // -------------------------------------------------------------------------- //
-void
-TMonitor::StepEmulator( void )
+void TMonitor::StepEmulator()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
-	char someByte = 0;
-
 	// Get the PC.
 	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
 
@@ -310,7 +311,9 @@ TMonitor::StepEmulator( void )
 		mEmulator->Step();
 	}
 
+#if !TARGET_UI_FLTK
 	// Write a byte to the socket pair.
+    char someByte = 0;
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
 }
@@ -321,12 +324,10 @@ TMonitor::StepEmulator( void )
 void
 TMonitor::SaveEmulatorState( const char *inFilename )
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	if (inFilename==0) {
 		inFilename = "/tmp/einstein.state";
 	}
+#if !TARGET_UI_FLTK
 	char someByte = 0;
 	mEmulator->SaveState(inFilename);
 	(void) ::write( mSocketPair[1], &someByte, 1 );
@@ -339,13 +340,9 @@ TMonitor::SaveEmulatorState( const char *inFilename )
 void
 TMonitor::LoadEmulatorState( const char *inFilename )
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	if (inFilename==0) {
 		inFilename = "/tmp/einstein.state";
 	}
-	char someByte = 0;
 	if (TFileStream::Exists(inFilename)) {
 		mEmulator->LoadState(inFilename);
 	}
@@ -356,6 +353,8 @@ TMonitor::LoadEmulatorState( const char *inFilename )
 	rect.fBottom = static_cast<KUInt16>(screen->GetScreenHeight() - 1);
 	rect.fRight = static_cast<KUInt16>(screen->GetScreenWidth() - 1);
 	screen->UpdateScreenRect(&rect);
+#if !TARGET_UI_FLTK
+    char someByte = 0;
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
 }
@@ -366,9 +365,6 @@ TMonitor::LoadEmulatorState( const char *inFilename )
 void
 TMonitor::SnapEmulatorState( const char *inFilename )
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	// TODO: power emulator off
 	TPlatformManager *pm = mEmulator->GetPlatformManager();
 	if (pm->IsPowerOn())
@@ -376,8 +372,9 @@ TMonitor::SnapEmulatorState( const char *inFilename )
 	// TODO: save state
 	// TODO: pause emulator
 	// TODO: signal caller
-	char someByte = 0;
 	mEmulator->SaveState(inFilename);
+#if !TARGET_UI_FLTK
+    char someByte = 0;
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
 }
@@ -388,14 +385,10 @@ TMonitor::SnapEmulatorState( const char *inFilename )
 void
 TMonitor::RevertEmulatorState( const char *inFilename )
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	// TODO: pause emulator
 	// TODO: load state
 	// TODO: bring emulator out of sleep state
 	// TODO: signal caller
-	char someByte = 0;
 	mEmulator->LoadState(inFilename);
 	TScreenManager *screen = mEmulator->GetScreenManager();
 	TScreenManager::SRect rect;
@@ -404,6 +397,8 @@ TMonitor::RevertEmulatorState( const char *inFilename )
 	rect.fBottom = static_cast<KUInt16>(screen->GetScreenHeight() - 1);
 	rect.fRight = static_cast<KUInt16>(screen->GetScreenWidth() - 1);
 	screen->UpdateScreenRect(&rect);
+#if !TARGET_UI_FLTK
+    char someByte = 0;
 	(void) ::write( mSocketPair[1], &someByte, 1 );
 #endif
 }
@@ -414,10 +409,6 @@ TMonitor::RevertEmulatorState( const char *inFilename )
 Boolean
 TMonitor::ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr )
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-	return 0;
-#else
 	Boolean stop = true;
 
 	switch (inBPID)
@@ -493,18 +484,14 @@ TMonitor::ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr )
 	}
 
 	return stop;
-#endif
 }
 
 // -------------------------------------------------------------------------- //
 // Stop( void )
 // -------------------------------------------------------------------------- //
 void
-TMonitor::Stop( void )
+TMonitor::Stop()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	mCommand = kExit;
 
 	while (!mHalted)
@@ -512,13 +499,12 @@ TMonitor::Stop( void )
 		mEmulator->Stop();
 	}
 
-	AcquireMutex();
+	//AcquireMutex();
 	// I have the mutex, so the loop is waiting.
 
 	SignalCondVar();
 
-	ReleaseMutex();
-#endif
+	//ReleaseMutex();
 }
 
 
@@ -539,7 +525,7 @@ TMonitor::ExecuteStartupScript()
 	bool theResult = true;
 	char buf[2048];
 	snprintf(buf, 2048, "%s/monitorrc", mROMPath);
-	if (::access(buf, R_OK)==0) {
+	if (::access(buf, 4 /*R_OK*/)==0) {
 		theResult = ExecuteScript(buf);
 	}
 	return theResult;
@@ -552,10 +538,6 @@ TMonitor::ExecuteStartupScript()
 Boolean
 TMonitor::ExecuteCommand( const char* inCommand )
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-	return 0;
-#else
 	Boolean theResult = true;
 	int theArgInt, theArgInt2;
 	char theLine[256];
@@ -619,7 +601,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				// wait a bit until we power down
 				for (i=300; i>0; --i) { // max. 3 seconds
 					if (!pm->IsPowerOn()) break;
-					usleep(10000);
+					std::this_thread::sleep_for(std::chrono::milliseconds(10));
 				}
 				if (i==0) {
 					PrintLine("ERROR: Failed to power down!\n", MONITOR_LOG_ERROR);
@@ -630,7 +612,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			mEmulator->Stop();
 			// wait for the emulator to stop
 			for (i=10; i>0; --i) { // 1/10th of a second
-				usleep(10000);
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 			PrintLine("Saving emulator snapshot", MONITOR_LOG_INFO);
 			SaveEmulatorState();
@@ -647,7 +629,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			// wait a bit until we power down
 			for (i=300; i>0; --i) { // max. 3 seconds
 				if (!pm->IsPowerOn()) break;
-				usleep(10000);
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 			if (i==0) {
 				PrintLine("ERROR: Failed to power down!", MONITOR_LOG_ERROR);
@@ -659,7 +641,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 			mEmulator->Stop();
 			// wait for the emulator to stop
 			for (i=10; i>0; --i) { // 1/10th of a second
-				usleep(10000);
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 		}
 		PrintLine("Loading emulator snapshot", MONITOR_LOG_INFO);
@@ -672,7 +654,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 		}
 		// wait for the emulator to start
 		for (i=300; i>0; --i) { // 1/10th of a second
-			usleep(10000);
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 		PrintLine("Powering up", MONITOR_LOG_INFO);
 		if (!pm->IsPowerOn())
@@ -1231,7 +1213,6 @@ TMonitor::ExecuteCommand( const char* inCommand )
 		theResult = TMonitorCore::ExecuteCommand(inCommand);
 	}
 	return theResult;
-#endif
 }
 
 
@@ -1241,11 +1222,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 Boolean
 TMonitor::ExecuteHelpCommand( const char* inCommand )
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-	return 0;
-#else
-	bool theResult = true;
+	Boolean theResult = true;
 	if (::strcmp(inCommand, "log") == 0) {
 		PrintLoggingHelp();
 	} else if (::strcmp(inCommand, "script") == 0) {
@@ -1256,7 +1233,6 @@ TMonitor::ExecuteHelpCommand( const char* inCommand )
 		theResult = false;
 	}
 	return theResult;
-#endif
 }
 
 
@@ -1264,11 +1240,8 @@ TMonitor::ExecuteHelpCommand( const char* inCommand )
 // PrintHelp( void )
 // -------------------------------------------------------------------------- //
 void
-TMonitor::PrintHelp( void )
+TMonitor::PrintHelp()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	PrintLine("Monitor commands available when the machine is halted:", MONITOR_LOG_INFO);
 	PrintLine(" <return>|step      step once", MONITOR_LOG_INFO);
 	//	PrintLine(" step <count>       step for count steps");
@@ -1302,18 +1275,14 @@ TMonitor::PrintHelp( void )
 	PrintLine(" help log           help with logging", MONITOR_LOG_INFO);
 	PrintLine(" help script        help with scripting", MONITOR_LOG_INFO);
 	PrintLine(" help wp            help with watchpoint commands", MONITOR_LOG_INFO);
-#endif
 }
 
 // -------------------------------------------------------------------------- //
 // PrintLoggingHelp( void )
 // -------------------------------------------------------------------------- //
 void
-TMonitor::PrintLoggingHelp( void )
+TMonitor::PrintLoggingHelp()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	PrintLine("Logging commands start or stop a log file for all", MONITOR_LOG_INFO);
 	PrintLine("text output in the Monitor window.", MONITOR_LOG_INFO);
 	PrintLine("", MONITOR_LOG_INFO);
@@ -1321,18 +1290,14 @@ TMonitor::PrintLoggingHelp( void )
 	PrintLine(" log                stop logging to file", MONITOR_LOG_INFO);
 	PrintLine(" disable log        disable the log", MONITOR_LOG_INFO);
 	PrintLine(" enable log         enable the log", MONITOR_LOG_INFO);
-#endif
 }
 
 // -------------------------------------------------------------------------- //
 // PrintScriptingHelp( void )
 // -------------------------------------------------------------------------- //
 void
-TMonitor::PrintScriptingHelp( void )
+TMonitor::PrintScriptingHelp()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	PrintLine("Scripting can run many Monitor commands in a text file.", MONITOR_LOG_INFO);
 	PrintLine("When Einstein starts, the script /ROMpath/monitorrc is", MONITOR_LOG_INFO);
 	PrintLine("executed first.", MONITOR_LOG_INFO);
@@ -1346,18 +1311,14 @@ TMonitor::PrintScriptingHelp( void )
 //	PrintLine("*mon hide           hide the monitor window");
 	PrintLine(" # comment          marks commentary lines in the script file", MONITOR_LOG_INFO);
 	PrintLine(" 'text              print text", MONITOR_LOG_INFO);
-#endif
 }
 
 // -------------------------------------------------------------------------- //
 // PrintWatchpointHelp( void )
 // -------------------------------------------------------------------------- //
 void
-TMonitor::PrintWatchpointHelp( void )
+TMonitor::PrintWatchpointHelp()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	PrintLine("Watchpoints stop execution whenever the value of", MONITOR_LOG_INFO);
 	PrintLine("a virtual memory address changes.", MONITOR_LOG_INFO);
 	PrintLine("", MONITOR_LOG_INFO);
@@ -1367,26 +1328,21 @@ TMonitor::PrintWatchpointHelp( void )
 	PrintLine(" wpw <addr>         set a watchpoint for writing only", MONITOR_LOG_INFO);
 	PrintLine(" wpc <addr>         clear a watchpoint", MONITOR_LOG_INFO);
 	PrintLine(" wpl                list all watchpoints", MONITOR_LOG_INFO);
-#endif
 }
 
 // -------------------------------------------------------------------------- //
 // DrawScreen( void )
 // -------------------------------------------------------------------------- //
 Boolean
-TMonitor::DrawScreen( void )
+TMonitor::DrawScreen()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-	return 0;
-#else
 	Boolean theResult = false;
 	if (mHalted)
 	{
 		if (!mLastScreenHalted)
 		{
 			// Clear the terminal.
-#if !TARGET_OS_MAC
+#if !TARGET_UI_FLTK
 			(void) ::printf( "\033[2J" );
 #endif
 			theResult = true;
@@ -1397,8 +1353,8 @@ TMonitor::DrawScreen( void )
 		if (mLastScreenHalted)
 		{
 			// Clear the terminal.
-#if !TARGET_OS_MAC
-			(void) ::printf( "\033[2J" );
+#if !TARGET_UI_FLTK
+			(void) ::printf( "\033[2J" );			
 #endif
 			theResult = true;
 		}
@@ -1407,7 +1363,6 @@ TMonitor::DrawScreen( void )
 	}
 
 	return theResult;
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -1416,13 +1371,10 @@ TMonitor::DrawScreen( void )
 void
 TMonitor::DrawScreenHalted( void )
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
 
 	// Go to the uppermost position.
-#if !TARGET_OS_MAC
+#if !TARGET_UI_FLTK
 	(void) ::printf( "\033[1;1H" );
 #endif
 	int indexRegisters;
@@ -1722,7 +1674,6 @@ TMonitor::DrawScreenHalted( void )
 
 	// Footer.
 	(void) ::printf( "%s-------------------------------------------------------------------------------\n", kEraseLine );
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -1731,9 +1682,6 @@ TMonitor::DrawScreenHalted( void )
 void
 TMonitor::DrawScreenRunning( void )
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	// Go to the uppermost position.
 	(void) ::printf( "\033[1;1H" );
 
@@ -1745,21 +1693,16 @@ TMonitor::DrawScreenRunning( void )
 		(void) ::printf( "%s%s\n", kEraseLine, mLog->GetLine(indexLog) );
 	}
 	(void) ::printf( "%s-------------------------------------------------------------------------------\n", kEraseLine );
-#endif
 }
 
 // -------------------------------------------------------------------------- //
 // PrintCurrentInstruction( void )
 // -------------------------------------------------------------------------- //
 void
-TMonitor::PrintCurrentInstruction( void )
+TMonitor::PrintCurrentInstruction()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	KUInt32 realPC = mProcessor->GetRegister(15) - 4;
 	PrintInstruction( realPC );
-#endif
 }
 
 // -------------------------------------------------------------------------- //
@@ -1768,9 +1711,6 @@ TMonitor::PrintCurrentInstruction( void )
 void
 TMonitor::PrintInstruction( KUInt32 inAddress )
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
 	char theSymbol[512];
 	char theComment[512];
 	int theOffset;
@@ -1814,7 +1754,6 @@ TMonitor::PrintInstruction( KUInt32 inAddress )
 					mSymbolList );
 		PrintLine(theLine, MONITOR_LOG_CODE);
 	}
-#endif
 }
 
 
@@ -1960,10 +1899,11 @@ int
 TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigned int length, KUInt32 mapRef, int indent, int maxDepth)
 {
 
-	KUInt32 flattenMap[length];
+	KUInt32 *flattenMap = (KUInt32*)::malloc(length*sizeof(KUInt32));
 	int mapIndex = length;
 	while (true) {
 		if ((mapRef & 0x3) != kTagPointer) {
+			::free(flattenMap);
 			return snprintf(buffer, bufferSize, "{frame with invalid map ref, length = %d}", length);
 		}
 		KUInt32 mapObjectHeader;
@@ -1973,9 +1913,11 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 			char theLine[512];
 			(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) mapAddr);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
+			::free(flattenMap);
 			return -1;
 		}
 		if ((mapObjectHeader & 0x3) != 1) {
+			::free(flattenMap);
 			return snprintf(buffer, bufferSize, "{frame with invalid map ref, length = %d}", length);
 		}
 		unsigned int mapObjectSize = mapObjectHeader >> 8;
@@ -1988,6 +1930,7 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 				char theLine[512];
 				(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) refAddr);
 				PrintLine(theLine, MONITOR_LOG_ERROR);
+				::free(flattenMap);
 				return -1;
 			}
 			if (mapIndex <= 0) {
@@ -2002,6 +1945,7 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 			char theLine[512];
 			(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) supermapAddr);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
+			::free(flattenMap);
 			return -1;
 		}
 		if (supermapRef == 0x2) {
@@ -2010,6 +1954,7 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 		mapRef = supermapRef;
 	}
 	if (mapIndex > 0) {
+		::free(flattenMap);
 		return snprintf(buffer, bufferSize, "{frame with invalid map, length = %d}", length);
 	}
 
@@ -2025,6 +1970,7 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 			char theLine[512];
 			(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) valueAddr);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
+			::free(flattenMap);
 			return -1;
 		}
 		int symbolLen = r - symbolStart;
@@ -2038,6 +1984,7 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 			r += ::snprintf(buffer + r, bufferSize - r, "}");
 		}
 	}
+	::free(flattenMap);
 	return r;
 }
 
@@ -2047,7 +1994,7 @@ TMonitor::FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 inAddr, unsign
 	if (classRef == 0x55552) {
 		// Symbol, skip hash value.
 		bool needEscape = false;
-		char symbolStr[length];
+		char *symbolStr = (char*)::malloc(length+1);
 		for (int i = 0; i < length; i++) {
 			KUInt8 byte;
 			KUInt32 byteAddr = inAddr + 16 + i;
@@ -2073,10 +2020,14 @@ TMonitor::FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 inAddr, unsign
 			}
 			symbolStr[i] = byte;
 		}
+		int ret = 0;
 		if (needEscape) {
-			return ::snprintf(buffer, bufferSize, "'|%s|", symbolStr);
+			ret = ::snprintf(buffer, bufferSize, "'|%s|", symbolStr);
+		} else {
+			ret = ::snprintf(buffer, bufferSize, "'%s", symbolStr);
 		}
-		return ::snprintf(buffer, bufferSize, "'%s", symbolStr);
+		::free(symbolStr);
+		return ret;
 	}
 	int r = ::snprintf(buffer, bufferSize, "<binary, class ");
 	r += FormatNSRef(buffer + r, bufferSize - r, classRef, indent, maxDepth);
@@ -2088,113 +2039,57 @@ TMonitor::FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 inAddr, unsign
 //  * CreateCondVarAndMutex( void )
 // -------------------------------------------------------------------------- //
 inline void
-TMonitor::CreateCondVarAndMutex( void )
+TMonitor::CreateCondVarAndMutex()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
-	// Create the condition variable.
-	int theErr = ::pthread_cond_init( &mCondVar, NULL );
-	if (theErr)
-	{
-		(void) ::fprintf( stderr, "Error with pthread_cond_init" );
-		::abort();
-	}
-
-	// Create the mutex.
-	theErr = ::pthread_mutex_init( &mMutex, NULL );
-	if (theErr)
-	{
-		(void) ::fprintf( stderr, "Error with pthread_mutex_init" );
-		::abort();
-	}
-#endif
+	mCondVar = new TCondVar();
+	mMutex = new TMutex();
 }
 
 // -------------------------------------------------------------------------- //
 //  * DeleteCondVarAndMutex( void )
 // -------------------------------------------------------------------------- //
 inline void
-TMonitor::DeleteCondVarAndMutex( void )
+TMonitor::DeleteCondVarAndMutex()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
-	(void) ::pthread_mutex_destroy( &mMutex );
-	(void) ::pthread_cond_destroy( &mCondVar );
-#endif
+    mMutex->Unlock();
+	delete mMutex;
+	delete mCondVar;
 }
 
 // -------------------------------------------------------------------------- //
 //  * SignalCondVar( void )
 // -------------------------------------------------------------------------- //
 inline void
-TMonitor::SignalCondVar( void )
+TMonitor::SignalCondVar()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
-	int theErr = ::pthread_cond_signal( &mCondVar );
-	if (theErr)
-	{
-		(void) ::fprintf( stderr, "Error with pthread_cond_signal" );
-		::abort();
-	}
-#endif
+	mCondVar->Signal();
 }
 
 // -------------------------------------------------------------------------- //
 //  * WaitOnCondVar( void )
 // -------------------------------------------------------------------------- //
 inline void
-TMonitor::WaitOnCondVar( void )
+TMonitor::WaitOnCondVar()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
-	int theErr = ::pthread_cond_wait( &mCondVar, &mMutex );
-	if (theErr)
-	{
-		(void) ::fprintf( stderr, "Error with pthread_cond_wait" );
-		::abort();
-	}
-#endif
+	mCondVar->Wait(mMutex);
 }
 
 // -------------------------------------------------------------------------- //
 //  * AcquireMutex( void )
 // -------------------------------------------------------------------------- //
 inline void
-TMonitor::AcquireMutex( void )
+TMonitor::AcquireMutex()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
-	int theErr = ::pthread_mutex_lock( &mMutex );
-	if (theErr)
-	{
-		(void) ::fprintf( stderr, "Error with pthread_mutex_lock" );
-		::abort();
-	}
-#endif
+	mMutex->Lock();
 }
 
 // -------------------------------------------------------------------------- //
 //  * ReleaseMutex( void )
 // -------------------------------------------------------------------------- //
 inline void
-TMonitor::ReleaseMutex( void )
+TMonitor::ReleaseMutex()
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-#else
-	int theErr = ::pthread_mutex_unlock( &mMutex );
-	if (theErr)
-	{
-		(void) ::fprintf( stderr, "Error with pthread_mutex_unlock" );
-		::abort();
-	}
-#endif
+	mMutex->Unlock();
 }
 
 // ==================================================================== //

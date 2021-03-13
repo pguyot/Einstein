@@ -26,6 +26,9 @@
 #define _TMONITOR_H
 
 #include <K/Defines/KDefinitions.h>
+#include <K/Threads/TThread.h>
+#include <K/Threads/TMutex.h>
+#include <K/Threads/TCondVar.h>
 
 #include "TMonitorCore.h"
 #include "Emulator/Log/TBufferLog.h"
@@ -42,7 +45,7 @@ class TSymbolList;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 113 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TMonitor : public TMonitorCore
 {
@@ -51,29 +54,45 @@ public:
 	/// Constructor from the emulator.
 	///
 	TMonitor(
-			TBufferLog* inLog,
-			TEmulator* inEmulator,
-			TSymbolList* inSymbolList,
-			const char* inROMPath);
+		TBufferLog* inLog,
+		TEmulator* inEmulator,
+		TSymbolList* inSymbolList,
+		const char* inROMPath);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TMonitor( void );
+	virtual ~TMonitor(void);
 
 	///
 	/// Draw screen.
 	/// Return true if the screen was erased.
 	///
-	Boolean		DrawScreen( void );
+	virtual Boolean DrawScreen();
 
 	///
 	/// Determine if the machine is halted.
 	///
-	Boolean		IsHalted( void ) const
-		{
-			return mHalted;
-		}
+	Boolean		IsHalted(void) const
+	{
+		return mHalted;
+	}
+
+	///
+	/// Was the last screen update showing the "Halted..." screen?
+	///
+	Boolean IsLastScreenHalted() const
+	{
+        return mLastScreenHalted;
+    }
+
+    ///
+    /// Was the last screen update showing the "Halted..." screen?
+    ///
+    void SetLastScreenHalted(Boolean v)
+    {
+        mLastScreenHalted = v;
+    }
 
 	///
 	/// Monitor loop.
@@ -113,6 +132,9 @@ public:
 			mLog->LogLine( inLine );
 		}
 
+#if TARGET_UI_FLTK
+    // no support for signalling yet
+#else
 	///
 	/// Get monitor socket (notified of state changes).
 	///
@@ -120,6 +142,7 @@ public:
 		{
 			return mSocketPair[0];
 		}
+#endif
 
 	///
 	/// Execute startup script.
@@ -128,7 +151,7 @@ public:
 	///
 	Boolean		ExecuteStartupScript();
 
-	///
+    ///
 	/// Execute a command.
 	///
 	/// \return true if the command was known.
@@ -161,6 +184,21 @@ public:
 	/// Read the current emulator state from a file.
 	///
 	void		RevertEmulatorState( const char *inFilename=0L );
+
+    ///
+    /// Run the emulator as soon as we run the monitor
+    ///
+    void RunOnStartup(bool inRun) { mRunOnStartup = inRun; }
+
+    ///
+    /// Show the Monitor window
+    ///
+    virtual void Show() { }
+
+    ///
+    /// Hide the Monitor window
+    ///
+    virtual void Hide() { }
 
 protected:
 	/// Constants.
@@ -223,12 +261,19 @@ protected:
 		return mInterruptManager;
 	}
 
-	///
-	/// Accessor on processor.
-	///
-	inline TARMProcessor* GetProcessor() const {
-		return mProcessor;
-	}
+    ///
+    /// Accessor on processor.
+    ///
+    inline TARMProcessor* GetProcessor() const {
+        return mProcessor;
+    }
+
+    ///
+    /// Accessor on Log
+    ///
+    inline TBufferLog* GetLog() const {
+        return mLog;
+    }
 
 	///
 	/// Process a breakpoint.
@@ -307,14 +352,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TMonitor( const TMonitor& inCopy );
 
 	///
-	/// Opérateur d'assignation volontairement indisponible.
+	/// Op√©rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TMonitor& operator = ( const TMonitor& inCopy );
 
@@ -324,19 +369,20 @@ private:
 	TInterruptManager*		mInterruptManager;	///< Interrupt manager.
 	TBufferLog*				mLog;				///< Interface to the log.
 	Boolean					mHalted;			///< If the emulator is halted.
-#if TARGET_OS_WIN32
-	// FIXME: we must still implement this
-#else
-	pthread_cond_t			mCondVar;			///< Condition variable
-	pthread_mutex_t			mMutex;				///< Mutex for the loop.
-#endif
+	TCondVar				*mCondVar = nullptr;
+	TMutex					*mMutex = nullptr;
 	ECommand				mCommand;			///< Next command for the
 												///< monitor thread.
 	char*					mFilename;			///< Argument for next command.
-	int						mSocketPair[2];		///< Socket pair for monitor
-												///< state changes.
+#if TARGET_UI_FLTK
+    // no signalling between monitor and log yet
+#else
+	int						mSocketPair[2];		///< Socket pair for monitor state changes.
+#endif
 	Boolean					mLastScreenHalted;	///< If last screen was halted.
 	char*					mROMPath;			///< path to the ROM fle directory
+
+    Boolean                    mRunOnStartup = false; ///< Run the emulation as soon as the monitor starts
 };
 
 #endif
