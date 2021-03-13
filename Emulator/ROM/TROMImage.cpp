@@ -380,7 +380,7 @@ KSInt32 TROMImage::ComputeROMId(KUInt8 *inROMPtr)
 		case 0xa9862ccc: // MP2100(D): (747129)  (747260)
 			romID = kMP2x00DROM;
 			break;
-		case 0x00000000: // Watson: we do not know the checksum yet, and there may be multiple Watson ROMs out there!
+		case 0x176d233b: // Watson (MP2100 French)
 			romID = kWatsonROM;
 			break;
 		default:

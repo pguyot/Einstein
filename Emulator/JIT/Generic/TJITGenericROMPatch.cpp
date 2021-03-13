@@ -155,7 +155,7 @@ void TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId)
 TJITGenericPatchObject::TJITGenericPatchObject(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
                                                const char *name)
 :	mIndex(AddToManager()),
-    mAddress{inAddr0, inAddr1, inAddr2},
+    mAddress{inAddr0, inAddr1, inAddr2, inAddr3},
 	mOriginalInstruction(0xFFFFFFFF),
 	mName(name)
 {
