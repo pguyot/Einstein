@@ -542,10 +542,11 @@ typedef	uint16_t	KUInt16;
 typedef	int16_t		KSInt16;
 typedef uint8_t     KUInt8;
 typedef	int8_t		KSInt8;
-#if !defined(TARGET_OS_MAC)
+typedef uintptr_t   KUIntPtr;
+
+#if TARGET_OS_LINUX
 typedef	bool		Boolean;
 #endif
-typedef uintptr_t   KUIntPtr;
 
 #if TARGET_OS_WIN32
 typedef	bool		Boolean;

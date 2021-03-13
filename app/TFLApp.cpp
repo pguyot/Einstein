@@ -237,6 +237,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Monitor/TFLMonitor.h"
 #include "Monitor/TSymbolList.h"
 
+static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, Boolean save);
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -544,18 +545,10 @@ void TFLApp::UserActionInstallPackage()
 {
     static char *filename = 0L;
 
-    const char *newname = nullptr;
-    Fl_Native_File_Chooser fnfc;
-    fnfc.title("Install Package...");
-    fnfc.type(Fl_Native_File_Chooser::BROWSE_MULTI_FILE);
-    fnfc.filter("Package\t*.pkg"); // "Compressed Package\t*.{sit,sae,hqx,zip,sit.hqx,hqx.sit}");
-    //fnfc.directory("/var/tmp");   // FIXME: save this in the preferences
-    switch ( fnfc.show() ) {
-        case -1: return; // Error text is in fnfc.errmsg()
-        case  1: return; // user canceled
-    }
-    for (int i=0; i<fnfc.count(); i++) {
-        newname = fnfc.filename(i);
+    const char *newname = tfl_file_chooser("Install Package...", "Package\t*.pkg", nullptr, false);
+    // "Compressed Package\t*.{sit,sae,hqx,zip,sit.hqx,hqx.sit}");
+    //for (int i=0; i<fnfc.count(); i++) {
+    //    newname = fnfc.filename(i);
         if (newname && *newname) {
             if (!filename)
                 filename = (char*)calloc(FL_PATH_MAX, 1);
@@ -563,7 +556,7 @@ void TFLApp::UserActionInstallPackage()
             filename[FL_PATH_MAX] = 0;
             mPlatformManager->InstallPackage(filename);
         }
-    }
+    //}
 }
 
 
@@ -1172,7 +1165,7 @@ static void tabs_box(int x, int y, int w, int h, Fl_Color c)
 
 static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, Boolean save)
 {
-#if 0
+#if TARGET_OS_LINUX
     char pattern[FL_PATH_MAX]; pattern[0] = 0;
     if (pat) {
         const char *s = pat;
