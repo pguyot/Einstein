@@ -389,6 +389,7 @@ TFLApp::Run( int argc, char* argv[] )
 
     // run the user interface until all windows are close
     Fl::run();
+    Fl::unlock();
 
     // if the emulator does not know yet, tell it to wrap things up and quit
     mEmulator->Quit();

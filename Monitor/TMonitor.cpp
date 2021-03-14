@@ -176,7 +176,8 @@ TMonitor::Run()
 	Boolean loop = true;
 	while (loop)
 	{
-        DrawScreen();
+        if (mCommand!=kExit)
+            DrawScreen();
 		// Wait forever for a command.
 		WaitOnCondVar();
 

@@ -1484,10 +1484,10 @@ s.");
 void TFLSettingsUI::updateMenus() {
   #define MENU_FONT FL_NORMAL_LABEL, FL_HELVETICA, 14, 0
   #define MENU_HEADLINE FL_NORMAL_LABEL, FL_HELVETICA_BOLD_ITALIC, 14, 0
-
+  
     if (wNetworkTool) wNetworkTool->clearTopID();
     if (wNetworkTool) wNetworkTool->clearBottomID();
-
+  
     Fl_Menu_Item* slot0menu = (Fl_Menu_Item*)calloc(mCardList.size() + 6, sizeof(Fl_Menu_Item));
     if (wPCCardSlot0->user_data()) ::free(wPCCardSlot0->user_data());
     wPCCardSlot0->flags |= FL_SUBMENU_POINTER;
@@ -1512,7 +1512,7 @@ void TFLSettingsUI::updateMenus() {
         slot0menu[3].flags |= FL_MENU_INVISIBLE;
       }
     }
-
+  
     Fl_Menu_Item* slot1menu = (Fl_Menu_Item*)calloc(mCardList.size() + 6, sizeof(Fl_Menu_Item));
     if (wPCCardSlot1->user_data()) ::free(wPCCardSlot1->user_data());
     wPCCardSlot1->flags |= FL_SUBMENU_POINTER;
@@ -1536,7 +1536,7 @@ void TFLSettingsUI::updateMenus() {
         slot1menu[3].flags |= FL_MENU_INVISIBLE;
       }
     }
-
+  
     for (int i=0; i<mCardList.size(); i++) {
     	TFLPCCardSettings *card = mCardList[i];
     	slot0menu[i+4] = { card->GetName(), 0, cb_changePCCard0, (void*)i, 0 /* flags */, MENU_FONT };
@@ -1560,13 +1560,13 @@ void TFLSettingsUI::updateMenus() {
 
 void TFLSettingsUI::revertDialog() {
   char buf[32];
-
+  
   wROMName->value(fl_filename_name(ROMPath));
   wROMPath->copy_label(ROMPath);
-
+  
   wFlashName->value(fl_filename_name(FlashPath));
   wFlashPath->copy_label(FlashPath);
-
+  
   sprintf(buf, "%d", screenWidth);
   wWidth->value(buf);
   sprintf(buf, "%d", screenHeight);
@@ -1575,7 +1575,7 @@ void TFLSettingsUI::revertDialog() {
   wHideMouse->value(hideMouse);
   wLaunchMonitorAtBoot->value(mLaunchMonitorAtBoot);
   wBreatAtROMBoot->value(mBreatAtROMBoot);
-
+  
   if (RAMSize<=16)
   	wRAMSizeChoice->value(0);
   else if (RAMSize<=64)
@@ -1584,11 +1584,11 @@ void TFLSettingsUI::revertDialog() {
   	wRAMSizeChoice->value(1);
   else 	
   	wRAMSizeChoice->value(1);
-
+  
   wDontShow->value(dontShow);
-
+  
   wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
-
+  
   wPCCardList->clear();
   for (int i=0; i<mCardList.size(); i++) {
   	TFLPCCardSettings *card = mCardList[i];
@@ -1596,30 +1596,30 @@ void TFLSettingsUI::revertDialog() {
   }
   wPCCardList->value(0);
   wPCCardList->do_callback();
-
+  
   updateMenus();
 }
 
 void TFLSettingsUI::applyDialog() {
   free(ROMPath);
   ROMPath = strdup(wROMPath->label());
-
+  
   free(FlashPath);
   FlashPath = strdup(wFlashPath->label());
-
+  
   screenWidth = atoi(wWidth->value());
   screenHeight = atoi(wHeight->value());
   fullScreen = wFullScreen->value();
   hideMouse = wHideMouse->value();
   mLaunchMonitorAtBoot = wLaunchMonitorAtBoot->value();
   mBreatAtROMBoot = wBreatAtROMBoot->value();
-
+  
   const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
   if (m)
   	RAMSize = m->argument();
-
+  
   dontShow = wDontShow->value();
-
+  
   startUpdateCardList();
   for (int i=0; i<wPCCardList->size(); i++) {
   	const char* name = wPCCardList->text(i + 1);
@@ -1627,7 +1627,7 @@ void TFLSettingsUI::applyDialog() {
   	updateNextCard(name, card);
   }
   endUpdateCardList();
-
+  
   updateMenus();
 }
 

@@ -25,14 +25,14 @@
 #define _VERSION_H
 
 #define PROJECT_NAME "Einstein"
-#define PROJECT_VER  "2020.4.12"
+#define PROJECT_VER  "2020.4.13"
 #define PROJECT_VER_MAJOR "2020"
 #define PROJECT_VER_MINOR "4"
-#define PROJECT_VER_PATCH "12"
+#define PROJECT_VER_PATCH "13"
 
 #define COMPILE_TIME_YYYY 2021
 #define COMPILE_TIME_MM (103-100)  // if the month is "09", C++ would interprete the number as octal, so we generate "109-100" instead.
-#define COMPILE_TIME_DD (113-100)
+#define COMPILE_TIME_DD (114-100)
 
 #define VERSION_STRING		PROJECT_NAME " " PROJECT_VER
 #define VERSION_STRING_SHORT	PROJECT_VER

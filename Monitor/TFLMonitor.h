@@ -49,7 +49,7 @@ public:
     /// Draw screen.
     /// Return true if the screen was erased.
     ///
-    bool DrawScreen() override;
+    Boolean DrawScreen() override;
 
     ///
     /// Show the Monitor window

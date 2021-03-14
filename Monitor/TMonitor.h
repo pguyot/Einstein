@@ -284,6 +284,8 @@ protected:
 	///
 	virtual Boolean		ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr );
 
+    TEmulator* GetEmulator() { return mEmulator; }
+
 private:
 	///
 	/// Run the emulator (handle breakpoint if we're on a BP).

@@ -27,6 +27,7 @@
 #include "TSymbolList.h"
 #include "UDisasm.h"
 
+#include "Emulator/TEmulator.h"
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/TInterruptManager.h"
 
@@ -56,7 +57,7 @@ TFLMonitor::~TFLMonitor()
 // -------------------------------------------------------------------------- //
 // DrawScreen( void )
 // -------------------------------------------------------------------------- //
-bool TFLMonitor::DrawScreen()
+Boolean TFLMonitor::DrawScreen()
 {
     if (!mwTerminal)
         return false;
@@ -71,7 +72,8 @@ bool TFLMonitor::DrawScreen()
             theResult = true;
         }
         SetLastScreenHalted(true);
-        DrawScreenHalted();
+        if ( !(GetEmulator()->IsRunning()==0 && GetEmulator()->IsPaused()==0) )
+            DrawScreenHalted();
     } else {
         if (IsLastScreenHalted())
         {
@@ -80,7 +82,8 @@ bool TFLMonitor::DrawScreen()
             theResult = true;
         }
         SetLastScreenHalted(false);
-        DrawScreenRunning();
+        if ( !(GetEmulator()->IsRunning()==0 && GetEmulator()->IsPaused()==0) )
+            DrawScreenRunning();
     }
     mwTerminal->redraw();
     return theResult;

@@ -28,7 +28,6 @@ DerivedData/
 /_Build_/AndroidStudioNative/local.properties
 /_Build_/AndroidStudioNative/einstein/.cxx
 /_Build_/Makefiles
-/_Build_/Xcode
 /cmake_build_*/
 *.iml
 /CMakeSettings.json
