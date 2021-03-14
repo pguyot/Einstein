@@ -6,7 +6,7 @@
 * Building Einstein with FLTK on macOS in 64 bit with Xcode
 * Building Einstein on Linux in 64 bit
 * Building Einstein on Windows 10
-* <a href="#Android">Buidling Einstein for Android</a>
+* Buidling Einstein for Android
 * Building Einstein for iOS
 
 
@@ -34,7 +34,8 @@ Tested on macOS 10.15.3 Catalina with Xcode 11.4.
 
 ### Prerequisites
 
-Install Xcode and Xcode's command line tools
+Install Xcode and Xcode's command line tools.
+Install the current version of CMake from https://cmake.org .
 
 ### FLTK
 
@@ -105,8 +106,8 @@ git clone https://github.com/pguyot/Einstein.git Einstein
 cd Einstein/
 # -- Create CMake paths
 cd _Build_/
-mkdir Xcode
-cd Xcode/
+mkdir Xcode.FLTK
+cd Xcode.FLTK/
 # -- Create the CMake build files
 cmake -G Xcode ../..
 # -- Now open the Xcode IDE
