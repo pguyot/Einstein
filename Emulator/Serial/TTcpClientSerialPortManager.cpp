@@ -402,7 +402,8 @@ TTcpClientSerialPortManager::HandleDMA()
 		}
 	}
 #else
-    static struct sigaction action { {sigpipe_handler} };
+    static struct sigaction action {};
+	action.sa_handler = sigpipe_handler;
 	sigaction(SIGPIPE, &action, nullptr);
 
 	// thread loops and handles pipe, port, and DMA

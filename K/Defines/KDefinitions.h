@@ -548,6 +548,10 @@ typedef uintptr_t   KUIntPtr;
 typedef	bool		Boolean;
 #endif
 
+#if TARGET_OS_ANDROID
+typedef	bool		Boolean;
+#endif
+
 #if TARGET_OS_WIN32
 typedef	bool		Boolean;
 typedef signed long ssize_t;

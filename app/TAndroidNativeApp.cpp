@@ -270,7 +270,7 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
     snprintf(theFlashPath, 1024, "%s/flash", dataPath);
 
     if (mLog) mLog->FLogLine("  mROMImage:");
-    mROMImage = new TFlatROMImageWithREX(theROMPath, theREXPath, theImagePath);
+    mROMImage = new TFlatROMImageWithREX(theROMPath, theREXPath);
     if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mROMImage);
 
     if (mLog) mLog->FLogLine("  mSoundManager:");

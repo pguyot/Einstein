@@ -780,7 +780,7 @@ int TLinearCard::ImageInfo::read(FILE* f)
     int ret = 0;
     int err = 0;
 
-    static_assert(sizeof(ImageInfo) == 10 * 4 + 12);
+    static_assert(sizeof(ImageInfo) == 10 * 4 + 12, "TLinearCard::ImageInfo size is wrong");
 
     char buf[sizeof(ImageInfo)];
     long pos = ftell(f);

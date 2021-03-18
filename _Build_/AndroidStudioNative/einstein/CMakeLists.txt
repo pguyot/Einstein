@@ -6,10 +6,14 @@ cmake_minimum_required(VERSION 3.4.1)
 
 PROJECT(Einstein C CXX)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 SET (LOCAL_PATH "../../..")
 
 # Debug flags
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Ofast")
 
 include_directories(
     ${LOCAL_PATH}/
@@ -67,6 +71,8 @@ SET (SourceFiles
 		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_Test.cpp
 		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGenericPage.cpp
 		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGenericROMPatch.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferImm.cpp
+		${LOCAL_PATH}/Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferReg.cpp
 		# Logging what's happening during EMulation
 		${LOCAL_PATH}/Emulator/Log/TBufferLog.cpp
 		${LOCAL_PATH}/Emulator/Log/TFileLog.cpp
@@ -120,7 +126,7 @@ SET (SourceFiles
 		${LOCAL_PATH}/K/Unicode/UUTF16Conv.cpp
 		${LOCAL_PATH}/K/Unicode/UUTF16CStr.cpp
 
-        ${LOCAL_PATH}/Drivers/EinsteinRex.cpp
+        ${LOCAL_PATH}/app/TFLRexImage.cpp
 )
 
 set_source_files_properties(${SourceFiles} PROPERTIES LANGUAGE CXX)
