@@ -25,12 +25,12 @@
 #include "TAndroidNativeApp.h"
 
 // ANSI C & POSIX
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <unistd.h>
-#include <errno.h>
-#include <stdarg.h>
+#include <cerrno>
+#include <cstdarg>
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <sys/system_properties.h>
@@ -75,10 +75,10 @@ bool TAndroidNativeCore::pScreenIsDirty = false;
 TMutex TAndroidNativeCore::pScreenMutex;
 
 // The ANativeActivity object instance that this app is running in.
-ANativeActivity *TAndroidNativeCore::pActivity = 0L;
+ANativeActivity *TAndroidNativeCore::pActivity = nullptr;
 
 // The current configuration the app is running in.
-AConfiguration* TAndroidNativeCore::pConfig = 0L;
+AConfiguration* TAndroidNativeCore::pConfig = nullptr;
 
 // This is the last instance's saved state, as provided at creation time.
 // It is NULL if there was no state.  You can use this as you need; the
@@ -88,18 +88,18 @@ AConfiguration* TAndroidNativeCore::pConfig = 0L;
 // at which point they will be initialized to NULL and you can malloc your
 // state and place the information here.  In that case the memory will be
 // freed for you later.
-void* TAndroidNativeCore::pSavedState = 0;
+void* TAndroidNativeCore::pSavedState = nullptr;
 size_t TAndroidNativeCore::pSavedStateSize = 0;
 
 // The ALooper associated with the app's thread.
-ALooper* TAndroidNativeCore::pAppLooper = 0;
+ALooper* TAndroidNativeCore::pAppLooper = nullptr;
 
 // When non-NULL, this is the input queue from which the app will
 // receive user input events.
-AInputQueue* TAndroidNativeCore::pInputQueue = 0;
+AInputQueue* TAndroidNativeCore::pInputQueue = nullptr;
 
 // When non-NULL, this is the window surface that the app can draw in.
-ANativeWindow* TAndroidNativeCore::pNativeWindow = 0;
+ANativeWindow* TAndroidNativeCore::pNativeWindow = nullptr;
 
 // Use this buffer for direct drawing access
 ANativeWindow_Buffer TAndroidNativeCore::pNativeWindowBuffer = { 0 };
@@ -122,8 +122,8 @@ int TAndroidNativeCore::pRunning = 0;
 int TAndroidNativeCore::pStateSaved = 0;
 int TAndroidNativeCore::pDestroyed = 0;
 //int TAndroidNativeCore::pRedrawNeeded = 0;
-AInputQueue *TAndroidNativeCore::pPendingInputQueue = 0;
-ANativeWindow *TAndroidNativeCore::pPendingWindow = 0;
+AInputQueue *TAndroidNativeCore::pPendingInputQueue = nullptr;
+ANativeWindow *TAndroidNativeCore::pPendingWindow = nullptr;
 //ARect TAndroidNativeCore::pPendingContentRect = { 0 };
 
 int TAndroidNativeCore::pTimerReadPipe = -1;
@@ -141,9 +141,9 @@ TLog *TAndroidNativeActivity::theLog = nullptr;
 class TAndroidLog : public TLog
 {
 public:
-    TAndroidLog() { }
+    TAndroidLog() = default;
 protected:
-    virtual void DoLogLine(const char* inLine) {
+    void DoLogLine(const char* inLine) override {
         __android_log_print(ANDROID_LOG_WARN, "NewtonEmulator", "%s", inLine);
     }
 };
@@ -151,7 +151,7 @@ protected:
 // -------------------------------------------------------------------------- //
 //  * TAndroidNativeApp( void )
 // -------------------------------------------------------------------------- //
-TAndroidNativeApp::TAndroidNativeApp( void )
+TAndroidNativeApp::TAndroidNativeApp( )
         :
         mProgramName( nil ),
         mROMImage( nil ),
@@ -170,32 +170,14 @@ TAndroidNativeApp::TAndroidNativeApp( void )
 // -------------------------------------------------------------------------- //
 //  * ~TAndroidNativeApp( void )
 // -------------------------------------------------------------------------- //
-TAndroidNativeApp::~TAndroidNativeApp( void )
+TAndroidNativeApp::~TAndroidNativeApp( )
 {
-    if (mEmulator)
-    {
-        delete mEmulator;
-    }
-    if (mScreenManager)
-    {
-        delete mScreenManager;
-    }
-    if (mSoundManager)
-    {
-        delete mSoundManager;
-    }
-    if (mLog)
-    {
-        delete mLog;
-    }
-    if (mROMImage)
-    {
-        delete mROMImage;
-    }
-    if (mNetworkManager)
-    {
-        delete mNetworkManager;
-    }
+    delete mEmulator;
+    delete mScreenManager;
+    delete mSoundManager;
+    delete mLog;
+    delete mROMImage;
+    delete mNetworkManager;
 }
 
 
@@ -206,11 +188,11 @@ void
 TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHeight, TLog *inLog)
 {
     mProgramName = "Einstein";
-    mROMImage = NULL;
-    mEmulator = NULL;
-    mSoundManager = NULL;
-    mScreenManager = NULL;
-    mPlatformManager = NULL;
+    mROMImage = nullptr;
+    mEmulator = nullptr;
+    mSoundManager = nullptr;
+    mScreenManager = nullptr;
+    mPlatformManager = nullptr;
     mLog = nullptr; // this is a quite detailed log, so keep it NULL unless you are debugging
 
     if (inLog) inLog->LogLine("Loading assets...");
@@ -295,7 +277,7 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
             mSoundManager,
             mScreenManager,
             mNetworkManager,
-            0x40 << 16
+            0x40U << 16U
             );
 
     if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mEmulator);
@@ -318,7 +300,7 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
 
     if (mLog) mLog->FLogLine("Creating helper thread.");
     pthread_t theThread;
-    int theErr = ::pthread_create( &theThread, NULL, SThreadEntry, this );
+    int theErr = ::pthread_create( &theThread, nullptr, SThreadEntry, this );
     if (theErr) {
         if (mLog) mLog->FLogLine( "Error with pthread_create (%i)\n", theErr );
         ::exit(2);
@@ -331,7 +313,7 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
 // Quit the Main tread
 // -------------------------------------------------------------------------- //
 void
-TAndroidNativeApp::Stop( void )
+TAndroidNativeApp::Stop( )
 {
     mEmulator->Stop();
 }
@@ -341,7 +323,7 @@ TAndroidNativeApp::Stop( void )
 // Wake up Emulator
 // -------------------------------------------------------------------------- //
 void
-TAndroidNativeApp::PowerOn( void )
+TAndroidNativeApp::PowerOn( )
 {
 #if 0
     mPlatformManager->PowerOn();
@@ -356,7 +338,7 @@ TAndroidNativeApp::PowerOn( void )
 // Send Emulator to Sleep
 // -------------------------------------------------------------------------- //
 void
-TAndroidNativeApp::PowerOff( void )
+TAndroidNativeApp::PowerOff( )
 {
 #if 0
     mPlatformManager->PowerOff();
@@ -387,7 +369,7 @@ void TAndroidNativeApp::ChangeScreenSize(int w, int h)
 // ThreadEntry( void )
 // -------------------------------------------------------------------------- //
 void
-TAndroidNativeApp::ThreadEntry( void )
+TAndroidNativeApp::ThreadEntry( )
 {
     mEmulator->Run();
     mQuit = true;
@@ -398,7 +380,7 @@ int TAndroidNativeApp::updateScreen(unsigned short *buffer, const ARect &r)
 {
     int ret = 0;
     if (mScreenManager) {
-        TAndroidNativeScreenManager *tasm = (TAndroidNativeScreenManager*)mScreenManager;
+        auto *tasm = (TAndroidNativeScreenManager*)mScreenManager;
         ret = tasm->update(buffer, r);
     }
     return ret;
@@ -442,7 +424,7 @@ void TAndroidNativeCore::log_v(const char *text, ...)
     __android_log_vprint(ANDROID_LOG_INFO, LOG_TAG, text, args);
     va_end (args);
 #else
-    text = 0;
+    text = nullptr;
 #endif
 }
 
@@ -450,9 +432,9 @@ void TAndroidNativeCore::log_v(const char *text, ...)
 void TAndroidNativeCore::free_saved_state()
 {
     pthread_mutex_lock(&pMutex);
-    if (pSavedState != NULL) {
+    if (pSavedState != nullptr) {
         free(pSavedState);
-        pSavedState = NULL;
+        pSavedState = nullptr;
         pSavedStateSize = 0;
     }
     pthread_mutex_unlock(&pMutex);
@@ -518,13 +500,13 @@ void TAndroidNativeCore::pre_exec_cmd(int8_t cmd)
         case APP_CMD_INPUT_CHANGED:
             log_v("APP_CMD_INPUT_CHANGED\n");
             pthread_mutex_lock(&pMutex);
-            if (pInputQueue != NULL) {
+            if (pInputQueue != nullptr) {
                 AInputQueue_detachLooper(pInputQueue);
             }
             pInputQueue = pPendingInputQueue;
-            if (pInputQueue != NULL) {
+            if (pInputQueue != nullptr) {
                 log_v("Attaching input queue to looper");
-                AInputQueue_attachLooper(pInputQueue, pAppLooper, LOOPER_ID_INPUT, NULL, NULL);
+                AInputQueue_attachLooper(pInputQueue, pAppLooper, LOOPER_ID_INPUT, nullptr, NULL);
             }
             pthread_cond_broadcast(&pCond);
             pthread_mutex_unlock(&pMutex);
@@ -594,7 +576,7 @@ void TAndroidNativeCore::post_exec_cmd(int8_t cmd)
         case APP_CMD_TERM_WINDOW:
             log_v("APP_CMD_TERM_WINDOW\n");
             pthread_mutex_lock(&pMutex);
-            pNativeWindow = NULL;
+            pNativeWindow = nullptr;
             pthread_cond_broadcast(&pCond);
             pthread_mutex_unlock(&pMutex);
             break;
@@ -610,6 +592,9 @@ void TAndroidNativeCore::post_exec_cmd(int8_t cmd)
         case APP_CMD_RESUME:
             free_saved_state();
             break;
+
+        default:
+            break;
     }
 }
 
@@ -623,7 +608,7 @@ void TAndroidNativeCore::create_timer_handler()
     }
     pTimerReadPipe = msgpipe[0];
     pTimerWritePipe = msgpipe[1];
-    ALooper_addFd(pAppLooper, pTimerReadPipe, LOOPER_ID_TIMER, ALOOPER_EVENT_INPUT, NULL, NULL);
+    ALooper_addFd(pAppLooper, pTimerReadPipe, LOOPER_ID_TIMER, ALOOPER_EVENT_INPUT, nullptr, nullptr);
 }
 
 
@@ -656,7 +641,7 @@ void TAndroidNativeCore::destroy()
     log_v("TAndroidNativeCore::destroy()!");
     free_saved_state();
     pthread_mutex_lock(&pMutex);
-    if (pInputQueue != NULL) {
+    if (pInputQueue != nullptr) {
         AInputQueue_detachLooper(pInputQueue);
     }
     destroy_timer_handler();
@@ -676,7 +661,7 @@ void *TAndroidNativeCore::thread_entry(void* param)
     print_cur_config();
 
     pAppLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
-    ALooper_addFd(pAppLooper, pMsgReadPipe, LOOPER_ID_MAIN, ALOOPER_EVENT_INPUT, NULL, NULL);
+    ALooper_addFd(pAppLooper, pMsgReadPipe, LOOPER_ID_MAIN, ALOOPER_EVENT_INPUT, nullptr, nullptr);
 
     create_timer_handler();
 
@@ -691,7 +676,7 @@ void *TAndroidNativeCore::thread_entry(void* param)
     TAndroidNativeActivity::runEmulator();
 
     destroy();
-    return NULL;
+    return nullptr;
 }
 
 /**
@@ -741,7 +726,7 @@ bool TAndroidNativeCore::copy_screen()
          * TODO: hide a buffer serial identifier in the blue channel of the screen buffer to verify
          *       that buffer content hasn't changed completely
          */
-        static void *knownScreenBuffer[pNScreenBuffer] = { NULL };
+        static void *knownScreenBuffer[pNScreenBuffer] = { nullptr };
         void *bits = pNativeWindowBuffer.bits;
         int i;
         for (i=0; i<pNScreenBuffer; i++) {
@@ -750,7 +735,7 @@ bool TAndroidNativeCore::copy_screen()
         if (i==pNScreenBuffer) {
             // - this is a previously unknown screen buffer, which messes up our entire assumption
             for (i = 0; i < pNScreenBuffer; i++) {
-                if (knownScreenBuffer[i] == 0L) {
+                if (knownScreenBuffer[i] == nullptr) {
                     knownScreenBuffer[i] = bits;
                     break;
                 }
@@ -758,7 +743,7 @@ bool TAndroidNativeCore::copy_screen()
             if (i == pNScreenBuffer) {
                 knownScreenBuffer[0] = bits;
                 for (i = 1; i < pNScreenBuffer; i++) {
-                    knownScreenBuffer[i] = NULL;
+                    knownScreenBuffer[i] = nullptr;
                 }
             }
             r.left = 0; r.right = (int32_t)pScreenWidth; r.top = 0; r.bottom = (int32_t)pScreenHeight;
@@ -824,7 +809,7 @@ bool TAndroidNativeCore::lock_screen()
         return false;
     }
 
-    if (ANativeWindow_lock(pNativeWindow, &pNativeWindowBuffer, 0L) < 0) {
+    if (ANativeWindow_lock(pNativeWindow, &pNativeWindowBuffer, nullptr) < 0) {
         log_w("Unable to lock window buffer: Android won't lock.");
         return false;
     }
@@ -843,7 +828,7 @@ void TAndroidNativeCore::unlock_and_post_screen()
         return;
 
     ANativeWindow_unlockAndPost(pNativeWindow);
-    pNativeWindowBuffer.bits = 0L; // avoid any misunderstandings...
+    pNativeWindowBuffer.bits = nullptr; // avoid any misunderstandings...
 }
 
 /**
@@ -852,7 +837,7 @@ void TAndroidNativeCore::unlock_and_post_screen()
  */
 bool TAndroidNativeCore::screen_is_locked()
 {
-    return (pNativeWindowBuffer.bits!=0L);
+    return (pNativeWindowBuffer.bits!=nullptr);
 }
 
 static void rectUnion(ARect &d, const ARect &s) {
@@ -933,11 +918,11 @@ void TAndroidNativeActivity::set_input(AInputQueue* inputQueue)
 void TAndroidNativeActivity::set_window(ANativeWindow* window)
 {
     pthread_mutex_lock(&pMutex);
-    if (pPendingWindow != NULL) {
+    if (pPendingWindow != nullptr) {
         write_cmd(APP_CMD_TERM_WINDOW);
     }
     pPendingWindow = window;
-    if (window != NULL) {
+    if (window != nullptr) {
         write_cmd(APP_CMD_INIT_WINDOW);
     }
     while (pNativeWindow != pPendingWindow) {
@@ -1045,7 +1030,7 @@ void TAndroidNativeActivity::onResume(ANativeActivity* activity)
 void *TAndroidNativeActivity::onSaveInstanceState(ANativeActivity* activity, size_t* outLen)
 {
     struct android_app* android_app = (struct android_app*)activity->instance;
-    void* savedState = NULL;
+    void* savedState = nullptr;
 
     log_v("SaveInstanceState: %p\n", activity);
     pthread_mutex_lock(&pMutex);
@@ -1055,10 +1040,10 @@ void *TAndroidNativeActivity::onSaveInstanceState(ANativeActivity* activity, siz
         pthread_cond_wait(&pCond, &pMutex);
     }
 
-    if (pSavedState != NULL) {
+    if (pSavedState != nullptr) {
         savedState = pSavedState;
         *outLen = pSavedStateSize;
-        pSavedState = NULL;
+        pSavedState = nullptr;
         pSavedStateSize = 0;
     }
 
@@ -1131,7 +1116,7 @@ void TAndroidNativeActivity::onNativeWindowCreated(ANativeActivity* activity, AN
 void TAndroidNativeActivity::onNativeWindowDestroyed(ANativeActivity* activity, ANativeWindow* window)
 {
     log_v("NativeWindowDestroyed: %p -- %p\n", activity, window);
-    set_window(NULL);
+    set_window(nullptr);
 }
 
 /**
@@ -1149,7 +1134,7 @@ void TAndroidNativeActivity::onInputQueueCreated(ANativeActivity* activity, AInp
 void TAndroidNativeActivity::onInputQueueDestroyed(ANativeActivity* activity, AInputQueue* queue)
 {
     log_v("InputQueueDestroyed: %p -- %p\n", activity, queue);
-    set_input(NULL);
+    set_input(nullptr);
 }
 
 /**
@@ -1183,9 +1168,9 @@ void TAndroidNativeActivity::create(ANativeActivity* activity, void* savedState,
         methodID = env->GetMethodID(clazz, "getScreenHeight", "()I");
         screenHeight = env->CallIntMethod(pActivity->clazz, methodID);
         jmethodID midToString = env->GetMethodID(clazz, "getDeviceName", "()Ljava/lang/String;");
-        jstring jstr = (jstring) env->CallObjectMethod(pActivity->clazz, midToString);
-        if (jstr != 0) {
-            const char* cstr = env->GetStringUTFChars(jstr, 0);
+        auto jstr = (jstring) env->CallObjectMethod(pActivity->clazz, midToString);
+        if (jstr != nullptr) {
+            const char* cstr = env->GetStringUTFChars(jstr, nullptr);
             strncpy(host, cstr, sizeof(host));
             env->ReleaseStringUTFChars(jstr, cstr);
             env->DeleteLocalRef(jstr);
@@ -1214,10 +1199,10 @@ void TAndroidNativeActivity::create(ANativeActivity* activity, void* savedState,
 
     allocate_screen();
 
-    pthread_mutex_init(&pMutex, NULL);
-    pthread_cond_init(&pCond, NULL);
+    pthread_mutex_init(&pMutex, nullptr);
+    pthread_cond_init(&pCond, nullptr);
 
-    if (savedState != NULL) {
+    if (savedState != nullptr) {
         pSavedState = malloc(savedStateSize);
         pSavedStateSize = savedStateSize;
         memcpy(pSavedState, savedState, savedStateSize);
@@ -1234,7 +1219,7 @@ void TAndroidNativeActivity::create(ANativeActivity* activity, void* savedState,
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-    pthread_create(&pThread, &attr, thread_entry, 0L);
+    pthread_create(&pThread, &attr, thread_entry, nullptr);
 
     // Wait for thread to start.
     pthread_mutex_lock(&pMutex);
@@ -1529,7 +1514,7 @@ TAndroidNativeToJava::TAndroidNativeToJava()
             .group = nullptr
     };
 
-    lResult = pJavaVM->AttachCurrentThread(&pJNIEnv, NULL); //&lJavaVMAttachArgs);
+    lResult = pJavaVM->AttachCurrentThread(&pJNIEnv, nullptr); //&lJavaVMAttachArgs);
     if (lResult == JNI_ERR) return;
 
     pNativeActivity = TAndroidNativeCore::get_activity()->clazz;

@@ -41,6 +41,11 @@ android {
   }
 }
 
+dependencies {
+  def activity_version = "1.2.2"
+  implementation "androidx.activity:activity:$activity_version"
+}
+
 /* Put your signing data in a file in _Build_/AndroidStudioNative/Einstein
    named signingConfigRelease.properties. Make sure that it does not get added
    to GIT. The content of the file should look like this:
