@@ -16,6 +16,7 @@
         android:hasCode="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name">
+        <!-- Starting w/29: android:requestLegacyExternalStorage="true" -->
         <!-- try to find the correct theme -->
         <activity
             android:theme="@style/EinsteinStyle"

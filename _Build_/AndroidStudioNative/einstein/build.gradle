@@ -1,43 +1,76 @@
 apply plugin: 'com.android.application'
 
 android {
-  ndkVersion '23.0.7196353-rc2'
-}
-
-android {
   signingConfigs {
-      release {
-      }
+    release
   }
-    compileSdkVersion 26
+  compileSdkVersion 28
   defaultConfig {
     applicationId 'com.matthiasm.einstein'
     minSdkVersion 19
-    targetSdkVersion 26
+    targetSdkVersion 28
     externalNativeBuild {
-      cmake {
-        arguments '-DANDROID_STL=c++_shared'
-        cppFlags "-std=c++11 -fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1"
-        cFlags "-fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1"
-        targets 'einstein'
-      }
-    }
-    ndk {
-      //abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
-      abiFilters 'arm64-v8a'
-      //abiFilters 'x86', 'armeabi-v7a'
+        cmake {
+          arguments '-DANDROID_STL=c++_shared'
+          cppFlags "-std=c++11 -fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1"
+          cFlags "-fexceptions -Wno-multichar -DTARGET_OS_ANDROID=1"
+          targets 'einstein'
+        }
     }
   }
+
   buildTypes {
     release {
       minifyEnabled false
+      ndk {
+        abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+      }
+      signingConfig signingConfigs.release
     }
     debug {
+      ndk {
+        abiFilters  'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+      }
     }
   }
+
   externalNativeBuild {
     cmake {
-      path './CMakeLists.txt'
+      path 'CMakeLists.txt'
     }
   }
 }
+
+/* Put your signing data in a file in _Build_/AndroidStudioNative/Einstein
+   named signingConfigRelease.properties. Make sure that it does not get added
+   to GIT. The content of the file should look like this:
+
+STORE_FILE=/path/to/store/file
+STORE_PASSWORD=yourStorePassword
+KEY_ALIAS=yourKey
+KEY_PASSWORD=yourKeyPassword
+ */
+/*
+File propFile = file('signingConfigRelease.properties');
+println("file")
+if (propFile.exists()) {
+  println("exists")
+  def Properties props = new Properties()
+  props.load(new FileInputStream(propFile))
+  println("props")
+
+  if (props.containsKey('STORE_FILE') && props.containsKey('STORE_PASSWORD') &&
+          props.containsKey('KEY_ALIAS') && props.containsKey('KEY_PASSWORD')) {
+    println("exists")
+    android.signingConfigs.release.storeFile = file(props['STORE_FILE'])
+    android.signingConfigs.release.storePassword = props['STORE_PASSWORD']
+    android.signingConfigs.release.keyAlias = props['KEY_ALIAS']
+    android.signingConfigs.release.keyPassword = props['KEY_PASSWORD']
+  } else {
+    android.buildTypes.release.signingConfig = null
+  }
+} else {
+  android.buildTypes.release.signingConfig = null
+}
+
+ */

@@ -256,8 +256,6 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
                  "of EInstein and needs to be installed separately.",
                  theROMPath);
         TAndroidNativeActivity::alert(buf);
-        if (mLog) mLog->FLogLine("Can't read ROM file %s", theROMPath);
-        return;
         if (mLog) mLog->FLogLine("Can't read REX file %s", theREXPath);
         return;
     }
@@ -312,11 +310,11 @@ TAndroidNativeApp::Run(const char *dataPath, int newtonScreenWidth, int newtonSc
                                       TSerialPorts::kNullDriver );
 
     // Create the Overlay text window
-    mScreenManager->OverlayClear();
-    mScreenManager->OverlayOn();
-    mScreenManager->OverlayPrintAt(0, 0, "Booting...", true);
-    mScreenManager->OverlayPrintProgress(1, 0);
-    mScreenManager->OverlayFlush();
+    //mScreenManager->OverlayClear();
+    //mScreenManager->OverlayOn();
+    //mScreenManager->OverlayPrintAt(0, 0, "Booting...", true);
+    //mScreenManager->OverlayPrintProgress(1, 0);
+    //mScreenManager->OverlayFlush();
 
     if (mLog) mLog->FLogLine("Creating helper thread.");
     pthread_t theThread;

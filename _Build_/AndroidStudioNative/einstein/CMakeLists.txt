@@ -13,7 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 SET (LOCAL_PATH "../../..")
 
 # Debug flags
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Ofast")
+##set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Ofast")
 
 include_directories(
     ${LOCAL_PATH}/
