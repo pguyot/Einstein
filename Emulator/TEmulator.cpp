@@ -80,21 +80,10 @@ TEmulator::TEmulator(
         SerialPorts( this, inLog ),
 		mMemory( inLog, inROMImage, inFlashPath, inRAMSize ),
 		mProcessor( inLog, &mMemory ),
-		mInterruptManager( nil ),
-		mDMAManager( nil ),
-		mPlatformManager( nil ),
 		mNetworkManager( inNetworkManager ),
 		mSoundManager( inSoundManager ),
 		mScreenManager( inScreenManager ),
-		mFileManager( NULL ),
-		mLog( inLog ),
-		mMonitor( NULL ),
-		mSignal( 0 ),
-		mInterrupted( 0 ),
-		mRunning( false ),
-		mPaused( false ),
-		mBPHalted( false ),
-		mBPID( 0 )
+		mLog( inLog )
 {
 	mInterruptManager = new TInterruptManager(inLog, &mProcessor);
 #ifdef JIT_PERFORMANCE
@@ -141,20 +130,7 @@ TEmulator::TEmulator(
         SerialPorts( this, inLog ),
 		mMemory( inLog, inROMImageBuffer, inFlashPath, inRAMSize ),
 		mProcessor( inLog, &mMemory ),
-		mInterruptManager( nil ),
-		mDMAManager( nil ),
-		mPlatformManager( nil ),
-		mNetworkManager( nil ),
-		mSoundManager( nil ),
-		mScreenManager( nil ),
-		mLog( inLog ),
-		mMonitor( NULL ),
-		mSignal( 0 ),
-		mInterrupted( 0 ),
-		mRunning( false ),
-		mPaused( false ),
-		mBPHalted( false ),
-		mBPID( 0 )
+		mLog( inLog )
 {
 	mInterruptManager = new TInterruptManager(inLog, &mProcessor);
 #ifdef JIT_PERFORMANCE
@@ -162,7 +138,7 @@ TEmulator::TEmulator(
 	branchLinkDestCount.SetEmulator(this);
 #endif
 	mDMAManager = new TDMAManager(inLog, this, &mMemory, mInterruptManager);
-	mPlatformManager = new TPlatformManager( inLog, nil );
+	mPlatformManager = new TPlatformManager( inLog, nullptr );
 	
 	mNewtonID[0] = kMyNewtonIDHigh;
 	mNewtonID[1] = kMyNewtonIDLow;
@@ -180,14 +156,11 @@ TEmulator::TEmulator(
 // -------------------------------------------------------------------------- //
 //  * ~TEmulator( void )
 // -------------------------------------------------------------------------- //
-TEmulator::~TEmulator( void )
+TEmulator::~TEmulator()
 {
-	if (mInterruptManager)
-		delete mInterruptManager;
-	if (mDMAManager)
-		delete mDMAManager;
-	if (mPlatformManager)
-		delete mPlatformManager;
+	delete mInterruptManager;
+	delete mDMAManager;
+	delete mPlatformManager;
 }
 
 // -------------------------------------------------------------------------- //
@@ -518,15 +491,32 @@ TEmulator::LoadState( const char* inPath )
 void
 TEmulator::TransferState( TStream* inStream )
 {
-	// Emulator specific stuff.
+	// Tag the settings, so we will find errors in synchronization
 	inStream->Tag('Emul', "Transfer emulator state");
+
+	// used to calculate the serial number of the emulated machine
 	inStream->Transfer(mNewtonID, 2);
+	if (inStream->IsReading()) SetNewtonID(mNewtonID[0], mNewtonID[1]);
+
+	// Set this to false to abort the JIT interpreter.
+	inStream->Transfer(mSignal);
+
+	// Was the processor interrupted?
 	inStream->Transfer(mInterrupted);
+
+	// Is the processor running?
 	inStream->Transfer(mRunning);
+
+	// Sleeping, waiting for the next interrupt.
 	inStream->Transfer(mPaused);
+
+	// CPU was hated by hitting a breakpoint
 	inStream->Transfer(mBPHalted);
+
+	// ID of the current breakpoint (if mBPHalted is set)
 	inStream->Transfer(mBPID);
 
+// CONT: here --->
 	// Save the memory.
 	mMemory.TransferState( inStream );
 	
@@ -541,6 +531,25 @@ TEmulator::TransferState( TStream* inStream )
 	
 	// And the screen content.
 	mScreenManager->TransferState( inStream );	
+
+	// --- Not relevant for the state of the emulation:
+	// TLog* mLog
+	// TMonitor* mMonitor
+	// std::function<void()> mCallOnQuit
+
+	// TODO: unchecked:
+	/*
+	TMemory				mMemory;			///< Memory.
+	TARMProcessor		mProcessor;			///< CPU.
+	TInterruptManager* mInterruptManager;	///< Interrupt manager.
+	TDMAManager* mDMAManager;		///< DMA manager.
+	TPlatformManager* mPlatformManager;	///< Platform manager.
+	TNetworkManager* mNetworkManager;	///< Network manager.
+	TSoundManager* mSoundManager;		///< Sound manager.
+	TScreenManager* mScreenManager;		///< Screen manager.
+	TFileManager* mFileManager;
+	TSerialPorts	SerialPorts;		///< Serial port driver access
+	*/
 }
 
 

@@ -99,23 +99,23 @@ public:
 	///
 	/// Destructor.
 	///
-	~TEmulator( void );
+	~TEmulator();
 	
 	///
 	/// Run the emulator until it is interrupted.
 	///
-	void	Run( void );
+	void	Run();
 
 	///
 	/// Perform a single step.
 	/// This is useful for debugging. Timers are suspended.
 	///
-	void	Step( void );
+	void	Step();
 
 	///
 	/// Signal an interrupt.
 	///
-	inline void	SignalInterrupt( void )
+	inline void	SignalInterrupt()
 		{
 			mSignal = false;
 			mInterrupted = true;
@@ -124,7 +124,7 @@ public:
 	///
 	/// Called after the interrupt was processed.
 	///
-	inline void	AckInterrupt( void )
+	inline void	AckInterrupt()
 		{
 			if (mRunning && (!mPaused))
 			{
@@ -136,7 +136,7 @@ public:
 	///
 	/// Stop the emulator.
 	///
-	void	Stop( void );
+	void	Stop();
 
 	///
 	/// Breakpoint.
@@ -196,64 +196,49 @@ public:
 	///
 	/// Break in monitor, if present (don't do anything otherwise).
 	///
-	void		BreakInMonitor( const char* msg = NULL );
+	void		BreakInMonitor( const char* msg = nullptr );
 	
 	///
 	/// Determine if we're stopped in a breakpoint.
 	///
 	/// \return \c true if we are.
 	///
-	inline Boolean	IsBPHalted( void )
-		{
-			return mBPHalted;
-		}
+	inline Boolean IsBPHalted() const { return mBPHalted; }
 	
 	///
 	/// Determine if we're processing an interrupt.
 	///
 	/// \return \c true if we are.
 	///
-	inline Boolean	IsInterrupted( void )
-		{
-			return mInterrupted;
-		}
+	inline Boolean IsInterrupted() const { return mInterrupted; }
 
 	///
 	/// Return the ID of the Breakpoint.
 	///
 	/// \return the ID.
 	///
-	inline KUInt16	GetBPID( void )
-		{
-			return mBPID;
-		}
+	inline KUInt16 GetBPID() const { return mBPID; }
 	
 	///
 	/// Determine if we're paused.
 	///
 	/// \return \c true if we are.
 	///
-	inline Boolean	IsPaused( void )
-		{
-			return mPaused;
-		}
+	inline Boolean IsPaused() const { return mPaused; }
 	
 	///
 	/// Determine if we're running.
 	///
 	/// \return \c true if we are.
 	///
-	inline Boolean	IsRunning( void )
-		{
-			return mRunning;
-		}
+	inline Boolean IsRunning() const { return mRunning; }
 
 	///
 	/// Accessor on the CPU.
 	///
 	/// \return a pointer on the CPU interface.
 	///
-	TARMProcessor*  GetProcessor( void )
+	TARMProcessor*  GetProcessor()
 		{
 			return &mProcessor;
 		}
@@ -263,7 +248,7 @@ public:
 	///
 	/// \return a pointer on the memory interface.
 	///
-	TMemory*  GetMemory( void )
+	TMemory*  GetMemory()
 		{
 			return &mMemory;
 		}
@@ -271,7 +256,7 @@ public:
 	///
 	/// Accessor on the interrupt manager interface.
 	///
-	TInterruptManager*  GetInterruptManager( void )
+	TInterruptManager*  GetInterruptManager()
 		{
 			return mInterruptManager;
 		}
@@ -281,7 +266,7 @@ public:
 	///
 	/// \return a pointer to the sound manager.
 	///
-	TSoundManager*  GetSoundManager( void )
+	TSoundManager*  GetSoundManager()
 	{
 		return mSoundManager;
 	}
@@ -291,7 +276,7 @@ public:
 	///
 	/// \return a pointer to the network manager.
 	///
-	TNetworkManager*  GetNetworkManager( void )
+	TNetworkManager*  GetNetworkManager()
 	{
 		return mNetworkManager;
 	}
@@ -301,7 +286,7 @@ public:
 	///
 	/// \return a pointer to the screen manager.
 	///
-	TScreenManager*  GetScreenManager( void )
+	TScreenManager*  GetScreenManager()
 		{
 			return mScreenManager;
 		}
@@ -311,7 +296,7 @@ public:
 	///
 	/// \return a pointer to the file manager.
 	///
-	TFileManager*  GetFileManager( void )
+	TFileManager*  GetFileManager()
 		{
 			return mFileManager;
 		}
@@ -321,7 +306,7 @@ public:
 	///
 	/// \return a pointer to the screen manager.
 	///
-	TPlatformManager*  GetPlatformManager( void )
+	TPlatformManager*  GetPlatformManager()
 		{
 			return mPlatformManager;
 		}
@@ -331,7 +316,7 @@ public:
 	///
 	/// \return a pointer to the DMA manager.
 	///
-	TDMAManager*  GetDMAManager( void )
+	TDMAManager*  GetDMAManager()
 		{
 			return mDMAManager;
 		}
@@ -341,15 +326,12 @@ public:
 	///
 	/// \return a pointer to the NewtonID.
 	///
-	const KUInt32*		GetNewtonID( void )
-		{
-			return mNewtonID;
-		}
+	const KUInt32* GetNewtonID() const { return mNewtonID; }
 
 	///
 	/// Pause system and wait for next interrupt.
 	///
-	inline void	PauseSystem( void )
+	inline void	PauseSystem()
 		{
 			mSignal = false;
 			mPaused = true;
@@ -358,7 +340,7 @@ public:
 	///
 	/// Quit.
 	///
-	void		Quit( void );
+	void		Quit();
 
 	///
 	/// Save the state to a file.
@@ -395,40 +377,32 @@ public:
 	void CallOnQuit(std::function<void()> inCallback);
 
 private:
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet � copier
-	///
+	// No implecit copy constructor
 	TEmulator(const TEmulator& inCopy) = delete;
 
-	///
-	/// Op�rateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet � copier
-	///
+	// No implecit copy operator
 	TEmulator& operator = (const TEmulator& inCopy) = delete;
 
 	/// \name Variables
-	TMemory				mMemory;			///< Memory.
-	TARMProcessor		mProcessor;			///< CPU.
-	TInterruptManager*	mInterruptManager;	///< Interrupt manager.
-	TDMAManager*		mDMAManager;		///< DMA manager.
-	TPlatformManager*	mPlatformManager;	///< Platform manager.
-	TNetworkManager*	mNetworkManager;	///< Network manager.
-	TSoundManager*		mSoundManager;		///< Sound manager.
-	TScreenManager*		mScreenManager;		///< Screen manager.
-	TFileManager*       mFileManager;
-	KUInt32				mNewtonID[2];		///< NewtonID (48 bits, 16+32).
-	TLog*				mLog;				///< Interface for logging.
-	TMonitor*			mMonitor;			///< Monitor (or \c nil).
-	Boolean				mSignal;			///< Signal for JIT (if we're running).
-	KUInt32				mInterrupted;		///< We got a (processor) interrupt.
-	KUInt32				mRunning;			///< If we're running.
-	KUInt32				mPaused;			///< If we're paused (until next interrupt).
-	KUInt32				mBPHalted;			///< If we're halted because of a breakpoint.
-	KUInt16				mBPID;				///< ID of the breakpoint.
-	std::function<void()> mCallOnQuit;      ///< Call this when the user quits Einstein
+	TMemory				mMemory;					///< Memory.
+	TARMProcessor		mProcessor;					///< CPU.
+	TInterruptManager*	mInterruptManager = nullptr;///< Interrupt manager (allocation managed by TEmulator).
+	TDMAManager*		mDMAManager = nullptr;		///< DMA manager (allocation managed by TEmulator).
+	TPlatformManager*	mPlatformManager = nullptr;	///< Platform manager (allocation managed by TEmulator).
+	TNetworkManager*	mNetworkManager = nullptr;	///< Network manager (allocated by the host UI).
+	TSoundManager*		mSoundManager = nullptr;	///< Sound manager (allocated by the host UI).
+	TScreenManager*		mScreenManager = nullptr;	///< Screen manager (allocated by the host UI).
+	TFileManager*       mFileManager = nullptr;		///< Host file access for native macOS variant, clarification needed
+	KUInt32				mNewtonID[2] = { 0, 0 };	///< NewtonID (48 bits, 16+32).
+	TLog*				mLog = nullptr;				///< Interface for logging.
+	TMonitor*			mMonitor = nullptr;			///< Monitor (or \c nil).
+	Boolean				mSignal = false;			///< Signal for JIT (if we're running).
+	Boolean				mInterrupted = false;		///< We got a (processor) interrupt.
+	Boolean				mRunning = false;			///< If we're running.
+	Boolean				mPaused = false;			///< If we're paused (until next interrupt).
+	Boolean				mBPHalted = false;			///< If we're halted because of a breakpoint.
+	KUInt16				mBPID = 0;					///< ID of the current breakpoint.
+	std::function<void()> mCallOnQuit;				///< Call this when the user quits Einstein
 };
 
 #endif

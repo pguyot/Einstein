@@ -84,7 +84,7 @@ public:
 	///
 	/// Destructor.
 	///
-	~TNativePrimitives( void );
+	~TNativePrimitives();
 
 	///
 	/// Set the processor.
