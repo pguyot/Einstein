@@ -58,17 +58,17 @@ TDMAManager::TDMAManager(
 }
 
 // -------------------------------------------------------------------------- //
-//  * ~TDMAManager( void )
+//  * ~TDMAManager()
 // -------------------------------------------------------------------------- //
-TDMAManager::~TDMAManager( void )
+TDMAManager::~TDMAManager()
 {
 }
 
 // -------------------------------------------------------------------------- //
-//  * ReadChannelAssignmentRegister( void )
+//  * ReadChannelAssignmentRegister()
 // -------------------------------------------------------------------------- //
 KUInt32
-TDMAManager::ReadChannelAssignmentRegister( void )
+TDMAManager::ReadChannelAssignmentRegister()
 {
 	if (mLog)
 	{
@@ -113,10 +113,10 @@ TDMAManager::WriteEnableRegister( KUInt32 inValue )
 }
 
 // -------------------------------------------------------------------------- //
-//  * ReadStatusRegister( void )
+//  * ReadStatusRegister()
 // -------------------------------------------------------------------------- //
 KUInt32
-TDMAManager::ReadStatusRegister( void )
+TDMAManager::ReadStatusRegister()
 {
 	KUInt32 theResult = 0;
 	
@@ -148,10 +148,10 @@ TDMAManager::WriteDisableRegister( KUInt32 inValue )
 }
 
 // -------------------------------------------------------------------------- //
-//  * ReadWordStatusRegister( void )
+//  * ReadWordStatusRegister()
 // -------------------------------------------------------------------------- //
 KUInt32
-TDMAManager::ReadWordStatusRegister( void )
+TDMAManager::ReadWordStatusRegister()
 {
 	KUInt32 theResult = 0;
 	
@@ -281,6 +281,12 @@ void TDMAManager::TransferState( TStream* inStream )
 	inStream->Tag('DMA ', "Transfer all DMA data");
 
 	inStream->Transfer(mAssignmentReg);
+
+	// --- don't write these:
+	// TLog* mLog
+	// TMemory* mMemory
+	// TInterruptManager* mInterruptManager
+	// TEmulator* mEmulator
 }
 
 

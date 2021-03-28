@@ -127,7 +127,7 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TScreenManager( void );
+	virtual ~TScreenManager();
 
 	///
 	/// Set the interrupt manager.
@@ -166,31 +166,31 @@ public:
 	/// Wake up tablet.
 	/// This method is called by the tablet driver.
 	///
-	void	WakeUpTablet( void );
+	void	WakeUpTablet();
 
 	///
 	/// Shut down tablet.
 	/// This method is called by the tablet driver.
 	///
-	void	ShutDownTablet( void );
+	void	ShutDownTablet();
 
 	///
 	/// Start bypassing the tablet. Events are ignored.
 	/// This method is called by the tablet driver.
 	///
-	void	StartBypassTablet( void );
+	void	StartBypassTablet();
 
 	///
 	/// Stop bypassing the tablet. Events are no longer ignored.
 	/// This method is called by the tablet driver.
 	///
-	void	StopBypassTablet( void );
+	void	StopBypassTablet();
 
 	///
 	/// Get the current tablet sample rate.
 	/// This method is called by the tablet driver.
 	///
-	KUInt32	GetTabletSampleRate( void ) const
+	KUInt32	GetTabletSampleRate() const
 		{
 			return mTabletSampleRate;
 		}
@@ -210,7 +210,7 @@ public:
 	/// Get the tablet state.
 	/// This method is called by the tablet driver.
 	///
-	ETabletState	GetTabletState( void ) const;
+	ETabletState	GetTabletState() const;
 
 	///
 	/// Access a sample.
@@ -235,7 +235,7 @@ public:
 	/// Get the screen orientation.
 	/// This method is called by the tablet driver.
 	///
-	EOrientation	GetTabletOrientation( void ) const
+	EOrientation	GetTabletOrientation() const
 		{
 			return mTabletOrientation;
 		}
@@ -257,25 +257,25 @@ public:
 	/// This method is called by the platform manager when the emulator is
 	/// turned on.
 	///
-	virtual void	PowerOn( void ) = 0;
+	virtual void	PowerOn() = 0;
 
 	///
 	/// This method is called by the platform manager when the emulator is
 	/// turned off.
 	///
-	virtual void	PowerOff( void ) = 0;
+	virtual void	PowerOff() = 0;
 
 	///
 	/// Power on the screen (open the window?)
 	/// This method is called by the display driver.
 	///
-	virtual void	PowerOnScreen( void ) = 0;
+	virtual void	PowerOnScreen() = 0;
 
 	///
 	/// Power off the screen (close the window?)
 	/// This method is called by the display driver.
 	///
-	virtual void	PowerOffScreen( void ) = 0;
+	virtual void	PowerOffScreen() = 0;
 
 	///
 	/// Notify that the screen orientation changed.
@@ -306,7 +306,7 @@ public:
 	/// Get the screen orientation.
 	/// This method is called by the display driver.
 	///
-	EOrientation	GetScreenOrientation( void ) const
+	EOrientation	GetScreenOrientation() const
 		{
 			return mScreenOrientation;
 		}
@@ -331,7 +331,7 @@ public:
 	///
 	/// \return the contrast of the screen.
 	///
-	KUInt32	GetContrast( void ) const
+	KUInt32	GetContrast() const
 		{
 			return mContrast;
 		}
@@ -355,7 +355,7 @@ public:
 	/// Get the state of the backlight.
 	/// This method is called by the display driver.
 	///
-	Boolean	GetBacklight( void ) const
+	Boolean	GetBacklight() const
 		{
 			return mBacklight;
 		}
@@ -385,7 +385,7 @@ public:
 	///
 	/// \return the screen width (from the current orientation)
 	///
-	KUInt32	GetScreenWidth( void ) const
+	KUInt32	GetScreenWidth() const
 		{
 			if (mScreenOrientation & kOrientation_LandscapeBit)
 			{
@@ -400,7 +400,7 @@ public:
 	///
 	/// \return the screen height (from the current orientation)
 	///
-	KUInt32	GetScreenHeight( void ) const
+	KUInt32	GetScreenHeight() const
 		{
 			if (mScreenOrientation & kOrientation_LandscapeBit)
 			{
@@ -415,7 +415,7 @@ public:
 	///
 	/// \return the actual screen width
 	///
-	KUInt32	GetActualScreenWidth( void ) const
+	KUInt32	GetActualScreenWidth() const
 		{
 			if (mFullScreen)
 			{
@@ -430,7 +430,7 @@ public:
 	///
 	/// \return the actual screen height
 	///
-	KUInt32	GetActualScreenHeight( void ) const
+	KUInt32	GetActualScreenHeight() const
 		{
 			if (mFullScreen)
 			{
@@ -445,7 +445,7 @@ public:
 	///
 	/// \return true if the display is full screen.
 	///
-	Boolean	IsFullScreen( void ) const
+	Boolean	IsFullScreen() const
 		{
 			return mFullScreen;
 		}
@@ -530,7 +530,7 @@ protected:
 	///
 	/// Accessor on the interface to the log (may be null).
 	///
-	TLog*	GetLog( void ) const
+	TLog*	GetLog() const
 		{
 			return mLog;
 		}
@@ -538,7 +538,7 @@ protected:
 	///
 	/// Accessor on the interface to the interrupt manager.
 	///
-	TInterruptManager*	GetInterruptManager( void ) const
+	TInterruptManager*	GetInterruptManager() const
 		{
 			return mInterruptManager;
 		}
@@ -546,7 +546,7 @@ protected:
 	///
 	/// Accessor on the interface to the memory.
 	///
-	TMemory*	GetMemory( void ) const
+	TMemory*	GetMemory() const
 		{
 			return mMemory;
 		}
@@ -577,25 +577,17 @@ public:
 	///
 	/// Accessor on the screen buffer.
 	///
-	KUInt8*	GetScreenBuffer( void ) const
+	KUInt8*	GetScreenBuffer() const
 		{
 			return mScreenBuffer;
 		}
 
 private:
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet � copier
-	///
-	TScreenManager( const TScreenManager& inCopy );
+	// No implicit copy constructor
+	TScreenManager(const TScreenManager& inCopy) = delete;
 
-	///
-	/// Op�rateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet � copier
-	///
-	TScreenManager& operator = ( const TScreenManager& inCopy );
+	// No implicit copy operator
+	TScreenManager& operator = (const TScreenManager& inCopy) = delete;
 
 	///
 	/// Insert sample to the buffer.
@@ -608,7 +600,7 @@ private:
 	///
 	/// Raise input to wake the tablet driver.
 	///
-	void	RaiseTabletInterrupt( void ) const;
+	void	RaiseTabletInterrupt() const;
 
 	///
 	/// Update some screen bits, with no rotation.
@@ -659,31 +651,29 @@ private:
 						KUInt32 inMode );
 
 	/// \name Variables
-	TLog*				mLog;				///< Reference to the log.
-	TInterruptManager*	mInterruptManager;	///< Reference to the interrupt mgr.
-	TMemory*			mMemory;			///< Interface to the memory.
-	TPlatformManager*	mPlatformManager;	///< Reference to the platform mgr.
-	KUInt32				mPortraitWidth;		///< Width in portrait mode.
-	KUInt32				mPortraitHeight;	///< Height in portrait mode.
-	KUInt32				mPhysicalWidth;		///< Actual screen width (full screen).
-	KUInt32				mPhysicalHeight;	///< Actual screen height (full screen).
-	Boolean				mFullScreen;		///< Full screen mode.
-	Boolean				mScreenIsLandscape;	///< Whether screen is landscape.
-	Boolean				mBypassTablet;		///< Whether we bypass the tablet.
-	Boolean				mTabletIsDown;		///< Whether the tablet is down.
-	Boolean				mPenIsDown;			///< If pen is down.
-	KUInt32				mTabletSampleRate;	///< Sample rate (in ticks) of the
-											///< tablet.
-	KUInt32*			mTabletBuffer;		///< (Circular) buffer for the
-											///< tablet samples.
-	KUInt32				mTabletBufCCrsr;	///< Consumer buffer cursor (Newton)
-	KUInt32				mTabletBufPCrsr;	///< Producer buffer cursor (Host)
-	EOrientation		mTabletOrientation;	///< Current tablet orientation.
-	EOrientation		mScreenOrientation;	///< Current screen orientation.
-	KUInt32				mContrast;			///< Current screen contrast.
-	Boolean				mBacklight;			///< Current screen backlight.
-	Boolean				mKbdIsConnected;	///< If keyboard is connected.
-	KUInt8*				mScreenBuffer;		///< Buffer of the screen.
+	TLog*				mLog = nullptr;					///< Reference to the log.
+	TInterruptManager*	mInterruptManager = nullptr;	///< Reference to the interrupt mgr.
+	TMemory*			mMemory = nullptr;				///< Interface to the memory.
+	TPlatformManager*	mPlatformManager = nullptr;		///< Reference to the platform mgr.
+	KUInt32				mPortraitWidth = 320;			///< Width in portrait mode.
+	KUInt32				mPortraitHeight = 480;			///< Height in portrait mode.
+	KUInt32				mPhysicalWidth = 0;				///< Actual screen width (full screen).
+	KUInt32				mPhysicalHeight = 0;			///< Actual screen height (full screen).
+	Boolean				mFullScreen = false;			///< Full screen mode.
+	Boolean				mScreenIsLandscape = false;		///< Whether screen is landscape.
+	Boolean				mBypassTablet = false;			///< Whether we bypass the tablet.
+	Boolean				mTabletIsDown = false;			///< Whether the tablet is down.
+	Boolean				mPenIsDown = false;				///< If pen is down.
+	KUInt32				mTabletSampleRate = kDefaultSampleRate;	///< Sample rate (in ticks) of the tablet.
+	KUInt32*			mTabletBuffer = nullptr;		///< (Circular) buffer for the tablet samples.
+	KUInt32				mTabletBufCCrsr = 0;			///< Consumer buffer cursor (Newton)
+	KUInt32				mTabletBufPCrsr = 0;			///< Producer buffer cursor (Host)
+	EOrientation		mTabletOrientation = kOrientation_Default;	///< Current tablet orientation.
+	EOrientation		mScreenOrientation = kOrientation_Default;	///< Current screen orientation.
+	KUInt32				mContrast = kDefaultContrast;	///< Current screen contrast.
+	Boolean				mBacklight = false;				///< Current screen backlight.
+	Boolean				mKbdIsConnected = true;			///< If keyboard is connected.
+	KUInt8*				mScreenBuffer = nullptr;		///< Buffer of the screen.
 	
 protected:
 	Boolean				mOverlayIsOn;		///< Show overlay on screen

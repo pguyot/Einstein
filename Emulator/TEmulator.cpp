@@ -522,13 +522,13 @@ TEmulator::TransferState( TStream* inStream )
 	// Then the CPU.
 	mProcessor.TransferState( inStream );
 	
-// CONT: here --->
 	// And the interrupt manager.
-	mInterruptManager->TransferState( inStream ); // TODO: verify this!
+	mInterruptManager->TransferState( inStream );
   
 	// And the interrupt manager.
-	mDMAManager->TransferState( inStream ); // TODO: verify this!
+	mDMAManager->TransferState( inStream );
 	
+// CONT: here --->
 	// And the screen content.
 	mScreenManager->TransferState( inStream );	// TODO: verify this!
 
@@ -539,10 +539,6 @@ TEmulator::TransferState( TStream* inStream )
 
 	// TODO: unchecked:
 	/*
-	TMemory				mMemory;			///< Memory.
-	TARMProcessor		mProcessor;			///< CPU.
-	TInterruptManager* mInterruptManager;	///< Interrupt manager.
-	TDMAManager* mDMAManager;		///< DMA manager.
 	TPlatformManager* mPlatformManager;	///< Platform manager.
 	TNetworkManager* mNetworkManager;	///< Network manager.
 	TSoundManager* mSoundManager;		///< Sound manager.

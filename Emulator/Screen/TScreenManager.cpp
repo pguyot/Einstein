@@ -89,27 +89,10 @@ TScreenManager::TScreenManager(
 			Boolean inScreenIsLandscape /* = true */)
 	:
 		mLog( inLog ),
-		mInterruptManager( nil ),
-		mMemory( nil ),
 		mPortraitWidth( inPortraitWidth ),
 		mPortraitHeight( inPortraitHeight ),
-		mPhysicalWidth( 0 ),
-		mPhysicalHeight( 0 ),
 		mFullScreen( inFullScreen ),
 		mScreenIsLandscape( inScreenIsLandscape ),
-		mBypassTablet( false ),
-		mTabletIsDown( false ),
-		mPenIsDown( false ),
-		mTabletSampleRate( kDefaultSampleRate ),
-		mTabletBuffer( NULL ),
-		mTabletBufCCrsr( 0 ),
-		mTabletBufPCrsr( 0 ),
-		mTabletOrientation( kOrientation_Default ),
-		mScreenOrientation( kOrientation_Default ),
-		mContrast( kDefaultContrast ),
-		mBacklight( false ),
-		mKbdIsConnected( true ),
-		mScreenBuffer( NULL ),
 		mOverlayIsOn( false )
 {
 	mTabletBuffer = (KUInt32*) ::calloc( 1, sizeof(KUInt32) * kTabletBufferSize );
@@ -165,9 +148,9 @@ void TScreenManager::ChangeScreenSize(int inPortraitWidth, int inPortraitHeight)
 }
 
 // -------------------------------------------------------------------------- //
-//  * ~TScreenManager( void )
+//  * ~TScreenManager()
 // -------------------------------------------------------------------------- //
-TScreenManager::~TScreenManager( void )
+TScreenManager::~TScreenManager()
 {
 	if (mTabletBuffer)
 	{
@@ -805,39 +788,39 @@ TScreenManager::Blit_270(
 }
 
 // -------------------------------------------------------------------------- //
-//  * WakeUpTablet( void )
+//  * WakeUpTablet()
 // -------------------------------------------------------------------------- //
 void
-TScreenManager::WakeUpTablet( void )
+TScreenManager::WakeUpTablet()
 {
 	mBypassTablet = false;
 	mTabletIsDown = false;
 }
 
 // -------------------------------------------------------------------------- //
-//  * ShutDownTablet( void )
+//  * ShutDownTablet()
 // -------------------------------------------------------------------------- //
 void
-TScreenManager::ShutDownTablet( void )
+TScreenManager::ShutDownTablet()
 {
 	mBypassTablet = true;
 	mTabletIsDown = true;
 }
 
 // -------------------------------------------------------------------------- //
-//  * StartBypassTablet( void )
+//  * StartBypassTablet()
 // -------------------------------------------------------------------------- //
 void
-TScreenManager::StartBypassTablet( void )
+TScreenManager::StartBypassTablet()
 {
 	mBypassTablet = true;
 }
 
 // -------------------------------------------------------------------------- //
-//  * StopBypassTablet( void )
+//  * StopBypassTablet()
 // -------------------------------------------------------------------------- //
 void
-TScreenManager::StopBypassTablet( void )
+TScreenManager::StopBypassTablet()
 {
 	mBypassTablet = false;
 
@@ -846,14 +829,14 @@ TScreenManager::StopBypassTablet( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetTabletState( void ) const
+//  * GetTabletState() const
 // -------------------------------------------------------------------------- //
 TScreenManager::ETabletState
-TScreenManager::GetTabletState( void ) const
+TScreenManager::GetTabletState() const
 {
 	ETabletState theState;
-	if (mTabletIsDown)
-	{
+
+	if (mTabletIsDown) {
 		theState = kTabletIsOff;
 	} else if (mBypassTablet) {
 		theState = kTabletIsBypassed;
@@ -987,10 +970,10 @@ TScreenManager::InsertSample(
 }
 
 // -------------------------------------------------------------------------- //
-//  * RaiseTabletInterrupt( void ) const
+//  * RaiseTabletInterrupt() const
 // -------------------------------------------------------------------------- //
 void
-TScreenManager::RaiseTabletInterrupt( void ) const
+TScreenManager::RaiseTabletInterrupt() const
 {
 	mInterruptManager->RaiseInterrupt( TInterruptManager::kTabletIntMask );
 }
@@ -1033,13 +1016,21 @@ TScreenManager::TransferState( TStream* inStream )
 	
 	inStream->Tag('Scrn', "Transfer all screen data");
 
-	// FIXME: reading those should update the UI
-	inStream->Transfer( mPortraitWidth );
-	inStream->Transfer( mPortraitHeight );
-	inStream->Transfer( mPhysicalWidth );
-	inStream->Transfer( mPhysicalHeight );
-	inStream->Transfer( mFullScreen );
-	inStream->Transfer( mScreenIsLandscape );
+	KUInt32 oldWidth = mPortraitWidth, oldHeight = mPortraitHeight;
+	Boolean oldFullScreen = mFullScreen, oldScreenIsLandscape = mScreenIsLandscape;
+
+	inStream->Transfer(mPortraitWidth);
+	inStream->Transfer(mPortraitHeight);
+	inStream->Transfer(mPhysicalWidth);
+	inStream->Transfer(mPhysicalHeight);
+	inStream->Transfer(mFullScreen);
+	inStream->Transfer(mScreenIsLandscape);
+
+	if (inStream->IsReading() && 
+		(oldWidth!=mPortraitWidth || oldHeight!=mPortraitHeight
+			|| oldFullScreen!=mFullScreen || oldScreenIsLandscape!=mScreenIsLandscape))
+		ChangeScreenSize(mPortraitWidth, mPortraitHeight);
+
 	inStream->Transfer( mBypassTablet );
 	inStream->Transfer( mTabletIsDown );
 	inStream->Transfer( mPenIsDown );
@@ -1053,8 +1044,19 @@ TScreenManager::TransferState( TStream* inStream )
 	KUInt32 count = mPortraitWidth * mPortraitHeight * kBitsPerPixel / 8;
 	inStream->Transfer(mScreenBuffer, count);
 	
-//	if (inStream->IsReading())
-//		PowerOnScreen();
+	// --- don't save these:
+	// TLog* mLog
+	// TInterruptManager* mInterruptManager
+	// TMemory* mMemory
+	// TPlatformManager* mPlatformManager
+	// KUInt32* mTabletBuffer
+	// KUInt32 mTabletBufCCrsr
+	// KUInt32 mTabletBufPCrsr
+	// KUInt8* mScreenBuffer
+	// Boolean mOverlayIsOn
+	// Boolean mOverlayIsDirty[4]
+	// char mOverlay[4][40]
+	// SRect mOverlayRect
 }
 
 

@@ -67,14 +67,14 @@ public:
 	///
 	/// Destructor.
 	///
-	~TDMAManager( void );
+	~TDMAManager();
 
 	///
 	/// Read the channel assignment register.
 	///
 	/// \return the value of the channel assignment register.
 	///
-	KUInt32	ReadChannelAssignmentRegister( void );
+	KUInt32	ReadChannelAssignmentRegister();
 
 	///
 	/// Write the channel assignment register.
@@ -97,7 +97,7 @@ public:
 	///
 	/// \return the value of the status register.
 	///
-	KUInt32	ReadStatusRegister( void );
+	KUInt32	ReadStatusRegister();
 
 	///
 	/// Write the disable register.
@@ -113,7 +113,7 @@ public:
 	///
 	/// \return the value of the word status register.
 	///
-	KUInt32	ReadWordStatusRegister( void );
+	KUInt32	ReadWordStatusRegister();
 	
 	///
 	/// Read a channel register from first bank.
@@ -165,27 +165,19 @@ public:
 	void		TransferState( TStream* inStream );
 
 private:
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TDMAManager( const TDMAManager& inCopy ) = delete;
+	// No implicit copy constructor
+	TDMAManager(const TDMAManager& inCopy) = delete;
 
-	///
-	/// Opérateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TDMAManager& operator = ( const TDMAManager& inCopy ) = delete;
+	// No implicit copy operator
+	TDMAManager& operator = (const TDMAManager& inCopy) = delete;
 
 	/// \name Variables
-	TLog*				mLog;				///< Interface for logging.
-	TMemory*			mMemory;			///< Reference on the memory.
-	TInterruptManager*	mInterruptManager;	///< Reference on the interrupt mgr.
-	TEmulator*			mEmulator;			///< Reference the emulator
+	TLog*				mLog = nullptr;				///< Interface for logging.
+	TMemory*			mMemory = nullptr;			///< Reference on the memory.
+	TInterruptManager*	mInterruptManager = nullptr; ///< Reference on the interrupt mgr.
+	TEmulator*			mEmulator = nullptr;		///< Reference the emulator
 	
-	KUInt32				mAssignmentReg;		///< Assignment register.
+	KUInt32				mAssignmentReg = 0;			///< Assignment register.
 };
 
 #endif
