@@ -31,6 +31,7 @@
 
 // C++
 #include <string>
+#include <atomic>
 
 class TMemory;
 class TMMU;
@@ -103,7 +104,7 @@ public:
 	///
 	virtual void	Run(
 						TARMProcessor* ioObject,
-						volatile Boolean* inSignal ) = 0;
+						std::atomic_bool& inSignal ) = 0;
 
 	///
 	/// Accessor to a page.

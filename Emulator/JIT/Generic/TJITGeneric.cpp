@@ -143,19 +143,18 @@ TJITGeneric::~TJITGeneric( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * Run( TARMProcessor*, volatile Boolean* )
+//  * Run( TARMProcessor*, std::atomic_bool& )
 // -------------------------------------------------------------------------- //
 void
-TJITGeneric::Run( TARMProcessor* ioCPU, volatile Boolean* inSignal )
+TJITGeneric::Run( TARMProcessor* ioCPU, std::atomic_bool& inSignal )
 {
-	volatile KUInt32* pendingInterrupts = &ioCPU->mPendingInterrupts;
 	KUInt32* pcPtr = &ioCPU->mCurrentRegisters[TARMProcessor::kR15];
 	TMemory* theMemoryInterface = ioCPU->mMemory;
 	TEmulator* theEmulator = ioCPU->mEmulator;
 	JITUnit* theJITUnit = GetJITUnitForPC( ioCPU, theMemoryInterface, *pcPtr );
 	while (true)
 	{
-		while (*inSignal)
+		while (inSignal)
 		{
 			// Here we go, iterating...
 			// *pcPtr is 4 bytes ahead of the instruction that will
@@ -166,7 +165,7 @@ TJITGeneric::Run( TARMProcessor* ioCPU, volatile Boolean* inSignal )
 		// We may have been signaled because there was an interrupt.
 		if (theEmulator->IsInterrupted())
 		{
-			KUInt32 theInterrupt = *pendingInterrupts;
+			KUInt32 theInterrupt = ioCPU->mPendingInterrupts; // to be safe, we could declare this as std::atomic...
 			theEmulator->AckInterrupt();
 			if (theInterrupt & TARMProcessor::kResetInterrupt)
 			{
@@ -192,7 +191,6 @@ TJITGeneric::Run( TARMProcessor* ioCPU, volatile Boolean* inSignal )
 void
 TJITGeneric::Step( TARMProcessor* ioCPU, KUInt32 count )
 {
-	KUInt32* pendingInterrupts = &ioCPU->mPendingInterrupts;
 	KUInt32* pcPtr = &ioCPU->mCurrentRegisters[TARMProcessor::kR15];
 	TMemory* theMemoryInterface = ioCPU->mMemory;
 	JITUnit* theJITUnit = GetJITUnitForPC( ioCPU, theMemoryInterface, *pcPtr );
@@ -214,7 +212,7 @@ TJITGeneric::Step( TARMProcessor* ioCPU, KUInt32 count )
 		}
 
 		// Maybe there is an interrupt...
-		KUInt32 theInterrupt = *pendingInterrupts;
+		KUInt32 theInterrupt = ioCPU->mPendingInterrupts;
 		if (theInterrupt)
 		{
 			if (theInterrupt & TARMProcessor::kResetInterrupt)

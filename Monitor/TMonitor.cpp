@@ -168,8 +168,23 @@ TMonitor::Run()
 	ExecuteStartupScript();
 
     if (mRunOnStartup) {
-		// LoadEmulatorState(); // FIXME: this generally works, but there are probably many hidden bugs that make Newton crash after a little while
-        mCommand = kRun;
+		//LoadEmulatorState(); // FIXME: this generally works, but there are probably many hidden bugs that make Newton crash after a little while
+		//PrintLine("Restarting the Emulator", MONITOR_LOG_INFO);
+		//if (mHalted)
+		//{
+		//	mCommand = kRun;
+		//	SignalCondVar();
+		//}
+		//// wait for the emulator to start
+		//for (i = 10; i > 0; --i) { // 1/10th of a second
+		//	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		//}
+		//PrintLine("Powering up", MONITOR_LOG_INFO);
+		//if (!pm->IsPowerOn())
+		//	pm->SendPowerSwitchEvent();
+		//PrintLine("Emulator snapshot restored.", MONITOR_LOG_INFO);
+		
+		mCommand = kRun;
         DrawScreen();
         RunEmulator();
     }

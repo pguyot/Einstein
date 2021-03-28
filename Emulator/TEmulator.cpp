@@ -195,7 +195,7 @@ TEmulator::Run( void )
 			mSignal = true;
 		}
 		// We can insert a try....catch block here to trace all CPU mode changes
-		mMemory.GetJITObject()->Run( &mProcessor, &mSignal );
+		mMemory.GetJITObject()->Run( &mProcessor, mSignal );
 	}
 	
 	mInterruptManager->SuspendTimer();
@@ -499,7 +499,7 @@ TEmulator::TransferState( TStream* inStream )
 	if (inStream->IsReading()) SetNewtonID(mNewtonID[0], mNewtonID[1]);
 
 	// Set this to false to abort the JIT interpreter.
-	inStream->Transfer(mSignal);
+	Boolean tSignal = mSignal; inStream->Transfer(tSignal); mSignal = tSignal;
 
 	// Was the processor interrupted?
 	inStream->Transfer(mInterrupted);

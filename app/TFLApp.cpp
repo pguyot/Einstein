@@ -743,7 +743,7 @@ int TFLApp::UserActionKeepPCCardInSlot(int inSlot, int inIndex)
 
 
 // MARK: -
-// ---  Events from within the meulator
+// ---  Events from within the emulator
 
 
 /**

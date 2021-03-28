@@ -24,7 +24,11 @@
 #ifndef _TEMULATOR_H
 #define _TEMULATOR_H
 
+// K
 #include <K/Defines/KDefinitions.h>
+
+// C++17
+#include <atomic>
 #include <functional>
 
 // Einstein
@@ -396,7 +400,7 @@ private:
 	KUInt32				mNewtonID[2] = { 0, 0 };	///< NewtonID (48 bits, 16+32).
 	TLog*				mLog = nullptr;				///< Interface for logging.
 	TMonitor*			mMonitor = nullptr;			///< Monitor (or \c nil).
-	Boolean				mSignal = false;			///< Signal for JIT (if we're running).
+	std::atomic_bool	mSignal = false;			///< Signal for JIT (if we're running).
 	Boolean				mInterrupted = false;		///< We got a (processor) interrupt.
 	Boolean				mRunning = false;			///< If we're running.
 	Boolean				mPaused = false;			///< If we're paused (until next interrupt).
