@@ -38,6 +38,7 @@
 // K
 #include <K/Streams/TStream.h>
 #include <K/Defines/UByteSex.h>
+#include <K/Exceptions/Errors/TMemError.h>
 
 // Einstein
 #include "Emulator/TARMProcessor.h"
@@ -94,7 +95,7 @@ const int TMemory::kSerialNumberCRC[256] =
 		0xDC, 0x50, 0x9A, 0x16, 0xFF, 0x73, 0xB9, 0x35
 	};
 
-#define min(a,b) (a) < (b) ? (a) : (b)
+#define K_MIN(a,b) (a) < (b) ? (a) : (b)
 
 // -------------------------------------------------------------------------- //
 //  * TMemory( TLog*, KUInt8*, const char*, KUInt32 )
@@ -105,20 +106,12 @@ TMemory::TMemory(
 			const char* inFlashPath,
 			KUInt32 inRAMSize /* = 4194304 */ )
 	:
-		mProcessor( nil ),
 		mLog( inLog ),
 		mFlash( inLog, inFlashPath, NULL ),
 		mROMImagePtr( inROMImageBuffer ),
-		mRAM( nil ),
 		mRAMSize( inRAMSize ),
 		mRAMEnd( TMemoryConsts::kRAMStart + inRAMSize ),
 		mMMU( this ),
-		mBankCtrlRegister( 0 ),
-		mInterruptManager( 0 ),
-		mDMAManager( 0 ),
-		mSerialNumberIx( 64 ),
-		mBPCount( 0 ),
-		mWPCount( 0 ),
         mJIT( this, &mMMU )
 {
 	Init();
@@ -133,42 +126,29 @@ TMemory::TMemory(
 			const char* inFlashPath,
 			KUInt32 inRAMSize /* = 4194304 */ )
 	:
-		mProcessor( nil ),
 		mLog( inLog ),
 		mFlash( inLog, inFlashPath, inROMImage ),
 		mROMImagePtr( inROMImage->GetPointer() ),
-		mRAM( nil ),
 		mRAMSize( inRAMSize ),
 		mRAMEnd( TMemoryConsts::kRAMStart + inRAMSize ),
 		mMMU( this ),
-		mBankCtrlRegister( 0 ),
-		mInterruptManager( 0 ),
-		mDMAManager( 0 ),
-		mSerialNumberIx( 64 ),
-		mBPCount( 0 ),
-		mWPCount( 0 ),
         mJIT( this, &mMMU )
 {
 	Init();
 }
 
 // -------------------------------------------------------------------------- //
-//  * ~TMemory( void )
+//  * ~TMemory()
 // -------------------------------------------------------------------------- //
-TMemory::~TMemory( void )
+TMemory::~TMemory()
 {
 	if (mRAM)
-	{
 		::free( mRAM );
-	}
 	
 	int socketsIx;
 	for (socketsIx = 0; socketsIx < kNbSockets; socketsIx++)
 	{
-		if (mPCMCIACtrls[socketsIx])
-		{
-			delete mPCMCIACtrls[socketsIx];
-		}
+		delete mPCMCIACtrls[socketsIx];
 	}
 }
 
@@ -194,17 +174,14 @@ TMemory::SetEmulator( TEmulator* inEmulator )
 		ComputeSerialNumber( inEmulator->GetNewtonID() );
 	} else {
 		mInterruptManager = nil;
-		mDMAManager = nil;
-		mEmulator = nil;
+		mDMAManager = nullptr;
+		mEmulator = nullptr;
 
 		int socketIx;
 		for (socketIx = 0; socketIx < kNbSockets; socketIx++)
 		{
-			if (mPCMCIACtrls[socketIx])
-			{
-				delete mPCMCIACtrls[socketIx];
-				mPCMCIACtrls[socketIx] = NULL;
-			}
+			delete mPCMCIACtrls[socketIx];
+			mPCMCIACtrls[socketIx] = nullptr;
 		}
 	}
 }
@@ -288,7 +265,7 @@ TMemory::FastReadBuffer( VAddr inAddress, KUInt32 inAmount, KUInt8* outBuffer )
 
 	if (addr & 0x3)
 	{
-		int bytes = min(addr & 0x3, len);
+		int bytes = K_MIN(addr & 0x3, len);
 		// Quickly skip to aligned accesses
 		while (bytes-- > 0)
 		{
@@ -317,7 +294,7 @@ TMemory::FastReadBuffer( VAddr inAddress, KUInt32 inAmount, KUInt8* outBuffer )
 		KUInt32 alignedLen = len &~ 0x3;
 
 		do {
-			KUInt32 amount = min(alignedLen, maxCopy);
+			KUInt32 amount = K_MIN(alignedLen, maxCopy);
 #if TARGET_RT_LITTLE_ENDIAN
 			{
 				KUInt32 nbWords = amount / 4;
@@ -413,7 +390,7 @@ TMemory::FastReadString( VAddr inAddress, char** outString )
 		KUInt32 maxCopy = base - addr + TMemoryConsts::kMMUSmallestPageSize;
 
 		do {
-			KUInt32 amount = min(len, maxCopy);
+			KUInt32 amount = K_MIN(len, maxCopy);
 			char* last = ::strncpy(dst, (char*) pointer, amount);
 			if (*last == '\0')
 			{
@@ -480,7 +457,7 @@ TMemory::FastReadString( VAddr inAddress, KUInt32* ioAmount, char* outString )
 		KUInt32 maxCopy = base - addr + TMemoryConsts::kMMUSmallestPageSize;
 
 		do {
-			KUInt32 amount = min(len, maxCopy);
+			KUInt32 amount = K_MIN(len, maxCopy);
 			char* last = ::strncpy(dst, (char*) pointer, amount);
 			if (*last == '\0')
 			{
@@ -523,7 +500,7 @@ TMemory::FastWriteBuffer( VAddr inAddress, KUInt32 inAmount, const KUInt8* inBuf
 	if (addr & 0x3)
 	{
 		// Quickly skip to aligned accesses
-		int bytes = min(addr & 0x3, len);
+		int bytes = K_MIN(addr & 0x3, len);
 		while (bytes-- > 0)
 		{
 			KUInt8 byte = *src++;
@@ -548,7 +525,7 @@ TMemory::FastWriteBuffer( VAddr inAddress, KUInt32 inAmount, const KUInt8* inBuf
 		KUInt32 alignedLen = len &~ 0x3;
 
 		do {
-			KUInt32 amount = min(alignedLen, maxCopy);
+			KUInt32 amount = K_MIN(alignedLen, maxCopy);
 #if TARGET_RT_LITTLE_ENDIAN
 			{
 				KUInt32 nbWords = amount / 4;
@@ -622,7 +599,7 @@ TMemory::FastWriteString( VAddr inAddress, KUInt32* ioAmount, const char* inStri
 		KUInt32 maxCopy = base - addr + TMemoryConsts::kMMUSmallestPageSize;
 
 		do {
-			KUInt32 amount = min(len, maxCopy);
+			KUInt32 amount = K_MIN(len, maxCopy);
 			char* last = ::strncpy((char*) pointer, src, amount);
 			if (*last == '\0')
 			{
@@ -766,7 +743,7 @@ TMemory::ReadAligned( VAddr inAddress, KUInt32& outWord )
 // -------------------------------------------------------------------------- //
 //  * ReadROMRAM( VAddr, KUInt32& )
 // -------------------------------------------------------------------------- //
-inline Boolean
+Boolean
 TMemory::ReadROMRAM( VAddr inAddress, KUInt32& outWord )
 {
 #ifdef _DEBUG
@@ -1268,9 +1245,6 @@ TMemory::ReadPAligned( PAddr inAddress, Boolean& outFault )
 // -------------------------------------------------------------------------- //
 //  * ReadROMRAMP( PAddr, Boolean& )
 // -------------------------------------------------------------------------- //
-#if !TARGET_OS_MAC
-//inline
-#endif
 KUInt32
 TMemory::ReadROMRAMP( PAddr inAddress, Boolean& outFault )
 {
@@ -1637,7 +1611,7 @@ TMemory::WriteAligned( VAddr inAddress, KUInt32 inWord )
 // -------------------------------------------------------------------------- //
 //  * WriteRAM( VAddr, KUInt32 )
 // -------------------------------------------------------------------------- //
-inline Boolean
+Boolean
 TMemory::WriteRAM( VAddr inAddress, KUInt32 inWord )
 {
 #ifdef _DEBUG
@@ -2107,7 +2081,7 @@ TMemory::WritePAligned( PAddr inAddress, KUInt32 inWord )
 // -------------------------------------------------------------------------- //
 //  * WriteRAMP( PAddr, KUInt32 )
 // -------------------------------------------------------------------------- //
-inline Boolean
+Boolean
 TMemory::WriteRAMP( PAddr inAddress, KUInt32 inWord )
 {
 	if (inAddress < TMemoryConsts::kRAMStart)
@@ -2908,69 +2882,93 @@ TMemory::TransferState( TStream* inStream )
 	KUInt32 currentRAMSize = mRAMSize;
 	KUInt32 currentBPCount = mBPCount;
 
-	if (inStream->IsReading())
-		mJIT.InvalidateTLB();
-
 	inStream->Tag('Memo', "Transfer all memory data");
 
 	// The various registers.
 	inStream->Transfer( mRAMSize );
 	inStream->Transfer( mRAMEnd );
 	inStream->Transfer( mBankCtrlRegister );
-	inStream->Transfer( mBPCount );
-	
+	inStream->Transfer(mBPCount);
+	inStream->Transfer(mSerialNumberIx);
+	inStream->Transfer(mSerialNumber, 2);
+
 	// The ROM.
-	// FIXME: do we need to transfer the ROM? How big is it actually?
+	// TODO: do we need to transfer the ROM? How big is it actually?
 	//inStream->TransferInt32ArrayBE( (KUInt32*) mROMImagePtr, 0x01000000 / sizeof( KUInt32 ) );
 
 	// The RAM
 	if (inStream->IsReading() && currentRAMSize != mRAMSize) {
-		// FIXME: please use the existing functions to allocate RAM.
-		// FIXME: are there any links that we may sever?
-		mRAM = (KUInt8*) ::realloc( mRAM, mRAMSize );
+		// see: TMemory::Init()
+		KUInt8 *newRAM = (KUInt8*) ::realloc(mRAM, mRAMSize);
+		if (newRAM == nullptr) throw MemError;
+		mRAM = newRAM;
 		mRAMOffset = ((KUIntPtr) mRAM) - TMemoryConsts::kRAMStart;
+		mRAMEnd = TMemoryConsts::kRAMStart + mRAMSize;
 	}
 	inStream->Transfer( mRAM, mRAMSize );
 
 	// The breakpoints.
-	if (inStream->IsReading() && currentBPCount != mBPCount) {
-		// FIXME: please use the existing functions to allocate Breakpoints.
-		// FIXME: are there any links that we may sever?
-		KUInt32 BPSize = sizeof(SBreakpoint) * mBPCount;
-		mBreakpoints = (SBreakpoint*) ::realloc( mBreakpoints, BPSize );
-	}
-	KUInt32 indexBP;
-	for (indexBP = 0; indexBP < mBPCount; indexBP++)
-	{
-		inStream->Transfer( (KUInt32&)mBreakpoints[indexBP].fAddress );
-		inStream->Transfer( mBreakpoints[indexBP].fOriginalValue );
-		inStream->Transfer( mBreakpoints[indexBP].fBPValue );
-	}
+	//if (inStream->IsReading() && currentBPCount != mBPCount) {
+	//	// FIXME: please use the existing functions to allocate Breakpoints.
+	//	// FIXME: are there any links that we may sever?
+	//	KUInt32 BPSize = sizeof(SBreakpoint) * mBPCount;
+	//	mBreakpoints = (SBreakpoint*) ::realloc( mBreakpoints, BPSize );
+	//}
+	//KUInt32 indexBP;
+	//for (indexBP = 0; indexBP < mBPCount; indexBP++)
+	//{
+	//	inStream->Transfer( (KUInt32&)mBreakpoints[indexBP].fAddress );
+	//	inStream->Transfer( mBreakpoints[indexBP].fOriginalValue );
+	//	inStream->Transfer( mBreakpoints[indexBP].fBPValue );
+	//}
+
+// CONT: here --->
 
 	// The MMU
-	mMMU.TransferState( inStream );
+	// 	friend class TMMU; 	// TODO: verify this!
+	mMMU.TransferState( inStream ); // TODO: verify this!
 
 	// The flash.
-	mFlash.TransferState( inStream );
+	mFlash.TransferState( inStream ); // TODO: verify this!
+
+	if (inStream->IsReading()) // TODO: verify this!
+		mJIT.InvalidateTLB();
+
+	// --- Not relevant for the state of the emulation:
+	// TARMProcessor* mProcessor
+	// TLog* mLog
+	// KUInt32 mRAMEnd: recalculated
+	// TInterruptManager* mInterruptManager: state transfered by TEmulator
+	// TDMAManager* mDMAManager: state transfered by TEmulator
+	// TEmulator* mEmulator: state transfered by TEmulator
+
+	// TODO: --- Not yet:
+	//TPCMCIAController* mPCMCIACtrls[kNbSockets];
+	//KUInt8* mROMImagePtr;
+	//KUInt32 mBPCount;
+	//SBreakpoint* mBreakpoints;
+	//struct SBreakpoint {
+	//	PAddr   fAddress;		///< (physical) address of the Breakpoint.
+	//	KUInt32 fOriginalValue; ///< Original value of the Breakpoint.
+	//	KUInt32	fBPValue;		///< Value for the BP instruction.
+	//};
+	//KUInt32	mWPCount;
+	//SWatchpoint* mWatchpoints;
+	//struct SWatchpoint {
+	//	VAddr   fAddress;		///< (physical) address of the Breakpoint.
+	//	KUInt8	fMode;			///< mode bit: 1 for reading, 2 for writing
+	//};
 }
 
 
 // -------------------------------------------------------------------------- //
-//  * Init( void )
+//  * Init()
 // -------------------------------------------------------------------------- //
 void
-TMemory::Init( void )
+TMemory::Init()
 {
-	int socketsIx;
-	for (socketsIx = 0; socketsIx < kNbSockets; socketsIx++)
-	{
-		mPCMCIACtrls[socketsIx] = NULL;
-	}
 	mRAM = (KUInt8*) ::calloc( 1, mRAMSize );	// Default is 4 MB
 	mRAMOffset = ((KUIntPtr) mRAM) - TMemoryConsts::kRAMStart;	// Difference between our RAM base address and a real Newton's
-	mBreakpoints = (SBreakpoint*) ::malloc( 1 );
-	mSerialNumber[0] = 0;
-	mSerialNumber[1] = 0;
 	mWPCount = 0;
 	mWatchpoints = (struct SWatchpoint*)::calloc(kMaxWatchpoints, sizeof(struct SWatchpoint));
 }

@@ -103,7 +103,7 @@ public:
 	/// Destructor.
 	/// Frees up all the structures.
 	///
-	~TMemory( void );
+	~TMemory();
 
 	///
 	/// Set the emulator.
@@ -115,7 +115,7 @@ public:
 	///
 	/// \return the emulator
 	///
-	TEmulator* GetEmulator() { return mEmulator; }
+	TEmulator* GetEmulator() const { return mEmulator; }
 
 	///
 	/// Set the interrupt manager.
@@ -139,7 +139,7 @@ public:
 	///
 	/// Accessor on the JIT object.
 	///
-	JITClass*	GetJITObject( void )
+	JITClass*	GetJITObject()
 		{
 			return &mJIT;
 		}
@@ -150,7 +150,7 @@ public:
 	///
 	/// Power flash off.
 	///
-	void		PowerOffFlash( void )
+	void		PowerOffFlash()
 		{
 			mFlash.PowerOff();
 		}
@@ -158,7 +158,7 @@ public:
 	///
 	/// Power flash on.
 	///
-	void		PowerOnFlash( void )
+	void		PowerOnFlash()
 		{
 			mFlash.PowerOn();
 		}
@@ -192,7 +192,7 @@ public:
 	///
 	/// Get a pointer into emulated RAM
 	///
-	KUIntPtr	GetRAMOffset() { return mRAMOffset; }
+	KUIntPtr	GetRAMOffset() const { return mRAMOffset; }
 
 	///
 	/// Fast read data.
@@ -480,7 +480,7 @@ public:
 	///
 	/// \return \c true if the MMU is enabled, \c false otherwise.
 	///
-	Boolean		IsMMUEnabled( void )
+	Boolean		IsMMUEnabled() const
 		{
 			return mMMU.IsMMUEnabled();
 		}
@@ -500,7 +500,7 @@ public:
 	///
 	/// \return true if we are in a privileged mode.
 	///
-	Boolean		GetPrivilege( void ) const
+	Boolean		GetPrivilege() const
 		{
 			return mMMU.GetPrivilege();
 		}
@@ -520,7 +520,7 @@ public:
 	///
 	/// \return \c true if the protection is enabled, \c false otherwise.
 	///
-	Boolean		GetSystemProtection( void ) const
+	Boolean		GetSystemProtection() const
 		{
 			return mMMU.GetSystemProtection();
 		}
@@ -540,7 +540,7 @@ public:
 	///
 	/// \return \c true if the protection is enabled, \c false otherwise.
 	///
-	Boolean		GetROMProtection( void ) const
+	Boolean		GetROMProtection() const
 		{
 			return mMMU.GetROMProtection();
 		}
@@ -550,7 +550,7 @@ public:
 	///
 	/// \return the MMU translation table base.
 	///
-	KUInt32		GetTranslationTableBase( void ) const
+	KUInt32		GetTranslationTableBase() const
 		{
 			return mMMU.GetTranslationTableBase();
 		}
@@ -571,7 +571,7 @@ public:
 	///
 	/// \return the domain access control.
 	///
-	KUInt32		GetDomainAccessControl( void ) const
+	KUInt32		GetDomainAccessControl() const
 		{
 			return mMMU.GetDomainAccessControl();
 		}
@@ -592,7 +592,7 @@ public:
 	///
 	/// \return the fault status register.
 	///
-	KUInt32		GetFaultStatusRegister( void ) const
+	KUInt32		GetFaultStatusRegister() const
 		{
 			return mMMU.GetFaultStatusRegister();
 		}
@@ -612,7 +612,7 @@ public:
 	///
 	/// \return the fault address register.
 	///
-	KUInt32		GetFaultAddressRegister( void ) const
+	KUInt32		GetFaultAddressRegister() const
 		{
 			return mMMU.GetFaultAddressRegister();
 		}
@@ -641,7 +641,7 @@ public:
 	///
 	/// Invalidate the TLB cache.
 	///
-	inline void		InvalidateTLB( void )
+	inline void		InvalidateTLB()
 		{
 			mMMU.InvalidateTLB();
 		}
@@ -717,7 +717,7 @@ public:
 	///
 	/// Accessor on the RAM size.
 	///
-	KUInt32		GetRAMSize( void ) const
+	KUInt32		GetRAMSize() const
 		{
 			return mRAMSize;
 		}
@@ -759,20 +759,7 @@ private:
 		VAddr   fAddress;		///< (physical) address of the Breakpoint.
 		KUInt8	fMode;			///< mode bit: 1 for reading, 2 for writing
 	};
-	
-	struct SDMAChannel {
-		PAddr	fBaseRegister;
-		PAddr	fPointerRegister;
-		KUInt32	fWordRegister;
-		KUInt32	fControlRegister;
-		KUInt32	fCountSizeRegister_1_1000;
-		KUInt32	fCountSizeRegister_1_1400;
-		KUInt32	fUnknown_1_1800;
-		KUInt32	fUnknown_2_0000;
-		KUInt32	fUnknown_2_0400;
-		KUInt32	fUnknown_2_0800;
-	};
-	
+
 	///
 	/// CRC for the serial number.
 	///
@@ -821,48 +808,39 @@ private:
 	///
 	Boolean		WriteRAMP( PAddr inAddress, KUInt32 inWord );
 
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TMemory( const TMemory& inCopy );
+	// No implicit copy constructor
+	TMemory(const TMemory& inCopy) = delete;
 
-	///
-	/// Opérateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TMemory& operator = ( const TMemory& inCopy );
+	// No implicit copy operator
+	TMemory& operator = (const TMemory& inCopy) = delete;
 
 	///
 	/// Init the class (ram and such).
 	///
-	void				Init( void );
+	void				Init();
 
 	/// \name Variables
-	TARMProcessor*		mProcessor;			///< Reference to the CPU.
-	TLog*				mLog;				///< Interface for logging.
-	TFlash				mFlash;				///< Flash memory.
-	KUInt8*				mROMImagePtr;		///< 16 MB
-	KUInt8*				mRAM;				///< RAM
-	KUInt32				mRAMSize;			///< Size of the RAM.
-	KUInt32				mRAMEnd;			///< Address of the last RAM byte.
-	KUIntPtr			mRAMOffset;			///< Offset mRAM - kRAMStart
-	TMMU				mMMU;				///< MMU.
-	KUInt32				mBankCtrlRegister;  ///< Bank control register.
-	TInterruptManager*	mInterruptManager;	///< Interface to the interrupt mgr.
-	TDMAManager*		mDMAManager;		///< Interface to the DMA mgr.
-	TPCMCIAController*	mPCMCIACtrls[kNbSockets];
-											///< PCMCIA controllers.
-	KUInt32				mSerialNumberIx;	///< Index to serial number.
-	KUInt32				mSerialNumber[2];	///< Serial number.
-	TEmulator*			mEmulator;			///< Emulator (interface to hardware).
-	KUInt32				mBPCount;			///< Number of Breakpoints.
-	SBreakpoint*		mBreakpoints;		///< Breakpoints.
-	KUInt32				mWPCount;			///< Number of Watchpoints.
-	SWatchpoint*		mWatchpoints;		///< Watchpoints.
-	JITClass			mJIT;				///< JIT.
+	TARMProcessor*		mProcessor = nullptr;			///< Reference to the CPU.
+	TLog*				mLog = nullptr;					///< Interface for logging.
+	TFlash				mFlash;							///< Flash memory.
+	KUInt8*				mROMImagePtr = nullptr;			///< FIXME: we know nothing about the ROM, but it probably is 16 MB
+	KUInt8*				mRAM = nullptr;					///< RAM (allocated by TMemory)
+	KUInt32				mRAMSize;						///< Size of the RAM (initialized by the ctor).
+	KUInt32				mRAMEnd;						///< Address of the last RAM byte (initialized by the ctor).
+	KUIntPtr			mRAMOffset = 0;					///< Offset mRAM - kRAMStart (calculated after allocation).
+	TMMU				mMMU;							///< MMU.
+	KUInt32				mBankCtrlRegister = 0;			///< Bank control register.
+	TInterruptManager*	mInterruptManager = nullptr;	///< Interface to the interrupt mgr.
+	TDMAManager*		mDMAManager = nullptr;			///< Interface to the DMA mgr.
+	TPCMCIAController*	mPCMCIACtrls[kNbSockets] = { nullptr }; ///< PCMCIA controllers.
+	KUInt32				mSerialNumberIx = 64;			///< Index to serial number.
+	KUInt32				mSerialNumber[2] = { 0, 0 };	///< Serial number.
+	TEmulator*			mEmulator = nullptr;			///< Emulator (interface to hardware).
+	KUInt32				mBPCount = 0;					///< Number of Breakpoints.
+	SBreakpoint*		mBreakpoints = nullptr;			///< Breakpoints.
+	KUInt32				mWPCount = 0;					///< Number of Watchpoints.
+	SWatchpoint*		mWatchpoints = nullptr;			///< Watchpoints.
+	JITClass			mJIT;							///< JIT.
 };
 
 #endif

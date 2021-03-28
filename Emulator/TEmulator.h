@@ -377,10 +377,10 @@ public:
 	void CallOnQuit(std::function<void()> inCallback);
 
 private:
-	// No implecit copy constructor
+	// No implicit copy constructor
 	TEmulator(const TEmulator& inCopy) = delete;
 
-	// No implecit copy operator
+	// No implicit copy operator
 	TEmulator& operator = (const TEmulator& inCopy) = delete;
 
 	/// \name Variables

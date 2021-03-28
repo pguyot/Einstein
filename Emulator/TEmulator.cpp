@@ -518,19 +518,19 @@ TEmulator::TransferState( TStream* inStream )
 
 // CONT: here --->
 	// Save the memory.
-	mMemory.TransferState( inStream );
+	mMemory.TransferState( inStream ); // TODO: verify this! (active)
 	
 	// Then the CPU.
-	mProcessor.TransferState( inStream );
+	mProcessor.TransferState( inStream ); // TODO: verify this!
 	
 	// And the interrupt manager.
-	mInterruptManager->TransferState( inStream );
+	mInterruptManager->TransferState( inStream ); // TODO: verify this!
   
 	// And the interrupt manager.
-	mDMAManager->TransferState( inStream );
+	mDMAManager->TransferState( inStream ); // TODO: verify this!
 	
 	// And the screen content.
-	mScreenManager->TransferState( inStream );	
+	mScreenManager->TransferState( inStream );	// TODO: verify this!
 
 	// --- Not relevant for the state of the emulation:
 	// TLog* mLog
