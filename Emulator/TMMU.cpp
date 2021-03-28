@@ -72,11 +72,7 @@ static void printMMUStats()
 // -------------------------------------------------------------------------- //
 TMMU::TMMU( TMemory* inMemoryIntf )
 	:
-		mMemoryIntf( inMemoryIntf ),
-		mMMUEnabled( false ),
-		mCurrentAPMode( kAPMagic_Privileged ),
-		mTTBase( 0 ),
-		mDomainAC( 0xFFFFFFFF )
+		mMemoryIntf( inMemoryIntf )
 {
 	// Init the cache entries with unprobable values.
 	SEntry* theEntries = mCache.GetValues();
@@ -89,9 +85,9 @@ TMMU::TMMU( TMemory* inMemoryIntf )
 }
 
 // -------------------------------------------------------------------------- //
-//  * ~TMMU( void )
+//  * ~TMMU()
 // -------------------------------------------------------------------------- //
-TMMU::~TMMU( void )
+TMMU::~TMMU()
 {
 }
 
@@ -950,10 +946,10 @@ TMMU::AddToCache(
 }
 
 // -------------------------------------------------------------------------- //
-//  * InvalidateTLB( void )
+//  * InvalidateTLB()
 // -------------------------------------------------------------------------- //
 void
-TMMU::InvalidateTLB( void )
+TMMU::InvalidateTLB()
 {
 #if kTMMUStats
 	gNbInvalidate++;
@@ -964,10 +960,10 @@ TMMU::InvalidateTLB( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * InvalidatePerms( void )
+//  * InvalidatePerms()
 // -------------------------------------------------------------------------- //
 void
-TMMU::InvalidatePerms( void )
+TMMU::InvalidatePerms()
 {
 	mMemoryIntf->GetJITObject()->InvalidateTLB();
 }
@@ -979,7 +975,7 @@ TMMU::InvalidatePerms( void )
 void
 TMMU::TransferState( TStream* inStream )
 {
-	// Do not load or save any cached data.
+	// Do not load or save any cached data (see mCache).
 	InvalidateTLB();
 	InvalidatePerms();
 
@@ -994,6 +990,9 @@ TMMU::TransferState( TStream* inStream )
 	inStream->Transfer( mDomainAC );
 	inStream->Transfer( mFaultAddress );
 	inStream->Transfer( mFaultStatus );
+
+	// --- no need to transfer these
+	// TMemory* mMemoryIntf;
 }
 
 

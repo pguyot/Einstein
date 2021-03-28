@@ -62,7 +62,7 @@ public:
 	///
 	/// Destructeur.
 	///
-	~TMMU( void );
+	~TMMU();
 
 	///
 	/// Perform address translation for an instruction.
@@ -118,7 +118,7 @@ public:
 	///
 	/// \return \c true if the MMU is enabled, \c false otherwise.
 	///
-	Boolean		IsMMUEnabled( void ) const
+	Boolean		IsMMUEnabled() const
 		{
 			return mMMUEnabled;
 		}
@@ -135,7 +135,7 @@ public:
 	///
 	/// \return true if we are in a privileged mode.
 	///
-	Boolean		GetPrivilege( void ) const
+	Boolean		GetPrivilege() const
 		{
 			return mCurrentAPMode & kAPMagic_Privileged;
 		}
@@ -152,7 +152,7 @@ public:
 	///
 	/// \return \c true if the protection is enabled, \c false otherwise.
 	///
-	Boolean		GetSystemProtection( void ) const
+	Boolean		GetSystemProtection() const
 		{
 			return mCurrentAPMode & kAPMagic_System;
 		}
@@ -169,7 +169,7 @@ public:
 	///
 	/// \return \c true if the protection is enabled, \c false otherwise.
 	///
-	Boolean		GetROMProtection( void ) const
+	Boolean		GetROMProtection() const
 		{
 			return mCurrentAPMode & kAPMagic_ROM;
 		}
@@ -179,7 +179,7 @@ public:
 	///
 	/// \return the MMU translation table base.
 	///
-	KUInt32		GetTranslationTableBase( void ) const
+	KUInt32		GetTranslationTableBase() const
 		{
 			return mTTBase;
 		}
@@ -201,7 +201,7 @@ public:
 	///
 	/// \return the domain access control.
 	///
-	KUInt32		GetDomainAccessControl( void ) const
+	KUInt32		GetDomainAccessControl() const
 		{
 			return mDomainAC;
 		}
@@ -223,7 +223,7 @@ public:
 	///
 	/// \return the fault status register.
 	///
-	KUInt32		GetFaultStatusRegister( void ) const
+	KUInt32		GetFaultStatusRegister() const
 		{
 			return mFaultStatus;
 		}
@@ -243,7 +243,7 @@ public:
 	///
 	/// \return the fault address register.
 	///
-	KUInt32		GetFaultAddressRegister( void ) const
+	KUInt32		GetFaultAddressRegister() const
 		{
 			return mFaultAddress;
 		}
@@ -273,7 +273,7 @@ public:
 	///
 	/// Invalidate the TLB cache.
 	///
-	void		InvalidateTLB( void );
+	void		InvalidateTLB();
 
 	///
 	/// Save or restore the state of the MMU.
@@ -315,24 +315,16 @@ private:
 		SEntry*			next;
 	};
 
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TMMU( const TMMU& inCopy );
+	// No implicit copy constructor
+	TMMU(const TMMU& inCopy) = delete;
 
-	///
-	/// Opérateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TMMU& operator = ( const TMMU& inCopy );
+	// No implicit copy operator
+	TMMU& operator = (const TMMU& inCopy) = delete;
 
 	///
 	/// Invalidate the perms cache.
 	///
-	void		InvalidatePerms( void );
+	void		InvalidatePerms();
 
 	///
 	/// Add a translation to the cache.
@@ -344,17 +336,16 @@ private:
 				KUInt32 inEntryPermIndex );
 
 	/// \name Variables
-	TMemory*			mMemoryIntf;		///< Interface to the memory.
-	Boolean				mMMUEnabled;		///< If the MMU is currently
-											///< enabled.
-	KUInt8				mCurrentAPMode;		///< 0-7, SPR
-	KUInt8				mCurrentAPRead;		///< Current AP bits for read acc.
-	KUInt8				mCurrentAPWrite;	///< Current AP bits for write acc.
-	KUInt32				mTTBase;			///< Translation Table Base.
-	KUInt32				mDomainAC;			///< Domain Access Control.
-	KUInt32				mFaultAddress;		///< Address of the last fault.
-	KUInt32				mFaultStatus;		///< Status.
-	THashMapCache<SEntry>	mCache;			///< TLB cache.
+	TMemory*			mMemoryIntf = nullptr;		///< Interface to the memory (set in the ctor)
+	Boolean				mMMUEnabled = false;		///< If the MMU is currently enabled.
+	KUInt8				mCurrentAPMode = kAPMagic_Privileged; ///< 0-7, SPR
+	KUInt8				mCurrentAPRead = 0;			///< Current AP bits for read acc.
+	KUInt8				mCurrentAPWrite = 0;		///< Current AP bits for write acc.
+	KUInt32				mTTBase = 0;				///< Translation Table Base.
+	KUInt32				mDomainAC = 0xFFFFFFFF;		///< Domain Access Control.
+	KUInt32				mFaultAddress = 0;			///< Address of the last fault.
+	KUInt32				mFaultStatus = 0;			///< Status.
+	THashMapCache<SEntry> mCache;					///< TLB cache.
 };
 
 #endif
