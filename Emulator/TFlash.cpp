@@ -297,19 +297,19 @@ TFlash::ReadB(
 
 
 // -------------------------------------------------------------------------- //
-//  * TransferState( TStream* )
+//  * V3: TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
 TFlash::TransferState( TStream* inStream )
 {
+	inStream->Tag('Flsh', "Transfer all Flash Memory data");
+
 	if (inStream->IsWriting())
 		mFlashFile.Sync();
 
 	// The flash.
-	KUInt32 FlashSize = kFlashBank1Size + kFlashBank2Size;
-	inStream->TransferInt32ArrayBE(
-								   (KUInt32*) mFlash,
-								   FlashSize / sizeof( KUInt32 ) );
+	KUInt32 flashSize = kFlashBank1Size + kFlashBank2Size;
+	inStream->Transfer( mFlash, flashSize );
 
 	if (inStream->IsReading())
 		mFlashFile.Sync();

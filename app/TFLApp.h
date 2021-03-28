@@ -113,6 +113,9 @@ public:
     // Show or raise or hide the Monitor window
     void UserActionToggleMonitor();
 
+    // Run a Monitor command
+    void UserActionMonitor(const char *cmd);
+
     // Show or raise or hide the Toolkit window
     void UserActionShowToolkit();
 

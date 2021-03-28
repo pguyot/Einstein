@@ -400,14 +400,14 @@ private:
 	///
 	/// \param inCopy		objet � copier
 	///
-	TEmulator( const TEmulator& inCopy );
+	TEmulator(const TEmulator& inCopy) = delete;
 
 	///
 	/// Op�rateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet � copier
 	///
-	TEmulator& operator = ( const TEmulator& inCopy );
+	TEmulator& operator = (const TEmulator& inCopy) = delete;
 
 	/// \name Variables
 	TMemory				mMemory;			///< Memory.

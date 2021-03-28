@@ -757,7 +757,7 @@ disasm_interface_t::di_printaddr( unsigned int inAddress )
 	
 	if (mSymbolList) {
 		mSymbolList->GetNearestSymbolByAddress( inAddress, theSymbol, theComment, &theOffset );
-        if (theOffset == 0) {
+        if (theOffset == 0 && theSymbol[0]) {
             di_printf( theSymbol );
         } else {
             di_printf( "%08X  =", inAddress );

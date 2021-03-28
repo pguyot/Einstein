@@ -671,6 +671,14 @@ void TFLApp::UserActionToggleMonitor()
         mMonitor->Show();
 }
 
+
+void TFLApp::UserActionMonitor(const char *cmd)
+{
+    if (mMonitor)
+        mMonitor->ExecuteCommand(cmd);
+}
+
+
 void TFLApp::UserActionShowToolkit()
 {
 #if USE_NEWT64
@@ -739,11 +747,11 @@ int TFLApp::UserActionKeepPCCardInSlot(int inSlot, int inIndex)
 
 
 /**
- This is called by the screen manager when the state of the backlight changed.
+ This is called by the screen manager when the power state changed.
  */
 void TFLApp::PowerChangedEvent(Boolean inState)
 {
-    // we have a hidden button in the FLuid file that does nothing but keep
+    // we have a hidden button in the Fluid file that does nothing but keep
     // track of the "on" image.
     static Fl_Image *onImage = nullptr;
     static Fl_Image *offImage = nullptr;

@@ -380,9 +380,9 @@ public:
 	///
 	void Version(KUInt32 v) { mVersion = v; }
 	
-	/// The followinf functions are shortcuts to either reading or writing data.
+	/// The following methods are shortcuts to either reading or writing data.
 	/// Only a single flag differentiates between reding and writing data. This
-	/// allows for a single function to read and write settings, avoid bug
+	/// allows for a single function to read and write settings, avoiding bug
 	/// prone code replication.
 	
 	/// Return 1 if this stream can read from a file
@@ -392,25 +392,31 @@ public:
 	KUInt32 IsWriting() { return (mIsWriting==1); }
 
 	/// Transfer a boolean.
-	void TransferBoolean(Boolean &inByte);
+	void Transfer(Boolean &inByte);
 	
 	/// Transfer a byte.
-	void TransferByte(KUInt8 &inByte);
+	void Transfer(KUInt8 &inByte);
 	
 	/// Transfer a word.
-	void TransferInt32BE(KUInt32 &inWord);
+	void Transfer(KUInt32 &inWord);
 	
 	/// Transfer a word.
-	void TransferInt32BE(KSInt32 &inWord);
+	void Transfer(KSInt32 &inWord);
 	
 	/// Transfer a short.
-	void TransferInt16BE(KUInt16 &inWord);
+	void Transfer(KUInt16 &inWord);
 	
 	/// Transfer an array of words
-	void TransferInt32ArrayBE(KUInt32* inArray, const KUInt32 inCount);
-	
+	void Transfer(KUInt32* inArray, KUInt32 inCount);
+
+	/// Transfer an array of bytes
+	void Transfer(KUInt8* inArray, KUInt32 inCount);
+
 	/// Transfer some bytes.
-	void Transfer( void* outBuffer, KUInt32* ioCount );
+	// void Transfer( void* outBuffer, KUInt32* ioCount );
+
+	/// Transfer an arbitrary Tag. Throw error if the Tag does not match when reading.
+	void Tag(KUInt32 inTag, const char* inErrorMessage);
 	
 
 protected:

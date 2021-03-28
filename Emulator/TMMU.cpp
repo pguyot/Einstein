@@ -974,7 +974,7 @@ TMMU::InvalidatePerms( void )
 
 
 // -------------------------------------------------------------------------- //
-//  * TransferState( TStream* )
+//  * V3: TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
 TMMU::TransferState( TStream* inStream )
@@ -983,15 +983,17 @@ TMMU::TransferState( TStream* inStream )
 	InvalidateTLB();
 	InvalidatePerms();
 
+	inStream->Tag('MMU ', "Transfer all MMU data");
+
 	// The various registers.
-	inStream->TransferBoolean( mMMUEnabled );
-	inStream->TransferByte( mCurrentAPMode );
-	inStream->TransferByte( mCurrentAPRead );
-	inStream->TransferByte( mCurrentAPWrite );
-	inStream->TransferInt32BE( mTTBase );
-	inStream->TransferInt32BE( mDomainAC );
-	inStream->TransferInt32BE( mFaultAddress );
-	inStream->TransferInt32BE( mFaultStatus );
+	inStream->Transfer( mMMUEnabled );
+	inStream->Transfer( mCurrentAPMode );
+	inStream->Transfer( mCurrentAPRead );
+	inStream->Transfer( mCurrentAPWrite );
+	inStream->Transfer( mTTBase );
+	inStream->Transfer( mDomainAC );
+	inStream->Transfer( mFaultAddress );
+	inStream->Transfer( mFaultStatus );
 }
 
 

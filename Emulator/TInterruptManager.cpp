@@ -1114,37 +1114,36 @@ TInterruptManager::GetSyncedCalendarDelta( void )
 
 
 // -------------------------------------------------------------------------- //
-//  * TransferState( TStream* ) const
+//  * V3: TransferState( TStream* ) const
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::TransferState( TStream* inStream )
 {
 	KUInt32 t;
 	
+	inStream->Tag('Intr', "Transfer all Interrupt Manager data");
+
 	// Interrupt manager specific stuff.
-	t = mRunning; inStream->TransferInt32BE( t ); mRunning = t;
-	t = mExiting; inStream->TransferInt32BE( t ); mExiting = t;
+	t = mRunning; inStream->Transfer( t ); mRunning = t;
+	t = mExiting; inStream->Transfer( t ); mExiting = t;
+	t = mWaiting; inStream->Transfer( t ); mWaiting  = t;
 
-	t = mWaiting; inStream->TransferInt32BE( t ); mWaiting  = t;
-
-	inStream->TransferInt32BE( mMaskIRQ );
-	inStream->TransferInt32BE( mMaskFIQ );
-	inStream->TransferInt32BE( mIntRaised );
-	inStream->TransferInt32BE( mIntCtrlReg );
-	inStream->TransferInt32BE( mFIQMask );
-	inStream->TransferInt32BE( mIntEDReg1 );
-	inStream->TransferInt32BE( mIntEDReg2 );
-	inStream->TransferInt32BE( mIntEDReg3 );
-	inStream->TransferInt32BE( mGPIORaised );
-	inStream->TransferInt32BE( mGPIOCtrlReg );
-	inStream->TransferInt32BE( mCalendarDelta );
+	inStream->Transfer( mMaskIRQ );
+	inStream->Transfer( mMaskFIQ );
+	inStream->Transfer( mIntRaised );
+	inStream->Transfer( mIntCtrlReg );
+	inStream->Transfer( mFIQMask );
+	inStream->Transfer( mIntEDReg1 );
+	inStream->Transfer( mIntEDReg2 );
+	inStream->Transfer( mIntEDReg3 );
+	inStream->Transfer( mGPIORaised );
+	inStream->Transfer( mGPIOCtrlReg );
+	inStream->Transfer(t);// mCalendarDelta );
 	
-	inStream->TransferInt32BE( mAlarmRegister );
-	inStream->TransferInt32BE( mTimerDelta );
-	inStream->TransferInt32BE( mTimer );
-	inStream->TransferInt32ArrayBE(
-				mMatchRegisters,
-				sizeof(mMatchRegisters) / sizeof(KUInt32) );
+	inStream->Transfer( mAlarmRegister );
+	inStream->Transfer( mTimerDelta );
+	inStream->Transfer( mTimer );
+	inStream->Transfer( mMatchRegisters, 4 );
 }
 
 

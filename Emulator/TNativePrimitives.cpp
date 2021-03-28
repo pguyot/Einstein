@@ -2937,19 +2937,19 @@ TNativePrimitives::ExecuteHostiOSNativeiOS( KUInt32 inInstruction )
 #endif
 
 // -------------------------------------------------------------------------- //
-//  * TransferState( TStream* )
+//  * V3: TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
 TNativePrimitives::TransferState( TStream* inStream )
 {
 	// The various registers.
-	inStream->TransferInt32BE( mTabletCalibration.fUnknown_00 );
-	inStream->TransferInt32BE( mTabletCalibration.fUnknown_04 );
-	inStream->TransferInt32BE( mTabletCalibration.fUnknown_08 );
-	inStream->TransferInt32BE( mTabletCalibration.fUnknown_0C );
-	inStream->TransferInt32BE( mTabletCalibration.fUnknown_10 );
-	inStream->TransferInt32BE( mTabletSampleRate );
-	inStream->TransferByte( mInputVolume );
+	inStream->Transfer( mTabletCalibration.fUnknown_00 );
+	inStream->Transfer( mTabletCalibration.fUnknown_04 );
+	inStream->Transfer( mTabletCalibration.fUnknown_08 );
+	inStream->Transfer( mTabletCalibration.fUnknown_0C );
+	inStream->Transfer( mTabletCalibration.fUnknown_10 );
+	inStream->Transfer( mTabletSampleRate );
+	inStream->Transfer( mInputVolume );
 }
 
 

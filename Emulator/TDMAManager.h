@@ -170,14 +170,14 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TDMAManager( const TDMAManager& inCopy );
+	TDMAManager( const TDMAManager& inCopy ) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TDMAManager& operator = ( const TDMAManager& inCopy );
+	TDMAManager& operator = ( const TDMAManager& inCopy ) = delete;
 
 	/// \name Variables
 	TLog*				mLog;				///< Interface for logging.

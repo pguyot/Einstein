@@ -513,12 +513,21 @@ TEmulator::LoadState( const char* inPath )
 
 
 // -------------------------------------------------------------------------- //
-//  * TransferState( TStream* )
+//  * V3: TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
 TEmulator::TransferState( TStream* inStream )
 {
-	// First, save the memory.
+	// Emulator specific stuff.
+	inStream->Tag('Emul', "Transfer emulator state");
+	inStream->Transfer(mNewtonID, 2);
+	inStream->Transfer(mInterrupted);
+	inStream->Transfer(mRunning);
+	inStream->Transfer(mPaused);
+	inStream->Transfer(mBPHalted);
+	inStream->Transfer(mBPID);
+
+	// Save the memory.
 	mMemory.TransferState( inStream );
 	
 	// Then the CPU.
@@ -531,15 +540,7 @@ TEmulator::TransferState( TStream* inStream )
 	mDMAManager->TransferState( inStream );
 	
 	// And the screen content.
-	mScreenManager->TransferState( inStream );
-	
-	// Emulator specific stuff.
-	inStream->TransferInt32ArrayBE(mNewtonID, 2);
-	inStream->TransferInt32BE( mInterrupted );
-	inStream->TransferInt32BE( mRunning );
-	inStream->TransferInt32BE( mPaused );
-	inStream->TransferInt32BE( mBPHalted );
-	inStream->TransferInt16BE( mBPID );
+	mScreenManager->TransferState( inStream );	
 }
 
 

@@ -514,13 +514,13 @@ TStream::PutByte( const KUInt8 inByte )
 // ------------------------------------------------------------------------- //
 //  * TransferBoolean( Boolean& )
 // ------------------------------------------------------------------------- //
-void TStream::TransferBoolean(Boolean &myBool)
+void TStream::Transfer(Boolean &ioBool)
 {
   if (IsReading()) {
     KUInt8 v = GetByte();
-    myBool = v;
+    ioBool = v;
   } else if (IsWriting()) {
-    PutByte(myBool);
+    PutByte(ioBool);
   }
 }
 
@@ -528,7 +528,7 @@ void TStream::TransferBoolean(Boolean &myBool)
 // ------------------------------------------------------------------------- //
 //  * TransferByte( KUInt8& )
 // ------------------------------------------------------------------------- //
-void TStream::TransferByte(KUInt8 &myByte)
+void TStream::Transfer(KUInt8 &myByte)
 {
   if (IsReading()) {
     myByte = GetByte();
@@ -541,12 +541,12 @@ void TStream::TransferByte(KUInt8 &myByte)
 // ------------------------------------------------------------------------- //
 //  * TransferInt32BE( KUInt32& )
 // ------------------------------------------------------------------------- //
-void TStream::TransferInt32BE(KUInt32 &myWord)
+void TStream::Transfer(KUInt32 &ioWord)
 {
 	if (IsReading()) {
-		myWord = GetInt32BE();
+		ioWord = GetInt32BE();
 	} else if (IsWriting()) {
-		PutInt32BE(myWord);
+		PutInt32BE(ioWord);
 	}
 }
 
@@ -554,7 +554,7 @@ void TStream::TransferInt32BE(KUInt32 &myWord)
 // ------------------------------------------------------------------------- //
 //  * TransferInt32BE( KSInt32& )
 // ------------------------------------------------------------------------- //
-void TStream::TransferInt32BE(KSInt32 &myWord)
+void TStream::Transfer(KSInt32 &myWord)
 {
 	union { KUInt32 U32; KSInt32 S32; } v;
 	if (IsReading()) {
@@ -570,7 +570,7 @@ void TStream::TransferInt32BE(KSInt32 &myWord)
 // ------------------------------------------------------------------------- //
 //  * TransferInt16BE( KUInt16& )
 // ------------------------------------------------------------------------- //
-void TStream::TransferInt16BE(KUInt16 &myWord)
+void TStream::Transfer(KUInt16 &myWord)
 {
 	if (IsReading()) {
 		myWord = GetInt16BE();
@@ -581,26 +581,58 @@ void TStream::TransferInt16BE(KUInt16 &myWord)
 
 
 // ------------------------------------------------------------------------- //
-//  * void TransferInt32ArrayBE( KUInt32* , const KUInt32 )
+//  * void Transfer( KUInt32* , const KUInt32 )
 // ------------------------------------------------------------------------- //
-void TStream::TransferInt32ArrayBE(KUInt32* myArray, const KUInt32 myCount)
+void TStream::Transfer(KUInt32* ioArray, KUInt32 inCount)
 {
 	if (IsReading()) {
-		GetInt32ArrayBE(myArray, myCount);
+		GetInt32ArrayBE(ioArray, inCount);
 	} else if (IsWriting()) {
-		PutInt32ArrayBE(myArray, myCount);
+		PutInt32ArrayBE(ioArray, inCount);
+	}
+}
+
+// ------------------------------------------------------------------------- //
+//  * void Transfer( KUInt8* , const KUInt32 )
+// ------------------------------------------------------------------------- //
+void TStream::Transfer(KUInt8* ioArray, KUInt32 inCount)
+{
+	if (IsReading()) {
+		Read(ioArray, &inCount);
+	} else if (IsWriting()) {
+		Write(ioArray, &inCount);
 	}
 }
 
 // ------------------------------------------------------------------------- //
 //  * void Transfer( void*, KUInt32* )
 // ------------------------------------------------------------------------- //
+/*
 void TStream::Transfer( void* inoutBuffer, KUInt32* ioCount )
 {
 	if (IsReading()) {
 		Read(inoutBuffer, ioCount);
 	} else if (IsWriting()) {
 		Write(inoutBuffer, ioCount);
+	}
+}
+*/
+
+// ------------------------------------------------------------------------- //
+//  * void Tag(KUInt32 inTag, const char* inErrorMessage)
+// ------------------------------------------------------------------------- //
+void TStream::Tag(KUInt32 inTag, const char* inErrorMessage)
+{
+	if (IsReading()) {
+		GetInt32BE();
+		KUInt32 tag = GetInt32BE();
+		if (tag != inTag) {
+			KPrintf("TStream: Tags not matching while reading: %s\n", inErrorMessage);
+			throw EOFException;
+		}
+	} else {
+		PutInt32BE('TAG:');
+		PutInt32BE(inTag);
 	}
 }
 

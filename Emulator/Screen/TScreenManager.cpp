@@ -1024,34 +1024,37 @@ TScreenManager::KeyRepeat( KUInt8 inKeyCode )
 
 
 // -------------------------------------------------------------------------- //
-//  * TransferState( TStream* )
+//  * V3: TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
 TScreenManager::TransferState( TStream* inStream )
 {
 	KUInt32 t;
 	
-	inStream->TransferInt32BE( mPortraitWidth );
-	inStream->TransferInt32BE( mPortraitHeight );
-	inStream->TransferInt32BE( mPhysicalWidth );
-	inStream->TransferInt32BE( mPhysicalHeight );
-	inStream->TransferBoolean( mFullScreen );
-	inStream->TransferBoolean( mScreenIsLandscape );
-	inStream->TransferBoolean( mBypassTablet );
-	inStream->TransferBoolean( mTabletIsDown );
-	inStream->TransferBoolean( mPenIsDown );
-	inStream->TransferInt32BE( mTabletSampleRate );
-	t = mTabletOrientation; inStream->TransferInt32BE( t ); mTabletOrientation = (EOrientation)t;
-	t = mScreenOrientation; inStream->TransferInt32BE( t ); mScreenOrientation = (EOrientation)t;
-	inStream->TransferInt32BE( mContrast );
-	inStream->TransferBoolean( mBacklight );
-	inStream->TransferBoolean( mKbdIsConnected );
+	inStream->Tag('Scrn', "Transfer all screen data");
+
+	// FIXME: reading those should update the UI
+	inStream->Transfer( mPortraitWidth );
+	inStream->Transfer( mPortraitHeight );
+	inStream->Transfer( mPhysicalWidth );
+	inStream->Transfer( mPhysicalHeight );
+	inStream->Transfer( mFullScreen );
+	inStream->Transfer( mScreenIsLandscape );
+	inStream->Transfer( mBypassTablet );
+	inStream->Transfer( mTabletIsDown );
+	inStream->Transfer( mPenIsDown );
+	inStream->Transfer( mTabletSampleRate );
+	t = mTabletOrientation; inStream->Transfer( t ); mTabletOrientation = (EOrientation)t;
+	t = mScreenOrientation; inStream->Transfer( t ); mScreenOrientation = (EOrientation)t;
+	inStream->Transfer( mContrast );
+	inStream->Transfer( mBacklight );
+	inStream->Transfer( mKbdIsConnected );
 	
 	KUInt32 count = mPortraitWidth * mPortraitHeight * kBitsPerPixel / 8;
-	inStream->Transfer(mScreenBuffer, &count);
+	inStream->Transfer(mScreenBuffer, count);
 	
-	if (inStream->IsReading())
-		PowerOnScreen();
+//	if (inStream->IsReading())
+//		PowerOnScreen();
 }
 
 

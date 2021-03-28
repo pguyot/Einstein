@@ -274,11 +274,13 @@ TDMAManager::WriteChannel2Register(
 
 
 // -------------------------------------------------------------------------- //
-//  * void TransferState( TStream* )
+//  * V3: void TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void TDMAManager::TransferState( TStream* inStream )
 {
-	inStream->TransferInt32BE(mAssignmentReg);
+	inStream->Tag('DMA ', "Transfer all DMA data");
+
+	inStream->Transfer(mAssignmentReg);
 }
 
 

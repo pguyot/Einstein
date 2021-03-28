@@ -32,7 +32,8 @@
 #include <sys/types.h>
 
 #if TARGET_OS_WIN32
-	#include <assert.h>
+#include <assert.h>
+#include <direct.h>
 #else
 	#include <strings.h>
 	#include <sys/socket.h>
@@ -103,10 +104,6 @@ TMonitorCore::ExecuteScript( const char* inScriptFile )
 Boolean
 TMonitorCore::ExecuteCommand( const char* inCommand )
 {
-#if TARGET_OS_WIN32
-	assert(0); // FIXME later
-	return 0;
-#else
 	Boolean theResult = true;
 	
 	if (inCommand[0]=='#') {
@@ -127,7 +124,6 @@ TMonitorCore::ExecuteCommand( const char* inCommand )
 		theResult = false;
 	}
 	return theResult;
-#endif
 }
 
 

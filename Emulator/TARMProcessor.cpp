@@ -988,57 +988,56 @@ TARMProcessor::PrintRegisters( void )
 
 
 // -------------------------------------------------------------------------- //
-//  * TransferState( TStream* )
+//  * V3: TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
 TARMProcessor::TransferState( TStream* inStream ) 
 {
 	KUInt32 tmp;
 	
+	inStream->Tag('ARM ', "Transfer all CPU data");
+
 	// First, transfer the native primitives stuff.
 	mNativePrimitives.TransferState( inStream );
 
 	// Then transfer the CPU specific stuff.
-	inStream->TransferInt32ArrayBE(
-					mCurrentRegisters,
-					sizeof(mCurrentRegisters) / sizeof(KUInt32) );
-	inStream->TransferBoolean( mCPSR_N );
-	inStream->TransferBoolean( mCPSR_Z );
-	inStream->TransferBoolean( mCPSR_C );
-	inStream->TransferBoolean( mCPSR_V );
-	inStream->TransferBoolean( mCPSR_I );
-	inStream->TransferBoolean( mCPSR_F );
-	inStream->TransferBoolean( mCPSR_T );
-	inStream->TransferInt32BE( mR8_Bkup );
-	inStream->TransferInt32BE( mR9_Bkup );
-	inStream->TransferInt32BE( mR10_Bkup );
-	inStream->TransferInt32BE( mR11_Bkup );
-	inStream->TransferInt32BE( mR12_Bkup );
-	inStream->TransferInt32BE( mR13_Bkup );
-	inStream->TransferInt32BE( mR14_Bkup );
-	inStream->TransferInt32BE( mR13svc_Bkup );
-	inStream->TransferInt32BE( mR14svc_Bkup );
-	inStream->TransferInt32BE( mR13abt_Bkup );
-	inStream->TransferInt32BE( mR14abt_Bkup );
-	inStream->TransferInt32BE( mR13und_Bkup );
-	inStream->TransferInt32BE( mR14und_Bkup );
-	inStream->TransferInt32BE( mR13irq_Bkup );
-	inStream->TransferInt32BE( mR14irq_Bkup );
-	inStream->TransferInt32BE( mR8fiq_Bkup );
-	inStream->TransferInt32BE( mR9fiq_Bkup );
-	inStream->TransferInt32BE( mR10fiq_Bkup );
-	inStream->TransferInt32BE( mR11fiq_Bkup );
-	inStream->TransferInt32BE( mR12fiq_Bkup );
-	inStream->TransferInt32BE( mR13fiq_Bkup );
-	inStream->TransferInt32BE( mR14fiq_Bkup );
-	inStream->TransferInt32BE( mSPSRsvc );
-	inStream->TransferInt32BE( mSPSRabt );
-	inStream->TransferInt32BE( mSPSRund );
-	inStream->TransferInt32BE( mSPSRirq );
-	inStream->TransferInt32BE( mSPSRfiq );
-	
-	tmp = (KUInt32)mMode; inStream->TransferInt32BE( tmp ); mMode = (EMode)tmp;
-	inStream->TransferInt32BE( mPendingInterrupts );
+	inStream->Transfer( mCurrentRegisters, 16 );
+	inStream->Transfer( mCPSR_N );
+	inStream->Transfer( mCPSR_Z );
+	inStream->Transfer( mCPSR_C );
+	inStream->Transfer( mCPSR_V );
+	inStream->Transfer( mCPSR_I );
+	inStream->Transfer( mCPSR_F );
+	inStream->Transfer( mCPSR_T );
+	inStream->Transfer( mR8_Bkup );
+	inStream->Transfer( mR9_Bkup );
+	inStream->Transfer( mR10_Bkup );
+	inStream->Transfer( mR11_Bkup );
+	inStream->Transfer( mR12_Bkup );
+	inStream->Transfer( mR13_Bkup );
+	inStream->Transfer( mR14_Bkup );
+	inStream->Transfer( mR13svc_Bkup );
+	inStream->Transfer( mR14svc_Bkup );
+	inStream->Transfer( mR13abt_Bkup );
+	inStream->Transfer( mR14abt_Bkup );
+	inStream->Transfer( mR13und_Bkup );
+	inStream->Transfer( mR14und_Bkup );
+	inStream->Transfer( mR13irq_Bkup );
+	inStream->Transfer( mR14irq_Bkup );
+	inStream->Transfer( mR8fiq_Bkup );
+	inStream->Transfer( mR9fiq_Bkup );
+	inStream->Transfer( mR10fiq_Bkup );
+	inStream->Transfer( mR11fiq_Bkup );
+	inStream->Transfer( mR12fiq_Bkup );
+	inStream->Transfer( mR13fiq_Bkup );
+	inStream->Transfer( mR14fiq_Bkup );
+	inStream->Transfer( mSPSRsvc );
+	inStream->Transfer( mSPSRabt );
+	inStream->Transfer( mSPSRund );
+	inStream->Transfer( mSPSRirq );
+	inStream->Transfer( mSPSRfiq );
+	tmp = (KUInt32)mMode; inStream->Transfer( tmp ); mMode = (EMode)tmp;
+	inStream->Transfer( mPendingInterrupts );
 }
 
 // -------------------------------------------------------------------------- //

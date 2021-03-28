@@ -168,7 +168,7 @@ TMonitor::Run()
 	ExecuteStartupScript();
 
     if (mRunOnStartup) {
-		// LoadEmulatorState(); // FIXME: this generally works, but there are probably many hidden bugs that make Newton crash after a little while
+		LoadEmulatorState();
         mCommand = kRun;
         DrawScreen();
         RunEmulator();

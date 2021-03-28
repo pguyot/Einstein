@@ -15,7 +15,7 @@ decl {\#include "TFLAppWindow.h"} {public global
 decl {\#include "TFLTabs.h"} {public global
 }
 
-data imgPCCardTopIn {selected public local filename {../Resources/icons/button_pccard_top_in.png}
+data imgPCCardTopIn {public local filename {../Resources/icons/button_pccard_top_in.png}
 }
 
 data imgPCCardTopOut {public local filename {../Resources/icons/button_pccard_top_out.png}
@@ -112,6 +112,16 @@ Function {CreateApplicationWindow(int x, int y)} {open
         MenuItem {} {
           label Paste
           xywh {0 0 100 20} shortcut 0x410076 deactivate divider
+        }
+        MenuItem {} {
+          label {DEBUG: Snap}
+          callback {gApp->UserActionMonitor("snap");}
+          xywh {10 10 100 20} shortcut 0x40031
+        }
+        MenuItem {} {
+          label {DEBUG: Revert}
+          callback {gApp->UserActionMonitor("revert");} selected
+          xywh {20 20 100 20} shortcut 0x40032
         }
       }
       Submenu {} {
