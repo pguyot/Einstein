@@ -133,24 +133,16 @@ public:
 	};
 	
 private:
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TFlash( const TFlash& inCopy );
+	// No implicit copy constructor
+	TFlash(const TFlash& inCopy) = delete;
 
-	///
-	/// Opérateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TFlash& operator = ( const TFlash& inCopy );
+	// No implicit copy operator
+	TFlash& operator = (const TFlash& inCopy) = delete;
 
 	/// \name Variables
-	TLog*				mLog;					///< Interface to the log.
+	TLog*				mLog = nullptr;			///< Interface to the log.
 	TMappedFile			mFlashFile;				///< Flash file.
-	KUInt8*				mFlash;					///< Flash buffer.
+	KUInt8*				mFlash = nullptr;		///< Flash buffer.
 };
 
 #endif

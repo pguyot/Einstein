@@ -135,7 +135,7 @@ public:
 	///
 	/// \return the emulator (access to hardware managers).
 	///
-	TEmulator*	GetEmulator( void ) const
+	TEmulator*	GetEmulator() const
 		{
 			return mEmulator;
 		}
@@ -145,7 +145,7 @@ public:
 	///
 	/// \return the memory interface.
 	///
-	TMemory*	GetMemory( void ) const
+	TMemory*	GetMemory() const
 		{
 			return mMemory;
 		}
@@ -155,7 +155,7 @@ public:
 	///
 	/// \return the current mode.
 	///
-	EMode		GetMode( void ) const
+	EMode		GetMode() const
 		{
 			return mMode;
 		}
@@ -163,7 +163,7 @@ public:
 	///
 	/// Print a complete status of the processor to stdout.
 	///
-	void	PrintRegisters( void );
+	void	PrintRegisters();
 
 	///
 	/// Return the value of a given register.
@@ -192,7 +192,7 @@ public:
 	///
 	/// \return the value of the CPSR (32 bits)
 	///
-	KUInt32	GetCPSR( void );
+	KUInt32	GetCPSR();
 	
 	///
 	/// Get the current SPSR.
@@ -200,7 +200,7 @@ public:
 	///
 	/// \return the value of the SPSR (32 bits) for the current mode.
 	///
-	KUInt32	GetSPSR( void );
+	KUInt32	GetSPSR();
 	
 	///
 	/// Set the CPSR and update the mode accordingly.
@@ -221,48 +221,48 @@ public:
 	/// Undefined Instruction handling.
 	/// Pre-requirement: PC is the address of the undefined instruction + 8.
 	///
-	void DoUndefinedInstruction( void );
+	void DoUndefinedInstruction();
 	
 	///
 	/// SWI handling.
 	/// Pre-requirement: PC is the address of the SWI instruction + 8.
 	///
-	void DoSWI( void );
+	void DoSWI();
 	
 	///
 	/// Reset hardware Interrupt.
 	/// The interrupt will be handled at the beginning of the next step cycle.
 	///
-	void	ResetInterrupt( void );
+	void	ResetInterrupt();
 	
 	///
 	/// Assert FIQ hardware Interrupt.
 	/// The interrupt will be handled at the beginning of the next step cycle.
 	///
-	void	FIQInterrupt( void );
+	void	FIQInterrupt();
 	
 	///
 	/// Clear FIQ hardware Interrupt.
 	///
-	void	ClearFIQInterrupt( void );
+	void	ClearFIQInterrupt();
 	
 	///
 	/// Assert IRQ hardware Interrupt.
 	/// The interrupt will be handled at the beginning of the next step cycle.
 	///
-	void	IRQInterrupt( void );
+	void	IRQInterrupt();
 	
 	///
 	/// Clear IRQ hardware Interrupt.
 	///
-	void	ClearIRQInterrupt( void );
+	void	ClearIRQInterrupt();
 	
 	///
 	/// Determine if there is a hardware interrupt currently asserted.
 	///
 	/// \return \c true if there is, \c false otherwise.
 	///
-	Boolean IsThereAnyHardwareInterruptAsserted( void ) const
+	Boolean IsThereAnyHardwareInterruptAsserted() const
 		{
 			return mPendingInterrupts != 0;
 		}
@@ -291,38 +291,38 @@ public:
 	/// This operation may backup more than required. However, I don't think
 	/// it's here that we will spend most of our time.
 	///
-	inline void BackupBankRegisters( void );
+	inline void BackupBankRegisters();
 	
 	///
 	/// Reset handling.
 	///
-	void Reset( void );
+	void Reset();
 	
 	///
 	/// PrefetchAbort handling.
 	/// Pre-requirement: PC is the address of the aborted instruction + 4.
 	///
-	void PrefetchAbort( void );
+	void PrefetchAbort();
 	
 	///
 	/// DataAbort handling.
 	/// Pre-requirement: PC is the address of the aborted instruction + 8.
 	///
-	void DataAbort( void );
+	void DataAbort();
 	
 	///
 	/// IRQ handling.
 	/// Doesn't check interrupt disable flags.
 	/// Pre-requirement: PC is the address of the current instruction + 8.
 	///
-	void IRQ( void );
+	void IRQ();
 	
 	///
 	/// FIQ handling.
 	/// Doesn't check interrupt disable flags.
 	/// Pre-requirement: PC is the address of the current instruction + 8.
 	///
-	void FIQ( void );
+	void FIQ();
 
 	///
 	/// Inline functions for all tests in the condition field of ARM commands.
@@ -343,75 +343,87 @@ public:
 	Boolean TestGT() { return ((!mCPSR_Z) && (mCPSR_N == mCPSR_V)); }
 	Boolean TestLE() { return ((mCPSR_Z) || (mCPSR_N != mCPSR_V)); }
 
-	/// \name Registers
-	
-	// At any time, 16 general purpose registers (R0-R15) may be visible.
-	// The mCurrentRegisters array refers to them.
-	// These registers may be switched with backup copies when the mode
-	// changes.
-	KUInt32		mCurrentRegisters[16];		///< The current bank with the
-											///< currently visible 16 general
-											///< purpose registers.
-
-	Boolean		mCPSR_N;					///< N Flag of CPSR.
-	Boolean		mCPSR_Z;					///< Z Flag of CPSR.
-	Boolean		mCPSR_C;					///< C Flag of CPSR.
-	Boolean		mCPSR_V;					///< V Flag of CPSR.
-	Boolean		mCPSR_I;					///< I Bit of CPSR.
-	Boolean		mCPSR_F;					///< F Bit of CPSR.
-	Boolean		mCPSR_T;					///< T Bit of CPSR.
-	KUInt32		mR8_Bkup;					///< A copy of R8
-	KUInt32		mR9_Bkup;					///< A copy of R9
-	KUInt32		mR10_Bkup;					///< A copy of R10
-	KUInt32		mR11_Bkup;					///< A copy of R11
-	KUInt32		mR12_Bkup;					///< A copy of R12
-	KUInt32		mR13_Bkup;					///< A copy of R13
-	KUInt32		mR14_Bkup;					///< A copy of R14
-	KUInt32		mR13svc_Bkup;				///< A copy of R13svc
-	KUInt32		mR14svc_Bkup;				///< A copy of R14svc
-	KUInt32		mR13abt_Bkup;				///< A copy of R13abt
-	KUInt32		mR14abt_Bkup;				///< A copy of R14abt
-	KUInt32		mR13und_Bkup;				///< A copy of R13und
-	KUInt32		mR14und_Bkup;				///< A copy of R14und
-	KUInt32		mR13irq_Bkup;				///< A copy of R13irq
-	KUInt32		mR14irq_Bkup;				///< A copy of R14irq
-	KUInt32		mR8fiq_Bkup;				///< A copy of R8fiq
-	KUInt32		mR9fiq_Bkup;				///< A copy of R9fiq
-	KUInt32		mR10fiq_Bkup;				///< A copy of R10fiq
-	KUInt32		mR11fiq_Bkup;				///< A copy of R11fiq
-	KUInt32		mR12fiq_Bkup;				///< A copy of R12fiq
-	KUInt32		mR13fiq_Bkup;				///< A copy of R13fiq
-	KUInt32		mR14fiq_Bkup;				///< A copy of R14fiq
-	KUInt32		mSPSRsvc;					///< Saved PSR for svc mode
-	KUInt32		mSPSRabt;					///< Saved PSR for abt mode
-	KUInt32		mSPSRund;					///< Saved PSR for und mode
-	KUInt32		mSPSRirq;					///< Saved PSR for irq mode
-	KUInt32		mSPSRfiq;					///< Saved PSR for fiq mode
-
 	///
 	/// return true if the IRQ interrupt is enabled
 	///
-	bool IsIRQEnabled();
+	Boolean IsIRQEnabled() const { return (mCPSR_I == 0); }
 
 	///
 	/// return true if the FIQ interrupt is enabled
 	///
-	bool IsFIQEnabled();
+	Boolean IsFIQEnabled() const { return (mCPSR_F == 0); }
 
 	///
 	/// return true if any of the interrupts is enabled
 	///
-	bool IsAnyInterruptEnabled();
+	Boolean IsAnyInterruptEnabled() const { return (mCPSR_F == 0) || (mCPSR_I == 0); }
+
+private:
+	// No implicit copy constructor
+	TARMProcessor(const TARMProcessor& inCopy) = delete;
+
+	// No implicit copy operator
+	TARMProcessor& operator = (const TARMProcessor& inCopy) = delete;
+
+
+	/// \name Registers
+	
+public:
+	// At any time, 16 general purpose registers (R0-R15) may be visible.
+	// The mCurrentRegisters array refers to them.
+	// These registers may be switched with backup copies when the mode
+	// changes.
+	KUInt32		mCurrentRegisters[16] = {
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+	};
+												///< The current bank with the
+												///< currently visible 16 general
+												///< purpose registers.
+
+	Boolean		mCPSR_N = 0;					///< N Flag of CPSR.
+	Boolean		mCPSR_Z = 0;					///< Z Flag of CPSR.
+	Boolean		mCPSR_C = 0;					///< C Flag of CPSR.
+	Boolean		mCPSR_V = 0;					///< V Flag of CPSR.
+	Boolean		mCPSR_I = 0;					///< I Bit of CPSR.
+	Boolean		mCPSR_F = 0;					///< F Bit of CPSR.
+	Boolean		mCPSR_T = 0;					///< T Bit of CPSR.
+	KUInt32		mR8_Bkup = 0;					///< A copy of R8
+	KUInt32		mR9_Bkup = 0;					///< A copy of R9
+	KUInt32		mR10_Bkup = 0;					///< A copy of R10
+	KUInt32		mR11_Bkup = 0;					///< A copy of R11
+	KUInt32		mR12_Bkup = 0;					///< A copy of R12
+	KUInt32		mR13_Bkup = 0;					///< A copy of R13
+	KUInt32		mR14_Bkup = 0;					///< A copy of R14
+	KUInt32		mR13svc_Bkup = 0;				///< A copy of R13svc
+	KUInt32		mR14svc_Bkup = 0;				///< A copy of R14svc
+	KUInt32		mR13abt_Bkup = 0;				///< A copy of R13abt
+	KUInt32		mR14abt_Bkup = 0;				///< A copy of R14abt
+	KUInt32		mR13und_Bkup = 0;				///< A copy of R13und
+	KUInt32		mR14und_Bkup = 0;				///< A copy of R14und
+	KUInt32		mR13irq_Bkup = 0;				///< A copy of R13irq
+	KUInt32		mR14irq_Bkup = 0;				///< A copy of R14irq
+	KUInt32		mR8fiq_Bkup = 0;				///< A copy of R8fiq
+	KUInt32		mR9fiq_Bkup = 0;				///< A copy of R9fiq
+	KUInt32		mR10fiq_Bkup = 0;				///< A copy of R10fiq
+	KUInt32		mR11fiq_Bkup = 0;				///< A copy of R11fiq
+	KUInt32		mR12fiq_Bkup = 0;				///< A copy of R12fiq
+	KUInt32		mR13fiq_Bkup = 0;				///< A copy of R13fiq
+	KUInt32		mR14fiq_Bkup = 0;				///< A copy of R14fiq
+	KUInt32		mSPSRsvc = 0;					///< Saved PSR for svc mode
+	KUInt32		mSPSRabt = 0;					///< Saved PSR for abt mode
+	KUInt32		mSPSRund = 0;					///< Saved PSR for und mode
+	KUInt32		mSPSRirq = 0;					///< Saved PSR for irq mode
+	KUInt32		mSPSRfiq = 0;					///< Saved PSR for fiq mode
 
 private:
 	/// \name Variables
-	EMode		mMode;						///< Current mode.
-	KUInt32		mPendingInterrupts;			///< Waiting interrupts.
+	EMode		mMode = kSupervisorMode;		///< Current mode.
+	KUInt32		mPendingInterrupts = 0;			///< Waiting interrupts.
 
-	TLog*		mLog;						///< Interface for logging.
-	TMemory*	mMemory;					///< Reference to the access to memory.
-	TNativePrimitives   mNativePrimitives;  ///< Interface for native primitives.
-	TEmulator*  mEmulator;					///< Interface to the emulator.
+	TLog*		mLog = nullptr;					///< Interface for logging.
+	TMemory*	mMemory = nullptr;				///< Reference to the access to memory.
+	TNativePrimitives   mNativePrimitives;		///< Interface for native primitives.
+	TEmulator*  mEmulator = nullptr;			///< Interface to the emulator.
 };
 
 #endif

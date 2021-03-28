@@ -78,7 +78,7 @@ TFlash::TFlash(
 		inROMImage->ComputeChecksums( checksums );
 	
 		// Check Einstein's rex checksum.
-		if ((checksums[4] != REX_Csum1)
+		if (   (checksums[4] != REX_Csum1)
 			|| (checksums[5] != REX_Csum2))
 		{
 /*
@@ -302,6 +302,11 @@ TFlash::ReadB(
 void
 TFlash::TransferState( TStream* inStream )
 {
+	// FIXME: save the filename of the flash file with the snapshot
+	// FIXME: If the filenames differ, do not load the snapshot, because it will overwrite the old flash file!
+	// FIXME: Actually, we must do that before we even attempt to load this snapshot (and also check fo the same ROM file)
+	// FIXME: This will also clear any checksum issues
+
 	inStream->Tag('Flsh', "Transfer all Flash Memory data");
 
 	if (inStream->IsWriting())
@@ -313,6 +318,9 @@ TFlash::TransferState( TStream* inStream )
 
 	if (inStream->IsReading())
 		mFlashFile.Sync();
+
+	// --- No need to write this
+	// TLog* mLog;
 }
 
 

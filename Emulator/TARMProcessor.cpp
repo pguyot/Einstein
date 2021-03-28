@@ -52,59 +52,12 @@ TARMProcessor::TARMProcessor(
 						TLog* inLog,
 						TMemory* inMemory )
 	:
-		mPendingInterrupts( 0 ),
 		mLog( inLog ),
 		mMemory( inMemory ),
-		mNativePrimitives( inLog, inMemory ),
-		mEmulator( nil )
+		mNativePrimitives( inLog, inMemory )
 {
 	mMemory->SetProcessor( this );
 	mNativePrimitives.SetProcessor( this );
-
-	// Clear everything.
-	KUInt32 indexRegisters;
-	for (indexRegisters = 0; indexRegisters < 16; indexRegisters++)
-	{
-		mCurrentRegisters[indexRegisters] = 0;
-	}
-	
-	mCPSR_N = 0;
-	mCPSR_Z = 0;
-	mCPSR_C = 0;
-	mCPSR_V = 0;
-	mCPSR_I = 0;
-	mCPSR_F = 0;
-	mCPSR_T = 0;
-	mR8_Bkup = 0;
-	mR9_Bkup = 0;
-	mR10_Bkup = 0;
-	mR11_Bkup = 0;
-	mR12_Bkup = 0;
-	mR13_Bkup = 0;
-	mR14_Bkup = 0;
-	mR13svc_Bkup = 0;
-	mR14svc_Bkup = 0;
-	mR13abt_Bkup = 0;
-	mR14abt_Bkup = 0;
-	mR13und_Bkup = 0;
-	mR14und_Bkup = 0;
-	mR13irq_Bkup = 0;
-	mR14irq_Bkup = 0;
-	mR8fiq_Bkup = 0;
-	mR9fiq_Bkup = 0;
-	mR10fiq_Bkup = 0;
-	mR11fiq_Bkup = 0;
-	mR12fiq_Bkup = 0;
-	mR13fiq_Bkup = 0;
-	mR14fiq_Bkup = 0;
-	mSPSRsvc = 0;
-	mSPSRabt = 0;
-	mSPSRund = 0;
-	mSPSRirq = 0;
-	mSPSRfiq = 0;
-	mMode = kSupervisorMode;
-	
-	mCurrentRegisters[kR15] = 0x00000004; // Prefetch.
 }
 
 // -------------------------------------------------------------------------- //
@@ -411,10 +364,10 @@ TARMProcessor::NativeCoprocRegisterTransfer( KUInt32 inInstruction )
 }
 
 // -------------------------------------------------------------------------- //
-//  * Reset( void )
+//  * Reset()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::Reset( void )
+TARMProcessor::Reset()
 {
 	mLog->LogLine( "Reset" );
 	
@@ -441,10 +394,10 @@ TARMProcessor::Reset( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * DoUndefinedInstruction( void )
+//  * DoUndefinedInstruction()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::DoUndefinedInstruction( void )
+TARMProcessor::DoUndefinedInstruction()
 {
 	BackupBankRegisters();
 	mSPSRund = GetCPSR();
@@ -470,10 +423,10 @@ TARMProcessor::DoUndefinedInstruction( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * DoSWI( void )
+//  * DoSWI()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::DoSWI( void )
+TARMProcessor::DoSWI()
 {
 	BackupBankRegisters();
 	mSPSRsvc = GetCPSR();
@@ -499,10 +452,10 @@ TARMProcessor::DoSWI( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * PrefetchAbort( void )
+//  * PrefetchAbort()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::PrefetchAbort( void )
+TARMProcessor::PrefetchAbort()
 {
 	BackupBankRegisters();
 	mSPSRabt = GetCPSR();
@@ -527,48 +480,11 @@ TARMProcessor::PrefetchAbort( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * DataAbort( void )
+//  * DataAbort()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::DataAbort( void )
+TARMProcessor::DataAbort()
 {
-#if 0
-	KPrintf("Data Abort at 0x%08lx, accessing 0x%08lx\n", mCurrentRegisters[kR15]-8, mMemory->GetFaultAddressRegister());
-	FILE *f = fopen("/Users/matt/dev/Einstein/mmu.txt", "wb");
-	mMemory->FDump(f);
-	fclose(f);
-#endif
-	//  002ddf2c         str      r1, [r2], #4                     | E4821004
-	/*
-	 Data Abort at 0x00311528
-	 Data Abort at 0x0031152c
-	 Data Abort at 0x00025d4c
-	 Data Abort at 0x0031152c
-	 Data Abort at 0x0031152c
-	 Data Abort at 0x00310858
-	 Data Abort at 0x003121b8
-	 Data Abort at 0x00259d34
-	 Data Abort at 0x001a4710
-	 Data Abort at 0x001a4ba4
-	 Data Abort at 0x0013b6e0
-	 Data Abort at 0x0003b2a4
-	 Data Abort at 0x000c0910
-	 Data Abort at 0x001a46e8
-	 Data Abort at 0x001a4ba4
-	 Data Abort at 0x0025a2a4
-	 Data Abort at 0x000c2934
-	 Data Abort at 0x001a4710
-	 Data Abort at 0x001a4ba4
-	 Data Abort at 0x002f4288
-	 Data Abort at 0x001a4ba4
-	 Data Abort at 0x002ddf34
-	 Data Abort at 0x001235dc
-	 Data Abort at 0x002ddf34
-	 Data Abort at 0x002ddf34
-	 Data Abort at 0x002ddf34
-	 Data Abort at 0x002ddf34
-	 Data Abort at 0x002595c0
-	 */
 	BackupBankRegisters();
 	mSPSRabt = GetCPSR();
 	// mR14abt_Bkup = address of the aborted instruction + 8
@@ -592,10 +508,10 @@ TARMProcessor::DataAbort( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * IRQ( void )
+//  * IRQ()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::IRQ( void )
+TARMProcessor::IRQ()
 {
 	BackupBankRegisters();
 	mSPSRirq = GetCPSR();
@@ -620,10 +536,10 @@ TARMProcessor::IRQ( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * FIQ( void )
+//  * FIQ()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::FIQ( void )
+TARMProcessor::FIQ()
 {
 	BackupBankRegisters();
 	mSPSRfiq = GetCPSR();
@@ -645,10 +561,10 @@ TARMProcessor::FIQ( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetCPSR( void )
+//  * GetCPSR()
 // -------------------------------------------------------------------------- //
 KUInt32
-TARMProcessor::GetCPSR( void )
+TARMProcessor::GetCPSR()
 {
 	KUInt32 theResult = 0;
 	if (mCPSR_N)
@@ -787,10 +703,10 @@ TARMProcessor::SetCPSR( KUInt32 inNewValue )
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetSPSR( void )
+//  * GetSPSR()
 // -------------------------------------------------------------------------- //
 KUInt32
-TARMProcessor::GetSPSR( void )
+TARMProcessor::GetSPSR()
 {
 	switch (mMode)
 	{
@@ -862,10 +778,10 @@ TARMProcessor::SetSPSR( KUInt32 inNewSPSR )
 }
 
 // -------------------------------------------------------------------------- //
-//  * BackupBankRegisters( void )
+//  * BackupBankRegisters()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::BackupBankRegisters( void )
+TARMProcessor::BackupBankRegisters()
 {
 	switch (mMode)
 	{
@@ -917,20 +833,20 @@ TARMProcessor::BackupBankRegisters( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * ResetInterrupt( void )
+//  * ResetInterrupt()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::ResetInterrupt( void )
+TARMProcessor::ResetInterrupt()
 {
 	KPrintf( "Reset Interrupt (Rebooting!)\n" );
 	mPendingInterrupts |= kResetInterrupt;
 }
 
 // -------------------------------------------------------------------------- //
-//  * FIQInterrupt( void )
+//  * FIQInterrupt()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::FIQInterrupt( void )
+TARMProcessor::FIQInterrupt()
 {
 	mPendingInterrupts |= kFIQInterrupt;
 	if (!mCPSR_F)
@@ -940,19 +856,19 @@ TARMProcessor::FIQInterrupt( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * ClearFIQInterrupt( void )
+//  * ClearFIQInterrupt()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::ClearFIQInterrupt( void )
+TARMProcessor::ClearFIQInterrupt()
 {
 	mPendingInterrupts &= ~kFIQInterrupt;
 }
 
 // -------------------------------------------------------------------------- //
-//  * IRQInterrupt( void )
+//  * IRQInterrupt()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::IRQInterrupt( void )
+TARMProcessor::IRQInterrupt()
 {
 	mPendingInterrupts |= kIRQInterrupt;
 	if (!mCPSR_I)
@@ -962,19 +878,19 @@ TARMProcessor::IRQInterrupt( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * ClearIRQInterrupt( void )
+//  * ClearIRQInterrupt()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::ClearIRQInterrupt( void )
+TARMProcessor::ClearIRQInterrupt()
 {
 	mPendingInterrupts &= ~kIRQInterrupt;
 }
 
 // -------------------------------------------------------------------------- //
-//  * PrintRegisters( void )
+//  * PrintRegisters()
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::PrintRegisters( void )
+TARMProcessor::PrintRegisters()
 {
 	if (mLog) {
 		for (int indexRegisters = 0; indexRegisters < 16; indexRegisters++) {
@@ -1038,37 +954,12 @@ TARMProcessor::TransferState( TStream* inStream )
 	inStream->Transfer( mSPSRfiq );
 	tmp = (KUInt32)mMode; inStream->Transfer( tmp ); mMode = (EMode)tmp;
 	inStream->Transfer( mPendingInterrupts );
+
+	// --- Ignore these:
+	//TLog* mLog;
+	//TMemory* mMemory;
+	//TEmulator* mEmulator;
 }
-
-// -------------------------------------------------------------------------- //
-//  * IsIRQEnabled()
-// -------------------------------------------------------------------------- //
-bool TARMProcessor::IsIRQEnabled()
-{
-	return (mCPSR_I==0);
-}
-
-
-// -------------------------------------------------------------------------- //
-//  * IsFIQEnabled()
-// -------------------------------------------------------------------------- //
-bool TARMProcessor::IsFIQEnabled()
-{
-	return (mCPSR_F==0);
-}
-
-
-// -------------------------------------------------------------------------- //
-//  * AnyInterruptEnabled()
-// -------------------------------------------------------------------------- //
-bool TARMProcessor::IsAnyInterruptEnabled()
-{
-	return (mCPSR_F==0) || (mCPSR_I==0);
-}
-
-
-
-
 
 
 // =========================================================================== //

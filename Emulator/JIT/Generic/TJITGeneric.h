@@ -117,27 +117,15 @@ public:
 	static void DoPatchROM(KUInt32* romPtr, KSInt32 inROMId);
 	
 private:
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TJITGeneric( const TJITGeneric& inCopy );
+	// No implicit copy constructor
+	TJITGeneric(const TJITGeneric& inCopy) = delete;
 
-	///
-	/// Opérateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TJITGeneric& operator = ( const TJITGeneric& inCopy );
+	// No implicit copy operator
+	TJITGeneric& operator = (const TJITGeneric& inCopy) = delete;
 
 	enum {
 		kPoolSize = 512,	///< 512 pages in pool.
 	};
-	
-	/// \name Variables
-	
-	TJITGenericPage*	mPagesPool;	///< Array with all the pages.
 };
 
 #endif

@@ -34,7 +34,7 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
-#define min(a,b) (a) < (b) ? (a) : (b)
+#define K_MIN(a,b) (a) < (b) ? (a) : (b)
 
 // -------------------------------------------------------------------------- //
 //  * TVirtualizedCalls( void )
@@ -181,7 +181,7 @@ TVirtualizedCalls::memmove( void )
 		KUInt32 maxDst = baseDst - dst + TMemoryConsts::kMMUSmallestPageSize;
 		
 		do {
-			KUInt32 amount = min(min(len, maxSrc), maxDst);
+			KUInt32 amount = K_MIN(K_MIN(len, maxSrc), maxDst);
 			(void) ::memmove( dstPtr, srcPtr, amount );
 			len -= amount;
 			if (len == 0)

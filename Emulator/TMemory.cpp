@@ -2922,15 +2922,14 @@ TMemory::TransferState( TStream* inStream )
 	//	inStream->Transfer( mBreakpoints[indexBP].fBPValue );
 	//}
 
-// CONT: here --->
-
 	// The MMU
 	// 	friend class TMMU; 	// TODO: verify this!
 	mMMU.TransferState( inStream ); // TODO: verify this!
 
 	// The flash.
-	mFlash.TransferState( inStream ); // TODO: verify this!
+	mFlash.TransferState( inStream );
 
+	// FIXME: check TJITCache, it must be initialized from scratch!
 	if (inStream->IsReading()) // TODO: verify this!
 		mJIT.InvalidateTLB();
 
@@ -2942,7 +2941,7 @@ TMemory::TransferState( TStream* inStream )
 	// TDMAManager* mDMAManager: state transfered by TEmulator
 	// TEmulator* mEmulator: state transfered by TEmulator
 
-	// TODO: --- Not yet:
+	// FIXME: --- Not yet:
 	//TPCMCIAController* mPCMCIACtrls[kNbSockets];
 	//KUInt8* mROMImagePtr;
 	//KUInt32 mBPCount;

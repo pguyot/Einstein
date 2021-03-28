@@ -516,10 +516,10 @@ TEmulator::TransferState( TStream* inStream )
 	// ID of the current breakpoint (if mBPHalted is set)
 	inStream->Transfer(mBPID);
 
-// CONT: here --->
 	// Save the memory.
-	mMemory.TransferState( inStream ); // TODO: verify this! (active)
+	mMemory.TransferState( inStream );
 	
+// CONT: here --->
 	// Then the CPU.
 	mProcessor.TransferState( inStream ); // TODO: verify this!
 	
