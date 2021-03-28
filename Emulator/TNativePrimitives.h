@@ -224,30 +224,30 @@ private:
 	void		ExecuteHostiOSNativeiOS( KUInt32 inInstruction );
 	
 	/// \name Variables
-	TARMProcessor*		mProcessor;			///< Reference to the CPU.
-	TLog*				mLog;				///< Interface for logging.
-	TMemory*			mMemory;			///< Interface to the memory.
-	TEmulator*			mEmulator;			///< Emulator (interface to hardware).
-	TNetworkManager*	mNetworkManager;	///< Network manager.
-	TSoundManager*		mSoundManager;		///< Sound manager
-	TScreenManager*		mScreenManager;		///< Screen manager.
-	TPlatformManager*	mPlatformManager;	///< Platform manager.
+	TARMProcessor*		mProcessor = nullptr;			///< Reference to the CPU.
+	TLog*				mLog = nullptr;					///< Interface for logging.
+	TMemory*			mMemory = nullptr;				///< Interface to the memory.
+	TEmulator*			mEmulator = nullptr;			///< Emulator (interface to hardware).
+	TNetworkManager*	mNetworkManager = nullptr;		///< Network manager.
+	TSoundManager*		mSoundManager = nullptr;		///< Sound manager
+	TScreenManager*		mScreenManager = nullptr;		///< Screen manager.
+	TPlatformManager*	mPlatformManager = nullptr;		///< Platform manager.
 #if !TARGET_OS_MAC
-	TNativeCalls*		mNativeCalls;		///< Interface for native calls.
+	TNativeCalls*		mNativeCalls = nullptr;			///< Interface for native calls.
 #endif
-	TVirtualizedCalls*	mVirtualizedCalls;	///< Interface for virtualized calls.
+	TVirtualizedCalls*	mVirtualizedCalls = nullptr;	///< Interface for virtualized calls.
 #if TARGET_OS_MAC
-	TObjCBridgeCalls*   mObjCBridgeCalls;    ///< Interface for iOS calls.
+	TObjCBridgeCalls*   mObjCBridgeCalls = nullptr;		///< Interface for iOS calls.
 #endif
-	KUInt32				mScreenContrast;	///< Feature 0x0 (probably the contrast).
-	KUInt32				mScreenBacklight;   ///< Feature 0x2.
-	KUInt32				mScreenOrientation; ///< Feature 0x4.
-	TabletCalibration   mTabletCalibration; ///< Tablet calibration.
-	KUInt32				mTabletSampleRate;  ///< Tablet sample rate.
-	KUInt8				mInputVolume;		///< Input volume (0-255)
-	Boolean				mQuit;				///< Whether to quit.
-	KUInt32				mSoundOutputBuffer1Addr;	///< Output buffer #1: the addr.
-	KUInt32				mSoundOutputBuffer2Addr;	///< Output buffer #2: the addr.
+	//KUInt32				mScreenContrast = 0;			///< Feature 0x0, contrast, unused.
+	//KUInt32				mScreenBacklight = 0;			///< Feature 0x2, unused.
+	//KUInt32				mScreenOrientation = 0;			///< Feature 0x4, unused, duplicate in TScreenManager.
+	TabletCalibration   mTabletCalibration;				///< Tablet calibration, unused.
+	KUInt32				mTabletSampleRate = 0;			///< Tablet sample rate, duplicate in TScreenManager.
+	KUInt8				mInputVolume = 0;				///< Input volume (0-255)
+	Boolean				mQuit = false;					///< Whether to quit, duplicate in UI files.
+	KUInt32				mSoundOutputBuffer1Addr = 0;	///< Output buffer #1: the addr.
+	KUInt32				mSoundOutputBuffer2Addr = 0;	///< Output buffer #2: the addr.
 };
 
 #endif

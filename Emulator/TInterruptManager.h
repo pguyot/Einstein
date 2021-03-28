@@ -29,6 +29,9 @@
 // ANSI C & POSIX
 #include <stdio.h>
 
+// C++17
+#include <atomic>
+
 // K
 #include <K/Threads/TCondVar.h>
 
@@ -122,19 +125,19 @@ public:
 	///
 	/// Destructor.
 	///
-	~TInterruptManager( void );
+	~TInterruptManager();
 
 	///
 	/// Get the current value of the timer.
 	///
-	KUInt32	GetTimer( void ) const;
+	KUInt32	GetTimer() const;
 
 	///
 	/// Accessor on the frozen timer (for the debugger)
 	///
 	/// \return the value of the timer.
 	///
-	KUInt32	GetFrozenTimer( void ) const
+	KUInt32	GetFrozenTimer() const
 		{
 			return mTimer;
 		}
@@ -142,12 +145,12 @@ public:
 	///
 	/// Suspend the timer (i.e. the emulator time).
 	///
-	void	SuspendTimer( void );
+	void	SuspendTimer();
 
 	///
 	/// Resume the timer (i.e. the emulator time).
 	///
-	void	ResumeTimer( void );
+	void	ResumeTimer();
 
 	///
 	/// Wait until next interrupt.
@@ -163,7 +166,7 @@ public:
 	///
 	/// Wake the emulator, if it's waiting in the loop.
 	///
-	void	WakeEmulatorThread( void )
+	void	WakeEmulatorThread()
 		{
 			mEmulatorCondVar->Signal();
 		}
@@ -193,7 +196,7 @@ public:
 	///
 	/// \return the value of the alarm register.
 	///
-	KUInt32	GetAlarm( void ) const
+	KUInt32	GetAlarm() const
 		{
 			return mAlarmRegister;
 		}
@@ -210,7 +213,7 @@ public:
 	///
 	/// \return the value of the calendar register.
 	///
-	KUInt32	GetRealTimeClock( void ) const;
+	KUInt32	GetRealTimeClock() const;
 
 	///
 	/// Selector on the real time clock.
@@ -231,7 +234,7 @@ public:
 	///
 	/// \return a mask of the interrupts that were raised.
 	///
-	KUInt32	GetIntRaised( void ) const
+	KUInt32	GetIntRaised() const
 		{
 			return mIntRaised;
 		}
@@ -241,7 +244,7 @@ public:
 	///
 	/// \return the interrupt control register.
 	///
-	KUInt32	GetIntCtrlReg( void ) const
+	KUInt32	GetIntCtrlReg() const
 		{
 			return mIntCtrlReg;
 		}
@@ -258,7 +261,7 @@ public:
 	///
 	/// \return the interrupt control register at 0x0F184000.
 	///
-	KUInt32	GetIntEDReg1( void ) const
+	KUInt32	GetIntEDReg1() const
 		{
 			return mIntEDReg1;
 		}
@@ -275,7 +278,7 @@ public:
 	///
 	/// \return the interrupt control register at 0x0F184400.
 	///
-	KUInt32	GetIntEDReg2( void ) const
+	KUInt32	GetIntEDReg2() const
 		{
 			return mIntEDReg2;
 		}
@@ -292,7 +295,7 @@ public:
 	///
 	/// \return the interrupt control register at 0x0F184800.
 	///
-	KUInt32	GetIntEDReg3( void ) const
+	KUInt32	GetIntEDReg3() const
 		{
 			return mIntEDReg3;
 		}
@@ -309,7 +312,7 @@ public:
 	///
 	/// \return a mask with the interrupts that should be FIQ.
 	///
-	KUInt32	GetFIQMask( void ) const
+	KUInt32	GetFIQMask() const
 		{
 			return mFIQMask;
 		}
@@ -343,7 +346,7 @@ public:
 	///
 	/// \return a mask of the interrupts that were raised.
 	///
-	KUInt32	GetGPIORaised( void ) const
+	KUInt32	GetGPIORaised() const
 		{
 			return mGPIORaised;
 		}
@@ -353,7 +356,7 @@ public:
 	///
 	/// \return the GPIO control register.
 	///
-	KUInt32	GetGPIOCtrlReg( void ) const
+	KUInt32	GetGPIOCtrlReg() const
 		{
 			return mGPIOCtrlReg;
 		}
@@ -380,27 +383,19 @@ public:
 	///
 	/// Thread loop entry point.
 	///
-	void	Run( void );
+	void	Run();
 
 private:
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TInterruptManager( const TInterruptManager& inCopy );
+	// No implicit copy constructor
+	TInterruptManager(const TInterruptManager& inCopy) = delete;
 
-	///
-	/// Opérateur d'assignation volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TInterruptManager& operator = ( const TInterruptManager& inCopy );
+	// No implicit copy operator
+	TInterruptManager& operator = (const TInterruptManager& inCopy) = delete;
 
 	///
 	/// Performs initialization (create thread & condition variable).
 	///
-	void	Init( void );
+	void	Init();
 
 	///
 	/// Fire and find next interrupts.
@@ -439,7 +434,7 @@ private:
 	///
 	/// \return the time (any base) in ticks.
 	///
-	static KUInt32	GetTimeInTicks( void );
+	static KUInt32	GetTimeInTicks();
 
 	///
 	/// Get the a calendar delta such that the current RTC is the current
@@ -447,37 +442,33 @@ private:
 	///
 	/// \return a suitable calendar delta.
 	///
-	static KUInt32	GetSyncedCalendarDelta( void );
+	static KUInt32	GetSyncedCalendarDelta();
 
 	/// \name Variables
-	TLog*			mLog;				///< Interface for logging.
-	TARMProcessor*	mProcessor;			///< Reference to the processor.
-	volatile KUInt32	mRunning;		///< Whether the timer is running.
-	volatile KUInt32	mExiting;		///< Whether the object is being
-										///< destroyed.
-	volatile KUInt32	mWaiting;		///< Whether some thread is waiting
-										///< in WaitUntilInterrupt.
-	KUInt32			mMaskIRQ;			///< Whether the processor masks IRQ.
-	KUInt32			mMaskFIQ;			///< Whether the processor masks FIQ.
-	KUInt32			mIntRaised;			///< Interrupts that were raised.
-	KUInt32			mIntCtrlReg;		///< Interrupts that are enabled.
-	KUInt32			mFIQMask;			///< Mask for FIQ
-	KUInt32			mIntEDReg1;			///< Int. register at 0x0F184000
-	KUInt32			mIntEDReg2;			///< Int. register at 0x0F184400
-	KUInt32			mIntEDReg3;			///< Int. register at 0x0F184800
-	KUInt32			mGPIORaised;		///< GPIO ints that were raised.
-	KUInt32			mGPIOCtrlReg;		///< GPIO control register (0x0F18C800)
-	KSInt32			mCalendarDelta;		///< Delta with the RTC (seconds),
-										///< newton = host - delta.
-	KUInt32			mAlarmRegister;		///< Alarm match register (seconds).
-	KUInt32			mTimerDelta;		///< Delta with the timer (ticks)
-										///< newton = host - delta.
-	KUInt32			mTimer;				///< Saved value of the timer (host based).
-	KUInt32			mMatchRegisters[4]; ///< Timer match registers (newton).
-	TCondVar*		mTimerCondVar;		///< Condition variable (timer thread).
-	TCondVar*		mEmulatorCondVar;	///< Condition variable (emulator).
-	TMutex*			mMutex;				///< Mutex of the thread.
-	TThread*		mThread;			///< The actual thread.
+	TLog*			mLog = nullptr;				///< Interface for logging.
+	TARMProcessor*	mProcessor = nullptr;		///< Reference to the processor.
+	std::atomic_bool mRunning = false;			///< Whether the timer is running.
+	std::atomic_bool mExiting = false;			///< Whether the object is being destroyed.
+	std::atomic_bool mWaiting = false;			///< Whether some thread is waiting in WaitUntilInterrupt.
+	Boolean			mMaskIRQ = false;			///< Whether the processor masks IRQ.
+	KUInt32			mMaskFIQ = false;			///< Whether the processor masks FIQ.
+	KUInt32			mIntRaised = 0;				///< Interrupts that were raised.
+	KUInt32			mIntCtrlReg = 0;			///< Interrupts that are enabled.
+	KUInt32			mFIQMask = 0;				///< Mask for FIQ
+	KUInt32			mIntEDReg1 = 0;				///< Int. register at 0x0F184000
+	KUInt32			mIntEDReg2 = 0;				///< Int. register at 0x0F184400
+	KUInt32			mIntEDReg3 = 0;				///< Int. register at 0x0F184800
+	KUInt32			mGPIORaised = 0;			///< GPIO ints that were raised.
+	KUInt32			mGPIOCtrlReg = 0;			///< GPIO control register (0x0F18C800)
+	KSInt32			mCalendarDelta = 0;			///< Delta with the RTC (seconds), newton = host - delta.
+	KUInt32			mAlarmRegister = 0;			///< Alarm match register (seconds).
+	KUInt32			mTimerDelta = 0;			///< Delta with the timer (ticks), newton = host - delta.
+	KUInt32			mTimer = 0;					///< Saved value of the timer (host based).
+	KUInt32			mMatchRegisters[4] = { 0 };	///< Timer match registers (newton).
+	TCondVar*		mTimerCondVar = nullptr;	///< Condition variable (timer thread).
+	TCondVar*		mEmulatorCondVar = nullptr;	///< Condition variable (emulator).
+	TMutex*			mMutex = nullptr;			///< Mutex of the thread.
+	TThread*		mThread = nullptr;			///< The actual thread.
 };
 
 #endif

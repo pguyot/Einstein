@@ -913,10 +913,7 @@ TARMProcessor::TransferState( TStream* inStream )
 	
 	inStream->Tag('ARM ', "Transfer all CPU data");
 
-	// First, transfer the native primitives stuff.
-	mNativePrimitives.TransferState( inStream );
-
-	// Then transfer the CPU specific stuff.
+	// Transfer the CPU specific stuff.
 	inStream->Transfer( mCurrentRegisters, 16 );
 	inStream->Transfer( mCPSR_N );
 	inStream->Transfer( mCPSR_Z );
@@ -954,6 +951,10 @@ TARMProcessor::TransferState( TStream* inStream )
 	inStream->Transfer( mSPSRfiq );
 	tmp = (KUInt32)mMode; inStream->Transfer( tmp ); mMode = (EMode)tmp;
 	inStream->Transfer( mPendingInterrupts );
+
+	// Transfer the native primitives.
+	mNativePrimitives.TransferState(inStream);
+
 
 	// --- Ignore these:
 	//TLog* mLog;

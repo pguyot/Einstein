@@ -60,22 +60,7 @@ TInterruptManager::TInterruptManager( TLog* inLog, TARMProcessor* inProcessor )
 	:
 		mLog( inLog ),
 		mProcessor( inProcessor ),
-		mExiting( false ),
-		mWaiting( false ),
-		mMaskIRQ( false ),
-		mMaskFIQ( false ),
-		mIntRaised( 0 ),
-		mIntCtrlReg( 0 ),
-		mFIQMask( 0 ),
-		mIntEDReg1( 0 ),
-		mIntEDReg2( 0 ),
-		mIntEDReg3( 0 ),
-		mGPIORaised( 0 ),
-		mGPIOCtrlReg( 0 ),
-		mCalendarDelta( GetSyncedCalendarDelta() ),
-		mAlarmRegister( 0 ),
-		mTimerDelta( 0 ),
-		mTimer( 0 )
+		mCalendarDelta( GetSyncedCalendarDelta() )
 {
 	// Start the thread.
 	Init();
@@ -91,35 +76,17 @@ TInterruptManager::TInterruptManager(
 	:
 		mLog( inLog ),
 		mProcessor( inProcessor ),
-		mExiting( false ),
-		mWaiting( false ),
-		mMaskIRQ( false ),
-		mMaskFIQ( false ),
-		mIntRaised( 0 ),
-		mIntCtrlReg( 0 ),
-		mFIQMask( 0 ),
-		mIntEDReg1( 0 ),
-		mIntEDReg2( 0 ),
-		mIntEDReg3( 0 ),
-		mGPIORaised( 0 ),
-		mGPIOCtrlReg( 0 ),
 		mCalendarDelta( GetSyncedCalendarDelta() ),
-		mAlarmRegister( 0 ),
-		mTimerDelta( 0 ),
-		mTimer( inTimer ),
-		mTimerCondVar( nil ),
-		mEmulatorCondVar( nil ),
-		mMutex( nil ),
-		mThread( nil )
+		mTimer( inTimer )
 {
 	// Start the thread.
 	Init();
 }
 
 // -------------------------------------------------------------------------- //
-//  * ~TInterruptManager( void )
+//  * ~TInterruptManager()
 // -------------------------------------------------------------------------- //
-TInterruptManager::~TInterruptManager( void )
+TInterruptManager::~TInterruptManager()
 {
 	// Stop the timer thread.
 	mMutex->Lock();
@@ -132,29 +99,17 @@ TInterruptManager::~TInterruptManager( void )
 	// Wait for the thread to finish.
 	while (mExiting) {};
 
-	if (mThread)
-	{
-		delete mThread;
-	}
-	if (mTimerCondVar)
-	{
-		delete mTimerCondVar;
-	}
-	if (mEmulatorCondVar)
-	{
-		delete mEmulatorCondVar;
-	}
-	if (mMutex)
-	{
-		delete mMutex;
-	}
+	delete mThread;
+	delete mTimerCondVar;
+	delete mEmulatorCondVar;
+	delete mMutex;
 }
 
 // -------------------------------------------------------------------------- //
-//  * Init( void )
+//  * Init()
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::Init( void )
+TInterruptManager::Init()
 {
 	// Clear the match registers.
 	mMatchRegisters[0] = 0;
@@ -184,10 +139,10 @@ TInterruptManager::Init( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * ResumeTimer( void )
+//  * ResumeTimer()
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::ResumeTimer( void )
+TInterruptManager::ResumeTimer()
 {
 	// Is the timer indeed suspended?
 	if (!mRunning)
@@ -213,10 +168,10 @@ TInterruptManager::ResumeTimer( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * SuspendTimer( void )
+//  * SuspendTimer()
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::SuspendTimer( void )
+TInterruptManager::SuspendTimer()
 {
 	// Is the timer indeed running?
 	if (mRunning)
@@ -299,10 +254,10 @@ TInterruptManager::RaiseInterrupt( KUInt32 inIntMask )
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetRealTimeClock( void ) const
+//  * GetRealTimeClock() const
 // -------------------------------------------------------------------------- //
 KUInt32
-TInterruptManager::GetRealTimeClock( void ) const
+TInterruptManager::GetRealTimeClock() const
 {
 	time_t now = time(NULL);
 
@@ -552,10 +507,10 @@ TInterruptManager::ClearGPIO( KUInt32 inValue )
 }
 
 // -------------------------------------------------------------------------- //
-//  * Run( void )
+//  * Run()
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::Run( void )
+TInterruptManager::Run()
 {
 	// Setup: make sure we're waiting on the condition variable.	
 	mMutex->Lock();
@@ -731,10 +686,10 @@ TInterruptManager::Run( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetTimeInTicks( void )
+//  * GetTimeInTicks()
 // -------------------------------------------------------------------------- //
 inline KUInt32
-TInterruptManager::GetTimeInTicks( void )
+TInterruptManager::GetTimeInTicks()
 {
 #if TARGET_OS_WIN32
 	// FIXME optimize this to avoid using floating point variables
@@ -801,10 +756,10 @@ TInterruptManager::GetTimeInTicks( void )
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetTimer( void ) const
+//  * GetTimer() const
 // -------------------------------------------------------------------------- //
 KUInt32
-TInterruptManager::GetTimer( void ) const
+TInterruptManager::GetTimer() const
 {
 	// Get the time now and substract with the correction.
 	KUInt32 theResult = GetTimeInTicks() - mTimerDelta;
@@ -1064,7 +1019,7 @@ TInterruptManager::FireTimersAndFindNext(
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetNextTimer( void )
+//  * GetNextTimer()
 // -------------------------------------------------------------------------- //
 inline KUInt32
 TInterruptManager::GetNextTimer(
@@ -1103,10 +1058,10 @@ TInterruptManager::GetNextTimer(
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetSyncedCalendarDelta( void )
+//  * GetSyncedCalendarDelta()
 // -------------------------------------------------------------------------- //
 KUInt32
-TInterruptManager::GetSyncedCalendarDelta( void )
+TInterruptManager::GetSyncedCalendarDelta()
 {
 	// Currently, we just suppose the epoch is January, 1st, 1970.
 	return (KUInt32) (-kEpochInNewtonBase);
@@ -1124,10 +1079,9 @@ TInterruptManager::TransferState( TStream* inStream )
 	inStream->Tag('Intr', "Transfer all Interrupt Manager data");
 
 	// Interrupt manager specific stuff.
-	t = mRunning; inStream->Transfer( t ); mRunning = t;
-	t = mExiting; inStream->Transfer( t ); mExiting = t;
-	t = mWaiting; inStream->Transfer( t ); mWaiting  = t;
-
+	Boolean tRunning = mRunning; inStream->Transfer(tRunning); mRunning = tRunning;
+	Boolean tExiting = mExiting; inStream->Transfer(tExiting); mExiting = tExiting;
+	Boolean tWaiting = mWaiting; inStream->Transfer(tWaiting); mWaiting = tWaiting;
 	inStream->Transfer( mMaskIRQ );
 	inStream->Transfer( mMaskFIQ );
 	inStream->Transfer( mIntRaised );
@@ -1138,12 +1092,22 @@ TInterruptManager::TransferState( TStream* inStream )
 	inStream->Transfer( mIntEDReg3 );
 	inStream->Transfer( mGPIORaised );
 	inStream->Transfer( mGPIOCtrlReg );
-	inStream->Transfer(t);// mCalendarDelta );
-	
 	inStream->Transfer( mAlarmRegister );
 	inStream->Transfer( mTimerDelta );
 	inStream->Transfer( mTimer );
 	inStream->Transfer( mMatchRegisters, 4 );
+
+	// -- no need to store these:
+	// TLog* mLog
+	// TARMProcessor* mProcessor
+	// KSInt32 mCalendarDelta : recalculated at startup
+
+	// TODO: --- verify these:
+	//TCondVar* mTimerCondVar;		///< Condition variable (timer thread).
+	//TCondVar* mEmulatorCondVar;	///< Condition variable (emulator).
+	//TMutex* mMutex;				///< Mutex of the thread.
+	//TThread* mThread;			///< The actual thread.
+
 }
 
 

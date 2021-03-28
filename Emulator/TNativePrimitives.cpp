@@ -84,22 +84,13 @@ TNativePrimitives::TNativePrimitives(
 			TLog* inLog,
 			TMemory* inMemory )
 	:
-		mProcessor( nil ),
 		mLog( inLog ),
 		mMemory( inMemory ),
-		mEmulator( nil ),
-		mNetworkManager( nil ),
-		mSoundManager( nil ),
-		mScreenManager( nil ),
-		mPlatformManager( nil ),
-		mVirtualizedCalls( nil ),
 #if TARGET_OS_MAC
-		mObjCBridgeCalls( new TObjCBridgeCalls(inMemory)),
+		mObjCBridgeCalls( new TObjCBridgeCalls(inMemory))
 #else
-        mNativeCalls( new TNativeCalls(inMemory) ),
+        mNativeCalls( new TNativeCalls(inMemory) )
 #endif
-		mInputVolume( 0 ),
-		mQuit( false )
 {
 }
 
@@ -2942,6 +2933,8 @@ TNativePrimitives::ExecuteHostiOSNativeiOS( KUInt32 inInstruction )
 void
 TNativePrimitives::TransferState( TStream* inStream )
 {
+	inStream->Tag('Natv', "Transfer native primitives data");
+
 	// The various registers.
 	inStream->Transfer( mTabletCalibration.fUnknown_00 );
 	inStream->Transfer( mTabletCalibration.fUnknown_04 );
@@ -2950,6 +2943,22 @@ TNativePrimitives::TransferState( TStream* inStream )
 	inStream->Transfer( mTabletCalibration.fUnknown_10 );
 	inStream->Transfer( mTabletSampleRate );
 	inStream->Transfer( mInputVolume );
+	inStream->Transfer(mQuit);
+	inStream->Transfer(mSoundOutputBuffer1Addr);
+	inStream->Transfer(mSoundOutputBuffer2Addr);
+
+	// --- We can ignore these:
+	//	TARMProcessor* mProcessor
+	//	TLog* mLog
+	//	TMemory* mMemory
+	//	TEmulator* mEmulator
+	//	TNetworkManager* mNetworkManager
+	//	TSoundManager* mSoundManager
+	//	TScreenManager* mScreenManager
+	//	TPlatformManager* mPlatformManager
+	//	TNativeCalls* mNativeCalls
+	//	TVirtualizedCalls* mVirtualizedCalls
+	//	TObjCBridgeCalls* mObjCBridgeCalls
 }
 
 

@@ -519,10 +519,10 @@ TEmulator::TransferState( TStream* inStream )
 	// Save the memory.
 	mMemory.TransferState( inStream );
 	
-// CONT: here --->
 	// Then the CPU.
-	mProcessor.TransferState( inStream ); // TODO: verify this!
+	mProcessor.TransferState( inStream );
 	
+// CONT: here --->
 	// And the interrupt manager.
 	mInterruptManager->TransferState( inStream ); // TODO: verify this!
   
