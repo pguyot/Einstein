@@ -99,7 +99,10 @@ TInterruptManager::~TInterruptManager()
 	// Wait for the thread to finish.
 	while (mExiting) {};
 
+	mThreadState = TThreadState::kDeleting;
 	delete mThread;
+	mThreadState = TThreadState::kNull;
+
 	delete mTimerCondVar;
 	delete mEmulatorCondVar;
 	delete mMutex;
@@ -107,6 +110,7 @@ TInterruptManager::~TInterruptManager()
 
 // -------------------------------------------------------------------------- //
 //  * Init()
+// Called from main thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::Init()
@@ -127,6 +131,7 @@ TInterruptManager::Init()
 	mRunning = false;
 
 	// Create the thread
+	mThreadState = TThreadState::kInstatiating;
 	mThread = new TThread(this);
 	
 	// Wait on the condition variable for the thread to be running.
@@ -140,6 +145,7 @@ TInterruptManager::Init()
 
 // -------------------------------------------------------------------------- //
 //  * ResumeTimer()
+// Called from Emulator Thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::ResumeTimer()
@@ -169,6 +175,7 @@ TInterruptManager::ResumeTimer()
 
 // -------------------------------------------------------------------------- //
 //  * SuspendTimer()
+// Called from Emulator Thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::SuspendTimer()
@@ -198,6 +205,7 @@ TInterruptManager::SuspendTimer()
 
 // -------------------------------------------------------------------------- //
 //  * WaitUntilInterrupt( Boolean, Boolean )
+// Called from Emulator Thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::WaitUntilInterrupt( Boolean inMaskIRQ, Boolean inMaskFIQ )
@@ -235,6 +243,7 @@ TInterruptManager::WaitUntilInterrupt( Boolean inMaskIRQ, Boolean inMaskFIQ )
 
 // -------------------------------------------------------------------------- //
 //  * RaiseInterrupt( KUInt32 )
+// Called from Emulator Thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::RaiseInterrupt( KUInt32 inIntMask )
@@ -266,6 +275,7 @@ TInterruptManager::GetRealTimeClock() const
 
 // -------------------------------------------------------------------------- //
 //  * SetRealTimeClock( KUInt32 )
+// Called from Emulator Thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::SetRealTimeClock( KUInt32 inValue )
@@ -289,6 +299,7 @@ TInterruptManager::SetRealTimeClock( KUInt32 inValue )
 
 // -------------------------------------------------------------------------- //
 //  * SetAlarm( KUInt32 )
+// Called from Emulator Thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::SetAlarm( KUInt32 inValue )
@@ -311,6 +322,7 @@ TInterruptManager::SetAlarm( KUInt32 inValue )
 
 // -------------------------------------------------------------------------- //
 //  * SetTimerMatchRegister( KUInt32, KUInt32 )
+// Called from Emulator Thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::SetTimerMatchRegister( KUInt32 inMatchReg, KUInt32 inValue )
@@ -342,6 +354,7 @@ TInterruptManager::SetTimerMatchRegister( KUInt32 inMatchReg, KUInt32 inValue )
 
 // -------------------------------------------------------------------------- //
 //  * SetIntCtrlReg( KUInt32 )
+// Called from Emulator Thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::SetIntCtrlReg( KUInt32 inValue )
@@ -365,6 +378,7 @@ TInterruptManager::SetIntCtrlReg( KUInt32 inValue )
 
 // -------------------------------------------------------------------------- //
 //  * SetIntEDReg1( KUInt32 )
+// Called from Emulator Thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::SetIntEDReg1( KUInt32 inValue )
@@ -388,6 +402,7 @@ TInterruptManager::SetIntEDReg1( KUInt32 inValue )
 
 // -------------------------------------------------------------------------- //
 //  * SetIntEDReg2( KUInt32 )
+// Called from Emulator Thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::SetIntEDReg2( KUInt32 inValue )
@@ -411,6 +426,7 @@ TInterruptManager::SetIntEDReg2( KUInt32 inValue )
 
 // -------------------------------------------------------------------------- //
 //  * SetIntEDReg3( KUInt32 )
+// Called from Emulator Thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::SetIntEDReg3( KUInt32 inValue )
@@ -434,6 +450,7 @@ TInterruptManager::SetIntEDReg3( KUInt32 inValue )
 
 // -------------------------------------------------------------------------- //
 //  * ClearInterrupts( KUInt32 )
+// Called from Emulator Thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::ClearInterrupts( KUInt32 inMask )
@@ -454,6 +471,7 @@ TInterruptManager::ClearInterrupts( KUInt32 inMask )
 
 // -------------------------------------------------------------------------- //
 //  * RaiseGPIO( KUInt32 )
+// Called from Emulator Thread and others
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::RaiseGPIO( KUInt32 inValue )
@@ -508,13 +526,18 @@ TInterruptManager::ClearGPIO( KUInt32 inValue )
 
 // -------------------------------------------------------------------------- //
 //  * Run()
+// Running within the Interrupt Manager thread
 // -------------------------------------------------------------------------- //
 void
 TInterruptManager::Run()
 {
+	mThreadState = TThreadState::kRunning;
+
 	// Setup: make sure we're waiting on the condition variable.	
+	mThreadState = TThreadState::kMutexLock1;
 	mMutex->Lock();
-	
+	mThreadState = TThreadState::kMutexLock1Done;
+
 	// The init thread is now waiting for sure, since we have the mutex.
 	
 	// We have the mutex back.
@@ -633,7 +656,9 @@ TInterruptManager::Run()
 
 				// No interrupt is planned.
 				// Wait forever on the condition variable.
+				mThreadState = TThreadState::kMutexLock2;
 				mTimerCondVar->Wait(mMutex);
+				mThreadState = TThreadState::kMutexLock2Done;
 //				KPrintf("%i-Timer-WakeUp-1\n", (int) time(NULL));
 			}
 
@@ -670,8 +695,10 @@ TInterruptManager::Run()
 		mEmulatorCondVar->Signal();
 
 		// Then wait forever on the condition variable.
+		mThreadState = TThreadState::kMutexLock3;
 		mTimerCondVar->Wait(mMutex);
-//		KPrintf("%i-Timer-WakeUp-2\n", (int) time(NULL));
+		mThreadState = TThreadState::kMutexLock3Done;
+		//		KPrintf("%i-Timer-WakeUp-2\n", (int) time(NULL));
 
 		if (mExiting)
 		{
@@ -680,6 +707,7 @@ TInterruptManager::Run()
 		}
 	}
 
+	mThreadState = TThreadState::kExiting;
 	mMutex->Unlock();
 	
 	mExiting = false;
@@ -776,6 +804,7 @@ TInterruptManager::GetTimer() const
 
 // -------------------------------------------------------------------------- //
 //  * TimedWaitOnCondVar( KUInt32 )
+// Called from Interrupt Manager task
 // -------------------------------------------------------------------------- //
 inline void
 TInterruptManager::TicksWaitOnCondVar( KUInt32 inTicks )
@@ -799,13 +828,16 @@ TInterruptManager::TicksWaitOnCondVar( KUInt32 inTicks )
 #endif
 
 //	KPrintf("TicksWaitOnCondVar begin (%f)\n", inTicks/4000000.0f);
+	mThreadState = TThreadState::kMutexLock4;
 	mTimerCondVar->TimedWaitRelative( mMutex, &amount );
-//	KPrintf("TicksWaitOnCondVar\n" );
+	mThreadState = TThreadState::kMutexLock4Done;
+	//	KPrintf("TicksWaitOnCondVar\n" );
 //	KPrintf("%i-Timer-WakeUp-3\n", (int) time(NULL));
 }
 
 // -------------------------------------------------------------------------- //
 //  * FireTimersAndFindNext( KUInt32, KUInt32 )
+// Calld from Interrupt Manager thread
 // -------------------------------------------------------------------------- //
 inline Boolean
 TInterruptManager::FireTimersAndFindNext(

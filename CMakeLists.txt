@@ -215,6 +215,8 @@ set ( sources
 	Emulator/Sound/TSoundManager.h
 	Emulator/TARMProcessor.cpp
 	Emulator/TARMProcessor.h
+	Emulator/TDiag.cpp
+	Emulator/TDiag.h
 	Emulator/TDMAManager.cpp
 	Emulator/TDMAManager.h
 	Emulator/TEmulator.cpp

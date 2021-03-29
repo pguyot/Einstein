@@ -141,9 +141,11 @@ public:
 
     // --- Getter and setter
 
-    TPlatformManager *GetPlatformManager() { return mPlatformManager; }
+    TEmulator* GetEmulator() const { return mEmulator; }
 
-    TFLSettingsUI *GetSettings() { return mFLSettings; }
+    TPlatformManager *GetPlatformManager() const { return mPlatformManager; }
+
+    TFLSettingsUI *GetSettings() const { return mFLSettings; }
 
     const char *ChooseExistingFile(const char *message, const char *pat, const char *fname);
     const char *ChooseNewFile(const char *message, const char *pat, const char *fname);

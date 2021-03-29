@@ -104,7 +104,7 @@ test()
  0x00392FD4 IRQCleanUp
  0x0039306C IRQCleanUp
  0x00393110 IRQCleanUp
- // all DatAbortHandler code seems to ond in SWI. The faulty memory
+ // all DatAbortHandler code seems to end in SWI. The faulty memory
  // access generates a task switch into a "Monitor". The Monitor
  // maps RAM into the location that generated the fault, then 
  // suspends itself. The original task is rescheduled to execute 

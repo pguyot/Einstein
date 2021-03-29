@@ -59,6 +59,7 @@
 #include "Monitor/TSymbolList.h"
 #include "Monitor/UDisasm.h"
 #include "Emulator/Screen/TScreenManager.h"
+#include "Emulator/TDiag.h"
 
 #ifdef JITTARGET_GENERIC
 //#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
@@ -168,7 +169,9 @@ TMonitor::Run()
 	ExecuteStartupScript();
 
     if (mRunOnStartup) {
+		TDiag::PrintThreadStates(mEmulator);
 		//LoadEmulatorState(); // FIXME: this generally works, but there are probably many hidden bugs that make Newton crash after a little while
+		//TDiag::PrintThreadStates(mEmulator);
 		//PrintLine("Restarting the Emulator", MONITOR_LOG_INFO);
 		//if (mHalted)
 		//{
@@ -650,6 +653,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 			PrintLine("Saving emulator snapshot", MONITOR_LOG_INFO);
+			TDiag::PrintThreadStates(mEmulator);
 			SaveEmulatorState();
 			PrintLine("Emulator snapshot saved.", MONITOR_LOG_INFO);
 			// FIXME: do this only if the process was running when we entered this function

@@ -469,6 +469,20 @@ private:
 	TCondVar*		mEmulatorCondVar = nullptr;	///< Condition variable (emulator).
 	TMutex*			mMutex = nullptr;			///< Mutex of the thread.
 	TThread*		mThread = nullptr;			///< The actual thread.
+
+	friend class TDiag;
+	enum class TThreadState {
+		kNull,
+		kInstatiating,
+		kRunning,
+		kMutexLock1, kMutexLock1Done,
+		kMutexLock2, kMutexLock2Done,
+		kMutexLock3, kMutexLock3Done,
+		kMutexLock4, kMutexLock4Done,
+		kExiting,
+		kDeleting
+	};
+	TThreadState mThreadState = TThreadState::kNull;
 };
 
 #endif
