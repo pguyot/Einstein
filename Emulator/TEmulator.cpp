@@ -528,7 +528,9 @@ TEmulator::TransferState( TStream* inStream )
 	// And the interrupt manager.
 	mDMAManager->TransferState( inStream );
 	
-// CONT: here --->
+	// CONT: here --->
+	mSoundManager->TransferState(inStream);
+
 	// And the screen content.
 	mScreenManager->TransferState( inStream );	// TODO: verify this!
 
@@ -541,8 +543,6 @@ TEmulator::TransferState( TStream* inStream )
 	/*
 	TPlatformManager* mPlatformManager;	///< Platform manager.
 	TNetworkManager* mNetworkManager;	///< Network manager.
-	TSoundManager* mSoundManager;		///< Sound manager.
-	TScreenManager* mScreenManager;		///< Screen manager.
 	TFileManager* mFileManager;
 	TSerialPorts	SerialPorts;		///< Serial port driver access
 	*/

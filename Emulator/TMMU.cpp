@@ -975,10 +975,6 @@ TMMU::InvalidatePerms()
 void
 TMMU::TransferState( TStream* inStream )
 {
-	// Do not load or save any cached data (see mCache).
-	InvalidateTLB();
-	InvalidatePerms();
-
 	inStream->Tag('MMU ', "Transfer all MMU data");
 
 	// The various registers.
@@ -990,6 +986,12 @@ TMMU::TransferState( TStream* inStream )
 	inStream->Transfer( mDomainAC );
 	inStream->Transfer( mFaultAddress );
 	inStream->Transfer( mFaultStatus );
+
+	// Do not load or save any cached data (see mCache).
+	if (inStream->IsReading()) {
+		InvalidateTLB();
+		InvalidatePerms();
+	}
 
 	// --- no need to transfer these
 	// TMemory* mMemoryIntf;

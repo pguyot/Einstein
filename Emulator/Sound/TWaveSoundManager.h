@@ -47,6 +47,8 @@ class TWaveSoundManager
 	:
 		public TSoundManager
 {
+	typedef TSoundManager super;
+
 public:
 
 	static const int NWaveBuffer = 4;
@@ -87,6 +89,11 @@ public:
 	/// Method called to signal a change in the output volume.
 	///
 	virtual void	OutputVolumeChanged( void ) { updateVolume(); }
+
+	///
+	/// Save or restore the state to or from a file.
+	///
+	void TransferState(TStream* inStream) override;
 
 private:
 

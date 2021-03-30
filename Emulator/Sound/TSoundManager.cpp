@@ -31,6 +31,10 @@
 	#include <strings.h>
 #endif
 
+// K
+#include <K/Streams/TStream.h>
+#include <K/Streams/TFileStream.h>
+
 // Einstein.
 #include "Emulator/TInterruptManager.h"
 
@@ -43,9 +47,7 @@
 // -------------------------------------------------------------------------- //
 TSoundManager::TSoundManager( TLog* inLog /* = nil */ )
 	:
-		mLog( inLog ),
-		mInterruptManager( nil ),
-		mOutputVolume( kOutputVolume_Max )
+		mLog( inLog )
 {
 }
 
@@ -89,6 +91,20 @@ float TSoundManager::OutputVolumeNormalized()
     }
     return volume;
 }
+
+// -------------------------------------------------------------------------- //
+// * TransferState(TStream*)
+// -------------------------------------------------------------------------- //
+void TSoundManager::TransferState(TStream* inStream)
+{
+    // Tag the settings, so we will find errors in synchronization
+    inStream->Tag('Snd ', "Transfer Sound Manager state");
+
+    inStream->Transfer(mInputIntMask);
+    inStream->Transfer(mOutputIntMask);
+    inStream->Transfer(mOutputVolume);
+}
+
 
 
 // ============================================================================= //

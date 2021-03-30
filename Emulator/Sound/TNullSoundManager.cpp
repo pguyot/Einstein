@@ -34,6 +34,10 @@
 // Einstein.
 #include "Emulator/Log/TLog.h"
 
+// K
+#include <K/Streams/TStream.h>
+#include <K/Streams/TFileStream.h>
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -95,6 +99,18 @@ Boolean
 TNullSoundManager::OutputIsRunning( void )
 {
 	return false;
+}
+
+// -------------------------------------------------------------------------- //
+// * TransferState(TStream*)
+// -------------------------------------------------------------------------- //
+void TNullSoundManager::TransferState(TStream* inStream)
+{
+	super::TransferState(inStream);
+
+	inStream->Tag('sNul', "Transfer Null Sound Manager state");
+
+	inStream->Transfer(mOutputIsRunning);
 }
 
 // ============================================================================= //

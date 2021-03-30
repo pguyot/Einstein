@@ -2924,14 +2924,15 @@ TMemory::TransferState( TStream* inStream )
 
 	// The MMU
 	// 	friend class TMMU; 	// TODO: verify this!
-	mMMU.TransferState( inStream ); // TODO: verify this!
+	mMMU.TransferState( inStream );
 
 	// The flash.
 	mFlash.TransferState( inStream );
 
 	// FIXME: check TJITCache, it must be initialized from scratch!
-	if (inStream->IsReading()) // TODO: verify this!
+	if (inStream->IsReading()) { // TODO: verify this!
 		mJIT.InvalidateTLB();
+	}
 
 	// --- Not relevant for the state of the emulation:
 	// TARMProcessor* mProcessor

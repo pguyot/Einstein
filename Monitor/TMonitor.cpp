@@ -22,6 +22,7 @@
 // ==============================
 
 #include <K/Streams/TFileStream.h>
+#include <K/Exceptions/IO/TEOFException.h>
 #include "TMonitor.h"
 
 // C++11 and up
@@ -170,23 +171,27 @@ TMonitor::Run()
 
     if (mRunOnStartup) {
 		TDiag::PrintThreadStates(mEmulator);
-		//LoadEmulatorState(); // FIXME: this generally works, but there are probably many hidden bugs that make Newton crash after a little while
-		//TDiag::PrintThreadStates(mEmulator);
+#if 1
+		try {
+			LoadEmulatorState(); // FIXME: this generally works, but there are probably many hidden bugs that make Newton crash after a little while
+		}
+		catch (TEOFException& ex) {
+			// FIXME: try again without loading a snapshot.
+		}
 		//PrintLine("Restarting the Emulator", MONITOR_LOG_INFO);
-		//if (mHalted)
-		//{
-		//	mCommand = kRun;
-		//	SignalCondVar();
-		//}
-		//// wait for the emulator to start
-		//for (i = 10; i > 0; --i) { // 1/10th of a second
-		//	std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		//}
-		//PrintLine("Powering up", MONITOR_LOG_INFO);
-		//if (!pm->IsPowerOn())
-		//	pm->SendPowerSwitchEvent();
+		if (mHalted)
+		{
+			mCommand = kRun;
+			SignalCondVar();
+		}
+		// wait for the emulator to start
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		PrintLine("Powering up", MONITOR_LOG_INFO);
+		if (!mEmulator->GetPlatformManager()->IsPowerOn())
+			mEmulator->GetPlatformManager()->SendPowerSwitchEvent();
 		//PrintLine("Emulator snapshot restored.", MONITOR_LOG_INFO);
-		
+		TDiag::PrintThreadStates(mEmulator);
+#endif
 		mCommand = kRun;
         DrawScreen();
         RunEmulator();

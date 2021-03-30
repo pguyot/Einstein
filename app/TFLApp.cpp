@@ -297,7 +297,7 @@ TFLApp::Run( int argc, char* argv[] )
     TBufferLog *bl = new TBufferLog();
 #if !NDEBUG
 #if TARGET_OS_WIN32
-    bl->OpenLog("C:/user/micro/Einstein_log.txt");
+    bl->OpenLog("C:\\Users\\micro\\Einstein_log.txt");
 #endif
 #if TARGET_OS_MAC
     bl->OpenLog("/tmp/Einstein_log.txt");
@@ -838,7 +838,7 @@ void TFLApp::InitSettings() {
 void TFLApp::InitSound()
 {
 #if TARGET_OS_WIN32
-    mSoundManager = new TWaveSoundManager( mLog );
+    mSoundManager = new TWaveSoundManager(mLog);
 #elif TARGET_OS_LINUX
     mSoundManager = new TPulseAudioSoundManager( mLog );
 #elif TARGET_OS_MAC
@@ -1271,6 +1271,7 @@ int main(int argc, char** argv )
     theApp.Run( argc, argv );
     return 0;
 }
+
 
 
 // ======================================================================= //

@@ -35,6 +35,8 @@
 #include <K/Defines/UByteSex.h>
 #include <K/Misc/TCircleBuffer.h>
 #include <K/Threads/TMutex.h>
+#include <K/Streams/TStream.h>
+#include <K/Streams/TFileStream.h>
 
 // Einstein.
 #include "Emulator/Log/TLog.h"
@@ -419,6 +421,27 @@ void TWaveSoundManager::updateVolume()
 	if (waveOut) {
 		waveOutSetVolume(waveOut, volume | (volume<<16));
 	}
+}
+
+// -------------------------------------------------------------------------- //
+// * TransferState(TStream*)
+// -------------------------------------------------------------------------- //
+void TWaveSoundManager::TransferState(TStream* inStream)
+{
+	super::TransferState(inStream);
+
+	// TODO: introduce some skipable block
+	//inStream->Tag('sWav', "Transfer Wave Sound Manager state");
+
+	// --- This should work without saving any of these settings.
+	// TODO: what happens if we snapshot in the middle of playing a sound?
+	//WaveBuffer	wb[NWaveBuffer];
+	//HWAVEOUT	waveOut;
+	//bool		noWaveOut;
+	//int			playNext;
+	//int			nextAvailable;
+	//bool		isPlaying;
+	//DWORD		volume;
 }
 
 

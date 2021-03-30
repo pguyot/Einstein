@@ -145,8 +145,6 @@ TNativePrimitives::SetEmulator( TEmulator* inEmulator )
 void
 TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 {
-	static KUInt16 n[0x1000] = { 0 };
-	
 	if (inInstruction & 0x80000000)
 	{
 		// If the high bit is set, this instruction is actually a patch, not
@@ -1399,6 +1397,20 @@ TNativePrimitives::ExecuteBatteryDriverNative( KUInt32 inInstruction )
 			 if(CFArrayGetCount(list) && (battery = IOPSGetPowerSourceDescription(info, CFArrayGetValueAtIndex(list, 0)))) {
 				outputCapacity = [[(NSDictionary*)battery objectForKey:@kIOPSCurrentCapacityKey] doubleValue];
 			 }
+				ULong	mBatteryType;				/// 00	// 00000003 (nimh)
+	ULong	mVoltage1;					/// 04	// 000587C0				0C97D000
+	ULong	mBatteryLevel;				/// 08	// 00000064 = 100
+	ULong	mBatteryAlert;				/// 0C	// 00000014 = 20
+	ULong	fUnknown_10;				/// 10	// 00000000
+	ULong	mVoltage6;					/// 14	// 006CF999				00E19000
+	ULong	mAdapterPlugged;			/// 18	// 00000000
+	ULong	mVoltage7;					/// 1C	// 00003F36				005C0000
+	ULong	fUnknown_20;				/// 20	// 00000000
+	ULong	fUnknown_24;				/// 24	// FFFFFFFF
+	ULong	mUnknownDIOPins33Related;	/// 28	// FFFFFFFF
+	ULong	mVoltage4;					/// 2C	// 001A2F28				086E2000
+	ULong	mVoltage5;					/// 30	// 001A8D79				07D3B000
+
 			 */
 			if (mLog)
 			{
@@ -2832,6 +2844,7 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 					buffer[i] = v;
 				}
 				mNetworkManager->LogBuffer(buffer, size);
+				// FIXME: free(buffer)?
 			}
 	        break; }
 			

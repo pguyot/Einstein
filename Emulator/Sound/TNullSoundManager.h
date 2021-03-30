@@ -29,6 +29,7 @@
 // Einstein
 #include "TSoundManager.h"
 
+
 ///
 /// Class to handle sound input/output and redirect them to nothingness.
 ///
@@ -41,6 +42,8 @@ class TNullSoundManager
 	:	
 		public TSoundManager
 {
+	typedef TSoundManager super;
+
 public:
 	///
 	/// Constructor from a log.
@@ -71,6 +74,11 @@ public:
 	/// Is output running?
 	///
 	virtual Boolean	OutputIsRunning( void );
+
+	///
+	/// Save or restore the state to or from a file.
+	///
+	void TransferState(TStream* inStream) override;
 
 private:
 	/// \name Variables

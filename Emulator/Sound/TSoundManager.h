@@ -29,6 +29,7 @@
 class TLog;
 class TInterruptManager;
 class TMemory;
+class TStream;
 
 ///
 /// Class to handle sound input/output.
@@ -135,6 +136,11 @@ public:
 			OutputVolumeChanged();
 		}
 
+	///
+	/// Save or restore the state to or from a file.
+	///
+	virtual void TransferState(TStream* inStream);
+
 protected:
 	enum {
 		kOutputVolume_Zero	= 0x80000000,
@@ -189,12 +195,12 @@ private:
 	TSoundManager& operator = ( const TSoundManager& inCopy );
 
 	/// \name Variables
-	TLog*				mLog;				///< Reference to the log.
-	TInterruptManager*	mInterruptManager;	///< Reference to the interrupt mgr.
-	TMemory*			mMemory;			///< Interface to the memory.
-	KUInt32				mInputIntMask;		///< Input interrupt mask.
-	KUInt32				mOutputIntMask;		///< Output interrupt mask.
-	KUInt32				mOutputVolume;		///< Output sound volume.
+	TLog*				mLog = nullptr;							///< Reference to the log.
+	TInterruptManager*	mInterruptManager = nullptr;			///< Reference to the interrupt mgr.
+	TMemory*			mMemory = nullptr;						///< Interface to the memory.
+	KUInt32				mInputIntMask  = 0x00000400;			///< Input interrupt mask.
+	KUInt32				mOutputIntMask = 0x00001000;			///< Output interrupt mask.
+	KUInt32				mOutputVolume  = kOutputVolume_Max;		///< Output sound volume.
 };
 
 #endif

@@ -77,6 +77,7 @@ TBufferLog::DoLogLine( const char* inLine )
 	if (mLogFile)
 	{
 		(void) ::fprintf( mLogFile, "%s\n", inLine );
+		// ::fflush(mLogFile);
 	}
 	(void) ::strncpy( mBuffer[mTopLineIndex], inLine, 79 );
 	mTopLineIndex = (mTopLineIndex + 1) % 32;
@@ -99,7 +100,7 @@ TBufferLog::OpenLog( const char* inLogPath )
 	{
 		LogLine( "Log file is already open." );
 	} else {
-		mLogFile = ::fopen( inLogPath, "a" );
+		mLogFile = ::fopen( inLogPath, "wb" );
 		if (mLogFile == NULL)
 		{
 			LogLine( "Could not open log file." );
