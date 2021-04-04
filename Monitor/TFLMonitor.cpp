@@ -428,7 +428,7 @@ public:
 void TFLMonitor::Show()
 {
     if (!mwWindow) {
-        // TODO: this should probably be done in Fluid
+        // TODO: Use Fluid to generate the Monitor user interface.
         const int cw=9, ch=13, wh=44;
         int xp = 0;
         // ---- use the previous location of the monitor screen again

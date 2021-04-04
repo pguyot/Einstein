@@ -22,8 +22,10 @@
 // ==============================
 
 // ----- ASAPs
-// TODO: compile for Android
+// TODO: finish state snapshot in 'BootFromSnapshot' branch
+// TODO: compile for Android (we need a working state snapshot to do this right)
 // TODO: FIX 8 and 16 MB internal Flash support
+// TODO: Get PCMCIA ROM cards to run: in TMmemory, allow executable code in the PCMCIA memory area (currently only RAM and ROM)
 
 // ----- User Interface improvements
 // TODO: option to launch Monitor stopped at boot point
@@ -36,6 +38,7 @@
 // TODO: make main menu and toolbar optional
 // TODO: is the drop-down menu still on par?
 // TODO: allow skeuomorphism (use photo of MP as an outline in the UI)
+// TODO: allow multiple machine configurations (see 'Full Snapshots')
 
 // ----- Minor Improvemnts in Usability
 // TODO: menu and action to reboot Newton (in different configurations)
@@ -56,7 +59,7 @@
 // TODO: printer support
 // TODO: wake-up/launch on appointment in the future
 
-// ----- Improvemnets to the inner workings
+// ----- Improvements to the inner workings
 // TODO: Full Android support as an address book and calender app
 // TODO: Fix locks and race conditions
 // TODO: cleanup all compile warnings on all platforms

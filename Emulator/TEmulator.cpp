@@ -528,7 +528,7 @@ TEmulator::TransferState( TStream* inStream )
 	// And the interrupt manager.
 	mDMAManager->TransferState( inStream );
 	
-	// CONT: here --->
+	// Transfer the sound manager state
 	mSoundManager->TransferState(inStream);
 
 	// And the screen content.
@@ -545,6 +545,16 @@ TEmulator::TransferState( TStream* inStream )
 	TNetworkManager* mNetworkManager;	///< Network manager.
 	TFileManager* mFileManager;
 	TSerialPorts	SerialPorts;		///< Serial port driver access
+	TODO: Snapshot list of todo's
+	- implement small and full snapshots
+  		- small snapshot are enough to save state and continue after Host reboot or Android sleep
+			- store some preconditions at the start of the file and deny loading snapshot if there are differences
+			- store the ROM and Flash filename and modification time
+			- store the driver configuration
+			- write a snapshot when EInstein is closed (only then and only if quickboot is enabled)
+			- if a quickboot didi not work, make sure that we use regular boot the next time around
+		- full snapshots contains everything including ROM and Flash data and can be used for debugging or transfering entire machines
+			- make sure that existing configs are not overwritten when loading a snapshot
 	*/
 }
 

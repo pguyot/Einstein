@@ -31,8 +31,8 @@
 #define PROJECT_VER_PATCH "13"
 
 #define COMPILE_TIME_YYYY 2021
-#define COMPILE_TIME_MM (103-100)  // if the month is "09", C++ would interprete the number as octal, so we generate "109-100" instead.
-#define COMPILE_TIME_DD (131-100)
+#define COMPILE_TIME_MM (104-100)  // if the month is "09", C++ would interprete the number as octal, so we generate "109-100" instead.
+#define COMPILE_TIME_DD (104-100)
 
 #define VERSION_STRING		PROJECT_NAME " " PROJECT_VER
 #define VERSION_STRING_SHORT	PROJECT_VER

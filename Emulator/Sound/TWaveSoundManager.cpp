@@ -430,11 +430,9 @@ void TWaveSoundManager::TransferState(TStream* inStream)
 {
 	super::TransferState(inStream);
 
-	// TODO: introduce some skipable block
-	//inStream->Tag('sWav', "Transfer Wave Sound Manager state");
-
 	// --- This should work without saving any of these settings.
-	// TODO: what happens if we snapshot in the middle of playing a sound?
+	// Snapshots shoud only be taken if NewtonOS is in PowerOff mode, 
+	// so there should be no snapshots hanging in the middle of playing a sound.
 	//WaveBuffer	wb[NWaveBuffer];
 	//HWAVEOUT	waveOut;
 	//bool		noWaveOut;

@@ -21,21 +21,54 @@
 // $Id$
 // ==============================
 
-// TODO: spontaneous, improvised, casual, experimental, inpromptu <> planned, formal, serious, orderly, systematic
 // TODO: Build, Install, Run, Stop must know the state we are in to avoid building twice
 // TODO: Horizontal scrollbar in Inspector must go
 // TODO: ScriptEditor needs its own class and Find/Replace, Cut/Copy/Paste, etc.
 // TODO: Better syntax highlighting
 
 /* NOTE:
- This is where the MP2100US ROM interpretes bytecodes "fast"
-    cmp     r0, #207                    @ [ 0x000000CF ] 0x002EE1DC 0xE35000CF - .P..
- and this is the slow version:
-    cmp     r2, #207                    @ [ 0x000000CF ] 0x002F2028 0xE35200CF - .R..
- We can add a new BC command, BC26 (0xD0nnnn), where nnnn is the line in the
+ The Newton ROM contains two bytecode interpreter: the regular one and the "slow" one. 
+
+ It seem that the reguar interpreter is used in normal operation, but the slow interpreter
+ has additional debugging abilities that allow for breakpoints, single-stepping throug
+ lines of code, and data examination at runtime. This functionality is hidden inside 
+ NTKs toolkit and seems to be working on a command line level, but still hidden from devs
+ when Newton was axed.
+
+ In the list of ROM symbols, we find undocumented diamonds like:
+ 0x002D31B4: NewNSDebugAPI(TInterpreter *)
+ 0x002D3CC4: TInterpreter::StackTrace(void)
+ 0x002D3CD8: TInterpreter::GetLocalFromStack(RefVar const &, RefVar const &)
+ 0x002D3F6C: TInterpreter::HandleBreakPoints(void)
+ 0x002EE0A8: TInterpreter::FastRun(long) vs. 0x002F1EE0: TInterpreter::SlowRun(long)
+
+ The big 'switch' statement for all available bytecodes is here:
+ L002EE1E0: addls   pc, pc, r0, lsl #2 in L002EE138: TInterpreter::FastRun1(long, FastRunState &)
+ L002F202C: addls   pc, pc, r2, lsl #2 in L002F1EE0: TInterpreter::SlowRun(long)
+ allowing values from 0..207, corresponding to bytecode A from 0x00..0x19. I don't
+ see a 'hidden' bytecode here for breakpoints or line numbers.
+ 
+ The functions:
+ 0x002C14D0: ParseFile(char *)
+ 0x002C19D8: PrintInstructions(RefVar const &)
+ 0x002C1E68: Disassemble(RefVar const &)
+ seem to contain a NewtonScript disassembler and has reference to dispalying
+ line numbers, presumably those at compile time. This would be a worthy candidate for a full
+ disassembly.
+
+ We know that there is a NewtonScript compiler in the ROM, but there also seems to 
+ be full debugging output from the original Lexx and Yacc files:
+ L002C2318: "tokenOPTIONALEXPR"
+ L002C2764: "expr : expr tokenDIV expr", etc.
+ SYMyaccstack: "yaccStack"
+
+ My own idea of tracing execution follows, but it probably makes a lot more sense to 
+ find out first if all this is already in the ROM:
+
+ We could add a new BC command, BC26 (0xD0nnnn), where nnnn is the line in the
  source code. This would allow the debugger to show where bytecode execution is
  at right now. We should have a BC27 at the start of every bytecode stream that
- gives us an index to teh source file, and an array of source files at the start
+ gives us an index to the source file, and an array of source files at the start
  of the NSOF part in the package. BC31 is the highest possible bytecode.
  TODO: __LINE__ implement a "current line"
  TODO: __FILE__ implement a "current file" as a stack (call...return)
@@ -338,9 +371,9 @@ void TToolkit::UserActionRun()
     // TODO: is source is newer than package, build
     // TODO: handle errors
     AppBuild();
-    // TODO: if newly build, install
+    // TODO: if newly built, install
     AppInstall();
-    // TODO: erroro, if we can;t run the app
+    // TODO: error, if we can't run the app
     AppRun();
 }
 

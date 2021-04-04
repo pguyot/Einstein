@@ -1133,12 +1133,12 @@ TInterruptManager::TransferState( TStream* inStream )
 	// TLog* mLog
 	// TARMProcessor* mProcessor
 	// KSInt32 mCalendarDelta : recalculated at startup
-
-	// TODO: --- verify these:
-	//TCondVar* mTimerCondVar;		///< Condition variable (timer thread).
-	//TCondVar* mEmulatorCondVar;	///< Condition variable (emulator).
-	//TMutex* mMutex;				///< Mutex of the thread.
-	//TThread* mThread;			///< The actual thread.
+	// 	   snapshots should only be created or restored if NewtonOS is in PowerOff mode, so the 
+	// 	   states below should always be the same and need not be part of the snapfile.
+	// TCondVar* mTimerCondVar
+	// TCondVar* mEmulatorCondVar
+	// TMutex* mMutex
+	// TThread* mThread
 
 }
 

@@ -660,7 +660,7 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
             // TODO: cisBuffer[i+1] contains the encoded size of the Flash. Do we want to verify that this is the same as Data size?
             break;
         case 0x15: // CISTPL_VERS_1
-            // majr, minor version, manufacturer \0 product \0 product info 2 \0 product info 3 \0\ff 
+            // major, minor version, manufacturer \0 product \0 product info 2 \0 product info 3 \0\ff 
             break;
         case 0xff: 
             imageInfo.pCISSize = i; 
