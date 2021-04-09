@@ -30,7 +30,7 @@ class TLog;
 class TInterruptManager;
 class TMemory;
 class TPlatformManager;
-class TStream;
+class TSnapshotFile;
 
 #define SIXTEEN_GREYS					1
 #define	TWOHUNDREDANDFIFTYSIX_GREYS		0
@@ -128,6 +128,11 @@ public:
 	/// Destructor.
 	///
 	virtual ~TScreenManager();
+
+	///
+	/// Get a unique ID for every driver type
+	/// 
+	virtual KUInt32 GetID() { return 'BASE'; }
 
 	///
 	/// Set the interrupt manager.
@@ -483,7 +488,7 @@ public:
 	///
 	/// Save or restore the state to and from a stream.
 	///
-	void		TransferState( TStream* inStream );
+	void		TransferState(TSnapshotFile* inStream );
 	
 	///
 	/// Change Screen Size.

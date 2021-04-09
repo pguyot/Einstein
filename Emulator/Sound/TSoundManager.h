@@ -29,7 +29,7 @@
 class TLog;
 class TInterruptManager;
 class TMemory;
-class TStream;
+class TSnapshotFile;
 
 ///
 /// Class to handle sound input/output.
@@ -54,6 +54,11 @@ public:
 	/// Destructor.
 	///
 	virtual ~TSoundManager( void );
+
+	///
+	/// Get a unique ID for every driver type
+	/// 
+	virtual KUInt32 GetID() { return 'BASE'; }
 
 	///
 	/// Set the memory interface.
@@ -139,7 +144,7 @@ public:
 	///
 	/// Save or restore the state to or from a file.
 	///
-	virtual void TransferState(TStream* inStream);
+	virtual void TransferState(TSnapshotFile* inStream);
 
 protected:
 	enum {

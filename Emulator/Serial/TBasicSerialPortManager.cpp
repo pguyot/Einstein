@@ -53,7 +53,7 @@
 
 /*
  
- TODO: change named pipe path from "Einstein Emulator" to "Einstein Platform"
+ Note: change named pipe path from "Einstein Emulator" to "Einstein Platform"
 		(see: TCococaAppController: + (NSString *)getAppSupportDirectory)
 
  Software using the Serial Port

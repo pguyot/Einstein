@@ -39,6 +39,9 @@
 #include <K/Defines/KDefinitions.h>
 #include <K/Defines/UByteSex.h>
 
+#include <ctime>
+
+
 ///
 /// Class for an object to write and/or read bytes.
 /// This class also handles endianness conversions transparently.
@@ -153,7 +156,7 @@ public:
 	virtual	void		PutString( const char* inString );
 
 	///
-	/// Read a unicode (UTF-8) string, terminated by a null character.
+	/// Read a unicode (UTF-16) string, terminated by a null character.
 	///
 	/// The string is allocated with malloc(3).
 	///
@@ -163,7 +166,7 @@ public:
 	virtual	KUInt16*	GetUniString( void );
 
 	///
-	/// Write a unicode (UTF-8) string, terminated by a null character.
+	/// Write a unicode (UTF-16) string, terminated by a null character.
 	///
 	/// \param inString	the string to write.
 	/// \throws an exception if a problem occurred.
@@ -412,8 +415,8 @@ public:
 	/// Transfer an array of bytes
 	void Transfer(KUInt8* inArray, KUInt32 inCount);
 
-	/// Transfer some bytes.
-	// void Transfer( void* outBuffer, KUInt32* ioCount );
+	/// \brief Transfer a time and date.
+	void Transfer(time_t& inOutTime);
 
 	/// Transfer an arbitrary Tag. Throw error if the Tag does not match when reading.
 	void Tag(KUInt32 inTag, const char* inErrorMessage);

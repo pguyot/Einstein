@@ -42,3 +42,5 @@ DerivedData/
 /app/TFLRexImage.h
 /app/TFLRexImage.cpp
 /_Build_/AndroidStudioNative/einstein/signingConfigRelease.properties
+/Documentation/html
+

@@ -111,6 +111,13 @@ public:
 	/// \param inLog				log interface (can be null)
 	///
 	TAndroidNativeSoundManager(TLog *inLog = nil) : TBufferedSoundManager(inLog) { }
+
+	/// 
+	/// Get a unique ID for every driver type
+	/// 
+	virtual KUInt32 GetID() { return 'ANDN'; }
+
+
 	void ScheduleOutput(const KUInt8*, KUInt32) { }
 	void StartOutput() { }
 	void StopOutput() { }

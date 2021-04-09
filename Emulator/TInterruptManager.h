@@ -39,7 +39,7 @@ class TARMProcessor;
 class TLog;
 class TThread;
 class TMutex;
-class TStream;
+class TSnapshotFile;
 
 ///
 /// Class for the interrupt manager.
@@ -378,7 +378,7 @@ public:
 	///
 	/// Save or restore the state to or from a stream.
 	///
-	void	TransferState( TStream* inStream );
+	void	TransferState(TSnapshotFile* inStream );
 		
 	///
 	/// Thread loop entry point.

@@ -23,12 +23,10 @@
 
 #include "Emulator/TMMU.h"
 
-// K
-#include <K/Streams/TStream.h>
-
 // Einstein
 #include "Emulator/TMemory.h"
 #include "Log/TLog.h"
+#include "Emulator/Files/TSnapshotFile.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -970,10 +968,10 @@ TMMU::InvalidatePerms()
 
 
 // -------------------------------------------------------------------------- //
-//  * V3: TransferState( TStream* )
+//  * V3: TransferState( TSnapshotFile* )
 // -------------------------------------------------------------------------- //
 void
-TMMU::TransferState( TStream* inStream )
+TMMU::TransferState(TSnapshotFile* inStream )
 {
 	inStream->Tag('MMU ', "Transfer all MMU data");
 

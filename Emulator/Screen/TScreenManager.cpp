@@ -44,7 +44,6 @@
 #include <stdlib.h>
 
 // K
-#include <K/Streams/TStream.h>
 #include <K/Defines/UByteSex.h>
 
 // Einstein
@@ -52,6 +51,7 @@
 #include "Emulator/TInterruptManager.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/Platform/TPlatformManager.h"
+#include "Emulator/Files/TSnapshotFile.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -1007,10 +1007,10 @@ TScreenManager::KeyRepeat( KUInt8 inKeyCode )
 
 
 // -------------------------------------------------------------------------- //
-//  * V3: TransferState( TStream* )
+//  * V3: TransferState( TSnapshotFile* )
 // -------------------------------------------------------------------------- //
 void
-TScreenManager::TransferState( TStream* inStream )
+TScreenManager::TransferState(TSnapshotFile* inStream )
 {
 	KUInt32 t;
 	

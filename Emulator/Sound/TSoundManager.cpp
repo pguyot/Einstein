@@ -37,6 +37,7 @@
 
 // Einstein.
 #include "Emulator/TInterruptManager.h"
+#include "Emulator/Files/TSnapshotFile.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -93,9 +94,9 @@ float TSoundManager::OutputVolumeNormalized()
 }
 
 // -------------------------------------------------------------------------- //
-// * TransferState(TStream*)
+// * TransferState(TSnapshotFile*)
 // -------------------------------------------------------------------------- //
-void TSoundManager::TransferState(TStream* inStream)
+void TSoundManager::TransferState(TSnapshotFile* inStream)
 {
     // Tag the settings, so we will find errors in synchronization
     inStream->Tag('Snd ', "Transfer Sound Manager state");

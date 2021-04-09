@@ -112,7 +112,7 @@ TStream::GetCString( KUInt32 inNbChars )
 KUInt8*
 TStream::GetCString( void )
 {
-	size_t bufferLength = 10; 	// Taille de la mŽmoire tampon
+	size_t bufferLength = 64; 	// Taille de la mŽmoire tampon
 	size_t strLength = 0;		// Taille de la cha”ne
 	KUInt8* theResult = (KUInt8*) ::malloc( bufferLength );
 	
@@ -138,11 +138,11 @@ TStream::GetCString( void )
 			if (strLength == bufferLength)
 			{
 				// Increase the buffer size with realloc.
-				bufferLength += 10;
+				bufferLength += 64;
 				theResult = (KUInt8*)  ::realloc( theResult, bufferLength );
 			}
 			
-			theResult[ strLength ] = theChar;
+			theResult[ strLength++ ] = theChar;
 			
 		} while (theChar != '\0');
 		
@@ -604,19 +604,33 @@ void TStream::Transfer(KUInt8* ioArray, KUInt32 inCount)
 	}
 }
 
-// ------------------------------------------------------------------------- //
-//  * void Transfer( void*, KUInt32* )
-// ------------------------------------------------------------------------- //
-/*
-void TStream::Transfer( void* inoutBuffer, KUInt32* ioCount )
+/**
+ * \param inOutTime transfer time between this location and the file
+ */
+void TStream::Transfer(time_t& inOutTime)
 {
+	KUInt8 sizeTimeT = sizeof(time_t);
 	if (IsReading()) {
-		Read(inoutBuffer, ioCount);
-	} else if (IsWriting()) {
-		Write(inoutBuffer, ioCount);
+		std::tm theTime = {};
+		theTime.tm_sec = GetByte();
+		theTime.tm_min = GetByte();
+		theTime.tm_hour = GetByte();
+		theTime.tm_mday = GetByte();
+		theTime.tm_mon = GetByte();
+		theTime.tm_year = GetInt16BE();
+		theTime.tm_isdst = GetByte();
+		inOutTime = std::mktime(&theTime);
+	} else {
+		std::tm* theTime = localtime(&inOutTime);
+		PutByte(theTime->tm_sec);
+		PutByte(theTime->tm_min);
+		PutByte(theTime->tm_hour);
+		PutByte(theTime->tm_mday);
+		PutByte(theTime->tm_mon);
+		PutInt16BE(theTime->tm_year);
+		PutByte(theTime->tm_isdst);
 	}
 }
-*/
 
 // ------------------------------------------------------------------------- //
 //  * void Tag(KUInt32 inTag, const char* inErrorMessage)

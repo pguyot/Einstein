@@ -30,7 +30,7 @@
 #include "TNativePrimitives.h"
 #include "Emulator/JIT/JIT.h"
 
-class TStream;
+class TSnapshotFile;
 
 
 ///
@@ -270,7 +270,7 @@ public:
 	///
 	/// Save or retore the state to a stream.
 	///
-	void	TransferState( TStream* inStream );
+	void	TransferState(TSnapshotFile* inStream );
 		
 	///
 	/// System Coproc Register Transfer (MMU & Co).

@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-#include <K/Streams/TStream.h>
 #include "TDMAManager.h"
 
 // Einstein
@@ -30,6 +29,7 @@
 #include "TEmulator.h"
 #include "Serial/TSerialPortManager.h"
 #include "Log/TLog.h"
+#include "Emulator/Files/TSnapshotFile.h"
 
 // TDMAManager is invoked by TMemory when physical addresses corresponding
 // to DMA registers are accessed.
@@ -274,9 +274,9 @@ TDMAManager::WriteChannel2Register(
 
 
 // -------------------------------------------------------------------------- //
-//  * V3: void TransferState( TStream* )
+//  * V3: void TransferState( TSnapshotFile* )
 // -------------------------------------------------------------------------- //
-void TDMAManager::TransferState( TStream* inStream )
+void TDMAManager::TransferState(TSnapshotFile* inStream )
 {
 	inStream->Tag('DMA ', "Transfer all DMA data");
 

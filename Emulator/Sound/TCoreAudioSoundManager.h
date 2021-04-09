@@ -59,6 +59,11 @@ public:
 	~TCoreAudioSoundManager() override;
 
 	///
+	/// Get a unique ID for every driver type
+	/// 
+	virtual KUInt32 GetID() { return 'CORE'; }
+
+	///
 	/// Schedule output of some buffer.
 	///
 	void ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize ) override;

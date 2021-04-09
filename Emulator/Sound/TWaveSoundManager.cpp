@@ -424,9 +424,9 @@ void TWaveSoundManager::updateVolume()
 }
 
 // -------------------------------------------------------------------------- //
-// * TransferState(TStream*)
+// * TransferState(TSnapshotFile*)
 // -------------------------------------------------------------------------- //
-void TWaveSoundManager::TransferState(TStream* inStream)
+void TWaveSoundManager::TransferState(TSnapshotFile* inStream)
 {
 	super::TransferState(inStream);
 

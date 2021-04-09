@@ -29,7 +29,7 @@
 class TLog;
 class TInterruptManager;
 class TMemory;
-class TStream;
+class TSnapshotFile;
 class TEmulator;
 
 ///
@@ -162,7 +162,7 @@ public:
 	///
 	/// Save or restore the state to or from a file.
 	///
-	void		TransferState( TStream* inStream );
+	void		TransferState(TSnapshotFile* inStream );
 
 private:
 	// No implicit copy constructor

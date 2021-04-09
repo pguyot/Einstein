@@ -32,9 +32,6 @@
 	#include <unistd.h>
 #endif
 
-// K
-#include <K/Streams/TStream.h>
-
 // Einstein
 #include "Emulator/Log/TLog.h"
 #include "Emulator/TEmulator.h"
@@ -43,6 +40,7 @@
 #include "Emulator/Screen/TScreenManager.h"
 #include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Sound/TSoundManager.h"
+#include "Emulator/Files/TSnapshotFile.h"
 #if !TARGET_OS_MAC
 #include "Emulator/NativeCalls/TNativeCalls.h"
 #endif
@@ -2941,10 +2939,10 @@ TNativePrimitives::ExecuteHostiOSNativeiOS( KUInt32 inInstruction )
 #endif
 
 // -------------------------------------------------------------------------- //
-//  * V3: TransferState( TStream* )
+//  * V3: TransferState( TSnapshotFile* )
 // -------------------------------------------------------------------------- //
 void
-TNativePrimitives::TransferState( TStream* inStream )
+TNativePrimitives::TransferState(TSnapshotFile* inStream )
 {
 	inStream->Tag('Natv', "Transfer native primitives data");
 

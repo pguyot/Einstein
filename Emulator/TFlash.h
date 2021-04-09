@@ -35,7 +35,7 @@
 
 class TLog;
 class TROMImage;
-class TStream;
+class TSnapshotFile;
 
 ///
 /// Class for the Flash.
@@ -107,7 +107,7 @@ public:
 	///
 	/// Save or restor the state to or from a stream.
 	///
-	void		TransferState( TStream* inStream );
+	void		TransferState(TSnapshotFile* inStream );
 		
 	///
 	/// Save flash to the flash file.
@@ -123,6 +123,11 @@ public:
 	/// Power flash off.
 	///
 	void		PowerOff( void ) const;
+
+	///
+	/// Get the original file path and name
+	/// 
+	const char* GetFilepath() { return mFilepath; }
 
 	///
 	/// Additional constants related to the memory space.
@@ -143,6 +148,7 @@ private:
 	TLog*				mLog = nullptr;			///< Interface to the log.
 	TMappedFile			mFlashFile;				///< Flash file.
 	KUInt8*				mFlash = nullptr;		///< Flash buffer.
+	char*				mFilepath = nullptr;	///< Rememebr the name of the Flash file
 };
 
 #endif

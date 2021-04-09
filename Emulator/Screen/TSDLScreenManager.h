@@ -51,6 +51,11 @@ public:
 	///
 	virtual ~TSDLScreenManager( void );
 
+	///
+	/// Get a unique ID for every driver type
+	/// 
+	virtual KUInt32 GetID() { return 'SDL '; }
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.

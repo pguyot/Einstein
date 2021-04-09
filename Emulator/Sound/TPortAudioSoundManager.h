@@ -64,6 +64,11 @@ public:
 	virtual ~TPortAudioSoundManager( void );
 
 	///
+	/// Get a unique ID for every driver type
+	/// 
+	virtual KUInt32 GetID() { return 'PORT'; }
+
+	///
 	/// Schedule output of some buffer.
 	///
 	virtual void	ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize );

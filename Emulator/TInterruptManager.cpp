@@ -44,10 +44,10 @@
 // K
 #include <K/Threads/TThread.h>
 #include <K/Threads/TMutex.h>
-#include <K/Streams/TStream.h>
 
 // Einstein
 #include "Log/TLog.h"
+#include "Emulator/Files/TSnapshotFile.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -1101,10 +1101,10 @@ TInterruptManager::GetSyncedCalendarDelta()
 
 
 // -------------------------------------------------------------------------- //
-//  * V3: TransferState( TStream* ) const
+//  * V3: TransferState( TSnapshotFile* ) const
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::TransferState( TStream* inStream )
+TInterruptManager::TransferState(TSnapshotFile* inStream )
 {
 	KUInt32 t;
 	

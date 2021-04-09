@@ -33,6 +33,7 @@
 
 // Einstein.
 #include "Emulator/Log/TLog.h"
+#include "Emulator/Files/TSnapshotFile.h"
 
 // K
 #include <K/Streams/TStream.h>
@@ -102,9 +103,9 @@ TNullSoundManager::OutputIsRunning( void )
 }
 
 // -------------------------------------------------------------------------- //
-// * TransferState(TStream*)
+// * TransferState(TSnapshotFile*)
 // -------------------------------------------------------------------------- //
-void TNullSoundManager::TransferState(TStream* inStream)
+void TNullSoundManager::TransferState(TSnapshotFile* inStream)
 {
 	super::TransferState(inStream);
 

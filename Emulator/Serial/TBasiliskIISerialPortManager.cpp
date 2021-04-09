@@ -131,7 +131,7 @@ TBasiliskIISerialPortManager::OpenPTY()
 	int ret = -1;
 
 	// TODO: if we ever decide to support more than the internal serial port, we
-	// will have to generate diffwerent names for different ports.
+	// will have to generate different names for different ports.
 	ret = unlink(kBasiliskPipe);
 	if (ret==-1 && errno!=2) {
 		perror("TBasiliskIISerialPortManager: Can't unlink Basilisk Pipe");

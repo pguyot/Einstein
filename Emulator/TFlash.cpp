@@ -31,11 +31,11 @@
 
 // K
 #include <K/Defines/UByteSex.h>
-#include <K/Streams/TStream.h>
 
 // Einstein
 #include "Log/TLog.h"
 #include "ROM/TROMImage.h"
+#include "Emulator/Files/TSnapshotFile.h"
 
 // TFlash implements the persistent internal storage on the
 // Newton.
@@ -68,7 +68,8 @@ TFlash::TFlash(
 			inFlashPath,
 			kFlashBank1Size + kFlashBank2Size,
 			O_RDWR | O_CREAT ),
-		mFlash( (KUInt8*) mFlashFile.GetBuffer() )
+		mFlash( (KUInt8*) mFlashFile.GetBuffer() ),
+		mFilepath(inFlashPath ? strdup(inFlashPath) : nullptr)
 {
 	KUInt32 checksums[10];
 	Boolean corruptedRex = false;
@@ -185,6 +186,8 @@ TFlash::TFlash(
 // -------------------------------------------------------------------------- //
 TFlash::~TFlash( void )
 {
+	if (mFilepath)
+		::free(mFilepath);
 }
 
 // -------------------------------------------------------------------------- //
@@ -297,27 +300,24 @@ TFlash::ReadB(
 
 
 // -------------------------------------------------------------------------- //
-//  * V3: TransferState( TStream* )
+//  * V3: TransferState( TSnapshotFile* )
 // -------------------------------------------------------------------------- //
 void
-TFlash::TransferState( TStream* inStream )
+TFlash::TransferState(TSnapshotFile* inStream )
 {
-	// FIXME: save the filename of the flash file with the snapshot
-	// FIXME: If the filenames differ, do not load the snapshot, because it will overwrite the old flash file!
-	// FIXME: Actually, we must do that before we even attempt to load this snapshot (and also check fo the same ROM file)
-	// FIXME: This will also clear any checksum issues
+	// The flash, only transfer this in the large image
+	if (inStream->IsFull()) {
+		inStream->Tag('Flsh', "Transfer all Flash Memory data");
 
-	inStream->Tag('Flsh', "Transfer all Flash Memory data");
+		if (inStream->IsWriting())
+			mFlashFile.Sync();
 
-	if (inStream->IsWriting())
-		mFlashFile.Sync();
+		KUInt32 flashSize = kFlashBank1Size + kFlashBank2Size;
+		inStream->Transfer(mFlash, flashSize);
 
-	// The flash.
-	KUInt32 flashSize = kFlashBank1Size + kFlashBank2Size;
-	inStream->Transfer( mFlash, flashSize );
-
-	if (inStream->IsReading())
-		mFlashFile.Sync();
+		if (inStream->IsReading())
+			mFlashFile.Sync();
+	}
 
 	// --- No need to write this
 	// TLog* mLog;

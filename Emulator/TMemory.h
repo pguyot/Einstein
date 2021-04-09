@@ -47,7 +47,7 @@ class TInterruptManager;
 class TDMAManager;
 class TEmulator;
 class TPCMCIAController;
-class TStream;
+class TSnapshotFile;
 
 // More than 2 sockets will yield to memory corruption because there aren't
 // enough GPIO interrupts available.
@@ -723,9 +723,14 @@ public:
 		}
 
 	///
+	/// Save or restore the Einstein configuration to or from a stream.
+	///
+	void		TransferStateHeader(TSnapshotFile* inStream);
+
+	///
 	/// Save or restore the state to or from a stream.
 	///
-	void		TransferState( TStream* inStream );
+	void		TransferState(TSnapshotFile* inStream );
 		
 	///
 	/// Check that two addresses are very probably on the same page.
@@ -832,9 +837,9 @@ private:
 	KUInt32				mBankCtrlRegister = 0;			///< Bank control register.
 	TInterruptManager*	mInterruptManager = nullptr;	///< Interface to the interrupt mgr.
 	TDMAManager*		mDMAManager = nullptr;			///< Interface to the DMA mgr.
-	TPCMCIAController*	mPCMCIACtrls[kNbSockets] = { nullptr }; ///< PCMCIA controllers.
+	TPCMCIAController*	mPCMCIACtrls[kNbSockets] = { }; ///< PCMCIA controllers.
 	KUInt32				mSerialNumberIx = 64;			///< Index to serial number.
-	KUInt32				mSerialNumber[2] = { 0, 0 };	///< Serial number.
+	KUInt32				mSerialNumber[2] = { };			///< Serial number.
 	TEmulator*			mEmulator = nullptr;			///< Emulator (interface to hardware).
 	KUInt32				mBPCount = 0;					///< Number of Breakpoints.
 	SBreakpoint*		mBreakpoints = nullptr;			///< Breakpoints.

@@ -66,6 +66,11 @@ public:
 	virtual ~TWaveSoundManager( void );
 
 	///
+	/// Get a unique ID for every driver type
+	/// 
+	virtual KUInt32 GetID() { return 'WAVE'; }
+
+	///
 	/// Schedule output of some buffer.
 	///
 	virtual void	ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize );
@@ -93,7 +98,7 @@ public:
 	///
 	/// Save or restore the state to or from a file.
 	///
-	void TransferState(TStream* inStream) override;
+	void TransferState(TSnapshotFile* inStream) override;
 
 private:
 

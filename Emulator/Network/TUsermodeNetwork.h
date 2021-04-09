@@ -56,6 +56,11 @@ public:
 	~TUsermodeNetwork() override;
 
 	///
+	/// Get a unique ID for every driver type
+	/// 
+	KUInt32 GetID() override { return 'USER'; }
+
+	///
 	/// Newton sends a block of data.
 	/// This is a raw ethernet network datagram. The network manager is expected
 	/// to somehow send this package to the outside world.

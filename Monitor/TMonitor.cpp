@@ -61,6 +61,7 @@
 #include "Monitor/UDisasm.h"
 #include "Emulator/Screen/TScreenManager.h"
 #include "Emulator/TDiag.h"
+#include "Emulator/Files/TSnapshotFile.h"
 
 #ifdef JITTARGET_GENERIC
 //#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
@@ -177,6 +178,9 @@ TMonitor::Run()
 		}
 		catch (TEOFException& ex) {
 			// FIXME: try again without loading a snapshot.
+		}
+		catch (TSnapshotException& ex) {
+			KPrintf("Loading Snapshotfile failed: %s\n", ex.GetDescription());
 		}
 		//PrintLine("Restarting the Emulator", MONITOR_LOG_INFO);
 		if (mHalted)

@@ -22,7 +22,9 @@
 // ==============================
 
 // ----- ASAPs
-// TODO: finish state snapshot in 'BootFromSnapshot' branch
+// TODO: finish state snapshot in 'BootFromSnapshot' branch 
+//          - PCCard support
+//          - extensive testing
 // TODO: compile for Android (we need a working state snapshot to do this right)
 // TODO: FIX 8 and 16 MB internal Flash support
 // TODO: Get PCMCIA ROM cards to run: in TMmemory, allow executable code in the PCMCIA memory area (currently only RAM and ROM)
@@ -58,6 +60,8 @@
 // TODO: patch ROMs for Y10k bug (Y26k bug coming up quickly!)
 // TODO: printer support
 // TODO: wake-up/launch on appointment in the future
+// TODO: full system snaphots
+//          - unpatch the ROM before saving it
 
 // ----- Improvements to the inner workings
 // TODO: Full Android support as an address book and calender app
@@ -693,7 +697,8 @@ void TFLApp::UserActionShowToolkit()
 
 int TFLApp::UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data, const char* cis, const char* name)
 {
-    // TODO: make sure that the extension actually .pcmcia if the file does not exist yet.
+    // TODO: make sure that the extension is actually .pcmcia if the file does not exist yet.
+    // TODO: make your life easier using exceptions
     int err = TLinearCard::ComposeImageFile(dst, data, cis, name);
     if (err) {
         const char* msg = "An unspecified error occured.";
@@ -917,7 +922,7 @@ void TFLApp::InitSerialPorts()
                                       TSerialPorts::kNullDriver,
                                       TSerialPorts::kNullDriver );
 #if 0
-    // TODO: save the serial port setting in a save place
+    // TODO: save the serial port setting in a safe place
     TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
     if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
     {

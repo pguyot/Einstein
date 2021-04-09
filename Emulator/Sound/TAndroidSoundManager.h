@@ -56,6 +56,11 @@ public:
 	virtual ~TAndroidSoundManager( void );
 	
 	///
+	/// Get a unique ID for every driver type
+	/// 
+	virtual KUInt32 GetID() { return 'ANDR'; }
+
+	///
 	/// Schedule output of some buffer.
 	///
 	virtual void	ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize );

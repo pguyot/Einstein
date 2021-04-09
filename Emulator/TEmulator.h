@@ -346,24 +346,20 @@ public:
 	///
 	void		Quit();
 
-	///
-	/// Save the state to a file.
-	///
-	/// \return an error code if a problem occurred.
-	///
+	/**
+	 * \brief Save the state of the Emulator to a snapshot file.
+	 */
 	void		SaveState( const char* inPath );
 	
-	///
-	/// Load the state from a file.
-	///
-	/// \return an error code if a problem occurred.
-	///
+	/**
+	 * \brief Load the state of the Emulator from a snapshot file.
+	 */
 	void		LoadState( const char* inPath );
 
 	///
 	/// Save or restore the state to or from a file.
 	///
-	void		TransferState( TStream* inStream );
+	void		TransferState(TSnapshotFile* inStream );
 	
 	///
 	/// Set a new NewtonID
@@ -390,6 +386,7 @@ private:
 	/// \name Variables
 	TMemory				mMemory;					///< Memory.
 	TARMProcessor		mProcessor;					///< CPU.
+	TROMImage*			mROMImage = nullptr;		///< Keep a reference to the ROM image
 	TInterruptManager*	mInterruptManager = nullptr;///< Interrupt manager (allocation managed by TEmulator).
 	TDMAManager*		mDMAManager = nullptr;		///< DMA manager (allocation managed by TEmulator).
 	TPlatformManager*	mPlatformManager = nullptr;	///< Platform manager (allocation managed by TEmulator).

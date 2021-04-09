@@ -24,7 +24,7 @@
 // #define FLAG_B:22
 // Use of R15 for Rn, Rd and Rm is UNPREDICTABLE
 // TODO: Make those instructions ATOMIC 
-// (matt: not sure what this refers to or what needs to be dome her
+// (matt: not sure what this refers to or what needs to be done her
 //        I think they are atomic in the context of the JIT emulation??)
 
 SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)

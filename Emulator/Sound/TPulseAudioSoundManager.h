@@ -59,7 +59,12 @@ public:
 	///
 	~TPulseAudioSoundManager( void ) override;
 
-	///
+    ///
+    /// Get a unique ID for every driver type
+    /// 
+    virtual KUInt32 GetID() { return 'PLSE'; }
+
+    ///
 	/// Schedule output of some buffer.
 	///
 	void	ScheduleOutput( const KUInt8* inBufferAddr, KUInt32 inSize ) override;

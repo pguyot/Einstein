@@ -41,7 +41,7 @@ class TPlatformManager;
 class TNativeCalls;
 #endif
 class TVirtualizedCalls;
-class TStream;
+class TSnapshotFile;
 #if TARGET_OS_MAC
 class TObjCBridgeCalls;
 #endif
@@ -113,7 +113,7 @@ public:
 	///
 	/// Load or save the state to a stream.
 	///
-	void		TransferState( TStream* inStream );
+	void		TransferState(TSnapshotFile* inStream );
 		
 private:
 	/// Constants

@@ -53,6 +53,7 @@
 #include "PCMCIA/TATACard.h"
 #include "PCMCIA/TLinearCard.h"
 #include "PCMCIA/TPCMCIAController.h"
+#include "Emulator/Files/TSnapshotFile.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -2873,11 +2874,33 @@ TMemory::EnableBreakpoint( VAddr inAddress)
 	return theResult;
 }
 
+
 // -------------------------------------------------------------------------- //
-//  * V3: TransferState( TStream* ) const
+//  * TransferStateHeader( TSnapshotFile* ) const
 // -------------------------------------------------------------------------- //
 void
-TMemory::TransferState( TStream* inStream )
+TMemory::TransferStateHeader(TSnapshotFile* inStream)
+{
+	if (inStream->IsWriting()) {
+		// Check the Flash file and date
+		inStream->PutFileRef(mFlash.GetFilepath());
+		// FIXME: Check PCMCIA card file paths and dates
+		inStream->PutInt32BE(mRAMSize);
+	} else {
+		if (inStream->VerifyFileRef(mFlash.GetFilepath())==false)
+			throw TSnapshotException("Flash file does not match");
+		// FIXME: Check PCMCIA card file paths and dates
+		if (inStream->GetInt32BE() != mRAMSize)
+			throw TSnapshotException("RAM size does not match");
+	}
+}
+
+
+// -------------------------------------------------------------------------- //
+//  * TransferState( TSnapshotFile* ) const
+// -------------------------------------------------------------------------- //
+void
+TMemory::TransferState(TSnapshotFile* inStream )
 {
 	KUInt32 currentRAMSize = mRAMSize;
 	KUInt32 currentBPCount = mBPCount;
@@ -2892,9 +2915,7 @@ TMemory::TransferState( TStream* inStream )
 	inStream->Transfer(mSerialNumberIx);
 	inStream->Transfer(mSerialNumber, 2);
 
-	// The ROM.
-	// TODO: do we need to transfer the ROM? How big is it actually?
-	//inStream->TransferInt32ArrayBE( (KUInt32*) mROMImagePtr, 0x01000000 / sizeof( KUInt32 ) );
+	// The content of the ROM is not stored in the file for small snapshots
 
 	// The RAM
 	if (inStream->IsReading() && currentRAMSize != mRAMSize) {
@@ -2930,7 +2951,7 @@ TMemory::TransferState( TStream* inStream )
 	mFlash.TransferState( inStream );
 
 	// FIXME: check TJITCache, it must be initialized from scratch!
-	if (inStream->IsReading()) { // TODO: verify this!
+	if (inStream->IsReading()) {
 		mJIT.InvalidateTLB();
 	}
 

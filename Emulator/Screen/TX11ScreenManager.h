@@ -88,6 +88,11 @@ public:
 	virtual ~TX11ScreenManager( void );
 
 	///
+	/// Get a unique ID for every driver type
+	/// 
+	virtual KUInt32 GetID() { return 'X11 '; }
+
+	///
 	/// Notify that the tablet orientation changed.
 	/// This method is called when the tablet driver calls SetTabletOrientation.
 	///

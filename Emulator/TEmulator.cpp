@@ -37,17 +37,16 @@
 	#include <sys/time.h>
 #endif
 
-// K
-#include <K/Streams/TStream.h>
-#include <K/Streams/TFileStream.h>
-
 // Einstein
+#include "app/Version.h"
 #include "Log/TLog.h"
 #include "JIT/JIT.h"
 #include "JIT/TJITPerformance.h"
 #include "Network/TNetworkManager.h"
+#include "ROM/TROMImage.h"
 #include "Sound/TSoundManager.h"
 #include "Screen/TScreenManager.h"
+#include "Serial/TSerialPortManager.h"
 #include "PCMCIA/TPCMCIAController.h"
 #include "PCMCIA/TLinearCard.h"
 #include "TInterruptManager.h"
@@ -56,6 +55,7 @@
 #include "Platform/TNewt.h"
 #include "Files/TFileManager.h"
 #include "Monitor/TMonitor.h"
+#include "Emulator/Files/TSnapshotFile.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -78,6 +78,7 @@ TEmulator::TEmulator(
 			KUInt32 inRAMSize /* = 4194304 */ )
 	:
         SerialPorts( this, inLog ),
+		mROMImage( inROMImage ),
 		mMemory( inLog, inROMImage, inFlashPath, inRAMSize ),
 		mProcessor( inLog, &mMemory ),
 		mNetworkManager( inNetworkManager ),
@@ -255,7 +256,7 @@ TEmulator::DebuggerUND( KUInt32 inPAddr )
 	if (mLog)
 	{
 		// Extract the string.
-		KUInt8 theString[512];
+		KUInt8 theString[512]; // NOLINT
 		(void) ::sprintf( (char*) theString, "DebuggerUND: " );
 		ssize_t index = ::strlen( (const char*) theString);
 		KUInt32 theAddress = inPAddr + 4;
@@ -439,57 +440,146 @@ TEmulator::BreakInMonitor( const char* msg )
 	}
 }
 
-// -------------------------------------------------------------------------- //
-//  * SaveState( const char* inPath ) const
-// -------------------------------------------------------------------------- //
+
+/**
+ * Saves a minimal snapshot to disk. This is called when quitting 
+ * Einstein. TEmulator::LoadState() will restore the state when 
+ * Einstein starts, avoiding a lengthy reboot of NewtonOS
+ * 
+ * \param inPath the filename for the snapshot file, usualy the path of the Flash file plus ".snap"
+ * 
+ * \see TSnapshotFile
+ */
 void
 TEmulator::SaveState( const char* inPath )
 {
-	// Open the file for writing.
-	TStream* theStream = new TFileStream( inPath, "wb" );
-	theStream->Version(1);
-	theStream->PutInt32BE('EINI');
-	theStream->PutInt32BE('SNAP');
-	theStream->PutInt32BE(theStream->Version());
-	TransferState( theStream );
-	delete theStream;
+	TSnapshotFile theStream( inPath, "wb", TSnapshotType::kMinimal, 2 );
+
+	// Number of previously unseccessful read attempts
+	theStream.PutInt32BE(0);
+
+	// Write Einstein Host configuration
+#if TARGET_OS_WIN32
+	theStream.PutInt32BE('WIND');
+#elif TARGET_OS_IOS
+	theStream.PutInt32BE('IOS ');
+#elif TARGET_OS_LINUX
+	theStream.PutInt32BE('LINX');
+#elif TARGET_OS_MAC
+	theStream.PutInt32BE('MAC ');
+#elif TARGET_OS_ANDROID
+	theStream.PutInt32BE('ANDR');
+#else
+#error Undefined Platform!
+#endif
+
+#if TARGET_UI_FLTK
+	theStream.PutInt32BE('FLTK');
+#else
+	theStream.PutInt32BE('NATV');
+#endif
+
+#ifdef _DEBUG
+	theStream.PutInt32BE('DBUG');
+#else
+	theStream.PutInt32BE('RLSE');
+#endif
+
+	// Save current time and date, just in case
+	time_t timeNow = ::time(nullptr);
+	theStream.Transfer(timeNow);
+
+	// Write the Einstein version
+	theStream.PutInt16BE(atoi(PROJECT_VER_MAJOR));
+	theStream.PutInt16BE(atoi(PROJECT_VER_MINOR));
+	theStream.PutInt16BE(atoi(PROJECT_VER_PATCH));
+
+	// Write all driver IDs
+	theStream.PutInt32BE(mNetworkManager->GetID());
+	theStream.PutInt32BE(mSoundManager->GetID());
+	theStream.PutInt32BE(mScreenManager->GetID());
+	theStream.PutInt32BE(SerialPorts.GetDriverFor(TSerialPorts::kExtr)->GetID());
+	theStream.PutInt32BE(SerialPorts.GetDriverFor(TSerialPorts::kInfr)->GetID());
+	theStream.PutInt32BE(SerialPorts.GetDriverFor(TSerialPorts::kTblt)->GetID());
+	theStream.PutInt32BE(SerialPorts.GetDriverFor(TSerialPorts::kMdem)->GetID());
+
+	theStream.PutInt32BE(mROMImage->GetROMId());
+
+	mMemory.TransferStateHeader(&theStream);
+
+	TransferState(&theStream);
 }
 
-// -------------------------------------------------------------------------- //
-//  * LoadState( const char* inPath ) const
-// -------------------------------------------------------------------------- //
+
+/**
+ * Restores a NewtonOS snapshot from disk. This is called when launching
+ * Einstein. If the snapshot is compatible, current, and all driver settings
+ * are the same, Newton will continue execution exactly where it was left
+ * at the last SaveState().
+ *
+ * \param inPath the filename for the snapshot file, usualy the path of the Flash file plus ".snap"
+ *
+ * \see TSnapshotFile, TEmulator::SaveState()
+ */
 void
 TEmulator::LoadState( const char* inPath )
 {
-	KUInt32 id, type;
-	
-	// Open the file for Reading.
-	TStream* theStream = new TFileStream( inPath, "rb" );
-	id = theStream->GetInt32BE();
-	if (id!='EINI') {
-		KPrintf("This is not a file created by Einstein!\n");
-		return;
-	}
-	type = theStream->GetInt32BE();
-	if (type!='SNAP') {
-		KPrintf("This is not an Einstein State file!\n");
-		return;
-	}
-	theStream->Version(theStream->GetInt32BE());
-	if (theStream->Version()!=1) {
-		KPrintf("This Einstein State file is not supported. Please upgarde your Einstein version.\n");
-		return;
-	}
-	TransferState( theStream );
-	delete theStream;
+	TSnapshotFile theStream( inPath, "rb", TSnapshotType::kMinimal, 2 );
+
+	// Check file version
+	if (theStream.Version() < 2)
+		throw TSnapshotException("File versions below 2 no longer supported");
+
+	// Number of previously unseccessful read attempts
+	KUInt32 previousFails = theStream.GetInt32BE();
+	if (previousFails > 2)
+		throw TSnapshotException("Reading file failed too many times");
+
+	// Read Einstein Host configuration
+	/* KUInt32 targetOS = */ theStream.GetInt32BE();
+	/* KUInt32 targetUI = */ theStream.GetInt32BE();
+	/* KUInt32 config =   */ theStream.GetInt32BE();
+
+	// Read time and date of file creation
+	time_t timeCreated = 0;
+	theStream.Transfer(timeCreated);
+
+	// Read the Einstein version
+	/* KUInt16 PROJECT_VER_MAJOR = */ theStream.GetInt16BE();
+	/* KUInt16 PROJECT_VER_MINOR = */ theStream.GetInt16BE();
+	/* KUInt16 PROJECT_VER_PATCH = */ theStream.GetInt16BE();
+
+	// Verify all driver IDs
+	if (theStream.GetInt32BE() != mNetworkManager->GetID())
+		throw TSnapshotException("Network driver does not match");
+	if (theStream.GetInt32BE() != mSoundManager->GetID())
+		throw TSnapshotException("Sound driver does not match");
+	if (theStream.GetInt32BE() != mScreenManager->GetID())
+		throw TSnapshotException("Screen driver does not match");
+	if (theStream.GetInt32BE() != SerialPorts.GetDriverFor(TSerialPorts::kExtr)->GetID())
+		throw TSnapshotException("Serial driver 'extr' does not match");
+	if (theStream.GetInt32BE() != SerialPorts.GetDriverFor(TSerialPorts::kInfr)->GetID())
+		throw TSnapshotException("Serial driver 'infr' does not match");
+	if (theStream.GetInt32BE() != SerialPorts.GetDriverFor(TSerialPorts::kTblt)->GetID())
+		throw TSnapshotException("Serial driver 'tblt' does not match");
+	if (theStream.GetInt32BE() != SerialPorts.GetDriverFor(TSerialPorts::kMdem)->GetID())
+		throw TSnapshotException("Serial driver 'mdem' does not match");
+
+	if (theStream.GetInt32BE() != mROMImage->GetROMId())
+		throw TSnapshotException("ROM version does not match");
+
+	mMemory.TransferStateHeader(&theStream);
+
+	// If no exception was thrown, finally write the current state
+	TransferState( &theStream );
 }
 
 
 // -------------------------------------------------------------------------- //
-//  * V3: TransferState( TStream* )
+//  * V3: TransferState( TSnapshotFile* )
 // -------------------------------------------------------------------------- //
 void
-TEmulator::TransferState( TStream* inStream )
+TEmulator::TransferState(TSnapshotFile* inStream )
 {
 	// Tag the settings, so we will find errors in synchronization
 	inStream->Tag('Emul', "Transfer emulator state");
@@ -545,16 +635,6 @@ TEmulator::TransferState( TStream* inStream )
 	TNetworkManager* mNetworkManager;	///< Network manager.
 	TFileManager* mFileManager;
 	TSerialPorts	SerialPorts;		///< Serial port driver access
-	TODO: Snapshot list of todo's
-	- implement small and full snapshots
-  		- small snapshot are enough to save state and continue after Host reboot or Android sleep
-			- store some preconditions at the start of the file and deny loading snapshot if there are differences
-			- store the ROM and Flash filename and modification time
-			- store the driver configuration
-			- write a snapshot when EInstein is closed (only then and only if quickboot is enabled)
-			- if a quickboot didi not work, make sure that we use regular boot the next time around
-		- full snapshots contains everything including ROM and Flash data and can be used for debugging or transfering entire machines
-			- make sure that existing configs are not overwritten when loading a snapshot
 	*/
 }
 

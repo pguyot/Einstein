@@ -55,6 +55,11 @@ public:
 	virtual ~TBufferedSoundManager( void );
 
 	///
+	/// Get a unique ID for every driver type
+	/// 
+	virtual KUInt32 GetID() { return 'BUFF'; }
+
+	///
 	/// Schedule output of some buffer (using address).
 	///
 	virtual void	ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize );

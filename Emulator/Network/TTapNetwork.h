@@ -86,6 +86,11 @@ public:
 	virtual ~TTapNetwork();
 
 	///
+	/// Get a unique ID for every driver type
+	/// 
+	virtual KUInt32 GetID() { return 'DTAP'; }
+
+	///
 	/// Newton sends a block of data.
 	/// This is a raw ethernet network datagram. The network manager is expected
 	/// to somehow send this package to the outside world.

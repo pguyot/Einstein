@@ -63,6 +63,11 @@ public:
     virtual ~TAndroidNativeScreenManager( void );
 
     ///
+    /// Get a unique ID for every driver type
+    /// 
+    virtual KUInt32 GetID() { return 'ANDN'; }
+
+    ///
     /// Notify that the tablet orientation changed.
     /// This method is called when the tablet driver calls SetTabletOrientation.
     ///

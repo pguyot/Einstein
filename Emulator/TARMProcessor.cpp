@@ -31,15 +31,13 @@
 	#include <unistd.h>
 #endif
 
-// K
-#include <K/Streams/TStream.h>
-
 // Einstein
 #include "Emulator/Log/TLog.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/JIT/JIT.h"
 #include "Emulator/ROM/TROMImage.h"
 #include "Monitor/TSymbolList.h"
+#include "Emulator/Files/TSnapshotFile.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -904,10 +902,10 @@ TARMProcessor::PrintRegisters()
 
 
 // -------------------------------------------------------------------------- //
-//  * V3: TransferState( TStream* )
+//  * V3: TransferState( TSnapshotFile* )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::TransferState( TStream* inStream ) 
+TARMProcessor::TransferState(TSnapshotFile* inStream )
 {
 	KUInt32 tmp;
 	

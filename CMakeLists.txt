@@ -67,6 +67,8 @@ endif()
 set ( sources
 	Emulator/Files/TFileManager.cpp
 	Emulator/Files/TFileManager.h
+	Emulator/Files/TSnapshotFile.cpp
+	Emulator/Files/TSnapshotFile.h
 	Emulator/Host/THostInfo.cpp
 	Emulator/Host/THostInfo.h
 	Emulator/Host/UserInfoDefinitions.h

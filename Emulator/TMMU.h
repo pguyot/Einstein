@@ -38,7 +38,7 @@
 #include "TMemoryConsts.h"
 #include "THashMapCache.h"
 
-class TStream;
+class TSnapshotFile;
 class TMemory;
 
 ///
@@ -278,7 +278,7 @@ public:
 	///
 	/// Save or restore the state of the MMU.
 	///
-	void		TransferState( TStream* inStream );
+	void		TransferState(TSnapshotFile* inStream );
 		
 	///
 	/// Dump the entire MMU Lookup Table to a File

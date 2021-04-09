@@ -532,7 +532,7 @@
 	#define HAS_COND_TIMEDWAIT_RELATIVE_NP 0
 #endif
 
-#include <cstdint>
+#include <stdint.h>
 
 typedef	uint64_t	KUInt64;
 typedef	int64_t		KSInt64;

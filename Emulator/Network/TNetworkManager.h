@@ -66,6 +66,11 @@ public:
 	}
 
 	///
+	/// Get a unique ID for every driver type
+	/// 
+	virtual KUInt32 GetID() { return 'NULL'; }
+
+	///
 	/// Set the interrupt manager.
 	/// This method is called once the interrupt manager is created.
 	///
