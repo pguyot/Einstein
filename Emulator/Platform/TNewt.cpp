@@ -102,7 +102,7 @@ void TNewt::SetEmulator(TEmulator *inEmulator)
 
 
 /**
- Add a Ref to the Garbe Collection system and mark it used.
+ Add a Ref to the Garbage Collection system and mark it used.
  */
 VAddr TNewt::AllocateRefHandle(NewtRef r)
 {

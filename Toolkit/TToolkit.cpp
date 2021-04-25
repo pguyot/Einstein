@@ -157,6 +157,7 @@ void TToolkit::Show()
         wScriptPanel->SetScript(mCurrentScript);
         mCurrentScript->SetPanel( wScriptPanel );
         mCurrentScript->SetSourceCode(TToolkitPrototype::HelloWorld);
+        mCurrentScript->ClearDirty();
         //mCurrentScript->LoadFile("/Users/matt/dev/newton-test/mini.ns");
 
         wToolkitWindow->show();
@@ -676,19 +677,20 @@ int TToolkit::UserActionDecompilePkg()
         return -1;
 
     const char *cmd =
-    "global _STDERR_ := \"\";\n"
-    "global _STDOUT_ := \"\";\n"
-    "printDepth := 9999;\n"
-    "printLength := 9999;\n"
-    "printBinaries := 1;\n"
-    "printUnique := 1;\n"
-    "pkg := ReadPkg(LoadBinary(\"%s\"));\n"
-    "print(\"//\\n// This NewtonScript code was created by decompiling\\n\");\n"
-    "print(\"// %s\\n//\\n\\n\");\n"
-    "print(\"newt.app := \\n\");\n"
-    "p(pkg);\n"
-    "print(\";\\n\");\n"
-    ;
+        "global _STDERR_ := \"\";\n"
+        "global _STDOUT_ := \"\";\n"
+        "printDepth := 9999;\n"
+        "printLength := 9999;\n"
+        "printBinaries := 1;\n"
+        "printUnique := 1;\n"
+        "pkg := ReadPkg(LoadBinary(\"%s\"));\n"
+        "global _STDOUT_ := \"\";\n"
+        "print(\"//\\n// This NewtonScript code was created by decompiling\\n\");\n"
+        "print(\"// %s\\n//\\n\\n\");\n"
+        "print(\"newt.app := \\n\");\n"
+        "p(pkg);\n"
+        "print(\";\\n\");\n"
+        ;
     char *buf = (char*)::malloc(strlen(cmd)+2*FL_PATH_MAX);
     sprintf(buf, cmd, filename, filename);
 
@@ -710,6 +712,7 @@ int TToolkit::UserActionDecompilePkg()
     if (NewtRefIsString(outRef)) {
         const char *outStr = NewtRefToString(outRef);
         mCurrentScript->SetSourceCode(outStr);
+        mCurrentScript->ClearDirty();
     }
 
     newtRef errRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDERR_));

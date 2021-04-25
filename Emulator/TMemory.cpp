@@ -989,6 +989,7 @@ TMemory::ReadP( PAddr inAddress, Boolean& outFault )
 		return 0;
 	} else if (inAddress < TMemoryConsts::kPCMCIA1Base) {
 #if kNbSockets > 0
+		// This is the upper port on MessagePad 2x00
 		return mPCMCIACtrls[0]->Read( inAddress - TMemoryConsts::kPCMCIA0Base );
 #else
 		return 0;
@@ -1287,6 +1288,29 @@ TMemory::ReadROMRAMP( PAddr inAddress, Boolean& outFault )
 		} else {
 			return *((KUInt32*) ((KUIntPtr) mRAMOffset + inAddress));
 		}
+#if 1
+	// The code in this block allow the emulatore to run RM code in PCMCIA Card memeory which may happen for ROM cards
+	} else if (inAddress < TMemoryConsts::kPCMCIA0Base) {
+		if (mLog)
+		{
+			mLog->FLogLine(
+				"Read word access between RAM and PCMCIA at P0x%.8X",
+				(unsigned int)inAddress);
+		}
+		return 0;
+	} else if (inAddress < TMemoryConsts::kPCMCIA1Base) {
+#if kNbSockets > 0
+		return mPCMCIACtrls[0]->Read(inAddress - TMemoryConsts::kPCMCIA0Base);
+#else
+		return 0;
+#endif
+	} else if (inAddress < TMemoryConsts::kPCMCIA2Base) {
+#if kNbSockets > 1
+		return mPCMCIACtrls[1]->Read(inAddress - TMemoryConsts::kPCMCIA1Base);
+#else
+		return 0;
+#endif
+#endif
 	} else {
 		if (mLog)
 		{

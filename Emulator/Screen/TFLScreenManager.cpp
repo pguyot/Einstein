@@ -176,7 +176,7 @@ public:
 			static int useGDI = -1; // initially, we don't know
 			if (useGDI == -1) {
 				useGDI = ((GetDeviceCaps(fl_gc, RASTERCAPS) & RC_STRETCHDIB) != 0);
-				OutputDebugString(useGDI ? "Using accelerated image scaling" : "Using FLTK image scaling\n");
+				OutputDebugString(useGDI ? "Using accelerated image scaling\n" : "Using FLTK image scaling\n");
 			}
 			if (useGDI == 1) {
 				float s = fl_graphics_driver->scale();

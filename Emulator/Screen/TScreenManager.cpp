@@ -27,15 +27,30 @@
 // front of the display. The viewing area of the display is 129mm x 87mm.
 // The screen diagonal is about 6.1 inches.
 //
-// Markings on the display are 4C112522AH52, LCDFAT650MC, an M650-LOA, 93 11 18
-// LM48019K STN480X C, 97H00928 a, 5.4"
+// The display is a Sharp LM48019K 5.4" transflective STN (although the visible
+// area is 87x128mm, making this a 5.9" diagonal
 //
 // The display data is sent via a AWM 2896 80C VW 1 flatband cable (20pin).
-// Backlight and touchscreen use additional wires.
+// Backlight and touchscreen are seperate parts and use additional wires.
 //
-// ??? Sharp LM5H40TA LQ057V3DG02, similar (same?) pinout
-// SHARP 5.5 inch display panel recommendation:
-// LS055R1SX04 LS055R1SX03 LS055T1SX01 LS055R3SX01 LQ055K3SX02 LQ055T3SX02 LS055R1SC01 LQ055T3SX03 LQ055T3SX02Z LM32C041 LS055T3SX05 LS055D1SX02 LS055R3SX01 (G) LM6Q32 LS055R1SX08 LS055T1SX01A LS055D1SX05(G) LM6Q401 LM32C04P LM6Q40A LQ055W1GC01 LS055T1SX10 LQ055T3SX02Z(G) LS055D1SX04 LS055T3SX13 LS055T3SX09 LQ055T3SX05 LS055T1SX13 LQ055W1GC01Z LM5H40TA LM5H40TB LM6Q31 LM6Q33 LM6Q35 LM6Q40 LQ055T1SX05 LQ055T3SX02(G) LS055T3SX01(G) LS055T1SX09
+// I found an interesting display that may be modifiable to work with the Newton as a replacement with higher contrast:
+// The display is a LCBFAT650MC M650-LOA by Nanya (Nan Ya)
+// Other markings on the display are 4C112522AH52 and 93 11 18
+// (seen for example at Elecok.com in April 2021 for 158$US (ugh))
+// The display area is about 6mm smaller in H and V. It's color and backlit and may need
+// a FGPA to convert the relatively similar display signals. Some case modification
+// is likely needed as well.
+//
+// Same size and resolution, but no datasheet: LM48014F, LM480171, LM480172 
+// LM5H40TA and B have a similar size and a datasheet online, but they are only black and white, no gray
+//
+// LQ057V3DG01 and LQ057V3DG02 have the correct active area (defined at a diagonal of 5.7"), but 640x480 resolution
+// (Here, LQ is the technology, 057 is 5.7" diagonal, V is the resolution (K would be 480x320, HVGA), followed by Mode, Input, Coating, and Model)
+// 
+// The S57001A112G56C1T5 by Laibao is correct size, resolution, and grayscale, and supposedly in production. 
+// Can't find a datasheet though (or any other information).
+//
+// https://www.panelook.com/
 //
 
 #include "TScreenManager.h"

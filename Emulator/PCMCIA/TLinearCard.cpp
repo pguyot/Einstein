@@ -333,7 +333,14 @@ TLinearCard::ReadMem( KUInt32 inOffset )
     switch (mState) {
         case kReadArray:
             if (inOffset<mSize) {
-                v = (mMemoryMap[inOffset]<<24) | (mMemoryMap[inOffset+1]<<16) | (mMemoryMap[inOffset+2]<<8) | (mMemoryMap[inOffset+3]<<0);
+               // v = (mMemoryMap[inOffset] << 24) | (mMemoryMap[inOffset + 1] << 16) | (mMemoryMap[inOffset + 2] << 8) | (mMemoryMap[inOffset + 3] << 0);
+               // v = (mMemoryMap[inOffset] << 0) | (mMemoryMap[inOffset + 1] << 8) | (mMemoryMap[inOffset + 2] << 16) | (mMemoryMap[inOffset + 24] << 0);
+               // v = (mMemoryMap[inOffset] << 16) | (mMemoryMap[inOffset + 1] << 24) | (mMemoryMap[inOffset + 2] << 0) | (mMemoryMap[inOffset + 3] << 8);
+               // v = (mMemoryMap[inOffset] << 8) | (mMemoryMap[inOffset + 1] << 0) | (mMemoryMap[inOffset + 2] << 24) | (mMemoryMap[inOffset + 3] << 16);
+                v = (mMemoryMap[inOffset] << 24) | (mMemoryMap[inOffset + 1] << 8) | (mMemoryMap[inOffset + 2] << 16) | (mMemoryMap[inOffset + 3] << 0);
+               // v = (mMemoryMap[inOffset] << 24) | (mMemoryMap[inOffset + 1] << 16) | (mMemoryMap[inOffset + 2] << 8) | (mMemoryMap[inOffset + 3] << 0);
+               // v = (mMemoryMap[inOffset] << 24) | (mMemoryMap[inOffset + 1] << 16) | (mMemoryMap[inOffset + 2] << 8) | (mMemoryMap[inOffset + 3] << 0);
+               // v = (mMemoryMap[inOffset] << 24) | (mMemoryMap[inOffset + 1] << 16) | (mMemoryMap[inOffset + 2] << 8) | (mMemoryMap[inOffset + 3] << 0);
             } else {
                 v = 0;
             }
