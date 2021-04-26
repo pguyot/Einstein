@@ -256,6 +256,7 @@ void TFLSettings::loadPreferences()
         screen.get("height", screenHeight, 480);
         screen.get("fullScreen", fullScreen, 0);
         screen.get("hideMouse", hideMouse, 0);
+        screen.get("quickStart", quickStart, 0);
 
         screen.get("AppWindowPosX", mAppWindowPosX, 150);
         screen.get("AppWindowPosY", mAppWindowPosY, 150);
@@ -323,6 +324,7 @@ void TFLSettings::savePreferences()
         screen.set("height", screenHeight);
         screen.set("fullScreen", fullScreen);
         screen.set("hideMouse", hideMouse);
+        screen.set("quickStart", quickStart);
 
         screen.set("AppWindowPosX", mAppWindowPosX);
         screen.set("AppWindowPosY", mAppWindowPosY);

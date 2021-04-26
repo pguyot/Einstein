@@ -360,6 +360,10 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
               label {Break at ROMBoot}
               xywh {145 195 196 20} down_box DOWN_BOX labelsize 13 deactivate
             }
+            Fl_Check_Button wQuickStart {
+              label {Quick Start (beta)}
+              xywh {120 220 196 20} down_box DOWN_BOX labelsize 13
+            }
             Fl_Box {} {
               label {add screen scale}
               xywh {112 186 204 28} hide
@@ -857,6 +861,7 @@ wFullScreen->value(fullScreen);
 wHideMouse->value(hideMouse);
 wLaunchMonitorAtBoot->value(mLaunchMonitorAtBoot);
 wBreatAtROMBoot->value(mBreatAtROMBoot);
+wQuickStart->value(quickStart);
 
 if (RAMSize<=16)
 	wRAMSizeChoice->value(0);
@@ -895,6 +900,7 @@ fullScreen = wFullScreen->value();
 hideMouse = wHideMouse->value();
 mLaunchMonitorAtBoot = wLaunchMonitorAtBoot->value();
 mBreatAtROMBoot = wBreatAtROMBoot->value();
+quickStart = wQuickStart->value();
 
 const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
 if (m)
@@ -930,7 +936,7 @@ win->hide();} {}
     Fl_Window wAbout {
       user_data wAbout
       callback {o->hide();} open
-      xywh {484 208 335 200} type Double non_modal visible
+      xywh {484 208 335 200} type Double hide non_modal
     } {
       Fl_Box {} {
         image {../Resources/icons/EinsteinApp64.png} xywh {133 5 69 75}

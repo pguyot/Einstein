@@ -136,6 +136,7 @@ public:
     int screenWidth;
     int screenHeight;
     int hideMouse;
+    int quickStart = 0;
     int fullScreen;
     int RAMSize;
     int dontShow;
