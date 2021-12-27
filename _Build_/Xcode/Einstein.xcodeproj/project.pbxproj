@@ -115,6 +115,9 @@
 		C94C96DD20937E780099001D /* TPtySerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C94C96DB20937E780099001D /* TPtySerialPortManager.cpp */; };
 		C962429711B69A9D00EE66F3 /* TUsermodeNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C962429511B69A9D00EE66F3 /* TUsermodeNetwork.cpp */; };
 		C96242A011B6A20A00EE66F3 /* TNetworkManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cpp */; };
+		C97F21B92779F63900539FAB /* TNewt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C93AAD84242D7F4000B77558 /* TNewt.cpp */; };
+		C97F21BA2779F65400539FAB /* TSerialPorts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C92FD821242D50CF00D18F58 /* TSerialPorts.cpp */; };
+		C97F21BB2779F66600539FAB /* TTcpClientSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99656A024258CC900D216A2 /* TTcpClientSerialPortManager.cpp */; };
 		C9869C9A25FC2B9E0061F7E6 /* CRC32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9869C9925FC2B9E0061F7E6 /* CRC32.cpp */; };
 		C9869C9B25FC2B9E0061F7E6 /* CRC32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9869C9925FC2B9E0061F7E6 /* CRC32.cpp */; };
 		C9869C9C25FC2B9E0061F7E6 /* CRC32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9869C9925FC2B9E0061F7E6 /* CRC32.cpp */; };
@@ -2106,6 +2109,7 @@
 				234B67611CFA4F06007A835B /* TFileManager.cpp in Sources */,
 				2389E9431A1E4D4A0001A8C5 /* UDisasm.cpp in Sources */,
 				2389E9441A1E4D4A0001A8C5 /* TIOException.cpp in Sources */,
+				C97F21B92779F63900539FAB /* TNewt.cpp in Sources */,
 				2389E9451A1E4D4A0001A8C5 /* TException.cpp in Sources */,
 				2389E9461A1E4D4A0001A8C5 /* TError.cpp in Sources */,
 				2389E9471A1E4D4A0001A8C5 /* TEOFException.cpp in Sources */,
@@ -2121,6 +2125,7 @@
 				2389E9511A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer.cpp in Sources */,
 				2389E9521A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp in Sources */,
 				2389E9531A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp in Sources */,
+				C97F21BB2779F66600539FAB /* TTcpClientSerialPortManager.cpp in Sources */,
 				2389E9541A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp in Sources */,
 				DA52C8931A409164008A17D0 /* TJITGenericROMPatch.cpp in Sources */,
 				2389E9551A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_MRS.cpp in Sources */,
@@ -2181,6 +2186,7 @@
 				2389E9871A1E4D4A0001A8C5 /* TCircleBuffer.cpp in Sources */,
 				2389E9881A1E4D4A0001A8C5 /* TMappedFile.cpp in Sources */,
 				2389E9891A1E4D4A0001A8C5 /* TSymbolList.cpp in Sources */,
+				C97F21BA2779F65400539FAB /* TSerialPorts.cpp in Sources */,
 				2389E98A1A1E4D4A0001A8C5 /* TJITPerformance.cpp in Sources */,
 				2389E98B1A1E4D4A0001A8C5 /* TFiber.cpp in Sources */,
 			);
@@ -2519,6 +2525,8 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 2021.12;
+				DEVELOPMENT_TEAM = BK4ST6N599;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
@@ -2541,9 +2549,10 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 2021.12;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.stevenf.einstein;
+				PRODUCT_BUNDLE_IDENTIFIER = com.matthiasm.einstein;
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
@@ -2560,7 +2569,9 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				CURRENT_PROJECT_VERSION = 2021.12;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = BK4ST6N599;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2579,10 +2590,11 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 2021.12;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.stevenf.einstein;
+				PRODUCT_BUNDLE_IDENTIFIER = com.matthiasm.einstein;
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
@@ -2601,7 +2613,9 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				CURRENT_PROJECT_VERSION = 2021.12;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = BK4ST6N599;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2620,10 +2634,11 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../../Resources/iOSEinstein Storyboards-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 2021.12;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.stevenf.einstein;
+				PRODUCT_BUNDLE_IDENTIFIER = com.matthiasm.einstein;
 				PRODUCT_NAME = iOSEinstein;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;

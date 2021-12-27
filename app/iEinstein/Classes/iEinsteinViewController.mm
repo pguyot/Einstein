@@ -270,18 +270,31 @@
 	NSFileManager* theFileManager = [NSFileManager defaultManager];
     
     if ([theFileManager fileExistsAtPath:theROMPath]) {
+#if 0
         mROMImage = new TFlatROMImageWithREX(
 							[theROMPath fileSystemRepresentation],
 							[einsteinRExPath fileSystemRepresentation],
 							"717006", false,
 							[theImagePath fileSystemRepresentation]);
+#else
+		mROMImage = new TFlatROMImageWithREX(
+											 [theROMPath fileSystemRepresentation],
+											 [einsteinRExPath fileSystemRepresentation]);
+#endif
     } else if ([theFileManager fileExistsAtPath:theDebugROMPath]
              &&[theFileManager fileExistsAtPath:theDebugHighROMPath]) {
+#if 0
         mROMImage = new TAIFROMImageWithREXes(
                             [theDebugROMPath fileSystemRepresentation],
                             [theDebugHighROMPath fileSystemRepresentation],
                             [einsteinRExPath fileSystemRepresentation],
                             "717006" );
+#else
+		mROMImage = new TAIFROMImageWithREXes(
+											  [theDebugROMPath fileSystemRepresentation],
+											  [theDebugHighROMPath fileSystemRepresentation],
+											  [einsteinRExPath fileSystemRepresentation]);
+#endif
     } else {
         fprintf(stderr, "ROM file required here:\n %s\nor here:\n %s\n %s\n\n",
                 [theROMPath fileSystemRepresentation],
@@ -300,7 +313,7 @@
 
 	// Create the network manager.
 	
-	mNetworkManager = new TNullNetwork(mLog);
+	mNetworkManager = new TNullNetworkManager(mLog);
 
 	// Create the sound manager.
 	
@@ -345,7 +358,11 @@
 	mEmulator = new TEmulator(
 					mLog, mROMImage, [theFlashPath fileSystemRepresentation],
 					mSoundManager, mScreenManager, mNetworkManager, 0x40 << 16);
-					
+
+	mEmulator->SerialPorts.Initialize(TSerialPorts::kTcpClientDriver,
+									  TSerialPorts::kNullDriver,
+									  TSerialPorts::kNullDriver,
+									  TSerialPorts::kNullDriver );
 	mPlatformManager = mEmulator->GetPlatformManager();
     mPlatformManager->SetDocDir([docdir fileSystemRepresentation]);
     

@@ -18,10 +18,12 @@
 	<string>iOSEinstein</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>iOSEinstein 2021.12</string>
 	<key>CFBundleSignature</key>
 	<string>FLID</string>
 	<key>CFBundleVersion</key>
-	<string>2017.1.0</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>Icon files</key>
 	<array>
 		<string>Icon.png</string>
