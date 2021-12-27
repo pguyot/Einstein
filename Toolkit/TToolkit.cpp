@@ -125,6 +125,7 @@ void TToolkit::Show()
         mCurrentScript->SetPanel( wScriptPanel );
         mCurrentScript->SetSourceCode(TToolkitPrototype::HelloWorld);
         //mCurrentScript->LoadFile("/Users/matt/dev/newton-test/mini.ns");
+        mCurrentScript->ClearDirty();
 
         wToolkitWindow->show();
         wToolkitWindow->resize(x, y, w, h);
@@ -447,7 +448,14 @@ void TToolkit::AppBuild()
     src.append( TToolkitPrototype::BytecodeDefs );
     src.append( TToolkitPrototype::ToolkitDefs );
     src.append( TToolkitPrototype::DefaultPackage );
+  if (mCurrentScript->GetFilename()) {
+    char buf[FL_PATH_MAX];
+    strcpy(buf, mCurrentScript->GetFilename());
+    fl_filename_setext(buf, FL_PATH_MAX, ".pkg");
+    SetPkgPath(buf);
+  } else {
     SetTempPkgPath();
+  }
     sprintf(buf, "newt.pkgPath := \"%s\";\n", mPkgPath);
     src.append( buf );
     src.append( TToolkitPrototype::ToolkitLaunch );
@@ -704,6 +712,7 @@ void TToolkit::LoadSampleCode(int n)
     switch (n) {
         case 1:
             wScriptPanel->SetSourceCode(TToolkitPrototype::HelloWorld);
+            wScriptPanel->SetDirty();
             break;
     }
 }

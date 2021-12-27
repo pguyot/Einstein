@@ -79,7 +79,12 @@ void TFLScriptPanel::SetSourceCode(const char *sourcecode)
 
 void TFLScriptPanel::SetDirty()
 {
-    mScript->SetDirty();
+  mScript->SetDirty();
+}
+
+void TFLScriptPanel::ClearDirty()
+{
+    mScript->ClearDirty();
 }
 
 

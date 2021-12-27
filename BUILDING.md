@@ -28,7 +28,7 @@ emulating PCMCIA Flash Memory cards, or would like to try
 some programming in NewtonScript, Einstein with FLTK is the better choice.
 
 
-## Building Einstein on macOS in 64 bit with Xcode
+## Building Einstein with FLTK on macOS in 64 bit with Xcode
 
 Tested on macOS 10.15.3 Catalina with Xcode 11.4.
 
@@ -355,14 +355,18 @@ to the Android build for a while.
 
 ## Building Einstein for iOS
 
-Not yet tested on macOS 10.15.3 Catalina with Xcode 11.4.
+Tested on Dec 27 2021, compiled 12.0.1 Monterey and M1 CPU, 
+running on iPhone 13 Max Pro with iOS 15.2
 
-Install Xcode from the Apple AppStore and load the ```_Build_/Xcode/Einstein.xcodeproj```
-project file. Switching the Target to iOS should produce an iOS version
-of Einstein. 
+ - install the Xcode developer environment from teh Apple AppStore, it's free
+ - make sure you also install the command line tools, so you have `git` available
+ - in the shell, do ```git clone https://github.com/pguyot/Einstein.git Einstein4iOS```
+ - in the shell, do ```open Einstein4iOS/_Build_/Xcode/Einstein.xcodeproj```
+ - now in Xcode, select the ```iOSEinstein``` scheme and your phone as your target
+ - you may have to change details for the Target Settings in the *Signing* tab
+ - build and run Einstein for your phone - it will fail, but now Finder will
+   show the directory that you need to install the ```717006.rom``` file.
 
-Note that changes in the source tree are sometimes not propageted
-to the iOS build for a while.
 
 
 

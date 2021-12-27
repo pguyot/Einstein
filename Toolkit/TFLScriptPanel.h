@@ -54,6 +54,7 @@ public:
     char *DupSourceCode();
     void SetSourceCode(const char *sourcecode);
     void SetDirty();
+    void ClearDirty();
     
 private:
     TFLScriptEditor *mEditor = nullptr;
