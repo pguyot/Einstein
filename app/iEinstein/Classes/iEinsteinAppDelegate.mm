@@ -114,7 +114,9 @@
     } else {
         [viewController startEmulator];
     }
-    [viewController installNewPackages];
+	// The platform manager will install new packages as soon as the emlator booted.
+	// See: void TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
+    // [viewController installNewPackages];
 }
 
 - (void)share: (NSString*)data {
