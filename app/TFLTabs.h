@@ -54,8 +54,9 @@ protected:
     void draw() override;
     int handle(int inEvent) override;
 
-    char mTopID[32] = { 0 };
-    char mBottomID[32] = { 0 };
+    static constexpr int kIDSize = 32;
+    char mTopID[kIDSize] = { 0 };
+    char mBottomID[kIDSize] = { 0 };
 };
 
 #endif /* TFLTabs_hpp */

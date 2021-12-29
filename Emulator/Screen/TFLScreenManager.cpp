@@ -69,16 +69,9 @@
 // FLTK Class
 // -------------------------------------------------------------------------- //
 
-// FLTK had (has) a bug where the keycode for single quote, back quote, and backslash were (are) mixed up
-#if TARGET_OS_WIN32_NO_MORE
-#define vkTick 0x2A
-#define vkBackTick 0x27
-#define vkBackSlash 0x32
-#else 
 #define vkTick 0x27
 #define vkBackTick 0x32
 #define vkBackSlash 0x2A
-#endif
 
 static const struct {unsigned short vk, fltk;} vktab[] = {
     { 49, ' ' }, { vkTick, '\"' }, { vkTick, '\'' }, { 24, '+'}, { 43, ',' }, { 27, '-' }, { 47, '.' }, { 44, '/' },

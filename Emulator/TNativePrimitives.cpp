@@ -649,6 +649,10 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			
 		case 0x0A:
 			{
+        // Boot process powers system up in this order: 0x1d, 0x01, 0x23, 0x22
+        // Power swicth on events create the same event order
+        // Inserting a PCMCIA card powers up 0x1d
+        // Starting "Dock" creates 0x1d, starting serial com generates 0x01, 0x23, 0x22
 				KUInt32 theSubsystem = mProcessor->GetRegister(1);
 				if (mLog)
 				{
@@ -661,6 +665,12 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 					mMemory->PowerOnFlash();
 //					mEmulator->BreakInMonitor();
 				}
+        if (theSubsystem == 0x23)
+        {
+          // the system is up and running, check if we missed any Einstein events
+          // and they are still pending in the queue
+          mPlatformManager->UnlockQueueBootLock();
+        }
 				mProcessor->SetRegister( 0, 0 );
 			}
 			break;

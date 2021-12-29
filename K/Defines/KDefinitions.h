@@ -121,24 +121,24 @@
 	#define	TARGET_OS_OPENSTEP 1
 #endif
 
-#if TARGET_OS_OPENSTEP_I386
+#if defined(TARGET_OS_OPENSTEP_I386) && TARGET_OS_OPENSTEP_I386
         #define	TARGET_OS_OPENSTEP 1
 #endif
 
-#if TARGET_OS_OPENSTEP_ARM
+#if defined(TARGET_OS_OPENSTEP_ARM) && TARGET_OS_OPENSTEP_ARM
         #define	TARGET_OS_OPENSTEP 1
 #endif
 
-#if DARWIN
+#if defined(DARWIN) && DARWIN
     #define TARGET_OS_OPENSTEP 1
 #endif
 
-#if TARGET_OS_MACOS
+#if defined(TARGET_OS_MACOS) && TARGET_OS_MACOS
 	#define TARGET_OS_MAC 1
 	#define TARGET_API_MAC_OS8 1
 #endif
 
-#if TARGET_OS_OPENSTEP
+#if defined(TARGET_OS_OPENSTEP) && TARGET_OS_OPENSTEP
 	#define TARGET_OS_MAC 1
 	#define TARGET_API_MAC_CARBON 1
 	#define TARGET_API_MAC_OSX 1
@@ -174,7 +174,7 @@
 	#endif
 #endif
 
-#if TARGET_OS_NEWTON
+#if defined(TARGET_OS_NEWTON) && TARGET_OS_NEWTON
 	#define TARGET_OS_BEOS 0
 	#define TARGET_OS_MACOS 0
 	#define TARGET_OS_OPENSTEP 0
@@ -210,7 +210,7 @@
 #endif
 
 #if TARGET_OS_MAC
-	#if TARGET_OS_MACOS
+	#if defined(TARGET_OS_MACOS) && TARGET_OS_MACOS
 		#include <ConditionalMacros.h>
 	#endif
 	#if TARGET_OS_OPENSTEP

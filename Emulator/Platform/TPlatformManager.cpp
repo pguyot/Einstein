@@ -114,7 +114,6 @@ KUInt32 TPlatformManager::GetVersion()
 	return 5;
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * GetNextEvent( KUInt32 )
 // -------------------------------------------------------------------------- //
@@ -153,9 +152,9 @@ TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
 					*theEventAsLongs++ );
 			outEventPAddr += 4;
 		}
-		// FIXME: can the event be deleted after it was copied? Is it deleted elsewhere?
-	} else {
-		// FIXME: this code is never reached
+	}
+  if (mEventQueueCCrsr == mEventQueuePCrsr)
+  {
 		// Reached the end.
 		// Reset the cursors.
 		mEventQueuePCrsr = 0;
@@ -302,6 +301,8 @@ TPlatformManager::AddBuffer( KUInt32 inSize, const KUInt8* inData )
 void
 TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inData )
 {
+  assert(inSize<=kMAXEVENTSIZE);
+
 	mMutex->Lock();
 
 	// Append the Event to the Einstein Platform queue
@@ -324,7 +325,7 @@ TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inDa
 	
 	// Trigger the Platform Interrupt to let NewtonOS know that a new event is pending.
 	//
-	// NewtonOS can only handle one interrupt at a time, so a locking echanism ensures
+	// NewtonOS can only handle one interrupt at a time, so a locking mechanism ensures
 	// that only one event is handled at a time.
 	//
 	// mQueuePreLock protects NewtonOS from repeated interrupts as soon as the current 
@@ -332,8 +333,12 @@ TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inDa
 	//
 	// mQueueLockCount is a recursive lock that protects the NewtonOS interrupt routine 
 	// in ./Drivers/TMainPlatformDriver::InterruptHandler.cpp: TMainPlatformDriver::InterruptHandler()
+  //
+  // If an event is sent before NewtonOS booted, the system will lock up.
+  // mQueueBootLock is initially set to protect the queue until boot is completed.
+  // Pending events will be triggered when the boot lock is cleared.
 
-	if ( (mQueuePreLock==false) && (mQueueLockCount==0) ) {
+	if ( (mQueuePreLock==false) && (mQueueLockCount==0) && (mQueueBootLock==0)) {
 		mQueuePreLock = true;
 		RaisePlatformInterrupt();
 	}
@@ -525,7 +530,7 @@ TPlatformManager::UnlockEventQueue( void )
 		mQueueLockCount--;
 
 	// as soon as the lock is completely unlocked, we can trigger more pending interrupts
-	if (mQueueLockCount == 0) 
+	if (mQueueLockCount==0 && mQueueBootLock==0)
 	{
 		// allow Einstein to trigger new interrupts
 		mQueuePreLock = false;
@@ -542,6 +547,21 @@ TPlatformManager::UnlockEventQueue( void )
 		}
 
 	mMutex->Unlock();
+}
+
+// -------------------------------------------------------------------------- //
+//  * UnlockQueueBootLock()
+// -------------------------------------------------------------------------- //
+void
+TPlatformManager::UnlockQueueBootLock()
+{
+    if (mQueueBootLock) {
+        LockEventQueue();
+        mMutex->Lock();
+        mQueueBootLock = 0;
+        mMutex->Unlock();
+        UnlockEventQueue();
+    }
 }
 
 // -------------------------------------------------------------------------- //

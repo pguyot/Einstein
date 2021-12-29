@@ -134,8 +134,11 @@ public:
 	 * 
 	 * These kind of Platform Interrupts send keyboard events, run
 	 * NewtonScript snippets, and install packages.
+   *
+   * The event queue is locked initially. NewtonOS will unlock it in the last
+   * phase of booting.
 	 * 
-	 * \see UnlockEventQueue()
+	 * \see UnlockEventQueue(), UnlockQueueBootLock()
 	 * \see TNativePrimitives::ExecutePlatformDriverNative()
 	 * \see TPlatformManager::NewtonScriptCall()
 	 */
@@ -149,9 +152,15 @@ public:
 	 * pending, the next event in the list is sent by triggering
 	 * a Platform Interrupt.
 	 *
-	 * \see LockEventQueue()
+	 * \see LockEventQueue(), UnlockQueueBootLock()
 	 */
 	void UnlockEventQueue();
+
+  /**
+   * Unlock the event queue as soon as the boot process is complete.
+   * \see LockEventQueue(), UnlockEventQueue()
+   */
+  void UnlockQueueBootLock();
 
 	///
 	/// Get some information about the user.
@@ -333,8 +342,9 @@ private:
 	KUInt32				mBufferNextID = 0;		    ///< Next ID for buffers.
 	Boolean				mPowerOn = true;			///< If power is on.
 	Boolean				mQueuePreLock = false;		///< Non-recursive lock to keep interrupts from triggering twice 
-	KUInt32				mQueueLockCount = 0;	    ///< Lock count for the queue.
-	TMutex*				mMutex = nullptr;			///< Mutex of the queue.
+  KUInt32       mQueueLockCount = 0;      ///< Lock count for the queue
+  KUInt32       mQueueBootLock = 1;       ///< Start with a locked queue until NewtonOS finished booting.
+	TMutex*				mMutex = nullptr;			 ///< Mutex of the queue.
 	char*				mDocDir = nullptr;			///< Directory on host containing all kinds of documents
 };
 

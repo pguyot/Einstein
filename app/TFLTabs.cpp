@@ -76,7 +76,7 @@ void TFLPCMCIAButton::images(
 void TFLPCMCIAButton::setTopID(const char* label)
 {
     if (label) {
-        strncpy(mTopID, label, sizeof(mBottomID - 1));
+        strncpy(mTopID, label, kIDSize-1);
         mTopID[sizeof(mTopID) - 1] = 0;
     } else
         mTopID[0] = 0;
@@ -86,7 +86,7 @@ void TFLPCMCIAButton::setTopID(const char* label)
 void TFLPCMCIAButton::setBottomID(const char* label)
 {
     if (label) {
-        strncpy(mBottomID, label, sizeof(mBottomID-1));
+        strncpy(mBottomID, label, kIDSize-1);
         mBottomID[sizeof(mBottomID)-1] = 0;
     }
     else

@@ -192,7 +192,7 @@ wAbout = nullptr;} {}
             xywh {120 50 275 25}
           } {
             Fl_Input wMPConfigName {
-              label Configuration
+              label {Configuration: }
               tooltip {give this MessagePad configuration a name} xywh {120 50 160 25} color 53 deactivate
               code0 {o->value("default");}
             }
@@ -381,7 +381,7 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
             xywh {120 50 275 25}
           } {
             Fl_Input wUIConfigName {
-              label {Configuration }
+              label {Configuration: }
               tooltip {give this User Interface configuration a name} xywh {120 50 160 25} color 53 deactivate
               code0 {o->value("default");}
             }

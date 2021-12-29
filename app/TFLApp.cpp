@@ -46,9 +46,9 @@
 // TODO: option to load and save complete images including ROM, RAM, Flash, and PCMCIA memory snapshots
 // TODO: automated Internet access (install and setup)
 // TODO: add preferences to point to a UNNA archive image, so we can browse that and install quickly
-// TODO: add global functions to handle images, sounds and other external binary data
-// TODO: improve decompiler to generate external binary data and reference it
-// TODO: reverse bytecode to source code
+// TODO: Toolkit: add global functions to handle images, sounds and other external binary data
+// TODO: Toolkit: improve decompiler to generate external binary data and reference it
+// TODO: Toolkit: reverse bytecode to source code
 
 // ----- Major new Features
 // TODO: NTK Monitor
@@ -906,7 +906,7 @@ void TFLApp::InitSerialPorts()
                                       TSerialPorts::kNullDriver,
                                       TSerialPorts::kNullDriver );
 #if 0
-    // TODO: save the serial port setting in a save place
+    // TODO: save the serial port setting in a safe place
     TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
     if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
     {
