@@ -79,8 +79,23 @@ Newt64 will enable the built-in Developer Toolkit in Einstein
 and a few other features that depend on NewtonScript compilation features.
 
 Clone the Git repository in https://github.com/MatthiasWM/NEWT64.git, 
-build the library, and copy it to '/usr/local/lib/libnewt64.s'
-Also, copy all files in '.../src/newt_core/incs/' into '/usr/local/include/newt64/'.
+build the library with *CMake*, and copy it to ```/usr/local/lib/libnewt64.s```
+Also, copy all files in ```.../src/newt_core/incs/``` into ```/usr/local/include/newt64/```.
+
+On Windows machines, you will have to install the lex and yacc tools, i.e. GnuWin32's flexx and bison .
+
+```
+# -- Get the source code from GitHub
+git clone https://github.com/MatthiasWM/NEWT64.git Newt64
+cd Newt64/
+# -- Build release version
+mkdir _Build_; cd _Build_
+mkdir Release; cd Release
+cmake -DCMAKE_BUILD_TYPE=Release ../..
+cmake --build .
+# -- Install library and headers
+sudo cmake --install .
+```
 
 You may have to install libiconv, but it seemed to be installed already on my machine.
 
