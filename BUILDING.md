@@ -48,10 +48,8 @@ git clone https://github.com/fltk/fltk.git fltk
 # -- Go into the FLTK root directory
 cd fltk
 # -- Make sure that Einstein will run on older versions of MacOS
-# use this line if you build FLTK for macOS 10 (Mavericks all the way up to Catalina)
-ex -s -c '1i|set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)' -c x CMakeLists.txt
-# use this line if you build FLTK for macOS 11 (Big Sur and newer)
-ex -s -c '1i|set (CMAKE_OSX_DEPLOYMENT_TARGET 11.0)' -c x CMakeLists.txt
+# use the line below if you build FLTK for macOS 10 (Mavericks all the way up to Catalina)
+#ex -s -c '1i|set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)' -c x CMakeLists.txt
 # -- Create the CMake directory tree
 mkdir build
 cd build
