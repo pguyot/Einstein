@@ -63,6 +63,7 @@ void
 TFileLog::DoLogLine( const char* inLine )
 {
 	(void) ::fprintf( mFile, "%s\n", inLine );
+	(void) ::fflush( mFile );
 }
 
 // ========================================================================= //
