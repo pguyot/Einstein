@@ -14,11 +14,11 @@
 void TFLTabs::draw_tab(int x1, int x2, int W, int H, Fl_Widget* o, int what) {
     int sel = (what == 2); // SELECTED
     int dh = Fl::box_dh(box());
-    int dy = Fl::box_dy(box());
+//  int dy = Fl::box_dy(box());
     char prev_draw_shortcut = fl_draw_shortcut;
     fl_draw_shortcut = 1;
 
-    Fl_Boxtype bt = (o == push() && !sel) ? fl_down(box()) : box();
+//  Fl_Boxtype bt = (o == push() && !sel) ? fl_down(box()) : box();
     Fl_Color bc = sel ? selection_color() : o->selection_color();
 
     // Save the label color and label type

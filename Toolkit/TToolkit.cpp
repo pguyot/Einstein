@@ -427,7 +427,7 @@ void TToolkit::AppBuild()
     wToolkitTerminal->buffer()->text("");
 
     char buf[2*FL_PATH_MAX];
-    newtRefVar result;
+//  newtRefVar result;
     newtErr err;
     const char* argv[] = { "Einstein" };
     NewtInit(1, argv, 0);
@@ -478,7 +478,7 @@ void TToolkit::AppBuild()
     src.append( TToolkitPrototype::ToolkitDone );
 
     // FIXME: NVMInterpretStr sets _STDERR_ and _STDOUT_ to NIL
-    result = NVMInterpretStr(src.c_str(), &err);
+    /* result = */ NVMInterpretStr(src.c_str(), &err);
 
 //    puts(src.c_str());
 
@@ -650,6 +650,7 @@ int TToolkit::UserActionDecompilePkg()
     if (!filename)
         return -1;
 
+    // FIXME: the string must not be longer than 255 characters!
     const char *cmd =
     "global _STDERR_ := \"\";\n"
     "global _STDOUT_ := \"\";\n"
@@ -667,7 +668,7 @@ int TToolkit::UserActionDecompilePkg()
     char *buf = (char*)::malloc(strlen(cmd)+2*FL_PATH_MAX);
     sprintf(buf, cmd, filename, filename);
 
-    newtRefVar result;
+//  newtRefVar result;
     newtErr err;
     static const char *argv[] = { "Einstein", nullptr };
     int argc = 1;
@@ -677,7 +678,7 @@ int TToolkit::UserActionDecompilePkg()
     NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
     NsUndefGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
     NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
-    result = NVMInterpretStr(buf, &err);
+    /* result =*/ NVMInterpretStr(buf, &err);
 
     ::free(buf);
 

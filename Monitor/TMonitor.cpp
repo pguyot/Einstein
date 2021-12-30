@@ -1935,6 +1935,7 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 				return -1;
 			}
 			if (mapIndex <= 0) {
+                ::free(flattenMap);
 				return snprintf(buffer, bufferSize, "{frame with invalid map, length = %d}", length);
 			}
 			flattenMap[--mapIndex] = refValue;
@@ -2004,6 +2005,7 @@ TMonitor::FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 inAddr, unsign
 				char theLine[512];
 				(void) ::snprintf(theLine, sizeof(theLine), "Memory error while reading %.8X\n", (unsigned int) byteAddr);
 				PrintLine(theLine, MONITOR_LOG_ERROR);
+                ::free(symbolStr);
 				return -1;
 			}
 			if (i == (length - 1) && byte != 0) {

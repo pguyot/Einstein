@@ -1199,7 +1199,7 @@ static const char *tfl_file_chooser(const char *message, const char *pat, const 
             strncpy(fdir, fname, len);
             fdir[len] = 0;
         } else {
-            strcpy(name, n);
+            strcpy(name, fname);
         }
     }
 
