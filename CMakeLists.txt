@@ -18,8 +18,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	# MacOS
 	#set (CMAKE_OSX_ARCHITECTURES=x86_64)
 	#set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
-  set (CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
-  set (CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
+	set (CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
+	set (CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
 	#set (CMAKE_PREFIX_PATH /usr/local)
 
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -601,8 +601,15 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		dist
 		COMMAND ${CMAKE_COMMAND} -E tar "cfv" "/Users/matt/${EINSTEIN_DIST_DIR}/MacOS/Einstein.MacOS.${CMAKE_PROJECT_VERSION}.zip" --format=zip -- "Einstein.app"
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	)
+    )
     add_dependencies(dist Einstein)
+
+    if (${CMAKE_GENERATOR} STREQUAL "Xcode")
+        add_custom_target( XcodeFixIndentation
+            COMMAND ${CMAKE_HOME_DIRECTORY}/cmake/xcodeFixIndentation
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        )
+    endif ()
 
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 

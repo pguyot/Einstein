@@ -1,0 +1,37 @@
+#! /bin/bash
+# 
+# CMake generates no indent settings for Xcode.
+# This script fixes the Xcode project.pbxproj file.
+#
+# This can not be called automatically, so we will introduce a target just for this.
+
+PROJFILE="Einstein.xcodeproj/project.pbxproj"
+
+echo "Fixing source code indentation setting in Xcode project file..."
+echo `pwd`"/${PROJFILE}"
+
+if [ ! -f "${PROJFILE}" ]; then
+  echo "Aborting: $PROJFILE not found."
+  exit
+fi
+
+ROOTOBJ=`/usr/libexec/PlistBuddy -c "Print :rootObject" ${PROJFILE}`
+if [ -z "${ROOTOBJ}" ]; then
+  echo "Aborting: can't find rootObject in ${PROJFILE}."
+  exit
+fi
+
+MAINGROUP=`/usr/libexec/PlistBuddy -c "Print :objects:${ROOTOBJ}:mainGroup" ${PROJFILE}`
+if [ -z "${MAINGROUP}" ]; then
+  echo "Aborting: can't find mainGroup in ${PROJFILE}."
+  exit
+fi
+
+/usr/libexec/PlistBuddy -c "Delete :objects:${MAINGROUP}:indentWidth" ${PROJFILE}
+/usr/libexec/PlistBuddy -c "Add :objects:${MAINGROUP}:indentWidth integer 4" ${PROJFILE}
+/usr/libexec/PlistBuddy -c "Delete :objects:${MAINGROUP}:tabWidth" ${PROJFILE}
+/usr/libexec/PlistBuddy -c "Add :objects:${MAINGROUP}:tabWidth integer 4" ${PROJFILE}
+/usr/libexec/PlistBuddy -c "Delete :objects:${MAINGROUP}:usesTabs" ${PROJFILE}
+/usr/libexec/PlistBuddy -c "Add :objects:${MAINGROUP}:usesTabs integer 0" ${PROJFILE}
+
+echo "Done."
