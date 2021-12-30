@@ -27,6 +27,7 @@
 #include "TTkScript.h"
 
 #include <ctype.h>
+#include <cstdlib>
 
 
 // MARK: - TFLScriptPanel -

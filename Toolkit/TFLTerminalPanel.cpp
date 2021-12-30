@@ -22,6 +22,8 @@
 // ==============================
 
 
+#include <cstdlib>
+
 #include "Toolkit/TFLTerminalPanel.h"
 #include "Toolkit/TToolkit.h"
 
