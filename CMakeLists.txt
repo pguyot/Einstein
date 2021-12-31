@@ -7,7 +7,7 @@
 # FLTK as its cross-platform GUI for all three desktop platforms.
 #
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.13)
 
 project("Einstein" VERSION "2020.4.13")
 

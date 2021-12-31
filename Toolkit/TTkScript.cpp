@@ -22,6 +22,8 @@
 // ==============================
 
 
+#include <cstdlib>
+
 #include "TTkScript.h"
 
 #include "TToolkit.h"

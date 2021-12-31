@@ -73,7 +73,7 @@ extern "C" {
 #include <FL/Fl_File_Chooser.H>
 
 #include <errno.h>
-
+#include <cstdlib>
 
 Fl_Text_Buffer *gTerminalBuffer = nullptr;
 
