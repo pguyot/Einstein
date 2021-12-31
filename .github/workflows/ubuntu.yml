@@ -35,8 +35,6 @@ jobs:
                        -D OPTION_USE_SYSTEM_LIBPNG=Off
         cmake --build fltk/build
         sudo cmake --install fltk/build
-        # FIXME: fix this in installing FLTK
-        sudo ln -f -s /usr/local/bin/fluid.app/Contents/MacOS/fluid /usr/local/bin/fluid
     - name: Compile newt64
       run: |
         cmake -S newt64 -B newt64/build
