@@ -26,7 +26,7 @@ jobs:
         path: newt64
     - name: Compile FLTK
       run: |
-        cmake -S fltk -B fltk/build 
+        cmake -S fltk -B fltk/build \
                       -D OPTION_USE_SYSTEM_LIBJPEG=Off \
                       -D OPTION_USE_SYSTEM_ZLIB=Off \
                       -D OPTION_USE_SYSTEM_LIBPNG=Off \
