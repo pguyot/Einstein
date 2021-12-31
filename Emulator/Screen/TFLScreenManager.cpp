@@ -260,9 +260,15 @@ public:
                 // the screen, which in turn may scale it onece
                 // more in FLTK. It would be preferable to find an
                 // accelerated GPU version or disable scaling.
-                Fl_RGB_Image img(rgbData_, rgbWidth_, rgbHeight_);
+                Fl_RGB_Image img(rgbData_, rgbWidth_, rgbHeight_, 3);
+#if (FL_API_VERSION<10400)
+                Fl_Image *scaledImg = img.copy(w(), h());
+                scaledImg->draw(x(), y(), w(), h());
+                delete scaledImg;
+#else
                 img.scale(w(), h(), 0, 1);
                 img.draw(x(), y(), w(), h());
+#endif
             }
 #endif
         } else {
