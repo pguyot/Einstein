@@ -41,6 +41,7 @@ HalfwordAndSignedDataTransferReg_Template(BITS_FLAGS, Rn, Rd)
 #if IMPLEMENTATION
 {
 	KUInt32 theInstruction;
+	(void)theInstruction; // suppress warning in case the variable is not used
 	POPVALUE(theInstruction);
 	
 	POPPC();
