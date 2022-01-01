@@ -428,6 +428,7 @@ void fl_filename_setext(char *buf, int size, const char *ext)
 
 TROMImage *TROMImage::LoadROMAndREX(const char *theROMImagePath, Boolean useMonitor, Boolean useBuiltinERex)
 {
+    (void)useMonitor;
     TROMImage *theROMImage = nullptr;
 
     // If we use the builtin REX, set the REX path to null

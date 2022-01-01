@@ -165,6 +165,7 @@ Translate_PatchNativeCall(
 					KUInt32 inInstruction,
 					KUInt32 inVAddr )
 {
+    (void)inVAddr;
 	KUInt32 ix = TJITGenericPatchObject::GetIndex(inInstruction);
 	TJITGenericPatchObject* patchObject = TJITGenericPatchManager::GetPatchAt(ix);
 	if (patchObject == NULL) {

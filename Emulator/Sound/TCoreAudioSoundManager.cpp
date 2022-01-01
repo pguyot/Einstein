@@ -29,9 +29,9 @@
 
 // CoreServices
 #if TARGET_IOS
-#import <CFNetwork/CFNetwork.h>
+#   include <CFNetwork/CFNetwork.h>
 #else
-#import <CoreServices/CoreServices.h>
+#   include <CoreServices/CoreServices.h>
 #endif
 
 // K
@@ -42,7 +42,7 @@
 // Einstein.
 #include "Emulator/Log/TLog.h"
 
-#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define EINSTEIN_MIN(a,b) ((a) < (b) ? (a) : (b))
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -226,7 +226,10 @@ TCoreAudioSoundManager::RenderCallback(
 		UInt32 inNumberFrames,
 		AudioBufferList* ioData )
 {
-	
+    (void)ioActionFlags;
+    (void)inTimeStamp;
+    (void)inBusNumber;
+
 	// Rate limiter - only request bytes from NewtonOS when bytes are needed
 	// Otherewise we exhaust the buffers too quickly and truncate the sounds.
 	mDataMutex->Lock();
@@ -240,7 +243,7 @@ TCoreAudioSoundManager::RenderCallback(
 
 	// Copy data from the circle buffer.
 	mDataMutex->Lock();
-	KUIntPtr amount = MIN(bytesInBuffer, inNumberFrames * sizeof( KSInt16 ));
+	KUIntPtr amount = EINSTEIN_MIN(bytesInBuffer, inNumberFrames * sizeof( KSInt16 ));
 	// TODO: find possible error in the ringBuffer implementation?
 	
 	KUIntPtr available =

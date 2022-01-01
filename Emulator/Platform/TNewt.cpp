@@ -264,6 +264,10 @@ void TNewt::Print(RefArg arg, int depth, int indent)
  */
 void TNewt::PrintRef(NewtRef ref, int depth, int indent)
 {
+    (void)ref;
+    (void)depth;
+    (void)indent;
+#ifdef _DEBUG // see KPrintf
 	static char space[] = "                                        ";
 	char buffer[128];
 
@@ -338,6 +342,7 @@ void TNewt::PrintRef(NewtRef ref, int depth, int indent)
 	kObjReadOnly	= 0x40,
 	kObjDirty		= 0x80,
 	*/
+#endif
 }
 
 /**

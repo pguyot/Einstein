@@ -121,7 +121,7 @@ public:
     void endUpdateCardList();
 
     void UnplugPCCard(int ix);
-    void KeepPCCardInSlot(int inSlot, int inCard);
+    void KeepPCCardInSlot(int inSlot, size_t inCard);
 
     int CardToIndex(TPCMCIACard* inCard);
     int GetCardKeptInSlot(int inSlot);

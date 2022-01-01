@@ -94,55 +94,35 @@
 //
 
 #include <chrono>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #if TARGET_OS_WIN32
-
-#include <WinSock2.h>
-#include <Ws2tcpip.h>
-#include <io.h>
-# include <stdio.h>
-# include <fcntl.h>
-# include <stdlib.h>
-# include <malloc.h>
-# include <string.h>
-typedef int socklen_t;
-
+#   include <WinSock2.h>
+#   include <Ws2tcpip.h>
+#   include <io.h>
+#   include <fcntl.h>
+#   include <malloc.h>
+    typedef int socklen_t;
 #else
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <net/if.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <errno.h>
-
-
-#ifdef __ANDROID__ 
-# include <stdio.h>
-# include <fcntl.h>
-# include <stdlib.h>
-# include <malloc.h>
-# include <string.h>
-#else
-#if !RASPBERRY_PI && !TARGET_OS_LINUX
-# include <sys/sockio.h>
-# include <ifaddrs.h>
-#endif
-#endif
-
-#if TARGET_IOS
-#include <fcntl.h>
-#endif
-
-#if RASPBERRY_PI || TARGET_OS_LINUX
-#include <stdio.h>
-#include <fcntl.h>
-#include <string.h>
-#include <stdlib.h>
-#endif
-
+#   include <sys/types.h>
+#   include <sys/socket.h>
+#   include <sys/ioctl.h>
+#   include <net/if.h>
+#   include <netinet/in.h>
+#   include <arpa/inet.h>
+#   include <unistd.h>
+#   include <errno.h>
+#   include <fcntl.h>
+#   ifdef __ANDROID__
+#       include <malloc.h>
+#   else
+#       if !RASPBERRY_PI && !TARGET_OS_LINUX
+#           include <sys/sockio.h>
+#           include <ifaddrs.h>
+#       endif
+#   endif
 #endif //! TARGET_OS_WIN32
 
 const KUInt32 kUDPExpirationTime = 100;
@@ -436,7 +416,7 @@ public:
 	 * \return 0 if we don't know how to handle the packet and another handler should have a go
 	 * \return -1 if an error occured and the packet should not be sent by any other handler
 	 */
-	virtual int send(Packet &p) { return 0; }
+    virtual int send(Packet &p) { (void)p; return 0; }
 	
 	/**
 	 * Every 10th of a second or so handle outstanding tasks.
@@ -453,7 +433,11 @@ public:
 	 * \return 0 if we can not handle this packet
 	 * \return 1 if we can handled it and it need not to be propagated any further
 	 */
-	static int canHandle(Packet &p, TUsermodeNetwork *n) { return 0; }
+	static int canHandle(Packet &p, TUsermodeNetwork *n) {
+        (void)p;
+        (void)n;
+        return 0;
+    }
 	
 	PacketHandler *prev = nullptr, *next = nullptr;
 	TUsermodeNetwork *net = nullptr;
@@ -609,6 +593,7 @@ public:
 	 * \return -1 if no connection could be established
 	 */
 	int connect(Packet &packet) {
+        (void)packet;
 		// create a socket
 		mSocket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (mSocket==-1) 
@@ -1138,6 +1123,7 @@ public:
 		reply->LogPayload(net->GetLog(), "W E>N");
 		net->Enqueue(reply);
 		KUInt32 theirIP = packet.GetARPTPA();
+        (void)theirIP;
 		KPrintf("Net: ARP request for IP %u.%u.%u.%u\n",
 			   (unsigned int)((theirIP>>24)&0xff),
 			   (unsigned int)((theirIP>>16)&0xff),
@@ -1279,6 +1265,7 @@ public:
 		int i;
 		for (i=0; i<packet.Size(); i++) {
 			KUInt8 d = packet.Data()[i];
+            (void)d;
 			KPrintf("0x%02x, ", d);
 			if ((i&15)==15) KPrintf("\n");
 		}
@@ -1408,6 +1395,7 @@ public:
 		KPrintf("Net: DHCP reply (%u bytes)\n", (unsigned int)reply->Size());
 		for (i=0; i<reply->Size(); i++) {
 			KUInt8 d = reply->Data()[i];
+            (void)d;
 			KPrintf("%02x %c  ", d, ((d>=32)&&(d<127))?d:'.');
 			if ((i&15)==15) KPrintf("\n");
 		}
@@ -1672,6 +1660,7 @@ int TUsermodeNetwork::TimerExpired()
  */
 int TUsermodeNetwork::GetDeviceAddress(KUInt8 *data, KUInt32 size)
 {
+    (void)size;
 	// TODO: of course we need the true MAC of this ethernet card
 	// see: ioctl ? getifaddrs ? http://othermark.livejournal.com/3005.html
 	static KUInt8 gLocalMAC[]   = { 0x58, 0xb0, 0x35, 0x77, 0xd7, 0x22 };

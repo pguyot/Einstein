@@ -127,10 +127,10 @@ public:
 	///
 	/// Output a line.
 	///
-	virtual void		PrintLine( const char* inLine, int type )
-		{
-			mLog->LogLine( inLine );
-		}
+	virtual void PrintLine( const char* inLine, int type ) {
+        (void)type;
+        mLog->LogLine( inLine );
+    }
 
 #if TARGET_UI_FLTK
     // no support for signalling yet

@@ -1997,7 +1997,7 @@ TMonitor::FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 inAddr, unsign
 		// Symbol, skip hash value.
 		bool needEscape = false;
 		char *symbolStr = (char*)::malloc(length+1);
-		for (int i = 0; i < length; i++) {
+		for (unsigned int i = 0; i < length; i++) {
 			KUInt8 byte;
 			KUInt32 byteAddr = inAddr + 16 + i;
 			if (mMemory->ReadB((TMemory::VAddr) byteAddr, byte))

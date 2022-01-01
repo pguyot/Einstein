@@ -104,6 +104,7 @@ TNullScreenManager::TabletOrientationChanged( EOrientation inNewOrientation )
 void
 TNullScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 {
+    (void)inUpdateRect;
     // Ignore this.
 }
 

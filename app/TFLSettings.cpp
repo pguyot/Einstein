@@ -346,7 +346,7 @@ void TFLSettings::savePreferences()
     Fl_Preferences cardlist(pcmcia, "CardList");
     cardlist.clear();
 
-    for (int i=0; i<mCardList.size(); i++) {
+    for (size_t i=0; i<mCardList.size(); i++) {
         TFLPCCardSettings *card = mCardList[i];
         Fl_Preferences cardPrefs(cardlist, card->GetUUID());
         card->WritePrefs(cardPrefs);
@@ -444,6 +444,7 @@ void TFLSettings::startUpdateCardList()
  */
 void TFLSettings::updateNextCard(const char* inName, TFLPCCardSettings* inCard)
 {
+    (void)inName;
     mCardList.push_back(inCard);
     auto it = std::find(gCardList.begin(), gCardList.end(), inCard);
     if (it != gCardList.end())
@@ -465,6 +466,7 @@ void TFLSettings::endUpdateCardList()
 
 void TFLSettings::UnplugPCCard(int ix)
 {
+    (void)ix;
     // FIXME: write this
 }
 
@@ -472,12 +474,12 @@ void TFLSettings::UnplugPCCard(int ix)
 /*
 * inSlot can be 0 or 1 for the corresponding slot, or -1 if the card must no longer be in any slot
 */
-void TFLSettings::KeepPCCardInSlot(int inSlot, int inCard)
+void TFLSettings::KeepPCCardInSlot(int inSlot, size_t inCard)
 {
     Boolean clearIf0 = (inSlot==0);
     Boolean clearIf1 = (inSlot==1);
 
-    for (int ix = 0; ix < mCardList.size(); ++ix) {
+    for (size_t ix = 0; ix < mCardList.size(); ++ix) {
         TFLPCCardSettings* card = mCardList[ix];
         if (ix == inCard) {
             card->KeepInSlot(inSlot);
@@ -496,7 +498,7 @@ int TFLSettings::CardToIndex(TPCMCIACard* inCard)
 {
     if (!inCard)
         return -1;
-    for (int ix = 0; ix < mCardList.size(); ++ix) {
+    for (size_t ix = 0; ix < mCardList.size(); ++ix) {
         TPCMCIACard* card = mCardList[ix]->Card();
         if (card == inCard)
             return ix;
@@ -508,7 +510,7 @@ int TFLSettings::GetCardKeptInSlot(int inSlot)
 {
     if (inSlot==-1)
         return -1;
-    for (int ix = 0; ix < mCardList.size(); ++ix) {
+    for (size_t ix = 0; ix < mCardList.size(); ++ix) {
         if (mCardList[ix]->KeepInSlot()==inSlot)
             return ix;
     }

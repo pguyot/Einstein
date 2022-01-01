@@ -194,10 +194,22 @@ class TNullNetworkManager : public TNetworkManager
 public:
  	TNullNetworkManager(TLog* inLog) : TNetworkManager(inLog) {}
 	virtual ~TNullNetworkManager() { }
-	virtual int SendPacket(KUInt8 *data, KUInt32 size) { return -1; }
-	virtual int GetDeviceAddress(KUInt8 *data, KUInt32 size) { return -1; }
+	virtual int SendPacket(KUInt8 *data, KUInt32 size) {
+        (void)data;
+        (void)size;
+        return -1;
+    }
+	virtual int GetDeviceAddress(KUInt8 *data, KUInt32 size) {
+        (void)data;
+        (void)size;
+        return -1;
+    }
 	virtual KUInt32 DataAvailable() { return 0; }
-	virtual int ReceiveData(KUInt8 *data, KUInt32 size) { return -1; }
+	virtual int ReceiveData(KUInt8 *data, KUInt32 size) {
+        (void)data;
+        (void)size;
+        return -1;
+    }
 };
 
 

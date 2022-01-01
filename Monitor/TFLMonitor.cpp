@@ -513,6 +513,7 @@ void TFLMonitor::Hide()
 
 void TFLMonitor::PrintLine( const char* inLine, int type )
 {
+    (void)type;
     if (mwTerminal) {
         Fl::lock();
         mwTerminal->append(inLine);

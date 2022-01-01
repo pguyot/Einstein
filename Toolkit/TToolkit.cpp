@@ -372,6 +372,7 @@ static newtRef NewtMakeBinaryFromString(newtRefArg klass, const char *text, bool
 
 static newtRef NsMakeBinaryFromString(newtRefArg rcvr, newtRefArg text, newtRefArg klass)
 {
+    (void)rcvr;
     if (!NewtRefIsString(text))
         return NewtThrow(kNErrNotAString, text);
     return NewtMakeBinaryFromString(klass, NewtRefToString(text), false);
@@ -385,6 +386,7 @@ static newtRef NsMakeBinaryFromString(newtRefArg rcvr, newtRefArg text, newtRefA
 
 static newtRef NSAddStepForm(newtRefArg rcvr, newtRefArg form, newtRefArg child)
 {
+    (void)rcvr;
     if (!NewtRefIsFrame(form)) {
         return NewtThrow(kNErrNotAFrame, NewtMakeString("First argument should be a view form", true));
     }
@@ -402,6 +404,8 @@ static newtRef NSAddStepForm(newtRefArg rcvr, newtRefArg form, newtRefArg child)
 
 static newtRef NSStepDeclare(newtRefArg rcvr, newtRefArg form, newtRefArg ref, newtRefArg sym)
 {
+    (void)rcvr;
+    
     if (!NewtRefIsFrame(form)) {
         return NewtThrow(kNErrNotAFrame, NewtMakeString("First argument should be a view form", true));
     }

@@ -47,12 +47,12 @@ TFLTerminalPanel::~TFLTerminalPanel()
 
 // MARK: - TFLTerminalEditor -
 
-static void kill_selection(Fl_Text_Editor* e) {
-    if (e->buffer()->selected()) {
-        e->insert_position(e->buffer()->primary_selection()->start());
-        e->buffer()->remove_selection();
-    }
-}
+//static void kill_selection(Fl_Text_Editor* e) {
+//    if (e->buffer()->selected()) {
+//        e->insert_position(e->buffer()->primary_selection()->start());
+//        e->buffer()->remove_selection();
+//    }
+//}
 
 /**
  * This class displays output from the Toolkit and allows users to enter commands.
@@ -69,6 +69,7 @@ TFLTerminalEditor::~TFLTerminalEditor()
 
 int TFLTerminalEditor::handle_command_enter(int key)
 {
+    (void)key;
     if (!buffer()->selected()) {
         // find the start and end of the given line and send it as a NewtonScript command
         int p = insert_position();
