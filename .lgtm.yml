@@ -7,28 +7,27 @@ extraction:
   cpp:
     prepare:    # Customizable step used by all languages.
       packages:
-        - g++-6
+        # - g++-6
     after_prepare:    # Customizable step used by all languages.
-    configure:    # Customizable step used only by C/C++ extraction.
       command:
-        git clone https://github.com/MatthiasWM/NEWT64.git
-        cmake -S newt64 -B newt64/build
-        cmake --build newt64/build
-        sudo cmake --install newt64/build
+        - git clone https://github.com/MatthiasWM/NEWT64.git
+        - cmake -S newt64 -B newt64/build
+        - cmake --build newt64/build
+        - sudo cmake --install newt64/build
       command:
-        git clone https://github.com/fltk/fltk.git
-        cmake -S fltk -B fltk/build \
+        - git clone https://github.com/fltk/fltk.git
+        - cmake -S fltk -B fltk/build \
                       -D OPTION_USE_SYSTEM_LIBJPEG=Off \
                       -D OPTION_USE_SYSTEM_ZLIB=Off \
                       -D OPTION_USE_SYSTEM_LIBPNG=Off \
                       -D FLTK_BUILD_TEST=Off \
                       -D OPTION_USE_GL=Off
-        cmake --build fltk/build
-        sudo cmake --install fltk/build
-
+        - cmake --build fltk/build
+        - sudo cmake --install fltk/build
+    configure:    # Customizable step used only by C/C++ extraction.
+        - cmake -S . -B _Build_/Makefiles
     before_index:    # Customizable step used by all languages.
     index:    # Customizable step used by all languages.
       build_command:
-        cmake -S . -B _Build_/Makefiles
-        cmake --build _Build_/Makefiles
+        - cmake --build _Build_/Makefiles
 
