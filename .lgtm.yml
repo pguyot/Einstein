@@ -8,7 +8,7 @@ extraction:
     prepare:    # Customizable step used by all languages.
       packages:
         # - g++-6
-    after_prepare:    # Customizable step used by all languages.
+    # after_prepare:    # Customizable step used by all languages.
     configure:    # Customizable step used only by C/C++ extraction.
       command:
         - git clone https://github.com/MatthiasWM/NEWT64.git
