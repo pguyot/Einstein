@@ -2,7 +2,7 @@
 // File:			TFLApp.h
 // Project:			Einstein
 //
-// Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
+// Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,6 +23,11 @@
 
 #ifndef _TFLAPP_H
 #define _TFLAPP_H
+
+#include <FL/Enumerations.H>
+#if (FL_API_VERSION<10400)
+# error Einstein for FLTK requires FLTK 1.4.0 or higher to compile.
+#endif
 
 #include <K/Defines/KDefinitions.h>
 
