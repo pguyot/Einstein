@@ -2,7 +2,7 @@
 // File:			TFLScreenManager.cp
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -261,14 +261,8 @@ public:
                 // more in FLTK. It would be preferable to find an
                 // accelerated GPU version or disable scaling.
                 Fl_RGB_Image img(rgbData_, rgbWidth_, rgbHeight_, 3);
-#if (FL_API_VERSION<10400)
-                Fl_Image *scaledImg = img.copy(w(), h());
-                scaledImg->draw(x(), y(), w(), h());
-                delete scaledImg;
-#else
                 img.scale(w(), h(), 0, 1);
                 img.draw(x(), y(), w(), h());
-#endif
             }
 #endif
         } else {

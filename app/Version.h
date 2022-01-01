@@ -2,7 +2,7 @@
 // File:			TCLIApp.h
 // Project:			Einstein
 //
-// Copyright 2003-2020 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,9 +30,9 @@
 #define PROJECT_VER_MINOR "4"
 #define PROJECT_VER_PATCH "13"
 
-#define COMPILE_TIME_YYYY 2021
-#define COMPILE_TIME_MM (112-100)  // if the month is "09", C++ would interprete the number as octal, so we generate "109-100" instead.
-#define COMPILE_TIME_DD (130-100)
+#define COMPILE_TIME_YYYY 2022
+#define COMPILE_TIME_MM (101-100)  // if the month is "09", C++ would interprete the number as octal, so we generate "109-100" instead.
+#define COMPILE_TIME_DD (101-100)
 
 #define VERSION_STRING		PROJECT_NAME " " PROJECT_VER
 #define VERSION_STRING_SHORT	PROJECT_VER
