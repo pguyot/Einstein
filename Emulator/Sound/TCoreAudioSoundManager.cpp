@@ -26,6 +26,7 @@
 // ANSI C & POSIX
 #include <strings.h>
 #include <stdio.h>
+#include <algorithm>
 
 // CoreServices
 #if TARGET_IOS
@@ -41,8 +42,6 @@
 
 // Einstein.
 #include "Emulator/Log/TLog.h"
-
-#define EINSTEIN_MIN(a,b) ((a) < (b) ? (a) : (b))
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -243,7 +242,8 @@ TCoreAudioSoundManager::RenderCallback(
 
 	// Copy data from the circle buffer.
 	mDataMutex->Lock();
-	KUIntPtr amount = EINSTEIN_MIN(bytesInBuffer, inNumberFrames * sizeof( KSInt16 ));
+
+	KUIntPtr amount = std::min(bytesInBuffer, inNumberFrames * sizeof( KSInt16 ));
 	// TODO: find possible error in the ringBuffer implementation?
 	
 	KUIntPtr available =

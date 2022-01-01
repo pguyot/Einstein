@@ -299,7 +299,7 @@ private:
 										///< R/W for GetChipInfo.
 	KUInt32				mReg_3C00;		///< Value of xC003C00 (w   - ?? )
 	KUInt32				mReg_4000;		///< Value of xC004000 (w   - ?? )
-//	KUInt32				mReg_4400;		//                     (    - ?? )
+    // the register 0x4400 is only read and always reads 0xFC, use unknown
 };
 
 #endif
