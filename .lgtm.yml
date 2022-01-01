@@ -9,6 +9,7 @@ extraction:
       packages:
         # - g++-6
     after_prepare:    # Customizable step used by all languages.
+    configure:    # Customizable step used only by C/C++ extraction.
       command:
         - git clone https://github.com/MatthiasWM/NEWT64.git
         - cmake -S newt64 -B newt64/build
@@ -24,10 +25,9 @@ extraction:
                       -D OPTION_USE_GL=Off
         - cmake --build fltk/build
         - sudo cmake --install fltk/build
-    configure:    # Customizable step used only by C/C++ extraction.
-        - cmake -S . -B _Build_/Makefiles
     before_index:    # Customizable step used by all languages.
     index:    # Customizable step used by all languages.
       build_command:
+        - cmake -S . -B _Build_/Makefiles
         - cmake --build _Build_/Makefiles
 
