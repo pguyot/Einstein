@@ -38,6 +38,7 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 #if IMPLEMENTATION
 {
 	KUInt32 theInstruction;
+	(void)theInstruction;
 	POPVALUE(theInstruction);
 	
 	POPPC();

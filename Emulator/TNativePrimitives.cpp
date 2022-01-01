@@ -117,11 +117,12 @@ TNativePrimitives::TNativePrimitives(
 		mSoundManager( nil ),
 		mScreenManager( nil ),
 		mPlatformManager( nil ),
+#if !TARGET_OS_MAC
+		mNativeCalls( new TNativeCalls(inMemory) ),
+#endif
 		mVirtualizedCalls( nil ),
 #if TARGET_OS_MAC
 		mObjCBridgeCalls( new TObjCBridgeCalls(inMemory)),
-#else
-        mNativeCalls( new TNativeCalls(inMemory) ),
 #endif
 		mInputVolume( 0 ),
 		mQuit( false )

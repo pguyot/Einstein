@@ -477,7 +477,7 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	add_executable(Einstein ${sources})
 
 	# how to compile and link
-	target_compile_options(Einstein PUBLIC -Wall -Wno-multichar)
+	target_compile_options(Einstein PUBLIC -Wall -Wno-multichar -Wno-misleading-indentation)
 	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 TARGET_OS_LINUX=1)
 	target_link_libraries(Einstein
 		fltk
