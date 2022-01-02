@@ -2,7 +2,7 @@
 // File:			TFLSettings
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -142,6 +142,7 @@ public:
 
     int mLaunchMonitorAtBoot = 0;
     int mBreatAtROMBoot = 0;
+    int mFetchDateAndTime = 1;
 
     // some initial position for our application screen
     int mAppWindowPosX = 150;

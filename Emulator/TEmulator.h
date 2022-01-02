@@ -2,7 +2,7 @@
 // File:			TEmulator.h
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -394,6 +394,15 @@ public:
 	///
 	void CallOnQuit(std::function<void()> inCallback);
 
+    void DoPowerRestored() {
+        if (mCallOnPowerRestored)
+            mCallOnPowerRestored();
+    }
+
+    void OnPowerRestored(std::function<void()> inCallback) {
+        mCallOnPowerRestored = std::move(inCallback);
+    }
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
@@ -429,6 +438,7 @@ private:
 	KUInt32				mBPHalted;			///< If we're halted because of a breakpoint.
 	KUInt16				mBPID;				///< ID of the breakpoint.
 	std::function<void()> mCallOnQuit;      ///< Call this when the user quits Einstein
+    std::function<void()> mCallOnPowerRestored;
 };
 
 #endif

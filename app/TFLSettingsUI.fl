@@ -7,7 +7,7 @@ comment {// ==============================
 // File:			TFLSettings
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -185,7 +185,7 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
           xywh {10 35 430 375}
         } {
           Fl_Group {} {open
@@ -324,6 +324,10 @@ if (filename) {
           Fl_Box wRestartWarning {
             label {Setting changes apply only after a  restart}
             xywh {30 378 386 20} box FLAT_BOX labelfont 1 labelsize 12 align 16 hide
+          }
+          Fl_Check_Button wFetchDateAndTime {
+            label {Fetch date and time from host}
+            xywh {120 300 196 20} down_box DOWN_BOX labelsize 13
           }
         }
         Fl_Group {} {
@@ -857,6 +861,7 @@ wFullScreen->value(fullScreen);
 wHideMouse->value(hideMouse);
 wLaunchMonitorAtBoot->value(mLaunchMonitorAtBoot);
 wBreatAtROMBoot->value(mBreatAtROMBoot);
+wFetchDateAndTime->value(mFetchDateAndTime);
 
 if (RAMSize<=16)
 	wRAMSizeChoice->value(0);
@@ -879,8 +884,7 @@ for (size_t i=0; i<mCardList.size(); i++) {
 wPCCardList->value(0);
 wPCCardList->do_callback();
 
-updateMenus();} {selected
-    }
+updateMenus();} {}
   }
   Function {applyDialog()} {open return_type void
   } {
@@ -896,6 +900,7 @@ fullScreen = wFullScreen->value();
 hideMouse = wHideMouse->value();
 mLaunchMonitorAtBoot = wLaunchMonitorAtBoot->value();
 mBreatAtROMBoot = wBreatAtROMBoot->value();
+mFetchDateAndTime = wFetchDateAndTime->value();
 
 const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
 if (m)
@@ -913,7 +918,7 @@ endUpdateCardList();
 
 updateMenus();} {}
   }
-  Function {runningMode()} {return_type void
+  Function {runningMode()} {open return_type void
   } {
     code {wRestartWarning->show();
 wQuit->hide();

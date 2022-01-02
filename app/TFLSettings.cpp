@@ -2,7 +2,7 @@
 // File:			TFLSettings
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -272,6 +272,12 @@ void TFLSettings::loadPreferences()
         memory.get("RAMSize", RAMSize, 64);
     }
 
+    // system preferences
+    Fl_Preferences newtSystem(prefs, "System");
+    {
+        newtSystem.get("FetchDateAndTime", mFetchDateAndTime, 1);
+    }
+
     // --- PCMCIA Card settings
     Fl_Preferences pcmcia(prefs, "PCMCIA");
 
@@ -337,6 +343,12 @@ void TFLSettings::savePreferences()
     Fl_Preferences memory(prefs, "Memory");
     {
         memory.set("RAMSize", RAMSize);
+    }
+
+    // system preferences
+    Fl_Preferences newtSystem(prefs, "System");
+    {
+        newtSystem.set("FetchDateAndTime", mFetchDateAndTime);
     }
 
     // --- PCMCIA Card settings

@@ -2,7 +2,7 @@
 // File:			TNativePrimitives.cp
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -673,11 +673,32 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			
 		case 0x0A:
 			{
-        // Boot process powers system up in this order: 0x1d, 0x01, 0x23, 0x22
-        // Power swicth on events create the same event order
-        // Inserting a PCMCIA card powers up 0x1d
-        // Starting "Dock" creates 0x1d, starting serial com generates 0x01, 0x23, 0x22
-				KUInt32 theSubsystem = mProcessor->GetRegister(1);
+                // Boot process powers system up in this order: 0x1d, 0x01, 0x23, 0x22
+                // Power swicth on events create the same event order
+                // Inserting a PCMCIA card powers up 0x1d
+                // Starting "Dock" creates 0x1d, starting serial com generates 0x01, 0x23, 0x22
+
+                // Physical supply bitmap
+                // 01: TGeoPortDebugLink::PowerCycle(unsigned char)
+                // 02: PowerOnSrc12v
+                // 08: PowerOnIC5v
+                // 10: PowerOnDMA
+
+                // Calls to IOPowerOn, calling TPlatformDriver::PowerOnSubsystem(unsigned long):
+                // 01: TSerialChipVoyager
+                // 01, 02, 03, 04: TSerialChipVoyager::PowerOn(void), PowerOnSrc5v
+                // 10 (Vcc), 14 (Vpp): PCMCIA Port 0
+                // 11 (Vcc), 15 (Vpp): PCMCIA Port 1
+                // 1c: TBIOInterface::Init(void)
+                // 1d: PCMCIA Cards power: RestoreCardPower(unsigned long)
+                // 18, 1a: sound: PCirrusSoundDriver::PowerInputOn(long)
+                // 1b: PCirrusSoundDriver::PowerOutputOn(long)
+                // 1f, 20, 1c: TVoyagerPlatform::PowerOnSystem(void)
+                // 22: TDMAManager::PowerOnAssignment(unsigned long)
+                // 23: TAsyncSerToolF, DMAManager
+
+                // Subsystems may be Serial, Screen :: 0x0014824C
+                KUInt32 theSubsystem = mProcessor->GetRegister(1);
 				if (LOG_PLATFORM)
 				{
 					mLog->FLogLine(
@@ -689,12 +710,13 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 					mMemory->PowerOnFlash();
 //					mEmulator->BreakInMonitor();
 				}
-        if (theSubsystem == 0x23)
-        {
-          // the system is up and running, check if we missed any Einstein events
-          // and they are still pending in the queue
-          mPlatformManager->UnlockQueueBootLock();
-        }
+                if (theSubsystem == 0x23)
+                {
+                    // the system is up and running, check if we missed any Einstein events
+                    // and they are still pending in the queue
+                    mPlatformManager->UnlockQueueBootLock();
+                    mEmulator->DoPowerRestored();
+                }
 				mProcessor->SetRegister( 0, 0 );
 			}
 			break;

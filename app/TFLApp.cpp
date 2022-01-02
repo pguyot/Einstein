@@ -2,7 +2,7 @@
 // File:			TFLApp.cp
 // Project:			Einstein
 //
-// Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
+// Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@
 // TODO: menu and action to reboot Newton (in different configurations)
 // TODO: install essentials
 // TODO: drag'n'drop of multiple files and archives
-// TODO: drag'n'drop from network locations (https:, etc.)
+// Done: drag'n'drop from network locations (https:, etc.)
 // TODO: drag'n'drop for the Unna Archive
 // TODO: option to load and save complete images including ROM, RAM, Flash, and PCMCIA memory snapshots
 // TODO: automated Internet access (install and setup)
@@ -49,6 +49,8 @@
 // TODO: Toolkit: add global functions to handle images, sounds and other external binary data
 // TODO: Toolkit: improve decompiler to generate external binary data and reference it
 // TODO: Toolkit: reverse bytecode to source code
+// Done: Set NewtonOS to Host time (in minutes since Jan 1 1904). Set Locale?
+//       Calculate minutes in the current Locale.
 
 // ----- Major new Features
 // TODO: NTK Monitor
@@ -59,7 +61,7 @@
 // ----- Improvemnets to the inner workings
 // TODO: Full Android support as an address book and calender app
 // TODO: Fix locks and race conditions
-// TODO: cleanup all compile warnings on all platforms
+// Done: cleanup all compile warnings on all platforms
 // TODO: Linux: App Icon, Flatpak?
 
 // ----- Documentations
@@ -362,6 +364,10 @@ TFLApp::Run( int argc, char* argv[] )
     // the main application loop which then terminates the thread that called us to begin with.
     // Or as Mony says: "Would That It Were So Simple"
     //mEmulator->CallOnQuit([](){Fl::awake([](void*){gApp->UserActionQuit();});});
+
+    // This is called after NewtonOS booted or was restored from sleep.
+    // It may be called in a few other instances as well.
+    mEmulator->OnPowerRestored([](){Fl::awake([](void*){gApp->DeferredOnPowerRestored();});});
 
     InitSerialPorts(); // do this after creating the emulator
 
@@ -1072,6 +1078,32 @@ void TFLApp::StoreAppWindowSize()
     mWindowedHeight = wAppWindow->h();
 }
 
+/**
+ Run Stuff after NewtonOS booted or wakes up from sleep.
+ */
+void TFLApp::DeferredOnPowerRestored()
+{
+    static bool beenHere = false;
+
+    // We run this once at boot time. It would be correct to reset this whenever
+    // we reboot or load a different configuration.
+    if (!beenHere) {
+        if (mFLSettings->mFetchDateAndTime) {
+            std::time_t now = time(nullptr);
+            struct std::tm then_tm = { 0, 0, 0, 1, 0, 4 }; /* Midnight Jan 1 1904 */
+            std::time_t then = std::mktime(&then_tm);
+            std::time_t diff_secs = std::difftime(now, then);
+            
+            KUInt32 minutesSince1904 = diff_secs / 60;
+            char setTimeAndDateScript[256];
+            ::snprintf(setTimeAndDateScript, 256, "SetTime(%u);", minutesSince1904);
+            mPlatformManager->EvalNewtonScript(setTimeAndDateScript);
+        }
+        beenHere = true;
+    }
+}
+
+
 
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
@@ -1238,7 +1270,6 @@ const char *TFLApp::ChooseNewFile(const char *message, const char *pat, const ch
 {
     return tfl_file_chooser(message, pat, fname, true);
 }
-
 
 
 /**

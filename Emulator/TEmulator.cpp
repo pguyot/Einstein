@@ -2,7 +2,7 @@
 // File:			TEmulator.cp
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -228,7 +228,7 @@ TEmulator::Run( void )
 	mInterruptManager->SuspendTimer();
 
     // FIXME: The code below may be harmful when we call the emulator through the monitor!
-    // Instead, the caller of this function, or of TMonitor::run() should call the Quir function.
+    // Instead, the caller of this function, or of TMonitor::run() should call the Quit function.
 	if (mCallOnQuit)
 	    mCallOnQuit();
 

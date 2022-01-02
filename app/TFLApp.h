@@ -187,6 +187,8 @@ private:
     // store the current size of the app window in mWindowed...
     void StoreAppWindowSize();
 
+    void DeferredOnPowerRestored();
+
 	// Variables
     const char*			mProgramName = nullptr;
     TROMImage*			mROMImage = nullptr;
