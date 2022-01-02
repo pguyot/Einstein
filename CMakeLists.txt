@@ -45,11 +45,11 @@ endif ()
 #
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-	find_package(Newt64 CONFIG) # -> Newt64_FOUND, Newt64_DIR
+	find_package(Newt64 CONFIG HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64) # -> Newt64_FOUND, Newt64_DIR
 endif()
 
-find_library(newt64_lib NAMES newt64 ) 
-find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64) 
+find_library(newt64_lib NAMES newt64 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/build/)
+find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/src/newt_core/incs/)
 
 if (newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND")
 	message(WARNING "Newt64 not found!")
@@ -345,7 +345,7 @@ configure_file(
 macro (build_with_fluid name dir)
 	add_custom_command (
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
-		COMMAND ${FLTK_FLUID_EXECUTABLE} -c ${name}.fl
+		COMMAND ${LOCAL_FLTK_FLUID_EXECUTABLE} -c ${name}.fl
 		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.fl"
 		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h"
 		OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.cpp"
@@ -360,8 +360,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
 	# configure to use FLTK as the GUI
 	set(FLTK_SKIP_OPENGL true)
-	set(FLTK_FLUID_EXECUTABLE /usr/local/bin/fluid)
-	find_package(FLTK REQUIRED NO_MODULE)
+	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin)
+	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk)
 
 	build_with_fluid(TFLAppUI app)
 	build_with_fluid(TFLRexImage app)
@@ -443,8 +443,8 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 	# configure to use FLTK as the GUI
 	set(FLTK_SKIP_OPENGL true)
-	set(FLTK_FLUID_EXECUTABLE /usr/local/bin/fluid)
-	find_package(FLTK REQUIRED NO_MODULE)
+	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin)
+	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk)
 
 	build_with_fluid(TFLAppUI app)
 	build_with_fluid(TFLRexImage app)
@@ -503,10 +503,9 @@ elseif (WIN32)
 	#    cd "c:\Program Files"
 	#    mklink /D FLTK "C:\Users\micro\dev\fltk-1.4 for Einstein.git\out\install\x64-Release"
 	# Update the link to point to your build directory as needed
-	set(FLTK_DIR "C:/Program Files/FLTK/CMake")
-	# set(FLTK_FLUID_EXECUTABLE "C:/Program Files/FLTK/bin/fluid.exe")
+	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin "C:/Program Files/FLTK/bin/")
 	set(FLTK_SKIP_OPENGL true)
-	find_package(FLTK REQUIRED NO_MODULE)
+	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk)
 
 	build_with_fluid(TFLAppUI app)
 	build_with_fluid(TFLRexImage app)
