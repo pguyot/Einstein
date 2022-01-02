@@ -12,7 +12,7 @@ extraction:
     # after_prepare:    # Customizable step used by all languages.
     configure:    # Customizable step used only by C/C++ extraction.
       command:
-        - git clone https://github.com/MatthiasWM/NEWT64.git
+        - git clone https://github.com/MatthiasWM/NEWT64.git newt64
         - cmake -S newt64 -B newt64/build
         - cmake --build newt64/build
         - cmake --install newt64/build
