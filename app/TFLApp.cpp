@@ -54,9 +54,10 @@
 
 // ----- Major new Features
 // TODO: NTK Monitor
-// TODO: patch ROMs for Y10k bug (Y26k bug coming up quickly!)
-// TODO: printer support
-// TODO: wake-up/launch on appointment in the future
+// TODO: Patch ROMs for Y10k bug (Y26k bug coming up quickly!)
+// TODO: Printer support
+// Done: Printing screen shots
+// TODO: Wake-up/launch on appointment in the future
 
 // ----- Improvemnets to the inner workings
 // TODO: Full Android support as an address book and calender app
@@ -200,6 +201,8 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_Native_File_Chooser.H>
 #include <FL/Fl_Tooltip.H>
+#include <FL/Fl_Paged_Device.H>
+#include <FL/Fl_Printer.H>
 
 // Einstein
 #include "Emulator/ROM/TROMImage.h"
@@ -738,6 +741,34 @@ int TFLApp::UserActionKeepPCCardInSlot(int inSlot, int inIndex)
 //{
 //    // TODO: create a TLinearCard, add it to the Card List, and update the Preferences and the Settings dialog.
 //}
+
+void TFLApp::UserActionPrintScreen()
+{
+    Fl_Widget *target = mNewtonScreen;
+    Fl_Paged_Device *p;
+    int err;
+    char *err_message = NULL;
+    p = new Fl_Printer();
+    err = p->begin_job(1, NULL, NULL, &err_message);
+    if (!err) {
+        int w, h;
+        p->begin_page();
+        // p->scale(72.0/100.0);
+        p->printable_rect(&w, &h);
+        p->origin((w-target->w())/2, (h-target->h())/2);
+        p->print_widget(target);
+        fl_color(FL_BLACK);
+        fl_font(FL_HELVETICA, 14);
+        fl_draw(VERSION_STRING, 0, target->h(), target->w(), 24,
+                FL_ALIGN_INSIDE|FL_ALIGN_CENTER);
+        p->end_page();
+        p->end_job();
+    } else if (err > 1 && err_message) {
+        fl_alert("%s", err_message);
+        delete[] err_message;
+    }
+    delete p;
+}
 
 
 // MARK: -
@@ -1295,6 +1326,7 @@ int main(int argc, char** argv )
     theApp.Run( argc, argv );
     return 0;
 }
+
 
 
 // ======================================================================= //

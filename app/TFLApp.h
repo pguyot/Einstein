@@ -130,6 +130,9 @@ public:
     // User wants to keep this card in the PCCard slot during reboots
     int UserActionKeepPCCardInSlot(int inSlot, int inIndex);
 
+    // User wants to print a screenshot
+    void UserActionPrintScreen();
+
     // ---  Events from within the emulator
 
     // this is called by the screen manager when the state of the backlight changed

@@ -15,7 +15,7 @@ decl {\#include "TFLAppWindow.h"} {public global
 decl {\#include "TFLTabs.h"} {public global
 }
 
-data imgPCCardTopIn {selected public local filename {../Resources/icons/button_pccard_top_in.png}
+data imgPCCardTopIn {public local filename {../Resources/icons/button_pccard_top_in.png}
 }
 
 data imgPCCardTopOut {public local filename {../Resources/icons/button_pccard_top_out.png}
@@ -89,7 +89,8 @@ Function {CreateApplicationWindow(int x, int y)} {open
         }
         MenuItem {} {
           label {Print...}
-          xywh {0 0 100 20} shortcut 0x410070 deactivate divider
+          callback {gApp->UserActionPrintScreen();} selected
+          xywh {0 0 100 20} shortcut 0x410070 divider
         }
         MenuItem {} {
           label Quit
