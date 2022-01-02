@@ -13,6 +13,7 @@ extraction:
     configure:    # Customizable step used only by C/C++ extraction.
       command:
         - git clone https://github.com/MatthiasWM/NEWT64.git
+        - sed -i -e 's|cmake_minimum_required(VERSION 3.15)|cmake_minimum_required(VERSION 3.13)|g' NEWT64/CMakeLists.txt
         - cmake -S NEWT64 -B NEWT64/build
         - cmake --build NEWT64/build
         - cmake --install NEWT64/build
