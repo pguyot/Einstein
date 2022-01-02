@@ -309,8 +309,8 @@ static TCocoaAppController* gInstance = nil;
 	
 	// Load the ROM
 	
-	NSInteger theMachine = [defaults integerForKey: kMachineKey]; //e.g; 717006
-	NSString* machineStr = [NSString stringWithFormat:@"%ld", theMachine];
+//	NSInteger theMachine = [defaults integerForKey: kMachineKey]; //e.g; 717006
+//	NSString* machineStr = [NSString stringWithFormat:@"%ld", theMachine];
 	
 	if (theREX0Path)
 	{

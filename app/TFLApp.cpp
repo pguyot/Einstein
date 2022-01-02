@@ -808,7 +808,7 @@ void TFLApp::ResizeFromNewton(int w, int h)
 
 void TFLApp::InitFLTK(int argc, char **argv) {
     Fl::scheme("gtk+");
-    Fl::args(1, argv);
+    Fl::args(argc, argv);
     Fl::get_system_colors();
     Fl::use_high_res_GL(1);
     Fl::visual(FL_RGB);
@@ -1055,7 +1055,7 @@ void TFLApp::CreateScreenManager(
 
  This may be a menu item or the Cllose button on the window decoration.
  */
-void TFLApp::quit_cb(Fl_Widget *, void *p) 
+void TFLApp::quit_cb(Fl_Widget *, void *)
 {
     gApp->UserActionQuit();
 }
@@ -1143,6 +1143,7 @@ T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, kROMPatchVoid, "AddClipboard
 }
 
 static void clip_callback(int source, void *data) {
+    (void)data;
     if ( source == 1 ) {
         KPrintf("Clipboard: \"%s\"\n", (char*)data);
     }

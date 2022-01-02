@@ -221,7 +221,6 @@ TPulseAudioSoundManager::~TPulseAudioSoundManager( void )
 void
 TPulseAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
 {
-    int error;
     if (inSize > 0)
     {
             size_t inputSize = inSize;
@@ -284,7 +283,6 @@ TPulseAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize 
 void
 TPulseAudioSoundManager::StartOutput( void )
 {
-    pa_operation *o;
 #ifdef DEBUG_SOUND
     if (GetLog()) {
         GetLog()->FLogLine("   _____  StartOutput  _____");
@@ -326,7 +324,6 @@ TPulseAudioSoundManager::StartOutput( void )
 void
 TPulseAudioSoundManager::StopOutput( void )
 {
-    pa_operation *o;
 #ifdef DEBUG_SOUND
     if (GetLog()) {
         GetLog()->FLogLine("   _____  StopOutput BEGIN _____");
@@ -367,6 +364,8 @@ TPulseAudioSoundManager::OutputIsRunning( void )
             mOutputIsRunning ? "true" : "false" );
         GetLog()->FLogLine("   *****  OutputIsRunning returns %s\n", mOutputIsRunning ? "true" : "false");
     }
+#else
+    (void)streamCorked;
 #endif
 
     return mOutputIsRunning;
@@ -403,6 +402,8 @@ void TPulseAudioSoundManager::PAStreamStateCallback(pa_stream* s, pa_threaded_ma
     if (GetLog()) {
         GetLog()->FLogLine("  *** StreamStateCallback: %s", sStateStr);
     }
+#else
+    (void)sStateStr;
 #endif
     if (mainloop)
     {

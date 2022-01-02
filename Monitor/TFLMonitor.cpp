@@ -207,7 +207,7 @@ void TFLMonitor::DrawScreenHalted()
     char theSymbol[512];
     char theComment[512];
     int theOffset;
-    char theLine[512];
+    char theLine[768];
 
     if ( mSymbolList )
     {
@@ -361,11 +361,11 @@ void TFLMonitor::DrawScreenHalted()
             }
             if (instIsBP)
             {
-                (void) ::sprintf( theLine, "%.8X * %s",
+                (void) ::snprintf( theLine, sizeof(theLine), "%.8X * %s",
                                  (unsigned int) realPC + indexLines,
                                  theInstr );
             } else {
-                (void) ::sprintf( theLine, "%.8X   %s",
+                (void) ::snprintf( theLine, sizeof(theLine), "%.8X   %s",
                                  (unsigned int) realPC + indexLines,
                                  theInstr );
             } // if (indexLines == 0)
@@ -513,6 +513,7 @@ void TFLMonitor::Hide()
 
 void TFLMonitor::PrintLine( const char* inLine, int type )
 {
+    (void)type;
     if (mwTerminal) {
         Fl::lock();
         mwTerminal->append(inLine);

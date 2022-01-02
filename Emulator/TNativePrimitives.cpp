@@ -117,11 +117,12 @@ TNativePrimitives::TNativePrimitives(
 		mSoundManager( nil ),
 		mScreenManager( nil ),
 		mPlatformManager( nil ),
+#if !TARGET_OS_MAC
+		mNativeCalls( new TNativeCalls(inMemory) ),
+#endif
 		mVirtualizedCalls( nil ),
 #if TARGET_OS_MAC
 		mObjCBridgeCalls( new TObjCBridgeCalls(inMemory)),
-#else
-        mNativeCalls( new TNativeCalls(inMemory) ),
 #endif
 		mInputVolume( 0 ),
 		mQuit( false )
@@ -179,8 +180,6 @@ TNativePrimitives::SetEmulator( TEmulator* inEmulator )
 void
 TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 {
-	static KUInt16 n[0x1000] = { 0 };
-	
 	if (inInstruction & 0x80000000)
 	{
 		// If the high bit is set, this instruction is actually a patch, not
@@ -2263,6 +2262,7 @@ TNativePrimitives::ExecuteOutTranslatorNative( KUInt32 inInstruction )
 void
 TNativePrimitives::ExecuteHostCallNative( KUInt32 inInstruction )
 {
+    (void)inInstruction;
 #if !TARGET_OS_ANDROID && !TARGET_OS_MAC && !__LP64__ && !TARGET_OS_WIN32
 	switch (inInstruction & 0xFF)
 	{

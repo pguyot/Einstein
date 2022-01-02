@@ -217,13 +217,16 @@
 		#if __MWERKS__
 			#pragma warn_implicitconv off
 		#endif
-
-                #if TARGET_IOS
-                        #import <CFNetwork/CFNetwork.h>
-                #else
-                        #import <CoreServices/CoreServices.h>
-                #endif
-
+#       ifdef __OBJC__
+#           if TARGET_IOS
+#               import <CFNetwork/CFNetwork.h>
+#           else
+#               import <CoreServices/CoreServices.h>
+#           endif
+#       else
+#           include <MacTypes.h>
+#           include <stdio.h>
+#       endif
 		#if __MWERKS__
 			#pragma warn_implicitconv reset
 		#endif
@@ -576,7 +579,7 @@ static_assert(sizeof(KUIntPtr)==sizeof(void*), "Size of KUIntPtr must the same a
 #  endif // _MSC_VER
 #else // _DEBUG
    // Make sure that the trailing semicolon is used up, the compiler will optimize this away
-#  define KPrintf(...) do {} while(0)
+#  define KPrintf(...)
 #endif // _DEBUG
 
 

@@ -610,7 +610,7 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
     fData = fopen(inDataFilename, "rb");
     if (!fData) { err = kErrCantOpenDataFile; goto cleanup; }
     fseek(fData, 0, SEEK_END);  // simple way to find file size
-    imageInfo.pDataSize = ftell(fData);
+    imageInfo.pDataSize = (int)ftell(fData);
     fseek(fData, 0, SEEK_SET);
     if (imageInfo.pDataSize == 0) { err = kErrCorruptDataFile; goto cleanup; }
     if (imageInfo.pDataSize > 128 * 1024 * 1024) { err = kErrDataFileTooBig; goto cleanup; }
@@ -623,11 +623,11 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
 
     // --- read the CIS data
     // TODO: we can derive the CIS data (well, 'some' CIS data from the code above, in case this CIS is missing or corrupt)
-    imageInfo.pCISStart = ftell(fOut);
+    imageInfo.pCISStart = (int)ftell(fOut);
     fCIS = fopen(inCISFilename, "rb");
     if (!fCIS) { err = kErrCantOpenCISFile; goto cleanup; }
     fseek(fCIS, 0, SEEK_END);  // simple way to find file size
-    rawCISSize = ftell(fCIS);
+    rawCISSize = (int)ftell(fCIS);
     fseek(fCIS, 0, SEEK_SET);
     if (rawCISSize == 0) { err = kErrCorruptCISFile; goto cleanup; }
     if (rawCISSize > 4096) rawCISSize = 4096;
@@ -639,7 +639,7 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
 
     // find byte order and descramble (usually x1x0x3x2, but could be 0123...)
     if (cisBuffer[3] == 1 && cisBuffer[1] > 0) {
-        for (int i=0; i<rawCISSize/2; ++i)
+        for (unsigned int i=0; i<rawCISSize/2; ++i)
             cisBuffer[i] = cisBuffer[(i ^ 1) * 2 + 1];
         rawCISSize /= 2;
     } else {
@@ -650,7 +650,7 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
     // find the end of the CIS data (we can output all card information here, if needed)
     // (even if the CIS is corrupt, this loop will not run forever)
     imageInfo.pCISSize = rawCISSize;
-    for (int i=0;i<rawCISSize;) {
+    for (KUInt32 i=0;i<rawCISSize;) {
         // get tuple type
         KUInt8 tt = cisBuffer[i++];
         KUInt8 st = cisBuffer[i++];
@@ -672,14 +672,14 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
     if (fwrite(cisBuffer, imageInfo.pCISSize, 1, fOut) != 1) { err = kErrIncompleteImageFile; goto cleanup; }
 
     // --- possibly add an image that can be used as an icon
-    imageInfo.pIconStart = ftell(fOut);
+    imageInfo.pIconStart = (int)ftell(fOut);
     imageInfo.pIconSize = 0; // not yet supported
 
     // --- add the name of the image
-    imageInfo.pNameStart = ftell(fOut);
+    imageInfo.pNameStart = (int)ftell(fOut);
     sz = 0;
     if (name && name[0]) {
-        sz = strlen(name);
+        sz = (int)strlen(name);
         fwrite(name, (KUInt64)sz + 1, 1, fOut);
     }
     imageInfo.pNameSize = sz + 1;
@@ -718,7 +718,7 @@ KSInt32 TLinearCard::CreateImageFile(const char *inName, const char *inImageFile
     if (fwrite(dataBuffer, imageInfo.pDataSize, 1, fOut) != 1) { err = kErrIncompleteImageFile; goto cleanup; }
 
     // --- create the CIS data
-    imageInfo.pCISStart = ftell(fOut);
+    imageInfo.pCISStart = (int)ftell(fOut);
     imageInfo.pCISSize = sizeof(kDefaultCISData);
     cisBuffer = (KUInt8*)malloc(imageInfo.pCISSize);
     if (!cisBuffer) { err = kErrOutOfMemory; goto cleanup; }
@@ -735,14 +735,14 @@ KSInt32 TLinearCard::CreateImageFile(const char *inName, const char *inImageFile
     if (fwrite(cisBuffer, imageInfo.pCISSize, 1, fOut) != 1) { err = kErrIncompleteImageFile; goto cleanup; }
 
     // --- possibly add an image that can be used as an icon
-    imageInfo.pIconStart = ftell(fOut);
+    imageInfo.pIconStart = (int)ftell(fOut);
     imageInfo.pIconSize = 0; // not yet supported
 
     // --- add the name of the image
-    imageInfo.pNameStart = ftell(fOut);
+    imageInfo.pNameStart = (int)ftell(fOut);
     sz = 0;
     if (inName && inName[0]) {
-        sz = strlen(inName);
+        sz = (int)strlen(inName);
         fwrite(inName, (KUInt64)sz + 1, 1, fOut);
     }
     imageInfo.pNameSize = sz + 1;
@@ -777,15 +777,12 @@ void TLinearCard::ImageInfo::flipByteOrder()
 
 int TLinearCard::ImageInfo::read(FILE* f)
 {
-    int ret = 0;
-    int err = 0;
-
     static_assert(sizeof(ImageInfo) == 10 * 4 + 12, "TLinearCard::ImageInfo size is wrong");
 
-    char buf[sizeof(ImageInfo)];
+    int ret = 0;
     long pos = ftell(f);
     ret = fseek(f, -sizeof(ImageInfo), SEEK_END);
-    ret = fread(this, sizeof(ImageInfo), 1, f);
+    ret = (int)fread(this, sizeof(ImageInfo), 1, f);
     if (ret == 1)
         flipByteOrder();
     fseek(f, pos, SEEK_SET);
@@ -796,7 +793,7 @@ int TLinearCard::ImageInfo::read(FILE* f)
 int TLinearCard::ImageInfo::write(FILE* f)
 {
     flipByteOrder();
-    int ret = fwrite(this, sizeof(ImageInfo), 1, f);
+    int ret = (int)fwrite(this, sizeof(ImageInfo), 1, f);
     flipByteOrder();
     return ret;
 }

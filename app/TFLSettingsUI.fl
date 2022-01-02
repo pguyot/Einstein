@@ -185,7 +185,7 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open
           xywh {10 35 430 375}
         } {
           Fl_Group {} {open
@@ -819,7 +819,7 @@ mSettingsPanel->hide();}
     }
   }
 
-  for (int i=0; i<mCardList.size(); i++) {
+  for (size_t i=0; i<mCardList.size(); i++) {
   	TFLPCCardSettings *card = mCardList[i];
   	slot0menu[i+4] = { card->GetName(), 0, cb_changePCCard0, (void*)i, 0 /* flags */, MENU_FONT };
   	slot1menu[i+4] = { card->GetName(), 0, cb_changePCCard1, (void*)i, 0 /* flags */, MENU_FONT };
@@ -872,14 +872,15 @@ wDontShow->value(dontShow);
 wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
 
 wPCCardList->clear();
-for (int i=0; i<mCardList.size(); i++) {
+for (size_t i=0; i<mCardList.size(); i++) {
 	TFLPCCardSettings *card = mCardList[i];
 	wPCCardList->add(card->GetName(), card);
 }
 wPCCardList->value(0);
 wPCCardList->do_callback();
 
-updateMenus();} {}
+updateMenus();} {selected
+    }
   }
   Function {applyDialog()} {open return_type void
   } {

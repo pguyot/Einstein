@@ -2972,8 +2972,7 @@ TMemory::Init( void )
 Boolean TMemory::AddWatchpoint(VAddr inAddr, KUInt8 inMode)
 {
 	// if there is already a wp, replace it
-	int i;
-	for (i=0; i<mWPCount; i++) {
+	for (KUInt32 i=0; i<mWPCount; i++) {
 		if (mWatchpoints[i].fAddress==inAddr) {
 			mWatchpoints[i].fAddress = inAddr;
 			mWatchpoints[i].fMode = inMode;
@@ -2993,8 +2992,7 @@ Boolean TMemory::AddWatchpoint(VAddr inAddr, KUInt8 inMode)
 Boolean TMemory::ClearWatchpoint(VAddr inAddr)
 {
 	// find the wp
-	int i;
-	for (i=0; i<mWPCount; i++) {
+	for (KUInt32 i=0; i<mWPCount; i++) {
 		if (mWatchpoints[i].fAddress==inAddr) {
 			// move all following wp's one position back
 			memmove(mWatchpoints+i, mWatchpoints+i+1, (kMaxWatchpoints-i-1)*sizeof(SWatchpoint));
@@ -3007,7 +3005,7 @@ Boolean TMemory::ClearWatchpoint(VAddr inAddr)
 
 Boolean TMemory::GetWatchpoint( int inIndex, VAddr &outAddress, KUInt8 &outMode )
 {
-	if (inIndex>=mWPCount) return true;
+	if (inIndex>=(int)mWPCount) return true;
 	outAddress = mWatchpoints[inIndex].fAddress;
 	outMode = mWatchpoints[inIndex].fMode;
 	return false;

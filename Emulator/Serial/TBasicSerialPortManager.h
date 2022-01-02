@@ -89,7 +89,9 @@ public:
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
 	///
-	virtual void TriggerEvent(KUInt8 cmd) { }
+	virtual void TriggerEvent(KUInt8 cmd) {
+        (void)cmd;
+    }
 
 protected:
 

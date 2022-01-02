@@ -211,6 +211,7 @@ TSerialPorts::EDriverID *TSerialPorts::ValidDriversByPort[] =
 NewtRef TSerialPorts::NSGetDriverNames(TNewt::RefArg arg)
 {
 	// ignore the arg (should be NIL)
+    (void)arg;
 	auto nNames = (unsigned)DriverNames.size();
 	TNewt::RefVar array( TNewt::AllocateArray(nNames) );
 	for (unsigned i=0; i<nNames; i++) {

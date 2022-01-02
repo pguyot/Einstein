@@ -128,7 +128,7 @@ private:
 
 	/// \name Variables
     pa_operation*           mPAOperation;
-    char*                   mPAOperationDescr;
+    char const*             mPAOperationDescr;
     pa_stream*              mOutputStream;
     pa_threaded_mainloop*   mPAMainLoop;
     pa_mainloop_api*        mPAMainLoopAPI;

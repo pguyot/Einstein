@@ -116,7 +116,11 @@ public:
 	virtual void Apply(KUInt32 *ROM, KSInt32 inROMId) = 0;
 
 	/// Call the patch code
-	virtual JITUnit *Call(JITUnit *ioUnit, TARMProcessor *ioCPU) { return 0; }
+	virtual JITUnit *Call(JITUnit *ioUnit, TARMProcessor *ioCPU) {
+        (void)ioUnit;
+        (void)ioCPU;
+        return 0;
+    }
 
 	/// Return the name of this patch.
 	const char *GetName() { return mName; }

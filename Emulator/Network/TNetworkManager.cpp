@@ -56,7 +56,7 @@ void TNetworkManager::LogBuffer(KUInt8 *data, KUInt32 size)
 	if (mLog) {
 		mLog->FLogLine("%d bytes at 0x%08x", size, data);
 		char t[72];
-		int i;
+		KUInt32 i;
 		for (i=0; i<size; i++) {
 			if ((i&15)==0) {
 				memset(t, ' ', 71);
@@ -79,6 +79,8 @@ void TNetworkManager::LogBuffer(KUInt8 *data, KUInt32 size)
 	
 
 void TNetworkManager::LogARPPacket(KUInt8 *data, KUInt32 size) {
+    (void)data;
+    (void)size;
 	if (mLog) {
 		mLog->FLogLine("**** ARP Logging not yet supported ****");
 	}
@@ -222,6 +224,9 @@ KUInt16 TNetworkManager::GetTCPChecksum(KUInt8 *d, ssize_t n, Boolean set) {
 
 KUInt16
 TNetworkManager::GetIPv4Checksum(KUInt8 *d, ssize_t n, Boolean set) {
+    (void)n;
+    (void)set;
+
 	KUInt32 s = 0;
 	KUInt16 v, i;
 	if (set) {
@@ -279,6 +284,9 @@ TNetworkManager::Run() {
 // -------------------------------------------------------------------------- //
 void
 TNetworkManager::IsReadyToRead(fd_set* inFDSet) {
+    (void)inFDSet;
+    // TODO: this assumes that the network card is in slot 0
+    // TODO: please document why we are doing this here
 	mMemory->GetPCMCIAController(0)->RaiseInterrupt(TPCMCIAController::kSocketCardIREQIntVector);
 }
 
@@ -287,6 +295,7 @@ TNetworkManager::IsReadyToRead(fd_set* inFDSet) {
 // -------------------------------------------------------------------------- //
 int
 TNetworkManager::SetReadFDSet(fd_set* ioFDSet) {
+    (void)ioFDSet;
 	// We don't have fds yet (those would be connected sockets once the Newton
 	// can establish connections with this interface).
     return 0;

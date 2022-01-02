@@ -1,5 +1,5 @@
 // ==============================
-// File:			TCLIApp.h
+// File:			Version.h
 // Project:			Einstein
 //
 // Copyright 2003-2020 by Paul Guyot (pguyot@kallisys.net).

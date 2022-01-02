@@ -270,6 +270,7 @@ TJITGeneric::GetJITUnitDelta(
 							 JITUnit* inUnit,
 							 KUInt32 inPC)
 {
+    (void)inMemoryInterface;
 	// Get the page from the cache.
 	KUInt32 pc = inPC - 4;
 	TJITGenericPage* theNextPage = GetPage(pc);

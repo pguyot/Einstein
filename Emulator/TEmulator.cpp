@@ -259,6 +259,7 @@ TEmulator::Step( void )
 void
 TEmulator::SystemBootUND( KUInt32 inPAddr )
 {
+    (void)inPAddr;
 	// Just log the string.
 	if (mLog)
 	{
@@ -305,6 +306,8 @@ TEmulator::DebuggerUND( KUInt32 inPAddr )
 void
 TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 {
+    (void)inPAddr;
+    
 	enum {
 		do_sys_open = 0x10,
 		do_sys_close = 0x11,

@@ -102,13 +102,13 @@ static char sSymbolFirstChar = 0;
 
 Fl_Text_Display::Style_Table_Entry TFLScriptEditor::styletable[] =
 {
-    { FL_BLACK,         FL_COURIER,           TS }, // A - Plain
-    { FL_DARK_GREEN,    FL_COURIER,           TS }, // B - Line comments
-    { FL_DARK_GREEN,    FL_COURIER,           TS }, // C - Block comments
-    { 0x99000000,       FL_COURIER,           TS }, // D - Strings
-    { FL_DARK_MAGENTA,  FL_COURIER,           TS }, // E - Symbol
-    { FL_BLUE,          FL_COURIER_BOLD,      TS }, // F - Types
-    { FL_DARK_MAGENTA,  FL_COURIER_BOLD,      TS }, // G - Keywords
+    { FL_BLACK,         FL_COURIER,           TS, 0 }, // A - Plain
+    { FL_DARK_GREEN,    FL_COURIER,           TS, 0 }, // B - Line comments
+    { FL_DARK_GREEN,    FL_COURIER,           TS, 0 }, // C - Block comments
+    { 0x99000000,       FL_COURIER,           TS, 0 }, // D - Strings
+    { FL_DARK_MAGENTA,  FL_COURIER,           TS, 0 }, // E - Symbol
+    { FL_BLUE,          FL_COURIER_BOLD,      TS, 0 }, // F - Types
+    { FL_DARK_MAGENTA,  FL_COURIER_BOLD,      TS, 0 }, // G - Keywords
 };
 
 

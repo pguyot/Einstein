@@ -45,15 +45,18 @@
 #endif
 
 #if TARGET_OS_OPENSTEP
-#if TARGET_IOS
-#import <CFNetwork/CFNetwork.h>
-#else
-#import <CoreServices/CoreServices.h>
-#endif
-#include <stdio.h>
-	#include <syslog.h>
-	#include <stdarg.h>
-#endif
+#   ifdef __OBJC__
+#       if TARGET_IOS
+#           import <CFNetwork/CFNetwork.h>
+#       else
+#           import <CoreServices/CoreServices.h>
+#       endif
+#   endif
+#   include <stdlib.h>
+#   include <stdio.h>
+#   include <syslog.h>
+#   include <stdarg.h>
+#   endif
 
 #if TARGET_OS_COMPAT_POSIX
 	#include <stdio.h>

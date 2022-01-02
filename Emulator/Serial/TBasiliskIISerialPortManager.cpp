@@ -370,7 +370,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 //				if (c&TIOCPKT_NOSTOP) puts("     - TIOCPKT_NOSTOP");
 			} else {
 				// handle incomming data (ignore buf[0]!)
-				for (KUInt32 i=1; i<n; i++) {
+				for (int i=1; i<n; i++) {
 					KUInt8 data = buf[i];
 					mMemory->WriteBP(mRxDMAPhysicalData, data);
 					mRxDMAPhysicalData++;

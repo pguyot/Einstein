@@ -541,7 +541,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 {
 	Boolean theResult = true;
 	int theArgInt, theArgInt2;
-	char theLine[256];
+	char theLine[512];
 
 	static KUInt32 lastDisStart = 0;
 
@@ -921,7 +921,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				char disasm[256];
 
 				UDisasm::Disasm(disasm, 256, addr, data);
-				::snprintf(theLine, 256, "     %08X   %s", addr, disasm);
+				::snprintf(theLine, sizeof(theLine), "     %08X   %s", addr, disasm);
 				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
 
@@ -1502,7 +1502,7 @@ TMonitor::DrawScreenHalted( void )
 	char theSymbol[512];
 	char theComment[512];
 	int theOffset;
-	char theLine[512];
+	char theLine[768];
 
 	if ( mSymbolList )
 	{
@@ -1712,10 +1712,10 @@ TMonitor::PrintCurrentInstruction()
 void
 TMonitor::PrintInstruction( KUInt32 inAddress )
 {
-	char theSymbol[512];
+	char theSymbol[128];
 	char theComment[512];
 	int theOffset;
-	char theLine[512];
+	char theLine[768];
 	// If instruction is at the top of a function, print its name.
 	mSymbolList->GetNearestSymbolByAddress( inAddress, theSymbol, theComment, &theOffset );
 	if (theOffset == 0)
@@ -1769,7 +1769,7 @@ TMonitor::PrintBacktrace(KSInt32 inNWords)
 	KUInt32 theData;
 	char theSymbol[512];
 	char theComment[512];
-	char theLine[512];
+	char theLine[768];
 	int theOffset;
 	if (inNWords<=0)
 		inNWords = 28; // approximatly one full screen
@@ -1997,7 +1997,7 @@ TMonitor::FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 inAddr, unsign
 		// Symbol, skip hash value.
 		bool needEscape = false;
 		char *symbolStr = (char*)::malloc(length+1);
-		for (int i = 0; i < length; i++) {
+		for (unsigned int i = 0; i < length; i++) {
 			KUInt8 byte;
 			KUInt32 byteAddr = inAddr + 16 + i;
 			if (mMemory->ReadB((TMemory::VAddr) byteAddr, byte))

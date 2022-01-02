@@ -237,7 +237,7 @@ TPipesSerialPortManager::HandleDMA()
 
 	// thread loops and handles pipe, port, and DMA
 	fd_set readSet;
-	struct timeval timeout = { 0 };
+	struct timeval timeout = { 0, 0 };
 	for (;;) {
 		bool needTimer = false;
 
@@ -310,7 +310,7 @@ TPipesSerialPortManager::HandleDMA()
 				// KPrintf("***** No data yet\n");
 			} else {
 				//KPrintf("----> Received %d bytes data from NCX\n", n);
-				for (KUInt32 i=0; i<n; i++) {
+				for (int i=0; i<n; i++) {
 					KUInt8 data = buf[i];
 					mMemory->WriteBP(mRxDMAPhysicalData, data);
 					//KPrintf(" rx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');

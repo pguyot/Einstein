@@ -405,8 +405,9 @@ TPCMCIAController::RaiseInterrupt( int inVector )
 void 
 TPCMCIAController::LogRegister(KUInt32 reg, KUInt32 v) 
 {
+    (void)reg;
+    (void)v;
 #if 0
-	
 	if (!mLog)
 		return;
 	

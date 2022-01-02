@@ -139,7 +139,8 @@ TFileManager::new_descriptor_with_name( const char *name )
 void
 TFileManager::open_listener( const char *name, KUInt32 desc )
 {
-	
+    (void)name;
+    (void)desc;
 }
 
 // -------------------------------------------------------------------------- //
@@ -148,7 +149,7 @@ TFileManager::open_listener( const char *name, KUInt32 desc )
 void
 TFileManager::close_listener( KUInt32 desc )
 {
-	
+    (void)desc;
 }
 
 // -------------------------------------------------------------------------- //
@@ -157,6 +158,9 @@ TFileManager::close_listener( KUInt32 desc )
 KSInt32
 TFileManager::write_listener( KUInt32 desc, const void *buf, KUInt32 nbytes )
 {
+    (void)desc;
+    (void)buf;
+    (void)nbytes;
 	return -1;
 }
 
@@ -166,6 +170,9 @@ TFileManager::write_listener( KUInt32 desc, const void *buf, KUInt32 nbytes )
 KSInt32
 TFileManager::read_listener( KUInt32 desc, void *buf, KUInt32 nbytes )
 {
+    (void)desc;
+    (void)buf;
+    (void)nbytes;
 	return -1;
 }
 
@@ -358,6 +365,8 @@ TFileManager::do_sys_set_input_notify( KUInt32 fp, KUInt32 address )
 KSInt32
 TFileManager::do_sys_seek( KUInt32 fp, KUInt32 pos )
 {
+    (void)pos;
+    
 	if (FILE_LOGGING) {
 		KPrintf( "%s fp=%i, pos=%i\n", __PRETTY_FUNCTION__, (int)fp, (unsigned)pos);
 	}

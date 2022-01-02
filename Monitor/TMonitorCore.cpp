@@ -60,6 +60,7 @@ TMonitorCore::~TMonitorCore()
 
 void TMonitorCore::PrintLine(const char* inLine, int type)
 {
+    (void)type;
 	puts(inLine);
 }
 

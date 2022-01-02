@@ -94,7 +94,7 @@ TSymbolList::~TSymbolList( void )
 {
 	if ( mSymbolOffsets )
 	{
-		for ( int i = 0; i < mSymbolCount; i++ )
+		for ( KUInt32 i = 0; i < mSymbolCount; i++ )
 		{
 			struct SSymbolStruct* s = mSymbolOffsets + i;
 			
@@ -826,7 +826,7 @@ TSymbolList::GetSymbolByName( const char* inName )
 	
 	if ( inName != NULL )
 	{
-		for ( int i = 0; i < mSymbolCount; i++ )
+		for ( KUInt32 i = 0; i < mSymbolCount; i++ )
 		{
 			struct SSymbolStruct* s = mSymbolOffsets + i;
 			
@@ -850,7 +850,7 @@ TSymbolList::GetNextSymbol( KUInt32 inAddress )
 {
 	KUInt32 outAddress = kNoSymbol;
 	
-	for ( int i = 0; i < mSymbolCount; i++ )
+	for ( KUInt32 i = 0; i < mSymbolCount; i++ )
 	{
 		struct SSymbolStruct* s = mSymbolOffsets + i;
 		

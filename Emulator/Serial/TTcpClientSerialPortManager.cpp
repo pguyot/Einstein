@@ -333,6 +333,7 @@ TTcpClientSerialPortManager::Connect()
 
 static void sigpipe_handler(int unused)
 {
+    (void)unused;
 	// don't do anything. The server disconnected faster than the client would realize that.
 }
 
@@ -541,7 +542,7 @@ TTcpClientSerialPortManager::HandleDMAReceive()
 	} else {
 		// delay up to 1/10th of a second, so that we do not overwhelm the Newton
 		std::this_thread::sleep_for(std::chrono::microseconds(n*100));
-		for (KUInt32 i=0; i<n; i++) {
+		for (int i=0; i<n; i++) {
 			KUInt8 data = buf[i];
 			//KPrintf("Received 0x%02x\n", data);
 			mMemory->WriteBP(mRxDMAPhysicalData, data);

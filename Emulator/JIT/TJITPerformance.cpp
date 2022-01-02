@@ -97,14 +97,14 @@ void TJITPerfHitCounter::printOneHit(FILE *out, KUInt32 style, TSymbolList *inSy
 	if (count > 0 || !(style & kStyleNonZeroOnly)) {
 		if (inSymbols != NULL) exactSymbol = inSymbols->GetSymbolByAddress(addr, symbol, comment, &offset);
 		if (exactSymbol) {
-			fprintf(out, "%s\t%19llu\n", symbol, count);
+			fprintf(out, "%s\t%19llu\n", symbol, (long long unsigned)count);
 		} else if ((style & kStyleSymbolsOnly) == 0) {
 			if (style & kStyleHex) {
 				fprintf(out, "%08X: ", (unsigned int)addr);
 			} else {
 				fprintf(out, "%8d: ", (unsigned int)addr);
 			}
-			fprintf(out, "%19llu\n", count);
+			fprintf(out, "%19llu\n", (long long unsigned)count);
 		}
 	}
 }
@@ -170,7 +170,7 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, TSymbolList *inSymbols,
 					m += mArray[i];
 				}
 			}
-			fprintf(out, "%ld of %li memory addresses in %lld cycles executed.\n", (unsigned long)o, (unsigned long)mSize, m);
+			fprintf(out, "%ld of %li memory addresses in %lld cycles executed.\n", (unsigned long)o, (unsigned long)mSize, (long long unsigned)m);
 			for (i=0; i<n; i++) {
 				m = 0; ix = 0;
 				for (j=0; j<mSize; j++) {
