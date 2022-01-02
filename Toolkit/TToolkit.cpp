@@ -341,7 +341,7 @@ void TToolkit::UserActionRun()
     AppBuild();
     // TODO: if newly build, install
     AppInstall();
-    // TODO: erroro, if we can;t run the app
+    // TODO: error, if we can't run the app
     AppRun();
 }
 
@@ -567,6 +567,8 @@ void TToolkit::AppInstall()
 
     // install the package that we just created
     mApp->InstallPackagesFromURI(mPkgPath);
+    // mgr->EvalNewtonScript("|Einstein:log|(\"Hello, Einstein\n\");");
+
 }
 
 

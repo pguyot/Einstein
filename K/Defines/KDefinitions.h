@@ -209,7 +209,7 @@
 	
 #endif
 
-#if TARGET_OS_MAC
+#if defined(TARGET_OS_MAC) && TARGET_OS_MAC
 	#if defined(TARGET_OS_MACOS) && TARGET_OS_MACOS
 		#include <ConditionalMacros.h>
 	#endif

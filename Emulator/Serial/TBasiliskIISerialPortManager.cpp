@@ -91,8 +91,13 @@ TBasiliskIISerialPortManager::TBasiliskIISerialPortManager(
 // -------------------------------------------------------------------------- //
 TBasiliskIISerialPortManager::~TBasiliskIISerialPortManager()
 {
-	if (mDMAIsRunning)
-		TriggerEvent('Q');
+    void *threadStatus;
+
+    // always shut down the thread properly, so we clean up the filesystem after ourselves.
+    TriggerEvent(kSerCmd_StopThread);
+    pthread_join(mDMAThread, &threadStatus);
+    // clean up the symlink
+    unlink(kBasiliskPipe);
 }
 
 
@@ -260,7 +265,6 @@ TBasiliskIISerialPortManager::RunDMA()
 		KPrintf("***** TBasiliskIISerialPortManager::RunDMA: Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
-	pthread_detach( mDMAThread );
 }
 
 
@@ -270,7 +274,7 @@ TBasiliskIISerialPortManager::RunDMA()
 //		OS, and read and writes data via the outside communication ports.
 //		It can also trigger interrupts when buffers empty, fill, or overflow.
 // -------------------------------------------------------------------------- //
-void
+int
 TBasiliskIISerialPortManager::HandleDMA()
 {
 	bool shutdownThread = false;
@@ -413,6 +417,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 	}
 	ClosePTY();
 	mDMAIsRunning = false;
+    return 0;
 }
 
 

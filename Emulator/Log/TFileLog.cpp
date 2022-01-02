@@ -34,7 +34,7 @@
 // -------------------------------------------------------------------------- //
 TFileLog::TFileLog( const char* inFilePath )
 {
-	mFile = ::fopen( inFilePath, "a" );;
+	mFile = ::fopen( inFilePath, "a" );
 	if (mFile == NULL)
 	{
 		(void) ::fprintf(
