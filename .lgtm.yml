@@ -16,11 +16,11 @@ extraction:
         - cmake -S newt64 -B newt64/build
         - cmake --build newt64/build
         - cmake --install newt64/build
-      command:
-        - git clone https://github.com/fltk/fltk.git
-        - cmake -S fltk -B fltk/build -D OPTION_USE_SYSTEM_LIBJPEG=Off -D OPTION_USE_SYSTEM_ZLIB=Off -D OPTION_USE_SYSTEM_LIBPNG=Off -D FLTK_BUILD_TEST=Off -D OPTION_USE_GL=Off
-        - cmake --build fltk/build
-        - cmake --install fltk/build
+    before_index:
+      - git clone https://github.com/fltk/fltk.git
+      - cmake -S fltk -B fltk/build -D OPTION_USE_SYSTEM_LIBJPEG=Off -D OPTION_USE_SYSTEM_ZLIB=Off -D OPTION_USE_SYSTEM_LIBPNG=Off -D FLTK_BUILD_TEST=Off -D OPTION_USE_GL=Off
+      - cmake --build fltk/build
+      - cmake --install fltk/build
     # before_index:    # Customizable step used by all languages.
     index:    # Customizable step used by all languages.
       build_command:
