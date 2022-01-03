@@ -67,6 +67,9 @@ decl {\#include <FL/Fl_Native_File_Chooser.H>} {private local
 decl {\#include <FL/Fl.H>} {private local
 }
 
+decl {\#include <FL/fl_draw.H>} {private local
+}
+
 Function {cb_keepInSlot0(Fl_Menu_Item* mi, void* user_data)} {open private return_type void
 } {
   code {if (mi->value()) {
@@ -99,6 +102,182 @@ Function {cb_changePCCard1(Fl_Widget*, void* user_data)} {open private return_ty
   code {gApp->UserActionPCCard(1, (long)user_data);} {}
 }
 
+Function {make_path(char *buf, void* user_data)} {open private return_type void
+} {
+  code {char *link = (char*)user_data;
+// skip a potential warning message
+if (link[0]=='W') {
+  link += strlen(link)+1;
+}
+// prepend the host path
+buf[0] = 0;
+switch (link[0]) {
+  case 'U':
+    strcpy(buf, gApp->GetSettings()->mUnnaPath);
+    break;
+  case 'M':
+    strcpy(buf, gApp->GetSettings()->mMessagepadOrgPath);
+    break;
+  case ':':
+    break;
+}
+strcat(buf, link+1);} {}
+}
+
+Function {get_path(const char *text)} {open private return_type {char *}
+} {
+  code {char buf[FL_PATH_MAX];
+make_path(buf, (void*)text);
+return strdup(buf);} {}
+}
+
+Function {install_package_cb(Fl_Widget*, void* user_data)} {open private return_type void
+} {
+  code {char buf[FL_PATH_MAX];
+char *text = (char*)user_data;
+if (text[0]=='W') {
+  if (fl_choice("%s", nullptr, "Cancel", "Proceed", text+1)!=2)
+    return;
+}
+make_path(buf, user_data);
+gApp->InstallPackagesFromURI(buf);} {}
+}
+
+Function {link_document_cb(Fl_Widget*, void* user_data)} {open private return_type void
+} {
+  code {char buf[FL_PATH_MAX];
+make_path(buf, user_data);
+char errmsg[512];
+if (!fl_open_uri(buf, errmsg, sizeof(errmsg))) {
+    fl_alert("Error: %s", errmsg);
+}} {}
+}
+
+Function {makeInstaller()} {open
+} {
+  Fl_Window wInstallerWindow {
+    label {Install Essentials} open
+    xywh {462 302 300 400} type Double resizable hotspot size_range {300 200 300 0} visible
+  } {
+    Fl_Scroll {} {open
+      xywh {0 0 300 400} resizable
+    } {
+      Fl_Pack wInstallerList {open
+        xywh {0 0 280 400} resizable
+      } {}
+    }
+  }
+}
+
+Function {addInstallerTitle(const char *inTitle)} {open
+} {
+  code {wInstallerList->begin();} {}
+  Fl_Window {} {open
+    xywh {547 429 280 30} type Double labelfont 1 labelsize 22 align 16
+    code0 {o->label(inTitle);}
+    class Fl_Group visible
+  } {
+    Fl_Box {} {
+      label label
+      xywh {0 0 280 30} box FLAT_BOX color 36 labelsize 20 labelcolor 7
+      code0 {o->label(inTitle);}
+    }
+  }
+}
+
+Function {addInstallerGroup(const char *inTitle)} {open
+} {
+  code {wInstallerList->begin();} {}
+  Fl_Window {} {open
+    xywh {560 367 280 30} type Double labelfont 1 labelsize 22 align 16
+    code0 {o->label(inTitle);}
+    class Fl_Group visible
+  } {
+    Fl_Box {} {
+      label label
+      xywh {0 0 280 30} labelsize 16
+      code0 {o->label(inTitle);}
+    }
+  }
+}
+
+Function {addInstallerText(const char *inText)} {open
+} {
+  code {wInstallerList->begin();} {}
+  Fl_Window wInstallerTextGroup {open
+    xywh {560 367 280 26} type Double labelfont 1 labelsize 22 align 16
+    class Fl_Group visible
+  } {
+    Fl_Box {} {
+      label label
+      xywh {10 3 260 20} box FLAT_BOX labelsize 12 align 149
+      code0 {o->label(inText);}
+      code1 {fl_font(FL_HELVETICA, 12);}
+      code2 {int ww = o->w(), hh = 0; fl_measure(inText, ww, hh, 1);}
+      code3 {wInstallerTextGroup->resize(0, 0, wInstallerTextGroup->w(), hh+6); o->resize(10, 3, o->w(), hh);}
+    }
+  }
+}
+
+Function {addInstallerPackage(const char *inTitle, const char *inLink)} {open
+} {
+  code {wInstallerList->begin();} {}
+  Fl_Window {} {open
+    xywh {548 563 280 26} type Double labelfont 1 labelsize 22 align 16
+    class Fl_Group visible
+  } {
+    Fl_Button {} {
+      label Install
+      user_data inLink
+      callback install_package_cb
+      xywh {10 3 70 20} labelsize 12
+      code0 {o->tooltip(get_path(inLink));}
+    }
+    Fl_Box {} {
+      xywh {85 3 175 20} labelsize 13 align 20
+      code0 {o->label(inTitle);}
+    }
+  }
+}
+
+Function {addInstallerLink(const char *inTitle, const char *inLink)} {open
+} {
+  code {wInstallerList->begin();} {}
+  Fl_Window {} {open
+    xywh {547 502 280 26} type Double labelfont 1 labelsize 22 align 16
+    class Fl_Group visible
+  } {
+    Fl_Button {} {
+      label {@ext  Read}
+      user_data inLink
+      callback link_document_cb
+      xywh {10 3 70 20} labelsize 12
+      code0 {o->tooltip(get_path(inLink));}
+    }
+    Fl_Box {} {
+      xywh {85 3 175 20} labelsize 13 align 20
+      code0 {o->label(inTitle);}
+    }
+  }
+}
+
+Function {addInstallerScript(const char *inTitle, const char *inScript)} {open
+} {
+  code {wInstallerList->begin();} {}
+  Fl_Window {} {open
+    xywh {543 629 280 30} type Double labelfont 1 labelsize 22 labelcolor 3 align 16
+    class Fl_Group visible
+  } {
+    Fl_Button {} {
+      user_data inScript
+      callback {gApp->GetPlatformManager()->EvalNewtonScript((char*)v);} selected
+      xywh {40 4 200 22} labelsize 12
+      code0 {o->label(inTitle);}
+      code1 {o->tooltip(inScript);}
+    }
+  }
+}
+
 class TFLSettingsUI {open : {public TFLSettings}
 } {
   Function {TFLSettingsUI()} {} {
@@ -117,7 +296,7 @@ wAbout = nullptr;} {}
     revertDialog();
     mSettingsPanel->hide();
 }} open
-      xywh {447 451 450 455} type Double visible
+      xywh {400 760 450 455} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu}
@@ -185,7 +364,7 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open
           xywh {10 35 430 375}
         } {
           Fl_Group {} {open
@@ -193,7 +372,7 @@ wAbout = nullptr;} {}
           } {
             Fl_Input wMPConfigName {
               label {Configuration: }
-              tooltip {give this MessagePad configuration a name} xywh {120 50 160 25} color 53 deactivate
+              tooltip {give this MessagePad configuration a name} xywh {120 50 160 25} color 54 deactivate
               code0 {o->value("default");}
             }
             Fl_Button wMPConfigMenuButton {
@@ -214,7 +393,7 @@ wAbout = nullptr;} {}
           } {
             Fl_Output wROMName {
               label {Newton ROM: }
-              xywh {120 95 235 20} color 51 labelsize 13 textsize 12
+              xywh {120 95 235 20} color 54 labelsize 13 textsize 12
             }
             Fl_Box wROMPath {
               label {/here/goes/the/path/and/filename/of/the/ROM}
@@ -246,7 +425,7 @@ Einstein does not include any ROMs.} xywh {355 95 75 20} labelsize 12
           } {
             Fl_Output wFlashName {
               label {System Flash: }
-              xywh {120 180 160 20} color 51 labelsize 13 textsize 12
+              xywh {120 180 160 20} color 54 labelsize 13 textsize 12
             }
             Fl_Box wFlashPath {
               label {/here/goes/the/path/and/filename/of/the/FlashFile}
@@ -340,12 +519,12 @@ if (filename) {
             Fl_Input wWidth {
               label {Screen Size: }
               tooltip {Screen width in pixels,
-Original screen size is 320x480} xywh {120 90 80 20} type Int labelsize 13 textsize 12
+Original screen size is 320x480} xywh {120 90 80 20} type Int color 54 labelsize 13 textsize 12
             }
             Fl_Input wHeight {
               label {x }
               tooltip {Screen height in pixels,
-Original screen size is 320x480} xywh {215 90 80 20} type Int labelsize 12 textsize 12
+Original screen size is 320x480} xywh {215 90 80 20} type Int color 54 labelsize 12 textsize 12
             }
             Fl_Check_Button wFullScreen {
               label {Full screen}
@@ -386,7 +565,7 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
           } {
             Fl_Input wUIConfigName {
               label {Configuration: }
-              tooltip {give this User Interface configuration a name} xywh {120 50 160 25} color 53 deactivate
+              tooltip {give this User Interface configuration a name} xywh {120 50 160 25} color 54 deactivate
               code0 {o->value("default");}
             }
             Fl_Button wUIConfigMenuButton {
@@ -424,7 +603,7 @@ if (ix==-1) {
 	wPCCardName->value( card->GetName() );
 }
 \#endif}
-            xywh {120 50 235 165} type Hold labelsize 12 align 4 when 1 textsize 12
+            xywh {120 50 235 165} type Hold color 54 labelsize 12 align 4 when 1 textsize 12
           }
           Fl_Menu_Bar {} {open
             xywh {120 215 25 25}
@@ -688,44 +867,57 @@ if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kLinear) {
           }
         }
         Fl_Group {} {
-          label {  Resources  }
+          label {  Resources  } open
           xywh {10 35 430 375} hide
         } {
-          Fl_Input_Choice {} {
-            label {United Newton
-Network Archives} open
-            xywh {172 80 252 24} deactivate
+          Fl_Input_Choice wUnnaPath {
+            label {UNNA Database: } open
+            tooltip {United Network of Newton Archives} xywh {172 80 210 20} color 54 labelsize 13 textsize 12
+            code0 {o->value("http://www.unna.org/");}
           } {
             MenuItem {} {
               label {http://www.unna.org/}
-              xywh {0 0 100 20}
+              xywh {0 0 100 20} labelsize 12
+            }
+            MenuItem {} {
+              label {http://vermont.unna.org/}
+              xywh {0 0 100 20} labelsize 12
+            }
+            MenuItem {} {
+              label {http://philly.unna.org/}
+              xywh {0 0 100 20} labelsize 12
             }
           }
-          Fl_Input_Choice {} {
-            label {local unna archive} open
-            xywh {172 124 252 24} deactivate
+          Fl_Button wUnnaPathChoose {
+            label {@fileopen}
+            callback {const char *filename = gApp->ChooseExistingDirectory(
+	"Choose UNNA directory",
+	nullptr,
+	wUnnaPath->label()
+);
+if (filename) {
+    wUnnaPath->value(filename);
+}}
+            tooltip {Select a local copy of the UNNA archive} xywh {382 80 42 20} labelsize 12 labelcolor 3
+          }
+          Fl_Input_Choice wMessagepadOrgPath {
+            label {messagepad.org: } open
+            xywh {172 115 252 20} color 54 labelsize 13 textsize 12
+            code0 {o->value("http://www.messagepad.org/");}
           } {
             MenuItem {} {
-              label {http://www.unna.org/}
-              xywh {12 12 100 20}
+              label {http://www.messagepad.org/}
+              xywh {36 36 100 20} labelsize 12
             }
           }
-          Fl_Input_Choice {} {
-            label {Pawels archive} open
-            xywh {172 168 252 24} deactivate
+          Fl_Input_Choice wGitRepoPath {
+            label {Git Repository: } open
+            xywh {172 150 252 20} color 54 labelsize 13 textsize 12
+            code0 {o->value("https://github.com/pguyot/Einstein.git");}
           } {
             MenuItem {} {
-              label {http://www.unna.org/}
-              xywh {24 24 100 20}
-            }
-          }
-          Fl_Input_Choice {} {
-            label {MessagePad.org} open
-            xywh {172 212 252 24} deactivate
-          } {
-            MenuItem {} {
-              label {http://www.unna.org/}
-              xywh {36 36 100 20}
+              label {https://github.com/pguyot/Einstein.git}
+              xywh {36 36 100 20} labelsize 12
             }
           }
         }
@@ -884,6 +1076,10 @@ for (size_t i=0; i<mCardList.size(); i++) {
 wPCCardList->value(0);
 wPCCardList->do_callback();
 
+wUnnaPath->value(mUnnaPath);
+wMessagepadOrgPath->value(mMessagepadOrgPath);
+wGitRepoPath->value(mGitRepoPath);
+
 updateMenus();} {}
   }
   Function {applyDialog()} {open return_type void
@@ -916,6 +1112,13 @@ for (int i=0; i<wPCCardList->size(); i++) {
 }
 endUpdateCardList();
 
+free(mUnnaPath);
+mUnnaPath = strdup(wUnnaPath->value());
+free(mMessagepadOrgPath);
+mMessagepadOrgPath = strdup(wMessagepadOrgPath->value());
+free(mGitRepoPath);
+mGitRepoPath = strdup(wGitRepoPath->value());
+
 updateMenus();} {}
   }
   Function {runningMode()} {open return_type void
@@ -934,9 +1137,10 @@ win->hide();} {}
   Function {createAboutDialog()} {open
   } {
     Fl_Window wAbout {
+      label {About Einstein}
       user_data wAbout
       callback {o->hide();} open
-      xywh {484 208 335 200} type Double non_modal visible
+      xywh {152 481 335 200} type Double non_modal visible
     } {
       Fl_Box {} {
         image {../Resources/icons/EinsteinApp64.png} xywh {133 5 69 75}

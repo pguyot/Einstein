@@ -242,7 +242,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Monitor/TFLMonitor.h"
 #include "Monitor/TSymbolList.h"
 
-static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, Boolean save);
+static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, int type);
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -770,6 +770,119 @@ void TFLApp::UserActionPrintScreen()
     delete p;
 }
 
+#define BP fl_begin_polygon()
+#define EP fl_end_polygon()
+#define BCP fl_begin_complex_polygon()
+#define ECP fl_end_complex_polygon()
+#define BL fl_begin_line()
+#define EL fl_end_line()
+#define BC fl_begin_loop()
+#define EC fl_end_loop()
+#define vv(x,y) fl_vertex(x,y)
+
+#define VF 0.9
+#define VL 0.65
+#define VB 0.0
+
+#define AF 1.0
+#define AL 0.6
+#define AB 0.15
+#define AA 0.15
+
+static void extSymbol(Fl_Color c) {
+    fl_color(c);
+    BCP;
+    // outline square, starting right side
+    vv(VF, -VB); vv(VF, VF); vv(-VF, VF); vv(-VF, -VF); vv(VB, -VF);
+    // inline square
+    vv(VB, -VL); vv(-VL, -VL); vv(-VL, VL); vv(VL, VL); vv(VL, -VB);
+    ECP;
+    BCP;
+    vv(-AA, -AA); vv(0.4, -AL-AA); vv(AB, -AF); vv(AF, -AF); vv(AF, -AB); vv(AL+AA, -0.4); vv(AA, AA);
+    ECP;
+#if 0
+    fl_color(fl_darker(c));
+    BC;
+    // outline square, starting right side
+    vv(VF, -VB); vv(VF, VF); vv(-VF, VF); vv(-VF, -VF); vv(VB, -VF);
+    // inline square
+    vv(VB, -VL); vv(-VL, -VL); vv(-VL, VL); vv(VL, VL); vv(VL, -VB);
+    EC;
+    BC;
+    vv(-AA, -AA); vv(0.4, -AL-AA); vv(AB, -AF); vv(AF, -AF); vv(AF, -AB); vv(AL+AA, -0.4); vv(AA, AA);
+    EC;
+#endif
+}
+
+/**
+ Texts begin with ':' if they remain unchange, 'U' to prepend an Unna link, 'M' for messagepad.org.
+ If a link starts with 'W', the text will be used to display a warning. A second text must follow
+ separated by the NUL character '\0'.
+ */
+void TFLApp::UserActionInstallEssentials()
+{
+    if (!wInstallerWindow) {
+        fl_add_symbol("ext", extSymbol, 1);
+        wInstallerWindow = makeInstaller();
+        // TODO: we could make the titles, groups, and comments foldable!
+        // TODO: allo wmultiple files in a single installer
+        addInstallerTitle("Essentials");
+        addInstallerGroup("NewtonOS Y2K10");
+        addInstallerLink("the Newton Year 2010 Problem",
+                         ":https://40hz.org/Pages/newton/hacking/newton-year-2010-problem/");
+//        addInstallerLink("readme.txt:",
+//                         "MDownloads/Einstein/Essentials/y2k10/README.txt");
+        addInstallerText("Please select the patch that matches the ROM image of your machine.");
+        addInstallerPackage("US MP2x00 patch:",
+                            "WInstalling this patch will irreversibly erase all data\n"
+                            "on your MessagePad.\n\n"
+                            "Please proceed only if this a new device, or if your\n"
+                            "data is securely backed up!\0"
+                            "MDownloads/Einstein/Essentials/y2k10/Patch_US.pkg");
+        addInstallerPackage("German MP2x00 patch:",
+                            "WInstalling this patch will irreversibly erase all data\n"
+                            "on your MessagePad.\n\n"
+                            "Please proceed only if this a new device, or if your\n"
+                            "data is securely backed up!\0"
+                            "MDownloads/Einstein/Essentials/y2k10/Patch_D.pkg");
+        addInstallerPackage("eMate 300 patch:",
+                            "WInstalling this patch will irreversibly erase all data\n"
+                            "on your eMate 300.\n\n"
+                            "Please proceed only if this a new device, or if your\n"
+                            "data is securely backed up!\0"
+                            "MDownloads/Einstein/Essentials/y2k10/Patch_eMate.pkg");
+        addInstallerTitle("Networking");
+        addInstallerGroup("NIE: Newton Internet Enabler");
+        addInstallerText("The NIE package was released by Apple in 1996 to give Newton access to the internet.");
+        addInstallerText("Please insatll all of the following drivers.");
+        addInstallerPackage("enetsup.pkg",
+                            "Uunna/apple/software/Internet/NIE2/ENETSUP/enetsup.pkg");
+        addInstallerPackage("inetenbl.pkg",
+                            "Uunna/apple/software/Internet/NIE2/REGPKGS/inetenbl.pkg");
+        addInstallerPackage("newtdev.pkg",
+                            "Uunna/apple/software/Internet/NIE2/ENETSUP/newtdev.pkg");
+        addInstallerPackage("inetstup.pkg",
+                            "Uunna/apple/software/Internet/NIE2/REGPKGS/inetstup.pkg");
+        addInstallerPackage("NE2K.pkg",
+                            "MDownloads/Einstein/Essentials/NIE/NE2K.pkg");
+        // TODO: Launch Internet Setup, or better yet, do the entire setup
+        addInstallerScript("Open Internet Setup", "GetRoot().|InternetSetup:NIE|:Open();");
+        addInstallerGroup("Internet Apps");
+        addInstallerText("Courier is a neat little text browser...");
+        addInstallerTitle("Developer Apps");
+        addInstallerGroup("ViewFrame 1.3b");
+        addInstallerPackage("PROGKEYB.PKG", "Uunna/development/tools/ViewFrame1.3b/PROGKEYB.PKG");
+        addInstallerPackage("VFEDITOR.PKG", "Uunna/development/tools/ViewFrame1.3b/VFEDITOR.PKG");
+        addInstallerPackage("VFFUNCTI.PKG", "Uunna/development/tools/ViewFrame1.3b/VFFUNCTI.PKG");
+        addInstallerPackage("VFGENERA.PKG", "Uunna/development/tools/ViewFrame1.3b/VFGENERA.PKG");
+        addInstallerPackage("VFINTERC.PKG", "Uunna/development/tools/ViewFrame1.3b/VFINTERC.PKG");
+        addInstallerPackage("VIEWFRAM.PKG", "Uunna/development/tools/ViewFrame1.3b/VIEWFRAM.PKG");
+        addInstallerPackage("VFDANTE.PKG", "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFDANTE.PKG");
+        addInstallerPackage("VFKEYS.PKG", "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFKEYS.PKG");
+
+    }
+    wInstallerWindow->show();
+}
 
 // MARK: -
 // ---  Events from within the meulator
@@ -1228,9 +1341,9 @@ static void tabs_box(int x, int y, int w, int h, Fl_Color c)
     fl_rectf(x, y+barHgt, w, h-barHgt, c);
 }
 
-static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, Boolean save)
+static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, int type)
 {
-#if TARGET_OS_LINUX
+#if UPDATED_TARGET_OS_LINUX
     char pattern[FL_PATH_MAX]; pattern[0] = 0;
     if (pat) {
         const char *s = pat;
@@ -1269,12 +1382,19 @@ static const char *tfl_file_chooser(const char *message, const char *pat, const 
 
     Fl_Native_File_Chooser fnfc;
     fnfc.title(message);
-    if (save) {
-        fnfc.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
-        fnfc.options(Fl_Native_File_Chooser::NEW_FOLDER|Fl_Native_File_Chooser::USE_FILTER_EXT);
-    } else {
-        fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
-        fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
+    switch (type) {
+        case 0:
+            fnfc.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+            fnfc.options(Fl_Native_File_Chooser::NEW_FOLDER|Fl_Native_File_Chooser::USE_FILTER_EXT);
+            break;
+        case 1:
+            fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
+            fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
+            break;
+        case 2:
+            fnfc.type(Fl_Native_File_Chooser::BROWSE_DIRECTORY);
+            fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
+            break;
     }
     fnfc.filter(pat);
     fnfc.directory(fdir);
@@ -1294,12 +1414,17 @@ static const char *tfl_file_chooser(const char *message, const char *pat, const 
 
 const char *TFLApp::ChooseExistingFile(const char *message, const char *pat, const char *fname)
 {
-    return tfl_file_chooser(message, pat, fname, false);
+    return tfl_file_chooser(message, pat, fname, 1);
+}
+
+const char *TFLApp::ChooseExistingDirectory(const char *message, const char *pat, const char *fname)
+{
+    return tfl_file_chooser(message, pat, fname, 2);
 }
 
 const char *TFLApp::ChooseNewFile(const char *message, const char *pat, const char *fname)
 {
-    return tfl_file_chooser(message, pat, fname, true);
+    return tfl_file_chooser(message, pat, fname, 0);
 }
 
 
