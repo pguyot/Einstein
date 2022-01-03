@@ -13,7 +13,7 @@ extraction:
     configure:    # Customizable step used only by C/C++ extraction.
       command:
         - git clone https://github.com/MatthiasWM/NEWT64.git newt64
-        - cmake -S NEWT64 -B newt64/build
+        - cmake -S newt64 -B newt64/build
         - cmake --build newt64/build
         - git clone https://github.com/fltk/fltk.git
         - cmake -S fltk -B fltk/build -D OPTION_USE_SYSTEM_LIBJPEG=Off -D OPTION_USE_SYSTEM_ZLIB=Off -D OPTION_USE_SYSTEM_LIBPNG=Off -D FLTK_BUILD_TEST=Off -D OPTION_USE_GL=Off
