@@ -833,19 +833,19 @@ void TFLApp::UserActionInstallEssentials()
 //        addInstallerLink("readme.txt:",
 //                         "MDownloads/Einstein/Essentials/y2k10/README.txt");
         addInstallerText("Please select the patch that matches the ROM image of your machine.");
-        addInstallerPackage("US MP2x00 patch:",
+        addInstallerPackage("US MP2x00 patch",
                             "WInstalling this patch will irreversibly erase all data\n"
                             "on your MessagePad.\n\n"
                             "Please proceed only if this a new device, or if your\n"
                             "data is securely backed up!\0"
                             "MDownloads/Einstein/Essentials/y2k10/Patch_US.pkg");
-        addInstallerPackage("German MP2x00 patch:",
+        addInstallerPackage("German MP2x00 patch",
                             "WInstalling this patch will irreversibly erase all data\n"
                             "on your MessagePad.\n\n"
                             "Please proceed only if this a new device, or if your\n"
                             "data is securely backed up!\0"
                             "MDownloads/Einstein/Essentials/y2k10/Patch_D.pkg");
-        addInstallerPackage("eMate 300 patch:",
+        addInstallerPackage("eMate 300 patch",
                             "WInstalling this patch will irreversibly erase all data\n"
                             "on your eMate 300.\n\n"
                             "Please proceed only if this a new device, or if your\n"
