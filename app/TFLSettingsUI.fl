@@ -270,7 +270,7 @@ Function {addInstallerScript(const char *inTitle, const char *inScript)} {open
   } {
     Fl_Button {} {
       user_data inScript
-      callback {gApp->GetPlatformManager()->EvalNewtonScript((char*)v);} selected
+      callback {gApp->GetPlatformManager()->EvalNewtonScript((char*)v);}
       xywh {40 4 200 22} labelsize 12
       code0 {o->label(inTitle);}
       code1 {o->tooltip(inScript);}
@@ -296,7 +296,7 @@ wAbout = nullptr;} {}
     revertDialog();
     mSettingsPanel->hide();
 }} open
-      xywh {400 760 450 455} type Double visible
+      xywh {400 662 450 455} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu}
@@ -365,7 +365,7 @@ wAbout = nullptr;} {}
         Fl_Group {} {
           label {  MessagePad  }
           comment {Add a field to select a REx, choose matching PC Cards per slot} open
-          xywh {10 35 430 375}
+          xywh {10 35 430 375} hide
         } {
           Fl_Group {} {open
             xywh {120 50 275 25}
@@ -868,7 +868,7 @@ if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kLinear) {
         }
         Fl_Group {} {
           label {  Resources  } open
-          xywh {10 35 430 375} hide
+          xywh {10 35 430 375}
         } {
           Fl_Input_Choice wUnnaPath {
             label {UNNA Database: } open
@@ -1136,35 +1136,109 @@ win->hide();} {}
   }
   Function {createAboutDialog()} {open
   } {
+    code {static const char *gLicenseText =
+"<html><head>\\n"
+
+"<h2>Licenses</h2>\\n"
+
+"<h3><a href=\\"http://www.fltk.org/\\">FLTK</a></h3>\\n"
+"FLTK is provided under the terms of the GNU Library Public "
+"License, Version 2 with exceptions that allow for static "
+"linking.\\n"
+
+"<h3>TODO: GNUE newt/0</h3>\\n"
+
+"<h3>TODO: libjpeg</h3>\\n"
+
+"<h3>TODO: libpng</h3>\\n"
+
+"<h3>TODO: libz</h3>\\n"
+
+"<h3>TODO: HTTPRequest</h3>\\n"
+
+"</head></html\\n";} {}
+    code {static const char *gThanksText =
+"<html><head>\\n"
+
+"<h2>TODO: Thanks</h2>\\n"
+
+"<ul>\\n"
+"<li>Paul Guyot</li>\\n"
+"<li>Steven Frank</li>\\n"
+"<li>Eckhart Köppen</li>\\n"
+"<li>Matthias Melcher</li>\\n"
+"<li>Bastian Müller</li>\\n"
+"<li>Jake Bordens</li>\\n"
+"<li>Victor Rehorst</li>\\n"
+"<li>etc.</li>\\n"
+"</ul>\\n"
+
+"So far based in github contributers. Did I leave anyone out? Who else should be thankssd?\\n"
+
+"</head></html\\n";} {}
     Fl_Window wAbout {
       label {About Einstein}
       user_data wAbout
       callback {o->hide();} open
-      xywh {152 481 335 200} type Double non_modal visible
+      xywh {447 241 340 260} type Double non_modal visible
     } {
-      Fl_Box {} {
-        image {../Resources/icons/EinsteinApp64.png} xywh {133 5 69 75}
+      Fl_Tabs {} {open
+        xywh {10 10 320 200} box BORDER_BOX
+        code0 {o->box((Fl_Boxtype)(FL_FREE_BOXTYPE+2));}
+        class TFLTabs
+      } {
+        Fl_Group {} {
+          label About open selected
+          xywh {10 30 320 180}
+        } {
+          Fl_Box {} {
+            image {../Resources/icons/EinsteinApp64.png} xywh {133 47 69 75}
+          }
+          Fl_Box {} {
+            label {Einstein Platform}
+            xywh {72 123 190 25} labelfont 1
+            code0 {o->label(PROJECT_NAME);}
+          }
+          Fl_Box {} {
+            label {Version xxxx.xx.xx}
+            xywh {72 150 190 20} labelsize 11
+            code0 {o->label("Version " PROJECT_VER);}
+          }
+          Fl_Box {} {
+            label {Copyright 2003-2020 by Paul Guyot and others}
+            xywh {20 172 295 20} labelsize 11
+            code0 {o->label(COPYRIGHT_STRING);}
+          }
+        }
+        Fl_Group {} {
+          label Licenses open
+          xywh {10 30 320 180} hide
+        } {
+          Fl_Help_View {} {
+            comment {Follow links when the user clicks on them: link (Fl_Help_Func *fn)}
+            xywh {10 31 320 179} box FLAT_BOX color 49 labelsize 12
+            code0 {o->value(gLicenseText);}
+          }
+        }
+        Fl_Group {} {
+          label Contributors open
+          xywh {10 30 320 180} hide
+        } {
+          Fl_Help_View {} {
+            xywh {10 31 320 179} box FLAT_BOX color 49 labelsize 12
+            code0 {o->value(gThanksText);}
+          }
+        }
       }
       Fl_Box {} {
-        label {Einstein Platform}
-        xywh {72 81 190 25} labelfont 1
-        code0 {o->label(PROJECT_NAME);}
-      }
-      Fl_Box {} {
-        label {Version xxxx.xx.xx}
-        xywh {72 108 190 20} labelsize 11
-        code0 {o->label("Version " PROJECT_VER);}
+        xywh {10 210 320 5}
+        code0 {o->box((Fl_Boxtype)(FL_FREE_BOXTYPE+2));}
       }
       Fl_Button {} {
         label Close
         user_data wAbout
         callback {o->window()->hide();}
-        xywh {215 165 95 20} labelsize 12
-      }
-      Fl_Box {} {
-        label {Copyright 2003-2020 by Paul Guyot and others}
-        xywh {20 130 295 20} labelsize 11
-        code0 {o->label(COPYRIGHT_STRING);}
+        xywh {220 224 95 20} labelsize 12
       }
     }
   }
