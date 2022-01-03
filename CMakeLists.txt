@@ -45,7 +45,7 @@ endif ()
 #
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-	find_package(Newt64 CONFIG HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64) # -> Newt64_FOUND, Newt64_DIR
+	find_package(Newt64 CONFIG HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/build) # -> Newt64_FOUND, Newt64_DIR
 endif()
 
 find_library(newt64_lib NAMES newt64 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/build/)
@@ -361,7 +361,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	# configure to use FLTK as the GUI
 	set(FLTK_SKIP_OPENGL true)
 	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin)
-	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk)
+	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
 
 	build_with_fluid(TFLAppUI app)
 	build_with_fluid(TFLRexImage app)
@@ -444,7 +444,7 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	# configure to use FLTK as the GUI
 	set(FLTK_SKIP_OPENGL true)
 	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin)
-	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk)
+	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
 
 	build_with_fluid(TFLAppUI app)
 	build_with_fluid(TFLRexImage app)
@@ -505,7 +505,7 @@ elseif (WIN32)
 	# Update the link to point to your build directory as needed
 	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin "C:/Program Files/FLTK/bin/")
 	set(FLTK_SKIP_OPENGL true)
-	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk)
+	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
 
 	build_with_fluid(TFLAppUI app)
 	build_with_fluid(TFLRexImage app)
