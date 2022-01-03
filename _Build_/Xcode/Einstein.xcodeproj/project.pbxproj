@@ -2527,6 +2527,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 2021.12;
 				DEVELOPMENT_TEAM = BK4ST6N599;
+				ENABLE_HARDENED_RUNTIME = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
@@ -2550,7 +2551,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 2021.12;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.matthiasm.einstein;
 				PRODUCT_NAME = iOSEinstein;
@@ -2558,7 +2559,6 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "arm64 armv7 armv7s";
 			};
 			name = Debug;
 		};
@@ -2572,6 +2572,7 @@
 				CURRENT_PROJECT_VERSION = 2021.12;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = BK4ST6N599;
+				ENABLE_HARDENED_RUNTIME = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2601,7 +2602,6 @@
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = NO;
-				VALID_ARCHS = "arm64 armv7 armv7s";
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -2616,6 +2616,7 @@
 				CURRENT_PROJECT_VERSION = 2021.12;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = BK4ST6N599;
+				ENABLE_HARDENED_RUNTIME = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../../app/iEinstein/iEinstein_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2645,7 +2646,6 @@
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = NO;
-				VALID_ARCHS = "arm64 armv7 armv7s";
 				ZERO_LINK = NO;
 			};
 			name = Distribution;
@@ -2691,7 +2691,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
-				VALID_ARCHS = "i386 x86_64 arm64";
 			};
 			name = Debug;
 		};
@@ -2732,7 +2731,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
-				VALID_ARCHS = "i386 x86_64 arm64";
 			};
 			name = Release;
 		};
@@ -2784,7 +2782,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
 				SDKROOT = macosx;
-				VALID_ARCHS = "i386 x86_64 arm64";
 			};
 			name = Debug;
 		};
@@ -2833,7 +2830,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = "";
 				SDKROOT = macosx;
-				VALID_ARCHS = "i386 x86_64 arm64";
 			};
 			name = Release;
 		};
@@ -2882,7 +2878,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = "";
 				SDKROOT = macosx;
-				VALID_ARCHS = "i386 x86_64 arm64";
 			};
 			name = Distribution;
 		};
@@ -2923,7 +2918,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
-				VALID_ARCHS = "";
 			};
 			name = Distribution;
 		};
