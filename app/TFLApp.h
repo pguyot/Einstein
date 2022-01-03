@@ -133,6 +133,9 @@ public:
     // User wants to print a screenshot
     void UserActionPrintScreen();
 
+    // User wants to install essential software from UNNA and friends.
+    void UserActionInstallEssentials();
+
     // ---  Events from within the emulator
 
     // this is called by the screen manager when the state of the backlight changed
@@ -151,6 +154,7 @@ public:
     TFLSettingsUI *GetSettings() { return mFLSettings; }
 
     const char *ChooseExistingFile(const char *message, const char *pat, const char *fname);
+    const char *ChooseExistingDirectory(const char *message, const char *pat, const char *fname);
     const char *ChooseNewFile(const char *message, const char *pat, const char *fname);
 
 private:

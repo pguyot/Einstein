@@ -300,6 +300,14 @@ void TFLSettings::loadPreferences()
         card->SetType(TFLPCCardSettings::CardType::kNetwork);
         mCardList.push_back(card);
     }
+
+    // Newton Internet resources
+    Fl_Preferences resources(prefs, "Resources");
+    {
+        resources.get("UnnaPath", mUnnaPath, "http://www.unna.org/");
+        resources.get("MessagepadOrgPath", mMessagepadOrgPath, "http://www.messagepad.org/");
+        resources.get("GitRepoPath", mGitRepoPath, "https://github.com/pguyot/Einstein.git");
+    }
 }
 
 void TFLSettings::savePreferences()
@@ -362,6 +370,14 @@ void TFLSettings::savePreferences()
         TFLPCCardSettings *card = mCardList[i];
         Fl_Preferences cardPrefs(cardlist, card->GetUUID());
         card->WritePrefs(cardPrefs);
+    }
+
+    // Newton Internet resources
+    Fl_Preferences resources(prefs, "Resources");
+    {
+        resources.set("UnnaPath", mUnnaPath);
+        resources.set("MessagepadOrgPath", mMessagepadOrgPath);
+        resources.set("GitRepoPath", mGitRepoPath);
     }
 }
 
