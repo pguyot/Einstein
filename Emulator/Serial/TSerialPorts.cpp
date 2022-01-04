@@ -175,10 +175,10 @@ TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
  registered at the location needs to be de-registered first.
 
  \param inLocation location for which to create the driver.
- \param inDeiver driver type
+ \param inDriver driver type
  \param inConfigData a string of generic configuration data to be used by the driver
 
- \return a pointer to the new driver, or the previous driver if the driver did not change
+ \return a pointer to the new driver
  */
 TSerialHostPort*
 TSerialPorts::SetDriver(KUInt32 inLocation, EDriverID inDriver, std::string inConfigData)

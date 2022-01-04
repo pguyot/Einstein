@@ -22,6 +22,17 @@ jobs:
       with:
         repository: ekoeppen/NCT_Projects
         path: NCT_Projects
+    - name: Get tntk
+      uses: actions/checkout@v2
+      with:
+        repository: ekoeppen/tntk
+        path: tntk
+        submodules: recursive
+    - name: Compile tntk
+      run: |
+        cmake -S tntk -B tntk/build
+        cmake --build tntk/build
+        sudo cmake --install tntk/build
     - name: Get DCL
       uses: actions/checkout@v2
       with:

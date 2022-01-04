@@ -1,0 +1,11 @@
+{
+    parts: [
+        {
+            main: "portenabler.newt",
+            modules: ["portenabler.ntkc"],
+            type: 'auto,
+        }
+    ],
+    name: "Port Enabler:40hz",
+    platform: "Newton 2.1"
+}

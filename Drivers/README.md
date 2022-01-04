@@ -1,7 +1,8 @@
 # Einstein ROM Extension
 
 This directory contains the ROM extension (REx) for Einstein, which implements the protocols to interface with the
-host OS. The REx is by default part of the Einstein application.
+host OS. The REx is by default part of the Einstein application. The extension contains native parts which implement
+NewtonOS protocols, as well as mixed NewtonScript/native extenions in the form of NewtonOS autoparts.
 
 ## Prerequisites
 
@@ -25,10 +26,23 @@ The C++ headers can be obtained by cloning this [repository](https://github.com/
 
 The environment variable `NCT_PROJECTS` needs to point to the location of the directory containing the `Includes` and `DDKIncludes` directories.
 
-### Building
+### tntk
+
+[tntk](https://github.com/ekoeppen/tntk) is an optional prerequisite to compile NewtonScript packages. If it not installed, the precompiled
+packages are included in the REx.
+
+## Building
 
 After installing GCC and the DCL tools, and setting `NCT_PROJECTS` correctly, the REx can be built with `cmake`:
 
     cmake -S Drivers -B Drivers/build -DCMAKE_TOOLCHAIN_FILE=cmake/newton-cross.cmake
     cmake --build Drivers/build
     cmake --install Drivers/build
+
+## Components
+
+- Protocols: The NewtonOS to host implementation is provided as NewtonOS protocol implementations, which will either
+  handle the calls directly natively, or will invoke the Einstein drivers via coprocessor instructions
+- NSRuntime: Helper package
+- EinsteinPortEnabler: Autopart which will initialize serial drivers when enabled via the Newton preferences app
+- Additional packages in the `packages` directory can be included in the REx
