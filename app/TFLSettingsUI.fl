@@ -111,6 +111,12 @@ Function {expand(std::string &inCmd)} {open private return_type {std::string}
     return gApp->GetSettings()->mMessagepadOrgPath + inCmd.substr(1);
   case ':':
     return inCmd.substr(1);
+  case 'S':
+    auto ix = inCmd.find("\\n");
+    if (ix==std::string::npos)
+      return inCmd.substr(1);
+    else
+      return inCmd.substr(1, ix) + "...";
 }
 return std::string();} {}
 }
@@ -187,8 +193,8 @@ Function {addInstallerGroup(const char *inTitle)} {open
     class Fl_Group visible
   } {
     Fl_Box {} {
-      label label
-      xywh {0 0 280 30} labelsize 16
+      label label selected
+      xywh {10 5 260 25} labelsize 16 align 20
       code0 {o->label(inTitle);}
     }
   }
@@ -322,7 +328,7 @@ wAbout = nullptr;} {}
     revertDialog();
     mSettingsPanel->hide();
 }} open
-      xywh {400 662 450 455} type Double visible
+      xywh {385 662 450 455} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu}
@@ -1179,7 +1185,7 @@ win->hide();} {}
 "<p>\\n"
 "NEWT/0 is copyrighted free software by Makoto Nukui <gnue@so-kukan.com>. \\n"
 "You can redistribute it and/or modify it under either the terms of the GPL \\n"
-"version 2.\\n"
+"version 2 (...).\\n"
 "<ul>\\n"
 "<li>see: <a href=\\"https://github.com/gnue/NEWT0/blob/master/COPYING/COPYING.txt\\">COPYING.txt</a></li>\\n"
 "<li>see: <a href=\\"https://github.com/gnue/NEWT0/blob/master/COPYING/LEGAL.txt\\">LEGAL.txt</a></li>\\n"
@@ -1240,44 +1246,42 @@ win->hide();} {}
 "</ul></p>\\n"
 
 
-"</body></html\\n";} {selected
-    }
+"</body></html\\n";} {}
     code {static const char *gThanksText =
 "<html><body>\\n"
 
-"<h2>Contributore to Einstein</h2>\\n"
+"<h2>Contributors to Einstein</h2>\\n"
 
 "<h4><a href=\\"https://github.com/pguyot\\">Paul Guyot</a></li></h4>\\n"
 "Paul is the original author of Einstein. He introduced his \\"Newton Platform\\" at WWNC 2004.\\n"
-"At WWNC 2006, he release Einstein Emulator as binaries for OS X and Zaurus.\\n"
+"At WWNC 2006, he released Einstein Emulator as binaries for OS X and Zaurus.\\n"
 "Releasing Einstein as an OpenSource project at WWNC 2007 in Tokyo made\\n"
-"The emulator available to everyone. Later he added LLVM JIT translateion and network emulation.\\n"
+"the emulator available to everyone. Later he added LLVM JIT translation and network emulation.\\n"
 
 "<h4><a href=\\"https://github.com/MatthiasWM\\">Matthias Melcher</a></li></h4>\\n"
-"Matthias ported Einstein to the MSWindows platform right after Paul released\\n"
-"the source code. He has since added a full user interface on all platforms\\n"
-"and unified the build process for macOS, Windows, and Linux under the user interface\\n"
-"library FLTK. He added serial port and PCCard emulation and a minimal integrated developer environment.\\n"
-"He started a port to Android that is still stuck in Beta, hoping for volunteers.\\n"
+"Matthias ported Einstein to MSWindows, and later to iOS and Android.\\n"
+"He has since unified the build process and added a full user interface\\n"
+"for macOS, Windows, and Linux under FLTK.\\n"
+"He added serial port and PCCard emulation and a minimal NewtonScript IDE.\\n"
 
 "<h4><a href=\\"https://github.com/panicsteve\\">Steven Frank</a></li></h4>\\n"
-"Steven ported Einstein to iOS and maintains the native macOS version.\\n"
-"He added many features to the debugging Monitor.\\n"
+"Steven updated Einstein for iOS and for native macOS,\\n"
+"and he improved the debugging Monitor on macOS.\\n"
 
 "<h4><a href=\\"https://github.com/ekoeppen\\">Eckhart K&ouml;ppen</a></li></h4>\\n"
-"Eckhart and Paul added halfword operations to JIT to allow newer C cmopiler output\\n"
+"Eckhart and Paul added halfword operations to JIT to allow newer C compiler output\\n"
 "to run on the emulator. He is working on more system conforming serial port drivers."
 
 "<h4><a href=\\"https://github.com/chuma\\">Victor Rehorst</a></li></h4>\\n"
-"Victore keeps CMake and Jam files working.\\n"
+"Victor keeps CMake and Jam files working.\\n"
 
-"<h4><a href=\\"https://github.com/jake-b\\">Jake-B</a></li></h4>\\n"
-"Jake thankfully added CI to Einstein.\\n"
+"<h4><a href=\\"https://github.com/jake-b\\">Jake Bordens</a></li></h4>\\n"
+"Jake added CI to Einstein.\\n"
 
 "<h4><a href=\\"https://github.com/turbolent\\">Bastian M&uuml;ller</a></li></h4>\\n"
 "Bastian has fixed some aspects of the Android build.\\n"
 
-"<p>...and many others who contributed before joining GitHub, who privided ideas,\\n"
+"<p>...and many others who contributed before joining GitHub, who provided ideas,\\n"
 "found missing documentation, and helped keeping the MessagePad alive.\\n"
 
 "</body></html\\n";} {}
@@ -1297,7 +1301,7 @@ win->hide();} {}
       } {
         Fl_Group {} {
           label About open
-          xywh {10 30 320 180} resizable
+          xywh {10 30 320 180} hide resizable
         } {
           Fl_Box {} {
             image {../Resources/icons/EinsteinApp64.png} xywh {133 47 69 75}
@@ -1323,10 +1327,10 @@ win->hide();} {}
         }
         Fl_Group {} {
           label Licenses open
-          xywh {10 30 320 180} hide
+          xywh {10 30 320 180}
         } {
           Fl_Help_View {} {
-            xywh {10 31 320 179} box FLAT_BOX color 49 labelsize 12 resizable
+            xywh {10 31 320 179} box FLAT_BOX color 49 resizable
             code0 {o->value(gLicenseText);}
           }
         }
@@ -1335,7 +1339,7 @@ win->hide();} {}
           xywh {10 30 320 180} hide
         } {
           Fl_Help_View {} {
-            xywh {10 31 320 179} box FLAT_BOX color 49 labelsize 12 resizable
+            xywh {10 31 320 179} box FLAT_BOX color 49 resizable
             code0 {o->value(gThanksText);}
           }
         }
