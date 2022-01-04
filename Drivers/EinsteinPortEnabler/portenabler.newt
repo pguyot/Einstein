@@ -1,0 +1,80 @@
+constant kAppSymbol := '|Port Enabler:40Hz|;
+constant kPrefsFrame := {
+    extr: true,
+    mdem: nil,
+    infr: nil,
+    tblt: nil,
+};
+
+constant enablerTemplate := {
+    _proto: @164,
+    text: "External",
+    port: 'extr,
+    viewJustify: vjParentFullH + vjSiblingBottomV,
+    viewBounds: {left: 8, top: 0, right: 0, bottom: 16},
+    viewSetupDoneScript: func() begin
+        SetValue(self, 'viewValue, prefsEntry.(port));
+        inherited:?viewSetupDoneScript();
+    end,
+    ValueChanged: func () begin
+        prefsEntry.(port) := viewValue;
+    end,
+};
+
+{
+    app: kAppSymbol,
+    text: "Port Enabler",
+    enable: PortEnabler.Enable,
+    disable: PortEnabler.Disable,
+
+    enablerPrefs: {
+        _proto: protoPrefsRollItem,
+        overview: "Port Enabler",
+        viewBounds: { left: 0, right: 0, top: 0, bottom: 120 },
+        height: 40,
+        icon: @769,
+        prefsEntry: nil,
+
+        viewSetupFormScript: func () begin
+            prefsEntry := GetAppPrefs(kAppSymbol, kPrefsFrame);
+            inherited:?viewSetupFormScript();
+        end,
+
+        viewQuitScript: func () begin
+            EntryChangeXmit(prefsEntry, nil);
+            prefsEntry := nil;
+        end,
+
+        stepChildren: [
+            {
+                viewClass: 98,
+                viewJustify: vjParentFullH + vjParentTopV,
+                viewBounds: {left: 8, top: 24, right: 0, bottom: 40},
+                viewFlags: vVisible,
+                text: "Changes apply after restart",
+            },
+            {_proto: enablerTemplate, text: "External", port: 'extr},
+            {_proto: enablerTemplate, text: "Modem", port: 'mdem},
+            {_proto: enablerTemplate, text: "Infrared", port: 'infr},
+            {_proto: enablerTemplate, text: "Tablet", port: 'tblt},
+        ],
+    },
+
+    devInstallScript: func (partFrame, removeFrame) begin
+        RegPrefs(kAppSymbol, partFrame.enablerPrefs);
+        prefsEntry := GetAppPrefs(kAppSymbol, kPrefsFrame);
+        foreach port, default in kPrefsFrame do
+          if prefsEntry.(port) then partFrame:enable(SPrintObject(port), nil, nil);
+    end,
+
+    devRemoveScript: func (partFrame) begin
+        partFrame:disable("extr");
+        UnRegPrefs(kAppSymbol);
+    end,
+
+    InstallScript: func (partFrame) begin
+        local removeFrame := EnsureInternal ({ removeScript: partFrame.devRemoveScript });
+        partFrame:devInstallScript (partFrame, removeFrame);
+        return removeFrame;
+    end,
+};

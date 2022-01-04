@@ -39,6 +39,7 @@ DerivedData/
 /Toolkit/TFLToolkitUI.cpp
 /Toolkit/TFLToolkitUI.h
 /Drivers/packages/MemDumper
+/Drivers/EinsteinPortEnabler/portenabler.ntkc
 /app/FLTK/TFLRexImage.h
 /app/FLTK/TFLRexImage.cpp
 /_Build_/AndroidStudioNative/einstein/signingConfigRelease.properties

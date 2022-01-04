@@ -74,6 +74,10 @@ define_driver(EinsteinFlashDriver TEinsteinFlashDriver.cpp TEinsteinFlashDriver.
 add_custom_command(TARGET EinsteinFlashDriver POST_BUILD
     COMMAND ${OBJCOPY} -O binary $<TARGET_FILE:EinsteinFlashDriver> ${CMAKE_SOURCE_DIR}/obj/$<TARGET_FILE_NAME:EinsteinFlashDriver>.bin)
 
+# -- Additional packages
+
+add_subdirectory(EinsteinPortEnabler)
+
 # -- Custom target to create the REx, will be always built and installed to the _Data_ directory
 
 project(Einstein)
@@ -91,7 +95,8 @@ add_dependencies(Einstein
     EinsteinSerialVoyager
     EinsteinInTranslator
     EinsteinOutTranslator
-    EinsteinNativeCalls)
+    EinsteinNativeCalls
+    portenabler)
 add_custom_command(TARGET Einstein
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMAND ${CMAKE_COMMAND} -E rm -f Einstein.rex

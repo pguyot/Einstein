@@ -1,0 +1,8 @@
+PortEnabler_1.0 {
+  global:
+    Enable;
+    Disable;
+
+  local:
+    *;
+};
