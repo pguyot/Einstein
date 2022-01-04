@@ -48,8 +48,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 	find_package(Newt64 CONFIG HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/build) # -> Newt64_FOUND, Newt64_DIR
 endif()
 
-find_library(newt64_lib NAMES newt64 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/build/)
-find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/src/newt_core/incs/)
+find_library(newt64_lib NAMES newt64 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/build)
+find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/src/newt_core/incs)
 
 if (newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND")
 	message(WARNING "Newt64 not found!")
@@ -503,7 +503,7 @@ elseif (WIN32)
 	#    cd "c:\Program Files"
 	#    mklink /D FLTK "C:\Users\micro\dev\fltk-1.4 for Einstein.git\out\install\x64-Release"
 	# Update the link to point to your build directory as needed
-	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin "C:/Program Files/FLTK/bin/")
+	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin "C:/Program Files/FLTK/bin")
 	set(FLTK_SKIP_OPENGL true)
 	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
 
