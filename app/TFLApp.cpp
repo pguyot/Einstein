@@ -514,12 +514,18 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
                 try {
                     http::Request request(fn);
                     const http::Response response = request.send("GET");
-                    const KUInt8 *package = reinterpret_cast<const KUInt8*>(response.body.data());
-                    KUInt32 packageSize = static_cast<KUInt32>(response.body.size());
-                    if (memcmp(package, "package", 7)!=0) {
-                        fl_message("Can't install\n%s\nThis is not a Newton package.", fn);
+                    if (response.status==404) {
+                        fl_message("Can't install\n%s\nFile not found.", fn);
+                    } else if (response.status>=300) {
+                        fl_message("Can't install\n%s\nFile can't be dowloaded.", fn);
                     } else {
-                        mPlatformManager->InstallPackage(package, packageSize);
+                        const KUInt8 *package = reinterpret_cast<const KUInt8*>(response.body.data());
+                        KUInt32 packageSize = static_cast<KUInt32>(response.body.size());
+                        if (memcmp(package, "package", 7)!=0) {
+                            fl_message("Can't install\n%s\nThis is not a Newton package.", fn);
+                        } else {
+                            mPlatformManager->InstallPackage(package, packageSize);
+                        }
                     }
                 }
                 catch (const std::exception& e)
@@ -816,8 +822,7 @@ static void extSymbol(Fl_Color c) {
 
 /**
  Texts begin with ':' if they remain unchange, 'U' to prepend an Unna link, 'M' for messagepad.org.
- If a link starts with 'W', the text will be used to display a warning. A second text must follow
- separated by the NUL character '\0'.
+ If a link starts with 'W', the text will be used to display a warning. A script is prepended with 'S'.
  */
 void TFLApp::UserActionInstallEssentials()
 {
@@ -825,60 +830,61 @@ void TFLApp::UserActionInstallEssentials()
         fl_add_symbol("ext", extSymbol, 1);
         wInstallerWindow = makeInstaller();
         // TODO: we could make the titles, groups, and comments foldable!
-        // TODO: allo wmultiple files in a single installer
         addInstallerTitle("Essentials");
         addInstallerGroup("NewtonOS Y2K10");
-        addInstallerLink("the Newton Year 2010 Problem",
-                         ":https://40hz.org/Pages/newton/hacking/newton-year-2010-problem/");
-//        addInstallerLink("readme.txt:",
-//                         "MDownloads/Einstein/Essentials/y2k10/README.txt");
+        addInstallerLink("the Newton Year 2010 Problem", new StringList {
+            ":https://40hz.org/Pages/newton/hacking/newton-year-2010-problem/"} );
+        addInstallerLink("readme.txt:", new StringList {
+            "MDownloads/Einstein/Essentials/y2k10/README.txt"} );
         addInstallerText("Please select the patch that matches the ROM image of your machine.");
-        addInstallerPackage("US MP2x00 patch",
-                            "WInstalling this patch will irreversibly erase all data\n"
-                            "on your MessagePad.\n\n"
-                            "Please proceed only if this a new device, or if your\n"
-                            "data is securely backed up!\0"
-                            "MDownloads/Einstein/Essentials/y2k10/Patch_US.pkg");
-        addInstallerPackage("German MP2x00 patch",
-                            "WInstalling this patch will irreversibly erase all data\n"
-                            "on your MessagePad.\n\n"
-                            "Please proceed only if this a new device, or if your\n"
-                            "data is securely backed up!\0"
-                            "MDownloads/Einstein/Essentials/y2k10/Patch_D.pkg");
-        addInstallerPackage("eMate 300 patch",
-                            "WInstalling this patch will irreversibly erase all data\n"
-                            "on your eMate 300.\n\n"
-                            "Please proceed only if this a new device, or if your\n"
-                            "data is securely backed up!\0"
-                            "MDownloads/Einstein/Essentials/y2k10/Patch_eMate.pkg");
+        addInstallerPackage("US MP2x00 patch", new StringList {
+            "WInstalling this patch may irreversibly erase all data\n"
+            "on your MessagePad.\n\n"
+            "Please proceed only if this a new device, or if your\n"
+            "data is securely backed up!",
+            "MDownloads/Einstein/Essentials/y2k10/Patch_US.pkg"} );
+        addInstallerPackage("German MP2x00 patch", new StringList {
+            "WInstalling this patch may irreversibly erase all data\n"
+            "on your MessagePad.\n\n"
+            "Please proceed only if this a new device, or if your\n"
+            "data is securely backed up!",
+            "MDownloads/Einstein/Essentials/y2k10/Patch_D.pkg" } );
+        addInstallerPackage("eMate 300 patch", new StringList {
+            "WInstalling this patch may irreversibly erase all data\n"
+            "on your eMate 300.\n\n"
+            "Please proceed only if this a new device, or if your\n"
+            "data is securely backed up!",
+            "MDownloads/Einstein/Essentials/y2k10/Patch_eMate.pkg" } );
         addInstallerTitle("Networking");
         addInstallerGroup("NIE: Newton Internet Enabler");
-        addInstallerText("The NIE package was released by Apple in 1996 to give Newton access to the internet.");
+        addInstallerText("The NIE package was released by Apple in 1997 to give Newton access to the internet.");
         addInstallerText("Please insatll all of the following drivers.");
-        addInstallerPackage("enetsup.pkg",
-                            "Uunna/apple/software/Internet/NIE2/ENETSUP/enetsup.pkg");
-        addInstallerPackage("inetenbl.pkg",
-                            "Uunna/apple/software/Internet/NIE2/REGPKGS/inetenbl.pkg");
-        addInstallerPackage("newtdev.pkg",
-                            "Uunna/apple/software/Internet/NIE2/ENETSUP/newtdev.pkg");
-        addInstallerPackage("inetstup.pkg",
-                            "Uunna/apple/software/Internet/NIE2/REGPKGS/inetstup.pkg");
-        addInstallerPackage("NE2K.pkg",
-                            "MDownloads/Einstein/Essentials/NIE/NE2K.pkg");
+        addInstallerPackage("enetsup.pkg", new StringList {
+            "Uunna/apple/software/Internet/NIE2/ENETSUP/enetsup.pkg" } );
+        addInstallerPackage("inetenbl.pkg", new StringList {
+            "Uunna/apple/software/Internet/NIE2/REGPKGS/inetenbl.pkg" } );
+        addInstallerPackage("newtdev.pkg", new StringList {
+            "Uunna/apple/software/Internet/NIE2/ENETSUP/newtdev.pkg" } );
+        addInstallerPackage("inetstup.pkg", new StringList {
+            "Uunna/apple/software/Internet/NIE2/REGPKGS/inetstup.pkg" } );
+        addInstallerPackage("NE2K.pkg", new StringList {
+            "MDownloads/Einstein/Essentials/NIE/NE2K.pkg" } );
         // TODO: Launch Internet Setup, or better yet, do the entire setup
-        addInstallerScript("Open Internet Setup", "GetRoot().|InternetSetup:NIE|:Open();");
+        addInstallerScript("Open Internet Setup",  new StringList {
+            "SGetRoot().|InternetSetup:NIE|:Open();" } );
         addInstallerGroup("Internet Apps");
         addInstallerText("Courier is a neat little text browser...");
         addInstallerTitle("Developer Apps");
         addInstallerGroup("ViewFrame 1.3b");
-        addInstallerPackage("PROGKEYB.PKG", "Uunna/development/tools/ViewFrame1.3b/PROGKEYB.PKG");
-        addInstallerPackage("VFEDITOR.PKG", "Uunna/development/tools/ViewFrame1.3b/VFEDITOR.PKG");
-        addInstallerPackage("VFFUNCTI.PKG", "Uunna/development/tools/ViewFrame1.3b/VFFUNCTI.PKG");
-        addInstallerPackage("VFGENERA.PKG", "Uunna/development/tools/ViewFrame1.3b/VFGENERA.PKG");
-        addInstallerPackage("VFINTERC.PKG", "Uunna/development/tools/ViewFrame1.3b/VFINTERC.PKG");
-        addInstallerPackage("VIEWFRAM.PKG", "Uunna/development/tools/ViewFrame1.3b/VIEWFRAM.PKG");
-        addInstallerPackage("VFDANTE.PKG", "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFDANTE.PKG");
-        addInstallerPackage("VFKEYS.PKG", "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFKEYS.PKG");
+        addInstallerPackage("installs eight packages", new StringList {
+            "Uunna/development/tools/ViewFrame1.3b/PROGKEYB.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/VFEDITOR.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/VFFUNCTI.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/VFGENERA.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/VFINTERC.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/VIEWFRAM.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFDANTE.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFKEYS.PKG" } );
 
     }
     wInstallerWindow->show();

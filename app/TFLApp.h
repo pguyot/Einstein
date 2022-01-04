@@ -24,17 +24,21 @@
 #ifndef _TFLAPP_H
 #define _TFLAPP_H
 
+#include "Version.h"
+
+#include <K/Defines/KDefinitions.h>
+
 #include <FL/Enumerations.H>
 #if (FL_API_VERSION<10400)
 # error Einstein for FLTK requires FLTK 1.4.0 or higher to compile.
 #endif
-
-#include <K/Defines/KDefinitions.h>
-
 #include <FL/x.H>
 #include <FL/Fl_Widget.H>
 
-#include "Version.h"
+#include <vector>
+#include <string>
+
+typedef std::vector<std::string> StringList;
 
 class TROMImage;
 class TEmulator;
@@ -53,6 +57,8 @@ class TFLSettingsUI;
 
 
 extern TFLApp *gApp;
+
+typedef std::vector<const char *> StringArray;
 
 
 /**
