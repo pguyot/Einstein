@@ -34,7 +34,7 @@ decl {class TFLApp;} {public global
 decl {\#include "TFLSettings.h"} {public global
 }
 
-decl {\#include "TFLApp.h"} {private local
+decl {\#include "TFLApp.h"} {public global
 }
 
 decl {\#include "TFLAppUI.h"} {private local
@@ -102,62 +102,55 @@ Function {cb_changePCCard1(Fl_Widget*, void* user_data)} {open private return_ty
   code {gApp->UserActionPCCard(1, (long)user_data);} {}
 }
 
-Function {make_path(char *buf, void* user_data)} {open private return_type void
+Function {expand(std::string &inCmd)} {open private return_type {std::string}
 } {
-  code {char *link = (char*)user_data;
-// skip a potential warning message
-if (link[0]=='W') {
-  link += strlen(link)+1;
-}
-// prepend the host path
-buf[0] = 0;
-switch (link[0]) {
+  code {switch (inCmd[0]) {
   case 'U':
-    strcpy(buf, gApp->GetSettings()->mUnnaPath);
-    break;
+    return gApp->GetSettings()->mUnnaPath + inCmd.substr(1);
   case 'M':
-    strcpy(buf, gApp->GetSettings()->mMessagepadOrgPath);
-    break;
+    return gApp->GetSettings()->mMessagepadOrgPath + inCmd.substr(1);
   case ':':
-    break;
+    return inCmd.substr(1);
 }
-strcat(buf, link+1);} {}
-}
-
-Function {get_path(const char *text)} {open private return_type {char *}
-} {
-  code {char buf[FL_PATH_MAX];
-make_path(buf, (void*)text);
-return strdup(buf);} {}
+return std::string();} {}
 }
 
-Function {install_package_cb(Fl_Widget*, void* user_data)} {open private return_type void
+Function {make_tooltip(StringList *inCmdList)} {open private return_type {char *}
 } {
-  code {char buf[FL_PATH_MAX];
-char *text = (char*)user_data;
-if (text[0]=='W') {
-  if (fl_choice("%s", nullptr, "Cancel", "Proceed", text+1)!=2)
-    return;
+  code {std::string text;
+// Count the entries
+int n = 0;
+for (auto &&cmd: *inCmdList) {
+  auto link = expand(cmd);
+  if (!link.empty()) {
+    n++;
+  }
 }
-make_path(buf, user_data);
-gApp->InstallPackagesFromURI(buf);} {}
+// Generate a long string. If we have more than 4 lines, print 1,2,...,n-1,n
+int min = n+1, max = n+1;
+if (n>6) { min=3; max = n-3; }
+n = 0;
+for (auto &&cmd: *inCmdList) {
+  auto link = expand(cmd);
+  if (!link.empty()) {
+    if (n<min || n>=max) {
+      if (!text.empty())
+        text.append("\\n");
+      text.append(link);
+    } else if (n==min) {
+      text.append("\\n...");
+    }
+    n++;
+  }
 }
-
-Function {link_document_cb(Fl_Widget*, void* user_data)} {open private return_type void
-} {
-  code {char buf[FL_PATH_MAX];
-make_path(buf, user_data);
-char errmsg[512];
-if (!fl_open_uri(buf, errmsg, sizeof(errmsg))) {
-    fl_alert("Error: %s", errmsg);
-}} {}
+return strdup(text.c_str());} {}
 }
 
 Function {makeInstaller()} {open
 } {
   Fl_Window wInstallerWindow {
     label {Install Essentials} open
-    xywh {462 302 300 400} type Double resizable hotspot size_range {300 200 300 0} visible
+    xywh {462 302 300 400} type Double hide resizable hotspot size_range {300 200 300 0}
   } {
     Fl_Scroll {} {open
       xywh {0 0 300 400} resizable
@@ -173,7 +166,7 @@ Function {addInstallerTitle(const char *inTitle)} {open
 } {
   code {wInstallerList->begin();} {}
   Fl_Window {} {open
-    xywh {547 429 280 30} type Double labelfont 1 labelsize 22 align 16
+    xywh {454 209 280 30} type Double labelfont 1 labelsize 22 align 16
     code0 {o->label(inTitle);}
     class Fl_Group visible
   } {
@@ -189,7 +182,7 @@ Function {addInstallerGroup(const char *inTitle)} {open
 } {
   code {wInstallerList->begin();} {}
   Fl_Window {} {open
-    xywh {560 367 280 30} type Double labelfont 1 labelsize 22 align 16
+    xywh {454 275 280 30} type Double labelfont 1 labelsize 22 align 16
     code0 {o->label(inTitle);}
     class Fl_Group visible
   } {
@@ -205,7 +198,7 @@ Function {addInstallerText(const char *inText)} {open
 } {
   code {wInstallerList->begin();} {}
   Fl_Window wInstallerTextGroup {open
-    xywh {560 367 280 26} type Double labelfont 1 labelsize 22 align 16
+    xywh {458 341 280 26} type Double labelfont 1 labelsize 22 align 16
     class Fl_Group visible
   } {
     Fl_Box {} {
@@ -219,19 +212,33 @@ Function {addInstallerText(const char *inText)} {open
   }
 }
 
-Function {addInstallerPackage(const char *inTitle, const char *inLink)} {open
+Function {addInstallerPackage(const char *inTitle, StringList *inCmdList)} {open
 } {
   code {wInstallerList->begin();} {}
   Fl_Window {} {open
-    xywh {548 563 280 26} type Double labelfont 1 labelsize 22 align 16
+    xywh {460 466 280 26} type Double labelfont 1 labelsize 22 align 16
     class Fl_Group visible
   } {
     Fl_Button {} {
       label Install
-      user_data inLink
-      callback install_package_cb
+      user_data inCmdList
+      callback {StringList *cmdList = (StringList*)v;
+for (auto &&cmd: *cmdList) {
+  if (cmd[0]=='W') {
+    const char *warning = cmd.c_str()+1;
+    if (fl_choice("%s", nullptr, "Cancel", "Proceed", warning)!=2) {
+      return;
+    }
+  } else if (cmd[0]=='S') {
+    gApp->GetPlatformManager()->EvalNewtonScript(cmd.c_str()+1);
+  } else {
+    auto link = expand(cmd);
+    if (!link.empty())
+      gApp->InstallPackagesFromURI(link.c_str());    
+  }
+}}
       xywh {10 3 70 20} labelsize 12
-      code0 {o->tooltip(get_path(inLink));}
+      code0 {o->tooltip(make_tooltip(inCmdList));}
     }
     Fl_Box {} {
       xywh {85 3 175 20} labelsize 13 align 20
@@ -240,19 +247,28 @@ Function {addInstallerPackage(const char *inTitle, const char *inLink)} {open
   }
 }
 
-Function {addInstallerLink(const char *inTitle, const char *inLink)} {open
+Function {addInstallerLink(const char *inTitle, StringList *inLinkList)} {open
 } {
   code {wInstallerList->begin();} {}
   Fl_Window {} {open
-    xywh {547 502 280 26} type Double labelfont 1 labelsize 22 align 16
+    xywh {458 402 280 26} type Double labelfont 1 labelsize 22 align 16
     class Fl_Group visible
   } {
     Fl_Button {} {
       label {@ext  Read}
-      user_data inLink
-      callback link_document_cb
+      user_data inLinkList
+      callback {StringList *linkList = (StringList*)v;
+for (auto &&link: *linkList) {
+  auto fullLink = expand(link);
+  if (!fullLink.empty()) {
+    char errmsg[512];
+    if (!fl_open_uri(fullLink.c_str(), errmsg, sizeof(errmsg))) {
+      fl_alert("Error: %s", errmsg);
+    }
+  }
+}}
       xywh {10 3 70 20} labelsize 12
-      code0 {o->tooltip(get_path(inLink));}
+      code0 {o->tooltip(make_tooltip(inLinkList));}
     }
     Fl_Box {} {
       xywh {85 3 175 20} labelsize 13 align 20
@@ -261,19 +277,29 @@ Function {addInstallerLink(const char *inTitle, const char *inLink)} {open
   }
 }
 
-Function {addInstallerScript(const char *inTitle, const char *inScript)} {open
+Function {addInstallerScript(const char *inTitle, StringList *inScriptList)} {open
 } {
   code {wInstallerList->begin();} {}
   Fl_Window {} {open
-    xywh {543 629 280 30} type Double labelfont 1 labelsize 22 labelcolor 3 align 16
+    xywh {455 524 280 30} type Double labelfont 1 labelsize 22 labelcolor 3 align 16
     class Fl_Group visible
   } {
     Fl_Button {} {
-      user_data inScript
-      callback {gApp->GetPlatformManager()->EvalNewtonScript((char*)v);}
+      user_data inScriptList
+      callback {StringList *scriptList = (StringList*)v;
+for (auto &&cmd: *scriptList) {
+  if (cmd[0]=='W') {
+    const char *warning = cmd.c_str()+1;
+    if (fl_choice("%s", nullptr, "Cancel", "Proceed", warning)!=2) {
+      return;
+    }
+  } else if (cmd[0]=='S') {
+    gApp->GetPlatformManager()->EvalNewtonScript(cmd.c_str()+1);
+  }
+}}
       xywh {40 4 200 22} labelsize 12
       code0 {o->label(inTitle);}
-      code1 {o->tooltip(inScript);}
+      code1 {o->tooltip(make_tooltip(inScriptList));}
     }
   }
 }
@@ -1141,6 +1167,14 @@ win->hide();} {}
 
 "<h2>Licenses</h2>\\n"
 
+"<h3>Einstein</h3>\\n"
+"<p>\\n"
+"Einstein is released under the GNU General Public License Version 2.\\n"
+"<ul>\\n"
+"<li>see: <a href=\\"https://github.com/pguyot/Einstein/blob/master/LICENSE\\">LICENSE</a></li>\\n"
+"<li>Retrieved 2012-01-03</li>\\n"
+"</ul></p>\\n"
+
 "<h3>GNUE newt/0</h3>\\n"
 "<p>\\n"
 "NEWT/0 is copyrighted free software by Makoto Nukui <gnue@so-kukan.com>. \\n"
@@ -1206,7 +1240,8 @@ win->hide();} {}
 "</ul></p>\\n"
 
 
-"</body></html\\n";} {}
+"</body></html\\n";} {selected
+    }
     code {static const char *gThanksText =
 "<html><body>\\n"
 
@@ -1250,8 +1285,11 @@ win->hide();} {}
       label {About Einstein}
       user_data wAbout
       callback {o->hide();} open
-      xywh {447 241 340 260} type Double non_modal visible
+      xywh {451 216 340 260} type Double hide resizable non_modal size_range {340 260 340 0}
     } {
+      Fl_Group {} {open
+        xywh {10 30 320 180} hide resizable
+      } {}
       Fl_Tabs {} {open
         xywh {10 10 320 200} box BORDER_BOX
         code0 {o->box((Fl_Boxtype)(FL_FREE_BOXTYPE+2));}
@@ -1259,7 +1297,7 @@ win->hide();} {}
       } {
         Fl_Group {} {
           label About open
-          xywh {10 30 320 180}
+          xywh {10 30 320 180} resizable
         } {
           Fl_Box {} {
             image {../Resources/icons/EinsteinApp64.png} xywh {133 47 69 75}
@@ -1270,7 +1308,7 @@ win->hide();} {}
             code0 {o->label(PROJECT_NAME);}
           }
           Fl_Box {} {
-            label {Version xxxx.xx.xx} selected
+            label {Version xxxx.xx.xx}
             xywh {72 150 190 20} labelsize 11
             code0 {o->label("Version " PROJECT_VER);}
           }
@@ -1279,13 +1317,16 @@ win->hide();} {}
             xywh {20 172 295 20} labelsize 11
             code0 {o->label(COPYRIGHT_STRING);}
           }
+          Fl_Box {} {
+            xywh {20 200 292 10} resizable
+          }
         }
         Fl_Group {} {
           label Licenses open
           xywh {10 30 320 180} hide
         } {
           Fl_Help_View {} {
-            xywh {10 31 320 179} box FLAT_BOX color 49 labelsize 12
+            xywh {10 31 320 179} box FLAT_BOX color 49 labelsize 12 resizable
             code0 {o->value(gLicenseText);}
           }
         }
@@ -1294,7 +1335,7 @@ win->hide();} {}
           xywh {10 30 320 180} hide
         } {
           Fl_Help_View {} {
-            xywh {10 31 320 179} box FLAT_BOX color 49 labelsize 12
+            xywh {10 31 320 179} box FLAT_BOX color 49 labelsize 12 resizable
             code0 {o->value(gThanksText);}
           }
         }
