@@ -580,6 +580,7 @@ target_include_directories(
 	${FLTK_INCLUDE_DIRS}
 )
 
+target_compile_definitions(Einstein PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>")
 
 # nice code to output every know variable in this CMake session
 #get_cmake_property(_variableNames VARIABLES)
