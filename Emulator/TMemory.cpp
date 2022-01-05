@@ -109,7 +109,7 @@ TMemory::TMemory(
 		mLog( inLog ),
 		mFlash( inLog, inFlashPath, NULL ),
 		mROMImagePtr( inROMImageBuffer ),
-		mRAM( nil ),
+		mRAM( NULL ),
 		mRAMSize( inRAMSize ),
 		mRAMEnd( TMemoryConsts::kRAMStart + inRAMSize ),
 		mMMU( this ),
@@ -118,7 +118,9 @@ TMemory::TMemory(
 		mDMAManager( 0 ),
 		mSerialNumberIx( 64 ),
 		mBPCount( 0 ),
+		mBreakpoints( NULL ),
 		mWPCount( 0 ),
+		mWatchpoints( NULL ),
         mJIT( this, &mMMU )
 {
 	Init();
@@ -137,7 +139,7 @@ TMemory::TMemory(
 		mLog( inLog ),
 		mFlash( inLog, inFlashPath, inROMImage ),
 		mROMImagePtr( inROMImage->GetPointer() ),
-		mRAM( nil ),
+		mRAM( NULL ),
 		mRAMSize( inRAMSize ),
 		mRAMEnd( TMemoryConsts::kRAMStart + inRAMSize ),
 		mMMU( this ),
@@ -146,7 +148,9 @@ TMemory::TMemory(
 		mDMAManager( 0 ),
 		mSerialNumberIx( 64 ),
 		mBPCount( 0 ),
+		mBreakpoints( NULL ),
 		mWPCount( 0 ),
+		mWatchpoints( NULL ),
         mJIT( this, &mMMU )
 {
 	Init();
@@ -157,10 +161,9 @@ TMemory::TMemory(
 // -------------------------------------------------------------------------- //
 TMemory::~TMemory( void )
 {
-	if (mRAM)
-	{
-		::free( mRAM );
-	}
+	if (mRAM) ::free( mRAM );
+	if (mBreakpoints) ::free(mBreakpoints);
+	if (mWatchpoints) ::free(mWatchpoints);
 	
 	int socketsIx;
 	for (socketsIx = 0; socketsIx < kNbSockets; socketsIx++)

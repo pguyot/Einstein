@@ -51,10 +51,20 @@ TNetworkManager::TNetworkManager(TLog* inLog) :
 	mSelectMutex->Unlock();
 }
 
+// -------------------------------------------------------------------------- //
+//  * ~TNetworkManager()
+// -------------------------------------------------------------------------- //
+TNetworkManager::~TNetworkManager()
+{
+	delete mSelectMutex;
+	delete mThread;
+	delete mSelectCondVar;
+}
+
 void TNetworkManager::LogBuffer(KUInt8 *data, KUInt32 size)
 {
 	if (mLog) {
-		mLog->FLogLine("%d bytes at 0x%08x", size, data);
+		mLog->FLogLine("%d bytes at %p", (int) size, data);
 		char t[72];
 		KUInt32 i;
 		for (i=0; i<size; i++) {
@@ -92,7 +102,7 @@ void TNetworkManager::LogIPv4Packet(KUInt8 *d, KUInt32 n) {
 		mLog->FLogLine("    [14] Version: %d (4)", d[14]>>4);
 		mLog->FLogLine("    [14] Header Length: %d (5)", d[14]&0x0f);
 		mLog->FLogLine("    [15] Type Of Service: 0x%02x", d[15]);
-		mLog->FLogLine("    [16] Total Length: %d (%d)", (d[16]<<8)|d[17], n-14); // minus 14 bytes for Ethernet header
+		mLog->FLogLine("    [16] Total Length: %d (%d)", (d[16]<<8)|d[17], (int) (n-14)); // minus 14 bytes for Ethernet header
 		mLog->FLogLine("    [18] ID: %d", (d[18]<<8)|d[19]);
 		mLog->FLogLine("    [20] Flags: %d", d[20]>>5);
 		mLog->FLogLine("    [20] Fragment: %d", ((d[20]<<8)|d[21])&0x1fff);
@@ -134,7 +144,7 @@ void TNetworkManager::LogTCPPacket(KUInt8 *d, KUInt32 n) {
 		mLog->FLogLine("      [48] Window:    0x%04x", (d[48]<<8)|d[49]);
 		mLog->FLogLine("      [50] Checksum:  0x%04x (0x%04x==0?)", (d[50]<<8)|d[51], GetTCPChecksum(d, n));
 		mLog->FLogLine("      [52] UrgentPtr: 0x%04x", (d[52]<<8)|d[53]);
-		mLog->FLogLine("      [54] ... %d bytes of payload\n", n-54);
+		mLog->FLogLine("      [54] ... %d bytes of payload\n", (int) (n-54));
 	}
 }
 
@@ -145,30 +155,31 @@ void TNetworkManager::LogUDPPacket(KUInt8 *d, KUInt32 n) {
 		mLog->FLogLine("      [36] Dst Port: %d", (d[36]<<8)|d[37]);
 		mLog->FLogLine("      [38] Length: %d", (d[38]<<8)|d[39]);
 		mLog->FLogLine("      [40] Checksum:  0x%04x (0x%04x==0?)", (d[40]<<8)|d[41], GetUDPChecksum(d, n));
-		mLog->FLogLine("      [42] ... %d bytes of payload\n", n-42);
+		mLog->FLogLine("      [42] ... %d bytes of payload\n", (int) (n-42));
 	}
 }
 
 void TNetworkManager::LogPacket(KUInt8 *d, KUInt32 n) {
 	if (mLog) {
-		mLog->FLogLine("TNetworkManager: Log Packet of %d bytes:", n);
+		mLog->FLogLine("TNetworkManager: Log Packet of %d bytes:", (int) n);
 		mLog->FLogLine("  [0] Dst MAC: %02x:%02x:%02x:%02x:%02x:%02x", d[0], d[1], d[2], d[3], d[4], d[5]);
 		mLog->FLogLine("  [6] Src MAC: %02x:%02x:%02x:%02x:%02x:%02x", d[6], d[7], d[8], d[9], d[10], d[11]);
 		KUInt32 t = (d[12]<<8) | d[13];
-		mLog->FLogLine("  [12] Type:   0x%04x", t);
+		mLog->FLogLine("  [12] Type:   0x%04x", (int) t);
 		switch (t) {
 			case 0x0800: LogIPv4Packet(d, n); break;
 			case 0x0806: LogARPPacket(d, n); break;
 			case 0x809b: mLog->LogLine("  **** unsupported: Apple Talk ****"); break;
 			case 0x86dd: mLog->LogLine("  **** unsupported: IPv6 ****"); break; 
-			default: mLog->FLogLine("  **** unsupported type: 0x%04x ****", t); break; 
+			default: mLog->FLogLine("  **** unsupported type: 0x%04x ****", (int) t); break; 
 		}
 	}
 }
 
 KUInt16 TNetworkManager::GetUDPChecksum(KUInt8 *d, ssize_t n, Boolean set) {
 	KUInt32 s = 0;
-	KUInt16 i, UDPLength = n-34;
+	KUInt16 UDPLength = n-34;
+	ssize_t i;
 	// UDP Pseudo Header:
 	s = s + (d[26]<<8) + d[27] + (d[28]<<8) + d[29]; // src IP
 	s = s + (d[30]<<8) + d[31] + (d[32]<<8) + d[33]; // dst IP
@@ -191,12 +202,13 @@ KUInt16 TNetworkManager::GetUDPChecksum(KUInt8 *d, ssize_t n, Boolean set) {
 		d[40] = s>>8;
 		d[41] = s;
 	}
-	return s;	
+	return s;
 }
 
 KUInt16 TNetworkManager::GetTCPChecksum(KUInt8 *d, ssize_t n, Boolean set) {
 	KUInt32 s = 0;
-	KUInt16 i, TCPLength = n-34;
+	KUInt16 TCPLength = n-34;
+	ssize_t i;
 	// TCP Pseudo Header:
 	s = s + (d[26]<<8) + d[27] + (d[28]<<8) + d[29]; // src IP
 	s = s + (d[30]<<8) + d[31] + (d[32]<<8) + d[33]; // dst IP

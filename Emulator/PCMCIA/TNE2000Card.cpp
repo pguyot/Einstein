@@ -208,7 +208,7 @@ TNE2000Card::ReadAttrB( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "TNE2000Card::ReadAttrB( %.8X => %d = '%c' (%d))", 
 						   (unsigned int) inOffset,
-						   theOffset,
+						   (int) theOffset,
 						   (theResult>31&&theResult<128)?theResult:'.',
 						   theResult );
 //		GetEmulator()->BreakInMonitor();

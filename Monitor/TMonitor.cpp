@@ -921,7 +921,7 @@ TMonitor::ExecuteCommand( const char* inCommand )
 				char disasm[256];
 
 				UDisasm::Disasm(disasm, 256, addr, data);
-				::snprintf(theLine, sizeof(theLine), "     %08X   %s", addr, disasm);
+				::snprintf(theLine, sizeof(theLine), "     %08X   %s", (unsigned int) addr, disasm);
 				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
 
@@ -2009,6 +2009,7 @@ TMonitor::FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 inAddr, unsign
 				return -1;
 			}
 			if (i == (length - 1) && byte != 0) {
+				::free(symbolStr);
 				return ::snprintf(buffer, bufferSize, "<invalid symbol not null terminated, length %d>", length);
 			}
 			if (i == 0) {

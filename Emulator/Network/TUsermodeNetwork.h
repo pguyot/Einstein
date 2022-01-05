@@ -111,7 +111,7 @@ public:
 	void DropPacket();
 	
 private:
-	PacketHandler	*mFirstPacketHandler = nullptr, *mLastPacketHandler = nullptr;
+	PacketHandler	*mFirstPacketHandler = nullptr;
 	Packet			*mFirstPacket = nullptr, *mLastPacket = nullptr;
 };
 
