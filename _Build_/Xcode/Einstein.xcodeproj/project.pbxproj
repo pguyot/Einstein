@@ -374,6 +374,7 @@
 		DA52C89E1A40935B008A17D0 /* TVirtualizedCallsPatches.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cpp */; };
 		DA52C89F1A40935B008A17D0 /* TVirtualizedCallsPatches.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA52C8981A40935B008A17D0 /* TVirtualizedCallsPatches.cpp */; };
 		DA6F86431A34FBB7006BC81E /* TMonitorCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA6F86421A34FBB7006BC81E /* TMonitorCore.cpp */; };
+		DA7AB8BA2786457200250CB2 /* TCocoaPathHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F19F1C281E5B574000E8C9BE /* TCocoaPathHelper.mm */; };
 		DAD09645246F586000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DAD09642246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg.cpp */; };
 		DAD09646246F586000CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg_template.t in Resources */ = {isa = PBXBuildFile; fileRef = DAD09643246F585F00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferReg_template.t */; };
 		DAD09648246F5ABA00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DAD09647246F5ABA00CADBF3 /* TJITGeneric_HalfwordAndSignedDataTransferImm.cpp */; };
@@ -2340,6 +2341,7 @@
 				DA4BA4551A3A03EF002BDB80 /* TEOFException.cpp in Sources */,
 				DAD09658246F61D500CADBF3 /* TPathHelper.cpp in Sources */,
 				DA4BA4391A3A02FD002BDB80 /* TJITGeneric_SingleDataTransfer.cpp in Sources */,
+				DA7AB8BA2786457200250CB2 /* TCocoaPathHelper.mm in Sources */,
 				DAD09655246F61B400CADBF3 /* TPtySerialPortManager.cpp in Sources */,
 				DA4BA4561A3A03EF002BDB80 /* TIOException.cpp in Sources */,
 				DA4BA4181A3A028C002BDB80 /* TFlash.cpp in Sources */,
@@ -2941,7 +2943,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
+					_DEBUG,
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
