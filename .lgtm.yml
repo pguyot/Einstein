@@ -1,7 +1,3 @@
-path_classifiers:
-  test:
-    - "**/*.cpp"
-    - "**/*.c"
 queries:
   - exclude: cpp/use-of-goto            
 extraction:
