@@ -2035,7 +2035,7 @@ TNativePrimitives::ExecuteSerialDriverNative( KUInt32 inInstruction )
 		(void) mMemory->Read(mProcessor->GetRegister(0) + 16, theLocation);
 		mLog->FLogLine(
 			"Hardware location (?) %.8X",
-			theLocation);
+			(unsigned int) theLocation);
 	}
 
 	switch (inInstruction & 0xFF)
@@ -2761,7 +2761,7 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 			KUInt32 size = mProcessor->GetRegister(2), i;
 			if (LOG_NETWORKMANAGER)
 			{
-				mLog->FLogLine( "TNetworkManager::SendPacket(0x%08x, %d)", addr, size );
+				mLog->FLogLine( "TNetworkManager::SendPacket(0x%08x, %d)", (unsigned int) addr, (int) size );
 			}
 			if (mNetworkManager && size) {
 				KUInt8 *data = (KUInt8*)malloc(size), v;
@@ -2780,7 +2780,7 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 			KUInt32 i, err = 0;
 			if (LOG_NETWORKMANAGER)
 			{
-				mLog->FLogLine( "TNetworkManager::GetDeviceAddress(0x%08x, %d)", dstBuffer, dstBufferSize );
+				mLog->FLogLine( "TNetworkManager::GetDeviceAddress(0x%08x, %d)", (unsigned int) dstBuffer, (int) dstBufferSize );
 			}
 			if (mNetworkManager && dstBufferSize) {
 				KUInt8 mac[6] = { 0 };
@@ -2866,7 +2866,7 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 			if (LOG_NETWORKMANAGER)
 			{
                 if (size>0)
-					mLog->FLogLine( "TNetworkManager::DataAvailable(Avail: %d)", size );
+					mLog->FLogLine( "TNetworkManager::DataAvailable(Avail: %d)", (int) size );
 			}
 			break; }
 		case 0x15: {
@@ -2875,7 +2875,7 @@ TNativePrimitives::ExecuteNetworkManagerNative( KUInt32 inInstruction )
 			KUInt32 i, n = mProcessor->GetRegister(2);
 			if (LOG_NETWORKMANAGER)
 			{
-				mLog->FLogLine( "TNetworkManager::ReceiveData (buffer=0x%08x, size=%d", dst, n );
+				mLog->FLogLine( "TNetworkManager::ReceiveData (buffer=0x%08x, size=%d", (unsigned int) dst, (int) n );
 			}
 			if (mNetworkManager && n) {
 				KUInt8 *buffer = (KUInt8*)malloc(n);

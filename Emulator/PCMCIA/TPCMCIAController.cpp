@@ -91,7 +91,7 @@ TPCMCIAController::Read( KUInt32 inOffset )
 		TARMProcessor *cpu = mEmulator->GetProcessor();
 		mLog->FLogLine(
 			"TPCMCIAController(pc=0x%08x): Read word access to PCMCIA #%i at +0x%.8X",
-			cpu->mCurrentRegisters[15],
+			(unsigned int) cpu->mCurrentRegisters[15],
 			mSocketIx,
 			(unsigned int) inOffset );
 	}
@@ -380,9 +380,9 @@ void
 TPCMCIAController::RaiseInterrupt( int inVector )
 {
 	if (mLog) {
-		mLog->FLogLine( "TPCMCIAController: mReg_0000 = %.4X", mReg_0000 );
-		mLog->FLogLine( "                   mIntCtrlReg = %.4X", mIntCtrlReg );
-		mLog->FLogLine( "                   mReg_0C00 = %.4X", mReg_0C00 );
+		mLog->FLogLine( "TPCMCIAController: mReg_0000 = %.4X", (unsigned int) mReg_0000 );
+		mLog->FLogLine( "                   mIntCtrlReg = %.4X", (unsigned int) mIntCtrlReg );
+		mLog->FLogLine( "                   mReg_0C00 = %.4X", (unsigned int) mReg_0C00 );
 	}
 
 	mReg_0000 |= inVector;

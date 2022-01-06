@@ -75,7 +75,7 @@ TBufferedSoundManager::ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSiz
 		{
 			GetLog()->FLogLine(
 				"Couldn't read data from %.8X\n",
-				inBufferAddr);
+				(unsigned int) inBufferAddr);
 		}
 	} else {
 		ScheduleOutput(mBuffer, inSize);

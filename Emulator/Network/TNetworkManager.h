@@ -61,9 +61,7 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TNetworkManager()
-	{
-	}
+	virtual ~TNetworkManager();
 
 	///
 	/// Set the interrupt manager.

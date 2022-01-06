@@ -444,14 +444,14 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 inline KUInt32
 GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean inCPSR_C )
 {
-	KUInt32 Shift = ((inShift & 0x00000FFF) >> 5);
+	KUInt32 Shift = ((inShift & 0x00000FFF) >> 5);  // Shift < 128
 	KUInt32 Rm = inShift & 0x0000000F;
 	
 	// Shift is not 0 here.
 	KUInt32 theResult;
 	theResult = inCurrentRegisters[Rm];
 	// Shift Amount
-	KUInt32 amount = Shift >> 2;
+	KUInt32 amount = Shift >> 2;    // amount < 32
 	
 	// Switch on the shift operation.
 	switch (Shift & 0x3) // 0b0000011
@@ -460,12 +460,8 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 			// Logical Shift Left
 			if (amount != 0)
 			{
-				if (amount < 32)
-				{
-					theResult <<= amount;
-				} else {
-					theResult = 0;
-				}
+			    // amount < 32
+				theResult <<= amount;
 			}
 			break;
 			
@@ -473,12 +469,8 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 			// Logical Shift Right
 			if (amount != 0)
 			{
-				if (amount < 32)
-				{
-					theResult >>= amount;
-				} else {
-					theResult = 0;
-				}
+			    // amount < 32
+				theResult >>= amount;
 			} else {
 				// LSR #0 is a special case meaning LSR #32
 				// where the carry out is the bit 31 of Rm and

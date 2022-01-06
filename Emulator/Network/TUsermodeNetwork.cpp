@@ -732,14 +732,13 @@ public:
 			case kStateNewwtonDiscWaitForACK:
 				// Just close down.
 				// FIXME: we assume that this is an ACK packet
-				net->RemovePacketHandler(this);
 				KPrintf("Net: Newton closed. Removing TCP handler for port %u to %u.%u.%u.%u\n",
 					   theirPort,
 					   (unsigned int)((theirIP>>24)&0xff),
 					   (unsigned int)((theirIP>>16)&0xff),
 					   (unsigned int)((theirIP>>8)&0xff),
 					   (unsigned int)(theirIP&0xff));
-				delete this;
+				net->RemovePacketHandler(this);
 				return 1;
 			case kStatePeerDiscWaitForACK:
 				if ((packet.GetTCPFlags() & Packet::TCPFlagFIN)) {
@@ -755,15 +754,13 @@ public:
 #else
 					::close(mSocket); mSocket = -1;
 #endif
-					net->RemovePacketHandler(this);
 					KPrintf("Net: Peer closing. Removing TCP handler for port %u to %u.%u.%u.%u\n",
 						   theirPort,
 						   (unsigned int)((theirIP>>24)&0xff),
 						   (unsigned int)((theirIP>>16)&0xff),
 						   (unsigned int)((theirIP>>8)&0xff),
 						   (unsigned int)(theirIP&0xff));
-					delete this;
-
+					net->RemovePacketHandler(this);
 				}
 				return 1;
 			default:
@@ -1016,7 +1013,6 @@ public:
 						   (unsigned int)((theirIP>>8)&0xff),
 						   (unsigned int)(theirIP&0xff));
 					net->RemovePacketHandler(this);
-					delete this;
 				}
 				return;
 			}
@@ -1569,9 +1565,7 @@ TUsermodeNetwork::~TUsermodeNetwork()
 		DropPacket();
 	// release all package handlers
     while (mFirstPacketHandler) {
-        PacketHandler *ph = mFirstPacketHandler;
-        RemovePacketHandler(ph);
-        delete ph;
+        RemovePacketHandler(mFirstPacketHandler);
     }
 	// release all other resources
 #if TARGET_OS_WIN32
@@ -1722,8 +1716,6 @@ void TUsermodeNetwork::AddPacketHandler(PacketHandler *inPacketHandler)
 	PacketHandler *n = mFirstPacketHandler;
 	if (n) 
 		n->prev = inPacketHandler;
-	else
-		mLastPacketHandler = inPacketHandler;
 	inPacketHandler->next = n;
 	inPacketHandler->prev = NULL;
 	mFirstPacketHandler = inPacketHandler;
@@ -1738,8 +1730,8 @@ void TUsermodeNetwork::RemovePacketHandler(PacketHandler *ph)
 	PacketHandler *pp = ph->prev;
 	PacketHandler *pn = ph->next;
 	if (pp) pp->next = pn; else mFirstPacketHandler = pn;
-	if (pn) pn->prev = pp; else mLastPacketHandler = pp;
-	//delete ph;
+	if (pn) pn->prev = pp;
+	delete ph;
 }
 
 
