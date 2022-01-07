@@ -913,11 +913,11 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 		case 0x1A:
 			// Log
 		{
-#ifdef TARGET_UI_FLTK
 			KUInt32 theAddress = mProcessor->GetRegister(1);
 			char theLine[512];
 			KUInt32 amount = sizeof(theLine);
-			(void)mMemory->FastReadString(theAddress, &amount, theLine);
+			(void) mMemory->FastReadString(theAddress, &amount, theLine);
+#ifdef TARGET_UI_FLTK
 			// theLine is encoded in ISO format
 			// if the Toolkit is available, send the text to the monitor
 			if (gToolkit) {
@@ -930,25 +930,13 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 				gToolkit->PrintStd(dstText);
 				free(dstText);
 				//gToolkit->PrintStd("\n");
-			} else {
-				// output directly to the debuggging console
-			    KPrintf("%s", theLine);
             }
 #endif
-			// this is older code, dealing with logs and stdout
-			// should we convert the output text into another encoding?
+			// TODO should we convert the output text into another encoding?
 			if (mLog)
 			{
-				KUInt32 theAddress = mProcessor->GetRegister( 1 );
-				char theLine[74];
-				KUInt32 amount = sizeof(theLine);
-				(void) mMemory->FastReadString(theAddress, &amount, theLine);
 				mLog->LogLine( theLine );
 			} else {
-				KUInt32 theAddress = mProcessor->GetRegister( 1 );
-				char theLine[512];
-				KUInt32 amount = sizeof(theLine);
-				(void) mMemory->FastReadString(theAddress, &amount, theLine);
 				KPrintf("Log: %s\n", theLine);
 			}
 		}
