@@ -32,7 +32,7 @@
 
 #define COMPILE_TIME_YYYY 2022
 #define COMPILE_TIME_MM (101-100)  // if the month is "09", C++ would interprete the number as octal, so we generate "109-100" instead.
-#define COMPILE_TIME_DD (102-100)
+#define COMPILE_TIME_DD (107-100)
 
 #define VERSION_STRING		PROJECT_NAME " " PROJECT_VER
 #define VERSION_STRING_SHORT	PROJECT_VER
