@@ -118,9 +118,9 @@ sub Test( $ $ $ )
 	
 	if (defined($Arg))
 	{
-		open TEST_RESULT, "'$TestsPath' $Test $Arg | grep -v Checksum 2>&1 |" or die "Impossible de lancer le test";
+		open TEST_RESULT, "'$TestsPath' $Test $Arg 2>&1 | grep -v 'countOfStores: 1, countOfAccounts' |" or die "Impossible de lancer le test";
 	} else {
-		open TEST_RESULT, "'$TestsPath' $Test 2>&1 | grep -v Checksum |" or die "Impossible de lancer le test";
+		open TEST_RESULT, "'$TestsPath' $Test 2>&1 | grep -v 'countOfStores: 1, countOfAccounts' |" or die "Impossible de lancer le test";
 		$Arg = '';
 	}
 	my @TestResult = <TEST_RESULT>;
