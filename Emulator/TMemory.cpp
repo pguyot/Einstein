@@ -109,7 +109,7 @@ TMemory::TMemory(
 		mLog( inLog ),
 		mFlash( inLog, inFlashPath, NULL ),
 		mROMImagePtr( inROMImageBuffer ),
-		mRAM( nil ),
+		mRAM( NULL ),
 		mRAMSize( inRAMSize ),
 		mRAMEnd( TMemoryConsts::kRAMStart + inRAMSize ),
 		mMMU( this ),
@@ -118,7 +118,9 @@ TMemory::TMemory(
 		mDMAManager( 0 ),
 		mSerialNumberIx( 64 ),
 		mBPCount( 0 ),
+		mBreakpoints( NULL ),
 		mWPCount( 0 ),
+		mWatchpoints( NULL ),
         mJIT( this, &mMMU )
 {
 	Init();
@@ -137,7 +139,7 @@ TMemory::TMemory(
 		mLog( inLog ),
 		mFlash( inLog, inFlashPath, inROMImage ),
 		mROMImagePtr( inROMImage->GetPointer() ),
-		mRAM( nil ),
+		mRAM( NULL ),
 		mRAMSize( inRAMSize ),
 		mRAMEnd( TMemoryConsts::kRAMStart + inRAMSize ),
 		mMMU( this ),
@@ -146,7 +148,9 @@ TMemory::TMemory(
 		mDMAManager( 0 ),
 		mSerialNumberIx( 64 ),
 		mBPCount( 0 ),
+		mBreakpoints( NULL ),
 		mWPCount( 0 ),
+		mWatchpoints( NULL ),
         mJIT( this, &mMMU )
 {
 	Init();
@@ -157,10 +161,9 @@ TMemory::TMemory(
 // -------------------------------------------------------------------------- //
 TMemory::~TMemory( void )
 {
-	if (mRAM)
-	{
-		::free( mRAM );
-	}
+	if (mRAM) ::free( mRAM );
+	if (mBreakpoints) ::free(mBreakpoints);
+	if (mWatchpoints) ::free(mWatchpoints);
 	
 	int socketsIx;
 	for (socketsIx = 0; socketsIx < kNbSockets; socketsIx++)
@@ -690,7 +693,7 @@ Boolean
 TMemory::Read( VAddr inAddress, KUInt32& outWord )
 {
 #ifdef _DEBUG
-	int i;
+	size_t i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
 			KPrintf("Watchpoint 0x%08X read around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
@@ -730,7 +733,7 @@ Boolean
 TMemory::ReadAligned( VAddr inAddress, KUInt32& outWord )
 {
 #ifdef _DEBUG
-	int i;
+	size_t i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
 			KPrintf("Watchpoint 0x%08X read around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
@@ -770,7 +773,7 @@ inline Boolean
 TMemory::ReadROMRAM( VAddr inAddress, KUInt32& outWord )
 {
 #ifdef _DEBUG
-	int i;
+	size_t i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
 			KPrintf("Watchpoint 0x%08X read around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
@@ -1332,7 +1335,7 @@ Boolean
 TMemory::ReadB( VAddr inAddress, KUInt8& outByte )
 {
 #ifdef _DEBUG
-	int i;
+	size_t i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
 			KPrintf("Watchpoint 0x%08X read around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
@@ -1567,7 +1570,7 @@ Boolean
 TMemory::Write( VAddr inAddress, KUInt32 inWord )
 {
 #ifdef _DEBUG
-	int i;
+	size_t i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
 			KPrintf("Watchpoint 0x%08X written around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
@@ -1604,7 +1607,7 @@ Boolean
 TMemory::WriteAligned( VAddr inAddress, KUInt32 inWord )
 {
 #ifdef _DEBUG
-	int i;
+	size_t i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
 			KPrintf("Watchpoint 0x%08X written around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
@@ -1641,7 +1644,7 @@ inline Boolean
 TMemory::WriteRAM( VAddr inAddress, KUInt32 inWord )
 {
 #ifdef _DEBUG
-	int i;
+	size_t i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
 			KPrintf("Watchpoint 0x%08lX written around 0x%08lX\n", (unsigned long)inAddress, (unsigned long)mProcessor->mCurrentRegisters[15]);
@@ -2155,7 +2158,7 @@ Boolean
 TMemory::WriteB( VAddr inAddress, KUInt8 inByte )
 {
 #ifdef _DEBUG
-	int i;
+	size_t i;
 	for (i=0; i<mWPCount; i++) {
 		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
 			KPrintf("Watchpoint 0x%08X written around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
