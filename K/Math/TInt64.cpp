@@ -2,7 +2,7 @@
 // Fichier:			TInt64.cp
 // Projet:			K
 // 
-// Cr�� le:			21/2/2004
+// Créé le:			21/2/2004
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****
@@ -147,7 +147,7 @@ TInt64::ShiftLeft( void )
 	return theResult;
 }
 
-// Op�rateurs binaires (non inline)
+// Opérateurs binaires (non inline)
 
 // --------------------------------------------------------------------	//
 //	* operator == ( const TInt64&, const TInt64& )

@@ -2,7 +2,7 @@
 // Fichier:			TSInt64.cp
 // Projet:			K
 // 
-// Cr�� le:			21/2/2004
+// Créé le:			21/2/2004
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****

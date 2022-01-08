@@ -2,7 +2,7 @@
 // Fichier:			UPStrings.cp
 // Projet:			K
 //
-// Cr�� le:			22/1/2001
+// Créé le:			22/1/2001
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -33,7 +33,7 @@
 #include <K/Defines/KDefinitions.h>
 #include <K/Misc/UPStrings.h>
 
-// Routines de conversion de cha�nes Pascal <-> C
+// Routines de conversion de chaînes Pascal <-> C
 
 #ifdef __MWERKS__
 	#pragma	warn_resultnotused	off
@@ -63,16 +63,16 @@ UPStrings::P2CStrCopy(
 				ConstStr255Param inSourceString,
 				long inMaxLength )
 {
-	// Taille de la cha�ne
+	// Taille de la chaîne
 	register long theLength = inSourceString[0];
 
-	// On tronque si n�cessaire.
+	// On tronque si nécessaire.
 	if (theLength > inMaxLength)
 	{
 		theLength = inMaxLength;
 	}
 
-	// Copie des caract�res.
+	// Copie des caractères.
 	::BlockMove( &inSourceString[1], outDestString, theLength );
 
 	// Ajout du terminateur.
@@ -88,12 +88,12 @@ UPStrings::C2PStrCopy(
 				const char* inSourceString,
 				long inMaxLength )
 {
-	// On mesure la taille en m�me temps qu'on copie.
+	// On mesure la taille en même temps qu'on copie.
 
-	// Taille de la cha�ne
+	// Taille de la chaîne
 	register long theLength = 0;
 
-	// Curseur sur la cha�ne.
+	// Curseur sur la chaîne.
 	register const char* theSourceString = inSourceString;
 	do {
 		register char theChar = *theSourceString;
@@ -107,13 +107,13 @@ UPStrings::C2PStrCopy(
 		outDestString[theLength] = (unsigned char) theChar;
 	} while (theLength <= inMaxLength);
 
-	// D�passement?
+	// Dépassement?
 	if (theLength > inMaxLength )
 	{
 		theLength = inMaxLength;
 	}
 
-	// On �crit la taille.
+	// On écrit la taille.
 	outDestString[0] = (unsigned char) theLength;
 }
 
@@ -123,11 +123,11 @@ UPStrings::C2PStrCopy(
 char*
 UPStrings::P2CStr( Str255 ioString )
 {
-	// Taille de la cha�ne
+	// Taille de la chaîne
 	register long theLength = ioString[0];
 
-	// D�placement des caract�res.
-	// BlockMove sait g�rer les zones de m�moire qui se recouvrent.
+	// Déplacement des caractères.
+	// BlockMove sait gérer les zones de mémoire qui se recouvrent.
 	::BlockMove( &ioString[1], ioString, theLength );
 
 	// Ajout du terminateur.
@@ -142,19 +142,19 @@ UPStrings::P2CStr( Str255 ioString )
 unsigned char*
 UPStrings::C2PStr( char* ioString )
 {
-	// Taille de la cha�ne
+	// Taille de la chaîne
 	register long theLength = 0;
 
-	// Caract�re pr�c�dent.
+	// Caractère précédent.
 	register char thePreviousChar = '\0';
 
-	// Curseur sur la cha�ne.
+	// Curseur sur la chaîne.
 	register char* theString = ioString;
 	do {
-		// Lecture du caract�re courant.
+		// Lecture du caractère courant.
 		register char theChar = *theString;
 
-		// On �crit le caract�re pr�c�dent.
+		// On écrit le caractère précédent.
 		*theString = thePreviousChar;
 
 		// Si c'est la fin, on sort.
@@ -169,7 +169,7 @@ UPStrings::C2PStr( char* ioString )
 		thePreviousChar = theChar;
 	} while (theLength < 256);
 
-	// D�tection du d�passement.
+	// Détection du dépassement.
 	if (theLength == 256)
 	{
 		theLength = 255;

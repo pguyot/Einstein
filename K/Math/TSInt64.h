@@ -2,7 +2,7 @@
 // Fichier:			TSInt64.h
 // Projet:			K
 // 
-// Cr�� le:			21/2/2004
+// Créé le:			21/2/2004
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****
@@ -39,25 +39,25 @@
 #include <K/Math/TInt64.h>
 
 ///
-/// Classe pour un entier sign� sur 64 bits.
+/// Classe pour un entier signé sur 64 bits.
 /// Cette classe permet d'avoir SInt64 sur les plateformes n'ayant
-/// pas \c signed \c long \c long mais g�rant du 32 bits.
+/// pas \c signed \c long \c long mais gérant du 32 bits.
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 1.3 $
 ///
-/// \test	aucun test d�fini.
+/// \test	aucun test défini.
 ///
 class TSInt64
 	:
 		public TInt64
 {
 public:
-	/// La classe UUInt64 g�re le pont entre KSInt64 natif et TSInt64.
+	/// La classe UUInt64 gère le pont entre KSInt64 natif et TSInt64.
 	friend class UTInt64;
 
 	///
-	/// Constructeur � partir de deux entiers de 32 bits.
+	/// Constructeur à partir de deux entiers de 32 bits.
 	///
 	/// \param inHi		valeur de poids fort
 	/// \param inLo		valeur de poids faible
@@ -69,7 +69,7 @@ public:
 		}
 	
 	///
-	/// Constructeur � partir d'un entier de 32 bits sign�.
+	/// Constructeur à partir d'un entier de 32 bits signé.
 	///
 	/// \param inLo		valeur de poids faible
 	///
@@ -84,7 +84,7 @@ public:
 		}
 
 	///
-	/// Constructeur � partir d'un entier de 32 bits non sign�.
+	/// Constructeur à partir d'un entier de 32 bits non signé.
 	///
 	/// \param inLo		valeur de poids faible
 	///
@@ -95,7 +95,7 @@ public:
 		}
 
 	///
-	/// Op�rateur d'assignation � partir d'un entier de 32 bits.
+	/// Opérateur d'assignation à partir d'un entier de 32 bits.
 	///
 	/// \param inLo		valeur (poids faible)
 	/// \return \c this
@@ -114,39 +114,39 @@ public:
 		}
 
 	///
-	/// Op�ration d'incr�ment (32 bits)
+	/// Opération d'incrément (32 bits)
 	///
-	/// \param inArgument	valeur � ajouter.
+	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
 	TSInt64& operator += ( const KSInt32 inArgument );
 	
 	///
-	/// Op�ration d'incr�ment (64 bits)
+	/// Opération d'incrément (64 bits)
 	///
-	/// \param inArgument	valeur � ajouter.
+	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
 	TSInt64& operator += ( const TSInt64& inArgument );
 	
 	///
-	/// Op�ration de d�cr�ment (32 bits)
+	/// Opération de décrément (32 bits)
 	///
-	/// \param inArgument	valeur � retrancher.
+	/// \param inArgument	valeur à retrancher.
 	/// \return \c this
 	///
 	TSInt64& operator -= ( const KSInt32 inArgument );
 
 	///
-	/// Op�ration de d�cr�ment (64 bits)
+	/// Opération de décrément (64 bits)
 	///
-	/// \param inArgument	valeur � retrancher.
+	/// \param inArgument	valeur à retrancher.
 	/// \return \c this
 	///
 	TSInt64& operator -= ( const TSInt64& inArgument );
 
 	///
-	/// Op�ration de division (32 bits)
+	/// Opération de division (32 bits)
 	///
 	/// \param inArgument	diviseur.
 	/// \return \c this
@@ -154,7 +154,7 @@ public:
 	TSInt64& operator /= ( const KSInt32 inArgument );
 	
 	///
-	/// Op�ration de division (64 bits)
+	/// Opération de division (64 bits)
 	///
 	/// \param inArgument	diviseur.
 	/// \return \c this
@@ -162,7 +162,7 @@ public:
 	TSInt64& operator /= ( const TSInt64& inArgument );
 
 	///
-	/// Op�ration de reste par division euclidienne (32 bits)
+	/// Opération de reste par division euclidienne (32 bits)
 	///
 	/// \param inArgument	diviseur.
 	/// \return \c this
@@ -170,7 +170,7 @@ public:
 	TSInt64& operator %= ( const KSInt32 inArgument );
 
 	///
-	/// Op�ration de reste par division euclidienne (64 bits)
+	/// Opération de reste par division euclidienne (64 bits)
 	///
 	/// \param inArgument	diviseur.
 	/// \return \c this
@@ -178,7 +178,7 @@ public:
 	TSInt64& operator %= ( const TSInt64& inArgument );
 
 	///
-	/// Op�ration de multiplication (32 bits)
+	/// Opération de multiplication (32 bits)
 	///
 	/// \param inArgument	facteur.
 	/// \return \c this
@@ -186,7 +186,7 @@ public:
 	TSInt64& operator *= ( const KSInt32 inArgument );
 
 	///
-	/// Op�ration de multiplication (64 bits)
+	/// Opération de multiplication (64 bits)
 	///
 	/// \param inArgument	facteur.
 	/// \return \c this
@@ -194,17 +194,17 @@ public:
 	TSInt64& operator *= ( const TSInt64& inArgument );
 
 	///
-	/// D�calage gauche.
+	/// Décalage gauche.
 	///
-	/// \param inArgument	nombre de d�calages.
+	/// \param inArgument	nombre de décalages.
 	/// \return \c this
 	///
 	TSInt64& operator <<= ( const int inArgument );
 
 	///
-	/// D�calage droit.
+	/// Décalage droit.
 	///
-	/// \param inArgument	nombre de d�calages.
+	/// \param inArgument	nombre de décalages.
 	/// \return \c this
 	///
 	TSInt64& operator >>= ( const int inArgument );
@@ -229,7 +229,7 @@ public:
 		}
 #endif
 
-	// Op�rateurs binaires.
+	// Opérateurs binaires.
 	friend bool operator == (
 		const TSInt64& inArgOne,
 		const KSInt32 inArgTwo );
@@ -303,8 +303,8 @@ private:
 	///
 	/// Addition avec retenue.
 	///
-	/// \param inArgument	entier � ajouter
-	/// \return \c true si la somme d�passe 2^64
+	/// \param inArgument	entier à ajouter
+	/// \return \c true si la somme dépasse 2^64
 	///
 	bool		Add( const TSInt64& inArgument );
 };
@@ -402,7 +402,7 @@ TSInt64 operator - (
 }
 
 ///
-/// �galit� (32 bits)
+/// Égalité (32 bits)
 ///
 /// \param inArgOne	premier argument (64 bits)
 /// \param inArgTwo	second argument (32 bits)
@@ -411,7 +411,7 @@ TSInt64 operator - (
 bool operator == ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
 
 ///
-/// �galit� (32 bits)
+/// Égalité (32 bits)
 ///
 /// \param inArgOne	premier argument (32 bits)
 /// \param inArgTwo	second argument (64 bits)
@@ -420,7 +420,7 @@ bool operator == ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
 bool operator == ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
 
 ///
-/// Diff�rence (32 bits)
+/// Différence (32 bits)
 ///
 /// \param inArgOne	premier argument (64 bits)
 /// \param inArgTwo	second argument (32 bits)
@@ -429,7 +429,7 @@ bool operator == ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
 bool operator != ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
 
 ///
-/// Diff�rence (32 bits)
+/// Différence (32 bits)
 ///
 /// \param inArgOne	premier argument (32 bits)
 /// \param inArgTwo	second argument (64 bits)
@@ -546,7 +546,7 @@ bool operator > ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
 bool operator > ( const TSInt64& inArgOne, const TSInt64& inArgTwo );
 
 ///
-/// Division enti�re (32 bits)
+/// Division entière (32 bits)
 ///
 /// \param inArgOne	premier argument
 /// \param inArgTwo	second argument
@@ -557,7 +557,7 @@ TSInt64 operator / (
 		const KSInt32 inArgTwo );
 
 ///
-/// Division enti�re (64 bits)
+/// Division entière (64 bits)
 ///
 /// \param inArgOne	premier argument
 /// \param inArgTwo	second argument
@@ -636,10 +636,10 @@ TSInt64 operator * (
 }
 
 ///
-/// D�calage arithm�tique gauche.
+/// Décalage arithmétique gauche.
 ///
 /// \param inArgument	premier argument
-/// \param inShiftCount	d�calage
+/// \param inShiftCount	décalage
 /// \return \c inArgument << inShiftCount
 ///
 inline
@@ -651,10 +651,10 @@ TSInt64 operator << (
 }
 
 ///
-/// D�calage arithm�tique droit.
+/// Décalage arithmétique droit.
 ///
 /// \param inArgument	premier argument
-/// \param inShiftCount	d�calage
+/// \param inShiftCount	décalage
 /// \return \c inArgument << inShiftCount
 ///
 inline
