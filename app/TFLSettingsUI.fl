@@ -193,7 +193,7 @@ Function {addInstallerGroup(const char *inTitle)} {open
     class Fl_Group visible
   } {
     Fl_Box {} {
-      label label selected
+      label label
       xywh {10 5 260 25} labelsize 16 align 20
       code0 {o->label(inTitle);}
     }
@@ -328,7 +328,7 @@ wAbout = nullptr;} {}
     revertDialog();
     mSettingsPanel->hide();
 }} open
-      xywh {385 662 450 455} type Double visible
+      xywh {443 589 450 455} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu}
@@ -1289,7 +1289,7 @@ win->hide();} {}
       label {About Einstein}
       user_data wAbout
       callback {o->hide();} open
-      xywh {451 216 340 260} type Double hide resizable non_modal size_range {340 260 340 0}
+      xywh {451 216 340 260} type Double resizable non_modal size_range {340 260 340 0} visible
     } {
       Fl_Group {} {open
         xywh {10 30 320 180} hide resizable
@@ -1301,7 +1301,7 @@ win->hide();} {}
       } {
         Fl_Group {} {
           label About open
-          xywh {10 30 320 180} hide resizable
+          xywh {10 30 320 180} resizable
         } {
           Fl_Box {} {
             image {../Resources/icons/EinsteinApp64.png} xywh {133 47 69 75}
@@ -1317,7 +1317,7 @@ win->hide();} {}
             code0 {o->label("Version " PROJECT_VER);}
           }
           Fl_Box {} {
-            label {Copyright 2003-2020 by Paul Guyot and others}
+            label {Copyright 2003-2022 by Paul Guyot and others} selected
             xywh {20 172 295 20} labelsize 11
             code0 {o->label(COPYRIGHT_STRING);}
           }
@@ -1327,7 +1327,7 @@ win->hide();} {}
         }
         Fl_Group {} {
           label Licenses open
-          xywh {10 30 320 180}
+          xywh {10 30 320 180} hide
         } {
           Fl_Help_View {} {
             xywh {10 31 320 179} box FLAT_BOX color 49 resizable

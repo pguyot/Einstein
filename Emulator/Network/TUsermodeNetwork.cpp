@@ -765,7 +765,7 @@ public:
             case kStateConnectedWaitACK:
                 // Make sure that we don;t forward packes until the last one was acknowledged
                 if ((state==kStateConnectedWaitACK) && (packet.GetTCPFlags() & Packet::kTCPFlagACK)) {
-                    mNewtonPacketsSeq = packet.GetTCPAck();
+                    //mNewtonPacketsSeq = packet.GetTCPAck();
                     state = kStateConnected;
                 }
                 // The socket is connected. Traffic can come from either side
@@ -834,7 +834,8 @@ public:
                     mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
                     // Acknowldge
                     Packet *reply = NewPacket(0);
-                    reply->SetTCPFlags(Packet::kTCPFlagACK);
+//                    reply->SetTCPFlags(Packet::kTCPFlagACK);
+                    reply->SetTCPFlags(Packet::kTCPFlagRST);
                     UpdateChecksums(reply);
                     LOG_HEADER_DO( mNet->Log(reply, "| W E>N", __LINE__, 0, mSeqBase); )
                     mNet->Enqueue(reply);
@@ -893,6 +894,7 @@ public:
                     // Foreward a FIN request to the Newton
                     Packet *reply = NewPacket(0);
                     reply->SetTCPFlags(Packet::kTCPFlagFIN|Packet::kTCPFlagACK);
+                    reply->SetTCPAck(mNewtonPacketsSeq);
                     UpdateChecksums(reply);
                     LOG_HEADER_DO( mNet->Log(reply, "  | W E>N", __LINE__, 0, mSeqBase); )
                     mNet->Enqueue(reply);
@@ -908,6 +910,7 @@ public:
                     Packet *reply = NewPacket(avail);
                     memcpy(reply->GetTCPPayloadStart(), buf, avail);
                     reply->SetTCPFlags(Packet::kTCPFlagACK/*|Packet::kTCPFlagPSH*/);
+                    reply->SetTCPAck(mNewtonPacketsSeq);
                     UpdateChecksums(reply);
                     LOG_PROTOCOL("  | W E N Forwarding %d bytes total, %d bytes payload.",
                                  34 + reply->GetTCPHeaderLength() + reply->GetTCPPayloadSize(),

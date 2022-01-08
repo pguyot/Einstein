@@ -220,6 +220,7 @@ private:
     int                 mWindowedY = 150;
     int                 mWindowedWidth = 320;
     int                 mWindowedHeight = 480;
+//    bool                mPresentEssentialsInstaller = false;
 };
 
 #endif

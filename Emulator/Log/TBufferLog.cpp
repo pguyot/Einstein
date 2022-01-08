@@ -77,6 +77,9 @@ TBufferLog::DoLogLine( const char* inLine )
 	if (mLogFile)
 	{
 		(void) ::fprintf( mLogFile, "%s\n", inLine );
+#ifdef _DEBUG
+        ::fflush( mLogFile );
+#endif
 	}
 	(void) ::strncpy( mBuffer[mTopLineIndex], inLine, 79 );
 	mTopLineIndex = (mTopLineIndex + 1) % 32;

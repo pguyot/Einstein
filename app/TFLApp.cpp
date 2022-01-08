@@ -39,6 +39,11 @@
 
 // ----- Minor Improvemnts in Usability
 // TODO: menu and action to reboot Newton (in different configurations)
+//       Reboot__FlUlUc: @ 0x000D9884: Reboot(long, unsigned long, unsigned char)
+//       PowerOffAndReboot__Fl: @ 0x000E6BBC: PowerOffAndReboot(long)
+//       ZapInternalStoreCheck__Fv: @ 0x00113CBC: ZapInternalStoreCheck(void)
+//       FReboot: @ 0x00146AF8 0xE1A0C00D - ....
+//       WarmBoot: 0x0038D1E0
 // TODO: install essentials
 // TODO: drag'n'drop of multiple files and archives
 // Done: drag'n'drop from network locations (https:, etc.)
@@ -142,12 +147,20 @@ User's Manual: Title, Introduction and Purpose, Setup guide, Use Guide for all f
   - Licenses
   - Contact Information
 
-
-
 Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference (Doxygen)
 
-
 */
+
+/*
+ Alternative menus:
+ - Show Device Bezels
+ - Stay on top
+ ----
+ - Physical size  CMD-1
+ - Point accurate CMD-2
+ - Pixel Accurate CMD-3
+ - Fit Screen     CMD-4
+ */
 
 /*
  Einstein threads:
@@ -347,15 +360,13 @@ TFLApp::Run( int argc, char* argv[] )
                 fl_alert("Can't load ROM file\n%s\nUnexpected file size.", theROMImagePath);
                 break;
         }
-        delete mROMImage;
+        delete mROMImage; 
         // go back to showing the settings panel
     }
 
     const char *theFlashPath = strdup(mFLSettings->FlashPath);
-    std::filesystem::path flashPath( theFlashPath );
-    if (!std::filesystem::exists(flashPath)) {
-        UserActionInstallEssentials();
-    }
+//    std::filesystem::path flashPath( theFlashPath );
+//    mPresentEssentialsInstaller = !std::filesystem::exists(flashPath);
 
     InitScreen();
 
@@ -363,6 +374,9 @@ TFLApp::Run( int argc, char* argv[] )
     
     InitNetwork();
 
+    // MP2000: 1MB Dynamic RAM, 4MB Flash RAM
+    // MP2100: 4MB Dynamic RAM, 4MB Flash RAM
+    // eMate:  1MB Dynamic RAM, 2MB Flash RAM
     mEmulator = new TEmulator(mLog, mROMImage, theFlashPath,
                               mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
     mPlatformManager = mEmulator->GetPlatformManager();
@@ -375,7 +389,13 @@ TFLApp::Run( int argc, char* argv[] )
 
     // This is called after NewtonOS booted or was restored from sleep.
     // It may be called in a few other instances as well.
-    mEmulator->OnPowerRestored([](){Fl::awake([](void*){gApp->DeferredOnPowerRestored();});});
+    mEmulator->OnPowerRestored(
+        [](){
+            Fl::awake([](void*){gApp->DeferredOnPowerRestored();});
+//            if (gApp->mPresentEssentialsInstaller)
+//                Fl::awake([](void*){gApp->UserActionInstallEssentials();});
+        }
+    );
 
     InitSerialPorts(); // do this after creating the emulator
 
@@ -912,6 +932,21 @@ void TFLApp::UserActionInstallEssentials()
             "MDownloads/Einstein/Essentials/NIE/NE2K.pkg" } );
         addInstallerScript("Open Internet Setup",  new StringList {
             "SGetRoot().|InternetSetup:NIE|:Open();" } );
+        // NewtonScript: Reboot(), Sleep(), PowerOff()
+        // PlaySoundSync()
+      // ROM_alarmWakeup
+//      ROM_click
+//      ROM_crumple
+//      ROM_drawerClose
+//      ROM_drawerOpen
+//      ROM_flip
+//      ROM_funBeep
+//      ROM_hiliteSound
+//      ROM_plinkBeep
+//      ROM_simpleBeep
+//      ROM_wakeupBeep
+//      ROM_plunk
+//      ROM_poof
         // Courier
         addInstallerGroup("Courier Browser 0.5");
         addInstallerText("Courier is a small internet browser. The source code is available on UNNA.");

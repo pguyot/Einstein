@@ -35,8 +35,9 @@ data imgPCCardBotHilite {public local filename {../Resources/icons/button_pccard
 
 Function {CreateApplicationWindow(int x, int y)} {open
 } {
-  Fl_Window wAppWindow {open
-    xywh {454 329 320 558} type Double resizable
+  Fl_Window wAppWindow {
+    label Einstein open selected
+    xywh {453 329 320 558} type Double resizable
     code0 {wAppWindow->position(x, y);}
     class TFLAppWindow visible
   } {
@@ -195,7 +196,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         }
         MenuItem {} {
           label {Install Essentials..}
-          callback {gApp->UserActionInstallEssentials();} selected
+          callback {gApp->UserActionInstallEssentials();}
           xywh {12 12 100 20} divider
         }
         MenuItem {} {
