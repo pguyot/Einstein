@@ -84,6 +84,7 @@ int TTapNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 
 int TTapNetwork::GetDeviceAddress(KUInt8 *data, KUInt32 size)
 {
+    (void)size;
 	static KUInt8 gLocalMAC[]   = { 0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23 };
 	assert(size==6);
 	memcpy(data, gLocalMAC, 6);
