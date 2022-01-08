@@ -2,7 +2,7 @@
 // Fichier:			TUInt64.cp
 // Projet:			K
 // 
-// Cr�� le:			10/9/2003
+// Créé le:			10/9/2003
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****
@@ -41,8 +41,8 @@
 TUInt64&
 TUInt64::operator += ( const KUInt32 inArgument )
 {
-	// Addition avec d�tection de la retenue.
-	// Si on a retenue, la somme est plus petite que chacunes des op�randes.
+	// Addition avec détection de la retenue.
+	// Si on a retenue, la somme est plus petite que chacunes des opérandes.
 	mLo += inArgument;
 	if (inArgument > mLo)
 	{
@@ -77,8 +77,8 @@ TUInt64::operator += ( const TUInt64& inArgument )
 TUInt64&
 TUInt64::operator -= ( const KUInt32 inArgument )
 {
-	// Soustraction avec d�tection de la retenue.
-	// Si on a retenue, la diff�rence est plus grande que chacunes des op�randes.
+	// Soustraction avec détection de la retenue.
+	// Si on a retenue, la différence est plus grande que chacunes des opérandes.
 	mLo -= inArgument;
 	if (inArgument < mLo)
 	{
@@ -158,7 +158,7 @@ TUInt64&
 TUInt64::operator *= ( const KUInt32 inArgument )
 {
 	// A la Russian Peasant
-	// *this joue le r�le de l'entier de gauche.
+	// *this joue le rôle de l'entier de gauche.
 	TUInt64 theResult = 0;
 	KUInt32 theRightInt = inArgument;
 	while (theRightInt > 0)
@@ -268,7 +268,7 @@ TUInt64::EuclideanDivision(
 		const TUInt64& inDividend,
 		const TUInt64& inDivisor )
 {
-	// Cas faciles (pour s'en d�barrasser d�s maintenant).
+	// Cas faciles (pour s'en débarrasser dès maintenant).
 	if (inDivisor == inDividend)
 	{
 		outQuotient = 1;
@@ -285,7 +285,7 @@ TUInt64::EuclideanDivision(
 
 	TUInt64 leDiviseur = inDivisor;
 	
-	// On d�cale le diviseur de ce qu'il faut vers la gauche (sans d�passer)
+	// On décale le diviseur de ce qu'il faut vers la gauche (sans dépasser)
 	int decalages = 0;
 	while (leDiviseur <= inDividend)
 	{
@@ -300,7 +300,7 @@ TUInt64::EuclideanDivision(
 	leDiviseur = inDivisor;
 	(void) (leDiviseur <<= decalages);
 
-	// Puis on soustrait � chaque fois si possible (on a alors un 1 dans le quotient)
+	// Puis on soustrait à chaque fois si possible (on a alors un 1 dans le quotient)
 	outRemainder = inDividend;
 	outQuotient = 0;
 	
@@ -340,7 +340,7 @@ TUInt64::Add( const TUInt64& inArgument )
 	return (ancienHi > mHi);
 }
 
-// Op�rateurs binaires (non inline)
+// Opérateurs binaires (non inline)
 
 // --------------------------------------------------------------------	//
 //	* operator == ( const TUInt64&, KUInt32 )

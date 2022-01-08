@@ -2,7 +2,7 @@
 // Fichier:			TInt64.h
 // Projet:			K
 // 
-// Cr�� le:			21/2/2004
+// Créé le:			21/2/2004
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****
@@ -38,22 +38,22 @@
 #include <K/Defines/KDefinitions.h>
 
 ///
-/// Classe de base pour les entiers de 64 bits cr��s � partir de deux entiers
+/// Classe de base pour les entiers de 64 bits créés à partir de deux entiers
 /// de 32 bits.
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 1.4 $
 ///
-/// \test	aucun test d�fini.
+/// \test	aucun test défini.
 ///
 class TInt64
 {
 public:
-	/// La classe UUInt64 g�re le pont entre les formes natives et les objets C++.
+	/// La classe UUInt64 gère le pont entre les formes natives et les objets C++.
 	friend class UTInt64;
 
 	///
-	/// Constructeur � partir de deux entiers de 32 bits.
+	/// Constructeur à partir de deux entiers de 32 bits.
 	///
 	/// \param inHi		valeur de poids fort
 	/// \param inLo		valeur de poids faible
@@ -65,9 +65,9 @@ public:
 		}
 
 	///
-	/// Op�rateur d'assignation � partir d'un entier de 64 bits.
+	/// Opérateur d'assignation à partir d'un entier de 64 bits.
 	///
-	/// \param inCopy	valeur � assigner � \c this
+	/// \param inCopy	valeur à assigner à \c this
 	/// \return \c this
 	///
 	inline TInt64& operator = ( const TInt64& inCopy )
@@ -96,7 +96,7 @@ public:
 	///
 	/// Ou logique (32 bits)
 	///
-	/// \param inArgument	valeur � ajouter.
+	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
 	TInt64& operator |= ( const KUInt32 inArgument );
@@ -104,7 +104,7 @@ public:
 	///
 	/// Ou logique (64 bits)
 	///
-	/// \param inArgument	valeur � ajouter.
+	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
 	TInt64& operator |= ( const TInt64& inArgument );
@@ -112,7 +112,7 @@ public:
 	///
 	/// Ou logique exclusif (32 bits)
 	///
-	/// \param inArgument	valeur � ajouter.
+	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
 	TInt64& operator ^= ( const KUInt32 inArgument );
@@ -120,15 +120,15 @@ public:
 	///
 	/// Ou logique exclusif (64 bits)
 	///
-	/// \param inArgument	valeur � ajouter.
+	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
 	TInt64& operator ^= ( const TInt64& inArgument );
 
 	///
-	/// N�gation
+	/// Négation
 	///
-	/// \return la n�gation, bit � bit, de \c this
+	/// \return la négation, bit à bit, de \c this
 	///
 	TInt64 operator ~ ( void ) const;
 
@@ -144,7 +144,7 @@ public:
 		}
 #endif
 
-	// Op�rateurs binaires.
+	// Opérateurs binaires.
 	friend bool operator == (
 		const TInt64& inArgOne,
 		const TInt64& inArgTwo );
@@ -152,7 +152,7 @@ public:
 		const TInt64& inArgOne,
 		const TInt64& inArgTwo );
 
-// Bogue de ARMCpp qui ne g�re pas UTInt64::Get*
+// Bogue de ARMCpp qui ne gère pas UTInt64::Get*
 #ifndef forARM
 protected:
 #endif
@@ -177,7 +177,7 @@ protected:
 		}
 
 	///
-	/// S�lecteur sur les 32 bits de poids fort.
+	/// Sélecteur sur les 32 bits de poids fort.
 	///
 	/// \param inHiHalf	nouveaux 32 bits de poids fort.
 	///
@@ -187,7 +187,7 @@ protected:
 		}
 
 	///
-	/// S�lecteur sur les 32 bits de poids faible.
+	/// Sélecteur sur les 32 bits de poids faible.
 	///
 	/// \param inLoHalf	nouveaux 32 bits de poids faible.
 	///
@@ -200,16 +200,16 @@ protected:
 protected:
 #endif
 	///
-	/// D�calage logique � droite d'un bit avec retenue.
+	/// Décalage logique à droite d'un bit avec retenue.
 	///
-	/// \return \c true si le bit de poids faible �tait � un (retenue)
+	/// \return \c true si le bit de poids faible était à un (retenue)
 	///
 	bool		ShiftRight( void );
 
 	///
-	/// D�calage logique � gauche d'un bit avec retenue.
+	/// Décalage logique à gauche d'un bit avec retenue.
 	///
-	/// \return \c true si le bit de poids fort �tait � un (retenue)
+	/// \return \c true si le bit de poids fort était à un (retenue)
 	///
 	bool		ShiftLeft( void );
 
@@ -354,7 +354,7 @@ TInt64 operator ^ (
 }
 
 ///
-/// �galit� (64 bits)
+/// Égalité (64 bits)
 ///
 /// \param inArgOne	premier argument
 /// \param inArgTwo	second argument
@@ -363,7 +363,7 @@ TInt64 operator ^ (
 bool operator == ( const TInt64& inArgOne, const TInt64& inArgTwo );
 
 ///
-/// Diff�rence (64 bits)
+/// Différence (64 bits)
 ///
 /// \param inArgOne	premier argument
 /// \param inArgTwo	second argument

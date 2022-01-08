@@ -3,7 +3,7 @@
 // Projet:			K
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 // 
-// Cr�� le:			26/5/2005
+// Créé le:			26/5/2005
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****
@@ -254,7 +254,7 @@ TThread::Sleep( KUInt32 inMilliseconds /* = kForever */ )
 	if (mWakeCount > 0)
 	{
 		mWakeCount--;
-		theResult = false;	// On n'a pas dormi tout le temps demand�.
+		theResult = false;	// On n'a pas dormi tout le temps demandé.
 
 		// Release the mutex.
 		mMutex.Unlock();
