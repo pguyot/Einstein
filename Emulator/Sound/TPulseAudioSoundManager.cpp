@@ -169,13 +169,13 @@ TPulseAudioSoundManager::TPulseAudioSoundManager( TLog* inLog /* = nil */ )
     error:
     if (GetLog()) {
         if (mPAContext) {
-            GetLog()->FLogLine("TPulseAudioSoundManager: %s: %s\n", errorText, pa_context_errno(mPAContext));
+            GetLog()->FLogLine("TPulseAudioSoundManager: %s: %d\n", errorText, pa_context_errno(mPAContext));
         } else {
             GetLog()->FLogLine("TPulseAudioSoundManager: %s.\n", errorText);
         }
     } else {
         if (mPAContext) {
-            KPrintf("TPulseAudioSoundManager: %s: %s\n", errorText, pa_context_errno(mPAContext));
+            KPrintf("TPulseAudioSoundManager: %s: %d\n", errorText, pa_context_errno(mPAContext));
         } else {
             KPrintf("TPulseAudioSoundManager: %s.\n", errorText);
         }

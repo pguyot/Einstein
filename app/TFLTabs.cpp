@@ -59,6 +59,15 @@ void TFLTabs::draw_tab(int x1, int x2, int W, int H, Fl_Widget* o, int what) {
     o->labeltype(ot);
 }
 
+TFLPCMCIAButton::~TFLPCMCIAButton()
+{
+    if (mImgTopIn) delete mImgTopIn;
+    if (mImgTopOut) delete mImgTopOut;
+    if (mImgTopHi) delete mImgTopHi;
+    if (mImgBotIn) delete mImgBotIn;
+    if (mImgBotOut) delete mImgBotOut;
+    if (mImgBotHi) delete mImgBotHi;
+}
 
 
 void TFLPCMCIAButton::images(

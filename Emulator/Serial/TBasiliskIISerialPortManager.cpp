@@ -98,6 +98,8 @@ TBasiliskIISerialPortManager::~TBasiliskIISerialPortManager()
     pthread_join(mDMAThread, &threadStatus);
     // clean up the symlink
     unlink(kBasiliskPipe);
+
+    if (pBasiliskSlaveName) ::free(pBasiliskSlaveName);
 }
 
 
@@ -223,8 +225,8 @@ TBasiliskIISerialPortManager::ClosePTY()
 		pBasiliskSlave = -1;
 	}
 
-	if (pBasiliskSlaveName!=nullptr) {
-		free(pBasiliskSlaveName);
+	if (pBasiliskSlaveName) {
+		::free(pBasiliskSlaveName);
 		pBasiliskSlaveName = nullptr;
 	}
 }
@@ -399,8 +401,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 			KUInt8 cmd;
 			int nAvail;
 			int err = ioctl(mPipe[0], FIONREAD, &nAvail);
-			if (err==-1) {
-			} else {
+			if (err!=-1) {
 				for (int i=0; i<nAvail; i++) {
 					int n = (int)read(mPipe[0], &cmd, 1);
 					if (n==-1) {

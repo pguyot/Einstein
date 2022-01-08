@@ -29,7 +29,7 @@ public:
     TFLPCMCIAButton(int x, int y, int w, int h, const char* l = nullptr)
         : Fl_Button(x, y, w, h, l)
     {}
-    ~TFLPCMCIAButton() = default;
+    virtual ~TFLPCMCIAButton();
     void images(
         unsigned char *inTopIn, unsigned char* inTopOut, unsigned char* inTopHi, 
         unsigned char* inBotIn, unsigned char* inBotOut, unsigned char* inBotHi);

@@ -187,6 +187,7 @@ TFLScriptEditor::TFLScriptEditor(int x, int y, int w, int h, const char *label)
 
 TFLScriptEditor::~TFLScriptEditor()
 {
+    delete mStyleBuffer;
 }
 
 
@@ -380,9 +381,6 @@ void TFLScriptEditor::style_init()
 
     memset(style, 'A', mTextBuffer->length());
     style[mTextBuffer->length()] = '\0';
-
-    if (!mStyleBuffer)
-        mStyleBuffer = new Fl_Text_Buffer(mTextBuffer->length());
 
     style_parse(text, style, mTextBuffer->length());
 

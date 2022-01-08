@@ -133,6 +133,8 @@ TFLPCCardSettings::~TFLPCCardSettings()
         ::free(mName);
     if (mTag)
         ::free(mTag);
+    if (mCard)
+        delete mCard;
 }
 
 void TFLPCCardSettings::WritePrefs(Fl_Preferences &prefs)

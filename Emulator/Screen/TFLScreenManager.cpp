@@ -133,15 +133,16 @@ public:
 		rgbWidth_ = w;
 		rgbHeight_ = h;
 #if SRC_BITMAP_FORMAT_RGBA
-		rgbData_ = (unsigned char*)calloc(w*h, 4);
+		rgbData_ = (unsigned char*)calloc((size_t)(w*h), 4);
 #else
-		rgbData_ = (unsigned char*)calloc(w * h, 3);
+		rgbData_ = (unsigned char*)calloc((size_t)(w*h), 3);
 #endif
 	}
 
 	~Fl_Newton_Screen_Widget()
 	{
 		screenManager_->unlinkWidget();
+        if (rgbData_) ::free(rgbData_);
 	}
 
 	int getRGBWidth()
@@ -463,12 +464,13 @@ public:
     }
 
 	void newRGBSize(int w, int h) {
-		if (w * h != rgbWidth_ * rgbHeight_) {
+	    size_t sz = w * h;
+		if (sz != rgbWidth_ * rgbHeight_) {
 			if (rgbData_) 
 				::free(rgbData_);
-			rgbData_ = (KUInt8*)calloc(4, w * h);
+			rgbData_ = (KUInt8*)calloc(4, sz);
 		} else {
-			memset(rgbData_, 0, w * h);
+			memset(rgbData_, 0, sz);
 		}
 		rgbWidth_ = w;
 		rgbHeight_ = h;

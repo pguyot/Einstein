@@ -291,8 +291,7 @@ TPtySerialPortManager::HandleDMA()
 			KUInt8 cmd;
 			int nAvail;
 			int err = ioctl(mPipe[0], FIONREAD, &nAvail);
-			if (err==-1) {
-			} else {
+			if (err!=-1) {
 				for (int i=0; i<nAvail; i++) {
 					int n = (int)read(mPipe[0], &cmd, 1);
 					if (n==-1) {

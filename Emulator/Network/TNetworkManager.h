@@ -132,13 +132,13 @@ public:
 
 	TLog *GetLog() { return mLog; }
 	
-	void LogBuffer(KUInt8 *data, KUInt32 size);	
-	void LogPacket(KUInt8 *data, KUInt32 size);
-	void LogARPPacket(KUInt8 *data, KUInt32 size);
-	void LogIPv4Packet(KUInt8 *data, KUInt32 size);
-	void LogTCPPacket(KUInt8 *data, KUInt32 size);
-	void LogUDPPacket(KUInt8 *data, KUInt32 size);
-	//void LogPayload(KUInt8 *data, KUInt32 size, const char *d="");
+	void LogBuffer(KUInt8 *data, ssize_t size);
+	void LogPacket(KUInt8 *data, ssize_t size);
+	void LogARPPacket(KUInt8 *data, ssize_t size);
+	void LogIPv4Packet(KUInt8 *data, ssize_t size);
+	void LogTCPPacket(KUInt8 *data, ssize_t size);
+	void LogUDPPacket(KUInt8 *data, ssize_t size);
+	//void LogPayload(KUInt8 *data, ssize_t size, const char *d="");
 	
 	KUInt16 GetIPv4Checksum(KUInt8 *data, ssize_t size, Boolean set=0);
 	void SetIPv4Checksum(KUInt8 *data, ssize_t size) { GetIPv4Checksum(data, size, true); }

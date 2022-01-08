@@ -287,6 +287,7 @@ TFLApp::~TFLApp( void )
     delete mEmulator;
     delete mScreenManager;
     delete mSoundManager;
+    delete mNetworkManager;
     delete mLog;
     delete mROMImage;
     delete mMonitor;
