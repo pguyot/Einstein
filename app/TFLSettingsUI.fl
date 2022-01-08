@@ -1178,7 +1178,7 @@ win->hide();} {}
 "Einstein is released under the GNU General Public License Version 2.\\n"
 "<ul>\\n"
 "<li>see: <a href=\\"https://github.com/pguyot/Einstein/blob/master/LICENSE\\">LICENSE</a></li>\\n"
-"<li>Retrieved 2012-01-03</li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
 "</ul></p>\\n"
 
 "<h3>GNUE newt/0</h3>\\n"
@@ -1189,7 +1189,7 @@ win->hide();} {}
 "<ul>\\n"
 "<li>see: <a href=\\"https://github.com/gnue/NEWT0/blob/master/COPYING/COPYING.txt\\">COPYING.txt</a></li>\\n"
 "<li>see: <a href=\\"https://github.com/gnue/NEWT0/blob/master/COPYING/LEGAL.txt\\">LEGAL.txt</a></li>\\n"
-"<li>Retrieved 2012-01-03</li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
 "</ul></p>\\n"
 
 "<h3><a href=\\"http://www.fltk.org/\\">FLTK</a></h3>\\n"
@@ -1199,7 +1199,7 @@ win->hide();} {}
 "linking.\\n"
 "<ul>\\n"
 "<li>see: <a href=\\"https://www.fltk.org/doc-1.4/license.html\\">license.html</a></li>\\n"
-"<li>Retrieved 2012-01-03</li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
 "</ul></p>\\n"
 
 "<h3>libjpeg</h3>\\n"
@@ -1209,7 +1209,7 @@ win->hide();} {}
 "software (or portions thereof) for any purpose, without fee, subject to (...) conditions.\\n"
 "<ul>\\n"
 "<li>see: <a href=\\"https://github.com/fltk/fltk/blob/master/jpeg/README\\">README</a></li>\\n"
-"<li>Retrieved 2012-01-03</li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
 "</ul></p>\\n"
 
 "<h3>libpng</h3>\\n"
@@ -1219,7 +1219,7 @@ win->hide();} {}
 "subject to (...) restrictions\\n"
 "<ul>\\n"
 "<li>see: <a href=\\"https://github.com/fltk/fltk/blob/master/png/LICENSE\\">LICENSE</a></li>\\n"
-"<li>Retrieved 2012-01-03</li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
 "</ul></p>\\n"
 
 "<h3>zlib</h3>\\n"
@@ -1230,7 +1230,7 @@ win->hide();} {}
 "freely, subject to (...) restrictions.\\n"
 "<ul>\\n"
 "<li>see: <a href=\\"https://github.com/fltk/fltk/tree/master/zlib/README\\">README</a></li>\\n"
-"<li>Retrieved 2012-01-03</li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
 "</ul></p>\\n"
 
 "<h3>HTTPRequest</h3>\\n"
@@ -1242,7 +1242,7 @@ win->hide();} {}
 "means.\\n"
 "<ul>\\n"
 "<li>see: <a href=\\"https://github.com/elnormous/HTTPRequest/blob/master/UNLICENSE\\">UNLICENSE</a></li>\\n"
-"<li>Retrieved 2012-01-03</li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
 "</ul></p>\\n"
 
 
