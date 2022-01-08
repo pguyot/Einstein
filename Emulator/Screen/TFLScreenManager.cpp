@@ -465,7 +465,7 @@ public:
 
 	void newRGBSize(int w, int h) {
 	    size_t sz = w * h;
-		if (sz != rgbWidth_ * rgbHeight_) {
+		if (sz != (size_t)(rgbWidth_ * rgbHeight_)) {
 			if (rgbData_) 
 				::free(rgbData_);
 			rgbData_ = (KUInt8*)calloc(4, sz);
