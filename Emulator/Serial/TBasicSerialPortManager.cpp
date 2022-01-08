@@ -363,27 +363,6 @@
  with SYN DLE STX, every DLE in data is followed by another DLE, and at the end of frame is DLE ETX CHECKSUM.
  */
 
-
-#if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
-/*
- * This is a hack that removes a reference from the 'extr' serial port driver
- * from the REx. This is required to make low level comm emulation possible.
- * Removing this patch is not harmful beyond disabling comm emulation.
- * Keeping the patch should not be harmful either.
- *
- * Find the pattern 'extr\0\0\0\0' in the first 1MB of the REx.
- *
- * FIXME: PLEASE fix the REx instead of this weak patch (please integrate the REx into the app)
- */
-static KUInt32 searchThis[] = { 1, 'extr' };
-static KUInt32 replaceWith[] = { 1, '~xtr' };
-//TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800634, 0x00800634, 0x00800634, 0x00800634, /* NOLINT */
-TJITGenericPatchFindAndReplace gEnableSerialPort(0x00800c98, 0x00800c98, 0x00800c98, 0x00800c98, /* NOLINT */
-												 searchThis, replaceWith,
-												 "Enable 'extr' serial port.\n");
-#endif
-
-
 // -------------------------------------------------------------------------- //
 //  * TBasicSerialPortManager()
 //		Create a DMA and Interrupt emulation for a serial port.
