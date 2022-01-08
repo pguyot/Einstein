@@ -39,6 +39,11 @@
 
 // ----- Minor Improvemnts in Usability
 // TODO: menu and action to reboot Newton (in different configurations)
+//       Reboot__FlUlUc: @ 0x000D9884: Reboot(long, unsigned long, unsigned char)
+//       PowerOffAndReboot__Fl: @ 0x000E6BBC: PowerOffAndReboot(long)
+//       ZapInternalStoreCheck__Fv: @ 0x00113CBC: ZapInternalStoreCheck(void)
+//       FReboot: @ 0x00146AF8 0xE1A0C00D - ....
+//       WarmBoot: 0x0038D1E0
 // TODO: install essentials
 // TODO: drag'n'drop of multiple files and archives
 // Done: drag'n'drop from network locations (https:, etc.)
@@ -142,12 +147,20 @@ User's Manual: Title, Introduction and Purpose, Setup guide, Use Guide for all f
   - Licenses
   - Contact Information
 
-
-
 Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference (Doxygen)
 
-
 */
+
+/*
+ Alternative menus:
+ - Show Device Bezels
+ - Stay on top
+ ----
+ - Physical size  CMD-1
+ - Point accurate CMD-2
+ - Pixel Accurate CMD-3
+ - Fit Screen     CMD-4
+ */
 
 /*
  Einstein threads:
@@ -189,8 +202,9 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <string.h>
 #include <sys/types.h>
 
-// C++14
+// C++17
 #include <thread>
+#include <filesystem>
 
 // FLTK user interface
 #include <FL/x.H>
@@ -242,7 +256,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Monitor/TFLMonitor.h"
 #include "Monitor/TSymbolList.h"
 
-static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, Boolean save);
+static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, int type);
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -346,11 +360,13 @@ TFLApp::Run( int argc, char* argv[] )
                 fl_alert("Can't load ROM file\n%s\nUnexpected file size.", theROMImagePath);
                 break;
         }
-        delete mROMImage;
+        delete mROMImage; 
         // go back to showing the settings panel
     }
 
     const char *theFlashPath = strdup(mFLSettings->FlashPath);
+//    std::filesystem::path flashPath( theFlashPath );
+//    mPresentEssentialsInstaller = !std::filesystem::exists(flashPath);
 
     InitScreen();
 
@@ -358,6 +374,9 @@ TFLApp::Run( int argc, char* argv[] )
     
     InitNetwork();
 
+    // MP2000: 1MB Dynamic RAM, 4MB Flash RAM
+    // MP2100: 4MB Dynamic RAM, 4MB Flash RAM
+    // eMate:  1MB Dynamic RAM, 2MB Flash RAM
     mEmulator = new TEmulator(mLog, mROMImage, theFlashPath,
                               mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
     mPlatformManager = mEmulator->GetPlatformManager();
@@ -370,7 +389,13 @@ TFLApp::Run( int argc, char* argv[] )
 
     // This is called after NewtonOS booted or was restored from sleep.
     // It may be called in a few other instances as well.
-    mEmulator->OnPowerRestored([](){Fl::awake([](void*){gApp->DeferredOnPowerRestored();});});
+    mEmulator->OnPowerRestored(
+        [](){
+            Fl::awake([](void*){gApp->DeferredOnPowerRestored();});
+//            if (gApp->mPresentEssentialsInstaller)
+//                Fl::awake([](void*){gApp->UserActionInstallEssentials();});
+        }
+    );
 
     InitSerialPorts(); // do this after creating the emulator
 
@@ -514,12 +539,18 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
                 try {
                     http::Request request(fn);
                     const http::Response response = request.send("GET");
-                    const KUInt8 *package = reinterpret_cast<const KUInt8*>(response.body.data());
-                    KUInt32 packageSize = static_cast<KUInt32>(response.body.size());
-                    if (memcmp(package, "package", 7)!=0) {
-                        fl_message("Can't install\n%s\nThis is not a Newton package.", fn);
+                    if (response.status==404) {
+                        fl_message("Can't install\n%s\nFile not found.", fn);
+                    } else if (response.status>=300) {
+                        fl_message("Can't install\n%s\nFile can't be dowloaded.", fn);
                     } else {
-                        mPlatformManager->InstallPackage(package, packageSize);
+                        const KUInt8 *package = reinterpret_cast<const KUInt8*>(response.body.data());
+                        KUInt32 packageSize = static_cast<KUInt32>(response.body.size());
+                        if (memcmp(package, "package", 7)!=0) {
+                            fl_message("Can't install\n%s\nThis is not a Newton package.", fn);
+                        } else {
+                            mPlatformManager->InstallPackage(package, packageSize);
+                        }
                     }
                 }
                 catch (const std::exception& e)
@@ -770,6 +801,179 @@ void TFLApp::UserActionPrintScreen()
     delete p;
 }
 
+#define BP fl_begin_polygon()
+#define EP fl_end_polygon()
+#define BCP fl_begin_complex_polygon()
+#define ECP fl_end_complex_polygon()
+#define BL fl_begin_line()
+#define EL fl_end_line()
+#define BC fl_begin_loop()
+#define EC fl_end_loop()
+#define vv(x,y) fl_vertex(x,y)
+
+#define VF 0.9
+#define VL 0.65
+#define VB 0.0
+
+#define AF 1.0
+#define AL 0.6
+#define AB 0.15
+#define AA 0.15
+
+static void extSymbol(Fl_Color c) {
+    fl_color(c);
+    BCP;
+    // outline square, starting right side
+    vv(VF, -VB); vv(VF, VF); vv(-VF, VF); vv(-VF, -VF); vv(VB, -VF);
+    // inline square
+    vv(VB, -VL); vv(-VL, -VL); vv(-VL, VL); vv(VL, VL); vv(VL, -VB);
+    ECP;
+    BCP;
+    vv(-AA, -AA); vv(0.4, -AL-AA); vv(AB, -AF); vv(AF, -AF); vv(AF, -AB); vv(AL+AA, -0.4); vv(AA, AA);
+    ECP;
+#if 0
+    fl_color(fl_darker(c));
+    BC;
+    // outline square, starting right side
+    vv(VF, -VB); vv(VF, VF); vv(-VF, VF); vv(-VF, -VF); vv(VB, -VF);
+    // inline square
+    vv(VB, -VL); vv(-VL, -VL); vv(-VL, VL); vv(VL, VL); vv(VL, -VB);
+    EC;
+    BC;
+    vv(-AA, -AA); vv(0.4, -AL-AA); vv(AB, -AF); vv(AF, -AF); vv(AF, -AB); vv(AL+AA, -0.4); vv(AA, AA);
+    EC;
+#endif
+}
+
+/**
+ Create and open a dialog that will give quick access to Newton packages on the Net.
+
+ The dialog presents a hierarchy of Titles, containing Groups, which in turn can
+ contain Links to external text and pdf documents, Text blocks, Scripts, and
+ Installer links to packages.
+
+ addInstallerLink requires a title and points to multiple external documents.
+ The tooltip will display the links after expansion. Users expect only
+ one single link though.
+
+ addInstallerText points to a C string. Text is wrapped, and the field is
+ sized automatically.
+
+ addInstallerScript can contains multiple scripts that are run sequentially.
+ The tooltip will reveal the script texts. One script must not be longer
+ than 255 characters. Script lines start with 'S'. Lines starting with 'W'
+ will create a Warning dialog for the user.
+
+ addInstallerPackage can contain multiple package links that are installe
+ sequentially. Links are expanded using the following rules. Lines starting with
+ 'W' will create a Warning dialog for the user.
+
+ Links starting with a 'U' will have the Unna link prepended. 'M' will add
+ the messegapad.or link as defined in the Settings. Staring text with a 'W'
+ will create a Warning dialog to the user, so they can cancel the operation.
+ Links starting with a ':' will remain unchanged.
+ Scripts must start with the letter 'S'.
+
+ \note We should make the titles, groups, and maybe even comments foldable.
+ \note Eventually if would be nice to be able to link to packages inside .zip
+    and .sit.hqx archives.
+ \note Tooltips for scripts can get very big.
+ */
+void TFLApp::UserActionInstallEssentials()
+{
+    if (!wInstallerWindow) {
+        fl_add_symbol("ext", extSymbol, 1);
+        wInstallerWindow = makeInstaller();
+        // --- Essentials
+        addInstallerTitle("Essentials");
+        // Y2K10
+        addInstallerGroup("NewtonOS Y2K10 Fix");
+        addInstallerText("NewtonOS has a bug in handling years past 18:48:31 on January 5, 2010. "
+                         "The patch below will fix all date issues until 2026.\n\n"
+                         "Please install this patch before installing anything else, "
+                         "as this will wipe your Newton's memory.");
+        addInstallerLink("explained by Eckhart Köppen", new StringList {
+            ":https://40hz.org/Pages/newton/hacking/newton-year-2010-problem/"} );
+        addInstallerLink("Readme file for the patch", new StringList {
+            "MDownloads/Einstein/Essentials/y2k10/README.txt"} );
+        addInstallerText("Please select the patch that matches the ROM image of your machine:");
+        addInstallerPackage("US MP2x00 patch", new StringList {
+            "WInstalling this patch may irreversibly erase all data\n"
+            "on your MessagePad.\n\n"
+            "Please proceed only if this a new device, or if your\n"
+            "data is securely backed up!",
+            "MDownloads/Einstein/Essentials/y2k10/Patch_US.pkg"} );
+        addInstallerPackage("German MP2x00 patch", new StringList {
+            "WInstalling this patch may irreversibly erase all data\n"
+            "on your MessagePad.\n\n"
+            "Please proceed only if this a new device, or if your\n"
+            "data is securely backed up!",
+            "MDownloads/Einstein/Essentials/y2k10/Patch_D.pkg" } );
+        addInstallerPackage("eMate 300 patch", new StringList {
+            "WInstalling this patch may irreversibly erase all data\n"
+            "on your eMate 300.\n\n"
+            "Please proceed only if this a new device, or if your\n"
+            "data is securely backed up!",
+            "MDownloads/Einstein/Essentials/y2k10/Patch_eMate.pkg" } );
+        // --- Networking
+        addInstallerTitle("Networking");
+        // NIE
+        addInstallerGroup("NIE: Newton Internet Enabler");
+        addInstallerText("The Newton Internet Enabler (NIE) allows you to "
+                         "access the Internet with your Newton. "
+                         "NIE package was released by Apple in 1997.");
+        addInstallerPackage("Apple NIE packages", new StringList {
+            "WThis will install four packages on your Newton\nwhich may take a little while.",
+            "Uunna/apple/software/Internet/NIE2/ENETSUP/enetsup.pkg",
+            "Uunna/apple/software/Internet/NIE2/REGPKGS/inetenbl.pkg",
+            "Uunna/apple/software/Internet/NIE2/ENETSUP/newtdev.pkg",
+            "Uunna/apple/software/Internet/NIE2/REGPKGS/inetstup.pkg" } );
+        addInstallerPackage("Einstein Network Card driver", new StringList {
+            "MDownloads/Einstein/Essentials/NIE/NE2K.pkg" } );
+        addInstallerScript("Open Internet Setup",  new StringList {
+            "SGetRoot().|InternetSetup:NIE|:Open();" } );
+        // NewtonScript: Reboot(), Sleep(), PowerOff()
+        // PlaySoundSync()
+      // ROM_alarmWakeup
+//      ROM_click
+//      ROM_crumple
+//      ROM_drawerClose
+//      ROM_drawerOpen
+//      ROM_flip
+//      ROM_funBeep
+//      ROM_hiliteSound
+//      ROM_plinkBeep
+//      ROM_simpleBeep
+//      ROM_wakeupBeep
+//      ROM_plunk
+//      ROM_poof
+        // Courier
+        addInstallerGroup("Courier Browser 0.5");
+        addInstallerText("Courier is a small internet browser. The source code is available on UNNA.");
+        addInstallerPackage("Courier packages", new StringList {
+            "WThis will install three packages on your Newton\nwhich may take a little while.",
+            "Uunna/internet/web-browsers/Courier0.5/Courier0.5.pkg",
+            "Uunna/internet/web-browsers/Courier0.5/NHttpLib-3.1.pkg",
+            "Uunna/internet/web-browsers/Courier0.5/NTox-1.6.1.pkg" } );
+        addInstallerScript("Open Courier Browser",  new StringList {
+            "SGetRoot().|Courier:40Hz|:Open();" } );
+        // -- Developers
+        addInstallerTitle("Developer Apps");
+        addInstallerGroup("ViewFrame 1.3b");
+        addInstallerPackage("ViewFrame packages", new StringList {
+            "WThis will install eight packages on your Newton\nwhich may take a little while.",
+            "Uunna/development/tools/ViewFrame1.3b/PROGKEYB.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/VFEDITOR.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/VFFUNCTI.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/VFGENERA.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/VFINTERC.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/VIEWFRAM.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFDANTE.PKG",
+            "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFKEYS.PKG" } );
+
+    }
+    wInstallerWindow->show();
+}
 
 // MARK: -
 // ---  Events from within the meulator
@@ -1228,9 +1432,9 @@ static void tabs_box(int x, int y, int w, int h, Fl_Color c)
     fl_rectf(x, y+barHgt, w, h-barHgt, c);
 }
 
-static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, Boolean save)
+static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, int type)
 {
-#if TARGET_OS_LINUX
+#if UPDATED_TARGET_OS_LINUX
     char pattern[FL_PATH_MAX]; pattern[0] = 0;
     if (pat) {
         const char *s = pat;
@@ -1269,12 +1473,19 @@ static const char *tfl_file_chooser(const char *message, const char *pat, const 
 
     Fl_Native_File_Chooser fnfc;
     fnfc.title(message);
-    if (save) {
-        fnfc.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
-        fnfc.options(Fl_Native_File_Chooser::NEW_FOLDER|Fl_Native_File_Chooser::USE_FILTER_EXT);
-    } else {
-        fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
-        fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
+    switch (type) {
+        case 0:
+            fnfc.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+            fnfc.options(Fl_Native_File_Chooser::NEW_FOLDER|Fl_Native_File_Chooser::USE_FILTER_EXT);
+            break;
+        case 1:
+            fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
+            fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
+            break;
+        case 2:
+            fnfc.type(Fl_Native_File_Chooser::BROWSE_DIRECTORY);
+            fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
+            break;
     }
     fnfc.filter(pat);
     fnfc.directory(fdir);
@@ -1294,12 +1505,17 @@ static const char *tfl_file_chooser(const char *message, const char *pat, const 
 
 const char *TFLApp::ChooseExistingFile(const char *message, const char *pat, const char *fname)
 {
-    return tfl_file_chooser(message, pat, fname, false);
+    return tfl_file_chooser(message, pat, fname, 1);
+}
+
+const char *TFLApp::ChooseExistingDirectory(const char *message, const char *pat, const char *fname)
+{
+    return tfl_file_chooser(message, pat, fname, 2);
 }
 
 const char *TFLApp::ChooseNewFile(const char *message, const char *pat, const char *fname)
 {
-    return tfl_file_chooser(message, pat, fname, true);
+    return tfl_file_chooser(message, pat, fname, 0);
 }
 
 

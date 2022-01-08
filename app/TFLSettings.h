@@ -157,6 +157,15 @@ public:
     // if this is set, use the Einstein.rex within the app, otherwise load an external fiie
     int mUseBuiltinRex = true;
 
+    // path to the unna archive, local or online
+    char *mUnnaPath = nullptr;
+
+    // path to the messagepad.org website
+    char *mMessagepadOrgPath = nullptr;
+
+    // path to the git repository, currently on GitHub
+    char *mGitRepoPath = nullptr;
+
     std::vector<TFLPCCardSettings*> mCardList;
 };
 

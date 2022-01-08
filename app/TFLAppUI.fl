@@ -35,8 +35,9 @@ data imgPCCardBotHilite {public local filename {../Resources/icons/button_pccard
 
 Function {CreateApplicationWindow(int x, int y)} {open
 } {
-  Fl_Window wAppWindow {open
-    xywh {454 329 320 558} type Double resizable
+  Fl_Window wAppWindow {
+    label Einstein open selected
+    xywh {453 329 320 558} type Double resizable
     code0 {wAppWindow->position(x, y);}
     class TFLAppWindow visible
   } {
@@ -89,7 +90,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         }
         MenuItem {} {
           label {Print...}
-          callback {gApp->UserActionPrintScreen();} selected
+          callback {gApp->UserActionPrintScreen();}
           xywh {0 0 100 20} shortcut 0x410070 divider
         }
         MenuItem {} {
@@ -174,7 +175,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         MenuItem {} {
           label {Settings...}
           callback {gApp->UserActionShowSettingsPanel();}
-          xywh {8 8 100 20} divider
+          xywh {8 8 100 20} shortcut 0x410075 divider
         }
         MenuItem {} {
           label {Bring All To Front}
@@ -194,8 +195,9 @@ Function {CreateApplicationWindow(int x, int y)} {open
           xywh {0 0 100 20} deactivate
         }
         MenuItem {} {
-          label {United Newton Network Archives...}
-          xywh {12 12 100 20} deactivate divider
+          label {Install Essentials..}
+          callback {gApp->UserActionInstallEssentials();}
+          xywh {12 12 100 20} divider
         }
         MenuItem {} {
           label {About Einstein...}

@@ -34,7 +34,7 @@ decl {class TFLApp;} {public global
 decl {\#include "TFLSettings.h"} {public global
 }
 
-decl {\#include "TFLApp.h"} {private local
+decl {\#include "TFLApp.h"} {public global
 }
 
 decl {\#include "TFLAppUI.h"} {private local
@@ -65,6 +65,9 @@ decl {\#include <FL/Fl_Native_File_Chooser.H>} {private local
 }
 
 decl {\#include <FL/Fl.H>} {private local
+}
+
+decl {\#include <FL/fl_draw.H>} {private local
 }
 
 Function {cb_keepInSlot0(Fl_Menu_Item* mi, void* user_data)} {open private return_type void
@@ -99,6 +102,214 @@ Function {cb_changePCCard1(Fl_Widget*, void* user_data)} {open private return_ty
   code {gApp->UserActionPCCard(1, (long)user_data);} {}
 }
 
+Function {expand(std::string &inCmd)} {open private return_type {std::string}
+} {
+  code {switch (inCmd[0]) {
+  case 'U':
+    return gApp->GetSettings()->mUnnaPath + inCmd.substr(1);
+  case 'M':
+    return gApp->GetSettings()->mMessagepadOrgPath + inCmd.substr(1);
+  case ':':
+    return inCmd.substr(1);
+  case 'S':
+    auto ix = inCmd.find("\\n");
+    if (ix==std::string::npos)
+      return inCmd.substr(1);
+    else
+      return inCmd.substr(1, ix) + "...";
+}
+return std::string();} {}
+}
+
+Function {make_tooltip(StringList *inCmdList)} {open private return_type {char *}
+} {
+  code {std::string text;
+// Count the entries
+int n = 0;
+for (auto &&cmd: *inCmdList) {
+  auto link = expand(cmd);
+  if (!link.empty()) {
+    n++;
+  }
+}
+// Generate a long string. If we have more than 4 lines, print 1,2,...,n-1,n
+int min = n+1, max = n+1;
+if (n>6) { min=3; max = n-3; }
+n = 0;
+for (auto &&cmd: *inCmdList) {
+  auto link = expand(cmd);
+  if (!link.empty()) {
+    if (n<min || n>=max) {
+      if (!text.empty())
+        text.append("\\n");
+      text.append(link);
+    } else if (n==min) {
+      text.append("\\n...");
+    }
+    n++;
+  }
+}
+return strdup(text.c_str());} {}
+}
+
+Function {makeInstaller()} {open
+} {
+  Fl_Window wInstallerWindow {
+    label {Install Essentials} open
+    xywh {462 302 300 400} type Double hide resizable hotspot size_range {300 200 300 0}
+  } {
+    Fl_Scroll {} {open
+      xywh {0 0 300 400} resizable
+    } {
+      Fl_Pack wInstallerList {open
+        xywh {0 0 280 400} resizable
+      } {}
+    }
+  }
+}
+
+Function {addInstallerTitle(const char *inTitle)} {open
+} {
+  code {wInstallerList->begin();} {}
+  Fl_Window {} {open
+    xywh {454 209 280 30} type Double labelfont 1 labelsize 22 align 16
+    code0 {o->label(inTitle);}
+    class Fl_Group visible
+  } {
+    Fl_Box {} {
+      label label
+      xywh {0 0 280 30} box FLAT_BOX color 36 labelsize 20 labelcolor 7
+      code0 {o->label(inTitle);}
+    }
+  }
+}
+
+Function {addInstallerGroup(const char *inTitle)} {open
+} {
+  code {wInstallerList->begin();} {}
+  Fl_Window {} {open
+    xywh {454 275 280 30} type Double labelfont 1 labelsize 22 align 16
+    code0 {o->label(inTitle);}
+    class Fl_Group visible
+  } {
+    Fl_Box {} {
+      label label
+      xywh {10 5 260 25} labelsize 16 align 20
+      code0 {o->label(inTitle);}
+    }
+  }
+}
+
+Function {addInstallerText(const char *inText)} {open
+} {
+  code {wInstallerList->begin();} {}
+  Fl_Window wInstallerTextGroup {open
+    xywh {458 341 280 26} type Double labelfont 1 labelsize 22 align 16
+    class Fl_Group visible
+  } {
+    Fl_Box {} {
+      label label
+      xywh {10 3 260 20} box FLAT_BOX labelsize 12 align 149
+      code0 {o->label(inText);}
+      code1 {fl_font(FL_HELVETICA, 12);}
+      code2 {int ww = o->w(), hh = 0; fl_measure(inText, ww, hh, 1);}
+      code3 {wInstallerTextGroup->resize(0, 0, wInstallerTextGroup->w(), hh+6); o->resize(10, 3, o->w(), hh);}
+    }
+  }
+}
+
+Function {addInstallerPackage(const char *inTitle, StringList *inCmdList)} {open
+} {
+  code {wInstallerList->begin();} {}
+  Fl_Window {} {open
+    xywh {460 466 280 26} type Double labelfont 1 labelsize 22 align 16
+    class Fl_Group visible
+  } {
+    Fl_Button {} {
+      label Install
+      user_data inCmdList
+      callback {StringList *cmdList = (StringList*)v;
+for (auto &&cmd: *cmdList) {
+  if (cmd[0]=='W') {
+    const char *warning = cmd.c_str()+1;
+    if (fl_choice("%s", nullptr, "Cancel", "Proceed", warning)!=2) {
+      return;
+    }
+  } else if (cmd[0]=='S') {
+    gApp->GetPlatformManager()->EvalNewtonScript(cmd.c_str()+1);
+  } else {
+    auto link = expand(cmd);
+    if (!link.empty())
+      gApp->InstallPackagesFromURI(link.c_str());    
+  }
+}}
+      xywh {10 3 70 20} labelsize 12
+      code0 {o->tooltip(make_tooltip(inCmdList));}
+    }
+    Fl_Box {} {
+      xywh {85 3 175 20} labelsize 13 align 20
+      code0 {o->label(inTitle);}
+    }
+  }
+}
+
+Function {addInstallerLink(const char *inTitle, StringList *inLinkList)} {open
+} {
+  code {wInstallerList->begin();} {}
+  Fl_Window {} {open
+    xywh {458 402 280 26} type Double labelfont 1 labelsize 22 align 16
+    class Fl_Group visible
+  } {
+    Fl_Button {} {
+      label {@ext  Read}
+      user_data inLinkList
+      callback {StringList *linkList = (StringList*)v;
+for (auto &&link: *linkList) {
+  auto fullLink = expand(link);
+  if (!fullLink.empty()) {
+    char errmsg[512];
+    if (!fl_open_uri(fullLink.c_str(), errmsg, sizeof(errmsg))) {
+      fl_alert("Error: %s", errmsg);
+    }
+  }
+}}
+      xywh {10 3 70 20} labelsize 12
+      code0 {o->tooltip(make_tooltip(inLinkList));}
+    }
+    Fl_Box {} {
+      xywh {85 3 175 20} labelsize 13 align 20
+      code0 {o->label(inTitle);}
+    }
+  }
+}
+
+Function {addInstallerScript(const char *inTitle, StringList *inScriptList)} {open
+} {
+  code {wInstallerList->begin();} {}
+  Fl_Window {} {open
+    xywh {455 524 280 30} type Double labelfont 1 labelsize 22 labelcolor 3 align 16
+    class Fl_Group visible
+  } {
+    Fl_Button {} {
+      user_data inScriptList
+      callback {StringList *scriptList = (StringList*)v;
+for (auto &&cmd: *scriptList) {
+  if (cmd[0]=='W') {
+    const char *warning = cmd.c_str()+1;
+    if (fl_choice("%s", nullptr, "Cancel", "Proceed", warning)!=2) {
+      return;
+    }
+  } else if (cmd[0]=='S') {
+    gApp->GetPlatformManager()->EvalNewtonScript(cmd.c_str()+1);
+  }
+}}
+      xywh {40 4 200 22} labelsize 12
+      code0 {o->label(inTitle);}
+      code1 {o->tooltip(make_tooltip(inScriptList));}
+    }
+  }
+}
+
 class TFLSettingsUI {open : {public TFLSettings}
 } {
   Function {TFLSettingsUI()} {} {
@@ -117,7 +328,7 @@ wAbout = nullptr;} {}
     revertDialog();
     mSettingsPanel->hide();
 }} open
-      xywh {447 451 450 455} type Double visible
+      xywh {443 589 450 455} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu}
@@ -185,7 +396,7 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open
           xywh {10 35 430 375}
         } {
           Fl_Group {} {open
@@ -193,7 +404,7 @@ wAbout = nullptr;} {}
           } {
             Fl_Input wMPConfigName {
               label {Configuration: }
-              tooltip {give this MessagePad configuration a name} xywh {120 50 160 25} color 53 deactivate
+              tooltip {give this MessagePad configuration a name} xywh {120 50 160 25} color 54 deactivate
               code0 {o->value("default");}
             }
             Fl_Button wMPConfigMenuButton {
@@ -214,7 +425,7 @@ wAbout = nullptr;} {}
           } {
             Fl_Output wROMName {
               label {Newton ROM: }
-              xywh {120 95 235 20} color 51 labelsize 13 textsize 12
+              xywh {120 95 235 20} color 54 labelsize 13 textsize 12
             }
             Fl_Box wROMPath {
               label {/here/goes/the/path/and/filename/of/the/ROM}
@@ -246,7 +457,7 @@ Einstein does not include any ROMs.} xywh {355 95 75 20} labelsize 12
           } {
             Fl_Output wFlashName {
               label {System Flash: }
-              xywh {120 180 160 20} color 51 labelsize 13 textsize 12
+              xywh {120 180 160 20} color 54 labelsize 13 textsize 12
             }
             Fl_Box wFlashPath {
               label {/here/goes/the/path/and/filename/of/the/FlashFile}
@@ -340,12 +551,12 @@ if (filename) {
             Fl_Input wWidth {
               label {Screen Size: }
               tooltip {Screen width in pixels,
-Original screen size is 320x480} xywh {120 90 80 20} type Int labelsize 13 textsize 12
+Original screen size is 320x480} xywh {120 90 80 20} type Int color 54 labelsize 13 textsize 12
             }
             Fl_Input wHeight {
               label {x }
               tooltip {Screen height in pixels,
-Original screen size is 320x480} xywh {215 90 80 20} type Int labelsize 12 textsize 12
+Original screen size is 320x480} xywh {215 90 80 20} type Int color 54 labelsize 12 textsize 12
             }
             Fl_Check_Button wFullScreen {
               label {Full screen}
@@ -386,7 +597,7 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
           } {
             Fl_Input wUIConfigName {
               label {Configuration: }
-              tooltip {give this User Interface configuration a name} xywh {120 50 160 25} color 53 deactivate
+              tooltip {give this User Interface configuration a name} xywh {120 50 160 25} color 54 deactivate
               code0 {o->value("default");}
             }
             Fl_Button wUIConfigMenuButton {
@@ -424,7 +635,7 @@ if (ix==-1) {
 	wPCCardName->value( card->GetName() );
 }
 \#endif}
-            xywh {120 50 235 165} type Hold labelsize 12 align 4 when 1 textsize 12
+            xywh {120 50 235 165} type Hold color 54 labelsize 12 align 4 when 1 textsize 12
           }
           Fl_Menu_Bar {} {open
             xywh {120 215 25 25}
@@ -688,44 +899,57 @@ if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kLinear) {
           }
         }
         Fl_Group {} {
-          label {  Resources  }
+          label {  Resources  } open
           xywh {10 35 430 375} hide
         } {
-          Fl_Input_Choice {} {
-            label {United Newton
-Network Archives} open
-            xywh {172 80 252 24} deactivate
+          Fl_Input_Choice wUnnaPath {
+            label {UNNA Database: } open
+            tooltip {United Network of Newton Archives} xywh {172 80 210 20} color 54 labelsize 13 textsize 12
+            code0 {o->value("http://www.unna.org/");}
           } {
             MenuItem {} {
               label {http://www.unna.org/}
-              xywh {0 0 100 20}
+              xywh {0 0 100 20} labelsize 12
+            }
+            MenuItem {} {
+              label {http://vermont.unna.org/}
+              xywh {0 0 100 20} labelsize 12
+            }
+            MenuItem {} {
+              label {http://philly.unna.org/}
+              xywh {0 0 100 20} labelsize 12
             }
           }
-          Fl_Input_Choice {} {
-            label {local unna archive} open
-            xywh {172 124 252 24} deactivate
+          Fl_Button wUnnaPathChoose {
+            label {@fileopen}
+            callback {const char *filename = gApp->ChooseExistingDirectory(
+	"Choose UNNA directory",
+	nullptr,
+	wUnnaPath->label()
+);
+if (filename) {
+    wUnnaPath->value(filename);
+}}
+            tooltip {Select a local copy of the UNNA archive} xywh {382 80 42 20} labelsize 12 labelcolor 3
+          }
+          Fl_Input_Choice wMessagepadOrgPath {
+            label {messagepad.org: } open
+            xywh {172 115 252 20} color 54 labelsize 13 textsize 12
+            code0 {o->value("http://www.messagepad.org/");}
           } {
             MenuItem {} {
-              label {http://www.unna.org/}
-              xywh {12 12 100 20}
+              label {http://www.messagepad.org/}
+              xywh {36 36 100 20} labelsize 12
             }
           }
-          Fl_Input_Choice {} {
-            label {Pawels archive} open
-            xywh {172 168 252 24} deactivate
+          Fl_Input_Choice wGitRepoPath {
+            label {Git Repository: } open
+            xywh {172 150 252 20} color 54 labelsize 13 textsize 12
+            code0 {o->value("https://github.com/pguyot/Einstein.git");}
           } {
             MenuItem {} {
-              label {http://www.unna.org/}
-              xywh {24 24 100 20}
-            }
-          }
-          Fl_Input_Choice {} {
-            label {MessagePad.org} open
-            xywh {172 212 252 24} deactivate
-          } {
-            MenuItem {} {
-              label {http://www.unna.org/}
-              xywh {36 36 100 20}
+              label {https://github.com/pguyot/Einstein.git}
+              xywh {36 36 100 20} labelsize 12
             }
           }
         }
@@ -884,6 +1108,10 @@ for (size_t i=0; i<mCardList.size(); i++) {
 wPCCardList->value(0);
 wPCCardList->do_callback();
 
+wUnnaPath->value(mUnnaPath);
+wMessagepadOrgPath->value(mMessagepadOrgPath);
+wGitRepoPath->value(mGitRepoPath);
+
 updateMenus();} {}
   }
   Function {applyDialog()} {open return_type void
@@ -916,6 +1144,13 @@ for (int i=0; i<wPCCardList->size(); i++) {
 }
 endUpdateCardList();
 
+free(mUnnaPath);
+mUnnaPath = strdup(wUnnaPath->value());
+free(mMessagepadOrgPath);
+mMessagepadOrgPath = strdup(wMessagepadOrgPath->value());
+free(mGitRepoPath);
+mGitRepoPath = strdup(wGitRepoPath->value());
+
 updateMenus();} {}
   }
   Function {runningMode()} {open return_type void
@@ -933,34 +1168,191 @@ win->hide();} {}
   }
   Function {createAboutDialog()} {open
   } {
+    code {static const char *gLicenseText =
+"<html><body>\\n"
+
+"<h2>Licenses</h2>\\n"
+
+"<h3>Einstein</h3>\\n"
+"<p>\\n"
+"Einstein is released under the GNU General Public License Version 2.\\n"
+"<ul>\\n"
+"<li>see: <a href=\\"https://github.com/pguyot/Einstein/blob/master/LICENSE\\">LICENSE</a></li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
+"</ul></p>\\n"
+
+"<h3>GNUE newt/0</h3>\\n"
+"<p>\\n"
+"NEWT/0 is copyrighted free software by Makoto Nukui <gnue@so-kukan.com>. \\n"
+"You can redistribute it and/or modify it under either the terms of the GPL \\n"
+"version 2 (...).\\n"
+"<ul>\\n"
+"<li>see: <a href=\\"https://github.com/gnue/NEWT0/blob/master/COPYING/COPYING.txt\\">COPYING.txt</a></li>\\n"
+"<li>see: <a href=\\"https://github.com/gnue/NEWT0/blob/master/COPYING/LEGAL.txt\\">LEGAL.txt</a></li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
+"</ul></p>\\n"
+
+"<h3><a href=\\"http://www.fltk.org/\\">FLTK</a></h3>\\n"
+"<p>\\n"
+"FLTK is provided under the terms of the GNU Library Public "
+"License, Version 2 with exceptions that allow for static "
+"linking.\\n"
+"<ul>\\n"
+"<li>see: <a href=\\"https://www.fltk.org/doc-1.4/license.html\\">license.html</a></li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
+"</ul></p>\\n"
+
+"<h3>libjpeg</h3>\\n"
+"<p>\\n"
+"This software is based in part on the work of the Independent JPEG Group.\\n"
+"The software is supplied \\"as is\\". (...) Permission is hereby granted to use, copy, modify, and distribute this\\n"
+"software (or portions thereof) for any purpose, without fee, subject to (...) conditions.\\n"
+"<ul>\\n"
+"<li>see: <a href=\\"https://github.com/fltk/fltk/blob/master/jpeg/README\\">README</a></li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
+"</ul></p>\\n"
+
+"<h3>libpng</h3>\\n"
+"<p>\\n"
+"The software is supplied \\"as is\\". (...) Permission is hereby granted to use, copy, modify, and distribute\\n"
+"this software, or portions hereof, for any purpose, without fee,\\n"
+"subject to (...) restrictions\\n"
+"<ul>\\n"
+"<li>see: <a href=\\"https://github.com/fltk/fltk/blob/master/png/LICENSE\\">LICENSE</a></li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
+"</ul></p>\\n"
+
+"<h3>zlib</h3>\\n"
+"<p>\\n"
+"This software is provided 'as-is', without any express or implied\\n"
+"warranty. (...) Permission is granted to anyone to use this software for any purpose,\\n"
+"including commercial applications, and to alter it and redistribute it\\n"
+"freely, subject to (...) restrictions.\\n"
+"<ul>\\n"
+"<li>see: <a href=\\"https://github.com/fltk/fltk/tree/master/zlib/README\\">README</a></li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
+"</ul></p>\\n"
+
+"<h3>HTTPRequest</h3>\\n"
+"<p>\\n"
+"This is free and unencumbered software released into the public domain.\\n"
+"Anyone is free to copy, modify, publish, use, compile, sell, or\\n"
+"distribute this software, either in source code form or as a compiled\\n"
+"binary, for any purpose, commercial or non-commercial, and by any\\n"
+"means.\\n"
+"<ul>\\n"
+"<li>see: <a href=\\"https://github.com/elnormous/HTTPRequest/blob/master/UNLICENSE\\">UNLICENSE</a></li>\\n"
+"<li>Retrieved 2022-01-03</li>\\n"
+"</ul></p>\\n"
+
+
+"</body></html\\n";} {}
+    code {static const char *gThanksText =
+"<html><body>\\n"
+
+"<h2>Contributors to Einstein</h2>\\n"
+
+"<h4><a href=\\"https://github.com/pguyot\\">Paul Guyot</a></li></h4>\\n"
+"Paul is the original author of Einstein. He introduced his \\"Newton Platform\\" at WWNC 2004.\\n"
+"At WWNC 2006, he released Einstein Emulator as binaries for OS X and Zaurus.\\n"
+"Releasing Einstein as an OpenSource project at WWNC 2007 in Tokyo made\\n"
+"the emulator available to everyone. Later he added LLVM JIT translation and network emulation.\\n"
+
+"<h4><a href=\\"https://github.com/MatthiasWM\\">Matthias Melcher</a></li></h4>\\n"
+"Matthias ported Einstein to MSWindows, and later to iOS and Android.\\n"
+"He has since unified the build process and added a full user interface\\n"
+"for macOS, Windows, and Linux under FLTK.\\n"
+"He added serial port and PCCard emulation and a minimal NewtonScript IDE.\\n"
+
+"<h4><a href=\\"https://github.com/panicsteve\\">Steven Frank</a></li></h4>\\n"
+"Steven updated Einstein for iOS and for native macOS,\\n"
+"and he improved the debugging Monitor on macOS.\\n"
+
+"<h4><a href=\\"https://github.com/ekoeppen\\">Eckhart K&ouml;ppen</a></li></h4>\\n"
+"Eckhart and Paul added halfword operations to JIT to allow newer C compiler output\\n"
+"to run on the emulator. He is working on more system conforming serial port drivers."
+
+"<h4><a href=\\"https://github.com/chuma\\">Victor Rehorst</a></li></h4>\\n"
+"Victor keeps CMake and Jam files working.\\n"
+
+"<h4><a href=\\"https://github.com/jake-b\\">Jake Bordens</a></li></h4>\\n"
+"Jake added CI to Einstein.\\n"
+
+"<h4><a href=\\"https://github.com/turbolent\\">Bastian M&uuml;ller</a></li></h4>\\n"
+"Bastian has fixed some aspects of the Android build.\\n"
+
+"<p>...and many others who contributed before joining GitHub, who provided ideas,\\n"
+"found missing documentation, and helped keeping the MessagePad alive.\\n"
+
+"</body></html\\n";} {}
     Fl_Window wAbout {
+      label {About Einstein}
       user_data wAbout
       callback {o->hide();} open
-      xywh {484 208 335 200} type Double non_modal visible
+      xywh {451 216 340 260} type Double resizable non_modal size_range {340 260 340 0} visible
     } {
-      Fl_Box {} {
-        image {../Resources/icons/EinsteinApp64.png} xywh {133 5 69 75}
+      Fl_Group {} {open
+        xywh {10 30 320 180} hide resizable
+      } {}
+      Fl_Tabs {} {open
+        xywh {10 10 320 200} box BORDER_BOX
+        code0 {o->box((Fl_Boxtype)(FL_FREE_BOXTYPE+2));}
+        class TFLTabs
+      } {
+        Fl_Group {} {
+          label About open
+          xywh {10 30 320 180} resizable
+        } {
+          Fl_Box {} {
+            image {../Resources/icons/EinsteinApp64.png} xywh {133 47 69 75}
+          }
+          Fl_Box {} {
+            label {Einstein Platform}
+            xywh {72 123 190 25} labelfont 1
+            code0 {o->label(PROJECT_NAME);}
+          }
+          Fl_Box {} {
+            label {Version xxxx.xx.xx}
+            xywh {72 150 190 20} labelsize 11
+            code0 {o->label("Version " PROJECT_VER);}
+          }
+          Fl_Box {} {
+            label {Copyright 2003-2022 by Paul Guyot and others} selected
+            xywh {20 172 295 20} labelsize 11
+            code0 {o->label(COPYRIGHT_STRING);}
+          }
+          Fl_Box {} {
+            xywh {20 200 292 10} resizable
+          }
+        }
+        Fl_Group {} {
+          label Licenses open
+          xywh {10 30 320 180} hide
+        } {
+          Fl_Help_View {} {
+            xywh {10 31 320 179} box FLAT_BOX color 49 resizable
+            code0 {o->value(gLicenseText);}
+          }
+        }
+        Fl_Group {} {
+          label Contributors open
+          xywh {10 30 320 180} hide
+        } {
+          Fl_Help_View {} {
+            xywh {10 31 320 179} box FLAT_BOX color 49 resizable
+            code0 {o->value(gThanksText);}
+          }
+        }
       }
       Fl_Box {} {
-        label {Einstein Platform}
-        xywh {72 81 190 25} labelfont 1
-        code0 {o->label(PROJECT_NAME);}
-      }
-      Fl_Box {} {
-        label {Version xxxx.xx.xx}
-        xywh {72 108 190 20} labelsize 11
-        code0 {o->label("Version " PROJECT_VER);}
+        xywh {10 210 320 5}
+        code0 {o->box((Fl_Boxtype)(FL_FREE_BOXTYPE+2));}
       }
       Fl_Button {} {
         label Close
         user_data wAbout
         callback {o->window()->hide();}
-        xywh {215 165 95 20} labelsize 12
-      }
-      Fl_Box {} {
-        label {Copyright 2003-2020 by Paul Guyot and others}
-        xywh {20 130 295 20} labelsize 11
-        code0 {o->label(COPYRIGHT_STRING);}
+        xywh {220 224 95 20} labelsize 12
       }
     }
   }
