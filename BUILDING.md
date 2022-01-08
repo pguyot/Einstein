@@ -67,8 +67,6 @@ make
 # -- Install the FLTK library, includes, and tools
 sudo make install
 cd ../../..
-# -- make Fluid, the GUI editor, accessible from the command line
-ln -s /usr/local/bin/fluid.app/Contents/MacOS/fluid /usr/local/bin/fluid
 ```
 
 ### Newt64/Toolkit
