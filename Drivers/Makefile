@@ -20,7 +20,7 @@ OBJCOPY         := arm-none-eabi-objcopy
 
 REX             := Rex
 
-MACHINEFLAGS    := -march=armv3 -mbig-endian
+MACHINEFLAGS    := -march=armv4 -mbig-endian
 ASFLAGS         := ${MACHINEFLAGS}
 CODEGENFLAGS    := -nostdinc -fPIC -fdata-sections -ffunction-sections -O3 -Os
 DEFINES         := -D__arm -DhasPCMCIA -DforARM -DNO_ERRNO_H -DSTDC -DTARGET_OS_NEWTON
