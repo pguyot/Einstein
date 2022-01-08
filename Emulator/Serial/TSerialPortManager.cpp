@@ -88,11 +88,9 @@ TSerialPortManager::~TSerialPortManager() = default;
 void
 TSerialPortManager::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
 {
-    (void)inOffset;
-    (void)inValue;
 	if (mLog)
 	{
-		mLog->FLogLine("[%d] - Write %.2X to serial register %.4X", mNewtPortIndex);
+		mLog->FLogLine("[%d] - Write %.2X to serial register %.4X", mNewtPortIndex, inValue, inOffset);
 	}
 }
 

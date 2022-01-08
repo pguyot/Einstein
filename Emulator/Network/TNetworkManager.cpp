@@ -61,7 +61,7 @@ TNetworkManager::~TNetworkManager()
 	delete mSelectCondVar;
 }
 
-void TNetworkManager::LogBuffer(KUInt8 *data, KUInt32 size)
+void TNetworkManager::LogBuffer(KUInt8 *data, ssize_t size)
 {
 	if (mLog) {
 		mLog->FLogLine("%d bytes at %p", (int) size, data);
@@ -88,7 +88,7 @@ void TNetworkManager::LogBuffer(KUInt8 *data, KUInt32 size)
 }
 	
 
-void TNetworkManager::LogARPPacket(KUInt8 *data, KUInt32 size) {
+void TNetworkManager::LogARPPacket(KUInt8 *data, ssize_t size) {
     (void)data;
     (void)size;
 	if (mLog) {
@@ -96,7 +96,7 @@ void TNetworkManager::LogARPPacket(KUInt8 *data, KUInt32 size) {
 	}
 }
 
-void TNetworkManager::LogIPv4Packet(KUInt8 *d, KUInt32 n) {
+void TNetworkManager::LogIPv4Packet(KUInt8 *d, ssize_t n) {
 	if (mLog) {
 		mLog->FLogLine("  > IPv4 Internet protocol"); 
 		mLog->FLogLine("    [14] Version: %d (4)", d[14]>>4);
@@ -125,7 +125,7 @@ void TNetworkManager::LogIPv4Packet(KUInt8 *d, KUInt32 n) {
 	}
 }
 
-void TNetworkManager::LogTCPPacket(KUInt8 *d, KUInt32 n) {
+void TNetworkManager::LogTCPPacket(KUInt8 *d, ssize_t n) {
 	if (mLog) {
 		mLog->FLogLine("    > Protocol is TCP");
 		mLog->FLogLine("      [34] Src Port: %d", (d[34]<<8)|d[35]);
@@ -148,7 +148,7 @@ void TNetworkManager::LogTCPPacket(KUInt8 *d, KUInt32 n) {
 	}
 }
 
-void TNetworkManager::LogUDPPacket(KUInt8 *d, KUInt32 n) {
+void TNetworkManager::LogUDPPacket(KUInt8 *d, ssize_t n) {
 	if (mLog) {
 		mLog->FLogLine("    > Protocol is UDP");
 		mLog->FLogLine("      [34] Src Port: %d", (d[34]<<8)|d[35]);
@@ -159,7 +159,7 @@ void TNetworkManager::LogUDPPacket(KUInt8 *d, KUInt32 n) {
 	}
 }
 
-void TNetworkManager::LogPacket(KUInt8 *d, KUInt32 n) {
+void TNetworkManager::LogPacket(KUInt8 *d, ssize_t n) {
 	if (mLog) {
 		mLog->FLogLine("TNetworkManager: Log Packet of %d bytes:", (int) n);
 		mLog->FLogLine("  [0] Dst MAC: %02x:%02x:%02x:%02x:%02x:%02x", d[0], d[1], d[2], d[3], d[4], d[5]);

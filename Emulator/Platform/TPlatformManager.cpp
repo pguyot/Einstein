@@ -403,7 +403,7 @@ TPCMCIACard*
 TPlatformManager::GetPCCard(KUInt32 inSlot)
 {
 	if (!mMemory) return nullptr;
-	if (inSlot < 0 || inSlot>1) return nullptr;
+	if (inSlot>1) return nullptr;
 
 	TPCMCIAController* controller = mMemory->GetPCMCIAController(inSlot);
 	if (!controller) return nullptr;
