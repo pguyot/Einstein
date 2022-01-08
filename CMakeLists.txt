@@ -11,7 +11,20 @@ cmake_minimum_required(VERSION 3.13)
 
 project("Einstein" VERSION "2022.5.0")
 
-set (CMAKE_CXX_STANDARD 17)
+set ( CMAKE_CXX_STANDARD 17 )
+set ( CMAKE_CXX_STANDARD_REQUIRED ON )
+set ( CMAKE_CXX_EXTENSIONS OFF )
+
+ExternalProject_Add(
+  Eigen
+  GIT_REPOSITORY "https://gitlab.com/libeigen/eigen.git"
+  GIT_TAG "${EXPECTED_EIGEN_VERSION}"
+  SOURCE_DIR eigen
+  BINARY_DIR eigen-build
+  CMAKE_ARGS
+    -DBUILD_TESTING:BOOL=OFF
+    -DBUILD_SHARED_LIBS:BOOL=ON
+)
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
