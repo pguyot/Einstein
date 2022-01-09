@@ -66,13 +66,13 @@ Function {CreateApplicationWindow(int x, int y)} {open
           xywh {0 0 100 20} deactivate divider
         }
         MenuItem {} {
-          label Close
+          label Close selected
           xywh {0 0 100 20} shortcut 0x410077 deactivate divider
         }
         MenuItem {} {
           xywh {0 0 100 20} hide deactivate
         }
-        MenuItem {} {selected
+        MenuItem {} {
           xywh {0 0 100 20} hide deactivate
         }
         MenuItem {} {

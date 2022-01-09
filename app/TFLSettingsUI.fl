@@ -61,7 +61,7 @@ decl {\#include <string.h>} {private local
 decl {\#include <FL/filename.H>} {private local
 }
 
-decl {\#include <FL/Fl_Native_File_Chooser.H>} {private local
+decl {\#include <FL/Fl_Native_File_Chooser.H>} {selected private local
 }
 
 decl {\#include <FL/Fl.H>} {private local
@@ -1317,7 +1317,7 @@ win->hide();} {}
             code0 {o->label("Version " PROJECT_VER);}
           }
           Fl_Box {} {
-            label {Copyright 2003-2022 by Paul Guyot and others} selected
+            label {Copyright 2003-2022 by Paul Guyot and others}
             xywh {20 172 295 20} labelsize 11
             code0 {o->label(COPYRIGHT_STRING);}
           }
