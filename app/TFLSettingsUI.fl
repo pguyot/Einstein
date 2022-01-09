@@ -57,6 +57,11 @@ declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
 
 decl {\#include <string.h>} {private local
 }
+declblock {\#if HAVE_BSD_STRING_H} {open after {\#endif}
+} {
+  decl {\#include <bsd/string.h>} {private local
+  }
+}
 
 decl {\#include <FL/filename.H>} {private local
 }
@@ -790,11 +795,11 @@ e = fl_input("Please enter a name for your PCCard Image");
 if (!e) goto cleanup;
 imageName = strdup(e);
 
-strcat(path, imageName);
+strlcat(path, imageName, sizeof(path));
 
 a = app->ChooseNewFile("Create this PCMCIA Image file", "*.pccard", path);
 if (!a) goto cleanup;
-strcpy(imageFilename, a);
+strlcpy(imageFilename, a, sizeof(imageFilename));
 if (    fl_access(imageFilename, 6)!=0 
      || strcmp(imageFilename, dataFilename)==0
      || strcmp(imageFilename, cisFilename)==0 )

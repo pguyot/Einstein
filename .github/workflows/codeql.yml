@@ -1,4 +1,4 @@
-name: CI on Linux
+name: Security & quality code scanning (ubuntu)
 
 on:
   push:
@@ -43,7 +43,14 @@ jobs:
         cmake -S newt64 -B newt64/build
         cmake --build newt64/build
         sudo cmake --install newt64/build
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: cpp
+        config-file: ./.github/codeql/codeql-config.yml
     - name: Compile Einstein
       run: |
         cmake -S . -B _Build_/Makefiles
         cmake --build _Build_/Makefiles
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1

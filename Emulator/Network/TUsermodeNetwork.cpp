@@ -161,6 +161,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if HAVE_BSD_STRING_H
+#   include <bsd/string.h>
+#endif
 
 #if TARGET_OS_WIN32
 #   include <WinSock2.h>
@@ -1897,7 +1900,7 @@ void TUsermodeNetwork::Log(Packet *p, const char *label, int line, int adjSeq, i
         return;
     char buf[2048];
     buf[0] = 0;
-    if (label) { strcat(buf, label); if (*label) strcat(buf, " "); }
+    if (label) { strlcat(buf, label, sizeof(buf)); if (*label) strlcat(buf, " ", sizeof(buf)); }
     if (   p->GetType()==Packet::kNetTypeIP
         && p->GetIPProtocol()==Packet::kIPProtocolTCP ) {
         ssize_t o = strlen(buf);
