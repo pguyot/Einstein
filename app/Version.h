@@ -24,15 +24,19 @@
 #ifndef _VERSION_H
 #define _VERSION_H
 
-#define PROJECT_NAME "Einstein"
-#define PROJECT_VER  "2022.5.0"
-#define PROJECT_VER_MAJOR "2022"
-#define PROJECT_VER_MINOR "5"
-#define PROJECT_VER_PATCH "0"
-
-#define COMPILE_TIME_YYYY 2022
-#define COMPILE_TIME_MM (101-100)  // if the month is "09", C++ would interprete the number as octal, so we generate "109-100" instead.
-#define COMPILE_TIME_DD (108-100)
+// When building with CMake, we pull the items below in the configuration phase.
+#ifdef USE_CMAKE
+#   include "Version_CMake.h"
+#else
+#   define PROJECT_NAME "Einstein"
+#   define PROJECT_VER  "2022.4.16"
+#   define PROJECT_VER_MAJOR "2022"
+#   define PROJECT_VER_MINOR "4"
+#   define PROJECT_VER_PATCH "16"
+#   define COMPILE_TIME_YYYY 2022
+#   define COMPILE_TIME_MM 1
+#   define COMPILE_TIME_DD 1
+#endif
 
 #define VERSION_STRING		PROJECT_NAME " " PROJECT_VER
 #define VERSION_STRING_SHORT	PROJECT_VER

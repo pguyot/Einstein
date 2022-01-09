@@ -35,10 +35,10 @@ data imgPCCardBotHilite {public local filename {../Resources/icons/button_pccard
 
 Function {CreateApplicationWindow(int x, int y)} {open
 } {
-  Fl_Window wAppWindow {
-    label Einstein open selected
+  Fl_Window wAppWindow {open
     xywh {453 329 320 558} type Double resizable
     code0 {wAppWindow->position(x, y);}
+    code1 {wAppWindow->label(PROJECT_NAME);}
     class TFLAppWindow visible
   } {
     Fl_Menu_Bar wMenubar {open
@@ -72,7 +72,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         MenuItem {} {
           xywh {0 0 100 20} hide deactivate
         }
-        MenuItem {} {
+        MenuItem {} {selected
           xywh {0 0 100 20} hide deactivate
         }
         MenuItem {} {
