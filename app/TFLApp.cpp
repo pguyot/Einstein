@@ -315,17 +315,20 @@ TFLApp::Run( int argc, char* argv[] )
 
 #if 1
     TBufferLog *bl = new TBufferLog();
-#if !NDEBUG
-#if TARGET_OS_WIN32
-    bl->OpenLog("C:/user/micro/Einstein_log.txt");
-#endif
-#if TARGET_OS_MAC
-    bl->OpenLog("/tmp/Einstein_log.txt");
-#endif
-#endif
+#   if !NDEBUG
+#       if TARGET_OS_WIN32
+            bl->OpenLog("C:/user/micro/Einstein_log.txt");
+#       endif
+#       if TARGET_OS_MAC
+            bl->OpenLog("/tmp/Einstein_log.txt");
+#       endif
+#       if TARGET_OS_LINUX
+            bl->OpenLog("/tmp/Einstein_log.txt");
+#       endif
+#   endif
     mLog = bl;
 #else
-    mLog = new TFileLog("/tmp/Einstein_log.txt");
+    mLog = bl;
 #endif
 
     int ramSize = mFLSettings->RAMSize;
