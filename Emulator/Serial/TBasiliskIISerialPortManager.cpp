@@ -76,9 +76,9 @@ TBasiliskIISerialPortManager::TBasiliskIISerialPortManager(
 	mPipe{-1,-1},
 	mDMAIsRunning(false),
 	mDMAThread(0L),
-	pBasiliskSlaveName(nullptr),
-	pBasiliskMaster(-1),
-	pBasiliskSlave(-1),
+	pBasiliskRemoteName(nullptr),
+	pBasiliskLocalFD(-1),
+	pBasiliskRemoteFD(-1),
 	pComState(kStateInit)
 {
 }
@@ -99,7 +99,7 @@ TBasiliskIISerialPortManager::~TBasiliskIISerialPortManager()
     // clean up the symlink
     unlink(kBasiliskPipe);
 
-    if (pBasiliskSlaveName) ::free(pBasiliskSlaveName);
+    if (pBasiliskRemoteName) ::free(pBasiliskRemoteName);
 }
 
 
@@ -145,38 +145,38 @@ TBasiliskIISerialPortManager::OpenPTY()
 //		return false;
 	}
 
-	pBasiliskMaster = posix_openpt(O_RDWR | O_NOCTTY);
-	if (pBasiliskMaster==-1) {
-		perror("TBasiliskIISerialPortManager: Can't open Basilisk Master");
+	pBasiliskLocalFD = posix_openpt(O_RDWR | O_NOCTTY);
+	if (pBasiliskLocalFD==-1) {
+		perror("TBasiliskIISerialPortManager: Can't open Basilisk Local");
 		return false;
 	}
 
-	ret = grantpt(pBasiliskMaster);
+	ret = grantpt(pBasiliskLocalFD);
 	if (ret==-1) {
-		perror("TBasiliskIISerialPortManager: Can't grant Basilisk Master pseudo terminal");
+		perror("TBasiliskIISerialPortManager: Can't grant Basilisk Local pseudo terminal");
 		return false;
 	}
 
-	ret = unlockpt(pBasiliskMaster);
+	ret = unlockpt(pBasiliskLocalFD);
 	if (ret==-1) {
-		perror("TBasiliskIISerialPortManager: Can't unlock Basilisk Master pseudo terminal");
+		perror("TBasiliskIISerialPortManager: Can't unlock Basilisk Local pseudo terminal");
 		return false;
 	}
 
-	const char *slaveName = ptsname(pBasiliskMaster);
-	if (slaveName==nullptr) {
-		perror("TBasiliskIISerialPortManager: Can't get name of Basilisk Slave pseudo terminal");
+	const char *remoteName = ptsname(pBasiliskLocalFD);
+	if (remoteName==nullptr) {
+		perror("TBasiliskIISerialPortManager: Can't get name of Basilisk Remote pseudo terminal");
 		return false;
 	}
-	pBasiliskSlaveName = strdup(slaveName);
+	pBasiliskRemoteName = strdup(remoteName);
 
-	pBasiliskSlave = open(slaveName, O_RDWR | O_NOCTTY);
-	if (pBasiliskSlave==-1) {
-		perror("TBasiliskIISerialPortManager: Can't open Basilisk Slave pseudo terminal");
+	pBasiliskRemoteFD = open(remoteName, O_RDWR | O_NOCTTY);
+	if (pBasiliskRemoteFD==-1) {
+		perror("TBasiliskIISerialPortManager: Can't open Basilisk Remote pseudo terminal");
 		return false;
 	}
 
-	ret = symlink(slaveName, kBasiliskPipe);
+	ret = symlink(remoteName, kBasiliskPipe);
 	if (ret==-1) {
 		perror("TBasiliskIISerialPortManager: Can't link Basilisk pipe");
 		return false;
@@ -185,22 +185,22 @@ TBasiliskIISerialPortManager::OpenPTY()
 	//	tcgetattr(fd, &struct termios)
 	struct termios tios{};
 
-	ret = tcgetattr(pBasiliskMaster, &tios);
+	ret = tcgetattr(pBasiliskLocalFD, &tios);
 	if (ret==-1) { perror("TBasiliskIISerialPortManager: tcgetattr"); return false; }
 	cfmakeraw(&tios);
 	tios.c_cflag |= (HUPCL | CLOCAL);
-	ret = tcsetattr(pBasiliskMaster, TCSANOW, &tios);
+	ret = tcsetattr(pBasiliskLocalFD, TCSANOW, &tios);
 	if (ret==-1) { perror("TBasiliskIISerialPortManager: tcsetattr"); return false; }
 
-	ret = tcgetattr(pBasiliskSlave, &tios);
+	ret = tcgetattr(pBasiliskRemoteFD, &tios);
 	if (ret==-1) { perror("TBasiliskIISerialPortManager: tcgetattr"); return false; }
 	cfmakeraw(&tios);
 	tios.c_cflag |= (HUPCL | CLOCAL);
-	ret = tcsetattr(pBasiliskSlave, TCSANOW, &tios);
+	ret = tcsetattr(pBasiliskRemoteFD, TCSANOW, &tios);
 	if (ret==-1) { perror("TBasiliskIISerialPortManager: tcsetattr"); return false; }
 
 	int pkt = 1;
-	ret = ioctl(pBasiliskMaster, TIOCPKT, &pkt);
+	ret = ioctl(pBasiliskLocalFD, TIOCPKT, &pkt);
 	if (ret==-1) { perror("TBasiliskIISerialPortManager: TIOCPKT"); return false; }
 
 	return true;
@@ -215,19 +215,19 @@ TBasiliskIISerialPortManager::ClosePTY()
 {
 	unlink(kBasiliskPipe);
 
-	if (pBasiliskMaster!=-1) {
-		close(pBasiliskMaster);
-		pBasiliskMaster = -1;
+	if (pBasiliskLocalFD!=-1) {
+		close(pBasiliskLocalFD);
+		pBasiliskLocalFD = -1;
 	}
 
-	if (pBasiliskSlave!=-1) {
-		close(pBasiliskSlave);
-		pBasiliskSlave = -1;
+	if (pBasiliskRemoteFD!=-1) {
+		close(pBasiliskRemoteFD);
+		pBasiliskRemoteFD = -1;
 	}
 
-	if (pBasiliskSlaveName) {
-		::free(pBasiliskSlaveName);
-		pBasiliskSlaveName = nullptr;
+	if (pBasiliskRemoteName) {
+		::free(pBasiliskRemoteName);
+		pBasiliskRemoteName = nullptr;
 	}
 }
 
@@ -283,8 +283,8 @@ TBasiliskIISerialPortManager::HandleDMA()
 	pComState = kStateInit;
 	static int maxFD = -1;
 
-	if (pBasiliskMaster>maxFD) maxFD = pBasiliskMaster;
-	if (pBasiliskSlave>maxFD) maxFD = pBasiliskSlave;
+	if (pBasiliskLocalFD>maxFD) maxFD = pBasiliskLocalFD;
+	if (pBasiliskRemoteFD>maxFD) maxFD = pBasiliskRemoteFD;
 	if (mPipe[0]>maxFD) maxFD = mPipe[0];
 
 	// thread loops and handles pipe, port, and DMA
@@ -303,7 +303,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 		// wait for the next event
 		FD_ZERO(&readSet);
 		FD_SET(mPipe[0], &readSet);
-		FD_SET(pBasiliskMaster, &readSet);
+		FD_SET(pBasiliskLocalFD, &readSet);
 		if (needTimer) {
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 260; // one byte at 38400bps serial port speed
@@ -317,7 +317,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 				// write a byte
 				KUInt8 data = 0;
 				mMemory->ReadBP(mTxDMAPhysicalData, data);
-				write(pBasiliskMaster, &data, 1);
+				write(pBasiliskLocalFD, &data, 1);
 				mTxDMAPhysicalData++;
 				mTxDMABufferSize--;
 				if (mTxDMABufferSize==0) {
@@ -334,12 +334,12 @@ TBasiliskIISerialPortManager::HandleDMA()
 
 		// handle receiving DMA
 
-		if (FD_ISSET(pBasiliskMaster, &readSet)) {
+		if (FD_ISSET(pBasiliskLocalFD, &readSet)) {
 			// read bytes that come in through the serial port
 			KUInt8 buf[1026];
 			int n = -1;
 			usleep(100000); // 1/10th of a second
-			n = (int)read(pBasiliskMaster, buf, 1024);
+			n = (int)read(pBasiliskLocalFD, buf, 1024);
 			if (n<=0) {
 				usleep(100000); // 1/10th of a second
 			} else if (n==1) {

@@ -50,8 +50,8 @@
 // -------------------------------------------------------------------------- //
 //  * TPtySerialPortManager()
 // Emulate a serial port via a pseudo terminal.
-// For example, opening /dev/ptyp0 as a master will give access to the
-// corresponding slave port /dev/ttyp0.
+// For example, opening /dev/ptyp0 as a local will give access to the
+// corresponding remote port /dev/ttyp0.
 // -------------------------------------------------------------------------- //
 TPtySerialPortManager::TPtySerialPortManager(TLog* inLog,
 													 TSerialPorts::EPortIndex inPortIx)

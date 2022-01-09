@@ -120,9 +120,9 @@ protected:
 //	char *mPtyName;							///< named of pseudo terminal
 
 	static const char *kBasiliskPipe;		///< Base name of the pasilisk pty
-	char *pBasiliskSlaveName;				///< PTY slave filename
-	int pBasiliskMaster; 					///< PTY master file id
-	int pBasiliskSlave;						///< PTY slave file id
+	char *pBasiliskRemoteName;				///< PTY remote filename
+	int pBasiliskLocalFD; 					///< PTY local file id
+	int pBasiliskRemoteFD;						///< PTY remote file id
 	ComState pComState;						///< state of the connection to Basilisk
 };
 
