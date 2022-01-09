@@ -28,6 +28,10 @@ jobs:
       with:
         repository: MatthiasWM/NEWT64
         path: newt64
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: cpp
     - name: Compile FLTK
       run: |
         cmake -S fltk -B fltk/build \
@@ -47,3 +51,5 @@ jobs:
       run: |
         cmake -S . -B _Build_/Makefiles
         cmake --build _Build_/Makefiles
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
