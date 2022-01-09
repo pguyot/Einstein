@@ -179,6 +179,7 @@ typedef int socklen_t;
 #   include <unistd.h>
 #   include <errno.h>
 #   include <fcntl.h>
+#   include <netdb.h>
 #   ifdef __ANDROID__
 #       include <malloc.h>
 #   else
@@ -197,6 +198,27 @@ typedef int socklen_t;
  and removed.
  */
 const KUInt32 kUDPExpirationTime = 1000;
+
+static KUInt32 MakeIP(KUInt8 a, KUInt8 b, KUInt8 c, KUInt8 d)
+{
+    KUInt32 ip = (a<<24) | (b<<16) | (c<<8) | d;
+    return ip;
+}
+
+
+static const char      *kNetworkName    = "Einstein.local";
+static const KUInt64    kGatewayMac     = 0x9bf1ad740800ULL;
+#if 0
+static const KUInt32    kClientIP       = MakeIP(192, 168, 1, 42);
+static const KUInt32    kClientIPMask   = MakeIP(255, 255, 255, 0);
+static const KUInt32    kGatewayIP      = MakeIP(192, 168, 1, 1);
+static const KUInt32    kNameServerIP   = MakeIP(192, 168, 1, 1);
+#else
+static const KUInt32    kClientIP       = MakeIP(192, 168, 1, 42);
+static const KUInt32    kClientIPMask   = MakeIP(255, 255, 255, 0);
+static const KUInt32    kGatewayIP      = MakeIP(192, 168, 1, 1);
+static const KUInt32    kNameServerIP   = MakeIP(127, 0, 0, 53);
+#endif
 
 /**
  * This class is used to build and interprete TCP/IP packages.
@@ -271,6 +293,14 @@ public:
      * \return number of bytes.
      */
     ssize_t Size() { return mSize; }
+
+    /**
+     * Change the size of the packet.
+     * Does not update checksums or length fiels within the packege.
+     * Must not be larger than the initial package.
+     * Nothing is reallocated.
+     */
+    void SetSize(ssize_t inSize) { mSize = inSize; }
 
     /**
      * Return the unique number given to this packet.
@@ -580,6 +610,10 @@ public:
      */
     ~TCPPacketHandler()
     {
+        close_socket();
+    }
+
+    void close_socket() {
 #if TARGET_OS_WIN32
         if (mSocket != INVALID_SOCKET) {
             if (state != kStateDisconnected) {
@@ -787,13 +821,7 @@ public:
                 if (packet.GetTCPFlags() & Packet::kTCPFlagFIN) {
                     // Newton initiates a disconnection.
                     // We don't support half-duplex
-#if TARGET_OS_WIN32
-                    ::closesocket(mSocket);
-                    mSocket = INVALID_SOCKET;
-#else
-                    ::close(mSocket);
-                    mSocket = INVALID_SOCKET;
-#endif
+                    close_socket();
                     // Peer has closed connection.
                     mNewtonPacketsSeq = packet.GetTCPSeq() + 1;
                     Packet *reply = NewPacket(0);
@@ -840,13 +868,7 @@ public:
                     LOG_HEADER_DO( mNet->Log(reply, "| W E>N", __LINE__, 0, mSeqBase); )
                     mNet->Enqueue(reply);
                     // And now all communication on this socket should be done
-#if TARGET_OS_WIN32
-                    ::closesocket(mSocket);
-                    mSocket = INVALID_SOCKET;
-#else
-                    ::close(mSocket);
-                    mSocket = INVALID_SOCKET;
-#endif
+                    close_socket();
                     LOG_PROTOCOL("| Peer closing. Removing TCP handler for port %u to %u.%u.%u.%u.",
                                  theirPort,
                                  (unsigned int)((theirIP>>24)&0xff),
@@ -980,7 +1002,6 @@ const char *TCPPacketHandler::kStateNameList[] {
 };
 
 
-
 /**
  * This class handles UDP packets.
  */
@@ -1013,6 +1034,10 @@ public:
      */
     ~UDPPacketHandler() override
     {
+        close_socket();
+    }
+
+    void close_socket() {
 #if TARGET_OS_WIN32
         if (mSocket != INVALID_SOCKET) {
             ::closesocket(mSocket);
@@ -1020,7 +1045,7 @@ public:
         }
 #else
         if ( mSocket != INVALID_SOCKET ) {
-            close(mSocket);
+            ::close(mSocket);
             mSocket = INVALID_SOCKET;
         }
 #endif
@@ -1100,6 +1125,10 @@ public:
         }
         mExpire = kUDPExpirationTime;
         LOG_HEADER_DO( mNet->Log(&packet, "| W<E N", __LINE__); )
+
+        mNet->LogPacket(packet.Data(), packet.Size());
+        mNet->LogBuffer(packet.Data(), packet.Size());
+
         ssize_t ret =
         sendto(mSocket, (char*)packet.GetUDPPayloadStart(), packet.GetUDPPayloadSize(),
                0, (struct sockaddr*)&theirSockAddr, sizeof(theirSockAddr));
@@ -1144,6 +1173,9 @@ public:
             memcpy(reply->GetUDPPayloadStart(), buf, avail);
             UpdateChecksums(reply);
             LOG_HEADER_DO( mNet->Log(reply, "  | W E>N", __LINE__); )
+            mNet->LogPacket(reply->Data(), reply->Size());
+            mNet->LogBuffer(reply->Data(), reply->Size());
+
             mNet->Enqueue(reply);
             LOG_PROTOCOL("  `---- Einstein > Newton -- done ---------");
             mExpire = kUDPExpirationTime;
@@ -1290,383 +1322,320 @@ void GetPrimaryIp(char* buffer, size_t buflen)
 }
 #endif
 
+
 /**
- * This class handles DHCP packets.
+ * This class handles DNS requests.
  *
- * This class is work in progress. It will make the NIE setup much easier
- * for users when finished.
+ * Check if this UDP request is a name lookup for our non-existing
+ * Nameserver and use the Host network interface to synthesize a reply.
+ */
+class DNSPacketHandler : public UDPPacketHandler
+{
+public:
+
+    /**
+     * DNS requests look up the IP address for a given client name.
+     * \param packet the Newton packet that could be sent
+     * \param net the network interface
+     * \return 0 if we can not handle this packet
+     * \return 1 if we can handled it and it need not to be propagated any further
+     * \return -1 if an error occurred an no other handler should handle this packet
+     */
+    static int canHandle(Packet &packet, TUsermodeNetwork *net)
+    {
+        // DNS: Transaction ID: 0x241a
+        if ( packet.GetType() != Packet::kNetTypeIP )
+            return 0;
+        if ( packet.GetIPProtocol() != Packet::kIPProtocolUDP )
+            return 0;
+        if (packet.GetUDPDstPort()!=53) // DNS requests are sent to port 53
+            return 0;
+        if (packet.GetIPDstIP()!=kNameServerIP) // DNS server as set by DHCP
+            return 0;
+
+        auto mLog = net->GetLog();
+        LOG_PROTOCOL("| DNS request.");
+        LOG_HEADER_DO( net->Log(&packet, "| W E<N", __LINE__); )
+
+//      KUInt16 queryID = packet.Get16(0x0028);
+        KUInt16 flags = packet.Get16(0x002C);
+        if ( (flags&0x8b50)!=0x0100 ) {
+            LOG_PROTOCOL("| Flags not recognised: 0x%04x.", flags);
+            return 0;
+        }
+        KUInt16 qdCount = packet.Get16(0x002e);
+        if ( qdCount==0 ) {
+            LOG_PROTOCOL("| No queries found.");
+            return 0;
+        }
+        KUInt8 name[128]; // Size limit is 64...
+        KUInt8 space = 126;
+        KUInt8 *d = name, *s = packet.Data()+0x0036;
+        for (;;) {
+            KUInt8 n = *s++;
+            if (n==0)
+                break;
+            for (KUInt8 i=0; i<n; i++) {
+                *d++ = *s++;
+                if (space--==0) break;
+            }
+            if (*s) {
+                *d++ = '.';
+                if (space--==0) break;
+            }
+        }
+        *d++ = 0;
+        ssize_t ix = s - packet.Data();
+        KUInt16 qType = packet.Get16(ix); ix += 2;
+        KUInt16 qClass = packet.Get16(ix); ix += 2;
+        if ( qType!=1 && qClass!=1 ) {
+            LOG_PROTOCOL("| Unsupported query type %d %d.", qType, qClass);
+            return 0;
+        }
+
+        KUInt32 ip = MakeIP(127, 0, 0, 1);
+        struct hostent *host = gethostbyname((char*)name);
+        int err = 0;
+        if ( host && (host->h_addrtype == AF_INET) ) {
+            // dwError = WSAGetLastError(), h_errno
+            KUInt8 *ipp = (KUInt8*)host->h_addr_list[0];
+            ip = (ipp[0]<<24) | (ipp[1]<<16) | (ipp[2]<<8) | (ipp[3]);
+            LOG_PROTOCOL("| Host \"%s\" ip at %d.%d.%d.%d.", name, ipp[0], ipp[1], ipp[2], ipp[3]);
+        } else {
+            LOG_PROTOCOL("| Host \"%s\" not found!", name);
+            err = 1;
+        }
+
+        KUInt32 replySize = packet.Size();
+        if (!err) replySize += 16;
+        Packet *reply = new Packet(nullptr, replySize);
+        memcpy(reply->Data(), packet.Data(), packet.Size());
+        KUInt32 size = replySize - 42;
+
+        /* --- Sample request and reply.
+         0x0000:  00fa c0a8 0101 58b0 3577 d722 0800 4500  ......X.5w."..E.
+         0x0010:  003c 0002 0000 4011 f733 c0a8 012a c0a8  .<....@..3...*..
+         0x0020:  0101 0800 0035 0028 7d6a:0001 0100 0001  .....5.(}j......
+         0x0030:  0000 0000 0000 0a6d 6573 7361 6765 7061  .......messagepa
+         0x0040:  6403 6f72 6700 0001 0001                 d.org.....
+
+         0x0000:  58b0 3577 d722 00fa c0a8 0101 0800 4500  X.5w."........E.
+         0x0010:  004c 07d0 0000 4011 ef55 c0a8 0101 c0a8  .L....@..U......
+         0x0020:  012a 0035 0800 0038 5440:0001 8180 0001  .*.5...8T@......
+         0x0030:  0001 0000 0000 0a6d 6573 7361 6765 7061  .......messagepa
+         0x0040:  6403 6f72 6700 0001 0001 c00c 0001 0001  d.org...........
+         0x0050:  0000 0e10 0004 d9a0 00c5                 ..........
+         */
+
+        // Network II
+        reply->SetDstMAC(packet.GetSrcMAC());
+        reply->SetSrcMAC(packet.GetDstMAC());
+        reply->SetType(0x0800);
+        // IP
+        reply->SetIPVersion(4);
+        reply->SetIPHeaderLength(20);
+        reply->SetIPTOS(0);
+        reply->SetIPTotalLength(size+42-14);    // not counting the network header
+        reply->SetIPID(packet.GetIPID()+1);
+        reply->SetIPFlags(0);
+        reply->SetIPFrag(0);
+        reply->SetIPTTL(64);
+        reply->SetIPProtocol(Packet::kIPProtocolUDP);
+        reply->SetIPSrcIP(packet.GetIPDstIP());
+        reply->SetIPDstIP(packet.GetIPSrcIP());
+        // UDP
+        reply->SetUDPSrcPort(packet.GetUDPDstPort());
+        reply->SetUDPDstPort(packet.GetUDPSrcPort());
+        reply->SetUDPLength(size+8);
+
+        if (err) {
+            // 3 = no such name
+            reply->Set16(0x002c, 0x8183);
+            reply->Set16(0x0030, 0x0000); // no reply
+        } else {
+            reply->Set16(0x002c, 0x8180);
+            reply->Set16(0x0030, 0x0001); // one reply
+            // ix was calculated when we read the incomming package
+            reply->Set16(ix, 0xc00c); ix+=2; // Name
+            reply->Set16(ix, 0x0001); ix+=2; // Type
+            reply->Set16(ix, 0x0001); ix+=2; // Class
+            reply->Set32(ix, 0x00000e10); ix+=4; // TTL
+            reply->Set16(ix, 0x0004); ix+=2; // Record Length
+            reply->Set32(ix, ip); ix+=4;     // IP
+        }
+        net->SetIPv4Checksum(reply->Data(), reply->Size());
+        net->SetUDPChecksum(reply->Data(),  reply->Size());
+
+//        net->LogBuffer(reply->Data(), reply->Size());
+
+        LOG_PROTOCOL("| DNS reply.");
+        LOG_HEADER_DO( net->Log(reply, "| W E>N", __LINE__); )
+
+        net->Enqueue(reply);
+
+        return 1;
+    }
+};
+
+/**
+ * This class handles DHCP requests.
+ *
+ * Einstein does not forward DHCP requests but instead returns a prefabricated
+ * setup. Using fixed IPs will help us later to catch DNS and other requests
+ * and map them onto the host network.
  */
 class DHCPPacketHandler : public PacketHandler
 {
 public:
-    // to implement DHCP, look at getifaddrs()
-    // http://www.developerweb.net/forum/showthread.php?t=5085
 
     /**
      * Can we handle the given package?
      *
      * DHCP Packages are special UDP broadcasts that are needed to assign an IP
-     * to a machine that newly joins a network. Since our emulator shares the IP
-     * of the host, we can reply to these requests immediatly.
+     * to a machine that newly joins a network. We reply with a fixed set of
+     * IP adresses for local, mask, gateway, and DNS. We also return
+     * "Einstein.local" as a network name.
      *
      * \param packet the Newton packet that could be sent
      * \param n the network interface
      * \return 0 if we can not handle this packet
      * \return 1 if we can handled it and it need not to be propagated any further
      * \return -1 if an error occurred an no other handler should handle this packet
-     * \see man 3 getaddrinfo()
      */
     static int canHandle(Packet &packet, TUsermodeNetwork *net)
     {
-        //        char buf[1024];
-        //        GetPrimaryIp(buf, 1023);
-        //        KPrintf("My primary IP seems to be %s\n", buf);
-        //        void GetPrimaryIp(char* buffer, size_t buflen)
-        //        {
-        //            assert(buflen >= 16);
-        //
-        //            int sock = socket(AF_INET, SOCK_DGRAM, 0);
-        //            assert(sock != -1);
-        //
-        //            const char* kGoogleDnsIp = "8.8.8.8";
-        //            uint16_t kDnsPort = 53;
-        //            struct sockaddr_in serv;
-        //            memset(&serv, 0, sizeof(serv));
-        //            serv.sin_family = AF_INET;
-        //            serv.sin_addr.s_addr = inet_addr(kGoogleDnsIp);
-        //            serv.sin_port = htons(kDnsPort);
-        //
-        //            int err = connect(sock, (const sockaddr*) &serv, sizeof(serv));
-        //            assert(err != -1);
-        //
-        //            sockaddr_in name;
-        //            socklen_t namelen = sizeof(name);
-        //            err = getsockname(sock, (sockaddr*) &name, &namelen);
-        //            assert(err != -1);
-        //
-        //            const char* p = inet_ntop(AF_INET, &name.sin_addr, buffer, buflen);
-        //            assert(p);
-        //
-        //            close(sock);
-        //        }
-        // then continue from here with getifaddrs or man networking and ioctl
-        // ioctl(<socketfd>, SIOCGIFCONF, (struct ifconf)&buffer);
-        // gethostname() to find the name of the router?
-        // ioctl(sockfd, SIOCGIFCONF, (char *)&ifc
-        //        struct sockaddr_dl *sdl = (struct sockaddr_dl *)&ifr->ifr_addr;
-        //        strcpy(temp, (char *)ether_ntoa(LLADDR(sdl)));
-        // http://iphonedevsdk.com/forum/iphone-sdk-development/5293-get-current-ip-address.html
-
-        //        1) struct ifreq ifr; struct sockaddr_in saddr;
-        //        2) fd=socket(PF_INET,SOCK_STREAM,0)
-        //        3) strcpy(ifr.ifr_name,"name of interface");
-        //        4) ioctl(fd,SIOCGIFADDR,&ifr);
-        //        5) saddr=*((struct sockaddr_in *)(&(ifr.ifr_addr))); /* is the address
-        //                                                              */
-        //        6) saddr.sin_addr.s_addr is the address of the interface in integer
-        //        format
-
         if ( packet.GetType() != Packet::kNetTypeIP )
             return 0;
         if ( packet.GetIPProtocol() != Packet::kIPProtocolUDP )
             return 0;
-        if (packet.GetUDPDstPort()!=67) // DHCP requests come from port 68 and are sent to 67
+        if (packet.GetUDPDstPort()!=67) // DHCP requests are sent to port 67
             return 0;
         if (packet.Get8(42)!=1)
             return 0;
-        if (packet.GetIPDstIP()!=0xffffffff) // DHCP are broadcast to 255.255.255.255
-            return 0;
+//      if (packet.GetIPDstIP()!=0xffffffff) // DHCP are broadcast to 255.255.255.255
+//          return 0;
         if (packet.Get32(0x0116)!=0x63825363) // check for DHCP magic number
             return 0;
 
-        switch (packet.Get8(0x011c)) {
-            case 1:
-                KPrintf("Newt->World DHCP Discover\n"); break;
-            case 2:
-                KPrintf("Router -> Newt: DCHP Offer\n"); break;
-            case 3:
-                KPrintf("Newt->World DHCP Request\n"); break;
-            case 5:
-                KPrintf("Router -> Newt: DHCP ACK\n"); break;
-            default: KPrintf("UNKNOWN BOOT TYPE: %d\n", packet.Get8(0x011c)); break;
+        auto mLog = net->GetLog();
+//        LOG_PROTOCOL(",---- Einstein < Newton -----------------");
+        LOG_PROTOCOL("| DHCP request %d:", packet.Get8(0x011c));
+        LOG_HEADER_DO( net->Log(&packet, "| W E<N", __LINE__); )
+
+        // For Newton packages, Option 53 seems to be locked at this offset
+        KUInt8 packetType = packet.Get8(0x011c);
+        static constexpr KUInt8 kDHCPDiscover    = 1;
+        static constexpr KUInt8 kDHCPOffer       = 2;
+        static constexpr KUInt8 kDHCPRequest     = 3;
+        static constexpr KUInt8 kDHCPDecline     = 4;
+        static constexpr KUInt8 kDHCPAcknowledge = 5;
+//      static constexpr KUInt8 kDHCPNACK        = 6;
+        static constexpr KUInt8 kDHCPRelease     = 7;
+//      static constexpr KUInt8 kDHCPInform      = 8;
+
+        // Release packages are handled by just accepting them
+        if ( packetType==kDHCPRelease ) {
+            LOG_PROTOCOL("| OK: Release event.");
+            return 1;
         }
 
-        KPrintf("Net: DHCP request (%u bytes)\n", (unsigned int)packet.Size());
-        int i;
-        for (i=0; i<packet.Size(); i++) {
-            KUInt8 d = packet.Data()[i];
-            (void)d;
-            KPrintf("0x%02x, ", d);
-            if ((i&15)==15) KPrintf("\n");
+        // Everything but Discover and Request is unsupported
+        if ( (packetType!=kDHCPDiscover) && (packetType!=kDHCPRequest) ) {
+            // NOTE: Add handlers for NACK and Inform packet types.
+            LOG_PROTOCOL("| Unsupported: Event %d.", packetType);
+            return 0;
         }
-        KPrintf("\n");
 
-        // Create a DHCP offer from the DHCP Discover packet
+        // If this is a Discover or Request packet, we reply with a
+        // preconfigured DHCP setup. 590 bytes seems to be a magic size.
+        Packet *reply = new Packet(0L, 590);
+        memset(reply->Data(), 0, 590);
 
-
-        static const unsigned char DHCPDiscoverPkg[] = {
-            0x00, 0x60, 0x1d, 0x1e, 0xfa, 0xf7, 0xac, 0xde, 0x48, 0x14, 0x6e, 0x4f, 0x08, 0x00, 0x45, 0x00,
-            0x01, 0x48, 0x8b, 0x85, 0x00, 0x00, 0xff, 0x11, 0xa9, 0xcb, 0xc0, 0xa8, 0x02, 0x01, 0xc0, 0xa8,
-            0x02, 0x02, 0x00, 0x43, 0x00, 0x44, 0x01, 0x34, 0xc6, 0xc9, 0x02, 0x01, 0x06, 0x00, 0x75, 0x74,
-            0x2b, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0xa8, 0x02, 0x02, 0xc0, 0xa8,
-            0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x1d, 0x1e, 0xfa, 0xf7, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x41, 0x6e, 0x6e, 0x69, 0x6b, 0x61, 0x2d, 0x32, 0x2e, 0x6c,
-            0x6f, 0x63, 0x61, 0x6c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63, 0x82, 0x53, 0x63, 0x35, 0x01, 0x02, 0x36, 0x04, 0xc0,
-            0xa8, 0x02, 0x01, 0x33, 0x04, 0x00, 0x01, 0x4e, 0x20, 0x01, 0x04, 0xff, 0xff, 0xff, 0x00, 0x03,
-            0x04, 0xc0, 0xa8, 0x02, 0x01, 0x06, 0x04, 0xc0, 0xa8, 0x02, 0x01, 0xff, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        };
-
-
-
-        Packet *reply = new Packet(0L, 342);
-        memcpy(reply->Data(), DHCPDiscoverPkg, 342);
-
-        //        // ethernet II
-        reply->Set48(0x0000, packet.Get48(6));    // dest MAC
-        //        reply->Set48(0x0006, 0x9bf1ad740800);    // src MAC
-        //        reply->Set16(0x000c, 0x0800);    // type
-        //        // IP4
-        //        reply->Set8(0x000e, 0x45); // Version/length
-        //        reply->Set8(0x000f, 0); // service field
-        //        reply->Set16(0x0010, reply->Size()-14);
-        //        reply->Set16(0x0012, 35717); // identification (FIXME?)
-        //        reply->Set16(0x0014, 0); // Flags
-        //        reply->Set8(0x0016, 0xff); // TTL
-        //        reply->Set8(0x0017, 17); // Protocol: UDP
-        //        reply->Set16(0x0018, 0); // Checksum (ignore)
-        //        reply->Set32(0x001a, 0x0a000101); // src IP
-        //        reply->Set32(0x001e, 0x0a000108); // dst IP
-        //        // UDP
-        //        reply->Set16(0x0022, 67); // src port (bootps)
-        //        reply->Set16(0x0024, 68); // dst port (bootpc)
-        //        reply->Set16(0x0026, reply->Size()-34); // size
-        //        reply->Set16(0x0028, 0); // checksum
-        //        // BOOTP
-        //        reply->Set8(0x002a, 2); // msg type: boot reply
-        //        reply->Set8(0x002b, 1); // hardware type
-        //        reply->Set8(0x002c, 6); // hardware address length
-        //        reply->Set8(0x002d, 0); // hops 0
+        // Ethernet II
+        reply->Set48(0x0000, packet.GetSrcMAC()); // dest MAC: who called?
+        reply->Set48(0x0006, kGatewayMac);      // src MAC: DHCP's MAC adress
+        reply->Set16(0x000c, 0x0800);           // type: IP
+        // IP4
+        reply->Set8(0x000e, 0x45);              // Version/length
+        reply->Set8(0x000f, 0);                 // service field
+        reply->Set16(0x0010, reply->Size()-14);
+        reply->Set16(0x0012, packet.GetIPID()); // identification (FIXME?)
+        reply->Set16(0x0014, 0);                // Flags
+        reply->Set8(0x0016, 0xff);              // TTL
+        reply->Set8(0x0017, 17);                // Protocol: UDP
+        reply->Set16(0x0018, 0);                // Checksum (ignore)
+        reply->Set32(0x001a, kGatewayIP);       // src IP: 10.0.1.1
+        reply->Set32(0x001e, kClientIP);        // dst IP: 10.0.1.8
+        // UDP
+        reply->Set16(0x0022, 67);               // src port (bootps)
+        reply->Set16(0x0024, 68);               // dst port (bootpc)
+        reply->Set16(0x0026, reply->Size()-34); // size
+        reply->Set16(0x0028, 0);                // checksum
+        // BOOTP
+        reply->Set8(0x002a, 2);                 // msg type: boot reply
+        reply->Set8(0x002b, 1);                 // hardware type
+        reply->Set8(0x002c, 6);                 // hardware address length
+        reply->Set8(0x002d, 0);                 // hops 0
         reply->Set32(0x002e, packet.Get32(0x002e)); // transaction ID
-        //        reply->Set16(0x0032, 0); // seconds elapsed
-        //        reply->Set16(0x0034, 0); // flags
-        //        reply->Set32(0x0036, 0); // client IP
-        //        reply->Set32(0x003a, 0x0a000108); // your IP
-        //        reply->Set32(0x003e, 0x0a000101); // server IP
-        //        reply->Set32(0x0042, 0); // relay agent IP
-        reply->Set48(0x0046, packet.Get48(6));    // client MAC (padded with 0'a
-        //        // server host name, boot file name are all 0's
-        //        reply->Set32(0x0116, 0x63825363); // DHCP magic cookie
-        //        KUInt8 *d = reply->Data()+0x011a;
-        //        // DHCP option 53: DHCP Offer
-        //        *d++ = 53; *d++ = 1; *d++ = 2;
-        //        // 22, 23, 26, 31, 32, 35, 1, 3, 6, 15
-        //
-        //        /*
-        //        // DHCP option 1: 255.255.255.0 subnet mask
-        //        *d++ = 1; *d++ = 4; *d++ = 255; *d++ = 255; *d++ = 255; *d++ = 0;
-        //        // DHCP option 3: 192.168.1.1 router
-        //        *d++ = 3; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-        //        // DHCP option 51: 86400s (1 day) IP lease time
-        //        *d++ = 51; *d++ = 4; *d++ = 0x00; *d++ = 0x01; *d++ = 0x51; *d++ = 0x80;
-        //        // DHCP option 54: 192.168.1.1 DHCP server
-        //        *d++ = 54; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-        //        // DHCP option 6: DNS servers 9.7.10.15, 9.7.10.16, 9.7.10.18
-        //        *d++ = 6; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-        //         */
-        //
-        //        // 22: Maximum Datagram Reassembly Size
-        //        *d++ = 22; *d++ = 2; *d++ = 2; *d++ = 64;    // 576 (minimum)
-        //        // 23: Default IP Time-to-live
-        //        *d++ = 23; *d++ = 1; *d++ = 80;
-        //        // 26: Interface MTU Option
-        //        *d++ = 26; *d++ = 2; *d++ = 0; *d++ = 68;
-        //        // 31: Perform Router Discovery Option
-        //        *d++ = 31; *d++ = 1; *d++ = 0;
-        //        // 32
-        //        // 35: ARP Cache Timeout Option
-        //        *d++ = 35; *d++ = 4; *d++ = 0; *d++ = 0; *d++ = 16; *d++ = 16; // 3600 sec
-        //        // 1: Subnet Mask
-        //        *d++ = 1; *d++ = 4; *d++ = 255; *d++ = 0; *d++ = 0; *d++ = 0;
-        //        // 3: router
-        //        *d++ = 3; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-        //        // 6: DNS Server
-        //        *d++ = 6; *d++ = 4; *d++ = 10; *d++ = 0; *d++ = 1; *d++ = 1;
-        //        // 15
-        //        *d++ = 15; *d++ = 4; *d++ = 'E'; *d++ = 'i'; *d++ = 'n'; *d++ = 'i';
-        //
-        //        // DHCP end option:
-        //        *d++ = 0xff;
-        //        if ( d>=reply->Data()+reply->Size())
-        //            KPrintf("ERRROR: reply package too short\n");
-        //
-        if (packet.Get8(0x011c)==3)
-            reply->Set8(0x011c, 5); // ACK
+        reply->Set16(0x0032, 0);                // seconds elapsed
+        reply->Set16(0x0034, 0);                // flags
+        reply->Set32(0x0036, 0);                // client IP
+        reply->Set32(0x003a, kClientIP);        // your IP
+        reply->Set32(0x003e, kGatewayIP);       // server IP
+        reply->Set32(0x0042, 0);                // relay agent IP
+        reply->Set48(0x0046, packet.Get48(6));  // client MAC (padded with 0'a
+        // Gap.
+        strncpy((char*)(reply->Data()+0x56), kNetworkName, 32);
+        // Gap.
+        reply->Set32(0x0116, 0x63825363);       // DHCP magic cookie
+        // Options
+        KUInt8 *d = reply->Data()+0x011a;
+        // DHCP option 53: DHCP reply type
+        *d++ = 53; *d++ = 1;
+        if (packetType==kDHCPDiscover)
+            *d++ = kDHCPOffer;
+        else if (packetType==kDHCPRequest)
+            *d++ = kDHCPAcknowledge;
+        else
+            *d++ = kDHCPDecline;
+        // DHCP option 1: 255.255.255.0 subnet mask
+        WriteIPOption(d, 1, kClientIPMask);
+        // DHCP option 3: 192.168.1.1 router
+        WriteIPOption(d, 3, kGatewayIP);
+        // DHCP option 6: DNS servers 9.7.10.15, 9.7.10.16, 9.7.10.18
+        WriteIPOption(d, 6, kNameServerIP);
+        // DHCP option 51: 86400s (1 day) IP lease time
+        *d++ = 51; *d++ = 4; *d++ = 0x00; *d++ = 0x01; *d++ = 0x51; *d++ = 0x80;
+        // DHCP option 54: 192.168.1.1 DHCP server
+        WriteIPOption(d, 54, kGatewayIP);
+        // DHCP end option:
+        *d++ = 0xff;
 
-        KPrintf("Net: DHCP checksums %04X %04X\n", reply->GetIPChecksum(), reply->GetUDPChecksum());
-        net->SetIPv4Checksum(reply->Data(), reply->Size());
-        net->SetUDPChecksum(reply->Data(), reply->Size());
-        KPrintf("Net: DHCP checksums %04X %04X\n", reply->GetIPChecksum(), reply->GetUDPChecksum());
+        auto packageSize = 590; //d-reply->Data();
+        //reply->SetSize(packageSize);
+        reply->SetIPTotalLength(packageSize-14);
+        reply->SetUDPLength(packageSize-34);
+        net->SetIPv4Checksum(reply->Data(), packageSize);
+        net->SetUDPChecksum(reply->Data(),  packageSize);
+
+        LOG_PROTOCOL("| DHCP reply %d:", reply->Get8(0x011c));
+        LOG_HEADER_DO( net->Log(reply, "| W E>N", __LINE__); )
 
         net->Enqueue(reply);
 
-        KPrintf("Net: DHCP reply (%u bytes)\n", (unsigned int)reply->Size());
-        for (i=0; i<reply->Size(); i++) {
-            KUInt8 d = reply->Data()[i];
-            (void)d;
-            KPrintf("%02x %c  ", d, ((d>=32)&&(d<127))?d:'.');
-            if ((i&15)==15) KPrintf("\n");
-        }
-        KPrintf("\n");
-
-        /* Newton DHCP capture:
-
-         Newt->World DHCP Discover
-
-         0000  ff ff ff ff ff ff 00 60  1d 1e fa f7 08 00 45 00   .......` ......E.
-         0010  02 40 00 01 00 00 3c 11  7c ad 00 00 00 00 ff ff   .@....<. |.......
-         0020  ff ff 00 44 00 43 02 2c  23 6c 01 01 06 00 75 74   ...D.C., #l....ut
-         0030  2b 0c 00 00 00 00 00 00  00 00 00 00 00 00 00 00   +....... ........
-         0040  00 00 00 00 00 00 00 60  1d 1e fa f7 00 00 00 00   .......` ........
-         0050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0110  00 00 00 00 00 00 63 82  53 63 35 01 01 33 04 00   ......c. Sc5..3..
-         0120  00 04 b0 37 0a 16 17 1a  1f 20 23 01 03 06 0f ff   ...7.... . #.....
-         0130  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0140  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0150  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0160  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0170  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0180  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0190  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         01a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         01b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         01c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         01d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         01e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         01f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0210  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0220  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0230  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0240  00 00 00 00 00 00 00 00  00 00 00 00 00 00         ........ ......
-
-         Router -> Newt: DCHP offer
-
-         0000  00 60 1d 1e fa f7 ac de  48 14 6e 4f 08 00 45 00   .`...... H.nO..E.
-         0010  01 48 8b 85 00 00 ff 11  a9 cb c0 a8 02 01 c0 a8   .H...... ........
-         0020  02 02 00 43 00 44 01 34  c6 c9 02 01 06 00 75 74   ...C.D.4 ......ut
-         0030  2b 0c 00 00 00 00 00 00  00 00 c0 a8 02 02 c0 a8   +....... ........
-         0040  02 01 00 00 00 00 00 60  1d 1e fa f7 00 00 00 00   .......` ........
-         0050  00 00 00 00 00 00 41 6e  6e 69 6b 61 2d 32 2e 6c   ......An nika-2.l
-         0060  6f 63 61 6c 00 00 00 00  00 00 00 00 00 00 00 00   ocal.... ........
-         0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0110  00 00 00 00 00 00 63 82  53 63 35 01 02 36 04 c0   ......c. Sc5..6..
-         0120  a8 02 01 33 04 00 01 4e  20 01 04 ff ff ff 00 03   ...3...N  .......
-         0130  04 c0 a8 02 01 06 04 c0  a8 02 01 ff 00 00 00 00   ........ ........
-         0140  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0150  00 00 00 00 00 00                                  ......
-
-         Newt -> World: DHCP Request
-
-         0000  ff ff ff ff ff ff 00 60  1d 1e fa f7 08 00 45 00   .......` ......E.
-         0010  02 40 00 02 00 00 3c 11  7c ac 00 00 00 00 ff ff   .@....<. |.......
-         0020  ff ff 00 44 00 43 02 2c  78 b6 01 01 06 00 75 74   ...D.C., x.....ut
-         0030  2b 0c 00 00 00 00 00 00  00 00 00 00 00 00 00 00   +....... ........
-         0040  00 00 00 00 00 00 00 60  1d 1e fa f7 00 00 00 00   .......` ........
-         0050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0110  00 00 00 00 00 00 63 82  53 63 35 01 03 32 04 c0   ......c. Sc5..2..
-         0120  a8 02 02 36 04 c0 a8 02  01 37 0a 16 17 1a 1f 20   ...6.... .7.....
-         0130  23 01 03 06 0f ff 00 00  00 00 00 00 00 00 00 00   #....... ........
-         0140  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0150  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0160  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0170  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0180  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0190  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         01a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         01b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         01c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         01d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         01e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         01f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0210  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0220  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0230  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0240  00 00 00 00 00 00 00 00  00 00 00 00 00 00         ........ ......
-
-         Router -> Newt: DHCP Ack
-
-         0000  00 60 1d 1e fa f7 ac de  48 14 6e 4f 08 00 45 00   .`...... H.nO..E.
-         0010  01 48 8b 86 00 00 ff 11  a9 ca c0 a8 02 01 c0 a8   .H...... ........
-         0020  02 02 00 43 00 44 01 34  c3 c9 02 01 06 00 75 74   ...C.D.4 ......ut
-         0030  2b 0c 00 00 00 00 00 00  00 00 c0 a8 02 02 c0 a8   +....... ........
-         0040  02 01 00 00 00 00 00 60  1d 1e fa f7 00 00 00 00   .......` ........
-         0050  00 00 00 00 00 00 41 6e  6e 69 6b 61 2d 32 2e 6c   ......An nika-2.l
-         0060  6f 63 61 6c 00 00 00 00  00 00 00 00 00 00 00 00   ocal.... ........
-         0070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0080  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         00f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0100  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0110  00 00 00 00 00 00 63 82  53 63 35 01 05 36 04 c0   ......c. Sc5..6..
-         0120  a8 02 01 33 04 00 01 4e  20 01 04 ff ff ff 00 03   ...3...N  .......
-         0130  04 c0 a8 02 01 06 04 c0  a8 02 01 ff 00 00 00 00   ........ ........
-         0140  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   ........ ........
-         0150  00 00 00 00 00 00                                  ......
-
-
-         */
         return 1;
     }
+
+    static void WriteIPOption(KUInt8 *&d, KUInt8 id, KUInt32 ip)
+    {
+        *d++ = id;
+        *d++ = 4;
+        *d++ = (KUInt8)(ip>>24);
+        *d++ = (KUInt8)(ip>>16);
+        *d++ = (KUInt8)(ip>>8);
+        *d++ = (KUInt8)(ip);
+    }
+
 };
 
 
@@ -1733,6 +1702,11 @@ int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 
     // now offer the package to possible new handlers
     switch( DHCPPacketHandler::canHandle(packet, this) ) {
+        case -1:    err = -1; goto done;
+        case 1:     goto done;
+        case 0:     break;
+    }
+    switch( DNSPacketHandler::canHandle(packet, this) ) {
         case -1:    err = -1; goto done;
         case 1:     goto done;
         case 0:     break;
@@ -1831,7 +1805,7 @@ int TUsermodeNetwork::ReceiveData(KUInt8 *data, KUInt32 size)
     LOG_CHATTY("    [ W E>N Newton requests packet, size %d", size);
     Packet *pkt = mLastPacket;
     if (pkt) {
-        LOG_PROTOCOL("    [ W E>N Packet %d available, size %d.", pkt->Index(), size);
+        LOG_CHATTY("    [ W E>N Packet %d available, size %d.", pkt->Index(), size);
         if (size==pkt->Size()) {
             memcpy(data, pkt->Data(), size);
             DropPacket();
