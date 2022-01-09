@@ -230,7 +230,7 @@ TFileManager::do_sys_close( KUInt32 fp )
 	}
 	
 	SFileDescriptors* desc = descriptor_for_newton_desc(fp);
-	if (desc->fHostFile != NULL) {
+	if (desc && desc->fHostFile != NULL) {
 		::fflush(desc->fHostFile);
 		::fclose(desc->fHostFile);
 	}
@@ -238,14 +238,16 @@ TFileManager::do_sys_close( KUInt32 fp )
 		close_listener(fp);
 	}
 	
-	if (desc->fName != NULL) {
+	if (desc && desc->fName != NULL) {
 		::free(desc->fName);
 	}
 	
-	desc->fNewtDesc = 0;
-	desc->fNotifyAddr = 0;
-	desc->fHostFile = NULL;
-	desc->fName = NULL;
+    if (desc) {
+        desc->fNewtDesc = 0;
+        desc->fNotifyAddr = 0;
+        desc->fHostFile = NULL;
+        desc->fName = NULL;
+    }
 
 	return 0;
 }

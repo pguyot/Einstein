@@ -15,6 +15,10 @@ set ( CMAKE_CXX_STANDARD 17 )
 set ( CMAKE_CXX_STANDARD_REQUIRED ON )
 set ( CMAKE_CXX_EXTENSIONS OFF )
 
+include(CheckSymbolExists)
+include(CheckFunctionExists)
+include(CheckIncludeFile)
+
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
 	# MacOS
@@ -61,6 +65,30 @@ else()
 	get_filename_component(newt64_lib_path ${newt64_lib} DIRECTORY)
 	get_filename_component(newt64_incl_path ${newt64_incl} DIRECTORY)
 	message(STATUS "Newt64 found in " ${newt64_lib_path} )
+endif()
+
+#
+# ---- Cross-platform checks -------------------------------------------------------------
+#
+
+set(system_libs "")
+
+check_symbol_exists(strlcpy string.h HAVE_DECL_STRLCPY)
+check_symbol_exists(strlcat string.h HAVE_DECL_STRLCAT)
+check_function_exists(strlcpy HAVE_STRLCPY)
+check_function_exists(strlcat HAVE_STRLCAT)
+if (NOT
+    (HAVE_STRLCPY AND HAVE_DECL_STRLCPY AND HAVE_STRLCAT AND HAVE_DECL_STRLCAT))
+ find_library(BSD_LIBRARY bsd)
+ if (BSD_LIBRARY)
+   unset(CMAKE_REQUIRED_LIBRARIES)
+   set(CMAKE_REQUIRED_LIBRARIES ${BSD_LIBRARY})
+   list(APPEND system_libs ${BSD_LIBRARY})
+  endif()
+  check_include_file(bsd/string.h HAVE_BSD_STRING_H)
+  if(HAVE_BSD_STRING_H)
+    add_definitions(-DHAVE_BSD_STRING_H)
+  endif()
 endif()
 
 #
@@ -413,6 +441,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	target_compile_options(Einstein PUBLIC -Wall -Wextra -Wpedantic -Wno-missing-field-initializers "$<$<CONFIG:DEBUG>:-Werror>")
 	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1)
 	target_link_libraries(Einstein
+		${system_libs}
 		# /usr/local/lib/libfltk.a
 		fltk
 		fltk_images
@@ -481,6 +510,7 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	target_compile_options(Einstein PUBLIC -Wall -Wno-multichar -Wno-misleading-indentation -Wno-missing-field-initializers)
 	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 TARGET_OS_LINUX=1)
 	target_link_libraries(Einstein
+		${system_libs}
 		fltk
 		fltk_images
 		fltk_png
@@ -548,6 +578,7 @@ elseif (WIN32)
 	endif()
 	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1)
 	target_link_libraries(Einstein
+		${system_libs}
 		# this vvv always includes the debug version, even in release mode
 		fltk
 		fltk_images
