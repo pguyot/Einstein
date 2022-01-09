@@ -1,6 +1,10 @@
 queries:
-  - exclude: cpp/use-of-goto            
   - exclude: cpp/fixme-comment
+  # Interesting queries that revealed actual issues
+  - include: cpp/feature-envy
+  - include: cpp/declaration-hides-variable
+  - include: cpp/complex-block
+  - include: cpp/file-intimacy
 extraction:
   cpp:
     prepare:    # Customizable step used by all languages.
