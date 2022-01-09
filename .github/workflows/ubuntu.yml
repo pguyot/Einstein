@@ -28,10 +28,6 @@ jobs:
       with:
         repository: MatthiasWM/NEWT64
         path: newt64
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
-      with:
-        languages: cpp
     - name: Compile FLTK
       run: |
         cmake -S fltk -B fltk/build \
@@ -47,6 +43,11 @@ jobs:
         cmake -S newt64 -B newt64/build
         cmake --build newt64/build
         sudo cmake --install newt64/build
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: cpp
+        config-file: ./.github/codeql/codeql-config.yml
     - name: Compile Einstein
       run: |
         cmake -S . -B _Build_/Makefiles
