@@ -301,7 +301,7 @@ set ( sources
 	app/TFLTabs.cpp
 	app/TFLTabs.h
 	app/Version.h
-	app/Version.h.in
+	app/Version_CMake.h.in
 )
 
 #
@@ -332,15 +332,15 @@ if ( USE_NEWT64 MATCHES true )
 	)
 endif ()
 
-set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h PROPERTIES GENERATED TRUE)
+set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h PROPERTIES GENERATED TRUE)
 
 string(TIMESTAMP COMPILE_TIME_YYYY "%Y")
 string(TIMESTAMP COMPILE_TIME_MM "%m")
 string(TIMESTAMP COMPILE_TIME_DD "%d")
 
 configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h.in
-	${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h
+	${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h.in
+	${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h
 )
 
 
@@ -580,7 +580,7 @@ target_include_directories(
 	${FLTK_INCLUDE_DIRS}
 )
 
-target_compile_definitions(Einstein PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>")
+target_compile_definitions(Einstein PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE)
 
 # nice code to output every know variable in this CMake session
 #get_cmake_property(_variableNames VARIABLES)

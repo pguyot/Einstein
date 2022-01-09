@@ -31,7 +31,7 @@ DerivedData/
 /cmake_build_*/
 *.iml
 /CMakeSettings.json
-/app/Version.h
+/app/Version_CMake.h
 /app/TFLAppUI.cpp
 /app/TFLAppUI.h
 /app/TFLSettingsUI.cpp
