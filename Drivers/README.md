@@ -21,10 +21,14 @@ Conversion of the compiles binaries requires the `Rex` and `ELFtoPKG` tools. It 
 
 ### NCT and DDK Headers
 
-The C++ headers are part of the [NewtonDev](http://www.unna.org/view.php?/development/NewtonDev) archive (you will need a tool to uncompress NewtonDev.sit. On MacOS X, you can use The Unarchiver from the AppStore). An alternative is to clone this [repository](https://github.com/ekoeppen/NCT_Projects).
+The C++ headers can be obtained by cloning this [repository](https://github.com/ekoeppen/NCT_Projects).
 
 The environment variable `NCT_PROJECTS` needs to point to the location of the directory containing the `Includes` and `DDKIncludes` directories.
 
 ### Building
 
-After installing GCC and the DCL tools, and setting `NCT_PROJECTS` correctly, the REx can be built with `make`. In order to use the resulting REx, it needs to be placed in the `_Data_` directory of the Einstein source tree prior to compiling Einstein (compiling Einstein will embed the REx into the application). For subsequent FLTK based builds, use `touch app/TFLRexImage.fl` to ensure that a recompiled REx is properly embedded.
+After installing GCC and the DCL tools, and setting `NCT_PROJECTS` correctly, the REx can be built with `cmake`:
+
+    cmake -S Drivers -B Drivers/build -DCMAKE_TOOLCHAIN_FILE=cmake/newton-cross.cmake
+    cmake --build Drivers/build
+    cmake --install Drivers/build
