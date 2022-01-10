@@ -57,6 +57,11 @@ declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
 
 decl {\#include <string.h>} {private local
 }
+declblock {\#if HAVE_BSD_STRING_H} {open after {\#endif}
+} {
+  decl {\#include <bsd/string.h>} {private local
+  }
+}
 
 declblock {\#if HAVE_BSD_STRING_H} {open after {\#endif}
 } {
