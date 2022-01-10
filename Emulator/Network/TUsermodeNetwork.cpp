@@ -1356,7 +1356,7 @@ public:
         if (packet.GetIPDstIP()!=kNameServerIP) // DNS server as set by DHCP
             return 0;
 
-        auto mLog = net->GetLog();
+      auto mLog = net->GetLog(); (void)mLog;
         LOG_PROTOCOL("| DNS request.");
         LOG_HEADER_DO( net->Log(&packet, "| W E<N", __LINE__); )
 
@@ -1520,7 +1520,7 @@ public:
         if (packet.Get32(0x0116)!=0x63825363) // check for DHCP magic number
             return 0;
 
-        auto mLog = net->GetLog();
+        auto mLog = net->GetLog(); (void)mLog;
 //        LOG_PROTOCOL(",---- Einstein < Newton -----------------");
         LOG_PROTOCOL("| DHCP request %d:", packet.Get8(0x011c));
         LOG_HEADER_DO( net->Log(&packet, "| W E<N", __LINE__); )
