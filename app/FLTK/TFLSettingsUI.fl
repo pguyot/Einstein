@@ -46,7 +46,7 @@ decl {\#include "Emulator/Platform/TPlatformManager.h"} {private local
 decl {\#include "app/Version.h"} {private global
 }
 
-decl {\#include "app/TFLTabs.h"} {private global
+decl {\#include "app/FLTK/TFLTabs.h"} {private global
 }
 
 declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
