@@ -54,7 +54,7 @@
 #include "Emulator/NativeCalls/TObjCBridgeCalls.h"
 #endif
 
-#ifdef TARGET_UI_FLTK
+#ifdef USE_TOOLKIT
 # include "app/TFLApp.h"
 # include "Toolkit/TToolkit.h"
 # include <FL/fl_utf8.h>
@@ -917,7 +917,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			char theLine[512];
 			KUInt32 amount = sizeof(theLine);
 			(void) mMemory->FastReadString(theAddress, &amount, theLine);
-#ifdef TARGET_UI_FLTK
+#ifdef USE_TOOLKIT
 			// theLine is encoded in ISO format
 			// if the Toolkit is available, send the text to the monitor
 			if (gToolkit) {

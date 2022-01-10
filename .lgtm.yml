@@ -22,4 +22,4 @@ extraction:
     index:    # Customizable step used by all languages.
       build_command:
         - cmake -S . -B _Build_/Makefiles
-        - cmake --build _Build_/Makefiles
+        - cmake --build _Build_/Makefiles --target Einstein

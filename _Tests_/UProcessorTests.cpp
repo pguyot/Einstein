@@ -38,6 +38,7 @@
 #include "Emulator/Network/TUsermodeNetwork.h"
 #include "Emulator/Screen/TNullScreenManager.h"
 
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -46,6 +47,23 @@
 #else
 	#define kTempFlashPath "/tmp/EinsteinTests.flash"
 #endif
+
+// -------------------------------------------------------------------------- //
+//  * ExecuteInstruction( KUInt32, std::function<void (TARMProcessor& proc)> )
+// -------------------------------------------------------------------------- //
+void
+UProcessorTests::ExecuteInstruction( KUInt32 inInstruction, std::function<void (TARMProcessor& proc)> inTestFunction, TLog* inLog )
+{
+    KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
+    ((KUInt32*) rom)[0] = inInstruction;
+    TMemory theMem( inLog, rom, kTempFlashPath );
+    TARMProcessor theProcessor( inLog, &theMem );
+    theMem.GetJITObject()->Step( &theProcessor, 1 );
+    (void) ::unlink( kTempFlashPath );
+    ::free( rom );
+    
+    inTestFunction(theProcessor);
+}
 
 // -------------------------------------------------------------------------- //
 //  * ExecuteInstruction( const char* )
@@ -63,15 +81,43 @@ UProcessorTests::ExecuteInstruction( const char* inHexWord, TLog* inLog )
 					(unsigned int*) &theInstruction ) != 1) {
 		(void) ::printf( "Can't parse instruction (%s).\n", inHexWord );
 	} else {
-		KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
-		((KUInt32*) rom)[0] = theInstruction;
-		TMemory theMem( inLog, rom, kTempFlashPath );
-		TARMProcessor theProcessor( inLog, &theMem );
-		theMem.GetJITObject()->Step( &theProcessor, 1 );
-		theProcessor.PrintRegisters();
-		(void) ::unlink( kTempFlashPath );
-		::free( rom );
+	    ExecuteInstruction(theInstruction, [] (TARMProcessor& proc) {
+	        proc.PrintRegisters();
+	    }, inLog);
 	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * ExecuteInstructionState1( const char* )
+// -------------------------------------------------------------------------- //
+void
+UProcessorTests::ExecuteInstructionState1( KUInt32 inInstruction, std::function<void (TARMProcessor& proc)> inTestFunction,  TLog* inLog )
+{
+    KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
+    ((KUInt32*) rom)[0] = inInstruction;
+    TMemory theMem( inLog, rom, kTempFlashPath );
+    TARMProcessor theProcessor( inLog, &theMem );
+    theProcessor.SetRegister( 0, 0x01020304 );
+    theProcessor.SetRegister( 1, 0x05060708 );
+    theProcessor.SetRegister( 2, 0x090A0B0C );
+    theProcessor.SetRegister( 3, 0x0D0E0F10 );
+    theProcessor.SetRegister( 4, 0x11121314 );
+    theProcessor.SetRegister( 5, 0x15161718 );
+    theProcessor.SetRegister( 6, 0x191A1B1C );
+    theProcessor.SetRegister( 7, 0x1D1E1F20 );
+    theProcessor.SetRegister( 8, 0x21222324 );
+    theProcessor.SetRegister( 9, 0x25262728 );
+    theProcessor.SetRegister( 10, 0x292A2B2C );
+    theProcessor.SetRegister( 11, 0x2D2E2F30 );
+    theProcessor.SetRegister( 12, 0x31323334 );
+    theProcessor.SetRegister( 13, 0x35363738 );
+    theProcessor.SetRegister( 14, 0x393A3B3C );
+//		theProcessor.SetRegister( 15, 0x00000004 );
+    theMem.GetJITObject()->Step( &theProcessor, 1 );
+    (void) ::unlink( kTempFlashPath );
+    ::free( rom );
+    
+    inTestFunction(theProcessor);
 }
 
 // -------------------------------------------------------------------------- //
@@ -90,31 +136,31 @@ UProcessorTests::ExecuteInstructionState1( const char* inHexWord, TLog* inLog )
 					(unsigned int*) &theInstruction ) != 1) {
 		(void) ::printf( "Can't parse instruction (%s).\n", inHexWord );
 	} else {
-		KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
-		((KUInt32*) rom)[0] = theInstruction;
-		TMemory theMem( inLog, rom, kTempFlashPath );
-		TARMProcessor theProcessor( inLog, &theMem );
-		theProcessor.SetRegister( 0, 0x01020304 );
-		theProcessor.SetRegister( 1, 0x05060708 );
-		theProcessor.SetRegister( 2, 0x090A0B0C );
-		theProcessor.SetRegister( 3, 0x0D0E0F10 );
-		theProcessor.SetRegister( 4, 0x11121314 );
-		theProcessor.SetRegister( 5, 0x15161718 );
-		theProcessor.SetRegister( 6, 0x191A1B1C );
-		theProcessor.SetRegister( 7, 0x1D1E1F20 );
-		theProcessor.SetRegister( 8, 0x21222324 );
-		theProcessor.SetRegister( 9, 0x25262728 );
-		theProcessor.SetRegister( 10, 0x292A2B2C );
-		theProcessor.SetRegister( 11, 0x2D2E2F30 );
-		theProcessor.SetRegister( 12, 0x31323334 );
-		theProcessor.SetRegister( 13, 0x35363738 );
-		theProcessor.SetRegister( 14, 0x393A3B3C );
-//		theProcessor.SetRegister( 15, 0x00000004 );
-		theMem.GetJITObject()->Step( &theProcessor, 1 );
-		theProcessor.PrintRegisters();
-		(void) ::unlink( kTempFlashPath );
-		::free( rom );
+	    ExecuteInstructionState1(theInstruction, [] (TARMProcessor& proc) {
+	        proc.PrintRegisters();
+	    }, inLog);
 	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * ExecuteInstructionState2( const char* )
+// -------------------------------------------------------------------------- //
+void
+UProcessorTests::ExecuteInstructionState2( KUInt32 inInstruction, std::function<void (TARMProcessor& proc)> inTestFunction,  TLog* inLog )
+{
+    KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
+    ((KUInt32*) rom)[0] = inInstruction;
+    TMemory theMem( inLog, rom, kTempFlashPath );
+    TARMProcessor theProcessor( inLog, &theMem );
+    theProcessor.SetRegister( 3, 0x00000020 );
+    theProcessor.SetRegister( 12, 0xFFFFFFFF );
+//		theProcessor.SetRegister( 15, 0x00000004 );
+    theMem.GetJITObject()->Step( &theProcessor, 1 );
+    theProcessor.PrintRegisters();
+    (void) ::unlink( kTempFlashPath );
+    ::free( rom );
+
+    inTestFunction(theProcessor);
 }
 
 // -------------------------------------------------------------------------- //
@@ -133,17 +179,9 @@ UProcessorTests::ExecuteInstructionState2( const char* inHexWord, TLog* inLog )
 					(unsigned int*) &theInstruction ) != 1) {
 		(void) ::printf( "Can't parse instruction (%s).\n", inHexWord );
 	} else {
-		KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
-		((KUInt32*) rom)[0] = theInstruction;
-		TMemory theMem( inLog, rom, kTempFlashPath );
-		TARMProcessor theProcessor( inLog, &theMem );
-		theProcessor.SetRegister( 3, 0x00000020 );
-		theProcessor.SetRegister( 12, 0xFFFFFFFF );
-//		theProcessor.SetRegister( 15, 0x00000004 );
-		theMem.GetJITObject()->Step( &theProcessor, 1 );
-		theProcessor.PrintRegisters();
-		(void) ::unlink( kTempFlashPath );
-		::free( rom );
+	    ExecuteInstructionState2(theInstruction, [] (TARMProcessor& proc) {
+	        proc.PrintRegisters();
+	    }, inLog);
 	}
 }
 
@@ -164,45 +202,66 @@ UProcessorTests::ExecuteTwoInstructions( const char* inHexWords, TLog* inLog )
 					(unsigned int*) &theInstructions[1] ) != 2) {
 		(void) ::printf( "Can't parse instructions (%s).\n", inHexWords );
 	} else {
-		KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
-		((KUInt32*) rom)[0] = theInstructions[0];
-		((KUInt32*) rom)[1] = theInstructions[1];
-		TMemory theMem( inLog, rom, kTempFlashPath );
-		TARMProcessor theProcessor( inLog, &theMem );
-		theMem.GetJITObject()->Step( &theProcessor, 2 );
-		theProcessor.PrintRegisters();
-		(void) ::unlink( kTempFlashPath );
-		::free( rom );
+	    ExecuteTwoInstructions(theInstructions[0], theInstructions[1], [] (TARMProcessor& proc) {
+	        proc.PrintRegisters();
+	    }, inLog);
 	}
 }
+
+// -------------------------------------------------------------------------- //
+//  * ExecuteTwoInstructions( KUInt32, KUInt32, std::function<void (TARMProcessor&), TLog* )
+// -------------------------------------------------------------------------- //
+void
+UProcessorTests::ExecuteTwoInstructions( KUInt32 inInstruction1, KUInt32 inInstruction2, std::function<void (TARMProcessor& proc)> inTestFunction, TLog* inLog )
+{
+    KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
+    ((KUInt32*) rom)[0] = inInstruction1;
+    ((KUInt32*) rom)[1] = inInstruction2;
+    TMemory theMem( inLog, rom, kTempFlashPath );
+    TARMProcessor theProcessor( inLog, &theMem );
+    theMem.GetJITObject()->Step( &theProcessor, 2 );
+    (void) ::unlink( kTempFlashPath );
+    ::free( rom );
+
+    inTestFunction(theProcessor);
+}
+
+// -------------------------------------------------------------------------- //
+//  * RunCode( const char*, TLog* )
+// -------------------------------------------------------------------------- //
+void
+UProcessorTests::RunCode( const char* inHexWords, TLog* inLog ) {
+    RunCode(inHexWords, [] (TARMProcessor& proc) {
+        proc.PrintRegisters();
+    }, inLog);
+}
+
 
 // -------------------------------------------------------------------------- //
 //  * RunCode( const char* )
 // -------------------------------------------------------------------------- //
 void
-UProcessorTests::RunCode( const char* inHexWords, TLog* inLog ) {
-	if (inHexWords == nil)
-	{
-		(void) ::printf( "This test requires code in hexa\n" );
-	} else {
-		KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
-		KUInt32* theCodePtr = (KUInt32*) rom;
-		int nbBytes;
-		while (::sscanf(inHexWords, "%X %n", theCodePtr, &nbBytes) == 1) {
-			inHexWords += nbBytes;
-			theCodePtr++;
-		}
-		if (inLog) {
-			inLog->FLogLine("Parsed %d instruction(s).", (int) ((theCodePtr - (KUInt32*)rom)));
-		}
+UProcessorTests::RunCode( const char* inHexWords, std::function<void (TARMProcessor& proc)> inTestFunction, TLog* inLog ) {
+    KUInt8* rom = (KUInt8*) ::calloc( 8 * 1024 * 1024, 1 );
+    KUInt32* theCodePtr = (KUInt32*) rom;
+    int nbBytes;
+    while (::sscanf(inHexWords, "%X %n", theCodePtr, &nbBytes) == 1) {
+        inHexWords += nbBytes;
+        theCodePtr++;
+    }
+    if (inLog) {
+        inLog->FLogLine("Parsed %d instruction(s).", (int) ((theCodePtr - (KUInt32*)rom)));
+    }
 
-		TEmulator theEmulator(inLog, rom, kTempFlashPath);
-		theEmulator.Run();
-		theEmulator.GetProcessor()->PrintRegisters();
-		(void) ::unlink( kTempFlashPath );
-		::free( rom );
-	}
+    TEmulator theEmulator(inLog, rom, kTempFlashPath);
+    theEmulator.Run();
+    theEmulator.GetProcessor()->PrintRegisters();
+    (void) ::unlink( kTempFlashPath );
+    ::free( rom );
+    
+    inTestFunction(*theEmulator.GetProcessor());
 }
+
 
 
 // -------------------------------------------------------------------------- //

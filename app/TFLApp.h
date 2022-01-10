@@ -49,7 +49,9 @@ class TPlatformManager;
 class TNetworkManager;
 class TMonitor;
 class TSymbolList;
+#if USE_TOOLKIT
 class TToolkit;
+#endif
 
 class Fl_Widget;
 class TFLApp;
@@ -214,7 +216,9 @@ private:
     TMonitor*			mMonitor = nullptr;
     TSymbolList*		mSymbolList = nullptr;
     TFLSettingsUI*      mFLSettings = nullptr;
+#if USE_TOOLKIT
     TToolkit*           mToolkit = nullptr;
+#endif
     Fl_Widget*          mNewtonScreen = nullptr;
     int                 mWindowedX = 150;
     int                 mWindowedY = 150;

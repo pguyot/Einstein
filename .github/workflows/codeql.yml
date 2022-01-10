@@ -51,6 +51,6 @@ jobs:
     - name: Compile Einstein
       run: |
         cmake -S . -B _Build_/Makefiles
-        cmake --build _Build_/Makefiles
+        cmake --build _Build_/Makefiles --target Einstein
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
