@@ -57,6 +57,7 @@ declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
 
 decl {\#include <string.h>} {private local
 }
+
 declblock {\#if HAVE_BSD_STRING_H} {open after {\#endif}
 } {
   decl {\#include <bsd/string.h>} {private local
@@ -66,7 +67,7 @@ declblock {\#if HAVE_BSD_STRING_H} {open after {\#endif}
 decl {\#include <FL/filename.H>} {private local
 }
 
-decl {\#include <FL/Fl_Native_File_Chooser.H>} {selected private local
+decl {\#include <FL/Fl_Native_File_Chooser.H>} {private local
 }
 
 decl {\#include <FL/Fl.H>} {private local
@@ -209,7 +210,7 @@ Function {addInstallerText(const char *inText)} {open
 } {
   code {wInstallerList->begin();} {}
   Fl_Window wInstallerTextGroup {open
-    xywh {458 341 280 26} type Double labelfont 1 labelsize 22 align 16
+    xywh {458 341 280 25} type Double labelfont 1 labelsize 22 align 16
     class Fl_Group visible
   } {
     Fl_Box {} {
@@ -227,7 +228,7 @@ Function {addInstallerPackage(const char *inTitle, StringList *inCmdList)} {open
 } {
   code {wInstallerList->begin();} {}
   Fl_Window {} {open
-    xywh {460 466 280 26} type Double labelfont 1 labelsize 22 align 16
+    xywh {460 466 280 25} type Double labelfont 1 labelsize 22 align 16
     class Fl_Group visible
   } {
     Fl_Button {} {
@@ -262,7 +263,7 @@ Function {addInstallerLink(const char *inTitle, StringList *inLinkList)} {open
 } {
   code {wInstallerList->begin();} {}
   Fl_Window {} {open
-    xywh {458 402 280 26} type Double labelfont 1 labelsize 22 align 16
+    xywh {458 402 280 25} type Double labelfont 1 labelsize 22 align 16
     class Fl_Group visible
   } {
     Fl_Button {} {
@@ -333,7 +334,7 @@ wAbout = nullptr;} {}
     revertDialog();
     mSettingsPanel->hide();
 }} open
-      xywh {443 589 450 455} type Double visible
+      xywh {443 526 450 455} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu}
@@ -795,11 +796,11 @@ e = fl_input("Please enter a name for your PCCard Image");
 if (!e) goto cleanup;
 imageName = strdup(e);
 
-strlcat(path, imageName, sizeof(path));
+strncat(path, imageName, sizeof(path));
 
 a = app->ChooseNewFile("Create this PCMCIA Image file", "*.pccard", path);
 if (!a) goto cleanup;
-strlcpy(imageFilename, a, sizeof(imageFilename));
+strncpy(imageFilename, a, sizeof(imageFilename));
 if (    fl_access(imageFilename, 6)!=0 
      || strcmp(imageFilename, dataFilename)==0
      || strcmp(imageFilename, cisFilename)==0 )

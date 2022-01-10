@@ -1900,7 +1900,7 @@ void TUsermodeNetwork::Log(Packet *p, const char *label, int line, int adjSeq, i
         return;
     char buf[2048];
     buf[0] = 0;
-    if (label) { strlcat(buf, label, sizeof(buf)); if (*label) strlcat(buf, " ", sizeof(buf)); }
+    if (label) { strncat(buf, label, sizeof(buf)); if (*label) strncat(buf, " ", sizeof(buf)); }
     if (   p->GetType()==Packet::kNetTypeIP
         && p->GetIPProtocol()==Packet::kIPProtocolTCP ) {
         ssize_t o = strlen(buf);
