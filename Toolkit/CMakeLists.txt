@@ -25,8 +25,6 @@ target_sources ( Einstein PRIVATE
 	CMakeLists.txt
 )
 
-build_with_fluid(TFLToolkitUI ${CMAKE_CURRENT_LIST_DIR})
-
 target_include_directories(Einstein SYSTEM PUBLIC 
 	${NEWT64_INCLUDE_PATH}
 )
