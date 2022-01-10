@@ -12,3 +12,19 @@ target_sources ( Einstein PRIVATE
 	CMakeLists.txt
 )
 
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+  target_sources ( Einstein PRIVATE
+    TCoreAudioSoundManager.cpp
+		TCoreAudioSoundManager.h
+	)
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+  target_sources ( Einstein PRIVATE
+    TPulseAudioSoundManager.cpp
+    TPulseAudioSoundManager.h
+  )
+elseif (WIN32)
+  target_sources ( Einstein PRIVATE
+		TWaveSoundManager.cpp
+		TWaveSoundManager.h
+	)
+endif ()

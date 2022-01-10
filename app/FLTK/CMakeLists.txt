@@ -23,7 +23,6 @@ target_sources ( Einstein PRIVATE
 	CMakeLists.txt
 )
 
-build_with_fluid(TFLAppUI ${CMAKE_CURRENT_LIST_DIR})
-build_with_fluid(TFLRexImage ${CMAKE_CURRENT_LIST_DIR})
-build_with_fluid(TFLSettingsUI ${CMAKE_CURRENT_LIST_DIR})
+# Fluid custom builds must be defined in main file before CMake 3.18 because
+# we need to set source file properties which are local to this CMake file
 
