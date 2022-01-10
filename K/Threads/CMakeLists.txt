@@ -3,8 +3,13 @@
 #
 
 target_sources ( Einstein PRIVATE
-	TNetworkManager.cpp
-	TNetworkManager.h
+	TCondVar.cpp
+	TCondVar.h
+	TMutex.cpp
+	TMutex.h
+	TThread.cpp
+	TThread.h
 	CMakeLists.txt
 )
+
 

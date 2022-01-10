@@ -1,0 +1,84 @@
+#
+# Add source files required to buid Einstein.
+#
+
+target_sources ( Einstein PRIVATE
+	IncludeMask.h
+	IncludeMaskRm.h
+	IncludeModeRd.h
+	IncludeModeRn.h
+	IncludeModeRnRd.h
+	IncludeRd.h
+	IncludeRdRm.h
+	IncludeRdRnRsRm15.h
+	IncludeRdRsRm15.h
+	IncludeRm.h
+	IncludeRm15.h
+	IncludeRn.h
+	IncludeRn15.h
+	IncludeRnRd.h
+	IncludeRnRdRm.h
+	IncludeRnRsRm15.h
+	IncludeRsRm15.h
+	RepeatMacros.h
+	TJITGeneric.cpp
+	TJITGeneric.h
+	TJITGenericPage.cpp
+	TJITGenericPage.h
+	TJITGenericROMPatch.cpp
+	TJITGenericROMPatch.h
+	TJITGeneric_BlockDataTransfer.cpp
+	TJITGeneric_BlockDataTransfer.h
+	TJITGeneric_DataProcessingPSRTransfer.cpp
+	TJITGeneric_DataProcessingPSRTransfer.h
+	TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp
+	TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.h
+	TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp_template.h
+	TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp
+	TJITGeneric_DataProcessingPSRTransfer_LogicalOp.h
+	TJITGeneric_DataProcessingPSRTransfer_LogicalOp_template.h
+	TJITGeneric_DataProcessingPSRTransfer_MRS.cpp
+	TJITGeneric_DataProcessingPSRTransfer_MRS.h
+	TJITGeneric_DataProcessingPSRTransfer_MRS_template.h
+	TJITGeneric_DataProcessingPSRTransfer_MSR.cpp
+	TJITGeneric_DataProcessingPSRTransfer_MSR.h
+	TJITGeneric_DataProcessingPSRTransfer_MSR_template.h
+	TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp
+	TJITGeneric_DataProcessingPSRTransfer_MoveOp.h
+	TJITGeneric_DataProcessingPSRTransfer_MoveOp_template.h
+	TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp
+	TJITGeneric_DataProcessingPSRTransfer_TestOp.h
+	TJITGeneric_DataProcessingPSRTransfer_TestOp_template.h
+	TJITGeneric_DataProcessingPSRTransfer_common.h
+	TJITGeneric_HalfwordAndSignedDataTransfer.h
+	TJITGeneric_HalfwordAndSignedDataTransferImm.cpp
+	TJITGeneric_HalfwordAndSignedDataTransferImm_template.t
+	TJITGeneric_HalfwordAndSignedDataTransferReg.cpp
+	TJITGeneric_HalfwordAndSignedDataTransferReg_template.t
+	TJITGeneric_HalfwordAndSignedDataTransfer_template.h
+	TJITGeneric_LDM1_template.h
+	TJITGeneric_LDM2_template.h
+	TJITGeneric_LDM3_template.h
+	TJITGeneric_Macros.h
+	TJITGeneric_Multiply.cpp
+	TJITGeneric_Multiply.h
+	TJITGeneric_MultiplyAndAccumulate.cpp
+	TJITGeneric_MultiplyAndAccumulate.h
+	TJITGeneric_Multiply_template.h
+	TJITGeneric_Other.cpp
+	TJITGeneric_Other.h
+	TJITGeneric_STM1_template.h
+	TJITGeneric_STM2_template.h
+	TJITGeneric_SingleDataSwap.cpp
+	TJITGeneric_SingleDataSwap.h
+	TJITGeneric_SingleDataSwap_template.h
+	TJITGeneric_SingleDataTransfer.cpp
+	TJITGeneric_SingleDataTransfer.h
+	TJITGeneric_SingleDataTransfer_template.h
+	TJITGeneric_Test.cpp
+	TJITGeneric_Test.h
+	TJITGeneric_Test_template.h
+	CMakeLists.txt
+)
+
+

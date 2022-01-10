@@ -1,22 +1,16 @@
-# ROM CMakeLists
+#
+# Add source files required to buid Einstein.
+#
 
-file(GLOB headers *.h)
-file(GLOB sources *.cp)
+target_sources ( Einstein PRIVATE
+	TAIFFile.cpp
+	TAIFFile.h
+	TAIFROMImageWithREXes.cpp
+	TAIFROMImageWithREXes.h
+	TFlatROMImageWithREX.cpp
+	TFlatROMImageWithREX.h
+	TROMImage.cpp
+	TROMImage.h
+	CMakeLists.txt
+)
 
-set_source_files_properties(${sources} PROPERTIES LANGUAGE CXX)
-
-add_library(rom STATIC ${sources})
-target_include_directories(rom PUBLIC
-    ../
-    ../JIT/
-    ../JIT/Generic/
-    ../Screen/
-    ../../
-    )
-
-if(${WIN32})
-    target_include_directories(rom PUBLIC
-        ../Win32)
-endif()
-
-target_link_libraries(rom k)

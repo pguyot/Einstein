@@ -3,148 +3,6 @@
 #
 
 target_sources ( Einstein PRIVATE
-	Host/THostInfo.cpp
-	Host/THostInfo.h
-	Host/UserInfoDefinitions.h
-	JIT/Generic/IncludeMask.h
-	JIT/Generic/IncludeMaskRm.h
-	JIT/Generic/IncludeModeRd.h
-	JIT/Generic/IncludeModeRn.h
-	JIT/Generic/IncludeModeRnRd.h
-	JIT/Generic/IncludeRd.h
-	JIT/Generic/IncludeRdRm.h
-	JIT/Generic/IncludeRdRnRsRm15.h
-	JIT/Generic/IncludeRdRsRm15.h
-	JIT/Generic/IncludeRm.h
-	JIT/Generic/IncludeRm15.h
-	JIT/Generic/IncludeRn.h
-	JIT/Generic/IncludeRn15.h
-	JIT/Generic/IncludeRnRd.h
-	JIT/Generic/IncludeRnRdRm.h
-	JIT/Generic/IncludeRnRsRm15.h
-	JIT/Generic/IncludeRsRm15.h
-	JIT/Generic/RepeatMacros.h
-	JIT/Generic/TJITGeneric.cpp
-	JIT/Generic/TJITGeneric.h
-	JIT/Generic/TJITGenericPage.cpp
-	JIT/Generic/TJITGenericPage.h
-	JIT/Generic/TJITGenericROMPatch.cpp
-	JIT/Generic/TJITGenericROMPatch.h
-	JIT/Generic/TJITGeneric_BlockDataTransfer.cpp
-	JIT/Generic/TJITGeneric_BlockDataTransfer.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.cpp
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp_template.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp_template.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.cpp
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS_template.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.cpp
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR_template.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp_template.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp_template.h
-	JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_common.h
-	JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransfer.h
-	JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferImm.cpp
-	JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferImm_template.t
-	JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferReg.cpp
-	JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferReg_template.t
-	JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransfer_template.h
-	JIT/Generic/TJITGeneric_LDM1_template.h
-	JIT/Generic/TJITGeneric_LDM2_template.h
-	JIT/Generic/TJITGeneric_LDM3_template.h
-	JIT/Generic/TJITGeneric_Macros.h
-	JIT/Generic/TJITGeneric_Multiply.cpp
-	JIT/Generic/TJITGeneric_Multiply.h
-	JIT/Generic/TJITGeneric_MultiplyAndAccumulate.cpp
-	JIT/Generic/TJITGeneric_MultiplyAndAccumulate.h
-	JIT/Generic/TJITGeneric_Multiply_template.h
-	JIT/Generic/TJITGeneric_Other.cpp
-	JIT/Generic/TJITGeneric_Other.h
-	JIT/Generic/TJITGeneric_STM1_template.h
-	JIT/Generic/TJITGeneric_STM2_template.h
-	JIT/Generic/TJITGeneric_SingleDataSwap.cpp
-	JIT/Generic/TJITGeneric_SingleDataSwap.h
-	JIT/Generic/TJITGeneric_SingleDataSwap_template.h
-	JIT/Generic/TJITGeneric_SingleDataTransfer.cpp
-	JIT/Generic/TJITGeneric_SingleDataTransfer.h
-	JIT/Generic/TJITGeneric_SingleDataTransfer_template.h
-	JIT/Generic/TJITGeneric_Test.cpp
-	JIT/Generic/TJITGeneric_Test.h
-	JIT/Generic/TJITGeneric_Test_template.h
-	JIT/JIT.h
-	JIT/TJIT.h
-	JIT/TJITCache.cpp
-	JIT/TJITCache.h
-	JIT/TJITPage.cpp
-	JIT/TJITPage.h
-	JIT/TJITPerformance.cpp
-	JIT/TJITPerformance.h
-	Log/TBufferLog.cpp
-	Log/TBufferLog.h
-	Log/TFileLog.cpp
-	Log/TFileLog.h
-	Log/TLog.cpp
-	Log/TLog.h
-	Log/TRAMLog.cpp
-	Log/TRAMLog.h
-	Log/TStdOutLog.cpp
-	Log/TStdOutLog.h
-	Serial/TTcpClientSerialPortManager.cpp
-	Serial/TTcpClientSerialPortManager.h
-	Network/TNetworkManager.cpp
-	Network/TNetworkManager.h
-	PCMCIA/TATACard.cpp
-	PCMCIA/TATACard.h
-	PCMCIA/TLinearCard.cpp
-	PCMCIA/TLinearCard.h
-	PCMCIA/TNE2000Card.cpp
-	PCMCIA/TNE2000Card.h
-	PCMCIA/TPCMCIACard.cpp
-	PCMCIA/TPCMCIACard.h
-	PCMCIA/TPCMCIAController.cpp
-	PCMCIA/TPCMCIAController.h
-	Platform/PlatformEvents.h
-	Platform/PlatformGestalt.h
-	Platform/TNewt.cpp
-	Platform/TNewt.h
-	Platform/TPlatformManager.cpp
-	Platform/TPlatformManager.h
-	ROM/TAIFFile.cpp
-	ROM/TAIFFile.h
-	ROM/TAIFROMImageWithREXes.cpp
-	ROM/TAIFROMImageWithREXes.h
-	ROM/TFlatROMImageWithREX.cpp
-	ROM/TFlatROMImageWithREX.h
-	ROM/TROMImage.cpp
-	ROM/TROMImage.h
-	Screen/TFLScreenManager.cpp
-	Screen/TFLScreenManager.h
-	Screen/TNullScreenManager.cpp
-	Screen/TNullScreenManager.h
-	Screen/TScreenManager.cpp
-	Screen/TScreenManager.h
-	Serial/TBasicSerialPortManager.cpp
-	Serial/TBasicSerialPortManager.h
-	Serial/TSerialPortManager.cpp
-	Serial/TSerialPortManager.h
-	Serial/TSerialPorts.cpp
-	Serial/TSerialPorts.h
-	Sound/TBufferedSoundManager.cpp
-	Sound/TBufferedSoundManager.h
-	Sound/TNullSoundManager.cpp
-	Sound/TNullSoundManager.h
-	Sound/TSoundManager.cpp
-	Sound/TSoundManager.h
 	TARMProcessor.cpp
 	TARMProcessor.h
 	TDMAManager.cpp
@@ -167,5 +25,15 @@ target_sources ( Einstein PRIVATE
 )
 
 add_subdirectory(Files)
+add_subdirectory(Host)
+add_subdirectory(JIT)
+add_subdirectory(Log)
 add_subdirectory(NativeCalls)
+add_subdirectory(Network)
+add_subdirectory(PCMCIA)
+add_subdirectory(Platform)
+add_subdirectory(ROM)
+add_subdirectory(Screen)
+add_subdirectory(Serial)
+add_subdirectory(Sound)
 

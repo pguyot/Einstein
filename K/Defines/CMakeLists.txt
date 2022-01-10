@@ -3,8 +3,9 @@
 #
 
 target_sources ( Einstein PRIVATE
-	TNetworkManager.cpp
-	TNetworkManager.h
+	KDefinitions.cpp
+	KDefinitions.h
+	UByteSex.h
 	CMakeLists.txt
 )
 
