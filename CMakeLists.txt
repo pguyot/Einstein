@@ -90,30 +90,6 @@ else()
 endif()
 
 #
-# ---- Cross-platform checks -------------------------------------------------------------
-#
-
-set(system_libs "")
-
-check_symbol_exists(strlcpy string.h HAVE_DECL_STRLCPY)
-check_symbol_exists(strlcat string.h HAVE_DECL_STRLCAT)
-check_function_exists(strlcpy HAVE_STRLCPY)
-check_function_exists(strlcat HAVE_STRLCAT)
-if (NOT
-    (HAVE_STRLCPY AND HAVE_DECL_STRLCPY AND HAVE_STRLCAT AND HAVE_DECL_STRLCAT))
- find_library(BSD_LIBRARY bsd)
- if (BSD_LIBRARY)
-   unset(CMAKE_REQUIRED_LIBRARIES)
-   set(CMAKE_REQUIRED_LIBRARIES ${BSD_LIBRARY})
-   list(APPEND system_libs ${BSD_LIBRARY})
-  endif()
-  check_include_file(bsd/string.h HAVE_BSD_STRING_H)
-  if(HAVE_BSD_STRING_H)
-    add_definitions(-DHAVE_BSD_STRING_H)
-  endif()
-endif()
-
-#
 # ---- Einstein Source Files -------------------------------------------------------------
 #
 

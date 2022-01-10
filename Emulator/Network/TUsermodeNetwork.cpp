@@ -161,9 +161,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if HAVE_BSD_STRING_H
-#   include <bsd/string.h>
-#endif
 
 #if TARGET_OS_WIN32
 #   include <WinSock2.h>
