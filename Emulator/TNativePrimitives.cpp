@@ -55,7 +55,7 @@
 #endif
 
 #ifdef USE_TOOLKIT
-# include "app/TFLApp.h"
+# include "app/FLTK/TFLApp.h"
 # include "Toolkit/TToolkit.h"
 # include <FL/fl_utf8.h>
 #endif

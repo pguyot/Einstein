@@ -25,7 +25,7 @@
 #define _T_FL_SCRIPT_PANEL_H
 
 #include "app/Version.h"
-#include "app/TFLApp.h"
+#include "app/FLTK/TFLApp.h"
 
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Text_Editor.H>

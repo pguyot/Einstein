@@ -1,21 +1,13 @@
-# NativeCalls CMakeLists
+#
+# Add source files required to buid Einstein.
+#
 
-file(GLOB headers *.h)
-file(GLOB sources *.cp)
+target_sources ( Einstein PRIVATE
+	TVirtualizedCalls.cpp
+	TVirtualizedCalls.h
+	TVirtualizedCallsPatches.cpp
+	TVirtualizedCallsPatches.h
+	CMakeLists.txt
+)
 
-set_source_files_properties(${sources} PROPERTIES LANGUAGE CXX)
 
-add_library(nativecalls STATIC ${sources})
-target_include_directories(nativecalls PUBLIC
-    ../
-    ../JIT/
-    ../JIT/Generic/
-    ../../
-    )
-
-if(${WIN32})
-    target_include_directories(nativecalls PUBLIC
-        ../Win32)
-endif()
-
-target_link_libraries(nativecalls k)

@@ -25,7 +25,7 @@
 #define _T_PROJECT_FILE_H
 
 #include "app/Version.h"
-#include "app/TFLApp.h"
+#include "app/FLTK/TFLApp.h"
 
 
 /**

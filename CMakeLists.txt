@@ -387,7 +387,7 @@ macro (build_with_fluid name dir)
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
 		COMMAND ${LOCAL_FLTK_FLUID_EXECUTABLE} -c ${name}.fl
 		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.fl"
-		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h"
+		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h"
 		OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.cpp"
 		OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.h"
 	)
@@ -406,11 +406,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	set(FLTK_SKIP_OPENGL true)
 	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin)
 	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
-
-	build_with_fluid(TFLAppUI app)
-	build_with_fluid(TFLRexImage app)
-	build_with_fluid(TFLSettingsUI app)
-	build_with_fluid(TFLToolkitUI Toolkit)
 
 	# additional source code
 	list (APPEND common_sources
@@ -447,11 +442,6 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin)
 	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
 
-	build_with_fluid(TFLAppUI app)
-	build_with_fluid(TFLRexImage app)
-	build_with_fluid(TFLSettingsUI app)
-	build_with_fluid(TFLToolkitUI Toolkit)
-
 	# additional source code
 	list (APPEND common_sources
 			# calling native functions (very limited support in this version of EInsten)
@@ -485,11 +475,6 @@ elseif (WIN32)
 	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin "C:/Program Files/FLTK/bin")
 	set(FLTK_SKIP_OPENGL true)
 	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
-
-	build_with_fluid(TFLAppUI app)
-	build_with_fluid(TFLRexImage app)
-	build_with_fluid(TFLSettingsUI app)
-	build_with_fluid(TFLToolkitUI Toolkit)
 
 	# additional source code
 	list (APPEND common_sources

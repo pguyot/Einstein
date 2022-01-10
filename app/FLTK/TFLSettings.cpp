@@ -39,7 +39,7 @@
 #include <vector>
 #include <iterator>
 
-#include "app/TFLApp.h"
+#include "app/FLTK/TFLApp.h"
 #include "Emulator/ROM/TROMImage.h"
 #include "Emulator/PCMCIA/TNE2000Card.h"
 #include "Emulator/PCMCIA/TLinearCard.h"

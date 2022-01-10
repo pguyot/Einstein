@@ -24,7 +24,7 @@
 #ifndef _TFLAPP_H
 #define _TFLAPP_H
 
-#include "Version.h"
+#include "app/Version.h"
 
 #include <K/Defines/KDefinitions.h>
 
