@@ -1,19 +1,15 @@
+# ==============================
+# File:     TFLSettings
+# Project:  Einstein
 #
-# Use a single CMake setup to compile Einstein on all supported platforms.
-#
-# Einstein has evolved over time into a well supported Xcode version,
-# a much less supported MSWindows version, and a quite minimal Linux version.
-# For the sake of maintainability, this branch of Einstein compiles using
-# FLTK as its cross-platform GUI for all three desktop platforms.
-#
+# Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net) and others.
+# ==============================
 
 cmake_minimum_required(VERSION 3.13)
 
 project("Einstein" VERSION "2022.5.0")
 
-set ( CMAKE_CXX_STANDARD 17 )
-set ( CMAKE_CXX_STANDARD_REQUIRED ON )
-set ( CMAKE_CXX_EXTENSIONS OFF )
+# ---- Include some additional functionality
 
 include(CheckSymbolExists)
 include(CheckFunctionExists)
@@ -41,43 +37,54 @@ enable_testing()
 
 include(GoogleTest)
 
+# ---- Configuration for all targets on all platforms
+
+set ( CMAKE_CXX_STANDARD 17 )
+set ( CMAKE_CXX_STANDARD_REQUIRED ON )
+set ( CMAKE_CXX_EXTENSIONS OFF )
+
+# ---- Configuration per platform
+
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
-	# MacOS
+	# TODO: enable this for release builds
 	#set (CMAKE_OSX_ARCHITECTURES=arm64;x86_64)
+	# TODO: set this for FLTK and NEWT64 as well
 	#set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9) # Can't go any lower.
+	# TODO: Fix this for release builds
 	set (CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 	set (CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
-	#set (CMAKE_PREFIX_PATH /usr/local)
 
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
-	# Linux
-	#set (CMAKE_PREFIX_PATH /usr/local)
-	
+	# Linux: nothing to do here
+
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
-	# MSWindows
+	# allow to build with multithreading libraries
 	cmake_policy(SET CMP0091 NEW)
 	set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 else ()
 
-	# not supported
+	# Warn the caller that this is not supported
 	message ("Einstein is not configured to build on this platform: " ${CMAKE_SYSTEM_NAME} ".")
 
 endif ()
 
 #
+# ==== External Dependencies ===================================================
+#
 # ---- Newt/64 library ---------------------------------------------------------
 #
 
+# TODO: update this to automatically download and build in .../Einstein/newt64
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-	find_package(Newt64 CONFIG HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/build) # -> Newt64_FOUND, Newt64_DIR
+	find_package(Newt64 CONFIG HINTS ${CMAKE_SOURCE_DIR}/newt64/build) # -> Newt64_FOUND, Newt64_DIR
 endif()
 
-find_library(newt64_lib NAMES newt64 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/build)
-find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/src/newt_core/incs)
+find_library(newt64_lib NAMES newt64 HINTS ${CMAKE_SOURCE_DIR}/newt64/build)
+find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64 HINTS ${CMAKE_SOURCE_DIR}/newt64/src/newt_core/incs)
 
 if (newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND")
 	message(WARNING "Newt64 not found!")
@@ -86,6 +93,11 @@ else()
 	set ( USE_NEWT64 true )
 	get_filename_component(newt64_lib_path ${newt64_lib} DIRECTORY)
 	get_filename_component(newt64_incl_path ${newt64_incl} DIRECTORY)
+	if (WIN32)
+		set ( NEWT64_INCLUDE_PATH ${newt64_incl_path} ${newt64_incl_path}/win )
+	else()
+		set ( NEWT64_INCLUDE_PATH ${newt64_incl_path} ${newt64_incl_path}/darwin )
+	endif()
 	message(STATUS "Newt64 found in " ${newt64_lib_path} )
 endif()
 
@@ -547,7 +559,11 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		"-framework Cocoa"
 	)
 	set_target_properties(Einstein PROPERTIES
-		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Info.plist.in"
+		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/Resources/macOS/Info.plist.in"
+	)
+	set_target_properties(Einstein PROPERTIES
+		# TODO: set up the distribution system
+		CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_SOURCE_DIR}/Resources/macOS/EntiXXXtlements.plist"
 	)
     set_target_properties(Einstein PROPERTIES
         CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/EntiXXXtlements.plist"
@@ -605,16 +621,10 @@ elseif (WIN32)
 	target_compile_definitions(EinsteinTests PRIVATE TARGET_UI_FLTK=1 TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1)
 	target_link_libraries(Einstein
 		${system_libs}
-		# this vvv always includes the debug version, even in release mode
 		fltk
 		fltk_images
 		fltk_png
 		fltk_z
-		# alternatively, this loads the correct library but needs additional libs that would be included automatically in the line above
-		#"${FLTK_BASE_LIBRARY_RELEASE}" # FIXME: or it will select the debug version even in release mode!
-		#comctl32
-		#ws2_32
-		# end of alternative
 		winmm
 	)
 	target_link_libraries(EinsteinTests
@@ -656,8 +666,21 @@ target_link_libraries(EinsteinTests gtest_main)
 
 gtest_discover_tests(EinsteinTests)
 
+# --- Configure Developer Environments -----------------------------------------
+
+get_target_property(all_source_files Einstein SOURCES)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+source_group(
+  TREE   "${CMAKE_SOURCE_DIR}"
+  PREFIX "Sources"
+  FILES  ${all_source_files}
+)
+
 #
-# --- MessagePad.org distribution system ---------------------------------------
+# ==== MessagePad.org distribution system ======================================
+#
+# TODO: We are moving to a CI/CD system that will build distributions with
+# GitHub tools.
 #
 
 set (EINSTEIN_DIST_DIR "Sites/messagepad.org/htdocs/Downloads/Einstein")
