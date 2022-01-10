@@ -276,10 +276,13 @@ NewtRef TSerialPorts::NSGetDriverAndOptions(TNewt::RefArg arg)
 	}
 
 	TSerialPortManager *driver = GetDriverFor((EPortIndex)portIndex);
-	RefVar f( AllocateFrame() );
-	SetFrameSlot(f, RefVar( MakeSymbol("driver")),  RefVar(MakeInt((KSInt32)driver->GetID())));
-	driver->NSGetOptions(f);
-	return f.Ref();
+	if (driver != nullptr) {
+		RefVar f( AllocateFrame() );
+		SetFrameSlot(f, RefVar( MakeSymbol("driver")),  RefVar(MakeInt((KSInt32)driver->GetID())));
+		driver->NSGetOptions(f);
+		return f.Ref();
+	}
+	return kNewtRefNIL;
 }
 
 /**

@@ -1438,19 +1438,20 @@ TMemory::ReadBP( PAddr inAddress, KUInt8& outByte )
 		// mEmulator->BreakInMonitor();
 		outByte = 0;
 	} else if (inAddress < TMemoryConsts::kSerialEnd) {
+		outByte = 0;
 		if (inAddress < TMemoryConsts::kInfraredSerialBase)
 		{
 			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
-			outByte = driver->ReadRegister(inAddress - TMemoryConsts::kExternalSerialBase );
+			if (driver) outByte = driver->ReadRegister(inAddress - TMemoryConsts::kExternalSerialBase );
 		} else if (inAddress < TMemoryConsts::kBuiltInSerialBase) {
 			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kInfr);
-			outByte = driver->ReadRegister(inAddress - TMemoryConsts::kInfraredSerialBase );
+			if (driver) outByte = driver->ReadRegister(inAddress - TMemoryConsts::kInfraredSerialBase );
 		} else if (inAddress < TMemoryConsts::kModemSerialBase) {
 			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kTblt);
-			outByte = driver->ReadRegister(inAddress - TMemoryConsts::kBuiltInSerialBase );
+			if (driver) outByte = driver->ReadRegister(inAddress - TMemoryConsts::kBuiltInSerialBase );
 		} else {
 			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kMdem);
-			outByte = driver->ReadRegister(inAddress - TMemoryConsts::kModemSerialBase );
+			if (driver) outByte = driver->ReadRegister(inAddress - TMemoryConsts::kModemSerialBase );
 		}
 	} else if (inAddress < TMemoryConsts::kFlashBank2) {
 		if (mLog)
@@ -2273,16 +2274,16 @@ TMemory::WriteBP( PAddr inAddress, KUInt8 inByte )
 		if (inAddress < TMemoryConsts::kInfraredSerialBase)
 		{
 			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
-			driver->WriteRegister( inAddress - TMemoryConsts::kExternalSerialBase, inByte );
+			if (driver) driver->WriteRegister( inAddress - TMemoryConsts::kExternalSerialBase, inByte );
 		} else if (inAddress < TMemoryConsts::kBuiltInSerialBase) {
 			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kInfr);
-			driver->WriteRegister( inAddress - TMemoryConsts::kInfraredSerialBase, inByte );
+			if (driver) driver->WriteRegister( inAddress - TMemoryConsts::kInfraredSerialBase, inByte );
 		} else if (inAddress < TMemoryConsts::kModemSerialBase) {
 			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kTblt);
-			driver->WriteRegister( inAddress - TMemoryConsts::kBuiltInSerialBase, inByte );
+			if (driver) driver->WriteRegister( inAddress - TMemoryConsts::kBuiltInSerialBase, inByte );
 		} else {
 			TSerialPortManager *driver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kMdem);
-			driver->WriteRegister( inAddress - TMemoryConsts::kModemSerialBase, inByte );
+			if (driver) driver->WriteRegister( inAddress - TMemoryConsts::kModemSerialBase, inByte );
 		}
 	} else if (inAddress < TMemoryConsts::kFlashBank2) {
 		if (mLog)
