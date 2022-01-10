@@ -796,7 +796,7 @@ e = fl_input("Please enter a name for your PCCard Image");
 if (!e) goto cleanup;
 imageName = strdup(e);
 
-strncat(path, imageName, sizeof(path));
+strncat(path, imageName, sizeof(path)-1);
 
 a = app->ChooseNewFile("Create this PCMCIA Image file", "*.pccard", path);
 if (!a) goto cleanup;
