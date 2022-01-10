@@ -20,6 +20,27 @@ include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(FetchContent)
 
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+# Check if population has already been performed
+FetchContent_GetProperties(googletest)
+if(NOT googletest_POPULATED)
+  # Fetch the content using previously declared details
+  FetchContent_Populate(googletest)
+
+  # Bring the populated content into the build
+  add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+endif()
+
+enable_testing()
+
+include(GoogleTest)
+
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
 	# MacOS
@@ -672,19 +693,6 @@ target_compile_definitions(EinsteinTests PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_
 
 target_link_libraries(EinsteinTests gtest_main)
 
-if (TARGET EinsteinTests)
-    FetchContent_Declare(
-      googletest
-      URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
-    )
-    # For Windows: Prevent overriding the parent project's compiler/linker settings
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    FetchContent_MakeAvailable(googletest)
-
-    enable_testing()
-endif()
-
-include(GoogleTest)
 gtest_discover_tests(EinsteinTests)
 
 #
