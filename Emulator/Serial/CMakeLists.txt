@@ -25,8 +25,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	)
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   target_sources ( Einstein PRIVATE
-		Emulator/Network/TUsermodeNetwork.cpp
-		Emulator/Network/TUsermodeNetwork.h
     TBasiliskIISerialPortManager.cpp
     TBasiliskIISerialPortManager.h
     TPipesSerialPortManager.cpp
