@@ -50,7 +50,7 @@ TFileManager::TFileManager(
 		mMemory( inMemory ),
 		mFDCount( 0 )
 {
-	mFileDescriptors = (SFileDescriptors*) ::malloc( 1 );
+	mFileDescriptors = (SFileDescriptors*) ::malloc( sizeof(SFileDescriptors) );
 	mPath = "";
 }
 

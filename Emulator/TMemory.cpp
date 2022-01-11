@@ -2965,7 +2965,7 @@ TMemory::Init( void )
 	}
 	mRAM = (KUInt8*) ::calloc( 1, mRAMSize );	// Default is 4 MB
 	mRAMOffset = ((KUIntPtr) mRAM) - TMemoryConsts::kRAMStart;	// Difference between our RAM base address and a real Newton's
-	mBreakpoints = (SBreakpoint*) ::malloc( 1 );
+	mBreakpoints = (SBreakpoint*) ::malloc( sizeof(SBreakpoint) );
 	mSerialNumber[0] = 0;
 	mSerialNumber[1] = 0;
 	mWPCount = 0;

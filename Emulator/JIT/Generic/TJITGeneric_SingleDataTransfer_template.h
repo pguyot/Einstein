@@ -37,10 +37,13 @@
 SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 #if IMPLEMENTATION
 {
+#if FLAG_P || (WRITEBACK && Rn != 15)
 	KUInt32 theInstruction;
-	(void)theInstruction;
 	POPVALUE(theInstruction);
-	
+#else
+    POPNIL();
+#endif
+
 	POPPC();
 
 	TMemory* theMemoryInterface = ioCPU->GetMemory();
