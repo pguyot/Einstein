@@ -324,9 +324,9 @@ set ( common_sources
 	Monitor/TSymbolList.h
 	Monitor/UDisasm.cpp
 	Monitor/UDisasm.h
-	app/TFLRexImage.fl
-	app/TFLRexImage.cpp
-	app/TFLRexImage.h
+	app/FLTK/TFLRexImage.fl
+	app/FLTK/TFLRexImage.cpp
+	app/FLTK/TFLRexImage.h
 )
 
 set ( app_sources
@@ -338,29 +338,29 @@ set ( app_sources
 	Monitor/TMonitor.h
 	Monitor/TMonitorCore.cpp
 	Monitor/TMonitorCore.h
-	app/TFLApp.cpp
-	app/TFLApp.h
-	app/TFLAppUI.fl
-	app/TFLAppUI.cpp
-	app/TFLAppUI.h
-	app/TFLSettingsUI.fl
-	app/TFLSettingsUI.cpp
-	app/TFLSettingsUI.h
-	app/TFLSettings.cpp
-	app/TFLSettings.h
-	app/TFLAppWindow.cpp
-	app/TFLAppWindow.h
-	app/TFLTabs.cpp
-	app/TFLTabs.h
+	app/FLTK/TFLApp.cpp
+	app/FLTK/TFLApp.h
+	app/FLTK/TFLAppUI.fl
+	app/FLTK/TFLAppUI.cpp
+	app/FLTK/TFLAppUI.h
+	app/FLTK/TFLSettingsUI.fl
+	app/FLTK/TFLSettingsUI.cpp
+	app/FLTK/TFLSettingsUI.h
+	app/FLTK/TFLSettings.cpp
+	app/FLTK/TFLSettings.h
+	app/FLTK/TFLAppWindow.cpp
+	app/FLTK/TFLAppWindow.h
+	app/FLTK/TFLTabs.cpp
+	app/FLTK/TFLTabs.h
 	app/Version.h
 	app/Version_CMake.h.in
 )
 
 set ( test_sources
-	_Tests_/EinsteinTests.cpp
-	_Tests_/ExecuteInstructionTests.t
-	_Tests_/UProcessorTests.cpp
-	_Tests_/UProcessorTests.h
+#	_Tests_/EinsteinTests.cpp
+#	_Tests_/ExecuteInstructionTests.t
+#	_Tests_/UProcessorTests.cpp
+#	_Tests_/UProcessorTests.h
 )
 
 #
