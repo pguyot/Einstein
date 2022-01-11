@@ -107,7 +107,7 @@ protected:
 	///
 	static int	GetLatestModDate(
 				time_t* ioModDate,
-				const char* inPath );
+				int fd );
 
     ///
     /// Find out what ROM we have by calculating its CRC
