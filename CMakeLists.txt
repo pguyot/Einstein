@@ -11,14 +11,20 @@ cmake_minimum_required(VERSION 3.13)
 
 project("Einstein" VERSION "2022.5.0")
 
+# ---- Configuration for all targets on all platforms
+
 set ( CMAKE_CXX_STANDARD 17 )
 set ( CMAKE_CXX_STANDARD_REQUIRED ON )
 set ( CMAKE_CXX_EXTENSIONS OFF )
+
+# ---- Include some additional functionality
 
 include(CheckSymbolExists)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(FetchContent)
+
+# ---- Setup Google Testing
 
 FetchContent_Declare(
   googletest
@@ -41,33 +47,37 @@ enable_testing()
 
 include(GoogleTest)
 
+# ---- Configuration per platform
+
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
-	# MacOS
+	# TODO: enable this for release builds
 	#set (CMAKE_OSX_ARCHITECTURES=arm64;x86_64)
+	# TODO: set this for FLTK and NEWT64 as well
 	#set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9) # Can't go any lower.
+	# TODO: Fix this for release builds
 	set (CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 	set (CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
-	#set (CMAKE_PREFIX_PATH /usr/local)
 
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
-	# Linux
-	#set (CMAKE_PREFIX_PATH /usr/local)
-	
+	# Linux: nothing to do here
+
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
-	# MSWindows
+	# allow to build with multithreading libraries with VisualC
 	cmake_policy(SET CMP0091 NEW)
 	set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 else ()
 
-	# not supported
+	# Warn the caller that this is not supported
 	message ("Einstein is not configured to build on this platform: " ${CMAKE_SYSTEM_NAME} ".")
 
 endif ()
 
+#
+# ==== External Dependencies ===================================================
 #
 # ---- Newt/64 library ---------------------------------------------------------
 #
@@ -81,14 +91,48 @@ find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64 HINTS ${CMAKE_CURREN
 
 if (newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND")
 	message(WARNING "Newt64 not found!")
-	set ( USE_NEWT64 false )
+	set ( NEWT64_FOUND false )
 else()
-	set ( USE_NEWT64 true )
+	set ( NEWT64_FOUND true )
 	get_filename_component(newt64_lib_path ${newt64_lib} DIRECTORY)
 	get_filename_component(newt64_incl_path ${newt64_incl} DIRECTORY)
 	message(STATUS "Newt64 found in " ${newt64_lib_path} )
 endif()
 
+#
+# ---- FLTK library ------------------------------------------------------------
+#
+
+# TODO: update this to automatically download and build in .../Einstein/newt64
+set(FLTK_SKIP_OPENGL true)
+if (WIN32)
+  find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_SOURCE_DIR}/fltk/build/bin "C:/Program Files/FLTK/bin")
+else()
+  find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_SOURCE_DIR}/fltk/build/bin)
+endif()
+find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_SOURCE_DIR}/fltk/build)
+
+function (build_with_fluid name dir)
+	add_custom_command (
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/${dir}"
+		COMMAND ${LOCAL_FLTK_FLUID_EXECUTABLE} -c ${name}.fl
+		DEPENDS "${CMAKE_SOURCE_DIR}/${dir}/${name}.fl"
+		DEPENDS "${ARGN}"
+		OUTPUT  "${CMAKE_SOURCE_DIR}/${dir}/${name}.cpp"
+		OUTPUT  "${CMAKE_SOURCE_DIR}/${dir}/${name}.h"
+	)
+	set_source_files_properties(
+		${CMAKE_SOURCE_DIR}/${dir}/${name}.cpp
+		PROPERTIES GENERATED TRUE
+	)
+	set_source_files_properties(
+		${CMAKE_SOURCE_DIR}/${dir}/${name}.h
+		PROPERTIES GENERATED TRUE
+	)
+endfunction ()
+
+#
+# ==== Configuring Einstein Build ==============================================
 #
 # ---- Einstein Source Files -------------------------------------------------------------
 #
@@ -346,7 +390,7 @@ set ( test_sources
 # ---- Einstein Toolkit Sources ----------------------------------------------------------
 #
 
-if ( USE_NEWT64 MATCHES true )
+if ( NEWT64_FOUND MATCHES true )
 	list (APPEND app_sources
 		Toolkit/TToolkit.cpp
 		Toolkit/TToolkit.h
@@ -370,47 +414,11 @@ if ( USE_NEWT64 MATCHES true )
 	)
 endif ()
 
-set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h PROPERTIES GENERATED TRUE)
-
-string(TIMESTAMP COMPILE_TIME_YYYY "%Y")
-string(TIMESTAMP COMPILE_TIME_MM "%m")
-string(TIMESTAMP COMPILE_TIME_DD "%d")
-
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h.in
-	${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h
-)
-
-
-macro (build_with_fluid name dir)
-	add_custom_command (
-		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
-		COMMAND ${LOCAL_FLTK_FLUID_EXECUTABLE} -c ${name}.fl
-		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.fl"
-		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h"
-		OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.cpp"
-		OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.h"
-	)
-	set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.cpp PROPERTIES GENERATED TRUE)
-	set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.h PROPERTIES GENERATED TRUE)
-endmacro ()
-
-
 #
 # ---- Platform specific source files ----------------------------------------------------------
 #
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-
-	# configure to use FLTK as the GUI
-	set(FLTK_SKIP_OPENGL true)
-	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin)
-	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
-
-	build_with_fluid(TFLAppUI app/FLTK)
-	build_with_fluid(TFLRexImage app/FLTK)
-	build_with_fluid(TFLSettingsUI app/FLTK)
-	build_with_fluid(TFLToolkitUI Toolkit)
 
 	# additional source code
 	list (APPEND common_sources
@@ -442,16 +450,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
-	# configure to use FLTK as the GUI
-	set(FLTK_SKIP_OPENGL true)
-	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin)
-	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
-
-	build_with_fluid(TFLAppUI app/FLTK)
-	build_with_fluid(TFLRexImage app/FLTK)
-	build_with_fluid(TFLSettingsUI app/FLTK)
-	build_with_fluid(TFLToolkitUI Toolkit)
-
 	# additional source code
 	list (APPEND common_sources
 			# calling native functions (very limited support in this version of EInsten)
@@ -475,21 +473,6 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 			)
 
 elseif (WIN32)
-
-	# configure to use FLTK as the GUI
-	# In later versions of Windows 10, C:\Program Files\ is not writable for the user.
-	# I used this command to create a symbolic link from within the Admin Command Prompt:
-	#    cd "c:\Program Files"
-	#    mklink /D FLTK "C:\Users\micro\dev\fltk-1.4 for Einstein.git\out\install\x64-Release"
-	# Update the link to point to your build directory as needed
-	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin "C:/Program Files/FLTK/bin")
-	set(FLTK_SKIP_OPENGL true)
-	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
-
-	build_with_fluid(TFLAppUI app/FLTK)
-	build_with_fluid(TFLRexImage app/FLTK)
-	build_with_fluid(TFLSettingsUI app/FLTK)
-	build_with_fluid(TFLToolkitUI Toolkit)
 
 	# additional source code
 	list (APPEND common_sources
@@ -640,7 +623,7 @@ elseif (WIN32)
 
 endif ()
 
-if ( USE_NEWT64 MATCHES true )
+if ( NEWT64_FOUND MATCHES true )
     if (WIN32)
         target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/win)
         target_link_libraries(Einstein shlwapi)
@@ -652,6 +635,10 @@ if ( USE_NEWT64 MATCHES true )
     message(STATUS ${newt64_lib})
     target_compile_definitions(Einstein PRIVATE USE_TOOLKIT=1)
 endif ()
+
+#
+# ---- Einstein Platform Independent Build Instructions ------------------------
+#
 
 target_include_directories(
 	Einstein PUBLIC
@@ -673,8 +660,34 @@ gtest_discover_tests(EinsteinTests)
 
 add_dependencies(Einstein EinsteinTests)
 
+# ---- Generated Files ---------------------------------------------------------
+
+set_source_files_properties(
+  /app/Version_CMake.h
+  PROPERTIES GENERATED TRUE
+)
+
+string(TIMESTAMP COMPILE_TIME_YYYY "%Y")
+string(TIMESTAMP COMPILE_TIME_MM "%m")
+string(TIMESTAMP COMPILE_TIME_DD "%d")
+
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h.in
+	${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h
+)
+
+# ---- Einstein Fluid Sources --------------------------------------------------
+
+build_with_fluid( TFLAppUI      app/FLTK "app/Version_CMake.h" )
+build_with_fluid( TFLRexImage   app/FLTK "_Data_/Einstein.rex" )
+build_with_fluid( TFLSettingsUI app/FLTK )
+build_with_fluid( TFLToolkitUI  Toolkit )
+
 #
-# --- MessagePad.org distribution system ---------------------------------------
+# ==== MessagePad.org distribution system ======================================
+#
+# TODO: We are moving to a CI/CD system that will build distributions with
+# GitHub tools.
 #
 
 set (EINSTEIN_DIST_DIR "Sites/messagepad.org/htdocs/Downloads/Einstein")
