@@ -533,7 +533,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	add_executable(EinsteinTests ${common_sources} ${test_sources})
 
 	# how to compile and link
-	target_compile_options(Einstein PUBLIC -Wall -Wextra -Wpedantic -Wno-missing-field-initializers "$<$<CONFIG:DEBUG>:-Werror>")
+	target_compile_options(Einstein PUBLIC -Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror)
 	target_compile_options(EinsteinTests PUBLIC -Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror)
 	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1)
 	target_compile_definitions(EinsteinTests PRIVATE TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1)
@@ -575,7 +575,7 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     add_executable(EinsteinTests ${common_sources} ${test_sources})
 
 	# how to compile and link
-	target_compile_options(Einstein PUBLIC -Wall -Wno-multichar -Wno-misleading-indentation -Wno-missing-field-initializers "$<$<CONFIG:DEBUG>:-Werror>")
+	target_compile_options(Einstein PUBLIC -Wall -Wno-multichar -Wno-misleading-indentation -Wno-missing-field-initializers -Werror)
 	target_compile_options(EinsteinTests PUBLIC -Wall -Wno-multichar -Wno-misleading-indentation -Wno-missing-field-initializers -Werror)
 	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 TARGET_OS_LINUX=1)
 	target_compile_definitions(EinsteinTests PRIVATE TARGET_UI_FLTK=1 TARGET_OS_LINUX=1)

@@ -464,7 +464,7 @@ public:
     }
 
 	void newRGBSize(int w, int h) {
-	    size_t sz = w * h;
+	    size_t sz = (size_t) w * (size_t) h;
 		if (sz != (size_t)(rgbWidth_ * rgbHeight_)) {
 			if (rgbData_) 
 				::free(rgbData_);

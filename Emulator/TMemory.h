@@ -779,17 +779,6 @@ private:
 	static const int kSerialNumberCRC[256];
 
 	///
-	/// Read 32 bits from memory.
-	/// Perform address translation if the MMU is enabled.
-	/// This function only applies to aligned ROM & RAM accesses.
-	///
-	/// \param inAddress	virtual address to read 32 bits from.
-	/// \param outWord		32 bits word that was read.
-	/// \return true if the address couldn't be accessed for reading.
-	///		
-	Boolean		ReadROMRAM( VAddr inAddress, KUInt32& outWord );
-
-	///
 	/// Read 32 bits from memory, with a direct physical address.
 	/// This function only applies to aligned ROM & RAM accesses.
 	///
@@ -799,17 +788,6 @@ private:
 	/// \return the word that was read, 0 in case of error.
 	///		
 	KUInt32		ReadROMRAMP( PAddr inAddress, Boolean& outFault );
-
-	///
-	/// Write 32 bits to memory.
-	/// Perform address translation if the MMU is enabled.
-	/// This function only applies to aligned RAM accesses.
-	///
-	/// \param inAddress	virtual address to write 32 bits to.
-	/// \param inWord		32 bits word to write.
-	/// \return true if the address couldn't be accessed for writing.
-	///
-	Boolean		WriteRAM( VAddr inAddress, KUInt32 inWord );
 
 	///
 	/// Write 32 bits to memory, with a direct physical address.

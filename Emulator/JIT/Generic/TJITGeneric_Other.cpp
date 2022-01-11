@@ -444,7 +444,7 @@ JITInstructionProto(TapFileCntlUND)
 	KUInt32 thePAddress;
 	POPVALUE(thePAddress);
 	// Set the PC before jumping to the handler....
-	POPPC();
+	POPNIL();   // Pop out PC
 	SETPC(GETCALLER() + 4);
 	ioCPU->GetEmulator()->TapFileCntlUND( thePAddress );
 	// Don't execute next function.

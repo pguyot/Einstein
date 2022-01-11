@@ -889,12 +889,11 @@ UUTF16Conv::ToUTF8(
 			theCharSize = 2;
 		} else if (theUCS4Char <= 0x0000FFFF) {
 			theCharSize = 3;
-		} else if (theUCS4Char <= 0x001FFFFF) {
-			theCharSize = 4;
-		} else if (theUCS4Char <= 0x03FFFFFF) {
-			theCharSize = 5;
 		} else {
-			theCharSize = 6;
+		    // Since novembre 2003, UTF-8 is restricted to what can be encoded
+		    // with UTF_16
+		    // theUCS4Char <= 0x10FFFF
+			theCharSize = 4;
 		}
 
 		if (theCharSize == 1)

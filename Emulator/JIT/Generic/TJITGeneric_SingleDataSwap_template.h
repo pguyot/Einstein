@@ -28,9 +28,9 @@
 SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
 #if IMPLEMENTATION
 {
+#if Rn != 15 || Rd != 15 || Rm != 15
 	POPPC();
 	
-#if Rn != 15 || Rd != 15 || Rm != 15
 	TMemory* theMemoryInterface = ioCPU->GetMemory();
 	TMemory::VAddr theAddress = (TMemory::VAddr) ioCPU->mCurrentRegisters[Rn];
 #if FLAG_B
@@ -74,6 +74,8 @@ SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
 	
 	ioCPU->mCurrentRegisters[Rd] = theData;
 #endif
+#else
+    POPNIL();   // Pop out PC
 #endif	
 	CALLNEXTUNIT;
 }

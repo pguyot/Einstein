@@ -767,46 +767,6 @@ TMemory::ReadAligned( VAddr inAddress, KUInt32& outWord )
 }
 
 // -------------------------------------------------------------------------- //
-//  * ReadROMRAM( VAddr, KUInt32& )
-// -------------------------------------------------------------------------- //
-inline Boolean
-TMemory::ReadROMRAM( VAddr inAddress, KUInt32& outWord )
-{
-#ifdef _DEBUG
-	size_t i;
-	for (i=0; i<mWPCount; i++) {
-		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&1)) {
-			KPrintf("Watchpoint 0x%08X read around 0x%08X\n", (unsigned int)inAddress, (unsigned int)mProcessor->mCurrentRegisters[15]);
-			mEmulator->BreakInMonitor();
-		}
-	}
-#endif
-
-	PAddr theAddress;
-
-	// Optimization: avoid translation when reading unprotected ROM
-	if (IsMMUEnabled() && ((inAddress < 0x00002000) || (inAddress & TMemoryConsts::kROMEndMask)))
-	{
-		if (TranslateR( inAddress, theAddress ))
-		{
-			return true;
-		}
-	} else {
-		theAddress = inAddress;
-	}
-	
-	Boolean fault = false;
-	outWord = ReadROMRAMP( theAddress, fault );
-	if (fault)
-	{
-		mMMU.SetHardwareFault( inAddress );
-		return true;
-	}
-	
-	return false;
-}
-
-// -------------------------------------------------------------------------- //
 //  * ReadP( PAddr, Boolean& )
 // -------------------------------------------------------------------------- //
 KUInt32
@@ -1630,43 +1590,6 @@ TMemory::WriteAligned( VAddr inAddress, KUInt32 inWord )
 	}
 	
 	if (WritePAligned( theAddress, inWord ))
-	{
-		mMMU.SetHardwareFault( inAddress );
-		return true;
-	}
-	
-	return false;
-}
-
-// -------------------------------------------------------------------------- //
-//  * WriteRAM( VAddr, KUInt32 )
-// -------------------------------------------------------------------------- //
-inline Boolean
-TMemory::WriteRAM( VAddr inAddress, KUInt32 inWord )
-{
-#ifdef _DEBUG
-	size_t i;
-	for (i=0; i<mWPCount; i++) {
-		if ((mWatchpoints[i].fAddress==inAddress) && (mWatchpoints[i].fMode&2)) {
-			KPrintf("Watchpoint 0x%08lX written around 0x%08lX\n", (unsigned long)inAddress, (unsigned long)mProcessor->mCurrentRegisters[15]);
-			mEmulator->BreakInMonitor();
-		}
-	}
-#endif
-
-	PAddr theAddress;
-
-	if (IsMMUEnabled())
-	{
-		if (TranslateW( inAddress, theAddress ))
-		{
-			return true;
-		}
-	} else {
-		theAddress = inAddress;
-	}
-	
-	if (WriteRAMP( theAddress, inWord ))
 	{
 		mMMU.SetHardwareFault( inAddress );
 		return true;
