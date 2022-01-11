@@ -73,6 +73,36 @@ TJITGenericPatch gNewtConfigPatch(0x000013fc, kROMPatchVoid, kROMPatchVoid, kROM
 								  | 0x00008000 /*kEnableStdout*/,
 								  "gNewtConfig patch");
 
+/*
+ * Intercept DebugStr calls and prints them via the Emulator logger.
+ */
+
+T_ROM_PATCH(0x0038CE6C, kROMPatchVoid, kROMPatchVoid,  kROMPatchVoid, "DebugStr")
+{
+    (void) ioUnit;
+    TLog *log = ioCPU->GetEmulator()->GetLog();
+    if (log != nullptr) {
+	KUInt32 theAddress = ioCPU->GetRegister(0);
+	char theLine[512];
+	KUInt32 amount = sizeof(theLine);
+	ioCPU->GetMemory()->FastReadString(theAddress, &amount, theLine);
+	log->LogLine( theLine );
+    }
+    ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 4);
+    return 0L;
+}
+
+/*
+ * Break via the monitor. Adjust PC to LR + 8 to undo PC adjustment by the monitor
+ */
+
+T_ROM_PATCH(0x0038CE70, kROMPatchVoid, kROMPatchVoid,  kROMPatchVoid, "Debugger")
+{
+    (void) ioUnit;
+    ioCPU->GetEmulator()->BreakInMonitor();
+    ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 8);
+    return 0L;
+}
 
 // ========================================================================== //
 // MARK: -

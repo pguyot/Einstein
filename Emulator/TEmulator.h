@@ -347,6 +347,16 @@ public:
 		}
 
 	///
+	/// Accessor on the logger
+	///
+	/// \return a pointer to the logger instance.
+	///
+	TLog*  GetLog( void )
+		{
+			return mLog;
+		}
+
+	///
 	/// Pause system and wait for next interrupt.
 	///
 	inline void	PauseSystem( void )
