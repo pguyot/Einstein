@@ -671,6 +671,8 @@ target_link_libraries(EinsteinTests gtest_main)
 
 gtest_discover_tests(EinsteinTests)
 
+add_dependencies(Einstein EinsteinTests)
+
 #
 # --- MessagePad.org distribution system ---------------------------------------
 #
