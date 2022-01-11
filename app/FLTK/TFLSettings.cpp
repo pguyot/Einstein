@@ -216,9 +216,8 @@ void TFLSettings::ShowAboutDialog()
 }
 
 
-void TFLSettings::setApp(TFLApp *App, const char *AppPath)
+void TFLSettings::setAppPath(const char *AppPath)
 {
-    app = App;
     appPath = strdup(AppPath);
     char *end = (char*)fl_filename_name(appPath);
     if (end)

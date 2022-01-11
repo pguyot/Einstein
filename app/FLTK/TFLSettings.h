@@ -109,7 +109,7 @@ public:
     void ShowAboutDialog();
     void ShowSettingsPanelModal();
     void ShowSettingsPanel();
-    void setApp(TFLApp *App, const char *AppPath);
+    void setAppPath(const char *AppPath);
     void loadPreferences();
     void savePreferences();
 
@@ -129,7 +129,6 @@ public:
 //protected:
     Fl_Double_Window *mSettingsPanel = nullptr;
     Fl_Double_Window *mAboutDialog = nullptr;
-    TFLApp *app = nullptr;
     char *appPath = nullptr;
     char *ROMPath = nullptr;
     char *FlashPath = nullptr;

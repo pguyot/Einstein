@@ -44,9 +44,6 @@ public:
     // constructor positioning the window at a given location
     TFLAppWindow(int xx, int yy, int ww, int hh, const char *ll=nullptr);
 
-    // link this window to the app
-    void SetApp(TFLApp *inApp) { mApp = inApp; }
-
     // call this to hide the mouse pointer whenever it is inside the main window
     void HideMousePointer();
 
@@ -57,8 +54,7 @@ public:
     int handle(int event) override;
 
 private:
-    TFLApp      *mApp = nullptr;
-    Boolean        mMouseHidden = false;
+    Boolean mMouseHidden = false;
 };
 
 
