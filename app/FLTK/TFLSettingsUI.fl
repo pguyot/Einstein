@@ -43,7 +43,7 @@ decl {\#include "TFLAppUI.h"} {private local
 decl {\#include "Emulator/Platform/TPlatformManager.h"} {private local
 }
 
-decl {\#include "app/Version.h"} {private global
+decl {\#include "app/Version.h"} {selected private global
 }
 
 decl {\#include "app/FLTK/TFLTabs.h"} {private global
@@ -1304,7 +1304,7 @@ win->hide();} {}
           xywh {10 30 320 180} resizable
         } {
           Fl_Box {} {
-            image {../Resources/icons/EinsteinApp64.png} xywh {133 47 69 75}
+            image {../../Resources/icons/EinsteinApp64.png} xywh {133 47 69 75}
           }
           Fl_Box {} {
             label {Einstein Platform}
