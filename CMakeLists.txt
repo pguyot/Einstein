@@ -41,27 +41,6 @@ enable_testing()
 
 include(GoogleTest)
 
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-# Check if population has already been performed
-FetchContent_GetProperties(googletest)
-if(NOT googletest_POPULATED)
-  # Fetch the content using previously declared details
-  FetchContent_Populate(googletest)
-
-  # Bring the populated content into the build
-  add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
-endif()
-
-enable_testing()
-
-include(GoogleTest)
-
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
 	# MacOS
@@ -357,10 +336,10 @@ set ( app_sources
 )
 
 set ( test_sources
-#	_Tests_/EinsteinTests.cpp
-#	_Tests_/ExecuteInstructionTests.t
-#	_Tests_/UProcessorTests.cpp
-#	_Tests_/UProcessorTests.h
+	_Tests_/EinsteinTests.cpp
+	_Tests_/ExecuteInstructionTests.t
+	_Tests_/UProcessorTests.cpp
+	_Tests_/UProcessorTests.h
 )
 
 #
@@ -408,7 +387,7 @@ macro (build_with_fluid name dir)
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
 		COMMAND ${LOCAL_FLTK_FLUID_EXECUTABLE} -c ${name}.fl
 		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.fl"
-		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h"
+		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/app/Version.h"
 		OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.cpp"
 		OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/${name}.h"
 	)
@@ -427,6 +406,11 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	set(FLTK_SKIP_OPENGL true)
 	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin)
 	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
+
+	build_with_fluid(TFLAppUI app/FLTK)
+	build_with_fluid(TFLRexImage app/FLTK)
+	build_with_fluid(TFLSettingsUI app/FLTK)
+	build_with_fluid(TFLToolkitUI Toolkit)
 
 	# additional source code
 	list (APPEND common_sources
@@ -463,6 +447,11 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin)
 	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
 
+	build_with_fluid(TFLAppUI app/FLTK)
+	build_with_fluid(TFLRexImage app/FLTK)
+	build_with_fluid(TFLSettingsUI app/FLTK)
+	build_with_fluid(TFLToolkitUI Toolkit)
+
 	# additional source code
 	list (APPEND common_sources
 			# calling native functions (very limited support in this version of EInsten)
@@ -496,6 +485,11 @@ elseif (WIN32)
 	find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build/bin "C:/Program Files/FLTK/bin")
 	set(FLTK_SKIP_OPENGL true)
 	find_package(FLTK REQUIRED NO_MODULE HINTS ${CMAKE_CURRENT_SOURCE_DIR}/fltk/build)
+
+	build_with_fluid(TFLAppUI app/FLTK)
+	build_with_fluid(TFLRexImage app/FLTK)
+	build_with_fluid(TFLSettingsUI app/FLTK)
+	build_with_fluid(TFLToolkitUI Toolkit)
 
 	# additional source code
 	list (APPEND common_sources
@@ -566,9 +560,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		"-framework AppKit"
 		"-framework CoreAudio"
 		"-framework Cocoa"
-	)
-	set_target_properties(Einstein PROPERTIES
-		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/Resources/macOS/Info.plist.in"
 	)
 	set_target_properties(Einstein PROPERTIES
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Info.plist.in"
@@ -675,10 +666,6 @@ target_include_directories(
 
 target_compile_definitions(Einstein PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE)
 target_compile_definitions(EinsteinTests PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE)
-
-target_link_libraries(EinsteinTests gtest_main)
-
-gtest_discover_tests(EinsteinTests)
 
 target_link_libraries(EinsteinTests gtest_main)
 
