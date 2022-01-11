@@ -33,5 +33,5 @@ target_link_libraries(Einstein
 	${newt64_lib}
 )
 
-target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
+target_compile_definitions(Einstein PRIVATE USE_TOOLKIT=1)
 

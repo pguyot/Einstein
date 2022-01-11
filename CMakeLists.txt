@@ -88,9 +88,9 @@ find_file(newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64 HINTS ${CMAKE_SOURCE
 
 if (newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND")
 	message(WARNING "Newt64 not found!")
-	set ( USE_NEWT64 false )
+	set ( NEWT64_FOUND false )
 else()
-	set ( USE_NEWT64 true )
+	set ( NEWT64_FOUND true )
 	get_filename_component(newt64_lib_path ${newt64_lib} DIRECTORY)
 	get_filename_component(newt64_incl_path ${newt64_incl} DIRECTORY)
 	if (WIN32)
