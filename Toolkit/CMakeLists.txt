@@ -1,5 +1,5 @@
 #
-# Add optional source files required to buid the Toolkit for Einstein.
+# Add optional source files required to build the Toolkit for Einstein.
 #
 
 target_sources ( Einstein PRIVATE

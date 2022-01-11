@@ -1,5 +1,5 @@
 #
-# At this time we only suppurt CMake builds for the FLTK variant of Einstein.
+# At this time we only support CMake builds for the FLTK variant of Einstein.
 #
 
 add_subdirectory( FLTK )

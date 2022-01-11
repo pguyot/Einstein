@@ -1,5 +1,5 @@
 #
-# Add source files required to buid the FLTK variant of Einstein.
+# Add source files required to build the FLTK variant of Einstein.
 #
 
 target_sources ( Einstein PRIVATE
