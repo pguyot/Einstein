@@ -1,4 +1,28 @@
-# Emulator CMakeLists.txt
+#
+# Add source files required to build Einstein.
+#
+
+target_sources ( Einstein PRIVATE
+	TARMProcessor.cpp
+	TARMProcessor.h
+	TDMAManager.cpp
+	TDMAManager.h
+	TEmulator.cpp
+	TEmulator.h
+	TFlash.cpp
+	TFlash.h
+	THashMapCache.h
+	TInterruptManager.cpp
+	TInterruptManager.h
+	TMMU.cpp
+	TMMU.h
+	TMemory.cpp
+	TMemory.h
+	TMemoryConsts.h
+	TNativePrimitives.cpp
+	TNativePrimitives.h
+	CMakeLists.txt
+)
 
 add_subdirectory(Files)
 add_subdirectory(Host)
@@ -12,3 +36,4 @@ add_subdirectory(ROM)
 add_subdirectory(Screen)
 add_subdirectory(Serial)
 add_subdirectory(Sound)
+

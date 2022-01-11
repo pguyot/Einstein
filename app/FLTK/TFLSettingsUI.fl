@@ -43,10 +43,10 @@ decl {\#include "TFLAppUI.h"} {private local
 decl {\#include "Emulator/Platform/TPlatformManager.h"} {private local
 }
 
-decl {\#include "app/Version.h"} {private global
+decl {\#include "app/Version.h"} {selected private global
 }
 
-decl {\#include "app/TFLTabs.h"} {private global
+decl {\#include "app/FLTK/TFLTabs.h"} {private global
 }
 
 declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
@@ -336,12 +336,12 @@ wAbout = nullptr;} {}
       } {
         MenuItem {} {
           label {Install Package...}
-          callback {app->UserActionInstallPackage();}
+          callback {gApp->UserActionInstallPackage();}
           xywh {12 12 100 20} labelsize 12
         }
         MenuItem {} {
           label Backlight
-          callback {app->UserActionToggleBacklight();}
+          callback {gApp->UserActionToggleBacklight();}
           xywh {12 12 100 20} labelsize 12 divider
         }
         Submenu {} {
@@ -375,17 +375,17 @@ wAbout = nullptr;} {}
         }
         MenuItem {} {
           label {Settings...}
-          callback {app->UserActionShowSettingsPanel();}
+          callback {gApp->UserActionShowSettingsPanel();}
           xywh {12 12 100 20} labelsize 12
         }
         MenuItem {} {
           label {About...}
-          callback {app->UserActionShowAboutPanel();}
+          callback {gApp->UserActionShowAboutPanel();}
           xywh {12 12 100 20} labelsize 12 divider
         }
         MenuItem {} {
           label Power
-          callback {app->UserActionTogglePower();}
+          callback {gApp->UserActionTogglePower();}
           xywh {12 12 100 20} labelsize 12
         }
       }
@@ -660,7 +660,7 @@ strcpy(path, wFlashPath->label());
 char *nn = (char*)fl_filename_name(path);
 if (nn) *nn = 0;
 
-a = app->ChooseExistingFile("Select a PCCard Image file", "*.pccard", path);
+a = gApp->ChooseExistingFile("Select a PCCard Image file", "*.pccard", path);
 if (!a) goto cleanup;
 strcpy(imageFilename, a);
 
@@ -702,7 +702,7 @@ if (imageName) free(imageName);}
   char *nn = (char*)fl_filename_name(path);
   if (nn) *nn = 0;
 
-  a = app->ChooseNewFile("Create a PCCard Image file", "*.pccard", path);
+  a = gApp->ChooseNewFile("Create a PCCard Image file", "*.pccard", path);
   if (!a) goto cleanup;
   strcpy(imageFilename, a);
   if (fl_access(imageFilename, 6)!=0)
@@ -778,11 +778,11 @@ strcpy(path, wFlashPath->label());
 char *nn = (char*)fl_filename_name(path);
 if (nn) *nn = 0;
 
-b = app->ChooseExistingFile("PCMCIA Card Data Snapshot", nullptr, path);
+b = gApp->ChooseExistingFile("PCMCIA Card Data Snapshot", nullptr, path);
 if (!b) goto cleanup;
 dataFilename = strdup(b);
 
-c = app->ChooseExistingFile("PCMCIA Card CIS snapshot", nullptr, nullptr);
+c = gApp->ChooseExistingFile("PCMCIA Card CIS snapshot", nullptr, nullptr);
 if (!c) goto cleanup;
 cisFilename = strdup(c);
 
@@ -792,7 +792,7 @@ imageName = strdup(e);
 
 strncat(path, imageName, sizeof(path)-1);
 
-a = app->ChooseNewFile("Create this PCMCIA Image file", "*.pccard", path);
+a = gApp->ChooseNewFile("Create this PCMCIA Image file", "*.pccard", path);
 if (!a) goto cleanup;
 strncpy(imageFilename, a, sizeof(imageFilename));
 if (    fl_access(imageFilename, 6)!=0 
@@ -802,7 +802,7 @@ if (    fl_access(imageFilename, 6)!=0
   fl_filename_setext(imageFilename, FL_PATH_MAX, ".pccard");
 }
 
-ret = app->UserActionPCMCIAImageFromSnapshot(imageFilename, dataFilename, cisFilename, imageName);
+ret = gApp->UserActionPCMCIAImageFromSnapshot(imageFilename, dataFilename, cisFilename, imageName);
 if (ret!=0) goto cleanup;
 
 card = TFLPCCardSettings::LinkLinearPCCard(imageName, imageFilename);
@@ -1304,7 +1304,7 @@ win->hide();} {}
           xywh {10 30 320 180} resizable
         } {
           Fl_Box {} {
-            image {../Resources/icons/EinsteinApp64.png} xywh {133 47 69 75}
+            image {../../Resources/icons/EinsteinApp64.png} xywh {133 47 69 75}
           }
           Fl_Box {} {
             label {Einstein Platform}

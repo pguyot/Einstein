@@ -1,19 +1,18 @@
-# Log CMakeLists
+#
+# Add source files required to build Einstein.
+#
 
-file(GLOB headers *.h)
-file(GLOB sources *.cp)
+target_sources ( Einstein PRIVATE
+	TBufferLog.cpp
+	TBufferLog.h
+	TFileLog.cpp
+	TFileLog.h
+	TLog.cpp
+	TLog.h
+	TRAMLog.cpp
+	TRAMLog.h
+	TStdOutLog.cpp
+	TStdOutLog.h
+	CMakeLists.txt
+)
 
-set_source_files_properties(${sources} PROPERTIES LANGUAGE CXX)
-
-add_library(log STATIC ${sources})
-target_include_directories(log PUBLIC
-    ../
-    ../../
-    )
-
-if(${WIN32})
-    target_include_directories(log PUBLIC
-        ../Win32)
-endif()
-
-target_link_libraries(log k)

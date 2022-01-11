@@ -3,8 +3,11 @@
 #
 
 target_sources ( Einstein PRIVATE
-	TFileManager.cpp
-	TFileManager.h
+	TFileStream.cpp
+	TFileStream.h
+	TRandomAccessStream.h
+	TStream.cpp
+	TStream.h
 	CMakeLists.txt
 )
 

@@ -726,7 +726,7 @@ void TFLApp::UserActionShowToolkit()
 
 int TFLApp::UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data, const char* cis, const char* name)
 {
-    // TODO: make sure that the extension actually .pcmcia if the file does not exist yet.
+    // TODO: make sure that the extension is actually .pcmcia if the file does not exist yet.
     int err = TLinearCard::ComposeImageFile(dst, data, cis, name);
     if (err) {
         const char* msg = "An unspecified error occured.";
@@ -1066,7 +1066,7 @@ void TFLApp::InitSettings() {
 #if TARGET_OS_WIN32
     mFLSettings->mSettingsPanel->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #endif
-    mFLSettings->setApp(this, mProgramName);
+    mFLSettings->setAppPath(mProgramName);
     mFLSettings->loadPreferences();
     mFLSettings->revertDialog();
 }
@@ -1116,7 +1116,6 @@ void TFLApp::InitScreen()
     wAppWindow = CreateApplicationWindow(
                                          mFLSettings->mAppWindowPosX,
                                          mFLSettings->mAppWindowPosY);
-    wAppWindow->SetApp( this );
     wAppWindow->size(portraitWidth, portraitHeight + wToolbar->y() + wToolbar->h());
     wAppWindow->resizable(nullptr);
 #if TARGET_OS_WIN32
@@ -1331,9 +1330,9 @@ void TFLApp::DeferredOnPowerRestored()
             std::time_t now = time(nullptr);
             struct std::tm then_tm = { 0, 0, 0, 1, 0, 4 }; /* Midnight Jan 1 1904 */
             std::time_t then = std::mktime(&then_tm);
-            std::time_t diff_secs = std::difftime(now, then);
+            auto diff_secs = std::difftime(now, then);
             
-            KUInt32 minutesSince1904 = diff_secs / 60;
+            KUInt32 minutesSince1904 = (KUInt32)(diff_secs / 60);
             char setTimeAndDateScript[256];
             ::snprintf(setTimeAndDateScript, 256, "SetTime(%u);", minutesSince1904);
             mPlatformManager->EvalNewtonScript(setTimeAndDateScript);
@@ -1541,9 +1540,8 @@ int main(int argc, char** argv )
     Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+2), tabs_box, 0, 2, 0, 0);
     Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+3), tabs_box, 0, 2, 0, 0);
 
-    TFLApp theApp;
-    gApp = &theApp;
-    theApp.Run( argc, argv );
+    gApp = new TFLApp();
+    gApp->Run( argc, argv );
     return 0;
 }
 

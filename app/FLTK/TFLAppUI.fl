@@ -15,22 +15,22 @@ decl {\#include "TFLAppWindow.h"} {public global
 decl {\#include "TFLTabs.h"} {public global
 }
 
-data imgPCCardTopIn {public local filename {../Resources/icons/button_pccard_top_in.png}
+data imgPCCardTopIn {public local filename {../../Resources/icons/button_pccard_top_in.png}
 }
 
-data imgPCCardTopOut {public local filename {../Resources/icons/button_pccard_top_out.png}
+data imgPCCardTopOut {public local filename {../../Resources/icons/button_pccard_top_out.png}
 }
 
-data imgPCCardTopHilite {public local filename {../Resources/icons/button_pccard_top_hilight.png}
+data imgPCCardTopHilite {public local filename {../../Resources/icons/button_pccard_top_hilight.png}
 }
 
-data imgPCCardBotIn {public local filename {../Resources/icons/button_pccard_bottom_in.png}
+data imgPCCardBotIn {public local filename {../../Resources/icons/button_pccard_bottom_in.png}
 }
 
-data imgPCCardBotOut {public local filename {../Resources/icons/button_pccard_bottom_out.png}
+data imgPCCardBotOut {public local filename {../../Resources/icons/button_pccard_bottom_out.png}
 }
 
-data imgPCCardBotHilite {public local filename {../Resources/icons/button_pccard_bottom_hilight.png}
+data imgPCCardBotHilite {public local filename {../../Resources/icons/button_pccard_bottom_hilight.png}
 }
 
 Function {CreateApplicationWindow(int x, int y)} {open
@@ -66,7 +66,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
           xywh {0 0 100 20} deactivate divider
         }
         MenuItem {} {
-          label Close selected
+          label Close
           xywh {0 0 100 20} shortcut 0x410077 deactivate divider
         }
         MenuItem {} {
@@ -75,7 +75,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         MenuItem {} {
           xywh {0 0 100 20} hide deactivate
         }
-        MenuItem {} {
+        MenuItem {} {selected
           xywh {0 0 100 20} hide deactivate
         }
         MenuItem {} {
@@ -213,24 +213,24 @@ Function {CreateApplicationWindow(int x, int y)} {open
       Fl_Button wPowerTool {
         label Power
         callback {gApp->UserActionTogglePower();}
-        image {../Resources/icons/button_power.png} xywh {10 25 36 36} color 52 labelsize 11 align 514
+        image {../../Resources/icons/button_power.png} xywh {10 25 36 36} color 52 labelsize 11 align 514
         code0 {o->box(FL_FREE_BOXTYPE);}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}
       }
       Fl_Button wPowerOnTool {
-        image {../Resources/icons/button_power_on.png} xywh {188 34 14 15} hide
+        image {../../Resources/icons/button_power_on.png} xywh {188 34 14 15} hide
       }
       Fl_Button wBacklightTool {
         label Backlight
         callback {gApp->UserActionToggleBacklight();}
-        image {../Resources/icons/button_backlight.png} xywh {55 25 36 36} color 52 labelsize 11 align 514
+        image {../../Resources/icons/button_backlight.png} xywh {55 25 36 36} color 52 labelsize 11 align 514
         code0 {o->box(FL_FREE_BOXTYPE);}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}
       }
       Fl_Button wBacklightOnTool {
-        image {../Resources/icons/button_backlight_on.png} xywh {192 34 14 15} hide
+        image {../../Resources/icons/button_backlight_on.png} xywh {192 34 14 15} hide
       }
       Fl_Button wNetworkTool {
         label {PCCards  }
@@ -258,7 +258,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         class TFLPCMCIAButton
       }
       Fl_Button wNetworkOnTool {
-        image {../Resources/icons/button_network_in.png} xywh {196 39 14 15} hide
+        image {../../Resources/icons/button_network_in.png} xywh {196 39 14 15} hide
       }
       Fl_Box wSpacer {
         xywh {184 24 28 54} box THIN_UP_BOX hide resizable
@@ -266,7 +266,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
       Fl_Button {} {
         label {Install Package}
         callback {gApp->UserActionInstallPackage();}
-        image {../Resources/icons/button_install.png} xywh {257 25 36 36} color 52 labelsize 11 align 514
+        image {../../Resources/icons/button_install.png} xywh {257 25 36 36} color 52 labelsize 11 align 514
         code0 {o->box(FL_FREE_BOXTYPE);}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}

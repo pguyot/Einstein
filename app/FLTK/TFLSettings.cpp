@@ -39,7 +39,7 @@
 #include <vector>
 #include <iterator>
 
-#include "app/TFLApp.h"
+#include "app/FLTK/TFLApp.h"
 #include "Emulator/ROM/TROMImage.h"
 #include "Emulator/PCMCIA/TNE2000Card.h"
 #include "Emulator/PCMCIA/TLinearCard.h"
@@ -216,9 +216,8 @@ void TFLSettings::ShowAboutDialog()
 }
 
 
-void TFLSettings::setApp(TFLApp *App, const char *AppPath)
+void TFLSettings::setAppPath(const char *AppPath)
 {
-    app = App;
     appPath = strdup(AppPath);
     char *end = (char*)fl_filename_name(appPath);
     if (end)

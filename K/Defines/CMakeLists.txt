@@ -3,9 +3,9 @@
 #
 
 target_sources ( Einstein PRIVATE
-	TFileManager.cpp
-	TFileManager.h
+	KDefinitions.cpp
+	KDefinitions.h
+	UByteSex.h
 	CMakeLists.txt
 )
-
 

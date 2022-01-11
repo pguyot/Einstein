@@ -46,7 +46,7 @@
 // Einstein
 #include "TAIFFile.h"
 #if TARGET_UI_FLTK
-#include "app/TFLRexImage.h"
+#include "app/FLTK/TFLRexImage.h"
 #endif
 #include "app/Version.h"
 

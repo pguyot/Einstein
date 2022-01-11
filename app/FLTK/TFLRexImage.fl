@@ -3,5 +3,5 @@ version 1.0400
 avoid_early_includes
 header_name {.h}
 code_name {.cpp}
-data gEinsteinRexImage {selected public local filename {../_Data_/Einstein.rex}
+data gEinsteinRexImage {selected public local filename {../../_Data_/Einstein.rex}
 }

@@ -42,7 +42,7 @@
 // Einstein
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Platform/TPlatformManager.h"
-#include "app/TFLApp.h"
+#include "app/FLTK/TFLApp.h"
 
 
 #if TARGET_OS_WIN32 || TARGET_OS_MAC

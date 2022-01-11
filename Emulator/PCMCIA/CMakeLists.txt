@@ -1,16 +1,18 @@
-# CMakeLists.txt
+#
+# Add source files required to build Einstein.
+#
 
-file(GLOB headers *.h)
-file(GLOB sources *.cp)
+target_sources ( Einstein PRIVATE
+	TATACard.cpp
+	TATACard.h
+	TLinearCard.cpp
+	TLinearCard.h
+	TNE2000Card.cpp
+	TNE2000Card.h
+	TPCMCIACard.cpp
+	TPCMCIACard.h
+	TPCMCIAController.cpp
+	TPCMCIAController.h
+	CMakeLists.txt
+)
 
-set_source_files_properties(${sources} PROPERTIES LANGUAGE CXX)
-
-add_library(pcmcia STATIC ${sources})
-target_include_directories(pcmcia PUBLIC
-    ../
-    ../JIT/
-    ../JIT/Generic
-    ../../
-    )
-
-target_link_libraries(pcmcia k)

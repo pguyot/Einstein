@@ -1,19 +1,12 @@
-# Host CMakeLists
+#
+# Add source files required to build Einstein.
+#
 
-file(GLOB headers *.h)
-file(GLOB sources *.cp)
+target_sources ( Einstein PRIVATE
+	THostInfo.cpp
+	THostInfo.h
+	UserInfoDefinitions.h
+	CMakeLists.txt
+)
 
-set_source_files_properties(${sources} PROPERTIES LANGUAGE CXX)
 
-add_library(host STATIC ${sources})
-target_include_directories(host PUBLIC
-    ../
-    ../../
-    )
-
-if(${WIN32})
-    target_include_directories(host PUBLIC
-        ../Win32)
-endif()
-
-target_link_libraries(host k)

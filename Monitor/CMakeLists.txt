@@ -1,21 +1,18 @@
-# Monitor CMakeLists
+#
+# Add source files required to build Einstein.
+#
 
-file(GLOB headers *.h)
-file(GLOB sources *.cp)
+target_sources ( Einstein PRIVATE
+	TFLMonitor.cpp
+	TFLMonitor.h
+	TMonitor.cpp
+	TMonitor.h
+	TMonitorCore.cpp
+	TMonitorCore.h
+	TSymbolList.cpp
+	TSymbolList.h
+	UDisasm.cpp
+	UDisasm.h
+	CMakeLists.txt
+)
 
-set_source_files_properties(${sources} PROPERTIES LANGUAGE CXX)
-
-add_library(monitor STATIC ${sources})
-
-target_include_directories(monitor PUBLIC
-    ../
-../Emulator/JIT/
-../Emulator/JIT/Generic/
-../Emulator/)
-
-if(${WIN32})
-    target_include_directories(monitor PUBLIC
-        ../Win32)
-endif()
-
-target_link_libraries(monitor k)

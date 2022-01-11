@@ -6,7 +6,7 @@ code_name {.cpp}
 decl {\#include "Toolkit/TToolkit.h"} {private global
 }
 
-decl {\#include "app/TFLApp.h"} {private global
+decl {\#include "app/FLTK/TFLApp.h"} {private global
 }
 
 decl {\#include "Toolkit/TFLTerminalPanel.h"} {public global

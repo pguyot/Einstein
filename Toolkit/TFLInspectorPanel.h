@@ -25,7 +25,7 @@
 #define _T_FL_INSPECTOR_PANEL
 
 #include "app/Version.h"
-#include "app/TFLApp.h"
+#include "app/FLTK/TFLApp.h"
 
 
 /**

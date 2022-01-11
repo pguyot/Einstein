@@ -1,19 +1,28 @@
-# Network CMakeLists.txt
+#
+# Add source files required to build Einstein.
+#
 
-# Only this one compiles for now ...
-set(sources TNetworkManager.cp TUsermodeNetwork.cp)
+target_sources ( Einstein PRIVATE
+	TNetworkManager.cpp
+	TNetworkManager.h
+	CMakeLists.txt
+)
 
-# TODO virtual serial port
-
-set_source_files_properties(${sources} PROPERTIES LANGUAGE CXX)
-
-add_library(network STATIC ${sources})
-
-target_include_directories(network PUBLIC
-    ../
-    ../JIT/
-    ../JIT/Generic
-    ../../
-    )
-
-target_link_libraries(network k)
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+  target_sources ( Einstein PRIVATE
+    TTapNetwork.cpp
+    TTapNetwork.h
+		TUsermodeNetwork.cpp
+		TUsermodeNetwork.h
+	)
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+  target_sources ( Einstein PRIVATE
+    TUsermodeNetwork.cpp
+    TUsermodeNetwork.h
+  )
+elseif (WIN32)
+  target_sources ( Einstein PRIVATE
+		TUsermodeNetwork.cpp
+		TUsermodeNetwork.h
+	)
+endif ()

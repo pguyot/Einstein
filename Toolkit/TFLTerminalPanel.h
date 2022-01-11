@@ -25,7 +25,7 @@
 #define _T_FL_TERMINAL_PANEL
 
 #include "app/Version.h"
-#include "app/TFLApp.h"
+#include "app/FLTK/TFLApp.h"
 
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Tile.H>

@@ -3,8 +3,12 @@
 #
 
 target_sources ( Einstein PRIVATE
-	TFileManager.cpp
-	TFileManager.h
+	TCondVar.cpp
+	TCondVar.h
+	TMutex.cpp
+	TMutex.h
+	TThread.cpp
+	TThread.h
 	CMakeLists.txt
 )
 
