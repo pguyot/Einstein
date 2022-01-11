@@ -18,6 +18,28 @@ set ( CMAKE_CXX_EXTENSIONS OFF )
 include(CheckSymbolExists)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
+include(FetchContent)
+
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+# Check if population has already been performed
+FetchContent_GetProperties(googletest)
+if(NOT googletest_POPULATED)
+  # Fetch the content using previously declared details
+  FetchContent_Populate(googletest)
+
+  # Bring the populated content into the build
+  add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+endif()
+
+enable_testing()
+
+include(GoogleTest)
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
@@ -68,34 +90,10 @@ else()
 endif()
 
 #
-# ---- Cross-platform checks -------------------------------------------------------------
-#
-
-set(system_libs "")
-
-check_symbol_exists(strlcpy string.h HAVE_DECL_STRLCPY)
-check_symbol_exists(strlcat string.h HAVE_DECL_STRLCAT)
-check_function_exists(strlcpy HAVE_STRLCPY)
-check_function_exists(strlcat HAVE_STRLCAT)
-if (NOT
-    (HAVE_STRLCPY AND HAVE_DECL_STRLCPY AND HAVE_STRLCAT AND HAVE_DECL_STRLCAT))
- find_library(BSD_LIBRARY bsd)
- if (BSD_LIBRARY)
-   unset(CMAKE_REQUIRED_LIBRARIES)
-   set(CMAKE_REQUIRED_LIBRARIES ${BSD_LIBRARY})
-   list(APPEND system_libs ${BSD_LIBRARY})
-  endif()
-  check_include_file(bsd/string.h HAVE_BSD_STRING_H)
-  if(HAVE_BSD_STRING_H)
-    add_definitions(-DHAVE_BSD_STRING_H)
-  endif()
-endif()
-
-#
 # ---- Einstein Source Files -------------------------------------------------------------
 #
 
-set ( sources
+set ( common_sources
 	Emulator/Files/TFileManager.cpp
 	Emulator/Files/TFileManager.h
 	Emulator/Host/THostInfo.cpp
@@ -202,6 +200,8 @@ set ( sources
 	Emulator/Serial/TTcpClientSerialPortManager.h
 	Emulator/Network/TNetworkManager.cpp
 	Emulator/Network/TNetworkManager.h
+    Emulator/Network/TUsermodeNetwork.cpp
+    Emulator/Network/TUsermodeNetwork.h
 	Emulator/PCMCIA/TATACard.cpp
 	Emulator/PCMCIA/TATACard.h
 	Emulator/PCMCIA/TLinearCard.cpp
@@ -226,8 +226,6 @@ set ( sources
 	Emulator/ROM/TFlatROMImageWithREX.h
 	Emulator/ROM/TROMImage.cpp
 	Emulator/ROM/TROMImage.h
-	Emulator/Screen/TFLScreenManager.cpp
-	Emulator/Screen/TFLScreenManager.h
 	Emulator/Screen/TNullScreenManager.cpp
 	Emulator/Screen/TNullScreenManager.h
 	Emulator/Screen/TScreenManager.cpp
@@ -299,24 +297,31 @@ set ( sources
 	K/Unicode/UUTF16Conv.cpp
 	K/Unicode/UUTF16Conv.h
 	K/Unicode/UnicodeDefinitions.h
+	app/TPathHelper.cpp
+	app/TPathHelper.h
+	Monitor/TSymbolList.cpp
+	Monitor/TSymbolList.h
+	Monitor/UDisasm.cpp
+	Monitor/UDisasm.h
+	app/TFLRexImage.fl
+	app/TFLRexImage.cpp
+	app/TFLRexImage.h
+)
+
+set ( app_sources
+	Emulator/Screen/TFLScreenManager.cpp
+	Emulator/Screen/TFLScreenManager.h
 	Monitor/TFLMonitor.cpp
 	Monitor/TFLMonitor.h
 	Monitor/TMonitor.cpp
 	Monitor/TMonitor.h
 	Monitor/TMonitorCore.cpp
 	Monitor/TMonitorCore.h
-	Monitor/TSymbolList.cpp
-	Monitor/TSymbolList.h
-	Monitor/UDisasm.cpp
-	Monitor/UDisasm.h
 	app/TFLApp.cpp
 	app/TFLApp.h
 	app/TFLAppUI.fl
 	app/TFLAppUI.cpp
 	app/TFLAppUI.h
-	app/TFLRexImage.fl
-	app/TFLRexImage.cpp
-	app/TFLRexImage.h
 	app/TFLSettingsUI.fl
 	app/TFLSettingsUI.cpp
 	app/TFLSettingsUI.h
@@ -324,12 +329,17 @@ set ( sources
 	app/TFLSettings.h
 	app/TFLAppWindow.cpp
 	app/TFLAppWindow.h
-	app/TPathHelper.cpp
-	app/TPathHelper.h
 	app/TFLTabs.cpp
 	app/TFLTabs.h
 	app/Version.h
 	app/Version_CMake.h.in
+)
+
+set ( test_sources
+	_Tests_/EinsteinTests.cpp
+	_Tests_/ExecuteInstructionTests.t
+	_Tests_/UProcessorTests.cpp
+	_Tests_/UProcessorTests.h
 )
 
 #
@@ -337,7 +347,7 @@ set ( sources
 #
 
 if ( USE_NEWT64 MATCHES true )
-	list (APPEND sources
+	list (APPEND app_sources
 		Toolkit/TToolkit.cpp
 		Toolkit/TToolkit.h
 		Toolkit/TTkElement.cpp
@@ -386,6 +396,10 @@ macro (build_with_fluid name dir)
 endmacro ()
 
 
+#
+# ---- Platform specific source files ----------------------------------------------------------
+#
+
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
 	# configure to use FLTK as the GUI
@@ -399,20 +413,10 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	build_with_fluid(TFLToolkitUI Toolkit)
 
 	# additional source code
-	list (APPEND sources
-		# calling ObjectiveC native functions (very limited support in this version of EInsten)
+	list (APPEND common_sources
+		# calling ObjectiveC native functions (very limited support in this version of Einstein)
 		Emulator/NativeCalls/TObjCBridgeCalls.mm
 		Emulator/NativeCalls/TObjCBridgeCalls.h
-		app/TCocoaPathHelper.mm
-		app/TCocoaPathHelper.h
-		# macOS sound support
-		Emulator/Sound/TCoreAudioSoundManager.cpp
-		Emulator/Sound/TCoreAudioSoundManager.h
-		# Network card emulations
-		Emulator/Network/TTapNetwork.cpp
-		Emulator/Network/TTapNetwork.h
-		Emulator/Network/TUsermodeNetwork.cpp
-		Emulator/Network/TUsermodeNetwork.h
 		# Serial port emulation
 		Emulator/Serial/TBasiliskIISerialPortManager.cpp
 		Emulator/Serial/TBasiliskIISerialPortManager.h
@@ -420,54 +424,21 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		Emulator/Serial/TPipesSerialPortManager.h
 		Emulator/Serial/TPtySerialPortManager.cpp
 		Emulator/Serial/TPtySerialPortManager.h
+		app/TCocoaPathHelper.mm
+		app/TCocoaPathHelper.h
+	)
+	list (APPEND app_sources
+		# macOS sound support
+		Emulator/Sound/TCoreAudioSoundManager.cpp
+		Emulator/Sound/TCoreAudioSoundManager.h
+		# Network card emulations
+		Emulator/Network/TTapNetwork.cpp
+		Emulator/Network/TTapNetwork.h
 		# Apple macOS required resources
 		Resources/macOS/Info.plist.in
 		Resources/macOS/Einstein.icns
         Resources/macOS/Entitlements.plist      
 	)
-	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources})
-
-	# take care of the app icon
-	set (MACOSX_BUNDLE_ICON_FILE Einstein.icns)
-	set_source_files_properties(Resources/macOS/${MACOSX_BUNDLE_ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-
-	# create the application
-	add_executable(Einstein MACOSX_BUNDLE
-		${sources}
-	)
-
-	# how to compile and link
-	target_compile_options(Einstein PUBLIC -Wall -Wextra -Wpedantic -Wno-missing-field-initializers "$<$<CONFIG:DEBUG>:-Werror>")
-	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1)
-	target_link_libraries(Einstein
-		${system_libs}
-		# /usr/local/lib/libfltk.a
-		fltk
-		fltk_images
-		fltk_png
-		fltk_z
-		pthread
-		"-framework AddressBook"
-		"-framework AudioUnit"
-		"-framework AppKit"
-		"-framework CoreAudio"
-		"-framework Cocoa"
-	)
-	set_target_properties(Einstein PROPERTIES
-		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Info.plist.in"
-	)
-    set_target_properties(Einstein PROPERTIES
-        CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/EntiXXXtlements.plist"
-    )
-
-	if ( USE_NEWT64 MATCHES true )
-		target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
-		target_link_libraries(Einstein
-			${newt64_lib}
-		)
-		target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
-	endif ()
 
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
@@ -482,17 +453,12 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	build_with_fluid(TFLToolkitUI Toolkit)
 
 	# additional source code
-	list (APPEND sources
+	list (APPEND common_sources
 			# calling native functions (very limited support in this version of EInsten)
 			Emulator/NativeCalls/NativeCallsDefines.h
 			Emulator/NativeCalls/TNativeCalls.cpp
 			Emulator/NativeCalls/TNativeCalls.h
-			# Unix sound support
-			Emulator/Sound/TPulseAudioSoundManager.cpp
-			Emulator/Sound/TPulseAudioSoundManager.h
-			# Network card emulations
-			Emulator/Network/TUsermodeNetwork.cpp
-			Emulator/Network/TUsermodeNetwork.h
+    		# Serial port emulation
 			Emulator/Serial/TBasiliskIISerialPortManager.cpp
 			Emulator/Serial/TBasiliskIISerialPortManager.h
 			Emulator/Serial/TPipesSerialPortManager.cpp
@@ -500,31 +466,13 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 			Emulator/Serial/TPtySerialPortManager.cpp
 			Emulator/Serial/TPtySerialPortManager.h
 			)
-	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources})
 
-	# create the application
-	add_executable(Einstein ${sources})
-
-	# how to compile and link
-	target_compile_options(Einstein PUBLIC -Wall -Wno-multichar -Wno-misleading-indentation -Wno-missing-field-initializers)
-	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 TARGET_OS_LINUX=1)
-	target_link_libraries(Einstein
-		${system_libs}
-		fltk
-		fltk_images
-		fltk_png
-		fltk_z
-		pulse # sound
-	)
-
-	if ( USE_NEWT64 MATCHES true )
-		target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
-		target_link_libraries(Einstein
-			${newt64_lib}
-		)
-		target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
-	endif ()
+	# additional source code
+	list (APPEND app_sources
+			# Unix sound support
+			Emulator/Sound/TPulseAudioSoundManager.cpp
+			Emulator/Sound/TPulseAudioSoundManager.h
+			)
 
 elseif (WIN32)
 
@@ -544,20 +492,109 @@ elseif (WIN32)
 	build_with_fluid(TFLToolkitUI Toolkit)
 
 	# additional source code
-	list (APPEND sources
+	list (APPEND common_sources
 		# calling native functions (very limited support in this version of EInsten)
 		Emulator/NativeCalls/NativeCallsDefines.h
 		Emulator/NativeCalls/TNativeCalls.cpp
 		Emulator/NativeCalls/TNativeCalls.h
+	)
+	# additional source code
+	list (APPEND app_sources
 		# Windows sound support
 		Emulator/Sound/TWaveSoundManager.cpp
 		Emulator/Sound/TWaveSoundManager.h
-		# Network card emulations
-		Emulator/Network/TUsermodeNetwork.cpp
-		Emulator/Network/TUsermodeNetwork.h
 	)
-	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${sources} Resources/MSWindows/Einstein.rc.in)
+
+endif ()
+
+#
+# ---- Common rules ----------------------------------------------------------
+#
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${common_sources})
+source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${app_sources})
+source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${test_sources})
+
+#
+# ---- Platform specific rules ----------------------------------------------------------
+#
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	# take care of the app icon
+	set (MACOSX_BUNDLE_ICON_FILE Einstein.icns)
+	set_source_files_properties(Resources/macOS/${MACOSX_BUNDLE_ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+
+	# create the application
+	add_executable(Einstein MACOSX_BUNDLE
+		${common_sources}
+		${app_sources}
+	)
+	add_executable(EinsteinTests ${common_sources} ${test_sources})
+
+	# how to compile and link
+	target_compile_options(Einstein PUBLIC -Wall -Wextra -Wpedantic -Wno-missing-field-initializers "$<$<CONFIG:DEBUG>:-Werror>")
+	target_compile_options(EinsteinTests PUBLIC -Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror)
+	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1)
+	target_compile_definitions(EinsteinTests PRIVATE TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1 TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1)
+	target_link_libraries(Einstein
+	    ${system_libs}
+		# /usr/local/lib/libfltk.a
+		fltk
+		fltk_images
+		fltk_png
+		fltk_z
+		pthread
+		"-framework AddressBook"
+		"-framework AudioUnit"
+		"-framework AppKit"
+		"-framework CoreAudio"
+		"-framework Cocoa"
+	)
+	target_link_libraries(EinsteinTests
+	    ${system_libs}
+		fltk
+		pthread
+		"-framework AddressBook"
+		"-framework AudioUnit"
+		"-framework AppKit"
+		"-framework CoreAudio"
+		"-framework Cocoa"
+	)
+	set_target_properties(Einstein PROPERTIES
+		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Info.plist.in"
+	)
+    set_target_properties(Einstein PROPERTIES
+        CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/EntiXXXtlements.plist"
+    )
+
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+
+	# create the application
+	add_executable(Einstein ${common_sources} ${app_sources})
+    add_executable(EinsteinTests ${common_sources} ${test_sources})
+
+	# how to compile and link
+	target_compile_options(Einstein PUBLIC -Wall -Wno-multichar -Wno-misleading-indentation -Wno-missing-field-initializers "$<$<CONFIG:DEBUG>:-Werror>")
+	target_compile_options(EinsteinTests PUBLIC -Wall -Wno-multichar -Wno-misleading-indentation -Wno-missing-field-initializers -Werror)
+	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 TARGET_OS_LINUX=1)
+	target_compile_definitions(EinsteinTests PRIVATE TARGET_UI_FLTK=1 TARGET_OS_LINUX=1)
+	target_link_libraries(Einstein
+	    ${system_libs}
+		fltk
+		fltk_images
+		fltk_png
+		fltk_z
+		pulse # sound
+	)
+	target_link_libraries(EinsteinTests
+	    ${system_libs}
+		fltk
+		pthread
+	)
+
+elseif (WIN32)
+	source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES Resources/MSWindows/Einstein.rc.in)
 
 	# Create a resources file for Windows
 	configure_file(
@@ -565,18 +602,22 @@ elseif (WIN32)
 		Einstein.rc
 	)
 
-	# create the application
+	# create the binaries
 	add_executable(Einstein WIN32
-		${sources} ${data}
+		${common_sources} ${app_sources} ${data}
 		${CMAKE_CURRENT_BINARY_DIR}/Einstein.rc
 	)
+    add_executable(EinsteinTests ${common_sources} ${test_sources})
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC "/bigobj")
+	target_compile_options(EinsteinTests PUBLIC "/bigobj")
 	if ($<CONFIG:Debug>) 
 		target_compile_options(Einstein PUBLIC "/ZI")
+		target_compile_options(EinsteinTests PUBLIC "/ZI")
 	endif()
 	target_compile_definitions(Einstein PRIVATE TARGET_UI_FLTK=1 TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1)
+	target_compile_definitions(EinsteinTests PRIVATE TARGET_UI_FLTK=1 TARGET_OS_WIN32=1 WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1)
 	target_link_libraries(Einstein
 		${system_libs}
 		# this vvv always includes the debug version, even in release mode
@@ -591,35 +632,44 @@ elseif (WIN32)
 		# end of alternative
 		winmm
 	)
-
-	if ( USE_NEWT64 MATCHES true )
-		target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/win)
-		target_link_libraries(Einstein
-			${newt64_lib}
-			shlwapi
-		)
-		message(STATUS ${newt64_lib})
-		target_compile_definitions(Einstein PRIVATE USE_NEWT64=1)
-	endif ()
+	target_link_libraries(EinsteinTests
+	    ${system_libs}
+		fltk
+		pthread
+	)
 
 endif ()
 
+if ( USE_NEWT64 MATCHES true )
+    if (WIN32)
+        target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/win)
+        target_link_libraries(Einstein shlwapi)
+    else()
+        # On Linux/macOS, use darwin includes
+        target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
+    endif()
+    target_link_libraries(Einstein ${newt64_lib})
+    message(STATUS ${newt64_lib})
+    target_compile_definitions(Einstein PRIVATE USE_TOOLKIT=1)
+endif ()
 
 target_include_directories(
 	Einstein PUBLIC
 	${CMAKE_SOURCE_DIR}
 	${FLTK_INCLUDE_DIRS}
 )
+target_include_directories(
+	EinsteinTests PUBLIC
+	${CMAKE_SOURCE_DIR}
+	${FLTK_INCLUDE_DIRS}
+)
 
 target_compile_definitions(Einstein PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE)
+target_compile_definitions(EinsteinTests PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE)
 
-# nice code to output every know variable in this CMake session
-#get_cmake_property(_variableNames VARIABLES)
-#list (SORT _variableNames)
-#foreach (_variableName ${_variableNames})
-#	message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
+target_link_libraries(EinsteinTests gtest_main)
 
+gtest_discover_tests(EinsteinTests)
 
 #
 # --- MessagePad.org distribution system ---------------------------------------
@@ -670,4 +720,3 @@ else ()
 	message ("Einstein is not configured to distribute for this platform: " ${CMAKE_SYSTEM_NAME} ".")
 
 endif ()
-

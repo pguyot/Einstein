@@ -192,7 +192,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "TFLAppUI.h"
 #include "TFLAppWindow.h"
 #include "TFLSettingsUI.h"
-#if USE_NEWT64
+#if USE_TOOLKIT
 #include "Toolkit/TToolkit.h"
 #endif
 
@@ -462,7 +462,7 @@ TFLApp::Run( int argc, char* argv[] )
  */
 void TFLApp::UserActionQuit()
 {
-#if USE_NEWT64
+#if USE_TOOLKIT
     // Close the Toolkit window, so it can save its coordinates in the prefrences
     if ( mToolkit )
         mToolkit->Hide();
@@ -717,7 +717,7 @@ void TFLApp::UserActionToggleMonitor()
 
 void TFLApp::UserActionShowToolkit()
 {
-#if USE_NEWT64
+#if USE_TOOLKIT
     if (!mToolkit)
         mToolkit = new TToolkit(this);
     mToolkit->Show();

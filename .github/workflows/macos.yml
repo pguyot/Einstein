@@ -22,17 +22,9 @@ jobs:
     - name: Build
       run: xcodebuild build -project _Build_/Xcode/Einstein.xcodeproj -scheme Einstein
 
-    # Runs a set of commands using the runners shell
+    # All automated tests are available as part of the EinsteinTest target
     - name: Run Xcode tests
       run: xcodebuild test -project _Build_/Xcode/Einstein.xcodeproj -scheme Einstein
-
-    # Also run CLI tests
-    - name: Run CLI tests
-      run: |
-        xcodebuild install -project _Build_/Xcode/Einstein.xcodeproj -configuration Debug -scheme CLITest DSTROOT=/ INSTALL_PATH=/usr/local/bin
-        cd _Tests_/scripts/
-        sh test-instructions.sh /usr/local/bin/CLITest
-        sh test-memory.sh /usr/local/bin/CLITest
 
     - name: Archive
       run: |

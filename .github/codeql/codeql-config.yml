@@ -5,3 +5,4 @@ queries:
 paths-ignore: 
   - fltk
   - newt64
+  - _Tests_

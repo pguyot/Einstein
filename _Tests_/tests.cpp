@@ -80,10 +80,6 @@ test( const char* inTestName, const char* inArgument )
 	} else if (::strcmp(inTestName, "screen-x11") == 0) {
 		UScreenTests::TestX11();
 #endif
-	} else if (::strcmp(inTestName, "memory-read-rom") == 0) {
-		UMemoryTests::ReadROMTest(&theLog);
-	} else if (::strcmp(inTestName, "memory-read-write-ram") == 0) {
-		UMemoryTests::ReadWriteRAMTest(&theLog);
 	} else if (::strcmp(inTestName, "flash") == 0) {
 		UMemoryTests::FlashTest(&theLog);
 	} else if (::strcmp(inTestName, "host-info") == 0) {
