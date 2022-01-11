@@ -116,7 +116,6 @@
 
 #define POPPC() \
 	KUInt32 thePC; \
-	(void)thePC; \
 	POPVALUE(thePC)
 
 // TODO: fix FURTHERCALLNEXT
