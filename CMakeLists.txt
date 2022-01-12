@@ -85,7 +85,12 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Windows" )
 	find_package( Newt64 CONFIG HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/build )
 endif()
 
-find_library( newt64_lib NAMES newt64 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/build )
+find_library ( newt64_lib NAMES newt64
+	HINTS
+		${CMAKE_CURRENT_SOURCE_DIR}/newt64/build/Release
+		${CMAKE_CURRENT_SOURCE_DIR}/newt64/build/Debug
+		${CMAKE_CURRENT_SOURCE_DIR}/newt64/build
+)
 find_file( newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/src/newt_core/incs )
 
 if ( newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND" )
@@ -104,12 +109,19 @@ endif ()
 
 # TODO: update this to automatically download and build in .../Einstein/fltk
 set( FLTK_SKIP_OPENGL true )
-if ( WIN32 )
-	find_program( LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_SOURCE_DIR}/fltk/build/bin "C:/Program Files/FLTK/bin" )
-else ()
-	find_program( LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_SOURCE_DIR}/fltk/build/bin )
-endif ()
+find_program( LOCAL_FLTK_FLUID_EXECUTABLE fluid
+	HINTS
+		${CMAKE_SOURCE_DIR}/fltk/build/bin/Release
+		${CMAKE_SOURCE_DIR}/fltk/build/bin/Debug
+		${CMAKE_SOURCE_DIR}/fltk/build/bin
+)
 find_package( FLTK REQUIRED NO_MODULE HINTS ${CMAKE_SOURCE_DIR}/fltk/build )
+
+if ( ${LOCAL_FLTK_FLUID_EXECUTABLE} MATCHES ".*NOTFOUND" )
+	message( WARNING "Fluid (FLTK User Interface Designer) not found!" )
+else ()
+	message( STATUS "Fluid (FLTK User Interface Designer) found at " ${LOCAL_FLTK_FLUID_EXECUTABLE})
+endif ()
 
 function ( build_with_fluid name dir )
 	add_custom_command (
@@ -335,11 +347,12 @@ elseif ( WIN32 )
 		fltk_png
 		fltk_z
 		winmm
+		gdiplus
 	)
 	target_link_libraries ( EinsteinTests
 		${system_libs}
 		fltk
-		pthread
+		gdiplus
 	)
 
 endif ()

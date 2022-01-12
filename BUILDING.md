@@ -382,4 +382,22 @@ running on iPhone 13 Max Pro with iOS 15.2
 
 
 
+Build log Window 11 and VisualStudin 2022
+
+Open a Developer COmmand Promt (Start Menu -> All Apps -> Visual Studi 2020 Folder -> Developer Command Promt for VS 2022)
+
+git clone https://github.com/pguyot/Einstein.git
+cd Einstein
+git clone https://github.com/fltk/fltk.git
+cmake -S fltk -B fltk/build -D OPTION_USE_SYSTEM_LIBJPEG=Off -D OPTION_USE_SYSTEM_ZLIB=Off -D OPTION_USE_SYSTEM_LIBPNG=Off -D CMAKE_BUILD_TYPE=Release -D OPTION_USE_GL=Off -D FLTK_BUILD_TEST=Off
+cmake --build fltk/build --config Release
+git clone https://github.com/MatthiasWM/NEWT64.git newt64
+cmake -S newt64 -B newt64/build -D CMAKE_BUILD_TYPE=Release
+# ignore warning
+cmake --build newt64/build --config Release
+cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+build\Release\Einstein.exe
+
+
 
