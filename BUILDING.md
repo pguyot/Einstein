@@ -5,7 +5,7 @@
 * Building Einstein with Cocoa on macOS in 64 bit with Xcode
 * Building Einstein with FLTK on macOS in 64 bit with Xcode
 * Building Einstein on Linux in 64 bit
-* Building Einstein on Windows 10
+* Building Einstein on Windows 10/11
 * Buidling Einstein for Android
 * Building Einstein for iOS
 
@@ -266,7 +266,7 @@ make
 ```
 
 
-## Building Einstein on Windows 11
+## Building Einstein on Windows 10/11
 
 ### Prerequisites
 
@@ -281,7 +281,7 @@ Prompt:
 ```
 Start Menu
   -> All Apps
-    -> Visual Studi 2020 Folder
+    -> Visual Studio 2020 Folder
       -> Developer Command Promt for VS 2022
 ```
 
