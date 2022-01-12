@@ -5,7 +5,7 @@
 include ( Emulator/JIT/Generic/CMakeLists.txt )
 
 list ( APPEND cmake_sources
-  Emulator/JIT/CMakeLists.txt
+	Emulator/JIT/CMakeLists.txt
 )
 
 list ( APPEND common_sources

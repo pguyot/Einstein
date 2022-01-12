@@ -3,7 +3,7 @@
 #
 
 list ( APPEND cmake_sources
-  Monitor/CMakeLists.txt
+	Monitor/CMakeLists.txt
 )
 
 list ( APPEND common_sources

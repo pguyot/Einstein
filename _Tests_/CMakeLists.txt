@@ -3,7 +3,7 @@
 #
 
 list ( APPEND cmake_sources
-  _Tests_/CMakeLists.txt
+	_Tests_/CMakeLists.txt
 )
 
 list ( APPEND test_sources

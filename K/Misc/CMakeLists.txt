@@ -3,7 +3,7 @@
 #
 
 list ( APPEND cmake_sources
-  K/Misc/CMakeLists.txt
+	K/Misc/CMakeLists.txt
 )
 
 list ( APPEND common_sources

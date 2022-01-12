@@ -3,7 +3,7 @@
 #
 
 list ( APPEND cmake_sources
-  Emulator/PCMCIA/CMakeLists.txt
+	Emulator/PCMCIA/CMakeLists.txt
 )
 
 list ( APPEND common_sources

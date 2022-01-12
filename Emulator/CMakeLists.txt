@@ -16,7 +16,7 @@ include ( Emulator/Serial/CMakeLists.txt )
 include ( Emulator/Sound/CMakeLists.txt )
 
 list ( APPEND cmake_sources
-  Emulator/CMakeLists.txt
+	Emulator/CMakeLists.txt
 )
 
 list ( APPEND common_sources

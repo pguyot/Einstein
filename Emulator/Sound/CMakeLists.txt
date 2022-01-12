@@ -3,7 +3,7 @@
 #
 
 list ( APPEND cmake_sources
-  Emulator/Sound/CMakeLists.txt
+	Emulator/Sound/CMakeLists.txt
 )
 
 list ( APPEND common_sources
@@ -22,12 +22,11 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	)
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	list (APPEND app_sources
-    Emulator/Sound/TPulseAudioSoundManager.cpp
-    Emulator/Sound/TPulseAudioSoundManager.h
-  )
+		Emulator/Sound/TPulseAudioSoundManager.cpp
+		Emulator/Sound/TPulseAudioSoundManager.h
+	)
 elseif (WIN32)
 	list (APPEND app_sources
-		# Windows sound support
 		Emulator/Sound/TWaveSoundManager.cpp
 		Emulator/Sound/TWaveSoundManager.h
 	)

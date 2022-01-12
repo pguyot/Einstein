@@ -3,7 +3,7 @@
 #
 
 list ( APPEND cmake_sources
-  Emulator/NativeCalls/CMakeLists.txt
+	Emulator/NativeCalls/CMakeLists.txt
 )
 
 list ( APPEND common_sources
@@ -23,7 +23,7 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 			Emulator/NativeCalls/NativeCallsDefines.h
 			Emulator/NativeCalls/TNativeCalls.cpp
 			Emulator/NativeCalls/TNativeCalls.h
-  )
+	)
 elseif (WIN32)
 	list (APPEND common_sources
 		Emulator/NativeCalls/NativeCallsDefines.h

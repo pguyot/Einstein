@@ -5,7 +5,7 @@
 include ( app/FLTK/CMakeLists.txt )
 
 list ( APPEND cmake_sources
-  app/CMakeLists.txt
+	app/CMakeLists.txt
 )
 
 list ( APPEND common_sources

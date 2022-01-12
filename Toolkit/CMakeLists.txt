@@ -3,7 +3,7 @@
 #
 
 list ( APPEND cmake_sources
-  Toolkit/CMakeLists.txt
+	Toolkit/CMakeLists.txt
 )
 
 list (APPEND app_sources
@@ -28,4 +28,4 @@ list (APPEND app_sources
 	Toolkit/TToolkitPrototypes.h
 )
 
-build_with_fluid( TFLToolkitUI  Toolkit )
+build_with_fluid( TFLToolkitUI Toolkit )

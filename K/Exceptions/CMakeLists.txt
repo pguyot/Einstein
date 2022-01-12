@@ -6,7 +6,7 @@ include ( K/Exceptions/Errors/CMakeLists.txt )
 include ( K/Exceptions/IO/CMakeLists.txt )
 
 list ( APPEND cmake_sources
-  K/Exceptions/CMakeLists.txt
+	K/Exceptions/CMakeLists.txt
 )
 
 list ( APPEND common_sources

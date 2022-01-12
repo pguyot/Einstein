@@ -3,7 +3,7 @@
 #
 
 list ( APPEND cmake_sources
-  app/FLTK/CMakeLists.txt
+	app/FLTK/CMakeLists.txt
 )
 
 list ( APPEND common_sources

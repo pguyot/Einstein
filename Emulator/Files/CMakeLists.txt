@@ -3,7 +3,7 @@
 #
 
 list ( APPEND cmake_sources
-  Emulator/Files/CMakeLists.txt
+	Emulator/Files/CMakeLists.txt
 )
 
 list ( APPEND common_sources

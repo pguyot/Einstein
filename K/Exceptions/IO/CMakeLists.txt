@@ -3,7 +3,7 @@
 #
 
 list ( APPEND cmake_sources
-  K/Exceptions/IO/CMakeLists.txt
+	K/Exceptions/IO/CMakeLists.txt
 )
 
 list ( APPEND common_sources
