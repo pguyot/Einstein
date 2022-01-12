@@ -55,7 +55,7 @@ TFLPCCardSettings::TFLPCCardSettings(Fl_Preferences &prefs)
     int type = 0;
     prefs.get("type", type, 0);
     switch (type) {
-    case 0:
+    default:
         SetType(CardType::kUndefined);
         SetTag("????");
         break;
@@ -71,8 +71,8 @@ TFLPCCardSettings::TFLPCCardSettings(Fl_Preferences &prefs)
         break;
     }
     char newTag[32];
-    prefs.get("tag", newTag, "", 30);
-    if (newTag[0]) SetTag(newTag);
+    prefs.get("tag", newTag, GetTag(), 30);
+    SetTag(newTag);
     prefs.get("keepInSlot", mKeepInSlot, -1);
 }
 
@@ -235,9 +235,10 @@ void TFLSettings::loadPreferences()
 
     // ROM Preferences
     Fl_Preferences rom(prefs, "ROM");
-    {
-        strcpy(buf, appPath);
-        strcat(buf, "717006");
+	{
+		buf[0] = 0;
+        strncat(buf, appPath, strlen(buf)-1);
+		strncat(buf, "717006", strlen(buf)-1);
         rom.get("path", ROMPath, buf);
         rom.get("builtInRex", mUseBuiltinRex, true);
     }
@@ -245,8 +246,9 @@ void TFLSettings::loadPreferences()
     // Flash Preferences
     Fl_Preferences flash(prefs, "Flash");
     {
+		buf[0] = 0;
         prefs.getUserdataPath(buf, FL_PATH_MAX-15);
-        strcat(buf, "internal.flash");
+		strncat(buf, "internal.flash", strlen(buf)-1);
         flash.get("path", FlashPath, buf);
     }
 

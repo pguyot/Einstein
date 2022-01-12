@@ -2,17 +2,19 @@
 # Add source files required to build Einstein.
 #
 
-target_sources ( Einstein PRIVATE
-	JIT.h
-	TJIT.h
-	TJITCache.cpp
-	TJITCache.h
-	TJITPage.cpp
-	TJITPage.h
-	TJITPerformance.cpp
-	TJITPerformance.h
-	CMakeLists.txt
+include ( Emulator/JIT/Generic/CMakeLists.txt )
+
+list ( APPEND cmake_sources
+	Emulator/JIT/CMakeLists.txt
 )
 
-add_subdirectory(Generic)
-
+list ( APPEND common_sources
+	Emulator/JIT/JIT.h
+	Emulator/JIT/TJIT.h
+	Emulator/JIT/TJITCache.cpp
+	Emulator/JIT/TJITCache.h
+	Emulator/JIT/TJITPage.cpp
+	Emulator/JIT/TJITPage.h
+	Emulator/JIT/TJITPerformance.cpp
+	Emulator/JIT/TJITPerformance.h
+)

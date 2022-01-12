@@ -9,17 +9,17 @@ cmake_minimum_required(VERSION 3.13)
 
 project("Einstein" VERSION "2022.5.0")
 
-# ---- Include some additional functionality
-
-include(CheckSymbolExists)
-include(CheckFunctionExists)
-include(CheckIncludeFile)
-
 # ---- Configuration for all targets on all platforms
 
 set ( CMAKE_CXX_STANDARD 17 )
 set ( CMAKE_CXX_STANDARD_REQUIRED ON )
 set ( CMAKE_CXX_EXTENSIONS OFF )
+
+# ---- Include some additional functionality
+
+include(CheckSymbolExists)
+include(CheckFunctionExists)
+include(CheckIncludeFile)
 
 # ---- Configuration per platform
 

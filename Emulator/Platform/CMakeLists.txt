@@ -2,13 +2,15 @@
 # Add source files required to build Einstein.
 #
 
-target_sources ( Einstein PRIVATE
-	PlatformEvents.h
-	PlatformGestalt.h
-	TNewt.cpp
-	TNewt.h
-	TPlatformManager.cpp
-	TPlatformManager.h
-	CMakeLists.txt
+list ( APPEND cmake_sources
+	Emulator/Platform/CMakeLists.txt
 )
 
+list ( APPEND common_sources
+	Emulator/Platform/PlatformEvents.h
+	Emulator/Platform/PlatformGestalt.h
+	Emulator/Platform/TNewt.cpp
+	Emulator/Platform/TNewt.h
+	Emulator/Platform/TPlatformManager.cpp
+	Emulator/Platform/TPlatformManager.h
+)
