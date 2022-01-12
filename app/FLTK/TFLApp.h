@@ -45,6 +45,7 @@ class TEmulator;
 class TSoundManager;
 class TScreenManager;
 class TLog;
+class TBufferLog;
 class TPlatformManager;
 class TNetworkManager;
 class TMonitor;
@@ -213,6 +214,7 @@ private:
     TPlatformManager*	mPlatformManager = nullptr;
     TNetworkManager*	mNetworkManager = nullptr;
     TLog*				mLog = nullptr;
+    TBufferLog*			mMonitorLog = nullptr;
     TMonitor*			mMonitor = nullptr;
     TSymbolList*		mSymbolList = nullptr;
     TFLSettingsUI*      mFLSettings = nullptr;
