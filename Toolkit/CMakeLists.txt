@@ -27,3 +27,5 @@ list (APPEND app_sources
 	Toolkit/TToolkitPrototypes.cpp
 	Toolkit/TToolkitPrototypes.h
 )
+
+build_with_fluid( TFLToolkitUI  Toolkit )

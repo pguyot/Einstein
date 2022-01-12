@@ -2,18 +2,14 @@
 # Add source files required to build Einstein.
 #
 
-target_sources ( Einstein PRIVATE
-	Errors/TError.cpp
-	Errors/TError.h
-	Errors/TMemError.cpp
-	Errors/TMemError.h
-	IO/TEOFException.cpp
-	IO/TEOFException.h
-	IO/TIOException.cpp
-	IO/TIOException.h
-	TException.cpp
-	TException.h
-	CMakeLists.txt
+include ( K/Exceptions/Errors/CMakeLists.txt )
+include ( K/Exceptions/IO/CMakeLists.txt )
+
+list ( APPEND cmake_sources
+  K/Exceptions/CMakeLists.txt
 )
 
-
+list ( APPEND common_sources
+	K/Exceptions/TException.cpp
+	K/Exceptions/TException.h
+)
