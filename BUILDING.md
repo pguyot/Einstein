@@ -266,82 +266,56 @@ make
 ```
 
 
-## Building Einstein on Windows 10
+## Building Einstein on Windows 11
 
 ### Prerequisites
 
-Install VisualStudio 2019 with the C++ compiler, CMake, and Git components. 
-I like to install TortoiseGIT as well to make accessing GitHub easy.
+Install VisualStudio 2020. It will include the C++ compiler. Make sure that 
+the CMake tools are also installed.
 
-### FLTK 
+You will also need git. You can install it 
+from this source: https://gitforwindows.org . 
 
-Download, build, and install FLTK first. FLTK is a cross-platform user interface library
-that is easy to use and very light on resources. See https://www.fltk.org .
-
-Clone `https://github.com/fltk/fltk.git` into a directory named `fltk`.
-
-Add the following lines to the beginning of `fltk/CMakeListst.txt`:
+Einstein can built very easily from the command line. Open the Developer Command
+Prompt:
 ```
-cmake_minimum_required(VERSION 3.15)
-cmake_policy(SET CMP0091 NEW)
-set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+Start Menu 
+  -> All Apps 
+    -> Visual Studi 2020 Folder 
+      -> Developer Command Promt for VS 2022
+```      
+
+Enter the following commands into the shell.
+
+Downlaod the Einstein source code:
 ```
-
-Launch VisualStudio 2019. Click on "Continue without code...". An 
-empty project will open. Select `File > Open > CMake...` from the VisualStudio
-main menu and select `CMakeLists.txt` in the fltk root directory.
-
-Add a Release target if VC did not already create it. Then build and run `fluid.exe`
-in x64-Release mode to verify that FLTK built fine.
-
-Next, chose `Project > CMake settings for FLTK` from the main menu. Scroll down
-in the settings window and find the entry for `CMAKE_INSTALL_PREFIX`. Copy
-the path. We will need it later. In my case, it was `C:\Users\micro\dev\fltk-1.4 for Einstein.git\out\install\x64-Release`,
-but it will be diffferent on your machine.
-
-Install FLTK by choosing `Build > Install FLTK`.
-
-For Einstein to find FLTK, we need to create a link in the file system. Open
-a Command Prompt in Administrator mode and type the following commands, but replace
-the last path with whatever your FLTK path is.
-
+git clone https://github.com/pguyot/Einstein.git
+cd Einstein
 ```
-c:
-cd "c:\Program Files"
-mklink /D FLTK "C:\Users\micro\dev\fltk-1.4 for Einstein.git\out\install\x64-Release"
+Download and build FLTK inside the Einstein folder. FLTK is a cross-platform
+user interface toolkit. FLTK is not optional. 
 ```
-
-### Newt64/Toolkit
-
-Newt64 will enable the built-in Developer Toolkit in Einstein 
-and a few other features that depend on NewtonScript compilation features.
-
-You need to install _flex_ and _bison_ in `C:/GnuWin32/` and add `C:/GnuWin32/bin` to the Path variable in the user environment settings.
-
-As of December 2020, both tools can be downloaded from `https://github.com/lexxmark/winflexbison/releases/tag/v2.5.23`, unpacked, and then
-copy the content of the archive into `C:/GnuWin32/bin`. Remove the *win_* prefix from *yacc.exe* and *bison.exe*. 
-Next, launch `Advanced System Settings` from the _Window 10_ Search Bar, click on
-`Environmet Variables...`, the edit the _PATH_ variable and add `C:/GnuWin32/bin`. Close all dialogs.
-
-Open Visual Studio and clone the GitHub project `https://github.com/MatthiasWM/NEWT64.git`.
-Add the `x64-Release` configuration. Newt64 should find all resources now. Build and install.
-
-
-### Einstein
-
-Next, download and build Einstein:
-
-Clone the Einstein source code from `https://github.com/pguyot/Einstein.git` into a folder named `Einstein`.
-
-Again, launch VisualStudio and click "Continue without code...", the select
-`File > Open > CMake...` from the VisualStudio
-main menu and select `CMakeLists.txt` in the Einstein root directory.
-
-VisualStudio should find all resources including FLTK and Fluid. Set Einstein
-as your startup project and compile and run the program.
-
+git clone https://github.com/fltk/fltk.git
+cmake -S fltk -B fltk/build -D OPTION_USE_SYSTEM_LIBJPEG=Off -D OPTION_USE_SYSTEM_ZLIB=Off -D OPTION_USE_SYSTEM_LIBPNG=Off -D CMAKE_BUILD_TYPE=Release -D OPTION_USE_GL=Off -D FLTK_BUILD_TEST=Off
+cmake --build fltk/build --config Release
+```
+Download and build Newt64 inside the Einstein folder. Newt64 is a NewtonScript
+interpreter and is the basis of the built-in Toolkit. Newt64 is optional. 
+```
+git clone https://github.com/MatthiasWM/NEWT64.git newt64
+cmake -S newt64 -B newt64/build -D CMAKE_BUILD_TYPE=Release
+cmake --build newt64/build --config Release
+```
+With all prerequisites installed, we can finally build Einstein:
+```
+cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+```
+If everything went well, Einstein can be found here:
+```
+build\Release\Einstein.exe
+```
 Continue with setting up the ROM as described in the manual. Enjoy.
-
 
 ### BasiliskII
 There is a version of the Macintosh Emulator BasiliskII for Windows that can connect directly
