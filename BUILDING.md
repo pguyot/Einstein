@@ -16,15 +16,15 @@ Tested on macOS 10.15.3 Catalina with Xcode 11.4.
 
 Install Xcode from the Apple AppStore.
 
-Building Einstein with Cocoa is very easy and straight forward. Cocoa is the 
-user interface that is built into MacOS. Just open the 
+Building Einstein with Cocoa is very easy and straight forward. Cocoa is the
+user interface that is built into MacOS. Just open the
 ```_Build_/Xcode/Einstein.xcodeproj``` in Xcode and press Cmd-R to
 build and run the package. Einstein should launch in Debug mode
 after a few minutes and ask you for the location of the ROM.
 
 Einstein with Cocoa comes with network and serial port emulation,
 and an assembly language Monitor. If you are interested in
-emulating PCMCIA Flash Memory cards, or would like to try 
+emulating PCMCIA Flash Memory cards, or would like to try
 some programming in NewtonScript, Einstein with FLTK is the better choice.
 
 
@@ -63,7 +63,7 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       -D FLTK_BUILD_TEST=Off \
       ../..
 # -- Build FLTK
-make 
+make
 # -- Install the FLTK library, includes, and tools
 sudo make install
 cd ../../..
@@ -71,10 +71,10 @@ cd ../../..
 
 ### Newt64/Toolkit
 
-Newt64 will enable the built-in Developer Toolkit in Einstein 
+Newt64 will enable the built-in Developer Toolkit in Einstein
 and a few other features that depend on NewtonScript compilation features.
 
-Clone the Git repository in https://github.com/MatthiasWM/NEWT64.git, 
+Clone the Git repository in https://github.com/MatthiasWM/NEWT64.git,
 build the library with *CMake*, and copy it to ```/usr/local/lib/libnewt64.s```
 Also, copy all files in ```.../src/newt_core/incs/``` into ```/usr/local/include/newt64/```.
 
@@ -137,11 +137,11 @@ cd ../../..
 In Xcode, select `Product > Run` from the main menu or type `Apple-R` to compile and run Einstein
 in debugging mode.
 
-To generate the faster release version, select `Product > Archive` to create an optimized version. 
+To generate the faster release version, select `Product > Archive` to create an optimized version.
 This takes a few minutes, but eventually Xcode will show you a dialog box with the archive that you just created.
 
 Right-click on the little icon and select `Show in Finder`. Then in Finder, right-click
-on the archive again and choose `Show Package Contents`. You will find the fast version 
+on the archive again and choose `Show Package Contents`. You will find the fast version
 of Einstein inside the folder `Products > Application`.
 
 Continue with setting up the ROM as described in the manual. Enjoy.
@@ -167,7 +167,7 @@ Install Clang, Make, and CMake. CMake may ask for more resources in the process.
 them with `sudo apt-get install ...`.
 
 ```bash
-sudo apt-get install git cmake 
+sudo apt-get install git cmake
 sudo apt-get install clang
 sudo apt-get install autoconf
 sudo apt-get install libx11-dev
@@ -202,7 +202,7 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       -D FLTK_BUILD_TEST=Off \
       ../..
 # -- Build FLTK
-make 
+make
 # -- Install the FLTK library, includes, and tools
 sudo make install
 cd ../../..
@@ -210,7 +210,7 @@ cd ../../..
 
 ### Newt64/Toolkit
 
-Newt64 will enable the built-in Developer Toolkit in Einstein 
+Newt64 will enable the built-in Developer Toolkit in Einstein
 and a few other features that depend on NewtonScript compilation features.
 
 ```bash
@@ -228,7 +228,7 @@ sudo make install
 cd ../..
 ```
 
-### Einstein 
+### Einstein
 
 Then download and build Einstein:
 
@@ -270,10 +270,10 @@ make
 
 ### Prerequisites
 
-Install VisualStudio 2019 with the C++ compiler, CMake, and Git components. 
+Install VisualStudio 2019 with the C++ compiler, CMake, and Git components.
 I like to install TortoiseGIT as well to make accessing GitHub easy.
 
-### FLTK 
+### FLTK
 
 Download, build, and install FLTK first. FLTK is a cross-platform user interface library
 that is easy to use and very light on resources. See https://www.fltk.org .
@@ -287,7 +287,7 @@ cmake_policy(SET CMP0091 NEW)
 set (CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 ```
 
-Launch VisualStudio 2019. Click on "Continue without code...". An 
+Launch VisualStudio 2019. Click on "Continue without code...". An
 empty project will open. Select `File > Open > CMake...` from the VisualStudio
 main menu and select `CMakeLists.txt` in the fltk root directory.
 
@@ -313,13 +313,13 @@ mklink /D FLTK "C:\Users\micro\dev\fltk-1.4 for Einstein.git\out\install\x64-Rel
 
 ### Newt64/Toolkit
 
-Newt64 will enable the built-in Developer Toolkit in Einstein 
+Newt64 will enable the built-in Developer Toolkit in Einstein
 and a few other features that depend on NewtonScript compilation features.
 
 You need to install _flex_ and _bison_ in `C:/GnuWin32/` and add `C:/GnuWin32/bin` to the Path variable in the user environment settings.
 
 As of December 2020, both tools can be downloaded from `https://github.com/lexxmark/winflexbison/releases/tag/v2.5.23`, unpacked, and then
-copy the content of the archive into `C:/GnuWin32/bin`. Remove the *win_* prefix from *yacc.exe* and *bison.exe*. 
+copy the content of the archive into `C:/GnuWin32/bin`. Remove the *win_* prefix from *yacc.exe* and *bison.exe*.
 Next, launch `Advanced System Settings` from the _Window 10_ Search Bar, click on
 `Environmet Variables...`, the edit the _PATH_ variable and add `C:/GnuWin32/bin`. Close all dialogs.
 
@@ -358,7 +358,7 @@ The ```_Build_``` folder contains the current setup for Einstein on Android. Ope
 Android Studio and launch the project in the ```_Build_/AndroidStudioNative```.
 
 The Android version of EInstein is still in its Alpha stage and will need
-some more development before it is actually usable.  
+some more development before it is actually usable.
 
 Note that changes in the source tree are sometimes not propageted
 to the Android build for a while.
@@ -366,7 +366,7 @@ to the Android build for a while.
 
 ## Building Einstein for iOS
 
-Tested on Dec 27 2021, compiled 12.0.1 Monterey and M1 CPU, 
+Tested on Dec 27 2021, compiled 12.0.1 Monterey and M1 CPU,
 running on iPhone 13 Max Pro with iOS 15.2
 
  - install the Xcode developer environment from teh Apple AppStore, it's free
