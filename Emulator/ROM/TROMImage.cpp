@@ -139,18 +139,18 @@ TROMImage::CreateImage(const KUInt8* inBuffer)
 }
 
 // -------------------------------------------------------------------------- //
-//  * GetLatestModDate( struct timespec*, const char* )
+//  * GetLatestModDate( struct timespec*, int )
 // -------------------------------------------------------------------------- //
 int
 TROMImage::GetLatestModDate(
 				time_t* ioModDate,
-				const char* inPath )
+				int fd )
 {
 	int err;
 	do {
 		// Check the file exists.
 		struct stat theInfos;
-		err = ::stat( inPath, &theInfos );
+		err = ::fstat( fd, &theInfos );
 		if (err < 0)
 		{
 			// The file (probably) doesn't exist.
