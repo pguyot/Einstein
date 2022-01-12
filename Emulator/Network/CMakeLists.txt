@@ -2,27 +2,20 @@
 # Add source files required to build Einstein.
 #
 
-target_sources ( Einstein PRIVATE
-	TNetworkManager.cpp
-	TNetworkManager.h
-	CMakeLists.txt
+list ( APPEND cmake_sources
+  Emulator/Network/CMakeLists.txt
+)
+
+list ( APPEND common_sources
+	Emulator/Network/TNetworkManager.cpp
+	Emulator/Network/TNetworkManager.h
+  Emulator/Network/TUsermodeNetwork.cpp
+  Emulator/Network/TUsermodeNetwork.h
 )
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-  target_sources ( Einstein PRIVATE
-    TTapNetwork.cpp
-    TTapNetwork.h
-		TUsermodeNetwork.cpp
-		TUsermodeNetwork.h
-	)
-elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-  target_sources ( Einstein PRIVATE
-    TUsermodeNetwork.cpp
-    TUsermodeNetwork.h
-  )
-elseif (WIN32)
-  target_sources ( Einstein PRIVATE
-		TUsermodeNetwork.cpp
-		TUsermodeNetwork.h
+	list (APPEND app_sources
+		Emulator/Network/TTapNetwork.cpp
+		Emulator/Network/TTapNetwork.h
 	)
 endif ()

@@ -2,16 +2,17 @@
 # Add source files required to build Einstein.
 #
 
-target_sources ( Einstein PRIVATE
-	CRC32.h
-	CRC32.cpp
-	RelocHack.h
-	TCircleBuffer.cpp
-	TCircleBuffer.h
-	TDoubleLinkedList.h
-	TMappedFile.cpp
-	TMappedFile.h
-	CMakeLists.txt
+list ( APPEND cmake_sources
+  K/Misc/CMakeLists.txt
 )
 
-
+list ( APPEND common_sources
+	K/Misc/CRC32.h
+	K/Misc/CRC32.cpp
+	K/Misc/RelocHack.h
+	K/Misc/TCircleBuffer.cpp
+	K/Misc/TCircleBuffer.h
+	K/Misc/TDoubleLinkedList.h
+	K/Misc/TMappedFile.cpp
+	K/Misc/TMappedFile.h
+)

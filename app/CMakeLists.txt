@@ -2,19 +2,25 @@
 # At this time we only support CMake builds for the FLTK variant of Einstein.
 #
 
-add_subdirectory( FLTK )
+include ( app/FLTK/CMakeLists.txt )
 
-target_sources ( Einstein PRIVATE
-    Version.h
-	Version_CMake.h.in
-	TPathHelper.cpp
-	TPathHelper.h
-	CMakeLists.txt
+list ( APPEND cmake_sources
+  app/CMakeLists.txt
+)
+
+list ( APPEND common_sources
+	app/TPathHelper.cpp
+	app/TPathHelper.h
+)
+
+list ( APPEND common_sources
+	app/Version.h
+	app/Version_CMake.h.in
 )
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-	target_sources ( Einstein PRIVATE
-		TCocoaPathHelper.mm
-		TCocoaPathHelper.h
+	list (APPEND common_sources
+		app/TCocoaPathHelper.mm
+		app/TCocoaPathHelper.h
 	)
 endif()

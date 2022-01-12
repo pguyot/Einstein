@@ -2,29 +2,33 @@
 # Add source files required to build Einstein.
 #
 
-target_sources ( Einstein PRIVATE
-	TBufferedSoundManager.cpp
-	TBufferedSoundManager.h
-	TNullSoundManager.cpp
-	TNullSoundManager.h
-	TSoundManager.cpp
-	TSoundManager.h
-	CMakeLists.txt
+list ( APPEND cmake_sources
+  Emulator/Sound/CMakeLists.txt
+)
+
+list ( APPEND common_sources
+	Emulator/Sound/TBufferedSoundManager.cpp
+	Emulator/Sound/TBufferedSoundManager.h
+	Emulator/Sound/TNullSoundManager.cpp
+	Emulator/Sound/TNullSoundManager.h
+	Emulator/Sound/TSoundManager.cpp
+	Emulator/Sound/TSoundManager.h
 )
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-  target_sources ( Einstein PRIVATE
-    TCoreAudioSoundManager.cpp
-		TCoreAudioSoundManager.h
+	list (APPEND app_sources
+		Emulator/Sound/TCoreAudioSoundManager.cpp
+		Emulator/Sound/TCoreAudioSoundManager.h
 	)
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-  target_sources ( Einstein PRIVATE
-    TPulseAudioSoundManager.cpp
-    TPulseAudioSoundManager.h
+	list (APPEND app_sources
+    Emulator/Sound/TPulseAudioSoundManager.cpp
+    Emulator/Sound/TPulseAudioSoundManager.h
   )
 elseif (WIN32)
-  target_sources ( Einstein PRIVATE
-		TWaveSoundManager.cpp
-		TWaveSoundManager.h
+	list (APPEND app_sources
+		# Windows sound support
+		Emulator/Sound/TWaveSoundManager.cpp
+		Emulator/Sound/TWaveSoundManager.h
 	)
 endif ()
