@@ -224,6 +224,15 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
         CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/EntiXXXtlements.plist"
     )
 
+    if (${CMAKE_GENERATOR} STREQUAL "Xcode")
+        add_custom_target( FixTabSettings
+            COMMAND ${CMAKE_HOME_DIRECTORY}/cmake/xcodeFixIndentation
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        )
+        # Xcode can't use the same file in multiple target if there is no dependency
+        add_dependencies(Einstein EinsteinTests)
+    endif ()
+
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 	# create the application
@@ -331,8 +340,6 @@ target_link_libraries(EinsteinTests gtest_main)
 
 gtest_discover_tests(EinsteinTests)
 
-add_dependencies(Einstein EinsteinTests)
-
 # ---- Generated Files ---------------------------------------------------------
 
 set_source_files_properties(
@@ -367,13 +374,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
     add_dependencies(dist Einstein)
-
-    if (${CMAKE_GENERATOR} STREQUAL "Xcode")
-        add_custom_target( XcodeFixIndentation
-            COMMAND ${CMAKE_HOME_DIRECTORY}/cmake/xcodeFixIndentation
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        )
-    endif ()
 
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 

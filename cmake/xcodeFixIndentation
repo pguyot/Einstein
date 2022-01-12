@@ -32,6 +32,6 @@ fi
 /usr/libexec/PlistBuddy -c "Delete :objects:${MAINGROUP}:tabWidth" ${PROJFILE}
 /usr/libexec/PlistBuddy -c "Add :objects:${MAINGROUP}:tabWidth integer 4" ${PROJFILE}
 /usr/libexec/PlistBuddy -c "Delete :objects:${MAINGROUP}:usesTabs" ${PROJFILE}
-/usr/libexec/PlistBuddy -c "Add :objects:${MAINGROUP}:usesTabs integer 0" ${PROJFILE}
+/usr/libexec/PlistBuddy -c "Add :objects:${MAINGROUP}:usesTabs integer 1" ${PROJFILE}
 
 echo "Done."
