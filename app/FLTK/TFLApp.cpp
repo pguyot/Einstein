@@ -289,6 +289,7 @@ TFLApp::~TFLApp( void )
     delete mSoundManager;
     delete mNetworkManager;
     delete mLog;
+    delete mMonitorLog;
     delete mROMImage;
     delete mMonitor;
     delete mSymbolList;
@@ -312,24 +313,6 @@ TFLApp::Run( int argc, char* argv[] )
     InitFLTK(argc, argv);
 
     InitSettings();
-
-#if 1
-    TBufferLog *bl = new TBufferLog();
-#   if !NDEBUG
-#       if TARGET_OS_WIN32
-            bl->OpenLog("C:/user/micro/Einstein_log.txt");
-#       endif
-#       if TARGET_OS_MAC
-            bl->OpenLog("/tmp/Einstein_log.txt");
-#       endif
-#       if TARGET_OS_LINUX
-            bl->OpenLog("/tmp/Einstein_log.txt");
-#       endif
-#   endif
-    mLog = bl;
-#else
-    mLog = bl;
-#endif
 
     int ramSize = mFLSettings->RAMSize;
     Boolean hidemouse = (Boolean)mFLSettings->hideMouse;
@@ -1195,11 +1178,24 @@ void TFLApp::MountPCCardsKeptInSlot()
 
 void TFLApp::InitMonitor(const char *theROMImagePath)
 {
+    mMonitorLog = new TBufferLog();
+#   if !NDEBUG
+#       if TARGET_OS_WIN32
+            mMonitorLog->OpenLog("C:/user/micro/Einstein_log.txt");
+#       endif
+#       if TARGET_OS_MAC
+            mMonitorLog->OpenLog("/tmp/Einstein_log.txt");
+#       endif
+#       if TARGET_OS_LINUX
+            mMonitorLog->OpenLog("/tmp/Einstein_log.txt");
+#       endif
+#   endif
+
     char theSymbolListPath[FL_PATH_MAX];
     strncpy(theSymbolListPath, theROMImagePath, FL_PATH_MAX);
     fl_filename_setext(theSymbolListPath, FL_PATH_MAX, ".symbols");
     mSymbolList = new TSymbolList(theSymbolListPath);
-    mMonitor = new TFLMonitor((TBufferLog*)mLog, mEmulator, mSymbolList, theROMImagePath);
+    mMonitor = new TFLMonitor(mMonitorLog, mEmulator, mSymbolList, theROMImagePath);
     KPrintf("Booting... (Monitor enabled)\n");
 }
 
