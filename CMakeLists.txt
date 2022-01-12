@@ -103,7 +103,7 @@ endif()
 # ---- FLTK library ------------------------------------------------------------
 #
 
-# TODO: update this to automatically download and build in .../Einstein/newt64
+# TODO: update this to automatically download and build in .../Einstein/fltk
 set(FLTK_SKIP_OPENGL true)
 if (WIN32)
   find_program(LOCAL_FLTK_FLUID_EXECUTABLE fluid HINTS ${CMAKE_SOURCE_DIR}/fltk/build/bin "C:/Program Files/FLTK/bin")
@@ -137,357 +137,28 @@ endfunction ()
 # ---- Einstein Source Files -------------------------------------------------------------
 #
 
-set ( common_sources
-	Emulator/Files/TFileManager.cpp
-	Emulator/Files/TFileManager.h
-	Emulator/Host/THostInfo.cpp
-	Emulator/Host/THostInfo.h
-	Emulator/Host/UserInfoDefinitions.h
-	Emulator/JIT/Generic/IncludeMask.h
-	Emulator/JIT/Generic/IncludeMaskRm.h
-	Emulator/JIT/Generic/IncludeModeRd.h
-	Emulator/JIT/Generic/IncludeModeRn.h
-	Emulator/JIT/Generic/IncludeModeRnRd.h
-	Emulator/JIT/Generic/IncludeRd.h
-	Emulator/JIT/Generic/IncludeRdRm.h
-	Emulator/JIT/Generic/IncludeRdRnRsRm15.h
-	Emulator/JIT/Generic/IncludeRdRsRm15.h
-	Emulator/JIT/Generic/IncludeRm.h
-	Emulator/JIT/Generic/IncludeRm15.h
-	Emulator/JIT/Generic/IncludeRn.h
-	Emulator/JIT/Generic/IncludeRn15.h
-	Emulator/JIT/Generic/IncludeRnRd.h
-	Emulator/JIT/Generic/IncludeRnRdRm.h
-	Emulator/JIT/Generic/IncludeRnRsRm15.h
-	Emulator/JIT/Generic/IncludeRsRm15.h
-	Emulator/JIT/Generic/RepeatMacros.h
-	Emulator/JIT/Generic/TJITGeneric.cpp
-	Emulator/JIT/Generic/TJITGeneric.h
-	Emulator/JIT/Generic/TJITGenericPage.cpp
-	Emulator/JIT/Generic/TJITGenericPage.h
-	Emulator/JIT/Generic/TJITGenericROMPatch.cpp
-	Emulator/JIT/Generic/TJITGenericROMPatch.h
-	Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.cpp
-	Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.cpp
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp_template.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_LogicalOp_template.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.cpp
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS_template.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.cpp
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MSR_template.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MoveOp_template.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_TestOp_template.h
-	Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_common.h
-	Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransfer.h
-	Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferImm.cpp
-	Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferImm_template.t
-	Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferReg.cpp
-	Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransferReg_template.t
-	Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransfer_template.h
-	Emulator/JIT/Generic/TJITGeneric_LDM1_template.h
-	Emulator/JIT/Generic/TJITGeneric_LDM2_template.h
-	Emulator/JIT/Generic/TJITGeneric_LDM3_template.h
-	Emulator/JIT/Generic/TJITGeneric_Macros.h
-	Emulator/JIT/Generic/TJITGeneric_Multiply.cpp
-	Emulator/JIT/Generic/TJITGeneric_Multiply.h
-	Emulator/JIT/Generic/TJITGeneric_MultiplyAndAccumulate.cpp
-	Emulator/JIT/Generic/TJITGeneric_MultiplyAndAccumulate.h
-	Emulator/JIT/Generic/TJITGeneric_Multiply_template.h
-	Emulator/JIT/Generic/TJITGeneric_Other.cpp
-	Emulator/JIT/Generic/TJITGeneric_Other.h
-	Emulator/JIT/Generic/TJITGeneric_STM1_template.h
-	Emulator/JIT/Generic/TJITGeneric_STM2_template.h
-	Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.cpp
-	Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.h
-	Emulator/JIT/Generic/TJITGeneric_SingleDataSwap_template.h
-	Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.cpp
-	Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.h
-	Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer_template.h
-	Emulator/JIT/Generic/TJITGeneric_Test.cpp
-	Emulator/JIT/Generic/TJITGeneric_Test.h
-	Emulator/JIT/Generic/TJITGeneric_Test_template.h
-	Emulator/JIT/JIT.h
-	Emulator/JIT/TJIT.h
-	Emulator/JIT/TJITCache.cpp
-	Emulator/JIT/TJITCache.h
-	Emulator/JIT/TJITPage.cpp
-	Emulator/JIT/TJITPage.h
-	Emulator/JIT/TJITPerformance.cpp
-	Emulator/JIT/TJITPerformance.h
-	Emulator/Log/TBufferLog.cpp
-	Emulator/Log/TBufferLog.h
-	Emulator/Log/TFileLog.cpp
-	Emulator/Log/TFileLog.h
-	Emulator/Log/TLog.cpp
-	Emulator/Log/TLog.h
-	Emulator/Log/TRAMLog.cpp
-	Emulator/Log/TRAMLog.h
-	Emulator/Log/TStdOutLog.cpp
-	Emulator/Log/TStdOutLog.h
-	Emulator/NativeCalls/TVirtualizedCalls.cpp
-	Emulator/NativeCalls/TVirtualizedCalls.h
-	Emulator/NativeCalls/TVirtualizedCallsPatches.cpp
-	Emulator/NativeCalls/TVirtualizedCallsPatches.h
-	Emulator/Serial/TTcpClientSerialPortManager.cpp
-	Emulator/Serial/TTcpClientSerialPortManager.h
-	Emulator/Network/TNetworkManager.cpp
-	Emulator/Network/TNetworkManager.h
-    Emulator/Network/TUsermodeNetwork.cpp
-    Emulator/Network/TUsermodeNetwork.h
-	Emulator/PCMCIA/TATACard.cpp
-	Emulator/PCMCIA/TATACard.h
-	Emulator/PCMCIA/TLinearCard.cpp
-	Emulator/PCMCIA/TLinearCard.h
-	Emulator/PCMCIA/TNE2000Card.cpp
-	Emulator/PCMCIA/TNE2000Card.h
-	Emulator/PCMCIA/TPCMCIACard.cpp
-	Emulator/PCMCIA/TPCMCIACard.h
-	Emulator/PCMCIA/TPCMCIAController.cpp
-	Emulator/PCMCIA/TPCMCIAController.h
-	Emulator/Platform/PlatformEvents.h
-	Emulator/Platform/PlatformGestalt.h
-	Emulator/Platform/TNewt.cpp
-	Emulator/Platform/TNewt.h
-	Emulator/Platform/TPlatformManager.cpp
-	Emulator/Platform/TPlatformManager.h
-	Emulator/ROM/TAIFFile.cpp
-	Emulator/ROM/TAIFFile.h
-	Emulator/ROM/TAIFROMImageWithREXes.cpp
-	Emulator/ROM/TAIFROMImageWithREXes.h
-	Emulator/ROM/TFlatROMImageWithREX.cpp
-	Emulator/ROM/TFlatROMImageWithREX.h
-	Emulator/ROM/TROMImage.cpp
-	Emulator/ROM/TROMImage.h
-	Emulator/Screen/TNullScreenManager.cpp
-	Emulator/Screen/TNullScreenManager.h
-	Emulator/Screen/TScreenManager.cpp
-	Emulator/Screen/TScreenManager.h
-	Emulator/Serial/TBasicSerialPortManager.cpp
-	Emulator/Serial/TBasicSerialPortManager.h
-	Emulator/Serial/TSerialPortManager.cpp
-	Emulator/Serial/TSerialPortManager.h
-	Emulator/Serial/TSerialPorts.cpp
-	Emulator/Serial/TSerialPorts.h
-	Emulator/Sound/TBufferedSoundManager.cpp
-	Emulator/Sound/TBufferedSoundManager.h
-	Emulator/Sound/TNullSoundManager.cpp
-	Emulator/Sound/TNullSoundManager.h
-	Emulator/Sound/TSoundManager.cpp
-	Emulator/Sound/TSoundManager.h
-	Emulator/TARMProcessor.cpp
-	Emulator/TARMProcessor.h
-	Emulator/TDMAManager.cpp
-	Emulator/TDMAManager.h
-	Emulator/TEmulator.cpp
-	Emulator/TEmulator.h
-	Emulator/TFlash.cpp
-	Emulator/TFlash.h
-	Emulator/THashMapCache.h
-	Emulator/TInterruptManager.cpp
-	Emulator/TInterruptManager.h
-	Emulator/TMMU.cpp
-	Emulator/TMMU.h
-	Emulator/TMemory.cpp
-	Emulator/TMemory.h
-	Emulator/TMemoryConsts.h
-	Emulator/TNativePrimitives.cpp
-	Emulator/TNativePrimitives.h
-	K/Defines/KDefinitions.cpp
-	K/Defines/KDefinitions.h
-	K/Defines/UByteSex.h
-	K/Exceptions/Errors/TError.cpp
-	K/Exceptions/Errors/TError.h
-	K/Exceptions/Errors/TMemError.cpp
-	K/Exceptions/Errors/TMemError.h
-	K/Exceptions/IO/TEOFException.cpp
-	K/Exceptions/IO/TEOFException.h
-	K/Exceptions/IO/TIOException.cpp
-	K/Exceptions/IO/TIOException.h
-	K/Exceptions/TException.cpp
-	K/Exceptions/TException.h
-	K/Misc/CRC32.h
-	K/Misc/CRC32.cpp
-	K/Misc/RelocHack.h
-	K/Misc/TCircleBuffer.cpp
-	K/Misc/TCircleBuffer.h
-	K/Misc/TDoubleLinkedList.h
-	K/Misc/TMappedFile.cpp
-	K/Misc/TMappedFile.h
-	K/Streams/TFileStream.cpp
-	K/Streams/TFileStream.h
-	K/Streams/TRandomAccessStream.h
-	K/Streams/TStream.cpp
-	K/Streams/TStream.h
-	K/Threads/TCondVar.cpp
-	K/Threads/TCondVar.h
-	K/Threads/TMutex.cpp
-	K/Threads/TMutex.h
-	K/Threads/TThread.cpp
-	K/Threads/TThread.h
-	K/Unicode/UUTF16CStr.cpp
-	K/Unicode/UUTF16CStr.h
-	K/Unicode/UUTF16Conv.cpp
-	K/Unicode/UUTF16Conv.h
-	K/Unicode/UnicodeDefinitions.h
-	app/TPathHelper.cpp
-	app/TPathHelper.h
-	Monitor/TSymbolList.cpp
-	Monitor/TSymbolList.h
-	Monitor/UDisasm.cpp
-	Monitor/UDisasm.h
-	app/FLTK/TFLRexImage.fl
-	app/FLTK/TFLRexImage.cpp
-	app/FLTK/TFLRexImage.h
-)
+set ( cmake_sources )
+set ( common_sources )
+set ( app_sources )
+set ( test_sources )
 
-set ( app_sources
-	Emulator/Screen/TFLScreenManager.cpp
-	Emulator/Screen/TFLScreenManager.h
-	Monitor/TFLMonitor.cpp
-	Monitor/TFLMonitor.h
-	Monitor/TMonitor.cpp
-	Monitor/TMonitor.h
-	Monitor/TMonitorCore.cpp
-	Monitor/TMonitorCore.h
-	app/FLTK/TFLApp.cpp
-	app/FLTK/TFLApp.h
-	app/FLTK/TFLAppUI.fl
-	app/FLTK/TFLAppUI.cpp
-	app/FLTK/TFLAppUI.h
-	app/FLTK/TFLSettingsUI.fl
-	app/FLTK/TFLSettingsUI.cpp
-	app/FLTK/TFLSettingsUI.h
-	app/FLTK/TFLSettings.cpp
-	app/FLTK/TFLSettings.h
-	app/FLTK/TFLAppWindow.cpp
-	app/FLTK/TFLAppWindow.h
-	app/FLTK/TFLTabs.cpp
-	app/FLTK/TFLTabs.h
-	app/Version.h
-	app/Version_CMake.h.in
-)
-
-set ( test_sources
-	_Tests_/EinsteinTests.cpp
-	_Tests_/ExecuteInstructionTests.t
-	_Tests_/UProcessorTests.cpp
-	_Tests_/UProcessorTests.h
-)
-
-#
-# ---- Einstein Toolkit Sources ----------------------------------------------------------
-#
-
+include ( app/CMakeLists.txt )
+include ( Emulator/CMakeLists.txt )
+include ( Monitor/CMakeLists.txt )
+include ( K/CMakeLists.txt )
 if ( NEWT64_FOUND MATCHES true )
-	list (APPEND app_sources
-		Toolkit/TToolkit.cpp
-		Toolkit/TToolkit.h
-		Toolkit/TTkElement.cpp
-		Toolkit/TTkElement.h
-		Toolkit/TFLToolkitUI.cpp
-		Toolkit/TFLToolkitUI.h
-		Toolkit/TFLToolkitUI.fl
-		Toolkit/TTkProject.cpp
-		Toolkit/TTkProject.h
-		Toolkit/TTkScript.cpp
-		Toolkit/TTkScript.h
-		Toolkit/TFLInspectorPanel.cpp
-		Toolkit/TFLInspectorPanel.h
-		Toolkit/TFLTerminalPanel.cpp
-		Toolkit/TFLTerminalPanel.h
-		Toolkit/TFLScriptPanel.cpp
-		Toolkit/TFLScriptPanel.h
-		Toolkit/TToolkitPrototypes.cpp
-		Toolkit/TToolkitPrototypes.h
-	)
-endif ()
-
-#
-# ---- Platform specific source files ----------------------------------------------------------
-#
+  include ( Toolkit/CMakeLists.txt )
+endif()
+include ( _Tests_/CMakeLists.txt )
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-
 	# additional source code
-	list (APPEND common_sources
-		# calling ObjectiveC native functions (very limited support in this version of Einstein)
-		Emulator/NativeCalls/TObjCBridgeCalls.mm
-		Emulator/NativeCalls/TObjCBridgeCalls.h
-		# Serial port emulation
-		Emulator/Serial/TBasiliskIISerialPortManager.cpp
-		Emulator/Serial/TBasiliskIISerialPortManager.h
-		Emulator/Serial/TPipesSerialPortManager.cpp
-		Emulator/Serial/TPipesSerialPortManager.h
-		Emulator/Serial/TPtySerialPortManager.cpp
-		Emulator/Serial/TPtySerialPortManager.h
-		app/TCocoaPathHelper.mm
-		app/TCocoaPathHelper.h
-	)
 	list (APPEND app_sources
-		# macOS sound support
-		Emulator/Sound/TCoreAudioSoundManager.cpp
-		Emulator/Sound/TCoreAudioSoundManager.h
-		# Network card emulations
-		Emulator/Network/TTapNetwork.cpp
-		Emulator/Network/TTapNetwork.h
 		# Apple macOS required resources
 		Resources/macOS/Info.plist.in
 		Resources/macOS/Einstein.icns
-        Resources/macOS/Entitlements.plist      
+    Resources/macOS/Entitlements.plist
 	)
-
-elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-
-	# additional source code
-	list (APPEND common_sources
-			# calling native functions (very limited support in this version of EInsten)
-			Emulator/NativeCalls/NativeCallsDefines.h
-			Emulator/NativeCalls/TNativeCalls.cpp
-			Emulator/NativeCalls/TNativeCalls.h
-    		# Serial port emulation
-			Emulator/Serial/TBasiliskIISerialPortManager.cpp
-			Emulator/Serial/TBasiliskIISerialPortManager.h
-			Emulator/Serial/TPipesSerialPortManager.cpp
-			Emulator/Serial/TPipesSerialPortManager.h
-			Emulator/Serial/TPtySerialPortManager.cpp
-			Emulator/Serial/TPtySerialPortManager.h
-			)
-
-	# additional source code
-	list (APPEND app_sources
-			# Unix sound support
-			Emulator/Sound/TPulseAudioSoundManager.cpp
-			Emulator/Sound/TPulseAudioSoundManager.h
-			)
-
-elseif (WIN32)
-
-	# additional source code
-	list (APPEND common_sources
-		# calling native functions (very limited support in this version of EInsten)
-		Emulator/NativeCalls/NativeCallsDefines.h
-		Emulator/NativeCalls/TNativeCalls.cpp
-		Emulator/NativeCalls/TNativeCalls.h
-	)
-	# additional source code
-	list (APPEND app_sources
-		# Windows sound support
-		Emulator/Sound/TWaveSoundManager.cpp
-		Emulator/Sound/TWaveSoundManager.h
-	)
-
 endif ()
 
 #
@@ -495,6 +166,7 @@ endif ()
 #
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${cmake_sources})
 source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${common_sources})
 source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${app_sources})
 source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${test_sources})
@@ -512,8 +184,9 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	add_executable(Einstein MACOSX_BUNDLE
 		${common_sources}
 		${app_sources}
+    ${cmake_sources}
 	)
-	add_executable(EinsteinTests ${common_sources} ${test_sources})
+	add_executable(EinsteinTests ${common_sources} ${test_sources} ${cmake_sources})
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC -Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror)
@@ -554,8 +227,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 	# create the application
-	add_executable(Einstein ${common_sources} ${app_sources})
-    add_executable(EinsteinTests ${common_sources} ${test_sources})
+	add_executable(Einstein ${common_sources} ${app_sources} ${cmake_sources})
+  add_executable(EinsteinTests ${common_sources} ${test_sources} ${cmake_sources})
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC -Wall -Wno-multichar -Wno-misleading-indentation -Wno-missing-field-initializers -Werror)
@@ -587,10 +260,10 @@ elseif (WIN32)
 
 	# create the binaries
 	add_executable(Einstein WIN32
-		${common_sources} ${app_sources} ${data}
+		${common_sources} ${app_sources} ${cmake_sources} ${data}
 		${CMAKE_CURRENT_BINARY_DIR}/Einstein.rc
 	)
-    add_executable(EinsteinTests ${common_sources} ${test_sources})
+  add_executable(EinsteinTests ${common_sources} ${test_sources})
 
 	# how to compile and link
 	target_compile_options(Einstein PUBLIC "/bigobj")
@@ -632,7 +305,7 @@ if ( NEWT64_FOUND MATCHES true )
         target_include_directories(Einstein SYSTEM PUBLIC ${newt64_incl_path} ${newt64_incl_path}/darwin)
     endif()
     target_link_libraries(Einstein ${newt64_lib})
-    message(STATUS ${newt64_lib})
+    message(STATUS "NEWT64 library at " ${newt64_lib})
     target_compile_definitions(Einstein PRIVATE USE_TOOLKIT=1)
 endif ()
 
@@ -675,13 +348,6 @@ configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h.in
 	${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h
 )
-
-# ---- Einstein Fluid Sources --------------------------------------------------
-
-build_with_fluid( TFLAppUI      app/FLTK "app/Version_CMake.h" )
-build_with_fluid( TFLRexImage   app/FLTK "_Data_/Einstein.rex" )
-build_with_fluid( TFLSettingsUI app/FLTK )
-build_with_fluid( TFLToolkitUI  Toolkit )
 
 #
 # ==== MessagePad.org distribution system ======================================
