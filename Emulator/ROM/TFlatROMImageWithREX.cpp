@@ -58,7 +58,7 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 			    const char* inROMPath,
 			    const char* inREXPath)
 {
-    int romfd, rexfd = 0;
+    int romfd, rexfd = -1;
     // Open the ROM file.
 #if TARGET_OS_WIN32
 	romfd = ::open( inROMPath, O_RDONLY|O_BINARY, 0 );
