@@ -237,8 +237,8 @@ void TFLSettings::loadPreferences()
     Fl_Preferences rom(prefs, "ROM");
 	{
 		buf[0] = 0;
-        strncat(buf, appPath, strlen(buf)-1);
-		strncat(buf, "717006", strlen(buf)-1);
+        strncat(buf, appPath, sizeof(buf)-1);
+		strncat(buf, "717006", sizeof(buf)-1);
         rom.get("path", ROMPath, buf);
         rom.get("builtInRex", mUseBuiltinRex, true);
     }
@@ -248,7 +248,7 @@ void TFLSettings::loadPreferences()
     {
 		buf[0] = 0;
         prefs.getUserdataPath(buf, FL_PATH_MAX-15);
-		strncat(buf, "internal.flash", strlen(buf)-1);
+		strncat(buf, "internal.flash", sizeof(buf)-1);
         flash.get("path", FlashPath, buf);
     }
 

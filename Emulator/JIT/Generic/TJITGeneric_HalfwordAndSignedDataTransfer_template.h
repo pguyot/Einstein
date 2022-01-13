@@ -40,10 +40,13 @@ HalfwordAndSignedDataTransferReg_Template(BITS_FLAGS, Rn, Rd)
 #endif
 #if IMPLEMENTATION
 {
+#if FLAG_P || (WRITEBACK && Rn != 15)
 	KUInt32 theInstruction;
-	(void)theInstruction; // suppress warning in case the variable is not used
 	POPVALUE(theInstruction);
-	
+#else
+    POPNIL();
+#endif
+
 	POPPC();
 
 	TMemory* theMemoryInterface = ioCPU->GetMemory();

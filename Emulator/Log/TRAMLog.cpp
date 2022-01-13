@@ -29,7 +29,7 @@
 // -------------------------------------------------------------------------- //
 TRAMLog::TRAMLog()
 {
-    mBuffer = (char*) ::malloc(0);
+    mBuffer = (char*) ::malloc(1);
     mBufferSize = 0;
 }
 
