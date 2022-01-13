@@ -300,7 +300,8 @@ void TFLSettings::loadPreferences()
     }
     if (!networkCardFound) {
         TFLPCCardSettings *card = new TFLPCCardSettings(TFLPCCardSettings::kNetworkUUID, "Einstein Network Card");
-        card->SetType(TFLPCCardSettings::CardType::kNetwork);
+		card->SetType(TFLPCCardSettings::CardType::kNetwork);
+		card->SetTag(">NET");
         mCardList.push_back(card);
     }
 
