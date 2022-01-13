@@ -75,38 +75,38 @@
 
 static const struct {unsigned short vk, fltk;} vktab[] = {
     { 49, ' ' }, { vkTick, '\"' }, { vkTick, '\'' }, { 24, '+'}, { 43, ',' }, { 27, '-' }, { 47, '.' }, { 44, '/' },
-  { 29, '0' }, { 18, '1'  }, { 19, '2'  }, { 20, '3'  }, 
-  { 21, '4' }, { 23, '5'  }, { 22, '6'  }, { 26, '7'  }, 
+  { 29, '0' }, { 18, '1'  }, { 19, '2'  }, { 20, '3'  },
+  { 21, '4' }, { 23, '5'  }, { 22, '6'  }, { 26, '7'  },
   { 28, '8' }, { 25, '9'  }, { 41, ':'  }, { 41, ';'  }, { 43, '<' }, { 24, '='  }, { 47, '>' }, { 44, '?' },
-  {  0, 'A' }, { 11, 'B'  }, {  8, 'C'  }, {  2, 'D'  }, 
-  { 14, 'E' }, {  3, 'F'  }, {  5, 'G'  }, {  4, 'H'  }, 
-  { 34, 'I' }, { 38, 'J'  }, { 40, 'K'  }, { 37, 'L'  }, 
-  { 46, 'M' }, { 45, 'N'  }, { 31, 'O'  }, { 35, 'P'  }, 
-  { 12, 'Q' }, { 15, 'R'  }, {  1, 'S'  }, { 17, 'T'  }, 
-  { 32, 'U' }, {  9, 'V'  }, { 13, 'W'  }, {  7, 'X'  }, 
-  { 16, 'Y' }, {  6, 'Z'  }, 
+  {  0, 'A' }, { 11, 'B'  }, {  8, 'C'  }, {  2, 'D'  },
+  { 14, 'E' }, {  3, 'F'  }, {  5, 'G'  }, {  4, 'H'  },
+  { 34, 'I' }, { 38, 'J'  }, { 40, 'K'  }, { 37, 'L'  },
+  { 46, 'M' }, { 45, 'N'  }, { 31, 'O'  }, { 35, 'P'  },
+  { 12, 'Q' }, { 15, 'R'  }, {  1, 'S'  }, { 17, 'T'  },
+  { 32, 'U' }, {  9, 'V'  }, { 13, 'W'  }, {  7, 'X'  },
+  { 16, 'Y' }, {  6, 'Z'  },
     { 33, '[' }, { vkBackSlash, '\\' }, { 30, ']' }, { 27, '_' },
     { vkBackTick, '`' }, { 33, '{' }, { vkBackSlash, '|' }, { 30, '}' }, { vkBackTick, '~' },
   { 51, FL_BackSpace }, { 48, FL_Tab }, { 36, FL_Enter }, { 127, FL_Pause },
   { 107, FL_Scroll_Lock }, { 53, FL_Escape }, { 0x73, FL_Home }, { 123, FL_Left },
   { 126, FL_Up }, { 124, FL_Right }, { 125, FL_Down }, { 0x74, FL_Page_Up },
   { 0x79, FL_Page_Down },  { 119, FL_End }, { 0x71, FL_Print }, { 127, FL_Insert },
-  { 0x6e, FL_Menu }, { 114, FL_Help }, { 0x47, FL_Num_Lock }, 
-  { 76, FL_KP_Enter }, { 67, FL_KP+'*' }, { 69, FL_KP+'+'}, { 78, FL_KP+'-' }, { 65, FL_KP+'.' }, { 75, FL_KP+'/' }, 
-  { 82, FL_KP+'0' }, { 83, FL_KP+'1' }, { 84, FL_KP+'2' }, { 85, FL_KP+'3' }, 
-  { 86, FL_KP+'4' }, { 87, FL_KP+'5' }, { 88, FL_KP+'6' }, { 89, FL_KP+'7' }, 
-  { 91, FL_KP+'8' }, { 92, FL_KP+'9' }, { 81, FL_KP+'=' }, 
-  { 0x7a, FL_F+1 }, { 0x78, FL_F+2  }, { 0x63, FL_F+3  }, { 0x76, FL_F+4  }, 
-  { 0x60, FL_F+5 }, { 0x61, FL_F+6  }, { 0x62, FL_F+7  }, { 0x64, FL_F+8  }, 
-  { 0x65, FL_F+9 }, { 0x6D, FL_F+10 }, { 0x67, FL_F+11 }, { 0x6f, FL_F+12 }, 
-  { 56, FL_Shift_L }, { 56, FL_Shift_R }, { 59, FL_Control_L }, { 59, FL_Control_R }, 
+  { 0x6e, FL_Menu }, { 114, FL_Help }, { 0x47, FL_Num_Lock },
+  { 76, FL_KP_Enter }, { 67, FL_KP+'*' }, { 69, FL_KP+'+'}, { 78, FL_KP+'-' }, { 65, FL_KP+'.' }, { 75, FL_KP+'/' },
+  { 82, FL_KP+'0' }, { 83, FL_KP+'1' }, { 84, FL_KP+'2' }, { 85, FL_KP+'3' },
+  { 86, FL_KP+'4' }, { 87, FL_KP+'5' }, { 88, FL_KP+'6' }, { 89, FL_KP+'7' },
+  { 91, FL_KP+'8' }, { 92, FL_KP+'9' }, { 81, FL_KP+'=' },
+  { 0x7a, FL_F+1 }, { 0x78, FL_F+2  }, { 0x63, FL_F+3  }, { 0x76, FL_F+4  },
+  { 0x60, FL_F+5 }, { 0x61, FL_F+6  }, { 0x62, FL_F+7  }, { 0x64, FL_F+8  },
+  { 0x65, FL_F+9 }, { 0x6D, FL_F+10 }, { 0x67, FL_F+11 }, { 0x6f, FL_F+12 },
+  { 56, FL_Shift_L }, { 56, FL_Shift_R }, { 59, FL_Control_L }, { 59, FL_Control_R },
   { 57, FL_Caps_Lock }, { 55, FL_Meta_L }, { 55, FL_Meta_R },
   { 58, FL_Alt_L }, { 58, FL_Alt_R }, { 0x75, FL_Delete },
 };
 
 
 ///
-/// This class generates an FLTK widget which is then automatically added to 
+/// This class generates an FLTK widget which is then automatically added to
 /// the active group widget.
 ///
 class Fl_Newton_Screen_Widget : public Fl_Box
@@ -159,8 +159,8 @@ public:
 	{
 		// TODO: if we are in fullscreen mode with a portrait Newton on a landscape host screen,
 		//       we should keep the aspect ration and draw black borders (and vice versa).
-		//       Currently we stretch the image very badly. Maybe we should always keep the aspect ration 
-		//		 when going fullscreen? 
+		//       Currently we stretch the image very badly. Maybe we should always keep the aspect ration
+		//		 when going fullscreen?
 		// FIXME draw borders if the widget is larger than our bitmap
 		// FIXME enable clipping if the widget is smaller
 		// FIXME center the bitmap if it is smaller
@@ -205,11 +205,11 @@ public:
             // draw the image into the destination context
             if (img) {
                 CGContextSaveGState(fl_gc);
-                
+
                 CGContextSetInterpolationQuality(fl_gc, kCGInterpolationNone);
                 CGContextScaleCTM(fl_gc, 1, -1);
                 CGContextDrawImage(fl_gc, CGRectMake(0, -h() - y(), w(), h()), img);
-                
+
                 CGImageRelease(img);
                 CGContextRestoreGState(fl_gc);
             } else {
@@ -271,7 +271,7 @@ public:
         }
     }
 
-	unsigned char *getRGBData() 
+	unsigned char *getRGBData()
 	{
 		return rgbData_;
 	}
@@ -466,7 +466,7 @@ public:
 	void newRGBSize(int w, int h) {
 	    size_t sz = (size_t) w * (size_t) h;
 		if (sz != (size_t)(rgbWidth_ * rgbHeight_)) {
-			if (rgbData_) 
+			if (rgbData_)
 				::free(rgbData_);
 			rgbData_ = (KUInt8*)calloc(4, sz);
 		} else {
@@ -540,7 +540,7 @@ TFLScreenManager::TFLScreenManager(
 	mWidget = new Fl_Newton_Screen_Widget(
 		xo, yo, GetScreenWidth(), GetScreenHeight(),
 		0L, this, mApp);
-	
+
 	mWidget->label(
 		"booting...\n"
 		"\n"
@@ -692,13 +692,13 @@ TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 		if (left > right) return;
 		width = right - left;
 	} else {
-		top = 0; 
+		top = 0;
 		left = 0;
 		height = mWidget->getRGBHeight();
 		width = mWidget->getRGBWidth();
 	}
 
-	KUInt8 rs, gs, bs; 
+	KUInt8 rs, gs, bs;
 	if (GetBacklight()) {
 		rs = 1; gs = 0; bs = 1;
 	} else {
@@ -716,7 +716,7 @@ TFLScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 	{
 		width += 1;
 	}
-	
+
 	KUInt8* theScreenBuffer = GetScreenBuffer();
 	KUInt32 theScreenWidth = GetScreenWidth();
 	KUInt32 dstRowBytes = theScreenWidth * mBitsPerPixel / 8;
@@ -767,7 +767,7 @@ Fl_Widget *TFLScreenManager::GetWidget()
 }
 
 // ========================================================================= //
-// The most likely way for the world to be destroyed, most experts agree, is 
-// by accident. That's where we come in; we're computer professionals. We 
+// The most likely way for the world to be destroyed, most experts agree, is
+// by accident. That's where we come in; we're computer professionals. We
 // cause accidents.
 // ========================================================================= //

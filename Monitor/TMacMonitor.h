@@ -41,7 +41,7 @@ public:
 			const char *inROMPath );
 
 	virtual ~TMacMonitor( void );
-	
+
 	virtual void PrintLine(const char *inLine, int type);
 	void SetController(TCocoaMonitorController *inController);
 
@@ -62,7 +62,7 @@ public:
 	NSString* GetSPSR();
 	NSString* GetSymbol();
 	NSString* GetTimerMatchRegister(int rn);
-	
+
 private:
 	TCocoaMonitorController *controller;
 };

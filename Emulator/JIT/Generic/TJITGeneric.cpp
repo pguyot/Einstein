@@ -62,32 +62,32 @@ test()
 	ucontext_t uc, back;
 	size_t sz = 0x10000;
 	int value = 0;
-	
+
 	getcontext(&uc);
-	
+
 	uc.uc_stack.ss_sp = mmap(0, sz,
 							 PROT_READ | PROT_WRITE | PROT_EXEC,
 							 MAP_PRIVATE | MAP_ANON, -1, 0);
 	uc.uc_stack.ss_size = sz;
 	uc.uc_stack.ss_flags = 0;
-	
+
 	uc.uc_link = &back;
-	
+
 	makecontext(&uc, (void(*)())assign, 2, 123L, &value);
 	swapcontext(&back, &uc);
-	
+
 	KPrintf("done %d\n", value);
-	
+
 	return (0);
 }
 
 /*
- // The ARM command movs pc, lr is commonly used to return from 
+ // The ARM command movs pc, lr is commonly used to return from
  // an exception or an interrupt routine. Here, we try to find
  // all point that may require task switching.
- 
+
  movs pc,lr
- 
+
  0x00019428 SaveCPUStateAndStopSystem
  0x0038D504 ResumeImage
  0x0038D78C FIQCleanUp
@@ -106,8 +106,8 @@ test()
  0x00393110 IRQCleanUp
  // all DatAbortHandler code seems to ond in SWI. The faulty memory
  // access generates a task switch into a "Monitor". The Monitor
- // maps RAM into the location that generated the fault, then 
- // suspends itself. The original task is rescheduled to execute 
+ // maps RAM into the location that generated the fault, then
+ // suspends itself. The original task is rescheduled to execute
  // the failed operation again.
  0x00393944 DataAbortHandler
  0x00393B80 DataAbortHandler
@@ -162,7 +162,7 @@ TJITGeneric::Run( TARMProcessor* ioCPU, volatile Boolean* inSignal )
 			// actually be executed here
 			theJITUnit = theJITUnit->fFuncPtr( theJITUnit, ioCPU );
 		}
-		
+
 		// We may have been signaled because there was an interrupt.
 		if (theEmulator->IsInterrupted())
 		{
@@ -246,11 +246,11 @@ TJITGeneric::GetJITUnitForPC(
 	KUInt32 pc = inPC - 4;
 	TJITGenericPage* thePage = GetPage(pc);
 
-	if (thePage == NULL)	
+	if (thePage == NULL)
 	{
 		// Let's manage the exception
 		ioCPU->PrefetchAbort();
-		
+
 		// Redo the translation.
 		pc = ioCPU->mCurrentRegisters[TARMProcessor::kR15];
 		return GetJITUnitForPC( ioCPU, inMemoryInterface, pc );
@@ -277,15 +277,15 @@ TJITGeneric::GetJITUnitDelta(
 	if (theNextPage == NULL) {
 		return kNotTheSamePage;
 	}
-	
+
 	TJITGenericPage* theCurrentPage = GetPage(ioCPU->GetRegister(15));
 	if (theCurrentPage!=theNextPage) {
 		return kNotTheSamePage;
 	}
-	
-	KUInt32 indexInPage = GetOffsetInPage(pc) / sizeof( KUInt32 );	
+
+	KUInt32 indexInPage = GetOffsetInPage(pc) / sizeof( KUInt32 );
 	JITUnit *nextUnit = theNextPage->GetJITUnitForOffset(indexInPage);
-	
+
 	KSInt32 delta = (KSInt32)(nextUnit - inUnit);
 	return delta;
 }

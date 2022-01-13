@@ -83,12 +83,12 @@ TPlatformManager::~TPlatformManager( void )
 	{
 		::free(mDocDir);
 	}
-	
+
 	if (mEventQueue)
 	{
 		::free(mEventQueue);
 	}
-    
+
 	if (mBufferQueue)
 	{
 		KUInt32 indexQueue;
@@ -98,7 +98,7 @@ TPlatformManager::~TPlatformManager( void )
 		}
 		::free(mBufferQueue);
 	}
-	
+
 	if (mMutex)
 	{
 		delete mMutex;
@@ -132,7 +132,7 @@ TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
 		theResult = true;
 		SEvent* theEvent = &mEventQueue[newCCrsr++];
 		mEventQueueCCrsr = newCCrsr;
-		
+
 		// Copy event to Newton memory.
 		KUInt32 theSize = 4;
 		switch (theEvent->fType)
@@ -141,9 +141,9 @@ TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
 				theSize += 8 + theEvent->fData.aevent.fSize;
 				break;
 		}
-		
+
 		theSize = ((theSize+3) / 4);
-		
+
 		KUInt32* theEventAsLongs = (KUInt32*) theEvent;
 		while (theSize-- > 0)
 		{
@@ -159,18 +159,18 @@ TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
 		// Reset the cursors.
 		mEventQueuePCrsr = 0;
 		mEventQueueCCrsr = 0;
-		
+
 		// Redimension the queue.
 		if (mEventQueueSize != kDEFAULTEVENTQUEUESIZE)
 		{
 			mEventQueueSize = kDEFAULTEVENTQUEUESIZE;
-			mEventQueue = 
+			mEventQueue =
 				(SEvent*) ::realloc(
 							mEventQueue,
 							sizeof(SEvent) * mEventQueueSize );
 		}
 	}
-	
+
 	mMutex->Unlock();
 
 	return theResult;
@@ -194,14 +194,14 @@ TPlatformManager::DisposeBuffer( KUInt32 inID )
 		{
 			// Free the buffer up.
 			::free((void*) theBuffer->fData);
-			
+
 			// Remove the buffer from the queue.
 			::memmove(
 				&mBufferQueue[bufferIndex],
 				(const void*) &mBufferQueue[bufferIndex+1],
 				(mBufferCount - bufferIndex) * sizeof(SBuffer));
 			mBufferCount--;
-			
+
 			// We're done.
 			theResult = true;
 			break;
@@ -246,7 +246,7 @@ TPlatformManager::CopyBufferData(
 			{
 				break;
 			}
-			
+
 			// We're done.
 			theResult = true;
 			break;
@@ -272,7 +272,7 @@ TPlatformManager::AddBuffer( KUInt32 inSize, const KUInt8* inData )
 	// Copy the buffer.
 	KUInt8* theData = (KUInt8*) ::malloc(inSize);
 	::memcpy(theData, inData, inSize);
-	
+
 	// Increase the count.
 	mBufferCount++;
 	if (mBufferCount == mBufferQueueSize)
@@ -318,20 +318,20 @@ TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inDa
 		mEventQueueSize += kEVENTQUEUESIZEINCREMENT;
 		mEventQueue = (SEvent*)::realloc(
 							mEventQueue,
-							sizeof(SEvent)*mEventQueueSize 
+							sizeof(SEvent)*mEventQueueSize
 		);
 	}
 	mEventQueuePCrsr = newPCrsr;
-	
+
 	// Trigger the Platform Interrupt to let NewtonOS know that a new event is pending.
 	//
 	// NewtonOS can only handle one interrupt at a time, so a locking mechanism ensures
 	// that only one event is handled at a time.
 	//
-	// mQueuePreLock protects NewtonOS from repeated interrupts as soon as the current 
+	// mQueuePreLock protects NewtonOS from repeated interrupts as soon as the current
 	// interrupt is triggered until the last recursion of mQueueLockCount is unlocked.
 	//
-	// mQueueLockCount is a recursive lock that protects the NewtonOS interrupt routine 
+	// mQueueLockCount is a recursive lock that protects the NewtonOS interrupt routine
 	// in ./Drivers/TMainPlatformDriver::InterruptHandler.cpp: TMainPlatformDriver::InterruptHandler()
   //
   // If an event is sent before NewtonOS booted, the system will lock up.
@@ -399,7 +399,7 @@ int TPlatformManager::InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard)
 // -------------------------------------------------------------------------- //
 //  * GetPCCard( KUInt32 )
 // -------------------------------------------------------------------------- //
-TPCMCIACard* 
+TPCMCIACard*
 TPlatformManager::GetPCCard(KUInt32 inSlot)
 {
 	if (!mMemory) return nullptr;
@@ -424,7 +424,7 @@ TPlatformManager::SendPowerSwitchEvent( void )
 		thePowerSwitchEvent[0] = 'newt';
 		thePowerSwitchEvent[1] = 'pg&e';
 		thePowerSwitchEvent[2] = 'powr';
-	
+
 		SendAEvent( kPowerPort, sizeof( thePowerSwitchEvent ), (KUInt8*) thePowerSwitchEvent );
 	} else {
 		// Just wake the system with an interrupt.
@@ -523,7 +523,7 @@ TPlatformManager::UnlockEventQueue( void )
 {
 	mMutex->Lock();
 
-	// mQueueLockCount should never be less than or equal to zero. If it is, we called 
+	// mQueueLockCount should never be less than or equal to zero. If it is, we called
 	// Unlock() more often than Lock(), which may triggere severe bugs
 	assert(mQueueLockCount > 0);
 
@@ -576,7 +576,7 @@ TPlatformManager::GetUserInfo(
 	const KUInt16* theString =
 		THostInfo::GetHostInfo()->GetUserInfo(inSelector);
 	size_t theSize = (UUTF16CStr::StrLen( theString ) + 1) * sizeof(KUInt16);
-	
+
 	// Write the string.
 	if (outAddress != 0)
 	{
@@ -589,7 +589,7 @@ TPlatformManager::GetUserInfo(
 			(KUInt32) theSize,
 			(const KUInt8*) theString);
 	}
-	
+
 	return (KUInt32) theSize;
 }
 
@@ -620,7 +620,7 @@ TPlatformManager::SendBufferAEvent(
 	theEvent.fDataClass = inDataClass;
 	theEvent.fSize = inSize;
 	theEvent.fBufferID = AddBuffer(inSize, inData);
-	
+
 	SendAEvent(
 		inPortId,
 		sizeof(theEvent),
@@ -695,7 +695,7 @@ TPlatformManager::InstallPackage( const char* inPackagePath )
 		(void) ::fseek( thePackageFile, 0, SEEK_END );
 		long theSize = ::ftell( thePackageFile );
 		::rewind( thePackageFile );
-		
+
 		KUInt8* theBuffer = (KUInt8*) ::malloc( theSize );
 		if (((long) ::fread( theBuffer, sizeof(KUInt8), theSize, thePackageFile)) != theSize)
 		{
@@ -704,7 +704,7 @@ TPlatformManager::InstallPackage( const char* inPackagePath )
 		} else {
             InstallPackage(theBuffer, (KUInt32)theSize);
 		}
-		
+
 		(void) ::fclose( thePackageFile );
 		::free( theBuffer );
 	} else {
@@ -722,23 +722,23 @@ TPlatformManager::InstallNewPackages( const char* inPackageDir )
 {
 #if !TARGET_OS_WIN32
 	// -- find the directory
-	if ( !inPackageDir ) 
+	if ( !inPackageDir )
 		inPackageDir = mDocDir;
-		
+
 	if ( !inPackageDir ) {
 		if ( mLog )
 			mLog->FLogLine("TPlatformManager::InstallNewPackages: No package directory specified, skipping.");
 		return;
 	}
-	
+
 	DIR *dir = opendir(inPackageDir);
-		
+
 	if (!dir) {
 		if ( mLog )
 			mLog->FLogLine("TPlatformManager::InstallNewPackages: Can't open package directory: '%s'", inPackageDir);
 		return;
 	}
-	
+
 	// -- find the last installation date
 	char buf[2048];
 	sprintf(buf, "%s/.lastInstall", inPackageDir);
@@ -746,7 +746,7 @@ TPlatformManager::InstallNewPackages( const char* inPackageDir )
 	int statErr = ::stat(buf, &lastInstall);
 	if ( mLog )
 		mLog->FLogLine("TPlatformManager: checking for new packages");
-	
+
 	// -- run the directory and install every file that is newer than lastInstall
 	struct dirent *de;
 	while ((de = readdir(dir))) {
@@ -758,7 +758,7 @@ TPlatformManager::InstallNewPackages( const char* inPackageDir )
 				struct stat pkgStat;
 				sprintf(buf, "%s/%s", inPackageDir, de->d_name);
 				if (::stat(buf, &pkgStat)<0) continue;
-				if (statErr>=0 
+				if (statErr>=0
 					&& pkgStat.st_mtime<lastInstall.st_mtime
 					&& pkgStat.st_ctime<lastInstall.st_mtime) continue;
 				if ( mLog )
@@ -768,7 +768,7 @@ TPlatformManager::InstallNewPackages( const char* inPackageDir )
 		}
 	}
 	closedir(dir);
-	
+
 	// -- update the modification data
 	if ( mLog )
 		mLog->FLogLine("TPlatformManager: updating last package installation date");
@@ -782,7 +782,7 @@ TPlatformManager::InstallNewPackages( const char* inPackageDir )
 // -------------------------------------------------------------------------- //
 //  * OpenEinsteinMenu()
 // -------------------------------------------------------------------------- //
-void 
+void
 TPlatformManager::OpenEinsteinMenu()
 {
 	//mScreenManager->OpenEinsteinMenu();
@@ -792,7 +792,7 @@ TPlatformManager::OpenEinsteinMenu()
 // -------------------------------------------------------------------------- //
 //  * SetDocDir()
 // -------------------------------------------------------------------------- //
-void 
+void
 TPlatformManager::SetDocDir(const char *inDocDir)
 {
 	if (mDocDir) ::free(mDocDir);

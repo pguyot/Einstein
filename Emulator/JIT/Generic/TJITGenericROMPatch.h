@@ -294,13 +294,13 @@ JITInstructionProto(patch_##inAddr0)
  \see Translate_PatchNativeCall
  */
 class TJITGenericPatchNativeInjection : public TJITGenericPatchNativeCall {
-	
+
 public:
 	/// Create and add a call to a JIT instruction as an injection
 	TJITGenericPatchNativeInjection(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
                                     JITFuncPtr stub, const char *name)
 	: TJITGenericPatchNativeCall(inAddr0, inAddr1, inAddr2, inAddr3, stub, name) { }
-	
+
 	/// Patch the ROM word
 	void Apply(KUInt32 *ROM, KSInt32 inROMId) override;
 };

@@ -2,10 +2,10 @@
 // Fichier:			UProcessorTests.cp
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			27/7/2004
 // Tabulation:		4 espaces
-// 
+//
 // Copyright:		© 2004 by Paul Guyot.
 // 					Tous droits réservés pour tous pays.
 // ===========
@@ -61,7 +61,7 @@ UProcessorTests::ExecuteInstruction( KUInt32 inInstruction, std::function<void (
     theMem.GetJITObject()->Step( &theProcessor, 1 );
     (void) ::unlink( kTempFlashPath );
     ::free( rom );
-    
+
     inTestFunction(theProcessor);
 }
 
@@ -116,7 +116,7 @@ UProcessorTests::ExecuteInstructionState1( KUInt32 inInstruction, std::function<
     theMem.GetJITObject()->Step( &theProcessor, 1 );
     (void) ::unlink( kTempFlashPath );
     ::free( rom );
-    
+
     inTestFunction(theProcessor);
 }
 
@@ -258,7 +258,7 @@ UProcessorTests::RunCode( const char* inHexWords, std::function<void (TARMProces
     theEmulator.GetProcessor()->PrintRegisters();
     (void) ::unlink( kTempFlashPath );
     ::free( rom );
-    
+
     inTestFunction(*theEmulator.GetProcessor());
 }
 

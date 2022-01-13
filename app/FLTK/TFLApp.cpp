@@ -106,14 +106,14 @@ User's Manual: Title, Introduction and Purpose, Setup guide, Use Guide for all f
   - What does Einstein emulate (and what is lacking)
   - Supported Platforms
  First launch
-  - What is a ROM and where to get it 
+  - What is a ROM and where to get it
   - What is Flash, and how do I set it up
   - How much system RAM to choose
   - Launching an quitting the meulator
  Essential Apps
   - the Y10k patch
   - built-in NewtTest
- How to use the main screen 
+ How to use the main screen
   - resizing and fullscreen vs. changing resolution
   - copy and paste
   - drag and drop
@@ -142,7 +142,7 @@ User's Manual: Title, Introduction and Purpose, Setup guide, Use Guide for all f
   - single stepping
   - looking at ram and registers
   - continue execution
- Appendices 
+ Appendices
   - more Resources
   - Licenses
   - Contact Information
@@ -348,7 +348,7 @@ TFLApp::Run( int argc, char* argv[] )
                 fl_alert("Can't load ROM file\n%s\nUnexpected file size.", theROMImagePath);
                 break;
         }
-        delete mROMImage; 
+        delete mROMImage;
         // go back to showing the settings panel
     }
 
@@ -359,7 +359,7 @@ TFLApp::Run( int argc, char* argv[] )
     InitScreen();
 
     InitSound();
-    
+
     InitNetwork();
 
     // MP2000: 1MB Dynamic RAM, 4MB Flash RAM
@@ -462,7 +462,7 @@ void TFLApp::UserActionQuit()
     while ( (w=Fl::first_window()) ) {
         w->hide();
     }
-    
+
     // afte Fl::run() if finished, TFLApp waits for the emulator
     // process to finish as well.
 }
@@ -1241,7 +1241,7 @@ void TFLApp::CreateScreenManager(
                                  int inPortraitWidth,
                                  int inPortraitHeight,
                                  Boolean inFullScreen)
-{	
+{
     if (::strcmp( inClass, "FL" ) == 0)
     {
         Boolean screenIsLandscape = true;
@@ -1344,7 +1344,7 @@ void TFLApp::DeferredOnPowerRestored()
 T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, kROMPatchVoid, "AddClipboard__9TRootViewFRC6RefVarT1")
 {
 //    KPrintf("AddClipboard__9TRootViewFRC6RefVarT1\n");
-    // TRootView::AddClipboard(RefVar const &, RefVar const &): 0x01ABEF3C 
+    // TRootView::AddClipboard(RefVar const &, RefVar const &): 0x01ABEF3C
     // r0 is a pointer to TRootView
     // r1 is the clipboard data
     // r2 ...
@@ -1523,7 +1523,7 @@ int main(int argc, char** argv )
 
 
 // ======================================================================= //
-// We build our computer (systems) the way we build our cities: over time, 
+// We build our computer (systems) the way we build our cities: over time,
 // without a plan, on top of ruins.
 //   -- Ellen Ullman
 // ======================================================================= //

@@ -121,7 +121,7 @@ TSerialPortManager::ReadRegister( KUInt32 inOffset )
 						   (unsigned int) theResult );
 		}
 	}
-	
+
 	return theResult;
 }
 

@@ -96,7 +96,7 @@ TVirtualizedCalls::memmove_slow( KUInt32 inDst, KUInt32 inSrc, KUInt32 inLen )
 	KUInt32 src = inSrc;
 	KUInt32 dst = inDst;
 	TMemory* theMemoryIntf = mMemoryIntf;
-	
+
 //	if ((src & 0x3) || (dst & 0x3) || (len & 0x3))
 //	{
 //		KPrintf( "unaligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
@@ -117,7 +117,7 @@ TVirtualizedCalls::memmove_slow( KUInt32 inDst, KUInt32 inSrc, KUInt32 inLen )
 			len = 0;
 			break;
 		}
-		
+
 		src += 4;
 		dst += 4;
 		len -= 4;
@@ -134,7 +134,7 @@ TVirtualizedCalls::memmove_slow( KUInt32 inDst, KUInt32 inSrc, KUInt32 inLen )
 		{
 			break;
 		}
-		
+
 		src += 1;
 		dst += 1;
 		len -= 1;
@@ -152,7 +152,7 @@ TVirtualizedCalls::memmove( void )
 	KUInt32 src = mProcessor->GetRegister(1);
 	KUInt32 len = mProcessor->GetRegister(2);
 	TMemory* theMemoryIntf = mMemoryIntf;
-	
+
 //	memmove_slow(dst, src, len);
 
 	do {
@@ -174,12 +174,12 @@ TVirtualizedCalls::memmove( void )
 			memmove_slow(dst, src, len);
 			break;
 		}
-		
+
 		KUInt32 baseSrc = src & TMemoryConsts::kMMUSmallestPageMask;
 		KUInt32 baseDst = dst & TMemoryConsts::kMMUSmallestPageMask;
 		KUInt32 maxSrc = baseSrc - src + TMemoryConsts::kMMUSmallestPageSize;
 		KUInt32 maxDst = baseDst - dst + TMemoryConsts::kMMUSmallestPageSize;
-		
+
 		do {
 			KUInt32 amount = min(min(len, maxSrc), maxDst);
 			(void) ::memmove( dstPtr, srcPtr, amount );
@@ -188,7 +188,7 @@ TVirtualizedCalls::memmove( void )
 			{
 				break;
 			}
-			
+
 			src += amount;
 			dst += amount;
 			if (amount == maxSrc)
@@ -219,7 +219,7 @@ TVirtualizedCalls::memmove( void )
 			}
 		} while (true);
 	} while (false);
-	
+
 	// mProcessor->SetRegister(0, dst);
 }
 
@@ -233,14 +233,14 @@ TVirtualizedCalls::symcmp__FPcT1( void )
 	KUInt32 s2 = mProcessor->GetRegister(1);
 	TMemory* theMemoryIntf = mMemoryIntf;
 	KUInt32 result = 0;
-	
+
 	// Read 4 by 4.
 	KUInt32 buffer1;
 	KUInt32 buffer2;
 	do {
 		if (theMemoryIntf->Read(s1, buffer1)) break;
 		if (theMemoryIntf->Read(s2, buffer2)) break;
-		
+
 		// Equal fast.
 		if (buffer1 == buffer2)
 		{

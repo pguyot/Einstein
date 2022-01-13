@@ -175,7 +175,7 @@ private:
     void InitScreen();
 
     void InitSound();
-    
+
     void InitNetwork();
 
     void InitSerialPorts();

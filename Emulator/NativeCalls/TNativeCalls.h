@@ -46,7 +46,7 @@ class TMemory;
 ///
 class TNativeCalls
 {
-public:	
+public:
 	///
 	/// Constructor from an interface to memory.
 	///
@@ -56,9 +56,9 @@ public:
 	/// Destructor.
 	///
 	~TNativeCalls( void );
-  
+
 #if !TARGET_OS_ANDROID && !TARGET_OS_WIN32
- 
+
 #if !__LP64__
 
 	///
@@ -317,7 +317,7 @@ public:
 	///
 	void	DisposeFFIStructure(KUInt32 inFFIStructure);
 #endif // if !__LP64__
-	
+
 private:
 	/// If the binary should be disposed
 	struct SPointer {
@@ -351,7 +351,7 @@ private:
 		void*			fHandle;
 		Boolean			fFreeRec;
 	};
-	
+
 	enum {
 		kNativeLibsIncr		= 5,
 		kNativeFuncsIncr	= 10,
@@ -386,7 +386,7 @@ private:
 	///
 	void*	DoOpenLib( const char* inPath );
 #endif
-	
+
 	/// \name Variables
 	TMemory*		mMemoryIntf;			///< Interface to memory.
 	SLibraryRec*	mNativeLibs;			///< Data on open native libraries.

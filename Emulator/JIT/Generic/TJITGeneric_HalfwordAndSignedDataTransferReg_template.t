@@ -23,7 +23,7 @@
 
 #define HalfwordAndSignedDataTransferReg_TemplateName(flags, rn, rd) \
 	HalfwordAndSignedDataTransferReg_ ## flags ## _ ## rn ## _ ## rd
-	
+
 #if DECLARATION
 	#define HalfwordAndSignedDataTransferReg_Template(flags, rn, rd) \
 		JITInstructionProto(HalfwordAndSignedDataTransferReg_TemplateName(flags, rn, rd));

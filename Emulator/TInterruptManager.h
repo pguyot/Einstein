@@ -83,10 +83,10 @@ public:
 		// 00400000 -> reset switch (FIQ)
 		// 00008000 -> BIOInterface (IRQ)
 	};
-	
+
 	enum {
 #ifdef WIN32
-		kEpochInNewtonBase	= 2082844800 + 24*60*60*150	+ 60*60 
+		kEpochInNewtonBase	= 2082844800 + 24*60*60*150	+ 60*60
 											///< Number of seconds between
 											///< 1/1/1970 and 1/1/1904.
 											///< The MSWindows time is 150 days off.
@@ -376,7 +376,7 @@ public:
 	/// Save or restore the state to or from a stream.
 	///
 	void	TransferState( TStream* inStream );
-		
+
 	///
 	/// Thread loop entry point.
 	///

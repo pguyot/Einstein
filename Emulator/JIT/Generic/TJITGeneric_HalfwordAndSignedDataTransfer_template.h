@@ -125,7 +125,7 @@ HalfwordAndSignedDataTransferReg_Template(BITS_FLAGS, Rn, Rd)
 		KSInt16 signedData = (KSInt16) (((KUInt32) highData << 8) | lowData);
 		theData = (KUInt32) ((KSInt32) signedData);
 	#endif
-		
+
 	#if (Rd == 15)
         // +4 for PREFETCH
         SETPC(theData + 4);
@@ -134,7 +134,7 @@ HalfwordAndSignedDataTransferReg_Template(BITS_FLAGS, Rn, Rd)
 	#endif
 #else
 	// Store.
-	
+
 	// If PC is Rd, the stored value is +12 instead of +8
 	#if (Rd == 15)
 		KUInt32 theValue = GETPC() + 4;
@@ -157,7 +157,7 @@ HalfwordAndSignedDataTransferReg_Template(BITS_FLAGS, Rn, Rd)
         MMUCALLNEXT_AFTERSETPC;
     }
 #endif
-	
+
 #if WRITEBACK
 	// Store the address to the base register.
 	#if (Rn == 15)

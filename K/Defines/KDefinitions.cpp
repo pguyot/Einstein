@@ -1,10 +1,10 @@
 // ==============================
 // Fichier:			KDefinitions.cp
 // Projet:			K
-// 
+//
 // Créé le:			1/1/2004
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
 //
@@ -56,7 +56,7 @@ void KDefinitions_compile_time_assertions( void )
 	// If this fails to compile saying that you have a case constant more than once
 	// (or if you get a similar warning), the size of KUIntPtr probably
 	// doesn't match the size of void*. You may want to check the definition of KUIntPtr
-	
+
 	// Maybe I wasn't able to figure out how your compiler declares that it generates
 	// 64 bits or 32 bits binaries.
     KCOMPILE_TIME_ASSERT_SIZE_EQUAL( void*, KUIntPtr );

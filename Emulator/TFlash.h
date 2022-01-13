@@ -108,7 +108,7 @@ public:
 	/// Save or restor the state to or from a stream.
 	///
 	void		TransferState( TStream* inStream );
-		
+
 	///
 	/// Save flash to the flash file.
 	///
@@ -131,7 +131,7 @@ public:
 		kFlashBank1Size		= 0x00400000,	///< Size of internal store (bank#1) (4MB)
 		kFlashBank2Size		= 0x00400000	///< Size of internal store (bank#2) (4MB)
 	};
-	
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.

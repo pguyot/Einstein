@@ -31,7 +31,7 @@ LDM3_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 #if IMPLEMENTATION
 {
 	POPPC();
-	
+
 	TMemory* theMemoryInterface = ioCPU->GetMemory();
 
 	KUInt32 theImmValue;

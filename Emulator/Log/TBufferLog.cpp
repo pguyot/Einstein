@@ -83,7 +83,7 @@ TBufferLog::DoLogLine( const char* inLine )
 	}
 	(void) ::strncpy( mBuffer[mTopLineIndex], inLine, 79 );
 	mTopLineIndex = (mTopLineIndex + 1) % 32;
-	
+
 	if (mRefreshSocket)
 	{
 		// Write a dummy byte.

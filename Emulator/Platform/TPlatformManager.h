@@ -124,20 +124,20 @@ public:
 	/// Is the system powered on?
 	///
 	Boolean IsPowerOn( void ) { return mPowerOn; }
-	
+
 	/**
 	 * Keep Einstein from triggering new Platform Interrupts.
-	 * 
+	 *
 	 * This method is call from NewtonOS. A recursive lock is set
 	 * that will keep Einstein from triggering new interrupts
 	 * until UnlockEventQueue() is called.
-	 * 
+	 *
 	 * These kind of Platform Interrupts send keyboard events, run
 	 * NewtonScript snippets, and install packages.
    *
    * The event queue is locked initially. NewtonOS will unlock it in the last
    * phase of booting.
-	 * 
+	 *
 	 * \see UnlockEventQueue(), UnlockQueueBootLock()
 	 * \see TNativePrimitives::ExecutePlatformDriverNative()
 	 * \see TPlatformManager::NewtonScriptCall()
@@ -146,9 +146,9 @@ public:
 
 	/**
 	 * Allow Einstein to send Platform Interrupts again.
-	 * 
-	 * This method is called from NewtonOS after a Platform Event was 
-	 * handled and NewtonOS is ready for new events. If any events are 
+	 *
+	 * This method is called from NewtonOS after a Platform Event was
+	 * handled and NewtonOS is ready for new events. If any events are
 	 * pending, the next event in the list is sent by triggering
 	 * a Platform Interrupt.
 	 *
@@ -194,22 +194,22 @@ public:
 	/// Send a Network card insertion event.
 	///
 	void	SendNetworkCardEvent( void );
-	
+
 	///
 	/// Insert or replace a PCCard in a given slot, or remove a PCCard
-	/// 
+	///
 	int	InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard);
 
 	///
 	/// Return the card that is currently in the given PCMCIA slot.
-	/// 
+	///
 	TPCMCIACard* GetPCCard(KUInt32 inSlot);
-	
+
 	///
 	/// Send a power switch event.
 	///
 	void	SendPowerSwitchEvent( void );
-	
+
 	///
 	/// Send a backlight event.
 	///
@@ -242,7 +242,7 @@ public:
 	/// since the last call to this function.
 	///
 	void InstallNewPackages( const char *hostPackageDirectory=0L );
-	
+
 	///
 	/// Get next event from the queue (and remove it).
 	/// Address is wired (and physical).
@@ -263,17 +263,17 @@ public:
 
 	///
 	/// Display a choice of options on the host platform. This is for devices
-	/// that use a full-screen mode and can't display a host menu, but instead use 
+	/// that use a full-screen mode and can't display a host menu, but instead use
 	/// a Newton OS call to display a menu.
 	///
 	void OpenEinsteinMenu();
-	
+
 	///
 	/// Directory for all kinds of documents, in particular, a list of pakages
 	/// to be installed with an iOS/iPhone host.
 	///
 	void SetDocDir(const char *inDocDir);
-	
+
 	///
 	/// Send a buffer event.
 	/// Data is copied.
@@ -299,7 +299,7 @@ private:
 		const KUInt8*	fData;
 		KUInt32			fSize;
 	};
-	
+
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
@@ -341,7 +341,7 @@ private:
 	KUInt32				mBufferQueueSize = kDEFAULTBUFFERQUEUESIZE;	///< Size of the buffer queue.
 	KUInt32				mBufferNextID = 0;		    ///< Next ID for buffers.
 	Boolean				mPowerOn = true;			///< If power is on.
-	Boolean				mQueuePreLock = false;		///< Non-recursive lock to keep interrupts from triggering twice 
+	Boolean				mQueuePreLock = false;		///< Non-recursive lock to keep interrupts from triggering twice
   KUInt32       mQueueLockCount = 0;      ///< Lock count for the queue
   KUInt32       mQueueBootLock = 1;       ///< Start with a locked queue until NewtonOS finished booting.
 	TMutex*				mMutex = nullptr;			 ///< Mutex of the queue.

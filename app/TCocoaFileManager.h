@@ -47,12 +47,12 @@ public:
 	/// Invoked from the Newton when a listener window should be opened
 	///
 	void open_listener( const char *name, KUInt32 desc );
-	
+
 	///
 	/// Invoked from the Newton when a listener window should be closed
 	///
 	void close_listener( KUInt32 desc );
-	
+
 	///
 	/// Invoked from the Newton when there is data to be written to a
 	/// listener
@@ -69,7 +69,7 @@ public:
 	/// Invoked by TCocoaListenerWindow when the Cocoa window is closed
 	///
 	void listener_was_closed( KUInt32 desc );
-	
+
 private:
 	NSMutableArray *mListenerWindows;
 };

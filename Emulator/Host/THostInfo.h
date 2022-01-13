@@ -51,7 +51,7 @@ public:
 		{
 			return kHostInfo;
 		}
-	
+
 	///
 	/// Accessor on information about the user (UTF-16).
 	///
@@ -65,13 +65,13 @@ public:
 	/// \return the delta with GMT in seconds.
 	///
 	int				GetHostTimeZone( void ) const;
-	
+
 private:
 	///
 	/// Instance unique.
 	///
 	static const THostInfo* kHostInfo;
-	
+
 	///
 	/// Default constructor.
 	///

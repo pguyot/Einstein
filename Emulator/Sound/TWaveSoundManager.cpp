@@ -21,7 +21,7 @@
 // $Id$
 // ==============================
 
-#undef DEBUG_LOG 
+#undef DEBUG_LOG
 
 #include <K/Defines/KDefinitions.h>
 #include "TWaveSoundManager.h"
@@ -41,9 +41,9 @@
 #include "Emulator/TMemory.h"
 
 #ifdef DEBUG_LOG
-#	define LOG 
+#	define LOG
 #else
-#	define LOG if (0) 
+#	define LOG if (0)
 #endif
 
 // -------------------------------------------------------------------------- //
@@ -67,7 +67,7 @@ TWaveSoundManager::TWaveSoundManager( TLog* inLog /* = nil */ )
 	mutex = new TMutex();
 	LOG KPrintf("v WAVE constructor\n");
 	mutex->Lock();
-	for (int i=0; i<NWaveBuffer; i++) 
+	for (int i=0; i<NWaveBuffer; i++)
 		initWaveBuffer(i);
 	mutex->Unlock();
 	LOG KPrintf("^ WAVE constructor\n");
@@ -219,7 +219,7 @@ TWaveSoundManager::OutputIsRunning( void )
 }
 
 void TWaveSoundManager::waveOutProcCB(
-		HWAVEOUT, UINT uMsg, DWORD_PTR dwInstance, 
+		HWAVEOUT, UINT uMsg, DWORD_PTR dwInstance,
 		DWORD_PTR dwParam1, DWORD_PTR dwParam2)
 {
 	TWaveSoundManager *me = (TWaveSoundManager*)dwInstance;
@@ -365,18 +365,18 @@ int TWaveSoundManager::next(int ix)
 	return ix;
 }
 
-void TWaveSoundManager::openWaveOut() 
+void TWaveSoundManager::openWaveOut()
 {
 	LOG KPrintf("  v open wave out device\n");
 	// we will play some sound, so open the sound device now
 	if (!waveOut) {
 		static WAVEFORMATEX waveFormat = {
-			WAVE_FORMAT_PCM, 1, 
+			WAVE_FORMAT_PCM, 1,
 			22050, 44100, 2, 16, 0
 		};
-		MMRESULT err = waveOutOpen( 
+		MMRESULT err = waveOutOpen(
 			&waveOut, WAVE_MAPPER, &waveFormat,
-			(DWORD_PTR)waveOutProcCB, (DWORD_PTR)this, 
+			(DWORD_PTR)waveOutProcCB, (DWORD_PTR)this,
 			CALLBACK_FUNCTION
 		);
 		if (err) {
@@ -397,7 +397,7 @@ void TWaveSoundManager::logError(const char *msg, MMRESULT err)
 	GetLog()->FLogLine("%s", msg);
 	if (errText==MMSYSERR_NOERROR)
 		GetLog()->FLogLine("  \"%s\"", desc);
-	else 
+	else
 		GetLog()->FLogLine("  Unknown error %d", err);
 }
 

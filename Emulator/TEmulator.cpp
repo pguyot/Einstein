@@ -111,10 +111,10 @@ TEmulator::TEmulator(
 
 	mNetworkManager->SetInterruptManager( mInterruptManager );
 	mNetworkManager->SetMemory( &mMemory );
-	
+
 	mSoundManager->SetInterruptManager( mInterruptManager );
 	mSoundManager->SetMemory( &mMemory );
-	
+
 	mScreenManager->SetInterruptManager( mInterruptManager );
 	mScreenManager->SetMemory( &mMemory );
 	mScreenManager->SetPlatformManager( mPlatformManager );
@@ -163,12 +163,12 @@ TEmulator::TEmulator(
 #endif
 	mDMAManager = new TDMAManager(inLog, this, &mMemory, mInterruptManager);
 	mPlatformManager = new TPlatformManager( inLog, nil );
-	
+
 	mNewtonID[0] = kMyNewtonIDHigh;
 	mNewtonID[1] = kMyNewtonIDLow;
-	
+
 	mMemory.SetEmulator( this );
-	
+
 	mPlatformManager->SetEmulator( this );
 	mPlatformManager->SetInterruptManager( mInterruptManager );
 	mPlatformManager->SetMemory( &mMemory );
@@ -198,7 +198,7 @@ TEmulator::Run( void )
 {
 	mRunning = true;
 	mBPHalted = false;
-	
+
 	mInterruptManager->ResumeTimer();
 
 	while (mRunning)
@@ -224,7 +224,7 @@ TEmulator::Run( void )
 		// We can insert a try....catch block here to trace all CPU mode changes
 		mMemory.GetJITObject()->Run( &mProcessor, &mSignal );
 	}
-	
+
 	mInterruptManager->SuspendTimer();
 
     // FIXME: The code below may be harmful when we call the emulator through the monitor!
@@ -246,10 +246,10 @@ TEmulator::Step( void )
 	mBPHalted = false;
 
 	mInterruptManager->ResumeTimer();
-		
+
 	// Execute 1 instruction
 	mMemory.GetJITObject()->Step( &mProcessor, 1 );
-	
+
 	mInterruptManager->SuspendTimer();
 }
 
@@ -307,7 +307,7 @@ void
 TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 {
     (void)inPAddr;
-    
+
 	enum {
 		do_sys_open = 0x10,
 		do_sys_close = 0x11,
@@ -320,7 +320,7 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 	};
 
 	KSInt32 result = -1;
-	
+
 	if (mFileManager) {
 		KUInt32 command = mProcessor.GetRegister(TARMProcessor::kR0);
 		KUInt32 args = mProcessor.GetRegister(TARMProcessor::kR1);
@@ -330,10 +330,10 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 			KUInt32 modeIdx = 0;
 			mMemory.Read(args, filenameAddress);
 			mMemory.Read(args + 4, modeIdx);
-			
+
 			ssize_t index = 0;
 			KUInt8 filename[512];
-			
+
 			do {
 				if (mMemory.ReadBP( filenameAddress++, filename[index] ))
 				{
@@ -342,10 +342,10 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 				}
 			} while (filename[index++] != 0);
 			filename[index] = 0;
-			
+
 			// XXX: make sure modeIdx doesn't exceed this.
 			const char *modes[] = { "r", "rb", "r+", "r+b", "w", "wb", "w+", "w+b", "a", "ab", "a+", "a+b" };
-			
+
 			result = mFileManager->do_sys_open((const char*)filename, modes[modeIdx]);
 			if (result > 0) {
 				mProcessor.SetRegister(TARMProcessor::kR7, 8);
@@ -355,7 +355,7 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 			// All other commands have a fp for arg1...
 			KUInt32 fp = 0;
 			mMemory.Read(args, fp);
-			
+
 			// Single argument calls
 			if (command == do_sys_close) {
 				result = mFileManager->do_sys_close(fp);
@@ -366,12 +366,12 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 			else if (command == do_sys_flen) {
 				result = mFileManager->do_sys_flen(fp);
 			}
-			
+
 			// Two argument calls
 			else if (command == do_sys_set_input_notify || command == do_sys_seek) {
 				KUInt32 arg2 = 0;
 				mMemory.Read(args + 4, arg2);
-				
+
 				if (command == do_sys_set_input_notify) {
 					result = mFileManager->do_sys_set_input_notify(fp, arg2);
 				}
@@ -379,15 +379,15 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 					result = mFileManager->do_sys_seek(fp, arg2);
 				}
 			}
-			
+
 			// Three argument calls
 			else if (command == do_sys_read || command == do_sys_write) {
 				KUInt32 bufAddress = 0;
 				KUInt32 nbyte = 0;
-				
+
 				mMemory.Read(args + 4, bufAddress);
 				mMemory.Read(args + 8, nbyte);
-				
+
 				if (command == do_sys_read) {
 					char *buffer = (char *)::calloc(nbyte, 1);
 					KSInt32 amount = mFileManager->do_sys_read(fp, buffer, nbyte);
@@ -419,16 +419,16 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 				else if (command == do_sys_write) {
 					KUInt32 index = 0;
 					KUInt8 *buffer = (KUInt8*)malloc(nbyte);
-					
+
 					while (index < nbyte) {
 						if (mMemory.ReadB( bufAddress + index, buffer[index] )) {
 							break;
 						}
 						index++;
 					}
-					
+
 					KSInt32 amount = mFileManager->do_sys_write(fp, buffer, nbyte);
-					
+
 					// 0 if the call is successful
 					// the number of bytes that are not written, if there is an error.
 					if (amount == -1) {
@@ -438,7 +438,7 @@ TEmulator::TapFileCntlUND( KUInt32 inPAddr )
 					free(buffer);
 				}
 			}
-			
+
 			// Unhandled :(
 			else {
 				KPrintf("unknown TapFileCntl command: 0x%02x\n", (unsigned)command);
@@ -492,7 +492,7 @@ void
 TEmulator::LoadState( const char* inPath )
 {
 	KUInt32 id, type;
-	
+
 	// Open the file for Reading.
 	TStream* theStream = new TFileStream( inPath, "rb" );
 	id = theStream->GetInt32BE();
@@ -523,19 +523,19 @@ TEmulator::TransferState( TStream* inStream )
 {
 	// First, save the memory.
 	mMemory.TransferState( inStream );
-	
+
 	// Then the CPU.
 	mProcessor.TransferState( inStream );
-	
+
 	// And the interrupt manager.
 	mInterruptManager->TransferState( inStream );
-  
+
 	// And the interrupt manager.
 	mDMAManager->TransferState( inStream );
-	
+
 	// And the screen content.
 	mScreenManager->TransferState( inStream );
-	
+
 	// Emulator specific stuff.
 	inStream->TransferInt32ArrayBE(mNewtonID, 2);
 	inStream->TransferInt32BE( mInterrupted );

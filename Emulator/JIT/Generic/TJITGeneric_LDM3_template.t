@@ -23,7 +23,7 @@
 
 #define LDM3_TemplateName(flag_p, flag_u, flag_w, rn) \
 	LDM3_ ## flag_p ## _ ## flag_u ## _ ## flag_w ## _ ## rn
-	
+
 #if DECLARATION
 	#define LDM3_Template(flag_p, flag_u, flag_w, rn) \
 		JITInstructionProto(LDM3_TemplateName(flag_p, flag_u, flag_w, rn));

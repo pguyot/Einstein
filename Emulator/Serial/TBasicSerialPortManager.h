@@ -43,7 +43,7 @@ public:
 
 	const KUInt8 kSerCmd_TxCtrlChanged = 'c';
     const KUInt8 kSerCmd_StopThread = 'Q';
-    
+
 	///
 	/// Constructor.
 	///

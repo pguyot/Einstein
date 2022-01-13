@@ -163,7 +163,7 @@ TJITGenericPage::Translate(
 											inInstruction,
 											inVAddr);
 	}
-	
+
 	int theTestKind = inInstruction >> 28;
 	KUInt16 testUnitCrsr = *ioUnitCrsr;
 	if ((theTestKind != kTestAL) && (theTestKind != kTestNV))
@@ -172,7 +172,7 @@ TJITGenericPage::Translate(
 		// Save some room for it, but put a null for now.
 		PushUnit(ioUnitCrsr, (KUIntPtr) 0L);
 	}
-	
+
 	if (theTestKind != kTestNV)
 	{
 		switch ((inInstruction >> 26) & 0x3)				// 27 & 26
@@ -183,7 +183,7 @@ TJITGenericPage::Translate(
 					inInstruction,
 					inVAddr);
 				break;
-					
+
 			case 0x1:	// 01
 				DoTranslate_01(
 					inMemoryIntf,
@@ -191,14 +191,14 @@ TJITGenericPage::Translate(
 					inInstruction,
 					inVAddr);
 				break;
-					
+
 			case 0x2:	// 10
 				DoTranslate_10(
 					ioUnitCrsr,
 					inInstruction,
 					inVAddr);
 				break;
-					
+
 			case 0x3:	// 11
 				Translate_SWIAndCoproc(
 					this,
@@ -208,7 +208,7 @@ TJITGenericPage::Translate(
 				break;
 		} // switch 27 & 26
 	}
-	
+
 	// Finally put the test, based on the current unit crsr.
 	if ((theTestKind != kTestAL) && (theTestKind != kTestNV))
 	{
@@ -254,72 +254,72 @@ TJITGenericPage::PutTest(
 		case kTestEQ:
 			__PutTest_packet(TestEQ);
 			break;
-			
+
 			// 0001 = NE - Z clear (not equal)
 		case kTestNE:
 			__PutTest_packet(TestNE);
 			break;
-	
+
 			// 0010 = CS - C set (unsigned higher or same)
 		case kTestCS:
 			__PutTest_packet(TestCS);
 			break;
-			
+
 			// 0011 = CC - C clear (unsigned lower)
 		case kTestCC:
 			__PutTest_packet(TestCC);
 			break;
-			
+
 			// 0100 = MI - N set (negative)
 		case kTestMI:
 			__PutTest_packet(TestMI);
 			break;
-			
+
 			// 0101 = PL - N clear (positive or zero)
 		case kTestPL:
 			__PutTest_packet(TestPL);
 			break;
-			
+
 			// 0110 = VS - V set (overflow)
 		case kTestVS:
 			__PutTest_packet(TestVS);
 			break;
-			
+
 			// 0111 = VC - V clear (no overflow)
 		case kTestVC:
 			__PutTest_packet(TestVC);
 			break;
-			
+
 			// 1000 = HI - C set and Z clear (unsigned higher)
 		case kTestHI:
 			__PutTest_packet(TestHI);
 			break;
-			
+
 			// 1001 = LS - C clear or Z set (unsigned lower or same)
 		case kTestLS:
 			__PutTest_packet(TestLS);
 			break;
-			
+
 			// 1010 = GE - N set and V set, or N clear and V clear (greater or equal)
 		case kTestGE:
 			__PutTest_packet(TestGE);
 			break;
-			
+
 			// 1011 = LT - N set and V clear, or N clear and V set (less than)
 		case kTestLT:
 			__PutTest_packet(TestLT);
 			break;
-			
+
 			// 1100 = GT - Z clear, and either N set and V set, or N clear and V clear (greater than)
 		case kTestGT:
 			__PutTest_packet(TestGT);
 			break;
-			
+
 			// 1101 = LE - Z set, or N set and V clear, or N clear and V set (less than or equal)
 		case kTestLE:
 			__PutTest_packet(TestLE);
 			break;
-			
+
 			// 1110 = AL - always
 		case kTestAL:
 			// 1111 = NV - never
@@ -426,7 +426,7 @@ TJITGenericPage::DoTranslate_01(
 			PushUnit(ioUnitCrsr, inVAddr - GetVAddr() + GetPAddr());
 			PushUnit(ioUnitCrsr, inVAddr + 8);
 		}
-		else 
+		else
 		{
 			PushUnit(ioUnitCrsr, UndefinedInstruction);
 			PushUnit(ioUnitCrsr, inVAddr + 8);

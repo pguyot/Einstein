@@ -86,7 +86,7 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 			}
 			baseAddress += 4;
 		}
-		
+
 		curRegList >>= 1;
 		indexReg++;
 	}
@@ -102,7 +102,7 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	{
 		if (curRegList & 1)
 		{
-			if (isFirst) {		
+			if (isFirst) {
 				if (theMemoryInterface->IsMMUEnabled() && !theMemoryInterface->IsPageInROM(baseAddress))
 				{
 					if (theMemoryInterface->TranslateR( baseAddress & ~0x03, theAddress ))
@@ -114,7 +114,7 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 				} else {
 					theAddress = baseAddress & ~0x03;
 				}
-				
+
 				Boolean fault = false;
 				ioCPU->mCurrentRegisters[indexReg] = theMemoryInterface->ReadPAligned( theAddress, fault );
 				if (fault)
@@ -124,7 +124,7 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 					MMUCALLNEXT_AFTERSETPC;
 				}
 				theAddress += 4;
-				if (theAddress&0x000003ff) 
+				if (theAddress&0x000003ff)
 					isFirst = 0;
 			} else {
 				if ((theAddress&0xff000000) == 0x04000000) { // fast RAM write
@@ -146,14 +146,14 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 			}
 			baseAddress += 4;
 		}
-		
+
 		curRegList >>= 1;
 		indexReg++;
 	}
 #endif
-	
-	
-	
+
+
+
 	if (theRegList & 0x8000)
 	{
 		// PC is special.

@@ -42,11 +42,11 @@
 class TSymbolList
 {
 public:
-	
+
 	static const KUInt32 kNoSymbol = 0xFFFFFFFF;
-	
+
 	static TSymbolList *List;
-	
+
 	///
 	/// Constructor from a path.
 	///
@@ -74,17 +74,17 @@ public:
 			char* outSymbol,
 			char* outComment = NULL,
 			int* outOffset = NULL );
-	
+
 	///
 	/// Find a symbol by name and return its address
 	///
 	KUInt32 GetSymbolByName( const char* inName );
-	
+
 	///
 	/// Find the next symbol for a give address
 	///
 	KUInt32 GetNextSymbol( KUInt32 inValue );
-	
+
 
 private:
 	struct SSymbolStruct
@@ -120,7 +120,7 @@ private:
 						SSymbolStruct *symbol,
 						char* outSymbol,
 						char* outComment );
-	
+
 	///
 	/// Read data for a symbol from the symbol file
 	//
@@ -128,7 +128,7 @@ private:
 						FILE *inFile,
 						char* outSymbol,
 						char* outComment );
-	
+
 	///
 	/// Add one symbol with value and comment
 	///
@@ -136,11 +136,11 @@ private:
 						KUInt32 inValue,
 						const char* inSymbol,
 						const char* inComment = NULL );
-	
+
 	///
 	/// Return -1, 0, or 1 if the symbol position is less, equal, or greater
 	static int QSortCallback( const void *left, const void *right );
-	
+
 	/// \name Variables
 	SSymbolStruct*		mSymbolOffsets;
 	KUInt32				mSymbolCount;

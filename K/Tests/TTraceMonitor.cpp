@@ -85,12 +85,12 @@ TTraceMonitor::FunctionBegin(
 			mStackCapacity = kStackSizeIncrement;
 			mStackDepth = 0;
 		} else if (mStackDepth == mStackCapacity) {
-			// Augmentation de sa capacité			
+			// Augmentation de sa capacité
 			mStackCapacity += kStackSizeIncrement;
 			mStack = (SStackEntry*)
 				::realloc( mStack, mStackCapacity * sizeof( SStackEntry ) );
 		}
-		
+
 		mStack[mStackDepth].fFileName = inFileName;
 		mStack[mStackDepth].fLineNumber = inLineNumber;
 		mStackDepth++;
@@ -120,7 +120,7 @@ TTraceMonitor::FunctionEnd(
 			mStackDepth--;
 			if ((mStackDepth + (2 * kStackSizeIncrement)) < mStackCapacity)
 			{
-				// Diminution de sa capacité			
+				// Diminution de sa capacité
 				mStackCapacity -= (2 * kStackSizeIncrement);
 				mStack = (SStackEntry*)
 					::realloc(

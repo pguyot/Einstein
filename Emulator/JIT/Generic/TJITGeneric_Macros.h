@@ -140,7 +140,7 @@
 #ifdef JIT_PERFORMANCE
 #define COUNTHIT(counter, address) counter.hit(address);
 #else
-#define COUNTHIT(counter, address) 
+#define COUNTHIT(counter, address)
 #endif
 
 // -------------------------------------------------------------------------- //
@@ -155,8 +155,8 @@ GetShift(
 {
 	KUInt32 Shift = ((inShift & 0x00000FFF) >> 4);
 	KUInt32 Rm = inShift & 0x0000000F;
-	
-	// Shift is not 0 here.	
+
+	// Shift is not 0 here.
 	KUInt32 theResult;
 	if (Rm == 15)
 	{
@@ -167,7 +167,7 @@ GetShift(
 	KUInt32 amount;
 	KUInt32 registerBased = Shift & 0x1;   	// 0b000000001
 	KUInt32 carry = 0;
-	
+
 	if (registerBased)
 	{
 		// Shift Register.
@@ -179,7 +179,7 @@ GetShift(
 		// Shift Amount
 		amount = Shift >> 3;
 	}
-	
+
 	// Switch on the shift operation.
 	switch ((Shift & 0x6) >> 1) // 0b00000110
 	{
@@ -191,12 +191,12 @@ GetShift(
 				if (amount < 32)
 				{
 					carry = theResult & (1 << (32 - amount));
-		
+
 					theResult <<= amount;
 				} else if (amount == 32) {
 					// Bit 0 of Rm.
 					carry = theResult & 1;
-		
+
 					theResult = 0;
 				} else {
 					theResult = 0;
@@ -207,7 +207,7 @@ GetShift(
 				carry = ioCPU->mCPSR_C;
 			}
 			break;
-			
+
 		case 0x1:
 			// Logical Shift Right
 			if (amount != 0)
@@ -216,12 +216,12 @@ GetShift(
 				if (amount < 32)
 				{
 					carry = theResult & (1 << (amount - 1));
-		
+
 					theResult >>= amount;
 				} else if (amount == 32) {
 					// Bit 31 of Rm.
 					carry = theResult & (1 << 31);
-		
+
 					theResult = 0;
 				} else {
 					theResult = 0;
@@ -234,7 +234,7 @@ GetShift(
 				theResult = 0;
 			}
 			break;
-			
+
 		case 0x2:
 			// Arithmetic Shift Right
 			if ((amount == 0) && !registerBased)
@@ -242,13 +242,13 @@ GetShift(
 				// ASR #0 is a special case meaning ASR #32.
 				amount = 32;
 			}
-			
+
 			if (amount != 0)
 			{
 				if (amount < 32)
 				{
 					carry = theResult & ( 1 << (amount - 1) );
-				
+
 					if (theResult & 0x80000000)
 					{
 						theResult >>= amount;
@@ -268,7 +268,7 @@ GetShift(
 				}
 			}
 			break;
-			
+
 		case 0x3:
 			// Rotate Right
 			if (amount != 0)
@@ -277,7 +277,7 @@ GetShift(
 					// ROR by more than 32 are like ROR between 1 and 32.
 					amount = ((amount - 1) & 0x1F) + 1;
 				}
-				
+
 				carry = theResult & (1 << (32 - amount));
 				// If n is 32, then the value of the result is same as the value in Rm,
                 // and if the carry flag is updated, it is updated to bit[31] of Rm.
@@ -298,12 +298,12 @@ GetShift(
 			}
 			break;
 	}
-	
+
 	if (carry)
 	{
 		*outCarry = true;
 	}
-	
+
 	return theResult;
 }
 
@@ -315,7 +315,7 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 {
 	KUInt32 Shift = ((inShift & 0x00000FFF) >> 4);
 	KUInt32 Rm = inShift & 0x0000000F;
-	
+
 	// Shift is not 0 here.
 	KUInt32 theResult;
 	if (Rm == 15)
@@ -326,7 +326,7 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 	}
 	KUInt32 amount;
 	KUInt32 registerBased = Shift & 0x1;   	// 0b000000001
-	
+
 	if (registerBased)
 	{
 		// Shift Register.
@@ -338,7 +338,7 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 		// Shift Amount
 		amount = Shift >> 3;
 	}
-	
+
 	// Switch on the shift operation.
 	switch ((Shift & 0x6) >> 1) // 0b00000110
 	{
@@ -357,7 +357,7 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 				// C flag.
 			}
 			break;
-			
+
 		case 0x1:
 			// Logical Shift Right
 			if (amount != 0)
@@ -375,7 +375,7 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 				theResult = 0;
 			}
 			break;
-			
+
 		case 0x2:
 			// Arithmetic Shift Right
 			if ((amount == 0) && !registerBased)
@@ -383,7 +383,7 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 				// ASR #0 is a special case meaning ASR #32.
 				amount = 32;
 			}
-			
+
 			if (amount != 0)
 			{
 				if (amount < 32)
@@ -406,7 +406,7 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 				}
 			}
 			break;
-			
+
 		case 0x3:
 			// Rotate Right
 			if (amount != 0)
@@ -433,7 +433,7 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 			}
 			break;
 	}
-	
+
 	return theResult;
 }
 
@@ -445,13 +445,13 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 {
 	KUInt32 Shift = ((inShift & 0x00000FFF) >> 5);  // Shift < 128
 	KUInt32 Rm = inShift & 0x0000000F;
-	
+
 	// Shift is not 0 here.
 	KUInt32 theResult;
 	theResult = inCurrentRegisters[Rm];
 	// Shift Amount
 	KUInt32 amount = Shift >> 2;    // amount < 32
-	
+
 	// Switch on the shift operation.
 	switch (Shift & 0x3) // 0b0000011
 	{
@@ -463,7 +463,7 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 				theResult <<= amount;
 			}
 			break;
-			
+
 		case 0x1:
 			// Logical Shift Right
 			if (amount != 0)
@@ -477,7 +477,7 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 				theResult = 0;
 			}
 			break;
-			
+
 		case 0x2:
 			// Arithmetic Shift Right
 			if (amount == 0)
@@ -499,7 +499,7 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 				}
 			}
 			break;
-			
+
 		case 0x3:
 			// Rotate Right
 			if (amount != 0)
@@ -517,7 +517,7 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 			}
 			break;
 	}
-	
+
 	return theResult;
 }
 
@@ -540,7 +540,7 @@ SetCPSRBitsForLogicalOp( TARMProcessor* ioCPU, KUInt32 inResult, Boolean inCarry
 			ioCPU->mCPSR_N = false;
 		}
 	}
-	
+
 	ioCPU->mCPSR_C = inCarry;
 }
 
@@ -609,7 +609,7 @@ CountBits( KUInt16 inWord )
 	inWord = (inWord & CYCL(1)) + ((inWord>>TWO(1)) & CYCL(1));
 	BSUM(inWord,2);
 	BSUM(inWord,3);
-	
+
 	return inWord;
 #else
 	// c++20: return std::popcount(inWord);

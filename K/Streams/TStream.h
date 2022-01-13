@@ -2,32 +2,32 @@
 // Fichier:			TStream.h
 // Projet:			K
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			10/6/2005
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
-// 
+//
 // The contents of this file are subject to the Mozilla Public License Version
 // 1.1 (the "License"); you may not use this file except in compliance with
 // the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-// 
+//
 // Software distributed under the License is distributed on an "AS IS" basis,
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
 // License.
-// 
+//
 // The Original Code is TStream.h.
-// 
+//
 // The Initial Developer of the Original Code is Paul Guyot.
 // Portions created by the Initial Developer are Copyright (C) 2005 the
 // Initial Developer. All Rights Reserved.
-// 
+//
 // Contributor(s):
 //   Paul Guyot <pguyot@kallisys.net> (original author)
-// 
+//
 // ***** END LICENSE BLOCK *****
 // ===========
 // $Id: TStream.h,v 1.2 2006/01/18 09:00:13 pguyot Exp $
@@ -51,7 +51,7 @@
 class TStream
 {
 public:
-	
+
 	///
 	/// Constructor
 	///
@@ -61,7 +61,7 @@ public:
 		mIsWriting(0)
 	{
 	}
-	
+
 	///
 	/// Destructor.
 	///
@@ -111,7 +111,7 @@ public:
 	virtual	KUInt8		PeekByte( void ) = 0;
 
 	/// \name Utility functions
-	
+
 	///
 	/// Read n bytes in C format. A null character is added at the end.
 	///
@@ -125,7 +125,7 @@ public:
 
 	///
 	/// Read 8 bits characters and stop once a null byte is encountered.
-	/// Put this null character at the end of the string which is returned.	
+	/// Put this null character at the end of the string which is returned.
 	///
 	/// The string is allocated with malloc(3).
 	///
@@ -369,52 +369,52 @@ public:
 	/// \throws an exception if a problem occurred.
 	///
 	virtual	void		PutByte( const KUInt8 inByte );
-	
+
 	///
 	/// Set the version of this stream.
 	///
 	KUInt32 Version() { return mVersion; }
-	
+
 	///
 	/// Get the version of this stream.
 	///
 	void Version(KUInt32 v) { mVersion = v; }
-	
+
 	/// The followinf functions are shortcuts to either reading or writing data.
 	/// Only a single flag differentiates between reding and writing data. This
 	/// allows for a single function to read and write settings, avoid bug
 	/// prone code replication.
-	
+
 	/// Return 1 if this stream can read from a file
 	KUInt32 IsReading() { return (mIsReading==1); }
-	
+
 	/// Return 1 if this stream can write to a file
 	KUInt32 IsWriting() { return (mIsWriting==1); }
 
 	/// Transfer a boolean.
 	void TransferBoolean(Boolean &inByte);
-	
+
 	/// Transfer a byte.
 	void TransferByte(KUInt8 &inByte);
-	
+
 	/// Transfer a word.
 	void TransferInt32BE(KUInt32 &inWord);
-	
+
 	/// Transfer a word.
 	void TransferInt32BE(KSInt32 &inWord);
-	
+
 	/// Transfer a short.
 	void TransferInt16BE(KUInt16 &inWord);
-	
+
 	/// Transfer an array of words
 	void TransferInt32ArrayBE(KUInt32* inArray, const KUInt32 inCount);
-	
+
 	/// Transfer some bytes.
 	void Transfer( void* outBuffer, KUInt32* ioCount );
-	
+
 
 protected:
-	
+
 	KUInt32 mVersion;
 	KUInt32 mIsReading;
 	KUInt32 mIsWriting;

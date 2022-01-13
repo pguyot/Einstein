@@ -56,7 +56,7 @@ public:
 	/// Destructor.
 	///
 	~TJITCache( void );
-	
+
 	///
 	/// From a virtual address, return a new page or NULL if a translation
 	/// error occurred (typically a MMU problem).
@@ -65,7 +65,7 @@ public:
 	///					required page.
 	///
 	TPage*		GetPage( KUInt32 inVAddr );
-	
+
 	///
 	/// Get the offset of an instruction in page.
 	///
@@ -75,7 +75,7 @@ public:
 		{
 			return inVAddr & kOffsetMask;
 		}
-	
+
 	///
 	/// Invalidate all translations.
 	///

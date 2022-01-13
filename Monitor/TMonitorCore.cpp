@@ -109,7 +109,7 @@ TMonitorCore::ExecuteCommand( const char* inCommand )
 	return 0;
 #else
 	Boolean theResult = true;
-	
+
 	if (inCommand[0]=='#') {
 		// script comment
 	} else if (::strcmp(inCommand, "cd") == 0) {

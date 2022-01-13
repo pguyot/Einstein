@@ -39,7 +39,7 @@ JITInstructionProto(MultiplyAndAccumulate)
 {
 	KUInt32 theInstruction;
 	POPVALUE(theInstruction);
-	
+
 	const KUInt32 Rd = (theInstruction & 0x000F0000) >> 16;
 	const KUInt32 Rn = (theInstruction & 0x0000F000) >> 12;
 	const KUInt32 Rs = (theInstruction & 0x00000F00) >> 8;
@@ -56,7 +56,7 @@ JITInstructionProto(MultiplyAndAccumulate_S)
 {
 	KUInt32 theInstruction;
 	POPVALUE(theInstruction);
-	
+
 	const KUInt32 Rd = (theInstruction & 0x000F0000) >> 16;
 	const KUInt32 Rn = (theInstruction & 0x0000F000) >> 12;
 	const KUInt32 Rs = (theInstruction & 0x00000F00) >> 8;
@@ -71,7 +71,7 @@ JITInstructionProto(MultiplyAndAccumulate_S)
 		ioCPU->mCPSR_N = 1;
 	else
 		ioCPU->mCPSR_N = 0;
-	
+
 	if(theResult == 0)
 		ioCPU->mCPSR_Z = 1;
 	else

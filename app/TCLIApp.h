@@ -83,7 +83,7 @@ private:
 	/// Affiche un message d'erreur sur la syntaxe et sort.
 	///
 	void SyntaxError( void );
-	
+
 	///
 	/// Affiche un message d'erreur sur la syntaxe (une option en particulier)
 	/// et sort.
@@ -91,22 +91,22 @@ private:
 	/// \param inBadOption	bad option
 	///
 	void SyntaxError( const char* inBadOption );
-	
+
 	///
 	/// Affiche l'aide et sort.
 	///
 	void Help( void );
-	
+
 	///
 	/// Affiche la version et sort.
 	///
 	void Version( void );
-	
+
 	///
 	/// Crée le gestionnaire de son.
 	///
 	void CreateSoundManager( const char* inClass );
-	
+
 	///
 	/// Crée le gestionnaire d'écran.
 	///
@@ -115,12 +115,12 @@ private:
 				int inPortraitWidth,
 				int inPortraitHeight,
 				Boolean inFullScreen);
-	
+
 	///
 	/// Crée le log.
 	///
 	void CreateLog( const char* inPath );
-	
+
 	///
 	/// Point d'entrée du processus léger.
 	///

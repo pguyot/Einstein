@@ -23,7 +23,7 @@
 
 #define LDM2_TemplateName(flag_p, flag_u, rd) \
 	LDM2_ ## flag_p ## _ ## flag_u ## _ ## rd
-	
+
 #if DECLARATION
 	#define LDM2_Template(flag_p, flag_u, rd) \
 		JITInstructionProto(LDM2_TemplateName(flag_p, flag_u, rd));

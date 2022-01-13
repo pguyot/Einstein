@@ -82,7 +82,7 @@ TJITCache<JITPageClass>::EraseFromPMap( SEntry* inEntry )
 
 			break;
 		}
-		
+
 		thePrevEntry = theEntry;
 		theEntry = theEntry->mNextPAEntry;
 	}
@@ -106,7 +106,7 @@ TJITCache<JITPageClass>::LookupInPMap( KUInt32 inVAddr, KUInt32 inPAddr )
 			{
 				break;
 			}
-			
+
 			theEntry = theEntry->mNextPAEntry;
 		}
 	}
@@ -147,7 +147,7 @@ TJITCache<JITPageClass>::TJITCache(
 		mMMUIntf( inMMUIntf )
 {
 	InitPMap();
-	
+
 	// Init the entries.
 	// We create up to one entry per ROM page.
 	SEntry* theEntries = mVMap.GetValues();
@@ -158,7 +158,7 @@ TJITCache<JITPageClass>::TJITCache(
 		theEntry->key = theAddress;
 		theEntry->mPhysicalAddress = theAddress;
 		theEntry->mPage.Init( inMemoryIntf, theAddress, theAddress);
-		
+
 		mVMap.Insert(theAddress, theEntry);
 		InsertInPMap(theAddress, theEntry);
 		theAddress += kPageSize;
@@ -191,13 +191,13 @@ TJITCache<JITPageClass>::PageMiss( KUInt32 inVAddr, KUInt32 inPAddr )
 	{
 		return NULL;
 	}
-		
+
 	// Take last page.
 	SEntry* theEntry = mVMap.GetLastValue();
-	
+
 	// Remove it from tables.
 	mVMap.Erase( theEntry->key );
-	
+
 #if 0
 	// Do not remove entries from the ROM cache.
 	// Keeping a large cache seems to make no difference in performance, but
@@ -216,14 +216,14 @@ TJITCache<JITPageClass>::PageMiss( KUInt32 inVAddr, KUInt32 inPAddr )
 	// Modify the entry.
 	theEntry->mPage.Init( mMemoryIntf, inVAddr, inPAddr );
 	theEntry->key = inVAddr;
-	
+
 	// Add it into the tables.
 	mVMap.Insert(inVAddr, theEntry);
 	InsertInPMap(inPAddr, theEntry);
-	
+
 	// Finally touch the entry.
 	mVMap.MakeFirst( theEntry );
-	
+
 	return &theEntry->mPage;
 }
 
@@ -262,7 +262,7 @@ TJITCache<JITPageClass>::GetPage( KUInt32 inVAddr )
 	}
 
 	if (mMMUIntf->IsMMUEnabled() && !TMemory::IsPageInROM(baseVAddr))
-	{	
+	{
 		// Resolve the address.
 		if (mMMUIntf->TranslateInstruction(baseVAddr, &thePAddr)) {
 			// An error occurred.
@@ -271,7 +271,7 @@ TJITCache<JITPageClass>::GetPage( KUInt32 inVAddr )
 	} else {
 		thePAddr = baseVAddr;
 	}
-	
+
 	theEntry = LookupInPMap( baseVAddr, thePAddr );
 	if (theEntry)
 	{
@@ -285,7 +285,7 @@ TJITCache<JITPageClass>::GetPage( KUInt32 inVAddr )
 			return &theEntry->mPage;
 		}
 	}
-	
+
 	// The page is not in the cache.
 	return PageMiss( baseVAddr, thePAddr );
 }
@@ -313,7 +313,7 @@ void
 TJITCache<JITPageClass>::InvalidatePage( KUInt32 inPAddr )
 {
 	KUInt32 basePAddr = inPAddr & kPageMask;
-	
+
 	// Look for page(s).
 	// Remove it/them from the tables.
 	SEntry** theEntryPtr = GetPMapEntryPtr( basePAddr );

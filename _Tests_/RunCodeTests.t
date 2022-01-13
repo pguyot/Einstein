@@ -467,7 +467,7 @@ TEST(RunCode, 17) {
 
 /*
  Test with page jumps using RAM (we copy code there).
- 
+
  00000000	e3a00301	mov	r0, #0x4000000
  00000004	e28f1008	add	r1, pc, #0x8
  00000008	e8b103f0	ldm	r1!, {r4, r5, r6, r7, r8, r9}
@@ -507,7 +507,7 @@ TEST(RunCode, 18) {
 
 /*
  LDMDB with PC.
- 
+
  add     r11, pc, #40        r11 = 48
  ldmdb   r11, {r4-r11, r13, pc}
  bkpt 0

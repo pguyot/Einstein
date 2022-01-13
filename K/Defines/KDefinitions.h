@@ -162,7 +162,7 @@
 #ifdef __MWERKS__
 	// Les compilateurs Metrowerks ont cette fonction plutôt sympa.
 	#pragma	warn_resultnotused	on
-	
+
 	// On active l'optimisation du résultat.
 	// Cf: <hinnant-3969E3.10055518092003@syrcnyrdrs-03-ge0.nyroc.rr.com>
 	#pragma opt_classresults on
@@ -187,7 +187,7 @@
 	#define TARGET_OS_MAC 0
 	#define TARGET_OS_COMPAT_POSIX 0
 	#undef	TARGET_OS_UNDEFINED
-		
+
 	// Macro pour le compilateur ARM du Newton qui est particulièrement
 	// stupide.
 	#define ARMCPP 1
@@ -206,7 +206,7 @@
 	#ifndef HAS_NAMESPACES
 		#define HAS_NAMESPACES 0
 	#endif
-	
+
 #endif
 
 #if defined(TARGET_OS_MAC) && TARGET_OS_MAC
@@ -231,7 +231,7 @@
 			#pragma warn_implicitconv reset
 		#endif
 	#endif
-	
+
 	#if TARGET_API_MAC_OSX
 		#define TARGET_OS_ANDROID 0
 		#define TARGET_OS_BEOS 0
@@ -245,7 +245,7 @@
 		#define TARGET_OS_CYGWIN 0
 		#define TARGET_OS_COMPAT_POSIX 1
 		#undef	TARGET_OS_UNDEFINED
-		
+
 		// MacOS X could be on x86 or on ppc
 		#if (defined (__ppc__) || defined (__ppc64__))
 			#define TARGET_OS_OPENSTEP_PPC 1
@@ -276,13 +276,13 @@
 		#define TARGET_OS_CYGWIN 0
 		#define TARGET_OS_COMPAT_POSIX 0
 		#undef	TARGET_OS_UNDEFINED
-		
+
 	#endif
 
 	#if TARGET_OS_MACOS
 		#include <MacTypes.h>
 	#endif
-	
+
 	#if TARGET_OS_OPENSTEP
 		// pthread_cond_timedwait_relative_np is available on MacOS X.
 		#define HAS_COND_TIMEDWAIT_RELATIVE_NP 0
@@ -321,7 +321,7 @@
 	#else
 		#define TARGET_OS_CYGWIN 0
 		#define TARGET_OS_COMPAT_POSIX 0
-	#endif	
+	#endif
 	#undef	TARGET_OS_UNDEFINED
 
 	// On suppose que c'est Win32 sur x86
@@ -391,7 +391,7 @@
 	#ifndef TARGET_RT_BIG_ENDIAN
 		#define TARGET_RT_BIG_ENDIAN B_HOST_IS_BENDIAN
 	#endif
-	
+
 	#include <SupportDefs.h>
 #endif
 

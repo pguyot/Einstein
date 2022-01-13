@@ -35,7 +35,7 @@ STM2_Template(FLAG_P, FLAG_U, Rn)
 
 	KUInt32 theImmValue;
 	POPVALUE(theImmValue);
-	
+
 	KUInt32 theRegList = theImmValue & 0xFFFF;
 #if !FLAG_U
 	KUInt32 nbRegisters = theImmValue >> 16;

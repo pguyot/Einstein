@@ -39,7 +39,7 @@ Multiply_Template(FLAG_S, Rd, Rs, Rm)
 		ioCPU->mCPSR_N = 1;
 	else
 		ioCPU->mCPSR_N = 0;
-	
+
 	if(theResult == 0)
 		ioCPU->mCPSR_Z = 1;
 	else

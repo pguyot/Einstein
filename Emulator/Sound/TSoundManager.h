@@ -92,7 +92,7 @@ public:
 	/// Schedule output of some buffer.
 	///
 	virtual void	ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize ) = 0;
-	
+
 	///
 	/// Start output.
 	///
@@ -141,12 +141,12 @@ protected:
         kOutputVolume_Min	= 0xFFDDBD71, // Matt: was 0xFFE24EDA, but I found a lower value
 		kOutputVolume_Max	= 0x00000000
 	};
-	
+
 	enum {
 		kNewtonBufferSizeInFrames	= 0x750,
 		kNewtonBufferSize			= kNewtonBufferSizeInFrames * sizeof(KSInt16)
 	};
-	
+
 	///
 	/// Accessor on the interface to the log (may be null).
 	///

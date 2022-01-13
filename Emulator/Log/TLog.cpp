@@ -66,9 +66,9 @@ TLog::LogLine( const char* inLine )
 	if (mEnabled)
 	{
 		LockMutex();
-		
+
 		DoLogLine( inLine );
-		
+
 		UnlockMutex();
 	}
 }
@@ -83,11 +83,11 @@ TLog::FLogLine( const char* inFormat, ... )
 	{
 		char bufferLine[512];
 		va_list argList;
-		
+
 		va_start(argList, inFormat);
 		(void) ::vsnprintf( bufferLine, sizeof(bufferLine), inFormat, argList );
 		va_end(argList);
-		
+
 		LogLine( bufferLine );
 	}
 }

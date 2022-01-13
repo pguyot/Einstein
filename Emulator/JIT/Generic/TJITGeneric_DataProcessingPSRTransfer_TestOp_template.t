@@ -23,7 +23,7 @@
 
 #define TestOp_TemplateName(op, mode, rn) \
 	DataProcessingTranfer_ ## op ## _ ## mode ## _ ## rn
-	
+
 #define TestOp_Proto(op, mode, rn) \
 	JITUnit* TestOp_TemplateName(op, mode, rn) \
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)

@@ -107,24 +107,24 @@ TX11ScreenManager::TX11ScreenManager(
 {
 	// I'm doing things in a multi-threaded way.
 	(void) XInitThreads();
-	
+
 	// Connect to the display.
 	OpenDisplay();
-	
+
 	// Create some atoms.
 	mWMDeleteWindow = XInternAtom( mDisplay, "WM_DELETE_WINDOW", false );
 	mWMState = XInternAtom(mDisplay, "_NET_WM_STATE", false);
-	mWMFullScreen = XInternAtom( mDisplay, "_NET_WM_STATE_FULLSCREEN", false);	
+	mWMFullScreen = XInternAtom( mDisplay, "_NET_WM_STATE_FULLSCREEN", false);
 
 	// Setup the translation map for key codes.
 	LoadKeyCodesTranslation();
-	
+
 	// Find the visual.
 	FindVisual();
-	
+
 	// Create and setup the window.
 	SetupWindow();
-	
+
 	// Create the palette.
 	CreatePalette();
 }
@@ -138,14 +138,14 @@ TX11ScreenManager::~TX11ScreenManager( void )
 	{
 		PowerOffScreen();
 	}
-	
+
 	// Destroy the image.
 	if (mImage)
 	{
 		mImage->data = NULL;
 		XDestroyImage( mImage );
 	}
-	
+
 	// Free the image buffer.
 	if (mImageBuffer)
 	{
@@ -184,7 +184,7 @@ TX11ScreenManager::Run( void )
 	KUInt16 ycoord = 0;
 	fd_set myFdSet;
 	Boolean loop = true;
-	
+
 	while (loop) {
         XEvent theEvent;
         // If the pen is down, wait for the sample rate, otherwise,
@@ -330,7 +330,7 @@ TX11ScreenManager::DoOpenDisplay( void )
 			::abort();
 		}
 	}
-	
+
 	return theDisplay;
 }
 
@@ -351,7 +351,7 @@ TX11ScreenManager::SetupWindow( void )
 {
 	// Grab the screen number.
 	int theScreenNumber = DefaultScreen(mDisplay);
-	
+
 	// Create a simple window at 0,0
 
 	// We won't inherit the colormap from the parent window.
@@ -366,10 +366,10 @@ TX11ScreenManager::SetupWindow( void )
 	theAttributes.background_pixel = 0; /* FIXME: this should be white */
 	theAttributes.border_pixel     = 0;
 	unsigned long mask = CWColormap | CWBorderPixel | CWBackPixel;
-	
+
 	int theWidth = GetActualScreenWidth();
 	int theHeight = GetActualScreenHeight();
-	
+
 	mWindow = XCreateWindow(
 				mDisplay,
 				mRootWindow,
@@ -397,7 +397,7 @@ TX11ScreenManager::SetupWindow( void )
 		(void) ::fprintf( stderr, "XStoreName returned an error\n" );
 		::abort();
 	}
-	
+
 	// Chose events we want.
 	if (XSelectInput(
 		mDisplay,
@@ -408,7 +408,7 @@ TX11ScreenManager::SetupWindow( void )
 		(void) ::fprintf( stderr, "XSelectInput returned an error\n" );
 		::abort();
 	}
-	
+
 	// Prevent window from being closable.
 	XSetWMProtocols( mDisplay, mWindow, &mWMDeleteWindow, 1 );
 
@@ -426,7 +426,7 @@ TX11ScreenManager::SetupRotateWindow( void )
 {
 	// Make window unresizable
 	MakeWindowUnresizable();
-	
+
 	// Create a new image.
 	KUInt32 theWidth = GetActualScreenWidth();
 	KUInt32 theHeight = GetActualScreenHeight();
@@ -498,7 +498,7 @@ TX11ScreenManager::FindVisual( void )
 			mGreenMask = theVisualInfos->green_mask;
 			break;
 		}
-		
+
 		// On essaye avec 16 bits en rrrrrggggggbbbbb
 		theVisualInfoTemplate.c_class = TrueColor;
 		theVisualInfoTemplate.depth = 16;
@@ -523,10 +523,10 @@ TX11ScreenManager::FindVisual( void )
 			mGreenMask = theVisualInfos->green_mask;
 			break;
 		}
-		
+
 		// Nothing allowed me to avoid allocation of colors.
 		// Try higher depths first.
-		
+
 		// TrueColor, 15.
 		theVisualInfoTemplate.c_class = TrueColor;
 		theVisualInfoTemplate.depth = 15;
@@ -725,7 +725,7 @@ TX11ScreenManager::CreatePalette( void )
 			mColors[index].pixel = 42;
 			(void) XAllocColor( mDisplay, theColormap, &mColors[index] );
 			mPalette[index] = mColors[index].pixel;
-			
+
 			mColors[16 + index].flags = DoRed | DoGreen | DoBlue;
 			mColors[16 + index].red = 0;
 			mColors[16 + index].green = theComp;
@@ -818,7 +818,7 @@ TX11ScreenManager::MakeWindowUnresizable( void )
 		(void) ::fprintf( stderr, "Couldn't allocate hints\n" );
 		::abort();
 	}
-	
+
 	KUInt32 theWidth = GetActualScreenWidth();
 	KUInt32 theHeight = GetActualScreenHeight();
 	theHints->min_width = theWidth;
@@ -905,7 +905,7 @@ TX11ScreenManager::PowerOffScreen( void )
 		delete mThread;
 		mThread = nil;
 	}
-	
+
 	mPowerIsOn = false;
 }
 
@@ -942,14 +942,14 @@ TX11ScreenManager::ScreenOrientationChanged( EOrientation /* inNewOrientation */
 	if (!IsFullScreen())
 	{
 		MakeWindowUnresizable();
-		
+
 		// Resize the window (ignore any error).
 		(void) XResizeWindow(mDisplay, mWindow, GetScreenWidth(), GetScreenHeight() );
-		
+
 		// Destroy the image, but not the buffer.
 		mImage->data = NULL;
 		XDestroyImage(mImage);
-		
+
 		// Then rotate the window.
 		SetupRotateWindow();
 	}
@@ -974,7 +974,7 @@ TX11ScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 	KUInt16 left = inUpdateRect->fLeft;
 	KUInt16 height = inUpdateRect->fBottom - top;
 	KUInt16 width = inUpdateRect->fRight - left;
-	
+
 	// Update the buffer.
 	// We copy more pixels than what we should.
 	if (left & 0x1)
@@ -986,7 +986,7 @@ TX11ScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 	{
 		width += 1;
 	}
-	
+
 	KUInt8* theScreenBuffer = GetScreenBuffer();
 	KUInt32 theScreenWidth = GetScreenWidth();
 	KUInt32 dstRowBytes = theScreenWidth * mBitsPerPixel / 8;
@@ -1011,7 +1011,7 @@ TX11ScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 		case kBlitRotationNone:
 			// this space for rent.
 			break;
-		
+
 		case kBlitRotation90:
 			// 90° clockwise.
 			{
@@ -1047,7 +1047,7 @@ TX11ScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 					}
 					srcRowPtr += srcRowBytes;
 				}
-				
+
 				srcRowPtr = (KUInt8*) mRotationBuffer;
 				dstRowPtr =
 					((KUInt8*) mImageBuffer)
@@ -1055,7 +1055,7 @@ TX11ScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 					+ (top * mBitsPerPixel / 8);
 			}
 			break;
-		
+
 		case kBlitRotation180:
 			{
 				// Iterate on rows.
@@ -1121,7 +1121,7 @@ TX11ScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 					}
 					srcRowPtr += srcRowBytes;
 				}
-				
+
 				srcRowPtr = (KUInt8*) mRotationBuffer;
 				dstRowPtr =
 					((KUInt8*) mImageBuffer)
@@ -1129,7 +1129,7 @@ TX11ScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 					+ (top * mBitsPerPixel / 8);
 			}
 			break;
-		
+
 	}
 */
 #if SIXTEEN_GREYS
@@ -1301,7 +1301,7 @@ void
 TX11ScreenManager::LoadKeyCodesTranslation( void )
 {
 	// Open file ~/.einstein.keycodes
-	
+
 	// If it cannot be found, fill with X == X (what we have on Apple X11).
 	//int index;
 	//for (index = 0; index < 255; index++)

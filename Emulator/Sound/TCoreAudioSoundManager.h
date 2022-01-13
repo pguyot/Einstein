@@ -62,7 +62,7 @@ public:
 	/// Schedule output of some buffer.
 	///
 	void ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize ) override;
-	
+
 	///
 	/// Start output.
 	///
@@ -102,15 +102,15 @@ private:
 							inNumberFrames,
 							ioData );
 		}
-		
+
 	///
 	/// Render callback.
 	///
 	OSStatus	RenderCallback(
-						AudioUnitRenderActionFlags* ioActionFlags, 
-						const AudioTimeStamp* inTimeStamp, 
-						UInt32 inBusNumber, 
-						UInt32 inNumberFrames, 
+						AudioUnitRenderActionFlags* ioActionFlags,
+						const AudioTimeStamp* inTimeStamp,
+						UInt32 inBusNumber,
+						UInt32 inNumberFrames,
 						AudioBufferList* ioData );
 
 	///

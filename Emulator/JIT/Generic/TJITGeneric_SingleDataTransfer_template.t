@@ -23,7 +23,7 @@
 
 #define SingleDataTransfer_TemplateName(flags, rn, rd) \
 	SingleDataTransfer_ ## flags ## _ ## rn ## _ ## rd
-	
+
 #if DECLARATION
 	#define SingleDataTransfer_Template(flags, rn, rd) \
 		JITInstructionProto(SingleDataTransfer_TemplateName(flags, rn, rd));

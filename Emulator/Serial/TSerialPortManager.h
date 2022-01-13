@@ -86,7 +86,7 @@ public:
 	/// Read DMA register.
 	///
 	virtual KUInt32 ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister );
-	
+
 	///
 	/// Write register.
 	///
@@ -125,7 +125,7 @@ protected:
 		kSerReg_AckStatus	= 0x2000,		///< Write bit 0x01 to ack an error.
 		kSerReg_BreakDuplex	= 0x2400,
 	};
-	
+
 	/// \name Variables
 	TLog*				mLog;				///< Reference to the log object
 											///< (or NULL)

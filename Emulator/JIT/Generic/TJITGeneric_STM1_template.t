@@ -23,7 +23,7 @@
 
 #define STM1_TemplateName(flag_p, flag_u, flag_w, rn) \
 	STM1_ ## flag_p ## _ ## flag_u ## _ ## flag_w ## _ ## rn
-	
+
 #if DECLARATION
 	#define STM1_Template(flag_p, flag_u, flag_w, rn) \
 		JITInstructionProto(STM1_TemplateName(flag_p, flag_u, flag_w, rn));

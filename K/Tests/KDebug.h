@@ -1,10 +1,10 @@
 // ==============================
 // Fichier:			KDebug.h
 // Projet:			K
-// 
+//
 // Créé le:			3/8/2003
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
 //
@@ -100,7 +100,7 @@
 // Elles peuvent être remplacées par d'autres méthodes.
 
 // L'utilisation de chacun de ces niveaux se fait en ajoutant dans le fichier .cp:
-// 
+//
 // #undef KERROR_ENABLED
 // #if defined(error_NOM_DU_FICHIER) && error_NOM_DU_FICHIER
 // #define KERROR_ENABLED 1
@@ -316,7 +316,7 @@
 		#define KDEBUGSTR( cstr )							\
 				_RPT3(_CRT_ERROR, 							\
 						"DebugStr - %s (%s:%i)",			\
-						cstr, __FILE__, __LINE__ );			
+						cstr, __FILE__, __LINE__ );
 	#else
 		#if KDebugOn
 			#warning KDEBUGSTR n´est pas défini

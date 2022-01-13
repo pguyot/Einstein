@@ -50,12 +50,12 @@ public:
 	/// Destructor.
 	///
 	virtual ~TPCMCIACard( void );
-	
+
 	///
 	/// Called by the controller to say we've been inserted.
 	///
 	virtual int			Init( TPCMCIAController* inController );
-	
+
 	///
 	/// Called by the controller to say we've been removed.
 	///
@@ -63,14 +63,14 @@ public:
 
 	///
 	/// Return true, if the card is currently inserted
-	/// 
+	///
 	Boolean IsInserted() { return (mPCMCIAController != nullptr);  }
-	
+
 	///
 	/// Get PCMCIA pins.
 	///
 	virtual KUInt32		GetVPCPins( void ) = 0;
-	
+
 	///
 	/// Set PCMCIA pins.
 	///

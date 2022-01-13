@@ -23,7 +23,7 @@
 
 #define MRS_TemplateName(flag_r, rd) \
 	DataProcessingTranfer_MRS_ ## flag_r ## _ ## rd
-	
+
 #define MRS_Proto(flag_r, rd) \
 		JITUnit* MRS_TemplateName(flag_r, rd) \
 			(JITUnit* ioUnit, TARMProcessor* ioCPU)

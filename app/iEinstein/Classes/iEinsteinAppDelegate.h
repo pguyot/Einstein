@@ -25,7 +25,7 @@
 
 @class iEinsteinViewController;
 
-@interface iEinsteinAppDelegate : NSObject <UIApplicationDelegate> 
+@interface iEinsteinAppDelegate : NSObject <UIApplicationDelegate>
 {
 	IBOutlet UIWindow* window;
 	IBOutlet iEinsteinViewController* viewController;

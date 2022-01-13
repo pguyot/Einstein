@@ -100,7 +100,7 @@ public:
 	/// Destructor.
 	///
 	~TEmulator( void );
-	
+
 	///
 	/// Run the emulator until it is interrupted.
 	///
@@ -120,7 +120,7 @@ public:
 			mSignal = false;
 			mInterrupted = true;
 		}
-	
+
 	///
 	/// Called after the interrupt was processed.
 	///
@@ -151,28 +151,28 @@ public:
 			// We can suppose the emulator is running now.
 			// mInterruptManager.WakeEmulatorThread();
 		}
-	
+
 	///
 	/// NewtonOS Debugger UND instruction.
 	/// Method called by the processor when it encounters a SystemBootUND
 	/// instruction.
 	///
 	void		SystemBootUND( KUInt32 inPAddr );
-	
+
 	///
 	/// NewtonOS Debugger UND instruction.
 	/// Method called by the processor when it encounters a DebuggerUND
 	/// instruction.
 	///
 	void		DebuggerUND( KUInt32 inPAddr );
-		
+
 	///
 	/// NewtonOS Debugger UND instruction.
 	/// Method called by the processor when it encounters a TapFileCntlUND
 	/// instruction.
 	///
 	void		TapFileCntlUND( KUInt32 inPAddr );
-	
+
 	///
 	/// Selector on the monitor.
 	///
@@ -197,7 +197,7 @@ public:
 	/// Break in monitor, if present (don't do anything otherwise).
 	///
 	void		BreakInMonitor( const char* msg = NULL );
-	
+
 	///
 	/// Determine if we're stopped in a breakpoint.
 	///
@@ -207,7 +207,7 @@ public:
 		{
 			return mBPHalted;
 		}
-	
+
 	///
 	/// Determine if we're processing an interrupt.
 	///
@@ -227,7 +227,7 @@ public:
 		{
 			return mBPID;
 		}
-	
+
 	///
 	/// Determine if we're paused.
 	///
@@ -237,7 +237,7 @@ public:
 		{
 			return mPaused;
 		}
-	
+
 	///
 	/// Determine if we're running.
 	///
@@ -257,7 +257,7 @@ public:
 		{
 			return &mProcessor;
 		}
-	
+
 	///
 	/// Accessor on the memory interface.
 	///
@@ -267,7 +267,7 @@ public:
 		{
 			return &mMemory;
 		}
-	
+
 	///
 	/// Accessor on the interrupt manager interface.
 	///
@@ -275,7 +275,7 @@ public:
 		{
 			return mInterruptManager;
 		}
-	
+
 	///
 	/// Accessor on the sound manager interface.
 	///
@@ -285,7 +285,7 @@ public:
 	{
 		return mSoundManager;
 	}
-	
+
 	///
 	/// Accessor on the network manager interface.
 	///
@@ -295,7 +295,7 @@ public:
 	{
 		return mNetworkManager;
 	}
-	
+
 	///
 	/// Accessor on the sound manager interface.
 	///
@@ -315,7 +315,7 @@ public:
 		{
 			return mFileManager;
 		}
-	
+
 	///
 	/// Accessor on the sound manager interface.
 	///
@@ -325,7 +325,7 @@ public:
 		{
 			return mPlatformManager;
 		}
-	
+
 	///
 	/// Accessor on the DMA manager interface.
 	///
@@ -364,7 +364,7 @@ public:
 			mSignal = false;
 			mPaused = true;
 		}
-	
+
 	///
 	/// Quit.
 	///
@@ -376,7 +376,7 @@ public:
 	/// \return an error code if a problem occurred.
 	///
 	void		SaveState( const char* inPath );
-	
+
 	///
 	/// Load the state from a file.
 	///
@@ -388,7 +388,7 @@ public:
 	/// Save or restore the state to or from a file.
 	///
 	void		TransferState( TStream* inStream );
-	
+
 	///
 	/// Set a new NewtonID
 	///

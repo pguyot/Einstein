@@ -54,7 +54,7 @@ public:
 		kSerialPort3Receive			= 6,
 		kSerialPort3Transmit		= 7
 	};
-	
+
 	///
 	/// Constructor from the memory and the interrupt manager.
 	///
@@ -114,7 +114,7 @@ public:
 	/// \return the value of the word status register.
 	///
 	KUInt32	ReadWordStatusRegister( void );
-	
+
 	///
 	/// Read a channel register from first bank.
 	///
@@ -123,7 +123,7 @@ public:
 	/// \return the value of the register.
 	///
 	KUInt32	ReadChannel1Register( KUInt32 inChannel, KUInt32 inRegister );
-	
+
 	///
 	/// Write a channel register in first bank.
 	///
@@ -136,7 +136,7 @@ public:
 					KUInt32 inChannel,
 					KUInt32 inRegister,
 					KUInt32 inValue );
-	
+
 	///
 	/// Read a channel register from second bank.
 	///
@@ -184,7 +184,7 @@ private:
 	TMemory*			mMemory;			///< Reference on the memory.
 	TInterruptManager*	mInterruptManager;	///< Reference on the interrupt mgr.
 	TEmulator*			mEmulator;			///< Reference the emulator
-	
+
 	KUInt32				mAssignmentReg;		///< Assignment register.
 };
 

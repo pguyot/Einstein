@@ -120,7 +120,7 @@ int TLinearCard::Init(TPCMCIAController* inController)
         return ret;
 
     // File may still be open in write mode from a previous Flush.
-    if (mFile) 
+    if (mFile)
         ::fclose(mFile);
 
     // Init() reads all required data from the file and the closes it again.
@@ -204,7 +204,7 @@ TLinearCard::Flush()
 {
     std::lock_guard<std::mutex> guard(mMutex);
 
-    // Check if there is any data that we might want to write 
+    // Check if there is any data that we might want to write
     if (mFilePath && mMemoryMap && mSize) {
         // Open the file for reading, writing, and updating.
         if (!mFile)
@@ -215,7 +215,7 @@ TLinearCard::Flush()
             ::fwrite(mMemoryMap, mSize, 1, mFile);
             ::fflush(mFile);
         }
-        // Keep the file open for possible additional calls to Flush(). 
+        // Keep the file open for possible additional calls to Flush().
         // Destructor will close the file for us later.
     }
 
@@ -263,7 +263,7 @@ TLinearCard::ReadAttr( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "TLinearCard::ReadAttr( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 
@@ -304,7 +304,7 @@ TLinearCard::ReadIO( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "TLinearCard::ReadIO( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 
@@ -318,7 +318,7 @@ TLinearCard::ReadIOB( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "TLinearCard::ReadIOB( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 
@@ -347,7 +347,7 @@ TLinearCard::ReadMem( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "TLinearCard::ReadMem( %.8X ) = %.8X", (unsigned int) inOffset, v );
 	}
-	
+
 	return v;
 }
 
@@ -579,13 +579,13 @@ TLinearCard::WriteMemB( KUInt32 inOffset, KUInt8 inValue )
 
 /**
  * Static method to generate a PCMCIA Card Image file.
- * 
+ *
  * The PCMCIA Card Image starts with the data section, followed by the CIS,
- * followed by an optional graphic (not yet), and more data that may be 
+ * followed by an optional graphic (not yet), and more data that may be
  * relevant. The format is extendable.
- * 
+ *
  * The file ends in a lookup table. See ImageInfo.
- * 
+ *
  * \param inOutFilename the final image will be written to this file
  * \param inDataFilename read PCMCIA Data block from this file, size is usually a multiple of 1MB
  * \param inCISFilename read CIS data from this file and descramble it
@@ -656,14 +656,14 @@ KSInt32 TLinearCard::ComposeImageFile(const char* inOutFilename, const char* inD
         KUInt8 st = cisBuffer[i++];
         switch (tt) {
         case 0x01: // CISTPL_DEVICE
-            imageInfo.pType = cisBuffer[i] >> 4; 
+            imageInfo.pType = cisBuffer[i] >> 4;
             // TODO: cisBuffer[i+1] contains the encoded size of the Flash. Do we want to verify that this is the same as Data size?
             break;
         case 0x15: // CISTPL_VERS_1
-            // majr, minor version, manufacturer \0 product \0 product info 2 \0 product info 3 \0\ff 
+            // majr, minor version, manufacturer \0 product \0 product info 2 \0 product info 3 \0\ff
             break;
-        case 0xff: 
-            imageInfo.pCISSize = i; 
+        case 0xff:
+            imageInfo.pCISSize = i;
             i = rawCISSize; // end the loop
             break;
         }
@@ -804,7 +804,7 @@ int TLinearCard::ImageInfo::write(FILE* f)
 
  A bit in the mPageDirty bit array is reserved for every 16kB block
  of flash memory. If there is a memory write operation anywhere on
- a page, that page is marked "dirty", and a process is launched that 
+ a page, that page is marked "dirty", and a process is launched that
  will write all pages marked dirty to disk 2 seconds later.
 
  So unless Einstein crashes within those two seconds, the content of the
@@ -812,12 +812,12 @@ int TLinearCard::ImageInfo::write(FILE* f)
  operations.
 
  In the actual emulation, these does not seem to be a huge problem. Apple
- was very aware that Flash memeory has a limited life span, and instead of 
+ was very aware that Flash memeory has a limited life span, and instead of
  writing all changes to a PC Card immediatly, NewtonOS seems to have its
  own little 5 second cache delay, writing only as much data as necessary,
  and limiting lengthy (and damaging) erase processes to an absolute minimum.
 
- The code below was tested and seems to be working well. More extensive 
+ The code below was tested and seems to be working well. More extensive
  testing, maybe even a unit test, would be nice.
  */
 
@@ -838,7 +838,7 @@ void TLinearCard::FlushDirtyPages()
 
     int nFlushed = 0;
 
-    // Check if there is any data that we might want to write 
+    // Check if there is any data that we might want to write
     if (mFilePath && mMemoryMap && mSize) {
         // Open the file for reading, writing, and updating.
         if (!mFile)
@@ -857,7 +857,7 @@ void TLinearCard::FlushDirtyPages()
             if (nFlushed)
                 ::fflush(mFile);
         }
-        // Keep the file open for possible additional calls to Flush(). 
+        // Keep the file open for possible additional calls to Flush().
         // Destructor will close the file for us later.
     }
     AsyncTrace("FlushDirtyPages wrote %d pages to disk\n", nFlushed);

@@ -50,7 +50,7 @@ UUTF16CStr::ToISO88591(
 {
 	// Determine input string size.
 	size_t inputSize = StrLen( inInputCString );
-	
+
 	// Fill the string size.
 	if (outStringSize)
 	{
@@ -67,12 +67,12 @@ UUTF16CStr::ToISO88591(
 	} else {
 		outputSize--;			// Leave room for null terminator.
 	}
-	
+
 	(void) UUTF16Conv::ToISO88591(
 		inInputCString, &inputSize,
 		outOutputCString, &outputSize,
 		UUTF16Conv::kRepCharOnUnrepChar );
-	
+
 	// Add the null terminator.
 	outOutputCString[ outputSize ] = 0;
 }
@@ -92,7 +92,7 @@ UUTF16CStr::FromISO88591(
 {
 	// Determine input string size.
 	size_t count = StrLen( inInputCString );
-	
+
 	// Fill the string size.
 	if (outStringSize)
 	{
@@ -104,12 +104,12 @@ UUTF16CStr::FromISO88591(
 	{
 		count = inLimit - 1;	// Leave room for null terminator.
 	}
-	
+
 	(void) UUTF16Conv::FromISO88591(
 		inInputCString,
 		outOutputCString,
 		count );
-	
+
 	// Add the null terminator.
 	outOutputCString[ count ] = 0;
 }
@@ -129,7 +129,7 @@ UUTF16CStr::ToISO88592(
 {
 	// Determine input string size.
 	size_t inputSize = StrLen( inInputCString );
-	
+
 	// Fill the string size.
 	if (outStringSize)
 	{
@@ -146,12 +146,12 @@ UUTF16CStr::ToISO88592(
 	} else {
 		outputSize--;			// Leave room for null terminator.
 	}
-	
+
 	(void) UUTF16Conv::ToISO88592(
 		inInputCString, &inputSize,
 		outOutputCString, &outputSize,
 		UUTF16Conv::kRepCharOnUnrepChar );
-	
+
 	// Add the null terminator.
 	outOutputCString[ outputSize ] = 0;
 }
@@ -171,7 +171,7 @@ UUTF16CStr::FromISO88592(
 {
 	// Determine input string size.
 	size_t count = StrLen( inInputCString );
-	
+
 	// Fill the string size.
 	if (outStringSize)
 	{
@@ -183,12 +183,12 @@ UUTF16CStr::FromISO88592(
 	{
 		count = inLimit - 1;	// Leave room for null terminator.
 	}
-	
+
 	(void) UUTF16Conv::FromISO88592(
 		inInputCString,
 		outOutputCString,
 		count );
-	
+
 	// Add the null terminator.
 	outOutputCString[ count ] = 0;
 }
@@ -208,7 +208,7 @@ UUTF16CStr::ToASCII(
 {
 	// Determine input string size.
 	size_t inputSize = StrLen( inInputCString );
-	
+
 	// Two cases: inLimit is null or it isn't.
 	size_t outputSize = inLimit;
 	if (outputSize == 0)
@@ -219,15 +219,15 @@ UUTF16CStr::ToASCII(
 	} else {
 		outputSize--;			// Leave room for null terminator.
 	}
-	
+
 	(void) UUTF16Conv::ToASCII(
 		inInputCString, &inputSize,
 		outOutputCString, &outputSize,
 		UUTF16Conv::kRepCharOnUnrepChar );
-	
+
 	// Add the null terminator.
 	outOutputCString[ outputSize ] = 0;
-	
+
 	// Fill the string size.
 	if (outStringSize)
 	{
@@ -250,7 +250,7 @@ UUTF16CStr::FromASCII(
 {
 	// Determine input string size.
 	size_t count = StrLen( inInputCString );
-	
+
 	// Fill the string size.
 	if (outStringSize)
 	{
@@ -262,12 +262,12 @@ UUTF16CStr::FromASCII(
 	{
 		count = inLimit - 1;	// Leave room for null terminator.
 	}
-	
+
 	(void) UUTF16Conv::FromASCII(
 		inInputCString,
 		outOutputCString,
 		count );
-	
+
 	// Add the null terminator.
 	outOutputCString[ count ] = 0;
 }
@@ -287,7 +287,7 @@ UUTF16CStr::ToMacRoman(
 {
 	// Determine input string size.
 	size_t inputSize = StrLen( inInputCString );
-	
+
 	// Fill the string size.
 	if (outStringSize)
 	{
@@ -304,12 +304,12 @@ UUTF16CStr::ToMacRoman(
 	} else {
 		outputSize--;			// Leave room for null terminator.
 	}
-	
+
 	(void) UUTF16Conv::ToMacRoman(
 		inInputCString, &inputSize,
 		outOutputCString, &outputSize,
 		UUTF16Conv::kRepCharOnUnrepChar );
-	
+
 	// Add the null terminator.
 	outOutputCString[ outputSize ] = 0;
 }
@@ -329,7 +329,7 @@ UUTF16CStr::FromMacRoman(
 {
 	// Determine input string size.
 	size_t count = StrLen( inInputCString );
-	
+
 	// Fill the string size.
 	if (outStringSize)
 	{
@@ -341,12 +341,12 @@ UUTF16CStr::FromMacRoman(
 	{
 		count = inLimit - 1;	// Leave room for null terminator.
 	}
-	
+
 	(void) UUTF16Conv::FromMacRoman(
 		inInputCString,
 		outOutputCString,
 		count );
-	
+
 	// Add the null terminator.
 	outOutputCString[ count ] = 0;
 }
@@ -364,7 +364,7 @@ UUTF16CStr::ToUCS4(
 {
 	// Determine input string size.
 	size_t inputSize = StrLen( inInputCString );
-	
+
 	// Fill the string size.
 	if (outStringSize)
 	{
@@ -381,11 +381,11 @@ UUTF16CStr::ToUCS4(
 	} else {
 		outputSize--;			// Leave room for null terminator.
 	}
-	
+
 	(void) UUTF16Conv::ToUCS4(
 		inInputCString, &inputSize,
 		outOutputCString, &outputSize );
-	
+
 	// Add the null terminator.
 	outOutputCString[ outputSize ] = 0;
 }
@@ -403,7 +403,7 @@ UUTF16CStr::ToUTF8(
 {
 	// Determine input string size.
 	size_t inputSize = StrLen( inInputCString );
-	
+
 	// Fill the string size.
 	if (outStringSize)
 	{
@@ -419,11 +419,11 @@ UUTF16CStr::ToUTF8(
 	} else {
 		outputSize--;			// Leave room for null terminator.
 	}
-	
+
 	(void) UUTF16Conv::ToUTF8(
 		inInputCString, &inputSize,
 		outOutputCString, &outputSize );
-	
+
 	// Add the null terminator.
 	outOutputCString[ outputSize ] = 0;
 }
@@ -441,7 +441,7 @@ UUTF16CStr::FromUTF8(
 {
 	// Détermination de la taille de la chaîne en entrée.
 	size_t inputSize = StrLen( inInputCString );
-	
+
 	// Two cases: inLimit is null or it isn't.
 	size_t outputSize = inLimit;
 	if (outputSize == 0)
@@ -452,11 +452,11 @@ UUTF16CStr::FromUTF8(
 	} else {
 		outputSize--;			// Leave room for null terminator.
 	}
-	
+
 	(void) UUTF16Conv::FromUTF8(
 		inInputCString, &inputSize,
 		outOutputCString, &outputSize );
-	
+
 	// Add the null terminator.
 	outOutputCString[ outputSize ] = 0;
 
@@ -479,7 +479,7 @@ UUTF16CStr::StrLen( const KUInt32* inCString )
 	{
 		theSize++;
 	}
-	
+
 	return theSize;
 }
 
@@ -495,7 +495,7 @@ UUTF16CStr::StrLen( const KUInt16* inCString )
 	{
 		theSize++;
 	}
-	
+
 	return theSize;
 }
 
@@ -511,7 +511,7 @@ UUTF16CStr::StrLen( const KUInt8* inCString )
 	{
 		theSize++;
 	}
-	
+
 	return theSize;
 }
 

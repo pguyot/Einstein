@@ -36,7 +36,7 @@ class TSymbolList;
 ///
 /// Implement a fast hit counter.
 ///
-/// This class is helpful to count any kind of array access. It was written 
+/// This class is helpful to count any kind of array access. It was written
 /// to count the command executions in the ROM, but can be used for many
 /// other purposes, like hash buffer performance measurments.
 ///
@@ -50,7 +50,7 @@ public:
 
 	/// free all associated resources
 	~TJITPerfHitCounter();
-  
+
     void SetEmulator(TEmulator *inEmulator);
 
 	/// Count a hit at the given index

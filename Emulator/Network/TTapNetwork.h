@@ -79,7 +79,7 @@ class TTapNetwork : public TNetworkManager
 {
 public:
 	TTapNetwork(TLog* inLog);
-	
+
 	///
 	/// Destructor.
 	///
@@ -94,7 +94,7 @@ public:
 	/// \param size of the block
 	///
 	virtual int SendPacket(KUInt8 *data, KUInt32 size);
-	
+
 	///
 	/// Fill the buffer with the MAC address of the network card.
 	///
@@ -102,18 +102,18 @@ public:
 	/// \param size ethernet MAC addresses are always 6 bytes
 	///
 	virtual int GetDeviceAddress(KUInt8 *data, KUInt32 size);
-	
+
 	///
 	/// Number of bytes available for Newton.
 	/// This number is polled on a regular base. If no block is available,
 	/// return 0. If a block of data is waiting, return the size of the raw
 	/// ethernet datagram. Do not split blocks of data unless you create a
-	/// complete rwa ethernet datagramm for each of them.	
+	/// complete rwa ethernet datagramm for each of them.
 	///
 	/// \return the number of bytes in the first block that is available for the Newton
 	///
 	virtual KUInt32 DataAvailable();
-	
+
 	///
 	/// Newton receives a block of data.
 	/// Copy the block that was received from the outside world int this buffer.
@@ -124,7 +124,7 @@ public:
 	/// \param size the number of bytes that we expect in the buffer
 	///
 	virtual int ReceiveData(KUInt8 *data, KUInt32 size);
-	
+
 	///
 	/// Define the select fd set (in the thread).
 	/// Return the max fd + 1. If the result is 0, the thread exits.

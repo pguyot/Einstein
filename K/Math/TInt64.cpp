@@ -1,10 +1,10 @@
 // ==============================
 // Fichier:			TInt64.cp
 // Projet:			K
-// 
+//
 // Créé le:			21/2/2004
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
 //
@@ -43,7 +43,7 @@ TInt64::operator &= ( const KUInt32 inArgument )
 {
 	mLo &= inArgument;
 	mHi = 0;
-	
+
 	return *this;
 }
 
@@ -56,7 +56,7 @@ TInt64::operator &= ( const TInt64& inArgument )
 	// Idem.
 	mLo &= inArgument.GetLo();
 	mHi &= inArgument.GetHi();
-	
+
 	return *this;
 }
 
@@ -67,7 +67,7 @@ TInt64&
 TInt64::operator |= ( const KUInt32 inArgument )
 {
 	mLo |= inArgument;
-	
+
 	return *this;
 }
 
@@ -80,7 +80,7 @@ TInt64::operator |= ( const TInt64& inArgument )
 	// Idem.
 	mLo |= inArgument.GetLo();
 	mHi |= inArgument.GetHi();
-	
+
 	return *this;
 }
 
@@ -91,7 +91,7 @@ TInt64&
 TInt64::operator ^= ( const KUInt32 inArgument )
 {
 	mLo ^= inArgument;
-	
+
 	return *this;
 }
 
@@ -104,7 +104,7 @@ TInt64::operator ^= ( const TInt64& inArgument )
 	// Idem.
 	mLo ^= inArgument.GetLo();
 	mHi ^= inArgument.GetHi();
-	
+
 	return *this;
 }
 
@@ -128,7 +128,7 @@ TInt64::ShiftRight( void )
 	if (mHi & 0x01)
 		mLo |= 0x80000000;
 	mHi >>= 1;
-	
+
 	return theResult;
 }
 
@@ -143,7 +143,7 @@ TInt64::ShiftLeft( void )
 	if (mLo & 0x80000000)
 		mHi |= 0x01;
 	mLo <<= 1;
-	
+
 	return theResult;
 }
 

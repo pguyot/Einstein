@@ -143,7 +143,7 @@ public:
 		{
 			return &mJIT;
 		}
-	
+
 	typedef KUInt32 PAddr;	///< Physical address
 	typedef KUInt32 VAddr;	///< Virtual address
 
@@ -204,7 +204,7 @@ public:
 					VAddr inAddress,
 					KUInt32 inAmount,
 					KUInt8* outBuffer );
-	
+
 	///
 	/// Fast read string, with allocation (with malloc).
 	///
@@ -225,7 +225,7 @@ public:
 					VAddr inAddress,
 					KUInt32* ioCount,
 					char* outString );
-	
+
 	///
 	/// Fast write data.
 	///
@@ -236,7 +236,7 @@ public:
 					VAddr inAddress,
 					KUInt32 inAmount,
 					const KUInt8* inBuffer );
-	
+
 	///
 	/// Fast write string.
 	///
@@ -247,7 +247,7 @@ public:
 					VAddr inAddress,
 					KUInt32* ioCount,
 					const char* inString );
-	
+
 	///
 	/// Read an instruction from memory.
 	/// This function must be used with results from the previous function.
@@ -257,11 +257,11 @@ public:
 	/// \param inBankNumber			bank index (0 for ROM or 1 for RAM).
 	/// \param inOffsetInBank		offset in the bank (address - base).
 	/// \return the instruction
-	///		
+	///
 	KUInt32		ReadInstruction(
 					KUInt32 inBankNumber,
 					KUInt32 inOffsetInBank );
-	
+
 	///
 	/// Read 32 bits from memory.
 	/// Perform address translation if the MMU is enabled.
@@ -269,9 +269,9 @@ public:
 	/// \param inAddress	virtual address to read 32 bits from.
 	/// \param outWord		32 bits word that was read.
 	/// \return true if the address couldn't be accessed for reading.
-	///		
+	///
 	Boolean		Read( VAddr inAddress, KUInt32& outWord );
-	
+
 	///
 	/// Read 32 bits from memory, ignoring two last bits.
 	/// Perform address translation if the MMU is enabled.
@@ -279,9 +279,9 @@ public:
 	/// \param inAddress	virtual address to read 32 bits from.
 	/// \param outWord		32 bits word that was read.
 	/// \return true if the address couldn't be accessed for reading.
-	///		
+	///
 	Boolean		ReadAligned( VAddr inAddress, KUInt32& outWord );
-	
+
 	///
 	/// Read 32 bits from memory, with a direct physical address.
 	///
@@ -289,9 +289,9 @@ public:
 	/// \param outFault		on return, \c true if there was a bus error
 	///						(unchanged otherwise)
 	/// \return the word that was read, 0 in case of error.
-	///		
+	///
 	KUInt32		ReadP( PAddr inAddress, Boolean& outFault );
-	
+
 	///
 	/// Read 32 bits from memory, with a direct physical aligned address.
 	///
@@ -299,9 +299,9 @@ public:
 	/// \param outFault		on return, \c true if there was a bus error
 	///						(unchanged otherwise)
 	/// \return the word that was read, 0 in case of error.
-	///		
+	///
 	KUInt32		ReadPAligned( PAddr inAddress, Boolean& outFault );
-	
+
 	///
 	/// Read 8 bits from memory.
 	/// Perform address translation if the MMU is enabled.
@@ -309,18 +309,18 @@ public:
 	/// \param inAddress	virtual address to read 8 bits from.
 	/// \param outByte		byte that was read.
 	/// \return true if the address couldn't be accessed for reading.
-	///		
+	///
 	Boolean		ReadB( VAddr inAddress, KUInt8& outByte );
-	
+
 	///
 	/// Read 8 bits from memory, with a direct physical address.
 	///
 	/// \param inAddress	physical address to read 8 bits from.
 	/// \param outByte		byte that was read.
 	/// \return true if the address couldn't be accessed for reading.
-	///		
+	///
 	Boolean		ReadBP( PAddr inAddress, KUInt8& outByte );
-	
+
 	///
 	/// Write 32 bits to memory.
 	/// Perform address translation if the MMU is enabled.
@@ -423,14 +423,14 @@ public:
 	Boolean		EraseFlash(
 					KUInt32 inAddress,
 					KUInt32 inBlockSize );
-	
+
 	///
 	/// Perform address translation for an instruction.
 	///
 	/// \param inVAddress			virtual address to read 32 bits from.
 	/// \param outPAddress			physical address.
 	/// \return true if the address couldn't be accessed for reading.
-	///		
+	///
 	Boolean		TranslateInstruction(
 					VAddr inVAddress,
 					PAddr* outPAddress )
@@ -662,7 +662,7 @@ public:
 	/// \param inAddress	virtual address to read 32 bits from.
 	/// \param outWord		32 bits word that was read.
 	/// \return true if the address couldn't be accessed for reading.
-	///		
+	///
 	Boolean		ReadBreakpoint( VAddr inAddress, KUInt32& outWord );
 
 	///
@@ -670,7 +670,7 @@ public:
 	///
 	/// \param inAddress	virtual address to set the Breakpoint to.
 	/// \return true if the address couldn't be accessed for writing.
-	///		
+	///
 	Boolean		SetBreakpoint( VAddr inAddress, KUInt16 inID = 0 );
 
 	///
@@ -678,7 +678,7 @@ public:
 	///
 	/// \param inAddress	virtual address to clear the Breakpoint of.
 	/// \return true if the address couldn't be accessed for writing.
-	///		
+	///
 	Boolean		ClearBreakpoint( VAddr inAddress );
 
 	///
@@ -686,7 +686,7 @@ public:
 	///
 	/// \param inAddress	virtual address to disable the Breakpoint of.
 	/// \return true if the address couldn't be accessed for writing.
-	///		
+	///
 	Boolean		DisableBreakpoint( VAddr inAddress );
 
 	///
@@ -694,26 +694,26 @@ public:
 	///
 	/// \param inAddress	virtual address to enable the Breakpoint of.
 	/// \return true if the address couldn't be accessed for writing.
-	///		
+	///
 	Boolean		EnableBreakpoint( VAddr inAddress );
 
 	static const int kMaxWatchpoints = 32;
-	
+
 	///
 	/// Create a memory watchpoint for a specific address
 	///
 	Boolean		AddWatchpoint( VAddr inAddress, KUInt8 inMode);
-	
+
 	///
 	/// Clear a memory watchpoint for a specific address
 	///
 	Boolean		ClearWatchpoint( VAddr inAddress);
-	
+
 	///
 	/// Return teh memory watchpoint at index i
 	///
 	Boolean		GetWatchpoint( int inIndex, VAddr &outAddress, KUInt8 &outMode );
-	
+
 	///
 	/// Accessor on the RAM size.
 	///
@@ -726,7 +726,7 @@ public:
 	/// Save or restore the state to or from a stream.
 	///
 	void		TransferState( TStream* inStream );
-		
+
 	///
 	/// Check that two addresses are very probably on the same page.
 	///
@@ -735,8 +735,8 @@ public:
 			return (inAddr1 & TMemoryConsts::kMMUSmallestPageMask)
 				== (inAddr2 & TMemoryConsts::kMMUSmallestPageMask);
 		}
-	
-	static Boolean	IsPageInROM( KUInt32 inAddress ) 
+
+	static Boolean	IsPageInROM( KUInt32 inAddress )
 		{
 			return !((inAddress < 0x00002000) || (inAddress & TMemoryConsts::kROMEndMask));
 		}
@@ -745,21 +745,21 @@ public:
 	/// Compute the serial number from the NewtonID.
 	///
 	void	ComputeSerialNumber( const KUInt32 inNewtonID[2] );
-	
+
 	void FDump(FILE *f) { mMMU.FDump(f); }
-	
+
 private:
 	struct SBreakpoint {
 		PAddr   fAddress;		///< (physical) address of the Breakpoint.
 		KUInt32 fOriginalValue; ///< Original value of the Breakpoint.
 		KUInt32	fBPValue;		///< Value for the BP instruction.
 	};
-	
+
 	struct SWatchpoint {
 		VAddr   fAddress;		///< (physical) address of the Breakpoint.
 		KUInt8	fMode;			///< mode bit: 1 for reading, 2 for writing
 	};
-	
+
 	struct SDMAChannel {
 		PAddr	fBaseRegister;
 		PAddr	fPointerRegister;
@@ -772,7 +772,7 @@ private:
 		KUInt32	fUnknown_2_0400;
 		KUInt32	fUnknown_2_0800;
 	};
-	
+
 	///
 	/// CRC for the serial number.
 	///
@@ -786,7 +786,7 @@ private:
 	/// \param outFault		on return, \c true if there was a bus error
 	///						(unchanged otherwise)
 	/// \return the word that was read, 0 in case of error.
-	///		
+	///
 	KUInt32		ReadROMRAMP( PAddr inAddress, Boolean& outFault );
 
 	///

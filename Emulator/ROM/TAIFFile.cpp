@@ -47,7 +47,7 @@ TAIFFile::TAIFFile( FILE* inFile )
 					"Couldn't read AIF header (file too short?)\n" );
 		::abort();
 	}
-	
+
 	// Swap the header.
 #if TARGET_RT_LITTLE_ENDIAN
 	KUInt32* cursor = (KUInt32*) &mHeader;
@@ -76,7 +76,7 @@ TAIFFile::ReadROImage( KUInt8* outImage )
 	}
 
 	(void) ::fseek( mFile, startOffset, SEEK_SET );
-	
+
 	// Then read the image.
 	if ( ::fread(
 			outImage, sizeof( char ), mHeader.fReadOnlySize, mFile )
@@ -104,11 +104,11 @@ TAIFFile::ReadRWImage( KUInt8* outImage )
 	} else {
 		startOffset = sizeof( SHeader );
 	}
-	
+
 	startOffset += mHeader.fReadOnlySize;
 
 	(void) ::fseek( mFile, startOffset, SEEK_SET );
-	
+
 	// Then read the image.
 	if ( ::fread(
 			outImage, sizeof( char ), mHeader.fReadWriteSize, mFile )

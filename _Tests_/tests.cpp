@@ -2,10 +2,10 @@
 // Fichier:			tests.cp
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			31/1/2004
 // Tabulation:		4 espaces
-// 
+//
 // Copyright:		© 2004-2005 by Paul Guyot.
 // 					Tous droits réservés pour tous pays.
 // ===========
@@ -45,9 +45,9 @@ main( int argc, char* argv[] )
 		(void) ::printf( "%s <nom du test> [argument]\n", argv[0] );
 		::exit(1);
 	}
-	
+
 	test( argv[1], argument );
-		
+
 	return 0;
 }
 

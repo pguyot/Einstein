@@ -131,7 +131,7 @@ KUInt32
 TNativeCalls::OpenLib( KUInt32 inPathAddr )
 {
 	KUInt32 theResult = (KUInt32) -1;
-	
+
 	// Get the path.
 	char theArgPath[PATH_MAX + 1];
 	char thePath[PATH_MAX + 1];
@@ -139,7 +139,7 @@ TNativeCalls::OpenLib( KUInt32 inPathAddr )
 	if (!mMemoryIntf->FastReadString(inPathAddr, &pathSize, theArgPath))
 	{
 		void* theHandle = NULL;
-		
+
 		do {
 			if (theArgPath[0] != '/')
 			{
@@ -152,7 +152,7 @@ TNativeCalls::OpenLib( KUInt32 inPathAddr )
 				thePath[PATH_MAX - 1] = 0;
 				theHandle = DoOpenLib(thePath);
 				if (theHandle) break;
-		
+
 				/* try with /usr/lib/<inPath> */
 				(void) snprintf(
 							thePath,
@@ -163,12 +163,12 @@ TNativeCalls::OpenLib( KUInt32 inPathAddr )
 				theHandle = DoOpenLib(thePath);
 				if (theHandle) break;
 			}
-	
+
 			/* try directly */
 			theHandle = DoOpenLib(theArgPath);
 			if (theHandle) break;
 		} while (false);
-		
+
 		if (theHandle)
 		{
 			// Store the handle in a new record.
@@ -181,7 +181,7 @@ TNativeCalls::OpenLib( KUInt32 inPathAddr )
 					break;
 				}
 			}
-			
+
 			if (theResult == (KUInt32) -1)
 			{
 				// Create a new record
@@ -196,12 +196,12 @@ TNativeCalls::OpenLib( KUInt32 inPathAddr )
 				theResult = mNbNativeLibs;
 				mNbNativeLibs++;
 			}
-			
+
 			mNativeLibs[theResult].fHandle = theHandle;
 			mNativeLibs[theResult].fFreeRec = false;
 		}
 	} // else: a memory error occurred.
-	
+
 	return theResult;
 }
 
@@ -234,7 +234,7 @@ TNativeCalls::DoOpenLib( const char* inPath )
 		/* try to open the library without any suffix */
 		theResult = dlopen(inPath, RTLD_LAZY);
 		if (theResult) break;
-		
+
 		/* add the suffix */
 		pathLen = strlen(inPath);
 		if (pathLen >= (PATH_MAX - 1)) break;
@@ -255,7 +255,7 @@ TNativeCalls::DoOpenLib( const char* inPath )
 		/* try to look at path + anything */
 		theDirNameBuf = strdup(inPath);
 		theDirName = dirname(theDirNameBuf);
-		
+
 		/* iterate on the directory */
 		theDir = opendir(theDirName);
 		if (theDir != NULL)
@@ -284,11 +284,11 @@ TNativeCalls::DoOpenLib( const char* inPath )
 					if (theResult) break;
 				}
 			} while (true);
-			
+
 			closedir(theDir);
 		}
 	} while (false);
-	
+
 	if (theDirNameBuf != NULL)
 	{
 		free(theDirNameBuf);
@@ -297,7 +297,7 @@ TNativeCalls::DoOpenLib( const char* inPath )
 	{
 		free(theBaseNameBuf);
 	}
-	
+
 	return theResult;
 #endif
 }
@@ -358,12 +358,12 @@ TNativeCalls::PrepareFFIStructure(
 								mNativeFuncs,
 								sizeof(SFunctionRec) * mAllocatedNativeFuncs);
 	}
-	
+
 	char symbolName[kNativeCalls_SymbolMaxLen];
 	KUInt32 symbolSize = sizeof(symbolName);
 	mMemoryIntf->FastReadString(inSymbolAddr, &symbolSize, symbolName);
 	symbolName[kNativeCalls_SymbolMaxLen - 1] = 0;
-	
+
 	SFunctionRec* theStructure = &mNativeFuncs[theResult];
 	mNbNativeFuncs++;
 	theStructure->fNbArgs = inNbArgs;
@@ -389,7 +389,7 @@ TNativeCalls::PrepareFFIStructure(
 		theStructure->fResultType = NULL;
 		theStructure->fFreeRec = false;
 	}
-	
+
 	return theResult;
 #endif
 }
@@ -422,7 +422,7 @@ TNativeCalls::SetArgValue_string(
 		mNativeFuncs[inFFIStructure].fArgTypes[inArgIndex] = &ffi_type_pointer;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fPtr = theString;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fToFree = true;
-	
+
 		// Set the null terminator.
 		theString[inSize] = 0;
 	}
@@ -457,7 +457,7 @@ TNativeCalls::SetArgValue_binary(
 		mNativeFuncs[inFFIStructure].fArgTypes[inArgIndex] = &ffi_type_pointer;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fPtr = theBinary;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fToFree = true;
-	}	
+	}
 #endif
 }
 
@@ -482,7 +482,7 @@ TNativeCalls::SetResultType(
 		case k_void:
 			theType = &ffi_type_void;
 			break;
-			
+
 		case k_uint8:
 			theType = &ffi_type_uint8;
 			break;
@@ -535,7 +535,7 @@ TNativeCalls::SetResultType(
 			theType = &ffi_type_pointer;
 			break;
 	}
-	
+
 	mNativeFuncs[inFFIStructure].fResultType = theType;
 #endif
 }
@@ -626,7 +626,7 @@ TNativeCalls::Call_int(KUInt32 inFFIStructure)
 	} else {
 		theReturnValue = 0;
 	}
-	
+
 	return theReturnValue;
 #endif
 }
@@ -660,7 +660,7 @@ TNativeCalls::Call_real(KUInt32 inFFIStructure)
 	} else {
 		theReturnValue = 0.0;
 	}
-	
+
 	return theReturnValue;
 #endif
 }
@@ -683,7 +683,7 @@ TNativeCalls::Call_string(
 # else
 	SStorage theResult;
 	Call(inFFIStructure, &theResult);
-	
+
 	KUInt32 size = inSize;
 	mMemoryIntf->FastWriteString(
 		inResultAddr,
@@ -709,7 +709,7 @@ TNativeCalls::Call_pointer(KUInt32 inFFIStructure)
 # else
 	SStorage theResult;
 	Call(inFFIStructure, &theResult);
-	
+
 	return (KUIntPtr) theResult.fPointer.fPtr;
 #endif
 }
@@ -791,9 +791,9 @@ TNativeCalls::DisposeFFIStructure(KUInt32 inFFIStructure)
 			::free(theStructure->fArgValues[indexArgs].fPointer.fPtr);
 		}
 	}
-	
+
 	theStructure->fFreeRec = true;
-	
+
 	// If it's the last, empty it up in the queue.
 	KUInt32 newNbNativeFuncs = mNbNativeFuncs - 1;
 	if (inFFIStructure == newNbNativeFuncs)

@@ -2,32 +2,32 @@
 // Fichier:			TCircleBuffer.cp
 // Projet:			K
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			26/5/2005
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
-// 
+//
 // The contents of this file are subject to the Mozilla Public License Version
 // 1.1 (the "License"); you may not use this file except in compliance with
 // the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-// 
+//
 // Software distributed under the License is distributed on an "AS IS" basis,
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
 // License.
-// 
+//
 // The Original Code is TCircleBuffer.cp.
-// 
+//
 // The Initial Developer of the Original Code is Paul Guyot.
 // Portions created by the Initial Developer are Copyright (C) 2005 the
 // Initial Developer. All Rights Reserved.
-// 
+//
 // Contributor(s):
 //   Paul Guyot <pguyot@kallisys.net> (original author)
-// 
+//
 // ***** END LICENSE BLOCK *****
 // ===========
 // $Id: TCircleBuffer.cp,v 1.3 2005/05/27 01:52:08 pguyot Exp $
@@ -84,12 +84,12 @@ TCircleBuffer::Produce( const void* inBuffer, KUIntPtr inAmount )
 		// 456P---C123
 		amountFree = mProducerCrsr - mConsumerCrsr;
 	}
-	
+
 	if (inAmount > amountFree)
 	{
 		KUIntPtr delta = inAmount - amountFree;
 		KUInt8* newBuffer = (KUInt8*) ::malloc( mBufferSize + delta );
-		
+
 		// Copy data, put unconsumed data at the beginning.
 		if (mConsumerCrsr <= mProducerCrsr)
 		{
@@ -113,13 +113,13 @@ TCircleBuffer::Produce( const void* inBuffer, KUIntPtr inAmount )
 			mProducerCrsr += mBufferSize - mConsumerCrsr;
 			mConsumerCrsr = 0;
 		}
-		
+
 		// Update buffer.
 		mBufferSize += delta;
 		::free(mBuffer);
 		mBuffer = newBuffer;
 	}
-	
+
 	// Copy data.
 	if (mConsumerCrsr <= mProducerCrsr)
 	{
@@ -181,7 +181,7 @@ KUIntPtr
 TCircleBuffer::Consume( void* outBuffer, KUIntPtr inAmount )
 {
 	KUIntPtr amount = inAmount;
-	
+
 	// Copy data.
 	if (mConsumerCrsr <= mProducerCrsr)
 	{
@@ -227,7 +227,7 @@ TCircleBuffer::Consume( void* outBuffer, KUIntPtr inAmount )
 			mConsumerCrsr += inAmount;
 		}
 	}
-	
+
 	return amount;
 }
 

@@ -128,12 +128,12 @@ void TScreenManager::ChangeScreenSize(int inPortraitWidth, int inPortraitHeight)
 {
 	mPortraitWidth = inPortraitWidth;
 	mPortraitHeight = inPortraitHeight;
-	
+
 	if (mScreenBuffer)
 		::free(mScreenBuffer);
-	
+
 	mScreenBuffer = (KUInt8*)::calloc(1, inPortraitWidth * inPortraitHeight * kBitsPerPixel / 8);
-	
+
 	if (mFullScreen)
 	{
 		if (mScreenIsLandscape)
@@ -188,7 +188,7 @@ TScreenManager::Blit(
 					SRect* inSrcRect,
 					SRect* inDstRect,
 					KUInt32 inMode )
-{    
+{
 	// Update the local screen buffer.
 	KUInt32 baseAddy;
 	(void) mMemory->Read( inPixelMapAddr, baseAddy );
@@ -292,7 +292,7 @@ TScreenManager::Blit_0(
 	}
 	rightMask = (KUInt32) (0xFFFFFFFF << (additionalRightPixels * 4));
 	srcRight += additionalRightPixels;
-	
+
 	KUInt32 dstRowBytes = GetScreenWidth() * kBitsPerPixel / 8;
 
 	KUInt16 srcTop = inSrcRect->fTop - inPixmapTop;
@@ -311,7 +311,7 @@ TScreenManager::Blit_0(
 		(srcRight - srcLeft)
 		* kBitsPerPixel / 8;
 	KUInt32 chunk;
-	
+
 	if (srcWidthInBytes <= 4)
 	{
 		// Single column
@@ -319,7 +319,7 @@ TScreenManager::Blit_0(
 		for (indexRows = nbRows; indexRows != 0; indexRows--)
 		{
 			KUInt32* rowPixels = (KUInt32*) dstPixelsRow;
-			
+
 			(void) mMemory->Read( srcRowAddy, chunk );
 			KUInt32 originalWord = UByteSex_FromBigEndian( *rowPixels );
 			if (inMode == 0)
@@ -335,11 +335,11 @@ TScreenManager::Blit_0(
 			srcRowAddy += inSrcRowBytes;
 			dstPixelsRow += dstRowBytes;
 		}
-	} else {	
+	} else {
 		for (indexRows = nbRows; indexRows != 0; indexRows--)
 		{
 			KUInt32* rowPixels = (KUInt32*) dstPixelsRow;
-			
+
 			// First column.
 			(void) mMemory->Read( srcRowAddy, chunk );
 			KUInt32 originalWord = UByteSex_FromBigEndian( *rowPixels );
@@ -354,11 +354,11 @@ TScreenManager::Blit_0(
 			}
 			*rowPixels++ = UByteSex_ToBigEndian( originalWord );
 
-			// Middle columns.			
+			// Middle columns.
 			KUInt32 srcCursor = srcRowAddy + 4;
 			KUInt32 lastPixAddy = srcRowAddy + srcWidthInBytes - 4;
 			while (srcCursor < lastPixAddy) {
-				(void) mMemory->Read( srcCursor, chunk );				
+				(void) mMemory->Read( srcCursor, chunk );
 				srcCursor += 4;
 				if (inMode == 0)
 				{
@@ -369,7 +369,7 @@ TScreenManager::Blit_0(
 					*rowPixels++ = UByteSex_ToBigEndian( ~(~originalWord | chunk) );
 				}
 			}
-			
+
 			// Last column.
 			(void) mMemory->Read( srcCursor, chunk );
 			originalWord = UByteSex_FromBigEndian( *rowPixels );
@@ -384,12 +384,12 @@ TScreenManager::Blit_0(
 						| (chunk & rightMask));
 			}
 			*rowPixels = UByteSex_ToBigEndian( originalWord );
-			
+
 			srcRowAddy += inSrcRowBytes;
 			dstPixelsRow += dstRowBytes;
 		}
 	}
-	
+
 	// Tell the implementation that the screen was updated.
 	UpdateScreenRect( inDstRect );
 }
@@ -424,7 +424,7 @@ TScreenManager::Blit_90(
 	}
 	rightMask = (KUInt32) (0xFFFFFFFF << (additionalRightPixels * 4));
 	srcRight += additionalRightPixels;
-	
+
 	KUInt32 dstRowBytes = mPhysicalWidth * kBitsPerPixel / 8;
 
 	KUInt16 srcTop = inSrcRect->fTop - inPixmapTop;
@@ -443,7 +443,7 @@ TScreenManager::Blit_90(
 		(srcRight - srcLeft)
 		* kBitsPerPixel / 8;
 	KUInt32 chunk;
-	
+
 	if (srcWidthInBytes <= 4)
 	{
 		// Single column
@@ -451,7 +451,7 @@ TScreenManager::Blit_90(
 		for (indexRows = nbRows; indexRows != 0; indexRows--)
 		{
 			KUInt32* rowPixels = (KUInt32*) dstPixelsRow;
-			
+
 			(void) mMemory->Read( srcRowAddy, chunk );
 			KUInt32 originalWord = UByteSex_FromBigEndian( *rowPixels );
 			if (inMode == 0)
@@ -467,11 +467,11 @@ TScreenManager::Blit_90(
 			srcRowAddy += inSrcRowBytes;
 			dstPixelsRow += dstRowBytes;
 		}
-	} else {	
+	} else {
 		for (indexRows = nbRows; indexRows != 0; indexRows--)
 		{
 			KUInt32* rowPixels = (KUInt32*) dstPixelsRow;
-			
+
 			// First column.
 			(void) mMemory->Read( srcRowAddy, chunk );
 			KUInt32 originalWord = UByteSex_FromBigEndian( *rowPixels );
@@ -486,11 +486,11 @@ TScreenManager::Blit_90(
 			}
 			*rowPixels++ = UByteSex_ToBigEndian( originalWord );
 
-			// Middle columns.			
+			// Middle columns.
 			KUInt32 srcCursor = srcRowAddy + 4;
 			KUInt32 lastPixAddy = srcRowAddy + srcWidthInBytes - 4;
 			while (srcCursor < lastPixAddy) {
-				(void) mMemory->Read( srcCursor, chunk );				
+				(void) mMemory->Read( srcCursor, chunk );
 				srcCursor += 4;
 				if (inMode == 0)
 				{
@@ -501,7 +501,7 @@ TScreenManager::Blit_90(
 					*rowPixels++ = UByteSex_ToBigEndian( ~(~originalWord | chunk) );
 				}
 			}
-			
+
 			// Last column.
 			(void) mMemory->Read( srcCursor, chunk );
 			originalWord = UByteSex_FromBigEndian( *rowPixels );
@@ -516,12 +516,12 @@ TScreenManager::Blit_90(
 						| (chunk & rightMask));
 			}
 			*rowPixels = UByteSex_ToBigEndian( originalWord );
-			
+
 			srcRowAddy += inSrcRowBytes;
 			dstPixelsRow += dstRowBytes;
 		}
 	}
-	
+
 	// Tell the implementation that the screen was updated.
 	UpdateScreenRect( inDstRect );
 }
@@ -557,7 +557,7 @@ TScreenManager::Blit_180(
 	}
 	rightMask = (KUInt32) (0xFFFFFFFF << (additionalRightPixels * 4));
 	srcRight += additionalRightPixels;
-	
+
 	KUInt32 dstRowBytes = mPhysicalWidth * kBitsPerPixel / 8;
 
 	KUInt16 srcTop = inSrcRect->fTop - inPixmapTop;
@@ -584,7 +584,7 @@ TScreenManager::Blit_180(
 		for (indexRows = nbRows; indexRows != 0; indexRows--)
 		{
 			KUInt32* rowPixels = (KUInt32*) dstPixelsRow;
-			
+
 			(void) mMemory->Read( srcRowAddy, chunk );
 			// Swap the word.
 			--rowPixels;
@@ -603,11 +603,11 @@ TScreenManager::Blit_180(
 			srcRowAddy += inSrcRowBytes;
 			dstPixelsRow -= dstRowBytes;
 		}
-	} else {	
+	} else {
 		for (indexRows = nbRows; indexRows != 0; indexRows--)
 		{
 			KUInt32* rowPixels = (KUInt32*) dstPixelsRow;
-			
+
 			// First column.
 			(void) mMemory->Read( srcRowAddy, chunk );
 			// Swap the word.
@@ -625,11 +625,11 @@ TScreenManager::Blit_180(
 			// Swap the word again.
 			*rowPixels-- = Swap_Pixels_FromBigEndian( originalWord );
 
-			// Middle columns.			
+			// Middle columns.
 			KUInt32 srcCursor = srcRowAddy + 4;
 			KUInt32 lastPixAddy = srcRowAddy + srcWidthInBytes - 4;
 			while (srcCursor < lastPixAddy) {
-				(void) mMemory->Read( srcCursor, chunk );				
+				(void) mMemory->Read( srcCursor, chunk );
 				srcCursor += 4;
 				if (inMode == 0)
 				{
@@ -640,7 +640,7 @@ TScreenManager::Blit_180(
 					*rowPixels-- = Swap_Pixels_FromBigEndian( ~(~originalWord | chunk) );
 				}
 			}
-			
+
 			// Last column.
 			(void) mMemory->Read( srcCursor, chunk );
 			// Swap.
@@ -657,12 +657,12 @@ TScreenManager::Blit_180(
 			}
 			// Swap again.
 			*rowPixels = Swap_Pixels_FromBigEndian( originalWord );
-			
+
 			srcRowAddy += inSrcRowBytes;
 			dstPixelsRow -= dstRowBytes;
 		}
 	}
-	
+
 	// Tell the implementation that the screen was updated.
 	SRect theDstRect;
 	theDstRect.fTop = mPhysicalHeight - inDstRect->fBottom;
@@ -702,7 +702,7 @@ TScreenManager::Blit_270(
 	}
 	rightMask = (KUInt32) (0xFFFFFFFF << (additionalRightPixels * 4));
 	srcRight += additionalRightPixels;
-	
+
 	KUInt32 dstRowBytes = mPhysicalWidth * kBitsPerPixel / 8;
 
 	KUInt16 srcTop = inSrcRect->fTop - inPixmapTop;
@@ -721,7 +721,7 @@ TScreenManager::Blit_270(
 		(srcRight - srcLeft)
 		* kBitsPerPixel / 8;
 	KUInt32 chunk;
-	
+
 	if (srcWidthInBytes <= 4)
 	{
 		// Single column
@@ -729,7 +729,7 @@ TScreenManager::Blit_270(
 		for (indexRows = nbRows; indexRows != 0; indexRows--)
 		{
 			KUInt32* rowPixels = (KUInt32*) dstPixelsRow;
-			
+
 			(void) mMemory->Read( srcRowAddy, chunk );
 			KUInt32 originalWord = UByteSex_FromBigEndian( *rowPixels );
 			if (inMode == 0)
@@ -745,11 +745,11 @@ TScreenManager::Blit_270(
 			srcRowAddy += inSrcRowBytes;
 			dstPixelsRow += dstRowBytes;
 		}
-	} else {	
+	} else {
 		for (indexRows = nbRows; indexRows != 0; indexRows--)
 		{
 			KUInt32* rowPixels = (KUInt32*) dstPixelsRow;
-			
+
 			// First column.
 			(void) mMemory->Read( srcRowAddy, chunk );
 			KUInt32 originalWord = UByteSex_FromBigEndian( *rowPixels );
@@ -764,11 +764,11 @@ TScreenManager::Blit_270(
 			}
 			*rowPixels++ = UByteSex_ToBigEndian( originalWord );
 
-			// Middle columns.			
+			// Middle columns.
 			KUInt32 srcCursor = srcRowAddy + 4;
 			KUInt32 lastPixAddy = srcRowAddy + srcWidthInBytes - 4;
 			while (srcCursor < lastPixAddy) {
-				(void) mMemory->Read( srcCursor, chunk );				
+				(void) mMemory->Read( srcCursor, chunk );
 				srcCursor += 4;
 				if (inMode == 0)
 				{
@@ -779,7 +779,7 @@ TScreenManager::Blit_270(
 					*rowPixels++ = UByteSex_ToBigEndian( ~(~originalWord | chunk) );
 				}
 			}
-			
+
 			// Last column.
 			(void) mMemory->Read( srcCursor, chunk );
 			originalWord = UByteSex_FromBigEndian( *rowPixels );
@@ -794,12 +794,12 @@ TScreenManager::Blit_270(
 						| (chunk & rightMask));
 			}
 			*rowPixels = UByteSex_ToBigEndian( originalWord );
-			
+
 			srcRowAddy += inSrcRowBytes;
 			dstPixelsRow += dstRowBytes;
 		}
 	}
-	
+
 	// Tell the implementation that the screen was updated.
 	UpdateScreenRect( inDstRect );
 }
@@ -862,7 +862,7 @@ TScreenManager::GetTabletState( void ) const
 	} else {
 		theState = kPenIsUp;
 	}
-	
+
 	return theState;
 }
 
@@ -950,7 +950,7 @@ TScreenManager::GetSample(
 		}
 		mTabletBufCCrsr = newCCrsr;
 	}
-	
+
 	return theResult;
 }
 
@@ -969,9 +969,9 @@ TScreenManager::InsertSample(
 //		{
 //			theTimeInTicks = mInterruptManager->GetTimer();
 //		}
-		
+
 //		mPlatformManager->SendTabletSampleEvent( inPackedSample, theTimeInTicks );
-		
+
 		KUInt32 newPCrsr = mTabletBufPCrsr;
 		mTabletBuffer[newPCrsr++] = inPackedSample;
 		mTabletBuffer[newPCrsr++] = inTimeInTicks;
@@ -980,7 +980,7 @@ TScreenManager::InsertSample(
 			newPCrsr = 0;
 		}
 		mTabletBufPCrsr = newPCrsr;
-		
+
 		// Tell the driver.
 		RaiseTabletInterrupt();
 	}
@@ -1030,7 +1030,7 @@ void
 TScreenManager::TransferState( TStream* inStream )
 {
 	KUInt32 t;
-	
+
 	inStream->TransferInt32BE( mPortraitWidth );
 	inStream->TransferInt32BE( mPortraitHeight );
 	inStream->TransferInt32BE( mPhysicalWidth );
@@ -1046,10 +1046,10 @@ TScreenManager::TransferState( TStream* inStream )
 	inStream->TransferInt32BE( mContrast );
 	inStream->TransferBoolean( mBacklight );
 	inStream->TransferBoolean( mKbdIsConnected );
-	
+
 	KUInt32 count = mPortraitWidth * mPortraitHeight * kBitsPerPixel / 8;
 	inStream->Transfer(mScreenBuffer, &count);
-	
+
 	if (inStream->IsReading())
 		PowerOnScreen();
 }

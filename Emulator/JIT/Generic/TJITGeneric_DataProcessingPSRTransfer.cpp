@@ -253,7 +253,7 @@ Translate_DataProcessingPSRTransfer(
 		KUInt32 theRotateAmount = ((inInstruction >> 8) & 0xF) * 2;
 		if (theRotateAmount != 0)
 		{
-			theImmValue = 
+			theImmValue =
 				(theImmValue >> theRotateAmount)
 				| (theImmValue << (32 - theRotateAmount));
 			if (theFlagS)
@@ -442,7 +442,7 @@ Translate_DataProcessingPSRTransfer(
 		doPushPC = ShouldPushPC_MoveOp(theMode);
 		break;
 	}
-	
+
 	if (doPush)
 	{
 		PUSHVALUE(thePushedValue);

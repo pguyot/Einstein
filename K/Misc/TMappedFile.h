@@ -2,32 +2,32 @@
 // Fichier:			TMappedFile.h
 // Projet:			K
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			14/2/2005
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
-// 
+//
 // The contents of this file are subject to the Mozilla Public License Version
 // 1.1 (the "License"); you may not use this file except in compliance with
 // the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-// 
+//
 // Software distributed under the License is distributed on an "AS IS" basis,
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
 // License.
-// 
+//
 // The Original Code is TMappedFile.h.
-// 
+//
 // The Initial Developer of the Original Code is Paul Guyot.
 // Portions created by the Initial Developer are Copyright (C) 2005 the
 // Initial Developer. All Rights Reserved.
-// 
+//
 // Contributor(s):
 //   Paul Guyot <pguyot@kallisys.net> (original author)
-// 
+//
 // ***** END LICENSE BLOCK *****
 // ===========
 // $Id: TMappedFile.h,v 1.3 2005/06/07 05:53:31 pguyot Exp $
@@ -81,7 +81,7 @@ public:
 	/// Close the file (write it if mmap failed).
 	///
 	~TMappedFile();
-	
+
 	///
 	/// Map a file into memory.
 	///
@@ -89,7 +89,7 @@ public:
 	/// \param inSize		amount of the file mapped, 0 means map all the file.
 	/// \param inFlags		flags for the file (O_RDONLY/O_WRONLY/O_RDWR)
 	/// \param preferredAddress	address where to map the file, if possible.
-	/// 
+	///
 	/// \return 0 if mapping was successful, -1 if an error occured
 	///
 	int Map(
@@ -112,7 +112,7 @@ public:
 		{
 			return mBuffer;
 		}
-	
+
 	///
 	/// Accessor on the size of the file.
 	///
@@ -122,7 +122,7 @@ public:
 		{
 			return mSize;
 		}
-	
+
 	///
 	/// Determine whether the file was created or grown.
 	///

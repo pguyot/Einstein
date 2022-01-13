@@ -143,7 +143,7 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(const char* inAIFPath,
 		// A priori, on a 16 Mo de ROM.
     KUInt8* theData = (KUInt8*) ::malloc(TMemoryConsts::kROMEnd);
     memset(theData, 0xff, TMemoryConsts::kLowROMEnd); // default fill is 0xff
-	
+
 		// On ouvre le fichier ROM.
 		FILE* theFile = ::fdopen(fd, "rb");
 		if (theFile == NULL)
@@ -154,11 +154,11 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(const char* inAIFPath,
         mErrorCode = kErrorLoadingROMFile;
         return;
 		}
-		
+
 		KUInt32 theTotalSize;
 
 			TAIFFile theAIFFile( theFile );
-			
+
 			// Read the R/O part of the file.
 			KUInt32 theROSize = theAIFFile.GetROImageSize();
 			if (theROSize > 0x00800000)
@@ -175,9 +175,9 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(const char* inAIFPath,
         mErrorCode = kErrorWrongSize;
         return;
 			}
-			
+
 			theAIFFile.ReadROImage( theData );
-		
+
 			// Read the R/W part of the file.
 			theTotalSize = theROSize + theAIFFile.GetRWImageSize();
 			if (theTotalSize > 0x00800000)
@@ -194,11 +194,11 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(const char* inAIFPath,
         mErrorCode = kErrorLoadingROMFile;
         return;
 			}
-			
+
 			theAIFFile.ReadRWImage( &theData[theROSize] );
-		
+
 		::fclose( theFile );
-		
+
 		// Read first rex and put it just afterwards.
 		(void) ::read(
 							rex0fd,
@@ -225,7 +225,7 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(const char* inAIFPath,
 		return;
 #endif
     }
-		
+
     CreateImage( theData );
 
 		::free(theData);

@@ -122,7 +122,7 @@ public:
 		{
 			return mCache.GetOffsetInPage( inVAddr );
 		}
-		
+
 	///
 	/// Patch the ROM.
 	/// This function is called to modify the ROM before it is saved on disk.
@@ -132,14 +132,14 @@ public:
 	    TImplementation::DoPatchROM(romPointer, inROMId);
 	}
 
-    ///	
+    ///
 	/// Return the ID as stored in the ROM image (for patching purposes).
 	///
 	static KUInt32 GetID() {
 	    return TImplementation::kID;
 	}
 
-    ///	
+    ///
 	/// Return the version as stored in the ROM image (for patching purposes).
 	///
 	static KUInt32 GetVersion() {

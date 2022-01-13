@@ -114,7 +114,7 @@ public:
 	/// Load or save the state to a stream.
 	///
 	void		TransferState( TStream* inStream );
-		
+
 private:
 	/// Constants
 	enum {
@@ -124,7 +124,7 @@ private:
 		kScreenOrientation_AppleLeft	= 0x00000003,
 		kScreenOrientation_LandscapeBit = 0x00000001
 	};
-	
+
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
@@ -208,7 +208,7 @@ private:
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
 	void		ExecuteHostCallNative( KUInt32 inInstruction );
-	
+
 	///
 	/// Execute a native instruction related to network access
 	///
@@ -222,7 +222,7 @@ private:
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
 	void		ExecuteHostiOSNativeiOS( KUInt32 inInstruction );
-	
+
 	/// \name Variables
 	TARMProcessor*		mProcessor;			///< Reference to the CPU.
 	TLog*				mLog;				///< Interface for logging.

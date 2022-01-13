@@ -64,7 +64,7 @@ MSR(MODE, FLAG_R, FIELDS_MASK, Rm)
 #endif
 	}
 #endif
-	
+
 	CALLNEXTUNIT;
 }
 #endif

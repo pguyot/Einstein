@@ -123,12 +123,12 @@ TInterruptManager::~TInterruptManager( void )
 {
 	// Stop the timer thread.
 	mMutex->Lock();
-	
+
 	mExiting = true;
 	mTimerCondVar->Signal();
 
 	mMutex->Unlock();
-	
+
 	// Wait for the thread to finish.
 	while (mExiting) {};
 
@@ -167,18 +167,18 @@ TInterruptManager::Init( void )
 	mMutex = new TMutex();
 
 	mMutex->Lock();
-	
+
 	// The timer isn't running.
 	mRunning = false;
 
 	// Create the thread
 	mThread = new TThread(this);
-	
+
 	// Wait on the condition variable for the thread to be running.
 //	KPrintf("%i-Emulator-Sleep-1\n", (int) time(NULL));
 	mEmulatorCondVar->Wait(mMutex);
 //	KPrintf("%i-Emulator-WakeUp-1\n", (int) time(NULL));
-	
+
 	// Release the mutex, so the timer thread will get it back.
 	mMutex->Unlock();
 }
@@ -191,14 +191,14 @@ TInterruptManager::ResumeTimer( void )
 {
 	// Is the timer indeed suspended?
 	if (!mRunning)
-	{	
+	{
 		mMutex->Lock();
-		
+
 		// Here the timer is waiting (since we have the mutex).
-		
+
 		// Say the timer is running.
 		mRunning = true;
-		
+
 		// Signal the condition variable to wake the timer thread.
 		mTimerCondVar->Signal();
 
@@ -220,14 +220,14 @@ TInterruptManager::SuspendTimer( void )
 {
 	// Is the timer indeed running?
 	if (mRunning)
-	{	
+	{
 		mMutex->Lock();
-		
+
 		// Here the timer is waiting (since we have the mutex).
 
 		// Say the timer is not running.
 		mRunning = false;
-		
+
 		// Signal the condition variable to wake the timer thread.
 		mTimerCondVar->Signal();
 
@@ -237,7 +237,7 @@ TInterruptManager::SuspendTimer( void )
 //		KPrintf("%i-Emulator-WakeUp-3\n", (int) time(NULL));
 
 		// Release the mutex.
-		mMutex->Unlock();		
+		mMutex->Unlock();
 	}
 }
 
@@ -253,27 +253,27 @@ TInterruptManager::WaitUntilInterrupt( Boolean inMaskIRQ, Boolean inMaskFIQ )
 	}
 
 	mMutex->Lock();
-	
+
 	// Here the timer is waiting (since we have the mutex).
 
 	// Say we're waiting.
 	mWaiting = true;
-	
+
 	// Note what we are waiting for.
 	mMaskIRQ = inMaskIRQ;
 	mMaskFIQ = inMaskFIQ;
 
 	// Wake the thread now, but it will actually wait until we go to sleep.
 	mTimerCondVar->Signal();
-	
+
 	// Wait for the thread to signal us.
 //	KPrintf("%i-Emulator-Sleep-4\n", (int) time(NULL));
 	mEmulatorCondVar->Wait(mMutex);
 //	KPrintf("%i-Emulator-WakeUp-4\n", (int) time(NULL));
-	
+
 	// We're no longer waiting.
 	mWaiting = false;
-	
+
 	// Release the mutex, so the timer thread will get it back.
 	mMutex->Unlock();
 }
@@ -285,7 +285,7 @@ void
 TInterruptManager::RaiseInterrupt( KUInt32 inIntMask )
 {
 	mMutex->Lock();
-	
+
 	// Here the timer is waiting (since we have the mutex).
 
 	// Raise the interrupt.
@@ -316,7 +316,7 @@ void
 TInterruptManager::SetRealTimeClock( KUInt32 inValue )
 {
 	mMutex->Lock();
-	
+
 	// Here the timer is waiting (since we have the mutex).
 
 	// newton = host - delta
@@ -324,7 +324,7 @@ TInterruptManager::SetRealTimeClock( KUInt32 inValue )
 //  KPrintf("mCalendarDelta was %i\n", (int) mCalendarDelta);
 	mCalendarDelta = (KSInt32) (time(NULL) - inValue);
 //  KPrintf("mCalendarDelta now is %i\n", (int) mCalendarDelta);
-	
+
 	// Signal the condition variable to wake the timer thread.
 	mTimerCondVar->Signal();
 
@@ -339,11 +339,11 @@ void
 TInterruptManager::SetAlarm( KUInt32 inValue )
 {
 	mMutex->Lock();
-	
+
 	// Here the timer is waiting (since we have the mutex).
 
 	mAlarmRegister = inValue;
-	
+
 	if (mIntCtrlReg & kRTCAlarmIntMask)
 	{
 		// Signal the condition variable to wake the timer thread.
@@ -361,7 +361,7 @@ void
 TInterruptManager::SetTimerMatchRegister( KUInt32 inMatchReg, KUInt32 inValue )
 {
 	mMutex->Lock();
-	
+
 	// Here the timer is waiting (since we have the mutex).
 
 //	if (mLog)
@@ -392,14 +392,14 @@ void
 TInterruptManager::SetIntCtrlReg( KUInt32 inValue )
 {
 	mMutex->Lock();
-	
+
 	// Here the timer is waiting (since we have the mutex).
 
 	if (inValue != mIntCtrlReg)
 	{
 		// Set the control register.
 		mIntCtrlReg = inValue;
-	
+
 		// Signal the condition variable to wake the timer thread.
 		mTimerCondVar->Signal();
 	}
@@ -415,14 +415,14 @@ void
 TInterruptManager::SetIntEDReg1( KUInt32 inValue )
 {
 	mMutex->Lock();
-	
+
 	// Here the timer is waiting (since we have the mutex).
 
 	if (inValue != mIntEDReg1)
 	{
 		// Set the ED register.
 		mIntEDReg1 = inValue;
-	
+
 		// Signal the condition variable to wake the timer thread.
 		mTimerCondVar->Signal();
 	}
@@ -438,14 +438,14 @@ void
 TInterruptManager::SetIntEDReg2( KUInt32 inValue )
 {
 	mMutex->Lock();
-	
+
 	// Here the timer is waiting (since we have the mutex).
 
 	if (inValue != mIntEDReg2)
 	{
 		// Set the ED register.
 		mIntEDReg2 = inValue;
-	
+
 		// Signal the condition variable to wake the timer thread.
 		mTimerCondVar->Signal();
 	}
@@ -461,14 +461,14 @@ void
 TInterruptManager::SetIntEDReg3( KUInt32 inValue )
 {
 	mMutex->Lock();
-	
+
 	// Here the timer is waiting (since we have the mutex).
 
 	if (inValue != mIntEDReg3)
 	{
 		// Set the ED register.
 		mIntEDReg3 = inValue;
-	
+
 		// Signal the condition variable to wake the timer thread.
 		mTimerCondVar->Signal();
 	}
@@ -484,12 +484,12 @@ void
 TInterruptManager::ClearInterrupts( KUInt32 inMask )
 {
 	mMutex->Lock();
-	
+
 	// Here the timer is waiting (since we have the mutex).
 
 	// Clear the interrupts.
 	mIntRaised &= ~inMask;
-	
+
 	// Signal the condition variable to wake the timer thread.
 	mTimerCondVar->Signal();
 
@@ -504,12 +504,12 @@ void
 TInterruptManager::RaiseGPIO( KUInt32 inValue )
 {
 	mGPIORaised |= inValue;
-	
+
 	if (mGPIOCtrlReg & mGPIORaised)
 	{
 		// Raise the GPIO interrupt.
 		RaiseInterrupt(kGPIOIntMask);
-		
+
 		mMutex->Lock();
 
 		// Resume the processor if it was waiting in our
@@ -533,7 +533,7 @@ TInterruptManager::SetGPIOCtrlReg( KUInt32 inValue )
 	{
 		// Set the control register.
 		mGPIOCtrlReg = inValue;
-		
+
 		if (mGPIOCtrlReg & mGPIORaised)
 		{
 			// Raise the GPIO interrupt.
@@ -557,13 +557,13 @@ TInterruptManager::ClearGPIO( KUInt32 inValue )
 void
 TInterruptManager::Run( void )
 {
-	// Setup: make sure we're waiting on the condition variable.	
+	// Setup: make sure we're waiting on the condition variable.
 	mMutex->Lock();
-	
+
 	// The init thread is now waiting for sure, since we have the mutex.
-	
+
 	// We have the mutex back.
-	
+
 	while (true)
 	{
 		// Get the time now.
@@ -614,7 +614,7 @@ TInterruptManager::Run( void )
 				} else {
 					mProcessor->ClearFIQInterrupt();
 				}
-				
+
 				if (mIntRaised & mIntCtrlReg & ~mFIQMask)
 				{
 					mProcessor->IRQInterrupt();
@@ -625,7 +625,7 @@ TInterruptManager::Run( void )
 				} else {
 					mProcessor->ClearIRQInterrupt();
 				}
-				
+
 				if (gotAnInterrupt && mWaiting)
 				{
 					// Resume the processor if it was waiting in our
@@ -654,7 +654,7 @@ TInterruptManager::Run( void )
 				} else {
 					mProcessor->ClearFIQInterrupt();
 				}
-				
+
 				if (mIntRaised & mIntCtrlReg & ~mFIQMask)
 				{
 					mProcessor->IRQInterrupt();
@@ -665,7 +665,7 @@ TInterruptManager::Run( void )
 				} else {
 					mProcessor->ClearIRQInterrupt();
 				}
-				
+
 				if (gotAnInterrupt && mWaiting)
 				{
 					// Resume the processor if it was waiting in our
@@ -691,7 +691,7 @@ TInterruptManager::Run( void )
 			// Get the new time.
 			newTicks = GetTimeInTicks();
 		}
-		
+
 		if (mExiting)
 		{
 			// Exit.
@@ -701,7 +701,7 @@ TInterruptManager::Run( void )
 		// We're no longer running.
 		// Save the timer value.
 		mTimer = newTicks - mTimerDelta;
-		
+
 //		if (mLog)
 //		{
 //			mLog->FLogLine(
@@ -710,7 +710,7 @@ TInterruptManager::Run( void )
 //				(unsigned int) newTicks,
 //				(unsigned int) mTimer );
 //		}
-		
+
 		// Wake the suspending thread.
 		mEmulatorCondVar->Signal();
 
@@ -726,7 +726,7 @@ TInterruptManager::Run( void )
 	}
 
 	mMutex->Unlock();
-	
+
 	mExiting = false;
 }
 
@@ -766,7 +766,7 @@ TInterruptManager::GetTimeInTicks( void )
 	// Get the time now.
 	struct timeval now;
 	(void) gettimeofday( &now, NULL );
-	
+
 //	kern_return_t ret;
 //	clock_serv_t aClock;
 //	mach_timespec_t now;
@@ -1059,7 +1059,7 @@ TInterruptManager::FireTimersAndFindNext(
 
 	*outNextMatch = nextTicksValue;
 	mIntRaised = intRaised;
-	
+
 	return hasNextTimer;
 }
 
@@ -1120,7 +1120,7 @@ void
 TInterruptManager::TransferState( TStream* inStream )
 {
 	KUInt32 t;
-	
+
 	// Interrupt manager specific stuff.
 	t = mRunning; inStream->TransferInt32BE( t ); mRunning = t;
 	t = mExiting; inStream->TransferInt32BE( t ); mExiting = t;
@@ -1138,7 +1138,7 @@ TInterruptManager::TransferState( TStream* inStream )
 	inStream->TransferInt32BE( mGPIORaised );
 	inStream->TransferInt32BE( mGPIOCtrlReg );
 	inStream->TransferInt32BE( mCalendarDelta );
-	
+
 	inStream->TransferInt32BE( mAlarmRegister );
 	inStream->TransferInt32BE( mTimerDelta );
 	inStream->TransferInt32BE( mTimer );

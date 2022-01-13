@@ -47,7 +47,7 @@
 ///
 /// As of July 19th 2020, basic functionaly has been tested with a Flash dump
 /// from an existing memory card.
-/// 
+///
 /// It will be problematic to support all possible kinds of Flash cards from
 /// various manufacturers and in various chip configurations. We will need
 /// a way to verify that existing cards are handled correctly (or they must be
@@ -102,8 +102,8 @@ public:
 	static KSInt32 ComposeImageFile(const char* inOutFilename, const char* inDataFilename, const char* inCISFilename, const char* name);
 
 	///
-	/// Create a PCMCIA image file for a Flash Card with inSizeMB capacity. 
-	/// 
+	/// Create a PCMCIA image file for a Flash Card with inSizeMB capacity.
+	///
 	static KSInt32 CreateImageFile(const char* inName, const char* inImageFilename, KUInt32 inSizeMB);
 
 	static const KSInt32 kErrCantCreateOutFile = -1;
@@ -143,7 +143,7 @@ public:
 	/// Get PCMCIA pins.
 	///
 	KUInt32 GetVPCPins( void ) override;
-	
+
 	///
 	/// Set PCMCIA pins.
 	///

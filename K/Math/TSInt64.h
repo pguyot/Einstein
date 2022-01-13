@@ -1,10 +1,10 @@
 // ==============================
 // Fichier:			TSInt64.h
 // Projet:			K
-// 
+//
 // Créé le:			21/2/2004
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
 //
@@ -67,7 +67,7 @@ public:
 			TInt64( (KUInt32) inHi, inLo )
 		{
 		}
-	
+
 	///
 	/// Constructeur à partir d'un entier de 32 bits signé.
 	///
@@ -120,7 +120,7 @@ public:
 	/// \return \c this
 	///
 	TSInt64& operator += ( const KSInt32 inArgument );
-	
+
 	///
 	/// Opération d'incrément (64 bits)
 	///
@@ -128,7 +128,7 @@ public:
 	/// \return \c this
 	///
 	TSInt64& operator += ( const TSInt64& inArgument );
-	
+
 	///
 	/// Opération de décrément (32 bits)
 	///
@@ -152,7 +152,7 @@ public:
 	/// \return \c this
 	///
 	TSInt64& operator /= ( const KSInt32 inArgument );
-	
+
 	///
 	/// Opération de division (64 bits)
 	///
@@ -224,7 +224,7 @@ public:
 			} else {
 				theResult &= 0x7FFFFFFF;
 			}
-			
+
 			return theResult;
 		}
 #endif

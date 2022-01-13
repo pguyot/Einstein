@@ -123,7 +123,7 @@ private:
 	struct SImageInfo {
 		KUInt32		fChecksums[10];
 	};
-	
+
 	struct SImage {
 		KUInt8		fROM[TMemoryConsts::kHighROMEnd];	// 8 MB ROM + 8 MB REX = 16 MB
 		SImageInfo  fInfo;
@@ -133,7 +133,7 @@ private:
 		kMagic		= 0x424C5447,
 		kVersion	= 2,
 	};
-	
+
 	///
 	/// Compute the checksums.
 	///
@@ -176,7 +176,7 @@ private:
 	/// \param inCopy		objet à copier
 	///
 	TROMImage& operator = ( const TROMImage& inCopy ) = delete;
-	
+
 	SImage*			mImage; 		///< image structure.
 
     KSInt32         mROMId = kUnknownROM;
