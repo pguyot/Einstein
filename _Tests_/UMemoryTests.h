@@ -3,11 +3,11 @@
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 // 
-// Créé le:			8/3/2005
+// Cr√©√© le:			8/3/2005
 // Tabulation:		4 espaces
 // 
-// Copyright:		© 2005 by Paul Guyot.
-// 					Tous droits réservés pour tous pays.
+// Copyright:		¬© 2005 by Paul Guyot.
+// 					Tous droits r√©serv√©s pour tous pays.
 // ===========
 // $Id: UMemoryTests.h 151 2006-01-13 16:15:33Z paul $
 // ===========
@@ -25,7 +25,7 @@
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 151 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class UMemoryTests
 {

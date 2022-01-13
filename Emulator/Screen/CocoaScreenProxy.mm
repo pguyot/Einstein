@@ -35,7 +35,7 @@
 #endif
 	if ((self = [super init]))
 	{
-		// Récupération de la boucle courante.
+		// R√©cup√©ration de la boucle courante.
 		mRunLoop = [NSRunLoop currentRunLoop];
 	}
 	return self;
@@ -62,19 +62,19 @@
 {
 	NSMethodSignature* theSignature;
 	NSInvocation* theResult;
-	
-	// Récupération de la signature.
-	theSignature = [inTarget methodSignatureForSelector: inSelector];
-	
-	// Création de l'invocation.
-	theResult = [NSInvocation invocationWithMethodSignature: theSignature];
-	
-	// On règle le sélecteur.
-	[theResult setSelector: inSelector];
-	
-	// On règle la cible.
-	[theResult setTarget: inTarget];
-	
+
+	// R√©cup√©ration de la signature.
+	theSignature = [inTarget methodSignatureForSelector:inSelector];
+
+	// Cr√©ation de l'invocation.
+	theResult = [NSInvocation invocationWithMethodSignature:theSignature];
+
+	// On r√®gle le s√©lecteur.
+	[theResult setSelector:inSelector];
+
+	// On r√®gle la cible.
+	[theResult setTarget:inTarget];
+
 	return theResult;
 }
 
@@ -85,9 +85,10 @@
 {
 	if (mRunLoop == [NSRunLoop currentRunLoop])
 	{
-		[inView setNeedsDisplay: inNeedsDisplay];
-	} else {
-		// Création de l'invocation.
+		[inView setNeedsDisplay:inNeedsDisplay];
+	} else
+	{
+		// Cr√©ation de l'invocation.
 		NSInvocation* theInvocation
 			= [self createInvocationWithTarget: inView withSelector:
 						@selector(setNeedsDisplay:)];
@@ -135,9 +136,10 @@
 {
 	if (mRunLoop == [NSRunLoop currentRunLoop])
 	{
-		[inView setHidden: inSetHidden];
-	} else {
-		// Création de l'invocation.
+		[inView setHidden:inSetHidden];
+	} else
+	{
+		// Cr√©ation de l'invocation.
 		NSInvocation* theInvocation
 			= [self createInvocationWithTarget: inView withSelector:
 						@selector(setHidden:)];
@@ -156,9 +158,10 @@
 {
 	if (mRunLoop == [NSRunLoop currentRunLoop])
 	{
-		[inApp powerChange: inState];
-	} else {
-		// Création de l'invocation.
+		[inApp powerChange:inState];
+	} else
+	{
+		// Cr√©ation de l'invocation.
 		NSInvocation* theInvocation
 			= [self createInvocationWithTarget: inApp withSelector:
 						@selector(powerChange:)];
@@ -177,9 +180,10 @@
 {
 	if (mRunLoop == [NSRunLoop currentRunLoop])
 	{
-		[inApp backlightChange: inState];
-	} else {
-		// Création de l'invocation.
+		[inApp backlightChange:inState];
+	} else
+	{
+		// Cr√©ation de l'invocation.
 		NSInvocation* theInvocation
 			= [self createInvocationWithTarget: inApp withSelector:
 						@selector(backlightChange:)];
@@ -198,9 +202,10 @@
 {
 	if (mRunLoop == [NSRunLoop currentRunLoop])
 	{
-		[inControl setStringValue: inString];
-	} else {
-		// Création de l'invocation.
+		[inControl setStringValue:inString];
+	} else
+	{
+		// Cr√©ation de l'invocation.
 		NSInvocation* theInvocation
 			= [self createInvocationWithTarget: inControl withSelector:
 						@selector(setStringValue:)];

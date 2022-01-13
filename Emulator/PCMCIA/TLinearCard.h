@@ -66,7 +66,7 @@
 /// \author Matthias Melcher <einstein@matthiasm.com>
 /// \version $Revision: 147 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TLinearCard
 	:

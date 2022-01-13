@@ -42,7 +42,7 @@ class TPlatformManager;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 121 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TCocoaScreenManager
 	:

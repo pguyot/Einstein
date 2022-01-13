@@ -2,7 +2,7 @@
 // Fichier:			RelocHack.h
 // Projet:			K
 //
-// Créé le:			26/06/2001
+// Cr√©√© le:			26/06/2001
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****

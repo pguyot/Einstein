@@ -32,7 +32,7 @@
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 147 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TSDLScreenManager
 {
@@ -42,7 +42,7 @@ public:
 	/// \name Constructeurs et destructeur
 
 	///
-	/// Constructeur par défaut.
+	/// Constructeur par d√©faut.
 	///
 	TSDLScreenManager( void );
 
@@ -55,14 +55,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TSDLScreenManager( const TSDLScreenManager& inCopy );
 
 	///
-	/// Opérateur d'assignation volontairement indisponible.
+	/// Op√©rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TSDLScreenManager& operator = ( const TSDLScreenManager& inCopy );
 

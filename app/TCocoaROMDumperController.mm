@@ -60,7 +60,7 @@
 		mROMFilePath = nil;
 		mROMSize = 0;
 
-		// Récupération de la boucle courante.
+		// R√©cup√©ration de la boucle courante.
 		mRunLoop = [NSRunLoop currentRunLoop];
 	}
 	
@@ -529,16 +529,16 @@
 	NSMethodSignature* theSignature;
 	NSInvocation* theResult;
 	
-	// Récupération de la signature.
+	// R√©cup√©ration de la signature.
 	theSignature = [inTarget methodSignatureForSelector: inSelector];
 	
-	// Création de l'invocation.
+	// Cr√©ation de l'invocation.
 	theResult = [NSInvocation invocationWithMethodSignature: theSignature];
 	
-	// On règle le sélecteur.
+	// On r√®gle le s√©lecteur.
 	[theResult setSelector: inSelector];
 	
-	// On règle la cible.
+	// On r√®gle la cible.
 	[theResult setTarget: inTarget];
 	
 	return theResult;

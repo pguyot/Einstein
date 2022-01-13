@@ -2,7 +2,7 @@
 // Fichier:			TNameServerSingleton.h
 // Projet:			K
 //
-// Créé le:			08/09/2002
+// Cr√©√© le:			08/09/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -39,28 +39,28 @@
 #include <Newton.h>
 
 ///
-/// Classe pour un singleton enregistré auprès du serveur de nom.
+/// Classe pour un singleton enregistr√© aupr√®s du serveur de nom.
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 1.5 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TNameServerSingleton
 {
 protected:
-	// MrCpp a besoin que cette constante soit définie avant.
-	static const char* const kType;		///< Chaîne commune pour le type.
+	// MrCpp a besoin que cette constante soit d√©finie avant.
+	static const char* const kType;		///< Cha√Æne commune pour le type.
 
 public:
 	///
-	/// Supprime le singleton et l'entrée dans le serveur de nom.
+	/// Supprime le singleton et l'entr√©e dans le serveur de nom.
 	///
-	/// \param	inName		nom de l'objet (première chaîne dans
+	/// \param	inName		nom de l'objet (premi√®re cha√Æne dans
 	///						le serveur de nom)
-	/// \param	inType		type de l'objet (deuxième chaîne dans
+	/// \param	inType		type de l'objet (deuxi√®me cha√Æne dans
 	///						le serveur de nom)
-	/// \return un code d'erreur si un problème est survenu:
+	/// \return un code d'erreur si un probl√®me est survenu:
 	///			- kError_Not_Registered si le singleton n'existe pas.
 	///
 	static NewtonErr				DeleteObject(
@@ -69,10 +69,10 @@ public:
 
 protected:
 	///
-	/// Constructeur par défaut.
+	/// Constructeur par d√©faut.
 	///
-	/// Remarque importante: si le code est copié, il faut reloger la
-	/// table des fonctions virtuelles. Sinon, gare à la casse.
+	/// Remarque importante: si le code est copi√©, il faut reloger la
+	/// table des fonctions virtuelles. Sinon, gare √† la casse.
 	///
 	TNameServerSingleton() {};
 
@@ -82,14 +82,14 @@ protected:
 	virtual ~TNameServerSingleton() {};
 	
 	///
-	/// Récupère le singleton. Retourne \c nil s'il n'existe pas.
+	/// R√©cup√®re le singleton. Retourne \c nil s'il n'existe pas.
 	///
-	/// \param	inName		nom de l'objet (première chaîne dans
+	/// \param	inName		nom de l'objet (premi√®re cha√Æne dans
 	///						le serveur de nom)
-	/// \param	inType		type de l'objet (deuxième chaîne dans
+	/// \param	inType		type de l'objet (deuxi√®me cha√Æne dans
 	///						le serveur de nom)
-	/// \return \c nil si le serveur de nom a retourné une erreur
-	///			(ce qui signifie généralement que le singleton
+	/// \return \c nil si le serveur de nom a retourn√© une erreur
+	///			(ce qui signifie g√©n√©ralement que le singleton
 	///			n'existe pas).
 	///
 	static TNameServerSingleton*	GetObject(
@@ -99,13 +99,13 @@ protected:
 	///
 	/// Enregistre le singleton dans le serveur de nom.
 	///
-	/// \param	inObject	objet à enregistrer
-	/// \param	inName		nom de l'objet (première chaîne dans
+	/// \param	inObject	objet √† enregistrer
+	/// \param	inName		nom de l'objet (premi√®re cha√Æne dans
 	///						le serveur de nom)
-	/// \param	inType		type de l'objet (deuxième chaîne dans
+	/// \param	inType		type de l'objet (deuxi√®me cha√Æne dans
 	///						le serveur de nom)
-	/// \return un code d'erreur si un problème est survenu:
-	///			- kError_Already_Registered si le singleton existe déjà.
+	/// \return un code d'erreur si un probl√®me est survenu:
+	///			- kError_Already_Registered si le singleton existe d√©j√†.
 	///
 	static NewtonErr				CreateObject(
 										TNameServerSingleton* inObject,

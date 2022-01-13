@@ -51,7 +51,7 @@ typedef union JITUnit {
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 151 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TJITGenericPage
 	:

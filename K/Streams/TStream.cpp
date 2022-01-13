@@ -3,7 +3,7 @@
 // Projet:			K
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 // 
-// Créé le:			10/6/2005
+// Cr√©√© le:			10/6/2005
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****
@@ -112,8 +112,8 @@ TStream::GetCString( KUInt32 inNbChars )
 KUInt8*
 TStream::GetCString( void )
 {
-	size_t bufferLength = 10; 	// Taille de la mémoire tampon
-	size_t strLength = 0;		// Taille de la chaîne
+	size_t bufferLength = 10; 	// Taille de la m√©moire tampon
+	size_t strLength = 0;		// Taille de la cha√Æne
 	KUInt8* theResult = (KUInt8*) ::malloc( bufferLength );
 	
 #if HAS_EXCEPTION_HANDLING	
@@ -188,7 +188,7 @@ TStream::GetCString( void )
 void
 TStream::PutCString( const KUInt8* inString )
 {
-	// Taille de la chaîne plus le caractère nul.
+	// Taille de la cha√Æne plus le caract√®re nul.
 	KUInt32 strLength = (KUInt32) ::strlen( (char*) inString ) + 1;
 	
 	Write( inString, &strLength );
@@ -200,7 +200,7 @@ TStream::PutCString( const KUInt8* inString )
 void
 TStream::PutString( const char* inString )
 {
-	// Taille de la chaîne sans le caractère nul.
+	// Taille de la cha√Æne sans le caract√®re nul.
 	KUInt32 strLength = (KUInt32) ::strlen( (char*) inString );
 	
 	Write( inString, &strLength );
@@ -300,8 +300,8 @@ TStream::PutUniString( const KUInt16* inString )
 KUInt32
 TStream::GetInt32( void )
 {
-	KUInt32 theResult;						// Mémoire tampon
-	KUInt32 length = sizeof( theResult );	// Taille de la mémoire tampon.
+	KUInt32 theResult;						// M√©moire tampon
+	KUInt32 length = sizeof( theResult );	// Taille de la m√©moire tampon.
 	
 	Read( &theResult, &length );
 	
@@ -365,7 +365,7 @@ TStream::GetXLong( void )
 void
 TStream::PutXLong( const KUInt32 inLong )
 {
-	// Le paramètre tient-il sur un octet?
+	// Le param√®tre tient-il sur un octet?
 	if (inLong <= 254)
 	{
 		PutByte( (KUInt8) inLong );
@@ -385,8 +385,8 @@ TStream::PutXLong( const KUInt32 inLong )
 KUInt16
 TStream::GetInt16( void )
 {
-	KUInt16 theResult;						// Mémoire tampon
-	KUInt32 length = sizeof( theResult );	// Taille de la mémoire tampon.
+	KUInt16 theResult;						// M√©moire tampon
+	KUInt32 length = sizeof( theResult );	// Taille de la m√©moire tampon.
 	
 	Read( &theResult, &length );
 
@@ -482,8 +482,8 @@ TStream::PutInt32ArrayLE(
 KUInt8
 TStream::GetByte( void )
 {
-	KUInt8 theResult;						// Mémoire tampon
-	KUInt32 length = sizeof( theResult );	// Taille de la mémoire tampon.
+	KUInt8 theResult;						// M√©moire tampon
+	KUInt32 length = sizeof( theResult );	// Taille de la m√©moire tampon.
 	
 	Read( &theResult, &length );
 	
@@ -505,7 +505,7 @@ TStream::GetByte( void )
 void
 TStream::PutByte( const KUInt8 inByte )
 {
-	KUInt32 length = sizeof( inByte );	// Taille de la mémoire tampon
+	KUInt32 length = sizeof( inByte );	// Taille de la m√©moire tampon
 	
 	Write( &inByte, &length );
 }

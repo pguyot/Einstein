@@ -70,7 +70,7 @@ class TPCMCIACard;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 147 $
 ///
-/// \test	aucun test dŽfini.
+/// \test	aucun test dÃ©fini.
 ///
 class TPCMCIAController
 {
@@ -153,7 +153,7 @@ public:
 	///
 	/// Accessor to the log interface.
 	///
-	///Ê\return a pointer to the log object or nil.
+	///Â \return a pointer to the log object or nil.
 	///
 	inline TLog*				GetLog( void )
 		{
@@ -163,7 +163,7 @@ public:
 	///
 	/// Accessor to the emulator.
 	///
-	///Ê\return a pointer to the emulator object.
+	///Â \return a pointer to the emulator object.
 	///
 	inline TEmulator*			GetEmulator( void )
 		{
@@ -260,14 +260,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet ˆ copier
+	/// \param inCopy		objet Ã  copier
 	///
 	TPCMCIAController( const TPCMCIAController& inCopy ) = delete;
 
 	///
-	/// OpŽrateur d'assignation volontairement indisponible.
+	/// OpÃ©rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet ˆ copier
+	/// \param inCopy		objet Ã  copier
 	///
 	TPCMCIAController& operator = ( const TPCMCIAController& inCopy ) = delete;
 

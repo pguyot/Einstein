@@ -48,7 +48,7 @@ class TStream;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 151 $
 ///
-/// \test	aucun test d�fini.
+/// \test	aucun test défini.
 ///
 class TScreenManager
 {
@@ -586,14 +586,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet � copier
+	/// \param inCopy		objet à copier
 	///
 	TScreenManager( const TScreenManager& inCopy );
 
 	///
-	/// Op�rateur d'assignation volontairement indisponible.
+	/// Opérateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet � copier
+	/// \param inCopy		objet à copier
 	///
 	TScreenManager& operator = ( const TScreenManager& inCopy );
 

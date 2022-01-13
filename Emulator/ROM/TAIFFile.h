@@ -34,7 +34,7 @@
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 111 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TAIFFile
 {
@@ -61,7 +61,7 @@ public:
 									//							BL is used to make the header addressable via r14 in a
 									//							position-independent manner, and to ensure that the
 									//							header will be position-independent.
-		KUInt32	fExitInstruction;	// Program Exit Instruction	… last attempt in case of return. The Program Exit
+		KUInt32	fExitInstruction;	// Program Exit Instruction	‚Ä¶ last attempt in case of return. The Program Exit
 									//							Instruction is usually a SWI causing program
 									//							termination. On systems that do not implement a SWI for
 									//							this purpose, a branch-to-self is recommended.
@@ -102,7 +102,7 @@ public:
 									//							If the Address mode word has bit 8 set, the image was
 									//							linked with separate code and data bases (usually the
 									//							data is placed immediately after the code). The word at
-									//							offset 0x34 contains the base address of the image’s data.
+									//							offset 0x34 contains the base address of the image‚Äôs data.
 		KUInt32	fDataBaseAddress;	// Data base				Address where the image data was linked.
 		KUInt32	fReserved[2];		// Two reserved words		In Extended AIF images, the word at 0x38 is non-zero. It
 									//   (initially 0)			contains the byte offset within the file of the header for

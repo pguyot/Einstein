@@ -2,7 +2,7 @@
 // Fichier:			UUTF16Conv.h
 // Projet:			K
 //
-// Créé le:			1/09/2001
+// Cr√©√© le:			1/09/2001
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -38,7 +38,7 @@
 ///
 /// Classe pour convertir vers/depuis UTF-16.
 ///
-/// Les encodages implémentés pour le moment sont:
+/// Les encodages impl√©ment√©s pour le moment sont:
 /// - ISO-8859-1
 /// - ISO-8859-2
 /// - ASCII
@@ -47,68 +47,68 @@
 /// - UTF-8
 ///
 /// Format UTF-16:
-/// - UTF-16 est, pour le Basic Multilingual Plan, comme UCS-2 (utilisé dans NewtonOS), i.e. un caractère
-///   est représenté sur 16 bits. La plupart des ensembles de caractères gérés ici sont inclus dans le
-///   BMP. Par conséquent, pour les encodages avec des caractères de taille fixe, les fonctions de
-///   conversion peuvent être grandement simplifiées.
-/// - UTF-16 est du grand indien. Ceci est géré par UByteSex si KDefinition.h a su deviner le sexe des
+/// - UTF-16 est, pour le Basic Multilingual Plan, comme UCS-2 (utilis√© dans NewtonOS), i.e. un caract√®re
+///   est repr√©sent√© sur 16 bits. La plupart des ensembles de caract√®res g√©r√©s ici sont inclus dans le
+///   BMP. Par cons√©quent, pour les encodages avec des caract√®res de taille fixe, les fonctions de
+///   conversion peuvent √™tre grandement simplifi√©es.
+/// - UTF-16 est du grand indien. Ceci est g√©r√© par UByteSex si KDefinition.h a su deviner le sexe des
 ///   octets sur votre plateforme.
 ///
 /// Utilisation de EToOpt:
-/// Si un caractère dans une chaîne unicode ne peut pas être représenté dans l'encodage de destination,
+/// Si un caract√®re dans une cha√Æne unicode ne peut pas √™tre repr√©sent√© dans l'encodage de destination,
 /// deux comportements sont possibles: 
-/// - mettre le caractère de substitution (\c kSubstituteChar)
-/// - arrêter la conversion.
-/// EToOpt permet de décider quel comportement adopter.
+/// - mettre le caract√®re de substitution (\c kSubstituteChar)
+/// - arr√™ter la conversion.
+/// EToOpt permet de d√©cider quel comportement adopter.
 ///
-/// Chaînes invalides en entrée:
-/// Si une chaîne invalide est fournie en entrée (e.g. 0x80 dans une chaîne US ASCII), le comportement
-/// n'est pas défini (il peut y avoir des exceptions, cf la documentation des méthodes de conversion).
-/// Si la chaîne en entrée est dans un codage à taille de caractère variable (e.g. UTF, Shift, etc.)
-/// et que le(s) dernier(s) octet(s)/mot(s) sont le début d'une suite de caractères plus longue (ou
-/// d'une séquence d'échapement) la conversion ne se termine pas correctement. Ces derniers octets ne
-/// sont pas marqués comme lus (ioInputCount ne les comptera pas) et le résultat sera kMiddleOfMultiChar.
-/// Ceci signifie que la mémoire tampon doit pouvoir contenir tous les caractères multi-octets ou les
-/// séquences d'échapement de la chaîne fournie en entrée.
+/// Cha√Ænes invalides en entr√©e:
+/// Si une cha√Æne invalide est fournie en entr√©e (e.g. 0x80 dans une cha√Æne US ASCII), le comportement
+/// n'est pas d√©fini (il peut y avoir des exceptions, cf la documentation des m√©thodes de conversion).
+/// Si la cha√Æne en entr√©e est dans un codage √† taille de caract√®re variable (e.g. UTF, Shift, etc.)
+/// et que le(s) dernier(s) octet(s)/mot(s) sont le d√©but d'une suite de caract√®res plus longue (ou
+/// d'une s√©quence d'√©chapement) la conversion ne se termine pas correctement. Ces derniers octets ne
+/// sont pas marqu√©s comme lus (ioInputCount ne les comptera pas) et le r√©sultat sera kMiddleOfMultiChar.
+/// Ceci signifie que la m√©moire tampon doit pouvoir contenir tous les caract√®res multi-octets ou les
+/// s√©quences d'√©chapement de la cha√Æne fournie en entr√©e.
 ///
 /// \author	Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 1.6 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class UUTF16Conv
 {
 public:
 	///
-	/// Indique la politique à suivre lorsqu'un caractère non représentable est trouvé.
+	/// Indique la politique √† suivre lorsqu'un caract√®re non repr√©sentable est trouv√©.
 	///
 	enum EToOpt {
-		kRepCharOnUnrepChar,	///< Utilise le caractère de remplacement.
-		kStopOnUnrepChar		///< Arrête la conversions.
+		kRepCharOnUnrepChar,	///< Utilise le caract√®re de remplacement.
+		kStopOnUnrepChar		///< Arr√™te la conversions.
 	};
 	
 	///
-	/// Résultat des méthodes de conversion
+	/// R√©sultat des m√©thodes de conversion
 	///
 	enum EResult {
-		kInputExhausted = 0,	///< La conversion est terminée (tous les caractères en entrée ont été convertis).
-								///< Ne signifie pas que la mémoire tampon de sortie est pleine.
-		kOutputExhausted,		///< Il n'y a plus de place dans la mémoire tampon de sortie (et la chaîne en
-								///< entrée n'a pas été entièrement convertie)
-		kUnrepCharEncountered,	///< Un caractère non représentable a été trouvé (et l'option est \c kStopOnUnrepChar)
-		kMiddleOfMultiChar		///< Les derniers octets de la mémoire tampon d'entrée/de sortie constituent le début
-								///< d'un caractère ou d'une séquence d'échappement.
+		kInputExhausted = 0,	///< La conversion est termin√©e (tous les caract√®res en entr√©e ont √©t√© convertis).
+								///< Ne signifie pas que la m√©moire tampon de sortie est pleine.
+		kOutputExhausted,		///< Il n'y a plus de place dans la m√©moire tampon de sortie (et la cha√Æne en
+								///< entr√©e n'a pas √©t√© enti√®rement convertie)
+		kUnrepCharEncountered,	///< Un caract√®re non repr√©sentable a √©t√© trouv√© (et l'option est \c kStopOnUnrepChar)
+		kMiddleOfMultiChar		///< Les derniers octets de la m√©moire tampon d'entr√©e/de sortie constituent le d√©but
+								///< d'un caract√®re ou d'une s√©quence d'√©chappement.
 	};
 	
 	///
-	/// Convertit une chaîne UTF-16 en ISO-8859-1
+	/// Convertit une cha√Æne UTF-16 en ISO-8859-1
 	///
-	/// \param inInputBuffer	chaîne unicode à convertir.
-	/// \param ioInputCount		en entrée: nombre de caractères (16 bits) dans la chaîne unicode.
-	///							en sortie: nombre de caractères (16 bits) convertis dans cette chaîne.
-	/// \param outOutputBuffer	mémoire tampon pour la chaîne ISO-8859-1.
-	/// \param ioOutputCount	en entrée: taille en octets/caractères de cette mémoire tampon.
-	///							en sortie: nombre d'octets/caractères écrits dans cette mémoire tampon.
+	/// \param inInputBuffer	cha√Æne unicode √† convertir.
+	/// \param ioInputCount		en entr√©e: nombre de caract√®res (16 bits) dans la cha√Æne unicode.
+	///							en sortie: nombre de caract√®res (16 bits) convertis dans cette cha√Æne.
+	/// \param outOutputBuffer	m√©moire tampon pour la cha√Æne ISO-8859-1.
+	/// \param ioOutputCount	en entr√©e: taille en octets/caract√®res de cette m√©moire tampon.
+	///							en sortie: nombre d'octets/caract√®res √©crits dans cette m√©moire tampon.
 	/// \param inConvertToOpt	option pour la conversion. Cf le commentaire sur la classe.
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
@@ -122,11 +122,11 @@ public:
 		);
 
 	///
-	/// Convertit une chaîne ISO-8859-1 en UTF-16
+	/// Convertit une cha√Æne ISO-8859-1 en UTF-16
 	///
-	/// \param inInputBuffer	chaîne ISO-8859-1 à convertir.
-	/// \param outOutputBuffer	mémoire tampon pour la chaîne UTF-16.
-	/// \param inCount			taille en octets (entrée) / mots (sortie) de chaque mémoire tampon.
+	/// \param inInputBuffer	cha√Æne ISO-8859-1 √† convertir.
+	/// \param outOutputBuffer	m√©moire tampon pour la cha√Æne UTF-16.
+	/// \param inCount			taille en octets (entr√©e) / mots (sortie) de chaque m√©moire tampon.
 	///
 	static void		FromISO88591(
 		const KUInt8*	inInputBuffer,
@@ -135,14 +135,14 @@ public:
 		);
 	
 	///
-	/// Convertit une chaîne UTF-16 en ISO-8859-2
+	/// Convertit une cha√Æne UTF-16 en ISO-8859-2
 	///
-	/// \param inInputBuffer	chaîne unicode à convertir.
-	/// \param ioInputCount		en entrée: nombre de caractères (16 bits) dans la chaîne unicode.
-	///							en sortie: nombre de caractères (16 bits) convertis dans cette chaîne.
-	/// \param outOutputBuffer	mémoire tampon pour la chaîne ISO-8859-2.
-	/// \param ioOutputCount	en entrée: taille en octets/caractères de cette mémoire tampon.
-	///							en sortie: nombre d'octets/caractères écrits dans cette mémoire tampon.
+	/// \param inInputBuffer	cha√Æne unicode √† convertir.
+	/// \param ioInputCount		en entr√©e: nombre de caract√®res (16 bits) dans la cha√Æne unicode.
+	///							en sortie: nombre de caract√®res (16 bits) convertis dans cette cha√Æne.
+	/// \param outOutputBuffer	m√©moire tampon pour la cha√Æne ISO-8859-2.
+	/// \param ioOutputCount	en entr√©e: taille en octets/caract√®res de cette m√©moire tampon.
+	///							en sortie: nombre d'octets/caract√®res √©crits dans cette m√©moire tampon.
 	/// \param inConvertToOpt	option pour la conversion. Cf le commentaire sur la classe.
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
@@ -156,11 +156,11 @@ public:
 		);
 
 	///
-	/// Convertit une chaîne ISO-8859-2 en UTF-16
+	/// Convertit une cha√Æne ISO-8859-2 en UTF-16
 	///
-	/// \param inInputBuffer	chaîne ISO-8859-2 à convertir.
-	/// \param outOutputBuffer	mémoire tampon pour la chaîne UTF-16.
-	/// \param inCount			taille en octets (entrée) / mots (sortie) de chaque mémoire tampon.
+	/// \param inInputBuffer	cha√Æne ISO-8859-2 √† convertir.
+	/// \param outOutputBuffer	m√©moire tampon pour la cha√Æne UTF-16.
+	/// \param inCount			taille en octets (entr√©e) / mots (sortie) de chaque m√©moire tampon.
 	///
 	static void		FromISO88592(
 		const KUInt8*	inInputBuffer,
@@ -169,14 +169,14 @@ public:
 		);
 
 	///
-	/// Convertit une chaîne UTF-16 en US-ASCII
+	/// Convertit une cha√Æne UTF-16 en US-ASCII
 	///
-	/// \param inInputBuffer	chaîne unicode à convertir.
-	/// \param ioInputCount		en entrée: nombre de caractères (16 bits) dans la chaîne unicode.
-	///							en sortie: nombre de caractères (16 bits) convertis dans cette chaîne.
-	/// \param outOutputBuffer	mémoire tampon pour la chaîne US-ASCII.
-	/// \param ioOutputCount	en entrée: taille en octets/caractères de cette mémoire tampon.
-	///							en sortie: nombre d'octets/caractères écrits dans cette mémoire tampon.
+	/// \param inInputBuffer	cha√Æne unicode √† convertir.
+	/// \param ioInputCount		en entr√©e: nombre de caract√®res (16 bits) dans la cha√Æne unicode.
+	///							en sortie: nombre de caract√®res (16 bits) convertis dans cette cha√Æne.
+	/// \param outOutputBuffer	m√©moire tampon pour la cha√Æne US-ASCII.
+	/// \param ioOutputCount	en entr√©e: taille en octets/caract√®res de cette m√©moire tampon.
+	///							en sortie: nombre d'octets/caract√®res √©crits dans cette m√©moire tampon.
 	/// \param inConvertToOpt	option pour la conversion. Cf le commentaire sur la classe.
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
@@ -190,11 +190,11 @@ public:
 		);
 	
 	///
-	/// Convertit une chaîne US-ASCII en UTF-16
+	/// Convertit une cha√Æne US-ASCII en UTF-16
 	///
-	/// \param inInputBuffer	chaîne US-ASCII à convertir.
-	/// \param outOutputBuffer	mémoire tampon pour la chaîne UTF-16.
-	/// \param inCount			taille en octets (entrée) / mots (sortie) de chaque mémoire tampon.
+	/// \param inInputBuffer	cha√Æne US-ASCII √† convertir.
+	/// \param outOutputBuffer	m√©moire tampon pour la cha√Æne UTF-16.
+	/// \param inCount			taille en octets (entr√©e) / mots (sortie) de chaque m√©moire tampon.
 	///
 	static void		FromASCII(
 		const KUInt8*	inInputBuffer,
@@ -203,14 +203,14 @@ public:
 		);
 
 	///
-	/// Convertit une chaîne UTF-16 en MacRoman.
+	/// Convertit une cha√Æne UTF-16 en MacRoman.
 	///
-	/// \param inInputBuffer	chaîne unicode à convertir.
-	/// \param ioInputCount		en entrée: nombre de caractères (16 bits) dans la chaîne unicode.
-	///							en sortie: nombre de caractères (16 bits) convertis dans cette chaîne.
-	/// \param outOutputBuffer	mémoire tampon pour la chaîne MacRoman.
-	/// \param ioOutputCount	en entrée: taille en octets/caractères de cette mémoire tampon.
-	///							en sortie: nombre d'octets/caractères écrits dans cette mémoire tampon.
+	/// \param inInputBuffer	cha√Æne unicode √† convertir.
+	/// \param ioInputCount		en entr√©e: nombre de caract√®res (16 bits) dans la cha√Æne unicode.
+	///							en sortie: nombre de caract√®res (16 bits) convertis dans cette cha√Æne.
+	/// \param outOutputBuffer	m√©moire tampon pour la cha√Æne MacRoman.
+	/// \param ioOutputCount	en entr√©e: taille en octets/caract√®res de cette m√©moire tampon.
+	///							en sortie: nombre d'octets/caract√®res √©crits dans cette m√©moire tampon.
 	/// \param inConvertToOpt	option pour la conversion. Cf le commentaire sur la classe.
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
@@ -224,11 +224,11 @@ public:
 		);
 	
 	///
-	/// Convertit une chaîne MacRoman en UTF-16
+	/// Convertit une cha√Æne MacRoman en UTF-16
 	///
-	/// \param inInputBuffer	chaîne US-ASCII à convertir.
-	/// \param outOutputBuffer	mémoire tampon pour la chaîne UTF-16.
-	/// \param inCount			taille en octets (entrée) / mots (sortie) de chaque mémoire tampon.
+	/// \param inInputBuffer	cha√Æne US-ASCII √† convertir.
+	/// \param outOutputBuffer	m√©moire tampon pour la cha√Æne UTF-16.
+	/// \param inCount			taille en octets (entr√©e) / mots (sortie) de chaque m√©moire tampon.
 	///
 	static void		FromMacRoman(
 		const KUInt8*	inInputBuffer,
@@ -237,16 +237,16 @@ public:
 		);
 
 	///
-	/// Convertit une chaîne UTF-16 en UCS-4.
+	/// Convertit une cha√Æne UTF-16 en UCS-4.
 	///
-	/// Si tous les caractères sont dans le BMP, cela revient à étendre les caractères de 16 à 32 bits.
+	/// Si tous les caract√®res sont dans le BMP, cela revient √† √©tendre les caract√®res de 16 √† 32 bits.
 	///
-	/// \param inInputBuffer	chaîne UTF-16 à convertir.
-	/// \param ioInputCount		en entrée: nombre de mots de 16 bits dans la chaîne UTF-16.
-	///							en sortie: nombre de mots de 16 bits convertis dans cette chaîne.
-	/// \param outOutputBuffer	mémoire tampon pour la chaîne UCS-4.
-	/// \param ioOutputCount	en entrée: taille en mots de 32 bits/caractères de cette mémoire tampon.
-	///							en sortie: nombre de mots de 32 bits/caractères écrits dans cette mémoire tampon.
+	/// \param inInputBuffer	cha√Æne UTF-16 √† convertir.
+	/// \param ioInputCount		en entr√©e: nombre de mots de 16 bits dans la cha√Æne UTF-16.
+	///							en sortie: nombre de mots de 16 bits convertis dans cette cha√Æne.
+	/// \param outOutputBuffer	m√©moire tampon pour la cha√Æne UCS-4.
+	/// \param ioOutputCount	en entr√©e: taille en mots de 32 bits/caract√®res de cette m√©moire tampon.
+	///							en sortie: nombre de mots de 32 bits/caract√®res √©crits dans cette m√©moire tampon.
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
 	///
@@ -258,16 +258,16 @@ public:
 		);
 
 	///
-	/// Convertit une chaîne UCS-4 en UTF-16.
+	/// Convertit une cha√Æne UCS-4 en UTF-16.
 	///
-	/// Si tous les caractères sont dans le BMP, cela revient à réduire les caractères de 32 à 16 bits.
+	/// Si tous les caract√®res sont dans le BMP, cela revient √† r√©duire les caract√®res de 32 √† 16 bits.
 	///
-	/// \param inInputBuffer	chaîne UCS-4 à convertir.
-	/// \param ioInputCount		en entrée: nombre de mots de 32 bits/caractères dans la chaîne UCS-4.
-	///							en sortie: nombre de mots de 32 bits/caractères convertis dans cette chaîne.
-	/// \param outOutputBuffer	mémoire tampon pour la chaîne UTF-16.
-	/// \param ioOutputCount	en entrée: taille en mots de 16 bits de cette mémoire tampon.
-	///							en sortie: nombre de mots de 16 bits écrits dans cette mémoire tampon.
+	/// \param inInputBuffer	cha√Æne UCS-4 √† convertir.
+	/// \param ioInputCount		en entr√©e: nombre de mots de 32 bits/caract√®res dans la cha√Æne UCS-4.
+	///							en sortie: nombre de mots de 32 bits/caract√®res convertis dans cette cha√Æne.
+	/// \param outOutputBuffer	m√©moire tampon pour la cha√Æne UTF-16.
+	/// \param ioOutputCount	en entr√©e: taille en mots de 16 bits de cette m√©moire tampon.
+	///							en sortie: nombre de mots de 16 bits √©crits dans cette m√©moire tampon.
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
 	///
@@ -279,16 +279,16 @@ public:
 		);
 
 	///
-	/// Convertit une chaîne UTF-16 en UTF-8.
+	/// Convertit une cha√Æne UTF-16 en UTF-8.
 	///
-	/// La chaîne UTF-8 fait au plus 3 fois la taille de la chaîne UTF-16 (en nombre de caractères).
+	/// La cha√Æne UTF-8 fait au plus 3 fois la taille de la cha√Æne UTF-16 (en nombre de caract√®res).
 	///
-	/// \param inInputBuffer	chaîne UTF-16 à convertir.
-	/// \param ioInputCount		en entrée: nombre de mots de 16 bits dans la chaîne UTF-16.
-	///							en sortie: nombre de mots de 16 bits convertis dans cette chaîne.
-	/// \param outOutputBuffer	mémoire tampon pour la chaîne UTF-8.
-	/// \param ioOutputCount	en entrée: taille en caractères (8 bits) de cette mémoire tampon.
-	///							en sortie: nombre de caractères écrits dans cette mémoire tampon.
+	/// \param inInputBuffer	cha√Æne UTF-16 √† convertir.
+	/// \param ioInputCount		en entr√©e: nombre de mots de 16 bits dans la cha√Æne UTF-16.
+	///							en sortie: nombre de mots de 16 bits convertis dans cette cha√Æne.
+	/// \param outOutputBuffer	m√©moire tampon pour la cha√Æne UTF-8.
+	/// \param ioOutputCount	en entr√©e: taille en caract√®res (8 bits) de cette m√©moire tampon.
+	///							en sortie: nombre de caract√®res √©crits dans cette m√©moire tampon.
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
 	///
@@ -300,16 +300,16 @@ public:
 		);
 
 	///
-	/// Convertit une chaîne UTF-8 en UTF-16.
+	/// Convertit une cha√Æne UTF-8 en UTF-16.
 	///
-	/// La chaîne UTF-16 fait au plus 1 fois la taille de la chaîne UTF-8 (en nombre de caractères).
+	/// La cha√Æne UTF-16 fait au plus 1 fois la taille de la cha√Æne UTF-8 (en nombre de caract√®res).
 	///
-	/// \param inInputBuffer	chaîne UTF-8 à convertir.
-	/// \param ioInputCount		en entrée: taille en caractères (8 bits) de la chaîne UTF-8.
-	///							en sortie: nombre de caractères (8 bits) convertis de cette chaîne.
-	/// \param outOutputBuffer	mémoire tampon pour la chaîne UTF-16.
-	/// \param ioOutputCount	en entrée: taille en mots de 16 bits de cette mémoire tampon.
-	///							en sortie: nombre de mots de 16 bits écrits dans cette mémoire tampon.
+	/// \param inInputBuffer	cha√Æne UTF-8 √† convertir.
+	/// \param ioInputCount		en entr√©e: taille en caract√®res (8 bits) de la cha√Æne UTF-8.
+	///							en sortie: nombre de caract√®res (8 bits) convertis de cette cha√Æne.
+	/// \param outOutputBuffer	m√©moire tampon pour la cha√Æne UTF-16.
+	/// \param ioOutputCount	en entr√©e: taille en mots de 16 bits de cette m√©moire tampon.
+	///							en sortie: nombre de mots de 16 bits √©crits dans cette m√©moire tampon.
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
 	///
@@ -321,16 +321,16 @@ public:
 		);
 
 	///
-	/// Convertit un caractère ISO-8859-2 en UTF-16 via la table.
+	/// Convertit un caract√®re ISO-8859-2 en UTF-16 via la table.
 	///
-	/// \param inISOChar	caractère ISO-8859-2
-	/// \return un caractère UTF-16 équivalent.
+	/// \param inISOChar	caract√®re ISO-8859-2
+	/// \return un caract√®re UTF-16 √©quivalent.
 	///
 	inline static KUInt16	FromISO88592( const KUInt8 inISOChar )
 		{
 			if (inISOChar > 0xA0)
 			{
-				// 0x00A0 et toutes les valeurs inférieures sont les mêmes en UTF-16
+				// 0x00A0 et toutes les valeurs inf√©rieures sont les m√™mes en UTF-16
 				return kFromISO88592Table[inISOChar - 0xA0];
 			} else {
 				return (KUInt16) inISOChar;
@@ -338,16 +338,16 @@ public:
 		}
 
 	///
-	/// Convertit un caractère MacRoman en UTF-16 via la table.
+	/// Convertit un caract√®re MacRoman en UTF-16 via la table.
 	///
-	/// \param inMacRomanChar	caractère MacRoman
-	/// \return un caractère UTF-16 équivalent.
+	/// \param inMacRomanChar	caract√®re MacRoman
+	/// \return un caract√®re UTF-16 √©quivalent.
 	///
 	inline static KUInt16	FromMacRoman( const KUInt8 inMacRomanChar )
 		{
 			if (inMacRomanChar >= 0x80)
 			{
-				// 0x0080 et toutes les valeurs inférieures sont les mêmes en UTF-16
+				// 0x0080 et toutes les valeurs inf√©rieures sont les m√™mes en UTF-16
 				return kFromISO88592Table[inMacRomanChar - 0x80];
 			} else {
 				return (KUInt16) inMacRomanChar;
@@ -360,7 +360,7 @@ private:
 	static const KUInt16	kToMacRomanTable[129][2];	///< Table pour la conversion vers MacRoman.
 	static const KUInt16	kFromMacRomanTable[0x80];	///< Table pour la conversion depuis MacRoman.
 #if !ARMCPP
-	static const KUInt16 	kSubstituteChar;			///< Caractère de substitution.
+	static const KUInt16 	kSubstituteChar;			///< Caract√®re de substitution.
 #endif
 };
 

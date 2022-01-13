@@ -2,7 +2,7 @@
 // Fichier:			UUTF16CStr.h
 // Projet:			K
 //
-// Créé le:			14/01/2002
+// Cr√©√© le:			14/01/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -36,7 +36,7 @@
 #include <K/Unicode/UnicodeDefinitions.h>
 
 // ================================================ //
-//   ••••• Definition for class UUTF16CStr •••••    //
+//   ‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢ Definition for class UUTF16CStr ‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢    //
 // ================================================ //
 
 // UTF-16 to/from another charset converter of CStrings.
