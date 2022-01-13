@@ -1,7 +1,23 @@
+name: Testing manually triggered workflows
+on:
+  workflow_dispatch:
+    inputs:
+      ae_version:
+        description: 'Version String'
+        required: true
+        default: '1.3.2b'
 jobs:
+  say_hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Hello ${{ github.event.inputs.name }}!"
+          echo "- in ${{ github.event.inputs.home }}!"jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+    - run: |
+          echo "Creating Einstein Test Release ${{ github.event.inputs.ae_version }}!"
     - name: Create Draft Release
       id: create_release
       uses: actions/create-release@v1
