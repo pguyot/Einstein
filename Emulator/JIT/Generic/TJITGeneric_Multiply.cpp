@@ -73,18 +73,18 @@
  specific CPU/compiler combinations. gcc provides some helpers:
 
  JITUnit* multiply_0_1_2_3(JITUnit* ioUnit, TARMProcessor* ioCPU)
-    __attribute__((naked))
+	__attribute__((naked))
  {
-    asm("ldr r3, [r1, #12]");
-    ...
-    asm("bx r3");
+	asm("ldr r3, [r1, #12]");
+	...
+	asm("bx r3");
  }
 
  */
 
 #include <K/Defines/KDefinitions.h>
-#include <K/Tests/KDebug.h>
 #include "Emulator/JIT/JIT.h"
+#include <K/Tests/KDebug.h>
 
 #ifdef JITTARGET_GENERIC
 
@@ -94,22 +94,22 @@
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Other.h"
 
-#define IMPLEMENTATION	1
+#define IMPLEMENTATION 1
 #include "Emulator/JIT/Generic/TJITGeneric_Multiply_template.t"
 #undef IMPLEMENTATION
 
 static JITFuncPtr Multiply_Funcs[] = {
-#define TRANSLATION_ARRAY	1
+#define TRANSLATION_ARRAY 1
 #include "Emulator/JIT/Generic/TJITGeneric_Multiply_template.t"
 #undef TRANSLATION_ARRAY
 };
 
 void
 Translate_Multiply(
-					JITPageClass* inPage,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr )
+	JITPageClass* inPage,
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr)
 {
 	// Get the index.
 	const KUInt32 flag_s = (inInstruction & 0x00100000) >> 20;
@@ -120,20 +120,21 @@ Translate_Multiply(
 	{
 		PUSHFUNC(UndefinedInstruction);
 		PUSHVALUE(inVAddr + 8);
-	} else {
-		const KUInt32 theIndex =
-			(((((flag_s * 15) + Rd) * 15) + Rs) * 15) + Rm;
+	} else
+	{
+		const KUInt32 theIndex = (((((flag_s * 15) + Rd) * 15) + Rs) * 15) + Rm;
 		PUSHFUNC(Multiply_Funcs[theIndex]);
 	}
 }
 
-void TJITGeneric_Multiply_assertions( void );
+void TJITGeneric_Multiply_assertions(void);
 
-void TJITGeneric_Multiply_assertions( void )
+void
+TJITGeneric_Multiply_assertions(void)
 {
 	// Check that the array has the expected size.
-    KCOMPILE_TIME_ASSERT_SIZE(
-    	Multiply_Funcs, 2 * 15 * 15 * 15 * sizeof(void*) );
+	KCOMPILE_TIME_ASSERT_SIZE(
+		Multiply_Funcs, 2 * 15 * 15 * 15 * sizeof(void*));
 }
 
 #endif

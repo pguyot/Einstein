@@ -40,23 +40,22 @@
 //  * TMonitorMethodClient( void )
 // ------------------------------------------------------------------------- //
 TMonitorMethodClient::TMonitorMethodClient(
-							TFunctionMonitor* inMonitor,
-							const char* inFileName,
-							unsigned int inLineNumber )
-	:
-		mMonitor( inMonitor ),
-		mFileName( inFileName ),
-		mLineNumber( inLineNumber )
+	TFunctionMonitor* inMonitor,
+	const char* inFileName,
+	unsigned int inLineNumber) :
+		mMonitor(inMonitor),
+		mFileName(inFileName),
+		mLineNumber(inLineNumber)
 {
-	inMonitor->FunctionBegin( inFileName, inLineNumber );
+	inMonitor->FunctionBegin(inFileName, inLineNumber);
 }
 
 // ------------------------------------------------------------------------- //
 //  * ~TMonitorMethodClient( void )
 // ------------------------------------------------------------------------- //
-TMonitorMethodClient::~TMonitorMethodClient( void )
+TMonitorMethodClient::~TMonitorMethodClient(void)
 {
-	mMonitor->FunctionEnd( mFileName, mLineNumber );
+	mMonitor->FunctionEnd(mFileName, mLineNumber);
 }
 
 // =============================================================================== //

@@ -29,28 +29,28 @@
 // -------------------------------------------------------------------------- //
 TRAMLog::TRAMLog()
 {
-    mBuffer = (char*) ::malloc(1);
-    mBufferSize = 0;
+	mBuffer = (char*) ::malloc(1);
+	mBufferSize = 0;
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TRAMLog( void )
 // -------------------------------------------------------------------------- //
-TRAMLog::~TRAMLog( void )
+TRAMLog::~TRAMLog(void)
 {
-    free(mBuffer);
+	free(mBuffer);
 }
 
 // -------------------------------------------------------------------------- //
 //  * DoLogLine( const char* )
 // -------------------------------------------------------------------------- //
 void
-TRAMLog::DoLogLine( const char* inLine )
+TRAMLog::DoLogLine(const char* inLine)
 {
-    ssize_t len = ::strlen(inLine);
-    ssize_t index = mBufferSize;
-    mBufferSize += len + 1;
-    mBuffer = (char*) ::realloc(mBuffer, mBufferSize + 1);
-    memcpy(mBuffer + index, inLine, len);
-    mBuffer[index + len] = '\n';
+	ssize_t len = ::strlen(inLine);
+	ssize_t index = mBufferSize;
+	mBufferSize += len + 1;
+	mBuffer = (char*) ::realloc(mBuffer, mBufferSize + 1);
+	memcpy(mBuffer + index, inLine, len);
+	mBuffer[index + len] = '\n';
 }

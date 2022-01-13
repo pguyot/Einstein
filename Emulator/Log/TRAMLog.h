@@ -36,8 +36,7 @@
 /// \author Paul Guyot <pguyot@kallisys.net>
 ///
 class TRAMLog
-	:
-		public TLog
+		: public TLog
 {
 public:
 	///
@@ -48,17 +47,19 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TRAMLog( void );
+	virtual ~TRAMLog(void);
 
-    ///
-    /// Get the content as a C++ string (copied).
-    ///
-    std::string GetContent() {
-        LockMutex();
-        std::string result(mBuffer, mBufferSize);
-        UnlockMutex();
-        return result;
-    }
+	///
+	/// Get the content as a C++ string (copied).
+	///
+	std::string
+	GetContent()
+	{
+		LockMutex();
+		std::string result(mBuffer, mBufferSize);
+		UnlockMutex();
+		return result;
+	}
 
 private:
 	///
@@ -66,12 +67,12 @@ private:
 	///
 	/// \param inLine	line to log.
 	///
-	virtual void	DoLogLine( const char* inLine );
+	virtual void DoLogLine(const char* inLine);
 
 	/// \name Variables
-	char*			mBuffer;        ///< Actual buffer.
-	ssize_t			mBufferSize;    ///< size of buffer.
+	char* mBuffer; ///< Actual buffer.
+	ssize_t mBufferSize; ///< size of buffer.
 };
 
 #endif
-		// _TRAMLOG_H
+// _TRAMLOG_H

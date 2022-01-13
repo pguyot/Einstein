@@ -1,107 +1,107 @@
 #include "Monitor/TMacMonitor.h"
-#include "Monitor/TSymbolList.h"
-#include "Monitor/UDisasm.h"
+#include "TCocoaMonitorController.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TInterruptManager.h"
-#include "TCocoaMonitorController.h"
+#include "Monitor/TSymbolList.h"
+#include "Monitor/UDisasm.h"
 
 TMacMonitor::TMacMonitor(
-			TBufferLog* inLog,
-			TEmulator* inEmulator,
-			TSymbolList* inSymbolList,
-			const char* inROMPath) :
-	TMonitor(inLog, inEmulator, inSymbolList, inROMPath)
+	TBufferLog* inLog,
+	TEmulator* inEmulator,
+	TSymbolList* inSymbolList,
+	const char* inROMPath) :
+		TMonitor(inLog, inEmulator, inSymbolList, inROMPath)
 {
 }
 
-TMacMonitor::~TMacMonitor( void )
+TMacMonitor::~TMacMonitor(void)
 {
 }
 
-
-NSString* TMacMonitor::GetAlarm()
+NSString*
+TMacMonitor::GetAlarm()
 {
 	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetAlarm()];
 }
 
-
-NSString* TMacMonitor::GetFrozenTimer()
+NSString*
+TMacMonitor::GetFrozenTimer()
 {
 	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetFrozenTimer()];
 }
 
-
-NSString* TMacMonitor::GetIntCtrlReg()
+NSString*
+TMacMonitor::GetIntCtrlReg()
 {
 	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetIntCtrlReg()];
 }
 
-
-NSString* TMacMonitor::GetIntRaised()
+NSString*
+TMacMonitor::GetIntRaised()
 {
 	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetIntRaised()];
 }
 
-
-NSString* TMacMonitor::GetRealTimeClock()
+NSString*
+TMacMonitor::GetRealTimeClock()
 {
 	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetRealTimeClock()];
 }
 
-
-NSString* TMacMonitor::GetRegister(int rn)
+NSString*
+TMacMonitor::GetRegister(int rn)
 {
 	return [NSString stringWithFormat:@"%.8X", GetProcessor()->GetRegister(rn)];
 }
 
-
-NSString* TMacMonitor::GetTimerMatchRegister(int rn)
+NSString*
+TMacMonitor::GetTimerMatchRegister(int rn)
 {
 	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetTimerMatchRegister(rn)];
 }
 
-
-NSString* TMacMonitor::GetFIQMask()
+NSString*
+TMacMonitor::GetFIQMask()
 {
 	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetFIQMask()];
 }
 
-
-NSString* TMacMonitor::GetIntEDReg1()
+NSString*
+TMacMonitor::GetIntEDReg1()
 {
 	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetIntEDReg1()];
 }
 
-
-NSString* TMacMonitor::GetIntEDReg2()
+NSString*
+TMacMonitor::GetIntEDReg2()
 {
 	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetIntEDReg2()];
 }
 
-
-NSString* TMacMonitor::GetIntEDReg3()
+NSString*
+TMacMonitor::GetIntEDReg3()
 {
 	return [NSString stringWithFormat:@"%.8X", GetInterruptManager()->GetIntEDReg3()];
 }
 
-
-NSString* TMacMonitor::GetCPSR()
+NSString*
+TMacMonitor::GetCPSR()
 {
 	KUInt32 theCPSR = GetProcessor()->GetCPSR();
 	KUInt32 theMode = theCPSR & TARMProcessor::kPSR_ModeMask;
 	return [NSString stringWithFormat:@"%c%c%c%c %c%c%c %s",
-				theCPSR & TARMProcessor::kPSR_NBit ? 'N' : 'n',
-				theCPSR & TARMProcessor::kPSR_ZBit ? 'Z' : 'z',
-				theCPSR & TARMProcessor::kPSR_CBit ? 'C' : 'c',
-				theCPSR & TARMProcessor::kPSR_VBit ? 'V' : 'v',
-				theCPSR & TARMProcessor::kPSR_IBit ? 'I' : 'i',
-				theCPSR & TARMProcessor::kPSR_FBit ? 'F' : 'f',
-				theCPSR & TARMProcessor::kPSR_TBit ? 'T' : 't',
-				kModesNames[theMode]];
+					 theCPSR & TARMProcessor::kPSR_NBit ? 'N' : 'n',
+					 theCPSR & TARMProcessor::kPSR_ZBit ? 'Z' : 'z',
+					 theCPSR & TARMProcessor::kPSR_CBit ? 'C' : 'c',
+					 theCPSR & TARMProcessor::kPSR_VBit ? 'V' : 'v',
+					 theCPSR & TARMProcessor::kPSR_IBit ? 'I' : 'i',
+					 theCPSR & TARMProcessor::kPSR_FBit ? 'F' : 'f',
+					 theCPSR & TARMProcessor::kPSR_TBit ? 'T' : 't',
+					 kModesNames[theMode]];
 }
 
-
-NSString* TMacMonitor::GetSPSR()
+NSString*
+TMacMonitor::GetSPSR()
 {
 	KUInt32 theCPSR = GetProcessor()->GetCPSR();
 	KUInt32 theMode = theCPSR & TARMProcessor::kPSR_ModeMask;
@@ -114,41 +114,42 @@ NSString* TMacMonitor::GetSPSR()
 	if (theSPSR == 0)
 	{
 		return [NSString stringWithFormat:@"---- --- ---"];
-	} else {
+	} else
+	{
 		return [NSString stringWithFormat:@"%c%c%c%c %c%c%c %s",
-					theSPSR & TARMProcessor::kPSR_NBit ? 'N' : 'n',
-					theSPSR & TARMProcessor::kPSR_ZBit ? 'Z' : 'z',
-					theSPSR & TARMProcessor::kPSR_CBit ? 'C' : 'c',
-					theSPSR & TARMProcessor::kPSR_VBit ? 'V' : 'v',
-					theSPSR & TARMProcessor::kPSR_IBit ? 'I' : 'i',
-					theSPSR & TARMProcessor::kPSR_FBit ? 'F' : 'f',
-					theSPSR & TARMProcessor::kPSR_TBit ? 'T' : 't',
-					kModesNames[theSPSR & TARMProcessor::kPSR_ModeMask]];
+						 theSPSR & TARMProcessor::kPSR_NBit ? 'N' : 'n',
+						 theSPSR & TARMProcessor::kPSR_ZBit ? 'Z' : 'z',
+						 theSPSR & TARMProcessor::kPSR_CBit ? 'C' : 'c',
+						 theSPSR & TARMProcessor::kPSR_VBit ? 'V' : 'v',
+						 theSPSR & TARMProcessor::kPSR_IBit ? 'I' : 'i',
+						 theSPSR & TARMProcessor::kPSR_FBit ? 'F' : 'f',
+						 theSPSR & TARMProcessor::kPSR_TBit ? 'T' : 't',
+						 kModesNames[theSPSR & TARMProcessor::kPSR_ModeMask]];
 	}
 }
 
-
-NSString* TMacMonitor::GetSymbol()
+NSString*
+TMacMonitor::GetSymbol()
 {
-	if ( mSymbolList == NULL )
+	if (mSymbolList == NULL)
 		return [@"" copy];
-		
+
 	KUInt32 realPC = GetProcessor()->GetRegister(15) - 4;
 	char theSymbol[512];
 	char theComment[512];
 	int theOffset;
 
 	mSymbolList->GetNearestSymbolByAddress(
-					realPC,
-					theSymbol,
-					theComment,
-					&theOffset );
+		realPC,
+		theSymbol,
+		theComment,
+		&theOffset);
 
 	return [NSString stringWithFormat:@"%s+%X", theSymbol, theOffset];
 }
 
-
-NSString* TMacMonitor::GetDisasmLine(int offset)
+NSString*
+TMacMonitor::GetDisasmLine(int offset)
 {
 	char theInstr[512];
 	theInstr[0] = 0;
@@ -157,34 +158,35 @@ NSString* TMacMonitor::GetDisasmLine(int offset)
 
 	KUInt32 realPC = GetProcessor()->GetRegister(15) - 4;
 	int indexLines = offset * 4;
-	
+
 	KUInt32 theCPSR = GetProcessor()->GetCPSR();
 
-	NSMutableString *outString = [NSMutableString string];
-	
+	NSMutableString* outString = [NSMutableString string];
+
 	if (mMemory->Read(
-			(TMemory::VAddr) realPC + indexLines, instruction ))
+			(TMemory::VAddr) realPC + indexLines, instruction))
 	{
 		[outString appendFormat:
-			@"%.8X Memory Error [%.8X]\n",
-			(unsigned int) realPC + indexLines,
-			(unsigned int) mMemory->GetFaultStatusRegister()];
-	} else {
+					   @"%.8X Memory Error [%.8X]\n",
+				   (unsigned int) realPC + indexLines,
+				   (unsigned int) mMemory->GetFaultStatusRegister()];
+	} else
+	{
 		Boolean instIsBP = false;
 		if ((instruction & 0xFFF000F0) == 0xE1200070)
 		{
 			if (!mMemory->ReadBreakpoint(
-					(TMemory::VAddr) realPC + indexLines, instruction ))
+					(TMemory::VAddr) realPC + indexLines, instruction))
 			{
 				instIsBP = true;
 			}
 		}
 		UDisasm::Disasm(
-					theInstr,
-					sizeof(theInstr),
-					realPC + indexLines,
-					instruction,
-					mSymbolList );
+			theInstr,
+			sizeof(theInstr),
+			realPC + indexLines,
+			instruction,
+			mSymbolList);
 
 		char status[32];
 		status[0] = '\0';
@@ -199,7 +201,7 @@ NSString* TMacMonitor::GetDisasmLine(int offset)
 					case 0x0:
 						skip = !(theCPSR & TARMProcessor::kPSR_ZBit);
 						break;
-						
+
 						// 0001 = NE - Z clear (not equal)
 					case 0x1:
 						skip = theCPSR & TARMProcessor::kPSR_ZBit;
@@ -208,129 +210,128 @@ NSString* TMacMonitor::GetDisasmLine(int offset)
 					case 0x2:
 						skip = !(theCPSR & TARMProcessor::kPSR_CBit);
 						break;
-						
+
 						// 0011 = CC - C clear (unsigned lower)
 					case 0x3:
 						skip = theCPSR & TARMProcessor::kPSR_CBit;
 						break;
-						
+
 						// 0100 = MI - N set (negative)
 					case 0x4:
 						skip = !(theCPSR & TARMProcessor::kPSR_NBit);
 						break;
-						
+
 						// 0101 = PL - N clear (positive or zero)
 					case 0x5:
 						skip = theCPSR & TARMProcessor::kPSR_NBit;
 						break;
-						
+
 						// 0110 = VS - V set (overflow)
 					case 0x6:
 						skip = !(theCPSR & TARMProcessor::kPSR_VBit);
 						break;
-						
+
 						// 0111 = VC - V clear (no overflow)
 					case 0x7:
 						skip = theCPSR & TARMProcessor::kPSR_VBit;
 						break;
-						
+
 						// 1000 = HI - C set and Z clear (unsigned higher)
 					case 0x8:
 						skip = !(theCPSR & TARMProcessor::kPSR_CBit)
 							|| (theCPSR & TARMProcessor::kPSR_ZBit);
 						break;
-						
+
 						// 1001 = LS - C clear or Z set (unsigned lower or same)
 					case 0x9:
 						skip = (theCPSR & TARMProcessor::kPSR_CBit)
 							&& !(theCPSR & TARMProcessor::kPSR_ZBit);
 						break;
-						
+
 						// 1010 = GE - N set and V set, or N clear and V clear (greater or equal)
 					case 0xA:
 						skip = ((theCPSR & TARMProcessor::kPSR_NBit) != 0)
 							!= ((theCPSR & TARMProcessor::kPSR_VBit) != 0);
 						break;
-						
+
 						// 1011 = LT - N set and V clear, or N clear and V set (less than)
 					case 0xB:
 						skip = ((theCPSR & TARMProcessor::kPSR_NBit) != 0)
 							== ((theCPSR & TARMProcessor::kPSR_VBit) != 0);
 						break;
-						
+
 						// 1100 = GT - Z clear, and either N set and V set, or N clear and V clear (greater than)
 					case 0xC:
-						skip = (theCPSR & TARMProcessor::kPSR_ZBit) ||
-							(((theCPSR & TARMProcessor::kPSR_NBit) != 0)
-								!= ((theCPSR & TARMProcessor::kPSR_VBit) != 0));
+						skip = (theCPSR & TARMProcessor::kPSR_ZBit) || (((theCPSR & TARMProcessor::kPSR_NBit) != 0) != ((theCPSR & TARMProcessor::kPSR_VBit) != 0));
 						break;
-						
+
 						// 1101 = LE - Z set, or N set and V clear, or N clear and V set (less than or equal)
 					case 0xD:
 						skip = (!(theCPSR & TARMProcessor::kPSR_ZBit))
 							&& (((theCPSR & TARMProcessor::kPSR_NBit) != 0)
 								== ((theCPSR & TARMProcessor::kPSR_VBit) != 0));
 						break;
-						
+
 						// 1111 = NV - never
 					case 0xF:
 					default:
 						skip = 1;
 				}
-				
+
 				if (skip)
 				{
-					(void) ::sprintf( status, " (will skip)" );
-				} else {
-					(void) ::sprintf( status, " (will do it)" );
+					(void) ::sprintf(status, " (will skip)");
+				} else
+				{
+					(void) ::sprintf(status, " (will do it)");
 				}
 			}
 		}
 		if (instIsBP)
 		{
-			(void) ::sprintf( theLine, "%.8X * %s",
-						(unsigned int) realPC + indexLines,
-						theInstr );
-		} else {
-			(void) ::sprintf( theLine, "%.8X   %s",
-						(unsigned int) realPC + indexLines,
-						theInstr );
+			(void) ::sprintf(theLine, "%.8X * %s",
+				(unsigned int) realPC + indexLines,
+				theInstr);
+		} else
+		{
+			(void) ::sprintf(theLine, "%.8X   %s",
+				(unsigned int) realPC + indexLines,
+				theInstr);
 		} // if (indexLines == 0)
 		[outString appendFormat:@"%s%s",
-					theLine,
-					status];
+				   theLine,
+				   status];
 	}
-	
+
 	return [[NSString alloc] initWithString:outString];
 }
 
-
-void TMacMonitor::PrintLine(const char* inLine, int type)
+void
+TMacMonitor::PrintLine(const char* inLine, int type)
 {
-	if ( controller )
+	if (controller)
 	{
-		NSString *s = [NSString stringWithCString:inLine encoding:NSUTF8StringEncoding];
+		NSString* s = [NSString stringWithCString:inLine encoding:NSUTF8StringEncoding];
 		s = [s stringByReplacingOccurrencesOfString:@"\t" withString:@" "];
 		[controller addHistoryLine:s type:type];
 	}
 }
 
-
-Boolean TMacMonitor::ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr )
+Boolean
+TMacMonitor::ProcessBreakpoint(KUInt16 inBPID, KUInt32 inBPAddr)
 {
 	Boolean stop = TMonitor::ProcessBreakpoint(inBPID, inBPAddr);
-	
-	if ( controller )
-	{	
+
+	if (controller)
+	{
 		[controller performSelectorInBackground:@selector(update) withObject:nil];
 	}
-	
+
 	return stop;
 }
 
-
-void TMacMonitor::SetController(TCocoaMonitorController *inController)
+void
+TMacMonitor::SetController(TCocoaMonitorController* inController)
 {
 	controller = inController;
 }
-

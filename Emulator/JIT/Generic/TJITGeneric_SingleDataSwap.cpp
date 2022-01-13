@@ -22,8 +22,8 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include <K/Tests/KDebug.h>
 #include "Emulator/JIT/JIT.h"
+#include <K/Tests/KDebug.h>
 
 #ifdef JITTARGET_GENERIC
 
@@ -32,26 +32,25 @@
 
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
-#define IMPLEMENTATION	1
+#define IMPLEMENTATION 1
 #include "Emulator/JIT/Generic/TJITGeneric_SingleDataSwap_template.t"
 #undef IMPLEMENTATION
 
 static JITFuncPtr SingleDataSwap_Funcs[] = {
-#define TRANSLATION_ARRAY	1
+#define TRANSLATION_ARRAY 1
 #include "Emulator/JIT/Generic/TJITGeneric_SingleDataSwap_template.t"
 #undef TRANSLATION_ARRAY
 };
 
 void
 Translate_SingleDataSwap(
-					JITPageClass* inPage,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr )
+	JITPageClass* inPage,
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr)
 {
 	// Get the index.
-	const KUInt32 theIndex =
-		(inInstruction & 0x00400000) >> 10
+	const KUInt32 theIndex = (inInstruction & 0x00400000) >> 10
 		| (inInstruction & 0x000FF000) >> 8
 		| (inInstruction & 0x0000000F);
 	PUSHFUNC(SingleDataSwap_Funcs[theIndex]);
@@ -59,12 +58,13 @@ Translate_SingleDataSwap(
 	PUSHVALUE(inVAddr + 8);
 }
 
-void TJITGeneric_SingleDataSwap_assertions( void );
+void TJITGeneric_SingleDataSwap_assertions(void);
 
-void TJITGeneric_SingleDataSwap_assertions( void )
+void
+TJITGeneric_SingleDataSwap_assertions(void)
 {
 	// Check that the array has the expected size.
-    KCOMPILE_TIME_ASSERT_SIZE( SingleDataSwap_Funcs, 0x2000 * sizeof(void*) );
+	KCOMPILE_TIME_ASSERT_SIZE(SingleDataSwap_Funcs, 0x2000 * sizeof(void*));
 }
 
 #endif

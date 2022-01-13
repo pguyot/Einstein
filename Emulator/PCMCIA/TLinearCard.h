@@ -30,10 +30,10 @@
 
 #include <stdio.h>
 
+#include <future>
 #include <mutex>
 #include <thread>
 #include <vector>
-#include <future>
 
 ///
 /// Class for a linear flash memory card.
@@ -69,30 +69,28 @@
 /// \test	aucun test défini.
 ///
 class TLinearCard
-	:
-	public TPCMCIACard
+		: public TPCMCIACard
 {
 private:
 	typedef TPCMCIACard super;
 
 public:
-
 	// everything ends on a 4 byte boundary, so we should not get any packing effects
 	typedef struct ImageInfo {
 		int read(FILE* f);
 		int write(FILE* f);
 		void flipByteOrder();
-		KUInt32 pNameSize = 0;	// size of image name in bytes
+		KUInt32 pNameSize = 0; // size of image name in bytes
 		KUInt32 pNameStart = 0; // start of image name, name is stored as a utf8 C-string
-		KUInt32 pIconSize = 0;	// size of image data in bytes
+		KUInt32 pIconSize = 0; // size of image data in bytes
 		KUInt32 pIconStart = 0; // start of image data, optional, image is stored in PNG format
-		KUInt32 pCISSize = 0;	// size of CIS data in bytes
-		KUInt32 pCISStart = 0;  // start of CIS data, CIS data is stored in natural order(0123 < -x1x0 x3x2)
-		KUInt32 pDataSize = 0;	// size of Data block in bytes
-		KUInt32 pDataStart = 0;	// start of Data block, Flash Data is stored as seen by the Newton
-		KUInt32 pType = 0;		// type of card, according to CIS (only uses the last 4 bits!)
-		KUInt32 pVersion = 1;	// version of this format
-		char	pIdent[12] = "TLinearCard"; // "TLinearCard\0"
+		KUInt32 pCISSize = 0; // size of CIS data in bytes
+		KUInt32 pCISStart = 0; // start of CIS data, CIS data is stored in natural order(0123 < -x1x0 x3x2)
+		KUInt32 pDataSize = 0; // size of Data block in bytes
+		KUInt32 pDataStart = 0; // start of Data block, Flash Data is stored as seen by the Newton
+		KUInt32 pType = 0; // type of card, according to CIS (only uses the last 4 bits!)
+		KUInt32 pVersion = 1; // version of this format
+		char pIdent[12] = "TLinearCard"; // "TLinearCard\0"
 	} ImageInfo;
 	static const char* kIdent;
 
@@ -142,72 +140,72 @@ public:
 	///
 	/// Get PCMCIA pins.
 	///
-	KUInt32 GetVPCPins( void ) override;
+	KUInt32 GetVPCPins(void) override;
 
 	///
 	/// Set PCMCIA pins.
 	///
-	void SetVPCPins( KUInt32 inPins ) override;
+	void SetVPCPins(KUInt32 inPins) override;
 
 	///
 	/// Read attribute space.
 	///
-	KUInt32 ReadAttr( KUInt32 inOffset ) override;
+	KUInt32 ReadAttr(KUInt32 inOffset) override;
 
 	///
 	/// Read attribute space (byte).
 	///
-	KUInt8 ReadAttrB( KUInt32 inOffset ) override;
+	KUInt8 ReadAttrB(KUInt32 inOffset) override;
 
 	///
 	/// Read I/O space.
 	///
-	KUInt32 ReadIO( KUInt32 inOffset ) override;
+	KUInt32 ReadIO(KUInt32 inOffset) override;
 
 	///
 	/// Read I/O space (byte).
 	///
-	KUInt8 ReadIOB( KUInt32 inOffset ) override;
+	KUInt8 ReadIOB(KUInt32 inOffset) override;
 
 	///
 	/// Read memory space.
 	///
-	KUInt32 ReadMem( KUInt32 inOffset ) override;
+	KUInt32 ReadMem(KUInt32 inOffset) override;
 
 	///
 	/// Read memory space (byte).
 	///
-	KUInt8 ReadMemB( KUInt32 inOffset ) override;
+	KUInt8 ReadMemB(KUInt32 inOffset) override;
 
 	///
 	/// Write attribute space.
 	///
-	void WriteAttr( KUInt32 inOffset, KUInt32 inValue ) override;
+	void WriteAttr(KUInt32 inOffset, KUInt32 inValue) override;
 
 	///
 	/// Write attribute space (byte).
 	///
-	void WriteAttrB( KUInt32 inOffset, KUInt8 inValue ) override;
+	void WriteAttrB(KUInt32 inOffset, KUInt8 inValue) override;
 
 	///
 	/// Write I/O space.
 	///
-	void WriteIO( KUInt32 inOffset, KUInt32 inValue ) override;
+	void WriteIO(KUInt32 inOffset, KUInt32 inValue) override;
 
 	///
 	/// Write I/O space (byte).
 	///
-	void WriteIOB( KUInt32 inOffset, KUInt8 inValue ) override;
+	void WriteIOB(KUInt32 inOffset, KUInt8 inValue) override;
 
 	///
 	/// Write memory space.
 	///
-	void WriteMem( KUInt32 inOffset, KUInt32 inValue ) override;
+	void WriteMem(KUInt32 inOffset, KUInt32 inValue) override;
 
 	///
 	/// Write memory space (byte).
 	///
-	void WriteMemB( KUInt32 inOffset, KUInt8 inValue ) override;
+	void WriteMemB(KUInt32 inOffset, KUInt8 inValue) override;
 
 protected:
 	void Flush();
@@ -215,7 +213,7 @@ protected:
 private:
 	ImageInfo mImageInfo;
 
-	KUInt32 mSize = 0;  ///< Size of the linear card in bytes.
+	KUInt32 mSize = 0; ///< Size of the linear card in bytes.
 
 	KUInt8* mMemoryMap = nullptr;
 
@@ -227,16 +225,16 @@ private:
 
 	FILE* mFile = nullptr;
 
-    enum {
-        kReadArray,
-        kReadStatusRegister,
-        kWriteArray,
-        kEraseSetup
-    };
+	enum {
+		kReadArray,
+		kReadStatusRegister,
+		kWriteArray,
+		kEraseSetup
+	};
 
-    int mState = kReadArray;
+	int mState = kReadArray;
 
-    KUInt8 mStatusRegister = 0x80;
+	KUInt8 mStatusRegister = 0x80;
 
 	std::mutex mMutex;
 	std::promise<void>* mPageFlushPromise = nullptr;
@@ -253,7 +251,7 @@ private:
 };
 
 #endif
-		// _TLINEARCARD_H
+// _TLINEARCARD_H
 
 // ======================================================================= //
 // Flash Card                                                              //

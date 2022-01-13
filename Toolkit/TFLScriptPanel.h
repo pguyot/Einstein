@@ -28,8 +28,8 @@
 #include "app/FLTK/TFLApp.h"
 
 #include <FL/Fl_Group.H>
-#include <FL/Fl_Text_Editor.H>
 #include <FL/Fl_Text_Buffer.H>
+#include <FL/Fl_Text_Editor.H>
 
 class TFLScriptPanel;
 class TFLScriptEditor;
@@ -37,30 +37,36 @@ class TFLScriptBuffer;
 
 class TTkScript;
 
-
 /**
  * This class provides and FLTK UI to edit NewtonScript source code.
  */
-class TFLScriptPanel: public Fl_Group
+class TFLScriptPanel : public Fl_Group
 {
 public:
-    TFLScriptPanel(int x, int y, int w, int h, const char *label = nullptr);
-    ~TFLScriptPanel();
+	TFLScriptPanel(int x, int y, int w, int h, const char* label = nullptr);
+	~TFLScriptPanel();
 
-    void SetScript(TTkScript *script) { mScript = script; }
-    TFLScriptEditor *GetEditor() { return mEditor; }
+	void
+	SetScript(TTkScript* script)
+	{
+		mScript = script;
+	}
+	TFLScriptEditor*
+	GetEditor()
+	{
+		return mEditor;
+	}
 
-    void LoadFile(const char *filename);
-    char *DupSourceCode();
-    void SetSourceCode(const char *sourcecode);
-    void SetDirty();
-    void ClearDirty();
-    
+	void LoadFile(const char* filename);
+	char* DupSourceCode();
+	void SetSourceCode(const char* sourcecode);
+	void SetDirty();
+	void ClearDirty();
+
 private:
-    TFLScriptEditor *mEditor = nullptr;
-    TTkScript *mScript = nullptr;
+	TFLScriptEditor* mEditor = nullptr;
+	TTkScript* mScript = nullptr;
 };
-
 
 /**
  * This class displays and provides editing capabilities for NewtonScript source code.
@@ -68,34 +74,40 @@ private:
 class TFLScriptEditor : public Fl_Text_Editor
 {
 public:
-    TFLScriptEditor(int x, int y, int w, int h, const char *label = nullptr);
-    ~TFLScriptEditor();
+	TFLScriptEditor(int x, int y, int w, int h, const char* label = nullptr);
+	~TFLScriptEditor();
 
-    void SetPanel(TFLScriptPanel *panel) { mPanel = panel; }
-    
+	void
+	SetPanel(TFLScriptPanel* panel)
+	{
+		mPanel = panel;
+	}
+
 private:
-    void style_parse(const char *text, char *style, int length);
-    void style_init();
-    void style_update(int pos, int nInserted, int nDeleted,
-                             int nRestyled, const char *deletedText);
+	void style_parse(const char* text, char* style, int length);
+	void style_init();
+	void style_update(int pos, int nInserted, int nDeleted,
+		int nRestyled, const char* deletedText);
 
-    Fl_Text_Buffer *mTextBuffer  = nullptr;
-    Fl_Text_Buffer *mStyleBuffer = nullptr;
-    TFLScriptPanel *mPanel = nullptr;
+	Fl_Text_Buffer* mTextBuffer = nullptr;
+	Fl_Text_Buffer* mStyleBuffer = nullptr;
+	TFLScriptPanel* mPanel = nullptr;
 
-// static:
-    static Fl_Text_Display::Style_Table_Entry styletable[];
-    static const char *code_keywords[];
-    static const char *code_types[];
-    static void style_update_cb(int pos, int nInserted, int nDeleted,
-                      int nRestyled, const char *deletedText, void *This)
-        { ((TFLScriptEditor*)This)->style_update(pos, nInserted, nDeleted, nRestyled, deletedText); }
-    static void style_unfinished_cb(int, void*);
+	// static:
+	static Fl_Text_Display::Style_Table_Entry styletable[];
+	static const char* code_keywords[];
+	static const char* code_types[];
+	static void
+	style_update_cb(int pos, int nInserted, int nDeleted,
+		int nRestyled, const char* deletedText, void* This)
+	{
+		((TFLScriptEditor*) This)->style_update(pos, nInserted, nDeleted, nRestyled, deletedText);
+	}
+	static void style_unfinished_cb(int, void*);
 };
 
-
 #endif
-		// _T_FL_SCRIPT_PANEL_H
+// _T_FL_SCRIPT_PANEL_H
 
 // ============================================================================ //
 // NewtonScript

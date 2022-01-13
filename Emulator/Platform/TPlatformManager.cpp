@@ -24,33 +24,33 @@
 #include "TPlatformManager.h"
 
 // ANSI C & POSIX
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #if TARGET_OS_WIN32
 #else
 #include <dirent.h>
 #endif
-#include <sys/stat.h>
 #include <assert.h>
-#include <thread>
 #include <chrono>
+#include <sys/stat.h>
+#include <thread>
 
 // K
-#include <K/Unicode/UUTF16CStr.h>
 #include <K/Threads/TMutex.h>
+#include <K/Unicode/UUTF16CStr.h>
 
 // Einstein
-#include "Emulator/TInterruptManager.h"
-#include "Emulator/TMemory.h"
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/TEmulator.h"
-#include "Emulator/Log/TLog.h"
+#include "Emulator/TInterruptManager.h"
+#include "Emulator/TMemory.h"
 #include "Emulator/Host/THostInfo.h"
-#include "Emulator/Screen/TScreenManager.h"
-#include "Emulator/PCMCIA/TPCMCIAController.h"
-#include "Emulator/PCMCIA/TNE2000Card.h"
+#include "Emulator/Log/TLog.h"
 #include "Emulator/PCMCIA/TLinearCard.h"
+#include "Emulator/PCMCIA/TNE2000Card.h"
+#include "Emulator/PCMCIA/TPCMCIAController.h"
+#include "Emulator/Screen/TScreenManager.h"
 
 #include "Emulator/Serial/TSerialPortManager.h"
 
@@ -58,26 +58,24 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
-
 // -------------------------------------------------------------------------- //
 //  * TPlatformManager( TLog*, TScreenManager* )
 // -------------------------------------------------------------------------- //
 TPlatformManager::TPlatformManager(
-			TLog* inLog,
-			TScreenManager* inScreenManager)
-	:
-		mLog( inLog ),
+	TLog* inLog,
+	TScreenManager* inScreenManager) :
+		mLog(inLog),
 		mScreenManager(inScreenManager)
 {
-	mEventQueue = (SEvent*) ::malloc( sizeof(SEvent) * mEventQueueSize );
-	mBufferQueue = (SBuffer*) ::malloc( sizeof(SBuffer) * mBufferQueueSize );
+	mEventQueue = (SEvent*) ::malloc(sizeof(SEvent) * mEventQueueSize);
+	mBufferQueue = (SBuffer*) ::malloc(sizeof(SBuffer) * mBufferQueueSize);
 	mMutex = new TMutex();
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TPlatformManager( void )
 // -------------------------------------------------------------------------- //
-TPlatformManager::~TPlatformManager( void )
+TPlatformManager::~TPlatformManager(void)
 {
 	if (mDocDir)
 	{
@@ -105,11 +103,11 @@ TPlatformManager::~TPlatformManager( void )
 	}
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * GetVersion()
 // -------------------------------------------------------------------------- //
-KUInt32 TPlatformManager::GetVersion()
+KUInt32
+TPlatformManager::GetVersion()
 {
 	return 5;
 }
@@ -118,7 +116,7 @@ KUInt32 TPlatformManager::GetVersion()
 //  * GetNextEvent( KUInt32 )
 // -------------------------------------------------------------------------- //
 Boolean
-TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
+TPlatformManager::GetNextEvent(KUInt32 outEventPAddr)
 {
 	Boolean theResult = false;
 
@@ -142,19 +140,19 @@ TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
 				break;
 		}
 
-		theSize = ((theSize+3) / 4);
+		theSize = ((theSize + 3) / 4);
 
 		KUInt32* theEventAsLongs = (KUInt32*) theEvent;
 		while (theSize-- > 0)
 		{
 			(void) mMemory->WriteP(
-					outEventPAddr,
-					*theEventAsLongs++ );
+				outEventPAddr,
+				*theEventAsLongs++);
 			outEventPAddr += 4;
 		}
 	}
-  if (mEventQueueCCrsr == mEventQueuePCrsr)
-  {
+	if (mEventQueueCCrsr == mEventQueuePCrsr)
+	{
 		// Reached the end.
 		// Reset the cursors.
 		mEventQueuePCrsr = 0;
@@ -164,10 +162,9 @@ TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
 		if (mEventQueueSize != kDEFAULTEVENTQUEUESIZE)
 		{
 			mEventQueueSize = kDEFAULTEVENTQUEUESIZE;
-			mEventQueue =
-				(SEvent*) ::realloc(
-							mEventQueue,
-							sizeof(SEvent) * mEventQueueSize );
+			mEventQueue = (SEvent*) ::realloc(
+				mEventQueue,
+				sizeof(SEvent) * mEventQueueSize);
 		}
 	}
 
@@ -180,7 +177,7 @@ TPlatformManager::GetNextEvent( KUInt32 outEventPAddr )
 //  * DisposeBuffer( KUInt32 )
 // -------------------------------------------------------------------------- //
 Boolean
-TPlatformManager::DisposeBuffer( KUInt32 inID )
+TPlatformManager::DisposeBuffer(KUInt32 inID)
 {
 	Boolean theResult = false;
 
@@ -198,7 +195,7 @@ TPlatformManager::DisposeBuffer( KUInt32 inID )
 			// Remove the buffer from the queue.
 			::memmove(
 				&mBufferQueue[bufferIndex],
-				(const void*) &mBufferQueue[bufferIndex+1],
+				(const void*) &mBufferQueue[bufferIndex + 1],
 				(mBufferCount - bufferIndex) * sizeof(SBuffer));
 			mBufferCount--;
 
@@ -218,10 +215,10 @@ TPlatformManager::DisposeBuffer( KUInt32 inID )
 // -------------------------------------------------------------------------- //
 Boolean
 TPlatformManager::CopyBufferData(
-						KUInt32 inID,
-						KUInt32 outVAddress,
-						KUInt32 inOffset,
-						KUInt32 inAmount)
+	KUInt32 inID,
+	KUInt32 outVAddress,
+	KUInt32 inOffset,
+	KUInt32 inAmount)
 {
 	Boolean theResult = false;
 
@@ -262,7 +259,7 @@ TPlatformManager::CopyBufferData(
 //  * AddBuffer( KUInt32, const KUInt8* )
 // -------------------------------------------------------------------------- //
 KUInt32
-TPlatformManager::AddBuffer( KUInt32 inSize, const KUInt8* inData )
+TPlatformManager::AddBuffer(KUInt32 inSize, const KUInt8* inData)
 {
 	mMutex->Lock();
 
@@ -280,8 +277,8 @@ TPlatformManager::AddBuffer( KUInt32 inSize, const KUInt8* inData )
 		// Increase the queue size.
 		mBufferQueueSize += kBUFFERQUEUESIZEINCREMENT;
 		mBufferQueue = (SBuffer*) ::realloc(
-										mBufferQueue,
-										mBufferQueueSize * sizeof(SBuffer));
+			mBufferQueue,
+			mBufferQueueSize * sizeof(SBuffer));
 	}
 
 	// Save the record.
@@ -299,9 +296,9 @@ TPlatformManager::AddBuffer( KUInt32 inSize, const KUInt8* inData )
 //  * SendAEvent( EPort, KUInt32, const KUInt8* )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inData )
+TPlatformManager::SendAEvent(EPort inPortId, KUInt32 inSize, const KUInt8* inData)
 {
-  assert(inSize<=kMAXEVENTSIZE);
+	assert(inSize <= kMAXEVENTSIZE);
 
 	mMutex->Lock();
 
@@ -311,15 +308,15 @@ TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inDa
 	theEvent->fType = kAEvent;
 	theEvent->fData.aevent.fPort = inPortId;
 	theEvent->fData.aevent.fSize = inSize;
-	(void) ::memcpy( theEvent->fData.aevent.fData, inData, inSize );
+	(void) ::memcpy(theEvent->fData.aevent.fData, inData, inSize);
 
 	// Expand the queue if there are no more entries available
-	if (newPCrsr == mEventQueueSize) {
+	if (newPCrsr == mEventQueueSize)
+	{
 		mEventQueueSize += kEVENTQUEUESIZEINCREMENT;
-		mEventQueue = (SEvent*)::realloc(
-							mEventQueue,
-							sizeof(SEvent)*mEventQueueSize
-		);
+		mEventQueue = (SEvent*) ::realloc(
+			mEventQueue,
+			sizeof(SEvent) * mEventQueueSize);
 	}
 	mEventQueuePCrsr = newPCrsr;
 
@@ -333,12 +330,13 @@ TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inDa
 	//
 	// mQueueLockCount is a recursive lock that protects the NewtonOS interrupt routine
 	// in ./Drivers/TMainPlatformDriver::InterruptHandler.cpp: TMainPlatformDriver::InterruptHandler()
-  //
-  // If an event is sent before NewtonOS booted, the system will lock up.
-  // mQueueBootLock is initially set to protect the queue until boot is completed.
-  // Pending events will be triggered when the boot lock is cleared.
+	//
+	// If an event is sent before NewtonOS booted, the system will lock up.
+	// mQueueBootLock is initially set to protect the queue until boot is completed.
+	// Pending events will be triggered when the boot lock is cleared.
 
-	if ( (mQueuePreLock==false) && (mQueueLockCount==0) && (mQueueBootLock==0)) {
+	if ((mQueuePreLock == false) && (mQueueLockCount == 0) && (mQueueBootLock == 0))
+	{
 		mQueuePreLock = true;
 		RaisePlatformInterrupt();
 	}
@@ -350,18 +348,22 @@ TPlatformManager::SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inDa
 //  * SendNetworkCardEvent( void )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::SendNetworkCardEvent( void )
+TPlatformManager::SendNetworkCardEvent(void)
 {
-	static TNE2000Card *theCard = NULL;
+	static TNE2000Card* theCard = NULL;
 
 	// FIXME: Change check mark in Menu.
-	if (mMemory) {
-		TPCMCIAController *theController = mMemory->GetPCMCIAController(0);
-		if (theController) {
-			if (theCard==0L) {
+	if (mMemory)
+	{
+		TPCMCIAController* theController = mMemory->GetPCMCIAController(0);
+		if (theController)
+		{
+			if (theCard == 0L)
+			{
 				theCard = new TNE2000Card();
 				theController->InsertCard(theCard);
-			} else {
+			} else
+			{
 				theController->RemoveCard();
 				theCard = NULL;
 			}
@@ -372,29 +374,33 @@ TPlatformManager::SendNetworkCardEvent( void )
 /**
  * Insert or replace a PCCard in a given slot, or remove a PCCard
  */
-int TPlatformManager::InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard)
+int
+TPlatformManager::InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard)
 {
-	if (!mMemory) return -1;
+	if (!mMemory)
+		return -1;
 
 	TPCMCIAController* controller = mMemory->GetPCMCIAController(inSLot);
-	if (!controller) return -1;
+	if (!controller)
+		return -1;
 
-	Boolean doPause = (controller->CurrentCard()!=nullptr) && (inCard!=nullptr);
+	Boolean doPause = (controller->CurrentCard() != nullptr) && (inCard != nullptr);
 
-	if (controller->CurrentCard()) {
+	if (controller->CurrentCard())
+	{
 		controller->RemoveCard();
 	}
 
 	if (doPause)
 		std::this_thread::sleep_for(std::chrono::seconds(3));
 
-	if (inCard) {
+	if (inCard)
+	{
 		controller->InsertCard(inCard);
 	}
 
 	return 0;
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * GetPCCard( KUInt32 )
@@ -402,21 +408,23 @@ int TPlatformManager::InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard)
 TPCMCIACard*
 TPlatformManager::GetPCCard(KUInt32 inSlot)
 {
-	if (!mMemory) return nullptr;
-	if (inSlot>1) return nullptr;
+	if (!mMemory)
+		return nullptr;
+	if (inSlot > 1)
+		return nullptr;
 
 	TPCMCIAController* controller = mMemory->GetPCMCIAController(inSlot);
-	if (!controller) return nullptr;
+	if (!controller)
+		return nullptr;
 
 	return controller->CurrentCard();
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * SendPowerSwitchEvent( void )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::SendPowerSwitchEvent( void )
+TPlatformManager::SendPowerSwitchEvent(void)
 {
 	if (mPowerOn)
 	{
@@ -425,8 +433,9 @@ TPlatformManager::SendPowerSwitchEvent( void )
 		thePowerSwitchEvent[1] = 'pg&e';
 		thePowerSwitchEvent[2] = 'powr';
 
-		SendAEvent( kPowerPort, sizeof( thePowerSwitchEvent ), (KUInt8*) thePowerSwitchEvent );
-	} else {
+		SendAEvent(kPowerPort, sizeof(thePowerSwitchEvent), (KUInt8*) thePowerSwitchEvent);
+	} else
+	{
 		// Just wake the system with an interrupt.
 		RaisePlatformInterrupt();
 	}
@@ -436,43 +445,43 @@ TPlatformManager::SendPowerSwitchEvent( void )
 //  * SendBacklightEvent( void )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::SendBacklightEvent( void )
+TPlatformManager::SendBacklightEvent(void)
 {
 	KUInt32 theBacklightEvent[3];
 	theBacklightEvent[0] = 'newt';
 	theBacklightEvent[1] = 'pg&e';
 	theBacklightEvent[2] = 'bklt';
 
-	SendAEvent( kPowerPort, sizeof( theBacklightEvent ), (KUInt8*) theBacklightEvent );
+	SendAEvent(kPowerPort, sizeof(theBacklightEvent), (KUInt8*) theBacklightEvent);
 }
 
 // -------------------------------------------------------------------------- //
 //  * SendKeyEvent( KUInt32, KUInt8, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::SendKeyEvent( KUInt32 inType, KUInt8 inKeyCode, KUInt32 /* when */ )
+TPlatformManager::SendKeyEvent(KUInt32 inType, KUInt8 inKeyCode, KUInt32 /* when */)
 {
 	KUInt32 theKeyEvent[11];
 	theKeyEvent[0] = 'newt';
 	theKeyEvent[1] = 'idle';
 	theKeyEvent[2] = 'keyb';
 	theKeyEvent[3] = inType;
-	theKeyEvent[4] = 0x00000001;	// ?
+	theKeyEvent[4] = 0x00000001; // ?
 	theKeyEvent[5] = inKeyCode;
-	theKeyEvent[6] = 0x00000001;	// ?
-	theKeyEvent[7] = 0x00000000;	// ?
-	theKeyEvent[8] = 0x00000000;	// ?
-	theKeyEvent[9] = 0x00000000;	// ?
-	theKeyEvent[10] = 0x00000000;	// ?
+	theKeyEvent[6] = 0x00000001; // ?
+	theKeyEvent[7] = 0x00000000; // ?
+	theKeyEvent[8] = 0x00000000; // ?
+	theKeyEvent[9] = 0x00000000; // ?
+	theKeyEvent[10] = 0x00000000; // ?
 
-	SendAEvent( kNewtPort, sizeof( theKeyEvent ), (KUInt8*) theKeyEvent );
+	SendAEvent(kNewtPort, sizeof(theKeyEvent), (KUInt8*) theKeyEvent);
 }
 
 // -------------------------------------------------------------------------- //
 //  * RaisePlatformInterrupt( void )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::RaisePlatformInterrupt( void )
+TPlatformManager::RaisePlatformInterrupt(void)
 {
 	// Use the power switch interrupt.
 	mInterruptManager->RaiseGPIO(0x00000001);
@@ -482,7 +491,7 @@ TPlatformManager::RaisePlatformInterrupt( void )
 //  * PowerOff( void )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::PowerOff( void )
+TPlatformManager::PowerOff(void)
 {
 	mPowerOn = false;
 	if (mScreenManager)
@@ -495,7 +504,7 @@ TPlatformManager::PowerOff( void )
 //  * PowerOn( void )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::PowerOn( void )
+TPlatformManager::PowerOn(void)
 {
 	mPowerOn = true;
 	if (mScreenManager)
@@ -508,7 +517,7 @@ TPlatformManager::PowerOn( void )
 //  * LockEventQueue( void )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::LockEventQueue( void )
+TPlatformManager::LockEventQueue(void)
 {
 	mMutex->Lock();
 	mQueueLockCount++;
@@ -519,7 +528,7 @@ TPlatformManager::LockEventQueue( void )
 //  * UnlockEventQueue( void )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::UnlockEventQueue( void )
+TPlatformManager::UnlockEventQueue(void)
 {
 	mMutex->Lock();
 
@@ -527,24 +536,24 @@ TPlatformManager::UnlockEventQueue( void )
 	// Unlock() more often than Lock(), which may triggere severe bugs
 	assert(mQueueLockCount > 0);
 
-		mQueueLockCount--;
+	mQueueLockCount--;
 
 	// as soon as the lock is completely unlocked, we can trigger more pending interrupts
-	if (mQueueLockCount==0 && mQueueBootLock==0)
+	if (mQueueLockCount == 0 && mQueueBootLock == 0)
 	{
 		// allow Einstein to trigger new interrupts
 		mQueuePreLock = false;
 
 		// check if there are more platform events pending
-			if (mEventQueuePCrsr != mEventQueueCCrsr)
-			{
+		if (mEventQueuePCrsr != mEventQueueCCrsr)
+		{
 			// no further interrupts may be triggered
 			mQueuePreLock = true;
 
 			// trigger another interrupt that will take care of handling remaining events
-				RaisePlatformInterrupt();
-			}
+			RaisePlatformInterrupt();
 		}
+	}
 
 	mMutex->Unlock();
 }
@@ -555,13 +564,14 @@ TPlatformManager::UnlockEventQueue( void )
 void
 TPlatformManager::UnlockQueueBootLock()
 {
-    if (mQueueBootLock) {
-        LockEventQueue();
-        mMutex->Lock();
-        mQueueBootLock = 0;
-        mMutex->Unlock();
-        UnlockEventQueue();
-    }
+	if (mQueueBootLock)
+	{
+		LockEventQueue();
+		mMutex->Lock();
+		mQueueBootLock = 0;
+		mMutex->Unlock();
+		UnlockEventQueue();
+	}
 }
 
 // -------------------------------------------------------------------------- //
@@ -569,13 +579,12 @@ TPlatformManager::UnlockQueueBootLock()
 // -------------------------------------------------------------------------- //
 KUInt32
 TPlatformManager::GetUserInfo(
-						EUserInfoSel inSelector,
-						KUInt32 inBufferSize,
-						KUInt32 outAddress ) const
+	EUserInfoSel inSelector,
+	KUInt32 inBufferSize,
+	KUInt32 outAddress) const
 {
-	const KUInt16* theString =
-		THostInfo::GetHostInfo()->GetUserInfo(inSelector);
-	size_t theSize = (UUTF16CStr::StrLen( theString ) + 1) * sizeof(KUInt16);
+	const KUInt16* theString = THostInfo::GetHostInfo()->GetUserInfo(inSelector);
+	size_t theSize = (UUTF16CStr::StrLen(theString) + 1) * sizeof(KUInt16);
 
 	// Write the string.
 	if (outAddress != 0)
@@ -597,7 +606,7 @@ TPlatformManager::GetUserInfo(
 //  * GetHostTimeZone( void )
 // -------------------------------------------------------------------------- //
 int
-TPlatformManager::GetHostTimeZone( void ) const
+TPlatformManager::GetHostTimeZone(void) const
 {
 	return THostInfo::GetHostInfo()->GetHostTimeZone();
 }
@@ -607,12 +616,12 @@ TPlatformManager::GetHostTimeZone( void ) const
 // -------------------------------------------------------------------------- //
 void
 TPlatformManager::SendBufferAEvent(
-							EPort inPortId,
-							KUInt32 inClass,
-							KUInt32 inID,
-							KUInt32 inDataClass,
-							KUInt32 inSize,
-							const KUInt8* inData )
+	EPort inPortId,
+	KUInt32 inClass,
+	KUInt32 inID,
+	KUInt32 inDataClass,
+	KUInt32 inSize,
+	const KUInt8* inData)
 {
 	SEinsteinBufferEvent theEvent;
 	theEvent.fEventClass = inClass;
@@ -624,32 +633,32 @@ TPlatformManager::SendBufferAEvent(
 	SendAEvent(
 		inPortId,
 		sizeof(theEvent),
-		(const KUInt8*) &theEvent );
+		(const KUInt8*) &theEvent);
 }
 
 // -------------------------------------------------------------------------- //
 //  * EvalNewtonScript( const char* )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::EvalNewtonScript( const char* inNewtonScriptCode )
+TPlatformManager::EvalNewtonScript(const char* inNewtonScriptCode)
 {
 #ifdef TARGET_UI_FLTK
-	size_t srcLen = UUTF16CStr::StrLen((KUInt8*)inNewtonScriptCode);
+	size_t srcLen = UUTF16CStr::StrLen((KUInt8*) inNewtonScriptCode);
 	size_t dstLen = 0;
 
-	KUInt16* utf16buf = (KUInt16*)malloc((srcLen + 1) * sizeof(KUInt16));
-	KUInt8* macBuf = (KUInt8*)malloc(srcLen+1);
+	KUInt16* utf16buf = (KUInt16*) malloc((srcLen + 1) * sizeof(KUInt16));
+	KUInt8* macBuf = (KUInt8*) malloc(srcLen + 1);
 
-	UUTF16CStr::FromUTF8((KUInt8*)inNewtonScriptCode, utf16buf, srcLen + 1);
-	UUTF16CStr::ToISO88591(utf16buf, macBuf, srcLen+1, &dstLen);
+	UUTF16CStr::FromUTF8((KUInt8*) inNewtonScriptCode, utf16buf, srcLen + 1);
+	UUTF16CStr::ToISO88591(utf16buf, macBuf, srcLen + 1, &dstLen);
 
 	SendBufferAEvent(
 		kNewtPort,
 		kEinsteinNSEventClass,
 		kEventRuntimeWithSData,
 		kNewtonScriptEvalData,
-		(KUInt32)dstLen,
-		(const KUInt8*)macBuf);
+		(KUInt32) dstLen,
+		(const KUInt8*) macBuf);
 
 	free(utf16buf);
 	free(macBuf);
@@ -659,82 +668,86 @@ TPlatformManager::EvalNewtonScript( const char* inNewtonScriptCode )
 		kEinsteinNSEventClass,
 		kEventRuntimeWithSData,
 		kNewtonScriptEvalData,
-		(KUInt32) ::strlen(inNewtonScriptCode),
-		(const KUInt8*)inNewtonScriptCode);
+		(KUInt32)::strlen(inNewtonScriptCode),
+		(const KUInt8*) inNewtonScriptCode);
 #endif
 }
 
 // -------------------------------------------------------------------------- //
 //  * InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSIze)
 // -------------------------------------------------------------------------- //
-void TPlatformManager::InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSize)
+void
+TPlatformManager::InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSize)
 {
-    // TODO: we should probably do some basic check if this is really package data
-    // TODO: we should return meaningful error codes, so the app can inform the user
-    SendBufferAEvent(kNewtPort,
-                     kEinsteinNSEventClass,
-                     kEventRuntimeWithSData,
-                     kPackageInstallData,
-                     inPackageSize,
-                     inPackageData );
+	// TODO: we should probably do some basic check if this is really package data
+	// TODO: we should return meaningful error codes, so the app can inform the user
+	SendBufferAEvent(kNewtPort,
+		kEinsteinNSEventClass,
+		kEventRuntimeWithSData,
+		kPackageInstallData,
+		inPackageSize,
+		inPackageData);
 }
 
 // -------------------------------------------------------------------------- //
 //  * InstallPackage( const char* )
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::InstallPackage( const char* inPackagePath )
+TPlatformManager::InstallPackage(const char* inPackagePath)
 {
-	if ( mLog )
+	if (mLog)
 		mLog->FLogLine("Installing package '%s'", inPackagePath);
 	// Open the package.
-	FILE* thePackageFile = ::fopen( inPackagePath, "rb" );
+	FILE* thePackageFile = ::fopen(inPackagePath, "rb");
 	if (thePackageFile != NULL)
 	{
 		// Read it entirely.
-		(void) ::fseek( thePackageFile, 0, SEEK_END );
-		long theSize = ::ftell( thePackageFile );
-		::rewind( thePackageFile );
+		(void) ::fseek(thePackageFile, 0, SEEK_END);
+		long theSize = ::ftell(thePackageFile);
+		::rewind(thePackageFile);
 
-		KUInt8* theBuffer = (KUInt8*) ::malloc( theSize );
-		if (((long) ::fread( theBuffer, sizeof(KUInt8), theSize, thePackageFile)) != theSize)
+		KUInt8* theBuffer = (KUInt8*) ::malloc(theSize);
+		if (((long) ::fread(theBuffer, sizeof(KUInt8), theSize, thePackageFile)) != theSize)
 		{
-			if ( mLog )
-				mLog->FLogLine( "Problem while reading '%s'", inPackagePath );
-		} else {
-            InstallPackage(theBuffer, (KUInt32)theSize);
+			if (mLog)
+				mLog->FLogLine("Problem while reading '%s'", inPackagePath);
+		} else
+		{
+			InstallPackage(theBuffer, (KUInt32) theSize);
 		}
 
-		(void) ::fclose( thePackageFile );
-		::free( theBuffer );
-	} else {
-		if ( mLog )
-			mLog->FLogLine( "Cannot open package '%s'", inPackagePath );
+		(void) ::fclose(thePackageFile);
+		::free(theBuffer);
+	} else
+	{
+		if (mLog)
+			mLog->FLogLine("Cannot open package '%s'", inPackagePath);
 	}
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * InstallNewPackages( const char* )
 // --------------------------------------------------------------------------
 void
-TPlatformManager::InstallNewPackages( const char* inPackageDir )
+TPlatformManager::InstallNewPackages(const char* inPackageDir)
 {
 #if !TARGET_OS_WIN32
 	// -- find the directory
-	if ( !inPackageDir )
+	if (!inPackageDir)
 		inPackageDir = mDocDir;
 
-	if ( !inPackageDir ) {
-		if ( mLog )
+	if (!inPackageDir)
+	{
+		if (mLog)
 			mLog->FLogLine("TPlatformManager::InstallNewPackages: No package directory specified, skipping.");
 		return;
 	}
 
-	DIR *dir = opendir(inPackageDir);
+	DIR* dir = opendir(inPackageDir);
 
-	if (!dir) {
-		if ( mLog )
+	if (!dir)
+	{
+		if (mLog)
 			mLog->FLogLine("TPlatformManager::InstallNewPackages: Can't open package directory: '%s'", inPackageDir);
 		return;
 	}
@@ -744,24 +757,29 @@ TPlatformManager::InstallNewPackages( const char* inPackageDir )
 	sprintf(buf, "%s/.lastInstall", inPackageDir);
 	struct stat lastInstall;
 	int statErr = ::stat(buf, &lastInstall);
-	if ( mLog )
+	if (mLog)
 		mLog->FLogLine("TPlatformManager: checking for new packages");
 
 	// -- run the directory and install every file that is newer than lastInstall
-	struct dirent *de;
-	while ((de = readdir(dir))) {
-		if (de->d_type==DT_REG) {
-			const char *dot = strrchr(de->d_name, '.');
-			if (dot && strcasecmp(dot, ".pkg")==0 && strncmp(de->d_name, "._", 2)!=0) {
-				if ( mLog )
+	struct dirent* de;
+	while ((de = readdir(dir)))
+	{
+		if (de->d_type == DT_REG)
+		{
+			const char* dot = strrchr(de->d_name, '.');
+			if (dot && strcasecmp(dot, ".pkg") == 0 && strncmp(de->d_name, "._", 2) != 0)
+			{
+				if (mLog)
 					mLog->FLogLine("TPlatformManager: Checking '%s'", de->d_name);
 				struct stat pkgStat;
 				sprintf(buf, "%s/%s", inPackageDir, de->d_name);
-				if (::stat(buf, &pkgStat)<0) continue;
-				if (statErr>=0
-					&& pkgStat.st_mtime<lastInstall.st_mtime
-					&& pkgStat.st_ctime<lastInstall.st_mtime) continue;
-				if ( mLog )
+				if (::stat(buf, &pkgStat) < 0)
+					continue;
+				if (statErr >= 0
+					&& pkgStat.st_mtime < lastInstall.st_mtime
+					&& pkgStat.st_ctime < lastInstall.st_mtime)
+					continue;
+				if (mLog)
 					mLog->FLogLine("TPlatformManager: Installing '%s'", de->d_name);
 				InstallPackage(buf);
 			}
@@ -770,14 +788,14 @@ TPlatformManager::InstallNewPackages( const char* inPackageDir )
 	closedir(dir);
 
 	// -- update the modification data
-	if ( mLog )
+	if (mLog)
 		mLog->FLogLine("TPlatformManager: updating last package installation date");
 	sprintf(buf, "%s/.lastInstall", inPackageDir);
-	FILE *f = fopen(buf, "wb");
-	if (f) fclose(f);
+	FILE* f = fopen(buf, "wb");
+	if (f)
+		fclose(f);
 #endif
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * OpenEinsteinMenu()
@@ -785,20 +803,19 @@ TPlatformManager::InstallNewPackages( const char* inPackageDir )
 void
 TPlatformManager::OpenEinsteinMenu()
 {
-	//mScreenManager->OpenEinsteinMenu();
+	// mScreenManager->OpenEinsteinMenu();
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * SetDocDir()
 // -------------------------------------------------------------------------- //
 void
-TPlatformManager::SetDocDir(const char *inDocDir)
+TPlatformManager::SetDocDir(const char* inDocDir)
 {
-	if (mDocDir) ::free(mDocDir);
+	if (mDocDir)
+		::free(mDocDir);
 	mDocDir = strdup(inDocDir);
 }
-
 
 /**
  NewtonOS can call this method to get access into the Einstein system.
@@ -825,25 +842,29 @@ TPlatformManager::NewtonScriptCall(TNewt::RefArg inRcvr, TNewt::RefArg inArg0, T
 	using namespace TNewt;
 
 	NewtRef arg0 = inArg0.Ref();
-	if (TNewt::RefIsSymbol(arg0)) {
+	if (TNewt::RefIsSymbol(arg0))
+	{
 		char sym[64] = { 0 };
-		if (TNewt::SymbolToLowerCaseCString(arg0, sym, 64)) {
+		if (TNewt::SymbolToLowerCaseCString(arg0, sym, 64))
+		{
 			auto it = CallMap.find(sym);
-			if (it!=CallMap.end()) {
+			if (it != CallMap.end())
+			{
 				PlatformCall call = it->second;
 				return call(inRcvr, inArg1);
-			} else {
+			} else
+			{
 				TNewt::SymbolToCString(arg0, sym, 64);
 				KPrintf("WARNING: TPlatformManager::NewtonScriptCall: Unknown command: %s\n", sym);
 				return TNewt::MakeInt(kNSErrUndefinedMethod);
 			}
 		}
-	} else {
+	} else
+	{
 		KPrintf("WARNING: TPlatformManager::NewtonScriptCall: First argument must be a symbol: 0x%08x\n", arg0);
 	}
 	return TNewt::MakeInt(kNSErrNotASymbol);
 }
-
 
 // ====================================================================== //
 // Nurse Donna:    Oh, Groucho, I'm afraid I'm gonna wind up an old maid. //

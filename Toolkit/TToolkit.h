@@ -26,8 +26,8 @@
 
 #include <K/Defines/KDefinitions.h>
 
-#include <FL/x.H>
 #include <FL/Fl_Widget.H>
+#include <FL/x.H>
 
 class TFLApp;
 class TTkScript;
@@ -39,80 +39,78 @@ class TTkProject;
 class TToolkit
 {
 public:
-    TToolkit(TFLApp *inApp);
-    ~TToolkit();
-    void Show();
-    void Hide();
+	TToolkit(TFLApp* inApp);
+	~TToolkit();
+	void Show();
+	void Hide();
 
-    int UserActionNew();
-    int UserActionOpen();
-    int UserActionSave();
-    int UserActionSaveAs();
-    int UserActionClose();
-    void UserActionQuit();
+	int UserActionNew();
+	int UserActionOpen();
+	int UserActionSave();
+	int UserActionSaveAs();
+	int UserActionClose();
+	void UserActionQuit();
 
-    void UserActionUndo();
-    void UserActionRedo();
-    void UserActionCut();
-    void UserActionCopy();
-    void UserActionPaste();
-    void UserActionFind();
+	void UserActionUndo();
+	void UserActionRedo();
+	void UserActionCut();
+	void UserActionCopy();
+	void UserActionPaste();
+	void UserActionFind();
 
-    int UserActionDecompilePkg();
-    void UserActionBuild();
-    void UserActionInstall();
-    void UserActionRun();
-    void UserActionStop();
+	int UserActionDecompilePkg();
+	void UserActionBuild();
+	void UserActionInstall();
+	void UserActionRun();
+	void UserActionStop();
 
-    void UserActionFindTextChanged();
-    void UserActionReplaceTextChanged();
-    void UserActionCaseChanged();
-    void UserActionRegexChanged();
-    void UserActionFindPrev();
-    bool UserActionFindNext(bool fromLast = true);
-    void UserActionFindClose();
-    void UserActionReplaceNext();
-    void UserActionReplaceAll();
+	void UserActionFindTextChanged();
+	void UserActionReplaceTextChanged();
+	void UserActionCaseChanged();
+	void UserActionRegexChanged();
+	void UserActionFindPrev();
+	bool UserActionFindNext(bool fromLast = true);
+	void UserActionFindClose();
+	void UserActionReplaceNext();
+	void UserActionReplaceAll();
 
-    void AppBuild();
-    void AppInstall();
-    void AppRun();
-    void AppStop();
-    void AppCmd(const char* cmd);
+	void AppBuild();
+	void AppInstall();
+	void AppRun();
+	void AppStop();
+	void AppCmd(const char* cmd);
 
-    void LoadSampleCode(int n);
-    void UpdateTitle();
+	void LoadSampleCode(int n);
+	void UpdateTitle();
 
-    void PrintStd(const char *text);
-    void PrintErr(const char *text);
+	void PrintStd(const char* text);
+	void PrintErr(const char* text);
 
 private:
-    int ReadScriptResults();
-    void SetTempPkgPath();
-    void SetPkgPath(const char *name);
-    void SetPkgName(const char *name);
-    void SetPkgSymbol(const char *name);
-    void SetPkgLabel(const char *name);
+	int ReadScriptResults();
+	void SetTempPkgPath();
+	void SetPkgPath(const char* name);
+	void SetPkgName(const char* name);
+	void SetPkgSymbol(const char* name);
+	void SetPkgLabel(const char* name);
 
-    TFLApp *mApp = nullptr;
+	TFLApp* mApp = nullptr;
 
-    // TODO: we currently allow one single script to be loaded. Add support for multiple files, and file hierarchies managed inside projects.
-    TTkScript *mCurrentScript = nullptr;
-    // TODO: implement a default project that collects all data required from the source code.
-    // TTkProject *mProject = nullptr;
+	// TODO: we currently allow one single script to be loaded. Add support for multiple files, and file hierarchies managed inside projects.
+	TTkScript* mCurrentScript = nullptr;
+	// TODO: implement a default project that collects all data required from the source code.
+	// TTkProject *mProject = nullptr;
 
-    char *mPkgPath = nullptr;
-    char *mPkgName = nullptr;
-    char *mPkgSymbol = nullptr;
-    char *mPkgLabel = nullptr;
+	char* mPkgPath = nullptr;
+	char* mPkgName = nullptr;
+	char* mPkgSymbol = nullptr;
+	char* mPkgLabel = nullptr;
 };
 
-
-extern TToolkit *gToolkit;
-
+extern TToolkit* gToolkit;
 
 #endif
-		// _TFLTOOLKIT_H
+// _TFLTOOLKIT_H
 
 // ======================================================================= //
 // Newton Toolkit

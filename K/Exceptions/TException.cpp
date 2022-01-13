@@ -48,40 +48,38 @@
 // -------------------------------------------------------------------------- //
 //  * TException( void )
 // -------------------------------------------------------------------------- //
-TException::TException( void )
+TException::TException(void)
 {
-	KDEBUG1( "New Exception - %s\n", typeid(*this).name() );
+	KDEBUG1("New Exception - %s\n", typeid(*this).name());
 }
 
 // -------------------------------------------------------------------------- //
 //  * TException( const char*, KUInt32 )
 // -------------------------------------------------------------------------- //
-TException::TException( const char* inFileName, KUInt32 inLine )
-	:
-		mFileName( inFileName ),
-		mLine( inLine )
+TException::TException(const char* inFileName, KUInt32 inLine) :
+		mFileName(inFileName),
+		mLine(inLine)
 {
-	KDEBUG3( "New Exception - %s at %s:%u\n",
-				typeid(*this).name(),
-				inFileName,
-				(unsigned int) inLine );
+	KDEBUG3("New Exception - %s at %s:%u\n",
+		typeid(*this).name(),
+		inFileName,
+		(unsigned int) inLine);
 }
 
 // -------------------------------------------------------------------------- //
 //  * TException( const TException& )
 // -------------------------------------------------------------------------- //
-TException::TException( const TException& inCopy )
-	:
-		std::exception( inCopy ),
-		mFileName( inCopy.mFileName ),
-		mLine( inCopy.mLine )
+TException::TException(const TException& inCopy) :
+		std::exception(inCopy),
+		mFileName(inCopy.mFileName),
+		mLine(inCopy.mLine)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TException( void ) throw ()
 // -------------------------------------------------------------------------- //
-TException::~TException( void ) throw ()
+TException::~TException(void) throw()
 {
 }
 
@@ -89,7 +87,7 @@ TException::~TException( void ) throw ()
 //  * what( void ) const throw ()
 // -------------------------------------------------------------------------- //
 const char*
-TException::what( void ) const throw ()
+TException::what(void) const throw()
 {
 	return typeid(*this).name();
 }

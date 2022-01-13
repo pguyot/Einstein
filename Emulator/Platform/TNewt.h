@@ -49,34 +49,33 @@ static const VAddr kNewtNullptr = 0;
 static const KSInt32 kNSErrUndefinedMethod = -48809;
 static const KSInt32 kNSErrNotASymbol = -48410;
 
-#define kNSErrBase					(-48000)
-#define kNSErrNotAFrame				(kNSErrBase - 400)	// Expected a frame
-#define kNSErrNotAnArray			(kNSErrBase - 401)	// Expected an array
-#define kNSErrNotAString			(kNSErrBase - 402)	// Expected a string
-#define kNSErrNotAPointer			(kNSErrBase - 403)	// Expected a pointer, array, or binary object
-#define kNSErrNotANumber			(kNSErrBase - 404)	// Expected a number
-#define kNSErrNotAReal				(kNSErrBase - 405)	// Expected a real
-#define kNSErrNotAnInteger			(kNSErrBase - 406)	// Expected an integer
-#define kNSErrNotACharacter			(kNSErrBase - 407)	// Expected a character
-#define kNSErrNotABinaryObject		(kNSErrBase - 408)	// Expected a binary object
-#define kNSErrNotAPathExpr			(kNSErrBase - 409)	// Expected a path expression (or a symbol or integer)
-#define kNSErrNotASymbol			(kNSErrBase - 410)	// Expected a symbol
-#define kNSErrNotAFunction			(kNSErrBase - 411)	// Expected a function
-#define kNSErrNotAFrameOrArray		(kNSErrBase - 412)	// Expected a frame or an array
-#define kNSErrNotAnArrayOrNil		(kNSErrBase - 413)	// Expected an array or NIL
-#define kNSErrNotAStringOrNil		(kNSErrBase - 414)	// Expected a string or NIL
-#define kNSErrNotABinaryObjectOrNil	(kNSErrBase - 415)	// Expected a binary object or NIL
-#define kNSErrUnexpectedFrame		(kNSErrBase - 416)	// Unexpected frame
-#define kNSErrUnexpectedBinaryObject	(kNSErrBase - 417)	// Unexpected binary object
-#define kNSErrUnexpectedImmediate	(kNSErrBase - 418)	// Unexpected immediate
-#define kNSErrNotAnArrayOrString	(kNSErrBase - 419)	// Expected an array or string
-#define kNSErrNotAVBO				(kNSErrBase - 420)	// Expected a vbo
-#define kNSErrNotAPackage			(kNSErrBase - 421)	// Expected a package
-#define kNSErrNotNil				(kNSErrBase - 422)	// Expected a NIL
-#define kNSErrNotASymbolOrNil		(kNSErrBase - 423)  // expected NIL or a Symbol
-#define kNSErrNotTrueOrNil			(kNSErrBase - 424)  // expected NIL or True
-#define kNSErrNotAnIntegerOrArray	(kNSErrBase - 425)  // expected an integer or an array
-
+#define kNSErrBase (-48000)
+#define kNSErrNotAFrame (kNSErrBase - 400) // Expected a frame
+#define kNSErrNotAnArray (kNSErrBase - 401) // Expected an array
+#define kNSErrNotAString (kNSErrBase - 402) // Expected a string
+#define kNSErrNotAPointer (kNSErrBase - 403) // Expected a pointer, array, or binary object
+#define kNSErrNotANumber (kNSErrBase - 404) // Expected a number
+#define kNSErrNotAReal (kNSErrBase - 405) // Expected a real
+#define kNSErrNotAnInteger (kNSErrBase - 406) // Expected an integer
+#define kNSErrNotACharacter (kNSErrBase - 407) // Expected a character
+#define kNSErrNotABinaryObject (kNSErrBase - 408) // Expected a binary object
+#define kNSErrNotAPathExpr (kNSErrBase - 409) // Expected a path expression (or a symbol or integer)
+#define kNSErrNotASymbol (kNSErrBase - 410) // Expected a symbol
+#define kNSErrNotAFunction (kNSErrBase - 411) // Expected a function
+#define kNSErrNotAFrameOrArray (kNSErrBase - 412) // Expected a frame or an array
+#define kNSErrNotAnArrayOrNil (kNSErrBase - 413) // Expected an array or NIL
+#define kNSErrNotAStringOrNil (kNSErrBase - 414) // Expected a string or NIL
+#define kNSErrNotABinaryObjectOrNil (kNSErrBase - 415) // Expected a binary object or NIL
+#define kNSErrUnexpectedFrame (kNSErrBase - 416) // Unexpected frame
+#define kNSErrUnexpectedBinaryObject (kNSErrBase - 417) // Unexpected binary object
+#define kNSErrUnexpectedImmediate (kNSErrBase - 418) // Unexpected immediate
+#define kNSErrNotAnArrayOrString (kNSErrBase - 419) // Expected an array or string
+#define kNSErrNotAVBO (kNSErrBase - 420) // Expected a vbo
+#define kNSErrNotAPackage (kNSErrBase - 421) // Expected a package
+#define kNSErrNotNil (kNSErrBase - 422) // Expected a NIL
+#define kNSErrNotASymbolOrNil (kNSErrBase - 423) // expected NIL or a Symbol
+#define kNSErrNotTrueOrNil (kNSErrBase - 424) // expected NIL or True
+#define kNSErrNotAnIntegerOrArray (kNSErrBase - 425) // expected an integer or an array
 
 /**
  A namespace that provides access to a running Newton system.
@@ -90,16 +89,15 @@ static const KSInt32 kNSErrNotASymbol = -48410;
 
  \note At some point, we want to cahe sybols, so we don't doe the expensive NewtonOS lookup.
  */
-namespace TNewt
-{
+namespace TNewt {
 
 // Back references into the emulator
-extern TEmulator *mEmulator;
-extern TMemory *mMemory;
-extern TARMProcessor *mCPU;
+extern TEmulator* mEmulator;
+extern TMemory* mMemory;
+extern TARMProcessor* mCPU;
 
 // Setthe all back references into the emulator.
-void SetEmulator(TEmulator *inEmulator);
+void SetEmulator(TEmulator* inEmulator);
 
 // Add a Ref to the Garbe Collection system and mark it used
 VAddr AllocateRefHandle(NewtRef);
@@ -110,11 +108,13 @@ void DisposeRefHandle(VAddr);
 /**
  Create and dispose RefHandles automatically.
  */
-class RefVar {
+class RefVar
+{
 protected:
 	KUInt32 mRefHandle;
 	Boolean mAllocated;
 	RefVar(KUInt32 inRefHandle, Boolean inAllocated);
+
 public:
 	// Named Constrcutor
 	static RefVar FromPtr(KUInt32 ptr);
@@ -129,27 +129,26 @@ public:
 };
 
 // Use this to pass arguments to functions
-typedef const RefVar &RefArg;
+typedef const RefVar& RefArg;
 
 KUInt32 LockedBinaryPtr(RefArg);
 
 void UnlockRefArg(RefArg);
 
-
 // Call a NewtonOS function in ROM via the Apple sanction jumptable
-KUInt32 CallNewton(VAddr functionVector, const char *args, ...);
+KUInt32 CallNewton(VAddr functionVector, const char* args, ...);
 
 // Print any RefVar
-void Print(RefArg, int depth=2, int indent = 0);
+void Print(RefArg, int depth = 2, int indent = 0);
 
 // Print any Ref
-void PrintRef(NewtRef, int depth=2, int indent = 0);
+void PrintRef(NewtRef, int depth = 2, int indent = 0);
 
 // Create a string object from a C style ASCII string
-NewtRef MakeString(const char *);
+NewtRef MakeString(const char*);
 
 // Create a symbol from a C style ASCII string
-NewtRef MakeSymbol(const char *);
+NewtRef MakeSymbol(const char*);
 
 // Return true if the Ref is a floating point value
 Boolean RefIsReal(NewtRef);
@@ -200,10 +199,10 @@ NewtRef MakeInt(KSInt32);
 Boolean RefIsSymbol(NewtRef);
 
 // Copy the name of a symbol into a buffer in host space
-Boolean SymbolToCString(NewtRef, char *buf, int size);
+Boolean SymbolToCString(NewtRef, char* buf, int size);
 
 // Copy the name of a symbol and convert it to all lower case characters
-Boolean SymbolToLowerCaseCString(NewtRef, char *buf, int size);
+Boolean SymbolToLowerCaseCString(NewtRef, char* buf, int size);
 
 // Return true if the Ref is a utf16 string
 Boolean RefIsString(NewtRef);
@@ -212,7 +211,7 @@ Boolean RefIsString(NewtRef);
 KUInt32 RefStringLength(NewtRef);
 
 // Return a string in utf-8
-Boolean RefToString(NewtRef, char *buf, int size);
+Boolean RefToString(NewtRef, char* buf, int size);
 
 // Return true if the Ref is a pointer into NewtonOS memeory
 Boolean RefIsPointer(NewtRef);
@@ -234,7 +233,6 @@ Boolean RefIsBinary(NewtRef);
 
 KUInt32 RefArrayGetNumSlots(NewtRef r);
 NewtRef RefArrayGetSlot(NewtRef r, int i);
-
 
 // FIXME: don't use thsi yet, it will hang the emulator
 NewtRef ThrowBadTypeWithFrameData(long, RefArg);

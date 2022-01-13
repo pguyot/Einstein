@@ -40,45 +40,43 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #if _MSC_VER
-	#include <io.h>
+#include <io.h>
 #else
-	#include <unistd.h>
-	#include <sys/mman.h>
+#include <sys/mman.h>
+#include <unistd.h>
 #endif
-#include <stdlib.h>
-#include <stdio.h>
 #include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #if _MSC_VER
-	#define WRITE_RESULT_TYPE size_t
+#define WRITE_RESULT_TYPE size_t
 #else
-	#define WRITE_RESULT_TYPE ssize_t
+#define WRITE_RESULT_TYPE ssize_t
 #endif
 
 #ifndef O_ACCMODE
-#define		O_ACCMODE 0x0003
+#define O_ACCMODE 0x0003
 #endif
 
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
 
-
 // -------------------------------------------------------------------------- //
 //  * TMappedFile( const char*, size_t, int )
 // -------------------------------------------------------------------------- //
 TMappedFile::TMappedFile(
-				const char* inFilePath,
-				size_t inSize  /* = 0 */,
-				int inFlags /* = O_RDONLY */,
-				void* preferredAddress /* = NULL */ )
-	:
-		mBuffer( NULL ),
-		mSize( inSize ),
-		mMapped( false ),
-		mReadOnly( (inFlags & O_ACCMODE) == O_RDONLY ),
-		mCreated( false ),
-		mFileFd( -1 )
+	const char* inFilePath,
+	size_t inSize /* = 0 */,
+	int inFlags /* = O_RDONLY */,
+	void* preferredAddress /* = NULL */) :
+		mBuffer(NULL),
+		mSize(inSize),
+		mMapped(false),
+		mReadOnly((inFlags & O_ACCMODE) == O_RDONLY),
+		mCreated(false),
+		mFileFd(-1)
 {
 	Map(inFilePath, inSize, inFlags, preferredAddress);
 }
@@ -86,16 +84,16 @@ TMappedFile::TMappedFile(
 // -------------------------------------------------------------------------- //
 //  * ~TMappedFile( void )
 // -------------------------------------------------------------------------- //
-TMappedFile::~TMappedFile( void )
+TMappedFile::~TMappedFile(void)
 {
 	Unmap();
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * Map()
 // -------------------------------------------------------------------------- //
-int TMappedFile::Map(
+int
+TMappedFile::Map(
 	const char* inFilePath,
 	size_t inSize,
 	int inFlags,
@@ -103,8 +101,8 @@ int TMappedFile::Map(
 {
 	// Open the file.
 #if _MSC_VER
-		// We always open the file in binary mode to avoid differences
-		// bewteen a memory mapped file and a conventionaly opened file.
+	// We always open the file in binary mode to avoid differences
+	// bewteen a memory mapped file and a conventionaly opened file.
 	inFlags |= O_BINARY;
 #endif
 	mFileFd = ::open(inFilePath, inFlags, 0777);
@@ -126,12 +124,14 @@ int TMappedFile::Map(
 	if (inSize == 0)
 	{
 		mSize = theSize;
-	} else if (inSize > (size_t) theSize) {
+	} else if (inSize > (size_t) theSize)
+	{
 		// otherwise, grow the file if required/permitted.
 		if (mReadOnly)
 		{
 			mSize = theSize;
-		} else {
+		} else
+		{
 			(void) ::lseek(mFileFd, inSize - 1, SEEK_SET);
 			char someByte = 0;
 			(void) ::write(mFileFd, &someByte, 1);
@@ -143,7 +143,7 @@ int TMappedFile::Map(
 #if _MSC_VER
 	// WIN32 memory mapped file API is extremely painful, so for now
 	// we read the file conventionally
-	mBuffer = (void*)-1;
+	mBuffer = (void*) -1;
 #else
 	// (Try to) map the file.
 	int theProt = 0;
@@ -157,10 +157,12 @@ int TMappedFile::Map(
 	if (theMode == O_RDONLY)
 	{
 		theProt = PROT_READ;
-	} else if (theMode == O_WRONLY) {
+	} else if (theMode == O_WRONLY)
+	{
 		theProt = PROT_WRITE;
 		theFlags |= MAP_SHARED;
-	} else if (theMode == O_RDWR) {
+	} else if (theMode == O_RDWR)
+	{
 		theProt = PROT_READ | PROT_WRITE;
 		theFlags |= MAP_SHARED;
 	}
@@ -175,7 +177,7 @@ int TMappedFile::Map(
 #endif // _MSC_VER
 	mMapped = true;
 
-	if (mBuffer == (void*)-1)
+	if (mBuffer == (void*) -1)
 	{
 		mMapped = false;
 
@@ -195,11 +197,11 @@ int TMappedFile::Map(
 	return 0;
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * Unmap()
 // -------------------------------------------------------------------------- //
-void TMappedFile::Unmap()
+void
+TMappedFile::Unmap()
 {
 	if (mBuffer)
 	{
@@ -220,7 +222,8 @@ void TMappedFile::Unmap()
 				::abort();
 			}
 #endif // _MSC_VER
-		} else {
+		} else
+		{
 			// Write the content if it wasn't read only.
 			if (!mReadOnly)
 			{
@@ -246,12 +249,11 @@ void TMappedFile::Unmap()
 	mFileFd = -1;
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * Sync( void ) const
 // -------------------------------------------------------------------------- //
 void
-TMappedFile::Sync( void ) const
+TMappedFile::Sync(void) const
 {
 	if ((mBuffer) && (!mReadOnly))
 	{
@@ -262,31 +264,32 @@ TMappedFile::Sync( void ) const
 			// we sync by writing the file conventionally
 #else
 			// use msync
-			if (::msync( mBuffer, mSize, MS_SYNC ) < 0)
+			if (::msync(mBuffer, mSize, MS_SYNC) < 0)
 			{
 				(void) ::fprintf(
-							stderr,
-							"Error with msync (%i) - %s:%i\n",
-							errno, __FILE__, __LINE__ );
+					stderr,
+					"Error with msync (%i) - %s:%i\n",
+					errno, __FILE__, __LINE__);
 				::abort();
 			}
 #endif // _MSC_VER
-		} else {
+		} else
+		{
 			// Write the content.
-			if (::lseek( mFileFd, 0, SEEK_SET ) < 0)
+			if (::lseek(mFileFd, 0, SEEK_SET) < 0)
 			{
 				(void) ::fprintf(
-							stderr,
-							"Error with lseek (%i) - %s:%i\n",
-							errno, __FILE__, __LINE__ );
+					stderr,
+					"Error with lseek (%i) - %s:%i\n",
+					errno, __FILE__, __LINE__);
 				::abort();
 			}
-			if (::write( mFileFd, mBuffer, mSize ) != (WRITE_RESULT_TYPE) mSize)
+			if (::write(mFileFd, mBuffer, mSize) != (WRITE_RESULT_TYPE) mSize)
 			{
 				(void) ::fprintf(
-							stderr,
-							"Error with write (%i) - %s:%i\n",
-							errno, __FILE__, __LINE__ );
+					stderr,
+					"Error with write (%i) - %s:%i\n",
+					errno, __FILE__, __LINE__);
 				::abort();
 			}
 		}

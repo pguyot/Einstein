@@ -14,7 +14,8 @@
 #include "TCocoaPathHelper.h"
 #endif
 
-std::string TPathHelper::GetSerialPipeBasePath()
+std::string
+TPathHelper::GetSerialPipeBasePath()
 {
 #if TARGET_OS_MAC
 	return TCocoaPathHelper::GetSerialPipeBasePath();

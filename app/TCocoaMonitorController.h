@@ -10,8 +10,7 @@
 class TMacMonitor;
 @class TMacMonitorView;
 
-@interface TCocoaMonitorController : NSWindowController <NSTextFieldDelegate, NSWindowDelegate>
-{
+@interface TCocoaMonitorController : NSWindowController <NSTextFieldDelegate, NSWindowDelegate> {
 	IBOutlet TMacMonitorView* view;
 	IBOutlet NSButton* stopStartButton;
 	IBOutlet NSButton* stepIntoButton;
@@ -22,7 +21,7 @@ class TMacMonitor;
 
 - (void)update;
 
-- (void)addHistoryLine:(NSString *)line type:(int)type;
+- (void)addHistoryLine:(NSString*)line type:(int)type;
 
 - (IBAction)stopStart:(id)sender;
 - (IBAction)stepInto:(id)sender;

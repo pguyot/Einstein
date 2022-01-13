@@ -22,7 +22,7 @@
 // ==============================
 
 #if (Rd == 15) || (Rs == 15) || (Rm == 15)
-	#error "Use of R15 for Rd, Rs or Rm is unpredictable"
+#error "Use of R15 for Rd, Rs or Rm is unpredictable"
 #endif
 
 // -------------------------------------------------------------------------- //
@@ -35,12 +35,12 @@ Multiply_Template(FLAG_S, Rd, Rs, Rm)
 	ioCPU->mCurrentRegisters[Rd] = theResult;
 #if FLAG_S
 	// We track status flags
-	if(theResult & 0x80000000)
+	if (theResult & 0x80000000)
 		ioCPU->mCPSR_N = 1;
 	else
 		ioCPU->mCPSR_N = 0;
 
-	if(theResult == 0)
+	if (theResult == 0)
 		ioCPU->mCPSR_Z = 1;
 	else
 		ioCPU->mCPSR_Z = 0;

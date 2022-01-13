@@ -34,29 +34,28 @@
 #include <K/Tests/TTraceMonitor.h>
 
 // ANSI C
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // ------------------------------------------------------------------------- //
 //  * TTraceMonitor( unsigned int )
 // ------------------------------------------------------------------------- //
-TTraceMonitor::TTraceMonitor( unsigned int inMode )
-	:
-		mMode( inMode ),
-		mStackDepth( 0 ),
-		mStackCapacity( 0 ),
-		mStack( NULL )
+TTraceMonitor::TTraceMonitor(unsigned int inMode) :
+		mMode(inMode),
+		mStackDepth(0),
+		mStackCapacity(0),
+		mStack(NULL)
 {
 }
 
 // ------------------------------------------------------------------------- //
 //  * ~TTraceMonitor( void )
 // ------------------------------------------------------------------------- //
-TTraceMonitor::~TTraceMonitor( void )
+TTraceMonitor::~TTraceMonitor(void)
 {
 	if (mStack)
 	{
-		::free( mStack );
+		::free(mStack);
 	}
 }
 
@@ -65,13 +64,13 @@ TTraceMonitor::~TTraceMonitor( void )
 // ------------------------------------------------------------------------- //
 void
 TTraceMonitor::FunctionBegin(
-						const char* inFileName,
-						unsigned int inLineNumber )
+	const char* inFileName,
+	unsigned int inLineNumber)
 {
 	// Affichage de la ligne de début de fonction.
 	if (mMode & kDisplayBegin)
 	{
-		DoPrintBegin( mStackDepth, inFileName, inLineNumber );
+		DoPrintBegin(mStackDepth, inFileName, inLineNumber);
 	}
 
 	// On pousse dans la pile.
@@ -80,15 +79,14 @@ TTraceMonitor::FunctionBegin(
 		if (mStack == NULL)
 		{
 			// Création de la pile
-			mStack = (SStackEntry*)
-					::malloc( kStackSizeIncrement * sizeof( SStackEntry ) );
+			mStack = (SStackEntry*) ::malloc(kStackSizeIncrement * sizeof(SStackEntry));
 			mStackCapacity = kStackSizeIncrement;
 			mStackDepth = 0;
-		} else if (mStackDepth == mStackCapacity) {
+		} else if (mStackDepth == mStackCapacity)
+		{
 			// Augmentation de sa capacité
 			mStackCapacity += kStackSizeIncrement;
-			mStack = (SStackEntry*)
-				::realloc( mStack, mStackCapacity * sizeof( SStackEntry ) );
+			mStack = (SStackEntry*) ::realloc(mStack, mStackCapacity * sizeof(SStackEntry));
 		}
 
 		mStack[mStackDepth].fFileName = inFileName;
@@ -102,13 +100,13 @@ TTraceMonitor::FunctionBegin(
 // ------------------------------------------------------------------------- //
 void
 TTraceMonitor::FunctionEnd(
-						const char* inFileName,
-						unsigned int inLineNumber )
+	const char* inFileName,
+	unsigned int inLineNumber)
 {
 	// Affichage de la ligne de fin de fonction.
 	if (mMode & kDisplayEnd)
 	{
-		DoPrintEnd( mStackDepth, inFileName, inLineNumber );
+		DoPrintEnd(mStackDepth, inFileName, inLineNumber);
 	}
 
 	// On retire de la pile le dernier élément (il vaut mieux que ce soit
@@ -122,9 +120,8 @@ TTraceMonitor::FunctionEnd(
 			{
 				// Diminution de sa capacité
 				mStackCapacity -= (2 * kStackSizeIncrement);
-				mStack = (SStackEntry*)
-					::realloc(
-						mStack, mStackCapacity * sizeof( SStackEntry ) );
+				mStack = (SStackEntry*) ::realloc(
+					mStack, mStackCapacity * sizeof(SStackEntry));
 			}
 		}
 	}
@@ -134,14 +131,14 @@ TTraceMonitor::FunctionEnd(
 //  * PrintStack( void )
 // ------------------------------------------------------------------------- //
 void
-TTraceMonitor::PrintStack( void )
+TTraceMonitor::PrintStack(void)
 {
 	unsigned int indexStack;
 	for (indexStack = 0; indexStack < mStackDepth; indexStack++)
 	{
 		DoPrintStack(
-						mStack[indexStack].fFileName,
-						mStack[indexStack].fLineNumber );
+			mStack[indexStack].fFileName,
+			mStack[indexStack].fLineNumber);
 	}
 }
 
@@ -150,19 +147,19 @@ TTraceMonitor::PrintStack( void )
 // ------------------------------------------------------------------------- //
 void
 TTraceMonitor::DoPrintBegin(
-						unsigned int inStackDepth,
-						const char* inFileName,
-						unsigned int inLineNumber )
+	unsigned int inStackDepth,
+	const char* inFileName,
+	unsigned int inLineNumber)
 {
 	// Identation pour inStackDepth, 2 espaces par profondeur
 	unsigned int indexIndent;
 	for (indexIndent = 0; indexIndent < inStackDepth; indexIndent++)
 	{
-		(void) ::printf( "  " );
+		(void) ::printf("  ");
 	}
 
 	// Affichage du nom de fichier et de la ligne
-	(void) ::printf( "%s:%i\n", inFileName, inLineNumber );
+	(void) ::printf("%s:%i\n", inFileName, inLineNumber);
 }
 
 // ------------------------------------------------------------------------- //
@@ -170,19 +167,19 @@ TTraceMonitor::DoPrintBegin(
 // ------------------------------------------------------------------------- //
 void
 TTraceMonitor::DoPrintEnd(
-						unsigned int inStackDepth,
-						const char* inFileName,
-						unsigned int inLineNumber )
+	unsigned int inStackDepth,
+	const char* inFileName,
+	unsigned int inLineNumber)
 {
 	// Identation pour inStackDepth, 2 espaces par profondeur
 	unsigned int indexIndent;
 	for (indexIndent = 0; indexIndent < inStackDepth; indexIndent++)
 	{
-		(void) ::printf( "  " );
+		(void) ::printf("  ");
 	}
 
 	// Affichage du nom de fichier et de la ligne
-	(void) ::printf( "...%s:%i\n", inFileName, inLineNumber );
+	(void) ::printf("...%s:%i\n", inFileName, inLineNumber);
 }
 
 // ------------------------------------------------------------------------- //
@@ -190,11 +187,11 @@ TTraceMonitor::DoPrintEnd(
 // ------------------------------------------------------------------------- //
 void
 TTraceMonitor::DoPrintStack(
-						const char* inFileName,
-						unsigned int inLineNumber )
+	const char* inFileName,
+	unsigned int inLineNumber)
 {
 	// Affichage du nom de fichier et de la ligne
-	(void) ::printf( "> %s:%i\n", inFileName, inLineNumber );
+	(void) ::printf("> %s:%i\n", inFileName, inLineNumber);
 }
 
 // ====================================================================== //

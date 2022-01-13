@@ -25,10 +25,10 @@
 
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 
-#include "Emulator/TEmulator.h"
-#include "Emulator/ROM/TROMImage.h"
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/TDMAManager.h"
+#include "Emulator/TEmulator.h"
+#include "Emulator/ROM/TROMImage.h"
 #include "Emulator/Screen/TScreenManager.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
@@ -38,70 +38,67 @@
 // ========================================================================== //
 //  * Various patches that are always useful
 
-
 /*
  * Avoid calibration screen early in the game.
  * This patch changes a branch instruction in CheckTabletCalibration(void).
  */
 TJITGenericPatch p001412f8(0x001412f8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
-                           0xea000009, "Avoid screen calibration");
-
+	0xea000009, "Avoid screen calibration");
 
 /*
  * Disable "TGeoPortDebugLink::BeaconDetect(long)"
  * Replace the function with a `return 0;` equivalent.
  */
 TJITGenericPatch p000db0d8(0x000db0d8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
-                           0xe3a00000, "BeaconDetect (1/2)"); // #  mov r0, 0x00000000
+	0xe3a00000, "BeaconDetect (1/2)"); // #  mov r0, 0x00000000
 TJITGenericPatch p000db0dc(0x000db0dc, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
-                           0xe1a0f00e, "BeaconDetect (2/2)"); // #  mov pc, lr
-
+	0xe1a0f00e, "BeaconDetect (2/2)"); // #  mov pc, lr
 
 /*
  * This patch seems to disable runtime debugging statistics.
  */
 TJITGenericPatch gDebuggerPatch(0x000013f4, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
-                                1, "gDebugger patch");
-
+	1, "gDebugger patch");
 
 /*
  * This patch seems to enable stdin and stdout for NewtonOS.
  */
 TJITGenericPatch gNewtConfigPatch(0x000013fc, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
-								    0x00000002 /*kEnableListener*/
-								  | 0x00000200 /*kDefaultStdioOn*/
-								  | 0x00008000 /*kEnableStdout*/,
-								  "gNewtConfig patch");
+	0x00000002 /*kEnableListener*/
+		| 0x00000200 /*kDefaultStdioOn*/
+		| 0x00008000 /*kEnableStdout*/,
+	"gNewtConfig patch");
 
 /*
  * Intercept DebugStr calls and prints them via the Emulator logger.
  */
 
-T_ROM_PATCH(0x0038CE6C, kROMPatchVoid, kROMPatchVoid,  kROMPatchVoid, "DebugStr")
+T_ROM_PATCH(0x0038CE6C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "DebugStr")
 {
-    (void) ioUnit;
-    TLog *log = ioCPU->GetEmulator()->GetLog();
-    if (log != nullptr) {
-	KUInt32 theAddress = ioCPU->GetRegister(0);
-	char theLine[512];
-	KUInt32 amount = sizeof(theLine);
-	ioCPU->GetMemory()->FastReadString(theAddress, &amount, theLine);
-	log->LogLine( theLine );
-    }
-    ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 4);
-    return 0L;
+	(void) ioUnit;
+	TLog* log = ioCPU->GetEmulator()->GetLog();
+	if (log != nullptr)
+	{
+		KUInt32 theAddress = ioCPU->GetRegister(0);
+		char theLine[512];
+		KUInt32 amount = sizeof(theLine);
+		ioCPU->GetMemory()->FastReadString(theAddress, &amount, theLine);
+		log->LogLine(theLine);
+	}
+	ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 4);
+	return 0L;
 }
 
 /*
  * Break via the monitor. Adjust PC to LR + 8 to undo PC adjustment by the monitor
  */
 
-T_ROM_PATCH(0x0038CE70, kROMPatchVoid, kROMPatchVoid,  kROMPatchVoid, "Debugger")
+T_ROM_PATCH(0x0038CE70, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "Debugger")
 {
-    (void) ioUnit;
-    ioCPU->GetEmulator()->BreakInMonitor();
-    ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 8);
-    return 0L;
+	(void) ioUnit;
+	ioCPU->GetEmulator()->BreakInMonitor();
+	ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 8);
+	return 0L;
 }
 
 /*
@@ -110,23 +107,23 @@ T_ROM_PATCH(0x0038CE70, kROMPatchVoid, kROMPatchVoid,  kROMPatchVoid, "Debugger"
 
 static const KUInt32 delta1904to1970 = 2082844800;
 
-T_ROM_PATCH(0x00255578, kROMPatchVoid, kROMPatchVoid,  kROMPatchVoid, "RealClockSeconds")
+T_ROM_PATCH(0x00255578, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "RealClockSeconds")
 {
-    (void) ioUnit;
-    time_t t = time(NULL);
-    struct tm gm;
-    struct tm local;
+	(void) ioUnit;
+	time_t t = time(NULL);
+	struct tm gm;
+	struct tm local;
 #if TARGET_OS_WIN32
-    gmtime_s(&gm, &t);
-    localtime_s(&local, &t);
+	gmtime_s(&gm, &t);
+	localtime_s(&local, &t);
 #else
-    gmtime_r(&t, &gm);
-    localtime_r(&t, &local);
+	gmtime_r(&t, &gm);
+	localtime_r(&t, &local);
 #endif
-    double tzoffset = difftime(mktime(&local), mktime(&gm));
-    ioCPU->SetRegister(0, t + tzoffset + delta1904to1970);
-    ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 4);
-    return 0L;
+	double tzoffset = difftime(mktime(&local), mktime(&gm));
+	ioCPU->SetRegister(0, t + tzoffset + delta1904to1970);
+	ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 4);
+	return 0L;
 }
 
 /* Patches for the 2010 problem:
@@ -148,130 +145,133 @@ static const KUInt32 safeIntervalDeltaSeconds = 473299200;
  * Adjust seconds values returned to NS layer into safe interval
  */
 
-T_ROM_PATCH(0x00089B80, kROMPatchVoid, kROMPatchVoid,  kROMPatchVoid, "FTimeInSeconds")
+T_ROM_PATCH(0x00089B80, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "FTimeInSeconds")
 {
-    ioCPU->SetRegister(0, (ioCPU->GetRegister(0) - safeIntervalDeltaSeconds) << 2);
-    return ioUnit;
+	ioCPU->SetRegister(0, (ioCPU->GetRegister(0) - safeIntervalDeltaSeconds) << 2);
+	return ioUnit;
 }
 
 /*
  * Fix date from seconds returned to NS layer
  */
 
-T_ROM_PATCH(0x0008A8A8, kROMPatchVoid, kROMPatchVoid,  kROMPatchVoid, "FDateFromSeconds")
+T_ROM_PATCH(0x0008A8A8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "FDateFromSeconds")
 {
-    ioCPU->SetRegister(1, ioCPU->GetRegister(1) + safeIntervalDeltaSeconds);
-    ioCPU->SetRegister(0, ioCPU->GetRegister(13));
-    return ioUnit;
+	ioCPU->SetRegister(1, ioCPU->GetRegister(1) + safeIntervalDeltaSeconds);
+	ioCPU->SetRegister(0, ioCPU->GetRegister(13));
+	return ioUnit;
 }
 
 static const KUInt32 newTimeBaseMinutes = 218799360; /* 2008/1/1 in minutes from 1904/1/1 as NS integer */
 static const KUInt32 newTimeBaseSeconds = 3281990400; /* 2008/1/1 in seconds from 1904/1/1 as NS integer */
 
 TJITGenericPatch timeBase1(0x420750, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
-                           newTimeBaseMinutes, "Time base (1/4)");
+	newTimeBaseMinutes, "Time base (1/4)");
 TJITGenericPatch timeBase2(0x420798, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
-                           newTimeBaseMinutes, "Time base (2/4)");
+	newTimeBaseMinutes, "Time base (2/4)");
 TJITGenericPatch timeBase3(0x4dca14, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
-                           newTimeBaseMinutes, "Time base (3/4)");
+	newTimeBaseMinutes, "Time base (3/4)");
 TJITGenericPatch timeBase4(0x30F088, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
-                           newTimeBaseSeconds, "Time base (4/4)");
+	newTimeBaseSeconds, "Time base (4/4)");
 TJITGenericPatch ignoreSettingTime(0x0008A20C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
-                           0xe1a0f00e, "Ignore setting time"); // mov pc, lr
+	0xe1a0f00e, "Ignore setting time"); // mov pc, lr
 
 // ========================================================================== //
 // MARK: -
 // TJITGenericPatchManager
 
-
 /**
  Initialize static TJITGenericPatchObject member variables
  */
-TJITGenericPatchObject **TJITGenericPatchManager::mPatchList = nullptr;
-KUInt32     TJITGenericPatchManager::mPatchListTop = 0;
-KUInt32     TJITGenericPatchManager::mPatchListSize = 0;
-
+TJITGenericPatchObject** TJITGenericPatchManager::mPatchList = nullptr;
+KUInt32 TJITGenericPatchManager::mPatchListTop = 0;
+KUInt32 TJITGenericPatchManager::mPatchListSize = 0;
 
 /**
  Get patch at a given index.
  \param ix index into the patch table
  \return pointer to the patch
  */
-TJITGenericPatchObject *TJITGenericPatchManager::GetPatchAt(KUInt32 ix)
+TJITGenericPatchObject*
+TJITGenericPatchManager::GetPatchAt(KUInt32 ix)
 {
-	if (ix<mPatchListTop) {
+	if (ix < mPatchListTop)
+	{
 		return mPatchList[ix];
-	} else {
-//		KPrintf("ERROR in %s %d: accessing invalid patch index %d of %d\n",
-//				__FILE__, __LINE__, (int)ix, (int)mPatchListTop);
+	} else
+	{
+		//		KPrintf("ERROR in %s %d: accessing invalid patch index %d of %d\n",
+		//				__FILE__, __LINE__, (int)ix, (int)mPatchListTop);
 		return NULL;
 	}
 }
-
 
 /**
  Add another patch to the patch list and return the index
  \param p newly generated patch
  \return index into the patch table
  */
-KUInt32 TJITGenericPatchManager::Add(TJITGenericPatchObject *p)
+KUInt32
+TJITGenericPatchManager::Add(TJITGenericPatchObject* p)
 {
-	if (p==0)
+	if (p == 0)
 		return 0;
-	if (mPatchListTop==mPatchListSize) {
-		if (mPatchListSize) {
+	if (mPatchListTop == mPatchListSize)
+	{
+		if (mPatchListSize)
+		{
 			mPatchListSize *= 2;
-		} else {
+		} else
+		{
 			mPatchListSize = 64;
 		}
 		mPatchList = (TJITGenericPatchObject**)
-			realloc(mPatchList, mPatchListSize*sizeof(TJITGenericPatchObject*));
+			realloc(mPatchList, mPatchListSize * sizeof(TJITGenericPatchObject*));
 	}
 	mPatchList[mPatchListTop++] = p;
-	return (mPatchListTop-1);
+	return (mPatchListTop - 1);
 }
-
 
 /**
  Apply all patches to the ROM.
  \param inROMPtr pointer to an array of ROM words
  \param inROMId is an ID of the ROM that the user selected. This can be used to apply the same patch to
-        different locations in the  MP2100 US ROM, the German ROM, or the eMate ROM.
+		different locations in the  MP2100 US ROM, the German ROM, or the eMate ROM.
  */
-void TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId)
+void
+TJITGenericPatchManager::DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId)
 {
-    if (inROMId!=TROMImage::kUnknownROM) {
-		for (KUInt32 i=0; i<mPatchListTop; i++) {
+	if (inROMId != TROMImage::kUnknownROM)
+	{
+		for (KUInt32 i = 0; i < mPatchListTop; i++)
+		{
 			mPatchList[i]->Apply(inROMPtr, inROMId);
 		}
-		KPrintf("%u patches applied\n", (unsigned)GetNumPatches());
+		KPrintf("%u patches applied\n", (unsigned) GetNumPatches());
 	}
 }
-
 
 // ========================================================================== //
 // MARK: -
 // TJITGenericPatchObject
 
-
 /**
  TJITGenericPatchObject constructor
  */
 TJITGenericPatchObject::TJITGenericPatchObject(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
-                                               const char *name)
-:	mIndex(AddToManager()),
-    mAddress{inAddr0, inAddr1, inAddr2, inAddr3},
-	mOriginalInstruction(0xFFFFFFFF),
-	mName(name)
+	const char* name) :
+		mIndex(AddToManager()),
+		mAddress { inAddr0, inAddr1, inAddr2, inAddr3 },
+		mOriginalInstruction(0xFFFFFFFF),
+		mName(name)
 {
-    static_assert(kROMPatchNumIDs==4, "Fix this constructor if the number of supported ROMs changed");
+	static_assert(kROMPatchNumIDs == 4, "Fix this constructor if the number of supported ROMs changed");
 	assert(inAddr0 == kROMPatchVoid || inAddr0 < 16 * 1024 * 1024);
 	assert(inAddr1 == kROMPatchVoid || inAddr1 < 16 * 1024 * 1024);
 	assert(inAddr2 == kROMPatchVoid || inAddr2 < 16 * 1024 * 1024);
 	assert(inAddr3 == kROMPatchVoid || inAddr3 < 16 * 1024 * 1024);
 	//    KPrintf("Adding ROM patch: %s\n", name);
 }
-
 
 /**
  Destructor.
@@ -282,40 +282,40 @@ TJITGenericPatchObject::~TJITGenericPatchObject()
 	// We don't worry about reversing the patch or unmanaging the patch.
 }
 
-
 /**
  \brief Return the offset of the instruction into the ROM word array.
  \return offset in words
  */
-KUInt32 TJITGenericPatchObject::GetOffsetInROM(KSInt32 inROMId)
+KUInt32
+TJITGenericPatchObject::GetOffsetInROM(KSInt32 inROMId)
 {
-    if (inROMId==TROMImage::kUnknownROM)
-        return kROMPatchVoid;
+	if (inROMId == TROMImage::kUnknownROM)
+		return kROMPatchVoid;
 
-    KUInt32 address = mAddress[inROMId];
-    if (address==kROMPatchVoid)
-        return kROMPatchVoid;
+	KUInt32 address = mAddress[inROMId];
+	if (address == kROMPatchVoid)
+		return kROMPatchVoid;
 
-    if (address>=TMemoryConsts::kHighROMEnd) {
-        KPrintf("ERROR in %s %d: patch address not in ROM at 0x%08X in patch '%s'\n",
-                __FILE__, __LINE__, (unsigned)address, mName?mName:"(unnamed)");
-        return kROMPatchVoid;
+	if (address >= TMemoryConsts::kHighROMEnd)
+	{
+		KPrintf("ERROR in %s %d: patch address not in ROM at 0x%08X in patch '%s'\n",
+			__FILE__, __LINE__, (unsigned) address, mName ? mName : "(unnamed)");
+		return kROMPatchVoid;
 	}
 
-    if (address&0x00000003) {
-        KPrintf("ERROR in %s %d: patch address not word-aligned at 0x%08X in patch '%s'\n",
-                __FILE__, __LINE__, (unsigned)address, mName?mName:"(unnamed)");
-        return kROMPatchVoid;
-    }
+	if (address & 0x00000003)
+	{
+		KPrintf("ERROR in %s %d: patch address not word-aligned at 0x%08X in patch '%s'\n",
+			__FILE__, __LINE__, (unsigned) address, mName ? mName : "(unnamed)");
+		return kROMPatchVoid;
+	}
 
-    return address>>2;
+	return address >> 2;
 }
-
 
 // ========================================================================== //
 // MARK: -
 // TJITGenericPatch
-
 
 /**
  \brief Create and add a new patch
@@ -324,31 +324,30 @@ KUInt32 TJITGenericPatchObject::GetOffsetInROM(KSInt32 inROMId)
  \param name a name for this patch
  */
 TJITGenericPatch::TJITGenericPatch(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
-                                   KUInt32 value, const char *name)
-: 	TJITGenericPatchObject(inAddr0, inAddr1, inAddr2, inAddr3, name),
-	mNewInstruction(value)
+	KUInt32 value, const char* name) :
+		TJITGenericPatchObject(inAddr0, inAddr1, inAddr2, inAddr3, name),
+		mNewInstruction(value)
 {
 }
-
 
 /**
  \brief Apply the patch to the ROM words.
  */
-void TJITGenericPatch::Apply(KUInt32 *ROM, KSInt32 inROMId)
+void
+TJITGenericPatch::Apply(KUInt32* ROM, KSInt32 inROMId)
 {
-    KUInt32 offset = GetOffsetInROM(inROMId);
-    if (offset!=kROMPatchVoid) {
-        KPrintf("Applying patch at 0x%08X: %s\n", offset*4, GetName());
-        SetOrigialInstruction(ROM[offset]);
-        ROM[offset] = GetNewInstruction();
-    }
+	KUInt32 offset = GetOffsetInROM(inROMId);
+	if (offset != kROMPatchVoid)
+	{
+		KPrintf("Applying patch at 0x%08X: %s\n", offset * 4, GetName());
+		SetOrigialInstruction(ROM[offset]);
+		ROM[offset] = GetNewInstruction();
+	}
 }
-
 
 // ========================================================================== //
 // MARK: -
 // TJITGenericPatchFindAndReplace
-
 
 /**
  \brief Verify and replace words in ROM.
@@ -363,95 +362,96 @@ void TJITGenericPatch::Apply(KUInt32 *ROM, KSInt32 inROMId)
  \param name an optional name for this patch
  */
 TJITGenericPatchFindAndReplace::TJITGenericPatchFindAndReplace(
-								KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
-								KUInt32 *key, KUInt32 *replacement,
-								const char *name)
-: 	TJITGenericPatch(inAddr0, inAddr1, inAddr2, inAddr3, 0, name),
-	mKey(key),
-	mReplacement(replacement)
+	KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
+	KUInt32* key, KUInt32* replacement,
+	const char* name) :
+		TJITGenericPatch(inAddr0, inAddr1, inAddr2, inAddr3, 0, name),
+		mKey(key),
+		mReplacement(replacement)
 {
 }
-
 
 /**
  Patch the ROM
  */
-void TJITGenericPatchFindAndReplace::Apply(KUInt32 *ROM, KSInt32 inROMId)
+void
+TJITGenericPatchFindAndReplace::Apply(KUInt32* ROM, KSInt32 inROMId)
 {
-    KUInt32 offset = GetOffsetInROM(inROMId);
-    if (offset==kROMPatchVoid)
-        return;
+	KUInt32 offset = GetOffsetInROM(inROMId);
+	if (offset == kROMPatchVoid)
+		return;
 
-    KPrintf("Applying find-and-replace patch at 0x%08X: %s\n", offset*4, GetName());
+	KPrintf("Applying find-and-replace patch at 0x%08X: %s\n", offset * 4, GetName());
 
-    KUInt32 keyLen = mKey[0];
-    if (memcmp(ROM+offset, mKey+1, keyLen*4)!=0) {
-        KPrintf("WARNING in %s %d: Key pattern does not match, patch \"%s\" not applied.\n",
+	KUInt32 keyLen = mKey[0];
+	if (memcmp(ROM + offset, mKey + 1, keyLen * 4) != 0)
+	{
+		KPrintf("WARNING in %s %d: Key pattern does not match, patch \"%s\" not applied.\n",
 			__FILE__, __LINE__, GetName());
-        return;
+		return;
 	}
 
-    KUInt32 rplLen = mReplacement[0];
-    memcpy(ROM+offset, mReplacement+1, rplLen*4);
+	KUInt32 rplLen = mReplacement[0];
+	memcpy(ROM + offset, mReplacement + 1, rplLen * 4);
 }
-
 
 // ========================================================================== //
 // MARK: -
 // TJITGenericPatchNativeCall
 
-
 /**
  \brief Apply the patch to the ROM words.
 
  This generates an SWI instruction with an index and special flags.
  */
-void TJITGenericPatchNativeCall::Apply(KUInt32 *ROM, KSInt32 inROMId)
+void
+TJITGenericPatchNativeCall::Apply(KUInt32* ROM, KSInt32 inROMId)
 {
-    KUInt32 offset = GetOffsetInROM(inROMId);
-    if (offset!=kROMPatchVoid) {
-        KPrintf("Applying native call patch at 0x%08X: %s\n", offset*4, GetName());
-        SetOrigialInstruction(ROM[offset]);
-        ROM[offset] = kSWINativeCall|GetIndex();
-    }
+	KUInt32 offset = GetOffsetInROM(inROMId);
+	if (offset != kROMPatchVoid)
+	{
+		KPrintf("Applying native call patch at 0x%08X: %s\n", offset * 4, GetName());
+		SetOrigialInstruction(ROM[offset]);
+		ROM[offset] = kSWINativeCall | GetIndex();
+	}
 }
-
 
 /**
  \brief Call the patch code.
  */
-JITUnit *TJITGenericPatchNativeCall::Call(JITUnit *ioUnit, TARMProcessor *ioCPU)
+JITUnit*
+TJITGenericPatchNativeCall::Call(JITUnit* ioUnit, TARMProcessor* ioCPU)
 {
 	JITFuncPtr callJIT = GetStub();
-	if (callJIT) {
+	if (callJIT)
+	{
 		return callJIT(ioUnit, ioCPU);
-	} else {
+	} else
+	{
 		CALLNEXTUNIT;
 	}
 }
-
 
 // ========================================================================== //
 // MARK: -
 // TJITGenericPatchNativeInjection
 
-
 /**
  \brief Apply the patch to the ROM words.
 
  This generates an SWI instruction with an index and special flags.
  */
-void TJITGenericPatchNativeInjection::Apply(KUInt32 *ROM, KSInt32 inROMId)
+void
+TJITGenericPatchNativeInjection::Apply(KUInt32* ROM, KSInt32 inROMId)
 {
-    KUInt32 offset = GetOffsetInROM(inROMId);
-    if (offset!=kROMPatchVoid) {
-        KPrintf("Applying native injection patch at 0x%08X: %s\n", offset*4, GetName());
-        SetOrigialInstruction(ROM[offset]);
-        ROM[offset] = kSWINativeInjection | GetIndex();
-    }
+	KUInt32 offset = GetOffsetInROM(inROMId);
+	if (offset != kROMPatchVoid)
+	{
+		KPrintf("Applying native injection patch at 0x%08X: %s\n", offset * 4, GetName());
+		SetOrigialInstruction(ROM[offset]);
+		ROM[offset] = kSWINativeInjection | GetIndex();
+	}
 }
-
-
 
 #if 0
 // The following code is here only for reference. The Simulation is currently
@@ -507,6 +507,5 @@ JITInstructionProto(CallHostInjection)
 	CALLNEXTUNIT;
 }
 #endif
-
 
 #endif

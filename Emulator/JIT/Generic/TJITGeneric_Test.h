@@ -38,7 +38,7 @@
 #undef DECLARATION
 
 #endif
-	// _TJITGENERIC_TEST_H
+// _TJITGENERIC_TEST_H
 
 // ===================================== //
 // Multics is security spelled sideways. //

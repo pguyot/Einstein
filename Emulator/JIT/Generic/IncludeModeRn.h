@@ -27,16 +27,16 @@
 // #include "IncludeModeRn.h"
 // #undef INCLUDE_TEMPLATE
 
-#define MODE	Imm
+#define MODE Imm
 #include "IncludeRn.h"
 #undef MODE
-#define MODE	ImmC
+#define MODE ImmC
 #include "IncludeRn.h"
 #undef MODE
-#define MODE	NoShift
+#define MODE NoShift
 #include "IncludeRn.h"
 #undef MODE
-#define MODE	Regular
+#define MODE Regular
 #include "IncludeRn.h"
 #undef MODE
 

@@ -36,29 +36,41 @@ class TFLScriptPanel;
 class TTkScript
 {
 public:
-    TTkScript(TToolkit *toolkit);
-    ~TTkScript();
+	TTkScript(TToolkit* toolkit);
+	~TTkScript();
 
-    void SetPanel(TFLScriptPanel *panel) { mPanel = panel; }
-    void LoadFile(const char *filename);
-    void SetSourceCode(const char *sourcecode);
-    char *DupSourceCode();
-    char *GetFilename() { return mFilename; }
-    void SetFilename(const char *filename);
-    bool IsDirty() { return mIsDirty; }
-    void SetDirty();
-    void ClearDirty();
-    int Save();
+	void
+	SetPanel(TFLScriptPanel* panel)
+	{
+		mPanel = panel;
+	}
+	void LoadFile(const char* filename);
+	void SetSourceCode(const char* sourcecode);
+	char* DupSourceCode();
+	char*
+	GetFilename()
+	{
+		return mFilename;
+	}
+	void SetFilename(const char* filename);
+	bool
+	IsDirty()
+	{
+		return mIsDirty;
+	}
+	void SetDirty();
+	void ClearDirty();
+	int Save();
 
 private:
-    TToolkit *mToolkit = nullptr;
-    TFLScriptPanel *mPanel = nullptr;
-    char *mFilename = nullptr;
-    bool mIsDirty = false;
+	TToolkit* mToolkit = nullptr;
+	TFLScriptPanel* mPanel = nullptr;
+	char* mFilename = nullptr;
+	bool mIsDirty = false;
 };
 
 #endif
-		// _T_SCRIPT_FILE_H
+// _T_SCRIPT_FILE_H
 
 // ============================================================================ //
 // NewtonScript

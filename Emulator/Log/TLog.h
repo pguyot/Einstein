@@ -43,59 +43,63 @@ public:
 	///
 	/// Default constructor.
 	///
-	TLog( void );
+	TLog(void);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TLog( void );
+	virtual ~TLog(void);
 
 	///
 	/// Log a line (synchronously).
 	///
 	/// \param inLine	line to log.
 	///
-	void	LogLine( const char* inLine );
+	void LogLine(const char* inLine);
 
 	///
 	/// Log a line (synchronously).
 	///
 	/// \param inFormat	format to log stuff to.
 	///
-	void	FLogLine( const char* inLine, ... );
+	void FLogLine(const char* inLine, ...);
 
 	///
 	/// Enable the log.
 	///
-	void	Enable( void )
-		{
-			mEnabled = true;
-		}
+	void
+	Enable(void)
+	{
+		mEnabled = true;
+	}
 
 	///
 	/// Disable the log.
 	///
-	void	Disable( void )
-		{
-			mEnabled = false;
-		}
+	void
+	Disable(void)
+	{
+		mEnabled = false;
+	}
 
 protected:
 	///
 	/// Lock the mutex.
 	///
-	void	LockMutex( void )
-		{
-			mMutex->Lock();
-		}
+	void
+	LockMutex(void)
+	{
+		mMutex->Lock();
+	}
 
 	///
 	/// Unlock the mutex.
 	///
-	void	UnlockMutex( void )
-		{
-			mMutex->Unlock();
-		}
+	void
+	UnlockMutex(void)
+	{
+		mMutex->Unlock();
+	}
 
 private:
 	///
@@ -103,28 +107,28 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TLog( const TLog& inCopy );
+	TLog(const TLog& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TLog& operator = ( const TLog& inCopy );
+	TLog& operator=(const TLog& inCopy);
 
 	///
 	/// Log a line.
 	///
 	/// \param inLine	line to log.
 	///
-	virtual void	DoLogLine( const char* inLine ) = 0;
+	virtual void DoLogLine(const char* inLine) = 0;
 
-	TMutex*	mMutex;			///< Mutex to log the lines synchronously.
-	KUInt32 mEnabled;		///< If the log is enabled.
+	TMutex* mMutex; ///< Mutex to log the lines synchronously.
+	KUInt32 mEnabled; ///< If the log is enabled.
 };
 
 #endif
-		// _TLOG_H
+// _TLOG_H
 
 // ====================================================================== //
 // In any problem, if you find yourself doing an infinite amount of work, //

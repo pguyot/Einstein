@@ -23,30 +23,30 @@
 
 #include "TSerialPortManager.h"
 
-#include "Emulator/Log/TStdOutLog.h"
 #include "Emulator/Log/TFileLog.h"
+#include "Emulator/Log/TStdOutLog.h"
 
 // POSIX
-#include <sys/types.h>
 #include <csignal>
 #include <cstring>
+#include <sys/types.h>
 
 #if !TARGET_OS_WIN32
-	#include <unistd.h>
-	#include <sys/time.h>
+#include <sys/time.h>
+#include <unistd.h>
 #endif
 
-#include "Emulator/Log/TLog.h"
-#include "Emulator/TInterruptManager.h"
 #include "Emulator/TDMAManager.h"
+#include "Emulator/TInterruptManager.h"
+#include "Emulator/Log/TLog.h"
 
 #include "Emulator/TEmulator.h"
 
 #include "Emulator/Serial/TBasicSerialPortManager.h"
 #if TARGET_OS_MAC
+#include "Emulator/Serial/TBasiliskIISerialPortManager.h"
 #include "Emulator/Serial/TPipesSerialPortManager.h"
 #include "Emulator/Serial/TPtySerialPortManager.h"
-#include "Emulator/Serial/TBasiliskIISerialPortManager.h"
 #endif
 #if TARGET_OS_MAC || TAGRET_OS_ANDROID
 #include "Emulator/Serial/TTcpClientSerialPortManager.h"
@@ -56,21 +56,19 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
-
 // -------------------------------------------------------------------------- //
 //  * TSerialPortManager( TLog*, ELocationID )
 // -------------------------------------------------------------------------- //
 TSerialPortManager::TSerialPortManager(
-		TLog* inLog,
-		TSerialPorts::EPortIndex inPortIx)
-:
-		mLog( inLog ),
-		mNewtPortIndex( inPortIx ),
-		mInterruptManager( nullptr ),
-		mDMAManager( nullptr ),
-		mMemory( nullptr )
+	TLog* inLog,
+	TSerialPorts::EPortIndex inPortIx) :
+		mLog(inLog),
+		mNewtPortIndex(inPortIx),
+		mInterruptManager(nullptr),
+		mDMAManager(nullptr),
+		mMemory(nullptr)
 {
-	if ( mLog )
+	if (mLog)
 	{
 		mLog->FLogLine("TSerialPortManager initializing for port %d", mNewtPortIndex);
 	}
@@ -81,12 +79,11 @@ TSerialPortManager::TSerialPortManager(
 // -------------------------------------------------------------------------- //
 TSerialPortManager::~TSerialPortManager() = default;
 
-
 // -------------------------------------------------------------------------- //
 //  * WriteRegister( KUInt32, KUInt8 )
 // -------------------------------------------------------------------------- //
 void
-TSerialPortManager::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
+TSerialPortManager::WriteRegister(KUInt32 inOffset, KUInt8 inValue)
 {
 	if (mLog)
 	{
@@ -98,7 +95,7 @@ TSerialPortManager::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
 //  * ReadRegister( KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt8
-TSerialPortManager::ReadRegister( KUInt32 inOffset )
+TSerialPortManager::ReadRegister(KUInt32 inOffset)
 {
 	KUInt8 theResult = 0;
 	if (inOffset == 0x4400)
@@ -106,65 +103,62 @@ TSerialPortManager::ReadRegister( KUInt32 inOffset )
 		// Both buffers are empty for now.
 		// We also don't want a beacon.
 		theResult = 0x80;
-	} else if (inOffset == 0x4800) {
+	} else if (inOffset == 0x4800)
+	{
 		// RxEOF
-//		theResult = 0x80;
-//		TDebugger::BreakInDebugger();
-	} else {
-//		TDebugger::BreakInDebugger();
+		//		theResult = 0x80;
+		//		TDebugger::BreakInDebugger();
+	} else
+	{
+		//		TDebugger::BreakInDebugger();
 		if (mLog)
 		{
 			mLog->FLogLine(
-						   "[%d] - Read unknown serial register %.4X : %.2X",
-						   mNewtPortIndex,
-						   (unsigned int) inOffset,
-						   (unsigned int) theResult );
+				"[%d] - Read unknown serial register %.4X : %.2X",
+				mNewtPortIndex,
+				(unsigned int) inOffset,
+				(unsigned int) theResult);
 		}
 	}
 
 	return theResult;
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * ReadDMARegister( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TSerialPortManager::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister )
+TSerialPortManager::ReadDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister)
 {
 	KUInt32 theResult = 0L;
 	if (mLog)
 	{
 		mLog->FLogLine(
-					   "[%d] - Read DMA register %i.%i for channel %i : %.8X",
-					   mNewtPortIndex,
-					   (int) inBank,
-					   (int) inRegister, (int) inChannel,
-					   (unsigned int) theResult );
+			"[%d] - Read DMA register %i.%i for channel %i : %.8X",
+			mNewtPortIndex,
+			(int) inBank,
+			(int) inRegister, (int) inChannel,
+			(unsigned int) theResult);
 	}
 	return theResult;
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * WriteDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TSerialPortManager::WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue )
+TSerialPortManager::WriteDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue)
 {
 	if (mLog)
 	{
 		mLog->FLogLine(
-					   "[%d] - Write DMA bank %i, channel %i, register %i : %.8X",
-					   mNewtPortIndex,
-					   (int) inBank,
-					   (int) inChannel, (int) inRegister,
-					   (unsigned int) inValue );
+			"[%d] - Write DMA bank %i, channel %i, register %i : %.8X",
+			mNewtPortIndex,
+			(int) inBank,
+			(int) inChannel, (int) inRegister,
+			(unsigned int) inValue);
 	}
 }
-
-
-
 
 // ================================================================== //
 // We are experiencing system trouble -- do not adjust your terminal. //

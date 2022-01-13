@@ -47,11 +47,11 @@ class TObjCBridgeCalls;
 #endif
 
 struct TabletCalibration {
-	KUInt32	fUnknown_00;
-	KUInt32	fUnknown_04;
-	KUInt32	fUnknown_08;
-	KUInt32	fUnknown_0C;
-	KUInt32	fUnknown_10;
+	KUInt32 fUnknown_00;
+	KUInt32 fUnknown_04;
+	KUInt32 fUnknown_08;
+	KUInt32 fUnknown_0C;
+	KUInt32 fUnknown_10;
 };
 
 struct s64bits {
@@ -78,50 +78,51 @@ public:
 	/// \param inEmulator	interface with the emulator.
 	///
 	TNativePrimitives(
-				TLog* inLog,
-				TMemory* inMemory );
+		TLog* inLog,
+		TMemory* inMemory);
 
 	///
 	/// Destructor.
 	///
-	~TNativePrimitives( void );
+	~TNativePrimitives(void);
 
 	///
 	/// Set the processor.
 	///
 	/// \param inProcessor  processor using this interface.
 	///
-	void		SetProcessor( TARMProcessor* inProcessor )
-		{
-			mProcessor = inProcessor;
-		}
+	void
+	SetProcessor(TARMProcessor* inProcessor)
+	{
+		mProcessor = inProcessor;
+	}
 
 	///
 	/// Set the emulator.
 	///
 	/// \param inEmulator emulator (access to hardware managers).
 	///
-	void		SetEmulator( TEmulator* inEmulator );
+	void SetEmulator(TEmulator* inEmulator);
 
 	///
 	/// Execute a native instruction.
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecuteNative( KUInt32 inInstruction );
+	void ExecuteNative(KUInt32 inInstruction);
 
 	///
 	/// Load or save the state to a stream.
 	///
-	void		TransferState( TStream* inStream );
+	void TransferState(TStream* inStream);
 
 private:
 	/// Constants
 	enum {
-		kScreenOrientation_AppleTop		= 0x00000000,
-		kScreenOrientation_AppleRight   = 0x00000001,
-		kScreenOrientation_AppleBottom  = 0x00000002,
-		kScreenOrientation_AppleLeft	= 0x00000003,
+		kScreenOrientation_AppleTop = 0x00000000,
+		kScreenOrientation_AppleRight = 0x00000001,
+		kScreenOrientation_AppleBottom = 0x00000002,
+		kScreenOrientation_AppleLeft = 0x00000003,
 		kScreenOrientation_LandscapeBit = 0x00000001
 	};
 
@@ -130,129 +131,129 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TNativePrimitives( const TNativePrimitives& inCopy );
+	TNativePrimitives(const TNativePrimitives& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TNativePrimitives& operator = ( const TNativePrimitives& inCopy );
+	TNativePrimitives& operator=(const TNativePrimitives& inCopy);
 
 	///
 	/// Execute a native instruction related to the flash driver.
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecuteFlashDriverNative( KUInt32 inInstruction );
+	void ExecuteFlashDriverNative(KUInt32 inInstruction);
 
 	///
 	/// Execute a native instruction related to the platform driver.
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecutePlatformDriverNative( KUInt32 inInstruction );
+	void ExecutePlatformDriverNative(KUInt32 inInstruction);
 
 	///
 	/// Execute a native instruction related to the sound driver.
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecuteSoundDriverNative( KUInt32 inInstruction );
+	void ExecuteSoundDriverNative(KUInt32 inInstruction);
 
 	///
 	/// Execute a native instruction related to the battery driver.
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecuteBatteryDriverNative( KUInt32 inInstruction );
+	void ExecuteBatteryDriverNative(KUInt32 inInstruction);
 
 	///
 	/// Execute a native instruction related to the screen driver.
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecuteScreenDriverNative( KUInt32 inInstruction );
+	void ExecuteScreenDriverNative(KUInt32 inInstruction);
 
 	///
 	/// Execute a native instruction related to the tablet driver.
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecuteTabletDriverNative( KUInt32 inInstruction );
+	void ExecuteTabletDriverNative(KUInt32 inInstruction);
 
 	///
 	/// Execute a native instruction related to the serial driver.
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecuteSerialDriverNative( KUInt32 inInstruction );
+	void ExecuteSerialDriverNative(KUInt32 inInstruction);
 
 	///
 	/// Execute a native instruction related to in-translator.
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecuteInTranslatorNative( KUInt32 inInstruction );
+	void ExecuteInTranslatorNative(KUInt32 inInstruction);
 
 	///
 	/// Execute a native instruction related to out-translator.
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecuteOutTranslatorNative( KUInt32 inInstruction );
+	void ExecuteOutTranslatorNative(KUInt32 inInstruction);
 
 	///
 	/// Execute a native instruction related to host interface.
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecuteHostCallNative( KUInt32 inInstruction );
+	void ExecuteHostCallNative(KUInt32 inInstruction);
 
 	///
 	/// Execute a native instruction related to network access
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecuteNetworkManagerNative( KUInt32 inInstruction );
+	void ExecuteNetworkManagerNative(KUInt32 inInstruction);
 
 	///
 	/// Execute a native instruction supporting iOS integration
 	///
 	/// \param inInstruction	opcode of the instruction to execute.
 	///
-	void		ExecuteHostiOSNativeiOS( KUInt32 inInstruction );
+	void ExecuteHostiOSNativeiOS(KUInt32 inInstruction);
 
 	/// \name Variables
-	TARMProcessor*		mProcessor;			///< Reference to the CPU.
-	TLog*				mLog;				///< Interface for logging.
-	KUInt32				mLogMask;			///< Bitmask for enabled logs
-	TMemory*			mMemory;			///< Interface to the memory.
-	TEmulator*			mEmulator;			///< Emulator (interface to hardware).
-	TNetworkManager*	mNetworkManager;	///< Network manager.
-	TSoundManager*		mSoundManager;		///< Sound manager
-	TScreenManager*		mScreenManager;		///< Screen manager.
-	TPlatformManager*	mPlatformManager;	///< Platform manager.
+	TARMProcessor* mProcessor; ///< Reference to the CPU.
+	TLog* mLog; ///< Interface for logging.
+	KUInt32 mLogMask; ///< Bitmask for enabled logs
+	TMemory* mMemory; ///< Interface to the memory.
+	TEmulator* mEmulator; ///< Emulator (interface to hardware).
+	TNetworkManager* mNetworkManager; ///< Network manager.
+	TSoundManager* mSoundManager; ///< Sound manager
+	TScreenManager* mScreenManager; ///< Screen manager.
+	TPlatformManager* mPlatformManager; ///< Platform manager.
 #if !TARGET_OS_MAC
-	TNativeCalls*		mNativeCalls;		///< Interface for native calls.
+	TNativeCalls* mNativeCalls; ///< Interface for native calls.
 #endif
-	TVirtualizedCalls*	mVirtualizedCalls;	///< Interface for virtualized calls.
+	TVirtualizedCalls* mVirtualizedCalls; ///< Interface for virtualized calls.
 #if TARGET_OS_MAC
-	TObjCBridgeCalls*   mObjCBridgeCalls;    ///< Interface for iOS calls.
+	TObjCBridgeCalls* mObjCBridgeCalls; ///< Interface for iOS calls.
 #endif
-	KUInt32				mScreenContrast;	///< Feature 0x0 (probably the contrast).
-	KUInt32				mScreenBacklight;   ///< Feature 0x2.
-	KUInt32				mScreenOrientation; ///< Feature 0x4.
-	TabletCalibration   mTabletCalibration; ///< Tablet calibration.
-	KUInt32				mTabletSampleRate;  ///< Tablet sample rate.
-	KUInt8				mInputVolume;		///< Input volume (0-255)
-	Boolean				mQuit;				///< Whether to quit.
-	KUInt32				mSoundOutputBuffer1Addr;	///< Output buffer #1: the addr.
-	KUInt32				mSoundOutputBuffer2Addr;	///< Output buffer #2: the addr.
+	KUInt32 mScreenContrast; ///< Feature 0x0 (probably the contrast).
+	KUInt32 mScreenBacklight; ///< Feature 0x2.
+	KUInt32 mScreenOrientation; ///< Feature 0x4.
+	TabletCalibration mTabletCalibration; ///< Tablet calibration.
+	KUInt32 mTabletSampleRate; ///< Tablet sample rate.
+	KUInt8 mInputVolume; ///< Input volume (0-255)
+	Boolean mQuit; ///< Whether to quit.
+	KUInt32 mSoundOutputBuffer1Addr; ///< Output buffer #1: the addr.
+	KUInt32 mSoundOutputBuffer2Addr; ///< Output buffer #2: the addr.
 };
 
 #endif
-		// _TNATIVEPRIMITIVES_H
+// _TNATIVEPRIMITIVES_H
 
 // ============================================================== //
 // X windows:                                                     //

@@ -41,7 +41,6 @@ class TLog;
 class TMutex;
 class TPCMCIACard;
 
-
 ///
 /// Class for the native-side of the platform driver.
 /// This class handles events.
@@ -60,12 +59,12 @@ public:
 	/// \param inLog				log interface (can be null)
 	/// \param inScreenManager		screen interface (can be null)
 	///
-	TPlatformManager( TLog* inLog = nil, TScreenManager* inScreenManager = nil );
+	TPlatformManager(TLog* inLog = nil, TScreenManager* inScreenManager = nil);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TPlatformManager( void );
+	virtual ~TPlatformManager(void);
 
 	///
 	/// The version number of the Newt Platform interface
@@ -75,7 +74,8 @@ public:
 	///
 	/// Set the reference to the emulator.
 	///
-	void	SetEmulator( TEmulator *inEmulator )
+	void
+	SetEmulator(TEmulator* inEmulator)
 	{
 		mEmulator = inEmulator;
 	}
@@ -86,10 +86,11 @@ public:
 	///
 	/// \param inManager	reference to the interrupt manager
 	///
-	void	SetInterruptManager( TInterruptManager* inManager )
-		{
-			mInterruptManager = inManager;
-		}
+	void
+	SetInterruptManager(TInterruptManager* inManager)
+	{
+		mInterruptManager = inManager;
+	}
 
 	///
 	/// Set the memory interface.
@@ -97,15 +98,17 @@ public:
 	///
 	/// \param inManager	reference to the memory interface
 	///
-	void	SetMemory( TMemory* inMemory )
-		{
-			mMemory = inMemory;
-		}
+	void
+	SetMemory(TMemory* inMemory)
+	{
+		mMemory = inMemory;
+	}
 
 	///
 	/// Set the SPU
 	///
-	void	SetProcessor( TARMProcessor* inCPU )
+	void
+	SetProcessor(TARMProcessor* inCPU)
 	{
 		mCPU = inCPU;
 	}
@@ -113,17 +116,21 @@ public:
 	///
 	/// Power off the system.
 	///
-	void	PowerOff( void );
+	void PowerOff(void);
 
 	///
 	/// Power on the system.
 	///
-	void	PowerOn( void );
+	void PowerOn(void);
 
 	///
 	/// Is the system powered on?
 	///
-	Boolean IsPowerOn( void ) { return mPowerOn; }
+	Boolean
+	IsPowerOn(void)
+	{
+		return mPowerOn;
+	}
 
 	/**
 	 * Keep Einstein from triggering new Platform Interrupts.
@@ -134,9 +141,9 @@ public:
 	 *
 	 * These kind of Platform Interrupts send keyboard events, run
 	 * NewtonScript snippets, and install packages.
-   *
-   * The event queue is locked initially. NewtonOS will unlock it in the last
-   * phase of booting.
+	 *
+	 * The event queue is locked initially. NewtonOS will unlock it in the last
+	 * phase of booting.
 	 *
 	 * \see UnlockEventQueue(), UnlockQueueBootLock()
 	 * \see TNativePrimitives::ExecutePlatformDriverNative()
@@ -156,11 +163,11 @@ public:
 	 */
 	void UnlockEventQueue();
 
-  /**
-   * Unlock the event queue as soon as the boot process is complete.
-   * \see LockEventQueue(), UnlockEventQueue()
-   */
-  void UnlockQueueBootLock();
+	/**
+	 * Unlock the event queue as soon as the boot process is complete.
+	 * \see LockEventQueue(), UnlockEventQueue()
+	 */
+	void UnlockQueueBootLock();
 
 	///
 	/// Get some information about the user.
@@ -172,33 +179,33 @@ public:
 	/// \param outData		on output, user info.
 	/// \return the number of bytes written.
 	///
-	KUInt32	GetUserInfo(
-					EUserInfoSel inSelector,
-					KUInt32 inBufferSize,
-					KUInt32 outAddress ) const;
+	KUInt32 GetUserInfo(
+		EUserInfoSel inSelector,
+		KUInt32 inBufferSize,
+		KUInt32 outAddress) const;
 
 	///
 	/// Get the host time zone.
 	///
 	/// \return the host time zone.
 	///
-	int					GetHostTimeZone( void ) const;
+	int GetHostTimeZone(void) const;
 
 	///
 	/// Send an aevt event to the Newton.
 	/// Data is copied.
 	///
-	void	SendAEvent( EPort inPortId, KUInt32 inSize, const KUInt8* inData );
+	void SendAEvent(EPort inPortId, KUInt32 inSize, const KUInt8* inData);
 
 	///
 	/// Send a Network card insertion event.
 	///
-	void	SendNetworkCardEvent( void );
+	void SendNetworkCardEvent(void);
 
 	///
 	/// Insert or replace a PCCard in a given slot, or remove a PCCard
 	///
-	int	InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard);
+	int InsertPCCard(KUInt32 inSLot, TPCMCIACard* inCard);
 
 	///
 	/// Return the card that is currently in the given PCMCIA slot.
@@ -208,58 +215,58 @@ public:
 	///
 	/// Send a power switch event.
 	///
-	void	SendPowerSwitchEvent( void );
+	void SendPowerSwitchEvent(void);
 
 	///
 	/// Send a backlight event.
 	///
-	void	SendBacklightEvent( void );
+	void SendBacklightEvent(void);
 
 	///
 	/// Send a keyboard event.
 	///
-	void	SendKeyEvent( KUInt32 inType, KUInt8 inKeyCode, KUInt32 time = 0 );
+	void SendKeyEvent(KUInt32 inType, KUInt8 inKeyCode, KUInt32 time = 0);
 
 	///
 	/// Send some NewtonScript command for evaluation.
 	///
-	void	EvalNewtonScript( const char* inNewtonScriptCode );
+	void EvalNewtonScript(const char* inNewtonScriptCode);
 
 	///
 	/// Install a package (the package will be added to a queue, sliced, read by
 	/// the newtonscript task).
 	///
-    void    InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSize);
+	void InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSize);
 
-    ///
-    /// Install a package (the package will be added to a queue, sliced, read by
-    /// the newtonscript task).
-    ///
-	void	InstallPackage( const char* inPackagePath );
+	///
+	/// Install a package (the package will be added to a queue, sliced, read by
+	/// the newtonscript task).
+	///
+	void InstallPackage(const char* inPackagePath);
 
 	///
 	/// Install all packages that were added to the directory on the host computer
 	/// since the last call to this function.
 	///
-	void InstallNewPackages( const char *hostPackageDirectory=0L );
+	void InstallNewPackages(const char* hostPackageDirectory = 0L);
 
 	///
 	/// Get next event from the queue (and remove it).
 	/// Address is wired (and physical).
 	///
-	Boolean	GetNextEvent( KUInt32 outEventPAddr );
+	Boolean GetNextEvent(KUInt32 outEventPAddr);
 
 	///
 	/// Dispose a buffer from the queue.
 	/// \return true if the buffer was found and removed.
 	///
-	Boolean	DisposeBuffer( KUInt32 inID );
+	Boolean DisposeBuffer(KUInt32 inID);
 
 	///
 	/// Copy some buffer data (and remove the buffer).
 	/// \return true if the write operation succeeded.
 	///
-	Boolean	CopyBufferData( KUInt32 inID, KUInt32 outVAddress, KUInt32 inOffset, KUInt32 inAmount );
+	Boolean CopyBufferData(KUInt32 inID, KUInt32 outVAddress, KUInt32 inOffset, KUInt32 inAmount);
 
 	///
 	/// Display a choice of options on the host platform. This is for devices
@@ -272,19 +279,19 @@ public:
 	/// Directory for all kinds of documents, in particular, a list of pakages
 	/// to be installed with an iOS/iPhone host.
 	///
-	void SetDocDir(const char *inDocDir);
+	void SetDocDir(const char* inDocDir);
 
 	///
 	/// Send a buffer event.
 	/// Data is copied.
 	///
-	void	SendBufferAEvent(
-				EPort inPortId,
-				KUInt32 inClass,
-				KUInt32 inID,
-				KUInt32 inDataClass,
-				KUInt32 inSize,
-				const KUInt8* inData );
+	void SendBufferAEvent(
+		EPort inPortId,
+		KUInt32 inClass,
+		KUInt32 inID,
+		KUInt32 inDataClass,
+		KUInt32 inSize,
+		const KUInt8* inData);
 
 	///
 	/// Allow NewtonScript to call methods within Einstein.
@@ -295,9 +302,9 @@ public:
 
 private:
 	struct SBuffer {
-		KUInt32			fID;
-		const KUInt8*	fData;
-		KUInt32			fSize;
+		KUInt32 fID;
+		const KUInt8* fData;
+		KUInt32 fSize;
 	};
 
 	///
@@ -305,51 +312,51 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TPlatformManager( const TPlatformManager& inCopy );
+	TPlatformManager(const TPlatformManager& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TPlatformManager& operator = ( const TPlatformManager& inCopy );
+	TPlatformManager& operator=(const TPlatformManager& inCopy);
 
 	///
 	/// Add a buffer in the queue.
 	/// \return the buffer ID.
 	///
-	KUInt32	AddBuffer( KUInt32 inSize, const KUInt8* inData );
+	KUInt32 AddBuffer(KUInt32 inSize, const KUInt8* inData);
 
 	///
 	/// Raise platform interrupt to trigger platform driver.
 	///
-	void	RaisePlatformInterrupt( void );
+	void RaisePlatformInterrupt(void);
 
 	/// \name Variables
-	TLog*				mLog = nullptr;				///< Reference to the log.
-	TEmulator*			mEmulator = nullptr;		///< Reference to the emulator
-	TScreenManager*		mScreenManager = nullptr;	///< Reference to the screen manager.
-	TInterruptManager*	mInterruptManager = nullptr;///< Reference to the interrupt mgr.
-	TMemory*			mMemory = nullptr;			///< Reference to the memory interface.
-	TARMProcessor*		mCPU = nullptr;				///< Reference to the processor
-	SEvent*				mEventQueue = nullptr;		///< Liste des événements.
-	KUInt32				mEventQueueCCrsr = 0;	    ///< Consumer queue cursor (Newton)
-	KUInt32				mEventQueuePCrsr = 0;	    ///< Producer queue cursor (Host)
-	KUInt32				mEventQueueSize = kDEFAULTEVENTQUEUESIZE; ///< Size of the event queue.
-	SBuffer*			mBufferQueue = nullptr;		///< List of buffers.
-	KUInt32				mBufferCount = 0;		    ///< Number of buffers.
-	KUInt32				mBufferQueueSize = kDEFAULTBUFFERQUEUESIZE;	///< Size of the buffer queue.
-	KUInt32				mBufferNextID = 0;		    ///< Next ID for buffers.
-	Boolean				mPowerOn = true;			///< If power is on.
-	Boolean				mQueuePreLock = false;		///< Non-recursive lock to keep interrupts from triggering twice
-  KUInt32       mQueueLockCount = 0;      ///< Lock count for the queue
-  KUInt32       mQueueBootLock = 1;       ///< Start with a locked queue until NewtonOS finished booting.
-	TMutex*				mMutex = nullptr;			 ///< Mutex of the queue.
-	char*				mDocDir = nullptr;			///< Directory on host containing all kinds of documents
+	TLog* mLog = nullptr; ///< Reference to the log.
+	TEmulator* mEmulator = nullptr; ///< Reference to the emulator
+	TScreenManager* mScreenManager = nullptr; ///< Reference to the screen manager.
+	TInterruptManager* mInterruptManager = nullptr; ///< Reference to the interrupt mgr.
+	TMemory* mMemory = nullptr; ///< Reference to the memory interface.
+	TARMProcessor* mCPU = nullptr; ///< Reference to the processor
+	SEvent* mEventQueue = nullptr; ///< Liste des événements.
+	KUInt32 mEventQueueCCrsr = 0; ///< Consumer queue cursor (Newton)
+	KUInt32 mEventQueuePCrsr = 0; ///< Producer queue cursor (Host)
+	KUInt32 mEventQueueSize = kDEFAULTEVENTQUEUESIZE; ///< Size of the event queue.
+	SBuffer* mBufferQueue = nullptr; ///< List of buffers.
+	KUInt32 mBufferCount = 0; ///< Number of buffers.
+	KUInt32 mBufferQueueSize = kDEFAULTBUFFERQUEUESIZE; ///< Size of the buffer queue.
+	KUInt32 mBufferNextID = 0; ///< Next ID for buffers.
+	Boolean mPowerOn = true; ///< If power is on.
+	Boolean mQueuePreLock = false; ///< Non-recursive lock to keep interrupts from triggering twice
+	KUInt32 mQueueLockCount = 0; ///< Lock count for the queue
+	KUInt32 mQueueBootLock = 1; ///< Start with a locked queue until NewtonOS finished booting.
+	TMutex* mMutex = nullptr; ///< Mutex of the queue.
+	char* mDocDir = nullptr; ///< Directory on host containing all kinds of documents
 };
 
 #endif
-		// _TPLATFORMMANAGER_H
+// _TPLATFORMMANAGER_H
 
 // ======================================================================= //
 // FORTRAN is not a flower but a weed -- it is hardy, occasionally blooms, //

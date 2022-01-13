@@ -39,8 +39,8 @@
 #include <K/Defines/KDefinitions.h>
 
 // ANSI C & POSIX
-#include <sys/types.h>
 #include <fcntl.h>
+#include <sys/types.h>
 
 ///
 /// Class for a file read entirely (with mmap if available).
@@ -71,10 +71,10 @@ public:
 	/// \param preferredAddress	address where to map the file, if possible.
 	///
 	TMappedFile(
-			const char* inFilePath,
-			size_t inSize = 0,
-			int inFlags = O_RDONLY,
-			void* preferredAddress = NULL );
+		const char* inFilePath,
+		size_t inSize = 0,
+		int inFlags = O_RDONLY,
+		void* preferredAddress = NULL);
 
 	///
 	/// Destructor.
@@ -108,35 +108,38 @@ public:
 	///
 	/// \return the buffer.
 	///
-	void*	GetBuffer( void )
-		{
-			return mBuffer;
-		}
+	void*
+	GetBuffer(void)
+	{
+		return mBuffer;
+	}
 
 	///
 	/// Accessor on the size of the file.
 	///
 	/// \return the size of the file.
 	///
-	size_t	GetSize( void ) const
-		{
-			return mSize;
-		}
+	size_t
+	GetSize(void) const
+	{
+		return mSize;
+	}
 
 	///
 	/// Determine whether the file was created or grown.
 	///
 	/// \return \c true if the file was created/grown, \c false otherwise.
 	///
-	Boolean	GetCreated( void ) const
-		{
-			return mCreated;
-		}
+	Boolean
+	GetCreated(void) const
+	{
+		return mCreated;
+	}
 
 	///
 	/// Sync the whole region (flush changes to disk).
 	///
-	void	Sync( void ) const;
+	void Sync(void) const;
 
 private:
 	///
@@ -144,26 +147,26 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TMappedFile( const TMappedFile& inCopy ) = delete;
+	TMappedFile(const TMappedFile& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TMappedFile& operator = ( const TMappedFile& inCopy ) = delete;
+	TMappedFile& operator=(const TMappedFile& inCopy) = delete;
 
 	/// \name Variables
-	void*		mBuffer = nullptr;	///< Buffer to access the file.
-	size_t		mSize = 0;			///< Size of the file.
-	Boolean		mMapped = false;	///< If file is actually mapped.
-	Boolean		mReadOnly = false;	///< If file is read only.
-	Boolean		mCreated = false;	///< Whether the file was created/grown.
-	int			mFileFd = -1;		///< fd to the file.
+	void* mBuffer = nullptr; ///< Buffer to access the file.
+	size_t mSize = 0; ///< Size of the file.
+	Boolean mMapped = false; ///< If file is actually mapped.
+	Boolean mReadOnly = false; ///< If file is read only.
+	Boolean mCreated = false; ///< Whether the file was created/grown.
+	int mFileFd = -1; ///< fd to the file.
 };
 
 #endif
-		// _TMAPPEDFILE_H
+// _TMAPPEDFILE_H
 
 // ============================================================= //
 // You are in a maze of little twisting passages, all different. //

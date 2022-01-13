@@ -54,12 +54,12 @@ public:
 	///
 	/// Initialization (links the values together)
 	///
-	inline THashMapCache( void );
+	inline THashMapCache(void);
 
 	///
 	/// Destruction.
 	///
-	inline ~THashMapCache( void );
+	inline ~THashMapCache(void);
 
 	///
 	/// Insert.
@@ -67,14 +67,14 @@ public:
 	/// \param inKey		key.
 	/// \param inValue		value.
 	///
-	inline void	Insert( KUInt32 inKey, TValue* inValue );
+	inline void Insert(KUInt32 inKey, TValue* inValue);
 
 	///
 	/// Erase.
 	///
 	/// \param inKey		key.
 	///
-	inline void	Erase( KUInt32 inKey );
+	inline void Erase(KUInt32 inKey);
 
 	///
 	/// Lookup.
@@ -82,72 +82,75 @@ public:
 	/// \param inKey		key.
 	/// \return the value or NULL if no matching value was found.
 	///
-	inline TValue*	Lookup( KUInt32 inKey );
+	inline TValue* Lookup(KUInt32 inKey);
 
 	///
 	/// Clear the map.
 	///
-	inline void		Clear( void );
+	inline void Clear(void);
 
 	///
 	/// Touch the value, i.e. make it first.
 	///
 	/// \param inValue		value to touch.
 	///
-	inline void MakeFirst( TValue* inValue );
+	inline void MakeFirst(TValue* inValue);
 
 	///
 	/// Make an value the last.
 	///
 	/// \param inValue		value to move to last position.
 	///
-	inline void MakeLast( TValue* inValue );
+	inline void MakeLast(TValue* inValue);
 
 	///
 	/// Accessor on the values.
 	/// (useful for initialization).
 	///
-	TValue*		GetValues( void )
-		{
-			return mValues;
-		}
+	TValue*
+	GetValues(void)
+	{
+		return mValues;
+	}
 
 	///
 	/// Accessor on the last entry (typically to move it first).
 	///
-	TValue*		GetLastValue( void )
-		{
-			return mLastValue;
-		}
+	TValue*
+	GetLastValue(void)
+	{
+		return mLastValue;
+	}
 
 	enum {
-		kCacheSize				= 128,
-		kHashFunctionMask		= 0x000FFC00,
-		kHashFunctionShift		= 10,
-		kHashTableSize			= (kHashFunctionMask >> kHashFunctionShift) + 1,
+		kCacheSize = 128,
+		kHashFunctionMask = 0x000FFC00,
+		kHashFunctionShift = 10,
+		kHashTableSize = (kHashFunctionMask >> kHashFunctionShift) + 1,
 	};
 
 	///
 	/// Hash function.
 	///
-	static inline KUInt32 HashFunction(const KUInt32 val)
-		{
-			return (val & kHashFunctionMask) >> kHashFunctionShift;
-		}
+	static inline KUInt32
+	HashFunction(const KUInt32 val)
+	{
+		return (val & kHashFunctionMask) >> kHashFunctionShift;
+	}
 
 private:
 	/// \name Variables
-	TValue*		mFirstValue;				///< First element.
-	TValue*		mLastValue;					///< Last element.
-	TValue		mValues[kCacheSize];		///< Values.
-	TValue**	mHashTable;					///< Hash table.
+	TValue* mFirstValue; ///< First element.
+	TValue* mLastValue; ///< Last element.
+	TValue mValues[kCacheSize]; ///< Values.
+	TValue** mHashTable; ///< Hash table.
 };
 
 // -------------------------------------------------------------------------- //
 //  * THashMapCache( void )
 // -------------------------------------------------------------------------- //
-template<class TValue>
-THashMapCache<TValue>::THashMapCache( void )
+template <class TValue>
+THashMapCache<TValue>::THashMapCache(void)
 {
 	// Init the map.
 	mHashTable = (TValue**) ::calloc(kHashTableSize, sizeof(TValue*));
@@ -157,7 +160,8 @@ THashMapCache<TValue>::THashMapCache( void )
 	mValues[0].prev = NULL;
 	mValues[0].next = &mValues[1];
 	KUInt32 indexValue;
-	for (indexValue = 1; indexValue < (kCacheSize - 1); indexValue++) {
+	for (indexValue = 1; indexValue < (kCacheSize - 1); indexValue++)
+	{
 		TValue* theValue = &mValues[indexValue];
 		theValue->prev = &mValues[indexValue - 1];
 		theValue->next = &mValues[indexValue + 1];
@@ -170,8 +174,8 @@ THashMapCache<TValue>::THashMapCache( void )
 // -------------------------------------------------------------------------- //
 //  * ~THashMapCache( void )
 // -------------------------------------------------------------------------- //
-template<class TValue>
-THashMapCache<TValue>::~THashMapCache( void )
+template <class TValue>
+THashMapCache<TValue>::~THashMapCache(void)
 {
 	// Free the map.
 	::free(mHashTable);
@@ -180,23 +184,24 @@ THashMapCache<TValue>::~THashMapCache( void )
 // -------------------------------------------------------------------------- //
 //  * Insert( KUInt32, TValue* )
 // -------------------------------------------------------------------------- //
-template<class TValue>
+template <class TValue>
 void
-THashMapCache<TValue>::Insert( KUInt32 inKey, TValue* inValue )
+THashMapCache<TValue>::Insert(KUInt32 inKey, TValue* inValue)
 {
-	KUInt32 index = HashFunction( inKey );
+	KUInt32 index = HashFunction(inKey);
 	mHashTable[index] = inValue;
 }
 
 // -------------------------------------------------------------------------- //
 //  * Erase( TValue* )
 // -------------------------------------------------------------------------- //
-template<class TValue>
+template <class TValue>
 void
-THashMapCache<TValue>::Erase( KUInt32 inKey )
+THashMapCache<TValue>::Erase(KUInt32 inKey)
 {
-	KUInt32 index = HashFunction( inKey );
-	if (mHashTable[index] != NULL && mHashTable[index]->key == inKey) {
+	KUInt32 index = HashFunction(inKey);
+	if (mHashTable[index] != NULL && mHashTable[index]->key == inKey)
+	{
 		mHashTable[index] = NULL;
 	}
 }
@@ -204,11 +209,11 @@ THashMapCache<TValue>::Erase( KUInt32 inKey )
 // -------------------------------------------------------------------------- //
 //  * Lookup( KUInt32 )
 // -------------------------------------------------------------------------- //
-template<class TValue>
+template <class TValue>
 TValue*
-THashMapCache<TValue>::Lookup( KUInt32 inKey )
+THashMapCache<TValue>::Lookup(KUInt32 inKey)
 {
-	KUInt32 index = HashFunction( inKey );
+	KUInt32 index = HashFunction(inKey);
 	TValue* theEntry = mHashTable[index];
 	if (theEntry && (theEntry->key == inKey))
 	{
@@ -220,9 +225,9 @@ THashMapCache<TValue>::Lookup( KUInt32 inKey )
 // -------------------------------------------------------------------------- //
 //  * Clear( void )
 // -------------------------------------------------------------------------- //
-template<class TValue>
+template <class TValue>
 void
-THashMapCache<TValue>::Clear( void )
+THashMapCache<TValue>::Clear(void)
 {
 	memset(mHashTable, 0, kHashTableSize * sizeof(TValue*));
 }
@@ -230,17 +235,20 @@ THashMapCache<TValue>::Clear( void )
 // -------------------------------------------------------------------------- //
 //  * MakeFirst( TValue* )
 // -------------------------------------------------------------------------- //
-template<class TValue>
+template <class TValue>
 void
-THashMapCache<TValue>::MakeFirst( TValue* inValue )
+THashMapCache<TValue>::MakeFirst(TValue* inValue)
 {
-	if (inValue != mFirstValue) {
+	if (inValue != mFirstValue)
+	{
 		// Consider the old next.
 		TValue* oldNextValue = inValue->next;
 		TValue* oldPrevValue = inValue->prev;
-		if (oldNextValue) {
+		if (oldNextValue)
+		{
 			oldNextValue->prev = oldPrevValue;
-		} else {
+		} else
+		{
 			mLastValue = oldPrevValue;
 		}
 		// There always is an old previous value.
@@ -258,17 +266,20 @@ THashMapCache<TValue>::MakeFirst( TValue* inValue )
 // -------------------------------------------------------------------------- //
 //  * MakeLast( TValue* )
 // -------------------------------------------------------------------------- //
-template<class TValue>
+template <class TValue>
 void
-THashMapCache<TValue>::MakeLast( TValue* inValue )
+THashMapCache<TValue>::MakeLast(TValue* inValue)
 {
-	if (inValue != mLastValue) {
+	if (inValue != mLastValue)
+	{
 		// Consider the old prev.
 		TValue* oldPrevValue = inValue->prev;
 		TValue* oldNextValue = inValue->next;
-		if (oldPrevValue) {
+		if (oldPrevValue)
+		{
 			oldPrevValue->next = oldNextValue;
-		} else {
+		} else
+		{
 			mFirstValue = oldNextValue;
 		}
 		// There always is an old next value.
@@ -284,7 +295,7 @@ THashMapCache<TValue>::MakeLast( TValue* inValue )
 }
 
 #endif
-		// _THASHMAPCACHE_H
+// _THASHMAPCACHE_H
 
 // ========================================================================== //
 // There is is no reason for any individual to have a computer in their home. //

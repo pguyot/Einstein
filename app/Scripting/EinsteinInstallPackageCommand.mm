@@ -26,19 +26,20 @@
 
 @implementation EinsteinInstallPackageCommand : NSScriptCommand
 
--(id)performDefaultImplementation
+- (id)performDefaultImplementation
 {
-	id		directParameter = [self directParameter];
+	id directParameter = [self directParameter];
 
 	if ((directParameter == NULL)
 		|| ([directParameter isKindOfClass:[NSURL class]] == NO)
 		|| ([((NSURL*) directParameter) isFileURL] == NO))
 	{
-		[self setScriptErrorNumber: errAECoercionFail];
-	} else {
-		[[TCocoaAppController getInstance] commandInstallPackage: ((NSURL*) directParameter)];
+		[self setScriptErrorNumber:errAECoercionFail];
+	} else
+	{
+		[[TCocoaAppController getInstance] commandInstallPackage:((NSURL*) directParameter)];
 	}
-	
+
 	return nil;
 }
 

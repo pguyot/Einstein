@@ -22,26 +22,25 @@
 // ==============================
 
 #define MRS_TemplateName(flag_r, rd) \
-	DataProcessingTranfer_MRS_ ## flag_r ## _ ## rd
+	DataProcessingTranfer_MRS_##flag_r##_##rd
 
 #define MRS_Proto(flag_r, rd) \
-		JITUnit* MRS_TemplateName(flag_r, rd) \
-			(JITUnit* ioUnit, TARMProcessor* ioCPU)
+	JITUnit* MRS_TemplateName(flag_r, rd)(JITUnit * ioUnit, TARMProcessor * ioCPU)
 #if DECLARATION
-	#define MRS(flag_r, rd) \
-		MRS_Proto(flag_r, rd);
+#define MRS(flag_r, rd) \
+	MRS_Proto(flag_r, rd);
 #endif
 #if IMPLEMENTATION
-	#define MRS(flag_r, rd) \
-		MRS_Proto(flag_r, rd)
+#define MRS(flag_r, rd) \
+	MRS_Proto(flag_r, rd)
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_MRS_template.h"
 
-#define FLAG_R	0
+#define FLAG_R 0
 #include "IncludeRd.h"
 #undef FLAG_R
-#define FLAG_R	1
+#define FLAG_R 1
 #include "IncludeRd.h"
 #undef FLAG_R
 

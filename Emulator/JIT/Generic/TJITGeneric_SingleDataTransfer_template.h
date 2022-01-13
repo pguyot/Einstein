@@ -23,16 +23,16 @@
 
 // Use of PC for Rm is UNPREDICTABLE
 
-#define FLAG_I	((BITS_FLAGS & 0x20) != 0)
-#define FLAG_P	((BITS_FLAGS & 0x10) != 0)
-#define FLAG_U	((BITS_FLAGS & 0x08) != 0)
-#define FLAG_B	((BITS_FLAGS & 0x04) != 0)
-#define FLAG_W	((BITS_FLAGS & 0x02) != 0)
-#define FLAG_L	((BITS_FLAGS & 0x01) != 0)
+#define FLAG_I ((BITS_FLAGS & 0x20) != 0)
+#define FLAG_P ((BITS_FLAGS & 0x10) != 0)
+#define FLAG_U ((BITS_FLAGS & 0x08) != 0)
+#define FLAG_B ((BITS_FLAGS & 0x04) != 0)
+#define FLAG_W ((BITS_FLAGS & 0x02) != 0)
+#define FLAG_L ((BITS_FLAGS & 0x01) != 0)
 
 // Post-indexed data transfers (P=0) always write back the modified base
-#define WRITEBACK		(!FLAG_P || FLAG_W)
-#define UNPRIVILEDGED	(!FLAG_P && FLAG_W)
+#define WRITEBACK (!FLAG_P || FLAG_W)
+#define UNPRIVILEDGED (!FLAG_P && FLAG_W)
 
 SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 #if IMPLEMENTATION
@@ -41,7 +41,7 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 	KUInt32 theInstruction;
 	POPVALUE(theInstruction);
 #else
-    POPNIL();
+	POPNIL();
 #endif
 
 	POPPC();
@@ -49,23 +49,24 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 	TMemory* theMemoryInterface = ioCPU->GetMemory();
 
 #if FLAG_P || (WRITEBACK && Rn != 15)
-	#if FLAG_I
-		KUInt32 offset;
+#if FLAG_I
+	KUInt32 offset;
 
-		if ((theInstruction & 0x00000FFF) >> 4)
-		{
-			// Shift.
-			// PC should not be used as Rm.
-			offset = GetShiftNoCarryNoR15( theInstruction, ioCPU->mCurrentRegisters, ioCPU->mCPSR_C );
-		} else {
-			offset = ioCPU->mCurrentRegisters[theInstruction & 0x0000000F];
-		}
-	#else
-		KUInt32 offset;
+	if ((theInstruction & 0x00000FFF) >> 4)
+	{
+		// Shift.
+		// PC should not be used as Rm.
+		offset = GetShiftNoCarryNoR15(theInstruction, ioCPU->mCurrentRegisters, ioCPU->mCPSR_C);
+	} else
+	{
+		offset = ioCPU->mCurrentRegisters[theInstruction & 0x0000000F];
+	}
+#else
+	KUInt32 offset;
 
-		// Immediate
-		offset = theInstruction & 0x00000FFF;
-	#endif
+	// Immediate
+	offset = theInstruction & 0x00000FFF;
+#endif
 #endif
 
 #if (Rn == 15)
@@ -75,113 +76,113 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 #endif
 
 #if FLAG_P
-	#if FLAG_U
-		// Add.
-		theAddress += offset;
-	#else
-		// Substract.
-		theAddress -= offset;
-	#endif
+#if FLAG_U
+	// Add.
+	theAddress += offset;
+#else
+	// Substract.
+	theAddress -= offset;
+#endif
 #endif
 
 #if UNPRIVILEDGED
 	if (ioCPU->GetMode() != TARMProcessor::kUserMode)
 	{
 		// Access should be unprivileged.
-		theMemoryInterface->SetPrivilege( false );
+		theMemoryInterface->SetPrivilege(false);
 	}
 #endif
 
 #if FLAG_L
-	// Load.
-	#if FLAG_B
-		// Byte
-		KUInt8 theData;
-		if (theMemoryInterface->ReadB( theAddress, theData ))
-		{
-			// No need to restore mMemory->SetPrivilege since
-			// we'll access memory in privilege mode from now anyway.
-			SETPC(GETPC());
-			ioCPU->DataAbort();
-			MMUCALLNEXT_AFTERSETPC;
-		}
-	#else
-		// Word
-		KUInt32 theData;
-		if (theMemoryInterface->Read( theAddress, theData ))
-		{
-			SETPC(GETPC());
-			ioCPU->DataAbort();
-			MMUCALLNEXT_AFTERSETPC;
-		}
-	#endif
-
-	#if (Rd == 15)
-		#if FLAG_B
-			// UNPREDICTABLE
-		#else
-			// Clear high bits if required.
-			// +4 for PREFETCH
-			SETPC(theData + 4);
-		#endif
-	#else
-		// Clear high bits if required.
-		ioCPU->mCurrentRegisters[Rd] = theData;
-	#endif
+// Load.
+#if FLAG_B
+	// Byte
+	KUInt8 theData;
+	if (theMemoryInterface->ReadB(theAddress, theData))
+	{
+		// No need to restore mMemory->SetPrivilege since
+		// we'll access memory in privilege mode from now anyway.
+		SETPC(GETPC());
+		ioCPU->DataAbort();
+		MMUCALLNEXT_AFTERSETPC;
+	}
 #else
-	// Store.
+	// Word
+	KUInt32 theData;
+	if (theMemoryInterface->Read(theAddress, theData))
+	{
+		SETPC(GETPC());
+		ioCPU->DataAbort();
+		MMUCALLNEXT_AFTERSETPC;
+	}
+#endif
 
-	// If PC is Rd, the stored value is +12 instead of +8
-	#if (Rd == 15)
-		KUInt32 theValue = GETPC() + 4;
-	#else
-		KUInt32 theValue = ioCPU->mCurrentRegisters[Rd];
-	#endif
+#if (Rd == 15)
+#if FLAG_B
+	// UNPREDICTABLE
+#else
+	// Clear high bits if required.
+	// +4 for PREFETCH
+	SETPC(theData + 4);
+#endif
+#else
+	// Clear high bits if required.
+	ioCPU->mCurrentRegisters[Rd] = theData;
+#endif
+#else
+// Store.
 
-	#if FLAG_B
-		// Byte
-		if (theMemoryInterface->WriteB(
-				theAddress, (KUInt8) (theValue & 0xFF) ))
-		{
-			SETPC(GETPC());
-			ioCPU->DataAbort();
-			MMUCALLNEXT_AFTERSETPC;
-		}
-	#else
-		// Word.
-		if (theMemoryInterface->Write( theAddress, theValue ))
-		{
-			SETPC(GETPC());
-			ioCPU->DataAbort();
-			MMUCALLNEXT_AFTERSETPC;
-		}
-	#endif
+// If PC is Rd, the stored value is +12 instead of +8
+#if (Rd == 15)
+	KUInt32 theValue = GETPC() + 4;
+#else
+	KUInt32 theValue = ioCPU->mCurrentRegisters[Rd];
+#endif
+
+#if FLAG_B
+	// Byte
+	if (theMemoryInterface->WriteB(
+			theAddress, (KUInt8) (theValue & 0xFF)))
+	{
+		SETPC(GETPC());
+		ioCPU->DataAbort();
+		MMUCALLNEXT_AFTERSETPC;
+	}
+#else
+	// Word.
+	if (theMemoryInterface->Write(theAddress, theValue))
+	{
+		SETPC(GETPC());
+		ioCPU->DataAbort();
+		MMUCALLNEXT_AFTERSETPC;
+	}
+#endif
 #endif
 
 #if WRITEBACK
-	// Store the address to the base register.
-	#if (Rn == 15)
-		// UNPREDICTABLE CASE
-	#else
-		#if !FLAG_P
-			#if FLAG_U
-				// Add.
-				ioCPU->mCurrentRegisters[Rn] = theAddress + offset;
-			#else
-				// Substract.
-				ioCPU->mCurrentRegisters[Rn] = theAddress - offset;
-			#endif
-		#else
-			ioCPU->mCurrentRegisters[Rn] = theAddress;
-		#endif
-	#endif
+// Store the address to the base register.
+#if (Rn == 15)
+	// UNPREDICTABLE CASE
+#else
+#if !FLAG_P
+#if FLAG_U
+	// Add.
+	ioCPU->mCurrentRegisters[Rn] = theAddress + offset;
+#else
+	// Substract.
+	ioCPU->mCurrentRegisters[Rn] = theAddress - offset;
+#endif
+#else
+	ioCPU->mCurrentRegisters[Rn] = theAddress;
+#endif
+#endif
 #endif
 
 #if UNPRIVILEDGED
 	if (ioCPU->GetMode() != TARMProcessor::kUserMode)
 	{
 		// Restore privilege access.
-		theMemoryInterface->SetPrivilege( true );
+		theMemoryInterface->SetPrivilege(true);
 	}
 #endif
 

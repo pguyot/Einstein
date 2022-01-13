@@ -47,14 +47,14 @@
 // -------------------------------------------------------------------------- //
 //  * TMutex( void )
 // -------------------------------------------------------------------------- //
-TMutex::TMutex( void )
+TMutex::TMutex(void)
 {
 #if TARGET_OS_WIN32
 	mMutex = CreateMutex(0L, FALSE, 0L);
 	assert(mMutex);
 #else
-	int err = ::pthread_mutex_init( &mMutex, NULL );
-	assert( err == 0 );
+	int err = ::pthread_mutex_init(&mMutex, NULL);
+	assert(err == 0);
 	(void) err;
 #endif
 }
@@ -62,15 +62,15 @@ TMutex::TMutex( void )
 // -------------------------------------------------------------------------- //
 //  * ~TMutex( void )
 // -------------------------------------------------------------------------- //
-TMutex::~TMutex( void )
+TMutex::~TMutex(void)
 {
 #if TARGET_OS_WIN32
 	BOOL ret = CloseHandle(mMutex);
 	mMutex = INVALID_HANDLE_VALUE;
-	assert( ret != 0 );
+	assert(ret != 0);
 #else
-	int err = ::pthread_mutex_destroy( &mMutex );
-	assert( err == 0 );
+	int err = ::pthread_mutex_destroy(&mMutex);
+	assert(err == 0);
 	(void) err;
 #endif
 }
@@ -79,16 +79,17 @@ TMutex::~TMutex( void )
 //  * Lock( void )
 // -------------------------------------------------------------------------- //
 void
-TMutex::Lock( void )
+TMutex::Lock(void)
 {
 #if TARGET_OS_WIN32
-	if (mMutex != INVALID_HANDLE_VALUE) {
-	DWORD ret = WaitForSingleObject(mMutex, INFINITE);
-	assert( ret == WAIT_OBJECT_0 );
+	if (mMutex != INVALID_HANDLE_VALUE)
+	{
+		DWORD ret = WaitForSingleObject(mMutex, INFINITE);
+		assert(ret == WAIT_OBJECT_0);
 	}
 #else
-	int err = ::pthread_mutex_lock( &mMutex );
-	assert( err == 0 );
+	int err = ::pthread_mutex_lock(&mMutex);
+	assert(err == 0);
 	(void) err;
 #endif
 }
@@ -97,16 +98,17 @@ TMutex::Lock( void )
 //  * Unlock( void )
 // -------------------------------------------------------------------------- //
 void
-TMutex::Unlock( void )
+TMutex::Unlock(void)
 {
 #if TARGET_OS_WIN32
-	if (mMutex != INVALID_HANDLE_VALUE) {
-	BOOL ret = ReleaseMutex(mMutex);
-		//assert(ret != 0);
+	if (mMutex != INVALID_HANDLE_VALUE)
+	{
+		BOOL ret = ReleaseMutex(mMutex);
+		// assert(ret != 0);
 	}
 #else
-	int err = ::pthread_mutex_unlock( &mMutex );
-	assert( err == 0 );
+	int err = ::pthread_mutex_unlock(&mMutex);
+	assert(err == 0);
 	(void) err;
 #endif
 }
@@ -115,23 +117,26 @@ TMutex::Unlock( void )
 //  * TryLock( void )
 // -------------------------------------------------------------------------- //
 Boolean
-TMutex::TryLock( void )
+TMutex::TryLock(void)
 {
 #if TARGET_OS_WIN32
 	DWORD ret = WaitForSingleObject(mMutex, 0);
-	if (ret == WAIT_TIMEOUT) {
+	if (ret == WAIT_TIMEOUT)
+	{
 		return true;
-	} else {
-		assert( ret == WAIT_OBJECT_0 );
+	} else
+	{
+		assert(ret == WAIT_OBJECT_0);
 		return false;
 	}
 #else
-	int err = ::pthread_mutex_trylock( &mMutex );
+	int err = ::pthread_mutex_trylock(&mMutex);
 	if (err == EBUSY)
 	{
 		return true;
-	} else {
-		assert( err == 0 );
+	} else
+	{
+		assert(err == 0);
 		return false;
 	}
 #endif

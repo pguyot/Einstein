@@ -40,7 +40,8 @@
 // -------------------------------------------------------------------------- //
 - (id)initWithFrame:(NSRect)frameRect screenManager:(TCocoaScreenManager*)inScreenManager
 {
-	if ((self = [super initWithFrame:frameRect]) != nil) {
+	if ((self = [super initWithFrame:frameRect]) != nil)
+	{
 		mScreenManager = inScreenManager;
 		mWidth = inScreenManager->GetScreenWidth();
 		mHeight = inScreenManager->GetScreenHeight();
@@ -61,36 +62,36 @@
 		return;
 
 	// rect is in macOS coordintes, but we want NewtonOS coordinates
-	//int w = (int)rect.size.width;
-	int h = (int)rect.size.height;
-	int x = (int)rect.origin.x;
-	int y = mHeight - (int)rect.origin.y - h;
+	// int w = (int)rect.size.width;
+	int h = (int) rect.size.height;
+	int x = (int) rect.origin.x;
+	int y = mHeight - (int) rect.origin.y - h;
 
 	// Create a reference to the source image map (KUInt32: 0RGB)
 	CGDataProviderRef src;
 	src = CGDataProviderCreateWithData(NULL,
-									   mScreenManager->GetImageBuffer()
-											+ x + mWidth * y,
-									   mWidth * h * sizeof(KUInt32),
-									   NULL );
+		mScreenManager->GetImageBuffer()
+			+ x + mWidth * y,
+		mWidth * h * sizeof(KUInt32),
+		NULL);
 
-	CGContextRef theContext = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+	CGContextRef theContext = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
 	CGContextSaveGState(theContext);
 
 	CGColorSpaceRef theColorSpace = CGColorSpaceCreateDeviceRGB();
 	mScreenImage = CGImageCreate(
-								 rect.size.width, //mWidth,
-								 rect.size.height, //mHeight,
-								 8,
-								 32,
-								 //rect.size.width * sizeof(KUInt32),
-								 mWidth * sizeof(KUInt32),
-								 theColorSpace,
-								 kAlphaNoneSkipFirstPlusHostByteOrder,
-								 src, //mScreenManager->GetDataProvider(),
-								 NULL,
-								 false,
-								 kCGRenderingIntentAbsoluteColorimetric );
+		rect.size.width, // mWidth,
+		rect.size.height, // mHeight,
+		8,
+		32,
+		// rect.size.width * sizeof(KUInt32),
+		mWidth * sizeof(KUInt32),
+		theColorSpace,
+		kAlphaNoneSkipFirstPlusHostByteOrder,
+		src, // mScreenManager->GetDataProvider(),
+		NULL,
+		false,
+		kCGRenderingIntentAbsoluteColorimetric);
 
 	switch (mOrientation)
 	{
@@ -99,7 +100,7 @@
 
 		case k90Clockwise:
 			CGContextTranslateCTM(theContext, 0, mWidth);
-			CGContextRotateCTM(theContext, -M_PI/2.0);
+			CGContextRotateCTM(theContext, -M_PI / 2.0);
 			break;
 
 		case k180Clockwise:
@@ -109,7 +110,7 @@
 
 		case k270Clockwise:
 			CGContextTranslateCTM(theContext, mHeight, 0);
-			CGContextRotateCTM(theContext, M_PI/2.0);
+			CGContextRotateCTM(theContext, M_PI / 2.0);
 			break;
 	}
 
@@ -117,8 +118,8 @@
 
 	// Write all the pixels in the rectangle that macOS marked invalid
 	CGContextDrawImage(theContext,
-					   rect,
-					   mScreenImage);
+		rect,
+		mScreenImage);
 
 	CGColorSpaceRelease(theColorSpace);
 	CGImageRelease(mScreenImage);
@@ -132,13 +133,13 @@
 // -------------------------------------------------------------------------- //
 //  * (void) setScreenWidth:(int) height:(int) angle:(float)
 // -------------------------------------------------------------------------- //
-- (void)setScreenWidth:(int) inWidth height:(int) inHeight orientation:(EOrientation) inOrientation
+- (void)setScreenWidth:(int)inWidth height:(int)inHeight orientation:(EOrientation)inOrientation
 {
 	// Save the new values.
 	mWidth = inWidth;
 	mHeight = inHeight;
 	mOrientation = inOrientation;
-	
+
 	// clear the image.
 	if (mScreenImage)
 	{
@@ -171,7 +172,7 @@
 - (NSPoint)convertPenPoint:(NSPoint)inMousePoint
 {
 	NSPoint result;
-	
+
 	switch (mOrientation)
 	{
 		case kNormal:
@@ -194,38 +195,39 @@
 			result.y = inMousePoint.x;
 			break;
 	}
-	
+
 	return result;
 }
 
 // -------------------------------------------------------------------------- //
 //  * (void)mouseDown:(NSEvent *)
 // -------------------------------------------------------------------------- //
-- (void)mouseDown:(NSEvent *)theEvent
+- (void)mouseDown:(NSEvent*)theEvent
 {
-    BOOL keepOn = YES;
+	BOOL keepOn = YES;
 
-	NSPoint mouseLoc = [self convertPoint: [theEvent locationInWindow] fromView: nil];
-	NSPoint penLoc = [self convertPenPoint: mouseLoc];
+	NSPoint mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+	NSPoint penLoc = [self convertPenPoint:mouseLoc];
 	mScreenManager->PenDown(
-						(KUInt16) penLoc.x,
-						(KUInt16) penLoc.y);
+		(KUInt16) penLoc.x,
+		(KUInt16) penLoc.y);
 
-    while (keepOn)
+	while (keepOn)
 	{
 		NSDate* nextDate =
 			[NSDate dateWithTimeIntervalSinceNow:
-				((double) mScreenManager->GetTabletSampleRate()) / 4000000.0];
-        theEvent = [[self window] nextEventMatchingMask:
-						NSLeftMouseUpMask | NSLeftMouseDraggedMask
-						untilDate: nextDate
-						inMode: NSDefaultRunLoopMode /* NSEventTrackingRunLoopMode */
-						dequeue: YES];
+						((double) mScreenManager->GetTabletSampleRate()) / 4000000.0];
+		theEvent = [[self window] nextEventMatchingMask:
+									  NSLeftMouseUpMask | NSLeftMouseDraggedMask
+											  untilDate:nextDate
+												 inMode:NSDefaultRunLoopMode /* NSEventTrackingRunLoopMode */
+												dequeue:YES];
 		if ([self mouse:mouseLoc inRect:[self bounds]])
 		{
 			if (theEvent)
 			{
-				switch ([theEvent type]) {
+				switch ([theEvent type])
+				{
 					case NSLeftMouseDragged:
 						penLoc = [self convertPenPoint:[theEvent locationInWindow]];
 						mScreenManager->PenDown(
@@ -242,34 +244,39 @@
 							(KUInt16) penLoc.y);
 						break;
 				}
-			} else {
+			} else
+			{
 				mScreenManager->PenDown(
 					(KUInt16) penLoc.x,
 					(KUInt16) penLoc.y);
 			}
-		} else {
+		} else
+		{
 			mScreenManager->PenUp();
 			break;
 		}
-    }
+	}
 }
 
 // ------------------------------------------------------------------------- //
 //  * (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender
 // ------------------------------------------------------------------------- //
-- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender
 {
-	NSPasteboard *pboard;
+	NSPasteboard* pboard;
 	NSDragOperation sourceDragMask;
 	NSDragOperation theResult = NSDragOperationNone;
 
 	sourceDragMask = [sender draggingSourceOperationMask];
 	pboard = [sender draggingPasteboard];
 
-	if ( [[pboard types] containsObject:NSFilenamesPboardType] ) {
-		if (sourceDragMask & NSDragOperationLink) {
+	if ([[pboard types] containsObject:NSFilenamesPboardType])
+	{
+		if (sourceDragMask & NSDragOperationLink)
+		{
 			theResult = NSDragOperationLink;
-		} else if (sourceDragMask & NSDragOperationCopy) {
+		} else if (sourceDragMask & NSDragOperationCopy)
+		{
 			theResult = NSDragOperationCopy;
 		}
 	}
@@ -279,102 +286,109 @@
 // -------------------------------------------------------------------------- //
 //  * (BOOL)performDragOperation:(id <NSDraggingInfo>)
 // -------------------------------------------------------------------------- //
-- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
 {
-    NSPasteboard *pboard = [sender draggingPasteboard];
-    if ( [[pboard types] containsObject:NSFilenamesPboardType] ) {
-        NSArray *files = [pboard propertyListForType:NSFilenamesPboardType];
-        NSUInteger numberOfFiles = [files count];
-        // Perform operation using the list of files
+	NSPasteboard* pboard = [sender draggingPasteboard];
+	if ([[pboard types] containsObject:NSFilenamesPboardType])
+	{
+		NSArray* files = [pboard propertyListForType:NSFilenamesPboardType];
+		NSUInteger numberOfFiles = [files count];
+		// Perform operation using the list of files
 		int indexFiles;
-		for(indexFiles = 0 ; indexFiles < numberOfFiles ; indexFiles++)
+		for (indexFiles = 0; indexFiles < numberOfFiles; indexFiles++)
 		{
 			mScreenManager->DraggedFile([[files objectAtIndex:indexFiles] fileSystemRepresentation]);
 		}
-    }
-    return YES;
+	}
+	return YES;
 }
 
 // -------------------------------------------------------------------------- //
 //  * (void)flagsChanged:(NSEvent*)
 // -------------------------------------------------------------------------- //
-- (void)flagsChanged:(NSEvent*) theEvent
+- (void)flagsChanged:(NSEvent*)theEvent
 {
 	// Cocoa doesn't distinguish left & right keys.
 	// So I ask Carbon.
 	// FIXME: Carbon does not neccessarily handle the same event as Cocoa!
 	UInt32 theMods = GetCurrentKeyModifiers();
 
-	if (( theMods & cmdKey ) != ( mPreviousMods & cmdKey ))
+	if ((theMods & cmdKey) != (mPreviousMods & cmdKey))
 	{
 		if (theMods & cmdKey)
 		{
-			mScreenManager->KeyDown(0x37);	// Apple key (any).
-		} else {
-			mScreenManager->KeyUp(0x37);	// Apple key (any).
+			mScreenManager->KeyDown(0x37); // Apple key (any).
+		} else
+		{
+			mScreenManager->KeyUp(0x37); // Apple key (any).
 		}
 	}
 
-	if (( theMods & shiftKey ) != ( mPreviousMods & shiftKey ))
+	if ((theMods & shiftKey) != (mPreviousMods & shiftKey))
 	{
 		if (theMods & shiftKey)
 		{
-			mScreenManager->KeyDown(0x38);	// Shift left.
-		} else {
-			mScreenManager->KeyUp(0x38);	// Shift left.
+			mScreenManager->KeyDown(0x38); // Shift left.
+		} else
+		{
+			mScreenManager->KeyUp(0x38); // Shift left.
 		}
 	}
 
-	if (( theMods & alphaLock ) != ( mPreviousMods & alphaLock ))
+	if ((theMods & alphaLock) != (mPreviousMods & alphaLock))
 	{
 		// Temporary hack.
-		mScreenManager->KeyDown(0x39);	// caps lock.
-		mScreenManager->KeyUp(0x39);	// caps lock.
-//		if (theMods & alphaLock)
-//		{
-//			mScreenManager->KeyDown(0x39);	// caps lock.
-//		} else {
-//			mScreenManager->KeyUp(0x39);	// caps lock.
-//		}
+		mScreenManager->KeyDown(0x39); // caps lock.
+		mScreenManager->KeyUp(0x39); // caps lock.
+		//		if (theMods & alphaLock)
+		//		{
+		//			mScreenManager->KeyDown(0x39);	// caps lock.
+		//		} else {
+		//			mScreenManager->KeyUp(0x39);	// caps lock.
+		//		}
 	}
-	
-	if (( theMods & optionKey ) != ( mPreviousMods & optionKey ))
+
+	if ((theMods & optionKey) != (mPreviousMods & optionKey))
 	{
 		if (theMods & optionKey)
 		{
-			mScreenManager->KeyDown(0x3A);	// Option left.
-		} else {
-			mScreenManager->KeyUp(0x3A);	// Option left.
+			mScreenManager->KeyDown(0x3A); // Option left.
+		} else
+		{
+			mScreenManager->KeyUp(0x3A); // Option left.
 		}
 	}
 
-	if (( theMods & controlKey ) != ( mPreviousMods & controlKey ))
+	if ((theMods & controlKey) != (mPreviousMods & controlKey))
 	{
 		if (theMods & controlKey)
 		{
-			mScreenManager->KeyDown(0x3B);	// Control left.
-		} else {
-			mScreenManager->KeyUp(0x3B);	// Control left.
+			mScreenManager->KeyDown(0x3B); // Control left.
+		} else
+		{
+			mScreenManager->KeyUp(0x3B); // Control left.
 		}
 	}
 
-	if (( theMods & rightShiftKey ) != ( mPreviousMods & rightShiftKey ))
+	if ((theMods & rightShiftKey) != (mPreviousMods & rightShiftKey))
 	{
 		if (theMods & rightShiftKey)
 		{
-			mScreenManager->KeyDown(0x3C);	// Shift right.
-		} else {
-			mScreenManager->KeyUp(0x3C);	// Shift right.
+			mScreenManager->KeyDown(0x3C); // Shift right.
+		} else
+		{
+			mScreenManager->KeyUp(0x3C); // Shift right.
 		}
 	}
 
-	if (( theMods & rightOptionKey ) != ( mPreviousMods & rightOptionKey ))
+	if ((theMods & rightOptionKey) != (mPreviousMods & rightOptionKey))
 	{
 		if (theMods & rightOptionKey)
 		{
-			mScreenManager->KeyDown(0x3D);	// Option right.
-		} else {
-			mScreenManager->KeyUp(0x3D);	// Option right.
+			mScreenManager->KeyDown(0x3D); // Option right.
+		} else
+		{
+			mScreenManager->KeyUp(0x3D); // Option right.
 		}
 	}
 
@@ -384,13 +398,14 @@
 // -------------------------------------------------------------------------- //
 //  * (void)keyDown:(NSEvent*)
 // -------------------------------------------------------------------------- //
-- (void)keyDown:(NSEvent*) theEvent
+- (void)keyDown:(NSEvent*)theEvent
 {
 	int theKeyCode = [theEvent keyCode];
 	if ([theEvent isARepeat])
 	{
 		mScreenManager->KeyRepeat(theKeyCode);
-	} else {
+	} else
+	{
 		mScreenManager->KeyDown(theKeyCode);
 	}
 }
@@ -398,10 +413,10 @@
 // -------------------------------------------------------------------------- //
 //  * (void)keyUp:(NSEvent*)
 // -------------------------------------------------------------------------- //
-- (void)keyUp:(NSEvent*) theEvent
+- (void)keyUp:(NSEvent*)theEvent
 {
-	int theKeyCode = [theEvent keyCode];		
-	mScreenManager->KeyUp(theKeyCode);	
+	int theKeyCode = [theEvent keyCode];
+	mScreenManager->KeyUp(theKeyCode);
 }
 
 // -------------------------------------------------------------------------- //
@@ -411,7 +426,7 @@
 {
 	NSRect box = [self frame];
 	NSPoint loc = [[self window] mouseLocationOutsideOfEventStream];
-	return [self mouse: loc inRect: box];
+	return [self mouse:loc inRect:box];
 }
 
 @end

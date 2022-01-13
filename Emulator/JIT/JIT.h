@@ -28,14 +28,14 @@
 
 // Includes the proper header depending on the platform and define the JIT
 // class accordingly.
-	// Default case.
-	#include "Emulator/JIT/Generic/TJITGeneric.h"
-	#define	JITClass		TJITGeneric
-	#define	JITPageClass	TJITGenericPage
-	#define JITTARGET_GENERIC
+// Default case.
+#include "Emulator/JIT/Generic/TJITGeneric.h"
+#define JITClass TJITGeneric
+#define JITPageClass TJITGenericPage
+#define JITTARGET_GENERIC
 
 #endif
-		// _JIT_H
+// _JIT_H
 
 // ============================================================================== //
 // Fortune suggests uses for YOUR favorite UNIX commands!                         //

@@ -26,18 +26,19 @@
 
 @implementation EinsteinDoNewtonScriptCommand : NSScriptCommand
 
--(id)performDefaultImplementation
+- (id)performDefaultImplementation
 {
-	id		directParameter = [self directParameter];
+	id directParameter = [self directParameter];
 
 	if ((directParameter == NULL)
 		|| ([directParameter isKindOfClass:[NSString class]] == NO))
 	{
-		[self setScriptErrorNumber: errAECoercionFail];
-	} else {
-		[[TCocoaAppController getInstance] commandDoNewtonScript: ((NSString*) directParameter)];
+		[self setScriptErrorNumber:errAECoercionFail];
+	} else
+	{
+		[[TCocoaAppController getInstance] commandDoNewtonScript:((NSString*) directParameter)];
 	}
-	
+
 	return nil;
 }
 

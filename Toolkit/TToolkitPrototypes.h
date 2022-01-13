@@ -24,22 +24,20 @@
 #ifndef _T_TOOLKIT_PROTOTYPE_H
 #define _T_TOOLKIT_PROTOTYPE_H
 
-namespace TToolkitPrototype
-{
+namespace TToolkitPrototype {
 
-extern const char *NewtonDefs21;
-extern const char *BytecodeDefs;
-extern const char *ToolkitDefs;
-extern const char *DefaultPackage;
-extern const char *ToolkitLaunch;
-extern const char *ToolkitDone;
-extern const char *HelloWorld;
+extern const char* NewtonDefs21;
+extern const char* BytecodeDefs;
+extern const char* ToolkitDefs;
+extern const char* DefaultPackage;
+extern const char* ToolkitLaunch;
+extern const char* ToolkitDone;
+extern const char* HelloWorld;
 
 }
 
-
 #endif
-		// _T_TOOLKIT_PROTOTYPE_H
+// _T_TOOLKIT_PROTOTYPE_H
 
 // ======================================================================= //
 // Newton Toolkit

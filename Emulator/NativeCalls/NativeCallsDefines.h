@@ -25,31 +25,31 @@
 #define _NATIVECALLSDEFINES_H
 
 #if TARGET_OS_NEWTON
-	#include <Newton.h>
-	typedef ULong	KUInt32;
-	typedef UChar	KUInt8;
+#include <Newton.h>
+typedef ULong KUInt32;
+typedef UChar KUInt8;
 #else
-	#include <K/Defines/KDefinitions.h>
+#include <K/Defines/KDefinitions.h>
 #endif
 
 enum EFFI_Type {
-	k_void			= 0,
-	k_uint8			= 1,
-	k_sint8			= 2,
-	k_uint16		= 3,
-	k_sint16		= 4,
-	k_uint32		= 5,
-	k_sint32		= 6,
-	k_uint64		= 7,
-	k_sint64		= 8,
-	k_float			= 9,
-	k_double		= 10,
-	k_longdouble	= 11,
-	k_string		= 12,
-	k_binary		= 13,
-	k_pointer		= 14,
-	k_iostring		= 15,
-	k_iobinary		= 16
+	k_void = 0,
+	k_uint8 = 1,
+	k_sint8 = 2,
+	k_uint16 = 3,
+	k_sint16 = 4,
+	k_uint32 = 5,
+	k_sint32 = 6,
+	k_uint64 = 7,
+	k_sint64 = 8,
+	k_float = 9,
+	k_double = 10,
+	k_longdouble = 11,
+	k_string = 12,
+	k_binary = 13,
+	k_pointer = 14,
+	k_iostring = 15,
+	k_iobinary = 16
 };
 
 enum {
@@ -58,7 +58,7 @@ enum {
 };
 
 #endif
-		// _NATIVECALLSDEFINES_H
+// _NATIVECALLSDEFINES_H
 
 // ============================================================================= //
 // It is a very humbling experience to make a multimillion-dollar mistake, but   //

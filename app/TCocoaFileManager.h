@@ -34,44 +34,43 @@
 #include <objc/objc.h>
 
 class TCocoaFileManager
-:
-public TFileManager
+		: public TFileManager
 {
 public:
 	///
 	/// Destructor.
 	///
-	virtual ~TCocoaFileManager( void );
+	virtual ~TCocoaFileManager(void);
 
 	///
 	/// Invoked from the Newton when a listener window should be opened
 	///
-	void open_listener( const char *name, KUInt32 desc );
+	void open_listener(const char* name, KUInt32 desc);
 
 	///
 	/// Invoked from the Newton when a listener window should be closed
 	///
-	void close_listener( KUInt32 desc );
+	void close_listener(KUInt32 desc);
 
 	///
 	/// Invoked from the Newton when there is data to be written to a
 	/// listener
 	///
-	KSInt32 write_listener( KUInt32 desc, const void *buf, KUInt32 nbytes );
+	KSInt32 write_listener(KUInt32 desc, const void* buf, KUInt32 nbytes);
 
 	///
 	/// Invoked from the Newton when it wishes to read data from a
 	/// listener
 	///
-	KSInt32 read_listener( KUInt32 desc, void *buf, KUInt32 nbytes );
+	KSInt32 read_listener(KUInt32 desc, void* buf, KUInt32 nbytes);
 
 	///
 	/// Invoked by TCocoaListenerWindow when the Cocoa window is closed
 	///
-	void listener_was_closed( KUInt32 desc );
+	void listener_was_closed(KUInt32 desc);
 
 private:
-	NSMutableArray *mListenerWindows;
+	NSMutableArray* mListenerWindows;
 };
 
 #endif

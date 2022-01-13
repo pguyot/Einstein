@@ -36,32 +36,31 @@ enum EOrientation {
 	k270Clockwise
 };
 
-@interface TCocoaScreenView : NSView
-{
-	TCocoaScreenManager*	mScreenManager;
-	CGImageRef				mScreenImage;
-	BOOL					mVisible;
-	int						mWidth;
-	int						mHeight;
-	EOrientation			mOrientation;
-	KUInt32					mPreviousMods;
+@interface TCocoaScreenView : NSView {
+	TCocoaScreenManager* mScreenManager;
+	CGImageRef mScreenImage;
+	BOOL mVisible;
+	int mWidth;
+	int mHeight;
+	EOrientation mOrientation;
+	KUInt32 mPreviousMods;
 }
 
 // Initialisation.
 - (id)initWithFrame:(NSRect)frameRect screenManager:(TCocoaScreenManager*)inScreenManager;
 
 // Interface with the screen manager.
-- (void)setScreenWidth:(int) inWidth height:(int) inHeight orientation:(EOrientation) inOrientation;
+- (void)setScreenWidth:(int)inWidth height:(int)inHeight orientation:(EOrientation)inOrientation;
 - (void)drawRect:(NSRect)rect;
 
 // Mouse events.
 - (BOOL)mouseDownCanMoveWindow;
-- (void)mouseDown:(NSEvent *)theEvent;
+- (void)mouseDown:(NSEvent*)theEvent;
 - (BOOL)mouseInView;
 
 // Drag & drop of packages.
-- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender;
-- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender;
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender;
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender;
 
 // Other
 - (BOOL)isOpaque;
@@ -71,7 +70,7 @@ enum EOrientation {
 @end
 
 #endif
-		// _TCOCOASCREENVIEW_H
+// _TCOCOASCREENVIEW_H
 
 // ========================================= //
 // If it has syntax, it isn't user friendly. //

@@ -21,15 +21,15 @@
 // $Id$
 // ==============================
 
-#include <K/Streams/TStream.h>
 #include "TDMAManager.h"
+#include <K/Streams/TStream.h>
 
 // Einstein
+#include "TEmulator.h"
 #include "TInterruptManager.h"
 #include "Emulator/TMemory.h"
-#include "TEmulator.h"
-#include "Serial/TSerialPortManager.h"
 #include "Log/TLog.h"
+#include "Serial/TSerialPortManager.h"
 
 // TDMAManager is invoked by TMemory when physical addresses corresponding
 // to DMA registers are accessed.
@@ -45,22 +45,21 @@
 //  * TDMAManager( TLog*, TMemory*, TInterruptManager* )
 // -------------------------------------------------------------------------- //
 TDMAManager::TDMAManager(
-			TLog* inLog,
-			TEmulator* inEmulator,
-			TMemory* inMemory,
-			TInterruptManager* inInterruptManager )
-	:
-		mLog( inLog ),
-		mMemory( inMemory ),
-		mInterruptManager( inInterruptManager ),
-        mEmulator( inEmulator )
+	TLog* inLog,
+	TEmulator* inEmulator,
+	TMemory* inMemory,
+	TInterruptManager* inInterruptManager) :
+		mLog(inLog),
+		mMemory(inMemory),
+		mInterruptManager(inInterruptManager),
+		mEmulator(inEmulator)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TDMAManager( void )
 // -------------------------------------------------------------------------- //
-TDMAManager::~TDMAManager( void )
+TDMAManager::~TDMAManager(void)
 {
 }
 
@@ -68,13 +67,13 @@ TDMAManager::~TDMAManager( void )
 //  * ReadChannelAssignmentRegister( void )
 // -------------------------------------------------------------------------- //
 KUInt32
-TDMAManager::ReadChannelAssignmentRegister( void )
+TDMAManager::ReadChannelAssignmentRegister(void)
 {
 	if (mLog)
 	{
 		mLog->FLogLine(
 			"Read DMA Assignment register : %.8X",
-			(unsigned int) mAssignmentReg );
+			(unsigned int) mAssignmentReg);
 	}
 	return mAssignmentReg;
 }
@@ -83,13 +82,13 @@ TDMAManager::ReadChannelAssignmentRegister( void )
 //  * WriteChannelAssignmentRegister( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TDMAManager::WriteChannelAssignmentRegister( KUInt32 inValue )
+TDMAManager::WriteChannelAssignmentRegister(KUInt32 inValue)
 {
 	if (mLog)
 	{
 		mLog->FLogLine(
 			"Write DMA Assignment register : %.8X",
-			(unsigned int) inValue );
+			(unsigned int) inValue);
 	}
 	mAssignmentReg = inValue;
 }
@@ -98,25 +97,25 @@ TDMAManager::WriteChannelAssignmentRegister( KUInt32 inValue )
 //  * WriteEnableRegister( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TDMAManager::WriteEnableRegister( KUInt32 inValue )
+TDMAManager::WriteEnableRegister(KUInt32 inValue)
 {
 	if (mLog)
 	{
 		mLog->FLogLine(
 			"Write DMA Enable register : %.8X",
-			(unsigned int) inValue );
+			(unsigned int) inValue);
 	}
 
 	// We should start or resume the DMA transfer.
-//	mInterruptManager->RaiseInterrupt( inValue << 7 );
-//	TDebugger::BreakInDebugger();
+	//	mInterruptManager->RaiseInterrupt( inValue << 7 );
+	//	TDebugger::BreakInDebugger();
 }
 
 // -------------------------------------------------------------------------- //
 //  * ReadStatusRegister( void )
 // -------------------------------------------------------------------------- //
 KUInt32
-TDMAManager::ReadStatusRegister( void )
+TDMAManager::ReadStatusRegister(void)
 {
 	KUInt32 theResult = 0;
 
@@ -124,7 +123,7 @@ TDMAManager::ReadStatusRegister( void )
 	{
 		mLog->FLogLine(
 			"Read DMA Status register : %.8X",
-			(unsigned int) theResult );
+			(unsigned int) theResult);
 	}
 	return theResult;
 }
@@ -133,25 +132,25 @@ TDMAManager::ReadStatusRegister( void )
 //  * WriteDisableRegister( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TDMAManager::WriteDisableRegister( KUInt32 inValue )
+TDMAManager::WriteDisableRegister(KUInt32 inValue)
 {
 	if (mLog)
 	{
 		mLog->FLogLine(
 			"Write DMA Disable register : %.8X",
-			(unsigned int) inValue );
+			(unsigned int) inValue);
 	}
 
 	// We should abort the DMA transfer.
-//	mInterruptManager->RaiseInterrupt( inValue << 7 );
-//	TDebugger::BreakInDebugger();
+	//	mInterruptManager->RaiseInterrupt( inValue << 7 );
+	//	TDebugger::BreakInDebugger();
 }
 
 // -------------------------------------------------------------------------- //
 //  * ReadWordStatusRegister( void )
 // -------------------------------------------------------------------------- //
 KUInt32
-TDMAManager::ReadWordStatusRegister( void )
+TDMAManager::ReadWordStatusRegister(void)
 {
 	KUInt32 theResult = 0;
 
@@ -159,7 +158,7 @@ TDMAManager::ReadWordStatusRegister( void )
 	{
 		mLog->FLogLine(
 			"Read DMA Word Status register : %.8X",
-			(unsigned int) theResult );
+			(unsigned int) theResult);
 	}
 	return theResult;
 }
@@ -168,12 +167,13 @@ TDMAManager::ReadWordStatusRegister( void )
 //  * ReadChannel1Register( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TDMAManager::ReadChannel1Register( KUInt32 inChannel, KUInt32 inRegister )
+TDMAManager::ReadChannel1Register(KUInt32 inChannel, KUInt32 inRegister)
 {
 	KUInt32 theResult = 0;
 
-	if (inChannel==kSerialPort0Receive || inChannel==kSerialPort0Transmit) {
-		TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+	if (inChannel == kSerialPort0Receive || inChannel == kSerialPort0Transmit)
+	{
+		TSerialPortManager* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		if (extr)
 			return extr->ReadDMARegister(1, inChannel, inRegister);
 	}
@@ -181,9 +181,9 @@ TDMAManager::ReadChannel1Register( KUInt32 inChannel, KUInt32 inRegister )
 	if (mLog)
 	{
 		mLog->FLogLine(
-					   "Read DMA register 1.%i for channel %i : %.8X",
-					   (int) inRegister, (int) inChannel,
-					   (unsigned int) theResult );
+			"Read DMA register 1.%i for channel %i : %.8X",
+			(int) inRegister, (int) inChannel,
+			(unsigned int) theResult);
 	}
 
 	//	TDebugger::BreakInDebugger();
@@ -196,12 +196,13 @@ TDMAManager::ReadChannel1Register( KUInt32 inChannel, KUInt32 inRegister )
 // -------------------------------------------------------------------------- //
 void
 TDMAManager::WriteChannel1Register(
-						KUInt32 inChannel,
-						KUInt32 inRegister,
-						KUInt32 inValue )
+	KUInt32 inChannel,
+	KUInt32 inRegister,
+	KUInt32 inValue)
 {
-	if (inChannel==kSerialPort0Receive || inChannel==kSerialPort0Transmit) {
-		TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+	if (inChannel == kSerialPort0Receive || inChannel == kSerialPort0Transmit)
+	{
+		TSerialPortManager* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		if (extr)
 			return extr->WriteDMARegister(1, inChannel, inRegister, inValue);
 	}
@@ -210,9 +211,9 @@ TDMAManager::WriteChannel1Register(
 	if (mLog)
 	{
 		mLog->FLogLine(
-					   "Write DMA register 1.%i for channel %i : %.8X",
-					   (int) inRegister, (int) inChannel,
-					   (unsigned int) inValue );
+			"Write DMA register 1.%i for channel %i : %.8X",
+			(int) inRegister, (int) inChannel,
+			(unsigned int) inValue);
 	}
 
 	//	TDebugger::BreakInDebugger();
@@ -222,12 +223,13 @@ TDMAManager::WriteChannel1Register(
 //  * ReadChannel2Register( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TDMAManager::ReadChannel2Register( KUInt32 inChannel, KUInt32 inRegister )
+TDMAManager::ReadChannel2Register(KUInt32 inChannel, KUInt32 inRegister)
 {
 	KUInt32 theResult = 0;
 
-	if (inChannel==kSerialPort0Receive || inChannel==kSerialPort0Transmit) {
-		TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+	if (inChannel == kSerialPort0Receive || inChannel == kSerialPort0Transmit)
+	{
+		TSerialPortManager* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		if (extr)
 			return extr->ReadDMARegister(2, inChannel, inRegister);
 	}
@@ -235,9 +237,9 @@ TDMAManager::ReadChannel2Register( KUInt32 inChannel, KUInt32 inRegister )
 	if (mLog)
 	{
 		mLog->FLogLine(
-					   "Read DMA register 2.%i for channel %i : %.8X",
-					   (int) inRegister, (int) inChannel,
-					   (unsigned int) theResult );
+			"Read DMA register 2.%i for channel %i : %.8X",
+			(int) inRegister, (int) inChannel,
+			(unsigned int) theResult);
 	}
 
 	//	TDebugger::BreakInDebugger();
@@ -245,18 +247,18 @@ TDMAManager::ReadChannel2Register( KUInt32 inChannel, KUInt32 inRegister )
 	return theResult;
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * WriteChannel2Register( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
 TDMAManager::WriteChannel2Register(
-						KUInt32 inChannel,
-						KUInt32 inRegister,
-						KUInt32 inValue )
+	KUInt32 inChannel,
+	KUInt32 inRegister,
+	KUInt32 inValue)
 {
-	if (inChannel==kSerialPort0Receive || inChannel==kSerialPort0Transmit) {
-		TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+	if (inChannel == kSerialPort0Receive || inChannel == kSerialPort0Transmit)
+	{
+		TSerialPortManager* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		if (extr)
 			return extr->WriteDMARegister(2, inChannel, inRegister, inValue);
 	}
@@ -264,23 +266,22 @@ TDMAManager::WriteChannel2Register(
 	if (mLog)
 	{
 		mLog->FLogLine(
-					   "Write DMA register 2.%i for channel %i : %.8X",
-					   (int) inRegister, (int) inChannel,
-					   (unsigned int) inValue );
+			"Write DMA register 2.%i for channel %i : %.8X",
+			(int) inRegister, (int) inChannel,
+			(unsigned int) inValue);
 	}
 
 	//	TDebugger::BreakInDebugger();
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * void TransferState( TStream* )
 // -------------------------------------------------------------------------- //
-void TDMAManager::TransferState( TStream* inStream )
+void
+TDMAManager::TransferState(TStream* inStream)
 {
 	inStream->TransferInt32BE(mAssignmentReg);
 }
-
 
 // ======================================================== //
 // The moving cursor writes, and having written, blinks on. //

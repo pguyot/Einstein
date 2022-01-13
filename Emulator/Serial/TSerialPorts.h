@@ -28,14 +28,13 @@
 
 #include "Emulator/Platform/TNewt.h"
 
+#include <functional>
 #include <utility>
 #include <vector>
-#include <functional>
 
 class TLog;
 class TEmulator;
 class TSerialPortManager;
-
 
 /**
  The serial port superviser manages the four port of the MessagePad and their respective drivers.
@@ -67,38 +66,38 @@ public:
 
 	enum EOption {
 		kEnd = 0,
-		kServer, 	// followed by a string
-		kPort		// followed by an integer
+		kServer, // followed by a string
+		kPort // followed by an integer
 	};
 
 	// Static information that can be retreived before the class is instantiated
 	// This is useful for user interfaces
 	static KUInt32 NDrivers;
-	static std::vector<const char*>DriverNames;
+	static std::vector<const char*> DriverNames;
 	static KUInt32 NPorts;
-	static std::vector<const char*>PortNames;
-	static std::vector<const char*>ShortPortNames;
-	static EDriverID *ValidDriversByPort[];
+	static std::vector<const char*> PortNames;
+	static std::vector<const char*> ShortPortNames;
+	static EDriverID* ValidDriversByPort[];
 	static EDriverID ValidDrivers[];
 	static EDriverID NoValidDrivers[];
 
 	// Constructor
-	TSerialPorts(TEmulator *inEmulator, TLog* inLog);
+	TSerialPorts(TEmulator* inEmulator, TLog* inLog);
 
 	// Destructor.
 	~TSerialPorts();
 
 	// Return a driver for a given index
-	TSerialPortManager *GetDriverFor(EPortIndex ix);
+	TSerialPortManager* GetDriverFor(EPortIndex ix);
 
 	// Initialize all drivers and run them
 	void Initialize(EDriverID extrDriver,
-					EDriverID infrDriver,
-					EDriverID tbltDriver,
-					EDriverID mdemDriver);
+		EDriverID infrDriver,
+		EDriverID tbltDriver,
+		EDriverID mdemDriver);
 
 	// Replace an existing driver with a new driver
-	TSerialPortManager *ReplaceDriver(EPortIndex inPort, EDriverID inDriverId);
+	TSerialPortManager* ReplaceDriver(EPortIndex inPort, EDriverID inDriverId);
 
 	// NewtonScript call to return all driver names
 	static NewtRef NSGetDriverNames(TNewt::RefArg arg);
@@ -112,20 +111,21 @@ public:
 	// NewtonScript call to change the current driver and/or its settings
 	NewtRef NSSetDriverAndOptions(TNewt::RefArg arg);
 
-	void PortChangedCallback(std::function<void(int)> inCallback) {
+	void
+	PortChangedCallback(std::function<void(int)> inCallback)
+	{
 		mPortChangedCallback = std::move(inCallback);
 	}
 
 private:
-	TSerialPortManager 	*mDriver[4] = { nullptr, nullptr, nullptr, nullptr };
-	TLog				*mLog = nullptr;
-	TEmulator 			*mEmulator = nullptr;
+	TSerialPortManager* mDriver[4] = { nullptr, nullptr, nullptr, nullptr };
+	TLog* mLog = nullptr;
+	TEmulator* mEmulator = nullptr;
 	std::function<void(int)> mPortChangedCallback;
-
 };
 
 #endif
-		// _T_SERIAL_PORTS_H
+// _T_SERIAL_PORTS_H
 
 // ================= //
 // Byte your tongue. //

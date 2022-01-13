@@ -33,11 +33,11 @@ public:
 	///
 	/// Test THostInfo
 	///
-	static void HostInfoTest( TLog* inLog );
+	static void HostInfoTest(TLog* inLog);
 };
 
 #endif
-		// _UHOSTINFOTESTS_H
+// _UHOSTINFOTESTS_H
 
 // ====================================================== //
 // The world is coming to an end ... SAVE YOUR BUFFERS!!! //

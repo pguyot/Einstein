@@ -41,29 +41,32 @@ class TMemory;
 class TPipesSerialPortManager : public TBasicSerialPortManager
 {
 public:
-
 	///
 	/// Constructor.
 	///
 	TPipesSerialPortManager(TLog* inLog,
-							TSerialPorts::EPortIndex inPortIx);
+		TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.
 	///
-	~TPipesSerialPortManager( ) override;
+	~TPipesSerialPortManager() override;
 
 	///
 	/// Return the Identification of this driver
 	///
-	KUInt32 GetID() override { return TSerialPorts::kPipesDriver; }
+	KUInt32
+	GetID() override
+	{
+		return TSerialPorts::kPipesDriver;
+	}
 
 	///
 	/// Start emulation.
 	///
 	void run(TInterruptManager* inInterruptManager,
-					 TDMAManager* inDMAManager,
-					 TMemory* inMemory) override;
+		TDMAManager* inDMAManager,
+		TMemory* inMemory) override;
 
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
@@ -71,7 +74,6 @@ public:
 	void TriggerEvent(KUInt8 cmd) override;
 
 protected:
-
 	///
 	/// Launch the thread that emulates the DMA hardware
 	///
@@ -85,7 +87,12 @@ protected:
 	///
 	/// PThread hook.
 	///
-	static void *SHandleDMA(void *This) { ((TPipesSerialPortManager*)This)->HandleDMA(); return 0L; }
+	static void*
+	SHandleDMA(void* This)
+	{
+		((TPipesSerialPortManager*) This)->HandleDMA();
+		return 0L;
+	}
 
 	///
 	/// Find good names for the named pipes
@@ -97,14 +104,14 @@ protected:
 	///
 	bool CreateNamedPipes();
 
-	int mPipe[2];							///< communication between emulator and DMA thread
-	int mTxPort;							///< named pipe or serial port
-	int mRxPort;							///< named pipe or serial port
-	bool mDMAIsRunning;						///< set if DMA thread is active
+	int mPipe[2]; ///< communication between emulator and DMA thread
+	int mTxPort; ///< named pipe or serial port
+	int mRxPort; ///< named pipe or serial port
+	bool mDMAIsRunning; ///< set if DMA thread is active
 	pthread_t mDMAThread;
 
-	char *mTxPortName;						///< named pipe for transmitting data
-	char *mRxPortName;						///< named pipe for receiving data
+	char* mTxPortName; ///< named pipe for transmitting data
+	char* mRxPortName; ///< named pipe for receiving data
 };
 
 #endif

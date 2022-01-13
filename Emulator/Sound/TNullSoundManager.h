@@ -38,47 +38,46 @@
 /// \test	aucun test défini.
 ///
 class TNullSoundManager
-	:
-		public TSoundManager
+		: public TSoundManager
 {
 public:
 	///
 	/// Constructor from a log.
 	///
-	TNullSoundManager( TLog* inLog = nil );
+	TNullSoundManager(TLog* inLog = nil);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TNullSoundManager( void );
+	virtual ~TNullSoundManager(void);
 
 	///
 	/// Schedule output of some buffer.
 	///
-	virtual void	ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize );
+	virtual void ScheduleOutputBuffer(KUInt32 inBufferAddr, KUInt32 inSize);
 
 	///
 	/// Start output.
 	///
-	virtual void	StartOutput( void );
+	virtual void StartOutput(void);
 
 	///
 	/// Stop output.
 	///
-	virtual void	StopOutput( void );
+	virtual void StopOutput(void);
 
 	///
 	/// Is output running?
 	///
-	virtual Boolean	OutputIsRunning( void );
+	virtual Boolean OutputIsRunning(void);
 
 private:
 	/// \name Variables
-	Boolean			mOutputIsRunning;
+	Boolean mOutputIsRunning;
 };
 
 #endif
-		// _TNULLSOUNDMANAGER_H
+// _TNULLSOUNDMANAGER_H
 
 // ========================================= //
 // TRANSACTION CANCELLED - FARECARD RETURNED //

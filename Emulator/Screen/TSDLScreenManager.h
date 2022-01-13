@@ -44,12 +44,12 @@ public:
 	///
 	/// Constructeur par défaut.
 	///
-	TSDLScreenManager( void );
+	TSDLScreenManager(void);
 
 	///
 	/// Destructeur.
 	///
-	virtual ~TSDLScreenManager( void );
+	virtual ~TSDLScreenManager(void);
 
 private:
 	///
@@ -57,21 +57,20 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TSDLScreenManager( const TSDLScreenManager& inCopy );
+	TSDLScreenManager(const TSDLScreenManager& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TSDLScreenManager& operator = ( const TSDLScreenManager& inCopy );
+	TSDLScreenManager& operator=(const TSDLScreenManager& inCopy);
 
 	/// \name Variables
-
 };
 
 #endif
-		// _TSDLSCREENMANAGER_H
+// _TSDLSCREENMANAGER_H
 
 // ======================================================================= //
 //         It appears that after his death, Albert Einstein found himself  //

@@ -26,10 +26,10 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 const KUInt32 kInvocation[4] = {
-	0xE92D4000,	// stmdb    sp!, {lr}
-	0xE59FE004,	// ldr      lr, 0x0000000C
-	0xEE00EA10,	// mcr      10, 0, lr, cr0, cr0, {0}
-	0xE8BD8000	// ldmia    sp!, {pc}
+	0xE92D4000, // stmdb    sp!, {lr}
+	0xE59FE004, // ldr      lr, 0x0000000C
+	0xEE00EA10, // mcr      10, 0, lr, cr0, cr0, {0}
+	0xE8BD8000 // ldmia    sp!, {pc}
 	// followed by address.
 };
 
@@ -43,31 +43,34 @@ const KUInt32 kInvocation[4] = {
 
 const KUInt32 k717006VirtualizationPatches[] = {
 	// __rt_sdiv + 8, just after the divide by zero test.
-	(0x0038CA10 + 8) / sizeof(KUInt32),	TVirtualizedCallsPatches::k__rt_sdiv,
+	(0x0038CA10 + 8) / sizeof(KUInt32), TVirtualizedCallsPatches::k__rt_sdiv,
 	// __rt_udiv
-	(0x0038C8FC + 8) / sizeof(KUInt32),	TVirtualizedCallsPatches::k__rt_udiv,
+	(0x0038C8FC + 8) / sizeof(KUInt32), TVirtualizedCallsPatches::k__rt_udiv,
 	// memmove
-	//0x00382440 / sizeof(KUInt32),   TVirtualizedCallsPatches::kmemmove,
+	// 0x00382440 / sizeof(KUInt32),   TVirtualizedCallsPatches::kmemmove,
 	// symcmp__FPcT1
-	0x00358C9C / sizeof(KUInt32),	TVirtualizedCallsPatches::ksymcmp__FPcT1,
+	0x00358C9C / sizeof(KUInt32), TVirtualizedCallsPatches::ksymcmp__FPcT1,
 	0
 };
-
 
 // -------------------------------------------------------------------------- //
 //  * DoPatchROM(KUInt32*, const std::string&)
 // -------------------------------------------------------------------------- //
 void
-TVirtualizedCallsPatches::DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId) {
+TVirtualizedCallsPatches::DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId)
+{
 	const KUInt32* patches = NULL;
 
-	if (inROMId == TROMImage::k717006) {
+	if (inROMId == TROMImage::k717006)
+	{
 		patches = k717006VirtualizationPatches;
 	}
 
-	if (patches) {
+	if (patches)
+	{
 		// Iterate on patches.
-		while (*patches != 0) {
+		while (*patches != 0)
+		{
 			// Patch.
 			// Write all 5 words there.
 			KUInt32 address = patches[0];

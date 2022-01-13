@@ -53,12 +53,12 @@ public:
 	///
 	/// Constructor from an initial capacity.
 	///
-	TCircleBuffer( KUIntPtr inInitialCapacity = 0 );
+	TCircleBuffer(KUIntPtr inInitialCapacity = 0);
 
 	///
 	/// Destructor.
 	///
-	~TCircleBuffer( void );
+	~TCircleBuffer(void);
 
 	///
 	/// Copy data for the producer.
@@ -66,7 +66,7 @@ public:
 	/// \param inBuffer		where to read data.
 	/// \param inAmount		number of bytes to produce.
 	///
-	void		Produce( const void* inBuffer, KUIntPtr inAmount );
+	void Produce(const void* inBuffer, KUIntPtr inAmount);
 
 	///
 	/// Copy data for the consumer.
@@ -75,17 +75,18 @@ public:
 	/// \param inAmount		number of bytes to consume.
 	/// \return the number of bytes actually consumed.
 	///
-	KUIntPtr	Consume( void* outBuffer, KUIntPtr inAmount );
+	KUIntPtr Consume(void* outBuffer, KUIntPtr inAmount);
 
 	///
 	/// Determine if the buffer is empty.
 	///
 	/// \return \c true if the buffer is empty, false otherwise.
 	///
-	inline Boolean		IsEmpty( void ) const
-		{
-			return mProducerCrsr == mConsumerCrsr;
-		}
+	inline Boolean
+	IsEmpty(void) const
+	{
+		return mProducerCrsr == mConsumerCrsr;
+	}
 
 	///
 	/// Determine the number of bytes availbe for consumption.
@@ -100,24 +101,24 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TCircleBuffer( const TCircleBuffer& inCopy );
+	TCircleBuffer(const TCircleBuffer& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TCircleBuffer& operator = ( const TCircleBuffer& inCopy );
+	TCircleBuffer& operator=(const TCircleBuffer& inCopy);
 
 	/// \name Variables
-	KUInt8*					mBuffer;		///< Where data is hold.
-	KUIntPtr				mProducerCrsr;	///< Producer cursor.
-	KUIntPtr				mConsumerCrsr;	///< Consumer cursor.
-	KUIntPtr				mBufferSize;	///< Size of the buffer.
+	KUInt8* mBuffer; ///< Where data is hold.
+	KUIntPtr mProducerCrsr; ///< Producer cursor.
+	KUIntPtr mConsumerCrsr; ///< Consumer cursor.
+	KUIntPtr mBufferSize; ///< Size of the buffer.
 };
 
 #endif
-		// _TCIRCLEBUFFER_H
+// _TCIRCLEBUFFER_H
 
 // ============================================================================== //
 //         One of the questions that comes up all the time is: How enthusiastic   //

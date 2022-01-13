@@ -25,15 +25,15 @@
 #include "Emulator/TARMProcessor.h"
 
 // POSIX & ANSI C
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 
 #if TARGET_OS_WIN32
-	#include <time.h>
-	#include <sys/timeb.h>
+#include <sys/timeb.h>
+#include <time.h>
 #else
-	#include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 // Mach
@@ -42,9 +42,9 @@
 // #include <mach/mach_error.h>
 
 // K
-#include <K/Threads/TThread.h>
-#include <K/Threads/TMutex.h>
 #include <K/Streams/TStream.h>
+#include <K/Threads/TMutex.h>
+#include <K/Threads/TThread.h>
 
 // Einstein
 #include "Log/TLog.h"
@@ -56,26 +56,25 @@
 // -------------------------------------------------------------------------- //
 //  * TInterruptManager( TLog*, TARMProcessor* )
 // -------------------------------------------------------------------------- //
-TInterruptManager::TInterruptManager( TLog* inLog, TARMProcessor* inProcessor )
-	:
-		mLog( inLog ),
-		mProcessor( inProcessor ),
-		mExiting( false ),
-		mWaiting( false ),
-		mMaskIRQ( false ),
-		mMaskFIQ( false ),
-		mIntRaised( 0 ),
-		mIntCtrlReg( 0 ),
-		mFIQMask( 0 ),
-		mIntEDReg1( 0 ),
-		mIntEDReg2( 0 ),
-		mIntEDReg3( 0 ),
-		mGPIORaised( 0 ),
-		mGPIOCtrlReg( 0 ),
-		mCalendarDelta( GetSyncedCalendarDelta() ),
-		mAlarmRegister( 0 ),
-		mTimerDelta( 0 ),
-		mTimer( 0 )
+TInterruptManager::TInterruptManager(TLog* inLog, TARMProcessor* inProcessor) :
+		mLog(inLog),
+		mProcessor(inProcessor),
+		mExiting(false),
+		mWaiting(false),
+		mMaskIRQ(false),
+		mMaskFIQ(false),
+		mIntRaised(0),
+		mIntCtrlReg(0),
+		mFIQMask(0),
+		mIntEDReg1(0),
+		mIntEDReg2(0),
+		mIntEDReg3(0),
+		mGPIORaised(0),
+		mGPIOCtrlReg(0),
+		mCalendarDelta(GetSyncedCalendarDelta()),
+		mAlarmRegister(0),
+		mTimerDelta(0),
+		mTimer(0)
 {
 	// Start the thread.
 	Init();
@@ -85,32 +84,31 @@ TInterruptManager::TInterruptManager( TLog* inLog, TARMProcessor* inProcessor )
 //  * TInterruptManager( TLog*, TARMProcessor*, KUInt32 )
 // -------------------------------------------------------------------------- //
 TInterruptManager::TInterruptManager(
-						TLog* inLog,
-						TARMProcessor* inProcessor,
-						KUInt32 inTimer )
-	:
-		mLog( inLog ),
-		mProcessor( inProcessor ),
-		mExiting( false ),
-		mWaiting( false ),
-		mMaskIRQ( false ),
-		mMaskFIQ( false ),
-		mIntRaised( 0 ),
-		mIntCtrlReg( 0 ),
-		mFIQMask( 0 ),
-		mIntEDReg1( 0 ),
-		mIntEDReg2( 0 ),
-		mIntEDReg3( 0 ),
-		mGPIORaised( 0 ),
-		mGPIOCtrlReg( 0 ),
-		mCalendarDelta( GetSyncedCalendarDelta() ),
-		mAlarmRegister( 0 ),
-		mTimerDelta( 0 ),
-		mTimer( inTimer ),
-		mTimerCondVar( nil ),
-		mEmulatorCondVar( nil ),
-		mMutex( nil ),
-		mThread( nil )
+	TLog* inLog,
+	TARMProcessor* inProcessor,
+	KUInt32 inTimer) :
+		mLog(inLog),
+		mProcessor(inProcessor),
+		mExiting(false),
+		mWaiting(false),
+		mMaskIRQ(false),
+		mMaskFIQ(false),
+		mIntRaised(0),
+		mIntCtrlReg(0),
+		mFIQMask(0),
+		mIntEDReg1(0),
+		mIntEDReg2(0),
+		mIntEDReg3(0),
+		mGPIORaised(0),
+		mGPIOCtrlReg(0),
+		mCalendarDelta(GetSyncedCalendarDelta()),
+		mAlarmRegister(0),
+		mTimerDelta(0),
+		mTimer(inTimer),
+		mTimerCondVar(nil),
+		mEmulatorCondVar(nil),
+		mMutex(nil),
+		mThread(nil)
 {
 	// Start the thread.
 	Init();
@@ -119,7 +117,7 @@ TInterruptManager::TInterruptManager(
 // -------------------------------------------------------------------------- //
 //  * ~TInterruptManager( void )
 // -------------------------------------------------------------------------- //
-TInterruptManager::~TInterruptManager( void )
+TInterruptManager::~TInterruptManager(void)
 {
 	// Stop the timer thread.
 	mMutex->Lock();
@@ -130,7 +128,7 @@ TInterruptManager::~TInterruptManager( void )
 	mMutex->Unlock();
 
 	// Wait for the thread to finish.
-	while (mExiting) {};
+	while (mExiting) { };
 
 	if (mThread)
 	{
@@ -154,7 +152,7 @@ TInterruptManager::~TInterruptManager( void )
 //  * Init( void )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::Init( void )
+TInterruptManager::Init(void)
 {
 	// Clear the match registers.
 	mMatchRegisters[0] = 0;
@@ -175,9 +173,9 @@ TInterruptManager::Init( void )
 	mThread = new TThread(this);
 
 	// Wait on the condition variable for the thread to be running.
-//	KPrintf("%i-Emulator-Sleep-1\n", (int) time(NULL));
+	//	KPrintf("%i-Emulator-Sleep-1\n", (int) time(NULL));
 	mEmulatorCondVar->Wait(mMutex);
-//	KPrintf("%i-Emulator-WakeUp-1\n", (int) time(NULL));
+	//	KPrintf("%i-Emulator-WakeUp-1\n", (int) time(NULL));
 
 	// Release the mutex, so the timer thread will get it back.
 	mMutex->Unlock();
@@ -187,7 +185,7 @@ TInterruptManager::Init( void )
 //  * ResumeTimer( void )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::ResumeTimer( void )
+TInterruptManager::ResumeTimer(void)
 {
 	// Is the timer indeed suspended?
 	if (!mRunning)
@@ -203,9 +201,9 @@ TInterruptManager::ResumeTimer( void )
 		mTimerCondVar->Signal();
 
 		// Wait for the thread to have been resumed.
-//		KPrintf("%i-Emulator-Sleep-2\n", (int) time(NULL));
+		//		KPrintf("%i-Emulator-Sleep-2\n", (int) time(NULL));
 		mEmulatorCondVar->Wait(mMutex);
-//		KPrintf("%i-Emulator-WakeUp-2\n", (int) time(NULL));
+		//		KPrintf("%i-Emulator-WakeUp-2\n", (int) time(NULL));
 
 		// Release the mutex, so the timer thread will get it back.
 		mMutex->Unlock();
@@ -216,7 +214,7 @@ TInterruptManager::ResumeTimer( void )
 //  * SuspendTimer( void )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::SuspendTimer( void )
+TInterruptManager::SuspendTimer(void)
 {
 	// Is the timer indeed running?
 	if (mRunning)
@@ -232,9 +230,9 @@ TInterruptManager::SuspendTimer( void )
 		mTimerCondVar->Signal();
 
 		// Wait for the thread to have been suspended.
-//		KPrintf("%i-Emulator-Sleep-3\n", (int) time(NULL));
+		//		KPrintf("%i-Emulator-Sleep-3\n", (int) time(NULL));
 		mEmulatorCondVar->Wait(mMutex);
-//		KPrintf("%i-Emulator-WakeUp-3\n", (int) time(NULL));
+		//		KPrintf("%i-Emulator-WakeUp-3\n", (int) time(NULL));
 
 		// Release the mutex.
 		mMutex->Unlock();
@@ -245,11 +243,11 @@ TInterruptManager::SuspendTimer( void )
 //  * WaitUntilInterrupt( Boolean, Boolean )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::WaitUntilInterrupt( Boolean inMaskIRQ, Boolean inMaskFIQ )
+TInterruptManager::WaitUntilInterrupt(Boolean inMaskIRQ, Boolean inMaskFIQ)
 {
 	if (mLog)
 	{
-//		mLog->LogLine( "Wait until interrupt" );
+		//		mLog->LogLine( "Wait until interrupt" );
 	}
 
 	mMutex->Lock();
@@ -267,9 +265,9 @@ TInterruptManager::WaitUntilInterrupt( Boolean inMaskIRQ, Boolean inMaskFIQ )
 	mTimerCondVar->Signal();
 
 	// Wait for the thread to signal us.
-//	KPrintf("%i-Emulator-Sleep-4\n", (int) time(NULL));
+	//	KPrintf("%i-Emulator-Sleep-4\n", (int) time(NULL));
 	mEmulatorCondVar->Wait(mMutex);
-//	KPrintf("%i-Emulator-WakeUp-4\n", (int) time(NULL));
+	//	KPrintf("%i-Emulator-WakeUp-4\n", (int) time(NULL));
 
 	// We're no longer waiting.
 	mWaiting = false;
@@ -282,7 +280,7 @@ TInterruptManager::WaitUntilInterrupt( Boolean inMaskIRQ, Boolean inMaskFIQ )
 //  * RaiseInterrupt( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::RaiseInterrupt( KUInt32 inIntMask )
+TInterruptManager::RaiseInterrupt(KUInt32 inIntMask)
 {
 	mMutex->Lock();
 
@@ -302,7 +300,7 @@ TInterruptManager::RaiseInterrupt( KUInt32 inIntMask )
 //  * GetRealTimeClock( void ) const
 // -------------------------------------------------------------------------- //
 KUInt32
-TInterruptManager::GetRealTimeClock( void ) const
+TInterruptManager::GetRealTimeClock(void) const
 {
 	time_t now = time(NULL);
 
@@ -313,7 +311,7 @@ TInterruptManager::GetRealTimeClock( void ) const
 //  * SetRealTimeClock( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::SetRealTimeClock( KUInt32 inValue )
+TInterruptManager::SetRealTimeClock(KUInt32 inValue)
 {
 	mMutex->Lock();
 
@@ -321,9 +319,9 @@ TInterruptManager::SetRealTimeClock( KUInt32 inValue )
 
 	// newton = host - delta
 	// delta = host - newton
-//  KPrintf("mCalendarDelta was %i\n", (int) mCalendarDelta);
+	//  KPrintf("mCalendarDelta was %i\n", (int) mCalendarDelta);
 	mCalendarDelta = (KSInt32) (time(NULL) - inValue);
-//  KPrintf("mCalendarDelta now is %i\n", (int) mCalendarDelta);
+	//  KPrintf("mCalendarDelta now is %i\n", (int) mCalendarDelta);
 
 	// Signal the condition variable to wake the timer thread.
 	mTimerCondVar->Signal();
@@ -336,7 +334,7 @@ TInterruptManager::SetRealTimeClock( KUInt32 inValue )
 //  * SetAlarm( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::SetAlarm( KUInt32 inValue )
+TInterruptManager::SetAlarm(KUInt32 inValue)
 {
 	mMutex->Lock();
 
@@ -358,19 +356,19 @@ TInterruptManager::SetAlarm( KUInt32 inValue )
 //  * SetTimerMatchRegister( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::SetTimerMatchRegister( KUInt32 inMatchReg, KUInt32 inValue )
+TInterruptManager::SetTimerMatchRegister(KUInt32 inMatchReg, KUInt32 inValue)
 {
 	mMutex->Lock();
 
 	// Here the timer is waiting (since we have the mutex).
 
-//	if (mLog)
-//	{
-//		mLog->FLogLine(
-//			"Set match register %i to 0x%.8X",
-//			(int) inMatchReg,
-//			(unsigned int) inValue );
-//	}
+	//	if (mLog)
+	//	{
+	//		mLog->FLogLine(
+	//			"Set match register %i to 0x%.8X",
+	//			(int) inMatchReg,
+	//			(unsigned int) inValue );
+	//	}
 
 	// Set the match register.
 	mMatchRegisters[inMatchReg] = inValue;
@@ -389,7 +387,7 @@ TInterruptManager::SetTimerMatchRegister( KUInt32 inMatchReg, KUInt32 inValue )
 //  * SetIntCtrlReg( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::SetIntCtrlReg( KUInt32 inValue )
+TInterruptManager::SetIntCtrlReg(KUInt32 inValue)
 {
 	mMutex->Lock();
 
@@ -412,7 +410,7 @@ TInterruptManager::SetIntCtrlReg( KUInt32 inValue )
 //  * SetIntEDReg1( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::SetIntEDReg1( KUInt32 inValue )
+TInterruptManager::SetIntEDReg1(KUInt32 inValue)
 {
 	mMutex->Lock();
 
@@ -435,7 +433,7 @@ TInterruptManager::SetIntEDReg1( KUInt32 inValue )
 //  * SetIntEDReg2( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::SetIntEDReg2( KUInt32 inValue )
+TInterruptManager::SetIntEDReg2(KUInt32 inValue)
 {
 	mMutex->Lock();
 
@@ -458,7 +456,7 @@ TInterruptManager::SetIntEDReg2( KUInt32 inValue )
 //  * SetIntEDReg3( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::SetIntEDReg3( KUInt32 inValue )
+TInterruptManager::SetIntEDReg3(KUInt32 inValue)
 {
 	mMutex->Lock();
 
@@ -481,7 +479,7 @@ TInterruptManager::SetIntEDReg3( KUInt32 inValue )
 //  * ClearInterrupts( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::ClearInterrupts( KUInt32 inMask )
+TInterruptManager::ClearInterrupts(KUInt32 inMask)
 {
 	mMutex->Lock();
 
@@ -501,7 +499,7 @@ TInterruptManager::ClearInterrupts( KUInt32 inMask )
 //  * RaiseGPIO( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::RaiseGPIO( KUInt32 inValue )
+TInterruptManager::RaiseGPIO(KUInt32 inValue)
 {
 	mGPIORaised |= inValue;
 
@@ -527,7 +525,7 @@ TInterruptManager::RaiseGPIO( KUInt32 inValue )
 //  * SetGPIOCtrlReg( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::SetGPIOCtrlReg( KUInt32 inValue )
+TInterruptManager::SetGPIOCtrlReg(KUInt32 inValue)
 {
 	if (inValue != mGPIOCtrlReg)
 	{
@@ -546,7 +544,7 @@ TInterruptManager::SetGPIOCtrlReg( KUInt32 inValue )
 //  * ClearGPIO( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::ClearGPIO( KUInt32 inValue )
+TInterruptManager::ClearGPIO(KUInt32 inValue)
 {
 	mGPIORaised &= ~inValue;
 }
@@ -555,7 +553,7 @@ TInterruptManager::ClearGPIO( KUInt32 inValue )
 //  * Run( void )
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::Run( void )
+TInterruptManager::Run(void)
 {
 	// Setup: make sure we're waiting on the condition variable.
 	mMutex->Lock();
@@ -571,18 +569,18 @@ TInterruptManager::Run( void )
 
 		// We resume where the timer was.
 		KUInt32 theDelta = ticks - mTimer;
-//		if (mLog)
-//		{
-//			mLog->FLogLine(
-//				"Delta = %.8X, Shift = %.8X, ticks = %.8X, timer = %.8X",
-//				(unsigned int) theDelta,
-//				(unsigned int) (theDelta - mTimerDelta),
-//				(unsigned int) ticks,
-//				(unsigned int) mTimer );
-//		}
-		mTimerDelta = theDelta;					// mTimer = ticks - delta
-												// newton = host - delta
-												// host = newton + delta
+		//		if (mLog)
+		//		{
+		//			mLog->FLogLine(
+		//				"Delta = %.8X, Shift = %.8X, ticks = %.8X, timer = %.8X",
+		//				(unsigned int) theDelta,
+		//				(unsigned int) (theDelta - mTimerDelta),
+		//				(unsigned int) ticks,
+		//				(unsigned int) mTimer );
+		//		}
+		mTimerDelta = theDelta; // mTimer = ticks - delta
+								// newton = host - delta
+								// host = newton + delta
 		KUInt32 newTicks = ticks;
 		KUInt32 nextMatch;
 
@@ -597,7 +595,7 @@ TInterruptManager::Run( void )
 		{
 			// We are running.
 			// How long should we sleep?
-			if (FireTimersAndFindNext( ticks, newTicks, &nextMatch ))
+			if (FireTimersAndFindNext(ticks, newTicks, &nextMatch))
 			{
 				// Shift the ticks.
 				ticks = newTicks;
@@ -611,7 +609,8 @@ TInterruptManager::Run( void )
 					{
 						gotAnInterrupt = true;
 					}
-				} else {
+				} else
+				{
 					mProcessor->ClearFIQInterrupt();
 				}
 
@@ -622,7 +621,8 @@ TInterruptManager::Run( void )
 					{
 						gotAnInterrupt = true;
 					}
-				} else {
+				} else
+				{
 					mProcessor->ClearIRQInterrupt();
 				}
 
@@ -637,8 +637,9 @@ TInterruptManager::Run( void )
 				mTimer = newTicks - mTimerDelta;
 
 				// Wait.
-				TicksWaitOnCondVar( nextMatch - newTicks );
-			} else {
+				TicksWaitOnCondVar(nextMatch - newTicks);
+			} else
+			{
 				// Shift the ticks.
 				ticks = newTicks;
 
@@ -651,7 +652,8 @@ TInterruptManager::Run( void )
 					{
 						gotAnInterrupt = true;
 					}
-				} else {
+				} else
+				{
 					mProcessor->ClearFIQInterrupt();
 				}
 
@@ -662,7 +664,8 @@ TInterruptManager::Run( void )
 					{
 						gotAnInterrupt = true;
 					}
-				} else {
+				} else
+				{
 					mProcessor->ClearIRQInterrupt();
 				}
 
@@ -679,7 +682,7 @@ TInterruptManager::Run( void )
 				// No interrupt is planned.
 				// Wait forever on the condition variable.
 				mTimerCondVar->Wait(mMutex);
-//				KPrintf("%i-Timer-WakeUp-1\n", (int) time(NULL));
+				//				KPrintf("%i-Timer-WakeUp-1\n", (int) time(NULL));
 			}
 
 			if (mExiting)
@@ -702,21 +705,21 @@ TInterruptManager::Run( void )
 		// Save the timer value.
 		mTimer = newTicks - mTimerDelta;
 
-//		if (mLog)
-//		{
-//			mLog->FLogLine(
-//				"Delta = %.8X, newTicks = %.8X, timer = %.8X",
-//				(unsigned int) theDelta,
-//				(unsigned int) newTicks,
-//				(unsigned int) mTimer );
-//		}
+		//		if (mLog)
+		//		{
+		//			mLog->FLogLine(
+		//				"Delta = %.8X, newTicks = %.8X, timer = %.8X",
+		//				(unsigned int) theDelta,
+		//				(unsigned int) newTicks,
+		//				(unsigned int) mTimer );
+		//		}
 
 		// Wake the suspending thread.
 		mEmulatorCondVar->Signal();
 
 		// Then wait forever on the condition variable.
 		mTimerCondVar->Wait(mMutex);
-//		KPrintf("%i-Timer-WakeUp-2\n", (int) time(NULL));
+		//		KPrintf("%i-Timer-WakeUp-2\n", (int) time(NULL));
 
 		if (mExiting)
 		{
@@ -734,61 +737,65 @@ TInterruptManager::Run( void )
 //  * GetTimeInTicks( void )
 // -------------------------------------------------------------------------- //
 inline KUInt32
-TInterruptManager::GetTimeInTicks( void )
+TInterruptManager::GetTimeInTicks(void)
 {
 #if TARGET_OS_WIN32
 	// FIXME optimize this to avoid using floating point variables
 	static BOOL checked = FALSE, found = FALSE;
 	static double mult = 0.0;
-	if (!checked) {
+	if (!checked)
+	{
 		checked = TRUE;
 		LARGE_INTEGER f;
 		found = QueryPerformanceFrequency(&f);
-		if (found) {
-			if (f.QuadPart==0)
+		if (found)
+		{
+			if (f.QuadPart == 0)
 				found = FALSE;
 			else
-				mult = 4000000.0/((double)f.QuadPart);
+				mult = 4000000.0 / ((double) f.QuadPart);
 		}
 	}
-	if (found) {
+	if (found)
+	{
 		LARGE_INTEGER f;
 		QueryPerformanceCounter(&f);
-		return (KUInt32)(((double)f.QuadPart)*mult);
-	} else {
+		return (KUInt32) (((double) f.QuadPart) * mult);
+	} else
+	{
 		struct _timeb ft;
 		_ftime(&ft);
 		KUInt32 theResult = ft.time * 4000000;
-		theResult += (KUInt32)(ft.millitm * 4000);
+		theResult += (KUInt32) (ft.millitm * 4000);
 		return theResult;
 	}
 #else
 	// Get the time now.
 	struct timeval now;
-	(void) gettimeofday( &now, NULL );
+	(void) gettimeofday(&now, NULL);
 
-//	kern_return_t ret;
-//	clock_serv_t aClock;
-//	mach_timespec_t now;
+	//	kern_return_t ret;
+	//	clock_serv_t aClock;
+	//	mach_timespec_t now;
 
-//	ret = host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &aClock);
-//	if (ret != KERN_SUCCESS) {
-//		KPrintf("host_get_clock_service() failed: %s\n", mach_error_string(ret));
-//		abort();
-//	}
-//	ret = clock_get_time(aClock, &now);
-//	if (ret != KERN_SUCCESS) {
-//		KPrintf("clock_get_time() failed: %s\n", mach_error_string(ret));
-//		abort();
-//	}
+	//	ret = host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &aClock);
+	//	if (ret != KERN_SUCCESS) {
+	//		KPrintf("host_get_clock_service() failed: %s\n", mach_error_string(ret));
+	//		abort();
+	//	}
+	//	ret = clock_get_time(aClock, &now);
+	//	if (ret != KERN_SUCCESS) {
+	//		KPrintf("clock_get_time() failed: %s\n", mach_error_string(ret));
+	//		abort();
+	//	}
 
 	// Translate to ticks:
 #if 1
 	// slower and accurate
 	// 3.6864 MHz -> 3686400 per seconds.
 	KUInt32 theResult = (KUInt32) now.tv_sec * 3686400;
-	//theResult += (KUInt32) (now.tv_usec * 3.6864);
-	theResult += (KUInt32)((((KUInt64)now.tv_usec) * 36864) / 10000);
+	// theResult += (KUInt32) (now.tv_usec * 3.6864);
+	theResult += (KUInt32) ((((KUInt64) now.tv_usec) * 36864) / 10000);
 #else
 	// faster and inaccurate
 	// We simply multiply with 4000000 to avoid the expensive float to int
@@ -804,17 +811,17 @@ TInterruptManager::GetTimeInTicks( void )
 //  * GetTimer( void ) const
 // -------------------------------------------------------------------------- //
 KUInt32
-TInterruptManager::GetTimer( void ) const
+TInterruptManager::GetTimer(void) const
 {
 	// Get the time now and substract with the correction.
 	KUInt32 theResult = GetTimeInTicks() - mTimerDelta;
-//	if (mLog)
-//	{
-//		mLog->FLogLine(
-//			"GetTimer: %.8X (delta = %.8X)",
-//			(unsigned int) theResult,
-//			(unsigned int) mTimerDelta );
-//	}
+	//	if (mLog)
+	//	{
+	//		mLog->FLogLine(
+	//			"GetTimer: %.8X (delta = %.8X)",
+	//			(unsigned int) theResult,
+	//			(unsigned int) mTimerDelta );
+	//	}
 
 	return theResult;
 }
@@ -823,17 +830,17 @@ TInterruptManager::GetTimer( void ) const
 //  * TimedWaitOnCondVar( KUInt32 )
 // -------------------------------------------------------------------------- //
 inline void
-TInterruptManager::TicksWaitOnCondVar( KUInt32 inTicks )
+TInterruptManager::TicksWaitOnCondVar(KUInt32 inTicks)
 {
 	// Translate from ticks:
 #if 1
 	// slower and accurate
 	// 3.6864 MHz -> 3686400 per seconds.
 	KUInt32 sec = inTicks / 3686400;
-	KUInt32 rem = inTicks - (sec*3686400);
+	KUInt32 rem = inTicks - (sec * 3686400);
 	struct timespec amount;
 	amount.tv_nsec = rem * 271; // (1000000000/3686400)
-	amount.tv_sec  = sec;
+	amount.tv_sec = sec;
 #else
 	// faster and inaccurate
 	// We simply divide with 4000000 to avoid the expensive float to int
@@ -843,10 +850,10 @@ TInterruptManager::TicksWaitOnCondVar( KUInt32 inTicks )
 	amount.tv_sec = inTicks / 4000000;
 #endif
 
-//	KPrintf("TicksWaitOnCondVar begin (%f)\n", inTicks/4000000.0f);
-	mTimerCondVar->TimedWaitRelative( mMutex, &amount );
-//	KPrintf("TicksWaitOnCondVar\n" );
-//	KPrintf("%i-Timer-WakeUp-3\n", (int) time(NULL));
+	//	KPrintf("TicksWaitOnCondVar begin (%f)\n", inTicks/4000000.0f);
+	mTimerCondVar->TimedWaitRelative(mMutex, &amount);
+	//	KPrintf("TicksWaitOnCondVar\n" );
+	//	KPrintf("%i-Timer-WakeUp-3\n", (int) time(NULL));
 }
 
 // -------------------------------------------------------------------------- //
@@ -854,9 +861,9 @@ TInterruptManager::TicksWaitOnCondVar( KUInt32 inTicks )
 // -------------------------------------------------------------------------- //
 inline Boolean
 TInterruptManager::FireTimersAndFindNext(
-							KUInt32 inOldTicks,
-							KUInt32 inNewTicks,
-							KUInt32* outNextMatch )
+	KUInt32 inOldTicks,
+	KUInt32 inNewTicks,
+	KUInt32* outNextMatch)
 {
 	Boolean hasNextTimer = false;
 	KUInt32 nextTicksValue = 0;
@@ -868,12 +875,13 @@ TInterruptManager::FireTimersAndFindNext(
 	{
 		if (!(intRaised & kTimer0IntMask))
 		{
-			ticksValue = mMatchRegisters[0] + delta;	// host = newton + delta
+			ticksValue = mMatchRegisters[0] + delta; // host = newton + delta
 			if ((inOldTicks < ticksValue)
 				&& (ticksValue <= inNewTicks))
 			{
 				intRaised |= kTimer0IntMask;
-			} else {
+			} else
+			{
 				nextTicksValue = ticksValue;
 				hasNextTimer = true;
 			}
@@ -885,11 +893,13 @@ TInterruptManager::FireTimersAndFindNext(
 				&& (ticksValue <= inNewTicks))
 			{
 				intRaised |= kTimer1IntMask;
-			} else {
+			} else
+			{
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-				} else {
+				} else
+				{
 					nextTicksValue = ticksValue;
 					hasNextTimer = true;
 				}
@@ -902,11 +912,13 @@ TInterruptManager::FireTimersAndFindNext(
 				&& (ticksValue <= inNewTicks))
 			{
 				intRaised |= kTimer2IntMask;
-			} else {
+			} else
+			{
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-				} else {
+				} else
+				{
 					nextTicksValue = ticksValue;
 					hasNextTimer = true;
 				}
@@ -919,17 +931,20 @@ TInterruptManager::FireTimersAndFindNext(
 				&& (ticksValue <= inNewTicks))
 			{
 				intRaised |= kTimer3IntMask;
-			} else {
+			} else
+			{
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-				} else {
+				} else
+				{
 					nextTicksValue = ticksValue;
 					hasNextTimer = true;
 				}
 			}
 		}
-	} else if (inOldTicks > inNewTicks) {
+	} else if (inOldTicks > inNewTicks)
+	{
 		// Overflow.
 		if (!(intRaised & kTimer0IntMask))
 		{
@@ -938,7 +953,8 @@ TInterruptManager::FireTimersAndFindNext(
 				|| (ticksValue <= inNewTicks))
 			{
 				intRaised |= kTimer0IntMask;
-			} else {
+			} else
+			{
 				nextTicksValue = ticksValue;
 				hasNextTimer = true;
 			}
@@ -950,11 +966,13 @@ TInterruptManager::FireTimersAndFindNext(
 				|| (ticksValue <= inNewTicks))
 			{
 				intRaised |= kTimer1IntMask;
-			} else {
+			} else
+			{
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-				} else {
+				} else
+				{
 					nextTicksValue = ticksValue;
 					hasNextTimer = true;
 				}
@@ -967,11 +985,13 @@ TInterruptManager::FireTimersAndFindNext(
 				|| (ticksValue <= inNewTicks))
 			{
 				intRaised |= kTimer2IntMask;
-			} else {
+			} else
+			{
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-				} else {
+				} else
+				{
 					nextTicksValue = ticksValue;
 					hasNextTimer = true;
 				}
@@ -984,17 +1004,20 @@ TInterruptManager::FireTimersAndFindNext(
 				|| (ticksValue <= inNewTicks))
 			{
 				intRaised |= kTimer3IntMask;
-			} else {
+			} else
+			{
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-				} else {
+				} else
+				{
 					nextTicksValue = ticksValue;
 					hasNextTimer = true;
 				}
 			}
 		}
-	} else {
+	} else
+	{
 		// inOldTicks == inNewTicks.
 		if (!(intRaised & kTimer0IntMask))
 		{
@@ -1002,7 +1025,8 @@ TInterruptManager::FireTimersAndFindNext(
 			if (ticksValue == inNewTicks)
 			{
 				intRaised |= kTimer0IntMask;
-			} else {
+			} else
+			{
 				nextTicksValue = ticksValue;
 				hasNextTimer = true;
 			}
@@ -1013,11 +1037,13 @@ TInterruptManager::FireTimersAndFindNext(
 			if (ticksValue == inNewTicks)
 			{
 				intRaised |= kTimer1IntMask;
-			} else {
+			} else
+			{
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-				} else {
+				} else
+				{
 					nextTicksValue = ticksValue;
 					hasNextTimer = true;
 				}
@@ -1029,11 +1055,13 @@ TInterruptManager::FireTimersAndFindNext(
 			if (ticksValue == inNewTicks)
 			{
 				intRaised |= kTimer2IntMask;
-			} else {
+			} else
+			{
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-				} else {
+				} else
+				{
 					nextTicksValue = ticksValue;
 					hasNextTimer = true;
 				}
@@ -1045,11 +1073,13 @@ TInterruptManager::FireTimersAndFindNext(
 			if (ticksValue == inNewTicks)
 			{
 				intRaised |= kTimer3IntMask;
-			} else {
+			} else
+			{
 				if (hasNextTimer)
 				{
 					nextTicksValue = GetNextTimer(inNewTicks, ticksValue, nextTicksValue);
-				} else {
+				} else
+				{
 					nextTicksValue = ticksValue;
 					hasNextTimer = true;
 				}
@@ -1068,9 +1098,9 @@ TInterruptManager::FireTimersAndFindNext(
 // -------------------------------------------------------------------------- //
 inline KUInt32
 TInterruptManager::GetNextTimer(
-						KUInt32 inNow,
-						KUInt32 inTimerA,
-						KUInt32 inTimerB )
+	KUInt32 inNow,
+	KUInt32 inTimerA,
+	KUInt32 inTimerB)
 {
 	if (inTimerA <= inTimerB)
 	{
@@ -1079,23 +1109,28 @@ TInterruptManager::GetNextTimer(
 		{
 			// now <= A <= B
 			return inTimerA;
-		} else if (inNow <= inTimerB) {
+		} else if (inNow <= inTimerB)
+		{
 			// A <= now <= B
 			return inTimerB;
-		} else {
+		} else
+		{
 			// A <= B <= now
 			return inTimerA;
 		}
-	} else {
+	} else
+	{
 		// B <= A
 		if (inNow <= inTimerB)
 		{
 			// now <= B <= A
 			return inTimerB;
-		} else if (inNow <= inTimerA) {
+		} else if (inNow <= inTimerA)
+		{
 			// B <= now <= A
 			return inTimerA;
-		} else {
+		} else
+		{
 			// B <= A <= now
 			return inTimerB;
 		}
@@ -1106,47 +1141,51 @@ TInterruptManager::GetNextTimer(
 //  * GetSyncedCalendarDelta( void )
 // -------------------------------------------------------------------------- //
 KUInt32
-TInterruptManager::GetSyncedCalendarDelta( void )
+TInterruptManager::GetSyncedCalendarDelta(void)
 {
 	// Currently, we just suppose the epoch is January, 1st, 1970.
 	return (KUInt32) (-kEpochInNewtonBase);
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * TransferState( TStream* ) const
 // -------------------------------------------------------------------------- //
 void
-TInterruptManager::TransferState( TStream* inStream )
+TInterruptManager::TransferState(TStream* inStream)
 {
 	KUInt32 t;
 
 	// Interrupt manager specific stuff.
-	t = mRunning; inStream->TransferInt32BE( t ); mRunning = t;
-	t = mExiting; inStream->TransferInt32BE( t ); mExiting = t;
+	t = mRunning;
+	inStream->TransferInt32BE(t);
+	mRunning = t;
+	t = mExiting;
+	inStream->TransferInt32BE(t);
+	mExiting = t;
 
-	t = mWaiting; inStream->TransferInt32BE( t ); mWaiting  = t;
+	t = mWaiting;
+	inStream->TransferInt32BE(t);
+	mWaiting = t;
 
-	inStream->TransferInt32BE( mMaskIRQ );
-	inStream->TransferInt32BE( mMaskFIQ );
-	inStream->TransferInt32BE( mIntRaised );
-	inStream->TransferInt32BE( mIntCtrlReg );
-	inStream->TransferInt32BE( mFIQMask );
-	inStream->TransferInt32BE( mIntEDReg1 );
-	inStream->TransferInt32BE( mIntEDReg2 );
-	inStream->TransferInt32BE( mIntEDReg3 );
-	inStream->TransferInt32BE( mGPIORaised );
-	inStream->TransferInt32BE( mGPIOCtrlReg );
-	inStream->TransferInt32BE( mCalendarDelta );
+	inStream->TransferInt32BE(mMaskIRQ);
+	inStream->TransferInt32BE(mMaskFIQ);
+	inStream->TransferInt32BE(mIntRaised);
+	inStream->TransferInt32BE(mIntCtrlReg);
+	inStream->TransferInt32BE(mFIQMask);
+	inStream->TransferInt32BE(mIntEDReg1);
+	inStream->TransferInt32BE(mIntEDReg2);
+	inStream->TransferInt32BE(mIntEDReg3);
+	inStream->TransferInt32BE(mGPIORaised);
+	inStream->TransferInt32BE(mGPIOCtrlReg);
+	inStream->TransferInt32BE(mCalendarDelta);
 
-	inStream->TransferInt32BE( mAlarmRegister );
-	inStream->TransferInt32BE( mTimerDelta );
-	inStream->TransferInt32BE( mTimer );
+	inStream->TransferInt32BE(mAlarmRegister);
+	inStream->TransferInt32BE(mTimerDelta);
+	inStream->TransferInt32BE(mTimer);
 	inStream->TransferInt32ArrayBE(
-				mMatchRegisters,
-				sizeof(mMatchRegisters) / sizeof(KUInt32) );
+		mMatchRegisters,
+		sizeof(mMatchRegisters) / sizeof(KUInt32));
 }
-
 
 // ======================================== //
 // Cobol programmers are down in the dumps. //

@@ -22,33 +22,32 @@
 // ==============================
 
 #define LogicalOp_TemplateName(op, mode, flag_s, rn, rd) \
-	DataProcessingTranfer_ ## op ## _ ## mode ## _ ## flag_s ## _ ## rn ## _ ## rd
+	DataProcessingTranfer_##op##_##mode##_##flag_s##_##rn##_##rd
 
 #define LogicalOp_Proto(op, mode, flag_s, rn, rd) \
-	JITUnit* LogicalOp_TemplateName(op, mode, flag_s, rn, rd) \
-			(JITUnit* ioUnit, TARMProcessor* ioCPU)
+	JITUnit* LogicalOp_TemplateName(op, mode, flag_s, rn, rd)(JITUnit * ioUnit, TARMProcessor * ioCPU)
 
 #if DECLARATION
-	#define LogicalOp(op, mode, flag_s, rn, rd) \
-		LogicalOp_Proto(op, mode, flag_s, rn, rd);
+#define LogicalOp(op, mode, flag_s, rn, rd) \
+	LogicalOp_Proto(op, mode, flag_s, rn, rd);
 #endif
 #if IMPLEMENTATION
-	#define LogicalOp(op, mode, flag_s, rn, rd) \
-		LogicalOp_Proto(op, mode, flag_s, rn, rd)
+#define LogicalOp(op, mode, flag_s, rn, rd) \
+	LogicalOp_Proto(op, mode, flag_s, rn, rd)
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_LogicalOp_template.h"
 
-#define OP		AND
+#define OP AND
 #include "IncludeModeRnRd.h"
 #undef OP
-#define OP		EOR
+#define OP EOR
 #include "IncludeModeRnRd.h"
 #undef OP
-#define OP		ORR
+#define OP ORR
 #include "IncludeModeRnRd.h"
 #undef OP
-#define OP		BIC
+#define OP BIC
 #include "IncludeModeRnRd.h"
 #undef OP
 

@@ -51,7 +51,8 @@ MoveOp(OP, MODE, FLAG_S, Rd)
 	if (Rm == 15)
 	{
 		Opnd2 = GETPC();
-	} else {
+	} else
+	{
 		Opnd2 = ioCPU->mCurrentRegisters[Rm];
 	}
 #elif FLAG_S
@@ -59,44 +60,44 @@ MoveOp(OP, MODE, FLAG_S, Rd)
 	POPVALUE(theInstruction);
 	POPPC();
 	Boolean carry = false;
-	const KUInt32 Opnd2 = GetShift( ioCPU, theInstruction, &carry, GETPC() );
+	const KUInt32 Opnd2 = GetShift(ioCPU, theInstruction, &carry, GETPC());
 #else
 	KUInt32 theInstruction;
 	POPVALUE(theInstruction);
 	POPPC();
-	const KUInt32 Opnd2 = GetShiftNoCarry( ioCPU, theInstruction, ioCPU->mCPSR_C, GETPC() );
+	const KUInt32 Opnd2 = GetShiftNoCarry(ioCPU, theInstruction, ioCPU->mCPSR_C, GETPC());
 #endif
 #if (OP == MOV)
 	const KUInt32 theResult = Opnd2;
 #elif (OP == MVN)
-	const KUInt32 theResult = ~ Opnd2;
+	const KUInt32 theResult = ~Opnd2;
 #endif
 #if Rd == 15
-	#if !FLAG_S
-		CALLNEXT_SAVEPC;
-	#endif
+#if !FLAG_S
+	CALLNEXT_SAVEPC;
+#endif
 	SETPC(theResult + 4);
-	#if FLAG_S
-		ioCPU->SetCPSR( ioCPU->GetSPSR() );
-	#endif
+#if FLAG_S
+	ioCPU->SetCPSR(ioCPU->GetSPSR());
+#endif
 #else
 	ioCPU->mCurrentRegisters[Rd] = theResult;
-	#if FLAG_S
-		#if (MODE == NoShift) || (MODE == Imm)
-			SetCPSRBitsForLogicalOpLeaveCarry( ioCPU, theResult );
-		#elif (MODE == ImmC)
-			SetCPSRBitsForLogicalOp( ioCPU, theResult, Opnd2 & 0x80000000 );
-		#else
-			SetCPSRBitsForLogicalOp( ioCPU, theResult, carry );
-		#endif
-	#endif
+#if FLAG_S
+#if (MODE == NoShift) || (MODE == Imm)
+	SetCPSRBitsForLogicalOpLeaveCarry(ioCPU, theResult);
+#elif (MODE == ImmC)
+	SetCPSRBitsForLogicalOp(ioCPU, theResult, Opnd2 & 0x80000000);
+#else
+	SetCPSRBitsForLogicalOp(ioCPU, theResult, carry);
+#endif
+#endif
 #endif
 #if Rd == 15
-	#if FLAG_S
-		MMUCALLNEXT_AFTERSETPC;
-	#else
-		FURTHERCALLNEXT_AFTERSETPC;
-	#endif
+#if FLAG_S
+	MMUCALLNEXT_AFTERSETPC;
+#else
+	FURTHERCALLNEXT_AFTERSETPC;
+#endif
 #else
 	CALLNEXTUNIT;
 #endif

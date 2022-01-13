@@ -24,9 +24,9 @@
 #include "TLog.h"
 
 // POSIX & ANSI
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 
 // K
 #include <K/Threads/TMutex.h>
@@ -38,10 +38,9 @@
 // -------------------------------------------------------------------------- //
 //  * TLog( void )
 // -------------------------------------------------------------------------- //
-TLog::TLog( void )
-	:
-		mMutex( NULL ),
-		mEnabled( true )
+TLog::TLog(void) :
+		mMutex(NULL),
+		mEnabled(true)
 {
 	mMutex = new TMutex();
 }
@@ -49,7 +48,7 @@ TLog::TLog( void )
 // -------------------------------------------------------------------------- //
 //  * ~TLog( void )
 // -------------------------------------------------------------------------- //
-TLog::~TLog( void )
+TLog::~TLog(void)
 {
 	if (mMutex)
 	{
@@ -61,13 +60,13 @@ TLog::~TLog( void )
 //  * LogLine( const char* )
 // -------------------------------------------------------------------------- //
 void
-TLog::LogLine( const char* inLine )
+TLog::LogLine(const char* inLine)
 {
 	if (mEnabled)
 	{
 		LockMutex();
 
-		DoLogLine( inLine );
+		DoLogLine(inLine);
 
 		UnlockMutex();
 	}
@@ -77,7 +76,7 @@ TLog::LogLine( const char* inLine )
 //  * FLogLine( const char*, ... )
 // -------------------------------------------------------------------------- //
 void
-TLog::FLogLine( const char* inFormat, ... )
+TLog::FLogLine(const char* inFormat, ...)
 {
 	if (mEnabled)
 	{
@@ -85,10 +84,10 @@ TLog::FLogLine( const char* inFormat, ... )
 		va_list argList;
 
 		va_start(argList, inFormat);
-		(void) ::vsnprintf( bufferLine, sizeof(bufferLine), inFormat, argList );
+		(void) ::vsnprintf(bufferLine, sizeof(bufferLine), inFormat, argList);
 		va_end(argList);
 
-		LogLine( bufferLine );
+		LogLine(bufferLine);
 	}
 }
 

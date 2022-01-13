@@ -33,7 +33,7 @@
 
 #include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_common.h"
 
-#define IMPLEMENTATION	1
+#define IMPLEMENTATION 1
 #include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_MRS_template.t"
 #undef IMPLEMENTATION
 

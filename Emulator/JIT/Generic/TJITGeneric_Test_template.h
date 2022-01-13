@@ -25,198 +25,212 @@
 //  * TestEQ
 // -------------------------------------------------------------------------- //
 Test_Template(EQ, OFFSET,
-{
-	// Z set (equal)
-	if (ioCPU->mCPSR_Z)
 	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+		// Z set (equal)
+		if (ioCPU->mCPSR_Z)
+		{
+			EXECUTENEXTUNIT;
+		} else
+		{
+			CALLUNIT(OFFSET);
+		}
+	})
 
-// -------------------------------------------------------------------------- //
-//  * TestNE
-// -------------------------------------------------------------------------- //
-Test_Template(NE, OFFSET,
-{
-	// Z clear (not equal)
-	if (!ioCPU->mCPSR_Z)
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestNE
+	// -------------------------------------------------------------------------- //
+	Test_Template(NE, OFFSET,
+		{
+			// Z clear (not equal)
+			if (!ioCPU->mCPSR_Z)
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// -------------------------------------------------------------------------- //
-//  * TestCS
-// -------------------------------------------------------------------------- //
-Test_Template(CS, OFFSET,
-{
-	// C set (unsigned higher or same)
-	if (ioCPU->mCPSR_C)
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestCS
+	// -------------------------------------------------------------------------- //
+	Test_Template(CS, OFFSET,
+		{
+			// C set (unsigned higher or same)
+			if (ioCPU->mCPSR_C)
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// -------------------------------------------------------------------------- //
-//  * TestCC
-// -------------------------------------------------------------------------- //
-Test_Template(CC, OFFSET,
-{
-	// C clear (unsigned lower)
-	if (!ioCPU->mCPSR_C)
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestCC
+	// -------------------------------------------------------------------------- //
+	Test_Template(CC, OFFSET,
+		{
+			// C clear (unsigned lower)
+			if (!ioCPU->mCPSR_C)
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// -------------------------------------------------------------------------- //
-//  * TestMI
-// -------------------------------------------------------------------------- //
-Test_Template(MI, OFFSET,
-{
-	// N set (negative)
-	if (ioCPU->mCPSR_N)
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestMI
+	// -------------------------------------------------------------------------- //
+	Test_Template(MI, OFFSET,
+		{
+			// N set (negative)
+			if (ioCPU->mCPSR_N)
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// -------------------------------------------------------------------------- //
-//  * TestPL
-// -------------------------------------------------------------------------- //
-Test_Template(PL, OFFSET,
-{
-	// N clear (positive or zero)
-	if (!ioCPU->mCPSR_N)
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestPL
+	// -------------------------------------------------------------------------- //
+	Test_Template(PL, OFFSET,
+		{
+			// N clear (positive or zero)
+			if (!ioCPU->mCPSR_N)
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// -------------------------------------------------------------------------- //
-//  * TestVS
-// -------------------------------------------------------------------------- //
-Test_Template(VS, OFFSET,
-{
-	// V set (overflow)
-	if (ioCPU->mCPSR_V)
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestVS
+	// -------------------------------------------------------------------------- //
+	Test_Template(VS, OFFSET,
+		{
+			// V set (overflow)
+			if (ioCPU->mCPSR_V)
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// -------------------------------------------------------------------------- //
-//  * TestVC
-// -------------------------------------------------------------------------- //
-Test_Template(VC, OFFSET,
-{
-	// V clear (no overflow)
-	if (!ioCPU->mCPSR_V)
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestVC
+	// -------------------------------------------------------------------------- //
+	Test_Template(VC, OFFSET,
+		{
+			// V clear (no overflow)
+			if (!ioCPU->mCPSR_V)
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// -------------------------------------------------------------------------- //
-//  * TestHI
-// -------------------------------------------------------------------------- //
-Test_Template(HI, OFFSET,
-{
-	// C set and Z clear (unsigned higher)
-	if (((ioCPU->mCPSR_C) && !(ioCPU->mCPSR_Z)))
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestHI
+	// -------------------------------------------------------------------------- //
+	Test_Template(HI, OFFSET,
+		{
+			// C set and Z clear (unsigned higher)
+			if (((ioCPU->mCPSR_C) && !(ioCPU->mCPSR_Z)))
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// -------------------------------------------------------------------------- //
-//  * TestLS
-// -------------------------------------------------------------------------- //
-Test_Template(LS, OFFSET,
-{
-	// C clear or Z set (unsigned lower or same)
-	if ((!(ioCPU->mCPSR_C) || (ioCPU->mCPSR_Z)))
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestLS
+	// -------------------------------------------------------------------------- //
+	Test_Template(LS, OFFSET,
+		{
+			// C clear or Z set (unsigned lower or same)
+			if ((!(ioCPU->mCPSR_C) || (ioCPU->mCPSR_Z)))
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// -------------------------------------------------------------------------- //
-//  * TestGE
-// -------------------------------------------------------------------------- //
-Test_Template(GE, OFFSET,
-{
-	// N set and V set, or N clear and V clear (greater or equal)
-	if ((ioCPU->mCPSR_N == ioCPU->mCPSR_V))
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestGE
+	// -------------------------------------------------------------------------- //
+	Test_Template(GE, OFFSET,
+		{
+			// N set and V set, or N clear and V clear (greater or equal)
+			if ((ioCPU->mCPSR_N == ioCPU->mCPSR_V))
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// -------------------------------------------------------------------------- //
-//  * TestLT
-// -------------------------------------------------------------------------- //
-Test_Template(LT, OFFSET,
-{
-	// N set and V clear, or N clear and V set (less than)
-	if ((ioCPU->mCPSR_N != ioCPU->mCPSR_V))
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestLT
+	// -------------------------------------------------------------------------- //
+	Test_Template(LT, OFFSET,
+		{
+			// N set and V clear, or N clear and V set (less than)
+			if ((ioCPU->mCPSR_N != ioCPU->mCPSR_V))
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// -------------------------------------------------------------------------- //
-//  * TestGT
-// -------------------------------------------------------------------------- //
-Test_Template(GT, OFFSET,
-{
-	// Z clear, and either N set and V set, or N clear and V clear (greater than)
-	if (((!ioCPU->mCPSR_Z) && (ioCPU->mCPSR_N == ioCPU->mCPSR_V)))
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestGT
+	// -------------------------------------------------------------------------- //
+	Test_Template(GT, OFFSET,
+		{
+			// Z clear, and either N set and V set, or N clear and V clear (greater than)
+			if (((!ioCPU->mCPSR_Z) && (ioCPU->mCPSR_N == ioCPU->mCPSR_V)))
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// -------------------------------------------------------------------------- //
-//  * TestLE
-// -------------------------------------------------------------------------- //
-Test_Template(LE, OFFSET,
-{
-	// Z set, or N set and V clear, or N clear and V set (less than or equal)
-	if (((ioCPU->mCPSR_Z) || (ioCPU->mCPSR_N != ioCPU->mCPSR_V)))
-	{
-		EXECUTENEXTUNIT;
-	} else {
-		CALLUNIT(OFFSET);
-	}
-})
+	// -------------------------------------------------------------------------- //
+	//  * TestLE
+	// -------------------------------------------------------------------------- //
+	Test_Template(LE, OFFSET,
+		{
+			// Z set, or N set and V clear, or N clear and V set (less than or equal)
+			if (((ioCPU->mCPSR_Z) || (ioCPU->mCPSR_N != ioCPU->mCPSR_V)))
+			{
+				EXECUTENEXTUNIT;
+			} else
+			{
+				CALLUNIT(OFFSET);
+			}
+		})
 
-// ================================================= //
-// The world will end in 5 minutes.  Please log out. //
-// ================================================= //
+	// ================================================= //
+	// The world will end in 5 minutes.  Please log out. //
+	// ================================================= //

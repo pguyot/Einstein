@@ -25,11 +25,11 @@
 #include "TFBScreenManager.h"
 
 // POSIX
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 // Linux
 #include <linux/fb.h>
@@ -42,12 +42,11 @@
 //  * TFBScreenManager( TLog* )
 // -------------------------------------------------------------------------- //
 TFBScreenManager::TFBScreenManager(
-			TLog* inLog /* = nil */,
-			KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
-			KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */ )
-	:
-		TScreenManager( inLog, inPortraitWidth, inPortraitHeight ),
-		mFrameBufferFD( -1 )
+	TLog* inLog /* = nil */,
+	KUInt32 inPortraitWidth /* = kDefaultPortraitWidth */,
+	KUInt32 inPortraitHeight /* = kDefaultPortraitHeight */) :
+		TScreenManager(inLog, inPortraitWidth, inPortraitHeight),
+		mFrameBufferFD(-1)
 {
 	// Open the device.
 	Open();
@@ -56,7 +55,7 @@ TFBScreenManager::TFBScreenManager(
 // -------------------------------------------------------------------------- //
 //  * ~TFBScreenManager( void )
 // -------------------------------------------------------------------------- //
-TFBScreenManager::~TFBScreenManager( void )
+TFBScreenManager::~TFBScreenManager(void)
 {
 	// Close the device.
 	Close();
@@ -66,20 +65,21 @@ TFBScreenManager::~TFBScreenManager( void )
 //  * Open( void )
 // -------------------------------------------------------------------------- //
 void
-TFBScreenManager::Open( void )
+TFBScreenManager::Open(void)
 {
 	const char* fbname;
 	if (access("/dev/.devfsd", F_OK) == 0)
 	{
 		fbname = "/dev/fb/0";
-	} else {
+	} else
+	{
 		fbname = "/dev/fb0";
 	}
 
 	mFrameBufferFD = open(fbname, O_RDONLY | O_NONBLOCK);
 	if (mFrameBufferFD == -1)
 	{
-		(void) ::fprintf( stderr, "open r/o failed for %s (%i)\n", fbname, errno );
+		(void) ::fprintf(stderr, "open r/o failed for %s (%i)\n", fbname, errno);
 		::abort();
 	}
 
@@ -87,7 +87,7 @@ TFBScreenManager::Open( void )
 	mFrameBufferFD = open(fbname, O_RDWR);
 	if (mFrameBufferFD == -1)
 	{
-		(void) ::fprintf( stderr, "open r/w failed for %s (%i)\n", fbname, errno );
+		(void) ::fprintf(stderr, "open r/w failed for %s (%i)\n", fbname, errno);
 		::abort();
 	}
 }
@@ -96,78 +96,78 @@ TFBScreenManager::Open( void )
 //  * Close( void )
 // -------------------------------------------------------------------------- //
 void
-TFBScreenManager::Close( void )
+TFBScreenManager::Close(void)
 {
-	close( mFrameBufferFD );
+	close(mFrameBufferFD);
 }
 
 // -------------------------------------------------------------------------- //
 //  * PowerOnScreen( void )
 // -------------------------------------------------------------------------- //
 void
-TFBScreenManager::PowerOnScreen( void )
+TFBScreenManager::PowerOnScreen(void)
 {
 	// Just ignore it.
-	(void) ::fprintf( stderr, "PowerOnScreen\n" );
+	(void) ::fprintf(stderr, "PowerOnScreen\n");
 }
 
 // -------------------------------------------------------------------------- //
 //  * PowerOffScreen( void )
 // -------------------------------------------------------------------------- //
 void
-TFBScreenManager::PowerOffScreen( void )
+TFBScreenManager::PowerOffScreen(void)
 {
 	// Just ignore it.
-	(void) ::fprintf( stderr, "PowerOffScreen\n" );
+	(void) ::fprintf(stderr, "PowerOffScreen\n");
 }
 
 // -------------------------------------------------------------------------- //
 //  * BacklightChanged( Boolean )
 // -------------------------------------------------------------------------- //
 void
-TFBScreenManager::BacklightChanged( Boolean )
+TFBScreenManager::BacklightChanged(Boolean)
 {
 	// Just ignore it.
-	(void) ::fprintf( stderr, "BacklightChanged\n" );
+	(void) ::fprintf(stderr, "BacklightChanged\n");
 }
 
 // -------------------------------------------------------------------------- //
 //  * ContrastChanged( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TFBScreenManager::ContrastChanged( KUInt32 )
+TFBScreenManager::ContrastChanged(KUInt32)
 {
 	// Just ignore it.
-	(void) ::fprintf( stderr, "ContrastChanged\n" );
+	(void) ::fprintf(stderr, "ContrastChanged\n");
 }
 
 // -------------------------------------------------------------------------- //
 //  * ScreenOrientationChanged( EOrientation )
 // -------------------------------------------------------------------------- //
 void
-TFBScreenManager::ScreenOrientationChanged( EOrientation )
+TFBScreenManager::ScreenOrientationChanged(EOrientation)
 {
 	// Just ignore it.
-	(void) ::fprintf( stderr, "ScreenOrientationChanged\n" );
+	(void) ::fprintf(stderr, "ScreenOrientationChanged\n");
 }
 
 // -------------------------------------------------------------------------- //
 //  * TabletOrientationChanged( EOrientation )
 // -------------------------------------------------------------------------- //
 void
-TFBScreenManager::TabletOrientationChanged( EOrientation )
+TFBScreenManager::TabletOrientationChanged(EOrientation)
 {
 	// Just ignore it.
-	(void) ::fprintf( stderr, "TabletOrientationChanged\n" );
+	(void) ::fprintf(stderr, "TabletOrientationChanged\n");
 }
 
 // -------------------------------------------------------------------------- //
 //  * UpdateScreenRect( SRect* )
 // -------------------------------------------------------------------------- //
 void
-TFBScreenManager::UpdateScreenRect( SRect* inUpdateRect )
+TFBScreenManager::UpdateScreenRect(SRect* inUpdateRect)
 {
-	(void) ::fprintf( stderr, "UpdateScreenRect\n" );
+	(void) ::fprintf(stderr, "UpdateScreenRect\n");
 }
 
 // ============================================================================== //

@@ -38,8 +38,7 @@
 /// \test	aucun test défini.
 ///
 class TBufferedSoundManager
-	:
-		public TSoundManager
+		: public TSoundManager
 {
 public:
 	///
@@ -52,25 +51,25 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TBufferedSoundManager( void );
+	virtual ~TBufferedSoundManager(void);
 
 	///
 	/// Schedule output of some buffer (using address).
 	///
-	virtual void	ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize );
+	virtual void ScheduleOutputBuffer(KUInt32 inBufferAddr, KUInt32 inSize);
 
 	///
 	/// Schedule output of some buffer.
 	///
-	virtual void	ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize ) = 0;
+	virtual void ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize) = 0;
 
 private:
 	/// \name Variables
-	KUInt8*			mBuffer;	///< Buffer (for little endian hosts).
+	KUInt8* mBuffer; ///< Buffer (for little endian hosts).
 };
 
 #endif
-		// _TBUFFEREDSOUNDMANAGER_H
+// _TBUFFEREDSOUNDMANAGER_H
 
 // ========================================= //
 // You are in the hall of the mountain king. //

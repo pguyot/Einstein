@@ -26,8 +26,8 @@
 #include "Log/TLog.h"
 
 // ANSI C & POSIX
-#include <strings.h>
 #include <stdio.h>
+#include <strings.h>
 
 // K
 #include <K/Defines/UByteSex.h>
@@ -37,13 +37,11 @@
 // Einstein.
 #include "Emulator/Log/TLog.h"
 
-
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
 
-#define kNewtonBufferSizeInFrames		0x750
-
+#define kNewtonBufferSizeInFrames 0x750
 
 // -------------------------------------------------------------------------- //
 // Static Member Variables
@@ -53,27 +51,26 @@ TMutex* TAndroidSoundManager::mDataMutex = 0L;
 int TAndroidSoundManager::mGlobalVolume = 50; // TODO: store between system starts
 int TAndroidSoundManager::mGlobalVolumeChanged = 1;
 
-
 // -------------------------------------------------------------------------- //
 //  * TAndroidSoundManager( void )
 // -------------------------------------------------------------------------- //
-TAndroidSoundManager::TAndroidSoundManager( TLog* inLog /* = nil */ )
-:
-TBufferedSoundManager( inLog )
+TAndroidSoundManager::TAndroidSoundManager(TLog* inLog /* = nil */) :
+		TBufferedSoundManager(inLog)
 {
-  if (!mOutputBuffer) {
-    mOutputBuffer =
-      new TCircleBuffer(kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16) );
-  }
-  if (!mDataMutex) {
-    mDataMutex = new TMutex();
-  }
+	if (!mOutputBuffer)
+	{
+		mOutputBuffer = new TCircleBuffer(kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16));
+	}
+	if (!mDataMutex)
+	{
+		mDataMutex = new TMutex();
+	}
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TAndroidSoundManager( void )
 // -------------------------------------------------------------------------- //
-TAndroidSoundManager::~TAndroidSoundManager( void )
+TAndroidSoundManager::~TAndroidSoundManager(void)
 {
 }
 
@@ -81,77 +78,80 @@ TAndroidSoundManager::~TAndroidSoundManager( void )
 //  * ScheduleOutput( const KUInt8*, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TAndroidSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
+TAndroidSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 {
-  if (inSize > 0)
-  {
-    if (OutputVolume() != kOutputVolume_Zero)
-    {
-      // Write to the output buffer.
-      // Copy data.
-      mDataMutex->Lock();
-      mOutputBuffer->Produce( inBuffer, inSize );
-      mDataMutex->Unlock();
-    }
+	if (inSize > 0)
+	{
+		if (OutputVolume() != kOutputVolume_Zero)
+		{
+			// Write to the output buffer.
+			// Copy data.
+			mDataMutex->Lock();
+			mOutputBuffer->Produce(inBuffer, inSize);
+			mDataMutex->Unlock();
+		}
 
-    // Ask for more data.
-    RaiseOutputInterrupt();
-  }
+		// Ask for more data.
+		RaiseOutputInterrupt();
+	}
 }
 
 // -------------------------------------------------------------------------- //
 //  * StartOutput( void )
 // -------------------------------------------------------------------------- //
 void
-TAndroidSoundManager::StartOutput( void )
+TAndroidSoundManager::StartOutput(void)
 {
-  // Start the rendering
-  // The DefaultOutputUnit will do any format conversions to the format of the
-  // default device
+	// Start the rendering
+	// The DefaultOutputUnit will do any format conversions to the format of the
+	// default device
 }
 
 // -------------------------------------------------------------------------- //
 //  * StopOutput( void )
 // -------------------------------------------------------------------------- //
 void
-TAndroidSoundManager::StopOutput( void )
+TAndroidSoundManager::StopOutput(void)
 {
-  // Start the rendering
-  // The DefaultOutputUnit will do any format conversions to the format of the
-  // default device
+	// Start the rendering
+	// The DefaultOutputUnit will do any format conversions to the format of the
+	// default device
 }
 
 // -------------------------------------------------------------------------- //
 //  * OutputIsRunning( void )
 // -------------------------------------------------------------------------- //
 Boolean
-TAndroidSoundManager::OutputIsRunning( void )
+TAndroidSoundManager::OutputIsRunning(void)
 {
-  return !mOutputBuffer->IsEmpty();
+	return !mOutputBuffer->IsEmpty();
 }
 
-
-bool TAndroidSoundManager::soundOutputDataAvailable()
+bool
+TAndroidSoundManager::soundOutputDataAvailable()
 {
-  return !mOutputBuffer->IsEmpty();
+	return !mOutputBuffer->IsEmpty();
 }
 
-
-int TAndroidSoundManager::soundOutputBytesAvailable()
+int
+TAndroidSoundManager::soundOutputBytesAvailable()
 {
-  return mOutputBuffer->AvailableBytes();
+	return mOutputBuffer->AvailableBytes();
 }
 
-int TAndroidSoundManager::soundOutputBytesCopy(signed short *dst, int max)
+int
+TAndroidSoundManager::soundOutputBytesCopy(signed short* dst, int max)
 {
-  int n = soundOutputBytesAvailable();
-  if (n>max) n = max;
-  mOutputBuffer->Consume((void*)dst, n);
+	int n = soundOutputBytesAvailable();
+	if (n > max)
+		n = max;
+	mOutputBuffer->Consume((void*) dst, n);
 	int i;
-	for (i=0; i<n/2; i++) {
-		dst[i] = dst[i]<<8;
+	for (i = 0; i < n / 2; i++)
+	{
+		dst[i] = dst[i] << 8;
 	}
-  return n;
+	return n;
 }
 
 void
@@ -159,12 +159,15 @@ TAndroidSoundManager::OutputVolumeChanged()
 {
 	KUInt32 v = OutputVolume();
 	int vNew = 0;
-	if (v==kOutputVolume_Zero || v<kOutputVolume_Min) {
+	if (v == kOutputVolume_Zero || v < kOutputVolume_Min)
+	{
 		vNew = 0;
-	} else if (v==kOutputVolume_Max) {
+	} else if (v == kOutputVolume_Max)
+	{
 		vNew = 100;
-	} else {
-		vNew = (v-kOutputVolume_Min) / 19458;
+	} else
+	{
+		vNew = (v - kOutputVolume_Min) / 19458;
 	}
 
 	if (mGlobalVolume != vNew)
@@ -175,12 +178,10 @@ TAndroidSoundManager::OutputVolumeChanged()
 int
 TAndroidSoundManager::soundVolumeChanged()
 {
-  int tmp = mGlobalVolumeChanged;
-  mGlobalVolumeChanged = 0;
-  return tmp;
+	int tmp = mGlobalVolumeChanged;
+	mGlobalVolumeChanged = 0;
+	return tmp;
 }
-
-
 
 // ============================================================================= //
 // As in Protestant Europe, by contrast, where sects divided endlessly into      //

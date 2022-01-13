@@ -36,7 +36,6 @@
 #ifndef _TFIBER_H
 #define _TFIBER_H
 
-
 #undef FIBER_USE_UCONTEXT
 #undef FIBER_USE_PTHREAD
 #define FIBER_USE_LONGJMP
@@ -48,29 +47,29 @@
 
 // ANSI C & POSIX
 #if TARGET_OS_WIN32
-	#include <windows.h>
-	#include <process.h>
-	#define FIBER_USE_UCONTEXT
-	#undef FIBER_USE_PTHREAD
-	#undef FIBER_USE_LONGJMP
+#include <process.h>
+#include <windows.h>
+#define FIBER_USE_UCONTEXT
+#undef FIBER_USE_PTHREAD
+#undef FIBER_USE_LONGJMP
 #else
-	#ifdef FIBER_USE_UCONTEXT
-		#define _XOPEN_SOURCE
-		#include <ucontext.h>
-	#endif
-	#ifdef FIBER_USE_PTHREAD
-		#include <pthread.h>
-	#endif
-	#ifdef FIBER_USE_LONGJMP
-		#include <pthread.h>
-		#include <setjmp.h>
-	#endif
+#ifdef FIBER_USE_UCONTEXT
+#define _XOPEN_SOURCE
+#include <ucontext.h>
+#endif
+#ifdef FIBER_USE_PTHREAD
+#include <pthread.h>
+#endif
+#ifdef FIBER_USE_LONGJMP
+#include <pthread.h>
+#include <setjmp.h>
+#endif
 #endif
 #include <assert.h>
 
 // K
-#include <K/Threads/TMutex.h>
 #include <K/Threads/TCondVar.h>
+#include <K/Threads/TMutex.h>
 
 /**
  Class for a fiber.
@@ -107,24 +106,36 @@ public:
 	/// States of a thread.
 	///
 	enum EState {
-		kStopped,		///< Fiber is stopped.
-		kRunning,		///< Fiber is running.
-		kSuspended		///< Fiber is suspended (waiting for Resume).
+		kStopped, ///< Fiber is stopped.
+		kRunning, ///< Fiber is running.
+		kSuspended ///< Fiber is suspended (waiting for Resume).
 	};
 
-	bool IsStopped() { return mState==kStopped; }
-	bool IsRunning() { return mState==kRunning; }
-	bool IsSuspended() { return mState==kSuspended; }
+	bool
+	IsStopped()
+	{
+		return mState == kStopped;
+	}
+	bool
+	IsRunning()
+	{
+		return mState == kRunning;
+	}
+	bool
+	IsSuspended()
+	{
+		return mState == kSuspended;
+	}
 
 	///
 	/// Constructor.
 	///
-	TFiber( KUInt32 inStackSize=0 );
+	TFiber(KUInt32 inStackSize = 0);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TFiber( void );
+	virtual ~TFiber(void);
 
 	/**
 	 Run this task.
@@ -132,7 +143,7 @@ public:
 	 This is the method that will be started when calling Run(). Override this
 	 method to create your own task.
 	 */
-	virtual KSInt32 Task(KSInt32 inReason=0, void* inUserData=0L) = 0;
+	virtual KSInt32 Task(KSInt32 inReason = 0, void* inUserData = 0L) = 0;
 
 	/**
 	 Run a fiber.
@@ -145,7 +156,7 @@ public:
 	 \return 0 if the fiber function exited normally.
 	 \return a user defined value given as a prameter to Suspend().
 	 */
-	KSInt32 Run( KSInt32 inReason=0, void* inUserData=0L );
+	KSInt32 Run(KSInt32 inReason = 0, void* inUserData = 0L);
 
 	/**
 	 Suspend a fiber.
@@ -158,7 +169,7 @@ public:
 
 	 \return Returns the reason given by the call to Resume().
 	 */
-	KSInt32 Suspend( KSInt32 inReason );
+	KSInt32 Suspend(KSInt32 inReason);
 
 	/**
 	 Resume a fiber.
@@ -173,7 +184,7 @@ public:
 	 \return 0 if the fiber function exited normally.
 	 \return a user defined value given as a prameter to a further Suspend().
 	 */
-	KSInt32 Resume( KSInt32 inReason );
+	KSInt32 Resume(KSInt32 inReason);
 
 	/**
 	 Abort execution of a fiber.
@@ -185,44 +196,42 @@ public:
 	 instruction in the emulator crosses over the execution path of
 	 the simulator.
 	 */
-	void Abort( KSInt32 reason );
+	void Abort(KSInt32 reason);
 
 private:
-
-	EState				mState;				///< State of the fiber.
-	KSInt32				mReason;			///< Reason for last call.
-	void*				mUserData;			///< User Data exchange location.
+	EState mState; ///< State of the fiber.
+	KSInt32 mReason; ///< Reason for last call.
+	void* mUserData; ///< User Data exchange location.
 
 #ifdef FIBER_USE_UCONTEXT
-	static TFiber*		sCurrentFiber;
-    static void			TaskCaller(TFiber*);
-	ucontext_t			mFiberContext;
-	ucontext_t			mCallerContext;
+	static TFiber* sCurrentFiber;
+	static void TaskCaller(TFiber*);
+	ucontext_t mFiberContext;
+	ucontext_t mCallerContext;
 #endif
 #ifdef FIBER_USE_PTHREAD
-	static void*		TaskCaller(void*);
-	pthread_t			mFiberThread;
-	pthread_cond_t		mFiberWait;
-	pthread_mutex_t		mFiberWaitMutex;
-	pthread_cond_t		mCallerWait;
-	pthread_mutex_t		mCallerWaitMutex;
+	static void* TaskCaller(void*);
+	pthread_t mFiberThread;
+	pthread_cond_t mFiberWait;
+	pthread_mutex_t mFiberWaitMutex;
+	pthread_cond_t mCallerWait;
+	pthread_mutex_t mCallerWaitMutex;
 #endif
 #ifdef FIBER_USE_LONGJMP
-	static void*		TaskCaller(void*);
-	pthread_t			mFiberThread;
-	pthread_cond_t		mFiberWait;
-	pthread_mutex_t		mFiberWaitMutex;
-    pthread_cond_t		mCallerWait;
-    pthread_mutex_t		mCallerWaitMutex;
-	jmp_buf				mFiberContext;
-	jmp_buf				mSuspendContext;
-	jmp_buf				mCallerContext;
+	static void* TaskCaller(void*);
+	pthread_t mFiberThread;
+	pthread_cond_t mFiberWait;
+	pthread_mutex_t mFiberWaitMutex;
+	pthread_cond_t mCallerWait;
+	pthread_mutex_t mCallerWaitMutex;
+	jmp_buf mFiberContext;
+	jmp_buf mSuspendContext;
+	jmp_buf mCallerContext;
 #endif
 };
 
-
 #endif
-		// _TFIBER_H
+// _TFIBER_H
 
 // ============================================================================= //
 //         There was once a programmer who was attached to the court of the      //

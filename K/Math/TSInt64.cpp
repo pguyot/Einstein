@@ -39,7 +39,7 @@
 //	* operator == ( const TSInt64&, KSInt32 )
 // --------------------------------------------------------------------	//
 bool
-operator == ( const TSInt64& inArgOne, const KSInt32 inArgTwo )
+operator==(const TSInt64& inArgOne, const KSInt32 inArgTwo)
 {
 	return (inArgOne.GetHi() == 0)
 		&& (((KSInt32) inArgOne.GetLo()) == inArgTwo);
@@ -49,7 +49,7 @@ operator == ( const TSInt64& inArgOne, const KSInt32 inArgTwo )
 //	* operator == ( KSInt32, const TSInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator == ( const KSInt32 inArgOne, const TSInt64& inArgTwo )
+operator==(const KSInt32 inArgOne, const TSInt64& inArgTwo)
 {
 	return (inArgTwo.GetHi() == 0)
 		&& (((KSInt32) inArgTwo.GetLo()) == inArgOne);

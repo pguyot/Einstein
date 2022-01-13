@@ -45,49 +45,53 @@ public:
 	///
 	/// Constructor.
 	///
-	inline TDoubleLinkedElem( void )
-		:
-			mPrevElem( NULL ),
-			mNextElem( NULL )
-		{
-		}
+	inline TDoubleLinkedElem(void) :
+			mPrevElem(NULL),
+			mNextElem(NULL)
+	{
+	}
 
 	friend class TDoubleLinkedList;
 
 	///
 	/// Accessor on the previous item.
 	///
-	inline TDoubleLinkedElem*	GetPrevElem( void ) const
-		{
-			return mPrevElem;
-		}
+	inline TDoubleLinkedElem*
+	GetPrevElem(void) const
+	{
+		return mPrevElem;
+	}
 
 	///
 	/// Accessor on the next item.
 	///
-	inline TDoubleLinkedElem*	GetNextElem( void ) const
-		{
-			return mNextElem;
-		}
+	inline TDoubleLinkedElem*
+	GetNextElem(void) const
+	{
+		return mNextElem;
+	}
+
 private:
 	///
 	/// Selector on the previous item.
 	///
-	inline void SetPrevElem( TDoubleLinkedElem* inNewPrevElem )
-		{
-			mPrevElem = inNewPrevElem;
-		}
+	inline void
+	SetPrevElem(TDoubleLinkedElem* inNewPrevElem)
+	{
+		mPrevElem = inNewPrevElem;
+	}
 
 	///
 	/// Selector on the next item.
 	///
-	inline void SetNextElem( TDoubleLinkedElem* inNewNextElem )
-		{
-			mNextElem = inNewNextElem;
-		}
+	inline void
+	SetNextElem(TDoubleLinkedElem* inNewNextElem)
+	{
+		mNextElem = inNewNextElem;
+	}
 
-	TDoubleLinkedElem*	mPrevElem;	///< Previous element or NULL
-	TDoubleLinkedElem*	mNextElem;	///< Next element or NULL
+	TDoubleLinkedElem* mPrevElem; ///< Previous element or NULL
+	TDoubleLinkedElem* mNextElem; ///< Next element or NULL
 };
 
 ///
@@ -99,152 +103,164 @@ public:
 	///
 	/// Constructor.
 	///
-	inline TDoubleLinkedList( void )
-		:
-			mFirstElem( NULL ),
-			mLastElem( NULL )
-		{
-		}
+	inline TDoubleLinkedList(void) :
+			mFirstElem(NULL),
+			mLastElem(NULL)
+	{
+	}
 
 	///
 	/// Accessor to the front item.
 	///
-	inline TDoubleLinkedElem* GetFirstItem( void )
-		{
-			return mFirstElem;
-		}
+	inline TDoubleLinkedElem*
+	GetFirstItem(void)
+	{
+		return mFirstElem;
+	}
 
 	///
 	/// Accessor to the back item.
 	///
-	inline TDoubleLinkedElem* GetLastItem( void )
-		{
-			return mLastElem;
-		}
+	inline TDoubleLinkedElem*
+	GetLastItem(void)
+	{
+		return mLastElem;
+	}
 
 	///
 	/// Make an item the first item.
 	///
-	inline void MoveItemToBeginning( TDoubleLinkedElem* inNewFirstElem )
-		{
-			Remove(inNewFirstElem);
-			PushFront(inNewFirstElem);
-		}
+	inline void
+	MoveItemToBeginning(TDoubleLinkedElem* inNewFirstElem)
+	{
+		Remove(inNewFirstElem);
+		PushFront(inNewFirstElem);
+	}
 
 	///
 	/// Make an item the last item.
 	///
-	inline void MoveItemToEnd( TDoubleLinkedElem* inNewLastElem )
-		{
-			Remove(inNewLastElem);
-			PushBack(inNewLastElem);
-		}
+	inline void
+	MoveItemToEnd(TDoubleLinkedElem* inNewLastElem)
+	{
+		Remove(inNewLastElem);
+		PushBack(inNewLastElem);
+	}
 
 	///
 	/// Pop item from the beginning.
 	/// Return NULL if there is no such item.
 	///
-	inline TDoubleLinkedElem* PopFront( void )
+	inline TDoubleLinkedElem*
+	PopFront(void)
+	{
+		TDoubleLinkedElem* theResult = mFirstElem;
+		if (theResult != NULL)
 		{
-			TDoubleLinkedElem* theResult = mFirstElem;
-			if (theResult != NULL)
+			mFirstElem = theResult->GetNextElem();
+			if (mFirstElem != NULL)
 			{
-				mFirstElem = theResult->GetNextElem();
-				if (mFirstElem != NULL)
-				{
-					mFirstElem->SetPrevElem(NULL);
-				}
-				theResult->SetPrevElem(NULL);
-				theResult->SetNextElem(NULL);
+				mFirstElem->SetPrevElem(NULL);
 			}
-			return theResult;
+			theResult->SetPrevElem(NULL);
+			theResult->SetNextElem(NULL);
 		}
+		return theResult;
+	}
 
 	///
 	/// Pop item from the end.
 	/// Return NULL if there is no such item.
 	///
-	inline TDoubleLinkedElem* PopBack( void )
+	inline TDoubleLinkedElem*
+	PopBack(void)
+	{
+		TDoubleLinkedElem* theResult = mLastElem;
+		if (theResult != NULL)
 		{
-			TDoubleLinkedElem* theResult = mLastElem;
-			if (theResult != NULL)
+			mLastElem = theResult->GetPrevElem();
+			if (mLastElem != NULL)
 			{
-				mLastElem = theResult->GetPrevElem();
-				if (mLastElem != NULL)
-				{
-					mLastElem->SetNextElem(NULL);
-				}
-				theResult->SetPrevElem(NULL);
-				theResult->SetNextElem(NULL);
+				mLastElem->SetNextElem(NULL);
 			}
-			return theResult;
+			theResult->SetPrevElem(NULL);
+			theResult->SetNextElem(NULL);
 		}
+		return theResult;
+	}
 
 	///
 	/// Push an item at the beginning.
 	///
-	inline void PushFront( TDoubleLinkedElem* inNewFirstElem )
+	inline void
+	PushFront(TDoubleLinkedElem* inNewFirstElem)
+	{
+		inNewFirstElem->SetNextElem(mFirstElem);
+		inNewFirstElem->SetPrevElem(NULL);
+		if (mFirstElem != NULL)
 		{
-			inNewFirstElem->SetNextElem(mFirstElem);
-			inNewFirstElem->SetPrevElem(NULL);
-			if (mFirstElem != NULL)
-			{
-				mFirstElem->SetPrevElem(inNewFirstElem);
-			} else {
-				mLastElem = inNewFirstElem;
-			}
-			mFirstElem = inNewFirstElem;
+			mFirstElem->SetPrevElem(inNewFirstElem);
+		} else
+		{
+			mLastElem = inNewFirstElem;
 		}
+		mFirstElem = inNewFirstElem;
+	}
 
 	///
 	/// Push an item at the end.
 	///
-	inline void PushBack( TDoubleLinkedElem* inNewLastElem )
+	inline void
+	PushBack(TDoubleLinkedElem* inNewLastElem)
+	{
+		inNewLastElem->SetPrevElem(mLastElem);
+		inNewLastElem->SetNextElem(NULL);
+		if (mLastElem != NULL)
 		{
-			inNewLastElem->SetPrevElem(mLastElem);
-			inNewLastElem->SetNextElem(NULL);
-			if (mLastElem != NULL)
-			{
-				mLastElem->SetNextElem(inNewLastElem);
-			} else {
-				mFirstElem = inNewLastElem;
-			}
-			mLastElem = inNewLastElem;
+			mLastElem->SetNextElem(inNewLastElem);
+		} else
+		{
+			mFirstElem = inNewLastElem;
 		}
+		mLastElem = inNewLastElem;
+	}
 
 	///
 	/// Remove an item.
 	///
-	inline void Remove( TDoubleLinkedElem* inElem )
+	inline void
+	Remove(TDoubleLinkedElem* inElem)
+	{
+		TDoubleLinkedElem* thePrevious = inElem->GetPrevElem();
+		TDoubleLinkedElem* theNext = inElem->GetNextElem();
+		if (thePrevious == NULL)
 		{
-			TDoubleLinkedElem* thePrevious = inElem->GetPrevElem();
-			TDoubleLinkedElem* theNext = inElem->GetNextElem();
-			if (thePrevious == NULL)
+			if (mFirstElem == inElem)
 			{
-				if (mFirstElem == inElem)
-				{
-					mFirstElem = theNext;
-				}
-			} else {
-				thePrevious->SetNextElem(theNext);
+				mFirstElem = theNext;
 			}
-			if (theNext == NULL)
-			{
-				if (mLastElem == inElem)
-				{
-					mLastElem = thePrevious;
-				}
-			} else {
-				theNext->SetPrevElem(thePrevious);
-			}
-			inElem->SetPrevElem(NULL);
-			inElem->SetNextElem(NULL);
+		} else
+		{
+			thePrevious->SetNextElem(theNext);
 		}
+		if (theNext == NULL)
+		{
+			if (mLastElem == inElem)
+			{
+				mLastElem = thePrevious;
+			}
+		} else
+		{
+			theNext->SetPrevElem(thePrevious);
+		}
+		inElem->SetPrevElem(NULL);
+		inElem->SetNextElem(NULL);
+	}
 
 private:
 	/// \name Variables
-	TDoubleLinkedElem*	mFirstElem;	///< Pointer to the first element.
-	TDoubleLinkedElem*	mLastElem;	///< Pointer to the last element.
+	TDoubleLinkedElem* mFirstElem; ///< Pointer to the first element.
+	TDoubleLinkedElem* mLastElem; ///< Pointer to the last element.
 };
 
 #endif

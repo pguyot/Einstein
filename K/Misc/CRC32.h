@@ -38,12 +38,10 @@
 
 #include <K/Defines/KDefinitions.h>
 
-
-KUInt32 GetCRC32(const void *mem, KUInt32 size);
-
+KUInt32 GetCRC32(const void* mem, KUInt32 size);
 
 #endif
-		// K_MISC_CRC32_H
+// K_MISC_CRC32_H
 
 // ============================================================================== //
 //         One of the questions that comes up all the time is: How enthusiastic   //

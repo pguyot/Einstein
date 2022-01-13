@@ -103,19 +103,37 @@ private:
 /*
  * There is currently no sound manager for AndroidNative until all other features run as needed.
  */
-class TAndroidNativeSoundManager : public TBufferedSoundManager {
+class TAndroidNativeSoundManager : public TBufferedSoundManager
+{
 public:
 	///
 	/// Constructor from a log.
 	///
 	/// \param inLog				log interface (can be null)
 	///
-	TAndroidNativeSoundManager(TLog *inLog = nil) : TBufferedSoundManager(inLog) { }
-	void ScheduleOutput(const KUInt8*, KUInt32) { }
-	void StartOutput() { }
-	void StopOutput() { }
-	void OutputVolumeChanged() { }
-	virtual Boolean	OutputIsRunning() { return false; }
+	TAndroidNativeSoundManager(TLog* inLog = nil) :
+			TBufferedSoundManager(inLog) { }
+	void
+	ScheduleOutput(const KUInt8*, KUInt32)
+	{
+	}
+	void
+	StartOutput()
+	{
+	}
+	void
+	StopOutput()
+	{
+	}
+	void
+	OutputVolumeChanged()
+	{
+	}
+	virtual Boolean
+	OutputIsRunning()
+	{
+		return false;
+	}
 };
 
 #endif

@@ -39,8 +39,7 @@ class TCircleBuffer;
 /// Derived from TNullSoundManager by Paul Guyot.
 ///
 class TAndroidSoundManager
-:
-public TBufferedSoundManager
+		: public TBufferedSoundManager
 {
 public:
 	///
@@ -48,51 +47,54 @@ public:
 	///
 	/// \param inLog				log interface (can be null)
 	///
-	TAndroidSoundManager( TLog* inLog = nil );
+	TAndroidSoundManager(TLog* inLog = nil);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TAndroidSoundManager( void );
+	virtual ~TAndroidSoundManager(void);
 
 	///
 	/// Schedule output of some buffer.
 	///
-	virtual void	ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize );
+	virtual void ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize);
 
 	///
 	/// Start output.
 	///
-	virtual void	StartOutput( void );
+	virtual void StartOutput(void);
 
 	///
 	/// Stop output.
 	///
-	virtual void	StopOutput( void );
+	virtual void StopOutput(void);
 
 	///
 	/// User changed the sound volume
 	///
-	virtual void	OutputVolumeChanged( void );
+	virtual void OutputVolumeChanged(void);
 
 	///
 	/// Is output running?
 	///
-	virtual Boolean	OutputIsRunning( void );
+	virtual Boolean OutputIsRunning(void);
 
 	static bool soundOutputDataAvailable();
 	static int soundOutputBytesAvailable();
-	static int soundOutputBytesCopy(signed short *, int);
-	static int getGlobalVolume() { return mGlobalVolume; }
+	static int soundOutputBytesCopy(signed short*, int);
+	static int
+	getGlobalVolume()
+	{
+		return mGlobalVolume;
+	}
 	static int soundVolumeChanged();
 
 private:
-
 	/// \name Variables
-	static TCircleBuffer*		mOutputBuffer;	///< Output buffer.
-	static TMutex*				mDataMutex;		///< Mutex on shared structures.
-	static int					mGlobalVolume;
-	static int					mGlobalVolumeChanged;
+	static TCircleBuffer* mOutputBuffer; ///< Output buffer.
+	static TMutex* mDataMutex; ///< Mutex on shared structures.
+	static int mGlobalVolume;
+	static int mGlobalVolumeChanged;
 };
 
 #endif

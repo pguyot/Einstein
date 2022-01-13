@@ -45,11 +45,11 @@
 /// \name macro to throw the exception with the file and the line.
 //@{
 #if KDebugOn
-	#define MemError					\
-		TMemError( __FILE__, __LINE__ )
+#define MemError \
+	TMemError(__FILE__, __LINE__)
 #else
-	#define MemError					\
-		TMemError()
+#define MemError \
+	TMemError()
 #endif
 //@}
 
@@ -67,7 +67,7 @@ public:
 	///
 	/// Default constructor.
 	///
-	TMemError( void );
+	TMemError(void);
 
 	///
 	/// Constructor from a file name and a line number.
@@ -76,21 +76,20 @@ public:
 	/// \param inLine		line number where the exception was thrown.
 	///
 	TMemError(
-			const char* inFileName,
-			KUInt32 inLine );
+		const char* inFileName,
+		KUInt32 inLine);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TMemError( void ) throw ();
+	virtual ~TMemError(void) throw();
 
 private:
 	/// \name Variables
-
 };
 
 #endif
-		// _TMEMERROR_H
+// _TMEMERROR_H
 
 // ============================================= //
 // This file will self-destruct in five minutes. //

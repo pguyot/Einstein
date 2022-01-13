@@ -67,12 +67,12 @@ JITInstructionProto(MultiplyAndAccumulate_S)
 	ioCPU->mCurrentRegisters[Rd] = theResult;
 
 	// We track status flags
-	if(theResult & 0x80000000)
+	if (theResult & 0x80000000)
 		ioCPU->mCPSR_N = 1;
 	else
 		ioCPU->mCPSR_N = 0;
 
-	if(theResult == 0)
+	if (theResult == 0)
 		ioCPU->mCPSR_Z = 1;
 	else
 		ioCPU->mCPSR_Z = 0;
@@ -80,13 +80,12 @@ JITInstructionProto(MultiplyAndAccumulate_S)
 	CALLNEXTUNIT;
 }
 
-
 void
 Translate_MultiplyAndAccumulate(
-					JITPageClass* inPage,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr )
+	JITPageClass* inPage,
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr)
 {
 	// Get the index.
 	const KUInt32 flag_s = (inInstruction & 0x00100000) >> 20;
@@ -98,11 +97,13 @@ Translate_MultiplyAndAccumulate(
 	{
 		PUSHFUNC(UndefinedInstruction);
 		PUSHVALUE(inVAddr + 8);
-	} else {
+	} else
+	{
 		if (flag_s)
 		{
 			PUSHFUNC(MultiplyAndAccumulate_S);
-		} else {
+		} else
+		{
 			PUSHFUNC(MultiplyAndAccumulate);
 		}
 		PUSHVALUE(inInstruction);

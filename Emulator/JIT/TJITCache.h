@@ -27,8 +27,8 @@
 #include <K/Defines/KDefinitions.h>
 
 // Einstein
-#include "Emulator/TMemoryConsts.h"
 #include "Emulator/THashMapCache.h"
+#include "Emulator/TMemoryConsts.h"
 
 class TMemory;
 class TMMU;
@@ -41,7 +41,7 @@ class TMMU;
 ///
 /// \test	aucun test défini.
 ///
-template< class TPage >
+template <class TPage>
 class TJITCache
 {
 public:
@@ -50,12 +50,12 @@ public:
 	///
 	TJITCache(
 		TMemory* inMemoryIntf,
-		TMMU* inMMUIntf );
+		TMMU* inMMUIntf);
 
 	///
 	/// Destructor.
 	///
-	~TJITCache( void );
+	~TJITCache(void);
 
 	///
 	/// From a virtual address, return a new page or NULL if a translation
@@ -64,45 +64,46 @@ public:
 	/// \param inVAddr	virtual address of the instruction belonging to the
 	///					required page.
 	///
-	TPage*		GetPage( KUInt32 inVAddr );
+	TPage* GetPage(KUInt32 inVAddr);
 
 	///
 	/// Get the offset of an instruction in page.
 	///
 	/// \param inVAddr	virtual address of the instruction.
 	///
-	KUInt32		GetOffsetInPage( KUInt32 inVAddr )
-		{
-			return inVAddr & kOffsetMask;
-		}
+	KUInt32
+	GetOffsetInPage(KUInt32 inVAddr)
+	{
+		return inVAddr & kOffsetMask;
+	}
 
 	///
 	/// Invalidate all translations.
 	///
-	void		InvalidateTLB( void );
+	void InvalidateTLB(void);
 
 	///
 	/// Invalidate a page by physical address.
 	///
 	/// \param inPAddr	physical address of the modified word.
 	///
-	void		InvalidatePage( KUInt32 inPAddr );
+	void InvalidatePage(KUInt32 inPAddr);
 
 protected:
 	struct SEntry {
-		TPage			mPage;
-		KUInt32			mPhysicalAddress;
-		KUInt32			key;
-		SEntry*			next;
-		SEntry*			prev;
-		SEntry*			mNextPAEntry;
+		TPage mPage;
+		KUInt32 mPhysicalAddress;
+		KUInt32 key;
+		SEntry* next;
+		SEntry* prev;
+		SEntry* mNextPAEntry;
 	};
 
 private:
 	enum {
-		kPageSize	= TMemoryConsts::kMMUSmallestPageSize,
-		kPageMask	= TMemoryConsts::kMMUSmallestPageMask,
-		kOffsetMask	= TMemoryConsts::kMMUSmallestPageMaskNeg,
+		kPageSize = TMemoryConsts::kMMUSmallestPageSize,
+		kPageMask = TMemoryConsts::kMMUSmallestPageMask,
+		kOffsetMask = TMemoryConsts::kMMUSmallestPageMaskNeg,
 	};
 
 	///
@@ -110,14 +111,14 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TJITCache( const TJITCache& inCopy );
+	TJITCache(const TJITCache& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TJITCache& operator = ( const TJITCache& inCopy );
+	TJITCache& operator=(const TJITCache& inCopy);
 
 	///
 	/// Page miss, get oldest page and page it in.
@@ -125,7 +126,7 @@ private:
 	/// \param inVAddr		new virtual address.
 	/// \param inPAddr		new physical address.
 	///
-	inline TPage* PageMiss( KUInt32 inVAddr, KUInt32 inPAddr );
+	inline TPage* PageMiss(KUInt32 inVAddr, KUInt32 inPAddr);
 
 	///
 	/// Insert into PMap.
@@ -133,14 +134,14 @@ private:
 	/// \param inPAddr		physical address.
 	/// \param inEntry		entry.
 	///
-	inline void	InsertInPMap( KUInt32 inPAddr, SEntry* inEntry );
+	inline void InsertInPMap(KUInt32 inPAddr, SEntry* inEntry);
 
 	///
 	/// Erase from PMap.
 	///
 	/// \param inEntry		entry.
 	///
-	inline void	EraseFromPMap( SEntry* inEntry );
+	inline void EraseFromPMap(SEntry* inEntry);
 
 	///
 	/// Lookup in PMap.
@@ -149,49 +150,54 @@ private:
 	/// \param inPAddr		physical address.
 	/// \return the entry or NULL if no matching entry was found.
 	///
-	inline SEntry*	LookupInPMap( KUInt32 inVAddr, KUInt32 inPAddr );
+	inline SEntry* LookupInPMap(KUInt32 inVAddr, KUInt32 inPAddr);
 
 	///
 	/// Init PMap.
 	///
-	void	InitPMap( void );
+	void InitPMap(void);
 
 	///
 	/// Delete PMap.
 	///
-	void	DeletePMap( void );
+	void DeletePMap(void);
 
 	///
 	/// Get an index in PMap table.
 	///
-	SEntry**	GetPMapEntryPtr( KUInt32 inPAddr ) const
+	SEntry**
+	GetPMapEntryPtr(KUInt32 inPAddr) const
+	{
+		if (inPAddr & TMemoryConsts::kROMEndMask)
 		{
-			if (inPAddr & TMemoryConsts::kROMEndMask) {
-				KUInt32 theOffset = (inPAddr
-					+ TMemoryConsts::kHighROMEnd
-					- TMemoryConsts::kRAMStart) / kPageSize;
-				if (theOffset < mPMapSize)
-				{
-					return &mPMap[theOffset];
-				} else {
-					return NULL;
-				}
-			} else {
-				return &mPMap[inPAddr / kPageSize];
+			KUInt32 theOffset = (inPAddr
+									+ TMemoryConsts::kHighROMEnd
+									- TMemoryConsts::kRAMStart)
+				/ kPageSize;
+			if (theOffset < mPMapSize)
+			{
+				return &mPMap[theOffset];
+			} else
+			{
+				return NULL;
 			}
+		} else
+		{
+			return &mPMap[inPAddr / kPageSize];
 		}
+	}
 
 	/// \name Variables
-	TMemory*				mMemoryIntf;			///< Interface to memory.
-	TMMU*					mMMUIntf;				///< Interface to MMU.
-	THashMapCache<SEntry>	mVMap;					///< Cache.
-	SEntry**				mPMap;					///< Association by
-													///< physical address.
-	KUInt32					mPMapSize;				///< Size of the PMap.
+	TMemory* mMemoryIntf; ///< Interface to memory.
+	TMMU* mMMUIntf; ///< Interface to MMU.
+	THashMapCache<SEntry> mVMap; ///< Cache.
+	SEntry** mPMap; ///< Association by
+					///< physical address.
+	KUInt32 mPMapSize; ///< Size of the PMap.
 };
 
 #endif
-		// _TJITCACHE_H
+// _TJITCACHE_H
 
 // =================================================== //
 // Staff meeting in the conference room in %d minutes. //

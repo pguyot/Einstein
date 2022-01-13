@@ -26,9 +26,9 @@
 #include <stdlib.h>
 
 #ifdef TARGET_OS_WIN32
-	#include <string.h>
+#include <string.h>
 #else
-	#include <strings.h>
+#include <strings.h>
 #endif
 
 // Einstein.
@@ -41,18 +41,17 @@
 // -------------------------------------------------------------------------- //
 //  * TSoundManager( TLog* )
 // -------------------------------------------------------------------------- //
-TSoundManager::TSoundManager( TLog* inLog /* = nil */ )
-	:
-		mLog( inLog ),
-		mInterruptManager( nil ),
-		mOutputVolume( kOutputVolume_Max )
+TSoundManager::TSoundManager(TLog* inLog /* = nil */) :
+		mLog(inLog),
+		mInterruptManager(nil),
+		mOutputVolume(kOutputVolume_Max)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TSoundManager( void )
 // -------------------------------------------------------------------------- //
-TSoundManager::~TSoundManager( void )
+TSoundManager::~TSoundManager(void)
 {
 }
 
@@ -60,36 +59,39 @@ TSoundManager::~TSoundManager( void )
 //  * RaiseInputInterrupt( void ) const
 // -------------------------------------------------------------------------- //
 void
-TSoundManager::RaiseInputInterrupt( void ) const
+TSoundManager::RaiseInputInterrupt(void) const
 {
-	mInterruptManager->RaiseInterrupt( mInputIntMask );
+	mInterruptManager->RaiseInterrupt(mInputIntMask);
 }
 
 // -------------------------------------------------------------------------- //
 //  * RaiseOutputInterrupt( void ) const
 // -------------------------------------------------------------------------- //
 void
-TSoundManager::RaiseOutputInterrupt( void ) const
+TSoundManager::RaiseOutputInterrupt(void) const
 {
-	mInterruptManager->RaiseInterrupt( mOutputIntMask );
+	mInterruptManager->RaiseInterrupt(mOutputIntMask);
 }
 
 // -------------------------------------------------------------------------- //
 //  * OutputVolumeNormalized()
 // -------------------------------------------------------------------------- //
-float TSoundManager::OutputVolumeNormalized()
+float
+TSoundManager::OutputVolumeNormalized()
 {
-    float volume = 0.0f;
-    if (mOutputVolume==kOutputVolume_Zero) {
-        volume = 0.0;
-    } else if (mOutputVolume==kOutputVolume_Max) {
-        volume = 1.0;
-    } else {
-        volume = (mOutputVolume-kOutputVolume_Min)/(double)(0xffffffff-kOutputVolume_Min);
-    }
-    return volume;
+	float volume = 0.0f;
+	if (mOutputVolume == kOutputVolume_Zero)
+	{
+		volume = 0.0;
+	} else if (mOutputVolume == kOutputVolume_Max)
+	{
+		volume = 1.0;
+	} else
+	{
+		volume = (mOutputVolume - kOutputVolume_Min) / (double) (0xffffffff - kOutputVolume_Min);
+	}
+	return volume;
 }
-
 
 // ============================================================================= //
 // As in Protestant Europe, by contrast, where sects divided endlessly into      //

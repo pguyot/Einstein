@@ -38,19 +38,18 @@
 /// \test	aucun test défini.
 ///
 class TBufferLog
-	:
-		public TLog
+		: public TLog
 {
 public:
 	///
 	/// Default constructor.
 	///
-	TBufferLog( void );
+	TBufferLog(void);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TBufferLog( void );
+	virtual ~TBufferLog(void);
 
 	///
 	/// Accessor on a line.
@@ -59,30 +58,32 @@ public:
 	/// \param inIndex	index of the line to return.
 	/// \return the ith line.
 	///
-	inline const char*	GetLine( int inIndex ) const
-		{
-			return mBuffer[(mTopLineIndex + inIndex) % 32];
-		}
+	inline const char*
+	GetLine(int inIndex) const
+	{
+		return mBuffer[(mTopLineIndex + inIndex) % 32];
+	}
 
 	///
 	/// Open the log file (for writing).
 	///
 	/// \param inPath   path to the log file.
 	///
-	void			OpenLog( const char* inPath );
+	void OpenLog(const char* inPath);
 
 	///
 	/// Close the log file.
 	///
-	void			CloseLog( void );
+	void CloseLog(void);
 
 	///
 	/// Bind the log with a socket (for screen refreshes)
 	///
-	void			BindWithRefreshSocket( int inRefreshSocket )
-		{
-			mRefreshSocket = inRefreshSocket;
-		}
+	void
+	BindWithRefreshSocket(int inRefreshSocket)
+	{
+		mRefreshSocket = inRefreshSocket;
+	}
 
 private:
 	///
@@ -90,17 +91,17 @@ private:
 	///
 	/// \param inLine	line to log.
 	///
-	virtual void	DoLogLine( const char* inLine );
+	virtual void DoLogLine(const char* inLine);
 
 	/// \name Variables
-	KUInt32			mTopLineIndex;		///< Index of the top line.
-	char			mBuffer[32][80];	///< Buffer: 18 lines of 80 characters.
-	FILE*			mLogFile;			///< Log file or NULL.
-	int				mRefreshSocket;		///< Socket to write to for refreshes.
+	KUInt32 mTopLineIndex; ///< Index of the top line.
+	char mBuffer[32][80]; ///< Buffer: 18 lines of 80 characters.
+	FILE* mLogFile; ///< Log file or NULL.
+	int mRefreshSocket; ///< Socket to write to for refreshes.
 };
 
 #endif
-		// _TBUFFERLOG_H
+// _TBUFFERLOG_H
 
 // ====================================== //
 // Logic doesn't apply to the real world. //

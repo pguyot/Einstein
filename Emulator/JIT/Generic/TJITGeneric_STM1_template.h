@@ -44,28 +44,28 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	KUInt32 baseAddress = ioCPU->mCurrentRegisters[Rn];
 
 #if FLAG_W
-	// Write back
-	#if FLAG_U
-		KUInt32 wbAddress = baseAddress + (nbRegisters * 4);
-	#else
-		KUInt32 wbAddress = baseAddress - (nbRegisters * 4);
-	#endif
+// Write back
+#if FLAG_U
+	KUInt32 wbAddress = baseAddress + (nbRegisters * 4);
+#else
+	KUInt32 wbAddress = baseAddress - (nbRegisters * 4);
+#endif
 #endif
 
 #if FLAG_U
-	// Up.
-	#if FLAG_P
-		// Post: add 4.
-		baseAddress += 4;
-	#endif
+// Up.
+#if FLAG_P
+	// Post: add 4.
+	baseAddress += 4;
+#endif
 #else
 	// Down.
 	baseAddress -= (nbRegisters * 4);
 
-	#if !FLAG_P
-		// Post: add 4.
-		baseAddress += 4;
-	#endif
+#if !FLAG_P
+	// Post: add 4.
+	baseAddress += 4;
+#endif
 #endif
 
 	// Store.
@@ -102,33 +102,38 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	{
 		if (curRegList & 1)
 		{
-			if (isFirst) {
-				//KPrintf("A\n");
+			if (isFirst)
+			{
+				// KPrintf("A\n");
 				if (theMemoryInterface->IsMMUEnabled())
 				{
-					if (theMemoryInterface->TranslateW( baseAddress &~ 0x03, theAddress ))
+					if (theMemoryInterface->TranslateW(baseAddress & ~0x03, theAddress))
 					{
 						SETPC(GETPC());
 						ioCPU->DataAbort();
 						MMUCALLNEXT_AFTERSETPC;
 					}
-				} else {
-					theAddress = baseAddress &~ 0x03;
+				} else
+				{
+					theAddress = baseAddress & ~0x03;
 				}
-				if (theMemoryInterface->WritePAligned( theAddress, ioCPU->mCurrentRegisters[indexReg] ))
+				if (theMemoryInterface->WritePAligned(theAddress, ioCPU->mCurrentRegisters[indexReg]))
 				{
 					SETPC(GETPC());
 					ioCPU->DataAbort();
 					MMUCALLNEXT_AFTERSETPC;
 				}
 				theAddress += 4;
-				if (theAddress&0x000003ff)
+				if (theAddress & 0x000003ff)
 					isFirst = 0;
-			} else {
-				if ((theAddress&0xff000000) == 0x04000000) { // fast RAM write
+			} else
+			{
+				if ((theAddress & 0xff000000) == 0x04000000)
+				{ // fast RAM write
 					*((KUInt32*) (theMemoryInterface->GetRAMOffset() + theAddress)) = ioCPU->mCurrentRegisters[indexReg];
-				} else {
-					if (theMemoryInterface->WritePAligned( theAddress, ioCPU->mCurrentRegisters[indexReg] ))
+				} else
+				{
+					if (theMemoryInterface->WritePAligned(theAddress, ioCPU->mCurrentRegisters[indexReg]))
 					{
 						SETPC(GETPC());
 						ioCPU->DataAbort();
@@ -136,7 +141,7 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 					}
 				}
 				theAddress += 4;
-				if (!(theAddress&0x000003ff))
+				if (!(theAddress & 0x000003ff))
 					isFirst = 1;
 			}
 			baseAddress += 4;
@@ -152,7 +157,7 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 		// Stored value is PC + 12
 		if (theMemoryInterface->WriteAligned(
 				(TMemory::VAddr) baseAddress,
-				GETPC() + 4 ))
+				GETPC() + 4))
 		{
 			SETPC(GETPC());
 			ioCPU->DataAbort();
@@ -169,4 +174,3 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	CALLNEXTUNIT;
 }
 #endif
-

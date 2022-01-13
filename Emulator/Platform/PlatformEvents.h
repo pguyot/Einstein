@@ -25,88 +25,87 @@
 #define _PLATFORMEVENTS_H
 
 #if TARGET_OS_NEWTON
-	#include <Newton.h>
-	#include <AEvents.h>
-	typedef ULong	KUInt32;
-	typedef UChar	KUInt8;
+#include <AEvents.h>
+#include <Newton.h>
+typedef ULong KUInt32;
+typedef UChar KUInt8;
 #else
-	#include <K/Defines/KDefinitions.h>
-	#define kMAXEVENTSIZE	(256)
+#include <K/Defines/KDefinitions.h>
+#define kMAXEVENTSIZE (256)
 #endif
 
-#define kDEFAULTEVENTQUEUESIZE		64
-#define kEVENTQUEUESIZEINCREMENT	64
+#define kDEFAULTEVENTQUEUESIZE 64
+#define kEVENTQUEUESIZEINCREMENT 64
 
-#define kDEFAULTBUFFERQUEUESIZE		16
-#define kBUFFERQUEUESIZEINCREMENT	16
+#define kDEFAULTBUFFERQUEUESIZE 16
+#define kBUFFERQUEUESIZEINCREMENT 16
 
 // Ports.
 enum EPort {
-	kPowerPort		= 'powr',
-	kNewtPort		= 'newt'
+	kPowerPort = 'powr',
+	kNewtPort = 'newt'
 };
 
 // Other constants.
 enum {
-	kEinsteinNSEventClass	= 'eins',
-	kEventRuntimeWithSData	= 'nsrt',
-	kNewtonScriptEvalData	= 'nsev',
-	kPackageInstallData		= 'pkgi'
+	kEinsteinNSEventClass = 'eins',
+	kEventRuntimeWithSData = 'nsrt',
+	kNewtonScriptEvalData = 'nsev',
+	kPackageInstallData = 'pkgi'
 };
 
 // Keyboard event types
 enum {
-	kKeyDownEventType		= 0x20,
-	kKeyUpEventType			= 0x1F,
-	kKeyRepeatEventType		= 0x23,
-	kKeyConnectEventType	= 0x21,
-	kConnectedKeyCode		= 1,
-	kDisconnectedKeyCode	= 0
+	kKeyDownEventType = 0x20,
+	kKeyUpEventType = 0x1F,
+	kKeyRepeatEventType = 0x23,
+	kKeyConnectEventType = 0x21,
+	kConnectedKeyCode = 1,
+	kDisconnectedKeyCode = 0
 };
 
 // Keyboard event.
 struct SKeyboardEvent {
-	KUInt32		fEventClass;	/// 'newt'
-	KUInt32 	fEventID;		/// 'idle'
-	KUInt32		fUnknown_08;	/// 'keyb'
-	KUInt32		fUnknown_0C;
-	KUInt32		fUnknown_10;
-	KUInt32		fUnknown_14;
-	KUInt32		fUnknown_18;
-	KUInt32		fUnknown_1C;
-	KUInt32		fUnknown_20;
-	KUInt32		fUnknown_24;
-	KUInt32		fUnknown_28;
+	KUInt32 fEventClass; /// 'newt'
+	KUInt32 fEventID; /// 'idle'
+	KUInt32 fUnknown_08; /// 'keyb'
+	KUInt32 fUnknown_0C;
+	KUInt32 fUnknown_10;
+	KUInt32 fUnknown_14;
+	KUInt32 fUnknown_18;
+	KUInt32 fUnknown_1C;
+	KUInt32 fUnknown_20;
+	KUInt32 fUnknown_24;
+	KUInt32 fUnknown_28;
 };
 
 struct SEinsteinBufferEvent {
-	KUInt32		fEventClass;		/// 'eins'
-	KUInt32 	fEventID;			/// 'nsrt'
-	KUInt32 	fDataClass;			/// 'nsev' or 'pkgi'
-	KUInt32		fSize;				/// total size.
-	KUInt32		fBufferID;			/// id of buffer.
+	KUInt32 fEventClass; /// 'eins'
+	KUInt32 fEventID; /// 'nsrt'
+	KUInt32 fDataClass; /// 'nsev' or 'pkgi'
+	KUInt32 fSize; /// total size.
+	KUInt32 fBufferID; /// id of buffer.
 };
 
-
 struct SAEventData {
-	EPort	fPort;					///< Port to send the event to.
-	KUInt32	fSize;					///< Size of the event (in bytes).
-	KUInt8	fData[kMAXEVENTSIZE];	///< Data.
+	EPort fPort; ///< Port to send the event to.
+	KUInt32 fSize; ///< Size of the event (in bytes).
+	KUInt8 fData[kMAXEVENTSIZE]; ///< Data.
 };
 
 enum EEventType {
-	kAEvent			= 'aevt'
+	kAEvent = 'aevt'
 };
 
 struct SEvent {
-	EEventType	fType;
+	EEventType fType;
 	union {
-		SAEventData		aevent;
+		SAEventData aevent;
 	} fData;
 };
 
 #endif
-		// _PLATFORMEVENTS_H
+// _PLATFORMEVENTS_H
 
 // =================================================================== //
 // Never try to explain computers to a layman.  It's easier to explain //
@@ -115,4 +114,3 @@ struct SEvent {
 //                                                                     //
 // (Note, however, that virgins tend to know a lot about computers.)   //
 // =================================================================== //
-

@@ -27,20 +27,18 @@
 #include "app/Version.h"
 #include "app/FLTK/TFLApp.h"
 
-
 /**
  * This class manages Toolkit projects and the included source code files.
  */
 class TTkProject
 {
 public:
-    TTkProject();
-    ~TTkProject();
+	TTkProject();
+	~TTkProject();
 };
 
-
 #endif
-		// _T_PROJECT_FILE_H
+// _T_PROJECT_FILE_H
 
 // ============================================================================ //
 // Inspector

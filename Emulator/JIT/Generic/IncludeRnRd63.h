@@ -21,195 +21,195 @@
 // $Id$
 // ==============================
 
-#define BITS_FLAGS	0
+#define BITS_FLAGS 0
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	1
+#undef BITS_FLAGS
+#define BITS_FLAGS 1
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	2
+#undef BITS_FLAGS
+#define BITS_FLAGS 2
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	3
+#undef BITS_FLAGS
+#define BITS_FLAGS 3
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	4
+#undef BITS_FLAGS
+#define BITS_FLAGS 4
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	5
+#undef BITS_FLAGS
+#define BITS_FLAGS 5
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	6
+#undef BITS_FLAGS
+#define BITS_FLAGS 6
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	7
+#undef BITS_FLAGS
+#define BITS_FLAGS 7
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	8
+#undef BITS_FLAGS
+#define BITS_FLAGS 8
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	9
+#undef BITS_FLAGS
+#define BITS_FLAGS 9
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	10
+#undef BITS_FLAGS
+#define BITS_FLAGS 10
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	11
+#undef BITS_FLAGS
+#define BITS_FLAGS 11
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	12
+#undef BITS_FLAGS
+#define BITS_FLAGS 12
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	13
+#undef BITS_FLAGS
+#define BITS_FLAGS 13
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	14
+#undef BITS_FLAGS
+#define BITS_FLAGS 14
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	15
+#undef BITS_FLAGS
+#define BITS_FLAGS 15
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	16
+#undef BITS_FLAGS
+#define BITS_FLAGS 16
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	17
+#undef BITS_FLAGS
+#define BITS_FLAGS 17
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	18
+#undef BITS_FLAGS
+#define BITS_FLAGS 18
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	19
+#undef BITS_FLAGS
+#define BITS_FLAGS 19
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	20
+#undef BITS_FLAGS
+#define BITS_FLAGS 20
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	21
+#undef BITS_FLAGS
+#define BITS_FLAGS 21
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	22
+#undef BITS_FLAGS
+#define BITS_FLAGS 22
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	23
+#undef BITS_FLAGS
+#define BITS_FLAGS 23
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	24
+#undef BITS_FLAGS
+#define BITS_FLAGS 24
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	25
+#undef BITS_FLAGS
+#define BITS_FLAGS 25
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	26
+#undef BITS_FLAGS
+#define BITS_FLAGS 26
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	27
+#undef BITS_FLAGS
+#define BITS_FLAGS 27
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	28
+#undef BITS_FLAGS
+#define BITS_FLAGS 28
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	29
+#undef BITS_FLAGS
+#define BITS_FLAGS 29
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	30
+#undef BITS_FLAGS
+#define BITS_FLAGS 30
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	31
+#undef BITS_FLAGS
+#define BITS_FLAGS 31
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	32
+#undef BITS_FLAGS
+#define BITS_FLAGS 32
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	33
+#undef BITS_FLAGS
+#define BITS_FLAGS 33
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	34
+#undef BITS_FLAGS
+#define BITS_FLAGS 34
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	35
+#undef BITS_FLAGS
+#define BITS_FLAGS 35
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	36
+#undef BITS_FLAGS
+#define BITS_FLAGS 36
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	37
+#undef BITS_FLAGS
+#define BITS_FLAGS 37
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	38
+#undef BITS_FLAGS
+#define BITS_FLAGS 38
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	39
+#undef BITS_FLAGS
+#define BITS_FLAGS 39
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	40
+#undef BITS_FLAGS
+#define BITS_FLAGS 40
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	41
+#undef BITS_FLAGS
+#define BITS_FLAGS 41
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	42
+#undef BITS_FLAGS
+#define BITS_FLAGS 42
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	43
+#undef BITS_FLAGS
+#define BITS_FLAGS 43
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	44
+#undef BITS_FLAGS
+#define BITS_FLAGS 44
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	45
+#undef BITS_FLAGS
+#define BITS_FLAGS 45
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	46
+#undef BITS_FLAGS
+#define BITS_FLAGS 46
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	47
+#undef BITS_FLAGS
+#define BITS_FLAGS 47
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	48
+#undef BITS_FLAGS
+#define BITS_FLAGS 48
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	49
+#undef BITS_FLAGS
+#define BITS_FLAGS 49
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	50
+#undef BITS_FLAGS
+#define BITS_FLAGS 50
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	51
+#undef BITS_FLAGS
+#define BITS_FLAGS 51
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	52
+#undef BITS_FLAGS
+#define BITS_FLAGS 52
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	53
+#undef BITS_FLAGS
+#define BITS_FLAGS 53
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	54
+#undef BITS_FLAGS
+#define BITS_FLAGS 54
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	55
+#undef BITS_FLAGS
+#define BITS_FLAGS 55
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	56
+#undef BITS_FLAGS
+#define BITS_FLAGS 56
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	57
+#undef BITS_FLAGS
+#define BITS_FLAGS 57
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	58
+#undef BITS_FLAGS
+#define BITS_FLAGS 58
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	59
+#undef BITS_FLAGS
+#define BITS_FLAGS 59
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	60
+#undef BITS_FLAGS
+#define BITS_FLAGS 60
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	61
+#undef BITS_FLAGS
+#define BITS_FLAGS 61
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	62
+#undef BITS_FLAGS
+#define BITS_FLAGS 62
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
-#define BITS_FLAGS	63
+#undef BITS_FLAGS
+#define BITS_FLAGS 63
 #include "IncludeRnRd.h"
-#undef	BITS_FLAGS
+#undef BITS_FLAGS

@@ -50,7 +50,7 @@ class TNameServerSingleton
 {
 protected:
 	// MrCpp a besoin que cette constante soit définie avant.
-	static const char* const kType;		///< Chaîne commune pour le type.
+	static const char* const kType; ///< Chaîne commune pour le type.
 
 public:
 	///
@@ -63,9 +63,9 @@ public:
 	/// \return un code d'erreur si un problème est survenu:
 	///			- kError_Not_Registered si le singleton n'existe pas.
 	///
-	static NewtonErr				DeleteObject(
-										const char* inName,
-										const char* inType = kType );
+	static NewtonErr DeleteObject(
+		const char* inName,
+		const char* inType = kType);
 
 protected:
 	///
@@ -92,9 +92,9 @@ protected:
 	///			(ce qui signifie généralement que le singleton
 	///			n'existe pas).
 	///
-	static TNameServerSingleton*	GetObject(
-										const char* inName,
-										const char* inType = kType );
+	static TNameServerSingleton* GetObject(
+		const char* inName,
+		const char* inType = kType);
 
 	///
 	/// Enregistre le singleton dans le serveur de nom.
@@ -107,14 +107,14 @@ protected:
 	/// \return un code d'erreur si un problème est survenu:
 	///			- kError_Already_Registered si le singleton existe déjà.
 	///
-	static NewtonErr				CreateObject(
-										TNameServerSingleton* inObject,
-										const char* inName,
-										const char* inType = kType );
+	static NewtonErr CreateObject(
+		TNameServerSingleton* inObject,
+		const char* inName,
+		const char* inType = kType);
 };
 
 #endif
-		// __TNAMESERVERSINGLETON__
+// __TNAMESERVERSINGLETON__
 
 // =================================================================== //
 // The bugs you have to avoid are the ones that give the user not only //

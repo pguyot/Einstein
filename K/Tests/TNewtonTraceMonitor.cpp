@@ -34,8 +34,8 @@
 #include <K/Tests/TNewtonTraceMonitor.h>
 
 // ANSI C
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // K
 #include <K/Misc/RelocHack.h>
@@ -51,18 +51,17 @@ const char* const TNewtonTraceMonitor::kName = "TNewtonTraceMonitor";
 // ------------------------------------------------------------------------- //
 //  * TNewtonTraceMonitor( unsigned int )
 // ------------------------------------------------------------------------- //
-TNewtonTraceMonitor::TNewtonTraceMonitor( unsigned int inMode )
-	:
-		TTraceMonitor( inMode ),
+TNewtonTraceMonitor::TNewtonTraceMonitor(unsigned int inMode) :
+		TTraceMonitor(inMode),
 		TNameServerSingleton()
 {
-	RelocVTable( &__VTABLE__19TNewtonTraceMonitor );
+	RelocVTable(&__VTABLE__19TNewtonTraceMonitor);
 }
 
 // ------------------------------------------------------------------------- //
 //  * ~TNewtonTraceMonitor( void )
 // ------------------------------------------------------------------------- //
-TNewtonTraceMonitor::~TNewtonTraceMonitor( void )
+TNewtonTraceMonitor::~TNewtonTraceMonitor(void)
 {
 	// This space for rent.
 }
@@ -71,20 +70,20 @@ TNewtonTraceMonitor::~TNewtonTraceMonitor( void )
 //  * GetTraceMonitor( void )
 // ------------------------------------------------------------------------- //
 TNewtonTraceMonitor*
-TNewtonTraceMonitor::GetTraceMonitor( unsigned int inMode )
+TNewtonTraceMonitor::GetTraceMonitor(unsigned int inMode)
 {
-	TNewtonTraceMonitor* theResult = (TNewtonTraceMonitor*) GetObject( kName );
+	TNewtonTraceMonitor* theResult = (TNewtonTraceMonitor*) GetObject(kName);
 
 	if (theResult == nil)
 	{
 		// Création de l'objet.
-		theResult = new TNewtonTraceMonitor( inMode );
+		theResult = new TNewtonTraceMonitor(inMode);
 
 		if (theResult == nil)
 			OutOfMemory();
 
 		// Enregistrement.
-		(void) CreateObject( theResult, kName );
+		(void) CreateObject(theResult, kName);
 	}
 
 	return theResult;
@@ -94,9 +93,9 @@ TNewtonTraceMonitor::GetTraceMonitor( unsigned int inMode )
 //  * DeleteObject( void )
 // ------------------------------------------------------------------------- //
 void
-TNewtonTraceMonitor::RemoveTraceMonitor( void )
+TNewtonTraceMonitor::RemoveTraceMonitor(void)
 {
-	(void) TNameServerSingleton::DeleteObject( kName );
+	(void) TNameServerSingleton::DeleteObject(kName);
 }
 
 // ====================================================================== //

@@ -37,14 +37,14 @@
 #include "TFileStream.h"
 
 // ANSI C
-#include <stdio.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <sys/stat.h>
 
 // K
 #if HAS_EXCEPTION_HANDLING
-	#include <K/Exceptions/IO/TIOException.h>
-	#include <K/Exceptions/IO/TEOFException.h>
+#include <K/Exceptions/IO/TEOFException.h>
+#include <K/Exceptions/IO/TIOException.h>
 #endif
 
 // -------------------------------------------------------------------------- //
@@ -56,39 +56,49 @@
 // -------------------------------------------------------------------------- //
 
 #if _MSC_VER
-	#if 0 // if we need files larger than 4GB
+#if 0 // if we need files larger than 4GB
 static inline off_t ftello(FILE *a) { return (off_t)::_ftelli64(a); }
 static inline off_t fseeko(FILE *a, off_t b, int c) { return (off_t)::_fseeki64(a, b, c); }
-	#else
-static inline off_t ftello(FILE *a) { return (off_t)::ftell(a); }
-static inline off_t fseeko(FILE *a, off_t b, int c) { return (off_t)::fseek(a, b, c); }
-	#endif
+#else
+static inline off_t
+ftello(FILE* a)
+{
+	return (off_t)::ftell(a);
+}
+static inline off_t
+fseeko(FILE* a, off_t b, int c)
+{
+	return (off_t)::fseek(a, b, c);
+}
+#endif
 #endif
 
 // -------------------------------------------------------------------------- //
 //  * TFileStream( const char*, const char* )
 // -------------------------------------------------------------------------- //
-TFileStream::TFileStream( const char* inPath, const char* inMode )
-	:
-		mFile( NULL ),
-		mWeOpenedTheFile( true )
+TFileStream::TFileStream(const char* inPath, const char* inMode) :
+		mFile(NULL),
+		mWeOpenedTheFile(true)
 {
-	mFile = ::fopen( inPath, inMode );
+	mFile = ::fopen(inPath, inMode);
 #if HAS_EXCEPTION_HANDLING
 	if (mFile == NULL)
 	{
 		throw TIOException();
 	}
 #endif
-	switch (inMode[0]) {
+	switch (inMode[0])
+	{
 		case 'r':
 			mIsReading = 1;
-			if (inMode[1]=='+') mIsWriting = 1;
+			if (inMode[1] == '+')
+				mIsWriting = 1;
 			break;
 		case 'w':
 		case 'a':
 			mIsWriting = 1;
-			if (inMode[1]=='+') mIsReading = 1;
+			if (inMode[1] == '+')
+				mIsReading = 1;
 			break;
 	}
 }
@@ -96,22 +106,29 @@ TFileStream::TFileStream( const char* inPath, const char* inMode )
 // -------------------------------------------------------------------------- //
 //  * TFileStream( FILE* )
 // -------------------------------------------------------------------------- //
-TFileStream::TFileStream( FILE* inFile )
-	:
-		mFile( inFile ),
-		mWeOpenedTheFile( false )
+TFileStream::TFileStream(FILE* inFile) :
+		mFile(inFile),
+		mWeOpenedTheFile(false)
 {
 #if TARGET_OS_WIN32
 	mIsWriting = mIsReading = 1;
 	// Windows does not have a standard API for getting this value
 	// see: NtQueryInformationFile
 #else
-	int fileflags = fcntl (fileno(inFile), F_GETFL, 0);
-	if (fileflags!=-1) {
-		switch (fileflags & (O_RDWR|O_WRONLY|O_RDONLY) ) {
-			case O_RDONLY: mIsReading = 1; break;
-			case O_WRONLY: mIsWriting = 1; break;
-			case O_RDWR: mIsWriting = mIsReading = 1; break;
+	int fileflags = fcntl(fileno(inFile), F_GETFL, 0);
+	if (fileflags != -1)
+	{
+		switch (fileflags & (O_RDWR | O_WRONLY | O_RDONLY))
+		{
+			case O_RDONLY:
+				mIsReading = 1;
+				break;
+			case O_WRONLY:
+				mIsWriting = 1;
+				break;
+			case O_RDWR:
+				mIsWriting = mIsReading = 1;
+				break;
 		}
 	}
 #endif
@@ -120,11 +137,11 @@ TFileStream::TFileStream( FILE* inFile )
 // -------------------------------------------------------------------------- //
 //  * ~TFileStream( void )
 // -------------------------------------------------------------------------- //
-TFileStream::~TFileStream( void )
+TFileStream::~TFileStream(void)
 {
 	if (mWeOpenedTheFile && mFile)
 	{
-		::fclose( mFile );
+		::fclose(mFile);
 		mFile = NULL;
 	}
 }
@@ -133,16 +150,16 @@ TFileStream::~TFileStream( void )
 //  * Read( void*, KUInt32* )
 // ------------------------------------------------------------------------- //
 void
-TFileStream::Read( void* outBuffer, KUInt32* ioCount )
+TFileStream::Read(void* outBuffer, KUInt32* ioCount)
 {
-	size_t theCount = ::fread( outBuffer, 1, *ioCount, mFile );
+	size_t theCount = ::fread(outBuffer, 1, *ioCount, mFile);
 
 	if (*ioCount != theCount)
 	{
-		*ioCount = (KUInt32)theCount;
+		*ioCount = (KUInt32) theCount;
 
 #if HAS_EXCEPTION_HANDLING
-		if (feof( mFile ) == 0)
+		if (feof(mFile) == 0)
 		{
 			throw TIOException();
 		}
@@ -154,9 +171,9 @@ TFileStream::Read( void* outBuffer, KUInt32* ioCount )
 //  * Write( const void*, KUInt32* )
 // ------------------------------------------------------------------------- //
 void
-TFileStream::Write( const void* inBuffer, KUInt32* ioCount )
+TFileStream::Write(const void* inBuffer, KUInt32* ioCount)
 {
-	size_t theCount = ::fwrite( inBuffer, 1, *ioCount, mFile );
+	size_t theCount = ::fwrite(inBuffer, 1, *ioCount, mFile);
 
 	if (*ioCount != theCount)
 	{
@@ -171,18 +188,18 @@ TFileStream::Write( const void* inBuffer, KUInt32* ioCount )
 //  * FlushOutput( void )
 // ------------------------------------------------------------------------- //
 void
-TFileStream::FlushOutput( void )
+TFileStream::FlushOutput(void)
 {
-	(void) ::fflush( mFile );
+	(void) ::fflush(mFile);
 }
 
 // ------------------------------------------------------------------------- //
 //  * PeekByte( void )
 // ------------------------------------------------------------------------- //
 KUInt8
-TFileStream::PeekByte( void )
+TFileStream::PeekByte(void)
 {
-	int theNextChar = getc( mFile );
+	int theNextChar = getc(mFile);
 	if (theNextChar == EOF)
 	{
 #if HAS_EXCEPTION_HANDLING
@@ -192,7 +209,7 @@ TFileStream::PeekByte( void )
 #endif
 	}
 
-	if (::ungetc( theNextChar, mFile ) != theNextChar)
+	if (::ungetc(theNextChar, mFile) != theNextChar)
 	{
 #if HAS_EXCEPTION_HANDLING
 		throw TIOException();
@@ -208,9 +225,9 @@ TFileStream::PeekByte( void )
 //  * GetCursor( void ) const
 // ------------------------------------------------------------------------- //
 KSInt64
-TFileStream::GetCursor( void ) const
+TFileStream::GetCursor(void) const
 {
-	off_t thePos = ::ftello( mFile );
+	off_t thePos = ::ftello(mFile);
 	return (KSInt64) thePos;
 }
 
@@ -218,7 +235,7 @@ TFileStream::GetCursor( void ) const
 //  * SetCursor( KSInt64, ECursorMode )
 // ------------------------------------------------------------------------- //
 void
-TFileStream::SetCursor( KSInt64 inPos, ECursorMode inMode )
+TFileStream::SetCursor(KSInt64 inPos, ECursorMode inMode)
 {
 	int whence = 0;
 	switch (inMode)
@@ -235,7 +252,7 @@ TFileStream::SetCursor( KSInt64 inPos, ECursorMode inMode )
 			whence = SEEK_END;
 	}
 
-	int theErr = ::fseeko( mFile, (off_t) inPos, whence );
+	int theErr = ::fseeko(mFile, (off_t) inPos, whence);
 	if (theErr != 0)
 	{
 #if HAS_EXCEPTION_HANDLING
@@ -248,10 +265,10 @@ TFileStream::SetCursor( KSInt64 inPos, ECursorMode inMode )
 //  * Exists( const char *inPath )
 // ------------------------------------------------------------------------- //
 bool
-TFileStream::Exists( const char *inPath )
+TFileStream::Exists(const char* inPath)
 {
 	struct stat s;
-	int theErr = ::stat( inPath, &s);
+	int theErr = ::stat(inPath, &s);
 	return theErr == 0;
 }
 

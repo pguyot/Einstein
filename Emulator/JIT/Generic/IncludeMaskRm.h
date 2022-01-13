@@ -27,52 +27,52 @@
 // #include "IncludeMaskRm.h"
 // #undef INCLUDE_TEMPLATE
 
-#define FIELDS_MASK	0x00000000
+#define FIELDS_MASK 0x00000000
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0x000000FF
+#define FIELDS_MASK 0x000000FF
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0x0000FF00
+#define FIELDS_MASK 0x0000FF00
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0x0000FFFF
+#define FIELDS_MASK 0x0000FFFF
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0x00FF0000
+#define FIELDS_MASK 0x00FF0000
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0x00FF00FF
+#define FIELDS_MASK 0x00FF00FF
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0x00FFFF00
+#define FIELDS_MASK 0x00FFFF00
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0x00FFFFFF
+#define FIELDS_MASK 0x00FFFFFF
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0xFF000000
+#define FIELDS_MASK 0xFF000000
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0xFF0000FF
+#define FIELDS_MASK 0xFF0000FF
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0xFF00FF00
+#define FIELDS_MASK 0xFF00FF00
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0xFF00FFFF
+#define FIELDS_MASK 0xFF00FFFF
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0xFFFF0000
+#define FIELDS_MASK 0xFFFF0000
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0xFFFF00FF
+#define FIELDS_MASK 0xFFFF00FF
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0xFFFFFF00
+#define FIELDS_MASK 0xFFFFFF00
 #include "IncludeRm.h"
 #undef FIELDS_MASK
-#define FIELDS_MASK	0xFFFFFFFF
+#define FIELDS_MASK 0xFFFFFFFF
 #include "IncludeRm.h"
 #undef FIELDS_MASK
 

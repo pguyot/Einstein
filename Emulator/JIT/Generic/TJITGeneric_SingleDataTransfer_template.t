@@ -22,19 +22,19 @@
 // ==============================
 
 #define SingleDataTransfer_TemplateName(flags, rn, rd) \
-	SingleDataTransfer_ ## flags ## _ ## rn ## _ ## rd
+	SingleDataTransfer_##flags##_##rn##_##rd
 
 #if DECLARATION
-	#define SingleDataTransfer_Template(flags, rn, rd) \
-		JITInstructionProto(SingleDataTransfer_TemplateName(flags, rn, rd));
+#define SingleDataTransfer_Template(flags, rn, rd) \
+	JITInstructionProto(SingleDataTransfer_TemplateName(flags, rn, rd));
 #endif
 #if IMPLEMENTATION
-	#define SingleDataTransfer_Template(flags, rn, rd) \
-		JITInstructionProto(SingleDataTransfer_TemplateName(flags, rn, rd))
+#define SingleDataTransfer_Template(flags, rn, rd) \
+	JITInstructionProto(SingleDataTransfer_TemplateName(flags, rn, rd))
 #endif
 #if TRANSLATION_ARRAY
-	#define SingleDataTransfer_Template(flags, rn, rd) \
-		SingleDataTransfer_TemplateName(flags, rn, rd),
+#define SingleDataTransfer_Template(flags, rn, rd) \
+	SingleDataTransfer_TemplateName(flags, rn, rd),
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_SingleDataTransfer_template.h"

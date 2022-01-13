@@ -31,10 +31,10 @@
 
 void
 Translate_MultiplyAndAccumulate(
-					JITPageClass* inPage,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr );
+	JITPageClass* inPage,
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr);
 
 // =============================== //
 // 1: No code table for op: ++post //

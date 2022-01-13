@@ -25,31 +25,30 @@
 #include "app/TPathHelper.h"
 
 // POSIX
-#include <sys/types.h>
 #include <signal.h>
 #include <string.h>
+#include <sys/types.h>
 
 #if !TARGET_OS_WIN32
-#include <unistd.h>
-#include <sys/time.h>
 #include <sys/ioctl.h>
-#include <termios.h>
 #include <sys/stat.h>
+#include <sys/time.h>
+#include <termios.h>
+#include <unistd.h>
 #if TARGET_OS_MAC
 #include <CoreServices/CoreServices.h>
 #endif
 #endif
 
-#include "Emulator/Log/TLog.h"
-#include "Emulator/TInterruptManager.h"
-#include "Emulator/TDMAManager.h"
-#include "Emulator/TMemory.h"
 #include "Emulator/TARMProcessor.h"
+#include "Emulator/TDMAManager.h"
+#include "Emulator/TInterruptManager.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/Log/TLog.h"
 
 // --- include these to be able to patch the ROM before the emulator starts
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
-
 
 /*
 
@@ -70,7 +69,7 @@
 		based pipes of all kind. In order to reroute the "named pipe" approach
 		below into something that look like a true serial port, use this:
 		  sudo socat -d -d -d PTY,raw,mode=666,echo=0 \
-            PIPE:$(HOME)/Library/Application\ Support/Einstein\ Emulator/ExtrSerPortSend\!\!PIPE:$(HOME)/Library/Application\ Support/Einstein\ Emulator/ExtrSerPortRecv
+			PIPE:$(HOME)/Library/Application\ Support/Einstein\ Emulator/ExtrSerPortSend\!\!PIPE:$(HOME)/Library/Application\ Support/Einstein\ Emulator/ExtrSerPortRecv
  NewtonInspector   Jake Borden's implementation of the NTK Inspector window.
 		Jake has tested Einstein Serial emulation with his NewtonInspector and
 		as of Feb. 2017 it is working. There seems to be a remaining flaw when
@@ -384,39 +383,39 @@
 //		port, especially for mobile devices over the USB tether.
 // -------------------------------------------------------------------------- //
 TBasicSerialPortManager::TBasicSerialPortManager(
-													 TLog* inLog,
-													 TSerialPorts::EPortIndex inPortIx)
-:	TSerialPortManager(inLog, inPortIx),
+	TLog* inLog,
+	TSerialPorts::EPortIndex inPortIx) :
+		TSerialPortManager(inLog, inPortIx),
 
-	mTxDMAPhysicalBufferStart(0),
-	mTxDMAPhysicalData(0),
-	mTxDMADataCountdown(0),
-	mTxDMAControl(0),
-	mTxDMAEvent(0),
+		mTxDMAPhysicalBufferStart(0),
+		mTxDMAPhysicalData(0),
+		mTxDMADataCountdown(0),
+		mTxDMAControl(0),
+		mTxDMAEvent(0),
 
-	mRxDMAPhysicalBufferStart(0),
-	mRxDMAPhysicalData(0),
-	mRxDMADataCountdown(0),
-	mRxDMAControl(0),
-	mRxDMAEvent(0)
+		mRxDMAPhysicalBufferStart(0),
+		mRxDMAPhysicalData(0),
+		mRxDMADataCountdown(0),
+		mRxDMAControl(0),
+		mRxDMAEvent(0)
 {
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * ~TBasicSerialPortManager( void )
 // -------------------------------------------------------------------------- //
 TBasicSerialPortManager::~TBasicSerialPortManager()
 {
-    // TODO: clean up!
+	// TODO: clean up!
 }
 
 // -------------------------------------------------------------------------- //
 //  * run( TInterruptManager*, TDMAManager*, TMemory* )
 // -------------------------------------------------------------------------- //
-void TBasicSerialPortManager::run(TInterruptManager* inInterruptManager,
-							 TDMAManager* inDMAManager,
-							 TMemory* inMemory)
+void
+TBasicSerialPortManager::run(TInterruptManager* inInterruptManager,
+	TDMAManager* inDMAManager,
+	TMemory* inMemory)
 {
 	mInterruptManager = inInterruptManager;
 	mDMAManager = inDMAManager;
@@ -445,25 +444,25 @@ void TBasicSerialPortManager::run(TInterruptManager* inInterruptManager,
 //		emulation can stay at a minimum.
 // -------------------------------------------------------------------------- //
 void
-TBasicSerialPortManager::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
+TBasicSerialPortManager::WriteRegister(KUInt32 inOffset, KUInt8 inValue)
 {
-//	KPrintf("***** 'extr' serial, writing unknown register 0x%08X = 0x%08X\n", inOffset, inValue);
+	//	KPrintf("***** 'extr' serial, writing unknown register 0x%08X = 0x%08X\n", inOffset, inValue);
 
 	if (mLog)
 	{
 		mLog->FLogLine(
-					   "[%d] - Write %.2X to serial register %.4X",
-					   mNewtPortIndex,
-					   (unsigned int) inValue,
-					   (unsigned int) inOffset );
+			"[%d] - Write %.2X to serial register %.4X",
+			mNewtPortIndex,
+			(unsigned int) inValue,
+			(unsigned int) inOffset);
 	}
-	switch (inOffset) {
+	switch (inOffset)
+	{
 		case 0x2400:
 			TriggerEvent(kSerCmd_TxCtrlChanged);
 			break;
 	}
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * ReadRegister( KUInt32 )
@@ -472,9 +471,9 @@ TBasicSerialPortManager::WriteRegister( KUInt32 inOffset, KUInt8 inValue )
 //		associated with this serial port.
 // -------------------------------------------------------------------------- //
 KUInt8
-TBasicSerialPortManager::ReadRegister( KUInt32 inOffset )
+TBasicSerialPortManager::ReadRegister(KUInt32 inOffset)
 {
-//	KPrintf("***** 'extr' serial, reading unknown register 0x%08X\n", inOffset);
+	//	KPrintf("***** 'extr' serial, reading unknown register 0x%08X\n", inOffset);
 
 	KUInt8 theResult = 0;
 
@@ -484,26 +483,27 @@ TBasicSerialPortManager::ReadRegister( KUInt32 inOffset )
 		// Both buffers are empty for now.
 		// We also don't want a beacon.
 		theResult = 0x80;
-	} else if (inOffset == 0x4800) {
+	} else if (inOffset == 0x4800)
+	{
 		// TODO: what is this? Please write more documentation
 		// RxEOF
 		//		theResult = 0x80;
 		//		TDebugger::BreakInDebugger();
 		theResult = 0x01;
-	} else {
+	} else
+	{
 		if (mLog)
 		{
 			mLog->FLogLine(
-						   "[%d] - Read unknown serial register %.4X : %.2X",
-						   mNewtPortIndex,
-						   (unsigned int) inOffset,
-						   (unsigned int) theResult );
+				"[%d] - Read unknown serial register %.4X : %.2X",
+				mNewtPortIndex,
+				(unsigned int) inOffset,
+				(unsigned int) theResult);
 		}
 	}
 
 	return theResult;
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * ReadDMARegister( KUInt32, KUInt32, KUInt32 )
@@ -512,17 +512,19 @@ TBasicSerialPortManager::ReadRegister( KUInt32 inOffset )
 //		This function dispatches to the DMA emulation.
 // -------------------------------------------------------------------------- //
 KUInt32
-TBasicSerialPortManager::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister )
+TBasicSerialPortManager::ReadDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister)
 {
-	if (inChannel==TDMAManager::kSerialPort0Receive) {
+	if (inChannel == TDMAManager::kSerialPort0Receive)
+	{
 		return ReadRxDMARegister(inBank, inRegister);
-	} else if (inChannel==TDMAManager::kSerialPort0Transmit) {
+	} else if (inChannel == TDMAManager::kSerialPort0Transmit)
+	{
 		return ReadTxDMARegister(inBank, inRegister);
-	} else {
+	} else
+	{
 		return TSerialPortManager::ReadDMARegister(inBank, inChannel, inRegister);
 	}
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * WriteDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
@@ -531,47 +533,70 @@ TBasicSerialPortManager::ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUI
 //		This function dispatches to the DMA emulation.
 // -------------------------------------------------------------------------- //
 void
-TBasicSerialPortManager::WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue )
+TBasicSerialPortManager::WriteDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue)
 {
-	if (inChannel==TDMAManager::kSerialPort0Receive) {
+	if (inChannel == TDMAManager::kSerialPort0Receive)
+	{
 		return WriteRxDMARegister(inBank, inRegister, inValue);
-	} else if (inChannel==TDMAManager::kSerialPort0Transmit) {
+	} else if (inChannel == TDMAManager::kSerialPort0Transmit)
+	{
 		return WriteTxDMARegister(inBank, inRegister, inValue);
-	} else {
+	} else
+	{
 		return TSerialPortManager::WriteDMARegister(inBank, inChannel, inRegister, inValue);
 	}
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * ReadRxDMARegister( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TBasicSerialPortManager::ReadRxDMARegister( KUInt32 inBank, KUInt32 inRegister )
+TBasicSerialPortManager::ReadRxDMARegister(KUInt32 inBank, KUInt32 inRegister)
 {
 	KUInt32 result = 0;
 
-	if (inBank==1) {
-		switch (inRegister) {
-			case 0: result = mRxDMAPhysicalBufferStart; break;
-			case 1: result = mRxDMAPhysicalData; break;
-			case 3: result = 0; break;
-			case 4: result = mRxDMADataCountdown; break;
-			case 5: result = mRxDMABufferSize; break;
-			case 6: result = 0; break;
+	if (inBank == 1)
+	{
+		switch (inRegister)
+		{
+			case 0:
+				result = mRxDMAPhysicalBufferStart;
+				break;
+			case 1:
+				result = mRxDMAPhysicalData;
+				break;
+			case 3:
+				result = 0;
+				break;
+			case 4:
+				result = mRxDMADataCountdown;
+				break;
+			case 5:
+				result = mRxDMABufferSize;
+				break;
+			case 6:
+				result = 0;
+				break;
 			case 2:
 			default:
 				KPrintf("***** 'extr' serial Rx, reading unknown DMA register %d %d %d\n", inBank, 0, inRegister);
 				break;
 		}
-	} else if (inBank==2) {
-		switch (inRegister) {
-			case 0: result = mRxDMAControl; break;
+	} else if (inBank == 2)
+	{
+		switch (inRegister)
+		{
+			case 0:
+				result = mRxDMAControl;
+				break;
 			case 1: // TSerialDMAEngine::StartRxDMA reading
-				//KPrintf("----- 'extr' serial Rx DMA, reading interrupt reason (?) %d %d %d (0x%08X)\n", inBank, 0, inRegister, mRxDMAEvent);
-				result = mRxDMAEvent; break; // FIXME: additional action needed?
+				// KPrintf("----- 'extr' serial Rx DMA, reading interrupt reason (?) %d %d %d (0x%08X)\n", inBank, 0, inRegister, mRxDMAEvent);
+				result = mRxDMAEvent;
+				break; // FIXME: additional action needed?
 			case 2:
-			case 3: result = 0; break;
+			case 3:
+				result = 0;
+				break;
 			default:
 				KPrintf("***** 'extr' serial Rx, reading unknown DMA register %d %d %d\n", inBank, 0, inRegister);
 				break;
@@ -580,55 +605,65 @@ TBasicSerialPortManager::ReadRxDMARegister( KUInt32 inBank, KUInt32 inRegister )
 
 	return result;
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * WriteRxDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TBasicSerialPortManager::WriteRxDMARegister( KUInt32 inBank, KUInt32 inRegister, KUInt32 inValue )
+TBasicSerialPortManager::WriteRxDMARegister(KUInt32 inBank, KUInt32 inRegister, KUInt32 inValue)
 {
-	if (inBank==1) {
-		switch (inRegister) {
+	if (inBank == 1)
+	{
+		switch (inRegister)
+		{
 			case 0: // TSerialDMAEngine::BindToBuffer buffer start
-				//KPrintf("----- 'extr' serial Rx DMA, set buffer start %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
-				mRxDMAPhysicalBufferStart = inValue; break;
+				// KPrintf("----- 'extr' serial Rx DMA, set buffer start %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				mRxDMAPhysicalBufferStart = inValue;
+				break;
 			case 1: // TSerialDMAEngine::StartRxDMA data start
-				//KPrintf("----- 'extr' serial Rx DMA, set data start %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
-				mRxDMAPhysicalData = inValue; break;
+				// KPrintf("----- 'extr' serial Rx DMA, set data start %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				mRxDMAPhysicalData = inValue;
+				break;
 			case 3: // TSerialDMAEngine::StartRxDMA writes 00000080
-				//KPrintf("----- 'extr' serial Rx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				// KPrintf("----- 'extr' serial Rx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				break; // FIXME: will other values be written here? What do they do?
 			case 4: // TSerialDMAEngine::StartRxDMA buffer max count
-				//KPrintf("----- 'extr' serial Rx DMA, set data count %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
-				mRxDMADataCountdown = inValue; break;
+				// KPrintf("----- 'extr' serial Rx DMA, set data count %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				mRxDMADataCountdown = inValue;
+				break;
 			case 5: // TSerialDMAEngine::StartRxDMA buffer size
-				//KPrintf("----- 'extr' serial Rx DMA, set buffer size %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
-				mRxDMABufferSize = inValue; break;
+				// KPrintf("----- 'extr' serial Rx DMA, set buffer size %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				mRxDMABufferSize = inValue;
+				break;
 			case 6:
 				// TSerialDMAEngine::BindToBuffer writing 00000000
 				// TSerialDMAEngine::StartRxDMA writing 000000FF
-				//KPrintf("----- 'extr' serial Rx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				// KPrintf("----- 'extr' serial Rx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				break; // FIXME: additional action needed?
 			case 2:
 			default:
 				KPrintf("***** 'extr' serial Rx, writing unknown DMA register %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				break;
 		}
-	} else if (inBank==2) {
-		switch (inRegister) {
+	} else if (inBank == 2)
+	{
+		switch (inRegister)
+		{
 			case 0: // TSerialDMAEngine::Init writing 00000000, TSerialDMAEngine::StartRxDMA writing 00000006
-				//KPrintf("----- 'extr' serial Rx DMA, set control register %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
-				mRxDMAControl = inValue; break;
+				// KPrintf("----- 'extr' serial Rx DMA, set control register %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				mRxDMAControl = inValue;
+				break;
 			case 1:
-				//KPrintf("----- 'extr' serial Rx DMA, set interrupt reason %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
-				mRxDMAEvent = inValue; break;
+				// KPrintf("----- 'extr' serial Rx DMA, set interrupt reason %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				mRxDMAEvent = inValue;
+				break;
 			case 2: // TSerialDMAEngine::StartRxDMA writing 00000000
 				// in all likelyhodd, this clears the events that were triggered and read from mRxDMAEvent
-				//KPrintf("----- 'extr' serial Rx DMA, clear event mask %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
-				mRxDMAEvent &= ~inValue; break; // FIXME: additional action needed?
+				// KPrintf("----- 'extr' serial Rx DMA, clear event mask %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				mRxDMAEvent &= ~inValue;
+				break; // FIXME: additional action needed?
 			case 3: // TSerialDMAEngine::ConfigureInterrupts writing 00000006
-				//KPrintf("----- 'extr' serial Rx DMA, set interrupt select (?) %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				// KPrintf("----- 'extr' serial Rx DMA, set interrupt select (?) %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				break; // FIXME: additional action needed?
 			default:
 				KPrintf("***** 'extr' serial Rx, writing unknown DMA register %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
@@ -637,38 +672,58 @@ TBasicSerialPortManager::WriteRxDMARegister( KUInt32 inBank, KUInt32 inRegister,
 	}
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * ReadTxDMARegister( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TBasicSerialPortManager::ReadTxDMARegister( KUInt32 inBank, KUInt32 inRegister )
+TBasicSerialPortManager::ReadTxDMARegister(KUInt32 inBank, KUInt32 inRegister)
 {
 	KUInt32 result = 0;
 
-	if (inBank==1) {
-		switch (inRegister) {
-			case 0: result = mTxDMAPhysicalBufferStart; break;
-			case 1: result = mTxDMAPhysicalData; break;
-			case 3: result = 0; break;
-			case 4: result = mTxDMADataCountdown; break;
-			case 5: result = mTxDMABufferSize; break;
-			case 6: result = 0; break;
+	if (inBank == 1)
+	{
+		switch (inRegister)
+		{
+			case 0:
+				result = mTxDMAPhysicalBufferStart;
+				break;
+			case 1:
+				result = mTxDMAPhysicalData;
+				break;
+			case 3:
+				result = 0;
+				break;
+			case 4:
+				result = mTxDMADataCountdown;
+				break;
+			case 5:
+				result = mTxDMABufferSize;
+				break;
+			case 6:
+				result = 0;
+				break;
 			case 2:
 			default:
 				KPrintf("***** 'extr' serial Tx, reading unknown DMA register %d %d %d\n", inBank, 1, inRegister);
 				break;
 		}
-	} else if (inBank==2) {
-		switch (inRegister) {
-			case 0: result = mTxDMAControl; break;
+	} else if (inBank == 2)
+	{
+		switch (inRegister)
+		{
+			case 0:
+				result = mTxDMAControl;
+				break;
 			case 1:
 				// TSerialDMAEngine::StartTxDMA reads this register
 				// TSerialDMAEngine::DMAInterrupt reads this register as a very first step!
-				//KPrintf("----- 'extr' serial Tx DMA, reading interrupt reason (?) %d %d %d (0x%08X)\n", inBank, 1, inRegister, mTxDMAEvent);
-				result = mTxDMAEvent; break; // FIXME: additional action needed?
+				// KPrintf("----- 'extr' serial Tx DMA, reading interrupt reason (?) %d %d %d (0x%08X)\n", inBank, 1, inRegister, mTxDMAEvent);
+				result = mTxDMAEvent;
+				break; // FIXME: additional action needed?
 			case 2:
-			case 3: result = 0; break;
+			case 3:
+				result = 0;
+				break;
 			default:
 				KPrintf("***** 'extr' serial Tx, reading unknown DMA register %d %d %d\n", inBank, 1, inRegister);
 				break;
@@ -678,57 +733,67 @@ TBasicSerialPortManager::ReadTxDMARegister( KUInt32 inBank, KUInt32 inRegister )
 	return result;
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * WriteTxDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TBasicSerialPortManager::WriteTxDMARegister( KUInt32 inBank, KUInt32 inRegister, KUInt32 inValue )
+TBasicSerialPortManager::WriteTxDMARegister(KUInt32 inBank, KUInt32 inRegister, KUInt32 inValue)
 {
-	if (inBank==1) {
-		switch (inRegister) {
+	if (inBank == 1)
+	{
+		switch (inRegister)
+		{
 			case 0: // TSerialDMAEngine::BindToBuffer writing the start address of the buffer
-				//KPrintf("----- 'extr' serial Tx DMA, set buffer start %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
-				mTxDMAPhysicalBufferStart = inValue; break;
+				// KPrintf("----- 'extr' serial Tx DMA, set buffer start %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				mTxDMAPhysicalBufferStart = inValue;
+				break;
 			case 1: // TSerialDMAEngine::StartTxDMA writes the start address of the transfer
-				//KPrintf("----- 'extr' serial Tx DMA, set data start %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
-				mTxDMAPhysicalData = inValue; break;
+				// KPrintf("----- 'extr' serial Tx DMA, set data start %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				mTxDMAPhysicalData = inValue;
+				break;
 			case 3: // TSerialDMAEngine::StartTxDMA writes 000000C0
-				//KPrintf("----- 'extr' serial Tx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				// KPrintf("----- 'extr' serial Tx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				break; // FIXME: will other values be written here? What do they do?
 			case 4: // TSerialDMAEngine::StartTxDMA writes the number of bytes to be sent
-				//KPrintf("----- 'extr' serial Tx DMA, set data count %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
-				mTxDMADataCountdown = inValue; break;
+				// KPrintf("----- 'extr' serial Tx DMA, set data count %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				mTxDMADataCountdown = inValue;
+				break;
 			case 5: // TSerialDMAEngine::StartTxDMA writes the size of the buffer
-				//KPrintf("----- 'extr' serial Tx DMA, set buffer size %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
-				mTxDMABufferSize = inValue; break;
+				// KPrintf("----- 'extr' serial Tx DMA, set buffer size %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				mTxDMABufferSize = inValue;
+				break;
 			case 6: // TSerialDMAEngine::BindToBuffer writing 0
-				//KPrintf("----- 'extr' serial Tx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				// KPrintf("----- 'extr' serial Tx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				break; // FIXME: additional action needed?
 			case 2:
 			default:
 				KPrintf("***** 'extr' serial Tx, writing unknown DMA register %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				break;
 		}
-	} else if (inBank==2) {
-		switch (inRegister) {
+	} else if (inBank == 2)
+	{
+		switch (inRegister)
+		{
 			case 0:
 				// TSerialDMAEngine::Init writes 0 (probably disabeling the entire DMA channel)
 				// TSerialDMAEngine::StartTxDMA writes 00000002 (probably to prepare the DMA, write DMA enable 00000002 is next.)
 				// TSerialDMAEngine::StopTxDMA writes 0
-				//KPrintf("----- 'extr' serial Tx DMA, set control register %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
-				mTxDMAControl = inValue; break;
+				// KPrintf("----- 'extr' serial Tx DMA, set control register %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				mTxDMAControl = inValue;
+				break;
 			case 1:
-				//KPrintf("----- 'extr' serial Tx DMA, set interrupt reason %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
-				mTxDMAEvent = inValue; break;
+				// KPrintf("----- 'extr' serial Tx DMA, set interrupt reason %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				mTxDMAEvent = inValue;
+				break;
 			case 2:
 				// TSerialDMAEngine::StartTxDMA writes whatever it reads in 2.1.1
 				// TSerialDMAEngine::DMAInterrupt set this to 0 after reading 2.1.1
 				// in all likelyhodd, this clears the events that were triggered and read from mTxDMAEvent
-				//KPrintf("----- 'extr' serial Tx DMA, clear event mask %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
-				mTxDMAEvent &= ~inValue; break; // FIXME: additional action needed?
+				// KPrintf("----- 'extr' serial Tx DMA, clear event mask %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				mTxDMAEvent &= ~inValue;
+				break; // FIXME: additional action needed?
 			case 3: // TSerialDMAEngine::ConfigureInterrupts writes 00000002
-				//KPrintf("----- 'extr' serial Tx DMA, set interrupt select (?) %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				// KPrintf("----- 'extr' serial Tx DMA, set interrupt select (?) %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				break; // FIXME: additional action needed?
 			default:
 				KPrintf("***** 'extr' serial Tx, writing unknown DMA register %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
@@ -736,7 +801,6 @@ TBasicSerialPortManager::WriteTxDMARegister( KUInt32 inBank, KUInt32 inRegister,
 		}
 	}
 }
-
 
 // -------------------------------------------------------------------------- //
 // Enable the ROM patches below to get an overview of the calls related to
@@ -1305,7 +1369,6 @@ T_ROM_INJECTION(0x001D987C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "StartR
 }
 
 #endif
-
 
 // ================================================================== //
 // You never finish a program, you just stop working on it.           //

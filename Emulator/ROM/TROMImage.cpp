@@ -24,44 +24,43 @@
 #include "TROMImage.h"
 
 // ANSI C & POSIX
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
 
 #if TARGET_OS_WIN32
-	#include <io.h>
+#include <io.h>
 #else
-	#include <sys/uio.h>
-	#include <unistd.h>
+#include <sys/uio.h>
+#include <unistd.h>
 #endif
 
 // K
-#include <K/Misc/TMappedFile.h>
 #include <K/Defines/UByteSex.h>
 #include <K/Misc/CRC32.h>
+#include <K/Misc/TMappedFile.h>
 
 // Einstein
-#include "TFlatROMImageWithREX.h"
 #include "TAIFROMImageWithREXes.h"
-#include "Emulator/TMemoryConsts.h"
-#include "Emulator/TMemory.h"
+#include "TFlatROMImageWithREX.h"
 #include "Emulator/TARMProcessor.h"
-#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 #include "Emulator/TEmulator.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/TMemoryConsts.h"
 #include "Emulator/Screen/TScreenManager.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
 #include "app/Version.h"
 
 // -------------------------------------------------------------------------- //
 //  * TROMImage( void )
 // -------------------------------------------------------------------------- //
-TROMImage::TROMImage( void )
-	:
-		mImage( NULL )
+TROMImage::TROMImage(void) :
+		mImage(NULL)
 {
 	// I'll create the mmap file later, when asked to.
 }
@@ -69,10 +68,11 @@ TROMImage::TROMImage( void )
 // -------------------------------------------------------------------------- //
 //  * ~TROMImage( void )
 // -------------------------------------------------------------------------- //
-TROMImage::~TROMImage( void )
+TROMImage::~TROMImage(void)
 {
-    if (mImage) {
-		::free( mImage );
+	if (mImage)
+	{
+		::free(mImage);
 		mImage = NULL;
 	}
 }
@@ -87,55 +87,71 @@ TROMImage::CreateImage(const KUInt8* inBuffer)
 	// TODO: we could have a much more complete REX management that can add or remove packages
 	//       from the REX file as needed, so that we can, for example, include the internet enabler.
 	// TODO: at some point, we must also patch known ROMs for the current decade to fix the Y10k bug
-    if (memcmp(inBuffer+0x00806b74, "2020.2", 7)==0) {
-        char *d = (char*)inBuffer+0x00806b74;
-        const char *vv = PROJECT_VER_MAJOR;
-        // copy no more than four characters; should be the full year
-        if (vv[0]) { *d++ = vv[0];
-            if (vv[1]) { *d++ = vv[1];
-                if (vv[2]) { *d++ = vv[2];
-                    if (vv[3]) { *d++ = vv[3]; }
-                }
-            }
-        }
-        *d++ = '.';
-        const char *vm = PROJECT_VER_MINOR;
-        // copy no more than two characters for the minor version number
-        if (vm[0]) { *d++ = vm[0];
-            if (vm[1]) { *d++ = vm[1]; }
-        }
-        // end of text
-        *d = 0;
+	if (memcmp(inBuffer + 0x00806b74, "2020.2", 7) == 0)
+	{
+		char* d = (char*) inBuffer + 0x00806b74;
+		const char* vv = PROJECT_VER_MAJOR;
+		// copy no more than four characters; should be the full year
+		if (vv[0])
+		{
+			*d++ = vv[0];
+			if (vv[1])
+			{
+				*d++ = vv[1];
+				if (vv[2])
+				{
+					*d++ = vv[2];
+					if (vv[3])
+					{
+						*d++ = vv[3];
+					}
+				}
+			}
+		}
+		*d++ = '.';
+		const char* vm = PROJECT_VER_MINOR;
+		// copy no more than two characters for the minor version number
+		if (vm[0])
+		{
+			*d++ = vm[0];
+			if (vm[1])
+			{
+				*d++ = vm[1];
+			}
+		}
+		// end of text
+		*d = 0;
 	}
 
-    SImage* theImagePtr = (SImage*)::calloc(1, sizeof(SImage));
+	SImage* theImagePtr = (SImage*) ::calloc(1, sizeof(SImage));
 
 	// inBuffer contains 16 MB consisting of the ROM followed by the REX.
 	// Write this at the start of the image.
 
-    // TODO: we can save the time for flipping the Einstein REX if we keep it in the desired byte order already
+	// TODO: we can save the time for flipping the Einstein REX if we keep it in the desired byte order already
 
 #if TARGET_RT_LITTLE_ENDIAN
-		// Endian swap it first
-		KUInt32* src = (KUInt32*) inBuffer;
-		KUInt32* dest = (KUInt32*) theImagePtr;
-    KUInt32* end = (KUInt32*) &inBuffer[TMemoryConsts::kROMEnd];
-		do {
-			*dest = UByteSex::Swap( *src );
-			++dest;
-		} while (++src < end);
+	// Endian swap it first
+	KUInt32* src = (KUInt32*) inBuffer;
+	KUInt32* dest = (KUInt32*) theImagePtr;
+	KUInt32* end = (KUInt32*) &inBuffer[TMemoryConsts::kROMEnd];
+	do
+	{
+		*dest = UByteSex::Swap(*src);
+		++dest;
+	} while (++src < end);
 #else
 	(void) ::memcpy(theImagePtr, inBuffer, inBufferSize);
 #endif
 
-    mROMId = ComputeROMId(theImagePtr->fROM);
+	mROMId = ComputeROMId(theImagePtr->fROM);
 
 	JITClass::PatchROM((KUInt32*) theImagePtr->fROM, mROMId);
 
 	// Compute the checksum.
 	DoComputeChecksums(theImagePtr);
 
-    mImage = theImagePtr;
+	mImage = theImagePtr;
 }
 
 // -------------------------------------------------------------------------- //
@@ -143,14 +159,15 @@ TROMImage::CreateImage(const KUInt8* inBuffer)
 // -------------------------------------------------------------------------- //
 int
 TROMImage::GetLatestModDate(
-				time_t* ioModDate,
-				int fd )
+	time_t* ioModDate,
+	int fd)
 {
 	int err;
-	do {
+	do
+	{
 		// Check the file exists.
 		struct stat theInfos;
-		err = ::fstat( fd, &theInfos );
+		err = ::fstat(fd, &theInfos);
 		if (err < 0)
 		{
 			// The file (probably) doesn't exist.
@@ -171,7 +188,7 @@ TROMImage::GetLatestModDate(
 //  * ComputeChecksums( KUInt32 outChecksums[10] ) const
 // -------------------------------------------------------------------------- //
 void
-TROMImage::ComputeChecksums( KUInt32 outChecksums[10] ) const
+TROMImage::ComputeChecksums(KUInt32 outChecksums[10]) const
 {
 	// Copy checksum from the SImagePtr.
 	KUInt32 index;
@@ -185,7 +202,7 @@ TROMImage::ComputeChecksums( KUInt32 outChecksums[10] ) const
 //  * DoComputeChecksums( SImage* )
 // -------------------------------------------------------------------------- //
 void
-TROMImage::DoComputeChecksums( SImage* inImage )
+TROMImage::DoComputeChecksums(SImage* inImage)
 {
 	const KUInt8* thePointer = inImage->fROM;
 
@@ -195,10 +212,10 @@ TROMImage::DoComputeChecksums( SImage* inImage )
 	KUInt32 theRexSizes[4];
 
 	KUInt32 nbRexes = LookForREXes(
-						thePointer,
-						&theBaseSize,
-						theRexBases,
-						theRexSizes );
+		thePointer,
+		&theBaseSize,
+		theRexBases,
+		theRexSizes);
 	for (; nbRexes < 4; nbRexes++)
 	{
 		theRexBases[nbRexes] = 0;
@@ -206,7 +223,7 @@ TROMImage::DoComputeChecksums( SImage* inImage )
 	}
 
 	// Compute base checksum.
-	ComputeSegmentChecksums( thePointer, theBaseSize, &inImage->fInfo.fChecksums[0] );
+	ComputeSegmentChecksums(thePointer, theBaseSize, &inImage->fInfo.fChecksums[0]);
 
 	// Compute REX checksums.
 	KUInt32 indexRexes;
@@ -215,7 +232,7 @@ TROMImage::DoComputeChecksums( SImage* inImage )
 		ComputeSegmentChecksums(
 			thePointer + theRexBases[indexRexes],
 			theRexSizes[indexRexes],
-			&inImage->fInfo.fChecksums[(2*indexRexes)+2] );
+			&inImage->fInfo.fChecksums[(2 * indexRexes) + 2]);
 	}
 }
 
@@ -224,16 +241,17 @@ TROMImage::DoComputeChecksums( SImage* inImage )
 // -------------------------------------------------------------------------- //
 void
 TROMImage::ComputeSegmentChecksums(
-						const KUInt8* inPointer,
-						KUInt32 inSize,
-						KUInt32 outChecksums[2] )
+	const KUInt8* inPointer,
+	KUInt32 inSize,
+	KUInt32 outChecksums[2])
 {
 	// if the segment is empty, the checksums are -1, -1.
 	if (inSize == 0)
 	{
 		outChecksums[0] = 0xFFFFFFFF;
 		outChecksums[1] = 0xFFFFFFFF;
-	} else {
+	} else
+	{
 		KUInt32* theCursor = (KUInt32*) inPointer;
 		KUInt32* theEnd = (KUInt32*) (inPointer + inSize);
 		KUInt32 highBits = 0;
@@ -255,19 +273,19 @@ TROMImage::ComputeSegmentChecksums(
 // -------------------------------------------------------------------------- //
 KUInt32
 TROMImage::LookForREXes(
-					const KUInt8* inBuffer,
-					KUInt32* outBaseSize,
-					KUInt32 outRexBases[4],
-					KUInt32 outRexSizes[4] )
+	const KUInt8* inBuffer,
+	KUInt32* outBaseSize,
+	KUInt32 outRexBases[4],
+	KUInt32 outRexSizes[4])
 {
 	KUInt32* swappedROM = (KUInt32*) inBuffer;
 	// The size of the base ROM.
-	KUInt32 theBaseSize = swappedROM[0x3C/4];
+	KUInt32 theBaseSize = swappedROM[0x3C / 4];
 	if (theBaseSize >= 0x00800000)
 	{
 		(void) ::fprintf(
-					stderr,
-					"Couldn't determine base ROM size (bad ROM?)\n" );
+			stderr,
+			"Couldn't determine base ROM size (bad ROM?)\n");
 		::abort();
 	}
 
@@ -276,7 +294,8 @@ TROMImage::LookForREXes(
 	// Look for rexes just afterwards.
 	KUInt32 nbRexes = 0;
 	KUInt32 rexCursor = theBaseSize;
-	do {
+	do
+	{
 		if (rexCursor > 0x00800000 - 0x20)
 		{
 			break;
@@ -291,17 +310,18 @@ TROMImage::LookForREXes(
 				|| (rexCursor + theRexSize > 0x00800000))
 			{
 				(void) ::fprintf(
-							stderr,
-							"Invalid size for REx %i at %.8X\n",
-							(int) nbRexes,
-							(unsigned int) rexCursor);
+					stderr,
+					"Invalid size for REx %i at %.8X\n",
+					(int) nbRexes,
+					(unsigned int) rexCursor);
 				::abort();
 			}
 
 			outRexBases[nbRexes] = rexCursor;
 			outRexSizes[nbRexes++] = theRexSize;
 			rexCursor += theRexSize;
-		} else {
+		} else
+		{
 			break;
 		}
 	} while (nbRexes < 4);
@@ -311,7 +331,8 @@ TROMImage::LookForREXes(
 	{
 		rexCursor = 0x00800000;
 
-		do {
+		do
+		{
 			if ((swappedROM[rexCursor / 4] == 'RExB')
 				&& (swappedROM[(rexCursor / 4) + 1] == 'lock'))
 			{
@@ -322,10 +343,10 @@ TROMImage::LookForREXes(
 					|| (rexCursor + theRexSize > 0x01000000))
 				{
 					(void) ::fprintf(
-								stderr,
-								"Invalid size for REx %i at %.8X\n",
-								(int) nbRexes,
-								(unsigned int) rexCursor);
+						stderr,
+						"Invalid size for REx %i at %.8X\n",
+						(int) nbRexes,
+						(unsigned int) rexCursor);
 					::abort();
 				}
 				// Patch the REx to have a sequential ID, or NewtonOS will
@@ -335,7 +356,8 @@ TROMImage::LookForREXes(
 				outRexBases[nbRexes] = rexCursor;
 				outRexSizes[nbRexes++] = theRexSize;
 				rexCursor += theRexSize;
-			} else {
+			} else
+			{
 				break;
 			}
 		} while (true);
@@ -344,39 +366,40 @@ TROMImage::LookForREXes(
 	return nbRexes;
 }
 
-
-KSInt32 TROMImage::ComputeROMId(KUInt8 *inROMPtr)
+KSInt32
+TROMImage::ComputeROMId(KUInt8* inROMPtr)
 {
-    // Identify the ROM by taking the CRC32 of the ROM and internal REX.
+	// Identify the ROM by taking the CRC32 of the ROM and internal REX.
 
-    // The manufacturer of the ROM may change, but the remaining content is the same
-    KUInt32 tmpManufacturer[1];
-    memcpy(tmpManufacturer, inROMPtr+0x000013fC, sizeof(tmpManufacturer));
-    memset(inROMPtr+0x000013fC, 0, sizeof(tmpManufacturer));
+	// The manufacturer of the ROM may change, but the remaining content is the same
+	KUInt32 tmpManufacturer[1];
+	memcpy(tmpManufacturer, inROMPtr + 0x000013fC, sizeof(tmpManufacturer));
+	memset(inROMPtr + 0x000013fC, 0, sizeof(tmpManufacturer));
 
-    // Also, make a copy of the diagnostics and checksums (they are unset in the developer ROM)
-    KUInt32 tmpDiagCheckTag[12];
-    memcpy(tmpDiagCheckTag, inROMPtr+0x00018420, sizeof(tmpDiagCheckTag));
-    memset(inROMPtr+0x00018420, 0, sizeof(tmpDiagCheckTag));
+	// Also, make a copy of the diagnostics and checksums (they are unset in the developer ROM)
+	KUInt32 tmpDiagCheckTag[12];
+	memcpy(tmpDiagCheckTag, inROMPtr + 0x00018420, sizeof(tmpDiagCheckTag));
+	memset(inROMPtr + 0x00018420, 0, sizeof(tmpDiagCheckTag));
 
-    // Get a neutral CRC32 of the ROM minus the variables
-    KUInt32 crc = GetCRC32(inROMPtr, 0x00800000);
-//    FILE *f = fopen("/Users/matt/img", "wb");
-//    fwrite(inROMPtr, 1, 0x00800000, f);
-//    fclose(f);
+	// Get a neutral CRC32 of the ROM minus the variables
+	KUInt32 crc = GetCRC32(inROMPtr, 0x00800000);
+	//    FILE *f = fopen("/Users/matt/img", "wb");
+	//    fwrite(inROMPtr, 1, 0x00800000, f);
+	//    fclose(f);
 
-    // Now restore the variable content
-    memcpy(inROMPtr+0x000013fC, tmpManufacturer, sizeof(tmpManufacturer));
-    memcpy(inROMPtr+0x00018420, tmpDiagCheckTag, sizeof(tmpDiagCheckTag));
+	// Now restore the variable content
+	memcpy(inROMPtr + 0x000013fC, tmpManufacturer, sizeof(tmpManufacturer));
+	memcpy(inROMPtr + 0x00018420, tmpDiagCheckTag, sizeof(tmpDiagCheckTag));
 
-    KSInt32 romID = kUnknownROM;
-    switch (crc) {
-        case 0x2bab2cee: // MP2x00(US): 2.1(711000)-1, can be updated to 2.1/710031
-            romID = k717006;
-            break;
-        case 0x62081e10: // eMate 300(US): v2.2.00-0(737041) can be updated to v2.1/737246
-            romID = kEMate300ROM;
-            break;
+	KSInt32 romID = kUnknownROM;
+	switch (crc)
+	{
+		case 0x2bab2cee: // MP2x00(US): 2.1(711000)-1, can be updated to 2.1/710031
+			romID = k717006;
+			break;
+		case 0x62081e10: // eMate 300(US): v2.2.00-0(737041) can be updated to v2.1/737246
+			romID = kEMate300ROM;
+			break;
 		case 0xa9862ccc: // MP2100(D): (747129)  (747260)
 			romID = kMP2x00DROM;
 			break;
@@ -384,98 +407,109 @@ KSInt32 TROMImage::ComputeROMId(KUInt8 *inROMPtr)
 			romID = kWatsonROM;
 			break;
 		default:
-            KPrintf("Unknown ROM with CRC 0x%08x. No patches will be applied.\n", crc);
-            break;
-    }
-    return romID;
+			KPrintf("Unknown ROM with CRC 0x%08x. No patches will be applied.\n", crc);
+			break;
+	}
+	return romID;
 }
 
-
 #if TARGET_OS_WIN32
-static int strcasecmp(const char *a, const char *b) { return stricmp(a, b); }
+static int
+strcasecmp(const char* a, const char* b)
+{
+	return stricmp(a, b);
+}
 #endif
 
 #if TARGET_UI_FLTK
 
-# include <FL/filename.H>
+#include <FL/filename.H>
 
 #else
 
 #define FL_PATH_MAX PATH_MAX
-const char *fl_filename_name(const char *path)
+const char*
+fl_filename_name(const char* path)
 {
-    const char *win = strrchr(path, '\\');
-    const char *bsd = strrchr(path, '/');
-    const char *name = (win>bsd) ? win : bsd;
-    if (name==nullptr) name = path;
-    return name;
+	const char* win = strrchr(path, '\\');
+	const char* bsd = strrchr(path, '/');
+	const char* name = (win > bsd) ? win : bsd;
+	if (name == nullptr)
+		name = path;
+	return name;
 }
-const char *fl_filename_ext(const char *path)
+const char*
+fl_filename_ext(const char* path)
 {
-    const char *name = fl_filename_name(path);
-    const char *dot = strrchr(path, '/');
-    if (dot>name)
-        return dot;
-    else
-        return path + strlen(path);
+	const char* name = fl_filename_name(path);
+	const char* dot = strrchr(path, '/');
+	if (dot > name)
+		return dot;
+	else
+		return path + strlen(path);
 }
-void fl_filename_setext(char *buf, int size, const char *ext)
+void
+fl_filename_setext(char* buf, int size, const char* ext)
 {
-    char *d = (char*)fl_filename_ext(buf);
-    strcpy(d, ext);
+	char* d = (char*) fl_filename_ext(buf);
+	strcpy(d, ext);
 }
 #endif
 
-TROMImage *TROMImage::LoadROMAndREX(const char *theROMImagePath, Boolean useMonitor, Boolean useBuiltinERex)
+TROMImage*
+TROMImage::LoadROMAndREX(const char* theROMImagePath, Boolean useMonitor, Boolean useBuiltinERex)
 {
-    (void)useMonitor;
-    TROMImage *theROMImage = nullptr;
+	(void) useMonitor;
+	TROMImage* theROMImage = nullptr;
 
-    // If we use the builtin REX, set the REX path to null
-    // If we want an external file, take the ROM path with the filename "Einstein.rex"
-    char *theREX1Path = nullptr;
-    char theREX1PathBuffer[FL_PATH_MAX];
-    if (useBuiltinERex) {
-        theREX1Path = nullptr;
-    } else {
-        strcpy(theREX1PathBuffer, theROMImagePath);
-        char *rexName = (char *) fl_filename_name(theREX1PathBuffer);
-        if (rexName) {
-            strcpy(rexName, "Einstein.rex");
-        }
-        theREX1Path = theREX1PathBuffer;
-    }
+	// If we use the builtin REX, set the REX path to null
+	// If we want an external file, take the ROM path with the filename "Einstein.rex"
+	char* theREX1Path = nullptr;
+	char theREX1PathBuffer[FL_PATH_MAX];
+	if (useBuiltinERex)
+	{
+		theREX1Path = nullptr;
+	} else
+	{
+		strcpy(theREX1PathBuffer, theROMImagePath);
+		char* rexName = (char*) fl_filename_name(theREX1PathBuffer);
+		if (rexName)
+		{
+			strcpy(rexName, "Einstein.rex");
+		}
+		theREX1Path = theREX1PathBuffer;
+	}
 
-    // Read an .aif image
-    const char *ext = fl_filename_ext(theROMImagePath);
-    if ( ext && strcasecmp(ext, ".aif")==0 ) {
-        char theREX0Path[FL_PATH_MAX];
-        strcpy(theREX0Path, theROMImagePath);
-        fl_filename_setext(theREX0Path, FL_PATH_MAX, ".rex");
-        theROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path);
-        return theROMImage;
-    }
+	// Read an .aif image
+	const char* ext = fl_filename_ext(theROMImagePath);
+	if (ext && strcasecmp(ext, ".aif") == 0)
+	{
+		char theREX0Path[FL_PATH_MAX];
+		strcpy(theREX0Path, theROMImagePath);
+		fl_filename_setext(theREX0Path, FL_PATH_MAX, ".rex");
+		theROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path);
+		return theROMImage;
+	}
 
-    // Or is it the pair of "Senior CirrusNoDebug image" and "Senior CirrusNoDebug high"?
-    const char *name = fl_filename_name(theROMImagePath);
-    if (   name
-        &&  (   strncmp(name, "Senior Cirrus", 13)==0
-             || strncmp(name, "Senior DCirrus", 14)==0 )
-        && strstr(name, "image"))
-    {
-        char theREX0Path[FL_PATH_MAX];
-        strcpy(theREX0Path, theROMImagePath);
-        char *image = strstr(theREX0Path, "image");
-        strcpy(image, "high");
-        theROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path);
-        return theROMImage;
-    }
+	// Or is it the pair of "Senior CirrusNoDebug image" and "Senior CirrusNoDebug high"?
+	const char* name = fl_filename_name(theROMImagePath);
+	if (name
+		&& (strncmp(name, "Senior Cirrus", 13) == 0
+			|| strncmp(name, "Senior DCirrus", 14) == 0)
+		&& strstr(name, "image"))
+	{
+		char theREX0Path[FL_PATH_MAX];
+		strcpy(theREX0Path, theROMImagePath);
+		char* image = strstr(theREX0Path, "image");
+		strcpy(image, "high");
+		theROMImage = new TAIFROMImageWithREXes(theROMImagePath, theREX0Path, theREX1Path);
+		return theROMImage;
+	}
 
-    // If it's none of the above, just load a file verbatim and hope it's a ROM
-    theROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path);
-    return theROMImage;
+	// If it's none of the above, just load a file verbatim and hope it's a ROM
+	theROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path);
+	return theROMImage;
 }
-
 
 // ====================================================== //
 // Is a computer language with goto's totally Wirth-less? //

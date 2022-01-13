@@ -27,19 +27,18 @@
 #include "app/Version.h"
 #include "app/FLTK/TFLApp.h"
 
-
 /**
  * Inspector is a debugging connection to an emulated or physical Newton.
  */
 class TFLInspectorPanel
 {
 public:
-    TFLInspectorPanel();
-    ~TFLInspectorPanel();
+	TFLInspectorPanel();
+	~TFLInspectorPanel();
 };
 
 #endif
-		// _T_FL_INSPECTOR_PANEL
+// _T_FL_INSPECTOR_PANEL
 
 // ============================================================================ //
 // Inspector

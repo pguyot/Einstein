@@ -45,23 +45,26 @@ class TJITGenericPatchManager
 {
 
 private:
-	static TJITGenericPatchObject **mPatchList;
+	static TJITGenericPatchObject** mPatchList;
 	static KUInt32 mPatchListTop, mPatchListSize;
 
 public:
 	/// Get number of patches
-	static KUInt32 GetNumPatches() { return mPatchListTop; }
+	static KUInt32
+	GetNumPatches()
+	{
+		return mPatchListTop;
+	}
 
 	/// Add a new patch to the patch list.
-	static KUInt32 Add(TJITGenericPatchObject *patch);
+	static KUInt32 Add(TJITGenericPatchObject* patch);
 
 	/// Loop through all patched and actually apply them.
 	static void DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId);
 
 	/// Get patch at a given index.
-	static TJITGenericPatchObject *GetPatchAt(KUInt32 ix);
+	static TJITGenericPatchObject* GetPatchAt(KUInt32 ix);
 };
-
 
 /**
  \brief This abstract class is the base implementation for all types of patches.
@@ -76,10 +79,14 @@ private:
 	KUInt32 mIndex;
 	KUInt32 mAddress[kROMPatchNumIDs];
 	KUInt32 mOriginalInstruction;
-	const char *mName;
+	const char* mName;
 
 	/// Add this patch to the patch manager and return the new index.
-	KUInt32 AddToManager() { return TJITGenericPatchManager::Add(this); }
+	KUInt32
+	AddToManager()
+	{
+		return TJITGenericPatchManager::Add(this);
+	}
 
 protected:
 	// Instruction format for SWI. NewtonOS uses SWIs 0 to 34.
@@ -87,60 +94,93 @@ protected:
 	// Bit 22 indicates if the patch is applied before (native code injection,
 	// I=1) or instead (native code call, I=0) of an instruction.
 	// -Cond-- 1  1  1  1   P  N -----------ignored by processor------------------ Software Interrupt
-	static const KUInt32 kPatchMask 			= 0xFF800000;
-	static const KUInt32 kNativeMask 			= 0xFFC00000;
-	static const KUInt32 kSWIIndexMask 			= 0x003FFFFF;
-	static const KUInt32 kSWI			 		= 0xEF000000;
-	static const KUInt32 kSWIPatch				= 0xEF800000;
-	static const KUInt32 kSWINativeCall 		= 0xEF800000;
-	static const KUInt32 kSWINativeInjection 	= 0xEFC00000;
+	static const KUInt32 kPatchMask = 0xFF800000;
+	static const KUInt32 kNativeMask = 0xFFC00000;
+	static const KUInt32 kSWIIndexMask = 0x003FFFFF;
+	static const KUInt32 kSWI = 0xEF000000;
+	static const KUInt32 kSWIPatch = 0xEF800000;
+	static const KUInt32 kSWINativeCall = 0xEF800000;
+	static const KUInt32 kSWINativeInjection = 0xEFC00000;
 
 	/// Remember the priginal instruction at this address before the patch was applied.
-	void SetOrigialInstruction(KUInt32 instr) { mOriginalInstruction = instr; }
+	void
+	SetOrigialInstruction(KUInt32 instr)
+	{
+		mOriginalInstruction = instr;
+	}
 
 	/// Return the offset of the instruction into the ROM word array.
 	KUInt32 GetOffsetInROM(KSInt32 inROMId);
 
 	/// Return the index into the manager
-	KUInt32 GetIndex() { return mIndex; }
+	KUInt32
+	GetIndex()
+	{
+		return mIndex;
+	}
 
 public:
 	/// Create and add a new patch
 	TJITGenericPatchObject(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
-                           const char *name=0L);
+		const char* name = 0L);
 
 	/// Destructor
 	virtual ~TJITGenericPatchObject();
 
 	/// Patch the ROM word
-	virtual void Apply(KUInt32 *ROM, KSInt32 inROMId) = 0;
+	virtual void Apply(KUInt32* ROM, KSInt32 inROMId) = 0;
 
 	/// Call the patch code
-	virtual JITUnit *Call(JITUnit *ioUnit, TARMProcessor *ioCPU) {
-        (void)ioUnit;
-        (void)ioCPU;
-        return 0;
-    }
+	virtual JITUnit*
+	Call(JITUnit* ioUnit, TARMProcessor* ioCPU)
+	{
+		(void) ioUnit;
+		(void) ioCPU;
+		return 0;
+	}
 
 	/// Return the name of this patch.
-	const char *GetName() { return mName; }
+	const char*
+	GetName()
+	{
+		return mName;
+	}
 
 	/// Return the data word at the patch address before the patch was applied.
-	KUInt32 GetOriginalInstruction() { return mOriginalInstruction; }
+	KUInt32
+	GetOriginalInstruction()
+	{
+		return mOriginalInstruction;
+	}
 
 	// return 1 if the instruction is a patch
-	static inline KUInt8 IsPatch(KUInt32 instr) { return (instr&kPatchMask)==kSWIPatch; }
+	static inline KUInt8
+	IsPatch(KUInt32 instr)
+	{
+		return (instr & kPatchMask) == kSWIPatch;
+	}
 
 	// return 1 if the instruction is a native injection
-	static inline KUInt8 IsNativeInjection(KUInt32 inInstruction) { return (inInstruction&kNativeMask)==kSWINativeInjection; }
+	static inline KUInt8
+	IsNativeInjection(KUInt32 inInstruction)
+	{
+		return (inInstruction & kNativeMask) == kSWINativeInjection;
+	}
 
 	// return 1 if the instruction is a native call
-	static inline KUInt8 IsNativeCall(KUInt32 inInstruction) { return (inInstruction&kNativeMask)==kSWINativeCall; }
+	static inline KUInt8
+	IsNativeCall(KUInt32 inInstruction)
+	{
+		return (inInstruction & kNativeMask) == kSWINativeCall;
+	}
 
 	/// Return the index into the manager
-	static KUInt32 GetIndex(KUInt32 inInstruction) { return (inInstruction&kSWIIndexMask); }
+	static KUInt32
+	GetIndex(KUInt32 inInstruction)
+	{
+		return (inInstruction & kSWIIndexMask);
+	}
 };
-
 
 /**
  \brief This patch replaces one instruction in ROM with another instruction.
@@ -156,17 +196,20 @@ private:
 
 protected:
 	/// Return the new instruction that replaces the original one.
-	KUInt32 GetNewInstruction() { return mNewInstruction; }
+	KUInt32
+	GetNewInstruction()
+	{
+		return mNewInstruction;
+	}
 
 public:
 	/// Create and add a new patch
 	TJITGenericPatch(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
-                     KUInt32 value, const char *name=0L);
+		KUInt32 value, const char* name = 0L);
 
 	/// Patch the ROM word
-	void Apply(KUInt32 *ROM, KSInt32 inROMId) override;
+	void Apply(KUInt32* ROM, KSInt32 inROMId) override;
 };
-
 
 /**
  \brief Find and replace words in an area of the ROM.
@@ -174,19 +217,18 @@ public:
 class TJITGenericPatchFindAndReplace : public TJITGenericPatch
 {
 private:
-	KUInt32 *mKey;
-	KUInt32 *mReplacement;
+	KUInt32* mKey;
+	KUInt32* mReplacement;
 
 public:
 	/// Create and add a new patch
 	TJITGenericPatchFindAndReplace(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
-								   KUInt32 *key, KUInt32 *replacement,
-								   const char *name=0L);
+		KUInt32* key, KUInt32* replacement,
+		const char* name = 0L);
 
 	/// Patch the ROM
-	void Apply(KUInt32 *ROM, KSInt32 inROMId) override;
+	void Apply(KUInt32* ROM, KSInt32 inROMId) override;
 };
-
 
 /**
  \brief This patch type is used to call a JIT stub \b instead of an instruction.
@@ -213,21 +255,25 @@ private:
 
 protected:
 	/// Return the JIT Stub address for this patch.
-	JITFuncPtr GetStub() { return mStub; }
+	JITFuncPtr
+	GetStub()
+	{
+		return mStub;
+	}
 
 public:
 	/// Create and add a call to a JIT instruction
 	TJITGenericPatchNativeCall(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
-                               JITFuncPtr stub, const char *name)
-	: TJITGenericPatchObject(inAddr0, inAddr1, inAddr2,  inAddr3, name), mStub(stub)  { }
+		JITFuncPtr stub, const char* name) :
+			TJITGenericPatchObject(inAddr0, inAddr1, inAddr2, inAddr3, name),
+			mStub(stub) { }
 
 	/// Patch the ROM word
-	void Apply(KUInt32 *ROM, KSInt32 inROMId) override;
+	void Apply(KUInt32* ROM, KSInt32 inROMId) override;
 
 	/// Call the patch code
-	JITUnit *Call(JITUnit *ioUnit, TARMProcessor *ioCPU) override;
+	JITUnit* Call(JITUnit* ioUnit, TARMProcessor* ioCPU) override;
 };
-
 
 /**
  \brief This Macro makes it easy to replace code anywhere in ROM.
@@ -248,28 +294,27 @@ public:
  // mov     pc, lr
 
  T_ROM_PATCH(
-     0x00000010, 0x00000010, 0x00000010, 0x00000010,
-     "TADSPEndpoint::RemoveFromAppWorld(void)")
+	 0x00000010, 0x00000010, 0x00000010, 0x00000010,
+	 "TADSPEndpoint::RemoveFromAppWorld(void)")
  {
-     ioCPU->SetRegister(0, -36018);
-     ioCPU->SetRegister(15, ioCPU->GetRegister(14));
-     return 0L;
+	 ioCPU->SetRegister(0, -36018);
+	 ioCPU->SetRegister(15, ioCPU->GetRegister(14));
+	 return 0L;
  }
  \endcode
 
  \param inAddr0 this is the address in the MP2100US ROM that we want to patch, must
- 		be word-aligned
+		be word-aligned
  \param inAddr1 this is the address in the MP2100DE ROM or kROMPatchVoid
  \param inAddr2 this is the address in the eMate300 ROM or kROMPatchVoid
  \param inAddr3 this is the address in the Watson ROM or kROMPatchVoid
  \param name naming the patch makes debugging easier
 
  */
-#define T_ROM_PATCH(inAddr0, inAddr1, inAddr2,  inAddr3, name) \
-extern JITInstructionProto(patch_##inAddr0); \
-TJITGenericPatchNativeCall i##inAddr0(inAddr0, inAddr1, inAddr2, inAddr3, patch_##inAddr0, name); \
-JITInstructionProto(patch_##inAddr0)
-
+#define T_ROM_PATCH(inAddr0, inAddr1, inAddr2, inAddr3, name)                                         \
+	extern JITInstructionProto(patch_##inAddr0);                                                      \
+	TJITGenericPatchNativeCall i##inAddr0(inAddr0, inAddr1, inAddr2, inAddr3, patch_##inAddr0, name); \
+	JITInstructionProto(patch_##inAddr0)
 
 /**
  \brief This patch type is used to call a JIT stub \b before another instruction.
@@ -293,18 +338,18 @@ JITInstructionProto(patch_##inAddr0)
  \see Translate_SWIAndCoproc
  \see Translate_PatchNativeCall
  */
-class TJITGenericPatchNativeInjection : public TJITGenericPatchNativeCall {
+class TJITGenericPatchNativeInjection : public TJITGenericPatchNativeCall
+{
 
 public:
 	/// Create and add a call to a JIT instruction as an injection
 	TJITGenericPatchNativeInjection(KUInt32 inAddr0, KUInt32 inAddr1, KUInt32 inAddr2, KUInt32 inAddr3,
-                                    JITFuncPtr stub, const char *name)
-	: TJITGenericPatchNativeCall(inAddr0, inAddr1, inAddr2, inAddr3, stub, name) { }
+		JITFuncPtr stub, const char* name) :
+			TJITGenericPatchNativeCall(inAddr0, inAddr1, inAddr2, inAddr3, stub, name) { }
 
 	/// Patch the ROM word
-	void Apply(KUInt32 *ROM, KSInt32 inROMId) override;
+	void Apply(KUInt32* ROM, KSInt32 inROMId) override;
 };
-
 
 /**
  \brief This Macro makes it easy to insert native code anywhere in ROM.
@@ -319,25 +364,24 @@ public:
 
  \code
  T_ROM_INJECTION(
-     0x00000010, 0x00000010, 0x00000010, 0x00000010,
-     "Data Abort")
+	 0x00000010, 0x00000010, 0x00000010, 0x00000010,
+	 "Data Abort")
  {
-     KPrintf("DATA ABORT called from 0x%08X\n", ioCPU->mR14abt_Bkup-8);
-     return ioUnit;
+	 KPrintf("DATA ABORT called from 0x%08X\n", ioCPU->mR14abt_Bkup-8);
+	 return ioUnit;
  }
  \endcode
 
  \param inAddr0 this is the address in the MP2100US ROM that we want to patch, must
- 		be word-aligned
+		be word-aligned
  \param inAddr1 this is the address in the MP2100DE ROM or kROMPatchVoid
  \param inAddr2 this is the address in the eMate300 ROM or kROMPatchVoid
  \param inAddr3 this is the address in the Watson ROM or kROMPatchVoid
  \param name naming the patch makes debugging easier
  */
-#define T_ROM_INJECTION(inAddr0, inAddr1, inAddr2, inAddr3, name) \
-extern JITInstructionProto(patch_##inAddr0); \
-TJITGenericPatchNativeInjection i##inAddr0(inAddr0, inAddr1, inAddr2, inAddr3, patch_##inAddr0, name); \
-JITInstructionProto(patch_##inAddr0)
-
+#define T_ROM_INJECTION(inAddr0, inAddr1, inAddr2, inAddr3, name)                                          \
+	extern JITInstructionProto(patch_##inAddr0);                                                           \
+	TJITGenericPatchNativeInjection i##inAddr0(inAddr0, inAddr1, inAddr2, inAddr3, patch_##inAddr0, name); \
+	JITInstructionProto(patch_##inAddr0)
 
 #endif

@@ -52,17 +52,17 @@ public:
 	///
 	/// Constructeur par défaut.
 	///
-	TAndroidApp( void );
+	TAndroidApp(void);
 
 	///
 	/// Destructeur.
 	///
-	~TAndroidApp( void );
+	~TAndroidApp(void);
 
 	///
 	/// Point d'entrée.
 	///
-	void Run(const char *dataPath, int screenWidth, int screenHeight, TLog *inLog);
+	void Run(const char* dataPath, int screenWidth, int screenHeight, TLog* inLog);
 
 	///
 	/// Stop the app thread
@@ -118,15 +118,25 @@ public:
 
 	void ChangeScreenSize(int w, int h);
 
-	TPlatformManager *getPlatformManager() { return mPlatformManager; }
+	TPlatformManager*
+	getPlatformManager()
+	{
+		return mPlatformManager;
+	}
 
-	TScreenManager *getScreenManager() { return mScreenManager; }
+	TScreenManager*
+	getScreenManager()
+	{
+		return mScreenManager;
+	}
 
-	int updateScreen(unsigned short *buffer);
+	int updateScreen(unsigned short* buffer);
 
 	int screenIsDirty();
 
-	void SetNewtonID(KUInt32 id0, KUInt32 id1) {
+	void
+	SetNewtonID(KUInt32 id0, KUInt32 id1)
+	{
 		mNewtonID0 = id0;
 		mNewtonID1 = id1;
 	}
@@ -137,19 +147,19 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TAndroidApp( const TAndroidApp& inCopy );
+	TAndroidApp(const TAndroidApp& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TAndroidApp& operator = ( const TAndroidApp& inCopy );
+	TAndroidApp& operator=(const TAndroidApp& inCopy);
 
 	///
 	/// Affiche un message d'erreur sur la syntaxe et sort.
 	///
-	void SyntaxError( void );
+	void SyntaxError(void);
 
 	///
 	/// Affiche un message d'erreur sur la syntaxe (une option en particulier)
@@ -157,41 +167,42 @@ private:
 	///
 	/// \param inBadOption	bad option
 	///
-	void SyntaxError( const char* inBadOption );
+	void SyntaxError(const char* inBadOption);
 
 	///
 	/// Affiche l'aide et sort.
 	///
-	void Help( void );
+	void Help(void);
 
 	///
 	/// Affiche la version et sort.
 	///
-	void Version( void );
+	void Version(void);
 
 	///
 	/// Crée le gestionnaire de son.
 	///
-	void CreateSoundManager( const char* inClass );
+	void CreateSoundManager(const char* inClass);
 
 	///
 	/// Crée le gestionnaire d'écran.
 	///
 	void CreateScreenManager(
-							 const char* inClass,
-							 int inPortraitWidth,
-							 int inPortraitHeight,
-							 Boolean inFullScreen);
+		const char* inClass,
+		int inPortraitWidth,
+		int inPortraitHeight,
+		Boolean inFullScreen);
 
 	///
 	/// Crée le log.
 	///
-	void CreateLog( const char* inPath );
+	void CreateLog(const char* inPath);
 
 	///
 	/// Point d'entrée du processus léger.
 	///
-	static void* SThreadEntry( void* inUserData )
+	static void*
+	SThreadEntry(void* inUserData)
 	{
 		((TAndroidApp*) inUserData)->ThreadEntry();
 		return NULL;
@@ -200,52 +211,52 @@ private:
 	///
 	/// Point d'entrée du processus léger.
 	///
-	void ThreadEntry( void );
+	void ThreadEntry(void);
 
 	///
 	/// Boucle du menu.
 	///
-	void MenuLoop( void );
+	void MenuLoop(void);
 
 	///
 	/// Boucle du menu (moniteur)
 	///
-	void MonitorMenuLoop( void );
+	void MonitorMenuLoop(void);
 
 	///
 	/// Boucle du menu (app)
 	///
-	void AppMenuLoop( void );
+	void AppMenuLoop(void);
 
 	///
 	/// Execute a command.
 	///
 	/// \return true if the command was known.
 	///
-	Boolean ExecuteCommand( const char* inCommand );
+	Boolean ExecuteCommand(const char* inCommand);
 
 	///
 	/// Affiche l'aide (du menu)
 	///
-	void PrintHelp( void );
+	void PrintHelp(void);
 
 	///
 	/// Affiche une ligne (dans stdout ou via le moniteur)
 	///
-	void PrintLine( const char* inLine );
+	void PrintLine(const char* inLine);
 
 	/// \name Variables
-	const char*			mProgramName;		///< Nom du programme.
-	TROMImage*			mROMImage;			///< Image ROM.
-	TEmulator*			mEmulator;			///< Emulateur.
-	TSoundManager*		mSoundManager;		///< Gestionnaire de son.
-	TScreenManager*		mScreenManager;		///< Gestionnaire d'écran.
-	TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
-	TLog*				mLog;				///< Log.
-	TNetworkManager*	mNetworkManager;	///< network connection
-	Boolean				mQuit;				///< If we should quit.
+	const char* mProgramName; ///< Nom du programme.
+	TROMImage* mROMImage; ///< Image ROM.
+	TEmulator* mEmulator; ///< Emulateur.
+	TSoundManager* mSoundManager; ///< Gestionnaire de son.
+	TScreenManager* mScreenManager; ///< Gestionnaire d'écran.
+	TPlatformManager* mPlatformManager; ///< Reference to the platform manager.
+	TLog* mLog; ///< Log.
+	TNetworkManager* mNetworkManager; ///< network connection
+	Boolean mQuit; ///< If we should quit.
 
-	KUInt32				mNewtonID0, mNewtonID1;
+	KUInt32 mNewtonID0, mNewtonID1;
 };
 
 #endif

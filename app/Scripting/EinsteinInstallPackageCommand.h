@@ -29,12 +29,12 @@
 
 @interface EinsteinInstallPackageCommand : NSScriptCommand
 
--(id)performDefaultImplementation;
+- (id)performDefaultImplementation;
 
 @end
 
 #endif
-		// _EINSTEININSTALLPACKAGECOMMAND_H
+// _EINSTEININSTALLPACKAGECOMMAND_H
 
 // =================================================================== //
 // You can tell how far we have to go, when FORTRAN is the language of //

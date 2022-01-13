@@ -8,11 +8,9 @@
 
 #pragma once
 
-class TCocoaPathHelper {
+class TCocoaPathHelper
+{
 
-	public :
-
-		static std::string GetSerialPipeBasePath();
+public:
+	static std::string GetSerialPipeBasePath();
 };
-
-

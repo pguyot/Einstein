@@ -26,52 +26,52 @@
 // #define INCLUDE_TEMPLATE	"MyFile.h"
 // #include "IncludeRm.h"
 
-#define Rm	0
+#define Rm 0
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	1
+#define Rm 1
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	2
+#define Rm 2
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	3
+#define Rm 3
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	4
+#define Rm 4
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	5
+#define Rm 5
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	6
+#define Rm 6
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	7
+#define Rm 7
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	8
+#define Rm 8
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	9
+#define Rm 9
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	10
+#define Rm 10
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	11
+#define Rm 11
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	12
+#define Rm 12
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	13
+#define Rm 13
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	14
+#define Rm 14
 #include INCLUDE_TEMPLATE
 #undef Rm
-#define Rm	15
+#define Rm 15
 #include INCLUDE_TEMPLATE
 #undef Rm
 

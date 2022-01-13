@@ -24,22 +24,25 @@
 #import "TCocoaListenerWindow.h"
 #import "TCocoaFileManager.h"
 
-@interface TCocoaListenerWindow ()<NSTextViewDelegate> {
-	NSMutableString *_pendingInput;
+@interface
+TCocoaListenerWindow () <NSTextViewDelegate> {
+	NSMutableString* _pendingInput;
 }
 
-@property (assign) IBOutlet NSTextView *textView;
-@property (strong, nonatomic) NSDictionary *textAttributes;
+@property (assign) IBOutlet NSTextView* textView;
+@property (strong, nonatomic) NSDictionary* textAttributes;
 
 @end
 
 @implementation TCocoaListenerWindow
 
-- (instancetype) init {
+- (instancetype)init
+{
 	return [self initWithWindowNibName:NSStringFromClass([self class])];
 }
 
-- (void) dealloc {
+- (void)dealloc
+{
 	self.textAttributes = nil;
 	self.title = nil;
 
@@ -49,12 +52,13 @@
 #endif
 }
 
-- (void)windowDidLoad {
+- (void)windowDidLoad
+{
 	[super windowDidLoad];
-	
+
 	_pendingInput = [[NSMutableString alloc] init];
-	
-	NSTextView *textView = self.textView;
+
+	NSTextView* textView = self.textView;
 	textView.font = [NSFont fontWithName:@"Menlo-Regular" size:11];
 	// Yes, I set these in IB. But quote substiution was still YES for some reason...
 	textView.automaticQuoteSubstitutionEnabled = NO;
@@ -63,115 +67,129 @@
 	textView.automaticDashSubstitutionEnabled = NO;
 	textView.automaticTextReplacementEnabled = NO;
 	textView.automaticSpellingCorrectionEnabled = NO;
-	
+
 	self.textAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:textView.font, NSFontAttributeName, nil];
-	
+
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(windowWillClose:)
 												 name:NSWindowWillCloseNotification
 											   object:self.window];
 }
 
-- (IBAction) windowWillClose:(NSNotification *)aNotification {
+- (IBAction)windowWillClose:(NSNotification*)aNotification
+{
 	[[NSNotificationCenter defaultCenter] removeObserver:self
 													name:NSWindowWillCloseNotification
 												  object:self.window];
 
-	TCocoaFileManager *fileManager = self.fileManager;
+	TCocoaFileManager* fileManager = self.fileManager;
 	fileManager->listener_was_closed(self.newt_fdesc);
 }
 
-- (NSString *) windowTitleForDocumentDisplayName:(NSString *)displayName {
+- (NSString*)windowTitleForDocumentDisplayName:(NSString*)displayName
+{
 	return self.title;
 }
 
-- (void) setTitle:(NSString *)title {
+- (void)setTitle:(NSString*)title
+{
 	_title = title;
 	self.window.title = title;
 }
 
-- (void) appendString:(NSString *)string {
-	if ([NSThread isMainThread] == NO) {
+- (void)appendString:(NSString*)string
+{
+	if ([NSThread isMainThread] == NO)
+	{
 		[self performSelectorOnMainThread:_cmd
 							   withObject:string
 							waitUntilDone:NO];
 		return;
 	}
-	
-	NSTextView *textView = self.textView;
-	NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:string
+
+	NSTextView* textView = self.textView;
+	NSAttributedString* attrString = [[NSAttributedString alloc] initWithString:string
 																	 attributes:self.textAttributes];
 	[textView.textStorage appendAttributedString:attrString];
 #if !__has_feature(objc_arc)
 	[attrString autorelease];
 #endif
-	
+
 	// XXX: Be smarter. If the user has scrolled away, don't scroll back to the bottom
 	[textView scrollToEndOfDocument:self];
 }
 
-- (BOOL)textView:(NSTextView *)textView shouldChangeTextInRange:(NSRange)affectedCharRange replacementString:(NSString *)replacementString;
+- (BOOL)textView:(NSTextView*)textView shouldChangeTextInRange:(NSRange)affectedCharRange replacementString:(NSString*)replacementString;
 {
-	if (NSMaxRange(affectedCharRange) == [self.textView.textStorage length]) {
+	if (NSMaxRange(affectedCharRange) == [self.textView.textStorage length])
+	{
 		BOOL shouldNotify = NO;
 		BOOL shouldAccept = NO;
-		@synchronized(_pendingInput) {
-			if ([replacementString length] == 0) {
+		@synchronized(_pendingInput)
+		{
+			if ([replacementString length] == 0)
+			{
 				NSRange deletionRange;
 				deletionRange.length = MIN(affectedCharRange.length, _pendingInput.length);
-				if (deletionRange.length > 0) {
+				if (deletionRange.length > 0)
+				{
 					deletionRange.location = _pendingInput.length - deletionRange.length;
 					[_pendingInput deleteCharactersInRange:deletionRange];
 					shouldAccept = YES;
 				}
-			}
-			else {
-				[_pendingInput appendString: replacementString];
+			} else
+			{
+				[_pendingInput appendString:replacementString];
 				shouldAccept = YES;
 			}
-			
+
 			shouldNotify = ([_pendingInput rangeOfString:@"\n"].location != NSNotFound);
 		}
-		
-		if (shouldNotify == YES) {
-			TCocoaFileManager *fileManager = self.fileManager;
+
+		if (shouldNotify == YES)
+		{
+			TCocoaFileManager* fileManager = self.fileManager;
 			fileManager->set_listener_has_input(self.newt_fdesc, true);
 		}
 
 		return shouldAccept;
 	}
-	
+
 	NSRange range = { [[textView string] length], 0 };
-	if ([replacementString length] == 0) {
+	if ([replacementString length] == 0)
+	{
 		// we won't allow you to delete text in the middle...
 		// but we'll still want to move the cursor to the end
-	}
-	else {
+	} else
+	{
 		// But inserting text, we'll allow it, but have to move to
 		// the end of the text
 		[textView insertText:replacementString replacementRange:range];
 		range.location += [replacementString length];
 	}
-	
-	[textView setSelectedRange: range];
+
+	[textView setSelectedRange:range];
 	return NO;
 }
 
-- (KSInt32) writeInputIntoBuffer:(void *)buffer
-					   maxLength:(KUInt32)maxLength
+- (KSInt32)writeInputIntoBuffer:(void*)buffer
+					  maxLength:(KUInt32)maxLength
 {
 	NSUInteger availableData = 0;
-	@synchronized(_pendingInput) {
+	@synchronized(_pendingInput)
+	{
 		availableData = [_pendingInput length];
 	}
-	
-	if (availableData == 0) {
+
+	if (availableData == 0)
+	{
 		return 0;
 	}
-	
+
 	NSUInteger readLength = MIN(maxLength - 1, availableData);
-	@synchronized(_pendingInput) {
-		NSRange leftover = NSMakeRange(NSNotFound,0);
+	@synchronized(_pendingInput)
+	{
+		NSRange leftover = NSMakeRange(NSNotFound, 0);
 		[_pendingInput getBytes:buffer
 					  maxLength:maxLength
 					 usedLength:&readLength
@@ -180,16 +198,18 @@
 						  range:NSMakeRange(0, readLength)
 				 remainingRange:&leftover];
 
-		if (leftover.location != NSNotFound) {
+		if (leftover.location != NSNotFound)
+		{
 			[_pendingInput deleteCharactersInRange:NSMakeRange(0, leftover.location)];
 		}
 	}
-	
-	if (availableData == readLength) {
-		TCocoaFileManager *fileManager = self.fileManager;
+
+	if (availableData == readLength)
+	{
+		TCocoaFileManager* fileManager = self.fileManager;
 		fileManager->set_listener_has_input(self.newt_fdesc, false);
 	}
-	
+
 	return (KSInt32) readLength + 1;
 }
 

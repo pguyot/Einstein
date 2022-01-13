@@ -27,11 +27,11 @@ class TCocoaFileManager;
 
 @interface TCocoaListenerWindow : NSWindowController
 
-@property (strong, nonatomic) NSString *title;
+@property (strong, nonatomic) NSString* title;
 @property (assign) uint32_t newt_fdesc;
-@property (assign) TCocoaFileManager *fileManager;
+@property (assign) TCocoaFileManager* fileManager;
 
-- (void) appendString:(NSString *)string;
-- (KSInt32) writeInputIntoBuffer:(void *)buffer
-					   maxLength:(KUInt32)maxLength;
+- (void)appendString:(NSString*)string;
+- (KSInt32)writeInputIntoBuffer:(void*)buffer
+					  maxLength:(KUInt32)maxLength;
 @end

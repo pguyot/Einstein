@@ -42,8 +42,7 @@ class TCircleBuffer;
 /// \test	aucun test défini.
 ///
 class TCoreAudioSoundManager
-	:
-		public TBufferedSoundManager
+		: public TBufferedSoundManager
 {
 public:
 	///
@@ -51,7 +50,7 @@ public:
 	///
 	/// \param inLog				log interface (can be null)
 	///
-	TCoreAudioSoundManager( TLog* inLog = nullptr );
+	TCoreAudioSoundManager(TLog* inLog = nullptr);
 
 	///
 	/// Destructor.
@@ -61,7 +60,7 @@ public:
 	///
 	/// Schedule output of some buffer.
 	///
-	void ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize ) override;
+	void ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize) override;
 
 	///
 	/// Start output.
@@ -78,68 +77,64 @@ public:
 	///
 	Boolean OutputIsRunning() override;
 
-    ///
-    /// Method called to signal a change in the output volume.
-    ///
-    void OutputVolumeChanged() override;
+	///
+	/// Method called to signal a change in the output volume.
+	///
+	void OutputVolumeChanged() override;
 
 private:
 	///
 	/// Render callback (static).
 	///
-	static OSStatus	SRenderCallback(
-						void* inRefCon,
-						AudioUnitRenderActionFlags* ioActionFlags,
-						const AudioTimeStamp* inTimeStamp,
-						UInt32 inBusNumber,
-						UInt32 inNumberFrames,
-						AudioBufferList* ioData )
-		{
-			return ((TCoreAudioSoundManager*) inRefCon)->RenderCallback(
-							ioActionFlags,
-							inTimeStamp,
-							inBusNumber,
-							inNumberFrames,
-							ioData );
-		}
+	static OSStatus
+	SRenderCallback(
+		void* inRefCon,
+		AudioUnitRenderActionFlags* ioActionFlags,
+		const AudioTimeStamp* inTimeStamp,
+		UInt32 inBusNumber,
+		UInt32 inNumberFrames,
+		AudioBufferList* ioData)
+	{
+		return ((TCoreAudioSoundManager*) inRefCon)->RenderCallback(ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames, ioData);
+	}
 
 	///
 	/// Render callback.
 	///
-	OSStatus	RenderCallback(
-						AudioUnitRenderActionFlags* ioActionFlags,
-						const AudioTimeStamp* inTimeStamp,
-						UInt32 inBusNumber,
-						UInt32 inNumberFrames,
-						AudioBufferList* ioData );
+	OSStatus RenderCallback(
+		AudioUnitRenderActionFlags* ioActionFlags,
+		const AudioTimeStamp* inTimeStamp,
+		UInt32 inBusNumber,
+		UInt32 inNumberFrames,
+		AudioBufferList* ioData);
 
 	///
 	/// Create the AudioUnit.
 	///
-	void		CreateDefaultAU( void );
+	void CreateDefaultAU(void);
 
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TCoreAudioSoundManager( const TCoreAudioSoundManager& inCopy );
+	TCoreAudioSoundManager(const TCoreAudioSoundManager& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TCoreAudioSoundManager& operator = ( const TCoreAudioSoundManager& inCopy );
+	TCoreAudioSoundManager& operator=(const TCoreAudioSoundManager& inCopy);
 
 	/// \name Variables
-	TCircleBuffer*		mOutputBuffer;	///< Output buffer.
-	TMutex*				mDataMutex;		///< Mutex on shared structures.
-	AudioUnit			mOutputUnit;	///< Output unit.
+	TCircleBuffer* mOutputBuffer; ///< Output buffer.
+	TMutex* mDataMutex; ///< Mutex on shared structures.
+	AudioUnit mOutputUnit; ///< Output unit.
 };
 
 #endif
-		// _TCOREAUDIOSOUNDMANAGER_H
+// _TCOREAUDIOSOUNDMANAGER_H
 
 // ========================================================================== //
 //         Something mysterious is formed, born in the silent void.  Waiting  //

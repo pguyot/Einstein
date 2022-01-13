@@ -76,24 +76,24 @@ public:
 	/// \param	inLineNumber	numéro de ligne
 	///
 	TMonitorMethodClient(
-					TFunctionMonitor* inMonitor,
-					const char* inFileName,
-					unsigned int inLineNumber );
+		TFunctionMonitor* inMonitor,
+		const char* inFileName,
+		unsigned int inLineNumber);
 
 	///
 	/// Destructeur.
 	///
-	~TMonitorMethodClient( void );
+	~TMonitorMethodClient(void);
 
 private:
-	TFunctionMonitor*	mMonitor;		///< objet moniteur, prévenu du
-										///< début et de la fin
-	const char*			mFileName;		///< nom du fichier
-	const unsigned int	mLineNumber;	///< numéro de ligne
+	TFunctionMonitor* mMonitor; ///< objet moniteur, prévenu du
+								///< début et de la fin
+	const char* mFileName; ///< nom du fichier
+	const unsigned int mLineNumber; ///< numéro de ligne
 };
 
 #endif
-		// __TMONITORMETHODCLIENT__
+// __TMONITORMETHODCLIENT__
 
 // ======================================================================= //
 // Around computers it is difficult to find the correct unit of time to    //

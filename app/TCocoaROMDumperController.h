@@ -29,17 +29,17 @@
 #include <netinet/in.h>
 
 enum {
-	kIPSetNone		= 0x0,
-	kIPSetOctet1	= 0x1,
-	kIPSetOctet2	= 0x2,
-	kIPSetOctet3	= 0x4,
-	kIPSetOctet4	= 0x8,
-	kIPSetAll		= 0xF
+	kIPSetNone = 0x0,
+	kIPSetOctet1 = 0x1,
+	kIPSetOctet2 = 0x2,
+	kIPSetOctet3 = 0x4,
+	kIPSetOctet4 = 0x8,
+	kIPSetAll = 0xF
 };
 
 enum {
-	kROMDumperPort	= 10080,
-	kROMSize		= 8 * 1024 * 1024
+	kROMDumperPort = 10080,
+	kROMSize = 8 * 1024 * 1024
 };
 
 @class TCocoaSetupController;
@@ -52,8 +52,7 @@ enum {
 ///
 /// \test	aucun test défini.
 ///
-@interface TCocoaROMDumperController : NSObject
-{
+@interface TCocoaROMDumperController : NSObject {
 	IBOutlet NSWindow* mDumpROMPanel;
 	IBOutlet NSTextField* mIP1;
 	IBOutlet NSTextField* mIP2;
@@ -64,15 +63,15 @@ enum {
 	IBOutlet NSUserDefaultsController* mUserDefaultsController;
 	IBOutlet TCocoaSetupController* mSetupController;
 
-	in_addr_t	mIP;			// IP address
-	int			mIPSet;			// If the IP address is set.
-	int			mSocket;		// Socket fd.
-	int			mSocketPair[2];	// Pair to handle cancellation.
-	BOOL		mRunning;		// If we're running.
-	int			mROMFileFd;		// ROM File fd.
-	NSString*	mROMFilePath;	// Path of the ROM file.
-	int			mROMSize;		// Amount downloaded so far.
-	NSRunLoop*	mRunLoop;		// Boucle d'exécution courante.
+	in_addr_t mIP; // IP address
+	int mIPSet; // If the IP address is set.
+	int mSocket; // Socket fd.
+	int mSocketPair[2]; // Pair to handle cancellation.
+	BOOL mRunning; // If we're running.
+	int mROMFileFd; // ROM File fd.
+	NSString* mROMFilePath; // Path of the ROM file.
+	int mROMSize; // Amount downloaded so far.
+	NSRunLoop* mRunLoop; // Boucle d'exécution courante.
 };
 
 // init
@@ -85,28 +84,28 @@ enum {
 - (void)awakeFromNib;
 
 // Actions.
-- (IBAction) startStopAction:(id) sender;
-- (IBAction) updateIPField:(id) sender;
+- (IBAction)startStopAction:(id)sender;
+- (IBAction)updateIPField:(id)sender;
 
 // Utilities.
-- (void) errorMessage:(NSString*) message
-			withInformativeText:(NSString*) informativeText;
-- (void) setRunning:(BOOL) running;
-- (NSInvocation*) createInvocationWithTarget: (id) inTarget
-								withSelector: (SEL) inSelector;
-- (void) addDeferredSend:(SEL)message;
-- (void) reportProgress;
-- (void) reportError;
-- (void) reportEnd;
-- (void) performDump;
-- (void) cleanUp;
+- (void)errorMessage:(NSString*)message
+	withInformativeText:(NSString*)informativeText;
+- (void)setRunning:(BOOL)running;
+- (NSInvocation*)createInvocationWithTarget:(id)inTarget
+							   withSelector:(SEL)inSelector;
+- (void)addDeferredSend:(SEL)message;
+- (void)reportProgress;
+- (void)reportError;
+- (void)reportEnd;
+- (void)performDump;
+- (void)cleanUp;
 
 // Delegation
-- (BOOL) windowShouldClose:(id)sender;
+- (BOOL)windowShouldClose:(id)sender;
 @end
 
 #endif
-		// _TCOCOAROMDUMPERCONTROLLER_H
+// _TCOCOAROMDUMPERCONTROLLER_H
 
 // =================================== //
 // Thrashing is just virtual crashing. //

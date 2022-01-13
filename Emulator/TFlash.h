@@ -27,8 +27,8 @@
 #include <K/Defines/KDefinitions.h>
 
 // POSIX & ANSI C
-#include <stdio.h>
 #include <limits.h>
+#include <stdio.h>
 
 // K
 #include <K/Misc/TMappedFile.h>
@@ -51,12 +51,12 @@ public:
 	///
 	/// Constructor from the rom, the log and a path.
 	///
-	TFlash( TLog* inLog, const char* inPath, TROMImage* inROMImage );
+	TFlash(TLog* inLog, const char* inPath, TROMImage* inROMImage);
 
 	///
 	/// Destructor.
 	///
-	~TFlash( void );
+	~TFlash(void);
 
 	///
 	/// Write to flash.
@@ -66,11 +66,11 @@ public:
 	/// \param inOffset		offset of word to read (in bank).
 	/// \param inBank		bank.
 	///
-	void		Write(
-					KUInt32 inWord,
-					KUInt32 inMask,
-					KUInt32 inOffset,
-					KUInt32 inBank );
+	void Write(
+		KUInt32 inWord,
+		KUInt32 inMask,
+		KUInt32 inOffset,
+		KUInt32 inBank);
 
 	///
 	/// Erase flash (write FF)
@@ -79,10 +79,10 @@ public:
 	/// \param inBlockSize  number of bytes to erase (block size).
 	/// \return true if the address couldn't be accessed for writing.
 	///
-	void		Erase(
-					KUInt32 inBlockSize,
-					KUInt32 inOffset,
-					KUInt32 inBank );
+	void Erase(
+		KUInt32 inBlockSize,
+		KUInt32 inOffset,
+		KUInt32 inBank);
 
 	///
 	/// Read flash.
@@ -90,9 +90,9 @@ public:
 	/// \param inOffset		offset of word to read (in bank).
 	/// \param inBank		bank.
 	///
-	KUInt32		Read(
-					KUInt32 inOffset,
-					KUInt32 inBank );
+	KUInt32 Read(
+		KUInt32 inOffset,
+		KUInt32 inBank);
 
 	///
 	/// Read a byte from flash.
@@ -100,36 +100,36 @@ public:
 	/// \param inOffset		offset of byte to read (in bank).
 	/// \param inBank		bank.
 	///
-	KUInt8		ReadB(
-					KUInt32 inOffset,
-					KUInt32 inBank );
+	KUInt8 ReadB(
+		KUInt32 inOffset,
+		KUInt32 inBank);
 
 	///
 	/// Save or restor the state to or from a stream.
 	///
-	void		TransferState( TStream* inStream );
+	void TransferState(TStream* inStream);
 
 	///
 	/// Save flash to the flash file.
 	///
-	void		Save( void ) const;
+	void Save(void) const;
 
 	///
 	/// Power flash on.
 	///
-	void		PowerOn( void ) const;
+	void PowerOn(void) const;
 
 	///
 	/// Power flash off.
 	///
-	void		PowerOff( void ) const;
+	void PowerOff(void) const;
 
 	///
 	/// Additional constants related to the memory space.
 	///
 	enum {
-		kFlashBank1Size		= 0x00400000,	///< Size of internal store (bank#1) (4MB)
-		kFlashBank2Size		= 0x00400000	///< Size of internal store (bank#2) (4MB)
+		kFlashBank1Size = 0x00400000, ///< Size of internal store (bank#1) (4MB)
+		kFlashBank2Size = 0x00400000 ///< Size of internal store (bank#2) (4MB)
 	};
 
 private:
@@ -138,23 +138,23 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TFlash( const TFlash& inCopy );
+	TFlash(const TFlash& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TFlash& operator = ( const TFlash& inCopy );
+	TFlash& operator=(const TFlash& inCopy);
 
 	/// \name Variables
-	TLog*				mLog;					///< Interface to the log.
-	TMappedFile			mFlashFile;				///< Flash file.
-	KUInt8*				mFlash;					///< Flash buffer.
+	TLog* mLog; ///< Interface to the log.
+	TMappedFile mFlashFile; ///< Flash file.
+	KUInt8* mFlash; ///< Flash buffer.
 };
 
 #endif
-		// _TFLASH_H
+// _TFLASH_H
 
 // =================================================== //
 // Staff meeting in the conference room in %d minutes. //

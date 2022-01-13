@@ -35,17 +35,17 @@ class TMacMonitor : public TMonitor
 {
 public:
 	TMacMonitor(
-			TBufferLog* inLog,
-			TEmulator* inEmulator,
-			TSymbolList* inSymbolList,
-			const char *inROMPath );
+		TBufferLog* inLog,
+		TEmulator* inEmulator,
+		TSymbolList* inSymbolList,
+		const char* inROMPath);
 
-	virtual ~TMacMonitor( void );
+	virtual ~TMacMonitor(void);
 
-	virtual void PrintLine(const char *inLine, int type);
-	void SetController(TCocoaMonitorController *inController);
+	virtual void PrintLine(const char* inLine, int type);
+	void SetController(TCocoaMonitorController* inController);
 
-	Boolean ProcessBreakpoint( KUInt16 inBPID, KUInt32 inBPAddr );
+	Boolean ProcessBreakpoint(KUInt16 inBPID, KUInt32 inBPAddr);
 
 	NSString* GetAlarm();
 	NSString* GetCPSR();
@@ -64,8 +64,8 @@ public:
 	NSString* GetTimerMatchRegister(int rn);
 
 private:
-	TCocoaMonitorController *controller;
+	TCocoaMonitorController* controller;
 };
 
 #endif
-		// _TMACMONITOR_H
+// _TMACMONITOR_H

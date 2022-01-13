@@ -22,23 +22,22 @@
 // ==============================
 
 #define MSR_TemplateName(mode, flag_r, fields_mask, rm) \
-	DataProcessingTranfer_MSR_ ## mode ## _ ## flag_r ## _ ## fields_mask ## _ ## rm
+	DataProcessingTranfer_MSR_##mode##_##flag_r##_##fields_mask##_##rm
 
 #define MSR_Proto(mode, flag_r, fields_mask, rm) \
-		JITUnit* MSR_TemplateName(mode, flag_r, fields_mask, rm) \
-			(JITUnit* ioUnit, TARMProcessor* ioCPU)
+	JITUnit* MSR_TemplateName(mode, flag_r, fields_mask, rm)(JITUnit * ioUnit, TARMProcessor * ioCPU)
 #if DECLARATION
-	#define MSR(mode, flag_r, fields_mask, rm) \
-		MSR_Proto(mode, flag_r, fields_mask, rm);
+#define MSR(mode, flag_r, fields_mask, rm) \
+	MSR_Proto(mode, flag_r, fields_mask, rm);
 #endif
 #if IMPLEMENTATION
-	#define MSR(mode, flag_r, fields_mask, rm) \
-		MSR_Proto(mode, flag_r, fields_mask, rm)
+#define MSR(mode, flag_r, fields_mask, rm) \
+	MSR_Proto(mode, flag_r, fields_mask, rm)
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_MSR_template.h"
 
-#define FLAG_R	0
+#define FLAG_R 0
 #define MODE Imm
 #include "IncludeMask.h"
 #undef MODE
@@ -46,7 +45,7 @@
 #include "IncludeMaskRm.h"
 #undef MODE
 #undef FLAG_R
-#define FLAG_R	1
+#define FLAG_R 1
 #define MODE Imm
 #include "IncludeMask.h"
 #undef MODE

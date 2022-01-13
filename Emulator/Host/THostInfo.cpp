@@ -27,24 +27,24 @@
 #if TARGET_OS_OPENSTEP
 #ifdef TARGET_IOS
 #else
-	#include <CoreFoundation/CoreFoundation.h>
-	#include <CoreServices/CoreServices.h>
-	#include <AddressBook/AddressBook.h>
+#include <AddressBook/AddressBook.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreServices/CoreServices.h>
 #endif
 #endif
 
 // ANSI C & POSIX
-#include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
 #if TARGET_OS_WIN32
-	#include <windows.h>
-	#include <time.h>
+#include <time.h>
+#include <windows.h>
 #else
-	#include <unistd.h>
-	#include <sys/time.h>
-	#include <pwd.h>
+#include <pwd.h>
+#include <sys/time.h>
+#include <unistd.h>
 #endif
 
 // K
@@ -59,22 +59,21 @@ const THostInfo* THostInfo::kHostInfo = new THostInfo();
 // -------------------------------------------------------------------------- //
 //  * THostInfo( void )
 // -------------------------------------------------------------------------- //
-THostInfo::THostInfo( void )
-	:
-		mUserFirstName( nil ),
-		mUserLastName( nil ),
-		mUserCompany( nil ),
-		mUserAddr( nil ),
-		mUserAddr2( nil ),
-		mUserPostalCode( nil ),
-		mUserCity( nil ),
-		mUserRegion( nil ),
-		mUserCountry( nil ),
-		mUserCountryISOCode( nil ),
-		mUserHomePhone( nil ),
-		mUserHomeFaxPhone( nil ),
-		mUserWorkPhone( nil ),
-		mUserWorkFaxPhone( nil )
+THostInfo::THostInfo(void) :
+		mUserFirstName(nil),
+		mUserLastName(nil),
+		mUserCompany(nil),
+		mUserAddr(nil),
+		mUserAddr2(nil),
+		mUserPostalCode(nil),
+		mUserCity(nil),
+		mUserRegion(nil),
+		mUserCountry(nil),
+		mUserCountryISOCode(nil),
+		mUserHomePhone(nil),
+		mUserHomeFaxPhone(nil),
+		mUserWorkPhone(nil),
+		mUserWorkFaxPhone(nil)
 {
 	// Fill the first and the last name of the user.
 	RetrieveUserInfo();
@@ -86,76 +85,76 @@ THostInfo::THostInfo( void )
 // -------------------------------------------------------------------------- //
 //  * ~THostInfo( void )
 // -------------------------------------------------------------------------- //
-THostInfo::~THostInfo( void )
+THostInfo::~THostInfo(void)
 {
 	if (mUserFirstName)
 	{
-		::free( (KUInt16*) mUserFirstName );
+		::free((KUInt16*) mUserFirstName);
 	}
 
 	if (mUserLastName)
 	{
-		::free( (KUInt16*) mUserLastName );
+		::free((KUInt16*) mUserLastName);
 	}
 
 	if (mUserCompany)
 	{
-		::free( (KUInt16*) mUserCompany );
+		::free((KUInt16*) mUserCompany);
 	}
 
 	if (mUserAddr)
 	{
-		::free( (KUInt16*) mUserAddr );
+		::free((KUInt16*) mUserAddr);
 	}
 
 	if (mUserAddr2)
 	{
-		::free( (KUInt16*) mUserAddr2 );
+		::free((KUInt16*) mUserAddr2);
 	}
 
 	if (mUserPostalCode)
 	{
-		::free( (KUInt16*) mUserPostalCode );
+		::free((KUInt16*) mUserPostalCode);
 	}
 
 	if (mUserCity)
 	{
-		::free( (KUInt16*) mUserCity );
+		::free((KUInt16*) mUserCity);
 	}
 
 	if (mUserRegion)
 	{
-		::free( (KUInt16*) mUserRegion );
+		::free((KUInt16*) mUserRegion);
 	}
 
 	if (mUserCountry)
 	{
-		::free( (KUInt16*) mUserCountry );
+		::free((KUInt16*) mUserCountry);
 	}
 
 	if (mUserCountryISOCode)
 	{
-		::free( (KUInt16*) mUserCountryISOCode );
+		::free((KUInt16*) mUserCountryISOCode);
 	}
 
 	if (mUserHomePhone)
 	{
-		::free( (KUInt16*) mUserHomePhone );
+		::free((KUInt16*) mUserHomePhone);
 	}
 
 	if (mUserHomeFaxPhone)
 	{
-		::free( (KUInt16*) mUserHomeFaxPhone );
+		::free((KUInt16*) mUserHomeFaxPhone);
 	}
 
 	if (mUserWorkPhone)
 	{
-		::free( (KUInt16*) mUserWorkPhone );
+		::free((KUInt16*) mUserWorkPhone);
 	}
 
 	if (mUserWorkFaxPhone)
 	{
-		::free( (KUInt16*) mUserWorkFaxPhone );
+		::free((KUInt16*) mUserWorkFaxPhone);
 	}
 }
 
@@ -163,7 +162,7 @@ THostInfo::~THostInfo( void )
 //  * GetUserInfo( void )
 // -------------------------------------------------------------------------- //
 const KUInt16*
-THostInfo::GetUserInfo( EUserInfoSel inSelector ) const
+THostInfo::GetUserInfo(EUserInfoSel inSelector) const
 {
 	switch (inSelector)
 	{
@@ -217,7 +216,7 @@ THostInfo::GetUserInfo( EUserInfoSel inSelector ) const
 //  * GetHostTimeZone( void )
 // -------------------------------------------------------------------------- //
 int
-THostInfo::GetHostTimeZone( void ) const
+THostInfo::GetHostTimeZone(void) const
 {
 #if TARGET_OS_OPENSTEP
 	// MacOS X:
@@ -225,7 +224,7 @@ THostInfo::GetHostTimeZone( void ) const
 	// the kernel.
 	// So I'll use CFTimeZone.
 	CFTimeZoneRef theTZ = CFTimeZoneCopyDefault();
-	CFTimeInterval theDelta =  CFTimeZoneGetSecondsFromGMT(
+	CFTimeInterval theDelta = CFTimeZoneGetSecondsFromGMT(
 		theTZ, CFAbsoluteTimeGetCurrent());
 	CFRelease(theTZ);
 	return (int) theDelta;
@@ -233,7 +232,7 @@ THostInfo::GetHostTimeZone( void ) const
 	// Timezone is returned in hours.
 	long seconds = 0;
 	_get_timezone(&seconds);
-	return seconds*3600;
+	return seconds * 3600;
 #else
 	// Use gettimeofday.
 	// Cygwin crashes if we give NULL for first parameter.
@@ -242,7 +241,8 @@ THostInfo::GetHostTimeZone( void ) const
 	if (::gettimeofday(&theTime, &theTZ) == 0)
 	{
 		return theTZ.tz_minuteswest * 60;
-	} else {
+	} else
+	{
 		return 0;
 	}
 #endif
@@ -252,13 +252,14 @@ THostInfo::GetHostTimeZone( void ) const
 //  * RetrieveUserInfo( void )
 // -------------------------------------------------------------------------- //
 void
-THostInfo::RetrieveUserInfo( void )
+THostInfo::RetrieveUserInfo(void)
 {
-	do {
+	do
+	{
 #if TARGET_OS_WIN32
-          // do nothing
+		// do nothing
 #elif TARGET_OS_ANDROID
-          // do nothing
+		// do nothing
 #else
 #if TARGET_OS_OPENSTEP
 #ifdef TARGET_IOS
@@ -269,51 +270,47 @@ THostInfo::RetrieveUserInfo( void )
 		// - Carbon access to the full name
 
 		ABAddressBookRef theABRef = ABGetSharedAddressBook();
-		ABPersonRef theUserRef = ABGetMe( theABRef );
+		ABPersonRef theUserRef = ABGetMe(theABRef);
 		if (theUserRef)
 		{
 			// Good. User has a card.
 			// It's what we'll use for all info.
-			CFStringRef theInfo =
-				(CFStringRef) ABRecordCopyValue(
-					theUserRef, kABFirstNameProperty );
+			CFStringRef theInfo = (CFStringRef) ABRecordCopyValue(
+				theUserRef, kABFirstNameProperty);
 			if (theInfo)
 			{
-				mUserFirstName = ConvertCFString( theInfo );
+				mUserFirstName = ConvertCFString(theInfo);
 				CFRelease(theInfo);
 			}
 
 			// Try the last name now.
-			theInfo =
-				(CFStringRef) ABRecordCopyValue(
-					theUserRef, kABLastNameProperty );
+			theInfo = (CFStringRef) ABRecordCopyValue(
+				theUserRef, kABLastNameProperty);
 			if (theInfo)
 			{
-				mUserLastName = ConvertCFString( theInfo );
+				mUserLastName = ConvertCFString(theInfo);
 				CFRelease(theInfo);
 			}
 
-			theInfo =
-				(CFStringRef) ABRecordCopyValue(
-					theUserRef, kABOrganizationProperty );
+			theInfo = (CFStringRef) ABRecordCopyValue(
+				theUserRef, kABOrganizationProperty);
 			if (theInfo)
 			{
-				mUserCompany = ConvertCFString( theInfo );
+				mUserCompany = ConvertCFString(theInfo);
 				CFRelease(theInfo);
 			}
 
-			ABMultiValueRef theAddresses =
-				(ABMultiValueRef) ABRecordCopyValue(
-					theUserRef, kABAddressProperty );
+			ABMultiValueRef theAddresses = (ABMultiValueRef) ABRecordCopyValue(
+				theUserRef, kABAddressProperty);
 			if (theAddresses && (ABMultiValueCount(theAddresses) > 0))
 			{
 				// Pick the primary one, work or home, we don't care.
 				CFIndex index;
 				{
 					CFStringRef primaryId = ABMultiValueCopyPrimaryIdentifier(
-						theAddresses );
+						theAddresses);
 					index = ABMultiValueIndexForIdentifier(
-						theAddresses, primaryId );
+						theAddresses, primaryId);
 					CFRelease(primaryId);
 				}
 
@@ -327,33 +324,32 @@ THostInfo::RetrieveUserInfo( void )
 				{
 					// If there is a new line, split the string.
 					CFRange theRange = CFStringFind(
-											theInfo,
-											CFSTR("\n"),
-											0 );
+						theInfo,
+						CFSTR("\n"),
+						0);
 					if (theRange.length > 0)
 					{
-						CFIndex theLength = CFStringGetLength( theInfo );
+						CFIndex theLength = CFStringGetLength(theInfo);
 						CFIndex theLocation = theRange.location;
 						theRange.length = theLocation;
 						theRange.location = 0;
-						CFStringRef theAddress1 =
-							CFStringCreateWithSubstring(
-								kCFAllocatorDefault,
-								theInfo,
-								theRange );
+						CFStringRef theAddress1 = CFStringCreateWithSubstring(
+							kCFAllocatorDefault,
+							theInfo,
+							theRange);
 						mUserAddr = ConvertCFString(theAddress1);
 						CFRelease(theAddress1);
 						theRange.length = theLength - theLocation - 1;
 						theRange.location = theLocation + 1;
-						CFStringRef theAddress2 =
-							CFStringCreateWithSubstring(
-								kCFAllocatorDefault,
-								theInfo,
-								theRange );
+						CFStringRef theAddress2 = CFStringCreateWithSubstring(
+							kCFAllocatorDefault,
+							theInfo,
+							theRange);
 						mUserAddr2 = ConvertCFString(theAddress2);
 						CFRelease(theAddress2);
-					} else {
-						mUserAddr = ConvertCFString( theInfo );
+					} else
+					{
+						mUserAddr = ConvertCFString(theInfo);
 					}
 				}
 
@@ -362,7 +358,7 @@ THostInfo::RetrieveUserInfo( void )
 
 				if (theInfo)
 				{
-					mUserCity = ConvertCFString( theInfo );
+					mUserCity = ConvertCFString(theInfo);
 				}
 
 				theInfo = (CFStringRef) CFDictionaryGetValue(
@@ -370,7 +366,7 @@ THostInfo::RetrieveUserInfo( void )
 
 				if (theInfo)
 				{
-					mUserPostalCode = ConvertCFString( theInfo );
+					mUserPostalCode = ConvertCFString(theInfo);
 				}
 
 				theInfo = (CFStringRef) CFDictionaryGetValue(
@@ -378,7 +374,7 @@ THostInfo::RetrieveUserInfo( void )
 
 				if (theInfo)
 				{
-					mUserRegion = ConvertCFString( theInfo );
+					mUserRegion = ConvertCFString(theInfo);
 				}
 
 				theInfo = (CFStringRef) CFDictionaryGetValue(
@@ -386,34 +382,34 @@ THostInfo::RetrieveUserInfo( void )
 
 				if (theInfo)
 				{
-					mUserCountry = ConvertCFString( theInfo );
+					mUserCountry = ConvertCFString(theInfo);
 				}
 
 				theInfo = (CFStringRef) CFDictionaryGetValue(
-					theAddress, kABAddressCountryCodeKey );
+					theAddress, kABAddressCountryCodeKey);
 
 				if (theInfo)
 				{
-					mUserCountryISOCode = ConvertCFString( theInfo );
+					mUserCountryISOCode = ConvertCFString(theInfo);
 				}
 
 				CFRelease(theAddress);
 			}
-			if (theAddresses) {
+			if (theAddresses)
+			{
 				CFRelease(theAddresses);
 			}
 
-			ABMultiValueRef thePhones =
-				(ABMultiValueRef) ABRecordCopyValue(
-					theUserRef, kABPhoneProperty );
+			ABMultiValueRef thePhones = (ABMultiValueRef) ABRecordCopyValue(
+				theUserRef, kABPhoneProperty);
 			if (thePhones)
 			{
-				CFIndex nbPhones = ABMultiValueCount( thePhones );
+				CFIndex nbPhones = ABMultiValueCount(thePhones);
 				CFIndex indexPhones;
 				for (indexPhones = 0; indexPhones < nbPhones; indexPhones++)
 				{
 					CFStringRef theLabel = ABMultiValueCopyLabelAtIndex(
-						thePhones, indexPhones );
+						thePhones, indexPhones);
 					CFStringRef thePhone;
 
 					if ((mUserHomePhone == nil)
@@ -421,40 +417,43 @@ THostInfo::RetrieveUserInfo( void )
 							== kCFCompareEqualTo))
 					{
 						thePhone = (CFStringRef) ABMultiValueCopyValueAtIndex(
-									thePhones, indexPhones);
+							thePhones, indexPhones);
 						if (thePhone)
 						{
-							mUserHomePhone = ConvertCFString( thePhone );
+							mUserHomePhone = ConvertCFString(thePhone);
 							CFRelease(thePhone);
 						}
 					} else if ((mUserHomeFaxPhone == nil)
 						&& (CFStringCompare(theLabel, kABPhoneHomeFAXLabel, 0)
-							== kCFCompareEqualTo)) {
+							== kCFCompareEqualTo))
+					{
 						thePhone = (CFStringRef) ABMultiValueCopyValueAtIndex(
-									thePhones, indexPhones);
+							thePhones, indexPhones);
 						if (thePhone)
 						{
-							mUserHomeFaxPhone = ConvertCFString( thePhone );
+							mUserHomeFaxPhone = ConvertCFString(thePhone);
 							CFRelease(thePhone);
 						}
 					} else if ((mUserWorkPhone == nil)
 						&& (CFStringCompare(theLabel, kABPhoneWorkLabel, 0)
-							== kCFCompareEqualTo)) {
+							== kCFCompareEqualTo))
+					{
 						thePhone = (CFStringRef) ABMultiValueCopyValueAtIndex(
-									thePhones, indexPhones);
+							thePhones, indexPhones);
 						if (thePhone)
 						{
-							mUserWorkPhone = ConvertCFString( thePhone );
+							mUserWorkPhone = ConvertCFString(thePhone);
 							CFRelease(thePhone);
 						}
 					} else if ((mUserWorkFaxPhone == nil)
 						&& (CFStringCompare(theLabel, kABPhoneWorkFAXLabel, 0)
-							== kCFCompareEqualTo)) {
+							== kCFCompareEqualTo))
+					{
 						thePhone = (CFStringRef) ABMultiValueCopyValueAtIndex(
-									thePhones, indexPhones);
+							thePhones, indexPhones);
 						if (thePhone)
 						{
-							mUserWorkFaxPhone = ConvertCFString( thePhone );
+							mUserWorkFaxPhone = ConvertCFString(thePhone);
 							CFRelease(thePhone);
 						}
 					}
@@ -468,7 +467,7 @@ THostInfo::RetrieveUserInfo( void )
 			break;
 		}
 #endif
-    // NO_USER_PERMISSION
+		// NO_USER_PERMISSION
 #endif
 #endif
 
@@ -477,26 +476,27 @@ THostInfo::RetrieveUserInfo( void )
 		if (theLogin == NULL)
 		{
 			theUserPasswdStruct = getpwuid(getuid());
-		} else {
+		} else
+		{
 			theUserPasswdStruct = getpwnam(getlogin());
 		}
 		// Try pwent.
 		endpwent();
 		const char* theName = 0;
-		if (theUserPasswdStruct) {
+		if (theUserPasswdStruct)
+		{
 			theName = theUserPasswdStruct->pw_gecos;
-		} else {
+		} else
+		{
 			theName = "Isaac Newton";
 		}
 		int nameIndex = 0;
-		size_t theLength = ::strlen( theName );
-		mUserFirstName = (KUInt16*)
-			::malloc( (theLength + 1) * sizeof( KUInt16 ) );
+		size_t theLength = ::strlen(theName);
+		mUserFirstName = (KUInt16*) ::malloc((theLength + 1) * sizeof(KUInt16));
 		while (true)
 		{
 			KUInt16 theChar = theName[nameIndex];
-			((KUInt16*) mUserFirstName)[nameIndex] =
-				UByteSex_ToBigEndian(theChar);
+			((KUInt16*) mUserFirstName)[nameIndex] = UByteSex_ToBigEndian(theChar);
 
 			if (theChar == '\0')
 			{
@@ -508,16 +508,14 @@ THostInfo::RetrieveUserInfo( void )
 				// End of first name.
 				((KUInt16*) mUserFirstName)[nameIndex] = 0x0000;
 
-				mUserFirstName =
-					(KUInt16*) ::realloc(
-									(KUInt16*) mUserFirstName,
-									(nameIndex + 1) * sizeof(KUInt16) );
+				mUserFirstName = (KUInt16*) ::realloc(
+					(KUInt16*) mUserFirstName,
+					(nameIndex + 1) * sizeof(KUInt16));
 
 				// We process the last name.
-				theLength -= nameIndex;	// incl. null term.
-				mUserLastName =
-					(KUInt16*) ::malloc(
-						theLength * sizeof( KUInt16 ) );
+				theLength -= nameIndex; // incl. null term.
+				mUserLastName = (KUInt16*) ::malloc(
+					theLength * sizeof(KUInt16));
 
 				KUInt16* lastNameCrsr = (KUInt16*) mUserLastName;
 				do
@@ -540,19 +538,18 @@ THostInfo::RetrieveUserInfo( void )
 //  * ConvertCFString( CFStringRef )
 // -------------------------------------------------------------------------- //
 const KUInt16*
-THostInfo::ConvertCFString( CFStringRef inCFString )
+THostInfo::ConvertCFString(CFStringRef inCFString)
 {
 	// Allocate the string.
-	CFIndex theLength = CFStringGetLength( inCFString );
-	KUInt16* theResult =
-		(KUInt16*) ::malloc( (theLength + 1) * sizeof( KUInt16 ) );
+	CFIndex theLength = CFStringGetLength(inCFString);
+	KUInt16* theResult = (KUInt16*) ::malloc((theLength + 1) * sizeof(KUInt16));
 
 	// Copy the characters.
 	CFRange theRange;
 	theRange.location = 0;
 	theRange.length = theLength;
 
-	CFStringGetCharacters( inCFString, theRange, (UniChar*) theResult );
+	CFStringGetCharacters(inCFString, theRange, (UniChar*) theResult);
 
 	// Add the null terminator.
 	((KUInt16*) theResult)[theLength] = 0x0000;
@@ -560,7 +557,7 @@ THostInfo::ConvertCFString( CFStringRef inCFString )
 #if TARGET_RT_LITTLE_ENDIAN
 	// On little endian, swap the characters.
 	KUInt16* theCursor = theResult;
-	while (theLength-- > 0)	// No need to swap the null terminator.
+	while (theLength-- > 0) // No need to swap the null terminator.
 	{
 		KUInt16 theChar = UByteSex_ToBigEndian(*theCursor);
 		*theCursor = theChar;
@@ -576,103 +573,103 @@ THostInfo::ConvertCFString( CFStringRef inCFString )
 //  * FillNullInfoWithEmptyStrings( void )
 // -------------------------------------------------------------------------- //
 void
-THostInfo::FillNullInfoWithEmptyStrings( void )
+THostInfo::FillNullInfoWithEmptyStrings(void)
 {
 	if (!mUserFirstName)
 	{
 		mUserFirstName
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserFirstName)[0] = 0x0000;
 	}
 
 	if (!mUserLastName)
 	{
 		mUserLastName
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserLastName)[0] = 0x0000;
 	}
 
 	if (!mUserCompany)
 	{
 		mUserCompany
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserCompany)[0] = 0x0000;
 	}
 
 	if (!mUserAddr)
 	{
 		mUserAddr
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserAddr)[0] = 0x0000;
 	}
 
 	if (!mUserAddr2)
 	{
 		mUserAddr2
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserAddr2)[0] = 0x0000;
 	}
 
 	if (!mUserPostalCode)
 	{
 		mUserPostalCode
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserPostalCode)[0] = 0x0000;
 	}
 
 	if (!mUserCity)
 	{
 		mUserCity
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserCity)[0] = 0x0000;
 	}
 
 	if (!mUserRegion)
 	{
 		mUserRegion
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserRegion)[0] = 0x0000;
 	}
 
 	if (!mUserCountry)
 	{
 		mUserCountry
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserCountry)[0] = 0x0000;
 	}
 
 	if (!mUserCountryISOCode)
 	{
 		mUserCountryISOCode
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserCountryISOCode)[0] = 0x0000;
 	}
 
 	if (!mUserHomePhone)
 	{
 		mUserHomePhone
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserHomePhone)[0] = 0x0000;
 	}
 
 	if (!mUserHomeFaxPhone)
 	{
 		mUserHomeFaxPhone
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserHomeFaxPhone)[0] = 0x0000;
 	}
 
 	if (!mUserWorkPhone)
 	{
 		mUserWorkPhone
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserWorkPhone)[0] = 0x0000;
 	}
 
 	if (!mUserWorkFaxPhone)
 	{
 		mUserWorkFaxPhone
-			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
+			= (KUInt16*) ::malloc(sizeof(KUInt16));
 		((KUInt16*) mUserWorkFaxPhone)[0] = 0x0000;
 	}
 }

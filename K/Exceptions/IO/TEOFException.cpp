@@ -43,23 +43,22 @@
 // -------------------------------------------------------------------------- //
 //  * TEOFException( void )
 // -------------------------------------------------------------------------- //
-TEOFException::TEOFException( void )
+TEOFException::TEOFException(void)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * TEOFException( const char*, KUInt32 )
 // -------------------------------------------------------------------------- //
-TEOFException::TEOFException( const char* inFileName, KUInt32 inLine )
-	:
-		TIOException( inFileName, inLine )
+TEOFException::TEOFException(const char* inFileName, KUInt32 inLine) :
+		TIOException(inFileName, inLine)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TEOFException( void )
 // -------------------------------------------------------------------------- //
-TEOFException::~TEOFException( void ) throw ()
+TEOFException::~TEOFException(void) throw()
 {
 }
 

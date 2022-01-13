@@ -51,21 +51,21 @@
 class TStream
 {
 public:
-
 	///
 	/// Constructor
 	///
 	TStream() :
-		mVersion(0),
-		mIsReading(0),
-		mIsWriting(0)
+			mVersion(0),
+			mIsReading(0),
+			mIsWriting(0)
 	{
 	}
 
 	///
 	/// Destructor.
 	///
-	virtual ~TStream( void ) {
+	virtual ~TStream(void)
+	{
 		mVersion = 0;
 	}
 
@@ -81,7 +81,7 @@ public:
 	///						occurred.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		Read( void* outBuffer, KUInt32* ioCount ) = 0;
+	virtual void Read(void* outBuffer, KUInt32* ioCount) = 0;
 
 	///
 	/// Write some bytes.
@@ -93,14 +93,14 @@ public:
 	///						occurred.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		Write( const void* inBuffer, KUInt32* ioCount ) = 0;
+	virtual void Write(const void* inBuffer, KUInt32* ioCount) = 0;
 
 	///
 	/// Flush the output buffer.
 	///
 	/// \throws an exception if a problem occurred.
 	///
-	virtual void		FlushOutput( void ) = 0;
+	virtual void FlushOutput(void) = 0;
 
 	///
 	/// Get next byte without advancing the cursor.
@@ -108,7 +108,7 @@ public:
 	/// \return the byte read.
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	virtual	KUInt8		PeekByte( void ) = 0;
+	virtual KUInt8 PeekByte(void) = 0;
 
 	/// \name Utility functions
 
@@ -121,7 +121,7 @@ public:
 	/// \return the string, allocated with malloc(3).
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	virtual	KUInt8*		GetCString( KUInt32 inNbChars );
+	virtual KUInt8* GetCString(KUInt32 inNbChars);
 
 	///
 	/// Read 8 bits characters and stop once a null byte is encountered.
@@ -132,7 +132,7 @@ public:
 	/// \return the string, allocated with malloc(3).
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	virtual	KUInt8*		GetCString( void );
+	virtual KUInt8* GetCString(void);
 
 	///
 	/// Write a 8 bits character string (in C format) terminated by a null
@@ -141,7 +141,7 @@ public:
 	/// \param inString	the string to write.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		PutCString( const KUInt8* inString );
+	virtual void PutCString(const KUInt8* inString);
 
 	///
 	/// Write a 8 bits character string (in C format), without the terminating
@@ -150,7 +150,7 @@ public:
 	/// \param inString	the string to write.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		PutString( const char* inString );
+	virtual void PutString(const char* inString);
 
 	///
 	/// Read a unicode (UTF-8) string, terminated by a null character.
@@ -160,7 +160,7 @@ public:
 	/// \return the string is allocated with malloc(3).
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	virtual	KUInt16*	GetUniString( void );
+	virtual KUInt16* GetUniString(void);
 
 	///
 	/// Write a unicode (UTF-8) string, terminated by a null character.
@@ -168,7 +168,7 @@ public:
 	/// \param inString	the string to write.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		PutUniString( const KUInt16* inString );
+	virtual void PutUniString(const KUInt16* inString);
 
 	///
 	/// Read a 32 bits word (in native byte order).
@@ -176,7 +176,7 @@ public:
 	/// \return the word that was read.
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	virtual	KUInt32		GetInt32( void );
+	virtual KUInt32 GetInt32(void);
 
 	///
 	/// Read a 32 bits word (in big endian).
@@ -184,10 +184,11 @@ public:
 	/// \return the word that was read.
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	KUInt32				GetInt32BE( void )
-		{
-			return UByteSex_ToLittleEndian( GetInt32() );
-		}
+	KUInt32
+	GetInt32BE(void)
+	{
+		return UByteSex_ToLittleEndian(GetInt32());
+	}
 
 	///
 	/// Read a 32 bits word (in little endian).
@@ -195,10 +196,11 @@ public:
 	/// \return the word that was read.
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	KUInt32				GetInt32LE( void )
-		{
-			return UByteSex_FromLittleEndian( GetInt32() );
-		}
+	KUInt32
+	GetInt32LE(void)
+	{
+		return UByteSex_FromLittleEndian(GetInt32());
+	}
 
 	///
 	/// Write a 32 bits word (in native byte order).
@@ -206,7 +208,7 @@ public:
 	/// \param	inWord	the word to read.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		PutInt32( const KUInt32 inWord );
+	virtual void PutInt32(const KUInt32 inWord);
 
 	///
 	/// Write a 32 bits word (in big endian).
@@ -214,10 +216,11 @@ public:
 	/// \param	inWord	the word to read.
 	/// \throws an exception if a problem occurred.
 	///
-	void				PutInt32BE( const KUInt32 inWord )
-		{
-			PutInt32( UByteSex_ToBigEndian( inWord ) );
-		}
+	void
+	PutInt32BE(const KUInt32 inWord)
+	{
+		PutInt32(UByteSex_ToBigEndian(inWord));
+	}
 
 	///
 	/// Write a 32 bits word (in little endian).
@@ -225,10 +228,11 @@ public:
 	/// \param	inWord	the word to read.
 	/// \throws an exception if a problem occurred.
 	///
-	void				PutInt32LE( const KUInt32 inWord )
-		{
-			PutInt32( UByteSex_ToLittleEndian( inWord ) );
-		}
+	void
+	PutInt32LE(const KUInt32 inWord)
+	{
+		PutInt32(UByteSex_ToLittleEndian(inWord));
+	}
 
 	///
 	/// Read a 32 bits word in the XLong format.
@@ -238,7 +242,7 @@ public:
 	/// \return the word that was read.
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	virtual	KUInt32		GetXLong( void );
+	virtual KUInt32 GetXLong(void);
 
 	///
 	/// Write a 32 bits word in the XLong format.
@@ -248,7 +252,7 @@ public:
 	/// \param	inLong	the word to write.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		PutXLong( const KUInt32 inLong );
+	virtual void PutXLong(const KUInt32 inLong);
 
 	///
 	/// Read a 16 bits word (in native byte order).
@@ -256,7 +260,7 @@ public:
 	/// \return the word that was read.
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	virtual	KUInt16		GetInt16( void );
+	virtual KUInt16 GetInt16(void);
 
 	///
 	/// Read a 16 bits word (in big endian).
@@ -264,10 +268,11 @@ public:
 	/// \return the word that was read.
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	KUInt16				GetInt16BE( void )
-		{
-			return UByteSex_FromBigEndian( GetInt16() );
-		}
+	KUInt16
+	GetInt16BE(void)
+	{
+		return UByteSex_FromBigEndian(GetInt16());
+	}
 
 	///
 	/// Read a 16 bits word (in little endian).
@@ -275,10 +280,11 @@ public:
 	/// \return the word that was read.
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	KUInt16				GetInt16LE( void )
-		{
-			return UByteSex_FromLittleEndian( GetInt16() );
-		}
+	KUInt16
+	GetInt16LE(void)
+	{
+		return UByteSex_FromLittleEndian(GetInt16());
+	}
 
 	///
 	/// Write a 16 bits word (in native byte order).
@@ -286,7 +292,7 @@ public:
 	/// \param	inShort	the word to write.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		PutInt16( const KUInt16 inShort );
+	virtual void PutInt16(const KUInt16 inShort);
 
 	///
 	/// Write a 16 bits word (in big endian).
@@ -294,10 +300,11 @@ public:
 	/// \param	inShort	the word to write.
 	/// \throws an exception if a problem occurred.
 	///
-	void				PutInt16BE( const KUInt16 inShort )
-		{
-			PutInt16( UByteSex_ToBigEndian( inShort ) );
-		}
+	void
+	PutInt16BE(const KUInt16 inShort)
+	{
+		PutInt16(UByteSex_ToBigEndian(inShort));
+	}
 
 	///
 	/// Write a 16 bits word (in little endian).
@@ -305,10 +312,11 @@ public:
 	/// \param	inShort	the word to write.
 	/// \throws an exception if a problem occurred.
 	///
-	void				PutInt16LE( const KUInt16 inShort )
-		{
-			PutInt16( UByteSex_ToLittleEndian( inShort ) );
-		}
+	void
+	PutInt16LE(const KUInt16 inShort)
+	{
+		PutInt16(UByteSex_ToLittleEndian(inShort));
+	}
 
 	///
 	/// Read an array of 32 bits words (in big endian).
@@ -317,9 +325,9 @@ public:
 	/// \param	inCount	the number of words to read.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		GetInt32ArrayBE(
-							KUInt32* inArray,
-							const KUInt32 inCount );
+	virtual void GetInt32ArrayBE(
+		KUInt32* inArray,
+		const KUInt32 inCount);
 
 	///
 	/// Read an array of 32 bits words (in little endian).
@@ -328,9 +336,9 @@ public:
 	/// \param	inCount	the number of words to read.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		GetInt32ArrayLE(
-							KUInt32* inArray,
-							const KUInt32 inCount );
+	virtual void GetInt32ArrayLE(
+		KUInt32* inArray,
+		const KUInt32 inCount);
 
 	///
 	/// Write an array of 32 bits words (in big endian).
@@ -339,9 +347,9 @@ public:
 	/// \param	inCount	the number of words to write.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		PutInt32ArrayBE(
-							const KUInt32* inArray,
-							const KUInt32 inCount );
+	virtual void PutInt32ArrayBE(
+		const KUInt32* inArray,
+		const KUInt32 inCount);
 
 	///
 	/// Write an array of 32 bits words (in little endian).
@@ -350,9 +358,9 @@ public:
 	/// \param	inCount	the number of words to write.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		PutInt32ArrayLE(
-							const KUInt32* inArray,
-							const KUInt32 inCount );
+	virtual void PutInt32ArrayLE(
+		const KUInt32* inArray,
+		const KUInt32 inCount);
 
 	///
 	/// Read a byte.
@@ -360,7 +368,7 @@ public:
 	/// \return the byte read.
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	virtual	KUInt8		GetByte( void );
+	virtual KUInt8 GetByte(void);
 
 	///
 	/// Write a byte.
@@ -368,17 +376,25 @@ public:
 	/// \param	inByte	the byte to write.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		PutByte( const KUInt8 inByte );
+	virtual void PutByte(const KUInt8 inByte);
 
 	///
 	/// Set the version of this stream.
 	///
-	KUInt32 Version() { return mVersion; }
+	KUInt32
+	Version()
+	{
+		return mVersion;
+	}
 
 	///
 	/// Get the version of this stream.
 	///
-	void Version(KUInt32 v) { mVersion = v; }
+	void
+	Version(KUInt32 v)
+	{
+		mVersion = v;
+	}
 
 	/// The followinf functions are shortcuts to either reading or writing data.
 	/// Only a single flag differentiates between reding and writing data. This
@@ -386,42 +402,48 @@ public:
 	/// prone code replication.
 
 	/// Return 1 if this stream can read from a file
-	KUInt32 IsReading() { return (mIsReading==1); }
+	KUInt32
+	IsReading()
+	{
+		return (mIsReading == 1);
+	}
 
 	/// Return 1 if this stream can write to a file
-	KUInt32 IsWriting() { return (mIsWriting==1); }
+	KUInt32
+	IsWriting()
+	{
+		return (mIsWriting == 1);
+	}
 
 	/// Transfer a boolean.
-	void TransferBoolean(Boolean &inByte);
+	void TransferBoolean(Boolean& inByte);
 
 	/// Transfer a byte.
-	void TransferByte(KUInt8 &inByte);
+	void TransferByte(KUInt8& inByte);
 
 	/// Transfer a word.
-	void TransferInt32BE(KUInt32 &inWord);
+	void TransferInt32BE(KUInt32& inWord);
 
 	/// Transfer a word.
-	void TransferInt32BE(KSInt32 &inWord);
+	void TransferInt32BE(KSInt32& inWord);
 
 	/// Transfer a short.
-	void TransferInt16BE(KUInt16 &inWord);
+	void TransferInt16BE(KUInt16& inWord);
 
 	/// Transfer an array of words
 	void TransferInt32ArrayBE(KUInt32* inArray, const KUInt32 inCount);
 
 	/// Transfer some bytes.
-	void Transfer( void* outBuffer, KUInt32* ioCount );
-
+	void Transfer(void* outBuffer, KUInt32* ioCount);
 
 protected:
-
 	KUInt32 mVersion;
 	KUInt32 mIsReading;
 	KUInt32 mIsWriting;
 };
 
 #endif
-		// _TSTREAM_H
+// _TSTREAM_H
 
 // ========================================================================== //
 // There is is no reason for any individual to have a computer in their home. //

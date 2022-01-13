@@ -24,10 +24,10 @@
 /// \param inTestName	nom du test à effectuer.
 /// \param inArgument	argument supplémentaire (ou \c null)
 ///
-void test( const char* inTestName, const char* inArgument );
+void test(const char* inTestName, const char* inArgument);
 
 #endif
-		// _TESTS_H
+// _TESTS_H
 
 // ============================================================================ //
 // "The bad reputation UNIX has gotten is totally undeserved, laid on by people //

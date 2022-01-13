@@ -26,9 +26,9 @@
 #include <stdlib.h>
 
 #ifdef TARGET_OS_WIN32
-	#include <string.h>
+#include <string.h>
 #else
-	#include <strings.h>
+#include <strings.h>
 #endif
 
 // Einstein.
@@ -41,17 +41,16 @@
 // -------------------------------------------------------------------------- //
 //  * TNullSoundManager( TLog* )
 // -------------------------------------------------------------------------- //
-TNullSoundManager::TNullSoundManager( TLog* inLog /* = nil */ )
-	:
-		TSoundManager( inLog ),
-		mOutputIsRunning( false )
+TNullSoundManager::TNullSoundManager(TLog* inLog /* = nil */) :
+		TSoundManager(inLog),
+		mOutputIsRunning(false)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TNullSoundManager( void )
 // -------------------------------------------------------------------------- //
-TNullSoundManager::~TNullSoundManager( void )
+TNullSoundManager::~TNullSoundManager(void)
 {
 }
 
@@ -59,12 +58,13 @@ TNullSoundManager::~TNullSoundManager( void )
 //  * ScheduleOutputBuffer( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TNullSoundManager::ScheduleOutputBuffer( KUInt32 /* inBufferAddr */, KUInt32 inSize )
+TNullSoundManager::ScheduleOutputBuffer(KUInt32 /* inBufferAddr */, KUInt32 inSize)
 {
 	if (inSize == 0)
 	{
 		mOutputIsRunning = false;
-	} else if (mOutputIsRunning) {
+	} else if (mOutputIsRunning)
+	{
 		RaiseOutputInterrupt();
 	}
 }
@@ -73,7 +73,7 @@ TNullSoundManager::ScheduleOutputBuffer( KUInt32 /* inBufferAddr */, KUInt32 inS
 //  * StartOutput( void )
 // -------------------------------------------------------------------------- //
 void
-TNullSoundManager::StartOutput( void )
+TNullSoundManager::StartOutput(void)
 {
 	mOutputIsRunning = true;
 	RaiseOutputInterrupt();
@@ -83,7 +83,7 @@ TNullSoundManager::StartOutput( void )
 //  * StopOutput( void )
 // -------------------------------------------------------------------------- //
 void
-TNullSoundManager::StopOutput( void )
+TNullSoundManager::StopOutput(void)
 {
 	mOutputIsRunning = false;
 }
@@ -92,7 +92,7 @@ TNullSoundManager::StopOutput( void )
 //  * OutputIsRunning( void )
 // -------------------------------------------------------------------------- //
 Boolean
-TNullSoundManager::OutputIsRunning( void )
+TNullSoundManager::OutputIsRunning(void)
 {
 	return false;
 }

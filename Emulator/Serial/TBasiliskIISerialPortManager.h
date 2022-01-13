@@ -57,29 +57,32 @@ class TBasiliskIISerialPortManager : public TBasicSerialPortManager
 	} ComState;
 
 public:
-
 	///
 	/// Constructor.
 	///
 	TBasiliskIISerialPortManager(TLog* inLog,
-								 TSerialPorts::EPortIndex inPortIx);
+		TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.
 	///
-	~TBasiliskIISerialPortManager( ) override;
+	~TBasiliskIISerialPortManager() override;
 
 	///
 	/// Return the Identification of this driver
 	///
-	KUInt32 GetID() override { return TSerialPorts::kBasiliskIIDriver; }
+	KUInt32
+	GetID() override
+	{
+		return TSerialPorts::kBasiliskIIDriver;
+	}
 
 	///
 	/// Start emulation.
 	///
 	void run(TInterruptManager* inInterruptManager,
-					 TDMAManager* inDMAManager,
-					 TMemory* inMemory) override;
+		TDMAManager* inDMAManager,
+		TMemory* inMemory) override;
 
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
@@ -87,7 +90,6 @@ public:
 	void TriggerEvent(KUInt8 cmd) override;
 
 protected:
-
 	///
 	/// Launch the thread that emulates the DMA hardware
 	///
@@ -101,7 +103,12 @@ protected:
 	///
 	/// PThread hook.
 	///
-	static void *SHandleDMA(void *This) { ((TBasiliskIISerialPortManager*)This)->HandleDMA(); return 0L; }
+	static void*
+	SHandleDMA(void* This)
+	{
+		((TBasiliskIISerialPortManager*) This)->HandleDMA();
+		return 0L;
+	}
 
 	///
 	/// Open a PTY that is linked to /tmp/pty.BasiliskII
@@ -113,17 +120,17 @@ protected:
 	///
 	void ClosePTY();
 
-	int mPipe[2];							///< communication between emulator and DMA thread
-//	int mPtyPort;							///< pseudo terminal file id
-	bool mDMAIsRunning;						///< set if DMA thread is active
+	int mPipe[2]; ///< communication between emulator and DMA thread
+	//	int mPtyPort;							///< pseudo terminal file id
+	bool mDMAIsRunning; ///< set if DMA thread is active
 	pthread_t mDMAThread;
-//	char *mPtyName;							///< named of pseudo terminal
+	//	char *mPtyName;							///< named of pseudo terminal
 
-	static const char *kBasiliskPipe;		///< Base name of the pasilisk pty
-	char *pBasiliskRemoteName;				///< PTY remote filename
-	int pBasiliskLocalFD; 					///< PTY local file id
-	int pBasiliskRemoteFD;						///< PTY remote file id
-	ComState pComState;						///< state of the connection to Basilisk
+	static const char* kBasiliskPipe; ///< Base name of the pasilisk pty
+	char* pBasiliskRemoteName; ///< PTY remote filename
+	int pBasiliskLocalFD; ///< PTY local file id
+	int pBasiliskRemoteFD; ///< PTY remote file id
+	ComState pComState; ///< state of the connection to Basilisk
 };
 
 #endif

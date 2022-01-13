@@ -27,12 +27,12 @@
 #ifdef JITTARGET_GENERIC
 
 // Einstein
-#include "Emulator/TMemory.h"
-#include "Emulator/JIT/Generic/TJITGeneric.h"
-#include "Emulator/JIT/Generic/TJITGenericPage.h"
 #include "Emulator/TARMProcessor.h"
 #include "Emulator/TEmulator.h"
+#include "Emulator/TMemory.h"
 #include "Emulator/TMemoryConsts.h"
+#include "Emulator/JIT/Generic/TJITGeneric.h"
+#include "Emulator/JIT/Generic/TJITGenericPage.h"
 
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 
@@ -47,8 +47,8 @@
 //
 
 #include <stdio.h>
-#include <ucontext.h>
 #include <sys/mman.h>
+#include <ucontext.h>
 
 void
 assign(long a, int *b)
@@ -119,7 +119,6 @@ test()
 
 #endif
 
-
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -128,17 +127,16 @@ test()
 //  * TJITGeneric( void )
 // -------------------------------------------------------------------------- //
 TJITGeneric::TJITGeneric(
-		TMemory* inMemoryIntf,
-		TMMU* inMMUIntf )
-	:
-		TJIT<TJITGeneric, TJITGenericPage>( inMemoryIntf, inMMUIntf )
+	TMemory* inMemoryIntf,
+	TMMU* inMMUIntf) :
+		TJIT<TJITGeneric, TJITGenericPage>(inMemoryIntf, inMMUIntf)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TJITGeneric( void )
 // -------------------------------------------------------------------------- //
-TJITGeneric::~TJITGeneric( void )
+TJITGeneric::~TJITGeneric(void)
 {
 }
 
@@ -146,13 +144,13 @@ TJITGeneric::~TJITGeneric( void )
 //  * Run( TARMProcessor*, volatile Boolean* )
 // -------------------------------------------------------------------------- //
 void
-TJITGeneric::Run( TARMProcessor* ioCPU, volatile Boolean* inSignal )
+TJITGeneric::Run(TARMProcessor* ioCPU, volatile Boolean* inSignal)
 {
 	volatile KUInt32* pendingInterrupts = &ioCPU->mPendingInterrupts;
 	KUInt32* pcPtr = &ioCPU->mCurrentRegisters[TARMProcessor::kR15];
 	TMemory* theMemoryInterface = ioCPU->mMemory;
 	TEmulator* theEmulator = ioCPU->mEmulator;
-	JITUnit* theJITUnit = GetJITUnitForPC( ioCPU, theMemoryInterface, *pcPtr );
+	JITUnit* theJITUnit = GetJITUnitForPC(ioCPU, theMemoryInterface, *pcPtr);
 	while (true)
 	{
 		while (*inSignal)
@@ -160,7 +158,7 @@ TJITGeneric::Run( TARMProcessor* ioCPU, volatile Boolean* inSignal )
 			// Here we go, iterating...
 			// *pcPtr is 4 bytes ahead of the instruction that will
 			// actually be executed here
-			theJITUnit = theJITUnit->fFuncPtr( theJITUnit, ioCPU );
+			theJITUnit = theJITUnit->fFuncPtr(theJITUnit, ioCPU);
 		}
 
 		// We may have been signaled because there was an interrupt.
@@ -172,15 +170,18 @@ TJITGeneric::Run( TARMProcessor* ioCPU, volatile Boolean* inSignal )
 			{
 				ioCPU->Reset();
 				// Unmaskable.
-				theJITUnit = GetJITUnitForPC( ioCPU, theMemoryInterface, *pcPtr );
-			} else if ((theInterrupt & TARMProcessor::kFIQInterrupt) && !ioCPU->mCPSR_F) {
+				theJITUnit = GetJITUnitForPC(ioCPU, theMemoryInterface, *pcPtr);
+			} else if ((theInterrupt & TARMProcessor::kFIQInterrupt) && !ioCPU->mCPSR_F)
+			{
 				ioCPU->FIQ();
-				theJITUnit = GetJITUnitForPC( ioCPU, theMemoryInterface, *pcPtr );
-			} else if ((theInterrupt & TARMProcessor::kIRQInterrupt) && !ioCPU->mCPSR_I) {
+				theJITUnit = GetJITUnitForPC(ioCPU, theMemoryInterface, *pcPtr);
+			} else if ((theInterrupt & TARMProcessor::kIRQInterrupt) && !ioCPU->mCPSR_I)
+			{
 				ioCPU->IRQ();
-				theJITUnit = GetJITUnitForPC( ioCPU, theMemoryInterface, *pcPtr );
+				theJITUnit = GetJITUnitForPC(ioCPU, theMemoryInterface, *pcPtr);
 			}
-		} else {
+		} else
+		{
 			break;
 		}
 	}
@@ -190,26 +191,27 @@ TJITGeneric::Run( TARMProcessor* ioCPU, volatile Boolean* inSignal )
 //  * Step( TARMProcessor*, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TJITGeneric::Step( TARMProcessor* ioCPU, KUInt32 count )
+TJITGeneric::Step(TARMProcessor* ioCPU, KUInt32 count)
 {
 	KUInt32* pendingInterrupts = &ioCPU->mPendingInterrupts;
 	KUInt32* pcPtr = &ioCPU->mCurrentRegisters[TARMProcessor::kR15];
 	TMemory* theMemoryInterface = ioCPU->mMemory;
-	JITUnit* theJITUnit = GetJITUnitForPC( ioCPU, theMemoryInterface, *pcPtr );
+	JITUnit* theJITUnit = GetJITUnitForPC(ioCPU, theMemoryInterface, *pcPtr);
 	while (count-- > 0)
 	{
 		// To make sure we execute only one instruction, insert a halt for the
 		// next instruction.
-		JITUnit* theNextJITUnit =
-			GetJITUnitForPC( ioCPU, theMemoryInterface, *pcPtr + 4 );
+		JITUnit* theNextJITUnit = GetJITUnitForPC(ioCPU, theMemoryInterface, *pcPtr + 4);
 		KUIntPtr theSavedValue = 0;
-		if (theNextJITUnit) {
+		if (theNextJITUnit)
+		{
 			theSavedValue = theNextJITUnit->fPtr;
 			theNextJITUnit->fFuncPtr = TJITGenericPage::Halt;
 		}
 		// Execute only one instruction.
-		theJITUnit = theJITUnit->fFuncPtr( theJITUnit, ioCPU );
-		if (theNextJITUnit) {
+		theJITUnit = theJITUnit->fFuncPtr(theJITUnit, ioCPU);
+		if (theNextJITUnit)
+		{
 			theNextJITUnit->fPtr = theSavedValue;
 		}
 
@@ -221,13 +223,15 @@ TJITGeneric::Step( TARMProcessor* ioCPU, KUInt32 count )
 			{
 				ioCPU->Reset();
 				// Unmaskable.
-				theJITUnit = GetJITUnitForPC( ioCPU, theMemoryInterface, *pcPtr );
-			} else if ((theInterrupt & TARMProcessor::kFIQInterrupt) && !ioCPU->mCPSR_F) {
+				theJITUnit = GetJITUnitForPC(ioCPU, theMemoryInterface, *pcPtr);
+			} else if ((theInterrupt & TARMProcessor::kFIQInterrupt) && !ioCPU->mCPSR_F)
+			{
 				ioCPU->FIQ();
-				theJITUnit = GetJITUnitForPC( ioCPU, theMemoryInterface, *pcPtr );
-			} else if ((theInterrupt & TARMProcessor::kIRQInterrupt) && !ioCPU->mCPSR_I) {
+				theJITUnit = GetJITUnitForPC(ioCPU, theMemoryInterface, *pcPtr);
+			} else if ((theInterrupt & TARMProcessor::kIRQInterrupt) && !ioCPU->mCPSR_I)
+			{
 				ioCPU->IRQ();
-				theJITUnit = GetJITUnitForPC( ioCPU, theMemoryInterface, *pcPtr );
+				theJITUnit = GetJITUnitForPC(ioCPU, theMemoryInterface, *pcPtr);
 			}
 		}
 	} // while
@@ -238,9 +242,9 @@ TJITGeneric::Step( TARMProcessor* ioCPU, KUInt32 count )
 // -------------------------------------------------------------------------- //
 JITUnit*
 TJITGeneric::GetJITUnitForPC(
-					TARMProcessor* ioCPU,
-					TMemory* inMemoryInterface,
-					KUInt32 inPC )
+	TARMProcessor* ioCPU,
+	TMemory* inMemoryInterface,
+	KUInt32 inPC)
 {
 	// Get the page from the cache.
 	KUInt32 pc = inPC - 4;
@@ -253,40 +257,41 @@ TJITGeneric::GetJITUnitForPC(
 
 		// Redo the translation.
 		pc = ioCPU->mCurrentRegisters[TARMProcessor::kR15];
-		return GetJITUnitForPC( ioCPU, inMemoryInterface, pc );
+		return GetJITUnitForPC(ioCPU, inMemoryInterface, pc);
 	}
 
-	KUInt32 indexInPage = GetOffsetInPage(pc) / sizeof( KUInt32 );
+	KUInt32 indexInPage = GetOffsetInPage(pc) / sizeof(KUInt32);
 
 	// Return the unit.
 	return thePage->GetJITUnitForOffset(indexInPage);
 }
 
-
 KSInt32
 TJITGeneric::GetJITUnitDelta(
-							 TARMProcessor* ioCPU,
-							 TMemory* inMemoryInterface,
-							 JITUnit* inUnit,
-							 KUInt32 inPC)
+	TARMProcessor* ioCPU,
+	TMemory* inMemoryInterface,
+	JITUnit* inUnit,
+	KUInt32 inPC)
 {
-    (void)inMemoryInterface;
+	(void) inMemoryInterface;
 	// Get the page from the cache.
 	KUInt32 pc = inPC - 4;
 	TJITGenericPage* theNextPage = GetPage(pc);
-	if (theNextPage == NULL) {
+	if (theNextPage == NULL)
+	{
 		return kNotTheSamePage;
 	}
 
 	TJITGenericPage* theCurrentPage = GetPage(ioCPU->GetRegister(15));
-	if (theCurrentPage!=theNextPage) {
+	if (theCurrentPage != theNextPage)
+	{
 		return kNotTheSamePage;
 	}
 
-	KUInt32 indexInPage = GetOffsetInPage(pc) / sizeof( KUInt32 );
-	JITUnit *nextUnit = theNextPage->GetJITUnitForOffset(indexInPage);
+	KUInt32 indexInPage = GetOffsetInPage(pc) / sizeof(KUInt32);
+	JITUnit* nextUnit = theNextPage->GetJITUnitForOffset(indexInPage);
 
-	KSInt32 delta = (KSInt32)(nextUnit - inUnit);
+	KSInt32 delta = (KSInt32) (nextUnit - inUnit);
 	return delta;
 }
 
@@ -299,7 +304,6 @@ TJITGeneric::DoPatchROM(KUInt32* romPtr, KSInt32 inROMId)
 	TJITGenericPatchManager::DoPatchROM(romPtr, inROMId);
 	TVirtualizedCallsPatches::DoPatchROM(romPtr, inROMId);
 }
-
 
 #endif
 

@@ -40,17 +40,19 @@
 #define GETCALLER() \
 	THECALLER
 
-#define PUSHVALUE(value) 									\
+#define PUSHVALUE(value) \
 	inPage->PushUnit(ioUnitCrsr, value)
-#define POPVALUE(lref) 										\
-	{														\
-		lref = ioUnit[1].fValue;							\
-		ioUnit++;											\
+#define POPVALUE(lref)           \
+	{                            \
+		lref = ioUnit[1].fValue; \
+		ioUnit++;                \
 	}
-#define POPNIL() { ioUnit++; }
-#define PUSHFUNC(func)										\
+#define POPNIL()  \
+	{             \
+		ioUnit++; \
+	}
+#define PUSHFUNC(func) \
 	inPage->PushUnit(ioUnitCrsr, func)
-
 
 // Set this value to 0 if you want to measure the performance of individual
 // functions at the cost of lowering overall performance. This is not working
@@ -70,58 +72,65 @@
 #else
 
 #define EXECUTENEXTUNIT \
-	THEPC += 4; return &ioUnit[1]
+	THEPC += 4;         \
+	return &ioUnit[1]
 
 #define CALLNEXTUNIT \
-	THEPC += 4; return &ioUnit[1]
+	THEPC += 4;      \
+	return &ioUnit[1]
 
 #define CALLUNIT(offset) \
-	THEPC += 4; return &ioUnit[offset]
+	THEPC += 4;          \
+	return &ioUnit[offset]
 
 #endif
 
-
-#define MMUCALLNEXT_AFTERSETPC \
-	{														\
-		TMemory* theMemIntf = ioCPU->GetMemory();			\
+#define MMUCALLNEXT_AFTERSETPC                              \
+	{                                                       \
+		TMemory* theMemIntf = ioCPU->GetMemory();           \
 		return theMemIntf->GetJITObject()->GetJITUnitForPC( \
-			ioCPU, theMemIntf, THEPC );						\
+			ioCPU, theMemIntf, THEPC);                      \
 	}
 
-#define MMUCALLNEXT(pc) \
-	{														\
-		TMemory* theMemIntf = ioCPU->GetMemory();			\
-		SETPC(pc);											\
+#define MMUCALLNEXT(pc)                                     \
+	{                                                       \
+		TMemory* theMemIntf = ioCPU->GetMemory();           \
+		SETPC(pc);                                          \
 		return theMemIntf->GetJITObject()->GetJITUnitForPC( \
-			ioCPU, theMemIntf, pc );						\
+			ioCPU, theMemIntf, pc);                         \
 	}
 
-#define MMUSMARTCALLNEXT(pc) \
-	{														\
-		static KSInt32 ioUnitOffset = kOffsetUnknown;		\
-	again:													\
-		if (ioUnitOffset<kOffsetUnknown) {					\
-			CALLUNIT(ioUnitOffset);							\
-		} else {											\
-			TMemory* theMemIntf = ioCPU->GetMemory();		\
-			if (ioUnitOffset!=kNotTheSamePage) {			\
-				ioUnitOffset = theMemIntf->GetJITObject()->GetJITUnitDelta(ioCPU, theMemIntf, ioUnit, pc ); \
-				goto again;									\
-			}												\
-			SETPC(pc);										\
-			return theMemIntf->GetJITObject()->GetJITUnitForPC( \
-				ioCPU, theMemIntf, pc );					\
-		}													\
+#define MMUSMARTCALLNEXT(pc)                                                                               \
+	{                                                                                                      \
+		static KSInt32 ioUnitOffset = kOffsetUnknown;                                                      \
+	again:                                                                                                 \
+		if (ioUnitOffset < kOffsetUnknown)                                                                 \
+		{                                                                                                  \
+			CALLUNIT(ioUnitOffset);                                                                        \
+		} else                                                                                             \
+		{                                                                                                  \
+			TMemory* theMemIntf = ioCPU->GetMemory();                                                      \
+			if (ioUnitOffset != kNotTheSamePage)                                                           \
+			{                                                                                              \
+				ioUnitOffset = theMemIntf->GetJITObject()->GetJITUnitDelta(ioCPU, theMemIntf, ioUnit, pc); \
+				goto again;                                                                                \
+			}                                                                                              \
+			SETPC(pc);                                                                                     \
+			return theMemIntf->GetJITObject()->GetJITUnitForPC(                                            \
+				ioCPU, theMemIntf, pc);                                                                    \
+		}                                                                                                  \
 	}
 
-#define POPPC() \
+#define POPPC()    \
 	KUInt32 thePC; \
 	POPVALUE(thePC)
 
 // TODO: fix FURTHERCALLNEXT
-#define FURTHERCALLNEXT(pc)			MMUCALLNEXT(pc)
-#define FURTHERCALLNEXT_AFTERSETPC	MMUCALLNEXT_AFTERSETPC
-#define CALLNEXT_SAVEPC				{}
+#define FURTHERCALLNEXT(pc) MMUCALLNEXT(pc)
+#define FURTHERCALLNEXT_AFTERSETPC MMUCALLNEXT_AFTERSETPC
+#define CALLNEXT_SAVEPC \
+	{                   \
+	}
 
 /*
 #define FURTHERCALLNEXT(pc) \
@@ -148,10 +157,10 @@
 // -------------------------------------------------------------------------- //
 inline KUInt32
 GetShift(
-				TARMProcessor* ioCPU,
-				KUInt32 inShift,
-				Boolean* outCarry,
-				KUInt32 inPC )
+	TARMProcessor* ioCPU,
+	KUInt32 inShift,
+	Boolean* outCarry,
+	KUInt32 inPC)
 {
 	KUInt32 Shift = ((inShift & 0x00000FFF) >> 4);
 	KUInt32 Rm = inShift & 0x0000000F;
@@ -161,11 +170,12 @@ GetShift(
 	if (Rm == 15)
 	{
 		theResult = inPC;
-	} else {
+	} else
+	{
 		theResult = ioCPU->mCurrentRegisters[Rm];
 	}
 	KUInt32 amount;
-	KUInt32 registerBased = Shift & 0x1;   	// 0b000000001
+	KUInt32 registerBased = Shift & 0x1; // 0b000000001
 	KUInt32 carry = 0;
 
 	if (registerBased)
@@ -175,7 +185,8 @@ GetShift(
 		// For all DataProcessing instructions with a shift by register,
 		// specifying R15 for Rs (or Rd, Rm or Rn) has UNPREDICTABLE result.
 		amount = ioCPU->mCurrentRegisters[Shift >> 4] & 0xFF;
-	} else {
+	} else
+	{
 		// Shift Amount
 		amount = Shift >> 3;
 	}
@@ -193,15 +204,18 @@ GetShift(
 					carry = theResult & (1 << (32 - amount));
 
 					theResult <<= amount;
-				} else if (amount == 32) {
+				} else if (amount == 32)
+				{
 					// Bit 0 of Rm.
 					carry = theResult & 1;
 
 					theResult = 0;
-				} else {
+				} else
+				{
 					theResult = 0;
 				}
-			} else if (!registerBased) {
+			} else if (!registerBased)
+			{
 				// LSL #0 is a special case where the carry out is the
 				// C flag.
 				carry = ioCPU->mCPSR_C;
@@ -218,15 +232,18 @@ GetShift(
 					carry = theResult & (1 << (amount - 1));
 
 					theResult >>= amount;
-				} else if (amount == 32) {
+				} else if (amount == 32)
+				{
 					// Bit 31 of Rm.
 					carry = theResult & (1 << 31);
 
 					theResult = 0;
-				} else {
+				} else
+				{
 					theResult = 0;
 				}
-			} else if (!registerBased) {
+			} else if (!registerBased)
+			{
 				// LSR #0 is a special case meaning LSR #32
 				// where the carry out is the bit 31 of Rm and
 				// the result is 0.
@@ -247,22 +264,25 @@ GetShift(
 			{
 				if (amount < 32)
 				{
-					carry = theResult & ( 1 << (amount - 1) );
+					carry = theResult & (1 << (amount - 1));
 
 					if (theResult & 0x80000000)
 					{
 						theResult >>= amount;
 						theResult |= (0xFFFFFFFF << (32 - amount));
-					} else {
+					} else
+					{
 						theResult >>= amount;
 					}
-				} else  {
+				} else
+				{
 					// ASR by 32 or more is just like ASR #32.
 					carry = theResult & 0x80000000;
 					if (carry)
 					{
 						theResult = 0xFFFFFFFF;
-					} else {
+					} else
+					{
 						theResult = 0;
 					}
 				}
@@ -273,26 +293,29 @@ GetShift(
 			// Rotate Right
 			if (amount != 0)
 			{
-				if (registerBased && (amount > 32)) {
+				if (registerBased && (amount > 32))
+				{
 					// ROR by more than 32 are like ROR between 1 and 32.
 					amount = ((amount - 1) & 0x1F) + 1;
 				}
 
 				carry = theResult & (1 << (32 - amount));
 				// If n is 32, then the value of the result is same as the value in Rm,
-                // and if the carry flag is updated, it is updated to bit[31] of Rm.
+				// and if the carry flag is updated, it is updated to bit[31] of Rm.
 				if (amount < 32)
 				{
 					theResult = (theResult >> amount)
 						| (theResult << (32 - amount));
 				}
-			} else if (!registerBased) {
+			} else if (!registerBased)
+			{
 				// ROR #0 actually is RRX
 				carry = theResult & 0x1;
 				if (ioCPU->mCPSR_C)
 				{
 					theResult = theResult >> 1 | 0x80000000;
-				} else {
+				} else
+				{
 					theResult >>= 1;
 				}
 			}
@@ -311,7 +334,7 @@ GetShift(
 //  * GetShiftNoCarry( KUInt32, KUInt32[32], Boolean )
 // -------------------------------------------------------------------------- //
 inline KUInt32
-GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt32 inPC )
+GetShiftNoCarry(TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt32 inPC)
 {
 	KUInt32 Shift = ((inShift & 0x00000FFF) >> 4);
 	KUInt32 Rm = inShift & 0x0000000F;
@@ -321,11 +344,12 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 	if (Rm == 15)
 	{
 		theResult = inPC;
-	} else {
+	} else
+	{
 		theResult = ioCPU->mCurrentRegisters[Rm];
 	}
 	KUInt32 amount;
-	KUInt32 registerBased = Shift & 0x1;   	// 0b000000001
+	KUInt32 registerBased = Shift & 0x1; // 0b000000001
 
 	if (registerBased)
 	{
@@ -334,7 +358,8 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 		// For all DataProcessing instructions with a shift by register,
 		// specifying R15 for Rs (or Rd, Rm or Rn) has UNPREDICTABLE result.
 		amount = ioCPU->mCurrentRegisters[Shift >> 4] & 0xFF;
-	} else {
+	} else
+	{
 		// Shift Amount
 		amount = Shift >> 3;
 	}
@@ -349,10 +374,11 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 				if (amount < 32)
 				{
 					theResult <<= amount;
-				} else {
+				} else
+				{
 					theResult = 0;
 				}
-//			} else if (!registerBased) {
+				//			} else if (!registerBased) {
 				// LSL #0 is a special case where the carry out is the
 				// C flag.
 			}
@@ -365,10 +391,12 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 				if (amount < 32)
 				{
 					theResult >>= amount;
-				} else {
+				} else
+				{
 					theResult = 0;
 				}
-			} else if (!registerBased) {
+			} else if (!registerBased)
+			{
 				// LSR #0 is a special case meaning LSR #32
 				// where the carry out is the bit 31 of Rm and
 				// the result is 0.
@@ -392,15 +420,18 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 					{
 						theResult >>= amount;
 						theResult |= (0xFFFFFFFF << (32 - amount));
-					} else {
-					theResult >>= amount;
+					} else
+					{
+						theResult >>= amount;
 					}
-				} else  {
+				} else
+				{
 					// ASR by 32 or more is just like ASR #32.
 					if (theResult & 0x80000000)
 					{
 						theResult = 0xFFFFFFFF;
-					} else {
+					} else
+					{
 						theResult = 0;
 					}
 				}
@@ -411,23 +442,26 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 			// Rotate Right
 			if (amount != 0)
 			{
-				if (registerBased && (amount > 32)) {
+				if (registerBased && (amount > 32))
+				{
 					// ROR by more than 32 are like ROR between 1 and 32.
 					amount = ((amount - 1) & 0x1F) + 1;
 				}
-                // If n is 32, then the value of the result is same as the value in Rm,
-                // and if the carry flag is updated, it is updated to bit[31] of Rm.
+				// If n is 32, then the value of the result is same as the value in Rm,
+				// and if the carry flag is updated, it is updated to bit[31] of Rm.
 				if (amount < 32)
 				{
 					theResult = (theResult >> amount)
-								| (theResult << (32 - amount));
+						| (theResult << (32 - amount));
 				}
-			} else if (!registerBased) {
+			} else if (!registerBased)
+			{
 				// ROR #0 actually is RRX
 				if (inCPSR_C)
 				{
 					theResult = theResult >> 1 | 0x80000000;
-				} else {
+				} else
+				{
 					theResult >>= 1;
 				}
 			}
@@ -441,16 +475,16 @@ GetShiftNoCarry( TARMProcessor* ioCPU, KUInt32 inShift, Boolean inCPSR_C, KUInt3
 //  * GetShiftNoCarryNoR15( KUInt32, KUInt32[32], Boolean )
 // -------------------------------------------------------------------------- //
 inline KUInt32
-GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean inCPSR_C )
+GetShiftNoCarryNoR15(KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean inCPSR_C)
 {
-	KUInt32 Shift = ((inShift & 0x00000FFF) >> 5);  // Shift < 128
+	KUInt32 Shift = ((inShift & 0x00000FFF) >> 5); // Shift < 128
 	KUInt32 Rm = inShift & 0x0000000F;
 
 	// Shift is not 0 here.
 	KUInt32 theResult;
 	theResult = inCurrentRegisters[Rm];
 	// Shift Amount
-	KUInt32 amount = Shift >> 2;    // amount < 32
+	KUInt32 amount = Shift >> 2; // amount < 32
 
 	// Switch on the shift operation.
 	switch (Shift & 0x3) // 0b0000011
@@ -459,7 +493,7 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 			// Logical Shift Left
 			if (amount != 0)
 			{
-			    // amount < 32
+				// amount < 32
 				theResult <<= amount;
 			}
 			break;
@@ -468,9 +502,10 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 			// Logical Shift Right
 			if (amount != 0)
 			{
-			    // amount < 32
+				// amount < 32
 				theResult >>= amount;
-			} else {
+			} else
+			{
 				// LSR #0 is a special case meaning LSR #32
 				// where the carry out is the bit 31 of Rm and
 				// the result is 0.
@@ -486,15 +521,18 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 				if (theResult & 0x80000000)
 				{
 					theResult = 0xFFFFFFFF;
-				} else {
+				} else
+				{
 					theResult = 0;
 				}
-			} else {
+			} else
+			{
 				if (theResult & 0x80000000)
 				{
 					theResult >>= amount;
 					theResult |= (0xFFFFFFFF << (32 - amount));
-				} else {
+				} else
+				{
 					theResult >>= amount;
 				}
 			}
@@ -505,13 +543,15 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 			if (amount != 0)
 			{
 				theResult = (theResult >> amount)
-								| (theResult << (32 - amount));
-			} else {
+					| (theResult << (32 - amount));
+			} else
+			{
 				// ROR #0 actually is RRX
 				if (inCPSR_C)
 				{
 					theResult = theResult >> 1 | 0x80000000;
-				} else {
+				} else
+				{
 					theResult >>= 1;
 				}
 			}
@@ -525,18 +565,20 @@ GetShiftNoCarryNoR15( KUInt32 inShift, KUInt32 inCurrentRegisters[16], Boolean i
 //  * SetCPSRBitsForLogicalOp( TARMProcessor*, KUInt32, Boolean )
 // -------------------------------------------------------------------------- //
 inline void
-SetCPSRBitsForLogicalOp( TARMProcessor* ioCPU, KUInt32 inResult, Boolean inCarry )
+SetCPSRBitsForLogicalOp(TARMProcessor* ioCPU, KUInt32 inResult, Boolean inCarry)
 {
 	if (inResult == 0)
 	{
 		ioCPU->mCPSR_Z = true;
 		ioCPU->mCPSR_N = false;
-	} else {
+	} else
+	{
 		ioCPU->mCPSR_Z = false;
 		if (inResult & 0x80000000)
 		{
 			ioCPU->mCPSR_N = true;
-		} else {
+		} else
+		{
 			ioCPU->mCPSR_N = false;
 		}
 	}
@@ -548,18 +590,20 @@ SetCPSRBitsForLogicalOp( TARMProcessor* ioCPU, KUInt32 inResult, Boolean inCarry
 //  * SetCPSRBitsForLogicalOpLeaveCarry( TARMProcessor*, KUInt32 )
 // -------------------------------------------------------------------------- //
 inline void
-SetCPSRBitsForLogicalOpLeaveCarry( TARMProcessor* ioCPU, KUInt32 inResult )
+SetCPSRBitsForLogicalOpLeaveCarry(TARMProcessor* ioCPU, KUInt32 inResult)
 {
 	if (inResult == 0)
 	{
 		ioCPU->mCPSR_Z = true;
 		ioCPU->mCPSR_N = false;
-	} else {
+	} else
+	{
 		ioCPU->mCPSR_Z = false;
 		if (inResult & 0x80000000)
 		{
 			ioCPU->mCPSR_N = true;
-		} else {
+		} else
+		{
 			ioCPU->mCPSR_N = false;
 		}
 	}
@@ -570,21 +614,23 @@ SetCPSRBitsForLogicalOpLeaveCarry( TARMProcessor* ioCPU, KUInt32 inResult )
 // -------------------------------------------------------------------------- //
 inline void
 SetCPSRBitsForArithmeticOp(
-					TARMProcessor* ioCPU,
-					KUInt32 inResult,
-					Boolean inCarry,
-					Boolean inOverflow )
+	TARMProcessor* ioCPU,
+	KUInt32 inResult,
+	Boolean inCarry,
+	Boolean inOverflow)
 {
 	if (inResult == 0)
 	{
 		ioCPU->mCPSR_Z = true;
 		ioCPU->mCPSR_N = false;
-	} else {
+	} else
+	{
 		ioCPU->mCPSR_Z = false;
 		if (inResult & 0x80000000)
 		{
 			ioCPU->mCPSR_N = true;
-		} else {
+		} else
+		{
 			ioCPU->mCPSR_N = false;
 		}
 	}
@@ -596,15 +642,15 @@ SetCPSRBitsForArithmeticOp(
 //  * CountBits( KUInt16 )
 // -------------------------------------------------------------------------- //
 inline KUInt32
-CountBits( KUInt16 inWord )
+CountBits(KUInt16 inWord)
 {
 #if 0
 	// http://www.caam.rice.edu/~dougm/twiddle/BitCount.html
-	#define T unsigned
-	#define ONES ((T)(-1))
-	#define TWO(k) ((T)1 << (k))
-	#define CYCL(k) (ONES/(1 + (TWO(TWO(k)))))
-	#define BSUM(x,k) ((x)+=(x) >> TWO(k), (x) &= CYCL(k))
+#define T unsigned
+#define ONES ((T) (-1))
+#define TWO(k) ((T) 1 << (k))
+#define CYCL(k) (ONES / (1 + (TWO(TWO(k)))))
+#define BSUM(x, k) ((x) += (x) >> TWO(k), (x) &= CYCL(k))
 	inWord = (inWord & CYCL(0)) + ((inWord>>TWO(0)) & CYCL(0));
 	inWord = (inWord & CYCL(1)) + ((inWord>>TWO(1)) & CYCL(1));
 	BSUM(inWord,2);
@@ -613,16 +659,16 @@ CountBits( KUInt16 inWord )
 	return inWord;
 #else
 	// c++20: return std::popcount(inWord);
-    static const KUInt8 nibbleLUT[16] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
-    return nibbleLUT[ inWord & 0x000f ]
-           + nibbleLUT[ (inWord>>4) & 0x0000f ]
-             + nibbleLUT[ (inWord>>8) & 0x000f ]
-               + nibbleLUT[ (inWord>>12) & 0x000f ];
+	static const KUInt8 nibbleLUT[16] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
+	return nibbleLUT[inWord & 0x000f]
+		+ nibbleLUT[(inWord >> 4) & 0x0000f]
+		+ nibbleLUT[(inWord >> 8) & 0x000f]
+		+ nibbleLUT[(inWord >> 12) & 0x000f];
 #endif
 }
 
 #endif
-		// _TJITGENERIC_MACROS_H
+// _TJITGENERIC_MACROS_H
 
 // ============================== //
 // You're not Dave.  Who are you? //

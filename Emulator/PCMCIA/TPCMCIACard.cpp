@@ -37,7 +37,6 @@
 // Einstein
 #include "Emulator/PCMCIA/TPCMCIAController.h"
 
-
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -45,18 +44,17 @@
 // -------------------------------------------------------------------------- //
 //  * TPCMCIACard( void )
 // -------------------------------------------------------------------------- //
-TPCMCIACard::TPCMCIACard( void )
-	:
-		mLog( nil ),
-		mEmulator( nil ),
-		mPCMCIAController( nil )
+TPCMCIACard::TPCMCIACard(void) :
+		mLog(nil),
+		mEmulator(nil),
+		mPCMCIAController(nil)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TPCMCIACard( void )
 // -------------------------------------------------------------------------- //
-TPCMCIACard::~TPCMCIACard( void )
+TPCMCIACard::~TPCMCIACard(void)
 {
 }
 
@@ -64,7 +62,7 @@ TPCMCIACard::~TPCMCIACard( void )
 //  * Init( TPCMCIAController* )
 // -------------------------------------------------------------------------- //
 int
-TPCMCIACard::Init( TPCMCIAController* inController )
+TPCMCIACard::Init(TPCMCIAController* inController)
 {
 	mLog = inController->GetLog();
 	mEmulator = inController->GetEmulator();

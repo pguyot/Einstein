@@ -22,8 +22,8 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include <K/Tests/KDebug.h>
 #include "Emulator/JIT/JIT.h"
+#include <K/Tests/KDebug.h>
 
 #ifdef JITTARGET_GENERIC
 
@@ -33,40 +33,41 @@
 
 #include "TJITGeneric_Macros.h"
 
-#define IMPLEMENTATION	1
+#define IMPLEMENTATION 1
 #include "TJITGeneric_HalfwordAndSignedDataTransferReg_template.t"
 #undef IMPLEMENTATION
 
 static JITFuncPtr HalfwordAndSignedDataTransferReg_Funcs[] = {
-#define TRANSLATION_ARRAY	1
+#define TRANSLATION_ARRAY 1
 #include "TJITGeneric_HalfwordAndSignedDataTransferReg_template.t"
 #undef TRANSLATION_ARRAY
 };
 
 void
 Translate_HalfwordAndSignedDataTransferReg(
-					JITPageClass* inPage,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr )
+	JITPageClass* inPage,
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr)
 {
-    // Get the index.
+	// Get the index.
 	// -Cond-- 0  0  0  P  U  0  W  L  --Rn--- --Rd--- 0 0 0 0 1  S  H  1  --Rm--- Halfword and Signed Data Transfer (armv4)
-    KUInt32 theIndex = (inInstruction & 0x00000060) >> 5;   //     SH
-    theIndex |= (inInstruction & 0x00300000) >> 18;         //   WL00
-    theIndex |= (inInstruction & 0x01800000) >> 19;         // PU0000
-    PUSHFUNC(HalfwordAndSignedDataTransferReg_Funcs[theIndex]);
-    PUSHVALUE(inInstruction);
-    // Always push PC, in case we have a dataabort we'll need it.
-    PUSHVALUE(inVAddr + 8);
+	KUInt32 theIndex = (inInstruction & 0x00000060) >> 5; //     SH
+	theIndex |= (inInstruction & 0x00300000) >> 18; //   WL00
+	theIndex |= (inInstruction & 0x01800000) >> 19; // PU0000
+	PUSHFUNC(HalfwordAndSignedDataTransferReg_Funcs[theIndex]);
+	PUSHVALUE(inInstruction);
+	// Always push PC, in case we have a dataabort we'll need it.
+	PUSHVALUE(inVAddr + 8);
 }
 
-void TJITGeneric_HalfwordAndSignedDataTransferReg_assertions( void );
+void TJITGeneric_HalfwordAndSignedDataTransferReg_assertions(void);
 
-void TJITGeneric_HalfwordAndSignedDataTransferReg_assertions( void )
+void
+TJITGeneric_HalfwordAndSignedDataTransferReg_assertions(void)
 {
 	// Check that the array has the expected size.
-    KCOMPILE_TIME_ASSERT_SIZE( HalfwordAndSignedDataTransferReg_Funcs, 0x04000 * sizeof(void*) );
+	KCOMPILE_TIME_ASSERT_SIZE(HalfwordAndSignedDataTransferReg_Funcs, 0x04000 * sizeof(void*));
 }
 
 #endif

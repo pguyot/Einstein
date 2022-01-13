@@ -34,8 +34,8 @@
 #define __TNEWTONTRACEMONITOR__
 
 #include <K/Defines/KDefinitions.h>
-#include <K/Tests/TTraceMonitor.h>
 #include <K/Misc/TNameServerSingleton.h>
+#include <K/Tests/TTraceMonitor.h>
 
 ///
 /// Classe pour afficher la trace sur NewtonOS.
@@ -47,9 +47,8 @@
 /// \test	aucun test défini.
 ///
 class TNewtonTraceMonitor
-				:
-					public TTraceMonitor,
-					public TNameServerSingleton
+		: public TTraceMonitor,
+		  public TNameServerSingleton
 {
 public:
 	///
@@ -57,12 +56,12 @@ public:
 	///
 	/// \param	inMode	mode à utiliser. Les bits sont définis dans EMode.
 	///
-	static TNewtonTraceMonitor* GetTraceMonitor( unsigned int inMode );
+	static TNewtonTraceMonitor* GetTraceMonitor(unsigned int inMode);
 
 	///
 	/// Supprime le singleton s'il existe.
 	///
-	static void RemoveTraceMonitor( void );
+	static void RemoveTraceMonitor(void);
 
 private:
 	///
@@ -70,18 +69,18 @@ private:
 	///
 	/// \param	inMode	mode à utiliser. Les bits sont définis dans EMode.
 	///
-	TNewtonTraceMonitor( unsigned int inMode );
+	TNewtonTraceMonitor(unsigned int inMode);
 
 	///
 	/// Destructeur.
 	///
-	virtual ~TNewtonTraceMonitor( void );
+	virtual ~TNewtonTraceMonitor(void);
 
-	static const char* const	kName;			///< constante pour le serveur de noms
+	static const char* const kName; ///< constante pour le serveur de noms
 };
 
 #endif
-		// __TNEWTONTRACEMONITOR__
+// __TNEWTONTRACEMONITOR__
 
 // =============================================================================== //
 // Real Programmers don't write in FORTRAN.  FORTRAN is for pipe stress freaks and //

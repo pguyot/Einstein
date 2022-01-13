@@ -21,24 +21,23 @@
 // $Id$
 // ==============================
 
-#import <UIKit/UIKit.h>
 #include <K/Defines/KDefinitions.h>
+#import <UIKit/UIKit.h>
 
 class TScreenManager;
 class TEmulator;
 
-@interface iEinsteinView : UIView
-{
-	TScreenManager*		mScreenManager;
-    TEmulator*          mEmulator;
-	CGImageRef			mScreenImage;
-	CGRect				screenImageRect;
-	//BOOL				mVisible;
-	KUInt32				newtonScreenHeight;
-	KUInt32				newtonScreenWidth;
-  //EOrientation			mOrientation;
-  //KUInt32					mPreviousMods;
-	bool				applePencilMode;
+@interface iEinsteinView : UIView {
+	TScreenManager* mScreenManager;
+	TEmulator* mEmulator;
+	CGImageRef mScreenImage;
+	CGRect screenImageRect;
+	// BOOL				mVisible;
+	KUInt32 newtonScreenHeight;
+	KUInt32 newtonScreenWidth;
+	// EOrientation			mOrientation;
+	// KUInt32					mPreviousMods;
+	bool applePencilMode;
 }
 
 - (void)reset;

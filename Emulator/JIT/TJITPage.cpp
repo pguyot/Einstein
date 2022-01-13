@@ -34,34 +34,33 @@
 // -------------------------------------------------------------------------- //
 //  * TJITPage( void )
 // -------------------------------------------------------------------------- //
-template<>
-TJITPage<JITClass, JITPageClass>::TJITPage( void )
-	:
-		mPointer( NULL ),
-		mVAddr( 0 ),
-		mPAddr( 0 )
+template <>
+TJITPage<JITClass, JITPageClass>::TJITPage(void) :
+		mPointer(NULL),
+		mVAddr(0),
+		mPAddr(0)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TJITPage( void )
 // -------------------------------------------------------------------------- //
-template<>
-TJITPage<JITClass, JITPageClass>::~TJITPage( void )
+template <>
+TJITPage<JITClass, JITPageClass>::~TJITPage(void)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * Init( KUInt32*, KUInt32 )
 // -------------------------------------------------------------------------- //
-template<>
+template <>
 void
 TJITPage<JITClass, JITPageClass>::Init(
-			TMemory* inMemoryIntf,
-			KUInt32 inVAddr,
-			KUInt32 inPAddr )
+	TMemory* inMemoryIntf,
+	KUInt32 inVAddr,
+	KUInt32 inPAddr)
 {
-	mPointer = inMemoryIntf->GetDirectPointerToPage( inPAddr );
+	mPointer = inMemoryIntf->GetDirectPointerToPage(inPAddr);
 	mVAddr = inVAddr;
 	mPAddr = inPAddr;
 }

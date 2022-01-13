@@ -21,14 +21,12 @@
 // $Id$
 // ==============================
 
-
 #include <cstdlib>
 
 #include "TTkScript.h"
 
-#include "TToolkit.h"
 #include "TFLScriptPanel.h"
-
+#include "TToolkit.h"
 
 /*
  //#include "/Users/matt/dev/newt64/defs/newt.2.2.ns"
@@ -58,48 +56,47 @@
  p("DONE");
 */
 
-TTkScript::TTkScript(TToolkit *toolkit)
-:   mToolkit(toolkit)
+TTkScript::TTkScript(TToolkit* toolkit) :
+		mToolkit(toolkit)
 {
 }
-
 
 TTkScript::~TTkScript()
 {
-    if (mFilename)
-        ::free(mFilename);
+	if (mFilename)
+		::free(mFilename);
 }
 
-
-
-char *TTkScript::DupSourceCode()
+char*
+TTkScript::DupSourceCode()
 {
-    return mPanel->DupSourceCode();
+	return mPanel->DupSourceCode();
 }
 
-
-void TTkScript::SetSourceCode(const char *sourcecode)
+void
+TTkScript::SetSourceCode(const char* sourcecode)
 {
-    mPanel->SetSourceCode(sourcecode);
+	mPanel->SetSourceCode(sourcecode);
 }
 
-
-void TTkScript::LoadFile(const char *filename)
+void
+TTkScript::LoadFile(const char* filename)
 {
-    SetFilename(filename);
-    mPanel->LoadFile(filename);
-    ClearDirty();
+	SetFilename(filename);
+	mPanel->LoadFile(filename);
+	ClearDirty();
 }
 
-
-void TTkScript::SetFilename(const char *filename)
+void
+TTkScript::SetFilename(const char* filename)
 {
-    if (mFilename) ::free(mFilename);
-    mFilename = nullptr;
-    if (filename) mFilename = ::strdup(filename);
-    mToolkit->UpdateTitle();
+	if (mFilename)
+		::free(mFilename);
+	mFilename = nullptr;
+	if (filename)
+		mFilename = ::strdup(filename);
+	mToolkit->UpdateTitle();
 }
-
 
 /**
  * Save the current text to a file on disk.
@@ -107,42 +104,46 @@ void TTkScript::SetFilename(const char *filename)
  * \return a negative number if we could not save the file for any reason
  * \return 0 if we saved the file
  */
-int TTkScript::Save()
+int
+TTkScript::Save()
 {
-    if (mFilename) {
-        FILE *f = fopen(mFilename, "wb");
-        if (!f)
-            return -1;
-        char *src = DupSourceCode();
-        int len = strlen(src);
-        int n = ::fwrite(src, 1, len, f);
-        ::fclose(f);
-        ::free(src);
-        if (n!=len) return -1;
-    }
-    mIsDirty = false;
-    mToolkit->UpdateTitle();
-    return 0;
+	if (mFilename)
+	{
+		FILE* f = fopen(mFilename, "wb");
+		if (!f)
+			return -1;
+		char* src = DupSourceCode();
+		int len = strlen(src);
+		int n = ::fwrite(src, 1, len, f);
+		::fclose(f);
+		::free(src);
+		if (n != len)
+			return -1;
+	}
+	mIsDirty = false;
+	mToolkit->UpdateTitle();
+	return 0;
 }
 
-
-void TTkScript::SetDirty()
+void
+TTkScript::SetDirty()
 {
-    if (!mIsDirty) {
-        mIsDirty = true;
-        mToolkit->UpdateTitle();
-    }
+	if (!mIsDirty)
+	{
+		mIsDirty = true;
+		mToolkit->UpdateTitle();
+	}
 }
 
-
-void TTkScript::ClearDirty()
+void
+TTkScript::ClearDirty()
 {
-    if (mIsDirty) {
-        mIsDirty = false;
-        mToolkit->UpdateTitle();
-    }
+	if (mIsDirty)
+	{
+		mIsDirty = false;
+		mToolkit->UpdateTitle();
+	}
 }
-
 
 // ============================================================================ //
 // NewtonScript

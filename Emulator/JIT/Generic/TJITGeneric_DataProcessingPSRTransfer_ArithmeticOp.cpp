@@ -22,8 +22,8 @@
 // ==============================
 
 #include <K/Defines/KDefinitions.h>
-#include <K/Tests/KDebug.h>
 #include "Emulator/JIT/JIT.h"
+#include <K/Tests/KDebug.h>
 
 #ifdef JITTARGET_GENERIC
 
@@ -34,7 +34,7 @@
 
 #include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_common.h"
 
-#define IMPLEMENTATION	1
+#define IMPLEMENTATION 1
 #include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp_template.t"
 #undef IMPLEMENTATION
 

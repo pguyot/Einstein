@@ -27,7 +27,6 @@
 #include <K/Defines/KDefinitions.h>
 #import <UIKit/UIKit.h>
 
-
 class TNetworkManager;
 class TSoundManager;
 class TScreenManager;
@@ -37,23 +36,21 @@ class TPlatformManager;
 class TLog;
 @class iEinsteinView;
 
-@interface iEinsteinViewController : UIViewController < UIActionSheetDelegate >
-{
-	TNetworkManager*	mNetworkManager;
-	TSoundManager*		mSoundManager;
-	TScreenManager*		mScreenManager;
-	TROMImage*			mROMImage;
-	TEmulator*			mEmulator;
-	TPlatformManager*	mPlatformManager;
-	TLog*				mLog;
-	int					lastKnownScreenResolution;
-
+@interface iEinsteinViewController : UIViewController <UIActionSheetDelegate> {
+	TNetworkManager* mNetworkManager;
+	TSoundManager* mSoundManager;
+	TScreenManager* mScreenManager;
+	TROMImage* mROMImage;
+	TEmulator* mEmulator;
+	TPlatformManager* mPlatformManager;
+	TLog* mLog;
+	int lastKnownScreenResolution;
 }
 
-@property (retain, nonatomic) IBOutlet iEinsteinView *einsteinView;
+@property (retain, nonatomic) IBOutlet iEinsteinView* einsteinView;
 
 // Release
-- (void) dealloc;
+- (void)dealloc;
 
 // NSNibAwaking
 //- (void) awakeFromNib;
@@ -103,7 +100,6 @@ class TLog;
 @end
 
 extern void openEinsteinMenu(iEinsteinViewController*);
-
 
 // ============================================================== //
 // As of next Thursday, UNIX will be flushed in favor of TOPS-10. //

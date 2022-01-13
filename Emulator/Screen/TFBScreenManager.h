@@ -36,8 +36,7 @@
 /// \test	aucun test défini.
 ///
 class TFBScreenManager
-	:
-		public TScreenManager
+		: public TScreenManager
 {
 public:
 	///
@@ -48,15 +47,14 @@ public:
 	/// \param inPortraitHeight		height (in portrait mode).
 	///
 	TFBScreenManager(
-				TLog* inLog = nil,
-				KUInt32 inPortraitWidth = kDefaultPortraitWidth,
-				KUInt32 inPortraitHeight = kDefaultPortraitHeight );
-
+		TLog* inLog = nil,
+		KUInt32 inPortraitWidth = kDefaultPortraitWidth,
+		KUInt32 inPortraitHeight = kDefaultPortraitHeight);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TFBScreenManager( void );
+	virtual ~TFBScreenManager(void);
 
 	///
 	/// Notify that the tablet orientation changed.
@@ -64,21 +62,21 @@ public:
 	///
 	/// \param inNewOrientation	the new orientation of the screen.
 	///
-	virtual void	TabletOrientationChanged(
-						EOrientation inNewOrientation );
+	virtual void TabletOrientationChanged(
+		EOrientation inNewOrientation);
 
 	///
 	/// Power on the screen (open the window?)
 	/// This method is called by the display driver.
 	/// It doesn't do anything. The work is done in ScreenSetup.
 	///
-	virtual void	PowerOnScreen( void );
+	virtual void PowerOnScreen(void);
 
 	///
 	/// Power off the screen (close the window?)
 	/// This method is called by the display driver.
 	///
-	virtual void	PowerOffScreen( void );
+	virtual void PowerOffScreen(void);
 
 	///
 	/// Notify that the screen orientation changed.
@@ -86,8 +84,8 @@ public:
 	///
 	/// \param inNewOrientation	the new orientation of the screen.
 	///
-	virtual void	ScreenOrientationChanged(
-						EOrientation inNewOrientation );
+	virtual void ScreenOrientationChanged(
+		EOrientation inNewOrientation);
 
 	///
 	/// Notify that the contrast changed.
@@ -95,7 +93,7 @@ public:
 	///
 	/// \param inNewContrast the new contrast of the screen.
 	///
-	virtual void	ContrastChanged( KUInt32 inNewContrast );
+	virtual void ContrastChanged(KUInt32 inNewContrast);
 
 	///
 	/// Notify that the backlight changed.
@@ -103,32 +101,32 @@ public:
 	///
 	/// \param inNewBacklight the new state of the backlight.
 	///
-	virtual void	BacklightChanged( Boolean inNewBacklight );
+	virtual void BacklightChanged(Boolean inNewBacklight);
 
 	///
 	/// Notify that some screen bits changed.
 	///
 	/// \param inUpdateRect	rectangle of the bits that changed.
 	///
-	virtual void	UpdateScreenRect( SRect* inUpdatedRect );
+	virtual void UpdateScreenRect(SRect* inUpdatedRect);
 
 private:
 	///
 	/// Open the frame buffer.
 	///
-	void			Open( void );
+	void Open(void);
 
 	///
 	/// Close the frame buffer.
 	///
-	void			Close( void );
+	void Close(void);
 
 	/// \name Variables
-	int				mFrameBufferFD;	///< fd for the fb
+	int mFrameBufferFD; ///< fd for the fb
 };
 
 #endif
-		// _TFBSCREENMANAGER_H
+// _TFBSCREENMANAGER_H
 
 // ====================================================================== //
 // Has everyone noticed that all the letters of the word "database" are   //

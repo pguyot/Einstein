@@ -38,7 +38,7 @@
 
 // ANSI C & POSIX
 #if !TARGET_OS_WIN32
-	#include <sys/time.h>
+#include <sys/time.h>
 #endif
 #include <errno.h>
 #include <signal.h>
@@ -53,7 +53,6 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
-
 #ifdef FIBER_USE_UCONTEXT
 TFiber* TFiber::sCurrentFiber = 0;
 #endif
@@ -61,7 +60,7 @@ TFiber* TFiber::sCurrentFiber = 0;
 // -------------------------------------------------------------------------- //
 //  * TFiber( void )
 // -------------------------------------------------------------------------- //
-TFiber::TFiber( KUInt32 inStackSize )
+TFiber::TFiber(KUInt32 inStackSize)
 {
 	mState = kStopped;
 
@@ -76,7 +75,7 @@ TFiber::TFiber( KUInt32 inStackSize )
 	mFiberContext.uc_link = &mCallerContext;
 	mFiberContext.uc_stack.ss_sp = calloc(1, FIBER_STACK_SIZE);
 	mFiberContext.uc_stack.ss_size = FIBER_STACK_SIZE;
-	makecontext(&mFiberContext, (void(*)())TaskCaller, 0);
+	makecontext(&mFiberContext, (void (*)()) TaskCaller, 0);
 #endif
 
 	// pthreads are the recommended replacement for ucontext
@@ -131,8 +130,7 @@ TFiber::TFiber( KUInt32 inStackSize )
 // -------------------------------------------------------------------------- //
 //  * ~TFiber( void )
 // -------------------------------------------------------------------------- //
-TFiber::~TFiber( void )
-{
+TFiber::~TFiber(void) {
 #ifdef FIBER_USE_UCONTEXT
 #endif
 #ifdef FIBER_USE_PTHREAD
@@ -142,9 +140,10 @@ TFiber::~TFiber( void )
 // -------------------------------------------------------------------------- //
 //  * void Run( void )
 // -------------------------------------------------------------------------- //
-KSInt32 TFiber::Run( KSInt32 inReason, void* inUserData )
+KSInt32 TFiber::Run(KSInt32 inReason, void* inUserData)
 {
-	if (mState!=kStopped) {
+	if (mState != kStopped)
+	{
 		KPrintf("ERROR in TFiber: Run() called, but fiber isn't stopped.\n");
 		return -1;
 	}
@@ -168,9 +167,11 @@ KSInt32 TFiber::Run( KSInt32 inReason, void* inUserData )
 
 #endif
 #ifdef FIBER_USE_LONGJMP
-	if (_setjmp(mCallerContext)) {
+	if (_setjmp(mCallerContext))
+	{
 		// fiber returned
-	} else {
+	} else
+	{
 		_longjmp(mFiberContext, 1);
 	}
 #endif
@@ -181,9 +182,11 @@ KSInt32 TFiber::Run( KSInt32 inReason, void* inUserData )
 // -------------------------------------------------------------------------- //
 //  * void Suspend( void )
 // -------------------------------------------------------------------------- //
-KSInt32 TFiber::Suspend( KSInt32 inReason )
+KSInt32
+TFiber::Suspend(KSInt32 inReason)
 {
-	if (mState!=kRunning) {
+	if (mState != kRunning)
+	{
 		KPrintf("ERROR in TFiber: Suspend() called, but fiber isn't running.\n");
 		return -1;
 	}
@@ -203,9 +206,11 @@ KSInt32 TFiber::Suspend( KSInt32 inReason )
 	pthread_mutex_unlock(&mFiberWaitMutex);
 #endif
 #ifdef FIBER_USE_LONGJMP
-	if (_setjmp(mSuspendContext)) {
+	if (_setjmp(mSuspendContext))
+	{
 		// Resume() jumps here
-	} else {
+	} else
+	{
 		_longjmp(mCallerContext, 1);
 	}
 #endif
@@ -215,9 +220,11 @@ KSInt32 TFiber::Suspend( KSInt32 inReason )
 // -------------------------------------------------------------------------- //
 //  * void Resume( void )
 // -------------------------------------------------------------------------- //
-KSInt32 TFiber::Resume( KSInt32 inReason )
+KSInt32
+TFiber::Resume(KSInt32 inReason)
 {
-	if (mState!=kSuspended) {
+	if (mState != kSuspended)
+	{
 		KPrintf("ERROR in TFiber: Resume() called, but fiber isn't suspended.\n");
 		return -1;
 	}
@@ -237,9 +244,11 @@ KSInt32 TFiber::Resume( KSInt32 inReason )
 	pthread_mutex_unlock(&mCallerWaitMutex);
 #endif
 #ifdef FIBER_USE_LONGJMP
-	if (_setjmp(mCallerContext)) {
+	if (_setjmp(mCallerContext))
+	{
 		// finished tasks and Suspend() jump here
-	} else {
+	} else
+	{
 		_longjmp(mSuspendContext, 1);
 	}
 #endif
@@ -251,7 +260,8 @@ KSInt32 TFiber::Resume( KSInt32 inReason )
 // -------------------------------------------------------------------------- //
 //  * void TaskCaller( void )
 // -------------------------------------------------------------------------- //
-void TFiber::TaskCaller(TFiber* inFiber)
+void
+TFiber::TaskCaller(TFiber* inFiber)
 {
 	TFiber* This = sCurrentFiber;
 	This->mReason = This->Task(This->mReason, This->mUserData);
@@ -265,11 +275,13 @@ void TFiber::TaskCaller(TFiber* inFiber)
 // -------------------------------------------------------------------------- //
 //  * void TaskCaller( void )
 // -------------------------------------------------------------------------- //
-void* TFiber::TaskCaller(void* inFiber)
+void*
+TFiber::TaskCaller(void* inFiber)
 {
-	TFiber* This = (TFiber*)inFiber;
+	TFiber* This = (TFiber*) inFiber;
 
-	for (;;) {
+	for (;;)
+	{
 		// resume caller
 		pthread_mutex_lock(&This->mCallerWaitMutex);
 		pthread_cond_signal(&This->mCallerWait);
@@ -297,18 +309,21 @@ void* TFiber::TaskCaller(void* inFiber)
 // -------------------------------------------------------------------------- //
 //  * void TaskCaller( void )
 // -------------------------------------------------------------------------- //
-void* TFiber::TaskCaller(void* inFiber)
+void*
+TFiber::TaskCaller(void* inFiber)
 {
-	TFiber* This = (TFiber*)inFiber;
+	TFiber* This = (TFiber*) inFiber;
 
-	if (_setjmp(This->mFiberContext)) {
+	if (_setjmp(This->mFiberContext))
+	{
 		// do our taks
 		This->mState = kRunning;
 		This->mReason = This->Task(This->mReason, This->mUserData);
 		This->mState = kStopped;
 		// return to caller
 		_longjmp(This->mCallerContext, 1);
-	} else {
+	} else
+	{
 		// go to sleep forever - we just need a valid context.
 	}
 
@@ -317,7 +332,8 @@ void* TFiber::TaskCaller(void* inFiber)
 	pthread_cond_signal(&This->mCallerWait);
 	pthread_mutex_unlock(&This->mCallerWaitMutex);
 
-	for (;;) {
+	for (;;)
+	{
 
 		// suspend self
 		pthread_mutex_lock(&This->mFiberWaitMutex);
@@ -334,9 +350,11 @@ void* TFiber::TaskCaller(void* inFiber)
 // -------------------------------------------------------------------------- //
 //  * void Abort( KSInt32 reason )
 // -------------------------------------------------------------------------- //
-void TFiber::Abort(KSInt32 inReason)
+void
+TFiber::Abort(KSInt32 inReason)
 {
-	if (!IsSuspended()) {
+	if (!IsSuspended())
+	{
 		KPrintf("ERROR in TFiber: Abort() called, but fiber isn't suspended.\n");
 		return;
 	}

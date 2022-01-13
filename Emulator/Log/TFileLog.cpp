@@ -32,27 +32,27 @@
 // -------------------------------------------------------------------------- //
 //  * TFileLog( const char* )
 // -------------------------------------------------------------------------- //
-TFileLog::TFileLog( const char* inFilePath )
+TFileLog::TFileLog(const char* inFilePath)
 {
-	mFile = ::fopen( inFilePath, "a" );
+	mFile = ::fopen(inFilePath, "a");
 	if (mFile == NULL)
 	{
 		(void) ::fprintf(
-					stderr,
-					"Couldn't open file %s for writing (%i)\n",
-					inFilePath,
-					errno );
+			stderr,
+			"Couldn't open file %s for writing (%i)\n",
+			inFilePath,
+			errno);
 	}
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TFileLog( void )
 // -------------------------------------------------------------------------- //
-TFileLog::~TFileLog( void )
+TFileLog::~TFileLog(void)
 {
 	if (mFile)
 	{
-		(void) ::fclose( mFile );
+		(void) ::fclose(mFile);
 	}
 }
 
@@ -60,10 +60,10 @@ TFileLog::~TFileLog( void )
 //  * DoLogLine( const char* )
 // -------------------------------------------------------------------------- //
 void
-TFileLog::DoLogLine( const char* inLine )
+TFileLog::DoLogLine(const char* inLine)
 {
-	(void) ::fprintf( mFile, "%s\n", inLine );
-	(void) ::fflush( mFile );
+	(void) ::fprintf(mFile, "%s\n", inLine);
+	(void) ::fflush(mFile);
 }
 
 // ========================================================================= //

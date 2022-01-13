@@ -21,46 +21,43 @@
 // $Id$
 // ==============================
 
-#include <K/Streams/TFileStream.h>
 #include "TMonitorCore.h"
+#include <K/Streams/TFileStream.h>
 
 // ANSI C & POSIX
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <sys/types.h>
 
 #if TARGET_OS_WIN32
-	#include <assert.h>
+#include <assert.h>
 #else
-	#include <strings.h>
-	#include <sys/socket.h>
-	#include <sys/uio.h>
-	#include <unistd.h>
+#include <strings.h>
+#include <sys/socket.h>
+#include <sys/uio.h>
+#include <unistd.h>
 #endif
-
 
 // Einstein
 #include "Monitor/TSymbolList.h"
 #include "Emulator/JIT/JIT.h"
 
-
-TMonitorCore::TMonitorCore(TSymbolList* inSymbolList)
-:	mMemory(0L),
-	mSymbolList(inSymbolList)
+TMonitorCore::TMonitorCore(TSymbolList* inSymbolList) :
+		mMemory(0L),
+		mSymbolList(inSymbolList)
 {
 }
-
 
 TMonitorCore::~TMonitorCore()
 {
 }
 
-
-void TMonitorCore::PrintLine(const char* inLine, int type)
+void
+TMonitorCore::PrintLine(const char* inLine, int type)
 {
-    (void)type;
+	(void) type;
 	puts(inLine);
 }
 
@@ -68,30 +65,40 @@ void TMonitorCore::PrintLine(const char* inLine, int type)
 // ExecuteScript( const char* inCommand )
 // -------------------------------------------------------------------------- //
 Boolean
-TMonitorCore::ExecuteScript( const char* inScriptFile )
+TMonitorCore::ExecuteScript(const char* inScriptFile)
 {
 	bool theResult = true;
-	FILE *f = fopen(inScriptFile, "rb");
-	if (f) {
-		for (;;) {
+	FILE* f = fopen(inScriptFile, "rb");
+	if (f)
+	{
+		for (;;)
+		{
 			char buf[2048];
-			if (feof(f)) break;
-			if (fgets(buf, 2047, f)) {
-				int n = (int)strlen(buf);
-				if (n) {
-					if (buf[n-1]=='\n') n--;
-					if ((n>0) && (buf[n-1]=='\r')) n--;
+			if (feof(f))
+				break;
+			if (fgets(buf, 2047, f))
+			{
+				int n = (int) strlen(buf);
+				if (n)
+				{
+					if (buf[n - 1] == '\n')
+						n--;
+					if ((n > 0) && (buf[n - 1] == '\r'))
+						n--;
 					buf[n] = 0;
-					char *s = buf;
-					while (*s=='\t' || *s==' ') s++;
-					if (s[0]!='#' && s[0]!=0)
+					char* s = buf;
+					while (*s == '\t' || *s == ' ')
+						s++;
+					if (s[0] != '#' && s[0] != 0)
 						theResult = ExecuteCommand(s);
 				}
 			}
-			if (theResult==false) break;
+			if (theResult == false)
+				break;
 		}
 		fclose(f);
-	} else {
+	} else
+	{
 		theResult = false;
 		PrintLine("Can't open script file", MONITOR_LOG_ERROR);
 	}
@@ -102,7 +109,7 @@ TMonitorCore::ExecuteScript( const char* inScriptFile )
 // ExecuteCommand( const char* inCommand )
 // -------------------------------------------------------------------------- //
 Boolean
-TMonitorCore::ExecuteCommand( const char* inCommand )
+TMonitorCore::ExecuteCommand(const char* inCommand)
 {
 #if TARGET_OS_WIN32
 	assert(0); // FIXME later
@@ -110,27 +117,32 @@ TMonitorCore::ExecuteCommand( const char* inCommand )
 #else
 	Boolean theResult = true;
 
-	if (inCommand[0]=='#') {
+	if (inCommand[0] == '#')
+	{
 		// script comment
-	} else if (::strcmp(inCommand, "cd") == 0) {
-		const char *home = ::getenv("HOME");
+	} else if (::strcmp(inCommand, "cd") == 0)
+	{
+		const char* home = ::getenv("HOME");
 		::chdir(home);
-	} else if (::strncmp(inCommand, "cd ", 3) == 0) {
-		::chdir(inCommand+3);
-	} else if (::strcmp(inCommand, "cwd") == 0) {
+	} else if (::strncmp(inCommand, "cd ", 3) == 0)
+	{
+		::chdir(inCommand + 3);
+	} else if (::strcmp(inCommand, "cwd") == 0)
+	{
 		char buf[2048];
 		getcwd(buf, 2048);
 		PrintLine(buf, MONITOR_LOG_INFO);
-	} else if (inCommand[0]=='\'') {
-		PrintLine(inCommand+1, MONITOR_LOG_INFO);
-	} else {
+	} else if (inCommand[0] == '\'')
+	{
+		PrintLine(inCommand + 1, MONITOR_LOG_INFO);
+	} else
+	{
 		PrintLine("Unknown command. Type '?' for help.", MONITOR_LOG_ERROR);
 		theResult = false;
 	}
 	return theResult;
 #endif
 }
-
 
 // ==================================================================== //
 // I am not now, nor have I ever been, a member of the demigodic party. //

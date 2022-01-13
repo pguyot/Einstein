@@ -22,27 +22,26 @@
 // ==============================
 
 #define MoveOp_TemplateName(op, mode, flag_s, rd) \
-	DataProcessingTranfer_ ## op ## _ ## mode ## _ ## flag_s ## _ ## rd
+	DataProcessingTranfer_##op##_##mode##_##flag_s##_##rd
 
 #define MoveOp_Proto(op, mode, flag_s, rd) \
-	JITUnit* MoveOp_TemplateName(op, mode, flag_s, rd) \
-		(JITUnit* ioUnit, TARMProcessor* ioCPU)
+	JITUnit* MoveOp_TemplateName(op, mode, flag_s, rd)(JITUnit * ioUnit, TARMProcessor * ioCPU)
 
 #if DECLARATION
-	#define MoveOp(op, mode, flag_s, rd) \
-		MoveOp_Proto(op, mode, flag_s, rd);
+#define MoveOp(op, mode, flag_s, rd) \
+	MoveOp_Proto(op, mode, flag_s, rd);
 #endif
 #if IMPLEMENTATION
-	#define MoveOp(op, mode, flag_s, rd) \
-		MoveOp_Proto(op, mode, flag_s, rd)
+#define MoveOp(op, mode, flag_s, rd) \
+	MoveOp_Proto(op, mode, flag_s, rd)
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_MoveOp_template.h"
 
-#define OP		MOV
+#define OP MOV
 #include "IncludeModeRd.h"
 #undef OP
-#define OP		MVN
+#define OP MVN
 #include "IncludeModeRd.h"
 #undef OP
 

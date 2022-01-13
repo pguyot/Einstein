@@ -35,17 +35,17 @@
 //  * HostInfoTest( void )
 // -------------------------------------------------------------------------- //
 void
-UHostInfoTests::HostInfoTest( TLog* inLog )
+UHostInfoTests::HostInfoTest(TLog* inLog)
 {
 	const THostInfo* theHostInfo = THostInfo::GetHostInfo();
-	const KUInt16* theFirstName = theHostInfo->GetUserInfo( kUserInfo_FirstName );
-	const KUInt16* theLastName = theHostInfo->GetUserInfo( kUserInfo_LastName );
+	const KUInt16* theFirstName = theHostInfo->GetUserInfo(kUserInfo_FirstName);
+	const KUInt16* theLastName = theHostInfo->GetUserInfo(kUserInfo_LastName);
 
 	char buffer[512];
-	UUTF16CStr::ToUTF8( theFirstName, (KUInt8*) buffer );
+	UUTF16CStr::ToUTF8(theFirstName, (KUInt8*) buffer);
 	inLog->FLogLine("first = >%s<", buffer);
 
-	UUTF16CStr::ToUTF8( theLastName, (KUInt8*) buffer );
+	UUTF16CStr::ToUTF8(theLastName, (KUInt8*) buffer);
 	inLog->FLogLine("last = >%s<\n", buffer);
 }
 

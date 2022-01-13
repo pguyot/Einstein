@@ -30,7 +30,7 @@
 //  * PowerOn( void )
 // -------------------------------------------------------------------------- //
 void
-TNullScreenManager::PowerOn( void )
+TNullScreenManager::PowerOn(void)
 {
 	GetLog()->LogLine("TNullScreenManager::PowerOn()");
 }
@@ -39,7 +39,7 @@ TNullScreenManager::PowerOn( void )
 //  * PowerOffScreen( void )
 // -------------------------------------------------------------------------- //
 void
-TNullScreenManager::PowerOff( void )
+TNullScreenManager::PowerOff(void)
 {
 	GetLog()->LogLine("TNullScreenManager::PowerOff()");
 }
@@ -48,7 +48,7 @@ TNullScreenManager::PowerOff( void )
 //  * PowerOnScreen( void )
 // -------------------------------------------------------------------------- //
 void
-TNullScreenManager::PowerOnScreen( void )
+TNullScreenManager::PowerOnScreen(void)
 {
 	GetLog()->LogLine("TNullScreenManager::PowerOnScreen()");
 }
@@ -57,7 +57,7 @@ TNullScreenManager::PowerOnScreen( void )
 //  * PowerOffScreen( void )
 // -------------------------------------------------------------------------- //
 void
-TNullScreenManager::PowerOffScreen( void )
+TNullScreenManager::PowerOffScreen(void)
 {
 	GetLog()->LogLine("TNullScreenManager::PowerOffScreen()");
 }
@@ -66,7 +66,7 @@ TNullScreenManager::PowerOffScreen( void )
 //  * BacklightChanged( Boolean )
 // -------------------------------------------------------------------------- //
 void
-TNullScreenManager::BacklightChanged( Boolean backlight )
+TNullScreenManager::BacklightChanged(Boolean backlight)
 {
 	GetLog()->FLogLine("TNullScreenManager::BacklightChanged(%d)", (int) backlight);
 }
@@ -75,7 +75,7 @@ TNullScreenManager::BacklightChanged( Boolean backlight )
 //  * ContrastChanged( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TNullScreenManager::ContrastChanged( KUInt32 contrast )
+TNullScreenManager::ContrastChanged(KUInt32 contrast)
 {
 	GetLog()->FLogLine("TNullScreenManager::ContrastChanged(%u)", (unsigned int) contrast);
 }
@@ -84,7 +84,7 @@ TNullScreenManager::ContrastChanged( KUInt32 contrast )
 //  * ScreenOrientationChanged( EOrientation )
 // -------------------------------------------------------------------------- //
 void
-TNullScreenManager::ScreenOrientationChanged( EOrientation inNewOrientation )
+TNullScreenManager::ScreenOrientationChanged(EOrientation inNewOrientation)
 {
 	GetLog()->FLogLine("TNullScreenManager::ScreenOrientationChanged(%u)", (unsigned int) inNewOrientation);
 }
@@ -93,7 +93,7 @@ TNullScreenManager::ScreenOrientationChanged( EOrientation inNewOrientation )
 //  * TabletOrientationChanged( EOrientation )
 // -------------------------------------------------------------------------- //
 void
-TNullScreenManager::TabletOrientationChanged( EOrientation inNewOrientation )
+TNullScreenManager::TabletOrientationChanged(EOrientation inNewOrientation)
 {
 	GetLog()->FLogLine("TNullScreenManager::TabletOrientationChanged(%u)", (unsigned int) inNewOrientation);
 }
@@ -102,10 +102,10 @@ TNullScreenManager::TabletOrientationChanged( EOrientation inNewOrientation )
 //  * UpdateScreenRect( SRect* )
 // -------------------------------------------------------------------------- //
 void
-TNullScreenManager::UpdateScreenRect( SRect* inUpdateRect )
+TNullScreenManager::UpdateScreenRect(SRect* inUpdateRect)
 {
-    (void)inUpdateRect;
-    // Ignore this.
+	(void) inUpdateRect;
+	// Ignore this.
 }
 
 // ========================================================================= //

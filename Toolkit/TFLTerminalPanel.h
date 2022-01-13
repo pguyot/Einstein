@@ -28,10 +28,9 @@
 #include "app/FLTK/TFLApp.h"
 
 #include <FL/Fl_Group.H>
-#include <FL/Fl_Tile.H>
-#include <FL/Fl_Text_Editor.H>
 #include <FL/Fl_Text_Buffer.H>
-
+#include <FL/Fl_Text_Editor.H>
+#include <FL/Fl_Tile.H>
 
 /**
  * Terminal is a direct connection to the NEWT/64 environment.
@@ -39,10 +38,9 @@
 class TFLTerminalPanel : public Fl_Group
 {
 public:
-    TFLTerminalPanel(int x, int y, int w, int h, const char *label = nullptr);
-    ~TFLTerminalPanel();
+	TFLTerminalPanel(int x, int y, int w, int h, const char* label = nullptr);
+	~TFLTerminalPanel();
 };
-
 
 /**
  * This class displays output from the Toolkit and allows users to enter commands.
@@ -50,13 +48,17 @@ public:
 class TFLTerminalEditor : public Fl_Text_Editor
 {
 public:
-    TFLTerminalEditor(int x, int y, int w, int h, const char *label = nullptr);
-    ~TFLTerminalEditor();
-protected:
-    int handle_command_enter(int key);
-    static int handle_command_enter_cb(int key, Fl_Text_Editor* w) { return ((TFLTerminalEditor*)w)->handle_command_enter(key); }
-};
+	TFLTerminalEditor(int x, int y, int w, int h, const char* label = nullptr);
+	~TFLTerminalEditor();
 
+protected:
+	int handle_command_enter(int key);
+	static int
+	handle_command_enter_cb(int key, Fl_Text_Editor* w)
+	{
+		return ((TFLTerminalEditor*) w)->handle_command_enter(key);
+	}
+};
 
 /**
  * This class manages the text buffer for the Terminal Panel.
@@ -64,20 +66,19 @@ protected:
 class TFLTerminalBuffer : public Fl_Text_Buffer
 {
 public:
-    TFLTerminalBuffer();
-    ~TFLTerminalBuffer();
+	TFLTerminalBuffer();
+	~TFLTerminalBuffer();
 };
-
 
 class TFLTile : public Fl_Tile
 {
 public:
-    TFLTile(int x, int y, int w, int h, const char *label = nullptr);
-    void resize(int x, int y, int w, int h) override;
+	TFLTile(int x, int y, int w, int h, const char* label = nullptr);
+	void resize(int x, int y, int w, int h) override;
 };
 
 #endif
-		// _T_FL_TERMINAL_PANEL
+// _T_FL_TERMINAL_PANEL
 
 // ============================================================================ //
 // Inspector
