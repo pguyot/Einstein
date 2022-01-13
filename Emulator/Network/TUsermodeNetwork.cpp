@@ -1682,66 +1682,58 @@ TUsermodeNetwork::~TUsermodeNetwork()
  */
 int TUsermodeNetwork::SendPacket(KUInt8 *data, KUInt32 size)
 {
-    int err = 0;
+    int result = 0;
     Packet packet(data, size, 0); // convert data into a packet
     LOG_PROTOCOL(",---- Einstein < Newton -----------------");
 
     // offer this package to all active handlers
     PacketHandler *ph = mFirstPacketHandler;
     while (ph) {
-        switch( ph->send(packet) ) {
-            case -1:    err = -1; goto done;    // an error occured, packet must not be handled
-            case 1:     goto done;              // packet was handled successfuly, leave
-            case 0:     break;                  // another handler should deal with this packet
-        }
+		result = ph->send(packet);
+		// A result of 1 means handled, -1 means error, either way, we are done.
+		if (result!=0) goto done;
+		// A result of 0 means that we could not handle this package, so we will
+		// try to find another handler.
         ph = ph->mNext;
     }
 
     LOG_PROTOCOL("| Searching for a new handler:");
     LOG_HEADER_DO( Log(&packet, "| W E<N", __LINE__); )
 
-    // now offer the package to possible new handlers
-    switch( DHCPPacketHandler::canHandle(packet, this) ) {
-        case -1:    err = -1; goto done;
-        case 1:     goto done;
-        case 0:     break;
-    }
-    switch( DNSPacketHandler::canHandle(packet, this) ) {
-        case -1:    err = -1; goto done;
-        case 1:     goto done;
-        case 0:     break;
-    }
-    switch( ARPPacketHandler::canHandle(packet, this) ) {
-        case -1:    err = -1; goto done;
-        case 1:     goto done;
-        case 0:     break;
-    }
-    switch( TCPPacketHandler::canHandle(packet, this) ) {
-        case -1:    err = -1; goto done;
-        case 1:     goto done;
-        case 0:     break;
-    }
-    switch( UDPPacketHandler::canHandle(packet, this) ) {
-        case -1:    err = -1; goto done;
-        case 1:     goto done;
-        case 0:     break;
-    }
+	// None of the existing handlers could work with the package. Now offer the
+	// package to all manager classes, possibly creating a new handler.
+	result = DHCPPacketHandler::canHandle(packet, this);
+	if (result!=0) goto done;
+
+	result = DNSPacketHandler::canHandle(packet, this);
+	if (result!=0) goto done;
+
+	result = ARPPacketHandler::canHandle(packet, this);
+	if (result!=0) goto done;
+
+	result = TCPPacketHandler::canHandle(packet, this);
+	if (result!=0) goto done;
+
+	result = UDPPacketHandler::canHandle(packet, this);
+	if (result!=0) goto done;
 
     LOG_PROTOCOL("| Unsupported package");
     LOG_PACKAGE_DO( LogPacket(packet.Data(), packet.Size()); )
     LOG_CONTENT_DO( LogBuffer(packet.Data(), packet.Size()); )
-    err = 1;
 
 done:
-    if (err==-1) {
+	int ret = -1;
+    if (result==-1) {
         LOG_PROTOCOL("`---- Einstein < Newton -- Aborted ------");
-    } else if (err==0) {
+		ret = -1;
+    } else if (result==1) {
         LOG_PROTOCOL("`---- Einstein < Newton -- OK -----------");
+		ret = 0;
     } else {
         LOG_PROTOCOL("`---- Einstein < Newton -- Unsupported --");
-        err = 0;
+		result = -1;
     }
-    return err;
+    return ret;
 }
 
 

@@ -293,6 +293,7 @@ TFLApp::~TFLApp( void )
     delete mROMImage;
     delete mMonitor;
     delete mSymbolList;
+	delete mFLSettings;
 }
 
 
