@@ -15,7 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Get dependencies
-      run: sudo apt-get install -y libpulse-dev ninja-build libbsd-dev
+      run: |
+        sudo apt-get install -y libpulse-dev ninja-build libbsd-dev
+        wget --no-check-certificate -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo add-apt-repository 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main'
+        sudo apt-get update
+        sudo apt-get install clang-format-13
     - name: Get sources
       uses: actions/checkout@v2
     - name: Get FLTK
@@ -43,9 +48,14 @@ jobs:
         cmake -S newt64 -B newt64/build
         cmake --build newt64/build
         sudo cmake --install newt64/build
-    - name: Compile Einstein
+    - name: Configure Einstein
       run: |
         cmake -S . -B _Build_/Makefiles
+    - name: Check format
+      run: |
+        cmake --build _Build_/Makefiles --target clang-format-check
+    - name: Compile Einstein
+      run: |
         cmake --build _Build_/Makefiles
     - name: Run tests
       run: |
