@@ -26,52 +26,52 @@
 // #define INCLUDE_TEMPLATE	"MyFile.h"
 // #include "IncludeRn.h"
 
-#define Rn	0
+#define Rn 0
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	1
+#define Rn 1
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	2
+#define Rn 2
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	3
+#define Rn 3
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	4
+#define Rn 4
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	5
+#define Rn 5
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	6
+#define Rn 6
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	7
+#define Rn 7
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	8
+#define Rn 8
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	9
+#define Rn 9
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	10
+#define Rn 10
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	11
+#define Rn 11
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	12
+#define Rn 12
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	13
+#define Rn 13
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	14
+#define Rn 14
 #include INCLUDE_TEMPLATE
 #undef Rn
-#define Rn	15
+#define Rn 15
 #include INCLUDE_TEMPLATE
 #undef Rn
 

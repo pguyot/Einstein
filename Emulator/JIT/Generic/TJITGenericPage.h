@@ -40,9 +40,9 @@ typedef JITUnit* (*JITFuncPtr)(JITUnit* ioUnit, TARMProcessor* ioCPU);
 typedef void (*JITSimPtr)(TARMProcessor* ioCPU, KUInt32 ret);
 
 typedef union JITUnit {
-	KUIntPtr	fPtr;
-	KUInt32		fValue;
-	JITFuncPtr	fFuncPtr;
+	KUIntPtr fPtr;
+	KUInt32 fValue;
+	JITFuncPtr fFuncPtr;
 } JITUnit;
 
 ///
@@ -54,8 +54,7 @@ typedef union JITUnit {
 /// \test	aucun test défini.
 ///
 class TJITGenericPage
-	:
-		public TJITPage< TJITGeneric, TJITGenericPage >
+		: public TJITPage<TJITGeneric, TJITGenericPage>
 {
 public:
 	///
@@ -66,25 +65,27 @@ public:
 	///
 	/// Default constructor.
 	///
-	TJITGenericPage( void );
+	TJITGenericPage(void);
 
 	///
 	/// Destructor.
 	///
-	~TJITGenericPage( void );
+	~TJITGenericPage(void);
 
 	///
 	/// Init with the memory interface, a virtual address and a physical address.
 	///
 	void Init(
-			TMemory* inMemoryIntf,
-			KUInt32 inVAddr,
-			KUInt32 inPAddr );
+		TMemory* inMemoryIntf,
+		KUInt32 inVAddr,
+		KUInt32 inPAddr);
 
 	///
 	/// Push a unit in the table, resizing the table if required.
 	///
-	void PushUnit(KUInt16* ioUnitCrsr, JITFuncPtr inUnit) {
+	void
+	PushUnit(KUInt16* ioUnitCrsr, JITFuncPtr inUnit)
+	{
 		PushUnit(ioUnitCrsr, (KUIntPtr) inUnit);
 	}
 
@@ -96,7 +97,9 @@ public:
 	///
 	/// Get the unit for a given (instruction) offset.
 	///
-	inline JITUnit* GetJITUnitForOffset(KUInt32 inOffset) {
+	inline JITUnit*
+	GetJITUnitForOffset(KUInt32 inOffset)
+	{
 		return &mUnits[mUnitsTable[inOffset]];
 	}
 
@@ -108,10 +111,10 @@ public:
 	/// \param inInstruction	instruction to translate.
 	///
 	void Translate(
-				   TMemory* inMemoryIntf,
-				   KUInt16* ioUnitCrsr,
-				   KUInt32 inInstruction,
-				   KUInt32 inVAddr );
+		TMemory* inMemoryIntf,
+		KUInt16* ioUnitCrsr,
+		KUInt32 inInstruction,
+		KUInt32 inVAddr);
 
 protected:
 	/// Test bits.
@@ -140,8 +143,8 @@ protected:
 	/// \param inInstruction	current instruction.
 	///
 	static JITUnit* EndOfPage(
-					JITUnit* ioUnit,
-					TARMProcessor* ioObject );
+		JITUnit* ioUnit,
+		TARMProcessor* ioObject);
 
 	///
 	/// Halt (used for stepping).
@@ -149,8 +152,8 @@ protected:
 	/// \param inInstruction	current instruction.
 	///
 	static JITUnit* Halt(
-					JITUnit* ioUnit,
-					TARMProcessor* ioObject );
+		JITUnit* ioUnit,
+		TARMProcessor* ioObject);
 
 	///
 	/// Subroutine to put the test in the units table.
@@ -160,9 +163,9 @@ protected:
 	/// \return the kind of test.
 	///
 	void PutTest(
-				KUInt16 inUnitCrsr,
-				unsigned char inDelta,
-				int inTest );
+		KUInt16 inUnitCrsr,
+		unsigned char inDelta,
+		int inTest);
 
 	///
 	/// Subroutine to translate an instruction and replace the unit.
@@ -173,9 +176,9 @@ protected:
 	/// \param ioUnit			unit to fill.
 	///
 	void DoTranslate_00(
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr );
+		KUInt16* ioUnitCrsr,
+		KUInt32 inInstruction,
+		KUInt32 inVAddr);
 
 	///
 	/// Subroutine to translate an instruction and replace the unit.
@@ -186,10 +189,10 @@ protected:
 	/// \param ioUnit			unit to fill.
 	///
 	void DoTranslate_01(
-					TMemory* inMemoryIntf,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr );
+		TMemory* inMemoryIntf,
+		KUInt16* ioUnitCrsr,
+		KUInt32 inInstruction,
+		KUInt32 inVAddr);
 
 	///
 	/// Subroutine to translate an instruction and replace the unit.
@@ -200,9 +203,9 @@ protected:
 	/// \param ioUnit			unit to fill.
 	///
 	void DoTranslate_10(
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr );
+		KUInt16* ioUnitCrsr,
+		KUInt32 inInstruction,
+		KUInt32 inVAddr);
 
 	///
 	/// Subroutine to translate an instruction and replace the unit.
@@ -213,30 +216,30 @@ protected:
 	/// \param ioUnit			unit to fill.
 	///
 	void DoTranslate_11(
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr );
+		KUInt16* ioUnitCrsr,
+		KUInt32 inInstruction,
+		KUInt32 inVAddr);
 
 	/// \name Constants
 	enum {
-		kInstructionCount = (TJITPage< TJITGeneric, TJITGenericPage >::kPageSize / 4),
+		kInstructionCount = (TJITPage<TJITGeneric, TJITGenericPage>::kPageSize / 4),
 		kDefaultUnitCount = 3 * kInstructionCount,
 		kUnitIncrement = 32,
 	};
 
 	/// \name Variables
-	KUInt32			mUnitCount;	///< Total number of units in this page.
-								///< This is initialized with a reasonable
-								///< default and increased as required.
-	KUInt16			mUnitsTable[kInstructionCount];
-								///< Array with the index of a unit for a given
-								///< address. This is used to find out the
-								///< proper unit when jumping...
-	JITUnit*		mUnits;		///< Array with all the units.
+	KUInt32 mUnitCount; ///< Total number of units in this page.
+						///< This is initialized with a reasonable
+						///< default and increased as required.
+	KUInt16 mUnitsTable[kInstructionCount];
+	///< Array with the index of a unit for a given
+	///< address. This is used to find out the
+	///< proper unit when jumping...
+	JITUnit* mUnits; ///< Array with all the units.
 };
 
 #endif
-		// _TJITGENERICPAGE_H
+// _TJITGENERICPAGE_H
 
 // ======================================== //
 // Ask not for whom the <CONTROL-G> tolls. //

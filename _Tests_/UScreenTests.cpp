@@ -16,13 +16,13 @@
 #include "UScreenTests.h"
 
 // ANSI C & POSIX
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #if TARGET_OS_WIN32
-	#include <assert.h>
+#include <assert.h>
 #else
-	#include <unistd.h>
+#include <unistd.h>
 #endif
 
 // Einstein.
@@ -39,27 +39,27 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 #if TARGET_OS_WIN32
-	#define kTempFlashPath "c:/EinsteinTests.flash"
+#define kTempFlashPath "c:/EinsteinTests.flash"
 #else
-	#define kTempFlashPath "/tmp/EinsteinTests.flash"
+#define kTempFlashPath "/tmp/EinsteinTests.flash"
 #endif
 
 // -------------------------------------------------------------------------- //
 //  * TestX11( void )
 // -------------------------------------------------------------------------- //
 void
-UScreenTests::TestX11( void )
+UScreenTests::TestX11(void)
 {
 #if NO_X11
 	assert(0); // FIXME later
 #else
 	// Create some memory.
-	TMemory theMem( (TLog*) NULL, (KUInt8*) NULL, kTempFlashPath );
+	TMemory theMem((TLog*) NULL, (KUInt8*) NULL, kTempFlashPath);
 
 	// Create the screen manager.
 	TX11ScreenManager theScreenManager;
 
-	theScreenManager.SetMemory( &theMem );
+	theScreenManager.SetMemory(&theMem);
 
 	// Open the screen.
 	theScreenManager.PowerOnScreen();
@@ -72,9 +72,9 @@ UScreenTests::TestX11( void )
 	KUInt32 baseAddy = pixmapAddr + 0x00000100;
 
 	// Create a pixmap in RAM.
-	(void) theMem.WriteP( pixmapAddr + 0x00, baseAddy );			// base addy
-	(void) theMem.WriteP( pixmapAddr + 0x04, rowBytes << 16 );
-	(void) theMem.WriteP( pixmapAddr + 0x08, 0x00000000 );			// topleft
+	(void) theMem.WriteP(pixmapAddr + 0x00, baseAddy); // base addy
+	(void) theMem.WriteP(pixmapAddr + 0x04, rowBytes << 16);
+	(void) theMem.WriteP(pixmapAddr + 0x08, 0x00000000); // topleft
 
 	// Fill it with white pixels.
 	KUInt32 indexLines;
@@ -84,7 +84,7 @@ UScreenTests::TestX11( void )
 		KUInt32 indexWords;
 		for (indexWords = 0; indexWords < rowWords; indexWords++)
 		{
-			(void) theMem.WriteP( cursorWords, 0x00000000 );
+			(void) theMem.WriteP(cursorWords, 0x00000000);
 			cursorWords += 4;
 		}
 	}
@@ -96,7 +96,7 @@ UScreenTests::TestX11( void )
 	theRect.fLeft = 0;
 	theRect.fRight = theWidth;
 
-	theScreenManager.Blit( pixmapAddr, &theRect, &theRect, 0 /* srcCopy */ );
+	theScreenManager.Blit(pixmapAddr, &theRect, &theRect, 0 /* srcCopy */);
 
 	KUInt32 indexRow;
 	for (indexRow = 0; indexRow < theWidth; indexRow++)
@@ -105,16 +105,16 @@ UScreenTests::TestX11( void )
 		for (indexLines = 0; indexLines < theHeight; indexLines++)
 		{
 			int xCoord = (indexLines + indexRow) % theWidth;
-			DrawPoint( &theMem, baseAddy, rowBytes, xCoord, indexLines, indexRow % 16 );
+			DrawPoint(&theMem, baseAddy, rowBytes, xCoord, indexLines, indexRow % 16);
 
-//			theRect.fTop = indexLines;
-//			theRect.fLeft = xCoord;
-//			theRect.fBottom = indexLines + 1;
-//			theRect.fRight = xCoord + 1;
+			//			theRect.fTop = indexLines;
+			//			theRect.fLeft = xCoord;
+			//			theRect.fBottom = indexLines + 1;
+			//			theRect.fRight = xCoord + 1;
 		}
 
 		// Blit again.
-		theScreenManager.Blit( pixmapAddr, &theRect, &theRect, 1 /* !srcCopy */ );
+		theScreenManager.Blit(pixmapAddr, &theRect, &theRect, 1 /* !srcCopy */);
 	}
 
 	// Fill it with black pixels.
@@ -124,13 +124,13 @@ UScreenTests::TestX11( void )
 		KUInt32 indexWords;
 		for (indexWords = 0; indexWords < rowWords; indexWords++)
 		{
-			(void) theMem.WriteP( cursorWords, 0xFFFFFFFF );
+			(void) theMem.WriteP(cursorWords, 0xFFFFFFFF);
 			cursorWords += 4;
 		}
 	}
 
 	// Blit again.
-	theScreenManager.Blit( pixmapAddr, &theRect, &theRect, 0 /* srcCopy */ );
+	theScreenManager.Blit(pixmapAddr, &theRect, &theRect, 0 /* srcCopy */);
 
 	for (indexRow = 0; indexRow < theWidth; indexRow++)
 	{
@@ -138,22 +138,22 @@ UScreenTests::TestX11( void )
 		for (indexLines = 0; indexLines < theHeight; indexLines++)
 		{
 			int xCoord = (indexLines + indexRow) % theWidth;
-			DrawPoint( &theMem, baseAddy, rowBytes, xCoord, indexLines, indexRow % 16 );
+			DrawPoint(&theMem, baseAddy, rowBytes, xCoord, indexLines, indexRow % 16);
 
-//			theRect.fTop = indexLines;
-//			theRect.fLeft = xCoord;
-//			theRect.fBottom = indexLines + 1;
-//			theRect.fRight = xCoord + 1;
+			//			theRect.fTop = indexLines;
+			//			theRect.fLeft = xCoord;
+			//			theRect.fBottom = indexLines + 1;
+			//			theRect.fRight = xCoord + 1;
 		}
 
 		// Blit again.
-		theScreenManager.Blit( pixmapAddr, &theRect, &theRect, 0 /* srcCopy */ );
+		theScreenManager.Blit(pixmapAddr, &theRect, &theRect, 0 /* srcCopy */);
 	}
 
 	// Close the screen.
 	theScreenManager.PowerOffScreen();
 
-	(void) ::unlink( kTempFlashPath );
+	(void) ::unlink(kTempFlashPath);
 #endif
 }
 
@@ -162,12 +162,12 @@ UScreenTests::TestX11( void )
 // -------------------------------------------------------------------------- //
 void
 UScreenTests::DrawPoint(
-					TMemory* inMemoryIntf,
-					KUInt32 inBaseAddy,
-					KUInt32 inRowBytes,
-					int inXcoord,
-					int inYcoord,
-					int inColor )
+	TMemory* inMemoryIntf,
+	KUInt32 inBaseAddy,
+	KUInt32 inRowBytes,
+	int inXcoord,
+	int inYcoord,
+	int inColor)
 {
 	KUInt32 addr = inBaseAddy + (inRowBytes * inYcoord);
 
@@ -177,11 +177,12 @@ UScreenTests::DrawPoint(
 		addr += (inXcoord / 2);
 		addr &= ~0x00000003;
 		Boolean fault;
-		KUInt32 theWord = inMemoryIntf->ReadP( addr, fault );
+		KUInt32 theWord = inMemoryIntf->ReadP(addr, fault);
 		KUInt32 mask = 0xF << shift;
-		theWord = (theWord & ~ mask) | (inColor << shift);
-		(void) inMemoryIntf->WriteP( addr, theWord );
-	} else {
+		theWord = (theWord & ~mask) | (inColor << shift);
+		(void) inMemoryIntf->WriteP(addr, theWord);
+	} else
+	{
 		::abort();
 	}
 }

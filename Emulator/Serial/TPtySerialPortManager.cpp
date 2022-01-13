@@ -25,27 +25,26 @@
 #include "app/TPathHelper.h"
 
 // POSIX
-#include <sys/types.h>
 #include <signal.h>
 #include <string.h>
+#include <sys/types.h>
 
 #if !TARGET_OS_WIN32
-#include <unistd.h>
-#include <sys/time.h>
 #include <sys/ioctl.h>
-#include <termios.h>
 #include <sys/stat.h>
+#include <sys/time.h>
+#include <termios.h>
+#include <unistd.h>
 #if defined(__APPLE__) && !TARGET_OS_IOS
 #include <CoreServices/CoreServices.h>
 #endif
 #endif
 
-#include "Emulator/Log/TLog.h"
-#include "Emulator/TInterruptManager.h"
-#include "Emulator/TDMAManager.h"
-#include "Emulator/TMemory.h"
 #include "Emulator/TARMProcessor.h"
-
+#include "Emulator/TDMAManager.h"
+#include "Emulator/TInterruptManager.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/Log/TLog.h"
 
 // -------------------------------------------------------------------------- //
 //  * TPtySerialPortManager()
@@ -54,16 +53,15 @@
 // corresponding remote port /dev/ttyp0.
 // -------------------------------------------------------------------------- //
 TPtySerialPortManager::TPtySerialPortManager(TLog* inLog,
-													 TSerialPorts::EPortIndex inPortIx)
-:	TBasicSerialPortManager(inLog, inPortIx),
-	mPipe{-1,-1},
-	mPtyPort(-1),
-	mDMAIsRunning(false),
-	mDMAThread(0L),
-	mPtyName(0L)
+	TSerialPorts::EPortIndex inPortIx) :
+		TBasicSerialPortManager(inLog, inPortIx),
+		mPipe { -1, -1 },
+		mPtyPort(-1),
+		mDMAIsRunning(false),
+		mDMAThread(0L),
+		mPtyName(0L)
 {
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * ~TPtySerialPortManager( void )
@@ -79,9 +77,10 @@ TPtySerialPortManager::~TPtySerialPortManager()
 // -------------------------------------------------------------------------- //
 //  * run( TInterruptManager*, TDMAManager*, TMemory* )
 // -------------------------------------------------------------------------- //
-void TPtySerialPortManager::run(TInterruptManager* inInterruptManager,
-								  TDMAManager* inDMAManager,
-								  TMemory* inMemory)
+void
+TPtySerialPortManager::run(TInterruptManager* inInterruptManager,
+	TDMAManager* inDMAManager,
+	TMemory* inMemory)
 {
 	mInterruptManager = inInterruptManager;
 	mDMAManager = inDMAManager;
@@ -93,13 +92,14 @@ void TPtySerialPortManager::run(TInterruptManager* inInterruptManager,
 // -------------------------------------------------------------------------- //
 // DMA or interrupts were triggered
 // -------------------------------------------------------------------------- //
-void TPtySerialPortManager::TriggerEvent(KUInt8 cmd)
+void
+TPtySerialPortManager::TriggerEvent(KUInt8 cmd)
 {
-	if (mPipe[1]!=-1) {
+	if (mPipe[1] != -1)
+	{
 		write(mPipe[1], &cmd, 1);
 	}
 }
-
 
 // -------------------------------------------------------------------------- //
 // * FindPtyName()
@@ -110,10 +110,9 @@ TPtySerialPortManager::FindPtyName()
 	if (mPtyName)
 		return;
 	// TODO: hardcode the name for now
-//	mPtyName = strdup("/dev/ttyp0");
+	//	mPtyName = strdup("/dev/ttyp0");
 	mPtyName = strdup("/tmp/BBridge.Einstein");
 }
-
 
 // -------------------------------------------------------------------------- //
 // * CreatePty
@@ -124,7 +123,6 @@ TPtySerialPortManager::CreatePty()
 	// TODO: Remove this function. There is nothing to create.
 	return true;
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * RunDMA()
@@ -143,13 +141,15 @@ TPtySerialPortManager::RunDMA()
 {
 	// create named pipe nodes
 	FindPtyName();
-	if (!CreatePty()) {
+	if (!CreatePty())
+	{
 		return;
 	}
 
 	// open the named pipes
 	mPtyPort = open(mPtyName, O_RDWR | O_NOCTTY | O_NONBLOCK);
-	if (mPtyPort==-1) {
+	if (mPtyPort == -1)
+	{
 		KPrintf("***** Error opening pseudo terminal %s - %s (%d).\n", mPtyName, strerror(errno), errno);
 		return;
 	}
@@ -157,20 +157,21 @@ TPtySerialPortManager::RunDMA()
 
 	// open the thread communication pipe
 	int err = pipe(mPipe);
-	if (err==-1) {
+	if (err == -1)
+	{
 		KPrintf("***** Error opening pipe - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
 
 	// create the actual thread and let it run forever
-	int ptErr = ::pthread_create( &mDMAThread, nullptr, &SHandleDMA, this );
-	if (ptErr==-1) {
+	int ptErr = ::pthread_create(&mDMAThread, nullptr, &SHandleDMA, this);
+	if (ptErr == -1)
+	{
 		KPrintf("***** Error creating pthread - %s (%d).\n", strerror(errno), errno);
 		return;
 	}
-	pthread_detach( mDMAThread );
+	pthread_detach(mDMAThread);
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * HandleDMA()
@@ -183,17 +184,23 @@ TPtySerialPortManager::HandleDMA()
 {
 	static int maxFD = -1;
 
-	if (mPtyPort>maxFD) maxFD = mPtyPort;
-	if (mPipe[0]>maxFD) maxFD = mPipe[0];
+	if (mPtyPort > maxFD)
+		maxFD = mPtyPort;
+	if (mPipe[0] > maxFD)
+		maxFD = mPipe[0];
 
 	// thread loops and handles pipe, port, and DMA
 	fd_set readSet;
-	struct timeval timeout{};
-	for (;;) {
+	struct timeval timeout {
+	};
+	for (;;)
+	{
 		bool needTimer = false;
 
-		if (mTxDMAControl&0x00000002) { // DMA is enabled
-			if (mTxDMADataCountdown) {
+		if (mTxDMAControl & 0x00000002)
+		{ // DMA is enabled
+			if (mTxDMADataCountdown)
+			{
 				needTimer = true;
 			}
 		}
@@ -202,31 +209,36 @@ TPtySerialPortManager::HandleDMA()
 		FD_ZERO(&readSet);
 		FD_SET(mPipe[0], &readSet);
 		FD_SET(mPtyPort, &readSet);
-		if (needTimer) {
+		if (needTimer)
+		{
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 260; // one byte at 38400bps serial port speed
 		}
-		/*int s =*/ select(maxFD+1, &readSet, 0L, 0L, needTimer ? &timeout : 0L);
+		/*int s =*/select(maxFD + 1, &readSet, 0L, 0L, needTimer ? &timeout : 0L);
 
 		// handle transmitting DMA
 
-		if (mTxDMAControl&0x00000002) { // DMA is enabled
-			if (mTxDMADataCountdown) {
+		if (mTxDMAControl & 0x00000002)
+		{ // DMA is enabled
+			if (mTxDMADataCountdown)
+			{
 				// write a byte
 				KUInt8 data = 0;
 				mMemory->ReadBP(mTxDMAPhysicalData, data);
-				//KPrintf(":::::>> TX: 0x%02X '%c'\n", data, isprint(data)?data:'.');
+				// KPrintf(":::::>> TX: 0x%02X '%c'\n", data, isprint(data)?data:'.');
 				write(mPtyPort, &data, 1);
 				mTxDMAPhysicalData++;
 				mTxDMABufferSize--;
-				if (mTxDMABufferSize==0) {
+				if (mTxDMABufferSize == 0)
+				{
 					mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
 				}
 				mTxDMADataCountdown--;
-				if (mTxDMADataCountdown==0) {
+				if (mTxDMADataCountdown == 0)
+				{
 					// trigger a "send buffer empty" interrupt
-					//mDMAManager->WriteChannel2Register(1, 1, 0x00000080); // 0x80 = TxBufEmpty, 0x00000180
-					//KPrintf(":::::>> buffer is now empty\n");
+					// mDMAManager->WriteChannel2Register(1, 1, 0x00000080); // 0x80 = TxBufEmpty, 0x00000180
+					// KPrintf(":::::>> buffer is now empty\n");
 					mTxDMAEvent = 0x00000080;
 					mInterruptManager->RaiseInterrupt(0x00000100);
 				}
@@ -241,72 +253,84 @@ TPtySerialPortManager::HandleDMA()
 		// expected in the year 1996, which lead to CPU cycle burning software
 		// like "slowdown.exe".
 
-		if (FD_ISSET(mPtyPort, &readSet)) {
+		if (FD_ISSET(mPtyPort, &readSet))
+		{
 			// read bytes that come in through the serial port
 			KUInt8 buf[1026];
 			int n = -1;
 			usleep(100000); // 1/10th of a second
-			for (int j=2; j>0; j--) {
+			for (int j = 2; j > 0; j--)
+			{
 				// FIXME: reading 1024 bytes will overflow the buffer
 				// FIXME: reading less bytes must make sure that the next select() call triggers on data left in the buffer
-				n = (int)read(mPtyPort, buf, 1024);
-//				n = read(mRxPort, buf, 1);
-				if (n<=0)
+				n = (int) read(mPtyPort, buf, 1024);
+				//				n = read(mRxPort, buf, 1);
+				if (n <= 0)
 					usleep(100000); // 1/10th of a second
 				else
 					break;
 			}
-			if (n==-1) {
+			if (n == -1)
+			{
 				KPrintf("***** Error reading from serial port %s - %s (%d).\n", mPtyName, strerror(errno), errno);
-			} else if (n==0) {
+			} else if (n == 0)
+			{
 				// KPrintf("***** No data yet\n");
-			} else {
-				//KPrintf("----> Received %d bytes data from NCX\n", n);
-				for (int i=0; i<n; i++) {
+			} else
+			{
+				// KPrintf("----> Received %d bytes data from NCX\n", n);
+				for (int i = 0; i < n; i++)
+				{
 					KUInt8 data = buf[i];
 					mMemory->WriteBP(mRxDMAPhysicalData, data);
-					//KPrintf(" rx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
+					// KPrintf(" rx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
 					mRxDMAPhysicalData++;
 					mRxDMABufferSize--;
-					if (mRxDMABufferSize==0) { // or mRxDMADataCountdown?
-//					if (mRxDMADataCountdown==0) { // or mRxDMADataCountdown does not work!
+					if (mRxDMABufferSize == 0)
+					{ // or mRxDMADataCountdown?
+						//					if (mRxDMADataCountdown==0) { // or mRxDMADataCountdown does not work!
 						mRxDMAPhysicalData = mRxDMAPhysicalBufferStart;
 					}
 					mRxDMADataCountdown--;
-					if (mRxDMADataCountdown==0) {
+					if (mRxDMADataCountdown == 0)
+					{
 						// buffer overflow?
 					}
 				}
-				//KPrintf("===> Start Rx DMA\n");
+				// KPrintf("===> Start Rx DMA\n");
 				mRxDMAEvent = 0x00000040;
 				mInterruptManager->RaiseInterrupt(0x00000080); // 0x00000180
-				//KPrintf("===> End Rx DMA\n");
+				// KPrintf("===> End Rx DMA\n");
 			}
 		}
 
 		// handle commands from the pipe
-		if (FD_ISSET(mPipe[0], &readSet)) {
+		if (FD_ISSET(mPipe[0], &readSet))
+		{
 			// read and interprete command from the pipe
 			// - control register changed (start or stop DMA?)
 			KUInt8 cmd;
 			int nAvail;
 			int err = ioctl(mPipe[0], FIONREAD, &nAvail);
-			if (err!=-1) {
-				for (int i=0; i<nAvail; i++) {
-					int n = (int)read(mPipe[0], &cmd, 1);
-					if (n==-1) {
+			if (err != -1)
+			{
+				for (int i = 0; i < nAvail; i++)
+				{
+					int n = (int) read(mPipe[0], &cmd, 1);
+					if (n == -1)
+					{
 						KPrintf("***** Error reading pipe - %s (%d).\n", strerror(errno), errno);
-					} else if (n) {
-					    if (cmd=='q') return;
-						//KPrintf(":::::>> pipe commend '%c'\n", cmd);
+					} else if (n)
+					{
+						if (cmd == 'q')
+							return;
+						// KPrintf(":::::>> pipe commend '%c'\n", cmd);
 					}
 				}
 			}
 		}
-
 	}
 }
-
 
 // ================================================================== //
 //  You should've gone to school, you could've learned a trade        //

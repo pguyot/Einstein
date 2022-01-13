@@ -39,7 +39,7 @@ class TARMProcessor;
 ///
 /// Base class for the JIT implementation.
 ///
-template< class TImplementation, class TPage >
+template <class TImplementation, class TPage>
 class TJIT
 {
 public:
@@ -55,33 +55,34 @@ public:
 	///
 	TJIT(
 		TMemory* inMemoryIntf,
-		 TMMU* inMMUIntf )
-		:
-		mCache( inMemoryIntf, inMMUIntf ) {};
+		TMMU* inMMUIntf) :
+			mCache(inMemoryIntf, inMMUIntf) {};
 
 	///
 	/// Destructor.
 	///
-	virtual ~TJIT( void ) {};
+	virtual ~TJIT(void) {};
 
 	///
 	/// Invalidate an instruction.
 	///
 	/// \param inPAddr			physical address of the instruction.
 	///
-	void			Invalidate(
-						KUInt32 inPAddr )
-		{
-			mCache.InvalidatePage( inPAddr );
-		}
+	void
+	Invalidate(
+		KUInt32 inPAddr)
+	{
+		mCache.InvalidatePage(inPAddr);
+	}
 
 	///
 	/// Invalidate all V->P bindings.
 	///
-	void			InvalidateTLB( void )
-		{
-			mCache.InvalidateTLB();
-		}
+	void
+	InvalidateTLB(void)
+	{
+		mCache.InvalidateTLB();
+	}
 
 	///
 	/// One or more steps with JIT.
@@ -89,10 +90,10 @@ public:
 	/// \param ioObject			ARM CPU.
 	/// \param inCount			number of instructions to execute.
 	///
-	virtual void	Step(
-						TARMProcessor* ioObject,
-						KUInt32 inCount ) = 0;
-
+	virtual void Step(
+		TARMProcessor* ioObject,
+		KUInt32 inCount)
+		= 0;
 
 	///
 	/// Run with JIT.
@@ -101,59 +102,67 @@ public:
 	/// \param inSignal			pointer to a signal set to false to stop
 	///							execution.
 	///
-	virtual void	Run(
-						TARMProcessor* ioObject,
-						volatile Boolean* inSignal ) = 0;
+	virtual void Run(
+		TARMProcessor* ioObject,
+		volatile Boolean* inSignal)
+		= 0;
 
 	///
 	/// Accessor to a page.
 	/// Return NULL if the page cannot be accessed because a translation
 	/// error occurred.
 	///
-	TPage*			GetPage( KUInt32 inVAddr )
-		{
-			return mCache.GetPage( inVAddr );
-		}
+	TPage*
+	GetPage(KUInt32 inVAddr)
+	{
+		return mCache.GetPage(inVAddr);
+	}
 
 	///
 	/// Get the offset in page.
 	///
-	KUInt32			GetOffsetInPage( KUInt32 inVAddr )
-		{
-			return mCache.GetOffsetInPage( inVAddr );
-		}
+	KUInt32
+	GetOffsetInPage(KUInt32 inVAddr)
+	{
+		return mCache.GetOffsetInPage(inVAddr);
+	}
 
 	///
 	/// Patch the ROM.
 	/// This function is called to modify the ROM before it is saved on disk.
 	/// It is only called when the image is created.
 	///
-	static void PatchROM(KUInt32* romPointer, KSInt32 inROMId) {
-	    TImplementation::DoPatchROM(romPointer, inROMId);
+	static void
+	PatchROM(KUInt32* romPointer, KSInt32 inROMId)
+	{
+		TImplementation::DoPatchROM(romPointer, inROMId);
 	}
 
-    ///
+	///
 	/// Return the ID as stored in the ROM image (for patching purposes).
 	///
-	static KUInt32 GetID() {
-	    return TImplementation::kID;
+	static KUInt32
+	GetID()
+	{
+		return TImplementation::kID;
 	}
 
-    ///
+	///
 	/// Return the version as stored in the ROM image (for patching purposes).
 	///
-	static KUInt32 GetVersion() {
-	    return TImplementation::kVersion;
+	static KUInt32
+	GetVersion()
+	{
+		return TImplementation::kVersion;
 	}
 
 private:
 	/// \name Variables
-	TJITCache<TPage>		mCache;			///< Cache.
+	TJITCache<TPage> mCache; ///< Cache.
 };
 
-
 #endif
-		// _TJIT_H
+// _TJIT_H
 
 // ========================================================================== //
 // (defun NF (a c)                                                            //

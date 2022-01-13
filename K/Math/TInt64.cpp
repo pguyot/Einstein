@@ -39,7 +39,7 @@
 //	* operator &= ( const KUInt32 )
 // --------------------------------------------------------------------	//
 TInt64&
-TInt64::operator &= ( const KUInt32 inArgument )
+TInt64::operator&=(const KUInt32 inArgument)
 {
 	mLo &= inArgument;
 	mHi = 0;
@@ -51,7 +51,7 @@ TInt64::operator &= ( const KUInt32 inArgument )
 //	* operator &= ( const TInt64& )
 // --------------------------------------------------------------------	//
 TInt64&
-TInt64::operator &= ( const TInt64& inArgument )
+TInt64::operator&=(const TInt64& inArgument)
 {
 	// Idem.
 	mLo &= inArgument.GetLo();
@@ -64,7 +64,7 @@ TInt64::operator &= ( const TInt64& inArgument )
 //	* operator |= ( const KUInt32 )
 // --------------------------------------------------------------------	//
 TInt64&
-TInt64::operator |= ( const KUInt32 inArgument )
+TInt64::operator|=(const KUInt32 inArgument)
 {
 	mLo |= inArgument;
 
@@ -75,7 +75,7 @@ TInt64::operator |= ( const KUInt32 inArgument )
 //	* operator |= ( const TInt64& )
 // --------------------------------------------------------------------	//
 TInt64&
-TInt64::operator |= ( const TInt64& inArgument )
+TInt64::operator|=(const TInt64& inArgument)
 {
 	// Idem.
 	mLo |= inArgument.GetLo();
@@ -88,7 +88,7 @@ TInt64::operator |= ( const TInt64& inArgument )
 //	* operator ^= ( const KUInt32 )
 // --------------------------------------------------------------------	//
 TInt64&
-TInt64::operator ^= ( const KUInt32 inArgument )
+TInt64::operator^=(const KUInt32 inArgument)
 {
 	mLo ^= inArgument;
 
@@ -99,7 +99,7 @@ TInt64::operator ^= ( const KUInt32 inArgument )
 //	* operator ^= ( const TInt64& )
 // --------------------------------------------------------------------	//
 TInt64&
-TInt64::operator ^= ( const TInt64& inArgument )
+TInt64::operator^=(const TInt64& inArgument)
 {
 	// Idem.
 	mLo ^= inArgument.GetLo();
@@ -112,16 +112,16 @@ TInt64::operator ^= ( const TInt64& inArgument )
 //	* operator ~ ( void ) const
 // --------------------------------------------------------------------	//
 TInt64
-TInt64::operator ~ ( void ) const
+TInt64::operator~(void) const
 {
-	return TInt64( ~mHi, ~mLo );
+	return TInt64(~mHi, ~mLo);
 }
 
 // --------------------------------------------------------------------	//
 //	* ShiftRight( void )
 // --------------------------------------------------------------------	//
 bool
-TInt64::ShiftRight( void )
+TInt64::ShiftRight(void)
 {
 	bool theResult = (mLo & 0x01) != 0;
 	mLo >>= 1;
@@ -136,7 +136,7 @@ TInt64::ShiftRight( void )
 //	* ShiftLeft( void )
 // --------------------------------------------------------------------	//
 bool
-TInt64::ShiftLeft( void )
+TInt64::ShiftLeft(void)
 {
 	bool theResult = (mHi & 0x80000000) != 0;
 	mHi <<= 1;
@@ -153,7 +153,7 @@ TInt64::ShiftLeft( void )
 //	* operator == ( const TInt64&, const TInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator == ( const TInt64& inArgOne, const TInt64& inArgTwo )
+operator==(const TInt64& inArgOne, const TInt64& inArgTwo)
 {
 	return (inArgOne.GetHi() == inArgTwo.GetHi())
 		&& (inArgOne.GetLo() == inArgTwo.GetLo());
@@ -163,7 +163,7 @@ operator == ( const TInt64& inArgOne, const TInt64& inArgTwo )
 //	* operator != ( const TInt64&, const TInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator != ( const TInt64& inArgOne, const TInt64& inArgTwo )
+operator!=(const TInt64& inArgOne, const TInt64& inArgTwo)
 {
 	return ((inArgOne.GetLo() != inArgTwo.GetLo())
 		|| (inArgOne.GetHi() != inArgTwo.GetHi()));

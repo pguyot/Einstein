@@ -34,24 +34,24 @@
 
 KUInt32
 Translate_PatchNativeCall(
-					JITPageClass* inPage,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr );
+	JITPageClass* inPage,
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr);
 
 void
 Translate_SWIAndCoproc(
-					   JITPageClass* inPage,
-					   KUInt16* ioUnitCrsr,
-					   KUInt32 inInstruction,
-					   KUInt32 inVAddr );
+	JITPageClass* inPage,
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr);
 
 void
 Translate_Branch(
-					JITPageClass* inPage,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr );
+	JITPageClass* inPage,
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr);
 
 JITInstructionProto(SystemBootUND);
 JITInstructionProto(DebuggerUND);
@@ -61,7 +61,7 @@ JITInstructionProto(UndefinedInstruction);
 JITInstructionProto(SoftwareBreakpoint);
 
 #endif
-		// _TJITGENERIC_OTHER_H
+// _TJITGENERIC_OTHER_H
 
 // =========================== //
 // System checkpoint complete. //

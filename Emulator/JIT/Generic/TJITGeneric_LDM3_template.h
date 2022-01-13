@@ -44,28 +44,28 @@ LDM3_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	// Rn == 15 -> UNPREDICTABLE
 	KUInt32 baseAddress = ioCPU->mCurrentRegisters[Rn];
 #if FLAG_W
-	// Write back
-	#if FLAG_U
-		KUInt32 wbAddress = baseAddress + (nbRegisters * 4);
-	#else
-		KUInt32 wbAddress = baseAddress - (nbRegisters * 4);
-	#endif
+// Write back
+#if FLAG_U
+	KUInt32 wbAddress = baseAddress + (nbRegisters * 4);
+#else
+	KUInt32 wbAddress = baseAddress - (nbRegisters * 4);
+#endif
 #endif
 
 #if FLAG_U
-	// Up.
-	#if FLAG_P
-		// Post: add 4.
-		baseAddress += 4;
-	#endif
+// Up.
+#if FLAG_P
+	// Post: add 4.
+	baseAddress += 4;
+#endif
 #else
 	// Down.
 	baseAddress -= (nbRegisters * 4);
 
-	#if !FLAG_P
-		// Post: add 4.
-		baseAddress += 4;
-	#endif
+#if !FLAG_P
+	// Post: add 4.
+	baseAddress += 4;
+#endif
 #endif
 
 	// Load.
@@ -75,8 +75,8 @@ LDM3_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 		if (curRegList & 1)
 		{
 			if (theMemoryInterface->ReadAligned(
-				(TMemory::VAddr) baseAddress,
-				ioCPU->mCurrentRegisters[indexReg] ))
+					(TMemory::VAddr) baseAddress,
+					ioCPU->mCurrentRegisters[indexReg]))
 			{
 				SETPC(GETPC());
 				ioCPU->DataAbort();
@@ -92,13 +92,13 @@ LDM3_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	KUInt32 theValue;
 	if (theMemoryInterface->ReadAligned(
 			(TMemory::VAddr) baseAddress,
-			theValue ))
+			theValue))
 	{
 		SETPC(GETPC());
 		ioCPU->DataAbort();
 		MMUCALLNEXT_AFTERSETPC;
 	}
-	SETPC( theValue + 4 );   // Prefetch.
+	SETPC(theValue + 4); // Prefetch.
 
 #if FLAG_W
 	// Write back should occur before the mode change.
@@ -106,9 +106,8 @@ LDM3_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	ioCPU->mCurrentRegisters[Rn] = wbAddress;
 #endif
 
-	ioCPU->SetCPSR( ioCPU->GetSPSR() );
+	ioCPU->SetCPSR(ioCPU->GetSPSR());
 
 	MMUCALLNEXT_AFTERSETPC;
 }
 #endif
-

@@ -28,9 +28,9 @@
 
 // POSIX & ANSI C
 #if TARGET_OS_WIN32
-	#include <time.h>
+#include <time.h>
 #else
-	#include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 // Einstein
@@ -48,54 +48,62 @@ public:
 	///
 	/// Default constructor.
 	///
-	TROMImage( void );
+	TROMImage(void);
 
 	///
 	/// Destructor.
 	///
-	~TROMImage( void );
+	~TROMImage(void);
 
 	///
 	/// Accessor to the ROM Pointer.
 	///
 	/// \return a pointer to the ROM data.
 	///
-	KUInt8* GetPointer( void ) const
-		{
-			return mImage->fROM;
-		}
+	KUInt8*
+	GetPointer(void) const
+	{
+		return mImage->fROM;
+	}
 
 	///
-    /// Return the error code that may have been set when loading the ROM
-    ///
-    KUInt32 GetErrorCode() { return mErrorCode; }
+	/// Return the error code that may have been set when loading the ROM
+	///
+	KUInt32
+	GetErrorCode()
+	{
+		return mErrorCode;
+	}
 
-    static const KUInt32 kNoError = 0;
-    static const KUInt32 kErrorLoadingROMFile = 1;
-    static const KUInt32 kErrorLoadingNewtonREXFile = 2;
-    static const KUInt32 kErrorLoadingEinsteinREXFile = 3;
-    static const KUInt32 kErrorWrongSize = 4;
+	static const KUInt32 kNoError = 0;
+	static const KUInt32 kErrorLoadingROMFile = 1;
+	static const KUInt32 kErrorLoadingNewtonREXFile = 2;
+	static const KUInt32 kErrorLoadingEinsteinREXFile = 3;
+	static const KUInt32 kErrorWrongSize = 4;
 
 	///
 	/// Compute the checksums.
 	///
-	void	ComputeChecksums( KUInt32 outChecksums[10] ) const;
+	void ComputeChecksums(KUInt32 outChecksums[10]) const;
 
-    ///
-    /// Return the ID of the ROM as calculated by a CRC32 checksum
-    ///
-    KSInt32 GetROMId() { return mROMId; }
+	///
+	/// Return the ID of the ROM as calculated by a CRC32 checksum
+	///
+	KSInt32
+	GetROMId()
+	{
+		return mROMId;
+	}
 
-	static const KSInt32 kUnknownROM 	= -1;
-	static const KSInt32 k717006 		=  0;
-	static const KSInt32 kMP2x00DROM 	=  1;
-	static const KSInt32 kEMate300ROM 	=  2;
-	static const KSInt32 kWatsonROM 	=  3;
+	static const KSInt32 kUnknownROM = -1;
+	static const KSInt32 k717006 = 0;
+	static const KSInt32 kMP2x00DROM = 1;
+	static const KSInt32 kEMate300ROM = 2;
+	static const KSInt32 kWatsonROM = 3;
 
-    static TROMImage *LoadROMAndREX(const char *theROMImagePath, Boolean useMonitor, Boolean useExternalERex);
+	static TROMImage* LoadROMAndREX(const char* theROMImagePath, Boolean useMonitor, Boolean useExternalERex);
 
 protected:
-
 	///
 	/// Create the image, flip the endian, and apply patches if available
 	///
@@ -105,47 +113,47 @@ protected:
 	/// Check the modification date of a file.
 	/// Update the timespec to reflect the latest modification date.
 	///
-	static int	GetLatestModDate(
-				time_t* ioModDate,
-				int fd );
+	static int GetLatestModDate(
+		time_t* ioModDate,
+		int fd);
 
-    ///
-    /// Find out what ROM we have by calculating its CRC
-    ///
-    static KSInt32 ComputeROMId(KUInt8 *data);
+	///
+	/// Find out what ROM we have by calculating its CRC
+	///
+	static KSInt32 ComputeROMId(KUInt8* data);
 
-    KUInt32         mErrorCode = kNoError;
+	KUInt32 mErrorCode = kNoError;
 
 private:
 	///
 	/// Structure of the image.
 	///
 	struct SImageInfo {
-		KUInt32		fChecksums[10];
+		KUInt32 fChecksums[10];
 	};
 
 	struct SImage {
-		KUInt8		fROM[TMemoryConsts::kHighROMEnd];	// 8 MB ROM + 8 MB REX = 16 MB
-		SImageInfo  fInfo;
+		KUInt8 fROM[TMemoryConsts::kHighROMEnd]; // 8 MB ROM + 8 MB REX = 16 MB
+		SImageInfo fInfo;
 	};
 
 	enum {
-		kMagic		= 0x424C5447,
-		kVersion	= 2,
+		kMagic = 0x424C5447,
+		kVersion = 2,
 	};
 
 	///
 	/// Compute the checksums.
 	///
-	static void	DoComputeChecksums( SImage* inImage );
+	static void DoComputeChecksums(SImage* inImage);
 
 	///
 	/// Compute the checksum for a segment.
 	///
-	static void	ComputeSegmentChecksums(
-						const KUInt8* inPointer,
-						KUInt32 inSize,
-						KUInt32 outChecksums[2] );
+	static void ComputeSegmentChecksums(
+		const KUInt8* inPointer,
+		KUInt32 inSize,
+		KUInt32 outChecksums[2]);
 
 	///
 	/// Analyze the first 8 MB of a flat rom and fill the
@@ -157,29 +165,29 @@ private:
 	/// \param outRexSizes	the sizes of the RExes
 	/// \return the number of rexes found
 	///
-	static KUInt32	LookForREXes(
-						const KUInt8* inBuffer,
-						KUInt32* outBaseSize,
-						KUInt32 outRexBases[4],
-						KUInt32 outRexSizes[4] );
+	static KUInt32 LookForREXes(
+		const KUInt8* inBuffer,
+		KUInt32* outBaseSize,
+		KUInt32 outRexBases[4],
+		KUInt32 outRexSizes[4]);
 
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TROMImage( const TROMImage& inCopy ) = delete;
+	TROMImage(const TROMImage& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TROMImage& operator = ( const TROMImage& inCopy ) = delete;
+	TROMImage& operator=(const TROMImage& inCopy) = delete;
 
-	SImage*			mImage; 		///< image structure.
+	SImage* mImage; ///< image structure.
 
-    KSInt32         mROMId = kUnknownROM;
+	KSInt32 mROMId = kUnknownROM;
 };
 
 #endif

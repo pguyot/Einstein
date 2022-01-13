@@ -22,22 +22,22 @@
 // ==============================
 
 #define LDM1_TemplateName(flag_p, flag_u, flag_w, rn) \
-	LDM1_ ## flag_p ## _ ## flag_u ## _ ## flag_w ## _ ## rn
+	LDM1_##flag_p##_##flag_u##_##flag_w##_##rn
 
 #if DECLARATION
-	#define LDM1_Template(flag_p, flag_u, flag_w, rn) \
-		JITInstructionProto(LDM1_TemplateName(flag_p, flag_u, flag_w, rn));
+#define LDM1_Template(flag_p, flag_u, flag_w, rn) \
+	JITInstructionProto(LDM1_TemplateName(flag_p, flag_u, flag_w, rn));
 #endif
 #if IMPLEMENTATION
-	#define LDM1_Template(flag_p, flag_u, flag_w, rn) \
-		JITInstructionProto(LDM1_TemplateName(flag_p, flag_u, flag_w, rn))
+#define LDM1_Template(flag_p, flag_u, flag_w, rn) \
+	JITInstructionProto(LDM1_TemplateName(flag_p, flag_u, flag_w, rn))
 #endif
 #if TRANSLATION_ARRAY
-	#define LDM1_Template(flag_p, flag_u, flag_w, rn) \
-		LDM1_TemplateName(flag_p, flag_u, flag_w, rn),
+#define LDM1_Template(flag_p, flag_u, flag_w, rn) \
+	LDM1_TemplateName(flag_p, flag_u, flag_w, rn),
 #endif
 
-#define INCLUDE_TEMPLATE	"TJITGeneric_LDM1_template.h"
+#define INCLUDE_TEMPLATE "TJITGeneric_LDM1_template.h"
 #define FLAG_P 0
 #define FLAG_U 0
 #define FLAG_W 0

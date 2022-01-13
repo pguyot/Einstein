@@ -28,14 +28,13 @@
 #include "Emulator/Log/TLog.h"
 
 //
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #if TARGET_OS_WIN32
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #else
 #include <unistd.h>
 #endif
-
 
 #define FILE_LOGGING 0
 
@@ -43,45 +42,46 @@
 //  * TFileManager( TLog* )
 // -------------------------------------------------------------------------- //
 TFileManager::TFileManager(
-						   TLog* inLog /* = nil */,
-						   TMemory* inMemory )
-	:
-		mLog( inLog ),
-		mMemory( inMemory ),
-		mFDCount( 0 )
+	TLog* inLog /* = nil */,
+	TMemory* inMemory) :
+		mLog(inLog),
+		mMemory(inMemory),
+		mFDCount(0)
 {
-	mFileDescriptors = (SFileDescriptors*) ::malloc( sizeof(SFileDescriptors) );
+	mFileDescriptors = (SFileDescriptors*) ::malloc(sizeof(SFileDescriptors));
 	mPath = "";
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TFileManager( void )
 // -------------------------------------------------------------------------- //
-TFileManager::~TFileManager( void )
+TFileManager::~TFileManager(void)
 {
 	SFileDescriptors* endFD = &mFileDescriptors[mFDCount];
 	SFileDescriptors* cursor;
 	for (cursor = mFileDescriptors; cursor < endFD; cursor++)
 	{
-		if (cursor->fHostFile != NULL) {
+		if (cursor->fHostFile != NULL)
+		{
 			::fclose(cursor->fHostFile);
-		}
-		else if (cursor->fNewtDesc != 0) {
+		} else if (cursor->fNewtDesc != 0)
+		{
 			close_listener(cursor->fNewtDesc);
 		}
-		if (cursor->fName != NULL) {
+		if (cursor->fName != NULL)
+		{
 			::free(cursor->fName);
 		}
 	}
 
-	::free( mFileDescriptors );
+	::free(mFileDescriptors);
 }
 
 // -------------------------------------------------------------------------- //
 //  * descriptor_for_newton_desc( KUInt32  );
 // -------------------------------------------------------------------------- //
 SFileDescriptors*
-TFileManager::descriptor_for_newton_desc( KUInt32 newt_desc )
+TFileManager::descriptor_for_newton_desc(KUInt32 newt_desc)
 {
 	SFileDescriptors* endFD = &mFileDescriptors[mFDCount];
 	SFileDescriptors* cursor;
@@ -100,13 +100,14 @@ TFileManager::descriptor_for_newton_desc( KUInt32 newt_desc )
 //  * descriptor_for_newton_name( const char * );
 // -------------------------------------------------------------------------- //
 SFileDescriptors*
-TFileManager::descriptor_for_newton_name( const char *name )
+TFileManager::descriptor_for_newton_name(const char* name)
 {
 	SFileDescriptors* endFD = &mFileDescriptors[mFDCount];
 	SFileDescriptors* cursor;
 	for (cursor = mFileDescriptors; cursor < endFD; cursor++)
 	{
-		if (strcmp(cursor->fName, name) == 0) {
+		if (strcmp(cursor->fName, name) == 0)
+		{
 			return cursor;
 		}
 	}
@@ -118,17 +119,17 @@ TFileManager::descriptor_for_newton_name( const char *name )
 //  * new_descriptor_with_name( const char * );
 // -------------------------------------------------------------------------- //
 SFileDescriptors*
-TFileManager::new_descriptor_with_name( const char *name )
+TFileManager::new_descriptor_with_name(const char* name)
 {
 	KUInt32 theFDCount = mFDCount + 1;
-	mFileDescriptors = (SFileDescriptors*) ::realloc( mFileDescriptors,
-													 sizeof(SFileDescriptors) * theFDCount);
+	mFileDescriptors = (SFileDescriptors*) ::realloc(mFileDescriptors,
+		sizeof(SFileDescriptors) * theFDCount);
 	mFDCount = theFDCount;
-	SFileDescriptors *desc = &mFileDescriptors[mFDCount - 1];
+	SFileDescriptors* desc = &mFileDescriptors[mFDCount - 1];
 	desc->fNewtDesc = theFDCount;
 	desc->fHostFile = NULL;
 	desc->fNotifyAddr = 0x0;
-	desc->fName = (char *)::malloc(strlen(name) + 1);
+	desc->fName = (char*) ::malloc(strlen(name) + 1);
 	::strcpy(desc->fName, name);
 	return desc;
 }
@@ -137,30 +138,30 @@ TFileManager::new_descriptor_with_name( const char *name )
 //  * do_sys_open( const char *, KUInt32 );
 // -------------------------------------------------------------------------- //
 void
-TFileManager::open_listener( const char *name, KUInt32 desc )
+TFileManager::open_listener(const char* name, KUInt32 desc)
 {
-    (void)name;
-    (void)desc;
+	(void) name;
+	(void) desc;
 }
 
 // -------------------------------------------------------------------------- //
 //  * do_sys_open( const char *, KUInt32 );
 // -------------------------------------------------------------------------- //
 void
-TFileManager::close_listener( KUInt32 desc )
+TFileManager::close_listener(KUInt32 desc)
 {
-    (void)desc;
+	(void) desc;
 }
 
 // -------------------------------------------------------------------------- //
 //  * do_sys_open( const char *, KUInt32 );
 // -------------------------------------------------------------------------- //
 KSInt32
-TFileManager::write_listener( KUInt32 desc, const void *buf, KUInt32 nbytes )
+TFileManager::write_listener(KUInt32 desc, const void* buf, KUInt32 nbytes)
 {
-    (void)desc;
-    (void)buf;
-    (void)nbytes;
+	(void) desc;
+	(void) buf;
+	(void) nbytes;
 	return -1;
 }
 
@@ -168,11 +169,11 @@ TFileManager::write_listener( KUInt32 desc, const void *buf, KUInt32 nbytes )
 //  * do_sys_open( const char *, KUInt32 );
 // -------------------------------------------------------------------------- //
 KSInt32
-TFileManager::read_listener( KUInt32 desc, void *buf, KUInt32 nbytes )
+TFileManager::read_listener(KUInt32 desc, void* buf, KUInt32 nbytes)
 {
-    (void)desc;
-    (void)buf;
-    (void)nbytes;
+	(void) desc;
+	(void) buf;
+	(void) nbytes;
 	return -1;
 }
 
@@ -180,32 +181,38 @@ TFileManager::read_listener( KUInt32 desc, void *buf, KUInt32 nbytes )
 //  * do_sys_open( const char *, KUInt32 );
 // -------------------------------------------------------------------------- //
 KSInt32
-TFileManager::do_sys_open( const char *name, const char *mode )
+TFileManager::do_sys_open(const char* name, const char* mode)
 {
-	if (FILE_LOGGING) {
-		KPrintf( "%s name='%s', mode='%s'\n", __PRETTY_FUNCTION__, name, mode);
+	if (FILE_LOGGING)
+	{
+		KPrintf("%s name='%s', mode='%s'\n", __PRETTY_FUNCTION__, name, mode);
 	}
-	if (mLog) {
-		mLog->LogLine( "do_sys_open" );
+	if (mLog)
+	{
+		mLog->LogLine("do_sys_open");
 	}
 
-	SFileDescriptors *desc = NULL;
+	SFileDescriptors* desc = NULL;
 
-	if (strlen(name) > 0 && name[0] == '%') {
+	if (strlen(name) > 0 && name[0] == '%')
+	{
 		desc = descriptor_for_newton_name(name);
-		if (desc == NULL) {
+		if (desc == NULL)
+		{
 			desc = new_descriptor_with_name(name);
 			open_listener(name + 1, desc->fNewtDesc);
 		}
-	}
-	else {
-		if (mPath.length() == 0) {
+	} else
+	{
+		if (mPath.length() == 0)
+		{
 			return -1;
 		}
 
 		std::string file = mPath + "/" + name;
-		FILE *fp = ::fopen(file.c_str(), mode);
-		if (fp == NULL) {
+		FILE* fp = ::fopen(file.c_str(), mode);
+		if (fp == NULL)
+		{
 			return -1;
 		}
 
@@ -220,34 +227,39 @@ TFileManager::do_sys_open( const char *name, const char *mode )
 //  * do_sys_close( KUInt32 );
 // -------------------------------------------------------------------------- //
 KSInt32
-TFileManager::do_sys_close( KUInt32 fp )
+TFileManager::do_sys_close(KUInt32 fp)
 {
-	if (FILE_LOGGING) {
-		KPrintf( "%s fp=%i\n", __PRETTY_FUNCTION__, (int)fp);
+	if (FILE_LOGGING)
+	{
+		KPrintf("%s fp=%i\n", __PRETTY_FUNCTION__, (int) fp);
 	}
-	if (mLog) {
-		mLog->LogLine( "do_sys_close" );
+	if (mLog)
+	{
+		mLog->LogLine("do_sys_close");
 	}
 
 	SFileDescriptors* desc = descriptor_for_newton_desc(fp);
-	if (desc && desc->fHostFile != NULL) {
+	if (desc && desc->fHostFile != NULL)
+	{
 		::fflush(desc->fHostFile);
 		::fclose(desc->fHostFile);
-	}
-	else {
+	} else
+	{
 		close_listener(fp);
 	}
 
-	if (desc && desc->fName != NULL) {
+	if (desc && desc->fName != NULL)
+	{
 		::free(desc->fName);
 	}
 
-    if (desc) {
-        desc->fNewtDesc = 0;
-        desc->fNotifyAddr = 0;
-        desc->fHostFile = NULL;
-        desc->fName = NULL;
-    }
+	if (desc)
+	{
+		desc->fNewtDesc = 0;
+		desc->fNotifyAddr = 0;
+		desc->fHostFile = NULL;
+		desc->fName = NULL;
+	}
 
 	return 0;
 }
@@ -256,20 +268,23 @@ TFileManager::do_sys_close( KUInt32 fp )
 //  * do_sys_istty( KUInt32 );
 // -------------------------------------------------------------------------- //
 KSInt32
-TFileManager::do_sys_istty( KUInt32 fp )
+TFileManager::do_sys_istty(KUInt32 fp)
 {
-	if (FILE_LOGGING) {
-		KPrintf( "%s fp=%i\n", __PRETTY_FUNCTION__, (int)fp);
+	if (FILE_LOGGING)
+	{
+		KPrintf("%s fp=%i\n", __PRETTY_FUNCTION__, (int) fp);
 	}
-	if (mLog) {
-		mLog->LogLine( "do_sys_istty" );
+	if (mLog)
+	{
+		mLog->LogLine("do_sys_istty");
 	}
 
 	SFileDescriptors* desc = descriptor_for_newton_desc(fp);
-	if (desc == NULL) {
+	if (desc == NULL)
+	{
 		return -1;
-	}
-	else if (desc->fHostFile != NULL) {
+	} else if (desc->fHostFile != NULL)
+	{
 		return 0;
 	}
 	return 1;
@@ -279,20 +294,23 @@ TFileManager::do_sys_istty( KUInt32 fp )
 //  * do_sys_read( KUInt32, const void *, KUInt32 );
 // -------------------------------------------------------------------------- //
 KSInt32
-TFileManager::do_sys_read( KUInt32 fp, void *buf, KUInt32 nbyte )
+TFileManager::do_sys_read(KUInt32 fp, void* buf, KUInt32 nbyte)
 {
-	if (FILE_LOGGING) {
-		KPrintf( "%s fp=%i, buf=%p, nbyte=%i\n", __PRETTY_FUNCTION__, (int)fp, buf, (int)nbyte);
+	if (FILE_LOGGING)
+	{
+		KPrintf("%s fp=%i, buf=%p, nbyte=%i\n", __PRETTY_FUNCTION__, (int) fp, buf, (int) nbyte);
 	}
-	if (mLog) {
-		mLog->LogLine( "do_sys_read" );
+	if (mLog)
+	{
+		mLog->LogLine("do_sys_read");
 	}
 
 	SFileDescriptors* desc = descriptor_for_newton_desc(fp);
-	if (desc == NULL) {
+	if (desc == NULL)
+	{
 		return 0;
-	}
-	else if (desc->fHostFile != NULL) {
+	} else if (desc->fHostFile != NULL)
+	{
 		ssize_t result = ::fread(buf, sizeof(KUInt8), nbyte, desc->fHostFile);
 		/*
 		if (result == 0) {
@@ -304,9 +322,9 @@ TFileManager::do_sys_read( KUInt32 fp, void *buf, KUInt32 nbyte )
 			}
 		}
 		 */
-		return (KSInt32)result;
-	}
-	else {
+		return (KSInt32) result;
+	} else
+	{
 		return read_listener(fp, buf, nbyte);
 	}
 }
@@ -315,27 +333,31 @@ TFileManager::do_sys_read( KUInt32 fp, void *buf, KUInt32 nbyte )
 //  * do_sys_write( KUInt32, const void *, KUInt32 );
 // -------------------------------------------------------------------------- //
 KSInt32
-TFileManager::do_sys_write( KUInt32 fp, const void *buf, KUInt32 nbyte )
+TFileManager::do_sys_write(KUInt32 fp, const void* buf, KUInt32 nbyte)
 {
-	if (FILE_LOGGING) {
-		KPrintf( "%s fp=%i, buf=%p, nbyte=%i\n", __PRETTY_FUNCTION__, (int)fp, buf, (int)nbyte);
+	if (FILE_LOGGING)
+	{
+		KPrintf("%s fp=%i, buf=%p, nbyte=%i\n", __PRETTY_FUNCTION__, (int) fp, buf, (int) nbyte);
 	}
-	if (mLog) {
-		mLog->LogLine( "do_sys_write" );
+	if (mLog)
+	{
+		mLog->LogLine("do_sys_write");
 	}
 
 	SFileDescriptors* desc = descriptor_for_newton_desc(fp);
-	if (desc == NULL) {
+	if (desc == NULL)
+	{
 		return 0;
-	}
-	else if (desc->fHostFile != NULL) {
+	} else if (desc->fHostFile != NULL)
+	{
 		ssize_t result = ::fwrite(buf, sizeof(KUInt8), nbyte, desc->fHostFile);
-		if (result > 0) {
+		if (result > 0)
+		{
 			::fflush(desc->fHostFile);
 		}
-		return (KSInt32)result;
-	}
-	else {
+		return (KSInt32) result;
+	} else
+	{
 		return write_listener(fp, buf, nbyte);
 	}
 }
@@ -344,17 +366,20 @@ TFileManager::do_sys_write( KUInt32 fp, const void *buf, KUInt32 nbyte )
 //  * do_sys_set_input_notify( KUInt32 );
 // -------------------------------------------------------------------------- //
 KSInt32
-TFileManager::do_sys_set_input_notify( KUInt32 fp, KUInt32 address )
+TFileManager::do_sys_set_input_notify(KUInt32 fp, KUInt32 address)
 {
-	if (FILE_LOGGING) {
-		KPrintf( "%s fp=%i, address=0x%08x\n", __PRETTY_FUNCTION__, (int)fp, (unsigned)address);
+	if (FILE_LOGGING)
+	{
+		KPrintf("%s fp=%i, address=0x%08x\n", __PRETTY_FUNCTION__, (int) fp, (unsigned) address);
 	}
-	if (mLog) {
-		mLog->LogLine( "do_sys_set_input_notify" );
+	if (mLog)
+	{
+		mLog->LogLine("do_sys_set_input_notify");
 	}
 
 	SFileDescriptors* desc = descriptor_for_newton_desc(fp);
-	if (desc == NULL) {
+	if (desc == NULL)
+	{
 		return -1;
 	}
 	desc->fNotifyAddr = address;
@@ -365,29 +390,32 @@ TFileManager::do_sys_set_input_notify( KUInt32 fp, KUInt32 address )
 //  * do_sys_seek( KUInt32, KUInt32 );
 // -------------------------------------------------------------------------- //
 KSInt32
-TFileManager::do_sys_seek( KUInt32 fp, KUInt32 pos )
+TFileManager::do_sys_seek(KUInt32 fp, KUInt32 pos)
 {
-    (void)pos;
+	(void) pos;
 
-	if (FILE_LOGGING) {
-		KPrintf( "%s fp=%i, pos=%i\n", __PRETTY_FUNCTION__, (int)fp, (unsigned)pos);
+	if (FILE_LOGGING)
+	{
+		KPrintf("%s fp=%i, pos=%i\n", __PRETTY_FUNCTION__, (int) fp, (unsigned) pos);
 	}
-	if (mLog) {
-		mLog->LogLine( "do_sys_seek" );
+	if (mLog)
+	{
+		mLog->LogLine("do_sys_seek");
 	}
 
 	SFileDescriptors* desc = descriptor_for_newton_desc(fp);
-	if (desc == NULL) {
+	if (desc == NULL)
+	{
 		return -1;
-	}
-	else if (desc->fHostFile != NULL) {
+	} else if (desc->fHostFile != NULL)
+	{
 		// For some reason, the Newton opens the file for reading,
 		// flen()s the file, then seeks to the end. Then it can't
 		// read anything...
 		//::fseek(desc->fHostFile, pos, SEEK_SET);
 		return 0;
-	}
-	else {
+	} else
+	{
 		return 0;
 	}
 }
@@ -396,25 +424,28 @@ TFileManager::do_sys_seek( KUInt32 fp, KUInt32 pos )
 //  * do_sys_flen( KUInt32 );
 // -------------------------------------------------------------------------- //
 KSInt32
-TFileManager::do_sys_flen( KUInt32 fp )
+TFileManager::do_sys_flen(KUInt32 fp)
 {
-	if (FILE_LOGGING) {
-		KPrintf( "%s fp=%i\n", __PRETTY_FUNCTION__, (int)fp);
+	if (FILE_LOGGING)
+	{
+		KPrintf("%s fp=%i\n", __PRETTY_FUNCTION__, (int) fp);
 	}
-	if (mLog) {
-		mLog->LogLine( "do_sys_flen" );
+	if (mLog)
+	{
+		mLog->LogLine("do_sys_flen");
 	}
 
 	SFileDescriptors* desc = descriptor_for_newton_desc(fp);
-	if (desc == NULL) {
+	if (desc == NULL)
+	{
 		return -1;
-	}
-	else if (desc->fHostFile != NULL) {
+	} else if (desc->fHostFile != NULL)
+	{
 		struct stat buf;
 		::fstat(fileno(desc->fHostFile), &buf);
-		return (KSInt32)buf.st_size;
-	}
-	else {
+		return (KSInt32) buf.st_size;
+	} else
+	{
 		return 0;
 	}
 }
@@ -423,12 +454,12 @@ TFileManager::do_sys_flen( KUInt32 fp )
 //  * listener_has_input( KUInt32 );
 // -------------------------------------------------------------------------- //
 void
-TFileManager::set_listener_has_input( KUInt32 fp, Boolean has_input )
+TFileManager::set_listener_has_input(KUInt32 fp, Boolean has_input)
 {
 	SFileDescriptors* desc = descriptor_for_newton_desc(fp);
-	if (desc != NULL && desc->fNotifyAddr != 0) {
+	if (desc != NULL && desc->fNotifyAddr != 0)
+	{
 		// XXX: Is this thread safe? Cocoa would be invoking us on the main thread...
 		mMemory->Write(desc->fNotifyAddr, (has_input ? 1 : 0));
 	}
 }
-

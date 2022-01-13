@@ -31,17 +31,16 @@
 // -------------------------------------------------------------------------- //
 //  * TSDLScreenManager( void )
 // -------------------------------------------------------------------------- //
-TSDLScreenManager::TSDLScreenManager( void )
+TSDLScreenManager::TSDLScreenManager(void)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TSDLScreenManager( void )
 // -------------------------------------------------------------------------- //
-TSDLScreenManager::~TSDLScreenManager( void )
+TSDLScreenManager::~TSDLScreenManager(void)
 {
 }
-
 
 // ========================================================================= //
 // ... that the notions of "hardware", and "software" should be extended by  //

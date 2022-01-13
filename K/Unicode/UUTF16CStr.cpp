@@ -42,14 +42,14 @@
 
 void
 UUTF16CStr::ToISO88591(
-	const KUInt16*	inInputCString,
-	KUInt8*			outOutputCString,
-	size_t			inLimit /* = 0 */,
-	size_t*			outStringSize /* = nil */
-	)
+	const KUInt16* inInputCString,
+	KUInt8* outOutputCString,
+	size_t inLimit /* = 0 */,
+	size_t* outStringSize /* = nil */
+)
 {
 	// Determine input string size.
-	size_t inputSize = StrLen( inInputCString );
+	size_t inputSize = StrLen(inInputCString);
 
 	// Fill the string size.
 	if (outStringSize)
@@ -61,20 +61,21 @@ UUTF16CStr::ToISO88591(
 	size_t outputSize = inLimit;
 	if (outputSize == 0)
 	{
-		outputSize = inputSize;	// Simply because X characters in UTF-16
+		outputSize = inputSize; // Simply because X characters in UTF-16
 								// cannot be expanded to more than X
 								// characters in these charsets
-	} else {
-		outputSize--;			// Leave room for null terminator.
+	} else
+	{
+		outputSize--; // Leave room for null terminator.
 	}
 
 	(void) UUTF16Conv::ToISO88591(
 		inInputCString, &inputSize,
 		outOutputCString, &outputSize,
-		UUTF16Conv::kRepCharOnUnrepChar );
+		UUTF16Conv::kRepCharOnUnrepChar);
 
 	// Add the null terminator.
-	outOutputCString[ outputSize ] = 0;
+	outOutputCString[outputSize] = 0;
 }
 
 // ----------------------------------------------------------------	//
@@ -84,14 +85,14 @@ UUTF16CStr::ToISO88591(
 
 void
 UUTF16CStr::FromISO88591(
-	const KUInt8*	inInputCString,
-	KUInt16*		outOutputCString,
-	size_t			inLimit /* = 0 */,
-	size_t*			outStringSize /* = nil */
-	)
+	const KUInt8* inInputCString,
+	KUInt16* outOutputCString,
+	size_t inLimit /* = 0 */,
+	size_t* outStringSize /* = nil */
+)
 {
 	// Determine input string size.
-	size_t count = StrLen( inInputCString );
+	size_t count = StrLen(inInputCString);
 
 	// Fill the string size.
 	if (outStringSize)
@@ -102,16 +103,16 @@ UUTF16CStr::FromISO88591(
 	// If inLimit isn't null, take the smallest.
 	if ((inLimit != 0) && (inLimit <= count))
 	{
-		count = inLimit - 1;	// Leave room for null terminator.
+		count = inLimit - 1; // Leave room for null terminator.
 	}
 
 	(void) UUTF16Conv::FromISO88591(
 		inInputCString,
 		outOutputCString,
-		count );
+		count);
 
 	// Add the null terminator.
-	outOutputCString[ count ] = 0;
+	outOutputCString[count] = 0;
 }
 
 // ----------------------------------------------------------------	//
@@ -121,14 +122,14 @@ UUTF16CStr::FromISO88591(
 
 void
 UUTF16CStr::ToISO88592(
-	const KUInt16*	inInputCString,
-	KUInt8*			outOutputCString,
-	size_t			inLimit /* = 0 */,
-	size_t*			outStringSize /* = nil */
-	)
+	const KUInt16* inInputCString,
+	KUInt8* outOutputCString,
+	size_t inLimit /* = 0 */,
+	size_t* outStringSize /* = nil */
+)
 {
 	// Determine input string size.
-	size_t inputSize = StrLen( inInputCString );
+	size_t inputSize = StrLen(inInputCString);
 
 	// Fill the string size.
 	if (outStringSize)
@@ -140,20 +141,21 @@ UUTF16CStr::ToISO88592(
 	size_t outputSize = inLimit;
 	if (outputSize == 0)
 	{
-		outputSize = inputSize;	// Simply because X characters in UTF-16
+		outputSize = inputSize; // Simply because X characters in UTF-16
 								// cannot be expanded to more than X
 								// characters in these charsets
-	} else {
-		outputSize--;			// Leave room for null terminator.
+	} else
+	{
+		outputSize--; // Leave room for null terminator.
 	}
 
 	(void) UUTF16Conv::ToISO88592(
 		inInputCString, &inputSize,
 		outOutputCString, &outputSize,
-		UUTF16Conv::kRepCharOnUnrepChar );
+		UUTF16Conv::kRepCharOnUnrepChar);
 
 	// Add the null terminator.
-	outOutputCString[ outputSize ] = 0;
+	outOutputCString[outputSize] = 0;
 }
 
 // ----------------------------------------------------------------	//
@@ -163,14 +165,14 @@ UUTF16CStr::ToISO88592(
 
 void
 UUTF16CStr::FromISO88592(
-	const KUInt8*	inInputCString,
-	KUInt16*		outOutputCString,
-	size_t			inLimit /* = 0 */,
-	size_t*			outStringSize /* = nil */
-	)
+	const KUInt8* inInputCString,
+	KUInt16* outOutputCString,
+	size_t inLimit /* = 0 */,
+	size_t* outStringSize /* = nil */
+)
 {
 	// Determine input string size.
-	size_t count = StrLen( inInputCString );
+	size_t count = StrLen(inInputCString);
 
 	// Fill the string size.
 	if (outStringSize)
@@ -181,16 +183,16 @@ UUTF16CStr::FromISO88592(
 	// If inLimit isn't null, take the smallest.
 	if ((inLimit != 0) && (inLimit <= count))
 	{
-		count = inLimit - 1;	// Leave room for null terminator.
+		count = inLimit - 1; // Leave room for null terminator.
 	}
 
 	(void) UUTF16Conv::FromISO88592(
 		inInputCString,
 		outOutputCString,
-		count );
+		count);
 
 	// Add the null terminator.
-	outOutputCString[ count ] = 0;
+	outOutputCString[count] = 0;
 }
 
 // ----------------------------------------------------------------	//
@@ -200,33 +202,34 @@ UUTF16CStr::FromISO88592(
 
 void
 UUTF16CStr::ToASCII(
-	const KUInt16*	inInputCString,
-	KUInt8*			outOutputCString,
-	size_t			inLimit /* = 0 */,
-	size_t*			outStringSize /* = nil */
-	)
+	const KUInt16* inInputCString,
+	KUInt8* outOutputCString,
+	size_t inLimit /* = 0 */,
+	size_t* outStringSize /* = nil */
+)
 {
 	// Determine input string size.
-	size_t inputSize = StrLen( inInputCString );
+	size_t inputSize = StrLen(inInputCString);
 
 	// Two cases: inLimit is null or it isn't.
 	size_t outputSize = inLimit;
 	if (outputSize == 0)
 	{
-		outputSize = inputSize;	// Simply because X characters in UTF-16
+		outputSize = inputSize; // Simply because X characters in UTF-16
 								// cannot be expanded to more than X
 								// characters in these charsets
-	} else {
-		outputSize--;			// Leave room for null terminator.
+	} else
+	{
+		outputSize--; // Leave room for null terminator.
 	}
 
 	(void) UUTF16Conv::ToASCII(
 		inInputCString, &inputSize,
 		outOutputCString, &outputSize,
-		UUTF16Conv::kRepCharOnUnrepChar );
+		UUTF16Conv::kRepCharOnUnrepChar);
 
 	// Add the null terminator.
-	outOutputCString[ outputSize ] = 0;
+	outOutputCString[outputSize] = 0;
 
 	// Fill the string size.
 	if (outStringSize)
@@ -242,14 +245,14 @@ UUTF16CStr::ToASCII(
 
 void
 UUTF16CStr::FromASCII(
-	const KUInt8*	inInputCString,
-	KUInt16*		outOutputCString,
-	size_t			inLimit /* = 0 */,
-	size_t*			outStringSize /* = nil */
-	)
+	const KUInt8* inInputCString,
+	KUInt16* outOutputCString,
+	size_t inLimit /* = 0 */,
+	size_t* outStringSize /* = nil */
+)
 {
 	// Determine input string size.
-	size_t count = StrLen( inInputCString );
+	size_t count = StrLen(inInputCString);
 
 	// Fill the string size.
 	if (outStringSize)
@@ -260,16 +263,16 @@ UUTF16CStr::FromASCII(
 	// If inLimit isn't null, take the smallest.
 	if ((inLimit != 0) && (inLimit <= count))
 	{
-		count = inLimit - 1;	// Leave room for null terminator.
+		count = inLimit - 1; // Leave room for null terminator.
 	}
 
 	(void) UUTF16Conv::FromASCII(
 		inInputCString,
 		outOutputCString,
-		count );
+		count);
 
 	// Add the null terminator.
-	outOutputCString[ count ] = 0;
+	outOutputCString[count] = 0;
 }
 
 // ----------------------------------------------------------------	//
@@ -279,14 +282,14 @@ UUTF16CStr::FromASCII(
 
 void
 UUTF16CStr::ToMacRoman(
-	const KUInt16*	inInputCString,
-	KUInt8*			outOutputCString,
-	size_t			inLimit /* = 0 */,
-	size_t*			outStringSize /* = nil */
-	)
+	const KUInt16* inInputCString,
+	KUInt8* outOutputCString,
+	size_t inLimit /* = 0 */,
+	size_t* outStringSize /* = nil */
+)
 {
 	// Determine input string size.
-	size_t inputSize = StrLen( inInputCString );
+	size_t inputSize = StrLen(inInputCString);
 
 	// Fill the string size.
 	if (outStringSize)
@@ -298,20 +301,21 @@ UUTF16CStr::ToMacRoman(
 	size_t outputSize = inLimit;
 	if (outputSize == 0)
 	{
-		outputSize = inputSize;	// Simply because X characters in UTF-16
+		outputSize = inputSize; // Simply because X characters in UTF-16
 								// cannot be expanded to more than X
 								// characters in these charsets
-	} else {
-		outputSize--;			// Leave room for null terminator.
+	} else
+	{
+		outputSize--; // Leave room for null terminator.
 	}
 
 	(void) UUTF16Conv::ToMacRoman(
 		inInputCString, &inputSize,
 		outOutputCString, &outputSize,
-		UUTF16Conv::kRepCharOnUnrepChar );
+		UUTF16Conv::kRepCharOnUnrepChar);
 
 	// Add the null terminator.
-	outOutputCString[ outputSize ] = 0;
+	outOutputCString[outputSize] = 0;
 }
 
 // ----------------------------------------------------------------	//
@@ -321,14 +325,14 @@ UUTF16CStr::ToMacRoman(
 
 void
 UUTF16CStr::FromMacRoman(
-	const KUInt8*	inInputCString,
-	KUInt16*		outOutputCString,
-	size_t			inLimit /* = 0 */,
-	size_t*			outStringSize /* = nil */
-	)
+	const KUInt8* inInputCString,
+	KUInt16* outOutputCString,
+	size_t inLimit /* = 0 */,
+	size_t* outStringSize /* = nil */
+)
 {
 	// Determine input string size.
-	size_t count = StrLen( inInputCString );
+	size_t count = StrLen(inInputCString);
 
 	// Fill the string size.
 	if (outStringSize)
@@ -339,16 +343,16 @@ UUTF16CStr::FromMacRoman(
 	// If inLimit isn't null, take the smallest.
 	if ((inLimit != 0) && (inLimit <= count))
 	{
-		count = inLimit - 1;	// Leave room for null terminator.
+		count = inLimit - 1; // Leave room for null terminator.
 	}
 
 	(void) UUTF16Conv::FromMacRoman(
 		inInputCString,
 		outOutputCString,
-		count );
+		count);
 
 	// Add the null terminator.
-	outOutputCString[ count ] = 0;
+	outOutputCString[count] = 0;
 }
 
 // ----------------------------------------------------------------	//
@@ -356,14 +360,14 @@ UUTF16CStr::FromMacRoman(
 // ----------------------------------------------------------------	//
 void
 UUTF16CStr::ToUCS4(
-	const KUInt16*	inInputCString,
-	KUInt32*		outOutputCString,
-	size_t			inLimit /* = 0 */,
-	size_t*			outStringSize /* = nil */
-	)
+	const KUInt16* inInputCString,
+	KUInt32* outOutputCString,
+	size_t inLimit /* = 0 */,
+	size_t* outStringSize /* = nil */
+)
 {
 	// Determine input string size.
-	size_t inputSize = StrLen( inInputCString );
+	size_t inputSize = StrLen(inInputCString);
 
 	// Fill the string size.
 	if (outStringSize)
@@ -375,19 +379,20 @@ UUTF16CStr::ToUCS4(
 	size_t outputSize = inLimit;
 	if (outputSize == 0)
 	{
-		outputSize = inputSize;	// Simply because X characters in UTF-16
+		outputSize = inputSize; // Simply because X characters in UTF-16
 								// cannot be expanded to more than X
 								// characters in these charsets
-	} else {
-		outputSize--;			// Leave room for null terminator.
+	} else
+	{
+		outputSize--; // Leave room for null terminator.
 	}
 
 	(void) UUTF16Conv::ToUCS4(
 		inInputCString, &inputSize,
-		outOutputCString, &outputSize );
+		outOutputCString, &outputSize);
 
 	// Add the null terminator.
-	outOutputCString[ outputSize ] = 0;
+	outOutputCString[outputSize] = 0;
 }
 
 // ----------------------------------------------------------------	//
@@ -395,14 +400,14 @@ UUTF16CStr::ToUCS4(
 // ----------------------------------------------------------------	//
 void
 UUTF16CStr::ToUTF8(
-	const KUInt16*	inInputCString,
-	KUInt8*			outOutputCString,
-	size_t			inLimit /* = 0 */,
-	size_t*			outStringSize /* = nil */
-	)
+	const KUInt16* inInputCString,
+	KUInt8* outOutputCString,
+	size_t inLimit /* = 0 */,
+	size_t* outStringSize /* = nil */
+)
 {
 	// Determine input string size.
-	size_t inputSize = StrLen( inInputCString );
+	size_t inputSize = StrLen(inInputCString);
 
 	// Fill the string size.
 	if (outStringSize)
@@ -416,16 +421,17 @@ UUTF16CStr::ToUTF8(
 	{
 		// X caractères UTF-16 peuvent faire au plus 3.X caractères UTF-8.
 		outputSize = 3 * inputSize;
-	} else {
-		outputSize--;			// Leave room for null terminator.
+	} else
+	{
+		outputSize--; // Leave room for null terminator.
 	}
 
 	(void) UUTF16Conv::ToUTF8(
 		inInputCString, &inputSize,
-		outOutputCString, &outputSize );
+		outOutputCString, &outputSize);
 
 	// Add the null terminator.
-	outOutputCString[ outputSize ] = 0;
+	outOutputCString[outputSize] = 0;
 }
 
 // ----------------------------------------------------------------	//
@@ -433,14 +439,14 @@ UUTF16CStr::ToUTF8(
 // ----------------------------------------------------------------	//
 void
 UUTF16CStr::FromUTF8(
-	const KUInt8*	inInputCString,
-	KUInt16*		outOutputCString,
-	size_t			inLimit /* = 0 */,
-	size_t*			outStringSize /* = nil */
-	)
+	const KUInt8* inInputCString,
+	KUInt16* outOutputCString,
+	size_t inLimit /* = 0 */,
+	size_t* outStringSize /* = nil */
+)
 {
 	// Détermination de la taille de la chaîne en entrée.
-	size_t inputSize = StrLen( inInputCString );
+	size_t inputSize = StrLen(inInputCString);
 
 	// Two cases: inLimit is null or it isn't.
 	size_t outputSize = inLimit;
@@ -449,16 +455,17 @@ UUTF16CStr::FromUTF8(
 		// X caractères UTF-8 ne peuvent faire plus de X caractères
 		// UTF-16.
 		outputSize = inputSize;
-	} else {
-		outputSize--;			// Leave room for null terminator.
+	} else
+	{
+		outputSize--; // Leave room for null terminator.
 	}
 
 	(void) UUTF16Conv::FromUTF8(
 		inInputCString, &inputSize,
-		outOutputCString, &outputSize );
+		outOutputCString, &outputSize);
 
 	// Add the null terminator.
-	outOutputCString[ outputSize ] = 0;
+	outOutputCString[outputSize] = 0;
 
 	// Fill the string size.
 	if (outStringSize)
@@ -472,9 +479,9 @@ UUTF16CStr::FromUTF8(
 // --------------------------------------------------------------------------------	//
 
 size_t
-UUTF16CStr::StrLen( const KUInt32* inCString )
+UUTF16CStr::StrLen(const KUInt32* inCString)
 {
-	size_t theSize = 0;	// Counter for the characters.
+	size_t theSize = 0; // Counter for the characters.
 	while (inCString[theSize] != 0)
 	{
 		theSize++;
@@ -488,9 +495,9 @@ UUTF16CStr::StrLen( const KUInt32* inCString )
 // --------------------------------------------------------------------------------	//
 
 size_t
-UUTF16CStr::StrLen( const KUInt16* inCString )
+UUTF16CStr::StrLen(const KUInt16* inCString)
 {
-	size_t theSize = 0;	// Counter for the characters.
+	size_t theSize = 0; // Counter for the characters.
 	while (inCString[theSize] != 0)
 	{
 		theSize++;
@@ -504,9 +511,9 @@ UUTF16CStr::StrLen( const KUInt16* inCString )
 // --------------------------------------------------------------------------------	//
 
 size_t
-UUTF16CStr::StrLen( const KUInt8* inCString )
+UUTF16CStr::StrLen(const KUInt8* inCString)
 {
-	size_t theSize = 0;	// Counter for the characters.
+	size_t theSize = 0; // Counter for the characters.
 	while (inCString[theSize] != 0)
 	{
 		theSize++;
@@ -514,7 +521,6 @@ UUTF16CStr::StrLen( const KUInt8* inCString )
 
 	return theSize;
 }
-
 
 // ======================================================================= //
 // "... all the good computer designs are bootlegged; the formally planned //

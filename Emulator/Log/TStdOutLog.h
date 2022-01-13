@@ -36,14 +36,13 @@
 /// \test	aucun test défini.
 ///
 class TStdOutLog
-	:
-		public TLog
+		: public TLog
 {
 public:
 	///
 	/// Default constructor.
 	///
-	TStdOutLog( void );
+	TStdOutLog(void);
 
 private:
 	///
@@ -51,11 +50,11 @@ private:
 	///
 	/// \param inLine	line to log.
 	///
-	virtual void	DoLogLine( const char* inLine );
+	virtual void DoLogLine(const char* inLine);
 };
 
 #endif
-		// _TSTDOUTLOG_H
+// _TSTDOUTLOG_H
 
 // ============================ //
 // All constants are variables. //

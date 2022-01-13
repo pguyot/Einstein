@@ -44,136 +44,148 @@ public:
 	///
 	/// Constructor from a PCMCIA controller.
 	///
-	TPCMCIACard( void );
+	TPCMCIACard(void);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TPCMCIACard( void );
+	virtual ~TPCMCIACard(void);
 
 	///
 	/// Called by the controller to say we've been inserted.
 	///
-	virtual int			Init( TPCMCIAController* inController );
+	virtual int Init(TPCMCIAController* inController);
 
 	///
 	/// Called by the controller to say we've been removed.
 	///
-	virtual void		Remove() { mPCMCIAController = nullptr;  }
+	virtual void
+	Remove()
+	{
+		mPCMCIAController = nullptr;
+	}
 
 	///
 	/// Return true, if the card is currently inserted
 	///
-	Boolean IsInserted() { return (mPCMCIAController != nullptr);  }
+	Boolean
+	IsInserted()
+	{
+		return (mPCMCIAController != nullptr);
+	}
 
 	///
 	/// Get PCMCIA pins.
 	///
-	virtual KUInt32		GetVPCPins( void ) = 0;
+	virtual KUInt32 GetVPCPins(void) = 0;
 
 	///
 	/// Set PCMCIA pins.
 	///
-	virtual void		SetVPCPins( KUInt32 inPins ) = 0;
+	virtual void SetVPCPins(KUInt32 inPins) = 0;
 
 	///
 	/// Read attribute space.
 	///
-	virtual KUInt32		ReadAttr( KUInt32 inOffset ) = 0;
+	virtual KUInt32 ReadAttr(KUInt32 inOffset) = 0;
 
 	///
 	/// Read attribute space (byte).
 	///
-	virtual KUInt8		ReadAttrB( KUInt32 inOffset ) = 0;
+	virtual KUInt8 ReadAttrB(KUInt32 inOffset) = 0;
 
 	///
 	/// Read I/O space.
 	///
-	virtual KUInt32		ReadIO( KUInt32 inOffset ) = 0;
+	virtual KUInt32 ReadIO(KUInt32 inOffset) = 0;
 
 	///
 	/// Read I/O space (byte).
 	///
-	virtual KUInt8		ReadIOB( KUInt32 inOffset ) = 0;
+	virtual KUInt8 ReadIOB(KUInt32 inOffset) = 0;
 
 	///
 	/// Read memory space.
 	///
-	virtual KUInt32		ReadMem( KUInt32 inOffset ) = 0;
+	virtual KUInt32 ReadMem(KUInt32 inOffset) = 0;
 
 	///
 	/// Read memory space (byte).
 	///
-	virtual KUInt8		ReadMemB( KUInt32 inOffset ) = 0;
+	virtual KUInt8 ReadMemB(KUInt32 inOffset) = 0;
 
 	///
 	/// Write attribute space.
 	///
-	virtual void		WriteAttr( KUInt32 inOffset, KUInt32 inValue ) = 0;
+	virtual void WriteAttr(KUInt32 inOffset, KUInt32 inValue) = 0;
 
 	///
 	/// Write attribute space (byte).
 	///
-	virtual void		WriteAttrB( KUInt32 inOffset, KUInt8 inValue ) = 0;
+	virtual void WriteAttrB(KUInt32 inOffset, KUInt8 inValue) = 0;
 
 	///
 	/// Write I/O space.
 	///
-	virtual void		WriteIO( KUInt32 inOffset, KUInt32 inValue ) = 0;
+	virtual void WriteIO(KUInt32 inOffset, KUInt32 inValue) = 0;
 
 	///
 	/// Write I/O space (byte).
 	///
-	virtual void		WriteIOB( KUInt32 inOffset, KUInt8 inValue ) = 0;
+	virtual void WriteIOB(KUInt32 inOffset, KUInt8 inValue) = 0;
 
 	///
 	/// Write memory space.
 	///
-	virtual void		WriteMem( KUInt32 inOffset, KUInt32 inValue ) = 0;
+	virtual void WriteMem(KUInt32 inOffset, KUInt32 inValue) = 0;
 
 	///
 	/// Write memory space (byte).
 	///
-	virtual void		WriteMemB( KUInt32 inOffset, KUInt8 inValue ) = 0;
+	virtual void WriteMemB(KUInt32 inOffset, KUInt8 inValue) = 0;
 
 protected:
-	inline TLog*				GetLog( void )
-		{
-			return mLog;
-		}
+	inline TLog*
+	GetLog(void)
+	{
+		return mLog;
+	}
 
-	inline TEmulator*			GetEmulator( void )
-		{
-			return mEmulator;
-		}
+	inline TEmulator*
+	GetEmulator(void)
+	{
+		return mEmulator;
+	}
 
-	inline TPCMCIAController*	GetPCMCIAController( void )
-		{
-			return mPCMCIAController;
-		}
+	inline TPCMCIAController*
+	GetPCMCIAController(void)
+	{
+		return mPCMCIAController;
+	}
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TPCMCIACard( const TPCMCIACard& inCopy ) = delete;
+	TPCMCIACard(const TPCMCIACard& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TPCMCIACard& operator = ( const TPCMCIACard& inCopy ) = delete;
+	TPCMCIACard& operator=(const TPCMCIACard& inCopy) = delete;
 
 	/// \name Variables
-	TLog*				mLog;				///< Ref to the log object.
-	TEmulator*			mEmulator;			///< Ref to the emulator.
-	TPCMCIAController*	mPCMCIAController;	///< Ref to the controller.
+	TLog* mLog; ///< Ref to the log object.
+	TEmulator* mEmulator; ///< Ref to the emulator.
+	TPCMCIAController* mPCMCIAController; ///< Ref to the controller.
 };
 
 #endif
-		// _TPCMCIACARD_H
+// _TPCMCIACARD_H
 
 // ================================================================== //
 // The next person to mention spaghetti stacks to me is going to have //

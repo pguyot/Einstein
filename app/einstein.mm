@@ -31,11 +31,10 @@
 //  * main( int, const char** )
 // -------------------------------------------------------------------------- //
 int
-main(int argc, const char *argv[])
+main(int argc, const char* argv[])
 {
 	return NSApplicationMain(argc, argv);
 }
-
 
 // ============================================================================ //
 // Build a system that even a fool can use and only a fool will want to use it. //

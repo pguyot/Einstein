@@ -40,16 +40,16 @@
 
 // ANSI C & POSIX
 #if TARGET_OS_WIN32
-	#include <windows.h>
-	#include <process.h>
+#include <process.h>
+#include <windows.h>
 #else
-	#include <pthread.h>
+#include <pthread.h>
 #endif
 #include <assert.h>
 
 // K
-#include <K/Threads/TMutex.h>
 #include <K/Threads/TCondVar.h>
+#include <K/Threads/TMutex.h>
 
 ///
 /// Class for a thread.
@@ -66,49 +66,49 @@ public:
 	/// Constants.
 	///
 	enum {
-		kForever = 0,	///< Sleep forever, until WakeUp is called.
+		kForever = 0, ///< Sleep forever, until WakeUp is called.
 	};
 
 	///
 	/// States of a thread.
 	///
 	enum EState {
-		kStopped,		///< Thread is stopped.
-		kRunning,		///< Thread is running.
-		kSuspended,		///< Thread is suspended (waiting for Resume).
-		kSelfSuspended,	///< Thread is self-suspended (waiting for Resume).
-		kSleeping		///< Thread is sleeping (waiting for WakeUp).
+		kStopped, ///< Thread is stopped.
+		kRunning, ///< Thread is running.
+		kSuspended, ///< Thread is suspended (waiting for Resume).
+		kSelfSuspended, ///< Thread is self-suspended (waiting for Resume).
+		kSleeping ///< Thread is sleeping (waiting for WakeUp).
 	};
 
 	///
 	/// Constructor from a runnable object.
 	/// Starts the thread.
 	///
-	template<class TRunnable>
-	TThread( TRunnable* inRunnable );
+	template <class TRunnable>
+	TThread(TRunnable* inRunnable);
 
 	///
 	/// Destructor.
 	/// Detaches and joins the thread.
 	///
-	~TThread( void );
+	~TThread(void);
 
 	///
 	/// Determine if the thread is the current thread.
 	///
-	Boolean IsCurrentThread( void ) const;
+	Boolean IsCurrentThread(void) const;
 
 	///
 	/// Suspend the thread.
 	/// Uses a counter: each suspend call should be balanced by a resume call.
 	///
-	void Suspend( void );
+	void Suspend(void);
 
 	///
 	/// Resume the thread.
 	/// Uses a counter: each suspend call should be balanced by a resume call.
 	///
-	void Resume( void );
+	void Resume(void);
 
 	///
 	/// Sleep (for a given time, in milliseconds, or until WakeUp is called).
@@ -119,13 +119,13 @@ public:
 	/// \param inMillisecs		time to sleep.
 	/// \return	\c true if we slept all the time, \c false otherwise.
 	///
-	Boolean Sleep( KUInt32 inMilliseconds = kForever );
+	Boolean Sleep(KUInt32 inMilliseconds = kForever);
 
 	///
 	/// Wakes the thread up.
 	/// Uses a counter with the wake up calls.
 	///
-	void	WakeUp( void );
+	void WakeUp(void);
 
 private:
 	///
@@ -133,26 +133,27 @@ private:
 	///
 	/// \param inUserData		pointer to the runnable.
 	///
-	template<class TRunnable>
-	static void*	SEntryPoint( void* inUserData )
-		{
+	template <class TRunnable>
+	static void*
+	SEntryPoint(void* inUserData)
+	{
 #if !TARGET_OS_OPENSTEP && !TARGET_OS_WIN32
-			PreRun();
+		PreRun();
 #endif
-			((TRunnable*) inUserData)->Run();
-			return NULL;
-		}
+		((TRunnable*) inUserData)->Run();
+		return NULL;
+	}
 
 	///
 	/// Suspend ourselves.
 	///
-	void	SuspendSelf( void );
+	void SuspendSelf(void);
 
 #if !TARGET_OS_OPENSTEP && !TARGET_OS_WIN32
 	///
 	/// Setup the thread (register signal actions).
 	///
-	static void	PreRun( void );
+	static void PreRun(void);
 
 	///
 	/// Handler for SIGUSR1.
@@ -160,7 +161,7 @@ private:
 	///
 	/// \param inSignal	received signal (always SIGUSR1).
 	///
-	static void SignalUSR1( int inSignal );
+	static void SignalUSR1(int inSignal);
 
 	///
 	/// Handler for SIGUSR2.
@@ -168,7 +169,7 @@ private:
 	///
 	/// \param inSignal	received signal (always SIGUSR2).
 	///
-	static void SignalUSR2( int inSignal );
+	static void SignalUSR2(int inSignal);
 #endif
 
 	///
@@ -176,57 +177,56 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TThread( const TThread& inCopy );
+	TThread(const TThread& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TThread& operator = ( const TThread& inCopy );
+	TThread& operator=(const TThread& inCopy);
 
 	/// \name Variables
 #if TARGET_OS_WIN32
-	HANDLE				mThread;			///< Thread.
-	DWORD				mThreadId;			///< Unique ID per thread
+	HANDLE mThread; ///< Thread.
+	DWORD mThreadId; ///< Unique ID per thread
 #else
-	pthread_t			mThread;			///< Thread.
+	pthread_t mThread; ///< Thread.
 #endif
-	TMutex				mMutex;				///< Mutex.
-	TCondVar			mSleepCondVar;		///< CondVar (for sleep).
-	TCondVar			mSuspendCondVar;	///< CondVar (for suspend).
-	EState				mState;				///< State of the thread.
-	KUInt32				mWakeCount;			///< Wake counter.
-	KUInt32				mSuspendCount;		///< Count suspend calls.
+	TMutex mMutex; ///< Mutex.
+	TCondVar mSleepCondVar; ///< CondVar (for sleep).
+	TCondVar mSuspendCondVar; ///< CondVar (for suspend).
+	EState mState; ///< State of the thread.
+	KUInt32 mWakeCount; ///< Wake counter.
+	KUInt32 mSuspendCount; ///< Count suspend calls.
 };
 
 // -------------------------------------------------------------------------- //
 //  * TThread( TRunnable* )
 // -------------------------------------------------------------------------- //
-template<class TRunnable>
-TThread::TThread( TRunnable* inRunnable )
-	:
-		mState( kRunning ),
-		mWakeCount( 0 ),
-		mSuspendCount( 0 )
+template <class TRunnable>
+TThread::TThread(TRunnable* inRunnable) :
+		mState(kRunning),
+		mWakeCount(0),
+		mSuspendCount(0)
 {
 #if TARGET_OS_WIN32
 	// step-by-step conversion convinces Visual Studio and Cygwin
-	typedef void *(*dcall)( void * );
-	dcall tt = (dcall)(SEntryPoint<TRunnable>);
-	//typedef unsigned (__stdcall *fcall)( void * );
-	//mThread = (HANDLE)::_beginthreadex(0L, 0, (fcall)SEntryPoint<TRunnable>, inRunnable, 0, &mThreadId );
-	mThread = ::CreateThread(0L, 0, (LPTHREAD_START_ROUTINE )tt, inRunnable, 0, &mThreadId );
-	assert( mThread!=0L );
+	typedef void* (*dcall)(void*);
+	dcall tt = (dcall) (SEntryPoint<TRunnable>);
+	// typedef unsigned (__stdcall *fcall)( void * );
+	// mThread = (HANDLE)::_beginthreadex(0L, 0, (fcall)SEntryPoint<TRunnable>, inRunnable, 0, &mThreadId );
+	mThread = ::CreateThread(0L, 0, (LPTHREAD_START_ROUTINE) tt, inRunnable, 0, &mThreadId);
+	assert(mThread != 0L);
 #else
-	int err = ::pthread_create( &mThread, NULL, SEntryPoint<TRunnable>, inRunnable );
-	assert( err == 0 );
+	int err = ::pthread_create(&mThread, NULL, SEntryPoint<TRunnable>, inRunnable);
+	assert(err == 0);
 	(void) err;
 #endif
 }
 
 #endif
-		// _TTHREAD_H
+// _TTHREAD_H
 
 // ============================================================================= //
 //         There was once a programmer who was attached to the court of the      //

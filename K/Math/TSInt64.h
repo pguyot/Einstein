@@ -49,8 +49,7 @@
 /// \test	aucun test défini.
 ///
 class TSInt64
-	:
-		public TInt64
+		: public TInt64
 {
 public:
 	/// La classe UUInt64 gère le pont entre KSInt64 natif et TSInt64.
@@ -62,37 +61,34 @@ public:
 	/// \param inHi		valeur de poids fort
 	/// \param inLo		valeur de poids faible
 	///
-	inline TSInt64( const KSInt32 inHi, const KUInt32 inLo )
-		:
-			TInt64( (KUInt32) inHi, inLo )
-		{
-		}
+	inline TSInt64(const KSInt32 inHi, const KUInt32 inLo) :
+			TInt64((KUInt32) inHi, inLo)
+	{
+	}
 
 	///
 	/// Constructeur à partir d'un entier de 32 bits signé.
 	///
 	/// \param inLo		valeur de poids faible
 	///
-	inline TSInt64( const KSInt32 inLo )
-		:
-			TInt64( 0, (KUInt32) inLo )
+	inline TSInt64(const KSInt32 inLo) :
+			TInt64(0, (KUInt32) inLo)
+	{
+		if (inLo < 0)
 		{
-			if (inLo < 0)
-			{
-				SetHi( 0xFFFFFFFF );
-			}
+			SetHi(0xFFFFFFFF);
 		}
+	}
 
 	///
 	/// Constructeur à partir d'un entier de 32 bits non signé.
 	///
 	/// \param inLo		valeur de poids faible
 	///
-	inline TSInt64( const KUInt32 inLo = 0 )
-		:
-			TInt64( 0, inLo )
-		{
-		}
+	inline TSInt64(const KUInt32 inLo = 0) :
+			TInt64(0, inLo)
+	{
+	}
 
 	///
 	/// Opérateur d'assignation à partir d'un entier de 32 bits.
@@ -100,18 +96,20 @@ public:
 	/// \param inLo		valeur (poids faible)
 	/// \return \c this
 	///
-	inline TSInt64& operator = ( const KSInt32 inLo )
+	inline TSInt64&
+	operator=(const KSInt32 inLo)
+	{
+		SetLo((KUInt32) inLo);
+		if (inLo < 0)
 		{
-			SetLo( (KUInt32) inLo );
-			if (inLo < 0)
-			{
-				SetHi( 0xFFFFFFFF );
-			} else {
-				SetHi( 0 );
-			}
-
-			return *this;
+			SetHi(0xFFFFFFFF);
+		} else
+		{
+			SetHi(0);
 		}
+
+		return *this;
+	}
 
 	///
 	/// Opération d'incrément (32 bits)
@@ -119,7 +117,7 @@ public:
 	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
-	TSInt64& operator += ( const KSInt32 inArgument );
+	TSInt64& operator+=(const KSInt32 inArgument);
 
 	///
 	/// Opération d'incrément (64 bits)
@@ -127,7 +125,7 @@ public:
 	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
-	TSInt64& operator += ( const TSInt64& inArgument );
+	TSInt64& operator+=(const TSInt64& inArgument);
 
 	///
 	/// Opération de décrément (32 bits)
@@ -135,7 +133,7 @@ public:
 	/// \param inArgument	valeur à retrancher.
 	/// \return \c this
 	///
-	TSInt64& operator -= ( const KSInt32 inArgument );
+	TSInt64& operator-=(const KSInt32 inArgument);
 
 	///
 	/// Opération de décrément (64 bits)
@@ -143,7 +141,7 @@ public:
 	/// \param inArgument	valeur à retrancher.
 	/// \return \c this
 	///
-	TSInt64& operator -= ( const TSInt64& inArgument );
+	TSInt64& operator-=(const TSInt64& inArgument);
 
 	///
 	/// Opération de division (32 bits)
@@ -151,7 +149,7 @@ public:
 	/// \param inArgument	diviseur.
 	/// \return \c this
 	///
-	TSInt64& operator /= ( const KSInt32 inArgument );
+	TSInt64& operator/=(const KSInt32 inArgument);
 
 	///
 	/// Opération de division (64 bits)
@@ -159,7 +157,7 @@ public:
 	/// \param inArgument	diviseur.
 	/// \return \c this
 	///
-	TSInt64& operator /= ( const TSInt64& inArgument );
+	TSInt64& operator/=(const TSInt64& inArgument);
 
 	///
 	/// Opération de reste par division euclidienne (32 bits)
@@ -167,7 +165,7 @@ public:
 	/// \param inArgument	diviseur.
 	/// \return \c this
 	///
-	TSInt64& operator %= ( const KSInt32 inArgument );
+	TSInt64& operator%=(const KSInt32 inArgument);
 
 	///
 	/// Opération de reste par division euclidienne (64 bits)
@@ -175,7 +173,7 @@ public:
 	/// \param inArgument	diviseur.
 	/// \return \c this
 	///
-	TSInt64& operator %= ( const TSInt64& inArgument );
+	TSInt64& operator%=(const TSInt64& inArgument);
 
 	///
 	/// Opération de multiplication (32 bits)
@@ -183,7 +181,7 @@ public:
 	/// \param inArgument	facteur.
 	/// \return \c this
 	///
-	TSInt64& operator *= ( const KSInt32 inArgument );
+	TSInt64& operator*=(const KSInt32 inArgument);
 
 	///
 	/// Opération de multiplication (64 bits)
@@ -191,7 +189,7 @@ public:
 	/// \param inArgument	facteur.
 	/// \return \c this
 	///
-	TSInt64& operator *= ( const TSInt64& inArgument );
+	TSInt64& operator*=(const TSInt64& inArgument);
 
 	///
 	/// Décalage gauche.
@@ -199,7 +197,7 @@ public:
 	/// \param inArgument	nombre de décalages.
 	/// \return \c this
 	///
-	TSInt64& operator <<= ( const int inArgument );
+	TSInt64& operator<<=(const int inArgument);
 
 	///
 	/// Décalage droit.
@@ -207,7 +205,7 @@ public:
 	/// \param inArgument	nombre de décalages.
 	/// \return \c this
 	///
-	TSInt64& operator >>= ( const int inArgument );
+	TSInt64& operator>>=(const int inArgument);
 
 	///
 	/// Conversion (avec perte) en 32 bits.
@@ -230,60 +228,60 @@ public:
 #endif
 
 	// Opérateurs binaires.
-	friend bool operator == (
+	friend bool operator==(
 		const TSInt64& inArgOne,
-		const KSInt32 inArgTwo );
-	friend bool operator == (
+		const KSInt32 inArgTwo);
+	friend bool operator==(
 		const KSInt32 inArgOne,
-		const TSInt64& inArgTwo );
-	friend bool operator != (
+		const TSInt64& inArgTwo);
+	friend bool operator!=(
 		const TSInt64& inArgOne,
-		const KSInt32 inArgTwo );
-	friend bool operator != (
+		const KSInt32 inArgTwo);
+	friend bool operator!=(
 		const KSInt32 inArgOne,
-		const TSInt64& inArgTwo );
-	friend bool operator <= (
+		const TSInt64& inArgTwo);
+	friend bool operator<=(
 		const TSInt64& inArgOne,
-		const KSInt32 inArgTwo );
-	friend bool operator <= (
+		const KSInt32 inArgTwo);
+	friend bool operator<=(
 		const KSInt32 inArgOne,
-		const TSInt64& inArgTwo );
-	friend bool operator <= (
+		const TSInt64& inArgTwo);
+	friend bool operator<=(
 		const TSInt64& inArgOne,
-		const TSInt64& inArgTwo );
-	friend bool operator >= (
+		const TSInt64& inArgTwo);
+	friend bool operator>=(
 		const TSInt64& inArgOne,
-		const KSInt32 inArgTwo );
-	friend bool operator >= (
+		const KSInt32 inArgTwo);
+	friend bool operator>=(
 		const KSInt32 inArgOne,
-		const TSInt64& inArgTwo );
-	friend bool operator >= (
+		const TSInt64& inArgTwo);
+	friend bool operator>=(
 		const TSInt64& inArgOne,
-		const TSInt64& inArgTwo );
-	friend bool operator < (
+		const TSInt64& inArgTwo);
+	friend bool operator<(
 		const TSInt64& inArgOne,
-		const KSInt32 inArgTwo );
-	friend bool operator < (
+		const KSInt32 inArgTwo);
+	friend bool operator<(
 		const KSInt32 inArgOne,
-		const TSInt64& inArgTwo );
-	friend bool operator < (
+		const TSInt64& inArgTwo);
+	friend bool operator<(
 		const TSInt64& inArgOne,
-		const TSInt64& inArgTwo );
-	friend bool operator > (
+		const TSInt64& inArgTwo);
+	friend bool operator>(
 		const TSInt64& inArgOne,
-		const KSInt32 inArgTwo );
-	friend bool operator > (
+		const KSInt32 inArgTwo);
+	friend bool operator>(
 		const KSInt32 inArgOne,
-		const TSInt64& inArgTwo );
-	friend bool operator > (
+		const TSInt64& inArgTwo);
+	friend bool operator>(
 		const TSInt64& inArgOne,
-		const TSInt64& inArgTwo );
-	friend TSInt64 operator / (
+		const TSInt64& inArgTwo);
+	friend TSInt64 operator/(
 		const TSInt64& inArgOne,
-		const KSInt32 inArgTwo );
-	friend TSInt64 operator / (
+		const KSInt32 inArgTwo);
+	friend TSInt64 operator/(
 		const TSInt64& inArgOne,
-		const TSInt64& inArgTwo );
+		const TSInt64& inArgTwo);
 
 private:
 	///
@@ -298,7 +296,7 @@ private:
 		TSInt64& outQuotient,
 		TSInt64& outRemainder,
 		const TSInt64& inDividend,
-		const TSInt64& inDivisor );
+		const TSInt64& inDivisor);
 
 	///
 	/// Addition avec retenue.
@@ -306,7 +304,7 @@ private:
 	/// \param inArgument	entier à ajouter
 	/// \return \c true si la somme dépasse 2^64
 	///
-	bool		Add( const TSInt64& inArgument );
+	bool Add(const TSInt64& inArgument);
 };
 
 ///
@@ -316,12 +314,12 @@ private:
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne + inArgTwo
 ///
-inline
-TSInt64 operator + (
-		const TSInt64& inArgOne,
-		const KSInt32 inArgTwo )
+inline TSInt64
+operator+(
+	const TSInt64& inArgOne,
+	const KSInt32 inArgTwo)
 {
-	return TSInt64( inArgOne ) += inArgTwo;
+	return TSInt64(inArgOne) += inArgTwo;
 }
 
 ///
@@ -331,13 +329,13 @@ TSInt64 operator + (
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne + inArgTwo
 ///
-inline
-TSInt64 operator + (
-		const KSInt32 inArgOne,
-		const TSInt64& inArgTwo )
+inline TSInt64
+operator+(
+	const KSInt32 inArgOne,
+	const TSInt64& inArgTwo)
 {
 	// L'addition est commutative.
-	return TSInt64( inArgTwo ) += inArgOne;
+	return TSInt64(inArgTwo) += inArgOne;
 }
 
 ///
@@ -347,12 +345,12 @@ TSInt64 operator + (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne + inArgTwo
 ///
-inline
-TSInt64 operator + (
-		const TSInt64& inArgOne,
-		const TSInt64& inArgTwo )
+inline TSInt64
+operator+(
+	const TSInt64& inArgOne,
+	const TSInt64& inArgTwo)
 {
-	return TSInt64( inArgOne ) += inArgTwo;
+	return TSInt64(inArgOne) += inArgTwo;
 }
 
 ///
@@ -362,12 +360,12 @@ TSInt64 operator + (
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne - inArgTwo
 ///
-inline
-TSInt64 operator - (
-		const TSInt64& inArgOne,
-		const KSInt32 inArgTwo )
+inline TSInt64
+operator-(
+	const TSInt64& inArgOne,
+	const KSInt32 inArgTwo)
 {
-	return TSInt64( inArgOne ) -= inArgTwo;
+	return TSInt64(inArgOne) -= inArgTwo;
 }
 
 ///
@@ -377,13 +375,13 @@ TSInt64 operator - (
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne - inArgTwo
 ///
-inline
-TSInt64 operator - (
-		const KSInt32 inArgOne,
-		const TSInt64& inArgTwo )
+inline TSInt64
+operator-(
+	const KSInt32 inArgOne,
+	const TSInt64& inArgTwo)
 {
 	// La soustraction n'est pas commutative.
-	return TSInt64( inArgOne ) -= inArgTwo;
+	return TSInt64(inArgOne) -= inArgTwo;
 }
 
 ///
@@ -393,12 +391,12 @@ TSInt64 operator - (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne - inArgTwo
 ///
-inline
-TSInt64 operator - (
-		const TSInt64& inArgOne,
-		const TSInt64& inArgTwo )
+inline TSInt64
+operator-(
+	const TSInt64& inArgOne,
+	const TSInt64& inArgTwo)
 {
-	return TSInt64( inArgOne ) -= inArgTwo;
+	return TSInt64(inArgOne) -= inArgTwo;
 }
 
 ///
@@ -408,7 +406,7 @@ TSInt64 operator - (
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne == inArgTwo
 ///
-bool operator == ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
+bool operator==(const TSInt64& inArgOne, const KSInt32 inArgTwo);
 
 ///
 /// Égalité (32 bits)
@@ -417,7 +415,7 @@ bool operator == ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne == inArgTwo
 ///
-bool operator == ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
+bool operator==(const KSInt32 inArgOne, const TSInt64& inArgTwo);
 
 ///
 /// Différence (32 bits)
@@ -426,7 +424,7 @@ bool operator == ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne != inArgTwo
 ///
-bool operator != ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
+bool operator!=(const TSInt64& inArgOne, const KSInt32 inArgTwo);
 
 ///
 /// Différence (32 bits)
@@ -435,7 +433,7 @@ bool operator != ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne != inArgTwo
 ///
-bool operator != ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
+bool operator!=(const KSInt32 inArgOne, const TSInt64& inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -444,7 +442,7 @@ bool operator != ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne <= inArgTwo
 ///
-bool operator <= ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
+bool operator<=(const TSInt64& inArgOne, const KSInt32 inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -453,7 +451,7 @@ bool operator <= ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne <= inArgTwo
 ///
-bool operator <= ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
+bool operator<=(const KSInt32 inArgOne, const TSInt64& inArgTwo);
 
 ///
 /// Comparaison (64 bits)
@@ -462,7 +460,7 @@ bool operator <= ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
 /// \param inArgTwo	second argument
 /// \return \c inArgOne <= inArgTwo
 ///
-bool operator <= ( const TSInt64& inArgOne, const TSInt64& inArgTwo );
+bool operator<=(const TSInt64& inArgOne, const TSInt64& inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -471,7 +469,7 @@ bool operator <= ( const TSInt64& inArgOne, const TSInt64& inArgTwo );
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne >= inArgTwo
 ///
-bool operator >= ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
+bool operator>=(const TSInt64& inArgOne, const KSInt32 inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -480,7 +478,7 @@ bool operator >= ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne >= inArgTwo
 ///
-bool operator >= ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
+bool operator>=(const KSInt32 inArgOne, const TSInt64& inArgTwo);
 
 ///
 /// Comparaison (64 bits)
@@ -489,7 +487,7 @@ bool operator >= ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
 /// \param inArgTwo	second argument
 /// \return \c inArgOne >= inArgTwo
 ///
-bool operator >= ( const TSInt64& inArgOne, const TSInt64& inArgTwo );
+bool operator>=(const TSInt64& inArgOne, const TSInt64& inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -498,7 +496,7 @@ bool operator >= ( const TSInt64& inArgOne, const TSInt64& inArgTwo );
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne < inArgTwo
 ///
-bool operator < ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
+bool operator<(const TSInt64& inArgOne, const KSInt32 inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -507,7 +505,7 @@ bool operator < ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne < inArgTwo
 ///
-bool operator < ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
+bool operator<(const KSInt32 inArgOne, const TSInt64& inArgTwo);
 
 ///
 /// Comparaison (64 bits)
@@ -516,7 +514,7 @@ bool operator < ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
 /// \param inArgTwo	second argument
 /// \return \c inArgOne < inArgTwo
 ///
-bool operator < ( const TSInt64& inArgOne, const TSInt64& inArgTwo );
+bool operator<(const TSInt64& inArgOne, const TSInt64& inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -525,7 +523,7 @@ bool operator < ( const TSInt64& inArgOne, const TSInt64& inArgTwo );
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne > inArgTwo
 ///
-bool operator > ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
+bool operator>(const TSInt64& inArgOne, const KSInt32 inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -534,7 +532,7 @@ bool operator > ( const TSInt64& inArgOne, const KSInt32 inArgTwo );
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne > inArgTwo
 ///
-bool operator > ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
+bool operator>(const KSInt32 inArgOne, const TSInt64& inArgTwo);
 
 ///
 /// Comparaison (64 bits)
@@ -543,7 +541,7 @@ bool operator > ( const KSInt32 inArgOne, const TSInt64& inArgTwo );
 /// \param inArgTwo	second argument
 /// \return \c inArgOne > inArgTwo
 ///
-bool operator > ( const TSInt64& inArgOne, const TSInt64& inArgTwo );
+bool operator>(const TSInt64& inArgOne, const TSInt64& inArgTwo);
 
 ///
 /// Division entière (32 bits)
@@ -552,9 +550,9 @@ bool operator > ( const TSInt64& inArgOne, const TSInt64& inArgTwo );
 /// \param inArgTwo	second argument
 /// \return \c inArgOne / inArgTwo
 ///
-TSInt64 operator / (
-		const TSInt64& inArgOne,
-		const KSInt32 inArgTwo );
+TSInt64 operator/(
+	const TSInt64& inArgOne,
+	const KSInt32 inArgTwo);
 
 ///
 /// Division entière (64 bits)
@@ -563,9 +561,9 @@ TSInt64 operator / (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne / inArgTwo
 ///
-TSInt64 operator / (
-		const TSInt64& inArgOne,
-		const TSInt64& inArgTwo );
+TSInt64 operator/(
+	const TSInt64& inArgOne,
+	const TSInt64& inArgTwo);
 
 ///
 /// Modulo (32 bits)
@@ -574,9 +572,9 @@ TSInt64 operator / (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne % inArgTwo
 ///
-TSInt64 operator % (
-		const TSInt64& inArgOne,
-		const KSInt32 inArgTwo );
+TSInt64 operator%(
+	const TSInt64& inArgOne,
+	const KSInt32 inArgTwo);
 
 ///
 /// Modulo (64 bits)
@@ -585,9 +583,9 @@ TSInt64 operator % (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne % inArgTwo
 ///
-TSInt64 operator % (
-		const TSInt64& inArgOne,
-		const TSInt64& inArgTwo );
+TSInt64 operator%(
+	const TSInt64& inArgOne,
+	const TSInt64& inArgTwo);
 
 ///
 /// Multiplication (32 bits)
@@ -596,12 +594,12 @@ TSInt64 operator % (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne * inArgTwo
 ///
-inline
-TSInt64 operator * (
-		const TSInt64& inArgOne,
-		const KSInt32 inArgTwo )
+inline TSInt64
+operator*(
+	const TSInt64& inArgOne,
+	const KSInt32 inArgTwo)
 {
-	return TSInt64( inArgOne ) *= inArgTwo;
+	return TSInt64(inArgOne) *= inArgTwo;
 }
 
 ///
@@ -611,13 +609,13 @@ TSInt64 operator * (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne * inArgTwo
 ///
-inline
-TSInt64 operator * (
-		const KSInt32 inArgOne,
-		const TSInt64& inArgTwo )
+inline TSInt64
+operator*(
+	const KSInt32 inArgOne,
+	const TSInt64& inArgTwo)
 {
 	// La multiplication est commutative.
-	return TSInt64( inArgTwo ) *= inArgOne;
+	return TSInt64(inArgTwo) *= inArgOne;
 }
 
 ///
@@ -627,12 +625,12 @@ TSInt64 operator * (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne * inArgTwo
 ///
-inline
-TSInt64 operator * (
-		const TSInt64& inArgOne,
-		const TSInt64& inArgTwo )
+inline TSInt64
+operator*(
+	const TSInt64& inArgOne,
+	const TSInt64& inArgTwo)
 {
-	return TSInt64( inArgOne ) *= inArgTwo;
+	return TSInt64(inArgOne) *= inArgTwo;
 }
 
 ///
@@ -642,12 +640,12 @@ TSInt64 operator * (
 /// \param inShiftCount	décalage
 /// \return \c inArgument << inShiftCount
 ///
-inline
-TSInt64 operator << (
-		const TSInt64& inArgument,
-		const int inShiftCount )
+inline TSInt64
+operator<<(
+	const TSInt64& inArgument,
+	const int inShiftCount)
 {
-	return TSInt64( inArgument ) <<= inShiftCount;
+	return TSInt64(inArgument) <<= inShiftCount;
 }
 
 ///
@@ -657,16 +655,16 @@ TSInt64 operator << (
 /// \param inShiftCount	décalage
 /// \return \c inArgument << inShiftCount
 ///
-inline
-TSInt64 operator >> (
-		const TSInt64& inArgument,
-		const int inShiftCount )
+inline TSInt64
+operator>>(
+	const TSInt64& inArgument,
+	const int inShiftCount)
 {
-	return TSInt64( inArgument ) >>= inShiftCount;
+	return TSInt64(inArgument) >>= inShiftCount;
 }
 
 #endif
-		// _TSINT64_H
+// _TSINT64_H
 
 // ============================================================================= //
 // Help stamp out Mickey-Mouse computer interfaces -- Menus are for Restaurants! //

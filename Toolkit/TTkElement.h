@@ -27,20 +27,18 @@
 #include "app/Version.h"
 #include "app/FLTK/TFLApp.h"
 
-
 /**
  * THis class manages any kind of file used by the Toolkit.
  */
 class TTkElement
 {
 public:
-    TTkElement();
-    ~TTkElement();
+	TTkElement();
+	~TTkElement();
 };
 
-
 #endif
-		// _T_TOOLKIT_FILE_H
+// _T_TOOLKIT_FILE_H
 
 // ============================================================================ //
 // Inspector

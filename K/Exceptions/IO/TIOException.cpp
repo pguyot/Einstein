@@ -43,26 +43,24 @@
 // -------------------------------------------------------------------------- //
 //  * TIOException( void )
 // -------------------------------------------------------------------------- //
-TIOException::TIOException( void )
+TIOException::TIOException(void)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * TIOException( const char*, KUInt32 )
 // -------------------------------------------------------------------------- //
-TIOException::TIOException( const char* inFileName, KUInt32 inLine )
-	:
-		TException( inFileName, inLine )
+TIOException::TIOException(const char* inFileName, KUInt32 inLine) :
+		TException(inFileName, inLine)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TIOException( void )
 // -------------------------------------------------------------------------- //
-TIOException::~TIOException( void ) throw ()
+TIOException::~TIOException(void) throw()
 {
 }
-
 
 // ================================================================== //
 // You can do this in a number of ways.  IBM chose to do all of them. //

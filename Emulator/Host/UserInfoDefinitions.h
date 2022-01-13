@@ -25,33 +25,33 @@
 #define _USERINFODEFINITIONS_H
 
 #if TARGET_OS_NEWTON
-	#include <Newton.h>
-	#include <AEvents.h>
-	typedef ULong	KUInt32;
-	typedef UChar	KUInt8;
+#include <AEvents.h>
+#include <Newton.h>
+typedef ULong KUInt32;
+typedef UChar KUInt8;
 #else
-	#include <K/Defines/KDefinitions.h>
+#include <K/Defines/KDefinitions.h>
 #endif
 
 enum EUserInfoSel {
-	kUserInfo_FirstName			= 'firs',
-	kUserInfo_LastName			= 'last',
-	kUserInfo_Company			= 'comp',
-	kUserInfo_Addr				= 'addr',
-	kUserInfo_Addr2				= 'add2',
-	kUserInfo_PostalCode		= 'post',
-	kUserInfo_City				= 'city',
-	kUserInfo_Region			= 'regn',
-	kUserInfo_Country			= 'coun',
-	kUserInfo_CountryISOCode	= 'cISO',
-	kUserInfo_HomePhone			= 'home',
-	kUserInfo_HomeFaxPhone		= 'homf',
-	kUserInfo_WorkPhone			= 'work',
-	kUserInfo_WorkFaxPhone		= 'worf'
+	kUserInfo_FirstName = 'firs',
+	kUserInfo_LastName = 'last',
+	kUserInfo_Company = 'comp',
+	kUserInfo_Addr = 'addr',
+	kUserInfo_Addr2 = 'add2',
+	kUserInfo_PostalCode = 'post',
+	kUserInfo_City = 'city',
+	kUserInfo_Region = 'regn',
+	kUserInfo_Country = 'coun',
+	kUserInfo_CountryISOCode = 'cISO',
+	kUserInfo_HomePhone = 'home',
+	kUserInfo_HomeFaxPhone = 'homf',
+	kUserInfo_WorkPhone = 'work',
+	kUserInfo_WorkFaxPhone = 'worf'
 };
 
 #endif
-		// _TUSERINFODEFINITIONS_H
+// _TUSERINFODEFINITIONS_H
 
 // ====================================================================== //
 //         THE LESSER-KNOWN PROGRAMMING LANGUAGES #18: FIFTH              //
@@ -68,4 +68,3 @@ enum EUserInfoSel {
 // and RIPPLE. The latter is a favorite of frustrated FORTH programmers   //
 // who end up using this language.                                        //
 // ====================================================================== //
-

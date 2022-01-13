@@ -40,9 +40,9 @@
 
 // ANSI C & POSIX
 #if TARGET_OS_WIN32
-	#include <windows.h>
+#include <windows.h>
 #else
-	#include <pthread.h>
+#include <pthread.h>
 #endif
 
 class TCondVar;
@@ -63,29 +63,29 @@ public:
 	///
 	/// Default constructor.
 	///
-	TMutex( void );
+	TMutex(void);
 
 	///
 	/// Destructor.
 	///
-	~TMutex( void );
+	~TMutex(void);
 
 	///
 	/// Lock the mutex.
 	///
-	void Lock( void );
+	void Lock(void);
 
 	///
 	/// Unlock the mutex.
 	///
-	void Unlock( void );
+	void Unlock(void);
 
 	///
 	/// Try to lock the mutex.
 	///
 	/// \return \c true if the mutex was locked.
 	///
-	Boolean TryLock( void );
+	Boolean TryLock(void);
 
 private:
 	///
@@ -93,25 +93,25 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TMutex( const TMutex& inCopy );
+	TMutex(const TMutex& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TMutex& operator = ( const TMutex& inCopy );
+	TMutex& operator=(const TMutex& inCopy);
 
 	/// \name Variables
 #if TARGET_OS_WIN32
-	HANDLE				mMutex;		///< Mutex
+	HANDLE mMutex; ///< Mutex
 #else
-	pthread_mutex_t		mMutex;		///< Mutex.
+	pthread_mutex_t mMutex; ///< Mutex.
 #endif
 };
 
 #endif
-		// _TMUTEX_H
+// _TMUTEX_H
 
 // ======================================================================= //
 // Trying to be happy is like trying to build a machine for which the only //

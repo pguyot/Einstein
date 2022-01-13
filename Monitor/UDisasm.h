@@ -43,11 +43,11 @@ public:
 	/// Disassemble one line.
 	///
 	static void Disasm(
-					char* outString,
-					int inStringSize,
-					KUInt32 inAddr,
-					KUInt32 inInstruction,
-					TSymbolList* inSymbolList=0L );
+		char* outString,
+		int inStringSize,
+		KUInt32 inAddr,
+		KUInt32 inInstruction,
+		TSymbolList* inSymbolList = 0L);
 
 	///
 	/// make symbol list access easy
@@ -55,11 +55,11 @@ public:
 	static void setSymbolList(TSymbolList*);
 
 private:
-	static TSymbolList *pSymbolList;
+	static TSymbolList* pSymbolList;
 };
 
 #endif
-		// _UDISASM_H
+// _UDISASM_H
 
 // ============================================================================ //
 // Windows Airlines:                                                            //

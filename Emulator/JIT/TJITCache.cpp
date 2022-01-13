@@ -27,8 +27,8 @@
 #include <utility>
 
 // Einstein
-#include "Emulator/TMemory.h"
 #include "Emulator/TMMU.h"
+#include "Emulator/TMemory.h"
 #include "Emulator/JIT/JIT.h"
 
 using namespace std;
@@ -40,20 +40,20 @@ using namespace std;
 #undef kTJITCacheStats
 
 #if kTJITCacheStats
-static KUInt32 gNbHits = 0;					///< Nombre de hits.
-static KUInt32 gNbInvalidatePage = 0;		///< Nombre d'invalidations (pages)
-static KUInt32 gNbInvalidateTLB = 0;		///< Nombre d'invalidations (tlb)
-static KUInt32 gNbMiss = 0;					///< Nombre de ratés.
+static KUInt32 gNbHits = 0; ///< Nombre de hits.
+static KUInt32 gNbInvalidatePage = 0; ///< Nombre d'invalidations (pages)
+static KUInt32 gNbInvalidateTLB = 0; ///< Nombre d'invalidations (tlb)
+static KUInt32 gNbMiss = 0; ///< Nombre de ratés.
 #endif
 
 // -------------------------------------------------------------------------- //
 //  * InsertInPMap( KUInt32, SEntry* )
 // -------------------------------------------------------------------------- //
-template<>
+template <>
 void
-TJITCache<JITPageClass>::InsertInPMap( KUInt32 inPAddr, SEntry* inEntry )
+TJITCache<JITPageClass>::InsertInPMap(KUInt32 inPAddr, SEntry* inEntry)
 {
-	SEntry** theEntryPtr = GetPMapEntryPtr( inPAddr );
+	SEntry** theEntryPtr = GetPMapEntryPtr(inPAddr);
 	inEntry->mNextPAEntry = *theEntryPtr;
 	*theEntryPtr = inEntry;
 	inEntry->mPhysicalAddress = inPAddr;
@@ -62,11 +62,11 @@ TJITCache<JITPageClass>::InsertInPMap( KUInt32 inPAddr, SEntry* inEntry )
 // -------------------------------------------------------------------------- //
 //  * EraseFromPMap( SEntry* )
 // -------------------------------------------------------------------------- //
-template<>
+template <>
 void
-TJITCache<JITPageClass>::EraseFromPMap( SEntry* inEntry )
+TJITCache<JITPageClass>::EraseFromPMap(SEntry* inEntry)
 {
-	SEntry** theEntryPtr = GetPMapEntryPtr( inEntry->mPhysicalAddress );
+	SEntry** theEntryPtr = GetPMapEntryPtr(inEntry->mPhysicalAddress);
 	SEntry* theEntry = *theEntryPtr;
 	SEntry* thePrevEntry = NULL;
 	while (theEntry)
@@ -76,7 +76,8 @@ TJITCache<JITPageClass>::EraseFromPMap( SEntry* inEntry )
 			if (thePrevEntry)
 			{
 				thePrevEntry->mNextPAEntry = theEntry->mNextPAEntry;
-			} else {
+			} else
+			{
 				*theEntryPtr = theEntry->mNextPAEntry;
 			}
 
@@ -91,11 +92,11 @@ TJITCache<JITPageClass>::EraseFromPMap( SEntry* inEntry )
 // -------------------------------------------------------------------------- //
 //  * LookupInPMap( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
-template<>
+template <>
 TJITCache<JITPageClass>::SEntry*
-TJITCache<JITPageClass>::LookupInPMap( KUInt32 inVAddr, KUInt32 inPAddr )
+TJITCache<JITPageClass>::LookupInPMap(KUInt32 inVAddr, KUInt32 inPAddr)
 {
-	SEntry** theEntryPtr = GetPMapEntryPtr( inPAddr );
+	SEntry** theEntryPtr = GetPMapEntryPtr(inPAddr);
 	SEntry* theEntry = NULL;
 	if (theEntryPtr)
 	{
@@ -116,9 +117,9 @@ TJITCache<JITPageClass>::LookupInPMap( KUInt32 inVAddr, KUInt32 inPAddr )
 // -------------------------------------------------------------------------- //
 //  * InitPMap( void )
 // -------------------------------------------------------------------------- //
-template<>
+template <>
 void
-TJITCache<JITPageClass>::InitPMap( void )
+TJITCache<JITPageClass>::InitPMap(void)
 {
 	KUInt32 ramSize = mMemoryIntf->GetRAMSize();
 	mPMapSize = (TMemoryConsts::kROMEnd + ramSize) / kPageSize;
@@ -128,9 +129,9 @@ TJITCache<JITPageClass>::InitPMap( void )
 // -------------------------------------------------------------------------- //
 //  * DeletePMap( void )
 // -------------------------------------------------------------------------- //
-template<>
+template <>
 void
-TJITCache<JITPageClass>::DeletePMap( void )
+TJITCache<JITPageClass>::DeletePMap(void)
 {
 	::free(mPMap);
 }
@@ -138,13 +139,12 @@ TJITCache<JITPageClass>::DeletePMap( void )
 // -------------------------------------------------------------------------- //
 //  * TJITCache( TMemory*, TMMU* )
 // -------------------------------------------------------------------------- //
-template<>
+template <>
 TJITCache<JITPageClass>::TJITCache(
-		TMemory* inMemoryIntf,
-		TMMU* inMMUIntf )
-	:
-		mMemoryIntf( inMemoryIntf ),
-		mMMUIntf( inMMUIntf )
+	TMemory* inMemoryIntf,
+	TMMU* inMMUIntf) :
+		mMemoryIntf(inMemoryIntf),
+		mMMUIntf(inMMUIntf)
 {
 	InitPMap();
 
@@ -153,11 +153,12 @@ TJITCache<JITPageClass>::TJITCache(
 	SEntry* theEntries = mVMap.GetValues();
 	KUInt32 indexEntry = 0;
 	KUInt32 theAddress = 0;
-	while (theAddress < TMemoryConsts::kROMEnd && indexEntry < THashMapCache<SEntry>::kCacheSize) {
+	while (theAddress < TMemoryConsts::kROMEnd && indexEntry < THashMapCache<SEntry>::kCacheSize)
+	{
 		SEntry* theEntry = &theEntries[indexEntry];
 		theEntry->key = theAddress;
 		theEntry->mPhysicalAddress = theAddress;
-		theEntry->mPage.Init( inMemoryIntf, theAddress, theAddress);
+		theEntry->mPage.Init(inMemoryIntf, theAddress, theAddress);
 
 		mVMap.Insert(theAddress, theEntry);
 		InsertInPMap(theAddress, theEntry);
@@ -169,8 +170,8 @@ TJITCache<JITPageClass>::TJITCache(
 // -------------------------------------------------------------------------- //
 //  * ~TJITCache( void )
 // -------------------------------------------------------------------------- //
-template<>
-TJITCache<JITPageClass>::~TJITCache( void )
+template <>
+TJITCache<JITPageClass>::~TJITCache(void)
 {
 	DeletePMap();
 }
@@ -178,15 +179,15 @@ TJITCache<JITPageClass>::~TJITCache( void )
 // -------------------------------------------------------------------------- //
 //  * PageMiss( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
-template<>
+template <>
 JITPageClass*
-TJITCache<JITPageClass>::PageMiss( KUInt32 inVAddr, KUInt32 inPAddr )
+TJITCache<JITPageClass>::PageMiss(KUInt32 inVAddr, KUInt32 inPAddr)
 {
 #if kTJITCacheStats
 	gNbMiss++;
 #endif
 
-	SEntry** theEntryPtr = GetPMapEntryPtr( inPAddr );
+	SEntry** theEntryPtr = GetPMapEntryPtr(inPAddr);
 	if (theEntryPtr == NULL)
 	{
 		return NULL;
@@ -196,7 +197,7 @@ TJITCache<JITPageClass>::PageMiss( KUInt32 inVAddr, KUInt32 inPAddr )
 	SEntry* theEntry = mVMap.GetLastValue();
 
 	// Remove it from tables.
-	mVMap.Erase( theEntry->key );
+	mVMap.Erase(theEntry->key);
 
 #if 0
 	// Do not remove entries from the ROM cache.
@@ -210,11 +211,11 @@ TJITCache<JITPageClass>::PageMiss( KUInt32 inVAddr, KUInt32 inPAddr )
 		EraseFromPMap( theEntry );
 	}
 #else
-	EraseFromPMap( theEntry );
+	EraseFromPMap(theEntry);
 #endif
 
 	// Modify the entry.
-	theEntry->mPage.Init( mMemoryIntf, inVAddr, inPAddr );
+	theEntry->mPage.Init(mMemoryIntf, inVAddr, inPAddr);
 	theEntry->key = inVAddr;
 
 	// Add it into the tables.
@@ -222,7 +223,7 @@ TJITCache<JITPageClass>::PageMiss( KUInt32 inVAddr, KUInt32 inPAddr )
 	InsertInPMap(inPAddr, theEntry);
 
 	// Finally touch the entry.
-	mVMap.MakeFirst( theEntry );
+	mVMap.MakeFirst(theEntry);
 
 	return &theEntry->mPage;
 }
@@ -230,12 +231,13 @@ TJITCache<JITPageClass>::PageMiss( KUInt32 inVAddr, KUInt32 inPAddr )
 // -------------------------------------------------------------------------- //
 //  * GetPage( KUInt32 )
 // -------------------------------------------------------------------------- //
-template<>
+template <>
 JITPageClass*
-TJITCache<JITPageClass>::GetPage( KUInt32 inVAddr )
+TJITCache<JITPageClass>::GetPage(KUInt32 inVAddr)
 {
 #if kTJITCacheStats
-	if ((gNbHits & 0xFF) == 0) {
+	if ((gNbHits & 0xFF) == 0)
+	{
 		fprintf(
 			stderr,
 			"Hits: %i, Miss: %i, InvP: %i, InvT: %i\n",
@@ -253,7 +255,7 @@ TJITCache<JITPageClass>::GetPage( KUInt32 inVAddr )
 
 	// Get a page.
 	// Let's look if we already have it in the cache.
-	theEntry = mVMap.Lookup( baseVAddr );
+	theEntry = mVMap.Lookup(baseVAddr);
 	if (theEntry)
 	{
 		// Touch the entry.
@@ -264,19 +266,22 @@ TJITCache<JITPageClass>::GetPage( KUInt32 inVAddr )
 	if (mMMUIntf->IsMMUEnabled() && !TMemory::IsPageInROM(baseVAddr))
 	{
 		// Resolve the address.
-		if (mMMUIntf->TranslateInstruction(baseVAddr, &thePAddr)) {
+		if (mMMUIntf->TranslateInstruction(baseVAddr, &thePAddr))
+		{
 			// An error occurred.
 			return NULL;
 		}
-	} else {
+	} else
+	{
 		thePAddr = baseVAddr;
 	}
 
-	theEntry = LookupInPMap( baseVAddr, thePAddr );
+	theEntry = LookupInPMap(baseVAddr, thePAddr);
 	if (theEntry)
 	{
 		// If the VMap matches, only the mapping was altered.
-		if (theEntry->key == baseVAddr) {
+		if (theEntry->key == baseVAddr)
+		{
 			// Re-branch the cache in the table of virtual adresses.
 			mVMap.Insert(baseVAddr, theEntry);
 
@@ -287,15 +292,15 @@ TJITCache<JITPageClass>::GetPage( KUInt32 inVAddr )
 	}
 
 	// The page is not in the cache.
-	return PageMiss( baseVAddr, thePAddr );
+	return PageMiss(baseVAddr, thePAddr);
 }
 
 // -------------------------------------------------------------------------- //
 //  * InvalidateTLB( void )
 // -------------------------------------------------------------------------- //
-template<>
+template <>
 void
-TJITCache<JITPageClass>::InvalidateTLB( void )
+TJITCache<JITPageClass>::InvalidateTLB(void)
 {
 #if kTJITCacheStats
 	gNbInvalidateTLB++;
@@ -308,15 +313,15 @@ TJITCache<JITPageClass>::InvalidateTLB( void )
 // -------------------------------------------------------------------------- //
 //  * InvalidatePage( KUInt32 )
 // -------------------------------------------------------------------------- //
-template<>
+template <>
 void
-TJITCache<JITPageClass>::InvalidatePage( KUInt32 inPAddr )
+TJITCache<JITPageClass>::InvalidatePage(KUInt32 inPAddr)
 {
 	KUInt32 basePAddr = inPAddr & kPageMask;
 
 	// Look for page(s).
 	// Remove it/them from the tables.
-	SEntry** theEntryPtr = GetPMapEntryPtr( basePAddr );
+	SEntry** theEntryPtr = GetPMapEntryPtr(basePAddr);
 	SEntry* theEntry = *theEntryPtr;
 #if kTJITCacheStats
 	if (theEntry)
@@ -327,7 +332,7 @@ TJITCache<JITPageClass>::InvalidatePage( KUInt32 inPAddr )
 	while (theEntry)
 	{
 		// Erase the bindings.
-		mVMap.Erase( theEntry->key );
+		mVMap.Erase(theEntry->key);
 
 		// Move the page at the end.
 		mVMap.MakeLast(theEntry);

@@ -25,8 +25,8 @@
 #import "TCocoaSetupController.h"
 
 // Einstein
-#import "TCocoaUserDefaults.h"
 #import "TCocoaAppController.h"
+#import "TCocoaUserDefaults.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -43,8 +43,8 @@
 	if (thePath)
 	{
 		[[mUserDefaultsController values]
-			setValue: thePath
-			forKey: kInternalFlashPathKey];
+			setValue:thePath
+			  forKey:kInternalFlashPathKey];
 	}
 }
 
@@ -57,10 +57,10 @@
 	if (thePath)
 	{
 		[[mUserDefaultsController values]
-			setValue: thePath
-			forKey: kROMImagePathKey];
+			setValue:thePath
+			  forKey:kROMImagePathKey];
 
-		[mStartSaveButton setEnabled: YES];
+		[mStartSaveButton setEnabled:YES];
 	}
 }
 
@@ -69,9 +69,9 @@
 // -------------------------------------------------------------------------- //
 - (void)setupRAMSizeWidgets
 {
-	int theRAMSize = (int)[[mUserDefaultsController defaults] integerForKey: kRAMSizeKey];
-	[mRAMSizeSlider setIntValue: theRAMSize];
-	[self updateRAMSizeTextField: theRAMSize];
+	int theRAMSize = (int) [[mUserDefaultsController defaults] integerForKey:kRAMSizeKey];
+	[mRAMSizeSlider setIntValue:theRAMSize];
+	[self updateRAMSizeTextField:theRAMSize];
 }
 
 // -------------------------------------------------------------------------- //
@@ -82,26 +82,27 @@
 	int ramSize = [mRAMSizeSlider intValue];
 
 	[[mUserDefaultsController values]
-			setValue: [NSNumber numberWithInt: ramSize]
-			forKey: kRAMSizeKey];
+		setValue:[NSNumber numberWithInt:ramSize]
+		  forKey:kRAMSizeKey];
 
-	[self updateRAMSizeTextField: ramSize];
+	[self updateRAMSizeTextField:ramSize];
 }
 
 // -------------------------------------------------------------------------- //
 //  * (void)updateRAMSizeTextField: (int)
 // -------------------------------------------------------------------------- //
-- (void)updateRAMSizeTextField: (int) inValue
+- (void)updateRAMSizeTextField:(int)inValue
 {
 	// Compute the actual ram size in MB.
 	int nbOfMB = inValue / 16;
 	int nbOfKB = (inValue % 16) * 64;
-	
+
 	if (nbOfKB == 0)
 	{
-		[mRAMSizeTextField setStringValue: [NSString stringWithFormat: @"%i MB", nbOfMB]];
-	} else {
-		[mRAMSizeTextField setStringValue: [NSString stringWithFormat: @"%i MB %i KB", nbOfMB, nbOfKB]];
+		[mRAMSizeTextField setStringValue:[NSString stringWithFormat:@"%i MB", nbOfMB]];
+	} else
+	{
+		[mRAMSizeTextField setStringValue:[NSString stringWithFormat:@"%i MB %i KB", nbOfMB, nbOfKB]];
 	}
 }
 
@@ -111,17 +112,18 @@
 - (IBAction)saveOrStart:(id)sender
 {
 	// Save the preferences.
-	[mUserDefaultsController save: sender];
+	[mUserDefaultsController save:sender];
 	[[mUserDefaultsController defaults] synchronize];
-	
+
 	if (buttonsAreStartAndQuit)
 	{
 		// Disable the button.
-		[mStartSaveButton setEnabled: NO];
-		
+		[mStartSaveButton setEnabled:NO];
+
 		// Start the emulator
 		[mAppController startEmulator];
-	} else {
+	} else
+	{
 		[self closeSetupWindow];
 	}
 }
@@ -132,13 +134,14 @@
 - (IBAction)revertOrQuit:(id)sender
 {
 	// Revert the preferences.
-	[mUserDefaultsController revert: sender];
+	[mUserDefaultsController revert:sender];
 
 	if (buttonsAreStartAndQuit)
 	{
 		// Quit the emulator
-		[NSApp terminate: sender];
-	} else {
+		[NSApp terminate:sender];
+	} else
+	{
 		[self closeSetupWindow];
 	}
 }
@@ -157,16 +160,16 @@
 - (void)openSetupWindow
 {
 	buttonsAreStartAndQuit = true;
-	[mStartSaveButton setHidden: NO];
-	[mStartSaveButton setEnabled: [mAppController canStartEmulator]];
-	[mStartSaveButton setTitle: @"Start"];
-	[mQuitRevertButton setHidden: NO];
-	[mQuitRevertButton setEnabled: YES];
-	[mQuitRevertButton setTitle: @"Quit"];
-	[mOnlyAtRestartTextField setHidden: YES];
+	[mStartSaveButton setHidden:NO];
+	[mStartSaveButton setEnabled:[mAppController canStartEmulator]];
+	[mStartSaveButton setTitle:@"Start"];
+	[mQuitRevertButton setHidden:NO];
+	[mQuitRevertButton setEnabled:YES];
+	[mQuitRevertButton setTitle:@"Quit"];
+	[mOnlyAtRestartTextField setHidden:YES];
 	[self setupRAMSizeWidgets];
-	[mSetupWindow makeKeyAndOrderFront: self];
-	[mUserDefaultsController setAppliesImmediately: YES];
+	[mSetupWindow makeKeyAndOrderFront:self];
+	[mUserDefaultsController setAppliesImmediately:YES];
 }
 
 // -------------------------------------------------------------------------- //
@@ -175,16 +178,16 @@
 - (IBAction)openPreferences:(id)sender
 {
 	buttonsAreStartAndQuit = false;
-	[mStartSaveButton setHidden: NO];
-	[mStartSaveButton setEnabled: YES];
-	[mStartSaveButton setTitle: @"Save"];
-	[mQuitRevertButton setHidden: NO];
-	[mQuitRevertButton setEnabled: YES];
-	[mQuitRevertButton setTitle: @"Revert"];
-	[mOnlyAtRestartTextField setHidden: NO];
+	[mStartSaveButton setHidden:NO];
+	[mStartSaveButton setEnabled:YES];
+	[mStartSaveButton setTitle:@"Save"];
+	[mQuitRevertButton setHidden:NO];
+	[mQuitRevertButton setEnabled:YES];
+	[mQuitRevertButton setTitle:@"Revert"];
+	[mOnlyAtRestartTextField setHidden:NO];
 	[self setupRAMSizeWidgets];
-	[mSetupWindow makeKeyAndOrderFront: self];
-	[mUserDefaultsController setAppliesImmediately: NO];
+	[mSetupWindow makeKeyAndOrderFront:self];
+	[mUserDefaultsController setAppliesImmediately:NO];
 }
 
 // -------------------------------------------------------------------------- //
@@ -204,7 +207,7 @@
 	{
 		return ![mSetupWindow isVisible];
 	}
-	
+
 	return YES;
 }
 
@@ -213,7 +216,7 @@
 // -------------------------------------------------------------------------- //
 - (void)updateStartButtonState
 {
-	[mStartSaveButton setEnabled: [mAppController canStartEmulator]];
+	[mStartSaveButton setEnabled:[mAppController canStartEmulator]];
 }
 
 @end

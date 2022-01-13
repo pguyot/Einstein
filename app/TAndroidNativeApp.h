@@ -34,12 +34,11 @@
 #include <android/window.h>
 
 #include <K/Defines/KDefinitions.h>
-#include <K/Threads/TMutex.h>
 #include <Emulator/Serial/TSerialPortManager.h>
+#include <K/Threads/TMutex.h>
 
 #include "AndroidGlue.h"
 #include "Version.h"
-
 
 class TROMImage;
 class TEmulator;
@@ -62,205 +61,219 @@ class TSerialPortManager;
 class TAndroidNativeApp
 {
 public:
-    ///
-    /// Constructeur par défaut.
-    ///
-    TAndroidNativeApp( void );
+	///
+	/// Constructeur par défaut.
+	///
+	TAndroidNativeApp(void);
 
-    ///
-    /// Destructeur.
-    ///
-    ~TAndroidNativeApp( void );
+	///
+	/// Destructeur.
+	///
+	~TAndroidNativeApp(void);
 
-    ///
-    /// Point d'entrée.
-    ///
-    void Run(const char *dataPath, int screenWidth, int screenHeight, TLog *inLog);
+	///
+	/// Point d'entrée.
+	///
+	void Run(const char* dataPath, int screenWidth, int screenHeight, TLog* inLog);
 
-    ///
-    /// Stop the app thread
-    ///
-    void Stop();
+	///
+	/// Stop the app thread
+	///
+	void Stop();
 
-    ///
-    /// awake emulator from sleep
-    ///
-    void PowerOn();
+	///
+	/// awake emulator from sleep
+	///
+	void PowerOn();
 
-    ///
-    /// send emulator to sleep
-    ///
-    void PowerOff();
+	///
+	/// send emulator to sleep
+	///
+	void PowerOff();
 
-    int IsPowerOn();
+	int IsPowerOn();
 
-    ///
-    /// user requested simulating the power button
-    ///
-    void menuPower();
+	///
+	/// user requested simulating the power button
+	///
+	void menuPower();
 
-    ///
-    /// user requested simulating holding the power button longer
-    ///
-    void menuBacklight();
+	///
+	/// user requested simulating holding the power button longer
+	///
+	void menuBacklight();
 
-    ///
-    /// user requested to install a package
-    ///
-    void menuInstallPackage();
+	///
+	/// user requested to install a package
+	///
+	void menuInstallPackage();
 
-    ///
-    /// show the "About..." screen
-    ///
-    void menuAbout();
+	///
+	/// show the "About..." screen
+	///
+	void menuAbout();
 
-    ///
-    /// user wants to see the Settings dialog box
-    ///
-    void menuShowSettings();
+	///
+	/// user wants to see the Settings dialog box
+	///
+	void menuShowSettings();
 
-    ///
-    /// Open the dialog to download the ROM via TCP/IP
-    ///
-    void menuDownloadROM();
+	///
+	/// Open the dialog to download the ROM via TCP/IP
+	///
+	void menuDownloadROM();
 
-    ///
-    /// Reboot NewtonOS
-    ///
-    void reboot();
+	///
+	/// Reboot NewtonOS
+	///
+	void reboot();
 
-    void ChangeScreenSize(int w, int h);
+	void ChangeScreenSize(int w, int h);
 
-    TPlatformManager *getPlatformManager() { return mPlatformManager; }
+	TPlatformManager*
+	getPlatformManager()
+	{
+		return mPlatformManager;
+	}
 
-    TScreenManager *getScreenManager() { return mScreenManager; }
+	TScreenManager*
+	getScreenManager()
+	{
+		return mScreenManager;
+	}
 
-    int updateScreen(unsigned short *buffer, const ARect &r);
+	int updateScreen(unsigned short* buffer, const ARect& r);
 
-    void SetNewtonID(KUInt32 id0, KUInt32 id1) {
-        mNewtonID0 = id0;
-        mNewtonID1 = id1;
-    }
+	void
+	SetNewtonID(KUInt32 id0, KUInt32 id1)
+	{
+		mNewtonID0 = id0;
+		mNewtonID1 = id1;
+	}
 
-    TEmulator *GetEmulator() { return mEmulator; }
+	TEmulator*
+	GetEmulator()
+	{
+		return mEmulator;
+	}
 
 private:
-    ///
-    /// Constructeur par copie volontairement indisponible.
-    ///
-    /// \param inCopy		objet à copier
-    ///
-    TAndroidNativeApp( const TAndroidNativeApp& inCopy );
+	///
+	/// Constructeur par copie volontairement indisponible.
+	///
+	/// \param inCopy		objet à copier
+	///
+	TAndroidNativeApp(const TAndroidNativeApp& inCopy);
 
-    ///
-    /// Opérateur d'assignation volontairement indisponible.
-    ///
-    /// \param inCopy		objet à copier
-    ///
-    TAndroidNativeApp& operator = ( const TAndroidNativeApp& inCopy );
+	///
+	/// Opérateur d'assignation volontairement indisponible.
+	///
+	/// \param inCopy		objet à copier
+	///
+	TAndroidNativeApp& operator=(const TAndroidNativeApp& inCopy);
 
-    ///
-    /// Affiche un message d'erreur sur la syntaxe et sort.
-    ///
-    void SyntaxError( void );
+	///
+	/// Affiche un message d'erreur sur la syntaxe et sort.
+	///
+	void SyntaxError(void);
 
-    ///
-    /// Affiche un message d'erreur sur la syntaxe (une option en particulier)
-    /// et sort.
-    ///
-    /// \param inBadOption	bad option
-    ///
-    void SyntaxError( const char* inBadOption );
+	///
+	/// Affiche un message d'erreur sur la syntaxe (une option en particulier)
+	/// et sort.
+	///
+	/// \param inBadOption	bad option
+	///
+	void SyntaxError(const char* inBadOption);
 
-    ///
-    /// Affiche l'aide et sort.
-    ///
-    void Help( void );
+	///
+	/// Affiche l'aide et sort.
+	///
+	void Help(void);
 
-    ///
-    /// Affiche la version et sort.
-    ///
-    void Version( void );
+	///
+	/// Affiche la version et sort.
+	///
+	void Version(void);
 
-    ///
-    /// Crée le gestionnaire de son.
-    ///
-    void CreateSoundManager( const char* inClass );
+	///
+	/// Crée le gestionnaire de son.
+	///
+	void CreateSoundManager(const char* inClass);
 
-    ///
-    /// Crée le gestionnaire d'écran.
-    ///
-    void CreateScreenManager(
-            const char* inClass,
-            int inPortraitWidth,
-            int inPortraitHeight,
-            Boolean inFullScreen);
+	///
+	/// Crée le gestionnaire d'écran.
+	///
+	void CreateScreenManager(
+		const char* inClass,
+		int inPortraitWidth,
+		int inPortraitHeight,
+		Boolean inFullScreen);
 
-    ///
-    /// Crée le log.
-    ///
-    void CreateLog( const char* inPath );
+	///
+	/// Crée le log.
+	///
+	void CreateLog(const char* inPath);
 
-    ///
-    /// Point d'entrée du processus léger.
-    ///
-    static void* SThreadEntry( void* inUserData )
-    {
-        ((TAndroidNativeApp*) inUserData)->ThreadEntry();
-        return NULL;
-    }
+	///
+	/// Point d'entrée du processus léger.
+	///
+	static void*
+	SThreadEntry(void* inUserData)
+	{
+		((TAndroidNativeApp*) inUserData)->ThreadEntry();
+		return NULL;
+	}
 
-    ///
-    /// Point d'entrée du processus léger.
-    ///
-    void ThreadEntry( void );
+	///
+	/// Point d'entrée du processus léger.
+	///
+	void ThreadEntry(void);
 
-    ///
-    /// Boucle du menu.
-    ///
-    void MenuLoop( void );
+	///
+	/// Boucle du menu.
+	///
+	void MenuLoop(void);
 
-    ///
-    /// Boucle du menu (moniteur)
-    ///
-    void MonitorMenuLoop( void );
+	///
+	/// Boucle du menu (moniteur)
+	///
+	void MonitorMenuLoop(void);
 
-    ///
-    /// Boucle du menu (app)
-    ///
-    void AppMenuLoop( void );
+	///
+	/// Boucle du menu (app)
+	///
+	void AppMenuLoop(void);
 
-    ///
-    /// Execute a command.
-    ///
-    /// \return true if the command was known.
-    ///
-    Boolean ExecuteCommand( const char* inCommand );
+	///
+	/// Execute a command.
+	///
+	/// \return true if the command was known.
+	///
+	Boolean ExecuteCommand(const char* inCommand);
 
-    ///
-    /// Affiche l'aide (du menu)
-    ///
-    void PrintHelp( void );
+	///
+	/// Affiche l'aide (du menu)
+	///
+	void PrintHelp(void);
 
-    ///
-    /// Affiche une ligne (dans stdout ou via le moniteur)
-    ///
-    void PrintLine( const char* inLine );
+	///
+	/// Affiche une ligne (dans stdout ou via le moniteur)
+	///
+	void PrintLine(const char* inLine);
 
-    /// \name Variables
-    const char*			mProgramName;		///< Nom du programme.
-    TROMImage*			mROMImage;			///< Image ROM.
-    TEmulator*			mEmulator;			///< Emulateur.
-    TSoundManager*		mSoundManager;		///< Gestionnaire de son.
-    TScreenManager*		mScreenManager;		///< Gestionnaire d'écran.
-    TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
-    TLog*				mLog;				///< Log.
-    TNetworkManager*	mNetworkManager;	///< network connection
-    Boolean				mQuit;				///< If we should quit.
+	/// \name Variables
+	const char* mProgramName; ///< Nom du programme.
+	TROMImage* mROMImage; ///< Image ROM.
+	TEmulator* mEmulator; ///< Emulateur.
+	TSoundManager* mSoundManager; ///< Gestionnaire de son.
+	TScreenManager* mScreenManager; ///< Gestionnaire d'écran.
+	TPlatformManager* mPlatformManager; ///< Reference to the platform manager.
+	TLog* mLog; ///< Log.
+	TNetworkManager* mNetworkManager; ///< network connection
+	Boolean mQuit; ///< If we should quit.
 
-    KUInt32				mNewtonID0, mNewtonID1;
+	KUInt32 mNewtonID0, mNewtonID1;
 };
-
 
 /**
  Static class that manages all interaction between the Android Native Activity
@@ -279,167 +292,200 @@ private:
  The "TAndroidNativeCore" class holds an ALooper instance that already
  listens to two important things:
 
-    - activity lifecycle events (e.g. "pause", "resume"). See APP_CMD_XXX
-      declarations below.
+	- activity lifecycle events (e.g. "pause", "resume"). See APP_CMD_XXX
+	  declarations below.
 
-    - input events coming from the AInputQueue attached to the activity.
+	- input events coming from the AInputQueue attached to the activity.
 
-    Each of these correspond to an ALooper identifier returned by
-    ALooper_pollOnce with values of LOOPER_ID_MAIN and LOOPER_ID_INPUT,
-    respectively.
+	Each of these correspond to an ALooper identifier returned by
+	ALooper_pollOnce with values of LOOPER_ID_MAIN and LOOPER_ID_INPUT,
+	respectively.
  */
 class TAndroidNativeCore
 {
 public:
-    enum {
-        HOST_ID_UNKNOWN = 0,
-        HOST_ID_EVK_MX6SL         // MobiScribe w/ 6.8" e-ink display
-    };
-    static int getHostID() { return pHostID; }
-    static int pHostID;
+	enum {
+		HOST_ID_UNKNOWN = 0,
+		HOST_ID_EVK_MX6SL // MobiScribe w/ 6.8" e-ink display
+	};
+	static int
+	getHostID()
+	{
+		return pHostID;
+	}
+	static int pHostID;
 
-    static KUInt32 pScreenTopPadding;
-    static KUInt32 pScreenBottomPadding;
-    static KUInt32 pScreenWidth;
-    static KUInt32 pScreenHeight;
-    static const int pNScreenBuffer = 3;
+	static KUInt32 pScreenTopPadding;
+	static KUInt32 pScreenBottomPadding;
+	static KUInt32 pScreenWidth;
+	static KUInt32 pScreenHeight;
+	static const int pNScreenBuffer = 3;
 
-    static void addDirtyRect(const ARect &r);
-    static void addDirtyScreen();
-    static void popDirtyRect(ARect &r);
-    static ARect pDirtyRect[pNScreenBuffer+1];
-    static bool pScreenIsDirty;
-    static TMutex pScreenMutex;
+	static void addDirtyRect(const ARect& r);
+	static void addDirtyScreen();
+	static void popDirtyRect(ARect& r);
+	static ARect pDirtyRect[pNScreenBuffer + 1];
+	static bool pScreenIsDirty;
+	static TMutex pScreenMutex;
 
-    enum {
-        /**
-         * Looper data ID of commands coming from the app's main thread, which
-         * is returned as an identifier from ALooper_pollOnce().  The data for this
-         * identifier is a pointer to an android_poll_source structure.
-         * These can be retrieved and processed with android_app_read_cmd()
-         * and android_app_exec_cmd().
-         */
-                LOOPER_ID_MAIN = 1,
+	enum {
+		/**
+		 * Looper data ID of commands coming from the app's main thread, which
+		 * is returned as an identifier from ALooper_pollOnce().  The data for this
+		 * identifier is a pointer to an android_poll_source structure.
+		 * These can be retrieved and processed with android_app_read_cmd()
+		 * and android_app_exec_cmd().
+		 */
+		LOOPER_ID_MAIN = 1,
 
-        /**
-         * Looper data ID of events coming from the AInputQueue of the
-         * application's window, which is returned as an identifier from
-         * ALooper_pollOnce().  The data for this identifier is a pointer to an
-         * android_poll_source structure.  These can be read via the inputQueue
-         * object of android_app.
-         */
-                LOOPER_ID_INPUT,
+		/**
+		 * Looper data ID of events coming from the AInputQueue of the
+		 * application's window, which is returned as an identifier from
+		 * ALooper_pollOnce().  The data for this identifier is a pointer to an
+		 * android_poll_source structure.  These can be read via the inputQueue
+		 * object of android_app.
+		 */
+		LOOPER_ID_INPUT,
 
-        /**
-         * Timer data ID of all timer events coming from the Unix timer_create()
-         * and friends, used in fl_add_timeout() and colleagues.
-         */
-                LOOPER_ID_TIMER,
+		/**
+		 * Timer data ID of all timer events coming from the Unix timer_create()
+		 * and friends, used in fl_add_timeout() and colleagues.
+		 */
+		LOOPER_ID_TIMER,
 
-        /**
-         * Start of user-defined ALooper identifiers.
-         */
-                LOOPER_ID_USER,
-    };
+		/**
+		 * Start of user-defined ALooper identifiers.
+		 */
+		LOOPER_ID_USER,
+	};
 
-    /**
-     * @see android.H Fl_Android_Platform_Event
-     */
-    enum {
-        APP_CMD_INPUT_CHANGED,
-        APP_CMD_INIT_WINDOW,
-        APP_CMD_TERM_WINDOW,
-        APP_CMD_WINDOW_RESIZED,
-        APP_CMD_WINDOW_REDRAW_NEEDED,
-        APP_CMD_CONTENT_RECT_CHANGED,
-        APP_CMD_GAINED_FOCUS,
-        APP_CMD_LOST_FOCUS,
-        APP_CMD_CONFIG_CHANGED,
-        APP_CMD_LOW_MEMORY,
-        APP_CMD_START,
-        APP_CMD_RESUME,
-        APP_CMD_SAVE_STATE,
-        APP_CMD_PAUSE,
-        APP_CMD_STOP,
-        APP_CMD_DESTROY,
-    };
+	/**
+	 * @see android.H Fl_Android_Platform_Event
+	 */
+	enum {
+		APP_CMD_INPUT_CHANGED,
+		APP_CMD_INIT_WINDOW,
+		APP_CMD_TERM_WINDOW,
+		APP_CMD_WINDOW_RESIZED,
+		APP_CMD_WINDOW_REDRAW_NEEDED,
+		APP_CMD_CONTENT_RECT_CHANGED,
+		APP_CMD_GAINED_FOCUS,
+		APP_CMD_LOST_FOCUS,
+		APP_CMD_CONFIG_CHANGED,
+		APP_CMD_LOW_MEMORY,
+		APP_CMD_START,
+		APP_CMD_RESUME,
+		APP_CMD_SAVE_STATE,
+		APP_CMD_PAUSE,
+		APP_CMD_STOP,
+		APP_CMD_DESTROY,
+	};
 
 public:
-    // --- logging
-    static void log_e(const char *text, ...);
-    static void log_w(const char *text, ...);
-    static void log_i(const char *text, ...);
-    static void log_v(const char *text, ...);
+	// --- logging
+	static void log_e(const char* text, ...);
+	static void log_w(const char* text, ...);
+	static void log_i(const char* text, ...);
+	static void log_v(const char* text, ...);
 
-    // --- application state stuff
-    static int8_t read_cmd();
-    static void pre_exec_cmd(int8_t cmd);
-    static void post_exec_cmd(int8_t cmd);
-    static int destroy_requested() { return pDestroyRequested; }
-    static const char *get_internal_data_path() { return pActivity->internalDataPath; }
-    static const char *get_external_data_path() { return pActivity->externalDataPath; }
-    static AAssetManager *get_asset_manager() { return pActivity->assetManager; }
-    static ANativeActivity *get_activity() { return pActivity; }
+	// --- application state stuff
+	static int8_t read_cmd();
+	static void pre_exec_cmd(int8_t cmd);
+	static void post_exec_cmd(int8_t cmd);
+	static int
+	destroy_requested()
+	{
+		return pDestroyRequested;
+	}
+	static const char*
+	get_internal_data_path()
+	{
+		return pActivity->internalDataPath;
+	}
+	static const char*
+	get_external_data_path()
+	{
+		return pActivity->externalDataPath;
+	}
+	static AAssetManager*
+	get_asset_manager()
+	{
+		return pActivity->assetManager;
+	}
+	static ANativeActivity*
+	get_activity()
+	{
+		return pActivity;
+	}
 
-    // --- event handling
-    static AInputQueue *input_event_queue() { return pInputQueue; }
+	// --- event handling
+	static AInputQueue*
+	input_event_queue()
+	{
+		return pInputQueue;
+	}
 
-    // --- screen stuff
-    static bool copy_screen();
-    static inline ANativeWindow *native_window() { return pNativeWindow; }
-    static inline ANativeWindow_Buffer &graphics_buffer() { return pApplicationWindowBuffer; }
+	// --- screen stuff
+	static bool copy_screen();
+	static inline ANativeWindow*
+	native_window()
+	{
+		return pNativeWindow;
+	}
+	static inline ANativeWindow_Buffer&
+	graphics_buffer()
+	{
+		return pApplicationWindowBuffer;
+	}
 
-    // --- timer stuff
-    static void send_timer_index(uint8_t ix);
-    static uint8_t receive_timer_index();
-
+	// --- timer stuff
+	static void send_timer_index(uint8_t ix);
+	static uint8_t receive_timer_index();
 
 protected:
-    static void free_saved_state();
-    static void print_cur_config();
-    static void destroy();
-    static void* thread_entry(void* param);
+	static void free_saved_state();
+	static void print_cur_config();
+	static void destroy();
+	static void* thread_entry(void* param);
 
-    // --- screen handling stuff
-    static void allocate_screen();
-    static bool lock_screen();
-    static void unlock_and_post_screen();
-    static bool screen_is_locked();
+	// --- screen handling stuff
+	static void allocate_screen();
+	static bool lock_screen();
+	static void unlock_and_post_screen();
+	static bool screen_is_locked();
 
-    // --- timer stuff
-    static void create_timer_handler();
-    static void destroy_timer_handler();
+	// --- timer stuff
+	static void create_timer_handler();
+	static void destroy_timer_handler();
 
-    static ANativeActivity *pActivity;
-    static AConfiguration *pConfig;
-    static void *pSavedState;
-    static size_t pSavedStateSize;
-    static ALooper *pAppLooper;
-    static AInputQueue *pInputQueue;
-    static ANativeWindow *pNativeWindow;
-    static ANativeWindow_Buffer pNativeWindowBuffer;
-    static ANativeWindow_Buffer pApplicationWindowBuffer;
-    static int pActivityState;
-    static int pDestroyRequested;
+	static ANativeActivity* pActivity;
+	static AConfiguration* pConfig;
+	static void* pSavedState;
+	static size_t pSavedStateSize;
+	static ALooper* pAppLooper;
+	static AInputQueue* pInputQueue;
+	static ANativeWindow* pNativeWindow;
+	static ANativeWindow_Buffer pNativeWindowBuffer;
+	static ANativeWindow_Buffer pApplicationWindowBuffer;
+	static int pActivityState;
+	static int pDestroyRequested;
 
-    // ---- no need to make these visible to the outside ----
-    static pthread_mutex_t pMutex;
-    static pthread_cond_t pCond;
-    static int pMsgReadPipe;
-    static int pMsgWritePipe;
-    static pthread_t pThread;
-    static int pRunning;
-    static int pStateSaved;
-    static int pDestroyed;
-    static AInputQueue* pPendingInputQueue;
-    static ANativeWindow* pPendingWindow;
+	// ---- no need to make these visible to the outside ----
+	static pthread_mutex_t pMutex;
+	static pthread_cond_t pCond;
+	static int pMsgReadPipe;
+	static int pMsgWritePipe;
+	static pthread_t pThread;
+	static int pRunning;
+	static int pStateSaved;
+	static int pDestroyed;
+	static AInputQueue* pPendingInputQueue;
+	static ANativeWindow* pPendingWindow;
 
-    // --- timer variables
-    static int pTimerReadPipe;
-    static int pTimerWritePipe;
-
+	// --- timer variables
+	static int pTimerReadPipe;
+	static int pTimerWritePipe;
 };
-
 
 /**
  * All methods in this class run in a different thread, started by TAndroidNativeCore.
@@ -447,75 +493,97 @@ protected:
 class TAndroidNativeActivity : public TAndroidNativeCore
 {
 public:
-    static void createEmulator();
-    static void initEmulator();
-    static void runEmulator();
+	static void createEmulator();
+	static void initEmulator();
+	static void runEmulator();
 
-    static void alert(const char *text);
+	static void alert(const char* text);
 
-    static TAndroidNativeApp *einstein;
-    static TLog *theLog;
+	static TAndroidNativeApp* einstein;
+	static TLog* theLog;
 
 private:
-    static int handleLooperCommands();
-    static int handleLooperInputEvents();
-    static int handleLooperMouseEvent(AInputQueue *queue, AInputEvent *event);
+	static int handleLooperCommands();
+	static int handleLooperInputEvents();
+	static int handleLooperMouseEvent(AInputQueue* queue, AInputEvent* event);
 
 public:
-    static void create(ANativeActivity* activity, void* savedState, size_t savedStateSize);
+	static void create(ANativeActivity* activity, void* savedState, size_t savedStateSize);
 
 private:
-    static void set_activity(ANativeActivity *a) { pActivity = a; }
-    static void set_callbacks();
+	static void
+	set_activity(ANativeActivity* a)
+	{
+		pActivity = a;
+	}
+	static void set_callbacks();
 
-    // ---- Android Native Activity interface
-    static void write_cmd(int8_t cmd);
-    static void set_input(AInputQueue* inputQueue);
-    static void set_window(ANativeWindow* window);
-    static void set_activity_state(int8_t cmd);
-    static void close_activity();
+	// ---- Android Native Activity interface
+	static void write_cmd(int8_t cmd);
+	static void set_input(AInputQueue* inputQueue);
+	static void set_window(ANativeWindow* window);
+	static void set_activity_state(int8_t cmd);
+	static void close_activity();
 
-    // ---- Android Native Activity callbacks ----
-    static void onContentRectChanged(ANativeActivity *activity, const ARect *rect);
-    static void onNativeWindowRedrawNeeded(ANativeActivity *activity, ANativeWindow *window);
-    static void onNativeWindowResized(ANativeActivity *activity, ANativeWindow *window);
-    static void onDestroy(ANativeActivity* activity);
-    static void onStart(ANativeActivity* activity);
-    static void onResume(ANativeActivity* activity);
-    static void* onSaveInstanceState(ANativeActivity* activity, size_t* outLen);
-    static void onPause(ANativeActivity* activity);
-    static void onStop(ANativeActivity* activity);
-    static void onConfigurationChanged(ANativeActivity* activity);
-    static void onLowMemory(ANativeActivity* activity);
-    static void onWindowFocusChanged(ANativeActivity* activity, int focused);
-    static void onNativeWindowCreated(ANativeActivity* activity, ANativeWindow* window);
-    static void onNativeWindowDestroyed(ANativeActivity* activity, ANativeWindow* window);
-    static void onInputQueueCreated(ANativeActivity* activity, AInputQueue* queue);
-    static void onInputQueueDestroyed(ANativeActivity* activity, AInputQueue* queue);
+	// ---- Android Native Activity callbacks ----
+	static void onContentRectChanged(ANativeActivity* activity, const ARect* rect);
+	static void onNativeWindowRedrawNeeded(ANativeActivity* activity, ANativeWindow* window);
+	static void onNativeWindowResized(ANativeActivity* activity, ANativeWindow* window);
+	static void onDestroy(ANativeActivity* activity);
+	static void onStart(ANativeActivity* activity);
+	static void onResume(ANativeActivity* activity);
+	static void* onSaveInstanceState(ANativeActivity* activity, size_t* outLen);
+	static void onPause(ANativeActivity* activity);
+	static void onStop(ANativeActivity* activity);
+	static void onConfigurationChanged(ANativeActivity* activity);
+	static void onLowMemory(ANativeActivity* activity);
+	static void onWindowFocusChanged(ANativeActivity* activity, int focused);
+	static void onNativeWindowCreated(ANativeActivity* activity, ANativeWindow* window);
+	static void onNativeWindowDestroyed(ANativeActivity* activity, ANativeWindow* window);
+	static void onInputQueueCreated(ANativeActivity* activity, AInputQueue* queue);
+	static void onInputQueueDestroyed(ANativeActivity* activity, AInputQueue* queue);
 };
-
 
 /**
  A class to make Java calls from C++ easier.
  */
 class TAndroidNativeToJava
 {
-    JavaVM *pJavaVM = nullptr;
-    JNIEnv *pJNIEnv = nullptr;
-    jobject pNativeActivity;
-    jclass pNativeActivityClass;
-    bool pAttached = false;
+	JavaVM* pJavaVM = nullptr;
+	JNIEnv* pJNIEnv = nullptr;
+	jobject pNativeActivity;
+	jclass pNativeActivityClass;
+	bool pAttached = false;
 
 public:
-    TAndroidNativeToJava();
-    ~TAndroidNativeToJava();
-    bool is_attached() { return pAttached; }
-    JavaVM *VM() { return pJavaVM; }
-    JNIEnv *env() { return pJNIEnv; }
-    jobject native_ativity() { return pNativeActivity; }
-    jclass native_activity_class() { return pNativeActivityClass; }
+	TAndroidNativeToJava();
+	~TAndroidNativeToJava();
+	bool
+	is_attached()
+	{
+		return pAttached;
+	}
+	JavaVM*
+	VM()
+	{
+		return pJavaVM;
+	}
+	JNIEnv*
+	env()
+	{
+		return pJNIEnv;
+	}
+	jobject
+	native_ativity()
+	{
+		return pNativeActivity;
+	}
+	jclass
+	native_activity_class()
+	{
+		return pNativeActivityClass;
+	}
 };
-
 
 #endif
 // _TANDROID_NATIVE_APP_H

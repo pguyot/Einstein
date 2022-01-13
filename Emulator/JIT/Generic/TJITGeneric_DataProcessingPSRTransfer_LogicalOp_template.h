@@ -42,16 +42,16 @@ FLAG_S
 */
 
 #if OP != AND && OP != EOR && OP != ORR && OP != BIC
-	#error "Please define OP to be AND, EOR, ORR or BIC"
+#error "Please define OP to be AND, EOR, ORR or BIC"
 #endif
 #if AND == EOR || AND == ORR || AND == BIC || EOR == ORR || EOR == BIC || ORR == BIC
-	#error "Please define AND, EOR, ORR and BIC to be different"
+#error "Please define AND, EOR, ORR and BIC to be different"
 #endif
 #if MODE != Imm && MODE != ImmC && MODE != NoShift && MODE != Regular
-	#error "Please define MODE to be Imm, ImmC, NoShift or Regular"
+#error "Please define MODE to be Imm, ImmC, NoShift or Regular"
 #endif
 #if Imm == ImmC || Imm == NoShift || Imm == Regular || ImmC == NoShift || ImmC == Regular || NoShift == Regular
-	#error "Please define Imm, ImmC, NoShift and Regular to be different"
+#error "Please define Imm, ImmC, NoShift and Regular to be different"
 #endif
 
 // -> Opnd2Immediate
@@ -64,9 +64,9 @@ LogicalOp(OP, MODE, FLAG_S, Rn, Rd)
 #if (MODE == Imm) || (MODE == ImmC)
 	KUInt32 Opnd2;
 	POPVALUE(Opnd2);
-	#if (Rn == 15)
+#if (Rn == 15)
 	POPPC();
-	#endif
+#endif
 #elif MODE == NoShift
 	KUInt32 Rm;
 	POPVALUE(Rm);
@@ -75,7 +75,8 @@ LogicalOp(OP, MODE, FLAG_S, Rn, Rd)
 	if (Rm == 15)
 	{
 		Opnd2 = GETPC();
-	} else {
+	} else
+	{
 		Opnd2 = ioCPU->mCurrentRegisters[Rm];
 	}
 #elif FLAG_S
@@ -83,12 +84,12 @@ LogicalOp(OP, MODE, FLAG_S, Rn, Rd)
 	POPVALUE(theInstruction);
 	POPPC();
 	Boolean carry = false;
-	const KUInt32 Opnd2 = GetShift( ioCPU, theInstruction, &carry, GETPC() );
+	const KUInt32 Opnd2 = GetShift(ioCPU, theInstruction, &carry, GETPC());
 #else
 	KUInt32 theInstruction;
 	POPVALUE(theInstruction);
 	POPPC();
-	const KUInt32 Opnd2 = GetShiftNoCarry( ioCPU, theInstruction, ioCPU->mCPSR_C, GETPC() );
+	const KUInt32 Opnd2 = GetShiftNoCarry(ioCPU, theInstruction, ioCPU->mCPSR_C, GETPC());
 #endif
 #if (Rn == 15)
 	const KUInt32 Opnd1 = GETPC();
@@ -102,37 +103,36 @@ LogicalOp(OP, MODE, FLAG_S, Rn, Rd)
 #elif (OP == ORR)
 	const KUInt32 theResult = Opnd1 | Opnd2;
 #elif (OP == BIC)
-	const KUInt32 theResult = Opnd1 & ~ Opnd2;
+	const KUInt32 theResult = Opnd1 & ~Opnd2;
 #endif
 #if Rd == 15
-	#if !FLAG_S
-		CALLNEXT_SAVEPC;
-	#endif
+#if !FLAG_S
+	CALLNEXT_SAVEPC;
+#endif
 	SETPC(theResult + 4);
-	#if FLAG_S
-		ioCPU->SetCPSR( ioCPU->GetSPSR() );
-	#endif
+#if FLAG_S
+	ioCPU->SetCPSR(ioCPU->GetSPSR());
+#endif
 #else
 	ioCPU->mCurrentRegisters[Rd] = theResult;
-	#if FLAG_S
-		#if (MODE == NoShift) || (MODE == Imm)
-			SetCPSRBitsForLogicalOpLeaveCarry( ioCPU, theResult );
-		#elif (MODE == ImmC)
-			SetCPSRBitsForLogicalOp( ioCPU, theResult, (Opnd2 & 0x80000000) != 0 );
-		#else
-			SetCPSRBitsForLogicalOp( ioCPU, theResult, carry );
-		#endif
-	#endif
+#if FLAG_S
+#if (MODE == NoShift) || (MODE == Imm)
+	SetCPSRBitsForLogicalOpLeaveCarry(ioCPU, theResult);
+#elif (MODE == ImmC)
+	SetCPSRBitsForLogicalOp(ioCPU, theResult, (Opnd2 & 0x80000000) != 0);
+#else
+	SetCPSRBitsForLogicalOp(ioCPU, theResult, carry);
+#endif
+#endif
 #endif
 #if Rd == 15
-	#if FLAG_S
-		MMUCALLNEXT_AFTERSETPC;
-	#else
-		FURTHERCALLNEXT_AFTERSETPC;
-	#endif
+#if FLAG_S
+	MMUCALLNEXT_AFTERSETPC;
+#else
+	FURTHERCALLNEXT_AFTERSETPC;
+#endif
 #else
 	CALLNEXTUNIT;
 #endif
 }
 #endif
-

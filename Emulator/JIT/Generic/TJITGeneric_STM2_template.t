@@ -22,22 +22,22 @@
 // ==============================
 
 #define STM2_TemplateName(flag_p, flag_u, rn) \
-	STM2_ ## flag_p ## _ ## flag_u ## _ ## rn
+	STM2_##flag_p##_##flag_u##_##rn
 
 #if DECLARATION
-	#define STM2_Template(flag_p, flag_u, rn) \
-		JITInstructionProto(STM2_TemplateName(flag_p, flag_u, rn));
+#define STM2_Template(flag_p, flag_u, rn) \
+	JITInstructionProto(STM2_TemplateName(flag_p, flag_u, rn));
 #endif
 #if IMPLEMENTATION
-	#define STM2_Template(flag_p, flag_u, rn) \
-		JITInstructionProto(STM2_TemplateName(flag_p, flag_u, rn))
+#define STM2_Template(flag_p, flag_u, rn) \
+	JITInstructionProto(STM2_TemplateName(flag_p, flag_u, rn))
 #endif
 #if TRANSLATION_ARRAY
-	#define STM2_Template(flag_p, flag_u, rn) \
-		STM2_TemplateName(flag_p, flag_u, rn),
+#define STM2_Template(flag_p, flag_u, rn) \
+	STM2_TemplateName(flag_p, flag_u, rn),
 #endif
 
-#define INCLUDE_TEMPLATE	"TJITGeneric_STM2_template.h"
+#define INCLUDE_TEMPLATE "TJITGeneric_STM2_template.h"
 #define FLAG_P 0
 #define FLAG_U 0
 #include "IncludeRn.h"

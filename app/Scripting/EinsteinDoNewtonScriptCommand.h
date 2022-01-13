@@ -29,12 +29,12 @@
 
 @interface EinsteinDoNewtonScriptCommand : NSScriptCommand
 
--(id)performDefaultImplementation;
+- (id)performDefaultImplementation;
 
 @end
 
 #endif
-		// _EINSTEINDONEWTONSCRIPTCOMMAND_H
+// _EINSTEINDONEWTONSCRIPTCOMMAND_H
 
 // ===================================================================== //
 // I have never seen anything fill up a vacuum so fast and still suck.   //

@@ -44,11 +44,9 @@ class TMutex;
 /// \author Paul Guyot <pguyot@kallisys.net>
 ///
 class TWaveSoundManager
-	:
-		public TSoundManager
+		: public TSoundManager
 {
 public:
-
 	static const int NWaveBuffer = 4;
 
 	///
@@ -56,90 +54,95 @@ public:
 	///
 	/// \param inLog				log interface (can be null)
 	///
-	TWaveSoundManager( TLog* inLog = nil );
+	TWaveSoundManager(TLog* inLog = nil);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TWaveSoundManager( void );
+	virtual ~TWaveSoundManager(void);
 
 	///
 	/// Schedule output of some buffer.
 	///
-	virtual void	ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize );
+	virtual void ScheduleOutputBuffer(KUInt32 inBufferAddr, KUInt32 inSize);
 
 	///
 	/// Start output.
 	///
-	virtual void	StartOutput( void );
+	virtual void StartOutput(void);
 
 	///
 	/// Stop output.
 	///
-	virtual void	StopOutput( void );
+	virtual void StopOutput(void);
 
 	///
 	/// Is output running?
 	///
-	virtual Boolean	OutputIsRunning( void );
+	virtual Boolean OutputIsRunning(void);
 
 	///
 	/// Method called to signal a change in the output volume.
 	///
-	virtual void	OutputVolumeChanged( void ) { updateVolume(); }
+	virtual void
+	OutputVolumeChanged(void)
+	{
+		updateVolume();
+	}
 
 private:
-
-	typedef enum { available = 0, pending, playing } State;
+	typedef enum { available = 0,
+		pending,
+		playing } State;
 
 	typedef struct {
-		WAVEHDR				waveHdr;
-		KSInt16				*buffer;
-		KUInt32				nBuffer;
-		State				state;
+		WAVEHDR waveHdr;
+		KSInt16* buffer;
+		KUInt32 nBuffer;
+		State state;
 	} WaveBuffer;
 
-	void		initWaveBuffer(int ix);
+	void initWaveBuffer(int ix);
 
-	void		freeWaveBuffer(int ix);
+	void freeWaveBuffer(int ix);
 
-	void		fillWaveBuffer(int ix, KUInt32 inBufferAddr, KUInt32 inSize);
+	void fillWaveBuffer(int ix, KUInt32 inBufferAddr, KUInt32 inSize);
 
-	void		sendWaveBuffer(int ix);
+	void sendWaveBuffer(int ix);
 
-	void		openWaveOut();
+	void openWaveOut();
 
-	void		updateVolume();
+	void updateVolume();
 
 	static void CALLBACK waveOutProcCB(
-						HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance,
-						DWORD_PTR dwParam1, DWORD_PTR dwParam2);
+		HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance,
+		DWORD_PTR dwParam1, DWORD_PTR dwParam2);
 
-	void		waveOutProc(UINT uMsg, int ix);
+	void waveOutProc(UINT uMsg, int ix);
 
-	int			next(int ix);
+	int next(int ix);
 
-	void		logError(const char *msg, MMRESULT err);
+	void logError(const char* msg, MMRESULT err);
 
-	WaveBuffer	wb[NWaveBuffer];
+	WaveBuffer wb[NWaveBuffer];
 
-	HWAVEOUT	waveOut;
+	HWAVEOUT waveOut;
 
-	bool		noWaveOut;
+	bool noWaveOut;
 
-	int			playNext;
+	int playNext;
 
-	int			nextAvailable;
+	int nextAvailable;
 
-	bool		isPlaying;
+	bool isPlaying;
 
-	DWORD		volume;
+	DWORD volume;
 
-	TMutex		*mutex;
+	TMutex* mutex;
 };
 
 #endif
-		// _TWAVESOUNDMANAGER_H
+// _TWAVESOUNDMANAGER_H
 
 // ========================================= //
 // TRANSACTION CANCELLED - FARECARD RETURNED //

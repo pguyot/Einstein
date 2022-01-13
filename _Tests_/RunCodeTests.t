@@ -1,64 +1,69 @@
 // Make sure breakpoint ends test.
 // e1200070		bkpt	#0x0
-TEST(RunCode, 1) {
-    UProcessorTests::RunCode("E1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000008);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000013);
-    });
+TEST(RunCode, 1)
+{
+	UProcessorTests::RunCode("E1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000008);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000013);
+	});
 }
 
 // e3a01001		mov		r1, #0x1
 // e3310000		teq		r1, #0x0
 // 03a02002		moveq	r2, #0x2
 // e1200070		bkpt	#0x0
-TEST(RunCode, 2) {
-    UProcessorTests::RunCode("E3A01001 E3310000 03A02002 E1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000001);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000014);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000013);
-    });
+TEST(RunCode, 2)
+{
+	UProcessorTests::RunCode("E3A01001 E3310000 03A02002 E1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000001);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000014);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000013);
+	});
 }
 
 // e3a01001		mov		r1, #0x1
 // e3310000		teq		r1, #0x0
 // 03a02002		movne	r2, #0x2
 // e1200070		bkpt	#0x0
-TEST(RunCode, 3) {
-    UProcessorTests::RunCode("E3A01001 E3310000 13A02002 E1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000001);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000002);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000014);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000013);
-    });
+TEST(RunCode, 3)
+{
+	UProcessorTests::RunCode("E3A01001 E3310000 13A02002 E1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000001);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000002);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000014);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000013);
+	});
 }
 
 // e3a01001		movs	r1, #0x1
 // 03a02002		moveq	r2, #0x2
 // e1200070		bkpt	#0x0
-TEST(RunCode, 4) {
-    UProcessorTests::RunCode("E3B01001 03A02002 E1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000001);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000010);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000013);
-    });
+TEST(RunCode, 4)
+{
+	UProcessorTests::RunCode("E3B01001 03A02002 E1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000001);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000010);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000013);
+	});
 }
 
 // e3b01001		movs	r1, #0x1
 // 03a02002		movne	r2, #0x2
 // e1200070		bkpt	#0x0
-TEST(RunCode, 5) {
-    UProcessorTests::RunCode("E3B01001 13A02002 E1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000001);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000002);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000010);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000013);
-    });
+TEST(RunCode, 5)
+{
+	UProcessorTests::RunCode("E3B01001 13A02002 E1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000001);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000002);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000010);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000013);
+	});
 }
 
 // E3A00301	mov		r0, #0x4000000
@@ -74,52 +79,54 @@ TEST(RunCode, 5) {
 // E590D004	ldr		sp, [r0, #4]
 // E790E004	ldr		lr, [r0, r4]
 // E1200070	bkpt	#0x0
-TEST(RunCode, 6) {
-    UProcessorTests::RunCode("E3A00301 E3A01001 E3A02002 E3A03003 E3A04004 E3A05005 E3A06006 E8A0007F E9101F80 E0400106 E590D004 E790E004 E1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x04000004);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000001);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000002);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x00000003);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x00000004);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x00000005);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000006);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000001);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000002);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000003);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000004);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000005);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000006);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000002);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000002);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000038);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000013);
-    });
+TEST(RunCode, 6)
+{
+	UProcessorTests::RunCode("E3A00301 E3A01001 E3A02002 E3A03003 E3A04004 E3A05005 E3A06006 E8A0007F E9101F80 E0400106 E590D004 E790E004 E1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x04000004);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000001);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000002);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x00000003);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x00000004);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x00000005);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000006);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000001);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000002);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000003);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000004);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000005);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000006);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000002);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000002);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000038);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000013);
+	});
 }
 
 // e361f017	msr		SPSR_c, #0x17
 // e1a0e00f	mov		lr, pc
 // e1b0f00e	movs	pc, lr
 // e1200070	bkpt	#0x0
-TEST(RunCode, 7) {
-    UProcessorTests::RunCode("e361f017 e1a0e00f e1b0f00e e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000014);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000017);
-    });
+TEST(RunCode, 7)
+{
+	UProcessorTests::RunCode("e361f017 e1a0e00f e1b0f00e e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000014);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000017);
+	});
 }
 
 // e361f010	msr		SPSR_c, #0x10
@@ -128,26 +135,27 @@ TEST(RunCode, 7) {
 // e1a0e00f	mov		lr, pc
 // e1b0f00e	movs	pc, lr
 // e1200070	bkpt	#0x0
-TEST(RunCode, 8) {
-    UProcessorTests::RunCode("e361f010 e321f017 e361f011 e1a0e00f e1b0f00e e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x0000001C);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000011);
-    });
+TEST(RunCode, 8)
+{
+	UProcessorTests::RunCode("e361f010 e321f017 e361f011 e1a0e00f e1b0f00e e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x0000001C);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000011);
+	});
 }
 
 // e361f010	msr		SPSR_c, #0x10
@@ -158,104 +166,108 @@ TEST(RunCode, 8) {
 // e1a0e00f	mov		lr, pc
 // e1b0f00e	movs	pc, lr
 // e1200070	bkpt	#0x0
-TEST(RunCode, 9) {
-    UProcessorTests::RunCode("e361f010 e321f017 e3a00011 e2800206 e169f000 e1a0e00f e1b0f00e e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x60000011);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000024);
-        EXPECT_EQ(proc.GetCPSR(),                        0x60000011);
-    });
+TEST(RunCode, 9)
+{
+	UProcessorTests::RunCode("e361f010 e321f017 e3a00011 e2800206 e169f000 e1a0e00f e1b0f00e e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x60000011);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000024);
+		EXPECT_EQ(proc.GetCPSR(), 0x60000011);
+	});
 }
 
 // e3a00017	mov		r0, #0x17
 // e2800206	add		r0, r0, #0x60000000
 // e129f000	msr		CPSR_fc, r0
 // e1200070	bkpt	#0x0
-TEST(RunCode, 10) {
-    UProcessorTests::RunCode("e3a00017 e2800206 e129f000 e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x60000017);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000014);
-        EXPECT_EQ(proc.GetCPSR(),                        0x60000017);
-    });
+TEST(RunCode, 10)
+{
+	UProcessorTests::RunCode("e3a00017 e2800206 e129f000 e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x60000017);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000014);
+		EXPECT_EQ(proc.GetCPSR(), 0x60000017);
+	});
 }
 
 // e3a00017	mov		r0, #0x17
 // e2800206	add		r0, r0, #0x60000000
 // e121f000	msr		CPSR_c, r0
 // e1200070	bkpt	#0x0
-TEST(RunCode, 11) {
-    UProcessorTests::RunCode("e3a00017 e2800206 e121f000 e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x60000017);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000014);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000017);
-    });
+TEST(RunCode, 11)
+{
+	UProcessorTests::RunCode("e3a00017 e2800206 e121f000 e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x60000017);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000014);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000017);
+	});
 }
 
 // e3a00017	mov		r0, #0x17
 // e2800206	add		r0, r0, #0x60000000
 // e128f000	msr		CPSR_f, r0
 // e1200070	bkpt	#0x0
-TEST(RunCode, 12) {
-    UProcessorTests::RunCode("e3a00017 e2800206 e128f000 e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x60000017);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000014);
-        EXPECT_EQ(proc.GetCPSR(),                        0x60000013);
-    });
+TEST(RunCode, 12)
+{
+	UProcessorTests::RunCode("e3a00017 e2800206 e128f000 e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x60000017);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000014);
+		EXPECT_EQ(proc.GetCPSR(), 0x60000013);
+	});
 }
 
 // e3a00017	mov		r0, #0x17
@@ -267,26 +279,27 @@ TEST(RunCode, 12) {
 // e1b0f00e	movs	pc, lr
 // e10f3000	mrs		r3, CPSR
 // e1200070	bkpt	#0x0
-TEST(RunCode, 13) {
-    UProcessorTests::RunCode("e3a00017 e2800206 e169f000 e14f1000 e10f2000 e1a0e00f e1b0f00e e10f3000 e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x60000017);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x60000017);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000013);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x60000017);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000028);
-        EXPECT_EQ(proc.GetCPSR(),                        0x60000017);
-    });
+TEST(RunCode, 13)
+{
+	UProcessorTests::RunCode("e3a00017 e2800206 e169f000 e14f1000 e10f2000 e1a0e00f e1b0f00e e10f3000 e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x60000017);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x60000017);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000013);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x60000017);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000028);
+		EXPECT_EQ(proc.GetCPSR(), 0x60000017);
+	});
 }
 
 // e3a00017	mov		r0, #0x17
@@ -298,26 +311,27 @@ TEST(RunCode, 13) {
 // e1b0f00e	movs	pc, lr
 // e10f3000	mrs		r3, CPSR
 // e1200070	bkpt	#0x0
-TEST(RunCode, 14) {
-    UProcessorTests::RunCode("e3a00017 e2800206 e161f000 e14f1000 e10f2000 e1a0e00f e1b0f00e e10f3000 e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x60000017);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000017);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000013);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x00000017);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000028);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000017);
-    });
+TEST(RunCode, 14)
+{
+	UProcessorTests::RunCode("e3a00017 e2800206 e161f000 e14f1000 e10f2000 e1a0e00f e1b0f00e e10f3000 e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x60000017);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000017);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000013);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x00000017);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000028);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000017);
+	});
 }
 
 // e10f0000	mrs		r0, CPSR
@@ -331,26 +345,27 @@ TEST(RunCode, 14) {
 // e1b0f00e	movs	pc, lr
 // e10f3000	mrs		r3, CPSR
 // e1200070	bkpt	#0x0
-TEST(RunCode, 15) {
-    UProcessorTests::RunCode("e10f0000 e169f000 e3a00017 e2800206 e168f000 e14f1000 e10f2000 e1a0e00f e1b0f00e e10f3000 e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x60000017);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x60000013);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000013);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x60000013);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000024);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000030);
-        EXPECT_EQ(proc.GetCPSR(),                        0x60000013);
-    });
+TEST(RunCode, 15)
+{
+	UProcessorTests::RunCode("e10f0000 e169f000 e3a00017 e2800206 e168f000 e14f1000 e10f2000 e1a0e00f e1b0f00e e10f3000 e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x60000017);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x60000013);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000013);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x60000013);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000024);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000030);
+		EXPECT_EQ(proc.GetCPSR(), 0x60000013);
+	});
 }
 
 // -- large block with a subroutine doing 64bits additions.
@@ -409,26 +424,27 @@ TEST(RunCode, 15) {
  mov     r9, r9, ASR #3
  mov     pc, lr
 */
-TEST(RunCode, 16) {
-    UProcessorTests::RunCode("e59f00b8 e890000f eb000017 e1a02004 e1a03005 e1a0a004 eb000013 e1a02004 e1a03005 e1a0b004 eb00000f e1a02004 e1a03005 e1a0c004 eb00000b e1a02004 e1a03005 e1a0d004 eb000007 e0422004 e1a03005 eb000004 e1200070 46474849 41424344 16171819 11121314 e0904002 e0b15003 e1a06206 02866001 22866002 42866004 62866008 e1a07267 12477001 32477002 52477004 72477008 83888102 a3888101 c3888202 e1a081a8 82299102 a2299101 c2299202 e1a091c9 e1a0f00e 0000005c", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x46474849);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x41424344);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0xB9B8B7B7);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x575D6369);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x989FA6AE);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x000C420C);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x024C1FFC);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x0DF0D800);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0xF270D800);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x5C5E6062);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0xA2A5A8AB);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0xE8ECF0F4);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x2F34393D);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000058);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000060);
-        EXPECT_EQ(proc.GetCPSR(),                        0x90000013);
-    });
+TEST(RunCode, 16)
+{
+	UProcessorTests::RunCode("e59f00b8 e890000f eb000017 e1a02004 e1a03005 e1a0a004 eb000013 e1a02004 e1a03005 e1a0b004 eb00000f e1a02004 e1a03005 e1a0c004 eb00000b e1a02004 e1a03005 e1a0d004 eb000007 e0422004 e1a03005 eb000004 e1200070 46474849 41424344 16171819 11121314 e0904002 e0b15003 e1a06206 02866001 22866002 42866004 62866008 e1a07267 12477001 32477002 52477004 72477008 83888102 a3888101 c3888202 e1a081a8 82299102 a2299101 c2299202 e1a091c9 e1a0f00e 0000005c", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x46474849);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x41424344);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0xB9B8B7B7);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x575D6369);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x989FA6AE);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x000C420C);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x024C1FFC);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x0DF0D800);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0xF270D800);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x5C5E6062);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0xA2A5A8AB);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0xE8ECF0F4);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x2F34393D);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000058);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000060);
+		EXPECT_EQ(proc.GetCPSR(), 0x90000013);
+	});
 }
 
 /*
@@ -443,26 +459,27 @@ swpb r4, r2, [r0]
 ldr r5, [r0]
 bkpt 0
 */
-TEST(RunCode, 17) {
-    UProcessorTests::RunCode("e3a00301 e24f1fc1 e2411802 e2411401 e5801000 e3a02005 e1003091 e1404092 e5905000 e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x04000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0xFEFDFD08);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000005);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0xFEFDFD08);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x000000FE);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x05FDFD08);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x0000002C);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000013);
-    });
+TEST(RunCode, 17)
+{
+	UProcessorTests::RunCode("e3a00301 e24f1fc1 e2411802 e2411401 e5801000 e3a02005 e1003091 e1404092 e5905000 e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x04000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0xFEFDFD08);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000005);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0xFEFDFD08);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x000000FE);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x05FDFD08);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x0000002C);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000013);
+	});
 }
 
 /*
@@ -483,26 +500,27 @@ TEST(RunCode, 17) {
  04100004	e2833008	add	r3, r3, #0x8		# executed
  04100008	e1200070	bkpt	#0x0
  */
-TEST(RunCode, 18) {
-    UProcessorTests::RunCode("e3a00301 e28f1008 e8b103f0 e88003f0 e280f004 e2833001 e2833002 e2800601 e8b13c00 e8803c00 ea03fffa e2833004 e2833008 e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x04100000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x0000003C);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x0000000A);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0xE2833001);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0xE2833002);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0xE2800601);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0xE8B13C00);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0xE8803C00);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0xEA03FFFA);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0xE2833004);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0xE2833008);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0xE1200070);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x04100010);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000013);
-    });
+TEST(RunCode, 18)
+{
+	UProcessorTests::RunCode("e3a00301 e28f1008 e8b103f0 e88003f0 e280f004 e2833001 e2833002 e2800601 e8b13c00 e8803c00 ea03fffa e2833004 e2833008 e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x04100000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x0000003C);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x0000000A);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0xE2833001);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0xE2833002);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0xE2800601);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0xE8B13C00);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0xE8803C00);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0xEA03FFFA);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0xE2833004);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0xE2833008);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0xE1200070);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x04100010);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000013);
+	});
 }
 
 /*
@@ -521,26 +539,27 @@ TEST(RunCode, 18) {
  .long   0x00000009
  .long   0x00000008
  */
-TEST(RunCode, 19) {
-    UProcessorTests::RunCode("e28fb028 e91baff0 e1200070 00000010 0000000F 0000000E 0000000D 0000000C 0000000B 0000000A 00000009 00000008", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0xE1200070);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x00000010);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x0000000F);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x0000000E);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x0000000D);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x0000000C);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x0000000B);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x0000000A);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000009);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000010);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000013);
-    });
+TEST(RunCode, 19)
+{
+	UProcessorTests::RunCode("e28fb028 e91baff0 e1200070 00000010 0000000F 0000000E 0000000D 0000000C 0000000B 0000000A 00000009 00000008", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0xE1200070);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x00000010);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x0000000F);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x0000000E);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x0000000D);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x0000000C);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x0000000B);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x0000000A);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000009);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000010);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000013);
+	});
 }
 
 /*
@@ -553,26 +572,27 @@ TEST(RunCode, 19) {
  mov	r5, r0, asr #3
  bkpt 0
 */
-TEST(RunCode, 20) {
-    UProcessorTests::RunCode("e3a01003 e3a00c02 e2800057 e1a02130 e1a031a0 e1a04150 e1a051c0 e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x00000257);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x00000003);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x0000004A);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x0000004A);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x0000004A);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x0000004A);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000024);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000013);
-    });
+TEST(RunCode, 20)
+{
+	UProcessorTests::RunCode("e3a01003 e3a00c02 e2800057 e1a02130 e1a031a0 e1a04150 e1a051c0 e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x00000257);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x00000003);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x0000004A);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x0000004A);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x0000004A);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x0000004A);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x00000024);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000013);
+	});
 }
 
 /*
@@ -583,25 +603,25 @@ TEST(RunCode, 20) {
    c:	e5902000 	ldr	r2, [r0]
   10:   e1200070    bkpt 0
 **/
-TEST(RunCode, 21) {
-    UProcessorTests::RunCode("e3a00301 e28f1b01 e1c010b0 e1c010b0 e5902000 e1200070", [] (TARMProcessor& proc) {
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0),  0x04000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1),  0x0000040C);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2),  0x040C0000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9),  0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
-        EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x0000001C);
-        EXPECT_EQ(proc.GetCPSR(),                        0x00000013);
-    });
+TEST(RunCode, 21)
+{
+	UProcessorTests::RunCode("e3a00301 e28f1b01 e1c010b0 e1c010b0 e5902000 e1200070", [](TARMProcessor& proc) {
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR0), 0x04000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR1), 0x0000040C);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR2), 0x040C0000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR3), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR4), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR5), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR6), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR7), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR8), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR9), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR10), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR11), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR12), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR13), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR14), 0x00000000);
+		EXPECT_EQ(proc.GetRegister(TARMProcessor::kR15), 0x0000001C);
+		EXPECT_EQ(proc.GetCPSR(), 0x00000013);
+	});
 }
-

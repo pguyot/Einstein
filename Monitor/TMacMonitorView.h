@@ -8,14 +8,16 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "TCocoaMonitorController.h"
+
 class TMacMonitor;
 
 @interface TMacMonitorView : NSView
 
-- (void)setController:(TCocoaMonitorController *)controller;
+- (void)setController:(TCocoaMonitorController*)controller;
 
-- (void)addHistoryLine:(NSString *)line type:(int)type;
+- (void)addHistoryLine:(NSString*)line type:(int)type;
 
-- (void)updateWithMonitor:(TMacMonitor *)monitor;
+- (void)updateWithMonitor:(TMacMonitor*)monitor;
 
 @end

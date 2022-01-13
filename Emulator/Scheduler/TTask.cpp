@@ -31,16 +31,15 @@
 // -------------------------------------------------------------------------- //
 //  * TTask( void )
 // -------------------------------------------------------------------------- //
-TTask::TTask( void )
-	:
-		mThread( this )
+TTask::TTask(void) :
+		mThread(this)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TTask( void )
 // -------------------------------------------------------------------------- //
-TTask::~TTask( void )
+TTask::~TTask(void)
 {
 }
 
@@ -48,7 +47,7 @@ TTask::~TTask( void )
 //  * Run( void )
 // -------------------------------------------------------------------------- //
 void
-TTask::Run( void )
+TTask::Run(void)
 {
 }
 
@@ -56,7 +55,7 @@ TTask::Run( void )
 //  * IsCurrentTask( void ) const
 // -------------------------------------------------------------------------- //
 Boolean
-TTask::IsCurrentTask( void ) const
+TTask::IsCurrentTask(void) const
 {
 	return mThread->IsCurrentThread();
 }
@@ -65,7 +64,7 @@ TTask::IsCurrentTask( void ) const
 //  * SuspendAtomic( void )
 // -------------------------------------------------------------------------- //
 void
-TTask::SuspendAtomic( void )
+TTask::SuspendAtomic(void)
 {
 	if (!mAtomicSuspended)
 	{
@@ -78,7 +77,7 @@ TTask::SuspendAtomic( void )
 //  * ResumeAtomic( void )
 // -------------------------------------------------------------------------- //
 void
-TTask::ResumeAtomic( void )
+TTask::ResumeAtomic(void)
 {
 	if (mAtomicSuspended)
 	{

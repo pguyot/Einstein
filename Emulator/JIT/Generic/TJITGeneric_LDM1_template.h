@@ -44,28 +44,28 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	// Rn == 15 -> UNPREDICTABLE
 	KUInt32 baseAddress = ioCPU->mCurrentRegisters[Rn];
 #if FLAG_W
-	// Write back
-	#if FLAG_U
-		KUInt32 wbAddress = baseAddress + (nbRegisters * 4);
-	#else
-		KUInt32 wbAddress = baseAddress - (nbRegisters * 4);
-	#endif
+// Write back
+#if FLAG_U
+	KUInt32 wbAddress = baseAddress + (nbRegisters * 4);
+#else
+	KUInt32 wbAddress = baseAddress - (nbRegisters * 4);
+#endif
 #endif
 
 #if FLAG_U
-	// Up.
-	#if FLAG_P
-		// Post: add 4.
-		baseAddress += 4;
-	#endif
+// Up.
+#if FLAG_P
+	// Post: add 4.
+	baseAddress += 4;
+#endif
 #else
 	// Down.
 	baseAddress -= (nbRegisters * 4);
 
-	#if !FLAG_P
-		// Post: add 4.
-		baseAddress += 4;
-	#endif
+#if !FLAG_P
+	// Post: add 4.
+	baseAddress += 4;
+#endif
 #endif
 
 	// Load.
@@ -102,21 +102,23 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	{
 		if (curRegList & 1)
 		{
-			if (isFirst) {
+			if (isFirst)
+			{
 				if (theMemoryInterface->IsMMUEnabled() && !theMemoryInterface->IsPageInROM(baseAddress))
 				{
-					if (theMemoryInterface->TranslateR( baseAddress & ~0x03, theAddress ))
+					if (theMemoryInterface->TranslateR(baseAddress & ~0x03, theAddress))
 					{
 						SETPC(GETPC());
 						ioCPU->DataAbort();
 						MMUCALLNEXT_AFTERSETPC;
 					}
-				} else {
+				} else
+				{
 					theAddress = baseAddress & ~0x03;
 				}
 
 				Boolean fault = false;
-				ioCPU->mCurrentRegisters[indexReg] = theMemoryInterface->ReadPAligned( theAddress, fault );
+				ioCPU->mCurrentRegisters[indexReg] = theMemoryInterface->ReadPAligned(theAddress, fault);
 				if (fault)
 				{
 					SETPC(GETPC());
@@ -124,15 +126,18 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 					MMUCALLNEXT_AFTERSETPC;
 				}
 				theAddress += 4;
-				if (theAddress&0x000003ff)
+				if (theAddress & 0x000003ff)
 					isFirst = 0;
-			} else {
-				if ((theAddress&0xff000000) == 0x04000000) { // fast RAM write
-					//KPrintf("+");
+			} else
+			{
+				if ((theAddress & 0xff000000) == 0x04000000)
+				{ // fast RAM write
+					// KPrintf("+");
 					ioCPU->mCurrentRegisters[indexReg] = *((KUInt32*) (theMemoryInterface->GetRAMOffset() + theAddress));
-				} else {
+				} else
+				{
 					Boolean fault = false;
-					ioCPU->mCurrentRegisters[indexReg] = theMemoryInterface->ReadPAligned( theAddress, fault );
+					ioCPU->mCurrentRegisters[indexReg] = theMemoryInterface->ReadPAligned(theAddress, fault);
 					if (fault)
 					{
 						SETPC(GETPC());
@@ -141,7 +146,7 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 					}
 				}
 				theAddress += 4;
-				if (!(theAddress&0x000003ff))
+				if (!(theAddress & 0x000003ff))
 					isFirst = 1;
 			}
 			baseAddress += 4;
@@ -152,21 +157,19 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	}
 #endif
 
-
-
 	if (theRegList & 0x8000)
 	{
 		// PC is special.
 		KUInt32 theValue;
 		if (theMemoryInterface->ReadAligned(
 				(TMemory::VAddr) baseAddress,
-				theValue ))
+				theValue))
 		{
 			SETPC(GETPC());
 			ioCPU->DataAbort();
 			MMUCALLNEXT_AFTERSETPC;
 		}
-		SETPC( theValue + 4 );   // Prefetch.
+		SETPC(theValue + 4); // Prefetch.
 	}
 
 #if FLAG_W
@@ -178,7 +181,8 @@ LDM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	if (theRegList & 0x8000)
 	{
 		MMUCALLNEXT_AFTERSETPC;
-	} else {
+	} else
+	{
 		CALLNEXTUNIT;
 	}
 }

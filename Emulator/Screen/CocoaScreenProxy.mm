@@ -28,10 +28,10 @@
 // ------------------------------------------------------------------------- //
 //  * (id) init
 // ------------------------------------------------------------------------- //
-- (id) init
+- (id)init
 {
 #ifdef __MWERKS__
-	#pragma unused ( _cmd )
+#pragma unused(_cmd)
 #endif
 	if ((self = [super init]))
 	{
@@ -44,21 +44,21 @@
 // ------------------------------------------------------------------------- //
 //  * sendInvocation: (NSInvocation*)
 // ------------------------------------------------------------------------- //
-- (void) sendInvocation: (NSInvocation*) inInvocation
+- (void)sendInvocation:(NSInvocation*)inInvocation
 {
 	NSTimer* theTimer = [NSTimer
-			timerWithTimeInterval: 0
-			invocation: inInvocation
-			repeats: NO];
-	
-	[mRunLoop addTimer: theTimer forMode: NSDefaultRunLoopMode];
+		timerWithTimeInterval:0
+				   invocation:inInvocation
+					  repeats:NO];
+
+	[mRunLoop addTimer:theTimer forMode:NSDefaultRunLoopMode];
 }
 
 // ------------------------------------------------------------------------- //
 //  * createInvocationWithTarget: (id) inTarget withSelector: (SEL)
 // ------------------------------------------------------------------------- //
-- (NSInvocation*) createInvocationWithTarget: (id) inTarget
-								withSelector: (SEL) inSelector
+- (NSInvocation*)createInvocationWithTarget:(id)inTarget
+							   withSelector:(SEL)inSelector
 {
 	NSMethodSignature* theSignature;
 	NSInvocation* theResult;
@@ -81,7 +81,7 @@
 // ------------------------------------------------------------------------- //
 //  * setNeedsDisplay: (BOOL) forView: (NSView*)
 // ------------------------------------------------------------------------- //
-- (void) setNeedsDisplay: (BOOL) inNeedsDisplay forView: (NSView*) inView
+- (void)setNeedsDisplay:(BOOL)inNeedsDisplay forView:(NSView*)inView
 {
 	if (mRunLoop == [NSRunLoop currentRunLoop])
 	{
@@ -90,20 +90,21 @@
 	{
 		// Création de l'invocation.
 		NSInvocation* theInvocation
-			= [self createInvocationWithTarget: inView withSelector:
-						@selector(setNeedsDisplay:)];
-		
-		[theInvocation setArgument: &inNeedsDisplay atIndex: 2];
-		
+			= [self createInvocationWithTarget:inView
+								  withSelector:
+									  @selector(setNeedsDisplay:)];
+
+		[theInvocation setArgument:&inNeedsDisplay atIndex:2];
+
 		// On invoque.
-		[self sendInvocation: theInvocation];
+		[self sendInvocation:theInvocation];
 	}
 }
 
 // ------------------------------------------------------------------------- //
 //  * setNeedsDisplayInRect: (NSRect) forView: (NSView*)
 // ------------------------------------------------------------------------- //
-- (void) setNeedsDisplayInRect: (NSRect) inRect forView: (NSView*) inView
+- (void)setNeedsDisplayInRect:(NSRect)inRect forView:(NSView*)inView
 {
 	// Instead of invalidating and later redrawing the eintire Newton screen,
 	// we only invalidate the part of the screen that actually changed. MacoOS
@@ -119,20 +120,20 @@
 	if (mRunLoop == [NSRunLoop currentRunLoop])
 	{
 		// invalidate a single rectangle
-		[inView setNeedsDisplayInRect: inRect];
-	} else {
+		[inView setNeedsDisplayInRect:inRect];
+	} else
+	{
 		// let the main thread invalidate a single rectangle
 		dispatch_async(dispatch_get_main_queue(), ^{
-			[inView setNeedsDisplayInRect: inRect];
+			[inView setNeedsDisplayInRect:inRect];
 		});
 	}
 }
 
-
 // ------------------------------------------------------------------------- //
 //  * setHidden: (BOOL) forView: (NSView*)
 // ------------------------------------------------------------------------- //
-- (void) setHidden: (BOOL) inSetHidden forView: (NSView*) inView
+- (void)setHidden:(BOOL)inSetHidden forView:(NSView*)inView
 {
 	if (mRunLoop == [NSRunLoop currentRunLoop])
 	{
@@ -141,20 +142,21 @@
 	{
 		// Création de l'invocation.
 		NSInvocation* theInvocation
-			= [self createInvocationWithTarget: inView withSelector:
-						@selector(setHidden:)];
-		
-		[theInvocation setArgument: &inSetHidden atIndex:2];
-		
+			= [self createInvocationWithTarget:inView
+								  withSelector:
+									  @selector(setHidden:)];
+
+		[theInvocation setArgument:&inSetHidden atIndex:2];
+
 		// On invoque.
-		[self sendInvocation: theInvocation];
+		[self sendInvocation:theInvocation];
 	}
 }
 
 // ------------------------------------------------------------------------- //
 //  * forwardPowerChange: (BOOL) toListener: (id<CocoaEmulatorApp>)
 // ------------------------------------------------------------------------- //
-- (void) forwardPowerChange: (BOOL) inState toListener: (id<CocoaEmulatorApp>) inApp
+- (void)forwardPowerChange:(BOOL)inState toListener:(id<CocoaEmulatorApp>)inApp
 {
 	if (mRunLoop == [NSRunLoop currentRunLoop])
 	{
@@ -163,20 +165,21 @@
 	{
 		// Création de l'invocation.
 		NSInvocation* theInvocation
-			= [self createInvocationWithTarget: inApp withSelector:
-						@selector(powerChange:)];
-		
-		[theInvocation setArgument: &inState atIndex:2];
-		
+			= [self createInvocationWithTarget:inApp
+								  withSelector:
+									  @selector(powerChange:)];
+
+		[theInvocation setArgument:&inState atIndex:2];
+
 		// On invoque.
-		[self sendInvocation: theInvocation];
+		[self sendInvocation:theInvocation];
 	}
 }
 
 // ------------------------------------------------------------------------- //
 //  * forwardBacklightChange: (BOOL) toListener: (id<CocoaEmulatorApp>)
 // ------------------------------------------------------------------------- //
-- (void) forwardBacklightChange: (BOOL) inState toListener: (id<CocoaEmulatorApp>) inApp
+- (void)forwardBacklightChange:(BOOL)inState toListener:(id<CocoaEmulatorApp>)inApp
 {
 	if (mRunLoop == [NSRunLoop currentRunLoop])
 	{
@@ -185,20 +188,21 @@
 	{
 		// Création de l'invocation.
 		NSInvocation* theInvocation
-			= [self createInvocationWithTarget: inApp withSelector:
-						@selector(backlightChange:)];
-		
-		[theInvocation setArgument: &inState atIndex:2];
-		
+			= [self createInvocationWithTarget:inApp
+								  withSelector:
+									  @selector(backlightChange:)];
+
+		[theInvocation setArgument:&inState atIndex:2];
+
 		// On invoque.
-		[self sendInvocation: theInvocation];
+		[self sendInvocation:theInvocation];
 	}
 }
 
 // ------------------------------------------------------------------------- //
 //  * setStringValue: (NSString*) forControl: (NSControl*)
 // ------------------------------------------------------------------------- //
-- (void) setStringValue: (NSString*) inString forControl: (NSControl*) inControl
+- (void)setStringValue:(NSString*)inString forControl:(NSControl*)inControl
 {
 	if (mRunLoop == [NSRunLoop currentRunLoop])
 	{
@@ -207,13 +211,14 @@
 	{
 		// Création de l'invocation.
 		NSInvocation* theInvocation
-			= [self createInvocationWithTarget: inControl withSelector:
-						@selector(setStringValue:)];
-		
-		[theInvocation setArgument: &inString atIndex:2];
-		
+			= [self createInvocationWithTarget:inControl
+								  withSelector:
+									  @selector(setStringValue:)];
+
+		[theInvocation setArgument:&inString atIndex:2];
+
 		// On invoque.
-		[self sendInvocation: theInvocation];
+		[self sendInvocation:theInvocation];
 	}
 }
 

@@ -45,18 +45,17 @@ class TEmulator;
 class TSerialPortManager
 {
 public:
-
 	///
 	/// Constructor.
 	///
 	TSerialPortManager(
-			TLog* inLog,
-			TSerialPorts::EPortIndex inPortIx);
+		TLog* inLog,
+		TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TSerialPortManager( );
+	virtual ~TSerialPortManager();
 
 	///
 	/// Return the Identification of this driver
@@ -67,76 +66,82 @@ public:
 	/// Start emulation.
 	///
 	virtual void run(TInterruptManager* inInterruptManager,
-					 TDMAManager* inDMAManager,
-					 TMemory* inMemory) = 0;
+		TDMAManager* inDMAManager,
+		TMemory* inMemory)
+		= 0;
 
 	/// \name Low-level routines.
 
 	///
 	/// Write register.
 	///
-	virtual void WriteRegister( KUInt32 inOffset, KUInt8 inValue );
+	virtual void WriteRegister(KUInt32 inOffset, KUInt8 inValue);
 
 	///
 	/// Read register.
 	///
-	virtual KUInt8 ReadRegister( KUInt32 inOffset );
+	virtual KUInt8 ReadRegister(KUInt32 inOffset);
 
 	///
 	/// Read DMA register.
 	///
-	virtual KUInt32 ReadDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister );
+	virtual KUInt32 ReadDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister);
 
 	///
 	/// Write register.
 	///
-	virtual void WriteDMARegister( KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue );
+	virtual void WriteDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue);
 
 	///
 	/// GIve NewtonScrip access to our list of options
 	///
-	virtual void NSGetOptions(TNewt::RefArg /*frame*/) { }
+	virtual void
+	NSGetOptions(TNewt::RefArg /*frame*/)
+	{
+	}
 
 	///
 	/// Set options from NewtonScript
 	///
-	virtual void NSSetOptions(TNewt::RefArg /*frame*/) { }
+	virtual void
+	NSSetOptions(TNewt::RefArg /*frame*/)
+	{
+	}
 
-    ///
-    /// Constructeur par copie volontairement indisponible.
-    ///
-    /// \param inCopy		objet à copier
-    ///
-    TSerialPortManager( const TSerialPortManager& inCopy ) = delete;
+	///
+	/// Constructeur par copie volontairement indisponible.
+	///
+	/// \param inCopy		objet à copier
+	///
+	TSerialPortManager(const TSerialPortManager& inCopy) = delete;
 
-    ///
-    /// Opérateur d'assignation volontairement indisponible.
-    ///
-    /// \param inCopy		objet à copier
-    ///
-    TSerialPortManager& operator = ( const TSerialPortManager& inCopy ) = delete;
+	///
+	/// Opérateur d'assignation volontairement indisponible.
+	///
+	/// \param inCopy		objet à copier
+	///
+	TSerialPortManager& operator=(const TSerialPortManager& inCopy) = delete;
 
 protected:
-
 	///
 	/// Registers.
 	///
 	enum {
-		kSerReg_AckStatus	= 0x2000,		///< Write bit 0x01 to ack an error.
-		kSerReg_BreakDuplex	= 0x2400,
+		kSerReg_AckStatus = 0x2000, ///< Write bit 0x01 to ack an error.
+		kSerReg_BreakDuplex = 0x2400,
 	};
 
 	/// \name Variables
-	TLog*				mLog;				///< Reference to the log object
-											///< (or NULL)
-	TSerialPorts::EPortIndex mNewtPortIndex;///< remember to which port we are connected
-	TInterruptManager*	mInterruptManager;	///< Interface to the interrupt mgr.
-	TDMAManager*		mDMAManager;		///< Interface to the DMA mgr.
-	TMemory*			mMemory;			///< Interface to the memory mgr.
+	TLog* mLog; ///< Reference to the log object
+				///< (or NULL)
+	TSerialPorts::EPortIndex mNewtPortIndex; ///< remember to which port we are connected
+	TInterruptManager* mInterruptManager; ///< Interface to the interrupt mgr.
+	TDMAManager* mDMAManager; ///< Interface to the DMA mgr.
+	TMemory* mMemory; ///< Interface to the memory mgr.
 };
 
 #endif
-		// _TSERIALPORTMANAGER_H
+// _TSERIALPORTMANAGER_H
 
 // ================= //
 // Byte your tongue. //

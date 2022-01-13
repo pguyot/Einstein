@@ -22,19 +22,19 @@
 // ==============================
 
 #define HalfwordAndSignedDataTransferImm_TemplateName(flags, rn, rd) \
-	HalfwordAndSignedDataTransferImm_ ## flags ## _ ## rn ## _ ## rd
+	HalfwordAndSignedDataTransferImm_##flags##_##rn##_##rd
 
 #if DECLARATION
-	#define HalfwordAndSignedDataTransferImm_Template(flags, rn, rd) \
-		JITInstructionProto(HalfwordAndSignedDataTransferImm_TemplateName(flags, rn, rd));
+#define HalfwordAndSignedDataTransferImm_Template(flags, rn, rd) \
+	JITInstructionProto(HalfwordAndSignedDataTransferImm_TemplateName(flags, rn, rd));
 #endif
 #if IMPLEMENTATION
-	#define HalfwordAndSignedDataTransferImm_Template(flags, rn, rd) \
-		JITInstructionProto(HalfwordAndSignedDataTransferImm_TemplateName(flags, rn, rd))
+#define HalfwordAndSignedDataTransferImm_Template(flags, rn, rd) \
+	JITInstructionProto(HalfwordAndSignedDataTransferImm_TemplateName(flags, rn, rd))
 #endif
 #if TRANSLATION_ARRAY
-	#define HalfwordAndSignedDataTransferImm_Template(flags, rn, rd) \
-		HalfwordAndSignedDataTransferImm_TemplateName(flags, rn, rd),
+#define HalfwordAndSignedDataTransferImm_Template(flags, rn, rd) \
+	HalfwordAndSignedDataTransferImm_TemplateName(flags, rn, rd),
 #endif
 
 #define FLAG_I 1

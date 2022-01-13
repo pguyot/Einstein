@@ -26,49 +26,49 @@
 // #define INCLUDE_TEMPLATE	"MyFile.h"
 // #include "IncludeRnRsRm.h"
 
-#define Rn	0
+#define Rn 0
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	1
+#define Rn 1
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	2
+#define Rn 2
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	3
+#define Rn 3
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	4
+#define Rn 4
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	5
+#define Rn 5
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	6
+#define Rn 6
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	7
+#define Rn 7
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	8
+#define Rn 8
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	9
+#define Rn 9
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	10
+#define Rn 10
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	11
+#define Rn 11
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	12
+#define Rn 12
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	13
+#define Rn 13
 #include "IncludeRsRm15.h"
 #undef Rn
-#define Rn	14
+#define Rn 14
 #include "IncludeRsRm15.h"
 #undef Rn
 

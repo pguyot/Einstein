@@ -22,19 +22,19 @@
 // ==============================
 
 #define SingleDataSwap_TemplateName(flag_b, rn, rd, rm) \
-	SingleDataSwap_ ## flag_b ## _ ## rn ## _ ## rd ## _ ## rm
+	SingleDataSwap_##flag_b##_##rn##_##rd##_##rm
 
 #if DECLARATION
-	#define SingleDataSwap_Template(flag_b, rn, rd, rm) \
-		JITInstructionProto(SingleDataSwap_TemplateName(flag_b, rn, rd, rm));
+#define SingleDataSwap_Template(flag_b, rn, rd, rm) \
+	JITInstructionProto(SingleDataSwap_TemplateName(flag_b, rn, rd, rm));
 #endif
 #if IMPLEMENTATION
-	#define SingleDataSwap_Template(flag_b, rn, rd, rm) \
-		JITInstructionProto(SingleDataSwap_TemplateName(flag_b, rn, rd, rm))
+#define SingleDataSwap_Template(flag_b, rn, rd, rm) \
+	JITInstructionProto(SingleDataSwap_TemplateName(flag_b, rn, rd, rm))
 #endif
 #if TRANSLATION_ARRAY
-	#define SingleDataSwap_Template(flag_b, rn, rd, rm) \
-		SingleDataSwap_TemplateName(flag_b, rn, rd, rm),
+#define SingleDataSwap_Template(flag_b, rn, rd, rm) \
+	SingleDataSwap_TemplateName(flag_b, rn, rd, rm),
 #endif
 
 // Include the template for all values of registers and rm, etc.

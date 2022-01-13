@@ -22,38 +22,37 @@
 // ==============================
 
 #define ArithmeticOp_TemplateName(op, mode, flag_s, rn, rd) \
-	DataProcessingTranfer_ ## op ## _ ## mode ## _ ## flag_s ## _ ## rn ## _ ## rd
+	DataProcessingTranfer_##op##_##mode##_##flag_s##_##rn##_##rd
 
 #define ArithmeticOp_Proto(op, mode, flag_s, rn, rd) \
-		JITUnit* ArithmeticOp_TemplateName(op, mode, flag_s, rn, rd) \
-			(JITUnit* ioUnit, TARMProcessor* ioCPU)
+	JITUnit* ArithmeticOp_TemplateName(op, mode, flag_s, rn, rd)(JITUnit * ioUnit, TARMProcessor * ioCPU)
 #if DECLARATION
-	#define ArithmeticOp(op, mode, flag_s, rn, rd) \
-		ArithmeticOp_Proto(op, mode, flag_s, rn, rd);
+#define ArithmeticOp(op, mode, flag_s, rn, rd) \
+	ArithmeticOp_Proto(op, mode, flag_s, rn, rd);
 #endif
 #if IMPLEMENTATION
-	#define ArithmeticOp(op, mode, flag_s, rn, rd) \
-		ArithmeticOp_Proto(op, mode, flag_s, rn, rd)
+#define ArithmeticOp(op, mode, flag_s, rn, rd) \
+	ArithmeticOp_Proto(op, mode, flag_s, rn, rd)
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp_template.h"
 
-#define OP		SUB
+#define OP SUB
 #include "IncludeModeRnRd.h"
 #undef OP
-#define OP		RSB
+#define OP RSB
 #include "IncludeModeRnRd.h"
 #undef OP
-#define OP		ADD
+#define OP ADD
 #include "IncludeModeRnRd.h"
 #undef OP
-#define OP		ADC
+#define OP ADC
 #include "IncludeModeRnRd.h"
 #undef OP
-#define OP		SBC
+#define OP SBC
 #include "IncludeModeRnRd.h"
 #undef OP
-#define OP		RSC
+#define OP RSC
 #include "IncludeModeRnRd.h"
 #undef OP
 

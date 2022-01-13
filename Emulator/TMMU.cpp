@@ -33,32 +33,31 @@
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
-#define kTMMUStats	0
-#define MMUDebug	0
-
+#define kTMMUStats 0
+#define MMUDebug 0
 
 #if kTMMUStats
-static KUInt32 gNbHits = 0;				///< Nombre de hits.
-static KUInt32 gNbPerm = 0;				///< Nombre d'erreurs de permission.
-static KUInt32 gNbInvalidate = 0;		///< Nombre d'invalidations.
-static KUInt32 gNbMiss = 0;				///< Nombre de rat�s.
+static KUInt32 gNbHits = 0; ///< Nombre de hits.
+static KUInt32 gNbPerm = 0; ///< Nombre d'erreurs de permission.
+static KUInt32 gNbInvalidate = 0; ///< Nombre d'invalidations.
+static KUInt32 gNbMiss = 0; ///< Nombre de rat�s.
 static KUInt32 gNbHitsTotal = 0;
 static KUInt32 gNbMissTotal = 0;
 
-static void printMMUStats()
+static void
+printMMUStats()
 {
 	gNbHitsTotal += gNbHits;
 	gNbMissTotal += gNbMiss;
 	fprintf(
-			stderr,
-			"MMU: Hits: %4i, Miss: %4i, Perm: %4i, Inv: %4i (H/M = %4i:1 Avg: %4i:1)\n",
-			(gNbHits-gNbMiss),
-			gNbMiss,
-			gNbPerm,
-			gNbInvalidate,
-			(gNbHits-gNbMiss)/(gNbMiss+1),
-			(gNbHitsTotal-gNbMissTotal)/(gNbMissTotal+1)
-			);
+		stderr,
+		"MMU: Hits: %4i, Miss: %4i, Perm: %4i, Inv: %4i (H/M = %4i:1 Avg: %4i:1)\n",
+		(gNbHits - gNbMiss),
+		gNbMiss,
+		gNbPerm,
+		gNbInvalidate,
+		(gNbHits - gNbMiss) / (gNbMiss + 1),
+		(gNbHitsTotal - gNbMissTotal) / (gNbMissTotal + 1));
 	gNbHits = 0;
 	gNbMiss = 0;
 	gNbPerm = 0;
@@ -70,18 +69,18 @@ static void printMMUStats()
 // -------------------------------------------------------------------------- //
 //  * TMMU( TMemory* )
 // -------------------------------------------------------------------------- //
-TMMU::TMMU( TMemory* inMemoryIntf )
-	:
-		mMemoryIntf( inMemoryIntf ),
-		mMMUEnabled( false ),
-		mCurrentAPMode( kAPMagic_Privileged ),
-		mTTBase( 0 ),
-		mDomainAC( 0xFFFFFFFF )
+TMMU::TMMU(TMemory* inMemoryIntf) :
+		mMemoryIntf(inMemoryIntf),
+		mMMUEnabled(false),
+		mCurrentAPMode(kAPMagic_Privileged),
+		mTTBase(0),
+		mDomainAC(0xFFFFFFFF)
 {
 	// Init the cache entries with unprobable values.
 	SEntry* theEntries = mCache.GetValues();
 	KUInt32 indexEntry;
-	for (indexEntry = 0; indexEntry < THashMapCache<SEntry>::kCacheSize; indexEntry++) {
+	for (indexEntry = 0; indexEntry < THashMapCache<SEntry>::kCacheSize; indexEntry++)
+	{
 		SEntry* theEntry = &theEntries[indexEntry];
 		theEntry->key = 1;
 		theEntry->mPhysicalAddress = 1;
@@ -91,7 +90,7 @@ TMMU::TMMU( TMemory* inMemoryIntf )
 // -------------------------------------------------------------------------- //
 //  * ~TMMU( void )
 // -------------------------------------------------------------------------- //
-TMMU::~TMMU( void )
+TMMU::~TMMU(void)
 {
 }
 
@@ -99,12 +98,13 @@ TMMU::~TMMU( void )
 //  * SetPrivilege( Boolean )
 // -------------------------------------------------------------------------- //
 void
-TMMU::SetPrivilege( Boolean inPrivilege )
+TMMU::SetPrivilege(Boolean inPrivilege)
 {
 	if (inPrivilege)
 	{
 		mCurrentAPMode |= kAPMagic_Privileged;
-	} else {
+	} else
+	{
 		mCurrentAPMode &= ~kAPMagic_Privileged;
 	}
 	mCurrentAPRead = (kAPMagic_Bits_Read >> (4 * mCurrentAPMode)) & 0xF;
@@ -116,12 +116,13 @@ TMMU::SetPrivilege( Boolean inPrivilege )
 //  * SetSystemProtection( Boolean )
 // -------------------------------------------------------------------------- //
 void
-TMMU::SetSystemProtection( Boolean inProtection )
+TMMU::SetSystemProtection(Boolean inProtection)
 {
 	if (inProtection)
 	{
 		mCurrentAPMode |= kAPMagic_System;
-	} else {
+	} else
+	{
 		mCurrentAPMode &= ~kAPMagic_System;
 	}
 	mCurrentAPRead = (kAPMagic_Bits_Read >> (4 * mCurrentAPMode)) & 0xF;
@@ -133,12 +134,13 @@ TMMU::SetSystemProtection( Boolean inProtection )
 //  * SetROMProtection( Boolean )
 // -------------------------------------------------------------------------- //
 void
-TMMU::SetROMProtection( Boolean inProtection )
+TMMU::SetROMProtection(Boolean inProtection)
 {
 	if (inProtection)
 	{
 		mCurrentAPMode |= kAPMagic_ROM;
-	} else {
+	} else
+	{
 		mCurrentAPMode &= ~kAPMagic_ROM;
 	}
 	mCurrentAPRead = (kAPMagic_Bits_Read >> (4 * mCurrentAPMode)) & 0xF;
@@ -151,17 +153,18 @@ TMMU::SetROMProtection( Boolean inProtection )
 // Performanc: this function eats around 9% of the overall performance!
 // -------------------------------------------------------------------------- //
 Boolean
-TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
+TMMU::TranslateR(KUInt32 inVAddress, KUInt32& outPAddress)
 {
 #if MMUDebug > 1
-	(void) ::fprintf( stderr, "TranslateR %.8X\n", inVAddress );
+	(void) ::fprintf(stderr, "TranslateR %.8X\n", inVAddress);
 #endif
 
 	KUInt32 theDomain_times2;
 	KUInt32 theAccessPermissionMask;
 
 #if kTMMUStats
-	if ((gNbHits & 0xFFF) == 0) {
+	if ((gNbHits & 0xFFF) == 0)
+	{
 		printMMUStats();
 	}
 	gNbHits++;
@@ -210,8 +213,7 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 	// Bits 31-20 of target address are catenated with bits 31-14 of the
 	// TTB.
 	Boolean fault = false;
-	KUInt32 tableEntry =
-		mMemoryIntf->ReadROMRAMP( mTTBase | ((inVAddress >> 18) & 0xFFFFFFFC), fault );
+	KUInt32 tableEntry = mMemoryIntf->ReadROMRAMP(mTTBase | ((inVAddress >> 18) & 0xFFFFFFFC), fault);
 	if (fault)
 	{
 		mFaultAddress = inVAddress;
@@ -220,14 +222,14 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 	}
 
 #if MMUDebug > 1
-	(void) ::fprintf( stderr, "Table entry at %.8X is %.8X\n", mTTBase | ((inVAddress >> 18) & 0xFFFFFFFC), tableEntry );
+	(void) ::fprintf(stderr, "Table entry at %.8X is %.8X\n", mTTBase | ((inVAddress >> 18) & 0xFFFFFFFC), tableEntry);
 #endif
 
 	theDomain_times2 = (tableEntry & 0x000003E0) >> 4;
 	theAccessPermissionMask = kAPMagic_Bits_Manager;
 
 #if MMUDebug > 1
-	(void) ::fprintf( stderr, "Domain is %i, access is %s\n", theDomain_times2 / 2, (mDomainAC & (1 << theDomain_times2)) ? "true" : "false" );
+	(void) ::fprintf(stderr, "Domain is %i, access is %s\n", theDomain_times2 / 2, (mDomainAC & (1 << theDomain_times2)) ? "true" : "false");
 #endif
 
 	if (mDomainAC & (1 << theDomain_times2))
@@ -235,13 +237,14 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 		if (!(mDomainAC & (1 << (theDomain_times2 + 1))))
 		{
 #if MMUDebug > 1
-			(void) ::fprintf( stderr, "non manager access\n" );
+			(void) ::fprintf(stderr, "non manager access\n");
 #endif
 			theAccessPermissionMask = mCurrentAPRead;
 
 #if MMUDebug > 1
-		} else {
-			(void) ::fprintf( stderr, "manager access\n" );
+		} else
+		{
+			(void) ::fprintf(stderr, "manager access\n");
 #endif
 		}
 
@@ -253,8 +256,7 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 			case 0x0:
 				// Unmapped.
 				mFaultAddress = inVAddress;
-				mFaultStatus =
-					TMemoryConsts::kFSR_TranslationSection
+				mFaultStatus = TMemoryConsts::kFSR_TranslationSection
 					| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 				return true;
 
@@ -262,40 +264,40 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 				// 01
 				// Coarse second level table.
 #if MMUDebug > 1
-				(void) ::fprintf( stderr, "Coarse second level table, second entry at %.8X\n",
+				(void) ::fprintf(stderr, "Coarse second level table, second entry at %.8X\n",
 					(tableEntry & 0xFFFFFC00)
-					| ((inVAddress & 0x000FF000) >> 10) );
+						| ((inVAddress & 0x000FF000) >> 10));
 #endif
 				tableEntry = mMemoryIntf->ReadROMRAMP(
 					(tableEntry & 0xFFFFFC00)
-					| ((inVAddress & 0x000FF000) >> 10), fault );
+						| ((inVAddress & 0x000FF000) >> 10),
+					fault);
 				if (fault)
 				{
 					mFaultAddress = inVAddress;
-					mFaultStatus =
-						TMemoryConsts::kFSR_ExternalTrLvl2
+					mFaultStatus = TMemoryConsts::kFSR_ExternalTrLvl2
 						| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 					return true;
 				}
 #if MMUDebug > 1
-				(void) ::fprintf( stderr, "Coarse second level table, second entry is %.8X\n",
-					tableEntry );
+				(void) ::fprintf(stderr, "Coarse second level table, second entry is %.8X\n",
+					tableEntry);
 #endif
 				switch (tableEntry & 0x03)
 				{
 					case 0x0:
 						// Fault.
 #if MMUDebug
-						if (mMemoryIntf->mLog) {
+						if (mMemoryIntf->mLog)
+						{
 							mMemoryIntf->mLog->FLogLine(
 								"FSR=7, Coarse entry = %.8X for %.8X",
 								tableEntry,
-								inVAddress );
+								inVAddress);
 						}
 #endif
 						mFaultAddress = inVAddress;
-						mFaultStatus =
-							TMemoryConsts::kFSR_TranslationPage
+						mFaultStatus = TMemoryConsts::kFSR_TranslationPage
 							| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 						return true;
 
@@ -304,22 +306,20 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x0000C000) >> 13) + 4;
-						entryPermIndex =
-							(tableEntry & (0x00000003 << subpageIndexShift))
-								>> subpageIndexShift;
+						entryPermIndex = (tableEntry & (0x00000003 << subpageIndexShift))
+							>> subpageIndexShift;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
 #if MMUDebug > 1
-							(void) ::fprintf( stderr, "large page access permission error\n" );
+							(void) ::fprintf(stderr, "large page access permission error\n");
 #endif
 							mFaultAddress = inVAddress;
-							mFaultStatus =
-								TMemoryConsts::kFSR_PermissionPage
+							mFaultStatus = TMemoryConsts::kFSR_PermissionPage
 								| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 							return true;
 						}
 						outPAddress = (tableEntry & TMemoryConsts::kMMULargePageMask)
-									| (inVAddress & TMemoryConsts::kMMULargePageMaskNeg);
+							| (inVAddress & TMemoryConsts::kMMULargePageMaskNeg);
 						break;
 
 					case 0x02:
@@ -327,25 +327,23 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x00000C00) >> 9) + 4;
-						entryPermIndex =
-							(tableEntry & (0x00000003 << subpageIndexShift)) >> subpageIndexShift;
+						entryPermIndex = (tableEntry & (0x00000003 << subpageIndexShift)) >> subpageIndexShift;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
 #if MMUDebug > 1
 							(void) ::fprintf(
-										stderr,
-										"small page access permission error, AP = %i, mask=%.1X\n",
-										(int) entryPermIndex,
-										(unsigned int) theAccessPermissionMask );
+								stderr,
+								"small page access permission error, AP = %i, mask=%.1X\n",
+								(int) entryPermIndex,
+								(unsigned int) theAccessPermissionMask);
 #endif
 							mFaultAddress = inVAddress;
-							mFaultStatus =
-								TMemoryConsts::kFSR_PermissionPage
+							mFaultStatus = TMemoryConsts::kFSR_PermissionPage
 								| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 							return true;
 						}
 						outPAddress = (tableEntry & TMemoryConsts::kMMUSmallPageMask)
-									| (inVAddress & TMemoryConsts::kMMUSmallPageMaskNeg);
+							| (inVAddress & TMemoryConsts::kMMUSmallPageMaskNeg);
 						break;
 
 					case 0x03:
@@ -365,8 +363,7 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 				if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 				{
 					mFaultAddress = inVAddress;
-					mFaultStatus =
-						TMemoryConsts::kFSR_PermissionSection
+					mFaultStatus = TMemoryConsts::kFSR_PermissionSection
 						| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 					return true;
 				}
@@ -379,12 +376,12 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 				// Fine second level table.
 				tableEntry = mMemoryIntf->ReadROMRAMP(
 					(tableEntry & 0xFFFFF000)
-					| ((inVAddress & 0x000FFC00) >> 10), fault );
+						| ((inVAddress & 0x000FFC00) >> 10),
+					fault);
 				if (fault)
 				{
 					mFaultAddress = inVAddress;
-					mFaultStatus =
-						TMemoryConsts::kFSR_ExternalTrLvl2
+					mFaultStatus = TMemoryConsts::kFSR_ExternalTrLvl2
 						| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 					return true;
 				}
@@ -393,16 +390,16 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 					case 0x0:
 						// Fault.
 #if MMUDebug
-						if (mMemoryIntf->mLog) {
+						if (mMemoryIntf->mLog)
+						{
 							mMemoryIntf->mLog->FLogLine(
 								"FSR=7, Fine entry = %.8X for %.8X",
 								tableEntry,
-								inVAddress );
+								inVAddress);
 						}
 #endif
 						mFaultAddress = inVAddress;
-						mFaultStatus =
-							TMemoryConsts::kFSR_TranslationPage
+						mFaultStatus = TMemoryConsts::kFSR_TranslationPage
 							| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 						return true;
 
@@ -411,20 +408,18 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x0000C000) >> 11) + 4;
-						entryPermIndex =
-							(tableEntry & (0x00000003 << subpageIndexShift))
-								>> subpageIndexShift;
+						entryPermIndex = (tableEntry & (0x00000003 << subpageIndexShift))
+							>> subpageIndexShift;
 
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
 							mFaultAddress = inVAddress;
-							mFaultStatus =
-								TMemoryConsts::kFSR_PermissionPage
+							mFaultStatus = TMemoryConsts::kFSR_PermissionPage
 								| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 							return true;
 						}
 						outPAddress = (tableEntry & TMemoryConsts::kMMULargePageMask)
-									| (inVAddress & TMemoryConsts::kMMULargePageMaskNeg);
+							| (inVAddress & TMemoryConsts::kMMULargePageMaskNeg);
 						break;
 
 					case 0x02:
@@ -432,61 +427,55 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x00000C00) >> 9) + 4;
-						entryPermIndex =
-							(tableEntry & (0x00000003 << subpageIndexShift))
-								>> subpageIndexShift;
+						entryPermIndex = (tableEntry & (0x00000003 << subpageIndexShift))
+							>> subpageIndexShift;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
 							mFaultAddress = inVAddress;
-							mFaultStatus =
-								TMemoryConsts::kFSR_PermissionPage
+							mFaultStatus = TMemoryConsts::kFSR_PermissionPage
 								| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 							return true;
 						}
 						outPAddress = (tableEntry & TMemoryConsts::kMMUSmallPageMask)
-									| (inVAddress & TMemoryConsts::kMMUSmallPageMaskNeg);
+							| (inVAddress & TMemoryConsts::kMMUSmallPageMaskNeg);
 						break;
 
 					case 0x03:
 						// Tiny page.
-						entryPermIndex =
-							(tableEntry & 0x00000030) >> 4;
+						entryPermIndex = (tableEntry & 0x00000030) >> 4;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
 							mFaultAddress = inVAddress;
-							mFaultStatus =
-								TMemoryConsts::kFSR_PermissionPage
+							mFaultStatus = TMemoryConsts::kFSR_PermissionPage
 								| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 							return true;
 						}
 						outPAddress = (tableEntry & TMemoryConsts::kMMUTinyPageMask)
-									| (inVAddress & TMemoryConsts::kMMUTinyPageMaskNeg);
+							| (inVAddress & TMemoryConsts::kMMUTinyPageMaskNeg);
 						break;
 				}
 				break;
 		}
-	} else {
+	} else
+	{
 		switch (tableEntry & 0x3)
 		{
 			case 0x0:
 				mFaultAddress = inVAddress;
-				mFaultStatus =
-					TMemoryConsts::kFSR_TranslationSection
+				mFaultStatus = TMemoryConsts::kFSR_TranslationSection
 					| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 				return true;
 
 			case 0x2:
 				mFaultAddress = inVAddress;
-				mFaultStatus =
-					TMemoryConsts::kFSR_DomainSection
+				mFaultStatus = TMemoryConsts::kFSR_DomainSection
 					| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 				return true;
 
 			case 0x1:
 			case 0x3:
 				mFaultAddress = inVAddress;
-				mFaultStatus =
-					TMemoryConsts::kFSR_DomainPage
+				mFaultStatus = TMemoryConsts::kFSR_DomainPage
 					| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 				return true;
 		}
@@ -497,10 +486,10 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 		pageAddress,
 		outPAddress & TMemoryConsts::kMMUSmallestPageMask,
 		theDomain_times2,
-		entryPermIndex );
+		entryPermIndex);
 
 #if MMUDebug > 1
-	(void) ::fprintf( stderr, "outPAddress = %.8X\n", outPAddress );
+	(void) ::fprintf(stderr, "outPAddress = %.8X\n", outPAddress);
 #endif
 
 	return false;
@@ -510,10 +499,10 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 //  * TranslateW( KUInt32, KUInt32& )
 // -------------------------------------------------------------------------- //
 Boolean
-TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
+TMMU::TranslateW(KUInt32 inVAddress, KUInt32& outPAddress)
 {
 #if MMUDebug > 1
-	(void) ::fprintf( stderr, "TranslateW %.8X\n", inVAddress );
+	(void) ::fprintf(stderr, "TranslateW %.8X\n", inVAddress);
 #endif
 
 	KUInt32 theDomain_times2;
@@ -521,7 +510,8 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 	KUInt32 entryPermIndex = 0;
 
 #if kTMMUStats
-	if ((gNbHits & 0xFFF) == 0) {
+	if ((gNbHits & 0xFFF) == 0)
+	{
 		printMMUStats();
 	}
 	gNbHits++;
@@ -569,7 +559,7 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 	// Bits 31-20 of target address are catenated with bits 31-14 of the
 	// TTB.
 	Boolean fault = false;
-	KUInt32 tableEntry = mMemoryIntf->ReadROMRAMP( mTTBase | ((inVAddress >> 18) & 0xFFFFFFFC), fault );
+	KUInt32 tableEntry = mMemoryIntf->ReadROMRAMP(mTTBase | ((inVAddress >> 18) & 0xFFFFFFFC), fault);
 	if (fault)
 	{
 		mFaultAddress = inVAddress;
@@ -578,14 +568,14 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 	}
 
 #if MMUDebug > 1
-	(void) ::fprintf( stderr, "Table entry at %.8X is %.8X\n", mTTBase | ((inVAddress >> 18) & 0xFFFFFFFC), tableEntry );
+	(void) ::fprintf(stderr, "Table entry at %.8X is %.8X\n", mTTBase | ((inVAddress >> 18) & 0xFFFFFFFC), tableEntry);
 #endif
 
 	theDomain_times2 = (tableEntry & 0x000003E0) >> 4;
 	theAccessPermissionMask = kAPMagic_Bits_Manager;
 
 #if MMUDebug > 1
-	(void) ::fprintf( stderr, "Domain is %i, access is %s\n", theDomain_times2 / 2, (mDomainAC & (1 << theDomain_times2)) ? "true" : "false" );
+	(void) ::fprintf(stderr, "Domain is %i, access is %s\n", theDomain_times2 / 2, (mDomainAC & (1 << theDomain_times2)) ? "true" : "false");
 #endif
 
 	if (mDomainAC & (1 << theDomain_times2))
@@ -593,13 +583,14 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 		if (!(mDomainAC & (1 << (theDomain_times2 + 1))))
 		{
 #if MMUDebug > 1
-			(void) ::fprintf( stderr, "non manager access\n" );
+			(void) ::fprintf(stderr, "non manager access\n");
 #endif
 			theAccessPermissionMask = mCurrentAPWrite;
 
 #if MMUDebug > 1
-		} else {
-			(void) ::fprintf( stderr, "manager access\n" );
+		} else
+		{
+			(void) ::fprintf(stderr, "manager access\n");
 #endif
 		}
 
@@ -611,8 +602,7 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 			case 0x0:
 				// Unmapped.
 				mFaultAddress = inVAddress;
-				mFaultStatus =
-					TMemoryConsts::kFSR_TranslationSection
+				mFaultStatus = TMemoryConsts::kFSR_TranslationSection
 					| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 				return true;
 
@@ -620,40 +610,40 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 				// 01
 				// Coarse second level table.
 #if MMUDebug > 1
-				(void) ::fprintf( stderr, "Coarse second level table, second entry at %.8X\n",
+				(void) ::fprintf(stderr, "Coarse second level table, second entry at %.8X\n",
 					(tableEntry & 0xFFFFFC00)
-					| ((inVAddress & 0x000FF000) >> 10) );
+						| ((inVAddress & 0x000FF000) >> 10));
 #endif
 				tableEntry = mMemoryIntf->ReadROMRAMP(
 					(tableEntry & 0xFFFFFC00)
-					| ((inVAddress & 0x000FF000) >> 10), fault );
+						| ((inVAddress & 0x000FF000) >> 10),
+					fault);
 				if (fault)
 				{
 					mFaultAddress = inVAddress;
-					mFaultStatus =
-						TMemoryConsts::kFSR_ExternalTrLvl2
+					mFaultStatus = TMemoryConsts::kFSR_ExternalTrLvl2
 						| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 					return true;
 				}
 #if MMUDebug > 1
-				(void) ::fprintf( stderr, "Coarse second level table, second entry is %.8X\n",
-					tableEntry );
+				(void) ::fprintf(stderr, "Coarse second level table, second entry is %.8X\n",
+					tableEntry);
 #endif
 				switch (tableEntry & 0x03)
 				{
 					case 0x0:
 						// Fault.
 #if MMUDebug
-						if (mMemoryIntf->mLog) {
+						if (mMemoryIntf->mLog)
+						{
 							mMemoryIntf->mLog->FLogLine(
 								"FSR=7, Coarse entry = %.8X for %.8X",
 								tableEntry,
-								inVAddress );
+								inVAddress);
 						}
 #endif
 						mFaultAddress = inVAddress;
-						mFaultStatus =
-							TMemoryConsts::kFSR_TranslationPage
+						mFaultStatus = TMemoryConsts::kFSR_TranslationPage
 							| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 						return true;
 
@@ -662,22 +652,20 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x0000C000) >> 13) + 4;
-						entryPermIndex =
-							(tableEntry & (0x00000003 << subpageIndexShift))
-								>> subpageIndexShift;
+						entryPermIndex = (tableEntry & (0x00000003 << subpageIndexShift))
+							>> subpageIndexShift;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
 #if MMUDebug > 1
-							(void) ::fprintf( stderr, "large page access permission error\n" );
+							(void) ::fprintf(stderr, "large page access permission error\n");
 #endif
 							mFaultAddress = inVAddress;
-							mFaultStatus =
-								TMemoryConsts::kFSR_PermissionPage
+							mFaultStatus = TMemoryConsts::kFSR_PermissionPage
 								| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 							return true;
 						}
 						outPAddress = (tableEntry & TMemoryConsts::kMMULargePageMask)
-									| (inVAddress & TMemoryConsts::kMMULargePageMaskNeg);
+							| (inVAddress & TMemoryConsts::kMMULargePageMaskNeg);
 						break;
 
 					case 0x02:
@@ -685,25 +673,23 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x00000C00) >> 9) + 4;
-						entryPermIndex =
-							(tableEntry & (0x00000003 << subpageIndexShift)) >> subpageIndexShift;
+						entryPermIndex = (tableEntry & (0x00000003 << subpageIndexShift)) >> subpageIndexShift;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
 #if MMUDebug > 1
 							(void) ::fprintf(
-										stderr,
-										"small page access permission error, AP = %i, mask=%.1X\n",
-										(int) entryPermIndex,
-										(unsigned int) theAccessPermissionMask );
+								stderr,
+								"small page access permission error, AP = %i, mask=%.1X\n",
+								(int) entryPermIndex,
+								(unsigned int) theAccessPermissionMask);
 #endif
 							mFaultAddress = inVAddress;
-							mFaultStatus =
-								TMemoryConsts::kFSR_PermissionPage
+							mFaultStatus = TMemoryConsts::kFSR_PermissionPage
 								| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 							return true;
 						}
 						outPAddress = (tableEntry & TMemoryConsts::kMMUSmallPageMask)
-									| (inVAddress & TMemoryConsts::kMMUSmallPageMaskNeg);
+							| (inVAddress & TMemoryConsts::kMMUSmallPageMaskNeg);
 						break;
 
 					case 0x03:
@@ -723,8 +709,7 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 				if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 				{
 					mFaultAddress = inVAddress;
-					mFaultStatus =
-						TMemoryConsts::kFSR_PermissionSection
+					mFaultStatus = TMemoryConsts::kFSR_PermissionSection
 						| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 					return true;
 				}
@@ -737,12 +722,12 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 				// Fine second level table.
 				tableEntry = mMemoryIntf->ReadROMRAMP(
 					(tableEntry & 0xFFFFF000)
-					| ((inVAddress & 0x000FFC00) >> 10), fault );
+						| ((inVAddress & 0x000FFC00) >> 10),
+					fault);
 				if (fault)
 				{
 					mFaultAddress = inVAddress;
-					mFaultStatus =
-						TMemoryConsts::kFSR_ExternalTrLvl2
+					mFaultStatus = TMemoryConsts::kFSR_ExternalTrLvl2
 						| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 					return true;
 				}
@@ -751,16 +736,16 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 					case 0x0:
 						// Fault.
 #if MMUDebug
-						if (mMemoryIntf->mLog) {
+						if (mMemoryIntf->mLog)
+						{
 							mMemoryIntf->mLog->FLogLine(
 								"FSR=7, Fine entry = %.8X for %.8X",
 								tableEntry,
-								inVAddress );
+								inVAddress);
 						}
 #endif
 						mFaultAddress = inVAddress;
-						mFaultStatus =
-							TMemoryConsts::kFSR_TranslationPage
+						mFaultStatus = TMemoryConsts::kFSR_TranslationPage
 							| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 						return true;
 
@@ -769,20 +754,18 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x0000C000) >> 11) + 4;
-						entryPermIndex =
-							(tableEntry & (0x00000003 << subpageIndexShift))
-								>> subpageIndexShift;
+						entryPermIndex = (tableEntry & (0x00000003 << subpageIndexShift))
+							>> subpageIndexShift;
 
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
 							mFaultAddress = inVAddress;
-							mFaultStatus =
-								TMemoryConsts::kFSR_PermissionPage
+							mFaultStatus = TMemoryConsts::kFSR_PermissionPage
 								| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 							return true;
 						}
 						outPAddress = (tableEntry & TMemoryConsts::kMMULargePageMask)
-									| (inVAddress & TMemoryConsts::kMMULargePageMaskNeg);
+							| (inVAddress & TMemoryConsts::kMMULargePageMaskNeg);
 						break;
 
 					case 0x02:
@@ -790,61 +773,55 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x00000C00) >> 9) + 4;
-						entryPermIndex =
-							(tableEntry & (0x00000003 << subpageIndexShift))
-								>> subpageIndexShift;
+						entryPermIndex = (tableEntry & (0x00000003 << subpageIndexShift))
+							>> subpageIndexShift;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
 							mFaultAddress = inVAddress;
-							mFaultStatus =
-								TMemoryConsts::kFSR_PermissionPage
+							mFaultStatus = TMemoryConsts::kFSR_PermissionPage
 								| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 							return true;
 						}
 						outPAddress = (tableEntry & TMemoryConsts::kMMUSmallPageMask)
-									| (inVAddress & TMemoryConsts::kMMUSmallPageMaskNeg);
+							| (inVAddress & TMemoryConsts::kMMUSmallPageMaskNeg);
 						break;
 
 					case 0x03:
 						// Tiny page.
-						entryPermIndex =
-							(tableEntry & 0x00000030) >> 4;
+						entryPermIndex = (tableEntry & 0x00000030) >> 4;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
 							mFaultAddress = inVAddress;
-							mFaultStatus =
-								TMemoryConsts::kFSR_PermissionPage
+							mFaultStatus = TMemoryConsts::kFSR_PermissionPage
 								| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 							return true;
 						}
 						outPAddress = (tableEntry & TMemoryConsts::kMMUTinyPageMask)
-									| (inVAddress & TMemoryConsts::kMMUTinyPageMaskNeg);
+							| (inVAddress & TMemoryConsts::kMMUTinyPageMaskNeg);
 						break;
 				}
 				break;
 		}
-	} else {
+	} else
+	{
 		switch (tableEntry & 0x3)
 		{
 			case 0x0:
 				mFaultAddress = inVAddress;
-				mFaultStatus =
-					TMemoryConsts::kFSR_TranslationSection
+				mFaultStatus = TMemoryConsts::kFSR_TranslationSection
 					| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 				return true;
 
 			case 0x2:
 				mFaultAddress = inVAddress;
-				mFaultStatus =
-					TMemoryConsts::kFSR_DomainSection
+				mFaultStatus = TMemoryConsts::kFSR_DomainSection
 					| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 				return true;
 
 			case 0x1:
 			case 0x3:
 				mFaultAddress = inVAddress;
-				mFaultStatus =
-					TMemoryConsts::kFSR_DomainPage
+				mFaultStatus = TMemoryConsts::kFSR_DomainPage
 					| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 				return true;
 		}
@@ -855,10 +832,10 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 		pageAddress,
 		outPAddress & TMemoryConsts::kMMUSmallestPageMask,
 		theDomain_times2,
-		entryPermIndex );
+		entryPermIndex);
 
 #if MMUDebug > 1
-	(void) ::fprintf( stderr, "outPAddress = %.8X\n", outPAddress );
+	(void) ::fprintf(stderr, "outPAddress = %.8X\n", outPAddress);
 #endif
 
 	return false;
@@ -869,8 +846,8 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 // -------------------------------------------------------------------------- //
 Boolean
 TMMU::TranslateInstruction(
-			KUInt32 inVAddress,
-			KUInt32* outPAddress )
+	KUInt32 inVAddress,
+	KUInt32* outPAddress)
 {
 	KUInt32 theAddress = inVAddress;
 
@@ -878,7 +855,7 @@ TMMU::TranslateInstruction(
 	if (mMMUEnabled && ((theAddress < 0x00002000) || (theAddress & TMemoryConsts::kROMEndMask)))
 	{
 		KUInt32 theTranslatedAddress = 0;
-		if (TranslateR( theAddress, theTranslatedAddress ))
+		if (TranslateR(theAddress, theTranslatedAddress))
 		{
 			return true;
 		}
@@ -889,31 +866,34 @@ TMMU::TranslateInstruction(
 	if (!(theAddress & TMemoryConsts::kROMEndMask))
 	{
 		*outPAddress = theAddress;
-	} else if (theAddress < TMemoryConsts::kRAMStart) {
+	} else if (theAddress < TMemoryConsts::kRAMStart)
+	{
 #if MMUDebug
 		if (mMemoryIntf->mLog)
 		{
 			mMemoryIntf->mLog->FLogLine(
 				"Trying to execute something not in RAM or ROM at V0x%.8X (P0x%.8X)",
 				(unsigned int) inVAddress,
-				(unsigned int) theAddress );
+				(unsigned int) theAddress);
 		}
 #endif
-		SetHardwareFault( inVAddress );
+		SetHardwareFault(inVAddress);
 		return true;
-	} else if (theAddress < mMemoryIntf->mRAMEnd) {
+	} else if (theAddress < mMemoryIntf->mRAMEnd)
+	{
 		*outPAddress = theAddress;
-	} else {
+	} else
+	{
 #if MMUDebug
 		if (mMemoryIntf->mLog)
 		{
 			mMemoryIntf->mLog->FLogLine(
 				"Trying to execute something not in RAM or ROM at V0x%.8X (P0x%.8X)",
 				(unsigned int) inVAddress,
-				(unsigned int) theAddress );
+				(unsigned int) theAddress);
 		}
 #endif
-		SetHardwareFault( inVAddress );
+		SetHardwareFault(inVAddress);
 		return true;
 	}
 
@@ -925,16 +905,16 @@ TMMU::TranslateInstruction(
 // -------------------------------------------------------------------------- //
 void
 TMMU::AddToCache(
-			KUInt32 inVAddr,
-			KUInt32 inPAddr,
-			KUInt32 inDomainT2,
-			KUInt32 inEntryPermIndex )
+	KUInt32 inVAddr,
+	KUInt32 inPAddr,
+	KUInt32 inDomainT2,
+	KUInt32 inEntryPermIndex)
 {
 	// Take last page.
 	SEntry* theEntry = mCache.GetLastValue();
 
 	// Remove it from the table.
-	mCache.Erase( theEntry->key );
+	mCache.Erase(theEntry->key);
 
 	// Modify the entry.
 	theEntry->key = inVAddr;
@@ -943,17 +923,17 @@ TMMU::AddToCache(
 	theEntry->mEntryPermIndex = inEntryPermIndex;
 
 	// Add it into the table.
-	mCache.Insert( inVAddr, theEntry );
+	mCache.Insert(inVAddr, theEntry);
 
 	// Finally touch the entry.
-	mCache.MakeFirst( theEntry );
+	mCache.MakeFirst(theEntry);
 }
 
 // -------------------------------------------------------------------------- //
 //  * InvalidateTLB( void )
 // -------------------------------------------------------------------------- //
 void
-TMMU::InvalidateTLB( void )
+TMMU::InvalidateTLB(void)
 {
 #if kTMMUStats
 	gNbInvalidate++;
@@ -967,33 +947,31 @@ TMMU::InvalidateTLB( void )
 //  * InvalidatePerms( void )
 // -------------------------------------------------------------------------- //
 void
-TMMU::InvalidatePerms( void )
+TMMU::InvalidatePerms(void)
 {
 	mMemoryIntf->GetJITObject()->InvalidateTLB();
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
-TMMU::TransferState( TStream* inStream )
+TMMU::TransferState(TStream* inStream)
 {
 	// Do not load or save any cached data.
 	InvalidateTLB();
 	InvalidatePerms();
 
 	// The various registers.
-	inStream->TransferBoolean( mMMUEnabled );
-	inStream->TransferByte( mCurrentAPMode );
-	inStream->TransferByte( mCurrentAPRead );
-	inStream->TransferByte( mCurrentAPWrite );
-	inStream->TransferInt32BE( mTTBase );
-	inStream->TransferInt32BE( mDomainAC );
-	inStream->TransferInt32BE( mFaultAddress );
-	inStream->TransferInt32BE( mFaultStatus );
+	inStream->TransferBoolean(mMMUEnabled);
+	inStream->TransferByte(mCurrentAPMode);
+	inStream->TransferByte(mCurrentAPRead);
+	inStream->TransferByte(mCurrentAPWrite);
+	inStream->TransferInt32BE(mTTBase);
+	inStream->TransferInt32BE(mDomainAC);
+	inStream->TransferInt32BE(mFaultAddress);
+	inStream->TransferInt32BE(mFaultStatus);
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * FDump(FILE *f)
@@ -1002,7 +980,8 @@ TMMU::TransferState( TStream* inStream )
 static KUInt32 blockFirst = 0, blockLast = 0, blockType = 0;
 static const char* blockName = "unknown";
 
-static void startBlocks()
+static void
+startBlocks()
 {
 	blockFirst = 0;
 	blockLast = 0;
@@ -1010,19 +989,24 @@ static void startBlocks()
 	blockName = "unknown";
 }
 
-static void addBlock(FILE *f, KUInt32 first, KUInt32 last, KUInt32 type, const char *name)
+static void
+addBlock(FILE* f, KUInt32 first, KUInt32 last, KUInt32 type, const char* name)
 {
 	bool newBlock = false;
-	if (type!=blockType) newBlock = true;
-	if (first!=blockLast) newBlock = true;
-	if (newBlock) {
-		if (blockType!=0)
-			fprintf(f, "VA 0x%08lX to 0x%08lX (%ld kB): %s\n", (unsigned long)blockFirst, (unsigned long)blockLast, (unsigned long)(blockLast-blockFirst)/1024, blockName);
+	if (type != blockType)
+		newBlock = true;
+	if (first != blockLast)
+		newBlock = true;
+	if (newBlock)
+	{
+		if (blockType != 0)
+			fprintf(f, "VA 0x%08lX to 0x%08lX (%ld kB): %s\n", (unsigned long) blockFirst, (unsigned long) blockLast, (unsigned long) (blockLast - blockFirst) / 1024, blockName);
 		blockFirst = first;
 		blockLast = last;
 		blockType = type;
 		blockName = name;
-	} else {
+	} else
+	{
 		// blockFirst unchanged
 		blockLast = last;
 		// blockType unchanged
@@ -1030,25 +1014,26 @@ static void addBlock(FILE *f, KUInt32 first, KUInt32 last, KUInt32 type, const c
 	}
 }
 
-static void endBlocks(FILE *f)
+static void
+endBlocks(FILE* f)
 {
-	fprintf(f, "VA 0x%08lX to 0x%08lX (%ld kB): %s\n", (unsigned long)blockFirst, (unsigned long)blockLast, (unsigned long)(blockLast-blockFirst)/1024, blockName);
+	fprintf(f, "VA 0x%08lX to 0x%08lX (%ld kB): %s\n", (unsigned long) blockFirst, (unsigned long) blockLast, (unsigned long) (blockLast - blockFirst) / 1024, blockName);
 }
-
 
 /*
  Level 1 Lookup: 1MB (4096 32bit entries)
  Level 2 Lookup: 64kB or 4kB (256 32bit entries 64k entries are repeated 16 times))
  */
 void
-TMMU::FDump(FILE *f)
+TMMU::FDump(FILE* f)
 {
-//	static const char *const ap[4] = { "ro/na", "rw/na", "rw/ro", "rw/rw" };
+	//	static const char *const ap[4] = { "ro/na", "rw/na", "rw/ro", "rw/rw" };
 
 	Boolean err = false;
 	fprintf(f, "=====> Dumping MMU state\n");
-	if (mMMUEnabled) {
-		fprintf(f, "Primary MMU table at 0x%08x\n", (unsigned int)mTTBase);
+	if (mMMUEnabled)
+	{
+		fprintf(f, "Primary MMU table at 0x%08x\n", (unsigned int) mTTBase);
 #if 0
 		unsigned int i, j, p, sp;
 		for (i=0; i<4096; i++) {
@@ -1091,32 +1076,37 @@ TMMU::FDump(FILE *f)
 #else
 		unsigned int i, j, p, sp, first, last;
 		startBlocks();
-		for (i=0; i<4096; i++) {
-			p = mMemoryIntf->ReadP(mTTBase+(i<<2), err);
-			switch (p&3) {
+		for (i = 0; i < 4096; i++)
+		{
+			p = mMemoryIntf->ReadP(mTTBase + (i << 2), err);
+			switch (p & 3)
+			{
 				case 0: // Fault
-					first = (i<<20);
-					last  = ((i+1)<<20);
+					first = (i << 20);
+					last = ((i + 1) << 20);
 					addBlock(f, first, last, 1, "fault");
 					break;
 				case 1: // Page
-					for (j=0; j<256; j++) {
-						sp = mMemoryIntf->ReadP((p&0xfffffc00)+(j<<2), err);
-						first = (i<<20) + (j<<12);
-						last  = (i<<20) + ((j+1)<<12);;
-						switch (sp&3) {
+					for (j = 0; j < 256; j++)
+					{
+						sp = mMemoryIntf->ReadP((p & 0xfffffc00) + (j << 2), err);
+						first = (i << 20) + (j << 12);
+						last = (i << 20) + ((j + 1) << 12);
+						;
+						switch (sp & 3)
+						{
 							case 0: // Fault
 								addBlock(f, first, last, 13, "page fault");
 								break;
 							case 1:
 								addBlock(f, first, last, 12, "large pages");
-//								fprintf(f, "  0x%03x%02xxxx maps to a Large Page at 0x%04xxxxx, AP=%s,%s,%s,%s\n",
-//										i, j, sp>>16, ap[(sp>>10)&3], ap[(sp>>8)&3], ap[(sp>>6)&3], ap[(sp>>4)&3] );
+								//								fprintf(f, "  0x%03x%02xxxx maps to a Large Page at 0x%04xxxxx, AP=%s,%s,%s,%s\n",
+								//										i, j, sp>>16, ap[(sp>>10)&3], ap[(sp>>8)&3], ap[(sp>>6)&3], ap[(sp>>4)&3] );
 								break;
 							case 2:
 								addBlock(f, first, last, 12, "small pages");
-//								fprintf(f, "  0x%03x%02xxxx maps to a Small Page at 0x%05xxxx, AP=%s,%s,%s,%s\n",
-//										i, j, sp>>12, ap[(sp>>10)&3], ap[(sp>>8)&3], ap[(sp>>6)&3], ap[(sp>>4)&3] );
+								//								fprintf(f, "  0x%03x%02xxxx maps to a Small Page at 0x%05xxxx, AP=%s,%s,%s,%s\n",
+								//										i, j, sp>>12, ap[(sp>>10)&3], ap[(sp>>8)&3], ap[(sp>>6)&3], ap[(sp>>4)&3] );
 								break;
 							case 3: // Reserved
 								addBlock(f, first, last, 11, "PAGE RESERVED");
@@ -1125,13 +1115,13 @@ TMMU::FDump(FILE *f)
 					}
 					break;
 				case 2: // Section
-					first = (i<<20);
-					last  = ((i+1)<<20);
+					first = (i << 20);
+					last = ((i + 1) << 20);
 					addBlock(f, first, last, 2, "section");
 					break;
 				case 3: // Reserved
-					first = (i<<20);
-					last  = ((i+1)<<20);
+					first = (i << 20);
+					last = ((i + 1) << 20);
 					addBlock(f, first, last, 2, "RESERVED");
 					break;
 					/*
@@ -1145,7 +1135,8 @@ TMMU::FDump(FILE *f)
 		endBlocks(f);
 
 #endif
-	} else {
+	} else
+	{
 		fprintf(f, "MMU is disabled\n");
 	}
 	fprintf(f, "<===== End of MMU state dump\n");

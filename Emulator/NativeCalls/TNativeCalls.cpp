@@ -24,34 +24,33 @@
 #include <K/Defines/KDefinitions.h>
 #include "Emulator/NativeCalls/TNativeCalls.h"
 
-
 #if TARGET_OS_ANDROID || TARGET_OS_WIN32
 
 // Einstein
 #include "Emulator/TMemory.h"
 
-TNativeCalls::TNativeCalls( TMemory* inMemoryIntf ) { }
-TNativeCalls::~TNativeCalls( ) { }
+TNativeCalls::TNativeCalls(TMemory* inMemoryIntf) { }
+TNativeCalls::~TNativeCalls() { }
 
 #else
 
 // POSIX & Co.
-#include <stdio.h>
-#include <limits.h>
 #include <errno.h>
-#include <sys/types.h>
+#include <limits.h>
+#include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
 
 #if TARGET_OS_WIN32
-	#include <stdlib.h>
-	#include <assert.h>
-	ffi_type ffi_type_uint8; // FIXME these should be in libffi
-	ffi_type ffi_type_sint8;
-	ffi_type ffi_type_uint16;
-	ffi_type ffi_type_sint16;
-	ffi_type ffi_type_uint32;
-	ffi_type ffi_type_sint32;
-	ffi_type ffi_type_pointer;
+#include <assert.h>
+#include <stdlib.h>
+ffi_type ffi_type_uint8; // FIXME these should be in libffi
+ffi_type ffi_type_sint8;
+ffi_type ffi_type_uint16;
+ffi_type ffi_type_sint16;
+ffi_type ffi_type_uint32;
+ffi_type ffi_type_sint32;
+ffi_type ffi_type_pointer;
 #elif defined TARGET_IOS
 ffi_type ffi_type_uint8; // FIXME these should be in libffi
 ffi_type ffi_type_sint8;
@@ -61,9 +60,9 @@ ffi_type ffi_type_uint32;
 ffi_type ffi_type_sint32;
 ffi_type ffi_type_pointer;
 #else
-	#include <dlfcn.h>
-	#include <libgen.h>
-	#include <dirent.h>
+#include <dirent.h>
+#include <dlfcn.h>
+#include <libgen.h>
 #endif
 
 // Einstein
@@ -73,36 +72,33 @@ ffi_type ffi_type_pointer;
 // Constantes
 // -------------------------------------------------------------------------- //
 #ifndef DYLIBSUFFIX
-	#if TARGET_OS_OPENSTEP
-		#define DYLIBSUFFIX ".dylib"
-	#elif TARGET_OS_LINUX
-		#define DYLIBSUFFIX ".so"
-	#elif TARGET_OS_BSD
-		#define DYLIBSUFFIX ".so"
-	#elif TARGET_OS_CYGWIN
-		#define DYLIBSUFFIX ".dll"
-	#else
-		#error Please define DYLIBSUFFIX
-	#endif
+#if TARGET_OS_OPENSTEP
+#define DYLIBSUFFIX ".dylib"
+#elif TARGET_OS_LINUX
+#define DYLIBSUFFIX ".so"
+#elif TARGET_OS_BSD
+#define DYLIBSUFFIX ".so"
+#elif TARGET_OS_CYGWIN
+#define DYLIBSUFFIX ".dll"
+#else
+#error Please define DYLIBSUFFIX
+#endif
 #endif
 
 // -------------------------------------------------------------------------- //
 //  * TNativeCalls( TMemory* )
 // -------------------------------------------------------------------------- //
-TNativeCalls::TNativeCalls( TMemory* inMemoryIntf )
-	:
-		mMemoryIntf( inMemoryIntf ),
-		mNativeLibs( NULL ),
-		mNbNativeLibs( 0 ),
-		mAllocatedNativeLibs( 0 ),
-		mNativeFuncs( NULL ),
-		mNbNativeFuncs( 0 ),
-		mAllocatedNativeFuncs( 0 )
+TNativeCalls::TNativeCalls(TMemory* inMemoryIntf) :
+		mMemoryIntf(inMemoryIntf),
+		mNativeLibs(NULL),
+		mNbNativeLibs(0),
+		mAllocatedNativeLibs(0),
+		mNativeFuncs(NULL),
+		mNbNativeFuncs(0),
+		mAllocatedNativeFuncs(0)
 {
-	mNativeLibs =
-		(SLibraryRec*) ::malloc( sizeof(SLibraryRec) * kNativeLibsIncr );
-	mNativeFuncs =
-		(SFunctionRec*) ::malloc( sizeof(SFunctionRec) * kNativeFuncsIncr );
+	mNativeLibs = (SLibraryRec*) ::malloc(sizeof(SLibraryRec) * kNativeLibsIncr);
+	mNativeFuncs = (SFunctionRec*) ::malloc(sizeof(SFunctionRec) * kNativeFuncsIncr);
 	mAllocatedNativeLibs = kNativeLibsIncr;
 	mAllocatedNativeFuncs = kNativeFuncsIncr;
 }
@@ -110,15 +106,15 @@ TNativeCalls::TNativeCalls( TMemory* inMemoryIntf )
 // -------------------------------------------------------------------------- //
 //  * ~TNativeCalls( void )
 // -------------------------------------------------------------------------- //
-TNativeCalls::~TNativeCalls( void )
+TNativeCalls::~TNativeCalls(void)
 {
 	if (mNativeLibs)
 	{
-		::free( mNativeLibs );
+		::free(mNativeLibs);
 	}
 	if (mNativeFuncs)
 	{
-		::free( mNativeFuncs );
+		::free(mNativeFuncs);
 	}
 }
 
@@ -128,7 +124,7 @@ TNativeCalls::~TNativeCalls( void )
 //  * OpenLib( KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TNativeCalls::OpenLib( KUInt32 inPathAddr )
+TNativeCalls::OpenLib(KUInt32 inPathAddr)
 {
 	KUInt32 theResult = (KUInt32) -1;
 
@@ -140,33 +136,37 @@ TNativeCalls::OpenLib( KUInt32 inPathAddr )
 	{
 		void* theHandle = NULL;
 
-		do {
+		do
+		{
 			if (theArgPath[0] != '/')
 			{
 				/* try with /lib/<inPath> */
 				(void) snprintf(
-							thePath,
-							sizeof(thePath),
-							"/lib/%s",
-							theArgPath );
+					thePath,
+					sizeof(thePath),
+					"/lib/%s",
+					theArgPath);
 				thePath[PATH_MAX - 1] = 0;
 				theHandle = DoOpenLib(thePath);
-				if (theHandle) break;
+				if (theHandle)
+					break;
 
 				/* try with /usr/lib/<inPath> */
 				(void) snprintf(
-							thePath,
-							sizeof(thePath),
-							"/usr/lib/%s",
-							theArgPath );
+					thePath,
+					sizeof(thePath),
+					"/usr/lib/%s",
+					theArgPath);
 				thePath[PATH_MAX - 1] = 0;
 				theHandle = DoOpenLib(thePath);
-				if (theHandle) break;
+				if (theHandle)
+					break;
 			}
 
 			/* try directly */
 			theHandle = DoOpenLib(theArgPath);
-			if (theHandle) break;
+			if (theHandle)
+				break;
 		} while (false);
 
 		if (theHandle)
@@ -190,8 +190,8 @@ TNativeCalls::OpenLib( KUInt32 inPathAddr )
 					// Increase the capacity.
 					mAllocatedNativeLibs += kNativeLibsIncr;
 					mNativeLibs = (SLibraryRec*) ::realloc(
-											mNativeLibs,
-											sizeof(SLibraryRec) * mAllocatedNativeLibs);
+						mNativeLibs,
+						sizeof(SLibraryRec) * mAllocatedNativeLibs);
 				}
 				theResult = mNbNativeLibs;
 				mNbNativeLibs++;
@@ -209,21 +209,22 @@ TNativeCalls::OpenLib( KUInt32 inPathAddr )
 //  * DoOpenLib( const char* )
 // -------------------------------------------------------------------------- //
 void*
-TNativeCalls::DoOpenLib( const char* inPath )
+TNativeCalls::DoOpenLib(const char* inPath)
 {
 #if TARGET_OS_WIN32
-  // FIXME We will implement this later
-  assert(0);
-  return 0L;
+	// FIXME We will implement this later
+	assert(0);
+	return 0L;
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-  return 0L;
-# else
+	// FIXME We will implement this later
+	assert(0);
+	return 0L;
+#else
 	void* theResult = NULL;
 	char* theDirNameBuf = NULL;
 	char* theBaseNameBuf = NULL;
-	do {
+	do
+	{
 		char thePath[PATH_MAX];
 		char* theDirName;
 		char* theBaseName;
@@ -233,24 +234,27 @@ TNativeCalls::DoOpenLib( const char* inPath )
 
 		/* try to open the library without any suffix */
 		theResult = dlopen(inPath, RTLD_LAZY);
-		if (theResult) break;
+		if (theResult)
+			break;
 
 		/* add the suffix */
 		pathLen = strlen(inPath);
-		if (pathLen >= (PATH_MAX - 1)) break;
+		if (pathLen >= (PATH_MAX - 1))
+			break;
 
 		(void) memcpy(
-					thePath,
-					inPath,
-					pathLen);
+			thePath,
+			inPath,
+			pathLen);
 
 		(void) strncpy(
-					&thePath[pathLen],
-					DYLIBSUFFIX,
-					PATH_MAX - pathLen);
+			&thePath[pathLen],
+			DYLIBSUFFIX,
+			PATH_MAX - pathLen);
 		thePath[PATH_MAX - 1] = 0;
 		theResult = dlopen(thePath, RTLD_LAZY);
-		if (theResult) break;
+		if (theResult)
+			break;
 
 		/* try to look at path + anything */
 		theDirNameBuf = strdup(inPath);
@@ -266,7 +270,8 @@ TNativeCalls::DoOpenLib( const char* inPath )
 			pathLen = strlen(thePath);
 
 			struct dirent* theEntry;
-			do {
+			do
+			{
 				theEntry = readdir(theDir);
 				if (theEntry == NULL)
 				{
@@ -281,7 +286,8 @@ TNativeCalls::DoOpenLib( const char* inPath )
 						PATH_MAX - pathLen);
 					thePath[PATH_MAX - 1] = 0;
 					theResult = dlopen(thePath, RTLD_LAZY);
-					if (theResult) break;
+					if (theResult)
+						break;
 				}
 			} while (true);
 
@@ -306,23 +312,24 @@ TNativeCalls::DoOpenLib( const char* inPath )
 //  * CloseLib( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TNativeCalls::CloseLib( KUInt32 inLibRef )
+TNativeCalls::CloseLib(KUInt32 inLibRef)
 {
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-# else
-	(void) dlclose( mNativeLibs[inLibRef].fHandle );
+	// FIXME We will implement this later
+	assert(0);
+#else
+	(void) dlclose(mNativeLibs[inLibRef].fHandle);
 	mNativeLibs[inLibRef].fFreeRec = true;
 
 	// If it's the last, empty it up in the queue.
 	KUInt32 lastNativeLib = mNbNativeLibs - 1;
 	if (lastNativeLib == inLibRef)
 	{
-		do {
+		do
+		{
 			lastNativeLib--;
 		} while (mNativeLibs[lastNativeLib].fFreeRec);
 		mNbNativeLibs = lastNativeLib + 1;
@@ -335,19 +342,19 @@ TNativeCalls::CloseLib( KUInt32 inLibRef )
 // -------------------------------------------------------------------------- //
 KUInt32
 TNativeCalls::PrepareFFIStructure(
-				KUInt32 inNativeLib,
-				KUInt32 inSymbolAddr,
-				KUInt32 inNbArgs)
+	KUInt32 inNativeLib,
+	KUInt32 inSymbolAddr,
+	KUInt32 inNbArgs)
 {
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
 	return 0;
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-  return 0;
-# else
+	// FIXME We will implement this later
+	assert(0);
+	return 0;
+#else
 	KUInt32 theResult = mNbNativeFuncs;
 	// Get a new record.
 	if (theResult == mAllocatedNativeFuncs)
@@ -355,8 +362,8 @@ TNativeCalls::PrepareFFIStructure(
 		// Increase the capacity.
 		mAllocatedNativeFuncs += kNativeFuncsIncr;
 		mNativeFuncs = (SFunctionRec*) ::realloc(
-								mNativeFuncs,
-								sizeof(SFunctionRec) * mAllocatedNativeFuncs);
+			mNativeFuncs,
+			sizeof(SFunctionRec) * mAllocatedNativeFuncs);
 	}
 
 	char symbolName[kNativeCalls_SymbolMaxLen];
@@ -373,8 +380,7 @@ TNativeCalls::PrepareFFIStructure(
 	for (indexArgs = 0; indexArgs < inNbArgs; indexArgs++)
 	{
 		theStructure->fArgTypes[indexArgs] = NULL;
-		theStructure->fArgValuesPtr[indexArgs] =
-			&theStructure->fArgValues[indexArgs];
+		theStructure->fArgValuesPtr[indexArgs] = &theStructure->fArgValues[indexArgs];
 	}
 
 	void* theLibHandle = mNativeLibs[inNativeLib].fHandle;
@@ -384,7 +390,8 @@ TNativeCalls::PrepareFFIStructure(
 		theStructure->fFreeRec = true;
 		mNbNativeFuncs--;
 		theResult = (KUInt32) -1;
-	} else {
+	} else
+	{
 		theStructure->fFuncPtr = theFuncPtr;
 		theStructure->fResultType = NULL;
 		theStructure->fFreeRec = false;
@@ -399,18 +406,18 @@ TNativeCalls::PrepareFFIStructure(
 // -------------------------------------------------------------------------- //
 void
 TNativeCalls::SetArgValue_string(
-				KUInt32 inFFIStructure,
-				KUInt32 inArgIndex,
-				KUInt32 inStringAddr,
-				KUInt32 inSize)
+	KUInt32 inFFIStructure,
+	KUInt32 inArgIndex,
+	KUInt32 inStringAddr,
+	KUInt32 inSize)
 {
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-# else
+	// FIXME We will implement this later
+	assert(0);
+#else
 	// Allocate the string.
 	KUInt8* theString = (KUInt8*) ::malloc(inSize + 1);
 	if (mMemoryIntf->FastReadBuffer(inStringAddr, inSize, theString))
@@ -418,7 +425,8 @@ TNativeCalls::SetArgValue_string(
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fPtr = NULL;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fToFree = false;
 		::free(theString);
-	} else {
+	} else
+	{
 		mNativeFuncs[inFFIStructure].fArgTypes[inArgIndex] = &ffi_type_pointer;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fPtr = theString;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fToFree = true;
@@ -434,18 +442,18 @@ TNativeCalls::SetArgValue_string(
 // -------------------------------------------------------------------------- //
 void
 TNativeCalls::SetArgValue_binary(
-				KUInt32 inFFIStructure,
-				KUInt32 inArgIndex,
-				KUInt32 inStringAddr,
-				KUInt32 inSize)
+	KUInt32 inFFIStructure,
+	KUInt32 inArgIndex,
+	KUInt32 inStringAddr,
+	KUInt32 inSize)
 {
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-# else
+	// FIXME We will implement this later
+	assert(0);
+#else
 	// Allocate the binary.
 	KUInt8* theBinary = (KUInt8*) ::malloc(inSize);
 	if (mMemoryIntf->FastReadBuffer(inStringAddr, inSize, theBinary))
@@ -453,7 +461,8 @@ TNativeCalls::SetArgValue_binary(
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fPtr = NULL;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fToFree = false;
 		::free(theBinary);
-	} else {
+	} else
+	{
 		mNativeFuncs[inFFIStructure].fArgTypes[inArgIndex] = &ffi_type_pointer;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fPtr = theBinary;
 		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fToFree = true;
@@ -466,16 +475,16 @@ TNativeCalls::SetArgValue_binary(
 // -------------------------------------------------------------------------- //
 void
 TNativeCalls::SetResultType(
-				KUInt32 inFFIStructure,
-				EFFI_Type inType)
+	KUInt32 inFFIStructure,
+	EFFI_Type inType)
 {
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-# else
+	// FIXME We will implement this later
+	assert(0);
+#else
 	ffi_type* theType = NULL;
 	switch (inType)
 	{
@@ -550,26 +559,29 @@ TNativeCalls::Call(KUInt32 inFFIStructure, SStorage* outResult)
 	// FIXME We will implement this later
 	assert(0);
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-# else
+	// FIXME We will implement this later
+	assert(0);
+#else
 	ffi_cif theCif;
 	SFunctionRec* theStructure = &mNativeFuncs[inFFIStructure];
 	if (theStructure->fFuncPtr == NULL)
 	{
 		KPrintf("Cannot call a null function.\n");
-	} else {
+	} else
+	{
 		if (ffi_prep_cif(
 				&theCif,
 				FFI_DEFAULT_ABI,
 				theStructure->fNbArgs,
 				theStructure->fResultType,
-				theStructure->fArgTypes) == FFI_OK)
+				theStructure->fArgTypes)
+			== FFI_OK)
 		{
 			ffi_call(
 				&theCif, (void (*)()) theStructure->fFuncPtr,
 				outResult, theStructure->fArgValuesPtr);
-		} else {
+		} else
+		{
 			// FIXME: handle errors.
 			KPrintf("Error with ffi_prep_cif\n");
 		}
@@ -587,9 +599,9 @@ TNativeCalls::Call_void(KUInt32 inFFIStructure)
 	// FIXME We will implement this later
 	assert(0);
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-# else
+	// FIXME We will implement this later
+	assert(0);
+#else
 	SStorage theResult;
 	Call(inFFIStructure, &theResult);
 #endif
@@ -606,10 +618,10 @@ TNativeCalls::Call_int(KUInt32 inFFIStructure)
 	assert(0);
 	return 0;
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-  return 0;
-# else
+	// FIXME We will implement this later
+	assert(0);
+	return 0;
+#else
 	KUInt32 theReturnValue;
 	SStorage theResult;
 	ffi_type* theType = mNativeFuncs[inFFIStructure].fResultType;
@@ -617,13 +629,16 @@ TNativeCalls::Call_int(KUInt32 inFFIStructure)
 	if ((theType == &ffi_type_uint8) || (theType == &ffi_type_sint8))
 	{
 		theReturnValue = theResult.fInt8;
-	} else if ((theType == &ffi_type_uint16) || (theType == &ffi_type_sint16)) {
+	} else if ((theType == &ffi_type_uint16) || (theType == &ffi_type_sint16))
+	{
 		theReturnValue = theResult.fInt16;
-	} else if ((theType == &ffi_type_uint32) || (theType == &ffi_type_sint32)) {
+	} else if ((theType == &ffi_type_uint32) || (theType == &ffi_type_sint32))
+	{
 		theReturnValue = theResult.fInt32;
-//	} else if ((theType == &ffi_type_uint64) || (theType == &ffi_type_sint64)) {
-//		theReturnValue = theResult.fInt64;
-	} else {
+		//	} else if ((theType == &ffi_type_uint64) || (theType == &ffi_type_sint64)) {
+		//		theReturnValue = theResult.fInt64;
+	} else
+	{
 		theReturnValue = 0;
 	}
 
@@ -642,10 +657,10 @@ TNativeCalls::Call_real(KUInt32 inFFIStructure)
 	assert(0);
 	return 0.0;
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-  return 0.0;
-# else
+	// FIXME We will implement this later
+	assert(0);
+	return 0.0;
+#else
 	double theReturnValue;
 	SStorage theResult;
 	ffi_type* theType = mNativeFuncs[inFFIStructure].fResultType;
@@ -653,11 +668,14 @@ TNativeCalls::Call_real(KUInt32 inFFIStructure)
 	if (theType == &ffi_type_float)
 	{
 		theReturnValue = theResult.fFloat;
-	} else if (theType == &ffi_type_double) {
+	} else if (theType == &ffi_type_double)
+	{
 		theReturnValue = theResult.fDouble;
-	} else if (theType == &ffi_type_longdouble) {
+	} else if (theType == &ffi_type_longdouble)
+	{
 		theReturnValue = theResult.fLongDouble;
-	} else {
+	} else
+	{
 		theReturnValue = 0.0;
 	}
 
@@ -678,9 +696,9 @@ TNativeCalls::Call_string(
 	// FIXME We will implement this later
 	assert(0);
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-# else
+	// FIXME We will implement this later
+	assert(0);
+#else
 	SStorage theResult;
 	Call(inFFIStructure, &theResult);
 
@@ -703,10 +721,10 @@ TNativeCalls::Call_pointer(KUInt32 inFFIStructure)
 	assert(0);
 	return 0;
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-  return 0;
-# else
+	// FIXME We will implement this later
+	assert(0);
+	return 0;
+#else
 	SStorage theResult;
 	Call(inFFIStructure, &theResult);
 
@@ -719,20 +737,22 @@ TNativeCalls::Call_pointer(KUInt32 inFFIStructure)
 // -------------------------------------------------------------------------- //
 void
 TNativeCalls::GetOutArgValue_string(
-				KUInt32 inFFIStructure,
-				KUInt32 inArgIndex,
-				KUInt32 inStringAddr,
-				KUInt32 inStringSize)
+	KUInt32 inFFIStructure,
+	KUInt32 inArgIndex,
+	KUInt32 inStringAddr,
+	KUInt32 inStringSize)
 {
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-# else
+	// FIXME We will implement this later
+	assert(0);
+#else
 	char* theArgCopy = (char*)
-		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fPtr;
+						   mNativeFuncs[inFFIStructure]
+							   .fArgValues[inArgIndex]
+							   .fPointer.fPtr;
 
 	// Copy back the string.
 	KUInt32 count = inStringSize;
@@ -745,20 +765,22 @@ TNativeCalls::GetOutArgValue_string(
 // -------------------------------------------------------------------------- //
 void
 TNativeCalls::GetOutArgValue_binary(
-				KUInt32 inFFIStructure,
-				KUInt32 inArgIndex,
-				KUInt32 inBinaryAddr,
-				KUInt32 inBinarySize)
+	KUInt32 inFFIStructure,
+	KUInt32 inArgIndex,
+	KUInt32 inBinaryAddr,
+	KUInt32 inBinarySize)
 {
 #if TARGET_OS_WIN32
 	// FIXME We will implement this later
 	assert(0);
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-# else
+	// FIXME We will implement this later
+	assert(0);
+#else
 	KUInt8* theArgCopy = (KUInt8*)
-		mNativeFuncs[inFFIStructure].fArgValues[inArgIndex].fPointer.fPtr;
+							 mNativeFuncs[inFFIStructure]
+								 .fArgValues[inArgIndex]
+								 .fPointer.fPtr;
 
 	// Copy back the binary.
 	(void) mMemoryIntf->FastWriteBuffer(inBinaryAddr, inBinarySize, theArgCopy);
@@ -775,9 +797,9 @@ TNativeCalls::DisposeFFIStructure(KUInt32 inFFIStructure)
 	// FIXME We will implement this later
 	assert(0);
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-# else
+	// FIXME We will implement this later
+	assert(0);
+#else
 	SFunctionRec* theStructure = &mNativeFuncs[inFFIStructure];
 
 	// Free the arguments.
@@ -822,15 +844,16 @@ TNativeCalls::GetErrorMessage(KUInt32 inStringAddr, KUInt32 inSize)
 	// FIXME We will implement this later
 	assert(0);
 #elif defined TARGET_IOS
-  // FIXME We will implement this later
-  assert(0);
-# else
+	// FIXME We will implement this later
+	assert(0);
+#else
 	KUInt32 theSize = inSize;
 	const char* theErrStr = dlerror();
 	if (theErrStr != NULL)
 	{
 		(void) mMemoryIntf->FastWriteString(inStringAddr, &theSize, theErrStr);
-	} else {
+	} else
+	{
 		(void) mMemoryIntf->FastWriteString(inStringAddr, &theSize, "no error");
 	}
 #endif
@@ -840,7 +863,7 @@ TNativeCalls::GetErrorMessage(KUInt32 inStringAddr, KUInt32 inSize)
 //  * GetErrno( void )
 // -------------------------------------------------------------------------- //
 KUInt32
-TNativeCalls::GetErrno( void)
+TNativeCalls::GetErrno(void)
 {
 	return errno;
 }

@@ -26,140 +26,140 @@
 
 #include "Emulator/JIT/TJITPerformance.h"
 
-
 @implementation iEinsteinAppDelegate
 
 #ifdef USE_STORYBOARDS
 // Reuse the window variable leveraged by the NIB version of the code
-@synthesize window=window;
-@synthesize viewController=viewController;
+@synthesize window = window;
+@synthesize viewController = viewController;
 #endif
 
 + (void)initialize
 {
 	NSDictionary* defaults = [NSDictionary dictionaryWithObjectsAndKeys:
-			[NSNumber numberWithInt:0], @"screen_resolution", 
-			[NSNumber numberWithBool:NO], @"clear_flash_ram",
-			nil];
-	
+											   [NSNumber numberWithInt:0], @"screen_resolution",
+										   [NSNumber numberWithBool:NO], @"clear_flash_ram",
+										   nil];
+
 	[[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
 	[[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-
-- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions 
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
-    
-    fprintf(stderr, "UIApplication::didFinishLaunchingWithOptions -> check for added files\n");
-    
-    // Override point for customization after app launch
-    
-    // Get the user preferences
-	
-    //[self setAutoRotate:[defaults boolForKey:@"auto_rotate"]];
+
+	fprintf(stderr, "UIApplication::didFinishLaunchingWithOptions -> check for added files\n");
+
+	// Override point for customization after app launch
+
+	// Get the user preferences
+
+	//[self setAutoRotate:[defaults boolForKey:@"auto_rotate"]];
 
 #ifdef USE_STORYBOARDS
 	// When using Storyboards, we get back a full heirarchy, so no need to add it
 	// to the veiwe and make it visible.
-	viewController = (iEinsteinViewController*)self.window.rootViewController;
+	viewController = (iEinsteinViewController*) self.window.rootViewController;
 #else
 	[window addSubview:[viewController view]];
 	[window makeKeyAndVisible];
 #endif
 
-    NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
-    bool clearFlash = [(NSNumber*)[prefs objectForKey:@"clear_flash_ram"] boolValue];
-    if (clearFlash) {
-        // User requested to clear the Flash Memory
-        // Clear this setting from the preferences.
-        [prefs setValue:[NSNumber numberWithBool:NO] forKey:@"clear_flash_ram"];
-        [prefs synchronize];
-        [viewController stopEmulator];
-        // Pop up a dialog making sure that the user really wants to that!
-        [viewController verifyDeleteFlashRAM:4];
+	NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
+	bool clearFlash = [(NSNumber*) [prefs objectForKey:@"clear_flash_ram"] boolValue];
+	if (clearFlash)
+	{
+		// User requested to clear the Flash Memory
+		// Clear this setting from the preferences.
+		[prefs setValue:[NSNumber numberWithBool:NO] forKey:@"clear_flash_ram"];
+		[prefs synchronize];
+		[viewController stopEmulator];
+		// Pop up a dialog making sure that the user really wants to that!
+		[viewController verifyDeleteFlashRAM:4];
 	}
 
 #ifndef USE_STORYBOARDS
 	// When using storyboards, we can't init the emulator until the view heirarchy
 	// is fully built.  Do it in the iEinsteinViewController.
-    [viewController initEmulator];
-#endif 
-	
-    return YES;
-}
+	[viewController initEmulator];
+#endif
 
+	return YES;
+}
 
 - (void)applicationWillResignActive:(UIApplication*)application
 {
 	[viewController stopEmulator];
 }
 
+- (void)applicationDidBecomeActive:(UIApplication*)application
+{
+	if (![viewController allResourcesFound])
+		return;
 
-- (void)applicationDidBecomeActive:(UIApplication*)application 
-{    
-    if (![viewController allResourcesFound])
-        return;
-    
-    NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
-    bool clearFlash = [(NSNumber*)[prefs objectForKey:@"clear_flash_ram"] boolValue];
-    if (clearFlash) {
-        // User requested to clear the Flash Memory
-        // Clear this setting from the preferences.
-        [prefs setValue:[NSNumber numberWithBool:NO] forKey:@"clear_flash_ram"];
-        [prefs synchronize];
-        [viewController stopEmulator];
-        // Pop up a dialog making sure that the user really wants to that!
-        [viewController verifyDeleteFlashRAM:1];
-        // replying to the dialog will start the emulator
-    } else {
-        [viewController startEmulator];
-    }
+	NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
+	bool clearFlash = [(NSNumber*) [prefs objectForKey:@"clear_flash_ram"] boolValue];
+	if (clearFlash)
+	{
+		// User requested to clear the Flash Memory
+		// Clear this setting from the preferences.
+		[prefs setValue:[NSNumber numberWithBool:NO] forKey:@"clear_flash_ram"];
+		[prefs synchronize];
+		[viewController stopEmulator];
+		// Pop up a dialog making sure that the user really wants to that!
+		[viewController verifyDeleteFlashRAM:1];
+		// replying to the dialog will start the emulator
+	} else
+	{
+		[viewController startEmulator];
+	}
 	// The platform manager will install new packages as soon as the emlator booted.
 	// See: void TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
-    // [viewController installNewPackages];
+	// [viewController installNewPackages];
 }
 
-- (void)share: (NSString*)data {
-	//dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+- (void)share:(NSString*)data
+{
+	// dispatch_semaphore_t sema = dispatch_semaphore_create(0);
 	dispatch_async(dispatch_get_main_queue(), ^{
-		NSArray *objectsToShare = @[data];
-	 
-		UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:objectsToShare applicationActivities:nil];
-	 
-		NSArray *excludeActivities = @[UIActivityTypeAssignToContact,
-									   UIActivityTypeSaveToCameraRoll,
-									   UIActivityTypeAddToReadingList,
-									   UIActivityTypePostToFlickr,
-									   UIActivityTypePostToVimeo];
-	 
+		NSArray* objectsToShare = @[ data ];
+
+		UIActivityViewController* activityVC = [[UIActivityViewController alloc] initWithActivityItems:objectsToShare applicationActivities:nil];
+
+		NSArray* excludeActivities = @[ UIActivityTypeAssignToContact,
+			UIActivityTypeSaveToCameraRoll,
+			UIActivityTypeAddToReadingList,
+			UIActivityTypePostToFlickr,
+			UIActivityTypePostToVimeo ];
+
 		activityVC.excludedActivityTypes = excludeActivities;
 		/*activityVC.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
 			dispatch_semaphore_signal(sema);
 		};
 		 */
-		if ( [activityVC respondsToSelector:@selector(popoverPresentationController)] ) {
+		if ([activityVC respondsToSelector:@selector(popoverPresentationController)])
+		{
 			// iOS8
-			UIView* view = (UIView*)viewController.einsteinView;
+			UIView* view = (UIView*) viewController.einsteinView;
 			CGRect fullView = view.frame;
 			activityVC.popoverPresentationController.sourceView = view;
-			activityVC.popoverPresentationController.sourceRect = CGRectMake(fullView.size.width/2-10, 10, 20, 20);
+			activityVC.popoverPresentationController.sourceRect = CGRectMake(fullView.size.width / 2 - 10, 10, 20, 20);
 		}
-		
+
 		[viewController presentViewController:activityVC animated:YES completion:nil];
 	});
-	
-	//dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-	//dispatch_release(sema);
+
+	// dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+	// dispatch_release(sema);
 }
 
-- (void)dealloc 
+- (void)dealloc
 {
 #if !__has_feature(objc_arc)
-    [viewController release];
-    [window release];
-    [super dealloc];
+	[viewController release];
+	[window release];
+	[super dealloc];
 #endif
 }
-
 
 @end

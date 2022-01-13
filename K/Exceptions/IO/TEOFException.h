@@ -45,11 +45,11 @@
 /// \name macro to throw the exception with the file and the line.
 //@{
 #if KDebugOn
-	#define EOFException					\
-		TEOFException( __FILE__, __LINE__ )
+#define EOFException \
+	TEOFException(__FILE__, __LINE__)
 #else
-	#define EOFException					\
-		TEOFException()
+#define EOFException \
+	TEOFException()
 #endif
 //@}
 
@@ -67,7 +67,7 @@ public:
 	///
 	/// Default constructor.
 	///
-	TEOFException( void );
+	TEOFException(void);
 
 	///
 	/// Constructor from a file name and a line number.
@@ -76,21 +76,20 @@ public:
 	/// \param inLine		line number where the exception was thrown.
 	///
 	TEOFException(
-			const char* inFileName,
-			KUInt32 inLine );
+		const char* inFileName,
+		KUInt32 inLine);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TEOFException( void ) throw ();
+	virtual ~TEOFException(void) throw();
 
 private:
 	/// \name Variables
-
 };
 
 #endif
-		// _TEOFEXCEPTION_H
+// _TEOFEXCEPTION_H
 
 // ====================================== //
 // Ignorance is bliss.                    //

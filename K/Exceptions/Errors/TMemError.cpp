@@ -43,26 +43,24 @@
 // -------------------------------------------------------------------------- //
 //  * TMemError( void )
 // -------------------------------------------------------------------------- //
-TMemError::TMemError( void )
+TMemError::TMemError(void)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * TMemError( const char*, KUInt32 )
 // -------------------------------------------------------------------------- //
-TMemError::TMemError( const char* inFileName, KUInt32 inLine )
-	:
-		TError( inFileName, inLine )
+TMemError::TMemError(const char* inFileName, KUInt32 inLine) :
+		TError(inFileName, inLine)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TMemError( void ) throw ()
 // -------------------------------------------------------------------------- //
-TMemError::~TMemError( void ) throw ()
+TMemError::~TMemError(void) throw()
 {
 }
-
 
 // =============================================================================== //
 // All programmers are optimists.  Perhaps this modern sorcery especially attracts //

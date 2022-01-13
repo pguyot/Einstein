@@ -53,7 +53,7 @@ public:
 	///
 	/// Defautl constructor.
 	///
-	TIOException( void );
+	TIOException(void);
 
 	///
 	/// Constructor from a file name and a line number.
@@ -62,21 +62,20 @@ public:
 	/// \param inLine		line number where the exception was thrown.
 	///
 	TIOException(
-			const char* inFileName,
-			KUInt32 inLine );
+		const char* inFileName,
+		KUInt32 inLine);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TIOException( void ) throw ();
+	virtual ~TIOException(void) throw();
 
 private:
 	/// \name Variables
-
 };
 
 #endif
-		// _TIOEXCEPTION_H
+// _TIOEXCEPTION_H
 
 // ============================================================ //
 // Do you guys know what you're doing, or are you just hacking? //

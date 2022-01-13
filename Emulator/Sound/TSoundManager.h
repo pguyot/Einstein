@@ -47,12 +47,12 @@ public:
 	///
 	/// \param inLog				log interface (can be null)
 	///
-	TSoundManager( TLog* inLog = nil );
+	TSoundManager(TLog* inLog = nil);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TSoundManager( void );
+	virtual ~TSoundManager(void);
 
 	///
 	/// Set the memory interface.
@@ -60,10 +60,11 @@ public:
 	///
 	/// \param inManager	reference to the memory interface
 	///
-	void	SetMemory( TMemory* inMemory )
-		{
-			mMemory = inMemory;
-		}
+	void
+	SetMemory(TMemory* inMemory)
+	{
+		mMemory = inMemory;
+	}
 
 	///
 	/// Set the interrupt manager.
@@ -71,10 +72,11 @@ public:
 	///
 	/// \param inManager	reference to the interrupt manager
 	///
-	void	SetInterruptManager( TInterruptManager* inManager )
-		{
-			mInterruptManager = inManager;
-		}
+	void
+	SetInterruptManager(TInterruptManager* inManager)
+	{
+		mInterruptManager = inManager;
+	}
 
 	///
 	/// Set interrupts to ask for more data.
@@ -82,96 +84,104 @@ public:
 	/// \param inInputMask	input interrupt mask.
 	/// \param inOutputMask	output interrupt mask.
 	///
-	void	SetInterruptMask( KUInt32 inInputMask, KUInt32 inOutputMask )
-		{
-			mInputIntMask = inInputMask;
-			mOutputIntMask = inOutputMask;
-		}
+	void
+	SetInterruptMask(KUInt32 inInputMask, KUInt32 inOutputMask)
+	{
+		mInputIntMask = inInputMask;
+		mOutputIntMask = inOutputMask;
+	}
 
 	///
 	/// Schedule output of some buffer.
 	///
-	virtual void	ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize ) = 0;
+	virtual void ScheduleOutputBuffer(KUInt32 inBufferAddr, KUInt32 inSize) = 0;
 
 	///
 	/// Start output.
 	///
-	virtual void	StartOutput( void ) = 0;
+	virtual void StartOutput(void) = 0;
 
 	///
 	/// Stop output.
 	///
-	virtual void	StopOutput( void ) = 0;
+	virtual void StopOutput(void) = 0;
 
 	///
 	/// Is output running?
 	///
-	virtual Boolean	OutputIsRunning( void ) = 0;
+	virtual Boolean OutputIsRunning(void) = 0;
 
 	///
 	/// Method called to signal a change in the output volume.
 	///
-	virtual void	OutputVolumeChanged( void ) {}
+	virtual void
+	OutputVolumeChanged(void)
+	{
+	}
 
 	///
 	/// Get output volume.
 	///
-	KUInt32			OutputVolume( void )
-		{
-			return mOutputVolume;
-		}
+	KUInt32
+	OutputVolume(void)
+	{
+		return mOutputVolume;
+	}
 
-    ///
-    /// Get output volume in the range from 0.0 to 1.0
-    ///
-    float OutputVolumeNormalized();
+	///
+	/// Get output volume in the range from 0.0 to 1.0
+	///
+	float OutputVolumeNormalized();
 
 	///
 	/// Set output volume.
 	///
-	void			OutputVolume( KUInt32 inVolume )
-		{
-			mOutputVolume = inVolume;
-			OutputVolumeChanged();
-		}
+	void
+	OutputVolume(KUInt32 inVolume)
+	{
+		mOutputVolume = inVolume;
+		OutputVolumeChanged();
+	}
 
 protected:
 	enum {
-		kOutputVolume_Zero	= 0x80000000,
-        kOutputVolume_Min	= 0xFFDDBD71, // Matt: was 0xFFE24EDA, but I found a lower value
-		kOutputVolume_Max	= 0x00000000
+		kOutputVolume_Zero = 0x80000000,
+		kOutputVolume_Min = 0xFFDDBD71, // Matt: was 0xFFE24EDA, but I found a lower value
+		kOutputVolume_Max = 0x00000000
 	};
 
 	enum {
-		kNewtonBufferSizeInFrames	= 0x750,
-		kNewtonBufferSize			= kNewtonBufferSizeInFrames * sizeof(KSInt16)
+		kNewtonBufferSizeInFrames = 0x750,
+		kNewtonBufferSize = kNewtonBufferSizeInFrames * sizeof(KSInt16)
 	};
 
 	///
 	/// Accessor on the interface to the log (may be null).
 	///
-	TLog*	GetLog( void ) const
-		{
-			return mLog;
-		}
+	TLog*
+	GetLog(void) const
+	{
+		return mLog;
+	}
 
 	///
 	/// Accessor on the interface to the memory.
 	///
-	TMemory*	GetMemory( void ) const
-		{
-			return mMemory;
-		}
+	TMemory*
+	GetMemory(void) const
+	{
+		return mMemory;
+	}
 
 	///
 	/// Raise input interrupt to ask for more data.
 	///
-	void	RaiseInputInterrupt( void ) const;
+	void RaiseInputInterrupt(void) const;
 
 	///
 	/// Raise output interrupt to ask for more data.
 	///
-	void	RaiseOutputInterrupt( void ) const;
+	void RaiseOutputInterrupt(void) const;
 
 private:
 	///
@@ -179,26 +189,26 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TSoundManager( const TSoundManager& inCopy );
+	TSoundManager(const TSoundManager& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TSoundManager& operator = ( const TSoundManager& inCopy );
+	TSoundManager& operator=(const TSoundManager& inCopy);
 
 	/// \name Variables
-	TLog*				mLog;				///< Reference to the log.
-	TInterruptManager*	mInterruptManager;	///< Reference to the interrupt mgr.
-	TMemory*			mMemory;			///< Interface to the memory.
-	KUInt32				mInputIntMask;		///< Input interrupt mask.
-	KUInt32				mOutputIntMask;		///< Output interrupt mask.
-	KUInt32				mOutputVolume;		///< Output sound volume.
+	TLog* mLog; ///< Reference to the log.
+	TInterruptManager* mInterruptManager; ///< Reference to the interrupt mgr.
+	TMemory* mMemory; ///< Interface to the memory.
+	KUInt32 mInputIntMask; ///< Input interrupt mask.
+	KUInt32 mOutputIntMask; ///< Output interrupt mask.
+	KUInt32 mOutputVolume; ///< Output sound volume.
 };
 
 #endif
-		// _TSOUNDMANAGER_H
+// _TSOUNDMANAGER_H
 
 // ========================================= //
 // TRANSACTION CANCELLED - FARECARD RETURNED //

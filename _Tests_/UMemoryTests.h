@@ -34,22 +34,22 @@ public:
 	/// Perform accesses that check both endianness and alignment with read
 	/// accesses.
 	///
-	static void ReadROMTest( TLog* inLog );
+	static void ReadROMTest(TLog* inLog);
 
 	///
 	/// Perform accesses that check both endianness and alignment with read
 	/// and write accesses.
 	///
-	static void ReadWriteRAMTest( TLog* inLog );
+	static void ReadWriteRAMTest(TLog* inLog);
 
 	///
 	/// Perform flash accesses.
 	///
-	static void FlashTest( TLog* inLog );
+	static void FlashTest(TLog* inLog);
 };
 
 #endif
-		// _UMEMORYTESTS_H
+// _UMEMORYTESTS_H
 
 // ===================================================================== //
 // "The eleventh commandment was `Thou Shalt Compute' or `Thou Shalt Not //

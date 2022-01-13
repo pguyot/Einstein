@@ -46,8 +46,8 @@ const char* const TNameServerSingleton::kType = "Kallisys";
 // ------------------------------------------------------------------------- //
 TNameServerSingleton*
 TNameServerSingleton::GetObject(
-								const char* inName,
-								const char* inType /* = kType */ )
+	const char* inName,
+	const char* inType /* = kType */)
 {
 	// Création d'un client pour le serveur de nom.
 	TUNameServer theNSClient;
@@ -56,8 +56,8 @@ TNameServerSingleton::GetObject(
 	ULong theVersion;
 	TNameServerSingleton* theResult = nil;
 
-	(void) theNSClient.Lookup( (char*) inName, (char*) inType,
-								(ULong*) &theResult, &theVersion );
+	(void) theNSClient.Lookup((char*) inName, (char*) inType,
+		(ULong*) &theResult, &theVersion);
 
 	return theResult;
 }
@@ -67,16 +67,16 @@ TNameServerSingleton::GetObject(
 // ------------------------------------------------------------------------- //
 NewtonErr
 TNameServerSingleton::CreateObject(
-								TNameServerSingleton* inObject,
-								const char* inName,
-								const char* inType /* = kType */ )
+	TNameServerSingleton* inObject,
+	const char* inName,
+	const char* inType /* = kType */)
 {
 	// Création d'un client pour le serveur de nom.
 	TUNameServer theNSClient;
 
 	// Enregistrement avec 0 pour la version.
-	return theNSClient.RegisterName( (char*) inName, (char*) inType,
-								(ULong) inObject, 0 );
+	return theNSClient.RegisterName((char*) inName, (char*) inType,
+		(ULong) inObject, 0);
 }
 
 // ------------------------------------------------------------------------- //
@@ -84,8 +84,8 @@ TNameServerSingleton::CreateObject(
 // ------------------------------------------------------------------------- //
 NewtonErr
 TNameServerSingleton::DeleteObject(
-								const char* inName,
-								const char* inType /* = kType */ )
+	const char* inName,
+	const char* inType /* = kType */)
 {
 	// Création d'un client pour le serveur de nom.
 	TUNameServer theNSClient;
@@ -94,15 +94,15 @@ TNameServerSingleton::DeleteObject(
 	ULong theVersion;
 	TNameServerSingleton* theObject = nil;
 
-	NewtonErr theErr = theNSClient.Lookup( (char*) inName, (char*) inType,
-								(ULong*) &theObject, &theVersion );
+	NewtonErr theErr = theNSClient.Lookup((char*) inName, (char*) inType,
+		(ULong*) &theObject, &theVersion);
 
 	// Si tout va bien, suppression de l'objet et de l'entrée dans le serveur
 	// de nom.
 	if (theErr == noErr)
 	{
 		// Suppression du serveur de nom.
-		theErr = theNSClient.UnRegisterName( (char*) inName, (char*) inType );
+		theErr = theNSClient.UnRegisterName((char*) inName, (char*) inType);
 
 		// Suppression de l'objet.
 		delete theObject;

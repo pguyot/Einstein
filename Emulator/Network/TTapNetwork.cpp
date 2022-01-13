@@ -26,35 +26,37 @@
 
 #if TARGET_OS_WIN32
 #else
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <sys/sockio.h>
-#include <sys/select.h>
 #include <net/if.h>
 #include <netinet/in.h>
+#include <sys/ioctl.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/sockio.h>
 #include <unistd.h>
 #endif
 #include "Emulator/TMemory.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
 
 TTapNetwork::TTapNetwork(TLog* inLog) :
-	TNetworkManager( inLog )
+		TNetworkManager(inLog)
 {
-    mBufferSize = 0;
-    mTapFileDescriptor = open("/dev/tap0", O_RDWR);
-    if (mTapFileDescriptor < 0) {
-        if (inLog) {
-            inLog->FLogLine("Could not open tap device ! (%i)", errno);
-        }
-    } else {
-        fcntl(mTapFileDescriptor, F_SETFL, O_NONBLOCK);
-        fd_set readSet;
-        FD_ZERO(&readSet);
-        FD_SET(mTapFileDescriptor, &readSet);
-        AsyncWaitForReadyToRead(mTapFileDescriptor + 1, &readSet);
-    }
+	mBufferSize = 0;
+	mTapFileDescriptor = open("/dev/tap0", O_RDWR);
+	if (mTapFileDescriptor < 0)
+	{
+		if (inLog)
+		{
+			inLog->FLogLine("Could not open tap device ! (%i)", errno);
+		}
+	} else
+	{
+		fcntl(mTapFileDescriptor, F_SETFL, O_NONBLOCK);
+		fd_set readSet;
+		FD_ZERO(&readSet);
+		FD_SET(mTapFileDescriptor, &readSet);
+		AsyncWaitForReadyToRead(mTapFileDescriptor + 1, &readSet);
+	}
 }
-
 
 TTapNetwork::~TTapNetwork()
 {
@@ -64,74 +66,84 @@ TTapNetwork::~TTapNetwork()
  * This function handles packet that are sent by the Newton to the outside
  * world.
  */
-int TTapNetwork::SendPacket(KUInt8 *data, KUInt32 size)
+int
+TTapNetwork::SendPacket(KUInt8* data, KUInt32 size)
 {
-    ssize_t nbWritten = write(mTapFileDescriptor, data, size);
-    if (nbWritten != size && mLog) {
+	ssize_t nbWritten = write(mTapFileDescriptor, data, size);
+	if (nbWritten != size && mLog)
+	{
 		mLog->FLogLine("Sending packet failed. (%i)", errno);
-    }
+	}
 
-    // Raise an interrupt if it sends a packet
-    // (actually, we should call AsyncWaitForReadyToRead only when the card
-    // is inserted).
-    if (mBufferSize > 0) {
-        mMemory->GetPCMCIAController(0)->RaiseInterrupt();
-    }
+	// Raise an interrupt if it sends a packet
+	// (actually, we should call AsyncWaitForReadyToRead only when the card
+	// is inserted).
+	if (mBufferSize > 0)
+	{
+		mMemory->GetPCMCIAController(0)->RaiseInterrupt();
+	}
 
 	return 0;
 }
 
-
-int TTapNetwork::GetDeviceAddress(KUInt8 *data, KUInt32 size)
+int
+TTapNetwork::GetDeviceAddress(KUInt8* data, KUInt32 size)
 {
-    (void)size;
-	static KUInt8 gLocalMAC[]   = { 0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23 };
-	assert(size==6);
+	(void) size;
+	static KUInt8 gLocalMAC[] = { 0x58, 0xb0, 0x35, 0x77, 0xd7, 0x23 };
+	assert(size == 6);
 	memcpy(data, gLocalMAC, 6);
 	return 0;
 }
 
-KUInt32 TTapNetwork::DataAvailable()
+KUInt32
+TTapNetwork::DataAvailable()
 {
-    if (mBufferSize == 0) {
-        ssize_t nbRead = read(mTapFileDescriptor, mBuffer, sizeof(mBuffer));
-        if (nbRead > 0) {
-            mBufferSize = (KUInt32)nbRead;
-        }
-    }
-    return mBufferSize;
+	if (mBufferSize == 0)
+	{
+		ssize_t nbRead = read(mTapFileDescriptor, mBuffer, sizeof(mBuffer));
+		if (nbRead > 0)
+		{
+			mBufferSize = (KUInt32) nbRead;
+		}
+	}
+	return mBufferSize;
 }
 
-
-int TTapNetwork::ReceiveData(KUInt8 *data, KUInt32 size)
+int
+TTapNetwork::ReceiveData(KUInt8* data, KUInt32 size)
 {
-    int result;
-	if (mBufferSize == size) {
+	int result;
+	if (mBufferSize == size)
+	{
 		memcpy(data, mBuffer, size);
 		mBufferSize = 0;
-        result = 0;
-	} else {
-	    if (mLog) {
-    		mLog->FLogLine("Tried to read %ui bytes, while %ui are available", size, mBufferSize);
-	    }
+		result = 0;
+	} else
+	{
+		if (mLog)
+		{
+			mLog->FLogLine("Tried to read %ui bytes, while %ui are available", size, mBufferSize);
+		}
 		result = -1;
 	}
-    // Asynchronously select for next packet.
-    fd_set readSet;
-    FD_ZERO(&readSet);
-    FD_SET(mTapFileDescriptor, &readSet);
-    AsyncWaitForReadyToRead(mTapFileDescriptor + 1, &readSet);
+	// Asynchronously select for next packet.
+	fd_set readSet;
+	FD_ZERO(&readSet);
+	FD_SET(mTapFileDescriptor, &readSet);
+	AsyncWaitForReadyToRead(mTapFileDescriptor + 1, &readSet);
 
-    return result;
+	return result;
 }
 
 // -------------------------------------------------------------------------- //
 //  * SetReadFDSet(fd_set* ioFDSet)
 // -------------------------------------------------------------------------- //
 int
-TTapNetwork::SetReadFDSet(fd_set* ioFDSet) {
-    FD_SET(mTapFileDescriptor, ioFDSet);
-    return mTapFileDescriptor + 1;
+TTapNetwork::SetReadFDSet(fd_set* ioFDSet)
+{
+	FD_SET(mTapFileDescriptor, ioFDSet);
+	return mTapFileDescriptor + 1;
 }
 
 // ================================================================== //

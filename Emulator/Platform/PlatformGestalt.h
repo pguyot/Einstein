@@ -25,36 +25,34 @@
 #define _PLATFORMGESTALT_H
 
 #if TARGET_OS_NEWTON
-	#include <Newton.h>
-	#include <AEvents.h>
-	typedef ULong	KUInt32;
-	typedef UChar	KUInt8;
+#include <AEvents.h>
+#include <Newton.h>
+typedef ULong KUInt32;
+typedef UChar KUInt8;
 #else
-	#include <K/Defines/KDefinitions.h>
+#include <K/Defines/KDefinitions.h>
 #endif
 
-
-#define kGestalt_Einstein_Base				0x03000001
-#define kGestalt_Einstein_EmulatorInfo		(kGestalt_Einstein_Base + 1)
+#define kGestalt_Einstein_Base 0x03000001
+#define kGestalt_Einstein_EmulatorInfo (kGestalt_Einstein_Base + 1)
 
 // Version
-#define	kDR1Version	0x00010000
-#define	kDR2Version	0x00010001
-#define	kUP1Version	0x00010002
-#define	kUP2Version	0x00010003
+#define kDR1Version 0x00010000
+#define kDR2Version 0x00010001
+#define kUP1Version 0x00010002
+#define kUP2Version 0x00010003
 
 // Host CPU.
 
-struct SGestaltEinsteinEmulatorInfo
-{
-	KUInt32	fVersion;					///< Current version.
+struct SGestaltEinsteinEmulatorInfo {
+	KUInt32 fVersion; ///< Current version.
 };
 
 // constant kGestaltArg_EinsteinEmulatorInfo := '[0x03000002, [struct,long], 1];
 // constant kDR1Version := 0x00010000;
 
 #endif
-		// _PLATFORMGESTALT_H
+// _PLATFORMGESTALT_H
 
 // =============================================================== //
 // Science is to computer science as hydrodynamics is to plumbing. //

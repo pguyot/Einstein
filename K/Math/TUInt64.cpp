@@ -39,7 +39,7 @@
 //	* operator += ( const KUInt32 )
 // --------------------------------------------------------------------	//
 TUInt64&
-TUInt64::operator += ( const KUInt32 inArgument )
+TUInt64::operator+=(const KUInt32 inArgument)
 {
 	// Addition avec détection de la retenue.
 	// Si on a retenue, la somme est plus petite que chacunes des opérandes.
@@ -56,7 +56,7 @@ TUInt64::operator += ( const KUInt32 inArgument )
 //	* operator += ( const TUInt64& )
 // --------------------------------------------------------------------	//
 TUInt64&
-TUInt64::operator += ( const TUInt64& inArgument )
+TUInt64::operator+=(const TUInt64& inArgument)
 {
 	// Idem.
 	KUInt32 ancienLo = mLo;
@@ -75,7 +75,7 @@ TUInt64::operator += ( const TUInt64& inArgument )
 //	* operator -= ( const KUInt32 )
 // --------------------------------------------------------------------	//
 TUInt64&
-TUInt64::operator -= ( const KUInt32 inArgument )
+TUInt64::operator-=(const KUInt32 inArgument)
 {
 	// Soustraction avec détection de la retenue.
 	// Si on a retenue, la différence est plus grande que chacunes des opérandes.
@@ -92,7 +92,7 @@ TUInt64::operator -= ( const KUInt32 inArgument )
 //	* operator -= ( const TUInt64 )
 // --------------------------------------------------------------------	//
 TUInt64&
-TUInt64::operator -= ( const TUInt64& inArgument )
+TUInt64::operator-=(const TUInt64& inArgument)
 {
 	// Idem.
 	KUInt32 ancienLo = mLo;
@@ -111,7 +111,7 @@ TUInt64::operator -= ( const TUInt64& inArgument )
 //	* operator /= ( const KUInt32 )
 // --------------------------------------------------------------------	//
 TUInt64&
-TUInt64::operator /= ( const KUInt32 inArgument )
+TUInt64::operator/=(const KUInt32 inArgument)
 {
 	*this = *this / inArgument;
 
@@ -122,7 +122,7 @@ TUInt64::operator /= ( const KUInt32 inArgument )
 //	* operator /= ( const TUInt64& )
 // --------------------------------------------------------------------	//
 TUInt64&
-TUInt64::operator /= ( const TUInt64& inArgument )
+TUInt64::operator/=(const TUInt64& inArgument)
 {
 	*this = *this / inArgument;
 
@@ -133,7 +133,7 @@ TUInt64::operator /= ( const TUInt64& inArgument )
 //	* operator %= ( const KUInt32 )
 // --------------------------------------------------------------------	//
 TUInt64&
-TUInt64::operator %= ( const KUInt32 inArgument )
+TUInt64::operator%=(const KUInt32 inArgument)
 {
 	*this = *this % inArgument;
 
@@ -144,7 +144,7 @@ TUInt64::operator %= ( const KUInt32 inArgument )
 //	* operator %= ( const TUInt64& )
 // --------------------------------------------------------------------	//
 TUInt64&
-TUInt64::operator %= ( const TUInt64& inArgument )
+TUInt64::operator%=(const TUInt64& inArgument)
 {
 	*this = *this % inArgument;
 
@@ -155,7 +155,7 @@ TUInt64::operator %= ( const TUInt64& inArgument )
 //	* operator *= ( const KUInt32 )
 // --------------------------------------------------------------------	//
 TUInt64&
-TUInt64::operator *= ( const KUInt32 inArgument )
+TUInt64::operator*=(const KUInt32 inArgument)
 {
 	// A la Russian Peasant
 	// *this joue le rôle de l'entier de gauche.
@@ -182,7 +182,7 @@ TUInt64::operator *= ( const KUInt32 inArgument )
 //	* operator *= ( const TUInt64& )
 // --------------------------------------------------------------------	//
 TUInt64&
-TUInt64::operator *= ( const TUInt64& inArgument )
+TUInt64::operator*=(const TUInt64& inArgument)
 {
 	// Idem
 	TUInt64 theResult = 0;
@@ -208,7 +208,7 @@ TUInt64::operator *= ( const TUInt64& inArgument )
 //	* operator >>= ( const int )
 // --------------------------------------------------------------------	//
 TUInt64&
-TUInt64::operator >>= ( const int inArgument )
+TUInt64::operator>>=(const int inArgument)
 {
 	if (inArgument < 32)
 	{
@@ -223,7 +223,8 @@ TUInt64::operator >>= ( const int inArgument )
 	{
 		mLo = mHi >> (inArgument - 32);
 		mHi = 0;
-	} else {
+	} else
+	{
 		mHi = 0;
 		mLo = 0;
 	}
@@ -235,7 +236,7 @@ TUInt64::operator >>= ( const int inArgument )
 //	* operator <<= ( const int )
 // --------------------------------------------------------------------	//
 TUInt64&
-TUInt64::operator <<= ( const int inArgument )
+TUInt64::operator<<=(const int inArgument)
 {
 	if (inArgument < 32)
 	{
@@ -250,7 +251,8 @@ TUInt64::operator <<= ( const int inArgument )
 	{
 		mHi = mLo << (inArgument - 32);
 		mLo = 0;
-	} else {
+	} else
+	{
 		mHi = 0;
 		mLo = 0;
 	}
@@ -263,10 +265,10 @@ TUInt64::operator <<= ( const int inArgument )
 // --------------------------------------------------------------------	//
 void
 TUInt64::EuclideanDivision(
-		TUInt64& outQuotient,
-		TUInt64& outRemainder,
-		const TUInt64& inDividend,
-		const TUInt64& inDivisor )
+	TUInt64& outQuotient,
+	TUInt64& outRemainder,
+	const TUInt64& inDividend,
+	const TUInt64& inDivisor)
 {
 	// Cas faciles (pour s'en débarrasser dès maintenant).
 	if (inDivisor == inDividend)
@@ -292,7 +294,7 @@ TUInt64::EuclideanDivision(
 		decalages++;
 
 		if (leDiviseur.ShiftLeft())
-			break;	// Overflow.
+			break; // Overflow.
 	}
 
 	// On l'a fait une fois de trop.
@@ -304,7 +306,7 @@ TUInt64::EuclideanDivision(
 	outRemainder = inDividend;
 	outQuotient = 0;
 
-	for(; decalages >= 0; decalages--)
+	for (; decalages >= 0; decalages--)
 	{
 		// On multiplie le quotient par 2
 		(void) outQuotient.ShiftLeft();
@@ -325,7 +327,7 @@ TUInt64::EuclideanDivision(
 //	* Add( const TUInt64& )
 // --------------------------------------------------------------------	//
 bool
-TUInt64::Add( const TUInt64& inArgument )
+TUInt64::Add(const TUInt64& inArgument)
 {
 	KUInt32 ancienLo = mLo;
 	KUInt32 ancienHi = mHi;
@@ -346,7 +348,7 @@ TUInt64::Add( const TUInt64& inArgument )
 //	* operator == ( const TUInt64&, KUInt32 )
 // --------------------------------------------------------------------	//
 bool
-operator == ( const TUInt64& inArgOne, const KUInt32 inArgTwo )
+operator==(const TUInt64& inArgOne, const KUInt32 inArgTwo)
 {
 	return (inArgOne.GetHi() == 0)
 		&& (inArgOne.GetLo() == inArgTwo);
@@ -356,7 +358,7 @@ operator == ( const TUInt64& inArgOne, const KUInt32 inArgTwo )
 //	* operator == ( KUInt32, const TUInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator == ( const KUInt32 inArgOne, const TUInt64& inArgTwo )
+operator==(const KUInt32 inArgOne, const TUInt64& inArgTwo)
 {
 	return (inArgTwo.GetHi() == 0)
 		&& (inArgTwo.GetLo() == inArgOne);
@@ -366,7 +368,7 @@ operator == ( const KUInt32 inArgOne, const TUInt64& inArgTwo )
 //	* operator != ( const TUInt64&, KUInt32 )
 // --------------------------------------------------------------------	//
 bool
-operator != ( const TUInt64& inArgOne, const KUInt32 inArgTwo )
+operator!=(const TUInt64& inArgOne, const KUInt32 inArgTwo)
 {
 	return (inArgOne.GetHi() != 0)
 		|| (inArgOne.GetLo() != inArgTwo);
@@ -376,7 +378,7 @@ operator != ( const TUInt64& inArgOne, const KUInt32 inArgTwo )
 //	* operator != ( KUInt32, const TUInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator != ( const KUInt32 inArgOne, const TUInt64& inArgTwo )
+operator!=(const KUInt32 inArgOne, const TUInt64& inArgTwo)
 {
 	return (inArgTwo.GetHi() != 0)
 		|| (inArgTwo.GetLo() != inArgOne);
@@ -386,7 +388,7 @@ operator != ( const KUInt32 inArgOne, const TUInt64& inArgTwo )
 //	* operator <= ( const TUInt64&, KUInt32 )
 // --------------------------------------------------------------------	//
 bool
-operator <= ( const TUInt64& inArgOne, const KUInt32 inArgTwo )
+operator<=(const TUInt64& inArgOne, const KUInt32 inArgTwo)
 {
 	return (inArgOne.GetHi() == 0)
 		&& (inArgOne.GetLo() <= inArgTwo);
@@ -396,7 +398,7 @@ operator <= ( const TUInt64& inArgOne, const KUInt32 inArgTwo )
 //	* operator <= ( KUInt32, const TUInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator <= ( const KUInt32 inArgOne, const TUInt64& inArgTwo )
+operator<=(const KUInt32 inArgOne, const TUInt64& inArgTwo)
 {
 	return (inArgTwo.GetHi() > 0)
 		|| (inArgTwo.GetLo() >= inArgOne);
@@ -406,7 +408,7 @@ operator <= ( const KUInt32 inArgOne, const TUInt64& inArgTwo )
 //	* operator <= ( const TUInt64&, const TUInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator <= ( const TUInt64& inArgOne, const TUInt64& inArgTwo )
+operator<=(const TUInt64& inArgOne, const TUInt64& inArgTwo)
 {
 	return ((inArgOne.GetHi() < inArgTwo.GetHi())
 		|| ((inArgOne.GetHi() == inArgTwo.GetHi())
@@ -417,7 +419,7 @@ operator <= ( const TUInt64& inArgOne, const TUInt64& inArgTwo )
 //	* operator >= ( const TUInt64&, KUInt32 )
 // --------------------------------------------------------------------	//
 bool
-operator >= ( const TUInt64& inArgOne, const KUInt32 inArgTwo )
+operator>=(const TUInt64& inArgOne, const KUInt32 inArgTwo)
 {
 	return (inArgOne.GetHi() > 0)
 		|| (inArgOne.GetLo() >= inArgTwo);
@@ -427,7 +429,7 @@ operator >= ( const TUInt64& inArgOne, const KUInt32 inArgTwo )
 //	* operator >= ( KUInt32, const TUInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator >= ( const KUInt32 inArgOne, const TUInt64& inArgTwo )
+operator>=(const KUInt32 inArgOne, const TUInt64& inArgTwo)
 {
 	return (inArgTwo.GetHi() == 0)
 		&& (inArgTwo.GetLo() <= inArgOne);
@@ -437,7 +439,7 @@ operator >= ( const KUInt32 inArgOne, const TUInt64& inArgTwo )
 //	* operator >= ( const TUInt64&, const TUInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator >= ( const TUInt64& inArgOne, const TUInt64& inArgTwo )
+operator>=(const TUInt64& inArgOne, const TUInt64& inArgTwo)
 {
 	return ((inArgOne.GetHi() > inArgTwo.GetHi())
 		|| ((inArgOne.GetHi() == inArgTwo.GetHi())
@@ -448,7 +450,7 @@ operator >= ( const TUInt64& inArgOne, const TUInt64& inArgTwo )
 //	* operator < ( const TUInt64&, KUInt32 )
 // --------------------------------------------------------------------	//
 bool
-operator < ( const TUInt64& inArgOne, const KUInt32 inArgTwo )
+operator<(const TUInt64& inArgOne, const KUInt32 inArgTwo)
 {
 	return (inArgOne.GetHi() == 0)
 		&& (inArgOne.GetLo() < inArgTwo);
@@ -458,7 +460,7 @@ operator < ( const TUInt64& inArgOne, const KUInt32 inArgTwo )
 //	* operator < ( KUInt32, const TUInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator < ( const KUInt32 inArgOne, const TUInt64& inArgTwo )
+operator<(const KUInt32 inArgOne, const TUInt64& inArgTwo)
 {
 	return (inArgTwo.GetHi() > 0)
 		|| (inArgTwo.GetLo() > inArgOne);
@@ -468,7 +470,7 @@ operator < ( const KUInt32 inArgOne, const TUInt64& inArgTwo )
 //	* operator < ( const TUInt64&, const TUInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator < ( const TUInt64& inArgOne, const TUInt64& inArgTwo )
+operator<(const TUInt64& inArgOne, const TUInt64& inArgTwo)
 {
 	return ((inArgOne.GetHi() < inArgTwo.GetHi())
 		|| ((inArgOne.GetHi() == inArgTwo.GetHi())
@@ -479,7 +481,7 @@ operator < ( const TUInt64& inArgOne, const TUInt64& inArgTwo )
 //	* operator > ( const TUInt64&, KUInt32 )
 // --------------------------------------------------------------------	//
 bool
-operator > ( const TUInt64& inArgOne, const KUInt32 inArgTwo )
+operator>(const TUInt64& inArgOne, const KUInt32 inArgTwo)
 {
 	return (inArgOne.GetHi() > 0)
 		|| (inArgOne.GetLo() > inArgTwo);
@@ -489,7 +491,7 @@ operator > ( const TUInt64& inArgOne, const KUInt32 inArgTwo )
 //	* operator > ( KUInt32, const TUInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator > ( const KUInt32 inArgOne, const TUInt64& inArgTwo )
+operator>(const KUInt32 inArgOne, const TUInt64& inArgTwo)
 {
 	return (inArgTwo.GetHi() == 0)
 		&& (inArgTwo.GetLo() < inArgOne);
@@ -499,7 +501,7 @@ operator > ( const KUInt32 inArgOne, const TUInt64& inArgTwo )
 //	* operator > ( const TUInt64&, const TUInt64& )
 // --------------------------------------------------------------------	//
 bool
-operator > ( const TUInt64& inArgOne, const TUInt64& inArgTwo )
+operator>(const TUInt64& inArgOne, const TUInt64& inArgTwo)
 {
 	return ((inArgOne.GetHi() > inArgTwo.GetHi())
 		|| ((inArgOne.GetHi() == inArgTwo.GetHi())
@@ -510,11 +512,11 @@ operator > ( const TUInt64& inArgOne, const TUInt64& inArgTwo )
 //	* operator / ( const TUInt64&, const KUInt32 )
 // --------------------------------------------------------------------	//
 TUInt64
-operator / ( const TUInt64& inEntierUn,
-		const KUInt32 inEntierDeux )
+operator/(const TUInt64& inEntierUn,
+	const KUInt32 inEntierDeux)
 {
 	TUInt64 leQuotient, leReste;
-	TUInt64::EuclideanDivision( leQuotient, leReste, inEntierUn, TUInt64( inEntierDeux ) );
+	TUInt64::EuclideanDivision(leQuotient, leReste, inEntierUn, TUInt64(inEntierDeux));
 
 	return leQuotient;
 }
@@ -523,11 +525,11 @@ operator / ( const TUInt64& inEntierUn,
 //	* operator / ( const TUInt64&, const TUInt64& )
 // --------------------------------------------------------------------	//
 TUInt64
-operator / ( const TUInt64& inEntierUn,
-		const TUInt64& inEntierDeux )
+operator/(const TUInt64& inEntierUn,
+	const TUInt64& inEntierDeux)
 {
 	TUInt64 leQuotient, leReste;
-	TUInt64::EuclideanDivision( leQuotient, leReste, inEntierUn, inEntierDeux );
+	TUInt64::EuclideanDivision(leQuotient, leReste, inEntierUn, inEntierDeux);
 
 	return leQuotient;
 }
@@ -536,11 +538,11 @@ operator / ( const TUInt64& inEntierUn,
 //	* operator % ( const TUInt64&, const KUInt32 )
 // --------------------------------------------------------------------	//
 TUInt64
-operator % ( const TUInt64& inEntierUn,
-		const KUInt32 inEntierDeux )
+operator%(const TUInt64& inEntierUn,
+	const KUInt32 inEntierDeux)
 {
 	TUInt64 leQuotient, leReste;
-	TUInt64::EuclideanDivision( leQuotient, leReste, inEntierUn, TUInt64( inEntierDeux ) );
+	TUInt64::EuclideanDivision(leQuotient, leReste, inEntierUn, TUInt64(inEntierDeux));
 
 	return leReste;
 }
@@ -549,11 +551,11 @@ operator % ( const TUInt64& inEntierUn,
 //	* operator % ( const TUInt64&, const TUInt64& )
 // --------------------------------------------------------------------	//
 TUInt64
-operator % ( const TUInt64& inEntierUn,
-		const TUInt64& inEntierDeux )
+operator%(const TUInt64& inEntierUn,
+	const TUInt64& inEntierDeux)
 {
 	TUInt64 leQuotient, leReste;
-	TUInt64::EuclideanDivision( leQuotient, leReste, inEntierUn, inEntierDeux );
+	TUInt64::EuclideanDivision(leQuotient, leReste, inEntierUn, inEntierDeux);
 
 	return leReste;
 }
@@ -562,9 +564,9 @@ operator % ( const TUInt64& inEntierUn,
 //	* operator ~ ( void ) const
 // --------------------------------------------------------------------	//
 TUInt64
-TUInt64::operator ~ ( void ) const
+TUInt64::operator~(void) const
 {
-	return TUInt64( ~mHi, ~mLo );
+	return TUInt64(~mHi, ~mLo);
 }
 
 // ========================================================================= //

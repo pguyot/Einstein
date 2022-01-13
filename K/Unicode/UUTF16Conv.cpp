@@ -32,8 +32,8 @@
 
 #include <K/Unicode/UUTF16Conv.h>
 
-#include <K/Unicode/UnicodeDefinitions.h>
 #include <K/Defines/UByteSex.h>
+#include <K/Unicode/UnicodeDefinitions.h>
 
 // OK, I shouldn't duplicate code, but there is a balance between code duplication rule and speed.
 // And unicode conversion functions, especially in some projects such as NIL, has to be done quickly.
@@ -43,11 +43,10 @@
 // ========================	//
 
 #if ARMCPP
-	#define kSubstituteChar 0x001A
+#define kSubstituteChar 0x001A
 #else
-	const KUInt16 UUTF16Conv::kSubstituteChar = 0x001A;
+const KUInt16 UUTF16Conv::kSubstituteChar = 0x001A;
 #endif
-
 
 // ============================	//
 //			ISO 8859-1			//
@@ -61,21 +60,21 @@
 
 UUTF16Conv::EResult
 UUTF16Conv::ToISO88591(
-	const KUInt16*	inInputBuffer,		// Input Unicode string
-	size_t*			ioInputCount,		// On input: number of unicode 16 bits chars in the buffer
-										// On output: number of unicode 16 bits chars eaten from the buffer
-	KUInt8*			outOutputBuffer,	// Output ISO8859-1 string
-	size_t*			ioOutputCount,		// On input: number of bytes/chars available in the buffer
-										// On output: number of bytes/chars used in the buffer
-	EToOpt			inConvertToOpt		// Option for the transcoder.
-	)
+	const KUInt16* inInputBuffer, // Input Unicode string
+	size_t* ioInputCount, // On input: number of unicode 16 bits chars in the buffer
+						  // On output: number of unicode 16 bits chars eaten from the buffer
+	KUInt8* outOutputBuffer, // Output ISO8859-1 string
+	size_t* ioOutputCount, // On input: number of bytes/chars available in the buffer
+						   // On output: number of bytes/chars used in the buffer
+	EToOpt inConvertToOpt // Option for the transcoder.
+)
 {
-	EResult theResult = kInputExhausted;	// Default is to exhaust input.
+	EResult theResult = kInputExhausted; // Default is to exhaust input.
 
-	size_t inputSize = *ioInputCount;	// This is (nearly) just an optimization of the loop.
-	size_t outputLeft = *ioOutputCount;	// Number of bytes left in the output buffer.
+	size_t inputSize = *ioInputCount; // This is (nearly) just an optimization of the loop.
+	size_t outputLeft = *ioOutputCount; // Number of bytes left in the output buffer.
 
-	size_t index_done;					// Number of UTF-16 words eaten so far.
+	size_t index_done; // Number of UTF-16 words eaten so far.
 	for (index_done = 0; index_done < inputSize; index_done++)
 	{
 		// Check that we have enough space left in the output buffer.
@@ -85,9 +84,9 @@ UUTF16Conv::ToISO88591(
 			break;
 		}
 
-		KUInt16 theUnicodeChar = UByteSex_FromBigEndian( *inInputBuffer );	// Current character.
-												// Input buffer is big endian, so I might need to convert it.
-		if (theUnicodeChar >= 0x0100)	// is MSB not null?
+		KUInt16 theUnicodeChar = UByteSex_FromBigEndian(*inInputBuffer); // Current character.
+																		 // Input buffer is big endian, so I might need to convert it.
+		if (theUnicodeChar >= 0x0100) // is MSB not null?
 		{
 			// Two cases here.
 			if ((theUnicodeChar >= 0xD800) && (theUnicodeChar < 0xE000))
@@ -97,30 +96,32 @@ UUTF16Conv::ToISO88591(
 				if (inputSize - index_done - 1)
 				{
 					index_done++;
-				} else {
+				} else
+				{
 					// inputSize == index_done - 1, i.e. last character of the input string.
 					theResult = kMiddleOfMultiChar;
 					break;
 				}
 			} // else
-				// (b) it's not.
-				// I don't do anything in that case.
+			  // (b) it's not.
+			  // I don't do anything in that case.
 
 			// In any case, this is an unrepresentable char.
 			// What's the option?
 			if (inConvertToOpt == kRepCharOnUnrepChar)
 			{
 				theUnicodeChar = kSubstituteChar;
-			} else {
+			} else
+			{
 				// Stop.
 				theResult = kUnrepCharEncountered;
 				break;
 			}
 		}
 
-		*outOutputBuffer = (KUInt8) theUnicodeChar;	// Fill the output buffer.
+		*outOutputBuffer = (KUInt8) theUnicodeChar; // Fill the output buffer.
 
-		inInputBuffer++;	// Next character
+		inInputBuffer++; // Next character
 		outOutputBuffer++;
 		outputLeft--;
 	}
@@ -139,18 +140,18 @@ UUTF16Conv::ToISO88591(
 
 void
 UUTF16Conv::FromISO88591(
-	const KUInt8*	inInputBuffer,		// Input ISO-8859-1 string
-	KUInt16*			outOutputBuffer,	// Output Unicode string
-	size_t			inCount				// Number of bytes/words available in both buffers
-	)
+	const KUInt8* inInputBuffer, // Input ISO-8859-1 string
+	KUInt16* outOutputBuffer, // Output Unicode string
+	size_t inCount // Number of bytes/words available in both buffers
+)
 {
 	for (; inCount; inCount--)
 	{
-		*outOutputBuffer = UByteSex_ToBigEndian( (KUInt16) *inInputBuffer );
-											// Fill the output buffer.
-											// Output buffer is big endian.
+		*outOutputBuffer = UByteSex_ToBigEndian((KUInt16) *inInputBuffer);
+		// Fill the output buffer.
+		// Output buffer is big endian.
 
-		inInputBuffer++;	// Next character
+		inInputBuffer++; // Next character
 		outOutputBuffer++;
 	}
 }
@@ -164,8 +165,7 @@ UUTF16Conv::FromISO88591(
 // Sorted (in reverse order) by unicode chars.
 // Last element is 0,0 so I'm sure to get out of the loop with unrepresentable
 // set to true for chars < 0x0102
-const KUInt16 UUTF16Conv::kToISO88592Table[58][2] =
-{
+const KUInt16 UUTF16Conv::kToISO88592Table[58][2] = {
 	{ 0xBD, 0x02DD }, { 0xB2, 0x02DB }, { 0xFF, 0x02D9 }, { 0xA2, 0x02D8 },
 	{ 0xB7, 0x02C7 }, { 0xBE, 0x017E }, { 0xAE, 0x017D }, { 0xBF, 0x017C },
 	{ 0xAF, 0x017B }, { 0xBC, 0x017A }, { 0xAC, 0x0179 }, { 0xFB, 0x0171 },
@@ -185,8 +185,7 @@ const KUInt16 UUTF16Conv::kToISO88592Table[58][2] =
 
 // Mappings for chars from 0x00A0
 // Also used in the to conversion to check that a char 00XX is indeed within ISO 8859-2
-const KUInt16 UUTF16Conv::kFromISO88592Table[0x60] =
-{
+const KUInt16 UUTF16Conv::kFromISO88592Table[0x60] = {
 	0x00A0, 0x0104, 0x02D8, 0x0141, 0x00A4, 0x013D, 0x015A, 0x00A7,
 	0x00A8, 0x0160, 0x015E, 0x0164, 0x0179, 0x00AD, 0x017D, 0x017B,
 	0x00B0, 0x0105, 0x02DB, 0x0142, 0x00B4, 0x013E, 0x015B, 0x02C7,
@@ -208,21 +207,21 @@ const KUInt16 UUTF16Conv::kFromISO88592Table[0x60] =
 
 UUTF16Conv::EResult
 UUTF16Conv::ToISO88592(
-	const KUInt16*	inInputBuffer,		// Input Unicode string
-	size_t*			ioInputCount,		// On input: number of unicode 16 bits chars in the buffer
-										// On output: number of unicode 16 bits chars eaten from the buffer
-	KUInt8*			outOutputBuffer,	// Output ISO8859-2 string
-	size_t*			ioOutputCount,		// On input: number of bytes/chars available in the buffer
-										// On output: number of bytes/chars used in the buffer
-	EToOpt			inConvertToOpt		// Option for the transcoder.
-	)
+	const KUInt16* inInputBuffer, // Input Unicode string
+	size_t* ioInputCount, // On input: number of unicode 16 bits chars in the buffer
+						  // On output: number of unicode 16 bits chars eaten from the buffer
+	KUInt8* outOutputBuffer, // Output ISO8859-2 string
+	size_t* ioOutputCount, // On input: number of bytes/chars available in the buffer
+						   // On output: number of bytes/chars used in the buffer
+	EToOpt inConvertToOpt // Option for the transcoder.
+)
 {
-	EResult theResult = kInputExhausted;	// Default is to exhaust input.
+	EResult theResult = kInputExhausted; // Default is to exhaust input.
 
-	size_t inputSize = *ioInputCount;	// This is (nearly) just an optimization of the loop.
-	size_t outputLeft = *ioOutputCount;	// Number of bytes left in the output buffer.
+	size_t inputSize = *ioInputCount; // This is (nearly) just an optimization of the loop.
+	size_t outputLeft = *ioOutputCount; // Number of bytes left in the output buffer.
 
-	size_t index_done;					// Number of UTF-16 words eaten so far.
+	size_t index_done; // Number of UTF-16 words eaten so far.
 	for (index_done = 0; index_done < inputSize; index_done++)
 	{
 		// Check that we have enough space left in the output buffer.
@@ -232,11 +231,11 @@ UUTF16Conv::ToISO88592(
 			break;
 		}
 
-		KUInt16 theUnicodeChar = UByteSex_FromBigEndian( *inInputBuffer );	// Current character.
-												// Input buffer is big endian, so I might need to convert it.
-		if (theUnicodeChar > 0x00A0)			// 0x00A0 and anything below is translated to the same value casted to 8 bits.
+		KUInt16 theUnicodeChar = UByteSex_FromBigEndian(*inInputBuffer); // Current character.
+																		 // Input buffer is big endian, so I might need to convert it.
+		if (theUnicodeChar > 0x00A0) // 0x00A0 and anything below is translated to the same value casted to 8 bits.
 		{
-			Boolean unrepresentable = false;		// Flag to know if an unrepresentable character has been met.
+			Boolean unrepresentable = false; // Flag to know if an unrepresentable character has been met.
 			// Two cases: the Unicode char is < 0x0100: check that we have 0x00XX -> 0xXX with the From table.
 			// the Unicode char is >= 0x0100: use the To table.
 
@@ -250,26 +249,28 @@ UUTF16Conv::ToISO88592(
 					if (inputSize - index_done - 1)
 					{
 						index_done++;
-					} else {
+					} else
+					{
 						// inputSize == index_done - 1, i.e. last character of the input string.
 						theResult = kMiddleOfMultiChar;
 						break;
 					}
-				} else {
+				} else
+				{
 					// (b) it's not.
 
 					// Iterate in the To table.
 					int indexToTable = 0;
-					while(1)	// Because last element of the table is 0,0, I'm sure to get out of the loop.
+					while (1) // Because last element of the table is 0,0, I'm sure to get out of the loop.
 					{
-						KUInt16 theChar	// Element of the table.
-							= kToISO88592Table[ indexToTable ][1];
+						KUInt16 theChar // Element of the table.
+							= kToISO88592Table[indexToTable][1];
 						if (theUnicodeChar == theChar)
 						{
-							theUnicodeChar = kToISO88592Table[ indexToTable ][0];
+							theUnicodeChar = kToISO88592Table[indexToTable][0];
 							break;
 						}
-						if (theUnicodeChar > theChar)	// Characters in the to table are sorted (in descending order)
+						if (theUnicodeChar > theChar) // Characters in the to table are sorted (in descending order)
 						{
 							// Not found.
 							unrepresentable = true;
@@ -279,7 +280,8 @@ UUTF16Conv::ToISO88592(
 						indexToTable++;
 					}
 				} // if ((theUnicodeChar >= 0xD800) && (theUnicodeChar < 0xE000))
-			} else {
+			} else
+			{
 				// Check that we have 0x00XX -> 0xXX with the From table.
 				if (kFromISO88592Table[theUnicodeChar - 0xA0] != theUnicodeChar)
 					unrepresentable = true;
@@ -292,7 +294,8 @@ UUTF16Conv::ToISO88592(
 				if (inConvertToOpt == kRepCharOnUnrepChar)
 				{
 					theUnicodeChar = kSubstituteChar;
-				} else {
+				} else
+				{
 					// Stop.
 					theResult = kUnrepCharEncountered;
 					break;
@@ -300,9 +303,9 @@ UUTF16Conv::ToISO88592(
 			}
 		} // else { ... } : nothing to do as 0x0000-0x00A0 -> same value truncated to 8 bits.
 
-		*outOutputBuffer = (KUInt8) theUnicodeChar;	// Fill the output buffer.
+		*outOutputBuffer = (KUInt8) theUnicodeChar; // Fill the output buffer.
 
-		inInputBuffer++;	// Next character
+		inInputBuffer++; // Next character
 		outOutputBuffer++;
 		outputLeft--;
 	}
@@ -321,23 +324,23 @@ UUTF16Conv::ToISO88592(
 
 void
 UUTF16Conv::FromISO88592(
-	const KUInt8*	inInputBuffer,		// Input ISO-8859-2 string
-	KUInt16*			outOutputBuffer,	// Output Unicode string
-	size_t			inCount				// Number of bytes/words available in both buffers
-	)
+	const KUInt8* inInputBuffer, // Input ISO-8859-2 string
+	KUInt16* outOutputBuffer, // Output Unicode string
+	size_t inCount // Number of bytes/words available in both buffers
+)
 {
 	for (; inCount; inCount--)
 	{
-		KUInt16 theISOChar = (KUInt16) *inInputBuffer;	// Current character.
-		if (theISOChar > 0xA0)	// 0x00A0 and anything below is translated to the same value casted to 16 bits.
+		KUInt16 theISOChar = (KUInt16) *inInputBuffer; // Current character.
+		if (theISOChar > 0xA0) // 0x00A0 and anything below is translated to the same value casted to 16 bits.
 		{
 			theISOChar = kFromISO88592Table[theISOChar - 0xA0];
 		}
-		*outOutputBuffer = UByteSex_ToBigEndian( theISOChar );
-											// Fill the output buffer.
-											// Output buffer is big endian.
+		*outOutputBuffer = UByteSex_ToBigEndian(theISOChar);
+		// Fill the output buffer.
+		// Output buffer is big endian.
 
-		inInputBuffer++;	// Next character
+		inInputBuffer++; // Next character
 		outOutputBuffer++;
 	}
 }
@@ -354,21 +357,21 @@ UUTF16Conv::FromISO88592(
 
 UUTF16Conv::EResult
 UUTF16Conv::ToASCII(
-	const KUInt16*	inInputBuffer,		// Input Unicode string
-	size_t*			ioInputCount,		// On input: number of unicode 16 bits chars in the buffer
-										// On output: number of unicode 16 bits chars eaten from the buffer
-	KUInt8*			outOutputBuffer,	// Output ASCII string
-	size_t*			ioOutputCount,		// On input: number of bytes/chars available in the buffer
-										// On output: number of bytes/chars used in the buffer
-	EToOpt			inConvertToOpt		// Option for the transcoder.
-	)
+	const KUInt16* inInputBuffer, // Input Unicode string
+	size_t* ioInputCount, // On input: number of unicode 16 bits chars in the buffer
+						  // On output: number of unicode 16 bits chars eaten from the buffer
+	KUInt8* outOutputBuffer, // Output ASCII string
+	size_t* ioOutputCount, // On input: number of bytes/chars available in the buffer
+						   // On output: number of bytes/chars used in the buffer
+	EToOpt inConvertToOpt // Option for the transcoder.
+)
 {
-	EResult theResult = kInputExhausted;	// Default is to exhaust input.
+	EResult theResult = kInputExhausted; // Default is to exhaust input.
 
-	size_t inputSize = *ioInputCount;		// This is (nearly) just an optimization of the loop.
-	size_t outputLeft = *ioOutputCount;		// Number of bytes left in the output buffer.
+	size_t inputSize = *ioInputCount; // This is (nearly) just an optimization of the loop.
+	size_t outputLeft = *ioOutputCount; // Number of bytes left in the output buffer.
 
-	size_t index_done;						// Number of UTF-16 words eaten so far.
+	size_t index_done; // Number of UTF-16 words eaten so far.
 	for (index_done = 0; index_done < inputSize; index_done++)
 	{
 		// Check that we have enough space left in the output buffer.
@@ -378,9 +381,9 @@ UUTF16Conv::ToASCII(
 			break;
 		}
 
-		KUInt16 theUnicodeChar = UByteSex_FromBigEndian( *inInputBuffer );	// Current character.
-												// Input buffer is big endian, so I might need to convert it.
-		if (theUnicodeChar >= 0x0080)			// Anything greater than 0x7F is unrepresentable.
+		KUInt16 theUnicodeChar = UByteSex_FromBigEndian(*inInputBuffer); // Current character.
+																		 // Input buffer is big endian, so I might need to convert it.
+		if (theUnicodeChar >= 0x0080) // Anything greater than 0x7F is unrepresentable.
 		{
 			// Two cases here.
 			if ((theUnicodeChar >= 0xD800) && (theUnicodeChar < 0xE000))
@@ -390,30 +393,32 @@ UUTF16Conv::ToASCII(
 				if (inputSize - index_done - 1)
 				{
 					index_done++;
-				} else {
+				} else
+				{
 					// inputSize == index_done - 1, i.e. last character of the input string.
 					theResult = kMiddleOfMultiChar;
 					break;
 				}
 			} // else
-				// (b) it's not.
-				// I don't do anything in that case.
+			  // (b) it's not.
+			  // I don't do anything in that case.
 
 			// In any case, this is an unrepresentable char.
 			// What's the option?
 			if (inConvertToOpt == kRepCharOnUnrepChar)
 			{
 				theUnicodeChar = kSubstituteChar;
-			} else {
+			} else
+			{
 				// Stop.
 				theResult = kUnrepCharEncountered;
 				break;
 			}
 		}
 
-		*outOutputBuffer = (KUInt8) theUnicodeChar;	// Fill the output buffer.
+		*outOutputBuffer = (KUInt8) theUnicodeChar; // Fill the output buffer.
 
-		inInputBuffer++;	// Next character
+		inInputBuffer++; // Next character
 		outOutputBuffer++;
 		outputLeft--;
 	}
@@ -439,12 +444,12 @@ UUTF16Conv::ToASCII(
 
 void
 UUTF16Conv::FromASCII(
-	const KUInt8*	inInputBuffer,		// Input ASCII string
-	KUInt16*			outOutputBuffer,	// Output Unicode string
-	size_t			inCount				// Number of bytes/words available in both buffers
-	)
+	const KUInt8* inInputBuffer, // Input ASCII string
+	KUInt16* outOutputBuffer, // Output Unicode string
+	size_t inCount // Number of bytes/words available in both buffers
+)
 {
-	FromISO88591( inInputBuffer, outOutputBuffer, inCount );
+	FromISO88591(inInputBuffer, outOutputBuffer, inCount);
 }
 
 // ============================	//
@@ -456,8 +461,7 @@ UUTF16Conv::FromASCII(
 // Sorted (in reverse order) by unicode chars.
 // Last element is 0,0 so I'm sure to get out of the loop with unrepresentable
 // set to true for chars < 0x080
-const KUInt16 UUTF16Conv::kToMacRomanTable[129][2] =
-{
+const KUInt16 UUTF16Conv::kToMacRomanTable[129][2] = {
 	{ 0xDE, 0xFB01 }, { 0xDF, 0xFB02 }, { 0xF0, 0xF8FF }, { 0xD7, 0x25CA },
 	{ 0xB3, 0x2265 }, { 0xB2, 0x2264 }, { 0xAD, 0x2260 }, { 0xC5, 0x2248 },
 	{ 0xBA, 0x222B }, { 0xB0, 0x221E }, { 0xC3, 0x221A }, { 0xB7, 0x2211 },
@@ -493,11 +497,9 @@ const KUInt16 UUTF16Conv::kToMacRomanTable[129][2] =
 	{ 0x00, 0x0000 }
 };
 
-
 // Mappings for chars from 0x0080
 // Also used in the to conversion to check that a char 00XX is indeed within MacRoman
-const KUInt16 UUTF16Conv::kFromMacRomanTable[0x80] =
-{
+const KUInt16 UUTF16Conv::kFromMacRomanTable[0x80] = {
 	0x00C4, 0x00C5, 0x00C7, 0x00C9, 0x00D1, 0x00D6, 0x00DC, 0x00E1,
 	0x00E0, 0x00E2, 0x00E4, 0x00E3, 0x00E5, 0x00E7, 0x00E9, 0x00E8,
 	0x00EA, 0x00EB, 0x00ED, 0x00EC, 0x00EE, 0x00EF, 0x00F1, 0x00F3,
@@ -522,21 +524,21 @@ const KUInt16 UUTF16Conv::kFromMacRomanTable[0x80] =
 // ----------------------------------------------------------------	//
 UUTF16Conv::EResult
 UUTF16Conv::ToMacRoman(
-	const KUInt16*	inInputBuffer,		// Input Unicode string
-	size_t*			ioInputCount,		// On input: number of unicode 16 bits chars in the buffer
-										// On output: number of unicode 16 bits chars eaten from the buffer
-	KUInt8*			outOutputBuffer,	// Output MacRoman string
-	size_t*			ioOutputCount,		// On input: number of bytes/chars available in the buffer
-										// On output: number of bytes/chars used in the buffer
-	EToOpt			inConvertToOpt		// Option for the transcoder.
-	)
+	const KUInt16* inInputBuffer, // Input Unicode string
+	size_t* ioInputCount, // On input: number of unicode 16 bits chars in the buffer
+						  // On output: number of unicode 16 bits chars eaten from the buffer
+	KUInt8* outOutputBuffer, // Output MacRoman string
+	size_t* ioOutputCount, // On input: number of bytes/chars available in the buffer
+						   // On output: number of bytes/chars used in the buffer
+	EToOpt inConvertToOpt // Option for the transcoder.
+)
 {
-	EResult theResult = kInputExhausted;	// Default is to exhaust input.
+	EResult theResult = kInputExhausted; // Default is to exhaust input.
 
-	size_t inputSize = *ioInputCount;	// This is (nearly) just an optimization of the loop.
-	size_t outputLeft = *ioOutputCount;	// Number of bytes left in the output buffer.
+	size_t inputSize = *ioInputCount; // This is (nearly) just an optimization of the loop.
+	size_t outputLeft = *ioOutputCount; // Number of bytes left in the output buffer.
 
-	size_t index_done;					// Number of UTF-16 words eaten so far.
+	size_t index_done; // Number of UTF-16 words eaten so far.
 	for (index_done = 0; index_done < inputSize; index_done++)
 	{
 		// Check that we have enough space left in the output buffer.
@@ -546,14 +548,14 @@ UUTF16Conv::ToMacRoman(
 			break;
 		}
 
-		KUInt16 theUnicodeChar = UByteSex_FromBigEndian( *inInputBuffer );	// Current character.
-												// Input buffer is big endian, so I might need to convert it.
+		KUInt16 theUnicodeChar = UByteSex_FromBigEndian(*inInputBuffer); // Current character.
+																		 // Input buffer is big endian, so I might need to convert it.
 
 		if (theUnicodeChar >= 0x0080)
-			// anything below 0x0080 is translated to the same value casted to 8 bits.
-			// unicode characters between 0x80 and 0x9F cannot be represented in MacRoman
+		// anything below 0x0080 is translated to the same value casted to 8 bits.
+		// unicode characters between 0x80 and 0x9F cannot be represented in MacRoman
 		{
-			Boolean unrepresentable = false;	// Whether the char is unrepresentable or not.
+			Boolean unrepresentable = false; // Whether the char is unrepresentable or not.
 
 			if (theUnicodeChar >= 0x00A0)
 			{
@@ -565,26 +567,28 @@ UUTF16Conv::ToMacRoman(
 					if (inputSize - index_done - 1)
 					{
 						index_done++;
-					} else {
+					} else
+					{
 						// inputSize == index_done - 1, i.e. last character of the input string.
 						theResult = kMiddleOfMultiChar;
 						break;
 					}
-				} else {
+				} else
+				{
 					// (b) it's not.
 
 					// Iterate in the To table.
 					int indexToTable = 0;
-					while(1)	// Because last element of the table is 0,0, I'm sure to get out of the loop.
+					while (1) // Because last element of the table is 0,0, I'm sure to get out of the loop.
 					{
-						KUInt16 theChar	// Element of the table.
-							= kToMacRomanTable[ indexToTable ][1];
+						KUInt16 theChar // Element of the table.
+							= kToMacRomanTable[indexToTable][1];
 						if (theUnicodeChar == theChar)
 						{
-							theUnicodeChar = kToMacRomanTable[ indexToTable ][0];
+							theUnicodeChar = kToMacRomanTable[indexToTable][0];
 							break;
 						}
-						if (theUnicodeChar > theChar)	// Characters in the to table are sorted (in descending order)
+						if (theUnicodeChar > theChar) // Characters in the to table are sorted (in descending order)
 						{
 							// Not found.
 							unrepresentable = true;
@@ -594,7 +598,8 @@ UUTF16Conv::ToMacRoman(
 						indexToTable++;
 					}
 				} // if ((theUnicodeChar >= 0xD800) && (theUnicodeChar < 0xE000))
-			} else {
+			} else
+			{
 				unrepresentable = true;
 			}
 
@@ -605,7 +610,8 @@ UUTF16Conv::ToMacRoman(
 				if (inConvertToOpt == kRepCharOnUnrepChar)
 				{
 					theUnicodeChar = kSubstituteChar;
-				} else {
+				} else
+				{
 					// Stop.
 					theResult = kUnrepCharEncountered;
 					break;
@@ -613,9 +619,9 @@ UUTF16Conv::ToMacRoman(
 			}
 		} // else { ... } : nothing to do as 0x0000-0x007F -> same value truncated to 8 bits.
 
-		*outOutputBuffer = (KUInt8) theUnicodeChar;	// Fill the output buffer.
+		*outOutputBuffer = (KUInt8) theUnicodeChar; // Fill the output buffer.
 
-		inInputBuffer++;	// Next character
+		inInputBuffer++; // Next character
 		outOutputBuffer++;
 		outputLeft--;
 	}
@@ -632,23 +638,23 @@ UUTF16Conv::ToMacRoman(
 // ----------------------------------------------------------------	//
 void
 UUTF16Conv::FromMacRoman(
-	const KUInt8*	inInputBuffer,		// Input MacRoman string
-	KUInt16*			outOutputBuffer,	// Output Unicode string
-	size_t			inCount				// Number of bytes/words available in both buffers
-	)
+	const KUInt8* inInputBuffer, // Input MacRoman string
+	KUInt16* outOutputBuffer, // Output Unicode string
+	size_t inCount // Number of bytes/words available in both buffers
+)
 {
 	for (; inCount; inCount--)
 	{
-		KUInt16 theMacRomanChar = (KUInt16) *inInputBuffer;	// Current character.
-		if (theMacRomanChar >= 0x80)	// Anything below 0x80 is translated to the same value casted to 16 bits.
+		KUInt16 theMacRomanChar = (KUInt16) *inInputBuffer; // Current character.
+		if (theMacRomanChar >= 0x80) // Anything below 0x80 is translated to the same value casted to 16 bits.
 		{
 			theMacRomanChar = kFromMacRomanTable[theMacRomanChar - 0x80];
 		}
-		*outOutputBuffer =  UByteSex_ToBigEndian( theMacRomanChar );
-											// Fill the output buffer.
-											// Output buffer is big endian.
+		*outOutputBuffer = UByteSex_ToBigEndian(theMacRomanChar);
+		// Fill the output buffer.
+		// Output buffer is big endian.
 
-		inInputBuffer++;	// Next character
+		inInputBuffer++; // Next character
 		outOutputBuffer++;
 	}
 }
@@ -662,11 +668,10 @@ UUTF16Conv::FromMacRoman(
 // ----------------------------------------------------------------	//
 UUTF16Conv::EResult
 UUTF16Conv::ToUCS4(
-	const KUInt16*	inInputBuffer,
-	size_t*			ioInputCount,
-	KUInt32*			outOutputBuffer,
-	size_t*			ioOutputCount
-	)
+	const KUInt16* inInputBuffer,
+	size_t* ioInputCount,
+	KUInt32* outOutputBuffer,
+	size_t* ioOutputCount)
 {
 	EResult theResult = kInputExhausted;
 
@@ -675,7 +680,7 @@ UUTF16Conv::ToUCS4(
 
 	while ((inputCount > 0) && (outputCount > 0))
 	{
-		KUInt16 theChar = UByteSex_FromBigEndian( *inInputBuffer );
+		KUInt16 theChar = UByteSex_FromBigEndian(*inInputBuffer);
 		inInputBuffer++;
 
 		if ((theChar < 0xD800) || (theChar >= 0xE000))
@@ -684,20 +689,21 @@ UUTF16Conv::ToUCS4(
 			outOutputBuffer++;
 			outputCount--;
 			inputCount--;
-		} else {
+		} else
+		{
 			if (inputCount > 1)
 			{
-				KUInt32 theUCS4Char = (KUInt32) (
-							((theChar - 0xD800) * 0x400)
-							+ (*inInputBuffer - 0xDC00)
-							+ 0x00010000 );
-				*outOutputBuffer = UByteSex_ToBigEndian( theUCS4Char );
+				KUInt32 theUCS4Char = (KUInt32) (((theChar - 0xD800) * 0x400)
+					+ (*inInputBuffer - 0xDC00)
+					+ 0x00010000);
+				*outOutputBuffer = UByteSex_ToBigEndian(theUCS4Char);
 				outOutputBuffer++;
 				inInputBuffer++;
 
 				outputCount--;
 				inputCount -= 2;
-			} else {
+			} else
+			{
 				// Pas assez de caractères dans la mémoire d'entrée.
 				theResult = kMiddleOfMultiChar;
 				break;
@@ -724,11 +730,10 @@ UUTF16Conv::ToUCS4(
 // ----------------------------------------------------------------	//
 UUTF16Conv::EResult
 UUTF16Conv::FromUCS4(
-	const KUInt32*	inInputBuffer,
-	size_t*			ioInputCount,
-	KUInt16*			outOutputBuffer,
-	size_t*			ioOutputCount
-	)
+	const KUInt32* inInputBuffer,
+	size_t* ioInputCount,
+	KUInt16* outOutputBuffer,
+	size_t* ioOutputCount)
 {
 	// Résultat (par défaut, on a terminé).
 	EResult theResult = kInputExhausted;
@@ -742,7 +747,7 @@ UUTF16Conv::FromUCS4(
 	while ((inputCount > 0) && (outputCount > 0))
 	{
 		// Le caractère UCS-4 en entrée.
-		KUInt32 theChar = UByteSex_FromBigEndian( *inInputBuffer );
+		KUInt32 theChar = UByteSex_FromBigEndian(*inInputBuffer);
 		inInputBuffer++;
 
 		if (theChar < 0x00010000)
@@ -751,18 +756,20 @@ UUTF16Conv::FromUCS4(
 			outOutputBuffer++;
 			outputCount--;
 			inputCount--;
-		} else {
+		} else
+		{
 			if (outputCount > 1)
 			{
 				theChar -= 0x00010000;
-				*outOutputBuffer = UByteSex_ToBigEndian( (KUInt16) ((theChar / 0x400) + 0xD800) );
+				*outOutputBuffer = UByteSex_ToBigEndian((KUInt16) ((theChar / 0x400) + 0xD800));
 				outOutputBuffer++;
-				*outOutputBuffer = UByteSex_ToBigEndian( (KUInt16) ((theChar % 0x400) + 0xDC00) );
+				*outOutputBuffer = UByteSex_ToBigEndian((KUInt16) ((theChar % 0x400) + 0xDC00));
 				outOutputBuffer++;
 
 				outputCount -= 2;
 				inputCount--;
-			} else {
+			} else
+			{
 				// Pas assez de caractères dans la mémoire de sortie.
 				theResult = kMiddleOfMultiChar;
 				break;
@@ -803,26 +810,26 @@ UCS-4 range (hex.)           UTF-8 octet sequence (binary)
    Encoding from UCS-4 to UTF-8 proceeds as follows:
 
    1) Determine the number of octets required from the character value
-      and the first column of the table above.  It is important to note
-      that the rows of the table are mutually exclusive, i.e. there is
-      only one valid way to encode a given UCS-4 character.
+	  and the first column of the table above.  It is important to note
+	  that the rows of the table are mutually exclusive, i.e. there is
+	  only one valid way to encode a given UCS-4 character.
 
    2) Prepare the high-order bits of the octets as per the second column
-      of the table.
+	  of the table.
 
    3) Fill in the bits marked x from the bits of the character value,
-      starting from the lower-order bits of the character value and
-      putting them first in the last octet of the sequence, then the
-      next to last, etc. until all x bits are filled in.
+	  starting from the lower-order bits of the character value and
+	  putting them first in the last octet of the sequence, then the
+	  next to last, etc. until all x bits are filled in.
 
-      The algorithm for encoding UCS-2 (or Unicode) to UTF-8 can be
-      obtained from the above, in principle, by simply extending each
-      UCS-2 character with two zero-valued octets.  However, pairs of
-      UCS-2 values between D800 and DFFF (surrogate pairs in Unicode
-      parlance), being actually UCS-4 characters transformed through
-      UTF-16, need special treatment: the UTF-16 transformation must be
-      undone, yielding a UCS-4 character that is then transformed as
-      above.
+	  The algorithm for encoding UCS-2 (or Unicode) to UTF-8 can be
+	  obtained from the above, in principle, by simply extending each
+	  UCS-2 character with two zero-valued octets.  However, pairs of
+	  UCS-2 values between D800 and DFFF (surrogate pairs in Unicode
+	  parlance), being actually UCS-4 characters transformed through
+	  UTF-16, need special treatment: the UTF-16 transformation must be
+	  undone, yielding a UCS-4 character that is then transformed as
+	  above.
 */
 
 // ----------------------------------------------------------------	//
@@ -830,11 +837,10 @@ UCS-4 range (hex.)           UTF-8 octet sequence (binary)
 // ----------------------------------------------------------------	//
 UUTF16Conv::EResult
 UUTF16Conv::ToUTF8(
-	const KUInt16*	inInputBuffer,
-	size_t*			ioInputCount,
-	void*			outOutputBuffer,
-	size_t*			ioOutputCount
-	)
+	const KUInt16* inInputBuffer,
+	size_t* ioInputCount,
+	void* outOutputBuffer,
+	size_t* ioOutputCount)
 {
 	// Résultat (par défaut, on a terminé).
 	EResult theResult = kInputExhausted;
@@ -853,7 +859,7 @@ UUTF16Conv::ToUTF8(
 	while ((inputCount > 0) && (outputCount > 0))
 	{
 		// Le caractère UTF-16 à convertir.
-		KUInt16 theChar = UByteSex_FromBigEndian( *inInputBuffer );
+		KUInt16 theChar = UByteSex_FromBigEndian(*inInputBuffer);
 		// Le même en UCS-4
 		KUInt32 theUCS4Char;
 		inInputBuffer++;
@@ -863,16 +869,17 @@ UUTF16Conv::ToUTF8(
 		{
 			theUCS4Char = (KUInt32) theChar;
 			newInputCount = inputCount - 1;
-		} else {
+		} else
+		{
 			if (inputCount > 1)
 			{
-				theUCS4Char = (KUInt32) (
-							((theChar - 0xD800) * 0x400)
-							+ (*inInputBuffer - 0xDC00)
-							+ 0x00010000 );
+				theUCS4Char = (KUInt32) (((theChar - 0xD800) * 0x400)
+					+ (*inInputBuffer - 0xDC00)
+					+ 0x00010000);
 				inInputBuffer++;
 				newInputCount = inputCount - 2;
-			} else {
+			} else
+			{
 				// Pas assez de caractères dans la mémoire d'entrée.
 				theResult = kMiddleOfMultiChar;
 				break;
@@ -881,18 +888,21 @@ UUTF16Conv::ToUTF8(
 
 		// Conversion en UTF-8
 		// En vérifiant qu'il y a assez de place.
-		size_t theCharSize;	// Taille du caractère en UTF-8
+		size_t theCharSize; // Taille du caractère en UTF-8
 		if (theUCS4Char <= 0x0000007F)
 		{
 			theCharSize = 1;
-		} else if (theUCS4Char <= 0x000007FF) {
+		} else if (theUCS4Char <= 0x000007FF)
+		{
 			theCharSize = 2;
-		} else if (theUCS4Char <= 0x0000FFFF) {
+		} else if (theUCS4Char <= 0x0000FFFF)
+		{
 			theCharSize = 3;
-		} else {
-		    // Since novembre 2003, UTF-8 is restricted to what can be encoded
-		    // with UTF_16
-		    // theUCS4Char <= 0x10FFFF
+		} else
+		{
+			// Since novembre 2003, UTF-8 is restricted to what can be encoded
+			// with UTF_16
+			// theUCS4Char <= 0x10FFFF
 			theCharSize = 4;
 		}
 
@@ -901,7 +911,8 @@ UUTF16Conv::ToUTF8(
 			*theOutputBuffer = (KUInt8) theUCS4Char;
 			theOutputBuffer++;
 			outputCount--;
-		} else {
+		} else
+		{
 			if (outputCount < theCharSize)
 			{
 				// Pas assez de caractères dans la mémoire de sortie.
@@ -952,11 +963,10 @@ UUTF16Conv::ToUTF8(
 // ----------------------------------------------------------------	//
 UUTF16Conv::EResult
 UUTF16Conv::FromUTF8(
-	const void*		inInputBuffer,
-	size_t*			ioInputCount,
-	KUInt16*		outOutputBuffer,
-	size_t*			ioOutputCount
-	)
+	const void* inInputBuffer,
+	size_t* ioInputCount,
+	KUInt16* outOutputBuffer,
+	size_t* ioOutputCount)
 {
 	// Résultat (par défaut, on a terminé).
 	EResult theResult = kInputExhausted;
@@ -979,25 +989,30 @@ UUTF16Conv::FromUTF8(
 
 		// Premier caractère UTF-8.
 		KUInt8 theFirstChar = *theInputBuffer;
-		size_t theCharSize;	// Taille du caractère en UTF-8
+		size_t theCharSize; // Taille du caractère en UTF-8
 		theInputBuffer++;
 		if ((theFirstChar & 0x80) == 0)
 		{
 			theCharSize = 1;
 			theUCS4Char = theFirstChar;
-		} else if ((theFirstChar & 0xE0) == 0xC0) {
+		} else if ((theFirstChar & 0xE0) == 0xC0)
+		{
 			theCharSize = 2;
 			theUCS4Char = (KUInt32) theFirstChar & 0x1F;
-		} else if ((theFirstChar & 0xF0) == 0xE0) {
+		} else if ((theFirstChar & 0xF0) == 0xE0)
+		{
 			theCharSize = 3;
 			theUCS4Char = (KUInt32) theFirstChar & 0x0F;
-		} else if ((theFirstChar & 0xF8) == 0xF0) {
+		} else if ((theFirstChar & 0xF8) == 0xF0)
+		{
 			theCharSize = 4;
 			theUCS4Char = (KUInt32) theFirstChar & 0x07;
-		} else if ((theFirstChar & 0xFC) == 0xF8) {
+		} else if ((theFirstChar & 0xFC) == 0xF8)
+		{
 			theCharSize = 5;
 			theUCS4Char = (KUInt32) theFirstChar & 0x03;
-		} else /* if ((theFirstChar & 0xFE) == 0xFC) */ {
+		} else /* if ((theFirstChar & 0xFE) == 0xFC) */
+		{
 			theCharSize = 6;
 			theUCS4Char = (KUInt32) theFirstChar & 0x01;
 		}
@@ -1011,7 +1026,7 @@ UUTF16Conv::FromUTF8(
 
 		newInputCount = inputCount - theCharSize;
 
-		for ( ; theCharSize > 1; theCharSize--)
+		for (; theCharSize > 1; theCharSize--)
 		{
 			theUCS4Char = (theUCS4Char << 6) | (*theInputBuffer & 0x3F);
 			theInputBuffer++;
@@ -1019,20 +1034,22 @@ UUTF16Conv::FromUTF8(
 
 		if (theUCS4Char < 0x00010000)
 		{
-			*outOutputBuffer = UByteSex_ToBigEndian( (KUInt16) theUCS4Char );
+			*outOutputBuffer = UByteSex_ToBigEndian((KUInt16) theUCS4Char);
 			outOutputBuffer++;
 			outputCount--;
-		} else {
+		} else
+		{
 			if (outputCount > 1)
 			{
 				theUCS4Char -= 0x00010000;
-				*outOutputBuffer = UByteSex_ToBigEndian( (KUInt16) ((theUCS4Char / 0x400) + 0xD800) );
+				*outOutputBuffer = UByteSex_ToBigEndian((KUInt16) ((theUCS4Char / 0x400) + 0xD800));
 				outOutputBuffer++;
-				*outOutputBuffer = UByteSex_ToBigEndian( (KUInt16) ((theUCS4Char % 0x400) + 0xDC00) );
+				*outOutputBuffer = UByteSex_ToBigEndian((KUInt16) ((theUCS4Char % 0x400) + 0xDC00));
 				outOutputBuffer++;
 
 				outputCount -= 2;
-			} else {
+			} else
+			{
 				// Pas assez de caractères dans la mémoire de sortie.
 				theResult = kMiddleOfMultiChar;
 				break;

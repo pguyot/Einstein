@@ -38,11 +38,11 @@
 
 // ANSI C & POSIX
 #if TARGET_OS_WIN32
-	#include <ctime>
-	#include <sys/timeb.h>
+#include <ctime>
+#include <sys/timeb.h>
 #else
-	#include <sys/time.h>
-	#include <stdlib.h>
+#include <stdlib.h>
+#include <sys/time.h>
 #endif
 #include <errno.h>
 #include <signal.h>
@@ -63,20 +63,20 @@
 // -------------------------------------------------------------------------- //
 //  * ~TThread( void )
 // -------------------------------------------------------------------------- //
-TThread::~TThread( void )
+TThread::~TThread(void)
 {
 #if TARGET_OS_WIN32
 	DWORD ret = WaitForSingleObject(mThread, INFINITE);
-	assert( ret==WAIT_OBJECT_0 );
+	assert(ret == WAIT_OBJECT_0);
 #else
-	int err = ::pthread_detach( mThread );
+	int err = ::pthread_detach(mThread);
 
-	if ( err != 0 )
+	if (err != 0)
 		::abort();
 
-	err = ::pthread_join( mThread, NULL );
+	err = ::pthread_join(mThread, NULL);
 
-	if ( !((err == 0) || (err == EINVAL) || (err == ESRCH)) )
+	if (!((err == 0) || (err == EINVAL) || (err == ESRCH)))
 		::abort();
 #endif
 }
@@ -85,7 +85,7 @@ TThread::~TThread( void )
 //  * IsCurrentThread( void ) const
 // -------------------------------------------------------------------------- //
 Boolean
-TThread::IsCurrentThread( void ) const
+TThread::IsCurrentThread(void) const
 {
 #if TARGET_OS_WIN32
 	return GetCurrentThreadId() == mThreadId;
@@ -98,7 +98,7 @@ TThread::IsCurrentThread( void ) const
 //  * Suspend( void )
 // -------------------------------------------------------------------------- //
 void
-TThread::Suspend( void )
+TThread::Suspend(void)
 {
 	mMutex.Lock();
 
@@ -106,25 +106,26 @@ TThread::Suspend( void )
 
 	if (mState == kRunning)
 	{
-		if (IsCurrentThread()) {
+		if (IsCurrentThread())
+		{
 			mState = kSelfSuspended;
 
 			SuspendSelf();
-		} else {
+		} else
+		{
 			mState = kSuspended;
 
 #if TARGET_OS_OPENSTEP
-			kern_return_t err =
-				::thread_suspend(::pthread_mach_thread_np(mThread));
-			assert( err == 0 );
+			kern_return_t err = ::thread_suspend(::pthread_mach_thread_np(mThread));
+			assert(err == 0);
 			(void) err;
 #elif TARGET_OS_WIN32
 			DWORD ret = SuspendThread(mThread);
-			assert( (int)ret != -1 );
+			assert((int) ret != -1);
 #else
 			// Send SIGUSR2
 			int err = ::pthread_kill(mThread, SIGUSR2);
-			assert( err == 0 );
+			assert(err == 0);
 			(void) err;
 #endif
 		}
@@ -137,7 +138,7 @@ TThread::Suspend( void )
 //  * SuspendSelf( void )
 // -------------------------------------------------------------------------- //
 void
-TThread::SuspendSelf( void )
+TThread::SuspendSelf(void)
 {
 	// We are *this.
 	// And we have the mutex.
@@ -148,7 +149,7 @@ TThread::SuspendSelf( void )
 //  * Resume( void )
 // -------------------------------------------------------------------------- //
 void
-TThread::Resume( void )
+TThread::Resume(void)
 {
 	mMutex.Lock();
 
@@ -161,22 +162,24 @@ TThread::Resume( void )
 		{
 			mState = kRunning;
 
-			if (selfSuspended) {
+			if (selfSuspended)
+			{
 				// Signal ourselves.
 				mSuspendCondVar.Signal();
-			} else {
+			} else
+			{
 #if TARGET_OS_OPENSTEP
 				kern_return_t err = ::thread_resume(
 					::pthread_mach_thread_np(mThread));
-				assert( err == 0 );
+				assert(err == 0);
 				(void) err;
 #elif TARGET_OS_WIN32
 				DWORD ret = ResumeThread(mThread);
-				assert( (int)ret != -1 );
+				assert((int) ret != -1);
 #else
 				// Send SIGUSR1
 				int err = ::pthread_kill(mThread, SIGUSR1);
-				assert( err == 0 );
+				assert(err == 0);
 				(void) err;
 #endif
 			}
@@ -191,22 +194,22 @@ TThread::Resume( void )
 //  * SignalUSR2( int )
 // ------------------------------------------------------------------------- //
 void
-TThread::SignalUSR2( int /* inSignal */ )
+TThread::SignalUSR2(int /* inSignal */)
 {
 	// Wait for SIGUSR1.
 	sigset_t theSigset;
 
-	(void) sigfillset( &theSigset );
-	(void) sigdelset( &theSigset, SIGUSR1 );
+	(void) sigfillset(&theSigset);
+	(void) sigdelset(&theSigset, SIGUSR1);
 
-	(void) sigsuspend( &theSigset );
+	(void) sigsuspend(&theSigset);
 }
 
 // ------------------------------------------------------------------------- //
 //  * SignalUSR1( int )
 // ------------------------------------------------------------------------- //
 void
-TThread::SignalUSR1( int /* inSignal */ )
+TThread::SignalUSR1(int /* inSignal */)
 {
 }
 
@@ -214,7 +217,7 @@ TThread::SignalUSR1( int /* inSignal */ )
 //  * PreRun( void )
 // ------------------------------------------------------------------------- //
 void
-TThread::PreRun( void )
+TThread::PreRun(void)
 {
 	// SIGUSR2 (suspend).
 	struct sigaction theSigAction;
@@ -223,14 +226,14 @@ TThread::PreRun( void )
 	(void) sigemptyset(&theSigAction.sa_mask);
 
 	int err = sigaction(SIGUSR2, &theSigAction, NULL);
-	assert( err == 0 );
+	assert(err == 0);
 
 	// SIGUSR1 (resume).
 	// Block SIGUSR2 to avoid any suspend while we resume.
 	theSigAction.sa_handler = SignalUSR1;
 	(void) sigaddset(&theSigAction.sa_mask, SIGUSR2);
 	err = sigaction(SIGUSR1, &theSigAction, NULL);
-	assert( err == 0 );
+	assert(err == 0);
 	(void) err;
 }
 #endif
@@ -239,7 +242,7 @@ TThread::PreRun( void )
 //  * Sleep( KUInt32 )
 // ------------------------------------------------------------------------- //
 Boolean
-TThread::Sleep( KUInt32 inMilliseconds /* = kForever */ )
+TThread::Sleep(KUInt32 inMilliseconds /* = kForever */)
 {
 	assert(IsCurrentThread());
 
@@ -254,11 +257,12 @@ TThread::Sleep( KUInt32 inMilliseconds /* = kForever */ )
 	if (mWakeCount > 0)
 	{
 		mWakeCount--;
-		theResult = false;	// On n'a pas dormi tout le temps demandé.
+		theResult = false; // On n'a pas dormi tout le temps demandé.
 
 		// Release the mutex.
 		mMutex.Unlock();
-	} else {
+	} else
+	{
 		// On dort.
 		mState = kSleeping;
 
@@ -266,10 +270,11 @@ TThread::Sleep( KUInt32 inMilliseconds /* = kForever */ )
 		{
 			// Determine when to wake up.
 			timespec theTimeToWake;
-			theTimeToWake.tv_sec  = (long) (inMilliseconds / 1000);
+			theTimeToWake.tv_sec = (long) (inMilliseconds / 1000);
 			theTimeToWake.tv_nsec = (long) ((inMilliseconds % 1000) * 1000000);
 			theResult = !mSleepCondVar.TimedWaitRelative(&mMutex, &theTimeToWake);
-		} else {
+		} else
+		{
 			theResult = false;
 			mSleepCondVar.Wait(&mMutex);
 		}
@@ -278,7 +283,8 @@ TThread::Sleep( KUInt32 inMilliseconds /* = kForever */ )
 		if (mSuspendCount > 0)
 		{
 			mState = kSelfSuspended;
-		} else {
+		} else
+		{
 			mState = kRunning;
 		}
 
@@ -299,7 +305,7 @@ TThread::Sleep( KUInt32 inMilliseconds /* = kForever */ )
 //  * WakeUp( void )
 // ------------------------------------------------------------------------- //
 void
-TThread::WakeUp( void )
+TThread::WakeUp(void)
 {
 	// Acquire the mutex.
 	mMutex.Lock();
@@ -309,7 +315,8 @@ TThread::WakeUp( void )
 	{
 		// Signal the condition variable.
 		mSleepCondVar.Signal();
-	} else {
+	} else
+	{
 		// Otherwise, increase the wake counter.
 		mWakeCount++;
 	}
@@ -317,7 +324,6 @@ TThread::WakeUp( void )
 	// Release the mutex.
 	mMutex.Unlock();
 }
-
 
 // ============================================================================= //
 // `Lasu' Releases SAG 0.3 -- Freeware Book Takes Paves For New World Order      //

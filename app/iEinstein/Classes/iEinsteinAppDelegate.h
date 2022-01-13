@@ -25,8 +25,7 @@
 
 @class iEinsteinViewController;
 
-@interface iEinsteinAppDelegate : NSObject <UIApplicationDelegate>
-{
+@interface iEinsteinAppDelegate : NSObject <UIApplicationDelegate> {
 	IBOutlet UIWindow* window;
 	IBOutlet iEinsteinViewController* viewController;
 }
@@ -36,9 +35,8 @@
 @property (retain, nonatomic) IBOutlet iEinsteinViewController* viewController;
 #endif
 
-- (void)share: (NSString*)data;
+- (void)share:(NSString*)data;
 
-//NSUserDefaultsDidChangeNotification
+// NSUserDefaultsDidChangeNotification
 
 @end
-

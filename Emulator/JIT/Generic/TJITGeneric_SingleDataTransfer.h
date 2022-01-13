@@ -31,11 +31,11 @@
 
 void
 Translate_SingleDataTransfer(
-					JITPageClass* inPage,
-					TMemory* inMemoryIntf,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr );
+	JITPageClass* inPage,
+	TMemory* inMemoryIntf,
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr);
 
 // =============================== //
 // 1: No code table for op: ++post //

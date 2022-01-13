@@ -43,18 +43,18 @@ FLAG_S
 #define OP	RSC
 */
 #if OP != SUB && OP != RSB && OP != ADD && OP != ADC && OP != SBC && OP != RSC
-	#error "Please define OP to be SUB, RSB, ADD, ADC, SBC or RSC"
+#error "Please define OP to be SUB, RSB, ADD, ADC, SBC or RSC"
 #endif
-#if SUB == RSB || SUB == ADD || SUB == ADC || SUB == SBC || SUB == RSC \
+#if SUB == RSB || SUB == ADD || SUB == ADC || SUB == SBC || SUB == RSC    \
 	|| RSB == ADD || RSB == ADC || RSB == SBC || RSB == RSC || ADD == ADC \
 	|| ADD == SBC || ADD == RSC || ADC == SBC || ADC == RSC || SBC == RSC
-	#error "Please define SUB, RSB, ADD, ADC, SBC and RSC to be different"
+#error "Please define SUB, RSB, ADD, ADC, SBC and RSC to be different"
 #endif
 #if MODE != Imm && MODE != ImmC && MODE != NoShift && MODE != Regular
-	#error "Please define MODE to be Imm, ImmC, NoShift or Regular"
+#error "Please define MODE to be Imm, ImmC, NoShift or Regular"
 #endif
 #if Imm == ImmC || Imm == NoShift || Imm == Regular || ImmC == NoShift || ImmC == Regular || NoShift == Regular
-	#error "Please define Imm, ImmC, NoShift and Regular to be different"
+#error "Please define Imm, ImmC, NoShift and Regular to be different"
 #endif
 
 ArithmeticOp(OP, MODE, FLAG_S, Rn, Rd)
@@ -63,9 +63,9 @@ ArithmeticOp(OP, MODE, FLAG_S, Rn, Rd)
 #if (MODE == Imm) || (MODE == ImmC)
 	KUInt32 Opnd2;
 	POPVALUE(Opnd2);
-	#if (Rn == 15)
+#if (Rn == 15)
 	POPPC();
-	#endif
+#endif
 #elif MODE == NoShift
 	KUInt32 Rm;
 	POPVALUE(Rm);
@@ -74,14 +74,15 @@ ArithmeticOp(OP, MODE, FLAG_S, Rn, Rd)
 	if (Rm == 15)
 	{
 		Opnd2 = GETPC();
-	} else {
+	} else
+	{
 		Opnd2 = ioCPU->mCurrentRegisters[Rm];
 	}
 #else
 	KUInt32 theInstruction;
 	POPVALUE(theInstruction);
 	POPPC();
-	KUInt32 Opnd2 = GetShiftNoCarry( ioCPU, theInstruction, ioCPU->mCPSR_C, GETPC() );
+	KUInt32 Opnd2 = GetShiftNoCarry(ioCPU, theInstruction, ioCPU->mCPSR_C, GETPC());
 #endif
 #if (Rn == 15)
 	KUInt32 Opnd1 = GETPC();
@@ -102,54 +103,54 @@ ArithmeticOp(OP, MODE, FLAG_S, Rn, Rd)
 	const KUInt32 theResult = Opnd2 - Opnd1 - 1 + ioCPU->mCPSR_C;
 #endif
 #if (Rd == 15)
-	#if !FLAG_S
-		CALLNEXT_SAVEPC;
-	#endif
+#if !FLAG_S
+	CALLNEXT_SAVEPC;
+#endif
 	SETPC(theResult + 4);
-	#if FLAG_S
-		ioCPU->SetCPSR( ioCPU->GetSPSR() );
-	#endif
+#if FLAG_S
+	ioCPU->SetCPSR(ioCPU->GetSPSR());
+#endif
 #else
 	ioCPU->mCurrentRegisters[Rd] = theResult;
-	#if FLAG_S
-		const KUInt32 Negative1 = Opnd1 & 0x80000000;
-		const KUInt32 Negative2 = Opnd2 & 0x80000000;
-		const KUInt32 NegativeR = theResult & 0x80000000;
-		#if (OP == SUB) || (OP == SBC)
-			SetCPSRBitsForArithmeticOp(
-				ioCPU,
-				theResult,
-				(Negative1 && !Negative2)
-				|| (Negative1 && !NegativeR)
-				|| (!Negative2 && !NegativeR),
-				(Negative1 && !Negative2 && !NegativeR)
-				|| (!Negative1 && Negative2 && NegativeR));
-		#elif (OP == RSB) || (OP == RSC)
-			SetCPSRBitsForArithmeticOp(
-				ioCPU,
-				theResult,
-				(Negative2 && !Negative1)
-				|| (Negative2 && !NegativeR)
-				|| (!Negative1 && !NegativeR),
-				(Negative2 && !Negative1 && !NegativeR)
-				|| (!Negative2 && Negative1 && NegativeR));
-		#elif (OP == ADD) || (OP == ADC)
-			SetCPSRBitsForArithmeticOp(
-				ioCPU,
-				theResult,
-				(Negative1 && Negative2)
-				|| ((Negative1 || Negative2) && !NegativeR),
-				(Negative1 == Negative2)
-				&& (Negative1 != NegativeR));
-		#endif
-	#endif
+#if FLAG_S
+	const KUInt32 Negative1 = Opnd1 & 0x80000000;
+	const KUInt32 Negative2 = Opnd2 & 0x80000000;
+	const KUInt32 NegativeR = theResult & 0x80000000;
+#if (OP == SUB) || (OP == SBC)
+	SetCPSRBitsForArithmeticOp(
+		ioCPU,
+		theResult,
+		(Negative1 && !Negative2)
+			|| (Negative1 && !NegativeR)
+			|| (!Negative2 && !NegativeR),
+		(Negative1 && !Negative2 && !NegativeR)
+			|| (!Negative1 && Negative2 && NegativeR));
+#elif (OP == RSB) || (OP == RSC)
+	SetCPSRBitsForArithmeticOp(
+		ioCPU,
+		theResult,
+		(Negative2 && !Negative1)
+			|| (Negative2 && !NegativeR)
+			|| (!Negative1 && !NegativeR),
+		(Negative2 && !Negative1 && !NegativeR)
+			|| (!Negative2 && Negative1 && NegativeR));
+#elif (OP == ADD) || (OP == ADC)
+	SetCPSRBitsForArithmeticOp(
+		ioCPU,
+		theResult,
+		(Negative1 && Negative2)
+			|| ((Negative1 || Negative2) && !NegativeR),
+		(Negative1 == Negative2)
+			&& (Negative1 != NegativeR));
+#endif
+#endif
 #endif
 #if (Rd == 15)
-	#if FLAG_S
-		MMUCALLNEXT_AFTERSETPC;
-	#else
-		FURTHERCALLNEXT_AFTERSETPC;
-	#endif
+#if FLAG_S
+	MMUCALLNEXT_AFTERSETPC;
+#else
+	FURTHERCALLNEXT_AFTERSETPC;
+#endif
 #else
 	CALLNEXTUNIT;
 #endif

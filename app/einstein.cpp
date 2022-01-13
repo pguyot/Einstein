@@ -29,10 +29,10 @@
 // main
 // -------------------------------------------------------------------------- //
 int
-main(int argc, char** argv )
+main(int argc, char** argv)
 {
 	TCLIApp theApp;
-	theApp.Run( argc, argv );
+	theApp.Run(argc, argv);
 	return 0;
 }
 

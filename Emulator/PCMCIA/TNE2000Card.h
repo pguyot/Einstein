@@ -36,8 +36,7 @@
 /// \test	aucun test défini.
 ///
 class TNE2000Card
-	:
-		public TPCMCIACard
+		: public TPCMCIACard
 {
 public:
 	///
@@ -48,77 +47,77 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TNE2000Card( void );
+	virtual ~TNE2000Card(void);
 
 	///
 	/// Get PCMCIA pins.
 	///
-	virtual KUInt32		GetVPCPins( void );
+	virtual KUInt32 GetVPCPins(void);
 
 	///
 	/// Set PCMCIA pins.
 	///
-	virtual void		SetVPCPins( KUInt32 inPins );
+	virtual void SetVPCPins(KUInt32 inPins);
 
 	///
 	/// Read attribute space.
 	///
-	virtual KUInt32		ReadAttr( KUInt32 inOffset );
+	virtual KUInt32 ReadAttr(KUInt32 inOffset);
 
 	///
 	/// Read attribute space (byte).
 	///
-	virtual KUInt8		ReadAttrB( KUInt32 inOffset );
+	virtual KUInt8 ReadAttrB(KUInt32 inOffset);
 
 	///
 	/// Read I/O space.
 	///
-	virtual KUInt32		ReadIO( KUInt32 inOffset );
+	virtual KUInt32 ReadIO(KUInt32 inOffset);
 
 	///
 	/// Read I/O space (byte).
 	///
-	virtual KUInt8		ReadIOB( KUInt32 inOffset );
+	virtual KUInt8 ReadIOB(KUInt32 inOffset);
 
 	///
 	/// Read memory space.
 	///
-	virtual KUInt32		ReadMem( KUInt32 inOffset );
+	virtual KUInt32 ReadMem(KUInt32 inOffset);
 
 	///
 	/// Read memory space (byte).
 	///
-	virtual KUInt8		ReadMemB( KUInt32 inOffset );
+	virtual KUInt8 ReadMemB(KUInt32 inOffset);
 
 	///
 	/// Write attribute space.
 	///
-	virtual void		WriteAttr( KUInt32 inOffset, KUInt32 inValue );
+	virtual void WriteAttr(KUInt32 inOffset, KUInt32 inValue);
 
 	///
 	/// Write attribute space (byte).
 	///
-	virtual void		WriteAttrB( KUInt32 inOffset, KUInt8 inValue );
+	virtual void WriteAttrB(KUInt32 inOffset, KUInt8 inValue);
 
 	///
 	/// Write I/O space.
 	///
-	virtual void		WriteIO( KUInt32 inOffset, KUInt32 inValue );
+	virtual void WriteIO(KUInt32 inOffset, KUInt32 inValue);
 
 	///
 	/// Write I/O space (byte).
 	///
-	virtual void		WriteIOB( KUInt32 inOffset, KUInt8 inValue );
+	virtual void WriteIOB(KUInt32 inOffset, KUInt8 inValue);
 
 	///
 	/// Write memory space.
 	///
-	virtual void		WriteMem( KUInt32 inOffset, KUInt32 inValue );
+	virtual void WriteMem(KUInt32 inOffset, KUInt32 inValue);
 
 	///
 	/// Write memory space (byte).
 	///
-	virtual void		WriteMemB( KUInt32 inOffset, KUInt8 inValue );
+	virtual void WriteMemB(KUInt32 inOffset, KUInt8 inValue);
 
 private:
 	/// \name Constants
@@ -126,7 +125,7 @@ private:
 };
 
 #endif
-		// _TLINEARCARD_H
+// _TLINEARCARD_H
 
 // ======================================================================== //
 // Trying to establish voice contact ... please ____yell into keyboard. //

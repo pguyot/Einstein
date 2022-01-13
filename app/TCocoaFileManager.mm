@@ -22,13 +22,13 @@
 // ==============================
 
 #include "TCocoaFileManager.h"
-#import <Foundation/Foundation.h>
 #import "TCocoaListenerWindow.h"
+#import <Foundation/Foundation.h>
 
 // -------------------------------------------------------------------------- //
 //  * ~TCocoaFileManager( void )
 // -------------------------------------------------------------------------- //
-TCocoaFileManager::~TCocoaFileManager( void )
+TCocoaFileManager::~TCocoaFileManager(void)
 {
 #if !__has_feature(objc_arc)
 	[mListenerWindows release], mListenerWindows = nil;
@@ -39,16 +39,17 @@ TCocoaFileManager::~TCocoaFileManager( void )
 //  * open_listener( const char *, KUInt32 );
 // -------------------------------------------------------------------------- //
 void
-TCocoaFileManager::open_listener( const char *name, KUInt32 desc )
+TCocoaFileManager::open_listener(const char* name, KUInt32 desc)
 {
-	if (mListenerWindows == nil) {
+	if (mListenerWindows == nil)
+	{
 		mListenerWindows = [[NSMutableArray alloc] init];
 	}
-	
-	__block TCocoaListenerWindow *window = nil;
+
+	__block TCocoaListenerWindow* window = nil;
 	dispatch_sync(dispatch_get_main_queue(), ^{
 		window = [[TCocoaListenerWindow alloc] init];
-		NSString *title = [[NSString alloc] initWithCString:name encoding:NSASCIIStringEncoding];
+		NSString* title = [[NSString alloc] initWithCString:name encoding:NSASCIIStringEncoding];
 		[window setTitle:title];
 #if !__has_feature(objc_arc)
 		[title release];
@@ -59,7 +60,8 @@ TCocoaFileManager::open_listener( const char *name, KUInt32 desc )
 		[window showWindow:nil];
 	});
 
-	@synchronized(mListenerWindows) {
+	@synchronized(mListenerWindows)
+	{
 		[mListenerWindows addObject:window];
 	}
 }
@@ -68,15 +70,18 @@ TCocoaFileManager::open_listener( const char *name, KUInt32 desc )
 //  * close_listener( KUInt32 );
 // -------------------------------------------------------------------------- //
 void
-TCocoaFileManager::close_listener( KUInt32 desc )
+TCocoaFileManager::close_listener(KUInt32 desc)
 {
-	NSArray *listenerWindows = nil;
-	@synchronized(mListenerWindows) {
+	NSArray* listenerWindows = nil;
+	@synchronized(mListenerWindows)
+	{
 		listenerWindows = [NSArray arrayWithArray:mListenerWindows];
 	}
-	
-	for (TCocoaListenerWindow *aWindow in listenerWindows) {
-		if (aWindow.newt_fdesc == desc) {
+
+	for (TCocoaListenerWindow* aWindow in listenerWindows)
+	{
+		if (aWindow.newt_fdesc == desc)
+		{
 			[aWindow close];
 		}
 	}
@@ -86,37 +91,43 @@ TCocoaFileManager::close_listener( KUInt32 desc )
 //  * listener_was_closed( KUInt32 );
 // -------------------------------------------------------------------------- //
 void
-TCocoaFileManager::listener_was_closed( KUInt32 desc )
+TCocoaFileManager::listener_was_closed(KUInt32 desc)
 {
-	NSArray *listenerWindows = nil;
-	@synchronized(mListenerWindows) {
+	NSArray* listenerWindows = nil;
+	@synchronized(mListenerWindows)
+	{
 		listenerWindows = [NSArray arrayWithArray:mListenerWindows];
 	}
 
-	for (TCocoaListenerWindow *aWindow in listenerWindows) {
-		if (aWindow.newt_fdesc == desc) {
-			@synchronized(mListenerWindows) {
+	for (TCocoaListenerWindow* aWindow in listenerWindows)
+	{
+		if (aWindow.newt_fdesc == desc)
+		{
+			@synchronized(mListenerWindows)
+			{
 				[mListenerWindows removeObject:aWindow];
 			}
 		}
 	}
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * write_listener( KUInt32, const char *, KUInt32 );
 // -------------------------------------------------------------------------- //
 KSInt32
-TCocoaFileManager::write_listener( KUInt32 desc, const void *buf, KUInt32 nbytes )
+TCocoaFileManager::write_listener(KUInt32 desc, const void* buf, KUInt32 nbytes)
 {
-	NSArray *listenerWindows = nil;
-	@synchronized(mListenerWindows) {
+	NSArray* listenerWindows = nil;
+	@synchronized(mListenerWindows)
+	{
 		listenerWindows = [NSArray arrayWithArray:mListenerWindows];
 	}
-	
-	for (TCocoaListenerWindow *window in listenerWindows) {
-		if (window.newt_fdesc == desc) {
-			NSString *buffer = [[NSString alloc] initWithBytes:buf length:nbytes encoding:NSASCIIStringEncoding];
+
+	for (TCocoaListenerWindow* window in listenerWindows)
+	{
+		if (window.newt_fdesc == desc)
+		{
+			NSString* buffer = [[NSString alloc] initWithBytes:buf length:nbytes encoding:NSASCIIStringEncoding];
 			[window appendString:buffer];
 #if !__has_feature(objc_arc)
 			[buffer release];
@@ -131,15 +142,18 @@ TCocoaFileManager::write_listener( KUInt32 desc, const void *buf, KUInt32 nbytes
 //  * read_listener( KUInt32, const char *, KUInt32 );
 // -------------------------------------------------------------------------- //
 KSInt32
-TCocoaFileManager::read_listener( KUInt32 desc, void *buf, KUInt32 nbytes )
+TCocoaFileManager::read_listener(KUInt32 desc, void* buf, KUInt32 nbytes)
 {
-	NSArray *listenerWindows = nil;
-	@synchronized(mListenerWindows) {
+	NSArray* listenerWindows = nil;
+	@synchronized(mListenerWindows)
+	{
 		listenerWindows = [NSArray arrayWithArray:mListenerWindows];
 	}
-	
-	for (TCocoaListenerWindow *window in listenerWindows) {
-		if (window.newt_fdesc == desc) {
+
+	for (TCocoaListenerWindow* window in listenerWindows)
+	{
+		if (window.newt_fdesc == desc)
+		{
 			return [window writeInputIntoBuffer:buf
 									  maxLength:nbytes];
 		}

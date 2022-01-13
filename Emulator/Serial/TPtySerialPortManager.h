@@ -41,29 +41,32 @@ class TMemory;
 class TPtySerialPortManager : public TBasicSerialPortManager
 {
 public:
-
 	///
 	/// Constructor.
 	///
 	TPtySerialPortManager(TLog* inLog,
-						  TSerialPorts::EPortIndex inPortIx);
+		TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.
 	///
-	~TPtySerialPortManager( ) override;
+	~TPtySerialPortManager() override;
 
 	///
 	/// Return the Identification of this driver
 	///
-	KUInt32 GetID() override { return TSerialPorts::kPtyDriver; }
+	KUInt32
+	GetID() override
+	{
+		return TSerialPorts::kPtyDriver;
+	}
 
 	///
 	/// Start emulation.
 	///
 	void run(TInterruptManager* inInterruptManager,
-					 TDMAManager* inDMAManager,
-					 TMemory* inMemory) override;
+		TDMAManager* inDMAManager,
+		TMemory* inMemory) override;
 
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
@@ -71,7 +74,6 @@ public:
 	void TriggerEvent(KUInt8 cmd) override;
 
 protected:
-
 	///
 	/// Launch the thread that emulates the DMA hardware
 	///
@@ -85,7 +87,12 @@ protected:
 	///
 	/// PThread hook.
 	///
-	static void *SHandleDMA(void *This) { ((TPtySerialPortManager*)This)->HandleDMA(); return 0L; }
+	static void*
+	SHandleDMA(void* This)
+	{
+		((TPtySerialPortManager*) This)->HandleDMA();
+		return 0L;
+	}
 
 	///
 	/// Find good names for the named pipes
@@ -97,11 +104,11 @@ protected:
 	///
 	bool CreatePty();
 
-	int mPipe[2];							///< communication between emulator and DMA thread
-	int mPtyPort;							///< pseudo terminal file id
-	bool mDMAIsRunning;						///< set if DMA thread is active
+	int mPipe[2]; ///< communication between emulator and DMA thread
+	int mPtyPort; ///< pseudo terminal file id
+	bool mDMAIsRunning; ///< set if DMA thread is active
 	pthread_t mDMAThread;
-	char *mPtyName;							///< named of pseudo terminal
+	char* mPtyName; ///< named of pseudo terminal
 };
 
 #endif

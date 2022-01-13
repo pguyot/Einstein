@@ -34,39 +34,39 @@
 
 class TCocoaScreenManager;
 
-id		EmulatorText_Create( int inWindowWidth, int inWindowHeight );
-void	EmulatorText_SetScreenOffString( id inProxy, id inEmulatorText );
-void	EmulatorText_SetEinsteinOffString( id inProxy, id inEmulatorText );
-id		TCocoaScreenView_Create(
-			TCocoaScreenManager* inManager,
-			int inWindowWidth,
-			int inWindowHeight);
-void	TCocoaScreenView_SetNeedsDisplay( id inProxy, id inView );
-void    TCocoaScreenView_SetNeedsDisplayInRect( id inProxy, id inView, NSRect inRect );
-void	TCocoaScreenView_SetHidden( id inProxy, id inView, bool inHidden );
-void	EmulatorApp_PowerChange( id inProxy, id inListener, bool inState );
-void	EmulatorApp_BacklightChange( id inProxy, id inListener, bool inState );
-id		EmulatorWindow_CreateFullScreen(
-			TCocoaScreenManager* inManager,
-			id inApp,
-			id inView,
-			id inText);
-id		EmulatorWindow_Create(
-			id inApp,
-			int inWidth,
-			int inHeight,
-			id inView,
-			id inText);
-void	EmulatorWindow_MakeFront( id inWindow );
-void	EmulatorWindow_Close( id inWindow );
-void	EmulatorWindow_SetFirstResponder( id inWindow, id inView );
-void	ResizeForRotation( id inWindow, id inView, int inWidth, int inHeight );
-void	RotateView(
-			id inView,
-			TScreenManager::EOrientation inScreenOrientation);
+id EmulatorText_Create(int inWindowWidth, int inWindowHeight);
+void EmulatorText_SetScreenOffString(id inProxy, id inEmulatorText);
+void EmulatorText_SetEinsteinOffString(id inProxy, id inEmulatorText);
+id TCocoaScreenView_Create(
+	TCocoaScreenManager* inManager,
+	int inWindowWidth,
+	int inWindowHeight);
+void TCocoaScreenView_SetNeedsDisplay(id inProxy, id inView);
+void TCocoaScreenView_SetNeedsDisplayInRect(id inProxy, id inView, NSRect inRect);
+void TCocoaScreenView_SetHidden(id inProxy, id inView, bool inHidden);
+void EmulatorApp_PowerChange(id inProxy, id inListener, bool inState);
+void EmulatorApp_BacklightChange(id inProxy, id inListener, bool inState);
+id EmulatorWindow_CreateFullScreen(
+	TCocoaScreenManager* inManager,
+	id inApp,
+	id inView,
+	id inText);
+id EmulatorWindow_Create(
+	id inApp,
+	int inWidth,
+	int inHeight,
+	id inView,
+	id inText);
+void EmulatorWindow_MakeFront(id inWindow);
+void EmulatorWindow_Close(id inWindow);
+void EmulatorWindow_SetFirstResponder(id inWindow, id inView);
+void ResizeForRotation(id inWindow, id inView, int inWidth, int inHeight);
+void RotateView(
+	id inView,
+	TScreenManager::EOrientation inScreenOrientation);
 
 #endif
-		// _TCOCOASCREENVIEWGLUE_H
+// _TCOCOASCREENVIEWGLUE_H
 
 // ========================================================================= //
 // No, I'm not interested in developing a powerful brain.  All I'm after is  //

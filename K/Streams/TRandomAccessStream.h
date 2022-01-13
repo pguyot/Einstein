@@ -48,8 +48,7 @@
 /// \test	aucun test défini.
 ///
 class TRandomAccessStream
-	:
-		public TStream
+		: public TStream
 {
 public:
 	///
@@ -57,9 +56,9 @@ public:
 	/// To be used with SetCursor method.
 	///
 	enum ECursorMode {
-		kFromStart,		///< from the start of the stream.
-		kFromLEOF,		///< from the end of the stream.
-		kFromCursor		///< from the current position of the cursor.
+		kFromStart, ///< from the start of the stream.
+		kFromLEOF, ///< from the end of the stream.
+		kFromCursor ///< from the current position of the cursor.
 	};
 
 	///
@@ -68,7 +67,7 @@ public:
 	/// \return the position from the start of the stream.
 	/// \throws an exception if the operation isn't supported.
 	///
-	virtual KSInt64 GetCursor( void ) const = 0;
+	virtual KSInt64 GetCursor(void) const = 0;
 
 	///
 	/// Move the cursor in the stream.
@@ -80,11 +79,11 @@ public:
 	///			was reached.
 	/// \throws an exception if the operation isn't supported.
 	///
-	virtual void SetCursor( KSInt64 inPos, ECursorMode inMode ) = 0;
+	virtual void SetCursor(KSInt64 inPos, ECursorMode inMode) = 0;
 };
 
 #endif
-		// _TRANDOMACCESSSTREAM_H
+// _TRANDOMACCESSSTREAM_H
 
 // ========================================================================== //
 // So you see Antonio, why worry about one little core dump, eh?  In reality  //

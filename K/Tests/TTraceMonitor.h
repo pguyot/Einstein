@@ -51,10 +51,10 @@ public:
 	/// Modes
 	///
 	enum EMode {
-		kNone			=	0,
-		kDisplayBegin	=	1 << 0,
-		kDisplayEnd		=	1 << 1,
-		kKeepStack		=	1 << 2
+		kNone = 0,
+		kDisplayBegin = 1 << 0,
+		kDisplayEnd = 1 << 1,
+		kKeepStack = 1 << 2
 	};
 
 	///
@@ -62,12 +62,12 @@ public:
 	///
 	/// \param	inMode	mode à utiliser. Les bits sont définis dans EMode.
 	///
-	TTraceMonitor( unsigned int inMode );
+	TTraceMonitor(unsigned int inMode);
 
 	///
 	/// Destructeur.
 	///
-	virtual ~TTraceMonitor( void );
+	virtual ~TTraceMonitor(void);
 
 	///
 	/// Début d'une fonction.
@@ -81,8 +81,8 @@ public:
 	/// \param inLineNumber		numéro de la ligne.
 	///
 	virtual void FunctionBegin(
-						const char* inFileName,
-						unsigned int inLineNumber );
+		const char* inFileName,
+		unsigned int inLineNumber);
 
 	///
 	/// Fin d'une fonction.
@@ -94,8 +94,8 @@ public:
 	/// \param inLineNumber		numéro de la ligne.
 	///
 	virtual void FunctionEnd(
-						const char* inFileName,
-						unsigned int inLineNumber );
+		const char* inFileName,
+		unsigned int inLineNumber);
 
 	///
 	/// Sélecteur sur le mode.
@@ -103,14 +103,14 @@ public:
 	///
 	/// \param	inMode	mode à utiliser (les bits sont définis par EMode)
 	///
-	void SetMode( unsigned int inMode );
+	void SetMode(unsigned int inMode);
 
 	///
 	/// Affiche la pile.
 	/// Cette méthode va appeler DoPrintStack pour chaque appel dans
 	/// la pile si le mode comprend \c kKeepStack.
 	///
-	void PrintStack( void );
+	void PrintStack(void);
 
 protected:
 	///
@@ -123,9 +123,9 @@ protected:
 	/// \param	inLineNumber	numéro de ligne
 	///
 	virtual void DoPrintBegin(
-						unsigned int inStackDepth,
-						const char* inFileName,
-						unsigned int inLineNumber );
+		unsigned int inStackDepth,
+		const char* inFileName,
+		unsigned int inLineNumber);
 
 	///
 	/// Affiche une ligne pour la fin d'une fonction.
@@ -137,9 +137,9 @@ protected:
 	/// \param	inLineNumber	numéro de ligne
 	///
 	virtual void DoPrintEnd(
-						unsigned int inStackDepth,
-						const char* inFileName,
-						unsigned int inLineNumber );
+		unsigned int inStackDepth,
+		const char* inFileName,
+		unsigned int inLineNumber);
 	///
 	/// Affiche une ligne pour la pile.
 	/// La méthode par défaut utilise ::printf.
@@ -148,31 +148,32 @@ protected:
 	/// \param	inLineNumber	numéro de ligne
 	///
 	virtual void DoPrintStack(
-						const char* inFileName,
-						unsigned int inLineNumber );
+		const char* inFileName,
+		unsigned int inLineNumber);
+
 private:
 	///
 	/// Structure pour la pile.
 	/// Comprend le nom du fichier et le numéro de ligne.
 	///
 	struct SStackEntry {
-		const char*		fFileName;		///< Nom du fichier
-		unsigned int	fLineNumber;	///< Numéro de ligne
+		const char* fFileName; ///< Nom du fichier
+		unsigned int fLineNumber; ///< Numéro de ligne
 	};
 
 	enum {
-		kStackSizeIncrement	= 10		///< Incrément à chaque fois
-										///< que la pile est pleine.
+		kStackSizeIncrement = 10 ///< Incrément à chaque fois
+								 ///< que la pile est pleine.
 	};
 
-	unsigned int		mMode;			///< Mode (cf \c EMode)
-	unsigned int		mStackDepth;	///< Profondeur de la pile
-	unsigned int		mStackCapacity;	///< Capacité de la pile
-	SStackEntry*		mStack;			///< Pile
+	unsigned int mMode; ///< Mode (cf \c EMode)
+	unsigned int mStackDepth; ///< Profondeur de la pile
+	unsigned int mStackCapacity; ///< Capacité de la pile
+	SStackEntry* mStack; ///< Pile
 };
 
 #endif
-		// __TTRACEMONITOR__
+// __TTRACEMONITOR__
 
 // ============================================ //
 // Our OS who art in CPU, UNIX be thy name.     //

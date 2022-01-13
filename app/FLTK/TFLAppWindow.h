@@ -28,9 +28,7 @@
 
 #include <FL/Fl_Window.H>
 
-
 class TFLApp;
-
 
 /**
  This is the the window that contain the Newton main screen.
@@ -38,25 +36,23 @@ class TFLApp;
 class TFLAppWindow : public Fl_Window
 {
 public:
-    // constructor positioning the window through the window manager
-    TFLAppWindow(int ww, int hh, const char *ll=nullptr);
+	// constructor positioning the window through the window manager
+	TFLAppWindow(int ww, int hh, const char* ll = nullptr);
 
-    // constructor positioning the window at a given location
-    TFLAppWindow(int xx, int yy, int ww, int hh, const char *ll=nullptr);
+	// constructor positioning the window at a given location
+	TFLAppWindow(int xx, int yy, int ww, int hh, const char* ll = nullptr);
 
-    // call this to hide the mouse pointer whenever it is inside the main window
-    void HideMousePointer();
+	// call this to hide the mouse pointer whenever it is inside the main window
+	void HideMousePointer();
 
-    // call this to show the mouse pointer
-    void ShowMousePointer();
+	// call this to show the mouse pointer
+	void ShowMousePointer();
 
-    // custom event handler for some extra events
-    int handle(int event) override;
+	// custom event handler for some extra events
+	int handle(int event) override;
 
 private:
-    Boolean mMouseHidden = false;
+	Boolean mMouseHidden = false;
 };
 
-
 #endif // T_FL_APP_WINDOW_H
-

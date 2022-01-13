@@ -22,16 +22,16 @@
 // ==============================
 
 #define Test_TemplateName(cond, offset) \
-	Test ## cond ## offset
+	Test##cond##offset
 
 #if DECLARATION
-	#define Test_Template(cond, offset, body) \
-		JITInstructionProto(Test_TemplateName(cond, offset));
+#define Test_Template(cond, offset, body) \
+	JITInstructionProto(Test_TemplateName(cond, offset));
 #endif
 #if IMPLEMENTATION
-	#define Test_Template(cond, offset, body) \
-		JITInstructionProto(Test_TemplateName(cond, offset)) \
-			body
+#define Test_Template(cond, offset, body)                \
+	JITInstructionProto(Test_TemplateName(cond, offset)) \
+		body
 #endif
 
 // Include the template for all values of offset

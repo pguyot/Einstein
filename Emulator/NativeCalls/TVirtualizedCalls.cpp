@@ -34,26 +34,25 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
-#define min(a,b) (a) < (b) ? (a) : (b)
+#define min(a, b) (a) < (b) ? (a) : (b)
 
 // -------------------------------------------------------------------------- //
 //  * TVirtualizedCalls( void )
 // -------------------------------------------------------------------------- //
 TVirtualizedCalls::TVirtualizedCalls(
-		TEmulator* inEmulator,
-		TMemory* inMemoryIntf,
-		TARMProcessor* inProcessor )
-	:
-		mEmulator( inEmulator ),
-		mMemoryIntf( inMemoryIntf ),
-		mProcessor( inProcessor )
+	TEmulator* inEmulator,
+	TMemory* inMemoryIntf,
+	TARMProcessor* inProcessor) :
+		mEmulator(inEmulator),
+		mMemoryIntf(inMemoryIntf),
+		mProcessor(inProcessor)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TVirtualizedCalls( void )
 // -------------------------------------------------------------------------- //
-TVirtualizedCalls::~TVirtualizedCalls( void )
+TVirtualizedCalls::~TVirtualizedCalls(void)
 {
 }
 
@@ -61,7 +60,7 @@ TVirtualizedCalls::~TVirtualizedCalls( void )
 //  * __rt_sdiv( void )
 // -------------------------------------------------------------------------- //
 inline void
-TVirtualizedCalls::__rt_sdiv( void )
+TVirtualizedCalls::__rt_sdiv(void)
 {
 	KSInt32 divider = mProcessor->GetRegister(0);
 	KSInt32 dividend = mProcessor->GetRegister(1);
@@ -75,7 +74,7 @@ TVirtualizedCalls::__rt_sdiv( void )
 //  * __rt_udiv( void )
 // -------------------------------------------------------------------------- //
 inline void
-TVirtualizedCalls::__rt_udiv( void )
+TVirtualizedCalls::__rt_udiv(void)
 {
 	KUInt32 divider = mProcessor->GetRegister(0);
 	KUInt32 dividend = mProcessor->GetRegister(1);
@@ -89,7 +88,7 @@ TVirtualizedCalls::__rt_udiv( void )
 //  * memmove_slow( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 inline void
-TVirtualizedCalls::memmove_slow( KUInt32 inDst, KUInt32 inSrc, KUInt32 inLen )
+TVirtualizedCalls::memmove_slow(KUInt32 inDst, KUInt32 inSrc, KUInt32 inLen)
 {
 	// Slow version of memmove, typically for memmove with hardware.
 	KUInt32 len = inLen;
@@ -97,22 +96,22 @@ TVirtualizedCalls::memmove_slow( KUInt32 inDst, KUInt32 inSrc, KUInt32 inLen )
 	KUInt32 dst = inDst;
 	TMemory* theMemoryIntf = mMemoryIntf;
 
-//	if ((src & 0x3) || (dst & 0x3) || (len & 0x3))
-//	{
-//		KPrintf( "unaligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
-//	} else {
-//		KPrintf( "  aligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
-//	}
+	//	if ((src & 0x3) || (dst & 0x3) || (len & 0x3))
+	//	{
+	//		KPrintf( "unaligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
+	//	} else {
+	//		KPrintf( "  aligned memmove( dst=%.8X, src=%.8X, len=%.8X )\n", inDst, inSrc, inLen );
+	//	}
 
 	while (len > 3)
 	{
 		KUInt32 word;
-		if (theMemoryIntf->Read( src, word ))
+		if (theMemoryIntf->Read(src, word))
 		{
 			len = 0;
 			break;
 		}
-		if (theMemoryIntf->Write( dst, word ))
+		if (theMemoryIntf->Write(dst, word))
 		{
 			len = 0;
 			break;
@@ -126,11 +125,11 @@ TVirtualizedCalls::memmove_slow( KUInt32 inDst, KUInt32 inSrc, KUInt32 inLen )
 	while (len)
 	{
 		KUInt8 byte;
-		if (theMemoryIntf->ReadB( src, byte ))
+		if (theMemoryIntf->ReadB(src, byte))
 		{
 			break;
 		}
-		if (theMemoryIntf->WriteB( dst, byte ))
+		if (theMemoryIntf->WriteB(dst, byte))
 		{
 			break;
 		}
@@ -146,16 +145,17 @@ TVirtualizedCalls::memmove_slow( KUInt32 inDst, KUInt32 inSrc, KUInt32 inLen )
 // -------------------------------------------------------------------------- //
 // BROKEN ON LITTLE ENDIAN
 inline void
-TVirtualizedCalls::memmove( void )
+TVirtualizedCalls::memmove(void)
 {
 	KUInt32 dst = mProcessor->GetRegister(0);
 	KUInt32 src = mProcessor->GetRegister(1);
 	KUInt32 len = mProcessor->GetRegister(2);
 	TMemory* theMemoryIntf = mMemoryIntf;
 
-//	memmove_slow(dst, src, len);
+	//	memmove_slow(dst, src, len);
 
-	do {
+	do
+	{
 		if ((dst == src) || (len == 0))
 		{
 			break;
@@ -180,9 +180,10 @@ TVirtualizedCalls::memmove( void )
 		KUInt32 maxSrc = baseSrc - src + TMemoryConsts::kMMUSmallestPageSize;
 		KUInt32 maxDst = baseDst - dst + TMemoryConsts::kMMUSmallestPageSize;
 
-		do {
+		do
+		{
 			KUInt32 amount = min(min(len, maxSrc), maxDst);
-			(void) ::memmove( dstPtr, srcPtr, amount );
+			(void) ::memmove(dstPtr, srcPtr, amount);
 			len -= amount;
 			if (len == 0)
 			{
@@ -200,7 +201,8 @@ TVirtualizedCalls::memmove( void )
 				}
 				baseSrc += TMemoryConsts::kMMUSmallestPageSize;
 				maxSrc = TMemoryConsts::kMMUSmallestPageSize;
-			} else {
+			} else
+			{
 				maxSrc -= amount;
 				srcPtr += amount;
 			}
@@ -213,7 +215,8 @@ TVirtualizedCalls::memmove( void )
 				}
 				baseDst += TMemoryConsts::kMMUSmallestPageSize;
 				maxDst = TMemoryConsts::kMMUSmallestPageSize;
-			} else {
+			} else
+			{
 				maxDst -= amount;
 				dstPtr += amount;
 			}
@@ -227,7 +230,7 @@ TVirtualizedCalls::memmove( void )
 //  * symcmp__FPcT1( void )
 // -------------------------------------------------------------------------- //
 inline void
-TVirtualizedCalls::symcmp__FPcT1( void )
+TVirtualizedCalls::symcmp__FPcT1(void)
 {
 	KUInt32 s1 = mProcessor->GetRegister(0);
 	KUInt32 s2 = mProcessor->GetRegister(1);
@@ -237,9 +240,12 @@ TVirtualizedCalls::symcmp__FPcT1( void )
 	// Read 4 by 4.
 	KUInt32 buffer1;
 	KUInt32 buffer2;
-	do {
-		if (theMemoryIntf->Read(s1, buffer1)) break;
-		if (theMemoryIntf->Read(s2, buffer2)) break;
+	do
+	{
+		if (theMemoryIntf->Read(s1, buffer1))
+			break;
+		if (theMemoryIntf->Read(s2, buffer2))
+			break;
 
 		// Equal fast.
 		if (buffer1 == buffer2)
@@ -253,7 +259,8 @@ TVirtualizedCalls::symcmp__FPcT1( void )
 			}
 			s1 += 4;
 			s2 += 4;
-		} else {
+		} else
+		{
 			// Consider each character.
 			KUInt8 char1 = buffer1 >> 24;
 			KUInt8 char2 = buffer2 >> 24;
@@ -271,11 +278,13 @@ TVirtualizedCalls::symcmp__FPcT1( void )
 				{
 					result = (KUInt32) -1;
 					break;
-				} else if (char1 > char2) {
+				} else if (char1 > char2)
+				{
 					result = 1;
 					break;
 				}
-			} else if (char1 == 0) {
+			} else if (char1 == 0)
+			{
 				break;
 			}
 
@@ -295,11 +304,13 @@ TVirtualizedCalls::symcmp__FPcT1( void )
 				{
 					result = (KUInt32) -1;
 					break;
-				} else if (char1 > char2) {
+				} else if (char1 > char2)
+				{
 					result = 1;
 					break;
 				}
-			} else if (char1 == 0) {
+			} else if (char1 == 0)
+			{
 				break;
 			}
 
@@ -319,11 +330,13 @@ TVirtualizedCalls::symcmp__FPcT1( void )
 				{
 					result = (KUInt32) -1;
 					break;
-				} else if (char1 > char2) {
+				} else if (char1 > char2)
+				{
 					result = 1;
 					break;
 				}
-			} else if (char1 == 0) {
+			} else if (char1 == 0)
+			{
 				break;
 			}
 
@@ -343,11 +356,13 @@ TVirtualizedCalls::symcmp__FPcT1( void )
 				{
 					result = (KUInt32) -1;
 					break;
-				} else if (char1 > char2) {
+				} else if (char1 > char2)
+				{
 					result = 1;
 					break;
 				}
-			} else if (char1 == 0) {
+			} else if (char1 == 0)
+			{
 				break;
 			}
 
@@ -359,12 +374,11 @@ TVirtualizedCalls::symcmp__FPcT1( void )
 	mProcessor->SetRegister(0, result);
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * Execute( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TVirtualizedCalls::Execute( KUInt32 inInstruction )
+TVirtualizedCalls::Execute(KUInt32 inInstruction)
 {
 	switch (inInstruction)
 	{
@@ -388,8 +402,6 @@ TVirtualizedCalls::Execute( KUInt32 inInstruction )
 			break;
 	}
 }
-
-
 
 // ============================================================================ //
 // There has also been some work to allow the interesting use of macro names.   //

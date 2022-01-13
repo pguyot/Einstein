@@ -42,54 +42,51 @@
 class TSymbolList
 {
 public:
-
 	static const KUInt32 kNoSymbol = 0xFFFFFFFF;
 
-	static TSymbolList *List;
+	static TSymbolList* List;
 
 	///
 	/// Constructor from a path.
 	///
-	TSymbolList( const char* inSymbolPath );
+	TSymbolList(const char* inSymbolPath);
 
 	///
 	/// Destructor.
 	///
-	~TSymbolList( void );
+	~TSymbolList(void);
 
 	///
 	/// Find symbol at or preceeding a given address
 	///
 	void GetNearestSymbolByAddress(
-			KUInt32 inValue,
-			char* outSymbol,
-			char* outComment,
-			int* outOffset );
+		KUInt32 inValue,
+		char* outSymbol,
+		char* outComment,
+		int* outOffset);
 
 	///
 	/// Find symbol at a given address
 	///
 	bool GetSymbolByAddress(
-			KUInt32 inValue,
-			char* outSymbol,
-			char* outComment = NULL,
-			int* outOffset = NULL );
+		KUInt32 inValue,
+		char* outSymbol,
+		char* outComment = NULL,
+		int* outOffset = NULL);
 
 	///
 	/// Find a symbol by name and return its address
 	///
-	KUInt32 GetSymbolByName( const char* inName );
+	KUInt32 GetSymbolByName(const char* inName);
 
 	///
 	/// Find the next symbol for a give address
 	///
-	KUInt32 GetNextSymbol( KUInt32 inValue );
-
+	KUInt32 GetNextSymbol(KUInt32 inValue);
 
 private:
-	struct SSymbolStruct
-	{
-		KUInt32	fAddress;
+	struct SSymbolStruct {
+		KUInt32 fAddress;
 		char* fName;
 		char* fComment;
 	};
@@ -99,57 +96,57 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TSymbolList( const TSymbolList& inCopy );
+	TSymbolList(const TSymbolList& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TSymbolList& operator = ( const TSymbolList& inCopy );
+	TSymbolList& operator=(const TSymbolList& inCopy);
 
 	///
 	/// Load symbols.
 	///
-	void LoadSymbols( void );
+	void LoadSymbols(void);
 
 	///
 	/// Copy symbol name and comment strings out of an SSymbolStruct
 	//
 	void CopySymbolStrings(
-						SSymbolStruct *symbol,
-						char* outSymbol,
-						char* outComment );
+		SSymbolStruct* symbol,
+		char* outSymbol,
+		char* outComment);
 
 	///
 	/// Read data for a symbol from the symbol file
 	//
 	void ReadSymbolData(
-						FILE *inFile,
-						char* outSymbol,
-						char* outComment );
+		FILE* inFile,
+		char* outSymbol,
+		char* outComment);
 
 	///
 	/// Add one symbol with value and comment
 	///
 	void AddSymbol(
-						KUInt32 inValue,
-						const char* inSymbol,
-						const char* inComment = NULL );
+		KUInt32 inValue,
+		const char* inSymbol,
+		const char* inComment = NULL);
 
 	///
 	/// Return -1, 0, or 1 if the symbol position is less, equal, or greater
-	static int QSortCallback( const void *left, const void *right );
+	static int QSortCallback(const void* left, const void* right);
 
 	/// \name Variables
-	SSymbolStruct*		mSymbolOffsets;
-	KUInt32				mSymbolCount;
-	KUInt32				mSymbolCapacity;
-	FILE*				mFile;
+	SSymbolStruct* mSymbolOffsets;
+	KUInt32 mSymbolCount;
+	KUInt32 mSymbolCapacity;
+	FILE* mFile;
 };
 
 #endif
-		// _TSYMBOLLIST_H
+// _TSYMBOLLIST_H
 
 // ============================================================================== //
 //         The programmers of old were mysterious and profound.  We cannot fathom //

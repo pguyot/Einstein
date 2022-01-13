@@ -29,7 +29,8 @@
 // Einstein
 #include "Emulator/TMemoryConsts.h"
 
-template< class TImplementation, class TPage > class TJIT;
+template <class TImplementation, class TPage>
+class TJIT;
 class TMemory;
 
 ///
@@ -44,14 +45,14 @@ class TMemory;
 ///
 /// \test	aucun test défini.
 ///
-template< class TImplementation, class TPage >
+template <class TImplementation, class TPage>
 class TJITPage
 {
 public:
 	///
 	/// Access from TJIT
 	///
-	friend class TJIT< TImplementation, TPage >;
+	friend class TJIT<TImplementation, TPage>;
 
 	enum {
 		kPageSize = TMemoryConsts::kMMUSmallestPageSize,
@@ -61,40 +62,42 @@ public:
 	///
 	/// Default constructor.
 	///
-	TJITPage( void );
+	TJITPage(void);
 
 	///
 	/// Destructor.
 	///
-	~TJITPage( void );
+	~TJITPage(void);
 
 	///
 	/// Init with the memory interface, a virtual address and a physical address.
 	///
 	void Init(
-			TMemory* inMemoryIntf,
-			KUInt32 inVAddr,
-			KUInt32 inPAddr );
+		TMemory* inMemoryIntf,
+		KUInt32 inVAddr,
+		KUInt32 inPAddr);
 
 	///
 	/// Accessor on the virtual address of the page.
 	///
 	/// \return the virtual address of the page.
 	///
-	inline KUInt32 GetVAddr( void ) const
-		{
-			return mVAddr;
-		}
+	inline KUInt32
+	GetVAddr(void) const
+	{
+		return mVAddr;
+	}
 
 	///
 	/// Accessor on the physical address of the page.
 	///
 	/// \return the physical address of the page.
 	///
-	inline KUInt32 GetPAddr( void ) const
-		{
-			return mPAddr;
-		}
+	inline KUInt32
+	GetPAddr(void) const
+	{
+		return mPAddr;
+	}
 
 	///
 	/// Accessor on an instruction in the page.
@@ -102,19 +105,21 @@ public:
 	/// \param inOffset	offset of the instruction (address / 4)
 	/// \return the instruction.
 	///
-	inline KUInt32 GetInstruction( KUInt32 inOffset ) const
-		{
-			return mPointer[inOffset];
-		}
+	inline KUInt32
+	GetInstruction(KUInt32 inOffset) const
+	{
+		return mPointer[inOffset];
+	}
 
 protected:
 	///
 	/// Accessor on the pointer.
 	///
-	inline KUInt32* GetPointer( void )
-		{
-			return mPointer;
-		}
+	inline KUInt32*
+	GetPointer(void)
+	{
+		return mPointer;
+	}
 
 private:
 	///
@@ -122,24 +127,24 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TJITPage( const TJITPage& inCopy );
+	TJITPage(const TJITPage& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TJITPage& operator = ( const TJITPage& inCopy );
+	TJITPage& operator=(const TJITPage& inCopy);
 
 	/// \name Variables
-	KUInt32*	mPointer;	///< Pointer to instructions, null if the page
-							///< is dirty.
-	KUInt32		mVAddr;		///< Virtual address of the page.
-	KUInt32		mPAddr;		///< Physical address of the page.
+	KUInt32* mPointer; ///< Pointer to instructions, null if the page
+					   ///< is dirty.
+	KUInt32 mVAddr; ///< Virtual address of the page.
+	KUInt32 mPAddr; ///< Physical address of the page.
 };
 
 #endif
-		// _TJITPAGE_H
+// _TJITPAGE_H
 
 // ===================================================================== //
 // The New Testament offers the basis for modern computer coding theory, //

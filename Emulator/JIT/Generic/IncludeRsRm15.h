@@ -26,49 +26,49 @@
 // #define INCLUDE_TEMPLATE	"MyFile.h"
 // #include "IncludeRsRm15.h"
 
-#define Rs	0
+#define Rs 0
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	1
+#define Rs 1
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	2
+#define Rs 2
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	3
+#define Rs 3
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	4
+#define Rs 4
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	5
+#define Rs 5
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	6
+#define Rs 6
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	7
+#define Rs 7
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	8
+#define Rs 8
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	9
+#define Rs 9
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	10
+#define Rs 10
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	11
+#define Rs 11
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	12
+#define Rs 12
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	13
+#define Rs 13
 #include "IncludeRm15.h"
 #undef Rs
-#define Rs	14
+#define Rs 14
 #include "IncludeRm15.h"
 #undef Rs
 

@@ -43,26 +43,24 @@
 // -------------------------------------------------------------------------- //
 //  * TError( void )
 // -------------------------------------------------------------------------- //
-TError::TError( void )
+TError::TError(void)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * TError( const char*, KUInt32 )
 // -------------------------------------------------------------------------- //
-TError::TError( const char* inFileName, KUInt32 inLine )
-	:
-		TException( inFileName, inLine )
+TError::TError(const char* inFileName, KUInt32 inLine) :
+		TException(inFileName, inLine)
 {
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TError( void ) throw ()
 // -------------------------------------------------------------------------- //
-TError::~TError( void ) throw ()
+TError::~TError(void) throw()
 {
 }
-
 
 // ============================================================================== //
 // "We invented a new protocol and called it Kermit, after Kermit the Frog,       //

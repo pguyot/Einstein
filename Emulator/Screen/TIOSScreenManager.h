@@ -26,8 +26,8 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TScreenManager.h"
-#include "iEinsteinViewController.h"
 #include "iEinsteinView.h"
+#include "iEinsteinViewController.h"
 
 #import <UIKit/UIKit.h>
 
@@ -39,7 +39,6 @@
 
 class TPlatformManager;
 
-
 ///
 /// Class for a screen manager for Cocoa.
 ///
@@ -49,8 +48,7 @@ class TPlatformManager;
 /// \test	aucun test défini.
 ///
 class TIOSScreenManager
-	:
-		public TScreenManager
+		: public TScreenManager
 {
 public:
 	///
@@ -63,18 +61,18 @@ public:
 	/// \param inPortraitHeight		height (in portrait mode).
 	///
 	TIOSScreenManager(
-				iEinsteinView *inView,
-				iEinsteinViewController *inCtrl,
-				TLog* inLog = nil,
-				KUInt32 inPortraitWidth = kDefaultPortraitWidth,
-				KUInt32 inPortraitHeight = kDefaultPortraitHeight,
-				Boolean inFullScreen = false,
-				Boolean inScreenIsLandscape = true);
+		iEinsteinView* inView,
+		iEinsteinViewController* inCtrl,
+		TLog* inLog = nil,
+		KUInt32 inPortraitWidth = kDefaultPortraitWidth,
+		KUInt32 inPortraitHeight = kDefaultPortraitHeight,
+		Boolean inFullScreen = false,
+		Boolean inScreenIsLandscape = true);
 
 	///
 	/// Destructeur.
 	///
-	virtual ~TIOSScreenManager( void );
+	virtual ~TIOSScreenManager(void);
 
 	///
 	/// Notify that the tablet orientation changed.
@@ -82,33 +80,33 @@ public:
 	///
 	/// \param inNewOrientation	the new orientation of the screen.
 	///
-	virtual void	TabletOrientationChanged(
-						EOrientation inNewOrientation );
+	virtual void TabletOrientationChanged(
+		EOrientation inNewOrientation);
 
 	///
 	/// This method is called by the platform manager when the emulator is
 	/// turned on.
 	///
-	virtual void	PowerOn( void );
+	virtual void PowerOn(void);
 
 	///
 	/// This method is called by the platform manager when the emulator is
 	/// turned off.
 	///
-	virtual void	PowerOff( void );
+	virtual void PowerOff(void);
 
 	///
 	/// Power on the screen (open the window?)
 	/// This method is called by the display driver.
 	/// It doesn't do anything. The work is done in ScreenSetup.
 	///
-	virtual void	PowerOnScreen( void );
+	virtual void PowerOnScreen(void);
 
 	///
 	/// Power off the screen (close the window?)
 	/// This method is called by the display driver.
 	///
-	virtual void	PowerOffScreen( void );
+	virtual void PowerOffScreen(void);
 
 	///
 	/// Notify that the screen orientation changed.
@@ -116,8 +114,8 @@ public:
 	///
 	/// \param inNewOrientation	the new orientation of the screen.
 	///
-	virtual void	ScreenOrientationChanged(
-						EOrientation inNewOrientation );
+	virtual void ScreenOrientationChanged(
+		EOrientation inNewOrientation);
 
 	///
 	/// Notify that the contrast changed.
@@ -125,7 +123,7 @@ public:
 	///
 	/// \param inNewContrast the new contrast of the screen.
 	///
-	virtual void	ContrastChanged( KUInt32 inNewContrast );
+	virtual void ContrastChanged(KUInt32 inNewContrast);
 
 	///
 	/// Notify that the backlight changed.
@@ -133,34 +131,36 @@ public:
 	///
 	/// \param inNewBacklight the new state of the backlight.
 	///
-	virtual void	BacklightChanged( Boolean inNewBacklight );
+	virtual void BacklightChanged(Boolean inNewBacklight);
 
 	///
 	/// Notify that some screen bits changed.
 	///
 	/// \param inUpdateRect	rectangle of the bits that changed.
 	///
-	virtual void	UpdateScreenRect( SRect* inUpdatedRect );
+	virtual void UpdateScreenRect(SRect* inUpdatedRect);
 
 	///
 	/// Selector to the platform manager.
 	///
 	/// \param inPlatformManager a reference to the platform manager.
 	///
-	void			SetPlatformManager( TPlatformManager* inPlatformManager )
-		{
-			mPlatformManager = inPlatformManager;
-		}
+	void
+	SetPlatformManager(TPlatformManager* inPlatformManager)
+	{
+		mPlatformManager = inPlatformManager;
+	}
 
 	///
 	/// Accessor to the data provider.
 	///
 	/// \return a reference to the data provider.
 	///
-	CGDataProviderRef		GetDataProvider( void )
-		{
-			return mDataProviderRef;
-		}
+	CGDataProviderRef
+	GetDataProvider(void)
+	{
+		return mDataProviderRef;
+	}
 
 	///
 	///	Insert a sample with pen down.
@@ -170,59 +170,61 @@ public:
 	/// \param inPressure		pressure of the event (0-7)
 	/// \param inTimeInTicks	time of the event (in ticks, 0 ask IntMgr)
 	///
-	void	PenDown(
-				KUInt16 inXCoord,
-				KUInt16 inYCoord,
-				KUInt8 inPressure = 4,
-				KUInt32 inTimeInTicks = 0 )
-		{
-			TScreenManager::PenDown( inXCoord, inYCoord, inPressure, inTimeInTicks );
-		}
+	void
+	PenDown(
+		KUInt16 inXCoord,
+		KUInt16 inYCoord,
+		KUInt8 inPressure = 4,
+		KUInt32 inTimeInTicks = 0)
+	{
+		TScreenManager::PenDown(inXCoord, inYCoord, inPressure, inTimeInTicks);
+	}
 
 	///
 	///	The pen was lifted.
 	///
 	/// \param inTimeInTicks	time of the event (in ticks, 0 ask IntMgr)
 	///
-	void	PenUp( KUInt32 inTimeInTicks = 0 )
-		{
-			TScreenManager::PenUp( inTimeInTicks );
-		}
+	void
+	PenUp(KUInt32 inTimeInTicks = 0)
+	{
+		TScreenManager::PenUp(inTimeInTicks);
+	}
 
 	///
 	///	The power switch was handled.
 	///
-	void	PowerSwitch( void );
+	void PowerSwitch(void);
 
 	///
 	///	A file was dragged on the window.
 	///
 	/// \param inPath	path of the file.
 	///
-	void	DraggedFile( const char* inPath );
+	void DraggedFile(const char* inPath);
 
-    ///
-    /// Full screen emulators can use this to offer interactive host functionality.
-    ///
-    void OpenEinsteinMenu();
+	///
+	/// Full screen emulators can use this to offer interactive host functionality.
+	///
+	void OpenEinsteinMenu();
 
 private:
 	/// \name Variables
-  iEinsteinView           *mView;
-  iEinsteinViewController *mController;
-//	id						mProxy;					///< Cocoa proxy.
-//	id						mEmulatorApp;			///< Cocoa application controller.
-//	id						mEmulatorWindow;		///< Window of the emulator.
-//	id						mEmulatorScreenView;	///< View of the emulator.
-//	id						mEmulatorScreenText;	///< "Screen if off" text.
-  TPlatformManager*		mPlatformManager;		///< Reference to the platform manager.
-//	Boolean					mPowerIsOn;				///< Whether the window is opened.
-  KUInt32*				mImageBuffer;			///< Image buffer.
-  CGDataProviderRef		mDataProviderRef;		///< Direct access data provider.
+	iEinsteinView* mView;
+	iEinsteinViewController* mController;
+	//	id						mProxy;					///< Cocoa proxy.
+	//	id						mEmulatorApp;			///< Cocoa application controller.
+	//	id						mEmulatorWindow;		///< Window of the emulator.
+	//	id						mEmulatorScreenView;	///< View of the emulator.
+	//	id						mEmulatorScreenText;	///< "Screen if off" text.
+	TPlatformManager* mPlatformManager; ///< Reference to the platform manager.
+	//	Boolean					mPowerIsOn;				///< Whether the window is opened.
+	KUInt32* mImageBuffer; ///< Image buffer.
+	CGDataProviderRef mDataProviderRef; ///< Direct access data provider.
 };
 
 #endif
-		// _TCOCOASCREENMANAGER_H
+// _TCOCOASCREENMANAGER_H
 
 // =========================================================================== //
 // COMPASS [for the CDC-6000 series] is the sort of assembler one expects from //

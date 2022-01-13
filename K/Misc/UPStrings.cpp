@@ -36,22 +36,22 @@
 // Routines de conversion de chaînes Pascal <-> C
 
 #ifdef __MWERKS__
-	#pragma	warn_resultnotused	off
-	#pragma	warn_implicitconv	off
-	#pragma	warn_extracomma		off
+#pragma warn_resultnotused off
+#pragma warn_implicitconv off
+#pragma warn_extracomma off
 #endif
 
 #if TARGET_OS_MACOS
-	#include <Types.h>
-	#include <Memory.h>
+#include <Memory.h>
+#include <Types.h>
 #elif TARGET_OS_OPENSTEP
-	#include <CoreServices/CoreServices.h>
+#include <CoreServices/CoreServices.h>
 #endif
 
 #ifdef __MWERKS__
-	#pragma	warn_resultnotused	on
-	#pragma	warn_implicitconv	reset
-	#pragma	warn_extracomma		reset
+#pragma warn_resultnotused on
+#pragma warn_implicitconv reset
+#pragma warn_extracomma reset
 #endif
 
 // -------------------------------------------------------------------------- //
@@ -59,9 +59,9 @@
 // -------------------------------------------------------------------------- //
 void
 UPStrings::P2CStrCopy(
-				char* outDestString,
-				ConstStr255Param inSourceString,
-				long inMaxLength )
+	char* outDestString,
+	ConstStr255Param inSourceString,
+	long inMaxLength)
 {
 	// Taille de la chaîne
 	register long theLength = inSourceString[0];
@@ -73,7 +73,7 @@ UPStrings::P2CStrCopy(
 	}
 
 	// Copie des caractères.
-	::BlockMove( &inSourceString[1], outDestString, theLength );
+	::BlockMove(&inSourceString[1], outDestString, theLength);
 
 	// Ajout du terminateur.
 	outDestString[theLength] = '\0';
@@ -84,9 +84,9 @@ UPStrings::P2CStrCopy(
 // -------------------------------------------------------------------------- //
 void
 UPStrings::C2PStrCopy(
-				Str255 outDestString,
-				const char* inSourceString,
-				long inMaxLength )
+	Str255 outDestString,
+	const char* inSourceString,
+	long inMaxLength)
 {
 	// On mesure la taille en même temps qu'on copie.
 
@@ -95,7 +95,8 @@ UPStrings::C2PStrCopy(
 
 	// Curseur sur la chaîne.
 	register const char* theSourceString = inSourceString;
-	do {
+	do
+	{
 		register char theChar = *theSourceString;
 		if (theChar == '\0')
 		{
@@ -108,7 +109,7 @@ UPStrings::C2PStrCopy(
 	} while (theLength <= inMaxLength);
 
 	// Dépassement?
-	if (theLength > inMaxLength )
+	if (theLength > inMaxLength)
 	{
 		theLength = inMaxLength;
 	}
@@ -121,14 +122,14 @@ UPStrings::C2PStrCopy(
 //  * P2CStr( Str255 )
 // -------------------------------------------------------------------------- //
 char*
-UPStrings::P2CStr( Str255 ioString )
+UPStrings::P2CStr(Str255 ioString)
 {
 	// Taille de la chaîne
 	register long theLength = ioString[0];
 
 	// Déplacement des caractères.
 	// BlockMove sait gérer les zones de mémoire qui se recouvrent.
-	::BlockMove( &ioString[1], ioString, theLength );
+	::BlockMove(&ioString[1], ioString, theLength);
 
 	// Ajout du terminateur.
 	ioString[theLength] = '\0';
@@ -140,7 +141,7 @@ UPStrings::P2CStr( Str255 ioString )
 //  * P2CStr( Str255 )
 // -------------------------------------------------------------------------- //
 unsigned char*
-UPStrings::C2PStr( char* ioString )
+UPStrings::C2PStr(char* ioString)
 {
 	// Taille de la chaîne
 	register long theLength = 0;
@@ -150,7 +151,8 @@ UPStrings::C2PStr( char* ioString )
 
 	// Curseur sur la chaîne.
 	register char* theString = ioString;
-	do {
+	do
+	{
 		// Lecture du caractère courant.
 		register char theChar = *theString;
 

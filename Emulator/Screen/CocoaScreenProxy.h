@@ -38,9 +38,8 @@ class TCocoaScreenManager;
 ///
 /// \test	aucun test défini.
 ///
-@interface CocoaScreenProxy : NSObject
-{
-	NSRunLoop*				mRunLoop;			///< Event loop.
+@interface CocoaScreenProxy : NSObject {
+	NSRunLoop* mRunLoop; ///< Event loop.
 }
 
 // Initialization.
@@ -48,18 +47,18 @@ class TCocoaScreenManager;
 
 // Thread-safeness
 - (void)sendInvocation:(NSInvocation*)inInvocation;
-- (NSInvocation*) createInvocationWithTarget: (id) inTarget withSelector: (SEL) inSelector;
+- (NSInvocation*)createInvocationWithTarget:(id)inTarget withSelector:(SEL)inSelector;
 - (void)setNeedsDisplay:(BOOL)inNeedsDisplay forView:(NSView*)inView;
 - (void)setNeedsDisplayInRect:(NSRect)inNeedsDisplay forView:(NSView*)inView;
 - (void)setHidden:(BOOL)inSetHidden forView:(NSView*)inView;
-- (void)setStringValue: (NSString*)inString forControl: (NSControl*) inControl;
-- (void)forwardPowerChange: (BOOL)inState toListener: (id<CocoaEmulatorApp>)inApp;
-- (void)forwardBacklightChange: (BOOL)inState toListener: (id<CocoaEmulatorApp>)inApp;
+- (void)setStringValue:(NSString*)inString forControl:(NSControl*)inControl;
+- (void)forwardPowerChange:(BOOL)inState toListener:(id<CocoaEmulatorApp>)inApp;
+- (void)forwardBacklightChange:(BOOL)inState toListener:(id<CocoaEmulatorApp>)inApp;
 
 @end
 
 #endif
-		// _COCOASCREENPROXY_H
+// _COCOASCREENPROXY_H
 
 // ============================================================================== //
 // Today is a good day for information-gathering.  Read someone else's mail file. //

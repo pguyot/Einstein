@@ -53,7 +53,7 @@ public:
 	///
 	/// Default constructor.
 	///
-	TError( void );
+	TError(void);
 
 	///
 	/// Constructor from a file name and a line number.
@@ -62,21 +62,20 @@ public:
 	/// \param inLine		line number where the exception was thrown.
 	///
 	TError(
-			const char* inFileName,
-			KUInt32 inLine );
+		const char* inFileName,
+		KUInt32 inLine);
 
 	///
 	/// Destructeur.
 	///
-	virtual ~TError( void ) throw ();
+	virtual ~TError(void) throw();
 
 private:
 	/// \name Variables
-
 };
 
 #endif
-		// _TERROR_H
+// _TERROR_H
 
 // =========================================================================== //
 // Some programming languages manage to absorb change, but withstand progress. //

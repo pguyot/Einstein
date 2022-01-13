@@ -44,13 +44,12 @@ public:
 	///
 	/// Constructor from an interface to memory.
 	///
-	TObjCBridgeCalls( TMemory* inMemoryIntf );
+	TObjCBridgeCalls(TMemory* inMemoryIntf);
 
 	///
 	/// Destructor.
 	///
-	~TObjCBridgeCalls( void );
-
+	~TObjCBridgeCalls(void);
 
 #if TARGET_IOS || TARGET_OS_OPENSTEP
 
@@ -65,19 +64,19 @@ public:
 	/// The selector string is of the form "+classMethod:" or "-instanceMethod:"
 	///
 	KUInt32 HostMakeNSInvocation(KUInt32 objPtrAddrOut,
-									 KUInt32 classNamePtrAddress,
-									 KUInt32 selectorStringPtrAddress);
+		KUInt32 classNamePtrAddress,
+		KUInt32 selectorStringPtrAddress);
 
 	///
 	/// Given an NSInvocation object, set the target object
 	///
 	KUInt32 HostSetInvocationTarget(KUInt32 invocationObjectAddr,
-								KUInt32 targetObjectAddr);
+		KUInt32 targetObjectAddr);
 
 	/// Set a parameter on an NSInvocation object
 	KUInt32 HostSetInvocationArgument_Object(KUInt32 invocationObjectAddr,
-											  KUInt32 objectAddr,
-											  KUInt32 index);
+		KUInt32 objectAddr,
+		KUInt32 index);
 
 	///
 	/// Given an NSInvocation object, perform the invocation as configured.
@@ -88,8 +87,7 @@ public:
 	/// Get return value Object from an NSInvocation
 	///
 	KUInt32 HostGetInvocationReturn_Object(KUInt32 returnObjectAddr,
-										   KUInt32 invocationObjectAddr);
-
+		KUInt32 invocationObjectAddr);
 
 	///
 	/// Release an object.  If using ARC, then use __bridge_transfer to release
@@ -100,7 +98,7 @@ public:
 	KUInt32 HostMakeNSString(KUInt32 returnObjAddr, KUInt32 cStringAddr);
 
 	/// \name Variables
-	TMemory*		mMemoryIntf;			///< Interface to memory.
+	TMemory* mMemoryIntf; ///< Interface to memory.
 
 #endif // TARGET_IOS
 };

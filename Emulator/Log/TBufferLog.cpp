@@ -23,15 +23,15 @@
 
 #include "TBufferLog.h"
 
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 
 #if TARGET_OS_WIN32
-	#include <io.h>
+#include <io.h>
 #else
-	#include <sys/uio.h>
-	#include <unistd.h>
+#include <sys/uio.h>
+#include <unistd.h>
 #endif
 
 // -------------------------------------------------------------------------- //
@@ -41,11 +41,10 @@
 // -------------------------------------------------------------------------- //
 //  * TBufferLog( void )
 // -------------------------------------------------------------------------- //
-TBufferLog::TBufferLog( void )
-	:
-		mTopLineIndex( 0 ),
-		mLogFile( NULL ),
-		mRefreshSocket( 0 )
+TBufferLog::TBufferLog(void) :
+		mTopLineIndex(0),
+		mLogFile(NULL),
+		mRefreshSocket(0)
 {
 	// Empty lines.
 	int indexLines;
@@ -59,11 +58,11 @@ TBufferLog::TBufferLog( void )
 // -------------------------------------------------------------------------- //
 //  * ~TBufferLog( void )
 // -------------------------------------------------------------------------- //
-TBufferLog::~TBufferLog( void )
+TBufferLog::~TBufferLog(void)
 {
 	if (mLogFile)
 	{
-		::fclose( mLogFile );
+		::fclose(mLogFile);
 		mLogFile = NULL;
 	}
 }
@@ -72,23 +71,23 @@ TBufferLog::~TBufferLog( void )
 //  * DoLogLine( const char* )
 // -------------------------------------------------------------------------- //
 void
-TBufferLog::DoLogLine( const char* inLine )
+TBufferLog::DoLogLine(const char* inLine)
 {
 	if (mLogFile)
 	{
-		(void) ::fprintf( mLogFile, "%s\n", inLine );
+		(void) ::fprintf(mLogFile, "%s\n", inLine);
 #ifdef _DEBUG
-        ::fflush( mLogFile );
+		::fflush(mLogFile);
 #endif
 	}
-	(void) ::strncpy( mBuffer[mTopLineIndex], inLine, 79 );
+	(void) ::strncpy(mBuffer[mTopLineIndex], inLine, 79);
 	mTopLineIndex = (mTopLineIndex + 1) % 32;
 
 	if (mRefreshSocket)
 	{
 		// Write a dummy byte.
 		char someByte = 1;
-		(void) ::write( mRefreshSocket, &someByte, 1 );
+		(void) ::write(mRefreshSocket, &someByte, 1);
 	}
 }
 
@@ -96,20 +95,22 @@ TBufferLog::DoLogLine( const char* inLine )
 //  * OpenLog( const char* )
 // -------------------------------------------------------------------------- //
 void
-TBufferLog::OpenLog( const char* inLogPath )
+TBufferLog::OpenLog(const char* inLogPath)
 {
 	if (mLogFile)
 	{
-		LogLine( "Log file is already open." );
-	} else {
-		mLogFile = ::fopen( inLogPath, "a" );
+		LogLine("Log file is already open.");
+	} else
+	{
+		mLogFile = ::fopen(inLogPath, "a");
 		if (mLogFile == NULL)
 		{
-			LogLine( "Could not open log file." );
-		} else {
+			LogLine("Could not open log file.");
+		} else
+		{
 			char theLine[512];
 			(void) ::snprintf(
-				theLine, 512, "Logging to '%s'", inLogPath );
+				theLine, 512, "Logging to '%s'", inLogPath);
 			LogLine(theLine);
 		}
 	}
@@ -119,14 +120,15 @@ TBufferLog::OpenLog( const char* inLogPath )
 //  * CloseLog( void )
 // -------------------------------------------------------------------------- //
 void
-TBufferLog::CloseLog( void )
+TBufferLog::CloseLog(void)
 {
 	if (mLogFile == NULL)
 	{
-		LogLine( "Log file is not open." );
-	} else {
-		LogLine( "Log file closed." );
-		::fclose( mLogFile );
+		LogLine("Log file is not open.");
+	} else
+	{
+		LogLine("Log file closed.");
+		::fclose(mLogFile);
 		mLogFile = NULL;
 	}
 }

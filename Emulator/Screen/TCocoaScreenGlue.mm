@@ -22,24 +22,24 @@
 // ==============================
 
 #include "TCocoaScreenGlue.h"
+#import "CocoaEmulatorApp.h"
+#import "CocoaScreenProxy.h"
+#import "TCocoaPowerButtonNSView.h"
 #include "TCocoaScreenManager.h"
 #import "TCocoaScreenView.h"
-#import "TCocoaPowerButtonNSView.h"
-#import "CocoaScreenProxy.h"
-#import "CocoaEmulatorApp.h"
 
 // Prototypes for private methods.
 void EmulatorWindow_FinishCreate(
-			TCocoaScreenManager* inManager,
-			NSWindow* inWindow,
-			NSView* inView,
-			NSView* inText);
+	TCocoaScreenManager* inManager,
+	NSWindow* inWindow,
+	NSView* inView,
+	NSView* inText);
 
 // -------------------------------------------------------------------------- //
 //  * EmulatorText_Create( int, int )
 // -------------------------------------------------------------------------- //
 id
-EmulatorText_Create( int inWindowWidth, int inWindowHeight )
+EmulatorText_Create(int inWindowWidth, int inWindowHeight)
 {
 	NSRect theFrame;
 	theFrame.origin.x = 0;
@@ -47,36 +47,36 @@ EmulatorText_Create( int inWindowWidth, int inWindowHeight )
 	theFrame.size.width = inWindowWidth;
 	theFrame.size.height = 20;
 	NSTextField* theTextField =
-		[[NSTextField alloc] initWithFrame: theFrame];
-	[theTextField setHidden: NO];
-	[theTextField setStringValue: @"Booting"];
+		[[NSTextField alloc] initWithFrame:theFrame];
+	[theTextField setHidden:NO];
+	[theTextField setStringValue:@"Booting"];
 
 	NSCell* theCell = [theTextField cell];
 	NSFont* theFont =
 		[NSFont
-			fontWithName: [[theCell font] fontName]
-			size: [NSFont systemFontSizeForControlSize: NSMiniControlSize]];
-	[theCell setFont: theFont];
-	[theCell setControlSize: NSMiniControlSize];
+			fontWithName:[[theCell font] fontName]
+					size:[NSFont systemFontSizeForControlSize:NSMiniControlSize]];
+	[theCell setFont:theFont];
+	[theCell setControlSize:NSMiniControlSize];
 	[theTextField sizeToFit];
-	
+
 	[theTextField setAutoresizingMask:
-		NSViewMinXMargin | NSViewMaxXMargin
-		| NSViewMinYMargin | NSViewMaxYMargin];
+					  NSViewMinXMargin | NSViewMaxXMargin
+				  | NSViewMinYMargin | NSViewMaxYMargin];
 
-	[theTextField setEditable: NO];
-	[theTextField setSelectable: NO];
-	[theTextField setAlignment: NSCenterTextAlignment];
+	[theTextField setEditable:NO];
+	[theTextField setSelectable:NO];
+	[theTextField setAlignment:NSCenterTextAlignment];
 
-	[theTextField setDrawsBackground: NO];
-	[theTextField setBordered: NO];
+	[theTextField setDrawsBackground:NO];
+	[theTextField setBordered:NO];
 
 	// Center the control in the view.
 	NSRect theRect = [theTextField frame];
 	theRect.origin.x = 0;
 	theRect.origin.y = (inWindowHeight + theRect.size.height) / 2;
 	theRect.size.width = inWindowWidth;
-	[theTextField setFrame: theRect];
+	[theTextField setFrame:theRect];
 
 	return theTextField;
 }
@@ -85,25 +85,25 @@ EmulatorText_Create( int inWindowWidth, int inWindowHeight )
 //  * EmulatorText_SetEinsteinOffString( id, bool )
 // -------------------------------------------------------------------------- //
 void
-EmulatorText_SetScreenOffString( id inProxy, id inEmulatorText )
+EmulatorText_SetScreenOffString(id inProxy, id inEmulatorText)
 {
-	[((CocoaScreenProxy*) inProxy) setStringValue: @"Screen is off (please be patient)" forControl: inEmulatorText];
+	[((CocoaScreenProxy*) inProxy) setStringValue:@"Screen is off (please be patient)" forControl:inEmulatorText];
 }
 
 // -------------------------------------------------------------------------- //
 //  * EmulatorText_SetEinsteinOffString( id, bool )
 // -------------------------------------------------------------------------- //
 void
-EmulatorText_SetEinsteinOffString( id inProxy, id inEmulatorText )
+EmulatorText_SetEinsteinOffString(id inProxy, id inEmulatorText)
 {
-	[((CocoaScreenProxy*) inProxy) setStringValue: @"Einstein is off" forControl: inEmulatorText];
+	[((CocoaScreenProxy*) inProxy) setStringValue:@"Einstein is off" forControl:inEmulatorText];
 }
 
 // -------------------------------------------------------------------------- //
 //  * TCocoaScreenView_Create( TCocoaScreenManager*, int, int )
 // -------------------------------------------------------------------------- //
 id
-TCocoaScreenView_Create( TCocoaScreenManager* inManager, int inWidth, int inHeight )
+TCocoaScreenView_Create(TCocoaScreenManager* inManager, int inWidth, int inHeight)
 {
 	NSRect theFrame;
 	theFrame.origin.x = 0;
@@ -111,13 +111,14 @@ TCocoaScreenView_Create( TCocoaScreenManager* inManager, int inWidth, int inHeig
 	theFrame.size.width = inWidth;
 	theFrame.size.height = inHeight;
 	TCocoaScreenView* theScreenView =
-		[[TCocoaScreenView alloc] initWithFrame: theFrame screenManager: inManager];
-	[theScreenView setHidden: YES];
+		[[TCocoaScreenView alloc] initWithFrame:theFrame
+								  screenManager:inManager];
+	[theScreenView setHidden:YES];
 
 	[theScreenView setAutoresizingMask:
-		NSViewMinXMargin | NSViewWidthSizable
-		| NSViewMaxXMargin | NSViewMinYMargin
-		| NSViewHeightSizable | NSViewMaxYMargin];
+					   NSViewMinXMargin | NSViewWidthSizable
+				   | NSViewMaxXMargin | NSViewMinYMargin
+				   | NSViewHeightSizable | NSViewMaxYMargin];
 
 	return theScreenView;
 }
@@ -126,49 +127,49 @@ TCocoaScreenView_Create( TCocoaScreenManager* inManager, int inWidth, int inHeig
 //  * TCocoaScreenView_SetNeedsDisplay( id )
 // -------------------------------------------------------------------------- //
 void
-TCocoaScreenView_SetNeedsDisplay( id inProxy, id inView )
+TCocoaScreenView_SetNeedsDisplay(id inProxy, id inView)
 {
-	[((CocoaScreenProxy*) inProxy) setNeedsDisplay: YES forView: inView];
+	[((CocoaScreenProxy*) inProxy) setNeedsDisplay:YES forView:inView];
 }
 
 // -------------------------------------------------------------------------- //
 //  * TCocoaScreenView_SetNeedsDisplayInRect( id, id, NSRect )
 // -------------------------------------------------------------------------- //
 void
-TCocoaScreenView_SetNeedsDisplayInRect( id inProxy, id inView, NSRect inRect )
+TCocoaScreenView_SetNeedsDisplayInRect(id inProxy, id inView, NSRect inRect)
 {
-	[((CocoaScreenProxy*) inProxy) setNeedsDisplayInRect: inRect forView: inView];
+	[((CocoaScreenProxy*) inProxy) setNeedsDisplayInRect:inRect forView:inView];
 }
 
 // -------------------------------------------------------------------------- //
 //  * TCocoaScreenView_SetHidden( id, bool )
 // -------------------------------------------------------------------------- //
 void
-TCocoaScreenView_SetHidden( id inProxy, id inView, bool inHidden )
+TCocoaScreenView_SetHidden(id inProxy, id inView, bool inHidden)
 {
-	[((CocoaScreenProxy*) inProxy) setHidden: (inHidden ? YES : NO) forView: inView];
+	[((CocoaScreenProxy*) inProxy) setHidden:(inHidden ? YES : NO) forView:inView];
 }
 
 // -------------------------------------------------------------------------- //
 //  * EmulatorApp_PowerChange( id, id, bool )
 // -------------------------------------------------------------------------- //
 void
-EmulatorApp_PowerChange( id inProxy, id inApp, bool inState )
+EmulatorApp_PowerChange(id inProxy, id inApp, bool inState)
 {
 	[((CocoaScreenProxy*) inProxy)
-		forwardPowerChange: (inState ? YES : NO)
-		toListener: ((id<CocoaEmulatorApp>) inApp)];
+		forwardPowerChange:(inState ? YES : NO)
+				toListener:((id<CocoaEmulatorApp>) inApp)];
 }
 
 // -------------------------------------------------------------------------- //
 //  * EmulatorApp_BacklightChange( id, id, bool )
 // -------------------------------------------------------------------------- //
 void
-EmulatorApp_BacklightChange( id inProxy, id inApp, bool inState )
+EmulatorApp_BacklightChange(id inProxy, id inApp, bool inState)
 {
 	[((CocoaScreenProxy*) inProxy)
-		forwardBacklightChange: (inState ? YES : NO)
-		toListener: ((id<CocoaEmulatorApp>) inApp)];
+		forwardBacklightChange:(inState ? YES : NO)
+					toListener:((id<CocoaEmulatorApp>) inApp)];
 }
 
 // -------------------------------------------------------------------------- //
@@ -176,31 +177,31 @@ EmulatorApp_BacklightChange( id inProxy, id inApp, bool inState )
 // -------------------------------------------------------------------------- //
 void
 EmulatorWindow_FinishCreate(
-			TCocoaScreenManager* inScreenManager,
-			NSWindow* inWindow,
-			NSView* inView,
-			NSView* inText )
+	TCocoaScreenManager* inScreenManager,
+	NSWindow* inWindow,
+	NSView* inView,
+	NSView* inText)
 {
 	// Create the power button view.
 	NSView* thePowerButtonView = NULL;
 	if (inScreenManager != NULL)
 	{
 		thePowerButtonView = [[TCocoaPowerButtonNSView alloc]
-							  initWithFrame: [inView frame]
-							  screenManager: inScreenManager];
+			initWithFrame:[inView frame]
+			screenManager:inScreenManager];
 #if !__has_feature(objc_arc)
 		[thePowerButtonView autorelease];
 #endif
 	}
-	
+
 	// Add the widgets.
 	NSView* theContentView = [inWindow contentView];
-	[theContentView addSubview: inText];
+	[theContentView addSubview:inText];
 	if (thePowerButtonView != NULL)
 	{
-		[theContentView addSubview: thePowerButtonView];
+		[theContentView addSubview:thePowerButtonView];
 	}
-	[theContentView addSubview: inView];
+	[theContentView addSubview:inView];
 }
 
 // -------------------------------------------------------------------------- //
@@ -208,28 +209,28 @@ EmulatorWindow_FinishCreate(
 // -------------------------------------------------------------------------- //
 id
 EmulatorWindow_CreateFullScreen(
-		TCocoaScreenManager* inScreenManager,
-		id inApp,
-		id inView,
-		id inText)
+	TCocoaScreenManager* inScreenManager,
+	id inApp,
+	id inView,
+	id inText)
 {
 	NSWindow* theWindow;
 	NSScreen* theMainScreen = [NSScreen mainScreen];
 	NSRect theScreenRect = [theMainScreen frame];
 	theWindow = [[NSWindow alloc]
-							initWithContentRect: theScreenRect
-							styleMask: NSBorderlessWindowMask
-							backing: NSBackingStoreBuffered
-							defer: YES
-							screen: theMainScreen];
-	[theWindow setLevel: CGShieldingWindowLevel()];
-	[theWindow setHasShadow: NO];
-	[theWindow setBackgroundColor: [NSColor lightGrayColor]];
+		initWithContentRect:theScreenRect
+				  styleMask:NSBorderlessWindowMask
+					backing:NSBackingStoreBuffered
+					  defer:YES
+					 screen:theMainScreen];
+	[theWindow setLevel:CGShieldingWindowLevel()];
+	[theWindow setHasShadow:NO];
+	[theWindow setBackgroundColor:[NSColor lightGrayColor]];
 
 	EmulatorWindow_FinishCreate(inScreenManager, theWindow, (NSView*) inView, (NSView*) inText);
 
 	// Tell the app about the window.
-	[((id<CocoaEmulatorApp>) inApp) setEmulatorWindow: theWindow fullScreen: YES];
+	[((id<CocoaEmulatorApp>) inApp) setEmulatorWindow:theWindow fullScreen:YES];
 
 	return theWindow;
 }
@@ -238,7 +239,7 @@ EmulatorWindow_CreateFullScreen(
 //  * EmulatorWindow_Create( id, int, int, id, id )
 // -------------------------------------------------------------------------- //
 id
-EmulatorWindow_Create( id inApp, int inWindowWidth, int inWindowHeight, id inView, id inText )
+EmulatorWindow_Create(id inApp, int inWindowWidth, int inWindowHeight, id inView, id inText)
 {
 	NSWindow* theWindow;
 	NSRect theWindowRect;
@@ -247,18 +248,18 @@ EmulatorWindow_Create( id inApp, int inWindowWidth, int inWindowHeight, id inVie
 	theWindowRect.size.width = inWindowWidth;
 	theWindowRect.size.height = inWindowHeight;
 	theWindow = [[NSWindow alloc]
-							initWithContentRect: theWindowRect
-							styleMask: NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask
-							backing: NSBackingStoreBuffered
-							defer: YES];
-	[theWindow setContentSize: theWindowRect.size];
+		initWithContentRect:theWindowRect
+				  styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask
+					backing:NSBackingStoreBuffered
+					  defer:YES];
+	[theWindow setContentSize:theWindowRect.size];
 	[theWindow center];
-	[theWindow setTitle: @"Einstein Platform"];
-	
+	[theWindow setTitle:@"Einstein Platform"];
+
 	EmulatorWindow_FinishCreate(NULL, theWindow, (NSView*) inView, (NSView*) inText);
 
 	// Tell the app about the window.
-	[((id<CocoaEmulatorApp>) inApp) setEmulatorWindow: theWindow fullScreen: NO];
+	[((id<CocoaEmulatorApp>) inApp) setEmulatorWindow:theWindow fullScreen:NO];
 
 	return theWindow;
 }
@@ -267,28 +268,28 @@ EmulatorWindow_Create( id inApp, int inWindowWidth, int inWindowHeight, id inVie
 //  * EmulatorWindow_MakeFront( id )
 // -------------------------------------------------------------------------- //
 void
-EmulatorWindow_MakeFront( id inWindow )
+EmulatorWindow_MakeFront(id inWindow)
 {
-	[((NSWindow*) inWindow) makeKeyAndOrderFront: NULL];
+	[((NSWindow*) inWindow) makeKeyAndOrderFront:NULL];
 }
 
 // -------------------------------------------------------------------------- //
 //  * EmulatorWindow_Resize( id, int, int )
 // -------------------------------------------------------------------------- //
 void
-EmulatorWindow_Resize( id inWindow, int inWidth, int inHeight )
+EmulatorWindow_Resize(id inWindow, int inWidth, int inHeight)
 {
 	NSSize theSize;
 	theSize.width = inWidth;
 	theSize.height = inHeight;
-	[((NSWindow*) inWindow) setContentSize: theSize];
+	[((NSWindow*) inWindow) setContentSize:theSize];
 }
 
 // -------------------------------------------------------------------------- //
 //  * EmulatorWindow_Close( id )
 // -------------------------------------------------------------------------- //
 void
-EmulatorWindow_Close( id inWindow )
+EmulatorWindow_Close(id inWindow)
 {
 	[((NSWindow*) inWindow) close];
 }
@@ -297,10 +298,10 @@ EmulatorWindow_Close( id inWindow )
 //  * EmulatorWindow_SetFirstResponder( id, id )
 // -------------------------------------------------------------------------- //
 void
-EmulatorWindow_SetFirstResponder( id inWindow, id inView )
+EmulatorWindow_SetFirstResponder(id inWindow, id inView)
 {
 	dispatch_async(dispatch_get_main_queue(), ^{
-		[((NSWindow*) inWindow) makeFirstResponder: inView];
+		[((NSWindow*) inWindow) makeFirstResponder:inView];
 	});
 }
 
@@ -308,14 +309,14 @@ EmulatorWindow_SetFirstResponder( id inWindow, id inView )
 //  * ResizeForRotation( id, id, int, int )
 // -------------------------------------------------------------------------- //
 void
-ResizeForRotation( id inWindow, id inView, int inWidth, int inHeight )
+ResizeForRotation(id inWindow, id inView, int inWidth, int inHeight)
 {
 	NSSize theSize;
 	theSize.width = inWidth;
 	theSize.height = inHeight;
-	[((TCocoaScreenView*) inView) setScreenWidth: inWidth height: inHeight orientation: kNormal];
+	[((TCocoaScreenView*) inView) setScreenWidth:inWidth height:inHeight orientation:kNormal];
 	dispatch_async(dispatch_get_main_queue(), ^{
-		[((NSWindow*) inWindow) setContentSize: theSize];
+		[((NSWindow*) inWindow) setContentSize:theSize];
 	});
 }
 
@@ -323,15 +324,15 @@ ResizeForRotation( id inWindow, id inView, int inWidth, int inHeight )
 //  * RotateView( id, EOrientation )
 // -------------------------------------------------------------------------- //
 void
-RotateView( id inView, TScreenManager::EOrientation inScreenOrientation )
+RotateView(id inView, TScreenManager::EOrientation inScreenOrientation)
 {
 	TCocoaScreenView* theView = (TCocoaScreenView*) inView;
 	NSRect theFrame = [theView frame];
-	
+
 	// Compute the new size.
 	Boolean portraitMode = false;
 	EOrientation theOrientation = kNormal;
-	switch(inScreenOrientation)
+	switch (inScreenOrientation)
 	{
 		case TScreenManager::kOrientation_AppleTop:
 			// kPortrait
@@ -358,28 +359,29 @@ RotateView( id inView, TScreenManager::EOrientation inScreenOrientation )
 			portraitMode = false;
 			break;
 	}
-	
+
 	int portraitWidth = theFrame.size.width;
-	int portraitHeight =  theFrame.size.height;
+	int portraitHeight = theFrame.size.height;
 	if (portraitWidth > portraitHeight)
 	{
 		int tmp = portraitHeight;
 		portraitHeight = portraitWidth;
 		portraitWidth = tmp;
 	}
-	
+
 	int theWidth;
 	int theHeight;
 	if (portraitMode)
 	{
 		theWidth = portraitWidth;
 		theHeight = portraitHeight;
-	} else {
+	} else
+	{
 		theWidth = portraitHeight;
 		theHeight = portraitWidth;
 	}
-	
-	[theView setScreenWidth: theWidth height: theHeight orientation: theOrientation];
+
+	[theView setScreenWidth:theWidth height:theHeight orientation:theOrientation];
 }
 
 // ========================================================================== //

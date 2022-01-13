@@ -51,8 +51,7 @@
 /// \test	aucun test défini.
 ///
 class TFileStream
-	:
-		public TRandomAccessStream
+		: public TRandomAccessStream
 {
 public:
 	///
@@ -60,7 +59,7 @@ public:
 	/// If a problem occurs, an exception is thrown.
 	/// The file will be closed by the destructor.
 	///
-	TFileStream( const char* inPath, const char* inMode );
+	TFileStream(const char* inPath, const char* inMode);
 
 	///
 	/// Constructor from a FILE*.
@@ -68,13 +67,13 @@ public:
 	///
 	/// \param inFile	file to work with.
 	///
-	TFileStream( FILE* inFile );
+	TFileStream(FILE* inFile);
 
 	///
 	/// Destructor.
 	/// Closes the file if the constructor opened it.
 	///
-	virtual ~TFileStream( void );
+	virtual ~TFileStream(void);
 
 	/// \name Input/Output interface.
 
@@ -88,7 +87,7 @@ public:
 	///						occurred.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		Read( void* outBuffer, KUInt32* ioCount );
+	virtual void Read(void* outBuffer, KUInt32* ioCount);
 
 	///
 	/// Write some bytes.
@@ -100,14 +99,14 @@ public:
 	///						occurred.
 	/// \throws an exception if a problem occurred.
 	///
-	virtual	void		Write( const void* inBuffer, KUInt32* ioCount );
+	virtual void Write(const void* inBuffer, KUInt32* ioCount);
 
 	///
 	/// Flush the output buffer.
 	///
 	/// \throws an exception if a problem occurred.
 	///
-	virtual void		FlushOutput( void );
+	virtual void FlushOutput(void);
 
 	///
 	/// Get next byte without advancing the cursor.
@@ -115,7 +114,7 @@ public:
 	/// \return the byte read.
 	/// \throws an exception if a problem occurred (including EOF).
 	///
-	virtual	KUInt8		PeekByte( void );
+	virtual KUInt8 PeekByte(void);
 
 	///
 	/// Determine the position of the cursor in the stream.
@@ -123,7 +122,7 @@ public:
 	/// \return the position from the start of the stream.
 	/// \throws an exception if the operation isn't supported.
 	///
-	virtual KSInt64 	GetCursor( void ) const;
+	virtual KSInt64 GetCursor(void) const;
 
 	///
 	/// Move the cursor in the stream.
@@ -135,7 +134,7 @@ public:
 	///			was reached.
 	/// \throws an exception if the operation isn't supported.
 	///
-	virtual void 		SetCursor( KSInt64 inPos, ECursorMode inMode );
+	virtual void SetCursor(KSInt64 inPos, ECursorMode inMode);
 
 	/// \name Information interface.
 
@@ -145,17 +144,17 @@ public:
 	/// \param inPath	file to check for
 	/// \return true if the file exists
 	///
-	static bool			Exists( const char *inPath );
+	static bool Exists(const char* inPath);
 
 private:
 	/// \name Variables
-	FILE*		mFile;				///< Pointer to the file.
-	Boolean		mWeOpenedTheFile;	///< If we opened the file (and if we should
-									///< close it).
+	FILE* mFile; ///< Pointer to the file.
+	Boolean mWeOpenedTheFile; ///< If we opened the file (and if we should
+							  ///< close it).
 };
 
 #endif
-		// _TFILESTREAM_H
+// _TFILESTREAM_H
 
 // ======================================================================== //
 // Our informal mission is to improve the love life of operators worldwide. //

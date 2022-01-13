@@ -22,33 +22,32 @@
 // ==============================
 
 #define TestOp_TemplateName(op, mode, rn) \
-	DataProcessingTranfer_ ## op ## _ ## mode ## _ ## rn
+	DataProcessingTranfer_##op##_##mode##_##rn
 
 #define TestOp_Proto(op, mode, rn) \
-	JITUnit* TestOp_TemplateName(op, mode, rn) \
-			(JITUnit* ioUnit, TARMProcessor* ioCPU)
+	JITUnit* TestOp_TemplateName(op, mode, rn)(JITUnit * ioUnit, TARMProcessor * ioCPU)
 
 #if DECLARATION
-	#define TestOp(op, mode, rn) \
-		TestOp_Proto(op, mode, rn);
+#define TestOp(op, mode, rn) \
+	TestOp_Proto(op, mode, rn);
 #endif
 #if IMPLEMENTATION
-	#define TestOp(op, mode, rn) \
-		TestOp_Proto(op, mode, rn)
+#define TestOp(op, mode, rn) \
+	TestOp_Proto(op, mode, rn)
 #endif
 
 #define INCLUDE_TEMPLATE "TJITGeneric_DataProcessingPSRTransfer_TestOp_template.h"
 
-#define OP		TST
+#define OP TST
 #include "IncludeModeRn.h"
 #undef OP
-#define OP		TEQ
+#define OP TEQ
 #include "IncludeModeRn.h"
 #undef OP
-#define OP		CMP
+#define OP CMP
 #include "IncludeModeRn.h"
 #undef OP
-#define OP		CMN
+#define OP CMN
 #include "IncludeModeRn.h"
 #undef OP
 

@@ -24,7 +24,7 @@
 #ifndef _TJITGENERIC_DATAPROCESSINGPSRTRANSFER_COMMON_H
 #define _TJITGENERIC_DATAPROCESSINGPSRTRANSFER_COMMON_H
 
-#define AND	0
+#define AND 0
 #define EOR 1
 #define SUB 2
 #define RSB 3
@@ -41,13 +41,13 @@
 #define BIC 14
 #define MVN 15
 
-#define Regular	0
-#define Imm		1
-#define ImmC	2
-#define NoShift	3
+#define Regular 0
+#define Imm 1
+#define ImmC 2
+#define NoShift 3
 
 #endif
-		// _TJITGENERIC_DATAPROCESSINGPSRTRANSFER_COMMON_H
+// _TJITGENERIC_DATAPROCESSINGPSRTRANSFER_COMMON_H
 
 // ================== //
 // fortune: not found //

@@ -83,21 +83,21 @@ public:
 	/// Indique la politique à suivre lorsqu'un caractère non représentable est trouvé.
 	///
 	enum EToOpt {
-		kRepCharOnUnrepChar,	///< Utilise le caractère de remplacement.
-		kStopOnUnrepChar		///< Arrête la conversions.
+		kRepCharOnUnrepChar, ///< Utilise le caractère de remplacement.
+		kStopOnUnrepChar ///< Arrête la conversions.
 	};
 
 	///
 	/// Résultat des méthodes de conversion
 	///
 	enum EResult {
-		kInputExhausted = 0,	///< La conversion est terminée (tous les caractères en entrée ont été convertis).
-								///< Ne signifie pas que la mémoire tampon de sortie est pleine.
-		kOutputExhausted,		///< Il n'y a plus de place dans la mémoire tampon de sortie (et la chaîne en
-								///< entrée n'a pas été entièrement convertie)
-		kUnrepCharEncountered,	///< Un caractère non représentable a été trouvé (et l'option est \c kStopOnUnrepChar)
-		kMiddleOfMultiChar		///< Les derniers octets de la mémoire tampon d'entrée/de sortie constituent le début
-								///< d'un caractère ou d'une séquence d'échappement.
+		kInputExhausted = 0, ///< La conversion est terminée (tous les caractères en entrée ont été convertis).
+							 ///< Ne signifie pas que la mémoire tampon de sortie est pleine.
+		kOutputExhausted, ///< Il n'y a plus de place dans la mémoire tampon de sortie (et la chaîne en
+						  ///< entrée n'a pas été entièrement convertie)
+		kUnrepCharEncountered, ///< Un caractère non représentable a été trouvé (et l'option est \c kStopOnUnrepChar)
+		kMiddleOfMultiChar ///< Les derniers octets de la mémoire tampon d'entrée/de sortie constituent le début
+						   ///< d'un caractère ou d'une séquence d'échappement.
 	};
 
 	///
@@ -113,13 +113,12 @@ public:
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
 	///
-	static EResult	ToISO88591(
-		const KUInt16*	inInputBuffer,
-		size_t*			ioInputCount,
-		KUInt8*			outOutputBuffer,
-		size_t*			ioOutputCount,
-		EToOpt			inConvertToOpt
-		);
+	static EResult ToISO88591(
+		const KUInt16* inInputBuffer,
+		size_t* ioInputCount,
+		KUInt8* outOutputBuffer,
+		size_t* ioOutputCount,
+		EToOpt inConvertToOpt);
 
 	///
 	/// Convertit une chaîne ISO-8859-1 en UTF-16
@@ -128,11 +127,10 @@ public:
 	/// \param outOutputBuffer	mémoire tampon pour la chaîne UTF-16.
 	/// \param inCount			taille en octets (entrée) / mots (sortie) de chaque mémoire tampon.
 	///
-	static void		FromISO88591(
-		const KUInt8*	inInputBuffer,
-		KUInt16*		outOutputBuffer,
-		size_t			inCount
-		);
+	static void FromISO88591(
+		const KUInt8* inInputBuffer,
+		KUInt16* outOutputBuffer,
+		size_t inCount);
 
 	///
 	/// Convertit une chaîne UTF-16 en ISO-8859-2
@@ -147,13 +145,12 @@ public:
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
 	///
-	static EResult	ToISO88592(
-		const KUInt16*	inInputBuffer,
-		size_t*			ioInputCount,
-		KUInt8*			outOutputBuffer,
-		size_t*			ioOutputCount,
-		EToOpt			inConvertToOpt
-		);
+	static EResult ToISO88592(
+		const KUInt16* inInputBuffer,
+		size_t* ioInputCount,
+		KUInt8* outOutputBuffer,
+		size_t* ioOutputCount,
+		EToOpt inConvertToOpt);
 
 	///
 	/// Convertit une chaîne ISO-8859-2 en UTF-16
@@ -162,11 +159,10 @@ public:
 	/// \param outOutputBuffer	mémoire tampon pour la chaîne UTF-16.
 	/// \param inCount			taille en octets (entrée) / mots (sortie) de chaque mémoire tampon.
 	///
-	static void		FromISO88592(
-		const KUInt8*	inInputBuffer,
-		KUInt16*		outOutputBuffer,
-		size_t			inCount
-		);
+	static void FromISO88592(
+		const KUInt8* inInputBuffer,
+		KUInt16* outOutputBuffer,
+		size_t inCount);
 
 	///
 	/// Convertit une chaîne UTF-16 en US-ASCII
@@ -181,13 +177,12 @@ public:
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
 	///
-	static EResult	ToASCII(
-		const KUInt16*	inInputBuffer,
-		size_t*			ioInputCount,
-		KUInt8*			outOutputBuffer,
-		size_t*			ioOutputCount,
-		EToOpt			inConvertToOpt
-		);
+	static EResult ToASCII(
+		const KUInt16* inInputBuffer,
+		size_t* ioInputCount,
+		KUInt8* outOutputBuffer,
+		size_t* ioOutputCount,
+		EToOpt inConvertToOpt);
 
 	///
 	/// Convertit une chaîne US-ASCII en UTF-16
@@ -196,11 +191,10 @@ public:
 	/// \param outOutputBuffer	mémoire tampon pour la chaîne UTF-16.
 	/// \param inCount			taille en octets (entrée) / mots (sortie) de chaque mémoire tampon.
 	///
-	static void		FromASCII(
-		const KUInt8*	inInputBuffer,
-		KUInt16*			outOutputBuffer,
-		size_t			inCount
-		);
+	static void FromASCII(
+		const KUInt8* inInputBuffer,
+		KUInt16* outOutputBuffer,
+		size_t inCount);
 
 	///
 	/// Convertit une chaîne UTF-16 en MacRoman.
@@ -215,13 +209,12 @@ public:
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
 	///
-	static EResult	ToMacRoman(
-		const KUInt16*	inInputBuffer,
-		size_t*			ioInputCount,
-		KUInt8*			outOutputBuffer,
-		size_t*			ioOutputCount,
-		EToOpt			inConvertToOpt
-		);
+	static EResult ToMacRoman(
+		const KUInt16* inInputBuffer,
+		size_t* ioInputCount,
+		KUInt8* outOutputBuffer,
+		size_t* ioOutputCount,
+		EToOpt inConvertToOpt);
 
 	///
 	/// Convertit une chaîne MacRoman en UTF-16
@@ -230,11 +223,10 @@ public:
 	/// \param outOutputBuffer	mémoire tampon pour la chaîne UTF-16.
 	/// \param inCount			taille en octets (entrée) / mots (sortie) de chaque mémoire tampon.
 	///
-	static void		FromMacRoman(
-		const KUInt8*	inInputBuffer,
-		KUInt16*		outOutputBuffer,
-		size_t			inCount
-		);
+	static void FromMacRoman(
+		const KUInt8* inInputBuffer,
+		KUInt16* outOutputBuffer,
+		size_t inCount);
 
 	///
 	/// Convertit une chaîne UTF-16 en UCS-4.
@@ -250,12 +242,11 @@ public:
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
 	///
-	static EResult	ToUCS4(
-		const KUInt16*	inInputBuffer,
-		size_t*			ioInputCount,
-		KUInt32*		outOutputBuffer,
-		size_t*			ioOutputCount
-		);
+	static EResult ToUCS4(
+		const KUInt16* inInputBuffer,
+		size_t* ioInputCount,
+		KUInt32* outOutputBuffer,
+		size_t* ioOutputCount);
 
 	///
 	/// Convertit une chaîne UCS-4 en UTF-16.
@@ -271,12 +262,11 @@ public:
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
 	///
-	static EResult	FromUCS4(
-		const KUInt32*	inInputBuffer,
-		size_t*			ioInputCount,
-		KUInt16*		outOutputBuffer,
-		size_t*			ioOutputCount
-		);
+	static EResult FromUCS4(
+		const KUInt32* inInputBuffer,
+		size_t* ioInputCount,
+		KUInt16* outOutputBuffer,
+		size_t* ioOutputCount);
 
 	///
 	/// Convertit une chaîne UTF-16 en UTF-8.
@@ -292,12 +282,11 @@ public:
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
 	///
-	static EResult	ToUTF8(
-		const KUInt16*	inInputBuffer,
-		size_t*			ioInputCount,
-		void*			outOutputBuffer,
-		size_t*			ioOutputCount
-		);
+	static EResult ToUTF8(
+		const KUInt16* inInputBuffer,
+		size_t* ioInputCount,
+		void* outOutputBuffer,
+		size_t* ioOutputCount);
 
 	///
 	/// Convertit une chaîne UTF-8 en UTF-16.
@@ -313,12 +302,11 @@ public:
 	/// \return un code indiquant comment la conversion a pris fin. (Cf le commentaire sur la classe et
 	///			sur EResult)
 	///
-	static EResult	FromUTF8(
-		const void*		inInputBuffer,
-		size_t*			ioInputCount,
-		KUInt16*		outOutputBuffer,
-		size_t*			ioOutputCount
-		);
+	static EResult FromUTF8(
+		const void* inInputBuffer,
+		size_t* ioInputCount,
+		KUInt16* outOutputBuffer,
+		size_t* ioOutputCount);
 
 	///
 	/// Convertit un caractère ISO-8859-2 en UTF-16 via la table.
@@ -326,16 +314,18 @@ public:
 	/// \param inISOChar	caractère ISO-8859-2
 	/// \return un caractère UTF-16 équivalent.
 	///
-	inline static KUInt16	FromISO88592( const KUInt8 inISOChar )
+	inline static KUInt16
+	FromISO88592(const KUInt8 inISOChar)
+	{
+		if (inISOChar > 0xA0)
 		{
-			if (inISOChar > 0xA0)
-			{
-				// 0x00A0 et toutes les valeurs inférieures sont les mêmes en UTF-16
-				return kFromISO88592Table[inISOChar - 0xA0];
-			} else {
-				return (KUInt16) inISOChar;
-			}
+			// 0x00A0 et toutes les valeurs inférieures sont les mêmes en UTF-16
+			return kFromISO88592Table[inISOChar - 0xA0];
+		} else
+		{
+			return (KUInt16) inISOChar;
 		}
+	}
 
 	///
 	/// Convertit un caractère MacRoman en UTF-16 via la table.
@@ -343,29 +333,31 @@ public:
 	/// \param inMacRomanChar	caractère MacRoman
 	/// \return un caractère UTF-16 équivalent.
 	///
-	inline static KUInt16	FromMacRoman( const KUInt8 inMacRomanChar )
+	inline static KUInt16
+	FromMacRoman(const KUInt8 inMacRomanChar)
+	{
+		if (inMacRomanChar >= 0x80)
 		{
-			if (inMacRomanChar >= 0x80)
-			{
-				// 0x0080 et toutes les valeurs inférieures sont les mêmes en UTF-16
-				return kFromISO88592Table[inMacRomanChar - 0x80];
-			} else {
-				return (KUInt16) inMacRomanChar;
-			}
+			// 0x0080 et toutes les valeurs inférieures sont les mêmes en UTF-16
+			return kFromISO88592Table[inMacRomanChar - 0x80];
+		} else
+		{
+			return (KUInt16) inMacRomanChar;
 		}
+	}
 
 private:
-	static const KUInt16	kToISO88592Table[58][2];	///< Table pour la conversion vers ISO-8859-2.
-	static const KUInt16	kFromISO88592Table[0x60];	///< Table pour la conversion depuis ISO-8859-2.
-	static const KUInt16	kToMacRomanTable[129][2];	///< Table pour la conversion vers MacRoman.
-	static const KUInt16	kFromMacRomanTable[0x80];	///< Table pour la conversion depuis MacRoman.
+	static const KUInt16 kToISO88592Table[58][2]; ///< Table pour la conversion vers ISO-8859-2.
+	static const KUInt16 kFromISO88592Table[0x60]; ///< Table pour la conversion depuis ISO-8859-2.
+	static const KUInt16 kToMacRomanTable[129][2]; ///< Table pour la conversion vers MacRoman.
+	static const KUInt16 kFromMacRomanTable[0x80]; ///< Table pour la conversion depuis MacRoman.
 #if !ARMCPP
-	static const KUInt16 	kSubstituteChar;			///< Caractère de substitution.
+	static const KUInt16 kSubstituteChar; ///< Caractère de substitution.
 #endif
 };
 
 #endif
-		// __UUNICODE__
+// __UUNICODE__
 
 // ============================================================================ //
 // Mac Airways:                                                                 //

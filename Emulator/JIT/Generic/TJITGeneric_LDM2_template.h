@@ -47,7 +47,8 @@ LDM2_Template(FLAG_P, FLAG_U, Rn)
 	{
 		curRegList = theRegList & 0xFF;
 		bankRegList = theRegList & 0x7F00;
-	} else {
+	} else
+	{
 		curRegList = theRegList & 0x1FFF;
 		bankRegList = theRegList & 0x6000;
 	}
@@ -55,19 +56,19 @@ LDM2_Template(FLAG_P, FLAG_U, Rn)
 	KUInt32 baseAddress = ioCPU->mCurrentRegisters[Rn];
 
 #if FLAG_U
-	// Up.
-	#if FLAG_P
-		// Post: add 4.
-		baseAddress += 4;
-	#endif
+// Up.
+#if FLAG_P
+	// Post: add 4.
+	baseAddress += 4;
+#endif
 #else
 	// Down.
 	baseAddress -= (nbRegisters * 4);
 
-	#if !FLAG_P
-		// Post: add 4.
-		baseAddress += 4;
-	#endif
+#if !FLAG_P
+	// Post: add 4.
+	baseAddress += 4;
+#endif
 #endif
 
 	// Load.
@@ -77,8 +78,8 @@ LDM2_Template(FLAG_P, FLAG_U, Rn)
 		if (curRegList & 1)
 		{
 			if (theMemoryInterface->ReadAligned(
-				(TMemory::VAddr) baseAddress,
-				ioCPU->mCurrentRegisters[indexReg] ))
+					(TMemory::VAddr) baseAddress,
+					ioCPU->mCurrentRegisters[indexReg]))
 			{
 				SETPC(GETPC());
 				ioCPU->DataAbort();
@@ -95,8 +96,8 @@ LDM2_Template(FLAG_P, FLAG_U, Rn)
 		if (bankRegList & 0x0100)
 		{
 			if (theMemoryInterface->ReadAligned(
-				(TMemory::VAddr) baseAddress,
-				ioCPU->mR8_Bkup ))
+					(TMemory::VAddr) baseAddress,
+					ioCPU->mR8_Bkup))
 			{
 				SETPC(GETPC());
 				ioCPU->DataAbort();
@@ -107,8 +108,8 @@ LDM2_Template(FLAG_P, FLAG_U, Rn)
 		if (bankRegList & 0x0200)
 		{
 			if (theMemoryInterface->ReadAligned(
-				(TMemory::VAddr) baseAddress,
-				ioCPU->mR9_Bkup ))
+					(TMemory::VAddr) baseAddress,
+					ioCPU->mR9_Bkup))
 			{
 				SETPC(GETPC());
 				ioCPU->DataAbort();
@@ -119,8 +120,8 @@ LDM2_Template(FLAG_P, FLAG_U, Rn)
 		if (bankRegList & 0x0400)
 		{
 			if (theMemoryInterface->ReadAligned(
-				(TMemory::VAddr) baseAddress,
-				ioCPU->mR10_Bkup ))
+					(TMemory::VAddr) baseAddress,
+					ioCPU->mR10_Bkup))
 			{
 				SETPC(GETPC());
 				ioCPU->DataAbort();
@@ -131,8 +132,8 @@ LDM2_Template(FLAG_P, FLAG_U, Rn)
 		if (bankRegList & 0x0800)
 		{
 			if (theMemoryInterface->ReadAligned(
-				(TMemory::VAddr) baseAddress,
-				ioCPU->mR11_Bkup ))
+					(TMemory::VAddr) baseAddress,
+					ioCPU->mR11_Bkup))
 			{
 				SETPC(GETPC());
 				ioCPU->DataAbort();
@@ -143,8 +144,8 @@ LDM2_Template(FLAG_P, FLAG_U, Rn)
 		if (bankRegList & 0x1000)
 		{
 			if (theMemoryInterface->ReadAligned(
-				(TMemory::VAddr) baseAddress,
-				ioCPU->mR12_Bkup ))
+					(TMemory::VAddr) baseAddress,
+					ioCPU->mR12_Bkup))
 			{
 				SETPC(GETPC());
 				ioCPU->DataAbort();
@@ -155,8 +156,8 @@ LDM2_Template(FLAG_P, FLAG_U, Rn)
 		if (bankRegList & 0x3000)
 		{
 			if (theMemoryInterface->ReadAligned(
-				(TMemory::VAddr) baseAddress,
-				ioCPU->mR13_Bkup ))
+					(TMemory::VAddr) baseAddress,
+					ioCPU->mR13_Bkup))
 			{
 				SETPC(GETPC());
 				ioCPU->DataAbort();
@@ -167,8 +168,8 @@ LDM2_Template(FLAG_P, FLAG_U, Rn)
 		if (bankRegList & 0x4000)
 		{
 			if (theMemoryInterface->ReadAligned(
-				(TMemory::VAddr) baseAddress,
-				ioCPU->mR14_Bkup ))
+					(TMemory::VAddr) baseAddress,
+					ioCPU->mR14_Bkup))
 			{
 				SETPC(GETPC());
 				ioCPU->DataAbort();

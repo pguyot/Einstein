@@ -24,8 +24,8 @@
 #include "TAIFFile.h"
 
 // ANSI C & POSIX
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // K
 #include <K/Defines/UByteSex.h>
@@ -33,18 +33,17 @@
 // -------------------------------------------------------------------------- //
 //  * TAIFFile( FILE* inFile )
 // -------------------------------------------------------------------------- //
-TAIFFile::TAIFFile( FILE* inFile )
-	:
-		mFile( inFile )
+TAIFFile::TAIFFile(FILE* inFile) :
+		mFile(inFile)
 {
 	long startOffset = 0;
-	(void) ::fseek( inFile, startOffset, SEEK_SET );
+	(void) ::fseek(inFile, startOffset, SEEK_SET);
 
-	if ( ::fread( &mHeader, sizeof( mHeader ), 1, inFile ) != 1)
+	if (::fread(&mHeader, sizeof(mHeader), 1, inFile) != 1)
 	{
 		(void) ::fprintf(
-					stderr,
-					"Couldn't read AIF header (file too short?)\n" );
+			stderr,
+			"Couldn't read AIF header (file too short?)\n");
 		::abort();
 	}
 
@@ -52,8 +51,9 @@ TAIFFile::TAIFFile( FILE* inFile )
 #if TARGET_RT_LITTLE_ENDIAN
 	KUInt32* cursor = (KUInt32*) &mHeader;
 	KUInt32* end = (KUInt32*) (((KUIntPtr) cursor) + sizeof(SHeader));
-	do {
-		*cursor = UByteSex::Swap( *cursor );
+	do
+	{
+		*cursor = UByteSex::Swap(*cursor);
 		cursor++;
 	} while (cursor < end);
 #endif
@@ -63,7 +63,7 @@ TAIFFile::TAIFFile( FILE* inFile )
 //  * ReadROImage( KUInt8* )
 // -------------------------------------------------------------------------- //
 void
-TAIFFile::ReadROImage( KUInt8* outImage )
+TAIFFile::ReadROImage(KUInt8* outImage)
 {
 	long startOffset;
 	// Where should we start?
@@ -71,20 +71,21 @@ TAIFFile::ReadROImage( KUInt8* outImage )
 	{
 		// It's an executable image. Let's start from 0.
 		startOffset = 0;
-	} else {
-		startOffset = sizeof( SHeader );
+	} else
+	{
+		startOffset = sizeof(SHeader);
 	}
 
-	(void) ::fseek( mFile, startOffset, SEEK_SET );
+	(void) ::fseek(mFile, startOffset, SEEK_SET);
 
 	// Then read the image.
-	if ( ::fread(
-			outImage, sizeof( char ), mHeader.fReadOnlySize, mFile )
-				!= mHeader.fReadOnlySize)
+	if (::fread(
+			outImage, sizeof(char), mHeader.fReadOnlySize, mFile)
+		!= mHeader.fReadOnlySize)
 	{
 		(void) ::fprintf(
-					stderr,
-					"Couldn't read AIF RO Image (is it really an AIF image?)\n" );
+			stderr,
+			"Couldn't read AIF RO Image (is it really an AIF image?)\n");
 		::abort();
 	}
 }
@@ -93,7 +94,7 @@ TAIFFile::ReadROImage( KUInt8* outImage )
 //  * ReadRWImage( KUInt8* )
 // -------------------------------------------------------------------------- //
 void
-TAIFFile::ReadRWImage( KUInt8* outImage )
+TAIFFile::ReadRWImage(KUInt8* outImage)
 {
 	long startOffset;
 	// Where should we start?
@@ -101,22 +102,23 @@ TAIFFile::ReadRWImage( KUInt8* outImage )
 	{
 		// It's an executable image. Let's start from 0.
 		startOffset = 0;
-	} else {
-		startOffset = sizeof( SHeader );
+	} else
+	{
+		startOffset = sizeof(SHeader);
 	}
 
 	startOffset += mHeader.fReadOnlySize;
 
-	(void) ::fseek( mFile, startOffset, SEEK_SET );
+	(void) ::fseek(mFile, startOffset, SEEK_SET);
 
 	// Then read the image.
-	if ( ::fread(
-			outImage, sizeof( char ), mHeader.fReadWriteSize, mFile )
-				!= mHeader.fReadWriteSize)
+	if (::fread(
+			outImage, sizeof(char), mHeader.fReadWriteSize, mFile)
+		!= mHeader.fReadWriteSize)
 	{
 		(void) ::fprintf(
-					stderr,
-					"Couldn't read AIF RW Image (is it really an AIF image?)\n" );
+			stderr,
+			"Couldn't read AIF RW Image (is it really an AIF image?)\n");
 		::abort();
 	}
 }

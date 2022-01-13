@@ -33,23 +33,23 @@ public:
 	///
 	/// Test the X11 screen manager by drawing lines.
 	///
-	static void TestX11( void );
+	static void TestX11(void);
 
 private:
 	///
 	/// Draw a single point on the pixmap.
 	///
-	static void	DrawPoint(
-					TMemory* inMemoryIntf,
-					KUInt32 inBaseAddy,
-					KUInt32 inRowBytes,
-					int inXcoord,
-					int inYcoord,
-					int inColor );
+	static void DrawPoint(
+		TMemory* inMemoryIntf,
+		KUInt32 inBaseAddy,
+		KUInt32 inRowBytes,
+		int inXcoord,
+		int inYcoord,
+		int inColor);
 };
 
 #endif
-		// _USCREENTESTS_H
+// _USCREENTESTS_H
 
 // =========================================================================== //
 // Many of the convicted thieves Parker has met began their                    //

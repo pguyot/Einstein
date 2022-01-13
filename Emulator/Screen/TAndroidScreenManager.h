@@ -49,17 +49,16 @@ public:
 	/// \param inScreenIsLandscape	whether the physical screen is in landscape.
 	///
 	TAndroidScreenManager(
-						  TLog* inLog = nil,
-						  KUInt32 inPortraitWidth = kDefaultPortraitWidth,
-						  KUInt32 inPortraitHeight = kDefaultPortraitHeight,
-						  Boolean inFullScreen = false,
-						  Boolean inScreenIsLandscape = true);
-
+		TLog* inLog = nil,
+		KUInt32 inPortraitWidth = kDefaultPortraitWidth,
+		KUInt32 inPortraitHeight = kDefaultPortraitHeight,
+		Boolean inFullScreen = false,
+		Boolean inScreenIsLandscape = true);
 
 	///
 	/// Destructeur.
 	///
-	virtual ~TAndroidScreenManager( void );
+	virtual ~TAndroidScreenManager(void);
 
 	///
 	/// Notify that the tablet orientation changed.
@@ -67,33 +66,33 @@ public:
 	///
 	/// \param inNewOrientation	the new orientation of the screen.
 	///
-	virtual void	TabletOrientationChanged(
-											 EOrientation inNewOrientation );
+	virtual void TabletOrientationChanged(
+		EOrientation inNewOrientation);
 
 	///
 	/// This method is called by the platform manager when the emulator is
 	/// turned on.
 	///
-	virtual void	PowerOn( void );
+	virtual void PowerOn(void);
 
 	///
 	/// This method is called by the platform manager when the emulator is
 	/// turned off.
 	///
-	virtual void	PowerOff( void );
+	virtual void PowerOff(void);
 
 	///
 	/// Power on the screen (open the window?)
 	/// This method is called by the display driver.
 	/// It doesn't do anything. The work is done in ScreenSetup.
 	///
-	virtual void	PowerOnScreen( void );
+	virtual void PowerOnScreen(void);
 
 	///
 	/// Power off the screen (close the window?)
 	/// This method is called by the display driver.
 	///
-	virtual void	PowerOffScreen( void );
+	virtual void PowerOffScreen(void);
 
 	///
 	/// Notify that the screen orientation changed.
@@ -101,7 +100,7 @@ public:
 	///
 	/// \param inNewOrientation	the new orientation of the screen.
 	///
-	virtual void	ScreenOrientationChanged( EOrientation inNewOrientation );
+	virtual void ScreenOrientationChanged(EOrientation inNewOrientation);
 
 	///
 	/// Notify that the contrast changed.
@@ -109,7 +108,7 @@ public:
 	///
 	/// \param inNewContrast the new contrast of the screen.
 	///
-	virtual void	ContrastChanged( KUInt32 inNewContrast );
+	virtual void ContrastChanged(KUInt32 inNewContrast);
 
 	///
 	/// Notify that the backlight changed.
@@ -117,25 +116,29 @@ public:
 	///
 	/// \param inNewBacklight the new state of the backlight.
 	///
-	virtual void	BacklightChanged( Boolean inNewBacklight );
+	virtual void BacklightChanged(Boolean inNewBacklight);
 
 	///
 	/// Notify that some screen bits changed.
 	///
 	/// \param inUpdateRect	rectangle of the bits that changed.
 	///
-	virtual void	UpdateScreenRect( SRect* inUpdatedRect );
+	virtual void UpdateScreenRect(SRect* inUpdatedRect);
 
 	///
 	/// Thread loop entry point.
 	///
-	void	Run( void );
+	void Run(void);
 
-	int update(unsigned short *buffer);
+	int update(unsigned short* buffer);
 
-	int updateOverlay(unsigned short *buffer);
+	int updateOverlay(unsigned short* buffer);
 
-	int isDirty() { return changed; }
+	int
+	isDirty()
+	{
+		return changed;
+	}
 
 private:
 	///
@@ -143,14 +146,14 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TAndroidScreenManager( const TAndroidScreenManager& inCopy );
+	TAndroidScreenManager(const TAndroidScreenManager& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TAndroidScreenManager& operator = ( const TAndroidScreenManager& inCopy );
+	TAndroidScreenManager& operator=(const TAndroidScreenManager& inCopy);
 
 	char changed;
 };

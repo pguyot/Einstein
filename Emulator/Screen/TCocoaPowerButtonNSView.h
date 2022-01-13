@@ -28,9 +28,8 @@
 
 class TCocoaScreenManager;
 
-@interface TCocoaPowerButtonNSView : NSView
-{
-	TCocoaScreenManager*	mScreenManager;
+@interface TCocoaPowerButtonNSView : NSView {
+	TCocoaScreenManager* mScreenManager;
 }
 
 // Initialisation.
@@ -38,11 +37,11 @@ class TCocoaScreenManager;
 
 // Mouse events.
 - (BOOL)mouseDownCanMoveWindow;
-- (void)mouseDown:(NSEvent *)theEvent;
+- (void)mouseDown:(NSEvent*)theEvent;
 @end
 
 #endif
-		// _TCOCOAPOWERBUTTONNSVIEW_H
+// _TCOCOAPOWERBUTTONNSVIEW_H
 
 // ====================================================================== //
 // This quote is taken from the Diamondback, the University of Maryland   //

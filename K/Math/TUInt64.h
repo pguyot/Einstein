@@ -49,8 +49,7 @@
 /// \test	aucun test défini.
 ///
 class TUInt64
-	:
-		public TInt64
+		: public TInt64
 {
 public:
 	/// La classe UTInt64 gère le pont entre KUInt64 natif et TUInt64.
@@ -62,22 +61,20 @@ public:
 	/// \param inHi		valeur de poids fort
 	/// \param inLo		valeur de poids faible
 	///
-	inline TUInt64( const KUInt32 inHi, const KUInt32 inLo )
-		:
-			TInt64( inHi, inLo )
-		{
-		}
+	inline TUInt64(const KUInt32 inHi, const KUInt32 inLo) :
+			TInt64(inHi, inLo)
+	{
+	}
 
 	///
 	/// Constructeur à partir d'un entier de 32 bits.
 	///
 	/// \param inLo		valeur de poids faible
 	///
-	inline TUInt64( const KUInt32 inLo = 0 )
-		:
-			TInt64( 0, inLo )
-		{
-		}
+	inline TUInt64(const KUInt32 inLo = 0) :
+			TInt64(0, inLo)
+	{
+	}
 
 	///
 	/// Opérateur d'assignation à partir d'un entier de 32 bits.
@@ -85,12 +82,13 @@ public:
 	/// \param inLo		valeur (poids faible)
 	/// \return \c this
 	///
-	inline TUInt64& operator = ( const KUInt32 inLo )
-		{
-			mHi = 0;
-			mLo = inLo;
-			return *this;
-		}
+	inline TUInt64&
+	operator=(const KUInt32 inLo)
+	{
+		mHi = 0;
+		mLo = inLo;
+		return *this;
+	}
 
 	///
 	/// Opération d'incrément (32 bits)
@@ -98,7 +96,7 @@ public:
 	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
-	TUInt64& operator += ( const KUInt32 inArgument );
+	TUInt64& operator+=(const KUInt32 inArgument);
 
 	///
 	/// Opération d'incrément (64 bits)
@@ -106,7 +104,7 @@ public:
 	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
-	TUInt64& operator += ( const TUInt64& inArgument );
+	TUInt64& operator+=(const TUInt64& inArgument);
 
 	///
 	/// Opération de décrément (32 bits)
@@ -114,7 +112,7 @@ public:
 	/// \param inArgument	valeur à retrancher.
 	/// \return \c this
 	///
-	TUInt64& operator -= ( const KUInt32 inArgument );
+	TUInt64& operator-=(const KUInt32 inArgument);
 
 	///
 	/// Opération de décrément (64 bits)
@@ -122,7 +120,7 @@ public:
 	/// \param inArgument	valeur à retrancher.
 	/// \return \c this
 	///
-	TUInt64& operator -= ( const TUInt64& inArgument );
+	TUInt64& operator-=(const TUInt64& inArgument);
 
 	///
 	/// Opération de division (32 bits)
@@ -130,7 +128,7 @@ public:
 	/// \param inArgument	diviseur.
 	/// \return \c this
 	///
-	TUInt64& operator /= ( const KUInt32 inArgument );
+	TUInt64& operator/=(const KUInt32 inArgument);
 
 	///
 	/// Opération de division (64 bits)
@@ -138,7 +136,7 @@ public:
 	/// \param inArgument	diviseur.
 	/// \return \c this
 	///
-	TUInt64& operator /= ( const TUInt64& inArgument );
+	TUInt64& operator/=(const TUInt64& inArgument);
 
 	///
 	/// Opération de reste par division euclidienne (32 bits)
@@ -146,7 +144,7 @@ public:
 	/// \param inArgument	diviseur.
 	/// \return \c this
 	///
-	TUInt64& operator %= ( const KUInt32 inArgument );
+	TUInt64& operator%=(const KUInt32 inArgument);
 
 	///
 	/// Opération de reste par division euclidienne (64 bits)
@@ -154,7 +152,7 @@ public:
 	/// \param inArgument	diviseur.
 	/// \return \c this
 	///
-	TUInt64& operator %= ( const TUInt64& inArgument );
+	TUInt64& operator%=(const TUInt64& inArgument);
 
 	///
 	/// Opération de multiplication (32 bits)
@@ -162,7 +160,7 @@ public:
 	/// \param inArgument	facteur.
 	/// \return \c this
 	///
-	TUInt64& operator *= ( const KUInt32 inArgument );
+	TUInt64& operator*=(const KUInt32 inArgument);
 
 	///
 	/// Opération de multiplication (64 bits)
@@ -170,7 +168,7 @@ public:
 	/// \param inArgument	facteur.
 	/// \return \c this
 	///
-	TUInt64& operator *= ( const TUInt64& inArgument );
+	TUInt64& operator*=(const TUInt64& inArgument);
 
 	///
 	/// Décalage gauche.
@@ -178,7 +176,7 @@ public:
 	/// \param inArgument	nombre de décalages.
 	/// \return \c this
 	///
-	TUInt64& operator <<= ( const int inArgument );
+	TUInt64& operator<<=(const int inArgument);
 
 	///
 	/// Décalage droit.
@@ -186,7 +184,7 @@ public:
 	/// \param inArgument	nombre de décalages.
 	/// \return \c this
 	///
-	TUInt64& operator >>= ( const int inArgument );
+	TUInt64& operator>>=(const int inArgument);
 
 	///
 	/// Et logique (32 bits)
@@ -194,11 +192,12 @@ public:
 	/// \param inArgument	masque.
 	/// \return \c this
 	///
-	TUInt64& operator &= ( const KUInt32 inArgument )
-		{
-			(void) (TInt64::operator &= ( inArgument ));
-			return *this;
-		}
+	TUInt64&
+	operator&=(const KUInt32 inArgument)
+	{
+		(void) (TInt64::operator&=(inArgument));
+		return *this;
+	}
 
 	///
 	/// Et logique (64 bits)
@@ -206,11 +205,12 @@ public:
 	/// \param inArgument	masque.
 	/// \return \c this
 	///
-	TUInt64& operator &= ( const TInt64& inArgument )
-		{
-			(void) (TInt64::operator &= ( inArgument ));
-			return *this;
-		}
+	TUInt64&
+	operator&=(const TInt64& inArgument)
+	{
+		(void) (TInt64::operator&=(inArgument));
+		return *this;
+	}
 
 	///
 	/// Ou logique (32 bits)
@@ -218,11 +218,12 @@ public:
 	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
-	TUInt64& operator |= ( const KUInt32 inArgument )
-		{
-			(void) (TInt64::operator |= ( inArgument ));
-			return *this;
-		}
+	TUInt64&
+	operator|=(const KUInt32 inArgument)
+	{
+		(void) (TInt64::operator|=(inArgument));
+		return *this;
+	}
 
 	///
 	/// Ou logique (64 bits)
@@ -230,11 +231,12 @@ public:
 	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
-	TUInt64& operator |= ( const TInt64& inArgument )
-		{
-			(void) (TInt64::operator |= ( inArgument ));
-			return *this;
-		}
+	TUInt64&
+	operator|=(const TInt64& inArgument)
+	{
+		(void) (TInt64::operator|=(inArgument));
+		return *this;
+	}
 
 	///
 	/// Ou logique exclusif (32 bits)
@@ -242,11 +244,12 @@ public:
 	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
-	TUInt64& operator ^= ( const KUInt32 inArgument )
-		{
-			(void) (TInt64::operator ^= ( inArgument ));
-			return *this;
-		}
+	TUInt64&
+	operator^=(const KUInt32 inArgument)
+	{
+		(void) (TInt64::operator^=(inArgument));
+		return *this;
+	}
 
 	///
 	/// Ou logique exclusif (64 bits)
@@ -254,90 +257,91 @@ public:
 	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
-	TUInt64& operator ^= ( const TInt64& inArgument )
-		{
-			(void) (TInt64::operator ^= ( inArgument ));
-			return *this;
-		}
+	TUInt64&
+	operator^=(const TInt64& inArgument)
+	{
+		(void) (TInt64::operator^=(inArgument));
+		return *this;
+	}
 
 	///
 	/// Négation
 	///
 	/// \return la négation, bit à bit, de \c this
 	///
-	TUInt64 operator ~ ( void ) const;
+	TUInt64 operator~(void) const;
 
 	///
 	/// Conversion (avec perte) en 32 bits.
 	///
 	/// \return les 32 bits de poids faible.
 	///
-	inline operator KUInt32 ( void ) const
-		{
-			return mLo;
-		}
+	inline operator KUInt32(void) const
+	{
+		return mLo;
+	}
 
 	// Opérateurs binaires.
-	friend bool operator == (
+	friend bool operator==(
 		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo );
-	friend bool operator == (
+		const KUInt32 inArgTwo);
+	friend bool operator==(
 		const KUInt32 inArgOne,
-		const TUInt64& inArgTwo );
-	friend bool operator != (
+		const TUInt64& inArgTwo);
+	friend bool operator!=(
 		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo );
-	friend bool operator != (
+		const KUInt32 inArgTwo);
+	friend bool operator!=(
 		const KUInt32 inArgOne,
-		const TUInt64& inArgTwo );
-	friend bool operator <= (
+		const TUInt64& inArgTwo);
+	friend bool operator<=(
 		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo );
-	friend bool operator <= (
+		const KUInt32 inArgTwo);
+	friend bool operator<=(
 		const KUInt32 inArgOne,
-		const TUInt64& inArgTwo );
-	friend bool operator <= (
+		const TUInt64& inArgTwo);
+	friend bool operator<=(
 		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo );
-	friend bool operator >= (
+		const TUInt64& inArgTwo);
+	friend bool operator>=(
 		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo );
-	friend bool operator >= (
+		const KUInt32 inArgTwo);
+	friend bool operator>=(
 		const KUInt32 inArgOne,
-		const TUInt64& inArgTwo );
-	friend bool operator >= (
+		const TUInt64& inArgTwo);
+	friend bool operator>=(
 		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo );
-	friend bool operator < (
+		const TUInt64& inArgTwo);
+	friend bool operator<(
 		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo );
-	friend bool operator < (
+		const KUInt32 inArgTwo);
+	friend bool operator<(
 		const KUInt32 inArgOne,
-		const TUInt64& inArgTwo );
-	friend bool operator < (
+		const TUInt64& inArgTwo);
+	friend bool operator<(
 		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo );
-	friend bool operator > (
+		const TUInt64& inArgTwo);
+	friend bool operator>(
 		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo );
-	friend bool operator > (
+		const KUInt32 inArgTwo);
+	friend bool operator>(
 		const KUInt32 inArgOne,
-		const TUInt64& inArgTwo );
-	friend bool operator > (
+		const TUInt64& inArgTwo);
+	friend bool operator>(
 		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo );
-	friend TUInt64 operator / (
+		const TUInt64& inArgTwo);
+	friend TUInt64 operator/(
 		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo );
-	friend TUInt64 operator / (
+		const KUInt32 inArgTwo);
+	friend TUInt64 operator/(
 		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo );
-	friend TUInt64 operator % (
+		const TUInt64& inArgTwo);
+	friend TUInt64 operator%(
 		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo );
-	friend TUInt64 operator % (
+		const KUInt32 inArgTwo);
+	friend TUInt64 operator%(
 		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo );
+		const TUInt64& inArgTwo);
 
 private:
 	///
@@ -352,7 +356,7 @@ private:
 		TUInt64& outQuotient,
 		TUInt64& outRemainder,
 		const TUInt64& inDividend,
-		const TUInt64& inDivisor );
+		const TUInt64& inDivisor);
 
 	///
 	/// Addition avec retenue.
@@ -360,7 +364,7 @@ private:
 	/// \param inArgument	entier à ajouter
 	/// \return \c true si la somme dépasse 2^64
 	///
-	bool		Add( const TUInt64& inArgument );
+	bool Add(const TUInt64& inArgument);
 };
 
 ///
@@ -370,12 +374,12 @@ private:
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne + inArgTwo
 ///
-inline
-TUInt64 operator + (
-		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo )
+inline TUInt64
+operator+(
+	const TUInt64& inArgOne,
+	const KUInt32 inArgTwo)
 {
-	return TUInt64( inArgOne ) += inArgTwo;
+	return TUInt64(inArgOne) += inArgTwo;
 }
 
 ///
@@ -385,13 +389,13 @@ TUInt64 operator + (
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne + inArgTwo
 ///
-inline
-TUInt64 operator + (
-		const KUInt32 inArgOne,
-		const TUInt64& inArgTwo )
+inline TUInt64
+operator+(
+	const KUInt32 inArgOne,
+	const TUInt64& inArgTwo)
 {
 	// L'addition est commutative.
-	return TUInt64( inArgTwo ) += inArgOne;
+	return TUInt64(inArgTwo) += inArgOne;
 }
 
 ///
@@ -401,12 +405,12 @@ TUInt64 operator + (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne + inArgTwo
 ///
-inline
-TUInt64 operator + (
-		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo )
+inline TUInt64
+operator+(
+	const TUInt64& inArgOne,
+	const TUInt64& inArgTwo)
 {
-	return TUInt64( inArgOne ) += inArgTwo;
+	return TUInt64(inArgOne) += inArgTwo;
 }
 
 ///
@@ -416,12 +420,12 @@ TUInt64 operator + (
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne - inArgTwo
 ///
-inline
-TUInt64 operator - (
-		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo )
+inline TUInt64
+operator-(
+	const TUInt64& inArgOne,
+	const KUInt32 inArgTwo)
 {
-	return TUInt64( inArgOne ) -= inArgTwo;
+	return TUInt64(inArgOne) -= inArgTwo;
 }
 
 ///
@@ -431,13 +435,13 @@ TUInt64 operator - (
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne - inArgTwo
 ///
-inline
-TUInt64 operator - (
-		const KUInt32 inArgOne,
-		const TUInt64& inArgTwo )
+inline TUInt64
+operator-(
+	const KUInt32 inArgOne,
+	const TUInt64& inArgTwo)
 {
 	// La soustraction n'est pas commutative.
-	return TUInt64( inArgOne ) -= inArgTwo;
+	return TUInt64(inArgOne) -= inArgTwo;
 }
 
 ///
@@ -447,12 +451,12 @@ TUInt64 operator - (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne - inArgTwo
 ///
-inline
-TUInt64 operator - (
-		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo )
+inline TUInt64
+operator-(
+	const TUInt64& inArgOne,
+	const TUInt64& inArgTwo)
 {
-	return TUInt64( inArgOne ) -= inArgTwo;
+	return TUInt64(inArgOne) -= inArgTwo;
 }
 
 ///
@@ -462,7 +466,7 @@ TUInt64 operator - (
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne == inArgTwo
 ///
-bool operator == ( const TUInt64& inArgOne, const KUInt32 inArgTwo );
+bool operator==(const TUInt64& inArgOne, const KUInt32 inArgTwo);
 
 ///
 /// Égalité (32 bits)
@@ -471,7 +475,7 @@ bool operator == ( const TUInt64& inArgOne, const KUInt32 inArgTwo );
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne == inArgTwo
 ///
-bool operator == ( const KUInt32 inArgOne, const TUInt64& inArgTwo );
+bool operator==(const KUInt32 inArgOne, const TUInt64& inArgTwo);
 
 ///
 /// Différence (32 bits)
@@ -480,7 +484,7 @@ bool operator == ( const KUInt32 inArgOne, const TUInt64& inArgTwo );
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne != inArgTwo
 ///
-bool operator != ( const TUInt64& inArgOne, const KUInt32 inArgTwo );
+bool operator!=(const TUInt64& inArgOne, const KUInt32 inArgTwo);
 
 ///
 /// Différence (32 bits)
@@ -489,7 +493,7 @@ bool operator != ( const TUInt64& inArgOne, const KUInt32 inArgTwo );
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne != inArgTwo
 ///
-bool operator != ( const KUInt32 inArgOne, const TUInt64& inArgTwo );
+bool operator!=(const KUInt32 inArgOne, const TUInt64& inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -498,7 +502,7 @@ bool operator != ( const KUInt32 inArgOne, const TUInt64& inArgTwo );
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne <= inArgTwo
 ///
-bool operator <= ( const TUInt64& inArgOne, const KUInt32 inArgTwo );
+bool operator<=(const TUInt64& inArgOne, const KUInt32 inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -507,7 +511,7 @@ bool operator <= ( const TUInt64& inArgOne, const KUInt32 inArgTwo );
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne <= inArgTwo
 ///
-bool operator <= ( const KUInt32 inArgOne, const TUInt64& inArgTwo );
+bool operator<=(const KUInt32 inArgOne, const TUInt64& inArgTwo);
 
 ///
 /// Comparaison (64 bits)
@@ -516,7 +520,7 @@ bool operator <= ( const KUInt32 inArgOne, const TUInt64& inArgTwo );
 /// \param inArgTwo	second argument
 /// \return \c inArgOne <= inArgTwo
 ///
-bool operator <= ( const TUInt64& inArgOne, const TUInt64& inArgTwo );
+bool operator<=(const TUInt64& inArgOne, const TUInt64& inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -525,7 +529,7 @@ bool operator <= ( const TUInt64& inArgOne, const TUInt64& inArgTwo );
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne >= inArgTwo
 ///
-bool operator >= ( const TUInt64& inArgOne, const KUInt32 inArgTwo );
+bool operator>=(const TUInt64& inArgOne, const KUInt32 inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -534,7 +538,7 @@ bool operator >= ( const TUInt64& inArgOne, const KUInt32 inArgTwo );
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne >= inArgTwo
 ///
-bool operator >= ( const KUInt32 inArgOne, const TUInt64& inArgTwo );
+bool operator>=(const KUInt32 inArgOne, const TUInt64& inArgTwo);
 
 ///
 /// Comparaison (64 bits)
@@ -543,7 +547,7 @@ bool operator >= ( const KUInt32 inArgOne, const TUInt64& inArgTwo );
 /// \param inArgTwo	second argument
 /// \return \c inArgOne >= inArgTwo
 ///
-bool operator >= ( const TUInt64& inArgOne, const TUInt64& inArgTwo );
+bool operator>=(const TUInt64& inArgOne, const TUInt64& inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -552,7 +556,7 @@ bool operator >= ( const TUInt64& inArgOne, const TUInt64& inArgTwo );
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne < inArgTwo
 ///
-bool operator < ( const TUInt64& inArgOne, const KUInt32 inArgTwo );
+bool operator<(const TUInt64& inArgOne, const KUInt32 inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -561,7 +565,7 @@ bool operator < ( const TUInt64& inArgOne, const KUInt32 inArgTwo );
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne < inArgTwo
 ///
-bool operator < ( const KUInt32 inArgOne, const TUInt64& inArgTwo );
+bool operator<(const KUInt32 inArgOne, const TUInt64& inArgTwo);
 
 ///
 /// Comparaison (64 bits)
@@ -570,7 +574,7 @@ bool operator < ( const KUInt32 inArgOne, const TUInt64& inArgTwo );
 /// \param inArgTwo	second argument
 /// \return \c inArgOne < inArgTwo
 ///
-bool operator < ( const TUInt64& inArgOne, const TUInt64& inArgTwo );
+bool operator<(const TUInt64& inArgOne, const TUInt64& inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -579,7 +583,7 @@ bool operator < ( const TUInt64& inArgOne, const TUInt64& inArgTwo );
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne > inArgTwo
 ///
-bool operator > ( const TUInt64& inArgOne, const KUInt32 inArgTwo );
+bool operator>(const TUInt64& inArgOne, const KUInt32 inArgTwo);
 
 ///
 /// Comparaison (32 bits)
@@ -588,7 +592,7 @@ bool operator > ( const TUInt64& inArgOne, const KUInt32 inArgTwo );
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne > inArgTwo
 ///
-bool operator > ( const KUInt32 inArgOne, const TUInt64& inArgTwo );
+bool operator>(const KUInt32 inArgOne, const TUInt64& inArgTwo);
 
 ///
 /// Comparaison (64 bits)
@@ -597,7 +601,7 @@ bool operator > ( const KUInt32 inArgOne, const TUInt64& inArgTwo );
 /// \param inArgTwo	second argument
 /// \return \c inArgOne > inArgTwo
 ///
-bool operator > ( const TUInt64& inArgOne, const TUInt64& inArgTwo );
+bool operator>(const TUInt64& inArgOne, const TUInt64& inArgTwo);
 
 ///
 /// Division entière (32 bits)
@@ -606,9 +610,9 @@ bool operator > ( const TUInt64& inArgOne, const TUInt64& inArgTwo );
 /// \param inArgTwo	second argument
 /// \return \c inArgOne / inArgTwo
 ///
-TUInt64 operator / (
-		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo );
+TUInt64 operator/(
+	const TUInt64& inArgOne,
+	const KUInt32 inArgTwo);
 
 ///
 /// Division entière (64 bits)
@@ -617,9 +621,9 @@ TUInt64 operator / (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne / inArgTwo
 ///
-TUInt64 operator / (
-		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo );
+TUInt64 operator/(
+	const TUInt64& inArgOne,
+	const TUInt64& inArgTwo);
 
 ///
 /// Modulo (32 bits)
@@ -628,9 +632,9 @@ TUInt64 operator / (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne % inArgTwo
 ///
-TUInt64 operator % (
-		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo );
+TUInt64 operator%(
+	const TUInt64& inArgOne,
+	const KUInt32 inArgTwo);
 
 ///
 /// Modulo (64 bits)
@@ -639,9 +643,9 @@ TUInt64 operator % (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne % inArgTwo
 ///
-TUInt64 operator % (
-		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo );
+TUInt64 operator%(
+	const TUInt64& inArgOne,
+	const TUInt64& inArgTwo);
 
 ///
 /// Multiplication (32 bits)
@@ -650,12 +654,12 @@ TUInt64 operator % (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne * inArgTwo
 ///
-inline
-TUInt64 operator * (
-		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo )
+inline TUInt64
+operator*(
+	const TUInt64& inArgOne,
+	const KUInt32 inArgTwo)
 {
-	return TUInt64( inArgOne ) *= inArgTwo;
+	return TUInt64(inArgOne) *= inArgTwo;
 }
 
 ///
@@ -665,13 +669,13 @@ TUInt64 operator * (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne * inArgTwo
 ///
-inline
-TUInt64 operator * (
-		const KUInt32 inArgOne,
-		const TUInt64& inArgTwo )
+inline TUInt64
+operator*(
+	const KUInt32 inArgOne,
+	const TUInt64& inArgTwo)
 {
 	// La multiplication est commutative.
-	return TUInt64( inArgTwo ) *= inArgOne;
+	return TUInt64(inArgTwo) *= inArgOne;
 }
 
 ///
@@ -681,12 +685,12 @@ TUInt64 operator * (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne * inArgTwo
 ///
-inline
-TUInt64 operator * (
-		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo )
+inline TUInt64
+operator*(
+	const TUInt64& inArgOne,
+	const TUInt64& inArgTwo)
 {
-	return TUInt64( inArgOne ) *= inArgTwo;
+	return TUInt64(inArgOne) *= inArgTwo;
 }
 
 ///
@@ -696,12 +700,12 @@ TUInt64 operator * (
 /// \param inShiftCount	décalage
 /// \return \c inArgument << inShiftCount
 ///
-inline
-TUInt64 operator << (
-		const TUInt64& inArgument,
-		const int inShiftCount )
+inline TUInt64
+operator<<(
+	const TUInt64& inArgument,
+	const int inShiftCount)
 {
-	return TUInt64( inArgument ) <<= inShiftCount;
+	return TUInt64(inArgument) <<= inShiftCount;
 }
 
 ///
@@ -711,12 +715,12 @@ TUInt64 operator << (
 /// \param inShiftCount	décalage
 /// \return \c inArgument << inShiftCount
 ///
-inline
-TUInt64 operator >> (
-		const TUInt64& inArgument,
-		const int inShiftCount )
+inline TUInt64
+operator>>(
+	const TUInt64& inArgument,
+	const int inShiftCount)
 {
-	return TUInt64( inArgument ) >>= inShiftCount;
+	return TUInt64(inArgument) >>= inShiftCount;
 }
 
 ///
@@ -726,12 +730,12 @@ TUInt64 operator >> (
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne & inArgTwo
 ///
-inline
-TUInt64 operator & (
-		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo )
+inline TUInt64
+operator&(
+	const TUInt64& inArgOne,
+	const KUInt32 inArgTwo)
 {
-	return TUInt64( inArgOne ) &= inArgTwo;
+	return TUInt64(inArgOne) &= inArgTwo;
 }
 
 ///
@@ -741,12 +745,12 @@ TUInt64 operator & (
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne & inArgTwo
 ///
-inline
-TUInt64 operator & (
-		const KUInt32 inArgOne,
-		const TUInt64& inArgTwo )
+inline TUInt64
+operator&(
+	const KUInt32 inArgOne,
+	const TUInt64& inArgTwo)
 {
-	return TUInt64( inArgTwo ) &= inArgOne;
+	return TUInt64(inArgTwo) &= inArgOne;
 }
 
 ///
@@ -756,12 +760,12 @@ TUInt64 operator & (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne & inArgTwo
 ///
-inline
-TUInt64 operator & (
-		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo )
+inline TUInt64
+operator&(
+	const TUInt64& inArgOne,
+	const TUInt64& inArgTwo)
 {
-	return TUInt64( inArgOne ) &= inArgTwo;
+	return TUInt64(inArgOne) &= inArgTwo;
 }
 
 ///
@@ -771,12 +775,12 @@ TUInt64 operator & (
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne | inArgTwo
 ///
-inline
-TUInt64 operator | (
-		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo )
+inline TUInt64
+operator|(
+	const TUInt64& inArgOne,
+	const KUInt32 inArgTwo)
 {
-	return TUInt64( inArgOne ) |= inArgTwo;
+	return TUInt64(inArgOne) |= inArgTwo;
 }
 
 ///
@@ -786,12 +790,12 @@ TUInt64 operator | (
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne | inArgTwo
 ///
-inline
-TUInt64 operator | (
-		const KUInt32 inArgOne,
-		const TUInt64& inArgTwo )
+inline TUInt64
+operator|(
+	const KUInt32 inArgOne,
+	const TUInt64& inArgTwo)
 {
-	return TUInt64( inArgTwo ) |= inArgOne;
+	return TUInt64(inArgTwo) |= inArgOne;
 }
 
 ///
@@ -801,12 +805,12 @@ TUInt64 operator | (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne | inArgTwo
 ///
-inline
-TUInt64 operator | (
-		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo )
+inline TUInt64
+operator|(
+	const TUInt64& inArgOne,
+	const TUInt64& inArgTwo)
 {
-	return TUInt64( inArgOne ) |= inArgTwo;
+	return TUInt64(inArgOne) |= inArgTwo;
 }
 
 ///
@@ -816,12 +820,12 @@ TUInt64 operator | (
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne ^ inArgTwo
 ///
-inline
-TUInt64 operator ^ (
-		const TUInt64& inArgOne,
-		const KUInt32 inArgTwo )
+inline TUInt64
+operator^(
+	const TUInt64& inArgOne,
+	const KUInt32 inArgTwo)
 {
-	return TUInt64( inArgOne ) ^= inArgTwo;
+	return TUInt64(inArgOne) ^= inArgTwo;
 }
 
 ///
@@ -831,12 +835,12 @@ TUInt64 operator ^ (
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne ^ inArgTwo
 ///
-inline
-TUInt64 operator ^ (
-		const KUInt32 inArgOne,
-		const TUInt64& inArgTwo )
+inline TUInt64
+operator^(
+	const KUInt32 inArgOne,
+	const TUInt64& inArgTwo)
 {
-	return TUInt64( inArgTwo ) ^= inArgOne;
+	return TUInt64(inArgTwo) ^= inArgOne;
 }
 
 ///
@@ -846,16 +850,16 @@ TUInt64 operator ^ (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne ^ inArgTwo
 ///
-inline
-TUInt64 operator ^ (
-		const TUInt64& inArgOne,
-		const TUInt64& inArgTwo )
+inline TUInt64
+operator^(
+	const TUInt64& inArgOne,
+	const TUInt64& inArgTwo)
 {
-	return TUInt64( inArgOne ) ^= inArgTwo;
+	return TUInt64(inArgOne) ^= inArgTwo;
 }
 
 #endif
-		// _TUINT64_H
+// _TUINT64_H
 
 // ============================================================================ //
 // There has also been some work to allow the interesting use of macro names.   //

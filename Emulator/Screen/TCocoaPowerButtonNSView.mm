@@ -31,7 +31,8 @@
 // -------------------------------------------------------------------------- //
 - (id)initWithFrame:(NSRect)frameRect screenManager:(TCocoaScreenManager*)inScreenManager
 {
-	if ((self = [super initWithFrame:frameRect]) != nil) {
+	if ((self = [super initWithFrame:frameRect]) != nil)
+	{
 		mScreenManager = inScreenManager;
 	}
 	return self;
@@ -49,7 +50,7 @@
 // -------------------------------------------------------------------------- //
 //  * (void)mouseDown:(NSEvent *)
 // -------------------------------------------------------------------------- //
-- (void)mouseDown:(NSEvent *)theEvent
+- (void)mouseDown:(NSEvent*)theEvent
 {
 	mScreenManager->PowerSwitch();
 }

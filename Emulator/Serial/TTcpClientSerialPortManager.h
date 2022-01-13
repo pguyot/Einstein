@@ -45,29 +45,32 @@ class TMemory;
 class TTcpClientSerialPortManager : public TBasicSerialPortManager
 {
 public:
-
 	///
 	/// Constructor.
 	///
 	TTcpClientSerialPortManager(TLog* inLog,
-								TSerialPorts::EPortIndex inPortIx);
+		TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.
 	///
-	~TTcpClientSerialPortManager( ) override;
+	~TTcpClientSerialPortManager() override;
 
 	///
 	/// Return the Identification of this driver
 	///
-	KUInt32 GetID() override { return TSerialPorts::kTcpClientDriver; }
+	KUInt32
+	GetID() override
+	{
+		return TSerialPorts::kTcpClientDriver;
+	}
 
 	///
 	/// Start emulation.
 	///
 	void run(TInterruptManager* inInterruptManager,
-			 TDMAManager* inDMAManager,
-			 TMemory* inMemory) override;
+		TDMAManager* inDMAManager,
+		TMemory* inMemory) override;
 
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
@@ -84,20 +87,19 @@ public:
 	///
 	void NSSetOptions(TNewt::RefArg frame) override;
 
-	void SetServerAddress(const char *inAddress);
+	void SetServerAddress(const char* inAddress);
 
 	void SetServerPort(int inPort);
 
-	char *GetServerAddressDup();
+	char* GetServerAddressDup();
 
 	int GetServerPort();
 
 protected:
-
 	///
 	/// Host user interface erroro message
 	///
-	void LogError(const char* text, bool systemError=false);
+	void LogError(const char* text, bool systemError = false);
 
 	///
 	/// Emulate the DMA hardware
@@ -127,9 +129,13 @@ protected:
 	///
 	/// Return true if we are connected to the server.
 	///
-	bool IsConnected() { return mIsConnected; }
+	bool
+	IsConnected()
+	{
+		return mIsConnected;
+	}
 
-	char *mServer = nullptr;
+	char* mServer = nullptr;
 	int mPort = 0;
 
 #if TARGET_OS_WIN32
@@ -138,12 +144,12 @@ protected:
 	WSAEVENT mOtherEvent = INVALID_HANDLE_VALUE;
 	SOCKET mTcpSocket = INVALID_SOCKET;
 #else
-    int mCommandPipe[2] = { -1, -1 };       ///< communication between emulator and DMA thread
-    int mTcpSocket = -1;                    ///< TCP socket for client side
+	int mCommandPipe[2] = { -1, -1 }; ///< communication between emulator and DMA thread
+	int mTcpSocket = -1; ///< TCP socket for client side
 #endif
-	std::thread *mWorkerThread = nullptr;   ///< the thread that does all the work
-	bool mIsConnected = false;              ///< set to true if there is a connection to a server
-	time_t mReconnectTimeout = 0;   		///< next time we allow another connection attempt
+	std::thread* mWorkerThread = nullptr; ///< the thread that does all the work
+	bool mIsConnected = false; ///< set to true if there is a connection to a server
+	time_t mReconnectTimeout = 0; ///< next time we allow another connection attempt
 };
 
 #endif

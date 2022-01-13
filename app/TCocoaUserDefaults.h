@@ -24,52 +24,52 @@
 #ifndef _TCOCOAUSERDEFAULTS_H
 #define _TCOCOAUSERDEFAULTS_H
 
-#define kROMImagePathKey			@"ROMImagePath"
-#define kROMREx0PathKey				@"ROMREx0Path"
-#define kInternalFlashPathKey		@"InternalFlashPath"
-#define kScreenWidthKey				@"ScreenWidth"
-#define kScreenHeightKey			@"ScreenHeight"
-#define kFullScreenKey				@"FullScreen"
-#define kRAMSizeKey					@"RAMSize"
+#define kROMImagePathKey @"ROMImagePath"
+#define kROMREx0PathKey @"ROMREx0Path"
+#define kInternalFlashPathKey @"InternalFlashPath"
+#define kScreenWidthKey @"ScreenWidth"
+#define kScreenHeightKey @"ScreenHeight"
+#define kFullScreenKey @"FullScreen"
+#define kRAMSizeKey @"RAMSize"
 
-#define kExtrTCPServerAddress		@"ExtrServerAddress"
-#define kExtrTCPServerPort			@"ExtrServerPort"
+#define kExtrTCPServerAddress @"ExtrServerAddress"
+#define kExtrTCPServerPort @"ExtrServerPort"
 
-#define kMachineKey					@"Machine"
-#define k717006Tag					717006
-#define k737041Tag					737041
-#define k747129Tag					747129
-#define k717006FTag					7170061
+#define kMachineKey @"Machine"
+#define k717006Tag 717006
+#define k737041Tag 737041
+#define k747129Tag 747129
+#define k717006FTag 7170061
 
-#define kAudioDriverKey				@"AudioDriver"
-#define kCoreAudioDriverTag			1
-#define kPortAudioDriverTag			2
-#define kNullSoundDriverTag			3
+#define kAudioDriverKey @"AudioDriver"
+#define kCoreAudioDriverTag 1
+#define kPortAudioDriverTag 2
+#define kNullSoundDriverTag 3
 
-#define kScreenDriverKey			@"ScreenDriver"
-#define kCocoaScreenDriverTag		1
-#define kX11ScreenDriverTag			2
+#define kScreenDriverKey @"ScreenDriver"
+#define kCocoaScreenDriverTag 1
+#define kX11ScreenDriverTag 2
 
-#define kNetworkDriverKey			@"NetworkDriver"
-#define kUsermodeNetworkDriverTag	1
-#define kTapNetworkDriverTag		2
-#define kNullNetworkDriverTag		3
+#define kNetworkDriverKey @"NetworkDriver"
+#define kUsermodeNetworkDriverTag 1
+#define kTapNetworkDriverTag 2
+#define kNullNetworkDriverTag 3
 
-#define kSerialDriverKey			@"SerialDriver"
-#define kTcpServerSerialDriverTag	5
-#define kTcpClientSerialDriverTag	4
-#define kBasiliskIISerialDriverTag	3
-#define kPtySerialDriverTag			2
-#define kPipesSerialDriverTag		1
-#define kNullSerialDriverTag		0
+#define kSerialDriverKey @"SerialDriver"
+#define kTcpServerSerialDriverTag 5
+#define kTcpClientSerialDriverTag 4
+#define kBasiliskIISerialDriverTag 3
+#define kPtySerialDriverTag 2
+#define kPipesSerialDriverTag 1
+#define kNullSerialDriverTag 0
 
-#define kDontShowAtStartupKey		@"DontShowAtStartup"
-#define kEnableListenersKey			@"EnableListeners"
+#define kDontShowAtStartupKey @"DontShowAtStartup"
+#define kEnableListenersKey @"EnableListeners"
 
-#define kOpenMonitorAtLaunch		@"OpenMonitorAtLaunch"
+#define kOpenMonitorAtLaunch @"OpenMonitorAtLaunch"
 
 #endif
-		// _TCOCOAUSERDEFAULTS_H
+// _TCOCOAUSERDEFAULTS_H
 
 // =============================================================== //
 // Science is to computer science as hydrodynamics is to plumbing. //

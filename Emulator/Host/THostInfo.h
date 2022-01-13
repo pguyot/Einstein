@@ -27,7 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 #if TARGET_OS_OPENSTEP
-	#include <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CoreFoundation.h>
 #endif
 
 // Einstein
@@ -47,24 +47,25 @@ public:
 	///
 	/// Accessor on the unique instance.
 	///
-	static const THostInfo*	GetHostInfo( void )
-		{
-			return kHostInfo;
-		}
+	static const THostInfo*
+	GetHostInfo(void)
+	{
+		return kHostInfo;
+	}
 
 	///
 	/// Accessor on information about the user (UTF-16).
 	///
 	/// \return some information about the the user.
 	///
-	const KUInt16* GetUserInfo( EUserInfoSel inSelector ) const;
+	const KUInt16* GetUserInfo(EUserInfoSel inSelector) const;
 
 	///
 	/// Accessor on the timezone.
 	///
 	/// \return the delta with GMT in seconds.
 	///
-	int				GetHostTimeZone( void ) const;
+	int GetHostTimeZone(void) const;
 
 private:
 	///
@@ -75,63 +76,63 @@ private:
 	///
 	/// Default constructor.
 	///
-	THostInfo( void );
+	THostInfo(void);
 
 	///
 	/// Destructor.
 	///
-	~THostInfo( void );
+	~THostInfo(void);
 
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	THostInfo( const THostInfo& inCopy );
+	THostInfo(const THostInfo& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	THostInfo& operator = ( const THostInfo& inCopy );
+	THostInfo& operator=(const THostInfo& inCopy);
 
 	///
 	/// Retrieve information on the user.
 	///
-	void RetrieveUserInfo( void );
+	void RetrieveUserInfo(void);
 
 #if TARGET_OS_OPENSTEP
 	///
 	/// Convert a CF string to a UTF-16 buffer.
 	///
-	const KUInt16* ConvertCFString( CFStringRef inCFString );
+	const KUInt16* ConvertCFString(CFStringRef inCFString);
 #endif
 
 	///
 	/// Fill info that couldn't be retrieved with empty strings.
 	///
-	void FillNullInfoWithEmptyStrings( void );
+	void FillNullInfoWithEmptyStrings(void);
 
 	/// \name Variables
-	const KUInt16*		mUserFirstName;			///< User first name.
-	const KUInt16*		mUserLastName;			///< User last name.
-	const KUInt16*		mUserCompany;			///< User company.
-	const KUInt16*		mUserAddr;				///< User address.
-	const KUInt16*		mUserAddr2;				///< User address (line 2).
-	const KUInt16*		mUserPostalCode;		///< User postal code.
-	const KUInt16*		mUserCity;				///< User city.
-	const KUInt16*		mUserRegion;			///< User region.
-	const KUInt16*		mUserCountry;			///< User country.
-	const KUInt16*		mUserCountryISOCode;	///< User country ISO code.
-	const KUInt16*		mUserHomePhone;			///< User home #.
-	const KUInt16*		mUserHomeFaxPhone;		///< User home fax #.
-	const KUInt16*		mUserWorkPhone;			///< User work #.
-	const KUInt16*		mUserWorkFaxPhone;		///< User work fax #.
+	const KUInt16* mUserFirstName; ///< User first name.
+	const KUInt16* mUserLastName; ///< User last name.
+	const KUInt16* mUserCompany; ///< User company.
+	const KUInt16* mUserAddr; ///< User address.
+	const KUInt16* mUserAddr2; ///< User address (line 2).
+	const KUInt16* mUserPostalCode; ///< User postal code.
+	const KUInt16* mUserCity; ///< User city.
+	const KUInt16* mUserRegion; ///< User region.
+	const KUInt16* mUserCountry; ///< User country.
+	const KUInt16* mUserCountryISOCode; ///< User country ISO code.
+	const KUInt16* mUserHomePhone; ///< User home #.
+	const KUInt16* mUserHomeFaxPhone; ///< User home fax #.
+	const KUInt16* mUserWorkPhone; ///< User work #.
+	const KUInt16* mUserWorkFaxPhone; ///< User work fax #.
 };
 
 #endif
-		// _THOSTINFO_H
+// _THOSTINFO_H
 
 // ====================================================================== //
 // As the trials of life continue to take their toll, remember that there //

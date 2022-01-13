@@ -27,31 +27,31 @@
 // #include "IncludeModeRnRd.h"
 // #undef INCLUDE_TEMPLATE
 
-#define FLAG_S	0
-#define MODE	Imm
+#define FLAG_S 0
+#define MODE Imm
 #include "IncludeRnRd.h"
 #undef MODE
-#define MODE	ImmC
+#define MODE ImmC
 #include "IncludeRnRd.h"
 #undef MODE
-#define MODE	NoShift
+#define MODE NoShift
 #include "IncludeRnRd.h"
 #undef MODE
-#define MODE	Regular
+#define MODE Regular
 #include "IncludeRnRd.h"
 #undef MODE
 #undef FLAG_S
-#define FLAG_S	1
-#define MODE	Imm
+#define FLAG_S 1
+#define MODE Imm
 #include "IncludeRnRd.h"
 #undef MODE
-#define MODE	ImmC
+#define MODE ImmC
 #include "IncludeRnRd.h"
 #undef MODE
-#define MODE	NoShift
+#define MODE NoShift
 #include "IncludeRnRd.h"
 #undef MODE
-#define MODE	Regular
+#define MODE Regular
 #include "IncludeRnRd.h"
 #undef MODE
 #undef FLAG_S

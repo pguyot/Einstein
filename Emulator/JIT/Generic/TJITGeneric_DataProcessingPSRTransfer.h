@@ -32,13 +32,13 @@
 
 void
 Translate_DataProcessingPSRTransfer(
-					JITPageClass* inPage,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr );
+	JITPageClass* inPage,
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr);
 
 #endif
-		// _TJITGENERIC_DATAPROCESSINGPSRTRANSFER_H
+// _TJITGENERIC_DATAPROCESSINGPSRTRANSFER_H
 
 // ================== //
 // fortune: not found //

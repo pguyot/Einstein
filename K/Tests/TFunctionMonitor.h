@@ -54,12 +54,12 @@ public:
 	///
 	/// Constructeur par défaut.
 	///
-	TFunctionMonitor( void ) {};
+	TFunctionMonitor(void) {};
 
 	///
 	/// Destructeur.
 	///
-	virtual ~TFunctionMonitor( void ) {};
+	virtual ~TFunctionMonitor(void) {};
 
 	///
 	/// Début d'une fonction.
@@ -71,8 +71,9 @@ public:
 	/// \param inLineNumber		numéro de la ligne.
 	///
 	virtual void FunctionBegin(
-						const char* inFileName,
-						unsigned int inLineNumber ) = 0;
+		const char* inFileName,
+		unsigned int inLineNumber)
+		= 0;
 
 	///
 	/// Fin d'une fonction.
@@ -84,12 +85,13 @@ public:
 	/// \param inLineNumber		numéro de la ligne.
 	///
 	virtual void FunctionEnd(
-						const char* inFileName,
-						unsigned int inLineNumber ) = 0;
+		const char* inFileName,
+		unsigned int inLineNumber)
+		= 0;
 };
 
 #endif
-		// __TFUNCTIONMONITOR__
+// __TFUNCTIONMONITOR__
 
 // ======================================================================== //
 // Real Programmers don't write in PL/I.  PL/I is for programmers who can't //

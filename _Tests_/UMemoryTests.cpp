@@ -17,52 +17,52 @@
 
 // ANSI C & POSIX
 #if !TARGET_OS_WIN32
-	#include <unistd.h>
+#include <unistd.h>
 #endif
 
 // K
 #include <K/Defines/UByteSex.h>
 
 // Einstein
-#include "Emulator/Log/TLog.h"
 #include "Emulator/TMemory.h"
+#include "Emulator/Log/TLog.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
 #if TARGET_OS_WIN32
-	#define kTempFlashPath "c:/EinsteinTests.flash"
+#define kTempFlashPath "c:/EinsteinTests.flash"
 #else
-	#define kTempFlashPath "/tmp/EinsteinTests.flash"
+#define kTempFlashPath "/tmp/EinsteinTests.flash"
 #endif
 
 // -------------------------------------------------------------------------- //
 //  * FlashTest( TLog* )
 // -------------------------------------------------------------------------- //
 void
-UMemoryTests::FlashTest( TLog* inLog )
+UMemoryTests::FlashTest(TLog* inLog)
 {
 	KUInt8* romBuffer = (KUInt8*) malloc(TMemoryConsts::kLowROMEnd);
-	TMemory theMem( inLog, (KUInt8*) romBuffer, kTempFlashPath );
+	TMemory theMem(inLog, (KUInt8*) romBuffer, kTempFlashPath);
 	int index;
 
 	if (theMem.WriteToFlash32Bits(
-			0x00112233, 0xFFFFFFFF, TMemoryConsts::kFlashBank1 ))
+			0x00112233, 0xFFFFFFFF, TMemoryConsts::kFlashBank1))
 	{
 		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash32Bits(
-			0x44556677, 0xFFFFFFFF, TMemoryConsts::kFlashBank1 + 4 ))
+			0x44556677, 0xFFFFFFFF, TMemoryConsts::kFlashBank1 + 4))
 	{
 		inLog->LogLine("A fault occurred writing to flash at bank1+4");
 	}
 	if (theMem.WriteToFlash32Bits(
-			0x8899AABB, 0xFFFFFFFF, TMemoryConsts::kFlashBank1 + 8 ))
+			0x8899AABB, 0xFFFFFFFF, TMemoryConsts::kFlashBank1 + 8))
 	{
 		inLog->LogLine("A fault occurred writing to flash at bank1+8");
 	}
 	if (theMem.WriteToFlash32Bits(
-			0xCCDDEEFF, 0xFFFFFFFF, TMemoryConsts::kFlashBank1 + 12 ))
+			0xCCDDEEFF, 0xFFFFFFFF, TMemoryConsts::kFlashBank1 + 12))
 	{
 		inLog->LogLine("A fault occurred writing to flash at bank1+C");
 	}
@@ -70,7 +70,7 @@ UMemoryTests::FlashTest( TLog* inLog )
 	Boolean fault = false;
 	for (index = 0; index < 4; index++)
 	{
-		KUInt32 theWord = theMem.ReadP( TMemoryConsts::kFlashBank1 + (4*index), fault );
+		KUInt32 theWord = theMem.ReadP(TMemoryConsts::kFlashBank1 + (4 * index), fault);
 		if (fault)
 		{
 			inLog->FLogLine("A fault occurred reading at %i", index);
@@ -81,7 +81,7 @@ UMemoryTests::FlashTest( TLog* inLog )
 	KUInt8 theByte;
 	for (index = 0; index < 16; index++)
 	{
-		if (theMem.ReadBP( TMemoryConsts::kFlashBank1 + index, theByte ))
+		if (theMem.ReadBP(TMemoryConsts::kFlashBank1 + index, theByte))
 		{
 			inLog->FLogLine("A fault occurred reading at %i", index);
 		}
@@ -89,28 +89,28 @@ UMemoryTests::FlashTest( TLog* inLog )
 	}
 
 	if (theMem.WriteToFlash16Bits(
-			0xFFEEDDCC, 0xFFFF0000, TMemoryConsts::kFlashBank1 ))
+			0xFFEEDDCC, 0xFFFF0000, TMemoryConsts::kFlashBank1))
 	{
 		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash16Bits(
-			0xBBAA9988, 0xFFFF0000, TMemoryConsts::kFlashBank1 + 4 ))
+			0xBBAA9988, 0xFFFF0000, TMemoryConsts::kFlashBank1 + 4))
 	{
 		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash16Bits(
-			0x77665544, 0xFFFF0000, TMemoryConsts::kFlashBank1 + 8 ))
+			0x77665544, 0xFFFF0000, TMemoryConsts::kFlashBank1 + 8))
 	{
 		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash16Bits(
-			0x33221100, 0xFFFF0000, TMemoryConsts::kFlashBank1 + 12 ))
+			0x33221100, 0xFFFF0000, TMemoryConsts::kFlashBank1 + 12))
 	{
 		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	for (index = 0; index < 4; index++)
 	{
-		KUInt32 theWord = theMem.ReadP( TMemoryConsts::kFlashBank1 + (4*index), fault );
+		KUInt32 theWord = theMem.ReadP(TMemoryConsts::kFlashBank1 + (4 * index), fault);
 		if (fault)
 		{
 			inLog->FLogLine("A fault occurred reading at %i", index);
@@ -119,28 +119,28 @@ UMemoryTests::FlashTest( TLog* inLog )
 	}
 
 	if (theMem.WriteToFlash16Bits(
-			0x33221100, 0x0000FFFF, TMemoryConsts::kFlashBank1 ))
+			0x33221100, 0x0000FFFF, TMemoryConsts::kFlashBank1))
 	{
 		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash16Bits(
-			0x77665544, 0x0000FFFF, TMemoryConsts::kFlashBank1 + 4 ))
+			0x77665544, 0x0000FFFF, TMemoryConsts::kFlashBank1 + 4))
 	{
 		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash16Bits(
-			0xBBAA9988, 0x0000FFFF, TMemoryConsts::kFlashBank1 + 8 ))
+			0xBBAA9988, 0x0000FFFF, TMemoryConsts::kFlashBank1 + 8))
 	{
 		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	if (theMem.WriteToFlash16Bits(
-			0xFFEEDDCC, 0x0000FFFF, TMemoryConsts::kFlashBank1 + 12 ))
+			0xFFEEDDCC, 0x0000FFFF, TMemoryConsts::kFlashBank1 + 12))
 	{
 		inLog->LogLine("A fault occurred writing to flash at bank1");
 	}
 	for (index = 0; index < 4; index++)
 	{
-		KUInt32 theWord = theMem.ReadP( TMemoryConsts::kFlashBank1 + (4*index), fault );
+		KUInt32 theWord = theMem.ReadP(TMemoryConsts::kFlashBank1 + (4 * index), fault);
 		if (fault)
 		{
 			inLog->FLogLine("A fault occurred reading at %i", index);
@@ -148,8 +148,8 @@ UMemoryTests::FlashTest( TLog* inLog )
 		inLog->FLogLine("%i: %.8X", index, (unsigned int) theWord);
 	}
 
-	(void) ::unlink( kTempFlashPath );
-	::free( romBuffer );
+	(void) ::unlink(kTempFlashPath);
+	::free(romBuffer);
 }
 
 // ========================================================= //

@@ -166,23 +166,23 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
  Einstein threads:
 
  - Mainthread: GUI
-    The main thread at startup runs all code that creates windows, destroys windows,
-    or handles user interaction. In FLTK, callbacks are always running in the main
-    thread. If other threads need to call FLTK, the you should do it by guarding
-    the call with `Fl::lock(); ... ; Fl::unlock();` and possibly `myWidget->redraw();`
+	The main thread at startup runs all code that creates windows, destroys windows,
+	or handles user interaction. In FLTK, callbacks are always running in the main
+	thread. If other threads need to call FLTK, the you should do it by guarding
+	the call with `Fl::lock(); ... ; Fl::unlock();` and possibly `myWidget->redraw();`
 
 - Emulator/Monitor thread:
-    The Emulator runs inside its own thread. If the Monitor is enabled, the Emulator
-    runs within the Monitor thread.
+	The Emulator runs inside its own thread. If the Monitor is enabled, the Emulator
+	runs within the Monitor thread.
 
  - Interrupt Manager:
-    The interrupt manager runs within its own thread.
+	The interrupt manager runs within its own thread.
 
  - UsermodeNetwork thread:
-    Parts of the usermode network driver run within a thread.
+	Parts of the usermode network driver run within a thread.
 
  - TCP Serial Port:
-    All TCP communications runs within a thread
+	All TCP communications runs within a thread
 
  */
 
@@ -203,39 +203,39 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <sys/types.h>
 
 // C++17
-#include <thread>
 #include <filesystem>
+#include <thread>
 
 // FLTK user interface
-#include <FL/x.H>
-#include <FL/fl_draw.H>
 #include <FL/Fl.H>
-#include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_Native_File_Chooser.H>
-#include <FL/Fl_Tooltip.H>
 #include <FL/Fl_Paged_Device.H>
 #include <FL/Fl_Printer.H>
+#include <FL/Fl_Tooltip.H>
+#include <FL/Fl_Window.H>
+#include <FL/fl_draw.H>
+#include <FL/x.H>
 
 // Einstein
-#include "Emulator/ROM/TROMImage.h"
-#include "Emulator/ROM/TFlatROMImageWithREX.h"
-#include "Emulator/ROM/TAIFROMImageWithREXes.h"
-#include "Emulator/Sound/TNullSoundManager.h"
-#include "Emulator/Network/TNetworkManager.h"
-#include "Emulator/Network/TUsermodeNetwork.h"
-#include "Emulator/Screen/TFLScreenManager.h"
-#include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
-#include "Emulator/Log/TLog.h"
-#include "Emulator/Log/TFileLog.h"
 #include "Emulator/Log/TBufferLog.h"
-#include "Emulator/Serial/TSerialPorts.h"
-#include "Emulator/Serial/TSerialPortManager.h"
-#include "Emulator/Serial/TTcpClientSerialPortManager.h"
+#include "Emulator/Log/TFileLog.h"
+#include "Emulator/Log/TLog.h"
+#include "Emulator/Network/TNetworkManager.h"
+#include "Emulator/Network/TUsermodeNetwork.h"
 #include "Emulator/PCMCIA/TLinearCard.h"
+#include "Emulator/Platform/TPlatformManager.h"
+#include "Emulator/ROM/TAIFROMImageWithREXes.h"
+#include "Emulator/ROM/TFlatROMImageWithREX.h"
+#include "Emulator/ROM/TROMImage.h"
+#include "Emulator/Screen/TFLScreenManager.h"
+#include "Emulator/Serial/TSerialPortManager.h"
+#include "Emulator/Serial/TSerialPorts.h"
+#include "Emulator/Serial/TTcpClientSerialPortManager.h"
+#include "Emulator/Sound/TNullSoundManager.h"
 
 // Http Client GET
 #undef min
@@ -256,7 +256,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Monitor/TFLMonitor.h"
 #include "Monitor/TSymbolList.h"
 
-static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, int type);
+static const char* tfl_file_chooser(const char* message, const char* pat, const char* fname, int type);
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -266,40 +266,35 @@ static const char *tfl_file_chooser(const char *message, const char *pat, const 
 // Local Classes
 // -------------------------------------------------------------------------- //
 
-TFLApp *gApp = nullptr;
-
+TFLApp* gApp = nullptr;
 
 // MARK: - Public: -
 // --- Constructor and destructor
 
-
 /**
  Constructor for the app.
  */
-TFLApp::TFLApp( void ) = default;
-
+TFLApp::TFLApp(void) = default;
 
 /**
  Clean up time.
  */
-TFLApp::~TFLApp( void )
+TFLApp::~TFLApp(void)
 {
-    delete mEmulator;
-    delete mScreenManager;
-    delete mSoundManager;
-    delete mNetworkManager;
-    delete mLog;
-    delete mMonitorLog;
-    delete mROMImage;
-    delete mMonitor;
-    delete mSymbolList;
+	delete mEmulator;
+	delete mScreenManager;
+	delete mSoundManager;
+	delete mNetworkManager;
+	delete mLog;
+	delete mMonitorLog;
+	delete mROMImage;
+	delete mMonitor;
+	delete mSymbolList;
 	delete mFLSettings;
 }
 
-
 // MARK: -
 // --- Startup and run the emulator.
-
 
 /**
  Run EInstein.
@@ -307,189 +302,199 @@ TFLApp::~TFLApp( void )
  \todo Must urgently refactor this so it becomes readable again.
  */
 void
-TFLApp::Run( int argc, char* argv[] )
+TFLApp::Run(int argc, char* argv[])
 {
-    mProgramName = argv[0];
+	mProgramName = argv[0];
 
-    InitFLTK(argc, argv);
+	InitFLTK(argc, argv);
 
-    InitSettings();
+	InitSettings();
 
-    int ramSize = mFLSettings->RAMSize;
-    Boolean hidemouse = (Boolean)mFLSettings->hideMouse;
+	int ramSize = mFLSettings->RAMSize;
+	Boolean hidemouse = (Boolean) mFLSettings->hideMouse;
 
-    KPrintf( "Welcome to Einstein console.\n" );
-    KPrintf( "This is %s.\n", VERSION_STRING );
+	KPrintf("Welcome to Einstein console.\n");
+	KPrintf("This is %s.\n", VERSION_STRING);
 
-    static char theROMImagePath[FL_PATH_MAX];
+	static char theROMImagePath[FL_PATH_MAX];
 
-    for (Boolean firstAttempt=true;;firstAttempt=false) {
-        if (!firstAttempt || !mFLSettings->dontShow)
-            mFLSettings->ShowSettingsPanelModal();
-        strncpy(theROMImagePath, mFLSettings->ROMPath, FL_PATH_MAX);
-        mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, 1, mFLSettings->mUseBuiltinRex);
-        if (!mROMImage) {
-            fl_alert("Can't load ROM image.\nFile format not supported.");
-            continue;
-        }
-        if (mROMImage->GetErrorCode()==TROMImage::kNoError)
-            break;
-        switch (mROMImage->GetErrorCode()) {
-            case TROMImage::kErrorLoadingROMFile:
-                fl_alert("Can't load ROM file\n%s\n%s", theROMImagePath, strerror(errno));
-                break;
-            case TROMImage::kErrorLoadingNewtonREXFile:
-                fl_alert("Can't load Newton REX file\n%s\n%s", theROMImagePath, strerror(errno));
-                break;
-            case TROMImage::kErrorLoadingEinsteinREXFile:
-                fl_alert("Can't load Einstein REX file\n%s\n%s", theROMImagePath, strerror(errno));
-                break;
-            case TROMImage::kErrorWrongSize:
-                fl_alert("Can't load ROM file\n%s\nUnexpected file size.", theROMImagePath);
-                break;
-        }
-        delete mROMImage;
-        // go back to showing the settings panel
-    }
+	for (Boolean firstAttempt = true;; firstAttempt = false)
+	{
+		if (!firstAttempt || !mFLSettings->dontShow)
+			mFLSettings->ShowSettingsPanelModal();
+		strncpy(theROMImagePath, mFLSettings->ROMPath, FL_PATH_MAX);
+		mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, 1, mFLSettings->mUseBuiltinRex);
+		if (!mROMImage)
+		{
+			fl_alert("Can't load ROM image.\nFile format not supported.");
+			continue;
+		}
+		if (mROMImage->GetErrorCode() == TROMImage::kNoError)
+			break;
+		switch (mROMImage->GetErrorCode())
+		{
+			case TROMImage::kErrorLoadingROMFile:
+				fl_alert("Can't load ROM file\n%s\n%s", theROMImagePath, strerror(errno));
+				break;
+			case TROMImage::kErrorLoadingNewtonREXFile:
+				fl_alert("Can't load Newton REX file\n%s\n%s", theROMImagePath, strerror(errno));
+				break;
+			case TROMImage::kErrorLoadingEinsteinREXFile:
+				fl_alert("Can't load Einstein REX file\n%s\n%s", theROMImagePath, strerror(errno));
+				break;
+			case TROMImage::kErrorWrongSize:
+				fl_alert("Can't load ROM file\n%s\nUnexpected file size.", theROMImagePath);
+				break;
+		}
+		delete mROMImage;
+		// go back to showing the settings panel
+	}
 
-    const char *theFlashPath = strdup(mFLSettings->FlashPath);
-//    std::filesystem::path flashPath( theFlashPath );
-//    mPresentEssentialsInstaller = !std::filesystem::exists(flashPath);
+	const char* theFlashPath = strdup(mFLSettings->FlashPath);
+	//    std::filesystem::path flashPath( theFlashPath );
+	//    mPresentEssentialsInstaller = !std::filesystem::exists(flashPath);
 
-    InitScreen();
+	InitScreen();
 
-    InitSound();
+	InitSound();
 
-    InitNetwork();
+	InitNetwork();
 
-    // MP2000: 1MB Dynamic RAM, 4MB Flash RAM
-    // MP2100: 4MB Dynamic RAM, 4MB Flash RAM
-    // eMate:  1MB Dynamic RAM, 2MB Flash RAM
-    mEmulator = new TEmulator(mLog, mROMImage, theFlashPath,
-                              mSoundManager, mScreenManager, mNetworkManager, ramSize << 16 );
-    mPlatformManager = mEmulator->GetPlatformManager();
+	// MP2000: 1MB Dynamic RAM, 4MB Flash RAM
+	// MP2100: 4MB Dynamic RAM, 4MB Flash RAM
+	// eMate:  1MB Dynamic RAM, 2MB Flash RAM
+	mEmulator = new TEmulator(mLog, mROMImage, theFlashPath,
+		mSoundManager, mScreenManager, mNetworkManager, ramSize << 16);
+	mPlatformManager = mEmulator->GetPlatformManager();
 
-    // yes, this is valid C++ code; it tells the emulator to call us so we can tell FLTK to
-    // call us again later from the main thread which then closes all windows, terminating
-    // the main application loop which then terminates the thread that called us to begin with.
-    // Or as Mony says: "Would That It Were So Simple"
-    //mEmulator->CallOnQuit([](){Fl::awake([](void*){gApp->UserActionQuit();});});
+	// yes, this is valid C++ code; it tells the emulator to call us so we can tell FLTK to
+	// call us again later from the main thread which then closes all windows, terminating
+	// the main application loop which then terminates the thread that called us to begin with.
+	// Or as Mony says: "Would That It Were So Simple"
+	// mEmulator->CallOnQuit([](){Fl::awake([](void*){gApp->UserActionQuit();});});
 
-    // This is called after NewtonOS booted or was restored from sleep.
-    // It may be called in a few other instances as well.
-    mEmulator->OnPowerRestored(
-        [](){
-            Fl::awake([](void*){gApp->DeferredOnPowerRestored();});
-//            if (gApp->mPresentEssentialsInstaller)
-//                Fl::awake([](void*){gApp->UserActionInstallEssentials();});
-        }
-    );
+	// This is called after NewtonOS booted or was restored from sleep.
+	// It may be called in a few other instances as well.
+	mEmulator->OnPowerRestored(
+		[]() {
+			Fl::awake([](void*) { gApp->DeferredOnPowerRestored(); });
+			//            if (gApp->mPresentEssentialsInstaller)
+			//                Fl::awake([](void*){gApp->UserActionInstallEssentials();});
+		});
 
-    InitSerialPorts(); // do this after creating the emulator
+	InitSerialPorts(); // do this after creating the emulator
 
-    InitMonitor(theROMImagePath);
-    if (mMonitor)
-        mMonitor->RunOnStartup(true);
+	InitMonitor(theROMImagePath);
+	if (mMonitor)
+		mMonitor->RunOnStartup(true);
 
-    MountPCCardsKeptInSlot();
+	MountPCCardsKeptInSlot();
 
-    Fl::lock();
-    wAppWindow->show(1, argv);
-    StoreAppWindowSize();
-    if (hidemouse) {
-        wAppWindow->HideMousePointer();
-    }
+	Fl::lock();
+	wAppWindow->show(1, argv);
+	StoreAppWindowSize();
+	if (hidemouse)
+	{
+		wAppWindow->HideMousePointer();
+	}
 
-    if (mFLSettings->mLaunchMonitorAtBoot) {
-        mMonitor->Show();
-        //if (mFLSettings->mBreatAtROMBoot) {
-        //    mMonitor->Stop();
-        //}
-    }
-    // launch the actual emulation in the background
-    auto emulatorThread = new std::thread(&TFLApp::EmulatorThreadEntry, this);
+	if (mFLSettings->mLaunchMonitorAtBoot)
+	{
+		mMonitor->Show();
+		// if (mFLSettings->mBreatAtROMBoot) {
+		//     mMonitor->Stop();
+		// }
+	}
+	// launch the actual emulation in the background
+	auto emulatorThread = new std::thread(&TFLApp::EmulatorThreadEntry, this);
 
-    // run the user interface until all windows are close
-    Fl::run();
-    Fl::unlock();
+	// run the user interface until all windows are close
+	Fl::run();
+	Fl::unlock();
 
-    // if the emulator does not know yet, tell it to wrap things up and quit
-    mEmulator->Quit();
-    mPlatformManager->InsertPCCard(0, nullptr); // Flush memory card contents
-    mPlatformManager->InsertPCCard(1, nullptr);
+	// if the emulator does not know yet, tell it to wrap things up and quit
+	mEmulator->Quit();
+	mPlatformManager->InsertPCCard(0, nullptr); // Flush memory card contents
+	mPlatformManager->InsertPCCard(1, nullptr);
 
-    // also, let the Monitor know that we are leaving
-    if (mMonitor)
-        mMonitor->Stop();
+	// also, let the Monitor know that we are leaving
+	if (mMonitor)
+		mMonitor->Stop();
 
-    // This is a good time to save preferences that might have changed while running
-    if (wAppWindow->fullscreen_active()) {
-        mFLSettings->mAppWindowPosX = mWindowedX;
-        mFLSettings->mAppWindowPosY = mWindowedY;
-    } else {
-        mFLSettings->mAppWindowPosX = wAppWindow->x();
-        mFLSettings->mAppWindowPosY = wAppWindow->y();
-    }
-    mFLSettings->savePreferences();
+	// This is a good time to save preferences that might have changed while running
+	if (wAppWindow->fullscreen_active())
+	{
+		mFLSettings->mAppWindowPosX = mWindowedX;
+		mFLSettings->mAppWindowPosY = mWindowedY;
+	} else
+	{
+		mFLSettings->mAppWindowPosX = wAppWindow->x();
+		mFLSettings->mAppWindowPosY = wAppWindow->y();
+	}
+	mFLSettings->savePreferences();
 
-    // wait for the emulator to finish before we leave the house, too and lock the doors
-    emulatorThread->join();
+	// wait for the emulator to finish before we leave the house, too and lock the doors
+	emulatorThread->join();
 }
-
 
 // MARK: -
 // --- User Actions
 
-
 /**
  User wants to quit the emulator and leave the app.
  */
-void TFLApp::UserActionQuit()
+void
+TFLApp::UserActionQuit()
 {
 #if USE_TOOLKIT
-    // Close the Toolkit window, so it can save its coordinates in the prefrences
-    if ( mToolkit )
-        mToolkit->Hide();
+	// Close the Toolkit window, so it can save its coordinates in the prefrences
+	if (mToolkit)
+		mToolkit->Hide();
 #endif
 
-    // tell the emulator to shut everything down
-    if ( mEmulator ) {
-        mEmulator->Quit();
-    }
+	// tell the emulator to shut everything down
+	if (mEmulator)
+	{
+		mEmulator->Quit();
+	}
 
-    // closing all windows will end Fl::run();
-    Fl_Window *w;
-    while ( (w=Fl::first_window()) ) {
-        w->hide();
-    }
+	// closing all windows will end Fl::run();
+	Fl_Window* w;
+	while ((w = Fl::first_window()))
+	{
+		w->hide();
+	}
 
-    // afte Fl::run() if finished, TFLApp waits for the emulator
-    // process to finish as well.
+	// afte Fl::run() if finished, TFLApp waits for the emulator
+	// process to finish as well.
 }
-
 
 /**
  User wants us to toggle the power switch.
  \fixme This is currently the same as Menu Quit
  */
-void TFLApp::UserActionTogglePower()
+void
+TFLApp::UserActionTogglePower()
 {
-    mPlatformManager->SendPowerSwitchEvent();
+	mPlatformManager->SendPowerSwitchEvent();
 }
-
 
 /**
  User wants us to toggle the backlight.
  */
-void TFLApp::UserActionToggleBacklight()
+void
+TFLApp::UserActionToggleBacklight()
 {
-    mPlatformManager->SendBacklightEvent();
+	mPlatformManager->SendBacklightEvent();
 }
 
 #if TARGET_OS_WIN32
-static int strcasecmp(const char* a, const char* b) { return stricmp(a, b); }
+static int
+strcasecmp(const char* a, const char* b)
+{
+	return stricmp(a, b);
+}
 #endif
-
 
 /**
  Install a package from a file.
@@ -499,69 +504,81 @@ static int strcasecmp(const char* a, const char* b) { return stricmp(a, b); }
  \todo Support packages that are compressed in the common old compression formats .hqx, .sit, .zip, .sit.hqx, .sae(?)
  \todo grab apckages from the net using https://github.com/elnormous/HTTPRequest
  */
-void TFLApp::InstallPackagesFromURI(const char *filenames)
+void
+TFLApp::InstallPackagesFromURI(const char* filenames)
 {
-    // bail early if the filenames are emoty
-    if (!filenames || !*filenames) return;
+	// bail early if the filenames are emoty
+	if (!filenames || !*filenames)
+		return;
 
-    // TODO: do we have to handle backslashes on MSWindows?
+	// TODO: do we have to handle backslashes on MSWindows?
 
-    // Check the filename extension! Do that in the event handler too.
-    char *fName = strdup(filenames);
+	// Check the filename extension! Do that in the event handler too.
+	char* fName = strdup(filenames);
 
-    // grab the start of the first filename
-    char *fn = fName;
-    for (;;) {
-        // find the start of the next filename
-        char *nl = strchr(fn, '\n');
-        if (nl) *nl = 0;
+	// grab the start of the first filename
+	char* fn = fName;
+	for (;;)
+	{
+		// find the start of the next filename
+		char* nl = strchr(fn, '\n');
+		if (nl)
+			*nl = 0;
 
-        // remove all the %nn encoding and insert the corresponding characters
-        fl_decode_uri(fn);
+		// remove all the %nn encoding and insert the corresponding characters
+		fl_decode_uri(fn);
 
-        // On macOS, dropped files are just absolute BSD paths, starting with a '/'
-        // On MSWindows, dropped files are absolute file paths, starting with 'C:\' or anothor drive name
-        // URLs start with http://, for example "http://www.unna.org/unna/games/Pyramid/Pyramid.pkg"
-        if (strncmp(fn, "http://", 7)==0 || strncmp(fn, "https://", 8) == 0) {
-            if (strcasecmp(fl_filename_ext(fn), ".pkg")==0) {
-                try {
-                    http::Request request(fn);
-                    const http::Response response = request.send("GET");
-                    if (response.status==404) {
-                        fl_message("Can't install\n%s\nFile not found.", fn);
-                    } else if (response.status>=300) {
-                        fl_message("Can't install\n%s\nFile can't be dowloaded.", fn);
-                    } else {
-                        const KUInt8 *package = reinterpret_cast<const KUInt8*>(response.body.data());
-                        KUInt32 packageSize = static_cast<KUInt32>(response.body.size());
-                        if (memcmp(package, "package", 7)!=0) {
-                            fl_message("Can't install\n%s\nThis is not a Newton package.", fn);
-                        } else {
-                            mPlatformManager->InstallPackage(package, packageSize);
-                        }
-                    }
-                }
-                catch (const std::exception& e)
-                {
-                    fl_message("Can't install\n%s\n%s", fn, e.what());
-                }
-            } else {
-                fl_message("Can't install\n%s\nNetwork download supports only .pkg files.", fn);
-            }
-        } else {
-            // install the package
-            mPlatformManager->InstallPackage(fn);
-        }
+		// On macOS, dropped files are just absolute BSD paths, starting with a '/'
+		// On MSWindows, dropped files are absolute file paths, starting with 'C:\' or anothor drive name
+		// URLs start with http://, for example "http://www.unna.org/unna/games/Pyramid/Pyramid.pkg"
+		if (strncmp(fn, "http://", 7) == 0 || strncmp(fn, "https://", 8) == 0)
+		{
+			if (strcasecmp(fl_filename_ext(fn), ".pkg") == 0)
+			{
+				try
+				{
+					http::Request request(fn);
+					const http::Response response = request.send("GET");
+					if (response.status == 404)
+					{
+						fl_message("Can't install\n%s\nFile not found.", fn);
+					} else if (response.status >= 300)
+					{
+						fl_message("Can't install\n%s\nFile can't be dowloaded.", fn);
+					} else
+					{
+						const KUInt8* package = reinterpret_cast<const KUInt8*>(response.body.data());
+						KUInt32 packageSize = static_cast<KUInt32>(response.body.size());
+						if (memcmp(package, "package", 7) != 0)
+						{
+							fl_message("Can't install\n%s\nThis is not a Newton package.", fn);
+						} else
+						{
+							mPlatformManager->InstallPackage(package, packageSize);
+						}
+					}
+				} catch (const std::exception& e)
+				{
+					fl_message("Can't install\n%s\n%s", fn, e.what());
+				}
+			} else
+			{
+				fl_message("Can't install\n%s\nNetwork download supports only .pkg files.", fn);
+			}
+		} else
+		{
+			// install the package
+			mPlatformManager->InstallPackage(fn);
+		}
 
-        // if there is another filename, loop around
-        if (nl)
-            fn = nl+1;
-        else
-            break;
-    }
-    free(fName);
+		// if there is another filename, loop around
+		if (nl)
+			fn = nl + 1;
+		else
+			break;
+	}
+	free(fName);
 }
-
 
 /**
  User asks Einstein to install a package.
@@ -570,24 +587,25 @@ void TFLApp::InstallPackagesFromURI(const char *filenames)
 
  \todo Use the system native file chooser!
  */
-void TFLApp::UserActionInstallPackage()
+void
+TFLApp::UserActionInstallPackage()
 {
-    static char *filename = 0L;
+	static char* filename = 0L;
 
-    const char *newname = tfl_file_chooser("Install Package...", "Package\t*.pkg", nullptr, false);
-    // "Compressed Package\t*.{sit,sae,hqx,zip,sit.hqx,hqx.sit}");
-    //for (int i=0; i<fnfc.count(); i++) {
-    //    newname = fnfc.filename(i);
-        if (newname && *newname) {
-            if (!filename)
-                filename = (char*)calloc(FL_PATH_MAX, 1);
-            strncpy(filename, newname, FL_PATH_MAX);
-            filename[FL_PATH_MAX] = 0;
-            mPlatformManager->InstallPackage(filename);
-        }
-    //}
+	const char* newname = tfl_file_chooser("Install Package...", "Package\t*.pkg", nullptr, false);
+	// "Compressed Package\t*.{sit,sae,hqx,zip,sit.hqx,hqx.sit}");
+	// for (int i=0; i<fnfc.count(); i++) {
+	//    newname = fnfc.filename(i);
+	if (newname && *newname)
+	{
+		if (!filename)
+			filename = (char*) calloc(FL_PATH_MAX, 1);
+		strncpy(filename, newname, FL_PATH_MAX);
+		filename[FL_PATH_MAX] = 0;
+		mPlatformManager->InstallPackage(filename);
+	}
+	//}
 }
-
 
 /**
  User wants to see the About window.
@@ -596,40 +614,42 @@ void TFLApp::UserActionInstallPackage()
  to give the user complete information on teh project. We should also provide version
  information for teh REx and maybe otehr interfaces.
  */
-void TFLApp::UserActionShowAboutPanel()
+void
+TFLApp::UserActionShowAboutPanel()
 {
-    mFLSettings->ShowAboutDialog();
+	mFLSettings->ShowAboutDialog();
 }
-
 
 /**
  User wants to see the setting window.
  */
-void TFLApp::UserActionShowSettingsPanel()
+void
+TFLApp::UserActionShowSettingsPanel()
 {
-    mFLSettings->ShowSettingsPanel();
+	mFLSettings->ShowSettingsPanel();
 }
-
 
 /**
  User wants the screen to be the original scale, so resize it back to 1:1; mapping.
 
  Depending on the preferences, we would leave fullscreen mode.
  */
-void TFLApp::UserActionOriginalScreenSize()
+void
+TFLApp::UserActionOriginalScreenSize()
 {
-    if (wAppWindow->fullscreen_active()) {
-        UserActionToggleFullscreen();
-    }
-    if (!wAppWindow->fullscreen_active()) {
-        wAppWindow->resizable(mNewtonScreen);
-        wAppWindow->size( mScreenManager->GetScreenWidth(), wMenubar->h() + wToolbar->h() + mScreenManager->GetScreenHeight() );
-        if (!mFLSettings->mAllowScreenResize)
-            wAppWindow->resizable(nullptr);
-        StoreAppWindowSize();
-    }
+	if (wAppWindow->fullscreen_active())
+	{
+		UserActionToggleFullscreen();
+	}
+	if (!wAppWindow->fullscreen_active())
+	{
+		wAppWindow->resizable(mNewtonScreen);
+		wAppWindow->size(mScreenManager->GetScreenWidth(), wMenubar->h() + wToolbar->h() + mScreenManager->GetScreenHeight());
+		if (!mFLSettings->mAllowScreenResize)
+			wAppWindow->resizable(nullptr);
+		StoreAppWindowSize();
+	}
 }
-
 
 /**
  User wants the app into or out of fullscreen mode.
@@ -639,22 +659,24 @@ void TFLApp::UserActionOriginalScreenSize()
  Scale the pixel output to the Newton screen.
  Rotating the screen should actually rotate it upside down and left-sdie right in fullscreen mode.
  */
-void TFLApp::UserActionToggleFullscreen()
+void
+TFLApp::UserActionToggleFullscreen()
 {
-    if (wAppWindow->fullscreen_active()) {
-        wAppWindow->resizable(mNewtonScreen);
-        wAppWindow->fullscreen_off(mWindowedX, mWindowedY, mWindowedWidth, mWindowedHeight);
-        if (!mFLSettings->mAllowScreenResize)
-            wAppWindow->resizable(nullptr);
-    } else {
-        StoreAppWindowSize();
-        wAppWindow->resizable(mNewtonScreen);
-        wAppWindow->fullscreen();
-        if (!mFLSettings->mAllowScreenResize)
-            wAppWindow->resizable(nullptr);
-    }
+	if (wAppWindow->fullscreen_active())
+	{
+		wAppWindow->resizable(mNewtonScreen);
+		wAppWindow->fullscreen_off(mWindowedX, mWindowedY, mWindowedWidth, mWindowedHeight);
+		if (!mFLSettings->mAllowScreenResize)
+			wAppWindow->resizable(nullptr);
+	} else
+	{
+		StoreAppWindowSize();
+		wAppWindow->resizable(mNewtonScreen);
+		wAppWindow->fullscreen();
+		if (!mFLSettings->mAllowScreenResize)
+			wAppWindow->resizable(nullptr);
+	}
 }
-
 
 /**
  Called by the user interface if the user chooses to reice the ROM via TCP.
@@ -665,9 +687,10 @@ void TFLApp::UserActionToggleFullscreen()
 
  \todo we should remove ROM download support.
  */
-void TFLApp::UserActionFetchROM()
+void
+TFLApp::UserActionFetchROM()
 {
-    // not yet implemented
+	// not yet implemented
 #if 0
     static Fl_Window *downloadDialog = 0L;
     if (!downloadDialog) {
@@ -686,107 +709,133 @@ void TFLApp::UserActionFetchROM()
 #endif
 }
 
-
-void TFLApp::UserActionPopupMenu()
+void
+TFLApp::UserActionPopupMenu()
 {
-    mFLSettings->HandlePopupMenu();
+	mFLSettings->HandlePopupMenu();
 }
 
-
-void TFLApp::UserActionToggleMonitor()
+void
+TFLApp::UserActionToggleMonitor()
 {
-    if (mMonitor)
-        mMonitor->Show();
+	if (mMonitor)
+		mMonitor->Show();
 }
 
-void TFLApp::UserActionShowToolkit()
+void
+TFLApp::UserActionShowToolkit()
 {
 #if USE_TOOLKIT
-    if (!mToolkit)
-        mToolkit = new TToolkit(this);
-    mToolkit->Show();
+	if (!mToolkit)
+		mToolkit = new TToolkit(this);
+	mToolkit->Show();
 #endif
 }
 
-int TFLApp::UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data, const char* cis, const char* name)
+int
+TFLApp::UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data, const char* cis, const char* name)
 {
-    // TODO: make sure that the extension is actually .pcmcia if the file does not exist yet.
-    int err = TLinearCard::ComposeImageFile(dst, data, cis, name);
-    if (err) {
-        const char* msg = "An unspecified error occured.";
-        switch (err) {
-        case TLinearCard::kErrCantCreateOutFile: msg = "Can't create Image file."; break;
-        case TLinearCard::kErrCantOpenDataFile: msg = "Can't open Data file."; break;
-        case TLinearCard::kErrCantOpenCISFile: msg = "Can't open CIS file."; break;
-        case TLinearCard::kErrCorruptDataFile: msg = "Data file corrupt."; break;
-        case TLinearCard::kErrDataFileTooBig: msg = "Data file too large."; break;
-        case TLinearCard::kErrOutOfMemory: msg = "Out of memory."; break;
-        case TLinearCard::kErrIncompleteImageFile: msg = "Incomplete Image file."; break;
-        case TLinearCard::kErrCorruptCISFile: msg = "CIS file is corrupt."; break;
-        }
-        fl_alert("Can't create Card Image.\n%s", msg);
-        return -1;
-    }
-    return 0;
+	// TODO: make sure that the extension is actually .pcmcia if the file does not exist yet.
+	int err = TLinearCard::ComposeImageFile(dst, data, cis, name);
+	if (err)
+	{
+		const char* msg = "An unspecified error occured.";
+		switch (err)
+		{
+			case TLinearCard::kErrCantCreateOutFile:
+				msg = "Can't create Image file.";
+				break;
+			case TLinearCard::kErrCantOpenDataFile:
+				msg = "Can't open Data file.";
+				break;
+			case TLinearCard::kErrCantOpenCISFile:
+				msg = "Can't open CIS file.";
+				break;
+			case TLinearCard::kErrCorruptDataFile:
+				msg = "Data file corrupt.";
+				break;
+			case TLinearCard::kErrDataFileTooBig:
+				msg = "Data file too large.";
+				break;
+			case TLinearCard::kErrOutOfMemory:
+				msg = "Out of memory.";
+				break;
+			case TLinearCard::kErrIncompleteImageFile:
+				msg = "Incomplete Image file.";
+				break;
+			case TLinearCard::kErrCorruptCISFile:
+				msg = "CIS file is corrupt.";
+				break;
+		}
+		fl_alert("Can't create Card Image.\n%s", msg);
+		return -1;
+	}
+	return 0;
 }
 
 // User wants to insert or remove PCMCIA card into ot from controller 0.
-int TFLApp::UserActionPCCard(int inSlot, long inIndex)
+int
+TFLApp::UserActionPCCard(int inSlot, long inIndex)
 {
-    int ret = -1;
+	int ret = -1;
 
-    if (inIndex == -1) {
-        ret = mPlatformManager->InsertPCCard(inSlot, nullptr);
-    } else {
-        TPCMCIACard* card = GetSettings()->mCardList[inIndex]->GetCard();
-        if (card && !card->IsInserted())
-            ret = mPlatformManager->InsertPCCard(inSlot, card);
-    }
+	if (inIndex == -1)
+	{
+		ret = mPlatformManager->InsertPCCard(inSlot, nullptr);
+	} else
+	{
+		TPCMCIACard* card = GetSettings()->mCardList[inIndex]->GetCard();
+		if (card && !card->IsInserted())
+			ret = mPlatformManager->InsertPCCard(inSlot, card);
+	}
 
-    mFLSettings->updateMenus();
+	mFLSettings->updateMenus();
 
-    return ret;
+	return ret;
 }
 
 // User wants to keep this card in the PCCard slot during reboots
-int TFLApp::UserActionKeepPCCardInSlot(int inSlot, int inIndex)
+int
+TFLApp::UserActionKeepPCCardInSlot(int inSlot, int inIndex)
 {
-    mFLSettings->KeepPCCardInSlot(inSlot, inIndex);
-    return 0;
+	mFLSettings->KeepPCCardInSlot(inSlot, inIndex);
+	return 0;
 }
 
-
-//void TFLApp::UserActionAddPCMCIAImage(const char* inImageFilename, const char* inName)
+// void TFLApp::UserActionAddPCMCIAImage(const char* inImageFilename, const char* inName)
 //{
-//    // TODO: create a TLinearCard, add it to the Card List, and update the Preferences and the Settings dialog.
-//}
+//     // TODO: create a TLinearCard, add it to the Card List, and update the Preferences and the Settings dialog.
+// }
 
-void TFLApp::UserActionPrintScreen()
+void
+TFLApp::UserActionPrintScreen()
 {
-    Fl_Widget *target = mNewtonScreen;
-    Fl_Paged_Device *p;
-    int err;
-    char *err_message = NULL;
-    p = new Fl_Printer();
-    err = p->begin_job(1, NULL, NULL, &err_message);
-    if (!err) {
-        int w, h;
-        p->begin_page();
-        // p->scale(72.0/100.0);
-        p->printable_rect(&w, &h);
-        p->origin((w-target->w())/2, (h-target->h())/2);
-        p->print_widget(target);
-        fl_color(FL_BLACK);
-        fl_font(FL_HELVETICA, 14);
-        fl_draw(VERSION_STRING, 0, target->h(), target->w(), 24,
-                FL_ALIGN_INSIDE|FL_ALIGN_CENTER);
-        p->end_page();
-        p->end_job();
-    } else if (err > 1 && err_message) {
-        fl_alert("%s", err_message);
-        delete[] err_message;
-    }
-    delete p;
+	Fl_Widget* target = mNewtonScreen;
+	Fl_Paged_Device* p;
+	int err;
+	char* err_message = NULL;
+	p = new Fl_Printer();
+	err = p->begin_job(1, NULL, NULL, &err_message);
+	if (!err)
+	{
+		int w, h;
+		p->begin_page();
+		// p->scale(72.0/100.0);
+		p->printable_rect(&w, &h);
+		p->origin((w - target->w()) / 2, (h - target->h()) / 2);
+		p->print_widget(target);
+		fl_color(FL_BLACK);
+		fl_font(FL_HELVETICA, 14);
+		fl_draw(VERSION_STRING, 0, target->h(), target->w(), 24,
+			FL_ALIGN_INSIDE | FL_ALIGN_CENTER);
+		p->end_page();
+		p->end_job();
+	} else if (err > 1 && err_message)
+	{
+		fl_alert("%s", err_message);
+		delete[] err_message;
+	}
+	delete p;
 }
 
 #define BP fl_begin_polygon()
@@ -797,7 +846,7 @@ void TFLApp::UserActionPrintScreen()
 #define EL fl_end_line()
 #define BC fl_begin_loop()
 #define EC fl_end_loop()
-#define vv(x,y) fl_vertex(x,y)
+#define vv(x, y) fl_vertex(x, y)
 
 #define VF 0.9
 #define VL 0.65
@@ -808,17 +857,33 @@ void TFLApp::UserActionPrintScreen()
 #define AB 0.15
 #define AA 0.15
 
-static void extSymbol(Fl_Color c) {
-    fl_color(c);
-    BCP;
-    // outline square, starting right side
-    vv(VF, -VB); vv(VF, VF); vv(-VF, VF); vv(-VF, -VF); vv(VB, -VF);
-    // inline square
-    vv(VB, -VL); vv(-VL, -VL); vv(-VL, VL); vv(VL, VL); vv(VL, -VB);
-    ECP;
-    BCP;
-    vv(-AA, -AA); vv(0.4, -AL-AA); vv(AB, -AF); vv(AF, -AF); vv(AF, -AB); vv(AL+AA, -0.4); vv(AA, AA);
-    ECP;
+static void
+extSymbol(Fl_Color c)
+{
+	fl_color(c);
+	BCP;
+	// outline square, starting right side
+	vv(VF, -VB);
+	vv(VF, VF);
+	vv(-VF, VF);
+	vv(-VF, -VF);
+	vv(VB, -VF);
+	// inline square
+	vv(VB, -VL);
+	vv(-VL, -VL);
+	vv(-VL, VL);
+	vv(VL, VL);
+	vv(VL, -VB);
+	ECP;
+	BCP;
+	vv(-AA, -AA);
+	vv(0.4, -AL - AA);
+	vv(AB, -AF);
+	vv(AF, -AF);
+	vv(AF, -AB);
+	vv(AL + AA, -0.4);
+	vv(AA, AA);
+	ECP;
 #if 0
     fl_color(fl_darker(c));
     BC;
@@ -864,271 +929,255 @@ static void extSymbol(Fl_Color c) {
 
  \note We should make the titles, groups, and maybe even comments foldable.
  \note Eventually if would be nice to be able to link to packages inside .zip
-    and .sit.hqx archives.
+	and .sit.hqx archives.
  \note Tooltips for scripts can get very big.
  */
-void TFLApp::UserActionInstallEssentials()
+void
+TFLApp::UserActionInstallEssentials()
 {
-    if (!wInstallerWindow) {
-        fl_add_symbol("ext", extSymbol, 1);
-        wInstallerWindow = makeInstaller();
-        // --- Essentials
-        addInstallerTitle("Essentials");
-        // Y2K10
-        addInstallerGroup("NewtonOS Y2K10 Fix");
-        addInstallerText("NewtonOS has a bug in handling years past 18:48:31 on January 5, 2010. "
-                         "Einstein contains a fix for US MP2x00 MessagePads, but "
-                         "for eMates and German MP2x00 MessagePads, "
-			 "the patch below will fix all date issues until 2026.\n\n"
-                         "Please install this patch before installing anything else, "
-                         "as this will wipe your Newton's memory.");
-        addInstallerLink("explained by Eckhart Köppen", new StringList {
-            ":https://40hz.org/Pages/newton/hacking/newton-year-2010-problem/"} );
-        addInstallerLink("Readme file for the patch", new StringList {
-            "MDownloads/Einstein/Essentials/y2k10/README.txt"} );
-        addInstallerText("Please select the patch that matches the ROM image of your machine:");
-        addInstallerPackage("German MP2x00 patch", new StringList {
-            "WInstalling this patch may irreversibly erase all data\n"
-            "on your MessagePad.\n\n"
-            "Please proceed only if this a new device, or if your\n"
-            "data is securely backed up!",
-            "MDownloads/Einstein/Essentials/y2k10/Patch_D.pkg" } );
-        addInstallerPackage("eMate 300 patch", new StringList {
-            "WInstalling this patch may irreversibly erase all data\n"
-            "on your eMate 300.\n\n"
-            "Please proceed only if this a new device, or if your\n"
-            "data is securely backed up!",
-            "MDownloads/Einstein/Essentials/y2k10/Patch_eMate.pkg" } );
-        // --- Networking
-        addInstallerTitle("Networking");
-        // NIE
-        addInstallerGroup("NIE: Newton Internet Enabler");
-        addInstallerText("The Newton Internet Enabler (NIE) allows you to "
-                         "access the Internet with your Newton. "
-                         "NIE package was released by Apple in 1997.");
-        addInstallerPackage("Apple NIE packages", new StringList {
-            "WThis will install four packages on your Newton\nwhich may take a little while.",
-            "Uunna/apple/software/Internet/NIE2/ENETSUP/enetsup.pkg",
-            "Uunna/apple/software/Internet/NIE2/REGPKGS/inetenbl.pkg",
-            "Uunna/apple/software/Internet/NIE2/ENETSUP/newtdev.pkg",
-            "Uunna/apple/software/Internet/NIE2/REGPKGS/inetstup.pkg" } );
-        addInstallerPackage("Einstein Network Card driver", new StringList {
-            "MDownloads/Einstein/Essentials/NIE/NE2K.pkg" } );
-        addInstallerScript("Open Internet Setup",  new StringList {
-            "SGetRoot().|InternetSetup:NIE|:Open();" } );
-        // NewtonScript: Reboot(), Sleep(), PowerOff()
-        // PlaySoundSync()
-      // ROM_alarmWakeup
-//      ROM_click
-//      ROM_crumple
-//      ROM_drawerClose
-//      ROM_drawerOpen
-//      ROM_flip
-//      ROM_funBeep
-//      ROM_hiliteSound
-//      ROM_plinkBeep
-//      ROM_simpleBeep
-//      ROM_wakeupBeep
-//      ROM_plunk
-//      ROM_poof
-        // Courier
-        addInstallerGroup("Courier Browser 0.5");
-        addInstallerText("Courier is a small internet browser. The source code is available on UNNA.");
-        addInstallerPackage("Courier packages", new StringList {
-            "WThis will install three packages on your Newton\nwhich may take a little while.",
-            "Uunna/internet/web-browsers/Courier0.5/Courier0.5.pkg",
-            "Uunna/internet/web-browsers/Courier0.5/NHttpLib-3.1.pkg",
-            "Uunna/internet/web-browsers/Courier0.5/NTox-1.6.1.pkg" } );
-        addInstallerScript("Open Courier Browser",  new StringList {
-            "SGetRoot().|Courier:40Hz|:Open();" } );
-        // -- Developers
-        addInstallerTitle("Developer Apps");
-        addInstallerGroup("ViewFrame 1.3b");
-        addInstallerPackage("ViewFrame packages", new StringList {
-            "WThis will install eight packages on your Newton\nwhich may take a little while.",
-            "Uunna/development/tools/ViewFrame1.3b/PROGKEYB.PKG",
-            "Uunna/development/tools/ViewFrame1.3b/VFEDITOR.PKG",
-            "Uunna/development/tools/ViewFrame1.3b/VFFUNCTI.PKG",
-            "Uunna/development/tools/ViewFrame1.3b/VFGENERA.PKG",
-            "Uunna/development/tools/ViewFrame1.3b/VFINTERC.PKG",
-            "Uunna/development/tools/ViewFrame1.3b/VIEWFRAM.PKG",
-            "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFDANTE.PKG",
-            "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFKEYS.PKG" } );
-
-    }
-    wInstallerWindow->show();
+	if (!wInstallerWindow)
+	{
+		fl_add_symbol("ext", extSymbol, 1);
+		wInstallerWindow = makeInstaller();
+		// --- Essentials
+		addInstallerTitle("Essentials");
+		// Y2K10
+		addInstallerGroup("NewtonOS Y2K10 Fix");
+		addInstallerText("NewtonOS has a bug in handling years past 18:48:31 on January 5, 2010. "
+						 "Einstein contains a fix for US MP2x00 MessagePads, but "
+						 "for eMates and German MP2x00 MessagePads, "
+						 "the patch below will fix all date issues until 2026.\n\n"
+						 "Please install this patch before installing anything else, "
+						 "as this will wipe your Newton's memory.");
+		addInstallerLink("explained by Eckhart Köppen", new StringList { ":https://40hz.org/Pages/newton/hacking/newton-year-2010-problem/" });
+		addInstallerLink("Readme file for the patch", new StringList { "MDownloads/Einstein/Essentials/y2k10/README.txt" });
+		addInstallerText("Please select the patch that matches the ROM image of your machine:");
+		addInstallerPackage("German MP2x00 patch", new StringList { "WInstalling this patch may irreversibly erase all data\n"
+																	"on your MessagePad.\n\n"
+																	"Please proceed only if this a new device, or if your\n"
+																	"data is securely backed up!",
+													   "MDownloads/Einstein/Essentials/y2k10/Patch_D.pkg" });
+		addInstallerPackage("eMate 300 patch", new StringList { "WInstalling this patch may irreversibly erase all data\n"
+																"on your eMate 300.\n\n"
+																"Please proceed only if this a new device, or if your\n"
+																"data is securely backed up!",
+												   "MDownloads/Einstein/Essentials/y2k10/Patch_eMate.pkg" });
+		// --- Networking
+		addInstallerTitle("Networking");
+		// NIE
+		addInstallerGroup("NIE: Newton Internet Enabler");
+		addInstallerText("The Newton Internet Enabler (NIE) allows you to "
+						 "access the Internet with your Newton. "
+						 "NIE package was released by Apple in 1997.");
+		addInstallerPackage("Apple NIE packages", new StringList { "WThis will install four packages on your Newton\nwhich may take a little while.", "Uunna/apple/software/Internet/NIE2/ENETSUP/enetsup.pkg", "Uunna/apple/software/Internet/NIE2/REGPKGS/inetenbl.pkg", "Uunna/apple/software/Internet/NIE2/ENETSUP/newtdev.pkg", "Uunna/apple/software/Internet/NIE2/REGPKGS/inetstup.pkg" });
+		addInstallerPackage("Einstein Network Card driver", new StringList { "MDownloads/Einstein/Essentials/NIE/NE2K.pkg" });
+		addInstallerScript("Open Internet Setup", new StringList { "SGetRoot().|InternetSetup:NIE|:Open();" });
+		// NewtonScript: Reboot(), Sleep(), PowerOff()
+		// PlaySoundSync()
+		// ROM_alarmWakeup
+		//      ROM_click
+		//      ROM_crumple
+		//      ROM_drawerClose
+		//      ROM_drawerOpen
+		//      ROM_flip
+		//      ROM_funBeep
+		//      ROM_hiliteSound
+		//      ROM_plinkBeep
+		//      ROM_simpleBeep
+		//      ROM_wakeupBeep
+		//      ROM_plunk
+		//      ROM_poof
+		// Courier
+		addInstallerGroup("Courier Browser 0.5");
+		addInstallerText("Courier is a small internet browser. The source code is available on UNNA.");
+		addInstallerPackage("Courier packages", new StringList { "WThis will install three packages on your Newton\nwhich may take a little while.", "Uunna/internet/web-browsers/Courier0.5/Courier0.5.pkg", "Uunna/internet/web-browsers/Courier0.5/NHttpLib-3.1.pkg", "Uunna/internet/web-browsers/Courier0.5/NTox-1.6.1.pkg" });
+		addInstallerScript("Open Courier Browser", new StringList { "SGetRoot().|Courier:40Hz|:Open();" });
+		// -- Developers
+		addInstallerTitle("Developer Apps");
+		addInstallerGroup("ViewFrame 1.3b");
+		addInstallerPackage("ViewFrame packages", new StringList { "WThis will install eight packages on your Newton\nwhich may take a little while.", "Uunna/development/tools/ViewFrame1.3b/PROGKEYB.PKG", "Uunna/development/tools/ViewFrame1.3b/VFEDITOR.PKG", "Uunna/development/tools/ViewFrame1.3b/VFFUNCTI.PKG", "Uunna/development/tools/ViewFrame1.3b/VFGENERA.PKG", "Uunna/development/tools/ViewFrame1.3b/VFINTERC.PKG", "Uunna/development/tools/ViewFrame1.3b/VIEWFRAM.PKG", "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFDANTE.PKG", "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFKEYS.PKG" });
+	}
+	wInstallerWindow->show();
 }
 
 // MARK: -
 // ---  Events from within the meulator
 
+/**
+ This is called by the screen manager when the state of the backlight changed.
+ */
+void
+TFLApp::PowerChangedEvent(Boolean inState)
+{
+	// we have a hidden button in the FLuid file that does nothing but keep
+	// track of the "on" image.
+	static Fl_Image* onImage = nullptr;
+	static Fl_Image* offImage = nullptr;
+	Fl::lock();
+	if (!onImage)
+	{
+		onImage = wPowerOnTool->image();
+		offImage = wPowerTool->image();
+	}
+	if (inState)
+	{
+		wPowerTool->image(onImage);
+	} else
+	{
+		wPowerTool->image(offImage);
+	}
+	wPowerTool->redraw();
+	Fl::awake();
+	Fl::unlock();
+}
 
 /**
  This is called by the screen manager when the state of the backlight changed.
  */
-void TFLApp::PowerChangedEvent(Boolean inState)
+void
+TFLApp::BacklightChangedEvent(Boolean inState)
 {
-    // we have a hidden button in the FLuid file that does nothing but keep
-    // track of the "on" image.
-    static Fl_Image *onImage = nullptr;
-    static Fl_Image *offImage = nullptr;
-    Fl::lock();
-    if (!onImage) {
-        onImage = wPowerOnTool->image();
-        offImage = wPowerTool->image();
-    }
-    if (inState) {
-        wPowerTool->image(onImage);
-    } else {
-        wPowerTool->image(offImage);
-    }
-    wPowerTool->redraw();
-    Fl::awake();
-    Fl::unlock();
+	// we have a hidden button in the FLuid file that does nothing but keep
+	// track of the "on" image.
+	static Fl_Image* onImage = nullptr;
+	static Fl_Image* offImage = nullptr;
+	Fl::lock();
+	if (!onImage)
+	{
+		onImage = wBacklightOnTool->image();
+		offImage = wBacklightTool->image();
+	}
+	if (inState)
+	{
+		wBacklightTool->image(onImage);
+	} else
+	{
+		wBacklightTool->image(offImage);
+	}
+	wBacklightTool->redraw();
+	Fl::awake();
+	Fl::unlock();
 }
 
-
-/**
- This is called by the screen manager when the state of the backlight changed.
- */
-void TFLApp::BacklightChangedEvent(Boolean inState)
+void
+TFLApp::ResizeFromNewton(int w, int h)
 {
-    // we have a hidden button in the FLuid file that does nothing but keep
-    // track of the "on" image.
-    static Fl_Image *onImage = nullptr;
-    static Fl_Image *offImage = nullptr;
-    Fl::lock();
-    if (!onImage) {
-        onImage = wBacklightOnTool->image();
-        offImage = wBacklightTool->image();
-    }
-    if (inState) {
-        wBacklightTool->image(onImage);
-    } else {
-        wBacklightTool->image(offImage);
-    }
-    wBacklightTool->redraw();
-    Fl::awake();
-    Fl::unlock();
+	if (mNewtonScreen->w() == w && mNewtonScreen->h() == h)
+		return;
+	Fl::lock();
+	wAppWindow->resizable(mNewtonScreen);
+	int dw = w - mNewtonScreen->w();
+	int dh = h - mNewtonScreen->h();
+	wAppWindow->size(wAppWindow->w() + dw, wAppWindow->h() + dh);
+	if (!mFLSettings->mAllowScreenResize)
+		wAppWindow->resizable(nullptr);
+	Fl::unlock();
 }
-
-
-void TFLApp::ResizeFromNewton(int w, int h)
-{
-    if (mNewtonScreen->w()==w && mNewtonScreen->h()==h)
-        return;
-    Fl::lock();
-    wAppWindow->resizable(mNewtonScreen);
-    int dw = w - mNewtonScreen->w();
-    int dh = h - mNewtonScreen->h();
-    wAppWindow->size( wAppWindow->w() + dw, wAppWindow->h() + dh );
-    if (!mFLSettings->mAllowScreenResize)
-        wAppWindow->resizable(nullptr);
-    Fl::unlock();
-}
-
 
 // MARK: - Private: -
 
-
-void TFLApp::InitFLTK(int argc, char **argv) {
-    Fl::scheme("gtk+");
-    Fl::args(argc, argv);
-    Fl::get_system_colors();
-    Fl::use_high_res_GL(1);
-    Fl::visual(FL_RGB);
-    Fl_Tooltip::size(12);
+void
+TFLApp::InitFLTK(int argc, char** argv)
+{
+	Fl::scheme("gtk+");
+	Fl::args(argc, argv);
+	Fl::get_system_colors();
+	Fl::use_high_res_GL(1);
+	Fl::visual(FL_RGB);
+	Fl_Tooltip::size(12);
 }
 
-
-void TFLApp::InitSettings() {
-    mFLSettings = new TFLSettingsUI();
+void
+TFLApp::InitSettings()
+{
+	mFLSettings = new TFLSettingsUI();
 #if TARGET_OS_WIN32
-    mFLSettings->mSettingsPanel->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+	mFLSettings->mSettingsPanel->icon((char*) LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #endif
-    mFLSettings->setAppPath(mProgramName);
-    mFLSettings->loadPreferences();
-    mFLSettings->revertDialog();
+	mFLSettings->setAppPath(mProgramName);
+	mFLSettings->loadPreferences();
+	mFLSettings->revertDialog();
 }
 
-
-void TFLApp::InitSound()
+void
+TFLApp::InitSound()
 {
 #if TARGET_OS_WIN32
-    mSoundManager = new TWaveSoundManager( mLog );
+	mSoundManager = new TWaveSoundManager(mLog);
 #elif TARGET_OS_LINUX
-    mSoundManager = new TPulseAudioSoundManager( mLog );
+	mSoundManager = new TPulseAudioSoundManager(mLog);
 #elif TARGET_OS_MAC
-    mSoundManager = new TCoreAudioSoundManager( mLog );
+	mSoundManager = new TCoreAudioSoundManager(mLog);
 #else
-#   error Selected target OS support not implemented, or no target OS selected
+#error Selected target OS support not implemented, or no target OS selected
 #endif
 }
 
-
-void TFLApp::InitNetwork() {
+void
+TFLApp::InitNetwork()
+{
 #if TARGET_OS_MAC || TARGET_OS_LINUX || TARGET_OS_WIN32
-    mNetworkManager = new TUsermodeNetwork(mLog);
+	mNetworkManager = new TUsermodeNetwork(mLog);
 #else
-#   warn Please configure a network driver
-    mNetworkManager = new TNullNetworkManager(mLog);
+#warn Please configure a network driver
+	mNetworkManager = new TNullNetworkManager(mLog);
 #endif
 }
-
 
 /**
  Initialize the application window and the screen driver.
  */
-void TFLApp::InitScreen()
+void
+TFLApp::InitScreen()
 {
-    int portraitWidth = mFLSettings->screenWidth;
-    int portraitHeight = mFLSettings->screenHeight;
-    if (portraitHeight < portraitWidth)
-    {
-        (void) ::fprintf(
-                         stderr,
-                         "Warning, (portrait) height (%i) is smaller than width (%i). Boot screen won't be displayed properly\n",
-                         portraitHeight,
-                         portraitWidth );
-    }
+	int portraitWidth = mFLSettings->screenWidth;
+	int portraitHeight = mFLSettings->screenHeight;
+	if (portraitHeight < portraitWidth)
+	{
+		(void) ::fprintf(
+			stderr,
+			"Warning, (portrait) height (%i) is smaller than width (%i). Boot screen won't be displayed properly\n",
+			portraitHeight,
+			portraitWidth);
+	}
 
-    Fl_Group::current(nullptr);
-    wAppWindow = CreateApplicationWindow(
-                                         mFLSettings->mAppWindowPosX,
-                                         mFLSettings->mAppWindowPosY);
-    wAppWindow->size(portraitWidth, portraitHeight + wToolbar->y() + wToolbar->h());
-    wAppWindow->resizable(nullptr);
+	Fl_Group::current(nullptr);
+	wAppWindow = CreateApplicationWindow(
+		mFLSettings->mAppWindowPosX,
+		mFLSettings->mAppWindowPosY);
+	wAppWindow->size(portraitWidth, portraitHeight + wToolbar->y() + wToolbar->h());
+	wAppWindow->resizable(nullptr);
 #if TARGET_OS_WIN32
-    wAppWindow->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(101)));
+	wAppWindow->icon((char*) LoadIcon(fl_display, MAKEINTRESOURCE(101)));
 #endif
-    wAppWindow->callback(quit_cb, this);
-    if (mFLSettings->mAllowFullscreen)
-        wMenuItemFullscreen->activate();
-    else
-        wMenuItemFullscreen->deactivate();
-    wAppWindow->begin();
-    TFLScreenManager *flScreenManager = new TFLScreenManager(this, mLog, portraitWidth, portraitHeight, false, false);
-    mNewtonScreen = flScreenManager->GetWidget();
-    mScreenManager = flScreenManager;
-    flScreenManager->GetWidget()->position(wToolbar->x(), wToolbar->y()+wToolbar->h());
-    wAppWindow->end();
-    if (mFLSettings->mAllowScreenResize)
-        wAppWindow->resizable(flScreenManager->GetWidget());
-    else
-        wAppWindow->resizable(nullptr);
-    StoreAppWindowSize();
+	wAppWindow->callback(quit_cb, this);
+	if (mFLSettings->mAllowFullscreen)
+		wMenuItemFullscreen->activate();
+	else
+		wMenuItemFullscreen->deactivate();
+	wAppWindow->begin();
+	TFLScreenManager* flScreenManager = new TFLScreenManager(this, mLog, portraitWidth, portraitHeight, false, false);
+	mNewtonScreen = flScreenManager->GetWidget();
+	mScreenManager = flScreenManager;
+	flScreenManager->GetWidget()->position(wToolbar->x(), wToolbar->y() + wToolbar->h());
+	wAppWindow->end();
+	if (mFLSettings->mAllowScreenResize)
+		wAppWindow->resizable(flScreenManager->GetWidget());
+	else
+		wAppWindow->resizable(nullptr);
+	StoreAppWindowSize();
 }
 
-
-void TFLApp::InitSerialPorts()
+void
+TFLApp::InitSerialPorts()
 {
-    // TODO: add preferences for the current driver, port and server address
-    // Basic initialization of all serial ports
+	// TODO: add preferences for the current driver, port and server address
+	// Basic initialization of all serial ports
 
-    mEmulator->SerialPorts.Initialize(TSerialPorts::kTcpClientDriver,
-                                      TSerialPorts::kNullDriver,
-                                      TSerialPorts::kNullDriver,
-                                      TSerialPorts::kNullDriver );
+	mEmulator->SerialPorts.Initialize(TSerialPorts::kTcpClientDriver,
+		TSerialPorts::kNullDriver,
+		TSerialPorts::kNullDriver,
+		TSerialPorts::kNullDriver);
 #if 0
     // TODO: save the serial port setting in a safe place
     TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
@@ -1162,40 +1211,40 @@ void TFLApp::InitSerialPorts()
 #endif
 }
 
-void TFLApp::MountPCCardsKeptInSlot()
+void
+TFLApp::MountPCCardsKeptInSlot()
 {
-    int c0 = mFLSettings->GetCardKeptInSlot(0);
-    if (c0 != -1)
-        UserActionPCCard(0, c0);
-    int c1 = mFLSettings->GetCardKeptInSlot(1);
-    if (c1 != -1)
-        UserActionPCCard(1, c1);
+	int c0 = mFLSettings->GetCardKeptInSlot(0);
+	if (c0 != -1)
+		UserActionPCCard(0, c0);
+	int c1 = mFLSettings->GetCardKeptInSlot(1);
+	if (c1 != -1)
+		UserActionPCCard(1, c1);
 }
 
-
-void TFLApp::InitMonitor(const char *theROMImagePath)
+void
+TFLApp::InitMonitor(const char* theROMImagePath)
 {
-    mMonitorLog = new TBufferLog();
-#   if !NDEBUG
-#       if TARGET_OS_WIN32
-            mMonitorLog->OpenLog("C:/user/micro/Einstein_log.txt");
-#       endif
-#       if TARGET_OS_MAC
-            mMonitorLog->OpenLog("/tmp/Einstein_log.txt");
-#       endif
-#       if TARGET_OS_LINUX
-            mMonitorLog->OpenLog("/tmp/Einstein_log.txt");
-#       endif
-#   endif
+	mMonitorLog = new TBufferLog();
+#if !NDEBUG
+#if TARGET_OS_WIN32
+	mMonitorLog->OpenLog("C:/user/micro/Einstein_log.txt");
+#endif
+#if TARGET_OS_MAC
+	mMonitorLog->OpenLog("/tmp/Einstein_log.txt");
+#endif
+#if TARGET_OS_LINUX
+	mMonitorLog->OpenLog("/tmp/Einstein_log.txt");
+#endif
+#endif
 
-    char theSymbolListPath[FL_PATH_MAX];
-    strncpy(theSymbolListPath, theROMImagePath, FL_PATH_MAX);
-    fl_filename_setext(theSymbolListPath, FL_PATH_MAX, ".symbols");
-    mSymbolList = new TSymbolList(theSymbolListPath);
-    mMonitor = new TFLMonitor(mMonitorLog, mEmulator, mSymbolList, theROMImagePath);
-    KPrintf("Booting... (Monitor enabled)\n");
+	char theSymbolListPath[FL_PATH_MAX];
+	strncpy(theSymbolListPath, theROMImagePath, FL_PATH_MAX);
+	fl_filename_setext(theSymbolListPath, FL_PATH_MAX, ".symbols");
+	mSymbolList = new TSymbolList(theSymbolListPath);
+	mMonitor = new TFLMonitor(mMonitorLog, mEmulator, mSymbolList, theROMImagePath);
+	KPrintf("Booting... (Monitor enabled)\n");
 }
-
 
 /**
  Launch the emulator or monitor thread.
@@ -1203,31 +1252,31 @@ void TFLApp::InitMonitor(const char *theROMImagePath)
 void
 TFLApp::EmulatorThreadEntry()
 {
-    if (mMonitor) {
-        //mMonitor->RunOnStartup(mFLSettings->mBreatAtROMBoot == 0);
-        mMonitor->Run();
-    } else {
-        mEmulator->Run();
-    }
-    // wake up the FLTK mainloop and have it call GUI Quit.
-    Fl::awake([](void*){gApp->UserActionQuit();});
+	if (mMonitor)
+	{
+		// mMonitor->RunOnStartup(mFLSettings->mBreatAtROMBoot == 0);
+		mMonitor->Run();
+	} else
+	{
+		mEmulator->Run();
+	}
+	// wake up the FLTK mainloop and have it call GUI Quit.
+	Fl::awake([](void*) { gApp->UserActionQuit(); });
 }
-
 
 /**
  Create a file for logging all important events at runtime.
  */
 void
-TFLApp::CreateLog( const char* inFilePath )
+TFLApp::CreateLog(const char* inFilePath)
 {
-    if (mLog)
-    {
-        KPrintf( "A log already exists (--monitor & --log are exclusive)\n" );
-        ::exit(1);
-    }
-    mLog = new TFileLog( inFilePath );
+	if (mLog)
+	{
+		KPrintf("A log already exists (--monitor & --log are exclusive)\n");
+		::exit(1);
+	}
+	mLog = new TFileLog(inFilePath);
 }
-
 
 /**
  Create the appropriate screen manager for this platform.
@@ -1236,18 +1285,19 @@ TFLApp::CreateLog( const char* inFilePath )
 
  \todo do we have to do any fullscreen management here? RaspberryPI? Linux tablets? Pen PCs?
  */
-void TFLApp::CreateScreenManager(
-                                 const char* inClass,
-                                 int inPortraitWidth,
-                                 int inPortraitHeight,
-                                 Boolean inFullScreen)
+void
+TFLApp::CreateScreenManager(
+	const char* inClass,
+	int inPortraitWidth,
+	int inPortraitHeight,
+	Boolean inFullScreen)
 {
-    if (::strcmp( inClass, "FL" ) == 0)
-    {
-        Boolean screenIsLandscape = true;
+	if (::strcmp(inClass, "FL") == 0)
+	{
+		Boolean screenIsLandscape = true;
 
-        KUInt32 theWidth;
-        KUInt32 theHeight;
+		KUInt32 theWidth;
+		KUInt32 theHeight;
 
 #if 0
         if (inFullScreen)
@@ -1270,59 +1320,56 @@ void TFLApp::CreateScreenManager(
             theHeight = inPortraitHeight;
         }
 #else
-        theWidth = inPortraitWidth;
-        theHeight = inPortraitHeight;
+		theWidth = inPortraitWidth;
+		theHeight = inPortraitHeight;
 #endif
 
-        mScreenManager = new TFLScreenManager(this,
-                                              mLog,
-                                              theWidth,
-                                              theHeight,
-                                              inFullScreen,
-                                              screenIsLandscape);
-    } else {
-        (void) ::fprintf( stderr, "Unknown screen manager class %s\n", inClass );
-        ::exit( 1 );
-    }
+		mScreenManager = new TFLScreenManager(this,
+			mLog,
+			theWidth,
+			theHeight,
+			inFullScreen,
+			screenIsLandscape);
+	} else
+	{
+		(void) ::fprintf(stderr, "Unknown screen manager class %s\n", inClass);
+		::exit(1);
+	}
 }
-
 
 /**
  User wants us to quit.
 
  This may be a menu item or the Cllose button on the window decoration.
  */
-void TFLApp::quit_cb(Fl_Widget *, void *)
+void
+TFLApp::quit_cb(Fl_Widget*, void*)
 {
-    gApp->UserActionQuit();
+	gApp->UserActionQuit();
 }
-
 
 /**
  Store the current size of the app window in mWindowed... .
  */
-void TFLApp::StoreAppWindowSize()
+void
+TFLApp::StoreAppWindowSize()
 {
-    mWindowedX = wAppWindow->x();
-    mWindowedY = wAppWindow->y();
-    mWindowedWidth = wAppWindow->w();
-    mWindowedHeight = wAppWindow->h();
+	mWindowedX = wAppWindow->x();
+	mWindowedY = wAppWindow->y();
+	mWindowedWidth = wAppWindow->w();
+	mWindowedHeight = wAppWindow->h();
 }
 
 /**
  Run Stuff after NewtonOS booted or wakes up from sleep.
  */
-void TFLApp::DeferredOnPowerRestored()
+void
+TFLApp::DeferredOnPowerRestored()
 {
 }
 
-
-
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
-
-
-
 
 /**
  * Copy NewtonOS clipboard data to the system clipboard.
@@ -1343,159 +1390,193 @@ void TFLApp::DeferredOnPowerRestored()
 // If Cmd-P is pressed, called from DoEditCommand__5TViewFl (arg=2 or 3) (009EA00), "FClipboardCommand(arg)"
 T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, kROMPatchVoid, "AddClipboard__9TRootViewFRC6RefVarT1")
 {
-//    KPrintf("AddClipboard__9TRootViewFRC6RefVarT1\n");
-    // TRootView::AddClipboard(RefVar const &, RefVar const &): 0x01ABEF3C
-    // r0 is a pointer to TRootView
-    // r1 is the clipboard data
-    // r2 ...
-    TNewt::RefArg a = TNewt::RefVar::FromPtr(ioCPU->GetRegister(1));
+	//    KPrintf("AddClipboard__9TRootViewFRC6RefVarT1\n");
+	// TRootView::AddClipboard(RefVar const &, RefVar const &): 0x01ABEF3C
+	// r0 is a pointer to TRootView
+	// r1 is the clipboard data
+	// r2 ...
+	TNewt::RefArg a = TNewt::RefVar::FromPtr(ioCPU->GetRegister(1));
 
-    NewtRef data = TNewt::GetFrameSlot(a, TNewt::MakeSymbol("data"));
-//    TNewt::PrintRef(data, 8);
-    if (!TNewt::RefIsArray(data)) return ioUnit; // expected an array
-    int nData = (int)TNewt::RefArrayGetNumSlots(data);
+	NewtRef data = TNewt::GetFrameSlot(a, TNewt::MakeSymbol("data"));
+	//    TNewt::PrintRef(data, 8);
+	if (!TNewt::RefIsArray(data))
+		return ioUnit; // expected an array
+	int nData = (int) TNewt::RefArrayGetNumSlots(data);
 
-    std::string clipboardText = "";
-    Boolean firstText = true;
-    for (int i=0; i<nData; i++) {
-        NewtRef dataSet = TNewt::RefArrayGetSlot(data, i);
-//        TNewt::PrintRef(dataSet, 8);
-        if (!TNewt::RefIsArray(dataSet)) continue;
-        int nDataSet = (int)TNewt::RefArrayGetNumSlots(dataSet);
-        for (int j=0; j<nDataSet; j++) {
-            NewtRef textRec = TNewt::RefArrayGetSlot(dataSet, j);
-//            TNewt::PrintRef(textRec, 8);
-            if (!TNewt::RefIsFrame(textRec)) continue;
-            NewtRef textRef = TNewt::GetFrameSlot(textRec, TNewt::MakeSymbol("text"));
-//            TNewt::PrintRef(textRef, 8);
-            if (TNewt::RefIsString(textRef)) {
-                int textLen = TNewt::RefStringLength(textRef);
-                char *text = (char*)malloc(textLen+1);
-                TNewt::RefToString(textRef, text, textLen);
-                if (firstText)
-                    firstText = false;
-                else
-                    clipboardText.append("\n");
-                clipboardText.append(text);
-                free(text);
-                break;
-            }
-        }
-    }
-    const char *cstring = clipboardText.c_str();
-    Fl::copy(cstring, strlen(cstring), 1);
-    return ioUnit;
+	std::string clipboardText = "";
+	Boolean firstText = true;
+	for (int i = 0; i < nData; i++)
+	{
+		NewtRef dataSet = TNewt::RefArrayGetSlot(data, i);
+		//        TNewt::PrintRef(dataSet, 8);
+		if (!TNewt::RefIsArray(dataSet))
+			continue;
+		int nDataSet = (int) TNewt::RefArrayGetNumSlots(dataSet);
+		for (int j = 0; j < nDataSet; j++)
+		{
+			NewtRef textRec = TNewt::RefArrayGetSlot(dataSet, j);
+			//            TNewt::PrintRef(textRec, 8);
+			if (!TNewt::RefIsFrame(textRec))
+				continue;
+			NewtRef textRef = TNewt::GetFrameSlot(textRec, TNewt::MakeSymbol("text"));
+			//            TNewt::PrintRef(textRef, 8);
+			if (TNewt::RefIsString(textRef))
+			{
+				int textLen = TNewt::RefStringLength(textRef);
+				char* text = (char*) malloc(textLen + 1);
+				TNewt::RefToString(textRef, text, textLen);
+				if (firstText)
+					firstText = false;
+				else
+					clipboardText.append("\n");
+				clipboardText.append(text);
+				free(text);
+				break;
+			}
+		}
+	}
+	const char* cstring = clipboardText.c_str();
+	Fl::copy(cstring, strlen(cstring), 1);
+	return ioUnit;
 }
 
-static void clip_callback(int source, void *data) {
-    (void)data;
-    if ( source == 1 ) {
-        KPrintf("Clipboard: \"%s\"\n", (char*)data);
-    }
-}
-
-static void draw_ramp(int x, int y, int w, int h, Fl_Color c)
+static void
+clip_callback(int source, void* data)
 {
-    for (int i=y; i<y+h; i++) {
-        fl_color(fl_color_average(FL_BACKGROUND_COLOR, c, i/100.0));
-        //fl_rectf(x, y, w, h, Fl::box_color(c));
-        fl_xyline(x, i, x+w);
-    }
+	(void) data;
+	if (source == 1)
+	{
+		KPrintf("Clipboard: \"%s\"\n", (char*) data);
+	}
 }
 
-static void tabs_box(int x, int y, int w, int h, Fl_Color c)
+static void
+draw_ramp(int x, int y, int w, int h, Fl_Color c)
 {
-    const int barHgt = 1;
-    fl_rectf(x, y, w, barHgt, fl_color_average(FL_FOREGROUND_COLOR, c, 0.5));
-    fl_rectf(x, y+barHgt, w, h-barHgt, c);
+	for (int i = y; i < y + h; i++)
+	{
+		fl_color(fl_color_average(FL_BACKGROUND_COLOR, c, i / 100.0));
+		// fl_rectf(x, y, w, h, Fl::box_color(c));
+		fl_xyline(x, i, x + w);
+	}
 }
 
-static const char *tfl_file_chooser(const char *message, const char *pat, const char *fname, int type)
+static void
+tabs_box(int x, int y, int w, int h, Fl_Color c)
+{
+	const int barHgt = 1;
+	fl_rectf(x, y, w, barHgt, fl_color_average(FL_FOREGROUND_COLOR, c, 0.5));
+	fl_rectf(x, y + barHgt, w, h - barHgt, c);
+}
+
+static const char*
+tfl_file_chooser(const char* message, const char* pat, const char* fname, int type)
 {
 #if UPDATED_TARGET_OS_LINUX
-    char pattern[FL_PATH_MAX]; pattern[0] = 0;
-    if (pat) {
-        const char *s = pat;
-        char *d = pattern;
-        Boolean brackets = false;
-        while (*s) {
-            char c = *s++;
-            if (c=='\t') {
-                *d++ = ' '; *d++ = '(';
-                brackets = true;
-            } else if (c=='\n' && brackets) {
-                *d++ = ')'; *d++ = '\t';
-            } else {
-                *d++ = c;
-            }
-        }
-        *d = 0;
-    }
-    return fl_file_chooser(message, pattern[0]?pattern:nullptr, fname);
+	char pattern[FL_PATH_MAX];
+	pattern[0] = 0;
+	if (pat)
+	{
+		const char* s = pat;
+		char* d = pattern;
+		Boolean brackets = false;
+		while (*s)
+		{
+			char c = *s++;
+			if (c == '\t')
+			{
+				*d++ = ' ';
+				*d++ = '(';
+				brackets = true;
+			} else if (c == '\n' && brackets)
+			{
+				*d++ = ')';
+				*d++ = '\t';
+			} else
+			{
+				*d++ = c;
+			}
+		}
+		*d = 0;
+	}
+	return fl_file_chooser(message, pattern[0] ? pattern : nullptr, fname);
 #else
-    static char tfl_file_chooser_filename[FL_PATH_MAX];
-    char name[FL_PATH_MAX]; name[0] = 0;
-    char fdir[FL_PATH_MAX]; fdir[0] = 0;
+	static char tfl_file_chooser_filename[FL_PATH_MAX];
+	char name[FL_PATH_MAX];
+	name[0] = 0;
+	char fdir[FL_PATH_MAX];
+	fdir[0] = 0;
 
-    if (fname && *fname) {
-        const char *n = fl_filename_name(fname);
-        if (n) {
-            int len = n-fname;
-            strcpy(name, n);
-            strncpy(fdir, fname, len);
-            fdir[len] = 0;
-        } else {
-            strcpy(name, fname);
-        }
-    }
+	if (fname && *fname)
+	{
+		const char* n = fl_filename_name(fname);
+		if (n)
+		{
+			int len = n - fname;
+			strcpy(name, n);
+			strncpy(fdir, fname, len);
+			fdir[len] = 0;
+		} else
+		{
+			strcpy(name, fname);
+		}
+	}
 
-    Fl_Native_File_Chooser fnfc;
-    fnfc.title(message);
-    switch (type) {
-        case 0:
-            fnfc.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
-            fnfc.options(Fl_Native_File_Chooser::NEW_FOLDER|Fl_Native_File_Chooser::USE_FILTER_EXT);
-            break;
-        case 1:
-            fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
-            fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
-            break;
-        case 2:
-            fnfc.type(Fl_Native_File_Chooser::BROWSE_DIRECTORY);
-            fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
-            break;
-    }
-    fnfc.filter(pat);
-    fnfc.directory(fdir);
-    fnfc.preset_file(name);
-    switch ( fnfc.show() ) {
-        case -1: return nullptr; // Error text is in fnfc.errmsg()
-        case  1: return nullptr; // user canceled
-    }
-    if (fnfc.filename()) {
-        strcpy(tfl_file_chooser_filename, fnfc.filename());
-        return tfl_file_chooser_filename;
-    } else {
-        return nullptr;
-    }
+	Fl_Native_File_Chooser fnfc;
+	fnfc.title(message);
+	switch (type)
+	{
+		case 0:
+			fnfc.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+			fnfc.options(Fl_Native_File_Chooser::NEW_FOLDER | Fl_Native_File_Chooser::USE_FILTER_EXT);
+			break;
+		case 1:
+			fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
+			fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
+			break;
+		case 2:
+			fnfc.type(Fl_Native_File_Chooser::BROWSE_DIRECTORY);
+			fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
+			break;
+	}
+	fnfc.filter(pat);
+	fnfc.directory(fdir);
+	fnfc.preset_file(name);
+	switch (fnfc.show())
+	{
+		case -1:
+			return nullptr; // Error text is in fnfc.errmsg()
+		case 1:
+			return nullptr; // user canceled
+	}
+	if (fnfc.filename())
+	{
+		strcpy(tfl_file_chooser_filename, fnfc.filename());
+		return tfl_file_chooser_filename;
+	} else
+	{
+		return nullptr;
+	}
 #endif
 }
 
-const char *TFLApp::ChooseExistingFile(const char *message, const char *pat, const char *fname)
+const char*
+TFLApp::ChooseExistingFile(const char* message, const char* pat, const char* fname)
 {
-    return tfl_file_chooser(message, pat, fname, 1);
+	return tfl_file_chooser(message, pat, fname, 1);
 }
 
-const char *TFLApp::ChooseExistingDirectory(const char *message, const char *pat, const char *fname)
+const char*
+TFLApp::ChooseExistingDirectory(const char* message, const char* pat, const char* fname)
 {
-    return tfl_file_chooser(message, pat, fname, 2);
+	return tfl_file_chooser(message, pat, fname, 2);
 }
 
-const char *TFLApp::ChooseNewFile(const char *message, const char *pat, const char *fname)
+const char*
+TFLApp::ChooseNewFile(const char* message, const char* pat, const char* fname)
 {
-    return tfl_file_chooser(message, pat, fname, 0);
+	return tfl_file_chooser(message, pat, fname, 0);
 }
-
 
 /**
  This is the first function that is called on all platforms.
@@ -1504,23 +1585,23 @@ const char *TFLApp::ChooseNewFile(const char *message, const char *pat, const ch
  is ever reached. Also, different platforms have different entry points (MS Windows for example calls
  WinMain() first). FLTK makes sure that main() is called soon after.
  */
-int main(int argc, char** argv )
+int
+main(int argc, char** argv)
 {
-    if ( Fl::abi_check(FL_ABI_VERSION)==0 ) {
-        fl_alert("Warning: FLTK ABI versions don't match:\n%d", FL_ABI_VERSION);
-    }
-    Fl::add_clipboard_notify(clip_callback);
-    Fl::set_boxtype(FL_FREE_BOXTYPE, draw_ramp, 0, 0, 0, 0);
-    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+1), draw_ramp, 0, 0, 0, 0);
-    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+2), tabs_box, 0, 2, 0, 0);
-    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE+3), tabs_box, 0, 2, 0, 0);
+	if (Fl::abi_check(FL_ABI_VERSION) == 0)
+	{
+		fl_alert("Warning: FLTK ABI versions don't match:\n%d", FL_ABI_VERSION);
+	}
+	Fl::add_clipboard_notify(clip_callback);
+	Fl::set_boxtype(FL_FREE_BOXTYPE, draw_ramp, 0, 0, 0, 0);
+	Fl::set_boxtype((Fl_Boxtype) (FL_FREE_BOXTYPE + 1), draw_ramp, 0, 0, 0, 0);
+	Fl::set_boxtype((Fl_Boxtype) (FL_FREE_BOXTYPE + 2), tabs_box, 0, 2, 0, 0);
+	Fl::set_boxtype((Fl_Boxtype) (FL_FREE_BOXTYPE + 3), tabs_box, 0, 2, 0, 0);
 
-    gApp = new TFLApp();
-    gApp->Run( argc, argv );
-    return 0;
+	gApp = new TFLApp();
+	gApp->Run(argc, argv);
+	return 0;
 }
-
-
 
 // ======================================================================= //
 // We build our computer (systems) the way we build our cities: over time,

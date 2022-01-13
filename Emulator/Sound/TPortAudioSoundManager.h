@@ -47,8 +47,7 @@ class TMutex;
 /// \test	aucun test défini.
 ///
 class TPortAudioSoundManager
-	:
-		public TBufferedSoundManager
+		: public TBufferedSoundManager
 {
 public:
 	///
@@ -56,73 +55,69 @@ public:
 	///
 	/// \param inLog				log interface (can be null)
 	///
-	TPortAudioSoundManager( TLog* inLog = nil );
+	TPortAudioSoundManager(TLog* inLog = nil);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TPortAudioSoundManager( void );
+	virtual ~TPortAudioSoundManager(void);
 
 	///
 	/// Schedule output of some buffer.
 	///
-	virtual void	ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize );
+	virtual void ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize);
 
 	///
 	/// Start output.
 	///
-	virtual void	StartOutput( void );
+	virtual void StartOutput(void);
 
 	///
 	/// Stop output.
 	///
-	virtual void	StopOutput( void );
+	virtual void StopOutput(void);
 
 	///
 	/// Is output running?
 	///
-	virtual Boolean	OutputIsRunning( void );
+	virtual Boolean OutputIsRunning(void);
 
 private:
 	///
 	/// Callback routine (static).
 	///
-	static int SPACallBack(
-				const void* inputBuffer,
-				void* outputBuffer,
-				unsigned long frameCount,
-				const PaStreamCallbackTimeInfo* timeInfo,
-				PaStreamCallbackFlags statusFlags,
-				void* userData )
-		{
-			return ((TPortAudioSoundManager*) userData)->PACallBack(
-											inputBuffer,
-											outputBuffer,
-											frameCount,
-											timeInfo,
-											statusFlags );
-		};
+	static int
+	SPACallBack(
+		const void* inputBuffer,
+		void* outputBuffer,
+		unsigned long frameCount,
+		const PaStreamCallbackTimeInfo* timeInfo,
+		PaStreamCallbackFlags statusFlags,
+		void* userData)
+	{
+		return ((TPortAudioSoundManager*) userData)->PACallBack(inputBuffer, outputBuffer, frameCount, timeInfo, statusFlags);
+	};
 
 	///
 	/// Callback routine.
 	///
 	int PACallBack(
-				const void* inputBuffer,
-				void* outputBuffer,
-				unsigned long frameCount,
-				const PaStreamCallbackTimeInfo* timeInfo,
-				PaStreamCallbackFlags statusFlags );
+		const void* inputBuffer,
+		void* outputBuffer,
+		unsigned long frameCount,
+		const PaStreamCallbackTimeInfo* timeInfo,
+		PaStreamCallbackFlags statusFlags);
 
 	/// \name Variables
-	PaStream*			mOutputStream;		///< Output stream.
-	TCircleBuffer*		mOutputBuffer;		///< Output buffer.
-	TMutex*				mDataMutex;			///< Mutex on shared structures.
-	KSInt16*			mMultiplexedBuffer;	///< Buffer to resample.
-	Boolean				mOutputIsRunning;	///< If output is running.
+	PaStream* mOutputStream; ///< Output stream.
+	TCircleBuffer* mOutputBuffer; ///< Output buffer.
+	TMutex* mDataMutex; ///< Mutex on shared structures.
+	KSInt16* mMultiplexedBuffer; ///< Buffer to resample.
+	Boolean mOutputIsRunning; ///< If output is running.
 };
 
 #endif
-		// _TPORTAUDIOSOUNDMANAGER_H
+// _TPORTAUDIOSOUNDMANAGER_H
 
 // ========================================= //
 // TRANSACTION CANCELLED - FARECARD RETURNED //

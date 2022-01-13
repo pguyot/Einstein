@@ -26,49 +26,49 @@
 // #define INCLUDE_TEMPLATE	"MyFile.h"
 // #include "IncludeRnRdRm.h"
 
-#define Rd	0
+#define Rd 0
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	1
+#define Rd 1
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	2
+#define Rd 2
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	3
+#define Rd 3
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	4
+#define Rd 4
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	5
+#define Rd 5
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	6
+#define Rd 6
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	7
+#define Rd 7
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	8
+#define Rd 8
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	9
+#define Rd 9
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	10
+#define Rd 10
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	11
+#define Rd 11
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	12
+#define Rd 12
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	13
+#define Rd 13
 #include "IncludeRsRm15.h"
 #undef Rd
-#define Rd	14
+#define Rd 14
 #include "IncludeRsRm15.h"
 #undef Rd
 

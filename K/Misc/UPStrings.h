@@ -54,10 +54,10 @@ public:
 	/// \param inMaxLength		taille maximale de la chaîne en caractère (taille
 	///							de outDestString moins 1)
 	///
-	static void		P2CStrCopy(
-						char* outDestString,
-						ConstStr255Param inSourceString,
-						long inMaxLength = 255 );
+	static void P2CStrCopy(
+		char* outDestString,
+		ConstStr255Param inSourceString,
+		long inMaxLength = 255);
 
 	///
 	/// Conversion d'une chaîne C en une chaîne pascal.
@@ -67,10 +67,10 @@ public:
 	/// \param inMaxLength		taille maximale de la chaîne en caractère (taille
 	///							de outDestString moins 1)
 	///
-	static void		C2PStrCopy(
-						Str255 outDestString,
-						const char* inSourceString,
-						long inMaxLength = 255 );
+	static void C2PStrCopy(
+		Str255 outDestString,
+		const char* inSourceString,
+		long inMaxLength = 255);
 
 	///
 	/// Conversion sur place d'une chaîne pascal en une chaîne C.
@@ -79,7 +79,7 @@ public:
 	/// \param ioString			chaîne Pascal à convertir
 	/// \return un pointeur sur la chaîne, désormais au format C.
 	///
-	static char*			P2CStr( Str255 ioString );
+	static char* P2CStr(Str255 ioString);
 
 	///
 	/// Conversion sur place d'une chaîne C en une chaîne pascal.
@@ -88,11 +88,11 @@ public:
 	/// \param ioString			chaîne C à convertir
 	/// \return un pointeur sur la chaîne, désormais au format pascal.
 	///
-	static unsigned char*	C2PStr( char* ioString );
+	static unsigned char* C2PStr(char* ioString);
 };
 
 #endif
-		// __UPSTRINGS__
+// __UPSTRINGS__
 
 // =========================== //
 // /* Halley */                //

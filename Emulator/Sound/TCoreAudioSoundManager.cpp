@@ -24,15 +24,15 @@
 #include "TCoreAudioSoundManager.h"
 
 // ANSI C & POSIX
-#include <strings.h>
-#include <stdio.h>
 #include <algorithm>
+#include <stdio.h>
+#include <strings.h>
 
 // CoreServices
 #if TARGET_IOS
-#   include <CFNetwork/CFNetwork.h>
+#include <CFNetwork/CFNetwork.h>
 #else
-#   include <CoreServices/CoreServices.h>
+#include <CoreServices/CoreServices.h>
 #endif
 
 // K
@@ -47,30 +47,28 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
-#define kNewtonBufferSizeInFrames		0x750
-#define kNewtonSampleRate				22050
-#define kNewtonFormatID					kAudioFormatLinearPCM
-#define kNewtonFormatFlags				(kLinearPCMFormatFlagIsSignedInteger \
-										| kLinearPCMFormatFlagIsBigEndian \
-										| kLinearPCMFormatFlagIsPacked \
-										| kAudioFormatFlagIsNonInterleaved)
-#define kNewtonBytesPerFrame			2
-#define kBytesInAPacket					kNewtonBytesPerFrame
-#define kNewtonNumChannels				1
-#define kNewtonBitsPerChannel			16
-#define kFramesPerPacket				1
+#define kNewtonBufferSizeInFrames 0x750
+#define kNewtonSampleRate 22050
+#define kNewtonFormatID kAudioFormatLinearPCM
+#define kNewtonFormatFlags (kLinearPCMFormatFlagIsSignedInteger \
+	| kLinearPCMFormatFlagIsBigEndian                           \
+	| kLinearPCMFormatFlagIsPacked                              \
+	| kAudioFormatFlagIsNonInterleaved)
+#define kNewtonBytesPerFrame 2
+#define kBytesInAPacket kNewtonBytesPerFrame
+#define kNewtonNumChannels 1
+#define kNewtonBitsPerChannel 16
+#define kFramesPerPacket 1
 
 // -------------------------------------------------------------------------- //
 //  * TCoreAudioSoundManager( void )
 // -------------------------------------------------------------------------- //
-TCoreAudioSoundManager::TCoreAudioSoundManager( TLog* inLog /* = nil */ )
-	:
-		TBufferedSoundManager( inLog ),
-        mOutputBuffer( new TCircleBuffer(
-								kNewtonBufferSizeInFrames *
-								4 * sizeof(KUInt16) ) ),
-		mDataMutex( new TMutex() ),
-        mOutputUnit(0L)
+TCoreAudioSoundManager::TCoreAudioSoundManager(TLog* inLog /* = nil */) :
+		TBufferedSoundManager(inLog),
+		mOutputBuffer(new TCircleBuffer(
+			kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16))),
+		mDataMutex(new TMutex()),
+		mOutputUnit(0L)
 {
 	mDataMutex = new TMutex();
 	CreateDefaultAU();
@@ -79,13 +77,13 @@ TCoreAudioSoundManager::TCoreAudioSoundManager( TLog* inLog /* = nil */ )
 // -------------------------------------------------------------------------- //
 //  * ~TCoreAudioSoundManager( void )
 // -------------------------------------------------------------------------- //
-TCoreAudioSoundManager::~TCoreAudioSoundManager( void )
+TCoreAudioSoundManager::~TCoreAudioSoundManager(void)
 {
 #if TARGET_IOS
-	AudioComponentInstanceDispose( mOutputUnit );
+	AudioComponentInstanceDispose(mOutputUnit);
 #else
-	AudioComponentInstanceDispose( mOutputUnit );
-	AudioUnitUninitialize( mOutputUnit );
+	AudioComponentInstanceDispose(mOutputUnit);
+	AudioUnitUninitialize(mOutputUnit);
 #endif
 
 	if (mDataMutex)
@@ -102,11 +100,12 @@ TCoreAudioSoundManager::~TCoreAudioSoundManager( void )
 //  * CreateDefaultAU( void )
 // -------------------------------------------------------------------------- //
 void
-TCoreAudioSoundManager::CreateDefaultAU( void )
+TCoreAudioSoundManager::CreateDefaultAU(void)
 {
 	OSStatus err = noErr;
 
-	do {
+	do
+	{
 		// Open the default output unit
 		AudioComponentDescription desc;
 
@@ -127,7 +126,7 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 			if (GetLog())
 			{
 				GetLog()->LogLine(
-					"CreateDefaultAU: FindNextComponent returned null" );
+					"CreateDefaultAU: FindNextComponent returned null");
 			}
 			break;
 		}
@@ -140,7 +139,7 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 			{
 				GetLog()->FLogLine(
 					"CreateDefaultAU: OpenAComponent returned an error (%i)",
-					err );
+					err);
 			}
 			break;
 		}
@@ -150,19 +149,19 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 		input.inputProc = SRenderCallback;
 		input.inputProcRefCon = this;
 
-		err = AudioUnitSetProperty( mOutputUnit,
-									kAudioUnitProperty_SetRenderCallback,
-									kAudioUnitScope_Input,
-									0,
-									&input,
-									sizeof(input));
+		err = AudioUnitSetProperty(mOutputUnit,
+			kAudioUnitProperty_SetRenderCallback,
+			kAudioUnitScope_Input,
+			0,
+			&input,
+			sizeof(input));
 		if (err != noErr)
 		{
 			if (GetLog())
 			{
 				GetLog()->FLogLine(
 					"CreateDefaultAU: AudioUnitSetProperty(CB) returned an error (%i)",
-					err );
+					err);
 			}
 			break;
 		}
@@ -172,42 +171,42 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 		// AND you want the DefaultOutputUnit to do any format conversions
 		// necessary from your format to the device's format.
 		AudioStreamBasicDescription streamFormat;
-			streamFormat.mSampleRate = kNewtonSampleRate;	//	the sample rate of the audio stream
-			streamFormat.mFormatID = kNewtonFormatID;		//	the specific encoding type of audio
-															// stream
-			streamFormat.mFormatFlags = kNewtonFormatFlags;	//	flags specific to each format
-			streamFormat.mBytesPerPacket = kBytesInAPacket;
-			streamFormat.mFramesPerPacket = kFramesPerPacket;
-			streamFormat.mBytesPerFrame = kNewtonBytesPerFrame;
-			streamFormat.mChannelsPerFrame = kNewtonNumChannels;
-			streamFormat.mBitsPerChannel = kNewtonBitsPerChannel;
+		streamFormat.mSampleRate = kNewtonSampleRate; //	the sample rate of the audio stream
+		streamFormat.mFormatID = kNewtonFormatID; //	the specific encoding type of audio
+												  // stream
+		streamFormat.mFormatFlags = kNewtonFormatFlags; //	flags specific to each format
+		streamFormat.mBytesPerPacket = kBytesInAPacket;
+		streamFormat.mFramesPerPacket = kFramesPerPacket;
+		streamFormat.mBytesPerFrame = kNewtonBytesPerFrame;
+		streamFormat.mChannelsPerFrame = kNewtonNumChannels;
+		streamFormat.mBitsPerChannel = kNewtonBitsPerChannel;
 
-		err = AudioUnitSetProperty( mOutputUnit,
-							kAudioUnitProperty_StreamFormat,
-							kAudioUnitScope_Input,
-							0,
-							&streamFormat,
-							sizeof(AudioStreamBasicDescription));
+		err = AudioUnitSetProperty(mOutputUnit,
+			kAudioUnitProperty_StreamFormat,
+			kAudioUnitScope_Input,
+			0,
+			&streamFormat,
+			sizeof(AudioStreamBasicDescription));
 		if (err != noErr)
 		{
 			if (GetLog())
 			{
 				GetLog()->FLogLine(
 					"CreateDefaultAU: AudioUnitSetProperty(SF) returned an error (%i)",
-					err );
+					err);
 			}
 			break;
 		}
 
 		// Initialize unit
-		err = AudioUnitInitialize( mOutputUnit );
+		err = AudioUnitInitialize(mOutputUnit);
 		if (err != noErr)
 		{
 			if (GetLog())
 			{
 				GetLog()->FLogLine(
 					"CreateDefaultAU: AudioUnitInitialize returned an error (%i)",
-					err );
+					err);
 			}
 			break;
 		}
@@ -219,15 +218,15 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 // -------------------------------------------------------------------------- //
 OSStatus
 TCoreAudioSoundManager::RenderCallback(
-		AudioUnitRenderActionFlags* ioActionFlags,
-		const AudioTimeStamp* inTimeStamp,
-		UInt32 inBusNumber,
-		UInt32 inNumberFrames,
-		AudioBufferList* ioData )
+	AudioUnitRenderActionFlags* ioActionFlags,
+	const AudioTimeStamp* inTimeStamp,
+	UInt32 inBusNumber,
+	UInt32 inNumberFrames,
+	AudioBufferList* ioData)
 {
-    (void)ioActionFlags;
-    (void)inTimeStamp;
-    (void)inBusNumber;
+	(void) ioActionFlags;
+	(void) inTimeStamp;
+	(void) inBusNumber;
 
 	// Rate limiter - only request bytes from NewtonOS when bytes are needed
 	// Otherewise we exhaust the buffers too quickly and truncate the sounds.
@@ -235,7 +234,8 @@ TCoreAudioSoundManager::RenderCallback(
 	KUIntPtr bytesInBuffer = mOutputBuffer->AvailableBytes();
 	mDataMutex->Unlock();
 
-	if (bytesInBuffer < kNewtonBufferSize) {
+	if (bytesInBuffer < kNewtonBufferSize)
+	{
 		// Ask for more data.
 		RaiseOutputInterrupt();
 	}
@@ -243,20 +243,19 @@ TCoreAudioSoundManager::RenderCallback(
 	// Copy data from the circle buffer.
 	mDataMutex->Lock();
 
-	KUIntPtr amount = std::min(bytesInBuffer, inNumberFrames * sizeof( KSInt16 ));
+	KUIntPtr amount = std::min(bytesInBuffer, inNumberFrames * sizeof(KSInt16));
 	// TODO: find possible error in the ringBuffer implementation?
 
-	KUIntPtr available =
-		mOutputBuffer->Consume(
-			ioData->mBuffers[0].mData,
-			amount );
+	KUIntPtr available = mOutputBuffer->Consume(
+		ioData->mBuffers[0].mData,
+		amount);
 	mDataMutex->Unlock();
 
 	KUIntPtr delta = amount - available;
 	if (delta > 0)
 	{
 		// Zero the remaining of the buffer.
-		::bzero( &((KUInt8*) ioData->mBuffers[0].mData)[available], delta );
+		::bzero(&((KUInt8*) ioData->mBuffers[0].mData)[available], delta);
 	}
 
 	return noErr;
@@ -266,17 +265,17 @@ TCoreAudioSoundManager::RenderCallback(
 //  * ScheduleOutput( const KUInt8*, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TCoreAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
+TCoreAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 {
 	if (inSize > 0)
-    {
-        // Write to the output buffer.
-        // Copy data.
-        mDataMutex->Lock();
-        mOutputBuffer->Produce( inBuffer, inSize );
-        mDataMutex->Unlock();
+	{
+		// Write to the output buffer.
+		// Copy data.
+		mDataMutex->Lock();
+		mOutputBuffer->Produce(inBuffer, inSize);
+		mDataMutex->Unlock();
 		// Ask for more data.
-		//RaiseOutputInterrupt();
+		// RaiseOutputInterrupt();
 	}
 }
 
@@ -284,22 +283,22 @@ TCoreAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
 //  * StartOutput( void )
 // -------------------------------------------------------------------------- //
 void
-TCoreAudioSoundManager::StartOutput( void )
+TCoreAudioSoundManager::StartOutput(void)
 {
-    // Set the volume before starting to render the sound
-    OutputVolumeChanged();
+	// Set the volume before starting to render the sound
+	OutputVolumeChanged();
 
 	// Start the rendering
 	// The DefaultOutputUnit will do any format conversions to the format of the
 	// default device
-	OSStatus err = AudioOutputUnitStart( mOutputUnit );
+	OSStatus err = AudioOutputUnitStart(mOutputUnit);
 	if (err != noErr)
 	{
 		if (GetLog())
 		{
 			GetLog()->FLogLine(
 				"CreateDefaultAU: AudioOutputUnitStart returned an error (%i)",
-				err );
+				err);
 		}
 	}
 }
@@ -308,17 +307,17 @@ TCoreAudioSoundManager::StartOutput( void )
 //  * StopOutput( void )
 // -------------------------------------------------------------------------- //
 void
-TCoreAudioSoundManager::StopOutput( void )
+TCoreAudioSoundManager::StopOutput(void)
 {
 	// Stop the rendering
-	OSStatus err = AudioOutputUnitStop( mOutputUnit );
+	OSStatus err = AudioOutputUnitStop(mOutputUnit);
 	if (err != noErr)
 	{
 		if (GetLog())
 		{
 			GetLog()->FLogLine(
 				"CreateDefaultAU: AudioOutputUnitStart returned an error (%i)",
-				err );
+				err);
 		}
 	}
 }
@@ -327,25 +326,26 @@ TCoreAudioSoundManager::StopOutput( void )
 //  * OutputIsRunning( void )
 // -------------------------------------------------------------------------- //
 Boolean
-TCoreAudioSoundManager::OutputIsRunning( void )
+TCoreAudioSoundManager::OutputIsRunning(void)
 {
 	return !mOutputBuffer->IsEmpty();
 }
 
-
 // -------------------------------------------------------------------------- //
 //  * OutputVolumeChanged() override
 // -------------------------------------------------------------------------- //
-void TCoreAudioSoundManager::OutputVolumeChanged()
+void
+TCoreAudioSoundManager::OutputVolumeChanged()
 {
-    // Adjust the sound if there is an AudioUnit
-    if (mOutputUnit) {
-        AudioUnitSetParameter(mOutputUnit,
-                              kHALOutputParam_Volume,
-                              kAudioUnitScope_Output,
-                              0,
-                              OutputVolumeNormalized(), 0);
-    }
+	// Adjust the sound if there is an AudioUnit
+	if (mOutputUnit)
+	{
+		AudioUnitSetParameter(mOutputUnit,
+			kHALOutputParam_Volume,
+			kAudioUnitScope_Output,
+			0,
+			OutputVolumeNormalized(), 0);
+	}
 }
 
 // ====================================================== //

@@ -24,9 +24,8 @@
 #ifndef _TTAPNETWORK_H
 #define _TTAPNETWORK_H
 
-#include "TNetworkManager.h"
 #include <K/Defines/KDefinitions.h>
-
+#include "TNetworkManager.h"
 
 class TLog;
 class TInterruptManager;
@@ -93,7 +92,7 @@ public:
 	/// \param data send this block of data from the Newton to the world
 	/// \param size of the block
 	///
-	virtual int SendPacket(KUInt8 *data, KUInt32 size);
+	virtual int SendPacket(KUInt8* data, KUInt32 size);
 
 	///
 	/// Fill the buffer with the MAC address of the network card.
@@ -101,7 +100,7 @@ public:
 	/// \param data pointer to a six byte buffer
 	/// \param size ethernet MAC addresses are always 6 bytes
 	///
-	virtual int GetDeviceAddress(KUInt8 *data, KUInt32 size);
+	virtual int GetDeviceAddress(KUInt8* data, KUInt32 size);
 
 	///
 	/// Number of bytes available for Newton.
@@ -123,21 +122,22 @@ public:
 	/// \param data fill this buffer with the next available block of data
 	/// \param size the number of bytes that we expect in the buffer
 	///
-	virtual int ReceiveData(KUInt8 *data, KUInt32 size);
+	virtual int ReceiveData(KUInt8* data, KUInt32 size);
 
 	///
 	/// Define the select fd set (in the thread).
 	/// Return the max fd + 1. If the result is 0, the thread exits.
 	///
-	virtual int			SetReadFDSet(fd_set* ioFDSet);
+	virtual int SetReadFDSet(fd_set* ioFDSet);
+
 private:
-    int             mTapFileDescriptor;
-    char            mBuffer[1518];
-    KUInt32         mBufferSize;
+	int mTapFileDescriptor;
+	char mBuffer[1518];
+	KUInt32 mBufferSize;
 };
 
 #endif
-		// _TTAPNETWORK_H
+// _TTAPNETWORK_H
 
 // ============================================ //
 // The first time, it's a KLUDGE!               //

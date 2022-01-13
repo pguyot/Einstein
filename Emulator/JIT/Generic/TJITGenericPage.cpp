@@ -32,15 +32,15 @@
 
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
-#include "Emulator/JIT/Generic/TJITGeneric_Test.h"
-#include "Emulator/JIT/Generic/TJITGeneric_Other.h"
+#include "Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.h"
 #include "Emulator/JIT/Generic/TJITGeneric_DataProcessingPSRTransfer.h"
-#include "Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.h"
-#include "Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.h"
+#include "Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransfer.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Multiply.h"
 #include "Emulator/JIT/Generic/TJITGeneric_MultiplyAndAccumulate.h"
-#include "Emulator/JIT/Generic/TJITGeneric_BlockDataTransfer.h"
-#include "Emulator/JIT/Generic/TJITGeneric_HalfwordAndSignedDataTransfer.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Other.h"
+#include "Emulator/JIT/Generic/TJITGeneric_SingleDataSwap.h"
+#include "Emulator/JIT/Generic/TJITGeneric_SingleDataTransfer.h"
+#include "Emulator/JIT/Generic/TJITGeneric_Test.h"
 
 #ifdef JIT_PERFORMANCE
 #include "TJITPerformance.h"
@@ -59,7 +59,7 @@ static KUInt16 gMaxUnitsCount = 0;
 // -------------------------------------------------------------------------- //
 //  * TJITGenericPage( void )
 // -------------------------------------------------------------------------- //
-TJITGenericPage::TJITGenericPage( void )
+TJITGenericPage::TJITGenericPage(void)
 {
 	mUnits = (JITUnit*) ::malloc(sizeof(JITUnit) * kDefaultUnitCount);
 	mUnitCount = kDefaultUnitCount;
@@ -68,7 +68,7 @@ TJITGenericPage::TJITGenericPage( void )
 // -------------------------------------------------------------------------- //
 //  * ~TJITGenericPage( void )
 // -------------------------------------------------------------------------- //
-TJITGenericPage::~TJITGenericPage( void )
+TJITGenericPage::~TJITGenericPage(void)
 {
 	::free(mUnits);
 }
@@ -78,11 +78,11 @@ TJITGenericPage::~TJITGenericPage( void )
 // -------------------------------------------------------------------------- //
 void
 TJITGenericPage::Init(
-			TMemory* inMemoryIntf,
-			KUInt32 inVAddr,
-			KUInt32 inPAddr )
+	TMemory* inMemoryIntf,
+	KUInt32 inVAddr,
+	KUInt32 inPAddr)
 {
-	TJITPage<TJITGeneric, TJITGenericPage>::Init( inMemoryIntf, inVAddr, inPAddr );
+	TJITPage<TJITGeneric, TJITGenericPage>::Init(inMemoryIntf, inVAddr, inPAddr);
 	KUInt32* thePointer = GetPointer();
 
 	// Translate the page.
@@ -93,18 +93,19 @@ TJITGenericPage::Init(
 	{
 		mUnitsTable[indexInstr] = unitCrsr;
 		Translate(
-		    inMemoryIntf,
+			inMemoryIntf,
 			&unitCrsr,
 			thePointer[indexInstr],
-			inVAddr + theOffsetInPage );
+			inVAddr + theOffsetInPage);
 		theOffsetInPage += 4;
 	}
 
 	PushUnit(&unitCrsr, TJITGenericPage::EndOfPage);
-	PushUnit(&unitCrsr, inVAddr + theOffsetInPage + 4);	// PC + 8
+	PushUnit(&unitCrsr, inVAddr + theOffsetInPage + 4); // PC + 8
 
 #ifdef COLLECT_STATS_ON_PAGES
-	if (unitCrsr > gMaxUnitsCount) {
+	if (unitCrsr > gMaxUnitsCount)
+	{
 		gMaxUnitsCount = unitCrsr;
 		KPrintf("Max units count = %i\n", unitCrsr);
 	}
@@ -119,7 +120,8 @@ TJITGenericPage::PushUnit(KUInt16* ioUnitCrsr, KUIntPtr inUnit)
 {
 	// Can we push it?
 	KUInt16 theCrsr = *ioUnitCrsr;
-	if (theCrsr == mUnitCount) {
+	if (theCrsr == mUnitCount)
+	{
 		// We need to resize the table.
 		mUnitCount += kUnitIncrement;
 		mUnits = (JITUnit*) ::realloc(mUnits, mUnitCount * sizeof(JITUnit));
@@ -127,7 +129,6 @@ TJITGenericPage::PushUnit(KUInt16* ioUnitCrsr, KUIntPtr inUnit)
 	mUnits[theCrsr++].fPtr = inUnit;
 	*ioUnitCrsr = theCrsr;
 }
-
 
 #ifdef JIT_PERFORMANCE
 JITInstructionProto(instrCount)
@@ -139,16 +140,15 @@ JITInstructionProto(instrCount)
 }
 #endif
 
-
 // -------------------------------------------------------------------------- //
 //  * Translate( JITUnit*, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
 TJITGenericPage::Translate(
-				TMemory* inMemoryIntf,
-				KUInt16* ioUnitCrsr,
-				KUInt32 inInstruction,
-				KUInt32 inVAddr )
+	TMemory* inMemoryIntf,
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr)
 {
 #ifdef JIT_PERFORMANCE
 	PushUnit(ioUnitCrsr, instrCount);
@@ -156,12 +156,13 @@ TJITGenericPage::Translate(
 #endif
 
 	// handle injections before anything else
-	if (TJITGenericPatchObject::IsNativeInjection(inInstruction)) {
+	if (TJITGenericPatchObject::IsNativeInjection(inInstruction))
+	{
 		inInstruction = Translate_PatchNativeCall(
-											this,
-											ioUnitCrsr,
-											inInstruction,
-											inVAddr);
+			this,
+			ioUnitCrsr,
+			inInstruction,
+			inVAddr);
 	}
 
 	int theTestKind = inInstruction >> 28;
@@ -175,16 +176,16 @@ TJITGenericPage::Translate(
 
 	if (theTestKind != kTestNV)
 	{
-		switch ((inInstruction >> 26) & 0x3)				// 27 & 26
+		switch ((inInstruction >> 26) & 0x3) // 27 & 26
 		{
-			case 0x0:	// 00
+			case 0x0: // 00
 				DoTranslate_00(
 					ioUnitCrsr,
 					inInstruction,
 					inVAddr);
 				break;
 
-			case 0x1:	// 01
+			case 0x1: // 01
 				DoTranslate_01(
 					inMemoryIntf,
 					ioUnitCrsr,
@@ -192,14 +193,14 @@ TJITGenericPage::Translate(
 					inVAddr);
 				break;
 
-			case 0x2:	// 10
+			case 0x2: // 10
 				DoTranslate_10(
 					ioUnitCrsr,
 					inInstruction,
 					inVAddr);
 				break;
 
-			case 0x3:	// 11
+			case 0x3: // 11
 				Translate_SWIAndCoproc(
 					this,
 					ioUnitCrsr,
@@ -220,32 +221,33 @@ TJITGenericPage::Translate(
 // -------------------------------------------------------------------------- //
 //  * PutTest( KUInt16*, KUInt32 )
 // -------------------------------------------------------------------------- //
-#define _template1(func, delta)	func ## delta
-#define __PutTest_line(func, delta)										\
-		case (delta):													\
-			mUnits[inUnitCrsr].fFuncPtr = _template1(func, delta);		\
-			break
+#define _template1(func, delta) func##delta
+#define __PutTest_line(func, delta)                            \
+	case (delta):                                              \
+		mUnits[inUnitCrsr].fFuncPtr = _template1(func, delta); \
+		break
 
 // NOTICE: maximum number of units for an instruction is set to 6.....
 
-#define __PutTest_packet(func)							\
-		switch(inDelta) {								\
-			__PutTest_line(func, 2);					\
-			__PutTest_line(func, 3);					\
-			__PutTest_line(func, 4);					\
-			__PutTest_line(func, 5);					\
-			__PutTest_line(func, 6);					\
-			__PutTest_line(func, 7);					\
-			default:									\
-				KPrintf("Test overflow!\n");	\
-				abort();								\
-		}
+#define __PutTest_packet(func)           \
+	switch (inDelta)                     \
+	{                                    \
+		__PutTest_line(func, 2);         \
+		__PutTest_line(func, 3);         \
+		__PutTest_line(func, 4);         \
+		__PutTest_line(func, 5);         \
+		__PutTest_line(func, 6);         \
+		__PutTest_line(func, 7);         \
+		default:                         \
+			KPrintf("Test overflow!\n"); \
+			abort();                     \
+	}
 
 inline void
 TJITGenericPage::PutTest(
-				KUInt16 inUnitCrsr,
-				unsigned char inDelta,
-				int inTest )
+	KUInt16 inUnitCrsr,
+	unsigned char inDelta,
+	int inTest)
 {
 	// Test the condition.
 	switch (inTest)
@@ -334,9 +336,9 @@ TJITGenericPage::PutTest(
 // -------------------------------------------------------------------------- //
 void
 TJITGenericPage::DoTranslate_00(
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr )
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr)
 {
 	// 31 - 28 27 26 25 24 23 22 21 20 19 - 16 15 - 12 11 - 08 07 06 05 04 03 - 00
 	// -Cond-- 0  0  I  --Opcode--- S  --Rn--- --Rd--- ----------Operand 2-------- Data Processing PSR Transfer
@@ -354,39 +356,45 @@ TJITGenericPage::DoTranslate_00(
 				ioUnitCrsr,
 				inInstruction,
 				inVAddr);
-		} else {
+		} else
+		{
 			Translate_Multiply(
 				this,
 				ioUnitCrsr,
 				inInstruction,
 				inVAddr);
 		}
-	} else if ((inInstruction & 0x0FB00FF0) == 0x01000090) {
+	} else if ((inInstruction & 0x0FB00FF0) == 0x01000090)
+	{
 		// Single Data Swap
 		Translate_SingleDataSwap(
-				this,
-				ioUnitCrsr,
-				inInstruction,
-				inVAddr );
-	} else if ((inInstruction & 0x0E400F90) == 0x90) {
+			this,
+			ioUnitCrsr,
+			inInstruction,
+			inVAddr);
+	} else if ((inInstruction & 0x0E400F90) == 0x90)
+	{
 		Translate_HalfwordAndSignedDataTransferReg(
-				this,
-				ioUnitCrsr,
-				inInstruction,
-				inVAddr);
-	} else if ((inInstruction & 0x0E400090) == 0x00400090) {
+			this,
+			ioUnitCrsr,
+			inInstruction,
+			inVAddr);
+	} else if ((inInstruction & 0x0E400090) == 0x00400090)
+	{
 		Translate_HalfwordAndSignedDataTransferImm(
-				this,
-				ioUnitCrsr,
-				inInstruction,
-				inVAddr);
-	} else if ((inInstruction & 0xC000000) == 0) {
+			this,
+			ioUnitCrsr,
+			inInstruction,
+			inVAddr);
+	} else if ((inInstruction & 0xC000000) == 0)
+	{
 		Translate_DataProcessingPSRTransfer(
-					this,
-					ioUnitCrsr,
-					inInstruction,
-					inVAddr );
-	} else {
+			this,
+			ioUnitCrsr,
+			inInstruction,
+			inVAddr);
+	} else
+	{
 		PushUnit(ioUnitCrsr, UndefinedInstruction);
 		PushUnit(ioUnitCrsr, inVAddr + 8);
 	}
@@ -395,44 +403,41 @@ TJITGenericPage::DoTranslate_00(
 // -------------------------------------------------------------------------- //
 //  * DoTranslate_01( JITUnit*, KUInt32, KUInt32, KUInt32, JITFuncPtr* )
 // -------------------------------------------------------------------------- //
-inline
-void
+inline void
 TJITGenericPage::DoTranslate_01(
-					TMemory* inMemoryIntf,
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr )
+	TMemory* inMemoryIntf,
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr)
 {
 	// Single Data Transfer & Undefined
 	if ((inInstruction & 0x02000010) == 0x02000010)
 	{
-// -Cond-- 0  1  1  -XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX- 1  -XXXXX-
-          // DA WINNER
+		// -Cond-- 0  1  1  -XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX- 1  -XXXXX-
+		// DA WINNER
 		if (inInstruction == 0xE6000010)
 		{
 			PushUnit(ioUnitCrsr, SystemBootUND);
 			PushUnit(ioUnitCrsr, inVAddr - GetVAddr() + GetPAddr());
 			PushUnit(ioUnitCrsr, inVAddr + 8);
-		}
-		else if (inInstruction == 0xE6000510)
+		} else if (inInstruction == 0xE6000510)
 		{
 			PushUnit(ioUnitCrsr, DebuggerUND);
 			PushUnit(ioUnitCrsr, inVAddr - GetVAddr() + GetPAddr());
 			PushUnit(ioUnitCrsr, inVAddr + 8);
-		}
-		else if (inInstruction == 0xE6000810)
+		} else if (inInstruction == 0xE6000810)
 		{
 			PushUnit(ioUnitCrsr, TapFileCntlUND);
 			PushUnit(ioUnitCrsr, inVAddr - GetVAddr() + GetPAddr());
 			PushUnit(ioUnitCrsr, inVAddr + 8);
-		}
-		else
+		} else
 		{
 			PushUnit(ioUnitCrsr, UndefinedInstruction);
 			PushUnit(ioUnitCrsr, inVAddr + 8);
 		}
-	} else {
-// -Cond-- 0  1  I  P  U  B  W  L  --Rn--- --Rd--- -----------offset----------
+	} else
+	{
+		// -Cond-- 0  1  I  P  U  B  W  L  --Rn--- --Rd--- -----------offset----------
 		Translate_SingleDataTransfer(this, inMemoryIntf, ioUnitCrsr, inInstruction, inVAddr);
 	}
 }
@@ -442,9 +447,9 @@ TJITGenericPage::DoTranslate_01(
 // -------------------------------------------------------------------------- //
 inline void
 TJITGenericPage::DoTranslate_10(
-					KUInt16* ioUnitCrsr,
-					KUInt32 inInstruction,
-					KUInt32 inVAddr )
+	KUInt16* ioUnitCrsr,
+	KUInt32 inInstruction,
+	KUInt32 inVAddr)
 {
 	// Block Data Transfer
 	// Branch
@@ -453,7 +458,8 @@ TJITGenericPage::DoTranslate_10(
 	if (inInstruction & 0x02000000)
 	{
 		Translate_Branch(this, ioUnitCrsr, inInstruction, inVAddr);
-	} else {
+	} else
+	{
 		// Block Data Transfer.
 		Translate_BlockDataTransfer(this, ioUnitCrsr, inInstruction, inVAddr);
 	}
@@ -464,8 +470,8 @@ TJITGenericPage::DoTranslate_10(
 // -------------------------------------------------------------------------- //
 JITUnit*
 TJITGenericPage::EndOfPage(
-				JITUnit* ioUnit,
-				TARMProcessor* ioCPU )
+	JITUnit* ioUnit,
+	TARMProcessor* ioCPU)
 {
 	// PC shouldn't have been incremented.
 	POPPC();
@@ -479,8 +485,8 @@ TJITGenericPage::EndOfPage(
 // -------------------------------------------------------------------------- //
 JITUnit*
 TJITGenericPage::Halt(
-				JITUnit* ioUnit,
-				TARMProcessor* ioCPU )
+	JITUnit* ioUnit,
+	TARMProcessor* ioCPU)
 {
 	// Halt is used for single steps.
 	// If we are here, then the previous instruction tried to continue the

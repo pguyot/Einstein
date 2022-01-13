@@ -42,16 +42,17 @@
 #include <K/Tests/KDebug.h>
 
 #if __MWERKS__
-	#pragma export off
+#pragma export off
 #endif
 
 // Tests à la compilation pour KDefinitions
 // Pour le moment, il s'agit surtout de KUIntPtr.
 
 // Prototype.
-void KDefinitions_compile_time_assertions( void );
+void KDefinitions_compile_time_assertions(void);
 
-void KDefinitions_compile_time_assertions( void )
+void
+KDefinitions_compile_time_assertions(void)
 {
 	// If this fails to compile saying that you have a case constant more than once
 	// (or if you get a similar warning), the size of KUIntPtr probably
@@ -59,24 +60,24 @@ void KDefinitions_compile_time_assertions( void )
 
 	// Maybe I wasn't able to figure out how your compiler declares that it generates
 	// 64 bits or 32 bits binaries.
-    KCOMPILE_TIME_ASSERT_SIZE_EQUAL( void*, KUIntPtr );
+	KCOMPILE_TIME_ASSERT_SIZE_EQUAL(void*, KUIntPtr);
 }
-
 
 #if defined _DEBUG && defined _MSC_VER
 
 #undef KPrintf
 
 #include <Windows.h>
-#include <varargs.h>
-#include <stdio.h>
 #include <malloc.h>
 #include <mutex>
+#include <stdio.h>
+#include <varargs.h>
 
 // ------------------------------------------------------------------------- //
 //  * KPrintf( const char* format, ... )
 // ------------------------------------------------------------------------- //
-void KPrintf(const char* format, ...)
+void
+KPrintf(const char* format, ...)
 {
 	static char* textbuffer = nullptr;
 	static int textbuffersize = 0;
@@ -84,18 +85,20 @@ void KPrintf(const char* format, ...)
 
 	mutex.lock();
 
-	if (textbuffersize == 0) {
+	if (textbuffersize == 0)
+	{
 		textbuffersize = 1023;
-		textbuffer = (char*)::malloc(textbuffersize + 1U);
+		textbuffer = (char*) ::malloc(textbuffersize + 1U);
 	}
 
 	va_list args;
 	va_start(args, format);
 	int ret = ::_vsnprintf(textbuffer, textbuffersize, format, args);
-	if (ret > textbuffersize) {
+	if (ret > textbuffersize)
+	{
 		textbuffersize = ret + 1023;
 		::free(textbuffer);
-		textbuffer = (char*)::malloc(textbuffersize + 1U);
+		textbuffer = (char*) ::malloc(textbuffersize + 1U);
 		ret = ::_vsnprintf(textbuffer, textbuffersize, format, args);
 	}
 	va_end(args);
@@ -106,7 +109,6 @@ void KPrintf(const char* format, ...)
 
 #endif
 // _MSC_VER
-
 
 // ====================== //
 // Loose bits sink chips. //

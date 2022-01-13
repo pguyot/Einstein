@@ -58,11 +58,10 @@ public:
 	/// \param inHi		valeur de poids fort
 	/// \param inLo		valeur de poids faible
 	///
-	inline TInt64( const KUInt32 inHi, const KUInt32 inLo )
-		:
-			mHi( inHi ), mLo( inLo )
-		{
-		}
+	inline TInt64(const KUInt32 inHi, const KUInt32 inLo) :
+			mHi(inHi), mLo(inLo)
+	{
+	}
 
 	///
 	/// Opérateur d'assignation à partir d'un entier de 64 bits.
@@ -70,12 +69,13 @@ public:
 	/// \param inCopy	valeur à assigner à \c this
 	/// \return \c this
 	///
-	inline TInt64& operator = ( const TInt64& inCopy )
-		{
-			mHi = inCopy.GetHi();
-			mLo = inCopy.GetLo();
-			return *this;
-		}
+	inline TInt64&
+	operator=(const TInt64& inCopy)
+	{
+		mHi = inCopy.GetHi();
+		mLo = inCopy.GetLo();
+		return *this;
+	}
 
 	///
 	/// Et logique (32 bits)
@@ -83,7 +83,7 @@ public:
 	/// \param inArgument	masque.
 	/// \return \c this
 	///
-	TInt64& operator &= ( const KUInt32 inArgument );
+	TInt64& operator&=(const KUInt32 inArgument);
 
 	///
 	/// Et logique (64 bits)
@@ -91,7 +91,7 @@ public:
 	/// \param inArgument	masque.
 	/// \return \c this
 	///
-	TInt64& operator &= ( const TInt64& inArgument );
+	TInt64& operator&=(const TInt64& inArgument);
 
 	///
 	/// Ou logique (32 bits)
@@ -99,7 +99,7 @@ public:
 	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
-	TInt64& operator |= ( const KUInt32 inArgument );
+	TInt64& operator|=(const KUInt32 inArgument);
 
 	///
 	/// Ou logique (64 bits)
@@ -107,7 +107,7 @@ public:
 	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
-	TInt64& operator |= ( const TInt64& inArgument );
+	TInt64& operator|=(const TInt64& inArgument);
 
 	///
 	/// Ou logique exclusif (32 bits)
@@ -115,7 +115,7 @@ public:
 	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
-	TInt64& operator ^= ( const KUInt32 inArgument );
+	TInt64& operator^=(const KUInt32 inArgument);
 
 	///
 	/// Ou logique exclusif (64 bits)
@@ -123,14 +123,14 @@ public:
 	/// \param inArgument	valeur à ajouter.
 	/// \return \c this
 	///
-	TInt64& operator ^= ( const TInt64& inArgument );
+	TInt64& operator^=(const TInt64& inArgument);
 
 	///
 	/// Négation
 	///
 	/// \return la négation, bit à bit, de \c this
 	///
-	TInt64 operator ~ ( void ) const;
+	TInt64 operator~(void) const;
 
 	///
 	/// Conversion (avec perte) en 32 bits.
@@ -145,12 +145,12 @@ public:
 #endif
 
 	// Opérateurs binaires.
-	friend bool operator == (
+	friend bool operator==(
 		const TInt64& inArgOne,
-		const TInt64& inArgTwo );
-	friend bool operator != (
+		const TInt64& inArgTwo);
+	friend bool operator!=(
 		const TInt64& inArgOne,
-		const TInt64& inArgTwo );
+		const TInt64& inArgTwo);
 
 // Bogue de ARMCpp qui ne gère pas UTInt64::Get*
 #ifndef forARM
@@ -161,40 +161,44 @@ protected:
 	///
 	/// \return les 32 bits de poids fort.
 	///
-	inline	KUInt32	GetHi( void ) const
-		{
-			return mHi;
-		}
+	inline KUInt32
+	GetHi(void) const
+	{
+		return mHi;
+	}
 
 	///
 	/// Accesseur sur les 32 bits de poids faible.
 	///
 	/// \return les 32 bits de poids faible.
 	///
-	inline	KUInt32	GetLo( void ) const
-		{
-			return mLo;
-		}
+	inline KUInt32
+	GetLo(void) const
+	{
+		return mLo;
+	}
 
 	///
 	/// Sélecteur sur les 32 bits de poids fort.
 	///
 	/// \param inHiHalf	nouveaux 32 bits de poids fort.
 	///
-	inline	void	SetHi( KUInt32 inHiHalf )
-		{
-			mHi = inHiHalf;
-		}
+	inline void
+	SetHi(KUInt32 inHiHalf)
+	{
+		mHi = inHiHalf;
+	}
 
 	///
 	/// Sélecteur sur les 32 bits de poids faible.
 	///
 	/// \param inLoHalf	nouveaux 32 bits de poids faible.
 	///
-	inline	void	SetLo( KUInt32 inLoHalf )
-		{
-			mLo = inLoHalf;
-		}
+	inline void
+	SetLo(KUInt32 inLoHalf)
+	{
+		mLo = inLoHalf;
+	}
 
 #ifdef forARM
 protected:
@@ -204,18 +208,18 @@ protected:
 	///
 	/// \return \c true si le bit de poids faible était à un (retenue)
 	///
-	bool		ShiftRight( void );
+	bool ShiftRight(void);
 
 	///
 	/// Décalage logique à gauche d'un bit avec retenue.
 	///
 	/// \return \c true si le bit de poids fort était à un (retenue)
 	///
-	bool		ShiftLeft( void );
+	bool ShiftLeft(void);
 
 	/// \name Variables
-	KUInt32	mHi;			///< 32 bits de poids fort
-	KUInt32	mLo;			///< 32 bits de poids faible
+	KUInt32 mHi; ///< 32 bits de poids fort
+	KUInt32 mLo; ///< 32 bits de poids faible
 };
 
 ///
@@ -225,12 +229,12 @@ protected:
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne & inArgTwo
 ///
-inline
-TInt64 operator & (
-		const TInt64& inArgOne,
-		const KUInt32 inArgTwo )
+inline TInt64
+operator&(
+	const TInt64& inArgOne,
+	const KUInt32 inArgTwo)
 {
-	return TInt64( inArgOne ) &= inArgTwo;
+	return TInt64(inArgOne) &= inArgTwo;
 }
 
 ///
@@ -240,12 +244,12 @@ TInt64 operator & (
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne & inArgTwo
 ///
-inline
-TInt64 operator & (
-		const KUInt32 inArgOne,
-		const TInt64& inArgTwo )
+inline TInt64
+operator&(
+	const KUInt32 inArgOne,
+	const TInt64& inArgTwo)
 {
-	return TInt64( inArgTwo ) &= inArgOne;
+	return TInt64(inArgTwo) &= inArgOne;
 }
 
 ///
@@ -255,12 +259,12 @@ TInt64 operator & (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne & inArgTwo
 ///
-inline
-TInt64 operator & (
-		const TInt64& inArgOne,
-		const TInt64& inArgTwo )
+inline TInt64
+operator&(
+	const TInt64& inArgOne,
+	const TInt64& inArgTwo)
 {
-	return TInt64( inArgOne ) &= inArgTwo;
+	return TInt64(inArgOne) &= inArgTwo;
 }
 
 ///
@@ -270,12 +274,12 @@ TInt64 operator & (
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne | inArgTwo
 ///
-inline
-TInt64 operator | (
-		const TInt64& inArgOne,
-		const KUInt32 inArgTwo )
+inline TInt64
+operator|(
+	const TInt64& inArgOne,
+	const KUInt32 inArgTwo)
 {
-	return TInt64( inArgOne ) |= inArgTwo;
+	return TInt64(inArgOne) |= inArgTwo;
 }
 
 ///
@@ -285,12 +289,12 @@ TInt64 operator | (
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne | inArgTwo
 ///
-inline
-TInt64 operator | (
-		const KUInt32 inArgOne,
-		const TInt64& inArgTwo )
+inline TInt64
+operator|(
+	const KUInt32 inArgOne,
+	const TInt64& inArgTwo)
 {
-	return TInt64( inArgTwo ) |= inArgOne;
+	return TInt64(inArgTwo) |= inArgOne;
 }
 
 ///
@@ -300,12 +304,12 @@ TInt64 operator | (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne | inArgTwo
 ///
-inline
-TInt64 operator | (
-		const TInt64& inArgOne,
-		const TInt64& inArgTwo )
+inline TInt64
+operator|(
+	const TInt64& inArgOne,
+	const TInt64& inArgTwo)
 {
-	return TInt64( inArgOne ) |= inArgTwo;
+	return TInt64(inArgOne) |= inArgTwo;
 }
 
 ///
@@ -315,12 +319,12 @@ TInt64 operator | (
 /// \param inArgTwo	second argument (32 bits)
 /// \return \c inArgOne ^ inArgTwo
 ///
-inline
-TInt64 operator ^ (
-		const TInt64& inArgOne,
-		const KUInt32 inArgTwo )
+inline TInt64
+operator^(
+	const TInt64& inArgOne,
+	const KUInt32 inArgTwo)
 {
-	return TInt64( inArgOne ) ^= inArgTwo;
+	return TInt64(inArgOne) ^= inArgTwo;
 }
 
 ///
@@ -330,12 +334,12 @@ TInt64 operator ^ (
 /// \param inArgTwo	second argument (64 bits)
 /// \return \c inArgOne ^ inArgTwo
 ///
-inline
-TInt64 operator ^ (
-		const KUInt32 inArgOne,
-		const TInt64& inArgTwo )
+inline TInt64
+operator^(
+	const KUInt32 inArgOne,
+	const TInt64& inArgTwo)
 {
-	return TInt64( inArgTwo ) ^= inArgOne;
+	return TInt64(inArgTwo) ^= inArgOne;
 }
 
 ///
@@ -345,12 +349,12 @@ TInt64 operator ^ (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne ^ inArgTwo
 ///
-inline
-TInt64 operator ^ (
-		const TInt64& inArgOne,
-		const TInt64& inArgTwo )
+inline TInt64
+operator^(
+	const TInt64& inArgOne,
+	const TInt64& inArgTwo)
 {
-	return TInt64( inArgOne ) ^= inArgTwo;
+	return TInt64(inArgOne) ^= inArgTwo;
 }
 
 ///
@@ -360,7 +364,7 @@ TInt64 operator ^ (
 /// \param inArgTwo	second argument
 /// \return \c inArgOne == inArgTwo
 ///
-bool operator == ( const TInt64& inArgOne, const TInt64& inArgTwo );
+bool operator==(const TInt64& inArgOne, const TInt64& inArgTwo);
 
 ///
 /// Différence (64 bits)
@@ -369,11 +373,10 @@ bool operator == ( const TInt64& inArgOne, const TInt64& inArgTwo );
 /// \param inArgTwo	second argument
 /// \return \c inArgOne != inArgTwo
 ///
-bool operator != ( const TInt64& inArgOne, const TInt64& inArgTwo );
-
+bool operator!=(const TInt64& inArgOne, const TInt64& inArgTwo);
 
 #endif
-		// _TINT64_H
+// _TINT64_H
 
 // =================================================================== //
 // ... A booming voice says, "Wrong, cretin!", and you notice that you //

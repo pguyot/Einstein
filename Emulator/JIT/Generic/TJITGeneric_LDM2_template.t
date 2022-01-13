@@ -22,22 +22,22 @@
 // ==============================
 
 #define LDM2_TemplateName(flag_p, flag_u, rd) \
-	LDM2_ ## flag_p ## _ ## flag_u ## _ ## rd
+	LDM2_##flag_p##_##flag_u##_##rd
 
 #if DECLARATION
-	#define LDM2_Template(flag_p, flag_u, rd) \
-		JITInstructionProto(LDM2_TemplateName(flag_p, flag_u, rd));
+#define LDM2_Template(flag_p, flag_u, rd) \
+	JITInstructionProto(LDM2_TemplateName(flag_p, flag_u, rd));
 #endif
 #if IMPLEMENTATION
-	#define LDM2_Template(flag_p, flag_u, rd) \
-		JITInstructionProto(LDM2_TemplateName(flag_p, flag_u, rd))
+#define LDM2_Template(flag_p, flag_u, rd) \
+	JITInstructionProto(LDM2_TemplateName(flag_p, flag_u, rd))
 #endif
 #if TRANSLATION_ARRAY
-	#define LDM2_Template(flag_p, flag_u, rd) \
-		LDM2_TemplateName(flag_p, flag_u, rd),
+#define LDM2_Template(flag_p, flag_u, rd) \
+	LDM2_TemplateName(flag_p, flag_u, rd),
 #endif
 
-#define INCLUDE_TEMPLATE	"TJITGeneric_LDM2_template.h"
+#define INCLUDE_TEMPLATE "TJITGeneric_LDM2_template.h"
 #define FLAG_P 0
 #define FLAG_U 0
 #include "IncludeRn.h"

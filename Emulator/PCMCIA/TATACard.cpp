@@ -33,15 +33,15 @@
 // -------------------------------------------------------------------------- //
 //  * TATACard( KUInt32 )
 // -------------------------------------------------------------------------- //
-TATACard::TATACard( KUInt32 inSize )
+TATACard::TATACard(KUInt32 inSize)
 {
-    (void)inSize;
+	(void) inSize;
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TATACard( void )
 // -------------------------------------------------------------------------- //
-TATACard::~TATACard( void )
+TATACard::~TATACard(void)
 {
 }
 
@@ -49,11 +49,11 @@ TATACard::~TATACard( void )
 //  * GetVPCPins( void )
 // -------------------------------------------------------------------------- //
 KUInt32
-TATACard::GetVPCPins( void )
+TATACard::GetVPCPins(void)
 {
 	if (GetLog())
 	{
-		GetLog()->LogLine( "GetVPCPins" );
+		GetLog()->LogLine("GetVPCPins");
 	}
 
 	return 0;
@@ -63,11 +63,11 @@ TATACard::GetVPCPins( void )
 //  * SetVPCPins( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TATACard::SetVPCPins( KUInt32 inPins )
+TATACard::SetVPCPins(KUInt32 inPins)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "SetVPCPins( %.4X )", (unsigned int) inPins );
+		GetLog()->FLogLine("SetVPCPins( %.4X )", (unsigned int) inPins);
 	}
 }
 
@@ -75,11 +75,11 @@ TATACard::SetVPCPins( KUInt32 inPins )
 //  * ReadAttr( KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TATACard::ReadAttr( KUInt32 inOffset )
+TATACard::ReadAttr(KUInt32 inOffset)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "ReadAttr( %.8X )", (unsigned int) inOffset );
+		GetLog()->FLogLine("ReadAttr( %.8X )", (unsigned int) inOffset);
 	}
 
 	return 0;
@@ -89,11 +89,11 @@ TATACard::ReadAttr( KUInt32 inOffset )
 //  * ReadAttrB( KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt8
-TATACard::ReadAttrB( KUInt32 inOffset )
+TATACard::ReadAttrB(KUInt32 inOffset)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "ReadAttrB( %.8X )", (unsigned int) inOffset );
+		GetLog()->FLogLine("ReadAttrB( %.8X )", (unsigned int) inOffset);
 	}
 
 	return 0;
@@ -103,11 +103,11 @@ TATACard::ReadAttrB( KUInt32 inOffset )
 //  * ReadIO( KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TATACard::ReadIO( KUInt32 inOffset )
+TATACard::ReadIO(KUInt32 inOffset)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "ReadIO( %.8X )", (unsigned int) inOffset );
+		GetLog()->FLogLine("ReadIO( %.8X )", (unsigned int) inOffset);
 	}
 
 	return 0;
@@ -117,11 +117,11 @@ TATACard::ReadIO( KUInt32 inOffset )
 //  * ReadIOB( KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt8
-TATACard::ReadIOB( KUInt32 inOffset )
+TATACard::ReadIOB(KUInt32 inOffset)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "ReadIOB( %.8X )", (unsigned int) inOffset );
+		GetLog()->FLogLine("ReadIOB( %.8X )", (unsigned int) inOffset);
 	}
 
 	return 0;
@@ -131,11 +131,11 @@ TATACard::ReadIOB( KUInt32 inOffset )
 //  * ReadMem( KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TATACard::ReadMem( KUInt32 inOffset )
+TATACard::ReadMem(KUInt32 inOffset)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "ReadMem( %.8X )", (unsigned int) inOffset );
+		GetLog()->FLogLine("ReadMem( %.8X )", (unsigned int) inOffset);
 	}
 
 	return 0;
@@ -145,11 +145,11 @@ TATACard::ReadMem( KUInt32 inOffset )
 //  * ReadMemB( KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt8
-TATACard::ReadMemB( KUInt32 inOffset )
+TATACard::ReadMemB(KUInt32 inOffset)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "ReadMemB( %.8X )", (unsigned int) inOffset );
+		GetLog()->FLogLine("ReadMemB( %.8X )", (unsigned int) inOffset);
 	}
 
 	return 0;
@@ -159,13 +159,13 @@ TATACard::ReadMemB( KUInt32 inOffset )
 //  * WriteAttr( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TATACard::WriteAttr( KUInt32 inOffset, KUInt32 inValue )
+TATACard::WriteAttr(KUInt32 inOffset, KUInt32 inValue)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "WriteAttr( %.8X, %.8X )",
+		GetLog()->FLogLine("WriteAttr( %.8X, %.8X )",
 			(unsigned int) inOffset,
-			(unsigned int) inValue );
+			(unsigned int) inValue);
 	}
 }
 
@@ -173,13 +173,13 @@ TATACard::WriteAttr( KUInt32 inOffset, KUInt32 inValue )
 //  * WriteAttrB( KUInt32, KUInt8 )
 // -------------------------------------------------------------------------- //
 void
-TATACard::WriteAttrB( KUInt32 inOffset, KUInt8 inValue )
+TATACard::WriteAttrB(KUInt32 inOffset, KUInt8 inValue)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "WriteAttrB( %.8X, %.2X )",
+		GetLog()->FLogLine("WriteAttrB( %.8X, %.2X )",
 			(unsigned int) inOffset,
-			(unsigned int) inValue );
+			(unsigned int) inValue);
 	}
 }
 
@@ -187,13 +187,13 @@ TATACard::WriteAttrB( KUInt32 inOffset, KUInt8 inValue )
 //  * WriteIO( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TATACard::WriteIO( KUInt32 inOffset, KUInt32 inValue )
+TATACard::WriteIO(KUInt32 inOffset, KUInt32 inValue)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "WriteIO( %.8X, %.8X )",
+		GetLog()->FLogLine("WriteIO( %.8X, %.8X )",
 			(unsigned int) inOffset,
-			(unsigned int) inValue );
+			(unsigned int) inValue);
 	}
 }
 
@@ -201,13 +201,13 @@ TATACard::WriteIO( KUInt32 inOffset, KUInt32 inValue )
 //  * WriteIOB( KUInt32, KUInt8 )
 // -------------------------------------------------------------------------- //
 void
-TATACard::WriteIOB( KUInt32 inOffset, KUInt8 inValue )
+TATACard::WriteIOB(KUInt32 inOffset, KUInt8 inValue)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "WriteIOB( %.8X, %.2X )",
+		GetLog()->FLogLine("WriteIOB( %.8X, %.2X )",
 			(unsigned int) inOffset,
-			(unsigned int) inValue );
+			(unsigned int) inValue);
 	}
 }
 
@@ -215,13 +215,13 @@ TATACard::WriteIOB( KUInt32 inOffset, KUInt8 inValue )
 //  * WriteMem( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TATACard::WriteMem( KUInt32 inOffset, KUInt32 inValue )
+TATACard::WriteMem(KUInt32 inOffset, KUInt32 inValue)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "WriteMem( %.8X, %.8X )",
+		GetLog()->FLogLine("WriteMem( %.8X, %.8X )",
 			(unsigned int) inOffset,
-			(unsigned int) inValue );
+			(unsigned int) inValue);
 	}
 }
 
@@ -229,13 +229,13 @@ TATACard::WriteMem( KUInt32 inOffset, KUInt32 inValue )
 //  * WriteMemB( KUInt32, KUInt8 )
 // -------------------------------------------------------------------------- //
 void
-TATACard::WriteMemB( KUInt32 inOffset, KUInt8 inValue )
+TATACard::WriteMemB(KUInt32 inOffset, KUInt8 inValue)
 {
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "WriteMemB( %.8X, %.2X )",
+		GetLog()->FLogLine("WriteMemB( %.8X, %.2X )",
 			(unsigned int) inOffset,
-			(unsigned int) inValue );
+			(unsigned int) inValue);
 	}
 }
 

@@ -49,16 +49,19 @@ MSR(MODE, FLAG_R, FIELDS_MASK, Rm)
 #endif
 #if FLAG_R
 	// SPSR
-	if (ioCPU->GetMode() != TARMProcessor::kUserMode) {
+	if (ioCPU->GetMode() != TARMProcessor::kUserMode)
+	{
 		const KUInt32 oldValue = ioCPU->GetSPSR();
-		ioCPU->SetSPSR((Opnd2 & FIELDS_MASK) | (oldValue & ~ FIELDS_MASK));
+		ioCPU->SetSPSR((Opnd2 & FIELDS_MASK) | (oldValue & ~FIELDS_MASK));
 	}
 #else
 	// CPSR
 	const KUInt32 oldValue = ioCPU->GetCPSR();
-	if (ioCPU->GetMode() != TARMProcessor::kUserMode) {
-		ioCPU->SetCPSR((Opnd2 & FIELDS_MASK) | (oldValue & ~ FIELDS_MASK));
-	} else {
+	if (ioCPU->GetMode() != TARMProcessor::kUserMode)
+	{
+		ioCPU->SetCPSR((Opnd2 & FIELDS_MASK) | (oldValue & ~FIELDS_MASK));
+	} else
+	{
 #if (FIELDS_MASK & 0xFF)
 		ioCPU->SetCPSR((Opnd2 & 0xFF) | (oldValue & 0xFFFFFF00));
 #endif

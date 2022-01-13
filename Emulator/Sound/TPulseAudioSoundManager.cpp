@@ -26,14 +26,14 @@
 #include "TPulseAudioSoundManager.h"
 
 // ANSI C * POSIX
-#include <stdlib.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <assert.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 // K
 #include <K/Threads/TMutex.h>
@@ -45,276 +45,305 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
-#define kNewtonSampleRate           22050
-#define kNewtonBitsPerChannel       16
-#define kNewtonNumChannels          1
-#define kPulseAudioSampleFormat     PA_SAMPLE_S16BE
+#define kNewtonSampleRate 22050
+#define kNewtonBitsPerChannel 16
+#define kNewtonNumChannels 1
+#define kPulseAudioSampleFormat PA_SAMPLE_S16BE
 
 // -------------------------------------------------------------------------- //
 //  * TPulseAudioSoundManager( TLog* )
 // -------------------------------------------------------------------------- //
-TPulseAudioSoundManager::TPulseAudioSoundManager( TLog* inLog /* = nil */ )
-	:
-		TBufferedSoundManager( inLog ),
-        mDataMutex( new TMutex() ),
-		mOutputIsRunning( false ) {
-    int result = 0;
-    int stream_flags = 0;
-    const char *errorText = "";
+TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
+		TBufferedSoundManager(inLog),
+		mDataMutex(new TMutex()),
+		mOutputIsRunning(false)
+{
+	int result = 0;
+	int stream_flags = 0;
+	const char* errorText = "";
 
-    mPAMainLoop = pa_threaded_mainloop_new();
-    if (!mPAMainLoop) {
-        errorText = "Can't allocate PulseAudio loop";
-        goto error;
-    }
+	mPAMainLoop = pa_threaded_mainloop_new();
+	if (!mPAMainLoop)
+	{
+		errorText = "Can't allocate PulseAudio loop";
+		goto error;
+	}
 
-    mPAMainLoopAPI = pa_threaded_mainloop_get_api(mPAMainLoop);
-    if (!mPAMainLoopAPI) {
-        errorText = "Can't allocate PulseAudio loop API";
-        goto error;
-    }
+	mPAMainLoopAPI = pa_threaded_mainloop_get_api(mPAMainLoop);
+	if (!mPAMainLoopAPI)
+	{
+		errorText = "Can't allocate PulseAudio loop API";
+		goto error;
+	}
 
-    mPAContext = pa_context_new(mPAMainLoopAPI, "Einstein");
-    if (!mPAContext) {
-        errorText = "Can't allocate PulseAudio context";
-        goto error;
-    }
-    pa_context_set_state_callback(mPAContext, &SPAContextStateCallback, this);
+	mPAContext = pa_context_new(mPAMainLoopAPI, "Einstein");
+	if (!mPAContext)
+	{
+		errorText = "Can't allocate PulseAudio context";
+		goto error;
+	}
+	pa_context_set_state_callback(mPAContext, &SPAContextStateCallback, this);
 
-    pa_threaded_mainloop_lock(mPAMainLoop);
+	pa_threaded_mainloop_lock(mPAMainLoop);
 
-    result = pa_threaded_mainloop_start(mPAMainLoop);
-    if (result<0) {
-        errorText = "Can't start the PulseAudio main loop";
-        goto error;
-    }
+	result = pa_threaded_mainloop_start(mPAMainLoop);
+	if (result < 0)
+	{
+		errorText = "Can't start the PulseAudio main loop";
+		goto error;
+	}
 
-    // start the context and wait for it to be ready
-    result = pa_context_connect(mPAContext, NULL, PA_CONTEXT_NOAUTOSPAWN, NULL);
-    if (result<0) {
-        errorText = "Can't connect to the PulseAudio server";
-        goto error;
-    }
+	// start the context and wait for it to be ready
+	result = pa_context_connect(mPAContext, NULL, PA_CONTEXT_NOAUTOSPAWN, NULL);
+	if (result < 0)
+	{
+		errorText = "Can't connect to the PulseAudio server";
+		goto error;
+	}
 
-    for(;;) {
-        pa_context_state_t context_state = pa_context_get_state(mPAContext);
-        if (context_state == PA_CONTEXT_READY) break;
-        if (context_state == PA_CONTEXT_FAILED) {
-            errorText = "Can't connect to the PulseAudio server, connection attempts failed";
-            goto error;
-        }
-        if (context_state == PA_CONTEXT_TERMINATED) {
-            errorText = "Can't connect to the PulseAudio server, connection was terminated";
-            goto error;
-        }
-        pa_threaded_mainloop_wait(mPAMainLoop);
-    }
+	for (;;)
+	{
+		pa_context_state_t context_state = pa_context_get_state(mPAContext);
+		if (context_state == PA_CONTEXT_READY)
+			break;
+		if (context_state == PA_CONTEXT_FAILED)
+		{
+			errorText = "Can't connect to the PulseAudio server, connection attempts failed";
+			goto error;
+		}
+		if (context_state == PA_CONTEXT_TERMINATED)
+		{
+			errorText = "Can't connect to the PulseAudio server, connection was terminated";
+			goto error;
+		}
+		pa_threaded_mainloop_wait(mPAMainLoop);
+	}
 
-    pa_sample_spec outputParameters;
+	pa_sample_spec outputParameters;
 
-    outputParameters.rate = kNewtonSampleRate;
-    outputParameters.channels = kNewtonNumChannels;
-    outputParameters.format = PA_SAMPLE_S16BE;
+	outputParameters.rate = kNewtonSampleRate;
+	outputParameters.channels = kNewtonNumChannels;
+	outputParameters.format = PA_SAMPLE_S16BE;
 
-    pa_channel_map channelMap;
-    pa_channel_map_init_mono(&channelMap);
+	pa_channel_map channelMap;
+	pa_channel_map_init_mono(&channelMap);
 
-    mOutputStream = pa_stream_new(mPAContext, "Playback", &outputParameters, &channelMap);
-    pa_stream_set_state_callback(mOutputStream, &SPAStreamStateCallback, this);
-    // NO WRITE CALLBACK - we do writes to PulseAudio immediately upon receiving data from the Newton
-    // pa_stream_set_write_callback(mOutputStream, &SPAStreamWriteCallback, this);
-    pa_stream_set_underflow_callback(mOutputStream, &SPAStreamUnderflowCallback, this);
+	mOutputStream = pa_stream_new(mPAContext, "Playback", &outputParameters, &channelMap);
+	pa_stream_set_state_callback(mOutputStream, &SPAStreamStateCallback, this);
+	// NO WRITE CALLBACK - we do writes to PulseAudio immediately upon receiving data from the Newton
+	// pa_stream_set_write_callback(mOutputStream, &SPAStreamWriteCallback, this);
+	pa_stream_set_underflow_callback(mOutputStream, &SPAStreamUnderflowCallback, this);
 
-    pa_buffer_attr buffer_attr;
+	pa_buffer_attr buffer_attr;
 
-    buffer_attr.maxlength = kNewtonBufferSize * 8;
-    buffer_attr.tlength = kNewtonBufferSize * 2;
-    buffer_attr.prebuf = kNewtonBufferSize / 2;
-    buffer_attr.minreq = (uint32_t) -1;
+	buffer_attr.maxlength = kNewtonBufferSize * 8;
+	buffer_attr.tlength = kNewtonBufferSize * 2;
+	buffer_attr.prebuf = kNewtonBufferSize / 2;
+	buffer_attr.minreq = (uint32_t) -1;
 
 #ifdef DEBUG_SOUND
-    if (GetLog()) {
-        GetLog()->FLogLine("PulseAudio Buffer: maxlength=%d, tlength=%d, prebuf=%d, minreq=%d",
-            buffer_attr.maxlength, buffer_attr.tlength, buffer_attr.prebuf, buffer_attr.minreq);
-    }
+	if (GetLog())
+	{
+		GetLog()->FLogLine("PulseAudio Buffer: maxlength=%d, tlength=%d, prebuf=%d, minreq=%d",
+			buffer_attr.maxlength, buffer_attr.tlength, buffer_attr.prebuf, buffer_attr.minreq);
+	}
 
 #endif
 
-    stream_flags = (PA_STREAM_INTERPOLATE_TIMING | PA_STREAM_NOT_MONOTONIC | PA_STREAM_AUTO_TIMING_UPDATE);
+	stream_flags = (PA_STREAM_INTERPOLATE_TIMING | PA_STREAM_NOT_MONOTONIC | PA_STREAM_AUTO_TIMING_UPDATE);
 
-    result = pa_stream_connect_playback(mOutputStream, NULL, &buffer_attr, (pa_stream_flags_t) stream_flags, NULL,
-                                        NULL);
+	result = pa_stream_connect_playback(mOutputStream, NULL, &buffer_attr, (pa_stream_flags_t) stream_flags, NULL,
+		NULL);
 
-    if (result != 0) {
-        if (GetLog()) {
+	if (result != 0)
+	{
+		if (GetLog())
+		{
 			GetLog()->FLogLine(
 				"PulseAudio stream did not connect with pa_stream_connect_playback (%s)",
-				pa_strerror( result ) );
+				pa_strerror(result));
 		}
 		return;
-    }
+	}
 
-    for (;;) {
-        pa_stream_state_t stream_state = pa_stream_get_state(mOutputStream);
-        assert(PA_STREAM_IS_GOOD(stream_state));
-        if (stream_state == PA_STREAM_READY) break;
-        pa_threaded_mainloop_wait(mPAMainLoop);
-    }
+	for (;;)
+	{
+		pa_stream_state_t stream_state = pa_stream_get_state(mOutputStream);
+		assert(PA_STREAM_IS_GOOD(stream_state));
+		if (stream_state == PA_STREAM_READY)
+			break;
+		pa_threaded_mainloop_wait(mPAMainLoop);
+	}
 
-    pa_threaded_mainloop_unlock(mPAMainLoop);
-    // ready for processing!
-    OutputVolumeChanged();
-    return;
+	pa_threaded_mainloop_unlock(mPAMainLoop);
+	// ready for processing!
+	OutputVolumeChanged();
+	return;
 
-    error:
-    if (GetLog()) {
-        if (mPAContext) {
-            GetLog()->FLogLine("TPulseAudioSoundManager: %s: %d\n", errorText, pa_context_errno(mPAContext));
-        } else {
-            GetLog()->FLogLine("TPulseAudioSoundManager: %s.\n", errorText);
-        }
-    } else {
-        if (mPAContext) {
-            KPrintf("TPulseAudioSoundManager: %s: %d\n", errorText, pa_context_errno(mPAContext));
-        } else {
-            KPrintf("TPulseAudioSoundManager: %s.\n", errorText);
-        }
-    }
-    if (mPAMainLoop) {
-        pa_threaded_mainloop_unlock(mPAMainLoop);
-        pa_threaded_mainloop_stop(mPAMainLoop);
-    }
-    if (mPAContext) {
-        pa_context_disconnect(mPAContext);
-        pa_context_unref(mPAContext);
-    }
-    if (mPAMainLoop) {
-        pa_threaded_mainloop_free(mPAMainLoop);
-    }
-    mPAContext = nullptr;
-    mPAMainLoop = nullptr;
+error:
+	if (GetLog())
+	{
+		if (mPAContext)
+		{
+			GetLog()->FLogLine("TPulseAudioSoundManager: %s: %d\n", errorText, pa_context_errno(mPAContext));
+		} else
+		{
+			GetLog()->FLogLine("TPulseAudioSoundManager: %s.\n", errorText);
+		}
+	} else
+	{
+		if (mPAContext)
+		{
+			KPrintf("TPulseAudioSoundManager: %s: %d\n", errorText, pa_context_errno(mPAContext));
+		} else
+		{
+			KPrintf("TPulseAudioSoundManager: %s.\n", errorText);
+		}
+	}
+	if (mPAMainLoop)
+	{
+		pa_threaded_mainloop_unlock(mPAMainLoop);
+		pa_threaded_mainloop_stop(mPAMainLoop);
+	}
+	if (mPAContext)
+	{
+		pa_context_disconnect(mPAContext);
+		pa_context_unref(mPAContext);
+	}
+	if (mPAMainLoop)
+	{
+		pa_threaded_mainloop_free(mPAMainLoop);
+	}
+	mPAContext = nullptr;
+	mPAMainLoop = nullptr;
 }
 
 // -------------------------------------------------------------------------- //
 //  * ~TPulseAudioSoundManager( void )
 // -------------------------------------------------------------------------- //
-TPulseAudioSoundManager::~TPulseAudioSoundManager( void )
+TPulseAudioSoundManager::~TPulseAudioSoundManager(void)
 {
-    if (mOutputStream)
-    {
-        // disconnect the stream
-        pa_stream_disconnect(mOutputStream);
-        pa_context_disconnect(mPAContext);
-        // pa_threaded_mainloop_stop
-        pa_threaded_mainloop_stop(mPAMainLoop);
-        pa_threaded_mainloop_free(mPAMainLoop);
-    }
-    if (mDataMutex)
-    {
-        delete mDataMutex;
-    }
+	if (mOutputStream)
+	{
+		// disconnect the stream
+		pa_stream_disconnect(mOutputStream);
+		pa_context_disconnect(mPAContext);
+		// pa_threaded_mainloop_stop
+		pa_threaded_mainloop_stop(mPAMainLoop);
+		pa_threaded_mainloop_free(mPAMainLoop);
+	}
+	if (mDataMutex)
+	{
+		delete mDataMutex;
+	}
 }
 
 // -------------------------------------------------------------------------- //
 //  * ScheduleOutput( KUInt8*, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TPulseAudioSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
+TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 {
-    if (inSize > 0)
-    {
-            size_t inputSize = inSize;
-            size_t roomInPAStream = pa_stream_writable_size(mOutputStream);
-            KUInt8* outBuffer = NULL;
+	if (inSize > 0)
+	{
+		size_t inputSize = inSize;
+		size_t roomInPAStream = pa_stream_writable_size(mOutputStream);
+		KUInt8* outBuffer = NULL;
 #ifdef DEBUG_SOUND
-            if (GetLog()) {
-                GetLog()->FLogLine("***** FROM NOS: ScheduleOutput size:%d, frames:%ld, PA out buffer size:%d",
-                inputSize, (inSize / sizeof(KSInt16)), roomInPAStream );
-            }
+		if (GetLog())
+		{
+			GetLog()->FLogLine("***** FROM NOS: ScheduleOutput size:%d, frames:%ld, PA out buffer size:%d",
+				inputSize, (inSize / sizeof(KSInt16)), roomInPAStream);
+		}
 #endif
-            if (roomInPAStream >= inputSize)
-            {
+		if (roomInPAStream >= inputSize)
+		{
 #ifdef DEBUG_SOUND
-                if (GetLog()) {
-                    GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (lots of space)", inputSize);
-                }
+			if (GetLog())
+			{
+				GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (lots of space)", inputSize);
+			}
 #endif
-                pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &inputSize);
-                ::memcpy(outBuffer, inBuffer, inputSize);
-                pa_stream_write(mOutputStream, outBuffer, inputSize, NULL, 0LL, PA_SEEK_RELATIVE);
-            }
-            else
-            {
+			pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &inputSize);
+			::memcpy(outBuffer, inBuffer, inputSize);
+			pa_stream_write(mOutputStream, outBuffer, inputSize, NULL, 0LL, PA_SEEK_RELATIVE);
+		} else
+		{
 #ifdef DEBUG_SOUND
-                if (GetLog()) {
-                    GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (LACK of space) - RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT", roomInPAStream);
-                }
+			if (GetLog())
+			{
+				GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (LACK of space) - RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT", roomInPAStream);
+			}
 #endif
-                pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &roomInPAStream);
-                ::memcpy(outBuffer, inBuffer, roomInPAStream);
-                pa_stream_write(mOutputStream, outBuffer, inputSize, NULL, 0LL, PA_SEEK_RELATIVE);
-                RaiseOutputInterrupt();
-            }
+			pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &roomInPAStream);
+			::memcpy(outBuffer, inBuffer, roomInPAStream);
+			pa_stream_write(mOutputStream, outBuffer, inputSize, NULL, 0LL, PA_SEEK_RELATIVE);
+			RaiseOutputInterrupt();
+		}
 
-            if (inSize < kNewtonBufferSize)
-            {
+		if (inSize < kNewtonBufferSize)
+		{
 #ifdef DEBUG_SOUND
-                if (GetLog()) {
-                    GetLog()->FLogLine("RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT");
-                }
+			if (GetLog())
+			{
+				GetLog()->FLogLine("RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT");
+			}
 #endif
-                RaiseOutputInterrupt();
-            }
-        }
-    else if (mOutputIsRunning)
-    {
+			RaiseOutputInterrupt();
+		}
+	} else if (mOutputIsRunning)
+	{
 #ifdef DEBUG_SOUND
-        if (GetLog()) {
-            GetLog()->FLogLine("***** FROM NOS: ScheduleOutput no incoming data, STOP Output?");
-        }
+		if (GetLog())
+		{
+			GetLog()->FLogLine("***** FROM NOS: ScheduleOutput no incoming data, STOP Output?");
+		}
 #endif
-        StopOutput();
-    }
+		StopOutput();
+	}
 }
 
 // -------------------------------------------------------------------------- //
 //  * StartOutput( void )
 // -------------------------------------------------------------------------- //
 void
-TPulseAudioSoundManager::StartOutput( void )
+TPulseAudioSoundManager::StartOutput(void)
 {
 #ifdef DEBUG_SOUND
-    if (GetLog()) {
-        GetLog()->FLogLine("   _____  StartOutput  _____");
-    }
+	if (GetLog())
+	{
+		GetLog()->FLogLine("   _____  StartOutput  _____");
+	}
 #endif
-    mOutputIsRunning = true;
-    pa_threaded_mainloop_lock(mPAMainLoop);
+	mOutputIsRunning = true;
+	pa_threaded_mainloop_lock(mPAMainLoop);
 
-    if (pa_stream_is_corked(mOutputStream))
-    {
-        mPAOperationDescr = "UNCORK";
-        mPAOperation = pa_stream_cork(mOutputStream, 0, &SPAStreamOpCB, this);
+	if (pa_stream_is_corked(mOutputStream))
+	{
+		mPAOperationDescr = "UNCORK";
+		mPAOperation = pa_stream_cork(mOutputStream, 0, &SPAStreamOpCB, this);
 
-        while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
-        {
-            pa_threaded_mainloop_wait(mPAMainLoop);
-        }
-        pa_operation_unref(mPAOperation);
-    }
+		while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
+		{
+			pa_threaded_mainloop_wait(mPAMainLoop);
+		}
+		pa_operation_unref(mPAOperation);
+	}
 #ifdef DEBUG_SOUND
-    if (GetLog()) {
-        GetLog()->FLogLine("           Triggering!");
-    }
+	if (GetLog())
+	{
+		GetLog()->FLogLine("           Triggering!");
+	}
 #endif
-    mPAOperationDescr = "TRIGGER";
-    mPAOperation = pa_stream_trigger(mOutputStream, &SPAStreamOpCB, this);
+	mPAOperationDescr = "TRIGGER";
+	mPAOperation = pa_stream_trigger(mOutputStream, &SPAStreamOpCB, this);
 
-    pa_threaded_mainloop_unlock(mPAMainLoop);
+	pa_threaded_mainloop_unlock(mPAMainLoop);
 #ifdef DEBUG_SOUND
-    if (GetLog()) {
-        GetLog()->FLogLine("   ^^^^^  StartOutput  ^^^^^");
-    }
+	if (GetLog())
+	{
+		GetLog()->FLogLine("   ^^^^^  StartOutput  ^^^^^");
+	}
 #endif
 }
 
@@ -322,31 +351,33 @@ TPulseAudioSoundManager::StartOutput( void )
 //  * StopOutput( void )
 // -------------------------------------------------------------------------- //
 void
-TPulseAudioSoundManager::StopOutput( void )
+TPulseAudioSoundManager::StopOutput(void)
 {
 #ifdef DEBUG_SOUND
-    if (GetLog()) {
-        GetLog()->FLogLine("   _____  StopOutput BEGIN _____");
-    }
+	if (GetLog())
+	{
+		GetLog()->FLogLine("   _____  StopOutput BEGIN _____");
+	}
 #endif
 
-    pa_threaded_mainloop_lock(mPAMainLoop);
+	pa_threaded_mainloop_lock(mPAMainLoop);
 
-    mPAOperationDescr = "DRAIN";
-    mPAOperation = pa_stream_drain(mOutputStream, &SPAStreamOpCB, this);
+	mPAOperationDescr = "DRAIN";
+	mPAOperation = pa_stream_drain(mOutputStream, &SPAStreamOpCB, this);
 
-    while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
-    {
-        pa_threaded_mainloop_wait(mPAMainLoop);
-    }
+	while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
+	{
+		pa_threaded_mainloop_wait(mPAMainLoop);
+	}
 
-    pa_operation_unref(mPAOperation);
-    mOutputIsRunning = false;
-    pa_threaded_mainloop_unlock(mPAMainLoop);
+	pa_operation_unref(mPAOperation);
+	mOutputIsRunning = false;
+	pa_threaded_mainloop_unlock(mPAMainLoop);
 #ifdef DEBUG_SOUND
-    if (GetLog()) {
-        GetLog()->FLogLine("   ^^^^^  StopOutput END ^^^^^");
-    }
+	if (GetLog())
+	{
+		GetLog()->FLogLine("   ^^^^^  StopOutput END ^^^^^");
+	}
 #endif
 }
 
@@ -354,101 +385,109 @@ TPulseAudioSoundManager::StopOutput( void )
 //  * OutputIsRunning( void )
 // -------------------------------------------------------------------------- //
 Boolean
-TPulseAudioSoundManager::OutputIsRunning( void )
+TPulseAudioSoundManager::OutputIsRunning(void)
 {
-    Boolean streamCorked = (Boolean)pa_stream_is_corked(mOutputStream);
+	Boolean streamCorked = (Boolean) pa_stream_is_corked(mOutputStream);
 #ifdef DEBUG_SOUND
-    if (GetLog()) {
-        GetLog()->FLogLine("   *****  OutputIsRunning: (PA Stream Corked? %s) (mOutputIsRunning? %s)",
-            streamCorked ? "true" : "false",
-            mOutputIsRunning ? "true" : "false" );
-        GetLog()->FLogLine("   *****  OutputIsRunning returns %s\n", mOutputIsRunning ? "true" : "false");
-    }
+	if (GetLog())
+	{
+		GetLog()->FLogLine("   *****  OutputIsRunning: (PA Stream Corked? %s) (mOutputIsRunning? %s)",
+			streamCorked ? "true" : "false",
+			mOutputIsRunning ? "true" : "false");
+		GetLog()->FLogLine("   *****  OutputIsRunning returns %s\n", mOutputIsRunning ? "true" : "false");
+	}
 #else
-    (void)streamCorked;
+	(void) streamCorked;
 #endif
 
-    return mOutputIsRunning;
+	return mOutputIsRunning;
 }
 
-void TPulseAudioSoundManager::PAContextStateCallback(pa_context* context, pa_threaded_mainloop* mainloop)
+void
+TPulseAudioSoundManager::PAContextStateCallback(pa_context* context, pa_threaded_mainloop* mainloop)
 {
-    pa_threaded_mainloop_signal(mainloop, 0);
+	pa_threaded_mainloop_signal(mainloop, 0);
 }
 
-void TPulseAudioSoundManager::PAStreamStateCallback(pa_stream* s, pa_threaded_mainloop* mainloop)
+void
+TPulseAudioSoundManager::PAStreamStateCallback(pa_stream* s, pa_threaded_mainloop* mainloop)
 {
-    pa_stream_state_t sState = pa_stream_get_state(s);
-    const char* sStateStr = "";
-    switch(sState)
-    {
-        case PA_STREAM_UNCONNECTED:
-            sStateStr = "unconnected";
-            break;
-        case PA_STREAM_CREATING:
-            sStateStr = "creating";
-            break;
-        case PA_STREAM_READY:
-            sStateStr = "ready";
-            break;
-        case PA_STREAM_TERMINATED:
-            sStateStr = "terminated";
-            break;
-        case PA_STREAM_FAILED:
-            sStateStr = "failed";
-            break;
-    }
+	pa_stream_state_t sState = pa_stream_get_state(s);
+	const char* sStateStr = "";
+	switch (sState)
+	{
+		case PA_STREAM_UNCONNECTED:
+			sStateStr = "unconnected";
+			break;
+		case PA_STREAM_CREATING:
+			sStateStr = "creating";
+			break;
+		case PA_STREAM_READY:
+			sStateStr = "ready";
+			break;
+		case PA_STREAM_TERMINATED:
+			sStateStr = "terminated";
+			break;
+		case PA_STREAM_FAILED:
+			sStateStr = "failed";
+			break;
+	}
 #ifdef DEBUG_SOUND
-    if (GetLog()) {
-        GetLog()->FLogLine("  *** StreamStateCallback: %s", sStateStr);
-    }
+	if (GetLog())
+	{
+		GetLog()->FLogLine("  *** StreamStateCallback: %s", sStateStr);
+	}
 #else
-    (void)sStateStr;
+	(void) sStateStr;
 #endif
-    if (mainloop)
-    {
-        pa_threaded_mainloop_signal(mainloop, 0);
-    }
+	if (mainloop)
+	{
+		pa_threaded_mainloop_signal(mainloop, 0);
+	}
 }
 
-void TPulseAudioSoundManager::PAStreamUnderflowCallback(pa_stream* s, pa_threaded_mainloop* mainloop)
+void
+TPulseAudioSoundManager::PAStreamUnderflowCallback(pa_stream* s, pa_threaded_mainloop* mainloop)
 {
 #ifdef DEBUG_SOUND
-    if (GetLog()) {
-        GetLog()->FLogLine("   *** PA Underflow occurred!");
-    }
+	if (GetLog())
+	{
+		GetLog()->FLogLine("   *** PA Underflow occurred!");
+	}
 #endif
-    RaiseOutputInterrupt();
-    if (mainloop)
-    {
-        pa_threaded_mainloop_signal(mainloop, 0);
-    }
+	RaiseOutputInterrupt();
+	if (mainloop)
+	{
+		pa_threaded_mainloop_signal(mainloop, 0);
+	}
 }
 
-void TPulseAudioSoundManager::PAStreamOpCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop)
+void
+TPulseAudioSoundManager::PAStreamOpCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop)
 {
 #ifdef DEBUG_SOUND
-    if (GetLog()) {
-        GetLog()->FLogLine("   %s returned %d", mPAOperationDescr, success);
-    }
+	if (GetLog())
+	{
+		GetLog()->FLogLine("   %s returned %d", mPAOperationDescr, success);
+	}
 #endif
-    if (mainloop)
-    {
-        pa_threaded_mainloop_signal(mainloop, 0);
-    }
+	if (mainloop)
+	{
+		pa_threaded_mainloop_signal(mainloop, 0);
+	}
 }
 
-void TPulseAudioSoundManager::OutputVolumeChanged()
+void
+TPulseAudioSoundManager::OutputVolumeChanged()
 {
-    if (!mOutputStream)
-        return;
-    pa_threaded_mainloop_lock(mPAMainLoop);
-    pa_cvolume cvolume;
-    pa_cvolume_set(&cvolume, 1, pa_sw_volume_from_linear(OutputVolumeNormalized()));
-    pa_context_set_sink_input_volume(mPAContext, pa_stream_get_index(mOutputStream), &cvolume, NULL, NULL);
-    pa_threaded_mainloop_unlock(mPAMainLoop);
+	if (!mOutputStream)
+		return;
+	pa_threaded_mainloop_lock(mPAMainLoop);
+	pa_cvolume cvolume;
+	pa_cvolume_set(&cvolume, 1, pa_sw_volume_from_linear(OutputVolumeNormalized()));
+	pa_context_set_sink_input_volume(mPAContext, pa_stream_get_index(mOutputStream), &cvolume, NULL, NULL);
+	pa_threaded_mainloop_unlock(mPAMainLoop);
 }
-
 
 // ============================================================================= //
 // <dark> "Let's form the Linux Standard Linux Standardization Association       //

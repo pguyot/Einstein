@@ -38,17 +38,17 @@ class Fl_Widget;
 /// \author Matthias Melcher <einstein@robowerk.com>
 ///
 class TFLScreenManager
-	:
-		public TScreenManager
+		: public TScreenManager
 {
 	friend Fl_Newton_Screen_Widget;
+
 public:
 	///
 	/// Get the dimension of the screen.
 	///
-	static void	GetScreenSize(
-			KUInt32* outWidth,
-			KUInt32* outHeight );
+	static void GetScreenSize(
+		KUInt32* outWidth,
+		KUInt32* outHeight);
 
 	///
 	/// Constructor from a log and dimensions.
@@ -61,18 +61,17 @@ public:
 	/// \param inScreenIsLandscape	whether the physical screen is in landscape.
 	///
 	TFLScreenManager(
-                     TFLApp *inApp,
-				TLog* inLog = nil,
-				KUInt32 inPortraitWidth = kDefaultPortraitWidth,
-				KUInt32 inPortraitHeight = kDefaultPortraitHeight,
-				Boolean inFullScreen = false,
-				Boolean inScreenIsLandscape = true);
-
+		TFLApp* inApp,
+		TLog* inLog = nil,
+		KUInt32 inPortraitWidth = kDefaultPortraitWidth,
+		KUInt32 inPortraitHeight = kDefaultPortraitHeight,
+		Boolean inFullScreen = false,
+		Boolean inScreenIsLandscape = true);
 
 	///
 	/// Destructeur.
 	///
-	virtual ~TFLScreenManager( void );
+	virtual ~TFLScreenManager(void);
 
 	///
 	/// Notify that the tablet orientation changed.
@@ -80,33 +79,33 @@ public:
 	///
 	/// \param inNewOrientation	the new orientation of the screen.
 	///
-	virtual void	TabletOrientationChanged(
-						EOrientation inNewOrientation );
+	virtual void TabletOrientationChanged(
+		EOrientation inNewOrientation);
 
 	///
 	/// This method is called by the platform manager when the emulator is
 	/// turned on.
 	///
-	virtual void	PowerOn( void );
+	virtual void PowerOn(void);
 
 	///
 	/// This method is called by the platform manager when the emulator is
 	/// turned off.
 	///
-	virtual void	PowerOff( void );
+	virtual void PowerOff(void);
 
 	///
 	/// Power on the screen (open the window?)
 	/// This method is called by the display driver.
 	/// It doesn't do anything. The work is done in ScreenSetup.
 	///
-	virtual void	PowerOnScreen( void );
+	virtual void PowerOnScreen(void);
 
 	///
 	/// Power off the screen (close the window?)
 	/// This method is called by the display driver.
 	///
-	virtual void	PowerOffScreen( void );
+	virtual void PowerOffScreen(void);
 
 	///
 	/// Notify that the screen orientation changed.
@@ -114,8 +113,8 @@ public:
 	///
 	/// \param inNewOrientation	the new orientation of the screen.
 	///
-	virtual void	ScreenOrientationChanged(
-						EOrientation inNewOrientation );
+	virtual void ScreenOrientationChanged(
+		EOrientation inNewOrientation);
 
 	///
 	/// Notify that the contrast changed.
@@ -123,7 +122,7 @@ public:
 	///
 	/// \param inNewContrast the new contrast of the screen.
 	///
-	virtual void	ContrastChanged( KUInt32 inNewContrast );
+	virtual void ContrastChanged(KUInt32 inNewContrast);
 
 	///
 	/// Notify that the backlight changed.
@@ -131,21 +130,21 @@ public:
 	///
 	/// \param inNewBacklight the new state of the backlight.
 	///
-	virtual void	BacklightChanged( Boolean inNewBacklight );
+	virtual void BacklightChanged(Boolean inNewBacklight);
 
 	///
 	/// Notify that some screen bits changed.
 	///
 	/// \param inUpdateRect	rectangle of the bits that changed.
 	///
-	virtual void	UpdateScreenRect( SRect* inUpdatedRect );
+	virtual void UpdateScreenRect(SRect* inUpdatedRect);
 
 	///
 	/// Thread loop entry point.
 	///
-	void	Run( void );
+	void Run(void);
 
-    Fl_Widget *GetWidget();
+	Fl_Widget* GetWidget();
 
 private:
 	///
@@ -153,31 +152,34 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TFLScreenManager( const TFLScreenManager& inCopy );
+	TFLScreenManager(const TFLScreenManager& inCopy);
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TFLScreenManager& operator = ( const TFLScreenManager& inCopy );
+	TFLScreenManager& operator=(const TFLScreenManager& inCopy);
 
-	void unlinkWidget() { mWidget = 0L; }
+	void
+	unlinkWidget()
+	{
+		mWidget = 0L;
+	}
 
-    TFLApp *mApp = nullptr;
+	TFLApp* mApp = nullptr;
 
 	///
 	/// FLTK Widget class that will hold the Newton screen image
 	///
-	Fl_Newton_Screen_Widget	*mWidget;
+	Fl_Newton_Screen_Widget* mWidget;
 
 	// Store the value of the last time that the orientation was set.
 	Boolean mScreenWasLandscape = false;
-
 };
 
 #endif
-		// _TFLSCREENMANAGER_H
+// _TFLSCREENMANAGER_H
 
 // ============================================================= //
 // To err is human -- to blame it on a computer is even more so. //

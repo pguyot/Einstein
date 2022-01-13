@@ -28,100 +28,98 @@
 extern "C" {
 #endif
 
+#include <android/log.h>
 #include <errno.h>
 #include <jni.h>
 #include <sys/time.h>
 #include <time.h>
-#include <android/log.h>
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
+/** Initializes the emulator.
+ * @param logPath can be any path name in the Android file sytem. Special values for logPath are "NULL"
+ * or "" for no log, "STDOUT" for logging to some stdout device, and "CONSOLE" for logging to the
+ * Android debugging log (LogCat on Eclipse).
+ */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_initEmulator(JNIEnv* env, jobject thiz, jstring logPath);
 
-	/** Initializes the emulator.
-	 * @param logPath can be any path name in the Android file sytem. Special values for logPath are "NULL"
-     * or "" for no log, "STDOUT" for logging to some stdout device, and "CONSOLE" for logging to the
-     * Android debugging log (LogCat on Eclipse).
-	 */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_initEmulator( JNIEnv* env, jobject thiz, jstring logPath );
+/** Launches the emulator. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_runEmulator(JNIEnv* env, jobject thiz, jstring dataPath, jint screenWidth, jint screenHeight);
 
-	/** Launches the emulator. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_runEmulator( JNIEnv* env, jobject thiz, jstring dataPath, jint screenWidth, jint screenHeight );
+/** Stops the emulator. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_stopEmulator(JNIEnv* env, jobject thiz);
 
-	/** Stops the emulator. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_stopEmulator( JNIEnv* env, jobject thiz );
+/** Wakes the emulator from sleep. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_powerOnEmulator(JNIEnv* env, jobject thiz);
 
-	/** Wakes the emulator from sleep. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_powerOnEmulator( JNIEnv* env, jobject thiz );
+/** Sends emulator to sleep. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_powerOffEmulator(JNIEnv* env, jobject thiz);
 
-	/** Sends emulator to sleep. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_powerOffEmulator( JNIEnv* env, jobject thiz );
+/** Checks if the power is currently on. */
+extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_isPowerOn(JNIEnv* env, jobject thiz);
 
-	/** Checks if the power is currently on. */
-	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_isPowerOn( JNIEnv* env, jobject thiz );
+/** Sends a power switch event. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_sendPowerSwitchEvent(JNIEnv* env, jobject thiz);
 
-	/** Sends a power switch event. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_sendPowerSwitchEvent( JNIEnv* env, jobject thiz );
+/** Reboots the emulator. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_rebootEmulator(JNIEnv* env, jobject thiz);
 
-	/** Reboots the emulator. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_rebootEmulator( JNIEnv* env, jobject thiz );
+/** Changes the screen size (requires reboot). */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_changeScreenSize(JNIEnv* env, jobject thiz, jint w, jint h);
 
-	/** Changes the screen size (requires reboot). */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_changeScreenSize( JNIEnv* env, jobject thiz, jint w, jint h );
+/** Toggles the network card in and out of the PCMCIA slot. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_toggleNetworkCard(JNIEnv* env, jobject thiz);
 
-	/** Toggles the network card in and out of the PCMCIA slot. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_toggleNetworkCard( JNIEnv* env, jobject thiz );
+/** Checks if the screen contents has changed since the last call
+ * @return 0 if the screen hasn't changed since the last call */
+// extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_screenIsDirty( JNIEnv* env, jobject thiz );
 
-	/** Checks if the screen contents has changed since the last call
-	 * @return 0 if the screen hasn't changed since the last call */
-	//extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_screenIsDirty( JNIEnv* env, jobject thiz );
+/** Switches the backlight on or off.
+ * @param v 0 to switch backlight off */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_setBacklight(JNIEnv* env, jobject thiz, jint v);
 
-	/** Switches the backlight on or off.
-	 * @param v 0 to switch backlight off */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_setBacklight( JNIEnv* env, jobject thiz, jint v );
+/** Checks if backlight is on.
+ * @return 0 if the backlight is currently off */
+extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_backlightIsOn(JNIEnv* env, jobject thiz);
 
-	/** Checks if backlight is on.
-	 * @return 0 if the backlight is currently off */
-	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_backlightIsOn( JNIEnv* env, jobject thiz );
+/** Installs packages that are new in the Einstein directory.
+ * @TODO find a better way to do this */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_installNewPackages(JNIEnv* env, jobject thiz);
 
-	/** Installs packages that are new in the Einstein directory.
-	 * @TODO find a better way to do this */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_installNewPackages( JNIEnv* env, jobject thiz );
+/** Installs a package from a file. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_installPackage(JNIEnv* env, jobject thiz, jstring filename);
 
-	/** Installs a package from a file. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_installPackage( JNIEnv* env, jobject thiz, jstring filename );
+/** Sets the Newton ID. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_setNewtonID(JNIEnv* env, jobject thiz, jstring);
 
-	/** Sets the Newton ID. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_setNewtonID( JNIEnv* env, jobject thiz, jstring );
+/** Sends refresh requests */
+extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_renderEinsteinView(JNIEnv* env, jobject obj, jobject bitmap);
 
-	/** Sends refresh requests */
-	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap);
+/** Sends a pen down event. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_penDown(JNIEnv* env, jobject thiz, jint x, jint y);
 
-	/** Sends a pen down event. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_penDown( JNIEnv* env, jobject thiz, jint x, jint y );
+/** Sends a pen down event. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_penUp(JNIEnv* env, jobject thiz);
 
-	/** Sends a pen down event. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_penUp( JNIEnv* env, jobject thiz);
+/** Java requests a bitmap of required actions from C */
+extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getRequiredActions(JNIEnv* env, jobject thiz);
 
-	/** Java requests a bitmap of required actions from C */
-	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getRequiredActions( JNIEnv* env, jobject thiz );
+/** Java requests the number of samples needed to fill the sound buffer */
+extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundBufferSize(JNIEnv* env, jobject thiz);
 
-	/** Java requests the number of samples needed to fill the sound buffer */
-	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundBufferSize( JNIEnv* env, jobject thiz );
+/** Java asks C to fill the sound buffer with samples */
+extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_fillSoundBuffer(JNIEnv* env, jobject thiz, jshortArray soundBuffer);
 
-	/** Java asks C to fill the sound buffer with samples */
-	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_fillSoundBuffer( JNIEnv* env, jobject thiz, jshortArray soundBuffer);
+/** Java requests the current sound volumee form C. Values range from 0 for off to 100 for full volume */
+extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundVolume(JNIEnv* env, jobject thiz);
 
-	/** Java requests the current sound volumee form C. Values range from 0 for off to 100 for full volume */
-	extern JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_getSoundVolume( JNIEnv* env, jobject thiz );
+/** Java tells C that a new sound buffer became available. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferAvailable(JNIEnv* env, jobject thiz);
 
-	/** Java tells C that a new sound buffer became available. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferAvailable( JNIEnv* env, jobject thiz );
-
-	/** Java tells C that the last sound finished playing, and no more filled buffers are pending. */
-	extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferFinishedOrCanceled( JNIEnv* env, jobject thiz );
-
+/** Java tells C that the last sound finished playing, and no more filled buffers are pending. */
+extern JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_soundBufferFinishedOrCanceled(JNIEnv* env, jobject thiz);
 
 #ifdef __cplusplus
 }
@@ -133,4 +131,3 @@ extern "C" {
 // Beware of the Turing Tar-pit in which everything is possible but nothing of  //
 // interest is easy.                                                            //
 // ============================================================================ //
-

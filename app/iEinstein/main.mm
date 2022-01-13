@@ -23,10 +23,11 @@
 
 #import <UIKit/UIKit.h>
 
-int main(int argc, char *argv[]) 
+int
+main(int argc, char* argv[])
 {
 #if !__has_feature(objc_arc)
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 #endif
 #ifdef USE_STORYBOARDS
 	// For storyboards, set the app delegate here
@@ -41,7 +42,8 @@ int main(int argc, char *argv[])
 	return retVal;
 }
 
-void iOSDoLogLine(const char* inLine)
+void
+iOSDoLogLine(const char* inLine)
 {
 	NSLog(@"%@", [NSString stringWithUTF8String:inLine]);
 }

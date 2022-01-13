@@ -26,52 +26,52 @@
 // #define INCLUDE_TEMPLATE	"MyFile.h"
 // #include "IncludeRd.h"
 
-#define Rd	0
+#define Rd 0
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	1
+#define Rd 1
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	2
+#define Rd 2
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	3
+#define Rd 3
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	4
+#define Rd 4
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	5
+#define Rd 5
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	6
+#define Rd 6
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	7
+#define Rd 7
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	8
+#define Rd 8
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	9
+#define Rd 9
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	10
+#define Rd 10
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	11
+#define Rd 11
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	12
+#define Rd 12
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	13
+#define Rd 13
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	14
+#define Rd 14
 #include INCLUDE_TEMPLATE
 #undef Rd
-#define Rd	15
+#define Rd 15
 #include INCLUDE_TEMPLATE
 #undef Rd
 

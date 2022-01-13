@@ -36,7 +36,7 @@ SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
 #if FLAG_B
 	// Swap byte quantity.
 	KUInt8 theData;
-	if (theMemoryInterface->ReadB( theAddress, theData ))
+	if (theMemoryInterface->ReadB(theAddress, theData))
 	{
 		SETPC(GETPC());
 		ioCPU->DataAbort();
@@ -45,7 +45,7 @@ SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
 
 	// Write.
 	if (theMemoryInterface->WriteB(
-				theAddress, (KUInt8) (ioCPU->mCurrentRegisters[Rm] & 0xFF) ))
+			theAddress, (KUInt8) (ioCPU->mCurrentRegisters[Rm] & 0xFF)))
 	{
 		SETPC(GETPC());
 		ioCPU->DataAbort();
@@ -57,7 +57,7 @@ SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
 #else
 	// Swap word quantity.
 	KUInt32 theData;
-	if (theMemoryInterface->Read( theAddress, theData ))
+	if (theMemoryInterface->Read(theAddress, theData))
 	{
 		SETPC(GETPC());
 		ioCPU->DataAbort();
@@ -65,7 +65,7 @@ SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
 	}
 
 	// Write.
-	if (theMemoryInterface->Write( theAddress, ioCPU->mCurrentRegisters[Rm] ))
+	if (theMemoryInterface->Write(theAddress, ioCPU->mCurrentRegisters[Rm]))
 	{
 		SETPC(GETPC());
 		ioCPU->DataAbort();
@@ -75,7 +75,7 @@ SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
 	ioCPU->mCurrentRegisters[Rd] = theData;
 #endif
 #else
-    POPNIL();   // Pop out PC
+	POPNIL(); // Pop out PC
 #endif
 	CALLNEXTUNIT;
 }

@@ -28,8 +28,8 @@
 #if 0
 
 // ANSI C & POSIX
-#include <strings.h>
 #include <stdio.h>
+#include <strings.h>
 
 // K
 #include <K/Defines/UByteSex.h>
@@ -44,7 +44,7 @@
 // Constantes
 // -------------------------------------------------------------------------- //
 
-#define kNewtonBufferSizeInFrames		0x750
+#define kNewtonBufferSizeInFrames 0x750
 
 
 // -------------------------------------------------------------------------- //
@@ -183,7 +183,6 @@ TAndroidNativeSoundManager::soundVolumeChanged()
 }
 
 #endif
-
 
 // ============================================================================= //
 // As in Protestant Europe, by contrast, where sects divided endlessly into      //

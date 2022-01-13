@@ -32,7 +32,7 @@
 // -------------------------------------------------------------------------- //
 //  * TStdOutLog( void )
 // -------------------------------------------------------------------------- //
-TStdOutLog::TStdOutLog( void )
+TStdOutLog::TStdOutLog(void)
 {
 }
 
@@ -40,10 +40,10 @@ TStdOutLog::TStdOutLog( void )
 //  * DoLogLine( const char* )
 // -------------------------------------------------------------------------- //
 void
-TStdOutLog::DoLogLine( const char* inLine )
+TStdOutLog::DoLogLine(const char* inLine)
 {
-    (void)inLine;
-	KPrintf( "%s\n", inLine );
+	(void) inLine;
+	KPrintf("%s\n", inLine);
 }
 
 // ======================================================================= //

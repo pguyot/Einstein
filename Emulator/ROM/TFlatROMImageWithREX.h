@@ -37,8 +37,7 @@
 /// \test	aucun test défini.
 ///
 class TFlatROMImageWithREX
-	:
-		public TROMImage
+		: public TROMImage
 {
 public:
 	///
@@ -49,16 +48,16 @@ public:
 	/// \param inMachineString	machine string.
 	///
 	TFlatROMImageWithREX(const char* inROMPath,
-					const char* inREXPath);
+		const char* inREXPath);
 
 	///
 	/// Destructor.
 	///
-	~TFlatROMImageWithREX( void );
+	~TFlatROMImageWithREX(void);
 };
 
 #endif
-		// _TFLATROMIMAGEWITHREX_H
+// _TFLATROMIMAGEWITHREX_H
 
 // ================================ //
 // One picture is worth 128K words. //

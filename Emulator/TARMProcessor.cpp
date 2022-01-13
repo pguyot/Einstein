@@ -24,22 +24,22 @@
 #include "Emulator/TARMProcessor.h"
 
 // POSIX
-#include <sys/types.h>
 #include <signal.h>
+#include <sys/types.h>
 
 #if !TARGET_OS_WIN32
-	#include <unistd.h>
+#include <unistd.h>
 #endif
 
 // K
 #include <K/Streams/TStream.h>
 
 // Einstein
-#include "Emulator/Log/TLog.h"
 #include "Emulator/TEmulator.h"
-#include "Emulator/JIT/JIT.h"
-#include "Emulator/ROM/TROMImage.h"
 #include "Monitor/TSymbolList.h"
+#include "Emulator/JIT/JIT.h"
+#include "Emulator/Log/TLog.h"
+#include "Emulator/ROM/TROMImage.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -49,17 +49,16 @@
 //  * TARMProcessor( TLog*, TMemory* )
 // -------------------------------------------------------------------------- //
 TARMProcessor::TARMProcessor(
-						TLog* inLog,
-						TMemory* inMemory )
-	:
-		mPendingInterrupts( 0 ),
-		mLog( inLog ),
-		mMemory( inMemory ),
-		mNativePrimitives( inLog, inMemory ),
-		mEmulator( nil )
+	TLog* inLog,
+	TMemory* inMemory) :
+		mPendingInterrupts(0),
+		mLog(inLog),
+		mMemory(inMemory),
+		mNativePrimitives(inLog, inMemory),
+		mEmulator(nil)
 {
-	mMemory->SetProcessor( this );
-	mNativePrimitives.SetProcessor( this );
+	mMemory->SetProcessor(this);
+	mNativePrimitives.SetProcessor(this);
 
 	// Clear everything.
 	KUInt32 indexRegisters;
@@ -111,7 +110,7 @@ TARMProcessor::TARMProcessor(
 //  * SystemCoprocRegisterTransfer( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::SystemCoprocRegisterTransfer( KUInt32 inInstruction )
+TARMProcessor::SystemCoprocRegisterTransfer(KUInt32 inInstruction)
 {
 	KUInt32 CRm = inInstruction & 0x0000000F;
 	KUInt32 CP = (inInstruction & 0x000000E0) >> 5;
@@ -140,9 +139,10 @@ TARMProcessor::SystemCoprocRegisterTransfer( KUInt32 inInstruction )
 					// 00 -> Revision number.
 					// (I've found the doc of the Intel chip)
 					theValue = 0x4401A100;
-//					theValue = 0x41047102;
-//					mEmulator->BreakInMonitor();
-				} else {
+					//					theValue = 0x41047102;
+					//					mEmulator->BreakInMonitor();
+				} else
+				{
 					// Cache Type Register.
 					// We don't have any cache.
 					theValue = 0;
@@ -227,10 +227,12 @@ TARMProcessor::SystemCoprocRegisterTransfer( KUInt32 inInstruction )
 			mCPSR_Z = (theValue & 0x40000000) != 0;
 			mCPSR_C = (theValue & 0x20000000) != 0;
 			mCPSR_V = (theValue & 0x10000000) != 0;
-		} else {
+		} else
+		{
 			mCurrentRegisters[Rd] = theValue;
 		}
-	} else {
+	} else
+	{
 		// Store to co-processor.
 		theValue = mCurrentRegisters[Rd];
 		if (Rd == kR15)
@@ -240,8 +242,8 @@ TARMProcessor::SystemCoprocRegisterTransfer( KUInt32 inInstruction )
 
 		switch (CRn)
 		{
-			// Writing to CR0 is unpredictable.
-			// case 0:
+				// Writing to CR0 is unpredictable.
+				// case 0:
 
 			case 1:
 				// Control register.
@@ -272,22 +274,22 @@ TARMProcessor::SystemCoprocRegisterTransfer( KUInt32 inInstruction )
 
 			case 2:
 				// MMU translation base.
-				mMemory->SetTranslationTableBase( theValue & 0xFFFFC000 );
+				mMemory->SetTranslationTableBase(theValue & 0xFFFFC000);
 				break;
 
 			case 3:
 				// Domain Access Control
-				mMemory->SetDomainAccessControl( theValue );
+				mMemory->SetDomainAccessControl(theValue);
 				break;
 
 			case 5:
 				// Fault status register.
-				mMemory->SetFaultStatusRegister( theValue );
+				mMemory->SetFaultStatusRegister(theValue);
 				break;
 
 			case 6:
 				// Fault address register.
-				mMemory->SetFaultAddressRegister( theValue );
+				mMemory->SetFaultAddressRegister(theValue);
 				break;
 
 			case 7:
@@ -296,7 +298,7 @@ TARMProcessor::SystemCoprocRegisterTransfer( KUInt32 inInstruction )
 					|| ((CRm == kR8) && (CP == 2)))
 				{
 					if (mLog)
-						mLog->LogLine( "Wait for Interrupt" );
+						mLog->LogLine("Wait for Interrupt");
 					mEmulator->BreakInMonitor();
 				} // else: cache functions.
 				break;
@@ -305,21 +307,21 @@ TARMProcessor::SystemCoprocRegisterTransfer( KUInt32 inInstruction )
 				// TLB (Translation Lookup Buffers) functions
 				// We don't have any TLB.
 				mMemory->InvalidateTLB();
-//				if (mLog)
-//					mLog->LogLine( "Write access to TLB functions" );
+				//				if (mLog)
+				//					mLog->LogLine( "Write access to TLB functions" );
 				break;
 
 			case 9:
 				// Cache Lockdown register.
-//				if (mLog)
-//					mLog->LogLine( "Write access to Cache Lockdown register" );
+				//				if (mLog)
+				//					mLog->LogLine( "Write access to Cache Lockdown register" );
 				break;
 
 			case 10:
 				// TLB Lockdown
 				// We don't have any TLB.
-//				if (mLog)
-//					mLog->LogLine( "Write access to TLB Lockdown register" );
+				//				if (mLog)
+				//					mLog->LogLine( "Write access to TLB Lockdown register" );
 				break;
 
 			case 15:
@@ -328,27 +330,31 @@ TARMProcessor::SystemCoprocRegisterTransfer( KUInt32 inInstruction )
 				{
 					// LFSR operations.
 					break;
-				} else if (CPOpc == 2) {
+				} else if (CPOpc == 2)
+				{
 					if (CRm == 1)
 					{
 						// Enable clock switching.
 						if (mLog)
-							mLog->LogLine( "Enable clock switching" );
+							mLog->LogLine("Enable clock switching");
 						break;
-					} else if (CRm == 2) {
+					} else if (CRm == 2)
+					{
 						// Disable clock switching.
 						if (mLog)
-							mLog->LogLine( "Disable clock switching" );
+							mLog->LogLine("Disable clock switching");
 						break;
-					} else if (CRm == 4) {
+					} else if (CRm == 4)
+					{
 						// Disable nMCLK output.
 						if (mLog)
-							mLog->LogLine( "Disable nMCLK output" );
+							mLog->LogLine("Disable nMCLK output");
 						break;
-					} else if (CRm == 8) {
+					} else if (CRm == 8)
+					{
 						// Wait for interrupt.
 						if (mLog)
-							mLog->LogLine( "Wait for Interrupt" );
+							mLog->LogLine("Wait for Interrupt");
 						mEmulator->BreakInMonitor();
 						break;
 					}
@@ -373,7 +379,7 @@ TARMProcessor::SystemCoprocRegisterTransfer( KUInt32 inInstruction )
 //  * NativeCoprocRegisterTransfer( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::NativeCoprocRegisterTransfer( KUInt32 inInstruction )
+TARMProcessor::NativeCoprocRegisterTransfer(KUInt32 inInstruction)
 {
 	KUInt32 theValue;
 	KUInt32 Rd = (inInstruction & 0x0000F000) >> 12;
@@ -395,7 +401,8 @@ TARMProcessor::NativeCoprocRegisterTransfer( KUInt32 inInstruction )
 				(int) CRm,
 				(int) CP);
 		}
-	} else {
+	} else
+	{
 		// Store to co-processor.
 		theValue = mCurrentRegisters[Rd];
 		if (Rd == kR15)
@@ -406,7 +413,7 @@ TARMProcessor::NativeCoprocRegisterTransfer( KUInt32 inInstruction )
 		// Coprocessor 10 is the gateway to the sound, screen, tablet, battery,
 		// and other native hardware drivers, which are emulated in Einstein
 
-		mNativePrimitives.ExecuteNative( theValue );
+		mNativePrimitives.ExecuteNative(theValue);
 	}
 }
 
@@ -414,9 +421,9 @@ TARMProcessor::NativeCoprocRegisterTransfer( KUInt32 inInstruction )
 //  * Reset( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::Reset( void )
+TARMProcessor::Reset(void)
 {
-	mLog->LogLine( "Reset" );
+	mLog->LogLine("Reset");
 
 	BackupBankRegisters();
 	mSPSRsvc = GetCPSR();
@@ -432,7 +439,7 @@ TARMProcessor::Reset( void )
 	mCurrentRegisters[kR13] = mR13svc_Bkup;
 	mCurrentRegisters[kR14] = mR14svc_Bkup;
 	mMode = kSupervisorMode;
-	mMemory->SetPrivilege( true );
+	mMemory->SetPrivilege(true);
 	mCPSR_T = 0;
 	mCPSR_F = 1;
 	mCPSR_I = 1;
@@ -444,7 +451,7 @@ TARMProcessor::Reset( void )
 //  * DoUndefinedInstruction( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::DoUndefinedInstruction( void )
+TARMProcessor::DoUndefinedInstruction(void)
 {
 	BackupBankRegisters();
 	mSPSRund = GetCPSR();
@@ -462,7 +469,7 @@ TARMProcessor::DoUndefinedInstruction( void )
 	mCurrentRegisters[kR13] = mR13und_Bkup;
 	mCurrentRegisters[kR14] = mR14und_Bkup;
 	mMode = kUndefinedMode;
-	mMemory->SetPrivilege( true );
+	mMemory->SetPrivilege(true);
 	mCPSR_T = 0;
 	// mCPSR_F is unchanged.
 	mCPSR_I = 1;
@@ -473,7 +480,7 @@ TARMProcessor::DoUndefinedInstruction( void )
 //  * DoSWI( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::DoSWI( void )
+TARMProcessor::DoSWI(void)
 {
 	BackupBankRegisters();
 	mSPSRsvc = GetCPSR();
@@ -491,7 +498,7 @@ TARMProcessor::DoSWI( void )
 	mCurrentRegisters[kR13] = mR13svc_Bkup;
 	mCurrentRegisters[kR14] = mR14svc_Bkup;
 	mMode = kSupervisorMode;
-	mMemory->SetPrivilege( true );
+	mMemory->SetPrivilege(true);
 	mCPSR_T = 0;
 	// mCPSR_F is unchanged.
 	mCPSR_I = 1;
@@ -502,7 +509,7 @@ TARMProcessor::DoSWI( void )
 //  * PrefetchAbort( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::PrefetchAbort( void )
+TARMProcessor::PrefetchAbort(void)
 {
 	BackupBankRegisters();
 	mSPSRabt = GetCPSR();
@@ -519,7 +526,7 @@ TARMProcessor::PrefetchAbort( void )
 	mCurrentRegisters[kR13] = mR13abt_Bkup;
 	mCurrentRegisters[kR14] = mR14abt_Bkup;
 	mMode = kAbortMode;
-	mMemory->SetPrivilege( true );
+	mMemory->SetPrivilege(true);
 	mCPSR_T = 0;
 	// mCPSR_F is unchanged.
 	mCPSR_I = 1;
@@ -530,7 +537,7 @@ TARMProcessor::PrefetchAbort( void )
 //  * DataAbort( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::DataAbort( void )
+TARMProcessor::DataAbort(void)
 {
 #if 0
 	KPrintf("Data Abort at 0x%08lx, accessing 0x%08lx\n", mCurrentRegisters[kR15]-8, mMemory->GetFaultAddressRegister());
@@ -584,7 +591,7 @@ TARMProcessor::DataAbort( void )
 	mCurrentRegisters[kR13] = mR13abt_Bkup;
 	mCurrentRegisters[kR14] = mR14abt_Bkup;
 	mMode = kAbortMode;
-	mMemory->SetPrivilege( true );
+	mMemory->SetPrivilege(true);
 	mCPSR_T = 0;
 	// mCPSR_F is unchanged.
 	mCPSR_I = 1;
@@ -595,7 +602,7 @@ TARMProcessor::DataAbort( void )
 //  * IRQ( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::IRQ( void )
+TARMProcessor::IRQ(void)
 {
 	BackupBankRegisters();
 	mSPSRirq = GetCPSR();
@@ -612,7 +619,7 @@ TARMProcessor::IRQ( void )
 	mCurrentRegisters[kR13] = mR13irq_Bkup;
 	mCurrentRegisters[kR14] = mR14irq_Bkup;
 	mMode = kIRQMode;
-	mMemory->SetPrivilege( true );
+	mMemory->SetPrivilege(true);
 	mCPSR_T = 0;
 	// mCPSR_F is unchanged.
 	mCPSR_I = 1;
@@ -623,7 +630,7 @@ TARMProcessor::IRQ( void )
 //  * FIQ( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::FIQ( void )
+TARMProcessor::FIQ(void)
 {
 	BackupBankRegisters();
 	mSPSRfiq = GetCPSR();
@@ -637,7 +644,7 @@ TARMProcessor::FIQ( void )
 	mCurrentRegisters[kR13] = mR13fiq_Bkup;
 	mCurrentRegisters[kR14] = mR14fiq_Bkup;
 	mMode = kFIQMode;
-	mMemory->SetPrivilege( true );
+	mMemory->SetPrivilege(true);
 	mCPSR_T = 0;
 	mCPSR_F = 1;
 	mCPSR_I = 1;
@@ -648,7 +655,7 @@ TARMProcessor::FIQ( void )
 //  * GetCPSR( void )
 // -------------------------------------------------------------------------- //
 KUInt32
-TARMProcessor::GetCPSR( void )
+TARMProcessor::GetCPSR(void)
 {
 	KUInt32 theResult = 0;
 	if (mCPSR_N)
@@ -688,7 +695,7 @@ TARMProcessor::GetCPSR( void )
 //  * SetCPSR( KUInt32)
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::SetCPSR( KUInt32 inNewValue )
+TARMProcessor::SetCPSR(KUInt32 inNewValue)
 {
 	mCPSR_N = (inNewValue & kPSR_NBit) != 0;
 	mCPSR_Z = (inNewValue & kPSR_ZBit) != 0;
@@ -709,7 +716,8 @@ TARMProcessor::SetCPSR( KUInt32 inNewValue )
 			mCurrentRegisters[kR10] = mR10fiq_Bkup;
 			mCurrentRegisters[kR11] = mR11fiq_Bkup;
 			mCurrentRegisters[kR12] = mR12fiq_Bkup;
-		} else if (mMode == kFIQMode) {
+		} else if (mMode == kFIQMode)
+		{
 			mCurrentRegisters[kR8] = mR8_Bkup;
 			mCurrentRegisters[kR9] = mR9_Bkup;
 			mCurrentRegisters[kR10] = mR10_Bkup;
@@ -722,49 +730,49 @@ TARMProcessor::SetCPSR( KUInt32 inNewValue )
 			case kUserMode:
 				// Get back to user mode.
 				mMode = kUserMode;
-				mMemory->SetPrivilege( false );
+				mMemory->SetPrivilege(false);
 				mCurrentRegisters[kR13] = mR13_Bkup;
 				mCurrentRegisters[kR14] = mR14_Bkup;
 				break;
 
 			case kFIQMode:
 				mMode = kFIQMode;
-				mMemory->SetPrivilege( true );
+				mMemory->SetPrivilege(true);
 				mCurrentRegisters[kR13] = mR13fiq_Bkup;
 				mCurrentRegisters[kR14] = mR14fiq_Bkup;
 				break;
 
 			case kIRQMode:
 				mMode = kIRQMode;
-				mMemory->SetPrivilege( true );
+				mMemory->SetPrivilege(true);
 				mCurrentRegisters[kR13] = mR13irq_Bkup;
 				mCurrentRegisters[kR14] = mR14irq_Bkup;
 				break;
 
 			case kSupervisorMode:
 				mMode = kSupervisorMode;
-				mMemory->SetPrivilege( true );
+				mMemory->SetPrivilege(true);
 				mCurrentRegisters[kR13] = mR13svc_Bkup;
 				mCurrentRegisters[kR14] = mR14svc_Bkup;
 				break;
 
 			case kAbortMode:
 				mMode = kAbortMode;
-				mMemory->SetPrivilege( true );
+				mMemory->SetPrivilege(true);
 				mCurrentRegisters[kR13] = mR13abt_Bkup;
 				mCurrentRegisters[kR14] = mR14abt_Bkup;
 				break;
 
 			case kUndefinedMode:
 				mMode = kUndefinedMode;
-				mMemory->SetPrivilege( true );
+				mMemory->SetPrivilege(true);
 				mCurrentRegisters[kR13] = mR13und_Bkup;
 				mCurrentRegisters[kR14] = mR14und_Bkup;
 				break;
 
 			case kSystemMode:
 				mMode = kSystemMode;
-				mMemory->SetPrivilege( true );
+				mMemory->SetPrivilege(true);
 				mCurrentRegisters[kR13] = mR13_Bkup;
 				mCurrentRegisters[kR14] = mR14_Bkup;
 				break;
@@ -773,7 +781,7 @@ TARMProcessor::SetCPSR( KUInt32 inNewValue )
 				if (mLog)
 				{
 					mLog->FLogLine(
-						"SetCPSR with unknown mode (%i)", (int) theMode );
+						"SetCPSR with unknown mode (%i)", (int) theMode);
 				}
 				mEmulator->BreakInMonitor();
 		}
@@ -790,7 +798,7 @@ TARMProcessor::SetCPSR( KUInt32 inNewValue )
 //  * GetSPSR( void )
 // -------------------------------------------------------------------------- //
 KUInt32
-TARMProcessor::GetSPSR( void )
+TARMProcessor::GetSPSR(void)
 {
 	switch (mMode)
 	{
@@ -804,7 +812,7 @@ TARMProcessor::GetSPSR( void )
 			if (mLog)
 			{
 				mLog->FLogLine(
-					"Accessing SPSR in Unknown/System mode (%i)", (int) mMode );
+					"Accessing SPSR in Unknown/System mode (%i)", (int) mMode);
 			}
 			mEmulator->BreakInMonitor();
 			return 0;
@@ -830,7 +838,7 @@ TARMProcessor::GetSPSR( void )
 //  * SetSPSR( KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::SetSPSR( KUInt32 inNewSPSR )
+TARMProcessor::SetSPSR(KUInt32 inNewSPSR)
 {
 	switch (mMode)
 	{
@@ -865,7 +873,7 @@ TARMProcessor::SetSPSR( KUInt32 inNewSPSR )
 //  * BackupBankRegisters( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::BackupBankRegisters( void )
+TARMProcessor::BackupBankRegisters(void)
 {
 	switch (mMode)
 	{
@@ -920,9 +928,9 @@ TARMProcessor::BackupBankRegisters( void )
 //  * ResetInterrupt( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::ResetInterrupt( void )
+TARMProcessor::ResetInterrupt(void)
 {
-	KPrintf( "Reset Interrupt (Rebooting!)\n" );
+	KPrintf("Reset Interrupt (Rebooting!)\n");
 	mPendingInterrupts |= kResetInterrupt;
 }
 
@@ -930,7 +938,7 @@ TARMProcessor::ResetInterrupt( void )
 //  * FIQInterrupt( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::FIQInterrupt( void )
+TARMProcessor::FIQInterrupt(void)
 {
 	mPendingInterrupts |= kFIQInterrupt;
 	if (!mCPSR_F)
@@ -943,7 +951,7 @@ TARMProcessor::FIQInterrupt( void )
 //  * ClearFIQInterrupt( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::ClearFIQInterrupt( void )
+TARMProcessor::ClearFIQInterrupt(void)
 {
 	mPendingInterrupts &= ~kFIQInterrupt;
 }
@@ -952,7 +960,7 @@ TARMProcessor::ClearFIQInterrupt( void )
 //  * IRQInterrupt( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::IRQInterrupt( void )
+TARMProcessor::IRQInterrupt(void)
 {
 	mPendingInterrupts |= kIRQInterrupt;
 	if (!mCPSR_I)
@@ -965,7 +973,7 @@ TARMProcessor::IRQInterrupt( void )
 //  * ClearIRQInterrupt( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::ClearIRQInterrupt( void )
+TARMProcessor::ClearIRQInterrupt(void)
 {
 	mPendingInterrupts &= ~kIRQInterrupt;
 }
@@ -974,103 +982,102 @@ TARMProcessor::ClearIRQInterrupt( void )
 //  * PrintRegisters( void )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::PrintRegisters( void )
+TARMProcessor::PrintRegisters(void)
 {
-	if (mLog) {
-		for (int indexRegisters = 0; indexRegisters < 16; indexRegisters++) {
+	if (mLog)
+	{
+		for (int indexRegisters = 0; indexRegisters < 16; indexRegisters++)
+		{
 			mLog->FLogLine("R%i = %.8X",
-						indexRegisters,
-						(unsigned int) mCurrentRegisters[indexRegisters] );
+				indexRegisters,
+				(unsigned int) mCurrentRegisters[indexRegisters]);
 		}
-		mLog->FLogLine( "CPSR = %.8X", (unsigned int) GetCPSR() );
+		mLog->FLogLine("CPSR = %.8X", (unsigned int) GetCPSR());
 	}
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * TransferState( TStream* )
 // -------------------------------------------------------------------------- //
 void
-TARMProcessor::TransferState( TStream* inStream )
+TARMProcessor::TransferState(TStream* inStream)
 {
 	KUInt32 tmp;
 
 	// First, transfer the native primitives stuff.
-	mNativePrimitives.TransferState( inStream );
+	mNativePrimitives.TransferState(inStream);
 
 	// Then transfer the CPU specific stuff.
 	inStream->TransferInt32ArrayBE(
-					mCurrentRegisters,
-					sizeof(mCurrentRegisters) / sizeof(KUInt32) );
-	inStream->TransferBoolean( mCPSR_N );
-	inStream->TransferBoolean( mCPSR_Z );
-	inStream->TransferBoolean( mCPSR_C );
-	inStream->TransferBoolean( mCPSR_V );
-	inStream->TransferBoolean( mCPSR_I );
-	inStream->TransferBoolean( mCPSR_F );
-	inStream->TransferBoolean( mCPSR_T );
-	inStream->TransferInt32BE( mR8_Bkup );
-	inStream->TransferInt32BE( mR9_Bkup );
-	inStream->TransferInt32BE( mR10_Bkup );
-	inStream->TransferInt32BE( mR11_Bkup );
-	inStream->TransferInt32BE( mR12_Bkup );
-	inStream->TransferInt32BE( mR13_Bkup );
-	inStream->TransferInt32BE( mR14_Bkup );
-	inStream->TransferInt32BE( mR13svc_Bkup );
-	inStream->TransferInt32BE( mR14svc_Bkup );
-	inStream->TransferInt32BE( mR13abt_Bkup );
-	inStream->TransferInt32BE( mR14abt_Bkup );
-	inStream->TransferInt32BE( mR13und_Bkup );
-	inStream->TransferInt32BE( mR14und_Bkup );
-	inStream->TransferInt32BE( mR13irq_Bkup );
-	inStream->TransferInt32BE( mR14irq_Bkup );
-	inStream->TransferInt32BE( mR8fiq_Bkup );
-	inStream->TransferInt32BE( mR9fiq_Bkup );
-	inStream->TransferInt32BE( mR10fiq_Bkup );
-	inStream->TransferInt32BE( mR11fiq_Bkup );
-	inStream->TransferInt32BE( mR12fiq_Bkup );
-	inStream->TransferInt32BE( mR13fiq_Bkup );
-	inStream->TransferInt32BE( mR14fiq_Bkup );
-	inStream->TransferInt32BE( mSPSRsvc );
-	inStream->TransferInt32BE( mSPSRabt );
-	inStream->TransferInt32BE( mSPSRund );
-	inStream->TransferInt32BE( mSPSRirq );
-	inStream->TransferInt32BE( mSPSRfiq );
+		mCurrentRegisters,
+		sizeof(mCurrentRegisters) / sizeof(KUInt32));
+	inStream->TransferBoolean(mCPSR_N);
+	inStream->TransferBoolean(mCPSR_Z);
+	inStream->TransferBoolean(mCPSR_C);
+	inStream->TransferBoolean(mCPSR_V);
+	inStream->TransferBoolean(mCPSR_I);
+	inStream->TransferBoolean(mCPSR_F);
+	inStream->TransferBoolean(mCPSR_T);
+	inStream->TransferInt32BE(mR8_Bkup);
+	inStream->TransferInt32BE(mR9_Bkup);
+	inStream->TransferInt32BE(mR10_Bkup);
+	inStream->TransferInt32BE(mR11_Bkup);
+	inStream->TransferInt32BE(mR12_Bkup);
+	inStream->TransferInt32BE(mR13_Bkup);
+	inStream->TransferInt32BE(mR14_Bkup);
+	inStream->TransferInt32BE(mR13svc_Bkup);
+	inStream->TransferInt32BE(mR14svc_Bkup);
+	inStream->TransferInt32BE(mR13abt_Bkup);
+	inStream->TransferInt32BE(mR14abt_Bkup);
+	inStream->TransferInt32BE(mR13und_Bkup);
+	inStream->TransferInt32BE(mR14und_Bkup);
+	inStream->TransferInt32BE(mR13irq_Bkup);
+	inStream->TransferInt32BE(mR14irq_Bkup);
+	inStream->TransferInt32BE(mR8fiq_Bkup);
+	inStream->TransferInt32BE(mR9fiq_Bkup);
+	inStream->TransferInt32BE(mR10fiq_Bkup);
+	inStream->TransferInt32BE(mR11fiq_Bkup);
+	inStream->TransferInt32BE(mR12fiq_Bkup);
+	inStream->TransferInt32BE(mR13fiq_Bkup);
+	inStream->TransferInt32BE(mR14fiq_Bkup);
+	inStream->TransferInt32BE(mSPSRsvc);
+	inStream->TransferInt32BE(mSPSRabt);
+	inStream->TransferInt32BE(mSPSRund);
+	inStream->TransferInt32BE(mSPSRirq);
+	inStream->TransferInt32BE(mSPSRfiq);
 
-	tmp = (KUInt32)mMode; inStream->TransferInt32BE( tmp ); mMode = (EMode)tmp;
-	inStream->TransferInt32BE( mPendingInterrupts );
+	tmp = (KUInt32) mMode;
+	inStream->TransferInt32BE(tmp);
+	mMode = (EMode) tmp;
+	inStream->TransferInt32BE(mPendingInterrupts);
 }
 
 // -------------------------------------------------------------------------- //
 //  * IsIRQEnabled()
 // -------------------------------------------------------------------------- //
-bool TARMProcessor::IsIRQEnabled()
+bool
+TARMProcessor::IsIRQEnabled()
 {
-	return (mCPSR_I==0);
+	return (mCPSR_I == 0);
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * IsFIQEnabled()
 // -------------------------------------------------------------------------- //
-bool TARMProcessor::IsFIQEnabled()
+bool
+TARMProcessor::IsFIQEnabled()
 {
-	return (mCPSR_F==0);
+	return (mCPSR_F == 0);
 }
-
 
 // -------------------------------------------------------------------------- //
 //  * AnyInterruptEnabled()
 // -------------------------------------------------------------------------- //
-bool TARMProcessor::IsAnyInterruptEnabled()
+bool
+TARMProcessor::IsAnyInterruptEnabled()
 {
-	return (mCPSR_F==0) || (mCPSR_I==0);
+	return (mCPSR_F == 0) || (mCPSR_I == 0);
 }
-
-
-
-
-
 
 // =========================================================================== //
 // Some programming languages manage to absorb change, but withstand progress. //

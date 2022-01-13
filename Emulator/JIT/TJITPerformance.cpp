@@ -36,75 +36,84 @@
 #include <chrono>
 #include <thread>
 
-
-
 #ifdef JIT_PERFORMANCE
 
-TJITPerfHitCounter branchDestCount(0, 8*1024*1024-1, 4);
+TJITPerfHitCounter branchDestCount(0, 8 * 1024 * 1024 - 1, 4);
 
-TJITPerfHitCounter branchLinkDestCount(0, 8*1024*1024-1, 4);;
+TJITPerfHitCounter branchLinkDestCount(0, 8 * 1024 * 1024 - 1, 4);
+;
 
 #endif
 
-
-TJITPerfHitCounter::TJITPerfHitCounter(KUInt32 first, KUInt32 last, KUInt32 step)
-:	mEmulator(0L),
-	mFirst(0),
-	mSize(0),
-	mShift(0),
-	mArray(0L)
+TJITPerfHitCounter::TJITPerfHitCounter(KUInt32 first, KUInt32 last, KUInt32 step) :
+		mEmulator(0L),
+		mFirst(0),
+		mSize(0),
+		mShift(0),
+		mArray(0L)
 {
 	mFirst = first;
-	switch (step) {
-		case 2: mShift = 1; break;
-		case 4: mShift = 2; break;
-		default: mShift = 0; break;
+	switch (step)
+	{
+		case 2:
+			mShift = 1;
+			break;
+		case 4:
+			mShift = 2;
+			break;
+		default:
+			mShift = 0;
+			break;
 	}
-	mSize = (last+1-first)>>mShift;
+	mSize = (last + 1 - first) >> mShift;
 	mArray = new KUInt64[mSize];
 }
-
 
 TJITPerfHitCounter::~TJITPerfHitCounter()
 {
 	delete[] mArray;
 }
 
-
-void TJITPerfHitCounter::SetEmulator(TEmulator *inEmulator)
+void
+TJITPerfHitCounter::SetEmulator(TEmulator* inEmulator)
 {
 	mEmulator = inEmulator;
 }
 
-
-
-KUInt64 TJITPerfHitCounter::get_hits(KUInt32 at)
+KUInt64
+TJITPerfHitCounter::get_hits(KUInt32 at)
 {
-	at = (at-mFirst)>>mShift;
-	if (at>mSize)
+	at = (at - mFirst) >> mShift;
+	if (at > mSize)
 		return 0;
 	return mArray[at];
 }
 
-
-void TJITPerfHitCounter::printOneHit(FILE *out, KUInt32 style, TSymbolList *inSymbols, KUInt32 addr, KUInt64 count)
+void
+TJITPerfHitCounter::printOneHit(FILE* out, KUInt32 style, TSymbolList* inSymbols, KUInt32 addr, KUInt64 count)
 {
 	char symbol[512];
 	char comment[80];
 	int offset;
 	Boolean exactSymbol = false;
 
-	if (count > 0 || !(style & kStyleNonZeroOnly)) {
-		if (inSymbols != NULL) exactSymbol = inSymbols->GetSymbolByAddress(addr, symbol, comment, &offset);
-		if (exactSymbol) {
-			fprintf(out, "%s\t%19llu\n", symbol, (long long unsigned)count);
-		} else if ((style & kStyleSymbolsOnly) == 0) {
-			if (style & kStyleHex) {
-				fprintf(out, "%08X: ", (unsigned int)addr);
-			} else {
-				fprintf(out, "%8d: ", (unsigned int)addr);
+	if (count > 0 || !(style & kStyleNonZeroOnly))
+	{
+		if (inSymbols != NULL)
+			exactSymbol = inSymbols->GetSymbolByAddress(addr, symbol, comment, &offset);
+		if (exactSymbol)
+		{
+			fprintf(out, "%s\t%19llu\n", symbol, (long long unsigned) count);
+		} else if ((style & kStyleSymbolsOnly) == 0)
+		{
+			if (style & kStyleHex)
+			{
+				fprintf(out, "%08X: ", (unsigned int) addr);
+			} else
+			{
+				fprintf(out, "%8d: ", (unsigned int) addr);
 			}
-			fprintf(out, "%19llu\n", (long long unsigned)count);
+			fprintf(out, "%19llu\n", (long long unsigned) count);
 		}
 	}
 }
@@ -113,12 +122,14 @@ void TJITPerfHitCounter::printOneHit(FILE *out, KUInt32 style, TSymbolList *inSy
 //	kStyleMostHit,	///< show the first n addresses that were hit most often; varargs is UInt32 n
 //	kStyleHex = 0x10000000 ///< show addresse in 8 byte hex notation instead of decimal
 
-void TJITPerfHitCounter::print(FILE *out, KUInt32 style, TSymbolList *inSymbols, ...)
+void
+TJITPerfHitCounter::print(FILE* out, KUInt32 style, TSymbolList* inSymbols, ...)
 {
-	if ( !out )
+	if (!out)
 		return;
 
-	if (mEmulator) {
+	if (mEmulator)
+	{
 		mEmulator->PauseSystem();
 		mEmulator->GetInterruptManager()->SuspendTimer();
 		std::this_thread::sleep_for(std::chrono::microseconds(1000000));
@@ -126,89 +137,96 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, TSymbolList *inSymbols,
 
 	va_list vl;
 	va_start(vl, inSymbols);
-    static KUInt64 maxULLInt = 0xffffffffffffffffULL;
+	static KUInt64 maxULLInt = 0xffffffffffffffffULL;
 	KUInt32 a, b, i, j, n = 0, o, ix;
 	KUInt64 m = 0;
 
-	//TInterruptManager;;blockEmulatorThread();
+	// TInterruptManager;;blockEmulatorThread();
 	fprintf(out, "----- statistics ----\n");
 
-	switch (style & 0x0000ffff) {
+	switch (style & 0x0000ffff)
+	{
 		case kStyleDontSort:
-			a = 0; b = 0x00800000;
+			a = 0;
+			b = 0x00800000;
 			goto AToB;
 		case kStyleAToB:
-			a = va_arg( vl, KUInt32 );
-			b = va_arg( vl, KUInt32 );
+			a = va_arg(vl, KUInt32);
+			b = va_arg(vl, KUInt32);
 		AToB:
 			o = a;
-			a = (a-mFirst)>>mShift; // TODO: check bounds
-			b = (b-mFirst)>>mShift;
-			for (i=a; i<b; i++) {
+			a = (a - mFirst) >> mShift; // TODO: check bounds
+			b = (b - mFirst) >> mShift;
+			for (i = a; i < b; i++)
+			{
 				KUInt64 v = mArray[i];
-				printOneHit(out, style, inSymbols, (i<<mShift)+o, v);
+				printOneHit(out, style, inSymbols, (i << mShift) + o, v);
 			}
 			break;
 		case kStyleAllHit:
-			for (j=0; j<mSize; j++) {
+			for (j = 0; j < mSize; j++)
+			{
 				KUInt64 v = mArray[j];
-				if (v>0) {
-					printOneHit(out, style, inSymbols, (j<<mShift)+mFirst, m);
+				if (v > 0)
+				{
+					printOneHit(out, style, inSymbols, (j << mShift) + mFirst, m);
 				}
 			}
 		case kStyleMostHit:
 			// TODO: using an insanely slow and destructive method to sort
-			if ((style & 0x0000ffff)==kStyleMostHit)
-				n = va_arg( vl, KUInt32 );
+			if ((style & 0x0000ffff) == kStyleMostHit)
+				n = va_arg(vl, KUInt32);
 			else
 				n = mSize;
 			o = 0;
 			m = 0;
-			for (i=0; i<mSize; i++) {
-				if (mArray[i]>0) {
+			for (i = 0; i < mSize; i++)
+			{
+				if (mArray[i] > 0)
+				{
 					o++;
 					m += mArray[i];
 				}
 			}
-			fprintf(out, "%ld of %li memory addresses in %lld cycles executed.\n", (unsigned long)o, (unsigned long)mSize, (long long unsigned)m);
-			for (i=0; i<n; i++) {
-				m = 0; ix = 0;
-				for (j=0; j<mSize; j++) {
+			fprintf(out, "%ld of %li memory addresses in %lld cycles executed.\n", (unsigned long) o, (unsigned long) mSize, (long long unsigned) m);
+			for (i = 0; i < n; i++)
+			{
+				m = 0;
+				ix = 0;
+				for (j = 0; j < mSize; j++)
+				{
 					KUInt64 v = mArray[j];
-					if (v==maxULLInt)
+					if (v == maxULLInt)
 						continue;
-					if (v>m) {
+					if (v > m)
+					{
 						m = v;
 						ix = j;
 					}
 				}
-				if (m==0)
+				if (m == 0)
 					break;
 				mArray[ix] = maxULLInt;
-				printOneHit(out, style, inSymbols, (ix<<mShift)+mFirst, m);
+				printOneHit(out, style, inSymbols, (ix << mShift) + mFirst, m);
 			}
 			break;
 	}
-    va_end( vl );
+	va_end(vl);
 
-	if (mEmulator) {
+	if (mEmulator)
+	{
 		mEmulator->GetInterruptManager()->ResumeTimer();
 		mEmulator->Run();
 	}
 }
 
-
-void TJITPerfHitCounter::hit(KUInt32 at)
+void
+TJITPerfHitCounter::hit(KUInt32 at)
 {
-    static KUInt64 maxULLInt = 0xffffffffffffffffULL;
-	at = (at-mFirst)>>mShift;
-	if (at>mSize)
+	static KUInt64 maxULLInt = 0xffffffffffffffffULL;
+	at = (at - mFirst) >> mShift;
+	if (at > mSize)
 		return;
-	if (mArray[at]<maxULLInt)
+	if (mArray[at] < maxULLInt)
 		mArray[at]++;
 }
-
-
-
-
-

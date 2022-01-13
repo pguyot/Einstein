@@ -37,10 +37,9 @@
 // -------------------------------------------------------------------------- //
 //  * TBufferedSoundManager( TLog* )
 // -------------------------------------------------------------------------- //
-TBufferedSoundManager::TBufferedSoundManager( TLog* inLog /* = nil */ )
-	:
-		TSoundManager( inLog ),
-		mBuffer( nil )
+TBufferedSoundManager::TBufferedSoundManager(TLog* inLog /* = nil */) :
+		TSoundManager(inLog),
+		mBuffer(nil)
 {
 #if TARGET_RT_LITTLE_ENDIAN
 	mBuffer = (KUInt8*) ::malloc(kNewtonBufferSize);
@@ -50,12 +49,12 @@ TBufferedSoundManager::TBufferedSoundManager( TLog* inLog /* = nil */ )
 // -------------------------------------------------------------------------- //
 //  * ~TBufferedSoundManager( void )
 // -------------------------------------------------------------------------- //
-TBufferedSoundManager::~TBufferedSoundManager( void )
+TBufferedSoundManager::~TBufferedSoundManager(void)
 {
 #if TARGET_RT_LITTLE_ENDIAN
 	if (mBuffer)
 	{
-		::free( mBuffer );
+		::free(mBuffer);
 	}
 #endif
 }
@@ -64,7 +63,7 @@ TBufferedSoundManager::~TBufferedSoundManager( void )
 //  * ScheduleOutputBuffer( KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TBufferedSoundManager::ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize )
+TBufferedSoundManager::ScheduleOutputBuffer(KUInt32 inBufferAddr, KUInt32 inSize)
 {
 #if TARGET_RT_LITTLE_ENDIAN
 	// Copy data (and swap it, too).
@@ -77,7 +76,8 @@ TBufferedSoundManager::ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSiz
 				"Couldn't read data from %.8X\n",
 				(unsigned int) inBufferAddr);
 		}
-	} else {
+	} else
+	{
 		ScheduleOutput(mBuffer, inSize);
 	}
 #else
@@ -91,7 +91,8 @@ TBufferedSoundManager::ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSiz
 				"Couldn't get direct pointer for %.8X\n",
 				inBufferAddr);
 		}
-	} else {
+	} else
+	{
 		ScheduleOutput(thePointer, inSize);
 	}
 #endif
