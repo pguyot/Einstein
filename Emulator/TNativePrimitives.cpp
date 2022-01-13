@@ -186,58 +186,58 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 		// a real ARM instruction.  The lower 31 bits are an enum value
 		// identifying a virtualized call. These enums are defined in
 		// TVirtualizedCallsPatches.h
-		
+
 		mVirtualizedCalls->Execute(inInstruction &~ 0x80000000);
 	} else {
 		// Now execute the native implementation of the coprocessor
-		
+
 		switch (inInstruction >> 8)
 		{
 			case 0x000000:
 				ExecuteFlashDriverNative( inInstruction );
 				break;
-				
+
 			case 0x000001:
 				ExecutePlatformDriverNative( inInstruction );
 				break;
-				
+
 			case 0x000002:
 				ExecuteSoundDriverNative( inInstruction );
 				break;
-				
+
 			case 0x000003:
 				ExecuteBatteryDriverNative( inInstruction );
 				break;
-				
+
 			case 0x000004:
 				ExecuteScreenDriverNative( inInstruction );
 				break;
-	
+
 			case 0x000005:
 				ExecuteTabletDriverNative( inInstruction );
 				break;
-	
+
 			case 0x000006:
 				ExecuteSerialDriverNative( inInstruction );
 				break;
-	
+
 			case 0x000007:
 				ExecuteInTranslatorNative( inInstruction );
 				break;
-	
+
 			case 0x000008:
 				ExecuteOutTranslatorNative( inInstruction );
 				break;
-	
+
 			case 0x000009:
 				ExecuteHostCallNative( inInstruction );
 				break;
-				
+
 			case 0x00000A:
 				ExecuteNetworkManagerNative( inInstruction );
 				break;
-		
-#if TARGET_OS_MAC	
+
+#if TARGET_OS_MAC
 			case 0x00000B:
 				ExecuteHostiOSNativeiOS( inInstruction );
 				break;
@@ -250,7 +250,7 @@ TNativePrimitives::ExecuteNative( KUInt32 inInstruction )
 						"Unimplemented native primitive %.8X (pc=%.8X)",
 						(unsigned int) inInstruction,
 						(unsigned int) mProcessor->GetRegister(15) );
-				}					
+				}
 		}
 	}
 }
@@ -283,7 +283,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 #endif
 			// For 4MB, just return 1 for 0x34000000 only.
 //			if ((chipAddr == 0x34000000)
-//				&&	
+//				&&
 			if ((mask == 0xFF000000)
 					|| (mask == 0x00FF0000)
 					|| (mask == 0x0000FF00)
@@ -374,7 +374,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 				// Very ugly way to determine that we do 32 bits.
 				// (btw, we only have 16 bits accesses from the OS, but
 				// 8 bits may be possible as well).
-				
+
 				// PLATFORM SPECIFIC HACK
 				//					16 bits		32 bits
 				// MP2100D			0001E3C8	0001E3E0
@@ -428,7 +428,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 				// Very ugly way to determine that we do 32 bits.
 				// (btw, we only have 16 bits accesses from the OS, but
 				// 8 bits may be possible as well).
-				
+
 				// PLATFORM SPECIFIC HACK
 				//					16 bits		32 bits
 				// MP2100D			0001E3C8	0001E3E0
@@ -460,7 +460,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 						(unsigned int) mProcessor->GetRegister( 2 ),
 						0x10000);
 				}
-				
+
 				if (theResult)
 				{
 					mProcessor->SetRegister( 0,
@@ -570,7 +570,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 				Boolean theResult = mMemory->EraseFlash(
 						(unsigned int) mProcessor->GetRegister( 1 ),
 						(unsigned int) mProcessor->GetRegister( 2 ));
-				
+
 				if (theResult)
 				{
 					mProcessor->SetRegister( 0,
@@ -588,7 +588,7 @@ TNativePrimitives::ExecuteFlashDriverNative( KUInt32 inInstruction )
 					"Unknown flash driver native primitive %.8X (pc=%.8X)",
 					(unsigned int) inInstruction,
 					(unsigned int) mProcessor->GetRegister(15) );
-			}					
+			}
 	}
 }
 
@@ -606,7 +606,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 				mLog->LogLine( "TMainPlatformDriver::New" );
 			}
 			break;
-			
+
 		case 0x02:
 			if (LOG_PLATFORM)
 			{
@@ -614,7 +614,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			}
 			mProcessor->SetRegister( 0, 0 );
 			break;
-			
+
 		case 0x03:
 			if (LOG_PLATFORM)
 			{
@@ -622,7 +622,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			}
 			mProcessor->SetRegister( 0, 0 );
 			break;
-			
+
 		case 0x04:
 			if (LOG_PLATFORM)
 			{
@@ -630,7 +630,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			}
 			mProcessor->SetRegister( 0, 0 );
 			break;
-			
+
 		case 0x05:
 			if (LOG_PLATFORM)
 			{
@@ -638,7 +638,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			}
 			mProcessor->SetRegister( 0, 0 );
 			break;
-			
+
 		case 0x06:
 			if (LOG_PLATFORM)
 			{
@@ -646,7 +646,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			}
 			mProcessor->SetRegister( 0, 0 );
 			break;
-			
+
 		case 0x07:
 			if (LOG_PLATFORM)
 			{
@@ -654,7 +654,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			}
 			mProcessor->SetRegister( 0, 0 );
 			break;
-			
+
 		case 0x08:
 			if (LOG_PLATFORM)
 			{
@@ -662,7 +662,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			}
 			mProcessor->SetRegister( 0, 0 );
 			break;
-			
+
 		case 0x09:
 			if (LOG_PLATFORM)
 			{
@@ -670,7 +670,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 			}
 			mProcessor->SetRegister( 0, 0 );
 			break;
-			
+
 		case 0x0A:
 			{
                 // Boot process powers system up in this order: 0x1d, 0x01, 0x23, 0x22
@@ -720,7 +720,7 @@ TNativePrimitives::ExecutePlatformDriverNative( KUInt32 inInstruction )
 				mProcessor->SetRegister( 0, 0 );
 			}
 			break;
-			
+
 		case 0x0B:
 			{
 				KUInt32 theSubsystem = mProcessor->GetRegister(1);

@@ -49,7 +49,7 @@
 // INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 // (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 // SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
@@ -147,9 +147,9 @@ static const struct arm32_insn arm32_i[] = {
     { 0x0c500000, 0x04400000, "strb",	"daW" },
     { 0x0c500000, 0x04500000, "ldrb",	"daW" },
     { 0x0e1f0000, 0x080d0000, "stm",	"YnWl" },/* separate out r13 base */
-    { 0x0e1f0000, 0x081d0000, "ldm",	"YnWl" },/* separate out r13 base */    
+    { 0x0e1f0000, 0x081d0000, "ldm",	"YnWl" },/* separate out r13 base */
     { 0x0e100000, 0x08000000, "stm",	"XnWl" },
-    { 0x0e100000, 0x08100000, "ldm",	"XnWl" },    
+    { 0x0e100000, 0x08100000, "ldm",	"XnWl" },
     { 0x0e1000f0, 0x00100090, "ldrb",	"de" },
     { 0x0e1000f0, 0x00000090, "strb",	"de" },
     { 0x0e1000f0, 0x001000d0, "ldrsb",	"de" },
@@ -290,7 +290,7 @@ static char const arm32_registers[][4] = {
 class disasm_interface_t {
 public:
 	disasm_interface_t( char* inBuffer, int inSize, TSymbolList* inSymbolList );
-	
+
 	void	di_printaddr( unsigned int inAddress );
 	void	di_printf(const char* inFmt );
 	void	di_printf(const char* inFmt, const char* inStr );
@@ -386,7 +386,7 @@ disasm(disasm_interface_t *di, unsigned int loc, unsigned int insn)
 				di->di_printf("#0x%08x",
 					      (insn & 0xff) << (32 - rotate) |
 					      (insn & 0xff) >> rotate);
-			} else {  
+			} else {
 				disasm_register_shift(di, insn);
 			}
 			break;
@@ -754,7 +754,7 @@ disasm_interface_t::di_printaddr( unsigned int inAddress )
 	char theSymbol[512];
 	char theComment[512];
 	int theOffset = 0;
-	
+
 	if (mSymbolList) {
 		mSymbolList->GetNearestSymbolByAddress( inAddress, theSymbol, theComment, &theOffset );
         if (theOffset == 0) {
@@ -766,7 +766,7 @@ disasm_interface_t::di_printaddr( unsigned int inAddress )
     } else {
         di_printf( "%08X", inAddress );
     }
-	
+
 }
 
 // -------------------------------------------------------------------------- //

@@ -86,9 +86,9 @@ public:
 			return (KUInt32) htonl((uint32_t) inWord);
 #else
 			return (
-					((inWord >> 24)	& 0x000000FF) | 
-					((inWord >> 8)	& 0x0000FF00) | 
-					((inWord << 8)	& 0x00FF0000) | 
+					((inWord >> 24)	& 0x000000FF) |
+					((inWord >> 8)	& 0x0000FF00) |
+					((inWord << 8)	& 0x00FF0000) |
 					((inWord << 24)	& 0xFF000000));
 #endif
 		}

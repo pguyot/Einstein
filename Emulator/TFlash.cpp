@@ -76,7 +76,7 @@ TFlash::TFlash(
 	{
 		// Update the checksums if required.
 		inROMImage->ComputeChecksums( checksums );
-	
+
 		// Check Einstein's rex checksum.
 		if ((checksums[4] != REX_Csum1)
 			|| (checksums[5] != REX_Csum2))
@@ -116,7 +116,7 @@ TFlash::TFlash(
 				{
 					nullChecksums = true;
 				}
-				
+
 				if (mLog)
 				{
 					mLog->FLogLine(
@@ -125,7 +125,7 @@ TFlash::TFlash(
 							(unsigned int) theWord,
 							(unsigned int) checksums[indexChecksum]);
 				}
-				
+
 				Write(
 					checksums[indexChecksum],
 					0xFFFFFFFF,
@@ -167,11 +167,11 @@ TFlash::TFlash(
 		Write( 0xD7ECCC66, 0xFFFFFFFF, 0x00010054, 0 ); // some checksum
 		Write( 0xFFFFFFF0, 0xFFFFFFFF, 0x00010058, 0 ); // some number
 		Write( 0xFFFFFFFF, 0xFFFFFFFF, 0x0001008C, 0 ); // if calibration is valid
-		
+
 		// We save.
 		Save();
 	}
-	
+
 
 	if (corruptedRex)
 	{
@@ -289,9 +289,9 @@ TFlash::ReadB(
 
 		case 0x3:
 		default:
-			theResult = theWord & 0xFF; 
+			theResult = theWord & 0xFF;
 	}
-	
+
 	return theResult;
 }
 

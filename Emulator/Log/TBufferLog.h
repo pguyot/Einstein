@@ -70,12 +70,12 @@ public:
 	/// \param inPath   path to the log file.
 	///
 	void			OpenLog( const char* inPath );
-	
+
 	///
 	/// Close the log file.
 	///
 	void			CloseLog( void );
-	
+
 	///
 	/// Bind the log with a socket (for screen refreshes)
 	///
@@ -83,7 +83,7 @@ public:
 		{
 			mRefreshSocket = inRefreshSocket;
 		}
-	
+
 private:
 	///
 	/// Log a line.

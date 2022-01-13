@@ -61,7 +61,7 @@ TTapNetwork::~TTapNetwork()
 }
 
 /*
- * This function handles packet that are sent by the Newton to the outside 
+ * This function handles packet that are sent by the Newton to the outside
  * world.
  */
 int TTapNetwork::SendPacket(KUInt8 *data, KUInt32 size)
@@ -70,7 +70,7 @@ int TTapNetwork::SendPacket(KUInt8 *data, KUInt32 size)
     if (nbWritten != size && mLog) {
 		mLog->FLogLine("Sending packet failed. (%i)", errno);
     }
-    
+
     // Raise an interrupt if it sends a packet
     // (actually, we should call AsyncWaitForReadyToRead only when the card
     // is inserted).
@@ -121,7 +121,7 @@ int TTapNetwork::ReceiveData(KUInt8 *data, KUInt32 size)
     FD_ZERO(&readSet);
     FD_SET(mTapFileDescriptor, &readSet);
     AsyncWaitForReadyToRead(mTapFileDescriptor + 1, &readSet);
-    
+
     return result;
 }
 

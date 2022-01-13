@@ -117,12 +117,12 @@ private:
 	/// Open the frame buffer.
 	///
 	void			Open( void );
-	
+
 	///
 	/// Close the frame buffer.
 	///
 	void			Close( void );
-	
+
 	/// \name Variables
 	int				mFrameBufferFD;	///< fd for the fb
 };

@@ -63,7 +63,7 @@ public:
 	/// \param	inMode	mode à utiliser. Les bits sont définis dans EMode.
 	///
 	TTraceMonitor( unsigned int inMode );
-	
+
 	///
 	/// Destructeur.
 	///
@@ -104,14 +104,14 @@ public:
 	/// \param	inMode	mode à utiliser (les bits sont définis par EMode)
 	///
 	void SetMode( unsigned int inMode );
-	
+
 	///
 	/// Affiche la pile.
 	/// Cette méthode va appeler DoPrintStack pour chaque appel dans
 	/// la pile si le mode comprend \c kKeepStack.
 	///
 	void PrintStack( void );
-	
+
 protected:
 	///
 	/// Affiche une ligne pour le début d'une fonction.
@@ -159,12 +159,12 @@ private:
 		const char*		fFileName;		///< Nom du fichier
 		unsigned int	fLineNumber;	///< Numéro de ligne
 	};
-	
+
 	enum {
 		kStackSizeIncrement	= 10		///< Incrément à chaque fois
 										///< que la pile est pleine.
 	};
-	
+
 	unsigned int		mMode;			///< Mode (cf \c EMode)
 	unsigned int		mStackDepth;	///< Profondeur de la pile
 	unsigned int		mStackCapacity;	///< Capacité de la pile

@@ -36,16 +36,16 @@
 
 /*
  Floating point math emulation
- 
- The SA110 processor has no floating point coprocessor. It emulates FP 
+
+ The SA110 processor has no floating point coprocessor. It emulates FP
  instructions in software. Einstein then emulates the emulation. I am sure you
  can see where I am going.
- 
- In order to increase speed, it would be nice to write new JIT code that 
+
+ In order to increase speed, it would be nice to write new JIT code that
  generates native code for all FP instructions, just as it does for ARM integer
- instructions. Even though floating point is used sparsely in the ROM, this 
+ instructions. Even though floating point is used sparsely in the ROM, this
  should still make for a bit of an acceleration.
- 
+
  All FP registers are stored at __fp_regs (0x0C105A5C). There are 8 registers.
  Most instructions are 'd', some are 's' precission. Registeres are stored
  in their own format and converted to and from IEEE when copied to RAM or to
@@ -61,9 +61,9 @@ JITInstructionProto(SWI)
 	// Set the PC before jumping to the handler....
 	POPPC();
 	SETPC(GETPC());
-	
+
 	ioCPU->DoSWI();
-	
+
 	// Don't execute next function.
 	MMUCALLNEXT_AFTERSETPC;
 }
@@ -71,12 +71,12 @@ JITInstructionProto(SWI)
 // -------------------------------------------------------------------------- //
 //  * CallNativePatch
 //
-//  This function allows for quick calls into host-native "C" and "C++" 
-//  functions without patching more than a single instruction in the 
-//  original code. 
+//  This function allows for quick calls into host-native "C" and "C++"
+//  functions without patching more than a single instruction in the
+//  original code.
 //
 //  Implementing host-native calls using a stub will allow direct calls
-//  from other native functions, allowing full execution speed without 
+//  from other native functions, allowing full execution speed without
 //  any register emulation.
 // -------------------------------------------------------------------------- //
 JITInstructionProto(CallPatchNative)
@@ -108,7 +108,7 @@ JITInstructionProto(CoprocDataTransfer)
 	// All CP15 LDC and STC operations are undefined.
 	// And we don't have another coproc anyway.
 	ioCPU->DoUndefinedInstruction();
-	
+
 	// Don't execute next function.
 	MMUCALLNEXT_AFTERSETPC;
 }
@@ -124,7 +124,7 @@ JITInstructionProto(CoprocDataOperation)
 	// All CP15 CDP operations are undefined.
 	// And we don't have another coproc anyway.
 	ioCPU->DoUndefinedInstruction();
-	
+
 	// Don't execute next function.
 	MMUCALLNEXT_AFTERSETPC;
 }
@@ -139,7 +139,7 @@ JITInstructionProto(CoprocRegisterTransfer)
 	POPPC();
 	SETPC(GETPC());
 	KUInt32 CPNumber = (theInstruction & 0x00000F00) >> 8;
-	
+
 	if (CPNumber == 0xF)
 	{
 		ioCPU->SystemCoprocRegisterTransfer(theInstruction);
@@ -149,7 +149,7 @@ JITInstructionProto(CoprocRegisterTransfer)
 	} else {
 		ioCPU->DoUndefinedInstruction();
 	}
-	
+
 	// Don't execute next function.
 	MMUCALLNEXT_AFTERSETPC;
 }
@@ -220,7 +220,7 @@ Translate_SWIAndCoproc(
 	} else {
 		PUSHFUNC(CoprocDataTransfer);
 	}
-	
+
 	// For all those methods, put the PC.
 	PUSHVALUE(inVAddr + 8);
 }
@@ -232,7 +232,7 @@ JITInstructionProto(Branch)
 {
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-	
+
 	// Branch.
 	MMUCALLNEXT(theNewPC);
 }
@@ -244,10 +244,10 @@ JITInstructionProto(BranchWithinPage)
 {
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-	
+
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
-	
+
 	// Branch.
 	SETPC(theNewPC);
 	return ioUnit+theDelta;
@@ -260,15 +260,15 @@ JITInstructionProto(BranchWithinPageFindDelta)
 {
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-	
+
 	POPNIL();
-	
+
 	// MMUCALLNEXT()
 	TMemory *theMemIntf = ioCPU->GetMemory();
 	SETPC(theNewPC);
 	JITUnit *nextUnit = theMemIntf->GetJITObject()
 		->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
-	
+
 	// now change the JIT command to the final fast branch
 	ioUnit[ 0].fValue = (KUInt32)(nextUnit - ioUnit);
 	ioUnit[-2].fFuncPtr = BranchWithinPage;
@@ -284,7 +284,7 @@ JITInstructionProto(BranchWithLink)
 	POPVALUE(theNewLR);
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
-	
+
 	// BL
 	ioCPU->mCurrentRegisters[14] = theNewLR;
 	MMUCALLNEXT(theNewPC);
@@ -301,7 +301,7 @@ JITInstructionProto(BranchWithLinkWithinPage)
 	POPVALUE(theNewPC);
 	KSInt32 theDelta;
 	POPVALUE(theDelta);
-	
+
 	// BL
 	ioCPU->mCurrentRegisters[14] = theNewLR;
 	SETPC(theNewPC);
@@ -318,16 +318,16 @@ JITInstructionProto(BranchWithLinkWithinPageFindDelta)
 	KUInt32 theNewPC;
 	POPVALUE(theNewPC);
 	POPNIL();
-	
+
 	// set the link register
 	ioCPU->mCurrentRegisters[14] = theNewLR;
-	
+
 	// MMUCALLNEXT()
 	TMemory *theMemIntf = ioCPU->GetMemory();
 	SETPC(theNewPC);
 	JITUnit *nextUnit = theMemIntf->GetJITObject()
 		->GetJITUnitForPC(ioCPU, theMemIntf, theNewPC);
-	
+
 	// now change the JIT command to the final fast branch
 	ioUnit[ 0].fValue = (KUInt32)(nextUnit - ioUnit);
 	ioUnit[-3].fFuncPtr = BranchWithLinkWithinPage;
@@ -346,7 +346,7 @@ Translate_Branch(
 				 KUInt32 inVAddr )
 {
 	// -Cond-- 1  0  1  L  ---------------------offset---------------------------- Branch
-	
+
 	// PC prefetch strategy: PC currently is 8 bytes ahead.
 	// When we enter this method, it should be 4 bytes ahead.
 	// The offset of the branch should be added to the PC and then PC will
@@ -354,25 +354,25 @@ Translate_Branch(
 	// E.g. here B here is coded EAFFFFFE, i.e. branch to offset -8.
 	// So what we need to do, for this emulator, is to add 4 to the
 	// final result.
-	
+
 	KUInt32 offset = (inInstruction & 0x007FFFFF) << 2;
 	if (inInstruction & 0x00800000)
 	{
 		offset |= 0xFE000000;
 	}
 	KUInt32 delta = offset + 8;
-	
+
 	// KUInt32 theOffsetInPage = inOffsetInPage + delta;
 	// optimize here:
 	// if (theOffsetInPage < kPageSize)
 	if (inInstruction & 0x01000000)
 	{
 		// optimizing branches with link within pages gained only 1% speed
-		if ( (inVAddr+delta>=inPage->GetVAddr()) && (inVAddr+delta<inPage->GetVAddr()+inPage->kPageSize) ) 
+		if ( (inVAddr+delta>=inPage->GetVAddr()) && (inVAddr+delta<inPage->GetVAddr()+inPage->kPageSize) )
 		{
 			PUSHFUNC(BranchWithLinkWithinPageFindDelta);
 			// The new LR
-			PUSHVALUE(inVAddr + 4);	
+			PUSHVALUE(inVAddr + 4);
 			// The new PC
 			PUSHVALUE(inVAddr + delta + 4);
 			// The branch offset in ioUnits, to be calculated later
@@ -380,13 +380,13 @@ Translate_Branch(
 		} else {
 			PUSHFUNC(BranchWithLink);
 			// The new LR
-			PUSHVALUE(inVAddr + 4);	
+			PUSHVALUE(inVAddr + 4);
 			// The new PC
 			PUSHVALUE(inVAddr + delta + 4);
 		}
 	} else {
 		// optimizing branches within pages gave us a 10% speed increase
-		if ( (inVAddr+delta>=inPage->GetVAddr()) && (inVAddr+delta<inPage->GetVAddr()+inPage->kPageSize) ) 
+		if ( (inVAddr+delta>=inPage->GetVAddr()) && (inVAddr+delta<inPage->GetVAddr()+inPage->kPageSize) )
 		{
 			PUSHFUNC(BranchWithinPageFindDelta);
 			// The new PC
@@ -413,7 +413,7 @@ JITInstructionProto(SystemBootUND)
 	POPPC();
 	SETPC(GETPC());
 	ioCPU->GetEmulator()->SystemBootUND( thePAddress );
-	
+
 	// Don't execute next function.
 	MMUCALLNEXT_AFTERSETPC;
 }
@@ -430,7 +430,7 @@ JITInstructionProto(DebuggerUND)
 	POPPC();
 	SETPC(GETPC());
 	ioCPU->GetEmulator()->DebuggerUND( thePAddress );
-	
+
 	// Don't execute next function.
 	MMUCALLNEXT_AFTERSETPC;
 }
@@ -460,7 +460,7 @@ JITInstructionProto(UndefinedInstruction)
 	POPPC();
 	SETPC(GETPC());
 	ioCPU->DoUndefinedInstruction();
-	
+
 	// Don't execute next function.
 	MMUCALLNEXT_AFTERSETPC;
 }
@@ -474,9 +474,9 @@ JITInstructionProto(SoftwareBreakpoint)
 	POPVALUE(theInstruction);
 	POPPC();
 	SETPC(GETPC());
-	
+
 	ioCPU->GetEmulator()->Breakpoint( theInstruction );
-	
+
 	// Don't execute next function.
 	MMUCALLNEXT(GETPC());
 }

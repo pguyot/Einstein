@@ -158,7 +158,7 @@ public:
 		kPCMCIA3Base		= 0x60000000,
 		kPCMCIA3End			= 0x70000000
 	};
-	
+
 	///
 	/// Fault Status Register bits.
 	///
@@ -182,7 +182,7 @@ public:
 		kFSR_DomainShift		= 4,
 		kFSR_DomainShiftMin1	= 3
 	};
-	
+
 	///
 	/// Other MMU-related constants.
 	///
@@ -200,7 +200,7 @@ public:
 		kMMUSmallestPageSize	= 1024,	///< 1 KB (that's not big).
 		kMMUDirtyCacheMask		= 1
 	};
-	
+
 	///
 	/// Other hardware constants.
 	///

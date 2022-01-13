@@ -185,7 +185,7 @@ void TFLPCCardSettings::SetImagePath(const char* inImagePath)
 }
 
 
-// MARK: - Application Settings 
+// MARK: - Application Settings
 
 
 TFLSettings::TFLSettings() = default;

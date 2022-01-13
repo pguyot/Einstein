@@ -2,10 +2,10 @@
 // Fichier:			tests.h
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			31/1/2004
 // Tabulation:		4 espaces
-// 
+//
 // Copyright:		© 2004 by Paul Guyot.
 // 					Tous droits réservés pour tous pays.
 // Licence:			Licence Réflexive Kallisys

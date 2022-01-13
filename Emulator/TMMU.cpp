@@ -166,7 +166,7 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 	}
 	gNbHits++;
 #endif
-	
+
 	// Lookup in the cache.
 	KUInt32 pageAddress = inVAddress & TMemoryConsts::kMMUSmallestPageMask;
 	SEntry* theEntry = mCache.Lookup(pageAddress);
@@ -176,14 +176,14 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 		// If they are incorrect, fall thru to properly handle the error.
 		theAccessPermissionMask = kAPMagic_Bits_Manager;
 		theDomain_times2 = theEntry->mDomainTimes2;
-		
+
 		if (mDomainAC & (1 << theDomain_times2))
 		{
 			if (!(mDomainAC & (1 << (theDomain_times2 + 1))))
 			{
 				theAccessPermissionMask = mCurrentAPRead;
 			}
-			
+
 			if (theAccessPermissionMask & (1 << theEntry->mEntryPermIndex))
 			{
 				outPAddress = theEntry->mPhysicalAddress
@@ -200,7 +200,7 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 			gNbPerm++;
 #endif
 	} // if (theEntry)
-	
+
 #if kTMMUStats
 	else
 		gNbMiss++;
@@ -222,14 +222,14 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 #if MMUDebug > 1
 	(void) ::fprintf( stderr, "Table entry at %.8X is %.8X\n", mTTBase | ((inVAddress >> 18) & 0xFFFFFFFC), tableEntry );
 #endif
-	
+
 	theDomain_times2 = (tableEntry & 0x000003E0) >> 4;
 	theAccessPermissionMask = kAPMagic_Bits_Manager;
-	
+
 #if MMUDebug > 1
 	(void) ::fprintf( stderr, "Domain is %i, access is %s\n", theDomain_times2 / 2, (mDomainAC & (1 << theDomain_times2)) ? "true" : "false" );
 #endif
-	
+
 	if (mDomainAC & (1 << theDomain_times2))
 	{
 		if (!(mDomainAC & (1 << (theDomain_times2 + 1))))
@@ -246,7 +246,7 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 		}
 
 		int subpageIndexShift;
-		
+
 		// What kind of lookup is it?
 		switch (tableEntry & 0x3)
 		{
@@ -257,7 +257,7 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 					TMemoryConsts::kFSR_TranslationSection
 					| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 				return true;
-			
+
 			case 0x1:
 				// 01
 				// Coarse second level table.
@@ -298,13 +298,13 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 							TMemoryConsts::kFSR_TranslationPage
 							| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 						return true;
-					
+
 					case 0x01:
 						// Large page.
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x0000C000) >> 13) + 4;
-						entryPermIndex = 
+						entryPermIndex =
 							(tableEntry & (0x00000003 << subpageIndexShift))
 								>> subpageIndexShift;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
@@ -321,13 +321,13 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 						outPAddress = (tableEntry & TMemoryConsts::kMMULargePageMask)
 									| (inVAddress & TMemoryConsts::kMMULargePageMaskNeg);
 						break;
-					
+
 					case 0x02:
 						// Small page.
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x00000C00) >> 9) + 4;
-						entryPermIndex = 
+						entryPermIndex =
 							(tableEntry & (0x00000003 << subpageIndexShift)) >> subpageIndexShift;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
@@ -347,7 +347,7 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 						outPAddress = (tableEntry & TMemoryConsts::kMMUSmallPageMask)
 									| (inVAddress & TMemoryConsts::kMMUSmallPageMaskNeg);
 						break;
-					
+
 					case 0x03:
 						// Tiny page.
 						// They must not appear in coarse table.
@@ -355,7 +355,7 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 						return true;
 				}
 				break;
-			
+
 			case 0x2:
 				// 10
 				// Section descriptor.
@@ -373,7 +373,7 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 				outPAddress = (tableEntry & TMemoryConsts::kMMUSectionMask)
 					| (inVAddress & TMemoryConsts::kMMUSectionMaskNeg);
 				break;
-			
+
 			case 0x3:
 				// 11
 				// Fine second level table.
@@ -405,13 +405,13 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 							TMemoryConsts::kFSR_TranslationPage
 							| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 						return true;
-					
+
 					case 0x01:
 						// Large page.
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x0000C000) >> 11) + 4;
-						entryPermIndex = 
+						entryPermIndex =
 							(tableEntry & (0x00000003 << subpageIndexShift))
 								>> subpageIndexShift;
 
@@ -426,13 +426,13 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 						outPAddress = (tableEntry & TMemoryConsts::kMMULargePageMask)
 									| (inVAddress & TMemoryConsts::kMMULargePageMaskNeg);
 						break;
-					
+
 					case 0x02:
 						// Small page.
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x00000C00) >> 9) + 4;
-						entryPermIndex = 
+						entryPermIndex =
 							(tableEntry & (0x00000003 << subpageIndexShift))
 								>> subpageIndexShift;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
@@ -446,10 +446,10 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 						outPAddress = (tableEntry & TMemoryConsts::kMMUSmallPageMask)
 									| (inVAddress & TMemoryConsts::kMMUSmallPageMaskNeg);
 						break;
-					
+
 					case 0x03:
 						// Tiny page.
-						entryPermIndex = 
+						entryPermIndex =
 							(tableEntry & 0x00000030) >> 4;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
@@ -502,7 +502,7 @@ TMMU::TranslateR( KUInt32 inVAddress, KUInt32& outPAddress )
 #if MMUDebug > 1
 	(void) ::fprintf( stderr, "outPAddress = %.8X\n", outPAddress );
 #endif
-			
+
 	return false;
 }
 
@@ -536,14 +536,14 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 		// If they are incorrect, fall thru to properly handle the error.
 		theAccessPermissionMask = kAPMagic_Bits_Manager;
 		theDomain_times2 = theEntry->mDomainTimes2;
-		
+
 		if (mDomainAC & (1 << theDomain_times2))
 		{
 			if (!(mDomainAC & (1 << (theDomain_times2 + 1))))
 			{
 				theAccessPermissionMask = mCurrentAPWrite;
 			}
-			
+
 			if (theAccessPermissionMask & (1 << theEntry->mEntryPermIndex))
 			{
 				outPAddress = theEntry->mPhysicalAddress
@@ -580,14 +580,14 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 #if MMUDebug > 1
 	(void) ::fprintf( stderr, "Table entry at %.8X is %.8X\n", mTTBase | ((inVAddress >> 18) & 0xFFFFFFFC), tableEntry );
 #endif
-	
+
 	theDomain_times2 = (tableEntry & 0x000003E0) >> 4;
 	theAccessPermissionMask = kAPMagic_Bits_Manager;
-	
+
 #if MMUDebug > 1
 	(void) ::fprintf( stderr, "Domain is %i, access is %s\n", theDomain_times2 / 2, (mDomainAC & (1 << theDomain_times2)) ? "true" : "false" );
 #endif
-	
+
 	if (mDomainAC & (1 << theDomain_times2))
 	{
 		if (!(mDomainAC & (1 << (theDomain_times2 + 1))))
@@ -604,7 +604,7 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 		}
 
 		int subpageIndexShift;
-		
+
 		// What kind of lookup is it?
 		switch (tableEntry & 0x3)
 		{
@@ -615,7 +615,7 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 					TMemoryConsts::kFSR_TranslationSection
 					| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 				return true;
-			
+
 			case 0x1:
 				// 01
 				// Coarse second level table.
@@ -656,13 +656,13 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 							TMemoryConsts::kFSR_TranslationPage
 							| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 						return true;
-					
+
 					case 0x01:
 						// Large page.
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x0000C000) >> 13) + 4;
-						entryPermIndex = 
+						entryPermIndex =
 							(tableEntry & (0x00000003 << subpageIndexShift))
 								>> subpageIndexShift;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
@@ -679,13 +679,13 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 						outPAddress = (tableEntry & TMemoryConsts::kMMULargePageMask)
 									| (inVAddress & TMemoryConsts::kMMULargePageMaskNeg);
 						break;
-					
+
 					case 0x02:
 						// Small page.
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x00000C00) >> 9) + 4;
-						entryPermIndex = 
+						entryPermIndex =
 							(tableEntry & (0x00000003 << subpageIndexShift)) >> subpageIndexShift;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
@@ -705,7 +705,7 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 						outPAddress = (tableEntry & TMemoryConsts::kMMUSmallPageMask)
 									| (inVAddress & TMemoryConsts::kMMUSmallPageMaskNeg);
 						break;
-					
+
 					case 0x03:
 						// Tiny page.
 						// They must not appear in coarse table.
@@ -713,7 +713,7 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 						return true;
 				}
 				break;
-			
+
 			case 0x2:
 				// 10
 				// Section descriptor.
@@ -731,7 +731,7 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 				outPAddress = (tableEntry & TMemoryConsts::kMMUSectionMask)
 					| (inVAddress & TMemoryConsts::kMMUSectionMaskNeg);
 				break;
-			
+
 			case 0x3:
 				// 11
 				// Fine second level table.
@@ -763,13 +763,13 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 							TMemoryConsts::kFSR_TranslationPage
 							| (theDomain_times2 << TMemoryConsts::kFSR_DomainShiftMin1);
 						return true;
-					
+
 					case 0x01:
 						// Large page.
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x0000C000) >> 11) + 4;
-						entryPermIndex = 
+						entryPermIndex =
 							(tableEntry & (0x00000003 << subpageIndexShift))
 								>> subpageIndexShift;
 
@@ -784,13 +784,13 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 						outPAddress = (tableEntry & TMemoryConsts::kMMULargePageMask)
 									| (inVAddress & TMemoryConsts::kMMULargePageMaskNeg);
 						break;
-					
+
 					case 0x02:
 						// Small page.
 						// shift: index * 2 + 4
 						// (always > kAPMagic_APShift)
 						subpageIndexShift = ((inVAddress & 0x00000C00) >> 9) + 4;
-						entryPermIndex = 
+						entryPermIndex =
 							(tableEntry & (0x00000003 << subpageIndexShift))
 								>> subpageIndexShift;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
@@ -804,10 +804,10 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 						outPAddress = (tableEntry & TMemoryConsts::kMMUSmallPageMask)
 									| (inVAddress & TMemoryConsts::kMMUSmallPageMaskNeg);
 						break;
-					
+
 					case 0x03:
 						// Tiny page.
-						entryPermIndex = 
+						entryPermIndex =
 							(tableEntry & 0x00000030) >> 4;
 						if (!(theAccessPermissionMask & (1 << entryPermIndex)))
 						{
@@ -860,7 +860,7 @@ TMMU::TranslateW( KUInt32 inVAddress, KUInt32& outPAddress )
 #if MMUDebug > 1
 	(void) ::fprintf( stderr, "outPAddress = %.8X\n", outPAddress );
 #endif
-			
+
 	return false;
 }
 
@@ -884,8 +884,8 @@ TMMU::TranslateInstruction(
 		}
 		theAddress = theTranslatedAddress;
 	}
-	
-	// Optimization: we can only execute stuff from RAM or ROM.	
+
+	// Optimization: we can only execute stuff from RAM or ROM.
 	if (!(theAddress & TMemoryConsts::kROMEndMask))
 	{
 		*outPAddress = theAddress;
@@ -916,7 +916,7 @@ TMMU::TranslateInstruction(
 		SetHardwareFault( inVAddress );
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -932,19 +932,19 @@ TMMU::AddToCache(
 {
 	// Take last page.
 	SEntry* theEntry = mCache.GetLastValue();
-	
+
 	// Remove it from the table.
 	mCache.Erase( theEntry->key );
-	
+
 	// Modify the entry.
 	theEntry->key = inVAddr;
 	theEntry->mPhysicalAddress = inPAddr;
 	theEntry->mDomainTimes2 = inDomainT2;
 	theEntry->mEntryPermIndex = inEntryPermIndex;
-	
+
 	// Add it into the table.
 	mCache.Insert( inVAddr, theEntry );
-	
+
 	// Finally touch the entry.
 	mCache.MakeFirst( theEntry );
 }
@@ -1044,7 +1044,7 @@ void
 TMMU::FDump(FILE *f)
 {
 //	static const char *const ap[4] = { "ro/na", "rw/na", "rw/ro", "rw/rw" };
-	
+
 	Boolean err = false;
 	fprintf(f, "=====> Dumping MMU state\n");
 	if (mMMUEnabled) {
@@ -1064,11 +1064,11 @@ TMMU::FDump(FILE *f)
 							case 0: // Fault
 								break;
 							case 1:
-								fprintf(f, "  0x%03x%02xxxx maps to a Large Page at 0x%04xxxxx, AP=%s,%s,%s,%s\n", 
+								fprintf(f, "  0x%03x%02xxxx maps to a Large Page at 0x%04xxxxx, AP=%s,%s,%s,%s\n",
 										i, j, sp>>16, ap[(sp>>10)&3], ap[(sp>>8)&3], ap[(sp>>6)&3], ap[(sp>>4)&3] );
 								break;
 							case 2:
-								fprintf(f, "  0x%03x%02xxxx maps to a Small Page at 0x%05xxxx, AP=%s,%s,%s,%s\n", 
+								fprintf(f, "  0x%03x%02xxxx maps to a Small Page at 0x%05xxxx, AP=%s,%s,%s,%s\n",
 										i, j, sp>>12, ap[(sp>>10)&3], ap[(sp>>8)&3], ap[(sp>>6)&3], ap[(sp>>4)&3] );
 							case 3: // Reserved
 								break;
@@ -1143,7 +1143,7 @@ TMMU::FDump(FILE *f)
 			}
 		}
 		endBlocks(f);
-		
+
 #endif
 	} else {
 		fprintf(f, "MMU is disabled\n");
@@ -1168,11 +1168,11 @@ VA 0x01D80000 to 0x01DA0000 (128 kB): small pages
 
 VA 0x01E00000 to 0x01F00000 (1024 kB): small pages
 	REx Jump Tables
- 
+
 
 VA 0x03500000 to 0x03D00000 (8192 kB): section
 	ROM mirror
- 
+
 VA 0x04000000 to 0x04100000 (1024 kB): section
 	ROM mirror
 
@@ -1184,10 +1184,10 @@ VA 0x0C000000 to 0x0C001000 (4 kB): small pages
 
 VA 0x0C002000 to 0x0C009000 (28 kB): small pages
 	RAM: special stacks (IRQ, FIQ, etc.)
- 
+
 VA 0x0C100000 to 0x0C110000 (64 kB): small pages
 	RAM: Kernel: Domain Heap, Globals
- 
+
 VA 0x0C111000 to 0x0C126000 (84 kB): small pages
 
 VA 0x0C200000 to 0x0C206000 (24 kB): small pages
@@ -1213,17 +1213,17 @@ VA 0x0CC84000 to 0x0CC88000 (16 kB): small pages
 VA 0x0CC9B000 to 0x0CC9C000 (4 kB): small pages
 
 VA 0x0CCA3000 to 0x0CCA4000 (4 kB): small pages
- 
+
 VA 0x0CCAB000 to 0x0CCAD000 (8 kB): small pages
- 
+
 VA 0x0CCC3000 to 0x0CCC5000 (8 kB): small pages
- 
+
 VA 0x0CCC9000 to 0x0CCCD000 (16 kB): small pages
- 
+
 VA 0x0CCD4000 to 0x0CCD5000 (4 kB): small pages
- 
+
 VA 0x0CCDD000 to 0x0CCDE000 (4 kB): small pages
- 
+
 VA 0x0CCE4000 to 0x0CCE6000 (8 kB): small pages
 
 VA 0x0CD58000 to 0x0CD59000 (4 kB): small pages

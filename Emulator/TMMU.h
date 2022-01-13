@@ -72,7 +72,7 @@ public:
 	/// \param outBankNumber		bank index (0 for ROM or 1 for RAM)
 	/// \param outOffsetInBank		offset in the bank (address - base).
 	/// \return true if the address couldn't be accessed for reading.
-	///		
+	///
 	Boolean		TranslateInstruction(
 					KUInt32 inVAddress,
 					KUInt32* outPAddress );
@@ -279,12 +279,12 @@ public:
 	/// Save or restore the state of the MMU.
 	///
 	void		TransferState( TStream* inStream );
-		
+
 	///
 	/// Dump the entire MMU Lookup Table to a File
 	///
 	void		FDump(FILE *f);
-	
+
 private:
 	///
 	/// New magic.
@@ -305,7 +305,7 @@ private:
 		kAPMagic_System			= 0x04,
 		kAPMagic_Bits_Manager	= 0x0F
 	};
-	
+
 	struct SEntry {
 		KUInt32			mPhysicalAddress;
 		KUInt32			mDomainTimes2;

@@ -21,7 +21,7 @@ TEST(MemoryTests, ReadROMTest) {
 	theROM[0] = UByteSex::Swap(theROM[0]);
 	theROM[1] = UByteSex::Swap(theROM[1]);
 #endif
-	
+
 	Boolean fault = false;
     KUInt32 theWord = theMem.ReadP(0, fault);
     EXPECT_EQ(fault, false);
@@ -38,7 +38,7 @@ TEST(MemoryTests, ReadROMTest) {
     theWord = theMem.ReadP(4, fault);
     EXPECT_EQ(fault, false);
     EXPECT_EQ(theWord, 0x44556677);
-	
+
 	KUInt8 theByte;
 	fault = theMem.ReadBP(0, theByte);
 	EXPECT_EQ(fault, false);
@@ -98,7 +98,7 @@ TEST(MemoryTests, ReadWriteRAMTest) {
     theWord = theMem.ReadP( 0x04000000 + 4, fault );
     EXPECT_EQ(fault, false);
     EXPECT_EQ(theWord, 0x44556677);
-	
+
 	for (index = 0; index < 8; index++)
 	{
         fault = theMem.ReadBP(0x04000000 + index, theByte);

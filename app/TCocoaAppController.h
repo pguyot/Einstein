@@ -61,15 +61,15 @@ class TFileManager;
 	IBOutlet TCocoaROMDumperController* mROMDumperController;
 	IBOutlet TCocoaMonitorController* mMonitorController;
 	IBOutlet NSUserDefaultsController* mUserDefaultsController;
-	
+
 	CocoaScreenProxy*	mProxy;
-	
+
 	Boolean				mQuit;
 	int					mRAMSize;
 	NSString*			mFlashPath;
 	NSString*			mROMPath;
 	NSString*			mREx0Path;
-  
+
 	TNetworkManager*	mNetworkManager;
 	TSoundManager*		mSoundManager;
 	TScreenManager*		mScreenManager;
@@ -81,7 +81,7 @@ class TFileManager;
 	TMacMonitor*		mMonitor;
 	TBufferLog*			mMonitorLog;
 	TSymbolList*		mSymbolList;
-	
+
 	NSToolbarItem*		mToolbarPowerItem;
 	NSImage*			mToolbarPowerOnImage;
 	NSImage*			mToolbarPowerOffImage;

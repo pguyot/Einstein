@@ -60,7 +60,7 @@ public:
 	/// Destructor.
 	///
 	virtual ~TMonitorCore();
-	
+
 	///
 	/// Output a line.
 	///
@@ -73,7 +73,7 @@ public:
 	///         the script operations.
 	///
 	Boolean		ExecuteScript( const char* inScriptFile );
-	
+
 	///
 	/// Execute a command.
 	///

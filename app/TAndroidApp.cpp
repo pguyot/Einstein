@@ -57,16 +57,16 @@ SLEngineItf mEngine;
 SLObjectItf mOutputMixObj;
 
 void audio_test() {
-	
+
 	SLresult lRes;
-	
+
 	const SLuint32      lEngineMixIIDCount = 1;
 	const SLInterfaceID lEngineMixIIDs[]={SL_IID_ENGINE};
 	const SLboolean lEngineMixReqs[]={SL_BOOLEAN_TRUE};
 	const SLuint32 lOutputMixIIDCount=0;
 	const SLInterfaceID lOutputMixIIDs[]={};
 	const SLboolean lOutputMixReqs[]={};
-	
+
 	lRes = slCreateEngine(&mEngineObj, 0, NULL, lEngineMixIIDCount, lEngineMixIIDs, lEngineMixReqs);
 	(*mEngineObj)->Destroy(mEngineObj);
 }
@@ -187,11 +187,11 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 	mScreenManager = NULL;
 	mPlatformManager = NULL;
 	mLog = NULL;
-	
+
 	if (inLog) inLog->LogLine("Loading assets...");
-	
+
 	if (inLog) inLog->LogLine("  mLog:");
-	// The log slows down the emulator and may cause a deadlock when running 
+	// The log slows down the emulator and may cause a deadlock when running
 	// the Network card emulation. Only activate if you really need it!
 	// CAUTION: the destructor will delete our mLog. That is not good! Avoid!
 	//if (inLog) mLog = inLog;
@@ -214,13 +214,13 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 		return;
 	}
 	if (mLog) mLog->FLogLine("    OK");
-	
+
 	char theImagePath[1024];
 	snprintf(theImagePath, 1024, "%s/717006.img", dataPath);
-	
+
 	char theFlashPath[1024];
 	snprintf(theFlashPath, 1024, "%s/flash", dataPath);
-	
+
 	if (mLog) mLog->FLogLine("  mROMImage:");
 	mROMImage = new TFlatROMImageWithREX(theROMPath, theREXPath, "717006", false, theImagePath);
 	if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mROMImage);
@@ -236,19 +236,19 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 											   true, // fullscreen
 											   isLandscape);
 	if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mScreenManager);
-	
+
 	if (mLog) mLog->FLogLine("  mNetworkManager:");
 	mNetworkManager = new TUsermodeNetwork(mLog);
 	if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mNetworkManager);
-	
+
 	if (mLog) mLog->FLogLine("  mEmulator:");
 	mEmulator = new TEmulator(
-							  mLog, 
-							  mROMImage, 
+							  mLog,
+							  mROMImage,
 							  theFlashPath,
-							  mSoundManager, 
-							  mScreenManager, 
-							  mNetworkManager, 
+							  mSoundManager,
+							  mScreenManager,
+							  mNetworkManager,
 							  0x40 << 16);
 	if (mLog) mLog->FLogLine("    OK: 0x%08x", (intptr_t)mEmulator);
 	mEmulator->SetNewtonID(mNewtonID0, mNewtonID1);
@@ -277,7 +277,7 @@ TAndroidApp::Run(const char *dataPath, int newtonScreenWidth, int newtonScreenHe
 // -------------------------------------------------------------------------- //
 // Quit the Main tread
 // -------------------------------------------------------------------------- //
-void 
+void
 TAndroidApp::Stop( void )
 {
 	mEmulator->Stop();
@@ -362,7 +362,7 @@ int TAndroidApp::screenIsDirty()
 }
 
 // ======================================================================= //
-// We build our computer (systems) the way we build our cities: over time, 
+// We build our computer (systems) the way we build our cities: over time,
 // without a plan, on top of ruins.
 //   -- Ellen Ullman
 // ======================================================================= //

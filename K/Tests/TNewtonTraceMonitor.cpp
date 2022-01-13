@@ -79,14 +79,14 @@ TNewtonTraceMonitor::GetTraceMonitor( unsigned int inMode )
 	{
 		// Création de l'objet.
 		theResult = new TNewtonTraceMonitor( inMode );
-		
+
 		if (theResult == nil)
 			OutOfMemory();
-		
+
 		// Enregistrement.
 		(void) CreateObject( theResult, kName );
 	}
-	
+
 	return theResult;
 }
 

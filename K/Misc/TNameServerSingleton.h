@@ -80,7 +80,7 @@ protected:
 	/// Destructeur.
 	///
 	virtual ~TNameServerSingleton() {};
-	
+
 	///
 	/// Récupère le singleton. Retourne \c nil s'il n'existe pas.
 	///

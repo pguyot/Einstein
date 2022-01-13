@@ -76,7 +76,7 @@ private:
 	/// Destructeur.
 	///
 	virtual ~TNewtonTraceMonitor( void );
-	
+
 	static const char* const	kName;			///< constante pour le serveur de noms
 };
 

@@ -2,10 +2,10 @@
 // Fichier:			UHostInfoTests.cp
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			22/5/2005
 // Tabulation:		4 espaces
-// 
+//
 // Copyright:		© 2005 by Paul Guyot.
 // 					Tous droits réservés pour tous pays.
 // ===========
@@ -40,7 +40,7 @@ UHostInfoTests::HostInfoTest( TLog* inLog )
 	const THostInfo* theHostInfo = THostInfo::GetHostInfo();
 	const KUInt16* theFirstName = theHostInfo->GetUserInfo( kUserInfo_FirstName );
 	const KUInt16* theLastName = theHostInfo->GetUserInfo( kUserInfo_LastName );
-	
+
 	char buffer[512];
 	UUTF16CStr::ToUTF8( theFirstName, (KUInt8*) buffer );
 	inLog->FLogLine("first = >%s<", buffer);

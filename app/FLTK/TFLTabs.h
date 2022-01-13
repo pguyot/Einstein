@@ -31,7 +31,7 @@ public:
     {}
     virtual ~TFLPCMCIAButton();
     void images(
-        unsigned char *inTopIn, unsigned char* inTopOut, unsigned char* inTopHi, 
+        unsigned char *inTopIn, unsigned char* inTopOut, unsigned char* inTopHi,
         unsigned char* inBotIn, unsigned char* inBotOut, unsigned char* inBotHi);
     void setTopID(const char* label);
     void clearTopID() { setTopID(nullptr); }

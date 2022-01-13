@@ -55,7 +55,7 @@ TATACard::GetVPCPins( void )
 	{
 		GetLog()->LogLine( "GetVPCPins" );
 	}
-	
+
 	return 0;
 }
 
@@ -81,7 +81,7 @@ TATACard::ReadAttr( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "ReadAttr( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 
@@ -95,7 +95,7 @@ TATACard::ReadAttrB( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "ReadAttrB( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 
@@ -109,7 +109,7 @@ TATACard::ReadIO( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "ReadIO( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 
@@ -123,7 +123,7 @@ TATACard::ReadIOB( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "ReadIOB( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 
@@ -137,7 +137,7 @@ TATACard::ReadMem( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "ReadMem( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 
@@ -151,7 +151,7 @@ TATACard::ReadMemB( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "ReadMemB( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 

@@ -163,9 +163,9 @@ private:
 	TFLScreenManager& operator = ( const TFLScreenManager& inCopy );
 
 	void unlinkWidget() { mWidget = 0L; }
-	
+
     TFLApp *mApp = nullptr;
-    
+
 	///
 	/// FLTK Widget class that will hold the Newton screen image
 	///

@@ -391,7 +391,7 @@ TTcpClientSerialPortManager::HandleDMA()
 		HandleDMASend();
 		HandleDMASend();
 
-		// handle commands from mQuitEvent 
+		// handle commands from mQuitEvent
 		if (ret == WSA_WAIT_EVENT_0) {
 			Disconnect();
 			WSAResetEvent(mQuitEvent);
@@ -432,7 +432,7 @@ TTcpClientSerialPortManager::HandleDMA()
 			LogError("HandleDMA: error waiting for sockets", true);
 			continue;
 		}
-		
+
 		// handle receiving DMA
 		if (IsConnected() && FD_ISSET(mTcpSocket, &watchFDs))
 			HandleDMAReceive();

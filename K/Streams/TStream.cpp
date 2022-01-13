@@ -2,32 +2,32 @@
 // Fichier:			TStream.cp
 // Projet:			K
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			10/6/2005
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
-// 
+//
 // The contents of this file are subject to the Mozilla Public License Version
 // 1.1 (the "License"); you may not use this file except in compliance with
 // the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-// 
+//
 // Software distributed under the License is distributed on an "AS IS" basis,
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
 // License.
-// 
+//
 // The Original Code is TStream.cp.
-// 
+//
 // The Initial Developer of the Original Code is Paul Guyot.
 // Portions created by the Initial Developer are Copyright (C) 2005 the
 // Initial Developer. All Rights Reserved.
-// 
+//
 // Contributor(s):
 //   Paul Guyot <pguyot@kallisys.net> (original author)
-// 
+//
 // ***** END LICENSE BLOCK *****
 // ===========
 // $Id: TStream.cp,v 1.2 2006/01/18 08:59:53 pguyot Exp $
@@ -60,7 +60,7 @@ KUInt8*
 TStream::GetCString( KUInt32 inNbChars )
 {
 	KUInt8* theResult = (KUInt8*) ::malloc( inNbChars + 1 );
-	
+
 	if (theResult == nil)
 	{
 #if HAS_EXCEPTION_HANDLING
@@ -69,37 +69,37 @@ TStream::GetCString( KUInt32 inNbChars )
 		return 0L;
 #endif
 	}
-	
+
 #if HAS_EXCEPTION_HANDLING
 	// Un petit try/catch pour nettoyer en sortant.
 	try {
 		KUInt32 theCount = inNbChars;
 		Read( theResult, &theCount );
-		
+
 		if (theCount != inNbChars)
 		{
 			throw EOFException;
 		}
-		
+
 	} catch ( ... ) {
 		if (theResult)
 		{
 			::free( theResult );
 		}
-	
+
 		throw;	// Rethrow
 	}
 #else
 	KUInt32 theCount = inNbChars;
 	Read( theResult, &theCount );
-		
+
 	if (theCount != inNbChars)
 	{
 		::free(theResult);
 		return 0L;
 	}
 #endif
-	
+
 	// Terminateur.
 	theResult[inNbChars] = '\0';
 
@@ -115,25 +115,25 @@ TStream::GetCString( void )
 	size_t bufferLength = 10; 	// Taille de la mémoire tampon
 	size_t strLength = 0;		// Taille de la chaîne
 	KUInt8* theResult = (KUInt8*) ::malloc( bufferLength );
-	
-#if HAS_EXCEPTION_HANDLING	
+
+#if HAS_EXCEPTION_HANDLING
 	if (theResult == nil)
 	{
 		throw MemError;
 	}
-	
+
 	try {
 		KUInt8 theChar;
 		KUInt32 count = 1;
-		
+
 		do {
 			Read( &theChar, &count );
-			
+
 			if (count == 0)	// EOF.
 			{
 				throw EOFException;
 			}
-			
+
 			// Add this byte.
 			if (strLength == bufferLength)
 			{
@@ -141,27 +141,27 @@ TStream::GetCString( void )
 				bufferLength += 10;
 				theResult = (KUInt8*)  ::realloc( theResult, bufferLength );
 			}
-			
+
 			theResult[ strLength ] = theChar;
-			
+
 		} while (theChar != '\0');
-		
+
 	} catch ( ... ) {
 		if (theResult)
 		{
 			::free( theResult );
 		}
-	
+
 		throw;	// Rethrow
 	}
 #else
 	if (theResult == nil) return 0L;
 	KUInt8 theChar;
 	KUInt32 count = 1;
-		
+
 	do {
 		Read( &theChar, &count );
-			
+
 		if (count == 0)	// EOF.
 		{
 			::free( theResult );
@@ -173,12 +173,12 @@ TStream::GetCString( void )
 			bufferLength += 10;
 			theResult = (KUInt8*)  ::realloc( theResult, bufferLength );
 		}
-		
+
 		theResult[ strLength ] = theChar;
-		
+
 	} while (theChar != '\0');
 #endif
-	
+
 	return theResult;
 }
 
@@ -190,7 +190,7 @@ TStream::PutCString( const KUInt8* inString )
 {
 	// Taille de la chaîne plus le caractère nul.
 	KUInt32 strLength = (KUInt32) ::strlen( (char*) inString ) + 1;
-	
+
 	Write( inString, &strLength );
 }
 
@@ -202,7 +202,7 @@ TStream::PutString( const char* inString )
 {
 	// Taille de la chaîne sans le caractère nul.
 	KUInt32 strLength = (KUInt32) ::strlen( (char*) inString );
-	
+
 	Write( inString, &strLength );
 }
 
@@ -216,25 +216,25 @@ TStream::GetUniString( void )
 	int strLength = 0;
 	KUInt16* theResult =
 					(KUInt16*) ::malloc( bufferLength * sizeof( KUInt16 ) );
-	
+
 #if HAS_EXCEPTION_HANDLING
 	if (theResult == nil)
 	{
 		throw MemError;
 	}
-	
+
 	try {
 		KUInt16 theChar;
 		KUInt32 count = 2;
-		
+
 		do {
 			Read( &theChar, &count );
-			
+
 			if (count != 2)	// EOF.
 			{
 				throw EOFException;
 			}
-			
+
 			// Add this character.
 			if (strLength == bufferLength)
 			{
@@ -243,43 +243,43 @@ TStream::GetUniString( void )
 				theResult = (KUInt16*)
 					::realloc( theResult, bufferLength * sizeof( KUInt16 ) );
 			}
-			
+
 			theResult[ strLength ] = theChar;
-			
+
 		} while (theChar != '\0');
-		
+
 	} catch ( ... ) {
 		if (theResult)
 			::free( theResult );
-	
+
 		throw;	// Rethrow
 	}
 #else
 	if (theResult == nil) return 0L;
 	KUInt16 theChar;
 	KUInt32 count = 2;
-		
+
 	do {
 		Read( &theChar, &count );
-		
+
 		if (count != 2)	// EOF.
 		{
 			::free(theResult);
 			return 0L;
 		}
-			
+
 		if (strLength == bufferLength)
 		{
 			bufferLength += 10;
 			theResult = (KUInt16*)
 			::realloc( theResult, bufferLength * sizeof( KUInt16 ) );
 		}
-			
+
 		theResult[ strLength ] = theChar;
-			
+
 	} while (theChar != '\0');
 #endif
-	
+
 	return theResult;
 }
 
@@ -290,7 +290,7 @@ void
 TStream::PutUniString( const KUInt16* inString )
 {
 	KUInt32 strLength = (KUInt32) UUTF16CStr::StrLen( inString ) + 1;
-	
+
 	Write( inString, &strLength );
 }
 
@@ -302,9 +302,9 @@ TStream::GetInt32( void )
 {
 	KUInt32 theResult;						// Mémoire tampon
 	KUInt32 length = sizeof( theResult );	// Taille de la mémoire tampon.
-	
+
 	Read( &theResult, &length );
-	
+
 	if (length < sizeof( theResult ))
 	{
 #if HAS_EXCEPTION_HANDLING
@@ -313,7 +313,7 @@ TStream::GetInt32( void )
 		return 0;
 #endif
 	}
-	
+
 	return UByteSex_FromBigEndian( theResult );
 }
 
@@ -334,12 +334,12 @@ KUInt32
 TStream::GetXLong( void )
 {
 	KUInt32 theResult;
-	
+
 	// Lecture du premier octet.
 	KUInt8 theFirstByte;	// Premier octet.
 	KUInt32 length = sizeof( theFirstByte );	// Taille de l'octet.
 	Read( &theFirstByte, &length );
-	
+
 	if (length < sizeof( theFirstByte ))
 	{
 #if HAS_EXCEPTION_HANDLING
@@ -355,7 +355,7 @@ TStream::GetXLong( void )
 	} else {
 		theResult = theFirstByte;
 	}
-	
+
 	return theResult;
 }
 
@@ -372,7 +372,7 @@ TStream::PutXLong( const KUInt32 inLong )
 	} else {
 		// Ecriture de 0xFF
 		PutByte( 0xFF );
-		
+
 		// Ecriture du long
 		PutInt32BE( inLong );
 	}
@@ -387,7 +387,7 @@ TStream::GetInt16( void )
 {
 	KUInt16 theResult;						// Mémoire tampon
 	KUInt32 length = sizeof( theResult );	// Taille de la mémoire tampon.
-	
+
 	Read( &theResult, &length );
 
 	if (length < sizeof( theResult ))
@@ -398,7 +398,7 @@ TStream::GetInt16( void )
 		return 0;
 #endif
 	}
-	
+
 	return theResult;
 }
 
@@ -484,9 +484,9 @@ TStream::GetByte( void )
 {
 	KUInt8 theResult;						// Mémoire tampon
 	KUInt32 length = sizeof( theResult );	// Taille de la mémoire tampon.
-	
+
 	Read( &theResult, &length );
-	
+
 	if (length < sizeof( theResult ))
 	{
 #if HAS_EXCEPTION_HANDLING
@@ -495,7 +495,7 @@ TStream::GetByte( void )
 		return 0;
 #endif
 	}
-	
+
 	return theResult;
 }
 
@@ -506,7 +506,7 @@ void
 TStream::PutByte( const KUInt8 inByte )
 {
 	KUInt32 length = sizeof( inByte );	// Taille de la mémoire tampon
-	
+
 	Write( &inByte, &length );
 }
 

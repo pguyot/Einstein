@@ -63,7 +63,7 @@ enum {
 	IBOutlet NSButton* mStartStopButton;
 	IBOutlet NSUserDefaultsController* mUserDefaultsController;
 	IBOutlet TCocoaSetupController* mSetupController;
-	
+
 	in_addr_t	mIP;			// IP address
 	int			mIPSet;			// If the IP address is set.
 	int			mSocket;		// Socket fd.

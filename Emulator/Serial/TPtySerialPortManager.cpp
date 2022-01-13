@@ -209,7 +209,7 @@ TPtySerialPortManager::HandleDMA()
 		/*int s =*/ select(maxFD+1, &readSet, 0L, 0L, needTimer ? &timeout : 0L);
 
 		// handle transmitting DMA
-		
+
 		if (mTxDMAControl&0x00000002) { // DMA is enabled
 			if (mTxDMADataCountdown) {
 				// write a byte

@@ -56,7 +56,7 @@
 ///
 /// Utilisation de EToOpt:
 /// Si un caractère dans une chaîne unicode ne peut pas être représenté dans l'encodage de destination,
-/// deux comportements sont possibles: 
+/// deux comportements sont possibles:
 /// - mettre le caractère de substitution (\c kSubstituteChar)
 /// - arrêter la conversion.
 /// EToOpt permet de décider quel comportement adopter.
@@ -86,7 +86,7 @@ public:
 		kRepCharOnUnrepChar,	///< Utilise le caractère de remplacement.
 		kStopOnUnrepChar		///< Arrête la conversions.
 	};
-	
+
 	///
 	/// Résultat des méthodes de conversion
 	///
@@ -99,7 +99,7 @@ public:
 		kMiddleOfMultiChar		///< Les derniers octets de la mémoire tampon d'entrée/de sortie constituent le début
 								///< d'un caractère ou d'une séquence d'échappement.
 	};
-	
+
 	///
 	/// Convertit une chaîne UTF-16 en ISO-8859-1
 	///
@@ -133,7 +133,7 @@ public:
 		KUInt16*		outOutputBuffer,
 		size_t			inCount
 		);
-	
+
 	///
 	/// Convertit une chaîne UTF-16 en ISO-8859-2
 	///
@@ -188,7 +188,7 @@ public:
 		size_t*			ioOutputCount,
 		EToOpt			inConvertToOpt
 		);
-	
+
 	///
 	/// Convertit une chaîne US-ASCII en UTF-16
 	///
@@ -222,7 +222,7 @@ public:
 		size_t*			ioOutputCount,
 		EToOpt			inConvertToOpt
 		);
-	
+
 	///
 	/// Convertit une chaîne MacRoman en UTF-16
 	///

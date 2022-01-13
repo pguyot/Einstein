@@ -27,7 +27,7 @@
 #define Multiply_Proto(flag_s, rd, rs, rm) \
 		JITUnit* Multiply_TemplateName(flag_s, rd, rs, rm) \
 			 (JITUnit* ioUnit, TARMProcessor* ioCPU)
-	
+
 #if DECLARATION
 	#define Multiply_Template(flag_s, rd, rs, rm) \
 		Multiply_Proto(flag_s, rd, rs, rm);

@@ -28,16 +28,16 @@
 #include "Emulator/Log/TLog.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
 
-/* 
- 
+/*
+
  PCMCIA physical connection for an I/O card:
- 
+
    Power
  GND			Ground
  Vcc			Vcc	+5V
  Vpp1			Vpp1
  Vpp2			Programmeing Voltage2 (EPROM)
- 
+
    Access
  D0-D15			Data Lines, connected to CPU
  A0-A25			Address Lines, connected to CPU (64MB)
@@ -48,22 +48,22 @@
  /OE			Output Enable
  /WE			Write Enable : Programm
  /WP,/IOIS16	Write Protect (H = prtected): IOIS16 I/O data bus is 16 bit
- /IORD			I/O Read	 
+ /IORD			I/O Read
  /IOWR			I/O Write
- 
+
    Control
  RESET			Reset (H will reset the card, held high during the first ms of insertion)
  READY,/IREQ	Ready : Busy (IREQ), if H, the card can be accessed (set by the card), I/O Mode: trigger interrupt
  /WAIT			CPU must wait for operation to end (L=ok)
  /BVD1:STSCHG	Battery Voltage Detect1 (H=good): Card Status Changed
  /BVD2:SPKR		Battery Voltage Detect2 (H=good): Speaker
- 
+
    Unknown
  /VS1			Refresh
- /VS2,RFU	 
- /INPACK		Input Port Ack. 
- /REG	 
- 
+ /VS2,RFU
+ /INPACK		Input Port Ack.
+ /REG
+
    Pins can be reassigned to allow DMA:
  DREQ# can be put on IOS16, INPACK, or SPKR
  DACK
@@ -72,7 +72,7 @@
  TC
  CE1 & CE2
  IREQ
- 
+
 
  VCP pins to PC pins conversion:
 	keep FIFO and Failure flags
@@ -93,7 +93,7 @@
 
 const KUInt8 TNE2000Card::kCISData[90] = {
 // NE2000:
-// 
+//
 	0x01, 3,	// Tuple #1, code = 0x1 (Common memory descriptor), length = 3
 	0x00, 0x00, 0xff,
 	// Common memory device information:
@@ -156,7 +156,7 @@ TNE2000Card::GetVPCPins( void )
 	{
 		GetLog()->LogLine( "TNE2000Card::GetVPCPins" );
 	}
-	
+
 	return TPCMCIAController::k1C00_CardIsPresent | 0x0603; // Present and ready
 }
 
@@ -183,7 +183,7 @@ TNE2000Card::ReadAttr( KUInt32 inOffset )
 		GetLog()->FLogLine( "TNE2000Card::ReadAttr( %.8X )", (unsigned int) inOffset );
 //		GetEmulator()->BreakInMonitor();
 	}
-	
+
 	return 0;
 }
 
@@ -195,7 +195,7 @@ TNE2000Card::ReadAttrB( KUInt32 inOffset )
 {
 	KUInt8 theResult = 0;
 	KUInt32 theOffset = (inOffset^2)>>1;
-	
+
 	if (theOffset<sizeof(kCISData)) {
 		theResult = kCISData[theOffset];
 	} else if (theOffset==508) {
@@ -203,17 +203,17 @@ TNE2000Card::ReadAttrB( KUInt32 inOffset )
 	} else {
 		theResult = 0;
 	}
-	
+
 	if (GetLog())
 	{
-		GetLog()->FLogLine( "TNE2000Card::ReadAttrB( %.8X => %d = '%c' (%d))", 
+		GetLog()->FLogLine( "TNE2000Card::ReadAttrB( %.8X => %d = '%c' (%d))",
 						   (unsigned int) inOffset,
 						   (int) theOffset,
 						   (theResult>31&&theResult<128)?theResult:'.',
 						   theResult );
 //		GetEmulator()->BreakInMonitor();
 	}
-	
+
 	return theResult;
 }
 
@@ -227,7 +227,7 @@ TNE2000Card::ReadIO( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "TNE2000Card::ReadIO( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 
@@ -241,7 +241,7 @@ TNE2000Card::ReadIOB( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "TNE2000Card::ReadIOB( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 
@@ -255,7 +255,7 @@ TNE2000Card::ReadMem( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "TNE2000Card::ReadMem( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 
@@ -271,7 +271,7 @@ TNE2000Card::ReadMemB( KUInt32 inOffset )
 	{
 		GetLog()->FLogLine( "TNE2000Card::ReadMemB( %.8X )", (unsigned int) inOffset );
 	}
-	
+
 	return 0;
 }
 

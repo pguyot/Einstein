@@ -44,7 +44,7 @@ int symbolAddressCompare( const void * a, const void * b )
 
 	KUInt32 x = *(KUInt32 *)a;
 	KUInt32 y = *(KUInt32 *)b;
-	
+
 	if ( x > y )
 	{
 		r = 1;
@@ -72,9 +72,9 @@ TSymbolList::TSymbolList( const char* inPath )
 		mFile( nil )
 {
 	// Load symbols and keep them in memory to have fast access when searching.
-	
+
 	mFile = ::fopen( inPath, "r" );
-	
+
 	if (mFile == NULL)
 	{
 		(void) ::fprintf( stderr, "Cannot open symbol files '%s'\n", inPath );
@@ -97,14 +97,14 @@ TSymbolList::~TSymbolList( void )
 		for ( KUInt32 i = 0; i < mSymbolCount; i++ )
 		{
 			struct SSymbolStruct* s = mSymbolOffsets + i;
-			
+
 			if ( s->fName )
 				::free(s->fName);
-			
+
 			if ( s->fComment )
 				::free(s->fComment);
 		}
-		
+
 		::free( mSymbolOffsets );
 	}
 }
@@ -118,18 +118,18 @@ TSymbolList::AddSymbol(KUInt32 inAddress, const char* inSymbol, const char* inCo
 {
 	mSymbolOffsets[mSymbolCount].fName = strdup(inSymbol);
 	mSymbolOffsets[mSymbolCount].fAddress = inAddress;
-	
+
 	if ( inComment )
 	{
 		mSymbolOffsets[mSymbolCount].fComment = strdup(inComment);
 	}
-	
+
 	mSymbolCount++;
-	
+
 	if ( mSymbolCount == mSymbolCapacity )
 	{
 		mSymbolCapacity += 0x4000;	// + 16k
-		
+
 		mSymbolOffsets = (SSymbolStruct *)::realloc(
 				  mSymbolOffsets,
 				  sizeof(SSymbolStruct) * mSymbolCapacity );
@@ -146,20 +146,20 @@ TSymbolList::LoadSymbols( void )
 	mSymbolCapacity = 0x20000;	// 128 k entries
 	mSymbolCount = 0;
 	mSymbolOffsets = (SSymbolStruct*) ::malloc( sizeof(SSymbolStruct) * mSymbolCapacity );
-	
+
 	static const char *pattern = "%x";
 	fgetc(mFile);
-	
+
 	if ( fgetc(mFile) == 'x' )
 		pattern = "0x%x";
-		
+
 	fseek(mFile, 0, SEEK_SET);
-  
+
 	while ( ::fscanf( mFile, pattern, (int*) &mSymbolOffsets[mSymbolCount].fAddress ) )
 	{
 		char prevSym[512];
 		prevSym[0] = '\0';
-		
+
 		int theChar = fgetc( mFile );
 		if ( theChar == '\t' || theChar == ' ' )
 		{
@@ -181,7 +181,7 @@ TSymbolList::LoadSymbols( void )
 			{
 				mSymbolOffsets[mSymbolCount].fName = NULL;
 			}
-			
+
 			if ( cmt[0] )
 			{
 				mSymbolOffsets[mSymbolCount].fComment = strdup(cmt);
@@ -194,18 +194,18 @@ TSymbolList::LoadSymbols( void )
 			//printf("Symbol: %08X %s %s\n", mSymbolOffsets[mSymbolCount].fSymbolValue, mSymbolOffsets[mSymbolCount].fSymbol ? mSymbolOffsets[mSymbolCount].fSymbol : "", mSymbolOffsets[mSymbolCount].fComment ? mSymbolOffsets[mSymbolCount].fComment : "");
 
 			mSymbolCount++;
-			
+
 			// Let's look for the next line
 			do
 			{
 				theChar = fgetc( mFile );
 			} while ( (theChar != EOF) && (theChar != '\n') && (theChar != '\r') );
-			
+
 			if ( theChar == EOF )
 			{
 				break;
 			}
-			
+
 			if ( mSymbolCount == mSymbolCapacity )
 			{
 				mSymbolCapacity += 0x4000;	// + 16k
@@ -222,7 +222,7 @@ TSymbolList::LoadSymbols( void )
 		else
 		{
 			(void) ::fprintf( stderr,
-				"Symbol list failed at line %i, last value read is %.8X, read %.2X\n", 
+				"Symbol list failed at line %i, last value read is %.8X, read %.2X\n",
 				(int) mSymbolCount, (unsigned int) mSymbolOffsets[mSymbolCount].fAddress, theChar );
 			mSymbolCount = 0;
 			break;
@@ -601,7 +601,7 @@ TSymbolList::LoadSymbols( void )
 	AddSymbol( 0x00393710, "Unnamed_00393710");
 */
 	qsort(mSymbolOffsets, mSymbolCount, sizeof(struct SSymbolStruct), QSortCallback);
-	
+
 	(void) ::fprintf( stderr, "Read %i symbols\n", (int) mSymbolCount );
 }
 
@@ -613,13 +613,13 @@ int TSymbolList::QSortCallback(const void *a, const void *b)
 {
 	struct SSymbolStruct* sa = (struct SSymbolStruct*)a;
 	struct SSymbolStruct* sb = (struct SSymbolStruct*)b;
-	
+
 	if ( sa->fAddress < sb->fAddress )
 		return -1;
-	
+
 	if ( sa->fAddress > sb->fAddress )
 		return 1;
-	
+
 	return 0;
 }
 
@@ -644,7 +644,7 @@ TSymbolList::CopySymbolStrings(
 			*outSymbol = '\0';
 		}
 	}
-	
+
 	if ( outComment )
 	{
 		if ( symbol->fComment )
@@ -673,7 +673,7 @@ TSymbolList::ReadSymbolData(
 	do
 	{
 		theChar = ::fgetc( inFile );
-		
+
 		if ( (theChar != EOF) && (theChar != '\t') && (cursor < 510) && (theChar != '\n') && (theChar != '\r') )
 		{
 			outSymbol[cursor] = (char)theChar;
@@ -683,7 +683,7 @@ TSymbolList::ReadSymbolData(
 			outSymbol[cursor] = '\0';
 			break;
 		}
-		
+
 		cursor++;
 	} while (1);
 
@@ -710,11 +710,11 @@ TSymbolList::ReadSymbolData(
 				outComment[cursor] = '\0';
 				break;
 			}
-			
+
 			cursor++;
 		} while (1);
 	}
-	
+
 	if ( theChar != EOF )
 		::ungetc(theChar, inFile);
 }
@@ -731,28 +731,28 @@ TSymbolList::GetNearestSymbolByAddress(
 {
 	if ( outSymbol )
 		*outSymbol = '\0';
-	
+
 	if ( outComment )
 		*outComment = '\0';
-	
+
 	if ( outOffset )
 		*outOffset = 0;
-	
+
 	if ( mSymbolCount == 0 )
 	{
 		::sprintf(outComment, "(no symbol data)");
 		return;
 	}
-		
+
 	// Let's look for the symbol.
 	// Strings should have a size of 510 bytes plus the terminator (full ANSI C strings).
-	
+
 	unsigned long int theNextSymbolAddress = mSymbolOffsets[0].fAddress;
-	
+
 	for ( KUInt32 indexSymbols = 0; indexSymbols < mSymbolCount; indexSymbols++ )
 	{
 		unsigned long int theSymbolAddress = theNextSymbolAddress;
-		
+
 		if ( indexSymbols < mSymbolCount - 1 )
 		{
 			theNextSymbolAddress = mSymbolOffsets[indexSymbols + 1].fAddress;
@@ -761,11 +761,11 @@ TSymbolList::GetNearestSymbolByAddress(
 		{
 			theNextSymbolAddress = kNoSymbol;
 		}
-		
+
 		if ( (inAddress >= theSymbolAddress) && (inAddress < theNextSymbolAddress) )
 		{
 			CopySymbolStrings(&mSymbolOffsets[indexSymbols], outSymbol, outComment);
-			
+
 			if ( outOffset )
 			{
 				*outOffset = (int)(inAddress - theSymbolAddress);
@@ -786,7 +786,7 @@ TSymbolList::GetSymbolByAddress(
 				int* outOffset )
 {
 	bool found = false;
-	
+
 	SSymbolStruct *symbol = (SSymbolStruct *)bsearch(&inAddress, mSymbolOffsets,
 								mSymbolCount, sizeof(*mSymbolOffsets),
 								symbolAddressCompare);
@@ -794,24 +794,24 @@ TSymbolList::GetSymbolByAddress(
 	if ( symbol != NULL )
 	{
 		CopySymbolStrings(symbol, outSymbol, outComment);
-		
+
 		if ( outOffset )
 			*outOffset = inAddress - symbol->fAddress;
-		
+
 		found = true;
 	}
 	else
 	{
 		if ( outSymbol )
 			::sprintf(outSymbol, "%08X", (unsigned int)inAddress);
-	
+
 		if ( outComment )
 			::sprintf(outComment, "(no symbol data)");
-		
+
 		if ( outOffset )
 			*outOffset = 0;
 	}
-	
+
 	return found;
 }
 
@@ -823,13 +823,13 @@ KUInt32
 TSymbolList::GetSymbolByName( const char* inName )
 {
 	KUInt32 outSymbolValue = kNoSymbol;
-	
+
 	if ( inName != NULL )
 	{
 		for ( KUInt32 i = 0; i < mSymbolCount; i++ )
 		{
 			struct SSymbolStruct* s = mSymbolOffsets + i;
-			
+
 			if ( s->fName && ::strcmp(inName, s->fName) == 0 )
 			{
 				outSymbolValue = s->fAddress;
@@ -837,7 +837,7 @@ TSymbolList::GetSymbolByName( const char* inName )
 			}
 		}
 	}
-	
+
 	return outSymbolValue;
 }
 
@@ -849,18 +849,18 @@ KUInt32
 TSymbolList::GetNextSymbol( KUInt32 inAddress )
 {
 	KUInt32 outAddress = kNoSymbol;
-	
+
 	for ( KUInt32 i = 0; i < mSymbolCount; i++ )
 	{
 		struct SSymbolStruct* s = mSymbolOffsets + i;
-		
+
 		if ( s->fAddress > inAddress )
 		{
 			outAddress = s->fAddress;
 			break;
 		}
 	}
-	
+
 	return outAddress;
 }
 

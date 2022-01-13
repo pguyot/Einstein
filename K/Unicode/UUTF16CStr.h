@@ -72,7 +72,7 @@ public:
 		size_t			inLimit = 0,
 		size_t*			outStringSize = nil
 		);
-	
+
 	static void ToISO88592(
 		const KUInt16*	inInputCString,
 		KUInt8*			outOutputCString,
@@ -85,7 +85,7 @@ public:
 		size_t			inLimit = 0,
 		size_t*			outStringSize = nil
 		);
-	
+
 	static void ToASCII(
 		const KUInt16*	inInputCString,
 		KUInt8*			outOutputCString,
@@ -98,7 +98,7 @@ public:
 		size_t			inLimit = 0,
 		size_t*			outStringSize = nil
 		);
-	
+
 	static void ToMacRoman(
 		const KUInt16*	inInputCString,
 		KUInt8*			outOutputCString,

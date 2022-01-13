@@ -54,13 +54,13 @@ public:
 						  KUInt32 inPortraitHeight = kDefaultPortraitHeight,
 						  Boolean inFullScreen = false,
 						  Boolean inScreenIsLandscape = true);
-	
-	
+
+
 	///
 	/// Destructeur.
 	///
 	virtual ~TAndroidScreenManager( void );
-	
+
 	///
 	/// Notify that the tablet orientation changed.
 	/// This method is called when the tablet driver calls SetTabletOrientation.
@@ -69,32 +69,32 @@ public:
 	///
 	virtual void	TabletOrientationChanged(
 											 EOrientation inNewOrientation );
-	
+
 	///
 	/// This method is called by the platform manager when the emulator is
 	/// turned on.
 	///
 	virtual void	PowerOn( void );
-	
+
 	///
 	/// This method is called by the platform manager when the emulator is
 	/// turned off.
 	///
 	virtual void	PowerOff( void );
-	
+
 	///
 	/// Power on the screen (open the window?)
 	/// This method is called by the display driver.
 	/// It doesn't do anything. The work is done in ScreenSetup.
 	///
 	virtual void	PowerOnScreen( void );
-	
+
 	///
 	/// Power off the screen (close the window?)
 	/// This method is called by the display driver.
 	///
 	virtual void	PowerOffScreen( void );
-	
+
 	///
 	/// Notify that the screen orientation changed.
 	/// This method is called when the display driver calls SetScreenOrientation.
@@ -102,7 +102,7 @@ public:
 	/// \param inNewOrientation	the new orientation of the screen.
 	///
 	virtual void	ScreenOrientationChanged( EOrientation inNewOrientation );
-	
+
 	///
 	/// Notify that the contrast changed.
 	/// This method is called when the display driver calls SetScreenContrast.
@@ -110,7 +110,7 @@ public:
 	/// \param inNewContrast the new contrast of the screen.
 	///
 	virtual void	ContrastChanged( KUInt32 inNewContrast );
-	
+
 	///
 	/// Notify that the backlight changed.
 	/// This method is called when the display driver calls SetScreenContrast.
@@ -118,25 +118,25 @@ public:
 	/// \param inNewBacklight the new state of the backlight.
 	///
 	virtual void	BacklightChanged( Boolean inNewBacklight );
-	
+
 	///
 	/// Notify that some screen bits changed.
 	///
 	/// \param inUpdateRect	rectangle of the bits that changed.
 	///
 	virtual void	UpdateScreenRect( SRect* inUpdatedRect );
-	
+
 	///
 	/// Thread loop entry point.
 	///
 	void	Run( void );
-	
+
 	int update(unsigned short *buffer);
-	
+
 	int updateOverlay(unsigned short *buffer);
-	
+
 	int isDirty() { return changed; }
-	
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
@@ -144,14 +144,14 @@ private:
 	/// \param inCopy		objet à copier
 	///
 	TAndroidScreenManager( const TAndroidScreenManager& inCopy );
-	
+
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
 	TAndroidScreenManager& operator = ( const TAndroidScreenManager& inCopy );
-	
+
 	char changed;
 };
 

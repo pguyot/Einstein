@@ -229,7 +229,7 @@ KUInt32 TNewt::CallNewton(VAddr functionVector, const char *args, ...)
 	// handler before calling anything in this space. If an exception
 	// occurs, a longjump is executed in Newton space, making it impossible
 	// to end the emulation loop here.
-	
+
 	TJITGeneric *mJit = mMemory->GetJITObject();
 	JITUnit* theJITUnit = mJit->GetJITUnitForPC( mCPU, mMemory, pc+4);
 	for(;;)

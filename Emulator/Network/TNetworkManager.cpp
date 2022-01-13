@@ -86,7 +86,7 @@ void TNetworkManager::LogBuffer(KUInt8 *data, ssize_t size)
 			mLog->LogLine( t );
 	}
 }
-	
+
 
 void TNetworkManager::LogARPPacket(KUInt8 *data, ssize_t size) {
     (void)data;
@@ -98,7 +98,7 @@ void TNetworkManager::LogARPPacket(KUInt8 *data, ssize_t size) {
 
 void TNetworkManager::LogIPv4Packet(KUInt8 *d, ssize_t n) {
 	if (mLog) {
-		mLog->FLogLine("  > IPv4 Internet protocol"); 
+		mLog->FLogLine("  > IPv4 Internet protocol");
 		mLog->FLogLine("    [14] Version: %d (4)", d[14]>>4);
 		mLog->FLogLine("    [14] Header Length: %d (5)", d[14]&0x0f);
 		mLog->FLogLine("    [15] Type Of Service: 0x%02x", d[15]);
@@ -111,7 +111,7 @@ void TNetworkManager::LogIPv4Packet(KUInt8 *d, ssize_t n) {
 		mLog->FLogLine("    [24] Header Checksum: 0x%04x (0x%04x==0)", (d[24]<<8)|d[25], GetIPv4Checksum(d, n));
 		mLog->FLogLine("    [26] Src IP: %d.%d.%d.%d", d[26], d[27], d[28], d[29]);
 		mLog->FLogLine("    [30] Dst IP: %d.%d.%d.%d", d[30], d[31], d[32], d[33]);
-		
+
 		switch (d[23]) {
 			case  6: LogTCPPacket(d, n); break;
 			case 17: LogUDPPacket(d, n); break;
@@ -133,7 +133,7 @@ void TNetworkManager::LogTCPPacket(KUInt8 *d, ssize_t n) {
 		mLog->FLogLine("      [38] Seq#: %d", (d[38]<<24)|(d[39]<<16)|(d[40]<<8)|d[41]);
 		mLog->FLogLine("      [42] Ack#: %d", (d[42]<<24)|(d[43]<<16)|(d[44]<<8)|d[45]);
 		mLog->FLogLine("      [46] Header Length: %d (5)", d[46]>>4);
-		mLog->FLogLine("      [47] Flags: %s %s %s %s %s %s", 
+		mLog->FLogLine("      [47] Flags: %s %s %s %s %s %s",
 					   d[47]&0x20?"URG":"urg",
 					   d[47]&0x10?"ACK":"ack",
 					   d[47]&0x08?"PSH":"psh",
@@ -170,8 +170,8 @@ void TNetworkManager::LogPacket(KUInt8 *d, ssize_t n) {
 			case 0x0800: LogIPv4Packet(d, n); break;
 			case 0x0806: LogARPPacket(d, n); break;
 			case 0x809b: mLog->LogLine("  **** unsupported: Apple Talk ****"); break;
-			case 0x86dd: mLog->LogLine("  **** unsupported: IPv6 ****"); break; 
-			default: mLog->FLogLine("  **** unsupported type: 0x%04x ****", (int) t); break; 
+			case 0x86dd: mLog->LogLine("  **** unsupported: IPv6 ****"); break;
+			default: mLog->FLogLine("  **** unsupported type: 0x%04x ****", (int) t); break;
 		}
 	}
 }
@@ -183,7 +183,7 @@ KUInt16 TNetworkManager::GetUDPChecksum(KUInt8 *d, ssize_t n, Boolean set) {
 	// UDP Pseudo Header:
 	s = s + (d[26]<<8) + d[27] + (d[28]<<8) + d[29]; // src IP
 	s = s + (d[30]<<8) + d[31] + (d[32]<<8) + d[33]; // dst IP
-	s = s + d[23] + UDPLength; 
+	s = s + d[23] + UDPLength;
 	if (set) {
 		d[40] = d[41] = 0;
 	}
@@ -212,7 +212,7 @@ KUInt16 TNetworkManager::GetTCPChecksum(KUInt8 *d, ssize_t n, Boolean set) {
 	// TCP Pseudo Header:
 	s = s + (d[26]<<8) + d[27] + (d[28]<<8) + d[29]; // src IP
 	s = s + (d[30]<<8) + d[31] + (d[32]<<8) + d[33]; // dst IP
-	s = s + d[23] + TCPLength; 
+	s = s + d[23] + TCPLength;
 	if (set) {
 		d[50] = d[51] = 0;
 	}
@@ -231,7 +231,7 @@ KUInt16 TNetworkManager::GetTCPChecksum(KUInt8 *d, ssize_t n, Boolean set) {
 		d[50] = s>>8;
 		d[51] = s;
 	}
-	return s;	
+	return s;
 }
 
 KUInt16
@@ -280,7 +280,7 @@ TNetworkManager::Run() {
 	mSelectCondVar->Signal();	// Synchronization with constructor.
 	while (true) {
 		mSelectCondVar->Wait(mSelectMutex);
-		
+
 		int nbReady = select(mSelectNFDS, &mSelectSet, NULL, NULL, NULL);
 		if (nbReady > 0) {
 			IsReadyToRead(&mSelectSet);

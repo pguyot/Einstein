@@ -162,7 +162,7 @@ TPCMCIAController::Read( KUInt32 inOffset )
 			LogRegister(inOffset, theResult);
 	}
 #endif
-	
+
 	return theResult;
 }
 
@@ -288,7 +288,7 @@ TPCMCIAController::ReadB( KUInt32 inOffset )
 		}
 #endif
 	}
-	
+
 	return theResult;
 }
 
@@ -342,12 +342,12 @@ void
 TPCMCIAController::InsertCard( TPCMCIACard* inCard )
 {
 	assert (mCard == nil);
-	
+
 	mCard = inCard;
-	
+
 	// Init the card.
 	mCard->Init( this );
-	
+
 	RaiseInterrupt( kSocketCardDetectedIntVector );
 }
 
@@ -358,11 +358,11 @@ void
 TPCMCIAController::RemoveCard( void )
 {
 	assert (mCard != nil);
-	
+
 	mCard->Remove();
 
 	mCard = nil;
-	
+
 	// Raise interrupt.
 	if (mSocketIx == 0)
 	{
@@ -402,15 +402,15 @@ TPCMCIAController::RaiseInterrupt( int inVector )
 // -------------------------------------------------------------------------- //
 //  * RaiseInterrupt( int )
 // -------------------------------------------------------------------------- //
-void 
-TPCMCIAController::LogRegister(KUInt32 reg, KUInt32 v) 
+void
+TPCMCIAController::LogRegister(KUInt32 reg, KUInt32 v)
 {
     (void)reg;
     (void)v;
 #if 0
 	if (!mLog)
 		return;
-	
+
 	char logInterrupts = 0;
 	switch (reg) {
 		case kHdWr_Reg0000:

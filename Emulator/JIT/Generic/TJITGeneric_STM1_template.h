@@ -86,7 +86,7 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 			}
 			baseAddress += 4;
 		}
-		
+
 		curRegList >>= 1;
 		indexReg++;
 	}
@@ -102,7 +102,7 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 	{
 		if (curRegList & 1)
 		{
-			if (isFirst) {				
+			if (isFirst) {
 				//KPrintf("A\n");
 				if (theMemoryInterface->IsMMUEnabled())
 				{
@@ -122,7 +122,7 @@ STM1_Template(FLAG_P, FLAG_U, FLAG_W, Rn)
 					MMUCALLNEXT_AFTERSETPC;
 				}
 				theAddress += 4;
-				if (theAddress&0x000003ff) 
+				if (theAddress&0x000003ff)
 					isFirst = 0;
 			} else {
 				if ((theAddress&0xff000000) == 0x04000000) { // fast RAM write

@@ -52,10 +52,10 @@ TNameServerSingleton::GetObject(
 	// Création d'un client pour le serveur de nom.
 	TUNameServer theNSClient;
 
-	// On se moque de la version.	
+	// On se moque de la version.
 	ULong theVersion;
 	TNameServerSingleton* theResult = nil;
-	
+
 	(void) theNSClient.Lookup( (char*) inName, (char*) inType,
 								(ULong*) &theResult, &theVersion );
 
@@ -76,7 +76,7 @@ TNameServerSingleton::CreateObject(
 
 	// Enregistrement avec 0 pour la version.
 	return theNSClient.RegisterName( (char*) inName, (char*) inType,
-								(ULong) inObject, 0 );	
+								(ULong) inObject, 0 );
 }
 
 // ------------------------------------------------------------------------- //
@@ -90,10 +90,10 @@ TNameServerSingleton::DeleteObject(
 	// Création d'un client pour le serveur de nom.
 	TUNameServer theNSClient;
 
-	// On se moque de la version.	
+	// On se moque de la version.
 	ULong theVersion;
 	TNameServerSingleton* theObject = nil;
-	
+
 	NewtonErr theErr = theNSClient.Lookup( (char*) inName, (char*) inType,
 								(ULong*) &theObject, &theVersion );
 
@@ -103,11 +103,11 @@ TNameServerSingleton::DeleteObject(
 	{
 		// Suppression du serveur de nom.
 		theErr = theNSClient.UnRegisterName( (char*) inName, (char*) inType );
-		
+
 		// Suppression de l'objet.
 		delete theObject;
 	}
-	
+
 	return theErr;
 }
 

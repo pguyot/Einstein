@@ -45,9 +45,9 @@ class TLog;
 	TROMImage*			mROMImage;
 	TEmulator*			mEmulator;
 	TPlatformManager*	mPlatformManager;
-	TLog*				mLog;  
+	TLog*				mLog;
 	int					lastKnownScreenResolution;
-  
+
 }
 
 @property (retain, nonatomic) IBOutlet iEinsteinView *einsteinView;

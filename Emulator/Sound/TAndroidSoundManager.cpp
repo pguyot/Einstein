@@ -93,7 +93,7 @@ TAndroidSoundManager::ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize )
       mOutputBuffer->Produce( inBuffer, inSize );
       mDataMutex->Unlock();
     }
-    
+
     // Ask for more data.
     RaiseOutputInterrupt();
   }
@@ -166,7 +166,7 @@ TAndroidSoundManager::OutputVolumeChanged()
 	} else {
 		vNew = (v-kOutputVolume_Min) / 19458;
 	}
-	
+
 	if (mGlobalVolume != vNew)
 		mGlobalVolumeChanged = 1;
 	mGlobalVolume = vNew;

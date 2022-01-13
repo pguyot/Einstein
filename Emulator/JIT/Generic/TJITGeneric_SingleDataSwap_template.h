@@ -30,7 +30,7 @@ SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
 {
 #if Rn != 15 || Rd != 15 || Rm != 15
 	POPPC();
-	
+
 	TMemory* theMemoryInterface = ioCPU->GetMemory();
 	TMemory::VAddr theAddress = (TMemory::VAddr) ioCPU->mCurrentRegisters[Rn];
 #if FLAG_B
@@ -42,7 +42,7 @@ SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
 		ioCPU->DataAbort();
 		MMUCALLNEXT_AFTERSETPC;
 	}
-	
+
 	// Write.
 	if (theMemoryInterface->WriteB(
 				theAddress, (KUInt8) (ioCPU->mCurrentRegisters[Rm] & 0xFF) ))
@@ -51,10 +51,10 @@ SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
 		ioCPU->DataAbort();
 		MMUCALLNEXT_AFTERSETPC;
 	}
-	
+
 	// The remaining bits are filled with zeroes, as in LDRB.
 	ioCPU->mCurrentRegisters[Rd] = theData;
-#else	
+#else
 	// Swap word quantity.
 	KUInt32 theData;
 	if (theMemoryInterface->Read( theAddress, theData ))
@@ -63,7 +63,7 @@ SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
 		ioCPU->DataAbort();
 		MMUCALLNEXT_AFTERSETPC;
 	}
-	
+
 	// Write.
 	if (theMemoryInterface->Write( theAddress, ioCPU->mCurrentRegisters[Rm] ))
 	{
@@ -71,12 +71,12 @@ SingleDataSwap_Template(FLAG_B, Rn, Rd, Rm)
 		ioCPU->DataAbort();
 		MMUCALLNEXT_AFTERSETPC;
 	}
-	
+
 	ioCPU->mCurrentRegisters[Rd] = theData;
 #endif
 #else
     POPNIL();   // Pop out PC
-#endif	
+#endif
 	CALLNEXTUNIT;
 }
 #endif

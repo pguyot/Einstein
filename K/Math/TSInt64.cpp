@@ -1,10 +1,10 @@
 // ==============================
 // Fichier:			TSInt64.cp
 // Projet:			K
-// 
+//
 // Créé le:			21/2/2004
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
 //

@@ -109,7 +109,7 @@ public:
 		kPSR_TBit			= 0x00000020,	///< 5
 		kPSR_ModeMask		= 0x0000001F	///< 0-4
 	};
-	
+
 	///
 	/// Interrupt bits.
 	///
@@ -118,7 +118,7 @@ public:
 		kFIQInterrupt		= 0x0000002,
 		kIRQInterrupt		= 0x0000001
 	};
-	
+
 	///
 	/// Set the emulator.
 	///
@@ -193,7 +193,7 @@ public:
 	/// \return the value of the CPSR (32 bits)
 	///
 	KUInt32	GetCPSR( void );
-	
+
 	///
 	/// Get the current SPSR.
 	/// Return 0 if the current mode is user or system.
@@ -201,14 +201,14 @@ public:
 	/// \return the value of the SPSR (32 bits) for the current mode.
 	///
 	KUInt32	GetSPSR( void );
-	
+
 	///
 	/// Set the CPSR and update the mode accordingly.
 	///
 	/// \param inNewValue   the new value of the CPSR (32 bits)
 	///
 	void	SetCPSR( KUInt32 inNewValue );
-	
+
 	///
 	/// Set the current SPSR.
 	/// Does nothing if the current mode is user or system.
@@ -222,41 +222,41 @@ public:
 	/// Pre-requirement: PC is the address of the undefined instruction + 8.
 	///
 	void DoUndefinedInstruction( void );
-	
+
 	///
 	/// SWI handling.
 	/// Pre-requirement: PC is the address of the SWI instruction + 8.
 	///
 	void DoSWI( void );
-	
+
 	///
 	/// Reset hardware Interrupt.
 	/// The interrupt will be handled at the beginning of the next step cycle.
 	///
 	void	ResetInterrupt( void );
-	
+
 	///
 	/// Assert FIQ hardware Interrupt.
 	/// The interrupt will be handled at the beginning of the next step cycle.
 	///
 	void	FIQInterrupt( void );
-	
+
 	///
 	/// Clear FIQ hardware Interrupt.
 	///
 	void	ClearFIQInterrupt( void );
-	
+
 	///
 	/// Assert IRQ hardware Interrupt.
 	/// The interrupt will be handled at the beginning of the next step cycle.
 	///
 	void	IRQInterrupt( void );
-	
+
 	///
 	/// Clear IRQ hardware Interrupt.
 	///
 	void	ClearIRQInterrupt( void );
-	
+
 	///
 	/// Determine if there is a hardware interrupt currently asserted.
 	///
@@ -266,57 +266,57 @@ public:
 		{
 			return mPendingInterrupts != 0;
 		}
-	
+
 	///
 	/// Save or retore the state to a stream.
 	///
 	void	TransferState( TStream* inStream );
-		
+
 	///
 	/// System Coproc Register Transfer (MMU & Co).
 	///
 	/// \param inInstruction	current instruction.
 	///
 	void SystemCoprocRegisterTransfer( KUInt32 inInstruction );
-	
+
 	///
 	/// Coproc Register Transfer for native primitives.
 	///
 	/// \param inInstruction	current instruction.
 	///
 	void NativeCoprocRegisterTransfer( KUInt32 inInstruction );
-	
+
 	///
 	/// Backup bank registers before the mode (and the bank) changes.
 	/// This operation may backup more than required. However, I don't think
 	/// it's here that we will spend most of our time.
 	///
 	inline void BackupBankRegisters( void );
-	
+
 	///
 	/// Reset handling.
 	///
 	void Reset( void );
-	
+
 	///
 	/// PrefetchAbort handling.
 	/// Pre-requirement: PC is the address of the aborted instruction + 4.
 	///
 	void PrefetchAbort( void );
-	
+
 	///
 	/// DataAbort handling.
 	/// Pre-requirement: PC is the address of the aborted instruction + 8.
 	///
 	void DataAbort( void );
-	
+
 	///
 	/// IRQ handling.
 	/// Doesn't check interrupt disable flags.
 	/// Pre-requirement: PC is the address of the current instruction + 8.
 	///
 	void IRQ( void );
-	
+
 	///
 	/// FIQ handling.
 	/// Doesn't check interrupt disable flags.
@@ -344,7 +344,7 @@ public:
 	Boolean TestLE() { return ((mCPSR_Z) || (mCPSR_N != mCPSR_V)); }
 
 	/// \name Registers
-	
+
 	// At any time, 16 general purpose registers (R0-R15) may be visible.
 	// The mCurrentRegisters array refers to them.
 	// These registers may be switched with backup copies when the mode

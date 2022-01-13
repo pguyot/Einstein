@@ -38,7 +38,7 @@
 /// \test	aucun test défini.
 ///
 class TNullSoundManager
-	:	
+	:
 		public TSoundManager
 {
 public:
@@ -56,7 +56,7 @@ public:
 	/// Schedule output of some buffer.
 	///
 	virtual void	ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize );
-	
+
 	///
 	/// Start output.
 	///

@@ -2,10 +2,10 @@
 // Fichier:			UScreenTests.cp
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			13/2/2005
 // Tabulation:		4 espaces
-// 
+//
 // Copyright:		© 2005 by Paul Guyot.
 // 					Tous droits réservés pour tous pays.
 // ===========
@@ -55,22 +55,22 @@ UScreenTests::TestX11( void )
 #else
 	// Create some memory.
 	TMemory theMem( (TLog*) NULL, (KUInt8*) NULL, kTempFlashPath );
-	
+
 	// Create the screen manager.
 	TX11ScreenManager theScreenManager;
-	
+
 	theScreenManager.SetMemory( &theMem );
-	
+
 	// Open the screen.
 	theScreenManager.PowerOnScreen();
-	
+
 	KUInt32 theWidth = theScreenManager.GetScreenWidth();
 	KUInt32 theHeight = theScreenManager.GetScreenHeight();
 	KUInt32 rowBytes = theWidth * 8 / TScreenManager::kBitsPerPixel;
 	KUInt32 rowWords = rowBytes / 4;
 	KUInt32 pixmapAddr = TMemoryConsts::kRAMStart;
 	KUInt32 baseAddy = pixmapAddr + 0x00000100;
-	
+
 	// Create a pixmap in RAM.
 	(void) theMem.WriteP( pixmapAddr + 0x00, baseAddy );			// base addy
 	(void) theMem.WriteP( pixmapAddr + 0x04, rowBytes << 16 );
@@ -88,7 +88,7 @@ UScreenTests::TestX11( void )
 			cursorWords += 4;
 		}
 	}
-	
+
 	// Blit.
 	TScreenManager::SRect theRect;
 	theRect.fTop = 0;
@@ -111,7 +111,7 @@ UScreenTests::TestX11( void )
 //			theRect.fLeft = xCoord;
 //			theRect.fBottom = indexLines + 1;
 //			theRect.fRight = xCoord + 1;
-		}	
+		}
 
 		// Blit again.
 		theScreenManager.Blit( pixmapAddr, &theRect, &theRect, 1 /* !srcCopy */ );
@@ -128,7 +128,7 @@ UScreenTests::TestX11( void )
 			cursorWords += 4;
 		}
 	}
-	
+
 	// Blit again.
 	theScreenManager.Blit( pixmapAddr, &theRect, &theRect, 0 /* srcCopy */ );
 
@@ -144,12 +144,12 @@ UScreenTests::TestX11( void )
 //			theRect.fLeft = xCoord;
 //			theRect.fBottom = indexLines + 1;
 //			theRect.fRight = xCoord + 1;
-		}	
+		}
 
 		// Blit again.
 		theScreenManager.Blit( pixmapAddr, &theRect, &theRect, 0 /* srcCopy */ );
 	}
-	
+
 	// Close the screen.
 	theScreenManager.PowerOffScreen();
 
@@ -170,7 +170,7 @@ UScreenTests::DrawPoint(
 					int inColor )
 {
 	KUInt32 addr = inBaseAddy + (inRowBytes * inYcoord);
-	
+
 	if (TScreenManager::kBitsPerPixel == 4)
 	{
 		KUInt32 shift = (7 - (inXcoord & 0x7)) * 4;

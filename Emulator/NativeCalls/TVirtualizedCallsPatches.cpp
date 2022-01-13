@@ -60,30 +60,30 @@ const KUInt32 k717006VirtualizationPatches[] = {
 void
 TVirtualizedCallsPatches::DoPatchROM(KUInt32* inROMPtr, KSInt32 inROMId) {
 	const KUInt32* patches = NULL;
-	
+
 	if (inROMId == TROMImage::k717006) {
 		patches = k717006VirtualizationPatches;
 	}
-	
+
 	if (patches) {
 		// Iterate on patches.
 		while (*patches != 0) {
 			// Patch.
 			// Write all 5 words there.
 			KUInt32 address = patches[0];
-			
+
 			inROMPtr[address++] = kInvocation[0];
 			inROMPtr[address++] = kInvocation[1];
 			inROMPtr[address++] = kInvocation[2];
 			inROMPtr[address++] = kInvocation[3];
-			
+
 			// The last word in the patch is a fake instruction
 			// which will be caught in TNativePrimitives::ExecuteNative()
 			// because the high bit is set
-			
+
 			KUInt32 value = patches[1] | 0x80000000;
 			inROMPtr[address] = value;
-			
+
 			patches += 2;
 		}
 	}

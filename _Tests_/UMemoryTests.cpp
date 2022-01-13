@@ -2,10 +2,10 @@
 // Fichier:			UMemoryTests.cp
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			8/3/2005
 // Tabulation:		4 espaces
-// 
+//
 // Copyright:		© 2005 by Paul Guyot.
 // 					Tous droits réservés pour tous pays.
 // ===========
@@ -77,7 +77,7 @@ UMemoryTests::FlashTest( TLog* inLog )
 		}
 		inLog->FLogLine("%i: %.8X", index, (unsigned int) theWord);
 	}
-	
+
 	KUInt8 theByte;
 	for (index = 0; index < 16; index++)
 	{

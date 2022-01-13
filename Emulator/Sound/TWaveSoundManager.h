@@ -67,7 +67,7 @@ public:
 	/// Schedule output of some buffer.
 	///
 	virtual void	ScheduleOutputBuffer( KUInt32 inBufferAddr, KUInt32 inSize );
-	
+
 	///
 	/// Start output.
 	///
@@ -112,7 +112,7 @@ private:
 	void		updateVolume();
 
 	static void CALLBACK waveOutProcCB(
-						HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance,  
+						HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance,
 						DWORD_PTR dwParam1, DWORD_PTR dwParam2);
 
 	void		waveOutProc(UINT uMsg, int ix);

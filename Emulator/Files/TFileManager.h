@@ -49,13 +49,13 @@ public:
 	TFileManager(
 				   TLog* inLog = nil,
 				   TMemory *inMemory = nil);
-	
+
 	///
 	/// Destructor.
 	///
 	virtual ~TFileManager( void );
 
-	
+
 	///
 	/// Opens a file on the host system. The file path is specified either as relative to the
 	/// current directory of the host process, or absolute, using the path conventions of the
@@ -79,7 +79,7 @@ public:
 	/// -1 if the call is not successful.
 	///
 	KSInt32 do_sys_close( KUInt32 fp );
-	
+
 	///
 	/// Checks whether a file is connected to an interactive device.
 	///
@@ -91,7 +91,7 @@ public:
 	/// a value other than 1 or 0 if an error occurs.
 	///
 	KSInt32 do_sys_istty( KUInt32 fp );
-	
+
 	///
 	/// Reads the contents of a file into a buffer.
 	///
@@ -101,7 +101,7 @@ public:
 	/// The number of bytes that are read, or -1 if there is an error.
 	///
 	KSInt32 do_sys_read( KUInt32 fp, void *buf, KUInt32 nbyte );
-	
+
 	///
 	/// Writes the contents of a buffer to a specified file at the current file position.
 	///
@@ -111,7 +111,7 @@ public:
 	/// The number of bytes that are written, or -1 if there is an error.
 	///
 	KSInt32 do_sys_write( KUInt32 fp, const void *buf, KUInt32 nbyte );
-	
+
 	///
 	/// XXX: DOCUMENTME
 	///
@@ -122,7 +122,7 @@ public:
 	/// -1 if an error occurs.
 	///
 	KSInt32 do_sys_set_input_notify( KUInt32 fp, KUInt32 address );
-	
+
 	///
 	/// Seeks to a specified position in a file using an offset specified from the
 	/// start of the file. The file is assumed to be a byte array and the offset is
@@ -135,7 +135,7 @@ public:
 	/// A negative value if the request is not successful.
 	///
 	KSInt32 do_sys_seek( KUInt32 fp, KUInt32 pos );
-	
+
 	///
 	/// Returns the length of a specified file.
 	///
@@ -151,7 +151,7 @@ public:
 	/// This method is called by the platform to send data to the Newton.
 	///
 	void set_listener_has_input( KUInt32 desc, Boolean has_input );
-		
+
 	///
 	/// Set the memory interface.
 	/// This method is called once the memory interface is created.
@@ -194,7 +194,7 @@ protected:
 	{
 		return mLog;
 	}
-	
+
 private:
 	///
 	/// XXX: DOCUMENTME
@@ -220,7 +220,7 @@ private:
 	/// XXX: DOCUMENTME
 	///
 	virtual void close_listener( KUInt32 desc );
-	
+
 	///
 	/// XXX: DOCUMENTME
 	///
@@ -230,18 +230,18 @@ private:
 	/// XXX: DOCUMENTME
 	///
 	virtual KSInt32 read_listener( KUInt32 desc, void *buf, KUInt32 nbytes );
-	
+
 public:
 	/// \name Variables
 	TLog*				mLog;				///< Reference to the log.
 	TMemory*			mMemory;			///< Interface to the memory.
 	std::string         mPath;
-	
+
 	KUInt32				mFDCount;			///< Number of file descriptors.
 	SFileDescriptors*	mFileDescriptors;	///< File descriptors.
 	// probably want an FP mapping...
 	// buffer writes from platform...
-	
+
 };
 
 #endif // _TFILEMANAGER_H

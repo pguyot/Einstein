@@ -81,7 +81,7 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
         ::close(romfd);
         return;
     }
-    
+
     // Validate size of ROM file
 
     if (theInfos.st_size != 0x00800000)
@@ -91,7 +91,7 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
         ::close(romfd);
         return;
     }
-    
+
     // Which has the more recent modification time: the ROM or the REX?
     // Store the most recent of the two times in theModTime
 
@@ -122,7 +122,7 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
         // if we don't have a REX file, get the date when the app was compiled
         struct tm appCompileTime = { };
         appCompileTime.tm_year = COMPILE_TIME_YYYY;
-        appCompileTime.tm_mon = COMPILE_TIME_MM; 
+        appCompileTime.tm_mon = COMPILE_TIME_MM;
         appCompileTime.tm_mday = COMPILE_TIME_DD;
         theModTime = ::mktime(&appCompileTime);
     }
@@ -143,9 +143,9 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
         mErrorCode = kErrorLoadingROMFile;
         return;
 	}
-	
+
 	(void) ::close(romfd);
-	
+
 	// Let's read the REX (ROM Extension) file.
     if (inREXPath) {
         // load the Einstein.rex from a file
@@ -163,7 +163,7 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 	return;
 #endif
     }
-	
+
     CreateImage( theData );
 
 	::free(theData);

@@ -1,10 +1,10 @@
 // ==============================
 // Fichier:			TUInt64.cp
 // Projet:			K
-// 
+//
 // Créé le:			10/9/2003
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
 //
@@ -48,7 +48,7 @@ TUInt64::operator += ( const KUInt32 inArgument )
 	{
 		mHi++;
 	}
-	
+
 	return *this;
 }
 
@@ -65,9 +65,9 @@ TUInt64::operator += ( const TUInt64& inArgument )
 	{
 		mHi++;
 	}
-	
+
 	mHi += inArgument.GetHi();
-	
+
 	return *this;
 }
 
@@ -84,7 +84,7 @@ TUInt64::operator -= ( const KUInt32 inArgument )
 	{
 		mHi--;
 	}
-	
+
 	return *this;
 }
 
@@ -101,9 +101,9 @@ TUInt64::operator -= ( const TUInt64& inArgument )
 	{
 		mHi--;
 	}
-	
+
 	mHi -= inArgument.GetHi();
-	
+
 	return *this;
 }
 
@@ -172,9 +172,9 @@ TUInt64::operator *= ( const KUInt32 inArgument )
 		// Et on multiplie l'entier de gauche par deux
 		(void) ShiftLeft();
 	}
-	
+
 	*this = theResult;
-	
+
 	return *this;
 }
 
@@ -187,7 +187,7 @@ TUInt64::operator *= ( const TUInt64& inArgument )
 	// Idem
 	TUInt64 theResult = 0;
 	TUInt64 theRightInt = inArgument;
-	
+
 	while (theRightInt > 0)
 	{
 		// On divise theRightInt par deux
@@ -198,9 +198,9 @@ TUInt64::operator *= ( const TUInt64& inArgument )
 		// Et on multiplie l'entier de gauche par deux
 		(void) ShiftLeft();
 	}
-	
+
 	*this = theResult;
-	
+
 	return *this;
 }
 
@@ -227,7 +227,7 @@ TUInt64::operator >>= ( const int inArgument )
 		mHi = 0;
 		mLo = 0;
 	}
-	
+
 	return *this;
 }
 
@@ -275,16 +275,16 @@ TUInt64::EuclideanDivision(
 		outRemainder = 0;
 		return;
 	}
-	
+
 	if (inDivisor > inDividend)
-	{	
+	{
 		outQuotient = 0;
 		outRemainder = inDividend;
 		return;
 	}
 
 	TUInt64 leDiviseur = inDivisor;
-	
+
 	// On décale le diviseur de ce qu'il faut vers la gauche (sans dépasser)
 	int decalages = 0;
 	while (leDiviseur <= inDividend)
@@ -294,7 +294,7 @@ TUInt64::EuclideanDivision(
 		if (leDiviseur.ShiftLeft())
 			break;	// Overflow.
 	}
-	
+
 	// On l'a fait une fois de trop.
 	decalages--;
 	leDiviseur = inDivisor;
@@ -303,7 +303,7 @@ TUInt64::EuclideanDivision(
 	// Puis on soustrait à chaque fois si possible (on a alors un 1 dans le quotient)
 	outRemainder = inDividend;
 	outQuotient = 0;
-	
+
 	for(; decalages >= 0; decalages--)
 	{
 		// On multiplie le quotient par 2
@@ -312,7 +312,7 @@ TUInt64::EuclideanDivision(
 		{
 			// Soustraction.
 			(void) (outRemainder -= leDiviseur);
-			
+
 			// On met un 1 dans le quotient.
 			(void) (outQuotient |= 1);
 		}
@@ -334,7 +334,7 @@ TUInt64::Add( const TUInt64& inArgument )
 	{
 		mHi++;
 	}
-	
+
 	mHi += inArgument.GetHi();
 
 	return (ancienHi > mHi);
@@ -516,7 +516,7 @@ operator / ( const TUInt64& inEntierUn,
 	TUInt64 leQuotient, leReste;
 	TUInt64::EuclideanDivision( leQuotient, leReste, inEntierUn, TUInt64( inEntierDeux ) );
 
-	return leQuotient;	
+	return leQuotient;
 }
 
 // --------------------------------------------------------------------	//
@@ -529,7 +529,7 @@ operator / ( const TUInt64& inEntierUn,
 	TUInt64 leQuotient, leReste;
 	TUInt64::EuclideanDivision( leQuotient, leReste, inEntierUn, inEntierDeux );
 
-	return leQuotient;	
+	return leQuotient;
 }
 
 // --------------------------------------------------------------------	//
@@ -542,7 +542,7 @@ operator % ( const TUInt64& inEntierUn,
 	TUInt64 leQuotient, leReste;
 	TUInt64::EuclideanDivision( leQuotient, leReste, inEntierUn, TUInt64( inEntierDeux ) );
 
-	return leReste;	
+	return leReste;
 }
 
 // --------------------------------------------------------------------	//
@@ -555,7 +555,7 @@ operator % ( const TUInt64& inEntierUn,
 	TUInt64 leQuotient, leReste;
 	TUInt64::EuclideanDivision( leQuotient, leReste, inEntierUn, inEntierDeux );
 
-	return leReste;	
+	return leReste;
 }
 
 // --------------------------------------------------------------------	//

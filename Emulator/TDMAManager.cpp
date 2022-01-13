@@ -119,7 +119,7 @@ KUInt32
 TDMAManager::ReadStatusRegister( void )
 {
 	KUInt32 theResult = 0;
-	
+
 	if (mLog)
 	{
 		mLog->FLogLine(
@@ -154,7 +154,7 @@ KUInt32
 TDMAManager::ReadWordStatusRegister( void )
 {
 	KUInt32 theResult = 0;
-	
+
 	if (mLog)
 	{
 		mLog->FLogLine(

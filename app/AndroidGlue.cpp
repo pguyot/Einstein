@@ -56,26 +56,26 @@ protected:
 
 
 /*
- We need to find a way to stop all threads when the Java part of our app 
+ We need to find a way to stop all threads when the Java part of our app
  vanishes by either getting closed, killed, or uninstalled. Maybe implementing
  these is helpful? It seems not, so we may have to implement a heartbeat :-(
- 
+
  jint JNI_OnLoad(JavaVM* vm, void* reserved);
  void JNI_OnUnload(JavaVM* vm, void* reserved);
- 
+
  also, what do these do?
- 
+
  struct _JavaVM {
 	jint AttachCurrentThread(JNIEnv** p_env, void* thr_args)
 	...
  }
-*/ 
+*/
 
 
 
 /*
  We need to call Java functions from C++. This should be the way:
- 
+
  jclass GetObjectClass(jobject obj);
  jmethodID GetMethodID(jclass clazz, const char* name, const char* sig);
 	sig is ()V for void fn(vioid) or (II)V for void fn(int, int), etc.
@@ -85,7 +85,7 @@ protected:
  */
 
 /* This is a trivial JNI example where we use a native method
- * to return a new VM String. 
+ * to return a new VM String.
  */
 JNIEXPORT jstring JNICALL Java_com_newtonforever_einstein_jni_Native_stringFromJNI( JNIEnv* env, jobject thiz )
 {
@@ -97,7 +97,7 @@ JNIEXPORT jstring JNICALL Java_com_newtonforever_einstein_jni_Native_stringFromJ
 JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_initEmulator( JNIEnv* env, jobject thiz, jstring logPath )
 {
 	jboolean isCopy;
-	
+
 	const char *cLogPath = env->GetStringUTFChars(logPath, &isCopy);
 	if (cLogPath && *cLogPath) {
 		if (strcmp(cLogPath, "STDOUT")==0) {
@@ -112,11 +112,11 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_initEmulator( 
 	} else {
 		theLog = 0L;
 	}
-	
+
 	if (theLog) theLog->LogLine("initEmulator: start");
 	theApp = new TAndroidApp();
 	if (theLog) theLog->LogLine("initEmulator: done");
-	
+
 	env->ReleaseStringUTFChars(logPath, cLogPath);
 }
 
@@ -183,7 +183,7 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_penDown( JNIEn
 				// After five minutes, the MP switches itself off. On Android,
 				// the host OS should decide when to put the device to sleep.
 				// Newton OS nevertheless switches itself off. To continue work,
-				// we'd have to pull the power switch. Since we have no power switch 
+				// we'd have to pull the power switch. Since we have no power switch
 				// on Einstein/IOS, any screen touch will power the Newton back on.
 				theApp->PowerOn();
 				//theApp->getPlatformManager()->SendPowerSwitchEvent();
@@ -211,7 +211,7 @@ static jobject		tasmObject = 0;
 static jclass		tasmClass = 0;
 static jmethodID	tasmMethodInvalidate = 0;
 
-void callScreenInvalidate() 
+void callScreenInvalidate()
 {
 	if (tasmClass) {
 		CallVoidMethod(tasmObject, tasmMethodInvalidate);
@@ -221,14 +221,14 @@ void callScreenInvalidate()
 
 JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_renderEinsteinView(JNIEnv * env, jobject obj, jobject bitmap)
 {
-/*	
+/*
 	if (!tasmClass) {
 		tasmObject = obj;
 		tasmClass = GetObjectClass(obj);
 		tasmMethodInvalidate = GetMethodID(tasmClass, "invalidate", "()V");
 	}
 */
-	
+
     AndroidBitmapInfo	info;
     void				*pixels;
     int					ret = 0;
@@ -254,9 +254,9 @@ JNIEXPORT jint JNICALL Java_com_newtonforever_einstein_jni_Native_renderEinstein
 	{
 		ret = theApp->updateScreen(p);
 	}
-	
+
     AndroidBitmap_unlockPixels(env, bitmap);
-	
+
 	return ret;
 }
 
@@ -291,7 +291,7 @@ JNIEXPORT void JNICALL Java_com_newtonforever_einstein_jni_Native_setNewtonID( J
 //	if (theApp)
 //	{
 //		ret = theApp->screenIsDirty();
-//	}	
+//	}
 //	return ret;
 //}
 

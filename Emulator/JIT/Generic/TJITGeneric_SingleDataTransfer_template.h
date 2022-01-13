@@ -91,7 +91,7 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 		theMemoryInterface->SetPrivilege( false );
 	}
 #endif
-	
+
 #if FLAG_L
 	// Load.
 	#if FLAG_B
@@ -115,7 +115,7 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 			MMUCALLNEXT_AFTERSETPC;
 		}
 	#endif
-		
+
 	#if (Rd == 15)
 		#if FLAG_B
 			// UNPREDICTABLE
@@ -130,14 +130,14 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 	#endif
 #else
 	// Store.
-	
+
 	// If PC is Rd, the stored value is +12 instead of +8
 	#if (Rd == 15)
 		KUInt32 theValue = GETPC() + 4;
 	#else
 		KUInt32 theValue = ioCPU->mCurrentRegisters[Rd];
 	#endif
-	
+
 	#if FLAG_B
 		// Byte
 		if (theMemoryInterface->WriteB(
@@ -157,7 +157,7 @@ SingleDataTransfer_Template(BITS_FLAGS, Rn, Rd)
 		}
 	#endif
 #endif
-	
+
 #if WRITEBACK
 	// Store the address to the base register.
 	#if (Rn == 15)

@@ -1,10 +1,10 @@
 // ==============================
 // Fichier:			TUInt64.h
 // Projet:			K
-// 
+//
 // Créé le:			10/9/2003
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
 //
@@ -67,7 +67,7 @@ public:
 			TInt64( inHi, inLo )
 		{
 		}
-	
+
 	///
 	/// Constructeur à partir d'un entier de 32 bits.
 	///
@@ -91,7 +91,7 @@ public:
 			mLo = inLo;
 			return *this;
 		}
-	
+
 	///
 	/// Opération d'incrément (32 bits)
 	///
@@ -99,7 +99,7 @@ public:
 	/// \return \c this
 	///
 	TUInt64& operator += ( const KUInt32 inArgument );
-	
+
 	///
 	/// Opération d'incrément (64 bits)
 	///
@@ -107,7 +107,7 @@ public:
 	/// \return \c this
 	///
 	TUInt64& operator += ( const TUInt64& inArgument );
-	
+
 	///
 	/// Opération de décrément (32 bits)
 	///
@@ -131,7 +131,7 @@ public:
 	/// \return \c this
 	///
 	TUInt64& operator /= ( const KUInt32 inArgument );
-	
+
 	///
 	/// Opération de division (64 bits)
 	///

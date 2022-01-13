@@ -36,7 +36,7 @@ class TPCMCIACard;
 
  PCMCIA Memory Bus Pinout and Newton address mapping, Data and Address lines are
  directly connected to the CPU and not part of the diagram
- 
+
  PIN Memory  I/O Dir Register Bitmask Description
   1  GND		 --
   7  !CE1        ->  1c00 0080	Card Enable
@@ -61,9 +61,9 @@ class TPCMCIACard;
  62  BVD2 !SPKR  <-  1c00 0002	Battery Voltage / Speaker Out
  63  BVD1 !STCH	 <-  1c00 0001	Battery Voltage / Card Status Changed
  67  !CD2        <-  1c00 0008  Card Detect
- 
+
  */
- 
+
 ///
 /// Class for the PCMCIA controllers.
 ///
@@ -90,7 +90,7 @@ public:
 		kSocketWrFIFOEmptyIntVector		= 0x1000,	///< 11: Write FIFO empty interrupt
 		kSocketWrFIFOThreshldIntVector	= 0x0800	///< 12: Write FIFO threshold met (2 or 4 entries interrupt)
 	};
-	
+
 	///
 	/// Constructor from the log, the emulator and a socket number.
 	///
@@ -105,7 +105,7 @@ public:
 	~TPCMCIAController( void );
 
 	// Memory Interface.
-	
+
 	///
 	/// Read a word.
 	///
@@ -132,7 +132,7 @@ public:
 	/// Insert a card.
 	///
 	void	InsertCard( TPCMCIACard* inCard );
-	
+
 	///
 	/// Remove the card.
 	///
@@ -140,7 +140,7 @@ public:
 
 	///
 	/// Return the card in the slot or nullptr if empty.
-	/// 
+	///
 	TPCMCIACard* CurrentCard() { return mCard; }
 
 	// Card Interface.
@@ -174,12 +174,12 @@ public:
 	/// Log register data.
 	///
 	void LogRegister(KUInt32 reg, KUInt32 value);
-	
+
     ///
     /// Get memory mapping register access
     ///
     KUInt32 GetReg2000() { return mReg_2000; }
-	
+
 	/// \name Constants
 	enum {
 		kAttrEndMask		= 0x3FFFFFF,
@@ -206,7 +206,7 @@ public:
 		kHdWr_Reg4000		= 0xC004000,
 		kHdWr_Reg4400		= 0xC004400
 	};
-	
+
 	enum {
 		// Register 1C00
 		k1C00_CardIsPresent		= 0x000C,
@@ -227,7 +227,7 @@ public:
 		k1C00_VWriteFailure		= 0x2000,	///< kCardVWriteFailure
 		k1C00_VReadFailure		= 0x4000,	///< kCardVReadFailure
 		k1C00_VPCPins			= 0x7FFF,
-		
+
 		// Register 2000
 		k2000_DynamicSwap		= 0x0800,	///< kCardDynamicSwap
 		k2000_SwapSize			= 0x0400,	///< kCardSwapSize
@@ -235,7 +235,7 @@ public:
 		k2000_HandshakeReady	= 0x0080,	///< kCardHandshakeReady
 		k2000_EndianConvert		= 0x0020,	///< !kCardNoEndianConvert
 		k2000_RdWrQueueCtrl		= 0x001F,	///< SetRdWrQueueControl
-		
+
 		// Register 2400
 		k2400_ResetPCMCIA		= 0x1000,	///< Asserted for 50 ticks.
 		k2400_EnableResetOut	= 0x0800,	///< !kCardDisableResetOut
@@ -243,11 +243,11 @@ public:
 		k2400_SelectIO			= 0x0100,	///< if set, this is I/O, if clear, this is memory
 		k2400_SWWriteProtect	= 0x0200,	///< kSWWriteProtect
 		k2400_NoByteAccess		= 0x0080,	///< !kCardByteAccess
-		
+
 		// Register 2800
 		k2800_PullUpControl		= 0x7C00,	///< SetPullupControl
 		k2800_VccOn				= 0x0020,	///< VccOn/VccOff
-		
+
 		// Register 2C00
 		k2C00_VppOn				= 0x0004,	///< IsVppOn
 		k2C00_VS1Out			= 0x1000,	///< kCardVS1Out
@@ -255,7 +255,7 @@ public:
 		k2C00_VS1Dir			= 0x4000,	///< kCardVS1Dir (forces k2C00_VS1Out)
 		k2C00_VS2Dir			= 0x8000	///< kCardVS2Dir (forces k2C00_VS2Out)
 	};
-	
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
@@ -277,7 +277,7 @@ private:
 	TEmulator*			mEmulator;		///< Emulator (access to hardware).
 	int					mSocketIx;		///< Socket index [0-3]
 	TPCMCIACard*		mCard;			///< Card, if any.
-	
+
 	KUInt32				mReg_0000;		///< Value of xC000000 (r   - int, pending interrupts?)
 	KUInt32				mIntCtrlReg;	///< Value of xC000400 (r/w - int, enables/1 and disables/0 interrupts)
 	KUInt32				mReg_0800;		///< Value of xC000800 (w   - int)

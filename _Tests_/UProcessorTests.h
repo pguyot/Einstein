@@ -2,10 +2,10 @@
 // Fichier:			UProcessorTests.h
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			27/7/2004
 // Tabulation:		4 espaces
-// 
+//
 // Copyright:		© 2004 by Paul Guyot.
 // 					Tous droits réservés pour tous pays.
 // ===========
@@ -104,7 +104,7 @@ public:
 	/// \param inLog            log to initialize memory and processor.
 	///
 	static void ExecuteTwoInstructions( KUInt32 inInstruction1, KUInt32 inInstruction2, std::function<void (TARMProcessor& proc)> inTestFunction, TLog* inLog = nullptr );
-	
+
 	///
 	/// Run code (until TEmulator::Run() returns, typically after a breakpoint)
 	///

@@ -54,7 +54,7 @@ public:
 	/// Get PCMCIA pins.
 	///
 	virtual KUInt32		GetVPCPins( void );
-	
+
 	///
 	/// Set PCMCIA pins.
 	///

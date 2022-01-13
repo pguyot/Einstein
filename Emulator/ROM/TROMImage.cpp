@@ -107,12 +107,12 @@ TROMImage::CreateImage(const KUInt8* inBuffer)
         // end of text
         *d = 0;
 	}
-	
+
     SImage* theImagePtr = (SImage*)::calloc(1, sizeof(SImage));
-	
+
 	// inBuffer contains 16 MB consisting of the ROM followed by the REX.
 	// Write this at the start of the image.
-	
+
     // TODO: we can save the time for flipping the Einstein REX if we keep it in the desired byte order already
 
 #if TARGET_RT_LITTLE_ENDIAN
@@ -131,7 +131,7 @@ TROMImage::CreateImage(const KUInt8* inBuffer)
     mROMId = ComputeROMId(theImagePtr->fROM);
 
 	JITClass::PatchROM((KUInt32*) theImagePtr->fROM, mROMId);
-	
+
 	// Compute the checksum.
 	DoComputeChecksums(theImagePtr);
 
@@ -156,14 +156,14 @@ TROMImage::GetLatestModDate(
 			// The file (probably) doesn't exist.
 			break;
 		}
-		
+
 		// Compare with ioModDate and update it if what we have is newer.
 		if (theInfos.st_mtime > *ioModDate)
 		{
 			*ioModDate = theInfos.st_mtime;
 		}
 	} while (false);
-	
+
 	return err;
 }
 
@@ -193,7 +193,7 @@ TROMImage::DoComputeChecksums( SImage* inImage )
 	KUInt32 theBaseSize;
 	KUInt32 theRexBases[4];
 	KUInt32 theRexSizes[4];
-	
+
 	KUInt32 nbRexes = LookForREXes(
 						thePointer,
 						&theBaseSize,
@@ -207,7 +207,7 @@ TROMImage::DoComputeChecksums( SImage* inImage )
 
 	// Compute base checksum.
 	ComputeSegmentChecksums( thePointer, theBaseSize, &inImage->fInfo.fChecksums[0] );
-	
+
 	// Compute REX checksums.
 	KUInt32 indexRexes;
 	for (indexRexes = 0; indexRexes < 4; indexRexes++)
@@ -244,7 +244,7 @@ TROMImage::ComputeSegmentChecksums(
 			lowBits += value & 0x0000FFFF;
 			highBits += value >> 16;
 		} while (theCursor != theEnd);
-		
+
 		outChecksums[0] = highBits;
 		outChecksums[1] = lowBits;
 	}
@@ -272,7 +272,7 @@ TROMImage::LookForREXes(
 	}
 
 	*outBaseSize = theBaseSize;
-	
+
 	// Look for rexes just afterwards.
 	KUInt32 nbRexes = 0;
 	KUInt32 rexCursor = theBaseSize;
@@ -297,7 +297,7 @@ TROMImage::LookForREXes(
 							(unsigned int) rexCursor);
 				::abort();
 			}
-			
+
 			outRexBases[nbRexes] = rexCursor;
 			outRexSizes[nbRexes++] = theRexSize;
 			rexCursor += theRexSize;
@@ -305,7 +305,7 @@ TROMImage::LookForREXes(
 			break;
 		}
 	} while (nbRexes < 4);
-	
+
 	// Look for rexes at 0x00800000.
 	if ((nbRexes < 4) && (rexCursor < 0x00800000))
 	{
@@ -331,7 +331,7 @@ TROMImage::LookForREXes(
 				// Patch the REx to have a sequential ID, or NewtonOS will
 				// be very confused an erase the user's Flash image.
 				swappedROM[(rexCursor / 4) + 7] = nbRexes;
-				
+
 				outRexBases[nbRexes] = rexCursor;
 				outRexSizes[nbRexes++] = theRexSize;
 				rexCursor += theRexSize;

@@ -176,7 +176,7 @@ TMonitor::Run()
         DrawScreen();
         RunEmulator();
     }
-	
+
 	Boolean loop = true;
 	while (loop)
 	{
@@ -1359,7 +1359,7 @@ TMonitor::DrawScreen()
 		{
 			// Clear the terminal.
 #if !TARGET_UI_FLTK
-			(void) ::printf( "\033[2J" );			
+			(void) ::printf( "\033[2J" );
 #endif
 			theResult = true;
 		}

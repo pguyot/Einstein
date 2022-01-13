@@ -75,14 +75,14 @@ TFBScreenManager::Open( void )
 	} else {
 		fbname = "/dev/fb0";
 	}
-	
+
 	mFrameBufferFD = open(fbname, O_RDONLY | O_NONBLOCK);
 	if (mFrameBufferFD == -1)
 	{
 		(void) ::fprintf( stderr, "open r/o failed for %s (%i)\n", fbname, errno );
 		::abort();
 	}
-	
+
 	// Open it R/W.
 	mFrameBufferFD = open(fbname, O_RDWR);
 	if (mFrameBufferFD == -1)

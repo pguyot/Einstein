@@ -81,7 +81,7 @@ void TJITPerfHitCounter::SetEmulator(TEmulator *inEmulator)
 KUInt64 TJITPerfHitCounter::get_hits(KUInt32 at)
 {
 	at = (at-mFirst)>>mShift;
-	if (at>mSize) 
+	if (at>mSize)
 		return 0;
 	return mArray[at];
 }
@@ -117,13 +117,13 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, TSymbolList *inSymbols,
 {
 	if ( !out )
 		return;
-	
+
 	if (mEmulator) {
 		mEmulator->PauseSystem();
 		mEmulator->GetInterruptManager()->SuspendTimer();
 		std::this_thread::sleep_for(std::chrono::microseconds(1000000));
 	}
-		
+
 	va_list vl;
 	va_start(vl, inSymbols);
     static KUInt64 maxULLInt = 0xffffffffffffffffULL;
@@ -160,9 +160,9 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, TSymbolList *inSymbols,
 			// TODO: using an insanely slow and destructive method to sort
 			if ((style & 0x0000ffff)==kStyleMostHit)
 				n = va_arg( vl, KUInt32 );
-			else 
+			else
 				n = mSize;
-			o = 0; 
+			o = 0;
 			m = 0;
 			for (i=0; i<mSize; i++) {
 				if (mArray[i]>0) {
@@ -175,7 +175,7 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, TSymbolList *inSymbols,
 				m = 0; ix = 0;
 				for (j=0; j<mSize; j++) {
 					KUInt64 v = mArray[j];
-					if (v==maxULLInt) 
+					if (v==maxULLInt)
 						continue;
 					if (v>m) {
 						m = v;
@@ -190,7 +190,7 @@ void TJITPerfHitCounter::print(FILE *out, KUInt32 style, TSymbolList *inSymbols,
 			break;
 	}
     va_end( vl );
-	
+
 	if (mEmulator) {
 		mEmulator->GetInterruptManager()->ResumeTimer();
 		mEmulator->Run();
@@ -202,7 +202,7 @@ void TJITPerfHitCounter::hit(KUInt32 at)
 {
     static KUInt64 maxULLInt = 0xffffffffffffffffULL;
 	at = (at-mFirst)>>mShift;
-	if (at>mSize) 
+	if (at>mSize)
 		return;
 	if (mArray[at]<maxULLInt)
 		mArray[at]++;

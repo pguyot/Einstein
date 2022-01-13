@@ -62,7 +62,7 @@ public:
 	/// Access from TJITGeneric
 	///
 	friend class TJITGeneric;
-	
+
 	///
 	/// Default constructor.
 	///
@@ -92,7 +92,7 @@ public:
 	/// Push a unit in the table, resizing the table if required.
 	///
 	void PushUnit(KUInt16* ioUnitCrsr, KUIntPtr inUnit);
-	
+
 	///
 	/// Get the unit for a given (instruction) offset.
 	///
@@ -112,7 +112,7 @@ public:
 				   KUInt16* ioUnitCrsr,
 				   KUInt32 inInstruction,
 				   KUInt32 inVAddr );
-	
+
 protected:
 	/// Test bits.
 	enum ETestKind {
@@ -223,7 +223,7 @@ protected:
 		kDefaultUnitCount = 3 * kInstructionCount,
 		kUnitIncrement = 32,
 	};
-	
+
 	/// \name Variables
 	KUInt32			mUnitCount;	///< Total number of units in this page.
 								///< This is initialized with a reasonable

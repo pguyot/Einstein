@@ -55,7 +55,7 @@ TScreenManager(
 			   inScreenIsLandscape )
 {
 	if (GetLog()) GetLog()->FLogLine("********** TAndroidScreenManager **********");
-	// Not sure yet how we solve this. 
+	// Not sure yet how we solve this.
 	// The view is create in Java.
 	// Here we can lock the associated RAM and copy everything that changed over.
 	// We will also need a way to tell the Java host that we need a redraw!
@@ -149,26 +149,26 @@ int TAndroidScreenManager::update(unsigned short *buffer)
 {
 #define ROT(a) (a<<12) | (a<<7) | (a<<1)
 	static unsigned short lut_wt[16] = {
-		ROT(0), ROT(1), ROT(2), ROT(3), 
-		ROT(4), ROT(5), ROT(6), ROT(7), 
-		ROT(8), ROT(9), ROT(10), ROT(11), 
-		ROT(12), ROT(13), ROT(14), ROT(15), 
+		ROT(0), ROT(1), ROT(2), ROT(3),
+		ROT(4), ROT(5), ROT(6), ROT(7),
+		ROT(8), ROT(9), ROT(10), ROT(11),
+		ROT(12), ROT(13), ROT(14), ROT(15),
 	};
 #undef ROT
 #define ROT(a) (a<<11) | (a<<7) | (a<<0)
 	static unsigned short lut_gn[16] = {
-		ROT(0), ROT(1), ROT(2), ROT(3), 
-		ROT(4), ROT(5), ROT(6), ROT(7), 
-		ROT(8), ROT(9), ROT(10), ROT(11), 
-		ROT(12), ROT(13), ROT(14), ROT(15), 
+		ROT(0), ROT(1), ROT(2), ROT(3),
+		ROT(4), ROT(5), ROT(6), ROT(7),
+		ROT(8), ROT(9), ROT(10), ROT(11),
+		ROT(12), ROT(13), ROT(14), ROT(15),
 	};
-	if (!changed) 
+	if (!changed)
 		return 0;
 	unsigned short *lut = GetBacklight() ? lut_gn : lut_wt;
 	KUInt8* src = GetScreenBuffer();
 	unsigned short *dst = buffer;
 	int i, j, wdt = GetScreenWidth(), hgt = GetScreenHeight();
-	
+
 	switch (GetScreenOrientation()) {
 		case kOrientation_AppleRight:
 			for (i=0; i<hgt; i++) {
@@ -211,7 +211,7 @@ int TAndroidScreenManager::update(unsigned short *buffer)
 			}
 			break;
 	}
-	
+
 	updateOverlay(buffer);
 	changed = 0;
 	return 1;
@@ -231,14 +231,14 @@ int TAndroidScreenManager::updateOverlay(unsigned short *buffer)
 		mOverlayRect.fRight = mOverlayRect.fLeft+40*8;
 		mOverlayRect.fTop = GetScreenHeight() - 16*5;
 		mOverlayRect.fBottom = mOverlayRect.fTop + 16*4;
-		
+
 		KUInt32 dstRowBytes = GetScreenWidth() * 2;
 		KUInt8* dstRowPtr =
 		((KUInt8*)buffer)
 		+ (mOverlayRect.fTop * dstRowBytes)
 		+ (mOverlayRect.fLeft * sizeof(KUInt16))
 		;
-		
+
 		KUInt32 line;
 		for (line=0; line<4; line++) {
 			if (mOverlayIsDirty[line]) {
@@ -287,7 +287,7 @@ TAndroidScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 		firstTime = false;
 	}
 	int mBitsPerPixel = 24;
-	
+
 	KUInt16 top, left, height, width;
 	if (inUpdateRect) {
 		top = inUpdateRect->fTop;
@@ -295,19 +295,19 @@ TAndroidScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 		height = inUpdateRect->fBottom - top;
 		width = inUpdateRect->fRight - left;
 	} else {
-		top = 0; 
+		top = 0;
 		left = 0;
 		height = GetScreenHeight();
 		width = GetScreenWidth();
 	}
-	
-	KUInt8 rs, gs, bs; 
+
+	KUInt8 rs, gs, bs;
 	if (GetBacklight()) {
 		rs = 1; gs = 0; bs = 1;
 	} else {
 		rs = 0; gs = 0; bs = 0;
 	}
-	
+
 	// Update the buffer.
 	// We copy more pixels than what we should.
 	if (left & 0x1)
@@ -319,13 +319,13 @@ TAndroidScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 	{
 		width += 1;
 	}
-	
+
 	KUInt8* theScreenBuffer = GetScreenBuffer();
 	KUInt32 theScreenWidth = GetScreenWidth();
 	KUInt32 dstRowBytes = theScreenWidth * mBitsPerPixel / 8;
 	KUInt32 srcRowBytes = theScreenWidth * kBitsPerPixel / 8;
 	KUInt32 srcWidthInBytes = width * kBitsPerPixel / 8;
-	
+
 	KUInt8* srcRowPtr =
 	theScreenBuffer
 	+ (top * srcRowBytes)
@@ -334,9 +334,9 @@ TAndroidScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 	((KUInt8*)mWidget->getRGBData())
 	+ (top * dstRowBytes)
 	+ (left * mBitsPerPixel / 8);
-	
+
 	int indexRows;
-	
+
 	for (indexRows = height; indexRows != 0; indexRows--)
 	{
 		KUInt8* srcCursor = srcRowPtr;
@@ -358,14 +358,14 @@ TAndroidScreenManager::UpdateScreenRect( SRect* inUpdateRect )
 		srcRowPtr += srcRowBytes;
 		dstRowPtr += dstRowBytes;
 	}
-	
+
 	mWidget->redraw();
 #endif
 }
 
 
 // ========================================================================= //
-// The most likely way for the world to be destroyed, most experts agree, is 
-// by accident. That's where we come in; we're computer professionals. We 
+// The most likely way for the world to be destroyed, most experts agree, is
+// by accident. That's where we come in; we're computer professionals. We
 // cause accidents.
 // ========================================================================= //

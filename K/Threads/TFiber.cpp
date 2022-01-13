@@ -78,28 +78,28 @@ TFiber::TFiber( KUInt32 inStackSize )
 	mFiberContext.uc_stack.ss_size = FIBER_STACK_SIZE;
 	makecontext(&mFiberContext, (void(*)())TaskCaller, 0);
 #endif
-	
+
 	// pthreads are the recommended replacement for ucontext
-#ifdef FIBER_USE_PTHREAD  
+#ifdef FIBER_USE_PTHREAD
 	// condition used to lock the fiber task when not needed
 	pthread_cond_init(&mFiberWait, NULL);
 	pthread_mutex_init(&mFiberWaitMutex, NULL);
-	
+
 	// condition to lock the calling task until the fiber is suspended or done
 	pthread_cond_init(&mCallerWait, NULL);
 	pthread_mutex_init(&mCallerWaitMutex, NULL);
-		
+
 	// set up the fiber
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	
+
 	// launch the fiber, making sure that we wait before we signal!
 	pthread_mutex_lock(&mCallerWaitMutex);
 	pthread_create(&mFiberThread, &attr, TaskCaller, this);
 	pthread_cond_wait(&mCallerWait, &mCallerWaitMutex);
 	pthread_mutex_unlock(&mCallerWaitMutex);
-	
+
 	pthread_attr_destroy(&attr);
 #endif
 
@@ -108,22 +108,22 @@ TFiber::TFiber( KUInt32 inStackSize )
 	// condition used to lock the fiber task when not needed
 	pthread_cond_init(&mFiberWait, NULL);
 	pthread_mutex_init(&mFiberWaitMutex, NULL);
-	
+
 	// condition to lock the calling task until the fiber is suspended or done
 	pthread_cond_init(&mCallerWait, NULL);
 	pthread_mutex_init(&mCallerWaitMutex, NULL);
-	
+
 	// set up the fiber
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	
+
 	// launch the fiber, making sure that we wait before we signal!
 	pthread_mutex_lock(&mCallerWaitMutex);
 	pthread_create(&mFiberThread, &attr, TaskCaller, this);
 	pthread_cond_wait(&mCallerWait, &mCallerWaitMutex);
 	pthread_mutex_unlock(&mCallerWaitMutex);
-	
+
 	pthread_attr_destroy(&attr);
 #endif
 }
@@ -165,7 +165,7 @@ KSInt32 TFiber::Run( KSInt32 inReason, void* inUserData )
 	pthread_mutex_lock(&mCallerWaitMutex);
 	pthread_cond_wait(&mCallerWait, &mCallerWaitMutex);
 	pthread_mutex_unlock(&mCallerWaitMutex);
-	
+
 #endif
 #ifdef FIBER_USE_LONGJMP
 	if (_setjmp(mCallerContext)) {
@@ -196,7 +196,7 @@ KSInt32 TFiber::Suspend( KSInt32 inReason )
 	pthread_mutex_lock(&mCallerWaitMutex);
 	pthread_cond_signal(&mCallerWait);
 	pthread_mutex_unlock(&mCallerWaitMutex);
-	
+
 	// suspend self
 	pthread_mutex_lock(&mFiberWaitMutex);
 	pthread_cond_wait(&mFiberWait, &mFiberWaitMutex);
@@ -230,7 +230,7 @@ KSInt32 TFiber::Resume( KSInt32 inReason )
 	pthread_mutex_lock(&mFiberWaitMutex);
 	pthread_cond_signal(&mFiberWait);
 	pthread_mutex_unlock(&mFiberWaitMutex);
-	
+
 	// wait for fiber to finish
 	pthread_mutex_lock(&mCallerWaitMutex);
 	pthread_cond_wait(&mCallerWait, &mCallerWaitMutex);
@@ -268,13 +268,13 @@ void TFiber::TaskCaller(TFiber* inFiber)
 void* TFiber::TaskCaller(void* inFiber)
 {
 	TFiber* This = (TFiber*)inFiber;
-	
+
 	for (;;) {
 		// resume caller
 		pthread_mutex_lock(&This->mCallerWaitMutex);
 		pthread_cond_signal(&This->mCallerWait);
 		pthread_mutex_unlock(&This->mCallerWaitMutex);
-	
+
 		// suspend self
 		pthread_mutex_lock(&This->mFiberWaitMutex);
 		pthread_cond_wait(&This->mFiberWait, &This->mFiberWaitMutex);
@@ -284,7 +284,7 @@ void* TFiber::TaskCaller(void* inFiber)
 		This->mState = kRunning;
 		This->mReason = This->Task(This->mReason, This->mUserData);
 		This->mState = kStopped;
-		
+
 		// repeat forever
 	}
 	return 0L;
@@ -300,7 +300,7 @@ void* TFiber::TaskCaller(void* inFiber)
 void* TFiber::TaskCaller(void* inFiber)
 {
 	TFiber* This = (TFiber*)inFiber;
-	
+
 	if (_setjmp(This->mFiberContext)) {
 		// do our taks
 		This->mState = kRunning;
@@ -311,19 +311,19 @@ void* TFiber::TaskCaller(void* inFiber)
 	} else {
 		// go to sleep forever - we just need a valid context.
 	}
-	
+
 	// resume caller
 	pthread_mutex_lock(&This->mCallerWaitMutex);
 	pthread_cond_signal(&This->mCallerWait);
 	pthread_mutex_unlock(&This->mCallerWaitMutex);
-	
+
 	for (;;) {
-		
+
 		// suspend self
 		pthread_mutex_lock(&This->mFiberWaitMutex);
 		pthread_cond_wait(&This->mFiberWait, &This->mFiberWaitMutex);
 		pthread_mutex_unlock(&This->mFiberWaitMutex);
-		
+
 		// repeat forever
 	}
 	return 0L;

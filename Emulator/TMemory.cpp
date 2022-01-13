@@ -164,7 +164,7 @@ TMemory::~TMemory( void )
 	if (mRAM) ::free( mRAM );
 	if (mBreakpoints) ::free(mBreakpoints);
 	if (mWatchpoints) ::free(mWatchpoints);
-	
+
 	int socketsIx;
 	for (socketsIx = 0; socketsIx < kNbSockets; socketsIx++)
 	{
@@ -193,7 +193,7 @@ TMemory::SetEmulator( TEmulator* inEmulator )
 			mPCMCIACtrls[socketIx] =
 				new TPCMCIAController( mLog, mEmulator, socketIx );
 		}
-		
+
 		ComputeSerialNumber( inEmulator->GetNewtonID() );
 	} else {
 		mInterruptManager = nil;
@@ -216,10 +216,10 @@ TMemory::SetEmulator( TEmulator* inEmulator )
 //  * GetDirectPointerToRAM( VAddr, KUInt8** )
 // -------------------------------------------------------------------------- //
 Boolean
-TMemory::GetDirectPointerToRAM( VAddr inAddress, KUInt8** outPTR ) 
+TMemory::GetDirectPointerToRAM( VAddr inAddress, KUInt8** outPTR )
 {
 	PAddr theAddress;
-	
+
 	if (IsMMUEnabled())
 	{
 		if (TranslateR( inAddress, theAddress ))
@@ -231,7 +231,7 @@ TMemory::GetDirectPointerToRAM( VAddr inAddress, KUInt8** outPTR )
 	} else {
 		theAddress = inAddress;
 	}
-	
+
 	if(theAddress >= TMemoryConsts::kRAMStart && theAddress < mRAMEnd)
 	{ // goodie
 		*outPTR = ((KUInt8*) (mRAMOffset + theAddress));
@@ -240,7 +240,7 @@ TMemory::GetDirectPointerToRAM( VAddr inAddress, KUInt8** outPTR )
 			mLog->LogLine("Tried to load a buffer that is not in RAM");
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -248,10 +248,10 @@ TMemory::GetDirectPointerToRAM( VAddr inAddress, KUInt8** outPTR )
 //  * GetDirectPointerToROMRAM( VAddr, const KUInt8** )
 // -------------------------------------------------------------------------- //
 Boolean
-TMemory::GetDirectPointerToROMRAM( VAddr inAddress, const KUInt8** outPTR ) 
+TMemory::GetDirectPointerToROMRAM( VAddr inAddress, const KUInt8** outPTR )
 {
 	PAddr theAddress;
-	
+
 	// Optimization: avoid translation when reading unprotected ROM
 	if (IsMMUEnabled() && !IsPageInROM(inAddress))
 	{
@@ -274,7 +274,7 @@ TMemory::GetDirectPointerToROMRAM( VAddr inAddress, const KUInt8** outPTR )
 			mLog->LogLine("Tried to load a buffer that is not in RAM or ROM");
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -301,7 +301,7 @@ TMemory::FastReadBuffer( VAddr inAddress, KUInt32 inAmount, KUInt8* outBuffer )
 			len--;
 		}
 	}
-	
+
 	if (GetDirectPointerToROMRAM(addr, &pointer))
 	{
 		// Slower.
@@ -359,7 +359,7 @@ TMemory::FastReadBuffer( VAddr inAddress, KUInt32 inAmount, KUInt8* outBuffer )
 		if (ReadB(addr++, byte)) return true;
 		*dst++ = byte;
 	}
-	
+
 	return false;
 }
 
@@ -397,7 +397,7 @@ TMemory::FastReadString( VAddr inAddress, char** outString )
 					break;
 				}
 			}
-			
+
 			if (byte != 0)
 			{
 				// Resize.
@@ -446,7 +446,7 @@ TMemory::FastReadString( VAddr inAddress, char** outString )
 #endif
 
 	*outString = result;
-	
+
 	return false;
 }
 
@@ -533,7 +533,7 @@ TMemory::FastWriteBuffer( VAddr inAddress, KUInt32 inAmount, const KUInt8* inBuf
 			if (WriteB(addr++, byte)) return true;
 			len--;
 		}
-	}	
+	}
 	if (GetDirectPointerToRAM(addr, &pointer))
 	{
 		// Slower.
@@ -589,7 +589,7 @@ TMemory::FastWriteBuffer( VAddr inAddress, KUInt32 inAmount, const KUInt8* inBuf
 		KUInt8 byte = *src++;
 		if (WriteB(addr++, byte)) return true;
 	}
-	
+
 	return false;
 }
 
@@ -648,7 +648,7 @@ TMemory::FastWriteString( VAddr inAddress, KUInt32* ioAmount, const char* inStri
 		} while (true);
 	}
 #endif
-	
+
 	*ioAmount = orglen - len;
 
 	return false;
@@ -701,7 +701,7 @@ TMemory::Read( VAddr inAddress, KUInt32& outWord )
 		}
 	}
 #endif
-	
+
 	PAddr theAddress;
 
 	// Optimization: avoid translation when reading unprotected ROM
@@ -714,7 +714,7 @@ TMemory::Read( VAddr inAddress, KUInt32& outWord )
 	} else {
 		theAddress = inAddress;
 	}
-	
+
 	Boolean fault = false;
 	outWord = ReadP( theAddress, fault );
 	if (fault)
@@ -722,7 +722,7 @@ TMemory::Read( VAddr inAddress, KUInt32& outWord )
 		mMMU.SetHardwareFault( inAddress );
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -754,7 +754,7 @@ TMemory::ReadAligned( VAddr inAddress, KUInt32& outWord )
 	} else {
 		theAddress = inAddress & ~0x03;
 	}
-	
+
 	Boolean fault = false;
 	outWord = ReadPAligned( theAddress, fault );
 	if (fault)
@@ -762,7 +762,7 @@ TMemory::ReadAligned( VAddr inAddress, KUInt32& outWord )
 		mMMU.SetHardwareFault( inAddress );
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -1315,13 +1315,13 @@ TMemory::ReadB( VAddr inAddress, KUInt8& outByte )
 	} else {
 		theAddress = inAddress;
 	}
-	
+
 	if (ReadBP( theAddress, outByte ))
 	{
 		mMMU.SetHardwareFault( inAddress );
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -1515,7 +1515,7 @@ TMemory::ReadBP( PAddr inAddress, KUInt8& outByte )
 		}
 		return true;
 	}
-		
+
 //	if (inAddress == 0x0F1C4400)
 //	{
 //		mEmulator->BreakInMonitor();
@@ -1551,13 +1551,13 @@ TMemory::Write( VAddr inAddress, KUInt32 inWord )
 	} else {
 		theAddress = inAddress;
 	}
-	
+
 	if (WriteP( theAddress, inWord ))
 	{
 		mMMU.SetHardwareFault( inAddress );
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -1588,13 +1588,13 @@ TMemory::WriteAligned( VAddr inAddress, KUInt32 inWord )
 	} else {
 		theAddress = inAddress &~ 0x03;
 	}
-	
+
 	if (WritePAligned( theAddress, inWord ))
 	{
 		mMMU.SetHardwareFault( inAddress );
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -1661,7 +1661,7 @@ TMemory::WriteP( PAddr inAddress, KUInt32 inWord )
 		} else {
 			*((KUInt32*) (mRAMOffset + inAddress)) = inWord;
 		}
-		
+
 		// Invalidate JIT.
 		mJIT.Invalidate( inAddress );
 	} else if (inAddress < TMemoryConsts::kHardwareBase) {
@@ -1815,7 +1815,7 @@ TMemory::WriteP( PAddr inAddress, KUInt32 inWord )
 		}
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -1873,7 +1873,7 @@ TMemory::WritePAligned( PAddr inAddress, KUInt32 inWord )
 //        }
 		// RAM.
 		*((KUInt32*) (mRAMOffset + inAddress)) = inWord;
-		
+
 		// Invalidate JIT.
 		mJIT.Invalidate( inAddress );
 	} else if (inAddress < TMemoryConsts::kHardwareBase) {
@@ -2027,7 +2027,7 @@ TMemory::WritePAligned( PAddr inAddress, KUInt32 inWord )
 		}
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -2059,7 +2059,7 @@ TMemory::WriteRAMP( PAddr inAddress, KUInt32 inWord )
 		} else {
 			*((KUInt32*) (mRAMOffset + inAddress)) = inWord;
 		}
-		
+
 		// Invalidate JIT.
 		mJIT.Invalidate( inAddress );
 		return false;
@@ -2101,13 +2101,13 @@ TMemory::WriteB( VAddr inAddress, KUInt8 inByte )
 	} else {
 		theAddress = inAddress;
 	}
-	
+
 	if (WriteBP( theAddress, inByte ))
 	{
 		mMMU.SetHardwareFault( inAddress );
 		return true;
 	}
-	
+
 //	if (inAddress == 0x0C105548)
 //	{
 //		mEmulator->BreakInMonitor();
@@ -2171,7 +2171,7 @@ TMemory::WriteBP( PAddr inAddress, KUInt8 inByte )
 		*((KUInt8*) (mRAMOffset + (inAddress ^ 0x3))) = inByte;
 #else
 		*((KUInt8*) (mRAMOffset + inAddress)) = inByte;
-#endif		
+#endif
 
 		// Invalidate JIT.
 		mJIT.Invalidate( inAddress );
@@ -2262,7 +2262,7 @@ TMemory::WriteBP( PAddr inAddress, KUInt8 inByte )
 		}
 		return true;
 	}
-	
+
 //	if ((inAddress == 0x0F240000) || (inAddress == 0x0F240800))
 //	{
 //		mEmulator->BreakInMonitor();
@@ -2288,19 +2288,19 @@ TMemory::TranslateAndCheckFlashAddress( KUInt32 inAddress, PAddr* outAddress )
 	} else {
 		theAddress = (PAddr) inAddress;
 	}
-	
+
 	if (((theAddress < TMemoryConsts::kFlashBank1) || (theAddress > TMemoryConsts::kFlashBank1End))
 		&& ((theAddress < TMemoryConsts::kFlashBank2) || (theAddress > TMemoryConsts::kFlashBank2End)))
 	{
 		mEmulator->BreakInMonitor();
 		return true;
 	}
-	
+
 	if (outAddress)
 	{
 		*outAddress = theAddress;
 	}
-	
+
 	return false;
 }
 
@@ -2311,7 +2311,7 @@ Boolean
 TMemory::WriteToFlash32Bits( KUInt32 inWord, KUInt32 inMask, KUInt32 inAddress )
 {
 	PAddr theAddress = 0;
-	
+
 	if (TranslateAndCheckFlashAddress( inAddress, &theAddress ))
 	{
 		if (mLog)
@@ -2346,9 +2346,9 @@ TMemory::WriteToFlash32Bits( KUInt32 inWord, KUInt32 inMask, KUInt32 inAddress )
 		theOffset = theAddress - TMemoryConsts::kFlashBank2;
 		theBank = 1;
 	}
-	
+
 	mFlash.Write( inWord, inMask, theOffset, theBank );
-	
+
 	return false;
 }
 
@@ -2359,7 +2359,7 @@ Boolean
 TMemory::WriteToFlash16Bits( KUInt32 inWord, KUInt32 inMask, KUInt32 inAddress )
 {
 	PAddr theAddress = 0;
-	
+
 	if (TranslateAndCheckFlashAddress( inAddress, &theAddress ))
 	{
 		if (mLog)
@@ -2394,17 +2394,17 @@ TMemory::WriteToFlash16Bits( KUInt32 inWord, KUInt32 inMask, KUInt32 inAddress )
 		theOffset = (theAddress - TMemoryConsts::kFlashBank2) / 2;
 		theBank = 1;
 	}
-	
+
 	// if We do 16 bits, handle the swap.
 	if (theAddress & 0x2)
 	{
 		// It's the lower 16 bits.
-		mFlash.Write( inWord, inMask, theOffset &~ 0x1, theBank );	
+		mFlash.Write( inWord, inMask, theOffset &~ 0x1, theBank );
 	} else {
 		// It's the higher 16 bits.
-		mFlash.Write( (inWord << 16), (inMask << 16), theOffset &~ 0x1, theBank );	
+		mFlash.Write( (inWord << 16), (inMask << 16), theOffset &~ 0x1, theBank );
 	}
-	
+
 	return false;
 }
 // -------------------------------------------------------------------------- //
@@ -2414,7 +2414,7 @@ Boolean
 TMemory::EraseFlash( KUInt32 inAddress, KUInt32 inBlockSize )
 {
 	PAddr theAddress = 0;
-	
+
 	if (TranslateAndCheckFlashAddress( inAddress, &theAddress ))
 	{
 		if (mLog)
@@ -2450,9 +2450,9 @@ TMemory::EraseFlash( KUInt32 inAddress, KUInt32 inBlockSize )
 		theOffset = theAddress - TMemoryConsts::kFlashBank2;
 		theBank = 1;
 	}
-	
+
 	mFlash.Erase( inBlockSize, theOffset, theBank );
-	
+
 	return false;
 }
 
@@ -2492,7 +2492,7 @@ TMemory::ComputeSerialNumber( const KUInt32 inNewtonID[2] )
 		checksum <<= 1;
 		serial >>= 1;
 	}
-	
+
 	int theCRC = kSerialNumberCRC[checksum >> 1];
 
 	mSerialNumber[0] =
@@ -2516,10 +2516,10 @@ TMemory::ReadBreakpoint( VAddr inAddress, KUInt32& outWord )
 	{
 		SetPrivilege( true );
 	}
-	
+
 	PAddr theAddress;
 	Boolean theResult = false;
-	
+
 	if (IsMMUEnabled())
 	{
 		theResult = TranslateR( inAddress, theAddress );
@@ -2542,12 +2542,12 @@ TMemory::ReadBreakpoint( VAddr inAddress, KUInt32& outWord )
 			}
 		}
 	}
-	
+
 	if (!savedPrivilege)
 	{
 		SetPrivilege(false);
 	}
-	
+
 	return theResult;
 }
 
@@ -2563,10 +2563,10 @@ TMemory::SetBreakpoint( VAddr inAddress, KUInt16 inID )
 	{
 		SetPrivilege(true);
 	}
-	
+
 	PAddr theAddress;
 	Boolean theResult = false;
-	
+
 	if (IsMMUEnabled())
 	{
 		theResult = TranslateR( inAddress, theAddress );
@@ -2578,7 +2578,7 @@ TMemory::SetBreakpoint( VAddr inAddress, KUInt16 inID )
 		{
 			break;
 		}
-		
+
 		// Iterate on the BP to find it.
 		Boolean weAlreadyHaveIt = false;
 		SBreakpoint* endBP = &mBreakpoints[mBPCount];
@@ -2591,12 +2591,12 @@ TMemory::SetBreakpoint( VAddr inAddress, KUInt16 inID )
 				break;
 			}
 		}
-		
+
 		if (weAlreadyHaveIt)
 		{
 			break;
 		}
-		
+
 		// Add it.
 		Boolean fault = false;
 		KUInt32 originalValue =	ReadROMRAMP( theAddress, fault );
@@ -2623,7 +2623,7 @@ TMemory::SetBreakpoint( VAddr inAddress, KUInt16 inID )
 				break;
 			}
 		}
-		
+
 		KUInt32 theBPCount = mBPCount + 1;
 		mBreakpoints = (SBreakpoint*) ::realloc( mBreakpoints,
 			sizeof(SBreakpoint) * theBPCount);
@@ -2632,12 +2632,12 @@ TMemory::SetBreakpoint( VAddr inAddress, KUInt16 inID )
 		mBreakpoints[theBPCount - 1].fOriginalValue = originalValue;
 		mBreakpoints[theBPCount - 1].fBPValue = theValue;
 	} while (false);
-	
+
 	if (!savedPrivilege)
 	{
 		SetPrivilege(false);
 	}
-	
+
 	return theResult;
 }
 
@@ -2653,10 +2653,10 @@ TMemory::ClearBreakpoint( VAddr inAddress )
 	{
 		SetPrivilege(true);
 	}
-	
+
 	PAddr theAddress;
 	Boolean theResult = false;
-	
+
 	if (IsMMUEnabled())
 	{
 		theResult = TranslateR( inAddress, theAddress );
@@ -2674,9 +2674,9 @@ TMemory::ClearBreakpoint( VAddr inAddress )
 			if (cursor->fAddress == theAddress)
 			{
 				theResult = false;
-				
+
 				KUInt32 theOriginalValue = cursor->fOriginalValue;
-				
+
 				(void) ::memmove(
 					cursor, &cursor[1],
 					(endBP - cursor) * sizeof (SBreakpoint) );
@@ -2684,7 +2684,7 @@ TMemory::ClearBreakpoint( VAddr inAddress )
 				mBreakpoints = (SBreakpoint*) ::realloc( mBreakpoints,
 					sizeof(SBreakpoint) * theBPCount);
 				mBPCount = theBPCount;
-				
+
 				if (!(theAddress & TMemoryConsts::kROMEndMask))
 				{
 					*((KUInt32*) ((KUIntPtr) mROMImagePtr + theAddress))
@@ -2695,17 +2695,17 @@ TMemory::ClearBreakpoint( VAddr inAddress )
 				} else {
 					theResult = WriteRAMP( theAddress, theOriginalValue );
 				}
-				
+
 				break;
 			}
 		}
 	}
-	
+
 	if (!savedPrivilege)
 	{
 		SetPrivilege(false);
 	}
-	
+
 	return theResult;
 }
 
@@ -2721,10 +2721,10 @@ TMemory::DisableBreakpoint( VAddr inAddress )
 	{
 		SetPrivilege(true);
 	}
-	
+
 	PAddr theAddress;
 	Boolean theResult = false;
-	
+
 	if (IsMMUEnabled())
 	{
 		theResult = TranslateR( inAddress, theAddress );
@@ -2742,9 +2742,9 @@ TMemory::DisableBreakpoint( VAddr inAddress )
 			if (cursor->fAddress == theAddress)
 			{
 				theResult = false;
-				
+
 				KUInt32 theOriginalValue = cursor->fOriginalValue;
-				
+
 				if (!(theAddress & TMemoryConsts::kROMEndMask))
 				{
 					*((KUInt32*) ((KUIntPtr) mROMImagePtr + theAddress))
@@ -2759,12 +2759,12 @@ TMemory::DisableBreakpoint( VAddr inAddress )
 			}
 		}
 	}
-	
+
 	if (!savedPrivilege)
 	{
 		SetPrivilege(false);
 	}
-	
+
 	return theResult;
 }
 
@@ -2780,10 +2780,10 @@ TMemory::EnableBreakpoint( VAddr inAddress)
 	{
 		SetPrivilege(true);
 	}
-	
+
 	PAddr theAddress;
 	Boolean theResult = false;
-	
+
 	if (IsMMUEnabled())
 	{
 		theResult = TranslateR( inAddress, theAddress );
@@ -2801,7 +2801,7 @@ TMemory::EnableBreakpoint( VAddr inAddress)
 			if (cursor->fAddress == theAddress)
 			{
 				theResult = false;
-				
+
 				if (!(theAddress & TMemoryConsts::kROMEndMask))
 				{
 					*((KUInt32*) ((KUIntPtr) mROMImagePtr + theAddress))
@@ -2812,17 +2812,17 @@ TMemory::EnableBreakpoint( VAddr inAddress)
 				} else {
 					theResult = WriteRAMP( theAddress, cursor->fBPValue );
 				}
-				
+
 				break;
 			}
 		}
 	}
-	
+
 	if (!savedPrivilege)
 	{
 		SetPrivilege(true);
 	}
-	
+
 	return theResult;
 }
 
@@ -2834,13 +2834,13 @@ TMemory::TransferState( TStream* inStream )
 {
 	// Invalidate the JIT cache.
 	mJIT.InvalidateTLB();
-	
+
 	// The various registers.
 	inStream->TransferInt32BE( mRAMSize );
 	inStream->TransferInt32BE( mRAMEnd );
 	inStream->TransferInt32BE( mBankCtrlRegister );
 	inStream->TransferInt32BE( mBPCount );
-	
+
 	// The ROM.
 	inStream->TransferInt32ArrayBE( (KUInt32*) mROMImagePtr, 0x01000000 / sizeof( KUInt32 ) );
 

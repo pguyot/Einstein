@@ -2,32 +2,32 @@
 // Fichier:			TFileStream.cp
 // Projet:			K
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			11/6/2005
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
-// 
+//
 // The contents of this file are subject to the Mozilla Public License Version
 // 1.1 (the "License"); you may not use this file except in compliance with
 // the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-// 
+//
 // Software distributed under the License is distributed on an "AS IS" basis,
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
 // License.
-// 
+//
 // The Original Code is TFileStream.cp.
-// 
+//
 // The Initial Developer of the Original Code is Paul Guyot.
 // Portions created by the Initial Developer are Copyright (C) 2005 the
 // Initial Developer. All Rights Reserved.
-// 
+//
 // Contributor(s):
 //   Paul Guyot <pguyot@kallisys.net> (original author)
-// 
+//
 // ***** END LICENSE BLOCK *****
 // ===========
 // $Id: TFileStream.cp,v 1.3 2007/07/11 01:36:30 pguyot Exp $
@@ -102,7 +102,7 @@ TFileStream::TFileStream( FILE* inFile )
 		mWeOpenedTheFile( false )
 {
 #if TARGET_OS_WIN32
-	mIsWriting = mIsReading = 1; 
+	mIsWriting = mIsReading = 1;
 	// Windows does not have a standard API for getting this value
 	// see: NtQueryInformationFile
 #else
@@ -136,7 +136,7 @@ void
 TFileStream::Read( void* outBuffer, KUInt32* ioCount )
 {
 	size_t theCount = ::fread( outBuffer, 1, *ioCount, mFile );
-	
+
 	if (*ioCount != theCount)
 	{
 		*ioCount = (KUInt32)theCount;
@@ -157,7 +157,7 @@ void
 TFileStream::Write( const void* inBuffer, KUInt32* ioCount )
 {
 	size_t theCount = ::fwrite( inBuffer, 1, *ioCount, mFile );
-	
+
 	if (*ioCount != theCount)
 	{
 		*ioCount = (KUInt32) theCount;
@@ -185,13 +185,13 @@ TFileStream::PeekByte( void )
 	int theNextChar = getc( mFile );
 	if (theNextChar == EOF)
 	{
-#if HAS_EXCEPTION_HANDLING		
+#if HAS_EXCEPTION_HANDLING
 		throw EOFException;
 #else
 		return EOF;
 #endif
 	}
-	
+
 	if (::ungetc( theNextChar, mFile ) != theNextChar)
 	{
 #if HAS_EXCEPTION_HANDLING
@@ -200,7 +200,7 @@ TFileStream::PeekByte( void )
 		return EOF;
 #endif
 	}
-	
+
 	return (KUInt8) theNextChar;
 }
 
@@ -234,7 +234,7 @@ TFileStream::SetCursor( KSInt64 inPos, ECursorMode inMode )
 		case kFromLEOF:
 			whence = SEEK_END;
 	}
-	
+
 	int theErr = ::fseeko( mFile, (off_t) inPos, whence );
 	if (theErr != 0)
 	{

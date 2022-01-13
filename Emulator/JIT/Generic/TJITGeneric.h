@@ -47,7 +47,7 @@ class TJITGeneric
 		public TJIT< TJITGeneric, TJITGenericPage >
 {
 public:
-	
+
 	///
 	/// Constructor from interfaces to memory and MMU.
 	///
@@ -57,12 +57,12 @@ public:
 	TJITGeneric(
 		TMemory* inMemoryIntf,
 		TMMU* inMMUIntf );
-	
+
 	///
 	/// Destructor.
 	///
 	virtual ~TJITGeneric( void );
-	
+
 	///
 	/// One or more steps with JIT.
 	///
@@ -115,7 +115,7 @@ public:
 	/// It is only called when the image is created.
 	///
 	static void DoPatchROM(KUInt32* romPtr, KSInt32 inROMId);
-	
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
@@ -134,9 +134,9 @@ private:
 	enum {
 		kPoolSize = 512,	///< 512 pages in pool.
 	};
-	
+
 	/// \name Variables
-	
+
 	TJITGenericPage*	mPagesPool;	///< Array with all the pages.
 };
 

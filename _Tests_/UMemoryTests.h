@@ -2,10 +2,10 @@
 // Fichier:			UMemoryTests.h
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			8/3/2005
 // Tabulation:		4 espaces
-// 
+//
 // Copyright:		© 2005 by Paul Guyot.
 // 					Tous droits réservés pour tous pays.
 // ===========

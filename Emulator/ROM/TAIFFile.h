@@ -45,7 +45,7 @@ public:
 	/// Reads the header.
 	///
 	TAIFFile( FILE* inFile );
-		
+
 	///
 	/// Definition for the 128 bytes header.
 	/// From ARM SDT Reference Manual, 13-5 sqq
@@ -118,7 +118,7 @@ public:
 		KUInt32	fZeroInitCode[15];	// Zero-init code 15 words	Header is 32 words long.
 									//   as below
 	};
-	
+
 	///
 	/// Accessor to the header.
 	///
@@ -165,14 +165,14 @@ public:
 	/// The buffer must be big enough to be filled with the data.
 	///
 	void					ReadROImage( KUInt8* outImage );
-	
+
 	///
 	/// Read the read/write part of the image.
 	/// The size can be obtained with GetRWImageSize method.
 	/// The buffer must be big enough to be filled with the data.
 	///
 	void					ReadRWImage( KUInt8* outImage );
-	
+
 private:
 	FILE*			mFile;		///< File of the image.
 	SHeader			mHeader;	///< Header of the ROM image.

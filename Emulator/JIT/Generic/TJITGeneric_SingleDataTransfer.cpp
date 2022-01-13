@@ -100,7 +100,7 @@ Translate_SingleDataTransfer(
 	// special handling for reading a word form ROM
 	if ( (inInstruction & 0x0fff0000) == 0x059F0000 && (inInstruction&0x00000fff)+inVAddr<0x00800000) {
 		// The instruction "ldr r2, =12345" is used quite often. It is relatively slow
-		// because it needs to do a round trip through the MMU. With this shortcut, we avoid 
+		// because it needs to do a round trip through the MMU. With this shortcut, we avoid
 		// reading the ROM and gain 3% perfomrance.
 		KUInt32 theIndex = (inInstruction & 0x0000F000) >> 12;
 		KUInt32 theAddress = (inInstruction&0x00000fff)+inVAddr+8;

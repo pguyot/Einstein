@@ -55,12 +55,12 @@ public:
 	/// Initialization (links the values together)
 	///
 	inline THashMapCache( void );
-	
+
 	///
 	/// Destruction.
 	///
 	inline ~THashMapCache( void );
-	
+
 	///
 	/// Insert.
 	///
@@ -83,7 +83,7 @@ public:
 	/// \return the value or NULL if no matching value was found.
 	///
 	inline TValue*	Lookup( KUInt32 inKey );
-	
+
 	///
 	/// Clear the map.
 	///
@@ -126,7 +126,7 @@ public:
 		kHashFunctionShift		= 10,
 		kHashTableSize			= (kHashFunctionMask >> kHashFunctionShift) + 1,
 	};
-	
+
 	///
 	/// Hash function.
 	///
@@ -246,7 +246,7 @@ THashMapCache<TValue>::MakeFirst( TValue* inValue )
 		// There always is an old previous value.
 		oldPrevValue->next = oldNextValue;
 
-		// Move the new value at first.		
+		// Move the new value at first.
 		TValue* oldFirstValue = mFirstValue;
 		inValue->next = oldFirstValue;
 		oldFirstValue->prev = inValue;

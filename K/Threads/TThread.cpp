@@ -2,32 +2,32 @@
 // Fichier:			TThread.cp
 // Projet:			K
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
-// 
+//
 // Créé le:			26/5/2005
 // Tabulation:		4 espaces
-// 
+//
 // ***** BEGIN LICENSE BLOCK *****
 // Version: MPL 1.1
-// 
+//
 // The contents of this file are subject to the Mozilla Public License Version
 // 1.1 (the "License"); you may not use this file except in compliance with
 // the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-// 
+//
 // Software distributed under the License is distributed on an "AS IS" basis,
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 // for the specific language governing rights and limitations under the
 // License.
-// 
+//
 // The Original Code is TThread.cp.
-// 
+//
 // The Initial Developer of the Original Code is Paul Guyot.
 // Portions created by the Initial Developer are Copyright (C) 2005 the
 // Initial Developer. All Rights Reserved.
-// 
+//
 // Contributor(s):
 //   Paul Guyot <pguyot@kallisys.net> (original author)
-// 
+//
 // ***** END LICENSE BLOCK *****
 // ===========
 // $Id: TThread.cp,v 1.6 2007/07/11 01:36:30 pguyot Exp $
@@ -70,12 +70,12 @@ TThread::~TThread( void )
 	assert( ret==WAIT_OBJECT_0 );
 #else
 	int err = ::pthread_detach( mThread );
-	
+
 	if ( err != 0 )
 		::abort();
 
 	err = ::pthread_join( mThread, NULL );
-	
+
 	if ( !((err == 0) || (err == EINVAL) || (err == ESRCH)) )
 		::abort();
 #endif
@@ -101,7 +101,7 @@ void
 TThread::Suspend( void )
 {
 	mMutex.Lock();
-	
+
 	mSuspendCount++;
 
 	if (mState == kRunning)
@@ -129,7 +129,7 @@ TThread::Suspend( void )
 #endif
 		}
 	}
-	
+
 	mMutex.Unlock();
 }
 
@@ -151,7 +151,7 @@ void
 TThread::Resume( void )
 {
 	mMutex.Lock();
-	
+
 	if (mSuspendCount > 0)
 	{
 		mSuspendCount--;
@@ -160,7 +160,7 @@ TThread::Resume( void )
 			&& (mSuspendCount == 0))
 		{
 			mState = kRunning;
-			
+
 			if (selfSuspended) {
 				// Signal ourselves.
 				mSuspendCondVar.Signal();
@@ -195,10 +195,10 @@ TThread::SignalUSR2( int /* inSignal */ )
 {
 	// Wait for SIGUSR1.
 	sigset_t theSigset;
-	
+
 	(void) sigfillset( &theSigset );
 	(void) sigdelset( &theSigset, SIGUSR1 );
-	
+
 	(void) sigsuspend( &theSigset );
 }
 
@@ -242,11 +242,11 @@ Boolean
 TThread::Sleep( KUInt32 inMilliseconds /* = kForever */ )
 {
 	assert(IsCurrentThread());
-	
+
 	Boolean theResult;
-	
+
 	Boolean forever = (inMilliseconds == kForever);
-	
+
 	// Acquire the mutex.
 	mMutex.Lock();
 
@@ -261,7 +261,7 @@ TThread::Sleep( KUInt32 inMilliseconds /* = kForever */ )
 	} else {
 		// On dort.
 		mState = kSleeping;
-		
+
 		if (!forever)
 		{
 			// Determine when to wake up.
@@ -281,7 +281,7 @@ TThread::Sleep( KUInt32 inMilliseconds /* = kForever */ )
 		} else {
 			mState = kRunning;
 		}
-		
+
 		// Suspend the thread.
 		if (mState == kSelfSuspended)
 		{
@@ -291,7 +291,7 @@ TThread::Sleep( KUInt32 inMilliseconds /* = kForever */ )
 		// Release the mutex.
 		mMutex.Unlock();
 	}
-	
+
 	return theResult;
 }
 
@@ -313,7 +313,7 @@ TThread::WakeUp( void )
 		// Otherwise, increase the wake counter.
 		mWakeCount++;
 	}
-	
+
 	// Release the mutex.
 	mMutex.Unlock();
 }

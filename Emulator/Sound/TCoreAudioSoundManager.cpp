@@ -105,7 +105,7 @@ void
 TCoreAudioSoundManager::CreateDefaultAU( void )
 {
 	OSStatus err = noErr;
-	
+
 	do {
 		// Open the default output unit
 		AudioComponentDescription desc;
@@ -119,7 +119,7 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 		desc.componentManufacturer = kAudioUnitManufacturer_Apple;
 		desc.componentFlags = 0;
 		desc.componentFlagsMask = 0;
-		
+
 		AudioComponent comp = AudioComponentFindNext(NULL, &desc);
 
 		if (comp == NULL)
@@ -131,7 +131,7 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 			}
 			break;
 		}
-	
+
 		err = AudioComponentInstanceNew(comp, &mOutputUnit);
 
 		if (err != noErr)
@@ -149,12 +149,12 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 		AURenderCallbackStruct input;
 		input.inputProc = SRenderCallback;
 		input.inputProcRefCon = this;
-	
-		err = AudioUnitSetProperty( mOutputUnit, 
-									kAudioUnitProperty_SetRenderCallback, 
+
+		err = AudioUnitSetProperty( mOutputUnit,
+									kAudioUnitProperty_SetRenderCallback,
 									kAudioUnitScope_Input,
-									0, 
-									&input, 
+									0,
+									&input,
 									sizeof(input));
 		if (err != noErr)
 		{
@@ -176,11 +176,11 @@ TCoreAudioSoundManager::CreateDefaultAU( void )
 			streamFormat.mFormatID = kNewtonFormatID;		//	the specific encoding type of audio
 															// stream
 			streamFormat.mFormatFlags = kNewtonFormatFlags;	//	flags specific to each format
-			streamFormat.mBytesPerPacket = kBytesInAPacket;	
-			streamFormat.mFramesPerPacket = kFramesPerPacket;	
-			streamFormat.mBytesPerFrame = kNewtonBytesPerFrame;		
-			streamFormat.mChannelsPerFrame = kNewtonNumChannels;	
-			streamFormat.mBitsPerChannel = kNewtonBitsPerChannel;	
+			streamFormat.mBytesPerPacket = kBytesInAPacket;
+			streamFormat.mFramesPerPacket = kFramesPerPacket;
+			streamFormat.mBytesPerFrame = kNewtonBytesPerFrame;
+			streamFormat.mChannelsPerFrame = kNewtonNumChannels;
+			streamFormat.mBitsPerChannel = kNewtonBitsPerChannel;
 
 		err = AudioUnitSetProperty( mOutputUnit,
 							kAudioUnitProperty_StreamFormat,
@@ -234,7 +234,7 @@ TCoreAudioSoundManager::RenderCallback(
 	mDataMutex->Lock();
 	KUIntPtr bytesInBuffer = mOutputBuffer->AvailableBytes();
 	mDataMutex->Unlock();
-	
+
 	if (bytesInBuffer < kNewtonBufferSize) {
 		// Ask for more data.
 		RaiseOutputInterrupt();
@@ -245,20 +245,20 @@ TCoreAudioSoundManager::RenderCallback(
 
 	KUIntPtr amount = std::min(bytesInBuffer, inNumberFrames * sizeof( KSInt16 ));
 	// TODO: find possible error in the ringBuffer implementation?
-	
+
 	KUIntPtr available =
 		mOutputBuffer->Consume(
 			ioData->mBuffers[0].mData,
 			amount );
 	mDataMutex->Unlock();
-	
+
 	KUIntPtr delta = amount - available;
 	if (delta > 0)
 	{
 		// Zero the remaining of the buffer.
 		::bzero( &((KUInt8*) ioData->mBuffers[0].mData)[available], delta );
 	}
-		
+
 	return noErr;
 }
 

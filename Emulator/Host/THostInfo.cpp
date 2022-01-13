@@ -78,7 +78,7 @@ THostInfo::THostInfo( void )
 {
 	// Fill the first and the last name of the user.
 	RetrieveUserInfo();
-	
+
 	// Fill everything that couldn't be retrieved.
 	FillNullInfoWithEmptyStrings();
 }
@@ -92,7 +92,7 @@ THostInfo::~THostInfo( void )
 	{
 		::free( (KUInt16*) mUserFirstName );
 	}
-	
+
 	if (mUserLastName)
 	{
 		::free( (KUInt16*) mUserLastName );
@@ -169,7 +169,7 @@ THostInfo::GetUserInfo( EUserInfoSel inSelector ) const
 	{
 		case kUserInfo_FirstName:
 			return mUserFirstName;
-			
+
 		case kUserInfo_LastName:
 			return mUserLastName;
 
@@ -209,7 +209,7 @@ THostInfo::GetUserInfo( EUserInfoSel inSelector ) const
 		case kUserInfo_WorkFaxPhone:
 			return mUserWorkFaxPhone;
 	}
-	
+
 	return nil;
 }
 
@@ -282,7 +282,7 @@ THostInfo::RetrieveUserInfo( void )
 				mUserFirstName = ConvertCFString( theInfo );
 				CFRelease(theInfo);
 			}
-			
+
 			// Try the last name now.
 			theInfo =
 				(CFStringRef) ABRecordCopyValue(
@@ -322,7 +322,7 @@ THostInfo::RetrieveUserInfo( void )
 
 				theInfo = (CFStringRef) CFDictionaryGetValue(
 					theAddress, kABAddressStreetKey);
-				
+
 				if (theInfo)
 				{
 					// If there is a new line, split the string.
@@ -359,7 +359,7 @@ THostInfo::RetrieveUserInfo( void )
 
 				theInfo = (CFStringRef) CFDictionaryGetValue(
 					theAddress, kABAddressCityKey);
-				
+
 				if (theInfo)
 				{
 					mUserCity = ConvertCFString( theInfo );
@@ -367,7 +367,7 @@ THostInfo::RetrieveUserInfo( void )
 
 				theInfo = (CFStringRef) CFDictionaryGetValue(
 					theAddress, kABAddressZIPKey);
-				
+
 				if (theInfo)
 				{
 					mUserPostalCode = ConvertCFString( theInfo );
@@ -375,7 +375,7 @@ THostInfo::RetrieveUserInfo( void )
 
 				theInfo = (CFStringRef) CFDictionaryGetValue(
 					theAddress, kABAddressStateKey);
-				
+
 				if (theInfo)
 				{
 					mUserRegion = ConvertCFString( theInfo );
@@ -383,26 +383,26 @@ THostInfo::RetrieveUserInfo( void )
 
 				theInfo = (CFStringRef) CFDictionaryGetValue(
 					theAddress, kABAddressCountryKey);
-				
+
 				if (theInfo)
 				{
 					mUserCountry = ConvertCFString( theInfo );
 				}
-				
+
 				theInfo = (CFStringRef) CFDictionaryGetValue(
 					theAddress, kABAddressCountryCodeKey );
-				
+
 				if (theInfo)
 				{
 					mUserCountryISOCode = ConvertCFString( theInfo );
 				}
-				
+
 				CFRelease(theAddress);
 			}
 			if (theAddresses) {
 				CFRelease(theAddresses);
 			}
-			
+
 			ABMultiValueRef thePhones =
 				(ABMultiValueRef) ABRecordCopyValue(
 					theUserRef, kABPhoneProperty );
@@ -458,13 +458,13 @@ THostInfo::RetrieveUserInfo( void )
 							CFRelease(thePhone);
 						}
 					}
-					
+
 					CFRelease(theLabel);
 				}
-				
+
 				CFRelease(thePhones);
 			}
-			
+
 			break;
 		}
 #endif
@@ -502,33 +502,33 @@ THostInfo::RetrieveUserInfo( void )
 			{
 				break;
 			}
-			
+
 			if (theChar == ' ')
 			{
 				// End of first name.
 				((KUInt16*) mUserFirstName)[nameIndex] = 0x0000;
-				
+
 				mUserFirstName =
 					(KUInt16*) ::realloc(
 									(KUInt16*) mUserFirstName,
 									(nameIndex + 1) * sizeof(KUInt16) );
 
-				// We process the last name.				
+				// We process the last name.
 				theLength -= nameIndex;	// incl. null term.
 				mUserLastName =
 					(KUInt16*) ::malloc(
 						theLength * sizeof( KUInt16 ) );
-				
+
 				KUInt16* lastNameCrsr = (KUInt16*) mUserLastName;
 				do
 				{
 					theChar = theName[++nameIndex];
 					*lastNameCrsr++ = UByteSex_ToBigEndian(theChar);
 				} while (theChar != 0x00);
-				
+
 				break;
 			}
-			
+
 			nameIndex++;
 		}
 #endif
@@ -584,7 +584,7 @@ THostInfo::FillNullInfoWithEmptyStrings( void )
 			= (KUInt16*) ::malloc( sizeof( KUInt16 ) );
 		((KUInt16*) mUserFirstName)[0] = 0x0000;
 	}
-	
+
 	if (!mUserLastName)
 	{
 		mUserLastName

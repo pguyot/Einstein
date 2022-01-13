@@ -52,27 +52,27 @@ public:
 	/// \param inLog				log interface (can be null)
 	///
 	TAndroidNativeSoundManager( TLog* inLog = nil );
-	
+
 	///
 	/// Destructor.
 	///
 	virtual ~TAndroidNativeSoundManager( void );
-	
+
 	///
 	/// Schedule output of some buffer.
 	///
 	virtual void	ScheduleOutput( const KUInt8* inBuffer, KUInt32 inSize );
-	
+
 	///
 	/// Start output.
 	///
 	virtual void	StartOutput( void );
-	
+
 	///
 	/// Stop output.
 	///
 	virtual void	StopOutput( void );
-	
+
 	///
 	/// User changed the sound volume
 	///
@@ -82,15 +82,15 @@ public:
 	/// Is output running?
 	///
 	virtual Boolean	OutputIsRunning( void );
-	
+
 	static bool soundOutputDataAvailable();
 	static int soundOutputBytesAvailable();
 	static int soundOutputBytesCopy(signed short *, int);
 	static int getGlobalVolume() { return mGlobalVolume; }
 	static int soundVolumeChanged();
-	
+
 private:
-	
+
 	/// \name Variables
 	static TCircleBuffer*		mOutputBuffer;	///< Output buffer.
 	static TMutex*				mDataMutex;		///< Mutex on shared structures.
