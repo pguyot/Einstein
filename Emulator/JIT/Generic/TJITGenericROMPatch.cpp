@@ -104,6 +104,81 @@ T_ROM_PATCH(0x0038CE70, kROMPatchVoid, kROMPatchVoid,  kROMPatchVoid, "Debugger"
     return 0L;
 }
 
+/*
+ * Set the time to the host time
+ */
+
+static const KUInt32 delta1904to1970 = 2082844800;
+
+T_ROM_PATCH(0x00255578, kROMPatchVoid, kROMPatchVoid,  kROMPatchVoid, "RealClockSeconds")
+{
+    (void) ioUnit;
+    time_t t = time(NULL);
+    struct tm gm;
+    struct tm local;
+#if TARGET_OS_WIN32
+    gmtime_s(&gm, &t);
+    localtime_s(&local, &t);
+#else
+    gmtime_r(&t, &gm);
+    localtime_r(&t, &local);
+#endif
+    double tzoffset = difftime(mktime(&local), mktime(&gm));
+    ioCPU->SetRegister(0, t + tzoffset + delta1904to1970);
+    ioCPU->SetRegister(15, ioCPU->GetRegister(14) + 4);
+    return 0L;
+}
+
+/* Patches for the 2010 problem:
+ *
+ * The low level NewtonOS clock will continue to run with seconds since
+ * 1904-01-01T00:00:00. The NewtonScript functions which have been using a time
+ * base of 1993-01-01T00:00:00 will however be patched so that they will use a
+ * new time base of 2008-01-01T00:00:00. The patches will add or substract the
+ * delta between the time bases.
+ *
+ * The base year will need to be updated in 2026.
+ */
+
+/* Delta from 2008-01-01T00:00:00 to 1993-01-01T00:00:00 */
+
+static const KUInt32 safeIntervalDeltaSeconds = 473299200;
+
+/*
+ * Adjust seconds values returned to NS layer into safe interval
+ */
+
+T_ROM_PATCH(0x00089B80, kROMPatchVoid, kROMPatchVoid,  kROMPatchVoid, "FTimeInSeconds")
+{
+    ioCPU->SetRegister(0, (ioCPU->GetRegister(0) - safeIntervalDeltaSeconds) << 2);
+    return ioUnit;
+}
+
+/*
+ * Fix date from seconds returned to NS layer
+ */
+
+T_ROM_PATCH(0x0008A8A8, kROMPatchVoid, kROMPatchVoid,  kROMPatchVoid, "FDateFromSeconds")
+{
+    ioCPU->SetRegister(1, ioCPU->GetRegister(1) + safeIntervalDeltaSeconds);
+    ioCPU->SetRegister(0, ioCPU->GetRegister(13));
+    return ioUnit;
+}
+
+static const KUInt32 newTimeBaseMinutes = 218799360; /* 2008/1/1 in minutes from 1904/1/1 as NS integer */
+static const KUInt32 newTimeBaseSeconds = 3281990400; /* 2008/1/1 in seconds from 1904/1/1 as NS integer */
+
+TJITGenericPatch timeBase1(0x420750, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
+                           newTimeBaseMinutes, "Time base (1/4)");
+TJITGenericPatch timeBase2(0x420798, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
+                           newTimeBaseMinutes, "Time base (2/4)");
+TJITGenericPatch timeBase3(0x4dca14, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
+                           newTimeBaseMinutes, "Time base (3/4)");
+TJITGenericPatch timeBase4(0x30F088, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
+                           newTimeBaseSeconds, "Time base (4/4)");
+TJITGenericPatch ignoreSettingTime(0x0008A20C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
+                           0xe1a0f00e, "Ignore setting time"); // mov pc, lr
+
 // ========================================================================== //
 // MARK: -
 // TJITGenericPatchManager

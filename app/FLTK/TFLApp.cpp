@@ -877,7 +877,9 @@ void TFLApp::UserActionInstallEssentials()
         // Y2K10
         addInstallerGroup("NewtonOS Y2K10 Fix");
         addInstallerText("NewtonOS has a bug in handling years past 18:48:31 on January 5, 2010. "
-                         "The patch below will fix all date issues until 2026.\n\n"
+                         "Einstein contains a fix for US MP2x00 MessagePads, but "
+                         "for eMates and German MP2x00 MessagePads, "
+			 "the patch below will fix all date issues until 2026.\n\n"
                          "Please install this patch before installing anything else, "
                          "as this will wipe your Newton's memory.");
         addInstallerLink("explained by Eckhart Köppen", new StringList {
@@ -885,12 +887,6 @@ void TFLApp::UserActionInstallEssentials()
         addInstallerLink("Readme file for the patch", new StringList {
             "MDownloads/Einstein/Essentials/y2k10/README.txt"} );
         addInstallerText("Please select the patch that matches the ROM image of your machine:");
-        addInstallerPackage("US MP2x00 patch", new StringList {
-            "WInstalling this patch may irreversibly erase all data\n"
-            "on your MessagePad.\n\n"
-            "Please proceed only if this a new device, or if your\n"
-            "data is securely backed up!",
-            "MDownloads/Einstein/Essentials/y2k10/Patch_US.pkg"} );
         addInstallerPackage("German MP2x00 patch", new StringList {
             "WInstalling this patch may irreversibly erase all data\n"
             "on your MessagePad.\n\n"
@@ -1318,24 +1314,6 @@ void TFLApp::StoreAppWindowSize()
  */
 void TFLApp::DeferredOnPowerRestored()
 {
-    static bool beenHere = false;
-
-    // We run this once at boot time. It would be correct to reset this whenever
-    // we reboot or load a different configuration.
-    if (!beenHere) {
-        if (mFLSettings->mFetchDateAndTime) {
-            std::time_t now = time(nullptr);
-            struct std::tm then_tm = { 0, 0, 0, 1, 0, 4 }; /* Midnight Jan 1 1904 */
-            std::time_t then = std::mktime(&then_tm);
-            auto diff_secs = std::difftime(now, then);
-            
-            KUInt32 minutesSince1904 = (KUInt32)(diff_secs / 60);
-            char setTimeAndDateScript[256];
-            ::snprintf(setTimeAndDateScript, 256, "SetTime(%u);", minutesSince1904);
-            mPlatformManager->EvalNewtonScript(setTimeAndDateScript);
-        }
-        beenHere = true;
-    }
 }
 
 
