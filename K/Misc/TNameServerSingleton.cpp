@@ -2,7 +2,7 @@
 // Fichier:			TNameServerSingleton.cp
 // Projet:			K
 //
-// Créé le:			08/09/2002
+// Cr√©√© le:			08/09/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -49,7 +49,7 @@ TNameServerSingleton::GetObject(
 								const char* inName,
 								const char* inType /* = kType */ )
 {
-	// Création d'un client pour le serveur de nom.
+	// Cr√©ation d'un client pour le serveur de nom.
 	TUNameServer theNSClient;
 
 	// On se moque de la version.	
@@ -71,7 +71,7 @@ TNameServerSingleton::CreateObject(
 								const char* inName,
 								const char* inType /* = kType */ )
 {
-	// Création d'un client pour le serveur de nom.
+	// Cr√©ation d'un client pour le serveur de nom.
 	TUNameServer theNSClient;
 
 	// Enregistrement avec 0 pour la version.
@@ -87,7 +87,7 @@ TNameServerSingleton::DeleteObject(
 								const char* inName,
 								const char* inType /* = kType */ )
 {
-	// Création d'un client pour le serveur de nom.
+	// Cr√©ation d'un client pour le serveur de nom.
 	TUNameServer theNSClient;
 
 	// On se moque de la version.	
@@ -97,7 +97,7 @@ TNameServerSingleton::DeleteObject(
 	NewtonErr theErr = theNSClient.Lookup( (char*) inName, (char*) inType,
 								(ULong*) &theObject, &theVersion );
 
-	// Si tout va bien, suppression de l'objet et de l'entrée dans le serveur
+	// Si tout va bien, suppression de l'objet et de l'entr√©e dans le serveur
 	// de nom.
 	if (theErr == noErr)
 	{

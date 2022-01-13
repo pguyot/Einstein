@@ -38,7 +38,7 @@ class TEmulator;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 107 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TDMAManager
 {
@@ -168,14 +168,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TDMAManager( const TDMAManager& inCopy );
 
 	///
-	/// Opérateur d'assignation volontairement indisponible.
+	/// Op√©rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TDMAManager& operator = ( const TDMAManager& inCopy );
 

@@ -57,13 +57,13 @@ class TSerialPortManager;
 /// \author Matthias Melcher <einstein@matthiasm.com>
 /// \version $Revision: 113 $
 ///
-/// \test	aucun test d�fini.
+/// \test	aucun test défini.
 ///
 class TAndroidNativeApp
 {
 public:
     ///
-    /// Constructeur par d�faut.
+    /// Constructeur par défaut.
     ///
     TAndroidNativeApp( void );
 
@@ -73,7 +73,7 @@ public:
     ~TAndroidNativeApp( void );
 
     ///
-    /// Point d'entr�e.
+    /// Point d'entrée.
     ///
     void Run(const char *dataPath, int screenWidth, int screenHeight, TLog *inLog);
 
@@ -148,14 +148,14 @@ private:
     ///
     /// Constructeur par copie volontairement indisponible.
     ///
-    /// \param inCopy		objet � copier
+    /// \param inCopy		objet à copier
     ///
     TAndroidNativeApp( const TAndroidNativeApp& inCopy );
 
     ///
-    /// Op�rateur d'assignation volontairement indisponible.
+    /// Opérateur d'assignation volontairement indisponible.
     ///
-    /// \param inCopy		objet � copier
+    /// \param inCopy		objet à copier
     ///
     TAndroidNativeApp& operator = ( const TAndroidNativeApp& inCopy );
 
@@ -183,12 +183,12 @@ private:
     void Version( void );
 
     ///
-    /// Cr�e le gestionnaire de son.
+    /// Crée le gestionnaire de son.
     ///
     void CreateSoundManager( const char* inClass );
 
     ///
-    /// Cr�e le gestionnaire d'�cran.
+    /// Crée le gestionnaire d'écran.
     ///
     void CreateScreenManager(
             const char* inClass,
@@ -197,12 +197,12 @@ private:
             Boolean inFullScreen);
 
     ///
-    /// Cr�e le log.
+    /// Crée le log.
     ///
     void CreateLog( const char* inPath );
 
     ///
-    /// Point d'entr�e du processus l�ger.
+    /// Point d'entrée du processus léger.
     ///
     static void* SThreadEntry( void* inUserData )
     {
@@ -211,7 +211,7 @@ private:
     }
 
     ///
-    /// Point d'entr�e du processus l�ger.
+    /// Point d'entrée du processus léger.
     ///
     void ThreadEntry( void );
 
@@ -252,7 +252,7 @@ private:
     TROMImage*			mROMImage;			///< Image ROM.
     TEmulator*			mEmulator;			///< Emulateur.
     TSoundManager*		mSoundManager;		///< Gestionnaire de son.
-    TScreenManager*		mScreenManager;		///< Gestionnaire d'�cran.
+    TScreenManager*		mScreenManager;		///< Gestionnaire d'écran.
     TPlatformManager*	mPlatformManager;	///< Reference to the platform manager.
     TLog*				mLog;				///< Log.
     TNetworkManager*	mNetworkManager;	///< network connection

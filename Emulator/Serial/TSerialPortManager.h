@@ -40,7 +40,7 @@ class TEmulator;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 107 $
 ///
-/// \test	aucun test d�fini.
+/// \test	aucun test défini.
 ///
 class TSerialPortManager
 {
@@ -105,14 +105,14 @@ public:
     ///
     /// Constructeur par copie volontairement indisponible.
     ///
-    /// \param inCopy		objet � copier
+    /// \param inCopy		objet à copier
     ///
     TSerialPortManager( const TSerialPortManager& inCopy ) = delete;
 
     ///
-    /// Op�rateur d'assignation volontairement indisponible.
+    /// Opérateur d'assignation volontairement indisponible.
     ///
-    /// \param inCopy		objet � copier
+    /// \param inCopy		objet à copier
     ///
     TSerialPortManager& operator = ( const TSerialPortManager& inCopy ) = delete;
 

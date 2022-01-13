@@ -47,12 +47,12 @@ class TSymbolList;
 class TFileManager;
 
 ///
-/// Protocol pour le contrôleur de l'application Einstein.app.
+/// Protocol pour le contr√¥leur de l'application Einstein.app.
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 151 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 @interface TCocoaAppController : NSObject <CocoaEmulatorApp, NSApplicationDelegate, NSToolbarDelegate, NSFileManagerDelegate>
 {

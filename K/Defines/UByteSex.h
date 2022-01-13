@@ -2,7 +2,7 @@
 // Fichier:			UByteSex.h
 // Projet:			K
 //
-// Créé le:			13/01/2002
+// Cr√©√© le:			13/01/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -42,7 +42,7 @@
 #endif
 
 ///
-/// Classe pour gérer le sexe des octets.
+/// Classe pour g√©rer le sexe des octets.
 ///
 /// Convertit des mots de grand indien vers petit indien et inversement.
 /// Fournit des macros pour faire la conversion selon la plateforme.
@@ -57,8 +57,8 @@ public:
 	/// Echange les deux octets d'un mot de 16 bits.
 	/// XXYY -> YYXX
 	///
-	/// \param inWord	mot de 16 bits en entrée.
-	/// \return le mot de 16 bits inversé.
+	/// \param inWord	mot de 16 bits en entr√©e.
+	/// \return le mot de 16 bits invers√©.
 	///
 	static inline KUInt16	Swap( const KUInt16 inWord )
 		{
@@ -75,8 +75,8 @@ public:
 	/// Echange les octets d'un mot de 32 bits.
 	/// XXYYZZTT -> TTZZYYXX
 	///
-	/// \param inWord	mot de 32 bits en entrée.
-	/// \return le mot de 32 bits inversé.
+	/// \param inWord	mot de 32 bits en entr√©e.
+	/// \return le mot de 32 bits invers√©.
 	///
 	static inline KUInt32	Swap( const KUInt32 inWord )
 		{

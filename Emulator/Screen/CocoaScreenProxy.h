@@ -36,7 +36,7 @@ class TCocoaScreenManager;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 121 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 @interface CocoaScreenProxy : NSObject
 {

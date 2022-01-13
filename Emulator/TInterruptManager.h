@@ -49,7 +49,7 @@ class TStream;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 147 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TInterruptManager
 {
@@ -386,14 +386,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TInterruptManager( const TInterruptManager& inCopy );
 
 	///
-	/// Opérateur d'assignation volontairement indisponible.
+	/// Op√©rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TInterruptManager& operator = ( const TInterruptManager& inCopy );
 

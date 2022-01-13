@@ -3,7 +3,7 @@
 // Projet:			K
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 // 
-// Créé le:			26/5/2005
+// Cr√©√© le:			26/5/2005
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****
@@ -45,7 +45,7 @@
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 1.2 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TCircleBuffer
 {
@@ -98,14 +98,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TCircleBuffer( const TCircleBuffer& inCopy );
 
 	///
-	/// Opérateur d'assignation volontairement indisponible.
+	/// Op√©rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TCircleBuffer& operator = ( const TCircleBuffer& inCopy );
 

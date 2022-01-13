@@ -45,12 +45,12 @@ enum {
 @class TCocoaSetupController;
 
 ///
-/// Protocol pour le contrôleur pour le téléchargement de la ROM.
+/// Protocol pour le contr√¥leur pour le t√©l√©chargement de la ROM.
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 147 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 @interface TCocoaROMDumperController : NSObject
 {
@@ -72,7 +72,7 @@ enum {
 	int			mROMFileFd;		// ROM File fd.
 	NSString*	mROMFilePath;	// Path of the ROM file.
 	int			mROMSize;		// Amount downloaded so far.
-	NSRunLoop*	mRunLoop;		// Boucle d'exécution courante.
+	NSRunLoop*	mRunLoop;		// Boucle d'ex√©cution courante.
 };
 
 // init

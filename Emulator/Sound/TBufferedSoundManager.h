@@ -35,7 +35,7 @@
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision$
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TBufferedSoundManager
 	:

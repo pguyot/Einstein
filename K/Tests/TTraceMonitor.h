@@ -2,7 +2,7 @@
 // Fichier:			TTraceMonitor.h
 // Projet:			K
 //
-// Créé le:			05/09/2002
+// Cr√©√© le:			05/09/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -42,7 +42,7 @@
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version 1.0
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TTraceMonitor : public TFunctionMonitor
 {
@@ -58,9 +58,9 @@ public:
 	};
 
 	///
-	/// Constructeur à partir d'un entier représentant le mode.
+	/// Constructeur √† partir d'un entier repr√©sentant le mode.
 	///
-	/// \param	inMode	mode à utiliser. Les bits sont définis dans EMode.
+	/// \param	inMode	mode √† utiliser. Les bits sont d√©finis dans EMode.
 	///
 	TTraceMonitor( unsigned int inMode );
 	
@@ -70,15 +70,15 @@ public:
 	virtual ~TTraceMonitor( void );
 
 	///
-	/// Début d'une fonction.
-	/// Cette méthode est appelée par le constructeur de TMethodMonitor.
-	/// inFileName n'est pas copié.
+	/// D√©but d'une fonction.
+	/// Cette m√©thode est appel√©e par le constructeur de TMethodMonitor.
+	/// inFileName n'est pas copi√©.
 	/// Elle va appeler DoPrintBegin si le mode comprend
 	/// \c kDisplayBegin.
 	///
 	/// \param inFileName		nom du fichier. A priori, ce pointeur
-	///							reste le même entre les appels.
-	/// \param inLineNumber		numéro de la ligne.
+	///							reste le m√™me entre les appels.
+	/// \param inLineNumber		num√©ro de la ligne.
 	///
 	virtual void FunctionBegin(
 						const char* inFileName,
@@ -86,41 +86,41 @@ public:
 
 	///
 	/// Fin d'une fonction.
-	/// Cette méthode est appelée par le destructeur de TMethodMonitor.
+	/// Cette m√©thode est appel√©e par le destructeur de TMethodMonitor.
 	/// Elle va appeler DoPrintEnd si le mode comprend \c kDisplayEnd.
 	///
 	/// \param inFileName		nom du fichier. A priori, ce pointeur
-	///							reste le même entre les appels.
-	/// \param inLineNumber		numéro de la ligne.
+	///							reste le m√™me entre les appels.
+	/// \param inLineNumber		num√©ro de la ligne.
 	///
 	virtual void FunctionEnd(
 						const char* inFileName,
 						unsigned int inLineNumber );
 
 	///
-	/// Sélecteur sur le mode.
-	/// (détermine ce qu'on affiche)
+	/// S√©lecteur sur le mode.
+	/// (d√©termine ce qu'on affiche)
 	///
-	/// \param	inMode	mode à utiliser (les bits sont définis par EMode)
+	/// \param	inMode	mode √† utiliser (les bits sont d√©finis par EMode)
 	///
 	void SetMode( unsigned int inMode );
 	
 	///
 	/// Affiche la pile.
-	/// Cette méthode va appeler DoPrintStack pour chaque appel dans
+	/// Cette m√©thode va appeler DoPrintStack pour chaque appel dans
 	/// la pile si le mode comprend \c kKeepStack.
 	///
 	void PrintStack( void );
 	
 protected:
 	///
-	/// Affiche une ligne pour le début d'une fonction.
-	/// La méthode par défaut utilise ::printf.
+	/// Affiche une ligne pour le d√©but d'une fonction.
+	/// La m√©thode par d√©faut utilise ::printf.
 	///
 	/// \param	inStackDepth	profondeur courante de la pile.
 	///							(vaut 0 si on ne garde pas trace de la pile)
 	/// \param	inFileName		nom du fichier
-	/// \param	inLineNumber	numéro de ligne
+	/// \param	inLineNumber	num√©ro de ligne
 	///
 	virtual void DoPrintBegin(
 						unsigned int inStackDepth,
@@ -129,12 +129,12 @@ protected:
 
 	///
 	/// Affiche une ligne pour la fin d'une fonction.
-	/// La méthode par défaut utilise ::printf.
+	/// La m√©thode par d√©faut utilise ::printf.
 	///
 	/// \param	inStackDepth	profondeur courante de la pile.
 	///							(vaut 0 si on ne garde pas trace de la pile)
 	/// \param	inFileName		nom du fichier
-	/// \param	inLineNumber	numéro de ligne
+	/// \param	inLineNumber	num√©ro de ligne
 	///
 	virtual void DoPrintEnd(
 						unsigned int inStackDepth,
@@ -142,10 +142,10 @@ protected:
 						unsigned int inLineNumber );
 	///
 	/// Affiche une ligne pour la pile.
-	/// La méthode par défaut utilise ::printf.
+	/// La m√©thode par d√©faut utilise ::printf.
 	///
 	/// \param	inFileName		nom du fichier
-	/// \param	inLineNumber	numéro de ligne
+	/// \param	inLineNumber	num√©ro de ligne
 	///
 	virtual void DoPrintStack(
 						const char* inFileName,
@@ -153,21 +153,21 @@ protected:
 private:
 	///
 	/// Structure pour la pile.
-	/// Comprend le nom du fichier et le numéro de ligne.
+	/// Comprend le nom du fichier et le num√©ro de ligne.
 	///
 	struct SStackEntry {
 		const char*		fFileName;		///< Nom du fichier
-		unsigned int	fLineNumber;	///< Numéro de ligne
+		unsigned int	fLineNumber;	///< Num√©ro de ligne
 	};
 	
 	enum {
-		kStackSizeIncrement	= 10		///< Incrément à chaque fois
+		kStackSizeIncrement	= 10		///< Incr√©ment √† chaque fois
 										///< que la pile est pleine.
 	};
 	
 	unsigned int		mMode;			///< Mode (cf \c EMode)
 	unsigned int		mStackDepth;	///< Profondeur de la pile
-	unsigned int		mStackCapacity;	///< Capacité de la pile
+	unsigned int		mStackCapacity;	///< Capacit√© de la pile
 	SStackEntry*		mStack;			///< Pile
 };
 

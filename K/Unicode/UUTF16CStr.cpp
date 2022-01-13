@@ -2,7 +2,7 @@
 // Fichier:			UUTF16CStr.cp
 // Projet:			K
 //
-// Créé le:			14/01/2002
+// Cr√©√© le:			14/01/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -414,7 +414,7 @@ UUTF16CStr::ToUTF8(
 	size_t outputSize = inLimit;
 	if (outputSize == 0)
 	{
-		// X caractères UTF-16 peuvent faire au plus 3.X caractères UTF-8.
+		// X caract√®res UTF-16 peuvent faire au plus 3.X caract√®res UTF-8.
 		outputSize = 3 * inputSize;
 	} else {
 		outputSize--;			// Leave room for null terminator.
@@ -439,14 +439,14 @@ UUTF16CStr::FromUTF8(
 	size_t*			outStringSize /* = nil */
 	)
 {
-	// Détermination de la taille de la chaîne en entrée.
+	// D√©termination de la taille de la cha√Æne en entr√©e.
 	size_t inputSize = StrLen( inInputCString );
 	
 	// Two cases: inLimit is null or it isn't.
 	size_t outputSize = inLimit;
 	if (outputSize == 0)
 	{
-		// X caractères UTF-8 ne peuvent faire plus de X caractères
+		// X caract√®res UTF-8 ne peuvent faire plus de X caract√®res
 		// UTF-16.
 		outputSize = inputSize;
 	} else {

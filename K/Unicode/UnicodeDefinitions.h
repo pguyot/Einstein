@@ -2,7 +2,7 @@
 // Fichier:			UnicodeDefinitions.h
 // Projet:			K
 //
-// Créé le:			25/09/2001
+// Cr√©√© le:			25/09/2001
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -33,7 +33,7 @@
 #ifndef __UNICODEDEFINITIONS__
 #define __UNICODEDEFINITIONS__
 
-// KDefinitions définit tout ce dont nous avons besoin
+// KDefinitions d√©finit tout ce dont nous avons besoin
 // (en fait, juste KUInt16, KUInt32 et KUInt8).
 
 #include <K/Defines/KDefinitions.h>

@@ -3,7 +3,7 @@
 // Projet:			K
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 // 
-// Créé le:			10/6/2005
+// Cr√©√© le:			10/6/2005
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****
@@ -46,7 +46,7 @@
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 1.2 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TStream
 {

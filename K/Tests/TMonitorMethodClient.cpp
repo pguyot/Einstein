@@ -2,7 +2,7 @@
 // Fichier:			TMonitorMethodClient.cp
 // Projet:			K
 //
-// Créé le:			05/09/2002
+// Cr√©√© le:			05/09/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****

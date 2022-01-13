@@ -3,7 +3,7 @@
 // Projet:			K
 // Ecrit par:		Matthias Melcher
 // 
-// Créé le:			26/4/2020
+// Cr√©√© le:			26/4/2020
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****

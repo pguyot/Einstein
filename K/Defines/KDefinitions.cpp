@@ -2,7 +2,7 @@
 // Fichier:			KDefinitions.cp
 // Projet:			K
 // 
-// Créé le:			1/1/2004
+// Cr√©√© le:			1/1/2004
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****
@@ -45,7 +45,7 @@
 	#pragma export off
 #endif
 
-// Tests à la compilation pour KDefinitions
+// Tests √† la compilation pour KDefinitions
 // Pour le moment, il s'agit surtout de KUIntPtr.
 
 // Prototype.

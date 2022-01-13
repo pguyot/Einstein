@@ -3,7 +3,7 @@
 // Projet:			K
 // Ecrit par:		Matthias Melcher
 //
-// Créé le:			9/7/2012
+// Cr√©√© le:			9/7/2012
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****

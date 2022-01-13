@@ -2,7 +2,7 @@
 // Fichier:			TNewtonTraceMonitor.h
 // Projet:			K
 //
-// Créé le:			08/09/2002
+// Cr√©√© le:			08/09/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -39,12 +39,12 @@
 
 ///
 /// Classe pour afficher la trace sur NewtonOS.
-/// Le singleton est enregistré auprès du serveur de nom.
+/// Le singleton est enregistr√© aupr√®s du serveur de nom.
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version 1.0
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TNewtonTraceMonitor
 				:
@@ -53,9 +53,9 @@ class TNewtonTraceMonitor
 {
 public:
 	///
-	/// Récupère le singleton. Le crée si nécessaire.
+	/// R√©cup√®re le singleton. Le cr√©e si n√©cessaire.
 	///
-	/// \param	inMode	mode à utiliser. Les bits sont définis dans EMode.
+	/// \param	inMode	mode √† utiliser. Les bits sont d√©finis dans EMode.
 	///
 	static TNewtonTraceMonitor* GetTraceMonitor( unsigned int inMode );
 
@@ -66,9 +66,9 @@ public:
 
 private:
 	///
-	/// Constructeur à partir d'un entier représentant le mode.
+	/// Constructeur √† partir d'un entier repr√©sentant le mode.
 	///
-	/// \param	inMode	mode à utiliser. Les bits sont définis dans EMode.
+	/// \param	inMode	mode √† utiliser. Les bits sont d√©finis dans EMode.
 	///
 	TNewtonTraceMonitor( unsigned int inMode );
 

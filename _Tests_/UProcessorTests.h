@@ -3,11 +3,11 @@
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 // 
-// Créé le:			27/7/2004
+// Cr√©√© le:			27/7/2004
 // Tabulation:		4 espaces
 // 
-// Copyright:		© 2004 by Paul Guyot.
-// 					Tous droits réservés pour tous pays.
+// Copyright:		¬© 2004 by Paul Guyot.
+// 					Tous droits r√©serv√©s pour tous pays.
 // ===========
 // $Id: UProcessorTests.h 147 2005-09-29 20:17:58Z paul $
 // ===========
@@ -30,7 +30,7 @@ class TARMProcessor;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 147 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class UProcessorTests
 {

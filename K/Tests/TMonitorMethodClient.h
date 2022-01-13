@@ -2,7 +2,7 @@
 // Fichier:			TMonitorMethodClient.h
 // Projet:			K
 //
-// Créé le:			05/09/2002
+// Cr√©√© le:			05/09/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -38,7 +38,7 @@
 class TFunctionMonitor;
 
 ///
-/// Classe pour noter le début et la fin d'une méthode.
+/// Classe pour noter le d√©but et la fin d'une m√©thode.
 /// S'utilise normalement avec des macros, par exemple:
 ///
 ///	MONITOR_METHOD;
@@ -47,33 +47,33 @@ class TFunctionMonitor;
 /// ou encore
 /// MONITOR_CONSTRUCTOR;
 ///
-/// La première macro prend l'objet monitor dans un des champs
+/// La premi√®re macro prend l'objet monitor dans un des champs
 /// de l'objet, la seconde dans une variable globale (ou via
-/// une fonction). La troisième récupère/crée l'objet et le
-/// stocke dans un champ (pour utiliser la première macro).
+/// une fonction). La troisi√®me r√©cup√®re/cr√©e l'objet et le
+/// stocke dans un champ (pour utiliser la premi√®re macro).
 /// Etc.
 ///
-/// L'objet moniteur est prévenu de la fin de la fonction/méthode
-/// lorsque l'objet TMonitorMethodClient est détruit (i.e. lors
-/// de la fin normale ou pas de la méthode).
+/// L'objet moniteur est pr√©venu de la fin de la fonction/m√©thode
+/// lorsque l'objet TMonitorMethodClient est d√©truit (i.e. lors
+/// de la fin normale ou pas de la m√©thode).
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version 1.0
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TMonitorMethodClient
 {
 public:
 	///
-	/// Constructeur à partir d'un nom de fichier et d'un numéro de ligne.
-	/// Le pointeur sur le nom du fichier doit être le même à chaque appel
+	/// Constructeur √† partir d'un nom de fichier et d'un num√©ro de ligne.
+	/// Le pointeur sur le nom du fichier doit √™tre le m√™me √† chaque appel
 	/// pour le profilage.
 	///
-	/// \param	inMonitor		objet prévenu du début et de la fin de la
-	///							méthode
+	/// \param	inMonitor		objet pr√©venu du d√©but et de la fin de la
+	///							m√©thode
 	/// \param	inFileName		nom du fichier
-	/// \param	inLineNumber	numéro de ligne
+	/// \param	inLineNumber	num√©ro de ligne
 	///
 	TMonitorMethodClient(
 					TFunctionMonitor* inMonitor,
@@ -86,10 +86,10 @@ public:
 	~TMonitorMethodClient( void );
 
 private:
-	TFunctionMonitor*	mMonitor;		///< objet moniteur, prévenu du
-										///< début et de la fin
+	TFunctionMonitor*	mMonitor;		///< objet moniteur, pr√©venu du
+										///< d√©but et de la fin
 	const char*			mFileName;		///< nom du fichier
-	const unsigned int	mLineNumber;	///< numéro de ligne
+	const unsigned int	mLineNumber;	///< num√©ro de ligne
 };
 
 #endif

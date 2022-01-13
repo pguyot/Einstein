@@ -42,7 +42,7 @@ class TMemory;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 150 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TNativeCalls
 {
@@ -360,14 +360,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TNativeCalls( const TNativeCalls& inCopy );
 
 	///
-	/// Opérateur d'assignation volontairement indisponible.
+	/// Op√©rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TNativeCalls& operator = ( const TNativeCalls& inCopy );
 

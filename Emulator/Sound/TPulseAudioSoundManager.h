@@ -42,7 +42,7 @@ class TMutex;
 /// \author Victor Rehorst <victor@chuma.org>
 /// \version $Revision: 111 $
 ///
-/// \test	aucun test d�fini.
+/// \test	aucun test défini.
 ///
 class TPulseAudioSoundManager
 	:

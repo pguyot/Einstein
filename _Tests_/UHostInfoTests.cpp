@@ -3,11 +3,11 @@
 // Projet:			Einstein
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 // 
-// Créé le:			22/5/2005
+// Cr√©√© le:			22/5/2005
 // Tabulation:		4 espaces
 // 
-// Copyright:		© 2005 by Paul Guyot.
-// 					Tous droits réservés pour tous pays.
+// Copyright:		¬© 2005 by Paul Guyot.
+// 					Tous droits r√©serv√©s pour tous pays.
 // ===========
 // $Id: UHostInfoTests.cp 147 2005-09-29 20:17:58Z paul $
 // ===========

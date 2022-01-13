@@ -37,7 +37,7 @@ class TMemory;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 113 $
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 class TSoundManager
 {
@@ -177,14 +177,14 @@ private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TSoundManager( const TSoundManager& inCopy );
 
 	///
-	/// Opérateur d'assignation volontairement indisponible.
+	/// Op√©rateur d'assignation volontairement indisponible.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inCopy		objet √† copier
 	///
 	TSoundManager& operator = ( const TSoundManager& inCopy );
 

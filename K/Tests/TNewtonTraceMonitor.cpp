@@ -2,7 +2,7 @@
 // Fichier:			TNewtonTraceMonitor.cp
 // Projet:			K
 //
-// Créé le:			08/09/2002
+// Cr√©√© le:			08/09/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -77,7 +77,7 @@ TNewtonTraceMonitor::GetTraceMonitor( unsigned int inMode )
 
 	if (theResult == nil)
 	{
-		// Création de l'objet.
+		// Cr√©ation de l'objet.
 		theResult = new TNewtonTraceMonitor( inMode );
 		
 		if (theResult == nil)

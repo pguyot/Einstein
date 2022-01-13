@@ -2,7 +2,7 @@
 // Fichier:			TFunctionMonitor.h
 // Projet:			K
 //
-// Créé le:			05/09/2002
+// Cr√©√© le:			05/09/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -37,14 +37,14 @@
 
 ///
 /// Classe abstraite pour un moniteur de fonctions.
-/// Utilisée avec TFunctionMonitor.
-/// Peut servir pour le profilage ou pour tracer les méthodes.
+/// Utilis√©e avec TFunctionMonitor.
+/// Peut servir pour le profilage ou pour tracer les m√©thodes.
 /// Ou encore pour obtenir une trace de la pile.
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version 1.0
 ///
-/// \test	aucun test défini.
+/// \test	aucun test d√©fini.
 ///
 /// \see	TFunctionMonitor
 ///
@@ -52,7 +52,7 @@ class TFunctionMonitor
 {
 public:
 	///
-	/// Constructeur par défaut.
+	/// Constructeur par d√©faut.
 	///
 	TFunctionMonitor( void ) {};
 
@@ -62,13 +62,13 @@ public:
 	virtual ~TFunctionMonitor( void ) {};
 
 	///
-	/// Début d'une fonction.
-	/// Cette méthode est appelée par le constructeur de TMethodMonitor.
-	/// inFileName n'est pas copié.
+	/// D√©but d'une fonction.
+	/// Cette m√©thode est appel√©e par le constructeur de TMethodMonitor.
+	/// inFileName n'est pas copi√©.
 	///
 	/// \param inFileName		nom du fichier. A priori, ce pointeur
-	///							reste le même entre les appels.
-	/// \param inLineNumber		numéro de la ligne.
+	///							reste le m√™me entre les appels.
+	/// \param inLineNumber		num√©ro de la ligne.
 	///
 	virtual void FunctionBegin(
 						const char* inFileName,
@@ -76,12 +76,12 @@ public:
 
 	///
 	/// Fin d'une fonction.
-	/// Cette méthode est appelée par le destructeur de TMethodMonitor.
-	/// inFileName n'est pas copié.
+	/// Cette m√©thode est appel√©e par le destructeur de TMethodMonitor.
+	/// inFileName n'est pas copi√©.
 	///
 	/// \param inFileName		nom du fichier. A priori, ce pointeur
-	///							reste le même entre les appels.
-	/// \param inLineNumber		numéro de la ligne.
+	///							reste le m√™me entre les appels.
+	/// \param inLineNumber		num√©ro de la ligne.
 	///
 	virtual void FunctionEnd(
 						const char* inFileName,

@@ -44,7 +44,7 @@ class TMutex;
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 147 $
 ///
-/// \test	aucun test d�fini.
+/// \test	aucun test défini.
 ///
 class TPortAudioSoundManager
 	:

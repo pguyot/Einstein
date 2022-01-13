@@ -2,7 +2,7 @@
 // Fichier:			TTraceMonitor.cp
 // Projet:			K
 //
-// Créé le:			05/09/2002
+// Cr√©√© le:			05/09/2002
 // Tabulation:		4 espaces
 //
 // ***** BEGIN LICENSE BLOCK *****
@@ -68,7 +68,7 @@ TTraceMonitor::FunctionBegin(
 						const char* inFileName,
 						unsigned int inLineNumber )
 {
-	// Affichage de la ligne de début de fonction.
+	// Affichage de la ligne de d√©but de fonction.
 	if (mMode & kDisplayBegin)
 	{
 		DoPrintBegin( mStackDepth, inFileName, inLineNumber );
@@ -79,13 +79,13 @@ TTraceMonitor::FunctionBegin(
 	{
 		if (mStack == NULL)
 		{
-			// Création de la pile
+			// Cr√©ation de la pile
 			mStack = (SStackEntry*)
 					::malloc( kStackSizeIncrement * sizeof( SStackEntry ) );
 			mStackCapacity = kStackSizeIncrement;
 			mStackDepth = 0;
 		} else if (mStackDepth == mStackCapacity) {
-			// Augmentation de sa capacité			
+			// Augmentation de sa capacit√©			
 			mStackCapacity += kStackSizeIncrement;
 			mStack = (SStackEntry*)
 				::realloc( mStack, mStackCapacity * sizeof( SStackEntry ) );
@@ -111,7 +111,7 @@ TTraceMonitor::FunctionEnd(
 		DoPrintEnd( mStackDepth, inFileName, inLineNumber );
 	}
 
-	// On retire de la pile le dernier élément (il vaut mieux que ce soit
+	// On retire de la pile le dernier √©l√©ment (il vaut mieux que ce soit
 	// celui-ci!)
 	if (mMode & kKeepStack)
 	{
@@ -120,7 +120,7 @@ TTraceMonitor::FunctionEnd(
 			mStackDepth--;
 			if ((mStackDepth + (2 * kStackSizeIncrement)) < mStackCapacity)
 			{
-				// Diminution de sa capacité			
+				// Diminution de sa capacit√©			
 				mStackCapacity -= (2 * kStackSizeIncrement);
 				mStack = (SStackEntry*)
 					::realloc(

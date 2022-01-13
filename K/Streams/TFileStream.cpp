@@ -3,7 +3,7 @@
 // Projet:			K
 // Ecrit par:		Paul Guyot (pguyot@kallisys.net)
 // 
-// Créé le:			11/6/2005
+// Cr√©√© le:			11/6/2005
 // Tabulation:		4 espaces
 // 
 // ***** BEGIN LICENSE BLOCK *****
