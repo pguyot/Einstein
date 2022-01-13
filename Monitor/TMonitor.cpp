@@ -21,6 +21,9 @@
 // $Id$
 // ==============================
 
+// Tell MSWindows to not generate a min/max macro
+#define NOMINMAX
+
 #include <K/Streams/TFileStream.h>
 #include "TMonitor.h"
 
