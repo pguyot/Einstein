@@ -87,7 +87,7 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(const char* inAIFPath,
 
 	time_t theModDate = theInfos.st_mtime;
 
-	int rex0fd, rex1fd;
+	int rex0fd, rex1fd = -1;
 #if TARGET_OS_WIN32
 	rex0fd = ::open(inREX0Path, O_RDONLY|O_BINARY, 0);
 #else
