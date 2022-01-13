@@ -416,6 +416,77 @@ configure_file (
 	${CMAKE_CURRENT_SOURCE_DIR}/app/Version_CMake.h
 )
 
+
+#
+# ---- clang-format ------------------------
+#
+
+find_program(CLANG_FORMAT_EXECUTABLE
+    NAMES clang-format-13 clang-format-mp-13 clang-format
+    HINTS /usr/local/opt/clang-format@13/bin/ /usr/lib/llvm-13/bin/
+    DOC "clang-format executable")
+if(CLANG_FORMAT_EXECUTABLE)
+  execute_process(COMMAND ${CLANG_FORMAT_EXECUTABLE} -version
+                  OUTPUT_VARIABLE clang_format_version
+                  ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+  # Ubuntu clang-format version 13.0.1-++20220112083154+b9a243d1cac2-1~exp1~20220112203239.53
+  # clang-format version 13.0.0
+
+  if(clang_format_version MATCHES ".*clang-format version ([0-9]+).*")
+    string(REGEX
+           REPLACE ".*clang-format version ([0-9]+).*"
+                   "\\1"
+                   CLANG_FORMAT_VERSION
+                   "${clang_format_version}")
+    list(GET clang_format_version 0 CLANG_FORMAT_VERSION_MAJOR)
+  endif()
+endif()
+
+if(CLANG_FORMAT_EXECUTABLE)
+  if (CLANG_FORMAT_VERSION GREATER 12)
+    set(CLANG_FORMAT_FOUND TRUE)
+    message(STATUS "Found clang-format at ${CLANG_FORMAT_EXECUTABLE}")
+  else()
+    message(STATUS "clang-format not usable, as version of ${CLANG_FORMAT_EXECUTABLE} doesn't match : ${CLANG_FORMAT_VERSION_MAJOR} < 13")
+    set(CLANG_FORMAT_FOUND FALSE)
+  endif()
+else()
+  set(CLANG_FORMAT_FOUND FALSE)
+    message(STATUS "clang-format not found")
+endif()
+
+if(CLANG_FORMAT_FOUND)
+    set( format_sources )
+    list( APPEND format_sources ${common_sources} )
+    list( APPEND format_sources ${app_sources} )
+    list( APPEND format_sources ${tests_sources} )
+    list( FILTER format_sources INCLUDE REGEX "\\.(h|cpp|mm|t|m)$" )
+
+    foreach (SOURCE ${format_sources})
+        get_property (SOURCE_IS_GENERATED
+                      SOURCE "${SOURCE}"
+                      PROPERTY GENERATED)
+        if (NOT SOURCE_IS_GENERATED)
+            list (APPEND format_sources_not_generated "${SOURCE}")
+        endif ()
+    endforeach ()
+
+    add_custom_target(
+            clang-format-check
+            COMMAND ${CLANG_FORMAT_EXECUTABLE}
+            -n
+            ${format_sources_not_generated}
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    )
+    add_custom_target(
+            clang-format
+            COMMAND ${CLANG_FORMAT_EXECUTABLE}
+            -i
+            ${format_sources_not_generated}
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    )
+endif()
+
 #
 # ==== MessagePad.org distribution system ======================================
 #

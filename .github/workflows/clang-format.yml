@@ -1,0 +1,16 @@
+name: Run clang-format
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: DoozyX/clang-format-lint-action@v0.13
+      with:
+        source: '.'
+        exclude: './libffi* ./portaudio ./Packages ./Resources ./Drivers'
+        extensions: 'h,cpp,t,mm,c'
+        clangFormatVersion: 13

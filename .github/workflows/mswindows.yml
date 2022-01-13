@@ -34,9 +34,11 @@ jobs:
       run: |
         cmake -S newt64 -B newt64/build -D CMAKE_BUILD_TYPE=Release
         cmake --build newt64/build --config Release
-    - name: Compile Einstein
+    - name: Configure
       run: |
         cmake -S . -B _Build_/Makefiles -D CMAKE_BUILD_TYPE=Release
+    - name: Compile Einstein
+      run: |
         cmake --build _Build_/Makefiles --config Release
     - name: Run tests
       run: |
