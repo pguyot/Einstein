@@ -1,4 +1,4 @@
-name: CI on macOS with FLTK
+name: CI macOS (FLTK)
 
 on:
   push:

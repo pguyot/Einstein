@@ -1,4 +1,4 @@
-name: CI on Windows with FLTK
+name: CI Windows (FLTK)
 
 on:
   push:

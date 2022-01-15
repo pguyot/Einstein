@@ -14,3 +14,7 @@ indent_style = tab
 
 [*.{txt,md}]
 indent_style = space
+
+[*.{yml}]
+indent_style = space
+indent_size = 2
