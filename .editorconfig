@@ -9,7 +9,10 @@ charset = utf-8
 indent_size = 4
 trim_trailing_whitespace = true
 
-[*.{c,cpp,h,m,mm,t,f}]
+[*.{c,cpp,h,m,mm,t,f,cmake}]
+indent_style = tab
+
+[CMakeLists.txt]
 indent_style = tab
 
 [*.{txt,md}]
