@@ -60,7 +60,7 @@ public:
 	///
 	/// Return the Identification of this driver
 	///
-	virtual KUInt32 GetID() = 0;
+	virtual TSerialPorts::EDriverID GetID() = 0;
 
 	///
 	/// Start emulation.

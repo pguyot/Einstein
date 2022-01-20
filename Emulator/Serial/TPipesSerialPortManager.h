@@ -55,7 +55,7 @@ public:
 	///
 	/// Return the Identification of this driver
 	///
-	KUInt32
+	TSerialPorts::EDriverID
 	GetID() override
 	{
 		return TSerialPorts::kPipesDriver;
