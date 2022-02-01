@@ -1,46 +1,97 @@
-name: Testing manually triggered workflows
+#
+# This script will tag the repo, compile and zip Einstein, and publish it
+# as a GitHub Release
+#
+# see: https://github.com/marketplace/actions/publish-release
+#
+# Calling other workflows from this workflow:
+# https://docs.github.com/en/actions/learn-github-actions/reusing-workflows
+
+
+name: Release Einstein on GitHub
 on:
   workflow_dispatch:
     inputs:
-      ae_version:
-        description: 'Version String'
+      version_tag:
+        description: 'Release Version Tag'
         required: true
-        default: '1.3.2b'
+        default: '2022.4.15'
+        # use CMake to updtae the default release version tag
+      build-macos-fltk-universal:
+        type: boolean
+        description: Build macOS Universal Binary
+        default: 'true'
+      #build-for-windows:
+      #  type: boolean
+      #  description: Build Win64 Intel Binary
+      #build-for-linux:
+      #  type: boolean
+      #  description: Build Linux Intel Binary
+
 jobs:
-  say_hello:
-    runs-on: ubuntu-latest
+  release-macos-fltk-universal:
+    runs-on: macos-latest
+    if: ${{ github.event.inputs.build-macos-fltk-universal == 'true' }}
     steps:
-      - run: |
-          echo "Hello ${{ github.event.inputs.name }}!"
-          echo "- in ${{ github.event.inputs.home }}!"jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-    - run: |
-          echo "Creating Einstein Test Release ${{ github.event.inputs.ae_version }}!"
-    - name: Create Draft Release
+    - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v20204.11
-        release_name: "TestRelease"
-        draft: true
+        tag_name: ${{ github.event.inputs.version_tag }}
+        release_name: "Version ${{ github.event.inputs.version_tag }}"
+        draft: false
         prerelease: false
-
+    - name: Get sources
+      uses: actions/checkout@v2
+    - name: Get FLTK
+      uses: actions/checkout@v2
+      with:
+        repository: fltk/fltk
+        path: fltk
+    - name: Get newt64
+      uses: actions/checkout@v2
+      with:
+        repository: MatthiasWM/NEWT64
+        path: newt64
+    - name: Compile FLTK
+      run: |
+        cmake -S fltk -B fltk/build \
+                      -D OPTION_USE_SYSTEM_LIBJPEG=Off \
+                      -D OPTION_USE_SYSTEM_ZLIB=Off \
+                      -D OPTION_USE_SYSTEM_LIBPNG=Off \
+                      -D FLTK_BUILD_TEST=Off \
+                      -D OPTION_USE_GL=Off
+        cmake --build fltk/build
+        sudo cmake --install fltk/build
+    - name: Compile newt64
+      run: |
+        cmake -S newt64 -B newt64/build
+        cmake --build newt64/build
+        sudo cmake --install newt64/build
+    - name: Configure Einstein
+      run: |
+        cmake -S . -B _Build_/Makefiles
+    - name: Compile Einstein
+      run: |
+        cmake --build _Build_/Makefiles
+    - name: Pack Einstein
+      run: |
+        cd _Build_/Makefiles
+        zip -9 Einstein_macOS_fltk_${{github.event.inputs.version_tag}}.zip Einstein.app
     - uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./README.md
-        asset_name: README.md
+        # upload this file
+        asset_path: ./spot.zip
+        # and give it that name in the destination
+        asset_name: spot.zip
         asset_content_type: application/zip
-
     - uses: eregon/publish-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         release_id: ${{ steps.create_release.outputs.id }}
-
