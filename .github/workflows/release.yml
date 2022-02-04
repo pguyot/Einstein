@@ -35,6 +35,9 @@ on:
       # build-android
       # build-iOS
 
+# Windows cmake build option for arm64 is  -A ARM64
+# On Linux, we will have to do additional installes and set a bunch of environment variables
+
 jobs:
 
   # Build the MacOS FLTK version as a Universal Binary for x64 and ARM64
@@ -166,7 +169,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
   build-windows-x64-fltk:
-    runs-on: windows-latest
+    runs-on: windows-2019
     if: ${{ github.event.inputs.build-windows-x64-fltk == 'true' }}
     steps:
     - name: Get sources
@@ -193,15 +196,15 @@ jobs:
         path: newt64
     - name: Compile FLTK
       run: |
-        cmake -G "Visual Studio 16 2019" -S fltk -B fltk/build -A x64 -D OPTION_USE_SYSTEM_LIBJPEG=Off -D OPTION_USE_SYSTEM_ZLIB=Off -D OPTION_USE_SYSTEM_LIBPNG=Off -D FLTK_BUILD_TEST=Off -D OPTION_USE_GL=Off
+        cmake -S fltk -B fltk/build -A x64 -D OPTION_USE_SYSTEM_LIBJPEG=Off -D OPTION_USE_SYSTEM_ZLIB=Off -D OPTION_USE_SYSTEM_LIBPNG=Off -D FLTK_BUILD_TEST=Off -D OPTION_USE_GL=Off -D CMAKE_BUILD_TYPE=Release
         cmake --build fltk/build --config Release
     - name: Compile newt64
       run: |
-        cmake -G "Visual Studio 16 2019" -S newt64 -B newt64/build -A x64
+        cmake -S newt64 -B newt64/build -A x64 -D CMAKE_BUILD_TYPE=Release
         cmake --build newt64/build --config Release
     - name: Compile Einstein
       run: |
-        cmake -G "Visual Studio 16 2019" -S . -B build -A x64
+        cmake -S . -B build -A x64 -D CMAKE_BUILD_TYPE=Release
         cmake --build build --config Release --target Einstein
     - name: Pack Einstein
       run: |
