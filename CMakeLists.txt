@@ -7,7 +7,7 @@
 
 cmake_minimum_required(VERSION 3.13)
 
-project( "Einstein" VERSION "2022.5.0" )
+project( "Einstein" VERSION "2022.4.17" )
 
 # ---- Configuration for all targets on all platforms
 
@@ -282,7 +282,8 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" )
 	# how to compile and link
 	target_compile_options ( Einstein PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation
-		-Wno-missing-field-initializers -Werror
+		-Wno-missing-field-initializers # -Werror
+		# Werror is diesable for testing purposes. Must reenable as soon as all Linux warnings are fixed.
 	)
 	target_compile_options ( EinsteinTests PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation
