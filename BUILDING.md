@@ -51,6 +51,9 @@ xcodebuild archive \
     -scheme Einstein -configuration Release \
     -archivePath Einstein.xcarchive \
     ONLY_ACTIVE_ARCH=NO
+```
+Your Einstein app will be in `Einstein.xcarchive/Products/Applications/Einstein.app`, but you can move it to your `/Application` folder for easy access:
+```bash
 # -- Optional: Copy Einstein to the Applications folder
 cp -R Einstein.xcarchive/Products/Applications/Einstein.app /Applications
 ```
@@ -97,6 +100,9 @@ cmake -S . -B build \
     -D CMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
     -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64"
 cmake --build build --target Einstein
+```
+Your Einstein app will be in `build/Einstein.app`, but you can move it to your `/Application` folder for easy access:
+```bash
 # -- Optional: Copy Einstein to the Applications folder
 cp -R build/Einstein.app /Applications
 ```
