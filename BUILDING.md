@@ -2,22 +2,31 @@
 # How to build Einstein on various platforms
 
 ## Table Of Contents
-* Building Einstein with Cocoa on macOS in 64 bit with Xcode
+
+* Building Einstein with Cocoa on macOS in 64 bit Universal
 * Building Einstein with FLTK on macOS in 64 bit with Xcode
 * Building Einstein on Linux in 64 bit
 * Building Einstein on Windows 10/11
 * Buidling Einstein for Android
 * Building Einstein for iOS
 
+## Introduction
 
-## Building Einstein with Cocoa on macOS in 64 bit with Xcode
+Einstein uses GitHub Workflows to verify integrity and code quality by building 
+test scenarios and Einstein itself whenever code is changed. The `release.yml`
+builds and releases the final user version of Einstein for all desktop platforms,
+making it the final authority in building the latest release of Einstein.
 
-Tested on macOS 10.15.3 Catalina with Xcode 11.4.
+## Building Einstein with Cocoa on macOS in 64 bit Universal
+
+### Using Xcode
+
+Tested on macOS 12.0.1 Monterey with Xcode 13.2.1
 
 Install Xcode from the Apple AppStore.
 
 Building Einstein with Cocoa is very easy and straight forward. Cocoa is the
-user interface that is built into MacOS. Just open the
+user interface that is built into macOS. Just open the
 ```_Build_/Xcode/Einstein.xcodeproj``` in Xcode and press Cmd-R to
 build and run the package. Einstein should launch in Debug mode
 after a few minutes and ask you for the location of the ROM.
@@ -27,124 +36,70 @@ and an assembly language Monitor. If you are interested in
 emulating PCMCIA Flash Memory cards, or would like to try
 some programming in NewtonScript, Einstein with FLTK is the better choice.
 
+### Using the command line
+
+Install Xcode and Xcode's command line tools.
+Start the Terminal:
+
+```bash
+# -- Get the source code from GitHub
+git clone https://github.com/pguyot/Einstein.git Einstein
+cd Einstein/
+# -- Build the Archive version (optimized)
+xcodebuild archive \
+    -project _Build_/Xcode/Einstein.xcodeproj \
+    -scheme Einstein -configuration Release \
+    -archivePath Einstein.xcarchive \
+    ONLY_ACTIVE_ARCH=NO
+# -- Optional: Copy Einstein to the Applications folder
+cp -R Einstein.xcarchive/Products/Applications/Einstein.app /Applications
+```
+Your final version of Einstein will be in ```/Applications/Einstein.app```.
 
 ## Building Einstein with FLTK on macOS in 64 bit with Xcode
 
-Tested on macOS 10.15.3 Catalina with Xcode 11.4.
+Tested on macOS 12.0.1 Monterey with Xcode 13.2.1
 
-### Prerequisites
+### Using the command line
 
 Install Xcode and Xcode's command line tools.
 Install the current version of CMake from https://cmake.org .
-
-### FLTK
-
-Download, build, and install FLTK first. FLTK is a cross-platform user interface library
-which is easy to install and use and very light on resources. See https://www.fltk.org .
+Start the Terminal:
 
 ```bash
-# -- Get the source code for FLTK from GitHub
+# -- Get the Einstein source code from GitHub
+git clone https://github.com/pguyot/Einstein.git Einstein
+cd Einstein/
+# -- Get the FLTK source code from GitHub
 git clone https://github.com/fltk/fltk.git fltk
-# -- Go into the FLTK root directory
-cd fltk
-# -- Make sure that Einstein will run on older versions of MacOS
-# use the line below if you build FLTK for macOS 10 (Mavericks all the way up to Catalina)
-#ex -s -c '1i|set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9)' -c x CMakeLists.txt
-# -- Create the CMake directory tree
-mkdir build
-cd build
-mkdir Makefiles
-cd Makefiles
-# -- Create the CMake build files
-cmake -DCMAKE_BUILD_TYPE=Release \
-      -D OPTION_USE_SYSTEM_LIBJPEG=Off \
-      -D OPTION_USE_SYSTEM_ZLIB=Off \
-      -D OPTION_USE_SYSTEM_LIBPNG=Off \
-      -D FLTK_BUILD_TEST=Off \
-      ../..
-# -- Build FLTK
-make
-# -- Install the FLTK library, includes, and tools
-sudo make install
-cd ../../..
+# -- Get the newt64 source code from GitHub
+git clone https://github.com/MatthiasWM/NEWT64.git newt64
+# -- Compile FLTK
+cmake -S fltk -B fltk/build \
+    -D OPTION_USE_SYSTEM_LIBJPEG=Off \
+    -D OPTION_USE_SYSTEM_ZLIB=Off \
+    -D OPTION_USE_SYSTEM_LIBPNG=Off \
+    -D FLTK_BUILD_TEST=Off \
+    -D OPTION_USE_GL=Off \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D CMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
+    -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64"
+cmake --build fltk/build
+# -- Compile newt64 (a few warnings will pop up)
+cmake -S newt64 -B newt64/build \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D CMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
+    -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64"
+cmake --build newt64/build
+# -- Compile Einstein (this may take 20 inutes or more)
+cmake -S . -B build \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D CMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
+    -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64"
+cmake --build build --target Einstein
+# -- Optional: Copy Einstein to the Applications folder
+cp -R build/Einstein.app /Applications
 ```
-
-### Newt64/Toolkit
-
-Newt64 will enable the built-in Developer Toolkit in Einstein
-and a few other features that depend on NewtonScript compilation features.
-
-Clone the Git repository in https://github.com/MatthiasWM/NEWT64.git,
-build the library with *CMake*, and copy it to ```/usr/local/lib/libnewt64.s```
-Also, copy all files in ```.../src/newt_core/incs/``` into ```/usr/local/include/newt64/```.
-
-On Windows machines, you will have to install the lex and yacc tools, i.e. GnuWin32's flexx and bison .
-
-```
-# -- Get the source code from GitHub
-git clone https://github.com/MatthiasWM/NEWT64.git Newt64
-cd Newt64/
-# -- Build release version
-mkdir _Build_; cd _Build_
-mkdir Release; cd Release
-cmake -DCMAKE_BUILD_TYPE=Release ../..
-cmake --build .
-# -- Install library and headers
-sudo cmake --install .
-```
-
-You may have to install libiconv, but it seemed to be installed already on my machine.
-
-### Einstein (Makefiles)
-
-Then download and build Einstein:
-
-```bash
-# -- Get the source code from GitHub
-git clone https://github.com/pguyot/Einstein.git Einstein
-cd Einstein/
-# -- Create CMake paths
-cd _Build_/
-mkdir Makefiles
-cd Makefiles/
-# -- Create the CMake build files
-cmake -DCMAKE_BUILD_TYPE=Release ../..
-# -- Build Einstein
-make
-# -- Run Einstein and enjoy
-open ./Einstein.app
-cd ../../..
-```
-
-### Einstein (Xcode)
-
-If you are planning to develop code for Einstein, you may want to use Xcode instead of Makefiles:
-```bash
-# -- Get the source code from GitHub
-git clone https://github.com/pguyot/Einstein.git Einstein
-cd Einstein/
-# -- Create CMake paths
-cd _Build_/
-mkdir Xcode.FLTK
-cd Xcode.FLTK/
-# -- Create the CMake build files
-cmake -G Xcode ../..
-# -- Now open the Xcode IDE
-open Einstein.xcodeproj
-cd ../../..
-```
-
-In Xcode, select `Product > Run` from the main menu or type `Apple-R` to compile and run Einstein
-in debugging mode.
-
-To generate the faster release version, select `Product > Archive` to create an optimized version.
-This takes a few minutes, but eventually Xcode will show you a dialog box with the archive that you just created.
-
-Right-click on the little icon and select `Show in Finder`. Then in Finder, right-click
-on the archive again and choose `Show Package Contents`. You will find the fast version
-of Einstein inside the folder `Products > Application`.
-
-Continue with setting up the ROM as described in the manual. Enjoy.
 
 ### BasiliskII
 
@@ -155,7 +110,6 @@ to Einstein via serial port emulation:
 git clone https://github.com/MatthiasWM/macemu.git macemu
 open macemu/BasiliskII/src/MacOSX/BasiliskII.xcodeproj
 ```
-
 
 ## Building Einstein on Linux in 64 bit
 
