@@ -59,7 +59,7 @@ cp -R Einstein.xcarchive/Products/Applications/Einstein.app /Applications
 ```
 Your final version of Einstein will be in ```/Applications/Einstein.app```.
 
-## Building Einstein with FLTK on macOS in 64 bit with Xcode
+## Building Einstein with FLTK on macOS in 64 bit Universal
 
 Tested on macOS 12.0.1 Monterey with Xcode 13.2.1
 
@@ -121,10 +121,15 @@ open macemu/BasiliskII/src/MacOSX/BasiliskII.xcodeproj
 
 Tested on Linux Ubuntu 20.04.2 LTS on March 13th 2021
 
-### Prerequisites
+These instruction will create an Intel executable when run on an Intel system,
+and an ARM executable on ARM systems. It is possible to cross-compile for another
+CPU, but this option is not handled (yet) in this document.
 
-Install Clang, Make, and CMake. CMake may ask for more resources in the process. Install
-them with `sudo apt-get install ...`.
+### Using the command line
+
+Install various packages that are needed to compile FLTK, newt64, and Einstein. Package
+installer work differently on different distribution. You may also need different packages.
+This worked for me:
 
 ```bash
 sudo apt-get install git cmake
@@ -139,74 +144,40 @@ sudo apt-get install pulseaudio
 sudo apt-get install libpulse-dev
 ```
 
-### FLTK
-
-Download, build, and install FLTK first. FLTK is a cross-platform user interface library
-that is easy to install and use and very light on resources. See https://www.fltk.org .
+Now download and build all components:
 
 ```bash
-# -- Get the source code for FLTK from GitHub
-git clone https://github.com/fltk/fltk.git fltk
-# -- Go into the FLTK root directory
-cd fltk
-# -- Create the CMake directory tree
-mkdir build
-cd build
-mkdir Makefiles
-cd Makefiles
-# -- Create the CMake build files
-cmake -DCMAKE_BUILD_TYPE=Release \
-      -D OPTION_USE_SYSTEM_LIBJPEG=Off \
-      -D OPTION_USE_SYSTEM_ZLIB=Off \
-      -D OPTION_USE_SYSTEM_LIBPNG=Off \
-      -D FLTK_BUILD_TEST=Off \
-      ../..
-# -- Build FLTK
-make
-# -- Install the FLTK library, includes, and tools
-sudo make install
-cd ../../..
-```
-
-### Newt64/Toolkit
-
-Newt64 will enable the built-in Developer Toolkit in Einstein
-and a few other features that depend on NewtonScript compilation features.
-
-```bash
-# -- Get the source code for Newt64
-git clone https://github.com/MatthiasWM/NEWT64.git
-cd NEWT64/
-# create the build environment and Makefile
-mkdir Build
-cd Build
-cmake ..
-# -- Build the library and the tools
-make
-# -- Install the library, so Einstein can find it
-sudo make install
-cd ../..
-```
-
-### Einstein
-
-Then download and build Einstein:
-
-```bash
-# -- Get the source code from GitHub
+# -- Get the Einstein source code from GitHub
 git clone https://github.com/pguyot/Einstein.git Einstein
 cd Einstein/
-# -- Create CMake paths
-cd _Build_/
-mkdir Makefiles
-cd Makefiles/
-# -- Create the CMake build files
-cmake -DCMAKE_BUILD_TYPE=Release ../..
-# -- Build Einstein (this will take a while, you need 4GB or RAM)
-make
-# -- Run Einstein and enjoy
-./Einstein
-cd ../../..
+# -- Get the FLTK source code from GitHub
+git clone https://github.com/fltk/fltk.git fltk
+# -- Get the newt64 source code from GitHub
+git clone https://github.com/MatthiasWM/NEWT64.git newt64
+# -- Compile FLTK
+cmake -S fltk -B fltk/build \
+    -D OPTION_USE_SYSTEM_LIBJPEG=Off \
+    -D OPTION_USE_SYSTEM_ZLIB=Off \
+    -D OPTION_USE_SYSTEM_LIBPNG=Off \
+    -D FLTK_BUILD_TEST=Off \
+    -D OPTION_USE_GL=Off \
+    -D CMAKE_BUILD_TYPE=Release
+cmake --build fltk/build
+# -- Compile newt64
+cmake -S newt64 -B newt64/build \
+    -D CMAKE_BUILD_TYPE=Release
+cmake --build newt64/build
+# -- Compile Einstein
+cmake -S . -B build \
+    -D CMAKE_BUILD_TYPE=Release
+cmake --build build --target Einstein
+```
+
+Your Einstein app will be in `build/Einstein`, but you can move it to your `/usr/bin` folder for easy access:
+
+```bash
+# -- Optional: Copy Einstein to the binaries folder
+sudo cp build/Einstein /usr/bin
 ```
 
 Continue with setting up the ROM as described in the manual. Enjoy.
@@ -225,10 +196,10 @@ cd macemu/BasiliskII/src/Unix
 make
 ```
 
+## Building Einstein on Windows 10/11 with VisualStudi
 
-## Building Einstein on Windows 10/11
-
-### Prerequisites
+These instructions will build the Intel 64bit version of EInstein, even if
+the host machine runs on ARM. 
 
 Install VisualStudio 2020. It will include the C++ compiler. Make sure that
 the CMake tools are also installed.
@@ -236,8 +207,10 @@ the CMake tools are also installed.
 You will also need git. You can install it
 from this source: https://gitforwindows.org .
 
-Einstein can built very easily from the command line. Open the Developer Command
-Prompt:
+### Using the command line
+
+Einstein can be built very easily from the command line. 
+Open the Developer Command Prompt:
 ```
 Start Menu
   -> All Apps
@@ -247,34 +220,33 @@ Start Menu
 
 Enter the following commands into the shell.
 
-Downlaod the Einstein source code:
-```
-git clone https://github.com/pguyot/Einstein.git
-cd Einstein
-```
-Download and build FLTK inside the Einstein folder. FLTK is a cross-platform
-user interface toolkit. FLTK is not optional.
-```
-git clone https://github.com/fltk/fltk.git
-cmake -S fltk -B fltk/build -D OPTION_USE_SYSTEM_LIBJPEG=Off -D OPTION_USE_SYSTEM_ZLIB=Off -D OPTION_USE_SYSTEM_LIBPNG=Off -D CMAKE_BUILD_TYPE=Release -D OPTION_USE_GL=Off -D FLTK_BUILD_TEST=Off
-cmake --build fltk/build --config Release
-```
-Download and build Newt64 inside the Einstein folder. Newt64 is a NewtonScript
-interpreter and is the basis of the built-in Toolkit. Newt64 is optional.
-```
+```bash
+# -- Get the Einstein source code from GitHub
+git clone https://github.com/pguyot/Einstein.git Einstein
+cd Einstein/
+# -- Get the FLTK source code from GitHub
+git clone https://github.com/fltk/fltk.git fltk
+# -- Get the newt64 source code from GitHub
 git clone https://github.com/MatthiasWM/NEWT64.git newt64
-cmake -S newt64 -B newt64/build -D CMAKE_BUILD_TYPE=Release
+# -- Compile FLTK (yes, the command must be in a single line)
+cmake -S fltk -B fltk/build -A x64 -D OPTION_USE_SYSTEM_LIBJPEG=Off -D OPTION_USE_SYSTEM_ZLIB=Off -D OPTION_USE_SYSTEM_LIBPNG=Off -D FLTK_BUILD_TEST=Off -D OPTION_USE_GL=Off -D CMAKE_BUILD_TYPE=Release
+cmake --build fltk/build --config Release
+# -- Compile newt64
+cmake -S newt64 -B newt64/build -A x64 -D CMAKE_BUILD_TYPE=Release
 cmake --build newt64/build --config Release
+# -- Compile Einstein
+cmake -S . -B build -A x64 -D CMAKE_BUILD_TYPE=Release
+cmake --build build --config Release --target Einstein
 ```
-With all prerequisites installed, we can finally build Einstein:
+
+Your Einstein app will be in `build\Release\Einstein.exe`, but you can move it to your `C:\Program Files` folder for easy access:
+
+```bash
+# -- Optional: Copy Einstein to the Program Files folder
+md "C:\Program Files\Einstein"
+copy build\Release\Einstein.exe "C:\Program Files\Einstein"
 ```
-cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
-cmake --build build --config Release
-```
-If everything went well, Einstein can be found here:
-```
-build\Release\Einstein.exe
-```
+
 Continue with setting up the ROM as described in the manual. Enjoy.
 
 ### BasiliskII
@@ -311,27 +283,3 @@ running on iPhone 13 Max Pro with iOS 15.2
  - you may have to change details for the Target Settings in the *Signing* tab
  - build and run Einstein for your phone - it will fail, but now Finder will
    show the directory that you need to install the ```717006.rom``` file.
-
-
-
-
-
-Build log Window 11 and VisualStudin 2022
-
-Open a Developer COmmand Promt (Start Menu -> All Apps -> Visual Studi 2020 Folder -> Developer Command Promt for VS 2022)
-
-git clone https://github.com/pguyot/Einstein.git
-cd Einstein
-git clone https://github.com/fltk/fltk.git
-cmake -S fltk -B fltk/build -D OPTION_USE_SYSTEM_LIBJPEG=Off -D OPTION_USE_SYSTEM_ZLIB=Off -D OPTION_USE_SYSTEM_LIBPNG=Off -D CMAKE_BUILD_TYPE=Release -D OPTION_USE_GL=Off -D FLTK_BUILD_TEST=Off
-cmake --build fltk/build --config Release
-git clone https://github.com/MatthiasWM/NEWT64.git newt64
-cmake -S newt64 -B newt64/build -D CMAKE_BUILD_TYPE=Release
-# ignore warning
-cmake --build newt64/build --config Release
-cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
-cmake --build build --config Release
-build\Release\Einstein.exe
-
-
-
