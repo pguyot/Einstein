@@ -1,5 +1,5 @@
 # ==============================
-# File:     TFLSettings
+# File:     CMakeLists.txt
 # Project:  Einstein
 #
 # Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net) and others.
@@ -253,7 +253,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Info.plist.in"
 	)
 	set_target_properties ( Einstein PROPERTIES
-		CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/EntiXXXtlements.plist"
+		CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Entitlements.plist"
 	)
 	if ( XCODE )
 		# Fix indentation settings that are cleared by CMake at every generator call.
