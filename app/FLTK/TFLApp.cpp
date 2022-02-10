@@ -256,7 +256,12 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Monitor/TFLMonitor.h"
 #include "Monitor/TSymbolList.h"
 
-static const char* tfl_file_chooser(const char* message, const char* pat, const char* fname, int type);
+enum class FileChooser {
+    SaveFile,
+    OpenFile,
+    ChooseDirectory
+};
+static const char *tfl_file_chooser(const char* message, const char* pat, const char* fname, FileChooser type);
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -592,7 +597,7 @@ TFLApp::UserActionInstallPackage()
 {
 	static char* filename = 0L;
 
-	const char* newname = tfl_file_chooser("Install Package...", "Package\t*.pkg", nullptr, false);
+    const char *newname = ChooseExistingFile("Install Package...", "Package\t*.pkg", nullptr);
 	// "Compressed Package\t*.{sit,sae,hqx,zip,sit.hqx,hqx.sit}");
 	// for (int i=0; i<fnfc.count(); i++) {
 	//    newname = fnfc.filename(i);
@@ -1482,7 +1487,7 @@ tabs_box(int x, int y, int w, int h, Fl_Color c)
 }
 
 static const char*
-tfl_file_chooser(const char* message, const char* pat, const char* fname, int type)
+tfl_file_chooser(const char* message, const char* pat, const char* fname, FileChooser type)
 {
 #if UPDATED_TARGET_OS_LINUX
 	char pattern[FL_PATH_MAX];
@@ -1538,15 +1543,15 @@ tfl_file_chooser(const char* message, const char* pat, const char* fname, int ty
 	fnfc.title(message);
 	switch (type)
 	{
-		case 0:
+        case FileChooser::SaveFile:
 			fnfc.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 			fnfc.options(Fl_Native_File_Chooser::NEW_FOLDER | Fl_Native_File_Chooser::USE_FILTER_EXT);
 			break;
-		case 1:
+        case FileChooser::OpenFile:
 			fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
 			fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
 			break;
-		case 2:
+        case FileChooser::ChooseDirectory:
 			fnfc.type(Fl_Native_File_Chooser::BROWSE_DIRECTORY);
 			fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
 			break;
@@ -1575,19 +1580,19 @@ tfl_file_chooser(const char* message, const char* pat, const char* fname, int ty
 const char*
 TFLApp::ChooseExistingFile(const char* message, const char* pat, const char* fname)
 {
-	return tfl_file_chooser(message, pat, fname, 1);
+	return tfl_file_chooser(message, pat, fname, FileChooser::OpenFile);
 }
 
 const char*
 TFLApp::ChooseExistingDirectory(const char* message, const char* pat, const char* fname)
 {
-	return tfl_file_chooser(message, pat, fname, 2);
+	return tfl_file_chooser(message, pat, fname, FileChooser::ChooseDirectory);
 }
 
 const char*
 TFLApp::ChooseNewFile(const char* message, const char* pat, const char* fname)
 {
-	return tfl_file_chooser(message, pat, fname, 0);
+	return tfl_file_chooser(message, pat, fname, FileChooser::SaveFile);
 }
 
 /**
