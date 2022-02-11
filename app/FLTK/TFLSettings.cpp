@@ -275,6 +275,13 @@ TFLSettings::loadPreferences()
 
 		screen.get("LaunchMonitorAtBoot", mLaunchMonitorAtBoot, 0);
 		screen.get("BreatAtROMBoot", mBreatAtROMBoot, 0);
+
+#if TARGET_OS_MAC
+		screen.get("ShowMenubar", mShowMenubar, 0);
+#else
+		screen.get("ShowMenubar", mShowMenubar, 1);
+#endif
+		screen.get("ShowToolbar", mShowToolbar, 1);
 	}
 
 	// Memory preferences
@@ -361,6 +368,9 @@ TFLSettings::savePreferences()
 
 		screen.set("LaunchMonitorAtBoot", mLaunchMonitorAtBoot);
 		screen.set("BreatAtROMBoot", mBreatAtROMBoot);
+
+		screen.set("ShowMenubar", mShowMenubar);
+		screen.set("ShowToolbar", mShowToolbar);
 	}
 
 	// Memory preferences

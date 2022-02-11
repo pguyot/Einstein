@@ -43,7 +43,7 @@ decl {\#include "TFLAppUI.h"} {private local
 decl {\#include "Emulator/Platform/TPlatformManager.h"} {private local
 }
 
-decl {\#include "app/Version.h"} {selected private global
+decl {\#include "app/Version.h"} {private global
 }
 
 decl {\#include "app/FLTK/TFLTabs.h"} {private global
@@ -68,6 +68,12 @@ decl {\#include <FL/Fl.H>} {private local
 }
 
 decl {\#include <FL/fl_draw.H>} {private local
+}
+
+declblock {\#if TARGET_OS_MAC} {open public after {\#endif}
+} {
+  decl {\#include <FL/Fl_Sys_Menu_Bar.H>} {public global
+  }
 }
 
 Function {cb_keepInSlot0(Fl_Menu_Item* mi, void* user_data)} {open private return_type void
@@ -546,7 +552,7 @@ if (filename) {
           xywh {10 35 430 375} hide
         } {
           Fl_Group {} {open
-            xywh {60 90 356 222} box FLAT_BOX labelsize 12 align 5
+            xywh {20 90 396 222} box FLAT_BOX labelsize 12 align 5
           } {
             Fl_Input wWidth {
               label {Screen Size: }
@@ -574,6 +580,18 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
             Fl_Check_Button wBreatAtROMBoot {
               label {Break at ROMBoot}
               xywh {145 195 196 20} down_box DOWN_BOX labelsize 13 deactivate
+            }
+            Fl_Check_Button wShowMenubar {
+              label Menubar
+              xywh {120 220 196 20} down_box DOWN_BOX labelsize 13
+            }
+            Fl_Check_Button wShowToolbar {
+              label Toolbar
+              xywh {120 245 196 20} down_box DOWN_BOX labelsize 13
+            }
+            Fl_Box {} {
+              label {Show:}
+              xywh {20 220 94 20} labelsize 13 align 24
             }
             Fl_Box {} {
               label {add screen scale}
@@ -1065,27 +1083,24 @@ mSettingsPanel->hide();}
         if (wNetworkTool) wNetworkTool->setBottomID(card->GetTag());
         slot1menu[1].user_data((void*)i);
     }
-  }} {}
+  }
+  if (wSysMenubar) {
+    wSysMenubar->update();
+  }} {selected
+    }
   }
   Function {revertDialog()} {open return_type void
   } {
     code {char buf[32];
 
+// ---- MessagePad
+
 wROMName->value(fl_filename_name(ROMPath));
 wROMPath->copy_label(ROMPath);
+wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
 
 wFlashName->value(fl_filename_name(FlashPath));
 wFlashPath->copy_label(FlashPath);
-
-sprintf(buf, "%d", screenWidth);
-wWidth->value(buf);
-sprintf(buf, "%d", screenHeight);
-wHeight->value(buf);
-wFullScreen->value(fullScreen);
-wHideMouse->value(hideMouse);
-wLaunchMonitorAtBoot->value(mLaunchMonitorAtBoot);
-wBreatAtROMBoot->value(mBreatAtROMBoot);
-wFetchDateAndTime->value(mFetchDateAndTime);
 
 if (RAMSize<=16)
 	wRAMSizeChoice->value(0);
@@ -1096,9 +1111,22 @@ else if (RAMSize<=128)
 else 	
 	wRAMSizeChoice->value(1);
 
-wDontShow->value(dontShow);
+wFetchDateAndTime->value(mFetchDateAndTime);
 
-wROMDetails->copy_label(GetROMDetails(wROMPath->label()));
+// ---- User Interface
+
+sprintf(buf, "%d", screenWidth);
+wWidth->value(buf);
+sprintf(buf, "%d", screenHeight);
+wHeight->value(buf);
+wFullScreen->value(fullScreen);
+wHideMouse->value(hideMouse);
+wLaunchMonitorAtBoot->value(mLaunchMonitorAtBoot);
+wBreatAtROMBoot->value(mBreatAtROMBoot);
+wShowMenubar->value(mShowMenubar);
+wShowToolbar->value(mShowToolbar);
+
+// ---- PC Cards
 
 wPCCardList->clear();
 for (size_t i=0; i<mCardList.size(); i++) {
@@ -1108,19 +1136,35 @@ for (size_t i=0; i<mCardList.size(); i++) {
 wPCCardList->value(0);
 wPCCardList->do_callback();
 
+// ---- Resources
+
 wUnnaPath->value(mUnnaPath);
 wMessagepadOrgPath->value(mMessagepadOrgPath);
 wGitRepoPath->value(mGitRepoPath);
+
+// ---- Dialog
+
+wDontShow->value(dontShow);
 
 updateMenus();} {}
   }
   Function {applyDialog()} {open return_type void
   } {
-    code {free(ROMPath);
+    code {// ---- MessagePad
+
+free(ROMPath);
 ROMPath = strdup(wROMPath->label());
 
 free(FlashPath);
 FlashPath = strdup(wFlashPath->label());
+
+mFetchDateAndTime = wFetchDateAndTime->value();
+
+const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
+if (m)
+	RAMSize = m->argument();
+	
+// ---- User Interface
 
 screenWidth = atoi(wWidth->value());
 screenHeight = atoi(wHeight->value());
@@ -1128,13 +1172,10 @@ fullScreen = wFullScreen->value();
 hideMouse = wHideMouse->value();
 mLaunchMonitorAtBoot = wLaunchMonitorAtBoot->value();
 mBreatAtROMBoot = wBreatAtROMBoot->value();
-mFetchDateAndTime = wFetchDateAndTime->value();
+mShowMenubar = wShowMenubar->value();
+mShowToolbar = wShowToolbar->value();
 
-const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
-if (m)
-	RAMSize = m->argument();
-
-dontShow = wDontShow->value();
+// ---- PC Cards
 
 startUpdateCardList();
 for (int i=0; i<wPCCardList->size(); i++) {
@@ -1144,12 +1185,18 @@ for (int i=0; i<wPCCardList->size(); i++) {
 }
 endUpdateCardList();
 
+// ---- Resources
+
 free(mUnnaPath);
 mUnnaPath = strdup(wUnnaPath->value());
 free(mMessagepadOrgPath);
 mMessagepadOrgPath = strdup(wMessagepadOrgPath->value());
 free(mGitRepoPath);
 mGitRepoPath = strdup(wGitRepoPath->value());
+
+// Dialog
+
+dontShow = wDontShow->value();
 
 updateMenus();} {}
   }
@@ -1363,6 +1410,11 @@ win->hide();} {}
 if (choice && choice->callback()) {
     choice->callback_(RMB, choice->user_data_);
 }} {}
+  }
+  declblock {\#if TARGET_OS_MAC} {open after {\#endif}
+  } {
+    decl {Fl_Sys_Menu_Bar *wSysMenubar = nullptr;} {public local
+    }
   }
 }
 

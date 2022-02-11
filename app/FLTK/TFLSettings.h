@@ -171,6 +171,8 @@ public:
 	int fullScreen;
 	int RAMSize;
 	int dontShow;
+	int mShowMenubar = 1;
+	int mShowToolbar = 1;
 
 	int mLaunchMonitorAtBoot = 0;
 	int mBreatAtROMBoot = 0;

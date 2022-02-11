@@ -217,6 +217,9 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
 #include <FL/x.H>
+#if TARGET_OS_MAC
+#include <FL/Fl_Sys_Menu_Bar.H>
+#endif
 
 // Einstein
 #include "Emulator/TEmulator.h"
@@ -1150,7 +1153,35 @@ TFLApp::InitScreen()
 	wAppWindow = CreateApplicationWindow(
 		mFLSettings->mAppWindowPosX,
 		mFLSettings->mAppWindowPosY);
-	wAppWindow->size(portraitWidth, portraitHeight + wToolbar->y() + wToolbar->h());
+
+	// -- calculate the height of the screen
+	int emulatorScreenY = 0;
+	// will there be a menu bar?
+	if (mFLSettings->mShowMenubar) {
+		wMenubar->position(0, 0);
+		emulatorScreenY += wMenubar->h();
+		wMenubar->show();
+	} else {
+#if TARGET_OS_MAC
+		wMenuItemEssentials->flags &= ~FL_MENU_DIVIDER;
+		wMenuItemAbout->hide();
+		mFLSettings->wSysMenubar = new Fl_Sys_Menu_Bar(0, 0, 1, 1);
+		mFLSettings->wSysMenubar->window_menu_style(Fl_Sys_Menu_Bar::no_window_menu);
+		mFLSettings->wSysMenubar->menu(wMenubar->menu());
+		mFLSettings->wSysMenubar->about(wMenuItemAbout->callback(), wMenuItemAbout->user_data());
+#endif
+		wMenubar->hide();
+	}
+	// will there be a tool bar
+	if (mFLSettings->mShowToolbar) {
+		wToolbar->position(0, emulatorScreenY);
+		emulatorScreenY += wToolbar->h();
+		wToolbar->show();
+	} else {
+		wToolbar->hide();
+	}
+
+	wAppWindow->size(portraitWidth, portraitHeight + emulatorScreenY);
 	wAppWindow->resizable(nullptr);
 #if TARGET_OS_WIN32
 	wAppWindow->icon((char*) LoadIcon(fl_display, MAKEINTRESOURCE(101)));
@@ -1164,7 +1195,7 @@ TFLApp::InitScreen()
 	TFLScreenManager* flScreenManager = new TFLScreenManager(this, mLog, portraitWidth, portraitHeight, false, false);
 	mNewtonScreen = flScreenManager->GetWidget();
 	mScreenManager = flScreenManager;
-	flScreenManager->GetWidget()->position(wToolbar->x(), wToolbar->y() + wToolbar->h());
+	flScreenManager->GetWidget()->position(wToolbar->x(), emulatorScreenY);
 	wAppWindow->end();
 	if (mFLSettings->mAllowScreenResize)
 		wAppWindow->resizable(flScreenManager->GetWidget());
