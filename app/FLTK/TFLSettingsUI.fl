@@ -1084,9 +1084,12 @@ mSettingsPanel->hide();}
         slot1menu[1].user_data((void*)i);
     }
   }
+\#if TARGET_OS_MAC  
   if (wSysMenubar) {
     wSysMenubar->update();
-  }} {}
+  }
+\#endif} {selected
+    }
   }
   Function {revertDialog()} {open return_type void
   } {
@@ -1410,7 +1413,7 @@ if (choice && choice->callback()) {
     choice->callback_(RMB, choice->user_data_);
 }} {}
   }
-  declblock {\#if TARGET_OS_MAC} {open selected public after {\#endif}
+  declblock {\#if TARGET_OS_MAC} {open public after {\#endif}
   } {
     decl {Fl_Sys_Menu_Bar *wSysMenubar = nullptr;} {public local
     }
