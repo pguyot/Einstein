@@ -652,7 +652,12 @@ TFLApp::UserActionOriginalScreenSize()
 	if (!wAppWindow->fullscreen_active())
 	{
 		wAppWindow->resizable(mNewtonScreen);
-		wAppWindow->size(mScreenManager->GetScreenWidth(), wMenubar->h() + wToolbar->h() + mScreenManager->GetScreenHeight());
+    int y = 0, w = 0, h = 0;
+    if (wMenubar->visible()) y += wMenubar->h();
+    if (wToolbar->visible()) y += wToolbar->h();
+    w = (int)(mScreenManager->GetScreenWidth() * mFLSettings->screenScale / 100.0);
+    h = y + (int)(mScreenManager->GetScreenHeight() * mFLSettings->screenScale / 100.0);
+    wAppWindow->size(w, h);
 		if (!mFLSettings->mAllowScreenResize)
 			wAppWindow->resizable(nullptr);
 		StoreAppWindowSize();
@@ -1139,15 +1144,9 @@ void
 TFLApp::InitScreen()
 {
 	int portraitWidth = mFLSettings->screenWidth;
+  int windowWidth = (int)(portraitWidth * (mFLSettings->screenScale / 100.0));
 	int portraitHeight = mFLSettings->screenHeight;
-	if (portraitHeight < portraitWidth)
-	{
-		(void) ::fprintf(
-			stderr,
-			"Warning, (portrait) height (%i) is smaller than width (%i). Boot screen won't be displayed properly\n",
-			portraitHeight,
-			portraitWidth);
-	}
+  int windowHeight = (int)(portraitHeight * (mFLSettings->screenScale / 100.0));
 
 	Fl_Group::current(nullptr);
 	wAppWindow = CreateApplicationWindow(
@@ -1158,8 +1157,8 @@ TFLApp::InitScreen()
 	int emulatorScreenY = 0;
 	// will there be a menu bar?
 	if (mFLSettings->mShowMenubar) {
-		wMenubar->position(0, 0);
-		emulatorScreenY += wMenubar->h();
+		wMenubar->resize(0, 0, windowWidth, wMenubar->h());
+    emulatorScreenY += wMenubar->h();
 		wMenubar->show();
 	} else {
 #if TARGET_OS_MAC
@@ -1174,14 +1173,14 @@ TFLApp::InitScreen()
 	}
 	// will there be a tool bar
 	if (mFLSettings->mShowToolbar) {
-		wToolbar->position(0, emulatorScreenY);
+		wToolbar->resize(0, emulatorScreenY, windowWidth, wToolbar->h());
 		emulatorScreenY += wToolbar->h();
 		wToolbar->show();
 	} else {
 		wToolbar->hide();
 	}
 
-	wAppWindow->size(portraitWidth, portraitHeight + emulatorScreenY);
+	wAppWindow->size(windowWidth, windowHeight + emulatorScreenY);
 	wAppWindow->resizable(nullptr);
 #if TARGET_OS_WIN32
 	wAppWindow->icon((char*) LoadIcon(fl_display, MAKEINTRESOURCE(101)));
@@ -1191,14 +1190,16 @@ TFLApp::InitScreen()
 		wMenuItemFullscreen->activate();
 	else
 		wMenuItemFullscreen->deactivate();
+
 	wAppWindow->begin();
 	TFLScreenManager* flScreenManager = new TFLScreenManager(this, mLog, portraitWidth, portraitHeight, false, false);
 	mNewtonScreen = flScreenManager->GetWidget();
 	mScreenManager = flScreenManager;
-	flScreenManager->GetWidget()->position(wToolbar->x(), emulatorScreenY);
+  mNewtonScreen->resize(0, emulatorScreenY, windowWidth, windowHeight);
 	wAppWindow->end();
+
 	if (mFLSettings->mAllowScreenResize)
-		wAppWindow->resizable(flScreenManager->GetWidget());
+		wAppWindow->resizable(mNewtonScreen);
 	else
 		wAppWindow->resizable(nullptr);
 	StoreAppWindowSize();

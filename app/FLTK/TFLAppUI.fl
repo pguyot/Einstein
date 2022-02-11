@@ -153,8 +153,8 @@ Function {CreateApplicationWindow(int x, int y)} {open
         xywh {0 0 100 20}
       } {
         MenuItem {} {
-          label {Original SIze}
-          callback {gApp->UserActionOriginalScreenSize();}
+          label {Initial SIze}
+          callback {gApp->UserActionOriginalScreenSize();} selected
           xywh {0 0 100 20}
         }
         MenuItem wMenuItemFullscreen {
@@ -196,7 +196,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         }
         MenuItem wMenuItemEssentials {
           label {Install Essentials..}
-          callback {gApp->UserActionInstallEssentials();} selected
+          callback {gApp->UserActionInstallEssentials();}
           xywh {12 12 100 20} divider
         }
         MenuItem wMenuItemAbout {

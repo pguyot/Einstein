@@ -334,7 +334,7 @@ wAbout = nullptr;} {}
     revertDialog();
     mSettingsPanel->hide();
 }} open
-      xywh {443 526 450 455} type Double visible
+      xywh {484 528 450 455} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu}
@@ -402,7 +402,7 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
           xywh {10 35 430 375}
         } {
           Fl_Group {} {open
@@ -552,7 +552,7 @@ if (filename) {
           xywh {10 35 430 375} hide
         } {
           Fl_Group {} {open
-            xywh {20 90 396 222} box FLAT_BOX labelsize 12 align 5
+            xywh {20 90 408 222} box FLAT_BOX labelsize 12 align 5
           } {
             Fl_Input wWidth {
               label {Screen Size: }
@@ -566,7 +566,7 @@ Original screen size is 320x480} xywh {215 90 80 20} type Int color 54 labelsize
             }
             Fl_Check_Button wFullScreen {
               label {Full screen}
-              xywh {120 120 296 20} down_box DOWN_BOX labelsize 13 deactivate
+              xywh {120 120 308 20} down_box DOWN_BOX labelsize 13 deactivate
             }
             Fl_Check_Button wHideMouse {
               label {Hide mouse pointer}
@@ -608,6 +608,40 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
             Fl_Box {} {
               label {Show at startup: machine choice, settings, last open machine}
               xywh {132 278 204 28} hide
+            }
+            Fl_Input_Choice wScale {
+              label {Scale:} open
+              xywh {340 90 60 20} labelsize 12 textsize 12
+            } {
+              MenuItem {} {
+                label 100
+                user_data 100 user_data_type long
+                xywh {0 0 31 20}
+              }
+              MenuItem {} {
+                label 125
+                user_data 125 user_data_type long
+                xywh {0 0 31 20}
+              }
+              MenuItem {} {
+                label 150
+                user_data 150 user_data_type long
+                xywh {0 0 31 20}
+              }
+              MenuItem {} {
+                label 175
+                user_data 175 user_data_type long
+                xywh {0 0 31 20}
+              }
+              MenuItem {} {
+                label 200
+                user_data 200 user_data_type long
+                xywh {0 0 31 20}
+              }
+            }
+            Fl_Box {} {
+              label {%}
+              xywh {400 90 1 20} labelsize 12 align 8
             }
           }
           Fl_Group {} {open
@@ -1088,8 +1122,7 @@ mSettingsPanel->hide();}
   if (wSysMenubar) {
     wSysMenubar->update();
   }
-\#endif} {selected
-    }
+\#endif} {}
   }
   Function {revertDialog()} {open return_type void
   } {
@@ -1121,6 +1154,8 @@ sprintf(buf, "%d", screenWidth);
 wWidth->value(buf);
 sprintf(buf, "%d", screenHeight);
 wHeight->value(buf);
+sprintf(buf, "%d", screenScale);
+wScale->value(buf);
 wFullScreen->value(fullScreen);
 wHideMouse->value(hideMouse);
 wLaunchMonitorAtBoot->value(mLaunchMonitorAtBoot);
@@ -1170,6 +1205,9 @@ if (m)
 
 screenWidth = atoi(wWidth->value());
 screenHeight = atoi(wHeight->value());
+screenScale = atoi(wScale->value());
+if (screenScale<=10) 
+	screenScale = 100;
 fullScreen = wFullScreen->value();
 hideMouse = wHideMouse->value();
 mLaunchMonitorAtBoot = wLaunchMonitorAtBoot->value();

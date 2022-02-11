@@ -264,7 +264,8 @@ TFLSettings::loadPreferences()
 	Fl_Preferences screen(prefs, "Screen");
 	{
 		screen.get("width", screenWidth, 320);
-		screen.get("height", screenHeight, 480);
+    screen.get("height", screenHeight, 480);
+    screen.get("scale", screenScale, 100);
 		screen.get("fullScreen", fullScreen, 0);
 		screen.get("hideMouse", hideMouse, 0);
 
@@ -358,6 +359,7 @@ TFLSettings::savePreferences()
 	{
 		screen.set("width", screenWidth);
 		screen.set("height", screenHeight);
+    screen.set("scale", screenScale);
 		screen.set("fullScreen", fullScreen);
 		screen.set("hideMouse", hideMouse);
 

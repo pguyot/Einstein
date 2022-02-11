@@ -167,6 +167,7 @@ public:
 	char* FlashPath = nullptr;
 	int screenWidth;
 	int screenHeight;
+  int screenScale = 100;
 	int hideMouse;
 	int fullScreen;
 	int RAMSize;
