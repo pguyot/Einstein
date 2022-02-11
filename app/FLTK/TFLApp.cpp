@@ -209,14 +209,13 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 // FLTK user interface
 #include <FL/Fl.H>
 #include <FL/Fl_Button.H>
-#include <FL/Fl_File_Chooser.H>
-#include <FL/Fl_Native_File_Chooser.H>
 #include <FL/Fl_Paged_Device.H>
 #include <FL/Fl_Printer.H>
 #include <FL/Fl_Tooltip.H>
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
 #include <FL/x.H>
+#include <FL/fl_ask.H>
 #if TARGET_OS_MAC
 #include <FL/Fl_Sys_Menu_Bar.H>
 #endif
@@ -258,13 +257,6 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 // Monitor system for debugging ARM code
 #include "Monitor/TFLMonitor.h"
 #include "Monitor/TSymbolList.h"
-
-enum class FileChooser {
-    SaveFile,
-    OpenFile,
-    ChooseDirectory
-};
-static const char *tfl_file_chooser(const char* message, const char* pat, const char* fname, FileChooser type);
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -851,168 +843,6 @@ TFLApp::UserActionPrintScreen()
 	delete p;
 }
 
-#define BP fl_begin_polygon()
-#define EP fl_end_polygon()
-#define BCP fl_begin_complex_polygon()
-#define ECP fl_end_complex_polygon()
-#define BL fl_begin_line()
-#define EL fl_end_line()
-#define BC fl_begin_loop()
-#define EC fl_end_loop()
-#define vv(x, y) fl_vertex(x, y)
-
-#define VF 0.9
-#define VL 0.65
-#define VB 0.0
-
-#define AF 1.0
-#define AL 0.6
-#define AB 0.15
-#define AA 0.15
-
-static void
-extSymbol(Fl_Color c)
-{
-	fl_color(c);
-	BCP;
-	// outline square, starting right side
-	vv(VF, -VB);
-	vv(VF, VF);
-	vv(-VF, VF);
-	vv(-VF, -VF);
-	vv(VB, -VF);
-	// inline square
-	vv(VB, -VL);
-	vv(-VL, -VL);
-	vv(-VL, VL);
-	vv(VL, VL);
-	vv(VL, -VB);
-	ECP;
-	BCP;
-	vv(-AA, -AA);
-	vv(0.4, -AL - AA);
-	vv(AB, -AF);
-	vv(AF, -AF);
-	vv(AF, -AB);
-	vv(AL + AA, -0.4);
-	vv(AA, AA);
-	ECP;
-#if 0
-    fl_color(fl_darker(c));
-    BC;
-    // outline square, starting right side
-    vv(VF, -VB); vv(VF, VF); vv(-VF, VF); vv(-VF, -VF); vv(VB, -VF);
-    // inline square
-    vv(VB, -VL); vv(-VL, -VL); vv(-VL, VL); vv(VL, VL); vv(VL, -VB);
-    EC;
-    BC;
-    vv(-AA, -AA); vv(0.4, -AL-AA); vv(AB, -AF); vv(AF, -AF); vv(AF, -AB); vv(AL+AA, -0.4); vv(AA, AA);
-    EC;
-#endif
-}
-
-/**
- Create and open a dialog that will give quick access to Newton packages on the Net.
-
- The dialog presents a hierarchy of Titles, containing Groups, which in turn can
- contain Links to external text and pdf documents, Text blocks, Scripts, and
- Installer links to packages.
-
- addInstallerLink requires a title and points to multiple external documents.
- The tooltip will display the links after expansion. Users expect only
- one single link though.
-
- addInstallerText points to a C string. Text is wrapped, and the field is
- sized automatically.
-
- addInstallerScript can contains multiple scripts that are run sequentially.
- The tooltip will reveal the script texts. One script must not be longer
- than 255 characters. Script lines start with 'S'. Lines starting with 'W'
- will create a Warning dialog for the user.
-
- addInstallerPackage can contain multiple package links that are installe
- sequentially. Links are expanded using the following rules. Lines starting with
- 'W' will create a Warning dialog for the user.
-
- Links starting with a 'U' will have the Unna link prepended. 'M' will add
- the messegapad.or link as defined in the Settings. Staring text with a 'W'
- will create a Warning dialog to the user, so they can cancel the operation.
- Links starting with a ':' will remain unchanged.
- Scripts must start with the letter 'S'.
-
- \note We should make the titles, groups, and maybe even comments foldable.
- \note Eventually if would be nice to be able to link to packages inside .zip
-	and .sit.hqx archives.
- \note Tooltips for scripts can get very big.
- */
-void
-TFLApp::UserActionInstallEssentials()
-{
-	if (!wInstallerWindow)
-	{
-		fl_add_symbol("ext", extSymbol, 1);
-		wInstallerWindow = makeInstaller();
-		// --- Essentials
-		addInstallerTitle("Essentials");
-		// Y2K10
-		addInstallerGroup("NewtonOS Y2K10 Fix");
-		addInstallerText("NewtonOS has a bug in handling years past 18:48:31 on January 5, 2010. "
-						 "Einstein contains a fix for US MP2x00 MessagePads, but "
-						 "for eMates and German MP2x00 MessagePads, "
-						 "the patch below will fix all date issues until 2026.\n\n"
-						 "Please install this patch before installing anything else, "
-						 "as this will wipe your Newton's memory.");
-		addInstallerLink("explained by Eckhart Köppen", new StringList { ":https://40hz.org/Pages/newton/hacking/newton-year-2010-problem/" });
-		addInstallerLink("Readme file for the patch", new StringList { "MDownloads/Einstein/Essentials/y2k10/README.txt" });
-		addInstallerText("Please select the patch that matches the ROM image of your machine:");
-		addInstallerPackage("German MP2x00 patch", new StringList { "WInstalling this patch may irreversibly erase all data\n"
-																	"on your MessagePad.\n\n"
-																	"Please proceed only if this a new device, or if your\n"
-																	"data is securely backed up!",
-													   "MDownloads/Einstein/Essentials/y2k10/Patch_D.pkg" });
-		addInstallerPackage("eMate 300 patch", new StringList { "WInstalling this patch may irreversibly erase all data\n"
-																"on your eMate 300.\n\n"
-																"Please proceed only if this a new device, or if your\n"
-																"data is securely backed up!",
-												   "MDownloads/Einstein/Essentials/y2k10/Patch_eMate.pkg" });
-		// --- Networking
-		addInstallerTitle("Networking");
-		// NIE
-		addInstallerGroup("NIE: Newton Internet Enabler");
-		addInstallerText("The Newton Internet Enabler (NIE) allows you to "
-						 "access the Internet with your Newton. "
-						 "NIE package was released by Apple in 1997.");
-		addInstallerPackage("Apple NIE packages", new StringList { "WThis will install four packages on your Newton\nwhich may take a little while.", "Uunna/apple/software/Internet/NIE2/ENETSUP/enetsup.pkg", "Uunna/apple/software/Internet/NIE2/REGPKGS/inetenbl.pkg", "Uunna/apple/software/Internet/NIE2/ENETSUP/newtdev.pkg", "Uunna/apple/software/Internet/NIE2/REGPKGS/inetstup.pkg" });
-		addInstallerPackage("Einstein Network Card driver", new StringList { "MDownloads/Einstein/Essentials/NIE/NE2K.pkg" });
-		addInstallerScript("Open Internet Setup", new StringList { "SGetRoot().|InternetSetup:NIE|:Open();" });
-		// NewtonScript: Reboot(), Sleep(), PowerOff()
-		// PlaySoundSync()
-		// ROM_alarmWakeup
-		//      ROM_click
-		//      ROM_crumple
-		//      ROM_drawerClose
-		//      ROM_drawerOpen
-		//      ROM_flip
-		//      ROM_funBeep
-		//      ROM_hiliteSound
-		//      ROM_plinkBeep
-		//      ROM_simpleBeep
-		//      ROM_wakeupBeep
-		//      ROM_plunk
-		//      ROM_poof
-		// Courier
-		addInstallerGroup("Courier Browser 0.5");
-		addInstallerText("Courier is a small internet browser. The source code is available on UNNA.");
-		addInstallerPackage("Courier packages", new StringList { "WThis will install three packages on your Newton\nwhich may take a little while.", "Uunna/internet/web-browsers/Courier0.5/Courier0.5.pkg", "Uunna/internet/web-browsers/Courier0.5/NHttpLib-3.1.pkg", "Uunna/internet/web-browsers/Courier0.5/NTox-1.6.1.pkg" });
-		addInstallerScript("Open Courier Browser", new StringList { "SGetRoot().|Courier:40Hz|:Open();" });
-		// -- Developers
-		addInstallerTitle("Developer Apps");
-		addInstallerGroup("ViewFrame 1.3b");
-		addInstallerPackage("ViewFrame packages", new StringList { "WThis will install eight packages on your Newton\nwhich may take a little while.", "Uunna/development/tools/ViewFrame1.3b/PROGKEYB.PKG", "Uunna/development/tools/ViewFrame1.3b/VFEDITOR.PKG", "Uunna/development/tools/ViewFrame1.3b/VFFUNCTI.PKG", "Uunna/development/tools/ViewFrame1.3b/VFGENERA.PKG", "Uunna/development/tools/ViewFrame1.3b/VFINTERC.PKG", "Uunna/development/tools/ViewFrame1.3b/VIEWFRAM.PKG", "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFDANTE.PKG", "Uunna/development/tools/ViewFrame1.3b/ONLYFOR2/VFKEYS.PKG" });
-	}
-	wInstallerWindow->show();
-}
-
 // MARK: -
 // ---  Events from within the meulator
 
@@ -1088,17 +918,6 @@ TFLApp::ResizeFromNewton(int w, int h)
 }
 
 // MARK: - Private: -
-
-void
-TFLApp::InitFLTK(int argc, char** argv)
-{
-	Fl::scheme("gtk+");
-	Fl::args(argc, argv);
-	Fl::get_system_colors();
-	Fl::use_high_res_GL(1);
-	Fl::visual(FL_RGB);
-	Fl_Tooltip::size(12);
-}
 
 void
 TFLApp::InitSettings()
@@ -1500,134 +1319,6 @@ clip_callback(int source, void* data)
 	}
 }
 
-static void
-draw_ramp(int x, int y, int w, int h, Fl_Color c)
-{
-	for (int i = y; i < y + h; i++)
-	{
-		fl_color(fl_color_average(FL_BACKGROUND_COLOR, c, i / 100.0));
-		// fl_rectf(x, y, w, h, Fl::box_color(c));
-		fl_xyline(x, i, x + w);
-	}
-}
-
-static void
-tabs_box(int x, int y, int w, int h, Fl_Color c)
-{
-	const int barHgt = 1;
-	fl_rectf(x, y, w, barHgt, fl_color_average(FL_FOREGROUND_COLOR, c, 0.5));
-	fl_rectf(x, y + barHgt, w, h - barHgt, c);
-}
-
-static const char*
-tfl_file_chooser(const char* message, const char* pat, const char* fname, FileChooser type)
-{
-#if UPDATED_TARGET_OS_LINUX
-	char pattern[FL_PATH_MAX];
-	pattern[0] = 0;
-	if (pat)
-	{
-		const char* s = pat;
-		char* d = pattern;
-		Boolean brackets = false;
-		while (*s)
-		{
-			char c = *s++;
-			if (c == '\t')
-			{
-				*d++ = ' ';
-				*d++ = '(';
-				brackets = true;
-			} else if (c == '\n' && brackets)
-			{
-				*d++ = ')';
-				*d++ = '\t';
-			} else
-			{
-				*d++ = c;
-			}
-		}
-		*d = 0;
-	}
-	return fl_file_chooser(message, pattern[0] ? pattern : nullptr, fname);
-#else
-	static char tfl_file_chooser_filename[FL_PATH_MAX];
-	char name[FL_PATH_MAX];
-	name[0] = 0;
-	char fdir[FL_PATH_MAX];
-	fdir[0] = 0;
-
-	if (fname && *fname)
-	{
-		const char* n = fl_filename_name(fname);
-		if (n)
-		{
-			int len = n - fname;
-			strcpy(name, n);
-			strncpy(fdir, fname, len);
-			fdir[len] = 0;
-		} else
-		{
-			strcpy(name, fname);
-		}
-	}
-
-	Fl_Native_File_Chooser fnfc;
-	fnfc.title(message);
-	switch (type)
-	{
-        case FileChooser::SaveFile:
-			fnfc.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
-			fnfc.options(Fl_Native_File_Chooser::NEW_FOLDER | Fl_Native_File_Chooser::USE_FILTER_EXT);
-			break;
-        case FileChooser::OpenFile:
-			fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
-			fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
-			break;
-        case FileChooser::ChooseDirectory:
-			fnfc.type(Fl_Native_File_Chooser::BROWSE_DIRECTORY);
-			fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
-			break;
-	}
-	fnfc.filter(pat);
-	fnfc.directory(fdir);
-	fnfc.preset_file(name);
-	switch (fnfc.show())
-	{
-		case -1:
-			return nullptr; // Error text is in fnfc.errmsg()
-		case 1:
-			return nullptr; // user canceled
-	}
-	if (fnfc.filename())
-	{
-		strcpy(tfl_file_chooser_filename, fnfc.filename());
-		return tfl_file_chooser_filename;
-	} else
-	{
-		return nullptr;
-	}
-#endif
-}
-
-const char*
-TFLApp::ChooseExistingFile(const char* message, const char* pat, const char* fname)
-{
-	return tfl_file_chooser(message, pat, fname, FileChooser::OpenFile);
-}
-
-const char*
-TFLApp::ChooseExistingDirectory(const char* message, const char* pat, const char* fname)
-{
-	return tfl_file_chooser(message, pat, fname, FileChooser::ChooseDirectory);
-}
-
-const char*
-TFLApp::ChooseNewFile(const char* message, const char* pat, const char* fname)
-{
-	return tfl_file_chooser(message, pat, fname, FileChooser::SaveFile);
-}
-
 /**
  This is the first function that is called on all platforms.
 
@@ -1643,10 +1334,6 @@ main(int argc, char** argv)
 		fl_alert("Warning: FLTK ABI versions don't match:\n%d", FL_ABI_VERSION);
 	}
 	Fl::add_clipboard_notify(clip_callback);
-	Fl::set_boxtype(FL_FREE_BOXTYPE, draw_ramp, 0, 0, 0, 0);
-	Fl::set_boxtype((Fl_Boxtype) (FL_FREE_BOXTYPE + 1), draw_ramp, 0, 0, 0, 0);
-	Fl::set_boxtype((Fl_Boxtype) (FL_FREE_BOXTYPE + 2), tabs_box, 0, 2, 0, 0);
-	Fl::set_boxtype((Fl_Boxtype) (FL_FREE_BOXTYPE + 3), tabs_box, 0, 2, 0, 0);
 
 	gApp = new TFLApp();
 	gApp->Run(argc, argv);

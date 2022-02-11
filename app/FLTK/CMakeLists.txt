@@ -15,6 +15,10 @@ list ( APPEND common_sources
 list ( APPEND app_sources
 	app/FLTK/TFLApp.cpp
 	app/FLTK/TFLApp.h
+	app/FLTK/TFLApp_Essentials.cpp
+	app/FLTK/TFLApp_Essentials.h
+	app/FLTK/TFLApp_Graphics.cpp
+	app/FLTK/TFLApp_Graphics.h
 	app/FLTK/TFLAppUI.fl
 	app/FLTK/TFLAppUI.cpp
 	app/FLTK/TFLAppUI.h
