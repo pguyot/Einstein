@@ -1086,8 +1086,7 @@ mSettingsPanel->hide();}
   }
   if (wSysMenubar) {
     wSysMenubar->update();
-  }} {selected
-    }
+  }} {}
   }
   Function {revertDialog()} {open return_type void
   } {
@@ -1411,7 +1410,7 @@ if (choice && choice->callback()) {
     choice->callback_(RMB, choice->user_data_);
 }} {}
   }
-  declblock {\#if TARGET_OS_MAC} {open after {\#endif}
+  declblock {\#if TARGET_OS_MAC} {open selected public after {\#endif}
   } {
     decl {Fl_Sys_Menu_Bar *wSysMenubar = nullptr;} {public local
     }
