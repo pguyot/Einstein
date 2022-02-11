@@ -1144,21 +1144,20 @@ void
 TFLApp::InitScreen()
 {
 	int portraitWidth = mFLSettings->screenWidth;
-  int windowWidth = (int)(portraitWidth * (mFLSettings->screenScale / 100.0));
+	int windowWidth = (int)(portraitWidth * (mFLSettings->screenScale / 100.0));
 	int portraitHeight = mFLSettings->screenHeight;
-  int windowHeight = (int)(portraitHeight * (mFLSettings->screenScale / 100.0));
+	int windowHeight = (int)(portraitHeight * (mFLSettings->screenScale / 100.0));
 
 	Fl_Group::current(nullptr);
-	wAppWindow = CreateApplicationWindow(
-		mFLSettings->mAppWindowPosX,
-		mFLSettings->mAppWindowPosY);
+	wAppWindow = CreateApplicationWindow(mFLSettings->mAppWindowPosX,
+										 mFLSettings->mAppWindowPosY);
 
 	// -- calculate the height of the screen
 	int emulatorScreenY = 0;
 	// will there be a menu bar?
 	if (mFLSettings->mShowMenubar) {
-		wMenubar->resize(0, 0, windowWidth, wMenubar->h());
-    emulatorScreenY += wMenubar->h();
+		wMenubar->position(0, 0);
+		emulatorScreenY += wMenubar->h();
 		wMenubar->show();
 	} else {
 #if TARGET_OS_MAC
@@ -1173,7 +1172,7 @@ TFLApp::InitScreen()
 	}
 	// will there be a tool bar
 	if (mFLSettings->mShowToolbar) {
-		wToolbar->resize(0, emulatorScreenY, windowWidth, wToolbar->h());
+		wToolbar->position(0, emulatorScreenY);
 		emulatorScreenY += wToolbar->h();
 		wToolbar->show();
 	} else {
@@ -1181,6 +1180,8 @@ TFLApp::InitScreen()
 	}
 
 	wAppWindow->size(windowWidth, windowHeight + emulatorScreenY);
+	if (windowWidth>portraitWidth)
+		wAppWindow->size_range(portraitWidth, portraitHeight + emulatorScreenY);
 	wAppWindow->resizable(nullptr);
 #if TARGET_OS_WIN32
 	wAppWindow->icon((char*) LoadIcon(fl_display, MAKEINTRESOURCE(101)));
@@ -1195,7 +1196,7 @@ TFLApp::InitScreen()
 	TFLScreenManager* flScreenManager = new TFLScreenManager(this, mLog, portraitWidth, portraitHeight, false, false);
 	mNewtonScreen = flScreenManager->GetWidget();
 	mScreenManager = flScreenManager;
-  mNewtonScreen->resize(0, emulatorScreenY, windowWidth, windowHeight);
+	mNewtonScreen->resize(0, emulatorScreenY, windowWidth, windowHeight);
 	wAppWindow->end();
 
 	if (mFLSettings->mAllowScreenResize)

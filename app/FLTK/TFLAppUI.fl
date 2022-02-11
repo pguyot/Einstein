@@ -154,7 +154,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
       } {
         MenuItem {} {
           label {Initial SIze}
-          callback {gApp->UserActionOriginalScreenSize();} selected
+          callback {gApp->UserActionOriginalScreenSize();}
           xywh {0 0 100 20}
         }
         MenuItem wMenuItemFullscreen {
@@ -206,7 +206,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         }
       }
     }
-    Fl_Group wToolbar {open
+    Fl_Group wToolbar {open selected
       xywh {0 24 320 54} box THIN_UP_BOX color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
     } {
@@ -261,7 +261,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         image {../../Resources/icons/button_network_in.png} xywh {196 39 14 15} hide
       }
       Fl_Box wSpacer {
-        xywh {184 24 28 54} box THIN_UP_BOX hide resizable
+        xywh {165 24 87 54} color 52 hide deactivate resizable
       }
       Fl_Button {} {
         label {Install Package}
