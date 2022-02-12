@@ -402,24 +402,36 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open
           xywh {10 35 430 375}
         } {
           Fl_Group {} {open
             xywh {120 50 275 25}
           } {
-            Fl_Input wMPConfigName {
+            Fl_Choice wConfigChoice {
               label {Configuration: }
-              tooltip {give this MessagePad configuration a name} xywh {120 50 160 25} color 54 deactivate
-              code0 {o->value("default");}
-            }
-            Fl_Button wMPConfigMenuButton {
-              label {@2>}
-              tooltip {choose another configuration for editing} xywh {280 50 25 25} labelcolor 40 deactivate
-            }
+              callback {const Fl_Menu_Item *mi = wConfigChoice->mvalue();
+if (mi) {
+  const char *uuid = (const char*)mi->user_data();
+  applyDialog();
+  savePreferences();
+  chooseConfig(uuid);
+  loadPreferences();
+  revertDialog();
+}} open
+              xywh {120 50 185 25} down_box BORDER_BOX
+            } {}
             Fl_Button wMPConfigAddButton {
               label {+}
-              tooltip {add another hardware configuration} xywh {305 50 25 25} labelfont 4 labelsize 18 deactivate
+              callback {const char *newName = fl_input("Choose a name for the new machine configuration.", mConfigList[mActiveConfigUUID].c_str());
+if (newName) {
+  applyDialog();
+  savePreferences();
+  dupConfig(newName);
+  loadPreferences();
+  revertDialog();
+}}
+              tooltip {add another hardware configuration} xywh {305 50 25 25} labelfont 4 labelsize 18
             }
             Fl_Button wMPConfigRemoveButton {
               label {-}
@@ -1128,6 +1140,18 @@ mSettingsPanel->hide();}
   } {
     code {char buf[32];
 
+int i = 0, ix = 0;
+wConfigChoice->clear();
+for (auto &&cf: mConfigList) {
+  char *uuid = strdup(cf.first.c_str());
+  char *name = strdup(cf.second.c_str());
+  wConfigChoice->add(name, 0, nullptr, uuid);
+  if (cf.first==mActiveConfigUUID)
+    ix = i;
+  i++;
+}
+wConfigChoice->value(ix);
+
 // ---- MessagePad
 
 wROMName->value(fl_filename_name(ROMPath));
@@ -1183,7 +1207,8 @@ wGitRepoPath->value(mGitRepoPath);
 
 wDontShow->value(dontShow);
 
-updateMenus();} {}
+updateMenus();} {selected
+    }
   }
   Function {applyDialog()} {open return_type void
   } {
@@ -1376,7 +1401,7 @@ win->hide();} {}
       label {About Einstein}
       user_data wAbout
       callback {o->hide();} open
-      xywh {451 216 340 260} type Double resizable non_modal size_range {340 260 340 0} visible
+      xywh {521 215 340 260} type Double resizable non_modal size_range {340 260 340 0} visible
     } {
       Fl_Group {} {open
         xywh {10 30 320 180} hide resizable

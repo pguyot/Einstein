@@ -26,7 +26,9 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include <string>
 #include <vector>
+#include <unordered_map>
 
 class Fl_Double_Window;
 class Fl_Preferences;
@@ -144,7 +146,11 @@ public:
 	void ShowSettingsPanel();
 	void setAppPath(const char* AppPath);
 	void loadPreferences();
+	void loadConfig(Fl_Preferences &prefs);
+	void dupConfig(std::string newName);
+	void chooseConfig(std::string uuid);
 	void savePreferences();
+	void saveConfig(Fl_Preferences &prefs);
 
 	const char* GetROMDetails(const char* inFilename);
 
@@ -167,7 +173,7 @@ public:
 	char* FlashPath = nullptr;
 	int screenWidth;
 	int screenHeight;
-  int screenScale = 100;
+	int screenScale = 100;
 	int hideMouse;
 	int fullScreen;
 	int RAMSize;
@@ -202,6 +208,9 @@ public:
 	char* mGitRepoPath = nullptr;
 
 	std::vector<TFLPCCardSettings*> mCardList;
+
+	std::string mActiveConfigUUID;
+	std::unordered_map<std::string, std::string> mConfigList;
 };
 
 #endif // T_FL_SETTINGS_H

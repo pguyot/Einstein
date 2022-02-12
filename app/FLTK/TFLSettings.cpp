@@ -231,34 +231,50 @@ TFLSettings::setAppPath(const char* AppPath)
 		*end = 0;
 }
 
+char get(Fl_Preferences &prefs, const char *name, std::string &dst, const char *dflt)
+{
+	char buf[FL_PATH_MAX];
+	char ret = prefs.get(name, buf, dflt, FL_PATH_MAX);
+	dst = buf;
+	return ret;
+}
+
 void
 TFLSettings::loadPreferences()
 {
-	char buf[FL_PATH_MAX];
-
 	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
 
+	// ---- List all Configurations
+	Fl_Preferences configurations(prefs, "Configurations");
+	mConfigList.clear();
+	for (int i=0; i<configurations.groups(); i++) {
+		std::string uuid = configurations.group(i);
+		Fl_Preferences config(configurations, uuid.c_str());
+		std::string name;
+		get(config, "Name", name, "MessagePad");
+		mConfigList[uuid] = name;
+	}
+	// ---- If there are none, load the old-style prefs
+	if (mConfigList.size()==0) {
+		std::string uuid = Fl_Preferences::new_UUID();
+		std::string name = "MessagePad";
+		loadConfig(prefs);
+		Fl_Preferences config(configurations, uuid.c_str());
+		saveConfig(config);
+	}
+	// ---- Load the active config, or the first one, if no active config is defined
+	get(prefs, "ActiveConfigUUID", mActiveConfigUUID, "");
+	if (mActiveConfigUUID=="") {
+		mActiveConfigUUID = configurations.group(0);
+		prefs.set("ActiveConfigUUID", mActiveConfigUUID.c_str());
+	}
+	Fl_Preferences config(configurations, mActiveConfigUUID.c_str());
+	loadConfig(config);
+
+	// TODO: old style preferences
 	// general preferences
 	prefs.get("dontShow", dontShow, 0);
 
-	// ROM Preferences
-	Fl_Preferences rom(prefs, "ROM");
-	{
-		buf[0] = 0;
-		strncat(buf, appPath, sizeof(buf) - 1);
-		strncat(buf, "717006", sizeof(buf) - 1);
-		rom.get("path", ROMPath, buf);
-		rom.get("builtInRex", mUseBuiltinRex, true);
-	}
-
-	// Flash Preferences
-	Fl_Preferences flash(prefs, "Flash");
-	{
-		buf[0] = 0;
-		prefs.getUserdataPath(buf, FL_PATH_MAX - 15);
-		strncat(buf, "internal.flash", sizeof(buf) - 1);
-		flash.get("path", FlashPath, buf);
-	}
 
 	// screen preferences
 	Fl_Preferences screen(prefs, "Screen");
@@ -283,18 +299,6 @@ TFLSettings::loadPreferences()
 		screen.get("ShowMenubar", mShowMenubar, 1);
 #endif
 		screen.get("ShowToolbar", mShowToolbar, 1);
-	}
-
-	// Memory preferences
-	Fl_Preferences memory(prefs, "Memory");
-	{
-		memory.get("RAMSize", RAMSize, 64);
-	}
-
-	// system preferences
-	Fl_Preferences newtSystem(prefs, "System");
-	{
-		newtSystem.get("FetchDateAndTime", mFetchDateAndTime, 1);
 	}
 
 	// --- PCMCIA Card settings
@@ -333,6 +337,60 @@ TFLSettings::loadPreferences()
 	}
 }
 
+/**
+ Load a machine configuration from the preferences.
+ */
+void TFLSettings::loadConfig(Fl_Preferences &prefs)
+{
+	char buf[FL_PATH_MAX];
+	Fl_Preferences rom(prefs, "ROM");
+	{
+		buf[0] = 0;
+		strncat(buf, appPath, sizeof(buf) - 1);
+		strncat(buf, "717006", sizeof(buf) - 1);
+		rom.get("path", ROMPath, buf);
+		rom.get("builtInRex", mUseBuiltinRex, true);
+	}
+	Fl_Preferences flash(prefs, "Flash");
+	{
+		buf[0] = 0;
+		prefs.getUserdataPath(buf, FL_PATH_MAX - 15);
+		strncat(buf, "internal.flash", sizeof(buf) - 1);
+		flash.get("path", FlashPath, buf);
+	}
+	Fl_Preferences memory(prefs, "Memory");
+	{
+		memory.get("RAMSize", RAMSize, 64);
+	}
+	Fl_Preferences newtSystem(prefs, "System");
+	{
+		newtSystem.get("FetchDateAndTime", mFetchDateAndTime, 1);
+	}
+	// TODO: inserted PCMCIA cards should be stored here.
+}
+
+/**
+ Use the current machine configuration and add it under a different name and UUID
+ */
+void TFLSettings::dupConfig(std::string newName)
+{
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	mActiveConfigUUID = Fl_Preferences::new_UUID();
+	prefs.set("ActiveConfigUUID", mActiveConfigUUID.c_str());
+	Fl_Preferences configurations(prefs, "Configurations");
+	Fl_Preferences config(configurations, mActiveConfigUUID.c_str());
+	config.set("Name", newName.c_str());
+	saveConfig(config);
+}
+
+void TFLSettings::chooseConfig(std::string uuid)
+{
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	prefs.set("ActiveConfigUUID", uuid.c_str());
+	Fl_Preferences configurations(prefs, "Configurations");
+	Fl_Preferences config(configurations, uuid.c_str());
+}
+
 void
 TFLSettings::savePreferences()
 {
@@ -340,26 +398,24 @@ TFLSettings::savePreferences()
 
 	// general preferences
 	prefs.set("dontShow", dontShow);
+	prefs.set("ActiveConfigUUID", mActiveConfigUUID.c_str());
 
-	// ROM Preferences
-	Fl_Preferences rom(prefs, "ROM");
-	{
-		rom.set("path", ROMPath);
-		rom.set("builtInRex", mUseBuiltinRex);
-	}
+	// Save the current machine configuration
+	Fl_Preferences configurations(prefs, "Configurations");
+	Fl_Preferences config(configurations, mActiveConfigUUID.c_str());
+	config.set("Name", mConfigList[mActiveConfigUUID].c_str());
+	saveConfig(config);
+	// For back-compatibiliy, save the machine config here as well
+	saveConfig(prefs);
 
-	// Flash Preferences
-	Fl_Preferences flash(prefs, "Flash");
-	{
-		flash.set("path", FlashPath);
-	}
+
 
 	// screen preferences
 	Fl_Preferences screen(prefs, "Screen");
 	{
 		screen.set("width", screenWidth);
 		screen.set("height", screenHeight);
-    screen.set("scale", screenScale);
+		screen.set("scale", screenScale);
 		screen.set("fullScreen", fullScreen);
 		screen.set("hideMouse", hideMouse);
 
@@ -373,18 +429,6 @@ TFLSettings::savePreferences()
 
 		screen.set("ShowMenubar", mShowMenubar);
 		screen.set("ShowToolbar", mShowToolbar);
-	}
-
-	// Memory preferences
-	Fl_Preferences memory(prefs, "Memory");
-	{
-		memory.set("RAMSize", RAMSize);
-	}
-
-	// system preferences
-	Fl_Preferences newtSystem(prefs, "System");
-	{
-		newtSystem.set("FetchDateAndTime", mFetchDateAndTime);
 	}
 
 	// --- PCMCIA Card settings
@@ -407,6 +451,30 @@ TFLSettings::savePreferences()
 		resources.set("UnnaPath", mUnnaPath);
 		resources.set("MessagepadOrgPath", mMessagepadOrgPath);
 		resources.set("GitRepoPath", mGitRepoPath);
+	}
+}
+
+/**
+ Load a machine configuration from the preferences.
+ */
+void TFLSettings::saveConfig(Fl_Preferences &prefs)
+{
+	Fl_Preferences rom(prefs, "ROM");
+	{
+		rom.set("path", ROMPath);
+		rom.set("builtInRex", mUseBuiltinRex);
+	}
+	Fl_Preferences flash(prefs, "Flash");
+	{
+		flash.set("path", FlashPath);
+	}
+	Fl_Preferences memory(prefs, "Memory");
+	{
+		memory.set("RAMSize", RAMSize);
+	}
+	Fl_Preferences newtSystem(prefs, "System");
+	{
+		newtSystem.set("FetchDateAndTime", mFetchDateAndTime);
 	}
 }
 
