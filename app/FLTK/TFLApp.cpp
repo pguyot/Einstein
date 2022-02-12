@@ -260,11 +260,11 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Monitor/TSymbolList.h"
 
 enum class FileChooser {
-    SaveFile,
-    OpenFile,
-    ChooseDirectory
+	SaveFile,
+	OpenFile,
+	ChooseDirectory
 };
-static const char *tfl_file_chooser(const char* message, const char* pat, const char* fname, FileChooser type);
+static const char* tfl_file_chooser(const char* message, const char* pat, const char* fname, FileChooser type);
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -600,7 +600,7 @@ TFLApp::UserActionInstallPackage()
 {
 	static char* filename = 0L;
 
-    const char *newname = ChooseExistingFile("Install Package...", "Package\t*.pkg", nullptr);
+	const char* newname = ChooseExistingFile("Install Package...", "Package\t*.pkg", nullptr);
 	// "Compressed Package\t*.{sit,sae,hqx,zip,sit.hqx,hqx.sit}");
 	// for (int i=0; i<fnfc.count(); i++) {
 	//    newname = fnfc.filename(i);
@@ -1157,11 +1157,13 @@ TFLApp::InitScreen()
 	// -- calculate the height of the screen
 	int emulatorScreenY = 0;
 	// will there be a menu bar?
-	if (mFLSettings->mShowMenubar) {
+	if (mFLSettings->mShowMenubar)
+	{
 		wMenubar->position(0, 0);
 		emulatorScreenY += wMenubar->h();
 		wMenubar->show();
-	} else {
+	} else
+	{
 #if TARGET_OS_MAC
 		wMenuItemEssentials->flags &= ~FL_MENU_DIVIDER;
 		wMenuItemAbout->hide();
@@ -1173,11 +1175,13 @@ TFLApp::InitScreen()
 		wMenubar->hide();
 	}
 	// will there be a tool bar
-	if (mFLSettings->mShowToolbar) {
+	if (mFLSettings->mShowToolbar)
+	{
 		wToolbar->position(0, emulatorScreenY);
 		emulatorScreenY += wToolbar->h();
 		wToolbar->show();
-	} else {
+	} else
+	{
 		wToolbar->hide();
 	}
 
@@ -1574,15 +1578,15 @@ tfl_file_chooser(const char* message, const char* pat, const char* fname, FileCh
 	fnfc.title(message);
 	switch (type)
 	{
-        case FileChooser::SaveFile:
+		case FileChooser::SaveFile:
 			fnfc.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 			fnfc.options(Fl_Native_File_Chooser::NEW_FOLDER | Fl_Native_File_Chooser::USE_FILTER_EXT);
 			break;
-        case FileChooser::OpenFile:
+		case FileChooser::OpenFile:
 			fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
 			fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
 			break;
-        case FileChooser::ChooseDirectory:
+		case FileChooser::ChooseDirectory:
 			fnfc.type(Fl_Native_File_Chooser::BROWSE_DIRECTORY);
 			fnfc.options(Fl_Native_File_Chooser::USE_FILTER_EXT);
 			break;
