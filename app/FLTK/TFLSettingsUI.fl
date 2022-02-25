@@ -1004,6 +1004,40 @@ if (filename) {
               xywh {36 36 100 20} labelsize 12
             }
           }
+          Fl_Button wDevAsmPathChoose {
+            label {@fileopen}
+            callback {const char *filename = gApp->ChooseExistingFile(
+	"Choose ARM cross assembler",
+	nullptr,
+	wDevAsmPath->value()
+);
+if (filename) {
+    wDevAsmPath->value(filename);
+}}
+            tooltip {Select a local copy of the UNNA archive} xywh {382 320 42 20} labelsize 12 labelcolor 3
+          }
+          Fl_Button wDevObjCopyPathChoose {
+            label {@fileopen}
+            callback {const char *filename = gApp->ChooseExistingFile(
+	"Choose ARM cross objcopy",
+	nullptr,
+	wDevObjCopyPath->value()
+);
+if (filename) {
+    wDevObjCopyPath->value(filename);
+}}
+            tooltip {Select a local copy of the UNNA archive} xywh {382 360 42 20} labelsize 12 labelcolor 3
+          }
+          Fl_Input wDevObjCopyPath {
+            label {ARM objcopy: }
+            tooltip {Link to ARM cross objcopy tool for example:
+/opt/homebrew/bin/arm-none-eabi-objcopywDevAsmPath->value(mDevAsmPath);} xywh {172 360 210 20} labelsize 13 textsize 12
+          }
+          Fl_Input wDevAsmPath {
+            label {ARM assembler: }
+            tooltip {Link to ARM cross assembler, for example:
+/opt/homebrew/bin/arm-none-eabi-as} xywh {172 320 210 20} labelsize 13 textsize 12
+          }
         }
       }
       Fl_Check_Button wDontShow {
@@ -1179,6 +1213,9 @@ wUnnaPath->value(mUnnaPath);
 wMessagepadOrgPath->value(mMessagepadOrgPath);
 wGitRepoPath->value(mGitRepoPath);
 
+wDevAsmPath->value(mDevAsmPath);
+wDevObjCopyPath->value(mDevObjCopyPath);
+
 // ---- Dialog
 
 wDontShow->value(dontShow);
@@ -1233,6 +1270,11 @@ free(mMessagepadOrgPath);
 mMessagepadOrgPath = strdup(wMessagepadOrgPath->value());
 free(mGitRepoPath);
 mGitRepoPath = strdup(wGitRepoPath->value());
+
+free(mDevAsmPath);
+mDevAsmPath = strdup(wDevAsmPath->value());
+free(mDevObjCopyPath);
+mDevObjCopyPath = strdup(wDevObjCopyPath->value());
 
 // Dialog
 

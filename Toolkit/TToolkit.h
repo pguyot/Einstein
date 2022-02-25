@@ -85,6 +85,7 @@ public:
 
 	void PrintStd(const char* text);
 	void PrintErr(const char* text);
+	void PrintErrFile(const char* filename);
 
 private:
 	int ReadScriptResults();

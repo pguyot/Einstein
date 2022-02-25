@@ -1,4 +1,13 @@
 
+Binary Release v2022.5.0
+========================
+
+Toolkit Release Notes
+---------------------
+ - NewtonScript strings can now have a tab character in them
+ - new NS command `MakeBinaryFromARM` translates ARM assembler into binary data
+ 
+
 Binary Release v2022.4.17
 =========================
 

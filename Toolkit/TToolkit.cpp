@@ -29,19 +29,31 @@
 
 /* NOTE:
  This is where the MP2100US ROM interpretes bytecodes "fast"
-	cmp     r0, #207                    @ [ 0x000000CF ] 0x002EE1DC 0xE35000CF - .P..
+ cmp     r0, #207                    @ [ 0x000000CF ] 0x002EE1DC 0xE35000CF - .P..
  and this is the slow version:
-	cmp     r2, #207                    @ [ 0x000000CF ] 0x002F2028 0xE35200CF - .R..
+ cmp     r2, #207                    @ [ 0x000000CF ] 0x002F2028 0xE35200CF - .R..
  We can add a new BC command, BC26 (0xD0nnnn), where nnnn is the line in the
  source code. This would allow the debugger to show where bytecode execution is
  at right now. We should have a BC27 at the start of every bytecode stream that
- gives us an index to teh source file, and an array of source files at the start
+ gives us an index to the source file, and an array of source files at the start
  of the NSOF part in the package. BC31 is the highest possible bytecode.
  TODO: __LINE__ implement a "current line"
  TODO: __FILE__ implement a "current file" as a stack (call...return)
  TODO: the Newt/64 #include statement must push and pop the current filename and line number
  TODO: can we implement single-stepping by just pausing at __LINE__ bytecode?
  TODO: can we use the top bit of the __LINE__ bytecode (or another BC) to indicate a breakpoint?
+
+ To assemple ARM instructions into a binary chunk:
+ > arm-none-eabi-as -march=armv4 -mbig-endian test.s -o test.o
+ > arm-none-eabi-objcopy -O binary -j .text test.o test
+ > hexdump test
+
+ > arm-none-eabi-objdump -d test.o
+ ...
+ 00000000 <.text>:
+ 0:	e1a00001 	mov	r0, r1
+ 4:	e1a0f00e 	mov	pc, lr
+
  */
 
 /*
@@ -55,6 +67,7 @@
 #include "TFLToolkitUI.h"
 #include "TTkScript.h"
 #include "TToolkitPrototypes.h"
+#include "app/FLTK/TFLSettingsUI.h"
 
 #define IGNORE_TNEWT
 #include "Emulator/Platform/TPlatformManager.h"
@@ -64,6 +77,7 @@ extern "C" {
 #include "NewtBC.h"
 #include "NewtCore.h"
 #include "NewtEnv.h"
+#include "NewtFile.h"
 #include "NewtParser.h"
 #include "NewtPkg.h"
 #include "NewtVM.h"
@@ -163,13 +177,22 @@ TToolkit::Hide()
 int
 TToolkit::UserActionNew()
 {
-	int ret = UserActionClose();
-	if (ret < 0)
-		return ret;
+	char prev_file[FL_PATH_MAX];
+	prev_file[0] = 0;
+	const char* fn = mCurrentScript->GetFilename();
+	if (fn)
+	{
+		strncpy(prev_file, fn, sizeof(prev_file));
+	} else
+	{
+		fn = fl_getenv("HOME");
+		if (fn)
+			snprintf(prev_file, sizeof(prev_file), "%s/", fn);
+	}
 
-	const char* filename = fl_file_chooser("New NewtonScript File",
-		"NewtonScript (*.{ns,nscript,script})",
-		nullptr);
+	const char* filename = gApp->ChooseNewFile("New NewtonScript File",
+		"NewtonScript\t*.{ns,nscript,script}",
+		prev_file);
 	if (!filename)
 		return -1;
 
@@ -179,9 +202,9 @@ TToolkit::UserActionNew()
 	if (f)
 	{
 		fclose(f);
-		ret = fl_choice("File already exists.\n\n"
-						"Do you want to overwrite the existing file\n"
-						"with a new, empty script?",
+		int ret = fl_choice("File already exists.\n\n"
+							"Do you want to overwrite the existing file\n"
+							"with a new, empty script?",
 			"Open existing Script", "Overwrite Script", "Abort");
 		if (ret == 0)
 			return -1;
@@ -198,20 +221,35 @@ TToolkit::UserActionNew()
  *
  * Close the current file, notifying the user if it is dirty.
  *
- * Present a file choose to load another existing file from disk.
+ * Present a file chooser to load another existing file from disk.
  */
 int
 TToolkit::UserActionOpen()
 {
+	char prev_file[FL_PATH_MAX];
+	prev_file[0] = 0;
+	const char* fn = mCurrentScript->GetFilename();
+	if (fn)
+	{
+		strncpy(prev_file, fn, sizeof(prev_file));
+	} else
+	{
+		fn = fl_getenv("HOME");
+		if (fn)
+			snprintf(prev_file, sizeof(prev_file), "%s/", fn);
+	}
+
 	int ret = UserActionClose();
 	if (ret < 0)
 		return ret;
 
-	const char* filename = fl_file_chooser("Open NewtonScript File",
-		"NewtonScript (*.{ns,nscript,script})",
-		nullptr);
+	const char* filename = gApp->ChooseExistingFile("Open NewtonScript File",
+		"NewtonScript\t*.{ns,nscript,script}",
+		prev_file);
 	if (!filename)
+	{
 		return -1;
+	}
 
 	// set script to the new filename and load the file
 	mCurrentScript->SetFilename(filename);
@@ -258,9 +296,8 @@ TToolkit::UserActionSave()
 int
 TToolkit::UserActionSaveAs()
 {
-	// TODO: Fix FLTK to allow selecting new & existing files in OS X
-	const char* filename = fl_file_chooser("Save NewtonScript As...",
-		"NewtonScript (*.{ns,nscript,script})",
+	const char* filename = gApp->ChooseNewFile("Save NewtonScript As...",
+		"NewtonScript\t*.{ns,nscript,script}",
 		mCurrentScript->GetFilename());
 	if (!filename)
 		return -1;
@@ -413,6 +450,72 @@ NsMakeBinaryFromString(newtRefArg rcvr, newtRefArg text, newtRefArg klass)
 	return NewtMakeBinaryFromString(klass, NewtRefToString(text), false);
 }
 
+/*
+	peek: {
+		class : 'BinCFunction,
+		code: MakeBinaryFromARM(
+		"	mov		r0, [r1]	\n"	// unreference the first argument
+		"	mov		r0, [r0]	\n"	// and return it
+		"  	mov		pc, lr 		\n"	// return an NS value
+		, 	'data),
+		numArgs: 1,
+		offset: 0
+	}
+ */
+newtRef
+NewtMakeBinaryFromARM(const char* text, bool /*literal*/)
+{
+	auto text_len = strlen(text);
+	// write the string to a temporary file
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	char basename[FL_PATH_MAX];
+	prefs.get_userdata_path(basename, FL_PATH_MAX);
+	char srcfilename[FL_PATH_MAX];
+	strncpy(srcfilename, basename, FL_PATH_MAX);
+	strncat(srcfilename, "inline.s", FL_PATH_MAX);
+	char objfilename[FL_PATH_MAX];
+	strncpy(objfilename, basename, FL_PATH_MAX);
+	strncat(objfilename, "inline.o", FL_PATH_MAX);
+	char binfilename[FL_PATH_MAX];
+	strncpy(binfilename, basename, FL_PATH_MAX);
+	strncat(binfilename, "inline", FL_PATH_MAX);
+	char errfilename[FL_PATH_MAX];
+	strncpy(errfilename, basename, FL_PATH_MAX);
+	strncat(errfilename, "inline.err", FL_PATH_MAX);
+	// run `arm-none-eabi-as -march=armv4 -mbig-endian test.s -o test.o`
+
+	FILE* f = fl_fopen(srcfilename, "wb");
+	fwrite(text, text_len, 1, f);
+	fclose(f);
+	char cmd[4 * FL_PATH_MAX];
+	snprintf(cmd, sizeof(cmd),
+		"\"%s\" -march=armv4 -mbig-endian \"%s\" -o \"%s\" >\"%s\" 2>&1",
+		gApp->GetSettings()->mDevAsmPath,
+		srcfilename, objfilename, errfilename);
+	fl_system(cmd);
+	gToolkit->PrintErrFile(errfilename);
+
+	// run `arm-none-eabi-objcopy -O binary -j .text test.o test`
+	snprintf(cmd, sizeof(cmd),
+		"\"%s\" -O binary -j .text \"%s\" \"%s\" >\"%s\" 2>&1",
+		gApp->GetSettings()->mDevObjCopyPath,
+		objfilename, binfilename, errfilename);
+	fl_system(cmd);
+	gToolkit->PrintErrFile(errfilename);
+
+	newtRef filename_ref = NewtMakeString(binfilename, false);
+	return NsLoadBinary(kNewtRefUnbind, filename_ref);
+}
+
+static newtRef
+NsMakeBinaryFromARM(newtRefArg rcvr, newtRefArg text)
+{
+	(void) rcvr;
+	if (!NewtRefIsString(text))
+		return NewtThrow(kNErrNotAString, text);
+	return NewtMakeBinaryFromARM(NewtRefToString(text), false);
+}
+
 //"AddStepForm(%s, %s);\n", parent()->scriptName(), scriptName());
 //"StepDeclare(%s, %s, '%s);\n", parent()->scriptName(), scriptName(), scriptName());
 // stepAllocateContext [ 'symOfWidget, refToWidget, 'nextSym, nextRef, ...];
@@ -482,6 +585,7 @@ TToolkit::AppBuild()
 	// NEWT_TRACE = true;
 
 	NewtDefGlobalFunc0(NSSYM(MakeBinaryFromString), (void*) NsMakeBinaryFromString, 2, false, (char*) "MakeBinaryFromString(str, sym)");
+	NewtDefGlobalFunc0(NSSYM(MakeBinaryFromARM), (void*) NsMakeBinaryFromARM, 2, false, (char*) "MakeBinaryFromARM(ARM_Instructions, sym)");
 	NewtDefGlobalFunc0(NSSYM(AddStepForm), (void*) NSAddStepForm, 2, false, (char*) "AddStepForm(mainView, scrollClipper);");
 	NewtDefGlobalFunc0(NSSYM(StepDeclare), (void*) NSStepDeclare, 3, false, (char*) "StepDeclare(mainView, scrollClipper, 'scrollClipper);");
 
@@ -586,24 +690,24 @@ TToolkit::AppInstall()
 	TPlatformManager* mgr = mApp->GetPlatformManager();
 
 #if 0
-    // This code installs a global function that can call the Einstein Platform Manager from NewtonScript.
-    // It is currently not needed, but may be used to synchronize and return data from NewtonOS to Einstein.
-    mgr->EvalNewtonScript(
-        "cdata := MakeBinary(20, 'nativeModule);\n"
-        "StuffLong(cdata,  0, -0x16D2C000);\n"  //      stmdb	sp!, { lr }
-        "StuffLong(cdata,  4, -0x1A601FFC);\n"  //      ldr		lr, sym
-        "StuffLong(cdata,  8, -0x11FF15F0);\n"  //      mcr		p10, 0, lr, c0, c0
-        "StuffLong(cdata, 12, -0x17428000);\n"  //      ldmia	sp!, { pc }
-        "StuffLong(cdata, 16,  0x00000122);\n"  // sym: dcd     0x00000122
-        "ff := {\n"
-        "       class : 'BinCFunction,\n"
-        "       code : cdata,\n"
-        "       numArgs: 2,\n"
-        "       offset : 0\n"
-        "};\n"
-        "DefGlobalFn('CallEinstein, func(a, b) call ff with (a, b) );\n"
-        "CallEinstein('x, 'y);\n"
-    );
+	// This code installs a global function that can call the Einstein Platform Manager from NewtonScript.
+	// It is currently not needed, but may be used to synchronize and return data from NewtonOS to Einstein.
+	mgr->EvalNewtonScript(
+						  "cdata := MakeBinary(20, 'nativeModule);\n"
+						  "StuffLong(cdata,  0, -0x16D2C000);\n"  //      stmdb	sp!, { lr }
+						  "StuffLong(cdata,  4, -0x1A601FFC);\n"  //      ldr		lr, sym
+						  "StuffLong(cdata,  8, -0x11FF15F0);\n"  //      mcr		p10, 0, lr, c0, c0
+						  "StuffLong(cdata, 12, -0x17428000);\n"  //      ldmia	sp!, { pc }
+						  "StuffLong(cdata, 16,  0x00000122);\n"  // sym: dcd     0x00000122
+						  "ff := {\n"
+						  "       class : 'BinCFunction,\n"
+						  "       code : cdata,\n"
+						  "       numArgs: 2,\n"
+						  "       offset : 0\n"
+						  "};\n"
+						  "DefGlobalFn('CallEinstein, func(a, b) call ff with (a, b) );\n"
+						  "CallEinstein('x, 'y);\n"
+						  );
 #endif
 
 	// uninstall the current package first
@@ -701,6 +805,21 @@ TToolkit::PrintErr(const char* text)
 {
 	// TODO: highlight text that went to stderr vs. stdout
 	PrintStd(text);
+}
+
+void
+TToolkit::PrintErrFile(const char* filename)
+{
+	FILE* f = fopen(filename, "rb");
+	while (!feof(f))
+	{
+		char buf[FL_PATH_MAX];
+		buf[0] = 0;
+		fgets(buf, sizeof(buf), f);
+		if (buf[0])
+			PrintErr(buf);
+	}
+	fclose(f);
 }
 
 int
