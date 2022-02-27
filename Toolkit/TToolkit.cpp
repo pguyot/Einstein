@@ -24,7 +24,6 @@
 // TODO: Horizontal scrollbar in Inspector must go
 // TODO: ScriptEditor needs its own class and Find/Replace, Cut/Copy/Paste, etc.
 // TODO: Better syntax highlighting
-// TODO: previous files list
 // TODO: single project with multiple files
 // TODO: NTK import
 // TODO: visual editor -> source code
