@@ -2,7 +2,7 @@
 // File:			TFLToolkit.cp
 // Project:			Einstein
 //
-// Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
+// Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,18 +21,23 @@
 // $Id$
 // ==============================
 
-// TODO: spontaneous, improvised, casual, experimental, inpromptu <> planned, formal, serious, orderly, systematic
-// TODO: Build, Install, Run, Stop must know the state we are in to avoid building twice
 // TODO: Horizontal scrollbar in Inspector must go
 // TODO: ScriptEditor needs its own class and Find/Replace, Cut/Copy/Paste, etc.
 // TODO: Better syntax highlighting
+// TODO: previous files list
+// TODO: single project with multiple files
+// TODO: NTK import
+// TODO: visual editor -> source code
+// TODO: assembler error messages could have line numbers
+// TODO: include C++ the same way we included ARM code
+// TODO: byte code to source code decompiler
 
 /* NOTE:
  This is where the MP2100US ROM interpretes bytecodes "fast"
  cmp     r0, #207                    @ [ 0x000000CF ] 0x002EE1DC 0xE35000CF - .P..
  and this is the slow version:
  cmp     r2, #207                    @ [ 0x000000CF ] 0x002F2028 0xE35200CF - .R..
- We can add a new BC command, BC26 (0xD0nnnn), where nnnn is the line in the
+ We could add a new BC command, BC26 (0xD0nnnn), where nnnn is the line in the
  source code. This would allow the debugger to show where bytecode execution is
  at right now. We should have a BC27 at the start of every bytecode stream that
  gives us an index to the source file, and an array of source files at the start
@@ -42,18 +47,6 @@
  TODO: the Newt/64 #include statement must push and pop the current filename and line number
  TODO: can we implement single-stepping by just pausing at __LINE__ bytecode?
  TODO: can we use the top bit of the __LINE__ bytecode (or another BC) to indicate a breakpoint?
-
- To assemple ARM instructions into a binary chunk:
- > arm-none-eabi-as -march=armv4 -mbig-endian test.s -o test.o
- > arm-none-eabi-objcopy -O binary -j .text test.o test
- > hexdump test
-
- > arm-none-eabi-objdump -d test.o
- ...
- 00000000 <.text>:
- 0:	e1a00001 	mov	r0, r1
- 4:	e1a0f00e 	mov	pc, lr
-
  */
 
 /*
@@ -132,6 +125,7 @@ TToolkit::Show()
 
 		wToolkitTerminal->buffer(gTerminalBuffer = new Fl_Text_Buffer());
 		wToolkitTerminal->scrollbar_align(FL_ALIGN_RIGHT);
+		LoadRecentFileMenu();
 
 		// FIXME: allow multiple scripts and multiple panels in a Tab, and a hierarchy of scripts in a Project
 		mCurrentScript = new TTkScript(this);
@@ -190,6 +184,10 @@ TToolkit::UserActionNew()
 			snprintf(prev_file, sizeof(prev_file), "%s/", fn);
 	}
 
+	int ret = UserActionClose();
+	if (ret < 0)
+		return ret;
+
 	const char* filename = gApp->ChooseNewFile("New NewtonScript File",
 		"NewtonScript\t*.{ns,nscript,script}",
 		prev_file);
@@ -213,6 +211,7 @@ TToolkit::UserActionNew()
 		if (ret == 2)
 			mCurrentScript->LoadFile(filename);
 	}
+	UpdateRecentFileMenu(filename);
 	return 0;
 }
 
@@ -224,7 +223,7 @@ TToolkit::UserActionNew()
  * Present a file chooser to load another existing file from disk.
  */
 int
-TToolkit::UserActionOpen()
+TToolkit::UserActionOpen(const char* in_filename)
 {
 	char prev_file[FL_PATH_MAX];
 	prev_file[0] = 0;
@@ -243,23 +242,26 @@ TToolkit::UserActionOpen()
 	if (ret < 0)
 		return ret;
 
-	const char* filename = gApp->ChooseExistingFile("Open NewtonScript File",
-		"NewtonScript\t*.{ns,nscript,script}",
-		prev_file);
-	if (!filename)
+	const char* filename = in_filename;
+	if (!filename || !*filename)
 	{
-		return -1;
+		filename = gApp->ChooseExistingFile("Open NewtonScript File",
+			"NewtonScript\t*.{ns,nscript,script}",
+			prev_file);
+		if (!filename)
+			return -1;
 	}
 
 	// set script to the new filename and load the file
-	mCurrentScript->SetFilename(filename);
 	FILE* f = fopen(filename, "rb");
 	if (!f)
 	{
-		fl_alert("Error reading file\n%s\n%s", mCurrentScript->GetFilename(), strerror(errno));
+		fl_alert("Error reading file\n%s\n%s", filename, strerror(errno));
 	} else
 	{
 		fclose(f);
+		mCurrentScript->SetFilename(filename);
+		UpdateRecentFileMenu(filename);
 		mCurrentScript->LoadFile(filename);
 	}
 	return 0;
@@ -302,6 +304,7 @@ TToolkit::UserActionSaveAs()
 	if (!filename)
 		return -1;
 	mCurrentScript->SetFilename(filename);
+	UpdateRecentFileMenu(filename);
 	mCurrentScript->SetDirty();
 	return UserActionSave();
 }
@@ -322,7 +325,7 @@ TToolkit::UserActionClose()
 			"Unsaved changes.\n\n"
 			"Do you want to save your changes before\n"
 			"closing this script?",
-			"Return to Script", "Save Script", "Discard Script");
+			"Continue Editing", "Save and Close", "Discard Script");
 		if (ret == 0)
 			return -1;
 		if (ret == 1)
@@ -417,6 +420,110 @@ void
 TToolkit::UserActionStop()
 {
 	AppStop();
+}
+
+static void
+set_recent_file_menu_item(int i, const char* path)
+{
+	Fl_Menu_Item* mi = wTKOpenRecentMenu[i];
+	// -- avoid reallocating if path is the same
+	if (mi->user_data_ && strcmp(path, (char*) mi->user_data_) == 0)
+		return;
+	// -- replace the user_data
+	if (mi->user_data_)
+		::free(mi->user_data_);
+	mi->user_data_ = (void*) strdup(path);
+	// -- replace the label
+	if (mi->text && *mi->text != '\n')
+		::free((void*) mi->text);
+	mi->text = strdup(fl_filename_name(path));
+	// -- set flags
+	if (*path)
+	{
+		mi->show();
+		mi->flags &= ~FL_MENU_DIVIDER;
+	} else
+	{
+		mi->hide();
+		if (i > 0)
+			wTKOpenRecentMenu[i - 1]->flags |= FL_MENU_DIVIDER;
+	}
+}
+
+void
+TToolkit::LoadRecentFileMenu()
+{
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	Fl_Preferences recent_files(prefs, "Toolkit/RecentFiles");
+	for (int i = 0; i < 8; i++)
+	{
+		char filename[FL_PATH_MAX];
+		filename[0] = 0;
+		recent_files.get(Fl_Preferences::Name(i), filename, "", FL_PATH_MAX);
+		set_recent_file_menu_item(i, filename);
+	}
+}
+
+void
+TToolkit::SaveRecentFileMenu()
+{
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	Fl_Preferences recent_files(prefs, "Toolkit/RecentFiles");
+	for (int i = 0; i < 8; i++)
+	{
+		recent_files.set(Fl_Preferences::Name(i), (char*) wTKOpenRecentMenu[i]->user_data());
+	}
+}
+
+void
+TToolkit::UpdateRecentFileMenu(const char* new_file)
+{
+	if (!new_file || !*new_file)
+		return;
+	int i;
+	for (i = 0; i < 8; i++)
+	{
+		if (strcmp(new_file, (char*) wTKOpenRecentMenu[i]->user_data()) == 0)
+			break;
+	}
+	if (i == 8)
+	{ // not found
+		auto a = wTKOpenRecentMenu[7]->user_data_;
+		auto b = wTKOpenRecentMenu[7]->text;
+		for (i = 7; i > 0; i--)
+		{
+			wTKOpenRecentMenu[i]->user_data_ = wTKOpenRecentMenu[i - 1]->user_data_;
+			wTKOpenRecentMenu[i]->text = wTKOpenRecentMenu[i - 1]->text;
+			wTKOpenRecentMenu[i]->flags = wTKOpenRecentMenu[i - 1]->flags;
+		}
+		wTKOpenRecentMenu[0]->user_data_ = a;
+		wTKOpenRecentMenu[0]->text = b;
+		set_recent_file_menu_item(0, new_file);
+		SaveRecentFileMenu();
+	} else if (i != 0)
+	{
+		auto a = wTKOpenRecentMenu[i]->user_data_;
+		auto b = wTKOpenRecentMenu[i]->text;
+		for (; i > 0; i--)
+		{
+			wTKOpenRecentMenu[i]->user_data_ = wTKOpenRecentMenu[i - 1]->user_data_;
+			wTKOpenRecentMenu[i]->text = wTKOpenRecentMenu[i - 1]->text;
+			wTKOpenRecentMenu[i]->flags = wTKOpenRecentMenu[i - 1]->flags;
+		}
+		wTKOpenRecentMenu[0]->user_data_ = a;
+		wTKOpenRecentMenu[0]->text = b;
+		SaveRecentFileMenu();
+	}
+}
+
+void
+TToolkit::ClearRecentFileMenu()
+{
+	for (int i = 0; i < 8; i++)
+	{
+		set_recent_file_menu_item(0, "");
+	}
+	SaveRecentFileMenu();
 }
 
 #include <fstream>
@@ -823,13 +930,17 @@ TToolkit::PrintErrFile(const char* filename)
 }
 
 int
-TToolkit::UserActionDecompilePkg()
+TToolkit::UserActionDecompilePkg(const char* in_filename)
 {
 	if (UserActionClose() < 0)
 		return -1;
-	char* filename = fl_file_chooser("Select a Newton Package file", "Package (*.pkg)", nullptr);
-	if (!filename)
-		return -1;
+	const char* filename = in_filename;
+	if (filename == nullptr || *filename == 0)
+	{
+		filename = fl_file_chooser("Select a Newton Package file", "Package (*.pkg)", nullptr);
+		if (!filename)
+			return -1;
+	}
 
 	// FIXME: the string must not be longer than 255 characters!
 	const char* cmd = "global _STDERR_ := \"\";\n"
