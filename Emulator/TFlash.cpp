@@ -142,27 +142,27 @@ TFlash::TFlash(
 		}
 
 		// Fill the empty flash with proper data on block 0.
-		Write(0x444C4453, 0xFFFFFFFF, 0x00000000, 0); // sig?
-		Write(0x4F534344, 0xFFFFFFFF, 0x00000004, 0); // sig?
+		Write(0x444C4453, 0xFFFFFFFF, 0x00000000, 0); // "DLDS", sig?
+		Write(0x4F534344, 0xFFFFFFFF, 0x00000004, 0); // "OSCD", sig?
 		Write(0x0000010C, 0xFFFFFFFF, 0x00000008, 0); // block size? offset to block 1?
 		Write(0x00003916, 0xFFFFFFFF, 0x00000024, 0); // calibration data (?)
 		Write(0x0000465A, 0xFFFFFFFF, 0x00000034, 0); // calibration data (?)
 		Write(0x00008000, 0xFFFFFFFF, 0x0000003C, 0); // calibration data (?)
 		Write(0x00000000, 0xFFFFFFFF, 0x00000040, 0); // manufacture date
-		Write(0x444C4453, 0xFFFFFFFF, 0x00000050, 0); // copy of sig
+		Write(0x444C4453, 0xFFFFFFFF, 0x00000050, 0); // "DLDS", copy of sig
 		Write(0xD7ECCC66, 0xFFFFFFFF, 0x00000054, 0); // some checksum
 		Write(0xFFFFFFFC, 0xFFFFFFFF, 0x00000058, 0); // some number
 		Write(0xFFFFFFFF, 0xFFFFFFFF, 0x0000008C, 0); // if calibration is valid
 
 		// Same on block 1.
-		Write(0x444C4453, 0xFFFFFFFF, 0x00010000, 0); // sig?
-		Write(0x4F534344, 0xFFFFFFFF, 0x00010004, 0); // sig?
+		Write(0x444C4453, 0xFFFFFFFF, 0x00010000, 0); // "DLDS", sig?
+		Write(0x4F534344, 0xFFFFFFFF, 0x00010004, 0); // "OSCD", sig?
 		Write(0x0000010C, 0xFFFFFFFF, 0x00010008, 0); // block size? offset to block 1?
 		Write(0x00003916, 0xFFFFFFFF, 0x00010024, 0); // calibration data (?)
 		Write(0x0000465A, 0xFFFFFFFF, 0x00010034, 0); // calibration data (?)
 		Write(0x00008000, 0xFFFFFFFF, 0x0001003C, 0); // calibration data (?)
 		Write(0x00000000, 0xFFFFFFFF, 0x00010040, 0); // manufacture date
-		Write(0x444C4453, 0xFFFFFFFF, 0x00010050, 0); // copy of sig
+		Write(0x444C4453, 0xFFFFFFFF, 0x00010050, 0); // "DLDS", copy of sig
 		Write(0xD7ECCC66, 0xFFFFFFFF, 0x00010054, 0); // some checksum
 		Write(0xFFFFFFF0, 0xFFFFFFFF, 0x00010058, 0); // some number
 		Write(0xFFFFFFFF, 0xFFFFFFFF, 0x0001008C, 0); // if calibration is valid

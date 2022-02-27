@@ -200,7 +200,7 @@ TToolkit::UserActionNew()
 	if (f)
 	{
 		fclose(f);
-		int ret = fl_choice("File already exists.\n\n"
+		ret = fl_choice("File already exists.\n\n"
 							"Do you want to overwrite the existing file\n"
 							"with a new, empty script?",
 			"Open existing Script", "Overwrite Script", "Abort");
