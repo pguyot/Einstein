@@ -1,4 +1,18 @@
 
+Binary Release v2022.5.0
+========================
+
+User Release Notes
+------------------
+ - new setting to scale the Newton screen at startup
+
+Toolkit Release Notes
+---------------------
+ - NewtonScript strings can now have a tab character in them
+ - new NS command `MakeBinaryFromARM` translates ARM assembler into binary data
+ - Toolkit remembers the recent eight Script files for quick access 
+ 
+
 Binary Release v2022.4.17
 =========================
 

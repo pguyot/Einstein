@@ -2,7 +2,7 @@
 // File:			TFLToolkit.cp
 // Project:			Einstein
 //
-// Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
+// Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,21 +21,25 @@
 // $Id$
 // ==============================
 
-// TODO: spontaneous, improvised, casual, experimental, inpromptu <> planned, formal, serious, orderly, systematic
-// TODO: Build, Install, Run, Stop must know the state we are in to avoid building twice
 // TODO: Horizontal scrollbar in Inspector must go
 // TODO: ScriptEditor needs its own class and Find/Replace, Cut/Copy/Paste, etc.
 // TODO: Better syntax highlighting
+// TODO: single project with multiple files
+// TODO: NTK import
+// TODO: visual editor -> source code
+// TODO: assembler error messages could have line numbers
+// TODO: include C++ the same way we included ARM code
+// TODO: byte code to source code decompiler
 
 /* NOTE:
  This is where the MP2100US ROM interpretes bytecodes "fast"
-	cmp     r0, #207                    @ [ 0x000000CF ] 0x002EE1DC 0xE35000CF - .P..
+ cmp     r0, #207                    @ [ 0x000000CF ] 0x002EE1DC 0xE35000CF - .P..
  and this is the slow version:
-	cmp     r2, #207                    @ [ 0x000000CF ] 0x002F2028 0xE35200CF - .R..
- We can add a new BC command, BC26 (0xD0nnnn), where nnnn is the line in the
+ cmp     r2, #207                    @ [ 0x000000CF ] 0x002F2028 0xE35200CF - .R..
+ We could add a new BC command, BC26 (0xD0nnnn), where nnnn is the line in the
  source code. This would allow the debugger to show where bytecode execution is
  at right now. We should have a BC27 at the start of every bytecode stream that
- gives us an index to teh source file, and an array of source files at the start
+ gives us an index to the source file, and an array of source files at the start
  of the NSOF part in the package. BC31 is the highest possible bytecode.
  TODO: __LINE__ implement a "current line"
  TODO: __FILE__ implement a "current file" as a stack (call...return)
@@ -55,6 +59,7 @@
 #include "TFLToolkitUI.h"
 #include "TTkScript.h"
 #include "TToolkitPrototypes.h"
+#include "app/FLTK/TFLSettingsUI.h"
 
 #define IGNORE_TNEWT
 #include "Emulator/Platform/TPlatformManager.h"
@@ -64,6 +69,7 @@ extern "C" {
 #include "NewtBC.h"
 #include "NewtCore.h"
 #include "NewtEnv.h"
+#include "NewtFile.h"
 #include "NewtParser.h"
 #include "NewtPkg.h"
 #include "NewtVM.h"
@@ -118,6 +124,7 @@ TToolkit::Show()
 
 		wToolkitTerminal->buffer(gTerminalBuffer = new Fl_Text_Buffer());
 		wToolkitTerminal->scrollbar_align(FL_ALIGN_RIGHT);
+		LoadRecentFileMenu();
 
 		// FIXME: allow multiple scripts and multiple panels in a Tab, and a hierarchy of scripts in a Project
 		mCurrentScript = new TTkScript(this);
@@ -163,13 +170,26 @@ TToolkit::Hide()
 int
 TToolkit::UserActionNew()
 {
+	char prev_file[FL_PATH_MAX];
+	prev_file[0] = 0;
+	const char* fn = mCurrentScript->GetFilename();
+	if (fn)
+	{
+		strncpy(prev_file, fn, sizeof(prev_file));
+	} else
+	{
+		fn = fl_getenv("HOME");
+		if (fn)
+			snprintf(prev_file, sizeof(prev_file), "%s/", fn);
+	}
+
 	int ret = UserActionClose();
 	if (ret < 0)
 		return ret;
 
-	const char* filename = fl_file_chooser("New NewtonScript File",
-		"NewtonScript (*.{ns,nscript,script})",
-		nullptr);
+	const char* filename = gApp->ChooseNewFile("New NewtonScript File",
+		"NewtonScript\t*.{ns,nscript,script}",
+		prev_file);
 	if (!filename)
 		return -1;
 
@@ -190,6 +210,7 @@ TToolkit::UserActionNew()
 		if (ret == 2)
 			mCurrentScript->LoadFile(filename);
 	}
+	UpdateRecentFileMenu(filename);
 	return 0;
 }
 
@@ -198,30 +219,48 @@ TToolkit::UserActionNew()
  *
  * Close the current file, notifying the user if it is dirty.
  *
- * Present a file choose to load another existing file from disk.
+ * Present a file chooser to load another existing file from disk.
  */
 int
-TToolkit::UserActionOpen()
+TToolkit::UserActionOpen(const char* in_filename)
 {
+	char prev_file[FL_PATH_MAX];
+	prev_file[0] = 0;
+	const char* fn = mCurrentScript->GetFilename();
+	if (fn)
+	{
+		strncpy(prev_file, fn, sizeof(prev_file));
+	} else
+	{
+		fn = fl_getenv("HOME");
+		if (fn)
+			snprintf(prev_file, sizeof(prev_file), "%s/", fn);
+	}
+
 	int ret = UserActionClose();
 	if (ret < 0)
 		return ret;
 
-	const char* filename = fl_file_chooser("Open NewtonScript File",
-		"NewtonScript (*.{ns,nscript,script})",
-		nullptr);
-	if (!filename)
-		return -1;
+	const char* filename = in_filename;
+	if (!filename || !*filename)
+	{
+		filename = gApp->ChooseExistingFile("Open NewtonScript File",
+			"NewtonScript\t*.{ns,nscript,script}",
+			prev_file);
+		if (!filename)
+			return -1;
+	}
 
 	// set script to the new filename and load the file
-	mCurrentScript->SetFilename(filename);
 	FILE* f = fopen(filename, "rb");
 	if (!f)
 	{
-		fl_alert("Error reading file\n%s\n%s", mCurrentScript->GetFilename(), strerror(errno));
+		fl_alert("Error reading file\n%s\n%s", filename, strerror(errno));
 	} else
 	{
 		fclose(f);
+		mCurrentScript->SetFilename(filename);
+		UpdateRecentFileMenu(filename);
 		mCurrentScript->LoadFile(filename);
 	}
 	return 0;
@@ -258,13 +297,13 @@ TToolkit::UserActionSave()
 int
 TToolkit::UserActionSaveAs()
 {
-	// TODO: Fix FLTK to allow selecting new & existing files in OS X
-	const char* filename = fl_file_chooser("Save NewtonScript As...",
-		"NewtonScript (*.{ns,nscript,script})",
+	const char* filename = gApp->ChooseNewFile("Save NewtonScript As...",
+		"NewtonScript\t*.{ns,nscript,script}",
 		mCurrentScript->GetFilename());
 	if (!filename)
 		return -1;
 	mCurrentScript->SetFilename(filename);
+	UpdateRecentFileMenu(filename);
 	mCurrentScript->SetDirty();
 	return UserActionSave();
 }
@@ -285,7 +324,7 @@ TToolkit::UserActionClose()
 			"Unsaved changes.\n\n"
 			"Do you want to save your changes before\n"
 			"closing this script?",
-			"Return to Script", "Save Script", "Discard Script");
+			"Continue Editing", "Save and Close", "Discard Script");
 		if (ret == 0)
 			return -1;
 		if (ret == 1)
@@ -382,6 +421,110 @@ TToolkit::UserActionStop()
 	AppStop();
 }
 
+static void
+set_recent_file_menu_item(int i, const char* path)
+{
+	Fl_Menu_Item* mi = wTKOpenRecentMenu[i];
+	// -- avoid reallocating if path is the same
+	if (mi->user_data_ && strcmp(path, (char*) mi->user_data_) == 0)
+		return;
+	// -- replace the user_data
+	if (mi->user_data_)
+		::free(mi->user_data_);
+	mi->user_data_ = (void*) strdup(path);
+	// -- replace the label
+	if (mi->text && *mi->text != '\n')
+		::free((void*) mi->text);
+	mi->text = strdup(fl_filename_name(path));
+	// -- set flags
+	if (*path)
+	{
+		mi->show();
+		mi->flags &= ~FL_MENU_DIVIDER;
+	} else
+	{
+		mi->hide();
+		if (i > 0)
+			wTKOpenRecentMenu[i - 1]->flags |= FL_MENU_DIVIDER;
+	}
+}
+
+void
+TToolkit::LoadRecentFileMenu()
+{
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	Fl_Preferences recent_files(prefs, "Toolkit/RecentFiles");
+	for (int i = 0; i < 8; i++)
+	{
+		char filename[FL_PATH_MAX];
+		filename[0] = 0;
+		recent_files.get(Fl_Preferences::Name(i), filename, "", FL_PATH_MAX);
+		set_recent_file_menu_item(i, filename);
+	}
+}
+
+void
+TToolkit::SaveRecentFileMenu()
+{
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	Fl_Preferences recent_files(prefs, "Toolkit/RecentFiles");
+	for (int i = 0; i < 8; i++)
+	{
+		recent_files.set(Fl_Preferences::Name(i), (char*) wTKOpenRecentMenu[i]->user_data());
+	}
+}
+
+void
+TToolkit::UpdateRecentFileMenu(const char* new_file)
+{
+	if (!new_file || !*new_file)
+		return;
+	int i;
+	for (i = 0; i < 8; i++)
+	{
+		if (strcmp(new_file, (char*) wTKOpenRecentMenu[i]->user_data()) == 0)
+			break;
+	}
+	if (i == 8)
+	{ // not found
+		auto a = wTKOpenRecentMenu[7]->user_data_;
+		auto b = wTKOpenRecentMenu[7]->text;
+		for (i = 7; i > 0; i--)
+		{
+			wTKOpenRecentMenu[i]->user_data_ = wTKOpenRecentMenu[i - 1]->user_data_;
+			wTKOpenRecentMenu[i]->text = wTKOpenRecentMenu[i - 1]->text;
+			wTKOpenRecentMenu[i]->flags = wTKOpenRecentMenu[i - 1]->flags;
+		}
+		wTKOpenRecentMenu[0]->user_data_ = a;
+		wTKOpenRecentMenu[0]->text = b;
+		set_recent_file_menu_item(0, new_file);
+		SaveRecentFileMenu();
+	} else if (i != 0)
+	{
+		auto a = wTKOpenRecentMenu[i]->user_data_;
+		auto b = wTKOpenRecentMenu[i]->text;
+		for (; i > 0; i--)
+		{
+			wTKOpenRecentMenu[i]->user_data_ = wTKOpenRecentMenu[i - 1]->user_data_;
+			wTKOpenRecentMenu[i]->text = wTKOpenRecentMenu[i - 1]->text;
+			wTKOpenRecentMenu[i]->flags = wTKOpenRecentMenu[i - 1]->flags;
+		}
+		wTKOpenRecentMenu[0]->user_data_ = a;
+		wTKOpenRecentMenu[0]->text = b;
+		SaveRecentFileMenu();
+	}
+}
+
+void
+TToolkit::ClearRecentFileMenu()
+{
+	for (int i = 0; i < 8; i++)
+	{
+		set_recent_file_menu_item(0, "");
+	}
+	SaveRecentFileMenu();
+}
+
 #include <fstream>
 #include <streambuf>
 #include <string>
@@ -411,6 +554,72 @@ NsMakeBinaryFromString(newtRefArg rcvr, newtRefArg text, newtRefArg klass)
 	if (!NewtRefIsString(text))
 		return NewtThrow(kNErrNotAString, text);
 	return NewtMakeBinaryFromString(klass, NewtRefToString(text), false);
+}
+
+/*
+	peek: {
+		class : 'BinCFunction,
+		code: MakeBinaryFromARM(
+		"	mov		r0, [r1]	\n"	// unreference the first argument
+		"	mov		r0, [r0]	\n"	// and return it
+		"  	mov		pc, lr 		\n"	// return an NS value
+		, 	'data),
+		numArgs: 1,
+		offset: 0
+	}
+ */
+newtRef
+NewtMakeBinaryFromARM(const char* text, bool /*literal*/)
+{
+	auto text_len = strlen(text);
+	// write the string to a temporary file
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	char basename[FL_PATH_MAX];
+	prefs.get_userdata_path(basename, FL_PATH_MAX);
+	char srcfilename[FL_PATH_MAX];
+	strncpy(srcfilename, basename, FL_PATH_MAX);
+	strncat(srcfilename, "inline.s", FL_PATH_MAX);
+	char objfilename[FL_PATH_MAX];
+	strncpy(objfilename, basename, FL_PATH_MAX);
+	strncat(objfilename, "inline.o", FL_PATH_MAX);
+	char binfilename[FL_PATH_MAX];
+	strncpy(binfilename, basename, FL_PATH_MAX);
+	strncat(binfilename, "inline", FL_PATH_MAX);
+	char errfilename[FL_PATH_MAX];
+	strncpy(errfilename, basename, FL_PATH_MAX);
+	strncat(errfilename, "inline.err", FL_PATH_MAX);
+	// run `arm-none-eabi-as -march=armv4 -mbig-endian test.s -o test.o`
+
+	FILE* f = fl_fopen(srcfilename, "wb");
+	fwrite(text, text_len, 1, f);
+	fclose(f);
+	char cmd[4 * FL_PATH_MAX];
+	snprintf(cmd, sizeof(cmd),
+		"\"%s\" -march=armv4 -mbig-endian \"%s\" -o \"%s\" >\"%s\" 2>&1",
+		gApp->GetSettings()->mDevAsmPath,
+		srcfilename, objfilename, errfilename);
+	fl_system(cmd);
+	gToolkit->PrintErrFile(errfilename);
+
+	// run `arm-none-eabi-objcopy -O binary -j .text test.o test`
+	snprintf(cmd, sizeof(cmd),
+		"\"%s\" -O binary -j .text \"%s\" \"%s\" >\"%s\" 2>&1",
+		gApp->GetSettings()->mDevObjCopyPath,
+		objfilename, binfilename, errfilename);
+	fl_system(cmd);
+	gToolkit->PrintErrFile(errfilename);
+
+	newtRef filename_ref = NewtMakeString(binfilename, false);
+	return NsLoadBinary(kNewtRefUnbind, filename_ref);
+}
+
+static newtRef
+NsMakeBinaryFromARM(newtRefArg rcvr, newtRefArg text)
+{
+	(void) rcvr;
+	if (!NewtRefIsString(text))
+		return NewtThrow(kNErrNotAString, text);
+	return NewtMakeBinaryFromARM(NewtRefToString(text), false);
 }
 
 //"AddStepForm(%s, %s);\n", parent()->scriptName(), scriptName());
@@ -482,6 +691,7 @@ TToolkit::AppBuild()
 	// NEWT_TRACE = true;
 
 	NewtDefGlobalFunc0(NSSYM(MakeBinaryFromString), (void*) NsMakeBinaryFromString, 2, false, (char*) "MakeBinaryFromString(str, sym)");
+	NewtDefGlobalFunc0(NSSYM(MakeBinaryFromARM), (void*) NsMakeBinaryFromARM, 2, false, (char*) "MakeBinaryFromARM(ARM_Instructions, sym)");
 	NewtDefGlobalFunc0(NSSYM(AddStepForm), (void*) NSAddStepForm, 2, false, (char*) "AddStepForm(mainView, scrollClipper);");
 	NewtDefGlobalFunc0(NSSYM(StepDeclare), (void*) NSStepDeclare, 3, false, (char*) "StepDeclare(mainView, scrollClipper, 'scrollClipper);");
 
@@ -586,24 +796,24 @@ TToolkit::AppInstall()
 	TPlatformManager* mgr = mApp->GetPlatformManager();
 
 #if 0
-    // This code installs a global function that can call the Einstein Platform Manager from NewtonScript.
-    // It is currently not needed, but may be used to synchronize and return data from NewtonOS to Einstein.
-    mgr->EvalNewtonScript(
-        "cdata := MakeBinary(20, 'nativeModule);\n"
-        "StuffLong(cdata,  0, -0x16D2C000);\n"  //      stmdb	sp!, { lr }
-        "StuffLong(cdata,  4, -0x1A601FFC);\n"  //      ldr		lr, sym
-        "StuffLong(cdata,  8, -0x11FF15F0);\n"  //      mcr		p10, 0, lr, c0, c0
-        "StuffLong(cdata, 12, -0x17428000);\n"  //      ldmia	sp!, { pc }
-        "StuffLong(cdata, 16,  0x00000122);\n"  // sym: dcd     0x00000122
-        "ff := {\n"
-        "       class : 'BinCFunction,\n"
-        "       code : cdata,\n"
-        "       numArgs: 2,\n"
-        "       offset : 0\n"
-        "};\n"
-        "DefGlobalFn('CallEinstein, func(a, b) call ff with (a, b) );\n"
-        "CallEinstein('x, 'y);\n"
-    );
+	// This code installs a global function that can call the Einstein Platform Manager from NewtonScript.
+	// It is currently not needed, but may be used to synchronize and return data from NewtonOS to Einstein.
+	mgr->EvalNewtonScript(
+						  "cdata := MakeBinary(20, 'nativeModule);\n"
+						  "StuffLong(cdata,  0, -0x16D2C000);\n"  //      stmdb	sp!, { lr }
+						  "StuffLong(cdata,  4, -0x1A601FFC);\n"  //      ldr		lr, sym
+						  "StuffLong(cdata,  8, -0x11FF15F0);\n"  //      mcr		p10, 0, lr, c0, c0
+						  "StuffLong(cdata, 12, -0x17428000);\n"  //      ldmia	sp!, { pc }
+						  "StuffLong(cdata, 16,  0x00000122);\n"  // sym: dcd     0x00000122
+						  "ff := {\n"
+						  "       class : 'BinCFunction,\n"
+						  "       code : cdata,\n"
+						  "       numArgs: 2,\n"
+						  "       offset : 0\n"
+						  "};\n"
+						  "DefGlobalFn('CallEinstein, func(a, b) call ff with (a, b) );\n"
+						  "CallEinstein('x, 'y);\n"
+						  );
 #endif
 
 	// uninstall the current package first
@@ -703,14 +913,33 @@ TToolkit::PrintErr(const char* text)
 	PrintStd(text);
 }
 
+void
+TToolkit::PrintErrFile(const char* filename)
+{
+	FILE* f = fopen(filename, "rb");
+	while (!feof(f))
+	{
+		char buf[FL_PATH_MAX];
+		buf[0] = 0;
+		fgets(buf, sizeof(buf), f);
+		if (buf[0])
+			PrintErr(buf);
+	}
+	fclose(f);
+}
+
 int
-TToolkit::UserActionDecompilePkg()
+TToolkit::UserActionDecompilePkg(const char* in_filename)
 {
 	if (UserActionClose() < 0)
 		return -1;
-	char* filename = fl_file_chooser("Select a Newton Package file", "Package (*.pkg)", nullptr);
-	if (!filename)
-		return -1;
+	const char* filename = in_filename;
+	if (filename == nullptr || *filename == 0)
+	{
+		filename = fl_file_chooser("Select a Newton Package file", "Package (*.pkg)", nullptr);
+		if (!filename)
+			return -1;
+	}
 
 	// FIXME: the string must not be longer than 255 characters!
 	const char* cmd = "global _STDERR_ := \"\";\n"

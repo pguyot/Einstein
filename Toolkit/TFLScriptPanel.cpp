@@ -176,6 +176,7 @@ TFLScriptEditor::TFLScriptEditor(int x, int y, int w, int h, const char* label) 
 
 	mTextBuffer->add_modify_callback(style_update_cb, this);
 	mTextBuffer->call_modify_callbacks();
+	mTextBuffer->tab_distance(4);
 }
 
 TFLScriptEditor::~TFLScriptEditor()

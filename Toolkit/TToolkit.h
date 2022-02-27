@@ -45,7 +45,7 @@ public:
 	void Hide();
 
 	int UserActionNew();
-	int UserActionOpen();
+	int UserActionOpen(const char* in_filename = nullptr);
 	int UserActionSave();
 	int UserActionSaveAs();
 	int UserActionClose();
@@ -58,7 +58,7 @@ public:
 	void UserActionPaste();
 	void UserActionFind();
 
-	int UserActionDecompilePkg();
+	int UserActionDecompilePkg(const char* in_filename = nullptr);
 	void UserActionBuild();
 	void UserActionInstall();
 	void UserActionRun();
@@ -83,8 +83,14 @@ public:
 	void LoadSampleCode(int n);
 	void UpdateTitle();
 
+	void LoadRecentFileMenu();
+	void SaveRecentFileMenu();
+	void UpdateRecentFileMenu(const char* new_file = nullptr);
+	void ClearRecentFileMenu();
+
 	void PrintStd(const char* text);
 	void PrintErr(const char* text);
+	void PrintErrFile(const char* filename);
 
 private:
 	int ReadScriptResults();

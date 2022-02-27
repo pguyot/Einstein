@@ -201,6 +201,12 @@ public:
 	// path to the git repository, currently on GitHub
 	char* mGitRepoPath = nullptr;
 
+	// location of ARM cross assembler
+	char* mDevAsmPath = nullptr;
+
+	// location of ARM cross objcopy tool
+	char* mDevObjCopyPath = nullptr;
+
 	std::vector<TFLPCCardSettings*> mCardList;
 };
 

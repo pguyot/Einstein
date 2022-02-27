@@ -12,16 +12,53 @@ decl {\#include "app/FLTK/TFLApp.h"} {private global
 decl {\#include "Toolkit/TFLTerminalPanel.h"} {public global
 }
 
+decl {\#include <FL/Fl_Button.H>} {public global
+}
+
 decl {\#include "Toolkit/TFLScriptPanel.h"} {public global
 }
 
 decl {\#include <FL/fl_draw.H>} {private global
 }
 
+decl {Fl_Menu_Item *wTKOpenRecentMenu[8];} {private global
+}
+
+class TFlDropButton {
+  comment {// This button calls its callback with the text
+// that is dropped on it (for example, a filename)} open : {public Fl_Button}
+} {
+  Function {TFlDropButton(int x, int y, int w, int h, const char *label=nullptr) : Fl_Button(x, y, w, h, label)} {} {
+    code {} {}
+  }
+  Function {handle(int e)} {open protected return_type int
+  } {
+    code {switch (e) {
+  case FL_DND_ENTER: 
+  case FL_DND_DRAG:
+  case FL_DND_RELEASE:
+    return 1;
+  case FL_PASTE:
+    if (callback())
+      do_callback(this, (void*)Fl::event_text());
+    return 1;
+}
+return Fl_Button::handle(e);} {}
+  }
+}
+
+Function {tk_open_recent_cb(Fl_Menu_Item *, void *u)} {open private return_type void
+} {
+  code {char *filename = ::strdup((char*)u);
+gToolkit->UserActionOpen(filename);
+::free(filename);} {selected
+  }
+}
+
 Function {CreateToolkitWindow(int x, int y)} {open
 } {
   Fl_Window wToolkitWindow {open
-    xywh {443 229 720 600} type Double resizable
+    xywh {494 224 720 600} type Double resizable
     code0 {wToolkitWindow->position(x, y);} visible
   } {
     Fl_Menu_Bar wToolkitMenubar {open
@@ -40,7 +77,65 @@ Function {CreateToolkitWindow(int x, int y)} {open
         MenuItem {} {
           label {Open...}
           callback {gToolkit->UserActionOpen();}
-          xywh {0 0 100 20} shortcut 0x40006f divider
+          xywh {0 0 100 20} shortcut 0x40006f
+        }
+        Submenu {} {
+          label {Open Recent} open
+          xywh {0 0 62 20} divider
+        } {
+          MenuItem {wTKOpenRecentMenu[0]} {
+            label {
+}
+            callback tk_open_recent_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {wTKOpenRecentMenu[1]} {
+            label {
+}
+            callback tk_open_recent_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {wTKOpenRecentMenu[2]} {
+            label {
+}
+            callback tk_open_recent_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {wTKOpenRecentMenu[3]} {
+            label {
+}
+            callback tk_open_recent_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {wTKOpenRecentMenu[4]} {
+            label {
+}
+            callback tk_open_recent_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {wTKOpenRecentMenu[5]} {
+            label {
+}
+            callback tk_open_recent_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {wTKOpenRecentMenu[6]} {
+            label {
+}
+            callback tk_open_recent_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {wTKOpenRecentMenu[7]} {
+            label {
+}
+            callback tk_open_recent_cb
+            xywh {0 0 31 20} divider
+          }
+          MenuItem {} {
+            label {Clear Menu}
+            callback {gToolkit->ClearRecentFileMenu();}
+            xywh {0 0 31 20}
+          }
         }
         MenuItem {} {
           label Save
@@ -219,8 +314,18 @@ gToolkit->AppRun();}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}
       }
+      Fl_Button wToolkitDecompile {
+        label {@refresh}
+        user_data 0L
+        callback {gToolkit->UserActionDecompilePkg((char*)v);}
+        tooltip {drop packes here to decompile them} xywh {678 30 32 20} color 52 labelsize 10 labelcolor 48 align 528
+        code0 {o->box(FL_THIN_DOWN_BOX);}
+        code1 {o->down_box(FL_FREE_BOXTYPE);}
+        code2 {o->clear_visible_focus();}
+        class TFlDropButton
+      }
       Fl_Box {} {
-        xywh {92 33 608 28} hide resizable
+        xywh {87 30 584 20} hide resizable
       }
     }
     Fl_Group wToolkitFindGroup {open
@@ -290,7 +395,7 @@ gToolkit->AppRun();}
       Fl_Box {} {
         xywh {50 146 620 404} hide resizable
       }
-      Fl_Group wScriptPanel {selected
+      Fl_Group wScriptPanel {
         xywh {0 114 720 386}
         class TFLScriptPanel
       } {}
