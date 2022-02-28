@@ -1509,11 +1509,14 @@ clip_callback(int source, void* data)
 static void
 draw_ramp(int x, int y, int w, int h, Fl_Color c)
 {
-	for (int i = y; i < y + h; i++)
+	int h1 = (h<100) ? h : 100;
+	for (int i = y; i < y + h1; i++)
 	{
-		fl_color(fl_color_average(FL_BACKGROUND_COLOR, c, i / 100.0));
-		// fl_rectf(x, y, w, h, Fl::box_color(c));
+		fl_color(fl_color_average(FL_BACKGROUND_COLOR, c, ((i-y)/100.0)));
 		fl_xyline(x, i, x + w);
+	}
+	if (h>=100) {
+		fl_rectf(x, y+100, w, h-100, FL_BACKGROUND_COLOR);
 	}
 }
 

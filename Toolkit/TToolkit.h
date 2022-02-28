@@ -2,7 +2,7 @@
 // File:			TToolkit.h
 // Project:			Einstein
 //
-// Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
+// Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ class TTkScript;
 class TTkProject;
 
 /**
- * Toolkit is an integrated developer environment for Einstein, loosely based on NTK.
+ * Toolkit is an integrated developer environment for Einstein.
  */
 class TToolkit
 {
@@ -57,6 +57,8 @@ public:
 	void UserActionCopy();
 	void UserActionPaste();
 	void UserActionFind();
+
+	void UserActionAddProto(const char *protoName);
 
 	int UserActionDecompilePkg(const char* in_filename = nullptr);
 	void UserActionBuild();

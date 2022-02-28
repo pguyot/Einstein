@@ -2,7 +2,7 @@
 // File:			TFLScriptPanel.cpp
 // Project:			Einstein
 //
-// Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
+// Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -68,28 +68,72 @@ TFLScriptPanel::DupSourceCode()
 	return mEditor->buffer()->text();
 }
 
+/**
+ Replace the current script with new text.
+ \param sourcecode new script in utf8 ecoding.
+ */
 void
 TFLScriptPanel::SetSourceCode(const char* sourcecode)
 {
 	mEditor->buffer()->text(sourcecode);
 }
 
+/**
+ Mark script dirty.
+ */
 void
 TFLScriptPanel::SetDirty()
 {
 	mScript->SetDirty();
 }
 
+/**
+ Mark script clean.
+ */
 void
 TFLScriptPanel::ClearDirty()
 {
 	mScript->ClearDirty();
 }
 
+/**
+ Create a Frame for the given proto.
+ \param protoName name of the proto
+ \todo find a good place for adding the template (next free line?, after "\n};*\n", after "STepDeclare", leave it to the user?)
+ \todo how much text should we actually generate for which proto
+ \todo how can we mark text that needs to be modified by the user
+ */
+void
+TFLScriptPanel::AddProtoTemplate(const char *protoName)
+{
+	if (!protoName) return;
+	// get a short version of the proto name
+	char name[64];
+	strcpy(name, "my");
+	if (strncmp(protoName, "cl", 2)==0) {
+		strcat(name, protoName+2);
+	} else if (strncmp(protoName, "proto", 5)==0) {
+		strcat(name, protoName+5);
+	} else {
+		strcat(name, protoName);
+	}
+	// Trust the user with the text insert postion
+	char buf[2048];
+	snprintf(buf, sizeof(buf),
+			 "%s := {\n\t_proto: %s,\n\tviewBounds: RelBounds(10, 10, 100, 20)\n};\n"
+			 "AddStepForm(newt.theForm, %s);\n"
+			 "StepDeclare(newt.theForm, %s, '%s);\n\n",
+			 name, protoName, name, name, name );
+	auto crsr = mEditor->insert_position();
+	mEditor->insert(buf);
+	mEditor->insert_position(crsr);
+}
+
+
 // MARK: - TFLScriptEditor -
 
-// FIXME: the syntax highlighting was taken from the FLTK "C" editor demo and needs to be updated to NewtonScript
-// FIXME: actually, lex and yacc could be used for syntax highlighting... .
+// TODO: the syntax highlighting was taken from the FLTK "C" editor demo and needs to be updated to NewtonScript
+// TODO: actually, lex and yacc could be used for syntax highlighting... .
 
 // Syntax highlighting stuff...
 

@@ -30,6 +30,9 @@
 // TODO: assembler error messages could have line numbers
 // TODO: include C++ the same way we included ARM code
 // TODO: byte code to source code decompiler
+// TODO: pulldown menu to suggest protos based on the parent _proto.
+// TODO: pulldown menus to suggest slots for the current _proto (see NTK/DyneTK)
+// TODO: a connection to a physical MessagePad (see NTK Toolkit/DyneTK)
 
 /* NOTE:
  This is where the MP2100US ROM interpretes bytecodes "fast"
@@ -80,17 +83,27 @@ extern "C" {
 
 #include <cstdlib>
 #include <errno.h>
+#include <fstream>
+#include <streambuf>
+#include <string>
+
 
 Fl_Text_Buffer* gTerminalBuffer = nullptr;
 
 TToolkit* gToolkit = nullptr;
 
+/**
+ Create the Toolkit environment inside the Einstein app.
+ */
 TToolkit::TToolkit(TFLApp* inApp) :
 		mApp(inApp)
 {
 	gToolkit = this;
 }
 
+/**
+ Return all resources to the system.
+ */
 TToolkit::~TToolkit()
 {
 	delete mCurrentScript;
@@ -104,6 +117,12 @@ TToolkit::~TToolkit()
 		::free(mPkgLabel);
 }
 
+/**
+ Show the Toolkit window.
+
+ If the window has not been created yet, use the FLuid generated code to
+ build it. Also use Preferences to show the window at the previous location.
+ */
 void
 TToolkit::Show()
 {
@@ -143,6 +162,11 @@ TToolkit::Show()
 	wToolkitWindow->show();
 }
 
+/**
+ Hide the Toolkit window.
+
+ This does not release any resources.
+ */
 void
 TToolkit::Hide()
 {
@@ -166,6 +190,8 @@ TToolkit::Hide()
  * Present a file chooser to the user to set the filename of a new NewtonScript file.
  * Do not create the file, but create an editor with minimal startup text and the filename set
  * and marked dirty.
+ *
+ * \return a value<0 if creating the script failed for some reason.
  */
 int
 TToolkit::UserActionNew()
@@ -218,8 +244,10 @@ TToolkit::UserActionNew()
  * Close the current file and open a new one from disk.
  *
  * Close the current file, notifying the user if it is dirty.
+ * If the filename is the default `nullptr`, Present a file chooser to load
+ * another existing file from disk.
  *
- * Present a file chooser to load another existing file from disk.
+ * \param in_filename optional file path and name
  */
 int
 TToolkit::UserActionOpen(const char* in_filename)
@@ -270,6 +298,9 @@ TToolkit::UserActionOpen(const char* in_filename)
  * Write this file to disk.
  *
  * If there is no filename given, ask the user for a filename.
+ * If writing failed, we present a dialog box to the user.
+ *
+ * \return a value<0 if the operation failed.
  */
 int
 TToolkit::UserActionSave()
@@ -293,6 +324,8 @@ TToolkit::UserActionSave()
 
 /**
  * Ask the user for a filename, change to the new name, and save the file to disk,
+ *
+ * \return a value<0 if the operation failed.
  */
 int
 TToolkit::UserActionSaveAs()
@@ -314,6 +347,8 @@ TToolkit::UserActionSaveAs()
  * This leaves the user with an empty canvas. Users can simply type away and
  * write NewtonScript commands. They can even them from memory by choosing "Buidl"
  * and install them if the happen to create a package (Toolkit will assign a temp file).
+ *
+ * \return a value<0 if the operation failed (i.e. user canceled the operation).
  */
 int
 TToolkit::UserActionClose()
@@ -353,23 +388,30 @@ void
 TToolkit::UserActionUndo()
 {
 }
+
 void
 TToolkit::UserActionRedo()
 {
 }
+
 void
 TToolkit::UserActionCut()
 {
 }
+
 void
 TToolkit::UserActionCopy()
 {
 }
+
 void
 TToolkit::UserActionPaste()
 {
 }
 
+/**
+ Prepare the GUI so the user can find a string in the script file.
+ */
 void
 TToolkit::UserActionFind()
 {
@@ -381,46 +423,74 @@ TToolkit::UserActionFind()
 	wToolkitFindText->take_focus();
 }
 
+/**
+ User wants to add a user element by generating frame with the given proto.
+ \param protoName name of the new proto
+ */
+void
+TToolkit::UserActionAddProto(const char *protoName)
+{
+	if (mCurrentScript->Panel())
+		mCurrentScript->Panel()->AddProtoTemplate(protoName);
+}
+
+/**
+ User wants to build the current script into a package.
+ */
 void
 TToolkit::UserActionBuild()
 {
-	// TODO: if source is dirty, save
-	// TODO: is source is newer than package, build
-	// TODO: handle errors
+	if (mCurrentScript->GetFilename())
+		mCurrentScript->Save();
 	AppBuild();
+	// TODO: handle build errors
 }
 
+/**
+ User wants to build a package and install it on Einstein.
+ */
 void
 TToolkit::UserActionInstall()
 {
-	// TODO: if source is dirty, save
-	// TODO: is source is newer than package, build
-	// TODO: handle errors
+	if (mCurrentScript->GetFilename())
+		mCurrentScript->Save();
 	AppBuild();
-	// Always install if the pkg exists
-	// TODO: handle errors
+	// TODO: handle build errors
 	AppInstall();
+	// TODO: handle install errors
 }
 
+/**
+ User wants to build, install, and run the current script on Einstein.
+ */
 void
 TToolkit::UserActionRun()
 {
-	// TODO: if source is dirty, save
-	// TODO: is source is newer than package, build
-	// TODO: handle errors
+	if (mCurrentScript->GetFilename())
+		mCurrentScript->Save();
 	AppBuild();
-	// TODO: if newly build, install
+	// TODO: handle build errors
 	AppInstall();
-	// TODO: error, if we can't run the app
+	// TODO: handle install errors
 	AppRun();
+	// TODO: handle run errors
 }
 
+/**
+ Stop the running app on Einstein that corresponds to our script.
+ */
 void
 TToolkit::UserActionStop()
 {
 	AppStop();
 }
 
+/**
+ Take a full filename and path and create a user readable text in the menu.
+
+ \param i index into recent file menu array
+ \param path full path and name of file
+ */
 static void
 set_recent_file_menu_item(int i, const char* path)
 {
@@ -435,7 +505,17 @@ set_recent_file_menu_item(int i, const char* path)
 	// -- replace the label
 	if (mi->text && *mi->text != '\n')
 		::free((void*) mi->text);
-	mi->text = strdup(fl_filename_name(path));
+	// -- copy the entire path, but shorten it with an elipsis if it is too long
+	char *menu_text = strdup(path);
+	int n = strlen(path);
+	if (n>43) {
+		strcpy(menu_text+20, "...");
+		memmove(menu_text+23, menu_text+n-20, 21);
+		mi->text = strdup(menu_text);
+		::free(menu_text);
+	} else {
+		mi->text = menu_text;
+	}
 	// -- set flags
 	if (*path)
 	{
@@ -449,6 +529,9 @@ set_recent_file_menu_item(int i, const char* path)
 	}
 }
 
+/**
+ Load a list of recent file paths and names from the app Preferences.
+ */
 void
 TToolkit::LoadRecentFileMenu()
 {
@@ -463,6 +546,9 @@ TToolkit::LoadRecentFileMenu()
 	}
 }
 
+/**
+ Save a list of recent file paths and names to the app Preferences.
+ */
 void
 TToolkit::SaveRecentFileMenu()
 {
@@ -474,6 +560,15 @@ TToolkit::SaveRecentFileMenu()
 	}
 }
 
+/**
+ Add a file path with name to the list of recently opened files.
+
+ If the file is already in the list, make it the first enty and push all other
+ entries down by one. If the file is not in the list, make it first and push
+ all other filenames down.
+
+ If anything changed, save the list to the app Preferences.
+ */
 void
 TToolkit::UpdateRecentFileMenu(const char* new_file)
 {
@@ -515,6 +610,10 @@ TToolkit::UpdateRecentFileMenu(const char* new_file)
 	}
 }
 
+/**
+ Remove all filepaths from the recent file menu and save an empty list
+ to the app Preferences.
+ */
 void
 TToolkit::ClearRecentFileMenu()
 {
@@ -525,13 +624,15 @@ TToolkit::ClearRecentFileMenu()
 	SaveRecentFileMenu();
 }
 
-#include <fstream>
-#include <streambuf>
-#include <string>
-
-// This is a simple function because newt/64 stores strings internally as UTF8 already
 /**
- * The 'info' element in the Package header wants a binary object containing ASCII without a trailing 0.
+ The 'info' element in the Package header wants a binary object containing ASCII without a trailing 0.
+
+ This is a simple function because newt/64 stores strings internally as UTF8 already.
+
+ \param klass provide a class symbol for the binary
+ \param text in UTF8
+ \param literal see NewtMakeBinary
+ \return a binary object, or `kNewtRefUnbind`
  */
 static newtRef
 NewtMakeBinaryFromString(newtRefArg klass, const char* text, bool literal)
@@ -547,6 +648,13 @@ NewtMakeBinaryFromString(newtRefArg klass, const char* text, bool literal)
 	return kNewtRefUnbind;
 }
 
+/**
+ NewtonScript interface to `NewtMakeBinaryFromString`.
+ \param rcvr ignored
+ \param text UTF8 text ref
+ \param klass ref to class symbol
+ \return a binary object, or throws an exception
+ */
 static newtRef
 NsMakeBinaryFromString(newtRefArg rcvr, newtRefArg text, newtRefArg klass)
 {
@@ -556,7 +664,11 @@ NsMakeBinaryFromString(newtRefArg rcvr, newtRefArg text, newtRefArg klass)
 	return NewtMakeBinaryFromString(klass, NewtRefToString(text), false);
 }
 
-/*
+/**
+ Compile the text filed of the function into a binary object.
+
+ This allows users to inline ARM code directly into a NewtonScript app.
+ \code
 	peek: {
 		class : 'BinCFunction,
 		code: MakeBinaryFromARM(
@@ -567,6 +679,9 @@ NsMakeBinaryFromString(newtRefArg rcvr, newtRefArg text, newtRefArg klass)
 		numArgs: 1,
 		offset: 0
 	}
+ \endcode
+ \param text utf8 formatted source code
+ \return a binary object
  */
 newtRef
 NewtMakeBinaryFromARM(const char* text, bool /*literal*/)
@@ -613,6 +728,12 @@ NewtMakeBinaryFromARM(const char* text, bool /*literal*/)
 	return NsLoadBinary(kNewtRefUnbind, filename_ref);
 }
 
+/**
+ NewtonScript interface to `NewtMakeBinaryFromARM`.
+ \param rcvr ignored
+ \param text UTF8 arm assembly code (note indents and newline formatting)
+ \return a binary object, or throws an exception
+ */
 static newtRef
 NsMakeBinaryFromARM(newtRefArg rcvr, newtRefArg text)
 {
@@ -622,12 +743,13 @@ NsMakeBinaryFromARM(newtRefArg rcvr, newtRefArg text)
 	return NewtMakeBinaryFromARM(NewtRefToString(text), false);
 }
 
-//"AddStepForm(%s, %s);\n", parent()->scriptName(), scriptName());
-//"StepDeclare(%s, %s, '%s);\n", parent()->scriptName(), scriptName(), scriptName());
-// stepAllocateContext [ 'symOfWidget, refToWidget, 'nextSym, nextRef, ...];
-// AddStepForm(mainView, scrollClipper);
-// StepDeclare(mainView, scrollClipper, 'scrollClipper);
-
+/**
+ Implements the NTK function `AddStepForm`.
+ \param rcvr
+ \param form add to this form
+ \param child add this child
+ \return `kNewtRefNIL` or throws an exception.
+ */
 static newtRef
 NSAddStepForm(newtRefArg rcvr, newtRefArg form, newtRefArg child)
 {
@@ -650,6 +772,14 @@ NSAddStepForm(newtRefArg rcvr, newtRefArg form, newtRefArg child)
 	return kNewtRefNIL;
 }
 
+/**
+ Implements the NTK function `StepDeclare`.
+ \param rcvr
+ \param form add to this form
+ \param ref reference to child
+ \param sym symbol to access child
+ \return `kNewtRefNIL` or throws an exception.
+ */
 static newtRef
 NSStepDeclare(newtRefArg rcvr, newtRefArg form, newtRefArg ref, newtRefArg sym)
 {
@@ -678,6 +808,30 @@ NSStepDeclare(newtRefArg rcvr, newtRefArg form, newtRefArg ref, newtRefArg sym)
 	return kNewtRefNIL;
 }
 
+/**
+ Grab the current script from the editor and build a package file.
+
+ Package filename is generated from Script filename.
+ NewtonScript definitions are always loaded first.
+ A default package header is loaded to allow minimal scripts. All aspects of
+ the default header can be overwritten.
+
+ Decalre `kAppName := "AppName:DEVNAME";` to customize the name of your app.
+ Declare `kAppSymbol := 'AppName:DEVNAME;` to identify your app, and
+ declare `kAppLabel := "Hello";` to define the name of your app in the
+ \a Extras folder.
+
+ All package attributes are defined in `newt.app` and `newt.app.parts[0]` and
+ can be modified as needed.
+
+ There is no return code. All error texts are sent to the Toolkit console.
+
+ \note This function does not save the script to a file! If no filename is
+ given, we create a temporary filename for the package.
+
+ \todo add function to easily create app icons and graphics using PNG and GIF
+ images. Do the same for importing sound.
+ */
 void
 TToolkit::AppBuild()
 {
@@ -769,7 +923,7 @@ TToolkit::AppBuild()
 		NcSend0(newt, NSSYM(writePkg));
 	}
 
-	// FIXME: does this work?
+	// TODO: does this work?
 	NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
 	NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
 	outRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
@@ -789,6 +943,14 @@ TToolkit::AppBuild()
 	NewtCleanup();
 }
 
+/**
+ Install a package into the Einstein emulation.
+
+ If an app with that Package Symbol already exists, it will be deleted first.
+
+ The package name is derived from the name of the current script. If the script
+ is unnamed, Toolkit wil generate a temporary name.
+ */
 void
 TToolkit::AppInstall()
 {
@@ -832,6 +994,9 @@ TToolkit::AppInstall()
 	// mgr->EvalNewtonScript("|Einstein:log|(\"Hello, Einstein\n\");");
 }
 
+/**
+ Run an app on Einstein using the current Package Symbol.
+ */
 void
 TToolkit::AppRun()
 {
@@ -846,6 +1011,9 @@ TToolkit::AppRun()
 	::free(buf);
 }
 
+/**
+ Close any app on Einstein using the current Package Symbol.
+ */
 void
 TToolkit::AppStop()
 {
@@ -862,6 +1030,13 @@ TToolkit::AppStop()
 	::free(buf);
 }
 
+/**
+ Send a NewtonScrippt line to Einstein and run it there.
+
+ \note Running NewtonScript this way is limited to 256 characters.
+
+ \param cmd utf8 encoded NewtonScript
+ */
 void
 TToolkit::AppCmd(const char* cmd)
 {
@@ -871,6 +1046,9 @@ TToolkit::AppCmd(const char* cmd)
 
 /**
  * Tell the Toolkit UI to redraw the titlebar.
+ *
+ * This adds an asterisk if the current script is dirty, menaing that it
+ * is different than the saved vorsion of the script.
  */
 void
 TToolkit::UpdateTitle()
@@ -895,6 +1073,11 @@ TToolkit::UpdateTitle()
 	}
 }
 
+/**
+ Print text to the Toolkit terminal window.
+
+ \param text utf8 encoded text
+ */
 void
 TToolkit::PrintStd(const char* text)
 {
@@ -906,6 +1089,13 @@ TToolkit::PrintStd(const char* text)
 	wToolkitTerminal->show_insert_position();
 }
 
+/**
+ Print an error message to the Toolkit terminal window.
+
+ \param text utf8 encoded text
+
+ \todo text should have a different color than regular messages.
+ */
 void
 TToolkit::PrintErr(const char* text)
 {
@@ -913,6 +1103,16 @@ TToolkit::PrintErr(const char* text)
 	PrintStd(text);
 }
 
+/**
+ Print the contents of a file as an error message.
+
+ This is used if the output from an operation was redirected to a file.
+
+ \param filename full path and file name
+
+ \note it would be better if we could differentiate between regular messages
+ and error messages.
+ */
 void
 TToolkit::PrintErrFile(const char* filename)
 {
@@ -928,6 +1128,22 @@ TToolkit::PrintErrFile(const char* filename)
 	fclose(f);
 }
 
+/**
+ Decompile a `.pkg` file.
+
+ Create a NewtonScript document by interpreting the content of a package file.
+
+ This code calls newt/64 for decompilation, which ATM is still highly
+ experimental. The resulting scipt will probably not run without modifications,
+ and functions are currently represented in ByteCode instead of NewtonScript
+ (albeit recompilable into working scripts).
+
+ For better decompilation, please check out the great work of Jason Harper
+ in \a ViewFrame.
+
+ \param in_filename the path to a package file, or `nullptr` to pop up a file dialog box.
+ \return -1 if the user canceled the operation.
+ */
 int
 TToolkit::UserActionDecompilePkg(const char* in_filename)
 {
@@ -999,6 +1215,13 @@ yyerror(char* s)
 		NPSErrorStr('E', s);
 }
 
+/**
+ Load one of the many sample source code files.
+
+ As of Feb 2022, there is exactly one NewtonScript example.
+
+ \param n index into the list of sampel codes.
+ */
 void
 TToolkit::LoadSampleCode(int n)
 {
@@ -1011,6 +1234,13 @@ TToolkit::LoadSampleCode(int n)
 	}
 }
 
+/**
+ Create a temporary package file name for compiling unnnamed Script files.
+
+ The result is not returned, but by calling `SetPkgPath()`.
+
+ \see SetPkgPath()
+ */
 void
 TToolkit::SetTempPkgPath()
 {
@@ -1022,6 +1252,12 @@ TToolkit::SetTempPkgPath()
 	::remove(buf);
 }
 
+/**
+ Set the file path to the package file for this project.
+ This is usually created using the source file path and replacing the file
+ extension with `.pkg`.
+ \param name file path and name.
+ */
 void
 TToolkit::SetPkgPath(const char* name)
 {
@@ -1034,6 +1270,10 @@ TToolkit::SetPkgPath(const char* name)
 		mPkgPath = strdup(name);
 }
 
+/**
+ Set the name of the package, see `newt.app.name`.
+ \param name a name for the package
+ */
 void
 TToolkit::SetPkgName(const char* name)
 {
@@ -1046,6 +1286,10 @@ TToolkit::SetPkgName(const char* name)
 		mPkgName = strdup(name);
 }
 
+/**
+ Set the symbol of the package, see `newt.app.parts[0].data.app`.
+ \param name a symbol for the package
+ */
 void
 TToolkit::SetPkgSymbol(const char* name)
 {
@@ -1058,6 +1302,10 @@ TToolkit::SetPkgSymbol(const char* name)
 		mPkgSymbol = strdup(name);
 }
 
+/**
+ Set the label of the package, see `newt.app.parts[0].data.text`.
+ \param name a label for the package
+ */
 void
 TToolkit::SetPkgLabel(const char* name)
 {
@@ -1072,6 +1320,7 @@ TToolkit::SetPkgLabel(const char* name)
 
 /**
  * Extract project settings from the newt environment.
+ * \return -1 if any resource is missing and print the reason to the terminal
  */
 int
 TToolkit::ReadScriptResults()
@@ -1147,6 +1396,9 @@ TToolkit::ReadScriptResults()
 	return 0;
 }
 
+/**
+ Called whenever the user changes the search text.
+ */
 void
 TToolkit::UserActionFindTextChanged()
 {
@@ -1162,6 +1414,9 @@ TToolkit::UserActionFindTextChanged()
 	}
 }
 
+/**
+ Called whenever the user changes the replacement text.
+ */
 void
 TToolkit::UserActionReplaceTextChanged()
 {
@@ -1174,18 +1429,29 @@ TToolkit::UserActionReplaceTextChanged()
 	}
 }
 
+/**
+ Called whenever the user changes search parameters.
+ */
 void
 TToolkit::UserActionCaseChanged()
 {
 	// empty
+	// TODO: UserActionFindNext() ?
 }
 
+/**
+ Called whenever the user changes search parameters.
+ */
 void
 TToolkit::UserActionRegexChanged()
 {
 	// not yet used
+	// TODO: UserActionFindNext() ?
 }
 
+/**
+ User wants to search backward.
+ */
 void
 TToolkit::UserActionFindPrev()
 {
@@ -1217,6 +1483,12 @@ TToolkit::UserActionFindPrev()
 	}
 }
 
+/**
+ User wants to search forward.
+ \param fromLast if true, continue search, if fals, start at the beginning of the file.
+ \todo fromLast should probably start from the cursor position when the searach
+ was oriiginally started.
+ */
 bool
 TToolkit::UserActionFindNext(bool fromLast)
 {
@@ -1250,11 +1522,18 @@ TToolkit::UserActionFindNext(bool fromLast)
 	return (found == 1);
 }
 
+/**
+ Close the \a search dialog box
+ */
 void
 TToolkit::UserActionFindClose()
 {
+	// TODO: not yet
 }
 
+/**
+ User wants to replace the ext occurence of the search string.
+ */
 void
 TToolkit::UserActionReplaceNext()
 {
@@ -1278,6 +1557,9 @@ TToolkit::UserActionReplaceNext()
 	}
 }
 
+/**
+ User wants to replace all occurences of the search string.
+ */
 void
 TToolkit::UserActionReplaceAll()
 {

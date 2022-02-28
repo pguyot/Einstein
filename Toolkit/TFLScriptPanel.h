@@ -2,7 +2,7 @@
 // File:			TFLScriptPanel.h
 // Project:			Einstein
 //
-// Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
+// Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ class TFLScriptBuffer;
 class TTkScript;
 
 /**
- * This class provides and FLTK UI to edit NewtonScript source code.
+ * This class provides an FLTK UI to edit NewtonScript source code.
  */
 class TFLScriptPanel : public Fl_Group
 {
@@ -62,6 +62,8 @@ public:
 	void SetSourceCode(const char* sourcecode);
 	void SetDirty();
 	void ClearDirty();
+
+	void AddProtoTemplate(const char *protoName);
 
 private:
 	TFLScriptEditor* mEditor = nullptr;
