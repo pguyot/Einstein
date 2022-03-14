@@ -26,6 +26,7 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include <sys/types.h>
 #include <vector>
 
 class Fl_Double_Window;
