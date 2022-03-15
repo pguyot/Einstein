@@ -246,7 +246,7 @@ for (auto &&cmd: *cmdList) {
   } else {
     auto link = expand(cmd);
     if (!link.empty())
-      gApp->InstallPackagesFromURI(link.c_str());    
+      gApp->InstallPackagesFromURI(link.c_str());
   }
 }}
       xywh {10 3 70 20} labelsize 12
@@ -678,7 +678,7 @@ if (ix==-1) {
 	wPCCardListRemove->deactivate();
 	wPCCardProperties->deactivate();
 } else {
-	TFLPCCardSettings *card = mCardList[ix];	
+	TFLPCCardSettings *card = mCardList[ix];
 	if (strcmp(card->GetUUID(), TFLPCCardSettings::kNetworkUUID)==0)
 		wPCCardListRemove->deactivate();
 	else
@@ -847,7 +847,7 @@ strncat(path, imageName, sizeof(path)-1);
 a = gApp->ChooseNewFile("Create this PCMCIA Image file", "*.pccard", path);
 if (!a) goto cleanup;
 strncpy(imageFilename, a, sizeof(imageFilename));
-if (    fl_access(imageFilename, 6)!=0 
+if (    fl_access(imageFilename, 6)!=0
      || strcmp(imageFilename, dataFilename)==0
      || strcmp(imageFilename, cisFilename)==0 )
 {
@@ -1152,7 +1152,7 @@ mSettingsPanel->hide();}
         slot1menu[1].user_data((void*)i);
     }
   }
-\#if TARGET_OS_MAC  
+\#if TARGET_OS_MAC
   if (wSysMenubar) {
     wSysMenubar->update();
   }
@@ -1177,7 +1177,7 @@ else if (RAMSize<=64)
 	wRAMSizeChoice->value(1);
 else if (RAMSize<=128)
 	wRAMSizeChoice->value(1);
-else 	
+else
 	wRAMSizeChoice->value(1);
 
 wFetchDateAndTime->value(mFetchDateAndTime);
@@ -1237,13 +1237,13 @@ mFetchDateAndTime = wFetchDateAndTime->value();
 const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
 if (m)
 	RAMSize = m->argument();
-	
+
 // ---- User Interface
 
 screenWidth = atoi(wWidth->value());
 screenHeight = atoi(wHeight->value());
 screenScale = atoi(wScale->value());
-if (screenScale<=10) 
+if (screenScale<=10)
 	screenScale = 100;
 fullScreen = wFullScreen->value();
 hideMouse = wHideMouse->value();
@@ -1402,7 +1402,8 @@ win->hide();} {}
 "to run on the emulator. He is working on more system conforming serial port drivers."
 
 "<h4><a href=\\"https://github.com/chuma\\">Victor Rehorst</a></li></h4>\\n"
-"Victor keeps CMake and Jam files working.\\n"
+"Victor contributed the original CMake build files and PulseAudio fixes for Linux.\\n"
+"He continues to build Einstein on Fedora Linux, and contribute where and when he can.\\n"
 
 "<h4><a href=\\"https://github.com/jake-b\\">Jake Bordens</a></li></h4>\\n"
 "Jake added CI to Einstein.\\n"
