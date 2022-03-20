@@ -58,7 +58,7 @@ public:
 	void UserActionPaste();
 	void UserActionFind();
 
-	void UserActionAddProto(const char *protoName);
+	void UserActionAddProto(const char* protoName);
 
 	int UserActionDecompilePkg(const char* in_filename = nullptr);
 	void UserActionBuild();

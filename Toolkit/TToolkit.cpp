@@ -89,7 +89,6 @@ extern "C" {
 #include <streambuf>
 #include <string>
 
-
 Fl_Text_Buffer* gTerminalBuffer = nullptr;
 
 TToolkit* gToolkit = nullptr;
@@ -195,13 +194,13 @@ TToolkit::Hide()
  *
  * \return a value<0 if creating the script failed for some reason.
  */
-void testNSOFReader(const char *filename);
+void testNSOFReader(const char* filename);
 
 int
 TToolkit::UserActionNew()
 {
-//  testNSOFReader("/Users/matt/dev/Newton/NewtonDev/NewtonDev/NTK 1.6.4/Platforms/Newton 2.1");
-//  return 0;
+	//  testNSOFReader("/Users/matt/dev/Newton/NewtonDev/NewtonDev/NTK 1.6.4/Platforms/Newton 2.1");
+	//  return 0;
 	char prev_file[FL_PATH_MAX];
 	prev_file[0] = 0;
 	const char* fn = mCurrentScript->GetFilename();
@@ -434,7 +433,7 @@ TToolkit::UserActionFind()
  \param protoName name of the new proto
  */
 void
-TToolkit::UserActionAddProto(const char *protoName)
+TToolkit::UserActionAddProto(const char* protoName)
 {
 	if (mCurrentScript->Panel())
 		mCurrentScript->Panel()->AddProtoTemplate(protoName);
@@ -512,14 +511,16 @@ set_recent_file_menu_item(int i, const char* path)
 	if (mi->text && *mi->text != '\n')
 		::free((void*) mi->text);
 	// -- copy the entire path, but shorten it with an elipsis if it is too long
-	char *menu_text = strdup(path);
+	char* menu_text = strdup(path);
 	int n = strlen(path);
-	if (n>43) {
-		strcpy(menu_text+20, "...");
-		memmove(menu_text+23, menu_text+n-20, 21);
+	if (n > 43)
+	{
+		strcpy(menu_text + 20, "...");
+		memmove(menu_text + 23, menu_text + n - 20, 21);
 		mi->text = strdup(menu_text);
 		::free(menu_text);
-	} else {
+	} else
+	{
 		mi->text = menu_text;
 	}
 	// -- set flags
@@ -1636,7 +1637,6 @@ TToolkit::UserActionReplaceAll()
 	editor->show_insert_position();
 }
 
-
 /*
 
  TemplateArray: [
@@ -1658,35 +1658,37 @@ TToolkit::UserActionReplaceAll()
  -e 'printLength:=9999;printDepth:=1;p(ReadNSOF(LoadBinary("/Users/matt/dev/Newton/NewtonDev/NewtonDev/NTK 1.6.4/Platforms/Newton 2.1")) )'
 */
 
-void testNSOFReader(const char *filename)
+void
+testNSOFReader(const char* filename)
 {
-  if (!filename)
-    filename = fl_file_chooser("Load NSOF File", "*", 0L);
-  if (!filename) return;
+	if (!filename)
+		filename = fl_file_chooser("Load NSOF File", "*", 0L);
+	if (!filename)
+		return;
 
-  const char* argv[] = { "Einstein" };
-  NewtInit(1, argv, 0);
+	const char* argv[] = { "Einstein" };
+	NewtInit(1, argv, 0);
 
-  uint8_t *buffer;
-  FILE *f = fopen(filename, "rb");
-  fseek(f, 0, SEEK_END);
-  int nn = ftell(f);
-  fseek(f, 0, SEEK_SET);
-  buffer = (uint8_t*)malloc(nn);
-  int n = fread(buffer, 1, nn, f);
-  fclose(f);
-  if (n) {
-    NcSetGlobalVar(NSSYM(printLength), NSINT(9999));
-    NcSetGlobalVar(NSSYM(printDepth), NSINT(12));
-    NEWT_DUMPBC = 0;
-    NEWT_INDENT = -2;
+	uint8_t* buffer;
+	FILE* f = fopen(filename, "rb");
+	fseek(f, 0, SEEK_END);
+	int nn = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	buffer = (uint8_t*) malloc(nn);
+	int n = fread(buffer, 1, nn, f);
+	fclose(f);
+	if (n)
+	{
+		NcSetGlobalVar(NSSYM(printLength), NSINT(9999));
+		NcSetGlobalVar(NSSYM(printDepth), NSINT(12));
+		NEWT_DUMPBC = 0;
+		NEWT_INDENT = -2;
 
-    FILE *g = fopen("dump_nsof.txt", "wb");
-    newtRef pkg = NewtReadNSOF(buffer, n);
-    NewtPrintObject(g, pkg);
-    fclose(g);
-
-  }
+		FILE* g = fopen("dump_nsof.txt", "wb");
+		newtRef pkg = NewtReadNSOF(buffer, n);
+		NewtPrintObject(g, pkg);
+		fclose(g);
+	}
 }
 
 // ======================================================================= //

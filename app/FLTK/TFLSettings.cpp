@@ -331,8 +331,8 @@ TFLSettings::loadPreferences()
 		resources.get("MessagepadOrgPath", mMessagepadOrgPath, "http://www.messagepad.org/");
 		resources.get("GitRepoPath", mGitRepoPath, "https://github.com/pguyot/Einstein.git");
 		resources.get("DevArmAsm", mDevAsmPath, "/opt/homebrew/bin/arm-none-eabi-as");
-    resources.get("DevArmObjCopy", mDevObjCopyPath, "/opt/homebrew/bin/arm-none-eabi-objcopy");
-    resources.get("DevArmObjDump", mDevObjDumpPath, "/opt/homebrew/bin/arm-none-eabi-objdump");
+		resources.get("DevArmObjCopy", mDevObjCopyPath, "/opt/homebrew/bin/arm-none-eabi-objcopy");
+		resources.get("DevArmObjDump", mDevObjDumpPath, "/opt/homebrew/bin/arm-none-eabi-objdump");
 	}
 }
 
@@ -412,7 +412,7 @@ TFLSettings::savePreferences()
 		resources.set("GitRepoPath", mGitRepoPath);
 		resources.set("DevArmAsm", mDevAsmPath);
 		resources.set("DevArmObjCopy", mDevObjCopyPath);
-    resources.set("DevArmObjDump", mDevObjDumpPath);
+		resources.set("DevArmObjDump", mDevObjDumpPath);
 	}
 }
 

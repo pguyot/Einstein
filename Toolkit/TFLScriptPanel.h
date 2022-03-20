@@ -64,7 +64,7 @@ public:
 	void SetDirty();
 	void ClearDirty();
 
-	void AddProtoTemplate(const char *protoName);
+	void AddProtoTemplate(const char* protoName);
 
 private:
 	TFLScriptEditor* mEditor = nullptr;
@@ -112,10 +112,11 @@ private:
 class TFLMenuBar : public Fl_Menu_Bar
 {
 public:
-	TFLMenuBar(int x, int y, int w, int h, const char* label=nullptr)
-	: Fl_Menu_Bar(x, y, w, h, label)
+	TFLMenuBar(int x, int y, int w, int h, const char* label = nullptr) :
+			Fl_Menu_Bar(x, y, w, h, label)
 	{
 	}
+
 protected:
 	int handle(int e);
 };

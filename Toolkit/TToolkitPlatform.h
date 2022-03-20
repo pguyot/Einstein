@@ -24,7 +24,6 @@
 #ifndef _T_TOOLKIT_PLATFORM_H
 #define _T_TOOLKIT_PLATFORM_H
 
-
 #endif
 // _T_TOOLKIT_PLATFORM_H
 

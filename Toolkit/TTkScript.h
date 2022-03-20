@@ -44,7 +44,8 @@ public:
 	{
 		mPanel = panel;
 	}
-	TFLScriptPanel* Panel()
+	TFLScriptPanel*
+	Panel()
 	{
 		return mPanel;
 	}

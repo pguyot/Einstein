@@ -204,11 +204,11 @@ public:
 	// location of ARM cross assembler
 	char* mDevAsmPath = nullptr;
 
-  // location of ARM cross objcopy tool
-  char* mDevObjCopyPath = nullptr;
+	// location of ARM cross objcopy tool
+	char* mDevObjCopyPath = nullptr;
 
-  // location of ARM cross objdump tool
-  char* mDevObjDumpPath = nullptr;
+	// location of ARM cross objdump tool
+	char* mDevObjDumpPath = nullptr;
 
 	std::vector<TFLPCCardSettings*> mCardList;
 };

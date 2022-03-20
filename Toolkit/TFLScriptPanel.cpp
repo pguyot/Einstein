@@ -23,8 +23,8 @@
 
 #include "TFLScriptPanel.h"
 
-#include "TToolkit.h"
 #include "TTkScript.h"
+#include "TToolkit.h"
 
 #include <cstdlib>
 #include <ctype.h>
@@ -105,31 +105,34 @@ TFLScriptPanel::ClearDirty()
  \todo how can we mark text that needs to be modified by the user
  */
 void
-TFLScriptPanel::AddProtoTemplate(const char *protoName)
+TFLScriptPanel::AddProtoTemplate(const char* protoName)
 {
-	if (!protoName) return;
+	if (!protoName)
+		return;
 	// get a short version of the proto name
 	char name[64];
 	strcpy(name, "my");
-	if (strncmp(protoName, "cl", 2)==0) {
-		strcat(name, protoName+2);
-	} else if (strncmp(protoName, "proto", 5)==0) {
-		strcat(name, protoName+5);
-	} else {
+	if (strncmp(protoName, "cl", 2) == 0)
+	{
+		strcat(name, protoName + 2);
+	} else if (strncmp(protoName, "proto", 5) == 0)
+	{
+		strcat(name, protoName + 5);
+	} else
+	{
 		strcat(name, protoName);
 	}
 	// Trust the user with the text insert postion
 	char buf[2048];
 	snprintf(buf, sizeof(buf),
-			 "%s := {\n\t_proto: %s,\n\tviewBounds: RelBounds(10, 10, 100, 20)\n};\n"
-			 "AddStepForm(newt.theForm, %s);\n"
-			 "StepDeclare(newt.theForm, %s, '%s);\n\n",
-			 name, protoName, name, name, name );
+		"%s := {\n\t_proto: %s,\n\tviewBounds: RelBounds(10, 10, 100, 20)\n};\n"
+		"AddStepForm(newt.theForm, %s);\n"
+		"StepDeclare(newt.theForm, %s, '%s);\n\n",
+		name, protoName, name, name, name);
 	auto crsr = mEditor->insert_position();
 	mEditor->insert(buf);
 	mEditor->insert_position(crsr);
 }
-
 
 // MARK: - TFLScriptEditor -
 
@@ -576,13 +579,13 @@ TFLScriptEditor::style_update(int pos, // I - Position of update
 int
 TFLMenuBar::handle(int event)
 {
-	if (event==FL_PUSH) {
+	if (event == FL_PUSH)
+	{
 		// update visibility based on the selected proto
 		gToolkit->UpdateMenuBar();
 	}
 	return Fl_Menu_Bar::handle(event);
 }
-
 
 // ============================================================================ //
 // NewtonScript
