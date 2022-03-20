@@ -24,6 +24,8 @@ list (APPEND app_sources
 	Toolkit/TFLTerminalPanel.h
 	Toolkit/TFLScriptPanel.cpp
 	Toolkit/TFLScriptPanel.h
+	Toolkit/TToolkitPlatform.cpp
+	Toolkit/TToolkitPlatform.h
 	Toolkit/TToolkitPrototypes.cpp
 	Toolkit/TToolkitPrototypes.h
 )

@@ -84,6 +84,7 @@ public:
 
 	void LoadSampleCode(int n);
 	void UpdateTitle();
+	void UpdateMenuBar();
 
 	void LoadRecentFileMenu();
 	void SaveRecentFileMenu();

@@ -58,8 +58,7 @@ Function {add_proto_cb(Fl_Menu_Bar *mb, void *)} {open private return_type void
 } {
   code {auto mi = mb->mvalue();
 if (mi)
-  gToolkit->UserActionAddProto(mi->label());} {selected
-  }
+  gToolkit->UserActionAddProto(mi->label());} {}
 }
 
 Function {CreateToolkitWindow(int x, int y)} {open
@@ -68,9 +67,10 @@ Function {CreateToolkitWindow(int x, int y)} {open
     xywh {494 224 720 600} type Double resizable
     code0 {wToolkitWindow->position(x, y);} visible
   } {
-    Fl_Menu_Bar wToolkitMenubar {open
+    Fl_Menu_Bar wToolkitMenubar {open selected
       xywh {0 0 720 24} color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
+      class TFLMenuBar
     } {
       Submenu {} {
         label File open

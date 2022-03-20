@@ -73,8 +73,10 @@ extern "C" {
 #include "NewtCore.h"
 #include "NewtEnv.h"
 #include "NewtFile.h"
+#include "NewtNSOF.h"
 #include "NewtParser.h"
 #include "NewtPkg.h"
+#include "NewtPrint.h"
 #include "NewtVM.h"
 }
 
@@ -193,9 +195,13 @@ TToolkit::Hide()
  *
  * \return a value<0 if creating the script failed for some reason.
  */
+void testNSOFReader(const char *filename);
+
 int
 TToolkit::UserActionNew()
 {
+//  testNSOFReader("/Users/matt/dev/Newton/NewtonDev/NewtonDev/NTK 1.6.4/Platforms/Newton 2.1");
+//  return 0;
 	char prev_file[FL_PATH_MAX];
 	prev_file[0] = 0;
 	const char* fn = mCurrentScript->GetFilename();
@@ -1074,6 +1080,35 @@ TToolkit::UpdateTitle()
 }
 
 /**
+ Update the visibility and activity status of menu items in the menu bar.
+
+ This is supposed to recreate the pulldown menus `Specific`, `Methods`, and
+ `Attributes` in NTK. These menus provide quick access to slot prototypes
+ that are useful in the context of the active proto. Slots that are already
+ used are underlined.
+
+ `NTK 1.6.4/Platforms/Newton 2.1` contains a NSOF database for all supported
+ protos and menus.
+
+ \todo we could find the active _proto by interpreting the script and finding
+ the Frame around the current text cursor, interprete that frame, and find the
+ proto. To make life easier for now, we will search backwards for the word
+ `_proto:` and use the next word as the database lookup.
+
+ \todo pre-read the 2.1 Platform database and store it within Toolkit.
+
+ \todo We could also read the name of the current slot and offer an Edit
+ menu that pops up an NTK style dialog box to edit parameters.
+
+ \todo lastly, I would *love* to provide a quick link to the documentation for
+ a given proto and/or slot.
+ */
+void
+TToolkit::UpdateMenuBar()
+{
+}
+
+/**
  Print text to the Toolkit terminal window.
 
  \param text utf8 encoded text
@@ -1595,6 +1630,59 @@ TToolkit::UserActionReplaceAll()
 	pos = buffer->utf8_align(pos);
 	editor->insert_position(pos);
 	editor->show_insert_position();
+}
+
+
+/*
+
+ TemplateArray: [
+ 'protoFloatNGo,
+ {
+ _proto: 180,
+ __ntAncestor: 'protoFloater,
+ __ntRequired: {
+ viewBounds: "RECT"
+ },
+ __ntOptional: {
+ noScroll: "EVAL",
+ noOverview: "EVAL",
+ viewEffect: "NUMB"
+ }
+ },
+
+
+ -e 'printLength:=9999;printDepth:=1;p(ReadNSOF(LoadBinary("/Users/matt/dev/Newton/NewtonDev/NewtonDev/NTK 1.6.4/Platforms/Newton 2.1")) )'
+*/
+
+void testNSOFReader(const char *filename)
+{
+  if (!filename)
+    filename = fl_file_chooser("Load NSOF File", "*", 0L);
+  if (!filename) return;
+
+  const char* argv[] = { "Einstein" };
+  NewtInit(1, argv, 0);
+
+  uint8_t *buffer;
+  FILE *f = fopen(filename, "rb");
+  fseek(f, 0, SEEK_END);
+  int nn = ftell(f);
+  fseek(f, 0, SEEK_SET);
+  buffer = (uint8_t*)malloc(nn);
+  int n = fread(buffer, 1, nn, f);
+  fclose(f);
+  if (n) {
+    NcSetGlobalVar(NSSYM(printLength), NSINT(9999));
+    NcSetGlobalVar(NSSYM(printDepth), NSINT(12));
+    NEWT_DUMPBC = 0;
+    NEWT_INDENT = -2;
+
+    FILE *g = fopen("dump_nsof.txt", "wb");
+    newtRef pkg = NewtReadNSOF(buffer, n);
+    NewtPrintObject(g, pkg);
+    fclose(g);
+
+  }
 }
 
 // ======================================================================= //

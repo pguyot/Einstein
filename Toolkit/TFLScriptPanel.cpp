@@ -23,6 +23,7 @@
 
 #include "TFLScriptPanel.h"
 
+#include "TToolkit.h"
 #include "TTkScript.h"
 
 #include <cstdlib>
@@ -564,6 +565,24 @@ TFLScriptEditor::style_update(int pos, // I - Position of update
 	free(text);
 	free(style);
 }
+
+// MARK: - TFLMenuBar -
+
+/**
+ Handle menu item activation before the menus pop up.
+ \param event
+ \return 1 if the event was handled here
+ */
+int
+TFLMenuBar::handle(int event)
+{
+	if (event==FL_PUSH) {
+		// update visibility based on the selected proto
+		gToolkit->UpdateMenuBar();
+	}
+	return Fl_Menu_Bar::handle(event);
+}
+
 
 // ============================================================================ //
 // NewtonScript

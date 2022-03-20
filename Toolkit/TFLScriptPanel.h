@@ -28,6 +28,7 @@
 #include "app/FLTK/TFLApp.h"
 
 #include <FL/Fl_Group.H>
+#include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Text_Buffer.H>
 #include <FL/Fl_Text_Editor.H>
 
@@ -106,6 +107,17 @@ private:
 		((TFLScriptEditor*) This)->style_update(pos, nInserted, nDeleted, nRestyled, deletedText);
 	}
 	static void style_unfinished_cb(int, void*);
+};
+
+class TFLMenuBar : public Fl_Menu_Bar
+{
+public:
+	TFLMenuBar(int x, int y, int w, int h, const char* label=nullptr)
+	: Fl_Menu_Bar(x, y, w, h, label)
+	{
+	}
+protected:
+	int handle(int e);
 };
 
 #endif
