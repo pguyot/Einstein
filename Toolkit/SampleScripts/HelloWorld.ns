@@ -23,8 +23,8 @@ helloButton := {
 		ModalConfirm(
 			"Hello World of NewtonScript.\r\rHow exciting to see you!",
 			[ "OK" ]
-	);
-		end,
+		);
+	end,
 	_proto: protoTextButton
 };
 AddStepForm( newt.theForm, helloButton);

@@ -39,7 +39,7 @@ mathResult := {
 			add r0, r1, r2			@ add both integers
 			mov r0, r0, lsl #2		@ convert the result into an integer object
 			mov pc, lr				@ return to the interpreter
-			", 'data)
+			")
 	},
 	newtonScriptMath: func(a, b) begin
 	return a+b;

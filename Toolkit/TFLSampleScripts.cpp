@@ -9,7 +9,7 @@ const char *kToolkitSampleScriptHelloWorld = /* text inlined from SampleScripts/
 oto: protoFloatNGo\n};\n\nhelloButton := {\n\ttext: \"Say Hello\",\n\tviewBoun\
 ds: {\n\t\tleft: 50, top: 25, right: 150, bottom: 50\n\t},\n\tbuttonClickScrip\
 t: func()\n\tbegin\n\t\tModalConfirm(\n\t\t\t\"Hello World of NewtonScript.\\r\
-\\rHow exciting to see you!\",\n\t\t\t[ \"OK\" ]\n\t);\n\t\tend,\n\t_proto: pr\
+\\rHow exciting to see you!\",\n\t\t\t[ \"OK\" ]\n\t\t);\n\tend,\n\t_proto: pr\
 otoTextButton\n};\nAddStepForm( newt.theForm, helloButton);\nStepDeclare( newt\
 .theForm, helloButton, \'helloButton);\n";
 
@@ -28,8 +28,8 @@ r1]\t\t\t@ Unref the first argument\n\t\t\tldr r1, [r1]\t\t\t@ Get the integer\
 2, [r2]\n\t\t\tldr r2, [r2]\t\t\t@ do the same with the second arg\n\t\t\tmov \
 r2, r2, lsr #2\n\t\t\tadd r0, r1, r2\t\t\t@ add both integers\n\t\t\tmov r0, r\
 0, lsl #2\t\t@ convert the result into an integer object\n\t\t\tmov pc, lr\t\t\
-\t\t@ return to the interpreter\n\t\t\t\", \'data)\n\t},\n\tnewtonScriptMath: \
-func(a, b) begin\n\treturn a+b;\n\tend,\n\tViewSetupFormScript: func() begin\n\
-\tSetValue(self, \'text, NumberStr( self:nativeMath(4, 8) ) );\n\tend,\n\ttext\
-: \"Result\",\n\tviewBounds: RelBounds(80, 25, 80, 20)\n};\nAddStepForm(newt.t\
-heForm, mathResult);\nStepDeclare(newt.theForm, mathResult, \'mathResult);\n\n";
+\t\t@ return to the interpreter\n\t\t\t\")\n\t},\n\tnewtonScriptMath: func(a, \
+b) begin\n\treturn a+b;\n\tend,\n\tViewSetupFormScript: func() begin\n\tSetVal\
+ue(self, \'text, NumberStr( self:nativeMath(4, 8) ) );\n\tend,\n\ttext: \"Resu\
+lt\",\n\tviewBounds: RelBounds(80, 25, 80, 20)\n};\nAddStepForm(newt.theForm, \
+mathResult);\nStepDeclare(newt.theForm, mathResult, \'mathResult);\n\n";

@@ -89,6 +89,8 @@ extern "C" {
 #include <fstream>
 #include <streambuf>
 #include <string>
+#include <unistd.h>
+#include <fcntl.h>
 
 Fl_Text_Buffer* gTerminalBuffer = nullptr;
 
@@ -683,7 +685,7 @@ NsMakeBinaryFromString(newtRefArg rcvr, newtRefArg text, newtRefArg klass)
 		"	mov		r0, [r1]	\n"	// unreference the first argument
 		"	mov		r0, [r0]	\n"	// and return it
 		"  	mov		pc, lr 		\n"	// return an NS value
-		, 	'data),
+		),
 		numArgs: 1,
 		offset: 0
 	}
@@ -749,6 +751,132 @@ NsMakeBinaryFromARM(newtRefArg rcvr, newtRefArg text)
 	if (!NewtRefIsString(text))
 		return NewtThrow(kNErrNotAString, text);
 	return NewtMakeBinaryFromARM(NewtRefToString(text), false);
+}
+
+/**
+ Patch a ROM file using the given ARM instructions.
+
+ This function will assemble the ARM instructions in the first string
+ into an object file. Then we read the object file and patch the segment
+ into the binary file.
+
+ \code
+ PatchFileFromARM("
+	.org 0x001412f8
+	ldmdb   r11, {r11, sp, pc} @ return early from screen calibrartion
+	", "myROMFile")
+ \endcode
+ \param text utf8 formatted source code
+ \param filename using the path to the current ROM, or a path plus filename
+ \return a binary object
+ \note This patch function is not perfect. Four or more consecutine 0 bytes
+ may not actually be written.
+ */
+newtRef
+NewtPatchFileFromARM(const char* text, const char* filename, bool /*literal*/)
+{
+	auto text_len = strlen(text);
+	// write the string to a temporary file
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	char basename[FL_PATH_MAX];
+	prefs.get_userdata_path(basename, FL_PATH_MAX);
+	char srcfilename[FL_PATH_MAX];
+	strncpy(srcfilename, basename, FL_PATH_MAX);
+	strncat(srcfilename, "inline.s", FL_PATH_MAX);
+	char objfilename[FL_PATH_MAX];
+	strncpy(objfilename, basename, FL_PATH_MAX);
+	strncat(objfilename, "inline.o", FL_PATH_MAX);
+	char disfilename[FL_PATH_MAX];
+	strncpy(disfilename, basename, FL_PATH_MAX);
+	strncat(disfilename, "inline.dis", FL_PATH_MAX);
+	char errfilename[FL_PATH_MAX];
+	strncpy(errfilename, basename, FL_PATH_MAX);
+	strncat(errfilename, "inline.err", FL_PATH_MAX);
+
+	// run `arm-none-eabi-as -march=armv4 -mbig-endian test.s -o test.o`
+	FILE* f = fl_fopen(srcfilename, "wb");
+	fwrite(text, text_len, 1, f);
+	fclose(f);
+	char cmd[4 * FL_PATH_MAX];
+	snprintf(cmd, sizeof(cmd),
+			 "\"%s\" -march=armv4 -mbig-endian \"%s\" -o \"%s\" >\"%s\" 2>&1",
+			 gApp->GetSettings()->mDevAsmPath,
+			 srcfilename, objfilename, errfilename);
+	fl_system(cmd);
+	gToolkit->PrintErrFile(errfilename);
+
+	// run `arm-none-eabi-objdump -d test.o >test.dis`
+	snprintf(cmd, sizeof(cmd),
+			 "\"%s\" -d --show-raw-insn \"%s\" >\"%s\" 2>\"%s\"",
+			 gApp->GetSettings()->mDevObjDumpPath,
+			 objfilename, disfilename, errfilename);
+	fl_system(cmd);
+	gToolkit->PrintErrFile(errfilename);
+
+	char appDir[FL_PATH_MAX], romDir[FL_PATH_MAX];
+	getcwd(appDir, FL_PATH_MAX);
+	fl_filename_absolute(romDir, FL_PATH_MAX, gApp->GetSettings()->ROMPath);
+	char *x = (char*)fl_filename_name(romDir);
+	if (x) x[0] = 0;
+	chdir(romDir);
+	int bin = fl_open(filename, O_WRONLY|O_CREAT);
+	chdir(appDir);
+	if (bin==-1) {
+		gToolkit->PrintErr("Can't open ");
+		gToolkit->PrintErr(filename);
+		gToolkit->PrintErr(": ");
+		gToolkit->PrintErr(strerror(errno));
+		gToolkit->PrintErr("\n");
+		return NewtMakeInteger(errno);
+	}
+	f = fl_fopen(disfilename, "rb");
+	if (!f) {
+		close(bin);
+		gToolkit->PrintErr("Can't open disassembled file\n");
+		return NewtMakeInteger(-1);
+	}
+	for (;;) {
+		char buf[FL_PATH_MAX];
+		if (fgets(buf, FL_PATH_MAX, f)==nullptr)
+			break;
+		char *sep = strstr(buf, ":\t");
+		if (sep==nullptr) continue;
+		KUInt32 addr;
+		union { KUInt32 data; KUInt8 d[4]; };
+		int n = sscanf(buf, "%8x:\t%x", &addr, &data);
+		if (n!=2) continue;
+		lseek(bin, addr, SEEK_SET);
+		data = htonl(data);
+		if (sep[4]==' ')
+			write(bin, d+3, 1);
+		else if (sep[6]==' ')
+			write(bin, d+2, 2);
+		else if (sep[8]==' ')
+			write(bin, d+1, 3);
+		else
+			write(bin, d, 4);
+		if (n==2) {
+			printf("0x%08x: 0x%08x\n", addr, data);
+		}
+	}
+	close(bin);
+	fclose(f);
+	return kNewtRefNIL;
+}
+
+/**
+ NewtonScript interface to `NewtMakeBinaryFromARM`.
+ \param rcvr ignored
+ \param text UTF8 arm assembly code (note indents and newline formatting)
+ \return a binary object, or throws an exception
+ */
+static newtRef
+NsPatchFileFromARM(newtRefArg rcvr, newtRefArg text, newtRefArg filename)
+{
+	(void) rcvr;
+	if (!NewtRefIsString(text))
+		return NewtThrow(kNErrNotAString, text);
+	return NewtPatchFileFromARM(NewtRefToString(text), 	NewtRefToString(filename), false);
 }
 
 /**
@@ -853,7 +981,8 @@ TToolkit::AppBuild()
 	// NEWT_TRACE = true;
 
 	NewtDefGlobalFunc0(NSSYM(MakeBinaryFromString), (void*) NsMakeBinaryFromString, 2, false, (char*) "MakeBinaryFromString(str, sym)");
-	NewtDefGlobalFunc0(NSSYM(MakeBinaryFromARM), (void*) NsMakeBinaryFromARM, 2, false, (char*) "MakeBinaryFromARM(ARM_Instructions, sym)");
+	NewtDefGlobalFunc0(NSSYM(MakeBinaryFromARM), (void*) NsMakeBinaryFromARM, 1, false, (char*) "MakeBinaryFromARM(ARM_Instructions)");
+	NewtDefGlobalFunc0(NSSYM(PatchFileFromARM), (void*) NsPatchFileFromARM, 2, false, (char*) "PatchFileFromARM(ARM_Instructions, filename)");
 	NewtDefGlobalFunc0(NSSYM(AddStepForm), (void*) NSAddStepForm, 2, false, (char*) "AddStepForm(mainView, scrollClipper);");
 	NewtDefGlobalFunc0(NSSYM(StepDeclare), (void*) NSStepDeclare, 3, false, (char*) "StepDeclare(mainView, scrollClipper, 'scrollClipper);");
 
