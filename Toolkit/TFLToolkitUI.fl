@@ -67,7 +67,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
     xywh {494 224 720 600} type Double resizable
     code0 {wToolkitWindow->position(x, y);} visible
   } {
-    Fl_Menu_Bar wToolkitMenubar {open selected
+    Fl_Menu_Bar wToolkitMenubar {open
       xywh {0 0 720 24} color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
       class TFLMenuBar
@@ -88,7 +88,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
         }
         Submenu {} {
           label {Open Recent} open
-          xywh {0 0 62 20} divider
+          xywh {0 0 62 20}
         } {
           MenuItem {wTKOpenRecentMenu[0]} {
             label {
@@ -99,7 +99,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
           MenuItem {wTKOpenRecentMenu[1]} {
             label {
 }
-            callback tk_open_recent_cb
+            callback tk_open_recent_cb selected
             xywh {0 0 31 20}
           }
           MenuItem {wTKOpenRecentMenu[2]} {
@@ -142,6 +142,21 @@ Function {CreateToolkitWindow(int x, int y)} {open
             label {Clear Menu}
             callback {gToolkit->ClearRecentFileMenu();}
             xywh {0 0 31 20}
+          }
+        }
+        Submenu {} {
+          label {Sample Projects} open
+          xywh {20 20 100 20} divider
+        } {
+          MenuItem {} {
+            label {Hello World}
+            callback {gToolkit->LoadSampleCode(1);}
+            xywh {20 20 100 20}
+          }
+          MenuItem {} {
+            label {Native Function}
+            callback {gToolkit->LoadSampleCode(2);}
+            xywh {40 40 100 20}
           }
         }
         MenuItem {} {
@@ -234,16 +249,6 @@ Function {CreateToolkitWindow(int x, int y)} {open
           label {Decompile Package...}
           callback {gToolkit->UserActionDecompilePkg();}
           xywh {0 0 100 20}
-        }
-        Submenu {} {
-          label {Sample Projects} open
-          xywh {0 0 100 20}
-        } {
-          MenuItem {} {
-            label {Hello World}
-            callback {gToolkit->LoadSampleCode(1);}
-            xywh {0 0 100 20}
-          }
         }
         MenuItem {} {
           label {Add File...}

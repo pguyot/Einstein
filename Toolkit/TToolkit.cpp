@@ -1264,7 +1264,11 @@ TToolkit::LoadSampleCode(int n)
 	{
 		case 1:
 			wScriptPanel->SetSourceCode(TToolkitPrototype::HelloWorld);
-			wScriptPanel->SetDirty();
+			wScriptPanel->ClearDirty();
+			break;
+		case 2:
+			wScriptPanel->SetSourceCode(TToolkitPrototype::NativeFunction);
+			wScriptPanel->ClearDirty();
 			break;
 	}
 }
