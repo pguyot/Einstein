@@ -1,0 +1,31 @@
+//
+// NewtonScript example: Hello, World!
+//
+
+kAppName := "Hello:WONKO";
+kAppSymbol := '|Hello:WONKO|;
+kAppLabel := "Hello";
+
+newt.theForm := {
+	viewBounds: {
+		left: 0, top: 50, right: 200, bottom: 120
+	},
+	_proto: protoFloatNGo
+};
+
+helloButton := {
+	text: "Say Hello",
+	viewBounds: {
+		left: 50, top: 25, right: 150, bottom: 50
+	},
+	buttonClickScript: func()
+	begin
+		ModalConfirm(
+			"Hello World of NewtonScript.\r\rHow exciting to see you!",
+			[ "OK" ]
+	);
+		end,
+	_proto: protoTextButton
+};
+AddStepForm( newt.theForm, helloButton);
+StepDeclare( newt.theForm, helloButton, 'helloButton);

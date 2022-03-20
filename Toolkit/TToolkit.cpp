@@ -58,6 +58,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include "TToolkit.h"
+#include "TFLSampleScripts.h"
 #include "TFLScriptPanel.h"
 #include "TFLToolkitUI.h"
 #include "TTkScript.h"
@@ -150,7 +151,7 @@ TToolkit::Show()
 		mCurrentScript = new TTkScript(this);
 		wScriptPanel->SetScript(mCurrentScript);
 		mCurrentScript->SetPanel(wScriptPanel);
-		mCurrentScript->SetSourceCode(TToolkitPrototype::HelloWorld);
+		mCurrentScript->SetSourceCode(kToolkitSampleScriptHelloWorld);
 		// mCurrentScript->LoadFile("/Users/matt/dev/newton-test/mini.ns");
 		mCurrentScript->ClearDirty();
 
@@ -1264,11 +1265,11 @@ TToolkit::LoadSampleCode(int n)
 	switch (n)
 	{
 		case 1:
-			wScriptPanel->SetSourceCode(TToolkitPrototype::HelloWorld);
+			wScriptPanel->SetSourceCode(kToolkitSampleScriptHelloWorld);
 			wScriptPanel->ClearDirty();
 			break;
 		case 2:
-			wScriptPanel->SetSourceCode(TToolkitPrototype::NativeFunction);
+			wScriptPanel->SetSourceCode(kToolkitSampleScriptNativeFunction);
 			wScriptPanel->ClearDirty();
 			break;
 	}

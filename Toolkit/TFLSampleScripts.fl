@@ -1,0 +1,10 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0400
+avoid_early_includes
+header_name {.h}
+code_name {.cpp}
+data kToolkitSampleScriptHelloWorld {public local filename {SampleScripts/HelloWorld.ns} textmode
+}
+
+data kToolkitSampleScriptNativeFunction {selected public local filename {SampleScripts/NativeFunction.ns} textmode
+}

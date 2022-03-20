@@ -1,0 +1,55 @@
+//
+// NewtonScript example: Native Call
+//
+// How to write ARM machine code within NewtonScript.
+//
+
+kAppName := "Hello:WONKO";
+kAppSymbol := '|Hello:WONKO|;
+kAppLabel := "Hello";
+
+newt.theForm := {
+	viewBounds: {
+		left: 0, top: 50, right: 200, bottom: 120
+	},
+_proto: protoFloatNGo
+};
+
+mathFunction := {
+	_proto: protoStaticText,
+	text: "4+8 =",
+	viewBounds: RelBounds(50, 25, 30, 20)
+};
+AddStepForm(newt.theForm, mathFunction);
+StepDeclare(newt.theForm, mathFunction, 'mathFunction);
+
+mathResult := {
+	_proto: protoStaticText,
+	nativeMath: {
+		class : 'BinCFunction,
+		numArgs: 2,
+		offset: 0,
+		code: MakeBinaryFromARM("
+			ldr r1, [r1]			@ Unref the first argument
+			ldr r1, [r1]			@ Get the integer object
+			mov r1, r1, lsr #2		@ convert it into an integer
+			ldr r2, [r2]
+			ldr r2, [r2]			@ do the same with the second arg
+			mov r2, r2, lsr #2
+			add r0, r1, r2			@ add both integers
+			mov r0, r0, lsl #2		@ convert the result into an integer object
+			mov pc, lr				@ return to the interpreter
+			", 'data)
+	},
+	newtonScriptMath: func(a, b) begin
+	return a+b;
+	end,
+	ViewSetupFormScript: func() begin
+	SetValue(self, 'text, NumberStr( self:nativeMath(4, 8) ) );
+	end,
+	text: "Result",
+	viewBounds: RelBounds(80, 25, 80, 20)
+};
+AddStepForm(newt.theForm, mathResult);
+StepDeclare(newt.theForm, mathResult, 'mathResult);
+
