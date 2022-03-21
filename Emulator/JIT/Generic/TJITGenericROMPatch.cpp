@@ -176,6 +176,14 @@ TJITGenericPatch timeBase4(0x30F088, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid
 TJITGenericPatch ignoreSettingTime(0x0008A20C, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
 	0xe1a0f00e, "Ignore setting time"); // mov pc, lr
 
+// Disable the Schlumberger signature verification for Watson ROMs.
+TJITGenericPatch watsonSig1(kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, 0x007F3284,
+    0xE3A00000, "Disable Watson Signature Check (1/2)"); // mov r0, #0
+TJITGenericPatch watsonSig3(kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, 0x007F3288,
+    0xE1A0f00E, "Disable Watson Signature Check (2/2)"); // mov pc, lr
+
+
+
 // ========================================================================== //
 // MARK: -
 // TJITGenericPatchManager
@@ -319,7 +327,7 @@ TJITGenericPatchObject::GetOffsetInROM(KSInt32 inROMId)
 
 /**
  \brief Create and add a new patch
- \param inAddr0, inAddr1, inAddr2 patch address for MP2100US, MP2100D, and eMate ROMs
+ \param inAddr0, inAddr1, inAddr2, inAddr3 patch address for MP2100US, MP2100D, eMate ROMs, and Watson
  \param value a new value for that address, can be data or instructions
  \param name a name for this patch
  */
