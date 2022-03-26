@@ -771,6 +771,8 @@ NsMakeBinaryFromARM(newtRefArg rcvr, newtRefArg text)
  \return a binary object
  \note This patch function is not perfect. Four or more consecutine 0 bytes
  may not actually be written.
+ \todo Update ROM and REx checksums to avoid deleteing interneal flash.
+ \todo Fix overall checksum to give Einstein a chance to recognize pre-patched ROMs.
  */
 newtRef
 NewtPatchFileFromARM(const char* text, const char* filename, bool /*literal*/)

@@ -63,24 +63,20 @@ TFLMonitor::DrawScreen()
 	{
 		if (!IsLastScreenHalted())
 		{
-			// Clear the terminal.
-			//            mwTerminal->clear();
+			mwTerminal->clear();
 			theResult = true;
 		}
 		SetLastScreenHalted(true);
-		if (!(GetEmulator()->IsRunning() == 0 && GetEmulator()->IsPaused() == 0))
-			DrawScreenHalted();
+		DrawScreenHalted();
 	} else
 	{
 		if (IsLastScreenHalted())
 		{
-			// Clear the terminal.
-			//            mwTerminal->clear();
+			mwTerminal->clear();
 			theResult = true;
 		}
 		SetLastScreenHalted(false);
-		if (!(GetEmulator()->IsRunning() == 0 && GetEmulator()->IsPaused() == 0))
-			DrawScreenRunning();
+		DrawScreenRunning();
 	}
 	mwTerminal->redraw();
 	return theResult;

@@ -138,7 +138,7 @@ public:
 	}
 
 #if TARGET_UI_FLTK
-	// no support for signalling yet
+	// no support for signaling yet
 #else
 	///
 	/// Get monitor socket (notified of state changes).
