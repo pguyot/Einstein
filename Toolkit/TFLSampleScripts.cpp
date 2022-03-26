@@ -3,7 +3,7 @@
 #include "TFLSampleScripts.h"
 
 const char *kToolkitSampleScriptHelloWorld = /* text inlined from SampleScripts/HelloWorld.ns */
-"//\n// NewtonScript example: Hello, World!\n//\n\nkAppName := \"Hello:WONKO\"\
+	"//\n// NewtonScript example: Hello, World!\n//\n\nkAppName := \"Hello:WONKO\"\
 ;\nkAppSymbol := \'|Hello:WONKO|;\nkAppLabel := \"Hello\";\n\nnewt.theForm := \
 {\n\tviewBounds: {\n\t\tleft: 0, top: 50, right: 200, bottom: 120\n\t},\n\t_pr\
 oto: protoFloatNGo\n};\n\nhelloButton := {\n\ttext: \"Say Hello\",\n\tviewBoun\
@@ -14,7 +14,7 @@ otoTextButton\n};\nAddStepForm( newt.theForm, helloButton);\nStepDeclare( newt\
 .theForm, helloButton, \'helloButton);\n";
 
 const char *kToolkitSampleScriptNativeFunction = /* text inlined from SampleScripts/NativeFunction.ns */
-"//\n// NewtonScript example: Native Call\n//\n// How to write ARM machine cod\
+	"//\n// NewtonScript example: Native Call\n//\n// How to write ARM machine cod\
 e within NewtonScript.\n//\n\nkAppName := \"Hello:WONKO\";\nkAppSymbol := \'|H\
 ello:WONKO|;\nkAppLabel := \"Hello\";\n\nnewt.theForm := {\n\tviewBounds: {\n\
 \t\tleft: 0, top: 50, right: 200, bottom: 120\n\t},\n_proto: protoFloatNGo\n};\
