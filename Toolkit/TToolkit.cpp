@@ -84,6 +84,12 @@ extern "C" {
 #include <FL/Fl_File_Chooser.H>
 #include <FL/fl_ask.H>
 
+#if TARGET_OS_WIN32
+#include <Winsock2.h>
+#else
+#include <arpa/inet.h>
+#endif
+
 #include <cstdlib>
 #include <errno.h>
 #include <fcntl.h>
@@ -699,7 +705,7 @@ NewtMakeBinaryFromARM(const char* text, bool /*literal*/)
 	auto text_len = strlen(text);
 	// write the string to a temporary file
 	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
-	char basename[FL_PATH_MAX];
+	char basename[FL_PATH_MAX + 1];
 	prefs.get_userdata_path(basename, FL_PATH_MAX);
 	char srcfilename[FL_PATH_MAX];
 	strncpy(srcfilename, basename, FL_PATH_MAX);
@@ -780,7 +786,7 @@ NewtPatchFileFromARM(const char* text, const char* filename, bool /*literal*/)
 	auto text_len = strlen(text);
 	// write the string to a temporary file
 	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
-	char basename[FL_PATH_MAX];
+	char basename[FL_PATH_MAX + 1];
 	prefs.get_userdata_path(basename, FL_PATH_MAX);
 	char srcfilename[FL_PATH_MAX];
 	strncpy(srcfilename, basename, FL_PATH_MAX);
