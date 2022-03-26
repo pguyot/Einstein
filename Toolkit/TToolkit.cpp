@@ -86,6 +86,11 @@ extern "C" {
 
 #if TARGET_OS_WIN32
 #include <Winsock2.h>
+#include <assert.h>
+#include <direct.h>
+#include <io.h>
+#include <stdio.h>
+#include <stdlib.h>
 #else
 #include <arpa/inet.h>
 #include <unistd.h>
