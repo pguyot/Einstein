@@ -88,6 +88,7 @@ extern "C" {
 #include <Winsock2.h>
 #else
 #include <arpa/inet.h>
+#include <unistd.h>
 #endif
 
 #include <cstdlib>
@@ -96,7 +97,6 @@ extern "C" {
 #include <fstream>
 #include <streambuf>
 #include <string>
-#include <unistd.h>
 
 Fl_Text_Buffer* gTerminalBuffer = nullptr;
 
