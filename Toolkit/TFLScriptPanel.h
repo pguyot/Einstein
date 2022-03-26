@@ -2,7 +2,7 @@
 // File:			TFLScriptPanel.h
 // Project:			Einstein
 //
-// Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
+// Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include "app/FLTK/TFLApp.h"
 
 #include <FL/Fl_Group.H>
+#include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Text_Buffer.H>
 #include <FL/Fl_Text_Editor.H>
 
@@ -38,7 +39,7 @@ class TFLScriptBuffer;
 class TTkScript;
 
 /**
- * This class provides and FLTK UI to edit NewtonScript source code.
+ * This class provides an FLTK UI to edit NewtonScript source code.
  */
 class TFLScriptPanel : public Fl_Group
 {
@@ -62,6 +63,8 @@ public:
 	void SetSourceCode(const char* sourcecode);
 	void SetDirty();
 	void ClearDirty();
+
+	void AddProtoTemplate(const char* protoName);
 
 private:
 	TFLScriptEditor* mEditor = nullptr;
@@ -104,6 +107,18 @@ private:
 		((TFLScriptEditor*) This)->style_update(pos, nInserted, nDeleted, nRestyled, deletedText);
 	}
 	static void style_unfinished_cb(int, void*);
+};
+
+class TFLMenuBar : public Fl_Menu_Bar
+{
+public:
+	TFLMenuBar(int x, int y, int w, int h, const char* label = nullptr) :
+			Fl_Menu_Bar(x, y, w, h, label)
+	{
+	}
+
+protected:
+	int handle(int e);
 };
 
 #endif

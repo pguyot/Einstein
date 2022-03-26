@@ -2,7 +2,7 @@
 // File:			TTkScript.cp
 // Project:			Einstein
 //
-// Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
+// Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,57 +28,51 @@
 #include "TFLScriptPanel.h"
 #include "TToolkit.h"
 
-/*
- //#include "/Users/matt/dev/newt64/defs/newt.2.2.ns"
- //#include "/Users/matt/dev/newt64/defs/newt.bc.2.2.ns"
-
- p("Start");
-
- global bc := {
- ...
- };
-
- p("Interprete...");
-
- src :=
- {
-...
- };
-
- p("Build package...");
-
- pkg := MakePkg(src);
-
- p("Save Package...");
-
- SaveBinary(pkg, "/Users/matt/dev/newton-test/mini.pkg");
-
- p("DONE");
-*/
-
+/**
+ Create a Toolkit script file manager.
+ */
 TTkScript::TTkScript(TToolkit* toolkit) :
 		mToolkit(toolkit)
 {
 }
 
+/**
+ Release all resources.
+ */
 TTkScript::~TTkScript()
 {
 	if (mFilename)
 		::free(mFilename);
 }
 
+/**
+ * Return a duplicate of the current source code in the editor.
+ *
+ * Caller is responsible to \c free() the text that was returned.
+ *
+ * \return a copy of the current source code
+ */
 char*
 TTkScript::DupSourceCode()
 {
 	return mPanel->DupSourceCode();
 }
 
+/**
+ Replace the current source code with new text.
+ \param sourcecode the new source code in utf8 encoding.
+ */
 void
 TTkScript::SetSourceCode(const char* sourcecode)
 {
 	mPanel->SetSourceCode(sourcecode);
 }
 
+/**
+ Replace the current script with text from a file.
+ Also changes the current filename.
+ \param filename read new script from this file in utf8 encoding.
+ */
 void
 TTkScript::LoadFile(const char* filename)
 {
@@ -87,6 +81,12 @@ TTkScript::LoadFile(const char* filename)
 	ClearDirty();
 }
 
+/**
+ Set a new filename.
+ Does not replace the script itself.
+ \param filename the new path and name of a file.
+ \see TTkScript::LoadFile(const char* filename)
+ */
 void
 TTkScript::SetFilename(const char* filename)
 {
@@ -125,6 +125,10 @@ TTkScript::Save()
 	return 0;
 }
 
+/**
+ Mark the current text as modified vs. the saved version of the text.
+ Also updates the \a dirty indicator in the title.
+ */
 void
 TTkScript::SetDirty()
 {
@@ -135,6 +139,10 @@ TTkScript::SetDirty()
 	}
 }
 
+/**
+ Mark the current text as unmodified vs. the saved version of the text.
+ Also updates the \a dirty indicator in the title.
+ */
 void
 TTkScript::ClearDirty()
 {

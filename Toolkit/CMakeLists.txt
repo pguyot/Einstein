@@ -22,10 +22,16 @@ list (APPEND app_sources
 	Toolkit/TFLInspectorPanel.h
 	Toolkit/TFLTerminalPanel.cpp
 	Toolkit/TFLTerminalPanel.h
+	Toolkit/TFLSampleScripts.cpp
+	Toolkit/TFLSampleScripts.h
+	Toolkit/TFLSampleScripts.fl
 	Toolkit/TFLScriptPanel.cpp
 	Toolkit/TFLScriptPanel.h
+	Toolkit/TToolkitPlatform.cpp
+	Toolkit/TToolkitPlatform.h
 	Toolkit/TToolkitPrototypes.cpp
 	Toolkit/TToolkitPrototypes.h
 )
 
 build_with_fluid( TFLToolkitUI Toolkit )
+build_with_fluid( TFLSampleScripts Toolkit )

@@ -2,7 +2,7 @@
 // File:			TToolkitPrototypes.cp
 // Project:			Einstein
 //
-// Copyright 2003-2020 by Paul Guyot and Matthias Melcher.
+// Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -1821,39 +1821,6 @@ const char* TToolkitPrototype::ToolkitDone = ";\n"
 											 "if kAppSymbol exists then newt.app.parts[0].data.app := kAppSymbol;\n"
 											 "if kAppName exists then newt.app.name := kAppName;\n"
 											 "if kAppLabel exists then newt.app.parts[0].data.text := kAppLabel;\n";
-
-const char* TToolkitPrototype::HelloWorld = "//\n"
-											"// NewtonScript example: Hello, World!\n"
-											"//\n"
-											"\n"
-											"kAppName := \"Hello:WONKO\";\n"
-											"kAppSymbol := '|Hello:WONKO|;\n"
-											"kAppLabel := \"Hello\";\n"
-											"\n"
-											"newt.theForm := {\n"
-											"    viewBounds: {\n"
-											"        left: 0, top: 50, right: 200, bottom: 120\n"
-											"    },\n"
-											"    _proto: protoFloatNGo\n"
-											"};\n"
-											"\n"
-											"helloButton := {\n"
-											"    text: \"Say Hello\",\n"
-											"    viewBounds: {\n"
-											"        left: 50, top: 25, right: 150, bottom: 50\n"
-											"    },\n"
-											"    buttonClickScript: func()\n"
-											"        begin\n"
-											"        ModalConfirm(\n"
-											"            \"Hello World of NewtonScript.\\r\\rHow exciting to see you!\",\n"
-											"            [ \"OK\" ]\n"
-											"        );\n"
-											"        end,\n"
-											"    _proto: protoTextButton\n"
-											"};\n"
-											"AddStepForm( newt.theForm, helloButton);\n"
-											"StepDeclare( newt.theForm, helloButton, 'helloButton);\n"
-											"\n";
 
 // GetVariable(GetRoot().|Hello:WONKO|, '_open) -> FOpenX -> RealOpenX__FRC6RefVarUc
 // Sends aeShow to realDoCommand -> TView::Show() -> viewShowScript

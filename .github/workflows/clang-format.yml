@@ -11,6 +11,6 @@ jobs:
     - uses: DoozyX/clang-format-lint-action@v0.13
       with:
         source: '.'
-        exclude: './libffi* ./portaudio ./Packages ./Resources ./Drivers'
+        exclude: './libffi* ./portaudio ./Packages ./Resources ./Drivers ./Toolkit/TFLSampleScripts.cpp ./Toolkit/TFLSampleScripts.h'
         extensions: 'h,cpp,t,mm,c'
         clangFormatVersion: 13

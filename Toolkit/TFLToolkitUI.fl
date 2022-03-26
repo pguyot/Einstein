@@ -51,8 +51,14 @@ Function {tk_open_recent_cb(Fl_Menu_Item *, void *u)} {open private return_type 
 } {
   code {char *filename = ::strdup((char*)u);
 gToolkit->UserActionOpen(filename);
-::free(filename);} {selected
-  }
+::free(filename);} {}
+}
+
+Function {add_proto_cb(Fl_Menu_Bar *mb, void *)} {open private return_type void
+} {
+  code {auto mi = mb->mvalue();
+if (mi)
+  gToolkit->UserActionAddProto(mi->label());} {}
 }
 
 Function {CreateToolkitWindow(int x, int y)} {open
@@ -64,6 +70,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
     Fl_Menu_Bar wToolkitMenubar {open
       xywh {0 0 720 24} color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
+      class TFLMenuBar
     } {
       Submenu {} {
         label File open
@@ -81,7 +88,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
         }
         Submenu {} {
           label {Open Recent} open
-          xywh {0 0 62 20} divider
+          xywh {0 0 62 20}
         } {
           MenuItem {wTKOpenRecentMenu[0]} {
             label {
@@ -92,7 +99,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
           MenuItem {wTKOpenRecentMenu[1]} {
             label {
 }
-            callback tk_open_recent_cb
+            callback tk_open_recent_cb selected
             xywh {0 0 31 20}
           }
           MenuItem {wTKOpenRecentMenu[2]} {
@@ -135,6 +142,21 @@ Function {CreateToolkitWindow(int x, int y)} {open
             label {Clear Menu}
             callback {gToolkit->ClearRecentFileMenu();}
             xywh {0 0 31 20}
+          }
+        }
+        Submenu {} {
+          label {Sample Projects} open
+          xywh {20 20 100 20} divider
+        } {
+          MenuItem {} {
+            label {Hello World}
+            callback {gToolkit->LoadSampleCode(1);}
+            xywh {20 20 100 20}
+          }
+          MenuItem {} {
+            label {Native Function}
+            callback {gToolkit->LoadSampleCode(2);}
+            xywh {40 40 100 20}
           }
         }
         MenuItem {} {
@@ -228,16 +250,6 @@ Function {CreateToolkitWindow(int x, int y)} {open
           callback {gToolkit->UserActionDecompilePkg();}
           xywh {0 0 100 20}
         }
-        Submenu {} {
-          label {Sample Projects} open
-          xywh {0 0 100 20}
-        } {
-          MenuItem {} {
-            label {Hello World}
-            callback {gToolkit->LoadSampleCode(1);}
-            xywh {0 0 100 20}
-          }
-        }
         MenuItem {} {
           label {Add File...}
           xywh {0 0 100 20} deactivate
@@ -278,6 +290,306 @@ gToolkit->AppRun();}
           label {Project Settings...}
           callback {gToolkit->AppStop();}
           xywh {28 28 100 20} shortcut 0x40002e deactivate
+        }
+      }
+      Submenu {} {
+        label Protos open
+        xywh {0 0 62 20}
+      } {
+        Submenu {} {
+          label {More cl Views} open
+          xywh {0 0 62 20}
+        } {
+          MenuItem {} {
+            label clGaugeView
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label clKeyboardView
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label clMonthView
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label clOutline
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label clRemoteView
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+        }
+        Submenu {} {
+          label {More protos} open
+          xywh {0 0 62 20} divider
+        } {
+          MenuItem {} {
+            label protoActionButton
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoBorder
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoDateExpando
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoDrawer
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoExpandoShell
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoFilingButton
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoFolderTab
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoGlance
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoKeyboard
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoKeypad
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoLabeledBatteryGauge
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoPhoneExpando
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoPicker
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoPictIndexer
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoPictRadionButton
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoPrintFormat
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoRoll
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoRollBrowser
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoRollItem
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoSetClock
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoStatusBar
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoTable
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoTableEntry
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label protoTextList
+            callback add_proto_cb
+            xywh {0 0 31 20}
+          }
+        }
+        MenuItem {} {
+          label clView
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label clParagraphView
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label clPictureView
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label clPolygonView
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label clEditView
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoStaticText
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoApp
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoFloatNGo
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoFloater
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoStatus
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoTitle
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoRecToggle
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoLargeClosebox
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoTextButton
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoPictureButton
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoCheckButton
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoRCheckButton
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoRadioButton
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoRadioCluster
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoCloseBox
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoLabelInputLine
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoInputLine
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoLabelPicker
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoDivider
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoGauge
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoSlider
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label protoTextExpando
+          callback add_proto_cb
+          xywh {0 0 31 20}
+        }
+        MenuItem {} {
+          label LinkedSubview
+          callback add_proto_cb
+          xywh {0 0 31 20}
         }
       }
       Submenu {} {

@@ -1,5 +1,5 @@
 // ==============================
-// File:			TFLInspectorPanel.cp
+// File:			TToolkitPlatform.h
 // Project:			Einstein
 //
 // Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
@@ -21,14 +21,18 @@
 // $Id$
 // ==============================
 
-#include "TFLInspectorPanel.h"
+#ifndef _T_TOOLKIT_PLATFORM_H
+#define _T_TOOLKIT_PLATFORM_H
 
-// ============================================================================ //
-// Inspector
+#endif
+// _T_TOOLKIT_PLATFORM_H
+
+// ======================================================================= //
+// Newton Toolkit
 //
-// A debugging window in the Newton Toolkit development environment that allows
-// a user to browse the object storage system and execute NewtonScript code on
-// a Newton device.
+// A development environment created by Apple for writing NewtonScript programs
+// for Newton OS. A prototype for Newton Toolkit called EtchASketch was written
+// using Macintosh Common Lisp. Also referred to as NTK.
 //
 //   -- Newton Glossary
-// ============================================================================ //
+// ======================================================================= //
