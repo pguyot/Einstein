@@ -38,6 +38,8 @@ DerivedData/
 /app/FLTK/TFLSettingsUI.h
 /Toolkit/TFLToolkitUI.cpp
 /Toolkit/TFLToolkitUI.h
+/Toolkit/TFLToolkitUI.cpp
+/Toolkit/TFLToolkitUI.h
 /Drivers/packages/MemDumper
 /Drivers/EinsteinPortEnabler/portenabler.ntkc
 /app/FLTK/TFLRexImage.h

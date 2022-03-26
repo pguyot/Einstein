@@ -29,7 +29,7 @@ r1]\t\t\t@ Unref the first argument\n\t\t\tldr r1, [r1]\t\t\t@ Get the integer\
 r2, r2, lsr #2\n\t\t\tadd r0, r1, r2\t\t\t@ add both integers\n\t\t\tmov r0, r\
 0, lsl #2\t\t@ convert the result into an integer object\n\t\t\tmov pc, lr\t\t\
 \t\t@ return to the interpreter\n\t\t\t\")\n\t},\n\tnewtonScriptMath: func(a, \
-b) begin\n\treturn a+b;\n\tend,\n\tViewSetupFormScript: func() begin\n\tSetVal\
-ue(self, \'text, NumberStr( self:nativeMath(4, 8) ) );\n\tend,\n\ttext: \"Resu\
-lt\",\n\tviewBounds: RelBounds(80, 25, 80, 20)\n};\nAddStepForm(newt.theForm, \
-mathResult);\nStepDeclare(newt.theForm, mathResult, \'mathResult);\n\n";
+b) begin\n\t\treturn a+b;\n\tend,\n\tViewSetupFormScript: func() begin\n\t\tSe\
+tValue(self, \'text, NumberStr( self:nativeMath(4, 8) ) );\n\tend,\n\ttext: \"\
+Result\",\n\tviewBounds: RelBounds(80, 25, 80, 20)\n};\nAddStepForm(newt.theFo\
+rm, mathResult);\nStepDeclare(newt.theForm, mathResult, \'mathResult);\n\n";

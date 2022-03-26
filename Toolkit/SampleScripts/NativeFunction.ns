@@ -42,10 +42,10 @@ mathResult := {
 			")
 	},
 	newtonScriptMath: func(a, b) begin
-	return a+b;
+		return a+b;
 	end,
 	ViewSetupFormScript: func() begin
-	SetValue(self, 'text, NumberStr( self:nativeMath(4, 8) ) );
+		SetValue(self, 'text, NumberStr( self:nativeMath(4, 8) ) );
 	end,
 	text: "Result",
 	viewBounds: RelBounds(80, 25, 80, 20)
