@@ -86,11 +86,11 @@ extern "C" {
 
 #include <cstdlib>
 #include <errno.h>
+#include <fcntl.h>
 #include <fstream>
 #include <streambuf>
 #include <string>
 #include <unistd.h>
-#include <fcntl.h>
 
 Fl_Text_Buffer* gTerminalBuffer = nullptr;
 
@@ -801,29 +801,31 @@ NewtPatchFileFromARM(const char* text, const char* filename, bool /*literal*/)
 	fclose(f);
 	char cmd[4 * FL_PATH_MAX];
 	snprintf(cmd, sizeof(cmd),
-			 "\"%s\" -march=armv4 -mbig-endian \"%s\" -o \"%s\" >\"%s\" 2>&1",
-			 gApp->GetSettings()->mDevAsmPath,
-			 srcfilename, objfilename, errfilename);
+		"\"%s\" -march=armv4 -mbig-endian \"%s\" -o \"%s\" >\"%s\" 2>&1",
+		gApp->GetSettings()->mDevAsmPath,
+		srcfilename, objfilename, errfilename);
 	fl_system(cmd);
 	gToolkit->PrintErrFile(errfilename);
 
 	// run `arm-none-eabi-objdump -d test.o >test.dis`
 	snprintf(cmd, sizeof(cmd),
-			 "\"%s\" -d --show-raw-insn \"%s\" >\"%s\" 2>\"%s\"",
-			 gApp->GetSettings()->mDevObjDumpPath,
-			 objfilename, disfilename, errfilename);
+		"\"%s\" -d --show-raw-insn \"%s\" >\"%s\" 2>\"%s\"",
+		gApp->GetSettings()->mDevObjDumpPath,
+		objfilename, disfilename, errfilename);
 	fl_system(cmd);
 	gToolkit->PrintErrFile(errfilename);
 
 	char appDir[FL_PATH_MAX], romDir[FL_PATH_MAX];
 	getcwd(appDir, FL_PATH_MAX);
 	fl_filename_absolute(romDir, FL_PATH_MAX, gApp->GetSettings()->ROMPath);
-	char *x = (char*)fl_filename_name(romDir);
-	if (x) x[0] = 0;
+	char* x = (char*) fl_filename_name(romDir);
+	if (x)
+		x[0] = 0;
 	chdir(romDir);
-	int bin = fl_open(filename, O_WRONLY|O_CREAT);
+	int bin = fl_open(filename, O_WRONLY | O_CREAT);
 	chdir(appDir);
-	if (bin==-1) {
+	if (bin == -1)
+	{
 		gToolkit->PrintErr("Can't open ");
 		gToolkit->PrintErr(filename);
 		gToolkit->PrintErr(": ");
@@ -832,32 +834,40 @@ NewtPatchFileFromARM(const char* text, const char* filename, bool /*literal*/)
 		return NewtMakeInteger(errno);
 	}
 	f = fl_fopen(disfilename, "rb");
-	if (!f) {
+	if (!f)
+	{
 		close(bin);
 		gToolkit->PrintErr("Can't open disassembled file\n");
 		return NewtMakeInteger(-1);
 	}
-	for (;;) {
+	for (;;)
+	{
 		char buf[FL_PATH_MAX];
-		if (fgets(buf, FL_PATH_MAX, f)==nullptr)
+		if (fgets(buf, FL_PATH_MAX, f) == nullptr)
 			break;
-		char *sep = strstr(buf, ":\t");
-		if (sep==nullptr) continue;
+		char* sep = strstr(buf, ":\t");
+		if (sep == nullptr)
+			continue;
 		KUInt32 addr;
-		union { KUInt32 data; KUInt8 d[4]; };
+		union {
+			KUInt32 data;
+			KUInt8 d[4];
+		};
 		int n = sscanf(buf, "%8x:\t%x", &addr, &data);
-		if (n!=2) continue;
+		if (n != 2)
+			continue;
 		lseek(bin, addr, SEEK_SET);
 		data = htonl(data);
-		if (sep[4]==' ')
-			write(bin, d+3, 1);
-		else if (sep[6]==' ')
-			write(bin, d+2, 2);
-		else if (sep[8]==' ')
-			write(bin, d+1, 3);
+		if (sep[4] == ' ')
+			write(bin, d + 3, 1);
+		else if (sep[6] == ' ')
+			write(bin, d + 2, 2);
+		else if (sep[8] == ' ')
+			write(bin, d + 1, 3);
 		else
 			write(bin, d, 4);
-		if (n==2) {
+		if (n == 2)
+		{
 			printf("0x%08x: 0x%08x\n", addr, data);
 		}
 	}
@@ -878,7 +888,7 @@ NsPatchFileFromARM(newtRefArg rcvr, newtRefArg text, newtRefArg filename)
 	(void) rcvr;
 	if (!NewtRefIsString(text))
 		return NewtThrow(kNErrNotAString, text);
-	return NewtPatchFileFromARM(NewtRefToString(text), 	NewtRefToString(filename), false);
+	return NewtPatchFileFromARM(NewtRefToString(text), NewtRefToString(filename), false);
 }
 
 /**

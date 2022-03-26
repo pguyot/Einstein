@@ -178,11 +178,9 @@ TJITGenericPatch ignoreSettingTime(0x0008A20C, kROMPatchVoid, kROMPatchVoid, kRO
 
 // Disable the Schlumberger signature verification for Watson ROMs.
 TJITGenericPatch watsonSig1(kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, 0x007F3284,
-    0xE3A00000, "Disable Watson Signature Check (1/2)"); // mov r0, #0
+	0xE3A00000, "Disable Watson Signature Check (1/2)"); // mov r0, #0
 TJITGenericPatch watsonSig3(kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, 0x007F3288,
-    0xE1A0f00E, "Disable Watson Signature Check (2/2)"); // mov pc, lr
-
-
+	0xE1A0f00E, "Disable Watson Signature Check (2/2)"); // mov pc, lr
 
 // ========================================================================== //
 // MARK: -
