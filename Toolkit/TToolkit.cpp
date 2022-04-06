@@ -967,6 +967,16 @@ NSStepDeclare(newtRefArg rcvr, newtRefArg form, newtRefArg ref, newtRefArg sym)
 	return kNewtRefNIL;
 }
 
+static newtRef
+NsFltkMessage(newtRefArg rcvr, newtRefArg text)
+{
+  (void) rcvr;
+  if (!NewtRefIsString(text))
+    return NewtThrow(kNErrNotAString, text);
+  fl_message("%s", NewtRefToString(text));
+  return kNewtRefNIL;
+}
+
 /**
  Grab the current script from the editor and build a package file.
 
@@ -1012,6 +1022,11 @@ TToolkit::AppBuild()
 	// FIXME: does this work?
 	NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
 	NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
+
+  auto fltk = NewtMakeFrame(kNewtRefNIL, 0);
+  newtObjRef fltk_obj = (newtObjRef)NewtRefToPointer(fltk);
+  NewtObjSetSlot(fltk_obj, NSSYM(message), NewtMakeNativeFunc0((void*)NsFltkMessage, 1, false, (char*)"Open a message dialog box"));
+  NcDefGlobalVar(NSSYM(fltk), fltk);
 
 	// #file ...
 	// #line 1
@@ -1260,6 +1275,14 @@ TToolkit::UpdateTitle()
 void
 TToolkit::UpdateMenuBar()
 {
+//  char *src = mCurrentScript->DupSourceCode();
+//  if (!src) return;
+//  int crsr = mCurrentScript->Panel()->GetInsertPosition();
+//  for (;;) {
+//    char *token = GetToken(src);
+//    if (strcmp(token, "{")==0) {
+//    }
+//  }
 }
 
 /**
