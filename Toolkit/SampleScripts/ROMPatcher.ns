@@ -1,0 +1,57 @@
+//
+// Patch a ROM file with a backdoor.
+//
+// This patch for Newton Flash ROM Cards makes it possible
+// for Newton apps to modify the contents of those cards.
+//
+
+// TODO: use fltk:message to warn the user
+// TODO: use fltk:choice to let the user aselect a ROM type (eMate, US, D, FR)
+// TODO: let the user choose the ROM file using fltk:filechooser
+
+// Patch the US ROM:
+PatchFileFromARM("
+	.org 0x003ADD24
+
+	@	
+	@ Patch the SWI12 in the US ROM
+	@
+	b testForBackdoor
+
+	.org 0x007ff000
+
+	@ Jump Table for various functions in this patch
+
+testForBackdoor:
+	b doTestForBackdoor
+setCoproControl:
+	b doSetCoproControl
+
+	@	
+	@ Check if this is a call for opening the backdoor
+	@	param r0 0x0BADCAFE to activate backdoor
+	@	param r1 switch to SVC and jump here
+	@	return r0 return to this address to leave SVC mode
+	@
+	ldr r1, =0x0BADCAFE	@ this is our secret password
+	cmp r0, r1			@ is that set in r0?
+	bne 0x003ADD28		@ nope, just continue as if nothing happened
+	ldmia r13!, {r0, r1}@ get r0 and r1 from the stack
+	mov r0, pc			@ suggest a return address to the caller
+	mov pc, r1			@ jump to the address supplied in r1
+	b 0x003ADD38		@ safely finish the SWI
+
+	@
+	@ Set the Control register in the Coprocessor
+	@	param r0 new value for Control register
+	@	param lr return address
+	@
+	mcr p15, 0, r0, c1, c1, 0
+	nop					@ flush instruction cache after MMU changes
+	nop
+	nop
+	nop
+	mov pc, lr			@ return 
+	",
+	"fakeROM"
+);

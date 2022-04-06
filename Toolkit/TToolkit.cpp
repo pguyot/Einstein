@@ -782,7 +782,7 @@ NsMakeBinaryFromARM(newtRefArg rcvr, newtRefArg text)
  \return a binary object
  \note This patch function is not perfect. Four or more consecutine 0 bytes
  may not actually be written.
- \todo Update ROM and REx checksums to avoid deleteing interneal flash.
+ \todo Update ROM and REx checksums to avoid deleting internal flash.
  \todo Fix overall checksum to give Einstein a chance to recognize pre-patched ROMs.
  */
 newtRef
@@ -977,6 +977,68 @@ NsFltkMessage(newtRefArg rcvr, newtRefArg text)
   return kNewtRefNIL;
 }
 
+static newtRef
+NsFltkChoice(newtRefArg rcvr, newtRefArg text, newtRefArg b0, newtRefArg b1, newtRefArg b2)
+{
+  (void) rcvr;
+  if (!NewtRefIsString(text))
+    return NewtThrow(kNErrNotAString, text);
+  char *b0text = nullptr;
+  if (!NewtRefIsNIL(b0)) {
+    if (NewtRefIsString(b0))
+      b0text = NewtRefToString(b0);
+    else
+      return NewtThrow(kNErrNotAString, b0);
+  }
+  char *b1text = nullptr;
+  if (!NewtRefIsNIL(b1)) {
+    if (NewtRefIsString(b1))
+      b1text = NewtRefToString(b1);
+    else
+      return NewtThrow(kNErrNotAString, b1);
+  }
+  char *b2text = nullptr;
+  if (!NewtRefIsNIL(b2)) {
+    if (NewtRefIsString(b2))
+      b2text = NewtRefToString(b2);
+    else
+      return NewtThrow(kNErrNotAString, b2);
+  }
+  int ret = fl_choice("%s", b0text, b1text, b2text, NewtRefToString(text));
+  return NewtMakeInteger(ret);
+}
+
+static newtRef
+NsFltkFileChooser(newtRefArg rcvr, newtRefArg message, newtRefArg pattern, newtRefArg filename, newtRefArg relative)
+{
+  (void) rcvr;
+  if (!NewtRefIsString(message))
+    return NewtThrow(kNErrNotAString, message);
+  char *cPattern = nullptr;
+  if (!NewtRefIsNIL(pattern)) {
+    if (NewtRefIsString(pattern))
+      cPattern = NewtRefToString(pattern);
+    else
+      return NewtThrow(kNErrNotAString, pattern);
+  }
+  char *cFilename = nullptr;
+  if (!NewtRefIsNIL(filename)) {
+    if (NewtRefIsString(filename))
+      cFilename = NewtRefToString(filename);
+    else
+      return NewtThrow(kNErrNotAString, filename);
+  }
+  int cRelative = -1;
+  if (NewtRefIsNIL(relative)) cRelative = 0;
+  else if (relative==kNewtRefTRUE) cRelative = 1;
+  else return NewtThrow(kNErrNotTrueOrNil, relative);
+  const char *ret = fl_file_chooser(NewtRefToString(message), cPattern, cFilename, cRelative);
+  if (ret==nullptr)
+    return kNewtRefNIL;
+  return NewtMakeString(ret, false);
+}
+
+
 /**
  Grab the current script from the editor and build a package file.
 
@@ -1025,7 +1087,9 @@ TToolkit::AppBuild()
 
   auto fltk = NewtMakeFrame(kNewtRefNIL, 0);
   newtObjRef fltk_obj = (newtObjRef)NewtRefToPointer(fltk);
-  NewtObjSetSlot(fltk_obj, NSSYM(message), NewtMakeNativeFunc0((void*)NsFltkMessage, 1, false, (char*)"Open a message dialog box"));
+  NewtObjSetSlot(fltk_obj, NSSYM(message), NewtMakeNativeFunc0((void*)NsFltkMessage, 1, false, (char*)"Open a message dialog box (message)"));
+  NewtObjSetSlot(fltk_obj, NSSYM(choice), NewtMakeNativeFunc0((void*)NsFltkChoice, 4, false, (char*)"Open a user choice dialog box (message, cancel buttem, ok button, opt button) => selection (int)"));
+  NewtObjSetSlot(fltk_obj, NSSYM(filechooser), NewtMakeNativeFunc0((void*)NsFltkFileChooser, 4, false, (char*)"Open a file chooser dialog (message, pattern, filename, relative) => filename or NIL"));
   NcDefGlobalVar(NSSYM(fltk), fltk);
 
 	// #file ...
@@ -1443,10 +1507,14 @@ TToolkit::LoadSampleCode(int n)
 			wScriptPanel->SetSourceCode(kToolkitSampleScriptHelloWorld);
 			wScriptPanel->ClearDirty();
 			break;
-		case 2:
-			wScriptPanel->SetSourceCode(kToolkitSampleScriptNativeFunction);
-			wScriptPanel->ClearDirty();
-			break;
+    case 2:
+      wScriptPanel->SetSourceCode(kToolkitSampleScriptNativeFunction);
+      wScriptPanel->ClearDirty();
+      break;
+    case 3:
+      wScriptPanel->SetSourceCode(kToolkitSampleScriptROMPatcher);
+      wScriptPanel->ClearDirty();
+      break;
 	}
 }
 
@@ -1711,6 +1779,8 @@ TToolkit::UserActionFindNext(bool fromLast)
 	TFLScriptEditor* editor = wScriptPanel->GetEditor();
 	Fl_Text_Buffer* buffer = editor->buffer();
 
+  UserActionFindOpen();
+
 	const char* findText = wToolkitFindText->value();
 	if (findText == nullptr || *findText == 0)
 		return false;
@@ -1739,12 +1809,35 @@ TToolkit::UserActionFindNext(bool fromLast)
 }
 
 /**
+ Show the \a search dialog box
+ */
+void
+TToolkit::UserActionFindOpen()
+{
+  //wToolkitFindGroup
+  //wTile
+  //wScriptPanel
+  if (!wToolkitFindGroup->visible()) {
+    wTile->resize(wToolkitFindGroup->x(), wToolkitFindGroup->y() + wToolkitFindGroup->h(),
+                  wTile->w(), wToolkitWindow->h() - wToolkitFindGroup->y() + wToolkitFindGroup->h());
+    wToolkitFindGroup->show();
+  }
+}
+
+/**
  Close the \a search dialog box
  */
 void
 TToolkit::UserActionFindClose()
 {
-	// TODO: not yet
+  //wToolkitFindGroup
+  //wTile
+  //wScriptPanel
+  if (wToolkitFindGroup->visible()) {
+    wToolkitFindGroup->hide();
+    wTile->resize(wToolkitFindGroup->x(), wToolkitFindGroup->y(),
+                  wTile->w(), wToolkitWindow->h() - wToolkitFindGroup->y());
+  }
 }
 
 /**

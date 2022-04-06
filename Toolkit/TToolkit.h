@@ -72,7 +72,8 @@ public:
 	void UserActionRegexChanged();
 	void UserActionFindPrev();
 	bool UserActionFindNext(bool fromLast = true);
-	void UserActionFindClose();
+  void UserActionFindOpen();
+  void UserActionFindClose();
 	void UserActionReplaceNext();
 	void UserActionReplaceAll();
 

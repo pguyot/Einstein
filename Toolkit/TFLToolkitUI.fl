@@ -99,7 +99,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
           MenuItem {wTKOpenRecentMenu[1]} {
             label {
 }
-            callback tk_open_recent_cb selected
+            callback tk_open_recent_cb
             xywh {0 0 31 20}
           }
           MenuItem {wTKOpenRecentMenu[2]} {
@@ -156,6 +156,11 @@ Function {CreateToolkitWindow(int x, int y)} {open
           MenuItem {} {
             label {Native Function}
             callback {gToolkit->LoadSampleCode(2);}
+            xywh {40 40 100 20}
+          }
+          MenuItem {} {
+            label {ROM Patcher}
+            callback {gToolkit->LoadSampleCode(3);}
             xywh {40 40 100 20}
           }
         }
@@ -686,8 +691,8 @@ gToolkit->AppRun();}
       }
       Fl_Button wToolkitFindClose {
         label X
-        callback {gToolkit->UserActionFindClose();}
-        xywh {701 58 18 18} box FLAT_BOX down_box DOWN_BOX color 51 labelsize 11 hide
+        callback {gToolkit->UserActionFindClose();} selected
+        xywh {701 58 18 18} box FLAT_BOX down_box DOWN_BOX color 51 labelsize 11
       }
       Fl_Button wToolkitReplaceNext {
         label Replace
