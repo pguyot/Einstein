@@ -115,9 +115,11 @@ T_ROM_PATCH(0x00255578, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "RealClockS
 	struct tm local;
 #if TARGET_OS_WIN32
 	gmtime_s(&gm, &t);
+	gm.tm_isdst = -1;
 	localtime_s(&local, &t);
 #else
 	gmtime_r(&t, &gm);
+	gm.tm_isdst = -1;
 	localtime_r(&t, &local);
 #endif
 	double tzoffset = difftime(mktime(&local), mktime(&gm));
