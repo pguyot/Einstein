@@ -31,6 +31,8 @@ list (APPEND app_sources
 	Toolkit/TToolkitPlatform.h
 	Toolkit/TToolkitPrototypes.cpp
 	Toolkit/TToolkitPrototypes.h
+	Toolkit/TToolkitScriptExt.cpp
+	Toolkit/TToolkitScriptExt.h
 )
 
 build_with_fluid( TFLToolkitUI Toolkit )

@@ -63,7 +63,7 @@ public:
 	void SetSourceCode(const char* sourcecode);
 	void SetDirty();
 	void ClearDirty();
-  int GetInsertPosition();
+	int GetInsertPosition();
 
 	void AddProtoTemplate(const char* protoName);
 

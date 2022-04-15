@@ -100,7 +100,7 @@ TFLScriptPanel::ClearDirty()
 int
 TFLScriptPanel::GetInsertPosition()
 {
-  return mEditor->insert_position();
+	return mEditor->insert_position();
 }
 
 /**

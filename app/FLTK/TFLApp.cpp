@@ -1427,6 +1427,19 @@ TFLApp::DeferredOnPowerRestored()
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
 
+/*
+ This outputs an error code which should be translated into clear text and written to the Toolkit and log.
+ GetRoot():Notify(6, GetRoot():TranslateToOverview(-8005), GetRoot():TranslateToMessage(-8005));
+ */
+T_ROM_INJECTION(0x00146938, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "Log Exception")
+{
+	KSInt32 ex = (KSInt32) ioCPU->GetRegister(0);
+	KPrintf("Exception %d\n", ex);
+	if (gToolkit)
+		gToolkit->printErrNo(ex);
+	return ioUnit;
+}
+
 /**
  * Copy NewtonOS clipboard data to the system clipboard.
  *

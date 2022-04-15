@@ -1,8 +1,8 @@
 // ==============================
-// File:			TToolkitPrototypes.h
+// File:			TToolkitScriptExt.h
 // Project:			Einstein
 //
-// Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
+// Copyright 2022 by Paul Guyot and Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,28 +21,13 @@
 // $Id$
 // ==============================
 
-#ifndef _T_TOOLKIT_PROTOTYPE_H
-#define _T_TOOLKIT_PROTOTYPE_H
+#ifndef _T_TOOLKIT_SCRIPT_EXT_H
+#define _T_TOOLKIT_SCRIPT_EXT_H
 
-namespace TToolkitPrototype {
-
-extern const char* NewtonDefs21;
-extern const char* BytecodeDefs;
-extern const char* ToolkitDefs;
-extern const char* DefaultPackage;
-extern const char* ToolkitLaunch;
-extern const char* ToolkitDone;
-
-}
-
-typedef struct {
-	int err;
-	const char* text;
-} NewtErrorText;
-extern NewtErrorText gNewtErrorTextList[];
+extern void RegisterToolkitScriptExtensions();
 
 #endif
-// _T_TOOLKIT_PROTOTYPE_H
+// _T_TOOLKIT_SCRIPT_EXT_H
 
 // ======================================================================= //
 // Newton Toolkit
