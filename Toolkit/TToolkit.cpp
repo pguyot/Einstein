@@ -654,19 +654,19 @@ TToolkit::UserActionFindNext(bool fromLast)
 void
 TToolkit::UserActionFindShow()
 {
-//	if (!wToolkitFindGroup->visible())
-//	{
-//		int hTerminal = wToolkitTerminal->h();
-//		int x = wToolkitFindGroup->x();
-//		int y = wToolkitFindGroup->y() + wToolkitFindGroup->h();
-//		int w = wToolkitFindGroup->w();
-//		int h = wToolkitWindow->h() - y;
-//		wTile->resize(x, y, w, h);
-//		wToolkitFindGroup->show();
-//		int oldy = wToolkitTerminal->y();
-//		int newy = wTile->y() + wTile->h() - hTerminal;
-//		wTile->position(0, oldy, 0, newy);
-//	}
+	//	if (!wToolkitFindGroup->visible())
+	//	{
+	//		int hTerminal = wToolkitTerminal->h();
+	//		int x = wToolkitFindGroup->x();
+	//		int y = wToolkitFindGroup->y() + wToolkitFindGroup->h();
+	//		int w = wToolkitFindGroup->w();
+	//		int h = wToolkitWindow->h() - y;
+	//		wTile->resize(x, y, w, h);
+	//		wToolkitFindGroup->show();
+	//		int oldy = wToolkitTerminal->y();
+	//		int newy = wTile->y() + wTile->h() - hTerminal;
+	//		wTile->position(0, oldy, 0, newy);
+	//	}
 }
 
 /**
@@ -675,19 +675,19 @@ TToolkit::UserActionFindShow()
 void
 TToolkit::UserActionFindHide()
 {
-//	if (wToolkitFindGroup->visible())
-//	{
-//		int hTerminal = wToolkitTerminal->h();
-//		wToolkitFindGroup->hide();
-//		int x = wToolkitFindGroup->x();
-//		int y = wToolkitFindGroup->y();
-//		int w = wToolkitFindGroup->w();
-//		int h = wToolkitWindow->h() - y;
-//		wTile->resize(x, y, w, h);
-//		int oldy = wToolkitTerminal->y();
-//		int newy = wTile->y() + wTile->h() - hTerminal;
-//		wTile->position(0, oldy, 0, newy);
-//	}
+	//	if (wToolkitFindGroup->visible())
+	//	{
+	//		int hTerminal = wToolkitTerminal->h();
+	//		wToolkitFindGroup->hide();
+	//		int x = wToolkitFindGroup->x();
+	//		int y = wToolkitFindGroup->y();
+	//		int w = wToolkitFindGroup->w();
+	//		int h = wToolkitWindow->h() - y;
+	//		wTile->resize(x, y, w, h);
+	//		int oldy = wToolkitTerminal->y();
+	//		int newy = wTile->y() + wTile->h() - hTerminal;
+	//		wTile->position(0, oldy, 0, newy);
+	//	}
 }
 
 /**
