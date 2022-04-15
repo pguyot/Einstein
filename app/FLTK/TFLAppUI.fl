@@ -143,6 +143,26 @@ Function {CreateApplicationWindow(int x, int y)} {open
           label {PCCard Slot 1}
           xywh {10 10 100 20} divider
         }
+        Submenu {} {
+          label Reset open
+          xywh {0 0 62 20} divider
+        } {
+          MenuItem {} {
+            label {NewtonScript Reboot}
+            callback {gApp->UserActionReset(1);}
+            xywh {20 20 31 20}
+          }
+          MenuItem {} {
+            label {Hardware Reset}
+            callback {gApp->UserActionReset(0);}
+            xywh {0 0 31 20}
+          }
+          MenuItem {} {
+            label {Brain Wipe}
+            callback {gApp->UserActionReset(2);} selected
+            xywh {40 40 31 20}
+          }
+        }
         MenuItem {} {
           label {Fetch ROM...}
           xywh {4 4 100 20} deactivate
@@ -206,7 +226,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         }
       }
     }
-    Fl_Group wToolbar {open selected
+    Fl_Group wToolbar {open
       xywh {0 24 320 54} box THIN_UP_BOX color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
     } {

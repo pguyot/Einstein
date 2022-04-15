@@ -423,7 +423,8 @@ TARMProcessor::NativeCoprocRegisterTransfer(KUInt32 inInstruction)
 void
 TARMProcessor::Reset(void)
 {
-	mLog->LogLine("Reset");
+	if (mLog)
+		mLog->LogLine("Reset");
 
 	BackupBankRegisters();
 	mSPSRsvc = GetCPSR();

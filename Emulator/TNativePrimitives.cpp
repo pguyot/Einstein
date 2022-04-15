@@ -669,7 +669,14 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 			{
 				mLog->LogLine("TMainPlatformDriver::ResetZAPStoreCheck");
 			}
-			mProcessor->SetRegister(0, 0);
+			if (mEmulator->ZAPMemory())
+			{
+				mProcessor->SetRegister(0, 1);
+				mEmulator->ZAPMemory(false);
+			} else
+			{
+				mProcessor->SetRegister(0, 0);
+			}
 			break;
 
 		case 0x0A: {

@@ -439,6 +439,18 @@ public:
 		mCallOnPowerRestored = std::move(inCallback);
 	}
 
+	void
+	ZAPMemory(bool inZAP)
+	{
+		mZAPMemory = inZAP;
+	}
+
+	bool
+	ZAPMemory()
+	{
+		return mZAPMemory;
+	}
+
 private:
 	///
 	/// Constructeur par copie volontairement indisponible.
@@ -475,6 +487,7 @@ private:
 	KUInt16 mBPID; ///< ID of the breakpoint.
 	std::function<void()> mCallOnQuit; ///< Call this when the user quits Einstein
 	std::function<void()> mCallOnPowerRestored;
+	bool mZAPMemory = false; ///< if set, OS will offer to erase internal flash on next Reset
 };
 
 #endif

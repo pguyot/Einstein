@@ -454,12 +454,22 @@ TFLSettings::GetROMDetails(const char* inFilename)
 					"ROM Version 2.2.00 (737041)",
 					text_size);
 				break;
+			case TROMImage::kWatsonROM:
+				strncpy(text,
+					"Schlumberger Watson FR ROM\n"
+					"ROM Version FR 2.2.00-0",
+					text_size);
+				break;
 			default:
 				strncpy(text,
 					"Unknown ROM or not a ROM\n"
 					"File content not recognized",
 					text_size);
 				break;
+		}
+		if (!theROMImage->CRCValid())
+		{
+			strncat(text, " *** PATCHED ***", text_size);
 		}
 	} else
 	{

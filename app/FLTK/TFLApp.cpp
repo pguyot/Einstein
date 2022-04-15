@@ -616,11 +616,32 @@ TFLApp::UserActionInstallPackage()
 }
 
 /**
+ User wants to reset or reboot the machine.
+ */
+void
+TFLApp::UserActionReset(int inType)
+{
+	switch (inType)
+	{
+		case 0:
+			mEmulator->GetProcessor()->Reset();
+			break;
+		case 1:
+			mPlatformManager->EvalNewtonScript("Reboot();");
+			break;
+		case 2:
+			mEmulator->ZAPMemory(true);
+			mEmulator->GetProcessor()->Reset();
+			break;
+	}
+}
+
+/**
  User wants to see the About window.
 
  \todo The About WIndow is not very beautilf. We should add credits and clickable links
  to give the user complete information on teh project. We should also provide version
- information for teh REx and maybe otehr interfaces.
+ information for the REx and maybe other interfaces.
  */
 void
 TFLApp::UserActionShowAboutPanel()
