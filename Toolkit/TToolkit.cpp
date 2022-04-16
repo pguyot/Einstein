@@ -1,5 +1,5 @@
 // ==============================
-// File:			TFLToolkit.cp
+// File:			TToolkit.cp
 // Project:			Einstein
 //
 // Copyright 2003-2022 by Paul Guyot and Matthias Melcher.
@@ -21,7 +21,7 @@
 // $Id$
 // ==============================
 
-// TODO: Horizontal scrollbar in Inspector must go
+// TODO: Horizontal scrollbar in Inspector must go (wordwrap?)
 // TODO: ScriptEditor needs its own class and Find/Replace, Cut/Copy/Paste, etc.
 // TODO: Better syntax highlighting
 // TODO: single project with multiple files
@@ -35,15 +35,23 @@
 // TODO: a connection to a physical MessagePad (see NTK Toolkit/DyneTK)
 
 /* NOTE:
- This is where the MP2100US ROM interpretes bytecodes "fast"
- cmp     r0, #207                    @ [ 0x000000CF ] 0x002EE1DC 0xE35000CF - .P..
- and this is the slow version:
- cmp     r2, #207                    @ [ 0x000000CF ] 0x002F2028 0xE35200CF - .R..
+ It would be nice to set breakpoints inside NewtonScript, single step, look
+ at data, etc. . My original idea was to implement all that into
+ Einstein/Toolkit, but digging deeper, most of this exists in NTK. So we have to
+ figure out if we want to use the existing techniques of NTK, or create
+ something new in Einstein.
+
  We could add a new BC command, BC26 (0xD0nnnn), where nnnn is the line in the
  source code. This would allow the debugger to show where bytecode execution is
  at right now. We should have a BC27 at the start of every bytecode stream that
  gives us an index to the source file, and an array of source files at the start
  of the NSOF part in the package. BC31 is the highest possible bytecode.
+
+ This is where the MP2100US ROM interpretes bytecodes "fast"
+ cmp     r0, #207                    @ [ 0x000000CF ] 0x002EE1DC 0xE35000CF - .P..
+ and this is the slow version:
+ cmp     r2, #207                    @ [ 0x000000CF ] 0x002F2028 0xE35200CF - .R..
+
  TODO: __LINE__ implement a "current line"
  TODO: __FILE__ implement a "current file" as a stack (call...return)
  TODO: the Newt/64 #include statement must push and pop the current filename and line number
@@ -52,7 +60,7 @@
  */
 
 /*
- TFLToolkit is an integrated NewtonScript compiler, decompiler, and debugger
+ TToolkit is an integrated NewtonScript compiler, decompiler, and debugger
  for Einstein.
  */
 
@@ -976,7 +984,7 @@ TToolkit::AppBuild()
 	}
 	src.append(TToolkitPrototype::ToolkitDone);
 
-	// FIXME: NVMInterpretStr sets _STDERR_ and _STDOUT_ to NIL
+	// TODO: NVMInterpretStr sets _STDERR_ and _STDOUT_ to NIL
 	char previous_path[FL_PATH_MAX];
 	getcwd(previous_path, FL_PATH_MAX - 1);
 	char* current_filename = mCurrentScript->GetFilename();
@@ -1018,7 +1026,6 @@ TToolkit::AppBuild()
 		NcSend0(newt, NSSYM(writePkg));
 	}
 
-	// TODO: does this work?
 	NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
 	NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
 	outRef = NsGetGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
@@ -1294,7 +1301,6 @@ TToolkit::UserActionDecompilePkg(const char* in_filename)
 			return -1;
 	}
 
-	// FIXME: the string must not be longer than 255 characters!
 	const char* cmd = "global _STDERR_ := \"\";\n"
 					  "global _STDOUT_ := \"\";\n"
 					  "printDepth := 9999;\n"
