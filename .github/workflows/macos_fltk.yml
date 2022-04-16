@@ -14,8 +14,8 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-#    - name: Get dependencies
-#      run: brew install clang-format@13
+    - name: Get dependencies
+      run: brew install clang-format
     - name: Get sources
       uses: actions/checkout@v2
     - name: Get FLTK

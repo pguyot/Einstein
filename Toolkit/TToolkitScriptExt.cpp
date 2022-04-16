@@ -46,10 +46,13 @@ extern "C" {
 #include <FL/fl_ask.H>
 
 #if TARGET_OS_WIN32
+#include <Winsock2.h>
+#include <direct.h>
 #include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
 #else
+#include <arpa/inet.h>
 #include <unistd.h>
 #endif
 
@@ -127,7 +130,7 @@ NewtMakeBinaryFromARM(const char* text, bool /*literal*/)
 	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
 	char basename[FL_PATH_MAX + 1];
 	prefs.get_userdata_path(basename, FL_PATH_MAX);
-	char srcfilename[FL_PATH_MAX];
+	char srcfilename[FL_PATH_MAX + 1];
 	strncpy(srcfilename, basename, FL_PATH_MAX);
 	strncat(srcfilename, "inline.s", FL_PATH_MAX);
 
@@ -163,13 +166,13 @@ NewtMakeBinaryFromARMFile(const char* srcfilename, bool /*literal*/)
 	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
 	char basename[FL_PATH_MAX + 1];
 	prefs.get_userdata_path(basename, FL_PATH_MAX);
-	char objfilename[FL_PATH_MAX];
+	char objfilename[FL_PATH_MAX + 1];
 	strncpy(objfilename, basename, FL_PATH_MAX);
 	strncat(objfilename, "inline.o", FL_PATH_MAX);
 	char binfilename[FL_PATH_MAX];
 	strncpy(binfilename, basename, FL_PATH_MAX);
 	strncat(binfilename, "inline", FL_PATH_MAX);
-	char errfilename[FL_PATH_MAX];
+	char errfilename[FL_PATH_MAX + 1];
 	strncpy(errfilename, basename, FL_PATH_MAX);
 	strncat(errfilename, "inline.err", FL_PATH_MAX);
 	// run `arm-none-eabi-as -march=armv4 -mbig-endian test.s -o test.o`
@@ -238,16 +241,16 @@ NewtPatchFileFromARM(const char* text, const char* filename, bool /*literal*/)
 	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
 	char basename[FL_PATH_MAX + 1];
 	prefs.get_userdata_path(basename, FL_PATH_MAX);
-	char srcfilename[FL_PATH_MAX];
+	char srcfilename[FL_PATH_MAX + 1];
 	strncpy(srcfilename, basename, FL_PATH_MAX);
 	strncat(srcfilename, "inline.s", FL_PATH_MAX);
-	char objfilename[FL_PATH_MAX];
+	char objfilename[FL_PATH_MAX + 1];
 	strncpy(objfilename, basename, FL_PATH_MAX);
 	strncat(objfilename, "inline.o", FL_PATH_MAX);
-	char disfilename[FL_PATH_MAX];
+	char disfilename[FL_PATH_MAX + 1];
 	strncpy(disfilename, basename, FL_PATH_MAX);
 	strncat(disfilename, "inline.dis", FL_PATH_MAX);
-	char errfilename[FL_PATH_MAX];
+	char errfilename[FL_PATH_MAX + 1];
 	strncpy(errfilename, basename, FL_PATH_MAX);
 	strncat(errfilename, "inline.err", FL_PATH_MAX);
 
@@ -271,7 +274,7 @@ NewtPatchFileFromARM(const char* text, const char* filename, bool /*literal*/)
 	fl_system(cmd);
 	gToolkit->PrintErrFile(errfilename);
 
-	char appDir[FL_PATH_MAX], romDir[FL_PATH_MAX];
+	char appDir[FL_PATH_MAX + 1], romDir[FL_PATH_MAX + 1];
 	getcwd(appDir, FL_PATH_MAX);
 	fl_filename_absolute(romDir, FL_PATH_MAX, gApp->GetSettings()->ROMPath);
 	char* x = (char*) fl_filename_name(romDir);
@@ -298,7 +301,7 @@ NewtPatchFileFromARM(const char* text, const char* filename, bool /*literal*/)
 	}
 	for (;;)
 	{
-		char buf[FL_PATH_MAX];
+		char buf[FL_PATH_MAX + 1];
 		if (fgets(buf, FL_PATH_MAX, f) == nullptr)
 			break;
 		char* sep = strstr(buf, ":\t");
