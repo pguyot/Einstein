@@ -95,6 +95,15 @@ public:
 		return mROMId;
 	}
 
+	///
+	/// Return true if the CRC32 for the lower 8MB of ROM is valid for the ROM ID.
+	///
+	bool
+	CRCValid()
+	{
+		return mCRCValid;
+	}
+
 	static const KSInt32 kUnknownROM = -1;
 	static const KSInt32 k717006 = 0;
 	static const KSInt32 kMP2x00DROM = 1;
@@ -120,7 +129,7 @@ protected:
 	///
 	/// Find out what ROM we have by calculating its CRC
 	///
-	static KSInt32 ComputeROMId(KUInt8* data);
+	static KSInt32 ComputeROMId(KUInt8* data, bool& outCRCValid);
 
 	KUInt32 mErrorCode = kNoError;
 
@@ -188,6 +197,8 @@ private:
 	SImage* mImage; ///< image structure.
 
 	KSInt32 mROMId = kUnknownROM;
+
+	bool mCRCValid = true;
 };
 
 #endif

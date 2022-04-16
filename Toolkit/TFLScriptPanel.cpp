@@ -97,6 +97,12 @@ TFLScriptPanel::ClearDirty()
 	mScript->ClearDirty();
 }
 
+int
+TFLScriptPanel::GetInsertPosition()
+{
+	return mEditor->insert_position();
+}
+
 /**
  Create a Frame for the given proto.
  \param protoName name of the proto

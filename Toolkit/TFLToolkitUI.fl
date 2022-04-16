@@ -64,10 +64,10 @@ if (mi)
 Function {CreateToolkitWindow(int x, int y)} {open
 } {
   Fl_Window wToolkitWindow {open
-    xywh {494 224 720 600} type Double resizable
+    xywh {270 164 720 600} type Double resizable
     code0 {wToolkitWindow->position(x, y);} visible
   } {
-    Fl_Menu_Bar wToolkitMenubar {open
+    Fl_Menu_Bar wToolkitMenubar {
       xywh {0 0 720 24} color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
       class TFLMenuBar
@@ -99,7 +99,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
           MenuItem {wTKOpenRecentMenu[1]} {
             label {
 }
-            callback tk_open_recent_cb selected
+            callback tk_open_recent_cb
             xywh {0 0 31 20}
           }
           MenuItem {wTKOpenRecentMenu[2]} {
@@ -156,6 +156,11 @@ Function {CreateToolkitWindow(int x, int y)} {open
           MenuItem {} {
             label {Native Function}
             callback {gToolkit->LoadSampleCode(2);}
+            xywh {40 40 100 20}
+          }
+          MenuItem {} {
+            label {ROM Patcher}
+            callback {gToolkit->LoadSampleCode(3);}
             xywh {40 40 100 20}
           }
         }
@@ -606,7 +611,7 @@ gToolkit->AppRun();}
         }
       }
     }
-    Fl_Group wToolkitToolbar {open
+    Fl_Group wToolkitToolbar {
       xywh {0 24 720 37} box THIN_UP_BOX color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
     } {
@@ -684,9 +689,9 @@ gToolkit->AppRun();}
         callback {gToolkit->UserActionFindNext();}
         xywh {658 62 32 20} color 50 labelsize 12
       }
-      Fl_Button wToolkitFindClose {
+      Fl_Button wToolkitFindHide {
         label X
-        callback {gToolkit->UserActionFindClose();}
+        callback {gToolkit->UserActionFindHide();} selected
         xywh {701 58 18 18} box FLAT_BOX down_box DOWN_BOX color 51 labelsize 11 hide
       }
       Fl_Button wToolkitReplaceNext {
@@ -704,8 +709,8 @@ gToolkit->AppRun();}
       xywh {0 114 720 486} resizable
       class TFLTile
     } {
-      Fl_Box {} {
-        xywh {50 146 620 404} hide resizable
+      Fl_Box wTileResizable {
+        xywh {20 150 380 414} hide resizable
       }
       Fl_Group wScriptPanel {
         xywh {0 114 720 386}

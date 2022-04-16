@@ -24,6 +24,9 @@
 // ----- ASAPs
 // TODO: compile for Android
 // TODO: FIX 8 and 16 MB internal Flash support
+//       This todo is not clear to me anymore. Einstein uses the standard 4MB
+//		 Internal Flash plus another 4MB at the ROM Card address 0x10000000.
+//		 Additional Flash can be easily created with simulating PCMCIA cards.
 
 // ----- User Interface improvements
 // TODO: option to launch Monitor stopped at boot point
@@ -32,55 +35,41 @@
 //       Quitting the emulator while the Monitor is visible will lock the app
 //       Monitor does not switch to the Log-only screen when running
 //       Monitor does not show the assembler commands as we step through them
-// TODO: make FKey Bar for eMate emulation with volume slider (screenshot)
-// TODO: make main menu and toolbar optional
+// TODO: make FKey Bar for eMate emulation with contrast and volume slider (screenshot)
 // TODO: is the drop-down menu still on par?
 // TODO: allow skeuomorphism (use photo of MP as an outline in the UI)
 
 // ----- Minor Improvemnts in Usability
-// TODO: menu and action to reboot Newton (in different configurations)
-//       Reboot__FlUlUc: @ 0x000D9884: Reboot(long, unsigned long, unsigned char)
-//       PowerOffAndReboot__Fl: @ 0x000E6BBC: PowerOffAndReboot(long)
-//       ZapInternalStoreCheck__Fv: @ 0x00113CBC: ZapInternalStoreCheck(void)
-//       FReboot: @ 0x00146AF8 0xE1A0C00D - ....
-//       WarmBoot: 0x0038D1E0
-// TODO: install essentials
+// TODO: install essentials (choose which packages we want to offer)
 // TODO: drag'n'drop of multiple files and archives
-// Done: drag'n'drop from network locations (https:, etc.)
-// TODO: drag'n'drop for the Unna Archive
 // TODO: option to load and save complete images including ROM, RAM, Flash, and PCMCIA memory snapshots
 // TODO: automated Internet access (install and setup)
-// TODO: add preferences to point to a UNNA archive image, so we can browse that and install quickly
 // TODO: Toolkit: add global functions to handle images, sounds and other external binary data
 // TODO: Toolkit: improve decompiler to generate external binary data and reference it
 // TODO: Toolkit: reverse bytecode to source code
-// Done: Set NewtonOS to Host time (in minutes since Jan 1 1904). Set Locale?
-//       Calculate minutes in the current Locale.
 
 // ----- Major new Features
 // TODO: NTK Monitor
-// TODO: Patch ROMs for Y10k bug (Y26k bug coming up quickly!)
 // TODO: Printer support
-// Done: Printing screen shots
 // TODO: Wake-up/launch on appointment in the future
 
-// ----- Improvemnets to the inner workings
+// ----- Improvements to the inner workings
 // TODO: Full Android support as an address book and calender app
 // TODO: Fix locks and race conditions
-// Done: cleanup all compile warnings on all platforms
 // TODO: Linux: App Icon, Flatpak?
 
 // ----- Documentations
-// TODO: about panel must have all authors and references to the linked libraries (FLTK, ...)
-// TODO: release notes
 // TODO: help pages for use of Einstein, Monitor, etc.
 // TODO: help for getting started with NewtonOS, links
 
-// ----- Flash Memeory Settings
-// TODO: even if internal Flash is set to 4MB, it reports 8MB in sum. Also, we can't allocate more than 4MB in settings without crash. Original Einstein works.
-
 // ----- Ethernet Emulation
 // TODO: NPDS not working: incomming TCP/IP connections don't work
+
+// ----- F*ROM card emulation
+// TODO: emulate the 32MB FLash ROM card
+//		 Page 0 is ROM, page 1 is used by the Einstein REx, Page 2 is used
+//		 by einstein for an additional 4MB of Flash. So we can only really test
+//		 the F*ROM on Page 3. Must check if NewtonOS finds REx's on page 3.
 
 /*
 
@@ -616,11 +605,32 @@ TFLApp::UserActionInstallPackage()
 }
 
 /**
+ User wants to reset or reboot the machine.
+ */
+void
+TFLApp::UserActionReset(int inType)
+{
+	switch (inType)
+	{
+		case 0:
+			mEmulator->GetProcessor()->Reset();
+			break;
+		case 1:
+			mPlatformManager->EvalNewtonScript("Reboot();");
+			break;
+		case 2:
+			mEmulator->ZAPMemory(true);
+			mEmulator->GetProcessor()->Reset();
+			break;
+	}
+}
+
+/**
  User wants to see the About window.
 
  \todo The About WIndow is not very beautilf. We should add credits and clickable links
  to give the user complete information on teh project. We should also provide version
- information for teh REx and maybe otehr interfaces.
+ information for the REx and maybe other interfaces.
  */
 void
 TFLApp::UserActionShowAboutPanel()
@@ -1426,6 +1436,19 @@ TFLApp::DeferredOnPowerRestored()
 
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 #include "Emulator/JIT/Generic/TJITGeneric_Macros.h"
+
+/*
+ This outputs an error code which should be translated into clear text and written to the Toolkit and log.
+ GetRoot():Notify(6, GetRoot():TranslateToOverview(-8005), GetRoot():TranslateToMessage(-8005));
+ */
+T_ROM_INJECTION(0x00146938, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "Log Exception")
+{
+	KSInt32 ex = (KSInt32) ioCPU->GetRegister(0);
+	KPrintf("Exception %d\n", ex);
+	if (gToolkit)
+		gToolkit->printErrNo(ex);
+	return ioUnit;
+}
 
 /**
  * Copy NewtonOS clipboard data to the system clipboard.

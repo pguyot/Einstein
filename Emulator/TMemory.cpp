@@ -952,6 +952,16 @@ TMemory::ReadP(PAddr inAddress, Boolean& outFault)
 			return mInterruptManager->GetGPIOCtrlReg();
 		} else if (inAddress == TMemoryConsts::kHdWr_P0F18D400)
 		{
+			// 0: IN: power switch
+			// 1: IN: AC Adapter Installed
+			// 2: IN: PCMCIA Card Lock 0
+			// 3: IN: PCMCIA Card Lock 1
+			// 4: OUT: +5V
+			// 5: OUT: +12V
+			// 6: OUT: disable LTC 1323 line driver
+			// 7: OUT: enable fast battery charging
+			// 8: IN: IR busy
+			// 9: Serial ~CP Enable
 			return 0xffffffff; // PCMCIA Door Locked?
 		} else if (inAddress == TMemoryConsts::kHdWr_PlatformVers)
 		{

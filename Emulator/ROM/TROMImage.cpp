@@ -83,46 +83,6 @@ TROMImage::~TROMImage(void)
 void
 TROMImage::CreateImage(const KUInt8* inBuffer)
 {
-	// Patch the version number
-	// TODO: we could have a much more complete REX management that can add or remove packages
-	//       from the REX file as needed, so that we can, for example, include the internet enabler.
-	// TODO: at some point, we must also patch known ROMs for the current decade to fix the Y10k bug
-	if (memcmp(inBuffer + 0x00806b74, "2020.2", 7) == 0)
-	{
-		char* d = (char*) inBuffer + 0x00806b74;
-		const char* vv = PROJECT_VER_MAJOR;
-		// copy no more than four characters; should be the full year
-		if (vv[0])
-		{
-			*d++ = vv[0];
-			if (vv[1])
-			{
-				*d++ = vv[1];
-				if (vv[2])
-				{
-					*d++ = vv[2];
-					if (vv[3])
-					{
-						*d++ = vv[3];
-					}
-				}
-			}
-		}
-		*d++ = '.';
-		const char* vm = PROJECT_VER_MINOR;
-		// copy no more than two characters for the minor version number
-		if (vm[0])
-		{
-			*d++ = vm[0];
-			if (vm[1])
-			{
-				*d++ = vm[1];
-			}
-		}
-		// end of text
-		*d = 0;
-	}
-
 	SImage* theImagePtr = (SImage*) ::calloc(1, sizeof(SImage));
 
 	// inBuffer contains 16 MB consisting of the ROM followed by the REX.
@@ -144,7 +104,7 @@ TROMImage::CreateImage(const KUInt8* inBuffer)
 	(void) ::memcpy(theImagePtr, inBuffer, inBufferSize);
 #endif
 
-	mROMId = ComputeROMId(theImagePtr->fROM);
+	mROMId = ComputeROMId(theImagePtr->fROM, mCRCValid);
 
 	JITClass::PatchROM((KUInt32*) theImagePtr->fROM, mROMId);
 
@@ -366,10 +326,35 @@ TROMImage::LookForREXes(
 	return nbRexes;
 }
 
+/**
+ This function identifies the given RO and checks if it was patched.
+
+ The ROM is identified by checking three known markers which give us a rough
+ idea about the ROM version that the user selected. We further verify that
+ the CRC32 checksum over the lower 8MB of the ROM file corresponds to the
+ ROOM ID.
+
+ If the CRC does not match the ID, the user may have patched to ROM file.
+ This makes it risky to patch the ROM for better compatibility with Einstein.
+
+ \note it may make sense to give users an option to disable Einstein runtime
+ patching. We can also add an "expected value" to the runtime patch to
+ greatly reduce the risk f applying wrong patches.
+
+ \param inROMPtr ROM memory block in MSB order
+ \return the ROM ID from the list of knwn ROMs
+
+ \see TROMImage::CRCValid()
+ */
 KSInt32
-TROMImage::ComputeROMId(KUInt8* inROMPtr)
+TROMImage::ComputeROMId(KUInt8* inROMPtr, bool& outCRCValid)
 {
-	// Identify the ROM by taking the CRC32 of the ROM and internal REX.
+	//                              MP US    eMate    MP FR    MP DE
+	// gROMVersion: 	0x000013DC 00020002 00020002 00020002 00020003
+	// gROMStage: 		0x000013E0 00008000 00008000 00018000 00038000
+	// gHardwareType: 	0x000013EC 10003000 10004000 10003000 10003000
+
+	// Take the CRC32 of the ROM and internal REX.
 
 	// The manufacturer of the ROM may change, but the remaining content is the same
 	KUInt32 tmpManufacturer[1];
@@ -383,32 +368,30 @@ TROMImage::ComputeROMId(KUInt8* inROMPtr)
 
 	// Get a neutral CRC32 of the ROM minus the variables
 	KUInt32 crc = GetCRC32(inROMPtr, 0x00800000);
-	//    FILE *f = fopen("/Users/matt/img", "wb");
-	//    fwrite(inROMPtr, 1, 0x00800000, f);
-	//    fclose(f);
 
 	// Now restore the variable content
 	memcpy(inROMPtr + 0x000013fC, tmpManufacturer, sizeof(tmpManufacturer));
 	memcpy(inROMPtr + 0x00018420, tmpDiagCheckTag, sizeof(tmpDiagCheckTag));
 
+	// Find the ROM type by checking a few known addresses in ROM
 	KSInt32 romID = kUnknownROM;
-	switch (crc)
+	KUInt32* r = (KUInt32*) inROMPtr;
+	if (r[0x4f7] == 0x00020002 && r[0x4f8] == 0x00008000 && r[0x4fb] == 0x10003000)
 	{
-		case 0x2bab2cee: // MP2x00(US): 2.1(711000)-1, can be updated to 2.1/710031
-			romID = k717006;
-			break;
-		case 0x62081e10: // eMate 300(US): v2.2.00-0(737041) can be updated to v2.1/737246
-			romID = kEMate300ROM;
-			break;
-		case 0xa9862ccc: // MP2100(D): (747129)  (747260)
-			romID = kMP2x00DROM;
-			break;
-		case 0x176d233b: // Watson (MP2100 French)
-			romID = kWatsonROM;
-			break;
-		default:
-			KPrintf("Unknown ROM with CRC 0x%08x. No patches will be applied.\n", crc);
-			break;
+		romID = k717006; // MP2x00(US): 2.1(711000)-1, can be updated to 2.1/710031
+		outCRCValid = (crc == 0x2bab2cee);
+	} else if (r[0x4f7] == 0x00020002 && r[0x4f8] == 0x00008000 && r[0x4fb] == 0x10004000)
+	{
+		romID = kEMate300ROM; // eMate 300(US): v2.2.00-0(737041) can be updated to v2.1/737246
+		outCRCValid = (crc == 0x62081e10);
+	} else if (r[0x4f7] == 0x00020003 && r[0x4f8] == 0x00038000 && r[0x4fb] == 0x10003000)
+	{
+		romID = kMP2x00DROM; // MP2100(D): (747129)  (747260)
+		outCRCValid = (crc == 0xa9862ccc);
+	} else if (r[0x4f7] == 0x00020002 && r[0x4f8] == 0x00018000 && r[0x4fb] == 0x10003000)
+	{
+		romID = kWatsonROM; // Watson (MP2100 French)
+		outCRCValid = (crc == 0x176d233b);
 	}
 	return romID;
 }

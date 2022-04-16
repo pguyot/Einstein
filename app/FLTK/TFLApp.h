@@ -104,6 +104,9 @@ public:
 	// user wants to install a package
 	void UserActionInstallPackage();
 
+	// user wants to reset or reboot the emulator
+	void UserActionReset(int inType);
+
 	// user wants to see the About window
 	void UserActionShowAboutPanel();
 

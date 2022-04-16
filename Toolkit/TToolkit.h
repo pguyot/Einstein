@@ -21,8 +21,8 @@
 // $Id$
 // ==============================
 
-#ifndef _TFLTOOLKIT_H
-#define _TFLTOOLKIT_H
+#ifndef _T_TOOLKIT_H
+#define _T_TOOLKIT_H
 
 #include <K/Defines/KDefinitions.h>
 
@@ -72,7 +72,8 @@ public:
 	void UserActionRegexChanged();
 	void UserActionFindPrev();
 	bool UserActionFindNext(bool fromLast = true);
-	void UserActionFindClose();
+	void UserActionFindShow();
+	void UserActionFindHide();
 	void UserActionReplaceNext();
 	void UserActionReplaceAll();
 
@@ -94,6 +95,7 @@ public:
 	void PrintStd(const char* text);
 	void PrintErr(const char* text);
 	void PrintErrFile(const char* filename);
+	void printErrNo(KSInt32 errNo);
 
 private:
 	int ReadScriptResults();
@@ -119,7 +121,7 @@ private:
 extern TToolkit* gToolkit;
 
 #endif
-// _TFLTOOLKIT_H
+// _T_TOOLKIT_H
 
 // ======================================================================= //
 // Newton Toolkit

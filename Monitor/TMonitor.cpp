@@ -514,12 +514,12 @@ TMonitor::Stop()
 		mEmulator->Stop();
 	}
 
-	// AcquireMutex();
+	AcquireMutex();
 	//  I have the mutex, so the loop is waiting.
 
 	SignalCondVar();
 
-	// ReleaseMutex();
+	ReleaseMutex();
 }
 
 // little helper to return the prinatble version of any character
