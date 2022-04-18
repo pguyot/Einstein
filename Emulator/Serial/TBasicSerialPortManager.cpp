@@ -59,9 +59,12 @@
  ==============================
 
  NCU	The origial Newton Connect Utilities. NCU runs under Classic MacOS. The
-		commonly used emulatr, BasiliskII, has no serial port emulation. It
+		commonly used emulator, BasiliskII, has no serial port emulation. It
 		may be possible to patch BasiliskII to support the serial port emulation
 		used in this file.
+		2022: I patched  Basilisk a while ago to emulate the serial port. It
+		now even works with Hammer and all other Classic tools.
+		See: http://messagepad.org/Newton_Installs.html
  NCX	Simon Bell's Newton Connection for Mac OS X. As of Feb. 2017, a patched
 		version is available from GitHub that connects to Einstein:
 		https://github.com/MatthiasWM/newton-connection/releases/tag/mv0.1
