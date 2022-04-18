@@ -529,9 +529,201 @@ NsFltkFileChooser(newtRefArg rcvr, newtRefArg message, newtRefArg pattern, newtR
 	return NewtMakeString(ret, false);
 }
 
+static newtRef
+NsFileNew(newtRefArg rcvr)
+{
+	(void) rcvr;
+	// return NewtMakeString("Test", false);
+	//  newtRef file = NewtMakeFrame(kNewtRefNIL, 0);
+	//  newtObjRef file_obj = (newtObjRef) NewtRefToPointer(file);
+	//  NewtObjSetSlot(file_obj, NSSYM(_proto), NSSYM(file));
+	//  NewtObjSetSlot(file_obj, NSSYM(_cFile), NewtMakeInt64(0));
+
+	newtRefVar r = NcMakeFrame();
+	NcSetSlot(r, NSSYM(_proto), NsGetGlobalVar(rcvr, NSSYM(file)));
+	NcSetSlot(r, NSSYM(_cFile), NewtMakeInt64(0));
+
+	return r;
+}
+
+static newtRef
+NsFileOpen(newtRefArg rcvr, newtRefArg filename, newtRefArg mode)
+{
+	newtObjRef self = (newtObjRef) NewtRefToPointer(rcvr);
+	newtRefArg cFile = NewtObjGetSlot(self, NSSYM(_cFile));
+	FILE* f = (FILE*) NewtRefToInteger(cFile);
+	if (f)
+		return NewtThrow(kNErrNotNil, NSSYM(_cFile));
+
+	char* cFilename = nullptr;
+	if (NewtRefIsString(filename))
+		cFilename = NewtRefToString(filename);
+	else
+		return NewtThrow(kNErrNotAString, filename);
+
+	const char* cMode = nullptr;
+	if (NewtRefIsSymbol(mode))
+	{
+		if (NewtSymbolEqual(mode, NSSYM(read)))
+			cMode = "rb";
+		else if (NewtSymbolEqual(mode, NSSYM(write)))
+			cMode = "wb";
+		else if (NewtSymbolEqual(mode, NSSYM(readwrite)))
+			cMode = "rwb";
+		else if (NewtSymbolEqual(mode, NSSYM(append)))
+			cMode = "ab";
+		else
+			return NewtThrow(kNErrBadArgs, mode);
+	} else
+	{
+		return NewtThrow(kNErrNotASymbol, mode);
+	}
+
+	f = fl_fopen(cFilename, cMode);
+	if (!f)
+		return NewtThrow(kNErrFileNotOpen, filename);
+	NewtObjSetSlot(self, NSSYM(_cFile), NewtMakeInt64((int64_t) f));
+
+	return kNewtRefTRUE;
+}
+
+static newtRef
+NsFileIsOpen(newtRefArg rcvr)
+{
+	newtObjRef self = (newtObjRef) NewtRefToPointer(rcvr);
+	newtRefArg cFile = NewtObjGetSlot(self, NSSYM(_cFile));
+	FILE* f = (FILE*) NewtRefToInteger(cFile);
+	if (f)
+		return kNewtRefTRUE;
+	else
+		return kNewtRefNIL;
+}
+
+static newtRef
+NsFileSize(newtRefArg rcvr)
+{
+	newtObjRef self = (newtObjRef) NewtRefToPointer(rcvr);
+	newtRefArg cFile = NewtObjGetSlot(self, NSSYM(_cFile));
+	FILE* f = (FILE*) NewtRefToInteger(cFile);
+	if (!f)
+		return NewtThrow(kNErrFileNotOpen, rcvr);
+	int fd = fileno(f);
+	struct stat buf;
+	fstat(fd, &buf);
+	off_t size = buf.st_size;
+	return NewtMakeInteger(size);
+}
+
+static newtRef
+NsFileSeek(newtRefArg rcvr, newtRefArg position, newtRefArg mode)
+{
+	newtObjRef self = (newtObjRef) NewtRefToPointer(rcvr);
+	newtRefArg file = NewtObjGetSlot(self, NSSYM(_cFile));
+	FILE* f = (FILE*) NewtRefToInteger(file);
+	if (!f)
+		return NewtThrow(kNErrNotNil, NSSYM(_cFile));
+
+	int cPosition = 0;
+	if (NewtRefIsInteger(position))
+		cPosition = NewtRefToInteger(position);
+	else
+		return NewtThrow(kNErrNotAnInteger, position);
+
+	int cMode = SEEK_SET;
+	if (NewtRefIsSymbol(mode))
+	{
+		if (NewtSymbolEqual(mode, NSSYM(set)))
+			cMode = SEEK_SET;
+		else if (NewtSymbolEqual(mode, NSSYM(cur)))
+			cMode = SEEK_CUR;
+		else if (NewtSymbolEqual(mode, NSSYM(end)))
+			cMode = SEEK_END;
+		else
+			return NewtThrow(kNErrBadArgs, mode);
+	} else
+	{
+		return NewtThrow(kNErrNotASymbol, mode);
+	}
+
+	int ret = fseek(f, cPosition, cMode);
+	return NewtMakeInteger(ret);
+}
+
+static newtRef
+NsFileTell(newtRefArg rcvr)
+{
+	newtObjRef self = (newtObjRef) NewtRefToPointer(rcvr);
+	newtRefArg cFile = NewtObjGetSlot(self, NSSYM(_cFile));
+	FILE* f = (FILE*) NewtRefToInteger(cFile);
+	if (!f)
+		return NewtThrow(kNErrFileNotOpen, rcvr);
+	return NewtMakeInteger(ftell(f));
+}
+
+static newtRef
+NsFileRead(newtRefArg rcvr, newtRefArg maxBytes)
+{
+	newtObjRef self = (newtObjRef) NewtRefToPointer(rcvr);
+	newtRefArg cFile = NewtObjGetSlot(self, NSSYM(_cFile));
+	FILE* f = (FILE*) NewtRefToInteger(cFile);
+	if (!f)
+		return NewtThrow(kNErrFileNotOpen, rcvr);
+
+	int cMaxBytes = NewtRefToInteger(maxBytes);
+	if (cMaxBytes <= 0)
+		return NewtThrow(kNErrOutOfRange, maxBytes);
+
+	uint8_t* buffer = (uint8_t*) ::malloc(cMaxBytes);
+	int n = ::fread(buffer, 1, cMaxBytes, f);
+	if (n <= 0)
+		return kNewtRefNIL;
+
+	return NewtMakeBinary(NSSYM(data), buffer, n, false);
+}
+
+static newtRef
+NsFileWrite(newtRefArg rcvr, newtRefArg data)
+{
+	// TODO: throw an error if this a read-only file?
+	newtObjRef self = (newtObjRef) NewtRefToPointer(rcvr);
+	newtRefArg cFile = NewtObjGetSlot(self, NSSYM(_cFile));
+	FILE* f = (FILE*) NewtRefToInteger(cFile);
+	if (!f)
+		return NewtThrow(kNErrFileNotOpen, rcvr);
+
+	void* cData = nullptr;
+	int cSize = 0;
+	if (NewtRefIsBinary(data))
+	{
+		cData = NewtObjData((newtObjRef) NewtRefToPointer(data));
+		cSize = NewtBinaryLength(data);
+		// TODO: if the binary is a string, remove the trailing 0 (cSize--)
+	} else
+	{
+		return NewtThrow(kNErrNotABinaryObject, data);
+	}
+
+	int ret = fwrite(cData, 1, cSize, f);
+	return NewtMakeInteger(ret);
+}
+
+static newtRef
+NsFileClose(newtRefArg rcvr)
+{
+	newtObjRef self = (newtObjRef) NewtRefToPointer(rcvr);
+	newtRefArg cFile = NewtObjGetSlot(self, NSSYM(_cFile));
+	FILE* f = (FILE*) NewtRefToInteger(cFile);
+	if (!f)
+		return NewtThrow(kNErrFileNotOpen, rcvr);
+	fclose(f);
+	f = nullptr;
+	return kNewtRefTRUE;
+}
+
 void
 RegisterToolkitScriptExtensions()
 {
+	// a list of additional global functions
 	NewtDefGlobalFunc0(NSSYM(MakeBinaryFromString), (void*) NsMakeBinaryFromString, 2, false, (char*) "MakeBinaryFromString(str, sym)");
 	NewtDefGlobalFunc0(NSSYM(MakeBinaryFromARM), (void*) NsMakeBinaryFromARM, 1, false, (char*) "MakeBinaryFromARM(ARM_Instructions)");
 	NewtDefGlobalFunc0(NSSYM(MakeBinaryFromARMFile), (void*) NsMakeBinaryFromARMFile, 1, false, (char*) "MakeBinaryFromARMFile(ARM_Assembler_Filename)");
@@ -539,16 +731,32 @@ RegisterToolkitScriptExtensions()
 	NewtDefGlobalFunc0(NSSYM(AddStepForm), (void*) NSAddStepForm, 2, false, (char*) "AddStepForm(mainView, scrollClipper);");
 	NewtDefGlobalFunc0(NSSYM(StepDeclare), (void*) NSStepDeclare, 3, false, (char*) "StepDeclare(mainView, scrollClipper, 'scrollClipper);");
 
-	// FIXME: does this work?
+	// redirect error output into a string field
 	NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
 	NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
 
+	// the FLTK namespace with a few GUI related calls
 	auto fltk = NewtMakeFrame(kNewtRefNIL, 0);
 	newtObjRef fltk_obj = (newtObjRef) NewtRefToPointer(fltk);
 	NewtObjSetSlot(fltk_obj, NSSYM(message), NewtMakeNativeFunc0((void*) NsFltkMessage, 1, false, (char*) "Open a message dialog box (message)"));
 	NewtObjSetSlot(fltk_obj, NSSYM(choice), NewtMakeNativeFunc0((void*) NsFltkChoice, 4, false, (char*) "Open a user choice dialog box (message, cancel buttem, ok button, opt button) => selection (int)"));
 	NewtObjSetSlot(fltk_obj, NSSYM(filechooser), NewtMakeNativeFunc0((void*) NsFltkFileChooser, 4, false, (char*) "Open a file chooser dialog (message, pattern, filename, relative) => filename or NIL"));
 	NcDefGlobalVar(NSSYM(fltk), fltk);
+
+	// the FILE namespace for reading and writing files on the hos machine
+	auto file = NewtMakeFrame(kNewtRefNIL, 0);
+	newtObjRef file_obj = (newtObjRef) NewtRefToPointer(file);
+	NewtObjSetSlot(file_obj, NSSYM(new), NewtMakeNativeFunc0((void*) NsFileNew, 0, false, (char*) "Create a frame to access files on the host machine."));
+	NewtObjSetSlot(file_obj, NSSYM(open), NewtMakeNativeFunc0((void*) NsFileOpen, 2, false, (char*) "Open(filename, 'read|'write|'readwrite|'append)"));
+	NewtObjSetSlot(file_obj, NSSYM(isOpen), NewtMakeNativeFunc0((void*) NsFileIsOpen, 0, false, (char*) "IsOpen() -> nil|true"));
+	// string FILE:error(); // return the strerror text for all platforms, we may also want a unified error number
+	NewtObjSetSlot(file_obj, NSSYM(size), NewtMakeNativeFunc0((void*) NsFileSize, 0, false, (char*) "Size() -> int size in bytes"));
+	NewtObjSetSlot(file_obj, NSSYM(read), NewtMakeNativeFunc0((void*) NsFileRead, 1, false, (char*) "Read(maxSize) -> binary object"));
+	NewtObjSetSlot(file_obj, NSSYM(write), NewtMakeNativeFunc0((void*) NsFileWrite, 1, false, (char*) "Write(binary object) -> bytes written"));
+	NewtObjSetSlot(file_obj, NSSYM(seek), NewtMakeNativeFunc0((void*) NsFileSeek, 2, false, (char*) "seek(int pos, 'set|'cur|'end) -> int 0=ok, -1=error"));
+	NewtObjSetSlot(file_obj, NSSYM(tell), NewtMakeNativeFunc0((void*) NsFileTell, 0, false, (char*) "Tell() -> int position in file"));
+	NewtObjSetSlot(file_obj, NSSYM(close), NewtMakeNativeFunc0((void*) NsFileClose, 0, false, (char*) "Close() -> ex or TRUE"));
+	NcDefGlobalVar(NSSYM(file), file);
 }
 
 /* MakeIcon/ImagFormPNG:
