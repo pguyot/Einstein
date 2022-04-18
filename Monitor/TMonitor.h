@@ -57,7 +57,7 @@ public:
 		TBufferLog* inLog,
 		TEmulator* inEmulator,
 		TSymbolList* inSymbolList,
-		const char* inROMPath);
+		const char* inMonitorStartupScriptPath);
 
 	///
 	/// Destructor.
@@ -408,7 +408,7 @@ private:
 	int mSocketPair[2]; ///< Socket pair for monitor state changes.
 #endif
 	Boolean mLastScreenHalted; ///< If last screen was halted.
-	char* mROMPath; ///< path to the ROM fle directory
+	char* mMonitorStartupScriptPath; ///< path to the ROM fle directory
 
 	Boolean mRunOnStartup = false; ///< Run the emulation as soon as the monitor starts
 };

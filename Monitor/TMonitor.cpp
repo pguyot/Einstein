@@ -105,7 +105,7 @@ TMonitor::TMonitor(
 	TBufferLog* inLog,
 	TEmulator* inEmulator,
 	TSymbolList* inSymbolList,
-	const char* inROMPath) :
+	const char* inMonitorStartupScriptPath) :
 		TMonitorCore(inSymbolList),
 		mEmulator(inEmulator),
 		mProcessor(inEmulator->GetProcessor()),
@@ -115,7 +115,7 @@ TMonitor::TMonitor(
 		mCommand(kNop),
 		mFilename(nullptr),
 		mLastScreenHalted(true),
-		mROMPath(strdup(inROMPath))
+		mMonitorStartupScriptPath(strdup(inMonitorStartupScriptPath))
 {
 	mMemory = inEmulator->GetMemory();
 
@@ -169,7 +169,7 @@ TMonitor::Run()
 	// At first, we're halted.
 	mHalted = true;
 
-	// If the user put a script at /ROMPath/monitorrc, run it.
+	// If the user put a script at /ROMPath/ROMBaseName.monitorrc, run it.
 	// This is used to set the default path, breakpoints, etc.
 	ExecuteStartupScript();
 
@@ -539,11 +539,9 @@ Boolean
 TMonitor::ExecuteStartupScript()
 {
 	bool theResult = true;
-	char buf[2048];
-	snprintf(buf, 2048, "%s/monitorrc", mROMPath);
-	if (::access(buf, 4 /*R_OK*/) == 0)
+	if (::access(mMonitorStartupScriptPath, 4 /*R_OK*/) == 0)
 	{
-		theResult = ExecuteScript(buf);
+		theResult = ExecuteScript(mMonitorStartupScriptPath);
 	}
 	return theResult;
 }
@@ -1335,7 +1333,7 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		PrintNSRef(theArgInt);
 	} else if (::strcmp(inCommand, "cdr") == 0)
 	{
-		::chdir(mROMPath);
+		::chdir(mMonitorStartupScriptPath);
 	} else if (inCommand[0] == '!')
 	{
 		theResult = ExecuteScript(inCommand + 1);
@@ -1432,7 +1430,7 @@ void
 TMonitor::PrintScriptingHelp()
 {
 	PrintLine("Scripting can run many Monitor commands in a text file.", MONITOR_LOG_INFO);
-	PrintLine("When Einstein starts, the script /ROMpath/monitorrc is", MONITOR_LOG_INFO);
+	PrintLine("When Einstein starts, the script /ROMpath/ROMBaseName.monitorrc is", MONITOR_LOG_INFO);
 	PrintLine("executed first.", MONITOR_LOG_INFO);
 	PrintLine("", MONITOR_LOG_INFO);
 	PrintLine(" !filename          run a script file", MONITOR_LOG_INFO);
