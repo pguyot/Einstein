@@ -45,3 +45,8 @@ DerivedData/
 /Drivers/packages/MemDumper
 /Drivers/EinsteinPortEnabler/portenabler.ntkc
 /_Build_/AndroidStudioNative/einstein/signingConfigRelease.properties
+fltk/
+*.gch
+CMakeCache.txt
+CMakeFiles/cmake.check_cache
+newt64/

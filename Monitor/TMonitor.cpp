@@ -340,9 +340,10 @@ TMonitor::SaveEmulatorState(const char* inFilename)
 	{
 		inFilename = "/tmp/einstein.state";
 	}
+  mEmulator->SaveState(inFilename);
+
 #if !TARGET_UI_FLTK
 	char someByte = 0;
-	mEmulator->SaveState(inFilename);
 	(void) ::write(mSocketPair[1], &someByte, 1);
 #endif
 }
