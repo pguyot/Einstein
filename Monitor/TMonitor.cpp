@@ -119,7 +119,11 @@ TMonitor::TMonitor(
 {
 	mMemory = inEmulator->GetMemory();
   mROMImageDir = strdup(mMonitorStartupScriptPath);
+#if TARGET_OS_WIN32
+  char *pathEnd = strrchr(mROMImageDir, '\\');
+#else
   char *pathEnd = strrchr(mROMImageDir, '/');
+#endif
   *pathEnd = 0;
 
 
