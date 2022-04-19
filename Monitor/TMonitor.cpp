@@ -118,6 +118,10 @@ TMonitor::TMonitor(
 		mMonitorStartupScriptPath(strdup(inMonitorStartupScriptPath))
 {
 	mMemory = inEmulator->GetMemory();
+  mROMImageDir = strdup(mMonitorStartupScriptPath);
+  char *pathEnd = strrchr(mROMImageDir, '/');
+  *pathEnd = 0;
+
 
 #if !TARGET_UI_FLTK
 	if (::socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, mSocketPair) != 0)
@@ -1333,7 +1337,7 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		PrintNSRef(theArgInt);
 	} else if (::strcmp(inCommand, "cdr") == 0)
 	{
-		::chdir(mMonitorStartupScriptPath);
+		::chdir(mROMImageDir);
 	} else if (inCommand[0] == '!')
 	{
 		theResult = ExecuteScript(inCommand + 1);

@@ -408,7 +408,8 @@ private:
 	int mSocketPair[2]; ///< Socket pair for monitor state changes.
 #endif
 	Boolean mLastScreenHalted; ///< If last screen was halted.
-	char* mMonitorStartupScriptPath; ///< path to the ROM fle directory
+	char* mMonitorStartupScriptPath; ///< path to monitor startup script file
+	char* mROMImageDir; /// < path to the ROM file directory
 
 	Boolean mRunOnStartup = false; ///< Run the emulation as soon as the monitor starts
 };
