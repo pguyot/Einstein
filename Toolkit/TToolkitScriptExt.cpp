@@ -761,6 +761,23 @@ RegisterToolkitScriptExtensions()
 
 /* MakeIcon/ImagFormPNG:
 
+ Create an app icon from one or more GIF/PNG images.
+
+ App icons can be 1 bit or 4 bit deep, have an alternative image when clicked
+ (highlighted), and have one 1-bit maks for normal and highlighted each.
+ There is an option to use no mask, a bitmap mask, or a calculated mask.
+ Iconsize is usually 26x25 pixels.
+
+ (icon is also used in "viewclass: 76")
+
+ We also want to create image and sound data for scripts.
+
+ V1: icon { mask*, bits, bounds { left, top, right bottom } }
+ V2: icon, iconPro { unhilited { bounds, bits, mask, colorData [* { cbits, bitDepth } ]* } hilited { } }
+ V2c: icon { mask*, bits, bounds { left, top, right bottom } colorData { cbits, bitDepth } }
+
+
+
  B/W image format:
  newt.app.parts[0].data.icon: {
  mask: MakeBinaryFromHex(

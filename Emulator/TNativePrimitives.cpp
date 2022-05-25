@@ -42,6 +42,7 @@
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Network/TNetworkManager.h"
+#include "Emulator/Printer/TPrinterManager.h"
 #include "Emulator/Screen/TScreenManager.h"
 #include "Emulator/Serial/TSerialHostPortDirect.h"
 #include "Emulator/Sound/TSoundManager.h"
@@ -85,6 +86,7 @@ struct NewtonPixmap {
 #define ENABLE_LOG_HOSTCALL (1 << 0x9)
 #define ENABLE_LOG_NETWORKMANAGER (1 << 0xa)
 #define ENABLE_LOG_HOSTIOS_NATIVEIOS (1 << 0xb)
+#define ENABLE_LOG_PRINTER (1 << 0xc)
 
 #define LOG_PLATFORM (mLog && (mLogMask & ENABLE_LOG_PLATFORM))
 #define LOG_SOUND (mLog && (mLogMask & ENABLE_LOG_SOUND))
@@ -97,6 +99,7 @@ struct NewtonPixmap {
 #define LOG_HOSTCALL (mLog && (mLogMask & ENABLE_LOG_HOSTCALL))
 #define LOG_NETWORKMANAGER (mLog && (mLogMask & ENABLE_LOG_NETWORKMANAGER))
 #define LOG_HOSTIOS_NATIVEIOS (mLog && (mLogMask & ENABLE_LOG_HOSTIOS_NATIVEIOS))
+#define LOG_PRINTER (mLog && (mLogMask & ENABLE_LOG_PRINTER))
 
 // -------------------------------------------------------------------------- //
 // Constantes
@@ -154,6 +157,7 @@ TNativePrimitives::SetEmulator(TEmulator* inEmulator)
 	if (inEmulator)
 	{
 		mNetworkManager = inEmulator->GetNetworkManager();
+		mPrinterManager = inEmulator->GetPrinterManager();
 		mSoundManager = inEmulator->GetSoundManager();
 		mScreenManager = inEmulator->GetScreenManager();
 		mPlatformManager = inEmulator->GetPlatformManager();
@@ -162,6 +166,7 @@ TNativePrimitives::SetEmulator(TEmulator* inEmulator)
 	} else
 	{
 		mNetworkManager = nil;
+		mPrinterManager = nil;
 		mSoundManager = nil;
 		mScreenManager = nil;
 		mPlatformManager = nil;
@@ -243,6 +248,10 @@ TNativePrimitives::ExecuteNative(KUInt32 inInstruction)
 				ExecuteHostiOSNativeiOS(inInstruction);
 				break;
 #endif
+
+			case 0x00000C:
+				ExecutePrinterDriverNative(inInstruction);
+				break;
 
 			default:
 				if (mLog)
@@ -3225,6 +3234,152 @@ TNativePrimitives::ExecuteHostiOSNativeiOS(KUInt32 inInstruction)
 	}
 }
 #endif
+
+#include <FL/Fl_Printer.H>
+
+// -------------------------------------------------------------------------- //
+//  * ExecutePrinterDriverNative( KUInt32 )
+// -------------------------------------------------------------------------- //
+void
+TNativePrimitives::ExecutePrinterDriverNative(KUInt32 inInstruction)
+{
+	KUInt32 ret = 0;
+
+	switch (inInstruction & 0xFF)
+	{
+		case 0x01: // never called: void PDNew(DRIVERCLASSNAME *self);
+			if (LOG_PRINTER)
+			{
+				mLog->LogLine("void PDNew(DRIVERCLASSNAME *self);");
+			}
+			break;
+
+		case 0x02: // void PDDelete(DRIVERCLASSNAME *self);
+			if (LOG_PRINTER)
+			{
+				mLog->LogLine("void PDDelete(DRIVERCLASSNAME *self);");
+			}
+			if (mPrinterManager)
+				mPrinterManager->Delete(mProcessor->GetRegister(0));
+			break;
+
+		case 0x03: // NewtonErr PDOpen(DRIVERCLASSNAME *self);
+			if (LOG_PRINTER)
+			{
+				mLog->LogLine("NewtonErr PDOpen(DRIVERCLASSNAME *self);");
+			}
+			if (mPrinterManager)
+				ret = mPrinterManager->Open(mProcessor->GetRegister(0));
+			mProcessor->SetRegister(0, ret);
+			break;
+
+		case 0x04: // NewtonErr PDClose(DRIVERCLASSNAME *self);
+			if (LOG_PRINTER)
+			{
+				mLog->LogLine("NewtonErr PDClose(DRIVERCLASSNAME *self);");
+			}
+			if (mPrinterManager)
+				ret = mPrinterManager->Close(mProcessor->GetRegister(0));
+			mProcessor->SetRegister(0, ret);
+			break;
+
+		case 0x05: // NewtonErr PDOpenPage(DRIVERCLASSNAME *self);
+			if (LOG_PRINTER)
+			{
+				mLog->LogLine("NewtonErr PDOpenPage(DRIVERCLASSNAME *self);");
+			}
+			if (mPrinterManager)
+				ret = mPrinterManager->OpenPage(mProcessor->GetRegister(0));
+			mProcessor->SetRegister(0, ret);
+			break;
+
+		case 0x06: // NewtonErr PDClosePage(DRIVERCLASSNAME *self);
+			if (LOG_PRINTER)
+			{
+				mLog->LogLine("NewtonErr PDClosePage(DRIVERCLASSNAME *self);");
+			}
+			if (mPrinterManager)
+				ret = mPrinterManager->ClosePage(mProcessor->GetRegister(0));
+			mProcessor->SetRegister(0, ret);
+			break;
+
+		case 0x07: // NewtonErr PDImageBand(DRIVERCLASSNAME *self, PixelMap* theBand, const Rect* minRect);
+			if (LOG_PRINTER)
+			{
+				mLog->LogLine("NewtonErr PDImageBand(DRIVERCLASSNAME *self, PixelMap* theBand, const Rect* minRect);");
+			}
+			if (mPrinterManager)
+				ret = mPrinterManager->ImageBand(
+					mProcessor->GetRegister(0),
+					mProcessor->GetRegister(1),
+					mProcessor->GetRegister(2));
+			mProcessor->SetRegister(0, ret);
+			break;
+
+		case 0x08: // void PDCancelJob(DRIVERCLASSNAME *self, Boolean asyncCancel);
+			if (LOG_PRINTER)
+			{
+				mLog->LogLine("void PDCancelJob(DRIVERCLASSNAME *self, Boolean asyncCancel);");
+			}
+			if (mPrinterManager)
+				mPrinterManager->CancelJob(
+					mProcessor->GetRegister(0),
+					mProcessor->GetRegister(1));
+			break;
+
+		case 0x09: // PrProblemResolution PDIsProblemResolved(DRIVERCLASSNAME *self);
+			if (LOG_PRINTER)
+			{
+				mLog->LogLine("PrProblemResolution PDIsProblemResolved(DRIVERCLASSNAME *self);");
+			}
+			if (mPrinterManager)
+				ret = mPrinterManager->IsProblemResolved(mProcessor->GetRegister(0));
+			mProcessor->SetRegister(0, ret);
+			break;
+
+		case 0x0A: // void PDGetPageInfo(DRIVERCLASSNAME *self, PrPageInfo* info);
+			if (LOG_PRINTER)
+			{
+				mLog->LogLine("void PDGetPageInfo(DRIVERCLASSNAME *self, PrPageInfo* info);");
+			}
+			if (mPrinterManager)
+				mPrinterManager->GetPageInfo(
+					mProcessor->GetRegister(0),
+					mProcessor->GetRegister(1));
+			break;
+
+		case 0x0B: // void PDGetBandPrefs(DRIVERCLASSNAME *self, DotPrinterPrefs* prefs);
+			if (LOG_PRINTER)
+			{
+				mLog->LogLine("void PDGetBandPrefs(DRIVERCLASSNAME *self, DotPrinterPrefs* prefs);");
+			}
+			if (mPrinterManager)
+				mPrinterManager->GetBandPrefs(
+					mProcessor->GetRegister(0),
+					mProcessor->GetRegister(1));
+			break;
+
+		case 0x0C: // NewtonErr PDFaxEndPage(DRIVERCLASSNAME *self, long pageCount);
+			if (LOG_PRINTER)
+			{
+				mLog->LogLine("NewtonErr PDFaxEndPage(DRIVERCLASSNAME *self, long pageCount);");
+			}
+			if (mPrinterManager)
+				ret = mPrinterManager->FaxEndPage(
+					mProcessor->GetRegister(0),
+					mProcessor->GetRegister(1));
+			mProcessor->SetRegister(0, ret);
+			break;
+
+		default:
+			if (LOG_PRINTER)
+			{
+				mLog->FLogLine("Unknown Printer Driver Call: 0x%08x\n", inInstruction);
+			}
+			KPrintf("Unknown Printer Driver Call: 0x%08x\n", inInstruction);
+			break;
+	}
+}
 
 // -------------------------------------------------------------------------- //
 //  * TransferState( TStream* )

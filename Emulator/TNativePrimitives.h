@@ -34,6 +34,7 @@ class TEmulator;
 class TMemory;
 class TARMProcessor;
 class TNetworkManager;
+class TPrinterManager;
 class TSoundManager;
 class TScreenManager;
 class TPlatformManager;
@@ -224,6 +225,13 @@ private:
 	///
 	void ExecuteHostiOSNativeiOS(KUInt32 inInstruction);
 
+	///
+	/// Execute a native instruction for printer drivers
+	///
+	/// \param inInstruction	opcode of the instruction to execute.
+	///
+	void ExecutePrinterDriverNative(KUInt32 inInstruction);
+
 	/// \name Variables
 	TARMProcessor* mProcessor; ///< Reference to the CPU.
 	TLog* mLog; ///< Interface for logging.
@@ -231,6 +239,7 @@ private:
 	TMemory* mMemory; ///< Interface to the memory.
 	TEmulator* mEmulator; ///< Emulator (interface to hardware).
 	TNetworkManager* mNetworkManager; ///< Network manager.
+	TPrinterManager* mPrinterManager; ///< Printer manager
 	TSoundManager* mSoundManager; ///< Sound manager
 	TScreenManager* mScreenManager; ///< Screen manager.
 	TPlatformManager* mPlatformManager; ///< Platform manager.

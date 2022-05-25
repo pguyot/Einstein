@@ -48,6 +48,7 @@ class TLog;
 class TBufferLog;
 class TPlatformManager;
 class TNetworkManager;
+class TPrinterManager;
 class TMonitor;
 class TSymbolList;
 #if USE_TOOLKIT

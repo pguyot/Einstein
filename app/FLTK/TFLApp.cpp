@@ -220,6 +220,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Emulator/Network/TUsermodeNetwork.h"
 #include "Emulator/PCMCIA/TLinearCard.h"
 #include "Emulator/Platform/TPlatformManager.h"
+#include "Emulator/Printer/TFLPrinterManager.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TROMImage.h"
@@ -357,12 +358,17 @@ TFLApp::Run(int argc, char* argv[])
 
 	InitNetwork();
 
+	TFLPrinterManager* printerManager = new TFLPrinterManager(mLog);
+
 	// MP2000: 1MB Dynamic RAM, 4MB Flash RAM
 	// MP2100: 4MB Dynamic RAM, 4MB Flash RAM
 	// eMate:  1MB Dynamic RAM, 2MB Flash RAM
 	mEmulator = new TEmulator(mLog, mROMImage, theFlashPath,
-		mSoundManager, mScreenManager, mNetworkManager, ramSize << 16);
+		mSoundManager, mScreenManager, mNetworkManager,
+		ramSize << 16, printerManager);
+
 	mPlatformManager = mEmulator->GetPlatformManager();
+	printerManager->SetMemory(mEmulator->GetMemory());
 
 	// yes, this is valid C++ code; it tells the emulator to call us so we can tell FLTK to
 	// call us again later from the main thread which then closes all windows, terminating

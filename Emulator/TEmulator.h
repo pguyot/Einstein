@@ -79,7 +79,8 @@ public:
 		TSoundManager* inSoundManager,
 		TScreenManager* inScreenManager,
 		TNetworkManager* inNetworkManager,
-		KUInt32 inRAMSize = 0x00400000);
+		KUInt32 inRAMSize = 0x00400000,
+		TPrinterManager* inPrinterManager = nullptr);
 
 	///
 	/// Constructor from a rom image buffer.
@@ -290,6 +291,17 @@ public:
 	}
 
 	///
+	/// Accessor on the printer manager interface.
+	///
+	/// \return a pointer to the printer manager.
+	///
+	TPrinterManager*
+	GetPrinterManager(void)
+	{
+		return mPrinterManager;
+	}
+
+	///
 	/// Accessor on the sound manager interface.
 	///
 	/// \return a pointer to the sound manager.
@@ -473,6 +485,7 @@ private:
 	TDMAManager* mDMAManager; ///< DMA manager.
 	TPlatformManager* mPlatformManager; ///< Platform manager.
 	TNetworkManager* mNetworkManager; ///< Network manager.
+	TPrinterManager* mPrinterManager; ///< Printer manager
 	TSoundManager* mSoundManager; ///< Sound manager.
 	TScreenManager* mScreenManager; ///< Screen manager.
 	TFileManager* mFileManager;
