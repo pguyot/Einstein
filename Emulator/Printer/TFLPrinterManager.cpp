@@ -31,11 +31,14 @@
 
 #include <stdlib.h>
 
-#ifdef TARGET_OS_WIN32
+#if TARGET_OS_WIN32
 #include <string.h>
+#include <Winsock2.h>
 #else
 #include <strings.h>
+#include <arpa/inet.h>
 #endif
+
 
 // Einstein.
 
@@ -111,7 +114,7 @@ TFLPrinterManager::Open(KUInt32 inDrvr)
 {
 	// KPrintf("Open\n");
 
-	KUInt32 ret = noErr;
+	KUInt32 ret = 0;
 
 	if (!mPrinter)
 	{
@@ -148,7 +151,7 @@ TFLPrinterManager::Open(KUInt32 inDrvr)
 			ret = kPR_ERR_PrinterError;
 		} else
 		{
-			ret = noErr;
+			ret = 0;
 			mState = State::Open;
 		}
 
@@ -187,7 +190,7 @@ TFLPrinterManager::Close(KUInt32 inDrvr)
 {
 	// KPrintf("Close\n");
 
-	KUInt32 ret = noErr;
+	KUInt32 ret = 0;
 
 	if (!mPrinter)
 		return kPR_ERR_NewtonError;
@@ -222,7 +225,7 @@ void
 TFLPrinterManager::SyncClose()
 {
 	mPrinter->end_job();
-	mPromise->set_value(noErr);
+	mPromise->set_value(0);
 }
 
 KUInt32
@@ -234,7 +237,7 @@ TFLPrinterManager::OpenPage(KUInt32 inDrvr)
 	mPrinter->push_current(mPrinter);
 	SetScale(inDrvr);
 	mPrinter->pop_current();
-	return noErr;
+	return 0;
 }
 
 KUInt32
@@ -244,7 +247,7 @@ TFLPrinterManager::ClosePage(KUInt32 inDrvr)
 	// KPrintf("ClosePage\n");
 
 	mPrinter->end_page();
-	return noErr;
+	return 0;
 }
 
 KUInt32
@@ -344,7 +347,7 @@ TFLPrinterManager::ImageBand(KUInt32 inDrvr, KUInt32 inBand, KUInt32 inRect)
 	Fl_Printer::pop_current();
 	Fl::unlock();
 
-	return noErr;
+	return 0;
 }
 
 void
