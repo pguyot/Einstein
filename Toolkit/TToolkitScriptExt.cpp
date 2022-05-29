@@ -169,7 +169,7 @@ NewtMakeBinaryFromARMFile(const char* srcfilename, bool /*literal*/)
 	char objfilename[FL_PATH_MAX + 1];
 	strncpy(objfilename, basename, FL_PATH_MAX);
 	strncat(objfilename, "inline.o", FL_PATH_MAX);
-	char binfilename[FL_PATH_MAX];
+	char binfilename[FL_PATH_MAX + 1];
 	strncpy(binfilename, basename, FL_PATH_MAX);
 	strncat(binfilename, "inline", FL_PATH_MAX);
 	char errfilename[FL_PATH_MAX + 1];
