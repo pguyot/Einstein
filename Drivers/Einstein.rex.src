@@ -35,6 +35,7 @@ package			"obj/EinsteinSerialVoyager.pkg"
 package			"obj/EinsteinInTranslator.pkg"
 package			"obj/EinsteinOutTranslator.pkg"
 package			"obj/EinsteinNativeCalls.pkg"
+package			"PrinterDriver/printerDriver.pkg"
 // Handlers & NS runtime.
 package		"NSRuntime/Einstein NS Runtime.pkg"
 // NewtTest 1.1i
