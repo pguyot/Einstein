@@ -3235,8 +3235,9 @@ TNativePrimitives::ExecuteHostiOSNativeiOS(KUInt32 inInstruction)
 }
 #endif
 
-#include <FL/Fl_Printer.H>
 
+#ifdef TARGET_UI_FLTK
+#include <FL/Fl_Printer.H>
 // -------------------------------------------------------------------------- //
 //  * ExecutePrinterDriverNative( KUInt32 )
 // -------------------------------------------------------------------------- //
@@ -3380,6 +3381,13 @@ TNativePrimitives::ExecutePrinterDriverNative(KUInt32 inInstruction)
 			break;
 	}
 }
+#else
+void
+TNativePrimitives::ExecutePrinterDriverNative(KUInt32 inInstruction)
+{
+  KPrintf("Printer Driver Calls not supported on this platform.\n");
+}
+#endif
 
 // -------------------------------------------------------------------------- //
 //  * TransferState( TStream* )
