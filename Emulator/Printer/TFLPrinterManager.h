@@ -114,8 +114,8 @@ protected:
 		Allocated,
 		Open,
 		PageOpen
-	} mState
-		= State::None;
+	};
+	State mState = State::None;
 
 	Fl_Printer* mPrinter = nullptr;
 
