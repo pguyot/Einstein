@@ -76,7 +76,7 @@ TFLPrinterManager::~TFLPrinterManager()
 			[](void* inPrinter) { delete (Fl_Printer*) inPrinter; },
 			mPrinter);
 		mPrinter = nullptr;
-		mState = State::None;
+		mState = State::Uninitialized;
 	}
 }
 

@@ -110,12 +110,12 @@ protected:
 	void SetScale(KUInt32 inDrvr);
 
 	enum class State {
-		None,
+		Uninitialized,
 		Allocated,
 		Open,
 		PageOpen
 	};
-	State mState = State::None;
+	State mState = State::Uninitialized;
 
 	Fl_Printer* mPrinter = nullptr;
 
