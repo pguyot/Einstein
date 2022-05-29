@@ -32,13 +32,12 @@
 #include <stdlib.h>
 
 #if TARGET_OS_WIN32
-#include <string.h>
 #include <Winsock2.h>
+#include <string.h>
 #else
-#include <strings.h>
 #include <arpa/inet.h>
+#include <strings.h>
 #endif
-
 
 // Einstein.
 
