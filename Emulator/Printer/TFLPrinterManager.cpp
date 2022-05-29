@@ -26,7 +26,7 @@
 #include "Emulator/TMemory.h"
 
 #include <FL/Fl_Printer.H>
-#include <FL/Fl_Bitmap.H>
+#include <FL/Fl_RGB_Image.H>
 #include <FL/fl_draw.H>
 
 #include <stdlib.h>
@@ -88,7 +88,7 @@ TFLPrinterManager::~TFLPrinterManager()
 void
 TFLPrinterManager::Delete(KUInt32 inDrvr)
 {
-	KPrintf("Delete\n");
+	// KPrintf("Delete\n");
 	if (mPrinter)
 	{
 		// Is the page still open?
@@ -109,7 +109,7 @@ TFLPrinterManager::Delete(KUInt32 inDrvr)
 KUInt32
 TFLPrinterManager::Open(KUInt32 inDrvr)
 {
-	KPrintf("Open\n");
+	// KPrintf("Open\n");
 
 	KUInt32 ret = noErr;
 
@@ -154,8 +154,23 @@ TFLPrinterManager::Open(KUInt32 inDrvr)
 
 		delete mPromise;
 	}
-
+	SetScale(inDrvr);
 	return ret;
+}
+
+void
+TFLPrinterManager::SetScale(KUInt32 inDrvr) {
+	switch (GetSubType(inDrvr)) {
+		case kSubtype72dpi:
+			mPrinter->scale(1.0);	// FLTK default is 72dpi
+			break;
+		case kSubtype150dpi:
+			mPrinter->scale(72.0/150.0);	// FLTK default is 72dpi
+			break;
+		case kSubtype300dpi:
+			mPrinter->scale(72.0/300.0);	// FLTK default is 72dpi
+			break;
+	}
 }
 
 void
@@ -168,7 +183,7 @@ TFLPrinterManager::SyncOpen()
 KUInt32
 TFLPrinterManager::Close(KUInt32 inDrvr)
 {
-	KPrintf("Close\n");
+	//KPrintf("Close\n");
 
 	KUInt32 ret = noErr;
 
@@ -211,10 +226,12 @@ TFLPrinterManager::SyncClose()
 KUInt32
 TFLPrinterManager::OpenPage(KUInt32 inDrvr)
 {
-	(void) inDrvr;
-	KPrintf("OpenPage\n");
+	//KPrintf("OpenPage\n");
+
 	mPrinter->begin_page();
-//	mPrinter->scale(0.1, 0.1);
+	mPrinter->push_current(mPrinter);
+	SetScale(inDrvr);
+	mPrinter->pop_current();
 	return noErr;
 }
 
@@ -222,7 +239,8 @@ KUInt32
 TFLPrinterManager::ClosePage(KUInt32 inDrvr)
 {
 	(void) inDrvr;
-	KPrintf("ClosePage\n");
+	// KPrintf("ClosePage\n");
+
 	mPrinter->end_page();
 	return noErr;
 }
@@ -233,17 +251,37 @@ TFLPrinterManager::ImageBand(KUInt32 inDrvr, KUInt32 inBand, KUInt32 inRect)
 	(void) inDrvr;
 	(void) inBand;
 	(void) inRect;
-	KPrintf("ImageBand\n");
+	// KPrintf("ImageBand\n");
 
-	struct {
+	// TODO: we currently only support 1 bit bitmaps
+	// TODO: we should give an error message for unsupported bitmap formats
+	// #define    kPixMapStorage    0xC0000000  // to mask off the appropriate bits
+	// #define    kPixMapHandle    0x00000000  // baseAddr is a handle
+	// #define    kPixMapPtr      0x40000000  // baseAddr is a pointer
+	// #define    kPixMapOffset    0x80000000  // baseAddr is an offset from the PixelMap
+	// #define    kPixMapLittleEndian  0x20000000  // pixMap is little endian
+	// #define    kPixMapAllocated  0x10000000  // pixMap "owns" the bits memory
+	// #ifdef QD_Gray
+	// #define    kPixMapGrayTable  0x08000000  // grayTable field exists
+	// #define    kPixMapNoPad    0x04000000  // direct pixel format, no pad byte
+	// #define    kPixMapByComponent  0x02000000  // direct pixel format, stored by component
+	// #define    kPixMapAntiAlias  0x01000000  // antialiasing ink text
+	// #endif
+	// #define    kPixMapVersionMask  0x0000F000  // version of this struct
+	// #define    kPixMapDeviceType  0x00000F00  // bits 8..11 are device type code
+	// #define    kPixMapDevScreen  0x00000000  //   screen or offscreen bitmap
+	// #define    kPixMapDevDotPrint  0x00000100  //   dot matrix printer
+	// #define    kPixMapDevPSPrint  0x00000200  //   postscript printer
+	// #define    kPixMapDepth    0x000000FF  // bits 0..7 are chunky pixel depth
+	struct PixelMap {
 		KUInt32 baseAddr;
 		KUInt16 rowBytes, pad;    // 300, pads to long
 		KUInt16 top, left, bottom, right;
-		KUInt32 pixMapFlags;	// 40000101
-		//        Point      deviceRes;    // resolution of input device (0 indicates kDefaultDPI
-		//        UChar*      grayTable;    // gray tone table
-		//      } PixelMap;
+		KUInt32 pixMapFlags;	// 0x40000101, ptr, dot printer, 1 bit
+		// Point      deviceRes;    // resolution of input device (0 indicates kDefaultDPI
+		// UChar*      grayTable;    // gray tone table
 	} band;
+
 	mMemory->FastReadBuffer(inBand, sizeof(band), (KUInt8*)&band);
 	band.baseAddr = htonl(band.baseAddr);
 	band.rowBytes = htons(band.rowBytes);
@@ -252,120 +290,53 @@ TFLPrinterManager::ImageBand(KUInt32 inDrvr, KUInt32 inBand, KUInt32 inRect)
 	band.bottom = htons(band.bottom);
 	band.right = htons(band.right);
 	band.pixMapFlags = htonl(band.pixMapFlags);
-	KPrintf("T:%d, L:%d, B:%d, R:%d\n", band.top, band.left, band.bottom, band.right);
 
-	KUInt8 buf[64];
-	mMemory->FastReadBuffer(inBand, 32, buf);
-	for (int i=0; i<32; i++) KPrintf("%02x", buf[i]);
-	KPrintf("\n");
-	mMemory->FastReadBuffer(inRect, 32, buf);
-	for (int i=0; i<32; i++) KPrintf("%02x", buf[i]);
-	KPrintf("\n");
-
+	// KPrintf("T:%d, L:%d, B:%d, R:%d\n", band.top, band.left, band.bottom, band.right);
 
 	Fl::lock();
-	mPrinter->push_current(mPrinter);
-	mPrinter->scale(72.0/300.0);
+	Fl_Printer::push_current(mPrinter);
+	SetScale(inDrvr);
+	mPrinter->origin(0, 0);
 
-	int width, height;
-	mPrinter->printable_rect(&width, &height);
+	fl_push_no_clip();
 	fl_color(FL_BLACK);
-	fl_line_style(FL_SOLID, 2);
-	fl_rect(band.left, band.top, band.right-band.left, band.bottom-band.top);
 
 	int w = band.right - band.left;
 	int h = band.bottom - band.top;
-	int bytes = band.rowBytes * h;
+	int rowWords = (band.rowBytes+3)/4; // row bytes must be 32bit aligned
+	int bytes = rowWords*4 * h;
 	KUInt8 *bits = (KUInt8*)malloc(bytes);
 	mMemory->FastReadBuffer(band.baseAddr, bytes, bits);
 
-	Fl_Bitmap *bm = new Fl_Bitmap(bits, w, h);
-	bm->draw(band.left, band.top);
-	delete bm;
+	int nBlack = 0;
+	int nWhite = 0;
+	KUInt8 *gray = (KUInt8*)malloc(w*h);
+	KUInt8 *dst = gray;
+	for (int y=0; y<h; y++) {
+		KUInt8 *src = bits + y * rowWords*4;
+		KUInt8 b = 0;
+		for (int x=0; x<w; x++) {
+			if ((x&7)==0)
+				b = *src++;
+			*dst++ = (b&128) ? 0 : 255;
+			if (b&128) nBlack++; else nWhite++;
+			b = b<<1;
+		}
+	}
+	if (nBlack) {
+		Fl_RGB_Image *img = new Fl_RGB_Image(gray, w, h, 1);
+		img->draw(band.left, band.top);
+		delete img;
+	}
 	free(bits);
+	free(gray);
 
-//	fl_font(FL_COURIER, 12);
-//	time_t now; time(&now); fl_draw(ctime(&now), 0, fl_height());
+	fl_pop_clip();
 
-	mPrinter->pop_current();
+	Fl_Printer::pop_current();
 	Fl::unlock();
 
-
-//	KUInt32 tl, br;
-//	mMemory->Read(inRect+0, tl);
-//	mMemory->Read(inRect+4, br);
-//	KPrintf("minRect: T:%d, L:%d, B:%d, R:%d\n",
-//		tl >> 16, tl & (0xffff),
-//		br >> 16, br & (0xffff));
-
 	return noErr;
-	// Image Band is sent many times until page is all printed
-	//      struct Rect
-	//      {
-	//        short  top;
-	//        short  left;
-	//        short  bottom;
-	//        short  right;
-	//      };
-	//      #define    kPixMapStorage    0xC0000000  // to mask off the appropriate bits
-	//      #define    kPixMapHandle    0x00000000  // baseAddr is a handle
-	//      #define    kPixMapPtr      0x40000000  // baseAddr is a pointer
-	//      #define    kPixMapOffset    0x80000000  // baseAddr is an offset from the PixelMap
-	//      #define    kPixMapLittleEndian  0x20000000  // pixMap is little endian
-	//      #define    kPixMapAllocated  0x10000000  // pixMap "owns" the bits memory
-	//      #ifdef QD_Gray
-	//      #define    kPixMapGrayTable  0x08000000  // grayTable field exists
-	//      #define    kPixMapNoPad    0x04000000  // direct pixel format, no pad byte
-	//      #define    kPixMapByComponent  0x02000000  // direct pixel format, stored by component
-	//      #define    kPixMapAntiAlias  0x01000000  // antialiasing ink text
-	//      #endif
-	//      #define    kPixMapVersionMask  0x0000F000  // version of this struct
-	//      #define    kPixMapDeviceType  0x00000F00  // bits 8..11 are device type code
-	//      #define    kPixMapDevScreen  0x00000000  //   screen or offscreen bitmap
-	//      #define    kPixMapDevDotPrint  0x00000100  //   dot matrix printer
-	//      #define    kPixMapDevPSPrint  0x00000200  //   postscript printer
-	//      #define    kPixMapDepth    0x000000FF  // bits 0..7 are chunky pixel depth
-	//
-	//      #define    kOneBitDepth    1
-	//      #define   kDefaultDPI      72      // default value for deviceRes fields
-	//      #define   kVersionShift    12
-	//
-	//      #define    kPixMapVersion1    (0x0 << kVersionShift)
-	//      #define    kPixMapVersion2    (0x1 << kVersionShift)
-	//      typedef struct PixelMap
-	//      {
-	//        Ptr        baseAddr;
-	//        short      rowBytes;    // 300, pads to long
-	//        Rect      bounds;
-	//        ULong      pixMapFlags;	// 40000101
-	//        Point      deviceRes;    // resolution of input device (0 indicates kDefaultDPI
-	//        UChar*      grayTable;    // gray tone table
-	//      } PixelMap;
-
-	//	KPrintf("PDImageBand\n");
-	//	{
-	//		KUInt32 tl, br;
-	//		KUInt32 band = mProcessor->GetRegister(1);
-	//		KUInt16 rowBytes, top, left, bottom, right;
-	//		mMemory->Read(band + 4, tl);
-	//		rowBytes = tl >> 16;
-	//		top = (KUInt16) tl;
-	//		mMemory->Read(band + 8, tl);
-	//		left = tl >> 16;
-	//		bottom = (KUInt16) tl;
-	//		mMemory->Read(band + 8, tl);
-	//		right = tl >> 16;
-	//		KPrintf("PixelMap: RowBytes:%d T:%d, L:%d, B:%d, R:%d\n",
-	//			rowBytes, top, left, bottom, right);
-	//
-	//		KUInt32 rect = mProcessor->GetRegister(2);
-	//		mMemory->Read(rect, tl);
-	//		mMemory->Read(rect, br);
-	//		KPrintf("minRect: T:%d, L:%d, B:%d, R:%d\n",
-	//			tl >> 16, tl & (0xffff),
-	//			br >> 16, br & (0xffff));
-	//	}
-	//	mProcessor->SetRegister(0, 0); // no error
 }
 
 void
@@ -373,24 +344,65 @@ TFLPrinterManager::CancelJob(KUInt32 inDrvr, KUInt32 inAsyncCancel)
 {
 	(void) inDrvr;
 	(void) inAsyncCancel;
-	KPrintf("CancelJob\n");
+	// KPrintf("CancelJob\n");
 }
 
 void
 TFLPrinterManager::GetPageInfo(KUInt32 inDrvr, KUInt32 inInfo)
 {
-	(void) inDrvr;
-	(void) inInfo;
-	KPrintf("GetPageInfo\n");
+	// KPrintf("GetPageInfo\n");
+
+	struct PrPageInfo {
+		KUInt32 horizontalDPI;	// DPI as a fixed point value
+		KUInt32 verticalDPI;
+		KUInt16	width;			// page width in pixels
+		KUInt16 height;
+	} pageInfo;
+	mMemory->FastReadBuffer(inInfo, sizeof(pageInfo), (KUInt8*)&pageInfo);
+
+	switch (GetSubType(inDrvr)) {
+		case kSubtype72dpi:
+			pageInfo.horizontalDPI = htonl(72<<16);
+			pageInfo.verticalDPI = htonl(72<<16);
+			break;
+		case kSubtype150dpi:
+			pageInfo.horizontalDPI = htonl(150<<16);
+			pageInfo.verticalDPI = htonl(150<<16);
+			break;
+		case kSubtype300dpi:
+			pageInfo.horizontalDPI = htonl(300<<16);
+			pageInfo.verticalDPI = htonl(300<<16);
+			break;
+	}
+	int wdt = 0, hgt = 0;
+	mPrinter->printable_rect(&wdt, &hgt);
+	pageInfo.width = htons(wdt);
+	pageInfo.height = htons(hgt);
+	mMemory->FastWriteBuffer(inInfo, sizeof(pageInfo), (KUInt8*)&pageInfo);
 }
 
 void
 TFLPrinterManager::GetBandPrefs(KUInt32 inDrvr, KUInt32 inPrefs)
 {
+//	typedef struct DotPrinterPrefs {
+//		long		minBand;				/* smallest useable band			*/
+//		long		optimumBand;			/* a good size to try to default	*/
+//		Boolean		asyncBanding;			/* true if band data sent async		*/
+//		Boolean		wantMinBounds;			/* true if minrect is useful		*/
+//	} DotPrinterPrefs;
 	(void) inDrvr;
 	(void) inPrefs;
-	KPrintf("GetBandPrefs\n");
+	// KPrintf("GetBandPrefs\n");
 }
+
+KUInt8
+TFLPrinterManager::GetSubType(KUInt32 inDrvr)
+{
+	KUInt8 subtype = 255;
+	mMemory->ReadB(inDrvr+31, subtype);
+	return subtype;
+}
+
 
 // ============================================================================= //
 // As in Protestant Europe, by contrast, where sects divided endlessly into      //

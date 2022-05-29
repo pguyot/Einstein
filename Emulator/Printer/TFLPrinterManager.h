@@ -72,11 +72,13 @@ public:
 	/// Start to print a page
 	///
 	KUInt32 OpenPage(KUInt32 inDrvr) override;
+	//void SyncOpenPage();
 
 	///
 	/// Finish printing a page
 	///
 	KUInt32 ClosePage(KUInt32 inDrvr) override;
+	//void SyncClosePage();
 
 	///
 	/// NewtonOS sends a band of pixel data to be printed
@@ -99,6 +101,15 @@ public:
 	void GetBandPrefs(KUInt32 inDrvr, KUInt32 inPrefs) override;
 
 protected:
+
+	static constexpr KUInt8 kSubtype72dpi = 0;
+	static constexpr KUInt8 kSubtype150dpi = 1;
+	static constexpr KUInt8 kSubtype300dpi = 2;
+
+	KUInt8 GetSubType(KUInt32 inDrvr);
+
+	void SetScale(KUInt32 inDrvr);
+
 	enum class State {
 		None,
 		Allocated,
