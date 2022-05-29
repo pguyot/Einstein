@@ -159,16 +159,18 @@ TFLPrinterManager::Open(KUInt32 inDrvr)
 }
 
 void
-TFLPrinterManager::SetScale(KUInt32 inDrvr) {
-	switch (GetSubType(inDrvr)) {
+TFLPrinterManager::SetScale(KUInt32 inDrvr)
+{
+	switch (GetSubType(inDrvr))
+	{
 		case kSubtype72dpi:
-			mPrinter->scale(1.0);	// FLTK default is 72dpi
+			mPrinter->scale(1.0); // FLTK default is 72dpi
 			break;
 		case kSubtype150dpi:
-			mPrinter->scale(72.0/150.0);	// FLTK default is 72dpi
+			mPrinter->scale(72.0 / 150.0); // FLTK default is 72dpi
 			break;
 		case kSubtype300dpi:
-			mPrinter->scale(72.0/300.0);	// FLTK default is 72dpi
+			mPrinter->scale(72.0 / 300.0); // FLTK default is 72dpi
 			break;
 	}
 }
@@ -183,7 +185,7 @@ TFLPrinterManager::SyncOpen()
 KUInt32
 TFLPrinterManager::Close(KUInt32 inDrvr)
 {
-	//KPrintf("Close\n");
+	// KPrintf("Close\n");
 
 	KUInt32 ret = noErr;
 
@@ -226,7 +228,7 @@ TFLPrinterManager::SyncClose()
 KUInt32
 TFLPrinterManager::OpenPage(KUInt32 inDrvr)
 {
-	//KPrintf("OpenPage\n");
+	// KPrintf("OpenPage\n");
 
 	mPrinter->begin_page();
 	mPrinter->push_current(mPrinter);
@@ -275,14 +277,14 @@ TFLPrinterManager::ImageBand(KUInt32 inDrvr, KUInt32 inBand, KUInt32 inRect)
 	// #define    kPixMapDepth    0x000000FF  // bits 0..7 are chunky pixel depth
 	struct PixelMap {
 		KUInt32 baseAddr;
-		KUInt16 rowBytes, pad;    // 300, pads to long
+		KUInt16 rowBytes, pad; // 300, pads to long
 		KUInt16 top, left, bottom, right;
-		KUInt32 pixMapFlags;	// 0x40000101, ptr, dot printer, 1 bit
+		KUInt32 pixMapFlags; // 0x40000101, ptr, dot printer, 1 bit
 		// Point      deviceRes;    // resolution of input device (0 indicates kDefaultDPI
 		// UChar*      grayTable;    // gray tone table
 	} band;
 
-	mMemory->FastReadBuffer(inBand, sizeof(band), (KUInt8*)&band);
+	mMemory->FastReadBuffer(inBand, sizeof(band), (KUInt8*) &band);
 	band.baseAddr = htonl(band.baseAddr);
 	band.rowBytes = htons(band.rowBytes);
 	band.top = htons(band.top);
@@ -303,28 +305,34 @@ TFLPrinterManager::ImageBand(KUInt32 inDrvr, KUInt32 inBand, KUInt32 inRect)
 
 	int w = band.right - band.left;
 	int h = band.bottom - band.top;
-	int rowWords = (band.rowBytes+3)/4; // row bytes must be 32bit aligned
-	int bytes = rowWords*4 * h;
-	KUInt8 *bits = (KUInt8*)malloc(bytes);
+	int rowWords = (band.rowBytes + 3) / 4; // row bytes must be 32bit aligned
+	int bytes = rowWords * 4 * h;
+	KUInt8* bits = (KUInt8*) malloc(bytes);
 	mMemory->FastReadBuffer(band.baseAddr, bytes, bits);
 
 	int nBlack = 0;
 	int nWhite = 0;
-	KUInt8 *gray = (KUInt8*)malloc(w*h);
-	KUInt8 *dst = gray;
-	for (int y=0; y<h; y++) {
-		KUInt8 *src = bits + y * rowWords*4;
+	KUInt8* gray = (KUInt8*) malloc(w * h);
+	KUInt8* dst = gray;
+	for (int y = 0; y < h; y++)
+	{
+		KUInt8* src = bits + y * rowWords * 4;
 		KUInt8 b = 0;
-		for (int x=0; x<w; x++) {
-			if ((x&7)==0)
+		for (int x = 0; x < w; x++)
+		{
+			if ((x & 7) == 0)
 				b = *src++;
-			*dst++ = (b&128) ? 0 : 255;
-			if (b&128) nBlack++; else nWhite++;
-			b = b<<1;
+			*dst++ = (b & 128) ? 0 : 255;
+			if (b & 128)
+				nBlack++;
+			else
+				nWhite++;
+			b = b << 1;
 		}
 	}
-	if (nBlack) {
-		Fl_RGB_Image *img = new Fl_RGB_Image(gray, w, h, 1);
+	if (nBlack)
+	{
+		Fl_RGB_Image* img = new Fl_RGB_Image(gray, w, h, 1);
 		img->draw(band.left, band.top);
 		delete img;
 	}
@@ -353,43 +361,44 @@ TFLPrinterManager::GetPageInfo(KUInt32 inDrvr, KUInt32 inInfo)
 	// KPrintf("GetPageInfo\n");
 
 	struct PrPageInfo {
-		KUInt32 horizontalDPI;	// DPI as a fixed point value
+		KUInt32 horizontalDPI; // DPI as a fixed point value
 		KUInt32 verticalDPI;
-		KUInt16	width;			// page width in pixels
+		KUInt16 width; // page width in pixels
 		KUInt16 height;
 	} pageInfo;
-	mMemory->FastReadBuffer(inInfo, sizeof(pageInfo), (KUInt8*)&pageInfo);
+	mMemory->FastReadBuffer(inInfo, sizeof(pageInfo), (KUInt8*) &pageInfo);
 
-	switch (GetSubType(inDrvr)) {
+	switch (GetSubType(inDrvr))
+	{
 		case kSubtype72dpi:
-			pageInfo.horizontalDPI = htonl(72<<16);
-			pageInfo.verticalDPI = htonl(72<<16);
+			pageInfo.horizontalDPI = htonl(72 << 16);
+			pageInfo.verticalDPI = htonl(72 << 16);
 			break;
 		case kSubtype150dpi:
-			pageInfo.horizontalDPI = htonl(150<<16);
-			pageInfo.verticalDPI = htonl(150<<16);
+			pageInfo.horizontalDPI = htonl(150 << 16);
+			pageInfo.verticalDPI = htonl(150 << 16);
 			break;
 		case kSubtype300dpi:
-			pageInfo.horizontalDPI = htonl(300<<16);
-			pageInfo.verticalDPI = htonl(300<<16);
+			pageInfo.horizontalDPI = htonl(300 << 16);
+			pageInfo.verticalDPI = htonl(300 << 16);
 			break;
 	}
 	int wdt = 0, hgt = 0;
 	mPrinter->printable_rect(&wdt, &hgt);
 	pageInfo.width = htons(wdt);
 	pageInfo.height = htons(hgt);
-	mMemory->FastWriteBuffer(inInfo, sizeof(pageInfo), (KUInt8*)&pageInfo);
+	mMemory->FastWriteBuffer(inInfo, sizeof(pageInfo), (KUInt8*) &pageInfo);
 }
 
 void
 TFLPrinterManager::GetBandPrefs(KUInt32 inDrvr, KUInt32 inPrefs)
 {
-//	typedef struct DotPrinterPrefs {
-//		long		minBand;				/* smallest useable band			*/
-//		long		optimumBand;			/* a good size to try to default	*/
-//		Boolean		asyncBanding;			/* true if band data sent async		*/
-//		Boolean		wantMinBounds;			/* true if minrect is useful		*/
-//	} DotPrinterPrefs;
+	//	typedef struct DotPrinterPrefs {
+	//		long		minBand;				/* smallest useable band			*/
+	//		long		optimumBand;			/* a good size to try to default	*/
+	//		Boolean		asyncBanding;			/* true if band data sent async		*/
+	//		Boolean		wantMinBounds;			/* true if minrect is useful		*/
+	//	} DotPrinterPrefs;
 	(void) inDrvr;
 	(void) inPrefs;
 	// KPrintf("GetBandPrefs\n");
@@ -399,10 +408,9 @@ KUInt8
 TFLPrinterManager::GetSubType(KUInt32 inDrvr)
 {
 	KUInt8 subtype = 255;
-	mMemory->ReadB(inDrvr+31, subtype);
+	mMemory->ReadB(inDrvr + 31, subtype);
 	return subtype;
 }
-
 
 // ============================================================================= //
 // As in Protestant Europe, by contrast, where sects divided endlessly into      //
