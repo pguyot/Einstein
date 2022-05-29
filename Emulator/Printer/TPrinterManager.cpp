@@ -63,28 +63,28 @@ KUInt32
 TPrinterManager::Open(KUInt32 inDrvr)
 {
 	(void) inDrvr;
-	return noErr;
+	return 0;
 }
 
 KUInt32
 TPrinterManager::Close(KUInt32 inDrvr)
 {
 	(void) inDrvr;
-	return noErr;
+	return 0;
 }
 
 KUInt32
 TPrinterManager::OpenPage(KUInt32 inDrvr)
 {
 	(void) inDrvr;
-	return noErr;
+	return 0;
 }
 
 KUInt32
 TPrinterManager::ClosePage(KUInt32 inDrvr)
 {
 	(void) inDrvr;
-	return noErr;
+	return 0;
 }
 
 KUInt32
@@ -93,7 +93,7 @@ TPrinterManager::ImageBand(KUInt32 inDrvr, KUInt32 inBand, KUInt32 inRect)
 	(void) inDrvr;
 	(void) inBand;
 	(void) inRect;
-	return noErr;
+	return 0;
 }
 
 void

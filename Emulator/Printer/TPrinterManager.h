@@ -96,7 +96,7 @@ public:
 	///
 	/// NewtonOS wants to know if the current problem was solved
 	///
-	virtual UInt32 IsProblemResolved(KUInt32 inDrvr);
+	virtual KUInt32 IsProblemResolved(KUInt32 inDrvr);
 
 	///
 	/// Fill in the Info structure about our paper size and print resolution
