@@ -1,4 +1,16 @@
 
+Binary Release v2022.4.19
+=========================
+
+User Release Notes
+------------------
+ - printer support, printer driver is built into REX
+
+Toolkit Release Notes
+---------------------
+ - NewtonScript host file access
+
+
 Binary Release v2022.4.18
 =========================
 

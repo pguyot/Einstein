@@ -75,7 +75,8 @@ TEmulator::TEmulator(
 	TSoundManager* inSoundManager,
 	TScreenManager* inScreenManager,
 	TNetworkManager* inNetworkManager,
-	KUInt32 inRAMSize /* = 4194304 */) :
+	KUInt32 inRAMSize /* = 4194304 */,
+	TPrinterManager* inPrinterManager /* = nullptr */) :
 		SerialPorts(this, inLog),
 		mMemory(inLog, inROMImage, inFlashPath, inRAMSize),
 		mProcessor(inLog, &mMemory),
@@ -83,6 +84,7 @@ TEmulator::TEmulator(
 		mDMAManager(nil),
 		mPlatformManager(nil),
 		mNetworkManager(inNetworkManager),
+		mPrinterManager(inPrinterManager),
 		mSoundManager(inSoundManager),
 		mScreenManager(inScreenManager),
 		mFileManager(NULL),
@@ -143,6 +145,7 @@ TEmulator::TEmulator(
 		mDMAManager(nil),
 		mPlatformManager(nil),
 		mNetworkManager(nil),
+		mPrinterManager(nil),
 		mSoundManager(nil),
 		mScreenManager(nil),
 		mLog(inLog),
