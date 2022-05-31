@@ -52,143 +52,150 @@ TFLPrinterManager::TFLPrinterManager(TLog* inLog /* = nil */) :
 		TPrinterManager(inLog)
 {
 	(void) mLog;
+	setenv("CG_CONTEXT_SHOW_BACKTRACE", "1", 1);
 }
 
 /**
- Delete the printer manager and the printer driver if allocated.
-
- Safely finsh the printing process and delete the FLTK driver
- from the main thread.
+ Delete the printer manager and all allocated resources.
  */
 TFLPrinterManager::~TFLPrinterManager()
 {
-	// Tell the main thread to delete the printer driver at the next occasion.
+	CallAsync(AsyncDtorCB);
+	// TODO: deallocate all resources that were create in the emulator thread
+}
+
+/**
+ Delete all resources that were allocated in the UI thread.
+ */
+KUInt32
+TFLPrinterManager::AsyncDtor()
+{
+	// roll the state back to Allocated
+	AsyncDelete();
+
+	// delete the FLTK printer driver
 	if (mPrinter)
 	{
-		// Is the page still open?
-		if (mState == State::PageOpen)
-			ClosePage(mDrvr);
-
-		// Is the printer still active?
-		if (mState == State::Open)
-			Close(mDrvr);
-
-		// Is the FLTK printer driver allocated?
-		Fl::awake(
-			[](void* inPrinter) { delete (Fl_Printer*) inPrinter; },
-			mPrinter);
+		delete mPrinter;
 		mPrinter = nullptr;
 		mState = State::Uninitialized;
 	}
+
+	return 0;
 }
 
 /**
  Close any active printer connection.
 
- Safely finsh the printing process and prepare for another print run.
+ Roll back the state of the connection to Allocated.
  */
 void
 TFLPrinterManager::Delete(KUInt32 inDrvr)
 {
-	// KPrintf("Delete\n");
-	if (mPrinter)
-	{
-		// Is the page still open?
-		if (mState == State::PageOpen)
-			ClosePage(inDrvr);
+	mDrvr = inDrvr;
 
-		// Is the printer still active?
-		if (mState == State::Open)
-			Close(inDrvr);
-	}
+	// nothing to do
+	if (mState == State::Uninitialized)
+		return;
+
+	// we are already at the requested state
+	if (mState == State::Allocated)
+		return;
+
+	CallAsync(AsyncDeleteCB);
+}
+
+/**
+ Close the printer driver.
+
+ In the emulation, this does not actually delete anything.
+ */
+KUInt32
+TFLPrinterManager::AsyncDelete()
+{
+	// Is the page still open?
+	if (mState == State::PageOpen)
+		AsyncClosePage();
+
+	// Is the printer connection still open?
+	if (mState == State::Open)
+		AsyncClose();
+
+	return 0;
 }
 
 /**
  Allocate the FLTK printer driver if needed and open the host printer dialog.
-
- Must be done from the main thread.
  */
 KUInt32
 TFLPrinterManager::Open(KUInt32 inDrvr)
 {
-	// KPrintf("Open\n");
+	KPrintf("Open\n");
+	mDrvr = inDrvr;
+	return CallAsync(AsyncOpenCB);
+}
 
+/**
+ Allocate and open the printer driver from the UI thread.
+ */
+KUInt32
+TFLPrinterManager::AsyncOpen()
+{
 	KUInt32 ret = 0;
 
+	// Allocate the FLTK printer driver if there is none yet.
 	if (!mPrinter)
 	{
-		mDrvr = inDrvr;
-		Fl::lock();
 		mPrinter = new Fl_Printer();
-		Fl::unlock();
 		mState = State::Allocated;
 	}
 
 	// Is the page still open?
 	if (mState == State::PageOpen)
-		ClosePage(inDrvr);
+		AsyncClosePage();
 
-	if (mState != State::Open)
+	// Is the connection to the printer still open? Then we are done.
+	if (mState == State::Open)
+		return 0;
+
+	// State must be Allocated at this point.
+	// The following call will open a dialog box on all platforms that allows
+	// the user to select a printer, the page size, etc. .
+	int err = mPrinter->begin_job();
+	if (err == 1)
 	{
-		mPromise = new std::promise<KUInt32>;
-		mFuture = mPromise->get_future();
-
-		Fl::awake(
-			[](void* userdata) {
-				TFLPrinterManager* self = (TFLPrinterManager*) userdata;
-				self->SyncOpen();
-			},
-			this);
-
-		mFuture.wait();
-		ret = mFuture.get();
-		if (ret == 1)
-		{
-			ret = kPR_ERR_UserCancel;
-		} else if (ret >= 2)
-		{
-			ret = kPR_ERR_PrinterError;
-		} else
-		{
-			ret = 0;
-			mState = State::Open;
-		}
-
-		delete mPromise;
+		ret = kPR_ERR_UserCancel;
+	} else if (err >= 2)
+	{
+		ret = kPR_ERR_PrinterError;
+	} else
+	{
+		ret = 0;
+		mState = State::Open;
 	}
-	SetScale(inDrvr);
+
 	return ret;
 }
 
-void
-TFLPrinterManager::SetScale(KUInt32 inDrvr)
-{
-	switch (GetSubType(inDrvr))
-	{
-		case kSubtype72dpi:
-			mPrinter->scale(1.0); // FLTK default is 72dpi
-			break;
-		case kSubtype150dpi:
-			mPrinter->scale(72.0 / 150.0); // FLTK default is 72dpi
-			break;
-		case kSubtype300dpi:
-			mPrinter->scale(72.0 / 300.0); // FLTK default is 72dpi
-			break;
-	}
-}
-
-void
-TFLPrinterManager::SyncOpen()
-{
-	int ret = mPrinter->begin_job();
-	mPromise->set_value(ret);
-}
-
+/**
+ Close the connection to the printer and flush all pages.
+ */
 KUInt32
 TFLPrinterManager::Close(KUInt32 inDrvr)
 {
-	// KPrintf("Close\n");
+	KPrintf("Close\n");
+	mDrvr = inDrvr;
+	return CallAsync(AsyncCloseCB);
+}
 
+/**
+ Close the connection to the printer.
+ This call may pop up dialog boxes, launch preview apps, etc., so it must be
+ called from within the UI thread.
+ */
+KUInt32
+TFLPrinterManager::AsyncClose()
+{
 	KUInt32 ret = 0;
 
 	if (!mPrinter)
@@ -196,66 +203,87 @@ TFLPrinterManager::Close(KUInt32 inDrvr)
 
 	// Is the page still open?
 	if (mState == State::PageOpen)
-		ClosePage(inDrvr);
+		AsyncClosePage();
 
 	if (mState == State::Open)
 	{
-		mPromise = new std::promise<KUInt32>;
-		mFuture = mPromise->get_future();
-
-		Fl::awake(
-			[](void* userdata) {
-				TFLPrinterManager* self = (TFLPrinterManager*) userdata;
-				self->SyncClose();
-			},
-			this);
-
-		mFuture.wait();
-
+		mPrinter->end_job();
 		mState = State::Allocated;
-
-		delete mPromise;
 	}
-
 	return ret;
 }
 
-void
-TFLPrinterManager::SyncClose()
-{
-	mPrinter->end_job();
-	mPromise->set_value(0);
-}
-
+/**
+ Start a new page in our printing process.
+ This call may pop up dialogs (progress, error, etc.), so it must be called
+ from the UI thread.
+ */
 KUInt32
 TFLPrinterManager::OpenPage(KUInt32 inDrvr)
 {
-	// KPrintf("OpenPage\n");
+	KPrintf("OpenPage\n");
+	mDrvr = inDrvr;
+	return CallAsync(AsyncOpenPageCB);
+}
+
+/**
+ Start a new page.
+ */
+KUInt32
+TFLPrinterManager::AsyncOpenPage()
+{
+	if (!mPrinter)
+		return kPR_ERR_NewtonError;
+
+	// Is the printer connection open?
+	if (mState != State::Open)
+		return kPR_ERR_NewtonError;
 
 	mPrinter->begin_page();
-	mPrinter->push_current(mPrinter);
-	SetScale(inDrvr);
-	mPrinter->pop_current();
+	mState = State::PageOpen;
+	AsyncSetScale();
+
 	return 0;
 }
 
+/**
+ Finsh the current page.
+ */
 KUInt32
 TFLPrinterManager::ClosePage(KUInt32 inDrvr)
 {
-	(void) inDrvr;
-	// KPrintf("ClosePage\n");
+	KPrintf("ClosePage\n");
+	mDrvr = inDrvr;
+	return CallAsync(AsyncClosePageCB);
+}
+
+/**
+ Finish the current page in the UI thread.
+ */
+KUInt32
+TFLPrinterManager::AsyncClosePage()
+{
+	if (!mPrinter)
+		return kPR_ERR_NewtonError;
+
+	// Is the printer connection open?
+	if (mState != State::PageOpen)
+		return kPR_ERR_NewtonError;
 
 	mPrinter->end_page();
+	mState = State::Open;
+
 	return 0;
 }
 
 KUInt32
 TFLPrinterManager::ImageBand(KUInt32 inDrvr, KUInt32 inBand, KUInt32 inRect)
 {
-	(void) inDrvr;
-	(void) inBand;
+	KPrintf("ImageBand\n");
+	mDrvr = inDrvr;
 	(void) inRect;
-	// KPrintf("ImageBand\n");
+
+	KUInt32 ret = 0;
 
 	// TODO: we currently only support 1 bit bitmaps
 	// TODO: we should give an error message for unsupported bitmap formats
@@ -277,45 +305,27 @@ TFLPrinterManager::ImageBand(KUInt32 inDrvr, KUInt32 inBand, KUInt32 inRect)
 	// #define    kPixMapDevDotPrint  0x00000100  //   dot matrix printer
 	// #define    kPixMapDevPSPrint  0x00000200  //   postscript printer
 	// #define    kPixMapDepth    0x000000FF  // bits 0..7 are chunky pixel depth
-	struct PixelMap {
-		KUInt32 baseAddr;
-		KUInt16 rowBytes, pad; // 300, pads to long
-		KUInt16 top, left, bottom, right;
-		KUInt32 pixMapFlags; // 0x40000101, ptr, dot printer, 1 bit
-		// Point      deviceRes;    // resolution of input device (0 indicates kDefaultDPI
-		// UChar*      grayTable;    // gray tone table
-	} band;
 
-	mMemory->FastReadBuffer(inBand, sizeof(band), (KUInt8*) &band);
-	band.baseAddr = htonl(band.baseAddr);
-	band.rowBytes = htons(band.rowBytes);
-	band.top = htons(band.top);
-	band.left = htons(band.left);
-	band.bottom = htons(band.bottom);
-	band.right = htons(band.right);
-	band.pixMapFlags = htonl(band.pixMapFlags);
+	mMemory->FastReadBuffer(inBand, sizeof(mBand), (KUInt8*) &mBand);
+	mBand.baseAddr = htonl(mBand.baseAddr);
+	mBand.rowBytes = htons(mBand.rowBytes);
+	mBand.top = htons(mBand.top);
+	mBand.left = htons(mBand.left);
+	mBand.bottom = htons(mBand.bottom);
+	mBand.right = htons(mBand.right);
+	mBand.pixMapFlags = htonl(mBand.pixMapFlags);
 
-	// KPrintf("T:%d, L:%d, B:%d, R:%d\n", band.top, band.left, band.bottom, band.right);
-
-	Fl::lock();
-	Fl_Printer::push_current(mPrinter);
-	SetScale(inDrvr);
-	mPrinter->origin(0, 0);
-
-	fl_push_no_clip();
-	fl_color(FL_BLACK);
-
-	int w = band.right - band.left;
-	int h = band.bottom - band.top;
-	int rowWords = (band.rowBytes + 3) / 4; // row bytes must be 32bit aligned
+	int w = mBand.right - mBand.left;
+	int h = mBand.bottom - mBand.top;
+	int rowWords = (mBand.rowBytes + 3) / 4; // row bytes must be 32bit aligned
 	int bytes = rowWords * 4 * h;
 	KUInt8* bits = (KUInt8*) malloc(bytes);
-	mMemory->FastReadBuffer(band.baseAddr, bytes, bits);
+	mMemory->FastReadBuffer(mBand.baseAddr, bytes, bits);
 
 	int nBlack = 0;
 	int nWhite = 0;
-	KUInt8* gray = (KUInt8*) malloc(w * h);
-	KUInt8* dst = gray;
+	mBandPixels = (KUInt8*) malloc(w * h);
+	KUInt8* dst = mBandPixels;
 	for (int y = 0; y < h; y++)
 	{
 		KUInt8* src = bits + y * rowWords * 4;
@@ -334,17 +344,49 @@ TFLPrinterManager::ImageBand(KUInt32 inDrvr, KUInt32 inBand, KUInt32 inRect)
 	}
 	if (nBlack)
 	{
-		Fl_RGB_Image* img = new Fl_RGB_Image(gray, w, h, 1);
-		img->draw(band.left, band.top);
-		delete img;
+		ret = CallAsync(AsyncImageBandCB);
 	}
 	free(bits);
-	free(gray);
+	free(mBandPixels);
+
+	return ret;
+}
+
+/**
+ Render the pixel data into the printer buffer.
+ */
+KUInt32
+TFLPrinterManager::AsyncImageBand()
+{
+	if (!mPrinter)
+		return kPR_ERR_NewtonError;
+
+	// Is the printer connection open?
+	if (mState != State::PageOpen)
+		return kPR_ERR_NewtonError;
+
+	int x = mBand.left;
+	int y = mBand.top;
+	int w = mBand.right - mBand.left;
+	int h = mBand.bottom - mBand.top;
+	// KPrintf("T:%d, L:%d, B:%d, R:%d\n", band.top, band.left, band.bottom, band.right);
+
+	Fl_Printer::push_current(mPrinter);
+	AsyncSetScale();
+	mPrinter->origin(0, 0);
+
+	fl_push_no_clip();
+	fl_color(FL_BLACK);
+
+	fl_draw_image_mono(mBandPixels, x, y, w, h);
+
+	// Visualize the bands
+	//	fl_rect(x, y, h, h);
+	//	fl_rect(x+w-h-1, y, h, h);
 
 	fl_pop_clip();
 
 	Fl_Printer::pop_current();
-	Fl::unlock();
 
 	return 0;
 }
@@ -360,41 +402,68 @@ TFLPrinterManager::CancelJob(KUInt32 inDrvr, KUInt32 inAsyncCancel)
 void
 TFLPrinterManager::GetPageInfo(KUInt32 inDrvr, KUInt32 inInfo)
 {
-	// KPrintf("GetPageInfo\n");
+	KPrintf("GetPageInfo\n");
+	mDrvr = inDrvr;
 
-	struct PrPageInfo {
-		KUInt32 horizontalDPI; // DPI as a fixed point value
-		KUInt32 verticalDPI;
-		KUInt16 width; // page width in pixels
-		KUInt16 height;
-	} pageInfo;
-	mMemory->FastReadBuffer(inInfo, sizeof(pageInfo), (KUInt8*) &pageInfo);
+	mMemory->FastReadBuffer(inInfo, sizeof(mPageInfo), (KUInt8*) &mPageInfo);
+	mPageInfo.horizontalDPI = htonl(mPageInfo.horizontalDPI);
+	mPageInfo.verticalDPI = htonl(mPageInfo.verticalDPI);
+	mPageInfo.width = htons(mPageInfo.width);
+	mPageInfo.height = htons(mPageInfo.height);
 
-	switch (GetSubType(inDrvr))
+	CallAsync(AsyncGetPageInfoCB);
+
+	mPageInfo.horizontalDPI = htonl(mPageInfo.horizontalDPI);
+	mPageInfo.verticalDPI = htonl(mPageInfo.verticalDPI);
+	mPageInfo.width = htons(mPageInfo.width);
+	mPageInfo.height = htons(mPageInfo.height);
+	mMemory->FastWriteBuffer(inInfo, sizeof(mPageInfo), (KUInt8*) &mPageInfo);
+}
+
+KUInt32
+TFLPrinterManager::AsyncGetPageInfo()
+{
+	double scale = 1.0;
+
+	switch (GetSubType(mDrvr))
 	{
 		case kSubtype72dpi:
-			pageInfo.horizontalDPI = htonl(72 << 16);
-			pageInfo.verticalDPI = htonl(72 << 16);
+			mPageInfo.horizontalDPI = (72 << 16);
+			mPageInfo.verticalDPI = (72 << 16);
+			scale = 1.0;
 			break;
 		case kSubtype150dpi:
-			pageInfo.horizontalDPI = htonl(150 << 16);
-			pageInfo.verticalDPI = htonl(150 << 16);
+			mPageInfo.horizontalDPI = (150 << 16);
+			mPageInfo.verticalDPI = (150 << 16);
+			scale = 150.0 / 72.0;
 			break;
 		case kSubtype300dpi:
-			pageInfo.horizontalDPI = htonl(300 << 16);
-			pageInfo.verticalDPI = htonl(300 << 16);
+			mPageInfo.horizontalDPI = (300 << 16);
+			mPageInfo.verticalDPI = (300 << 16);
+			scale = 300.0 / 72.0;
 			break;
 	}
 	int wdt = 0, hgt = 0;
 	mPrinter->printable_rect(&wdt, &hgt);
-	pageInfo.width = htons(wdt);
-	pageInfo.height = htons(hgt);
-	mMemory->FastWriteBuffer(inInfo, sizeof(pageInfo), (KUInt8*) &pageInfo);
+
+	// Check if the viewport is available and was already scaled correctly.
+	if (mState != State::PageOpen)
+	{
+		wdt *= scale;
+		hgt *= scale;
+	}
+
+	mPageInfo.width = wdt;
+	mPageInfo.height = hgt;
+	//	KPrintf(" %d %d\n", wdt, hgt);
+
+	return 0;
 }
 
 void
 TFLPrinterManager::GetBandPrefs(KUInt32 inDrvr, KUInt32 inPrefs)
 {
+	// The driver sets the default to a 50 pixel band
 	//	typedef struct DotPrinterPrefs {
 	//		long		minBand;				/* smallest useable band			*/
 	//		long		optimumBand;			/* a good size to try to default	*/
@@ -404,6 +473,43 @@ TFLPrinterManager::GetBandPrefs(KUInt32 inDrvr, KUInt32 inPrefs)
 	(void) inDrvr;
 	(void) inPrefs;
 	// KPrintf("GetBandPrefs\n");
+}
+
+/**
+ Call FLTK printer driver functions exclusively from the main UI thread.
+
+ The printer manager gets called from the CPU emulator thread, but FLTK
+ printer calls must be made exclusively from the main UI thread. This
+ method tells FLTK to execute some call as soon as there are no other UI
+ calls to process. The method then waits until the call is finshed.
+ */
+KUInt32
+TFLPrinterManager::CallAsync(Async_Handler cb)
+{
+	mPromise = new std::promise<KUInt32>;
+	mFuture = mPromise->get_future();
+	Fl::awake((Fl_Awake_Handler) cb, this);
+	mFuture.wait();
+	KUInt32 ret = mFuture.get();
+	delete mPromise;
+	return ret;
+}
+
+void
+TFLPrinterManager::AsyncSetScale()
+{
+	switch (GetSubType(mDrvr))
+	{
+		case kSubtype72dpi:
+			mPrinter->scale(1.0); // FLTK default is 72dpi
+			break;
+		case kSubtype150dpi:
+			mPrinter->scale(72.0 / 150.0); // FLTK default is 72dpi
+			break;
+		case kSubtype300dpi:
+			mPrinter->scale(72.0 / 300.0); // FLTK default is 72dpi
+			break;
+	}
 }
 
 KUInt8
