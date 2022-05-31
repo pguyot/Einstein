@@ -26,6 +26,8 @@
 
 #include "Emulator/Printer/TPrinterManager.h"
 
+#include <FL/Fl.H>
+
 #include <future>
 
 class TLog;
@@ -60,25 +62,21 @@ public:
 	/// Open a connection to the host printer
 	///
 	KUInt32 Open(KUInt32 inDrvr) override;
-	void SyncOpen();
 
 	///
 	/// Close the connection to the printer
 	///
 	KUInt32 Close(KUInt32 inDrvr) override;
-	void SyncClose();
 
 	///
 	/// Start to print a page
 	///
 	KUInt32 OpenPage(KUInt32 inDrvr) override;
-	// void SyncOpenPage();
 
 	///
 	/// Finish printing a page
 	///
 	KUInt32 ClosePage(KUInt32 inDrvr) override;
-	// void SyncClosePage();
 
 	///
 	/// NewtonOS sends a band of pixel data to be printed
@@ -101,13 +99,87 @@ public:
 	void GetBandPrefs(KUInt32 inDrvr, KUInt32 inPrefs) override;
 
 protected:
+	typedef void (*Async_Handler)(TFLPrinterManager* This);
+
+	KUInt32 CallAsync(Async_Handler cb);
+
+	KUInt32 AsyncDtor();
+	static void
+	AsyncDtorCB(TFLPrinterManager* This)
+	{
+		This->mPromise->set_value(This->AsyncDtor());
+	}
+
+	KUInt32 AsyncDelete();
+	static void
+	AsyncDeleteCB(TFLPrinterManager* This)
+	{
+		This->mPromise->set_value(This->AsyncDelete());
+	}
+
+	KUInt32 AsyncOpen();
+	static void
+	AsyncOpenCB(TFLPrinterManager* This)
+	{
+		This->mPromise->set_value(This->AsyncOpen());
+	}
+
+	KUInt32 AsyncClose();
+	static void
+	AsyncCloseCB(TFLPrinterManager* This)
+	{
+		This->mPromise->set_value(This->AsyncClose());
+	}
+
+	KUInt32 AsyncOpenPage();
+	static void
+	AsyncOpenPageCB(TFLPrinterManager* This)
+	{
+		This->mPromise->set_value(This->AsyncOpenPage());
+	}
+
+	KUInt32 AsyncClosePage();
+	static void
+	AsyncClosePageCB(TFLPrinterManager* This)
+	{
+		This->mPromise->set_value(This->AsyncClosePage());
+	}
+
+	KUInt32 AsyncImageBand();
+	static void
+	AsyncImageBandCB(TFLPrinterManager* This)
+	{
+		This->mPromise->set_value(This->AsyncImageBand());
+	}
+
+	KUInt32 AsyncCancelJob();
+	static void
+	AsyncCancelJobCB(TFLPrinterManager* This)
+	{
+		This->mPromise->set_value(This->AsyncCancelJob());
+	}
+
+	KUInt32 AsyncGetPageInfo();
+	static void
+	AsyncGetPageInfoCB(TFLPrinterManager* This)
+	{
+		This->mPromise->set_value(This->AsyncGetPageInfo());
+	}
+
+	KUInt32 AsyncGetBandPrefs();
+	static void
+	AsyncGetBandPrefsCB(TFLPrinterManager* This)
+	{
+		This->mPromise->set_value(This->AsyncGetBandPrefs());
+	}
+
 	static constexpr KUInt8 kSubtype72dpi = 0;
 	static constexpr KUInt8 kSubtype150dpi = 1;
 	static constexpr KUInt8 kSubtype300dpi = 2;
 
 	KUInt8 GetSubType(KUInt32 inDrvr);
 
-	void SetScale(KUInt32 inDrvr);
+	void AsyncSetScale();
 
 	enum class State {
 		Uninitialized,
@@ -123,6 +195,24 @@ protected:
 
 	std::promise<KUInt32>* mPromise;
 	std::future<KUInt32> mFuture;
+
+	struct PrPageInfo {
+		KUInt32 horizontalDPI; // DPI as a fixed point value
+		KUInt32 verticalDPI;
+		KUInt16 width; // page width in pixels
+		KUInt16 height;
+	} mPageInfo;
+
+	struct PixelMap {
+		KUInt32 baseAddr;
+		KUInt16 rowBytes, pad; // 300, pads to long
+		KUInt16 top, left, bottom, right;
+		KUInt32 pixMapFlags; // 0x40000101, ptr, dot printer, 1 bit
+		// Point      deviceRes;    // resolution of input device (0 indicates kDefaultDPI
+		// UChar*      grayTable;    // gray tone table
+	} mBand;
+
+	KUInt8* mBandPixels = nullptr;
 };
 
 #endif

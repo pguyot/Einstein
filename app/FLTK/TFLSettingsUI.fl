@@ -402,7 +402,7 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open
           xywh {10 35 430 375}
         } {
           Fl_Group {} {open
@@ -429,8 +429,18 @@ wAbout = nullptr;} {}
           Fl_Group {} {open
             xywh {22 90 408 77} box FLAT_BOX labelsize 12 align 5
           } {
-            Fl_Output wROMName {
+            Fl_Input wROMName {
               label {Newton ROM: }
+              callback {char buf[FL_PATH_MAX + 1];
+buf[0] = 0;
+strncpy(buf, wROMPath->label(), FL_PATH_MAX);
+char *name = (char*)fl_filename_name(buf);
+if (name) {
+  *name = 0;
+  strncat(buf, wROMName->value(), FL_PATH_MAX);
+  wROMPath->copy_label(buf);
+  wROMDetails->copy_label(GetROMDetails(buf));
+}}
               xywh {120 95 235 20} color 54 labelsize 13 textsize 12
             }
             Fl_Box wROMPath {
@@ -461,8 +471,17 @@ Einstein does not include any ROMs.} xywh {355 95 75 20} labelsize 12
           Fl_Group {} {open
             xywh {22 179 408 46} box FLAT_BOX labelsize 12 align 5
           } {
-            Fl_Output wFlashName {
+            Fl_Input wFlashName {
               label {System Flash: }
+              callback {char buf[FL_PATH_MAX + 1];
+buf[0] = 0;
+strncpy(buf, wFlashPath->label(), FL_PATH_MAX);
+char *name = (char*)fl_filename_name(buf);
+if (name) {
+  *name = 0;
+  strncat(buf, wFlashName->value(), FL_PATH_MAX);
+  wFlashPath->copy_label(buf);
+}} selected
               xywh {120 180 160 20} color 54 labelsize 13 textsize 12
             }
             Fl_Box wFlashPath {
