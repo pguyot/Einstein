@@ -243,6 +243,10 @@ TFLPrinterManager::AsyncOpenPage()
 	mState = State::PageOpen;
 	AsyncSetScale();
 
+	// FLTK expects more printing calls, but since we do this asynchronously,
+	// we deactivate the driver for now and reactivate it when needed.
+	Fl_Surface_Device::pop_current();
+
 	return 0;
 }
 
@@ -269,6 +273,9 @@ TFLPrinterManager::AsyncClosePage()
 	// Is the printer connection open?
 	if (mState != State::PageOpen)
 		return kPR_ERR_NewtonError;
+
+	// Make sure that this device is active before ending the page.
+	Fl_Surface_Device::push_current(mPrinter);
 
 	mPrinter->end_page();
 	mState = State::Open;
