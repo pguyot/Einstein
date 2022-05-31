@@ -7,7 +7,7 @@
 
 cmake_minimum_required(VERSION 3.13)
 
-project( "Einstein" VERSION "2022.4.19" )
+project( "Einstein" VERSION "2022.4.20" )
 
 # ---- Configuration for all targets on all platforms
 
