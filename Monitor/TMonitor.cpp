@@ -118,14 +118,13 @@ TMonitor::TMonitor(
 		mMonitorStartupScriptPath(strdup(inMonitorStartupScriptPath))
 {
 	mMemory = inEmulator->GetMemory();
-  mROMImageDir = strdup(mMonitorStartupScriptPath);
+	mROMImageDir = strdup(mMonitorStartupScriptPath);
 #if TARGET_OS_WIN32
-  char *pathEnd = strrchr(mROMImageDir, '\\');
+	char* pathEnd = strrchr(mROMImageDir, '\\');
 #else
-  char *pathEnd = strrchr(mROMImageDir, '/');
+	char* pathEnd = strrchr(mROMImageDir, '/');
 #endif
-  *pathEnd = 0;
-
+	*pathEnd = 0;
 
 #if !TARGET_UI_FLTK
 	if (::socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, mSocketPair) != 0)
@@ -348,7 +347,7 @@ TMonitor::SaveEmulatorState(const char* inFilename)
 	{
 		inFilename = "/tmp/einstein.state";
 	}
-  mEmulator->SaveState(inFilename);
+	mEmulator->SaveState(inFilename);
 
 #if !TARGET_UI_FLTK
 	char someByte = 0;
