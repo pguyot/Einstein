@@ -52,7 +52,7 @@ TFLPrinterManager::TFLPrinterManager(TLog* inLog /* = nil */) :
 		TPrinterManager(inLog)
 {
 	(void) mLog;
-	setenv("CG_CONTEXT_SHOW_BACKTRACE", "1", 1);
+	//	setenv("CG_CONTEXT_SHOW_BACKTRACE", "1", 1);
 }
 
 /**
