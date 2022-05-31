@@ -1310,11 +1310,14 @@ TFLApp::InitMonitor(const char* theROMImagePath)
 #endif
 #endif
 
-	char theSymbolListPath[FL_PATH_MAX];
-	strncpy(theSymbolListPath, theROMImagePath, FL_PATH_MAX);
-	fl_filename_setext(theSymbolListPath, FL_PATH_MAX, ".symbols");
-	mSymbolList = new TSymbolList(theSymbolListPath);
-	mMonitor = new TFLMonitor(mMonitorLog, mEmulator, mSymbolList, theROMImagePath);
+	char theSymbolListOrMonitorRcPath[FL_PATH_MAX];
+	strncpy(theSymbolListOrMonitorRcPath, theROMImagePath, FL_PATH_MAX);
+	fl_filename_setext(theSymbolListOrMonitorRcPath, FL_PATH_MAX, ".symbols");
+	mSymbolList = new TSymbolList(theSymbolListOrMonitorRcPath);
+
+	fl_filename_setext(theSymbolListOrMonitorRcPath, FL_PATH_MAX, ".monitorrc");
+	mMonitor = new TFLMonitor(mMonitorLog, mEmulator, mSymbolList, theSymbolListOrMonitorRcPath);
+
 	KPrintf("Booting... (Monitor enabled)\n");
 }
 
