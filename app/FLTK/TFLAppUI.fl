@@ -33,9 +33,12 @@ data imgPCCardBotOut {public local filename {../../Resources/icons/button_pccard
 data imgPCCardBotHilite {public local filename {../../Resources/icons/button_pccard_bottom_hilight.png}
 }
 
+data imgMP2100 {selected public local filename {../../Resources/Graphics/NewtonCase.png}
+}
+
 Function {CreateApplicationWindow(int x, int y)} {open
 } {
-  Fl_Window wAppWindow {open selected
+  Fl_Window wAppWindow {open
     xywh {453 329 320 558} type Double align 529 resizable
     code0 {wAppWindow->position(x, y);}
     code1 {wAppWindow->label(PROJECT_NAME);}

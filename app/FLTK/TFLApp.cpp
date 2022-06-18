@@ -1229,18 +1229,18 @@ TFLApp::InitScreen()
     //       image is 900x1600
     wAppWindow->size(900/2, 1600/2);
     mNewtonScreen->resize(132/2, 312/2, 320, 480);
-    Fl_RGB_Image *MPCase = new Fl_PNG_Image("/Users/matt/dev/Einstein/_Data_/NewtonCase.png");
+    Fl_RGB_Image *MPCase = new Fl_PNG_Image("MP2100Shape", imgMP2100, sizeof(imgMP2100));
     wAppWindow->shape(MPCase);
-    // NOTE we need to allocate the image twic, once for the window shape, and once for the actual RGB data
-    Fl_RGB_Image *MPCaseRGB = new Fl_PNG_Image("/Users/matt/dev/Einstein/_Data_/NewtonCase.png");
-    MPCaseRGB->scale(wAppWindow->w()+1, wAppWindow->h()+1);
+    // NOTE we need to allocate the image twice, once for the window shape, and once for the actual RGB data
+    Fl_RGB_Image *MP2100Color = new Fl_PNG_Image("MP2100Color", imgMP2100, sizeof(imgMP2100));
+    MP2100Color->scale(wAppWindow->w()+1, wAppWindow->h()+1);
     //Fl_RGB_Image *MPCaseRGB = new Fl_PNG_Image("/Users/matt/dev/Einstein.git/Resources/icons/EinsteinApp512.png");
     //Fl_RGB_Image *MPCaseRGB = new Fl_JPEG_Image("/Users/matt/dev/Einstein/_Data_/apple-emate-300-1.jpg");
 #if 1
     // FIXME: we can't set an image for the window itself!
     wAppWindow->begin();
     Fl_Group *bg = new Fl_Group(0, 0, wAppWindow->w(), wAppWindow->h());
-    bg->image(MPCaseRGB);
+    bg->image(MP2100Color);
     bg->box(FL_FLAT_BOX);
     bg->color(FL_DARK2);
     bg->align(FL_ALIGN_INSIDE|FL_ALIGN_IMAGE_BACKDROP);
