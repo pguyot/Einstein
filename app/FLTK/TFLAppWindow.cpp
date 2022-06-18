@@ -31,7 +31,7 @@
  This is the window containing the emulator screen and possibly a menubar, a toolbar, and a status bar
  */
 TFLAppWindow::TFLAppWindow(int ww, int hh, const char* ll) :
-		Fl_Window(ww, hh, ll)
+		super(ww, hh, ll)
 {
 }
 
@@ -39,7 +39,7 @@ TFLAppWindow::TFLAppWindow(int ww, int hh, const char* ll) :
  This is the window containing the emulator screen and possibly a menubar, a toolbar, and a status bar
  */
 TFLAppWindow::TFLAppWindow(int xx, int yy, int ww, int hh, const char* ll) :
-		Fl_Window(xx, yy, ww, hh, ll)
+		super(xx, yy, ww, hh, ll)
 {
 }
 
@@ -67,7 +67,7 @@ TFLAppWindow::handle(int event)
 			fl_cursor(FL_CURSOR_DEFAULT);
 			break;
 	}
-	return Fl_Window::handle(event);
+	return super::handle(event);
 }
 
 /**
@@ -89,3 +89,32 @@ TFLAppWindow::ShowMousePointer()
 	mMouseHidden = true;
 	fl_cursor(FL_CURSOR_DEFAULT);
 }
+
+/**
+ Make sure that we can draw a backdrop image if one is set.
+ */
+void
+TFLAppWindow::show()
+{
+#if 1
+  // Get around an issue in FLTK that does not allow backgroud images on
+  // top level windows, just in case there is a scheme with a
+  // background window.
+  Fl_Image *bgImage = image();
+  super::show();
+  if (bgImage) {
+    image(bgImage);
+    labeltype(FL_NORMAL_LABEL);
+    align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+  }
+#else
+  // Alternative kludge by temporarily setting a backgroud, however the old
+  // scheme_bg_ should be restored.
+  Fl_Image *bgImage = image();
+  if (bgImage)
+    Fl::scheme_bg_ = bgImage;
+  super::show();
+  Fl::scheme_bg_ = nullptr;
+#endif
+}
+

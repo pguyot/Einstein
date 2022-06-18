@@ -403,7 +403,7 @@ wAbout = nullptr;} {}
         Fl_Group {} {
           label {  MessagePad  }
           comment {Add a field to select a REx, choose matching PC Cards per slot} open
-          xywh {10 35 430 375} hide
+          xywh {10 35 430 375}
         } {
           Fl_Group {} {open
             xywh {120 50 275 25}
@@ -555,7 +555,7 @@ if (filename) {
         }
         Fl_Group {} {
           label {  User Interface  } open
-          xywh {10 35 430 375}
+          xywh {10 35 430 375} hide
         } {
           Fl_Group {} {open
             xywh {20 40 408 320} box FLAT_BOX labelsize 12 align 5
@@ -1410,8 +1410,7 @@ win->hide();} {}
 "<li>Retrieved 2022-06-18</li>\\n"
 "</ul></p>\\n"
 
-"</body></html\\n";} {selected
-    }
+"</body></html\\n";} {}
     code {static const char *gThanksText =
 "<html><body>\\n"
 
@@ -1466,8 +1465,8 @@ win->hide();} {}
         class TFLTabs
       } {
         Fl_Group {} {
-          label About open
-          xywh {10 30 320 180} hide resizable
+          label About open selected
+          xywh {10 30 320 180} resizable
         } {
           Fl_Box {} {
             image {../../Resources/icons/EinsteinApp64.png} xywh {133 47 69 75}
@@ -1493,7 +1492,7 @@ win->hide();} {}
         }
         Fl_Group {} {
           label Licenses open
-          xywh {10 30 320 180}
+          xywh {10 30 320 180} hide
         } {
           Fl_Help_View {} {
             xywh {10 31 320 179} box FLAT_BOX color 49 resizable

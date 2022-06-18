@@ -35,6 +35,7 @@ class TFLApp;
  */
 class TFLAppWindow : public Fl_Window
 {
+  typedef Fl_Window super;
 public:
 	// constructor positioning the window through the window manager
 	TFLAppWindow(int ww, int hh, const char* ll = nullptr);
@@ -50,6 +51,10 @@ public:
 
 	// custom event handler for some extra events
 	int handle(int event) override;
+
+  // make sure that we can draw a backdrop image
+  void show() override;
+  void show(int argc, char **argv) { super::show(argc, argv); }
 
 private:
 	Boolean mMouseHidden = false;

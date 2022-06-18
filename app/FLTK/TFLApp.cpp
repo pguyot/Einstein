@@ -37,9 +37,6 @@
 //       Monitor does not show the assembler commands as we step through them
 // TODO: make FKey Bar for eMate emulation with contrast and volume slider (screenshot)
 // TODO: is the drop-down menu still on par?
-// TODO: allow skeuomorphism (use photo of MP as an outline in the UI)
-//       bg color is 0x99966d, fg color is 0x5b4a38, position is 130, 312
-//       image is 900x1600
 
 // ----- Minor Improvemnts in Usability
 // TODO: install essentials (choose which packages we want to offer)
@@ -1234,10 +1231,9 @@ TFLApp::InitScreen()
     // NOTE we need to allocate the image twice, once for the window shape, and once for the actual RGB data
     Fl_RGB_Image *MP2100Color = new Fl_PNG_Image("MP2100Color", imgMP2100, sizeof(imgMP2100));
     MP2100Color->scale(wAppWindow->w()+1, wAppWindow->h()+1);
-    //Fl_RGB_Image *MPCaseRGB = new Fl_PNG_Image("/Users/matt/dev/Einstein.git/Resources/icons/EinsteinApp512.png");
-    //Fl_RGB_Image *MPCaseRGB = new Fl_JPEG_Image("/Users/matt/dev/Einstein/_Data_/apple-emate-300-1.jpg");
-#if 1
+#if 0
     // FIXME: we can't set an image for the window itself!
+    // FIXME: user must be able to move the app window around
     wAppWindow->begin();
     Fl_Group *bg = new Fl_Group(0, 0, wAppWindow->w(), wAppWindow->h());
     bg->image(MP2100Color);
@@ -1245,7 +1241,7 @@ TFLApp::InitScreen()
     bg->color(FL_DARK2);
     bg->align(FL_ALIGN_INSIDE|FL_ALIGN_IMAGE_BACKDROP);
 #else
-    wAppWindow->image(MPCaseRGB);
+    wAppWindow->Fl_Widget::image(MP2100Color);
     wAppWindow->box(FL_FLAT_BOX);
     wAppWindow->color(FL_DARK2);
     wAppWindow->align(FL_ALIGN_INSIDE|FL_ALIGN_IMAGE_BACKDROP);
