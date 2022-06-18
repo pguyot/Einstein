@@ -199,9 +199,9 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <FL/Fl_Button.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_Native_File_Chooser.H>
+#include <FL/Fl_PNG_Image.H>
 #include <FL/Fl_Paged_Device.H>
 #include <FL/Fl_Printer.H>
-#include <FL/Fl_PNG_Image.H>
 #include <FL/Fl_Tooltip.H>
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
@@ -1221,16 +1221,18 @@ TFLApp::InitScreen()
 	mNewtonScreen->resize(0, emulatorScreenY, windowWidth, windowHeight);
 	wAppWindow->end();
 
-  if (mFLSettings->mDecoration == TFLSettings::Decoration::kMP2100) {
-    //       bg color is 0x99966d, fg color is 0x5b4a38, position is 130, 312
-    //       image is 900x1600
-    wAppWindow->size(900/2, 1600/2);
-    mNewtonScreen->resize(132/2, 312/2, 320, 480);
-    Fl_RGB_Image *MPCase = new Fl_PNG_Image("MP2100Shape", imgMP2100, sizeof(imgMP2100));
-    wAppWindow->shape(MPCase);
-    // NOTE we need to allocate the image twice, once for the window shape, and once for the actual RGB data
-    Fl_RGB_Image *MP2100Color = new Fl_PNG_Image("MP2100Color", imgMP2100, sizeof(imgMP2100));
-    MP2100Color->scale(wAppWindow->w()+1, wAppWindow->h()+1);
+	if (mFLSettings->mDecoration == TFLSettings::Decoration::kMP2100)
+	{
+		wAppWindow->MakeDraggable(true);
+		//       bg color is 0x99966d, fg color is 0x5b4a38, position is 130, 312
+		//       image is 900x1600
+		wAppWindow->size(900 / 2, 1600 / 2);
+		mNewtonScreen->resize(132 / 2, 312 / 2, 320, 480);
+		Fl_RGB_Image* MPCase = new Fl_PNG_Image("MP2100Shape", imgMP2100, sizeof(imgMP2100));
+		wAppWindow->shape(MPCase);
+		// NOTE we need to allocate the image twice, once for the window shape, and once for the actual RGB data
+		Fl_RGB_Image* MP2100Color = new Fl_PNG_Image("MP2100Color", imgMP2100, sizeof(imgMP2100));
+		MP2100Color->scale(wAppWindow->w() + 1, wAppWindow->h() + 1);
 #if 0
     // FIXME: we can't set an image for the window itself!
     // FIXME: user must be able to move the app window around
@@ -1241,20 +1243,22 @@ TFLApp::InitScreen()
     bg->color(FL_DARK2);
     bg->align(FL_ALIGN_INSIDE|FL_ALIGN_IMAGE_BACKDROP);
 #else
-    wAppWindow->Fl_Widget::image(MP2100Color);
-    wAppWindow->box(FL_FLAT_BOX);
-    wAppWindow->color(FL_DARK2);
-    wAppWindow->align(FL_ALIGN_INSIDE|FL_ALIGN_IMAGE_BACKDROP);
+		wAppWindow->Fl_Widget::image(MP2100Color);
+		wAppWindow->box(FL_FLAT_BOX);
+		wAppWindow->color(FL_DARK2);
+		wAppWindow->align(FL_ALIGN_INSIDE | FL_ALIGN_IMAGE_BACKDROP);
 #endif
-    // FIXME: clean up the MP2100 decoration code, make the graphics part of the executable, move buttons, correct resizog and scaling, mein menu
-  }
+		// FIXME: clean up the MP2100 decoration code, make the graphics part of the executable, move buttons, correct resizog and scaling, mein menu
+	}
 
-  if (mFLSettings->mAllowScreenResize) {
+	if (mFLSettings->mAllowScreenResize)
+	{
 		wAppWindow->resizable(mNewtonScreen);
-  } else {
+	} else
+	{
 		wAppWindow->resizable(nullptr);
-    wAppWindow->size_range(wAppWindow->w(), wAppWindow->h(), wAppWindow->w(), wAppWindow->h());
-  }
+		wAppWindow->size_range(wAppWindow->w(), wAppWindow->h(), wAppWindow->w(), wAppWindow->h());
+	}
 
 	StoreAppWindowSize();
 }

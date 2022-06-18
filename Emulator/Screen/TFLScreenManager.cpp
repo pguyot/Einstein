@@ -361,7 +361,7 @@ public:
 				// the screen, which in turn may scale it once
 				// more in FLTK. It would be preferable to find an
 				// accelerated GPU version or disable scaling.
-        // TODO: we can enable varios scaling methods for faster or better scaling
+				// TODO: we can enable varios scaling methods for faster or better scaling
 				Fl_RGB_Image img(rgbData_, rgbWidth_, rgbHeight_, 3);
 				img.scale(w(), h(), 0, 1);
 				img.draw(x(), y(), w(), h());

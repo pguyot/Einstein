@@ -2,7 +2,7 @@
 // File:			TFLAppWindow.cpp
 // Project:			Einstein
 //
-// Copyright 2020 by Matthias Melcher.
+// Copyright 2022 by Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -49,11 +49,14 @@ TFLAppWindow::TFLAppWindow(int xx, int yy, int ww, int hh, const char* ll) :
 int
 TFLAppWindow::handle(int event)
 {
+	static bool draggingWindow = false;
+	static int dx = 0, dy = 0;
+
 	switch (event)
 	{
 		case FL_PUSH:
 			if ((Fl::event_button() == 3)
-				|| ((Fl::event_state() & (FL_SHIFT | FL_CTRL | FL_ALT | FL_META)) == FL_CTRL))
+				|| ((Fl::event_button() == 1) && ((Fl::event_state() & (FL_SHIFT | FL_CTRL | FL_ALT | FL_META)) == FL_CTRL)))
 			{
 				gApp->UserActionPopupMenu();
 				return 1;
@@ -67,7 +70,33 @@ TFLAppWindow::handle(int event)
 			fl_cursor(FL_CURSOR_DEFAULT);
 			break;
 	}
-	return super::handle(event);
+	int ret = super::handle(event);
+	if (ret)
+		return ret;
+	switch (event)
+	{
+		case FL_PUSH:
+			if (mDraggable
+				&& (Fl::event_button() == 1)
+				&& ((Fl::event_state() & (FL_SHIFT | FL_CTRL | FL_ALT | FL_META)) == 0))
+			{
+				dx = Fl::event_x_root() - x();
+				dy = Fl::event_y_root() - y();
+				draggingWindow = true;
+				return 1;
+			}
+			break;
+		case FL_DRAG:
+		case FL_RELEASE:
+			if (draggingWindow)
+			{
+				position(Fl::event_x_root() - dx, Fl::event_y_root() - dy);
+				if (event == FL_RELEASE)
+					draggingWindow = false;
+			}
+			break;
+	}
+	return 0;
 }
 
 /**
@@ -97,24 +126,24 @@ void
 TFLAppWindow::show()
 {
 #if 1
-  // Get around an issue in FLTK that does not allow backgroud images on
-  // top level windows, just in case there is a scheme with a
-  // background window.
-  Fl_Image *bgImage = image();
-  super::show();
-  if (bgImage) {
-    image(bgImage);
-    labeltype(FL_NORMAL_LABEL);
-    align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-  }
+	// Get around an issue in FLTK that does not allow backgroud images on
+	// top level windows, just in case there is a scheme with a
+	// background window.
+	Fl_Image* bgImage = image();
+	super::show();
+	if (bgImage)
+	{
+		image(bgImage);
+		labeltype(FL_NORMAL_LABEL);
+		align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+	}
 #else
-  // Alternative kludge by temporarily setting a backgroud, however the old
-  // scheme_bg_ should be restored.
-  Fl_Image *bgImage = image();
-  if (bgImage)
-    Fl::scheme_bg_ = bgImage;
-  super::show();
-  Fl::scheme_bg_ = nullptr;
+	// Alternative kludge by temporarily setting a backgroud, however the old
+	// scheme_bg_ should be restored.
+	Fl_Image* bgImage = image();
+	if (bgImage)
+		Fl::scheme_bg_ = bgImage;
+	super::show();
+	Fl::scheme_bg_ = nullptr;
 #endif
 }
-

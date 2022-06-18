@@ -263,20 +263,20 @@ TFLSettings::loadPreferences()
 	// screen preferences
 	Fl_Preferences screen(prefs, "Screen");
 	{
-    int deco;
-    screen.get("Decoration", deco, 0);
-    mDecoration = (Decoration)deco;
+		int deco;
+		screen.get("Decoration", deco, 0);
+		mDecoration = (Decoration) deco;
 
 		screen.get("width", screenWidth, 320);
 		screen.get("height", screenHeight, 480);
 		screen.get("scale", screenScale, 100);
 		screen.get("fullScreen", fullScreen, 0);
-    screen.get("hideMouse", hideMouse, 0);
+		screen.get("hideMouse", hideMouse, 0);
 
 		screen.get("AppWindowPosX", mAppWindowPosX, 150);
 		screen.get("AppWindowPosY", mAppWindowPosY, 150);
 		screen.get("AllowScreenResize", mAllowScreenResize, true);
-    screen.get("AllowFullscreen", mAllowFullscreen, true);
+		screen.get("AllowFullscreen", mAllowFullscreen, true);
 
 		screen.get("LaunchMonitorAtBoot", mLaunchMonitorAtBoot, 0);
 		screen.get("BreakAtROMBoot", mBreakAtROMBoot, 0);
@@ -286,8 +286,8 @@ TFLSettings::loadPreferences()
 #else
 		screen.get("ShowMenubar", mShowMenubar, 1);
 #endif
-    screen.get("ShowToolbar", mShowToolbar, 1);
-    screen.get("ShowFunctionKeys", mShowFunctionKeys, 0);
+		screen.get("ShowToolbar", mShowToolbar, 1);
+		screen.get("ShowFunctionKeys", mShowFunctionKeys, 0);
 	}
 
 	// Memory preferences
@@ -365,14 +365,14 @@ TFLSettings::savePreferences()
 	// screen preferences
 	Fl_Preferences screen(prefs, "Screen");
 	{
-    int deco = (int)mDecoration;
-    screen.set("Decoration", deco);
+		int deco = (int) mDecoration;
+		screen.set("Decoration", deco);
 
 		screen.set("width", screenWidth);
 		screen.set("height", screenHeight);
 		screen.set("scale", screenScale);
 		screen.set("fullScreen", fullScreen);
-    screen.set("hideMouse", hideMouse);
+		screen.set("hideMouse", hideMouse);
 
 		screen.set("AppWindowPosX", mAppWindowPosX);
 		screen.set("AppWindowPosY", mAppWindowPosY);
@@ -384,7 +384,7 @@ TFLSettings::savePreferences()
 
 		screen.set("ShowMenubar", mShowMenubar);
 		screen.set("ShowToolbar", mShowToolbar);
-    screen.set("ShowFunctionKeys", mShowFunctionKeys);
+		screen.set("ShowFunctionKeys", mShowFunctionKeys);
 	}
 
 	// Memory preferences

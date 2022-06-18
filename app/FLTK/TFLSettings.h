@@ -175,7 +175,7 @@ public:
 	int dontShow;
 	int mShowMenubar = 1;
 	int mShowToolbar = 1;
-  int mShowFunctionKeys = 0;
+	int mShowFunctionKeys = 0;
 
 	int mLaunchMonitorAtBoot = 0;
 	int mBreakAtROMBoot = 0;
@@ -194,11 +194,12 @@ public:
 	// if this is set, use the Einstein.rex within the app, otherwise load an external fiie
 	int mUseBuiltinRex = true;
 
-  // choose the window decoration
-  enum class Decoration {
-    kSystem = 0,
-    kMP2100
-  } mDecoration = Decoration::kSystem;
+	// choose the window decoration
+	enum class Decoration {
+		kSystem = 0,
+		kMP2100
+	} mDecoration
+		= Decoration::kSystem;
 
 	// path to the unna archive, local or online
 	char* mUnnaPath = nullptr;

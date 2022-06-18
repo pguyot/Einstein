@@ -2,7 +2,7 @@
 // File:			TFLAppWindow.h
 // Project:			Einstein
 //
-// Copyright 2020 by Matthias Melcher.
+// Copyright 2022 by Matthias Melcher.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,7 +35,8 @@ class TFLApp;
  */
 class TFLAppWindow : public Fl_Window
 {
-  typedef Fl_Window super;
+	typedef Fl_Window super;
+
 public:
 	// constructor positioning the window through the window manager
 	TFLAppWindow(int ww, int hh, const char* ll = nullptr);
@@ -49,15 +50,26 @@ public:
 	// call this to show the mouse pointer
 	void ShowMousePointer();
 
+	void
+	MakeDraggable(Boolean v)
+	{
+		mDraggable = v;
+	}
+
 	// custom event handler for some extra events
 	int handle(int event) override;
 
-  // make sure that we can draw a backdrop image
-  void show() override;
-  void show(int argc, char **argv) { super::show(argc, argv); }
+	// make sure that we can draw a backdrop image
+	void show() override;
+	void
+	show(int argc, char** argv)
+	{
+		super::show(argc, argv);
+	}
 
 private:
 	Boolean mMouseHidden = false;
+	Boolean mDraggable = false;
 };
 
 #endif // T_FL_APP_WINDOW_H
