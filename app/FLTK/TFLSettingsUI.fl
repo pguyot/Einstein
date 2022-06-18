@@ -49,7 +49,7 @@ decl {\#include "app/Version.h"} {private global
 decl {\#include "app/FLTK/TFLTabs.h"} {private global
 }
 
-declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
+declblock {\#if TARGET_OS_WIN32} {after {\#endif}
 } {
   decl {\#include "winsock2.h"} {private local
   }
@@ -70,13 +70,13 @@ decl {\#include <FL/Fl.H>} {private local
 decl {\#include <FL/fl_draw.H>} {private local
 }
 
-declblock {\#if TARGET_OS_MAC} {open public after {\#endif}
+declblock {\#if TARGET_OS_MAC} {public after {\#endif}
 } {
   decl {\#include <FL/Fl_Sys_Menu_Bar.H>} {public global
   }
 }
 
-Function {cb_keepInSlot0(Fl_Menu_Item* mi, void* user_data)} {open private return_type void
+Function {cb_keepInSlot0(Fl_Menu_Item* mi, void* user_data)} {private return_type void
 } {
   code {if (mi->value()) {
       mi->clear();
@@ -87,7 +87,7 @@ Function {cb_keepInSlot0(Fl_Menu_Item* mi, void* user_data)} {open private retur
     }} {}
 }
 
-Function {cb_keepInSlot1(Fl_Menu_Item* mi, void* user_data)} {open private return_type void
+Function {cb_keepInSlot1(Fl_Menu_Item* mi, void* user_data)} {private return_type void
 } {
   code {if (mi->value()) {
       mi->clear();
@@ -98,17 +98,17 @@ Function {cb_keepInSlot1(Fl_Menu_Item* mi, void* user_data)} {open private retur
     }} {}
 }
 
-Function {cb_changePCCard0(Fl_Widget*, void* user_data)} {open private return_type void
+Function {cb_changePCCard0(Fl_Widget*, void* user_data)} {private return_type void
 } {
   code {gApp->UserActionPCCard(0, (long)user_data);} {}
 }
 
-Function {cb_changePCCard1(Fl_Widget*, void* user_data)} {open private return_type void
+Function {cb_changePCCard1(Fl_Widget*, void* user_data)} {private return_type void
 } {
   code {gApp->UserActionPCCard(1, (long)user_data);} {}
 }
 
-Function {expand(std::string &inCmd)} {open private return_type {std::string}
+Function {expand(std::string &inCmd)} {private return_type {std::string}
 } {
   code {switch (inCmd[0]) {
   case 'U':
@@ -127,7 +127,7 @@ Function {expand(std::string &inCmd)} {open private return_type {std::string}
 return std::string();} {}
 }
 
-Function {make_tooltip(StringList *inCmdList)} {open private return_type {char *}
+Function {make_tooltip(StringList *inCmdList)} {private return_type {char *}
 } {
   code {std::string text;
 // Count the entries
@@ -1303,8 +1303,7 @@ mDevObjDumpPath = strdup(wDevObjDumpPath->value());
 
 dontShow = wDontShow->value();
 
-updateMenus();} {selected
-    }
+updateMenus();} {}
   }
   Function {runningMode()} {open return_type void
   } {
@@ -1398,8 +1397,21 @@ win->hide();} {}
 "<li>Retrieved 2022-01-03</li>\\n"
 "</ul></p>\\n"
 
+"<h3>MP2000 Image</h3>\\n"
+"<p>\\n"
+"The Message Pad 2000 image was taken from Wikipedia, cleaned, and modified to fit the Einstein screen.\\n"
+"An alpha channel was added to allow a shaped User Interface decoration.\\n"
+"<ul>\\n"
+"<li>Beschreibung: Apple Newton Message Pad 2000</li>\\n"
+"<li>Fotograf: Ralf Pfeifer</li>\\n"
+"<li>Datum: 03.06.2005</li>\\n"
+"<li>Lizenz: GNU-FDL</li>\\n"
+"<li>see: <a href=\\"https://commons.wikimedia.org/wiki/File:Apple_Newton.jpg\\">File:Apple_Newton.jpg</a></li>\\n"
+"<li>Retrieved 2022-06-18</li>\\n"
+"</ul></p>\\n"
 
-"</body></html\\n";} {}
+"</body></html\\n";} {selected
+    }
     code {static const char *gThanksText =
 "<html><body>\\n"
 
@@ -1443,7 +1455,7 @@ win->hide();} {}
       label {About Einstein}
       user_data wAbout
       callback {o->hide();} open
-      xywh {451 216 340 260} type Double resizable non_modal size_range {340 260 340 0} visible
+      xywh {455 286 340 260} type Double resizable non_modal size_range {340 260 340 0} visible
     } {
       Fl_Group {} {open
         xywh {10 30 320 180} hide resizable
@@ -1455,7 +1467,7 @@ win->hide();} {}
       } {
         Fl_Group {} {
           label About open
-          xywh {10 30 320 180} resizable
+          xywh {10 30 320 180} hide resizable
         } {
           Fl_Box {} {
             image {../../Resources/icons/EinsteinApp64.png} xywh {133 47 69 75}
@@ -1481,7 +1493,7 @@ win->hide();} {}
         }
         Fl_Group {} {
           label Licenses open
-          xywh {10 30 320 180} hide
+          xywh {10 30 320 180}
         } {
           Fl_Help_View {} {
             xywh {10 31 320 179} box FLAT_BOX color 49 resizable
