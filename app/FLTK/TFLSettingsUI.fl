@@ -403,7 +403,7 @@ wAbout = nullptr;} {}
         Fl_Group {} {
           label {  MessagePad  }
           comment {Add a field to select a REx, choose matching PC Cards per slot} open
-          xywh {10 35 430 375}
+          xywh {10 35 430 375} hide
         } {
           Fl_Group {} {open
             xywh {120 50 275 25}
@@ -481,7 +481,7 @@ if (name) {
   *name = 0;
   strncat(buf, wFlashName->value(), FL_PATH_MAX);
   wFlashPath->copy_label(buf);
-}} selected
+}}
               xywh {120 180 160 20} color 54 labelsize 13 textsize 12
             }
             Fl_Box wFlashPath {
@@ -544,35 +544,35 @@ if (filename) {
               }
             }
           }
-          Fl_Choice {} {
-            label {User Interface: } open
-            xywh {120 270 180 20} down_box BORDER_BOX deactivate
-          } {
-            MenuItem {} {
-              label MP2x00
-              xywh {0 0 100 20}
-            }
-            MenuItem {} {
-              label {eMate 300}
-              xywh {0 0 100 20}
-            }
-          }
           Fl_Box wRestartWarning {
             label {Setting changes apply only after a  restart}
             xywh {30 378 386 20} box FLAT_BOX labelfont 1 labelsize 12 align 16 hide
           }
           Fl_Check_Button wFetchDateAndTime {
             label {Fetch date and time from host}
-            xywh {120 300 196 20} down_box DOWN_BOX labelsize 13
+            xywh {120 280 196 20} down_box DOWN_BOX labelsize 13
           }
         }
         Fl_Group {} {
           label {  User Interface  } open
-          xywh {10 35 430 375} hide
+          xywh {10 35 430 375}
         } {
           Fl_Group {} {open
-            xywh {20 90 408 222} box FLAT_BOX labelsize 12 align 5
+            xywh {20 40 408 320} box FLAT_BOX labelsize 12 align 5
           } {
+            Fl_Choice wDecoration {
+              label {Decoration: } open
+              xywh {120 60 175 20} down_box BORDER_BOX labelsize 12 textsize 12
+            } {
+              MenuItem {} {
+                label System
+                xywh {0 0 31 20} labelsize 12
+              }
+              MenuItem {} {
+                label {MessagePad MP2100}
+                xywh {0 0 31 20} labelsize 12
+              }
+            }
             Fl_Input wWidth {
               label {Screen Size: }
               tooltip {Screen width in pixels,
@@ -583,53 +583,8 @@ Original screen size is 320x480} xywh {120 90 80 20} type Int color 54 labelsize
               tooltip {Screen height in pixels,
 Original screen size is 320x480} xywh {215 90 80 20} type Int color 54 labelsize 12 textsize 12
             }
-            Fl_Check_Button wFullScreen {
-              label {Full screen}
-              xywh {120 120 308 20} down_box DOWN_BOX labelsize 13 deactivate
-            }
-            Fl_Check_Button wHideMouse {
-              label {Hide mouse pointer}
-              tooltip {Hide mouse pointer over MessagePad screen
-Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX labelsize 13
-            }
-            Fl_Check_Button wLaunchMonitorAtBoot {
-              label {Launch Monitor at Boot}
-              xywh {120 170 196 20} down_box DOWN_BOX labelsize 13
-            }
-            Fl_Check_Button wBreatAtROMBoot {
-              label {Break at ROMBoot}
-              xywh {145 195 196 20} down_box DOWN_BOX labelsize 13 deactivate
-            }
-            Fl_Check_Button wShowMenubar {
-              label Menubar
-              xywh {120 220 196 20} down_box DOWN_BOX labelsize 13
-            }
-            Fl_Check_Button wShowToolbar {
-              label Toolbar
-              xywh {120 245 196 20} down_box DOWN_BOX labelsize 13
-            }
-            Fl_Box {} {
-              label {Show:}
-              xywh {20 220 94 20} labelsize 13 align 24
-            }
-            Fl_Box {} {
-              label {add screen scale}
-              xywh {112 186 204 28} hide
-            }
-            Fl_Box {} {
-              label {toggle menubar, toolbar, and functionkey bar}
-              xywh {122 212 204 28} hide
-            }
-            Fl_Box {} {
-              label {maybe developer menu, novice menu, expert menu?}
-              xywh {128 240 204 28} hide
-            }
-            Fl_Box {} {
-              label {Show at startup: machine choice, settings, last open machine}
-              xywh {132 278 204 28} hide
-            }
             Fl_Input_Choice wScale {
-              label {Scale:} open
+              label {Scale:}
               xywh {340 90 60 20} labelsize 12 textsize 12
             } {
               MenuItem {} {
@@ -662,26 +617,42 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
               label {%}
               xywh {400 90 1 20} labelsize 12 align 8
             }
-          }
-          Fl_Group {} {open
-            xywh {120 50 275 25}
-          } {
-            Fl_Input wUIConfigName {
-              label {Configuration: }
-              tooltip {give this User Interface configuration a name} xywh {120 50 160 25} color 54 deactivate
-              code0 {o->value("default");}
+            Fl_Check_Button wFullScreen {
+              label {Full Screen}
+              xywh {120 120 308 20} down_box DOWN_BOX labelsize 13 deactivate
             }
-            Fl_Button wUIConfigMenuButton {
-              label {@2>}
-              tooltip {choose another configuration for editing} xywh {280 50 25 25} labelcolor 40 deactivate
+            Fl_Check_Button wAllowScreenResize {
+              label {Allow Window Scaling}
+              xywh {120 145 196 20} down_box DOWN_BOX value 1 labelsize 13
             }
-            Fl_Button wUIConfigAddButton {
-              label {+}
-              tooltip {add another interface configuration} xywh {305 50 25 25} labelfont 4 labelsize 18 deactivate
+            Fl_Check_Button wHideMouse {
+              label {Hide Mouse Pointer}
+              tooltip {Hide mouse pointer over MessagePad screen
+Used on pen or touch screen devices.} xywh {120 170 208 20} down_box DOWN_BOX labelsize 13
             }
-            Fl_Button wUIConfigRemoveButton {
-              label {-}
-              tooltip {delete this interface configuration} xywh {330 50 25 25} labelfont 4 labelsize 18 deactivate
+            Fl_Check_Button wLaunchMonitorAtBoot {
+              label {Launch Monitor at Boot}
+              xywh {120 195 196 20} down_box DOWN_BOX labelsize 13
+            }
+            Fl_Check_Button wBreakAtROMBoot {
+              label {Break at ROMBoot}
+              xywh {145 220 196 20} down_box DOWN_BOX labelsize 13 deactivate
+            }
+            Fl_Box {} {
+              label {Show:}
+              xywh {20 250 94 20} labelsize 13 align 24
+            }
+            Fl_Check_Button wShowMenubar {
+              label Menubar
+              xywh {120 250 196 20} down_box DOWN_BOX labelsize 13
+            }
+            Fl_Check_Button wShowToolbar {
+              label Toolbar
+              xywh {120 275 196 20} down_box DOWN_BOX labelsize 13
+            }
+            Fl_Check_Button wShowFunctionKeys {
+              label {eMate Function Keys}
+              xywh {120 300 196 20} down_box DOWN_BOX labelsize 13 deactivate
             }
           }
         }
@@ -1221,6 +1192,8 @@ wFetchDateAndTime->value(mFetchDateAndTime);
 
 // ---- User Interface
 
+wDecoration->value((int)mDecoration);
+
 sprintf(buf, "%d", screenWidth);
 wWidth->value(buf);
 sprintf(buf, "%d", screenHeight);
@@ -1228,11 +1201,14 @@ wHeight->value(buf);
 sprintf(buf, "%d", screenScale);
 wScale->value(buf);
 wFullScreen->value(fullScreen);
+wAllowScreenResize->value(mAllowScreenResize);
 wHideMouse->value(hideMouse);
 wLaunchMonitorAtBoot->value(mLaunchMonitorAtBoot);
-wBreatAtROMBoot->value(mBreatAtROMBoot);
+wBreakAtROMBoot->value(mBreakAtROMBoot);
+
 wShowMenubar->value(mShowMenubar);
 wShowToolbar->value(mShowToolbar);
+wShowFunctionKeys->value(mShowFunctionKeys);
 
 // ---- PC Cards
 
@@ -1278,17 +1254,24 @@ if (m)
 
 // ---- User Interface
 
+int deco = wDecoration->value();
+if (deco>-1)
+	mDecoration = (Decoration)deco;
+
 screenWidth = atoi(wWidth->value());
 screenHeight = atoi(wHeight->value());
 screenScale = atoi(wScale->value());
 if (screenScale<=10)
 	screenScale = 100;
 fullScreen = wFullScreen->value();
+mAllowScreenResize = wAllowScreenResize->value();
 hideMouse = wHideMouse->value();
 mLaunchMonitorAtBoot = wLaunchMonitorAtBoot->value();
-mBreatAtROMBoot = wBreatAtROMBoot->value();
+mBreakAtROMBoot = wBreakAtROMBoot->value();
+
 mShowMenubar = wShowMenubar->value();
 mShowToolbar = wShowToolbar->value();
+mShowFunctionKeys = wShowFunctionKeys->value();
 
 // ---- PC Cards
 
@@ -1320,7 +1303,8 @@ mDevObjDumpPath = strdup(wDevObjDumpPath->value());
 
 dontShow = wDontShow->value();
 
-updateMenus();} {}
+updateMenus();} {selected
+    }
   }
   Function {runningMode()} {open return_type void
   } {

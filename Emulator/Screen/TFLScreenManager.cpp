@@ -290,7 +290,7 @@ public:
 			// we need to set up a data provider that grabs our raw RGBs
 			CGDataProviderRef src = CGDataProviderCreateWithData(nullptr, rgbData_, rgbWidth_ * rgbHeight_ * 4, nullptr);
 
-			// now wrap that all insode an image format
+			// now wrap that all inside an image format
 			CGImageRef img = CGImageCreate(rgbWidth_, rgbHeight_, 8, 32, rgbWidth_ * 4,
 				lut, kCGImageAlphaNoneSkipLast, src, nullptr,
 				false, kCGRenderingIntentDefault);
@@ -304,7 +304,7 @@ public:
 
 				CGContextSetInterpolationQuality(fl_gc, kCGInterpolationNone);
 				CGContextScaleCTM(fl_gc, 1, -1);
-				CGContextDrawImage(fl_gc, CGRectMake(0, -h() - y(), w(), h()), img);
+				CGContextDrawImage(fl_gc, CGRectMake(x(), -h() - y(), w(), h()), img);
 
 				CGImageRelease(img);
 				CGContextRestoreGState(fl_gc);
@@ -315,6 +315,7 @@ public:
 //#elif TARGET_OS_LINUX
 #if 0
     // TODO: Nothing implemented yet for X11/Xlib. XRender extension seems to be the way to go.
+    // NOTE: Linux is not automatically X11, but could be Wayland
             double xscale= 1.0;
             double yscale= 1.0;
             XTransform xform = {{
@@ -357,9 +358,10 @@ public:
 			{
 				// This code very inefficiently copies the RGB data,
 				// scales it using the CPU, and then reders it to
-				// the screen, which in turn may scale it onece
+				// the screen, which in turn may scale it once
 				// more in FLTK. It would be preferable to find an
 				// accelerated GPU version or disable scaling.
+        // TODO: we can enable varios scaling methods for faster or better scaling
 				Fl_RGB_Image img(rgbData_, rgbWidth_, rgbHeight_, 3);
 				img.scale(w(), h(), 0, 1);
 				img.draw(x(), y(), w(), h());

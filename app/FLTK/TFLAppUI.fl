@@ -35,8 +35,8 @@ data imgPCCardBotHilite {public local filename {../../Resources/icons/button_pcc
 
 Function {CreateApplicationWindow(int x, int y)} {open
 } {
-  Fl_Window wAppWindow {open
-    xywh {453 329 320 558} type Double resizable
+  Fl_Window wAppWindow {open selected
+    xywh {453 329 320 558} type Double align 529 resizable
     code0 {wAppWindow->position(x, y);}
     code1 {wAppWindow->label(PROJECT_NAME);}
     class TFLAppWindow visible
@@ -159,7 +159,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
           }
           MenuItem {} {
             label {Brain Wipe}
-            callback {gApp->UserActionReset(2);} selected
+            callback {gApp->UserActionReset(2);}
             xywh {40 40 31 20}
           }
         }
