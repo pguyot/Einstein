@@ -6,6 +6,7 @@
 * Building Einstein with Cocoa on macOS in 64 bit Universal
 * Building Einstein with FLTK on macOS in 64 bit with Xcode
 * Building Einstein on Linux in 64 bit
+* Building Einstein on OpenBSD in 64 bit
 * Building Einstein on Windows 10/11
 * Buidling Einstein for Android
 * Building Einstein for iOS
@@ -195,6 +196,63 @@ cd macemu/BasiliskII/src/Unix
     --with-sdl-audio --with-sdl-framework
 make
 ```
+
+## Building Einstein on OpenBSD 64 bit
+
+Tested on OpenBSD 7.1/amd64-stable on June 30th 2022
+
+These instructions will create an Intel executable when run on an Intel system, and an ARM executable on ARM systems.
+
+### Using the command line
+
+Install various packages that are needed to compile FLTK, newt64, and Einstein. This worked for me:
+
+```bash
+doas pkg_add git \
+  cmake \
+  autoconf \
+  bison \
+  ffi \
+  pulseaudio
+```
+
+Now download and build all components:
+
+```bash
+# -- Get the Einstein source code from GitHub
+git clone https://github.com/pguyot/Einstein.git Einstein
+cd Einstein/
+# -- Get the FLTK source code from GitHub
+git clone https://github.com/fltk/fltk.git fltk
+# -- Get the newt64 source code from GitHub
+git clone https://github.com/MatthiasWM/NEWT64.git newt64
+# -- Compile FLTK
+cmake -S fltk -B fltk/build \
+    -D OPTION_USE_SYSTEM_LIBJPEG=Off \
+    -D OPTION_USE_SYSTEM_ZLIB=Off \
+    -D OPTION_USE_SYSTEM_LIBPNG=Off \
+    -D FLTK_BUILD_TEST=Off \
+    -D OPTION_USE_GL=Off \
+    -D CMAKE_BUILD_TYPE=Release
+cmake --build fltk/build
+# -- Compile newt64
+cmake -S newt64 -B newt64/build \
+    -D CMAKE_BUILD_TYPE=Release
+cmake --build newt64/build
+# -- Compile Einstein
+LOCALBASE=/usr/local cmake -S . -B build \
+    -D CMAKE_BUILD_TYPE=Release
+cmake --build build --target Einstein
+```
+
+Your Einstein app will be in build/Einstein, but you can move it to your /usr/local/bin folder for easy access:
+
+```bash
+# -- Optional: Copy Einstein to the binaries folder
+doas cp build/Einstein /usr/local/bin
+```
+
+Continue with setting up the ROM as described in the manual. Enjoy.
 
 ## Building Einstein on Windows 10/11 with VisualStudi
 

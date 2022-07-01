@@ -61,6 +61,10 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" )
 
 	# Linux: nothing to do here
 
+elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
+
+	set_property ( GLOBAL PROPERTY FIND_LIBRARY_USE_OPENBSD_VERSIONING 1 )
+
 elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Windows" )
 
 	# allow to build with multithreading libraries with VisualC
@@ -265,7 +269,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		add_dependencies( Einstein EinsteinTests )
 	endif ()
 
-elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" )
+elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
 
 	# create the application
 	add_executable ( Einstein
@@ -308,6 +312,27 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" )
 		fltk
 		pthread
 	)
+
+	if ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
+		# Under OpenBSD, libffi is in ports (i.e. /usr/local) not base (i.e. /usr)
+		find_library ( ffi_lib NAMES ffi )
+		find_file ( ffi_incl NAMES ffi.h )
+		if ( ffi_lib MATCHES ".*NOTFOUND" OR ffi_incl MATCHES ".*NOTFOUND" )
+			message ( FATAL_ERROR "libffi not found!" )
+		else ()
+			get_filename_component ( ffi_lib_path ${ffi_lib} DIRECTORY )
+			get_filename_component ( ffi_incl_path ${ffi_incl} DIRECTORY )
+			message ( STATUS "libffi found in " ${ffi_lib_path} ) target_include_directories ( Einstein SYSTEM PUBLIC ${ffi_incl_path} )
+			target_link_libraries ( Einstein ${ffi_lib} )
+		endif ()
+
+		# Under OpenBSD, X11 is in /usr/X11R6
+		include ( FindX11 )
+		if ( X11_FOUND )
+			target_include_directories ( Einstein SYSTEM PUBLIC ${X11_INCLUDE_DIR} )
+			target_link_libraries ( Einstein ${X11_LIBRARIES} )
+		endif ()
+	endif ()
 
 elseif ( WIN32 )
 

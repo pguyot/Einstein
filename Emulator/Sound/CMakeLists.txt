@@ -20,7 +20,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		Emulator/Sound/TCoreAudioSoundManager.cpp
 		Emulator/Sound/TCoreAudioSoundManager.h
 	)
-elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD")
 	list (APPEND app_sources
 		Emulator/Sound/TPulseAudioSoundManager.cpp
 		Emulator/Sound/TPulseAudioSoundManager.h
