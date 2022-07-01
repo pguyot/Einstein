@@ -322,7 +322,8 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		else ()
 			get_filename_component ( ffi_lib_path ${ffi_lib} DIRECTORY )
 			get_filename_component ( ffi_incl_path ${ffi_incl} DIRECTORY )
-			message ( STATUS "libffi found in " ${ffi_lib_path} ) target_include_directories ( Einstein SYSTEM PUBLIC ${ffi_incl_path} )
+			message ( STATUS "libffi found in " ${ffi_lib_path} )
+			target_include_directories ( Einstein SYSTEM PUBLIC ${ffi_incl_path} )
 			target_link_libraries ( Einstein ${ffi_lib} )
 		endif ()
 
