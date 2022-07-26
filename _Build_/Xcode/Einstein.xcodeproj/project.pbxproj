@@ -92,6 +92,9 @@
 		2389E98E1A1E4D4A0001A8C5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFBF41241F7E600A0382E /* AudioToolbox.framework */; };
 		2389E98F1A1E4D4A0001A8C5 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1CAFCF8124200C100A0382E /* CoreGraphics.framework */; };
 		2389E9911A1E4D4A0001A8C5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C97C7E1B124282A600CDCD05 /* Foundation.framework */; };
+		288F814A288C140D007CC87B /* TPrinterManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 288F8145288C140D007CC87B /* TPrinterManager.cpp */; };
+		288F814B288C140D007CC87B /* TPrinterManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 288F8145288C140D007CC87B /* TPrinterManager.cpp */; };
+		288F8153288C1984007CC87B /* TIOSPrinterManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 288F8150288C1983007CC87B /* TIOSPrinterManager.mm */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		A78AB268278074400047B122 /* TSerialHostPortDirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB265278074400047B122 /* TSerialHostPortDirect.cpp */; };
 		A78AB269278074400047B122 /* TSerialHostPortDirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A78AB265278074400047B122 /* TSerialHostPortDirect.cpp */; };
@@ -453,6 +456,10 @@
 		2360EB291A1E85EB00893927 /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
 		2389E9331A1E3A5C0001A8C5 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		2389E9961A1E4D4A0001A8C5 /* iOSEinstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSEinstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		288F8145288C140D007CC87B /* TPrinterManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TPrinterManager.cpp; sourceTree = "<group>"; };
+		288F8148288C140D007CC87B /* TPrinterManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPrinterManager.h; sourceTree = "<group>"; };
+		288F8150288C1983007CC87B /* TIOSPrinterManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TIOSPrinterManager.mm; sourceTree = "<group>"; };
+		288F8151288C1983007CC87B /* TIOSPrinterManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TIOSPrinterManager.h; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* Einstein.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Einstein.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -901,6 +908,17 @@
 			name = Storyboards;
 			sourceTree = "<group>";
 		};
+		288F8144288C140D007CC87B /* Printer */ = {
+			isa = PBXGroup;
+			children = (
+				288F8145288C140D007CC87B /* TPrinterManager.cpp */,
+				288F8148288C140D007CC87B /* TPrinterManager.h */,
+				288F8150288C1983007CC87B /* TIOSPrinterManager.mm */,
+				288F8151288C1983007CC87B /* TIOSPrinterManager.h */,
+			);
+			path = Printer;
+			sourceTree = "<group>";
+		};
 		29B97314FDCFA39411CA2CEA /* Einstein */ = {
 			isa = PBXGroup;
 			children = (
@@ -1221,6 +1239,7 @@
 				C99E33F3111B7C07002165EC /* JIT */,
 				C962429411B69A6E00EE66F3 /* Network */,
 				C99E346F111B7C07002165EC /* PCMCIA */,
+				288F8144288C140D007CC87B /* Printer */,
 				C99E34A3111B7C08002165EC /* Serial */,
 				C99E34A9111B7C08002165EC /* Sound */,
 				C99E348D111B7C08002165EC /* Screen */,
@@ -1784,6 +1803,7 @@
 				2389E94F1A1E4D4A0001A8C5 /* TJITGeneric.cpp in Sources */,
 				2389E9501A1E4D4A0001A8C5 /* TJITGeneric_BlockDataTransfer.cpp in Sources */,
 				2389E9511A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer.cpp in Sources */,
+				288F814B288C140D007CC87B /* TPrinterManager.cpp in Sources */,
 				2389E9521A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_ArithmeticOp.cpp in Sources */,
 				2389E9531A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_LogicalOp.cpp in Sources */,
 				C97F21BB2779F66600539FAB /* TTcpClientSerialPortManager.cpp in Sources */,
@@ -1791,6 +1811,7 @@
 				DA52C8931A409164008A17D0 /* TJITGenericROMPatch.cpp in Sources */,
 				2389E9551A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_MRS.cpp in Sources */,
 				2389E9561A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_MSR.cpp in Sources */,
+				288F8153288C1984007CC87B /* TIOSPrinterManager.mm in Sources */,
 				2389E9571A1E4D4A0001A8C5 /* TJITGeneric_DataProcessingPSRTransfer_TestOp.cpp in Sources */,
 				2389E9581A1E4D4A0001A8C5 /* TJITGenericPage.cpp in Sources */,
 				2389E9591A1E4D4A0001A8C5 /* TJITGeneric_Test.cpp in Sources */,
@@ -1947,6 +1968,7 @@
 				F1647FC513198E6A001603BE /* TCocoaMonitorController.mm in Sources */,
 				F164801A13199758001603BE /* TMacMonitor.mm in Sources */,
 				C901E51A132655D50074513E /* UUTF16CStr.cpp in Sources */,
+				288F814A288C140D007CC87B /* TPrinterManager.cpp in Sources */,
 				C901E51D132655E00074513E /* UUTF16Conv.cpp in Sources */,
 				C901E5221326560B0074513E /* TStream.cpp in Sources */,
 				C901E5231326560C0074513E /* TFileStream.cpp in Sources */,

@@ -27,6 +27,7 @@
 #include "Emulator/Log/TStdOutLog.h"
 #include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Platform/TPlatformManager.h"
+#include "Emulator/Printer/TIOSPrinterManager.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TROMImage.h"
@@ -207,6 +208,9 @@ iEinsteinViewController ()
 		mSoundManager = NULL;
 	}
 
+	delete mPrinterManager;
+	mPrinterManager = NULL;
+
 	if (mROMImage)
 	{
 		delete mROMImage;
@@ -237,6 +241,7 @@ iEinsteinViewController ()
 	mNetworkManager = NULL;
 	mSoundManager = NULL;
 	mScreenManager = NULL;
+	mPrinterManager = NULL;
 	mROMImage = NULL;
 	mEmulator = NULL;
 	mPlatformManager = NULL;
@@ -352,6 +357,9 @@ iEinsteinViewController ()
 
 	[einsteinView setScreenManager:mScreenManager];
 
+	// Create the printer manager.
+	mPrinterManager = new TIOSPrinterManager(mLog);
+
 	// Create the emulator.
 
 	NSString* theFlashPath = [docdir stringByAppendingPathComponent:@"flash"];
@@ -359,7 +367,7 @@ iEinsteinViewController ()
 
 	mEmulator = new TEmulator(
 		mLog, mROMImage, [theFlashPath fileSystemRepresentation],
-		mSoundManager, mScreenManager, mNetworkManager, 0x40 << 16);
+		mSoundManager, mScreenManager, mNetworkManager, 0x40 << 16, mPrinterManager);
 
 	mEmulator->SerialPorts.Initialize(TSerialPorts::kTcpClientDriver,
 		TSerialPorts::kNullDriver,
@@ -367,6 +375,7 @@ iEinsteinViewController ()
 		TSerialPorts::kNullDriver);
 	mPlatformManager = mEmulator->GetPlatformManager();
 	mPlatformManager->SetDocDir([docdir fileSystemRepresentation]);
+	mPrinterManager->SetMemory(mEmulator->GetMemory());
 
 	[einsteinView setEmulator:mEmulator];
 
@@ -439,6 +448,12 @@ iEinsteinViewController ()
 
 	delete mScreenManager;
 	mScreenManager = NULL;
+
+	if (mPrinterManager != NULL)
+	{
+		delete mPrinterManager;
+		mPrinterManager = NULL;
+	}
 
 	delete mROMImage;
 	mROMImage = NULL;
