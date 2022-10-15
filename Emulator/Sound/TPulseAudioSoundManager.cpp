@@ -37,6 +37,7 @@
 
 // K
 #include <K/Threads/TMutex.h>
+#include <K/Misc/TCircleBuffer.h>
 
 // Einstein.
 #include "Emulator/Log/TLog.h"
@@ -55,6 +56,8 @@
 // -------------------------------------------------------------------------- //
 TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 		TBufferedSoundManager(inLog),
+    mOutputBuffer(new TCircleBuffer(
+			kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16))),
 		mDataMutex(new TMutex()),
 		mOutputIsRunning(false)
 {
@@ -124,7 +127,7 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 	mOutputStream = pa_stream_new(mPAContext, "Playback", &outputParameters, &channelMap);
 	pa_stream_set_state_callback(mOutputStream, &SPAStreamStateCallback, this);
 	// NO WRITE CALLBACK - we do writes to PulseAudio immediately upon receiving data from the Newton
-	// pa_stream_set_write_callback(mOutputStream, &SPAStreamWriteCallback, this);
+	pa_stream_set_write_callback(mOutputStream, &SPAStreamWriteCallback, this);
 	pa_stream_set_underflow_callback(mOutputStream, &SPAStreamUnderflowCallback, this);
 
 	pa_buffer_attr buffer_attr;
@@ -143,7 +146,7 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 
 #endif
 
-	stream_flags = (PA_STREAM_INTERPOLATE_TIMING | PA_STREAM_NOT_MONOTONIC | PA_STREAM_AUTO_TIMING_UPDATE);
+	stream_flags = (PA_STREAM_START_CORKED | PA_STREAM_INTERPOLATE_TIMING | PA_STREAM_NOT_MONOTONIC | PA_STREAM_AUTO_TIMING_UPDATE);
 
 	result = pa_stream_connect_playback(mOutputStream, NULL, &buffer_attr, (pa_stream_flags_t) stream_flags, NULL,
 		NULL);
@@ -237,63 +240,76 @@ TPulseAudioSoundManager::~TPulseAudioSoundManager(void)
 void
 TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 {
-	if (inSize > 0)
-	{
-		size_t inputSize = inSize;
-		size_t roomInPAStream = pa_stream_writable_size(mOutputStream);
-		KUInt8* outBuffer = NULL;
-#ifdef DEBUG_SOUND
-		if (GetLog())
-		{
-			GetLog()->FLogLine("***** FROM NOS: ScheduleOutput size:%d, frames:%ld, PA out buffer size:%d",
-				inputSize, (inSize / sizeof(KSInt16)), roomInPAStream);
-		}
-#endif
-		if (roomInPAStream >= inputSize)
-		{
-#ifdef DEBUG_SOUND
-			if (GetLog())
-			{
-				GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (lots of space)", inputSize);
-			}
-#endif
-			pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &inputSize);
-			::memcpy(outBuffer, inBuffer, inputSize);
-			pa_stream_write(mOutputStream, outBuffer, inputSize, NULL, 0LL, PA_SEEK_RELATIVE);
-		} else
-		{
-#ifdef DEBUG_SOUND
-			if (GetLog())
-			{
-				GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (LACK of space) - RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT", roomInPAStream);
-			}
-#endif
-			pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &roomInPAStream);
-			::memcpy(outBuffer, inBuffer, roomInPAStream);
-			pa_stream_write(mOutputStream, outBuffer, roomInPAStream, NULL, 0LL, PA_SEEK_RELATIVE);
-			//RaiseOutputInterrupt();
-		}
+  // just copy to the circle buffer.
+  GetLog()->FLogLine("*** FROM NOS: %d bytes scheduled", inSize);
+  if (inSize > 0)
+  {
+    // GetLog()->FLogLine("*** %d bytes scheduled", inSize);
+    mDataMutex->Lock();
+    mOutputBuffer->Produce(inBuffer, inSize);
+    mDataMutex->Unlock();
+    // CoreAudio does not raise output interrupt here.
+  }
+  return;
 
-		if (inSize < kNewtonBufferSize)
-		{
-#ifdef DEBUG_SOUND
-			if (GetLog())
-			{
-				GetLog()->FLogLine("RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT");
-			}
-#endif
-		}
-	} else if (mOutputIsRunning)
-	{
-#ifdef DEBUG_SOUND
-		if (GetLog())
-		{
-			GetLog()->FLogLine("***** FROM NOS: ScheduleOutput no incoming data, STOP Output?");
-		}
-#endif
-		//StopOutput();
-	}
-  RaiseOutputInterrupt();
+// 	if (inSize > 0)
+// 	{
+// 		size_t inputSize = inSize;
+// 		size_t roomInPAStream = pa_stream_writable_size(mOutputStream);
+// 		KUInt8* outBuffer = NULL;
+// #ifdef DEBUG_SOUND
+// 		if (GetLog())
+// 		{
+// 			GetLog()->FLogLine("***** FROM NOS: ScheduleOutput size:%d, frames:%ld, PA out buffer size:%d",
+// 				inputSize, (inSize / sizeof(KSInt16)), roomInPAStream);
+// 		}
+// #endif
+// 		if (roomInPAStream >= inputSize)
+// 		{
+// #ifdef DEBUG_SOUND
+// 			if (GetLog())
+// 			{
+// 				GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (lots of space)", inputSize);
+// 			}
+// #endif
+// 			pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &inputSize);
+// 			::memcpy(outBuffer, inBuffer, inputSize);
+// 			pa_stream_write(mOutputStream, outBuffer, inputSize, NULL, 0LL, PA_SEEK_RELATIVE);
+// 		} else
+// 		{
+// #ifdef DEBUG_SOUND
+// 			if (GetLog())
+// 			{
+// 				GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (LACK of space) - RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT", roomInPAStream);
+// 			}
+// #endif
+// 			pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &roomInPAStream);
+// 			::memcpy(outBuffer, inBuffer, roomInPAStream);
+// 			pa_stream_write(mOutputStream, outBuffer, roomInPAStream, NULL, 0LL, PA_SEEK_RELATIVE);
+// 			//RaiseOutputInterrupt();
+// 		}
+//
+// 		if (inSize < kNewtonBufferSize)
+// 		{
+// #ifdef DEBUG_SOUND
+// 			if (GetLog())
+// 			{
+// 				GetLog()->FLogLine("RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT");
+// 			}
+// #endif
+//      RaiseOutputInterrupt();
+// 		}
+// 	} else if (mOutputIsRunning)
+// 	{
+// #ifdef DEBUG_SOUND
+// 		if (GetLog())
+// 		{
+// 			GetLog()->FLogLine("***** FROM NOS: ScheduleOutput no incoming data, STOP Output?");
+// 		}
+// #endif
+// 		//StopOutput();
+// 	}
+//   RaiseOutputInterrupt();
 
 }
 
@@ -395,6 +411,37 @@ TPulseAudioSoundManager::OutputIsRunning(void)
 #endif
 
 	return mOutputIsRunning;
+}
+
+void TPulseAudioSoundManager::PAStreamWriteCallback(pa_stream* s, unsigned int requestedSize) {
+  GetLog()->LogLine("Stream write callback");
+
+  mDataMutex->Lock();
+  unsigned int bytesInBuffer = mOutputBuffer->AvailableBytes();
+  mDataMutex->Unlock();
+
+  KUInt8* outBuffer;
+
+  if (bytesInBuffer < kNewtonBufferSize)
+  {
+    GetLog()->LogLine("Less than 1 buffer available, RaiseOutputInterrupt");
+    // RaiseOutputInterrupt();
+  }
+  if (bytesInBuffer)
+  {
+    mDataMutex->Lock();
+    GetLog()->FLogLine("PA Requested %d, we have %d available", requestedSize, bytesInBuffer);
+    size_t paBufferSize = bytesInBuffer;
+    pa_stream_begin_write(s, (void**) &outBuffer, &paBufferSize);
+    KUIntPtr remainingBytes = mOutputBuffer->Consume( &outBuffer, bytesInBuffer);
+    pa_stream_write(s, outBuffer, bytesInBuffer, NULL, 0LL, PA_SEEK_RELATIVE);
+    mDataMutex->Unlock();
+  }
+  else
+  {
+    GetLog()->LogLine("There was no data to write");
+    pa_stream_cancel_write(s);
+  }
 }
 
 void
