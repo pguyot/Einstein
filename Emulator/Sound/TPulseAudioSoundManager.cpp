@@ -40,7 +40,7 @@
 
 // Einstein.
 #include "Emulator/Log/TLog.h"
-
+#define DEBUG_SOUND
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -69,14 +69,7 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 		goto error;
 	}
 
-	mPAMainLoopAPI = pa_threaded_mainloop_get_api(mPAMainLoop);
-	if (!mPAMainLoopAPI)
-	{
-		errorText = "Can't allocate PulseAudio loop API";
-		goto error;
-	}
-
-	mPAContext = pa_context_new(mPAMainLoopAPI, "Einstein");
+	mPAContext = pa_context_new(pa_threaded_mainloop_get_api(mPAMainLoop), "Einstein");
 	if (!mPAContext)
 	{
 		errorText = "Can't allocate PulseAudio context";
@@ -277,8 +270,8 @@ TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 #endif
 			pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &roomInPAStream);
 			::memcpy(outBuffer, inBuffer, roomInPAStream);
-			pa_stream_write(mOutputStream, outBuffer, inputSize, NULL, 0LL, PA_SEEK_RELATIVE);
-			RaiseOutputInterrupt();
+			pa_stream_write(mOutputStream, outBuffer, roomInPAStream, NULL, 0LL, PA_SEEK_RELATIVE);
+			//RaiseOutputInterrupt();
 		}
 
 		if (inSize < kNewtonBufferSize)
@@ -289,7 +282,6 @@ TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 				GetLog()->FLogLine("RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT");
 			}
 #endif
-			RaiseOutputInterrupt();
 		}
 	} else if (mOutputIsRunning)
 	{
@@ -299,8 +291,10 @@ TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 			GetLog()->FLogLine("***** FROM NOS: ScheduleOutput no incoming data, STOP Output?");
 		}
 #endif
-		StopOutput();
+		//StopOutput();
 	}
+  RaiseOutputInterrupt();
+
 }
 
 // -------------------------------------------------------------------------- //
@@ -455,7 +449,7 @@ TPulseAudioSoundManager::PAStreamUnderflowCallback(pa_stream* s, pa_threaded_mai
 		GetLog()->FLogLine("   *** PA Underflow occurred!");
 	}
 #endif
-	RaiseOutputInterrupt();
+	//RaiseOutputInterrupt();
 	if (mainloop)
 	{
 		pa_threaded_mainloop_signal(mainloop, 0);

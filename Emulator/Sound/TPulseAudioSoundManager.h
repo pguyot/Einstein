@@ -35,6 +35,7 @@
 #include "TBufferedSoundManager.h"
 
 class TMutex;
+class TCircleBuffer;
 
 ///
 /// Class to handle sound input/output and direct them to PulseAudio.
@@ -110,10 +111,8 @@ private:
 	}
 
 	void PAContextStateCallback(pa_context* context, pa_threaded_mainloop* mainloop);
-
 	void PAStreamStateCallback(pa_stream* s, pa_threaded_mainloop* mainloop);
 	void PAStreamUnderflowCallback(pa_stream* s, pa_threaded_mainloop* mainloop);
-
 	void PAStreamWriteCallback(pa_stream* s, unsigned int requested_bytes);
 
 	static void
@@ -133,11 +132,11 @@ private:
 	/// \name Variables
 	pa_operation* mPAOperation;
 	char const* mPAOperationDescr;
+  TCircleBuffer* mOutputBuffer;
+  TMutex* mDataMutex;
 	pa_stream* mOutputStream;
 	pa_threaded_mainloop* mPAMainLoop;
-	pa_mainloop_api* mPAMainLoopAPI;
 	pa_context* mPAContext;
-	TMutex* mDataMutex;
 	Boolean mOutputIsRunning;
 };
 
