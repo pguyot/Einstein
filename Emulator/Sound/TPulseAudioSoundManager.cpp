@@ -134,8 +134,11 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 
 	buffer_attr.maxlength = kNewtonBufferSize * 8;
 	buffer_attr.tlength = kNewtonBufferSize * 2;
-	buffer_attr.prebuf = kNewtonBufferSize / 2;
-	buffer_attr.minreq = (uint32_t) -1;
+	//buffer_attr.prebuf = kNewtonBufferSize / 2;
+  // manual stream control - need to cork and uncork
+  buffer_attr.prebuf = 0;
+	//buffer_attr.minreq = (uint32_t) -1;
+  buffer_attr.minreq = kNewtonBufferSize / 4;
 
 #ifdef DEBUG_SOUND
 	if (GetLog())
@@ -240,6 +243,8 @@ TPulseAudioSoundManager::~TPulseAudioSoundManager(void)
 void
 TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
 {
+  GetLog()->FLogLine("   _____  ScheduleOutput  _____");
+
   // just copy to the circle buffer.
   GetLog()->FLogLine("*** FROM NOS: %d bytes scheduled", inSize);
   if (inSize > 0)
@@ -249,7 +254,14 @@ TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
     mOutputBuffer->Produce(inBuffer, inSize);
     mDataMutex->Unlock();
     // CoreAudio does not raise output interrupt here.
+    RaiseOutputInterrupt();
   }
+  else
+  {
+    StopOutput();
+  }
+  GetLog()->FLogLine("   ^^^^ ScheduleOutput  ^^^^");
+
   return;
 
 // 	if (inSize > 0)
@@ -330,6 +342,7 @@ TPulseAudioSoundManager::StartOutput(void)
 
 	if (pa_stream_is_corked(mOutputStream))
 	{
+  	GetLog()->FLogLine("           uncorking!");
 		mPAOperationDescr = "UNCORK";
 		mPAOperation = pa_stream_cork(mOutputStream, 0, &SPAStreamOpCB, this);
 
@@ -340,13 +353,13 @@ TPulseAudioSoundManager::StartOutput(void)
 		pa_operation_unref(mPAOperation);
 	}
 #ifdef DEBUG_SOUND
-	if (GetLog())
-	{
-		GetLog()->FLogLine("           Triggering!");
-	}
+	// if (GetLog())
+	// {
+	// 	GetLog()->FLogLine("           Triggering!");
+	// }
 #endif
-	mPAOperationDescr = "TRIGGER";
-	mPAOperation = pa_stream_trigger(mOutputStream, &SPAStreamOpCB, this);
+	// mPAOperationDescr = "TRIGGER";
+	// mPAOperation = pa_stream_trigger(mOutputStream, &SPAStreamOpCB, this);
 
 	pa_threaded_mainloop_unlock(mPAMainLoop);
 #ifdef DEBUG_SOUND
@@ -381,6 +394,17 @@ TPulseAudioSoundManager::StopOutput(void)
 	}
 
 	pa_operation_unref(mPAOperation);
+
+  mPAOperationDescr = "CORK";
+  mPAOperation = pa_stream_cork(mOutputStream, 1, &SPAStreamOpCB, this);
+
+	while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
+	{
+		pa_threaded_mainloop_wait(mPAMainLoop);
+	}
+
+	pa_operation_unref(mPAOperation);
+
 	mOutputIsRunning = false;
 	pa_threaded_mainloop_unlock(mPAMainLoop);
 #ifdef DEBUG_SOUND
@@ -397,20 +421,23 @@ TPulseAudioSoundManager::StopOutput(void)
 Boolean
 TPulseAudioSoundManager::OutputIsRunning(void)
 {
+  pa_threaded_mainloop_lock(mPAMainLoop);
 	Boolean streamCorked = (Boolean) pa_stream_is_corked(mOutputStream);
+  pa_threaded_mainloop_unlock(mPAMainLoop);
 #ifdef DEBUG_SOUND
 	if (GetLog())
 	{
 		GetLog()->FLogLine("   *****  OutputIsRunning: (PA Stream Corked? %s) (mOutputIsRunning? %s)",
 			streamCorked ? "true" : "false",
 			mOutputIsRunning ? "true" : "false");
-		GetLog()->FLogLine("   *****  OutputIsRunning returns %s\n", mOutputIsRunning ? "true" : "false");
+		GetLog()->FLogLine("   *****  OutputIsRunning returns %s\n", streamCorked ? "false" : "true");
 	}
 #else
-	(void) streamCorked;
+	//(void) streamCorked;
 #endif
 
-	return mOutputIsRunning;
+	// return mOutputIsRunning;
+  return !streamCorked;
 }
 
 void TPulseAudioSoundManager::PAStreamWriteCallback(pa_stream* s, unsigned int requestedSize) {
@@ -429,13 +456,16 @@ void TPulseAudioSoundManager::PAStreamWriteCallback(pa_stream* s, unsigned int r
   }
   if (bytesInBuffer)
   {
-    mDataMutex->Lock();
     GetLog()->FLogLine("PA Requested %d, we have %d available", requestedSize, bytesInBuffer);
     size_t paBufferSize = bytesInBuffer;
     pa_stream_begin_write(s, (void**) &outBuffer, &paBufferSize);
-    KUIntPtr remainingBytes = mOutputBuffer->Consume( &outBuffer, bytesInBuffer);
-    pa_stream_write(s, outBuffer, bytesInBuffer, NULL, 0LL, PA_SEEK_RELATIVE);
+    mDataMutex->Lock();
+    KUIntPtr remainingBytes = mOutputBuffer->Consume(outBuffer, paBufferSize);
     mDataMutex->Unlock();
+
+    GetLog()->FLogLine("Writing %d to PA", paBufferSize);
+
+    pa_stream_write(s, outBuffer, bytesInBuffer, NULL, 0LL, PA_SEEK_RELATIVE);
   }
   else
   {
