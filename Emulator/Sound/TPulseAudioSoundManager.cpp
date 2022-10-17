@@ -135,8 +135,13 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 	buffer_attr.maxlength = kNewtonBufferSize * 8;
 	buffer_attr.tlength = kNewtonBufferSize * 2;
 	//buffer_attr.prebuf = kNewtonBufferSize / 2;
+
   // manual stream control - need to cork and uncork
+  // This sort of works but then stops working.
   buffer_attr.prebuf = 0;
+
+  // with this set and the driver starting CORKed, nothing ever plays.
+  // buffer_attr.prebuf = kNewtonBufferSize / 4;
 	//buffer_attr.minreq = (uint32_t) -1;
   buffer_attr.minreq = kNewtonBufferSize / 4;
 
@@ -253,13 +258,16 @@ TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
     mDataMutex->Lock();
     mOutputBuffer->Produce(inBuffer, inSize);
     mDataMutex->Unlock();
-    // CoreAudio does not raise output interrupt here.
-    RaiseOutputInterrupt();
+    // CoreAudio does not raise output interrupt here.  But we do.
+
+
+    // StartOutput();
   }
   else
   {
-    StopOutput();
+    //StopOutput();
   }
+  RaiseOutputInterrupt();
   GetLog()->FLogLine("   ^^^^ ScheduleOutput  ^^^^");
 
   return;
@@ -344,20 +352,29 @@ TPulseAudioSoundManager::StartOutput(void)
 	{
   	GetLog()->FLogLine("           uncorking!");
 		mPAOperationDescr = "UNCORK";
-		mPAOperation = pa_stream_cork(mOutputStream, 0, &SPAStreamOpCB, this);
+		mPAOperation = pa_stream_cork(mOutputStream, 0, &SPATriggerAfterOpCB, this);
 
-		while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
-		{
-			pa_threaded_mainloop_wait(mPAMainLoop);
-		}
-		pa_operation_unref(mPAOperation);
-	}
+    mDataMutex->Lock();
+    unsigned int bytesInBuffer = mOutputBuffer->AvailableBytes();
+    mDataMutex->Unlock();
+
+    if (bytesInBuffer >= kNewtonBufferSize / 8)
+    {
 #ifdef DEBUG_SOUND
-	// if (GetLog())
-	// {
-	// 	GetLog()->FLogLine("           Triggering!");
-	// }
+      	if (GetLog())
+      	{
+      		GetLog()->FLogLine("           Triggering!");
+      	}
 #endif
+    }
+		// while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
+		// {
+		// 	pa_threaded_mainloop_wait(mPAMainLoop);
+		// }
+		// pa_operation_unref(mPAOperation);
+	}
+
+
 	// mPAOperationDescr = "TRIGGER";
 	// mPAOperation = pa_stream_trigger(mOutputStream, &SPAStreamOpCB, this);
 
@@ -388,22 +405,23 @@ TPulseAudioSoundManager::StopOutput(void)
 	mPAOperationDescr = "DRAIN";
 	mPAOperation = pa_stream_drain(mOutputStream, &SPAStreamOpCB, this);
 
-	while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
-	{
-		pa_threaded_mainloop_wait(mPAMainLoop);
-	}
+	// while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
+	// {
+	// 	pa_threaded_mainloop_wait(mPAMainLoop);
+	// }
 
-	pa_operation_unref(mPAOperation);
+	// pa_operation_unref(mPAOperation);
 
-  mPAOperationDescr = "CORK";
-  mPAOperation = pa_stream_cork(mOutputStream, 1, &SPAStreamOpCB, this);
-
-	while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
-	{
-		pa_threaded_mainloop_wait(mPAMainLoop);
-	}
-
-	pa_operation_unref(mPAOperation);
+  // mPAOperationDescr = "CORK";
+  //mPAOperation = pa_stream_cork(mOutputStream, 1, &SPAStreamOpCB, this);
+  // pa_operation* corkOp = pa_stream_cork(mOutputStream, 1, NULL, NULL);
+  // pa_operation_unref(corkOp);
+	// while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
+	// {
+	// 	pa_threaded_mainloop_wait(mPAMainLoop);
+	// }
+  //
+	// pa_operation_unref(mPAOperation);
 
 	mOutputIsRunning = false;
 	pa_threaded_mainloop_unlock(mPAMainLoop);
@@ -484,7 +502,7 @@ void
 TPulseAudioSoundManager::PAStreamStateCallback(pa_stream* s, pa_threaded_mainloop* mainloop)
 {
 	pa_stream_state_t sState = pa_stream_get_state(s);
-	const char* sStateStr = "";
+	const char* sStateStr = "unknown";
 	switch (sState)
 	{
 		case PA_STREAM_UNCONNECTED:
@@ -523,14 +541,48 @@ TPulseAudioSoundManager::PAStreamUnderflowCallback(pa_stream* s, pa_threaded_mai
 #ifdef DEBUG_SOUND
 	if (GetLog())
 	{
-		GetLog()->FLogLine("   *** PA Underflow occurred!");
+		GetLog()->FLogLine("   *** PA Underflow occurred.  Corking output.");
 	}
 #endif
+
+  mPAOperationDescr = "CORK";
+  mPAOperation = pa_stream_cork(s, 1, &SPAStreamOpCB, this);
+
+  // mPAOperationDescr = "DRAIN";
+  // mPAOperation = pa_stream_drain(s, &SPAStreamDrainedCB, this);
+
 	//RaiseOutputInterrupt();
 	if (mainloop)
 	{
 		pa_threaded_mainloop_signal(mainloop, 0);
 	}
+}
+
+// PA is telling us the stream is drained - so CORK it.  Don't need to wait for completion.
+void TPulseAudioSoundManager::PAStreamDrainedCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop)
+{
+  GetLog()->LogLine("   *** PA Stream is DRAINED.  Cork it!");
+  pa_operation_unref(mPAOperation);
+  pa_operation* thisOp = pa_stream_cork(s, 1, NULL, NULL);
+  pa_operation_unref(thisOp);
+
+  if (mainloop)
+  {
+    pa_threaded_mainloop_signal(mainloop, 0);
+  }
+}
+
+void TPulseAudioSoundManager::PATriggerAfterOpCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop)
+{
+  GetLog()->LogLine("   *** PA Stream is Uncorked I think.  Trigger it!");
+  pa_operation_unref(mPAOperation);
+  mPAOperation = pa_stream_trigger(s, &SPAStreamOpCB, this);
+  // pa_operation_unref(thisOp);
+
+  if (mainloop)
+  {
+    pa_threaded_mainloop_signal(mainloop, 0);
+  }
 }
 
 void
@@ -542,6 +594,11 @@ TPulseAudioSoundManager::PAStreamOpCB(pa_stream* s, int success, pa_threaded_mai
 		GetLog()->FLogLine("   %s returned %d", mPAOperationDescr, success);
 	}
 #endif
+  if (mPAOperation)
+  {
+    pa_operation_unref(mPAOperation);
+  }
+  
 	if (mainloop)
 	{
 		pa_threaded_mainloop_signal(mainloop, 0);
