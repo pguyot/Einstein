@@ -58,8 +58,7 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 		TBufferedSoundManager(inLog),
     mOutputBuffer(new TCircleBuffer(
 			kNewtonBufferSizeInFrames * 4 * sizeof(KUInt16))),
-		mDataMutex(new TMutex()),
-		mOutputIsRunning(false)
+		mDataMutex(new TMutex())
 {
 	int result = 0;
 	int stream_flags = 0;
@@ -124,9 +123,8 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 	pa_channel_map channelMap;
 	pa_channel_map_init_mono(&channelMap);
 
-	mOutputStream = pa_stream_new(mPAContext, "Playback", &outputParameters, &channelMap);
+	mOutputStream = pa_stream_new(mPAContext, "NewtonOS Sounds", &outputParameters, &channelMap);
 	pa_stream_set_state_callback(mOutputStream, &SPAStreamStateCallback, this);
-	// NO WRITE CALLBACK - we do writes to PulseAudio immediately upon receiving data from the Newton
 	pa_stream_set_write_callback(mOutputStream, &SPAStreamWriteCallback, this);
 	pa_stream_set_underflow_callback(mOutputStream, &SPAStreamUnderflowCallback, this);
 
@@ -271,66 +269,6 @@ TPulseAudioSoundManager::ScheduleOutput(const KUInt8* inBuffer, KUInt32 inSize)
   GetLog()->FLogLine("   ^^^^ ScheduleOutput  ^^^^");
 
   return;
-
-// 	if (inSize > 0)
-// 	{
-// 		size_t inputSize = inSize;
-// 		size_t roomInPAStream = pa_stream_writable_size(mOutputStream);
-// 		KUInt8* outBuffer = NULL;
-// #ifdef DEBUG_SOUND
-// 		if (GetLog())
-// 		{
-// 			GetLog()->FLogLine("***** FROM NOS: ScheduleOutput size:%d, frames:%ld, PA out buffer size:%d",
-// 				inputSize, (inSize / sizeof(KSInt16)), roomInPAStream);
-// 		}
-// #endif
-// 		if (roomInPAStream >= inputSize)
-// 		{
-// #ifdef DEBUG_SOUND
-// 			if (GetLog())
-// 			{
-// 				GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (lots of space)", inputSize);
-// 			}
-// #endif
-// 			pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &inputSize);
-// 			::memcpy(outBuffer, inBuffer, inputSize);
-// 			pa_stream_write(mOutputStream, outBuffer, inputSize, NULL, 0LL, PA_SEEK_RELATIVE);
-// 		} else
-// 		{
-// #ifdef DEBUG_SOUND
-// 			if (GetLog())
-// 			{
-// 				GetLog()->FLogLine("***** FROM NOS: ScheduleOutput writing %d to PulseAudio (LACK of space) - RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT", roomInPAStream);
-// 			}
-// #endif
-// 			pa_stream_begin_write(mOutputStream, (void**) &outBuffer, &roomInPAStream);
-// 			::memcpy(outBuffer, inBuffer, roomInPAStream);
-// 			pa_stream_write(mOutputStream, outBuffer, roomInPAStream, NULL, 0LL, PA_SEEK_RELATIVE);
-// 			//RaiseOutputInterrupt();
-// 		}
-//
-// 		if (inSize < kNewtonBufferSize)
-// 		{
-// #ifdef DEBUG_SOUND
-// 			if (GetLog())
-// 			{
-// 				GetLog()->FLogLine("RAISEOUTPUTINTERRUPT SCHEDULEOUTPUT");
-// 			}
-// #endif
-//      RaiseOutputInterrupt();
-// 		}
-// 	} else if (mOutputIsRunning)
-// 	{
-// #ifdef DEBUG_SOUND
-// 		if (GetLog())
-// 		{
-// 			GetLog()->FLogLine("***** FROM NOS: ScheduleOutput no incoming data, STOP Output?");
-// 		}
-// #endif
-// 		//StopOutput();
-// 	}
-//   RaiseOutputInterrupt();
-
 }
 
 // -------------------------------------------------------------------------- //
@@ -345,7 +283,6 @@ TPulseAudioSoundManager::StartOutput(void)
 		GetLog()->FLogLine("   _____  StartOutput  _____");
 	}
 #endif
-	mOutputIsRunning = true;
 	pa_threaded_mainloop_lock(mPAMainLoop);
 
 	if (pa_stream_is_corked(mOutputStream))
@@ -423,7 +360,6 @@ TPulseAudioSoundManager::StopOutput(void)
   //
 	// pa_operation_unref(mPAOperation);
 
-	mOutputIsRunning = false;
 	pa_threaded_mainloop_unlock(mPAMainLoop);
 #ifdef DEBUG_SOUND
 	if (GetLog())
@@ -445,16 +381,12 @@ TPulseAudioSoundManager::OutputIsRunning(void)
 #ifdef DEBUG_SOUND
 	if (GetLog())
 	{
-		GetLog()->FLogLine("   *****  OutputIsRunning: (PA Stream Corked? %s) (mOutputIsRunning? %s)",
-			streamCorked ? "true" : "false",
-			mOutputIsRunning ? "true" : "false");
-		GetLog()->FLogLine("   *****  OutputIsRunning returns %s\n", streamCorked ? "false" : "true");
+		GetLog()->FLogLine("   *****  OutputIsRunning: returning %s (PA Stream Corked? %s)",
+      streamCorked ? "false" : "true",
+			streamCorked ? "true" : "false");
 	}
-#else
-	//(void) streamCorked;
 #endif
 
-	// return mOutputIsRunning;
   return !streamCorked;
 }
 
@@ -467,11 +399,6 @@ void TPulseAudioSoundManager::PAStreamWriteCallback(pa_stream* s, unsigned int r
 
   KUInt8* outBuffer;
 
-  if (bytesInBuffer < kNewtonBufferSize)
-  {
-    GetLog()->LogLine("Less than 1 buffer available, RaiseOutputInterrupt");
-    // RaiseOutputInterrupt();
-  }
   if (bytesInBuffer)
   {
     GetLog()->FLogLine("PA Requested %d, we have %d available", requestedSize, bytesInBuffer);
@@ -489,6 +416,7 @@ void TPulseAudioSoundManager::PAStreamWriteCallback(pa_stream* s, unsigned int r
   {
     GetLog()->LogLine("There was no data to write");
     pa_stream_cancel_write(s);
+    // FIXME do we drain and cork here?
   }
 }
 
@@ -598,7 +526,7 @@ TPulseAudioSoundManager::PAStreamOpCB(pa_stream* s, int success, pa_threaded_mai
   {
     pa_operation_unref(mPAOperation);
   }
-  
+
 	if (mainloop)
 	{
 		pa_threaded_mainloop_signal(mainloop, 0);

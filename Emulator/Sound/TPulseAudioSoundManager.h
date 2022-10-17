@@ -60,7 +60,7 @@ public:
 	~TPulseAudioSoundManager(void) override;
 
 	///
-	/// Schedule output of some buffer.
+	/// Schedule output of some buffer. Called when NewtonOS has sounds to play.
 	///
 	void ScheduleOutput(const KUInt8* inBufferAddr, KUInt32 inSize) override;
 
@@ -73,11 +73,6 @@ public:
 	/// Stop output.
 	///
 	void StopOutput(void) override;
-
-	///
-	/// Is output running?
-	///
-	Boolean OutputIsRunning(void) override;
 
 	///
 	/// Method called to signal a change in the output volume.
@@ -154,7 +149,6 @@ private:
 	pa_stream* mOutputStream;
 	pa_threaded_mainloop* mPAMainLoop;
 	pa_context* mPAContext;
-	Boolean mOutputIsRunning;
 };
 
 #endif
