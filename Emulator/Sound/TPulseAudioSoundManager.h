@@ -70,6 +70,11 @@ public:
 	void StartOutput(void) override;
 
 	///
+	/// Is output running?
+	///
+	Boolean OutputIsRunning(void) override;
+
+	///
 	/// Stop output.
 	///
 	void StopOutput(void) override;
@@ -134,7 +139,6 @@ private:
     return ((TPulseAudioSoundManager*) userData)->PATriggerAfterOpCB(stream, success, ((TPulseAudioSoundManager*) userData)->mPAMainLoop);
   }
   void PATriggerAfterOpCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop);
-
 
 	// static void PAStreamSuccessCallback(pa_stream* stream, int success, void* userData)
 	// {
