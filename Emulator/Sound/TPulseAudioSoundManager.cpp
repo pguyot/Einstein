@@ -57,6 +57,10 @@
 #else
 #define LOG_LINE(...)
 #define LOG_DEBUG(...)
+#define LOG_ERROR(...)
+#define LOG_ENTER(...)
+#define LOG_WITHIN(...)
+#define LOG_LEAVE(...)
 #endif
 
 // -------------------------------------------------------------------------- //
@@ -79,20 +83,19 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 {
 	int result = 0;
 	int stream_flags = 0;
-	const char* errorText = "";
 	LOG_DEBUG("INIT PULSEAUDIO");
 
 	mPAMainLoop = pa_threaded_mainloop_new();
 	if (!mPAMainLoop)
 	{
-		errorText = "Can't allocate PulseAudio loop";
+		LOG_ERROR("Can't allocate PulseAudio loop");
 		goto error;
 	}
 
 	mPAContext = pa_context_new(pa_threaded_mainloop_get_api(mPAMainLoop), "Einstein");
 	if (!mPAContext)
 	{
-		errorText = "Can't allocate PulseAudio context";
+		LOG_ERROR("Can't allocate PulseAudio context");
 		goto error;
 	}
 	pa_context_set_state_callback(mPAContext, &SPAContextStateCallback, this);
@@ -102,7 +105,7 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 	result = pa_threaded_mainloop_start(mPAMainLoop);
 	if (result < 0)
 	{
-		errorText = "Can't start the PulseAudio main loop";
+		LOG_ERROR("Can't start the PulseAudio main loop")
 		goto error;
 	}
 
@@ -110,7 +113,7 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 	result = pa_context_connect(mPAContext, NULL, PA_CONTEXT_NOAUTOSPAWN, NULL);
 	if (result < 0)
 	{
-		errorText = "Can't connect to the PulseAudio server";
+		LOG_ERROR("Can't connect to the PulseAudio server");
 		goto error;
 	}
 
@@ -121,12 +124,12 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 			break;
 		if (context_state == PA_CONTEXT_FAILED)
 		{
-			errorText = "Can't connect to the PulseAudio server, connection attempts failed";
+			LOG_ERROR("Can't connect to the PulseAudio server, connection attempts failed");
 			goto error;
 		}
 		if (context_state == PA_CONTEXT_TERMINATED)
 		{
-			errorText = "Can't connect to the PulseAudio server, connection was terminated";
+			LOG_ERROR("Can't connect to the PulseAudio server, connection was terminated");
 			goto error;
 		}
 		pa_threaded_mainloop_wait(mPAMainLoop);
@@ -190,13 +193,6 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 	return;
 
 error:
-	if (mPAContext)
-	{
-		LOG_ERROR("TPulseAudioSoundManager: %s: %d\n", errorText, pa_context_errno(mPAContext));
-	} else
-	{
-		LOG_ERROR("TPulseAudioSoundManager: %s.\n", errorText);
-	}
 
 	if (mPAMainLoop)
 	{
@@ -375,6 +371,7 @@ TPulseAudioSoundManager::PAContextStateCallback(pa_context* context, pa_threaded
 void
 TPulseAudioSoundManager::PAStreamStateCallback(pa_stream* s, pa_threaded_mainloop* mainloop)
 {
+#ifdef DEBUG_SOUND
 	pa_stream_state_t sState = pa_stream_get_state(s);
 	const char* sStateStr = "unknown";
 	switch (sState)
@@ -397,7 +394,7 @@ TPulseAudioSoundManager::PAStreamStateCallback(pa_stream* s, pa_threaded_mainloo
 	}
 
 	LOG_DEBUG("StreamStateCallback: %s", sStateStr);
-
+#endif
 	if (mainloop)
 	{
 		pa_threaded_mainloop_signal(mainloop, 0);
