@@ -352,18 +352,17 @@ TPulseAudioSoundManager::PAStreamWriteCallback(pa_stream* s, unsigned int reques
 		LOG_WITHIN("WriteCB: Writing %d to PA", consumedBytes);
 
 		pa_stream_write(s, outBuffer, paBufferSize, NULL, 0LL, PA_SEEK_RELATIVE);
-	}
-  else
+	} else
 	{
 		LOG_WITHIN("There was no data to write");
 		pa_stream_cancel_write(s);
 		// do we drain and cork here?  I don't think so.
 	}
-  // do we raise output interrupt here instead of in ScheduleOutput?
-  // if (bytesInBuffer < kNewtonBufferSize)
-  // {
-  //   RaiseOutputInterrupt();
-  // }
+	// do we raise output interrupt here instead of in ScheduleOutput?
+	// if (bytesInBuffer < kNewtonBufferSize)
+	// {
+	//   RaiseOutputInterrupt();
+	// }
 	LOG_LEAVE("Stream write callback");
 }
 
