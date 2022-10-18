@@ -84,6 +84,14 @@ public:
 	///
 	void OutputVolumeChanged(void) override;
 
+protected:
+	static void
+	SPASafeUnrefOp(pa_operation* op)
+	{
+		if (op)
+			pa_operation_unref(op);
+	}
+
 private:
 	// callback routines (static).  PulseAudio lets us pass an arbitrary void pointer to callback functions.
 	// When callback function pointer is given to PulseAudio, we give a pointer to the class instance (this) as userData.

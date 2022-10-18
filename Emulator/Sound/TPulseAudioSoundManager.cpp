@@ -41,8 +41,10 @@
 
 // Einstein.
 #include "Emulator/Log/TFileLog.h"
+
 #define DEBUG_SOUND
 
+// Debug logging
 #ifdef DEBUG_SOUND
 #define LOG_LINE(STR, ...) \
 	if (GetLog())          \
@@ -56,6 +58,7 @@
 #define LOG_LINE(...)
 #define LOG_DEBUG(...)
 #endif
+
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
@@ -298,13 +301,13 @@ TPulseAudioSoundManager::StartOutput(void)
 void
 TPulseAudioSoundManager::StopOutput(void)
 {
-	LOG_ENTER("StopOutput - Drain, then cork in StreamDrainedCB");
+	LOG_ENTER("StopOutput - Drain");
 
 	pa_threaded_mainloop_lock(mPAMainLoop);
 
 	mPAOperationDescr = "DRAIN";
-	mPAOperation = pa_stream_drain(mOutputStream, &SPAStreamDrainedCB, this);
-
+	mPAOperation = pa_stream_drain(mOutputStream, &SPAStreamOpCB, this);
+	// using StreamDrainedCB to cork afterwards does not work.
 	pa_threaded_mainloop_unlock(mPAMainLoop);
 	LOG_LEAVE("StopOutput");
 }
@@ -423,9 +426,9 @@ void
 TPulseAudioSoundManager::PAStreamDrainedCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop)
 {
 	LOG_ENTER("StreamDrainedCB, cork it!");
-	pa_operation_unref(mPAOperation);
+	SPASafeUnrefOp(mPAOperation);
 	pa_operation* thisOp = pa_stream_cork(s, 1, NULL, NULL);
-	pa_operation_unref(thisOp);
+	SPASafeUnrefOp(thisOp);
 
 	if (mainloop)
 	{
@@ -438,9 +441,8 @@ void
 TPulseAudioSoundManager::PATriggerAfterOpCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop)
 {
 	LOG_ENTER("TriggerAfterOpCB: Stream uncorked, Trigger it!");
-	pa_operation_unref(mPAOperation);
+	SPASafeUnrefOp(mPAOperation);
 	mPAOperation = pa_stream_trigger(s, &SPAStreamOpCB, this);
-	// pa_operation_unref(thisOp);
 
 	if (mainloop)
 	{
@@ -452,10 +454,7 @@ TPulseAudioSoundManager::PATriggerAfterOpCB(pa_stream* s, int success, pa_thread
 void
 TPulseAudioSoundManager::PAStreamOpCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop)
 {
-	if (mPAOperation)
-	{
-		pa_operation_unref(mPAOperation);
-	}
+	SPASafeUnrefOp(mPAOperation);
 	LOG_DEBUG("StreamOpCB: %s returned %d", mPAOperationDescr, success);
 	mPAOperationDescr = "";
 
