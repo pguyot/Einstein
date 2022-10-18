@@ -42,7 +42,7 @@
 // Einstein.
 #include "Emulator/Log/TFileLog.h"
 
-#define DEBUG_SOUND
+//#define DEBUG_SOUND
 
 // Debug logging
 #ifdef DEBUG_SOUND
@@ -151,13 +151,11 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 	buffer_attr.maxlength = kNewtonBufferSize * 8;
 	buffer_attr.tlength = kNewtonBufferSize * 2;
 	// buffer_attr.prebuf = kNewtonBufferSize / 2;
-
 	// manual stream control - need to cork and uncork
-	// This sort of works but then stops working.
+	// This works!
 	buffer_attr.prebuf = 0;
 
-	// with this set and the driver starting CORKed, nothing ever plays.
-	// buffer_attr.prebuf = kNewtonBufferSize / 4;
+	// with this set to the PA default and the driver starting CORKed, nothing ever plays.
 	// buffer_attr.minreq = (uint32_t) -1;
 	buffer_attr.minreq = kNewtonBufferSize / 4;
 
@@ -354,14 +352,18 @@ TPulseAudioSoundManager::PAStreamWriteCallback(pa_stream* s, unsigned int reques
 		LOG_WITHIN("WriteCB: Writing %d to PA", consumedBytes);
 
 		pa_stream_write(s, outBuffer, paBufferSize, NULL, 0LL, PA_SEEK_RELATIVE);
-	} else
+	}
+  else
 	{
 		LOG_WITHIN("There was no data to write");
 		pa_stream_cancel_write(s);
 		// do we drain and cork here?  I don't think so.
-		// mPAOperationDescr = "DRAIN";
-		// mPAOperation = pa_stream_drain(s, &SPAStreamDrainedCB, this);
 	}
+  // do we raise output interrupt here instead of in ScheduleOutput?
+  // if (bytesInBuffer < kNewtonBufferSize)
+  // {
+  //   RaiseOutputInterrupt();
+  // }
 	LOG_LEAVE("Stream write callback");
 }
 
@@ -425,7 +427,8 @@ TPulseAudioSoundManager::PAStreamUnderflowCallback(pa_stream* s, pa_threaded_mai
 void
 TPulseAudioSoundManager::PAStreamDrainedCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop)
 {
-	LOG_ENTER("StreamDrainedCB, cork it!");
+	LOG_ENTER("StreamDrainedCB, %s returned %d, cork it!", mPAOperationDescr, success);
+
 	SPASafeUnrefOp(mPAOperation);
 	pa_operation* thisOp = pa_stream_cork(s, 1, NULL, NULL);
 	SPASafeUnrefOp(thisOp);
