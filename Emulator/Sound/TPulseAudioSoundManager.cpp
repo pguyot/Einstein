@@ -308,12 +308,12 @@ TPulseAudioSoundManager::StartOutput(void)
 void
 TPulseAudioSoundManager::StopOutput(void)
 {
-	LOG_ENTER("StopOutput BEGIN");
+	LOG_ENTER("StopOutput - Drain, then cork in StreamDrainedCB");
 
 	pa_threaded_mainloop_lock(mPAMainLoop);
 
 	mPAOperationDescr = "DRAIN";
-	mPAOperation = pa_stream_drain(mOutputStream, &SPAStreamOpCB, this);
+	mPAOperation = pa_stream_drain(mOutputStream, &SPAStreamDrainedCB, this);
 
 	// while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
 	// {
@@ -366,15 +366,15 @@ void TPulseAudioSoundManager::PAStreamWriteCallback(pa_stream* s, unsigned int r
 
   if (bytesInBuffer)
   {
-    LOG_WITHIN(" WriteCB: PA Requested %d, we have %d available", requestedSize, bytesInBuffer);
+    LOG_WITHIN("WriteCB: PA Requested %d, we have %d available", requestedSize, bytesInBuffer);
     size_t paBufferSize = bytesInBuffer;
     pa_stream_begin_write(s, (void**) &outBuffer, &paBufferSize);
     mDataMutex->Lock();
-    KUIntPtr remainingBytes = mOutputBuffer->Consume(outBuffer, paBufferSize);
+    KUIntPtr consumedBytes = mOutputBuffer->Consume(outBuffer, paBufferSize);
     mDataMutex->Unlock();
-    LOG_WITHIN(" WriteCB: %d left in ring buffer", remainingBytes);
-
-    LOG_WITHIN(" WriteCB: Writing %d to PA", paBufferSize);
+    LOG_WITHIN("WriteCB: Consumed %d bytes from ring buffer", consumedBytes);
+    // FIXME check that these values actually make sense
+    LOG_WITHIN("WriteCB: Writing %d to PA", paBufferSize);
 
     pa_stream_write(s, outBuffer, bytesInBuffer, NULL, 0LL, PA_SEEK_RELATIVE);
   }
@@ -382,7 +382,9 @@ void TPulseAudioSoundManager::PAStreamWriteCallback(pa_stream* s, unsigned int r
   {
     LOG_WITHIN("There was no data to write");
     pa_stream_cancel_write(s);
-    // FIXME do we drain and cork here?
+    // do we drain and cork here?
+    // mPAOperationDescr = "DRAIN";
+    // mPAOperation = pa_stream_drain(s, &SPAStreamDrainedCB, this);
   }
   LOG_LEAVE("Stream write callback");
 }
