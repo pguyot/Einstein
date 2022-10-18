@@ -285,15 +285,7 @@ TPulseAudioSoundManager::StartOutput(void)
 		{
 			LOG_WITHIN("StartOutput Triggering!");
 		}
-		// while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
-		// {
-		// 	pa_threaded_mainloop_wait(mPAMainLoop);
-		// }
-		// pa_operation_unref(mPAOperation);
 	}
-
-	// mPAOperationDescr = "TRIGGER";
-	// mPAOperation = pa_stream_trigger(mOutputStream, &SPAStreamOpCB, this);
 
 	pa_threaded_mainloop_unlock(mPAMainLoop);
 
@@ -312,24 +304,6 @@ TPulseAudioSoundManager::StopOutput(void)
 
 	mPAOperationDescr = "DRAIN";
 	mPAOperation = pa_stream_drain(mOutputStream, &SPAStreamDrainedCB, this);
-
-	// while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
-	// {
-	// 	pa_threaded_mainloop_wait(mPAMainLoop);
-	// }
-
-	// pa_operation_unref(mPAOperation);
-
-	// mPAOperationDescr = "CORK";
-	// mPAOperation = pa_stream_cork(mOutputStream, 1, &SPAStreamOpCB, this);
-	// pa_operation* corkOp = pa_stream_cork(mOutputStream, 1, NULL, NULL);
-	// pa_operation_unref(corkOp);
-	// while (pa_operation_get_state(mPAOperation) == PA_OPERATION_RUNNING)
-	// {
-	// 	pa_threaded_mainloop_wait(mPAMainLoop);
-	// }
-	//
-	// pa_operation_unref(mPAOperation);
 
 	pa_threaded_mainloop_unlock(mPAMainLoop);
 	LOG_LEAVE("StopOutput");
@@ -373,15 +347,15 @@ TPulseAudioSoundManager::PAStreamWriteCallback(pa_stream* s, unsigned int reques
 		KUIntPtr consumedBytes = mOutputBuffer->Consume(outBuffer, paBufferSize);
 		mDataMutex->Unlock();
 		LOG_WITHIN("WriteCB: Consumed %d bytes from ring buffer", consumedBytes);
-		// FIXME check that these values actually make sense
-		LOG_WITHIN("WriteCB: Writing %d to PA", paBufferSize);
+		paBufferSize = consumedBytes;
+		LOG_WITHIN("WriteCB: Writing %d to PA", consumedBytes);
 
-		pa_stream_write(s, outBuffer, bytesInBuffer, NULL, 0LL, PA_SEEK_RELATIVE);
+		pa_stream_write(s, outBuffer, paBufferSize, NULL, 0LL, PA_SEEK_RELATIVE);
 	} else
 	{
 		LOG_WITHIN("There was no data to write");
 		pa_stream_cancel_write(s);
-		// do we drain and cork here?
+		// do we drain and cork here?  I don't think so.
 		// mPAOperationDescr = "DRAIN";
 		// mPAOperation = pa_stream_drain(s, &SPAStreamDrainedCB, this);
 	}

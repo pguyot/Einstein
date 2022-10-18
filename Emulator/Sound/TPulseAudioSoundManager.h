@@ -134,7 +134,7 @@ private:
 	static void
 	SPAStreamDrainedCB(pa_stream* stream, int success, void* userData)
 	{
-		return ((TPulseAudioSoundManager*) userData)->PAStreamOpCB(stream, success, ((TPulseAudioSoundManager*) userData)->mPAMainLoop);
+		return ((TPulseAudioSoundManager*) userData)->PAStreamDrainedCB(stream, success, ((TPulseAudioSoundManager*) userData)->mPAMainLoop);
 	}
 	void PAStreamDrainedCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop);
 
