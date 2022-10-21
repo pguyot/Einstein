@@ -54,6 +54,42 @@
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
+			<string>Printing Settings</string>
+			<key>FooterText</key>
+			<string>This should match the paper size selected in NewtonOS&apos;s Locale Prefs.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Paper Size</string>
+			<key>Key</key>
+			<string>printable_size</string>
+			<key>DefaultValue</key>
+			<string>{8,9.88897}</string>
+			<key>Titles</key>
+			<array>
+				<string>U.S. Letter</string>
+				<string>A4</string>
+			</array>
+			<key>Values</key>
+			<array>
+				<string>{8,9.88897}</string>
+				<string>{7.76771,10.58188}</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSTextFieldSpecifier</string>
+			<key>Title</key>
+			<string></string>
+			<key>Key</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
 			<string>Reset</string>
 		</dict>
 		<dict>

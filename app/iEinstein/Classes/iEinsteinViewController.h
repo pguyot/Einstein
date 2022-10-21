@@ -30,6 +30,7 @@
 class TNetworkManager;
 class TSoundManager;
 class TScreenManager;
+class TPrinterManager;
 class TROMImage;
 class TEmulator;
 class TPlatformManager;
@@ -40,6 +41,7 @@ class TLog;
 	TNetworkManager* mNetworkManager;
 	TSoundManager* mSoundManager;
 	TScreenManager* mScreenManager;
+	TPrinterManager* mPrinterManager;
 	TROMImage* mROMImage;
 	TEmulator* mEmulator;
 	TPlatformManager* mPlatformManager;

@@ -3235,8 +3235,7 @@ TNativePrimitives::ExecuteHostiOSNativeiOS(KUInt32 inInstruction)
 }
 #endif
 
-#ifdef TARGET_UI_FLTK
-#include <FL/Fl_Printer.H>
+#if defined(TARGET_UI_FLTK) || TARGET_IOS
 // -------------------------------------------------------------------------- //
 //  * ExecutePrinterDriverNative( KUInt32 )
 // -------------------------------------------------------------------------- //
