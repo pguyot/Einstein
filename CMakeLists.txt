@@ -305,6 +305,7 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		fltk_images
 		fltk_png
 		fltk_z
+		pthread
 		pulse # sound
 	)
 	target_link_libraries ( EinsteinTests
