@@ -18,7 +18,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		Emulator/NativeCalls/TObjCBridgeCalls.mm
 		Emulator/NativeCalls/TObjCBridgeCalls.h
 	)
-elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD")
 	list (APPEND common_sources
 			Emulator/NativeCalls/NativeCallsDefines.h
 			Emulator/NativeCalls/TNativeCalls.cpp
