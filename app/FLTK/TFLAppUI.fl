@@ -33,18 +33,19 @@ data imgPCCardBotOut {public local filename {../../Resources/icons/button_pccard
 data imgPCCardBotHilite {public local filename {../../Resources/icons/button_pccard_bottom_hilight.png}
 }
 
-data imgMP2100 {selected public local filename {../../Resources/Graphics/NewtonCase.png}
+data imgMP2100 {public local filename {../../Resources/Graphics/NewtonCase.png}
 }
 
-Function {CreateApplicationWindow(int x, int y)} {open
+Function {CreateApplicationWindow(int x, int y)} {open selected
 } {
-  Fl_Window wAppWindow {open
-    xywh {453 329 320 558} type Double align 529 resizable
+  Fl_Window wAppWindow {
+    comment {320x558 / 450x800} open
+    xywh {453 221 320 558} type Double align 529 resizable
     code0 {wAppWindow->position(x, y);}
     code1 {wAppWindow->label(PROJECT_NAME);}
     class TFLAppWindow visible
   } {
-    Fl_Menu_Bar wMenubar {open
+    Fl_Menu_Bar wMenubar {
       xywh {0 0 320 24} color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
     } {
@@ -229,7 +230,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         }
       }
     }
-    Fl_Group wToolbar {open
+    Fl_Group wToolbar {
       xywh {0 24 320 54} box THIN_UP_BOX color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
     } {
@@ -297,6 +298,40 @@ Function {CreateApplicationWindow(int x, int y)} {open
     }
     Fl_Box {} {
       xywh {0 78 320 480} hide resizable
+    }
+    Fl_Group wDecoratedMP2100 {open
+      xywh {0 0 450 800} hide
+    } {
+      Fl_Menu_Bar {} {open
+        xywh {70 33 320 24} box BORDER_FRAME
+      } {}
+      Fl_Button {} {
+        label PWR
+        xywh {0 0 40 60} box BORDER_FRAME
+      }
+      Fl_Button {} {
+        label BLT
+        xywh {0 60 40 60} box BORDER_FRAME
+      }
+      Fl_Button {} {
+        label PC1
+        xywh {410 150 40 200} box BORDER_FRAME
+      }
+      Fl_Button {} {
+        label PC2
+        xywh {410 430 40 200} box BORDER_FRAME
+      }
+      Fl_Button {} {
+        label About1
+        xywh {178 63 99 40} box BORDER_FRAME
+      }
+      Fl_Button {} {
+        label About2
+        xywh {172 672 113 77} box BORDER_FRAME
+      }
+      Fl_Box {} {
+        image {../../Resources/Graphics/NewtonCaseHalf.png} xywh {0 0 450 800} align 309
+      }
     }
   }
 }
