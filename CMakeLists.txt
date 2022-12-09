@@ -287,7 +287,7 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 	target_compile_options ( Einstein PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation
 		-Wno-missing-field-initializers # -Werror
-		# Werror is diesable for testing purposes. Must reenable as soon as all Linux warnings are fixed.
+		# Werror is disabled for testing purposes. Must reenable as soon as all Linux warnings are fixed.
 	)
 	target_compile_options ( EinsteinTests PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation
@@ -306,7 +306,6 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		fltk_png
 		fltk_z
 		pthread
-		pulse # sound
 	)
 	target_link_libraries ( EinsteinTests
 		${system_libs}
@@ -328,12 +327,25 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 			target_link_libraries ( Einstein ${ffi_lib} )
 		endif ()
 
+		# Under OpenBSD, pulseaudio is in ports (i.e. /usr/local) not base (i.e. /usr)
+		find_library ( pulse_lib NAMES pulse )
+		if ( pulse_lib MATCHES ".*NOTFOUND" )
+			message ( FATAL_ERROR "libpulse not found! " )
+		else ()
+			get_filename_component ( pulse_lib_path ${pulse_lib} DIRECTORY )
+			message ( STATUS "libpulse found in " ${pulse_lib_path} )
+			target_link_libraries ( Einstein ${pulse_lib} )
+		endif ()
+
 		# Under OpenBSD, X11 is in /usr/X11R6
 		include ( FindX11 )
 		if ( X11_FOUND )
 			target_include_directories ( Einstein SYSTEM PUBLIC ${X11_INCLUDE_DIR} )
 			target_link_libraries ( Einstein ${X11_LIBRARIES} )
 		endif ()
+	else ()
+		# Under Linux, link pulseaudio normally
+		target_link_libraries ( Einstein pulse )
 	endif ()
 
 elseif ( WIN32 )
