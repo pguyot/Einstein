@@ -588,7 +588,7 @@ TFLSettings::CardToIndex(TPCMCIACard* inCard)
 	{
 		TPCMCIACard* card = mCardList[ix]->Card();
 		if (card == inCard)
-			return ix;
+			return (int) ix;
 	}
 	return -1;
 }
@@ -601,7 +601,7 @@ TFLSettings::GetCardKeptInSlot(int inSlot)
 	for (size_t ix = 0; ix < mCardList.size(); ++ix)
 	{
 		if (mCardList[ix]->KeepInSlot() == inSlot)
-			return ix;
+			return (int) ix;
 	}
 	return -1;
 }

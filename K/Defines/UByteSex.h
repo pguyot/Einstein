@@ -99,7 +99,7 @@ public:
 #define UByteSex_ToBigEndian(inWord) (UByteSex::Swap(inWord))
 #define UByteSex_ToLittleEndian(inWord) (inWord)
 #else
-// Macros pour une plateforme en grand indien
+	// Macros pour une plateforme en grand indien
 #define UByteSex_FromBigEndian(inWord) (inWord)
 #define UByteSex_FromLittleEndian(inWord) (UByteSex::Swap(inWord))
 #define UByteSex_ToBigEndian(inWord) (inWord)

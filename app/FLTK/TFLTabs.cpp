@@ -11,8 +11,9 @@
 #include <FL/fl_draw.H>
 
 void
-TFLTabs::draw_tab(int x1, int x2, int W, int H, Fl_Widget* o, int what)
+TFLTabs::draw_tab(int x1, int x2, int W, int H, Fl_Widget* o, int flags, int what)
 {
+	(void) flags;
 	int sel = (what == 2); // SELECTED
 	int dh = Fl::box_dh(box());
 	//  int dy = Fl::box_dy(box());

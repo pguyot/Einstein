@@ -36,6 +36,7 @@
 #endif
 #include "Emulator/TMemory.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
+#include <cassert>
 
 TTapNetwork::TTapNetwork(TLog* inLog) :
 		TNetworkManager(inLog)

@@ -78,7 +78,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         MenuItem {} {
           xywh {0 0 100 20} hide deactivate
         }
-        MenuItem {} {
+        MenuItem {} {selected
           xywh {0 0 100 20} hide deactivate
         }
         MenuItem {} {
@@ -159,7 +159,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
           }
           MenuItem {} {
             label {Brain Wipe}
-            callback {gApp->UserActionReset(2);} selected
+            callback {gApp->UserActionReset(2);}
             xywh {40 40 31 20}
           }
         }

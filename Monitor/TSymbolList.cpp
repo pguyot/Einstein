@@ -725,7 +725,7 @@ TSymbolList::GetNearestSymbolByAddress(
 
 	if (mSymbolCount == 0)
 	{
-		::sprintf(outComment, "(no symbol data)");
+		::snprintf(outComment, 511, "(no symbol data)");
 		return;
 	}
 
@@ -786,10 +786,10 @@ TSymbolList::GetSymbolByAddress(
 	} else
 	{
 		if (outSymbol)
-			::sprintf(outSymbol, "%08X", (unsigned int) inAddress);
+			::snprintf(outSymbol, 511, "%08X", (unsigned int) inAddress);
 
 		if (outComment)
-			::sprintf(outComment, "(no symbol data)");
+			::snprintf(outComment, 79, "(no symbol data)");
 
 		if (outOffset)
 			*outOffset = 0;

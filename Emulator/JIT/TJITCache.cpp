@@ -36,7 +36,7 @@ using namespace std;
 // -------------------------------------------------------------------------- //
 // Constantes & globales.
 // -------------------------------------------------------------------------- //
-//#define kTJITCacheStats	1
+// #define kTJITCacheStats	1
 #undef kTJITCacheStats
 
 #if kTJITCacheStats

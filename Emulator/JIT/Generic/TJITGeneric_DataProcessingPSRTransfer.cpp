@@ -175,59 +175,59 @@ static const JITFuncPtr DataProcessingPSRTransfer_MSR_Imm_Funcs[] = {
 
 def_array_mode_s_rn_rd(AND);
 #define AND_Func(mode, flag_s, rnrd) \
-	DataProcessingPSRTransfer_AND_Funcs[((mode) *512) + ((flag_s) *256) + (rnrd)]
+	DataProcessingPSRTransfer_AND_Funcs[((mode) * 512) + ((flag_s) * 256) + (rnrd)]
 def_array_mode_s_rn_rd(EOR);
 #define EOR_Func(mode, flag_s, rnrd) \
-	DataProcessingPSRTransfer_EOR_Funcs[((mode) *512) + ((flag_s) *256) + (rnrd)]
+	DataProcessingPSRTransfer_EOR_Funcs[((mode) * 512) + ((flag_s) * 256) + (rnrd)]
 def_array_mode_s_rn_rd(SUB);
 #define SUB_Func(mode, flag_s, rnrd) \
-	DataProcessingPSRTransfer_SUB_Funcs[((mode) *512) + ((flag_s) *256) + (rnrd)]
+	DataProcessingPSRTransfer_SUB_Funcs[((mode) * 512) + ((flag_s) * 256) + (rnrd)]
 def_array_mode_s_rn_rd(RSB);
 #define RSB_Func(mode, flag_s, rnrd) \
-	DataProcessingPSRTransfer_RSB_Funcs[((mode) *512) + ((flag_s) *256) + (rnrd)]
+	DataProcessingPSRTransfer_RSB_Funcs[((mode) * 512) + ((flag_s) * 256) + (rnrd)]
 def_array_mode_s_rn_rd(ADD);
 #define ADD_Func(mode, flag_s, rnrd) \
-	DataProcessingPSRTransfer_ADD_Funcs[((mode) *512) + ((flag_s) *256) + (rnrd)]
+	DataProcessingPSRTransfer_ADD_Funcs[((mode) * 512) + ((flag_s) * 256) + (rnrd)]
 def_array_mode_s_rn_rd(ADC);
 #define ADC_Func(mode, flag_s, rnrd) \
-	DataProcessingPSRTransfer_ADC_Funcs[((mode) *512) + ((flag_s) *256) + (rnrd)]
+	DataProcessingPSRTransfer_ADC_Funcs[((mode) * 512) + ((flag_s) * 256) + (rnrd)]
 def_array_mode_s_rn_rd(SBC);
 #define SBC_Func(mode, flag_s, rnrd) \
-	DataProcessingPSRTransfer_SBC_Funcs[((mode) *512) + ((flag_s) *256) + (rnrd)]
+	DataProcessingPSRTransfer_SBC_Funcs[((mode) * 512) + ((flag_s) * 256) + (rnrd)]
 def_array_mode_s_rn_rd(RSC);
 #define RSC_Func(mode, flag_s, rnrd) \
-	DataProcessingPSRTransfer_RSC_Funcs[((mode) *512) + ((flag_s) *256) + (rnrd)]
+	DataProcessingPSRTransfer_RSC_Funcs[((mode) * 512) + ((flag_s) * 256) + (rnrd)]
 def_array_testop_mode_rn(TST);
 #define TST_Func(mode, rn) \
-	DataProcessingPSRTransfer_TST_Funcs[((mode) *16) + (rn)]
+	DataProcessingPSRTransfer_TST_Funcs[((mode) * 16) + (rn)]
 def_array_testop_mode_rn(TEQ);
 #define TEQ_Func(mode, rn) \
-	DataProcessingPSRTransfer_TEQ_Funcs[((mode) *16) + (rn)]
+	DataProcessingPSRTransfer_TEQ_Funcs[((mode) * 16) + (rn)]
 def_array_testop_mode_rn(CMP);
 #define CMP_Func(mode, rn) \
-	DataProcessingPSRTransfer_CMP_Funcs[((mode) *16) + (rn)]
+	DataProcessingPSRTransfer_CMP_Funcs[((mode) * 16) + (rn)]
 def_array_testop_mode_rn(CMN);
 #define CMN_Func(mode, rn) \
-	DataProcessingPSRTransfer_CMN_Funcs[((mode) *16) + (rn)]
+	DataProcessingPSRTransfer_CMN_Funcs[((mode) * 16) + (rn)]
 def_array_mode_s_rn_rd(ORR);
 #define ORR_Func(mode, flag_s, rnrd) \
-	DataProcessingPSRTransfer_ORR_Funcs[((mode) *512) + ((flag_s) *256) + (rnrd)]
+	DataProcessingPSRTransfer_ORR_Funcs[((mode) * 512) + ((flag_s) * 256) + (rnrd)]
 def_array_mode_s_rd(MOV);
 #define MOV_Func(mode, flag_s, rd) \
-	DataProcessingPSRTransfer_MOV_Funcs[((mode) *32) + ((flag_s) *16) + (rd)]
+	DataProcessingPSRTransfer_MOV_Funcs[((mode) * 32) + ((flag_s) * 16) + (rd)]
 def_array_mode_s_rn_rd(BIC);
 #define BIC_Func(mode, flag_s, rnrd) \
-	DataProcessingPSRTransfer_BIC_Funcs[((mode) *512) + ((flag_s) *256) + (rnrd)]
+	DataProcessingPSRTransfer_BIC_Funcs[((mode) * 512) + ((flag_s) * 256) + (rnrd)]
 def_array_mode_s_rd(MVN);
 #define MVN_Func(mode, flag_s, rd) \
-	DataProcessingPSRTransfer_MVN_Funcs[((mode) *32) + ((flag_s) *16) + (rd)]
+	DataProcessingPSRTransfer_MVN_Funcs[((mode) * 32) + ((flag_s) * 16) + (rd)]
 
 #define MRS_Func(flag_r, rd) \
 	DataProcessingPSRTransfer_MRS_Funcs[(flag_r * 16) + (rd)]
 #define MSR_NoShift_Func(flag_r, fields_mask_ix, rm) \
-	DataProcessingPSRTransfer_MSR_NoShift_Funcs[((flag_r) *256) + ((fields_mask_ix) *16) + (rm)]
+	DataProcessingPSRTransfer_MSR_NoShift_Funcs[((flag_r) * 256) + ((fields_mask_ix) * 16) + (rm)]
 #define MSR_Imm_Func(flag_r, fields_mask_ix) \
-	DataProcessingPSRTransfer_MSR_Imm_Funcs[((flag_r) *16) + (fields_mask_ix)]
+	DataProcessingPSRTransfer_MSR_Imm_Funcs[((flag_r) * 16) + (fields_mask_ix)]
 
 #define __Rn (inInstruction & 0x000F0000) >> 16
 #define __Rd (inInstruction & 0x0000F000) >> 12

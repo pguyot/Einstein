@@ -1162,7 +1162,7 @@ TScreenManager::OverlayPrintProgress(KSInt32 y, KUInt32 percent)
 {
 	if (percent > 100)
 		percent = 100;
-	sprintf(mOverlay[y], "%3d%%", (unsigned int) percent);
+	snprintf(mOverlay[y], 39, "%3d%%", (unsigned int) percent);
 	int i, n = percent * 34 / 100;
 	char* d = mOverlay[y] + 4;
 	*d++ = 1;

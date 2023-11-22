@@ -157,7 +157,7 @@ public:
 	///
 	/// Accessor to the log interface.
 	///
-	/// \return a pointer to the log object or nil.
+	///  \return a pointer to the log object or nil.
 	///
 	inline TLog*
 	GetLog(void)
@@ -168,7 +168,7 @@ public:
 	///
 	/// Accessor to the emulator.
 	///
-	/// \return a pointer to the emulator object.
+	///  \return a pointer to the emulator object.
 	///
 	inline TEmulator*
 	GetEmulator(void)

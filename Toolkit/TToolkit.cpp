@@ -76,10 +76,10 @@
  The Ref according to TInterpreter::HandleBreakPoints(void) must be a Frame
  containing an array named 'programCounter'. The array holds one frame per
  breakpoint. Those frames have the fields:
-    'programCounter' : checks if the current instruction offset matches
-    'instrcutions' : points at the current instructions binary ref(?) and must match
-    'disabled' : is TRUE or NIL to disable or anable the breakpoint
-    'temporary' : the breakpoint is removed from the array when it is hit
+	'programCounter' : checks if the current instruction offset matches
+	'instrcutions' : points at the current instructions binary ref(?) and must match
+	'disabled' : is TRUE or NIL to disable or anable the breakpoint
+	'temporary' : the breakpoint is removed from the array when it is hit
 
  If breakpoints are enabled, TInterpreter switches to Slow mode.
 
@@ -118,7 +118,7 @@
  traceReturn returns from the current function
  traceARgs prints the stack contents
  traceApply, traceCall, traceSend
- 
+
  */
 
 #include "TToolkit.h"
@@ -250,7 +250,7 @@ TToolkit::Show()
 
 		int oldy = wToolkitTerminal->y();
 		int newy = wTile->y() + wTile->h() - hTerminal;
-		wTile->position(0, oldy, 0, newy);
+		wTile->move_intersection(0, oldy, 0, newy);
 
 		if (!findGroupVisible)
 			UserActionFindHide();
@@ -516,7 +516,7 @@ void
 TToolkit::UserActionFind()
 {
 	// select the text in the find text widget
-	wToolkitFindText->position(0, wToolkitFindText->size());
+	wToolkitFindText->insert_position(0, wToolkitFindText->size());
 	// find the first occurence of this text
 	UserActionFindNext(false);
 	// and activate the find-text input field
@@ -594,9 +594,9 @@ TToolkit::UserActionFindTextChanged()
 	if (Fl::event() == FL_KEYBOARD && Fl::event_key() == FL_Enter)
 	{
 		UserActionFindNext(true);
-		int p = wToolkitFindText->position();
+		int p = wToolkitFindText->insert_position();
 		wToolkitFindText->take_focus();
-		wToolkitFindText->position(p);
+		wToolkitFindText->insert_position(p);
 	} else
 	{
 		UserActionFindNext(false);
@@ -612,9 +612,9 @@ TToolkit::UserActionReplaceTextChanged()
 	if (Fl::event() == FL_KEYBOARD && Fl::event_key() == FL_Enter)
 	{
 		UserActionReplaceNext();
-		int p = wToolkitReplaceText->position();
+		int p = wToolkitReplaceText->insert_position();
 		wToolkitReplaceText->take_focus();
-		wToolkitReplaceText->position(p);
+		wToolkitReplaceText->insert_position(p);
 	}
 }
 
@@ -666,7 +666,7 @@ TToolkit::UserActionFindPrev()
 	// if found, select and set the cursor
 	if (found)
 	{
-		buffer->select(pos, pos + strlen(findText));
+		buffer->select(pos, pos + (int) strlen(findText));
 		editor->insert_position(pos);
 		editor->show_insert_position();
 	}
@@ -706,8 +706,8 @@ TToolkit::UserActionFindNext(bool fromLast)
 	// if found, select and set the cursor
 	if (found)
 	{
-		buffer->select(pos, pos + strlen(findText));
-		editor->insert_position(pos + strlen(findText));
+		buffer->select(pos, pos + (int) strlen(findText));
+		editor->insert_position(pos + (int) strlen(findText));
 		editor->show_insert_position();
 	}
 	return (found == 1);
@@ -776,7 +776,7 @@ TToolkit::UserActionReplaceNext()
 			first = last = editor->insert_position();
 		}
 		buffer->insert(first, replaceText);
-		editor->insert_position(first + strlen(replaceText));
+		editor->insert_position(first + (int) strlen(replaceText));
 		UserActionFindNext();
 	}
 }
@@ -795,7 +795,7 @@ TToolkit::UserActionReplaceAll()
 		return;
 
 	const char* replaceText = wToolkitReplaceText->value();
-	int replLen = strlen(replaceText);
+	int replLen = (int) strlen(replaceText);
 	int pos = 0;
 	int line = buffer->count_lines(0, editor->insert_position());
 	int col = editor->insert_position() - buffer->line_start(editor->insert_position());
@@ -805,7 +805,7 @@ TToolkit::UserActionReplaceAll()
 		int found = buffer->search_forward(pos, findText, &pos, wToolkitFindCase->value());
 		if (!found)
 			break;
-		buffer->select(pos, pos + strlen(findText));
+		buffer->select(pos, pos + (int) strlen(findText));
 		buffer->remove_selection();
 		buffer->insert(pos, replaceText);
 		pos = pos + replLen;
@@ -843,7 +843,7 @@ set_recent_file_menu_item(int i, const char* path)
 		::free((void*) mi->text);
 	// -- copy the entire path, but shorten it with an elipsis if it is too long
 	char* menu_text = strdup(path);
-	int n = strlen(path);
+	int n = (int) strlen(path);
 	if (n > 43)
 	{
 		strcpy(menu_text + 20, "...");
@@ -1017,7 +1017,7 @@ TToolkit::AppBuild()
 	{
 		SetTempPkgPath();
 	}
-	sprintf(buf, "newt.pkgPath := \"%s\";\n", mPkgPath);
+	snprintf(buf, sizeof(buf) - 1, "newt.pkgPath := \"%s\";\n", mPkgPath);
 	src.append(buf);
 	src.append(TToolkitPrototype::ToolkitLaunch);
 
@@ -1122,7 +1122,7 @@ TToolkit::AppInstall()
 					  "  SafeRemovePackage(GetPkgRef(\"%s\", GetStores()[0]))\n"
 					  "end;\n";
 	char* buf = (char*) ::malloc(strlen(cmd) + 1024);
-	sprintf(buf, cmd, mPkgSymbol, mPkgSymbol, mPkgName);
+	snprintf(buf, strlen(cmd) + 1024, cmd, mPkgSymbol, mPkgSymbol, mPkgName);
 	mgr->EvalNewtonScript(buf);
 	// puts(buf);
 	::free(buf);
@@ -1143,7 +1143,7 @@ TToolkit::AppRun()
 
 	const char* cmd = "GetRoot().|%s|:Open();\n";
 	char* buf = (char*) ::malloc(strlen(cmd) + 1024);
-	sprintf(buf, cmd, mPkgSymbol);
+	snprintf(buf, strlen(cmd) + 1024, cmd, mPkgSymbol);
 	mgr->EvalNewtonScript(buf);
 	// puts(buf);
 	::free(buf);
@@ -1162,7 +1162,7 @@ TToolkit::AppStop()
 					  "  GetRoot().|%s|:Close();\n"
 					  "end;\n";
 	char* buf = (char*) ::malloc(strlen(cmd) + 1024);
-	sprintf(buf, cmd, mPkgSymbol, mPkgSymbol);
+	snprintf(buf, strlen(cmd) + 1024, cmd, mPkgSymbol, mPkgSymbol);
 	mgr->EvalNewtonScript(buf);
 	// puts(buf);
 	::free(buf);
@@ -1371,7 +1371,7 @@ TToolkit::UserActionDecompilePkg(const char* in_filename)
 					  "p(pkg);\n"
 					  "print(\";\\n\");\n";
 	char* buf = (char*) ::malloc(strlen(cmd) + 2 * FL_PATH_MAX);
-	sprintf(buf, cmd, filename, filename);
+	snprintf(buf, strlen(cmd) + 2 * FL_PATH_MAX, cmd, filename, filename);
 
 	//  newtRefVar result;
 	newtErr err;
@@ -1639,10 +1639,10 @@ testNSOFReader(const char* filename)
 	uint8_t* buffer;
 	FILE* f = fopen(filename, "rb");
 	fseek(f, 0, SEEK_END);
-	int nn = ftell(f);
+	int nn = (int) ftell(f);
 	fseek(f, 0, SEEK_SET);
 	buffer = (uint8_t*) malloc(nn);
-	int n = fread(buffer, 1, nn, f);
+	int n = (int) fread(buffer, 1, nn, f);
 	fclose(f);
 	if (n)
 	{

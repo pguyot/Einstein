@@ -75,12 +75,12 @@ TNetworkManager::LogBuffer(KUInt8* data, ssize_t size)
 			{
 				memset(t, ' ', 71);
 				t[71] = 0;
-				sprintf(t, "0x%04x:  ", i);
+				snprintf(t, 71, "0x%04x:  ", i);
 				t[9] = ' ';
 			}
 			unsigned char v = data[i];
 			int p = 9 + (i & 15) * 5 / 2;
-			sprintf(t + p, "%02x", v);
+			snprintf(t + p, 71 - p, "%02x", v);
 			t[p + 2] = ' ';
 			p = 50 + (i & 15);
 			t[p] = ((v >= 32) && (v < 127)) ? v : '.';

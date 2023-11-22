@@ -113,8 +113,8 @@ TTkScript::Save()
 		if (!f)
 			return -1;
 		char* src = DupSourceCode();
-		int len = strlen(src);
-		int n = ::fwrite(src, 1, len, f);
+		int len = (int) strlen(src);
+		int n = (int) ::fwrite(src, 1, len, f);
 		::fclose(f);
 		::free(src);
 		if (n != len)

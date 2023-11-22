@@ -312,7 +312,7 @@ public:
 			{
 				fl_draw_image(rgbData_, x(), y(), rgbWidth_, rgbHeight_, 4); // 32 bit: RGB
 			}
-//#elif TARGET_OS_LINUX
+// #elif TARGET_OS_LINUX
 #if 0
     // TODO: Nothing implemented yet for X11/Xlib. XRender extension seems to be the way to go.
             double xscale= 1.0;

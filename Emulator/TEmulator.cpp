@@ -60,8 +60,8 @@
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
-//#define kMyNewtonIDHigh		0x00000000
-//#define kMyNewtonIDLow		0x020207A5
+// #define kMyNewtonIDHigh		0x00000000
+// #define kMyNewtonIDLow		0x020207A5
 #define kMyNewtonIDHigh 0x00004E65
 #define kMyNewtonIDLow 0x77746F6E
 
@@ -285,7 +285,7 @@ TEmulator::DebuggerUND(KUInt32 inPAddr)
 	{
 		// Extract the string.
 		KUInt8 theString[512];
-		(void) ::sprintf((char*) theString, "DebuggerUND: ");
+		(void) ::snprintf((char*) theString, 511, "DebuggerUND: ");
 		ssize_t index = ::strlen((const char*) theString);
 		KUInt32 theAddress = inPAddr + 4;
 		do

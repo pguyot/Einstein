@@ -43,7 +43,7 @@
 using namespace std::chrono_literals;
 
 #define AsyncTrace(...)
-//#define AsyncTrace KPrintf
+// #define AsyncTrace KPrintf
 
 // -------------------------------------------------------------------------- //
 // Constantes

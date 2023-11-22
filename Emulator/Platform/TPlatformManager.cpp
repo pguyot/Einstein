@@ -754,7 +754,7 @@ TPlatformManager::InstallNewPackages(const char* inPackageDir)
 
 	// -- find the last installation date
 	char buf[2048];
-	sprintf(buf, "%s/.lastInstall", inPackageDir);
+	snprintf(buf, 2047, "%s/.lastInstall", inPackageDir);
 	struct stat lastInstall;
 	int statErr = ::stat(buf, &lastInstall);
 	if (mLog)
@@ -772,7 +772,7 @@ TPlatformManager::InstallNewPackages(const char* inPackageDir)
 				if (mLog)
 					mLog->FLogLine("TPlatformManager: Checking '%s'", de->d_name);
 				struct stat pkgStat;
-				sprintf(buf, "%s/%s", inPackageDir, de->d_name);
+				snprintf(buf, 2047, "%s/%s", inPackageDir, de->d_name);
 				if (::stat(buf, &pkgStat) < 0)
 					continue;
 				if (statErr >= 0
@@ -790,7 +790,7 @@ TPlatformManager::InstallNewPackages(const char* inPackageDir)
 	// -- update the modification data
 	if (mLog)
 		mLog->FLogLine("TPlatformManager: updating last package installation date");
-	sprintf(buf, "%s/.lastInstall", inPackageDir);
+	snprintf(buf, 2047, "%s/.lastInstall", inPackageDir);
 	FILE* f = fopen(buf, "wb");
 	if (f)
 		fclose(f);

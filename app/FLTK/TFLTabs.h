@@ -21,7 +21,7 @@ public:
 	~TFLTabs() = default;
 
 protected:
-	void draw_tab(int x1, int x2, int W, int H, Fl_Widget* o, int sel = 0) override;
+	void draw_tab(int x1, int x2, int W, int H, Fl_Widget* o, int flags, int sel = 0) override;
 };
 
 class TFLPCMCIAButton : public Fl_Button

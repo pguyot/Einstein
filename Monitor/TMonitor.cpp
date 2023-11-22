@@ -65,7 +65,7 @@
 #include "Emulator/Screen/TScreenManager.h"
 
 #ifdef JITTARGET_GENERIC
-//#include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
+// #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 #endif
 
 // -------------------------------------------------------------------------- //
@@ -440,7 +440,7 @@ TMonitor::ProcessBreakpoint(KUInt16 inBPID, KUInt32 inBPAddr)
 			// Permanent, loggable breakpoint.
 			{
 				char theLine[256];
-				(void) ::sprintf(theLine, "Break at %.8X", (int) (inBPAddr));
+				(void) ::snprintf(theLine, 255, "Break at %.8X", (int) (inBPAddr));
 				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
 			break;
@@ -454,7 +454,7 @@ TMonitor::ProcessBreakpoint(KUInt16 inBPID, KUInt32 inBPAddr)
 			// Watch pc without any parameter.
 			{
 				char theLine[256];
-				(void) ::sprintf(theLine, "Watch at %.8X", (int) (inBPAddr));
+				(void) ::snprintf(theLine, 255, "Watch at %.8X", (int) (inBPAddr));
 				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
 			stop = false;
@@ -464,8 +464,8 @@ TMonitor::ProcessBreakpoint(KUInt16 inBPID, KUInt32 inBPAddr)
 			// Watch pc with 1 parameter.
 			{
 				char theLine[256];
-				(void) ::sprintf(
-					theLine,
+				(void) ::snprintf(
+					theLine, 255,
 					"Watch at %.8X [R0=%.8X]",
 					(int) (inBPAddr),
 					(unsigned int) mProcessor->GetRegister(0));
@@ -478,8 +478,8 @@ TMonitor::ProcessBreakpoint(KUInt16 inBPID, KUInt32 inBPAddr)
 			// Watch pc with 2 parameters.
 			{
 				char theLine[256];
-				(void) ::sprintf(
-					theLine,
+				(void) ::snprintf(
+					theLine, 255,
 					"Watch at %.8X [R0=%.8X,R1=%.8X]",
 					(int) (inBPAddr),
 					(unsigned int) mProcessor->GetRegister(0),
@@ -493,8 +493,8 @@ TMonitor::ProcessBreakpoint(KUInt16 inBPID, KUInt32 inBPAddr)
 			// Watch pc with 3 parameters.
 			{
 				char theLine[256];
-				(void) ::sprintf(
-					theLine,
+				(void) ::snprintf(
+					theLine, 255,
 					"Watch at %.8X [R0=%.8X,R1=%.8X,R2=%.8X]",
 					(int) (inBPAddr),
 					(unsigned int) mProcessor->GetRegister(0),
@@ -754,8 +754,8 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		if (mHalted)
 		{
 			mProcessor->SetRegister(15, theArgInt);
-			(void) ::sprintf(
-				theLine, "pc <- %.8X",
+			(void) ::snprintf(
+				theLine, 511, "pc <- %.8X",
 				(unsigned int) theArgInt);
 			PrintLine(theLine, MONITOR_LOG_INFO);
 		} else
@@ -769,14 +769,14 @@ TMonitor::ExecuteCommand(const char* inCommand)
 			if ((theArgInt >= 0) && (theArgInt <= 15))
 			{
 				mProcessor->SetRegister(theArgInt, theArgInt2);
-				(void) ::sprintf(
-					theLine, "r%i <- %.8X",
+				(void) ::snprintf(
+					theLine, 511, "r%i <- %.8X",
 					(int) theArgInt,
 					(unsigned int) theArgInt2);
 			} else
 			{
-				(void) ::sprintf(
-					theLine, "Unknown register r%i",
+				(void) ::snprintf(
+					theLine, 511, "Unknown register r%i",
 					(int) theArgInt);
 			}
 			PrintLine(theLine, MONITOR_LOG_INFO);
@@ -790,8 +790,8 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		{
 			if (mMemory->IsMMUEnabled())
 			{
-				(void) ::sprintf(
-					theLine, "TT = %.8X, AC = %.8X, FSR = %.8X, FAR = %.8X, AP = %s%s%s",
+				(void) ::snprintf(
+					theLine, 511, "TT = %.8X, AC = %.8X, FSR = %.8X, FAR = %.8X, AP = %s%s%s",
 					(unsigned int) mMemory->GetTranslationTableBase(),
 					(unsigned int) mMemory->GetDomainAccessControl(),
 					(unsigned int) mMemory->GetFaultStatusRegister(),
@@ -819,15 +819,15 @@ TMonitor::ExecuteCommand(const char* inCommand)
 						(TMemory::VAddr) theArgInt,
 						physAddr))
 				{
-					(void) ::sprintf(
-						theLine, "An error occurred resolving V0x%.8X [%.8X]",
+					(void) ::snprintf(
+						theLine, 511, "An error occurred resolving V0x%.8X [%.8X]",
 						(unsigned int) theArgInt,
 						(unsigned int) mMemory->GetFaultStatusRegister());
 					PrintLine(theLine, MONITOR_LOG_ERROR);
 				} else
 				{
-					(void) ::sprintf(
-						theLine, "V0x%.8X = P0x%.8X",
+					(void) ::snprintf(
+						theLine, 511, "V0x%.8X = P0x%.8X",
 						(unsigned int) theArgInt,
 						(unsigned int) physAddr);
 					PrintLine(theLine, MONITOR_LOG_INFO);
@@ -857,14 +857,14 @@ TMonitor::ExecuteCommand(const char* inCommand)
 	{
 		if (mMemory->SetBreakpoint(theArgInt, kPermanentBP))
 		{
-			(void) ::sprintf(
-				theLine, "Setting breakpoint at %.8X failed",
+			(void) ::snprintf(
+				theLine, 511, "Setting breakpoint at %.8X failed",
 				(unsigned int) theArgInt);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else
 		{
-			(void) ::sprintf(
-				theLine, "Breakpoint set at %.8X",
+			(void) ::snprintf(
+				theLine, 511, "Breakpoint set at %.8X",
 				(unsigned int) theArgInt);
 			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
@@ -872,14 +872,14 @@ TMonitor::ExecuteCommand(const char* inCommand)
 	{
 		if (mMemory->ClearBreakpoint(theArgInt))
 		{
-			(void) ::sprintf(
-				theLine, "Clearing breakpoint at %.8X failed",
+			(void) ::snprintf(
+				theLine, 511, "Clearing breakpoint at %.8X failed",
 				(unsigned int) theArgInt);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else
 		{
-			(void) ::sprintf(
-				theLine, "Breakpoint cleared at %.8X",
+			(void) ::snprintf(
+				theLine, 511, "Breakpoint cleared at %.8X",
 				(unsigned int) theArgInt);
 			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
@@ -890,15 +890,15 @@ TMonitor::ExecuteCommand(const char* inCommand)
 			(TMemory::VAddr) theArgInt, fault);
 		if (fault)
 		{
-			(void) ::sprintf(
-				theLine, "Memory error when accessing %.8X [%.8X]",
+			(void) ::snprintf(
+				theLine, 511, "Memory error when accessing %.8X [%.8X]",
 				(unsigned int) theArgInt,
 				(unsigned int) mMemory->GetFaultStatusRegister());
 			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else
 		{
-			(void) ::sprintf(
-				theLine, "P%.8X: %.8X",
+			(void) ::snprintf(
+				theLine, 511, "P%.8X: %.8X",
 				(unsigned int) theArgInt,
 				(unsigned int) theData);
 			PrintLine(theLine, MONITOR_LOG_INFO);
@@ -909,15 +909,15 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		if (mMemory->Read(
 				(TMemory::VAddr) theArgInt, theData))
 		{
-			(void) ::sprintf(
-				theLine, "Memory error when accessing %.8X [%.8X]",
+			(void) ::snprintf(
+				theLine, 511, "Memory error when accessing %.8X [%.8X]",
 				(unsigned int) theArgInt,
 				(unsigned int) mMemory->GetFaultStatusRegister());
 			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else
 		{
-			(void) ::sprintf(
-				theLine, "%.8X: %.8X",
+			(void) ::snprintf(
+				theLine, 511, "%.8X: %.8X",
 				(unsigned int) theArgInt,
 				(unsigned int) theData);
 			PrintLine(theLine, MONITOR_LOG_INFO);
@@ -928,8 +928,8 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		if (mMemory->Read(
 				(TMemory::VAddr) theArgInt, theData))
 		{
-			(void) ::sprintf(
-				theLine, "Memory error when accessing %.8X [%.8X]",
+			(void) ::snprintf(
+				theLine, 511, "Memory error when accessing %.8X [%.8X]",
 				(unsigned int) theArgInt,
 				(unsigned int) mMemory->GetFaultStatusRegister());
 			PrintLine(theLine, MONITOR_LOG_ERROR);
@@ -964,15 +964,15 @@ TMonitor::ExecuteCommand(const char* inCommand)
 				|| mMemory->Read(
 					(TMemory::VAddr) theArgInt + 12, theData[3]))
 			{
-				(void) ::sprintf(
-					theLine, "Memory error when accessing %.8X [%.8X]",
+				(void) ::snprintf(
+					theLine, 511, "Memory error when accessing %.8X [%.8X]",
 					(unsigned int) theArgInt,
 					(unsigned int) mMemory->GetFaultStatusRegister());
 				PrintLine(theLine, MONITOR_LOG_ERROR);
 			} else
 			{
-				(void) ::sprintf(
-					theLine, "%.8X: %.8X %.8X %.8X %.8X",
+				(void) ::snprintf(
+					theLine, 511, "%.8X: %.8X %.8X %.8X %.8X",
 					(unsigned int) theArgInt,
 					(unsigned int) theData[0],
 					(unsigned int) theData[1],
@@ -991,8 +991,8 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		{
 			if (mMemory->Read((TMemory::VAddr) addr, data))
 			{
-				(void) ::sprintf(
-					theLine, "Memory error when accessing %.8X [%.8X]",
+				(void) ::snprintf(
+					theLine, 511, "Memory error when accessing %.8X [%.8X]",
 					(unsigned int) theArgInt,
 					(unsigned int) mMemory->GetFaultStatusRegister());
 				PrintLine(theLine, MONITOR_LOG_ERROR);
@@ -1023,15 +1023,15 @@ TMonitor::ExecuteCommand(const char* inCommand)
 				|| mMemory->Read(
 					(TMemory::VAddr) theArgInt + 12, theData[3]))
 			{
-				(void) ::sprintf(
-					theLine, "Memory error when accessing %.8X [%.8X]",
+				(void) ::snprintf(
+					theLine, 511, "Memory error when accessing %.8X [%.8X]",
 					(unsigned int) theArgInt,
 					(unsigned int) mMemory->GetFaultStatusRegister());
 				PrintLine(theLine, MONITOR_LOG_ERROR);
 			} else
 			{
-				(void) ::sprintf(
-					theLine, "%.8X: %.8X %.8X %.8X %.8X %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+				(void) ::snprintf(
+					theLine, 511, "%.8X: %.8X %.8X %.8X %.8X %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
 					(unsigned int) theArgInt,
 					(unsigned int) theData[0],
 					(unsigned int) theData[1],
@@ -1060,15 +1060,15 @@ TMonitor::ExecuteCommand(const char* inCommand)
 				(TMemory::VAddr) theArgInt + 12, fault);
 			if (fault)
 			{
-				(void) ::sprintf(
-					theLine, "Memory error when accessing P%.8X [%.8X]",
+				(void) ::snprintf(
+					theLine, 511, "Memory error when accessing P%.8X [%.8X]",
 					(unsigned int) theArgInt,
 					(unsigned int) mMemory->GetFaultStatusRegister());
 				PrintLine(theLine, MONITOR_LOG_ERROR);
 			} else
 			{
-				(void) ::sprintf(
-					theLine, "P%.8X: %.8X %.8X %.8X %.8X",
+				(void) ::snprintf(
+					theLine, 511, "P%.8X: %.8X %.8X %.8X %.8X",
 					(unsigned int) theArgInt,
 					(unsigned int) theData[0],
 					(unsigned int) theData[1],
@@ -1095,16 +1095,16 @@ TMonitor::ExecuteCommand(const char* inCommand)
 				(TMemory::VAddr) theArgInt + 12, fault);
 			if (fault)
 			{
-				(void) ::sprintf(
-					theLine, "Memory error when accessing P%.8X [%.8X]",
+				(void) ::snprintf(
+					theLine, 511, "Memory error when accessing P%.8X [%.8X]",
 					(unsigned int) theArgInt,
 					(unsigned int) mMemory->GetFaultStatusRegister());
 				fault = false;
 				PrintLine(theLine, MONITOR_LOG_ERROR);
 			} else
 			{
-				(void) ::sprintf(
-					theLine, "P%.8X: %.8X %.8X %.8X %.8X",
+				(void) ::snprintf(
+					theLine, 511, "P%.8X: %.8X %.8X %.8X %.8X",
 					(unsigned int) theArgInt,
 					(unsigned int) theData[0],
 					(unsigned int) theData[1],
@@ -1118,15 +1118,15 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		if (mMemory->Write(
 				(TMemory::VAddr) theArgInt, theArgInt2))
 		{
-			(void) ::sprintf(
-				theLine, "Memory error when writing at %.8X [%.8X]",
+			(void) ::snprintf(
+				theLine, 511, "Memory error when writing at %.8X [%.8X]",
 				(unsigned int) theArgInt,
 				(unsigned int) mMemory->GetFaultStatusRegister());
 			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else
 		{
-			(void) ::sprintf(
-				theLine, "%.8X <- %.8X",
+			(void) ::snprintf(
+				theLine, 511, "%.8X <- %.8X",
 				(unsigned int) theArgInt,
 				(unsigned int) theArgInt2);
 			PrintLine(theLine, MONITOR_LOG_INFO);
@@ -1136,15 +1136,15 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		if (mMemory->WriteP(
 				(TMemory::VAddr) theArgInt, theArgInt2))
 		{
-			(void) ::sprintf(
-				theLine, "Memory error when writing at %.8X [%.8X]",
+			(void) ::snprintf(
+				theLine, 511, "Memory error when writing at %.8X [%.8X]",
 				(unsigned int) theArgInt,
 				(unsigned int) mMemory->GetFaultStatusRegister());
 			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else
 		{
-			(void) ::sprintf(
-				theLine, "P%.8X <- %.8X",
+			(void) ::snprintf(
+				theLine, 511, "P%.8X <- %.8X",
 				(unsigned int) theArgInt,
 				(unsigned int) theArgInt2);
 			PrintLine(theLine, MONITOR_LOG_INFO);
@@ -1152,15 +1152,15 @@ TMonitor::ExecuteCommand(const char* inCommand)
 	} else if (::sscanf(inCommand, "raise %X", &theArgInt) == 1)
 	{
 		mInterruptManager->RaiseInterrupt(theArgInt);
-		(void) ::sprintf(
-			theLine, "IR |= %.8X",
+		(void) ::snprintf(
+			theLine, 511, "IR |= %.8X",
 			(int) theArgInt);
 		PrintLine(theLine, MONITOR_LOG_INFO);
 	} else if (::sscanf(inCommand, "gpio %X", &theArgInt) == 1)
 	{
 		mInterruptManager->RaiseGPIO(theArgInt);
-		(void) ::sprintf(
-			theLine, "RaiseGPIO %.8X",
+		(void) ::snprintf(
+			theLine, 511, "RaiseGPIO %.8X",
 			(int) theArgInt);
 		PrintLine(theLine, MONITOR_LOG_INFO);
 	} else if (::sscanf(inCommand, "watch %i %X", &theArgInt2, &theArgInt) == 2)
@@ -1169,22 +1169,22 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		{
 			if (mMemory->SetBreakpoint(theArgInt, KUInt16(kWatch0BP + theArgInt2)))
 			{
-				(void) ::sprintf(
-					theLine, "Setting breakpoint at %.8X failed",
+				(void) ::snprintf(
+					theLine, 511, "Setting breakpoint at %.8X failed",
 					(unsigned int) theArgInt);
 				PrintLine(theLine, MONITOR_LOG_ERROR);
 			} else
 			{
-				(void) ::sprintf(
-					theLine, "Watching execution at %.8X with %i parameters",
+				(void) ::snprintf(
+					theLine, 511, "Watching execution at %.8X with %i parameters",
 					(unsigned int) theArgInt,
 					(int) theArgInt2);
 				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
 		} else
 		{
-			(void) ::sprintf(
-				theLine, "Cannot watch %i parameters (proper range: 0..3)",
+			(void) ::snprintf(
+				theLine, 511, "Cannot watch %i parameters (proper range: 0..3)",
 				(int) theArgInt2);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
 		}
@@ -1224,44 +1224,44 @@ TMonitor::ExecuteCommand(const char* inCommand)
 	{
 		if (mMemory->AddWatchpoint(theArgInt, 1))
 		{
-			::sprintf(theLine, "Setting watchpoint at %.8X failed", theArgInt);
+			::snprintf(theLine, 511, "Setting watchpoint at %.8X failed", theArgInt);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else
 		{
-			::sprintf(theLine, "Watching read access at %.8X", theArgInt);
+			::snprintf(theLine, 511, "Watching read access at %.8X", theArgInt);
 			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
 	} else if (::sscanf(inCommand, "wpw %X", &theArgInt) == 1)
 	{
 		if (mMemory->AddWatchpoint(theArgInt, 2))
 		{
-			::sprintf(theLine, "Setting watchpoint at %.8X failed", theArgInt);
+			::snprintf(theLine, 511, "Setting watchpoint at %.8X failed", theArgInt);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else
 		{
-			::sprintf(theLine, "Watching write access at %.8X", theArgInt);
+			::snprintf(theLine, 511, "Watching write access at %.8X", theArgInt);
 			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
 	} else if (::sscanf(inCommand, "wpc %X", &theArgInt) == 1)
 	{
 		if (mMemory->ClearWatchpoint(theArgInt))
 		{
-			::sprintf(theLine, "Clearing watchpoint at %.8X failed", theArgInt);
+			::snprintf(theLine, 511, "Clearing watchpoint at %.8X failed", theArgInt);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else
 		{
-			::sprintf(theLine, "Watchpoint at %.8X cleared", theArgInt);
+			::snprintf(theLine, 511, "Watchpoint at %.8X cleared", theArgInt);
 			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
 	} else if (::sscanf(inCommand, "wp %X", &theArgInt) == 1)
 	{
 		if (mMemory->AddWatchpoint(theArgInt, 3))
 		{
-			::sprintf(theLine, "Setting watchpoint at %.8X failed", theArgInt);
+			::snprintf(theLine, 511, "Setting watchpoint at %.8X failed", theArgInt);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
 		} else
 		{
-			::sprintf(theLine, "Watching read and write access at %.8X", theArgInt);
+			::snprintf(theLine, 511, "Watching read and write access at %.8X", theArgInt);
 			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
 	} else if (strcmp(inCommand, "wpl") == 0)
@@ -1274,7 +1274,7 @@ TMonitor::ExecuteCommand(const char* inCommand)
 			KUInt8 type;
 			if (mMemory->GetWatchpoint(i, addr, type))
 				break;
-			::sprintf(theLine, "WP %2d at %.8X, %s", i, (unsigned int) addr, lut[type & 3]);
+			::snprintf(theLine, 511, "WP %2d at %.8X, %s", i, (unsigned int) addr, lut[type & 3]);
 			PrintLine(theLine, MONITOR_LOG_INFO);
 		}
 	} else if (::strcmp(inCommand, "p tasks") == 0)
@@ -1291,7 +1291,7 @@ TMonitor::ExecuteCommand(const char* inCommand)
 			{
 				KUInt32 task;
 				mMemory->Read(taskQ, task); // TTask
-				::sprintf(theLine, " Pri %d: first Task at 0x%08X", i, (unsigned int) task);
+				::snprintf(theLine, 511, " Pri %d: first Task at 0x%08X", i, (unsigned int) task);
 				PrintLine(theLine, MONITOR_LOG_INFO);
 			}
 		}
@@ -1301,8 +1301,8 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		if (mMemory->Read(
 				(TMemory::VAddr) theArgInt, theData))
 		{
-			(void) ::sprintf(
-				theLine, "Memory error when accessing %.8X [%.8X]",
+			(void) ::snprintf(
+				theLine, 511, "Memory error when accessing %.8X [%.8X]",
 				(unsigned int) theArgInt,
 				(unsigned int) mMemory->GetFaultStatusRegister());
 			PrintLine(theLine, MONITOR_LOG_ERROR);
@@ -1311,8 +1311,8 @@ TMonitor::ExecuteCommand(const char* inCommand)
 			if (mMemory->Read(
 					(TMemory::VAddr) theData, theData))
 			{
-				(void) ::sprintf(
-					theLine, "Memory error when accessing %.8X [%.8X]",
+				(void) ::snprintf(
+					theLine, 511, "Memory error when accessing %.8X [%.8X]",
 					(unsigned int) theData,
 					(unsigned int) mMemory->GetFaultStatusRegister());
 				PrintLine(theLine, MONITOR_LOG_ERROR);
@@ -1327,8 +1327,8 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		if (mMemory->Read(
 				(TMemory::VAddr) theArgInt, theData))
 		{
-			(void) ::sprintf(
-				theLine, "Memory error when accessing %.8X [%.8X]",
+			(void) ::snprintf(
+				theLine, 511, "Memory error when accessing %.8X [%.8X]",
 				(unsigned int) theArgInt,
 				(unsigned int) mMemory->GetFaultStatusRegister());
 			PrintLine(theLine, MONITOR_LOG_ERROR);
@@ -1788,21 +1788,21 @@ TMonitor::DrawScreenHalted(void)
 
 					if (skip)
 					{
-						(void) ::sprintf(status, " (will skip)");
+						(void) ::snprintf(status, 31, " (will skip)");
 					} else
 					{
-						(void) ::sprintf(status, " (will do it)");
+						(void) ::snprintf(status, 31, " (will do it)");
 					}
 				}
 			}
 			if (instIsBP)
 			{
-				(void) ::sprintf(theLine, "%.8X * %s",
+				(void) ::snprintf(theLine, 767, "%.8X * %s",
 					(unsigned int) realPC + indexLines,
 					theInstr);
 			} else
 			{
-				(void) ::sprintf(theLine, "%.8X   %s",
+				(void) ::snprintf(theLine, 767, "%.8X   %s",
 					(unsigned int) realPC + indexLines,
 					theInstr);
 			} // if (indexLines == 0)
@@ -1860,8 +1860,8 @@ TMonitor::PrintInstruction(KUInt32 inAddress)
 	mSymbolList->GetNearestSymbolByAddress(inAddress, theSymbol, theComment, &theOffset);
 	if (theOffset == 0)
 	{
-		(void) ::sprintf(
-			theLine,
+		(void) ::snprintf(
+			theLine, 767,
 			"%s\t%c %s",
 			theSymbol,
 			(theComment[0] == '\0') ? ' ' : ';',
@@ -1874,15 +1874,15 @@ TMonitor::PrintInstruction(KUInt32 inAddress)
 
 	if (mMemory->Read((TMemory::VAddr) inAddress, instruction))
 	{
-		(void) ::sprintf(
-			theLine,
+		(void) ::snprintf(
+			theLine, 767,
 			"Memory error while reading %.8X\n",
 			(unsigned int) inAddress);
 		PrintLine(theLine, MONITOR_LOG_ERROR);
 	} else
 	{
 		theLine[0] = 0;
-		(void) ::sprintf(theLine, "  %.8X   ", (int) inAddress);
+		(void) ::snprintf(theLine, 767, "  %.8X   ", (int) inAddress);
 		if ((instruction & 0xFFF000F0) == 0xE1200070)
 		{
 			(void) mMemory->ReadBreakpoint(
@@ -1917,12 +1917,12 @@ TMonitor::PrintBacktrace(KSInt32 inNWords)
 	{
 		mMemory->Read((TMemory::VAddr) sp + 4 * i, theData);
 		mSymbolList->GetNearestSymbolByAddress(theData, theSymbol, theComment, &theOffset);
-		sprintf(theLine, "sp+%3d: 0x%08X = %s+%d", (int) 4 * i, (unsigned int) theData, theSymbol, theOffset);
+		snprintf(theLine, 767, "sp+%3d: 0x%08X = %s+%d", (int) 4 * i, (unsigned int) theData, theSymbol, theOffset);
 		theLine[62] = 0;
 		PrintLine(theLine, MONITOR_LOG_INFO);
 	}
 	mSymbolList->GetNearestSymbolByAddress(lr, theSymbol, theComment, &theOffset);
-	sprintf(theLine, "    lr: 0x%08X = %s+%d", (unsigned int) lr, theSymbol, theOffset);
+	snprintf(theLine, 767, "    lr: 0x%08X = %s+%d", (unsigned int) lr, theSymbol, theOffset);
 	theLine[62] = 0;
 	PrintLine(theLine, MONITOR_LOG_INFO);
 }

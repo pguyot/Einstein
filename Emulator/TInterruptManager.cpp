@@ -128,7 +128,9 @@ TInterruptManager::~TInterruptManager(void)
 	mMutex->Unlock();
 
 	// Wait for the thread to finish.
-	while (mExiting) { };
+	while (mExiting)
+	{
+	};
 
 	if (mThread)
 	{

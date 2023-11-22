@@ -942,7 +942,7 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 				// if the Toolkit is available, send the text to the monitor
 				if (gToolkit)
 				{
-					unsigned srcLen = strlen(theLine);
+					unsigned srcLen = (unsigned) strlen(theLine);
 					unsigned dstLen = fl_utf8froma(nullptr, 0, theLine, srcLen);
 
 					char* dstText = (char*) ::malloc(dstLen + 1);

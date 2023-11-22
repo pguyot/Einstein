@@ -220,7 +220,7 @@ TSerialHostPortPTY::Run()
 			KUInt8 data[128];
 			int n;
 			mReadMutex->Lock();
-			while ((n = read(mMain, data, sizeof(data))) > 0)
+			while ((n = (int) read(mMain, data, sizeof(data))) > 0)
 			{
 				mReadBuffer->Produce(data, n);
 			}

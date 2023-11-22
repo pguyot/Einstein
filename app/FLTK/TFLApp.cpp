@@ -1524,7 +1524,7 @@ T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, kROMPatchVoid, "AddClipboard
 		}
 	}
 	const char* cstring = clipboardText.c_str();
-	Fl::copy(cstring, strlen(cstring), 1);
+	Fl::copy(cstring, (int) strlen(cstring), 1);
 	return ioUnit;
 }
 
@@ -1604,7 +1604,7 @@ tfl_file_chooser(const char* message, const char* pat, const char* fname, FileCh
 		const char* n = fl_filename_name(fname);
 		if (n)
 		{
-			int len = n - fname;
+			int len = (int) (n - fname);
 			strcpy(name, n);
 			strncpy(fdir, fname, len);
 			fdir[len] = 0;

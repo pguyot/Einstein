@@ -625,7 +625,7 @@ NsFileSeek(newtRefArg rcvr, newtRefArg position, newtRefArg mode)
 
 	int cPosition = 0;
 	if (NewtRefIsInteger(position))
-		cPosition = NewtRefToInteger(position);
+		cPosition = (int) NewtRefToInteger(position);
 	else
 		return NewtThrow(kNErrNotAnInteger, position);
 
@@ -669,12 +669,12 @@ NsFileRead(newtRefArg rcvr, newtRefArg maxBytes)
 	if (!f)
 		return NewtThrow(kNErrFileNotOpen, rcvr);
 
-	int cMaxBytes = NewtRefToInteger(maxBytes);
+	int cMaxBytes = (int) NewtRefToInteger(maxBytes);
 	if (cMaxBytes <= 0)
 		return NewtThrow(kNErrOutOfRange, maxBytes);
 
 	uint8_t* buffer = (uint8_t*) ::malloc(cMaxBytes);
-	int n = ::fread(buffer, 1, cMaxBytes, f);
+	int n = (int) ::fread(buffer, 1, cMaxBytes, f);
 	if (n <= 0)
 		return kNewtRefNIL;
 
@@ -703,7 +703,7 @@ NsFileWrite(newtRefArg rcvr, newtRefArg data)
 		return NewtThrow(kNErrNotABinaryObject, data);
 	}
 
-	int ret = fwrite(cData, 1, cSize, f);
+	int ret = (int) fwrite(cData, 1, cSize, f);
 	return NewtMakeInteger(ret);
 }
 

@@ -352,7 +352,9 @@ TSerialPorts::NSGetDriverList(TNewt::RefArg arg)
 	EDriverID* validDrivers = ValidDriversByPort[portIndex];
 	// Count valid drivers
 	unsigned nDriver;
-	for (nDriver = 0; (int) validDrivers[nDriver] != -1; nDriver++) { }
+	for (nDriver = 0; (int) validDrivers[nDriver] != -1; nDriver++)
+	{
+	}
 	// Create the arrays
 	RefVar array(AllocateArray(nDriver));
 	for (unsigned i = 0; i < nDriver; i++)

@@ -80,10 +80,10 @@ Function {cb_keepInSlot0(Fl_Menu_Item* mi, void* user_data)} {open private retur
 } {
   code {if (mi->value()) {
       mi->clear();
-      gApp->UserActionKeepPCCardInSlot(-1, (long)user_data);
+      gApp->UserActionKeepPCCardInSlot(-1, (int)(long)user_data);
     } else {
       mi->set();
-      gApp->UserActionKeepPCCardInSlot(0, (long)user_data);
+      gApp->UserActionKeepPCCardInSlot(0, (int)(long)user_data);
     }} {}
 }
 
@@ -91,10 +91,10 @@ Function {cb_keepInSlot1(Fl_Menu_Item* mi, void* user_data)} {open private retur
 } {
   code {if (mi->value()) {
       mi->clear();
-      gApp->UserActionKeepPCCardInSlot(-1, (long)user_data);
+      gApp->UserActionKeepPCCardInSlot(-1, (int)(long)user_data);
     } else {
       mi->set();
-      gApp->UserActionKeepPCCardInSlot(1, (long)user_data);
+      gApp->UserActionKeepPCCardInSlot(1, (int)(long)user_data);
     }} {}
 }
 
@@ -403,7 +403,7 @@ wAbout = nullptr;} {}
         Fl_Group {} {
           label {  MessagePad  }
           comment {Add a field to select a REx, choose matching PC Cards per slot} open
-          xywh {10 35 430 375}
+          xywh {10 35 430 375} hide
         } {
           Fl_Group {} {open
             xywh {120 50 275 25}
@@ -481,7 +481,7 @@ if (name) {
   *name = 0;
   strncat(buf, wFlashName->value(), FL_PATH_MAX);
   wFlashPath->copy_label(buf);
-}} selected
+}}
               xywh {120 180 160 20} color 54 labelsize 13 textsize 12
             }
             Fl_Box wFlashPath {
@@ -687,7 +687,7 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
         }
         Fl_Group {} {
           label {  PC Cards  } open
-          xywh {10 35 430 375} hide
+          xywh {10 35 430 375}
         } {
           Fl_Browser wPCCardList {
             label {PCMCIA Cards:}
@@ -761,7 +761,7 @@ if (imageName) free(imageName);}
                 callback {char imageFilename[FL_PATH_MAX];
   char buf[FL_PATH_MAX];
   char *imageName = nullptr;
-  int size = (long)v;
+  int size = (int)(long)v;
   const char *a;
   const char *suggestedName;
   const char *fn;
@@ -1221,11 +1221,11 @@ wFetchDateAndTime->value(mFetchDateAndTime);
 
 // ---- User Interface
 
-sprintf(buf, "%d", screenWidth);
+snprintf(buf, 31, "%d", screenWidth);
 wWidth->value(buf);
-sprintf(buf, "%d", screenHeight);
+snprintf(buf, 31, "%d", screenHeight);
 wHeight->value(buf);
-sprintf(buf, "%d", screenScale);
+snprintf(buf, 31, "%d", screenScale);
 wScale->value(buf);
 wFullScreen->value(fullScreen);
 wHideMouse->value(hideMouse);
@@ -1274,7 +1274,7 @@ mFetchDateAndTime = wFetchDateAndTime->value();
 
 const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
 if (m)
-	RAMSize = m->argument();
+	RAMSize = (int)m->argument();
 
 // ---- User Interface
 
@@ -1320,7 +1320,8 @@ mDevObjDumpPath = strdup(wDevObjDumpPath->value());
 
 dontShow = wDontShow->value();
 
-updateMenus();} {}
+updateMenus();} {selected
+    }
   }
   Function {runningMode()} {open return_type void
   } {

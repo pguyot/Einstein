@@ -344,10 +344,10 @@ TFLMonitor::DrawScreenHalted()
 
 					if (skip)
 					{
-						(void) ::sprintf(status, " (will skip)");
+						(void) ::snprintf(status, 31, " (will skip)");
 					} else
 					{
-						(void) ::sprintf(status, " (will do it)");
+						(void) ::snprintf(status, 31, " (will do it)");
 					}
 				}
 			}

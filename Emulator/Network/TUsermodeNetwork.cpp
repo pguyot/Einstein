@@ -1807,9 +1807,9 @@ public:
 		}
 		*d++ = 0;
 		ssize_t ix = s - packet.Data();
-		KUInt16 qType = packet.Get16(ix);
+		KUInt16 qType = packet.Get16((KUInt32) ix);
 		ix += 2;
-		KUInt16 qClass = packet.Get16(ix);
+		KUInt16 qClass = packet.Get16((KUInt32) ix);
 		ix += 2;
 		if (qType != 1 && qClass != 1)
 		{
@@ -1832,7 +1832,7 @@ public:
 			err = 1;
 		}
 
-		KUInt32 replySize = packet.Size();
+		KUInt32 replySize = (KUInt32) packet.Size();
 		if (!err)
 			replySize += 16;
 		Packet* reply = new Packet(nullptr, replySize);
@@ -1885,17 +1885,17 @@ public:
 			reply->Set16(0x002c, 0x8180);
 			reply->Set16(0x0030, 0x0001); // one reply
 			// ix was calculated when we read the incomming package
-			reply->Set16(ix, 0xc00c);
+			reply->Set16((KUInt32) ix, 0xc00c);
 			ix += 2; // Name
-			reply->Set16(ix, 0x0001);
+			reply->Set16((KUInt32) ix, 0x0001);
 			ix += 2; // Type
-			reply->Set16(ix, 0x0001);
+			reply->Set16((KUInt32) ix, 0x0001);
 			ix += 2; // Class
-			reply->Set32(ix, 0x00000e10);
+			reply->Set32((KUInt32) ix, 0x00000e10);
 			ix += 4; // TTL
-			reply->Set16(ix, 0x0004);
+			reply->Set16((KUInt32) ix, 0x0004);
 			ix += 2; // Record Length
-			reply->Set32(ix, ip);
+			reply->Set32((KUInt32) ix, ip);
 			ix += 4; // IP
 		}
 		net->SetIPv4Checksum(reply->Data(), reply->Size());
@@ -2367,7 +2367,7 @@ TUsermodeNetwork::Log(Packet* p, const char* label, int line, int adjSeq, int ad
 		ssize_t o = strlen(buf);
 		char as = adjSeq ? '*' : 'q';
 		char aa = adjAck ? '*' : 'k';
-		sprintf(buf + o, "TCP:p:%d %c%c%c%c%c%c %4u bytes payload (Se%c:%4u, Ac%c:%4u) [",
+		snprintf(buf + o, 2047 - o, "TCP:p:%d %c%c%c%c%c%c %4u bytes payload (Se%c:%4u, Ac%c:%4u) [",
 			p->Index(),
 			(unsigned int) (p->GetTCPFlags() & Packet::kTCPFlagURG ? 'U' : '.'),
 			(unsigned int) (p->GetTCPFlags() & Packet::kTCPFlagACK ? 'A' : '.'),
@@ -2402,12 +2402,12 @@ TUsermodeNetwork::Log(Packet* p, const char* label, int line, int adjSeq, int ad
 		&& p->Get32(0x0116) == 0x63825363)
 	{
 		ssize_t o = strlen(buf);
-		sprintf(buf + o, "DHCP:p:%d:%u bytes", p->Index(), (unsigned int) p->Size());
+		snprintf(buf + o, 2047 - o, "DHCP:p:%d:%u bytes", p->Index(), (unsigned int) p->Size());
 	} else if (p->GetType() == Packet::kNetTypeIP
 		&& p->GetIPProtocol() == Packet::kIPProtocolUDP)
 	{
 		ssize_t o = strlen(buf);
-		sprintf(buf + o, "UDP:p:%d %4u bytes [", p->Index(), (unsigned int) (p->GetUDPPayloadSize()));
+		snprintf(buf + o, 2047 - o, "UDP:p:%d %4u bytes [", p->Index(), (unsigned int) (p->GetUDPPayloadSize()));
 		ssize_t i = 0, s = p->GetUDPPayloadStart() - p->Data();
 		o = strlen(buf);
 		while (s < p->Size() && i < 128)
@@ -2427,11 +2427,11 @@ TUsermodeNetwork::Log(Packet* p, const char* label, int line, int adjSeq, int ad
 	} else if (p->GetType() == Packet::kNetTypeARP)
 	{
 		ssize_t o = strlen(buf);
-		sprintf(buf + o, "ARP:p:%d:%u bytes", p->Index(), (unsigned int) p->GetARPHLen());
+		snprintf(buf + o, 2047 - o, "ARP:p:%d:%u bytes", p->Index(), (unsigned int) p->GetARPHLen());
 	} else
 	{
 		ssize_t o = strlen(buf);
-		sprintf(buf + o, "????:p:%d:%u bytes", p->Index(), (unsigned int) p->Size());
+		snprintf(buf + o, 2047 - o, "????:p:%d:%u bytes", p->Index(), (unsigned int) p->Size());
 	}
 	mLog->FLogLine("Net: %4d: %s", line, buf);
 }

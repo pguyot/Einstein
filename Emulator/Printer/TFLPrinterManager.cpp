@@ -330,7 +330,7 @@ TFLPrinterManager::ImageBand(KUInt32 inDrvr, KUInt32 inBand, KUInt32 inRect)
 	mMemory->FastReadBuffer(mBand.baseAddr, bytes, bits);
 
 	int nBlack = 0;
-	int nWhite = 0;
+	//	int nWhite = 0;
 	mBandPixels = (KUInt8*) malloc(w * h);
 	KUInt8* dst = mBandPixels;
 	for (int y = 0; y < h; y++)
@@ -344,8 +344,8 @@ TFLPrinterManager::ImageBand(KUInt32 inDrvr, KUInt32 inBand, KUInt32 inRect)
 			*dst++ = (b & 128) ? 0 : 255;
 			if (b & 128)
 				nBlack++;
-			else
-				nWhite++;
+			//			else
+			//				nWhite++;
 			b = b << 1;
 		}
 	}
