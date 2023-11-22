@@ -64,6 +64,63 @@
  for Einstein.
  */
 
+/*
+
+ BREAKPOINTS
+ ===========
+
+ We have breakpoint calls in ROM: TInterpreter::SetBreakPoints(RefVar const &)
+ and TInterpreter::EnableBreakPoints(bool), and the "C" interface
+ DefineBreakPoints() and FindBreakPoint()
+
+ The Ref according to TInterpreter::HandleBreakPoints(void) must be a Frame
+ containing an array named 'programCounter'. The array holds one frame per
+ breakpoint. Those frames have the fields:
+    'programCounter' : checks if the current instruction offset matches
+    'instrcutions' : points at the current instructions binary ref(?) and must match
+    'disabled' : is TRUE or NIL to disable or anable the breakpoint
+    'temporary' : the breakpoint is removed from the array when it is hit
+
+ If breakpoints are enabled, TInterpreter switches to Slow mode.
+
+ When a breakpoint is hit, HandleBreakPoints() calls
+ DoBlock(BreakLoop, NIL)
+
+
+ TRACING
+ =======
+
+ We can set the 'tracing' flag so that the interpreter will output every
+ function call if makes.
+
+ In NS, we have the global variable 'trace' that can be set to 'functions,
+ 'full, or the name of a function(?). Trace can be set to frame. If the
+ frame has a slot 'viewCObject, that view will be traced(?). The Frame can also
+ have one or more of 'functions, 'name (of a method), 'contextFrame, and 'slot.
+ "slot" can be TRUE, NIL, or the name of a slot that will be traced(?). Only one
+ each of slot name, frame, or method can be traced at any time.
+
+ See: TInterpreter::TraceApply(RefVar const &, long)
+ int      traceIndent;      // x64
+ bool      isTraceGetEnabled;  // x68
+ bool      isTraceFuncEnabled;  // x69
+ RefStruct  fTraceSlotName;    // x6C
+ RefStruct  fTraceMethodName;    // x70
+ RefStruct  fTraceViewContextFrame;  // x74
+ int      fTraceMethodDepth;  // x78
+ int      tracing;          // x7C
+
+ Lastly, the interpreter has a function StackTrace which also exists in NS,
+ but al this probably needs an NTK style connection.
+
+ traceGet is used to print the contents of refs
+ traceSet
+ traceReturn returns from the current function
+ traceARgs prints the stack contents
+ traceApply, traceCall, traceSend
+ 
+ */
+
 #include "TToolkit.h"
 
 #include <K/Defines/KDefinitions.h>
@@ -1326,7 +1383,7 @@ TToolkit::UserActionDecompilePkg(const char* in_filename)
 	NcDefGlobalVar(NSSYM0(_STDERR_), NewtMakeString("", false));
 	NsUndefGlobalVar(kNewtRefNIL, NSSYM0(_STDOUT_));
 	NcDefGlobalVar(NSSYM0(_STDOUT_), NewtMakeString("", false));
-	/* result =*/NVMInterpretStr(buf, &err);
+	/* result =*/NVMInterpretStr(buf, &err); // result is of type NewtRef
 
 	::free(buf);
 
