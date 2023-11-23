@@ -511,7 +511,9 @@ TCocoaAppController ()
 	NSString* theSymbolPath = [theDataPath stringByAppendingPathComponent:@"symbols.txt"];
 	mSymbolList = TSymbolList::List = new TSymbolList([theSymbolPath fileSystemRepresentation]);
 
-	mMonitor = new TMacMonitor(mMonitorLog, mEmulator, mSymbolList, theDataPath.UTF8String);
+	NSString* theMonitorStartupScript = [theROMPath stringByAppendingPathExtension:@"monitorrc"];
+
+	mMonitor = new TMacMonitor(mMonitorLog, mEmulator, mSymbolList, theMonitorStartupScript.UTF8String);
 	[mMonitorController setMonitor:mMonitor];
 
 	// FIXME: delete this to keep the Monitor closed
