@@ -173,6 +173,8 @@ static const JITFuncPtr DataProcessingPSRTransfer_MSR_Imm_Funcs[] = {
 	MSR_TemplateName(1, 1, 0xFFFFFFFF, Rm),
 };
 
+// clang-format off
+
 def_array_mode_s_rn_rd(AND);
 #define AND_Func(mode, flag_s, rnrd) \
 	DataProcessingPSRTransfer_AND_Funcs[((mode) * 512) + ((flag_s) * 256) + (rnrd)]
@@ -228,6 +230,8 @@ def_array_mode_s_rd(MVN);
 	DataProcessingPSRTransfer_MSR_NoShift_Funcs[((flag_r) * 256) + ((fields_mask_ix) * 16) + (rm)]
 #define MSR_Imm_Func(flag_r, fields_mask_ix) \
 	DataProcessingPSRTransfer_MSR_Imm_Funcs[((flag_r) * 16) + (fields_mask_ix)]
+
+// clang-format on
 
 #define __Rn (inInstruction & 0x000F0000) >> 16
 #define __Rd (inInstruction & 0x0000F000) >> 12
