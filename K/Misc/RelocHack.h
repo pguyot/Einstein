@@ -44,6 +44,8 @@ typedef void (*funcPtr)(void);
 // RelocVTableHack	//
 // ----------------	//
 
+// clang-format off
+
 // Sur Mac: pas de RelocVTableHack.
 
 #ifndef __surMac
@@ -60,7 +62,7 @@ typedef void (*funcPtr)(void);
 extern "C" void RelocVTableHack(void* inObject, funcPtr inRelocVTableHackPtr, VTableFuncPtr inVTablePtr);
 
 // You can use this template for your convenience (this way you're sure that the parameters will be passed in the correct order)
-#define RelocVTable(inVTablePtr) RelocVTableHack((void*) this, (funcPtr) & RelocVTableHack, inVTablePtr)
+#define RelocVTable(inVTablePtr) RelocVTableHack((void*) this, (funcPtr) &RelocVTableHack, inVTablePtr)
 
 #else
 
@@ -77,7 +79,9 @@ extern "C" void RelocVTableHack(void* inObject, funcPtr inRelocVTableHackPtr, VT
 extern "C" funcPtr RelocFuncPtrHack(funcPtr inRelocFuncPtrHack, funcPtr inFuncPtr);
 
 // You can use a template in this case, too (beware, you'll have to cast the result to a func pointer)
-#define RelocFuncPtr(inFuncPtr) RelocFuncPtrHack((funcPtr) & RelocFuncPtrHack, (funcPtr) inFuncPtr)
+#define RelocFuncPtr(inFuncPtr) RelocFuncPtrHack((funcPtr) &RelocFuncPtrHack, (funcPtr) inFuncPtr)
+
+// clang-format on
 
 #endif
 // __RELOCHACK__
