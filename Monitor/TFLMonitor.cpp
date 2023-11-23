@@ -33,7 +33,8 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Input.H>
-#include <FL/Fl_Simple_Terminal.H>
+#include <FL/Fl_Preferences.H>
+#include <FL/Fl_Terminal.H>
 
 TFLMonitor::TFLMonitor(TBufferLog* inLog,
 	TEmulator* inEmulator,
@@ -92,8 +93,7 @@ TFLMonitor::DrawScreenHalted()
 	KUInt32 realPC = GetProcessor()->GetRegister(15) - 4;
 
 	// Go to the uppermost position.
-	mwTerminal->clear();
-	mwTerminal->text("");
+	mwTerminal->clear_screen_home();
 	int indexRegisters;
 	for (indexRegisters = 0; indexRegisters < 16; indexRegisters++)
 	{
@@ -380,7 +380,6 @@ void
 TFLMonitor::DrawScreenRunning()
 {
 	Fl::lock();
-	mwTerminal->text("");
 	mwTerminal->printf("Machine is running. Use stop to halt it.\n");
 	mwTerminal->printf("-------------------------------------------------------------------------------\n");
 	int indexLog;
@@ -440,14 +439,14 @@ TFLMonitor::Show()
 		// ---- create the monitor window
 		mwWindow = new TFLMonitorWindow(mx, my, mw, mh, "Einstein Monitor");
 		// ---- terminal window for all text output
-		mwTerminal = new Fl_Simple_Terminal(0, 0, mwWindow->w(), mwWindow->h() - 2 * ch);
+		mwTerminal = new Fl_Terminal(0, 0, mwWindow->w(), mwWindow->h() - 2 * ch);
 		mwTerminal->box(FL_FLAT_BOX);
-		mwTerminal->hide_cursor();
+		//		mwTerminal->hide_cursor();
 		mwTerminal->color(FL_LIGHT3);
 		mwTerminal->textcolor(FL_FOREGROUND_COLOR);
-		mwTerminal->cursor_color(FL_BACKGROUND_COLOR);
-		// mwTerminal->ansi(true);
-		mwTerminal->stay_at_bottom(true);
+		//		mwTerminal->cursor_color(FL_BACKGROUND_COLOR);
+		mwTerminal->ansi(true);
+		//		mwTerminal->stay_at_bottom(true);
 		// --- group all this for perfect resizing
 		Fl_Group* mwToolbar = new Fl_Group(0, mwWindow->h() - 2 * ch, mwWindow->w(), 2 * ch);
 		// --- the stop button stops the emulation
@@ -514,15 +513,15 @@ TFLMonitor::Hide()
 	}
 }
 
-void
-TFLMonitor::PrintLine(const char* inLine, int type)
-{
-	(void) type;
-	if (mwTerminal)
-	{
-		Fl::lock();
-		mwTerminal->append(inLine);
-		mwTerminal->append("\n");
-		Fl::unlock();
-	}
-}
+// void
+// TFLMonitor::PrintLine(const char* inLine, int type)
+//{
+//	(void) type;
+//	if (mwTerminal)
+//	{
+//		Fl::lock();
+//		mwTerminal->append(inLine);
+//		mwTerminal->append("\n");
+//		Fl::unlock();
+//	}
+// }

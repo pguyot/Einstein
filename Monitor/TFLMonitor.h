@@ -28,7 +28,7 @@
 #include "Monitor/TMonitor.h"
 
 class Fl_Window;
-class Fl_Simple_Terminal;
+class Fl_Terminal;
 class Fl_Button;
 class Fl_Input;
 
@@ -61,7 +61,7 @@ public:
 	///
 	/// Output a line.
 	///
-	void PrintLine(const char* inLine, int type) override;
+	//	void PrintLine(const char* inLine, int type) override;
 
 private:
 	///
@@ -75,7 +75,7 @@ private:
 	void DrawScreenRunning(void);
 
 	Fl_Window* mwWindow = nullptr;
-	Fl_Simple_Terminal* mwTerminal = nullptr;
+	Fl_Terminal* mwTerminal = nullptr;
 	Fl_Button* mwPause = nullptr;
 	Fl_Button* mwRun = nullptr;
 	Fl_Button* mwStepOver = nullptr;

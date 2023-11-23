@@ -982,7 +982,7 @@ TMonitor::ExecuteCommand(const char* inCommand)
 			}
 			theArgInt += 16;
 		}
-	} else if (::sscanf(inCommand, "dis %X", &theArgInt) == 1)
+	} else if (::sscanf(inCommand, "dis%*[ ]%X", &theArgInt) == 1)
 	{
 		KUInt32 addr = theArgInt;
 		KUInt32 data;
