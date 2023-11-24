@@ -40,7 +40,7 @@
 using namespace TNewt;
 
 TEmulator* TNewt::mEmulator = nullptr; ///< Reference back to the Emulator
-TMemory* TNewt::mMemory = nullptr; ///< Reference back to emulated memeory
+TMemory* TNewt::mMemory = nullptr; ///< Reference back to emulated memory
 TARMProcessor* TNewt::mCPU = nullptr; ///< Reference back to the emulated CPU
 
 /**

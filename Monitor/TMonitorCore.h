@@ -34,6 +34,7 @@ class TMemory;
 class TARMProcessor;
 class TInterruptManager;
 class TSymbolList;
+class UDisasm;
 
 // Logging types for PrintLine()
 
@@ -84,6 +85,7 @@ public:
 	/// \name Variables
 	TMemory* mMemory; ///< Memory.
 	TSymbolList* mSymbolList; ///< List of symbols.
+	UDisasm* mDisasm; ///< Disassembler
 };
 
 #endif

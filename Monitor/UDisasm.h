@@ -27,6 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 
 class TSymbolList;
+class TMemory;
 
 ///
 /// Class for a disassembler.
@@ -53,6 +54,13 @@ public:
 	/// make symbol list access easy
 	///
 	static void setSymbolList(TSymbolList*);
+
+	///
+	/// make memory access possible
+	///
+	static void setMemory(TMemory*);
+
+	static TMemory* pMemory;
 
 private:
 	static TSymbolList* pSymbolList;

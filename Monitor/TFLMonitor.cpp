@@ -440,10 +440,12 @@ TFLMonitor::Show()
 		mwWindow = new TFLMonitorWindow(mx, my, mw, mh, "Einstein Monitor");
 		// ---- terminal window for all text output
 		mwTerminal = new Fl_Terminal(0, 0, mwWindow->w(), mwWindow->h() - 2 * ch);
-		mwTerminal->box(FL_FLAT_BOX);
+		mwTerminal->box(FL_DOWN_BOX);
+		// mwTerminal->init_tabstops(8); // default is 8
+		// mwTerminal->append("\033[3g\033[8G\033H"); // layout does not match well
 		//		mwTerminal->hide_cursor();
-		mwTerminal->color(FL_LIGHT3);
-		mwTerminal->textcolor(FL_FOREGROUND_COLOR);
+		//    mwTerminal->color(FL_LIGHT3);
+		//    mwTerminal->textcolor(FL_FOREGROUND_COLOR);
 		//		mwTerminal->cursor_color(FL_BACKGROUND_COLOR);
 		mwTerminal->ansi(true);
 		//		mwTerminal->stay_at_bottom(true);
@@ -452,27 +454,48 @@ TFLMonitor::Show()
 		// --- the stop button stops the emulation
 		mwPause = new Fl_Button(xp, mwToolbar->y(), 3 * cw, 2 * ch, "@||");
 		xp += 3 * cw;
-		mwPause->callback([](Fl_Widget*, void* m) { ((TMonitor*) m)->ExecuteCommand("stop"); }, this);
+		mwPause->callback([](Fl_Widget*, void* m) {
+			((TMonitor*) m)->ExecuteCommand("stop");
+			((TFLMonitor*) m)->DrawScreen();
+		},
+			this);
 		set_attributes(mwPause);
 		// --- continue running the app
 		mwRun = new Fl_Button(xp, mwToolbar->y(), 3 * cw, 2 * ch, "@|>");
 		xp += 3 * cw;
-		mwRun->callback([](Fl_Widget*, void* m) { ((TMonitor*) m)->ExecuteCommand("run"); }, this);
+		mwRun->callback([](Fl_Widget*, void* m) {
+			((TMonitor*) m)->ExecuteCommand("run");
+			Fl::wait(0.1);
+			((TFLMonitor*) m)->DrawScreen();
+		},
+			this);
 		set_attributes(mwRun);
 		// --- step over
 		mwStepOver = new Fl_Button(xp, mwToolbar->y(), 3 * cw, 2 * ch, "@3redo");
 		xp += 3 * cw;
-		mwStepOver->callback([](Fl_Widget*, void* m) { ((TMonitor*) m)->ExecuteCommand("trace"); }, this);
+		mwStepOver->callback([](Fl_Widget*, void* m) {
+			((TMonitor*) m)->ExecuteCommand("trace");
+			((TFLMonitor*) m)->DrawScreen();
+		},
+			this);
 		set_attributes(mwStepOver);
 		// --- step into
 		mwStep = new Fl_Button(xp, mwToolbar->y(), 3 * cw, 2 * ch, "@2->|");
 		xp += 3 * cw;
-		mwStep->callback([](Fl_Widget*, void* m) { ((TMonitor*) m)->ExecuteCommand("step"); }, this);
+		mwStep->callback([](Fl_Widget*, void* m) {
+			((TMonitor*) m)->ExecuteCommand("step");
+			((TFLMonitor*) m)->DrawScreen();
+		},
+			this);
 		set_attributes(mwStep);
 		// --- leave
 		mwLeave = new Fl_Button(xp, mwToolbar->y(), 3 * cw, 2 * ch, "@8->|");
 		xp += 3 * cw;
-		mwLeave->callback([](Fl_Widget*, void* m) { ((TMonitor*) m)->ExecuteCommand("mr"); }, this);
+		mwLeave->callback([](Fl_Widget*, void* m) {
+			((TMonitor*) m)->ExecuteCommand("mr");
+			((TFLMonitor*) m)->DrawScreen();
+		},
+			this);
 		set_attributes(mwLeave);
 		// --- enter your commands here
 		mwInput = new Fl_Input(xp, mwToolbar->y(), mwWindow->w() - xp - 3 * cw, 2 * ch);
@@ -484,13 +507,18 @@ TFLMonitor::Show()
 		mwInput->callback([](Fl_Widget* w, void* m) {
 			Fl_Input* in = (Fl_Input*) w;
 			((TMonitor*) m)->ExecuteCommand(in->value());
+			((TFLMonitor*) m)->DrawScreen();
 			in->value("");
 			Fl::focus(in);
 		},
 			this);
 		// --- help
 		mwHelp = new Fl_Button(mwWindow->w() - 3 * cw, mwToolbar->y(), 3 * cw, 2 * ch, "?");
-		mwHelp->callback([](Fl_Widget*, void* m) { ((TMonitor*) m)->ExecuteCommand("help"); }, this);
+		mwHelp->callback([](Fl_Widget*, void* m) {
+			((TMonitor*) m)->ExecuteCommand("help");
+			((TFLMonitor*) m)->DrawScreen();
+		},
+			this);
 		set_attributes(mwHelp);
 		mwHelp->labelcolor(FL_BLACK);
 		// --- set resizing properties

@@ -62,6 +62,7 @@
 
 // Einstein
 #include "TSymbolList.h"
+#include "Emulator/TMemory.h"
 
 // ANSI C & POSIX
 #include <stdio.h>
@@ -72,6 +73,7 @@
 #endif
 
 TSymbolList* UDisasm::pSymbolList = 0L;
+TMemory* UDisasm::pMemory = 0L;
 
 /*
  * General instruction format
@@ -783,6 +785,19 @@ disasm_interface_t::di_printaddr(unsigned int inAddress)
 		{
 			di_printf("%08X  =", inAddress);
 			di_printf("%s+%X", theSymbol, theOffset);
+			if (UDisasm::pMemory)
+			{
+				KUInt32 ptr = 0;
+				if (UDisasm::pMemory->ReadAligned(inAddress, ptr) == false)
+				{
+					char sym[512];
+					bool found = mSymbolList->GetSymbolByAddress(ptr, sym);
+					if (found)
+					{
+						di_printf(" [%s]", sym);
+					}
+				}
+			}
 		}
 	} else
 	{
@@ -1000,6 +1015,12 @@ void
 UDisasm::setSymbolList(TSymbolList* aSymbolList)
 {
 	pSymbolList = aSymbolList;
+}
+
+void
+UDisasm::setMemory(TMemory* inMemory)
+{
+	pMemory = inMemory;
 }
 
 // ====================================== //

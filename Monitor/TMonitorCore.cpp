@@ -46,7 +46,8 @@
 
 TMonitorCore::TMonitorCore(TSymbolList* inSymbolList) :
 		mMemory(0L),
-		mSymbolList(inSymbolList)
+		mSymbolList(inSymbolList),
+		mDisasm(nullptr)
 {
 }
 

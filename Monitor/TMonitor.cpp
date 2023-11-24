@@ -118,6 +118,7 @@ TMonitor::TMonitor(
 		mMonitorStartupScriptPath(strdup(inMonitorStartupScriptPath))
 {
 	mMemory = inEmulator->GetMemory();
+	UDisasm::setMemory(mMemory);
 	mROMImageDir = strdup(mMonitorStartupScriptPath);
 #if TARGET_OS_WIN32
 	char* pathEnd = strrchr(mROMImageDir, '\\');
