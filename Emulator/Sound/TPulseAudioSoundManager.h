@@ -35,7 +35,6 @@
 #include "TBufferedSoundManager.h"
 
 class TMutex;
-class TCircleBuffer;
 
 ///
 /// Class to handle sound input/output and direct them to PulseAudio.
@@ -60,7 +59,7 @@ public:
 	~TPulseAudioSoundManager(void) override;
 
 	///
-	/// Schedule output of some buffer. Called when NewtonOS has sounds to play.
+	/// Schedule output of some buffer.
 	///
 	void ScheduleOutput(const KUInt8* inBufferAddr, KUInt32 inSize) override;
 
@@ -70,103 +69,76 @@ public:
 	void StartOutput(void) override;
 
 	///
-	/// Is output running?
-	///
-	Boolean OutputIsRunning(void) override;
-
-	///
 	/// Stop output.
 	///
 	void StopOutput(void) override;
+
+	///
+	/// Is output running?
+	///
+	Boolean OutputIsRunning(void) override;
 
 	///
 	/// Method called to signal a change in the output volume.
 	///
 	void OutputVolumeChanged(void) override;
 
-protected:
-	static void
-	SPASafeUnrefOp(pa_operation* op)
-	{
-		if (op)
-			pa_operation_unref(op);
-	}
-
 private:
-	// callback routines (static).  PulseAudio lets us pass an arbitrary void pointer to callback functions.
-	// When callback function pointer is given to PulseAudio, we give a pointer to the class instance (this) as userData.
-	// Then in the static functions here, userData is used to call the class function
-	// defined in the .cpp file.  That function receives a pointer to the PA mainloop, NOT the original UserData!
-
-	// Context state change callback
+	// callback routines (static)
 	static void
 	SPAContextStateCallback(pa_context* context, void* userData)
 	{
 		return ((TPulseAudioSoundManager*) userData)->PAContextStateCallback(context, ((TPulseAudioSoundManager*) userData)->mPAMainLoop);
 	}
-	void PAContextStateCallback(pa_context* context, pa_threaded_mainloop* mainloop);
 
-	// Stream state change callback
 	static void
 	SPAStreamStateCallback(pa_stream* s, void* userData)
 	{
 		return ((TPulseAudioSoundManager*) userData)->PAStreamStateCallback(s, ((TPulseAudioSoundManager*) userData)->mPAMainLoop);
 	}
-	void PAStreamStateCallback(pa_stream* s, pa_threaded_mainloop* mainloop);
 
-	// Stream Underflow event callback.
 	static void
 	SPAStreamUnderflowCallback(pa_stream* s, void* userData)
 	{
 		return ((TPulseAudioSoundManager*) userData)->PAStreamUnderflowCallback(s, ((TPulseAudioSoundManager*) userData)->mPAMainLoop);
 	}
-	void PAStreamUnderflowCallback(pa_stream* s, pa_threaded_mainloop* mainloop);
 
-	// Stream write callback - called when PulseAudio wants us to write to the stream.
 	static void
 	SPAStreamWriteCallback(pa_stream* s, size_t requested_bytes, void* userData)
 	{
 		return ((TPulseAudioSoundManager*) userData)->PAStreamWriteCallback(s, (unsigned) requested_bytes);
 	}
+
+	void PAContextStateCallback(pa_context* context, pa_threaded_mainloop* mainloop);
+
+	void PAStreamStateCallback(pa_stream* s, pa_threaded_mainloop* mainloop);
+	void PAStreamUnderflowCallback(pa_stream* s, pa_threaded_mainloop* mainloop);
+
 	void PAStreamWriteCallback(pa_stream* s, unsigned int requested_bytes);
 
-	// Generic stream  operation callback function.
 	static void
 	SPAStreamOpCB(pa_stream* stream, int success, void* userData)
 	{
 		return ((TPulseAudioSoundManager*) userData)->PAStreamOpCB(stream, success, ((TPulseAudioSoundManager*) userData)->mPAMainLoop);
 	}
+
 	void PAStreamOpCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop);
 
-	// Stream Drain operation callback.  Called when PA has played everything in the buffer.
 	static void
-	SPAStreamDrainedCB(pa_stream* stream, int success, void* userData)
+	PAStreamSuccessCallback(pa_stream* stream, int success, void* userData)
 	{
-		return ((TPulseAudioSoundManager*) userData)->PAStreamDrainedCB(stream, success, ((TPulseAudioSoundManager*) userData)->mPAMainLoop);
+		return pa_threaded_mainloop_signal((pa_threaded_mainloop*) userData, 0);
 	}
-	void PAStreamDrainedCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop);
-
-	// Post-uncork operation callback.  Trigger immediate output.
-	static void
-	SPATriggerAfterOpCB(pa_stream* stream, int success, void* userData)
-	{
-		return ((TPulseAudioSoundManager*) userData)->PATriggerAfterOpCB(stream, success, ((TPulseAudioSoundManager*) userData)->mPAMainLoop);
-	}
-	void PATriggerAfterOpCB(pa_stream* s, int success, pa_threaded_mainloop* mainloop);
-
-	// static void PAStreamSuccessCallback(pa_stream* stream, int success, void* userData)
-	// {
-	// 	return pa_threaded_mainloop_signal((pa_threaded_mainloop*) userData, 0);
-	// }
 
 	/// \name Variables
 	pa_operation* mPAOperation;
 	char const* mPAOperationDescr;
-	TCircleBuffer* mOutputBuffer;
-	TMutex* mDataMutex;
 	pa_stream* mOutputStream;
 	pa_threaded_mainloop* mPAMainLoop;
+	pa_mainloop_api* mPAMainLoopAPI;
 	pa_context* mPAContext;
+	TMutex* mDataMutex;
+	Boolean mOutputIsRunning;
 };
 
 #endif
