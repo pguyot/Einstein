@@ -402,8 +402,8 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open
-          xywh {10 35 430 375} hide
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
+          xywh {10 35 430 375}
         } {
           Fl_Group {} {open
             xywh {120 50 275 25}
@@ -687,7 +687,7 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
         }
         Fl_Group {} {
           label {  PC Cards  } open
-          xywh {10 35 430 375}
+          xywh {10 35 430 375} hide
         } {
           Fl_Browser wPCCardList {
             label {PCMCIA Cards:}
@@ -1320,8 +1320,7 @@ mDevObjDumpPath = strdup(wDevObjDumpPath->value());
 
 dontShow = wDontShow->value();
 
-updateMenus();} {selected
-    }
+updateMenus();} {}
   }
   Function {runningMode()} {open return_type void
   } {
@@ -1475,7 +1474,7 @@ win->hide();} {}
           xywh {10 30 320 180} resizable
         } {
           Fl_Box {} {
-            image {../../Resources/icons/EinsteinApp64.png} xywh {133 47 69 75}
+            image {../../Resources/icons/EinsteinApp64.png} compress_image 0 xywh {133 47 69 75}
           }
           Fl_Box {} {
             label {Einstein Platform}
@@ -1488,7 +1487,7 @@ win->hide();} {}
             code0 {o->label("Version " PROJECT_VER);}
           }
           Fl_Box {} {
-            label {Copyright 2003-2022 by Paul Guyot and others}
+            label {Copyright 2003-2024 by Paul Guyot and others}
             xywh {20 172 295 20} labelsize 11
             code0 {o->label(COPYRIGHT_STRING);}
           }
