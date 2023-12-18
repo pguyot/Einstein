@@ -105,7 +105,7 @@ TPulseAudioSoundManager::TPulseAudioSoundManager(TLog* inLog /* = nil */) :
 	result = pa_threaded_mainloop_start(mPAMainLoop);
 	if (result < 0)
 	{
-		LOG_ERROR("Can't start the PulseAudio main loop")
+		LOG_ERROR("Can't start the PulseAudio main loop");
 		goto error;
 	}
 
