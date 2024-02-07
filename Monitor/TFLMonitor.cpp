@@ -29,14 +29,14 @@
 #include "Emulator/TEmulator.h"
 #include "Emulator/TInterruptManager.h"
 
-#include <FL/platform.H>
 #include <FL/Fl.H>
-#include <FL/fl_draw.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Preferences.H>
 #include <FL/Fl_Terminal.H>
+#include <FL/fl_draw.H>
+#include <FL/platform.H>
 
 TFLMonitor::TFLMonitor(TBufferLog* inLog,
 	TEmulator* inEmulator,
@@ -437,8 +437,8 @@ TFLMonitor::Show()
 		Fl_Preferences monitor(prefs, "Monitor");
 		Fl_Preferences monWindow(monitor, "Window");
 		int mx, my, mw, mh;
-    int initial_mw = 4 + cw * 80 + Fl::scrollbar_size() + Fl::box_dw(FL_DOWN_FRAME);
-    int initial_mh = 4 + ch * wh + 2 * ch + Fl::box_dh(FL_DOWN_FRAME);
+		int initial_mw = 4 + cw * 80 + Fl::scrollbar_size() + Fl::box_dw(FL_DOWN_FRAME);
+		int initial_mh = 4 + ch * wh + 2 * ch + Fl::box_dh(FL_DOWN_FRAME);
 		monWindow.get("x", mx, 400);
 		monWindow.get("y", my, 80);
 		monWindow.get("w", mw, initial_mw);
@@ -450,8 +450,8 @@ TFLMonitor::Show()
 		mwTerminal->box(FL_DOWN_BOX);
 		mwTerminal->textfont(FL_COURIER);
 		mwTerminal->textsize(ch);
-    mwTerminal->display_columns(80);
-    mwTerminal->display_rows(44);
+		mwTerminal->display_columns(80);
+		mwTerminal->display_rows(44);
 		// mwTerminal->init_tabstops(8); // default is 8
 		// mwTerminal->append("\033[3g\033[8G\033H"); // layout does not match well
 		//		mwTerminal->hide_cursor();
