@@ -29,7 +29,9 @@
 #include "Emulator/TEmulator.h"
 #include "Emulator/TInterruptManager.h"
 
+#include <FL/platform.H>
 #include <FL/Fl.H>
+#include <FL/fl_draw.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Input.H>
@@ -425,7 +427,10 @@ TFLMonitor::Show()
 	if (!mwWindow)
 	{
 		// TODO: this should probably be done in Fluid
-		const int cw = 9, ch = 13, wh = 44;
+		const int ch = 13, wh = 44;
+		fl_open_display();
+		fl_font(FL_COURIER, ch);
+		int cw = int(fl_width("X") + 0.5);
 		int xp = 0;
 		// ---- use the previous location of the monitor screen again
 		Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
@@ -436,11 +441,15 @@ TFLMonitor::Show()
 		monWindow.get("y", my, 80);
 		monWindow.get("w", mw, cw * 80);
 		monWindow.get("h", mh, ch * (wh + 2));
+		mw = cw * 80;
+		mh = ch * (wh + 2);
 		// ---- create the monitor window
 		mwWindow = new TFLMonitorWindow(mx, my, mw, mh, "Einstein Monitor");
 		// ---- terminal window for all text output
 		mwTerminal = new Fl_Terminal(0, 0, mwWindow->w(), mwWindow->h() - 2 * ch);
 		mwTerminal->box(FL_DOWN_BOX);
+		mwTerminal->textfont(FL_COURIER);
+		mwTerminal->textsize(ch);
 		// mwTerminal->init_tabstops(8); // default is 8
 		// mwTerminal->append("\033[3g\033[8G\033H"); // layout does not match well
 		//		mwTerminal->hide_cursor();
@@ -453,6 +462,7 @@ TFLMonitor::Show()
 		Fl_Group* mwToolbar = new Fl_Group(0, mwWindow->h() - 2 * ch, mwWindow->w(), 2 * ch);
 		// --- the stop button stops the emulation
 		mwPause = new Fl_Button(xp, mwToolbar->y(), 3 * cw, 2 * ch, "@||");
+		mwPause->tooltip("stop");
 		xp += 3 * cw;
 		mwPause->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand("stop");
@@ -462,6 +472,7 @@ TFLMonitor::Show()
 		set_attributes(mwPause);
 		// --- continue running the app
 		mwRun = new Fl_Button(xp, mwToolbar->y(), 3 * cw, 2 * ch, "@|>");
+		mwRun->tooltip("run");
 		xp += 3 * cw;
 		mwRun->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand("run");
@@ -472,6 +483,7 @@ TFLMonitor::Show()
 		set_attributes(mwRun);
 		// --- step over
 		mwStepOver = new Fl_Button(xp, mwToolbar->y(), 3 * cw, 2 * ch, "@3redo");
+		mwStepOver->tooltip("tarce");
 		xp += 3 * cw;
 		mwStepOver->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand("trace");
@@ -481,6 +493,7 @@ TFLMonitor::Show()
 		set_attributes(mwStepOver);
 		// --- step into
 		mwStep = new Fl_Button(xp, mwToolbar->y(), 3 * cw, 2 * ch, "@2->|");
+		mwStep->tooltip("step");
 		xp += 3 * cw;
 		mwStep->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand("step");
@@ -490,6 +503,7 @@ TFLMonitor::Show()
 		set_attributes(mwStep);
 		// --- leave
 		mwLeave = new Fl_Button(xp, mwToolbar->y(), 3 * cw, 2 * ch, "@8->|");
+		mwLeave->tooltip("return to r14");
 		xp += 3 * cw;
 		mwLeave->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand("mr");
