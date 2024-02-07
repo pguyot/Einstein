@@ -427,7 +427,7 @@ TFLMonitor::Show()
 	if (!mwWindow)
 	{
 		// TODO: this should probably be done in Fluid
-		const int ch = 13, wh = 44;
+		const int ch = 13, wh = 42;
 		fl_open_display();
 		fl_font(FL_COURIER, ch);
 		int cw = int(fl_width("X") + 0.5);
@@ -437,12 +437,12 @@ TFLMonitor::Show()
 		Fl_Preferences monitor(prefs, "Monitor");
 		Fl_Preferences monWindow(monitor, "Window");
 		int mx, my, mw, mh;
+    int initial_mw = 4 + cw * 80 + Fl::scrollbar_size() + Fl::box_dw(FL_DOWN_FRAME);
+    int initial_mh = 4 + ch * wh + 2 * ch + Fl::box_dh(FL_DOWN_FRAME);
 		monWindow.get("x", mx, 400);
 		monWindow.get("y", my, 80);
-		monWindow.get("w", mw, cw * 80);
-		monWindow.get("h", mh, ch * (wh + 2));
-		mw = cw * 80;
-		mh = ch * (wh + 2);
+		monWindow.get("w", mw, initial_mw);
+		monWindow.get("h", mh, initial_mh);
 		// ---- create the monitor window
 		mwWindow = new TFLMonitorWindow(mx, my, mw, mh, "Einstein Monitor");
 		// ---- terminal window for all text output
@@ -450,6 +450,8 @@ TFLMonitor::Show()
 		mwTerminal->box(FL_DOWN_BOX);
 		mwTerminal->textfont(FL_COURIER);
 		mwTerminal->textsize(ch);
+    mwTerminal->display_columns(80);
+    mwTerminal->display_rows(44);
 		// mwTerminal->init_tabstops(8); // default is 8
 		// mwTerminal->append("\033[3g\033[8G\033H"); // layout does not match well
 		//		mwTerminal->hide_cursor();
@@ -483,7 +485,7 @@ TFLMonitor::Show()
 		set_attributes(mwRun);
 		// --- step over
 		mwStepOver = new Fl_Button(xp, mwToolbar->y(), 3 * cw, 2 * ch, "@3redo");
-		mwStepOver->tooltip("tarce");
+		mwStepOver->tooltip("trace");
 		xp += 3 * cw;
 		mwStepOver->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand("trace");

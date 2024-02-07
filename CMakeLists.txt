@@ -5,7 +5,7 @@
 # Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net) and others.
 # ==============================
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.15)
 
 project( "Einstein" VERSION "2022.4.20" )
 
