@@ -35,7 +35,7 @@ jobs:
                       -D FLTK_USE_SYSTEM_ZLIB=Off \
                       -D FLTK_USE_SYSTEM_LIBPNG=Off \
                       -D FLTK_BUILD_TEST=Off \
-                      -D FLTK_BUILD_GL=Off \
+                      -D FLTK_BUILD_GL=Off
         cmake --build fltk/build
         sudo cmake --install fltk/build
     - name: Compile newt64

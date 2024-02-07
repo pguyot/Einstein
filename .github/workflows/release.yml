@@ -6,7 +6,7 @@
 
 name: 'Deploy Einstein on GitHub'
 
-# This job must be called explicitily form the 'Actions' tab in github
+# This job must be called explicitly form the 'Actions' tab in GitHub
 on:
   workflow_dispatch:
     inputs:
@@ -36,7 +36,7 @@ on:
       # build-iOS
 
 # Windows cmake build option for arm64 is  -A ARM64
-# On Linux, we will have to do additional installes and set a bunch of environment variables
+# On Linux, we will have to do additional installs and set a bunch of environment variables
 
 jobs:
 
