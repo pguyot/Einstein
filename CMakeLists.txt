@@ -115,6 +115,7 @@ FetchContent_MakeAvailable(NEWT64)
 message(STATUS "Downloading and configuring NEWT64 - done.")
 # Newt64_BINARY_DIR
 set( NEWT64_FOUND true )
+set( newt64_incl_path "${Newt64_SOURCE_DIR}/src/newt_core/incs/" )
 
 #
 # ---- FLTK library ------------------------------------------------------------
