@@ -232,10 +232,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 	)
 	target_link_libraries ( Einstein
 		${system_libs}
-		fltk
-		fltk_images
-		fltk_png
-		fltk_z
+		PRIVATE fltk::fltk fltk::images fltk::png fltk::z
 		pthread
 		"-framework AddressBook"
 		"-framework AudioUnit"
@@ -245,7 +242,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 	)
 	target_link_libraries ( EinsteinTests
 		${system_libs}
-		fltk
+		PRIVATE fltk::fltk
 		pthread
 		"-framework AddressBook"
 		"-framework AudioUnit"
@@ -301,15 +298,12 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 	)
 	target_link_libraries ( Einstein
 		${system_libs}
-		fltk
-		fltk_images
-		fltk_png
-		fltk_z
+		PRIVATE fltk::fltk fltk::images fltk::png fltk::z
 		pthread
 	)
 	target_link_libraries ( EinsteinTests
 		${system_libs}
-		fltk
+		PRIVATE fltk::fltk
 		pthread
 	)
 
@@ -382,16 +376,13 @@ elseif ( WIN32 )
 	)
 	target_link_libraries ( Einstein
 		${system_libs}
-		fltk
-		fltk_images
-		fltk_png
-		fltk_z
+		PRIVATE fltk::fltk fltk::images fltk::png fltk::z
 		winmm
 		gdiplus
 	)
 	target_link_libraries ( EinsteinTests
 		${system_libs}
-		fltk
+		PRIVATE fltk::fltk
 		gdiplus
 	)
 
