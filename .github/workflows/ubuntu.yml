@@ -23,31 +23,6 @@ jobs:
         sudo apt-get install clang-format-13
     - name: Get sources
       uses: actions/checkout@v4
-    - name: Get FLTK
-      uses: actions/checkout@v4
-      with:
-        repository: fltk/fltk
-        path: fltk
-    - name: Get newt64
-      uses: actions/checkout@v4
-      with:
-        repository: MatthiasWM/NEWT64
-        path: newt64
-    - name: Compile FLTK
-      run: |
-        cmake -S fltk -B fltk/build \
-                      -D FLTK_USE_SYSTEM_LIBJPEG=Off \
-                      -D FLTK_USE_SYSTEM_ZLIB=Off \
-                      -D FLTK_USE_SYSTEM_LIBPNG=Off \
-                      -D FLTK_BUILD_TEST=Off \
-                      -D FLTK_BUILD_GL=Off
-        cmake --build fltk/build
-        sudo cmake --install fltk/build
-    - name: Compile newt64
-      run: |
-        cmake -S newt64 -B newt64/build
-        cmake --build newt64/build
-        sudo cmake --install newt64/build
     - name: Configure Einstein
       run: |
         cmake -S . -B _Build_/Makefiles

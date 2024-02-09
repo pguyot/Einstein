@@ -27,29 +27,6 @@ include( CheckFunctionExists )
 include( CheckIncludeFile )
 include( FetchContent )
 
-# ---- Setup Google Testing
-
-FetchContent_Declare (
-	googletest
-	URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set( gtest_force_shared_crt ON CACHE BOOL "" FORCE )
-
-# Check if population has already been performed
-FetchContent_GetProperties(googletest)
-if ( NOT googletest_POPULATED )
-	# Fetch the content using previously declared details
-	FetchContent_Populate(googletest)
-
-	# Bring the populated content into the build
-	add_subdirectory( ${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} )
-endif ()
-
-enable_testing()
-
-include( GoogleTest )
-
 # ---- Configuration per platform
 
 if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
@@ -86,56 +63,78 @@ endif ()
 #
 # ==== External Dependencies ===================================================
 #
+# ---- Declare dependencies on outside content
+#
+
+FetchContent_Declare (
+	googletest
+	URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
+)
+
+FetchContent_Declare(
+  FLTK
+  GIT_REPOSITORY  https://github.com/fltk/fltk
+  GIT_TAG         master
+  GIT_SHALLOW     TRUE
+)
+
+FetchContent_Declare(
+  NEWT64
+  GIT_REPOSITORY  https://github.com/MatthiasWM/NEWT64
+  GIT_TAG         master
+  GIT_SHALLOW     TRUE
+)
+
+#
+# ---- Setup Google Testing
+#
+
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set( gtest_force_shared_crt ON CACHE BOOL "" FORCE )
+
+# Check if population has already been performed
+FetchContent_GetProperties(googletest)
+if ( NOT googletest_POPULATED )
+	# Fetch the content using previously declared details
+	FetchContent_Populate(googletest)
+
+	# Bring the populated content into the build
+	add_subdirectory( ${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} )
+endif ()
+
+enable_testing()
+
+include( GoogleTest )
+
+#
 # ---- Newt/64 library ---------------------------------------------------------
 #
 
-if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Windows" )
-	# Generates Newt64_FOUND, Newt64_DIR
-	find_package( Newt64 CONFIG HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/build )
-endif()
-
-find_library ( newt64_lib NAMES newt64
-	HINTS
-		${CMAKE_CURRENT_SOURCE_DIR}/newt64/build/Release
-		${CMAKE_CURRENT_SOURCE_DIR}/newt64/build/Debug
-		${CMAKE_CURRENT_SOURCE_DIR}/newt64/build
-)
-find_file( newt64_incl NAMES NewtCore.h PATH_SUFFIXES newt64 HINTS ${CMAKE_CURRENT_SOURCE_DIR}/newt64/src/newt_core/incs )
-
-if ( newt64_lib MATCHES ".*NOTFOUND" OR newt64_incl MATCHES ".*NOTFOUND" )
-	message( WARNING "Newt64 not found!" )
-	set( NEWT64_FOUND false )
-else ()
-	set( NEWT64_FOUND true )
-	get_filename_component( newt64_lib_path ${newt64_lib} DIRECTORY )
-	get_filename_component( newt64_incl_path ${newt64_incl} DIRECTORY )
-	message( STATUS "Newt64 found in " ${newt64_lib_path} )
-endif ()
+message(STATUS "Downloading and configuring NEWT64 if necessary, please wait...")
+FetchContent_MakeAvailable(NEWT64)
+message(STATUS "Downloading and configuring NEWT64 - done.")
+# Newt64_BINARY_DIR
+set( NEWT64_FOUND true )
 
 #
 # ---- FLTK library ------------------------------------------------------------
 #
 
-# TODO: update this to automatically download and build in .../Einstein/fltk
-set( FLTK_SKIP_OPENGL true )
-find_program( LOCAL_FLTK_FLUID_EXECUTABLE fluid
-	HINTS
-		${CMAKE_SOURCE_DIR}/fltk/build/bin/Release
-		${CMAKE_SOURCE_DIR}/fltk/build/bin/Debug
-		${CMAKE_SOURCE_DIR}/fltk/build/bin
-)
-find_package( FLTK REQUIRED NO_MODULE HINTS ${CMAKE_SOURCE_DIR}/fltk/build )
-
-if ( ${LOCAL_FLTK_FLUID_EXECUTABLE} MATCHES ".*NOTFOUND" )
-	message( WARNING "Fluid (FLTK User Interface Designer) not found!" )
-else ()
-	message( STATUS "Fluid (FLTK User Interface Designer) found at " ${LOCAL_FLTK_FLUID_EXECUTABLE})
-endif ()
+message(STATUS "Downloading and configuring FLTK if necessary, please wait...")
+set( FLTK_USE_SYSTEM_LIBJPEG OFF )
+set( FLTK_USE_SYSTEM_ZLIB OFF )
+set( FLTK_USE_SYSTEM_LIBPNG OFF )
+set( FLTK_BUILD_TEST OFF )
+set( FLTK_BUILD_GL OFF )
+set( FLTK_BUILD_FORMS OFF )
+set( FLTK_BUILD_FLTK_OPTIONS OFF )
+FetchContent_MakeAvailable(FLTK)
+message(STATUS "Downloading and configuring FLTK - done.")
 
 function ( build_with_fluid name dir )
 	add_custom_command (
 		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/${dir}"
-		COMMAND ${LOCAL_FLTK_FLUID_EXECUTABLE} -c ${name}.fl
+		COMMAND fltk::fluid -c ${name}.fl
 		DEPENDS "${CMAKE_SOURCE_DIR}/${dir}/${name}.fl"
 		DEPENDS "${ARGN}"
 		OUTPUT "${CMAKE_SOURCE_DIR}/${dir}/${name}.cpp"
@@ -238,6 +237,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 	target_link_libraries ( Einstein
 		${system_libs}
 		fltk::fltk fltk::images fltk::png fltk::z
+    libnewt64
 		pthread
 		"-framework AddressBook"
 		"-framework AudioUnit"

@@ -16,24 +16,6 @@ jobs:
     steps:
     - name: Get sources
       uses: actions/checkout@v4
-    - name: Get FLTK
-      uses: actions/checkout@v4
-      with:
-        repository: fltk/fltk
-        path: fltk
-    - name: Get newt64
-      uses: actions/checkout@v4
-      with:
-        repository: MatthiasWM/NEWT64
-        path: newt64
-    - name: Compile FLTK
-      run: |
-        cmake -S fltk -B fltk/build -D FLTK_USE_SYSTEM_LIBJPEG=Off -D FLTK_USE_SYSTEM_ZLIB=Off -D FLTK_USE_SYSTEM_LIBPNG=Off -D FLTK_BUILD_TEST=Off -D FLTK_BUILD_GL=Off -D CMAKE_BUILD_TYPE=Release
-        cmake --build fltk/build --config Release
-    - name: Compile newt64
-      run: |
-        cmake -S newt64 -B newt64/build -D CMAKE_BUILD_TYPE=Release
-        cmake --build newt64/build --config Release
     - name: Configure
       run: |
         cmake -S . -B _Build_/Makefiles -D CMAKE_BUILD_TYPE=Release
