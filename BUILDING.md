@@ -80,7 +80,7 @@ git clone https://github.com/fltk/fltk.git fltk
 git clone https://github.com/MatthiasWM/NEWT64.git newt64
 # -- Compile FLTK 1.4
 cmake -S fltk -B fltk/build \
-    -D FLKT_USE_SYSTEM_LIBJPEG=Off \
+    -D FLTK_USE_SYSTEM_LIBJPEG=Off \
     -D FLTK_USE_SYSTEM_ZLIB=Off \
     -D FLTK_USE_SYSTEM_LIBPNG=Off \
     -D FLTK_BUILD_TEST=Off \
@@ -157,7 +157,7 @@ git clone https://github.com/fltk/fltk.git fltk
 git clone https://github.com/MatthiasWM/NEWT64.git newt64
 # -- Compile FLTK
 cmake -S fltk -B fltk/build \
-    -D FLKT_USE_SYSTEM_LIBJPEG=Off \
+    -D FLTK_USE_SYSTEM_LIBJPEG=Off \
     -D FLTK_USE_SYSTEM_ZLIB=Off \
     -D FLTK_USE_SYSTEM_LIBPNG=Off \
     -D FLTK_BUILD_TEST=Off \
@@ -228,7 +228,7 @@ git clone https://github.com/fltk/fltk.git fltk
 git clone https://github.com/MatthiasWM/NEWT64.git newt64
 # -- Compile FLTK
 cmake -S fltk -B fltk/build \
-    -D FLKT_USE_SYSTEM_LIBJPEG=Off \
+    -D FLTK_USE_SYSTEM_LIBJPEG=Off \
     -D FLTK_USE_SYSTEM_ZLIB=Off \
     -D FLTK_USE_SYSTEM_LIBPNG=Off \
     -D FLTK_BUILD_TEST=Off \
@@ -287,7 +287,7 @@ git clone https://github.com/fltk/fltk.git fltk
 # -- Get the newt64 source code from GitHub
 git clone https://github.com/MatthiasWM/NEWT64.git newt64
 # -- Compile FLTK (yes, the command must be in a single line)
-cmake -S fltk -B fltk/build -A x64 -D FLKT_USE_SYSTEM_LIBJPEG=Off -D FLTK_USE_SYSTEM_ZLIB=Off -D FLTK_USE_SYSTEM_LIBPNG=Off -D FLTK_BUILD_TEST=Off -D FLTK_BUILD_GL=Off -D CMAKE_BUILD_TYPE=Release
+cmake -S fltk -B fltk/build -A x64 -D FLTK_USE_SYSTEM_LIBJPEG=Off -D FLTK_USE_SYSTEM_ZLIB=Off -D FLTK_USE_SYSTEM_LIBPNG=Off -D FLTK_BUILD_TEST=Off -D FLTK_BUILD_GL=Off -D CMAKE_BUILD_TYPE=Release
 cmake --build fltk/build --config Release
 # -- Compile newt64
 cmake -S newt64 -B newt64/build -A x64 -D CMAKE_BUILD_TYPE=Release

@@ -65,7 +65,7 @@ jobs:
     - name: Compile FLTK
       run: |
         cmake -S fltk -B fltk/build \
-                      -D FLKT_USE_SYSTEM_LIBJPEG=Off \
+                      -D FLTK_USE_SYSTEM_LIBJPEG=Off \
                       -D FLTK_USE_SYSTEM_ZLIB=Off \
                       -D FLTK_USE_SYSTEM_LIBPNG=Off \
                       -D FLTK_BUILD_TEST=Off \
@@ -135,7 +135,7 @@ jobs:
     - name: Compile FLTK
       run: |
         cmake -S fltk -B fltk/build \
-                      -D FLKT_USE_SYSTEM_LIBJPEG=Off \
+                      -D FLTK_USE_SYSTEM_LIBJPEG=Off \
                       -D FLTK_USE_SYSTEM_ZLIB=Off \
                       -D FLTK_USE_SYSTEM_LIBPNG=Off \
                       -D FLTK_BUILD_TEST=Off \
@@ -196,7 +196,7 @@ jobs:
         path: newt64
     - name: Compile FLTK
       run: |
-        cmake -S fltk -B fltk/build -A x64 -D FLKT_USE_SYSTEM_LIBJPEG=Off -D FLTK_USE_SYSTEM_ZLIB=Off -D FLTK_USE_SYSTEM_LIBPNG=Off -D FLTK_BUILD_TEST=Off -D FLTK_BUILD_GL=Off -D CMAKE_BUILD_TYPE=Release
+        cmake -S fltk -B fltk/build -A x64 -D FLTK_USE_SYSTEM_LIBJPEG=Off -D FLTK_USE_SYSTEM_ZLIB=Off -D FLTK_USE_SYSTEM_LIBPNG=Off -D FLTK_BUILD_TEST=Off -D FLTK_BUILD_GL=Off -D CMAKE_BUILD_TYPE=Release
         cmake --build fltk/build --config Release
     - name: Compile newt64
       run: |
