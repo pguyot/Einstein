@@ -116,6 +116,11 @@ message(STATUS "Downloading and configuring NEWT64 - done.")
 # Newt64_BINARY_DIR
 set( NEWT64_FOUND true )
 set( newt64_incl_path "${Newt64_SOURCE_DIR}/src/newt_core/incs/" )
+if (WIN32)
+  set( newt64_lib newt64.lib )
+else ()
+  set( newt64_lib libnewt64 )
+endif ()
 
 #
 # ---- FLTK library ------------------------------------------------------------
@@ -238,7 +243,6 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 	target_link_libraries ( Einstein
 		${system_libs}
 		fltk::fltk fltk::images fltk::png fltk::z
-    libnewt64
 		pthread
 		"-framework AddressBook"
 		"-framework AudioUnit"
@@ -383,7 +387,6 @@ elseif ( WIN32 )
 	target_link_libraries ( Einstein
 		${system_libs}
 		fltk::fltk fltk::images fltk::png fltk::z
-		windows
 		winmm
 		gdiplus
     ws2_32
@@ -391,7 +394,6 @@ elseif ( WIN32 )
 	target_link_libraries ( EinsteinTests
 		${system_libs}
 		fltk::fltk
-		windows
 		gdiplus
     ws2_32
 	)
