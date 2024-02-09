@@ -46,19 +46,19 @@ jobs:
     if: ${{ github.event.inputs.build-macos-universal-fltk == 'true' }}
     steps:
     - name: Get Einstein Sources
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Get Release Version Tag
       run: |
         export RELEASE_TAG="v"`grep -o '"Einstein" VERSION "[^"]*' CMakeLists.txt  | grep -o '[^"]*$'`
         echo "RELEASE_TAG=$RELEASE_TAG"
         echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
     - name: Get FLTK
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: fltk/fltk
         path: fltk
     - name: Get newt64
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: MatthiasWM/NEWT64
         path: newt64
@@ -116,19 +116,19 @@ jobs:
         sudo apt-get update
         sudo apt-get install clang-format-13
     - name: Get sources
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Get Version
       run: |
         export RELEASE_TAG="v"`grep -o '"Einstein" VERSION "[^"]*' CMakeLists.txt  | grep -o '[^"]*$'`
         echo "RELEASE_TAG=$RELEASE_TAG"
         echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
     - name: Get FLTK
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: fltk/fltk
         path: fltk
     - name: Get newt64
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: MatthiasWM/NEWT64
         path: newt64
@@ -173,7 +173,7 @@ jobs:
     if: ${{ github.event.inputs.build-windows-x64-fltk == 'true' }}
     steps:
     - name: Get sources
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Get Version
       shell: pwsh
       run: |
@@ -185,12 +185,12 @@ jobs:
         echo "RELEASE_TAG=v$env:RELEASE_TAG"
         echo "RELEASE_TAG=v$env:RELEASE_TAG" >> $env:GITHUB_ENV
     - name: Get FLTK
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: fltk/fltk
         path: fltk
     - name: Get newt64
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: MatthiasWM/NEWT64
         path: newt64
@@ -223,7 +223,7 @@ jobs:
     runs-on: macos-latest
     if: ${{ github.event.inputs.build-macos-universal-cocoa == 'true' }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Get Release Version Tag
       run: |
         export RELEASE_TAG="v"`grep -o '"Einstein" VERSION "[^"]*' CMakeLists.txt  | grep -o '[^"]*$'`

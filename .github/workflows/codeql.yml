@@ -17,14 +17,14 @@ jobs:
     - name: Get dependencies
       run: sudo apt-get install -y libpulse-dev ninja-build libbsd-dev
     - name: Get sources
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Get FLTK
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: fltk/fltk
         path: fltk
     - name: Get newt64
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: MatthiasWM/NEWT64
         path: newt64

@@ -18,12 +18,12 @@ jobs:
     - name: Get dependencies
       run: sudo apt-get install -y gcc-arm-none-eabi cmake make
     - name: Get NCT_Projects headers
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: ekoeppen/NCT_Projects
         path: NCT_Projects
     - name: Get tntk
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: ekoeppen/tntk
         path: tntk
@@ -34,7 +34,7 @@ jobs:
         cmake --build tntk/build
         sudo cmake --install tntk/build
     - name: Get DCL
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: pguyot/DCL
         path: DCL
@@ -44,7 +44,7 @@ jobs:
         cmake --build DCL/build
         sudo cmake --install DCL/build
     - name: Get Einstein sources
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
           path: Einstein
     - name: Compile the REx

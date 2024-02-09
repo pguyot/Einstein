@@ -22,14 +22,14 @@ jobs:
         sudo apt-get update
         sudo apt-get install clang-format-13
     - name: Get sources
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Get FLTK
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: fltk/fltk
         path: fltk
     - name: Get newt64
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: MatthiasWM/NEWT64
         path: newt64
