@@ -58,6 +58,9 @@ declblock {\#if TARGET_OS_WIN32} {open after {\#endif}
 decl {\#include <string.h>} {private local
 }
 
+decl {\#include <stdint.h>} {private local
+}
+
 decl {\#include <FL/filename.H>} {private local
 }
 
@@ -80,10 +83,10 @@ Function {cb_keepInSlot0(Fl_Menu_Item* mi, void* user_data)} {open private retur
 } {
   code {if (mi->value()) {
       mi->clear();
-      gApp->UserActionKeepPCCardInSlot(-1, (int)(long)user_data);
+      gApp->UserActionKeepPCCardInSlot(-1, (int)(intptr_t)user_data);
     } else {
       mi->set();
-      gApp->UserActionKeepPCCardInSlot(0, (int)(long)user_data);
+      gApp->UserActionKeepPCCardInSlot(0, (int)(intptr_t)user_data);
     }} {}
 }
 
@@ -91,21 +94,22 @@ Function {cb_keepInSlot1(Fl_Menu_Item* mi, void* user_data)} {open private retur
 } {
   code {if (mi->value()) {
       mi->clear();
-      gApp->UserActionKeepPCCardInSlot(-1, (int)(long)user_data);
+      gApp->UserActionKeepPCCardInSlot(-1, (int)(intptr_t)user_data);
     } else {
       mi->set();
-      gApp->UserActionKeepPCCardInSlot(1, (int)(long)user_data);
+      gApp->UserActionKeepPCCardInSlot(1, (int)(intptr_t)user_data);
     }} {}
 }
 
 Function {cb_changePCCard0(Fl_Widget*, void* user_data)} {open private return_type void
 } {
-  code {gApp->UserActionPCCard(0, (long)user_data);} {}
+  code {gApp->UserActionPCCard(0, (intptr_t)user_data);} {}
 }
 
 Function {cb_changePCCard1(Fl_Widget*, void* user_data)} {open private return_type void
 } {
-  code {gApp->UserActionPCCard(1, (long)user_data);} {}
+  code {gApp->UserActionPCCard(1, (intptr_t)user_data);} {selected
+  }
 }
 
 Function {expand(std::string &inCmd)} {open private return_type {std::string}
@@ -334,7 +338,7 @@ wAbout = nullptr;} {}
     revertDialog();
     mSettingsPanel->hide();
 }} open
-      xywh {484 528 450 455} type Double visible
+      xywh {512 675 450 455} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu}
@@ -402,7 +406,7 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open
           xywh {10 35 430 375}
         } {
           Fl_Group {} {open

@@ -93,6 +93,7 @@ const int TMemory::kSerialNumberCRC[256] = {
 	0xDC, 0x50, 0x9A, 0x16, 0xFF, 0x73, 0xB9, 0x35
 };
 
+#undef min
 #define min(a, b) (a) < (b) ? (a) : (b)
 
 // -------------------------------------------------------------------------- //

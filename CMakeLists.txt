@@ -382,13 +382,17 @@ elseif ( WIN32 )
 	target_link_libraries ( Einstein
 		${system_libs}
 		fltk::fltk fltk::images fltk::png fltk::z
+		windows
 		winmm
 		gdiplus
+    ws2_32
 	)
 	target_link_libraries ( EinsteinTests
 		${system_libs}
 		fltk::fltk
+		windows
 		gdiplus
+    ws2_32
 	)
 
 endif ()
