@@ -752,7 +752,7 @@ TInterruptManager::GetTimeInTicks(void)
 		found = QueryPerformanceFrequency(&f);
 		// 24000000 on Windows X11 ARM64 (24MHz)
 		// Ticks are running at 3.6864MHz
-		// 
+		//
 		if (found)
 		{
 			if (f.QuadPart == 0)
@@ -765,7 +765,7 @@ TInterruptManager::GetTimeInTicks(void)
 	{
 		LARGE_INTEGER f;
 		QueryPerformanceCounter(&f);
-		double ticks_d = ((double)f.QuadPart) * mult;
+		double ticks_d = ((double) f.QuadPart) * mult;
 		if (ticks_d > 4294967295.0) // Max Value for KUInt32
 			ticks_d = fmod(ticks_d, 4294967295.0);
 		KUInt32 ticks = static_cast<KUInt32>(ticks_d);
