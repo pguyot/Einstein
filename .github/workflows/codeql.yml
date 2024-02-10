@@ -18,33 +18,8 @@ jobs:
       run: sudo apt-get install -y libpulse-dev ninja-build libbsd-dev
     - name: Get sources
       uses: actions/checkout@v4
-    - name: Get FLTK
-      uses: actions/checkout@v4
-      with:
-        repository: fltk/fltk
-        path: fltk
-    - name: Get newt64
-      uses: actions/checkout@v4
-      with:
-        repository: MatthiasWM/NEWT64
-        path: newt64
-    - name: Compile FLTK
-      run: |
-        cmake -S fltk -B fltk/build \
-                      -D FLTK_USE_SYSTEM_LIBJPEG=Off \
-                      -D FLTK_USE_SYSTEM_ZLIB=Off \
-                      -D FLTK_USE_SYSTEM_LIBPNG=Off \
-                      -D FLTK_BUILD_TEST=Off \
-                      -D FLTK_BUILD_GL=Off
-        cmake --build fltk/build
-        sudo cmake --install fltk/build
-    - name: Compile newt64
-      run: |
-        cmake -S newt64 -B newt64/build
-        cmake --build newt64/build
-        sudo cmake --install newt64/build
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
+      uses: github/codeql-action/init@v2
       with:
         languages: cpp
         config-file: ./.github/codeql/codeql-config.yml
@@ -53,4 +28,4 @@ jobs:
         cmake -S . -B _Build_/Makefiles
         cmake --build _Build_/Makefiles --target Einstein
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
+      uses: github/codeql-action/analyze@v2
