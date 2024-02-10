@@ -1,4 +1,13 @@
 
+Binary Release v2024.4.21
+=========================
+
+Maintenance Release Notes
+------------------
+ - updates to the CMake build system (modern CMake)
+ - update to FLTK 1.4.0
+ - fixes for MS Windows version on ARM64 CPUs
+
 Binary Release v2022.4.20
 =========================
 
