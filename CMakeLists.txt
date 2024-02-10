@@ -50,8 +50,8 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
 elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Windows" )
 
 	# allow to build with multithreading libraries with VisualC
-	cmake_policy( SET CMP0091 NEW )
-	set( CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" )
+#	cmake_policy( SET CMP0091 NEW )
+#	set( CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" )
 
 else ()
 
@@ -116,11 +116,7 @@ message(STATUS "Downloading and configuring NEWT64 - done.")
 # Newt64_BINARY_DIR
 set( NEWT64_FOUND true )
 set( newt64_incl_path "${Newt64_SOURCE_DIR}/src/newt_core/incs/" )
-if (WIN32)
-  set( newt64_lib newt64.lib )
-else ()
-  set( newt64_lib libnewt64 )
-endif ()
+set( newt64_lib libnewt64 )
 
 #
 # ---- FLTK library ------------------------------------------------------------
@@ -389,13 +385,11 @@ elseif ( WIN32 )
 		fltk::fltk fltk::images fltk::png fltk::z
 		winmm
 		gdiplus
-    ws2_32
 	)
 	target_link_libraries ( EinsteinTests
 		${system_libs}
 		fltk::fltk
 		gdiplus
-    ws2_32
 	)
 
 endif ()
@@ -419,6 +413,7 @@ if ( NEWT64_FOUND MATCHES true )
 	target_link_libraries ( Einstein ${newt64_lib} )
 	message ( STATUS "NEWT64 library at " ${newt64_lib} )
 	target_compile_definitions ( Einstein PRIVATE USE_TOOLKIT=1 )
+    add_dependencies( Einstein ${newt64_lib} )
 endif ()
 
 #
