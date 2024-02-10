@@ -14,7 +14,7 @@ on:
       #version_tag:
       #  description: 'Release Version Tag'
       #  required: true
-      #  default: '2022.4.15'
+      #  default: '2024.4.21'
       build-macos-universal-fltk:
         type: boolean
         description: Build macOS Universal FLTK
@@ -27,15 +27,18 @@ on:
         type: boolean
         description: Build Windows x64 FLTK
         default: 'true'
+      build-windows-arm64-fltk:
+        type: boolean
+        description: Build Windows arm64 FLTK
+        default: 'true'
       build-macos-universal-cocoa:
         type: boolean
         description: Build macOS Universal Cocoa
         default: 'true'
-      # build-windows-arm64-fltk:
       # build-android
       # build-iOS
 
-# Windows cmake build option for arm64 is  -A ARM64
+# Windows cmake build option for arm64 is -A ARM64
 # On Linux, we will have to do additional installs and set a bunch of environment variables
 
 jobs:
@@ -115,7 +118,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
   build-windows-x64-fltk:
-    runs-on: windows-2019
+    runs-on: windows-latest
     if: ${{ github.event.inputs.build-windows-x64-fltk == 'true' }}
     steps:
     - name: Get sources
@@ -142,6 +145,39 @@ jobs:
       with:
         allowUpdates: 'true'
         artifacts: Einstein_windows_x64_fltk_${{env.RELEASE_TAG}}.zip
+        artifactContentType: application/zip
+        bodyFile: ReleaseText.md
+        tag: ${{ env.RELEASE_TAG }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-windows-arm64-fltk:
+    runs-on: windows-latest
+    if: ${{ github.event.inputs.build-windows-arm64-fltk == 'true' }}
+    steps:
+    - name: Get sources
+      uses: actions/checkout@v4
+    - name: Get Version
+      shell: pwsh
+      run: |
+        # Select-String -Path CMakeLists.txt -CaseSensitive -Pattern '"Einstein" VERSION'
+        $env:RELEASE_TAG2=(Select-String -Path CMakeLists.txt -CaseSensitive -Pattern '"Einstein" VERSION')
+        # gci env:RELEASE_TAG2
+        $env:RELEASE_TAG=($env:RELEASE_TAG2 -replace '.* VERSION "', '' -replace '".*\)', '')
+        # gci env:RELEASE_TAG
+        echo "RELEASE_TAG=v$env:RELEASE_TAG"
+        echo "RELEASE_TAG=v$env:RELEASE_TAG" >> $env:GITHUB_ENV
+    - name: Compile Einstein
+      run: |
+        cmake -S . -B build -A ARM64 -D CMAKE_BUILD_TYPE=Release
+        cmake --build build --config Release --target Einstein
+    - name: Pack Einstein
+      run: |
+        mv build/Release/Einstein.exe .
+        cmake -E tar cf Einstein_windows_arm64_fltk_${{env.RELEASE_TAG}}.zip --format=zip Einstein.exe
+    - uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: 'true'
+        artifacts: Einstein_windows_arm64_fltk_${{env.RELEASE_TAG}}.zip
         artifactContentType: application/zip
         bodyFile: ReleaseText.md
         tag: ${{ env.RELEASE_TAG }}

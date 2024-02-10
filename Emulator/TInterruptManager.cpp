@@ -750,19 +750,26 @@ TInterruptManager::GetTimeInTicks(void)
 		checked = TRUE;
 		LARGE_INTEGER f;
 		found = QueryPerformanceFrequency(&f);
+		// 24000000 on Windows X11 ARM64 (24MHz)
+		// Ticks are running at 3.6864MHz
+		// 
 		if (found)
 		{
 			if (f.QuadPart == 0)
 				found = FALSE;
 			else
-				mult = 4000000.0 / ((double) f.QuadPart);
+				mult = 3686400.0 / ((double) f.QuadPart);
 		}
 	}
 	if (found)
 	{
 		LARGE_INTEGER f;
 		QueryPerformanceCounter(&f);
-		return (KUInt32) (((double) f.QuadPart) * mult);
+		double ticks_d = ((double)f.QuadPart) * mult;
+		if (ticks_d > 4294967295.0) // Max Value for KUInt32
+			ticks_d = fmod(ticks_d, 4294967295.0);
+		KUInt32 ticks = static_cast<KUInt32>(ticks_d);
+		return ticks;
 	} else
 	{
 		struct _timeb ft;
@@ -815,7 +822,7 @@ TInterruptManager::GetTimeInTicks(void)
 KUInt32
 TInterruptManager::GetTimer(void) const
 {
-	// Get the time now and substract with the correction.
+	// Get the time now and subtract with the correction.
 	KUInt32 theResult = GetTimeInTicks() - mTimerDelta;
 	//	if (mLog)
 	//	{
