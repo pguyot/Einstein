@@ -312,7 +312,7 @@ protected:
 		return mEmulator;
 	}
 
-private:
+protected:
 	///
 	/// Run the emulator (handle breakpoint if we're on a BP).
 	///
@@ -377,41 +377,43 @@ private:
 	///
 	int FormatNSBinary(char* buffer, size_t bufferSize, KUInt32 addr, unsigned int length, KUInt32 classRef, int indent, int maxDepth);
 
+private:
 	///
 	/// Constructeur par copie volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TMonitor(const TMonitor& inCopy);
+	TMonitor(const TMonitor& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TMonitor& operator=(const TMonitor& inCopy);
+	TMonitor& operator=(const TMonitor& inCopy) = delete;
 
+protected:
 	/// \name Variables
-	TEmulator* mEmulator; ///< Emulator.
-	TARMProcessor* mProcessor; ///< CPU.
-	TInterruptManager* mInterruptManager; ///< Interrupt manager.
-	TBufferLog* mLog; ///< Interface to the log.
-	Boolean mHalted; ///< If the emulator is halted.
-	TCondVar* mCondVar = nullptr;
-	TMutex* mMutex = nullptr;
-	ECommand mCommand; ///< Next command for the
-					   ///< monitor thread.
-	char* mFilename; ///< Argument for next command.
+	TEmulator* mEmulator { nullptr }; ///< Emulator.
+	TARMProcessor* mProcessor { nullptr }; ///< CPU.
+	TInterruptManager* mInterruptManager { nullptr }; ///< Interrupt manager.
+	TBufferLog* mLog { nullptr }; ///< Interface to the log.
+	Boolean mHalted { false }; ///< If the emulator is halted.
+	TCondVar* mCondVar { nullptr };
+	TMutex* mMutex { nullptr };
+	ECommand mCommand { kNop }; ///< Next command for the
+	///< monitor thread.
+	char* mFilename { nullptr }; ///< Argument for next command.
 #if TARGET_UI_FLTK
-	// no signalling between monitor and log yet
+	// no signaling between monitor and log yet
 #else
-	int mSocketPair[2]; ///< Socket pair for monitor state changes.
+	int mSocketPair[2] { -1, -1 }; ///< Socket pair for monitor state changes.
 #endif
-	Boolean mLastScreenHalted; ///< If last screen was halted.
-	char* mMonitorStartupScriptPath; ///< path to monitor startup script file
-	char* mROMImageDir; /// < path to the ROM file directory
+	Boolean mLastScreenHalted { true }; ///< If last screen was halted.
+	char* mMonitorStartupScriptPath { nullptr }; ///< path to monitor startup script file
+	char* mROMImageDir { nullptr }; /// < path to the ROM file directory
 
-	Boolean mRunOnStartup = false; ///< Run the emulation as soon as the monitor starts
+	Boolean mRunOnStartup { false }; ///< Run the emulation as soon as the monitor starts
 };
 
 #endif

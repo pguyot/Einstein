@@ -45,9 +45,7 @@
 #include "Emulator/JIT/JIT.h"
 
 TMonitorCore::TMonitorCore(TSymbolList* inSymbolList) :
-		mMemory(0L),
-		mSymbolList(inSymbolList),
-		mDisasm(nullptr)
+		mSymbolList(inSymbolList)
 {
 }
 

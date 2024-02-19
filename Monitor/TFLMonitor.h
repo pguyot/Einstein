@@ -27,10 +27,11 @@
 #include <K/Defines/KDefinitions.h>
 #include "Monitor/TMonitor.h"
 
+class TFLTerminal;
 class Fl_Window;
 class Fl_Terminal;
 class Fl_Button;
-class Fl_Input;
+class Fl_Box;
 
 class TFLMonitor : public TMonitor
 {
@@ -63,6 +64,10 @@ public:
 	///
 	//	void PrintLine(const char* inLine, int type) override;
 
+	const char* FormatNSCallArgs(char* buffer, size_t size, int nArgs, int nNames);
+	const char* FormatNSValueStack(char* buffer, size_t size, int nArgs);
+	const char* FormatNSLiteral(char* buffer, size_t size, int index);
+
 private:
 	///
 	/// Draw screen when the emulator is halted.
@@ -75,14 +80,16 @@ private:
 	void DrawScreenRunning(void);
 
 	Fl_Window* mwWindow = nullptr;
-	Fl_Terminal* mwTerminal = nullptr;
+	TFLTerminal* mwTerminal = nullptr;
 	Fl_Button* mwPause = nullptr;
 	Fl_Button* mwRun = nullptr;
 	Fl_Button* mwStepOver = nullptr;
 	Fl_Button* mwStep = nullptr;
 	Fl_Button* mwLeave = nullptr;
-	Fl_Input* mwInput = nullptr;
+	Fl_Box* mwBox = nullptr;
 	Fl_Button* mwHelp = nullptr;
+	Fl_Button* mwBCPause = nullptr;
+	Fl_Button* mwBCRun = nullptr;
 };
 
 #endif // T_FL_MONITOR_H

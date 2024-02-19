@@ -77,8 +77,8 @@
  containing an array named 'programCounter'. The array holds one frame per
  breakpoint. Those frames have the fields:
 	'programCounter' : checks if the current instruction offset matches
-	'instrcutions' : points at the current instructions binary ref(?) and must match
-	'disabled' : is TRUE or NIL to disable or anable the breakpoint
+	'instructions' : points at the current instructions binary ref(?) and must match
+	'disabled' : is TRUE or NIL to disable or enable the breakpoint
 	'temporary' : the breakpoint is removed from the array when it is hit
 
  If breakpoints are enabled, TInterpreter switches to Slow mode.
@@ -1097,7 +1097,8 @@ TToolkit::AppBuild()
 		const char* errStr = NewtRefToString(errRef);
 		PrintErr(errStr);
 	}
-	// PrintErr(mPkgPath);
+	::snprintf(buf, sizeof(buf), "Package saved to: %s\n", mPkgPath);
+	PrintStd(buf);
 
 	NewtCleanup();
 }
@@ -1169,7 +1170,7 @@ TToolkit::AppStop()
 }
 
 /**
- Send a NewtonScrippt line to Einstein and run it there.
+ Send a NewtonScript line to Einstein and run it there.
 
  \note Running NewtonScript this way is limited to 256 characters.
 

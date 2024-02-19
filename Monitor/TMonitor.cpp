@@ -111,10 +111,6 @@ TMonitor::TMonitor(
 		mProcessor(inEmulator->GetProcessor()),
 		mInterruptManager(inEmulator->GetInterruptManager()),
 		mLog(inLog),
-		mHalted(true),
-		mCommand(kNop),
-		mFilename(nullptr),
-		mLastScreenHalted(true),
 		mMonitorStartupScriptPath(strdup(inMonitorStartupScriptPath))
 {
 	mMemory = inEmulator->GetMemory();
@@ -531,7 +527,7 @@ TMonitor::Stop()
 	ReleaseMutex();
 }
 
-// little helper to return the prinatble version of any character
+// little helper to return the printable version of any character
 static char
 cc(unsigned int v)
 {
@@ -1343,6 +1339,16 @@ TMonitor::ExecuteCommand(const char* inCommand)
 	} else if (::strcmp(inCommand, "cdr") == 0)
 	{
 		::chdir(mROMImageDir);
+	} else if (::strcmp(inCommand, ".stop") == 0)
+	{ // break before byte code grab in TInterpreter::FastRun1()
+		mMemory->SetBreakpoint(0x002EE1D8, kPermanentBP);
+		mCommand = kRun;
+		SignalCondVar();
+	} else if (::strcmp(inCommand, ".run") == 0)
+	{ // clear break before byte code grab in TInterpreter::FastRun1()
+		mMemory->ClearBreakpoint(0x002EE1D8);
+		mCommand = kRun;
+		SignalCondVar();
 	} else if (inCommand[0] == '!')
 	{
 		theResult = ExecuteScript(inCommand + 1);
@@ -1667,7 +1673,7 @@ TMonitor::DrawScreenHalted(void)
 
 	KUInt32 instruction;
 
-	// Write 5 lines.
+	// Write 5 lines in ARM code.
 	int indexLines;
 	for (indexLines = 0; indexLines < 20; indexLines += 4)
 	{
@@ -1959,6 +1965,9 @@ TMonitor::PrintNSRef(KUInt32 inRef)
 int
 TMonitor::FormatNSRef(char* buffer, size_t bufferSize, KUInt32 inRef, int indent, int maxDepth)
 {
+	if (bufferSize <= 0)
+		return 0;
+
 	switch (inRef & 0x3)
 	{
 		case kTagInteger: {
@@ -2053,6 +2062,8 @@ TMonitor::FormatNSRef(char* buffer, size_t bufferSize, KUInt32 inRef, int indent
 int
 TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigned int length, KUInt32 mapRef, int indent, int maxDepth)
 {
+	if (bufferSize <= 0)
+		return 0;
 
 	KUInt32* flattenMap = (KUInt32*) ::malloc(length * sizeof(KUInt32));
 	int mapIndex = length;

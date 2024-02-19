@@ -743,7 +743,7 @@ RegisterToolkitScriptExtensions()
 	NewtObjSetSlot(fltk_obj, NSSYM(filechooser), NewtMakeNativeFunc0((void*) NsFltkFileChooser, 4, false, (char*) "Open a file chooser dialog (message, pattern, filename, relative) => filename or NIL"));
 	NcDefGlobalVar(NSSYM(fltk), fltk);
 
-	// the FILE namespace for reading and writing files on the hos machine
+	// the FILE namespace for reading and writing files on the host machine
 	auto file = NewtMakeFrame(kNewtRefNIL, 0);
 	newtObjRef file_obj = (newtObjRef) NewtRefToPointer(file);
 	NewtObjSetSlot(file_obj, NSSYM(new), NewtMakeNativeFunc0((void*) NsFileNew, 0, false, (char*) "Create a frame to access files on the host machine."));

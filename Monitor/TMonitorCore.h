@@ -83,9 +83,9 @@ public:
 	virtual Boolean ExecuteCommand(const char* inCommand);
 
 	/// \name Variables
-	TMemory* mMemory; ///< Memory.
-	TSymbolList* mSymbolList; ///< List of symbols.
-	UDisasm* mDisasm; ///< Disassembler
+	TMemory* mMemory { nullptr }; ///< Memory.
+	TSymbolList* mSymbolList { nullptr }; ///< List of symbols.
+	UDisasm* mDisasm { nullptr }; ///< Disassembler
 };
 
 #endif
