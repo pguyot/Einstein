@@ -21,7 +21,16 @@ decl {\#include "Toolkit/TFLScriptPanel.h"} {public global
 decl {\#include <FL/fl_draw.H>} {private global
 }
 
+decl {\#include <FL/Fl_Help_Dialog.H>} {private global
+}
+
 decl {Fl_Menu_Item *wTKOpenRecentMenu[8];} {private global
+}
+
+decl {Fl_Help_Dialog *tkHelpDialog = nullptr;} {private local
+}
+
+data tkHelpText {private local filename {TTkHelpText.html} textmode
 }
 
 class TFlDropButton {
@@ -64,10 +73,10 @@ if (mi)
 Function {CreateToolkitWindow(int x, int y)} {open
 } {
   Fl_Window wToolkitWindow {open
-    xywh {270 164 720 600} type Double resizable
+    xywh {282 267 720 600} type Double resizable
     code0 {wToolkitWindow->position(x, y);} visible
   } {
-    Fl_Menu_Bar wToolkitMenubar {
+    Fl_Menu_Bar wToolkitMenubar {open
       xywh {0 0 720 24} color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
       class TFLMenuBar
@@ -154,13 +163,18 @@ Function {CreateToolkitWindow(int x, int y)} {open
             xywh {20 20 100 20}
           }
           MenuItem {} {
-            label {Native Function}
+            label {Miles Per Gallon}
             callback {gToolkit->LoadSampleCode(2);}
+            xywh {20 20 100 20}
+          }
+          MenuItem {} {
+            label {Native Function}
+            callback {gToolkit->LoadSampleCode(3);}
             xywh {40 40 100 20}
           }
           MenuItem {} {
             label {ROM Patcher}
-            callback {gToolkit->LoadSampleCode(3);}
+            callback {gToolkit->LoadSampleCode(4);} selected
             xywh {40 40 100 20}
           }
         }
@@ -603,7 +617,12 @@ gToolkit->AppRun();}
       } {
         MenuItem {} {
           label {Toolkit Manual...}
-          xywh {12 12 100 20} deactivate
+          callback {if (!tkHelpDialog) {
+  tkHelpDialog = new Fl_Help_Dialog();
+  tkHelpDialog->value(tkHelpText);
+}
+tkHelpDialog->show();}
+          xywh {12 12 100 20}
         }
         MenuItem {} {
           label {About Toolkit...}
@@ -612,13 +631,13 @@ gToolkit->AppRun();}
       }
     }
     Fl_Group wToolkitToolbar {
-      xywh {0 24 720 37} box THIN_UP_BOX color 52
+      xywh {0 24 720 32} box THIN_UP_BOX color 52
       code0 {o->box(FL_FREE_BOXTYPE);}
     } {
       Fl_Button wToolkitRun {
         label {@>}
         callback {gToolkit->UserActionRun();}
-        xywh {10 30 32 20} color 52 labelsize 16 labelcolor 48 align 528
+        xywh {10 28 32 24} color 52 labelsize 16 labelcolor 48 align 528
         code0 {o->box(FL_FREE_BOXTYPE);}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}
@@ -626,7 +645,7 @@ gToolkit->AppRun();}
       Fl_Button wToolkitStop {
         label {@square}
         callback {gToolkit->UserActionStop();}
-        xywh {46 30 32 20} color 52 labelsize 10 labelcolor 48 align 528
+        xywh {46 28 32 24} color 52 labelsize 10 labelcolor 48 align 528
         code0 {o->box(FL_FREE_BOXTYPE);}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}
@@ -635,14 +654,14 @@ gToolkit->AppRun();}
         label {@refresh}
         user_data 0L
         callback {gToolkit->UserActionDecompilePkg((char*)v);}
-        tooltip {drop packes here to decompile them} xywh {678 30 32 20} color 52 labelsize 10 labelcolor 48 align 528
+        tooltip {drop packes here to decompile them} xywh {678 28 32 24} color 52 labelsize 10 labelcolor 48 align 528
         code0 {o->box(FL_THIN_DOWN_BOX);}
         code1 {o->down_box(FL_FREE_BOXTYPE);}
         code2 {o->clear_visible_focus();}
         class TFlDropButton
       }
       Fl_Box {} {
-        xywh {87 30 584 20} hide resizable
+        xywh {87 30 584 26} hide resizable
       }
     }
     Fl_Group wToolkitFindGroup {open
@@ -691,7 +710,7 @@ gToolkit->AppRun();}
       }
       Fl_Button wToolkitFindHide {
         label X
-        callback {gToolkit->UserActionFindHide();} selected
+        callback {gToolkit->UserActionFindHide();}
         xywh {701 58 18 18} box FLAT_BOX down_box DOWN_BOX color 51 labelsize 11 hide
       }
       Fl_Button wToolkitReplaceNext {

@@ -6,8 +6,14 @@ code_name {.cpp}
 data kToolkitSampleScriptHelloWorld {public local filename {SampleScripts/HelloWorld.ns} textmode
 }
 
+data kToolkitSampleScriptMPG {public local filename {SampleScripts/mpg.ns} textmode
+}
+
+data kToolkitSampleImageMPG {public local filename {SampleScripts/mpg.png}
+}
+
 data kToolkitSampleScriptNativeFunction {public local filename {SampleScripts/NativeFunction.ns} textmode
 }
 
-data kToolkitSampleScriptROMPatcher {selected public local filename {SampleScripts/ROMPatcher.ns} textmode
+data kToolkitSampleScriptROMPatcher {public local filename {SampleScripts/ROMPatcher.ns} textmode
 }

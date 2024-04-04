@@ -202,6 +202,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <FL/Fl_Native_File_Chooser.H>
 #include <FL/Fl_Paged_Device.H>
 #include <FL/Fl_Printer.H>
+#include <FL/Fl_Shared_Image.H>
 #include <FL/Fl_Tooltip.H>
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
@@ -1689,6 +1690,7 @@ main(int argc, char** argv)
 	Fl::set_boxtype((Fl_Boxtype) (FL_FREE_BOXTYPE + 1), draw_ramp, 0, 0, 0, 0);
 	Fl::set_boxtype((Fl_Boxtype) (FL_FREE_BOXTYPE + 2), tabs_box, 0, 2, 0, 0);
 	Fl::set_boxtype((Fl_Boxtype) (FL_FREE_BOXTYPE + 3), tabs_box, 0, 2, 0, 0);
+	fl_register_images();
 
 	gApp = new TFLApp();
 	gApp->Run(argc, argv);

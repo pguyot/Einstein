@@ -33,6 +33,7 @@ list (APPEND app_sources
 	Toolkit/TToolkitPrototypes.h
 	Toolkit/TToolkitScriptExt.cpp
 	Toolkit/TToolkitScriptExt.h
+	Toolkit/TTkHelpText.html
 )
 
 build_with_fluid( TFLToolkitUI Toolkit )

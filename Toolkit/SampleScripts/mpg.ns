@@ -1,0 +1,143 @@
+//
+// This little app calculates the range of a car in mpg,
+// "miles per gallon", based on the distance driven and 
+// the number of gallons of gasoline used.
+//
+
+kAppName := "MPG:WONKO";
+kAppSymbol := '|MPG:WONKO|;
+kAppLabel := "MPG";
+
+// The main form can be moved around the screen
+newt.theForm := {
+	viewBounds: {
+		left: 0, top: 30, right: 180, bottom: 220
+	},
+	_proto: protoFloatNGo,
+	recalculateMileage: func() 
+	begin
+		local trip := wTrip.value;
+		local gas := wGas.value;
+		local mileage := 999;
+		if gas > 0 then
+			mileage := trip / gas;
+		SetValue( wMileage, 'value, floor( mileage) );
+	end
+};
+
+// Give the app a little title bar
+wTitle := {
+	_proto: protoStaticText, 
+	text: "MPG", 
+	viewBounds: {
+		left: 61, top: 3, bottom: 22, right: 112
+	}, 
+	viewFont: ROM_fontSystem12Bold
+};
+AddStepForm( newt.theForm, wTitle);
+StepDeclare( newt.theForm, wTitle, 'wTitle);
+
+// I want a headline, too
+wHeadline := {
+	_proto: protoStaticText,
+	text: "calculate your gas milage",
+	viewBounds: {
+		left: 11, top: 22, bottom: 41, right: 163
+	},
+	viewFont: ROM_fontSystem10Bold
+};
+AddStepForm( newt.theForm, wHeadline);
+StepDeclare( newt.theForm, wHeadline, 'wHeadline);
+
+// Just because we can, here is a badly drawn icon
+wIcon := {
+	viewClass: clPictureView,
+	viewFlags: vVisible,
+	viewFormat: vfFillWhite,
+	viewJustify: vjCenterV + vjCenterH,
+	icon: MakeIconFromFile("embedded:/mpg.png"),
+	viewBounds: {
+		left: 30, top: 88, bottom: 121, right: 64
+	}
+};
+AddStepForm( newt.theForm, wIcon);
+StepDeclare( newt.theForm, wIcon, 'wIcon);
+
+// Trip distance in miles since last fill up
+wTrip := {
+	_proto: protoNumberPicker, 
+	preallocatedContext: 'wTrip,
+	value: 0, 
+	maxValue: 9999, 
+	minValue: 0, 
+	viewBounds: {
+		left: 51, top: 50, bottom: 81, right: 140
+	}, 
+	ClickDone: func()
+	begin
+		:recalculateMileage();
+	end
+};
+AddStepForm( newt.theForm, wTrip);
+StepDeclare( newt.theForm, wTrip, 'wTrip);
+
+// Amount of gasoline needed after trip for a complete refill
+wGas := {
+	_proto: protoNumberPicker, 
+	value: 0, 
+	maxValue: 999, 
+	minValue: 0, 
+	viewBounds: {
+		left: 73, top: 90, bottom: 121, right: 140
+	}, 
+	ClickDone: func()
+	begin
+		:recalculateMileage();
+	end
+};
+AddStepForm( newt.theForm, wGas);
+StepDeclare( newt.theForm, wGas, 'wGas);
+
+// Show the miles of range per gallon of gasoline used
+wMileage := {
+	_proto: protoNumberPicker, 
+	value: 999, 
+	maxValue: 999, 
+	minValue: 0, 
+	viewBounds: {
+		left: 73, top: 130, bottom: 161, right: 140
+	}
+};
+AddStepForm( newt.theForm, wMileage);
+StepDeclare( newt.theForm, wMileage, 'wMileage);
+
+wTripLabel := {
+	_proto: protoStaticText, 
+	text: "mi", 
+	viewBounds: {
+		left: 142, top: 62, bottom: 80, right: 166
+	}
+};
+AddStepForm( newt.theForm, wTripLabel);
+StepDeclare( newt.theForm, wTripLabel, 'wTripLabel);
+
+wGasLabel := {
+	_proto: protoStaticText, 
+	text: "gal", 
+	viewBounds: {
+		left: 142, top: 101, bottom: 120, right: 166
+	}
+};
+AddStepForm( newt.theForm, wGasLabel);
+StepDeclare( newt.theForm, wGasLabel, 'wGasLabel);
+
+wMileageLabel := {
+	_proto: protoStaticText, 
+	text: "mpg", 
+	viewBounds: {
+		left: 142, top: 141, bottom: 161, right: 168
+	}
+};
+AddStepForm( newt.theForm, wMileageLabel);
+StepDeclare( newt.theForm, wMileageLabel, 'wMileageLabel);
+

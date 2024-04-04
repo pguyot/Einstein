@@ -128,7 +128,7 @@ TFLScriptPanel::AddProtoTemplate(const char* protoName)
 	{
 		strcat(name, protoName);
 	}
-	// Trust the user with the text insert postion
+	// Trust the user with the text insert position
 	char buf[2048];
 	snprintf(buf, sizeof(buf),
 		"%s := {\n\t_proto: %s,\n\tviewBounds: RelBounds(10, 10, 100, 20)\n};\n"

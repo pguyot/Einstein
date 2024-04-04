@@ -149,6 +149,7 @@ extern "C" {
 }
 
 #include <FL/Fl_File_Chooser.H>
+#include <FL/Fl_PNG_Image.H>
 #include <FL/fl_ask.H>
 
 #if TARGET_OS_WIN32
@@ -181,6 +182,7 @@ TToolkit::TToolkit(TFLApp* inApp) :
 		mApp(inApp)
 {
 	gToolkit = this;
+	new Fl_PNG_Image("embedded:/mpg.png", kToolkitSampleImageMPG, sizeof(kToolkitSampleImageMPG));
 }
 
 /**
@@ -1433,10 +1435,14 @@ TToolkit::LoadSampleCode(int n)
 			wScriptPanel->ClearDirty();
 			break;
 		case 2:
-			wScriptPanel->SetSourceCode(kToolkitSampleScriptNativeFunction);
+			wScriptPanel->SetSourceCode(kToolkitSampleScriptMPG);
 			wScriptPanel->ClearDirty();
 			break;
 		case 3:
+			wScriptPanel->SetSourceCode(kToolkitSampleScriptNativeFunction);
+			wScriptPanel->ClearDirty();
+			break;
+		case 4:
 			wScriptPanel->SetSourceCode(kToolkitSampleScriptROMPatcher);
 			wScriptPanel->ClearDirty();
 			break;

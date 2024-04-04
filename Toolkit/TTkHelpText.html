@@ -1,0 +1,57 @@
+<html>
+<body>
+
+<h1>NewtonScript Extensions</h1>
+
+<h2>Globals</h2>
+
+<b>MakeBinaryFromString(str, sym)</b>: Generate a binary object from an ASCII string.
+<br>
+<b>MakeBinaryFromARM(ARM_Instructions)</b>: Generate a binary function from ARM assembler text.
+Lines should be separated with \n characters.
+<br>
+<b>MakeBinaryFromARMFile(ARM_Assembler_Filename)</b>:
+<br>
+<b>PatchFileFromARM(ARM_Instructions, filename)</b>:
+<br>
+<b>AddStepForm(mainView, scrollClipper)</b>:
+<br>
+StepDeclare(mainView, scrollClipper, 'scrollClipper)</b>:
+<br>
+<b>_STDERR_</b>:
+<br>
+<b>_STDOUT_</b>:
+
+<h2>FLTK extensions</h2>
+
+<b>fltk:message(message)</b>: Open a message dialog box.
+<br>
+<b>fltk:choice(message, cancel_button, ok_button, opt_button)</b>:
+Open a user choice dialog box and return the selected button id.
+<br>
+<b>fltk:filechooser(message, pattern, filename, relative)</b>:
+Open a file chooser dialog. Returns filename or NIL.
+<br>
+
+<h2>Host File Access extensions</h2>
+<b>file:new()</b>: Create a frame to access files on the host machine.
+<br>
+<b>file:open(filename, mode)</b>: Open a file, mode is 'read|'write|'readwrite|'append.
+<br>
+<b>file:isOpen()</b>: Returns nil or true.
+<br>
+<b>file:size()</b>: Returns file size in bytes.
+<br>
+<b>file:read(size)</b>: Read up to size bytes and return a binary object with the data.
+<br>
+<b>file:write(binaryObject)</b>: Write the content of a binary object to a file.
+<br>
+<b>file:seek(pos, mode)</b>: Set read position, mode is 'set|'cur|'end.
+<br>
+<b>file:tell()</b>: Return the current read position in the file.
+<br>
+<b>file:close()</b>: Closes a file, returns exception or true.
+<br>
+
+</body>
+</html>
