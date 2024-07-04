@@ -121,6 +121,28 @@
 
  */
 
+/* Simulator:
+
+ I am only interested in Packages with Form parts (apps). Their life cycle
+ and event system seems to be not that complicated.
+
+ Boot NewtonOS:
+   All apps are "installed" by creating a copy of the package in virtual memory
+   The Form is cloned and linked via GetRoot() using the app symbol
+ User opens the app via Extras
+   Calls "open"
+	 OS sends ...
+   (describe messages sent to views, and when children are created and removed)
+
+ See: ProtoPerform, ProtoPerformIfDefined
+ See: 0x002EEF40: "send" arg1 arg2 ... argN name receiver -- result
+ See: 0x002ED598: FastSend(FastRunState *, long)
+ See: 0x002ED218: FastDoSend(FastRunState *, RefVar const &, RefVar const &, RefVar const &, long)
+ See: 0x002F477C: TInterpreter::Send(RefVar const &, RefVar const &, RefVar const &, long)
+ See: 0x002F1660: DoProtoMessage(RefVar const &, RefVar const &, RefVar const &)
+
+ */
+
 #include "TToolkit.h"
 
 #include <K/Defines/KDefinitions.h>
@@ -227,6 +249,8 @@ TToolkit::Show()
 
 		wToolkitWindow = CreateToolkitWindow(x, y);
 		wToolkitWindow->size_range(350, 78 + 250);
+    wTile->size_range(wScriptPanel, 320, 100);
+    wTile->size_range(wToolkitTerminal, 320, 32);
 		LoadRecentFileMenu();
 
 		wToolkitTerminal->buffer(gTerminalBuffer = new Fl_Text_Buffer());
@@ -721,19 +745,15 @@ TToolkit::UserActionFindNext(bool fromLast)
 void
 TToolkit::UserActionFindShow()
 {
-	//	if (!wToolkitFindGroup->visible())
-	//	{
-	//		int hTerminal = wToolkitTerminal->h();
-	//		int x = wToolkitFindGroup->x();
-	//		int y = wToolkitFindGroup->y() + wToolkitFindGroup->h();
-	//		int w = wToolkitFindGroup->w();
-	//		int h = wToolkitWindow->h() - y;
-	//		wTile->resize(x, y, w, h);
-	//		wToolkitFindGroup->show();
-	//		int oldy = wToolkitTerminal->y();
-	//		int newy = wTile->y() + wTile->h() - hTerminal;
-	//		wTile->position(0, oldy, 0, newy);
-	//	}
+	if (!wToolkitFindGroup->visible() && (wScriptPanel->h() > wToolkitFindGroup->h()) )
+	{
+    int y = wToolkitFindGroup->y() + wToolkitFindGroup->h();
+    int h = wToolkitWindow->h() - y;
+    wTile->resize(wTile->x(), y, wTile->w(), h);
+    wTile->init_sizes();
+    wTile->parent()->init_sizes();
+    wToolkitFindGroup->show();
+	}
 }
 
 /**
@@ -742,19 +762,15 @@ TToolkit::UserActionFindShow()
 void
 TToolkit::UserActionFindHide()
 {
-	//	if (wToolkitFindGroup->visible())
-	//	{
-	//		int hTerminal = wToolkitTerminal->h();
-	//		wToolkitFindGroup->hide();
-	//		int x = wToolkitFindGroup->x();
-	//		int y = wToolkitFindGroup->y();
-	//		int w = wToolkitFindGroup->w();
-	//		int h = wToolkitWindow->h() - y;
-	//		wTile->resize(x, y, w, h);
-	//		int oldy = wToolkitTerminal->y();
-	//		int newy = wTile->y() + wTile->h() - hTerminal;
-	//		wTile->position(0, oldy, 0, newy);
-	//	}
+	if (wToolkitFindGroup->visible())
+	{
+    int y = wToolkitFindGroup->y();
+    int h = wToolkitWindow->h() - y;
+    wToolkitFindGroup->hide();
+    wTile->resize(wTile->x(), y, wTile->w(), h);
+    wTile->init_sizes();
+    wTile->parent()->init_sizes();
+	}
 }
 
 /**

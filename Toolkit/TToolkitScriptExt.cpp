@@ -276,7 +276,6 @@ NewtMakeIconFromFile(const char* srcfilename, bool /*literal*/)
 				*dst |= 128 >> (x & 7);
 			}
 		}
-		putchar('\n');
 	}
 	auto bits = NewtMakeBinary(NSSYM(bits), bits_data, bits_size, false);
 	NewtObjSetSlot(icon_obj, NSSYM(bits), bits);

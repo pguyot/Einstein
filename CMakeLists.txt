@@ -5,7 +5,7 @@
 # Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net) and others.
 # ==============================
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.15.0 FATAL_ERROR)
 
 project( "Einstein" VERSION "2024.4.22" )
 

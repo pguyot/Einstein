@@ -73,7 +73,7 @@ if (mi)
 Function {CreateToolkitWindow(int x, int y)} {open
 } {
   Fl_Window wToolkitWindow {open
-    xywh {282 267 720 600} type Double resizable
+    xywh {408 471 720 600} type Double resizable
     code0 {wToolkitWindow->position(x, y);} visible
   } {
     Fl_Menu_Bar wToolkitMenubar {open
@@ -174,7 +174,7 @@ Function {CreateToolkitWindow(int x, int y)} {open
           }
           MenuItem {} {
             label {ROM Patcher}
-            callback {gToolkit->LoadSampleCode(4);} selected
+            callback {gToolkit->LoadSampleCode(4);}
             xywh {40 40 100 20}
           }
         }
@@ -262,16 +262,15 @@ Function {CreateToolkitWindow(int x, int y)} {open
         }
         MenuItem {} {
           label {Open Project...}
-          xywh {0 0 100 20} deactivate
-        }
-        MenuItem {} {
-          label {Decompile Package...}
-          callback {gToolkit->UserActionDecompilePkg();}
-          xywh {0 0 100 20}
+          xywh {0 0 100 20} deactivate divider
         }
         MenuItem {} {
           label {Add File...}
           xywh {0 0 100 20} deactivate
+        }
+        MenuItem {} {
+          label {Remove File}
+          xywh {0 0 100 20} deactivate divider
         }
         MenuItem {} {
           label Build
@@ -296,14 +295,14 @@ Function {CreateToolkitWindow(int x, int y)} {open
         MenuItem {} {
           label {Process Earlier}
           callback {gToolkit->AppInstall();}
-          xywh {16 16 100 20} shortcut 0x400032 deactivate
+          xywh {16 16 100 20} shortcut 0xffbf deactivate
         }
         MenuItem {} {
           label {Process Later}
           callback {gToolkit->AppBuild();
 gToolkit->AppInstall();
 gToolkit->AppRun();}
-          xywh {16 16 100 20} shortcut 0x400072 deactivate divider
+          xywh {16 16 100 20} shortcut 0xffc0 deactivate divider
         }
         MenuItem {} {
           label {Project Settings...}
@@ -625,6 +624,11 @@ tkHelpDialog->show();}
           xywh {12 12 100 20}
         }
         MenuItem {} {
+          label {Decompile Package...}
+          callback {gToolkit->UserActionDecompilePkg();}
+          xywh {0 0 100 20}
+        }
+        MenuItem {} {
           label {About Toolkit...}
           xywh {0 0 100 20} deactivate
         }
@@ -711,7 +715,7 @@ tkHelpDialog->show();}
       Fl_Button wToolkitFindHide {
         label X
         callback {gToolkit->UserActionFindHide();}
-        xywh {701 58 18 18} box FLAT_BOX down_box DOWN_BOX color 51 labelsize 11 hide
+        xywh {701 58 18 18} box FLAT_BOX down_box DOWN_BOX color 51 labelsize 11
       }
       Fl_Button wToolkitReplaceNext {
         label Replace
@@ -728,11 +732,8 @@ tkHelpDialog->show();}
       xywh {0 114 720 486} resizable
       class TFLTile
     } {
-      Fl_Box wTileResizable {
-        xywh {20 150 380 414} hide resizable
-      }
-      Fl_Group wScriptPanel {
-        xywh {0 114 720 386}
+      Fl_Group wScriptPanel {selected
+        xywh {0 114 720 386} resizable
         class TFLScriptPanel
       } {}
       Fl_Text_Display wToolkitTerminal {

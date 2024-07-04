@@ -279,10 +279,10 @@ public:
  \brief This Macro makes it easy to replace code anywhere in ROM.
 
  The original ARM command at the given address is replaced with a call into
- native code. The 'C' code can immediatly follow the Macro. The function must
+ native code. The 'C' code can immediately follow the Macro. The function must
  end in `return ioUnit;` if the next instruction is to be executed, or in
  `return 0L;` if the PC changed and execution shall continue elsewhere.
- Two prameters are available to the function: 'JITUnit* ioUnit' and
+ Two parameters are available to the function: 'JITUnit* ioUnit' and
  'TARMProcessor* ioCPU'.
 
  The sample code replaces this sequence that returns

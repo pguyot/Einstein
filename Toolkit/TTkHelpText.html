@@ -5,53 +5,112 @@
 
 <h2>Globals</h2>
 
-<b>MakeBinaryFromString(str, sym)</b>: Generate a binary object from an ASCII string.
-<br>
-<b>MakeBinaryFromARM(ARM_Instructions)</b>: Generate a binary function from ARM assembler text.
-Lines should be separated with \n characters.
-<br>
-<b>MakeBinaryFromARMFile(ARM_Assembler_Filename)</b>:
-<br>
-<b>PatchFileFromARM(ARM_Instructions, filename)</b>:
-<br>
-<b>AddStepForm(mainView, scrollClipper)</b>:
-<br>
-StepDeclare(mainView, scrollClipper, 'scrollClipper)</b>:
-<br>
+<b>MakeBinaryFromString(str, sym)</b>: Generate a binary object with the given
+symbol from an Unicode text. The input format is UTF-8. The format of the binary
+object is UTF-8 for newt/64, but it is converted to UTF-16 when written into
+a 32 bit package or streaming package, and the symbol is <tt>'string</tt>.
+
+<p>
+<b>PatchFileFromARM(ARM_Instructions, filename)</b>: This global function
+is a little helper for a very specific job. The first argument is a string
+with ARM assembler instructions, usually starting with <tt>org address</tt> to
+define the position in the binary. The second argument is the the file path and
+name of an ARM binary, usually the NewtonOS ROM file. Calling
+<tt>PatchFileFromARM</tt> will assemble and link the ARM code into ARM commends
+and then overwrite the code in the ROM file with the new ARM code at the
+given addresses.
+
+<p>
+<b>MakeBinaryFromARM(ARM_Instructions)</b>: Create the binary part of
+a <tt>BinCFunction</tt> from ARM assembly code. Here, <tt>nativeMath</tt> and
+<tt>newtonScriptMath</tt> are both functions that can be called from anywhere
+in a script:
+<p>
+<pre>
+nativeMath: {
+  class : 'BinCFunction,
+  numArgs: 2,
+  offset: 0,
+  code: MakeBinaryFromARM("
+    ldr r1, [r1]          @ Unref the first argument
+    ldr r1, [r1]          @ Get the integer object
+    mov r1, r1, lsr #2    @ convert it into an integer
+    ldr r2, [r2]
+    ldr r2, [r2]          @ do the same with the second arg
+    mov r2, r2, lsr #2
+    add r0, r1, r2        @ add both integers
+    mov r0, r0, lsl #2    @ convert the result into an integer object
+    mov pc, lr            @ return to the interpreter
+  ")
+}
+// The same in Newton Script
+newtonScriptMath: func(a, b) begin
+  return a+b;
+end
+</pre>
+
+<p>
+<b>MakeBinaryFromARMFile(ARM_Assembler_Filename)</b>: Same as above, but
+instead of as string with ARM instructions, this call takes a file path and
+name of an ARM assembler code file.
+
+<p>
+<b>AddStepForm(theParentView, myView)</b>: This is an original NTK function.
+It ensures that the parent view has a frame named "StepChildren", and then
+adds <tt>myView</tt> to that frame. This is needed to ensure that a new view
+will appear as a child of the parent view when an app is opened.
+
+<p>
+<b>StepDeclare(theParentView, myView, 'myView)</b>: This is an original NTK
+function. It ensures that the parent view has an array named
+"StepAllocateContext", and the appends <tt>myView</tt> and the symbol
+<tt>'myView</tt> to the array.
+
+<p>
 <b>_STDERR_</b>:
-<br>
+
+<p>
 <b>_STDOUT_</b>:
 
 <h2>FLTK extensions</h2>
 
 <b>fltk:message(message)</b>: Open a message dialog box.
-<br>
+
+<p>
 <b>fltk:choice(message, cancel_button, ok_button, opt_button)</b>:
 Open a user choice dialog box and return the selected button id.
-<br>
+
+<p>
 <b>fltk:filechooser(message, pattern, filename, relative)</b>:
 Open a file chooser dialog. Returns filename or NIL.
-<br>
 
 <h2>Host File Access extensions</h2>
+
 <b>file:new()</b>: Create a frame to access files on the host machine.
-<br>
+
+<p>
 <b>file:open(filename, mode)</b>: Open a file, mode is 'read|'write|'readwrite|'append.
-<br>
+
+<p>
 <b>file:isOpen()</b>: Returns nil or true.
-<br>
+
+<p>
 <b>file:size()</b>: Returns file size in bytes.
-<br>
+
+<p>
 <b>file:read(size)</b>: Read up to size bytes and return a binary object with the data.
-<br>
+
+<p>
 <b>file:write(binaryObject)</b>: Write the content of a binary object to a file.
-<br>
+
+<p>
 <b>file:seek(pos, mode)</b>: Set read position, mode is 'set|'cur|'end.
-<br>
+
+<p>
 <b>file:tell()</b>: Return the current read position in the file.
-<br>
+
+<p>
 <b>file:close()</b>: Closes a file, returns exception or true.
-<br>
 
 </body>
 </html>

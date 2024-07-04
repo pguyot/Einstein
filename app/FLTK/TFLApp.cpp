@@ -1529,6 +1529,90 @@ T_ROM_INJECTION(0x001B37FC, 0x001B5CD4, 0x001A1660, kROMPatchVoid, "AddClipboard
 	return ioUnit;
 }
 
+#if 0
+/*
+ The basic idea below is to trace all messages that are ent to view, and in
+ what order they are sent. Note however that there are many ways to sent a
+ message to a view, and if the receiver does not define the message, it
+ is not sent at all (see: FindImplementor, FindProtoImplementor, etc.).
+ See: RunCacheScript__5TViewFlRC6RefVarUcPUc to make it more confusing.
+
+ Also, some messages are sent to the package frame directly, like
+ InstallScript, DeletionScript, DoNotInstallScript, RemoveScript
+ (devInstallScript, devRemoveScript)
+
+ Open:
+ ViewSetupFormScript, ViewSetupChildrenScript, ViewSetupDoneScript,
+ ViewShowScript, ViewDrawScript
+
+ viewCObject is created NIL, later filled with the C++ pointer of the GUI element
+
+ Show:
+ ViewShowScript
+
+ Dirty:
+ viewDrawScript?
+
+ SyncView, SetValue:
+ ViewSetupFormScript, ViewChangedScript
+
+ Hide:
+ ViewHideScript
+
+ Close:
+ ViewHideScript, ViewQuitScript
+
+ And many more, not all of them ending in Script:
+ ReorientToScreen
+
+ */
+T_ROM_INJECTION(0x002F1660, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "DoProtoMessage")
+{
+  TNewt::RefArg rcvr = TNewt::RefVar::FromPtr(ioCPU->GetRegister(0));
+  TNewt::RefArg msg = TNewt::RefVar::FromPtr(ioCPU->GetRegister(1));
+  TNewt::RefArg args = TNewt::RefVar::FromPtr(ioCPU->GetRegister(2));
+  (void)rcvr;
+  (void)msg;
+  (void)args;
+
+  NewtRef rcvr_name = TNewt::GetFrameSlot(rcvr, TNewt::MakeSymbol("_debug"));
+  if (TNewt::RefIsString(rcvr_name)) {
+    printf("---- DoProtoMessage: ");
+    TNewt::PrintRef(rcvr_name, 1);
+    TNewt::PrintRef(msg.Ref(), 1);
+    //TNewt::PrintRef(args.Ref(), 1);
+    return ioUnit;
+  }
+
+  NewtRef rcvr_proto = TNewt::GetFrameSlot(rcvr, TNewt::MakeSymbol("_proto"));
+  if (TNewt::RefIsFrame(rcvr_proto)) {
+    NewtRef rcvr_name = TNewt::GetFrameSlot(rcvr_proto, TNewt::MakeSymbol("_debug"));
+    if (TNewt::RefIsString(rcvr_name)) {
+      printf("---- DoProtoMessage(_proto): ");
+      TNewt::PrintRef(rcvr_name, 1);
+      TNewt::PrintRef(msg.Ref(), 1);
+      //TNewt::PrintRef(args.Ref(), 1);
+      return ioUnit;
+    }
+  }
+  printf("---- DoProtoMessage: ");
+  TNewt::PrintRef(msg.Ref(), 1);
+  return ioUnit;
+}
+
+T_ROM_INJECTION(0x002F1A48, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid, "DoProtoMessageIfDefined")
+{
+  printf("-------- DoProtoMessageIfDefined\n");
+  TNewt::RefArg rcvr = TNewt::RefVar::FromPtr(ioCPU->GetRegister(0));
+  TNewt::RefArg msg = TNewt::RefVar::FromPtr(ioCPU->GetRegister(1));
+  TNewt::RefArg args = TNewt::RefVar::FromPtr(ioCPU->GetRegister(2));
+  (void)rcvr;
+  (void)msg;
+  (void)args;
+  return ioUnit;
+}
+#endif
+
 static void
 clip_callback(int source, void* data)
 {

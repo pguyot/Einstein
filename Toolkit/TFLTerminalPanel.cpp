@@ -129,12 +129,12 @@ TFLTile::TFLTile(int x, int y, int w, int h, const char* label) :
 void
 TFLTile::resize(int x, int y, int w, int h)
 {
-	Fl_Widget* monitor = child(2);
-	int mh = monitor->h();
+//	Fl_Widget* monitor = child(2);
+//	int mh = monitor->h();
 	Fl_Tile::resize(x, y, w, h);
-	child(1)->resize(x, y, w, h - mh);
-	child(2)->resize(x, y + h - mh, w, mh);
-	init_sizes();
+//	child(1)->resize(x, y, w, h - mh);
+//	child(2)->resize(x, y + h - mh, w, mh);
+//	init_sizes();
 }
 
 // ============================================================================ //
