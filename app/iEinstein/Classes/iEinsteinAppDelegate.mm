@@ -88,6 +88,53 @@
 	return YES;
 }
 
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options
+{
+	if ([url.scheme isEqualToString:@"file"]) {
+		[url startAccessingSecurityScopedResource];
+		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+		NSString *documentsDirectory = [paths objectAtIndex:0];
+		NSString *srcPath = url.path;
+		NSString *filename = [srcPath lastPathComponent];
+		NSString *dstPath = [documentsDirectory stringByAppendingPathComponent:filename];
+		NSError *error = nil;
+		
+		if(![srcPath isEqualToString:dstPath]) {
+			if ([[NSFileManager defaultManager] fileExistsAtPath:dstPath]) {
+				[[NSFileManager defaultManager] removeItemAtPath:dstPath error:&error];
+				if(error){
+					NSLog(@"%@ %ld %@",[error domain],(long)[error code],[[error userInfo] description]);
+				}
+				else{
+					NSLog(@"File removed.");
+				}
+			}
+			[[NSFileManager defaultManager] copyItemAtPath:srcPath toPath:dstPath error:&error];
+		}
+		
+		if(error){
+			 NSLog(@"%@ %ld %@",[error domain],(long)[error code],[[error userInfo] description]);
+		}
+		else {
+			NSLog(@"Pkg File copied.");
+			[viewController installNewPackages];
+			[[NSFileManager defaultManager] removeItemAtPath:dstPath error:&error];
+			if(error){
+				NSLog(@"%@ %ld %@",[error domain],(long)[error code],[[error userInfo] description]);
+			}
+			else{
+				NSLog(@"Installed Pkg file removed.");
+			}
+		}
+		return YES;
+	}
+	else {
+		 [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:{}];
+		return YES;
+	}
+	return NO;
+}
+
 - (void)applicationWillResignActive:(UIApplication*)application
 {
 	[viewController stopEmulator];
