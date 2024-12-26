@@ -31,7 +31,7 @@ jobs:
         xcodebuild -project _Build_/Xcode/Einstein.xcodeproj -scheme Einstein -archivePath Einstein.xcarchive archive
         mkdir -p artifacts
         tar czf artifacts/Einstein.app.tgz -C Einstein.xcarchive/Products/Applications/ Einstein.app
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: Einstein.app
         path: artifacts/Einstein.app.tgz

@@ -53,7 +53,7 @@ jobs:
         cmake --build Einstein/Drivers/build
         cmake --install Einstein/Drivers/build
     - name: Store the REx
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: Einstein.rex
         path: Einstein/_Data_/Einstein.rex
