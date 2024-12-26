@@ -2108,7 +2108,7 @@ TUsermodeNetwork::~TUsermodeNetwork()
 	// release all package handlers
 	while (mFirstPacketHandler)
 		RemovePacketHandler(mFirstPacketHandler);
-		// release all other resources
+	// release all other resources
 #if TARGET_OS_WIN32
 	WSACleanup();
 #endif

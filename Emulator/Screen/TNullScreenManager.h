@@ -50,12 +50,12 @@ public:
 		KUInt32 inPortraitHeight = kDefaultPortraitHeight,
 		Boolean inFullScreen = false,
 		Boolean inScreenIsLandscape = true) :
-			TScreenManager(inLog, inPortraitWidth, inPortraitHeight, inFullScreen, inScreenIsLandscape) {};
+			TScreenManager(inLog, inPortraitWidth, inPortraitHeight, inFullScreen, inScreenIsLandscape) { };
 
 	///
 	/// Destructeur.
 	///
-	virtual ~TNullScreenManager(void) {};
+	virtual ~TNullScreenManager(void) { };
 
 	///
 	/// Notify that the tablet orientation changed.

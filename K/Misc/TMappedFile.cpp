@@ -185,7 +185,7 @@ TMappedFile::Map(
 		mBuffer = ::malloc(mSize);
 		if (mBuffer)
 		{
-			if (((size_t)::read(mFileFd, mBuffer, mSize)) != mSize)
+			if (((size_t) ::read(mFileFd, mBuffer, mSize)) != mSize)
 			{
 				// Read failed.
 				::free(mBuffer);

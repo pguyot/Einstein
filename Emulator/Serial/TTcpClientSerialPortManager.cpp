@@ -289,7 +289,7 @@ TTcpClientSerialPortManager::Connect()
 	if (now < mReconnectTimeout)
 		return false;
 
-		// Create a new socket
+	// Create a new socket
 #if TARGET_OS_WIN32
 	mTcpSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
 	if (mTcpSocket == INVALID_SOCKET)
@@ -307,8 +307,7 @@ TTcpClientSerialPortManager::Connect()
 #endif
 
 	// Create the address information to our server
-	struct sockaddr_in server {
-	};
+	struct sockaddr_in server {};
 	memset(&server, 0, sizeof(struct sockaddr_in));
 	server.sin_family = AF_INET;
 	server.sin_port = htons(static_cast<uint16_t>(mPort));
@@ -428,14 +427,12 @@ TTcpClientSerialPortManager::HandleDMA()
 		}
 	}
 #else
-	static struct sigaction action {
-	};
+	static struct sigaction action {};
 	action.sa_handler = sigpipe_handler;
 	sigaction(SIGPIPE, &action, nullptr);
 
 	// thread loops and handles pipe, port, and DMA
-	struct timeval timeout {
-	};
+	struct timeval timeout {};
 	for (;;)
 	{
 		bool needTimer = false;

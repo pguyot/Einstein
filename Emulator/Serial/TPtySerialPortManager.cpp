@@ -191,8 +191,7 @@ TPtySerialPortManager::HandleDMA()
 
 	// thread loops and handles pipe, port, and DMA
 	fd_set readSet;
-	struct timeval timeout {
-	};
+	struct timeval timeout {};
 	for (;;)
 	{
 		bool needTimer = false;

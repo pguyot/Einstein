@@ -249,8 +249,8 @@ TToolkit::Show()
 
 		wToolkitWindow = CreateToolkitWindow(x, y);
 		wToolkitWindow->size_range(350, 78 + 250);
-    wTile->size_range(wScriptPanel, 320, 100);
-    wTile->size_range(wToolkitTerminal, 320, 32);
+		wTile->size_range(wScriptPanel, 320, 100);
+		wTile->size_range(wToolkitTerminal, 320, 32);
 		LoadRecentFileMenu();
 
 		wToolkitTerminal->buffer(gTerminalBuffer = new Fl_Text_Buffer());
@@ -745,14 +745,14 @@ TToolkit::UserActionFindNext(bool fromLast)
 void
 TToolkit::UserActionFindShow()
 {
-	if (!wToolkitFindGroup->visible() && (wScriptPanel->h() > wToolkitFindGroup->h()) )
+	if (!wToolkitFindGroup->visible() && (wScriptPanel->h() > wToolkitFindGroup->h()))
 	{
-    int y = wToolkitFindGroup->y() + wToolkitFindGroup->h();
-    int h = wToolkitWindow->h() - y;
-    wTile->resize(wTile->x(), y, wTile->w(), h);
-    wTile->init_sizes();
-    wTile->parent()->init_sizes();
-    wToolkitFindGroup->show();
+		int y = wToolkitFindGroup->y() + wToolkitFindGroup->h();
+		int h = wToolkitWindow->h() - y;
+		wTile->resize(wTile->x(), y, wTile->w(), h);
+		wTile->init_sizes();
+		wTile->parent()->init_sizes();
+		wToolkitFindGroup->show();
 	}
 }
 
@@ -764,12 +764,12 @@ TToolkit::UserActionFindHide()
 {
 	if (wToolkitFindGroup->visible())
 	{
-    int y = wToolkitFindGroup->y();
-    int h = wToolkitWindow->h() - y;
-    wToolkitFindGroup->hide();
-    wTile->resize(wTile->x(), y, wTile->w(), h);
-    wTile->init_sizes();
-    wTile->parent()->init_sizes();
+		int y = wToolkitFindGroup->y();
+		int h = wToolkitWindow->h() - y;
+		wToolkitFindGroup->hide();
+		wTile->resize(wTile->x(), y, wTile->w(), h);
+		wTile->init_sizes();
+		wTile->parent()->init_sizes();
 	}
 }
 

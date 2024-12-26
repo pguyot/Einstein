@@ -322,8 +322,8 @@ TFLScriptEditor::style_parse(const char* text,
 			{
 				// Might be a keyword...
 				for (temp = text, bufptr = buf;
-					 (isalnum((*temp) & 255) || *temp == '_') && bufptr < (buf + sizeof(buf) - 1);
-					 *bufptr++ = *temp++)
+					(isalnum((*temp) & 255) || *temp == '_') && bufptr < (buf + sizeof(buf) - 1);
+					*bufptr++ = *temp++)
 				{
 					// nothing
 				}

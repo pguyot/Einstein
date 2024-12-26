@@ -7,7 +7,7 @@
 
 cmake_minimum_required(VERSION 3.15.0 FATAL_ERROR)
 
-project( "Einstein" VERSION "2024.4.22" )
+project( "Einstein" VERSION "2024.12.26" )
 
 # Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
@@ -68,13 +68,13 @@ endif ()
 
 FetchContent_Declare (
 	googletest
-	URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
+	URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
 )
 
 FetchContent_Declare(
   FLTK
   GIT_REPOSITORY  https://github.com/fltk/fltk
-  GIT_TAG         master
+  GIT_TAG         release-1.4.1
   GIT_SHALLOW     TRUE
 )
 
@@ -96,10 +96,10 @@ set( gtest_force_shared_crt ON CACHE BOOL "" FORCE )
 FetchContent_GetProperties(googletest)
 if ( NOT googletest_POPULATED )
 	# Fetch the content using previously declared details
-	FetchContent_Populate(googletest)
+	FetchContent_MakeAvailable(googletest)
 
 	# Bring the populated content into the build
-	add_subdirectory( ${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} )
+	#add_subdirectory( ${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} )
 endif ()
 
 enable_testing()

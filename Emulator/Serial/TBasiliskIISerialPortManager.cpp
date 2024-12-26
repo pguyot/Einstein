@@ -188,8 +188,7 @@ TBasiliskIISerialPortManager::OpenPTY()
 	}
 
 	//	tcgetattr(fd, &struct termios)
-	struct termios tios {
-	};
+	struct termios tios {};
 
 	ret = tcgetattr(pBasiliskLocalFD, &tios);
 	if (ret == -1)

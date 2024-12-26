@@ -56,12 +56,12 @@ public:
 	TJIT(
 		TMemory* inMemoryIntf,
 		TMMU* inMMUIntf) :
-			mCache(inMemoryIntf, inMMUIntf) {};
+			mCache(inMemoryIntf, inMMUIntf) { };
 
 	///
 	/// Destructor.
 	///
-	virtual ~TJIT(void) {};
+	virtual ~TJIT(void) { };
 
 	///
 	/// Invalidate an instruction.
