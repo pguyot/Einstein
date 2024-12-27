@@ -275,7 +275,7 @@ TFLSettings::loadPreferences()
 		screen.get("AllowFullscreen", mAllowFullscreen, true);
 
 		screen.get("LaunchMonitorAtBoot", mLaunchMonitorAtBoot, 0);
-		screen.get("BreatAtROMBoot", mBreatAtROMBoot, 0);
+		screen.get("BreakAtROMBoot", mBreakAtROMBoot, 0);
 
 #if TARGET_OS_MAC
 		screen.get("ShowMenubar", mShowMenubar, 0);
@@ -372,7 +372,7 @@ TFLSettings::savePreferences()
 		screen.set("AllowFullscreen", mAllowFullscreen);
 
 		screen.set("LaunchMonitorAtBoot", mLaunchMonitorAtBoot);
-		screen.set("BreatAtROMBoot", mBreatAtROMBoot);
+		screen.set("BreakAtROMBoot", mBreakAtROMBoot);
 
 		screen.set("ShowMenubar", mShowMenubar);
 		screen.set("ShowToolbar", mShowToolbar);

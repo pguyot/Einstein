@@ -177,7 +177,7 @@ public:
 	int mShowToolbar = 1;
 
 	int mLaunchMonitorAtBoot = 0;
-	int mBreatAtROMBoot = 0;
+	int mBreakAtROMBoot = 0;
 	int mFetchDateAndTime = 1;
 
 	// some initial position for our application screen

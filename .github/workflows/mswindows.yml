@@ -1,10 +1,12 @@
 name: CI Windows (FLTK)
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_dispatch:
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)

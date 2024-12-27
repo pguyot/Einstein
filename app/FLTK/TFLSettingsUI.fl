@@ -600,7 +600,7 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
               label {Launch Monitor at Boot}
               xywh {120 170 196 20} down_box DOWN_BOX labelsize 13
             }
-            Fl_Check_Button wBreatAtROMBoot {
+            Fl_Check_Button wBreakAtROMBoot {
               label {Break at ROMBoot}
               xywh {145 195 196 20} down_box DOWN_BOX labelsize 13 deactivate
             }
@@ -1234,7 +1234,7 @@ wScale->value(buf);
 wFullScreen->value(fullScreen);
 wHideMouse->value(hideMouse);
 wLaunchMonitorAtBoot->value(mLaunchMonitorAtBoot);
-wBreatAtROMBoot->value(mBreatAtROMBoot);
+wBreakAtROMBoot->value(mBreakAtROMBoot);
 wShowMenubar->value(mShowMenubar);
 wShowToolbar->value(mShowToolbar);
 
@@ -1290,7 +1290,7 @@ if (screenScale<=10)
 fullScreen = wFullScreen->value();
 hideMouse = wHideMouse->value();
 mLaunchMonitorAtBoot = wLaunchMonitorAtBoot->value();
-mBreatAtROMBoot = wBreatAtROMBoot->value();
+mBreakAtROMBoot = wBreakAtROMBoot->value();
 mShowMenubar = wShowMenubar->value();
 mShowToolbar = wShowToolbar->value();
 

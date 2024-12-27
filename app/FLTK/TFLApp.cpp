@@ -374,7 +374,6 @@ TFLApp::Run(int argc, char* argv[])
 	// yes, this is valid C++ code; it tells the emulator to call us so we can tell FLTK to
 	// call us again later from the main thread which then closes all windows, terminating
 	// the main application loop which then terminates the thread that called us to begin with.
-	// Or as Mony says: "Would That It Were So Simple"
 	// mEmulator->CallOnQuit([](){Fl::awake([](void*){gApp->UserActionQuit();});});
 
 	// This is called after NewtonOS booted or was restored from sleep.
@@ -405,7 +404,7 @@ TFLApp::Run(int argc, char* argv[])
 	if (mFLSettings->mLaunchMonitorAtBoot)
 	{
 		mMonitor->Show();
-		// if (mFLSettings->mBreatAtROMBoot) {
+		// if (mFLSettings->mBreakAtROMBoot) {
 		//     mMonitor->Stop();
 		// }
 	}
@@ -1330,7 +1329,7 @@ TFLApp::EmulatorThreadEntry()
 {
 	if (mMonitor)
 	{
-		// mMonitor->RunOnStartup(mFLSettings->mBreatAtROMBoot == 0);
+		// mMonitor->RunOnStartup(mFLSettings->mBreakAtROMBoot == 0);
 		mMonitor->Run();
 	} else
 	{

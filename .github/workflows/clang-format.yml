@@ -1,6 +1,8 @@
 name: Run clang-format
 
-on: [push]
+on:
+  workflow_dispatch:
+# on: [push]
 
 jobs:
   build:
