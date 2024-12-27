@@ -86,19 +86,19 @@ cmake -S fltk -B fltk/build \
     -D FLTK_BUILD_TEST=Off \
     -D FLTK_BUILD_GL=Off \
     -D CMAKE_BUILD_TYPE=Release \
-    -D CMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
+    -D CMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
     -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64"
 cmake --build fltk/build
 # -- Compile newt64 (a few warnings will pop up)
 cmake -S newt64 -B newt64/build \
     -D CMAKE_BUILD_TYPE=Release \
-    -D CMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
+    -D CMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
     -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64"
 cmake --build newt64/build
-# -- Compile Einstein (this may take 20 inutes or more)
+# -- Compile Einstein (this may take 20 minutes or more)
 cmake -S . -B build \
     -D CMAKE_BUILD_TYPE=Release \
-    -D CMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
+    -D CMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
     -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64"
 cmake --build build --target Einstein
 ```

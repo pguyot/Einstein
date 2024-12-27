@@ -34,7 +34,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 	# TODO: enable this for release builds
 	#set( CMAKE_OSX_ARCHITECTURES arm64;x86_64 )
 	# TODO: set this for FLTK and NEWT64 as well
-	#set( CMAKE_OSX_DEPLOYMENT_TARGET 10.9 ) # Can't go any lower.
+	#set( CMAKE_OSX_DEPLOYMENT_TARGET 10.13 ) # Can't go any lower.
 	# TODO: Fix this for release builds
 	set( CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO" )
 	set( CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "" )
