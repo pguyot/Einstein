@@ -1,10 +1,7 @@
 
-Binary Release v2022.4.20
-=========================
+Binary Release v2024.12.26
+==========================
 
 User Release Notes
 ------------------
- - printer support ported to Linux and MSWindows in addition to the already 
-   working macOS implementation
- - fixed settings dialog to directly enter ROM and Flash file names
-   in input fields
+ - various maintenance fixes 
