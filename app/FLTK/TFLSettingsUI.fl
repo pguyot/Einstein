@@ -108,8 +108,7 @@ Function {cb_changePCCard0(Fl_Widget*, void* user_data)} {open private return_ty
 
 Function {cb_changePCCard1(Fl_Widget*, void* user_data)} {open private return_type void
 } {
-  code {gApp->UserActionPCCard(1, (intptr_t)user_data);} {selected
-  }
+  code {gApp->UserActionPCCard(1, (intptr_t)user_data);} {}
 }
 
 Function {expand(std::string &inCmd)} {open private return_type {std::string}
@@ -338,7 +337,7 @@ wAbout = nullptr;} {}
     revertDialog();
     mSettingsPanel->hide();
 }} open
-      xywh {512 675 450 455} type Double visible
+      xywh {555 583 450 455} type Double visible
     } {
       Fl_Menu_Button RMB {
         label {RMB Menu}
@@ -406,7 +405,7 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
           xywh {10 35 430 375}
         } {
           Fl_Group {} {open
@@ -761,7 +760,7 @@ if (imageName) free(imageName);}
               }
               MenuItem {} {
                 label {New 2MB Flash Card...}
-                user_data 2 user_data_type long
+                user_data 2
                 callback {char imageFilename[FL_PATH_MAX];
   char buf[FL_PATH_MAX];
   char *imageName = nullptr;
@@ -1117,7 +1116,7 @@ mSettingsPanel->hide();}
       }
     }
   }
-  Function {updateMenus()} {open return_type void
+  Function {updateMenus()} {return_type void
   } {
     code {\#define MENU_FONT FL_NORMAL_LABEL, FL_HELVETICA, 14, 0
 \#define MENU_HEADLINE FL_NORMAL_LABEL, FL_HELVETICA_BOLD_ITALIC, 14, 0
@@ -1199,7 +1198,7 @@ mSettingsPanel->hide();}
   }
 \#endif} {}
   }
-  Function {revertDialog()} {open return_type void
+  Function {revertDialog()} {return_type void
   } {
     code {char buf[32];
 
@@ -1264,7 +1263,7 @@ wDontShow->value(dontShow);
 
 updateMenus();} {}
   }
-  Function {applyDialog()} {open return_type void
+  Function {applyDialog()} {return_type void
   } {
     code {// ---- MessagePad
 
@@ -1326,7 +1325,7 @@ dontShow = wDontShow->value();
 
 updateMenus();} {}
   }
-  Function {runningMode()} {open return_type void
+  Function {runningMode()} {return_type void
   } {
     code {wRestartWarning->show();
 wQuit->hide();
@@ -1339,8 +1338,7 @@ wSave->show();} {}
     code {Fl_Window *win = (Fl_Window*)user;
 win->hide();} {}
   }
-  Function {createAboutDialog()} {open
-  } {
+  Function {createAboutDialog()} {} {
     code {static const char *gLicenseText =
 "<html><body>\\n"
 

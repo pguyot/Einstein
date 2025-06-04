@@ -74,7 +74,7 @@ FetchContent_Declare (
 FetchContent_Declare(
   FLTK
   GIT_REPOSITORY  https://github.com/fltk/fltk
-  GIT_TAG         release-1.4.1
+  GIT_TAG         release-1.4.3
   GIT_SHALLOW     TRUE
 )
 
