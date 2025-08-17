@@ -516,8 +516,8 @@ configure_file (
 #
 
 find_program(CLANG_FORMAT_EXECUTABLE
-    NAMES clang-format-13 clang-format-mp-13 clang-format
-    HINTS /usr/local/opt/clang-format@13/bin/ /usr/lib/llvm-13/bin/
+    NAMES clang-format-14 clang-format-mp-14 clang-format
+    HINTS /usr/local/opt/clang-format@14/bin/ /usr/lib/llvm-14/bin/
     DOC "clang-format executable")
 if(CLANG_FORMAT_EXECUTABLE)
   execute_process(COMMAND ${CLANG_FORMAT_EXECUTABLE} -version
@@ -525,6 +525,7 @@ if(CLANG_FORMAT_EXECUTABLE)
                   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
   # Ubuntu clang-format version 13.0.1-++20220112083154+b9a243d1cac2-1~exp1~20220112203239.53
   # clang-format version 13.0.0
+  # Note, Matt, Aug 2025: we are at V14 or even V17 by now.
 
   if(clang_format_version MATCHES ".*clang-format version ([0-9]+).*")
     string(REGEX

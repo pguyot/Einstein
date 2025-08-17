@@ -86,7 +86,7 @@ jobs:
       run: |
         sudo apt-get install -y libpulse-dev ninja-build libbsd-dev
         wget --no-check-certificate -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo add-apt-repository 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main'
+        sudo add-apt-repository 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main'
         sudo apt-get update
         sudo apt-get install clang-format-13
     - name: Get sources
