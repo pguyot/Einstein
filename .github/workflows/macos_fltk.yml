@@ -28,7 +28,8 @@ jobs:
         cmake --build _Build_/Makefiles --target clang-format-check
     - name: Compile Einstein
       run: |
-        cmake --build _Build_/Makefiles
+        cmake --build _Build_/Makefiles --target Einstein
+        cmake --build _Build_/Makefiles --target EinsteinTests
     - name: Run tests
       run: |
         _Build_/Makefiles/EinsteinTests
