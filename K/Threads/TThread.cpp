@@ -69,15 +69,23 @@ TThread::~TThread(void)
 	DWORD ret = WaitForSingleObject(mThread, INFINITE);
 	assert(ret == WAIT_OBJECT_0);
 #else
+
+#if 0
+	// Just let the thread do its own thing. Dangerous because it may access
+	// resources of the main thread that are gone at this point.
 	int err = ::pthread_detach(mThread);
 
 	if (err != 0)
 		::abort();
-
-	err = ::pthread_join(mThread, NULL);
+#else
+	// Wait for the thread to quit before continuing. This will keep the app
+	// from closing if this thread blocks for some reason.
+	int err = ::pthread_join(mThread, NULL);
 
 	if (!((err == 0) || (err == EINVAL) || (err == ESRCH)))
 		::abort();
+#endif
+
 #endif
 }
 
