@@ -868,7 +868,7 @@ strncat(path, imageName, sizeof(path)-1);
 
 a = gApp->ChooseNewFile("Create this PCMCIA Image file", "*.pccard", path);
 if (!a) goto cleanup;
-strncpy(imageFilename, a, sizeof(imageFilename));
+strncpy(imageFilename, a, sizeof(imageFilename)-1);
 if (    fl_access(imageFilename, 6)!=0
      || strcmp(imageFilename, dataFilename)==0
      || strcmp(imageFilename, cisFilename)==0 )
