@@ -1976,7 +1976,7 @@ TMonitor::FormatNSRef(char* buffer, size_t bufferSize, KUInt32 inRef, int indent
 		}
 
 		case kTagPointer: {
-			TMemory::VAddr addr = (TMemory::VAddr)(inRef - kTagPointer);
+			TMemory::VAddr addr = (TMemory::VAddr) (inRef - kTagPointer);
 			KUInt32 objectHeader;
 			if (mMemory->Read(addr, objectHeader))
 			{

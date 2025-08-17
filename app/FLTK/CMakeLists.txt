@@ -7,26 +7,29 @@ list ( APPEND cmake_sources
 )
 
 list ( APPEND common_sources
-	app/FLTK/TFLRexImage.fl
-	app/FLTK/TFLRexImage.cpp
-	app/FLTK/TFLRexImage.h
 )
 
 list ( APPEND app_sources
 	app/FLTK/TFLApp.cpp
 	app/FLTK/TFLApp.h
-	app/FLTK/TFLAppUI.fl
-	app/FLTK/TFLAppUI.cpp
-	app/FLTK/TFLAppUI.h
-	app/FLTK/TFLSettingsUI.fl
-	app/FLTK/TFLSettingsUI.cpp
-	app/FLTK/TFLSettingsUI.h
 	app/FLTK/TFLSettings.cpp
 	app/FLTK/TFLSettings.h
 	app/FLTK/TFLAppWindow.cpp
 	app/FLTK/TFLAppWindow.h
 	app/FLTK/TFLTabs.cpp
 	app/FLTK/TFLTabs.h
+)
+
+list ( APPEND fluid_sources
+	app/FLTK/TFLRexImage.fl
+	app/FLTK/TFLRexImage.cpp
+	app/FLTK/TFLRexImage.h
+	app/FLTK/TFLAppUI.fl
+	app/FLTK/TFLAppUI.cpp
+	app/FLTK/TFLAppUI.h
+	app/FLTK/TFLSettingsUI.fl
+	app/FLTK/TFLSettingsUI.cpp
+	app/FLTK/TFLSettingsUI.h
 )
 
 build_with_fluid( TFLAppUI      app/FLTK "app/Version_CMake.h" )

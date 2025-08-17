@@ -162,6 +162,7 @@ set( cmake_sources )
 set( common_sources )
 set( app_sources )
 set( test_sources )
+set( fluid_sources )
 
 # collect source code from the source code directory tree
 include( app/CMakeLists.txt )
@@ -192,6 +193,7 @@ source_group( TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${cmake_sources}
 source_group( TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${common_sources} )
 source_group( TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${app_sources} )
 source_group( TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${test_sources} )
+source_group( TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES ${fluid_sources} )
 if ( WIN32 )
 	source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "Sources" FILES Resources/MSWindows/Einstein.rc.in)
 endif ()
@@ -220,12 +222,18 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		${test_sources}
 		${cmake_sources}
 	)
+	add_library ( EinsteinFLGUI STATIC
+		${fluid_sources}
+	)
 
 	# how to compile and link
 	target_compile_options( Einstein PUBLIC
 		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
 	)
 	target_compile_options( EinsteinTests PUBLIC
+		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
+	)
+	target_compile_options( EinsteinFLGUI PUBLIC
 		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
 	)
 	target_compile_definitions ( Einstein PRIVATE
@@ -236,9 +244,14 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
 		TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
 	)
+	target_compile_definitions ( EinsteinFLGUI PRIVATE
+		TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
+		TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
+	)
 	target_link_libraries ( Einstein
 		${system_libs}
 		fltk::fltk fltk::images fltk::png fltk::z
+		EinsteinFLGUI
 		pthread
 		"-framework AddressBook"
 		"-framework AudioUnit"
@@ -249,6 +262,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 	target_link_libraries ( EinsteinTests
 		${system_libs}
 		fltk::fltk
+		EinsteinFLGUI
 		pthread
 		"-framework AddressBook"
 		"-framework AudioUnit"
@@ -256,6 +270,10 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		"-framework CoreAudio"
 		"-framework Cocoa"
 	)
+	target_link_libraries ( EinsteinFLGUI
+		fltk::fltk fltk::images fltk::png fltk::z
+	)
+
 	set_target_properties ( Einstein PROPERTIES
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Info.plist.in"
 	)
@@ -268,8 +286,6 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 			COMMAND ${CMAKE_HOME_DIRECTORY}/cmake/xcodeFixIndentation
 			WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 		)
-		# Xcode can't use the same file in multiple target if there is no dependency.
-		add_dependencies( Einstein EinsteinTests )
 	endif ()
 
 elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
@@ -285,6 +301,9 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		${test_sources}
 		${cmake_sources}
 	)
+	add_library ( EinsteinFLGUI STATIC
+		${fluid_sources}
+	)
 
 	# how to compile and link
 	target_compile_options ( Einstein PUBLIC
@@ -296,21 +315,33 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		-Wall -Wno-multichar -Wno-misleading-indentation
 		-Wno-missing-field-initializers -Werror
 	)
+	target_compile_options ( EinsteinFLGUI PUBLIC
+		-Wall -Wno-multichar -Wno-misleading-indentation
+		-Wno-missing-field-initializers -Werror
+	)
 	target_compile_definitions ( Einstein PRIVATE
 		TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
 	)
 	target_compile_definitions ( EinsteinTests PRIVATE
 		TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
 	)
+	target_compile_definitions ( EinsteinFLGUI PRIVATE
+		TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
+	)
 	target_link_libraries ( Einstein
 		${system_libs}
 		fltk::fltk fltk::images fltk::png fltk::z
+		EinsteinFLGUI
 		pthread
 	)
 	target_link_libraries ( EinsteinTests
 		${system_libs}
 		fltk::fltk
+		EinsteinFLGUI
 		pthread
+	)
+	target_link_libraries ( EinsteinFLGUI
+		fltk::fltk fltk::images fltk::png fltk::z
 	)
 
 	if ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
@@ -364,13 +395,18 @@ elseif ( WIN32 )
 	add_executable ( EinsteinTests
 		${common_sources} ${test_sources}
 	)
+	add_library ( EinsteinFLGUI STATIC
+		${fluid_sources}
+	)
 
 	# how to compile and link
 	target_compile_options( Einstein PUBLIC "/bigobj" )
 	target_compile_options( EinsteinTests PUBLIC "/bigobj" )
+	target_compile_options( EinsteinFLGUI PUBLIC "/bigobj" )
 	if ( $<CONFIG:Debug> )
 		target_compile_options( Einstein PUBLIC "/ZI" )
 		target_compile_options( EinsteinTests PUBLIC "/ZI" )
+		target_compile_options( EinsteinFLGUI PUBLIC "/ZI" )
 	endif ()
 	target_compile_definitions ( Einstein PRIVATE
 		TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
@@ -380,16 +416,30 @@ elseif ( WIN32 )
 		TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
 		WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
 	)
+	target_compile_definitions ( EinsteinFLGUI PRIVATE
+		TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
+		WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
+	)
 	target_link_libraries ( Einstein
 		${system_libs}
 		fltk::fltk fltk::images fltk::png fltk::z
+		EinsteinFLGUI
 		winmm
 		gdiplus
 	)
 	target_link_libraries ( EinsteinTests
 		${system_libs}
 		fltk::fltk
+		EinsteinFLGUI
 		gdiplus
+	)
+	target_link_libraries ( EinsteinTests
+		${system_libs}
+		fltk::fltk
+		gdiplus
+	)
+	target_link_libraries ( EinsteinFLGUI
+		fltk::fltk fltk::images fltk::png fltk::z
 	)
 
 endif ()
@@ -430,9 +480,15 @@ target_include_directories (
 	${CMAKE_SOURCE_DIR}
 	${FLTK_INCLUDE_DIRS}
 )
+target_include_directories (
+	EinsteinFLGUI PUBLIC
+	${CMAKE_SOURCE_DIR}
+	${FLTK_INCLUDE_DIRS}
+)
 
 target_compile_definitions ( Einstein PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
 target_compile_definitions ( EinsteinTests PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
+target_compile_definitions ( EinsteinFLGUI PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
 
 target_link_libraries ( EinsteinTests gtest_main )
 
