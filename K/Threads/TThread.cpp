@@ -70,7 +70,7 @@ TThread::~TThread(void)
 	assert(ret == WAIT_OBJECT_0);
 #else
 
-#if 0
+#if 1
 	// Just let the thread do its own thing. Dangerous because it may access
 	// resources of the main thread that are gone at this point.
 	int err = ::pthread_detach(mThread);
