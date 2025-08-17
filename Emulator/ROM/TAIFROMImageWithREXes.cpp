@@ -154,7 +154,6 @@ TAIFROMImageWithREXes::TAIFROMImageWithREXes(const char* inAIFPath,
 	if (theFile == NULL)
 	{
 		(void) ::fprintf(stderr, "Can't open AIF file '%s'\n", inAIFPath);
-		::fclose(theFile);
 		::free(theData);
 		mErrorCode = kErrorLoadingROMFile;
 		return;
