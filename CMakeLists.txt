@@ -307,16 +307,16 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 
 	# how to compile and link
 	target_compile_options ( Einstein PUBLIC
-		-Wall -Wno-multichar -Wno-misleading-indentation
+		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
 		-Wno-missing-field-initializers # -Werror
 		# Werror is disabled for testing purposes. Must reenable as soon as all Linux warnings are fixed.
 	)
 	target_compile_options ( EinsteinTests PUBLIC
-		-Wall -Wno-multichar -Wno-misleading-indentation
+		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
 		-Wno-missing-field-initializers -Werror
 	)
 	target_compile_options ( EinsteinFLGUI PUBLIC
-		-Wall -Wno-multichar -Wno-misleading-indentation
+		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
 		-Wno-missing-field-initializers -Werror
 	)
 	target_compile_definitions ( Einstein PRIVATE

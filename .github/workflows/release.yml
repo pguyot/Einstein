@@ -119,8 +119,7 @@ jobs:
         echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
     - name: Compile Einstein
       run: |
-        cmake -S . -B build \
-                      -D CMAKE_BUILD_TYPE=Release
+        cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
         cmake --build build --target Einstein
     - name: Pack Einstein
       run: |
