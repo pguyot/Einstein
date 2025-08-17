@@ -88,7 +88,28 @@ jobs:
         wget --no-check-certificate -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
         sudo add-apt-repository 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main'
         sudo apt-get update
-        sudo apt-get install clang-format-14
+        sudo apt-get install clang-format
+        # FLTK dependencies:
+        sudo apt-get install libx11-dev
+        sudo apt-get install libglu1-mesa-dev
+        sudo apt-get install libxft-dev
+        sudo apt-get install libxcursor-dev
+        sudo apt-get install libasound2-dev
+        sudo apt-get install freeglut3-dev
+        sudo apt-get install libcairo2-dev
+        sudo apt-get install libfontconfig1-dev
+        sudo apt-get install libglew-dev
+        sudo apt-get install libjpeg-dev
+        sudo apt-get install libpng-dev
+        sudo apt-get install libxinerama-dev
+        # FLTK Wayland dependencies:
+        sudo apt-get install libpango1.0-dev
+        sudo apt-get install libwayland-dev
+        sudo apt-get install wayland-protocols
+        sudo apt-get install libxkbcommon-dev
+        sudo apt-get install libdbus-1-dev
+        sudo apt-get install libdecor-0-dev
+        sudo apt-get install libgtk-3-dev
     - name: Get sources
       uses: actions/checkout@v4
     - name: Get Version
@@ -151,6 +172,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
   build-windows-arm64-fltk:
+    # Currently fails after creating newt64.lib, no error message
     runs-on: windows-latest
     if: ${{ github.event.inputs.build-windows-arm64-fltk == 'true' }}
     steps:
