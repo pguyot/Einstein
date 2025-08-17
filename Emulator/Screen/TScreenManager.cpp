@@ -28,6 +28,7 @@
 // pixels on and off at various pulse widths and pattern.
 // The resistive touchscreen is glued to the front of the display. The viewing
 // area of the display is 129mm x 87mm.
+// The active area is 124.8mm x 83.2mm
 // The screen diagonal is 156mm or 6.15 inches.
 //
 // Markings on the display are 4C112522AH52, LCDFAT650MC, and M650-LOA, 93 11 18
