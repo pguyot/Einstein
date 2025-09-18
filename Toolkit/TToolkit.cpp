@@ -327,12 +327,12 @@ TToolkit::UserActionNew()
 	const char* fn = mCurrentScript->GetFilename();
 	if (fn)
 	{
-		strncpy(prev_file, fn, sizeof(prev_file));
+		strncpy(prev_file, fn, sizeof(prev_file)-1);
 	} else
 	{
 		fn = fl_getenv("HOME");
 		if (fn)
-			snprintf(prev_file, sizeof(prev_file), "%s/", fn);
+			snprintf(prev_file, sizeof(prev_file)-1, "%s/", fn);
 	}
 
 	int ret = UserActionClose();
@@ -383,12 +383,12 @@ TToolkit::UserActionOpen(const char* in_filename)
 	const char* fn = mCurrentScript->GetFilename();
 	if (fn)
 	{
-		strncpy(prev_file, fn, sizeof(prev_file));
+		strncpy(prev_file, fn, sizeof(prev_file)-1);
 	} else
 	{
 		fn = fl_getenv("HOME");
 		if (fn)
-			snprintf(prev_file, sizeof(prev_file), "%s/", fn);
+			snprintf(prev_file, sizeof(prev_file)-1, "%s/", fn);
 	}
 
 	int ret = UserActionClose();
@@ -1115,7 +1115,7 @@ TToolkit::AppBuild()
 		const char* errStr = NewtRefToString(errRef);
 		PrintErr(errStr);
 	}
-	::snprintf(buf, sizeof(buf), "Package saved to: %s\n", mPkgPath);
+	::snprintf(buf, sizeof(buf)-1, "Package saved to: %s\n", mPkgPath);
 	PrintStd(buf);
 
 	NewtCleanup();
@@ -1315,7 +1315,7 @@ TToolkit::PrintErrFile(const char* filename)
 	{
 		char buf[FL_PATH_MAX];
 		buf[0] = 0;
-		fgets(buf, sizeof(buf), f);
+		fgets(buf, sizeof(buf)-1, f);
 		if (buf[0])
 			PrintErr(buf);
 	}
