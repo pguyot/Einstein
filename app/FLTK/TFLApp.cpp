@@ -315,7 +315,7 @@ TFLApp::Run(int argc, char* argv[])
 	KPrintf("Welcome to Einstein console.\n");
 	KPrintf("This is %s.\n", VERSION_STRING);
 
-	static char theROMImagePath[FL_PATH_MAX];
+	static char theROMImagePath[FL_PATH_MAX+1];
 
 	for (Boolean firstAttempt = true;; firstAttempt = false)
 	{
@@ -604,7 +604,7 @@ TFLApp::UserActionInstallPackage()
 		if (!filename)
 			filename = (char*) calloc(FL_PATH_MAX, 1);
 		strncpy(filename, newname, FL_PATH_MAX);
-		filename[FL_PATH_MAX] = 0;
+		filename[FL_PATH_MAX+1] = 0;
 		mPlatformManager->InstallPackage(filename);
 	}
 	//}
@@ -731,7 +731,7 @@ TFLApp::UserActionFetchROM()
         wDownloadIP1->value("0");
         wDownloadIP0->value("24");
         wDownloadPort->value("10080");
-        char path[FL_PATH_MAX]; path[0] = 0;
+        char path[FL_PATH_MAX+1]; path[0] = 0;
         fl_filename_absolute(path, ".");
         strcat(path, "myROM");
         wDownloadPath->copy_label(path);
@@ -1310,7 +1310,7 @@ TFLApp::InitMonitor(const char* theROMImagePath)
 #endif
 #endif
 
-	char theSymbolListOrMonitorRcPath[FL_PATH_MAX];
+	char theSymbolListOrMonitorRcPath[FL_PATH_MAX+1];
 	strncpy(theSymbolListOrMonitorRcPath, theROMImagePath, FL_PATH_MAX);
 	fl_filename_setext(theSymbolListOrMonitorRcPath, FL_PATH_MAX, ".symbols");
 	mSymbolList = new TSymbolList(theSymbolListOrMonitorRcPath);
@@ -1649,7 +1649,7 @@ static const char*
 tfl_file_chooser(const char* message, const char* pat, const char* fname, FileChooser type)
 {
 #if UPDATED_TARGET_OS_LINUX
-	char pattern[FL_PATH_MAX];
+	char pattern[FL_PATH_MAX+1];
 	pattern[0] = 0;
 	if (pat)
 	{
@@ -1677,10 +1677,10 @@ tfl_file_chooser(const char* message, const char* pat, const char* fname, FileCh
 	}
 	return fl_file_chooser(message, pattern[0] ? pattern : nullptr, fname);
 #else
-	static char tfl_file_chooser_filename[FL_PATH_MAX];
-	char name[FL_PATH_MAX];
+	static char tfl_file_chooser_filename[FL_PATH_MAX+1];
+	char name[FL_PATH_MAX+1];
 	name[0] = 0;
-	char fdir[FL_PATH_MAX];
+	char fdir[FL_PATH_MAX+1];
 	fdir[0] = 0;
 
 	if (fname && *fname)
