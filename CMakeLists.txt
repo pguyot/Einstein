@@ -7,7 +7,7 @@
 
 cmake_minimum_required(VERSION 3.15.0 FATAL_ERROR)
 
-project( "Einstein" VERSION "2024.12.26" )
+project( "Einstein" VERSION "2025.9.18" )
 
 # Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
@@ -74,7 +74,7 @@ FetchContent_Declare (
 FetchContent_Declare(
   FLTK
   GIT_REPOSITORY  https://github.com/fltk/fltk
-  GIT_TAG         release-1.4.3
+  GIT_TAG         release-1.4.4
   GIT_SHALLOW     TRUE
 )
 

@@ -59,6 +59,8 @@
 // parallel port with 20+ data pins (cut to 14?!)
 // 122.4x90.6mm active, 138.4x101.8 outline
 //
+// Boox Tab Mini C: 1404 x 1872  (4: 360x468, 3:468x624)
+//
 
 #include "TScreenManager.h"
 
