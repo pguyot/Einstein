@@ -602,9 +602,9 @@ TFLApp::UserActionInstallPackage()
 	if (newname && *newname)
 	{
 		if (!filename)
-			filename = (char*) calloc(FL_PATH_MAX, 1);
+			filename = (char*) calloc(FL_PATH_MAX+1, 1);
 		strncpy(filename, newname, FL_PATH_MAX);
-		filename[FL_PATH_MAX+1] = 0;
+		filename[FL_PATH_MAX] = 0;
 		mPlatformManager->InstallPackage(filename);
 	}
 	//}

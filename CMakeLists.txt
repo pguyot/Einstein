@@ -228,13 +228,13 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 
 	# how to compile and link
 	target_compile_options( Einstein PUBLIC
-		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
+		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Wno-stringop-truncation -Werror
 	)
 	target_compile_options( EinsteinTests PUBLIC
-		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
+		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Wno-stringop-truncation -Werror
 	)
 	target_compile_options( EinsteinFLGUI PUBLIC
-		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
+		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Wno-stringop-truncation -Werror
 	)
 	target_compile_definitions ( Einstein PRIVATE
 		TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
@@ -308,16 +308,16 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 	# how to compile and link
 	target_compile_options ( Einstein PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
-		-Wno-missing-field-initializers # -Werror
+		-Wno-missing-field-initializers -Wno-stringop-truncation # -Werror
 		# Werror is disabled for testing purposes. Must reenable as soon as all Linux warnings are fixed.
 	)
 	target_compile_options ( EinsteinTests PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
-		-Wno-missing-field-initializers -Werror
+		-Wno-missing-field-initializers -Wno-stringop-truncation -Werror
 	)
 	target_compile_options ( EinsteinFLGUI PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
-		-Wno-missing-field-initializers -Werror
+		-Wno-missing-field-initializers -Wno-stringop-truncation -Werror
 	)
 	target_compile_definitions ( Einstein PRIVATE
 		TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
