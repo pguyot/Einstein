@@ -942,6 +942,9 @@ TCocoaAppController ()
 {
 	if (!inFullScreen)
 	{
+		if (@available(macOS 11.0, *)) {
+			inWindow.toolbarStyle = NSWindowToolbarStyleExpanded;
+		}
 		[self setupToolbar:inWindow];
 	}
 }
