@@ -205,7 +205,8 @@ endif ()
 if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 
 	# take care of the app icon
-	set( MACOSX_BUNDLE_ICON_FILE Einstein.icns )
+	set( MACOSX_BUNDLE_ICON_FILE "Einstein.icns" )
+    set( MACOSX_BUNDLE_GUI_IDENTIFIER "org.messagepad.einstein" )
 	set_source_files_properties (
 		Resources/macOS/${MACOSX_BUNDLE_ICON_FILE}
 		PROPERTIES MACOSX_PACKAGE_LOCATION "Resources"
@@ -228,13 +229,13 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 
 	# how to compile and link
 	target_compile_options( Einstein PUBLIC
-		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Wno-stringop-truncation -Werror
+		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
 	)
 	target_compile_options( EinsteinTests PUBLIC
-		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Wno-stringop-truncation -Werror
+		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
 	)
 	target_compile_options( EinsteinFLGUI PUBLIC
-		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Wno-stringop-truncation -Werror
+		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
 	)
 	target_compile_definitions ( Einstein PRIVATE
 		TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
