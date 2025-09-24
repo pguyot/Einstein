@@ -101,6 +101,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/libsdl-org/SDL
     GIT_TAG release-3.2.x
     OVERRIDE_FIND_PACKAGE
+    EXCLUDE_FROM_ALL
 )
 
 endif ()

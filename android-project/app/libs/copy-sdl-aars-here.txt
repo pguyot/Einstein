@@ -1,0 +1,1 @@
+Copy SDL3 Android Archives (.aar files) here.
