@@ -14,6 +14,11 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
 	cmake_policy(SET CMP0135 NEW)
 endif()
 
+# ---- Configuration options
+
+# Default to FLTK front end. The SDL3 option is under development.
+option ( EINSTEIN_FRONTEND "Einstein GUI Frontend (FLTK, SDL)" FLTK )
+
 # ---- Configuration for all targets on all platforms
 
 set( CMAKE_CXX_STANDARD 17 )
@@ -71,6 +76,8 @@ FetchContent_Declare (
 	URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
 )
 
+if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+
 FetchContent_Declare(
   FLTK
   GIT_REPOSITORY  https://github.com/fltk/fltk
@@ -84,6 +91,19 @@ FetchContent_Declare(
   GIT_TAG         master
   GIT_SHALLOW     TRUE
 )
+
+endif ()
+
+if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
+
+FetchContent_Declare(
+    SDL3
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL
+    GIT_TAG release-3.2.x
+    OVERRIDE_FIND_PACKAGE
+)
+
+endif ()
 
 #
 # ---- Setup Google Testing
@@ -110,6 +130,8 @@ include( GoogleTest )
 # ---- Newt/64 library ---------------------------------------------------------
 #
 
+if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+
 message(STATUS "Downloading and configuring NEWT64 if necessary, please wait...")
 FetchContent_MakeAvailable(NEWT64)
 message(STATUS "Downloading and configuring NEWT64 - done.")
@@ -118,9 +140,13 @@ set( NEWT64_FOUND true )
 set( newt64_incl_path "${Newt64_SOURCE_DIR}/src/newt_core/incs/" )
 set( newt64_lib libnewt64 )
 
+endif ()
+
 #
 # ---- FLTK library ------------------------------------------------------------
 #
+
+if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
 
 message(STATUS "Downloading and configuring FLTK if necessary, please wait...")
 set( FLTK_USE_SYSTEM_LIBJPEG OFF )
@@ -151,6 +177,23 @@ function ( build_with_fluid name dir )
 		PROPERTIES GENERATED TRUE
 	)
 endfunction ()
+
+endif ()
+
+#
+# ---- SDL3 library ------------------------------------------------------------
+#
+
+if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
+
+message(STATUS "Downloading and configuring SDL3 if necessary, please wait...")
+
+set( SDL_SHARED OFF )
+set( SDL_STATIC ON )
+FetchContent_MakeAvailable(SDL3)
+message(STATUS "Downloading and configuring SDL3 - done.")
+
+endif ()
 
 #
 # ==== Configuring Einstein Build ==============================================
@@ -223,9 +266,11 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		${test_sources}
 		${cmake_sources}
 	)
-	add_library ( EinsteinFLGUI STATIC
-		${fluid_sources}
-	)
+	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+		add_library ( EinsteinFLGUI STATIC
+			${fluid_sources}
+		)
+	endif()
 
 	# how to compile and link
 	target_compile_options( Einstein PUBLIC
@@ -234,25 +279,35 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 	target_compile_options( EinsteinTests PUBLIC
 		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
 	)
-	target_compile_options( EinsteinFLGUI PUBLIC
-		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
-	)
-	target_compile_definitions ( Einstein PRIVATE
-		TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
-		TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
-	)
+	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+		target_compile_options( EinsteinFLGUI PUBLIC
+			-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
+		)
+	endif ()
+	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+		target_compile_definitions ( Einstein PRIVATE
+			TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
+			TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
+		)
+	endif ()
+	if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
+		target_compile_definitions ( Einstein PRIVATE
+			TARGET_UI_SDL=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
+			TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
+		)
+	endif ()
 	target_compile_definitions ( EinsteinTests PRIVATE
 		TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
 		TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
 	)
-	target_compile_definitions ( EinsteinFLGUI PRIVATE
-		TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
-		TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
-	)
+	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+		target_compile_definitions ( EinsteinFLGUI PRIVATE
+			TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
+			TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
+		)
+	endif ()
 	target_link_libraries ( Einstein
 		${system_libs}
-		fltk::fltk fltk::images fltk::png fltk::z
-		EinsteinFLGUI
 		pthread
 		"-framework AddressBook"
 		"-framework AudioUnit"
@@ -260,20 +315,35 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		"-framework CoreAudio"
 		"-framework Cocoa"
 	)
-	target_link_libraries ( EinsteinTests
-		${system_libs}
-		fltk::fltk
-		EinsteinFLGUI
-		pthread
-		"-framework AddressBook"
-		"-framework AudioUnit"
-		"-framework AppKit"
-		"-framework CoreAudio"
-		"-framework Cocoa"
-	)
-	target_link_libraries ( EinsteinFLGUI
-		fltk::fltk fltk::images fltk::png fltk::z
-	)
+	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+		target_link_libraries ( Einstein
+			fltk::fltk fltk::images fltk::png fltk::z
+			EinsteinFLGUI
+		)
+	endif ()
+	if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
+		target_link_libraries ( Einstein
+			SDL3::SDL3-static
+		)
+	endif ()
+	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+		target_link_libraries ( EinsteinTests
+			${system_libs}
+			fltk::fltk
+			EinsteinFLGUI
+			pthread
+			"-framework AddressBook"
+			"-framework AudioUnit"
+			"-framework AppKit"
+			"-framework CoreAudio"
+			"-framework Cocoa"
+		)
+	endif ()
+	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+		target_link_libraries ( EinsteinFLGUI
+			fltk::fltk fltk::images fltk::png fltk::z
+		)
+  	endif ()
 
 	set_target_properties ( Einstein PROPERTIES
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Resources/macOS/Info.plist.in"
@@ -481,15 +551,19 @@ target_include_directories (
 	${CMAKE_SOURCE_DIR}
 	${FLTK_INCLUDE_DIRS}
 )
-target_include_directories (
-	EinsteinFLGUI PUBLIC
-	${CMAKE_SOURCE_DIR}
-	${FLTK_INCLUDE_DIRS}
-)
+if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+	target_include_directories (
+		EinsteinFLGUI PUBLIC
+		${CMAKE_SOURCE_DIR}
+		${FLTK_INCLUDE_DIRS}
+	)
+endif ()
 
 target_compile_definitions ( Einstein PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
 target_compile_definitions ( EinsteinTests PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
-target_compile_definitions ( EinsteinFLGUI PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
+if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+	target_compile_definitions ( EinsteinFLGUI PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
+endif ()
 
 target_link_libraries ( EinsteinTests gtest_main )
 

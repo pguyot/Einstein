@@ -3383,6 +3383,7 @@ TNativePrimitives::ExecutePrinterDriverNative(KUInt32 inInstruction)
 void
 TNativePrimitives::ExecutePrinterDriverNative(KUInt32 inInstruction)
 {
+	(void)inInstruction;
 	KPrintf("Printer Driver Calls not supported on this platform.\n");
 }
 #endif

@@ -434,6 +434,7 @@ fl_filename_ext(const char* path)
 void
 fl_filename_setext(char* buf, int size, const char* ext)
 {
+	(void)size;
 	char* d = (char*) fl_filename_ext(buf);
 	strcpy(d, ext);
 }

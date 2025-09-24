@@ -2,7 +2,13 @@
 # At this time we only support CMake builds for the FLTK variant of Einstein.
 #
 
-include ( app/FLTK/CMakeLists.txt )
+if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+	include ( app/FLTK/CMakeLists.txt )
+endif ()
+
+if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
+	include ( app/SDL/CMakeLists.txt )
+endif ()
 
 list ( APPEND cmake_sources
 	app/CMakeLists.txt

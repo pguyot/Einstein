@@ -13,7 +13,11 @@ list ( APPEND common_sources
 	Emulator/Screen/TScreenManager.h
 )
 
+if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+
 list ( APPEND app_sources
 	Emulator/Screen/TFLScreenManager.cpp
 	Emulator/Screen/TFLScreenManager.h
 )
+
+endif ()
