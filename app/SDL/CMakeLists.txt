@@ -10,7 +10,7 @@ list ( APPEND common_sources
 )
 
 list ( APPEND app_sources
-	app/SDL/TSDLMain.cpp
-	app/SDL/TSDLMain.h
+	app/SDL/TSDLApp.cpp
+	app/SDL/TSDLApp.h
 )
 
