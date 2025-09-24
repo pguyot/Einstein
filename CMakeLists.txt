@@ -55,8 +55,13 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
 elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Windows" )
 
 	# allow to build with multithreading libraries with VisualC
-#	cmake_policy( SET CMP0091 NEW )
-#	set( CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" )
+	#	cmake_policy( SET CMP0091 NEW )
+	#	set( CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" )
+
+elseif ( ANDROID )
+
+    message( "Configuring to build Einstein for Android." )
+    set ( EINSTEIN_FRONTEND SDL )
 
 else ()
 
@@ -99,8 +104,9 @@ if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
 FetchContent_Declare(
     SDL3
     GIT_REPOSITORY https://github.com/libsdl-org/SDL
-    GIT_TAG release-3.2.x
-    OVERRIDE_FIND_PACKAGE
+    # GIT_TAG release-3.2.x
+    GIT_TAG release-3.2.16
+    # GIT_TAG "main"
     EXCLUDE_FROM_ALL
 )
 
@@ -185,12 +191,18 @@ endif ()
 # ---- SDL3 library ------------------------------------------------------------
 #
 
+#if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" AND NOT ANDROID )
 if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
 
 message(STATUS "Downloading and configuring SDL3 if necessary, please wait...")
 
+if ( ANDROID )
+set( SDL_SHARED ON )
+set( SDL_STATIC ON )
+else ()
 set( SDL_SHARED OFF )
 set( SDL_STATIC ON )
+endif ()
 FetchContent_MakeAvailable(SDL3)
 message(STATUS "Downloading and configuring SDL3 - done.")
 
@@ -514,6 +526,21 @@ elseif ( WIN32 )
 		fltk::fltk fltk::images fltk::png fltk::z
 	)
 
+elseif ( ANDROID )
+
+	# create the applications
+	add_library ( sdl-helloworld SHARED
+		${common_sources}
+		${app_sources}
+		${cmake_sources}
+	)
+	target_compile_definitions ( sdl-helloworld PRIVATE
+		TARGET_UI_SDL=1 TARGET_OS_ANDROID=1
+	)
+	target_link_libraries ( sdl-helloworld PRIVATE
+		SDL3::SDL3
+	)
+
 endif ()
 
 # ---- Late NEWT64 Processing --------------------------------------------------
@@ -542,6 +569,15 @@ endif ()
 # ---- Einstein Platform Independent Build Instructions ------------------------
 #
 
+if ( ANDROID )
+
+target_include_directories (
+	sdl-helloworld PUBLIC
+	${CMAKE_SOURCE_DIR}
+)
+
+else ()
+
 target_include_directories (
 	Einstein PUBLIC
 	${CMAKE_SOURCE_DIR}
@@ -569,6 +605,9 @@ endif ()
 target_link_libraries ( EinsteinTests gtest_main )
 
 gtest_discover_tests ( EinsteinTests )
+
+endif ()
+
 
 # ---- Generated Files ---------------------------------------------------------
 

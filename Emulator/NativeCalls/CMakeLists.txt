@@ -24,6 +24,12 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "
 			Emulator/NativeCalls/TNativeCalls.cpp
 			Emulator/NativeCalls/TNativeCalls.h
 	)
+elseif (ANDROID)
+	list (APPEND common_sources
+		Emulator/NativeCalls/NativeCallsDefines.h
+		Emulator/NativeCalls/TNativeCalls.cpp
+		Emulator/NativeCalls/TNativeCalls.h
+	)
 elseif (WIN32)
 	list (APPEND common_sources
 		Emulator/NativeCalls/NativeCallsDefines.h
