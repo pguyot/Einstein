@@ -27,8 +27,30 @@
 
 #include "TSDLApp.h"
 
+// Einstein
+#include "Emulator/TEmulator.h"
+#include "Emulator/TMemory.h"
+#include "Emulator/Log/TBufferLog.h"
+#include "Emulator/Log/TFileLog.h"
+#include "Emulator/Log/TStdOutLog.h"
+#include "Emulator/Log/TLog.h"
+#include "Emulator/Network/TNetworkManager.h"
+#include "Emulator/Network/TUsermodeNetwork.h"
+#include "Emulator/PCMCIA/TLinearCard.h"
+#include "Emulator/Platform/TPlatformManager.h"
+#include "Emulator/ROM/TAIFROMImageWithREXes.h"
+#include "Emulator/ROM/TFlatROMImageWithREX.h"
+#include "Emulator/ROM/TROMImage.h"
+#include "Emulator/Screen/TSDLScreenManager.h"
+#include "Emulator/Serial/TSerialPortManager.h"
+#include "Emulator/Serial/TSerialPorts.h"
+#include "Emulator/Serial/TTcpClientSerialPortManager.h"
+#include "Emulator/Sound/TNullSoundManager.h"
+
+// SDL3
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <SDL3/SDL_filesystem.h>
 
 // ANSI C & POSIX
 #include <stdio.h>
@@ -130,6 +152,18 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
+
+
+#if 0
+
+https://wiki.libsdl.org/SDL3/SDL_CreateTexture
+
+https://wiki.libsdl.org/SDL3/SDL_SetRenderTarget
+https://wiki.libsdl.org/SDL3/SDL_RenderTexture
+https://wiki.libsdl.org/SDL3/SDL_RenderDebugText
+https://wiki.libsdl.org/SDL3/SDL_RenderPresent
+
+#endif
 
 
 
@@ -319,25 +353,6 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
 #include <FL/Fl_Sys_Menu_Bar.H>
 #endif
 
-// Einstein
-#include "Emulator/TEmulator.h"
-#include "Emulator/TMemory.h"
-#include "Emulator/Log/TBufferLog.h"
-#include "Emulator/Log/TFileLog.h"
-#include "Emulator/Log/TLog.h"
-#include "Emulator/Network/TNetworkManager.h"
-#include "Emulator/Network/TUsermodeNetwork.h"
-#include "Emulator/PCMCIA/TLinearCard.h"
-#include "Emulator/Platform/TPlatformManager.h"
-#include "Emulator/Printer/TFLPrinterManager.h"
-#include "Emulator/ROM/TAIFROMImageWithREXes.h"
-#include "Emulator/ROM/TFlatROMImageWithREX.h"
-#include "Emulator/ROM/TROMImage.h"
-#include "Emulator/Screen/TFLScreenManager.h"
-#include "Emulator/Serial/TSerialPortManager.h"
-#include "Emulator/Serial/TSerialPorts.h"
-#include "Emulator/Serial/TTcpClientSerialPortManager.h"
-#include "Emulator/Sound/TNullSoundManager.h"
 
 // Http Client GET
 #undef min
@@ -414,6 +429,7 @@ TSDLApp::Run(int argc, char* argv[])
 {
 	(void)argc;
 	(void)argv;
+	mLog = new TStdOutLog();
 //	mProgramName = argv[0];
 //
 //	InitFLTK(argc, argv);
@@ -427,12 +443,22 @@ TSDLApp::Run(int argc, char* argv[])
 //	KPrintf("This is %s.\n", VERSION_STRING);
 //
 //	static char theROMImagePath[FL_PATH_MAX+1];
-//
+
+	static const char *theROMImagePath = "/Users/matt/dev/Einstein/_Data_/717006";
+	static const char *theREX1Path = "/Users/matt/dev/Einstein/_Data_/Einstein.rex";
+	// /Users/matt/dev/Einstein/_Data_/717006
+	// /Users/matt/dev/Einstein/_Data_/Einstein.rex
+	// /Users/matt/dev/Einstein.SDL.git/_Data_/Einstein.rex
+
 //	for (Boolean firstAttempt = true;; firstAttempt = false)
 //	{
 //		if (!firstAttempt || !mFLSettings->dontShow)
 //			mFLSettings->ShowSettingsPanelModal();
 //		strncpy(theROMImagePath, mFLSettings->ROMPath, FL_PATH_MAX);
+
+	mROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path);
+	//mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, 1, false);
+
 //		mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, 1, mFLSettings->mUseBuiltinRex);
 //		if (!mROMImage)
 //		{
@@ -460,26 +486,41 @@ TSDLApp::Run(int argc, char* argv[])
 //		// go back to showing the settings panel
 //	}
 //
+	std::string documents_folder = SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS);
+	const char* theFlashPath = strdup( (documents_folder + "einstein.flash").c_str() );
+	// https://wiki.libsdl.org/SDL3/SDL_Folder,
+	// TODO: check for nullptr
+	// TODO: append a file name
+	// TODO: also char * SDL_GetPrefPath(const char *org, const char *app);
+
 //	const char* theFlashPath = strdup(mFLSettings->FlashPath);
 //	//    std::filesystem::path flashPath( theFlashPath );
 //	//    mPresentEssentialsInstaller = !std::filesystem::exists(flashPath);
 //
 //	InitScreen();
+	mScreenManager = new TSDLScreenManager(mLog);
 //
 //	InitSound();
+	mSoundManager = new TNullSoundManager(mLog);
 //
 //	InitNetwork();
 //
+	mNetworkManager = new TNullNetworkManager(mLog);
 //	TFLPrinterManager* printerManager = new TFLPrinterManager(mLog);
 //
 //	// MP2000: 1MB Dynamic RAM, 4MB Flash RAM
 //	// MP2100: 4MB Dynamic RAM, 4MB Flash RAM
 //	// eMate:  1MB Dynamic RAM, 2MB Flash RAM
-//	mEmulator = new TEmulator(mLog, mROMImage, theFlashPath,
-//							  mSoundManager, mScreenManager, mNetworkManager,
-//							  ramSize << 16, printerManager);
-//
-//	mPlatformManager = mEmulator->GetPlatformManager();
+	mEmulator = new TEmulator(mLog,
+							  mROMImage,		// TODO
+							  theFlashPath,		// TODO
+							  mSoundManager,	// TODO
+							  mScreenManager,	// TODO
+							  mNetworkManager,	// TODO
+							  0x00400000,		// RAM Size
+							  nullptr);			// TODO: printer driver
+
+	mPlatformManager = mEmulator->GetPlatformManager();
 //	printerManager->SetMemory(mEmulator->GetMemory());
 //
 //	// yes, this is valid C++ code; it tells the emulator to call us so we can tell FLTK to
@@ -1448,7 +1489,7 @@ TSDLApp::EmulatorThreadEntry()
 //		mMonitor->Run();
 //	} else
 //	{
-//		mEmulator->Run();
+		mEmulator->Run();
 //	}
 //	// wake up the FLTK mainloop and have it call GUI Quit.
 //	Fl::awake([](void*) { gApp->UserActionQuit(); });

@@ -2,7 +2,7 @@
 // File:			TSDLScreenManager.h
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2025 by Matthias Melcher
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,63 +25,109 @@
 #define _TSDLSCREENMANAGER_H
 
 #include <K/Defines/KDefinitions.h>
+#include "Emulator/Screen/TScreenManager.h"
 
 ///
-/// Classe pour .
-///
-/// \author Paul Guyot <pguyot@kallisys.net>
-/// \version $Revision: 147 $
-///
-/// \test	aucun test défini.
+/// Class for a null screen manager.
 ///
 class TSDLScreenManager
+: public TScreenManager
 {
 public:
-	/// \name Constantes publiques
-
-	/// \name Constructeurs et destructeur
-
 	///
-	/// Constructeur par défaut.
+	/// Constructor from a log and dimensions.
 	///
-	TSDLScreenManager(void);
+	/// \param inLog				log interface (can be null)
+	/// \param inPortraitWidth		width (in portrait mode).
+	/// \param inPortraitHeight		height (in portrait mode).
+	/// \param inFullScreen			whether we're full screen (and we do
+	///								emulate the rotation).
+	/// \param inScreenIsLandscape	whether the physical screen is in landscape.
+	///
+	TSDLScreenManager(
+					   TLog* inLog = nil,
+					   KUInt32 inPortraitWidth = kDefaultPortraitWidth,
+					   KUInt32 inPortraitHeight = kDefaultPortraitHeight,
+					   Boolean inFullScreen = false,
+					   Boolean inScreenIsLandscape = true) :
+	TScreenManager(inLog, inPortraitWidth, inPortraitHeight, inFullScreen, inScreenIsLandscape) { };
 
 	///
 	/// Destructeur.
 	///
-	virtual ~TSDLScreenManager(void);
-
-private:
-	///
-	/// Constructeur par copie volontairement indisponible.
-	///
-	/// \param inCopy		objet à copier
-	///
-	TSDLScreenManager(const TSDLScreenManager& inCopy);
+	virtual ~TSDLScreenManager(void) { };
 
 	///
-	/// Opérateur d'assignation volontairement indisponible.
+	/// Notify that the tablet orientation changed.
+	/// This method is called when the tablet driver calls SetTabletOrientation.
 	///
-	/// \param inCopy		objet à copier
+	/// \param inNewOrientation	the new orientation of the screen.
 	///
-	TSDLScreenManager& operator=(const TSDLScreenManager& inCopy);
+	virtual void TabletOrientationChanged(
+										  EOrientation inNewOrientation);
 
-	/// \name Variables
+	///
+	/// This method is called by the platform manager when the emulator is
+	/// turned on.
+	///
+	virtual void PowerOn(void);
+
+	///
+	/// This method is called by the platform manager when the emulator is
+	/// turned off.
+	///
+	virtual void PowerOff(void);
+
+	///
+	/// Power on the screen (open the window?)
+	/// This method is called by the display driver.
+	/// It doesn't do anything. The work is done in ScreenSetup.
+	///
+	virtual void PowerOnScreen(void);
+
+	///
+	/// Power off the screen (close the window?)
+	/// This method is called by the display driver.
+	///
+	virtual void PowerOffScreen(void);
+
+	///
+	/// Notify that the screen orientation changed.
+	/// This method is called when the display driver calls SetScreenOrientation.
+	///
+	/// \param inNewOrientation	the new orientation of the screen.
+	///
+	virtual void ScreenOrientationChanged(
+										  EOrientation inNewOrientation);
+
+	///
+	/// Notify that the contrast changed.
+	/// This method is called when the display driver calls SetScreenContrast.
+	///
+	/// \param inNewContrast the new contrast of the screen.
+	///
+	virtual void ContrastChanged(KUInt32 inNewContrast);
+
+	///
+	/// Notify that the backlight changed.
+	/// This method is called when the display driver calls SetScreenContrast.
+	///
+	/// \param inNewBacklight the new state of the backlight.
+	///
+	virtual void BacklightChanged(Boolean inNewBacklight);
+
+	///
+	/// Notify that some screen bits changed.
+	///
+	/// \param inUpdateRect	rectangle of the bits that changed.
+	///
+	virtual void UpdateScreenRect(SRect* inUpdatedRect);
+
+	///
+	/// Thread loop entry point.
+	///
+	void Run(void);
 };
 
 #endif
 // _TSDLSCREENMANAGER_H
-
-// ======================================================================= //
-//         It appears that after his death, Albert Einstein found himself  //
-// working as the doorkeeper at the Pearly Gates.  One slow day, he        //
-// found that he had time to chat with the new entrants.  To the first one //
-// he asked, "What's your IQ?"  The new arrival replied, "190".  They      //
-// discussed Einstein's theory of relativity for hours.  When the second   //
-// new arrival came, Einstein once again inquired as to the newcomer's     //
-// IQ.  The answer this time came "120".  To which Einstein replied, "Tell //
-// me, how did the Cubs do this year?" and they proceeded to talk for half //
-// an hour or so.  To the final arrival, Einstein once again posed the     //
-// question, "What's your IQ?".  Upon receiving the answer "70",           //
-// Einstein smiled and replied, "Got a minute to tell me about VMS 4.0?"   //
-// ======================================================================= //

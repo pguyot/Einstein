@@ -21,3 +21,12 @@ list ( APPEND app_sources
 )
 
 endif ()
+
+if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
+
+list ( APPEND app_sources
+	Emulator/Screen/TSDLScreenManager.cpp
+	Emulator/Screen/TSDLScreenManager.h
+)
+
+endif ()

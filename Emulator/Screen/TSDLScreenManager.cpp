@@ -2,7 +2,7 @@
 // File:			TSDLScreenManager.cp
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2025 by Matthias Melcher
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,33 +21,100 @@
 // $Id$
 // ==============================
 
-#include <K/Defines/KDefinitions.h>
 #include "TSDLScreenManager.h"
 
-// -------------------------------------------------------------------------- //
-// Constantes
-// -------------------------------------------------------------------------- //
+// Einstein
+#include "Emulator/Log/TLog.h"
 
 // -------------------------------------------------------------------------- //
-//  * TSDLScreenManager( void )
+//  * PowerOn( void )
 // -------------------------------------------------------------------------- //
-TSDLScreenManager::TSDLScreenManager(void)
+void
+TSDLScreenManager::PowerOn(void)
 {
+	GetLog()->LogLine("TNullScreenManager::PowerOn()");
 }
 
 // -------------------------------------------------------------------------- //
-//  * ~TSDLScreenManager( void )
+//  * PowerOffScreen( void )
 // -------------------------------------------------------------------------- //
-TSDLScreenManager::~TSDLScreenManager(void)
+void
+TSDLScreenManager::PowerOff(void)
 {
+	GetLog()->LogLine("TNullScreenManager::PowerOff()");
+}
+
+// -------------------------------------------------------------------------- //
+//  * PowerOnScreen( void )
+// -------------------------------------------------------------------------- //
+void
+TSDLScreenManager::PowerOnScreen(void)
+{
+	GetLog()->LogLine("TNullScreenManager::PowerOnScreen()");
+}
+
+// -------------------------------------------------------------------------- //
+//  * PowerOffScreen( void )
+// -------------------------------------------------------------------------- //
+void
+TSDLScreenManager::PowerOffScreen(void)
+{
+	GetLog()->LogLine("TNullScreenManager::PowerOffScreen()");
+}
+
+// -------------------------------------------------------------------------- //
+//  * BacklightChanged( Boolean )
+// -------------------------------------------------------------------------- //
+void
+TSDLScreenManager::BacklightChanged(Boolean backlight)
+{
+	GetLog()->FLogLine("TNullScreenManager::BacklightChanged(%d)", (int) backlight);
+}
+
+// -------------------------------------------------------------------------- //
+//  * ContrastChanged( KUInt32 )
+// -------------------------------------------------------------------------- //
+void
+TSDLScreenManager::ContrastChanged(KUInt32 contrast)
+{
+	GetLog()->FLogLine("TNullScreenManager::ContrastChanged(%u)", (unsigned int) contrast);
+}
+
+// -------------------------------------------------------------------------- //
+//  * ScreenOrientationChanged( EOrientation )
+// -------------------------------------------------------------------------- //
+void
+TSDLScreenManager::ScreenOrientationChanged(EOrientation inNewOrientation)
+{
+	GetLog()->FLogLine("TNullScreenManager::ScreenOrientationChanged(%u)", (unsigned int) inNewOrientation);
+}
+
+// -------------------------------------------------------------------------- //
+//  * TabletOrientationChanged( EOrientation )
+// -------------------------------------------------------------------------- //
+void
+TSDLScreenManager::TabletOrientationChanged(EOrientation inNewOrientation)
+{
+	GetLog()->FLogLine("TNullScreenManager::TabletOrientationChanged(%u)", (unsigned int) inNewOrientation);
+}
+
+// -------------------------------------------------------------------------- //
+//  * UpdateScreenRect( SRect* )
+// -------------------------------------------------------------------------- //
+void
+TSDLScreenManager::UpdateScreenRect(SRect* inUpdateRect)
+{
+	(void) inUpdateRect;
+	// Ignore this.
 }
 
 // ========================================================================= //
-// ... that the notions of "hardware", and "software" should be extended by  //
-// the notion of LIVEWARE - being that which produces software for use on    //
-// hardware.  This produces an obvious extension to the concept of MONITORS. //
-// A liveware monitor is a person dedicated to the task of ensuring that the //
-// liveware does not interfere with the real-time processes, invoking the    //
-// REAL-TIME EXECUTIONER to delete liveware that adversely affects ...       //
-//                 -- Linden and Wihelminalaan                               //
+// ... Any resemblance between the above views and those of my employer,     //
+// my terminal, or the view out my window are purely coincidental.  Any      //
+// resemblance between the above and my own views is non-deterministic.  The //
+// question of the existence of views in the absence of anyone to hold them  //
+// is left as an exercise for the reader.  The question of the existence of  //
+// the reader is left as an exercise for the second god coefficient.  (A     //
+// discussion of non-orthogonal, non-integral polytheism is beyond the scope //
+// of this article.)                                                         //
 // ========================================================================= //

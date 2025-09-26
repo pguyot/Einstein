@@ -419,6 +419,8 @@ fl_filename_name(const char* path)
 	const char* name = (win > bsd) ? win : bsd;
 	if (name == nullptr)
 		name = path;
+	else
+		name++; // point *after* the divider
 	return name;
 }
 const char*
