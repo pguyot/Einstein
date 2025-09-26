@@ -2,12 +2,12 @@
 # File:     CMakeLists.txt
 # Project:  Einstein
 #
-# Copyright 2003-2022 by Paul Guyot (pguyot@kallisys.net) and others.
+# Copyright 2003-2025 by Paul Guyot (pguyot@kallisys.net) and others.
 # ==============================
 
 cmake_minimum_required(VERSION 3.15.0 FATAL_ERROR)
 
-project( "Einstein" VERSION "2025.9.18" )
+project( "Einstein" VERSION "2025.9.26" )
 
 # Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
