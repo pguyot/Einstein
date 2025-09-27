@@ -67,6 +67,7 @@ TSDLApp* gApp = nullptr;
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
+static SDL_Texture *texture = NULL;
 
 static SDL_FRect mouseposrect;
 
@@ -75,21 +76,48 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 	(void)appstate;
 	Uint8 r;
 
-	/* fade between shades of red every 3 seconds, from 0 to 255. */
-	r = (Uint8) ((((float) (SDL_GetTicks() % 3000)) / 3000.0f) * 255.0f);
-	SDL_SetRenderDrawColor(renderer, r, 0, 0, 255);
+	bool changed = false;
 
-	/* you have to draw the whole window every frame. Clearing it makes sure the whole thing is sane. */
-	SDL_RenderClear(renderer);  /* clear whole window to that fade color. */
+	if (gApp && gApp->GetScreenManager() && texture) {
+		changed = gApp->GetScreenManager()->UpdateTexture(texture);
 
-	/* set the color to white */
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		uint32_t *pixels;
+		int pitch;
+		SDL_Rect rect { 50, 50, 200, 200 };
+		if (!SDL_LockTexture(texture, &rect, (void**)&pixels, &pitch)) {
+			SDL_Log("SDL_CreateTexture() failed: %s", SDL_GetError());
+			return SDL_APP_FAILURE;
+		}
+		for (int y = 0; y< 200; y++) {
+			uint32_t *d = pixels + (y*pitch)/4;
+			for (int x = 0; x< 200; x++) {
+				*d++ = (x << 16) | (y << 8);
+			}
+		}
+		SDL_UnlockTexture(texture);
+	}
 
-	/* draw a square where the mouse cursor currently is. */
-	SDL_RenderFillRect(renderer, &mouseposrect);
+	if (changed) {
 
-	/* put everything we drew to the screen. */
-	SDL_RenderPresent(renderer);
+		/* fade between shades of red every 3 seconds, from 0 to 255. */
+		r = (Uint8) ((((float) (SDL_GetTicks() % 3000)) / 3000.0f) * 255.0f);
+		SDL_SetRenderDrawColor(renderer, r, 0, 0, 255);
+
+		/* you have to draw the whole window every frame. Clearing it makes sure the whole thing is sane. */
+		SDL_RenderClear(renderer);  /* clear whole window to that fade color. */
+
+		SDL_RenderTexture(renderer, texture, NULL, NULL);
+		SDL_SetRenderTarget(renderer, NULL);
+
+		/* set the color to white */
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+		/* draw a square where the mouse cursor currently is. */
+		SDL_RenderFillRect(renderer, &mouseposrect);
+
+		/* put everything we drew to the screen. */
+		SDL_RenderPresent(renderer);
+	}
 
 	return SDL_APP_CONTINUE;
 }
@@ -133,6 +161,17 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 		SDL_Log("SDL_CreateWindowAndRenderer() failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
+
+	texture = SDL_CreateTexture(renderer,
+								SDL_PIXELFORMAT_RGBX8888,
+								SDL_TEXTUREACCESS_STREAMING,
+								640, 320);
+	if (!texture) {
+		SDL_Log("SDL_CreateTexture() failed: %s", SDL_GetError());
+		return SDL_APP_FAILURE;
+	}
+
+	// SDL_TEXTUREACCESS_STREAMING
 
 	mouseposrect.x = mouseposrect.y = -1000;  /* -1000 so it's offscreen at start */
 	mouseposrect.w = mouseposrect.h = 50;
@@ -1936,6 +1975,7 @@ main(int argc, char** argv)
 	gApp->Run(argc, argv);
 	return 0;
 }
+#endif // TARGET_OS_ANDROID
 
 
 #endif

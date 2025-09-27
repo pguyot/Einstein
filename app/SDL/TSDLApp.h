@@ -37,6 +37,7 @@ class TROMImage;
 class TEmulator;
 class TSoundManager;
 class TScreenManager;
+class TSDLScreenManager;
 class TLog;
 class TBufferLog;
 class TPlatformManager;
@@ -156,11 +157,11 @@ public:
 		return mPlatformManager;
 	}
 
-//	TFLSettingsUI*
-//	GetSettings()
-//	{
-//		return mFLSettings;
-//	}
+	TSDLScreenManager*
+	GetScreenManager()
+	{
+		return mScreenManager;
+	}
 
 	const char* ChooseExistingFile(const char* message, const char* pat, const char* fname);
 	const char* ChooseExistingDirectory(const char* message, const char* pat, const char* fname);
@@ -206,7 +207,7 @@ private:
 	TROMImage* mROMImage = nullptr;
 	TEmulator* mEmulator = nullptr;
 	TSoundManager* mSoundManager = nullptr;
-	TScreenManager* mScreenManager = nullptr;
+	TSDLScreenManager* mScreenManager = nullptr;
 	TPlatformManager* mPlatformManager = nullptr;
 	TNetworkManager* mNetworkManager = nullptr;
 	TLog* mLog = nullptr;

@@ -17,7 +17,7 @@ endif()
 # ---- Configuration options
 
 # Default to FLTK front end. The SDL3 option is under development.
-set(EINSTEIN_FRONTEND "FLTK" CACHE STRING "Einstein GUI Frontend (FLTK, SDL)")
+set(EINSTEIN_FRONTEND "SDL" CACHE STRING "Einstein GUI Frontend (FLTK, SDL)" FORCE)
 set_property(CACHE EINSTEIN_FRONTEND PROPERTY STRINGS "FLTK" "SDL")
 
 message("Configuration: EINSTEIN_FRONTEND is :" ${EINSTEIN_FRONTEND} ":")
@@ -65,7 +65,7 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Windows" )
 elseif ( ANDROID )
 
     message( "Configuring to build Einstein for Android." )
-    set ( EINSTEIN_FRONTEND SDL )
+    set ( EINSTEIN_FRONTEND "SDL" )
 
 else ()
 

@@ -27,6 +27,8 @@
 #include <K/Defines/KDefinitions.h>
 #include "Emulator/Screen/TScreenManager.h"
 
+#include <SDL3/SDL.h>
+
 ///
 /// Class for a null screen manager.
 ///
@@ -127,6 +129,10 @@ public:
 	/// Thread loop entry point.
 	///
 	void Run(void);
+
+	bool UpdateTexture(SDL_Texture *texture);
+	SDL_Rect mDirtyRect;
+	bool mIsDirty = false;
 };
 
 #endif

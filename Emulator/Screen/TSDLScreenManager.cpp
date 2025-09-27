@@ -26,6 +26,10 @@
 // Einstein
 #include "Emulator/Log/TLog.h"
 
+// SDL3
+#include <SDL3/SDL.h>
+
+
 // -------------------------------------------------------------------------- //
 //  * PowerOn( void )
 // -------------------------------------------------------------------------- //
@@ -107,6 +111,14 @@ TSDLScreenManager::UpdateScreenRect(SRect* inUpdateRect)
 	(void) inUpdateRect;
 	// Ignore this.
 }
+
+
+bool
+TSDLScreenManager::UpdateTexture(SDL_Texture *texture) {
+	(void)texture;
+	return true;
+}
+
 
 // ========================================================================= //
 // ... Any resemblance between the above views and those of my employer,     //
