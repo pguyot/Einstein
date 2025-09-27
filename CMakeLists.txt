@@ -17,7 +17,11 @@ endif()
 # ---- Configuration options
 
 # Default to FLTK front end. The SDL3 option is under development.
-option ( EINSTEIN_FRONTEND "Einstein GUI Frontend (FLTK, SDL)" FLTK )
+set(EINSTEIN_FRONTEND "FLTK" CACHE STRING "Einstein GUI Frontend (FLTK, SDL)")
+set_property(CACHE EINSTEIN_FRONTEND PROPERTY STRINGS "FLTK" "SDL")
+
+message("Configuration: EINSTEIN_FRONTEND is :" ${EINSTEIN_FRONTEND} ":")
+
 
 # ---- Configuration for all targets on all platforms
 
