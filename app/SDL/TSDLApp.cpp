@@ -75,7 +75,7 @@ extern "C" {
 
 // Called by Java after file import is done onFileImported
 JNIEXPORT void JNICALL
-Java_org_libsdl_helloworld_HelloWorldActivity_onFileImported(JNIEnv* env, jobject thiz, jstring jpath) {
+Java_org_messagepad_einstein_EinsteinActivity_onFileImported(JNIEnv* env, jobject thiz, jstring jpath) {
     const char* path = env->GetStringUTFChars(jpath, nullptr);
     SDL_Log("Imported file saved to: %s", path);
 
@@ -258,14 +258,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 	(void)argv;
 	(void)argc;
 
-	SDL_SetAppMetadata("SDL Hello World Example", "1.0", "com.example.sdl-hello-world");
+	SDL_SetAppMetadata("Einstein emulator for Newton MP2x00", "1.0", "org.messagepad.einstein");
 
 	if (!SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_EVENTS)) {
 		SDL_Log("SDL_Init(SDL_INIT_VIDEO) failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
 
-	if (!SDL_CreateWindowAndRenderer("Hello SDL", 640, 480, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
+	if (!SDL_CreateWindowAndRenderer("Einstein", 640, 480, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
 		SDL_Log("SDL_CreateWindowAndRenderer() failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}

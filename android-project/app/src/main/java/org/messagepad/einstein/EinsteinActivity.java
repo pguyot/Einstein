@@ -1,4 +1,5 @@
-package org.libsdl.helloworld;
+
+package org.messagepad.einstein;
 
 import org.libsdl.app.SDLActivity;
 import android.app.Activity;
@@ -10,12 +11,12 @@ import android.provider.DocumentsContract;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-public class HelloWorldActivity extends SDLActivity {
+public class EinsteinActivity extends SDLActivity {
 
     private static final int REQUEST_CODE_IMPORT_ROM = 1337;
 
     protected String[] getLibraries() {
-        return new String[] { "SDL3", "sdl-helloworld" };
+        return new String[] { "SDL3", "einstein" };
     }
 
     // Called from C via JNI

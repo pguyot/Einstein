@@ -550,15 +550,15 @@ elseif ( WIN32 )
 elseif ( ANDROID )
 
 	# create the applications
-	add_library ( sdl-helloworld SHARED
+	add_library ( einstein SHARED
 		${common_sources}
 		${app_sources}
 		${cmake_sources}
 	)
-	target_compile_definitions ( sdl-helloworld PRIVATE
+	target_compile_definitions ( einstein PRIVATE
 		TARGET_UI_SDL=1 TARGET_OS_ANDROID=1
 	)
-	target_link_libraries ( sdl-helloworld PRIVATE
+	target_link_libraries ( einstein PRIVATE
 		SDL3::SDL3
 	)
 
@@ -593,7 +593,7 @@ endif ()
 if ( ANDROID )
 
 target_include_directories (
-	sdl-helloworld PUBLIC
+	einstein PUBLIC
 	${CMAKE_SOURCE_DIR}
 )
 

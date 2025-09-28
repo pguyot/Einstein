@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace "org.libsdl.helloworld"
+    namespace "org.messagepad.einstein"
     compileSdk 35
 
     defaultConfig {
-        applicationId 'org.libsdl.SDL_Helloworld'
+        applicationId 'org.messagepad.einstein'
         minSdk 21
         targetSdk 35
         versionCode 1
