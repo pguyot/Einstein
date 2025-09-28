@@ -17,11 +17,15 @@ endif()
 # ---- Configuration options
 
 # Default to FLTK front end. The SDL3 option is under development.
-set(EINSTEIN_FRONTEND "SDL" CACHE STRING "Einstein GUI Frontend (FLTK, SDL)" FORCE)
-set_property(CACHE EINSTEIN_FRONTEND PROPERTY STRINGS "FLTK" "SDL")
+option (EINSTEIN_FLTK_FRONTEND "Use FLTK for the frontend" OFF)
+option (EINSTEIN_SDL3_FRONTEND "Use SDL3 for the frontend" OFF)
 
-message("Configuration: EINSTEIN_FRONTEND is :" ${EINSTEIN_FRONTEND} ":")
-
+if ( EINSTEIN_FLTK_FRONTEND AND EINSTEIN_SDL3_FRONTEND )
+	message( FATAL_ERROR "Cannot select the FLTK and SDL3 frontend at the same time. Please choose either EINSTEIN_FLTK_FRONTEND or EINSTEIN_SDL3_FRONTEND." )
+elseif ( NOT EINSTEIN_FLTK_FRONTEND AND NOT EINSTEIN_SDL3_FRONTEND )
+	message( STATUS "Defaulting to FLTK frontend." )
+	set ( EINSTEIN_FLTK_FRONTEND ON )
+endif()
 
 # ---- Configuration for all targets on all platforms
 
@@ -64,8 +68,11 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Windows" )
 
 elseif ( ANDROID )
 
-    message( "Configuring to build Einstein for Android." )
-    set ( EINSTEIN_FRONTEND "SDL" )
+	if ( NOT EINSTEIN_SDL3_FRONTEND )
+	    message( WARNING "Changing frontend for Android to SDL3." )
+    	set ( EINSTEIN_FLTK_FRONTEND OFF )
+    	set ( EINSTEIN_SDL3_FRONTEND ON )
+	endif ()
 
 else ()
 
@@ -85,7 +92,7 @@ FetchContent_Declare (
 	URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
 )
 
-if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+if ( EINSTEIN_FLTK_FRONTEND )
 
 FetchContent_Declare(
   FLTK
@@ -103,8 +110,9 @@ FetchContent_Declare(
 
 endif ()
 
-if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
+if ( EINSTEIN_SDL3_FRONTEND )
 
+if ( NOT ANDROID )
 FetchContent_Declare(
     SDL3
     GIT_REPOSITORY https://github.com/libsdl-org/SDL
@@ -113,6 +121,7 @@ FetchContent_Declare(
     # GIT_TAG "main"
     EXCLUDE_FROM_ALL
 )
+endif ()
 
 endif ()
 
@@ -141,7 +150,7 @@ include( GoogleTest )
 # ---- Newt/64 library ---------------------------------------------------------
 #
 
-if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+if ( EINSTEIN_FLTK_FRONTEND )
 
 message(STATUS "Downloading and configuring NEWT64 if necessary, please wait...")
 FetchContent_MakeAvailable(NEWT64)
@@ -157,7 +166,7 @@ endif ()
 # ---- FLTK library ------------------------------------------------------------
 #
 
-if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+if ( EINSTEIN_FLTK_FRONTEND )
 
 message(STATUS "Downloading and configuring FLTK if necessary, please wait...")
 set( FLTK_USE_SYSTEM_LIBJPEG OFF )
@@ -195,20 +204,25 @@ endif ()
 # ---- SDL3 library ------------------------------------------------------------
 #
 
-#if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" AND NOT ANDROID )
-if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
-
-message(STATUS "Downloading and configuring SDL3 if necessary, please wait...")
+if ( EINSTEIN_SDL3_FRONTEND )
 
 if ( ANDROID )
+
+# find "android-project/app/libs/SDL3-3.2.16.aar"
+message(STATUS "Fetching prebuilt SDL3...")
 set( SDL_SHARED ON )
 set( SDL_STATIC ON )
+find_package(SDL3 REQUIRED CONFIG)
+
 else ()
+
+message(STATUS "Downloading and configuring SDL3 if necessary, please wait...")
 set( SDL_SHARED OFF )
 set( SDL_STATIC ON )
-endif ()
 FetchContent_MakeAvailable(SDL3)
 message(STATUS "Downloading and configuring SDL3 - done.")
+
+endif ()
 
 endif ()
 
@@ -283,7 +297,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		${test_sources}
 		${cmake_sources}
 	)
-	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+	if ( EINSTEIN_FLTK_FRONTEND )
 		add_library ( EinsteinFLGUI STATIC
 			${fluid_sources}
 		)
@@ -296,18 +310,18 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 	target_compile_options( EinsteinTests PUBLIC
 		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
 	)
-	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+	if ( EINSTEIN_FLTK_FRONTEND )
 		target_compile_options( EinsteinFLGUI PUBLIC
 			-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
 		)
 	endif ()
-	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+	if ( EINSTEIN_FLTK_FRONTEND )
 		target_compile_definitions ( Einstein PRIVATE
 			TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
 			TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
 		)
 	endif ()
-	if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
+	if ( EINSTEIN_SDL3_FRONTEND )
 		target_compile_definitions ( Einstein PRIVATE
 			TARGET_UI_SDL=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
 			TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
@@ -317,7 +331,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
 		TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
 	)
-	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+	if ( EINSTEIN_FLTK_FRONTEND )
 		target_compile_definitions ( EinsteinFLGUI PRIVATE
 			TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
 			TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
@@ -332,18 +346,21 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		"-framework CoreAudio"
 		"-framework Cocoa"
 	)
-	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+	if ( EINSTEIN_FLTK_FRONTEND )
 		target_link_libraries ( Einstein
 			fltk::fltk fltk::images fltk::png fltk::z
 			EinsteinFLGUI
 		)
 	endif ()
-	if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
+	if ( EINSTEIN_SDL3_FRONTEND )
 		target_link_libraries ( Einstein
 			SDL3::SDL3-static
 		)
+		target_include_directories( Einstein SYSTEM PUBLIC
+			$ENV{ANDROID_NDK_HOME}/sysroot/usr/include
+		)
 	endif ()
-	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+	if ( EINSTEIN_FLTK_FRONTEND )
 		target_link_libraries ( EinsteinTests
 			${system_libs}
 			fltk::fltk
@@ -356,7 +373,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 			"-framework Cocoa"
 		)
 	endif ()
-	if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+	if ( EINSTEIN_FLTK_FRONTEND )
 		target_link_libraries ( EinsteinFLGUI
 			fltk::fltk fltk::images fltk::png fltk::z
 		)
@@ -592,7 +609,7 @@ target_include_directories (
 	${CMAKE_SOURCE_DIR}
 	${FLTK_INCLUDE_DIRS}
 )
-if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+if ( EINSTEIN_FLTK_FRONTEND )
 	target_include_directories (
 		EinsteinFLGUI PUBLIC
 		${CMAKE_SOURCE_DIR}
@@ -602,7 +619,7 @@ endif ()
 
 target_compile_definitions ( Einstein PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
 target_compile_definitions ( EinsteinTests PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
-if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+if ( EINSTEIN_FLTK_FRONTEND )
 	target_compile_definitions ( EinsteinFLGUI PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
 endif ()
 

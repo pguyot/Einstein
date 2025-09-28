@@ -51,6 +51,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_filesystem.h>
+#include <SDL3/SDL_messagebox.h>
+#include <SDL3/SDL_system.h>
 
 // ANSI C & POSIX
 #include <stdio.h>
@@ -62,8 +64,114 @@
 #include <filesystem>
 #include <thread>
 
-
 TSDLApp* gApp = nullptr;
+
+#if TARGET_OS_ANDROID
+
+#include <jni.h>
+#include <string>
+
+extern "C" {
+
+// Called by Java after file import is done onFileImported
+JNIEXPORT void JNICALL
+Java_org_libsdl_helloworld_HelloWorldActivity_onFileImported(JNIEnv* env, jobject thiz, jstring jpath) {
+    const char* path = env->GetStringUTFChars(jpath, nullptr);
+    SDL_Log("Imported file saved to: %s", path);
+
+    // TODO: enqueue event or notify your emulator core
+    // Example: load ROM immediately
+    // my_emulator_load_rom(path);
+
+    env->ReleaseStringUTFChars(jpath, path);
+}
+
+}
+
+#if 0
+
+import android.app.DownloadManager;
+import android.content.Context;
+import android.net.Uri;
+import android.os.Environment;
+
+public void downloadFileFromUrl(String url, String subdir) {
+    DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+    // Destination: /storage/emulated/0/Android/data/<pkg>/files/<subdir>/
+    java.io.File destDir = new java.io.File(getExternalFilesDir(null), subdir);
+    if (!destDir.exists()) destDir.mkdirs();
+
+    String filename = Uri.parse(url).getLastPathSegment();
+    if (filename == null) filename = "downloaded.rom";
+
+    request.setDestinationUri(Uri.fromFile(new java.io.File(destDir, filename)));
+
+    DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+    manager.enqueue(request);
+}
+Emulator_DownloadRom("https://example.com/my.rom");
+
+import android.app.AlertDialog;
+import android.widget.EditText;
+
+public void promptForUrlAndDownload(final String subdir) {
+    final EditText input = new EditText(this);
+    input.setHint("https://example.com/game.rom");
+
+    new AlertDialog.Builder(this)
+        .setTitle("Enter ROM URL")
+        .setView(input)
+        .setPositiveButton("Download", (dialog, which) -> {
+            String url = input.getText().toString().trim();
+            if (!url.isEmpty()) {
+                downloadFileFromUrl(url, subdir);
+            }
+        })
+        .setNegativeButton("Cancel", null)
+        .show();
+}
+
+void Emulator_PromptForUrlDownload(const char* subdir) {
+    JNIEnv* env = (JNIEnv*)SDL_AndroidGetJNIEnv();
+    jobject activity = (jobject)SDL_AndroidGetActivity();
+
+    jclass clazz = env->GetObjectClass(activity);
+    jmethodID method = env->GetMethodID(clazz,
+        "promptForUrlAndDownload", "(Ljava/lang/String;)V");
+
+    jstring jsubdir = env->NewStringUTF(subdir);
+    env->CallVoidMethod(activity, method, jsubdir);
+
+    env->DeleteLocalRef(jsubdir);
+    env->DeleteLocalRef(clazz);
+    env->DeleteLocalRef(activity);
+}
+
+if (user_pressed_download_from_url) {
+    Emulator_PromptForUrlDownload("ROMs");
+}
+
+
+#endif
+
+
+// Function you call in your emulator to open picker
+void Emulator_OpenFilePicker() {
+    JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
+    jobject activity = (jobject)SDL_GetAndroidActivity();
+
+    jclass clazz = env->GetObjectClass(activity);
+    jmethodID method = env->GetMethodID(clazz, "openFilePicker", "()V");
+    env->CallVoidMethod(activity, method);
+
+    env->DeleteLocalRef(clazz);
+    env->DeleteLocalRef(activity);
+}
+
+#endif // TARGET_UI_SDL
+
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -152,7 +260,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
 	SDL_SetAppMetadata("SDL Hello World Example", "1.0", "com.example.sdl-hello-world");
 
-	if (!SDL_Init(SDL_INIT_VIDEO)) {
+	if (!SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_EVENTS)) {
 		SDL_Log("SDL_Init(SDL_INIT_VIDEO) failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
@@ -176,8 +284,15 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 	mouseposrect.x = mouseposrect.y = -1000;  /* -1000 so it's offscreen at start */
 	mouseposrect.w = mouseposrect.h = 50;
 
+#if TARGET_OS_ANDROID
+    Emulator_OpenFilePicker();
+#else
 	gApp = new TSDLApp();
 	gApp->Run(argc, argv);
+#endif
+
+
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Test", "Waldfee!", window);
 
 	return SDL_APP_CONTINUE;
 }
@@ -470,7 +585,21 @@ TSDLApp::Run(int argc, char* argv[])
 	(void)argv;
 	mLog = new TStdOutLog();
 //	mProgramName = argv[0];
-//
+
+#if TARGET_OS_ANDROID
+    //std::string documents_folder = SDL_AndroidGetInternalStoragePath();
+    std::string documents_folder = SDL_GetAndroidExternalStoragePath();
+#else
+	std::string documents_folder = SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS);
+#endif
+
+// Crashes on Android: SDL_AndroidGetExternalStoragePath()
+	const char* theFlashPath = strdup( (documents_folder + "einstein.flash").c_str() );
+	// https://wiki.libsdl.org/SDL3/SDL_Folder,
+	// TODO: check for nullptr
+	// TODO: append a file name
+	// TODO: also char * SDL_GetPrefPath(const char *org, const char *app);
+
 //	InitFLTK(argc, argv);
 //
 //	InitSettings();
@@ -525,12 +654,6 @@ TSDLApp::Run(int argc, char* argv[])
 //		// go back to showing the settings panel
 //	}
 //
-	std::string documents_folder = SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS);
-	const char* theFlashPath = strdup( (documents_folder + "einstein.flash").c_str() );
-	// https://wiki.libsdl.org/SDL3/SDL_Folder,
-	// TODO: check for nullptr
-	// TODO: append a file name
-	// TODO: also char * SDL_GetPrefPath(const char *org, const char *app);
 
 //	const char* theFlashPath = strdup(mFLSettings->FlashPath);
 //	//    std::filesystem::path flashPath( theFlashPath );
@@ -1976,9 +2099,6 @@ main(int argc, char** argv)
 	return 0;
 }
 #endif // TARGET_OS_ANDROID
-
-
-#endif
 
 
 // ======================================================================= //

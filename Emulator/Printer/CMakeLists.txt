@@ -11,7 +11,7 @@ list ( APPEND common_sources
 	Emulator/Printer/TPrinterManager.h
 )
 
-if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+if ( EINSTEIN_FLTK_FRONTEND )
 
 list ( APPEND app_sources
 	Emulator/Printer/TFLPrinterManager.cpp

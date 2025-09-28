@@ -17,7 +17,7 @@ list ( APPEND common_sources
 	Monitor/TMonitorCore.h
 )
 
-if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+if ( EINSTEIN_FLTK_FRONTEND )
 
 list ( APPEND app_sources
 	Monitor/TFLMonitor.cpp

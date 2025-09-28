@@ -13,7 +13,7 @@ list ( APPEND common_sources
 	Emulator/Screen/TScreenManager.h
 )
 
-if ( ${EINSTEIN_FRONTEND} STREQUAL "FLTK" )
+if ( EINSTEIN_FLTK_FRONTEND )
 
 list ( APPEND app_sources
 	Emulator/Screen/TFLScreenManager.cpp
@@ -22,7 +22,7 @@ list ( APPEND app_sources
 
 endif ()
 
-if ( ${EINSTEIN_FRONTEND} STREQUAL "SDL" )
+if ( EINSTEIN_SDL3_FRONTEND )
 
 list ( APPEND app_sources
 	Emulator/Screen/TSDLScreenManager.cpp
