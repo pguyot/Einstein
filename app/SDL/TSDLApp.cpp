@@ -47,6 +47,10 @@
 #include "Emulator/Serial/TTcpClientSerialPortManager.h"
 #include "Emulator/Sound/TNullSoundManager.h"
 
+#if TARGET_OS_ANDROID
+#include "app/SDL/TSDLAndroid.h"
+#endif
+
 // SDL3
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -65,113 +69,6 @@
 #include <thread>
 
 TSDLApp* gApp = nullptr;
-
-#if TARGET_OS_ANDROID
-
-#include <jni.h>
-#include <string>
-
-extern "C" {
-
-// Called by Java after file import is done onFileImported
-JNIEXPORT void JNICALL
-Java_org_messagepad_einstein_EinsteinActivity_onFileImported(JNIEnv* env, jobject thiz, jstring jpath) {
-    const char* path = env->GetStringUTFChars(jpath, nullptr);
-    SDL_Log("Imported file saved to: %s", path);
-
-    // TODO: enqueue event or notify your emulator core
-    // Example: load ROM immediately
-    // my_emulator_load_rom(path);
-
-    env->ReleaseStringUTFChars(jpath, path);
-}
-
-}
-
-#if 0
-
-import android.app.DownloadManager;
-import android.content.Context;
-import android.net.Uri;
-import android.os.Environment;
-
-public void downloadFileFromUrl(String url, String subdir) {
-    DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-
-    // Destination: /storage/emulated/0/Android/data/<pkg>/files/<subdir>/
-    java.io.File destDir = new java.io.File(getExternalFilesDir(null), subdir);
-    if (!destDir.exists()) destDir.mkdirs();
-
-    String filename = Uri.parse(url).getLastPathSegment();
-    if (filename == null) filename = "downloaded.rom";
-
-    request.setDestinationUri(Uri.fromFile(new java.io.File(destDir, filename)));
-
-    DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-    manager.enqueue(request);
-}
-Emulator_DownloadRom("https://example.com/my.rom");
-
-import android.app.AlertDialog;
-import android.widget.EditText;
-
-public void promptForUrlAndDownload(final String subdir) {
-    final EditText input = new EditText(this);
-    input.setHint("https://example.com/game.rom");
-
-    new AlertDialog.Builder(this)
-        .setTitle("Enter ROM URL")
-        .setView(input)
-        .setPositiveButton("Download", (dialog, which) -> {
-            String url = input.getText().toString().trim();
-            if (!url.isEmpty()) {
-                downloadFileFromUrl(url, subdir);
-            }
-        })
-        .setNegativeButton("Cancel", null)
-        .show();
-}
-
-void Emulator_PromptForUrlDownload(const char* subdir) {
-    JNIEnv* env = (JNIEnv*)SDL_AndroidGetJNIEnv();
-    jobject activity = (jobject)SDL_AndroidGetActivity();
-
-    jclass clazz = env->GetObjectClass(activity);
-    jmethodID method = env->GetMethodID(clazz,
-        "promptForUrlAndDownload", "(Ljava/lang/String;)V");
-
-    jstring jsubdir = env->NewStringUTF(subdir);
-    env->CallVoidMethod(activity, method, jsubdir);
-
-    env->DeleteLocalRef(jsubdir);
-    env->DeleteLocalRef(clazz);
-    env->DeleteLocalRef(activity);
-}
-
-if (user_pressed_download_from_url) {
-    Emulator_PromptForUrlDownload("ROMs");
-}
-
-
-#endif
-
-
-// Function you call in your emulator to open picker
-void Emulator_OpenFilePicker() {
-    JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
-    jobject activity = (jobject)SDL_GetAndroidActivity();
-
-    jclass clazz = env->GetObjectClass(activity);
-    jmethodID method = env->GetMethodID(clazz, "openFilePicker", "()V");
-    env->CallVoidMethod(activity, method);
-
-    env->DeleteLocalRef(clazz);
-    env->DeleteLocalRef(activity);
-}
-
-#endif // TARGET_UI_SDL
-
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -285,7 +182,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 	mouseposrect.w = mouseposrect.h = 50;
 
 #if TARGET_OS_ANDROID
-    Emulator_OpenFilePicker();
+    AndroidPickROMFile();
 #else
 	gApp = new TSDLApp();
 	gApp->Run(argc, argv);
@@ -323,6 +220,8 @@ https://wiki.libsdl.org/SDL3/SDL_RenderPresent
 
 // =============================================================================
 // Copied from Einstein FLTK, now make it run ;-)
+
+
 
 #if 0
 
@@ -613,7 +512,8 @@ TSDLApp::Run(int argc, char* argv[])
 //	static char theROMImagePath[FL_PATH_MAX+1];
 
 	static const char *theROMImagePath = "/Users/matt/dev/Einstein/_Data_/717006";
-	static const char *theREX1Path = "/Users/matt/dev/Einstein/_Data_/Einstein.rex";
+	// Use the REx file in app/SDL/TSDLRexImage.cpp
+	static const char *theREX1Path = nullptr; // "/Users/matt/dev/Einstein/_Data_/Einstein.rex";
 	// /Users/matt/dev/Einstein/_Data_/717006
 	// /Users/matt/dev/Einstein/_Data_/Einstein.rex
 	// /Users/matt/dev/Einstein.SDL.git/_Data_/Einstein.rex

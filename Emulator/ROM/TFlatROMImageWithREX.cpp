@@ -45,6 +45,12 @@
 #include "app/FLTK/TFLRexImage.h"
 #endif
 
+#if TARGET_UI_SDL
+extern const unsigned char gEinsteinRexImage[];
+extern unsigned int gEinsteinRexImageSize;
+#endif
+
+
 #include "app/Version.h"
 
 // -------------------------------------------------------------------------- //
@@ -160,9 +166,11 @@ TFlatROMImageWithREX::TFlatROMImageWithREX(
 		::close(rexfd);
 	} else
 	{
-#if TARGET_UI_FLTK
 		// use the builtin Einstein.rex
+#if TARGET_UI_FLTK
 		memcpy(theData + 0x00800000, gEinsteinRexImage, sizeof(gEinsteinRexImage));
+#elif TARGET_UI_SDL
+		memcpy(theData + 0x00800000, gEinsteinRexImage, gEinsteinRexImageSize);
 #else
 		// TODO: we can find the Rex in the MacOS .app resources
 		::free(theData);
