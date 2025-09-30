@@ -38,7 +38,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:hardwareAccelerated="true"
-        tools:targetApi="31">
+        tools:targetApi="31"
+        android:theme="@style/AppTheme">
         <activity
             android:name="org.messagepad.einstein.EinsteinActivity"
             android:exported="true"

@@ -21,6 +21,9 @@
 // $Id$
 // ==============================
 
+// On Android, we may want to use an Action Bar to get icons and menus for
+// Backlight, Power, Package Install, etc.
+
 #define SDL_MAIN_USE_CALLBACKS
 
 #include <K/Defines/KDefinitions.h>
@@ -67,104 +70,11 @@
 
 TSDLApp* gApp = nullptr;
 
-static SDL_Window *window = NULL;
-static SDL_Renderer *renderer = NULL;
-static SDL_Texture *texture = NULL;
-
-static SDL_FRect mouseposrect;
-
-// https://wiki.libsdl.org/SDL3/SDL_PushEvent
-// https://wiki.libsdl.org/SDL3/SDL_RegisterEvents
-// https://wiki.libsdl.org/SDL3/SDL_PeepEvents
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
 	(void)appstate;
-	//Uint8 r;
-
-	bool changed = false;
-
-	// Better: SDL_Rect dirty = { x, y, w, h };
-	//         SDL_UpdateTexture(texture, &dirty, pixels, pitch);
-	//         SDL_TEXTUREACCESS_STATIC
-#if 0
-	if (gApp && gApp->GetScreenManager() && texture) {
-		changed = gApp->GetScreenManager()->UpdateTexture(texture);
-
-		uint32_t *pixels;
-		int pitch;
-		SDL_Rect rect { 50, 50, 200, 200 };
-		if (!SDL_LockTexture(texture, &rect, (void**)&pixels, &pitch)) {
-			SDL_Log("SDL_CreateTexture() failed: %s", SDL_GetError());
-			return SDL_APP_FAILURE;
-		}
-		for (int y = 0; y< 200; y++) {
-			uint32_t *d = pixels + (y*pitch)/4;
-			for (int x = 0; x< 200; x++) {
-				*d++ = (x << 16) | (y << 8);
-			}
-		}
-		SDL_UnlockTexture(texture);
-	}
-#else
-	if (gApp && gApp->GetScreenManager() && texture) {
-		const int ww = 320;
-		const int hh = 480;
-		static uint32_t buf[ww*hh];
-		static uint32_t rgb_lut[16] = {
-			0x00000000, 0x11111100, 0x22222200, 0x33333300,
-			0x44444400, 0x55555500, 0x66666600, 0x77777700,
-			0x88888800, 0x99999900, 0xaaaaaa00, 0xbbbbbb00,
-			0xcccccc00, 0xdddddd00, 0xeeeeee00, 0xffffff00 };
-		auto scrn = gApp->GetScreenManager();
-		uint32_t *d = buf;
-		for (int y=0; y<hh; y++) {
-			uint8_t *s = scrn->GetScreenBuffer() + y*(TScreenManager::kDefaultPortraitWidth/2);
-			for (int x=0; x<ww/2; x++) {
-				uint8_t pp = *s++;
-				uint8_t lt = (pp >> 4);
-				*d++ = rgb_lut[lt];
-				uint8_t rt = (pp & 0x0f);
-				*d++ = rgb_lut[rt];
-			}
-		}
-		SDL_Rect dirty = { 0, 0, ww, hh };
-		changed = SDL_UpdateTexture(texture,
-									&dirty,
-									buf,
-									ww*4); //TScreenManager::kDefaultPortraitWidth*4);
-	}
-#endif
-
-	if (changed) {
-
-		/* fade between shades of red every 3 seconds, from 0 to 255. */
-		//r = (Uint8) ((((float) (SDL_GetTicks() % 3000)) / 3000.0f) * 255.0f);
-		SDL_SetRenderDrawColor(renderer, 0xaa, 0xaa, 0xaa, 255);
-
-		/* you have to draw the whole window every frame. Clearing it makes sure the whole thing is sane. */
-		SDL_RenderClear(renderer);  /* clear whole window to that fade color. */
-
-		// Better: SDL_RenderSetLogicalSize(renderer, fb_width, fb_height); to have
-		// SDL scale the texture for us. Also scales events!
-		// It may make sense to set SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
-		//SDL_SetDefaultTextureScaleMode(renderer, SDL_SCALEMODE_NEAREST);
-		SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
-		//SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_LINEAR);
-		SDL_RenderTexture(renderer, texture, NULL, NULL);
-		SDL_SetRenderTarget(renderer, NULL);
-
-		/* set the color to white */
-		//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-		/* draw a square where the mouse cursor currently is. */
-		//SDL_RenderFillRect(renderer, &mouseposrect);
-
-		/* put everything we drew to the screen. */
-		SDL_RenderPresent(renderer);
-	}
-
-	return SDL_APP_CONTINUE;
+	return gApp->IterateSDL();
 }
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
@@ -180,14 +90,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 	return gApp->Run(argc, argv);
 }
 
-
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
 	(void)appstate;
 	(void)result;
 
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
+//	SDL_DestroyRenderer(mSDLRenderer);
+//	SDL_DestroyWindow(mSDLWindow);
 	SDL_Quit();
 }
 
@@ -526,21 +435,61 @@ SDL_AppResult TSDLApp::InitSDLGraphics()
 		return SDL_APP_FAILURE;
 	}
 
-	if (!SDL_CreateWindowAndRenderer("Einstein",
+	if (!SDL_CreateWindowAndRenderer(nullptr,
 									 TScreenManager::kDefaultPortraitWidth,
 									 TScreenManager::kDefaultPortraitHeight,
-									 SDL_WINDOW_HIGH_PIXEL_DENSITY,
-									 &window, &renderer)) {
+									 SDL_WINDOW_HIGH_PIXEL_DENSITY
+                                     // | SDL_WINDOW_FULLSCREEN // On Android, fills really everything
+                                     // | SDL_WINDOW_BORDERLESS // Android still has a title bar
+                                     // | SDL_WINDOW_MAXIMIZED // Still a title bar
+                                     ,
+									 &mSDLWindow, &mSDLRenderer)) {
 		mLog->FLogLine("SDL_CreateWindowAndRenderer() failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
+	int win_w = TScreenManager::kDefaultPortraitWidth;
+	int win_h = TScreenManager::kDefaultPortraitHeight;
+	SDL_GetWindowSize(mSDLWindow, &win_w, &win_h);
+	mScreenScaleX = (float)TScreenManager::kDefaultPortraitWidth / win_w;
+	mScreenScaleY = (float)TScreenManager::kDefaultPortraitHeight / win_h;
 
-	texture = SDL_CreateTexture(renderer,
+#if 0
+	int w, h;
+	SDL_GetWindowSize(mSDLWindow, &w, &h);
+	mLog->FLogLine("SDL_GetWindowSize: %d %d", w, h);
+	SDL_GetWindowSizeInPixels(mSDLWindow, &w, &h);
+	mLog->FLogLine("SDL_GetWindowSizeInPixels: %d %d", w, h);
+	SDL_GetRenderOutputSize(mSDLRenderer, &w, &h);
+	mLog->FLogLine("SDL_GetRenderOutputSize: %d %d", w, h);
+	SDL_GetCurrentRenderOutputSize(mSDLRenderer, &w, &h);
+	mLog->FLogLine("SDL_GetCurrentRenderOutputSize: %d %d", w, h);
+	float f = SDL_GetWindowDisplayScale(mSDLWindow);
+	mLog->FLogLine("SDL_GetWindowDisplayScale: %g", f);
+
+/* macOS Retina
+ 320x480
+ 640x960
+ 640x960
+ 640x960
+ 2
+ */
+/* Onyx
+ 1404x1722 for all
+ 2.1875
+ */
+	// https://wiki.libsdl.org/SDL3/SDL_GetWindowSizeInPixels
+	// https://wiki.libsdl.org/SDL3/SDL_GetWindowSize
+	// https://wiki.libsdl.org/SDL3/SDL_GetRenderOutputSize
+	// https://wiki.libsdl.org/SDL3/SDL_GetCurrentRenderOutputSize
+	// https://wiki.libsdl.org/SDL3/SDL_GetWindowDisplayScale
+#endif
+
+	mSDLTexture = SDL_CreateTexture(mSDLRenderer,
 								SDL_PIXELFORMAT_RGBX8888,
 								SDL_TEXTUREACCESS_STATIC,
 								TScreenManager::kDefaultPortraitWidth,
 								TScreenManager::kDefaultPortraitHeight);
-	if (!texture) {
+	if (!mSDLTexture) {
 		mLog->FLogLine("SDL_CreateTexture() failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
@@ -573,27 +522,23 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 			break;
 
 		case SDL_EVENT_MOUSE_MOTION:  /* keep track of the latest mouse position */
-			/* center the square where the mouse is */
-			mouseposrect.x = event->motion.x - (mouseposrect.w / 2);
-			mouseposrect.y = event->motion.y - (mouseposrect.h / 2);
-			if (gApp && gApp->GetScreenManager() && texture) {
+			if (gApp && gApp->GetScreenManager() && mSDLTexture) {
 				auto scrn = gApp->GetScreenManager();
 				SDL_MouseMotionEvent *e = (SDL_MouseMotionEvent*)event;
-				//SDL_ConvertEventToRenderCoordinates(<#SDL_Renderer *renderer#>, <#SDL_Event *event#>)
 				// FIXME: find the x and y scale and offset between window and texture
 				if (e->state & SDL_BUTTON_LMASK)
-					scrn->PenDown(e->x, e->y);
+					scrn->PenDown(e->x * mScreenScaleX, e->y * mScreenScaleY);
 			}
 			break;
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
-			if (gApp && gApp->GetScreenManager() && texture) {
+			if (gApp && gApp->GetScreenManager() && mSDLTexture) {
 				auto scrn = gApp->GetScreenManager();
 				SDL_MouseButtonEvent *e = (SDL_MouseButtonEvent*)event;
-				scrn->PenDown(e->x, e->y);
+				scrn->PenDown(e->x * mScreenScaleX, e->y * mScreenScaleY);
 			}
 			break;
 		case SDL_EVENT_MOUSE_BUTTON_UP:
-			if (gApp && gApp->GetScreenManager() && texture) {
+			if (gApp && gApp->GetScreenManager() && mSDLTexture) {
 				auto scrn = gApp->GetScreenManager();
 				//SDL_MouseButtonEvent *e = (SDL_MouseButtonEvent*)event;
 				scrn->PenUp();
@@ -621,7 +566,7 @@ SDL_AppResult TSDLApp::HandleBootStateChange()
 									 "Emulator ROM Image",
 									 "Loading the Newton ROM image failed\n\n"
 									 "Please choose a ROM image file next.",
-									 window);
+									 mSDLWindow);
 			ChangeBootState(BootState::PickROM);
 			break;
 		case BootState::PickROM:
@@ -643,7 +588,7 @@ SDL_AppResult TSDLApp::PickROMFile()
 {
 	auto callback = [](void*, const char * const *filelist, int filter) -> void
 	{ gApp->ROMFilePicked(filelist, filter); };
-	SDL_ShowOpenFileDialog(callback, nullptr, window, nullptr, 0, nullptr, false);
+	SDL_ShowOpenFileDialog(callback, nullptr, mSDLWindow, nullptr, 0, nullptr, false);
 	return SDL_APP_CONTINUE;
 }
 
@@ -660,7 +605,7 @@ void TSDLApp::ROMFilePicked(const char * const *filelist, int filter)
 			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
 									 "Can't copy file",
 									 "(details here)",
-									 window);
+									 mSDLWindow);
 			ChangeBootState(BootState::PickROM);
 		}
 	}
@@ -838,6 +783,72 @@ SDL_AppResult TSDLApp::Launch()
 //	emulatorThread->join();
 	return SDL_APP_CONTINUE;
 }
+
+SDL_AppResult TSDLApp::IterateSDL()
+{
+	//Uint8 r;
+
+	bool changed = false;
+
+	if (gApp && gApp->GetScreenManager() && mSDLTexture) {
+		const int ww = 320;
+		const int hh = 480;
+		static uint32_t buf[ww*hh];
+		static uint32_t rgb_lut[16] = {
+			0x00000000, 0x11111100, 0x22222200, 0x33333300,
+			0x44444400, 0x55555500, 0x66666600, 0x77777700,
+			0x88888800, 0x99999900, 0xaaaaaa00, 0xbbbbbb00,
+			0xcccccc00, 0xdddddd00, 0xeeeeee00, 0xffffff00 };
+		auto scrn = gApp->GetScreenManager();
+		uint32_t *d = buf;
+		for (int y=0; y<hh; y++) {
+			uint8_t *s = scrn->GetScreenBuffer() + y*(TScreenManager::kDefaultPortraitWidth/2);
+			for (int x=0; x<ww/2; x++) {
+				uint8_t pp = *s++;
+				uint8_t lt = (pp >> 4);
+				*d++ = rgb_lut[lt];
+				uint8_t rt = (pp & 0x0f);
+				*d++ = rgb_lut[rt];
+			}
+		}
+		SDL_Rect dirty = { 0, 0, ww, hh };
+		changed = SDL_UpdateTexture(mSDLTexture,
+									&dirty,
+									buf,
+									ww*4); //TScreenManager::kDefaultPortraitWidth*4);
+	}
+
+	if (changed) {
+
+		/* fade between shades of red every 3 seconds, from 0 to 255. */
+		//r = (Uint8) ((((float) (SDL_GetTicks() % 3000)) / 3000.0f) * 255.0f);
+		SDL_SetRenderDrawColor(mSDLRenderer, 0xaa, 0xaa, 0xaa, 255);
+
+		/* you have to draw the whole window every frame. Clearing it makes sure the whole thing is sane. */
+		SDL_RenderClear(mSDLRenderer);  /* clear whole window to that fade color. */
+
+		// Better: SDL_RenderSetLogicalSize(mSDLRenderer, fb_width, fb_height); to have
+		// SDL scale the texture for us. Also scales events!
+		// It may make sense to set SDL_RenderSetIntegerScale(mSDLRenderer, SDL_TRUE);
+		//SDL_SetDefaultTextureScaleMode(mSDLRenderer, SDL_SCALEMODE_NEAREST);
+		SDL_SetTextureScaleMode(mSDLTexture, SDL_SCALEMODE_NEAREST);
+		//SDL_SetTextureScaleMode(mSDLTexture, SDL_SCALEMODE_LINEAR);
+		SDL_RenderTexture(mSDLRenderer, mSDLTexture, NULL, NULL);
+		SDL_SetRenderTarget(mSDLRenderer, NULL);
+
+		/* set the color to white */
+		//SDL_SetRenderDrawColor(mSDLRenderer, 255, 255, 255, 255);
+
+		/* draw a square where the mouse cursor currently is. */
+		//SDL_RenderFillRect(mSDLRenderer, &mouseposrect);
+
+		/* put everything we drew to the screen. */
+		SDL_RenderPresent(mSDLRenderer);
+	}
+
+	return SDL_APP_CONTINUE;
+}
+
 
 #if 0
 // MARK: -

@@ -107,6 +107,7 @@ public:
 
 	void ROMFilePicked(const char * const *filelist, int filter);
 
+	SDL_AppResult IterateSDL();
 
 	// --- User Actions
 
@@ -263,6 +264,11 @@ private:
 	Uint32 mSDLMinEvent { 0 };
 	Uint32 mSDLBootStateEvent { 0 };
 	Uint32 mSDLMaxEvent { 0 };
+	float mScreenScaleX { 1.0f };
+	float mScreenScaleY { 1.0f };
+	SDL_Window *mSDLWindow { nullptr };
+	SDL_Renderer *mSDLRenderer { nullptr };
+	SDL_Texture *mSDLTexture { nullptr };
 };
 
 #endif
