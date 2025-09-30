@@ -58,12 +58,13 @@ typedef std::vector<std::string> StringList;
 typedef std::vector<const char*> StringArray;
 
 enum class BootState {
-	Init,
+	Launch,
 	LoadROM,
 	ROMNotFound,
 	PickROM,
 	ROMPicked,
-	Launch,
+	Run,
+	Running,
 	Exit
 };
 
@@ -89,95 +90,35 @@ public:
 
 	// --- Startup and run the emulator.
 
-	// Launch the app.
-	SDL_AppResult Run(int argc, char* argv[]); // TODO: SDL_AppResult
-	SDL_AppResult Launch();
+	// Set up SDL and launch the boot state machine.
+	SDL_AppResult Launch(int argc, char* argv[]);
 
+	// Allocate the remaining part of the emulator an run the emulation in a new thread.
+	SDL_AppResult Run();
+
+	// Register Einstein specific events with SDL.
 	void InitSDLEvents();
 
+	// Initialize the SDL window and graphics resources and open the window.
 	SDL_AppResult InitSDLGraphics();
 
+	// Update the boot state and send an event, so the state machine advances.
 	void ChangeBootState(BootState newState);
 
+	// Handle any event that SDL may throw at us.
 	SDL_AppResult HandleSDLEvent(SDL_Event *event);
 
+	// Handle a change in the boot state machine.
 	SDL_AppResult HandleBootStateChange();
 
+	// Open a file chooser to pick a ROM file from the file system.
 	SDL_AppResult PickROMFile();
 
+	// Copy the selected file to an app private space if one was selected.
 	void ROMFilePicked(const char * const *filelist, int filter);
 
+	// SDL calls and wants us to render a new frame.
 	SDL_AppResult IterateSDL();
-
-	// --- User Actions
-
-	// user wants to quit the emulator
-	void UserActionQuit();
-
-	// user pull power switch
-	void UserActionTogglePower();
-
-	// user toggles backlight
-	void UserActionToggleBacklight();
-
-	// install a package
-	void InstallPackagesFromURI(const char* filenames);
-
-	// user wants to install a package
-	void UserActionInstallPackage();
-
-	// user wants to reset or reboot the emulator
-	void UserActionReset(int inType);
-
-	// user wants to see the About window
-	void UserActionShowAboutPanel();
-
-	// user wants to see the Setting window
-	void UserActionShowSettingsPanel();
-
-	// user wants screen to be its original size
-	void UserActionOriginalScreenSize();
-
-	// user wants Einstein to take over the entire screen
-	void UserActionToggleFullscreen();
-
-	// user wants to download a ROM file from a physical device
-	void UserActionFetchROM();
-
-	// react to a right-click on the main screen
-	void UserActionPopupMenu();
-
-	// Show or raise or hide the Monitor window
-	void UserActionToggleMonitor();
-
-	// Show or raise or hide the Toolkit window
-	void UserActionShowToolkit();
-
-	// User wants to create a PCMCIA image from snapshot files and add it to the PCMCIA card list.
-	int UserActionPCMCIAImageFromSnapshot(const char* dst, const char* data, const char* cis, const char* name);
-
-	// User wants to insert or remove PCMCIA card into ot from controller 0.
-	int UserActionPCCard(int inSlot, long inIndex);
-
-	// User wants to keep this card in the PCCard slot during reboots
-	int UserActionKeepPCCardInSlot(int inSlot, int inIndex);
-
-	// User wants to print a screenshot
-	void UserActionPrintScreen();
-
-	// User wants to install essential software from UNNA and friends.
-	void UserActionInstallEssentials();
-
-	// ---  Events from within the emulator
-
-	// this is called by the screen manager when the state of the backlight changed
-	void PowerChangedEvent(Boolean);
-
-	// this is called by the screen manager when the state of the backlight changed
-	void BacklightChangedEvent(Boolean);
-
-	// Newton OS needs a new screen size (usually by rotating the screen)
-	void ResizeFromNewton(int w, int h);
 
 	// --- Getter and setter
 
@@ -193,48 +134,16 @@ public:
 		return mScreenManager;
 	}
 
-	const char* ChooseExistingFile(const char* message, const char* pat, const char* fname);
-	const char* ChooseExistingDirectory(const char* message, const char* pat, const char* fname);
-	const char* ChooseNewFile(const char* message, const char* pat, const char* fname);
-
 private:
-	void InitSettings();
 
-	void InitSDL(int argc, char** argv);	
+	// Reminder to implement PCMCIA Card support
+	// void MountPCCardsKeptInSlot();
 
-	void InitScreen();
-
-	void InitSound();
-
-	void InitNetwork();
-
-	void InitSerialPorts();
-
-	void InitMonitor(const char* theROMImagePath);
-
-	void MountPCCardsKeptInSlot();
-
-	// create the driver for our screen output
-	void CreateScreenManager(
-							 const char* inClass,
-							 int inPortraitWidth,
-							 int inPortraitHeight,
-							 Boolean inFullScreen);
-
-	// create a log file
-	void CreateLog(const char* inPath);
-
-	// run the emulation in a new thread
+	// Emulator thread entry point.
 	void EmulatorThreadEntry(void);
 
-	// store the current size of the app window in mWindowed...
-	void StoreAppWindowSize();
+	// Einstein Variables
 
-	void DeferredOnPowerRestored();
-
-	// Variables
-	BootState mBootState { BootState::Init };
-	const char* mProgramName = nullptr;
 	TROMImage* mROMImage = nullptr;
 	TEmulator* mEmulator = nullptr;
 	TSoundManager* mSoundManager = nullptr;
@@ -242,28 +151,20 @@ private:
 	TPlatformManager* mPlatformManager = nullptr;
 	TNetworkManager* mNetworkManager = nullptr;
 	TLog* mLog = nullptr;
-	TBufferLog* mMonitorLog = nullptr;
-	TMonitor* mMonitor = nullptr;
-	TSymbolList* mSymbolList = nullptr;
-#if USE_TOOLKIT
-	TToolkit* mToolkit = nullptr;
-#endif
-	void* mNewtonScreen = nullptr;
-	int mWindowedX = 150;
-	int mWindowedY = 150;
-	int mWindowedWidth = 320;
-	int mWindowedHeight = 480;
-	//    bool                mPresentEssentialsInstaller = false;
+
+	// SDL variables
+	
+	BootState mBootState { BootState::Launch };
 
 	std::filesystem::path mPrivateDataPath;
 	std::filesystem::path mPublicDataPath;
 	std::filesystem::path mROMPath;
 	std::filesystem::path mFlashPath;
 
-	// SDL variables
 	Uint32 mSDLMinEvent { 0 };
 	Uint32 mSDLBootStateEvent { 0 };
 	Uint32 mSDLMaxEvent { 0 };
+
 	float mScreenScaleX { 1.0f };
 	float mScreenScaleY { 1.0f };
 	SDL_Window *mSDLWindow { nullptr };
