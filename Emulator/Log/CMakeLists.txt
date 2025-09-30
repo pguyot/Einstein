@@ -18,3 +18,10 @@ list ( APPEND common_sources
 	Emulator/Log/TStdOutLog.cpp
 	Emulator/Log/TStdOutLog.h
 )
+
+if ( EINSTEIN_SDL3_FRONTEND )
+list ( APPEND common_sources
+	Emulator/Log/TSDLLog.cpp
+	Emulator/Log/TSDLLog.h
+)
+endif ()

@@ -29,7 +29,10 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include <SDL3/SDL.h>
+
 #include <string>
+#include <filesystem>
 #include <vector>
 
 
@@ -54,6 +57,16 @@ extern class TSDLApp* gApp;
 typedef std::vector<std::string> StringList;
 typedef std::vector<const char*> StringArray;
 
+enum class BootState {
+	Init,
+	LoadROM,
+	ROMNotFound,
+	PickROM,
+	ROMPicked,
+	Launch,
+	Exit
+};
+
 /**
  This is the central class that manages application launch and the user interface.
  */
@@ -77,7 +90,23 @@ public:
 	// --- Startup and run the emulator.
 
 	// Launch the app.
-	void Run(int argc, char* argv[]);
+	SDL_AppResult Run(int argc, char* argv[]); // TODO: SDL_AppResult
+	SDL_AppResult Launch();
+
+	void InitSDLEvents();
+
+	SDL_AppResult InitSDLGraphics();
+
+	void ChangeBootState(BootState newState);
+
+	SDL_AppResult HandleSDLEvent(SDL_Event *event);
+
+	SDL_AppResult HandleBootStateChange();
+
+	SDL_AppResult PickROMFile();
+
+	void ROMFilePicked(const char * const *filelist, int filter);
+
 
 	// --- User Actions
 
@@ -170,7 +199,7 @@ public:
 private:
 	void InitSettings();
 
-	void InitSDL(int argc, char** argv);
+	void InitSDL(int argc, char** argv);	
 
 	void InitScreen();
 
@@ -203,6 +232,7 @@ private:
 	void DeferredOnPowerRestored();
 
 	// Variables
+	BootState mBootState { BootState::Init };
 	const char* mProgramName = nullptr;
 	TROMImage* mROMImage = nullptr;
 	TEmulator* mEmulator = nullptr;
@@ -223,6 +253,16 @@ private:
 	int mWindowedWidth = 320;
 	int mWindowedHeight = 480;
 	//    bool                mPresentEssentialsInstaller = false;
+
+	std::filesystem::path mPrivateDataPath;
+	std::filesystem::path mPublicDataPath;
+	std::filesystem::path mROMPath;
+	std::filesystem::path mFlashPath;
+
+	// SDL variables
+	Uint32 mSDLMinEvent { 0 };
+	Uint32 mSDLBootStateEvent { 0 };
+	Uint32 mSDLMaxEvent { 0 };
 };
 
 #endif

@@ -55,7 +55,7 @@
  Create a serial port supervisor.
 
  @param inEmulator this is our owner
- @param inLog write errors and wornings to this log
+ @param inLog write errors and warnings to this log
  */
 TSerialPorts::TSerialPorts(TEmulator* inEmulator, TLog* inLog) :
 		mLog(inLog), mEmulator(inEmulator)

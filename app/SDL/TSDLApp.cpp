@@ -30,10 +30,7 @@
 // Einstein
 #include "Emulator/TEmulator.h"
 #include "Emulator/TMemory.h"
-#include "Emulator/Log/TBufferLog.h"
-#include "Emulator/Log/TFileLog.h"
-#include "Emulator/Log/TStdOutLog.h"
-#include "Emulator/Log/TLog.h"
+#include "Emulator/Log/TSDLLog.h"
 #include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Network/TUsermodeNetwork.h"
 #include "Emulator/PCMCIA/TLinearCard.h"
@@ -76,13 +73,21 @@ static SDL_Texture *texture = NULL;
 
 static SDL_FRect mouseposrect;
 
+// https://wiki.libsdl.org/SDL3/SDL_PushEvent
+// https://wiki.libsdl.org/SDL3/SDL_RegisterEvents
+// https://wiki.libsdl.org/SDL3/SDL_PeepEvents
+
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
 	(void)appstate;
-	Uint8 r;
+	//Uint8 r;
 
 	bool changed = false;
 
+	// Better: SDL_Rect dirty = { x, y, w, h };
+	//         SDL_UpdateTexture(texture, &dirty, pixels, pitch);
+	//         SDL_TEXTUREACCESS_STATIC
+#if 0
 	if (gApp && gApp->GetScreenManager() && texture) {
 		changed = gApp->GetScreenManager()->UpdateTexture(texture);
 
@@ -101,24 +106,59 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 		}
 		SDL_UnlockTexture(texture);
 	}
+#else
+	if (gApp && gApp->GetScreenManager() && texture) {
+		const int ww = 320;
+		const int hh = 480;
+		static uint32_t buf[ww*hh];
+		static uint32_t rgb_lut[16] = {
+			0x00000000, 0x11111100, 0x22222200, 0x33333300,
+			0x44444400, 0x55555500, 0x66666600, 0x77777700,
+			0x88888800, 0x99999900, 0xaaaaaa00, 0xbbbbbb00,
+			0xcccccc00, 0xdddddd00, 0xeeeeee00, 0xffffff00 };
+		auto scrn = gApp->GetScreenManager();
+		uint32_t *d = buf;
+		for (int y=0; y<hh; y++) {
+			uint8_t *s = scrn->GetScreenBuffer() + y*(TScreenManager::kDefaultPortraitWidth/2);
+			for (int x=0; x<ww/2; x++) {
+				uint8_t pp = *s++;
+				uint8_t lt = (pp >> 4);
+				*d++ = rgb_lut[lt];
+				uint8_t rt = (pp & 0x0f);
+				*d++ = rgb_lut[rt];
+			}
+		}
+		SDL_Rect dirty = { 0, 0, ww, hh };
+		changed = SDL_UpdateTexture(texture,
+									&dirty,
+									buf,
+									ww*4); //TScreenManager::kDefaultPortraitWidth*4);
+	}
+#endif
 
 	if (changed) {
 
 		/* fade between shades of red every 3 seconds, from 0 to 255. */
-		r = (Uint8) ((((float) (SDL_GetTicks() % 3000)) / 3000.0f) * 255.0f);
-		SDL_SetRenderDrawColor(renderer, r, 0, 0, 255);
+		//r = (Uint8) ((((float) (SDL_GetTicks() % 3000)) / 3000.0f) * 255.0f);
+		SDL_SetRenderDrawColor(renderer, 0xaa, 0xaa, 0xaa, 255);
 
 		/* you have to draw the whole window every frame. Clearing it makes sure the whole thing is sane. */
 		SDL_RenderClear(renderer);  /* clear whole window to that fade color. */
 
+		// Better: SDL_RenderSetLogicalSize(renderer, fb_width, fb_height); to have
+		// SDL scale the texture for us. Also scales events!
+		// It may make sense to set SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
+		//SDL_SetDefaultTextureScaleMode(renderer, SDL_SCALEMODE_NEAREST);
+		SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+		//SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_LINEAR);
 		SDL_RenderTexture(renderer, texture, NULL, NULL);
 		SDL_SetRenderTarget(renderer, NULL);
 
 		/* set the color to white */
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
 		/* draw a square where the mouse cursor currently is. */
-		SDL_RenderFillRect(renderer, &mouseposrect);
+		//SDL_RenderFillRect(renderer, &mouseposrect);
 
 		/* put everything we drew to the screen. */
 		SDL_RenderPresent(renderer);
@@ -130,69 +170,16 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
 	(void)appstate;
-	switch (event->type) {
-		case SDL_EVENT_QUIT:  /* triggers on last window close and other things. End the program. */
-			return SDL_APP_SUCCESS;
-
-		case SDL_EVENT_KEY_DOWN:  /* quit if user hits ESC key */
-			if (event->key.scancode == SDL_SCANCODE_ESCAPE) {
-				return SDL_APP_SUCCESS;
-			}
-			break;
-
-		case SDL_EVENT_MOUSE_MOTION:  /* keep track of the latest mouse position */
-			/* center the square where the mouse is */
-			mouseposrect.x = event->motion.x - (mouseposrect.w / 2);
-			mouseposrect.y = event->motion.y - (mouseposrect.h / 2);
-			break;
-	}
-	return SDL_APP_CONTINUE;
+	return gApp->HandleSDLEvent(event);
 }
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-	(void)appstate;
-	(void)argv;
-	(void)argc;
-
-	SDL_SetAppMetadata("Einstein emulator for Newton MP2x00", "1.0", "org.messagepad.einstein");
-
-	if (!SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_EVENTS)) {
-		SDL_Log("SDL_Init(SDL_INIT_VIDEO) failed: %s", SDL_GetError());
-		return SDL_APP_FAILURE;
-	}
-
-	if (!SDL_CreateWindowAndRenderer("Einstein", 640, 480, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
-		SDL_Log("SDL_CreateWindowAndRenderer() failed: %s", SDL_GetError());
-		return SDL_APP_FAILURE;
-	}
-
-	texture = SDL_CreateTexture(renderer,
-								SDL_PIXELFORMAT_RGBX8888,
-								SDL_TEXTUREACCESS_STREAMING,
-								640, 320);
-	if (!texture) {
-		SDL_Log("SDL_CreateTexture() failed: %s", SDL_GetError());
-		return SDL_APP_FAILURE;
-	}
-
-	// SDL_TEXTUREACCESS_STREAMING
-
-	mouseposrect.x = mouseposrect.y = -1000;  /* -1000 so it's offscreen at start */
-	mouseposrect.w = mouseposrect.h = 50;
-
-#if TARGET_OS_ANDROID
-    AndroidPickROMFile();
-#else
 	gApp = new TSDLApp();
-	gApp->Run(argc, argv);
-#endif
-
-
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Test", "Waldfee!", window);
-
-	return SDL_APP_CONTINUE;
+	*appstate = gApp;
+	return gApp->Run(argc, argv);
 }
+
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
@@ -475,29 +462,214 @@ TSDLApp::~TSDLApp(void)
 /**
  Run Einstein.
 
- \todo Must urgently refactor this so it becomes readable again.
+ Initialize everything to open a window and get the SDL main loop running.
+ All further events are handled by the mBootState state machine. State
+ machine changes are announced using a user-defined SDL event.
  */
-void
+SDL_AppResult
 TSDLApp::Run(int argc, char* argv[])
 {
 	(void)argc;
 	(void)argv;
-	mLog = new TStdOutLog();
-//	mProgramName = argv[0];
 
+	SDL_AppResult result = SDL_APP_CONTINUE;
+
+	mLog = new TSDLLog();
+	SDL_SetLogPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
+
+	// Init Directories
 #if TARGET_OS_ANDROID
-    //std::string documents_folder = SDL_AndroidGetInternalStoragePath();
-    std::string documents_folder = SDL_GetAndroidExternalStoragePath();
+	mPrivateDataPath = SDL_GetAndroidInternalStoragePath();
+	mPublicDataPath = SDL_GetAndroidExternalStoragePath();
+	mROMPath = mPublicDataPath / "ROM.bin"; // FIXME: public or private?
+	// ROM in private
+	// Setting in private
+	// Flash in public?
 #else
-	std::string documents_folder = SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS);
+	mPrivateDataPath = SDL_GetPrefPath("org.messagepad", "einstein");
+	mPublicDataPath = SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS);
+	mPublicDataPath /= "Einstein";
+	mROMPath = "/Users/matt/dev/Einstein/_Data_/717006";
 #endif
 
-// Crashes on Android: SDL_AndroidGetExternalStoragePath()
-	const char* theFlashPath = strdup( (documents_folder + "einstein.flash").c_str() );
-	// https://wiki.libsdl.org/SDL3/SDL_Folder,
-	// TODO: check for nullptr
-	// TODO: append a file name
-	// TODO: also char * SDL_GetPrefPath(const char *org, const char *app);
+	// Load Settings
+	// TODO: write me
+
+	// Initialize SDL user events
+	InitSDLEvents();
+
+	// Initialize window, renderer, and texture
+	result = InitSDLGraphics();
+	if (result != SDL_APP_CONTINUE) return result;
+
+	// Change BootState to LoadROM (sends a message to SDL)
+	ChangeBootState(BootState::LoadROM);
+
+	// Let the message handler take it from here
+	return result;
+}
+
+void TSDLApp::InitSDLEvents()
+{
+	constexpr int numUserEvents = 1;
+	mSDLMinEvent = SDL_RegisterEvents(numUserEvents);
+	mSDLBootStateEvent = mSDLMinEvent;
+	mSDLMaxEvent = mSDLMinEvent + numUserEvents - 1;
+}
+
+SDL_AppResult TSDLApp::InitSDLGraphics()
+{
+	SDL_SetAppMetadata("Einstein emulator for Newton MP2x00", "1.0", "org.messagepad.einstein");
+
+	if (!SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_EVENTS)) {
+		mLog->FLogLine("SDL_Init(SDL_INIT_VIDEO) failed: %s", SDL_GetError());
+		return SDL_APP_FAILURE;
+	}
+
+	if (!SDL_CreateWindowAndRenderer("Einstein",
+									 TScreenManager::kDefaultPortraitWidth,
+									 TScreenManager::kDefaultPortraitHeight,
+									 SDL_WINDOW_HIGH_PIXEL_DENSITY,
+									 &window, &renderer)) {
+		mLog->FLogLine("SDL_CreateWindowAndRenderer() failed: %s", SDL_GetError());
+		return SDL_APP_FAILURE;
+	}
+
+	texture = SDL_CreateTexture(renderer,
+								SDL_PIXELFORMAT_RGBX8888,
+								SDL_TEXTUREACCESS_STATIC,
+								TScreenManager::kDefaultPortraitWidth,
+								TScreenManager::kDefaultPortraitHeight);
+	if (!texture) {
+		mLog->FLogLine("SDL_CreateTexture() failed: %s", SDL_GetError());
+		return SDL_APP_FAILURE;
+	}
+
+	return SDL_APP_CONTINUE;
+}
+
+void TSDLApp::ChangeBootState(BootState newState)
+{
+	mBootState = newState;
+	SDL_Event event { mSDLBootStateEvent };
+	SDL_PushEvent(&event);
+}
+
+SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
+{
+	auto event_type = event->type;
+
+	if (event_type == mSDLBootStateEvent)
+		return HandleBootStateChange();
+
+	switch (event_type) {
+		case SDL_EVENT_QUIT:  /* triggers on last window close and other things. End the program. */
+			return SDL_APP_SUCCESS;
+
+		case SDL_EVENT_KEY_DOWN:  /* quit if user hits ESC key */
+			if (event->key.scancode == SDL_SCANCODE_ESCAPE) {
+				return SDL_APP_SUCCESS;
+			}
+			break;
+
+		case SDL_EVENT_MOUSE_MOTION:  /* keep track of the latest mouse position */
+			/* center the square where the mouse is */
+			mouseposrect.x = event->motion.x - (mouseposrect.w / 2);
+			mouseposrect.y = event->motion.y - (mouseposrect.h / 2);
+			if (gApp && gApp->GetScreenManager() && texture) {
+				auto scrn = gApp->GetScreenManager();
+				SDL_MouseMotionEvent *e = (SDL_MouseMotionEvent*)event;
+				//SDL_ConvertEventToRenderCoordinates(<#SDL_Renderer *renderer#>, <#SDL_Event *event#>)
+				// FIXME: find the x and y scale and offset between window and texture
+				if (e->state & SDL_BUTTON_LMASK)
+					scrn->PenDown(e->x, e->y);
+			}
+			break;
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			if (gApp && gApp->GetScreenManager() && texture) {
+				auto scrn = gApp->GetScreenManager();
+				SDL_MouseButtonEvent *e = (SDL_MouseButtonEvent*)event;
+				scrn->PenDown(e->x, e->y);
+			}
+			break;
+		case SDL_EVENT_MOUSE_BUTTON_UP:
+			if (gApp && gApp->GetScreenManager() && texture) {
+				auto scrn = gApp->GetScreenManager();
+				//SDL_MouseButtonEvent *e = (SDL_MouseButtonEvent*)event;
+				scrn->PenUp();
+			}
+			break;
+	}
+	return SDL_APP_CONTINUE;
+}
+
+SDL_AppResult TSDLApp::HandleBootStateChange()
+{
+	switch (mBootState) {
+		case BootState::LoadROM:
+			mROMImage = new TFlatROMImageWithREX(mROMPath.c_str(), nullptr);
+			if (mROMImage->GetErrorCode() == TAIFROMImageWithREXes::kNoError) {
+				ChangeBootState(BootState::Launch);
+			} else {
+				delete mROMImage;
+				mROMImage = nullptr;
+				ChangeBootState(BootState::ROMNotFound);
+			}
+			break;
+		case BootState::ROMNotFound: // TODO: fix dialog box text
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING,
+									 "Emulator ROM Image",
+									 "Loading the Newton ROM image failed\n\n"
+									 "Please choose a ROM image file next.",
+									 window);
+			ChangeBootState(BootState::PickROM);
+			break;
+		case BootState::PickROM:
+			PickROMFile();
+			break;
+		case BootState::Launch:
+			Launch();
+			break;
+		case BootState::Exit:
+			return SDL_APP_SUCCESS;	// friendly exit
+		default:
+			mLog->FLogLine("HandleBootStateChange, state %d not handled\n", (int)mBootState);
+			break;
+	}
+	return SDL_APP_CONTINUE;
+}
+
+SDL_AppResult TSDLApp::PickROMFile()
+{
+	auto callback = [](void*, const char * const *filelist, int filter) -> void
+	{ gApp->ROMFilePicked(filelist, filter); };
+	SDL_ShowOpenFileDialog(callback, nullptr, window, nullptr, 0, nullptr, false);
+	return SDL_APP_CONTINUE;
+}
+
+void TSDLApp::ROMFilePicked(const char * const *filelist, int filter)
+{
+	(void)filter;
+	if ((filelist == nullptr) || (filelist[0] == nullptr)) {
+		ChangeBootState(BootState::ROMNotFound); // or Exit
+	} else {
+		if (SDL_CopyFile(filelist[0], mROMPath.c_str())) {
+			ChangeBootState(BootState::LoadROM);
+		} else {
+			mLog->FLogLine("Can't copy ROM file '%s' to '%s': %s", filelist[0], mROMPath.c_str(), SDL_GetError());
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+									 "Can't copy file",
+									 "(details here)",
+									 window);
+			ChangeBootState(BootState::PickROM);
+		}
+	}
+}
+
+SDL_AppResult TSDLApp::Launch()
+{
+	mFlashPath = mPublicDataPath / "einstein.flash";
+	SDL_CreateDirectory(mPublicDataPath.c_str());
 
 //	InitFLTK(argc, argv);
 //
@@ -511,12 +683,17 @@ TSDLApp::Run(int argc, char* argv[])
 //
 //	static char theROMImagePath[FL_PATH_MAX+1];
 
-	static const char *theROMImagePath = "/Users/matt/dev/Einstein/_Data_/717006";
-	// Use the REx file in app/SDL/TSDLRexImage.cpp
-	static const char *theREX1Path = nullptr; // "/Users/matt/dev/Einstein/_Data_/Einstein.rex";
-	// /Users/matt/dev/Einstein/_Data_/717006
-	// /Users/matt/dev/Einstein/_Data_/Einstein.rex
-	// /Users/matt/dev/Einstein.SDL.git/_Data_/Einstein.rex
+//#if TARGET_OS_ANDROID
+//#error Write the state machine and get the real path!
+//    static const char *theROMImagePath = "...";
+//#else
+//	static const char *theROMImagePath = "/Users/matt/dev/Einstein/_Data_/717006";
+//#endif
+//	// Use the REx file in app/SDL/TSDLRexImage.cpp
+//	static const char *theREX1Path = nullptr; // "/Users/matt/dev/Einstein/_Data_/Einstein.rex";
+//	// /Users/matt/dev/Einstein/_Data_/717006
+//	// /Users/matt/dev/Einstein/_Data_/Einstein.rex
+//	// /Users/matt/dev/Einstein.SDL.git/_Data_/Einstein.rex
 
 //	for (Boolean firstAttempt = true;; firstAttempt = false)
 //	{
@@ -524,7 +701,7 @@ TSDLApp::Run(int argc, char* argv[])
 //			mFLSettings->ShowSettingsPanelModal();
 //		strncpy(theROMImagePath, mFLSettings->ROMPath, FL_PATH_MAX);
 
-	mROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path);
+//	mROMImage = new TFlatROMImageWithREX(theROMImagePath, theREX1Path);
 	//mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, 1, false);
 
 //		mROMImage = TROMImage::LoadROMAndREX(theROMImagePath, 1, mFLSettings->mUseBuiltinRex);
@@ -575,7 +752,7 @@ TSDLApp::Run(int argc, char* argv[])
 //	// eMate:  1MB Dynamic RAM, 2MB Flash RAM
 	mEmulator = new TEmulator(mLog,
 							  mROMImage,		// TODO
-							  theFlashPath,		// TODO
+							  mFlashPath.c_str(),		// TODO
 							  mSoundManager,	// TODO
 							  mScreenManager,	// TODO
 							  mNetworkManager,	// TODO
@@ -600,6 +777,11 @@ TSDLApp::Run(int argc, char* argv[])
 //							   });
 //
 //	InitSerialPorts(); // do this after creating the emulator
+	mEmulator->SerialPorts.Initialize(TSerialPorts::kNullDriver,
+									  TSerialPorts::kNullDriver,
+									  TSerialPorts::kNullDriver,
+									  TSerialPorts::kNullDriver);
+
 //
 //	InitMonitor(theROMImagePath);
 //	if (mMonitor)
@@ -654,6 +836,7 @@ TSDLApp::Run(int argc, char* argv[])
 //
 //	// wait for the emulator to finish before we leave the house, too and lock the doors
 //	emulatorThread->join();
+	return SDL_APP_CONTINUE;
 }
 
 #if 0

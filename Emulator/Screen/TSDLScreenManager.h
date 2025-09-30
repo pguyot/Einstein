@@ -131,8 +131,8 @@ public:
 	void Run(void);
 
 	bool UpdateTexture(SDL_Texture *texture);
-	SDL_Rect mDirtyRect;
-	bool mIsDirty = false;
+	SDL_Rect mDirtyRect { };
+	bool mIsDirty { false };
 };
 
 #endif
