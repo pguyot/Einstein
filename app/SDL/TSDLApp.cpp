@@ -144,6 +144,9 @@ TSDLApp::Launch(int argc, char* argv[])
 	(void)argc;
 	(void)argv;
 
+//	mScreenWidth = 480;
+//	mScreenHeight = 640;
+
 	SDL_AppResult result = SDL_APP_CONTINUE;
 
 	mLog = new TSDLLog();
@@ -153,15 +156,12 @@ TSDLApp::Launch(int argc, char* argv[])
 #if TARGET_OS_ANDROID
 	mPrivateDataPath = SDL_GetAndroidInternalStoragePath();
 	mPublicDataPath = SDL_GetAndroidExternalStoragePath();
-	mROMPath = mPublicDataPath / "ROM.bin"; // FIXME: public or private?
-	// ROM in private
-	// Setting in private
-	// Flash in public?
+	mROMPath = mPublicDataPath / "ROM.bin";
 #else
 	mPrivateDataPath = SDL_GetPrefPath("org.messagepad", "einstein");
 	mPublicDataPath = SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS);
 	mPublicDataPath /= "Einstein";
-	mROMPath = "/Users/matt/dev/Einstein/_Data_/717006";
+	mROMPath = mPrivateDataPath / "ROM.bin";
 #endif
 
 	// Load Settings
@@ -213,22 +213,6 @@ void TSDLApp::InitSDLEvents()
  */
 SDL_AppResult TSDLApp::InitSDLGraphics()
 {
-#if 0
-	SDL_PropertiesID prop_id = SDL_GetDisplayProperties(displays[i]);
-
-	if(!SDL_GetBooleanProperty(prop_id, SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false)) {
-		SDL_Log("Display with ID %"SDL_PRIu32 " does not have HDR enabled.", displays[i]);
-	} else {
-		SDL_Log("Display with ID %"SDL_PRIu32 " has HDR enabled.", displays[i]);
-	}
-}
-SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER: a (const SDL_PixelFormat *) array of pixel formats, terminated with SDL_PIXELFORMAT_UNKNOWN, representing the available texture formats for this renderer.
-
-SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER: the ANativeWindow associated with the window
-SDL_PROP_WINDOW_ANDROID_SURFACE_POINTER: the EGLSurface associated with the window
-
-#endif
-
 	SDL_SetAppMetadata("Einstein emulator for Newton MP2x00", "1.0", "org.messagepad.einstein");
 	SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, "60");
 
@@ -238,8 +222,8 @@ SDL_PROP_WINDOW_ANDROID_SURFACE_POINTER: the EGLSurface associated with the wind
 	}
 
 	if (!SDL_CreateWindowAndRenderer(nullptr,
-									 TScreenManager::kDefaultPortraitWidth,
-									 TScreenManager::kDefaultPortraitHeight,
+									 mScreenWidth,
+									 mScreenHeight + mToolbarHeight,
 									 SDL_WINDOW_HIGH_PIXEL_DENSITY
                                      // | SDL_WINDOW_FULLSCREEN // On Android, fills really everything
                                      // | SDL_WINDOW_BORDERLESS // Android still has a title bar
@@ -249,59 +233,44 @@ SDL_PROP_WINDOW_ANDROID_SURFACE_POINTER: the EGLSurface associated with the wind
 		mLog->FLogLine("SDL_CreateWindowAndRenderer() failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
-	int win_w = TScreenManager::kDefaultPortraitWidth;
-	int win_h = TScreenManager::kDefaultPortraitHeight;
+	int win_w = mScreenWidth;
+	int win_h = mScreenHeight;
 	SDL_GetWindowSize(mSDLWindow, &win_w, &win_h);
-	mScreenScaleX = (float)TScreenManager::kDefaultPortraitWidth / win_w;
-	mScreenScaleY = (float)TScreenManager::kDefaultPortraitHeight / win_h;
-    // FIXME: on the Medium Phone emulator, the screen decoration overlaps
-    // the Einstein screen, hiding the top and bottom contents
+	mScreenScaleX = (float)mScreenWidth / win_w;
+	mScreenScaleY = (float)(mScreenHeight + mToolbarHeight) / win_h;
 
-#if 0
-	int w, h;
-	SDL_GetWindowSize(mSDLWindow, &w, &h);
-	mLog->FLogLine("SDL_GetWindowSize: %d %d", w, h);
-	SDL_GetWindowSizeInPixels(mSDLWindow, &w, &h);
-	mLog->FLogLine("SDL_GetWindowSizeInPixels: %d %d", w, h);
-	SDL_GetRenderOutputSize(mSDLRenderer, &w, &h);
-	mLog->FLogLine("SDL_GetRenderOutputSize: %d %d", w, h);
-	SDL_GetCurrentRenderOutputSize(mSDLRenderer, &w, &h);
-	mLog->FLogLine("SDL_GetCurrentRenderOutputSize: %d %d", w, h);
-	float f = SDL_GetWindowDisplayScale(mSDLWindow);
-	mLog->FLogLine("SDL_GetWindowDisplayScale: %g", f);
-	SDL_Rect r;
-	SDL_GetWindowSafeArea(mSDLWindow, &r);
-	mLog->FLogLine("SDL_GetWindowSafeArea: %d %d %d %d", r.x, r.y, r.w, r.h);
+	int pix_w = win_w;
+	int pix_h = win_h;
+	SDL_GetWindowSizeInPixels(mSDLWindow, &pix_w, &pix_h);
+	mPixelScaleX = (float)pix_w / win_w;
+	mPixelScaleY = (float)pix_h / win_h;
 
-    int num_disp;
-    SDL_DisplayID *disp = SDL_GetDisplays(&num_disp);
-    if (disp) {
-        if (num_disp > 0) {
-            SDL_GetDisplayUsableBounds(disp[0], &r);
-            mLog->FLogLine("SDL_GetDisplayUsableBounds: %d %d %d %d", r.x, r.y, r.w, r.h);
-            SDL_GetDisplayBounds(disp[0], &r);
-            mLog->FLogLine("SDL_GetDisplayBounds: %d %d %d %d", r.x, r.y, r.w, r.h);
-        }
-        SDL_free(disp);
-    }
-
-/* macOS Retina
- 320x480
- 640x960
- 640x960
- 640x960
- 2
- */
-/* Onyx
- 1404x1722 for all
- 2.1875
- */
-	// https://wiki.libsdl.org/SDL3/SDL_GetWindowSizeInPixels
-	// https://wiki.libsdl.org/SDL3/SDL_GetWindowSize
-	// https://wiki.libsdl.org/SDL3/SDL_GetRenderOutputSize
-	// https://wiki.libsdl.org/SDL3/SDL_GetCurrentRenderOutputSize
-	// https://wiki.libsdl.org/SDL3/SDL_GetWindowDisplayScale
-#endif
+//	int w, h;
+//	SDL_GetWindowSize(mSDLWindow, &w, &h);
+//	mLog->FLogLine("SDL_GetWindowSize: %d %d", w, h);
+//	SDL_GetWindowSizeInPixels(mSDLWindow, &w, &h);
+//	mLog->FLogLine("SDL_GetWindowSizeInPixels: %d %d", w, h);
+//	SDL_GetRenderOutputSize(mSDLRenderer, &w, &h);
+//	mLog->FLogLine("SDL_GetRenderOutputSize: %d %d", w, h);
+//	SDL_GetCurrentRenderOutputSize(mSDLRenderer, &w, &h);
+//	mLog->FLogLine("SDL_GetCurrentRenderOutputSize: %d %d", w, h);
+//	float f = SDL_GetWindowDisplayScale(mSDLWindow);
+//	mLog->FLogLine("SDL_GetWindowDisplayScale: %g", f);
+//	SDL_Rect r;
+//	SDL_GetWindowSafeArea(mSDLWindow, &r);
+//	mLog->FLogLine("SDL_GetWindowSafeArea: %d %d %d %d", r.x, r.y, r.w, r.h);
+//
+//    int num_disp;
+//    SDL_DisplayID *disp = SDL_GetDisplays(&num_disp);
+//    if (disp) {
+//        if (num_disp > 0) {
+//            SDL_GetDisplayUsableBounds(disp[0], &r);
+//            mLog->FLogLine("SDL_GetDisplayUsableBounds: %d %d %d %d", r.x, r.y, r.w, r.h);
+//            SDL_GetDisplayBounds(disp[0], &r);
+//            mLog->FLogLine("SDL_GetDisplayBounds: %d %d %d %d", r.x, r.y, r.w, r.h);
+//        }
+//        SDL_free(disp);
+//    }
 
 #if USE_SDL_LOCK_TEXTURE
 	constexpr SDL_TextureAccess texture_access = SDL_TEXTUREACCESS_STREAMING;
@@ -331,10 +300,11 @@ if (prop_id) {
 }
 
 	mSDLTexture = SDL_CreateTexture(mSDLRenderer,
-								pf,
-								texture_access,
-								TScreenManager::kDefaultPortraitWidth,
-								TScreenManager::kDefaultPortraitHeight);
+									pf,
+									texture_access,
+									mScreenWidth,
+									mScreenHeight + mToolbarHeight);
+	(void)mToolbarHeight;
 	if (!mSDLTexture) {
 		mLog->FLogLine("SDL_CreateTexture() failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
@@ -386,23 +356,63 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 			if (gApp && gApp->GetScreenManager() && mSDLTexture) {
 				auto scrn = gApp->GetScreenManager();
 				SDL_MouseMotionEvent *e = (SDL_MouseMotionEvent*)event;
-				// FIXME: find the x and y scale and offset between window and texture
-				if (e->state & SDL_BUTTON_LMASK)
-					scrn->PenDown(e->x * mScreenScaleX, e->y * mScreenScaleY);
+				if (e->state & SDL_BUTTON_LMASK) {
+					int mx = e->x * mScreenScaleX;
+					int my = e->y * mScreenScaleY - mToolbarHeight;
+					if (mPenDown == 1) {
+						scrn->PenDown(std::clamp(mx, 0, mScreenWidth-1),
+									  std::clamp(my, 0, mScreenHeight-1));
+					} else if (mPenDown == 2) {
+						mPenMoveN = (mScreenWidth - mx + mToolbarHeight/2) / mToolbarHeight;
+						if ((my >= 0) || (my <= -mToolbarHeight)) mPenMoveN = -1;
+						// mLog->FLogLine("Pen moved to button %d", mPenMoveN);
+						// Visualize if the button is still selected
+					}
+				}
 			}
 			break;
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 			if (gApp && gApp->GetScreenManager() && mSDLTexture) {
 				auto scrn = gApp->GetScreenManager();
 				SDL_MouseButtonEvent *e = (SDL_MouseButtonEvent*)event;
-				scrn->PenDown(e->x * mScreenScaleX, e->y * mScreenScaleY);
+				if (e->button == SDL_BUTTON_LEFT) {
+					int mx = e->x * mScreenScaleX;
+					int my = e->y * mScreenScaleY - mToolbarHeight;
+					if (my >= 0) {
+						mPenDown = 1;
+						scrn->PenDown(std::clamp(mx, 0, mScreenWidth-1),
+									  std::clamp(my, 0, mScreenHeight-1));
+					} else {
+						mPenDown = 2;
+						mPenDownN = mPenMoveN = (mScreenWidth - mx + mToolbarHeight/2) / mToolbarHeight;
+						// mLog->FLogLine("Pen down on button %d", mPenDownN);
+						// Visualize if the button is still selected
+					}
+				}
 			}
 			break;
 		case SDL_EVENT_MOUSE_BUTTON_UP:
 			if (gApp && gApp->GetScreenManager() && mSDLTexture) {
 				auto scrn = gApp->GetScreenManager();
-				//SDL_MouseButtonEvent *e = (SDL_MouseButtonEvent*)event;
-				scrn->PenUp();
+				SDL_MouseButtonEvent *e = (SDL_MouseButtonEvent*)event;
+				if (e->button == SDL_BUTTON_LEFT) {
+					//int mx = e->x * mScreenScaleX;
+					int my = e->y * mScreenScaleY - mToolbarHeight;
+					if (mPenDown == 1) {
+						scrn->PenUp();
+					} else if (mPenDown == 2) {
+						if (   (mPenDownN == mPenMoveN)
+							&& (my < 0) && (my > -mToolbarHeight))
+						{
+							switch (mPenDownN) {
+								case 1:
+									PickPackageFile();
+									break;
+							}
+						}
+					}
+					mPenDown = 0;
+				}
 			}
 			break;
 	}
@@ -445,6 +455,9 @@ SDL_AppResult TSDLApp::HandleBootStateChange()
 		case BootState::Running:
 			// Nothing to do.
 			break;
+		case BootState::PickPackage:
+			PickPackageFile();
+			break;
 		case BootState::Exit:
 			return SDL_APP_SUCCESS;	// friendly exit
 		default:
@@ -480,6 +493,7 @@ SDL_AppResult TSDLApp::PickROMFile()
 void TSDLApp::ROMFilePicked(const char * const *filelist, int filter)
 {
 	(void)filter;
+	// TODO: ask for full screen refresh
 	if ((filelist == nullptr) || (filelist[0] == nullptr)) {
 		ChangeBootState(BootState::ROMNotFound); // or Exit
 	} else {
@@ -508,7 +522,10 @@ SDL_AppResult TSDLApp::Run()
 	mFlashPath = mPublicDataPath / "einstein.flash";
 	SDL_CreateDirectory(mPublicDataPath.c_str());
 
-	mScreenManager = new TSDLScreenManager(mLog);
+	mScreenManager = new TSDLScreenManager(mLog,
+										   mScreenWidth,
+										   mScreenHeight
+										   );
 
 	mSoundManager = new TNullSoundManager(mLog);
 
@@ -555,13 +572,21 @@ SDL_AppResult TSDLApp::IterateSDL()
 	prev_call = now;
 
 	if (mSDLTexture && mScreenManager) {
-		bool changed = mScreenManager->UpdateTexture(mSDLTexture, mTextureEncoding);
+		bool changed = mScreenManager->UpdateTexture(mSDLTexture, mTextureEncoding, mToolbarHeight);
 		if (changed) {
 			// Copy the texture to the screen (SDL_SCALEMODE_NEAREST or SDL_SCALEMODE_LINEAR)
 			SDL_SetTextureScaleMode(mSDLTexture, SDL_SCALEMODE_NEAREST);
 			SDL_RenderTexture(mSDLRenderer, mSDLTexture, NULL, NULL);
 			// We can still do some overly rendering here if we like
 			SDL_SetRenderTarget(mSDLRenderer, NULL);
+			// Test having a menu button:
+			SDL_SetRenderDrawColor(mSDLRenderer, 255, 0, 0, 255);
+			SDL_FRect rf = {
+				(mScreenWidth - mToolbarHeight - mToolbarHeight/2)*mPixelScaleX/mScreenScaleX,
+				0,
+				mToolbarHeight*mPixelScaleX/mScreenScaleX,
+				mToolbarHeight*mPixelScaleY/mScreenScaleY };
+			SDL_RenderFillRect(mSDLRenderer, &rf);
 			SDL_RenderPresent(mSDLRenderer);
 		}
 	} else if (mSDLRenderer) {
@@ -586,17 +611,60 @@ TSDLApp::EmulatorThreadEntry()
 }
 
 
+void TSDLApp::UserActionInstallPackage()
+{
+	ChangeBootState(BootState::PickPackage);
+}
+
+SDL_AppResult TSDLApp::PickPackageFile()
+{
+	auto callback = [](void*, const char * const *filelist, int filter) -> void
+	{ gApp->PackageFilePicked(filelist, filter); };
+	static const SDL_DialogFileFilter filters[] = {
+		{ "Newton Packages",	"pkg;newtonpkg" },
+		{ "All files",   		"*" }
+	};
+	SDL_ShowOpenFileDialog(callback, nullptr, mSDLWindow, filters, 2, nullptr, true);
+	ChangeBootState(BootState::Running);
+	return SDL_APP_CONTINUE;
+}
+
+void TSDLApp::PackageFilePicked(const char * const *filelist, int filter)
+{
+	(void)filter;
+	// TODO: ask for full screen refresh
+	if (filelist == nullptr) return;
+		ChangeBootState(BootState::ROMNotFound); // or Exit
+	for (int i = 0; ; ++i) {
+		const char *filename = filelist[i];
+		if (filename == nullptr) break;
+		mLog->FLogLine("%d: Installing package %s", i, filename);
+		size_t size { 0 };
+		void *pkg = SDL_LoadFile(filename, &size);
+		if (pkg) {
+			mPlatformManager->InstallPackage((KUInt8*)pkg, (KUInt32)size);
+			::free(pkg);
+		} else {
+			mLog->FLogLine("Can't load file: %s", SDL_GetError());
+		}
+		mPlatformManager->InstallPackage(filename);
+	}
+	ChangeBootState(BootState::Running);
+}
+
+
+
 // =================== //
 // "Knock, knock."     //
 // "Who's there?"      //
 //                     //
 //                     //
 //                     //
+//  .                  //
 //                     //
+//  .                  //
 //                     //
-//                     //
-//                     //
-//                     //
+//  .                  //
 //                     //
 //                     //
 //                     //

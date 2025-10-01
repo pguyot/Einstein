@@ -26,6 +26,7 @@
 #define _TSDLAPP_H
 
 #include "app/Version.h"
+#include "Emulator/Screen/TScreenManager.h"
 
 #include <K/Defines/KDefinitions.h>
 
@@ -65,6 +66,9 @@ enum class BootState {
 	ROMPicked,
 	Run,
 	Running,
+	PackageDialog,
+	PickPackage,
+	InstallPackage,
 	Exit
 };
 
@@ -120,6 +124,13 @@ public:
 	// SDL calls and wants us to render a new frame.
 	SDL_AppResult IterateSDL();
 
+	// --- User Actions
+
+	// user wants to install a package
+	void UserActionInstallPackage();
+	SDL_AppResult PickPackageFile();
+	void PackageFilePicked(const char * const *filelist, int filter);
+
 	// --- Getter and setter
 
 	TPlatformManager*
@@ -156,7 +167,7 @@ private:
 	TLog* mLog = nullptr;
 
 	// SDL variables
-	
+
 	BootState mBootState { BootState::Launch };
 
 	std::filesystem::path mPrivateDataPath;
@@ -168,12 +179,21 @@ private:
 	Uint32 mSDLBootStateEvent { 0 };
 	Uint32 mSDLMaxEvent { 0 };
 
+	int mScreenWidth  { TScreenManager::kDefaultPortraitWidth };
+	int mScreenHeight { TScreenManager::kDefaultPortraitHeight };
+	int mToolbarHeight { 32 };
+
 	float mScreenScaleX { 1.0f };
 	float mScreenScaleY { 1.0f };
+	float mPixelScaleX { 1.0f };
+	float mPixelScaleY { 1.0f };
 	SDL_Window *mSDLWindow { nullptr };
 	SDL_Renderer *mSDLRenderer { nullptr };
 	SDL_Texture *mSDLTexture { nullptr };
 	int mTextureEncoding { 0 };
+	int mPenDownN { 0 };
+	int mPenMoveN { -1 };
+	int mPenDown { 0 }; // 0: up, 1: on screen, 2: on buttons
 };
 
 #endif

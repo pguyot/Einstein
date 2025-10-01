@@ -33,7 +33,7 @@
 
 // Set to 0 to use SDL_UpdateTexture
 // Set to 1 to use SDL_Lock/Unlock_Texture
-#define USE_SDL_LOCK_TEXTURE 1
+#define USE_SDL_LOCK_TEXTURE 0
 
 ///
 /// Class for a null screen manager.
@@ -63,7 +63,9 @@ public:
 	///
 	/// Destructeur.
 	///
-	virtual ~TSDLScreenManager(void) { };
+	virtual ~TSDLScreenManager(void) {
+		if (mRGBABuffer) ::free(mRGBABuffer);
+	};
 
 	///
 	/// Notify that the tablet orientation changed.
@@ -136,10 +138,15 @@ public:
 	///
 	void Run(void);
 
+	///
+	/// Render everything that changed into the texture
+	/// 
+	bool UpdateTexture(SDL_Texture *texture, int encoding, int toolbar_height);
+
 	std::mutex dirty_rect_mutex;
-	bool UpdateTexture(SDL_Texture *texture, int encoding);
 	SDL_Rect mDirtyRect { };
 	bool mIsDirty { false };
+	uint32_t *mRGBABuffer { nullptr };
 };
 
 #endif

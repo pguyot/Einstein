@@ -135,7 +135,7 @@ static uint32_t rgb_lut_gray[16] = { };
 static uint32_t rgb_lut_green[16] = { };
 
 bool
-TSDLScreenManager::UpdateTexture(SDL_Texture *texture, int encoding)
+TSDLScreenManager::UpdateTexture(SDL_Texture *texture, int encoding, int toolbar_height)
 {
 	if (!rgb_lut_initialized) {
 		for (int i=0; i<16; ++i) {
@@ -179,8 +179,8 @@ TSDLScreenManager::UpdateTexture(SDL_Texture *texture, int encoding)
 	mIsDirty = false;
 	dirty_rect_mutex.unlock();
 
-	const int ww = 320; // FIXME: NO!
-	const int hh = 480; // FIXME: NO!
+	const int ww = GetScreenWidth();
+	const int hh = GetScreenHeight();
 
 #if USE_SDL_LOCK_TEXTURE
 
@@ -209,7 +209,10 @@ TSDLScreenManager::UpdateTexture(SDL_Texture *texture, int encoding)
 
 #else
 
-	static uint32_t buf[ww*hh]; // FIXME: allocate when needed at the correct size
+	if (!mRGBABuffer) {
+		mRGBABuffer = (uint32_t*)::calloc(ww * (hh+toolbar_height), 4);
+	}
+	uint32_t *buf = mRGBABuffer;
 
 	uint8_t *src = GetScreenBuffer();
 	int src_pitch = ww/2;
@@ -218,7 +221,7 @@ TSDLScreenManager::UpdateTexture(SDL_Texture *texture, int encoding)
 	int dt = dirty.y, db = dirty.y + dirty.h;
 	for (int y=dt; y<db; y++) {
 		uint8_t *s = src + y * src_pitch + dl;
-		uint32_t *d = buf + y * dst_pitch + 2*dl;
+		uint32_t *d = buf + (y+toolbar_height) * dst_pitch + 2*dl;
 		for (int x=dl; x<dr; x++) {
 			uint8_t pp = *s++;
 			uint8_t lt = (pp >> 4);
@@ -227,10 +230,11 @@ TSDLScreenManager::UpdateTexture(SDL_Texture *texture, int encoding)
 			*d++ = rgb_lut[rt];
 		}
 	}
+	dirty.y += toolbar_height;
 	SDL_UpdateTexture(texture,
 					  &dirty,
-					  buf + dt * dst_pitch + 2*dl,
-					  ww*4); //TScreenManager::kDefaultPortraitWidth*4);
+					  buf + (dt+toolbar_height) * dst_pitch + 2*dl,
+					  ww*4);
 
 #endif
 
