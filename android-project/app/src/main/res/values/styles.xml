@@ -5,6 +5,8 @@
         <!-- Customize your theme here. -->
         <!-- <item name="android:windowActionBar">false</item> -->
         <item name="android:windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:fitsSystemWindows">true</item>
     </style>
 
 </resources>

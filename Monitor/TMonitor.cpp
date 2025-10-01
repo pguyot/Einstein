@@ -2136,8 +2136,8 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 	for (unsigned int i = 0; i < length; i++)
 	{
 		int symbolStart = r;
-		r += FormatNSRef(buffer + r, std::max((ssize_t) bufferSize - r, 0L), flattenMap[i], indent + 1, maxDepth);
-		r += ::snprintf(buffer + r, std::max((ssize_t) bufferSize - r, 0L), ": ");
+		r += FormatNSRef(buffer + r, std::max((int)bufferSize - r, 0), flattenMap[i], indent + 1, maxDepth);
+		r += ::snprintf(buffer + r, std::max((int)bufferSize - r, 0), ": ");
 		KUInt32 valueRef;
 		KUInt32 valueAddr = inAddr + ((3 + i) * sizeof(KUInt32));
 		if (mMemory->Read((TMemory::VAddr) valueAddr, valueRef))
@@ -2149,17 +2149,17 @@ TMonitor::FormatNSFrame(char* buffer, size_t bufferSize, KUInt32 inAddr, unsigne
 			return -1;
 		}
 		int symbolLen = r - symbolStart;
-		r += FormatNSRef(buffer + r, std::max((ssize_t) bufferSize - r, 0L), valueRef, indent + symbolLen, maxDepth - 1);
+		r += FormatNSRef(buffer + r, std::max((int)bufferSize - r, 0), valueRef, indent + symbolLen, maxDepth - 1);
 		if (i < length - 1)
 		{
-			r += ::snprintf(buffer + r, std::max((ssize_t) bufferSize - r, 0L), ",\n");
+			r += ::snprintf(buffer + r, std::max((int)bufferSize - r, 0), ",\n");
 			for (int j = 0; j <= indent; j++)
 			{
-				r += ::snprintf(buffer + r, std::max((ssize_t) bufferSize - r, 0L), " ");
+				r += ::snprintf(buffer + r, std::max((int)bufferSize - r, 0), " ");
 			}
 		} else
 		{
-			r += ::snprintf(buffer + r, std::max((ssize_t) bufferSize - r, 0L), "}");
+			r += ::snprintf(buffer + r, std::max((int)bufferSize - r, 0), "}");
 		}
 	}
 	::free(flattenMap);

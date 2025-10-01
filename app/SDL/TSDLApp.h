@@ -144,6 +144,9 @@ private:
 
 	// Einstein Variables
 
+	//int mEmuScreenW { 320 };
+	//int mEmuScreenH { 480 };
+
 	TROMImage* mROMImage = nullptr;
 	TEmulator* mEmulator = nullptr;
 	TSoundManager* mSoundManager = nullptr;
@@ -170,6 +173,7 @@ private:
 	SDL_Window *mSDLWindow { nullptr };
 	SDL_Renderer *mSDLRenderer { nullptr };
 	SDL_Texture *mSDLTexture { nullptr };
+	int mTextureEncoding { 0 };
 };
 
 #endif

@@ -365,6 +365,104 @@
  with SYN DLE STX, every DLE in data is followed by another DLE, and at the end of frame is DLE ETX CHECKSUM.
  */
 
+#if 0
+ Android to macOS bridge over USB (may require root on macOS, so not very good):
+
+import android.hardware.usb.*;
+import android.content.Context;
+
+public class UsbSerialBridge {
+	private UsbManager usbManager;
+	private UsbDeviceConnection connection;
+	private UsbEndpoint epIn, epOut;
+
+	public UsbSerialBridge(Context ctx, UsbDevice device) {
+		usbManager = (UsbManager) ctx.getSystemService(Context.USB_SERVICE);
+		connection = usbManager.openDevice(device);
+		if (connection == null) throw new RuntimeException("Cannot open USB device");
+
+		UsbInterface intf = device.getInterface(0);
+		connection.claimInterface(intf, true);
+
+		// Find endpoints
+		for (int i = 0; i < intf.getEndpointCount(); i++) {
+			UsbEndpoint ep = intf.getEndpoint(i);
+			if (ep.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
+				if (ep.getDirection() == UsbConstants.USB_DIR_IN) {
+					epIn = ep;
+				} else {
+					epOut = ep;
+				}
+			}
+		}
+	}
+
+	public void send(byte[] data) {
+		connection.bulkTransfer(epOut, data, data.length, 1000);
+	}
+
+	public byte[] receive() {
+		byte[] buffer = new byte[64];
+		int len = connection.bulkTransfer(epIn, buffer, buffer.length, 1000);
+		if (len > 0) {
+			byte[] result = new byte[len];
+			System.arraycopy(buffer, 0, result, 0, len);
+			return result;
+		}
+		return null;
+	}
+}
+
+
+UsbSerialBridge bridge = new UsbSerialBridge(context, myUsbDevice);
+bridge.send("Hello from Android!".getBytes());
+byte[] reply = bridge.receive();
+
+
+#include <libusb-1.0/libusb.h>
+#include <stdio.h>
+#include <string.h>
+
+#define VENDOR_ID  0x18D1  // Google, change if needed
+#define PRODUCT_ID 0x4EE7  // Example, change to your device’s PID
+
+int main() {
+	libusb_context *ctx = NULL;
+	libusb_device_handle *handle = NULL;
+	int r;
+
+	r = libusb_init(&ctx);
+	if (r < 0) return r;
+
+	handle = libusb_open_device_with_vid_pid(ctx, VENDOR_ID, PRODUCT_ID);
+	if (!handle) {
+		printf("Device not found\n");
+		return -1;
+	}
+
+	libusb_claim_interface(handle, 0);
+
+	unsigned char outData[] = "Hello from macOS!";
+	int actual;
+	r = libusb_bulk_transfer(handle, 0x01, outData, sizeof(outData), &actual, 1000);
+	if (r == 0) {
+		printf("Sent %d bytes\n", actual);
+	}
+
+	unsigned char inData[64];
+	r = libusb_bulk_transfer(handle, 0x81, inData, sizeof(inData), &actual, 2000);
+	if (r == 0) {
+		printf("Received: %.*s\n", actual, inData);
+	}
+
+	libusb_release_interface(handle, 0);
+	libusb_close(handle);
+	libusb_exit(ctx);
+	return 0;
+}
+
+#endif
+
 // -------------------------------------------------------------------------- //
 //  * TBasicSerialPortManager()
 //		Create a DMA and Interrupt emulation for a serial port.

@@ -292,6 +292,8 @@ TScreenManager::Blit(
 
 // -------------------------------------------------------------------------- //
 //  * Blit_0( KUInt32, SRect*, SRect* )
+// inMode is 0 for srcCopy, or 1 for darken only (pen overlay)
+// TODO: use FastReadBuffer to read pixels much quicker!
 // -------------------------------------------------------------------------- //
 inline void
 TScreenManager::Blit_0(
@@ -336,6 +338,8 @@ TScreenManager::Blit_0(
 	KUInt32 srcWidthInBytes = (srcRight - srcLeft)
 		* kBitsPerPixel / 8;
 	KUInt32 chunk;
+
+	UpdateScreenRect(inDstRect);
 
 	if (srcWidthInBytes <= 4)
 	{

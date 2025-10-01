@@ -30,41 +30,31 @@
 
 #include "TSDLApp.h"
 
-// Einstein
 #include "Emulator/TEmulator.h"
-#include "Emulator/TMemory.h"
 #include "Emulator/Log/TSDLLog.h"
 #include "Emulator/Network/TNetworkManager.h"
-#include "Emulator/Network/TUsermodeNetwork.h"
-#include "Emulator/PCMCIA/TLinearCard.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
-#include "Emulator/ROM/TROMImage.h"
 #include "Emulator/Screen/TSDLScreenManager.h"
-#include "Emulator/Serial/TSerialPortManager.h"
 #include "Emulator/Serial/TSerialPorts.h"
-#include "Emulator/Serial/TTcpClientSerialPortManager.h"
 #include "Emulator/Sound/TNullSoundManager.h"
 
 #if TARGET_OS_ANDROID
 #include "app/SDL/TSDLAndroid.h"
 #endif
 
-// SDL3
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_messagebox.h>
 #include <SDL3/SDL_system.h>
 
-// ANSI C & POSIX
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 
-// C++17
 #include <filesystem>
 #include <thread>
 
@@ -206,12 +196,41 @@ void TSDLApp::InitSDLEvents()
 
 /**
  \brief Initialize the SDL window and graphics resources and open the window.
+
+ On desktop machines, we will get a window with the requested size. The pixel
+ resolution however may be different. We also may want to scale the screen,
+ so we need to request the resolution times the scale.
+
+ If the scale is odd and the pixel resolution is high, the Texture should be
+ rendered with linear interpolation on.
+
+ If we are on a mobile device, we will get a window that is full screen, and
+ usually a different size than the requested one. So after opening the window,
+ we musta adjust the emulation size so that the Newton screen fits best.
+
  \return SDL_APP_FAILURE if something went wrong.
  \return SDL_APP_CONTINUE if everything went well.
  */
 SDL_AppResult TSDLApp::InitSDLGraphics()
 {
+#if 0
+	SDL_PropertiesID prop_id = SDL_GetDisplayProperties(displays[i]);
+
+	if(!SDL_GetBooleanProperty(prop_id, SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false)) {
+		SDL_Log("Display with ID %"SDL_PRIu32 " does not have HDR enabled.", displays[i]);
+	} else {
+		SDL_Log("Display with ID %"SDL_PRIu32 " has HDR enabled.", displays[i]);
+	}
+}
+SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER: a (const SDL_PixelFormat *) array of pixel formats, terminated with SDL_PIXELFORMAT_UNKNOWN, representing the available texture formats for this renderer.
+
+SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER: the ANativeWindow associated with the window
+SDL_PROP_WINDOW_ANDROID_SURFACE_POINTER: the EGLSurface associated with the window
+
+#endif
+
 	SDL_SetAppMetadata("Einstein emulator for Newton MP2x00", "1.0", "org.messagepad.einstein");
+	SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, "60");
 
 	if (!SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_EVENTS)) {
 		mLog->FLogLine("SDL_Init(SDL_INIT_VIDEO) failed: %s", SDL_GetError());
@@ -253,7 +272,18 @@ SDL_AppResult TSDLApp::InitSDLGraphics()
 	SDL_Rect r;
 	SDL_GetWindowSafeArea(mSDLWindow, &r);
 	mLog->FLogLine("SDL_GetWindowSafeArea: %d %d %d %d", r.x, r.y, r.w, r.h);
-	//SDL_GetDisplayUsableBounds(SDL_DisplayID displayID, SDL_Rect *rect);
+
+    int num_disp;
+    SDL_DisplayID *disp = SDL_GetDisplays(&num_disp);
+    if (disp) {
+        if (num_disp > 0) {
+            SDL_GetDisplayUsableBounds(disp[0], &r);
+            mLog->FLogLine("SDL_GetDisplayUsableBounds: %d %d %d %d", r.x, r.y, r.w, r.h);
+            SDL_GetDisplayBounds(disp[0], &r);
+            mLog->FLogLine("SDL_GetDisplayBounds: %d %d %d %d", r.x, r.y, r.w, r.h);
+        }
+        SDL_free(disp);
+    }
 
 /* macOS Retina
  320x480
@@ -273,15 +303,43 @@ SDL_AppResult TSDLApp::InitSDLGraphics()
 	// https://wiki.libsdl.org/SDL3/SDL_GetWindowDisplayScale
 #endif
 
+#if USE_SDL_LOCK_TEXTURE
+	constexpr SDL_TextureAccess texture_access = SDL_TEXTUREACCESS_STREAMING;
+#else
+	constexpr SDL_TextureAccess texture_access = SDL_TEXTUREACCESS_STATIC;
+#endif
+
+	// Find the fastest render format for the texture (take the first one in the list that matches)
+SDL_PixelFormat pf = SDL_PIXELFORMAT_ARGB8888;
+SDL_PropertiesID prop_id = SDL_GetRendererProperties(mSDLRenderer);
+if (prop_id) {
+	const SDL_PixelFormat *fmts = (SDL_PixelFormat*)SDL_GetPointerProperty(prop_id, SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER, nullptr);
+	if (fmts) {
+		for (int i=0;;++i) {
+			SDL_PixelFormat pf = fmts[i];
+			if (pf == SDL_PIXELFORMAT_UNKNOWN) break;
+			if (pf == SDL_PIXELFORMAT_ARGB8888) { mTextureEncoding = 0; break; }
+			if (pf == SDL_PIXELFORMAT_XRGB8888) { mTextureEncoding = 1; break; }
+			if (pf == SDL_PIXELFORMAT_ABGR8888) { mTextureEncoding = 2; break; }
+			if (pf == SDL_PIXELFORMAT_XBGR8888) { mTextureEncoding = 3; break; }
+			if (pf == SDL_PIXELFORMAT_RGBA8888) { mTextureEncoding = 4; break; }
+			if (pf == SDL_PIXELFORMAT_RGBX8888) { mTextureEncoding = 5; break; }
+			if (pf == SDL_PIXELFORMAT_BGRA8888) { mTextureEncoding = 6; break; }
+			if (pf == SDL_PIXELFORMAT_BGRX8888) { mTextureEncoding = 7; break; }
+		}
+	}
+}
+
 	mSDLTexture = SDL_CreateTexture(mSDLRenderer,
-								SDL_PIXELFORMAT_RGBX8888,
-								SDL_TEXTUREACCESS_STATIC,
+								pf,
+								texture_access,
 								TScreenManager::kDefaultPortraitWidth,
 								TScreenManager::kDefaultPortraitHeight);
 	if (!mSDLTexture) {
 		mLog->FLogLine("SDL_CreateTexture() failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
+SDL_SetTextureBlendMode(mSDLTexture, SDL_BLENDMODE_NONE);
 
 	return SDL_APP_CONTINUE;
 }
@@ -490,53 +548,26 @@ SDL_AppResult TSDLApp::Run()
  */
 SDL_AppResult TSDLApp::IterateSDL()
 {
-	// FIXME:: optimize this!
+	// Ignore this call if less than a 60th of a second has passed
+	static Uint64 prev_call = 0;
+	Uint64 now = SDL_GetTicks();
+	if (now-prev_call < 14) return SDL_APP_CONTINUE; // 1/60th = 16.66
+	prev_call = now;
 
-	bool changed = false;
-
-	if (gApp && gApp->GetScreenManager() && mSDLTexture) {
-		const int ww = 320;
-		const int hh = 480;
-		static uint32_t buf[ww*hh];
-		static uint32_t rgb_lut[16] = {
-			0x00000000, 0x11111100, 0x22222200, 0x33333300,
-			0x44444400, 0x55555500, 0x66666600, 0x77777700,
-			0x88888800, 0x99999900, 0xaaaaaa00, 0xbbbbbb00,
-			0xcccccc00, 0xdddddd00, 0xeeeeee00, 0xffffff00 };
-		auto scrn = gApp->GetScreenManager();
-		uint32_t *d = buf;
-		for (int y=0; y<hh; y++) {
-			uint8_t *s = scrn->GetScreenBuffer() + y*(TScreenManager::kDefaultPortraitWidth/2);
-			for (int x=0; x<ww/2; x++) {
-				uint8_t pp = *s++;
-				uint8_t lt = (pp >> 4);
-				*d++ = rgb_lut[lt];
-				uint8_t rt = (pp & 0x0f);
-				*d++ = rgb_lut[rt];
-			}
+	if (mSDLTexture && mScreenManager) {
+		bool changed = mScreenManager->UpdateTexture(mSDLTexture, mTextureEncoding);
+		if (changed) {
+			// Copy the texture to the screen (SDL_SCALEMODE_NEAREST or SDL_SCALEMODE_LINEAR)
+			SDL_SetTextureScaleMode(mSDLTexture, SDL_SCALEMODE_NEAREST);
+			SDL_RenderTexture(mSDLRenderer, mSDLTexture, NULL, NULL);
+			// We can still do some overly rendering here if we like
+			SDL_SetRenderTarget(mSDLRenderer, NULL);
+			SDL_RenderPresent(mSDLRenderer);
 		}
-		SDL_Rect dirty = { 0, 0, ww, hh };
-		changed = SDL_UpdateTexture(mSDLTexture,
-									&dirty,
-									buf,
-									ww*4); //TScreenManager::kDefaultPortraitWidth*4);
-	}
-
-	if (changed) { // Sure? We may have to do that every time.
-		// Not needed once we fully rendered the texture.
+	} else if (mSDLRenderer) {
+		SDL_SetRenderTarget(mSDLRenderer, nullptr);
 		SDL_SetRenderDrawColor(mSDLRenderer, 0xaa, 0xaa, 0xaa, 255);
 		SDL_RenderClear(mSDLRenderer);
-
-		// Copy the texture to the screen.
-		//SDL_SetDefaultTextureScaleMode(mSDLRenderer, SDL_SCALEMODE_NEAREST);
-		SDL_SetTextureScaleMode(mSDLTexture, SDL_SCALEMODE_NEAREST);
-		//SDL_SetTextureScaleMode(mSDLTexture, SDL_SCALEMODE_LINEAR);
-		SDL_RenderTexture(mSDLRenderer, mSDLTexture, NULL, NULL);
-
-		// We can still do some overly rendering here if we like
-		SDL_SetRenderTarget(mSDLRenderer, NULL);
-
-		// Present everything to the user.
 		SDL_RenderPresent(mSDLRenderer);
 	}
 
