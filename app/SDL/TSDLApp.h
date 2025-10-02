@@ -124,6 +124,9 @@ public:
 	// SDL calls and wants us to render a new frame.
 	SDL_AppResult IterateSDL();
 
+	// Redraw the toolbar into the texture.
+	bool RedrawToolbar();
+
 	// --- User Actions
 
 	// user wants to install a package
@@ -143,6 +146,12 @@ public:
 	GetScreenManager()
 	{
 		return mScreenManager;
+	}
+
+	void
+	RefreshScreen()
+	{
+		mRefreshScreen = true;
 	}
 
 private:
@@ -181,7 +190,7 @@ private:
 
 	int mScreenWidth  { TScreenManager::kDefaultPortraitWidth };
 	int mScreenHeight { TScreenManager::kDefaultPortraitHeight };
-	int mToolbarHeight { 32 };
+	int mToolbarHeight { 24 };
 
 	float mScreenScaleX { 1.0f };
 	float mScreenScaleY { 1.0f };
@@ -191,6 +200,11 @@ private:
 	SDL_Renderer *mSDLRenderer { nullptr };
 	SDL_Texture *mSDLTexture { nullptr };
 	int mTextureEncoding { 0 };
+	Uint32 mToolbarColor { 0 };
+	bool mAdjustToScreenDPI { true };
+	bool mAdjustToAspectRatio { true };
+	bool mRefreshToolbar { true };
+	bool mRefreshScreen { true };
 	int mPenDownN { 0 };
 	int mPenMoveN { -1 };
 	int mPenDown { 0 }; // 0: up, 1: on screen, 2: on buttons

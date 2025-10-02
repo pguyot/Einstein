@@ -43,6 +43,8 @@
 #if TARGET_OS_ANDROID
 #include "app/SDL/TSDLAndroid.h"
 #endif
+// xxd --include Resources/icons/button_install.bmp > app/SDL/TSDLIconInstall.cpp
+#include "app/SDL/TSDLIconInstall.h" // Resources_icons_button_install_bmp
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -221,6 +223,8 @@ SDL_AppResult TSDLApp::InitSDLGraphics()
 		return SDL_APP_FAILURE;
 	}
 
+	mScreenWidth = (mScreenWidth + 1) & ~1; // Round up to an even number of pixels
+
 	if (!SDL_CreateWindowAndRenderer(nullptr,
 									 mScreenWidth,
 									 mScreenHeight + mToolbarHeight,
@@ -236,14 +240,45 @@ SDL_AppResult TSDLApp::InitSDLGraphics()
 	int win_w = mScreenWidth;
 	int win_h = mScreenHeight;
 	SDL_GetWindowSize(mSDLWindow, &win_w, &win_h);
-	mScreenScaleX = (float)mScreenWidth / win_w;
-	mScreenScaleY = (float)(mScreenHeight + mToolbarHeight) / win_h;
 
 	int pix_w = win_w;
 	int pix_h = win_h;
 	SDL_GetWindowSizeInPixels(mSDLWindow, &pix_w, &pix_h);
 	mPixelScaleX = (float)pix_w / win_w;
 	mPixelScaleY = (float)pix_h / win_h;
+
+	// If we get a different window size than requested, we can adjust the
+	// emulation screen size for best size and aspect ratio. The original
+	// MessagePad has 96 dpi.
+#if TARGET_OS_ANDROID || TARGET_OS_IOS
+	int dpi = SDL_GetWindowDisplayScale(mSDLWindow) * 160;
+#else
+	int dpi = SDL_GetWindowDisplayScale(mSDLWindow) * 96;
+#endif
+	if ((win_w != mScreenWidth) || (win_h != (mScreenHeight + mToolbarHeight))) {
+		if (mAdjustToAspectRatio) {
+			float src_ar = (float)mScreenWidth / (mScreenHeight + mToolbarHeight);
+			float win_ar = (float)win_w / win_h;
+			if (src_ar > win_ar) {
+				mScreenHeight = (mScreenWidth / win_ar) - mToolbarHeight;
+			} else {
+				mScreenWidth = (mScreenHeight + mToolbarHeight) * win_ar;
+			}
+		}
+		if (mAdjustToScreenDPI && (dpi != 0)) {
+			float win_w_in = pix_w / dpi;	// width of window in inches
+			int mp_width = win_w_in * 97;	// number of pixels at 97 dpi
+			if (mp_width > mScreenWidth) {
+				float size_ratio = (float)mp_width / mScreenWidth;
+                mScreenWidth = mp_width;
+				mScreenHeight *= size_ratio;
+			}
+		}
+	}
+	mScreenWidth = (mScreenWidth + 1) & ~1; // Round up to an even number of pixels
+
+	mScreenScaleX = (float)mScreenWidth / win_w;
+	mScreenScaleY = (float)(mScreenHeight + mToolbarHeight) / win_h;
 
 //	int w, h;
 //	SDL_GetWindowSize(mSDLWindow, &w, &h);
@@ -279,25 +314,26 @@ SDL_AppResult TSDLApp::InitSDLGraphics()
 #endif
 
 	// Find the fastest render format for the texture (take the first one in the list that matches)
-SDL_PixelFormat pf = SDL_PIXELFORMAT_ARGB8888;
-SDL_PropertiesID prop_id = SDL_GetRendererProperties(mSDLRenderer);
-if (prop_id) {
-	const SDL_PixelFormat *fmts = (SDL_PixelFormat*)SDL_GetPointerProperty(prop_id, SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER, nullptr);
-	if (fmts) {
-		for (int i=0;;++i) {
-			SDL_PixelFormat pf = fmts[i];
-			if (pf == SDL_PIXELFORMAT_UNKNOWN) break;
-			if (pf == SDL_PIXELFORMAT_ARGB8888) { mTextureEncoding = 0; break; }
-			if (pf == SDL_PIXELFORMAT_XRGB8888) { mTextureEncoding = 1; break; }
-			if (pf == SDL_PIXELFORMAT_ABGR8888) { mTextureEncoding = 2; break; }
-			if (pf == SDL_PIXELFORMAT_XBGR8888) { mTextureEncoding = 3; break; }
-			if (pf == SDL_PIXELFORMAT_RGBA8888) { mTextureEncoding = 4; break; }
-			if (pf == SDL_PIXELFORMAT_RGBX8888) { mTextureEncoding = 5; break; }
-			if (pf == SDL_PIXELFORMAT_BGRA8888) { mTextureEncoding = 6; break; }
-			if (pf == SDL_PIXELFORMAT_BGRX8888) { mTextureEncoding = 7; break; }
+	SDL_PixelFormat pf = SDL_PIXELFORMAT_ARGB8888;
+	SDL_PropertiesID prop_id = SDL_GetRendererProperties(mSDLRenderer);
+	if (prop_id) {
+		const SDL_PixelFormat *fmts = (SDL_PixelFormat*)SDL_GetPointerProperty(prop_id, SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER, nullptr);
+		if (fmts) {
+			for (int i=0;;++i) {
+				SDL_PixelFormat pf = fmts[i];
+				if (pf == SDL_PIXELFORMAT_UNKNOWN) break;
+				if (pf == SDL_PIXELFORMAT_ARGB8888) { mTextureEncoding = 0; break; }
+				if (pf == SDL_PIXELFORMAT_XRGB8888) { mTextureEncoding = 1; break; }
+				if (pf == SDL_PIXELFORMAT_ABGR8888) { mTextureEncoding = 2; break; }
+				if (pf == SDL_PIXELFORMAT_XBGR8888) { mTextureEncoding = 3; break; }
+				if (pf == SDL_PIXELFORMAT_RGBA8888) { mTextureEncoding = 4; break; }
+				if (pf == SDL_PIXELFORMAT_RGBX8888) { mTextureEncoding = 5; break; }
+				if (pf == SDL_PIXELFORMAT_BGRA8888) { mTextureEncoding = 6; break; }
+				if (pf == SDL_PIXELFORMAT_BGRX8888) { mTextureEncoding = 7; break; }
+			}
 		}
 	}
-}
+	mToolbarColor =  (mTextureEncoding < 4) ? 0xffcccccc : 0xccccccff;
 
 	mSDLTexture = SDL_CreateTexture(mSDLRenderer,
 									pf,
@@ -309,7 +345,7 @@ if (prop_id) {
 		mLog->FLogLine("SDL_CreateTexture() failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
-SDL_SetTextureBlendMode(mSDLTexture, SDL_BLENDMODE_NONE);
+    SDL_SetTextureBlendMode(mSDLTexture, SDL_BLENDMODE_NONE);
 
 	return SDL_APP_CONTINUE;
 }
@@ -339,12 +375,22 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 {
 	auto event_type = event->type;
 
+    (void)mSDLWindow;
+    int win_w;
+    int win_h;
+    SDL_GetWindowSize(mSDLWindow, &win_w, &win_h);
+    mLog->FLogLine("Handle event 0x%04x %d %d %d",
+                   event->type, win_w, win_h, (int)mBootState);
 	if (event_type == mSDLBootStateEvent)
 		return HandleBootStateChange();
 
 	switch (event_type) {
 		case SDL_EVENT_QUIT:  /* triggers on last window close and other things. End the program. */
 			return SDL_APP_SUCCESS;
+
+		case SDL_EVENT_WINDOW_EXPOSED:
+			RefreshScreen();
+			break;
 
 		case SDL_EVENT_KEY_DOWN:  /* quit if user hits ESC key */
 			if (event->key.scancode == SDL_SCANCODE_ESCAPE) {
@@ -363,7 +409,7 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 						scrn->PenDown(std::clamp(mx, 0, mScreenWidth-1),
 									  std::clamp(my, 0, mScreenHeight-1));
 					} else if (mPenDown == 2) {
-						mPenMoveN = (mScreenWidth - mx + mToolbarHeight/2) / mToolbarHeight;
+						mPenMoveN = (mScreenWidth - mx + mToolbarHeight/4) / mToolbarHeight;
 						if ((my >= 0) || (my <= -mToolbarHeight)) mPenMoveN = -1;
 						// mLog->FLogLine("Pen moved to button %d", mPenMoveN);
 						// Visualize if the button is still selected
@@ -384,7 +430,7 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 									  std::clamp(my, 0, mScreenHeight-1));
 					} else {
 						mPenDown = 2;
-						mPenDownN = mPenMoveN = (mScreenWidth - mx + mToolbarHeight/2) / mToolbarHeight;
+						mPenDownN = mPenMoveN = (mScreenWidth - mx + mToolbarHeight/4) / mToolbarHeight;
 						// mLog->FLogLine("Pen down on button %d", mPenDownN);
 						// Visualize if the button is still selected
 					}
@@ -464,6 +510,7 @@ SDL_AppResult TSDLApp::HandleBootStateChange()
 			mLog->FLogLine("HandleBootStateChange, state %d not handled\n", (int)mBootState);
 			break;
 	}
+	RefreshScreen();
 	return SDL_APP_CONTINUE;
 }
 
@@ -493,7 +540,6 @@ SDL_AppResult TSDLApp::PickROMFile()
 void TSDLApp::ROMFilePicked(const char * const *filelist, int filter)
 {
 	(void)filter;
-	// TODO: ask for full screen refresh
 	if ((filelist == nullptr) || (filelist[0] == nullptr)) {
 		ChangeBootState(BootState::ROMNotFound); // or Exit
 	} else {
@@ -508,6 +554,7 @@ void TSDLApp::ROMFilePicked(const char * const *filelist, int filter)
 			ChangeBootState(BootState::PickROM);
 		}
 	}
+	RefreshScreen();
 }
 
 
@@ -573,21 +620,23 @@ SDL_AppResult TSDLApp::IterateSDL()
 
 	if (mSDLTexture && mScreenManager) {
 		bool changed = mScreenManager->UpdateTexture(mSDLTexture, mTextureEncoding, mToolbarHeight);
-		if (changed) {
+		if (mRefreshToolbar) changed |= RedrawToolbar();
+		if (changed || mRefreshScreen) {
 			// Copy the texture to the screen (SDL_SCALEMODE_NEAREST or SDL_SCALEMODE_LINEAR)
 			SDL_SetTextureScaleMode(mSDLTexture, SDL_SCALEMODE_NEAREST);
 			SDL_RenderTexture(mSDLRenderer, mSDLTexture, NULL, NULL);
 			// We can still do some overly rendering here if we like
 			SDL_SetRenderTarget(mSDLRenderer, NULL);
 			// Test having a menu button:
-			SDL_SetRenderDrawColor(mSDLRenderer, 255, 0, 0, 255);
-			SDL_FRect rf = {
-				(mScreenWidth - mToolbarHeight - mToolbarHeight/2)*mPixelScaleX/mScreenScaleX,
-				0,
-				mToolbarHeight*mPixelScaleX/mScreenScaleX,
-				mToolbarHeight*mPixelScaleY/mScreenScaleY };
-			SDL_RenderFillRect(mSDLRenderer, &rf);
+//			SDL_SetRenderDrawColor(mSDLRenderer, 255, 0, 0, 255);
+//			SDL_FRect rf = {
+//				(mScreenWidth - mToolbarHeight - mToolbarHeight/4)*mPixelScaleX/mScreenScaleX,
+//				0,
+//				mToolbarHeight*mPixelScaleX/mScreenScaleX,
+//				mToolbarHeight*mPixelScaleY/mScreenScaleY };
+//			SDL_RenderFillRect(mSDLRenderer, &rf);
 			SDL_RenderPresent(mSDLRenderer);
+			mRefreshScreen = false;
 		}
 	} else if (mSDLRenderer) {
 		SDL_SetRenderTarget(mSDLRenderer, nullptr);
@@ -599,6 +648,36 @@ SDL_AppResult TSDLApp::IterateSDL()
 	return SDL_APP_CONTINUE;
 }
 
+/**
+ \brief Redraw the toolbar into the texture buffer.
+ \return true if the toolbar was redrawn
+ */
+bool TSDLApp::RedrawToolbar()
+{
+	static bool icons_loaded = false;
+	static SDL_Surface *button_install_bmp { nullptr };
+
+	if (!icons_loaded) {
+		SDL_IOStream *io = SDL_IOFromConstMem(Resources_icons_button_install_bmp,
+											   sizeof(Resources_icons_button_install_bmp));
+		button_install_bmp = SDL_LoadBMP_IO(io, true);
+		icons_loaded = true; // or at least we tried
+	}
+
+	if (mSDLTexture == nullptr) return false;
+	SDL_Rect r { 0, 0, mScreenWidth, mToolbarHeight };
+	SDL_Surface *surface;
+	if (SDL_LockTextureToSurface(mSDLTexture, &r, &surface)) {
+		SDL_FillSurfaceRect(surface, &r, mToolbarColor);
+		SDL_Rect icon_r { mScreenWidth-mToolbarHeight-mToolbarHeight/4+1, 1,
+			mToolbarHeight-2, mToolbarHeight-2 };
+		SDL_BlitSurfaceScaled(button_install_bmp, nullptr, surface, &icon_r, SDL_SCALEMODE_LINEAR);
+		SDL_UnlockTexture(mSDLTexture);
+		mRefreshToolbar = false;
+		return true;
+	}
+	return false;
+}
 
 /**
  \brief Emulator thread entry point.
@@ -632,24 +711,24 @@ SDL_AppResult TSDLApp::PickPackageFile()
 void TSDLApp::PackageFilePicked(const char * const *filelist, int filter)
 {
 	(void)filter;
-	// TODO: ask for full screen refresh
-	if (filelist == nullptr) return;
-		ChangeBootState(BootState::ROMNotFound); // or Exit
-	for (int i = 0; ; ++i) {
-		const char *filename = filelist[i];
-		if (filename == nullptr) break;
-		mLog->FLogLine("%d: Installing package %s", i, filename);
-		size_t size { 0 };
-		void *pkg = SDL_LoadFile(filename, &size);
-		if (pkg) {
-			mPlatformManager->InstallPackage((KUInt8*)pkg, (KUInt32)size);
-			::free(pkg);
-		} else {
-			mLog->FLogLine("Can't load file: %s", SDL_GetError());
+	if (filelist) {
+		for (int i = 0; ; ++i) {
+			const char *filename = filelist[i];
+			if (filename == nullptr) break;
+			mLog->FLogLine("%d: Installing package %s", i, filename);
+			size_t size { 0 };
+			void *pkg = SDL_LoadFile(filename, &size);
+			if (pkg) {
+				mPlatformManager->InstallPackage((KUInt8*)pkg, (KUInt32)size);
+				::free(pkg);
+			} else {
+				mLog->FLogLine("Can't load file: %s", SDL_GetError());
+			}
+			mPlatformManager->InstallPackage(filename);
 		}
-		mPlatformManager->InstallPackage(filename);
 	}
 	ChangeBootState(BootState::Running);
+	RefreshScreen();
 }
 
 

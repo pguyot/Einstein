@@ -33,7 +33,7 @@
 
 // Set to 0 to use SDL_UpdateTexture
 // Set to 1 to use SDL_Lock/Unlock_Texture
-#define USE_SDL_LOCK_TEXTURE 0
+#define USE_SDL_LOCK_TEXTURE 1
 
 ///
 /// Class for a null screen manager.
@@ -140,7 +140,7 @@ public:
 
 	///
 	/// Render everything that changed into the texture
-	/// 
+	///
 	bool UpdateTexture(SDL_Texture *texture, int encoding, int toolbar_height);
 
 	std::mutex dirty_rect_mutex;

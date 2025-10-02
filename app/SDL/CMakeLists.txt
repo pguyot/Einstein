@@ -12,7 +12,7 @@ list ( APPEND common_sources
 list ( APPEND app_sources
 	app/SDL/TSDLApp.cpp
 	app/SDL/TSDLApp.h
-	app/SDL/TSDLRexImage.cpp
+	app/SDL/TSDLRexImage.h
 )
 
 if ( ANDROID )
@@ -22,4 +22,4 @@ list ( APPEND app_sources
 )
 endif ()
 
-embed_resource ( _Data_/Einstein.rex app/SDL/TSDLRexImage gEinsteinRexImage )
+embed_resource ( _Data_/Einstein.rex app/SDL/TSDLRexImage.h gEinsteinRexImage )

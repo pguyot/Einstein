@@ -187,7 +187,9 @@ TSDLScreenManager::UpdateTexture(SDL_Texture *texture, int encoding, int toolbar
 	(void)hh;
 	uint32_t *buf = nullptr;
 	int pitch = 0;
+	dirty.y += toolbar_height;
 	SDL_LockTexture(texture, &dirty, (void**)&buf, &pitch);
+	dirty.y -= toolbar_height;
 
 	uint8_t *src = GetScreenBuffer();
 	int src_pitch = ww/2;

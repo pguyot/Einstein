@@ -27,7 +27,7 @@ DerivedData/
 /app/FLTK/TFLSettingsUI.h
 /app/FLTK/TFLRexImage.h
 /app/FLTK/TFLRexImage.cpp
-/app/SDL/TSDLRexImage.cpp
+/app/SDL/TSDLRexImage.h
 /Toolkit/TFLToolkitUI.cpp
 /Toolkit/TFLToolkitUI.h
 /Toolkit/TFLSampleScripts.cpp

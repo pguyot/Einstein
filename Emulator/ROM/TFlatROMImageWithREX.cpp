@@ -46,8 +46,7 @@
 #endif
 
 #if TARGET_UI_SDL
-extern const unsigned char gEinsteinRexImage[];
-extern unsigned int gEinsteinRexImageSize;
+#include "app/SDL/TSDLRexImage.h"
 #endif
 
 
