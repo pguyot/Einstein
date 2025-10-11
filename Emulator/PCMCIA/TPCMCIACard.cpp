@@ -44,10 +44,7 @@
 // -------------------------------------------------------------------------- //
 //  * TPCMCIACard( void )
 // -------------------------------------------------------------------------- //
-TPCMCIACard::TPCMCIACard(void) :
-		mLog(nil),
-		mEmulator(nil),
-		mPCMCIAController(nil)
+TPCMCIACard::TPCMCIACard(void)
 {
 }
 

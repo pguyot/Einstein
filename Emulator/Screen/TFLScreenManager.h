@@ -167,15 +167,15 @@ private:
 		mWidget = 0L;
 	}
 
-	TFLApp* mApp = nullptr;
+	TFLApp* mApp { nullptr };
 
 	///
 	/// FLTK Widget class that will hold the Newton screen image
 	///
-	Fl_Newton_Screen_Widget* mWidget;
+	Fl_Newton_Screen_Widget* mWidget { nullptr };
 
 	// Store the value of the last time that the orientation was set.
-	Boolean mScreenWasLandscape = false;
+	Boolean mScreenWasLandscape { false };
 };
 
 #endif

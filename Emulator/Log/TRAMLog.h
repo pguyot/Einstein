@@ -69,9 +69,13 @@ private:
 	///
 	virtual void DoLogLine(const char* inLine);
 
-	/// \name Variables
-	char* mBuffer; ///< Actual buffer.
-	ssize_t mBufferSize; ///< size of buffer.
+	// \name Variables
+
+	/// Actual buffer.
+	char* mBuffer { nullptr };
+
+	/// size of buffer.
+	ssize_t mBufferSize { 0 };
 };
 
 #endif

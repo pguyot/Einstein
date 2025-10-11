@@ -37,11 +37,7 @@
 //  * TNetworkManager(TLog* inLog)
 // -------------------------------------------------------------------------- //
 TNetworkManager::TNetworkManager(TLog* inLog) :
-		mLog(inLog),
-		mInterruptManager(0L),
-		mMemory(0L),
-		mThread(NULL),
-		mSelectNFDS(0)
+		mLog(inLog)
 {
 	mSelectCondVar = new TCondVar();
 	mSelectMutex = new TMutex();

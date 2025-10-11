@@ -216,6 +216,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TBufferLog.h"
 #include "Emulator/Log/TFileLog.h"
+#include "Emulator/Log/TStdOutLog.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Network/TUsermodeNetwork.h"
@@ -308,6 +309,8 @@ TFLApp::Run(int argc, char* argv[])
 	InitFLTK(argc, argv);
 
 	InitSettings();
+
+	mLog = new TStdOutLog();
 
 	int ramSize = mFLSettings->RAMSize;
 	Boolean hidemouse = (Boolean) mFLSettings->hideMouse;

@@ -49,7 +49,7 @@ public:
 	/// Constructor.
 	///
 	TTcpClientSerialPortManager(TLog* inLog,
-		TSerialPorts::EPortIndex inPortIx);
+								TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.
@@ -69,8 +69,8 @@ public:
 	/// Start emulation.
 	///
 	void run(TInterruptManager* inInterruptManager,
-		TDMAManager* inDMAManager,
-		TMemory* inMemory) override;
+			 TDMAManager* inDMAManager,
+			 TMemory* inMemory) override;
 
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
@@ -135,21 +135,32 @@ protected:
 		return mIsConnected;
 	}
 
-	char* mServer = nullptr;
-	int mPort = 0;
+	/// Server name or IP address as a string
+	char* mServer { nullptr };
+
+	/// Server side port number
+	int mPort { 3679 };
 
 #if TARGET_OS_WIN32
-	WSAEVENT mTcpEvent = INVALID_HANDLE_VALUE;
-	WSAEVENT mQuitEvent = INVALID_HANDLE_VALUE;
-	WSAEVENT mOtherEvent = INVALID_HANDLE_VALUE;
-	SOCKET mTcpSocket = INVALID_SOCKET;
+	WSAEVENT mTcpEvent { INVALID_HANDLE_VALUE };
+	WSAEVENT mQuitEvent { INVALID_HANDLE_VALUE };
+	WSAEVENT mOtherEvent { INVALID_HANDLE_VALUE };
+	SOCKET mTcpSocket { INVALID_SOCKET };
 #else
-	int mCommandPipe[2] = { -1, -1 }; ///< communication between emulator and DMA thread
-	int mTcpSocket = -1; ///< TCP socket for client side
+	/// communication between emulator and DMA thread
+	int mCommandPipe[2] { -1, -1 };
+
+	/// TCP socket for client side
+	int mTcpSocket { -1 };
 #endif
-	std::thread* mWorkerThread = nullptr; ///< the thread that does all the work
-	bool mIsConnected = false; ///< set to true if there is a connection to a server
-	time_t mReconnectTimeout = 0; ///< next time we allow another connection attempt
+	/// the thread that does all the work
+	std::thread* mWorkerThread { nullptr };
+
+	/// set to true if there is a connection to a server
+	bool mIsConnected { false };
+
+	/// next time we allow another connection attempt
+	time_t mReconnectTimeout { 0 };
 };
 
 #endif

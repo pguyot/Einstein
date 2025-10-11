@@ -170,22 +170,31 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TDMAManager(const TDMAManager& inCopy);
+	TDMAManager(const TDMAManager& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TDMAManager& operator=(const TDMAManager& inCopy);
+	TDMAManager& operator=(const TDMAManager& inCopy) = delete;
 
 	/// \name Variables
-	TLog* mLog; ///< Interface for logging.
-	TMemory* mMemory; ///< Reference on the memory.
-	TInterruptManager* mInterruptManager; ///< Reference on the interrupt mgr.
-	TEmulator* mEmulator; ///< Reference the emulator
 
-	KUInt32 mAssignmentReg; ///< Assignment register.
+	/// Interface for logging.
+	TLog* mLog { nullptr };
+
+	/// Reference on the memory.
+	TMemory* mMemory { nullptr };
+
+	/// Reference on the interrupt mgr.
+	TInterruptManager* mInterruptManager { nullptr };
+
+	/// Reference the emulator
+	TEmulator* mEmulator { nullptr };
+
+	/// Assignment register.
+	KUInt32 mAssignmentReg { 0 };
 };
 
 #endif

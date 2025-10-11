@@ -411,44 +411,112 @@ public:
 	// The mCurrentRegisters array refers to them.
 	// These registers may be switched with backup copies when the mode
 	// changes.
-	KUInt32 mCurrentRegisters[16]; ///< The current bank with the
-								   ///< currently visible 16 general
-								   ///< purpose registers.
+	/// The current bank with the currently visible 16 general purpose registers.
+	KUInt32 mCurrentRegisters[16] {
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0x00000004 // Prefetch.
+	};
 
-	Boolean mCPSR_N; ///< N Flag of CPSR.
-	Boolean mCPSR_Z; ///< Z Flag of CPSR.
-	Boolean mCPSR_C; ///< C Flag of CPSR.
-	Boolean mCPSR_V; ///< V Flag of CPSR.
-	Boolean mCPSR_I; ///< I Bit of CPSR.
-	Boolean mCPSR_F; ///< F Bit of CPSR.
-	Boolean mCPSR_T; ///< T Bit of CPSR.
-	KUInt32 mR8_Bkup; ///< A copy of R8
-	KUInt32 mR9_Bkup; ///< A copy of R9
-	KUInt32 mR10_Bkup; ///< A copy of R10
-	KUInt32 mR11_Bkup; ///< A copy of R11
-	KUInt32 mR12_Bkup; ///< A copy of R12
-	KUInt32 mR13_Bkup; ///< A copy of R13
-	KUInt32 mR14_Bkup; ///< A copy of R14
-	KUInt32 mR13svc_Bkup; ///< A copy of R13svc
-	KUInt32 mR14svc_Bkup; ///< A copy of R14svc
-	KUInt32 mR13abt_Bkup; ///< A copy of R13abt
-	KUInt32 mR14abt_Bkup; ///< A copy of R14abt
-	KUInt32 mR13und_Bkup; ///< A copy of R13und
-	KUInt32 mR14und_Bkup; ///< A copy of R14und
-	KUInt32 mR13irq_Bkup; ///< A copy of R13irq
-	KUInt32 mR14irq_Bkup; ///< A copy of R14irq
-	KUInt32 mR8fiq_Bkup; ///< A copy of R8fiq
-	KUInt32 mR9fiq_Bkup; ///< A copy of R9fiq
-	KUInt32 mR10fiq_Bkup; ///< A copy of R10fiq
-	KUInt32 mR11fiq_Bkup; ///< A copy of R11fiq
-	KUInt32 mR12fiq_Bkup; ///< A copy of R12fiq
-	KUInt32 mR13fiq_Bkup; ///< A copy of R13fiq
-	KUInt32 mR14fiq_Bkup; ///< A copy of R14fiq
-	KUInt32 mSPSRsvc; ///< Saved PSR for svc mode
-	KUInt32 mSPSRabt; ///< Saved PSR for abt mode
-	KUInt32 mSPSRund; ///< Saved PSR for und mode
-	KUInt32 mSPSRirq; ///< Saved PSR for irq mode
-	KUInt32 mSPSRfiq; ///< Saved PSR for fiq mode
+	/// N Flag of CPSR.
+	Boolean mCPSR_N { 0 };
+
+	/// Z Flag of CPSR.
+	Boolean mCPSR_Z { 0 };
+
+	/// C Flag of CPSR.
+	Boolean mCPSR_C { 0 };
+
+	/// V Flag of CPSR.
+	Boolean mCPSR_V { 0 };
+
+	/// I Bit of CPSR.
+	Boolean mCPSR_I { 0 };
+
+	/// F Bit of CPSR.
+	Boolean mCPSR_F { 0 };
+
+	/// T Bit of CPSR.
+	Boolean mCPSR_T { 0 };
+
+	/// A copy of R8
+	KUInt32 mR8_Bkup { 0 };
+
+	/// A copy of R9
+	KUInt32 mR9_Bkup { 0 };
+
+	/// A copy of R10
+	KUInt32 mR10_Bkup { 0 };
+
+	/// A copy of R11
+	KUInt32 mR11_Bkup { 0 };
+
+	/// A copy of R12
+	KUInt32 mR12_Bkup { 0 };
+
+	/// A copy of R13
+	KUInt32 mR13_Bkup { 0 };
+	/// A copy of R14
+	KUInt32 mR14_Bkup { 0 };
+
+	/// A copy of R13svc
+	KUInt32 mR13svc_Bkup { 0 };
+
+	/// A copy of R14svc
+	KUInt32 mR14svc_Bkup { 0 };
+
+	/// A copy of R13abt
+	KUInt32 mR13abt_Bkup { 0 };
+
+	/// A copy of R14abt
+	KUInt32 mR14abt_Bkup { 0 };
+
+	/// A copy of R13und
+	KUInt32 mR13und_Bkup { 0 };
+
+	/// A copy of R14und
+	KUInt32 mR14und_Bkup { 0 };
+
+	/// A copy of R13irq
+	KUInt32 mR13irq_Bkup { 0 };
+
+	/// A copy of R14irq
+	KUInt32 mR14irq_Bkup { 0 };
+
+	/// A copy of R8fiq
+	KUInt32 mR8fiq_Bkup { 0 };
+
+	/// A copy of R9fiq
+	KUInt32 mR9fiq_Bkup { 0 };
+
+	/// A copy of R10fiq
+	KUInt32 mR10fiq_Bkup { 0 };
+
+	/// A copy of R11fiq
+	KUInt32 mR11fiq_Bkup { 0 };
+
+	/// A copy of R12fiq
+	KUInt32 mR12fiq_Bkup { 0 };
+
+	/// A copy of R13fiq
+	KUInt32 mR13fiq_Bkup { 0 };
+
+	/// A copy of R14fiq
+	KUInt32 mR14fiq_Bkup { 0 };
+
+	/// Saved PSR for svc mode
+	KUInt32 mSPSRsvc { 0 };
+
+	/// Saved PSR for abt mode
+	KUInt32 mSPSRabt { 0 };
+
+	/// Saved PSR for und mode
+	KUInt32 mSPSRund { 0 };
+
+	/// Saved PSR for irq mode
+	KUInt32 mSPSRirq { 0 };
+
+	/// Saved PSR for fiq mode
+	KUInt32 mSPSRfiq { 0 };
 
 	///
 	/// return true if the IRQ interrupt is enabled
@@ -467,13 +535,24 @@ public:
 
 private:
 	/// \name Variables
-	EMode mMode; ///< Current mode.
-	KUInt32 mPendingInterrupts; ///< Waiting interrupts.
 
-	TLog* mLog; ///< Interface for logging.
-	TMemory* mMemory; ///< Reference to the access to memory.
-	TNativePrimitives mNativePrimitives; ///< Interface for native primitives.
-	TEmulator* mEmulator; ///< Interface to the emulator.
+	/// Current mode.
+	EMode mMode { kSupervisorMode };
+
+	/// Waiting interrupts.
+	KUInt32 mPendingInterrupts { 0 };
+
+	/// Interface for logging.
+	TLog* mLog { nullptr };
+
+	/// Reference to the access to memory.
+	TMemory* mMemory { nullptr };
+
+	/// Interface for native primitives.
+	TNativePrimitives mNativePrimitives;
+
+	/// Interface to the emulator.
+	TEmulator* mEmulator { nullptr };
 };
 
 #endif

@@ -194,15 +194,29 @@ protected:
 	///
 	virtual int SetReadFDSet(fd_set* ioFDSet);
 
-	TLog* mLog; ///< Reference to the log.
-	TInterruptManager* mInterruptManager; ///< Reference to the interrupt mgr.
-	TMemory* mMemory; ///< Interface to the memory.
+	/// Reference to the log.
+	TLog* mLog { nullptr };
+
+	/// Reference to the interrupt mgr.
+	TInterruptManager* mInterruptManager { nullptr };
+
+	/// Interface to the memory.
+	TMemory* mMemory { nullptr };
 
 private:
-	TThread* mThread;
-	TMutex* mSelectMutex;
-	TCondVar* mSelectCondVar;
-	int mSelectNFDS;
+	/// Main worker thread
+	TThread* mThread { nullptr };
+
+	/// Class local mutex
+	TMutex* mSelectMutex { nullptr };
+
+	/// Class local thread signaling
+	TCondVar* mSelectCondVar { nullptr };
+
+	/// Highest number of file descriptor in select call
+	int mSelectNFDS { 0 };
+
+	/// Set of file descriptors for select call
 	fd_set mSelectSet;
 };
 

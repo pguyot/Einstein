@@ -66,11 +66,21 @@ public:
 	void Run();
 
 protected:
-	std::string mPath;
-	int mFile;
-	TThread* mIOThread;
-	TMutex* mReadMutex;
-	TCircleBuffer* mReadBuffer;
+
+	/// File path to a serial port.
+	std::string mPath { };
+
+	/// File number if the file is open
+	int mFile { -1 };
+
+	/// Worker thread.
+	TThread* mIOThread { nullptr };
+
+	/// Class wide mutex.
+	TMutex* mReadMutex { nullptr };
+
+	/// Buffer for incoming data.
+	TCircleBuffer* mReadBuffer { nullptr };
 };
 
 #endif

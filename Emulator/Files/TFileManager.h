@@ -234,13 +234,23 @@ private:
 	virtual KSInt32 read_listener(KUInt32 desc, void* buf, KUInt32 nbytes);
 
 public:
-	/// \name Variables
-	TLog* mLog; ///< Reference to the log.
-	TMemory* mMemory; ///< Interface to the memory.
-	std::string mPath;
+	// \name Variables
 
-	KUInt32 mFDCount; ///< Number of file descriptors.
-	SFileDescriptors* mFileDescriptors; ///< File descriptors.
+	/// Reference to the log.
+	TLog* mLog { nullptr };
+
+	/// Interface to the memory.
+	TMemory* mMemory { nullptr };
+
+	/// Base path
+	std::string mPath { };
+
+	/// Number of file descriptors.
+	KUInt32 mFDCount { 0 };
+
+	/// File descriptors.
+	SFileDescriptors* mFileDescriptors { nullptr };
+
 	// probably want an FP mapping...
 	// buffer writes from platform...
 };

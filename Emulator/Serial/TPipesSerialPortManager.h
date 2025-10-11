@@ -104,14 +104,25 @@ protected:
 	///
 	bool CreateNamedPipes();
 
-	int mPipe[2]; ///< communication between emulator and DMA thread
-	int mTxPort; ///< named pipe or serial port
-	int mRxPort; ///< named pipe or serial port
-	bool mDMAIsRunning; ///< set if DMA thread is active
-	pthread_t mDMAThread;
+	/// communication between emulator and DMA thread
+	int mPipe[2] { -1, -1 };
 
-	char* mTxPortName; ///< named pipe for transmitting data
-	char* mRxPortName; ///< named pipe for receiving data
+	/// named pipe or serial port
+	int mTxPort { -1 };
+
+	/// named pipe or serial port
+	int mRxPort { -1 };
+
+	/// set if DMA thread is active
+	bool mDMAIsRunning { false };
+
+	pthread_t mDMAThread { 0 };
+
+	/// named pipe for transmitting data
+	char* mTxPortName { nullptr };
+
+	/// named pipe for receiving data
+	char* mRxPortName;
 };
 
 #endif

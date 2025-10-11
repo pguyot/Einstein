@@ -123,8 +123,11 @@ private:
 	///
 	virtual void DoLogLine(const char* inLine) = 0;
 
-	TMutex* mMutex; ///< Mutex to log the lines synchronously.
-	KUInt32 mEnabled; ///< If the log is enabled.
+	/// Mutex to log the lines synchronously.
+	TMutex* mMutex { nullptr };
+
+	/// If the log is enabled.
+	KUInt32 mEnabled { true };
 };
 
 #endif

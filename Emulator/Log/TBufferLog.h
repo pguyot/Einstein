@@ -93,11 +93,19 @@ private:
 	///
 	virtual void DoLogLine(const char* inLine);
 
-	/// \name Variables
-	KUInt32 mTopLineIndex; ///< Index of the top line.
-	char mBuffer[32][80]; ///< Buffer: 18 lines of 80 characters.
-	FILE* mLogFile; ///< Log file or NULL.
-	int mRefreshSocket; ///< Socket to write to for refreshes.
+	// \name Variables
+
+	/// Index of the top line.
+	KUInt32 mTopLineIndex { 0 };
+
+	/// Buffer: 18 lines of 80 characters.
+	char mBuffer[32][80];
+
+	/// Log file or NULL.
+	FILE* mLogFile { nullptr };
+
+	/// Socket to write to for refreshes.
+	int mRefreshSocket { -1 };
 };
 
 #endif

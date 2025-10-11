@@ -119,19 +119,41 @@ protected:
 	///
 	void WriteTxDMARegister(KUInt32 inBank, KUInt32 inRegister, KUInt32 inValue);
 
-	KUInt32 mTxDMAPhysicalBufferStart; ///< physical address of transmit DMA buffer start
-	KUInt32 mTxDMAPhysicalData; ///< address of byte currently written by DMA
-	KUInt32 mTxDMADataCountdown; ///< number of bytes that still need to be sent
-	KUInt32 mTxDMABufferSize {}; ///< size of physical buffer
-	KUInt32 mTxDMAControl; ///< bit 1 enables the DMA port
-	KUInt32 mTxDMAEvent; ///< the event that triggered the interrupt?
+	/// physical address of transmit DMA buffer start
+	KUInt32 mTxDMAPhysicalBufferStart { 0 };
 
-	KUInt32 mRxDMAPhysicalBufferStart; ///< physical address of receive DMA buffer start
-	KUInt32 mRxDMAPhysicalData; ///< address to store next byte read from periphery
-	KUInt32 mRxDMADataCountdown; ///< number of bytes available until end of buffer
-	KUInt32 mRxDMABufferSize {}; ///< size of physical buffer
-	KUInt32 mRxDMAControl; ///< bit 1 enables the DMA port
-	KUInt32 mRxDMAEvent; ///< the event that triggered the interrupt?
+	/// address of byte currently written by DMA
+	KUInt32 mTxDMAPhysicalData { 0 };
+
+	/// number of bytes that still need to be sent
+	KUInt32 mTxDMADataCountdown { 0 };
+
+	/// size of physical buffer
+	KUInt32 mTxDMABufferSize { 0 };
+
+	/// bit 1 enables the DMA port
+	KUInt32 mTxDMAControl { 0 };
+
+	/// the event that triggered the interrupt?
+	KUInt32 mTxDMAEvent { 0 };
+
+	/// physical address of receive DMA buffer start
+	KUInt32 mRxDMAPhysicalBufferStart { 0 };
+
+	/// address to store next byte read from periphery
+	KUInt32 mRxDMAPhysicalData { 0 };
+
+	/// number of bytes available until end of buffer
+	KUInt32 mRxDMADataCountdown { 0 };
+
+	/// size of physical buffer
+	KUInt32 mRxDMABufferSize { 0 };
+
+	/// bit 1 enables the DMA port
+	KUInt32 mRxDMAControl { 0 };
+
+	/// the event that triggered the interrupt?
+	KUInt32 mRxDMAEvent { 0 };
 };
 
 #endif

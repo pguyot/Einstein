@@ -69,15 +69,7 @@ const char* TBasiliskIISerialPortManager::kBasiliskPipe = "/tmp/pty.BasiliskII";
 TBasiliskIISerialPortManager::TBasiliskIISerialPortManager(
 	TLog* inLog,
 	TSerialPorts::EPortIndex inPortIx) :
-		TBasicSerialPortManager(inLog, inPortIx),
-
-		mPipe { -1, -1 },
-		mDMAIsRunning(false),
-		mDMAThread(0L),
-		pBasiliskRemoteName(nullptr),
-		pBasiliskLocalFD(-1),
-		pBasiliskRemoteFD(-1),
-		pComState(kStateInit)
+		TBasicSerialPortManager(inLog, inPortIx)
 {
 }
 

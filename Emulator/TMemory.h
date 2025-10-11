@@ -846,14 +846,14 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TMemory(const TMemory& inCopy);
+	TMemory(const TMemory& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TMemory& operator=(const TMemory& inCopy);
+	TMemory& operator=(const TMemory& inCopy) = delete;
 
 	///
 	/// Init the class (ram and such).
@@ -861,28 +861,69 @@ private:
 	void Init(void);
 
 	/// \name Variables
-	TARMProcessor* mProcessor; ///< Reference to the CPU.
-	TLog* mLog; ///< Interface for logging.
-	TFlash mFlash; ///< Flash memory.
-	KUInt8* mROMImagePtr; ///< 16 MB
-	KUInt8* mRAM; ///< RAM
-	KUInt32 mRAMSize; ///< Size of the RAM.
-	KUInt32 mRAMEnd; ///< Address of the last RAM byte.
-	KUIntPtr mRAMOffset; ///< Offset mRAM - kRAMStart
-	TMMU mMMU; ///< MMU.
-	KUInt32 mBankCtrlRegister; ///< Bank control register.
-	TInterruptManager* mInterruptManager; ///< Interface to the interrupt mgr.
-	TDMAManager* mDMAManager; ///< Interface to the DMA mgr.
-	TPCMCIAController* mPCMCIACtrls[kNbSockets];
-	///< PCMCIA controllers.
-	KUInt32 mSerialNumberIx; ///< Index to serial number.
-	KUInt32 mSerialNumber[2]; ///< Serial number.
-	TEmulator* mEmulator; ///< Emulator (interface to hardware).
-	KUInt32 mBPCount; ///< Number of Breakpoints.
-	SBreakpoint* mBreakpoints; ///< Breakpoints.
-	KUInt32 mWPCount; ///< Number of Watchpoints.
-	SWatchpoint* mWatchpoints; ///< Watchpoints.
-	JITClass mJIT; ///< JIT.
+
+	/// Reference to the CPU.
+	TARMProcessor* mProcessor { nullptr };
+
+	/// Interface for logging.
+	TLog* mLog { nullptr };
+
+	/// Flash memory.
+	TFlash mFlash;
+
+	/// 16 MB
+	KUInt8* mROMImagePtr { nullptr };
+
+	/// RAM
+	KUInt8* mRAM { nullptr };
+
+	/// Size of the RAM.
+	KUInt32 mRAMSize { 0 };
+
+	/// Address of the last RAM byte.
+	KUInt32 mRAMEnd { 0 };
+
+	/// Offset mRAM - kRAMStart
+	KUIntPtr mRAMOffset { 0 };
+
+	/// MMU.
+	TMMU mMMU;
+
+	/// Bank control register.
+	KUInt32 mBankCtrlRegister { 0 };
+
+	/// Interface to the interrupt mgr.
+	TInterruptManager* mInterruptManager { nullptr };
+
+	/// Interface to the DMA mgr.
+	TDMAManager* mDMAManager { nullptr };
+
+	/// PCMCIA Socket List
+	TPCMCIAController* mPCMCIACtrls[kNbSockets] { };
+
+	/// Index to serial number.
+	KUInt32 mSerialNumberIx { 64 };
+
+	/// Serial number.
+	KUInt32 mSerialNumber[2] { };
+
+	/// Emulator (interface to hardware).
+	TEmulator* mEmulator { nullptr };
+
+	/// Number of Breakpoints.
+	KUInt32 mBPCount { 0 };
+
+	/// Breakpoints.
+	SBreakpoint* mBreakpoints { nullptr };
+
+	/// Number of Watchpoints.
+	KUInt32 mWPCount { 0 };
+
+	/// Watchpoints.
+	SWatchpoint* mWatchpoints { nullptr };
+
+	///< JIT.
+	JITClass mJIT;
 };
 
 #endif

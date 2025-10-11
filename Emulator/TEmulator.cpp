@@ -80,22 +80,11 @@ TEmulator::TEmulator(
 		SerialPorts(this, inLog),
 		mMemory(inLog, inROMImage, inFlashPath, inRAMSize),
 		mProcessor(inLog, &mMemory),
-		mInterruptManager(nil),
-		mDMAManager(nil),
-		mPlatformManager(nil),
 		mNetworkManager(inNetworkManager),
 		mPrinterManager(inPrinterManager),
 		mSoundManager(inSoundManager),
 		mScreenManager(inScreenManager),
-		mFileManager(NULL),
-		mLog(inLog),
-		mMonitor(NULL),
-		mSignal(0),
-		mInterrupted(0),
-		mRunning(false),
-		mPaused(false),
-		mBPHalted(false),
-		mBPID(0)
+		mLog(inLog)
 {
 	mInterruptManager = new TInterruptManager(inLog, &mProcessor);
 #ifdef JIT_PERFORMANCE
@@ -141,21 +130,7 @@ TEmulator::TEmulator(
 		SerialPorts(this, inLog),
 		mMemory(inLog, inROMImageBuffer, inFlashPath, inRAMSize),
 		mProcessor(inLog, &mMemory),
-		mInterruptManager(nil),
-		mDMAManager(nil),
-		mPlatformManager(nil),
-		mNetworkManager(nil),
-		mPrinterManager(nil),
-		mSoundManager(nil),
-		mScreenManager(nil),
-		mLog(inLog),
-		mMonitor(NULL),
-		mSignal(0),
-		mInterrupted(0),
-		mRunning(false),
-		mPaused(false),
-		mBPHalted(false),
-		mBPID(0)
+		mLog(inLog)
 {
 	mInterruptManager = new TInterruptManager(inLog, &mProcessor);
 #ifdef JIT_PERFORMANCE

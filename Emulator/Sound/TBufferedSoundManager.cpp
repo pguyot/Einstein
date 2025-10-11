@@ -38,8 +38,7 @@
 //  * TBufferedSoundManager( TLog* )
 // -------------------------------------------------------------------------- //
 TBufferedSoundManager::TBufferedSoundManager(TLog* inLog /* = nil */) :
-		TSoundManager(inLog),
-		mBuffer(nil)
+		TSoundManager(inLog)
 {
 #if TARGET_RT_LITTLE_ENDIAN
 	mBuffer = (KUInt8*) ::malloc(kNewtonBufferSize);

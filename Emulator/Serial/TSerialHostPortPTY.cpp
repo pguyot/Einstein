@@ -38,8 +38,7 @@ TSerialHostPortPTY::TSerialHostPortPTY(
 	KUInt32 inLocation,
 	const std::string& inPath,
 	TEmulator* inEmulator) :
-		TSerialHostPort(inLog, inLocation, inEmulator),
-		mIOThread(nullptr), mReadMutex(nullptr), mReadBuffer(nullptr)
+		TSerialHostPort(inLog, inLocation, inEmulator)
 {
 	if (inPath.length() > 0)
 	{

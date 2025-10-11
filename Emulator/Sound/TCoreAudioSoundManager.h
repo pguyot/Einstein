@@ -118,19 +118,25 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TCoreAudioSoundManager(const TCoreAudioSoundManager& inCopy);
+	TCoreAudioSoundManager(const TCoreAudioSoundManager& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TCoreAudioSoundManager& operator=(const TCoreAudioSoundManager& inCopy);
+	TCoreAudioSoundManager& operator=(const TCoreAudioSoundManager& inCopy) = delete;
 
 	/// \name Variables
-	TCircleBuffer* mOutputBuffer; ///< Output buffer.
-	TMutex* mDataMutex; ///< Mutex on shared structures.
-	AudioUnit mOutputUnit; ///< Output unit.
+
+	/// Output buffer.
+	TCircleBuffer* mOutputBuffer { nullptr };
+
+	/// Mutex on shared structures.
+	TMutex* mDataMutex { nullptr };
+
+	/// Output unit.
+	AudioUnit mOutputUnit { nullptr };
 };
 
 #endif

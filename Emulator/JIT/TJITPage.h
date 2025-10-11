@@ -136,11 +136,16 @@ private:
 	///
 	TJITPage& operator=(const TJITPage& inCopy);
 
-	/// \name Variables
-	KUInt32* mPointer; ///< Pointer to instructions, null if the page
-					   ///< is dirty.
-	KUInt32 mVAddr; ///< Virtual address of the page.
-	KUInt32 mPAddr; ///< Physical address of the page.
+	// \name Variables
+
+	/// Pointer to instructions, null if the page is dirty.
+	KUInt32* mPointer { nullptr };
+
+	/// Virtual address of the page.
+	KUInt32 mVAddr { 0 };
+
+	/// Physical address of the page.
+	KUInt32 mPAddr { 0 };
 };
 
 #endif

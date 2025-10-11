@@ -73,7 +73,8 @@ public:
 
 private:
 	/// \name Variables
-	Boolean mOutputIsRunning;
+
+	Boolean mOutputIsRunning { false };
 };
 
 #endif

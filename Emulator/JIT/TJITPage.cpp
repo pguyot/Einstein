@@ -35,10 +35,7 @@
 //  * TJITPage( void )
 // -------------------------------------------------------------------------- //
 template <>
-TJITPage<JITClass, JITPageClass>::TJITPage(void) :
-		mPointer(NULL),
-		mVAddr(0),
-		mPAddr(0)
+TJITPage<JITClass, JITPageClass>::TJITPage(void)
 {
 }
 

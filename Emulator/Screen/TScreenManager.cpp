@@ -113,31 +113,12 @@ TScreenManager::TScreenManager(
 	Boolean inFullScreen /* = false */,
 	Boolean inScreenIsLandscape /* = true */) :
 		mLog(inLog),
-		mInterruptManager(nil),
-		mMemory(nil),
 		mPortraitWidth(inPortraitWidth),
 		mPortraitHeight(inPortraitHeight),
-		mPhysicalWidth(0),
-		mPhysicalHeight(0),
 		mFullScreen(inFullScreen),
-		mScreenIsLandscape(inScreenIsLandscape),
-		mBypassTablet(false),
-		mTabletIsDown(false),
-		mPenIsDown(false),
-		mTabletSampleRate(kDefaultSampleRate),
-		mTabletBuffer(NULL),
-		mTabletBufCCrsr(0),
-		mTabletBufPCrsr(0),
-		mTabletOrientation(kOrientation_Default),
-		mScreenOrientation(kOrientation_Default),
-		mContrast(kDefaultContrast),
-		mBacklight(false),
-		mKbdIsConnected(true),
-		mScreenBuffer(NULL),
-		mOverlayIsOn(false)
+		mScreenIsLandscape(inScreenIsLandscape)
 {
 	mTabletBuffer = (KUInt32*) ::calloc(1, sizeof(KUInt32) * kTabletBufferSize);
-	mScreenBuffer = NULL;
 	memset(mOverlayIsDirty, 0, sizeof(mOverlayIsDirty));
 	memset(mOverlay, 0, sizeof(mOverlay));
 	ChangeScreenSize(inPortraitWidth, inPortraitHeight);

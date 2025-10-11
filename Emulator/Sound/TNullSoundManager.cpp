@@ -42,8 +42,7 @@
 //  * TNullSoundManager( TLog* )
 // -------------------------------------------------------------------------- //
 TNullSoundManager::TNullSoundManager(TLog* inLog /* = nil */) :
-		TSoundManager(inLog),
-		mOutputIsRunning(false)
+		TSoundManager(inLog)
 {
 }
 

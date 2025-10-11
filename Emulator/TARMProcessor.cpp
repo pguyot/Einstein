@@ -51,59 +51,12 @@
 TARMProcessor::TARMProcessor(
 	TLog* inLog,
 	TMemory* inMemory) :
-		mPendingInterrupts(0),
 		mLog(inLog),
 		mMemory(inMemory),
-		mNativePrimitives(inLog, inMemory),
-		mEmulator(nil)
+		mNativePrimitives(inLog, inMemory)
 {
 	mMemory->SetProcessor(this);
 	mNativePrimitives.SetProcessor(this);
-
-	// Clear everything.
-	KUInt32 indexRegisters;
-	for (indexRegisters = 0; indexRegisters < 16; indexRegisters++)
-	{
-		mCurrentRegisters[indexRegisters] = 0;
-	}
-
-	mCPSR_N = 0;
-	mCPSR_Z = 0;
-	mCPSR_C = 0;
-	mCPSR_V = 0;
-	mCPSR_I = 0;
-	mCPSR_F = 0;
-	mCPSR_T = 0;
-	mR8_Bkup = 0;
-	mR9_Bkup = 0;
-	mR10_Bkup = 0;
-	mR11_Bkup = 0;
-	mR12_Bkup = 0;
-	mR13_Bkup = 0;
-	mR14_Bkup = 0;
-	mR13svc_Bkup = 0;
-	mR14svc_Bkup = 0;
-	mR13abt_Bkup = 0;
-	mR14abt_Bkup = 0;
-	mR13und_Bkup = 0;
-	mR14und_Bkup = 0;
-	mR13irq_Bkup = 0;
-	mR14irq_Bkup = 0;
-	mR8fiq_Bkup = 0;
-	mR9fiq_Bkup = 0;
-	mR10fiq_Bkup = 0;
-	mR11fiq_Bkup = 0;
-	mR12fiq_Bkup = 0;
-	mR13fiq_Bkup = 0;
-	mR14fiq_Bkup = 0;
-	mSPSRsvc = 0;
-	mSPSRabt = 0;
-	mSPSRund = 0;
-	mSPSRirq = 0;
-	mSPSRfiq = 0;
-	mMode = kSupervisorMode;
-
-	mCurrentRegisters[kR15] = 0x00000004; // Prefetch.
 }
 
 // -------------------------------------------------------------------------- //

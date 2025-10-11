@@ -42,9 +42,7 @@
 //  * TSoundManager( TLog* )
 // -------------------------------------------------------------------------- //
 TSoundManager::TSoundManager(TLog* inLog /* = nil */) :
-		mLog(inLog),
-		mInterruptManager(nil),
-		mOutputVolume(kOutputVolume_Max)
+		mLog(inLog)
 {
 }
 

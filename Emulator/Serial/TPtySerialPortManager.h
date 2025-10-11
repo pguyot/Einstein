@@ -104,11 +104,20 @@ protected:
 	///
 	bool CreatePty();
 
-	int mPipe[2]; ///< communication between emulator and DMA thread
-	int mPtyPort; ///< pseudo terminal file id
-	bool mDMAIsRunning; ///< set if DMA thread is active
-	pthread_t mDMAThread;
-	char* mPtyName; ///< named of pseudo terminal
+	/// communication between emulator and DMA thread
+	int mPipe[2] { -1, -1 };
+
+	/// pseudo terminal file id
+	int mPtyPort { -1 };
+
+	/// set if DMA thread is active
+	bool mDMAIsRunning { false };
+
+	/// Worker thread
+	pthread_t mDMAThread { 0 };
+
+	/// named of pseudo terminal
+	char* mPtyName { nullptr };
 };
 
 #endif

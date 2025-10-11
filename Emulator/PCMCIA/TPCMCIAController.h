@@ -281,34 +281,78 @@ private:
 	///
 	TPCMCIAController& operator=(const TPCMCIAController& inCopy) = delete;
 
-	/// \name Variables
-	TLog* mLog; ///< Interface to the log.
-	TInterruptManager* mIntManager; ///< Interrupt manager
-	TEmulator* mEmulator; ///< Emulator (access to hardware).
-	int mSocketIx; ///< Socket index [0-3]
-	TPCMCIACard* mCard; ///< Card, if any.
+	// \name Variables
 
-	KUInt32 mReg_0000; ///< Value of xC000000 (r   - int, pending interrupts?)
-	KUInt32 mIntCtrlReg; ///< Value of xC000400 (r/w - int, enables/1 and disables/0 interrupts)
-	KUInt32 mReg_0800; ///< Value of xC000800 (w   - int)
-	KUInt32 mReg_0C00; ///< Value of xC000C00 (r/w - int, promote interrupts to FIQ)
-	KUInt32 mReg_1000; ///< Value of xC001000 (r/w - int, interrupt on rising edge)
-	KUInt32 mReg_1400; ///< Value of xC001400 (w   - int, interrupt on falling edge)
-	KUInt32 mReg_1800; ///< Value of xC001800 (r/w - int, wake up if interrupted)
-	KUInt32 mReg_1C00; ///< Value of xC001C00 (r,  - pin acces, FIFO, see above)
-	KUInt32 mReg_2000; ///< Value of xC002000 (r/w - FIFO)
-	KUInt32 mReg_2400; ///< Value of xC002400 (r/w - pin access and direction)
-	KUInt32 mReg_2800; ///< Value of xC002800 (r/w - pullups, power)
-	KUInt32 mReg_2C00; ///< Value of xC002C00 (r/w - power, pin access)
-	KUInt32 mReg_3000; ///< Value of xC003000 (r/w - memory speed )
-					   ///< Bits 3F -> Attribute & Mem Speed
-					   ///< R/W for GetChipInfo.
-	KUInt32 mReg_3400; ///< Value of xC003400 (w   - ??
-	KUInt32 mReg_3800; ///< Value of xC003800 (r/w - I/O Speed )
-					   ///< Bits 3F -> I/O Speed.
-					   ///< R/W for GetChipInfo.
-	KUInt32 mReg_3C00; ///< Value of xC003C00 (w   - ?? )
-	KUInt32 mReg_4000; ///< Value of xC004000 (w   - ?? )
+	/// Interface to the log.
+	TLog* mLog { nullptr };
+
+	/// Interrupt manager
+	TInterruptManager* mIntManager { nullptr };
+
+	/// Emulator (access to hardware).
+	TEmulator* mEmulator { nullptr };
+
+	/// Socket index [0-3]
+	int mSocketIx { 0 };
+
+	/// Card, if any.
+	TPCMCIACard* mCard { nullptr };
+
+	/// Value of xC000000 (r   - int, pending interrupts?)
+	KUInt32 mReg_0000 { 0 };
+
+	/// Value of xC000400 (r/w - int, enables/1 and disables/0 interrupts)
+	KUInt32 mIntCtrlReg { 0 };
+
+	/// Value of xC000800 (w   - int)
+	KUInt32 mReg_0800 { 0 };
+
+	/// Value of xC000C00 (r/w - int, promote interrupts to FIQ)
+	KUInt32 mReg_0C00 { 0 };
+
+	/// Value of xC001000 (r/w - int, interrupt on rising edge)
+	KUInt32 mReg_1000 { 0 };
+
+	/// Value of xC001400 (w   - int, interrupt on falling edge)
+	KUInt32 mReg_1400 { 0 };
+
+	/// Value of xC001800 (r/w - int, wake up if interrupted)
+	KUInt32 mReg_1800 { 0 };
+
+	/// Value of xC001C00 (r,  - pin acces, FIFO, see above)
+	KUInt32 mReg_1C00 { 0 };
+
+	/// Value of xC002000 (r/w - FIFO)
+	KUInt32 mReg_2000 { 0 };
+
+	/// Value of xC002400 (r/w - pin access and direction)
+	KUInt32 mReg_2400 { 0 };
+
+	/// Value of xC002800 (r/w - pullups, power)
+	KUInt32 mReg_2800 { 0 };
+
+	/// Value of xC002C00 (r/w - power, pin access)
+	KUInt32 mReg_2C00 { 0 };
+
+	/// Value of xC003000 (r/w - memory speed )
+	/// Bits 3F -> Attribute & Mem Speed
+	/// R/W for GetChipInfo.
+	KUInt32 mReg_3000 { 0 };
+
+	/// Value of xC003400 (w   - ??
+	KUInt32 mReg_3400 { 0 };
+
+	/// Value of xC003800 (r/w - I/O Speed )
+	/// Bits 3F -> I/O Speed.
+	/// R/W for GetChipInfo.
+	KUInt32 mReg_3800 { 0 };
+
+	/// Value of xC003C00 (w   - ?? )
+	KUInt32 mReg_3C00 { 0 };
+
+	/// Value of xC004000 (w   - ?? )
+	KUInt32 mReg_4000 { 0 };
+
 	// the register 0x4400 is only read and always reads 0xFC, use unknown
 };
 

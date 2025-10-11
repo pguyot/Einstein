@@ -111,25 +111,16 @@ struct NewtonPixmap {
 TNativePrimitives::TNativePrimitives(
 	TLog* inLog,
 	TMemory* inMemory) :
-		mProcessor(nil),
 		mLog(inLog),
-		mLogMask(0b000000000000),
 		mMemory(inMemory),
-		mEmulator(nil),
-		mNetworkManager(nil),
-		mSoundManager(nil),
-		mScreenManager(nil),
-		mPlatformManager(nil),
 #if !TARGET_OS_MAC
-		mNativeCalls(new TNativeCalls(inMemory)),
+		mNativeCalls(new TNativeCalls(inMemory))
 #endif
-		mVirtualizedCalls(nil),
 #if TARGET_OS_MAC
-		mObjCBridgeCalls(new TObjCBridgeCalls(inMemory)),
+		mObjCBridgeCalls(new TObjCBridgeCalls(inMemory))
 #endif
-		mInputVolume(0),
-		mQuit(false)
 {
+	// mLogMask = ENABLE_LOG_PLATFORM | ENABLE_LOG_SCREEN;
 }
 
 // -------------------------------------------------------------------------- //
@@ -690,7 +681,7 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 
 		case 0x0A: {
 			// Boot process powers system up in this order: 0x1d, 0x01, 0x23, 0x22
-			// Power swicth on events create the same event order
+			// Power switch on events create the same event order
 			// Inserting a PCMCIA card powers up 0x1d
 			// Starting "Dock" creates 0x1d, starting serial com generates 0x01, 0x23, 0x22
 
@@ -721,17 +712,13 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 					"TMainPlatformDriver::PowerOnSubsystem( %.8X )",
 					(unsigned int) theSubsystem);
 			}
+			fprintf(stderr,
+						   "TMainPlatformDriver::PowerOnSubsystem( %.8X )",
+						   (unsigned int) theSubsystem);
 			if (theSubsystem == 0x1D)
 			{
 				mMemory->PowerOnFlash();
 				//					mEmulator->BreakInMonitor();
-			}
-			if (theSubsystem == 0x23)
-			{
-				// the system is up and running, check if we missed any Einstein events
-				// and they are still pending in the queue
-				mPlatformManager->UnlockQueueBootLock();
-				mEmulator->DoPowerRestored();
 			}
 			mProcessor->SetRegister(0, 0);
 		}
@@ -856,6 +843,13 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 					if (mScreenManager->OverlayIsOn())
 					{
 						mScreenManager->OverlayOff();
+					}
+					if (firstPause == 0)
+					{
+						// the system is up and running, check if we missed any Einstein events
+						// and they are still pending in the queue
+						mPlatformManager->UnlockQueueBootLock();
+						//mEmulator->DoPowerRestored();
 					}
 					// this is a hack that will install packages that were added to a
 					// directory on the host. This is used by iOS/iPhone/Android.

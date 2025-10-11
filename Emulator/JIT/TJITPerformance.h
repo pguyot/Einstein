@@ -77,11 +77,16 @@ public:
 	};
 
 private:
-	TEmulator* mEmulator;
-	KUInt32 mFirst;
-	KUInt32 mSize;
-	KUInt32 mShift;
-	KUInt64* mArray;
+	/// Reference to the emulator
+	TEmulator* mEmulator { nullptr };
+
+	KUInt32 mFirst { 0 };
+
+	KUInt32 mSize { 0 };
+
+	KUInt32 mShift { 0 };
+	
+	KUInt64* mArray { nullptr };
 
 	/// Print one hit according to the style and optional symbol information
 	/// \param out a destination file that the caller must manage

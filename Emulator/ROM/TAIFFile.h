@@ -177,8 +177,11 @@ public:
 	void ReadRWImage(KUInt8* outImage);
 
 private:
-	FILE* mFile; ///< File of the image.
-	SHeader mHeader; ///< Header of the ROM image.
+	/// File of the image.
+	FILE* mFile { nullptr };
+
+	/// Header of the ROM image.
+	SHeader mHeader;
 };
 
 #endif

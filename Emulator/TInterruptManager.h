@@ -401,14 +401,14 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TInterruptManager(const TInterruptManager& inCopy);
+	TInterruptManager(const TInterruptManager& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TInterruptManager& operator=(const TInterruptManager& inCopy);
+	TInterruptManager& operator=(const TInterruptManager& inCopy) = delete;
 
 	///
 	/// Performs initialization (create thread & condition variable).
@@ -463,34 +463,78 @@ private:
 	static KUInt32 GetSyncedCalendarDelta(void);
 
 	/// \name Variables
-	TLog* mLog; ///< Interface for logging.
-	TARMProcessor* mProcessor; ///< Reference to the processor.
-	volatile KUInt32 mRunning; ///< Whether the timer is running.
-	volatile KUInt32 mExiting; ///< Whether the object is being
-							   ///< destroyed.
-	volatile KUInt32 mWaiting; ///< Whether some thread is waiting
-							   ///< in WaitUntilInterrupt.
-	KUInt32 mMaskIRQ; ///< Whether the processor masks IRQ.
-	KUInt32 mMaskFIQ; ///< Whether the processor masks FIQ.
-	KUInt32 mIntRaised; ///< Interrupts that were raised.
-	KUInt32 mIntCtrlReg; ///< Interrupts that are enabled.
-	KUInt32 mFIQMask; ///< Mask for FIQ
-	KUInt32 mIntEDReg1; ///< Int. register at 0x0F184000
-	KUInt32 mIntEDReg2; ///< Int. register at 0x0F184400
-	KUInt32 mIntEDReg3; ///< Int. register at 0x0F184800
-	KUInt32 mGPIORaised; ///< GPIO ints that were raised.
-	KUInt32 mGPIOCtrlReg; ///< GPIO control register (0x0F18C800)
-	KSInt32 mCalendarDelta; ///< Delta with the RTC (seconds),
-							///< newton = host - delta.
-	KUInt32 mAlarmRegister; ///< Alarm match register (seconds).
-	KUInt32 mTimerDelta; ///< Delta with the timer (ticks)
-						 ///< newton = host - delta.
-	KUInt32 mTimer; ///< Saved value of the timer (host based).
-	KUInt32 mMatchRegisters[4]; ///< Timer match registers (newton).
-	TCondVar* mTimerCondVar; ///< Condition variable (timer thread).
-	TCondVar* mEmulatorCondVar; ///< Condition variable (emulator).
-	TMutex* mMutex; ///< Mutex of the thread.
-	TThread* mThread; ///< The actual thread.
+
+	/// Interface for logging.
+	TLog* mLog { nullptr };
+
+	/// Reference to the processor.
+	TARMProcessor* mProcessor { nullptr };
+
+	/// Whether the timer is running.
+	volatile KUInt32 mRunning { false };
+
+	/// Whether the object is being destroyed.
+	volatile KUInt32 mExiting { false };
+
+	/// Whether some thread is waiting in WaitUntilInterrupt.
+	volatile KUInt32 mWaiting { false };
+
+	/// Whether the processor masks IRQ.
+	KUInt32 mMaskIRQ { false };
+
+	/// Whether the processor masks FIQ.
+	KUInt32 mMaskFIQ { false };
+
+	/// Interrupts that were raised.
+	KUInt32 mIntRaised { 0 };
+
+	/// Interrupts that are enabled.
+	KUInt32 mIntCtrlReg { 0 };
+
+	/// Mask for FIQ
+	KUInt32 mFIQMask { 0 };
+
+	/// Int. register at 0x0F184000
+	KUInt32 mIntEDReg1 { 0 };
+
+	/// Int. register at 0x0F184400
+	KUInt32 mIntEDReg2 { 0 };
+
+	/// Int. register at 0x0F184800
+	KUInt32 mIntEDReg3 { 0 };
+
+	/// GPIO ints that were raised.
+	KUInt32 mGPIORaised { 0 };
+
+	/// GPIO control register (0x0F18C800)
+	KUInt32 mGPIOCtrlReg { 0 };
+
+	/// Delta with the RTC (seconds), newton = host - delta.
+	KSInt32 mCalendarDelta { 0 };
+
+	/// Alarm match register (seconds).
+	KUInt32 mAlarmRegister { 0 };
+
+	/// Delta with the timer (ticks), newton = host - delta.
+	KUInt32 mTimerDelta { 0 };
+
+	/// Saved value of the timer (host based).
+	KUInt32 mTimer { 0 };
+
+	/// Timer match registers (newton).
+	KUInt32 mMatchRegisters[4] { 0, 0, 0, 0 };
+
+	/// Condition variable (timer thread).
+	TCondVar* mTimerCondVar { nullptr };
+
+	/// Condition variable (emulator).
+	TCondVar* mEmulatorCondVar { nullptr };
+
+	/// Mutex of the thread.
+	TMutex* mMutex { nullptr };
+
+	/// The actual thread.
+	TThread* mThread { nullptr };
 };
 
 #endif

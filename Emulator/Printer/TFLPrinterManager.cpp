@@ -488,7 +488,7 @@ TFLPrinterManager::GetBandPrefs(KUInt32 inDrvr, KUInt32 inPrefs)
  The printer manager gets called from the CPU emulator thread, but FLTK
  printer calls must be made exclusively from the main UI thread. This
  method tells FLTK to execute some call as soon as there are no other UI
- calls to process. The method then waits until the call is finshed.
+ calls to process. The method then waits until the call is finished.
  */
 KUInt32
 TFLPrinterManager::CallAsync(Async_Handler cb)

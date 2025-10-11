@@ -189,22 +189,34 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TSoundManager(const TSoundManager& inCopy);
+	TSoundManager(const TSoundManager& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TSoundManager& operator=(const TSoundManager& inCopy);
+	TSoundManager& operator=(const TSoundManager& inCopy) = delete;
 
 	/// \name Variables
-	TLog* mLog; ///< Reference to the log.
-	TInterruptManager* mInterruptManager; ///< Reference to the interrupt mgr.
-	TMemory* mMemory; ///< Interface to the memory.
-	KUInt32 mInputIntMask; ///< Input interrupt mask.
-	KUInt32 mOutputIntMask; ///< Output interrupt mask.
-	KUInt32 mOutputVolume; ///< Output sound volume.
+
+	/// Reference to the log.
+	TLog* mLog { nullptr };
+
+	/// Reference to the interrupt mgr.
+	TInterruptManager* mInterruptManager { nullptr };
+
+	/// Interface to the memory.
+	TMemory* mMemory { nullptr };
+
+	/// Input interrupt mask.
+	KUInt32 mInputIntMask { 0 };
+
+	/// Output interrupt mask.
+	KUInt32 mOutputIntMask { 0 };
+
+	/// Output sound volume.
+	KUInt32 mOutputVolume { kOutputVolume_Max };
 };
 
 #endif

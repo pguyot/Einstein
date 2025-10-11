@@ -130,11 +130,22 @@ public:
 	SetHostPortSettings(KUInt32 inLocation, std::pair<EDriverID, std::string> inSettings);
 
 private:
-	TSerialPortManager* mDriver[4] = { nullptr, nullptr, nullptr, nullptr };
-	TLog* mLog = nullptr;
-	TEmulator* mEmulator = nullptr;
+	/// Current driver for every available port
+	TSerialPortManager* mDriver[4] { nullptr, nullptr, nullptr, nullptr };
+
+	/// Log output goes here
+	TLog* mLog { nullptr };
+
+	/// Reference to emulator
+	TEmulator* mEmulator { nullptr };
+
+	/// This is called if any of the ports gets another driver
 	std::function<void(int)> mPortChangedCallback;
+
+	/// (not sure anymore)
 	std::map<KUInt32, TSerialHostPort*> mHostPorts;
+
+	/// (not sure anymore)
 	std::map<KUInt32, std::pair<EDriverID, std::string>> mHostPortSettings;
 };
 

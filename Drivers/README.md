@@ -2,7 +2,7 @@
 
 This directory contains the ROM extension (REx) for Einstein, which implements the protocols to interface with the
 host OS. The REx is by default part of the Einstein application. The extension contains native parts which implement
-NewtonOS protocols, as well as mixed NewtonScript/native extenions in the form of NewtonOS autoparts.
+NewtonOS protocols, as well as mixed NewtonScript/native extensions in the form of NewtonOS autoparts.
 
 ## Prerequisites
 

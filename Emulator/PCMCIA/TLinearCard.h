@@ -45,7 +45,7 @@
 /// using the JEDEC standard through D16-D31. D0-15 are written by flipping
 /// the low word and the high word through the Voyager control register at 0x2000.
 ///
-/// As of July 19th 2020, basic functionaly has been tested with a Flash dump
+/// As of July 19th 2020, basic functionality has been tested with a Flash dump
 /// from an existing memory card.
 ///
 /// It will be problematic to support all possible kinds of Flash cards from
@@ -54,11 +54,11 @@
 /// configured as read-only), and that newly created cards have a sensible CIS
 /// set and are also handled correctly.
 ///
-/// \todo Thourough testing is needed.
+/// \todo Thorough testing is needed.
 /// \todo Map Flash memory to a file on the host system
 /// \todo Add a user interface for creating and managing PCMCIA cards
 /// \todo I expected ROM images to work out of the box, but they do not. They seem
-///			to mirror the CIS in the memeory area (makes sense: it saves the expense
+///			to mirror the CIS in the memory area (makes sense: it saves the expense
 ///			of a CIS chip in the card), but there must be more magic to it, because
 ///			Einstein does not recognize them at the moment.
 ///
@@ -213,17 +213,18 @@ protected:
 private:
 	ImageInfo mImageInfo;
 
-	KUInt32 mSize = 0; ///< Size of the linear card in bytes.
+	/// Size of the linear card in bytes.
+	KUInt32 mSize { 0 };
 
-	KUInt8* mMemoryMap = nullptr;
+	KUInt8* mMemoryMap { nullptr };
 
-	KUInt8* mCISData = nullptr;
+	KUInt8* mCISData { nullptr };
 
-	KUInt32 mCISDataSize = 0;
+	KUInt32 mCISDataSize { 0 };
 
-	char* mFilePath = nullptr;
+	char* mFilePath { nullptr };
 
-	FILE* mFile = nullptr;
+	FILE* mFile { nullptr };
 
 	enum {
 		kReadArray,
@@ -232,12 +233,12 @@ private:
 		kEraseSetup
 	};
 
-	int mState = kReadArray;
+	int mState { kReadArray };
 
-	KUInt8 mStatusRegister = 0x80;
+	KUInt8 mStatusRegister { 0x80 };
 
 	std::mutex mMutex;
-	std::promise<void>* mPageFlushPromise = nullptr;
+	std::promise<void>* mPageFlushPromise { nullptr };
 	std::future<void> mPageFlushFuture;
 	std::vector<Boolean> mPageDirty;
 

@@ -132,14 +132,14 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TNativePrimitives(const TNativePrimitives& inCopy);
+	TNativePrimitives(const TNativePrimitives& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TNativePrimitives& operator=(const TNativePrimitives& inCopy);
+	TNativePrimitives& operator=(const TNativePrimitives& inCopy) = delete;
 
 	///
 	/// Execute a native instruction related to the flash driver.
@@ -233,32 +233,77 @@ private:
 	void ExecutePrinterDriverNative(KUInt32 inInstruction);
 
 	/// \name Variables
-	TARMProcessor* mProcessor; ///< Reference to the CPU.
-	TLog* mLog; ///< Interface for logging.
-	KUInt32 mLogMask; ///< Bitmask for enabled logs
-	TMemory* mMemory; ///< Interface to the memory.
-	TEmulator* mEmulator; ///< Emulator (interface to hardware).
-	TNetworkManager* mNetworkManager; ///< Network manager.
-	TPrinterManager* mPrinterManager; ///< Printer manager
-	TSoundManager* mSoundManager; ///< Sound manager
-	TScreenManager* mScreenManager; ///< Screen manager.
-	TPlatformManager* mPlatformManager; ///< Platform manager.
+
+	/// Reference to the CPU.
+	TARMProcessor* mProcessor { nullptr };
+
+	/// Interface for logging.
+	TLog* mLog { nullptr };
+
+	/// Bitmask for enabled logs
+	KUInt32 mLogMask { 0b000000000000 };
+
+	/// Interface to the memory.
+	TMemory* mMemory { nullptr };
+
+	/// Emulator (interface to hardware).
+	TEmulator* mEmulator { nullptr };
+
+	/// Network manager.
+	TNetworkManager* mNetworkManager { nullptr };
+
+	/// Printer manager
+	TPrinterManager* mPrinterManager { nullptr };
+
+	/// Sound manager
+	TSoundManager* mSoundManager { nullptr };
+
+	/// Screen manager.
+	TScreenManager* mScreenManager { nullptr };
+
+	/// Platform manager.
+	TPlatformManager* mPlatformManager { nullptr };
+
 #if !TARGET_OS_MAC
-	TNativeCalls* mNativeCalls; ///< Interface for native calls.
+	/// Interface for native calls.
+	TNativeCalls* mNativeCalls { nullptr };
 #endif
-	TVirtualizedCalls* mVirtualizedCalls; ///< Interface for virtualized calls.
+
+	/// Interface for virtualized calls.
+	TVirtualizedCalls* mVirtualizedCalls { nullptr };
+
 #if TARGET_OS_MAC
-	TObjCBridgeCalls* mObjCBridgeCalls; ///< Interface for iOS calls.
+	/// Interface for iOS calls.
+	TObjCBridgeCalls* mObjCBridgeCalls { nullptr };
 #endif
-	KUInt32 mScreenContrast; ///< Feature 0x0 (probably the contrast).
-	KUInt32 mScreenBacklight; ///< Feature 0x2.
-	KUInt32 mScreenOrientation; ///< Feature 0x4.
-	TabletCalibration mTabletCalibration; ///< Tablet calibration.
-	KUInt32 mTabletSampleRate; ///< Tablet sample rate.
-	KUInt8 mInputVolume; ///< Input volume (0-255)
-	Boolean mQuit; ///< Whether to quit.
-	KUInt32 mSoundOutputBuffer1Addr; ///< Output buffer #1: the addr.
-	KUInt32 mSoundOutputBuffer2Addr; ///< Output buffer #2: the addr.
+
+	// (unused) Feature 0x0 (probably the contrast).
+	//KUInt32 mScreenContrast { 0 };
+
+	// (unused) Feature 0x2.
+	//KUInt32 mScreenBacklight { 0 };
+
+	// (unused) Feature 0x4.
+	// \note There is also TScreenManager::mScreenOrientation!
+	//KUInt32 mScreenOrientation { 0 };
+
+	/// Tablet calibration.
+	TabletCalibration mTabletCalibration { 0, 0, 0, 0, 0 };
+
+	/// (unused) Feature 0x2.
+	KUInt32 mTabletSampleRate { 0 };
+
+ 	/// Input volume (0-255)
+	KUInt8 mInputVolume { 0 };
+
+	/// Whether to quit.
+	Boolean mQuit { false };
+
+	/// Output buffer #1: the addr.
+	KUInt32 mSoundOutputBuffer1Addr { 0 };
+
+	/// Output buffer #2: the addr.
+	KUInt32 mSoundOutputBuffer2Addr { 0 };
 };
 
 #endif

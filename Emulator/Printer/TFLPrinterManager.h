@@ -187,11 +187,11 @@ protected:
 		Open,
 		PageOpen
 	};
-	State mState = State::Uninitialized;
+	State mState { State::Uninitialized };
 
-	Fl_Printer* mPrinter = nullptr;
+	Fl_Printer* mPrinter { nullptr };
 
-	KUInt32 mDrvr = 0;
+	KUInt32 mDrvr { 0 };
 
 	std::promise<KUInt32>* mPromise;
 	std::future<KUInt32> mFuture;
@@ -212,7 +212,7 @@ protected:
 		// UChar*      grayTable;    // gray tone table
 	} mBand;
 
-	KUInt8* mBandPixels = nullptr;
+	KUInt8* mBandPixels { nullptr };
 };
 
 #endif

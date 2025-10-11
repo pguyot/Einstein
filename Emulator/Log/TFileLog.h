@@ -60,8 +60,10 @@ private:
 	///
 	virtual void DoLogLine(const char* inLine);
 
-	/// \name Variables
-	FILE* mFile; ///< Reference to the file.
+	// \name Variables
+
+	/// Reference to the file.
+	FILE* mFile { nullptr };
 };
 
 #endif

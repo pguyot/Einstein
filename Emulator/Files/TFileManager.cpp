@@ -45,11 +45,9 @@ TFileManager::TFileManager(
 	TLog* inLog /* = nil */,
 	TMemory* inMemory) :
 		mLog(inLog),
-		mMemory(inMemory),
-		mFDCount(0)
+		mMemory(inMemory)
 {
 	mFileDescriptors = (SFileDescriptors*) ::malloc(sizeof(SFileDescriptors));
-	mPath = "";
 }
 
 // -------------------------------------------------------------------------- //

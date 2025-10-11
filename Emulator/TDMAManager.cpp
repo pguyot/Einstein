@@ -54,6 +54,8 @@ TDMAManager::TDMAManager(
 		mInterruptManager(inInterruptManager),
 		mEmulator(inEmulator)
 {
+	(void)mMemory;
+	(void)mInterruptManager;
 }
 
 // -------------------------------------------------------------------------- //

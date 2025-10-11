@@ -65,7 +65,9 @@ public:
 
 private:
 	/// \name Variables
-	KUInt8* mBuffer; ///< Buffer (for little endian hosts).
+
+	/// Buffer (for little endian hosts).
+	KUInt8* mBuffer { nullptr };
 };
 
 #endif

@@ -59,21 +59,7 @@ const THostInfo* THostInfo::kHostInfo = new THostInfo();
 // -------------------------------------------------------------------------- //
 //  * THostInfo( void )
 // -------------------------------------------------------------------------- //
-THostInfo::THostInfo(void) :
-		mUserFirstName(nil),
-		mUserLastName(nil),
-		mUserCompany(nil),
-		mUserAddr(nil),
-		mUserAddr2(nil),
-		mUserPostalCode(nil),
-		mUserCity(nil),
-		mUserRegion(nil),
-		mUserCountry(nil),
-		mUserCountryISOCode(nil),
-		mUserHomePhone(nil),
-		mUserHomeFaxPhone(nil),
-		mUserWorkPhone(nil),
-		mUserWorkFaxPhone(nil)
+THostInfo::THostInfo(void)
 {
 	// Fill the first and the last name of the user.
 	RetrieveUserInfo();

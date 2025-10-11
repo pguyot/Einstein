@@ -70,11 +70,7 @@ printMMUStats()
 //  * TMMU( TMemory* )
 // -------------------------------------------------------------------------- //
 TMMU::TMMU(TMemory* inMemoryIntf) :
-		mMemoryIntf(inMemoryIntf),
-		mMMUEnabled(false),
-		mCurrentAPMode(kAPMagic_Privileged),
-		mTTBase(0),
-		mDomainAC(0xFFFFFFFF)
+		mMemoryIntf(inMemoryIntf)
 {
 	// Init the cache entries with unprobable values.
 	SEntry* theEntries = mCache.GetValues();

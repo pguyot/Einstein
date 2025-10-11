@@ -123,9 +123,11 @@ public:
 	}
 
 protected:
-	TMemory* mMemory = nullptr; ///< Reference to emulated memory.
+	/// Reference to emulated memory.
+	TMemory* mMemory { nullptr };
 
-	TLog* mLog = nullptr; ///< Reference to the log.
+	/// Reference to the log.
+	TLog* mLog { nullptr };
 };
 
 #endif

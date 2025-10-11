@@ -59,8 +59,7 @@
 // -------------------------------------------------------------------------- //
 //  * TROMImage( void )
 // -------------------------------------------------------------------------- //
-TROMImage::TROMImage(void) :
-		mImage(NULL)
+TROMImage::TROMImage(void)
 {
 	// I'll create the mmap file later, when asked to.
 }

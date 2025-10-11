@@ -533,7 +533,7 @@ TPlatformManager::UnlockEventQueue(void)
 	mMutex->Lock();
 
 	// mQueueLockCount should never be less than or equal to zero. If it is, we called
-	// Unlock() more often than Lock(), which may triggere severe bugs
+	// Unlock() more often than Lock(), which may trigger severe bugs
 	assert(mQueueLockCount > 0);
 
 	mQueueLockCount--;

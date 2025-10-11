@@ -139,7 +139,7 @@ public:
 	}
 
 private:
-	/// \name Variables
+	/// \name Variables, make sure they are all set in the constructor
 	TValue* mFirstValue; ///< First element.
 	TValue* mLastValue; ///< Last element.
 	TValue mValues[kCacheSize]; ///< Values.

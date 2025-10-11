@@ -178,10 +178,16 @@ private:
 	///
 	TPCMCIACard& operator=(const TPCMCIACard& inCopy) = delete;
 
-	/// \name Variables
-	TLog* mLog; ///< Ref to the log object.
-	TEmulator* mEmulator; ///< Ref to the emulator.
-	TPCMCIAController* mPCMCIAController; ///< Ref to the controller.
+	// \name Variables
+
+	/// Ref to the log object.
+	TLog* mLog { nullptr };
+
+	/// Ref to the emulator.
+	TEmulator* mEmulator { nullptr };
+
+	/// Ref to the controller.
+	TPCMCIAController* mPCMCIAController { nullptr };
 };
 
 #endif

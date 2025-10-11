@@ -200,20 +200,18 @@ class Fl_Newton_Screen_Widget : public Fl_Box
 {
 	typedef Fl_Box super;
 
-	unsigned char* rgbData_;
-	TFLScreenManager* screenManager_;
-	TFLApp* mApp = nullptr;
-	int rgbWidth_, rgbHeight_;
-	int penX, penY, penIsDown;
-	Boolean mPowerState = false;
+	unsigned char* rgbData_ { nullptr };
+	TFLScreenManager* screenManager_ { nullptr };
+	TFLApp* mApp { nullptr };
+	int rgbWidth_ { 0 }, rgbHeight_ { 0 };
+	int penX { 0 }, penY { 0 }, penIsDown { 0 };
+	Boolean mPowerState { false };
 
 public:
 	Fl_Newton_Screen_Widget(int x, int y, int w, int h, const char* l, TFLScreenManager* s, TFLApp* inApp) :
 			Fl_Box(x, y, w, h, l),
-			rgbData_(0L),
 			screenManager_(s),
-			mApp(inApp),
-			penX(0), penY(0), penIsDown(0)
+			mApp(inApp)
 	{
 		box(FL_FLAT_BOX);
 		color(FL_BLACK);

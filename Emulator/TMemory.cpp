@@ -104,22 +104,12 @@ TMemory::TMemory(
 	KUInt8* inROMImageBuffer,
 	const char* inFlashPath,
 	KUInt32 inRAMSize /* = 4194304 */) :
-		mProcessor(nil),
 		mLog(inLog),
 		mFlash(inLog, inFlashPath, NULL),
 		mROMImagePtr(inROMImageBuffer),
-		mRAM(NULL),
 		mRAMSize(inRAMSize),
 		mRAMEnd(TMemoryConsts::kRAMStart + inRAMSize),
 		mMMU(this),
-		mBankCtrlRegister(0),
-		mInterruptManager(0),
-		mDMAManager(0),
-		mSerialNumberIx(64),
-		mBPCount(0),
-		mBreakpoints(NULL),
-		mWPCount(0),
-		mWatchpoints(NULL),
 		mJIT(this, &mMMU)
 {
 	Init();
@@ -133,22 +123,12 @@ TMemory::TMemory(
 	TROMImage* inROMImage,
 	const char* inFlashPath,
 	KUInt32 inRAMSize /* = 4194304 */) :
-		mProcessor(nil),
 		mLog(inLog),
 		mFlash(inLog, inFlashPath, inROMImage),
 		mROMImagePtr(inROMImage->GetPointer()),
-		mRAM(NULL),
 		mRAMSize(inRAMSize),
 		mRAMEnd(TMemoryConsts::kRAMStart + inRAMSize),
 		mMMU(this),
-		mBankCtrlRegister(0),
-		mInterruptManager(0),
-		mDMAManager(0),
-		mSerialNumberIx(64),
-		mBPCount(0),
-		mBreakpoints(NULL),
-		mWPCount(0),
-		mWatchpoints(NULL),
 		mJIT(this, &mMMU)
 {
 	Init();

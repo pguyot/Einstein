@@ -137,12 +137,12 @@ public:
 
 private:
 	// Linked list of packet handlers.
-	PacketHandler* mFirstPacketHandler = nullptr;
-	PacketHandler* mLastPacketHandler = nullptr;
+	PacketHandler* mFirstPacketHandler { nullptr };
+	PacketHandler* mLastPacketHandler { nullptr };
 
 	// Double linked list of packets, used as a Fifo.
-	Packet* mFirstPacket = nullptr;
-	Packet* mLastPacket = nullptr;
+	Packet* mFirstPacket { nullptr };
+	Packet* mLastPacket { nullptr };
 };
 
 #endif

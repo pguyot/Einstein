@@ -131,13 +131,22 @@ protected:
 		kSerReg_BreakDuplex = 0x2400,
 	};
 
-	/// \name Variables
-	TLog* mLog; ///< Reference to the log object
-				///< (or NULL)
-	TSerialPorts::EPortIndex mNewtPortIndex; ///< remember to which port we are connected
-	TInterruptManager* mInterruptManager; ///< Interface to the interrupt mgr.
-	TDMAManager* mDMAManager; ///< Interface to the DMA mgr.
-	TMemory* mMemory; ///< Interface to the memory mgr.
+	// \name Variables
+
+	/// Reference to the log object (or NULL)
+	TLog* mLog { nullptr };
+
+	/// remember to which port we are connected
+	TSerialPorts::EPortIndex mNewtPortIndex { TSerialPorts::kExtr };
+
+	/// Interface to the interrupt mgr.
+	TInterruptManager* mInterruptManager { nullptr };
+
+	/// Interface to the DMA mgr.
+	TDMAManager* mDMAManager { nullptr };
+
+	/// Interface to the memory mgr.
+	TMemory* mMemory { nullptr };
 };
 
 #endif

@@ -332,27 +332,67 @@ private:
 	///
 	void RaisePlatformInterrupt(void);
 
-	/// \name Variables
-	TLog* mLog = nullptr; ///< Reference to the log.
-	TEmulator* mEmulator = nullptr; ///< Reference to the emulator
-	TScreenManager* mScreenManager = nullptr; ///< Reference to the screen manager.
-	TInterruptManager* mInterruptManager = nullptr; ///< Reference to the interrupt mgr.
-	TMemory* mMemory = nullptr; ///< Reference to the memory interface.
-	TARMProcessor* mCPU = nullptr; ///< Reference to the processor
-	SEvent* mEventQueue = nullptr; ///< Liste des événements.
-	KUInt32 mEventQueueCCrsr = 0; ///< Consumer queue cursor (Newton)
-	KUInt32 mEventQueuePCrsr = 0; ///< Producer queue cursor (Host)
-	KUInt32 mEventQueueSize = kDEFAULTEVENTQUEUESIZE; ///< Size of the event queue.
-	SBuffer* mBufferQueue = nullptr; ///< List of buffers.
-	KUInt32 mBufferCount = 0; ///< Number of buffers.
-	KUInt32 mBufferQueueSize = kDEFAULTBUFFERQUEUESIZE; ///< Size of the buffer queue.
-	KUInt32 mBufferNextID = 0; ///< Next ID for buffers.
-	Boolean mPowerOn = true; ///< If power is on.
-	Boolean mQueuePreLock = false; ///< Non-recursive lock to keep interrupts from triggering twice
-	KUInt32 mQueueLockCount = 0; ///< Lock count for the queue
-	KUInt32 mQueueBootLock = 1; ///< Start with a locked queue until NewtonOS finished booting.
-	TMutex* mMutex = nullptr; ///< Mutex of the queue.
-	char* mDocDir = nullptr; ///< Directory on host containing all kinds of documents
+	// \name Variables
+
+	/// Reference to the log.
+	TLog* mLog { nullptr };
+
+	/// Reference to the emulator
+	TEmulator* mEmulator { nullptr };
+
+	/// Reference to the screen manager.
+	TScreenManager* mScreenManager { nullptr };
+
+	/// Reference to the interrupt mgr.
+	TInterruptManager* mInterruptManager { nullptr };
+
+	/// Reference to the memory interface.
+	TMemory* mMemory { nullptr };
+
+	/// Reference to the processor
+	TARMProcessor* mCPU { nullptr };
+
+	/// Liste des événements.
+	SEvent* mEventQueue { nullptr };
+
+	/// Consumer queue cursor (Newton)
+	KUInt32 mEventQueueCCrsr { 0 };
+
+	/// Producer queue cursor (Host)
+	KUInt32 mEventQueuePCrsr { 0 };
+
+	/// Size of the event queue.
+	KUInt32 mEventQueueSize { kDEFAULTEVENTQUEUESIZE };
+
+	/// List of buffers.
+	SBuffer* mBufferQueue { nullptr };
+
+	/// Number of buffers.
+	KUInt32 mBufferCount { 0 };
+
+	/// Size of the buffer queue.
+	KUInt32 mBufferQueueSize { kDEFAULTBUFFERQUEUESIZE };
+
+	/// Next ID for buffers.
+	KUInt32 mBufferNextID { 0 };
+
+	/// If power is on.
+	Boolean mPowerOn { true };
+
+	/// Non-recursive lock to keep interrupts from triggering twice
+	Boolean mQueuePreLock { false };
+
+	/// Lock count for the queue
+	KUInt32 mQueueLockCount { 0 };
+
+	/// Start with a locked queue until NewtonOS finished booting.
+	KUInt32 mQueueBootLock { 1 };
+
+	/// Mutex of the queue.
+	TMutex* mMutex { nullptr };
+
+	/// Directory on host containing all kinds of documents
+	char* mDocDir { nullptr };
 };
 
 #endif

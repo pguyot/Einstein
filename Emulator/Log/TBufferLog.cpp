@@ -41,10 +41,7 @@
 // -------------------------------------------------------------------------- //
 //  * TBufferLog( void )
 // -------------------------------------------------------------------------- //
-TBufferLog::TBufferLog(void) :
-		mTopLineIndex(0),
-		mLogFile(NULL),
-		mRefreshSocket(0)
+TBufferLog::TBufferLog(void)
 {
 	// Empty lines.
 	int indexLines;

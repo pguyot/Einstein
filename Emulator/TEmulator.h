@@ -73,14 +73,14 @@ public:
 	/// \param inRAMSize			size of the RAM installed (in bytes)
 	///
 	TEmulator(
-		TLog* inLog,
-		TROMImage* inROMImage,
-		const char* inFlashPath,
-		TSoundManager* inSoundManager,
-		TScreenManager* inScreenManager,
-		TNetworkManager* inNetworkManager,
-		KUInt32 inRAMSize = 0x00400000,
-		TPrinterManager* inPrinterManager = nullptr);
+			  TLog* inLog,
+			  TROMImage* inROMImage,
+			  const char* inFlashPath,
+			  TSoundManager* inSoundManager,
+			  TScreenManager* inScreenManager,
+			  TNetworkManager* inNetworkManager,
+			  KUInt32 inRAMSize = 0x00400000,
+			  TPrinterManager* inPrinterManager = nullptr);
 
 	///
 	/// Constructor from a rom image buffer.
@@ -92,10 +92,10 @@ public:
 	/// \param inRAMSize			size of the RAM installed (in bytes)
 	///
 	TEmulator(
-		TLog* inLog,
-		KUInt8* inROMImageBuffer,
-		const char* inFlashPath,
-		KUInt32 inRAMSize = 0x00400000);
+			  TLog* inLog,
+			  KUInt8* inROMImageBuffer,
+			  const char* inFlashPath,
+			  KUInt32 inRAMSize = 0x00400000);
 
 	///
 	/// Destructor.
@@ -469,38 +469,82 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TEmulator(const TEmulator& inCopy);
+	TEmulator(const TEmulator& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TEmulator& operator=(const TEmulator& inCopy);
+	TEmulator& operator=(const TEmulator& inCopy) = delete;
 
 	/// \name Variables
-	TMemory mMemory; ///< Memory.
-	TARMProcessor mProcessor; ///< CPU.
-	TInterruptManager* mInterruptManager; ///< Interrupt manager.
-	TDMAManager* mDMAManager; ///< DMA manager.
-	TPlatformManager* mPlatformManager; ///< Platform manager.
-	TNetworkManager* mNetworkManager; ///< Network manager.
-	TPrinterManager* mPrinterManager; ///< Printer manager
-	TSoundManager* mSoundManager; ///< Sound manager.
-	TScreenManager* mScreenManager; ///< Screen manager.
-	TFileManager* mFileManager;
-	KUInt32 mNewtonID[2]; ///< NewtonID (48 bits, 16+32).
-	TLog* mLog; ///< Interface for logging.
-	TMonitor* mMonitor; ///< Monitor (or \c nil).
-	Boolean mSignal; ///< Signal for JIT (if we're running).
-	KUInt32 mInterrupted; ///< We got a (processor) interrupt.
-	KUInt32 mRunning; ///< If we're running.
-	KUInt32 mPaused; ///< If we're paused (until next interrupt).
-	KUInt32 mBPHalted; ///< If we're halted because of a breakpoint.
-	KUInt16 mBPID; ///< ID of the breakpoint.
-	std::function<void()> mCallOnQuit; ///< Call this when the user quits Einstein
+
+	/// Memory.
+	TMemory mMemory;
+
+	/// CPU.
+	TARMProcessor mProcessor;
+
+	/// Interrupt manager.
+	TInterruptManager* mInterruptManager { nullptr };
+
+	/// DMA manager.
+	TDMAManager* mDMAManager { nullptr };
+
+	/// Platform manager.
+	TPlatformManager* mPlatformManager { nullptr };
+
+	/// Network manager.
+	TNetworkManager* mNetworkManager { nullptr };
+
+	/// Printer manager
+	TPrinterManager* mPrinterManager { nullptr };
+
+	/// Sound manager.
+	TSoundManager* mSoundManager { nullptr };
+
+	/// Screen manager.
+	TScreenManager* mScreenManager { nullptr };
+
+	/// File Manager
+	TFileManager* mFileManager { nullptr };
+
+	/// NewtonID (48 bits, 16+32).
+	KUInt32 mNewtonID[2] { 0, 0 };
+
+	/// Interface for logging.
+	TLog* mLog { nullptr };
+
+	/// Monitor (or \c nil).
+	TMonitor* mMonitor { nullptr };
+
+	/// Signal for JIT (if we're running).
+	Boolean mSignal { 0 };
+
+	/// We got a (processor) interrupt.
+	KUInt32 mInterrupted { 0 };
+
+	/// If we're running.
+	KUInt32 mRunning { false };
+
+	/// If we're paused (until next interrupt).
+	KUInt32 mPaused { false };
+
+	/// If we're halted because of a breakpoint.
+	KUInt32 mBPHalted { false };
+
+	/// ID of the breakpoint.
+	KUInt16 mBPID { 0 };
+
+	/// Call this when the user quits Einstein
+	std::function<void()> mCallOnQuit;
+
+	/// Call this when power is restored
 	std::function<void()> mCallOnPowerRestored;
-	bool mZAPMemory = false; ///< if set, OS will offer to erase internal flash on next Reset
+
+	/// if set, OS will offer to erase internal flash on next Reset
+	bool mZAPMemory { false };
 };
 
 #endif

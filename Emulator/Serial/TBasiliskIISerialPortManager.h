@@ -120,17 +120,29 @@ protected:
 	///
 	void ClosePTY();
 
-	int mPipe[2]; ///< communication between emulator and DMA thread
-	//	int mPtyPort;							///< pseudo terminal file id
-	bool mDMAIsRunning; ///< set if DMA thread is active
-	pthread_t mDMAThread;
-	//	char *mPtyName;							///< named of pseudo terminal
+	/// communication between emulator and DMA thread
+	int mPipe[2] { -1, -1 };
 
-	static const char* kBasiliskPipe; ///< Base name of the pasilisk pty
-	char* pBasiliskRemoteName; ///< PTY remote filename
-	int pBasiliskLocalFD; ///< PTY local file id
-	int pBasiliskRemoteFD; ///< PTY remote file id
-	ComState pComState; ///< state of the connection to Basilisk
+	/// set if DMA thread is active
+	bool mDMAIsRunning { false };
+
+	/// Worker thread
+	pthread_t mDMAThread { 0 };
+
+	/// Base name of the Basilisk pty
+	static const char* kBasiliskPipe;
+
+	/// PTY remote filename
+	char* pBasiliskRemoteName { nullptr };
+
+	/// PTY local file id
+	int pBasiliskLocalFD { -1 };
+
+	/// PTY remote file id
+	int pBasiliskRemoteFD { -1 };
+
+	/// state of the connection to Basilisk
+	ComState pComState { kStateInit };
 };
 
 #endif

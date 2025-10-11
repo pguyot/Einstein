@@ -95,10 +95,16 @@ private:
 	///
 	inline void symcmp__FPcT1(void);
 
-	/// \name Variables
-	TEmulator* mEmulator; ///< Interface to the emulator.
-	TMemory* mMemoryIntf; ///< Interface to memory.
-	TARMProcessor* mProcessor; ///< Interface to the processor.
+	// \name Variables
+
+	/// Interface to the emulator.
+	TEmulator* mEmulator { nullptr };
+
+	/// Interface to memory.
+	TMemory* mMemoryIntf { nullptr };
+
+	/// Interface to the processor.
+	TARMProcessor* mProcessor { nullptr };
 };
 
 #endif

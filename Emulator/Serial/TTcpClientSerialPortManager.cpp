@@ -84,10 +84,7 @@ TTcpClientSerialPortManager::TTcpClientSerialPortManager(
 	WORD wVersionRequested = MAKEWORD(2, 2);
 	WSAStartup(wVersionRequested, &wsaData);
 #endif
-
 	mServer = strdup("127.0.0.1");
-	//	mServer = strdup("192.168.178.63"); // testing connections over Wifi
-	mPort = 3679;
 }
 
 // -------------------------------------------------------------------------- //

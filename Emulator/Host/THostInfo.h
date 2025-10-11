@@ -114,21 +114,49 @@ private:
 	///
 	void FillNullInfoWithEmptyStrings(void);
 
-	/// \name Variables
-	const KUInt16* mUserFirstName; ///< User first name.
-	const KUInt16* mUserLastName; ///< User last name.
-	const KUInt16* mUserCompany; ///< User company.
-	const KUInt16* mUserAddr; ///< User address.
-	const KUInt16* mUserAddr2; ///< User address (line 2).
-	const KUInt16* mUserPostalCode; ///< User postal code.
-	const KUInt16* mUserCity; ///< User city.
-	const KUInt16* mUserRegion; ///< User region.
-	const KUInt16* mUserCountry; ///< User country.
-	const KUInt16* mUserCountryISOCode; ///< User country ISO code.
-	const KUInt16* mUserHomePhone; ///< User home #.
-	const KUInt16* mUserHomeFaxPhone; ///< User home fax #.
-	const KUInt16* mUserWorkPhone; ///< User work #.
-	const KUInt16* mUserWorkFaxPhone; ///< User work fax #.
+	// \name Variables
+
+	/// User first name.
+	const KUInt16* mUserFirstName { nullptr };
+
+	/// User last name.
+	const KUInt16* mUserLastName { nullptr };
+
+	/// User company.
+	const KUInt16* mUserCompany { nullptr };
+
+	/// User address.
+	const KUInt16* mUserAddr { nullptr };
+
+	/// User address (line 2).
+	const KUInt16* mUserAddr2 { nullptr };
+
+	/// User postal code.
+	const KUInt16* mUserPostalCode { nullptr };
+
+	/// User city.
+	const KUInt16* mUserCity { nullptr };
+
+	/// User region.
+	const KUInt16* mUserRegion { nullptr };
+
+	/// User country.
+	const KUInt16* mUserCountry { nullptr };
+
+	/// User country ISO code.
+	const KUInt16* mUserCountryISOCode { nullptr };
+
+	/// User home #.
+	const KUInt16* mUserHomePhone { nullptr };
+
+	/// User home fax #.
+	const KUInt16* mUserHomeFaxPhone { nullptr };
+
+	/// User work #.
+	const KUInt16* mUserWorkPhone { nullptr };
+
+	/// User work fax #.
+	const KUInt16* mUserWorkFaxPhone { nullptr };
 };
 
 #endif

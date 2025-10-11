@@ -63,10 +63,7 @@ TSerialPortManager::TSerialPortManager(
 	TLog* inLog,
 	TSerialPorts::EPortIndex inPortIx) :
 		mLog(inLog),
-		mNewtPortIndex(inPortIx),
-		mInterruptManager(nullptr),
-		mDMAManager(nullptr),
-		mMemory(nullptr)
+		mNewtPortIndex(inPortIx)
 {
 	if (mLog)
 	{

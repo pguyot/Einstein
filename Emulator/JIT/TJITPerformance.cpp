@@ -45,12 +45,7 @@ TJITPerfHitCounter branchLinkDestCount(0, 8 * 1024 * 1024 - 1, 4);
 
 #endif
 
-TJITPerfHitCounter::TJITPerfHitCounter(KUInt32 first, KUInt32 last, KUInt32 step) :
-		mEmulator(0L),
-		mFirst(0),
-		mSize(0),
-		mShift(0),
-		mArray(0L)
+TJITPerfHitCounter::TJITPerfHitCounter(KUInt32 first, KUInt32 last, KUInt32 step)
 {
 	mFirst = first;
 	switch (step)

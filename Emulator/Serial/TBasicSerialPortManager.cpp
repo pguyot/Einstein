@@ -486,19 +486,7 @@ int main() {
 TBasicSerialPortManager::TBasicSerialPortManager(
 	TLog* inLog,
 	TSerialPorts::EPortIndex inPortIx) :
-		TSerialPortManager(inLog, inPortIx),
-
-		mTxDMAPhysicalBufferStart(0),
-		mTxDMAPhysicalData(0),
-		mTxDMADataCountdown(0),
-		mTxDMAControl(0),
-		mTxDMAEvent(0),
-
-		mRxDMAPhysicalBufferStart(0),
-		mRxDMAPhysicalData(0),
-		mRxDMADataCountdown(0),
-		mRxDMAControl(0),
-		mRxDMAEvent(0)
+		TSerialPortManager(inLog, inPortIx)
 {
 }
 

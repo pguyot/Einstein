@@ -234,7 +234,7 @@ Boolean RefIsBinary(NewtRef);
 KUInt32 RefArrayGetNumSlots(NewtRef r);
 NewtRef RefArrayGetSlot(NewtRef r, int i);
 
-// FIXME: don't use thsi yet, it will hang the emulator
+// FIXME: don't use this yet, it will hang the emulator
 NewtRef ThrowBadTypeWithFrameData(long, RefArg);
 
 // Jump table from the Platform Manager calls into their implementation

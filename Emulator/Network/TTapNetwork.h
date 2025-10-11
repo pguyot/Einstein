@@ -131,9 +131,15 @@ public:
 	virtual int SetReadFDSet(fd_set* ioFDSet);
 
 private:
-	int mTapFileDescriptor;
+
+	/// File descriptor for "/dev/tap0"
+	int mTapFileDescriptor { -1 };
+
+	/// Buffer for incoming data
 	char mBuffer[1518];
-	KUInt32 mBufferSize;
+
+	/// Number of byte in mBuffer
+	KUInt32 mBufferSize { 0 };
 };
 
 #endif

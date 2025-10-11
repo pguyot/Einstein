@@ -67,12 +67,24 @@ public:
 	void Run();
 
 protected:
-	std::string mPath;
-	int mMain;
-	int mRemote;
-	TThread* mIOThread;
-	TMutex* mReadMutex;
-	TCircleBuffer* mReadBuffer;
+
+	/// Path to the PTY (could be std::filename)
+	std::string mPath { };
+
+	/// PTY file number to send data to the host
+	int mMain { -1 };
+
+	/// PTY file number to send data to the host
+	int mRemote { -1 };
+
+	/// Worker thread
+	TThread* mIOThread { nullptr };
+
+	/// Class wide mutex
+	TMutex* mReadMutex { nullptr };
+
+	/// Circle buffer for incoming data
+	TCircleBuffer* mReadBuffer { nullptr };
 };
 
 #endif

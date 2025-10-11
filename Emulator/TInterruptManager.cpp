@@ -59,22 +59,7 @@
 TInterruptManager::TInterruptManager(TLog* inLog, TARMProcessor* inProcessor) :
 		mLog(inLog),
 		mProcessor(inProcessor),
-		mExiting(false),
-		mWaiting(false),
-		mMaskIRQ(false),
-		mMaskFIQ(false),
-		mIntRaised(0),
-		mIntCtrlReg(0),
-		mFIQMask(0),
-		mIntEDReg1(0),
-		mIntEDReg2(0),
-		mIntEDReg3(0),
-		mGPIORaised(0),
-		mGPIOCtrlReg(0),
-		mCalendarDelta(GetSyncedCalendarDelta()),
-		mAlarmRegister(0),
-		mTimerDelta(0),
-		mTimer(0)
+		mCalendarDelta(GetSyncedCalendarDelta())
 {
 	// Start the thread.
 	Init();
@@ -89,26 +74,8 @@ TInterruptManager::TInterruptManager(
 	KUInt32 inTimer) :
 		mLog(inLog),
 		mProcessor(inProcessor),
-		mExiting(false),
-		mWaiting(false),
-		mMaskIRQ(false),
-		mMaskFIQ(false),
-		mIntRaised(0),
-		mIntCtrlReg(0),
-		mFIQMask(0),
-		mIntEDReg1(0),
-		mIntEDReg2(0),
-		mIntEDReg3(0),
-		mGPIORaised(0),
-		mGPIOCtrlReg(0),
 		mCalendarDelta(GetSyncedCalendarDelta()),
-		mAlarmRegister(0),
-		mTimerDelta(0),
-		mTimer(inTimer),
-		mTimerCondVar(nil),
-		mEmulatorCondVar(nil),
-		mMutex(nil),
-		mThread(nil)
+		mTimer(inTimer)
 {
 	// Start the thread.
 	Init();

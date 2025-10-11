@@ -187,13 +187,22 @@ private:
 		}
 	}
 
-	/// \name Variables
-	TMemory* mMemoryIntf; ///< Interface to memory.
-	TMMU* mMMUIntf; ///< Interface to MMU.
-	THashMapCache<SEntry> mVMap; ///< Cache.
-	SEntry** mPMap; ///< Association by
-					///< physical address.
-	KUInt32 mPMapSize; ///< Size of the PMap.
+	// \name Variables
+
+	/// Interface to memory. Initialized by constructor.
+	TMemory* mMemoryIntf;
+
+	/// Interface to MMU. Initialized by constructor.
+	TMMU* mMMUIntf;
+
+	/// Cache. Initialized by constructor.
+	THashMapCache<SEntry> mVMap;
+
+	/// Association by physical address. Initialized by InitPMap.
+	SEntry** mPMap;
+
+	/// Size of the PMap. Initialized by InitPMap.
+	KUInt32 mPMapSize;
 };
 
 #endif

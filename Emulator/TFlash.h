@@ -138,19 +138,25 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TFlash(const TFlash& inCopy);
+	TFlash(const TFlash& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TFlash& operator=(const TFlash& inCopy);
+	TFlash& operator=(const TFlash& inCopy) = delete;
 
 	/// \name Variables
-	TLog* mLog; ///< Interface to the log.
-	TMappedFile mFlashFile; ///< Flash file.
-	KUInt8* mFlash; ///< Flash buffer.
+
+	/// Interface to the log.
+	TLog* mLog { nullptr };
+
+	/// Flash file.
+	TMappedFile mFlashFile;
+
+	/// Flash buffer.
+	KUInt8* mFlash { nullptr };
 };
 
 #endif

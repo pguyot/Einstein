@@ -51,14 +51,7 @@
 // -------------------------------------------------------------------------- //
 TPipesSerialPortManager::TPipesSerialPortManager(TLog* inLog,
 	TSerialPorts::EPortIndex inPortIx) :
-		TBasicSerialPortManager(inLog, inPortIx),
-		mPipe { -1, -1 },
-		mTxPort(-1),
-		mRxPort(-1),
-		mDMAIsRunning(false),
-		mDMAThread(0L),
-		mTxPortName(nullptr),
-		mRxPortName(nullptr)
+		TBasicSerialPortManager(inLog, inPortIx)
 {
 }
 

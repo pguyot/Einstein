@@ -623,14 +623,14 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TScreenManager(const TScreenManager& inCopy);
+	TScreenManager(const TScreenManager& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TScreenManager& operator=(const TScreenManager& inCopy);
+	TScreenManager& operator=(const TScreenManager& inCopy) = delete;
 
 	///
 	/// Insert sample to the buffer.
@@ -693,39 +693,92 @@ private:
 		SRect* inDstRect,
 		KUInt32 inMode);
 
-	/// \name Variables
-	TLog* mLog; ///< Reference to the log.
-	TInterruptManager* mInterruptManager; ///< Reference to the interrupt mgr.
-	TMemory* mMemory; ///< Interface to the memory.
-	TPlatformManager* mPlatformManager; ///< Reference to the platform mgr.
-	KUInt32 mPortraitWidth; ///< Width in portrait mode.
-	KUInt32 mPortraitHeight; ///< Height in portrait mode.
-	KUInt32 mPhysicalWidth; ///< Actual screen width (full screen).
-	KUInt32 mPhysicalHeight; ///< Actual screen height (full screen).
-	Boolean mFullScreen; ///< Full screen mode.
-	Boolean mScreenIsLandscape; ///< Whether screen is landscape.
-	Boolean mBypassTablet; ///< Whether we bypass the tablet.
-	Boolean mTabletIsDown; ///< Whether the tablet is down.
-	Boolean mPenIsDown; ///< If pen is down.
-	KUInt32 mTabletSampleRate; ///< Sample rate (in ticks) of the
-							   ///< tablet.
-	KUInt32* mTabletBuffer; ///< (Circular) buffer for the
-							///< tablet samples.
-	KUInt32 mTabletBufCCrsr; ///< Consumer buffer cursor (Newton)
-	KUInt32 mTabletBufPCrsr; ///< Producer buffer cursor (Host)
-	EOrientation mTabletOrientation; ///< Current tablet orientation.
-	EOrientation mScreenOrientation; ///< Current screen orientation.
-	KUInt32 mContrast; ///< Current screen contrast.
-	Boolean mBacklight; ///< Current screen backlight.
-	Boolean mKbdIsConnected; ///< If keyboard is connected.
-	KUInt8* mScreenBuffer; ///< Buffer of the screen.
+	// \name Variables
+
+	/// Reference to the log.
+	TLog* mLog { nullptr };
+
+	/// Reference to the interrupt mgr.
+	TInterruptManager* mInterruptManager { nullptr };
+
+	/// Interface to the memory.
+	TMemory* mMemory { nullptr };
+
+	/// Reference to the platform mgr.
+	TPlatformManager* mPlatformManager { nullptr };
+
+	/// Width in portrait mode.
+	KUInt32 mPortraitWidth { 0 };
+
+	/// Height in portrait mode.
+	KUInt32 mPortraitHeight { 0 };
+
+	/// Actual screen width (full screen).
+	KUInt32 mPhysicalWidth { 0 };
+
+	/// Actual screen height (full screen).
+	KUInt32 mPhysicalHeight { 0 };
+
+	/// Full screen mode.
+	Boolean mFullScreen { false };
+
+	/// Whether screen is landscape.
+	Boolean mScreenIsLandscape { false };
+
+	/// Whether we bypass the tablet.
+	Boolean mBypassTablet { false };
+
+	/// Whether the tablet is down.
+	Boolean mTabletIsDown { false };
+
+	/// If pen is down.
+	Boolean mPenIsDown { false };
+
+	/// Sample rate (in ticks) of the tablet.
+	KUInt32 mTabletSampleRate { kDefaultSampleRate };
+
+	/// (Circular) buffer for the tablet samples.
+	KUInt32* mTabletBuffer { nullptr };
+
+	/// Consumer buffer cursor (Newton)
+	KUInt32 mTabletBufCCrsr { 0 };
+
+	/// Producer buffer cursor (Host)
+	KUInt32 mTabletBufPCrsr { 0 };
+
+	/// Current tablet orientation.
+	EOrientation mTabletOrientation { kOrientation_Default };
+
+	/// Current screen orientation.
+	EOrientation mScreenOrientation { kOrientation_Default };
+
+	/// Current screen contrast.
+	KUInt32 mContrast { kDefaultContrast };
+
+	/// Current screen backlight.
+	Boolean mBacklight { false };
+
+	/// If keyboard is connected.
+	Boolean mKbdIsConnected { true };
+
+	/// Buffer of the screen.
+	KUInt8* mScreenBuffer { nullptr };
 
 protected:
-	Boolean mOverlayIsOn; ///< Show overlay on screen
-	Boolean mOverlayIsDirty[4]; ///< There is something visible in the overlay buffer line
-	char mOverlay[4][40]; ///< Overlay text buffer
-	SRect mOverlayRect; ///< Position and size of overlay on screen
-	static KUInt8 mFontData[128][13]; ///< Pixeldata for overlay font
+	/// Show overlay on screen
+	Boolean mOverlayIsOn { false };
+
+	/// There is something visible in the overlay buffer line
+	Boolean mOverlayIsDirty[4];
+
+	/// Overlay text buffer
+	char mOverlay[4][40];
+
+	/// Position and size of overlay on screen
+	SRect mOverlayRect;
+
+	/// Pixeldata for overlay font
+	static KUInt8 mFontData[128][13];
 };
 
 #endif

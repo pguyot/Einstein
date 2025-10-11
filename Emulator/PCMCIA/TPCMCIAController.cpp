@@ -49,25 +49,7 @@ TPCMCIAController::TPCMCIAController(
 		mLog(inLog),
 		mIntManager(inEmulator->GetInterruptManager()),
 		mEmulator(inEmulator),
-		mSocketIx(inSocketIx),
-		mCard(nil),
-		mReg_0000(0),
-		mIntCtrlReg(0),
-		mReg_0800(0),
-		mReg_0C00(0),
-		mReg_1000(0),
-		mReg_1400(0),
-		mReg_1800(0),
-		mReg_1C00(0),
-		mReg_2000(0),
-		mReg_2400(0),
-		mReg_2800(0),
-		mReg_2C00(0),
-		mReg_3000(0),
-		mReg_3400(0),
-		mReg_3800(0 /* ID du chip */),
-		mReg_3C00(0),
-		mReg_4000(0)
+		mSocketIx(inSocketIx)
 {
 }
 

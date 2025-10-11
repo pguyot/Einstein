@@ -131,7 +131,7 @@ protected:
 	///
 	static KSInt32 ComputeROMId(KUInt8* data, bool& outCRCValid);
 
-	KUInt32 mErrorCode = kNoError;
+	KUInt32 mErrorCode { kNoError };
 
 private:
 	///
@@ -194,11 +194,12 @@ private:
 	///
 	TROMImage& operator=(const TROMImage& inCopy) = delete;
 
-	SImage* mImage; ///< image structure.
+	/// image structure.
+	SImage* mImage { nullptr };
 
-	KSInt32 mROMId = kUnknownROM;
+	KSInt32 mROMId { kUnknownROM };
 
-	bool mCRCValid = true;
+	bool mCRCValid { true };
 };
 
 #endif

@@ -28,7 +28,7 @@
 #include "TPCMCIACard.h"
 
 ///
-/// Class for a NE2000 Newtwork Adapter card.
+/// Class for a NE2000 Network Adapter card.
 ///
 /// \author Paul Guyot <pguyot@kallisys.net>
 /// \version $Revision: 147 $

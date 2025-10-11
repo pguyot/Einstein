@@ -334,14 +334,14 @@ private:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TMMU(const TMMU& inCopy);
+	TMMU(const TMMU& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TMMU& operator=(const TMMU& inCopy);
+	TMMU& operator=(const TMMU& inCopy) = delete;
 
 	///
 	/// Invalidate the perms cache.
@@ -358,17 +358,36 @@ private:
 		KUInt32 inEntryPermIndex);
 
 	/// \name Variables
-	TMemory* mMemoryIntf; ///< Interface to the memory.
-	Boolean mMMUEnabled; ///< If the MMU is currently
-						 ///< enabled.
-	KUInt8 mCurrentAPMode; ///< 0-7, SPR
-	KUInt8 mCurrentAPRead; ///< Current AP bits for read acc.
-	KUInt8 mCurrentAPWrite; ///< Current AP bits for write acc.
-	KUInt32 mTTBase; ///< Translation Table Base.
-	KUInt32 mDomainAC; ///< Domain Access Control.
-	KUInt32 mFaultAddress; ///< Address of the last fault.
-	KUInt32 mFaultStatus; ///< Status.
-	THashMapCache<SEntry> mCache; ///< TLB cache.
+
+	/// Interface to the memory.
+	TMemory* mMemoryIntf { nullptr };
+
+	/// If the MMU is currently enabled.
+	Boolean mMMUEnabled { false };
+
+	/// 0-7, SPR
+	KUInt8 mCurrentAPMode { kAPMagic_Privileged };
+
+	/// Current AP bits for read acc.
+	KUInt8 mCurrentAPRead { 0 };
+
+	/// Current AP bits for write acc.
+	KUInt8 mCurrentAPWrite { 0 };
+
+	/// Translation Table Base.
+	KUInt32 mTTBase { 0 };
+
+	/// Domain Access Control.
+	KUInt32 mDomainAC { 0xFFFFFFFF };
+
+	/// Address of the last fault.
+	KUInt32 mFaultAddress { 0 };
+
+	/// Status.
+	KUInt32 mFaultStatus { 0 };
+
+	/// TLB cache.
+	THashMapCache<SEntry> mCache;
 };
 
 #endif
