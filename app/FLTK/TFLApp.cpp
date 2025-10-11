@@ -310,7 +310,7 @@ TFLApp::Run(int argc, char* argv[])
 
 	InitSettings();
 
-	mLog = new TStdOutLog();
+	//mLog = new TStdOutLog();
 
 	int ramSize = mFLSettings->RAMSize;
 	Boolean hidemouse = (Boolean) mFLSettings->hideMouse;
