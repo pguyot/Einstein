@@ -24,6 +24,44 @@
 // On Android, we may want to use an Action Bar to get icons and menus for
 // Backlight, Power, Package Install, etc.
 
+/*
+ \note On some Android devices (tablets), if the device is in landscape, but
+       we ask for a portrait, we first get a landscape window and the SDL_EVENT_WINDOW_SHOWN,
+       but then the display mode adapts to the requested portrait mode and window resizes,
+       sending SDL_EVENT_WINDOW_RESIZED. The screen is still in landscape, but the window
+       now only fills the center of the screen.
+
+       This is all nice, but Einstein is now initialised for landscape and can't easily
+       change into portrait mode.
+
+ Order of actions and events:
+    setOrientation
+ onStart
+ onResume
+ surfaceCreated
+ surfaceCHanged
+ windowSize
+ SDL_EVENT_WINDOW_MOUSE_ENTER
+ SDL_EVENT_WINDOW_FOCUS_GAINED
+ SDL_EVENT_WINDOW_SAFE_AREA_CHANGED
+ SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED
+ SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED
+ SDL_EVENT_WINDOW_FOCUS_GAINED
+ SDL_EVENT_WINDOW_SHOWN (still 2560 1464)
+ SDL_EVENT_USER
+    onConfigurationChanged, surfaceChanged, ..
+ SDL_EVENT_AUDIO_DEVICE_ADDED
+    SDL_EVENT_DISPLAY_DESKTOP_MODE_CHANGED
+    SDL_EVENT_DISPLAY_CURRENT_MODE_CHANGED
+    SDL_EVENT_WINDOW_RESIZED
+    SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED
+    SDL_EVENT_WINDOW_SAFE_AREA_CHANGED
+ SDL_EVENT_USER (TSerialManager)
+ SDL_EVENT_USER (colors)
+ ... Mouse Down, Finger down, Motion, Up
+    Medium Tablet crashes in TScreenManager::Blit_0(), no issue if tablet is in portrait
+ */
+
 #define SDL_MAIN_USE_CALLBACKS
 
 #include <K/Defines/KDefinitions.h>
@@ -51,6 +89,8 @@
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_messagebox.h>
 #include <SDL3/SDL_system.h>
+#include <SDL3/SDL_events.h>
+#include "app/SDL/TSDLEventDescription.h" // E_SDL_GetEventDescription
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,6 +101,10 @@
 #include <thread>
 
 TSDLApp* gApp = nullptr;
+
+
+
+
 
 
 // ---- SDL Forwarding Calls ---------------------------------------------------
@@ -225,6 +269,8 @@ SDL_AppResult TSDLApp::InitSDLGraphics()
 
 	mScreenWidth = (mScreenWidth + 1) & ~1; // Round up to an even number of pixels
 
+    // TODO: before we create a window on a fullscreen device (Android, iOS), get
+    // the display mode and launch Einstein in Landscape or Portrait as needed.
 	if (!SDL_CreateWindowAndRenderer(nullptr,
 									 mScreenWidth,
 									 mScreenHeight + mToolbarHeight,
@@ -375,12 +421,16 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 {
 	auto event_type = event->type;
 
+    // For debugging, until we have the correct order of SDL events down
+    static char buf[1024];
+    E_SDL_GetEventDescription(event, buf, 1023);
+
     (void)mSDLWindow;
     int win_w;
     int win_h;
     SDL_GetWindowSize(mSDLWindow, &win_w, &win_h);
-    mLog->FLogLine("Handle event 0x%04x %d %d %d",
-                   event->type, win_w, win_h, (int)mBootState);
+    mLog->FLogLine("Handle event %s : %d %d %d",
+                   buf, win_w, win_h, (int)mBootState);
 	if (event_type == mSDLBootStateEvent)
 		return HandleBootStateChange();
 
