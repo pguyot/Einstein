@@ -141,19 +141,19 @@ TJITGeneric::~TJITGeneric(void)
 }
 
 // -------------------------------------------------------------------------- //
-//  * Run( TARMProcessor*, volatile Boolean* )
+//  * Run( TARMProcessor*, std::atomic<bool>* inSignal )
 // -------------------------------------------------------------------------- //
 void
-TJITGeneric::Run(TARMProcessor* ioCPU, volatile Boolean* inSignal)
+TJITGeneric::Run(TARMProcessor* ioCPU, std::atomic<bool>* inSignal)
 {
-	volatile KUInt32* pendingInterrupts = &ioCPU->mPendingInterrupts;
 	KUInt32* pcPtr = &ioCPU->mCurrentRegisters[TARMProcessor::kR15];
 	TMemory* theMemoryInterface = ioCPU->mMemory;
 	TEmulator* theEmulator = ioCPU->mEmulator;
 	JITUnit* theJITUnit = GetJITUnitForPC(ioCPU, theMemoryInterface, *pcPtr);
+
 	while (true)
 	{
-		while (*inSignal)
+		while (inSignal->load())
 		{
 			// Here we go, iterating...
 			// *pcPtr is 4 bytes ahead of the instruction that will
@@ -164,7 +164,7 @@ TJITGeneric::Run(TARMProcessor* ioCPU, volatile Boolean* inSignal)
 		// We may have been signaled because there was an interrupt.
 		if (theEmulator->IsInterrupted())
 		{
-			KUInt32 theInterrupt = *pendingInterrupts;
+			KUInt32 theInterrupt = ioCPU->mPendingInterrupts;
 			theEmulator->AckInterrupt();
 			if (theInterrupt & TARMProcessor::kResetInterrupt)
 			{

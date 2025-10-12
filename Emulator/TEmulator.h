@@ -119,7 +119,7 @@ public:
 	inline void
 	SignalInterrupt(void)
 	{
-		mSignal = false;
+		mSignal.store( false );
 		mInterrupted = true;
 	}
 
@@ -131,7 +131,7 @@ public:
 	{
 		if (mRunning && (!mPaused))
 		{
-			mSignal = true;
+			mSignal.store( true );
 		}
 		mInterrupted = false;
 	}
@@ -148,7 +148,7 @@ public:
 	inline void
 	Breakpoint(KUInt16 inID)
 	{
-		mSignal = false;
+		mSignal.store( false );
 		mRunning = false;
 		mBPHalted = true;
 		mBPID = inID;
@@ -395,7 +395,7 @@ public:
 	inline void
 	PauseSystem(void)
 	{
-		mSignal = false;
+		mSignal.store( false );
 		mPaused = true;
 	}
 
@@ -519,8 +519,8 @@ private:
 	/// Monitor (or \c nil).
 	TMonitor* mMonitor { nullptr };
 
-	/// Signal for JIT (if we're running).
-	Boolean mSignal { 0 };
+	/** \brief Tell the JIT thread that an interrupt occurred or that we quit. */
+	std::atomic<bool> mSignal { false };
 
 	/// We got a (processor) interrupt.
 	KUInt32 mInterrupted { 0 };

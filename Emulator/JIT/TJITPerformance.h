@@ -71,7 +71,7 @@ public:
 		kStyleMostHit, ///< show the first n addresses that were hit most often; varargs is UInt32 n
 		kStyleAllHit, ///< show all addresses that were hit, sorted by number of hit; varargs is unused
 		kStyleDontSort, ///< list all addresses that were hit
-		kStyleHex = 0x10000000, ///< show addresse in 8 byte hex notation instead of decimal
+		kStyleHex = 0x10000000, ///< show address in 8 byte hex notation instead of decimal
 		kStyleSymbolsOnly = 0x20000000, ///< show only hits for symbols
 		kStyleNonZeroOnly = 0x40000000 ///< print only hits greater than zero
 	};
@@ -85,7 +85,7 @@ private:
 	KUInt32 mSize { 0 };
 
 	KUInt32 mShift { 0 };
-	
+
 	KUInt64* mArray { nullptr };
 
 	/// Print one hit according to the style and optional symbol information

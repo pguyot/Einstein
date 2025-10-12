@@ -136,17 +136,17 @@ TARMProcessor::SystemCoprocRegisterTransfer(KUInt32 inInstruction)
 				break;
 
 			case 2:
-				// MMU translation base.
+				// MMU translation base (bits 31...14,, bits 13...0 are unused).
 				theValue = mMemory->GetTranslationTableBase();
 				break;
 
 			case 3:
-				// Domain Access Control
+				// Domain Access Control (bits 31/30 for domain 15, 29/28 for domain 14, etc.)
 				theValue = mMemory->GetDomainAccessControl();
 				break;
 
 			case 5:
-				// Fault status register.
+				// Fault status register. (bit 8 = 0, bit 7...4 domain, bit 3...0 status)
 				theValue = mMemory->GetFaultStatusRegister();
 				break;
 

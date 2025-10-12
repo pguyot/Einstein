@@ -36,10 +36,8 @@
 #include <sys/time.h>
 #endif
 
-// Mach
-// #include <mach/mach.h>
-// #include <mach/clock.h>
-// #include <mach/mach_error.h>
+// C++ std lib
+#include <thread>
 
 // K
 #include <K/Streams/TStream.h>
@@ -89,32 +87,21 @@ TInterruptManager::~TInterruptManager(void)
 	// Stop the timer thread.
 	mMutex->Lock();
 
-	mExiting = true;
+	mExiting.store( true );
 	mTimerCondVar->Signal();
 
 	mMutex->Unlock();
 
 	// Wait for the thread to finish.
-	while (mExiting)
+	while (mExiting.load())
 	{
+		std::this_thread::yield();
 	};
 
-	if (mThread)
-	{
-		delete mThread;
-	}
-	if (mTimerCondVar)
-	{
-		delete mTimerCondVar;
-	}
-	if (mEmulatorCondVar)
-	{
-		delete mEmulatorCondVar;
-	}
-	if (mMutex)
-	{
-		delete mMutex;
-	}
+	delete mThread;
+	delete mTimerCondVar;
+	delete mEmulatorCondVar;
+	delete mMutex;
 }
 
 // -------------------------------------------------------------------------- //
@@ -136,7 +123,7 @@ TInterruptManager::Init(void)
 	mMutex->Lock();
 
 	// The timer isn't running.
-	mRunning = false;
+	mRunning.store( false );
 
 	// Create the thread
 	mThread = new TThread(this);
@@ -157,14 +144,14 @@ void
 TInterruptManager::ResumeTimer(void)
 {
 	// Is the timer indeed suspended?
-	if (!mRunning)
+	if (!mRunning.load())
 	{
 		mMutex->Lock();
 
 		// Here the timer is waiting (since we have the mutex).
 
 		// Say the timer is running.
-		mRunning = true;
+		mRunning.store( true );
 
 		// Signal the condition variable to wake the timer thread.
 		mTimerCondVar->Signal();
@@ -186,14 +173,14 @@ void
 TInterruptManager::SuspendTimer(void)
 {
 	// Is the timer indeed running?
-	if (mRunning)
+	if (mRunning.load())
 	{
 		mMutex->Lock();
 
 		// Here the timer is waiting (since we have the mutex).
 
 		// Say the timer is not running.
-		mRunning = false;
+		mRunning.store( false );
 
 		// Signal the condition variable to wake the timer thread.
 		mTimerCondVar->Signal();
@@ -224,7 +211,7 @@ TInterruptManager::WaitUntilInterrupt(Boolean inMaskIRQ, Boolean inMaskFIQ)
 	// Here the timer is waiting (since we have the mutex).
 
 	// Say we're waiting.
-	mWaiting = true;
+	mWaiting.store( true );
 
 	// Note what we are waiting for.
 	mMaskIRQ = inMaskIRQ;
@@ -239,7 +226,7 @@ TInterruptManager::WaitUntilInterrupt(Boolean inMaskIRQ, Boolean inMaskFIQ)
 	//	KPrintf("%i-Emulator-WakeUp-4\n", (int) time(NULL));
 
 	// We're no longer waiting.
-	mWaiting = false;
+	mWaiting.store( false );
 
 	// Release the mutex, so the timer thread will get it back.
 	mMutex->Unlock();
@@ -481,7 +468,7 @@ TInterruptManager::RaiseGPIO(KUInt32 inValue)
 
 		// Resume the processor if it was waiting in our
 		// WaitUntilInterrupt loop.
-		if (mWaiting)
+		if (mWaiting.load())
 		{
 			mEmulatorCondVar->Signal();
 		}
@@ -553,14 +540,14 @@ TInterruptManager::Run(void)
 		KUInt32 newTicks = ticks;
 		KUInt32 nextMatch;
 
-		if (mRunning)
+		if (mRunning.load())
 		{
 			// Wake the resuming thread.
 			mEmulatorCondVar->Signal();
 		}
 
 		// Are we running?
-		while (mRunning)
+		while (mRunning.load())
 		{
 			// We are running.
 			// How long should we sleep?
@@ -574,7 +561,7 @@ TInterruptManager::Run(void)
 				if (mIntRaised & mIntCtrlReg & mFIQMask)
 				{
 					mProcessor->FIQInterrupt();
-					if ((!mWaiting) || (!mMaskFIQ))
+					if ((!mWaiting.load()) || (!mMaskFIQ))
 					{
 						gotAnInterrupt = true;
 					}
@@ -586,7 +573,7 @@ TInterruptManager::Run(void)
 				if (mIntRaised & mIntCtrlReg & ~mFIQMask)
 				{
 					mProcessor->IRQInterrupt();
-					if ((!mWaiting) || (!mMaskIRQ))
+					if ((!mWaiting.load()) || (!mMaskIRQ))
 					{
 						gotAnInterrupt = true;
 					}
@@ -595,7 +582,7 @@ TInterruptManager::Run(void)
 					mProcessor->ClearIRQInterrupt();
 				}
 
-				if (gotAnInterrupt && mWaiting)
+				if (gotAnInterrupt && mWaiting.load())
 				{
 					// Resume the processor if it was waiting in our
 					// WaitUntilInterrupt loop.
@@ -617,7 +604,7 @@ TInterruptManager::Run(void)
 				if (mIntRaised & mIntCtrlReg & mFIQMask)
 				{
 					mProcessor->FIQInterrupt();
-					if ((!mWaiting) || (!mMaskFIQ))
+					if ((!mWaiting.load()) || (!mMaskFIQ))
 					{
 						gotAnInterrupt = true;
 					}
@@ -629,7 +616,7 @@ TInterruptManager::Run(void)
 				if (mIntRaised & mIntCtrlReg & ~mFIQMask)
 				{
 					mProcessor->IRQInterrupt();
-					if ((!mWaiting) || (!mMaskIRQ))
+					if ((!mWaiting.load()) || (!mMaskIRQ))
 					{
 						gotAnInterrupt = true;
 					}
@@ -638,7 +625,7 @@ TInterruptManager::Run(void)
 					mProcessor->ClearIRQInterrupt();
 				}
 
-				if (gotAnInterrupt && mWaiting)
+				if (gotAnInterrupt && mWaiting.load())
 				{
 					// Resume the processor if it was waiting in our
 					// WaitUntilInterrupt loop.
@@ -654,7 +641,7 @@ TInterruptManager::Run(void)
 				//				KPrintf("%i-Timer-WakeUp-1\n", (int) time(NULL));
 			}
 
-			if (mExiting)
+			if (mExiting.load())
 			{
 				// Exit.
 				break;
@@ -664,7 +651,7 @@ TInterruptManager::Run(void)
 			newTicks = GetTimeInTicks();
 		}
 
-		if (mExiting)
+		if (mExiting.load())
 		{
 			// Exit.
 			break;
@@ -690,7 +677,7 @@ TInterruptManager::Run(void)
 		mTimerCondVar->Wait(mMutex);
 		//		KPrintf("%i-Timer-WakeUp-2\n", (int) time(NULL));
 
-		if (mExiting)
+		if (mExiting.load())
 		{
 			// Exit.
 			break;
@@ -699,7 +686,7 @@ TInterruptManager::Run(void)
 
 	mMutex->Unlock();
 
-	mExiting = false;
+	mExiting.store( false );
 }
 
 // -------------------------------------------------------------------------- //
@@ -1132,16 +1119,16 @@ TInterruptManager::TransferState(TStream* inStream)
 	KUInt32 t;
 
 	// Interrupt manager specific stuff.
-	t = mRunning;
+	t = mRunning.load();
 	inStream->TransferInt32BE(t);
-	mRunning = t;
-	t = mExiting;
+	mRunning.store( t );
+	t = mExiting.load();
 	inStream->TransferInt32BE(t);
-	mExiting = t;
+	mExiting.store( t );
 
-	t = mWaiting;
+	t = mWaiting.load();
 	inStream->TransferInt32BE(t);
-	mWaiting = t;
+	mWaiting.store( t );
 
 	inStream->TransferInt32BE(mMaskIRQ);
 	inStream->TransferInt32BE(mMaskFIQ);

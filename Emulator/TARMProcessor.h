@@ -274,7 +274,7 @@ public:
 	}
 
 	///
-	/// Save or retore the state to a stream.
+	/// Save or restore the state to a stream.
 	///
 	void TransferState(TStream* inStream);
 

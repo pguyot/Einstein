@@ -195,7 +195,7 @@ TEmulator::Run(void)
 		// Execute as many instructions as possible.
 		if (!mInterrupted)
 		{
-			mSignal = true;
+			mSignal.store( true );
 		}
 		// We can insert a try....catch block here to trace all CPU mode changes
 		mMemory.GetJITObject()->Run(&mProcessor, &mSignal);
@@ -453,7 +453,7 @@ TEmulator::BreakInMonitor(const char* msg)
 {
 	if (mMonitor)
 	{
-		mSignal = false;
+		mSignal.store( false );
 		mRunning = false;
 		mBPHalted = true;
 		mBPID = 0;
@@ -547,7 +547,7 @@ TEmulator::TransferState(TStream* inStream)
 void
 TEmulator::Stop(void)
 {
-	mSignal = false;
+	mSignal.store( false );
 	mRunning = false;
 	mPaused = false;
 	mInterruptManager->WakeEmulatorThread();

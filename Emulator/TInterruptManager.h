@@ -29,6 +29,9 @@
 // ANSI C & POSIX
 #include <stdio.h>
 
+// C++ std lib
+#include <atomic>
+
 // K
 #include <K/Threads/TCondVar.h>
 
@@ -471,13 +474,13 @@ private:
 	TARMProcessor* mProcessor { nullptr };
 
 	/// Whether the timer is running.
-	volatile KUInt32 mRunning { false };
+	std::atomic<bool> mRunning { false };
 
 	/// Whether the object is being destroyed.
-	volatile KUInt32 mExiting { false };
+	std::atomic<bool> mExiting { false };
 
 	/// Whether some thread is waiting in WaitUntilInterrupt.
-	volatile KUInt32 mWaiting { false };
+	std::atomic<bool> mWaiting { false };
 
 	/// Whether the processor masks IRQ.
 	KUInt32 mMaskIRQ { false };

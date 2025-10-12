@@ -79,7 +79,7 @@ public:
 	///
 	virtual void Run(
 		TARMProcessor* ioObject,
-		volatile Boolean* inSignal);
+		std::atomic<bool>* inSignal);
 
 	///
 	/// Get a JIT unit for a given PC.
