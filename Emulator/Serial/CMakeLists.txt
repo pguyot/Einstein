@@ -11,8 +11,8 @@ list ( APPEND common_sources
 	Emulator/Serial/TSerialPortDriverTcpClient.h
 	Emulator/Serial/TBasicSerialPortManager.cpp
 	Emulator/Serial/TBasicSerialPortManager.h
-	Emulator/Serial/TSerialPortManager.cpp
-	Emulator/Serial/TSerialPortManager.h
+	Emulator/Serial/TSerialPortDriver.cpp
+	Emulator/Serial/TSerialPortDriver.h
 	Emulator/Serial/TSerialPorts.cpp
 	Emulator/Serial/TSerialPorts.h
 )

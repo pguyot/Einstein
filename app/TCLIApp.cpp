@@ -404,7 +404,7 @@ TCLIApp::Run(int argc, char* argv[])
 		TSerialPorts::kNullDriver);
 	if (extrPortDriverType == TSerialPorts::kTcpClientDriver)
 	{
-		TSerialPortManager* sDriver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+		TSerialPortDriver* sDriver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		TSerialPortDriverTcpClient* tcp = dynamic_cast<TSerialPortDriverTcpClient*>(sDriver);
 		if (tcp)
 		{
@@ -431,7 +431,7 @@ TCLIApp::Run(int argc, char* argv[])
 	}
 #if 0
     // TODO: translate this code from whatever we did in macOS
-    TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+    TSerialPortDriver *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
     if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
     {
         TSerialPortDriverTcpClient *tcp = (TSerialPortDriverTcpClient*)extr;
@@ -444,7 +444,7 @@ TCLIApp::Run(int argc, char* argv[])
             [self](int serPort)->void
             {
                 if (serPort==TSerialPorts::kExtr) {
-                    TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+                    TSerialPortDriver *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
                     if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver) {
                         TSerialPortDriverTcpClient *tcp = (TSerialPortDriverTcpClient*)extr;
 

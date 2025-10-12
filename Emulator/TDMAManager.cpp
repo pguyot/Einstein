@@ -29,7 +29,7 @@
 #include "TInterruptManager.h"
 #include "Emulator/TMemory.h"
 #include "Log/TLog.h"
-#include "Serial/TSerialPortManager.h"
+#include "Serial/TSerialPortDriver.h"
 
 // TDMAManager is invoked by TMemory when physical addresses corresponding
 // to DMA registers are accessed.
@@ -175,7 +175,7 @@ TDMAManager::ReadChannel1Register(KUInt32 inChannel, KUInt32 inRegister)
 
 	if (inChannel == kSerialPort0Receive || inChannel == kSerialPort0Transmit)
 	{
-		TSerialPortManager* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+		TSerialPortDriver* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		if (extr)
 			return extr->ReadDMARegister(1, inChannel, inRegister);
 	}
@@ -204,7 +204,7 @@ TDMAManager::WriteChannel1Register(
 {
 	if (inChannel == kSerialPort0Receive || inChannel == kSerialPort0Transmit)
 	{
-		TSerialPortManager* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+		TSerialPortDriver* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		if (extr)
 			return extr->WriteDMARegister(1, inChannel, inRegister, inValue);
 	}
@@ -231,7 +231,7 @@ TDMAManager::ReadChannel2Register(KUInt32 inChannel, KUInt32 inRegister)
 
 	if (inChannel == kSerialPort0Receive || inChannel == kSerialPort0Transmit)
 	{
-		TSerialPortManager* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+		TSerialPortDriver* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		if (extr)
 			return extr->ReadDMARegister(2, inChannel, inRegister);
 	}
@@ -260,7 +260,7 @@ TDMAManager::WriteChannel2Register(
 {
 	if (inChannel == kSerialPort0Receive || inChannel == kSerialPort0Transmit)
 	{
-		TSerialPortManager* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+		TSerialPortDriver* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 		if (extr)
 			return extr->WriteDMARegister(2, inChannel, inRegister, inValue);
 	}

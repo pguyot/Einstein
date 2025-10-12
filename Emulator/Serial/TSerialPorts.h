@@ -34,7 +34,7 @@
 
 class TLog;
 class TEmulator;
-class TSerialPortManager;
+class TSerialPortDriver;
 class TSerialHostPort;
 
 /**
@@ -91,7 +91,7 @@ public:
 	~TSerialPorts();
 
 	// Return a driver for a given index
-	TSerialPortManager* GetDriverFor(EPortIndex ix);
+	TSerialPortDriver* GetDriverFor(EPortIndex ix);
 
 	// Return the driver for a dynamically allocated port
 	TSerialHostPort* GetDriverFor(KUInt32 location);
@@ -103,7 +103,7 @@ public:
 		EDriverID mdemDriver);
 
 	// Replace an existing driver with a new driver
-	TSerialPortManager* ReplaceDriver(EPortIndex inPort, EDriverID inDriverId);
+	TSerialPortDriver* ReplaceDriver(EPortIndex inPort, EDriverID inDriverId);
 
 	// Set the driver for any hardware location
 	TSerialHostPort* SetDriver(KUInt32 inLocation, EDriverID inDriverId, std::string inConfigData);
@@ -131,7 +131,7 @@ public:
 
 private:
 	/// Current driver for every available port
-	TSerialPortManager* mDriver[4] { nullptr, nullptr, nullptr, nullptr };
+	TSerialPortDriver* mDriver[4] { nullptr, nullptr, nullptr, nullptr };
 
 	/// Log output goes here
 	TLog* mLog { nullptr };

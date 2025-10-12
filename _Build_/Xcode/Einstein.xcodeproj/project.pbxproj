@@ -70,7 +70,7 @@
 		2389E9761A1E4D4A0001A8C5 /* TEmulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34BA111B7C08002165EC /* TEmulator.cpp */; };
 		2389E9771A1E4D4A0001A8C5 /* TDMAManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34B8111B7C08002165EC /* TDMAManager.cpp */; };
 		2389E9781A1E4D4A0001A8C5 /* TARMProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34B6111B7C08002165EC /* TARMProcessor.cpp */; };
-		2389E9791A1E4D4A0001A8C5 /* TSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortManager.cpp */; };
+		2389E9791A1E4D4A0001A8C5 /* TSerialPortDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortDriver.cpp */; };
 		2389E97A1A1E4D4A0001A8C5 /* TVirtualizedCalls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E346C111B7C07002165EC /* TVirtualizedCalls.cpp */; };
 		2389E97C1A1E4D4A0001A8C5 /* TATACard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3470111B7C07002165EC /* TATACard.cpp */; };
 		2389E97D1A1E4D4A0001A8C5 /* TLinearCard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3472111B7C07002165EC /* TLinearCard.cpp */; };
@@ -191,7 +191,7 @@
 		C99E351B111B7C08002165EC /* TCocoaScreenManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3495111B7C08002165EC /* TCocoaScreenManager.mm */; };
 		C99E351C111B7C08002165EC /* TCocoaScreenView.mm in Sources */ = {isa = PBXBuildFile; fileRef = C99E3498111B7C08002165EC /* TCocoaScreenView.mm */; };
 		C99E351F111B7C08002165EC /* TScreenManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E349D111B7C08002165EC /* TScreenManager.cpp */; };
-		C99E3523111B7C08002165EC /* TSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortManager.cpp */; };
+		C99E3523111B7C08002165EC /* TSerialPortDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortDriver.cpp */; };
 		C99E3524111B7C08002165EC /* TBufferedSoundManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AA111B7C08002165EC /* TBufferedSoundManager.cpp */; };
 		C99E3525111B7C08002165EC /* TCoreAudioSoundManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AC111B7C08002165EC /* TCoreAudioSoundManager.cpp */; };
 		C99E3526111B7C08002165EC /* TNullSoundManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34AE111B7C08002165EC /* TNullSoundManager.cpp */; };
@@ -269,7 +269,7 @@
 		DA4BA4411A3A02FD002BDB80 /* TNE2000Card.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C932C4C011A1AB5D00F6A7E4 /* TNE2000Card.cpp */; };
 		DA4BA4421A3A02FD002BDB80 /* TPCMCIACard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3474111B7C07002165EC /* TPCMCIACard.cpp */; };
 		DA4BA4431A3A02FD002BDB80 /* TPCMCIAController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3476111B7C07002165EC /* TPCMCIAController.cpp */; };
-		DA4BA4441A3A02FD002BDB80 /* TSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortManager.cpp */; };
+		DA4BA4441A3A02FD002BDB80 /* TSerialPortDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortDriver.cpp */; };
 		DA4BA4451A3A02FD002BDB80 /* TSymbolList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3177111B73A1002165EC /* TSymbolList.cpp */; };
 		DA4BA4461A3A02FD002BDB80 /* UDisasm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3179111B73A1002165EC /* UDisasm.cpp */; };
 		DA4BA44F1A3A03C0002BDB80 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99E374F111C1F0E002165EC /* Carbon.framework */; };
@@ -356,7 +356,7 @@
 		DA4FF13A1A35EBBA00092B5A /* TScreenManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E349D111B7C08002165EC /* TScreenManager.cpp */; };
 		DA4FF13B1A35EBCC00092B5A /* TNetworkManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C962429E11B6A20A00EE66F3 /* TNetworkManager.cpp */; };
 		DA4FF13D1A35EBE600092B5A /* TPlatformManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347B111B7C07002165EC /* TPlatformManager.cpp */; };
-		DA4FF13E1A35EBF800092B5A /* TSerialPortManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortManager.cpp */; };
+		DA4FF13E1A35EBF800092B5A /* TSerialPortDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E34A7111B7C08002165EC /* TSerialPortDriver.cpp */; };
 		DA4FF13F1A35EC0A00092B5A /* TFlatROMImageWithREX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3484111B7C08002165EC /* TFlatROMImageWithREX.cpp */; };
 		DA4FF1411A35EC1000092B5A /* TAIFROMImageWithREXes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E3480111B7C08002165EC /* TAIFROMImageWithREXes.cpp */; };
 		DA4FF1421A35EC1400092B5A /* TAIFFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C99E347E111B7C08002165EC /* TAIFFile.cpp */; };
@@ -704,8 +704,8 @@
 		C99E3498111B7C08002165EC /* TCocoaScreenView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TCocoaScreenView.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E349D111B7C08002165EC /* TScreenManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TScreenManager.cpp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E349E111B7C08002165EC /* TScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TScreenManager.h; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		C99E34A7111B7C08002165EC /* TSerialPortManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TSerialPortManager.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		C99E34A8111B7C08002165EC /* TSerialPortManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TSerialPortManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		C99E34A7111B7C08002165EC /* TSerialPortDriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TSerialPortDriver.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		C99E34A8111B7C08002165EC /* TSerialPortDriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TSerialPortDriver.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E34AA111B7C08002165EC /* TBufferedSoundManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TBufferedSoundManager.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		C99E34AB111B7C08002165EC /* TBufferedSoundManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TBufferedSoundManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		C99E34AC111B7C08002165EC /* TCoreAudioSoundManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TCoreAudioSoundManager.cpp; sourceTree = "<group>"; tabWidth = 4; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -1477,8 +1477,8 @@
 			children = (
 				C92FD821242D50CF00D18F58 /* TSerialPorts.cpp */,
 				C92FD822242D50CF00D18F58 /* TSerialPorts.h */,
-				C99E34A7111B7C08002165EC /* TSerialPortManager.cpp */,
-				C99E34A8111B7C08002165EC /* TSerialPortManager.h */,
+				C99E34A7111B7C08002165EC /* TSerialPortDriver.cpp */,
+				C99E34A8111B7C08002165EC /* TSerialPortDriver.h */,
 				C945F6711E53180C002505E9 /* TBasicSerialPortManager.cpp */,
 				C945F6721E53180C002505E9 /* TBasicSerialPortManager.h */,
 				C92FC71B209374B600EF4BB1 /* TPipesSerialPortManager.cpp */,
@@ -1849,7 +1849,7 @@
 				F1E2C2A71E5B9B410074F2D3 /* TBasicSerialPortManager.cpp in Sources */,
 				2389E9771A1E4D4A0001A8C5 /* TDMAManager.cpp in Sources */,
 				2389E9781A1E4D4A0001A8C5 /* TARMProcessor.cpp in Sources */,
-				2389E9791A1E4D4A0001A8C5 /* TSerialPortManager.cpp in Sources */,
+				2389E9791A1E4D4A0001A8C5 /* TSerialPortDriver.cpp in Sources */,
 				2389E97A1A1E4D4A0001A8C5 /* TVirtualizedCalls.cpp in Sources */,
 				2389E97C1A1E4D4A0001A8C5 /* TATACard.cpp in Sources */,
 				DA4BA4721A3A3B78002BDB80 /* TNullScreenManager.cpp in Sources */,
@@ -1944,7 +1944,7 @@
 				C99E351C111B7C08002165EC /* TCocoaScreenView.mm in Sources */,
 				C99E351F111B7C08002165EC /* TScreenManager.cpp in Sources */,
 				DA52C8991A40935B008A17D0 /* TVirtualizedCallsPatches.cpp in Sources */,
-				C99E3523111B7C08002165EC /* TSerialPortManager.cpp in Sources */,
+				C99E3523111B7C08002165EC /* TSerialPortDriver.cpp in Sources */,
 				C99E3524111B7C08002165EC /* TBufferedSoundManager.cpp in Sources */,
 				C99E3525111B7C08002165EC /* TCoreAudioSoundManager.cpp in Sources */,
 				C99E3526111B7C08002165EC /* TNullSoundManager.cpp in Sources */,
@@ -1998,7 +1998,7 @@
 				DA4BA40D1A3A0160002BDB80 /* tests.cpp in Sources */,
 				DA4BA40F1A3A01F7002BDB80 /* UMemoryTests.cpp in Sources */,
 				DAD0965A246F620A00CADBF3 /* TNewt.cpp in Sources */,
-				DA4BA4441A3A02FD002BDB80 /* TSerialPortManager.cpp in Sources */,
+				DA4BA4441A3A02FD002BDB80 /* TSerialPortDriver.cpp in Sources */,
 				DA4BA4431A3A02FD002BDB80 /* TPCMCIAController.cpp in Sources */,
 				DA52C89F1A40935B008A17D0 /* TVirtualizedCallsPatches.cpp in Sources */,
 				DA4BA4361A3A02FD002BDB80 /* TJITGeneric_MultiplyAndAccumulate.cpp in Sources */,
@@ -2115,7 +2115,7 @@
 				DA4FF1281A35EAF600092B5A /* TJITGenericPage.cpp in Sources */,
 				DA4BA4661A3A37FF002BDB80 /* TNullSoundManager.cpp in Sources */,
 				DA4FF1191A35EAF600092B5A /* TJITGeneric.cpp in Sources */,
-				DA4FF13E1A35EBF800092B5A /* TSerialPortManager.cpp in Sources */,
+				DA4FF13E1A35EBF800092B5A /* TSerialPortDriver.cpp in Sources */,
 				DA4FF11E1A35EAF600092B5A /* TJITGeneric_DataProcessingPSRTransfer_MoveOp.cpp in Sources */,
 				DA4FF1481A35EC4300092B5A /* UDisasm.cpp in Sources */,
 				A78AB26C278074400047B122 /* TSerialHostPortPTY.cpp in Sources */,

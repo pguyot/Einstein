@@ -52,7 +52,7 @@
 #include "Emulator/PCMCIA/TPCMCIAController.h"
 #include "Emulator/Screen/TScreenManager.h"
 
-#include "Emulator/Serial/TSerialPortManager.h"
+#include "Emulator/Serial/TSerialPortDriver.h"
 
 // -------------------------------------------------------------------------- //
 // Constantes

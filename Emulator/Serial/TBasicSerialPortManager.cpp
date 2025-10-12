@@ -486,7 +486,7 @@ int main() {
 TBasicSerialPortManager::TBasicSerialPortManager(
 	TLog* inLog,
 	TSerialPorts::EPortIndex inPortIx) :
-		TSerialPortManager(inLog, inPortIx)
+		TSerialPortDriver(inLog, inPortIx)
 {
 }
 
@@ -611,7 +611,7 @@ TBasicSerialPortManager::ReadDMARegister(KUInt32 inBank, KUInt32 inChannel, KUIn
 		return ReadTxDMARegister(inBank, inRegister);
 	} else
 	{
-		return TSerialPortManager::ReadDMARegister(inBank, inChannel, inRegister);
+		return TSerialPortDriver::ReadDMARegister(inBank, inChannel, inRegister);
 	}
 }
 
@@ -632,7 +632,7 @@ TBasicSerialPortManager::WriteDMARegister(KUInt32 inBank, KUInt32 inChannel, KUI
 		return WriteTxDMARegister(inBank, inRegister, inValue);
 	} else
 	{
-		return TSerialPortManager::WriteDMARegister(inBank, inChannel, inRegister, inValue);
+		return TSerialPortDriver::WriteDMARegister(inBank, inChannel, inRegister, inValue);
 	}
 }
 

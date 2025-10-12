@@ -1,5 +1,5 @@
 // ==============================
-// File:			TSerialPortManager.cp
+// File:			TSerialPortDriver.cp
 // Project:			Einstein
 //
 // Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
@@ -21,7 +21,7 @@
 // $Id$
 // ==============================
 
-#include "TSerialPortManager.h"
+#include "TSerialPortDriver.h"
 
 #include "Emulator/Log/TFileLog.h"
 #include "Emulator/Log/TStdOutLog.h"
@@ -57,9 +57,9 @@
 // -------------------------------------------------------------------------- //
 
 // -------------------------------------------------------------------------- //
-//  * TSerialPortManager( TLog*, ELocationID )
+//  * TSerialPortDriver( TLog*, ELocationID )
 // -------------------------------------------------------------------------- //
-TSerialPortManager::TSerialPortManager(
+TSerialPortDriver::TSerialPortDriver(
 	TLog* inLog,
 	TSerialPorts::EPortIndex inPortIx) :
 		mLog(inLog),
@@ -67,20 +67,20 @@ TSerialPortManager::TSerialPortManager(
 {
 	if (mLog)
 	{
-		mLog->FLogLine("TSerialPortManager initializing for port %d", mNewtPortIndex);
+		mLog->FLogLine("TSerialPortDriver initializing for port %d", mNewtPortIndex);
 	}
 }
 
 // -------------------------------------------------------------------------- //
-//  * ~TSerialPortManager( void )
+//  * ~TSerialPortDriver( void )
 // -------------------------------------------------------------------------- //
-TSerialPortManager::~TSerialPortManager() = default;
+TSerialPortDriver::~TSerialPortDriver() = default;
 
 // -------------------------------------------------------------------------- //
 //  * WriteRegister( KUInt32, KUInt8 )
 // -------------------------------------------------------------------------- //
 void
-TSerialPortManager::WriteRegister(KUInt32 inOffset, KUInt8 inValue)
+TSerialPortDriver::WriteRegister(KUInt32 inOffset, KUInt8 inValue)
 {
 	if (mLog)
 	{
@@ -92,7 +92,7 @@ TSerialPortManager::WriteRegister(KUInt32 inOffset, KUInt8 inValue)
 //  * ReadRegister( KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt8
-TSerialPortManager::ReadRegister(KUInt32 inOffset)
+TSerialPortDriver::ReadRegister(KUInt32 inOffset)
 {
 	KUInt8 theResult = 0;
 	if (inOffset == 0x4400)
@@ -125,7 +125,7 @@ TSerialPortManager::ReadRegister(KUInt32 inOffset)
 //  * ReadDMARegister( KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 KUInt32
-TSerialPortManager::ReadDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister)
+TSerialPortDriver::ReadDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister)
 {
 	KUInt32 theResult = 0L;
 	if (mLog)
@@ -144,7 +144,7 @@ TSerialPortManager::ReadDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 i
 //  * WriteDMARegister( KUInt32, KUInt32, KUInt32, KUInt32 )
 // -------------------------------------------------------------------------- //
 void
-TSerialPortManager::WriteDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue)
+TSerialPortDriver::WriteDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue)
 {
 	if (mLog)
 	{

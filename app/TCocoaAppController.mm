@@ -48,7 +48,7 @@
 #include "Emulator/Log/TBufferLog.h"
 #include "Emulator/Log/TStdOutLog.h"
 #include "Emulator/Platform/TPlatformManager.h"
-#include "Emulator/Serial/TSerialPortManager.h"
+#include "Emulator/Serial/TSerialPortDriver.h"
 #include "Emulator/Serial/TSerialPorts.h"
 #include "Emulator/Serial/TSerialPortDriverTcpClient.h"
 
@@ -448,7 +448,7 @@ TCocoaAppController ()
 		TSerialPorts::kNullDriver,
 		TSerialPorts::kNullDriver);
 
-	TSerialPortManager* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+	TSerialPortDriver* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 	if (extr && extr->GetID() == TSerialPorts::kTcpClientDriver)
 	{
 		TSerialPortDriverTcpClient* tcp = (TSerialPortDriverTcpClient*) extr;
@@ -461,7 +461,7 @@ TCocoaAppController ()
 		[self](int serPort) -> void {
 			if (serPort == TSerialPorts::kExtr)
 			{
-				TSerialPortManager* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+				TSerialPortDriver* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 				if (extr && extr->GetID() == TSerialPorts::kTcpClientDriver)
 				{
 					TSerialPortDriverTcpClient* tcp = (TSerialPortDriverTcpClient*) extr;

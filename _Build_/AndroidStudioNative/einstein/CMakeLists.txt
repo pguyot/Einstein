@@ -104,7 +104,7 @@ SET (SourceFiles
 		${LOCAL_PATH}/Emulator/Screen/TAndroidNativeScreenManager.cpp
 		# Serial Port Emulation
         ${LOCAL_PATH}/Emulator/Serial/TSerialPorts.cpp
-        ${LOCAL_PATH}/Emulator/Serial/TSerialPortManager.cpp
+        ${LOCAL_PATH}/Emulator/Serial/TSerialPortDriver.cpp
 		${LOCAL_PATH}/Emulator/Serial/TBasicSerialPortManager.cpp
 		${LOCAL_PATH}/Emulator/Serial/TSerialPortDriverTcpClient.cpp
 		# Sound Emulation

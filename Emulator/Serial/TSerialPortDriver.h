@@ -1,5 +1,5 @@
 // ==============================
-// File:			TSerialPortManager.h
+// File:			TSerialPortDriver.h
 // Project:			Einstein
 //
 // Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
@@ -21,8 +21,8 @@
 // $Id$
 // ==============================
 
-#ifndef _TSERIALPORTMANAGER_H
-#define _TSERIALPORTMANAGER_H
+#ifndef _TSERIALPORTDRIVER_H
+#define _TSERIALPORTDRIVER_H
 
 #include <K/Defines/KDefinitions.h>
 
@@ -42,20 +42,20 @@ class TEmulator;
 ///
 /// \test	aucun test défini.
 ///
-class TSerialPortManager
+class TSerialPortDriver
 {
 public:
 	///
 	/// Constructor.
 	///
-	TSerialPortManager(
+	TSerialPortDriver(
 		TLog* inLog,
 		TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.
 	///
-	virtual ~TSerialPortManager();
+	virtual ~TSerialPortDriver();
 
 	///
 	/// Return the Identification of this driver
@@ -113,14 +113,14 @@ public:
 	///
 	/// \param inCopy		objet à copier
 	///
-	TSerialPortManager(const TSerialPortManager& inCopy) = delete;
+	TSerialPortDriver(const TSerialPortDriver& inCopy) = delete;
 
 	///
 	/// Opérateur d'assignation volontairement indisponible.
 	///
 	/// \param inCopy		objet à copier
 	///
-	TSerialPortManager& operator=(const TSerialPortManager& inCopy) = delete;
+	TSerialPortDriver& operator=(const TSerialPortDriver& inCopy) = delete;
 
 protected:
 	///
@@ -150,7 +150,7 @@ protected:
 };
 
 #endif
-// _TSERIALPORTMANAGER_H
+// _TSERIALPORTDRIVER_H
 
 // ================= //
 // Byte your tongue. //

@@ -77,7 +77,7 @@ TSerialPorts::~TSerialPorts()
  @param ix index into driver list
  @return a pointer to the driver or null
  */
-TSerialPortManager*
+TSerialPortDriver*
 TSerialPorts::GetDriverFor(EPortIndex ix)
 {
 	assert(ix >= 0 && ix < 4);
@@ -119,10 +119,10 @@ TSerialPorts::Initialize(EDriverID extrDriver,
 
  \return a pointer to the new driver, or the previous driver if the driver did not change
  */
-TSerialPortManager*
+TSerialPortDriver*
 TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 {
-	TSerialPortManager* currentDriver = mDriver[inPort];
+	TSerialPortDriver* currentDriver = mDriver[inPort];
 
 	if (currentDriver && currentDriver->GetID() == inDriverId)
 		return currentDriver;
@@ -389,7 +389,7 @@ TSerialPorts::NSGetDriverAndOptions(TNewt::RefArg arg)
 		portIndex = 0;
 	}
 
-	TSerialPortManager* driver = GetDriverFor((EPortIndex) portIndex);
+	TSerialPortDriver* driver = GetDriverFor((EPortIndex) portIndex);
 	if (driver != nullptr)
 	{
 		RefVar f(AllocateFrame());
@@ -431,7 +431,7 @@ TSerialPorts::NSSetDriverAndOptions(TNewt::RefArg arg)
 
 	if (portIndex != -1 && driverId != -1)
 	{
-		TSerialPortManager* d = ReplaceDriver((EPortIndex) portIndex, (EDriverID) driverId);
+		TSerialPortDriver* d = ReplaceDriver((EPortIndex) portIndex, (EDriverID) driverId);
 		d->NSSetOptions(arg);
 		if (mPortChangedCallback)
 			mPortChangedCallback(portIndex);

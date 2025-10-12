@@ -34,7 +34,7 @@
 #include <android/window.h>
 
 #include <K/Defines/KDefinitions.h>
-#include <Emulator/Serial/TSerialPortManager.h>
+#include <Emulator/Serial/TSerialPortDriver.h>
 #include <K/Threads/TMutex.h>
 
 #include "AndroidGlue.h"
@@ -47,7 +47,7 @@ class TScreenManager;
 class TLog;
 class TPlatformManager;
 class TNetworkManager;
-class TSerialPortManager;
+class TSerialPortDriver;
 
 ///
 /// Classe pour le programme einstein en ligne de commande.

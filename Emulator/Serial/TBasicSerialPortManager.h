@@ -24,7 +24,7 @@
 #ifndef _T_BASIC_SERIAL_PORT_MANAGER_H
 #define _T_BASIC_SERIAL_PORT_MANAGER_H
 
-#include "TSerialPortManager.h"
+#include "TSerialPortDriver.h"
 
 class TLog;
 class TInterruptManager;
@@ -36,7 +36,7 @@ class TMemory;
 ///
 /// \author Matthias Melcher
 ///
-class TBasicSerialPortManager : public TSerialPortManager
+class TBasicSerialPortManager : public TSerialPortDriver
 {
 public:
 	const KUInt8 kSerCmd_TxCtrlChanged = 'c';

@@ -227,7 +227,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TROMImage.h"
 #include "Emulator/Screen/TFLScreenManager.h"
-#include "Emulator/Serial/TSerialPortManager.h"
+#include "Emulator/Serial/TSerialPortDriver.h"
 #include "Emulator/Serial/TSerialPorts.h"
 #include "Emulator/Serial/TSerialPortDriverTcpClient.h"
 #include "Emulator/Sound/TNullSoundManager.h"
@@ -1255,7 +1255,7 @@ TFLApp::InitSerialPorts()
 		{ TSerialPorts::kPtyDriver, std::string("/tmp/einstein-tblt.pty") });
 #if 0
     // TODO: save the serial port setting in a safe place
-    TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+    TSerialPortDriver *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
     if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
     {
         TSerialPortDriverTcpClient *tcp = (TSerialPortDriverTcpClient*)extr;
@@ -1268,7 +1268,7 @@ TFLApp::InitSerialPorts()
                                                [self](int serPort)->void
                                                {
         if (serPort==TSerialPorts::kExtr) {
-            TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+            TSerialPortDriver *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
             if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver) {
                 TSerialPortDriverTcpClient *tcp = (TSerialPortDriverTcpClient*)extr;
 
