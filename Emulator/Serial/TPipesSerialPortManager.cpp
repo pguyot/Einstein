@@ -110,7 +110,7 @@ TPipesSerialPortManager::FindPipeNames()
 	char path[PATH_MAX];
 
 	std::string basePath = TPathHelper::GetSerialPipeBasePath();
-	::strncpy(path, basePath.c_str(), PATH_MAX-1);
+	::strncpy(path, basePath.c_str(), PATH_MAX - 1);
 
 	char* end = path + strlen(path);
 

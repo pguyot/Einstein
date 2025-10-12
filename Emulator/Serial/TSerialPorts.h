@@ -38,9 +38,9 @@ class TSerialPortDriver;
 class TSerialHostPort;
 
 /**
- The serial port superviser manages the four port of the MessagePad and their respective drivers.
+ The serial port supervisor manages the four ports of the MessagePad and their respective drivers.
 
- This class manages serial port for the rest of the system. It provides a NewtonScript interface
+ This class manages serial ports for the rest of the system. It provides a NewtonScript interface
  to allow NS app access to the driver settings.
  */
 class TSerialPorts

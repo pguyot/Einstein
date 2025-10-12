@@ -423,7 +423,7 @@ TFLSettings::GetROMDetails(const char* inFilename)
 	static char* text = nullptr;
 	if (!text)
 	{
-		text = (char*) malloc(text_size+1);
+		text = (char*) malloc(text_size + 1);
 	}
 
 	TROMImage* theROMImage = TROMImage::LoadROMAndREX(inFilename, true, true);

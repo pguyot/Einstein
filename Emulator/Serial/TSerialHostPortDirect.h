@@ -66,9 +66,8 @@ public:
 	void Run();
 
 protected:
-
 	/// File path to a serial port.
-	std::string mPath { };
+	std::string mPath {};
 
 	/// File number if the file is open
 	int mFile { -1 };

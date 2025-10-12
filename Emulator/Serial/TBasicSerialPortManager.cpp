@@ -418,13 +418,12 @@ UsbSerialBridge bridge = new UsbSerialBridge(context, myUsbDevice);
 bridge.send("Hello from Android!".getBytes());
 byte[] reply = bridge.receive();
 
-
 #include <libusb-1.0/libusb.h>
 #include <stdio.h>
 #include <string.h>
 
-#define VENDOR_ID  0x18D1  // Google, change if needed
-#define PRODUCT_ID 0x4EE7  // Example, change to your device’s PID
+#define VENDOR_ID 0x18D1 // Google, change if needed
+#define PRODUCT_ID 0x4EE7 // Example, change to your device’s PID
 
 int main() {
 	libusb_context *ctx = NULL;

@@ -67,9 +67,8 @@ public:
 	void Run();
 
 protected:
-
 	/// Path to the PTY (could be std::filename)
-	std::string mPath { };
+	std::string mPath {};
 
 	/// PTY file number to send data to the host
 	int mMain { -1 };

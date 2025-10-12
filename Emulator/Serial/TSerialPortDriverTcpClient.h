@@ -21,7 +21,6 @@
 // $Id$
 // ==============================
 
-
 #ifndef _T_SERIAL_PORT_DRIVER_TCP_CLIENT_H
 #define _T_SERIAL_PORT_DRIVER_TCP_CLIENT_H
 
@@ -48,7 +47,7 @@ public:
 	/// Constructor.
 	///
 	TSerialPortDriverTcpClient(TLog* inLog,
-								TSerialPorts::EPortIndex inPortIx);
+		TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.
@@ -68,8 +67,8 @@ public:
 	/// Start emulation.
 	///
 	void run(TInterruptManager* inInterruptManager,
-			 TDMAManager* inDMAManager,
-			 TMemory* inMemory) override;
+		TDMAManager* inDMAManager,
+		TMemory* inMemory) override;
 
 	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.

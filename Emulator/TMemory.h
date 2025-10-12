@@ -899,13 +899,13 @@ private:
 	TDMAManager* mDMAManager { nullptr };
 
 	/// PCMCIA Socket List
-	TPCMCIAController* mPCMCIACtrls[kNbSockets] { };
+	TPCMCIAController* mPCMCIACtrls[kNbSockets] {};
 
 	/// Index to serial number.
 	KUInt32 mSerialNumberIx { 64 };
 
 	/// Serial number.
-	KUInt32 mSerialNumber[2] { };
+	KUInt32 mSerialNumber[2] {};
 
 	/// Emulator (interface to hardware).
 	TEmulator* mEmulator { nullptr };

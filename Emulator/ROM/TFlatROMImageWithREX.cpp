@@ -49,7 +49,6 @@
 #include "app/SDL/TSDLRexImage.h"
 #endif
 
-
 #include "app/Version.h"
 
 // -------------------------------------------------------------------------- //

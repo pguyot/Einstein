@@ -278,14 +278,14 @@ private:
 #endif
 
 	// (unused) Feature 0x0 (probably the contrast).
-	//KUInt32 mScreenContrast { 0 };
+	// KUInt32 mScreenContrast { 0 };
 
 	// (unused) Feature 0x2.
-	//KUInt32 mScreenBacklight { 0 };
+	// KUInt32 mScreenBacklight { 0 };
 
 	// (unused) Feature 0x4.
 	// \note There is also TScreenManager::mScreenOrientation!
-	//KUInt32 mScreenOrientation { 0 };
+	// KUInt32 mScreenOrientation { 0 };
 
 	/// Tablet calibration.
 	TabletCalibration mTabletCalibration { 0, 0, 0, 0, 0 };
@@ -293,7 +293,7 @@ private:
 	/// (unused) Feature 0x2.
 	KUInt32 mTabletSampleRate { 0 };
 
- 	/// Input volume (0-255)
+	/// Input volume (0-255)
 	KUInt8 mInputVolume { 0 };
 
 	/// Whether to quit.

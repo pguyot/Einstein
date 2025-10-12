@@ -73,14 +73,14 @@ public:
 	/// \param inRAMSize			size of the RAM installed (in bytes)
 	///
 	TEmulator(
-			  TLog* inLog,
-			  TROMImage* inROMImage,
-			  const char* inFlashPath,
-			  TSoundManager* inSoundManager,
-			  TScreenManager* inScreenManager,
-			  TNetworkManager* inNetworkManager,
-			  KUInt32 inRAMSize = 0x00400000,
-			  TPrinterManager* inPrinterManager = nullptr);
+		TLog* inLog,
+		TROMImage* inROMImage,
+		const char* inFlashPath,
+		TSoundManager* inSoundManager,
+		TScreenManager* inScreenManager,
+		TNetworkManager* inNetworkManager,
+		KUInt32 inRAMSize = 0x00400000,
+		TPrinterManager* inPrinterManager = nullptr);
 
 	///
 	/// Constructor from a rom image buffer.
@@ -92,10 +92,10 @@ public:
 	/// \param inRAMSize			size of the RAM installed (in bytes)
 	///
 	TEmulator(
-			  TLog* inLog,
-			  KUInt8* inROMImageBuffer,
-			  const char* inFlashPath,
-			  KUInt32 inRAMSize = 0x00400000);
+		TLog* inLog,
+		KUInt8* inROMImageBuffer,
+		const char* inFlashPath,
+		KUInt32 inRAMSize = 0x00400000);
 
 	///
 	/// Destructor.
@@ -119,7 +119,7 @@ public:
 	inline void
 	SignalInterrupt(void)
 	{
-		mSignal.store( false );
+		mSignal.store(false);
 		mInterrupted = true;
 	}
 
@@ -131,7 +131,7 @@ public:
 	{
 		if (mRunning && (!mPaused))
 		{
-			mSignal.store( true );
+			mSignal.store(true);
 		}
 		mInterrupted = false;
 	}
@@ -148,7 +148,7 @@ public:
 	inline void
 	Breakpoint(KUInt16 inID)
 	{
-		mSignal.store( false );
+		mSignal.store(false);
 		mRunning = false;
 		mBPHalted = true;
 		mBPID = inID;
@@ -395,7 +395,7 @@ public:
 	inline void
 	PauseSystem(void)
 	{
-		mSignal.store( false );
+		mSignal.store(false);
 		mPaused = true;
 	}
 

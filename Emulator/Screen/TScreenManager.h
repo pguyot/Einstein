@@ -585,7 +585,6 @@ protected:
 	}
 
 public:
-
 	///
 	///	Insert a sample with pen down.
 	/// The coordinates are rotated if required.

@@ -216,8 +216,8 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TBufferLog.h"
 #include "Emulator/Log/TFileLog.h"
-#include "Emulator/Log/TStdOutLog.h"
 #include "Emulator/Log/TLog.h"
+#include "Emulator/Log/TStdOutLog.h"
 #include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Network/TUsermodeNetwork.h"
 #include "Emulator/PCMCIA/TLinearCard.h"
@@ -228,8 +228,8 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Emulator/ROM/TROMImage.h"
 #include "Emulator/Screen/TFLScreenManager.h"
 #include "Emulator/Serial/TSerialPortDriver.h"
-#include "Emulator/Serial/TSerialPorts.h"
 #include "Emulator/Serial/TSerialPortDriverTcpClient.h"
+#include "Emulator/Serial/TSerialPorts.h"
 #include "Emulator/Sound/TNullSoundManager.h"
 
 // Http Client GET
@@ -310,7 +310,7 @@ TFLApp::Run(int argc, char* argv[])
 
 	InitSettings();
 
-	//mLog = new TStdOutLog();
+	// mLog = new TStdOutLog();
 
 	int ramSize = mFLSettings->RAMSize;
 	Boolean hidemouse = (Boolean) mFLSettings->hideMouse;
@@ -318,7 +318,7 @@ TFLApp::Run(int argc, char* argv[])
 	KPrintf("Welcome to Einstein console.\n");
 	KPrintf("This is %s.\n", VERSION_STRING);
 
-	static char theROMImagePath[FL_PATH_MAX+1];
+	static char theROMImagePath[FL_PATH_MAX + 1];
 
 	for (Boolean firstAttempt = true;; firstAttempt = false)
 	{
@@ -605,7 +605,7 @@ TFLApp::UserActionInstallPackage()
 	if (newname && *newname)
 	{
 		if (!filename)
-			filename = (char*) calloc(FL_PATH_MAX+1, 1);
+			filename = (char*) calloc(FL_PATH_MAX + 1, 1);
 		strncpy(filename, newname, FL_PATH_MAX);
 		filename[FL_PATH_MAX] = 0;
 		mPlatformManager->InstallPackage(filename);
@@ -1313,7 +1313,7 @@ TFLApp::InitMonitor(const char* theROMImagePath)
 #endif
 #endif
 
-	char theSymbolListOrMonitorRcPath[FL_PATH_MAX+1];
+	char theSymbolListOrMonitorRcPath[FL_PATH_MAX + 1];
 	strncpy(theSymbolListOrMonitorRcPath, theROMImagePath, FL_PATH_MAX);
 	fl_filename_setext(theSymbolListOrMonitorRcPath, FL_PATH_MAX, ".symbols");
 	mSymbolList = new TSymbolList(theSymbolListOrMonitorRcPath);
@@ -1652,7 +1652,7 @@ static const char*
 tfl_file_chooser(const char* message, const char* pat, const char* fname, FileChooser type)
 {
 #if UPDATED_TARGET_OS_LINUX
-	char pattern[FL_PATH_MAX+1];
+	char pattern[FL_PATH_MAX + 1];
 	pattern[0] = 0;
 	if (pat)
 	{
@@ -1680,10 +1680,10 @@ tfl_file_chooser(const char* message, const char* pat, const char* fname, FileCh
 	}
 	return fl_file_chooser(message, pattern[0] ? pattern : nullptr, fname);
 #else
-	static char tfl_file_chooser_filename[FL_PATH_MAX+1];
-	char name[FL_PATH_MAX+1];
+	static char tfl_file_chooser_filename[FL_PATH_MAX + 1];
+	char name[FL_PATH_MAX + 1];
 	name[0] = 0;
-	char fdir[FL_PATH_MAX+1];
+	char fdir[FL_PATH_MAX + 1];
 	fdir[0] = 0;
 
 	if (fname && *fname)

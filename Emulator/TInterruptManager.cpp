@@ -87,7 +87,7 @@ TInterruptManager::~TInterruptManager(void)
 	// Stop the timer thread.
 	mMutex->Lock();
 
-	mExiting.store( true );
+	mExiting.store(true);
 	mTimerCondVar->Signal();
 
 	mMutex->Unlock();
@@ -123,7 +123,7 @@ TInterruptManager::Init(void)
 	mMutex->Lock();
 
 	// The timer isn't running.
-	mRunning.store( false );
+	mRunning.store(false);
 
 	// Create the thread
 	mThread = new TThread(this);
@@ -151,7 +151,7 @@ TInterruptManager::ResumeTimer(void)
 		// Here the timer is waiting (since we have the mutex).
 
 		// Say the timer is running.
-		mRunning.store( true );
+		mRunning.store(true);
 
 		// Signal the condition variable to wake the timer thread.
 		mTimerCondVar->Signal();
@@ -180,7 +180,7 @@ TInterruptManager::SuspendTimer(void)
 		// Here the timer is waiting (since we have the mutex).
 
 		// Say the timer is not running.
-		mRunning.store( false );
+		mRunning.store(false);
 
 		// Signal the condition variable to wake the timer thread.
 		mTimerCondVar->Signal();
@@ -211,7 +211,7 @@ TInterruptManager::WaitUntilInterrupt(Boolean inMaskIRQ, Boolean inMaskFIQ)
 	// Here the timer is waiting (since we have the mutex).
 
 	// Say we're waiting.
-	mWaiting.store( true );
+	mWaiting.store(true);
 
 	// Note what we are waiting for.
 	mMaskIRQ = inMaskIRQ;
@@ -226,7 +226,7 @@ TInterruptManager::WaitUntilInterrupt(Boolean inMaskIRQ, Boolean inMaskFIQ)
 	//	KPrintf("%i-Emulator-WakeUp-4\n", (int) time(NULL));
 
 	// We're no longer waiting.
-	mWaiting.store( false );
+	mWaiting.store(false);
 
 	// Release the mutex, so the timer thread will get it back.
 	mMutex->Unlock();
@@ -686,7 +686,7 @@ TInterruptManager::Run(void)
 
 	mMutex->Unlock();
 
-	mExiting.store( false );
+	mExiting.store(false);
 }
 
 // -------------------------------------------------------------------------- //
@@ -1121,14 +1121,14 @@ TInterruptManager::TransferState(TStream* inStream)
 	// Interrupt manager specific stuff.
 	t = mRunning.load();
 	inStream->TransferInt32BE(t);
-	mRunning.store( t );
+	mRunning.store(t);
 	t = mExiting.load();
 	inStream->TransferInt32BE(t);
-	mExiting.store( t );
+	mExiting.store(t);
 
 	t = mWaiting.load();
 	inStream->TransferInt32BE(t);
-	mWaiting.store( t );
+	mWaiting.store(t);
 
 	inStream->TransferInt32BE(mMaskIRQ);
 	inStream->TransferInt32BE(mMaskFIQ);

@@ -243,7 +243,7 @@ public:
 	TMemory* mMemory { nullptr };
 
 	/// Base path
-	std::string mPath { };
+	std::string mPath {};
 
 	/// Number of file descriptors.
 	KUInt32 mFDCount { 0 };

@@ -131,7 +131,6 @@ public:
 	virtual int SetReadFDSet(fd_set* ioFDSet);
 
 private:
-
 	/// File descriptor for "/dev/tap0"
 	int mTapFileDescriptor { -1 };
 

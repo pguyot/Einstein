@@ -117,7 +117,7 @@ TNativePrimitives::TNativePrimitives(
 		mNativeCalls(new TNativeCalls(inMemory))
 #endif
 #if TARGET_OS_MAC
-		mObjCBridgeCalls(new TObjCBridgeCalls(inMemory))
+			mObjCBridgeCalls(new TObjCBridgeCalls(inMemory))
 #endif
 {
 	// mLogMask = ENABLE_LOG_PLATFORM | ENABLE_LOG_SCREEN;
@@ -712,9 +712,6 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 					"TMainPlatformDriver::PowerOnSubsystem( %.8X )",
 					(unsigned int) theSubsystem);
 			}
-			fprintf(stderr,
-						   "TMainPlatformDriver::PowerOnSubsystem( %.8X )",
-						   (unsigned int) theSubsystem);
 			if (theSubsystem == 0x1D)
 			{
 				mMemory->PowerOnFlash();
@@ -849,7 +846,7 @@ TNativePrimitives::ExecutePlatformDriverNative(KUInt32 inInstruction)
 						// the system is up and running, check if we missed any Einstein events
 						// and they are still pending in the queue
 						mPlatformManager->UnlockQueueBootLock();
-						//mEmulator->DoPowerRestored();
+						// mEmulator->DoPowerRestored();
 					}
 					// this is a hack that will install packages that were added to a
 					// directory on the host. This is used by iOS/iPhone/Android.
@@ -3377,7 +3374,7 @@ TNativePrimitives::ExecutePrinterDriverNative(KUInt32 inInstruction)
 void
 TNativePrimitives::ExecutePrinterDriverNative(KUInt32 inInstruction)
 {
-	(void)inInstruction;
+	(void) inInstruction;
 	KPrintf("Printer Driver Calls not supported on this platform.\n");
 }
 #endif
