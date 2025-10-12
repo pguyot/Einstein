@@ -502,7 +502,7 @@ SDL_AppResult TSDLApp::HandleSDLEvent(SDL_Event *event)
 						{
 							switch (mPenDownN) {
 								case 1:
-									PickPackageFile();
+									UserActionInstallPackage();
 									break;
 							}
 						}

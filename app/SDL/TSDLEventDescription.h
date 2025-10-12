@@ -21,8 +21,8 @@
 // $Id$
 // ==============================
 
-#ifndef _TSDLEVENTDESCRIPTION_H
-#define _TSDLEVENTDESCRIPTION_H
+#ifndef TSDLEVENTDESCRIPTION_H
+#define TSDLEVENTDESCRIPTION_H
 
 #include <SDL3/SDL.h>
 
