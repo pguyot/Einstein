@@ -50,7 +50,7 @@
 #include "Emulator/ROM/TFlatROMImageWithREX.h"
 #include "Emulator/ROM/TROMImage.h"
 #include "Emulator/Screen/TAndroidNativeScreenManager.h"
-#include "Emulator/Serial/TTcpClientSerialPortManager.h"
+#include "Emulator/Serial/TSerialPortDriverTcpClient.h"
 #include "Emulator/Sound/TAndroidNativeSoundManager.h"
 #include "app/json11.hpp"
 

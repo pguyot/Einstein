@@ -49,7 +49,7 @@
 #include "Emulator/Serial/TPtySerialPortManager.h"
 #endif
 #if TARGET_OS_MAC || TAGRET_OS_ANDROID
-#include "Emulator/Serial/TTcpClientSerialPortManager.h"
+#include "Emulator/Serial/TSerialPortDriverTcpClient.h"
 #endif
 
 // -------------------------------------------------------------------------- //

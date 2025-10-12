@@ -1,8 +1,8 @@
 // ==============================
-// File:			TTcpClientSerialPortManager.h
+// File:			TSerialPortDriverTcpClient.h
 // Project:			Einstein
 //
-// Copyright 2020 by Matthias Melcher (mm@matthiasm.com).
+// Copyright 2020-2025 by Matthias Melcher (mm@matthiasm.com).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,8 +21,9 @@
 // $Id$
 // ==============================
 
-#ifndef _T_TCP_CLIENT_SERIAL_PORT_MANAGER_H
-#define _T_TCP_CLIENT_SERIAL_PORT_MANAGER_H
+
+#ifndef _T_SERIAL_PORT_DRIVER_TCP_CLIENT_H
+#define _T_SERIAL_PORT_DRIVER_TCP_CLIENT_H
 
 #include "TBasicSerialPortManager.h"
 
@@ -37,24 +38,22 @@ class TInterruptManager;
 class TDMAManager;
 class TMemory;
 
-///
-/// Emulate a serial port via named pipes in MacOS
-///
-/// \author Matthias Melcher
-///
-class TTcpClientSerialPortManager : public TBasicSerialPortManager
+//
+// Emulate a serial port connection over a network as a TCP client.
+//
+class TSerialPortDriverTcpClient : public TBasicSerialPortManager
 {
 public:
 	///
 	/// Constructor.
 	///
-	TTcpClientSerialPortManager(TLog* inLog,
+	TSerialPortDriverTcpClient(TLog* inLog,
 								TSerialPorts::EPortIndex inPortIx);
 
 	///
 	/// Destructor.
 	///
-	~TTcpClientSerialPortManager() override;
+	~TSerialPortDriverTcpClient() override;
 
 	///
 	/// Return the Identification of this driver
@@ -77,43 +76,55 @@ public:
 	///
 	void TriggerEvent(KUInt8 cmd) override;
 
-	///
-	/// GIve NewtonScrip access to our list of options
-	///
+	//
+	// Give NewtonScript access to our list of options.
+	//
 	void NSGetOptions(TNewt::RefArg frame) override;
 
-	///
-	/// Set options from NewtonScript
-	///
+	//
+	// Set options from NewtonScript
+	//
 	void NSSetOptions(TNewt::RefArg frame) override;
 
+	//
+	// Change the server address.
+	//
 	void SetServerAddress(const char* inAddress);
 
+	//
+	// Change the server port.
+	//
 	void SetServerPort(int inPort);
 
+	//
+	// Get a copy of the server address.
+	//
 	char* GetServerAddressDup();
 
+	//
+	// Get the server port.
+	//
 	int GetServerPort();
 
 protected:
 	///
-	/// Host user interface erroro message
+	/// Host user interface error message
 	///
 	void LogError(const char* text, bool systemError = false);
 
-	///
-	/// Emulate the DMA hardware
-	///
+	//
+	// Worker thread: Emulate the DMA hardware
+	//
 	void HandleDMA();
 
-	///
-	/// Send data pending in memory to the server.
-	///
+	//
+	// Worker thread: Send data pending in memory to the server.
+	//
 	void HandleDMASend();
 
-	///
-	/// Receive data from the server.
-	///
+	//
+	// Worker thread: Receive data from the server.
+	//
 	void HandleDMAReceive();
 
 	///
@@ -164,7 +175,7 @@ protected:
 };
 
 #endif
-// _T_TCP_CLIENT_SERIAL_PORT_MANAGER_H
+// _T_SERIAL_PORT_DRIVER_TCP_CLIENT_H
 
 // ================= //
 // Byte your tongue. //

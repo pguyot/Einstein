@@ -7,8 +7,8 @@ list ( APPEND cmake_sources
 )
 
 list ( APPEND common_sources
-	Emulator/Serial/TTcpClientSerialPortManager.cpp
-	Emulator/Serial/TTcpClientSerialPortManager.h
+	Emulator/Serial/TSerialPortDriverTcpClient.cpp
+	Emulator/Serial/TSerialPortDriverTcpClient.h
 	Emulator/Serial/TBasicSerialPortManager.cpp
 	Emulator/Serial/TBasicSerialPortManager.h
 	Emulator/Serial/TSerialPortManager.cpp

@@ -25,7 +25,7 @@
 #include "TCLIApp.h"
 
 // ANSI C & POSIX
-#include <Emulator/Serial/TTcpClientSerialPortManager.h>
+#include <Emulator/Serial/TSerialPortDriverTcpClient.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -405,7 +405,7 @@ TCLIApp::Run(int argc, char* argv[])
 	if (extrPortDriverType == TSerialPorts::kTcpClientDriver)
 	{
 		TSerialPortManager* sDriver = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
-		TTcpClientSerialPortManager* tcp = dynamic_cast<TTcpClientSerialPortManager*>(sDriver);
+		TSerialPortDriverTcpClient* tcp = dynamic_cast<TSerialPortDriverTcpClient*>(sDriver);
 		if (tcp)
 		{
 			int port = 3679;
@@ -434,7 +434,7 @@ TCLIApp::Run(int argc, char* argv[])
     TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
     if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
     {
-        TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+        TSerialPortDriverTcpClient *tcp = (TSerialPortDriverTcpClient*)extr;
         tcp->SetServerAddress([[defaults stringForKey: kExtrTCPServerAddress] UTF8String]);
         tcp->SetServerPort((int)[defaults integerForKey: kExtrTCPServerPort]);
     }
@@ -446,7 +446,7 @@ TCLIApp::Run(int argc, char* argv[])
                 if (serPort==TSerialPorts::kExtr) {
                     TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
                     if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver) {
-                        TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+                        TSerialPortDriverTcpClient *tcp = (TSerialPortDriverTcpClient*)extr;
 
                         char *tcpServer = tcp->GetServerAddressDup();
                         NSString *nsTcpServer = [NSString stringWithUTF8String:tcpServer];

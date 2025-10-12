@@ -50,7 +50,7 @@
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/Serial/TSerialPortManager.h"
 #include "Emulator/Serial/TSerialPorts.h"
-#include "Emulator/Serial/TTcpClientSerialPortManager.h"
+#include "Emulator/Serial/TSerialPortDriverTcpClient.h"
 
 #import "Monitor/TMacMonitor.h"
 #import "Monitor/TSymbolList.h"
@@ -451,7 +451,7 @@ TCocoaAppController ()
 	TSerialPortManager* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 	if (extr && extr->GetID() == TSerialPorts::kTcpClientDriver)
 	{
-		TTcpClientSerialPortManager* tcp = (TTcpClientSerialPortManager*) extr;
+		TSerialPortDriverTcpClient* tcp = (TSerialPortDriverTcpClient*) extr;
 		tcp->SetServerAddress([[defaults stringForKey:kExtrTCPServerAddress] UTF8String]);
 		tcp->SetServerPort((int) [defaults integerForKey:kExtrTCPServerPort]);
 	}
@@ -464,7 +464,7 @@ TCocoaAppController ()
 				TSerialPortManager* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
 				if (extr && extr->GetID() == TSerialPorts::kTcpClientDriver)
 				{
-					TTcpClientSerialPortManager* tcp = (TTcpClientSerialPortManager*) extr;
+					TSerialPortDriverTcpClient* tcp = (TSerialPortDriverTcpClient*) extr;
 
 					char* tcpServer = tcp->GetServerAddressDup();
 					NSString* nsTcpServer = [NSString stringWithUTF8String:tcpServer];

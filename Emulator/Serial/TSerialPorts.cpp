@@ -48,7 +48,7 @@
 #include "Emulator/Serial/TSerialHostPortPTY.h"
 #endif
 #if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
-#include "Emulator/Serial/TTcpClientSerialPortManager.h"
+#include "Emulator/Serial/TSerialPortDriverTcpClient.h"
 #endif
 
 /**
@@ -150,7 +150,7 @@ TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 #endif
 #if TARGET_OS_MAC || TARGET_OS_ANDROID || TARGET_OS_LINUX || TARGET_OS_WIN32
 		case kTcpClientDriver:
-			currentDriver = new TTcpClientSerialPortManager(mLog, inPort);
+			currentDriver = new TSerialPortDriverTcpClient(mLog, inPort);
 			break;
 #endif
 		default:

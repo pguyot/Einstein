@@ -1,8 +1,8 @@
 // ==============================
-// File:			TTcpClientSerialPortManager.cp
+// File:			TSerialPortDriverTcpClient.cp
 // Project:			Einstein
 //
-// Copyright 2020 by Matthias Melcher (mm@matthiasm.com).
+// Copyright 2020-2025 by Matthias Melcher (mm@matthiasm.com).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 // $Id$
 // ==============================
 
-#include "TTcpClientSerialPortManager.h"
+#include "TSerialPortDriverTcpClient.h"
 #include "app/TPathHelper.h"
 
 // POSIX
@@ -49,7 +49,12 @@
 #include "Emulator/TMemory.h"
 #include "Emulator/Log/TLog.h"
 
-/*
+/**
+ \class TSerialPortDriverTcpClient
+ \brief Emulate a serial port connection over a network as a TCP client.
+ \author Matthias Melcher
+ \note Implemented for macOS, Linux, and Windows, should work on iOS and Android.
+
  The TCP Client class emulates a serial port by connecting to the server
  whenever needed through a TCP network connection.
 
@@ -71,10 +76,10 @@
  */
 
 // -------------------------------------------------------------------------- //
-//  * TTcpClientSerialPortManager()
+//  * TSerialPortDriverTcpClient()
 // Emulate a serial connection using a TCP client socket.
 // -------------------------------------------------------------------------- //
-TTcpClientSerialPortManager::TTcpClientSerialPortManager(
+TSerialPortDriverTcpClient::TSerialPortDriverTcpClient(
 	TLog* inLog,
 	TSerialPorts::EPortIndex inPortIx) :
 		TBasicSerialPortManager(inLog, inPortIx)
@@ -88,9 +93,9 @@ TTcpClientSerialPortManager::TTcpClientSerialPortManager(
 }
 
 // -------------------------------------------------------------------------- //
-//  * ~TTcpClientSerialPortManager( void )
+//  * ~TSerialPortDriverTcpClient( void )
 // -------------------------------------------------------------------------- //
-TTcpClientSerialPortManager::~TTcpClientSerialPortManager()
+TSerialPortDriverTcpClient::~TSerialPortDriverTcpClient()
 {
 	if (mWorkerThread)
 	{
@@ -119,7 +124,7 @@ TTcpClientSerialPortManager::~TTcpClientSerialPortManager()
 }
 
 void
-TTcpClientSerialPortManager::LogError(const char* text, bool systemError)
+TSerialPortDriverTcpClient::LogError(const char* text, bool systemError)
 {
 	if (systemError)
 	{
@@ -147,15 +152,15 @@ TTcpClientSerialPortManager::LogError(const char* text, bool systemError)
 		errorId = errno;
 #endif
 		if (mLog)
-			mLog->FLogLine("TTcpClientSerialPortManager::%s: %s (%d)\n", text, errorText, errorId);
+			mLog->FLogLine("TSerialPortDriverTcpClient::%s: %s (%d)\n", text, errorText, errorId);
 		else
-			KPrintf("TTcpClientSerialPortManager::%s: %s (%d)\n", text, errorText, errorId);
+			KPrintf("TSerialPortDriverTcpClient::%s: %s (%d)\n", text, errorText, errorId);
 	} else
 	{
 		if (mLog)
-			mLog->FLogLine("TTcpClientSerialPortManager::%s\n", text);
+			mLog->FLogLine("TSerialPortDriverTcpClient::%s\n", text);
 		else
-			KPrintf("TTcpClientSerialPortManager::%s\n", text);
+			KPrintf("TSerialPortDriverTcpClient::%s\n", text);
 	}
 }
 
@@ -163,7 +168,7 @@ TTcpClientSerialPortManager::LogError(const char* text, bool systemError)
 //  * run( TInterruptManager*, TDMAManager*, TMemory* )
 // -------------------------------------------------------------------------- //
 void
-TTcpClientSerialPortManager::run(TInterruptManager* inInterruptManager,
+TSerialPortDriverTcpClient::run(TInterruptManager* inInterruptManager,
 	TDMAManager* inDMAManager,
 	TMemory* inMemory)
 {
@@ -206,7 +211,7 @@ TTcpClientSerialPortManager::run(TInterruptManager* inInterruptManager,
 #endif
 
 	// create the thread and let it run until we send it the quit signal
-	mWorkerThread = new std::thread(&TTcpClientSerialPortManager::HandleDMA, this);
+	mWorkerThread = new std::thread(&TSerialPortDriverTcpClient::HandleDMA, this);
 	if (!mWorkerThread)
 	{
 		LogError("run: error creating std::thread", true);
@@ -218,7 +223,7 @@ TTcpClientSerialPortManager::run(TInterruptManager* inInterruptManager,
 // DMA or interrupts trigger a command that must be handled by a derived class.
 // -------------------------------------------------------------------------- //
 void
-TTcpClientSerialPortManager::TriggerEvent(KUInt8 cmd)
+TSerialPortDriverTcpClient::TriggerEvent(KUInt8 cmd)
 {
 #if TARGET_OS_WIN32
 	if (mQuitEvent == INVALID_HANDLE_VALUE)
@@ -250,7 +255,7 @@ TTcpClientSerialPortManager::TriggerEvent(KUInt8 cmd)
 //		Disconnect from the server.
 // -------------------------------------------------------------------------- //
 bool
-TTcpClientSerialPortManager::Disconnect()
+TSerialPortDriverTcpClient::Disconnect()
 {
 	bool wasConnected = mIsConnected;
 	if (mTcpSocket != -1)
@@ -276,7 +281,7 @@ TTcpClientSerialPortManager::Disconnect()
 //		Create a TCP socket and try to connect to the server.
 // -------------------------------------------------------------------------- //
 bool
-TTcpClientSerialPortManager::Connect()
+TSerialPortDriverTcpClient::Connect()
 {
 	Disconnect();
 
@@ -350,14 +355,17 @@ sigpipe_handler(int unused)
 	// don't do anything. The server disconnected faster than the client would realize that.
 }
 
-// -------------------------------------------------------------------------- //
-//  * HandleDMA()
-//		This endless loop watches DMA registers as they are changed by the
-//		OS, and read and writes data via the TCP socket.
-//		It can also trigger interrupts when buffers empty, fill, or overflow.
-// -------------------------------------------------------------------------- //
+/**
+ \brief Worker thread: Emulate the DMA hardware.
+
+ This endless loop watches DMA registers as they are changed by the OS, and
+ read and writes data via the TCP socket. It can also trigger interrupts when
+ buffers empty, fill, or overflow.
+
+ Disconnect, stop the loop, and exit the thread by calling TriggerEvent('q').
+ */
 void
-TTcpClientSerialPortManager::HandleDMA()
+TSerialPortDriverTcpClient::HandleDMA()
 {
 #if TARGET_OS_WIN32
 	// thread loops and handles pipe, port, and DMA
@@ -486,13 +494,14 @@ TTcpClientSerialPortManager::HandleDMA()
 #endif
 }
 
-// -------------------------------------------------------------------------- //
-//  * HandleDMASend()
-//		Send a single byte. We are throtteling data transfor to match a
-//		maximum of 38400bps which is the maximum that NewtonSO can handle.
-// -------------------------------------------------------------------------- //
+/**
+ \brief Worker thread: Send data pending in memory to the server.
+
+ Send a single byte. We are throtteling data transfor to match a
+ maximum of 38400bps which is the maximum that NewtonSO can handle.
+ */
 void
-TTcpClientSerialPortManager::HandleDMASend()
+TSerialPortDriverTcpClient::HandleDMASend()
 {
 	if (mTxDMAControl & 0x00000002)
 	{ // DMA is enabled
@@ -539,18 +548,17 @@ TTcpClientSerialPortManager::HandleDMASend()
 	}
 }
 
-// -------------------------------------------------------------------------- //
-//  * HandleDMAReceive()
-// -------------------------------------------------------------------------- //
-void
-TTcpClientSerialPortManager::HandleDMAReceive()
-{
-	// The original Newton hardware and OS
-	// did have timing issues whan the server PC communicated faster as
-	// expected in the year 1996, which leaconnecting to d to CPU cycle burning software
-	// like "slowdown.exe".
+/**
+ \brief Worker thread: Receive data from the server.
 
-	// read up to 1024 bytes that come in through the serial port
+ The worker thread was notified of an event from the receiving socket.
+ If the server closed the connection, close if from the client side as well.
+ If the server sent data, copy as much as possible to the Newton DMA buffer
+ and notify NewtonOS by raising an interrupt.
+ */
+void
+TSerialPortDriverTcpClient::HandleDMAReceive()
+{
 	KUInt8 buf[1026];
 #if TARGET_OS_WIN32
 	DWORD nRequested = 32;
@@ -598,11 +606,17 @@ TTcpClientSerialPortManager::HandleDMAReceive()
 	}
 }
 
-///
-/// Give NewtonScript access to our list of options
-///
+/**
+ \brief Give NewtonScript access to our list of options.
+
+ Add slots to the frame that contain options that are specific to this driver.
+
+ \param[inout] frame Call with an empty frame. On return, the frame will
+ have two new entries, tcpServer: "address" and tcpPort: "port". Port is
+ a string containing the decimal port number.
+ */
 void
-TTcpClientSerialPortManager::NSGetOptions(TNewt::RefArg frame)
+TSerialPortDriverTcpClient::NSGetOptions(TNewt::RefArg frame)
 {
 	using namespace TNewt;
 	char buf[32];
@@ -611,11 +625,20 @@ TTcpClientSerialPortManager::NSGetOptions(TNewt::RefArg frame)
 	SetFrameSlot(frame, RefVar(MakeSymbol("tcpPort")), RefVar(MakeString(buf)));
 }
 
-///
-/// Set options from NewtonScript
-///
+/**
+ \brief Set options from NewtonScript.
+
+ Change the setting for this driver by sending a frame with two slot:
+ - tcpServer: string containing the address or name of the server
+ - tcpPort: string containing the port number
+
+ Changing the settings will disconnect from the current server and ask the
+ runner to reconnect.
+
+ \param[in] inFrame An NS frame with slots for server name and port number.
+ */
 void
-TTcpClientSerialPortManager::NSSetOptions(TNewt::RefArg inFrame)
+TSerialPortDriverTcpClient::NSSetOptions(TNewt::RefArg inFrame)
 {
 	using namespace TNewt;
 	char server[256] = { 0 };
@@ -642,7 +665,7 @@ TTcpClientSerialPortManager::NSSetOptions(TNewt::RefArg inFrame)
 		setPort = true;
 	}
 
-	// KPrintf("INFO: TTcpClientSerialPortManager::NSSetOptions: (\"%s\", %d)\n", mServer, mPort);
+	// KPrintf("INFO: TSerialPortDriverTcpClient::NSSetOptions: (\"%s\", %d)\n", mServer, mPort);
 	if (setServer)
 	{
 		if (strcmp(mServer, server) != 0)
@@ -667,32 +690,55 @@ TTcpClientSerialPortManager::NSSetOptions(TNewt::RefArg inFrame)
 	if (mustReconnect)
 	{
 		Disconnect(); // force the server to reconnect
-		// KPrintf("INFO: TTcpClientSerialPortManager::NSSetOptions: must reconnect\n");
+		// KPrintf("INFO: TSerialPortDriverTcpClient::NSSetOptions: must reconnect\n");
 	}
 }
 
+/**
+ \brief Change the server address.
+ Set a new server name. This will not disconnect or reconnect. To disconnect
+ and reconnect to the new server, call TSerialPortDriverTcpClient::Disconnect().
+ \param[in] inAddress new server address as a string.
+ */
 void
-TTcpClientSerialPortManager::SetServerAddress(const char* inAddress)
+TSerialPortDriverTcpClient::SetServerAddress(const char* inAddress)
 {
 	if (mServer)
 		::free(mServer);
 	mServer = strdup(inAddress);
 }
 
+/**
+ \brief Change the server port.
+ Set a new server port. This will not disconnect or reconnect. To disconnect
+ and reconnect to the new port, call TSerialPortDriverTcpClient::Disconnect().
+ \param[in] inPort new server port number.
+ */
 void
-TTcpClientSerialPortManager::SetServerPort(int inPort)
+TSerialPortDriverTcpClient::SetServerPort(int inPort)
 {
 	mPort = inPort;
 }
 
+/**
+ \brief Get a copy of the server address.
+ Returns the server name. This is not necessarily the name of the currently
+ connected server.
+ \return a "C" string, caller is responsible to free the string.
+ */
 char*
-TTcpClientSerialPortManager::GetServerAddressDup()
+TSerialPortDriverTcpClient::GetServerAddressDup()
 {
 	return strdup(mServer);
 }
 
+/**
+ \brief Get the server port.
+ Returns the server port.
+ \return the port number as an integer.
+ */
 int
-TTcpClientSerialPortManager::GetServerPort()
+TSerialPortDriverTcpClient::GetServerPort()
 {
 	return mPort;
 }

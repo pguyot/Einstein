@@ -229,7 +229,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Emulator/Screen/TFLScreenManager.h"
 #include "Emulator/Serial/TSerialPortManager.h"
 #include "Emulator/Serial/TSerialPorts.h"
-#include "Emulator/Serial/TTcpClientSerialPortManager.h"
+#include "Emulator/Serial/TSerialPortDriverTcpClient.h"
 #include "Emulator/Sound/TNullSoundManager.h"
 
 // Http Client GET
@@ -1258,7 +1258,7 @@ TFLApp::InitSerialPorts()
     TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
     if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
     {
-        TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+        TSerialPortDriverTcpClient *tcp = (TSerialPortDriverTcpClient*)extr;
         tcp->SetServerAddress([[defaults stringForKey: kExtrTCPServerAddress] UTF8String]);
         tcp->SetServerPort((int)[defaults integerForKey: kExtrTCPServerPort]);
     }
@@ -1270,7 +1270,7 @@ TFLApp::InitSerialPorts()
         if (serPort==TSerialPorts::kExtr) {
             TSerialPortManager *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
             if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver) {
-                TTcpClientSerialPortManager *tcp = (TTcpClientSerialPortManager*)extr;
+                TSerialPortDriverTcpClient *tcp = (TSerialPortDriverTcpClient*)extr;
 
                 char *tcpServer = tcp->GetServerAddressDup();
                 NSString *nsTcpServer = [NSString stringWithUTF8String:tcpServer];

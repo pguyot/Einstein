@@ -106,7 +106,7 @@ SET (SourceFiles
         ${LOCAL_PATH}/Emulator/Serial/TSerialPorts.cpp
         ${LOCAL_PATH}/Emulator/Serial/TSerialPortManager.cpp
 		${LOCAL_PATH}/Emulator/Serial/TBasicSerialPortManager.cpp
-		${LOCAL_PATH}/Emulator/Serial/TTcpClientSerialPortManager.cpp
+		${LOCAL_PATH}/Emulator/Serial/TSerialPortDriverTcpClient.cpp
 		# Sound Emulation
 		${LOCAL_PATH}/Emulator/Sound/TBufferedSoundManager.cpp
 		${LOCAL_PATH}/Emulator/Sound/TAndroidNativeSoundManager.cpp
