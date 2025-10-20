@@ -142,10 +142,10 @@ private:
 	/// This is called if any of the ports gets another driver
 	std::function<void(int)> mPortChangedCallback;
 
-	/// (not sure anymore)
+	/// Hold the host port drivers which are mapped to any of the known ports (external, irda, modem or tablet)
 	std::map<KUInt32, TSerialHostPort*> mHostPorts;
 
-	/// (not sure anymore)
+	/// Settings for each host port driver, e.g. path name for a PTY, or serial port file name
 	std::map<KUInt32, std::pair<EDriverID, std::string>> mHostPortSettings;
 };
 

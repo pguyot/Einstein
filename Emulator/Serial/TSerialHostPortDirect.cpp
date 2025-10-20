@@ -29,6 +29,9 @@ extern "C" {
 #include <Emulator/TEmulator.h>
 #include <Emulator/TInterruptManager.h>
 
+/// Initialize the host serial port, if the inPath parameter is valid, use
+/// it as the port path, otherwise use the hardcoded path /dev/cu.usbserial.
+/// The port is initialized in raw mode, no flow control, and 115200bps.
 TSerialHostPortDirect::TSerialHostPortDirect(
 	TLog* inLog,
 	KUInt32 inLocation,

@@ -2036,7 +2036,7 @@ void
 TNativePrimitives::ExecuteSerialDriverNative(KUInt32 inInstruction)
 {
 	KUInt32 r = 0;
-	KUInt32 chip = mProcessor->GetRegister(0);
+	KUInt32 chip = mProcessor->GetRegister(0); // TSerialChipEinstein instance on the Newton side
 
 	// Ignore calls for the Voyager chipset as it needs to be handled on
 	// the lower levels of the emulator.
@@ -2047,7 +2047,10 @@ TNativePrimitives::ExecuteSerialDriverNative(KUInt32 inInstruction)
 	}
 	if ((inInstruction & 0xFF) == 0x4C || (inInstruction & 0xFF) == 0x4D)
 	{
-		// Intercept the option calls to set the correct host driver
+		// Start initializing the host based serial driver as part of the options based setup.
+		// If the 'eloc' option is given, instantiate the host driver with the location (extr, intr, irda,
+		// mdem), the requested type (basic driver, PTY handler), and any additional configuration data
+		// such as the host serial port path or the PTY file name.
 		KUInt32 optionAddr = mProcessor->GetRegister(1);
 		KUInt32 label;
 		KUInt32 flags;

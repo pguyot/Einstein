@@ -29,6 +29,9 @@
 ///
 /// Class to handle host emulated serial port
 ///
+/// This class contains the functionality to interface with a serial port
+/// on the host computer, e.g. a modem or serial printer.
+/// 
 class TSerialHostPortDirect
 		: public TSerialHostPort
 {
