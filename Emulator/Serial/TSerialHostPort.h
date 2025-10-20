@@ -98,7 +98,7 @@ typedef KUInt32 SerialFeatures; /* features supported by this chip (v2.0)	*/
 #define kSerFeatureEinstein (0x80000000) /* Einstein emulated port */
 
 ///
-/// Class to handle host emulated ports
+/// Base class for host emulated ports
 ///
 /// Implements parts of the TSerialChipV2 protocol
 ///

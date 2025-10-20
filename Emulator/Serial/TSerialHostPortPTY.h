@@ -29,6 +29,9 @@
 ///
 /// Class to handle host emulated serial port
 ///
+/// This class presents a pseudo terminal based serial port, which can be
+/// used to connect Einstein to a locally running program such as a terminal
+/// or Newton Docking Protocol compatible application.
 class TSerialHostPortPTY
 		: public TSerialHostPort
 {

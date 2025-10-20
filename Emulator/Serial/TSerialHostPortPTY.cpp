@@ -33,6 +33,7 @@ extern "C" {
 #include <Emulator/TEmulator.h>
 #include <Emulator/TInterruptManager.h>
 
+/// Create the PTY file, using the port location as part of the file name.
 TSerialHostPortPTY::TSerialHostPortPTY(
 	TLog* inLog,
 	KUInt32 inLocation,

@@ -93,7 +93,7 @@ TSerialPorts::GetDriverFor(KUInt32 location)
 /**
  Initialize all drivers and run them
 
- @param exterDriver the driver for the external port
+ @param extrDriver the driver for the external port
  @param infrDriver the driver for the infrared port
  @param tbltDriver the driver for the internal pin connector
  @param mdemDriver the driver for the internal fully equipped modem port
