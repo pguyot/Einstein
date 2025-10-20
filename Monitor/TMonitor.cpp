@@ -1269,6 +1269,29 @@ TMonitor::ExecuteCommand(const char* inCommand)
 			}
 			theArgInt += 16;
 		}
+	} else if (::sscanf(inCommand, "du %X-%X", &theArgInt, &theArgInt2) == 2)
+	{
+		KUInt32 theData;
+		FILE *f = fopen("/tmp/dump", "w+");
+		while (((KUInt32) theArgInt) < ((KUInt32) theArgInt2))
+		{
+			if (mMemory->Read(
+					(TMemory::VAddr) theArgInt, theData))
+			{
+				(void) ::snprintf(
+					theLine, 511, "Memory error when accessing %.8X [%.8X]",
+					(unsigned int) theArgInt,
+					(unsigned int) mMemory->GetFaultStatusRegister());
+				PrintLine(theLine, MONITOR_LOG_ERROR);
+				break;
+			} else
+			{
+				KUInt32 w = htonl(theData);
+				fwrite(&w, 1, 4, f);
+			}
+			theArgInt += 4;
+		}
+		fclose(f);
 	} else if (::sscanf(inCommand, "dis%*[ ]%X", &theArgInt) == 1)
 	{
 		KUInt32 addr = theArgInt;
