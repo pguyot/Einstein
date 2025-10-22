@@ -41,6 +41,20 @@ iEinsteinViewController ()
 
 @implementation iEinsteinViewController
 
+- (void)viewDidLoad
+{
+	[super viewDidLoad];
+
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
+	NSString *DocumentsDirPath = [paths objectAtIndex:0];
+	
+	NSString *filePath = [DocumentsDirPath stringByAppendingPathComponent:@".showFolder.txt"];
+	if(![fm fileExistsAtPath:filePath]) {
+		[fm createFileAtPath:filePath contents:nil attributes:nil];
+	}
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
 	[super viewWillAppear:animated];
