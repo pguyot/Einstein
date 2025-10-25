@@ -21,6 +21,47 @@
 // $Id$
 // ==============================
 
+/* TODO:
+
+  TSerialPorts	-> TSerialPortDriver[] for four driver IDs
+                	+-> TBasicSerialPortManager
+						+-> TBasiliskIISerialPortManager
+						+-> TPipesSerialPortManager
+						+-> TPtySerialPortManager
+						+-> TSerialPortDriverTcpClient
+               	-> TSerialHostPort[] = ???
+					+-> TSerialHostPortDirect
+					+-> TSerialHostPortPTY
+
+  We seem to have two different ways to emulate the serial port connection.
+
+  The TSerialPortDriver emulates the Voyager chip set directly, simulating
+  DMA, ports, and interrupts.
+
+  The TSerialHostPort system uses licensee ports. They are added to the system
+  by providing drivers in the REx.
+
+  Ideally, we should emulate the serial ports with only one system, and since
+  we emulate Voyager by using a lot of guess work, whereas the custom driver
+  class is relatively well documented, using a driver class seem to be the
+  better option. Consequently, the Voyager features should be ported into the
+  custom class system.
+
+  Note that we also have two different preferences NS apps that should also be
+  combined into a single app that adds itself to the original preferences. It
+  should give the user a choice of drivers for the external serial port and the
+  modem port, including additional settings for the driver (TCP client needs
+  a server name and port, PTY needs a device name, etc.).
+
+  Lastly, I would like to add a serial port that is added to the Dock app and
+  gives direct access to the host file system by emulating NCU and the dock
+  protocol for installing packages. This could even give direct access to unna.
+
+ SerialChipV2.h SerialOptions.h HALOptions.h SerialChipRegistry.h
+ CardSpecificDRVR.cp
+ TMainPlatformDriver.cp
+ */
+
 #include "TSerialPorts.h"
 
 // POSIX

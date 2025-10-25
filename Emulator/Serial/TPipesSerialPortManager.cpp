@@ -62,10 +62,7 @@ TPipesSerialPortManager::TPipesSerialPortManager(TLog* inLog,
 // -------------------------------------------------------------------------- //
 TPipesSerialPortManager::~TPipesSerialPortManager()
 {
-	if (mTxPortName)
-		free(mTxPortName);
-	if (mRxPortName)
-		free(mRxPortName);
+	// TODO: we must make sure that the thread is no longer ruinning!
 }
 
 // -------------------------------------------------------------------------- //
@@ -104,36 +101,26 @@ TPipesSerialPortManager::TriggerEvent(KUInt8 cmd)
 void
 TPipesSerialPortManager::FindPipeNames()
 {
-	if (mTxPortName && mRxPort)
+	if (!mTxPortName.empty() && !mRxPortName.empty())
 		return;
 
-	char path[PATH_MAX];
+	std::string path = TPathHelper::GetSerialPipeBasePath();
 
-	std::string basePath = TPathHelper::GetSerialPipeBasePath();
-	::strncpy(path, basePath.c_str(), PATH_MAX - 1);
-
-	char* end = path + strlen(path);
-
-	// crete the file path to the sending and receiving node
-	strcpy(end, "/Einstein Emulator");
-	if (access(path, S_IRUSR | S_IWUSR | S_IXUSR) == -1)
+	// create the file path to the sending and receiving node
+	path += "/Einstein Emulator";
+	if (access(path.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) == -1)
 	{
-		if (mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR) == -1)
+		if (mkdir(path.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) == -1)
 		{
-			KPrintf("***** Error creating named pipe directory %s - %s (%d).\n", path, strerror(errno), errno);
+			KPrintf("***** Error creating named pipe directory %s - %s (%d).\n", path.c_str(), strerror(errno), errno);
 		}
 	}
 
 	// create the name for the transmitting pipe
-	// FIXME: "Einstein Platform"
-	strcpy(end, "/Einstein Emulator/ExtrSerPortSend");
-	if (!mTxPortName)
-		mTxPortName = strdup(path);
+	mTxPortName = path + "/ExtrSerPortSend";
 
 	// create the name for the receiving pipe
-	strcpy(end, "/Einstein Emulator/ExtrSerPortRecv");
-	if (!mRxPortName)
-		mRxPortName = strdup(path);
+	mRxPortName = path + "/ExtrSerPortRecv";
 }
 
 // -------------------------------------------------------------------------- //
@@ -144,21 +131,21 @@ bool
 TPipesSerialPortManager::CreateNamedPipes()
 {
 	// crete the sending node if it does not exist yet
-	if (access(mTxPortName, S_IRUSR | S_IWUSR) == -1)
+	if (access(mTxPortName.c_str(), S_IRUSR | S_IWUSR) == -1)
 	{
-		if (mkfifo(mTxPortName, S_IRUSR | S_IWUSR) == -1)
+		if (mkfifo(mTxPortName.c_str(), S_IRUSR | S_IWUSR) == -1)
 		{
-			KPrintf("***** Error creating named pipe %s - %s (%d).\n", mTxPortName, strerror(errno), errno);
+			KPrintf("***** Error creating named pipe %s - %s (%d).\n", mTxPortName.c_str(), strerror(errno), errno);
 			return false;
 		}
 	}
 
 	// crete the receiving node if it does not exist yet
-	if (access(mRxPortName, S_IRUSR | S_IWUSR) == -1)
+	if (access(mRxPortName.c_str(), S_IRUSR | S_IWUSR) == -1)
 	{
-		if (mkfifo(mRxPortName, S_IRUSR | S_IWUSR) == -1)
+		if (mkfifo(mRxPortName.c_str(), S_IRUSR | S_IWUSR) == -1)
 		{
-			KPrintf("***** Error creating named pipe %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
+			KPrintf("***** Error creating named pipe %s - %s (%d).\n", mRxPortName.c_str(), strerror(errno), errno);
 			return false;
 		}
 	}
@@ -187,16 +174,16 @@ TPipesSerialPortManager::RunDMA()
 	}
 
 	// open the named pipes
-	mTxPort = open(mTxPortName, O_RDWR | O_NOCTTY | O_NONBLOCK);
+	mTxPort = open(mTxPortName.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
 	if (mTxPort == -1)
 	{
-		KPrintf("***** Error opening named sending pipe %s - %s (%d).\n", mTxPortName, strerror(errno), errno);
+		KPrintf("***** Error opening named sending pipe %s - %s (%d).\n", mTxPortName.c_str(), strerror(errno), errno);
 		return;
 	}
-	mRxPort = open(mRxPortName, O_RDWR | O_NOCTTY | O_NONBLOCK);
+	mRxPort = open(mRxPortName.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
 	if (mRxPort == -1)
 	{
-		KPrintf("***** Error opening named receiving pipe %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
+		KPrintf("***** Error opening named receiving pipe %s - %s (%d).\n", mRxPortName.c_str(), strerror(errno), errno);
 		return;
 	}
 	tcflush(mTxPort, TCIOFLUSH);
@@ -319,7 +306,7 @@ TPipesSerialPortManager::HandleDMA()
 			}
 			if (n == -1)
 			{
-				KPrintf("***** Error reading from serial port %s - %s (%d).\n", mRxPortName, strerror(errno), errno);
+				KPrintf("***** Error reading from serial port %s - %s (%d).\n", mRxPortName.c_str(), strerror(errno), errno);
 			} else if (n == 0)
 			{
 				// KPrintf("***** No data yet\n");

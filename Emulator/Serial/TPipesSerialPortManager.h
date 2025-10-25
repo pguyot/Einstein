@@ -27,6 +27,7 @@
 #include "TBasicSerialPortManager.h"
 
 #include <pthread.h>
+#include <string>
 
 class TLog;
 class TInterruptManager;
@@ -119,10 +120,10 @@ protected:
 	pthread_t mDMAThread { 0 };
 
 	/// named pipe for transmitting data
-	char* mTxPortName { nullptr };
+	std::string mTxPortName { };
 
 	/// named pipe for receiving data
-	char* mRxPortName;
+	std::string mRxPortName { };
 };
 
 #endif

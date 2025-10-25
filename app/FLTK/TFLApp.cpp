@@ -71,6 +71,9 @@
 //		 by einstein for an additional 4MB of Flash. So we can only really test
 //		 the F*ROM on Page 3. Must check if NewtonOS finds REx's on page 3.
 
+// ----- NCX Connectivity
+// TODO: the currently selected serial port driver must be saved in the preferences!
+
 /*
 
 Documentation:
