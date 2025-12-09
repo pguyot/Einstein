@@ -10,15 +10,9 @@
 	<array>
 		<dict>
 			<key>Type</key>
-			<string>PSGroupSpecifier</string>
-			<key>Title</key>
-			<string>Screen Settings</string>
-		</dict>
-		<dict>
-			<key>Type</key>
 			<string>PSMultiValueSpecifier</string>
 			<key>Title</key>
-			<string>Resolution</string>
+			<string>Screen Resolution</string>
 			<key>Key</key>
 			<string>screen_resolution</string>
 			<key>DefaultValue</key>
@@ -77,14 +71,6 @@
 				<string>{8,9.88897}</string>
 				<string>{7.76771,10.58188}</string>
 			</array>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSTextFieldSpecifier</string>
-			<key>Title</key>
-			<string></string>
-			<key>Key</key>
-			<string></string>
 		</dict>
 		<dict>
 			<key>Type</key>
