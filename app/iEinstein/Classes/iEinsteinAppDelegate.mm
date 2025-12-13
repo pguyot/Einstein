@@ -37,10 +37,11 @@
 + (void)initialize
 {
 	NSDictionary* defaults = [NSDictionary dictionaryWithObjectsAndKeys:
-											   [NSNumber numberWithInt:0], @"screen_resolution",
-										   [NSNumber numberWithBool:NO], @"clear_flash_ram",
-										   @"{8,9.88897}", @"printable_size",
-										   nil];
+							  [NSNumber numberWithInt:0], @"screen_resolution",
+							  [NSNumber numberWithBool:NO], @"use_full_screen",
+							  [NSNumber numberWithBool:NO], @"clear_flash_ram",
+							  @"{8,9.88897}", @"printable_size",
+							  nil];
 
 	[[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
 	[[NSUserDefaults standardUserDefaults] synchronize];

@@ -44,14 +44,24 @@ iEinsteinViewController ()
 - (void)viewWillAppear:(BOOL)animated
 {
 	[super viewWillAppear:animated];
-#ifdef USE_STORYBOARDS
-	[self initEmulator];
-#endif
+	// Initialization moved to viewDidLayoutSubviews to ensure correct bounds
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
 	[super viewDidAppear:animated];
+}
+
+- (void)viewDidLayoutSubviews
+{
+	[super viewDidLayoutSubviews];
+#ifdef USE_STORYBOARDS
+	// Only initialize once, after layout is complete so we have correct bounds
+	if (!mEmulatorInitialized) {
+		mEmulatorInitialized = YES;
+		[self initEmulator];
+	}
+#endif
 }
 
 // Action sheet delegate method.
@@ -326,25 +336,60 @@ iEinsteinViewController ()
 
 	mSoundManager = new TCoreAudioSoundManager(mLog);
 
-	// iPad is 1024x768. This size, and some appropriate scaling factors, should be selectable from
-	// the 'Settings' panel.
-
-	static int widthLUT[] = { 320, 640, 384, 786, 640, 320, 750, 375, 1080, 540 };
-	static int heightLUT[] = { 480, 960, 512, 1024, 1136, 568, 1134, 567, 1920, 960 };
-
-	NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
-	int index = [(NSNumber*) [prefs objectForKey:@"screen_resolution"] intValue];
-	int newtonScreenWidth = widthLUT[index];
-	int newtonScreenHeight = heightLUT[index];
-
 #ifdef USE_STORYBOARDS
-	// When using storyboards as configured, the einsteinView is a subview of self.view
-	// This facilitates other subviews in the future.
 	iEinsteinView* einsteinView = self.einsteinView;
 #else
-	// When using NIBs, the einsteinView is self.view
 	iEinsteinView* einsteinView = (iEinsteinView*) [self view];
 #endif
+
+	// Determine screen resolution based on use_full_screen setting
+	NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
+	BOOL useFullScreen = [(NSNumber*) [prefs objectForKey:@"use_full_screen"] boolValue];
+	int newtonScreenWidth, newtonScreenHeight;
+
+	if (useFullScreen) {
+		// Full screen mode: use native view bounds for resolution
+		CGRect viewBounds = [einsteinView bounds];
+
+		// Use point dimensions (not pixels) for the Newton resolution.
+		// The Newton is always in portrait orientation internally (width < height).
+		int viewWidth = (int)viewBounds.size.width;
+		int viewHeight = (int)viewBounds.size.height;
+
+		// Ensure width is the smaller dimension (portrait mode for Newton)
+		if (viewWidth < viewHeight) {
+			newtonScreenWidth = viewWidth;
+			newtonScreenHeight = viewHeight;
+		} else {
+			newtonScreenWidth = viewHeight;
+			newtonScreenHeight = viewWidth;
+		}
+
+		// On iPad, use 2x scaling (halve resolution, scale up when drawing)
+		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+			newtonScreenWidth /= 2.0;
+			newtonScreenHeight /= 2.0;
+		} else {
+			newtonScreenWidth /= 1.25;
+			newtonScreenHeight /= 1.25;
+		}
+
+		// Round width to an even number (required for pixel operations)
+		newtonScreenWidth = (newtonScreenWidth + 1) & ~1;
+	} else {
+		// Classic mode: use LUT-based resolution from Settings
+		static int widthLUT[] = { 320, 640, 384, 786, 640, 320, 750, 375, 1080, 540 };
+		static int heightLUT[] = { 480, 960, 512, 1024, 1136, 568, 1134, 567, 1920, 960 };
+
+		int index = [(NSNumber*) [prefs objectForKey:@"screen_resolution"] intValue];
+		newtonScreenWidth = widthLUT[index];
+		newtonScreenHeight = heightLUT[index];
+	}
+
+	// Store current settings for change detection
+	lastKnownFullScreenMode = useFullScreen;
+	lastKnownScreenResolution = [(NSNumber*) [prefs objectForKey:@"screen_resolution"] intValue];
+
 	Boolean isLandscape = (newtonScreenWidth > newtonScreenHeight);
 
 	mScreenManager = new TIOSScreenManager(
@@ -355,7 +400,7 @@ iEinsteinViewController ()
 		true,
 		isLandscape);
 
-	[einsteinView setScreenManager:mScreenManager];
+	[einsteinView setScreenManager:mScreenManager useFullScreen:useFullScreen];
 
 	// Create the printer manager.
 	mPrinterManager = new TIOSPrinterManager(mLog);
@@ -386,23 +431,31 @@ iEinsteinViewController ()
 
 - (void)startEmulator
 {
-	// See if screen resolution has changed since last time
-
+	// Check if screen settings have changed since last time
 	NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
 	[prefs synchronize];
+
+	BOOL currentFullScreenMode = [(NSNumber*) [prefs objectForKey:@"use_full_screen"] boolValue];
 	int currentScreenResolution = [(NSNumber*) [prefs objectForKey:@"screen_resolution"] intValue];
 
-	if (currentScreenResolution != lastKnownScreenResolution)
-	{
-		// Reboot emulator
+	BOOL needsReset = NO;
 
+	if (currentFullScreenMode != lastKnownFullScreenMode) {
+		mLog->LogLine("Full screen mode changed by Settings.");
+		needsReset = YES;
+	} else if (!currentFullScreenMode && currentScreenResolution != lastKnownScreenResolution) {
+		// Only check resolution change in classic mode (not full screen)
 		mLog->LogLine("Newton screen resolution changed by Settings.");
+		needsReset = YES;
+	}
+
+	if (needsReset) {
+		lastKnownFullScreenMode = currentFullScreenMode;
 		lastKnownScreenResolution = currentScreenResolution;
 		[self resetEmulator];
 	}
 
 	// Start the thread.
-
 	mLog->LogLine("Detaching emulator thread");
 	[NSThread detachNewThreadSelector:@selector(emulatorThread) toTarget:self withObject:nil];
 }
