@@ -46,7 +46,9 @@ class TLog;
 	TEmulator* mEmulator;
 	TPlatformManager* mPlatformManager;
 	TLog* mLog;
+	BOOL mEmulatorInitialized;
 	int lastKnownScreenResolution;
+	BOOL lastKnownFullScreenMode;
 }
 
 @property (retain, nonatomic) IBOutlet iEinsteinView* einsteinView;

@@ -80,9 +80,10 @@
 	[self setNeedsDisplay];
 }
 
-- (void)setScreenManager:(TScreenManager*)sm
+- (void)setScreenManager:(TScreenManager*)sm useFullScreen:(BOOL)fullScreen
 {
 	mScreenManager = sm;
+	useFullScreen = fullScreen;
 	[self setNeedsDisplay];
 }
 
@@ -116,14 +117,14 @@
 - (void)drawRect:(CGRect)rect
 {
 	CGContextRef theContext = UIGraphicsGetCurrentContext();
+	CGRect bounds = [self bounds];
 
 	if (mScreenManager == NULL)
 	{
-		// Just fill black
+		// Fill with black when no screen manager
 		CGFloat black[] = { 0.0, 0.0, 0.0, 1.0 };
-		CGRect frame = [self frame];
 		CGContextSetFillColor(theContext, black);
-		CGContextFillRect(theContext, frame);
+		CGContextFillRect(theContext, bounds);
 	} else
 	{
 		if (mScreenImage == NULL)
@@ -144,57 +145,89 @@
 
 			CGColorSpaceRelease(theColorSpace);
 
-			// CGRect screenBounds = [[UIScreen mainScreen] bounds]; //OLD
-			CGRect screenBounds = [self bounds];
-			CGRect r = [self frame];
+			if (useFullScreen) {
+				// Full screen mode: leave room for border on all sides
+				// On iPad with 2x scaling, double the padding to maintain proportions
+				CGFloat borderPadding = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 30.0 : 15.0;
+				screenImageRect = CGRectInset(bounds, borderPadding, borderPadding);
+			} else {
+				// Classic mode: letterbox/center the Newton screen with integer scaling
+				CGRect screenBounds = bounds;
+				CGRect r = bounds;
 
-			if (screenBounds.size.width > newtonScreenWidth && screenBounds.size.height > newtonScreenHeight)
-			{
-				if (newtonScreenWidth == newtonScreenHeight)
+				if (screenBounds.size.width > newtonScreenWidth && screenBounds.size.height > newtonScreenHeight)
 				{
-					// Newton screen resolution is square (like 320x320)
-
-					int mod = (int) screenBounds.size.width % newtonScreenWidth;
-					r.size.width -= mod;
-					r.size.height = r.size.width;
-				} else
-				{
-					// Newton screen resolution is rectangular (like 320x480)
-
-					int wmod = (int) r.size.width % newtonScreenWidth;
-					int hmod = (int) r.size.height % newtonScreenHeight;
-
-					if (wmod > hmod)
+					if (newtonScreenWidth == newtonScreenHeight)
 					{
-						r.size.width -= wmod;
-
-						int scale = (int) r.size.width / newtonScreenWidth;
-						r.size.height = newtonScreenHeight * scale;
+						// Newton screen resolution is square (like 320x320)
+						int mod = (int) screenBounds.size.width % newtonScreenWidth;
+						r.size.width -= mod;
+						r.size.height = r.size.width;
 					} else
 					{
-						r.size.height -= hmod;
+						// Newton screen resolution is rectangular (like 320x480)
+						int wmod = (int) r.size.width % newtonScreenWidth;
+						int hmod = (int) r.size.height % newtonScreenHeight;
 
-						int scale = (int) r.size.height / newtonScreenHeight;
-						r.size.width = newtonScreenWidth * scale;
+						if (wmod > hmod)
+						{
+							r.size.width -= wmod;
+							int scale = (int) r.size.width / newtonScreenWidth;
+							r.size.height = newtonScreenHeight * scale;
+						} else
+						{
+							r.size.height -= hmod;
+							int scale = (int) r.size.height / newtonScreenHeight;
+							r.size.width = newtonScreenWidth * scale;
+						}
 					}
+
+					// Center image on screen
+					r.origin.x += (screenBounds.size.width - r.size.width) / 2;
+					r.origin.y += (screenBounds.size.height - r.size.height) / 2;
 				}
 
-				// Center image on screen
-
-				r.origin.x += (screenBounds.size.width - r.size.width) / 2;
-				r.origin.y += (screenBounds.size.height - r.size.height) / 2;
+				screenImageRect = r;
+				screenImageRect.origin.x = floor(screenImageRect.origin.x);
+				screenImageRect.origin.y = floor(screenImageRect.origin.y);
+				screenImageRect.size.width = floor(screenImageRect.size.width);
+				screenImageRect.size.height = floor(screenImageRect.size.height);
 			}
-
-			screenImageRect = r;
-			screenImageRect.origin.x = floor(screenImageRect.origin.x);
-			screenImageRect.origin.y = floor(screenImageRect.origin.y);
-			screenImageRect.size.width = floor(screenImageRect.size.width);
-			screenImageRect.size.height = floor(screenImageRect.size.height);
 		}
+
+		// Draw the background of this view and the superview
+		[self drawBackgroundInContext:theContext withBounds:bounds];
 
 		CGContextSetInterpolationQuality(theContext, kCGInterpolationNone);
 		CGContextDrawImage(theContext, screenImageRect, mScreenImage);
 	}
+}
+
+- (void)drawBackgroundInContext:(CGContextRef)context withBounds:(CGRect)bounds
+{
+	static UIColor *defaultBgColor = [UIColor colorWithRed:(176/255.0) green:(191/255.0) blue:(169/255.0) alpha:1.0];
+	static UIColor *fullScreenBgColor = [UIColor blackColor];
+	
+	// In classic mode, we use the storyboard's color (a muted green).
+	// In full-screen mode, we fill background with black.
+	UIColor* bgColor = useFullScreen ? fullScreenBgColor : defaultBgColor;
+
+	if (mScreenManager == NULL || newtonScreenWidth == 0 || newtonScreenHeight == 0) {
+		if (self.superview) {
+			self.superview.backgroundColor = bgColor;
+		}
+		return;
+	}
+
+	// Set superview background to match (fills safe areas on notched devices)
+	if (self.superview) {
+		self.superview.backgroundColor = bgColor;
+	}
+
+	// Fill the entire view bounds with the background color
+	// The Newton screen image will be drawn on top
+	CGContextSetFillColorWithColor(context, bgColor.CGColor);
+	CGContextFillRect(context, bounds);
 }
 
 - (void)reset

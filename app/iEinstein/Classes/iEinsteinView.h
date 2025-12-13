@@ -38,10 +38,11 @@ class TEmulator;
 	// EOrientation			mOrientation;
 	// KUInt32					mPreviousMods;
 	bool applePencilMode;
+	bool useFullScreen;
 }
 
 - (void)reset;
-- (void)setScreenManager:(TScreenManager*)sm;
+- (void)setScreenManager:(TScreenManager*)sm useFullScreen:(BOOL)fullScreen;
 
 - (void)setEmulator:(TEmulator*)em;
 
