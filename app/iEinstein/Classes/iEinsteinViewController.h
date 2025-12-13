@@ -47,6 +47,7 @@ class TLog;
 	TPlatformManager* mPlatformManager;
 	TLog* mLog;
 	int lastKnownScreenResolution;
+	UIAlertView* mMissingROMAlertView;
 }
 
 @property (retain, nonatomic) IBOutlet iEinsteinView* einsteinView;
@@ -95,6 +96,7 @@ class TLog;
 
 - (void)verifyDeleteFlashRAM:(int)withTag;
 - (void)explainMissingROM;
+- (BOOL)checkForROMImage;
 //- (void)openEinsteinMenu;
 
 - (int)allResourcesFound;
