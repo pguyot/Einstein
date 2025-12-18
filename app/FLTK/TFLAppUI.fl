@@ -173,7 +173,7 @@ Function {CreateApplicationWindow(int x, int y)} {open
         xywh {0 0 100 20}
       } {
         MenuItem {} {
-          label {Initial SIze}
+          label {Initial Size}
           callback {gApp->UserActionOriginalScreenSize();}
           xywh {0 0 100 20}
         }
