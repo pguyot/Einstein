@@ -1,8 +1,7 @@
-
-Binary Release v2025.9.26
+Binary Release v2025.12.19
 ==========================
 
 User Release Notes
 ------------------
- - various maintenance updates and fixes
- 
+ - new menu item "Snapshot..." to take screenshots
+

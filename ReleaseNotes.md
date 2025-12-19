@@ -1,3 +1,9 @@
+Binary Release v2025.12.19
+==========================
+
+User Release Notes
+------------------
+ - new menu item "Snapshot..." to take screenshots
 
 Binary Release v2025.9.26
 ==========================
