@@ -26,6 +26,7 @@
 
 #include <K/Defines/KDefinitions.h>
 #include <functional>
+#include <atomic>
 
 // Einstein
 #include "Emulator/TARMProcessor.h"

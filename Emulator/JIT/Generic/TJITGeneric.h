@@ -31,6 +31,8 @@
 #include "Emulator/JIT/Generic/TJITGenericPage.h"
 #include "Emulator/JIT/Generic/TJITGenericROMPatch.h"
 
+#include <atomic>
+
 class TMemory;
 class TARMProcessor;
 union JITUnit;

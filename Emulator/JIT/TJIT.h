@@ -31,6 +31,7 @@
 
 // C++
 #include <string>
+#include <atomic>
 
 class TMemory;
 class TMMU;

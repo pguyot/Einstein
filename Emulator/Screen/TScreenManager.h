@@ -759,7 +759,7 @@ private:
 	EOrientation mScreenOrientation { kOrientation_Default };
 
 	/// Current screen contrast.
-	KUInt32 mContrast { kDefaultContrast };
+	KUInt32 mContrast { (KUInt32)kDefaultContrast };
 
 	/// Current screen backlight.
 	Boolean mBacklight { false };
