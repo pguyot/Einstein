@@ -674,7 +674,7 @@ TPlatformManager::EvalNewtonScript(const char* inNewtonScriptCode)
 }
 
 // -------------------------------------------------------------------------- //
-//  * InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSIze)
+//  * InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSize)
 // -------------------------------------------------------------------------- //
 void
 TPlatformManager::InstallPackage(const KUInt8* inPackageData, KUInt32 inPackageSize)
