@@ -24,12 +24,12 @@
 /* TODO:
 
   TSerialPorts	-> TSerialPortDriver[] for four driver IDs
-                	+-> TBasicSerialPortManager
+					+-> TBasicSerialPortManager
 						+-> TBasiliskIISerialPortManager
 						+-> TPipesSerialPortManager
 						+-> TPtySerialPortManager
 						+-> TSerialPortDriverTcpClient
-               	-> TSerialHostPort[] = ???
+				-> TSerialHostPort[] = ???
 					+-> TSerialHostPortDirect
 					+-> TSerialHostPortPTY
 

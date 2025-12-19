@@ -144,6 +144,9 @@ public:
 	// User wants to print a screenshot
 	void UserActionPrintScreen();
 
+	// User wants to save a screenshot to a png file
+	void UserActionSnapScreen();
+
 	// User wants to install essential software from UNNA and friends.
 	void UserActionInstallEssentials();
 

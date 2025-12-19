@@ -911,6 +911,34 @@ TFLScreenManager::GetWidget()
 	return mWidget;
 }
 
+#include <FL/Fl_PNG_Image.H>
+
+int
+TFLScreenManager::TakeSnapshot(const std::string& filename)
+{
+	// Get access to the internal pixel buffer
+	int w = mWidget->getRGBWidth();
+	int h = mWidget->getRGBHeight();
+	unsigned char* data = mWidget->getRGBData();
+
+	// Source data is stored as RGB0, but we want grayscale, so copy the data over
+	unsigned char* rgb = (unsigned char*) ::malloc(w * h);
+	unsigned char* src = data;
+	unsigned char* dst = rgb;
+	for (int i = w * h; i > 0; i--)
+	{
+		src++; // red
+		*dst++ = *src++; // green
+		src++; // blue
+		src++; // padding
+	}
+
+	// Write the png grayscale image
+	int ret = fl_write_png(filename.c_str(), rgb, w, h, 1);
+	::free((void*) rgb);
+	return ret;
+}
+
 // ========================================================================= //
 // The most likely way for the world to be destroyed, most experts agree, is
 // by accident. That's where we come in; we're computer professionals. We

@@ -875,6 +875,25 @@ TFLApp::UserActionPrintScreen()
 	delete p;
 }
 
+void
+TFLApp::UserActionSnapScreen()
+{
+	static std::string prev_filename;
+	const char* filename = ChooseNewFile(
+		"Save Snapshot to PNG Image File",
+		"PNG Image\t*.png",
+		prev_filename.c_str());
+	if (!filename)
+		return;
+	prev_filename = filename;
+	int ret = mScreenManager->TakeSnapshot(filename);
+	// A more detailed error handling would be nice.
+	if (ret != 0)
+	{
+		fl_message("Error writing PNG image file.");
+	}
+}
+
 #define BP fl_begin_polygon()
 #define EP fl_end_polygon()
 #define BCP fl_begin_complex_polygon()
@@ -1763,7 +1782,7 @@ TFLApp::ChooseNewFile(const char* message, const char* pat, const char* fname)
 /**
  This is the first function that is called on all platforms.
 
- We use some static initialisation throughout the code that will be called before this function
+ We use some static initialization throughout the code that will be called before this function
  is ever reached. Also, different platforms have different entry points (MS Windows for example calls
  WinMain() first). FLTK makes sure that main() is called soon after.
  */

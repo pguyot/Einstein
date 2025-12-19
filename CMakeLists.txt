@@ -7,7 +7,7 @@
 
 cmake_minimum_required(VERSION 3.15.0 FATAL_ERROR)
 
-project( "Einstein" VERSION "2025.9.26" )
+project( "Einstein" VERSION "2025.12.19" )
 
 # Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")

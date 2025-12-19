@@ -120,10 +120,10 @@ protected:
 	pthread_t mDMAThread { 0 };
 
 	/// named pipe for transmitting data
-	std::string mTxPortName { };
+	std::string mTxPortName {};
 
 	/// named pipe for receiving data
-	std::string mRxPortName { };
+	std::string mRxPortName {};
 };
 
 #endif

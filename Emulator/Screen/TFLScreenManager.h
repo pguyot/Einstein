@@ -71,7 +71,7 @@ public:
 	///
 	/// Destructeur.
 	///
-	virtual ~TFLScreenManager(void);
+	virtual ~TFLScreenManager(void) override;
 
 	///
 	/// Notify that the tablet orientation changed.
@@ -80,32 +80,32 @@ public:
 	/// \param inNewOrientation	the new orientation of the screen.
 	///
 	virtual void TabletOrientationChanged(
-		EOrientation inNewOrientation);
+		EOrientation inNewOrientation) override;
 
 	///
 	/// This method is called by the platform manager when the emulator is
 	/// turned on.
 	///
-	virtual void PowerOn(void);
+	virtual void PowerOn(void) override;
 
 	///
 	/// This method is called by the platform manager when the emulator is
 	/// turned off.
 	///
-	virtual void PowerOff(void);
+	virtual void PowerOff(void) override;
 
 	///
 	/// Power on the screen (open the window?)
 	/// This method is called by the display driver.
 	/// It doesn't do anything. The work is done in ScreenSetup.
 	///
-	virtual void PowerOnScreen(void);
+	virtual void PowerOnScreen(void) override;
 
 	///
 	/// Power off the screen (close the window?)
 	/// This method is called by the display driver.
 	///
-	virtual void PowerOffScreen(void);
+	virtual void PowerOffScreen(void) override;
 
 	///
 	/// Notify that the screen orientation changed.
@@ -114,7 +114,7 @@ public:
 	/// \param inNewOrientation	the new orientation of the screen.
 	///
 	virtual void ScreenOrientationChanged(
-		EOrientation inNewOrientation);
+		EOrientation inNewOrientation) override;
 
 	///
 	/// Notify that the contrast changed.
@@ -122,7 +122,7 @@ public:
 	///
 	/// \param inNewContrast the new contrast of the screen.
 	///
-	virtual void ContrastChanged(KUInt32 inNewContrast);
+	virtual void ContrastChanged(KUInt32 inNewContrast) override;
 
 	///
 	/// Notify that the backlight changed.
@@ -130,14 +130,14 @@ public:
 	///
 	/// \param inNewBacklight the new state of the backlight.
 	///
-	virtual void BacklightChanged(Boolean inNewBacklight);
+	virtual void BacklightChanged(Boolean inNewBacklight) override;
 
 	///
 	/// Notify that some screen bits changed.
 	///
 	/// \param inUpdateRect	rectangle of the bits that changed.
 	///
-	virtual void UpdateScreenRect(SRect* inUpdatedRect);
+	virtual void UpdateScreenRect(SRect* inUpdatedRect) override;
 
 	///
 	/// Thread loop entry point.
@@ -145,6 +145,11 @@ public:
 	void Run(void);
 
 	Fl_Widget* GetWidget();
+
+	///
+	/// Take a screenshot and save it to a png file
+	///
+	virtual int TakeSnapshot(const std::string& filename) override;
 
 private:
 	///

@@ -26,6 +26,8 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include <string>
+
 class TLog;
 class TInterruptManager;
 class TMemory;
@@ -555,6 +557,11 @@ public:
 	/// print a progress bar
 	///
 	void OverlayPrintProgress(KSInt32 y, KUInt32 percent);
+
+	///
+	/// Take a screenshot and save it to a png file
+	///
+	virtual int TakeSnapshot(const std::string& filename);
 
 protected:
 	///

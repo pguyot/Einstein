@@ -1314,6 +1314,12 @@ KUInt8 TScreenManager::mFontData[128][13] = {
 	{ 0x00, 0x7F, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x7f, 0x00, 0x00 }, // DEL
 };
 
+int
+TScreenManager::TakeSnapshot(const std::string& /*filename*/)
+{
+	return 0;
+}
+
 // ======================================================================= //
 // "Our attitude with TCP/IP is, `Hey, we'll do it, but don't make a big   //
 // system, because we can't fix it if it breaks -- nobody can.'"           //
