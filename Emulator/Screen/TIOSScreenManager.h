@@ -163,6 +163,17 @@ public:
 	}
 
 	///
+	/// Accessor to the image buffer.
+	///
+	/// \return a pointer to the image buffer.
+	///
+	KUInt32*
+	GetImageBuffer(void)
+	{
+		return mImageBuffer;
+	}
+
+	///
 	///	Insert a sample with pen down.
 	///
 	/// \param inXCoord			x coordinate of the pen (11 bits)
