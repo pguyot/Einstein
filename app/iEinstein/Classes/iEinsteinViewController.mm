@@ -131,7 +131,8 @@ iEinsteinViewController ()
 								 "The ROM file must be named 717006.rom and copied to "
 								 "this device using the iTunes File Sharing feature.\n\n"
 								 "For more information please read the instructions at "
-								 "https://github.com/pguyot/Einstein/wiki/Build-Instructions"
+								 "https://github.com/pguyot/Einstein/wiki/Build-Instructions.\n\n"
+								 "If running in iOS Simulator refer to console output."
 				  preferredStyle:UIAlertControllerStyleAlert];
 
 	UIAlertAction* quitAction = [UIAlertAction
