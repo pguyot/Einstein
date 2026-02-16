@@ -49,20 +49,20 @@ iEinsteinViewController ()
 #endif
 }
 
-- (void)viewDidAppear:(BOOL)animated
+- (void)viewDidLoad
 {
-	[super viewDidAppear:animated];
+	[super viewDidLoad];
 
 	// Add 2-finger tap gesture to open Einstein menu
-	UITapGestureRecognizer* threeFingerTap = [[UITapGestureRecognizer alloc]
+	UITapGestureRecognizer* twoFingerTap = [[UITapGestureRecognizer alloc]
 		initWithTarget:self
-				action:@selector(handleThreeFingerTap:)];
-	threeFingerTap.numberOfTouchesRequired = 2;
-	threeFingerTap.numberOfTapsRequired = 1;
-	[self.view addGestureRecognizer:threeFingerTap];
+				action:@selector(handleTwoFingerTap:)];
+	twoFingerTap.numberOfTouchesRequired = 2;
+	twoFingerTap.numberOfTapsRequired = 1;
+	[self.view addGestureRecognizer:twoFingerTap];
 }
 
-- (void)handleThreeFingerTap:(UITapGestureRecognizer*)recognizer
+- (void)handleTwoFingerTap:(UITapGestureRecognizer*)recognizer
 {
 	if (recognizer.state == UIGestureRecognizerStateRecognized)
 	{
