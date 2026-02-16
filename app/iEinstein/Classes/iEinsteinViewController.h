@@ -94,8 +94,8 @@ class TLog;
 //- (void)setupToolbar: (NSWindow*) inWindow;
 
 - (void)verifyDeleteFlashRAM:(int)withTag;
-- (void)explainMissingROM;
-//- (void)openEinsteinMenu;
+- (void)explainMissingROM:(id)sender;
+- (void)openEinsteinMenu:(NSValue*)v;
 
 - (int)allResourcesFound;
 

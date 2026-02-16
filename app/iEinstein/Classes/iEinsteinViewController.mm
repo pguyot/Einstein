@@ -91,7 +91,7 @@ iEinsteinViewController ()
 			}
 			break;
 		case 3:
-			[[UIApplication sharedApplication] performSelector:@selector(terminateWithSuccess)];
+			exit(0);
 			break;
 		default:
 			break;
@@ -168,12 +168,6 @@ iEinsteinViewController ()
 	[super didReceiveMemoryWarning];
 
 	// Release any cached data, images, etc that aren't in use.
-}
-
-- (void)viewDidUnload
-{
-	// Release any retained subviews of the main view.
-	// e.g. self.myOutlet = nil;
 }
 
 - (void)installNewPackages
@@ -269,7 +263,6 @@ iEinsteinViewController ()
 	NSString* theROMPath = [docdir stringByAppendingPathComponent:@"717006.rom"];
 	NSString* theDebugROMPath = [docdir stringByAppendingPathComponent:@"717006.aif"];
 	NSString* theDebugHighROMPath = [docdir stringByAppendingPathComponent:@"717006.rex"];
-	NSString* theImagePath = [docdir stringByAppendingPathComponent:@"717006.img"];
 
 	NSFileManager* theFileManager = [NSFileManager defaultManager];
 
@@ -474,13 +467,6 @@ iEinsteinViewController ()
 	if (mEmulator)
 		mEmulator->Stop();
 }
-
-/*
-void openEinsteinMenu(iEinsteinViewController *ctrl)
-{
-	[ctrl openEinsteinMenu];
-}
-*/
 
 // for iOS7+ hide the status bar
 - (BOOL)prefersStatusBarHidden

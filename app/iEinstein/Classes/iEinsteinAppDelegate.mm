@@ -141,13 +141,13 @@
 		if ([activityVC respondsToSelector:@selector(popoverPresentationController)])
 		{
 			// iOS8
-			UIView* view = (UIView*) viewController.einsteinView;
+			UIView* view = (UIView*) self->viewController.einsteinView;
 			CGRect fullView = view.frame;
 			activityVC.popoverPresentationController.sourceView = view;
 			activityVC.popoverPresentationController.sourceRect = CGRectMake(fullView.size.width / 2 - 10, 10, 20, 20);
 		}
 
-		[viewController presentViewController:activityVC animated:YES completion:nil];
+		[self->viewController presentViewController:activityVC animated:YES completion:nil];
 	});
 
 	// dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);

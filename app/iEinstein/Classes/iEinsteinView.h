@@ -45,4 +45,7 @@ class TEmulator;
 
 - (void)setEmulator:(TEmulator*)em;
 
+- (void)newtonOrientationChanged;
+- (void)setNeedsDisplayInNewtonRect:(NSValue*)v;
+
 @end
