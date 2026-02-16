@@ -37,7 +37,7 @@ class TPlatformManager;
 class TLog;
 @class iEinsteinView;
 
-@interface iEinsteinViewController : UIViewController <UIActionSheetDelegate> {
+@interface iEinsteinViewController : UIViewController {
 	TNetworkManager* mNetworkManager;
 	TSoundManager* mSoundManager;
 	TScreenManager* mScreenManager;
@@ -94,8 +94,8 @@ class TLog;
 //- (void)setupToolbar: (NSWindow*) inWindow;
 
 - (void)verifyDeleteFlashRAM:(int)withTag;
-- (void)explainMissingROM;
-//- (void)openEinsteinMenu;
+- (void)explainMissingROM:(id)sender;
+- (void)openEinsteinMenu:(NSValue*)v;
 
 - (int)allResourcesFound;
 

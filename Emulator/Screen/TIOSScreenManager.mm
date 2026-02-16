@@ -351,15 +351,8 @@ TIOSScreenManager::DraggedFile(const char* inPath)
 void
 TIOSScreenManager::OpenEinsteinMenu()
 {
-	static int once = 0;
 	CGRect newtonRect = CGRectMake(0, 0, 0, 0);
-	if (!once)
-		[mController performSelectorOnMainThread:@selector(openEinsteinMenu:) withObject:[NSValue valueWithCGRect:newtonRect] waitUntilDone:YES];
-	once = 1;
-
-	// openEinsteinMenu((iEinsteinViewController*)mController);
-
-	//((iEinsteinViewController*)mController)->openEinsteinMenu();
+	[mController performSelectorOnMainThread:@selector(openEinsteinMenu:) withObject:[NSValue valueWithCGRect:newtonRect] waitUntilDone:YES];
 }
 
 // ============================================================================== //

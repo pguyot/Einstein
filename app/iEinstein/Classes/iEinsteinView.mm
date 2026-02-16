@@ -148,42 +148,21 @@
 			CGRect screenBounds = [self bounds];
 			CGRect r = [self frame];
 
-			if (screenBounds.size.width > newtonScreenWidth && screenBounds.size.height > newtonScreenHeight)
-			{
-				if (newtonScreenWidth == newtonScreenHeight)
-				{
-					// Newton screen resolution is square (like 320x320)
-
-					int mod = (int) screenBounds.size.width % newtonScreenWidth;
-					r.size.width -= mod;
-					r.size.height = r.size.width;
-				} else
-				{
-					// Newton screen resolution is rectangular (like 320x480)
-
-					int wmod = (int) r.size.width % newtonScreenWidth;
-					int hmod = (int) r.size.height % newtonScreenHeight;
-
-					if (wmod > hmod)
-					{
-						r.size.width -= wmod;
-
-						int scale = (int) r.size.width / newtonScreenWidth;
-						r.size.height = newtonScreenHeight * scale;
-					} else
-					{
-						r.size.height -= hmod;
-
-						int scale = (int) r.size.height / newtonScreenHeight;
-						r.size.width = newtonScreenWidth * scale;
-					}
+			// Render at the largest integer scale (3x, 2x, 1x) that fits
+			int scale = 1;
+			for (int s = 3; s >= 2; s--) {
+				if (screenBounds.size.width >= newtonScreenWidth * s
+					&& screenBounds.size.height >= newtonScreenHeight * s) {
+					scale = s;
+					break;
 				}
-
-				// Center image on screen
-
-				r.origin.x += (screenBounds.size.width - r.size.width) / 2;
-				r.origin.y += (screenBounds.size.height - r.size.height) / 2;
 			}
+			r.size.width = MIN(r.size.width, newtonScreenWidth * scale);
+			r.size.height = MIN(r.size.height, newtonScreenHeight * scale);
+
+			// Center image on screen
+			r.origin.x += (screenBounds.size.width - r.size.width) / 2;
+			r.origin.y += (screenBounds.size.height - r.size.height) / 2;
 
 			screenImageRect = r;
 			screenImageRect.origin.x = floor(screenImageRect.origin.x);

@@ -618,7 +618,7 @@ TCocoaAppController ()
 	NSAlert* theAlert = [[NSAlert alloc] init];
 	[theAlert setMessageText:@"Einstein Emulator must exit"];
 	[theAlert setInformativeText:message];
-	[theAlert setAlertStyle:NSCriticalAlertStyle];
+	[theAlert setAlertStyle:NSAlertStyleCritical];
 
 	(void) [theAlert runModal];
 	::abort();
