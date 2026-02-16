@@ -37,7 +37,7 @@ class TPlatformManager;
 class TLog;
 @class iEinsteinView;
 
-@interface iEinsteinViewController : UIViewController <UIActionSheetDelegate> {
+@interface iEinsteinViewController : UIViewController {
 	TNetworkManager* mNetworkManager;
 	TSoundManager* mSoundManager;
 	TScreenManager* mScreenManager;

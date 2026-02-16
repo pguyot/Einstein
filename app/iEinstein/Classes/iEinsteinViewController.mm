@@ -54,104 +54,114 @@ iEinsteinViewController ()
 	[super viewDidAppear:animated];
 }
 
-// Action sheet delegate method.
-- (void)actionSheet:(UIActionSheet*)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+// Helper method to clear flash and restart
+- (void)clearFlashAndRestart
 {
-	switch ([actionSheet tag])
-	{
-		case 1:
-		case 4:
-			if (buttonIndex == 0)
-			{
-				printf("Clearing Flash RAM file!\n");
-				NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-				NSString* theFlashPath = [docdir stringByAppendingPathComponent:@"flash"];
-				remove([theFlashPath fileSystemRepresentation]);
-				NSString* theLastInstallPath = [docdir stringByAppendingPathComponent:@".lastInstall"];
-				remove([theLastInstallPath fileSystemRepresentation]);
-				[self resetEmulator];
-				[self startEmulator];
-			} else if ([actionSheet tag] == 1)
-				[self startEmulator];
-			else
-			{
-				[self initEmulator];
-			}
-			break;
-		case 2:
-			switch (buttonIndex)
-			{
-				case 0:
-					break;
-				case 1:
-					[self stopEmulator];
-					break;
-				default:
-					break;
-			}
-			break;
-		case 3:
-			exit(0);
-			break;
-		default:
-			break;
-	}
+	printf("Clearing Flash RAM file!\n");
+	NSString* docdir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	NSString* theFlashPath = [docdir stringByAppendingPathComponent:@"flash"];
+	remove([theFlashPath fileSystemRepresentation]);
+	NSString* theLastInstallPath = [docdir stringByAppendingPathComponent:@".lastInstall"];
+	remove([theLastInstallPath fileSystemRepresentation]);
+	[self resetEmulator];
+	[self startEmulator];
 }
 
 - (void)verifyDeleteFlashRAM:(int)withTag;
 {
-	UIActionSheet* actionSheet = [[UIActionSheet alloc]
-				 initWithTitle:@"Clear Flash Memory?\r\r"
-								"Clearing the Flash will delete all packages that may "
-								"have been installed and completely reset your Newton."
-					  delegate:self
-			 cancelButtonTitle:@"Cancel"
-		destructiveButtonTitle:@"Clear the Flash!"
-			 otherButtonTitles:nil];
-	[actionSheet setTag:withTag];
-	actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
-	[actionSheet showInView:self.view];
-#if !__has_feature(objc_arc)
-	[actionSheet release];
-#endif
+	UIAlertController* alertController = [UIAlertController
+		alertControllerWithTitle:@"Clear Flash Memory?"
+						 message:@"Clearing the Flash will delete all packages that may "
+								 "have been installed and completely reset your Newton."
+				  preferredStyle:UIAlertControllerStyleActionSheet];
+
+	UIAlertAction* clearAction = [UIAlertAction
+		actionWithTitle:@"Clear the Flash!"
+				  style:UIAlertActionStyleDestructive
+				handler:^(UIAlertAction* action) {
+					[self clearFlashAndRestart];
+				}];
+
+	UIAlertAction* cancelAction = [UIAlertAction
+		actionWithTitle:@"Cancel"
+				  style:UIAlertActionStyleCancel
+				handler:^(UIAlertAction* action) {
+					if (withTag == 1)
+						[self startEmulator];
+					else
+						[self initEmulator];
+				}];
+
+	[alertController addAction:clearAction];
+	[alertController addAction:cancelAction];
+
+	// Configure popover for iPad
+	if (alertController.popoverPresentationController)
+	{
+		alertController.popoverPresentationController.sourceView = self.view;
+		alertController.popoverPresentationController.sourceRect = CGRectMake(
+			self.view.bounds.size.width / 2, self.view.bounds.size.height / 2, 1, 1);
+		alertController.popoverPresentationController.permittedArrowDirections = 0;
+	}
+
+	[self presentViewController:alertController animated:YES completion:nil];
 }
 
 - (void)explainMissingROM:(id)sender
 {
-	UIActionSheet* actionSheet = [[UIActionSheet alloc]
-				 initWithTitle:@"Newton ROM not found.\r\r"
-								"Einstein Emulator requires an MP2x00 US ROM image. "
-								"The ROM file must be named 717006.rom and copied to "
-								"this device using the iTunes File Sharing feature.\r\r"
-								"For more information please read the instructions at "
-								"https://github.com/pguyot/Einstein/wiki/Build-Instructions"
-					  delegate:self
-			 cancelButtonTitle:nil
-		destructiveButtonTitle:@"Quit Einstein"
-			 otherButtonTitles:nil];
-	[actionSheet setTag:3];
-	[actionSheet showInView:self.view];
-#if !__has_feature(objc_arc)
-	[actionSheet release];
-#endif
-}
+	UIAlertController* alertController = [UIAlertController
+		alertControllerWithTitle:@"Newton ROM not found."
+						 message:@"Einstein Emulator requires an MP2x00 US ROM image. "
+								 "The ROM file must be named 717006.rom and copied to "
+								 "this device using the iTunes File Sharing feature.\n\n"
+								 "For more information please read the instructions at "
+								 "https://github.com/pguyot/Einstein/wiki/Build-Instructions"
+				  preferredStyle:UIAlertControllerStyleAlert];
 
-//- (void)setNeedsDisplayInNewtonRect:(NSValue*)v
+	UIAlertAction* quitAction = [UIAlertAction
+		actionWithTitle:@"Quit Einstein"
+				  style:UIAlertActionStyleDestructive
+				handler:^(UIAlertAction* action) {
+					exit(0);
+				}];
+
+	[alertController addAction:quitAction];
+
+	[self presentViewController:alertController animated:YES completion:nil];
+}
 
 - (void)openEinsteinMenu:(NSValue*)v
 {
-	UIActionSheet* actionSheet = [[UIActionSheet alloc]
-				 initWithTitle:@"Einstein Menu"
-					  delegate:self
-			 cancelButtonTitle:@"Cancel"
-		destructiveButtonTitle:@"Quit Emulator"
-			 otherButtonTitles:nil];
-	[actionSheet setTag:2];
-	actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
-	[actionSheet showInView:self.view];
-#if !__has_feature(objc_arc)
-	[actionSheet release];
-#endif
+	UIAlertController* alertController = [UIAlertController
+		alertControllerWithTitle:@"Einstein Menu"
+						 message:nil
+				  preferredStyle:UIAlertControllerStyleActionSheet];
+
+	UIAlertAction* quitAction = [UIAlertAction
+		actionWithTitle:@"Quit Emulator"
+				  style:UIAlertActionStyleDestructive
+				handler:^(UIAlertAction* action) {
+					[self stopEmulator];
+				}];
+
+	UIAlertAction* cancelAction = [UIAlertAction
+		actionWithTitle:@"Cancel"
+				  style:UIAlertActionStyleCancel
+				handler:nil];
+
+	[alertController addAction:quitAction];
+	[alertController addAction:cancelAction];
+
+	// Configure popover for iPad
+	if (alertController.popoverPresentationController)
+	{
+		alertController.popoverPresentationController.sourceView = self.view;
+		alertController.popoverPresentationController.sourceRect = CGRectMake(
+			self.view.bounds.size.width / 2, self.view.bounds.size.height / 2, 1, 1);
+		alertController.popoverPresentationController.permittedArrowDirections = 0;
+	}
+
+	[self presentViewController:alertController animated:YES completion:nil];
 }
 
 /*
