@@ -52,6 +52,22 @@ iEinsteinViewController ()
 - (void)viewDidAppear:(BOOL)animated
 {
 	[super viewDidAppear:animated];
+
+	// Add 2-finger tap gesture to open Einstein menu
+	UITapGestureRecognizer* threeFingerTap = [[UITapGestureRecognizer alloc]
+		initWithTarget:self
+				action:@selector(handleThreeFingerTap:)];
+	threeFingerTap.numberOfTouchesRequired = 2;
+	threeFingerTap.numberOfTapsRequired = 1;
+	[self.view addGestureRecognizer:threeFingerTap];
+}
+
+- (void)handleThreeFingerTap:(UITapGestureRecognizer*)recognizer
+{
+	if (recognizer.state == UIGestureRecognizerStateRecognized)
+	{
+		[self openEinsteinMenu:nil];
+	}
 }
 
 // Helper method to clear flash and restart
@@ -137,11 +153,10 @@ iEinsteinViewController ()
 						 message:nil
 				  preferredStyle:UIAlertControllerStyleActionSheet];
 
-	UIAlertAction* quitAction = [UIAlertAction
-		actionWithTitle:@"Quit Emulator"
-				  style:UIAlertActionStyleDestructive
+	UIAlertAction* noopAction = [UIAlertAction
+		actionWithTitle:@"No Actions Available"
+				  style:UIAlertActionStyleDefault
 				handler:^(UIAlertAction* action) {
-					[self stopEmulator];
 				}];
 
 	UIAlertAction* cancelAction = [UIAlertAction
@@ -149,7 +164,7 @@ iEinsteinViewController ()
 				  style:UIAlertActionStyleCancel
 				handler:nil];
 
-	[alertController addAction:quitAction];
+	[alertController addAction:noopAction];
 	[alertController addAction:cancelAction];
 
 	// Configure popover for iPad
