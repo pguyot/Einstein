@@ -34,6 +34,8 @@
 #include "Emulator/Screen/TIOSScreenManager.h"
 #include "Emulator/Sound/TCoreAudioSoundManager.h"
 
+static const int kScreenResolutionFitToScreen = 9999;
+
 @interface
 iEinsteinViewController ()
 - (int)initEmulator;
@@ -345,16 +347,30 @@ iEinsteinViewController ()
 
 	mSoundManager = new TCoreAudioSoundManager(mLog);
 
-	// iPad is 1024x768. This size, and some appropriate scaling factors, should be selectable from
-	// the 'Settings' panel.
-
-	static int widthLUT[] = { 320, 640, 384, 786, 640, 320, 750, 375, 1080, 540 };
-	static int heightLUT[] = { 480, 960, 512, 1024, 1136, 568, 1134, 567, 1920, 960 };
-
 	NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
-	int index = [(NSNumber*) [prefs objectForKey:@"screen_resolution"] intValue];
-	int newtonScreenWidth = widthLUT[index];
-	int newtonScreenHeight = heightLUT[index];
+	int resolutionSetting = [(NSNumber*) [prefs objectForKey:@"screen_resolution"] intValue];
+
+	if (resolutionSetting != 0 && resolutionSetting != kScreenResolutionFitToScreen)
+	{
+		resolutionSetting = 0;
+		[prefs setObject:@(0) forKey:@"screen_resolution"];
+	}
+
+	int newtonScreenWidth;
+	int newtonScreenHeight;
+
+	if (resolutionSetting == kScreenResolutionFitToScreen)
+	{
+		// Fit to Screen: as large as the device screen, drawable at minimum 2x scale
+		CGRect screenBounds = [[UIScreen mainScreen] bounds];
+		newtonScreenWidth = (int) screenBounds.size.width / 2;
+		newtonScreenHeight = (int) screenBounds.size.height / 2;
+	} else
+	{
+		// MP 2x00 (320x480)
+		newtonScreenWidth = 320;
+		newtonScreenHeight = 480;
+	}
 
 #ifdef USE_STORYBOARDS
 	// When using storyboards as configured, the einsteinView is a subview of self.view

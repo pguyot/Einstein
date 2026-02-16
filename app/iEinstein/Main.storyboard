@@ -26,7 +26,7 @@
                             <constraint firstAttribute="trailing" secondItem="iCH-TY-Epl" secondAttribute="trailing" id="HFB-gZ-LIj"/>
                             <constraint firstItem="iCH-TY-Epl" firstAttribute="top" secondItem="be2-B5-v2m" secondAttribute="top" id="arC-75-cZC"/>
                             <constraint firstItem="iCH-TY-Epl" firstAttribute="leading" secondItem="be2-B5-v2m" secondAttribute="leading" id="cgO-wt-nLO"/>
-                            <constraint firstItem="iCH-TY-Epl" firstAttribute="bottom" secondItem="Bak-Mu-fo8" secondAttribute="top" id="jIS-B9-dEi"/>
+                            <constraint firstAttribute="bottom" secondItem="iCH-TY-Epl" secondAttribute="bottom" id="jIS-B9-dEi"/>
                         </constraints>
                     </view>
                     <nil key="simulatedStatusBarMetrics"/>
