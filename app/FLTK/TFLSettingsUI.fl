@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0400
+version 1.0403
 use_FL_COMMAND
 header_name {.h}
 code_name {.cpp}
@@ -73,7 +73,7 @@ decl {\#include <FL/Fl.H>} {private local
 decl {\#include <FL/fl_draw.H>} {private local
 }
 
-declblock {\#if TARGET_OS_MAC} {open public after {\#endif}
+declblock {\#if TARGET_OS_MAC} {open public map 3 after {\#endif}
 } {
   decl {\#include <FL/Fl_Sys_Menu_Bar.H>} {public global
   }
@@ -405,8 +405,8 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
-          xywh {10 35 430 375}
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open
+          xywh {10 35 430 375} hide
         } {
           Fl_Group {} {open
             xywh {120 50 275 25}
@@ -690,7 +690,7 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
         }
         Fl_Group {} {
           label {  PC Cards  } open
-          xywh {10 35 430 375} hide
+          xywh {10 35 430 375}
         } {
           Fl_Browser wPCCardList {
             label {PCMCIA Cards:}
@@ -808,6 +808,12 @@ if (imageName) free(imageName);}
                 label {New 4MB Flash Card...}
                 user_data 4 user_data_type long
                 callback cb_New
+                xywh {20 20 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 5MB Flash Card...}
+                user_data 5 user_data_type long
+                callback cb_New selected
                 xywh {20 20 100 20} labelsize 12
               }
               MenuItem {} {
@@ -1536,7 +1542,7 @@ if (choice && choice->callback()) {
     choice->callback_(RMB, choice->user_data_);
 }} {}
   }
-  declblock {\#if TARGET_OS_MAC} {open public after {\#endif}
+  declblock {\#if TARGET_OS_MAC} {open public map 3 after {\#endif}
   } {
     decl {Fl_Sys_Menu_Bar *wSysMenubar = nullptr;} {public local
     }

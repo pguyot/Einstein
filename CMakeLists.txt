@@ -134,8 +134,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   NEWT64
   GIT_REPOSITORY  https://github.com/MatthiasWM/NEWT64
-  GIT_TAG         master
-  GIT_SHALLOW     TRUE
+  GIT_TAG         d1a1aa1e1ee98611b701789f38fc4505b10c2b76
 )
 
 endif ()

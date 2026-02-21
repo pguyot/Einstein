@@ -55,7 +55,7 @@ const KUInt8 TLinearCard::kDefaultCISData[] = {
 	// INTEL 2MD Linear Flash
 	0x01, 0x03, // CISTPL_DEVICE
 	0x52, // Device Code = 5 (DTYPE_FLASH), WPS = 0 (WP Switch works), Speed = 2 (DSPEED_200NS)
-	0x06, // 2MB
+	0x06, // 2MB : bit 0-2 = 512, 2k, 8k, 32k, 128k, 512k, 2MB, xxx, bit 3-7 = number of units
 	0xff, // CISTPL_END
 	0x1e, 0x06, // CISTPL_DEVICEGEO
 	0x02, // DGTPL_BUS (16 bit access)
@@ -851,6 +851,8 @@ TLinearCard::CreateImageFile(const char* inName, const char* inImageFilename, KU
 		goto cleanup;
 	}
 	memcpy(cisBuffer, kDefaultCISData, imageInfo.pCISSize);
+	// Device Size: bit 0..2 = unit, bit 7..3 = number of units minus 1
+	// units: 0=512, 1=2k, 2=8k, 3=32k, 4=128k, 5=512k, 6=2MB, 7=reserved
 	switch (inSizeMB)
 	{
 		case 2:
@@ -858,6 +860,9 @@ TLinearCard::CreateImageFile(const char* inName, const char* inImageFilename, KU
 			break;
 		case 4:
 			cisBuffer[3] = 0x0e;
+			break;
+		case 5:
+			cisBuffer[3] = 0x4d; // 9+1*512, 01001.101, 0100'1101, 0x4d
 			break;
 		case 8:
 			cisBuffer[3] = 0x1e;
