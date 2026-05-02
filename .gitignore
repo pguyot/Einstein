@@ -36,3 +36,6 @@ newt64/
 _Data_/MainBoardBottom.jpg
 _Data_/MainBoardTop.jpg
 _Data_/Schematics.pdf
+
+# Personal signing config
+LocalSigning.xcconfig
