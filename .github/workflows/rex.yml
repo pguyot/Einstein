@@ -11,7 +11,6 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
-  NCT_PROJECTS: ${{ github.workspace }}/NCT_Projects
 
 jobs:
   build:
@@ -19,41 +18,14 @@ jobs:
     steps:
     - name: Get dependencies
       run: sudo apt-get install -y gcc-arm-none-eabi cmake make
-    - name: Get NCT_Projects headers
-      uses: actions/checkout@v4
-      with:
-        repository: ekoeppen/NCT_Projects
-        path: NCT_Projects
-    - name: Get tntk
-      uses: actions/checkout@v4
-      with:
-        repository: ekoeppen/tntk
-        path: tntk
-        submodules: recursive
-    - name: Compile tntk
-      run: |
-        cmake -S tntk -B tntk/build
-        cmake --build tntk/build
-        sudo cmake --install tntk/build
-    - name: Get DCL
-      uses: actions/checkout@v4
-      with:
-        repository: pguyot/DCL
-        path: DCL
-    - name: Compile DCL
-      run: |
-        cmake -S DCL -B DCL/build
-        cmake --build DCL/build
-        sudo cmake --install DCL/build
     - name: Get Einstein sources
       uses: actions/checkout@v4
       with:
           path: Einstein
     - name: Compile the REx
       run: |
-        cmake -S Einstein/Drivers -B Einstein/Drivers/build -DCMAKE_TOOLCHAIN_FILE=cmake/newton-cross.cmake
+        cmake -S Einstein/Drivers -B Einstein/Drivers/build
         cmake --build Einstein/Drivers/build
-        cmake --install Einstein/Drivers/build
     - name: Store the REx
       uses: actions/upload-artifact@v4
       with:
