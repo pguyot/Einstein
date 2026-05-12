@@ -84,17 +84,26 @@ elseif ( WIN32 )
 	add_executable ( EinsteinTests
 		${common_sources} ${test_sources}
 	)
-	target_compile_options( EinsteinTests PUBLIC "/bigobj" )
+	if ( MSVC )
+		target_compile_options( EinsteinTests PUBLIC "/bigobj" )
+	elseif ( MINGW )
+		target_compile_options( EinsteinTests PUBLIC "-Wa,-mbig-obj" )
+		target_link_options( EinsteinTests PRIVATE -static )
+	endif ()
 	target_compile_definitions ( EinsteinTests PRIVATE
 		TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
 		WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
 	)
 	target_link_libraries ( EinsteinTests
 		${system_libs}
-		fltk::fltk
-		EinsteinFLGUI
 		gdiplus
 	)
+	if ( EINSTEIN_FLTK_FRONTEND )
+		target_link_libraries ( EinsteinTests
+			fltk::fltk
+			EinsteinFLGUI
+		)
+	endif ()
 
 endif ()
 

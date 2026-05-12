@@ -238,7 +238,7 @@ TFLScriptEditor::~TFLScriptEditor()
 	delete mStyleBuffer;
 }
 
-#if TARGET_OS_WIN32
+#if TARGET_OS_WIN32 && !defined(__MINGW32__)
 static int
 strcasecmp(const char* a, const char* b)
 {
