@@ -179,6 +179,32 @@ set( NEWT64_FOUND true )
 set( newt64_incl_path "${Newt64_SOURCE_DIR}/src/newt_core/incs/" )
 set( newt64_lib libnewt64 )
 
+if ( NOT MSVC )
+	foreach ( target libnewt64 newt64 )
+		if ( TARGET ${target} )
+			get_target_property( _opts ${target} COMPILE_OPTIONS )
+			if ( _opts )
+				list( REMOVE_ITEM _opts "/bigobj" )
+				if ( MINGW )
+					list( APPEND _opts "-Wa,-mbig-obj" )
+				endif ()
+				set_target_properties( ${target} PROPERTIES COMPILE_OPTIONS "${_opts}" )
+			endif ()
+			get_target_property( _iopts ${target} INTERFACE_COMPILE_OPTIONS )
+			if ( _iopts )
+				list( REMOVE_ITEM _iopts "/bigobj" )
+				if ( MINGW )
+					list( APPEND _iopts "-Wa,-mbig-obj" )
+				endif ()
+				set_target_properties( ${target} PROPERTIES INTERFACE_COMPILE_OPTIONS "${_iopts}" )
+			endif ()
+			if ( CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" )
+				target_compile_options( ${target} PRIVATE -Wno-error=implicit-function-declaration )
+			endif ()
+		endif ()
+	endforeach ()
+endif ()
+
 endif ()
 
 #
@@ -497,35 +523,63 @@ elseif ( WIN32 )
 		${common_sources} ${app_sources} ${cmake_sources} ${data}
 		${CMAKE_CURRENT_BINARY_DIR}/Einstein.rc
 	)
-	add_library ( EinsteinFLGUI STATIC
-		${fluid_sources}
-	)
+	if ( EINSTEIN_FLTK_FRONTEND )
+		add_library ( EinsteinFLGUI STATIC
+			${fluid_sources}
+		)
+	endif ()
 
 	# how to compile and link
-	target_compile_options( Einstein PUBLIC "/bigobj" )
-	target_compile_options( EinsteinFLGUI PUBLIC "/bigobj" )
-	if ( $<CONFIG:Debug> )
-		target_compile_options( Einstein PUBLIC "/ZI" )
-		target_compile_options( EinsteinFLGUI PUBLIC "/ZI" )
+	if ( MSVC )
+		target_compile_options( Einstein PUBLIC "/bigobj" )
+		if ( EINSTEIN_FLTK_FRONTEND )
+			target_compile_options( EinsteinFLGUI PUBLIC "/bigobj" )
+		endif ()
+		if ( $<CONFIG:Debug> )
+			target_compile_options( Einstein PUBLIC "/ZI" )
+			if ( EINSTEIN_FLTK_FRONTEND )
+			target_compile_options( EinsteinFLGUI PUBLIC "/ZI" )
+			endif ()
+		endif ()
+	elseif ( MINGW )
+		target_compile_options( Einstein PUBLIC "-Wa,-mbig-obj" )
+		if ( EINSTEIN_FLTK_FRONTEND )
+			target_compile_options( EinsteinFLGUI PUBLIC "-Wa,-mbig-obj" )
+		endif ()
 	endif ()
-	target_compile_definitions ( Einstein PRIVATE
-		TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
-		WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
-	)
-	target_compile_definitions ( EinsteinFLGUI PRIVATE
-		TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
-		WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
-	)
-	target_link_libraries ( Einstein
-		${system_libs}
-		fltk::images fltk::png fltk::z
-		EinsteinFLGUI
-		winmm
+	if ( EINSTEIN_FLTK_FRONTEND )
+		target_compile_definitions ( Einstein PRIVATE
+			TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
+			WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
+		)
+		target_compile_definitions ( EinsteinFLGUI PRIVATE
+			TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
+			WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
+		)
+		target_link_libraries ( Einstein
+			${system_libs}
+			fltk::images fltk::png fltk::z
+			EinsteinFLGUI
+			winmm
 		gdiplus
-	)
-	target_link_libraries ( EinsteinFLGUI
-		fltk::images fltk::png fltk::z
-	)
+		)
+		target_link_libraries ( EinsteinFLGUI
+			fltk::images fltk::png fltk::z
+		)
+	endif ()
+	if ( EINSTEIN_SDL3_FRONTEND )
+		target_compile_definitions ( Einstein PRIVATE
+			TARGET_UI_SDL=1 TARGET_OS_WIN32=1
+			WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
+		)
+		target_link_libraries ( Einstein
+			${system_libs}
+			SDL3::SDL3-static
+			winmm
+			gdiplus
+			ws2_32
+		)
+	endif ()
 
 elseif ( ANDROID )
 

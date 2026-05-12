@@ -199,7 +199,7 @@ public:
 		mLog->LogLine(inLine);
 	}
 
-#if TARGET_UI_FLTK
+#if TARGET_UI_FLTK || TARGET_OS_WIN32 || TARGET_UI_SDL
 	// no support for signaling yet
 #else
 	///

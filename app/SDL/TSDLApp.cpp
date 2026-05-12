@@ -66,6 +66,8 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include <algorithm>
+
 #include "TSDLApp.h"
 
 #include "Emulator/TEmulator.h"
@@ -525,7 +527,7 @@ SDL_AppResult TSDLApp::HandleBootStateChange()
 {
 	switch (mBootState) {
 		case BootState::LoadROM:
-			mROMImage = new TFlatROMImageWithREX(mROMPath.c_str(), nullptr);
+			mROMImage = new TFlatROMImageWithREX(mROMPath.string().c_str(), nullptr);
 			if (mROMImage->GetErrorCode() == TAIFROMImageWithREXes::kNoError) {
 				ChangeBootState(BootState::Run);
 			} else {
@@ -593,10 +595,10 @@ void TSDLApp::ROMFilePicked(const char * const *filelist, int filter)
 	if ((filelist == nullptr) || (filelist[0] == nullptr)) {
 		ChangeBootState(BootState::ROMNotFound); // or Exit
 	} else {
-		if (SDL_CopyFile(filelist[0], mROMPath.c_str())) {
+		if (SDL_CopyFile(filelist[0], mROMPath.string().c_str())) {
 			ChangeBootState(BootState::LoadROM);
 		} else {
-			mLog->FLogLine("Can't copy ROM file '%s' to '%s': %s", filelist[0], mROMPath.c_str(), SDL_GetError());
+			mLog->FLogLine("Can't copy ROM file '%s' to '%s': %s", filelist[0], mROMPath.string().c_str(), SDL_GetError());
 			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
 									 "Can't copy file",
 									 "(details here)",
@@ -617,7 +619,7 @@ void TSDLApp::ROMFilePicked(const char * const *filelist, int filter)
 SDL_AppResult TSDLApp::Run()
 {
 	mFlashPath = mPublicDataPath / "einstein.flash";
-	SDL_CreateDirectory(mPublicDataPath.c_str());
+	SDL_CreateDirectory(mPublicDataPath.string().c_str());
 
 	mScreenManager = new TSDLScreenManager(mLog,
 										   mScreenWidth,
@@ -630,7 +632,7 @@ SDL_AppResult TSDLApp::Run()
 
 	mEmulator = new TEmulator(mLog,
 							  mROMImage,			// TODO
-							  mFlashPath.c_str(),	// TODO
+							  mFlashPath.string().c_str(),	// TODO
 							  mSoundManager,		// TODO
 							  mScreenManager,		// TODO
 							  mNetworkManager,		// TODO

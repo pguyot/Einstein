@@ -1,0 +1,28 @@
+name: CI Windows / mingw (FLTK)
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Get sources
+      uses: actions/checkout@v4
+    - name: Configure
+      shell: bash
+      run: |
+        cmake -G "MinGW Makefiles" -S . -B _Build_/Makefiles -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-mingw.cmake
+    - name: Compile Einstein
+      shell: bash
+      run: |
+        cmake --build _Build_/Makefiles --config Release
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Einstein-MinGW
+        path: _Build_/Makefiles/Einstein.exe
