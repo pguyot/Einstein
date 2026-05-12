@@ -126,7 +126,7 @@ TMonitor::TMonitor(
 #endif
 	*pathEnd = 0;
 
-#if !TARGET_UI_FLTK
+#if !TARGET_UI_FLTK && !TARGET_OS_WIN32 && !TARGET_UI_SDL
 	if (::socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, mSocketPair) != 0)
 	{
 		(void) ::fprintf(stderr, "Error with socketpair: %i\n", errno);
@@ -328,7 +328,7 @@ TMonitor::RunEmulator()
 	// A request that came while the emulator stopped for another reason
 	// (breakpoint, stop command). Do it now; the emulator stays halted.
 	(void) ProcessStateRequest();
-#if !TARGET_UI_FLTK
+#if !TARGET_UI_FLTK && !TARGET_OS_WIN32 && !TARGET_UI_SDL
 	// Write a byte to the socket pair.
 	(void) ::write(mSocketPair[1], &someByte, 1);
 #endif
@@ -366,7 +366,7 @@ TMonitor::StepEmulator()
 		mEmulator->Step();
 	}
 
-#if !TARGET_UI_FLTK
+#if !TARGET_UI_FLTK && !TARGET_OS_WIN32 && !TARGET_UI_SDL
 	// Write a byte to the socket pair.
 	char someByte = 0;
 	(void) ::write(mSocketPair[1], &someByte, 1);
@@ -386,7 +386,7 @@ TMonitor::SaveEmulatorState(const char* inFilename, Boolean inFastStart)
 	Boolean theResult = mEmulator->SaveState(inFilename,
 		inFastStart ? TEmulator::kFastStartState : TEmulator::kDebugState);
 
-#if !TARGET_UI_FLTK
+#if !TARGET_UI_FLTK && !TARGET_OS_WIN32 && !TARGET_UI_SDL
 	char someByte = 0;
 	(void) ::write(mSocketPair[1], &someByte, 1);
 #endif
@@ -415,7 +415,7 @@ TMonitor::LoadEmulatorState(const char* inFilename, Boolean inOverwriteCards)
 	rect.fBottom = static_cast<KUInt16>(screen->GetScreenHeight() - 1);
 	rect.fRight = static_cast<KUInt16>(screen->GetScreenWidth() - 1);
 	screen->UpdateScreenRect(&rect);
-#if !TARGET_UI_FLTK
+#if !TARGET_UI_FLTK && !TARGET_OS_WIN32 && !TARGET_UI_SDL
 	char someByte = 0;
 	(void) ::write(mSocketPair[1], &someByte, 1);
 #endif
@@ -436,7 +436,7 @@ TMonitor::SnapEmulatorState(const char* inFilename)
 	// TODO: pause emulator
 	// TODO: signal caller
 	mEmulator->SaveState(inFilename);
-#if !TARGET_UI_FLTK
+#if !TARGET_UI_FLTK && !TARGET_OS_WIN32 && !TARGET_UI_SDL
 	char someByte = 0;
 	(void) ::write(mSocketPair[1], &someByte, 1);
 #endif
@@ -460,7 +460,7 @@ TMonitor::RevertEmulatorState(const char* inFilename)
 	rect.fBottom = static_cast<KUInt16>(screen->GetScreenHeight() - 1);
 	rect.fRight = static_cast<KUInt16>(screen->GetScreenWidth() - 1);
 	screen->UpdateScreenRect(&rect);
-#if !TARGET_UI_FLTK
+#if !TARGET_UI_FLTK && !TARGET_OS_WIN32 && !TARGET_UI_SDL
 	char someByte = 0;
 	(void) ::write(mSocketPair[1], &someByte, 1);
 #endif

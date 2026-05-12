@@ -557,7 +557,9 @@ typedef bool Boolean;
 
 #if TARGET_OS_WIN32
 typedef bool Boolean;
+#if !defined(__MINGW32__) && !defined(_SSIZE_T_DEFINED)
 typedef signed long ssize_t;
+#endif
 #endif
 
 static_assert(sizeof(KUInt8) == 1, "Size of KUInt8 must be 1 byte");
