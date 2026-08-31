@@ -56,6 +56,10 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" )
 
 	# Linux: nothing to do here
 
+elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD" OR ${CMAKE_SYSTEM_NAME} STREQUAL "NetBSD" )
+
+    # FreeBSD and NetBSD: nothing to do here
+
 elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
 
 	set_property ( GLOBAL PROPERTY FIND_LIBRARY_USE_OPENBSD_VERSIONING 1 )
@@ -421,7 +425,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		)
 	endif ()
 
-elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
+elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES ".*BSD$" )
 
 	# create the application
 	add_executable ( Einstein
@@ -441,17 +445,22 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 	# how to compile and link
 	target_compile_options ( Einstein PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
-		-Wno-missing-field-initializers -Wno-stringop-truncation # -Werror
+		-Wno-missing-field-initializers # -Werror
 		# Werror is disabled for testing purposes. Must reenable as soon as all Linux warnings are fixed.
 	)
 	target_compile_options ( EinsteinTests PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
-		-Wno-missing-field-initializers -Wno-stringop-truncation -Werror
+		-Wno-missing-field-initializers -Werror
 	)
 	target_compile_options ( EinsteinFLGUI PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
-		-Wno-missing-field-initializers -Wno-stringop-truncation -Werror
+		-Wno-missing-field-initializers -Werror
 	)
+	if (CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(Einstein PUBLIC -Wno-stringop-truncation)
+        target_compile_options(EinsteinTests PUBLIC -Wno-stringop-truncation)
+        target_compile_options(EinsteinFLGUI PUBLIC -Wno-stringop-truncation)
+    endif()
 	target_compile_definitions ( Einstein PRIVATE
 		TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
 	)
@@ -477,8 +486,8 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		fltk::fltk fltk::images fltk::png fltk::z
 	)
 
-	if ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
-		# Under OpenBSD, libffi is in ports (i.e. /usr/local) not base (i.e. /usr)
+	if ( ${CMAKE_SYSTEM_NAME} MATCHES ".*BSD$" )
+		# Under BSD, libffi is in ports (i.e. /usr/local) not base (i.e. /usr)
 		find_library ( ffi_lib NAMES ffi )
 		find_file ( ffi_incl NAMES ffi.h )
 		if ( ffi_lib MATCHES ".*NOTFOUND" OR ffi_incl MATCHES ".*NOTFOUND" )
@@ -491,7 +500,7 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 			target_link_libraries ( Einstein ${ffi_lib} )
 		endif ()
 
-		# Under OpenBSD, pulseaudio is in ports (i.e. /usr/local) not base (i.e. /usr)
+		# Under BSD, pulseaudio is in ports (i.e. /usr/local) not base (i.e. /usr)
 		find_library ( pulse_lib NAMES pulse )
 		if ( pulse_lib MATCHES ".*NOTFOUND" )
 			message ( FATAL_ERROR "libpulse not found! " )
@@ -501,7 +510,7 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 			target_link_libraries ( Einstein ${pulse_lib} )
 		endif ()
 
-		# Under OpenBSD, X11 is in /usr/X11R6
+		# Under BSD, find X11
 		include ( FindX11 )
 		if ( X11_FOUND )
 			target_include_directories ( Einstein SYSTEM PUBLIC ${X11_INCLUDE_DIR} )
@@ -680,7 +689,7 @@ configure_file (
 #
 
 find_program(CLANG_FORMAT_EXECUTABLE
-    NAMES clang-format-14 clang-format-mp-14 clang-format
+    NAMES clang-format-14 clang-format-mp-14 clang-format19 clang-format
     HINTS /usr/local/opt/clang-format@14/bin/ /usr/lib/llvm-14/bin/
     DOC "clang-format executable")
 if(CLANG_FORMAT_EXECUTABLE)
