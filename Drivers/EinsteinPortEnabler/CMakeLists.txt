@@ -1,17 +1,41 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 project(portenabler)
 set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 enable_language(ASM)
 
-find_program(TNTK tntk)
-if(${TNTK} STREQUAL "TNTK-NOTFOUND")
-    message("tntk not found, using precompiled package")
+# Resolve tntk: prefer passed tool, then fetched binary, then system PATH
+if(DEFINED TNTK_TOOL)
+    set(TNTK ${TNTK_TOOL})
+elseif(DEFINED TNTK_BINARY_DIR)
+    set(TNTK ${TNTK_BINARY_DIR}/tntk)
+    message(STATUS "portenabler: will use fetched tntk at ${TNTK}")
+else()
+    find_program(TNTK tntk)
+endif()
+
+# Resolve ELFtoNTK: prefer passed tool, then fetched DCL binary, then system PATH
+if(DEFINED ELFTONTK_TOOL)
+    set(ELFTONTK ${ELFTONTK_TOOL})
+elseif(DEFINED DCL_BINARY_DIR)
+    set(ELFTONTK ${DCL_BINARY_DIR}/ELFtoNTK)
+else()
+    find_program(ELFTONTK ELFtoNTK)
+endif()
+
+# If tntk is unavailable even after the above, fall back to precompiled package
+if(NOT TNTK)
+    message(STATUS "tntk not found, using precompiled package")
     add_custom_target(portenabler ALL)
     return()
 endif()
 
-set(NCT_PROJECTS $ENV{NCT_PROJECTS})
 add_executable(portenabler main.cpp ../NewtonRuntime/NewtonPublicAPIs.s ../NewtonRuntime/NewtonPrivateAPIs.s)
+if (TARGET tntk_ext)
+    add_dependencies(portenabler tntk_ext)
+endif()
+if (TARGET dcl)
+    add_dependencies(portenabler dcl)
+endif()
 target_include_directories(portenabler PRIVATE
     ${NCT_PROJECTS}/DDKIncludes
     ${NCT_PROJECTS}/DDKIncludes/Bootstrap
@@ -50,8 +74,8 @@ target_link_options(portenabler PRIVATE
     --no-allow-shlib-undefined --no-export-dynamic --no-undefined -x
     -Tportenabler.ld --version-script=portenabler.ver)
 add_custom_command(TARGET portenabler POST_BUILD
-    COMMAND rm -f ${PROJECT_SOURCE_DIR}/portenabler.ntkc
-    COMMAND ELFtoNTK -via ${PROJECT_SOURCE_DIR}/portenabler.exp -o ${PROJECT_SOURCE_DIR}/portenabler.ntkc $<TARGET_FILE:portenabler>)
+    COMMAND ${CMAKE_COMMAND} -E rm -f ${PROJECT_SOURCE_DIR}/portenabler.ntkc
+    COMMAND ${ELFTONTK} -via ${PROJECT_SOURCE_DIR}/portenabler.exp -o ${PROJECT_SOURCE_DIR}/portenabler.ntkc $<TARGET_FILE:portenabler>)
 add_custom_command(TARGET portenabler POST_BUILD
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     COMMAND ${TNTK} -c -P ${NCT_PROJECTS}/Platforms portenabler.nprj)
