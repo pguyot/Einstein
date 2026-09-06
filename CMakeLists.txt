@@ -209,20 +209,27 @@ FetchContent_MakeAvailable(FLTK)
 message(STATUS "Downloading and configuring FLTK - done.")
 
 function ( build_with_fluid name dir )
+	set(fluid_input "${CMAKE_SOURCE_DIR}/${dir}/${name}.fl")
+	set(fluid_output_cpp "${CMAKE_BINARY_DIR}/${dir}/${name}.cpp")
+	set(fluid_output_h "${CMAKE_BINARY_DIR}/${dir}/${name}.h")
+
+	if(TARGET fluid)
+		set(FLUID_EXE $<TARGET_FILE:fluid>)
+	else()
+		set(FLUID_EXE fltk::fluid)
+	endif()
+
 	add_custom_command (
-		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/${dir}"
-		COMMAND fltk::fluid -c ${name}.fl
-		DEPENDS "${CMAKE_SOURCE_DIR}/${dir}/${name}.fl"
-		DEPENDS "${ARGN}"
-		OUTPUT "${CMAKE_SOURCE_DIR}/${dir}/${name}.cpp"
-		OUTPUT "${CMAKE_SOURCE_DIR}/${dir}/${name}.h"
+		OUTPUT "${fluid_output_cpp}" "${fluid_output_h}"
+		COMMAND ${FLUID_EXE} -c -o "${fluid_output_cpp}" -h "${fluid_output_h}" "${fluid_input}"
+		DEPENDS "${fluid_input}"
+		DEPENDS ${ARGN}
+		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+		COMMENT "Generating ${name}.cpp and ${name}.h from ${name}.fl"
 	)
 	set_source_files_properties (
-		${CMAKE_SOURCE_DIR}/${dir}/${name}.cpp
-		PROPERTIES GENERATED TRUE
-	)
-	set_source_files_properties (
-		${CMAKE_SOURCE_DIR}/${dir}/${name}.h
+		"${fluid_output_cpp}"
+		"${fluid_output_h}"
 		PROPERTIES GENERATED TRUE
 	)
 endfunction ()
@@ -631,17 +638,20 @@ target_include_directories (
 	Einstein PUBLIC
 	${CMAKE_SOURCE_DIR}
 	${FLTK_INCLUDE_DIRS}
+	${CMAKE_BINARY_DIR}
 )
 target_include_directories (
 	EinsteinTests PUBLIC
 	${CMAKE_SOURCE_DIR}
 	${FLTK_INCLUDE_DIRS}
+	${CMAKE_BINARY_DIR}
 )
 if ( EINSTEIN_FLTK_FRONTEND )
 	target_include_directories (
 		EinsteinFLGUI PUBLIC
 		${CMAKE_SOURCE_DIR}
 		${FLTK_INCLUDE_DIRS}
+		${CMAKE_BINARY_DIR}
 	)
 endif ()
 

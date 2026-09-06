@@ -21,15 +21,12 @@ list ( APPEND app_sources
 )
 
 list ( APPEND fluid_sources
-	app/FLTK/TFLRexImage.fl
-	app/FLTK/TFLRexImage.cpp
-	app/FLTK/TFLRexImage.h
-	app/FLTK/TFLAppUI.fl
-	app/FLTK/TFLAppUI.cpp
-	app/FLTK/TFLAppUI.h
-	app/FLTK/TFLSettingsUI.fl
-	app/FLTK/TFLSettingsUI.cpp
-	app/FLTK/TFLSettingsUI.h
+	${CMAKE_BINARY_DIR}/app/FLTK/TFLRexImage.cpp
+	${CMAKE_BINARY_DIR}/app/FLTK/TFLRexImage.h
+	${CMAKE_BINARY_DIR}/app/FLTK/TFLAppUI.cpp
+	${CMAKE_BINARY_DIR}/app/FLTK/TFLAppUI.h
+	${CMAKE_BINARY_DIR}/app/FLTK/TFLSettingsUI.cpp
+	${CMAKE_BINARY_DIR}/app/FLTK/TFLSettingsUI.h
 )
 
 build_with_fluid( TFLAppUI      app/FLTK "app/Version_CMake.h" )
