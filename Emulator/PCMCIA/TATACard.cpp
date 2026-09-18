@@ -21,6 +21,73 @@
 // $Id$
 // ==============================
 
+/*
+
+ ATA Cards store data via a disk controller in a conventional file system.
+ Newton needs data to be executable in place. To solve this Paul Guyot's ATA
+ driver reserves some space and maps the currently needed parts of an ATA card
+ into this memory.
+
+ ATA cards are written in a RAW format by the driver. The first 0x0200 bytes
+ start with 'Newt' and hold the Newton store partition map. One ATA card can hold
+ multiple store volumes.
+
+ Partition Map:
+ 		ULong				fSignature;				// 'Newt' FourCC
+		ULong				fVersion;				// 3
+		ULong				fNumberOfSectorsInPartitionMap; // 1
+		ULong				fIndexOfThisSector;
+		ULong				fTotalNumberOfEntries;
+		UShort				fNumberOfEntriesInThisSector;
+		UShort				fReserved_01;
+		ULong				fReserved_02;
+		ULong				fReserved_03;
+
+ SNSCPartitionEntry
+		UShort				fType;
+		UShort				fFlags;
+		ULong				fStartSector;
+		ULong				fSize;
+		ULong				fReserved;
+
+ The first store entry starts at 0x0200 in our sample with the 'Stor' FourCC.
+ So a sector is 0x200 bytes = 512 bytes?
+
+ SHeader
+	ULong	fSignature;						///< doit �tre 'Stor' (53746F72)
+	ULong	fVersion;						///< 4: cf plus bas.
+	ULong	fLength;						///< 0x27ff (*512 = 5MB): en secteur, total
+	ULong	fMapFirstSector;				///< 1: d�but de la carte, depuis le
+											///< d�but du magasin (normalement,
+											///< 1)
+	ULong	fTransactionTableFirstSector;	///< 0x16: D�but de la carte des
+											///< transactions.
+	ULong	fTranslationTableFirstSector;	///< 0: D�but de la carte des
+											///< traduction.
+	ULong	fSeparateTranTableFirstSector;	///< 0x17: D�but de la carte des
+											///< traduction.
+	ULong	fRootID;						///< 0x300: Root Object ID
+	UShort	fFlags;							///< 0: drapeaux (magasin unique sur
+											///< une partition seulement).
+	UShort	fUnused; 						///< 0
+	ULong	fPoolSize;						///< 0x1ff: nombre de secteurs r�serv�s
+											///< (� la fin).
+
+ So reading an ATA card needs to go through translation tables to retreive the
+ soups as they are stored. Converting that into a PCMCIA card layout is
+ non-trivial. We do not have information or source code for the Linear Card
+ driver.
+
+ Alternatively, the interface in this file may be enough if it implements
+ the ATA commands that the driver sends via PCMCIA adresses and translate
+ those into raw file reads and writes. The original ATA driver would then
+ do the rest. (So basically and umulation of an ATA device inside a driver that
+ emulates a linear card inside a Newton emulator)
+
+ http://www.kallisys.com/files/newton/ATA/ATA-Support-1.0-SourceCode.img.bin
+
+*/
+
 #include "TATACard.h"
 
 // Einstein
