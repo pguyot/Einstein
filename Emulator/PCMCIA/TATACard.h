@@ -27,6 +27,8 @@
 #include <K/Defines/KDefinitions.h>
 #include "TPCMCIACard.h"
 
+#include <vector>
+
 ///
 /// Class for ATA cards.
 ///
@@ -42,7 +44,7 @@ public:
 	///
 	/// Constructor from the size.
 	///
-	TATACard(KUInt32 inSize);
+	TATACard(const char* inImagePath, TLog* inLog = nullptr);
 
 	///
 	/// Destructor.
@@ -119,8 +121,48 @@ public:
 	///
 	virtual void WriteMemB(KUInt32 inOffset, KUInt8 inValue);
 
+	KUInt8 ReadStatus(void);
+	void StartCommand(KUInt8 inCommand);
+
+	///
+	/// Return the next byte of the data FIFO. Returns to Idle after the last byte.
+	///
+	KUInt8 ReadFifoByte(void);
+
 private:
+	/// Fill mFifo with the 512 bytes of the Identify Drive response.
+	void BuildIdentifyData(void);
+
+	void BuildSectorData(void);
+
 	/// \name Variables
+
+	char* mFilePath { nullptr };
+
+	FILE* mFile { nullptr };
+
+	std::vector<KUInt8> mData;
+
+	static const KUInt8 kDefaultCISData[];
+
+	enum class State {
+		Idle,
+		Class1SetBusy,		// -> Idle
+		Class2SetBusy,		// -> Class2DataReady
+		Class2DataReady,	// BSY clear, DRQ set until the host has read the FIFO -> Idle
+	};
+
+	State mState { State::Idle };
+
+	/// Data the host reads through the data register.
+	std::vector<KUInt8> mFifo;
+
+	/// Index of the next byte in mFifo.
+	size_t mFifoPos { 0 };
+
+	/// Memory-mapped I/O registers
+	KUInt8 FesturesReg, SectorCountReg, SectorNumberReg, CylinderLowReg, CylinderHighReg;
+	KUInt8 DriveHeadReg, CommandReg;
 };
 
 #endif

@@ -41,7 +41,9 @@
 
 #include "Emulator/PCMCIA/TLinearCard.h"
 #include "Emulator/PCMCIA/TNE2000Card.h"
+#include "Emulator/PCMCIA/TATACard.h"
 #include "Emulator/ROM/TROMImage.h"
+#include "Emulator/Log/TStdOutLog.h"
 #include "app/FLTK/TFLApp.h"
 
 // MARK: - PC Card Settings
@@ -121,8 +123,14 @@ TFLPCCardSettings::GetCard()
 			case CardType::kNetwork:
 				mCard = new TNE2000Card();
 				break;
-			case CardType::kLinear:
-				mCard = new TLinearCard(mImagePath);
+			case CardType::kLinear: {
+					const char* dot = strrchr(mImagePath, '.');
+					if (dot && strcmp(dot, ".ata") == 0) {
+						mCard = new TATACard(mImagePath, new TStdOutLog());
+					} else {
+						mCard = new TLinearCard(mImagePath);
+					}
+				}
 				break;
 		}
 	}
