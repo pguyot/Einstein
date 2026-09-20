@@ -2,7 +2,7 @@
 // File:			TATACard.h
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2026 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -44,12 +44,22 @@ public:
 	///
 	/// Constructor from the size.
 	///
-	TATACard(const char* inImagePath, TLog* inLog = nullptr);
+	TATACard(const char* inImagePath);
 
 	///
 	/// Destructor.
 	///
 	virtual ~TATACard(void);
+
+	///
+	/// Called by the controller to say we've been inserted.
+	///
+	virtual int Init(TPCMCIAController* inController);
+
+	///
+	/// The card is taken out of the socket.
+	///
+	virtual void Remove();
 
 	///
 	/// Get PCMCIA pins.
@@ -129,27 +139,91 @@ public:
 	///
 	KUInt8 ReadFifoByte(void);
 
+	///
+	/// Store the next byte of a block sent by the host. When the block is
+	/// complete, it is written to the image.
+	///
+	void WriteFifoByte(KUInt8 inByte);
+
 private:
 	/// Fill mFifo with the 512 bytes of the Identify Drive response.
 	void BuildIdentifyData(void);
 
-	void BuildSectorData(void);
+	/// True if the sector addressed by the task file registers is in the image.
+	/// Sets mErrorReg to IDNF if it is not.
+	bool IsSectorValid(void);
+
+	/// Fill mFifo with the sector addressed by the task file registers.
+	/// Returns false and sets mErrorReg if that sector is not in the image.
+	bool BuildSectorData(void);
+
+	/// Write mFifo to the sector addressed by the task file registers, in
+	/// memory and in the image file. Returns false and sets mErrorReg if the
+	/// file could not be written.
+	bool WriteSectorData(void);
+
+	/// Push all writes through to the storage device.
+	void FlushImage(void);
+
+	/// Read Verify Sectors: check the sectors addressed by the task file
+	/// registers, without transferring any data.
+	void VerifySectors(void);
+
+	/// Reset the ATA side of the card: no command running, FIFO empty, and the
+	/// task file registers get their power-on values (the ATA signature).
+	void Reset(void);
+
+	/// True while the host holds either SRESET (Configuration Option Register)
+	/// or SRST (Device Control register).
+	bool IsInReset(void) const;
+
+	/// To be called after either of the two reset bits may have changed.
+	/// Enters the reset state, or leaves it again if both bits are clear.
+	void UpdateReset(bool inWasInReset);
+
+	/// Make up a plausible geometry for the size of the image.
+	void SetGeometry(void);
+
+	/// Sector address from the task file registers, in LBA or CHS mode.
+	/// Returns 0xFFFFFFFF if a CHS address is invalid.
+	KUInt32 GetLBA(void);
+
+	/// Write a sector address back into the task file registers.
+	void SetLBA(KUInt32 inLBA);
 
 	/// \name Variables
 
 	char* mFilePath { nullptr };
 
+	/// The image file, kept open for writing for as long as the card exists.
 	FILE* mFile { nullptr };
 
+	/// True if the image could not be opened for writing.
+	bool mReadOnly { false };
+
+	/// The (clipped) image. Reads come from here, writes go here and to mFile.
 	std::vector<KUInt8> mData;
+
+	/// \name Geometry, made up from the size of the image by SetGeometry()
+	/// The host uses mSectors if the card says that it can do LBA, CHS
+	/// addresses are converted using the other three values.
+	KUInt16 mCylinders { 0 };
+	KUInt16 mHeads { 1 };
+	KUInt16 mSectorsPerTrack { 1 };
+	KUInt32 mSectors { 0 };		///< Total number of sectors in the image
 
 	static const KUInt8 kDefaultCISData[];
 
 	enum class State {
-		Idle,
-		Class1SetBusy,		// -> Idle
-		Class2SetBusy,		// -> Class2DataReady
-		Class2DataReady,	// BSY clear, DRQ set until the host has read the FIFO -> Idle
+		Idle,			// Status is RDY|DSC, waiting for commands
+		NoDataBusy,		// Status is BSY, will change to Idle next
+		DataReadBusy,	// Status is BSY, will go to DataReadReady
+		DataReadReady,	// RDY|DSC|DRQ, Fifo is ready for reading, will go to idle when the last byte is read
+		DataWriteBusy,	// Status is BSY, will go to DataWriteReady
+		DataWriteReady,	// RDY|DSC|DRQ, Fifo is ready for writing, will go to idle when the last block is written
+		Error,			// RDY|DSC|ERR, mErrorReg has the reason, until the next command
+		WriteFault,		// RDY|DSC|DWF|ERR, image is read only or can't be written, until the next command
+		InReset,		// Status is BSY while the host holds SRESET or SRST, will go to NoDataBusy
 	};
 
 	State mState { State::Idle };
@@ -161,8 +235,18 @@ private:
 	size_t mFifoPos { 0 };
 
 	/// Memory-mapped I/O registers
-	KUInt8 FesturesReg, SectorCountReg, SectorNumberReg, CylinderLowReg, CylinderHighReg;
-	KUInt8 DriveHeadReg, CommandReg;
+	KUInt8 mErrorReg { 0 };		// read side of register 1, written by the card
+	KUInt8 mFeaturesReg { 0 };	// write side of register 1
+	KUInt8 mSectorCountReg { 0 };
+	KUInt8 mSectorNumberReg { 0 };
+	KUInt8 mCylinderLowReg { 0 };
+	KUInt8 mCylinderHighReg { 0 };
+	KUInt8 mDriveHeadReg { 0 };
+	KUInt8 mCommandReg { 0 };
+
+	KUInt8 mDeviceControlReg { 0x02 };	// write side of register 0x0E, nIEN is set at power on
+	KUInt8 mConfigOptionReg { 0 };		// Configuration Option Register at 0x200 in attribute space
+	KUInt8 mConfigStatusReg { 0x20 };	// Configuration and Status Register at 0x202, only the bits the host can write (IOis8 is set to start with)
 };
 
 #endif

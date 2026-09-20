@@ -1187,14 +1187,14 @@ mSettingsPanel->hide();}
         slot0menu[i+4].labelfont_ |= 1;
         slot1menu[i+4].flags |= FL_MENU_INACTIVE;
         if (card->KeepInSlot()==0) slot0menu[1].set();
-        if (wNetworkTool) wNetworkTool->setTopID(card->GetTag());
+        if (wNetworkTool) wNetworkTool->setBottomID(card->GetTag());
         slot0menu[1].user_data((void*)i);
     }
     if (c1 && c1==card->Card()) {
         slot1menu[i+4].labelfont_ |= 1;
         slot0menu[i+4].flags |= FL_MENU_INACTIVE;
         if (card->KeepInSlot()==1) slot1menu[1].set();
-        if (wNetworkTool) wNetworkTool->setBottomID(card->GetTag());
+        if (wNetworkTool) wNetworkTool->setTopID(card->GetTag());
         slot1menu[1].user_data((void*)i);
     }
   }

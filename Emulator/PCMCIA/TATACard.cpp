@@ -1,8 +1,8 @@
 // ==============================
-// File:			TATACard.cp
+// File:			TATACard.cpp
 // Project:			Einstein
 //
-// Copyright 2003-2007 by Paul Guyot (pguyot@kallisys.net).
+// Copyright 2003-2026 by Paul Guyot (pguyot@kallisys.net).
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,6 +20,9 @@
 // ==============================
 // $Id$
 // ==============================
+
+// Implementation based on the "SanDisk CompactFlash Memory Card Product Manual"
+// from 1999. It covers SanDisk compact flash cards from SDCFB-4 to SDCFB-96.
 
 /*
 
@@ -92,15 +95,29 @@
 
 // Einstein
 #include "Emulator/Log/TLog.h"
+#include "TPCMCIAController.h"
 
 #include <cstring>
 #include <cstdlib>
 #include <cstdint>
 #include <algorithm>
+#include <filesystem>
+#include <string>
+
+#if defined(_WIN32)
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
 
 // -------------------------------------------------------------------------- //
 // Constantes
 // -------------------------------------------------------------------------- //
+
+static const size_t kSectorSize = 512;
+
+// Larger images are clipped. The rest of the file is left alone, but can't be reached.
+static const uint64_t kMaxImageSize = 128ULL * 1024 * 1024;
 
 const KUInt8 TATACard::kDefaultCISData[] = {
 	0x01, 4, // CISTPL_DEVICE Tuple code
@@ -159,21 +176,42 @@ const KUInt8 TATACard::kDefaultCISData[] = {
 // -------------------------------------------------------------------------- //
 //  * TATACard( KUInt32 )
 // -------------------------------------------------------------------------- //
-TATACard::TATACard(const char* inImagePath, TLog* inLog)
-: TPCMCIACard(inLog)
+TATACard::TATACard(const char* inImagePath)
 {
 	mFilePath = strdup(inImagePath);
-	mFile = fopen(inImagePath, "rb");
+
+	// Keep the file open, so we can write every sector as soon as it arrives.
+	// A crash of the emulator can then not lose data.
+	mFile = fopen(inImagePath, "r+b");
+	if (!mFile)
+	{
+		mFile = fopen(inImagePath, "rb");
+		mReadOnly = true;
+	}
 	if (mFile)
 	{
-		fseek(mFile, 0, SEEK_END);
-		long fileSize = ftell(mFile);
-		rewind(mFile);
-		mData.resize(fileSize);
-		fread(mData.data(), 1, fileSize, mFile);
-		fclose(mFile);
-		mFile = nullptr;
+		std::error_code theError;
+		uint64_t fileSize = std::filesystem::file_size(inImagePath, theError);
+		if (theError)
+			fileSize = 0;
+		uint64_t imageSize = std::min(fileSize, kMaxImageSize);
+		imageSize -= imageSize % kSectorSize;
+		if (imageSize != fileSize)
+		{
+			fprintf(stderr, "TATACard: using only the first %llu of %llu bytes of the image\n",
+				(unsigned long long) imageSize, (unsigned long long) fileSize);
+			if (GetLog())
+			{
+				GetLog()->FLogLine("TATACard: using only the first %llu of %llu bytes of the image",
+					(unsigned long long) imageSize, (unsigned long long) fileSize);
+			}
+		}
+		mData.resize((size_t) imageSize);
+		size_t theRead = fread(mData.data(), 1, mData.size(), mFile);
+		mData.resize(theRead - theRead % kSectorSize);
 	}
+	SetGeometry();
+	Reset();
 }
 
 // -------------------------------------------------------------------------- //
@@ -181,6 +219,7 @@ TATACard::TATACard(const char* inImagePath, TLog* inLog)
 // -------------------------------------------------------------------------- //
 TATACard::~TATACard(void)
 {
+	FlushImage();
 	if (mFilePath)
 	{
 		::free(mFilePath);
@@ -191,6 +230,41 @@ TATACard::~TATACard(void)
 		fclose(mFile);
 		mFile = nullptr;
 	}
+}
+
+int
+TATACard::Init(TPCMCIAController* inController)
+{
+	// This sets the log, the emulator and the controller, and IsInserted()
+	// depends on it. TLinearCard does the same.
+	int ret = TPCMCIACard::Init(inController);
+	if (ret == -1)
+		return ret;
+
+	// Inserting a card powers it up, and the same card object may be inserted
+	// again after it was removed: start over like a new card.
+	mConfigOptionReg = 0;
+	mConfigStatusReg = 0x20;
+	mDeviceControlReg = 0x02;
+	Reset();
+
+	if (GetLog())
+	{
+		GetLog()->LogLine("Init");
+	}
+
+	return 0;
+}
+
+// -------------------------------------------------------------------------- //
+//  * Remove( void )
+// -------------------------------------------------------------------------- //
+void
+TATACard::Remove()
+{
+	// Every sector was written when it arrived, but make sure it reached the disk.
+	FlushImage();
+	TPCMCIACard::Remove();
 }
 
 // -------------------------------------------------------------------------- //
@@ -204,7 +278,14 @@ TATACard::GetVPCPins(void)
 		GetLog()->LogLine("GetVPCPins");
 	}
 
-	return 0;
+	// The pins of a card that is ready and has a good battery, like TLinearCard.
+	// (The controller adds the card detect pins.) If RDY/-BSY is low, the OS
+	// waits for the card to become ready before it looks at it.
+	KUInt32 thePins = TPCMCIAController::k1C00_Pin62_45 // BVD2, -SPKR, -DASP
+		| TPCMCIAController::k1C00_Pin63_46; // BVD1, -STSCHG, -PDIAG
+	if (mState != State::InReset)
+		thePins |= TPCMCIAController::k1C00_Pin16_37; // RDY/-BSY
+	return thePins;
 }
 
 // -------------------------------------------------------------------------- //
@@ -254,7 +335,7 @@ TATACard::ReadAttrB(KUInt32 inOffset)
 		// Set SRESET to 1 sets card in reset state
 		// LevIREQ: 1 = Level Mode Interrupt, 0 = Pulse Mode Interrupt
 		// Conf: 0 = memory mapped (default)
-		theResult = 0x00;
+		theResult = mConfigOptionReg;
 	} else if (inOffset == 0x0101) { // 0x0202
 		// 202h: Configuration Option Register 2
 		// Read:
@@ -275,8 +356,9 @@ TATACard::ReadAttrB(KUInt32 inOffset)
 		// Bit 2: PwrDwn
 		// Bit 1: 0
 		// Bit 0: 0
-		// theResult = 0x00;
-		theResult = 0x20; // IOis8
+		// Changed (bit 7) and Int (bit 1) are always 0: we have no pin changes
+		// and raise no interrupts.
+		theResult = mConfigStatusReg;
 	} else if (inOffset == 0x0102) { // 0x0204
 		// 204h: Pin Replcemant Register
 		// Read:
@@ -297,7 +379,16 @@ TATACard::ReadAttrB(KUInt32 inOffset)
 		// Bit 2: 0
 		// Bit 1: MRdy/~Bsy
 		// Bit 0: MWProt
-		theResult = 0x0E;
+		// Bits 3 and 2 always read as 1. RRdy/~Bsy is the state of the ready
+		// pin. It is only low while the card is held in reset: the busy states
+		// end when Status is read, so a host polling here must not see them.
+		// RWProt is the write protect pin, set for an image that can't be
+		// written. The two "changed" bits are always 0.
+		theResult = 0x0C;
+		if (mState != State::InReset)
+			theResult |= 0x02;
+		if (mReadOnly)
+			theResult |= 0x01;
 	} else if (inOffset == 0x0103) { // 0x0206
 		// 206h: Socket and Copy register
 		// Read: 0, 0, 0, Drive#:1, 0, 0, 0, 0
@@ -360,12 +451,11 @@ TATACard::ReadMem(KUInt32 inOffset)
 	KUInt32 theResult = 0;
 
 	if (inOffset == 0) {
-		// Try reading 8 bits at a time from memory-mapped card
-		//theResult = ReadFifoByte();
-		// Try reading 16 bits
-		KUInt8 lo = ReadFifoByte();
-		KUInt8 hi = ReadFifoByte();
-		theResult = (hi << 24) | (lo << 16) | (hi << 8) | lo;
+		// The actual mapping is 16bits wide.
+		KUInt8 b0 = ReadFifoByte();
+		KUInt8 b1 = ReadFifoByte();
+		// Position the bytes correctly for a 32-bit read from a 16-bit wide mapping.
+		theResult = (b0 << 24) | (b1 << 16);
 	}
 
 
@@ -536,8 +626,24 @@ TATACard::ReadMemB(KUInt32 inOffset)
 		case 9: // Odd data
 			theResult = ReadFifoByte();
 			break;
-		case 6:
-			theResult = 0xA0; //
+		case 1: // Error (Features when written)
+		case 0x0D: // Duplicate Error
+			theResult = mErrorReg;
+			break;
+		case 2:
+			theResult = mSectorCountReg;
+			break;
+		case 3:
+			theResult = mSectorNumberReg;
+			break;
+		case 4:
+			theResult = mCylinderLowReg;
+			break;
+		case 5:
+			theResult = mCylinderHighReg;
+			break;
+		case 6: // Drive/Head, bits 7 and 5 always read as 1
+			theResult = mDriveHeadReg | 0xA0;
 			break;
 		case 7: // Status
 		case 0x0E: // Alt Status, same value; nothing to clear as we raise no interrupts
@@ -597,14 +703,24 @@ TATACard::WriteAttrB(KUInt32 inOffset, KUInt8 inValue)
 		// Set SRESET to 1 sets card in reset state
 		// LevIREQ: 1 = Level Mode Interrupt, 0 = Pulse Mode Interrupt
 		// Conf: 0 = memory mapped (default)
+		bool wasInReset = IsInReset();
+		mConfigOptionReg = inValue;
+		if (inValue & 0x3F) {
+			fprintf(stderr, "WriteAttrB: configuration %d is not supported, the card stays memory mapped\n",
+				(int) (inValue & 0x3F));
+		}
+		UpdateReset(wasInReset);
 	} else if (inOffset == 0x0101) { // 0x0202
 		// 202h: Configuration Option Register 2
 		// Read: changed:1, SigChg:1, IOis8:1, 0, 0, PwrDwn:1, Int:1, 0
 		// Write: 0, SigChg:1, IOis8:1, 0, 0, PwrDwn:1, 0, 0
+		// The power down request has no effect here.
+		mConfigStatusReg = inValue & 0x64;
 	} else if (inOffset == 0x0102) { // 0x0204
 		// 204h: Pin Replcemant Register
 		// Read: 0, 0, CRdy/~Bsy:1, CWProt:1, 1, 1, RRdy/~Bsy:1, RWProt:1
 		// Write: 0, 0, CRdy/~Bsy:1, CWProt:1, 0, 0, MRdy/~Bsy:1, MWProt:1
+		// Nothing to do, there are no pin changes to report or to mask.
 	} else if (inOffset == 0x0103) { // 0x0206
 		// 206h: Socket and Copy register
 		// Read/Write: 0, 0, 0, Drive#:1, 0, 0, 0, 0
@@ -656,6 +772,12 @@ void
 TATACard::WriteMem(KUInt32 inOffset, KUInt32 inValue)
 {
 	fprintf(stderr, "WriteMem( %.8X, %.8X )\n", (unsigned int) inOffset, (unsigned int) inValue);
+
+	if (inOffset == 0) {
+		// The actual mapping is 16bits wide, see ReadMem()
+		WriteFifoByte((inValue >> 24) & 0xFF);
+		WriteFifoByte((inValue >> 16) & 0xFF);
+	}
 	if (GetLog())
 	{
 		GetLog()->FLogLine("WriteMem( %.8X, %.8X )",
@@ -673,29 +795,46 @@ TATACard::WriteMemB(KUInt32 inOffset, KUInt8 inValue)
 	inOffset = (inOffset) ^ 3; // byte addresses are 32bit-flipped
 
 	fprintf(stderr, "WriteMemB( %.8X, %.2X )\n", (unsigned int) inOffset, (unsigned int) inValue);
-	switch (inOffset)
+	if (inOffset >= 0x400 && inOffset < 0x800) {
+		// Data window, the host may use it instead of registers 0, 8 and 9.
+		WriteFifoByte(inValue);
+	} else switch (inOffset)
 	{
+		case 0x00: // Even data
+		case 0x08: // Duplicate even data
+		case 0x09: // Odd data
+			WriteFifoByte(inValue);
+			break;
 		case 0x01:
-			FesturesReg = inValue;
+			mFeaturesReg = inValue;
 			break;
 		case 0x02:
-			SectorCountReg = inValue;
+			mSectorCountReg = inValue;
 			break;
 		case 0x03:
-			SectorNumberReg = inValue;
+			mSectorNumberReg = inValue;
 			break;
 		case 0x04:
-			CylinderLowReg = inValue;
+			mCylinderLowReg = inValue;
 			break;
 		case 0x05:
-			CylinderHighReg = inValue;
+			mCylinderHighReg = inValue;
 			break;
 		case 0x06:
-			DriveHeadReg = inValue;
+			mDriveHeadReg = inValue;
 			break;
 		case 0x07:
-			CommandReg = inValue;
+			mCommandReg = inValue;
 			StartCommand(inValue);
+			break;
+		case 0x0E: // Device Control
+			// Bit 2 (SRST) resets the card as long as it is set, bit 1 (nIEN)
+			// disables interrupts, which we never raise anyway.
+			{
+				bool wasInReset = IsInReset();
+				mDeviceControlReg = inValue;
+				UpdateReset(wasInReset);
+			}
 			break;
 		default:
 			break;
@@ -720,26 +859,83 @@ KUInt8 TATACard::ReadStatus(void)
 	switch (mState) {
 		case State::Idle:
 			return 0x50; // kStatusReg_RDY | kStatusReg_DSC
-		case State::Class1SetBusy:
+		case State::NoDataBusy:
 			mState = State::Idle;
 			return 0x80; // kStatusReg_BSY
-		case State::Class2SetBusy:
-			mState = State::Class2DataReady;
+		case State::DataReadBusy:
+			mState = State::DataReadReady;
 			return 0x80; // kStatusReg_BSY
-		case State::Class2DataReady:
+		case State::DataReadReady:
 			return 0x58; // kStatusReg_RDY | kStatusReg_DSC | kStatusReg_DRQ
+		case State::DataWriteBusy:
+			mState = State::DataWriteReady;
+			return 0x80; // kStatusReg_BSY
+		case State::DataWriteReady:
+			return 0x58; // kStatusReg_RDY | kStatusReg_DSC | kStatusReg_DRQ
+		case State::Error:
+			return 0x51; // kStatusReg_RDY | kStatusReg_DSC | kStatusReg_ERR
+		case State::WriteFault:
+			return 0x71; // kStatusReg_RDY | kStatusReg_DWF | kStatusReg_DSC | kStatusReg_ERR
+		case State::InReset:
+			return 0x80; // kStatusReg_BSY
 	}
 	return 0x50; // kStatusReg_RDY | kStatusReg_DSC
 }
 
 KUInt8 TATACard::ReadFifoByte(void)
 {
-	if (mState != State::Class2DataReady || mFifoPos >= mFifo.size())
+	if (mState != State::DataReadReady || mFifoPos >= mFifo.size())
 		return 0;
 	KUInt8 theResult = mFifo[mFifoPos++];
-	if (mFifoPos >= mFifo.size())
-		mState = State::Idle; // DRQ drops after the last byte
+	if (mFifoPos >= mFifo.size()) {
+		// DRQ drops after the last byte of a block.
+		if (mCommandReg == 0x20) { // Read Sectors
+			// One block is done. The count was 0 for 256 blocks, so it wraps to
+			// 255 and only reaches 0 again after the last one.
+			--mSectorCountReg;
+			if (mSectorCountReg == 0) {
+				mState = State::Idle;
+			} else {
+				// On error the registers keep the count of the blocks that are
+				// left and the address of the block that failed.
+				SetLBA(GetLBA() + 1);
+				mState = BuildSectorData() ? State::DataReadBusy : State::Error;
+			}
+		} else {
+			mState = State::Idle;
+		}
+	}
 	return theResult;
+}
+
+void TATACard::WriteFifoByte(KUInt8 inByte)
+{
+	if (mState != State::DataWriteReady || mFifoPos >= mFifo.size())
+		return;
+	mFifo[mFifoPos++] = inByte;
+	if (mFifoPos < mFifo.size())
+		return;
+
+	// A whole block has arrived (Write Sectors). Same register handling as for
+	// reading: the count was 0 for 256 blocks, so it wraps to 255 and only
+	// reaches 0 again after the last one. On error the registers keep the
+	// count of the blocks that are left and the address of the block that failed.
+	if (!WriteSectorData()) {
+		mState = State::WriteFault;
+		return;
+	}
+	--mSectorCountReg;
+	if (mSectorCountReg == 0) {
+		mState = State::Idle;
+	} else {
+		SetLBA(GetLBA() + 1);
+		if (IsSectorValid()) {
+			mFifoPos = 0;
+			mState = State::DataWriteBusy;
+		} else {
+			mState = State::Error;
+		}
+	}
 }
 
 static void SetIdentifyWord(std::vector<KUInt8>& ioBuffer, int inWord, KUInt16 inValue)
@@ -760,53 +956,122 @@ static void SetIdentifyString(std::vector<KUInt8>& ioBuffer, int inFirstWord, in
 	}
 }
 
+// A few rotates and xors over the file name (without the directory), so every
+// image gets its own serial number, and it stays the same when the image moves.
+static KUInt32 FileNameChecksum(const char* inPath)
+{
+	std::string name = std::filesystem::path(inPath ? inPath : "").filename().string();
+	KUInt32 sum = 0xa63e95f1;
+	for (unsigned char c : name)
+		sum = ((sum << 5) | (sum >> 27)) ^ c;
+	return sum;
+}
+
 void
 TATACard::BuildIdentifyData(void)
 {
-	// SDP5A-5: 5MB, 160 cylinders, 2 heads, 32 sectors per track
-	const KUInt16 kCylinders = 160;
-	const KUInt16 kHeads = 2;
-	const KUInt16 kSectorsPerTrack = 32;
-	const KUInt32 kSectors = kCylinders * kHeads * kSectorsPerTrack; // 10240
-
-	mFifo.assign(512, 0);
+	mFifo.assign(kSectorSize, 0);
 	mFifoPos = 0;
 
+	// What CHS addressing can reach, this may be a bit less than mSectors.
+	KUInt32 chsSectors = (KUInt32) mCylinders * mHeads * mSectorsPerTrack;
+
 	SetIdentifyWord(mFifo, 0, 0x848A);	// CompactFlash, removable, no fixed disk
-	SetIdentifyWord(mFifo, 1, kCylinders);
-	SetIdentifyWord(mFifo, 3, kHeads);
+	SetIdentifyWord(mFifo, 1, mCylinders);
+	SetIdentifyWord(mFifo, 3, mHeads);
 	SetIdentifyWord(mFifo, 5, 0x0240); // unformatted bytes per sector
-	SetIdentifyWord(mFifo, 6, kSectorsPerTrack);
-	SetIdentifyWord(mFifo, 7, kSectors>>16);
-	SetIdentifyWord(mFifo, 8, kSectors&0xFFFF);
-	SetIdentifyString(mFifo, 10, 10, "4206");			// serial number
+	SetIdentifyWord(mFifo, 6, mSectorsPerTrack);
+	char serial[21];
+	snprintf(serial, sizeof(serial), "%08X", (unsigned int) FileNameChecksum(mFilePath));
+	SetIdentifyString(mFifo, 10, 10, serial);			// serial number
 	SetIdentifyWord(mFifo, 20, 0x0002);	 // Buffer type
 	SetIdentifyWord(mFifo, 21, 0x0002);	 // Buffer size (512)
 	SetIdentifyWord(mFifo, 22, 0x0004);	 // # of ECC bytes on read/write long
 	SetIdentifyString(mFifo, 23, 4, "1.0");		// firmware revision
-	SetIdentifyString(mFifo, 27, 20, "SDP5A-5");	// model number
+	char model[41];
+	snprintf(model, sizeof(model), "Einstein ATA %.1f", mSectors / 2048.0);	// size in MB
+	SetIdentifyString(mFifo, 27, 20, model);	// model number
 	SetIdentifyWord(mFifo, 47, 0x0001);	// max sectors per READ/WRITE MULTIPLE
 	SetIdentifyWord(mFifo, 49, 0x0200);	// LBA supported, DMA not supported
 	SetIdentifyWord(mFifo, 51, 0x0100);	// PIO timing
 	SetIdentifyWord(mFifo, 53, 0x0001);	// words 54-58 are valid
-	SetIdentifyWord(mFifo, 54, kCylinders);
-	SetIdentifyWord(mFifo, 55, kHeads);
-	SetIdentifyWord(mFifo, 56, kSectorsPerTrack);
-	SetIdentifyWord(mFifo, 57, kSectors & 0xFFFF);
-	SetIdentifyWord(mFifo, 58, kSectors >> 16);
-	SetIdentifyWord(mFifo, 59, 0x0100);	// words 60-61 are valid
-	SetIdentifyWord(mFifo, 60, kSectors & 0xFFFF);	// total LBA sectors
-	SetIdentifyWord(mFifo, 61, kSectors >> 16);
+	SetIdentifyWord(mFifo, 54, mCylinders);
+	SetIdentifyWord(mFifo, 55, mHeads);
+	SetIdentifyWord(mFifo, 56, mSectorsPerTrack);
+	SetIdentifyWord(mFifo, 57, chsSectors & 0xFFFF);	// current capacity in sectors
+	SetIdentifyWord(mFifo, 58, chsSectors >> 16);
+	SetIdentifyWord(mFifo, 59, 0x0000);	// Multiple sector setting is not valid
+	SetIdentifyWord(mFifo, 60, mSectors & 0xFFFF);	// total LBA sectors
+	SetIdentifyWord(mFifo, 61, mSectors >> 16);
 }
 
 void
-TATACard::BuildSectorData(void)
+TATACard::Reset(void)
 {
-	//const KUInt16 kCylinders = 160;
-	const KUInt16 kHeads = 2;
-	const KUInt16 kSectorsPerTrack = 32;
-	const KUInt16 kSectorSize = 512;
+	mState = State::Idle;
+	mFifo.clear();
+	mFifoPos = 0;
 
+	// After a reset the task file holds the ATA signature, and the error
+	// register the result of the diagnostic: 1 = no error.
+	mErrorReg = 0x01;
+	mFeaturesReg = 0;
+	mSectorCountReg = 1;
+	mSectorNumberReg = 1;
+	mCylinderLowReg = 0;
+	mCylinderHighReg = 0;
+	mDriveHeadReg = 0;
+	mCommandReg = 0;
+}
+
+bool
+TATACard::IsInReset(void) const
+{
+	return (mConfigOptionReg & 0x80) || (mDeviceControlReg & 0x04);
+}
+
+void
+TATACard::UpdateReset(bool inWasInReset)
+{
+	bool isInReset = IsInReset();
+	if (isInReset && !inWasInReset) {
+		fprintf(stderr, "::      Reset\n");
+		Reset();
+		mState = State::InReset;
+	} else if (!isInReset && inWasInReset) {
+		// Busy for a moment, then ready. The host can now read the diagnostic
+		// result from the error register.
+		fprintf(stderr, "::      Reset done\n");
+		mState = State::NoDataBusy;
+	}
+}
+
+void
+TATACard::SetGeometry(void)
+{
+	// Card sizes come in multiples of 128kB (256 sectors), so this usually
+	// divides evenly. The 5MB SDP5A-5 has 160 cylinders, 2 heads and 32 sectors
+	// per track. Keep those, and add heads for larger images until there are
+	// at most 1024 cylinders, like a PC BIOS would want. At the 128MB limit
+	// that is 8 heads.
+	mSectors = (KUInt32) (mData.size() / kSectorSize);
+	mHeads = 2;
+	mSectorsPerTrack = 32;
+	while (mSectors / (mHeads * mSectorsPerTrack) > 1024 && mHeads < 16)
+		mHeads *= 2;
+	mCylinders = mSectors / (mHeads * mSectorsPerTrack);
+	if (mCylinders == 0) {
+		// Less than one cylinder: one head, and one short track holds it all.
+		// (Also avoids dividing by zero later if there is no image at all.)
+		mHeads = 1;
+		mSectorsPerTrack = mSectors == 0 ? 1 : mSectors;
+		mCylinders = mSectors == 0 ? 0 : 1;
+	}
+}
+
+KUInt32
+TATACard::GetLBA(void)
+{
 	// 1 0 X 0 0 0 1  1 Error				Features 2
 	// 1 0 X 0 0 1 0  2 Sector Count 		Sector Count		0=256, counts down, will be zero when command was successful
 	// 1 0 X 0 0 1 1  3 Sector No. 			Sector No.			LBA 7-0
@@ -833,115 +1098,217 @@ TATACard::BuildSectorData(void)
 	// 		Copy configuration register.
 	// Bit 3-0: HS3-HS0 In LBA mode, this is bit 27-24 of the Logical Block Address.
 	//		Else this is the head number.
-	KUInt8 head = DriveHeadReg & 0x0F;
-	KUInt32 lba = 0;
-	if (DriveHeadReg & 0x40) {
+	KUInt32 head = mDriveHeadReg & 0x0F;
+	if (mDriveHeadReg & 0x40) {
 		// LBA mode
-		lba = ((head & 0x0F) << 24) | (CylinderHighReg << 16) | (CylinderLowReg << 8) | SectorNumberReg;
+		return (head << 24) | (mCylinderHighReg << 16) | (mCylinderLowReg << 8) | mSectorNumberReg;
+	}
+	// CHS mode, sector numbers start at 1
+	if (mSectorNumberReg == 0 || mSectorNumberReg > mSectorsPerTrack || head >= mHeads)
+		return 0xFFFFFFFF;
+	KUInt32 cylinder = (mCylinderHighReg << 8) | mCylinderLowReg;
+	return (cylinder * mHeads + head) * mSectorsPerTrack + (mSectorNumberReg - 1);
+}
+
+void
+TATACard::SetLBA(KUInt32 inLBA)
+{
+	if (mDriveHeadReg & 0x40) {
+		// LBA mode
+		mSectorNumberReg = inLBA & 0xFF;
+		mCylinderLowReg = (inLBA >> 8) & 0xFF;
+		mCylinderHighReg = (inLBA >> 16) & 0xFF;
+		mDriveHeadReg = (mDriveHeadReg & 0xF0) | ((inLBA >> 24) & 0x0F);
 	} else {
 		// CHS mode
-		KUInt32 cylinder = (CylinderHighReg << 8) | CylinderLowReg;
-		lba = SectorNumberReg + (head * kSectorsPerTrack) + (cylinder * kHeads * kSectorsPerTrack);
+		KUInt32 cylinder = inLBA / (mSectorsPerTrack * mHeads);
+		mSectorNumberReg = inLBA % mSectorsPerTrack + 1;
+		mCylinderLowReg = cylinder & 0xFF;
+		mCylinderHighReg = (cylinder >> 8) & 0xFF;
+		mDriveHeadReg = (mDriveHeadReg & 0xF0) | ((inLBA / mSectorsPerTrack) % mHeads);
 	}
-	// Now lba contains the logical block address of the sector to read.
-	size_t offset = (size_t) lba * kSectorSize;
+}
 
-	// Fill mFifo with the 512 bytes of the sector data.
-	mFifo.assign(512, 0);
+bool
+TATACard::IsSectorValid(void)
+{
+	uint64_t offset = (uint64_t) GetLBA() * kSectorSize;
+	if (offset + kSectorSize > mData.size()) {
+		mErrorReg = 0x10; // IDNF, the requested sector ID cannot be found
+		return false;
+	}
+	return true;
+}
+
+bool
+TATACard::BuildSectorData(void)
+{
+	mFifo.assign(kSectorSize, 0);
 	mFifoPos = 0;
 
-	if (offset < mData.size() - kSectorSize) {
-		std::copy_n(mData.begin() + offset, kSectorSize, mFifo.begin());
-	}
+	if (!IsSectorValid())
+		return false;
+	uint64_t offset = (uint64_t) GetLBA() * kSectorSize;
+	std::copy_n(mData.begin() + (size_t) offset, kSectorSize, mFifo.begin());
+	return true;
+}
 
+bool
+TATACard::WriteSectorData(void)
+{
+	uint64_t offset = (uint64_t) GetLBA() * kSectorSize;
+	// The file first: if that fails, memory and file must not differ.
+	if (!mFile || mReadOnly
+		|| fseek(mFile, (long) offset, SEEK_SET) != 0
+		|| fwrite(mFifo.data(), 1, kSectorSize, mFile) != kSectorSize
+		|| fflush(mFile) != 0) {
+		mErrorReg = 0x04; // Abort
+		return false;
+	}
+	std::copy_n(mFifo.begin(), kSectorSize, mData.begin() + (size_t) offset);
+	return true;
+}
+
+void
+TATACard::FlushImage(void)
+{
+	if (!mFile || mReadOnly)
+		return;
+	fflush(mFile);
+#if defined(_WIN32)
+	_commit(_fileno(mFile));
+#else
+	fsync(fileno(mFile));
+#endif
+}
+
+void
+TATACard::VerifySectors(void)
+{
+	// Same register handling as Read Sectors: the count is 0 for 256 sectors,
+	// it wraps to 255 after the first one and reaches 0 after the last one.
+	// On error it holds the number of sectors left and the LBA registers the
+	// address of the sector that failed. On success they hold the address of
+	// the last sector.
+	for (;;) {
+		if (!IsSectorValid()) {
+			mState = State::Error;
+			return;
+		}
+		--mSectorCountReg;
+		if (mSectorCountReg == 0)
+			break;
+		SetLBA(GetLBA() + 1);
+	}
+	mState = State::NoDataBusy;
 }
 
 void
 TATACard::StartCommand(KUInt8 inCommand)
 {
 	fprintf(stderr, "WriteCommand( 0x%.2X )\n", (unsigned int) inCommand);
+	if (mState == State::InReset) {
+		// The card is busy resetting and does not look at the command register.
+		return;
+	}
+	mErrorReg = 0;
 	switch (inCommand) {
 		case 0xEC: // Identify Drive Class 1
 			fprintf(stderr, "::      Identify Drive\n");
 			BuildIdentifyData();
-			mState = State::Class2SetBusy;
+			mState = State::DataReadBusy;
 			break;
 		case 0x20: // Read Sectors
 			fprintf(stderr, "::      Read Sectors\n");
-			BuildSectorData();
-			mState = State::Class2SetBusy; // fake it for now
+			// Sector Count: 0 means 256. ReadFifoByte() loads the following
+			// blocks and counts the register down to 0.
+			mState = BuildSectorData() ? State::DataReadBusy : State::Error;
+			break;
+		case 0x40: // Read Verify Sectors Class 1
+			fprintf(stderr, "::      Read Verify Sectors\n");
+			VerifySectors();
+			break;
+		case 0xEF: // Set Features Class 1
+			// The feature number is in mFeaturesReg. 8/16 bit transfers are
+			// handled by ReadMemB()/ReadMem(), the rest (write cache, power
+			// management, ...) is meaningless in the emulator. So accept
+			// every feature and do nothing.
+			fprintf(stderr, "::      Set Features( 0x%.2X )\n", (unsigned int) mFeaturesReg);
+			mState = State::NoDataBusy;
 			break;
 
-		// TODO:
-		// kReadVerifySectorsCmd = 0x40
-		// kSetFeaturesCmd = 0xef
-		// kStandbyImmediateCmd = 0xE0
-		// kWriteSectorsCmd = 0x30
+		case 0xE0: // Standby Immediate Class 1
+		case 0x94: // (alternate code for the same command)
+			// Power management only. Every sector is already written to the
+			// file, but this is a good moment to make sure it reached the disk.
+			fprintf(stderr, "::      Standby Immediate\n");
+			FlushImage();
+			mState = State::NoDataBusy;
+			break;
+		case 0x30: // Write Sectors Class 2
+			fprintf(stderr, "::      Write Sectors\n");
+			// Sector Count: 0 means 256. WriteFifoByte() writes every block
+			// that arrives and counts the register down to 0.
+			if (mReadOnly) {
+				mErrorReg = 0x04; // Abort
+				mState = State::WriteFault;
+			} else if (!IsSectorValid()) {
+				mState = State::Error;
+			} else {
+				mFifo.assign(kSectorSize, 0);
+				mFifoPos = 0;
+				mState = State::DataWriteBusy;
+			}
+			break;
 		default:
+			// Don't leave the host polling forever: abort the command.
+			fprintf(stderr, "::      Unknown command 0x%.2X, aborted\n", (unsigned int) inCommand);
+			mErrorReg = 0x04; // Abort
+			mState = State::Error;
 			break;
 	}
 }
 
+// mErrorReg bits:
+// Bit 7 (BBK) This bit is set when a Bad Block is detected.
+// Bit 6 (UNC) This bit is set when an Uncorrectable Error is encountered.
+// Bit 5 This bit is 0.
+// Bit 4 (IDNF) The requested sector ID is in error or cannot be found.
+// Bit 3 This bit is 0.
+// Bit 2 (Abort) This bit is set if the command has been aborted because of a CompactFlash Memory Card status
+// condition: (Not Ready, Write Fault, etc.) or when an invalid command has been issued.
+// Bit 1 This bit is 0.
+// Bit 0 (AMNF) This bit is set in case of a general error.
+
 // ============================================================================ //
-// TODO (status: test card mounts, Identify Drive and Read Sectors work)
+// TODO (status: the four commands the host driver uses are implemented and
+// tested in a harness, but not yet with the real driver: Identify Drive, Read
+// Sectors, Read Verify, Set Features, Standby Immediate, Write Sectors)
 // ============================================================================ //
 //
-// 1. Missing commands. The host driver only needs these four. Add them to the
-//    switch in StartCommand(). Use State::Class1SetBusy for the ones without a
-//    data phase; it exists already but nothing sets it yet.
+// 1. Unknown commands are aborted: Status 0x51 (RDY|DSC|ERR), Error register
+//    0x04 (ABRT), i.e. State::Error, cleared by the next command. Done.
 //
-//    0x40 kReadVerifySectorsCmd  Class 1. No data. Check that the LBA range is
-//                                inside the image, then finish like a read
-//                                without DRQ.
-//    0xEF kSetFeaturesCmd        Class 1. No data. The feature number is in the
-//                                Features register (FesturesReg, sic; rename
-//                                it). Accept and ignore, e.g. 0x01/0x81 =
-//                                enable/disable 8-bit mode, 0x02/0x82 = write
-//                                cache. Check what the host sends.
-//    0xE0 kStandbyImmediateCmd   Class 1. No data. Just report ready.
-//    0x30 kWriteSectorsCmd       Class 2, DATA IN direction, see 2.
+// 2. Test Write Sectors with the real driver. The 16 bit path is verified.
+//    Multi-sector writes go BSY -> DRQ between blocks.
 //
-//    Unknown commands are silently ignored right now, so the host would poll
-//    Status forever. Answer them with ERR: Status 0x51 (RDY|DSC|ERR), Error
-//    register 0x04 (ABRT). ReadMemB needs a case 1 for the Error register.
+// 3. Image handling (decided against TMappedFile). The image is read into mData
+//    (clipped to kMaxImageSize = 128MB, rounded down to whole sectors, the
+//    file is never truncated). mFile stays open "r+b". Every sector is written
+//    with fwrite+fflush as soon as it has arrived, so a crash of the emulator
+//    loses nothing, and Standby Immediate/the destructor also fsync. If the
+//    image can't be opened for writing, mReadOnly is set and Write Sectors
+//    answers with State::WriteFault (0x71, Error 0x04).
+//    Open: report to the user (not only stderr) when an image is clipped or
+//    read only.
 //
-// 2. Write Sectors (0x30).
-//    - There is no write path for the data register yet. WriteMemB() and
-//      WriteMem() need the same decode as the read side: registers 0, 8, 9 and
-//      the 0x400-0x7FF window. Note that ReadMem() only handles offset 0 and
-//      packs two FIFO bytes into all four lanes, so WriteMem() needs to mirror
-//      that: take the 16-bit value from the matching lanes.
-//    - New state (e.g. Class2WriteReady): BSY, then DRQ with BSY clear (0x58)
-//      while the host pushes 512 bytes into mFifo. After the last byte: BSY,
-//      copy mFifo to the image at lba*512, then Idle.
-//    - Factor the LBA/CHS decode out of BuildSectorData() into its own helper,
-//      it is needed for read, write and verify.
-//
-// 3. Make writes stick: map the image instead of reading it into mData.
-//    K/Misc/TMappedFile does this already (open(2) flags, O_RDWR gives
-//    PROT_READ|PROT_WRITE with MAP_SHARED, and it writes the file back on
-//    destruction if mmap is not available). Replace mFilePath/mFile/mData by a
-//    TMappedFile, use GetBuffer()/GetSize() where mData is used, and open with
-//    O_RDWR. Open read-only as a fallback if the image is not writable, and
-//    answer Write Sectors with a write fault (Status 0x71, Error 0x04) in that
-//    case. Remove the fopen/fread code in the constructor and the fclose in the
-//    destructor.
-//
-// 4. Bugs seen while reading BuildSectorData().
-//    - The range check `offset < mData.size() - kSectorSize` wraps around if
-//      the image is smaller than 512 bytes, and it skips the last sector. Use
-//      `offset + kSectorSize <= size`.
-//    - Sector Count (register 2) is ignored, so only one sector is ever
-//      delivered. 0 means 256. Refill the FIFO from ReadFifoByte() when it runs
-//      dry, advance the LBA, and only go Idle after the last sector. The
-//      register should count down to 0 when the command succeeds.
-//    - An LBA past the end of the card should end with ERR and Error = 0x10
-//      (IDNF), not with a sector of zeros.
-//    - StartCommand() still says "fake it for now" for Read Sectors, the state
-//      handling should be the same as for Identify Drive once the above is done.
-//    - The Identify data and BuildSectorData() both hardcode the geometry
-//      (160/2/32). Move it into shared constants, or derive it from the image
-//      size.
+// 4. Geometry. SetGeometry() makes up cylinders, heads and sectors per track
+//    from the image size (2 heads x 32 sectors, more heads above 1024
+//    cylinders, so 160/2/32 for the 5MB card and 1024/8/32 for 128MB). The
+//    Newton driver reads only the total number of sectors (Identify words 60-61)
+//    because we say LBA is supported. CHS addresses are decoded with 1-based
+//    sector numbers, as the ATA spec says, but that is untested with the real
+//    driver since it always uses LBA.
 //
 // 5. Clean up.
 //    - Remove the fprintf(stderr, ...) tracing (or put it behind a DEBUG macro),
@@ -956,7 +1323,9 @@ TATACard::StartCommand(KUInt8 inCommand)
 //      Device Control register at 0x0E): call mPCMCIAController->RaiseInterrupt()
 //      when DRQ is set. The host is polling at the moment, so this is not needed.
 //
-// 6. Untested: SRST (Device Control bit 2) should return to Idle and clear the
-//    FIFO. The Configuration Option Register SRESET (0x200, bit 7) should do
-//    the same. The host writes 0x80 and then 0x00 to it after Identify Drive.
+// 6. Both soft resets are implemented (Reset(), UpdateReset()): SRESET in the
+//    Configuration Option Register (0x200 in attribute space) and SRST in the
+//    Device Control register (0x0E). While either is set the status is BSY and
+//    commands are ignored, when both are clear the card is BSY once more and
+//    then ready. Untested with the real driver.
 // ============================================================================ //

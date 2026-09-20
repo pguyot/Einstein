@@ -126,7 +126,7 @@ TFLPCCardSettings::GetCard()
 			case CardType::kLinear: {
 					const char* dot = strrchr(mImagePath, '.');
 					if (dot && strcmp(dot, ".ata") == 0) {
-						mCard = new TATACard(mImagePath, new TStdOutLog());
+						mCard = new TATACard(mImagePath);
 					} else {
 						mCard = new TLinearCard(mImagePath);
 					}
@@ -560,8 +560,12 @@ TFLSettings::UnplugPCCard(int ix)
 	// FIXME: write this
 }
 
-/*
- * inSlot can be 0 or 1 for the corresponding slot, or -1 if the card must no longer be in any slot
+/**
+ * Keep a PC card in the specified slot, even across reboots.
+ *
+ * \param[out] inSlot can be 0 or 1 for the bottom or top slot.
+ * \param[out] inCard is the index of the card to keep in the specified slot,
+ * 			or -1 to clear the keep-in-slot card.
  */
 void
 TFLSettings::KeepPCCardInSlot(int inSlot, size_t inCard)
@@ -575,8 +579,7 @@ TFLSettings::KeepPCCardInSlot(int inSlot, size_t inCard)
 		if (ix == inCard)
 		{
 			card->KeepInSlot(inSlot);
-		} else
-		{
+		} else {
 			if (clearIf0 && card->KeepInSlot() == 0)
 				card->KeepInSlot(-1);
 			if (clearIf1 && card->KeepInSlot() == 1)
