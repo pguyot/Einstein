@@ -44,7 +44,7 @@ public:
 	///
 	/// Constructor from a PCMCIA controller.
 	///
-	TPCMCIACard(TLog* inLog = nullptr);
+	TPCMCIACard();
 
 	///
 	/// Destructor.
