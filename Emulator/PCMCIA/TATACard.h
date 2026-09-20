@@ -167,8 +167,10 @@ private:
 	void VerifySectors(void);
 
 	/// True if the sector addressed by the task file registers is in the image.
-	/// Sets mErrorReg to IDNF if it is not.
-	bool IsSectorValid(void);
+	/// Sets mErrorReg to IDNF if it is not. The host can change the registers at
+	/// any time, so check again before every access to mData, and use the offset
+	/// that this returns in outOffset (the position of the sector in mData).
+	bool IsSectorValid(uint64_t* outOffset = nullptr);
 
 	/// Push all writes through to the storage device.
 	void FlushImage(void);

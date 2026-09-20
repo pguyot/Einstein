@@ -691,7 +691,7 @@ TATACard::WriteFifoByte(KUInt8 inByte)
 	// A whole sector has arrived, count like ReadFifoByte() does.
 	if (!WriteSectorData())
 	{
-		mState = State::WriteFault;
+		mState = mErrorReg == kErrorReg_IDNF ? State::Error : State::WriteFault;
 		return;
 	}
 	--mSectorCountReg;
@@ -934,18 +934,21 @@ TATACard::SetLBA(KUInt32 inLBA)
 //  * IsSectorValid( void )
 // -------------------------------------------------------------------------- //
 bool
-TATACard::IsSectorValid(void)
+TATACard::IsSectorValid(uint64_t* outOffset)
 {
-	uint64_t theOffset = (uint64_t) GetLBA() * kSectorSize;
+	KUInt32 theLBA = GetLBA();
+	uint64_t theOffset = (uint64_t) theLBA * kSectorSize;
 	if (theOffset + kSectorSize > mData.size())
 	{
 		mErrorReg = kErrorReg_IDNF;
 		if (GetLog())
 		{
-			GetLog()->FLogLine("TATACard: sector %u is not in the image", (unsigned int) GetLBA());
+			GetLog()->FLogLine("TATACard: sector %u is not in the image", (unsigned int) theLBA);
 		}
 		return false;
 	}
+	if (outOffset)
+		*outOffset = theOffset;
 	return true;
 }
 
@@ -958,9 +961,9 @@ TATACard::BuildSectorData(void)
 	mFifo.assign(kSectorSize, 0);
 	mFifoPos = 0;
 
-	if (!IsSectorValid())
+	uint64_t theOffset;
+	if (!IsSectorValid(&theOffset))
 		return false;
-	uint64_t theOffset = (uint64_t) GetLBA() * kSectorSize;
 	std::copy_n(mData.begin() + (size_t) theOffset, kSectorSize, mFifo.begin());
 	return true;
 }
@@ -971,7 +974,11 @@ TATACard::BuildSectorData(void)
 bool
 TATACard::WriteSectorData(void)
 {
-	uint64_t theOffset = (uint64_t) GetLBA() * kSectorSize;
+	// The host may have changed the address registers since the command was
+	// started, so the address has to be checked again, for the file as well.
+	uint64_t theOffset;
+	if (!IsSectorValid(&theOffset))
+		return false;
 	// The file first: if that fails, memory and file must not differ.
 	if (!mFile || mReadOnly
 		|| fseek(mFile, (long) theOffset, SEEK_SET) != 0
@@ -1112,4 +1119,3 @@ TATACard::StartCommand(KUInt8 inCommand)
 // =================================================== //
 // There's got to be more to life than compile-and-go. //
 // =================================================== //
-
