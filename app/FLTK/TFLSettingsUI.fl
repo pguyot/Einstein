@@ -967,9 +967,17 @@ if (ix>0 && ix<=wPCCardList->size()) {
 TFLPCCardSettings *card = (TFLPCCardSettings*)wPCCardList->data(ix);
 if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kLinear) {
   const char *oldPath = card->GetImagePath();
-  const char *newPath = gApp->ChooseExistingFile(
-    "Please select the new PCCard Image location", "Any Card\\t*.{pccard,ata}\\nLinear Card\\t*.pccard\\nATA Card\\t*.ata", oldPath
-  );
+  const char *newPath = nullptr;
+  bool is_ata = false;
+  if (oldPath) {
+    const char* dot = strrchr(oldPath, '.');
+    if (dot && strcmp(dot, ".ata") == 0)
+      is_ata = true;
+  }
+  if (is_ata)
+    newPath = gApp->ChooseExistingFile("Please select the new ATA Card Image location", "ATA Card\\t*.ata", oldPath);
+  else
+    newPath = gApp->ChooseExistingFile("Please select the new PCCard Image location", "Linear Card\\t*.pccard", oldPath);
   if (newPath)
     card->SetImagePath(newPath);
 }}
