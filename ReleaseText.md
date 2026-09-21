@@ -1,7 +1,7 @@
-Binary Release v2025.12.19
+Binary Release v2026.9.21
 ==========================
 
 User Release Notes
 ------------------
- - new menu item "Snapshot..." to take screenshots
+ - ATA PC-Card support added
 

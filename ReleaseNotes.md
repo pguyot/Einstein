@@ -1,3 +1,11 @@
+
+Binary Release v2026.9.21
+==========================
+
+User Release Notes
+------------------
+ - ATA PC-Card support added
+
 Binary Release v2025.12.19
 ==========================
 
@@ -17,7 +25,7 @@ Binary Release v2024.12.26
 
 User Release Notes
 ------------------
- - various maintenance fixes 
+ - various maintenance fixes
 
 Binary Release v2024.4.21
 =========================
@@ -33,7 +41,7 @@ Binary Release v2022.4.20
 
 User Release Notes
 ------------------
- - printer support ported to Linux and MSWindows in addition to the already 
+ - printer support ported to Linux and MSWindows in addition to the already
    working macOS implementation
  - fixed settings dialog to directly enter ROM and Flash file names
    in input fields
@@ -63,15 +71,15 @@ Toolkit Release Notes
  - NewtonScript strings can now have a tab character in them
  - new NS command `MakeBinaryFromARM` translates ARM assembler into binary data
  - new Script command `PatchFileFromARM` to patch ROM files using ARM assembly code
- - Toolkit remembers the recent eight Script files for quick access 
- 
+ - Toolkit remembers the recent eight Script files for quick access
+
 
 Binary Release v2022.4.17
 =========================
 
 This is our first automated binary release for Einstein.
 
-Release 4.17 contains a few unfinished features for early 
+Release 4.17 contains a few unfinished features for early
 testing. After collecting user somments, a full featured
 set will be implemented in v2022.5.0.
 
@@ -100,7 +108,7 @@ Releases use different User Interface libraries:
  - Cocoa is Paul's original version running on MacOS without additional software
  - FLTK adds PCMCIA and Toolkit support and runs on all desktop platforms
  - the Androis version uses NDK directly and is not yet part of this release yet
- - due to restriction in the Apple Stroe, the iOS version needs to be built from source as explained in BUILDING.md 
+ - due to restriction in the Apple Stroe, the iOS version needs to be built from source as explained in BUILDING.md
 
 And as always, enjoy, and give us feedback, no matter if good or bad.
 

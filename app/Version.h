@@ -29,18 +29,18 @@
 #include "Version_CMake.h"
 #else
 #define PROJECT_NAME "Einstein"
-#define PROJECT_VER "2025.9.18"
-#define PROJECT_VER_MAJOR "2025"
+#define PROJECT_VER "2026.9.21"
+#define PROJECT_VER_MAJOR "2026"
 #define PROJECT_VER_MINOR "9"
-#define PROJECT_VER_PATCH "18"
-#define COMPILE_TIME_YYYY 2025
+#define PROJECT_VER_PATCH "21"
+#define COMPILE_TIME_YYYY 2026
 #define COMPILE_TIME_MM 9
-#define COMPILE_TIME_DD 18
+#define COMPILE_TIME_DD 21
 #endif
 
 #define VERSION_STRING PROJECT_NAME " " PROJECT_VER
 #define VERSION_STRING_SHORT PROJECT_VER
-#define COPYRIGHT_STRING "Copyright 2003-2025 by Paul Guyot and contributors"
+#define COPYRIGHT_STRING "Copyright 2003-2026 by Paul Guyot and contributors"
 
 #endif
 // _VERSION_H
