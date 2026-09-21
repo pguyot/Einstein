@@ -275,7 +275,7 @@ o->show();
         callback {float y = (Fl::event_y()-o->y())/(float)o->h();
   Fl_Menu_Item* menu = nullptr;
   const Fl_Menu_Item* cardMenu = nullptr;
-  if (y < 0.5) {
+  if (y > 0.5) {
       menu = (Fl_Menu_Item*)wPCCardSlot0->user_data();
       if (menu)
         cardMenu = menu->popup(Fl::event_x(), Fl::event_y(), "PCPort 0");

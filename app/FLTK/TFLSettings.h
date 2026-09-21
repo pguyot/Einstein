@@ -53,6 +53,7 @@ public:
 	TFLPCCardSettings();
 	static TFLPCCardSettings* LinkLinearPCCard(const char* inName, const char* inImageFilename);
 	static TFLPCCardSettings* NewLinearPCCard(const char* inName, const char* inImageFilename, KUInt32 inSizeMB);
+	static TFLPCCardSettings* NewATACard(const char* inName, const char* inImageFilename, KUInt32 inSizeMB);
 	~TFLPCCardSettings();
 
 	TPCMCIACard* GetCard();

@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0403
+version 1.0405
 use_FL_COMMAND
 header_name {.h}
 code_name {.cpp}
@@ -405,8 +405,8 @@ wAbout = nullptr;} {}
       } {
         Fl_Group {} {
           label {  MessagePad  }
-          comment {Add a field to select a REx, choose matching PC Cards per slot} open
-          xywh {10 35 430 375} hide
+          comment {Add a field to select a REx, choose matching PC Cards per slot} open selected
+          xywh {10 35 430 375}
         } {
           Fl_Group {} {open
             xywh {120 50 275 25}
@@ -690,7 +690,7 @@ Used on pen or touch screen devices.} xywh {120 145 208 20} down_box DOWN_BOX la
         }
         Fl_Group {} {
           label {  PC Cards  } open
-          xywh {10 35 430 375}
+          xywh {10 35 430 375} hide
         } {
           Fl_Browser wPCCardList {
             label {PCMCIA Cards:}
@@ -719,7 +719,7 @@ if (ix==-1) {
               xywh {0 0 100 20}
             } {
               MenuItem {} {
-                label {Add existing PCCard Image...}
+                label {Add existing Linear or ATA  Image...}
                 callback {char imageFilename[FL_PATH_MAX];
 char buf[FL_PATH_MAX];
 char *imageName = nullptr;
@@ -734,7 +734,7 @@ strcpy(path, wFlashPath->label());
 char *nn = (char*)fl_filename_name(path);
 if (nn) *nn = 0;
 
-a = gApp->ChooseExistingFile("Select a PCCard Image file", "*.pccard", path);
+a = gApp->ChooseExistingFile("Select a PCCard Image file", "Any Card\\t*.{pccard,ata}\\nLinear Card\\t*.pccard\\nATA Card\\t*.ata", path);
 if (!a) goto cleanup;
 strcpy(imageFilename, a);
 
@@ -756,10 +756,14 @@ wPCCardList->add(imageName, card);
 
 cleanup:
 if (imageName) free(imageName);}
-                xywh {0 0 100 20} labelsize 12
+                xywh {0 0 100 20} labelsize 12 divider
               }
               MenuItem {} {
-                label {New 2MB Flash Card...}
+                label {  Linear Cards:}
+                xywh {0 0 100 20} labelfont 1 labelsize 12
+              }
+              MenuItem {} {
+                label {New 2MB Linear Flash Card...}
                 user_data 2
                 callback {char imageFilename[FL_PATH_MAX];
   char buf[FL_PATH_MAX];
@@ -776,7 +780,7 @@ if (imageName) free(imageName);}
   char *nn = (char*)fl_filename_name(path);
   if (nn) *nn = 0;
 
-  a = gApp->ChooseNewFile("Create a PCCard Image file", "*.pccard", path);
+  a = gApp->ChooseNewFile("Create a PCCard Image file", "Linear Card\\t*.pccard", path);
   if (!a) goto cleanup;
   strcpy(imageFilename, a);
   if (fl_access(imageFilename, 6)!=0)
@@ -805,37 +809,25 @@ if (imageName) free(imageName);}
                 xywh {10 10 100 20} labelsize 12
               }
               MenuItem {} {
-                label {New 4MB Flash Card...}
+                label {New 4MB Linear Flash Card...}
                 user_data 4 user_data_type long
                 callback cb_New
                 xywh {20 20 100 20} labelsize 12
               }
               MenuItem {} {
-                label {New 5MB Flash Card...}
-                user_data 5 user_data_type long
-                callback cb_New selected
-                xywh {20 20 100 20} labelsize 12
-              }
-              MenuItem {} {
-                label {New 8MB Flash Card...}
+                label {New 8MB Linear Flash Card...}
                 user_data 8 user_data_type long
                 callback cb_New
                 xywh {0 0 100 20} labelsize 12
               }
               MenuItem {} {
-                label {New 16MB Flash Card...}
+                label {New 16MB Linear Flash Card...}
                 user_data 16 user_data_type long
                 callback cb_New
                 xywh {0 0 100 20} labelsize 12
               }
               MenuItem {} {
-                label {New 24MB Flash Card...}
-                user_data 24 user_data_type long
-                callback cb_New
-                xywh {10 10 100 20} labelsize 12
-              }
-              MenuItem {} {
-                label {New 32MB Flash Card...}
+                label {New 32MB Linear Flash Card...}
                 user_data 32 user_data_type long
                 callback cb_New
                 xywh {20 20 100 20} labelsize 12
@@ -872,7 +864,7 @@ imageName = strdup(e);
 
 strncat(path, imageName, sizeof(path)-1);
 
-a = gApp->ChooseNewFile("Create this PCMCIA Image file", "*.pccard", path);
+a = gApp->ChooseNewFile("Create this PCMCIA Image file", "Linear Card\\t*.pccard", path);
 if (!a) goto cleanup;
 strncpy(imageFilename, a, sizeof(imageFilename)-1);
 if (    fl_access(imageFilename, 6)!=0
@@ -893,7 +885,82 @@ cleanup:
 if (dataFilename) free(dataFilename);
 if (cisFilename) free(cisFilename);
 if (imageName) free(imageName);}
-                xywh {0 0 100 20} labelsize 12
+                xywh {0 0 100 20} labelsize 12 divider
+              }
+              MenuItem {} {
+                label {  ATA Cards:}
+                xywh {0 0 100 20} labelfont 1 labelsize 12
+              }
+              MenuItem {} {
+                label {New 4MB ATA Flash Card...}
+                user_data 4
+                callback {char imageFilename[FL_PATH_MAX];
+  char buf[FL_PATH_MAX];
+  char *imageName = nullptr;
+  int size = (int)(long)v;
+  const char *a;
+  const char *suggestedName;
+  const char *fn;
+  const char *e;
+  TFLPCCardSettings* card;
+
+  char path[FL_PATH_MAX];
+  strcpy(path, wFlashPath->label());
+  char *nn = (char*)fl_filename_name(path);
+  if (nn) *nn = 0;
+
+  a = gApp->ChooseNewFile("Create an ATA Card Image file", "ATA Card\\t*.ata", path);
+  if (!a) goto cleanup;
+  strcpy(imageFilename, a);
+  //if (fl_access(imageFilename, 6)!=0)
+  //{
+    fl_filename_setext(imageFilename, FL_PATH_MAX, ".ata");
+  //}
+
+  suggestedName = "";
+  fn = fl_filename_name(imageFilename);
+  if (fn) {
+    strcpy(buf, fn);
+    fl_filename_setext(buf, FL_PATH_MAX, "");
+    suggestedName = buf;
+  }
+
+  // TODO: we could preset the name with either the filename or whatever name we extract from the image
+  e = fl_input("Please enter a name for your ATA Card Image", suggestedName);
+  if (!e) goto cleanup;
+  imageName = strdup(e);
+
+  card = TFLPCCardSettings::NewATACard(imageName, imageFilename, size);
+  if (card)
+    wPCCardList->add(imageName, card);
+
+  cleanup:
+  if (imageName) free(imageName);}
+                xywh {10 10 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 8MB ATA Flash Card...}
+                user_data 8 user_data_type long
+                callback cb_New1
+                xywh {30 30 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 16MB ATA Flash Card...}
+                user_data 16 user_data_type long
+                callback cb_New1
+                xywh {30 30 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 32MB ATA Flash Card...}
+                user_data 32 user_data_type long
+                callback cb_New1
+                xywh {30 30 100 20} labelsize 12
+              }
+              MenuItem {} {
+                label {New 64MB ATA Flash Card...}
+                user_data 64 user_data_type long
+                callback cb_New1
+                xywh {30 30 100 20} labelsize 12
               }
             }
           }
@@ -967,9 +1034,17 @@ if (ix>0 && ix<=wPCCardList->size()) {
 TFLPCCardSettings *card = (TFLPCCardSettings*)wPCCardList->data(ix);
 if (ix>0 && card->GetType()==TFLPCCardSettings::CardType::kLinear) {
   const char *oldPath = card->GetImagePath();
-  const char *newPath = gApp->ChooseExistingFile(
-    "Please select another PCCard Image", "*.pccard", oldPath
-  );
+  const char *newPath = nullptr;
+  bool is_ata = false;
+  if (oldPath) {
+    const char* dot = strrchr(oldPath, '.');
+    if (dot && strcmp(dot, ".ata") == 0)
+      is_ata = true;
+  }
+  if (is_ata)
+    newPath = gApp->ChooseExistingFile("Please select the new ATA Card Image location", "ATA Card\\t*.ata", oldPath);
+  else
+    newPath = gApp->ChooseExistingFile("Please select the new PCCard Image location", "Linear Card\\t*.pccard", oldPath);
   if (newPath)
     card->SetImagePath(newPath);
 }}
@@ -1187,14 +1262,14 @@ mSettingsPanel->hide();}
         slot0menu[i+4].labelfont_ |= 1;
         slot1menu[i+4].flags |= FL_MENU_INACTIVE;
         if (card->KeepInSlot()==0) slot0menu[1].set();
-        if (wNetworkTool) wNetworkTool->setTopID(card->GetTag());
+        if (wNetworkTool) wNetworkTool->setBottomID(card->GetTag());
         slot0menu[1].user_data((void*)i);
     }
     if (c1 && c1==card->Card()) {
         slot1menu[i+4].labelfont_ |= 1;
         slot0menu[i+4].flags |= FL_MENU_INACTIVE;
         if (card->KeepInSlot()==1) slot1menu[1].set();
-        if (wNetworkTool) wNetworkTool->setBottomID(card->GetTag());
+        if (wNetworkTool) wNetworkTool->setTopID(card->GetTag());
         slot1menu[1].user_data((void*)i);
     }
   }
