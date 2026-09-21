@@ -821,7 +821,8 @@ TFLApp::UserActionPCCard(int inSlot, long inIndex)
 		// Remove the current PC card from the slot.
 		ret = mPlatformManager->InsertPCCard(inSlot, nullptr);
 		mFLSettings->KeepPCCardInSlot(inSlot, -1);
-	} else {
+	} else
+	{
 		// Insert the selected PC card into the slot.
 		TPCMCIACard* card = GetSettings()->mCardList[inIndex]->GetCard();
 		if (card && !card->IsInserted())

@@ -40,11 +40,11 @@
 #include <stdio.h>
 #include <vector>
 
+#include "Emulator/Log/TStdOutLog.h"
+#include "Emulator/PCMCIA/TATACard.h"
 #include "Emulator/PCMCIA/TLinearCard.h"
 #include "Emulator/PCMCIA/TNE2000Card.h"
-#include "Emulator/PCMCIA/TATACard.h"
 #include "Emulator/ROM/TROMImage.h"
-#include "Emulator/Log/TStdOutLog.h"
 #include "app/FLTK/TFLApp.h"
 
 // MARK: - PC Card Settings
@@ -114,12 +114,14 @@ TFLPCCardSettings*
 TFLPCCardSettings::NewATACard(const char* inName, const char* inImageFilename, KUInt32 inSizeMB)
 {
 	FILE* f = fopen(inImageFilename, "wb");
-	if (f) {
+	if (f)
+	{
 		KUInt8 zero = 0;
 		fseek(f, inSizeMB * 1024 * 1024 - 1, SEEK_SET);
 		fwrite(&zero, 1, 1, f);
 		fclose(f);
-	} else {
+	} else
+	{
 		fl_alert("Failed to create ATA card image file: %s", strerror(errno));
 		return nullptr;
 	}
@@ -142,14 +144,16 @@ TFLPCCardSettings::GetCard()
 				mCard = new TNE2000Card();
 				break;
 			case CardType::kLinear: {
-					const char* dot = strrchr(mImagePath, '.');
-					if (dot && strcmp(dot, ".ata") == 0) {
-						mCard = new TATACard(mImagePath);
-					} else {
-						mCard = new TLinearCard(mImagePath);
-					}
+				const char* dot = strrchr(mImagePath, '.');
+				if (dot && strcmp(dot, ".ata") == 0)
+				{
+					mCard = new TATACard(mImagePath);
+				} else
+				{
+					mCard = new TLinearCard(mImagePath);
 				}
-				break;
+			}
+			break;
 		}
 	}
 	return mCard;
@@ -597,7 +601,8 @@ TFLSettings::KeepPCCardInSlot(int inSlot, size_t inCard)
 		if (ix == inCard)
 		{
 			card->KeepInSlot(inSlot);
-		} else {
+		} else
+		{
 			if (clearIf0 && card->KeepInSlot() == 0)
 				card->KeepInSlot(-1);
 			if (clearIf1 && card->KeepInSlot() == 1)
