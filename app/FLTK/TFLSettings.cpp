@@ -28,6 +28,7 @@
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Preferences.H>
 #include <FL/filename.H>
+#include <FL/fl_ask.H>
 
 #if TARGET_OS_WIN32
 #else
@@ -118,6 +119,9 @@ TFLPCCardSettings::NewATACard(const char* inName, const char* inImageFilename, K
 		fseek(f, inSizeMB * 1024 * 1024 - 1, SEEK_SET);
 		fwrite(&zero, 1, 1, f);
 		fclose(f);
+	} else {
+		fl_alert("Failed to create ATA card image file: %s", strerror(errno));
+		return nullptr;
 	}
 	TFLPCCardSettings* card = LinkLinearPCCard(inName, inImageFilename);
 	return card;

@@ -931,7 +931,8 @@ if (imageName) free(imageName);}
   imageName = strdup(e);
 
   card = TFLPCCardSettings::NewATACard(imageName, imageFilename, size);
-  wPCCardList->add(imageName, card);
+  if (card)
+    wPCCardList->add(imageName, card);
 
   cleanup:
   if (imageName) free(imageName);}
