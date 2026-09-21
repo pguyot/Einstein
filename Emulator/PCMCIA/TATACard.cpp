@@ -74,6 +74,11 @@
 #include "TPCMCIAController.h"
 #include "Emulator/Log/TLog.h"
 
+#ifdef min
+#undef min
+#undef max
+#endif
+
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>

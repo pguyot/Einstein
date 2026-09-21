@@ -27,6 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 #include "TPCMCIACard.h"
 
+#include <cstdio>
 #include <cstdint>
 #include <vector>
 
