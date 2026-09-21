@@ -109,6 +109,20 @@ TFLPCCardSettings::NewLinearPCCard(const char* inName, const char* inImageFilena
 	return card;
 }
 
+TFLPCCardSettings*
+TFLPCCardSettings::NewATACard(const char* inName, const char* inImageFilename, KUInt32 inSizeMB)
+{
+	FILE* f = fopen(inImageFilename, "wb");
+	if (f) {
+		KUInt8 zero = 0;
+		fseek(f, inSizeMB * 1024 * 1024 - 1, SEEK_SET);
+		fwrite(&zero, 1, 1, f);
+		fclose(f);
+	}
+	TFLPCCardSettings* card = LinkLinearPCCard(inName, inImageFilename);
+	return card;
+}
+
 TPCMCIACard*
 TFLPCCardSettings::GetCard()
 {
