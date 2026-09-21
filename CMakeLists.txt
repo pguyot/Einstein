@@ -403,7 +403,7 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 	endif ()
 	if ( EINSTEIN_FLTK_FRONTEND )
 		target_link_libraries ( EinsteinFLGUI
-			fltk::fltk fltk::images fltk::png fltk::z
+			fltk::images fltk::png fltk::z
 		)
   	endif ()
 
@@ -463,7 +463,7 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 	)
 	target_link_libraries ( Einstein
 		${system_libs}
-		fltk::fltk fltk::images fltk::png fltk::z
+		fltk::images fltk::png fltk::z
 		EinsteinFLGUI
 		pthread
 	)
@@ -474,7 +474,7 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		pthread
 	)
 	target_link_libraries ( EinsteinFLGUI
-		fltk::fltk fltk::images fltk::png fltk::z
+		fltk::images fltk::png fltk::z
 	)
 
 	if ( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
@@ -555,7 +555,7 @@ elseif ( WIN32 )
 	)
 	target_link_libraries ( Einstein
 		${system_libs}
-		fltk::fltk fltk::images fltk::png fltk::z
+		fltk::images fltk::png fltk::z
 		EinsteinFLGUI
 		winmm
 		gdiplus
@@ -572,7 +572,7 @@ elseif ( WIN32 )
 		gdiplus
 	)
 	target_link_libraries ( EinsteinFLGUI
-		fltk::fltk fltk::images fltk::png fltk::z
+		fltk::images fltk::png fltk::z
 	)
 
 elseif ( ANDROID )

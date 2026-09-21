@@ -891,7 +891,7 @@ TFLApp::UserActionSnapScreen()
 	prev_filename = filename;
 
 	char buf[FL_PATH_MAX];
-	strlcpy(buf, filename, sizeof(buf));
+	strncpy(buf, filename, sizeof(buf));
 	fl_filename_setext(buf, sizeof(buf), ".png");
 	int ret = mScreenManager->TakeSnapshot(buf);
 	// A more detailed error handling would be nice.

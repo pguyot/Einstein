@@ -768,7 +768,7 @@ if (imageName) free(imageName);}
                 callback {char imageFilename[FL_PATH_MAX];
   char buf[FL_PATH_MAX];
   char *imageName = nullptr;
-  int size = (int)(long)v;
+  int size = fl_int(v);
   const char *a;
   const char *suggestedName;
   const char *fn;
@@ -897,7 +897,7 @@ if (imageName) free(imageName);}
                 callback {char imageFilename[FL_PATH_MAX];
   char buf[FL_PATH_MAX];
   char *imageName = nullptr;
-  int size = (int)(long)v;
+  int size = fl_int(v);
   const char *a;
   const char *suggestedName;
   const char *fn;
