@@ -1,0 +1,15 @@
+//
+//  Signing.xcconfig
+//  Einstein
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+// Apply default values: Sign to run locally (no team, no entitlements)
+
+DEVELOPMENT_TEAM=
+CODE_SIGN_STYLE=Manual
+CODE_SIGN_IDENTITY=
+CODE_SIGN_ENTITLEMENTS=
+
+#include? "LocalSigning.xcconfig"

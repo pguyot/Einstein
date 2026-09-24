@@ -40,3 +40,6 @@ fltk/
 CMakeCache.txt
 CMakeFiles/cmake.check_cache
 newt64/
+
+# Personal signing config
+LocalSigning.xcconfig

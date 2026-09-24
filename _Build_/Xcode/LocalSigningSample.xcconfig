@@ -1,0 +1,8 @@
+// Sample signing config for a fully signed application
+
+
+DEVELOPMENT_TEAM=BKU5H4GUNQ
+CODE_SIGN_STYLE=Automatic
+CODE_SIGN_IDENTITY[sdk=macosx*]=Apple Development
+CODE_SIGN_IDENTITY[sdk=ios*]=iPhone Developer
+CODE_SIGN_ENTITLEMENTS=Einstein.entitlements

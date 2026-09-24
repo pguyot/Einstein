@@ -54,11 +54,34 @@ xcodebuild archive \
     ONLY_ACTIVE_ARCH=NO
 ```
 Your Einstein app will be in `Einstein.xcarchive/Products/Applications/Einstein.app`, but you can move it to your `/Application` folder for easy access:
+
 ```bash
 # -- Optional: Copy Einstein to the Applications folder
 cp -R Einstein.xcarchive/Products/Applications/Einstein.app /Applications
 ```
+
 Your final version of Einstein will be in ```/Applications/Einstein.app```.
+
+### Signing for macOS
+
+The signing configuration is defined in the
+[Signing.xcconfig](./_Build_/Xcode/Signing.xcconfig) file. It defines the following
+build properties:
+
+* `DEVELOPMENT_TEAM`: Team identifier used for signing, defaults to being empty
+* `CODE_SIGN_STYLE`:  `Manual` or `Automatic`, defaults to `Manual`
+* `CODE_SIGN_IDENTITY`: The "common name" of the developer certificate, e.g.
+  "Apple Development" or "iPhone Developer"
+* `CODE_SIGN_ENTITLEMENTS`: The entitlements file to be used, empty default
+
+The default signing setup for Einstein is to build for local development,
+with no signing in place.
+
+The file allows overriding the defaults by providing a `LocalSigning.xcconfig`
+file saved as `_Build_/Xcode/LocalSigning.xcconfig`. The file's content will be
+included into the signing config and will override the existing defaults.
+A sample signing config for full signing is shown in the
+[LocalSigningSample.xcconfig](./_Build_/Xcode/LocalSigningSample.xcconfig).
 
 ## Building Einstein with FLTK on macOS in 64 bit Universal
 
@@ -103,6 +126,7 @@ cmake -S . -B build \
 cmake --build build --target Einstein
 ```
 Your Einstein app will be in `build/Einstein.app`, but you can move it to your `/Application` folder for easy access:
+
 ```bash
 # -- Optional: Copy Einstein to the Applications folder
 cp -R build/Einstein.app /Applications
