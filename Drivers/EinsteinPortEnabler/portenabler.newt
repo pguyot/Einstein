@@ -65,6 +65,7 @@ constant enablerTemplate := {
         prefsEntry := GetAppPrefs(kAppSymbol, kPrefsFrame);
         foreach port, default in kPrefsFrame do
           if prefsEntry.(port) then partFrame:enable(SPrintObject(port), nil, nil);
+        return removeFrame;
     end,
 
     devRemoveScript: func (partFrame) begin
@@ -73,8 +74,6 @@ constant enablerTemplate := {
     end,
 
     InstallScript: func (partFrame) begin
-        local removeFrame := EnsureInternal ({ removeScript: partFrame.devRemoveScript });
-        partFrame:devInstallScript (partFrame, removeFrame);
-        return removeFrame;
+        return partFrame:devInstallScript (partFrame, EnsureInternal ({ removeScript: partFrame.devRemoveScript }));
     end,
 };
