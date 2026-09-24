@@ -66,6 +66,14 @@
 	[window makeKeyAndVisible];
 #endif
 
+	// Check if app was launched by opening a file
+	NSURL *url = launchOptions[UIApplicationLaunchOptionsURLKey];
+	if (url) {
+		fprintf(stderr, "App launched with URL: %s\n", [[url absoluteString] UTF8String]);
+		// Handle the file immediately before emulator initialization
+		[self handleIncomingFile:url];
+	}
+
 	NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
 	bool clearFlash = [(NSNumber*) [prefs objectForKey:@"clear_flash_ram"] boolValue];
 	if (clearFlash)
@@ -88,6 +96,77 @@
 	return YES;
 }
 
+- (void)handleIncomingFile:(NSURL *)url
+{
+	if (![url.scheme isEqualToString:@"file"]) {
+		return;
+	}
+
+	[url startAccessingSecurityScopedResource];
+
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString *srcPath = url.path;
+	NSString *filename = [srcPath lastPathComponent];
+	NSString *dstPath = [documentsDirectory stringByAppendingPathComponent:filename];
+	NSError *error = nil;
+
+	// Determine file type
+	NSString *fileExtension = [[filename pathExtension] lowercaseString];
+	BOOL isROMFile = [fileExtension isEqualToString:@"rom"];
+	BOOL isPkgFile = [fileExtension isEqualToString:@"pkg"] || [fileExtension isEqualToString:@"newtonpkg"];
+
+	if(![srcPath isEqualToString:dstPath]) {
+		if ([[NSFileManager defaultManager] fileExistsAtPath:dstPath]) {
+			[[NSFileManager defaultManager] removeItemAtPath:dstPath error:&error];
+			if(error){
+				NSLog(@"%@ %ld %@",[error domain],(long)[error code],[[error userInfo] description]);
+			}
+			else{
+				NSLog(@"File removed.");
+			}
+		}
+		[[NSFileManager defaultManager] copyItemAtPath:srcPath toPath:dstPath error:&error];
+	}
+
+	if(error){
+		 NSLog(@"%@ %ld %@",[error domain],(long)[error code],[[error userInfo] description]);
+	}
+	else if (isPkgFile) {
+		NSLog(@"Pkg File copied.");
+		[viewController installNewPackages];
+
+		// Remove the pkg file after installation
+		[[NSFileManager defaultManager] removeItemAtPath:dstPath error:&error];
+		if(error){
+			NSLog(@"%@ %ld %@",[error domain],(long)[error code],[[error userInfo] description]);
+		}
+		else{
+			NSLog(@"Installed Pkg file removed.");
+		}
+	}
+	else if (isROMFile) {
+		NSLog(@"ROM File copied to Documents directory: %@", filename);
+		// Dismiss the "missing ROM" action sheet if it's showing and restart the emulator
+		[viewController checkForROMImage];
+	}
+
+	[url stopAccessingSecurityScopedResource];
+}
+
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options
+{
+	if ([url.scheme isEqualToString:@"file"]) {
+		[self handleIncomingFile:url];
+		return YES;
+	}
+	else {
+		[[UIApplication sharedApplication] openURL:url options:options completionHandler:nil];
+		return YES;
+	}
+	return NO;
+}
+
 - (void)applicationWillResignActive:(UIApplication*)application
 {
 	[viewController stopEmulator];
@@ -95,6 +174,10 @@
 
 - (void)applicationDidBecomeActive:(UIApplication*)application
 {
+	// Check if ROM was added while app was in background
+	// This will dismiss the missing ROM sheet if ROM is now available
+	[viewController checkForROMImage];
+
 	if (![viewController allResourcesFound])
 		return;
 
