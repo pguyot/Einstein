@@ -48,6 +48,12 @@ TJITGenericPatch p001412f8(0x001412f8, kROMPatchVoid, kROMPatchVoid, kROMPatchVo
 /*
  * Disable "TGeoPortDebugLink::BeaconDetect(long)"
  * Replace the function with a `return 0;` equivalent.
+ *
+ * The stock ROM has gDebuggerBits (0x000013F4) set to 0x40, so
+ * InitializeCommHardware calls InitSerialDebugging(1, 1, 'gpdl', 57600) at
+ * every boot. That installs the GeoPort debug link on the 'extr' serial port
+ * and waits about half a second for a host beacon (a pulse on CTS). Without a
+ * beacon, the link is not installed.
  */
 TJITGenericPatch p000db0d8(0x000db0d8, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
 	0xe3a00000, "BeaconDetect (1/2)"); // #  mov r0, 0x00000000
@@ -55,7 +61,11 @@ TJITGenericPatch p000db0dc(0x000db0dc, kROMPatchVoid, kROMPatchVoid, kROMPatchVo
 	0xe1a0f00e, "BeaconDetect (2/2)"); // #  mov pc, lr
 
 /*
- * This patch seems to disable runtime debugging statistics.
+ * Set gDebuggerBits to 1 (stock value 0x40, see BeaconDetect above).
+ * Bit 0x01 tells the OS that a hardware debugger is attached: IsDebuggerPresent()
+ * returns true, packages and loaded code are registered with the debugger, and
+ * FIQHandler passes the reset switch interrupt to DebuggerIntHandler instead of
+ * resetting. Clearing bit 0x40 also skips the GeoPort debug link at boot.
  */
 TJITGenericPatch gDebuggerPatch(0x000013f4, kROMPatchVoid, kROMPatchVoid, kROMPatchVoid,
 	1, "gDebugger patch");
