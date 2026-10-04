@@ -318,7 +318,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 	{
 		bool needTimer = false;
 
-		if (mTxDMAControl & 0x00000002)
+		if (mTxDMAIntEnable & 0x00000002)
 		{ // DMA is enabled
 			if (mTxDMADataCountdown)
 			{
@@ -339,7 +339,7 @@ TBasiliskIISerialPortManager::HandleDMA()
 
 		// handle transmitting DMA
 
-		if (mTxDMAControl & 0x00000002)
+		if (mTxDMAIntEnable & 0x00000002)
 		{ // DMA is enabled
 			if (mTxDMADataCountdown)
 			{
@@ -348,8 +348,8 @@ TBasiliskIISerialPortManager::HandleDMA()
 				mMemory->ReadBP(mTxDMAPhysicalData, data);
 				write(pBasiliskLocalFD, &data, 1);
 				mTxDMAPhysicalData++;
-				mTxDMABufferSize--;
-				if (mTxDMABufferSize == 0)
+				mTxDMABytesToBufferEnd--;
+				if (mTxDMABytesToBufferEnd == 0)
 				{
 					mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
 				}
@@ -420,8 +420,8 @@ TBasiliskIISerialPortManager::HandleDMA()
 					KUInt8 data = buf[i];
 					mMemory->WriteBP(mRxDMAPhysicalData, data);
 					mRxDMAPhysicalData++;
-					mRxDMABufferSize--;
-					if (mRxDMABufferSize == 0)
+					mRxDMABytesToBufferEnd--;
+					if (mRxDMABytesToBufferEnd == 0)
 					{ // or mRxDMADataCountdown?
 						mRxDMAPhysicalData = mRxDMAPhysicalBufferStart;
 					}

@@ -232,7 +232,7 @@ TPipesSerialPortManager::HandleDMA()
 	{
 		bool needTimer = false;
 
-		if (mTxDMAControl & 0x00000002)
+		if (mTxDMAIntEnable & 0x00000002)
 		{ // DMA is enabled
 			if (mTxDMADataCountdown)
 			{
@@ -253,7 +253,7 @@ TPipesSerialPortManager::HandleDMA()
 
 		// handle transmitting DMA
 
-		if (mTxDMAControl & 0x00000002)
+		if (mTxDMAIntEnable & 0x00000002)
 		{ // DMA is enabled
 			if (mTxDMADataCountdown)
 			{
@@ -263,8 +263,8 @@ TPipesSerialPortManager::HandleDMA()
 				// KPrintf(":::::>> TX: 0x%02X '%c'\n", data, isprint(data)?data:'.');
 				write(mTxPort, &data, 1);
 				mTxDMAPhysicalData++;
-				mTxDMABufferSize--;
-				if (mTxDMABufferSize == 0)
+				mTxDMABytesToBufferEnd--;
+				if (mTxDMABytesToBufferEnd == 0)
 				{
 					mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
 				}
@@ -319,8 +319,8 @@ TPipesSerialPortManager::HandleDMA()
 					mMemory->WriteBP(mRxDMAPhysicalData, data);
 					// KPrintf(" rx[%.3d] -> %02X '%c'\n", i, data, isprint(data)?data:'.');
 					mRxDMAPhysicalData++;
-					mRxDMABufferSize--;
-					if (mRxDMABufferSize == 0)
+					mRxDMABytesToBufferEnd--;
+					if (mRxDMABytesToBufferEnd == 0)
 					{ // or mRxDMADataCountdown?
 						//					if (mRxDMADataCountdown==0) { // or mRxDMADataCountdown does not work!
 						mRxDMAPhysicalData = mRxDMAPhysicalBufferStart;

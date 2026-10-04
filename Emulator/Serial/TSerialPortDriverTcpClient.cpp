@@ -374,7 +374,7 @@ TSerialPortDriverTcpClient::HandleDMA()
 	{
 		bool needTimer = false;
 
-		if (mTxDMAControl & 0x00000002)
+		if (mTxDMAIntEnable & 0x00000002)
 		{ // DMA is enabled
 			if (mTxDMADataCountdown)
 			{
@@ -448,7 +448,7 @@ TSerialPortDriverTcpClient::HandleDMA()
 		if (IsConnected())
 			FD_SET(mTcpSocket, &watchFDs);
 
-		if (mTxDMAControl & 0x00000002)
+		if (mTxDMAIntEnable & 0x00000002)
 		{ // DMA is enabled
 			if (mTxDMADataCountdown)
 			{
@@ -503,7 +503,7 @@ TSerialPortDriverTcpClient::HandleDMA()
 void
 TSerialPortDriverTcpClient::HandleDMASend()
 {
-	if (mTxDMAControl & 0x00000002)
+	if (mTxDMAIntEnable & 0x00000002)
 	{ // DMA is enabled
 		if (mTxDMADataCountdown)
 		{
@@ -532,8 +532,8 @@ TSerialPortDriverTcpClient::HandleDMASend()
 				// KPrintf("Sending to null 0x%02x\n", data);
 			}
 			mTxDMAPhysicalData++;
-			mTxDMABufferSize--;
-			if (mTxDMABufferSize == 0)
+			mTxDMABytesToBufferEnd--;
+			if (mTxDMABytesToBufferEnd == 0)
 			{
 				mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
 			}
@@ -589,8 +589,8 @@ TSerialPortDriverTcpClient::HandleDMAReceive()
 			// KPrintf("Received 0x%02x\n", data);
 			mMemory->WriteBP(mRxDMAPhysicalData, data);
 			mRxDMAPhysicalData++;
-			mRxDMABufferSize--;
-			if (mRxDMABufferSize == 0)
+			mRxDMABytesToBufferEnd--;
+			if (mRxDMABytesToBufferEnd == 0)
 			{
 				mRxDMAPhysicalData = mRxDMAPhysicalBufferStart;
 			}

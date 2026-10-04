@@ -116,14 +116,7 @@ TPCMCIAController::Read(KUInt32 inOffset)
 		theResult = mReg_1800;
 	} else if (inOffset == kHdWr_Reg1C00)
 	{
-		if (mCard)
-		{
-			mReg_1C00 = mCard->GetVPCPins() & ~k1C00_CardIsPresent;
-		} else
-		{
-			mReg_1C00 |= k1C00_CardIsPresent;
-		}
-		theResult = mReg_1C00;
+		theResult = UpdatePins();
 	} else if (inOffset == kHdWr_Reg2000)
 	{
 		theResult = mReg_2000;
@@ -204,13 +197,18 @@ TPCMCIAController::Write(KUInt32 inOffset, KUInt32 inValue)
 		}
 	} else if (inOffset == kHdWr_IntCtrlReg)
 	{
+		// Enabling an interrupt that is already pending raises it.
 		mIntCtrlReg = inValue;
+		UpdateInterruptLines();
 	} else if (inOffset == kHdWr_Reg0800)
 	{
+		// Writing 1 clears the pending interrupt.
 		mReg_0800 = inValue;
+		mReg_0000 &= ~inValue;
 	} else if (inOffset == kHdWr_Reg0C00)
 	{
 		mReg_0C00 = inValue;
+		UpdateInterruptLines();
 	} else if (inOffset == kHdWr_Reg1000)
 	{
 		mReg_1000 = inValue;
@@ -368,12 +366,16 @@ TPCMCIAController::InsertCard(TPCMCIACard* inCard)
 {
 	assert(mCard == nil);
 
+	KUInt32 theOldPins = UpdatePins();
+
 	mCard = inCard;
 
 	// Init the card.
 	mCard->Init(this);
 
-	RaiseInterrupt(kSocketCardDetectedIntVector);
+	// -CD1 and -CD2 go low. If the card server waits for a card, it has set
+	// a falling edge interrupt on them. At boot, it polls instead.
+	LatchPinChanges(theOldPins, UpdatePins());
 }
 
 // -------------------------------------------------------------------------- //
@@ -384,19 +386,25 @@ TPCMCIAController::RemoveCard(void)
 {
 	assert(mCard != nil);
 
+	KUInt32 theOldPins = UpdatePins();
+
 	mCard->Remove();
 
 	mCard = nil;
 
-	// Raise interrupt.
+	// The card lock/eject switch is wired to GPIO 2, 3, 13, 14 for sockets
+	// 0..3 (gpioIntVectorNumbers in the ROM).
 	if (mSocketIx == 0)
 	{
-		// ??
 		mEmulator->GetInterruptManager()->RaiseGPIO(1 << 0x2);
 	} else if (mSocketIx == 1)
 	{
 		mEmulator->GetInterruptManager()->RaiseGPIO(1 << 0x3);
 	}
+
+	// -CD1 and -CD2 go high. Once a card is in, the card server sets a
+	// rising edge interrupt on them.
+	LatchPinChanges(theOldPins, UpdatePins());
 }
 
 // -------------------------------------------------------------------------- //
@@ -413,17 +421,60 @@ TPCMCIAController::RaiseInterrupt(int inVector)
 	}
 
 	mReg_0000 |= inVector;
-	mReg_0C00 |= inVector;
 
-	if (mSocketIx == 0)
+	UpdateInterruptLines();
+}
+
+// -------------------------------------------------------------------------- //
+//  * UpdateInterruptLines( void )
+// -------------------------------------------------------------------------- //
+void
+TPCMCIAController::UpdateInterruptLines(void)
+{
+	// The ROM dispatches interrupts of all sockets on both CPU lines. The
+	// handler on kPCMCIA0IntMask only looks at interrupts promoted to FIQ in
+	// 0x0C00, the one on kPCMCIA1IntMask only looks at the others.
+	KUInt32 theActive = mReg_0000 & mIntCtrlReg;
+	if (theActive & mReg_0C00)
 	{
-		mEmulator->GetInterruptManager()->RaiseInterrupt(
-			TInterruptManager::kPCMCIA0IntMask);
-	} else if (mSocketIx == 1)
+		mIntManager->RaiseInterrupt(TInterruptManager::kPCMCIA0IntMask);
+	}
+	if (theActive & ~mReg_0C00)
 	{
-		mEmulator->GetInterruptManager()->RaiseInterrupt(0x00010000);
-		// TInterruptManager::kPCMCIA1IntMask );
-		// 0x00010000 0x02000000
+		mIntManager->RaiseInterrupt(TInterruptManager::kPCMCIA1IntMask);
+	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * UpdatePins( void )
+// -------------------------------------------------------------------------- //
+KUInt32
+TPCMCIAController::UpdatePins(void)
+{
+	// -CD1 and -CD2 are low when a card is inserted.
+	if (mCard)
+	{
+		mReg_1C00 = mCard->GetVPCPins() & ~k1C00_CardIsPresent;
+	} else
+	{
+		mReg_1C00 |= k1C00_CardIsPresent;
+	}
+	return mReg_1C00;
+}
+
+// -------------------------------------------------------------------------- //
+//  * LatchPinChanges( KUInt32, KUInt32 )
+// -------------------------------------------------------------------------- //
+void
+TPCMCIAController::LatchPinChanges(KUInt32 inOldPins, KUInt32 inNewPins)
+{
+	// Pin changes become pending interrupts if the edge is enabled in
+	// 0x1000 (rising) or 0x1400 (falling).
+	KUInt32 theChanges = ((~inOldPins & inNewPins) & mReg_1000)
+		| ((inOldPins & ~inNewPins) & mReg_1400);
+	if (theChanges)
+	{
+		RaiseInterrupt(theChanges);
 	}
 }
 

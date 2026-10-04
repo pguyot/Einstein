@@ -60,25 +60,30 @@ public:
 	///
 	/// Constants for the interrupts.
 	///
+	/// DMA channel interrupts are 0x80 << channel, as set up by
+	/// TDMAManager::RequestAssignment in the ROM (see TDMAManager.h).
+	/// Other bits used by the ROM: 0x00020000 (TGeoPortDebugLink),
+	/// 0x00200000 ('mdem' serial port DCD).
+	///
 	enum {
 		kRTCAlarmIntMask = 0x00000004,
-		kTimer0IntMask = 0x00000008,
+		kTimer0IntMask = 0x00000008, // FIQ timer (TFIQTimer), match register 0
 		kTimer1IntMask = 0x00000010,
-		kTimer2IntMask = 0x00000020,
-		kTimer3IntMask = 0x00000040,
-		kDMAChannel0IntMask = 0x00000080, // Serial port 0 rcv
-		kDMAChannel1IntMask = 0x00000100, // Serial port 0 tx
-		kDMAChannel2IntMask = 0x00000200, // IR rcv/tx
-		kDMAChannel3IntMask = 0x00000400, ///< Sound input	// Audio transmit
-		kDMAChannel4IntMask = 0x00000800, // Audio receive
-		kDMAChannel5IntMask = 0x00001000, ///< Sound output	// Tablet rcv
-		kDMAChannel6IntMask = 0x00002000, // Modem (3) rcv
-		kDMAChannel7IntMask = 0x00004000, // Modem (3) tx
+		kTimer2IntMask = 0x00000020, // TimerInterruptHandler, match register 2
+		kTimer3IntMask = 0x00000040, // Scheduler (PreEmptiveTimerInterruptHandler), match register 3
+		kDMAChannel0IntMask = 0x00000080, // DMA 0: Serial port 0 rcv
+		kDMAChannel1IntMask = 0x00000100, // DMA 1: Serial port 0 tx
+		kDMAChannel2IntMask = 0x00000200, // DMA 2: IR rcv/tx
+		kDMAChannel3IntMask = 0x00000400, ///< DMA 3: Sound input (or IR tx)
+		kDMAChannel4IntMask = 0x00000800, // DMA 4: Tablet ADC samples (TADC)
+		kDMAChannel5IntMask = 0x00001000, ///< DMA 5: Sound output
+		kDMAChannel6IntMask = 0x00002000, // DMA 6: Modem (3) rcv
+		kDMAChannel7IntMask = 0x00004000, // DMA 7: Modem (3) tx
 		kKeynesIntMask = 0x00008000, // BIO Interface (FIQ)
-		kPCMCIA0IntMask = 0x00010000, // 0x401
+		kPCMCIA0IntMask = 0x00010000, // PCMCIA interrupts promoted to FIQ, all sockets (see TPCMCIAController.h)
 		kGPIOIntMask = 0x01000000, // GPIO (0x401)
-		kPCMCIA1IntMask = 0x02000000, // 0x401
-		kTabletIntMask = 0x10000000, // Tablet
+		kPCMCIA1IntMask = 0x02000000, // PCMCIA interrupts not promoted to FIQ, all sockets
+		kTabletIntMask = 0x10000000, // Tablet (TResistiveTablet)
 		kPlatformIntMask = 0x08000000, // Platform events.
 		kPowerOffMask = 0x0C400000 // What is enabled when
 								   // power is off.

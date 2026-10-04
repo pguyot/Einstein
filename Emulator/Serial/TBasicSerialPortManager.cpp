@@ -183,31 +183,31 @@
  Serial port DMA
  ===============
 
- Address   Bank, Channel, Register
+ Address   Bank, Channel, Register (names as in TDMAManager.h)
  Receive:
- F080000 = 1,0,0:  w: rx physical buffer address (InitRxDMA)
- F080400 = 1,0,1:  w: current buffer address? (RxDMAControl)
- F080800 = 1,0,2
- F080C00 = 1,0,3:  w: 00000080 (RxDMAControl), 00000000 (The interrupt that we trigger?)
- F081000 = 1,0,4: rw: 00000403 buffer count? (RxDMAControl) (reading when shutting down?)
- F081400 = 1,0,5:  w: 00000404 buffer size? (RxDMAControl)
- F081800 = 1,0,6:  w: 00000000 (InitRxDMA), 000000FF (RxDMAControl): FF = clear all bits in another register?
- F090000 = 2,0,0:  w: 00000006 (RxDMAControl), 00000000
- F090400 = 2,0,1: r : (RxDMAControl)
- F090800 = 2,0,2:  w: 00000000 (RxDMAControl)
- F090C00 = 2,0,3:  w: 00000006 (InitRxDMA)
+ F080000 = 1,0,0:  w: Base: rx physical buffer address (InitRxDMA)
+ F080400 = 1,0,1:  w: Pointer: physical address of the next byte (RxDMAControl)
+ F080800 = 1,0,2:  r: Word: incomplete last word (StopRxDMA)
+ F080C00 = 1,0,3:  w: Control: 00000080 (RxDMAControl)
+ F081000 = 1,0,4: rw: Count: free bytes in the buffer, read by StopRxDMA to compute the received byte count
+ F081400 = 1,0,5:  w: Size: bytes to end of buffer (RxDMAControl)
+ F081800 = 1,0,6:  w: Compare: 00000000 (InitRxDMA), notify level (RxDMAControl)
+ F090000 = 2,0,0:  w: Interrupt enable: 00000006 (RxDMAControl), 00000000 to disable
+ F090400 = 2,0,1: r : Interrupt status (RxDMAControl)
+ F090800 = 2,0,2:  w: Interrupt clear: writes back the value read from 2,0,1 (RxDMAControl)
+ F090C00 = 2,0,3:  w: 00000006 (InitRxDMA), purpose unknown
  Transmit:
- F082000 = 1,1,0:  w: tx physical buffer address (InitTxDMA)
- F082400 = 1,1,1: rw: physical address of data start
- F082800 = 1,1,2
- F082C00 = 1,1,3:  w: 000000C0 (TxDMAControl) Some Control Register
- F083000 = 1,1,4: rw: number of bytes to write (TxDMAControl)
- F083400 = 1,1,5:  w: 204, buffer size? (TxDMAControl) bytes to end of buffer
- F083800 = 1,1,6:  w: 00000000 (InitTxDMA)
- F091000 = 2,1,0:  w: 00000002 (TxDMAControl)
- F091400 = 2,1,1: r : (TxDMAControl)
- F091800 = 2,1,2:  w: 00000000 (TxDMAControl) (whatever we read from 2,1,1)
- F091C00 = 2,1,3:  w: 00000002 (InitTxDMA)
+ F082000 = 1,1,0:  w: Base: tx physical buffer address (InitTxDMA)
+ F082400 = 1,1,1: rw: Pointer: physical address of data start
+ F082800 = 1,1,2:     Word
+ F082C00 = 1,1,3:  w: Control: 000000C0 (TxDMAControl)
+ F083000 = 1,1,4: rw: Count: number of bytes to write (TxDMAControl)
+ F083400 = 1,1,5:  w: Size: bytes to end of buffer (TxDMAControl)
+ F083800 = 1,1,6:  w: Compare: 00000000 (InitTxDMA)
+ F091000 = 2,1,0:  w: Interrupt enable: 00000002 (TxDMAControl)
+ F091400 = 2,1,1: r : Interrupt status (TxDMAControl)
+ F091800 = 2,1,2:  w: Interrupt clear: whatever we read from 2,1,1 (TxDMAControl)
+ F091C00 = 2,1,3:  w: 00000002 (InitTxDMA), purpose unknown
 
  compare to Cirrus Logig EP93xx registers:
  CONTROL rw  flags that enable run modi and interrupts
@@ -250,10 +250,11 @@
  - a bit is set if a valid word still exists in the word register of that channel
    read that word to complete and= interrupted DMA operation
 
-// - per channel registers
+// - per channel registers, bank 1 (see TDMAManager.h)
 
- Control Register
- - used to configure the channel (varies per channel)
+ Control Register (1.3)
+ - used to configure the channel: 0x80 serial, 0x40 memory to device,
+   0x20 probably stop at end of buffer. Serial rx 0x80, tx 0xC0.
 
  Base Register
  - physical start address of DMA buffer (or next buffer during chained DMA)
@@ -264,21 +265,37 @@
  - word aligned! Read a word and store it in the Word Register, increment by four!
  - if wrapping is enabled, will be loaded with Base Register on wrap
 
- Count Register
+ Count Register (1.4)
  - number of byte remaining to be transferred, decremented by one after every byte sent
- - after wrapping, will be set to the vaule in Size Register
+ - the serial driver computes the number of received bytes from it
 
- Size Register
- - can be configure to hold the buffer size. Count is loaded with Size after a wrap
- - or size in byte of DMA packet, decrements by 4 if a word is read into the word buffer until0
+ Size Register (1.5)
+ - the serial driver writes the number of bytes until the end of the circular
+   buffer, the Pointer wraps to Base when it reaches 0 (not the buffer size!)
+ - the sound driver writes the buffer size, Count probably holds the size of the
+   next buffer and is reloaded into Size on wrap
+ - the lower two bits tell how many bytes are in the Word Register
 
  Word Register
  - four bytes are received and stored in the word register
  - when the register is 'full', data is copied to memory
  - if the received data had a non-module 4 size, the word register must be read as it contains the remaining bytes!
 
- Compare Register
+ Compare Register (1.6)
  - generate an interrupt when the size register equals this value.
+ - the serial driver writes its rx notify level here
+
+// - per channel registers, bank 2
+
+ Interrupt Enable (2.0)
+ - 0x01 end of buffer, 0x02 transfer done, 0x04 compare, 0x10 end of frame
+ - serial rx writes 0x06 (0x12 for LocalTalk), tx writes 0x02, 0 disables
+
+ Interrupt Status (2.1), Interrupt Clear (2.2)
+ - read the status, write the same bits back to clear them
+
+ Unknown (2.3)
+ - written once with the same value as Interrupt Enable
 
 
  DMA Interface SCC registers are:
@@ -660,7 +677,7 @@ TBasicSerialPortManager::ReadRxDMARegister(KUInt32 inBank, KUInt32 inRegister)
 				result = mRxDMADataCountdown;
 				break;
 			case 5:
-				result = mRxDMABufferSize;
+				result = mRxDMABytesToBufferEnd;
 				break;
 			case 6:
 				result = 0;
@@ -675,7 +692,7 @@ TBasicSerialPortManager::ReadRxDMARegister(KUInt32 inBank, KUInt32 inRegister)
 		switch (inRegister)
 		{
 			case 0:
-				result = mRxDMAControl;
+				result = mRxDMAIntEnable;
 				break;
 			case 1: // TSerialDMAEngine::StartRxDMA reading
 				// KPrintf("----- 'extr' serial Rx DMA, reading interrupt reason (?) %d %d %d (0x%08X)\n", inBank, 0, inRegister, mRxDMAEvent);
@@ -712,16 +729,16 @@ TBasicSerialPortManager::WriteRxDMARegister(KUInt32 inBank, KUInt32 inRegister, 
 				// KPrintf("----- 'extr' serial Rx DMA, set data start %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				mRxDMAPhysicalData = inValue;
 				break;
-			case 3: // TSerialDMAEngine::StartRxDMA writes 00000080
-				// KPrintf("----- 'extr' serial Rx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+			case 3: // Control: TSerialDMAEngine::StartRxDMA writes 00000080
+				// KPrintf("----- 'extr' serial Rx DMA, set control register %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				break; // FIXME: will other values be written here? What do they do?
 			case 4: // TSerialDMAEngine::StartRxDMA buffer max count
 				// KPrintf("----- 'extr' serial Rx DMA, set data count %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
 				mRxDMADataCountdown = inValue;
 				break;
-			case 5: // TSerialDMAEngine::StartRxDMA buffer size
-				// KPrintf("----- 'extr' serial Rx DMA, set buffer size %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
-				mRxDMABufferSize = inValue;
+			case 5: // Size: TSerialDMAEngine::StartRxDMA writes the bytes to end of buffer
+				// KPrintf("----- 'extr' serial Rx DMA, set bytes to end of buffer %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				mRxDMABytesToBufferEnd = inValue;
 				break;
 			case 6:
 				// TSerialDMAEngine::BindToBuffer writing 00000000
@@ -737,9 +754,9 @@ TBasicSerialPortManager::WriteRxDMARegister(KUInt32 inBank, KUInt32 inRegister, 
 	{
 		switch (inRegister)
 		{
-			case 0: // TSerialDMAEngine::Init writing 00000000, TSerialDMAEngine::StartRxDMA writing 00000006
-				// KPrintf("----- 'extr' serial Rx DMA, set control register %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
-				mRxDMAControl = inValue;
+			case 0: // Interrupt enable: TSerialDMAEngine::Init writing 00000000, TSerialDMAEngine::StartRxDMA writing 00000006
+				// KPrintf("----- 'extr' serial Rx DMA, set interrupt enable %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
+				mRxDMAIntEnable = inValue;
 				break;
 			case 1:
 				// KPrintf("----- 'extr' serial Rx DMA, set interrupt reason %d %d %d = 0x%08X\n", inBank, 0, inRegister, inValue);
@@ -785,7 +802,7 @@ TBasicSerialPortManager::ReadTxDMARegister(KUInt32 inBank, KUInt32 inRegister)
 				result = mTxDMADataCountdown;
 				break;
 			case 5:
-				result = mTxDMABufferSize;
+				result = mTxDMABytesToBufferEnd;
 				break;
 			case 6:
 				result = 0;
@@ -800,7 +817,7 @@ TBasicSerialPortManager::ReadTxDMARegister(KUInt32 inBank, KUInt32 inRegister)
 		switch (inRegister)
 		{
 			case 0:
-				result = mTxDMAControl;
+				result = mTxDMAIntEnable;
 				break;
 			case 1:
 				// TSerialDMAEngine::StartTxDMA reads this register
@@ -839,16 +856,16 @@ TBasicSerialPortManager::WriteTxDMARegister(KUInt32 inBank, KUInt32 inRegister, 
 				// KPrintf("----- 'extr' serial Tx DMA, set data start %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				mTxDMAPhysicalData = inValue;
 				break;
-			case 3: // TSerialDMAEngine::StartTxDMA writes 000000C0
-				// KPrintf("----- 'extr' serial Tx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+			case 3: // Control: TSerialDMAEngine::StartTxDMA writes 000000C0
+				// KPrintf("----- 'extr' serial Tx DMA, set control register %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				break; // FIXME: will other values be written here? What do they do?
 			case 4: // TSerialDMAEngine::StartTxDMA writes the number of bytes to be sent
 				// KPrintf("----- 'extr' serial Tx DMA, set data count %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
 				mTxDMADataCountdown = inValue;
 				break;
-			case 5: // TSerialDMAEngine::StartTxDMA writes the size of the buffer
-				// KPrintf("----- 'extr' serial Tx DMA, set buffer size %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
-				mTxDMABufferSize = inValue;
+			case 5: // Size: TSerialDMAEngine::StartTxDMA writes the bytes to end of buffer
+				// KPrintf("----- 'extr' serial Tx DMA, set bytes to end of buffer %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				mTxDMABytesToBufferEnd = inValue;
 				break;
 			case 6: // TSerialDMAEngine::BindToBuffer writing 0
 				// KPrintf("----- 'extr' serial Tx DMA, set ??? %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
@@ -863,11 +880,12 @@ TBasicSerialPortManager::WriteTxDMARegister(KUInt32 inBank, KUInt32 inRegister, 
 		switch (inRegister)
 		{
 			case 0:
-				// TSerialDMAEngine::Init writes 0 (probably disabeling the entire DMA channel)
-				// TSerialDMAEngine::StartTxDMA writes 00000002 (probably to prepare the DMA, write DMA enable 00000002 is next.)
+				// Interrupt enable:
+				// TSerialDMAEngine::Init writes 0 (disables the channel interrupts)
+				// TSerialDMAEngine::StartTxDMA writes 00000002 (transfer done interrupt), then starts the channel
 				// TSerialDMAEngine::StopTxDMA writes 0
-				// KPrintf("----- 'extr' serial Tx DMA, set control register %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
-				mTxDMAControl = inValue;
+				// KPrintf("----- 'extr' serial Tx DMA, set interrupt enable %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);
+				mTxDMAIntEnable = inValue;
 				break;
 			case 1:
 				// KPrintf("----- 'extr' serial Tx DMA, set interrupt reason %d %d %d = 0x%08X\n", inBank, 1, inRegister, inValue);

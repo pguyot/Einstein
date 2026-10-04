@@ -125,14 +125,17 @@ protected:
 	/// address of byte currently written by DMA
 	KUInt32 mTxDMAPhysicalData { 0 };
 
-	/// number of bytes that still need to be sent
+	/// number of bytes that still need to be sent (DMA register 1.4, Count)
 	KUInt32 mTxDMADataCountdown { 0 };
 
-	/// size of physical buffer
-	KUInt32 mTxDMABufferSize { 0 };
+	/// bytes left until the end of the circular buffer, at which point
+	/// mTxDMAPhysicalData wraps to mTxDMAPhysicalBufferStart (DMA register 1.5)
+	KUInt32 mTxDMABytesToBufferEnd { 0 };
 
-	/// bit 1 enables the DMA port
-	KUInt32 mTxDMAControl { 0 };
+	/// channel interrupt enable (DMA register 2.0, see TDMAManager::kChanInt...).
+	/// StartTxDMA sets bit 1 (transfer done), the emulation also uses it to
+	/// tell if transmit DMA is running.
+	KUInt32 mTxDMAIntEnable { 0 };
 
 	/// the event that triggered the interrupt?
 	KUInt32 mTxDMAEvent { 0 };
@@ -143,14 +146,16 @@ protected:
 	/// address to store next byte read from periphery
 	KUInt32 mRxDMAPhysicalData { 0 };
 
-	/// number of bytes available until end of buffer
+	/// number of free bytes in the circular buffer (DMA register 1.4, Count)
 	KUInt32 mRxDMADataCountdown { 0 };
 
-	/// size of physical buffer
-	KUInt32 mRxDMABufferSize { 0 };
+	/// bytes left until the end of the circular buffer, at which point
+	/// mRxDMAPhysicalData wraps to mRxDMAPhysicalBufferStart (DMA register 1.5)
+	KUInt32 mRxDMABytesToBufferEnd { 0 };
 
-	/// bit 1 enables the DMA port
-	KUInt32 mRxDMAControl { 0 };
+	/// channel interrupt enable (DMA register 2.0, see TDMAManager::kChanInt...).
+	/// StartRxDMA writes 0x06 (transfer done, compare), 0x12 for LocalTalk.
+	KUInt32 mRxDMAIntEnable { 0 };
 
 	/// the event that triggered the interrupt?
 	KUInt32 mRxDMAEvent { 0 };
