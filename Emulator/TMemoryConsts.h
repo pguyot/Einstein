@@ -53,21 +53,36 @@ public:
 		// bank #3
 		kHardwareBase = 0x0F000000,
 		kHdWr_PlatformVers = 0x0F000008, ///< Not actually a hardware address, but a transparent way for native apps to read the Platform driver version
-		kHdWr_P0F001000 = 0x0F001000, ///< R/W, may be memory access speed related
-		kHdWr_04RAMSize = 0x0F001800, ///< We say 0xXYXY00XY
-									  ///< (also written with 0x40)
-		kHdWr_08RAMSize = 0x0F001C00, ///< We say 0 (also written with 0x00 & 0x40)
-		kHdWr_P0F002000 = 0x0F002000, ///< W (00000080)
-		kHdWr_P0F043000 = 0x0F043000, ///< W (00007400)
-		kHdWr_P0F043800 = 0x0F043800, ///< W (00002000)
-		kHdWr_P0F048000 = 0x0F048000, ///< R/W (00000000)
-		kHdWr_P0F052C00 = 0x0F052C00, ///< R/W (0000004E)
-		kHdWr_P0F053000 = 0x0F053000, ///< R/W (00007000)
-		kHdWr_P0F053400 = 0x0F053400, ///< R/W (00008C00)
-		kHdWr_P0F053800 = 0x0F053800, ///< R/W (00000000)
-		kHdWr_P0F054400 = 0x0F054400, ///< W (00008400)
-		kHdWr_P0F054800 = 0x0F054800, ///< W (00008400)
-		kHdWr_P0F055000 = 0x0F055000, ///< W (00008400)
+
+		// Memory controller.
+		// Register values below are what the MP2x00 ROM writes. The boot code
+		// is DiagBootStub (ROM 0x0001955C) and BasicBusControlRegInit
+		// (0x00394504), the sleep code SaveCPUStateAndStopSystem (0x00018F48).
+		kHdWr_MemCtrlReg = 0x0F001000, ///< R/W Memory controller. Set by the boot code to 0x1A4, 0x524 or 0x184
+									   ///< depending on the RAM banks, 0x3104 by BasicBusControlRegInit.
+									   ///< Bits 12..15 enable PCMCIA sockets 0..3 (TCardSocket::Init).
+		kHdWr_04RAMSize = 0x0F001800, ///< R/W Size of the DRAM bank at 0x04000000 in 64 KB units (0x40 = 4 MB,
+									  ///< 0x10 = 1 MB, 0 = none), found by the boot code. We say 0xXYXY00XY.
+		kHdWr_08RAMSize = 0x0F001C00, ///< R/W Same for the DRAM bank at 0x08000000. We say 0.
+		kHdWr_MemCtrl2000 = 0x0F002000, ///< W  Unknown, set to 0x80 by the boot code.
+
+		// BIO interface (Keynes, TBIOInterface). BIO register n is at
+		// kHdWr_BIOCmdBase + (n << 10). Writes wait for status bit 0x1000,
+		// read results arrive in kHdWr_BIOReadData (status bit 0x80).
+		kHdWr_BIO3000 = 0x0F043000, ///< W  Unknown, set to 0x7400 by the boot code.
+		kHdWr_BIO3800 = 0x0F043800, ///< W  Unknown, set to 0x2000, then 0x2400 by the boot code.
+		kHdWr_BIOStatus = 0x0F048000, ///< R/W BIO status (ReadBIOStatus). TBIOInterface::Init writes 0.
+		kHdWr_BIOReadData = 0x0F048C00, ///< R  Result of a BIO register read (BIOReadCommandData).
+		kHdWr_BIOCmdBase = 0x0F050000, ///< R/W BIO register 0.
+		kHdWr_BIOCmd11 = 0x0F052C00, ///< R/W BIO register 11, TBIOInterface::Init writes 0x4E.
+		kHdWr_BIOCmd12 = 0x0F053000, ///< R/W BIO register 12 (00007000)
+		kHdWr_BIOCmd13 = 0x0F053400, ///< R/W BIO register 13 (00008C00)
+		kHdWr_BIOCmd14 = 0x0F053800, ///< R/W BIO register 14 (00000000)
+		kHdWr_BIOCmd17 = 0x0F054400, ///< W  BIO register 17 (00008400)
+		kHdWr_BIOCmd18 = 0x0F054800, ///< W  BIO register 18 (00008400)
+		kHdWr_BIOCmd20 = 0x0F055000, ///< W  BIO register 20 (00008400)
+
+		// DMA controller, see TDMAManager.h
 		kHdWr_DMAChan1Base = 0x0F080000, ///< DMA Channel Registers (bank#1)
 		kHdWr_DMAChan1End = 0x0F08FC00, ///< DMA Channel Registers (bank#1) (end)
 		kHdWr_DMAAssgmnt = 0x0F08FC00, ///< DMA Assignment register (R/W)
@@ -76,10 +91,41 @@ public:
 		kHdWr_DMAEnableStat = 0x0F098000, ///< DMA Enable/Status register (R/W)
 		kHdWr_DMADisable = 0x0F098400, ///< DMA Disable register (W)
 		kHdWr_DMAWordStat = 0x0F098800, ///< DMA Word status register (R)
-		kHdWr_P0F110000 = 0x0F110000, ///< External interrupt mask.
-		kHdWr_HighSpeedClck = 0x0F110400, ///< High speed clock (R, v=0x90)
-		kHdWr_P0F111400 = 0x0F111400, ///< W (00000000, 000007E6)
-		kHdWr_P0F180400 = 0x0F180400, ///< W (00008000)
+
+		// Power and clocks ("Milton").
+		kHdWr_MiltonPwrReg = 0x0F110000, ///< R/W Milton power register, one bit per subsystem
+										 ///< (TVoyagerPlatform::TurnOnMiltonPwrRegBit, power map at ROM 0x0037AC40):
+										 ///< 0x0001 subsystem 32, 0x0002 'extr' serial, 0x0004 LCD controller (subsystem 33),
+										 ///< 0x0008 stops the CPU until a wake-up interrupt (sleep),
+										 ///< 0x0040 DMA (TVoyagerPlatform::PowerOnDMA), 0x0080 BIO interface,
+										 ///< 0x0100 'infr' serial, 0x0200 'tblt' serial, 0x0400 'mdem' serial,
+										 ///< 0x0800 subsystem 31 (also set before each delay at boot).
+										 ///< Boot values 0x800, 0xFC7, 0x881.
+		kHdWr_HighSpeedClck = 0x0F110400, ///< High speed clock, written 0x90 at boot (R, v=0x90)
+		kHdWr_Milton1400 = 0x0F111400, ///< W  Unknown, ROMBoot writes 0x7E6, waits a moment and writes 0.
+
+		// LCD controller. Only accessed by TMainDisplayDriver in the
+		// 'ScreenDrivers' ROM extension (ROM 0x007A5700), which Einstein
+		// replaces with its own driver. The panel is 320x480, black and white,
+		// the controller generates 16 gray levels from the 4 bit frame buffer.
+		// No gray pattern tables are written by the driver.
+		// Values are what the driver writes at power on, in this order.
+		kHdWr_LCDCtrl0000 = 0x0F140000, ///< W  0x0004FDDF
+		kHdWr_LCDCtrl0400 = 0x0F140400, ///< W  0
+		kHdWr_LCDCtrl0800 = 0x0F140800, ///< W  1 (written after LCDCtrl1800)
+		kHdWr_LCDCtrl0C00 = 0x0F140C00, ///< W  0x3B, probably words per line - 1 (480 pixels * 4 bits / 32 - 1)
+		kHdWr_LCDCtrl1000 = 0x0F141000, ///< W  0x800, written first at power on and at power off
+		kHdWr_LCDDisplayOn = 0x0F141400, ///< W  12 at power on (before the contrast ramp), 0 at power off
+		kHdWr_LCDCtrl1800 = 0x0F141800, ///< W  13
+		kHdWr_LCDCtrl1C00 = 0x0F141C00, ///< W  3
+		kHdWr_LCDCtrl2000 = 0x0F142000, ///< W  2, written after the frame buffer address
+		kHdWr_LCDCtrl2400 = 0x0F142400, ///< W  0x18A
+		kHdWr_LCDCtrl2800 = 0x0F142800, ///< W  1
+		kHdWr_LCDFrameBuf1 = 0x0F142C00, ///< W  Physical address of the frame buffer
+		kHdWr_LCDFrameBuf2 = 0x0F143000, ///< W  Same physical address of the frame buffer
+
+		// System: timers, interrupts, GPIO.
+		kHdWr_SysCtrl0400 = 0x0F180400, ///< W  Unknown, 0x8000 at boot, InitCGlobals sets a value from the flash reserved block.
 		kHdWr_CalendarReg = 0x0F181000, ///< Calendar register, in seconds.
 		kHdWr_AlarmReg = 0x0F181400, ///< Alarm register, in seconds.
 		kHdWr_Ticks = 0x0F181800, ///< Used by SafeShortTimerDelay as
@@ -90,40 +136,36 @@ public:
 		kHdWr_MatchReg1 = 0x0F182400, ///< Second timer match register (IRQTimer)
 		kHdWr_MatchReg2 = 0x0F182800, ///< Third timer match registe (Timer)
 		kHdWr_MatchReg3 = 0x0F182C00, ///< Fourth timer match register (Scheduler)
-		kHdWr_IntPresent = 0x0F183000, ///< R (by DispatchFIQInterrupt)
-		kHdWr_IntCtrlReg = 0x0F183400, ///< EnterFIQAtomic writes 0x0C400000
-									   ///< here.
-		kHdWr_IntClear = 0x0F183800, ///< Writing here clears an interrupt.
-		kHdWr_FIQMaskReg = 0x0F183C00, ///< Bit set -> FIQ
-		kHdWr_IntEDReg1 = 0x0F184000, ///< Enable/Disable
-		kHdWr_IntEDReg2 = 0x0F184400, ///< Enable/Disable
-		kHdWr_IntEDReg3 = 0x0F184800, ///< Enable/Disable (Enable)
-		kHdWr_P0F184C00 = 0x0F184C00, ///< R
-		kHdWr_P0F185000 = 0x0F185000, ///< W (00000001)
-		//        0       0x0f18c000 R  GPIO Interrupt status     #4
-		//        1       0x0f18c400 GPIO Interrupt               #8
-		//        2       0x0f18c800 Int ack?                     #12
-		//        3       0x0f18cc00 RW GPIO Interrupt            #16
-		//        4       0x0f18d000 RW GPIO Interrupt            #20
-		//        5       0x0f18d400 RW GPIO Input Data           #24
-		//        6       0x0f18d800 RW GPIO Interrupt            #28
-		//        7       0x0f18dc00 RW GPIO Pullup
-		//        8       0x0f18e000 RW GPIO Polarity
-		//        A       0x0f18e800 RW GPIO Direction
-		//        B       0x0f18ec00 RW GPIO Output Data
-		kHdWr_GPIO_RReg = 0x0F18C000, ///< GPIO interface (1) (r) (raised reg?)
-		kHdWr_GPIO_EReg = 0x0F18C400, ///< GPIO interface (2) (r/w) (enable reg?)
-		kHdWr_GPIO_CReg = 0x0F18C800, ///< GPIO interface (3) (w) (clear reg?)
-		kHdWr_P0F18CC00 = 0x0F18CC00, ///< W (00000103)
-		kHdWr_P0F18D000 = 0x0F18D000, ///< W (0000000F)
-		kHdWr_P0F18D400 = 0x0F18D400, ///< R GPIO PCMCIA card related (PCMCIA door lock switch?)
-		kHdWr_P0F18D800 = 0x0F18D800, ///< W (00000000)
-		kHdWr_P0F18DC00 = 0x0F18DC00, ///< W (00001EF0, FFFF0FF0)
-		//		kHdWr_P0F18DC00		= 0x0F18DC00,   ///< W (00000000) (?)
-		kHdWr_IOPower1 = 0x0F18E800, ///< EarlyIOPowerOn or's this with 0x30
-		kHdWr_IOPower2 = 0x0F18EC00, ///< EarlyIOPowerOn or's this with 0x10
-									 ///< and then with 0x20.
-									 ///< EarlyIOPowerOff bic's it with 0x30
+
+		// Interrupt controller, see TInterruptManager.h
+		kHdWr_IntPresent = 0x0F183000, ///< R  Pending interrupts.
+		kHdWr_IntCtrlReg = 0x0F183400, ///< R/W Interrupt mask, EnterFIQAtomic writes 0x0C400000 here.
+		kHdWr_IntClear = 0x0F183800, ///< W  Writing 1 clears a pending interrupt.
+		kHdWr_FIQMaskReg = 0x0F183C00, ///< R/W Bit set -> FIQ
+		kHdWr_IntEDReg1 = 0x0F184000, ///< R/W Set by EnableInterrupt (flag 0x001), cleared by DisableInterrupt.
+		kHdWr_IntEDReg2 = 0x0F184400, ///< R/W Set by EnableInterrupt (flag 0x002), cleared by DisableInterrupt.
+		kHdWr_IntEDReg3 = 0x0F184800, ///< R/W Wake-up mask, set by EnableInterrupt (flag 0x400). Used as interrupt
+									  ///< mask while sleeping, PowerOnSystem uses IntPresent & this to find the wake-up source.
+		kHdWr_IntLevelReg = 0x0F184C00, ///< R  Current level of the interrupt inputs, not latched. FIQHandler checks the
+										///< reset switch (0x00400000), the boot code the 'mdem' DCD line (0x00200000).
+		kHdWr_SleepCtrlReg = 0x0F185000, ///< W  Set to 0 before the CPU is stopped, to 1 after it wakes up and at boot.
+
+		// GPIO interface (TGPIOInterface), one bit per GPIO line:
+		//  0 IN power switch, 1 IN AC adapter, 2/3 IN PCMCIA card lock 0/1,
+		//  4 OUT +5V, 5 OUT +12V, 6 OUT disable LTC1323 line driver,
+		//  7 OUT fast battery charging, 8 IN IR busy, 9 serial ~CP enable.
+		kHdWr_GPIOIntRaised = 0x0F18C000, ///< R  Pending GPIO interrupts.
+		kHdWr_GPIOIntEnable = 0x0F18C400, ///< R/W GPIO interrupt enable.
+		kHdWr_GPIOIntClear = 0x0F18C800, ///< W  Writing 1 clears a pending GPIO interrupt.
+		kHdWr_GPIOIntRising = 0x0F18CC00, ///< R/W Interrupt flag 0x01, probably rising edge (00000103)
+		kHdWr_GPIOIntFalling = 0x0F18D000, ///< R/W Interrupt flag 0x02, probably falling edge (0000000F)
+		kHdWr_GPIOInput = 0x0F18D400, ///< R  GPIO input data (ReadGPIOData).
+		kHdWr_GPIOIntWake = 0x0F18D800, ///< R/W Interrupt flag 0x08, GPIO interrupts that wake up the Newton.
+		kHdWr_GPIOPullup = 0x0F18DC00, ///< R/W Pullups (00001EF0, FFFF0FF0)
+		kHdWr_GPIOPolarity = 0x0F18E000, ///< R/W Polarity
+		kHdWr_GPIODirection = 0x0F18E800, ///< R/W Direction. EarlyIOPowerOn or's this with 0x30.
+		kHdWr_GPIOOutput = 0x0F18EC00, ///< R/W Output data. EarlyIOPowerOn or's this with 0x10 (+5V) and
+									   ///< then with 0x20 (+12V), EarlyIOPowerOff bic's it with 0x30.
 		// Serial bank
 		kExternalSerialBase = 0x0F1C0000, ///< Voyager 'extr' serial port base
 		kInfraredSerialBase = 0x0F1D0000, ///< Voyager 'infr' serial port base
@@ -131,26 +173,39 @@ public:
 		kModemSerialBase = 0x0F1F0000, ///< Voyager 'mdem' serial port base
 		kSerialEnd = 0x0F200000, ///< End of voyager serial ports.
 		// bank #4
-		kHdWr_ExtDataAbt1 = 0x0F240000, ///< First external data abort register (R)
-		kHdWr_ExtDataAbt2 = 0x0F240400, ///< Second external data abort register (W)
-		kHdWr_ExtDataAbt3 = 0x0F240800, ///< Third external data abort register (W)
+		kHdWr_ExtDataAbt1 = 0x0F240000, ///< First external data abort register (R), read by DataAbortHandler
+		kHdWr_ExtDataAbt2 = 0x0F240400, ///< Second external data abort register (W), TCardSocket::EnableSocketAbort writes 0x10
+		kHdWr_ExtDataAbt3 = 0x0F240800, ///< Third external data abort register (W), bit 0x10 cleared by
+										///< TCardSocket::EnableSocketAbort, set by DisableSocketAbort
 		kHdWr_BankCtrlReg = 0x0F241000, ///< Bank control register.
 										///< FFFFFFFF -> 0x000
 										///< FFFF0000 -> 0x200
 										///< 0000FFFF -> 0x300
 										///< FF000000 -> 0x400
 										///< 0000FF00 -> 0x500
-		kHdWr_P0F241800 = 0x0F241800, ///< W (00003916)
-		kHdWr_P0F242400 = 0x0F242400, ///< R/W (00000000, 01F9453C, 01F94573)
+		kHdWr_Bank1800 = 0x0F241800, ///< W  Unknown, 0x3916 at boot, InitCGlobals sets a value from the flash reserved block.
+		kHdWr_DRAMCtrlReg = 0x0F242400, ///< R/W DRAM controller: 0x01F9453C or 0x01F94573 while the boot code sizes the
+										///< RAM banks (bit 0x10 is cleared before each change). ROMBoot looks at the lower
+										///< 24 bits to detect a restart (00000000, 01F9453C, 01F94573)
 		kROMSerialChip = 0x0F243000, ///< R/W (ROM Serial chip?) (00000000, 00000001)
-		kHdWr_P0F247000 = 0x0F247000, ///< W (00000001)
-		kHdWr_P0F280000 = 0x0F280000, ///< W (0000465A, 0000C044)
-		kHdWr_P0F280400 = 0x0F280400, ///< W (0000181A, 00002C34)
-		kHdWr_P0F280800 = 0x0F280800, ///< W (00002003)
-		kHdWr_P0F283000 = 0x0F283000, ///< W (00000000, 00000255, 00000257)
-		kHdWr_P0F284000 = 0x0F284000, ///< W (00000023)
+		kHdWr_Bank7000 = 0x0F247000, ///< W  Unknown, 1 at boot, saved and restored across sleep.
+
+		// Bus control (BasicBusControlRegInit). All are saved and restored
+		// across sleep.
+		kHdWr_BusCtrl00 = 0x0F280000, ///< W  0x465A at boot, then 0xC044 (0x6043 on a StrongARM).
+									  ///< InitCGlobals can override it from the 'ctim' config entry.
+		kHdWr_BusCtrl01 = 0x0F280400, ///< W  0x181A at boot, then 0x2C34, 0x1816 or the 'ctim' config entry.
+		kHdWr_BusCtrl02 = 0x0F280800, ///< W  0x2003
+		kHdWr_BusCtrl03 = 0x0F280C00, ///< R/W only saved and restored.
+		kHdWr_BusCtrl08 = 0x0F282000, ///< R/W only saved and restored.
+		kHdWr_BusCtrl0C = 0x0F283000, ///< W  0x257 at boot, then 0x000, then 0x255.
+		kHdWr_BusCtrl0D = 0x0F283400, ///< W  0x23 at boot.
+		kHdWr_BusCtrl10 = 0x0F284000, ///< W (00000023) Not accessed directly by the MP2x00 ROM.
 		kFlashBank2 = 0x10000000, ///< More flash here.
 		kFlashBank2End = 0x10400000, ///< End of second bank.
+		kHdWr_LCDContrast = 0x20000000, ///< W  LCD contrast (bias voltage): user contrast (-16..16) +
+										///< temperature compensation + 102. Written by TMainDisplayDriver at
+										///< every blit and ramped up slowly at power on.
 		// bank #5
 		kPCMCIA0Base = 0x30000000,
 		kPCMCIA1Base = 0x40000000,

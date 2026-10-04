@@ -57,6 +57,55 @@ class TStream;
 class TInterruptManager
 {
 public:
+	/*
+	 Interrupt controller registers, as used by the MP2x00 ROM
+	 (EnableInterrupt, DisableInterrupt, ClearInterrupt at ROM 0x000E5768..,
+	 DispatchIRQInterrupt/DispatchFIQInterrupt at 0x000E5BA0.., FIQHandler at
+	 0x0038D7A0, _EnterFIQAtomicFast at 0x00392B90). All registers use the
+	 interrupt bits below.
+
+	 0x0F183000  r   Pending interrupts (GetIntRaised).
+	 0x0F183400  r/w Interrupt mask (mIntCtrlReg). The dispatchers handle
+					 pending & mask (& FIQ mask for FIQ, & ~FIQ mask for IRQ).
+					 The OS rewrites it on every atomic section: 0x0C400000
+					 while inside, gIntMaskShadowReg | 0x0C400000 when done.
+	 0x0F183800  w   Interrupt clear, write 1 to clear (ClearInterrupts). The
+					 dispatchers clear an interrupt before calling its handler.
+	 0x0F183C00  r/w FIQ mask, set bits are dispatched as FIQ (mFIQMask).
+	 0x0F184000  r/w EnableInterrupt sets the bit if the enable flags contain
+					 0x001, DisableInterrupt clears it. Purpose unknown.
+	 0x0F184400  r/w Same for enable flag 0x002, cleared by DisableInterrupt.
+	 0x0F184800  r/w Wake-up mask. Same for enable flag 0x400, not cleared by
+					 DisableInterrupt. PCMCIA and GPIO use flags 0x401. While
+					 sleeping, SaveCPUStateAndStopSystem uses it as interrupt
+					 mask, and PowerOnSystem uses 0x0F183000 & 0x0F184800 to
+					 find what woke up the Newton.
+	 0x0F184C00  r   Current level of the interrupt inputs, not latched.
+					 FIQHandler checks the reset switch (0x00400000) here.
+
+	 Enabling an interrupt also sets its bit in gIntMaskShadowReg, so it ends
+	 up in 0x0F183400 after the next atomic section.
+	 DisableAllInterrupts writes 0x0C400000 to 0x0F184000, 0x0F183C00 and
+	 0x0F183400, 0x0C000000 to 0x0F184400, and 0x00400000 to 0x0F184800.
+
+	 GPIO interrupt registers (TGPIOInterface, ROM 0x0026BD18..), one bit per
+	 GPIO line. kGPIOIntMask is raised if any enabled GPIO interrupt is pending.
+
+	 0x0F18C000  r   Pending GPIO interrupts (mGPIORaised).
+	 0x0F18C400  r/w GPIO interrupt enable (mGPIOCtrlReg).
+	 0x0F18C800  w   GPIO interrupt clear, write 1 to clear (ClearGPIO).
+	 0x0F18CC00  r/w Interrupt flag 0x01, probably rising edge.
+	 0x0F18D000  r/w Interrupt flag 0x02, probably falling edge.
+	 0x0F18D400  r   GPIO input data.
+	 0x0F18D800  r/w Interrupt flag 0x08, wake up (PowerOnSystem clears all GPIO
+					 interrupts not set here after waking up).
+	 0x0F18DC00  r/w Pullups, 0x0F18E000 polarity, 0x0F18E800 direction,
+	 0x0F18EC00  r/w output data.
+
+	 GPIO lines used by Einstein: 0 power switch (also used for platform
+	 events), 1 AC adapter, 2 and 3 PCMCIA card lock for sockets 0 and 1.
+	 */
+
 	///
 	/// Constants for the interrupts.
 	///
@@ -66,9 +115,9 @@ public:
 	/// 0x00200000 ('mdem' serial port DCD).
 	///
 	enum {
-		kRTCAlarmIntMask = 0x00000004,
+		kRTCAlarmIntMask = 0x00000004, // Alarm register (0x0F181400) matched
 		kTimer0IntMask = 0x00000008, // FIQ timer (TFIQTimer), match register 0
-		kTimer1IntMask = 0x00000010,
+		kTimer1IntMask = 0x00000010, // Match register 1, probably the IRQ timer (TIRQTimer)
 		kTimer2IntMask = 0x00000020, // TimerInterruptHandler, match register 2
 		kTimer3IntMask = 0x00000040, // Scheduler (PreEmptiveTimerInterruptHandler), match register 3
 		kDMAChannel0IntMask = 0x00000080, // DMA 0: Serial port 0 rcv
@@ -79,14 +128,14 @@ public:
 		kDMAChannel5IntMask = 0x00001000, ///< DMA 5: Sound output
 		kDMAChannel6IntMask = 0x00002000, // DMA 6: Modem (3) rcv
 		kDMAChannel7IntMask = 0x00004000, // DMA 7: Modem (3) tx
-		kKeynesIntMask = 0x00008000, // BIO Interface (FIQ)
+		kKeynesIntMask = 0x00008000, // BIO Interface (Keynes), registered by TBIOInterface
 		kPCMCIA0IntMask = 0x00010000, // PCMCIA interrupts promoted to FIQ, all sockets (see TPCMCIAController.h)
-		kGPIOIntMask = 0x01000000, // GPIO (0x401)
+		kGPIOIntMask = 0x01000000, // GPIO interface (TGPIOInterface), see the GPIO registers above
 		kPCMCIA1IntMask = 0x02000000, // PCMCIA interrupts not promoted to FIQ, all sockets
 		kTabletIntMask = 0x10000000, // Tablet (TResistiveTablet)
-		kPlatformIntMask = 0x08000000, // Platform events.
-		kPowerOffMask = 0x0C400000 // What is enabled when
-								   // power is off.
+		kPlatformIntMask = 0x08000000, // Not used: Einstein raises platform events on GPIO 0. In the ROM, FIQHandler resets the Newton if 0x04000000 or 0x08000000 is pending.
+		kPowerOffMask = 0x0C400000 // Always enabled: reset switch (0x00400000), 0x04000000 and 0x08000000.
+								   // _EnterFIQAtomicFast and DisableAllInterrupts write this to 0x0F183400.
 		// IC3 power off mask: 0x00408000
 		// 00400000 -> reset switch (FIQ)
 		// 00008000 -> BIOInterface (IRQ)
@@ -239,7 +288,7 @@ public:
 	void RaiseInterrupt(KUInt32 inIntMask);
 
 	///
-	/// Accessor on the interrupts that were raised.
+	/// Accessor on the interrupts that were raised (0x0F183000).
 	///
 	/// \return a mask of the interrupts that were raised.
 	///
@@ -250,9 +299,9 @@ public:
 	}
 
 	///
-	/// Accessor on the interrupt control register.
+	/// Accessor on the interrupt mask register (0x0F183400).
 	///
-	/// \return the interrupt control register.
+	/// \return the interrupt mask register.
 	///
 	KUInt32
 	GetIntCtrlReg(void) const
@@ -261,9 +310,10 @@ public:
 	}
 
 	///
-	/// Selector on the interrupt control register.
+	/// Selector on the interrupt mask register (0x0F183400).
+	/// Only interrupts set here are passed on to the CPU.
 	///
-	/// \param inValue	new value for the interrupt control register.
+	/// \param inValue	new value for the interrupt mask register.
 	///
 	void SetIntCtrlReg(KUInt32 inValue);
 
@@ -322,7 +372,7 @@ public:
 	void SetIntEDReg3(KUInt32 inValue);
 
 	///
-	/// Accessor on the FIQ mask.
+	/// Accessor on the FIQ mask (0x0F183C00).
 	///
 	/// \return a mask with the interrupts that should be FIQ.
 	///
@@ -333,7 +383,7 @@ public:
 	}
 
 	///
-	/// Selector on the FIQ mask.
+	/// Selector on the FIQ mask (0x0F183C00).
 	///
 	/// \param inMask	new mask with the interrupts that should be FIQ.
 	///
@@ -344,7 +394,7 @@ public:
 	}
 
 	///
-	/// Clear interrupts.
+	/// Clear interrupts (write to 0x0F183800).
 	///
 	/// \param inMask		mask of the interrupts to clear.
 	///
@@ -352,15 +402,16 @@ public:
 
 	///
 	/// Raise a GPIO interrupt.
+	/// Also raises kGPIOIntMask if the GPIO interrupt is enabled.
 	///
-	/// \param inIntMask	mask of the interrupt to raise.
+	/// \param inIntMask	mask of the GPIO line(s) to raise.
 	///
 	void RaiseGPIO(KUInt32 inIntMask);
 
 	///
-	/// Accessor on the interrupts that were raised.
+	/// Accessor on the GPIO interrupts that were raised (0x0F18C000).
 	///
-	/// \return a mask of the interrupts that were raised.
+	/// \return a mask of the GPIO interrupts that were raised.
 	///
 	KUInt32
 	GetGPIORaised(void) const
@@ -369,9 +420,9 @@ public:
 	}
 
 	///
-	/// Accessor on the GPIO control register.
+	/// Accessor on the GPIO interrupt enable register (0x0F18C400).
 	///
-	/// \return the GPIO control register.
+	/// \return the GPIO interrupt enable register.
 	///
 	KUInt32
 	GetGPIOCtrlReg(void) const
@@ -380,16 +431,16 @@ public:
 	}
 
 	///
-	/// Selector on the GPIO control register.
+	/// Selector on the GPIO interrupt enable register (0x0F18C400).
 	///
-	/// \param inValue	new value for the GPIO control register.
+	/// \param inValue	new value for the GPIO interrupt enable register.
 	///
 	void SetGPIOCtrlReg(KUInt32 inValue);
 
 	///
-	/// Clear a GPIO interrupt.
+	/// Clear a GPIO interrupt (write to 0x0F18C800).
 	///
-	/// \param inIntMask	mask of the interrupt to clear.
+	/// \param inIntMask	mask of the GPIO interrupts to clear.
 	///
 	void ClearGPIO(KUInt32 inIntMask);
 
@@ -493,28 +544,31 @@ private:
 	/// Whether the processor masks FIQ.
 	KUInt32 mMaskFIQ { false };
 
-	/// Interrupts that were raised.
+	/// Interrupts that were raised (0x0F183000).
 	KUInt32 mIntRaised { 0 };
 
-	/// Interrupts that are enabled.
+	/// Interrupt mask (0x0F183400), only these interrupts reach the CPU.
 	KUInt32 mIntCtrlReg { 0 };
 
-	/// Mask for FIQ
+	/// Mask for FIQ (0x0F183C00), set bits are FIQ, others IRQ.
 	KUInt32 mFIQMask { 0 };
 
-	/// Int. register at 0x0F184000
+	/// Int. register at 0x0F184000, set for EnableInterrupt flag 0x001.
+	/// Only stored, it does not affect the emulation.
 	KUInt32 mIntEDReg1 { 0 };
 
-	/// Int. register at 0x0F184400
+	/// Int. register at 0x0F184400, set for EnableInterrupt flag 0x002.
+	/// Only stored, it does not affect the emulation.
 	KUInt32 mIntEDReg2 { 0 };
 
-	/// Int. register at 0x0F184800
+	/// Wake-up mask at 0x0F184800, set for EnableInterrupt flag 0x400.
+	/// Only stored, it does not affect the emulation.
 	KUInt32 mIntEDReg3 { 0 };
 
-	/// GPIO ints that were raised.
+	/// GPIO ints that were raised (0x0F18C000).
 	KUInt32 mGPIORaised { 0 };
 
-	/// GPIO control register (0x0F18C800)
+	/// GPIO interrupt enable register (0x0F18C400)
 	KUInt32 mGPIOCtrlReg { 0 };
 
 	/// Delta with the RTC (seconds), newton = host - delta.

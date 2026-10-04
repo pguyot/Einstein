@@ -351,7 +351,8 @@ TInterruptManager::SetIntCtrlReg(KUInt32 inValue)
 
 	if (inValue != mIntCtrlReg)
 	{
-		// Set the control register.
+		// Set the interrupt mask (0x0F183400). The OS rewrites it at the
+		// start and end of every atomic section.
 		mIntCtrlReg = inValue;
 
 		// Signal the condition variable to wake the timer thread.
@@ -441,7 +442,8 @@ TInterruptManager::ClearInterrupts(KUInt32 inMask)
 
 	// Here the timer is waiting (since we have the mutex).
 
-	// Clear the interrupts.
+	// Writing 1 to 0x0F183800 clears the pending interrupt. The OS does this
+	// before calling the interrupt handler.
 	mIntRaised &= ~inMask;
 
 	// Signal the condition variable to wake the timer thread.
@@ -485,12 +487,12 @@ TInterruptManager::SetGPIOCtrlReg(KUInt32 inValue)
 {
 	if (inValue != mGPIOCtrlReg)
 	{
-		// Set the control register.
+		// Set the GPIO interrupt enable register (0x0F18C400).
 		mGPIOCtrlReg = inValue;
 
 		if (mGPIOCtrlReg & mGPIORaised)
 		{
-			// Raise the GPIO interrupt.
+			// Enabling a pending GPIO interrupt raises it.
 			RaiseInterrupt(kGPIOIntMask);
 		}
 	}
@@ -502,6 +504,8 @@ TInterruptManager::SetGPIOCtrlReg(KUInt32 inValue)
 void
 TInterruptManager::ClearGPIO(KUInt32 inValue)
 {
+	// Writing 1 to 0x0F18C800 clears the pending GPIO interrupt.
+	// kGPIOIntMask itself is cleared by the OS through 0x0F183800.
 	mGPIORaised &= ~inValue;
 }
 
@@ -556,7 +560,8 @@ TInterruptManager::Run(void)
 				// Shift the ticks.
 				ticks = newTicks;
 
-				// Raise the interrupts.
+				// Pass pending and unmasked interrupts to the CPU, as FIQ if
+				// set in the FIQ mask, as IRQ otherwise.
 				Boolean gotAnInterrupt = false;
 				if (mIntRaised & mIntCtrlReg & mFIQMask)
 				{
@@ -599,7 +604,8 @@ TInterruptManager::Run(void)
 				// Shift the ticks.
 				ticks = newTicks;
 
-				// Raise the interrupts.
+				// Pass pending and unmasked interrupts to the CPU, as FIQ if
+				// set in the FIQ mask, as IRQ otherwise.
 				Boolean gotAnInterrupt = false;
 				if (mIntRaised & mIntCtrlReg & mFIQMask)
 				{

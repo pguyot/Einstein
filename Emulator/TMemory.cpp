@@ -925,13 +925,13 @@ TMemory::ReadP(PAddr inAddress, Boolean& outFault)
 		} else if (inAddress == TMemoryConsts::kHdWr_IntEDReg3)
 		{
 			return mInterruptManager->GetIntEDReg3();
-		} else if (inAddress == TMemoryConsts::kHdWr_GPIO_RReg)
+		} else if (inAddress == TMemoryConsts::kHdWr_GPIOIntRaised)
 		{
 			return mInterruptManager->GetGPIORaised();
-		} else if (inAddress == TMemoryConsts::kHdWr_GPIO_EReg)
+		} else if (inAddress == TMemoryConsts::kHdWr_GPIOIntEnable)
 		{
 			return mInterruptManager->GetGPIOCtrlReg();
-		} else if (inAddress == TMemoryConsts::kHdWr_P0F18D400)
+		} else if (inAddress == TMemoryConsts::kHdWr_GPIOInput)
 		{
 			// 0: IN: power switch
 			// 1: IN: AC Adapter Installed
@@ -1200,10 +1200,10 @@ TMemory::ReadPAligned(PAddr inAddress, Boolean& outFault)
 		} else if (inAddress == TMemoryConsts::kHdWr_IntEDReg3)
 		{
 			return mInterruptManager->GetIntEDReg3();
-		} else if (inAddress == TMemoryConsts::kHdWr_GPIO_RReg)
+		} else if (inAddress == TMemoryConsts::kHdWr_GPIOIntRaised)
 		{
 			return mInterruptManager->GetGPIORaised();
-		} else if (inAddress == TMemoryConsts::kHdWr_GPIO_EReg)
+		} else if (inAddress == TMemoryConsts::kHdWr_GPIOIntEnable)
 		{
 			return mInterruptManager->GetGPIOCtrlReg();
 		} else if (inAddress == TMemoryConsts::kHdWr_PlatformVers)
@@ -1894,10 +1894,10 @@ TMemory::WriteP(PAddr inAddress, KUInt32 inWord)
 		} else if (inAddress == TMemoryConsts::kHdWr_IntEDReg3)
 		{
 			mInterruptManager->SetIntEDReg3(inWord);
-		} else if (inAddress == TMemoryConsts::kHdWr_GPIO_EReg)
+		} else if (inAddress == TMemoryConsts::kHdWr_GPIOIntEnable)
 		{
 			mInterruptManager->SetGPIOCtrlReg(inWord);
-		} else if (inAddress == TMemoryConsts::kHdWr_GPIO_CReg)
+		} else if (inAddress == TMemoryConsts::kHdWr_GPIOIntClear)
 		{
 			mInterruptManager->ClearGPIO(inWord);
 		} else
@@ -2145,10 +2145,10 @@ TMemory::WritePAligned(PAddr inAddress, KUInt32 inWord)
 		} else if (inAddress == TMemoryConsts::kHdWr_IntEDReg3)
 		{
 			mInterruptManager->SetIntEDReg3(inWord);
-		} else if (inAddress == TMemoryConsts::kHdWr_GPIO_EReg)
+		} else if (inAddress == TMemoryConsts::kHdWr_GPIOIntEnable)
 		{
 			mInterruptManager->SetGPIOCtrlReg(inWord);
-		} else if (inAddress == TMemoryConsts::kHdWr_GPIO_CReg)
+		} else if (inAddress == TMemoryConsts::kHdWr_GPIOIntClear)
 		{
 			mInterruptManager->ClearGPIO(inWord);
 		} else
