@@ -1263,13 +1263,60 @@ TFLApp::InitScreen()
 void
 TFLApp::InitSerialPorts()
 {
-	// TODO: add preferences for the current driver, port and server address
 	// Basic initialization of all serial ports
-
-	mEmulator->SerialPorts.Initialize(TSerialPorts::kTcpClientDriver,
+	mEmulator->SerialPorts.Initialize((TSerialPorts::EDriverID) mFLSettings->mExtrDriver,
 		TSerialPorts::kNullDriver,
 		TSerialPorts::kNullDriver,
 		TSerialPorts::kNullDriver);
+
+	// Restore the server address and port if the external port uses the TCP client.
+	// The driver connects only when data is sent, so it's safe to set them after run().
+	TSerialPortDriver* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+	if (extr && extr->GetID() == TSerialPorts::kTcpClientDriver)
+	{
+		TSerialPortDriverTcpClient* tcp = (TSerialPortDriverTcpClient*) extr;
+		if (mFLSettings->mExtrTcpServer)
+			tcp->SetServerAddress(mFLSettings->mExtrTcpServer);
+		tcp->SetServerPort(mFLSettings->mExtrTcpPort);
+	}
+
+	// This is called from the emulator thread when an application on the emulated
+	// Newton changes the serial port settings. Collect the new settings here and
+	// store them in the preferences from the main thread.
+	mEmulator->SerialPorts.PortChangedCallback([this](int serPort) -> void {
+		if (serPort != TSerialPorts::kExtr)
+			return;
+		TSerialPortDriver* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+		if (!extr)
+			return;
+		struct SerialSettings {
+			int driver;
+			char* tcpServer;
+			int tcpPort;
+		};
+		auto* s = new SerialSettings { (int) extr->GetID(), nullptr, 0 };
+		if (extr->GetID() == TSerialPorts::kTcpClientDriver)
+		{
+			TSerialPortDriverTcpClient* tcp = (TSerialPortDriverTcpClient*) extr;
+			s->tcpServer = tcp->GetServerAddressDup();
+			s->tcpPort = tcp->GetServerPort();
+		}
+		Fl::awake([](void* data) {
+			auto* s = (SerialSettings*) data;
+			TFLSettings* settings = gApp->GetSettings();
+			settings->mExtrDriver = s->driver;
+			if (s->tcpServer)
+			{
+				// keep the last TCP settings if another driver was selected
+				settings->SetExtrTcpServer(s->tcpServer);
+				settings->mExtrTcpPort = s->tcpPort;
+				::free(s->tcpServer);
+			}
+			settings->savePreferences();
+			delete s;
+		},
+			s);
+	});
 
 	// Add default host driver types for the standard four serial port locations.
 	// These settings will be used in case no dedicated other settings are used during
@@ -1282,37 +1329,6 @@ TFLApp::InitSerialPorts()
 		{ TSerialPorts::kPtyDriver, std::string("/tmp/einstein-infr.pty") });
 	mEmulator->SerialPorts.SetHostPortSettings('tblt',
 		{ TSerialPorts::kPtyDriver, std::string("/tmp/einstein-tblt.pty") });
-#if 0
-    // TODO: save the serial port setting in a safe place
-    TSerialPortDriver *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
-    if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver)
-    {
-        TSerialPortDriverTcpClient *tcp = (TSerialPortDriverTcpClient*)extr;
-        tcp->SetServerAddress([[defaults stringForKey: kExtrTCPServerAddress] UTF8String]);
-        tcp->SetServerPort((int)[defaults integerForKey: kExtrTCPServerPort]);
-    }
-    mEmulator->SerialPorts.PortChangedCallback(
-                                               // THIS IS A LAMBDA FUNCTION. This function is called when an application
-                                               // on the emulated Newton changes the serial port settings
-                                               [self](int serPort)->void
-                                               {
-        if (serPort==TSerialPorts::kExtr) {
-            TSerialPortDriver *extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
-            if (extr && extr->GetID()==TSerialPorts::kTcpClientDriver) {
-                TSerialPortDriverTcpClient *tcp = (TSerialPortDriverTcpClient*)extr;
-
-                char *tcpServer = tcp->GetServerAddressDup();
-                NSString *nsTcpServer = [NSString stringWithUTF8String:tcpServer];
-                [[mUserDefaultsController defaults] setValue:nsTcpServer forKey:kExtrTCPServerAddress];
-                ::free(tcpServer);
-
-                int tcpPort = tcp->GetServerPort();
-                [[mUserDefaultsController defaults] setInteger:tcpPort forKey:kExtrTCPServerPort];
-            }
-        }
-    }
-                                               );
-#endif
 }
 
 void

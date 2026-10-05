@@ -161,6 +161,8 @@ public:
 	int CardToIndex(TPCMCIACard* inCard);
 	int GetCardKeptInSlot(int inSlot);
 
+	void SetExtrTcpServer(const char* inServer);
+
 	// protected:
 	Fl_Double_Window* mSettingsPanel = nullptr;
 	Fl_Double_Window* mAboutDialog = nullptr;
@@ -180,6 +182,13 @@ public:
 	int mLaunchMonitorAtBoot = 0;
 	int mBreakAtROMBoot = 0;
 	int mFetchDateAndTime = 1;
+
+	// driver for the external serial port (TSerialPorts::EDriverID), default is the TCP client
+	int mExtrDriver = 4;
+
+	// server address and port used if the external serial port driver is the TCP client
+	char* mExtrTcpServer = nullptr;
+	int mExtrTcpPort = 3679;
 
 	// some initial position for our application screen
 	int mAppWindowPosX = 150;

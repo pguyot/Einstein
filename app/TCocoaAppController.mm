@@ -458,6 +458,8 @@ TCocoaAppController ()
 			if (serPort == TSerialPorts::kExtr)
 			{
 				TSerialPortDriver* extr = mEmulator->SerialPorts.GetDriverFor(TSerialPorts::kExtr);
+				if (extr)
+					[[mUserDefaultsController defaults] setInteger:extr->GetID() forKey:kSerialDriverKey];
 				if (extr && extr->GetID() == TSerialPorts::kTcpClientDriver)
 				{
 					TSerialPortDriverTcpClient* tcp = (TSerialPortDriverTcpClient*) extr;

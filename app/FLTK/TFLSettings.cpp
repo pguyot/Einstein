@@ -227,6 +227,16 @@ TFLPCCardSettings::SetImagePath(const char* inImagePath)
 
 TFLSettings::TFLSettings() = default;
 
+void
+TFLSettings::SetExtrTcpServer(const char* inServer)
+{
+	if (mExtrTcpServer)
+		::free(mExtrTcpServer);
+	mExtrTcpServer = nullptr;
+	if (inServer)
+		mExtrTcpServer = strdup(inServer);
+}
+
 TFLSettings::~TFLSettings() = default;
 
 void
@@ -327,6 +337,14 @@ TFLSettings::loadPreferences()
 		newtSystem.get("FetchDateAndTime", mFetchDateAndTime, 1);
 	}
 
+	// serial port preferences
+	Fl_Preferences serial(prefs, "Serial");
+	{
+		serial.get("ExtrDriver", mExtrDriver, 4); // TSerialPorts::kTcpClientDriver
+		serial.get("ExtrTcpServer", mExtrTcpServer, "127.0.0.1");
+		serial.get("ExtrTcpPort", mExtrTcpPort, 3679);
+	}
+
 	// --- PCMCIA Card settings
 	Fl_Preferences pcmcia(prefs, "PCMCIA");
 
@@ -418,6 +436,14 @@ TFLSettings::savePreferences()
 	Fl_Preferences newtSystem(prefs, "System");
 	{
 		newtSystem.set("FetchDateAndTime", mFetchDateAndTime);
+	}
+
+	// serial port preferences
+	Fl_Preferences serial(prefs, "Serial");
+	{
+		serial.set("ExtrDriver", mExtrDriver);
+		serial.set("ExtrTcpServer", mExtrTcpServer);
+		serial.set("ExtrTcpPort", mExtrTcpPort);
 	}
 
 	// --- PCMCIA Card settings
