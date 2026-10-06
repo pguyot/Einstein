@@ -61,7 +61,7 @@ jobs:
         echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
     - name: Compile Einstein
       run: |
-        cmake -S . -B build \
+        cmake -S . -B build -D EINSTEIN_BUILD_FLUID=OFF \
                       -D CMAKE_BUILD_TYPE=Release \
                       -D CMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
                       -D "CMAKE_OSX_ARCHITECTURES=arm64;x86_64"
@@ -123,7 +123,7 @@ jobs:
         echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
     - name: Compile Einstein
       run: |
-        cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
+        cmake -S . -B build -D EINSTEIN_BUILD_FLUID=OFF -D CMAKE_BUILD_TYPE=Release
         cmake --build build --target Einstein
     - name: Pack Einstein
       run: |
@@ -166,7 +166,7 @@ jobs:
         echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
     - name: Compile Einstein
       run: |
-        cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
+        cmake -S . -B build -D EINSTEIN_BUILD_FLUID=OFF -D CMAKE_BUILD_TYPE=Release
         cmake --build build --target Einstein
     - name: Pack Einstein
       run: |
@@ -202,7 +202,7 @@ jobs:
         echo "RELEASE_TAG=v$env:RELEASE_TAG" >> $env:GITHUB_ENV
     - name: Compile Einstein
       run: |
-        cmake -S . -B build -A x64 -D CMAKE_BUILD_TYPE=Release
+        cmake -S . -B build -D EINSTEIN_BUILD_FLUID=OFF -A x64 -D CMAKE_BUILD_TYPE=Release
         cmake --build build --config Release --target Einstein
     - name: Pack Einstein
       run: |
@@ -218,7 +218,6 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
   build-windows-arm64-fltk:
-    # Currently fails after creating newt64.lib, no error message
     runs-on: windows-latest
     if: ${{ github.event.inputs.build-windows-arm64-fltk == 'true' }}
     steps:
@@ -236,7 +235,7 @@ jobs:
         echo "RELEASE_TAG=v$env:RELEASE_TAG" >> $env:GITHUB_ENV
     - name: Compile Einstein
       run: |
-        cmake -S . -B build -A ARM64 -D CMAKE_BUILD_TYPE=Release
+        cmake -S . -B build -D EINSTEIN_BUILD_FLUID=OFF -A ARM64 -D CMAKE_BUILD_TYPE=Release
         cmake --build build --config Release --target Einstein
     - name: Pack Einstein
       run: |

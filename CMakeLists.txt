@@ -2,7 +2,7 @@
 # File:     CMakeLists.txt
 # Project:  Einstein
 #
-# Copyright 2003-2025 by Paul Guyot (pguyot@kallisys.net) and others.
+# Copyright 2003-2026 by Paul Guyot (pguyot@kallisys.net) and others.
 # ==============================
 
 cmake_minimum_required(VERSION 3.15.0 FATAL_ERROR)
@@ -23,6 +23,14 @@ endif()
 # Default to FLTK front end. The SDL3 option is under development.
 option (EINSTEIN_FLTK_FRONTEND "Use FLTK for the frontend" OFF)
 option (EINSTEIN_SDL3_FRONTEND "Use SDL3 for the frontend" OFF)
+
+# fluid is only needed to edit .fl files and for the 'fluid_update' target.
+# The CI builds don't need it. It is never built when cross compiling.
+option (EINSTEIN_BUILD_FLUID "Build the FLTK fluid UI designer" ON)
+
+# The unit tests (mainly for the JIT) are built and run by their own CI workflow.
+# Turning this on downloads googletest and adds the EinsteinTests target.
+option (EINSTEIN_BUILD_TESTS "Build the EinsteinTests unit tests" OFF)
 
 if ( EINSTEIN_FLTK_FRONTEND AND EINSTEIN_SDL3_FRONTEND )
 	message( FATAL_ERROR "Cannot select the FLTK and SDL3 frontend at the same time. Please choose either EINSTEIN_FLTK_FRONTEND or EINSTEIN_SDL3_FRONTEND." )
@@ -119,11 +127,6 @@ endfunction ()
 # ---- Declare dependencies on outside content
 #
 
-FetchContent_Declare (
-	googletest
-	URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
-)
-
 if ( EINSTEIN_FLTK_FRONTEND )
 
 FetchContent_Declare(
@@ -156,26 +159,6 @@ endif ()
 
 endif ()
 
-#
-# ---- Setup Google Testing
-#
-
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set( gtest_force_shared_crt ON CACHE BOOL "" FORCE )
-
-# Check if population has already been performed
-FetchContent_GetProperties(googletest)
-if ( NOT googletest_POPULATED )
-	# Fetch the content using previously declared details
-	FetchContent_MakeAvailable(googletest)
-
-	# Bring the populated content into the build
-	#add_subdirectory( ${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} )
-endif ()
-
-enable_testing()
-
-include( GoogleTest )
 
 #
 # ---- Newt/64 library ---------------------------------------------------------
@@ -207,8 +190,8 @@ set( FLTK_BUILD_TEST OFF )
 set( FLTK_BUILD_GL OFF )
 set( FLTK_BUILD_FORMS OFF )
 set( FLTK_BUILD_FLTK_OPTIONS OFF )
-if ( CMAKE_CROSSCOMPILING )
-	# fluid is not needed to build Einstein, and it can't run on the build host anyway
+if ( CMAKE_CROSSCOMPILING OR NOT EINSTEIN_BUILD_FLUID )
+	# fluid is not needed to build Einstein, and it can't run on the build host when cross compiling
 	set( FLTK_BUILD_FLUID OFF )
 endif ()
 FetchContent_MakeAvailable(FLTK)
@@ -338,11 +321,6 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		${app_sources}
 		${cmake_sources}
 	)
-	add_executable ( EinsteinTests
-		${common_sources}
-		${test_sources}
-		${cmake_sources}
-	)
 	if ( EINSTEIN_FLTK_FRONTEND )
 		add_library ( EinsteinFLGUI STATIC
 			${fluid_sources}
@@ -351,9 +329,6 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 
 	# how to compile and link
 	target_compile_options( Einstein PUBLIC
-		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
-	)
-	target_compile_options( EinsteinTests PUBLIC
 		-Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Werror
 	)
 	if ( EINSTEIN_FLTK_FRONTEND )
@@ -373,10 +348,6 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 			TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
 		)
 	endif ()
-	target_compile_definitions ( EinsteinTests PRIVATE
-		TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
-		TARGET_OS_MAC=1 NS_BLOCK_ASSERTIONS=1
-	)
 	if ( EINSTEIN_FLTK_FRONTEND )
 		target_compile_definitions ( EinsteinFLGUI PRIVATE
 			TARGET_UI_FLTK=1 NO_PORT_AUDIO NO_X11 TARGET_OS_OPENSTEP=1
@@ -403,19 +374,6 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 		)
 		target_include_directories( Einstein SYSTEM PUBLIC
 			$ENV{ANDROID_NDK_HOME}/sysroot/usr/include
-		)
-	endif ()
-	if ( EINSTEIN_FLTK_FRONTEND )
-		target_link_libraries ( EinsteinTests
-			${system_libs}
-			fltk::fltk
-			EinsteinFLGUI
-			pthread
-			"-framework AddressBook"
-			"-framework AudioUnit"
-			"-framework AppKit"
-			"-framework CoreAudio"
-			"-framework Cocoa"
 		)
 	endif ()
 	if ( EINSTEIN_FLTK_FRONTEND )
@@ -446,11 +404,6 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		${app_sources}
 		${cmake_sources}
 	)
-	add_executable ( EinsteinTests
-		${common_sources}
-		${test_sources}
-		${cmake_sources}
-	)
 	add_library ( EinsteinFLGUI STATIC
 		${fluid_sources}
 	)
@@ -461,18 +414,11 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 		-Wno-missing-field-initializers -Wno-stringop-truncation # -Werror
 		# Werror is disabled for testing purposes. Must reenable as soon as all Linux warnings are fixed.
 	)
-	target_compile_options ( EinsteinTests PUBLIC
-		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
-		-Wno-missing-field-initializers -Wno-stringop-truncation -Werror
-	)
 	target_compile_options ( EinsteinFLGUI PUBLIC
 		-Wall -Wno-multichar -Wno-misleading-indentation -Wno-unused-result
 		-Wno-missing-field-initializers -Wno-stringop-truncation -Werror
 	)
 	target_compile_definitions ( Einstein PRIVATE
-		TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
-	)
-	target_compile_definitions ( EinsteinTests PRIVATE
 		TARGET_UI_FLTK=1 TARGET_OS_LINUX=1
 	)
 	target_compile_definitions ( EinsteinFLGUI PRIVATE
@@ -481,12 +427,6 @@ elseif ( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL 
 	target_link_libraries ( Einstein
 		${system_libs}
 		fltk::images fltk::png fltk::z
-		EinsteinFLGUI
-		pthread
-	)
-	target_link_libraries ( EinsteinTests
-		${system_libs}
-		fltk::fltk
 		EinsteinFLGUI
 		pthread
 	)
@@ -542,27 +482,18 @@ elseif ( WIN32 )
 		${common_sources} ${app_sources} ${cmake_sources} ${data}
 		${CMAKE_CURRENT_BINARY_DIR}/Einstein.rc
 	)
-	add_executable ( EinsteinTests
-		${common_sources} ${test_sources}
-	)
 	add_library ( EinsteinFLGUI STATIC
 		${fluid_sources}
 	)
 
 	# how to compile and link
 	target_compile_options( Einstein PUBLIC "/bigobj" )
-	target_compile_options( EinsteinTests PUBLIC "/bigobj" )
 	target_compile_options( EinsteinFLGUI PUBLIC "/bigobj" )
 	if ( $<CONFIG:Debug> )
 		target_compile_options( Einstein PUBLIC "/ZI" )
-		target_compile_options( EinsteinTests PUBLIC "/ZI" )
 		target_compile_options( EinsteinFLGUI PUBLIC "/ZI" )
 	endif ()
 	target_compile_definitions ( Einstein PRIVATE
-		TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
-		WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
-	)
-	target_compile_definitions ( EinsteinTests PRIVATE
 		TARGET_UI_FLTK=1 TARGET_OS_WIN32=1
 		WIN32_LEAN_AND_MEAN=1 _CRT_SECURE_NO_WARNINGS=1
 	)
@@ -575,17 +506,6 @@ elseif ( WIN32 )
 		fltk::images fltk::png fltk::z
 		EinsteinFLGUI
 		winmm
-		gdiplus
-	)
-	target_link_libraries ( EinsteinTests
-		${system_libs}
-		fltk::fltk
-		EinsteinFLGUI
-		gdiplus
-	)
-	target_link_libraries ( EinsteinTests
-		${system_libs}
-		fltk::fltk
 		gdiplus
 	)
 	target_link_libraries ( EinsteinFLGUI
@@ -649,11 +569,6 @@ target_include_directories (
 	${CMAKE_SOURCE_DIR}
 	${FLTK_INCLUDE_DIRS}
 )
-target_include_directories (
-	EinsteinTests PUBLIC
-	${CMAKE_SOURCE_DIR}
-	${FLTK_INCLUDE_DIRS}
-)
 if ( EINSTEIN_FLTK_FRONTEND )
 	target_include_directories (
 		EinsteinFLGUI PUBLIC
@@ -663,15 +578,16 @@ if ( EINSTEIN_FLTK_FRONTEND )
 endif ()
 
 target_compile_definitions ( Einstein PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
-target_compile_definitions ( EinsteinTests PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
 if ( EINSTEIN_FLTK_FRONTEND )
 	target_compile_definitions ( EinsteinFLGUI PUBLIC "$<$<CONFIG:DEBUG>:_DEBUG>" USE_CMAKE )
 endif ()
 
-target_link_libraries ( EinsteinTests gtest_main )
+endif ()
 
-gtest_discover_tests ( EinsteinTests )
+# ---- Unit Tests --------------------------------------------------------------
 
+if ( EINSTEIN_BUILD_TESTS AND NOT ANDROID )
+	include( _Tests_/EinsteinTests.cmake )
 endif ()
 
 

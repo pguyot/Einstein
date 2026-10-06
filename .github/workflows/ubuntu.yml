@@ -40,13 +40,10 @@ jobs:
       uses: actions/checkout@v4
     - name: Configure Einstein
       run: |
-        cmake -S . -B _Build_/Makefiles
+        cmake -S . -B _Build_/Makefiles -D EINSTEIN_BUILD_FLUID=OFF
     - name: Check format
       run: |
         cmake --build _Build_/Makefiles --target clang-format-check
     - name: Compile Einstein
       run: |
-        cmake --build _Build_/Makefiles
-    - name: Run tests
-      run: |
-        _Build_/Makefiles/EinsteinTests
+        cmake --build _Build_/Makefiles --target Einstein

@@ -1,0 +1,45 @@
+#
+# Build and run the EinsteinTests unit tests (mainly the JIT compiler).
+#
+# The tests are not part of the regular CI builds. Run this workflow by hand
+# from the 'Actions' tab, or call it from another workflow, for example before
+# a release.
+#
+
+name: 'Einstein Unit Tests'
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Get dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libpulse-dev ninja-build libbsd-dev
+        # FLTK dependencies:
+        sudo apt-get install -y libx11-dev libglu1-mesa-dev libxft-dev libxcursor-dev \
+          libasound2-dev freeglut3-dev libcairo2-dev libfontconfig1-dev libglew-dev \
+          libjpeg-dev libpng-dev libxinerama-dev
+        # FLTK Wayland dependencies:
+        sudo apt-get install -y libpango1.0-dev libwayland-dev wayland-protocols \
+          libxkbcommon-dev libdbus-1-dev libdecor-0-dev libgtk-3-dev
+    - name: Get sources
+      uses: actions/checkout@v4
+    - name: Configure
+      run: |
+        cmake -S . -B build -D EINSTEIN_BUILD_TESTS=ON -D EINSTEIN_BUILD_FLUID=OFF -D CMAKE_BUILD_TYPE=Release
+    - name: Compile EinsteinTests
+      run: |
+        cmake --build build --config Release --target EinsteinTests
+    - name: Run tests
+      run: |
+        ctest --test-dir build --build-config Release --output-on-failure

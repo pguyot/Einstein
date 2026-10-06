@@ -27,7 +27,7 @@ jobs:
         config-file: ./.github/codeql/codeql-config.yml
     - name: Compile Einstein
       run: |
-        cmake -S . -B _Build_/Makefiles
+        cmake -S . -B _Build_/Makefiles -D EINSTEIN_BUILD_FLUID=OFF
         cmake --build _Build_/Makefiles --target Einstein
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
