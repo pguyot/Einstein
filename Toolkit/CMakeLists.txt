@@ -36,5 +36,5 @@ list (APPEND app_sources
 	Toolkit/TTkHelpText.html
 )
 
-build_with_fluid( TFLToolkitUI Toolkit )
-build_with_fluid( TFLSampleScripts Toolkit )
+check_fluid_sources( TFLToolkitUI Toolkit )
+check_fluid_sources( TFLSampleScripts Toolkit )

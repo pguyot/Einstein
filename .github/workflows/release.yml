@@ -23,6 +23,10 @@ on:
         type: boolean
         description: Build Linux x64 FLTK
         default: 'true'
+      build-linux-arm64-fltk:
+        type: boolean
+        description: Build Linux arm64 FLTK
+        default: 'true'
       build-windows-x64-fltk:
         type: boolean
         description: Build Windows x64 FLTK
@@ -132,6 +136,49 @@ jobs:
       with:
         allowUpdates: 'true'
         artifacts: Einstein_linux_x64_fltk_${{env.RELEASE_TAG}}.zip
+        artifactContentType: application/zip
+        bodyFile: ReleaseText.md
+        tag: ${{ env.RELEASE_TAG }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Native build on GitHub's ARM64 Linux runner (there is no 'ubuntu-latest' label for arm)
+  build-linux-arm64-fltk:
+    runs-on: ubuntu-24.04-arm
+    if: ${{ github.event.inputs.build-linux-arm64-fltk == 'true' }}
+    steps:
+    - name: Get dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libpulse-dev ninja-build libbsd-dev
+        # FLTK dependencies:
+        sudo apt-get install -y libx11-dev libglu1-mesa-dev libxft-dev libxcursor-dev \
+          libasound2-dev freeglut3-dev libcairo2-dev libfontconfig1-dev libglew-dev \
+          libjpeg-dev libpng-dev libxinerama-dev
+        # FLTK Wayland dependencies:
+        sudo apt-get install -y libpango1.0-dev libwayland-dev wayland-protocols \
+          libxkbcommon-dev libdbus-1-dev libdecor-0-dev libgtk-3-dev
+    - name: Get sources
+      uses: actions/checkout@v4
+    - name: Get Version
+      run: |
+        export RELEASE_TAG="v"`grep -o '"Einstein" VERSION "[^"]*' CMakeLists.txt  | grep -o '[^"]*$'`
+        echo "RELEASE_TAG=$RELEASE_TAG"
+        echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+    - name: Compile Einstein
+      run: |
+        cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
+        cmake --build build --target Einstein
+    - name: Pack Einstein
+      run: |
+        mv build/Einstein .
+        cmake -E tar cf Einstein_linux_arm64_fltk_${{env.RELEASE_TAG}}.zip --format=zip Einstein
+    - name: Publish Einstein
+      uses: ncipollo/release-action@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        allowUpdates: 'true'
+        artifacts: Einstein_linux_arm64_fltk_${{env.RELEASE_TAG}}.zip
         artifactContentType: application/zip
         bodyFile: ReleaseText.md
         tag: ${{ env.RELEASE_TAG }}

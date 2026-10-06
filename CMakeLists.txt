@@ -207,26 +207,41 @@ set( FLTK_BUILD_TEST OFF )
 set( FLTK_BUILD_GL OFF )
 set( FLTK_BUILD_FORMS OFF )
 set( FLTK_BUILD_FLTK_OPTIONS OFF )
+if ( CMAKE_CROSSCOMPILING )
+	# fluid is not needed to build Einstein, and it can't run on the build host anyway
+	set( FLTK_BUILD_FLUID OFF )
+endif ()
 FetchContent_MakeAvailable(FLTK)
 message(STATUS "Downloading and configuring FLTK - done.")
 
-function ( build_with_fluid name dir )
-	add_custom_command (
-		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/${dir}"
-		COMMAND fltk::fluid -c ${name}.fl
-		DEPENDS "${CMAKE_SOURCE_DIR}/${dir}/${name}.fl"
-		DEPENDS "${ARGN}"
-		OUTPUT "${CMAKE_SOURCE_DIR}/${dir}/${name}.cpp"
-		OUTPUT "${CMAKE_SOURCE_DIR}/${dir}/${name}.h"
-	)
-	set_source_files_properties (
-		${CMAKE_SOURCE_DIR}/${dir}/${name}.cpp
-		PROPERTIES GENERATED TRUE
-	)
-	set_source_files_properties (
-		${CMAKE_SOURCE_DIR}/${dir}/${name}.h
-		PROPERTIES GENERATED TRUE
-	)
+# The code that fluid generates from .fl files is stored in git next to the .fl
+# files, so Einstein can be built without running fluid (which is not possible
+# when cross compiling). After changing a .fl file, regenerate the code by
+# saving the file in fluid, or by building the 'fluid_update' target.
+function ( check_fluid_sources name dir )
+	set( fl_file "${CMAKE_SOURCE_DIR}/${dir}/${name}.fl" )
+	# re-run this check when the .fl file changes
+	set_property ( DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${fl_file}" )
+	file ( TIMESTAMP "${fl_file}" fl_time "%s" )
+	foreach ( ext cpp h )
+		file ( TIMESTAMP "${CMAKE_SOURCE_DIR}/${dir}/${name}.${ext}" code_time "%s" )
+		if ( "${code_time}" STREQUAL "" OR fl_time GREATER code_time )
+			message ( WARNING "${dir}/${name}.fl is newer than ${dir}/${name}.${ext}. "
+				"Please regenerate the code with fluid, or build the 'fluid_update' target." )
+		endif ()
+	endforeach ()
+	if ( TARGET fltk::fluid )
+		add_custom_target ( fluid_update_${name}
+			COMMAND fltk::fluid -c ${name}.fl
+			WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/${dir}"
+			COMMENT "Generating ${dir}/${name}.cpp and .h with fluid"
+			VERBATIM
+		)
+		if ( NOT TARGET fluid_update )
+			add_custom_target ( fluid_update )
+		endif ()
+		add_dependencies ( fluid_update fluid_update_${name} )
+	endif ()
 endfunction ()
 
 endif ()

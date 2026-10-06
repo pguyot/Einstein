@@ -21,7 +21,6 @@ list ( APPEND app_sources
 )
 
 list ( APPEND fluid_sources
-	app/FLTK/TFLRexImage.fl
 	app/FLTK/TFLRexImage.cpp
 	app/FLTK/TFLRexImage.h
 	app/FLTK/TFLAppUI.fl
@@ -32,7 +31,22 @@ list ( APPEND fluid_sources
 	app/FLTK/TFLSettingsUI.h
 )
 
-build_with_fluid( TFLAppUI      app/FLTK "app/Version_CMake.h" )
-build_with_fluid( TFLRexImage   app/FLTK "_Data_/Einstein.rex" )
-build_with_fluid( TFLSettingsUI app/FLTK )
+check_fluid_sources( TFLAppUI      app/FLTK )
+check_fluid_sources( TFLSettingsUI app/FLTK )
+
+# Embed Einstein.rex into the executable as a byte array
+add_custom_command (
+	OUTPUT "${CMAKE_SOURCE_DIR}/app/FLTK/TFLRexImage.cpp"
+	       "${CMAKE_SOURCE_DIR}/app/FLTK/TFLRexImage.h"
+	COMMAND ${CMAKE_COMMAND}
+		-D INPUT=${CMAKE_SOURCE_DIR}/_Data_/Einstein.rex
+		-D OUTPUT_CPP=${CMAKE_SOURCE_DIR}/app/FLTK/TFLRexImage.cpp
+		-D OUTPUT_H=${CMAKE_SOURCE_DIR}/app/FLTK/TFLRexImage.h
+		-D NAME=gEinsteinRexImage
+		-P ${CMAKE_SOURCE_DIR}/cmake/EmbedResource.cmake
+	DEPENDS "${CMAKE_SOURCE_DIR}/_Data_/Einstein.rex"
+	        "${CMAKE_SOURCE_DIR}/cmake/EmbedResource.cmake"
+	COMMENT "Embedding _Data_/Einstein.rex"
+	VERBATIM
+)
 
