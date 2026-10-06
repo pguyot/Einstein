@@ -83,8 +83,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <filesystem>
 #include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #if defined(_WIN32)
 #include <io.h>
@@ -212,9 +213,16 @@ TATACard::TATACard(const char* inImagePath)
 	}
 	if (mFile)
 	{
-		std::error_code theError;
-		mFileSize = std::filesystem::file_size(inImagePath, theError);
-		if (theError)
+		// Don't use std::filesystem, it requires macOS 10.15 or newer.
+#if defined(_WIN32)
+		struct _stat64 theStat;
+		if (_stat64(inImagePath, &theStat) == 0)
+#else
+		struct stat theStat;
+		if (stat(inImagePath, &theStat) == 0)
+#endif
+			mFileSize = (uint64_t) theStat.st_size;
+		else
 			mFileSize = 0;
 		uint64_t theImageSize = std::min(mFileSize, kMaxImageSize);
 		theImageSize -= theImageSize % kSectorSize;
@@ -752,10 +760,20 @@ SetIdentifyString(std::vector<KUInt8>& ioBuffer, int inFirstWord, int inNumWords
 static KUInt32
 FileNameChecksum(const char* inPath)
 {
-	std::string theName = std::filesystem::path(inPath ? inPath : "").filename().string();
+	// Skip the directory part. Don't use std::filesystem, it requires macOS 10.15 or newer.
+	const char* theName = inPath ? inPath : "";
+	for (const char* p = theName; *p; p++)
+	{
+#if defined(_WIN32)
+		if (*p == '/' || *p == '\\' || *p == ':')
+#else
+		if (*p == '/')
+#endif
+			theName = p + 1;
+	}
 	KUInt32 theSum = 0xa63e95f1;
-	for (unsigned char c : theName)
-		theSum = ((theSum << 5) | (theSum >> 27)) ^ c;
+	for (const unsigned char* c = (const unsigned char*) theName; *c; c++)
+		theSum = ((theSum << 5) | (theSum >> 27)) ^ *c;
 	return theSum;
 }
 

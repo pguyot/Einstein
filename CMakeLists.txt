@@ -7,6 +7,10 @@
 
 cmake_minimum_required(VERSION 3.15.0 FATAL_ERROR)
 
+# Minimum macOS version. This must be set before project(), so it applies to
+# all targets including FLTK and NEWT64. Override with -D CMAKE_OSX_DEPLOYMENT_TARGET=...
+set( CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS version to deploy to" )
+
 project( "Einstein" VERSION "2026.9.21" )
 
 # Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
@@ -46,8 +50,6 @@ if ( ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )
 
 	# TODO: enable this for release builds
 	#set( CMAKE_OSX_ARCHITECTURES arm64;x86_64 )
-	# TODO: set this for FLTK and NEWT64 as well
-	set( CMAKE_OSX_DEPLOYMENT_TARGET 10.15 )  # Can't go any lower.
 	# TODO: Fix this for release builds
 	set( CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO" )
 	set( CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "" )
