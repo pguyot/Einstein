@@ -1,4 +1,4 @@
-name: CI Windows (FLTK)
+name: CI Windows ARM64 (FLTK)
 
 on:
   workflow_dispatch:
