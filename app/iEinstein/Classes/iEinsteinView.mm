@@ -58,6 +58,9 @@
 												 name:NSUserDefaultsDidChangeNotification
 											   object:nil];
 
+	// Enable multi-touch for Apple Pencil support
+	self.multipleTouchEnabled = YES;
+
 	// Get initial state of preference
 	[self defaultsChanged:nil];
 }
@@ -66,6 +69,7 @@
 {
 	NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
 	applePencilMode = [(NSNumber*) [prefs objectForKey:@"apple_pencil"] boolValue];
+	applePencilPressureEnabled = [(NSNumber*) [prefs objectForKey:@"apple_pencil_pressure"] boolValue];
 }
 
 - (void)didRotate:(NSNotification*)notification
@@ -182,6 +186,7 @@
 	mScreenManager = NULL;
 	CGImageRelease(mScreenImage);
 	mScreenImage = NULL;
+	currentApplePencilTouch = nil;
 }
 
 - (void)setNeedsDisplayInNewtonRect:(NSValue*)v
@@ -203,20 +208,78 @@
 	[self setNeedsDisplayInRect:outRect];
 }
 
-- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
+/// Helper method to get Apple Pencil touch from a set of touches
+- (UITouch*)getApplePencilTouchFromTouches:(NSSet*)touches
 {
-	UITouch* t = nil;
-	if (applePencilMode)
+	if (!applePencilMode)
+		return nil;
+
+	for (UITouch* aTouch in touches)
 	{
-		for (UITouch* aTouch in touches)
+		// Support Apple Pencil (UITouchTypeStylus on iOS 9+)
+		if (@available(iOS 9.0, *))
 		{
 			if (aTouch.type == UITouchTypeStylus)
 			{
-				t = aTouch;
-				break;
+				return aTouch;
 			}
 		}
-	} else
+	}
+	return nil;
+}
+
+/// Helper method to convert touch coordinates to Newton coordinates
+- (void)convertTouchToNewtonCoordinates:(UITouch*)touch
+						  outX:(int*)outX
+						  outY:(int*)outY
+{
+	if (!touch || !mScreenManager)
+		return;
+
+	CGPoint p = [touch locationInView:self];
+	CGRect r = screenImageRect;
+	int x = (1.0 - ((p.y - r.origin.y) / r.size.height)) * newtonScreenHeight;
+	int y = ((p.x - r.origin.x) / r.size.width) * newtonScreenWidth;
+
+	// Translate coordinates based on orientation
+	switch (mScreenManager->GetScreenOrientation())
+	{
+		case TScreenManager::kOrientation_AppleRight:
+			SWAP(x, y);
+			y = newtonScreenHeight - y;
+			break;
+		case TScreenManager::kOrientation_AppleLeft:
+			SWAP(x, y);
+			x = newtonScreenWidth - x;
+			break;
+		case TScreenManager::kOrientation_AppleTop:
+			y = newtonScreenWidth - y;
+			x = newtonScreenHeight - x;
+			break;
+		default:
+			break;
+	}
+
+	*outX = x;
+	*outY = y;
+}
+
+- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
+{
+	UITouch* t = nil;
+
+	// If Apple Pencil mode is enabled, prioritize stylus input
+	if (applePencilMode)
+	{
+		t = [self getApplePencilTouchFromTouches:touches];
+		if (t)
+		{
+			currentApplePencilTouch = t;
+		}
+	}
+
+	// Fall back to finger touch if no stylus found
+	if (!t)
 	{
 		t = [touches anyObject];
 	}
@@ -232,30 +295,9 @@
 			// on Einstein/IOS, any screen touch will power the Newton back on.
 			mEmulator->GetPlatformManager()->SendPowerSwitchEvent();
 		}
-		CGPoint p = [t locationInView:self];
-		CGRect r = screenImageRect;
-		int x = (1.0 - ((p.y - r.origin.y) / r.size.height)) * newtonScreenHeight;
-		int y = ((p.x - r.origin.x) / r.size.width) * newtonScreenWidth;
 
-		// Translate coordinates based on orientation
-		switch (mScreenManager->GetScreenOrientation())
-		{
-			case TScreenManager::kOrientation_AppleRight:
-				SWAP(x, y);
-				y = newtonScreenHeight - y;
-				break;
-			case TScreenManager::kOrientation_AppleLeft:
-				SWAP(x, y);
-				x = newtonScreenWidth - x;
-				break;
-			case TScreenManager::kOrientation_AppleTop:
-				y = newtonScreenWidth - y;
-				x = newtonScreenHeight - x;
-				break;
-			default:
-				break;
-		}
-
+		int x, y;
+		[self convertTouchToNewtonCoordinates:t outX:&x outY:&y];
 		mScreenManager->PenDown(x, y);
 	}
 }
@@ -263,53 +305,59 @@
 - (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event
 {
 	UITouch* t = nil;
+
+	// If Apple Pencil mode is enabled, prioritize stylus input
 	if (applePencilMode)
 	{
-		for (UITouch* aTouch in touches)
+		// If we already have an Apple Pencil touch, continue using it
+		if (currentApplePencilTouch && [touches containsObject:currentApplePencilTouch])
 		{
-			if (aTouch.type == UITouchTypeStylus)
+			t = currentApplePencilTouch;
+		}
+		else
+		{
+			// Otherwise, look for a new stylus touch
+			t = [self getApplePencilTouchFromTouches:touches];
+			if (t)
 			{
-				t = aTouch;
-				break;
+				currentApplePencilTouch = t;
 			}
 		}
-	} else
+	}
+
+	// Fall back to finger touch if no stylus found
+	if (!t)
 	{
 		t = [touches anyObject];
 	}
 
 	if (t)
 	{
-		CGPoint p = [t locationInView:self];
-		CGRect r = screenImageRect;
-		int x = (1.0 - ((p.y - r.origin.y) / r.size.height)) * newtonScreenHeight;
-		int y = ((p.x - r.origin.x) / r.size.width) * newtonScreenWidth;
-
-		// Translate coordinates based on orientation
-		switch (mScreenManager->GetScreenOrientation())
-		{
-			case TScreenManager::kOrientation_AppleRight:
-				SWAP(x, y);
-				y = newtonScreenHeight - y;
-				break;
-			case TScreenManager::kOrientation_AppleLeft:
-				SWAP(x, y);
-				x = newtonScreenWidth - x;
-				break;
-			case TScreenManager::kOrientation_AppleTop:
-				y = newtonScreenWidth - y;
-				x = newtonScreenHeight - x;
-				break;
-			default:
-				break;
-		}
-
+		int x, y;
+		[self convertTouchToNewtonCoordinates:t outX:&x outY:&y];
 		mScreenManager->PenDown(x, y);
 	}
 }
 
 - (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event
 {
+	// Check if the Apple Pencil touch was released
+	if (currentApplePencilTouch && [touches containsObject:currentApplePencilTouch])
+	{
+		currentApplePencilTouch = nil;
+	}
+
+	mScreenManager->PenUp();
+}
+
+- (void)touchesCancelled:(NSSet*)touches withEvent:(UIEvent*)event
+{
+	// Handle touch cancellation (e.g., when an alert appears)
+	if (currentApplePencilTouch && [touches containsObject:currentApplePencilTouch])
+	{
+		currentApplePencilTouch = nil;
+	}
+
 	mScreenManager->PenUp();
 }
 
