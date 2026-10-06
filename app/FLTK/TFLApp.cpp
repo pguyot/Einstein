@@ -66,13 +66,10 @@
 // TODO: NPDS not working: incomming TCP/IP connections don't work
 
 // ----- F*ROM card emulation
-// TODO: emulate the 32MB FLash ROM card
+// TODO: emulate the 32MB Flash ROM card
 //		 Page 0 is ROM, page 1 is used by the Einstein REx, Page 2 is used
 //		 by einstein for an additional 4MB of Flash. So we can only really test
 //		 the F*ROM on Page 3. Must check if NewtonOS finds REx's on page 3.
-
-// ----- NCX Connectivity
-// TODO: the currently selected serial port driver must be saved in the preferences!
 
 /*
 
@@ -300,7 +297,7 @@ TFLApp::~TFLApp(void)
 // --- Startup and run the emulator.
 
 /**
- Run EInstein.
+ Run Einstein.
 
  \todo Must urgently refactor this so it becomes readable again.
  */
@@ -640,8 +637,8 @@ TFLApp::UserActionReset(int inType)
 /**
  User wants to see the About window.
 
- \todo The About WIndow is not very beautilf. We should add credits and clickable links
- to give the user complete information on teh project. We should also provide version
+ \todo The About Window is not very beautiful. We should add credits and clickable links
+ to give the user complete information on the project. We should also provide version
  information for the REx and maybe other interfaces.
  */
 void
