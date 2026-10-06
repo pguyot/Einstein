@@ -1,0 +1,29 @@
+name: CI Windows (FLTK)
+
+on:
+  workflow_dispatch:
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Get sources
+      uses: actions/checkout@v4
+    - name: Configure
+      run: |
+        cmake -S . -B _Build_/Makefiles -A ARM64 -D CMAKE_BUILD_TYPE=Release
+    - name: Compile Einstein
+      run: |
+        cmake --build _Build_/Makefiles --config Release
+    - name: Run tests
+      run: |
+        _Build_/Makefiles/Release/EinsteinTests
