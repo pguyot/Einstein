@@ -163,23 +163,23 @@ o->show();
         }
         MenuItem {} {
           label Reboot
-          callback {gApp->UserActionReset(1);}
+          callback {gApp->UserActionReset(1);} selected
           xywh {30 30 31 20} hide divider
         }
         MenuItem {} {
           label {Save State}
           callback {gApp->UserActionSaveState();}
-          xywh {0 0 100 20} shortcut 0x41006b
+          xywh {0 0 100 20} shortcut 0x41006b hide
         }
         MenuItem {} {
           label {Load State}
           callback {gApp->UserActionLoadState();}
-          xywh {0 0 100 20} shortcut 0x41006c
+          xywh {0 0 100 20} shortcut 0x41006c hide
         }
         MenuItem {} {
           label {Check State Round Trip}
           callback {gApp->UserActionCheckState();}
-          xywh {0 0 100 20} shortcut 0x410072 divider
+          xywh {0 0 100 20} shortcut 0x410072 hide divider
         }
         Submenu {} {
           label Reset open
@@ -187,7 +187,7 @@ o->show();
         } {
           MenuItem {} {
             label {System Reboot}
-            callback {gApp->UserActionReset(1);} selected
+            callback {gApp->UserActionReset(1);}
             xywh {20 20 31 20}
           }
           MenuItem {} {
