@@ -203,6 +203,12 @@ message(STATUS "Downloading and configuring FLTK - done.")
 # saving the file in fluid, or by building the 'fluid_update' target.
 function ( check_fluid_sources name dir )
 	set( fl_file "${CMAKE_SOURCE_DIR}/${dir}/${name}.fl" )
+	# the code is written by fluid, so clang-format must not check it
+	set_source_files_properties (
+		"${CMAKE_SOURCE_DIR}/${dir}/${name}.cpp"
+		"${CMAKE_SOURCE_DIR}/${dir}/${name}.h"
+		PROPERTIES EINSTEIN_FLUID_OUTPUT TRUE
+	)
 	# re-run this check when the .fl file changes
 	set_property ( DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${fl_file}" )
 	file ( TIMESTAMP "${fl_file}" fl_time "%s" )
@@ -658,7 +664,10 @@ if(CLANG_FORMAT_FOUND)
         get_property (SOURCE_IS_GENERATED
                       SOURCE "${SOURCE}"
                       PROPERTY GENERATED)
-        if (NOT SOURCE_IS_GENERATED)
+        get_property (SOURCE_IS_FLUID_OUTPUT
+                      SOURCE "${SOURCE}"
+                      PROPERTY EINSTEIN_FLUID_OUTPUT)
+        if (NOT SOURCE_IS_GENERATED AND NOT SOURCE_IS_FLUID_OUTPUT)
             list (APPEND format_sources_not_generated "${SOURCE}")
         endif ()
     endforeach ()

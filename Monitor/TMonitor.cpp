@@ -270,6 +270,19 @@ TMonitor::RunEmulator()
 			mEmulator->Run();
 		}
 
+		// Did the UI stop the emulator to save or load the state? Then continue.
+		if (ProcessStateRequest() && !mEmulator->IsBPHalted())
+		{
+			// After a load, the PC may point to a breakpoint.
+			realPC = mProcessor->GetRegister(15) - 4;
+			instructionIsBP = false;
+			if (!mMemory->Read((TMemory::VAddr) realPC, instruction))
+			{
+				instructionIsBP = ((instruction & 0xFFF000F0) == 0xE1200070);
+			}
+			continue;
+		}
+
 		// We're halted now. Check if it was because of a BP.
 		if (mEmulator->IsBPHalted())
 		{
@@ -528,6 +541,92 @@ TMonitor::Stop()
 	SignalCondVar();
 
 	ReleaseMutex();
+}
+
+// -------------------------------------------------------------------------- //
+// RequestSaveState( const char* )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::RequestSaveState(const char* inPath)
+{
+	return RequestStateTransfer(kStateRequestSave, inPath);
+}
+
+// -------------------------------------------------------------------------- //
+// RequestLoadState( const char* )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::RequestLoadState(const char* inPath)
+{
+	return RequestStateTransfer(kStateRequestLoad, inPath);
+}
+
+// -------------------------------------------------------------------------- //
+// RequestStateTransfer( EStateRequest, const char* )
+// -------------------------------------------------------------------------- //
+// Called from the UI thread. The monitor thread holds mMutex at all times,
+// except while it waits for a command.
+Boolean
+TMonitor::RequestStateTransfer(EStateRequest inRequest, const char* inPath)
+{
+	// Only one request at a time.
+	if (mStateRequest != kStateRequestNone)
+		return false;
+
+	if (mMutex->TryLock())
+	{
+		// The emulator is halted and the monitor thread waits for a command.
+		// It can't start the emulator while we hold the mutex.
+		DoStateTransfer(inRequest, inPath);
+		mMutex->Unlock();
+		return true;
+	}
+
+	if (mHalted)
+	{
+		// The monitor thread is busy with another command.
+		return false;
+	}
+
+	// The emulator is running. Hand the request to the monitor thread and stop
+	// the emulator. RunEmulator() saves or loads, then continues to run.
+	mStateRequestPath = inPath;
+	mStateRequest = inRequest;
+	mEmulator->Stop();
+	return true;
+}
+
+// -------------------------------------------------------------------------- //
+// DoStateTransfer( EStateRequest, const char* )
+// -------------------------------------------------------------------------- //
+void
+TMonitor::DoStateTransfer(EStateRequest inRequest, const char* inPath)
+{
+	char theLine[512];
+	if (inRequest == kStateRequestSave)
+	{
+		SaveEmulatorState(inPath);
+		(void) ::snprintf(theLine, sizeof(theLine), "Emulator state saved to %s", inPath);
+	} else
+	{
+		LoadEmulatorState(inPath);
+		(void) ::snprintf(theLine, sizeof(theLine), "Emulator state loaded from %s", inPath);
+	}
+	PrintLine(theLine, MONITOR_LOG_INFO);
+}
+
+// -------------------------------------------------------------------------- //
+// ProcessStateRequest( void )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::ProcessStateRequest()
+{
+	EStateRequest theRequest = mStateRequest;
+	if (theRequest == kStateRequestNone)
+		return false;
+	DoStateTransfer(theRequest, mStateRequestPath.c_str());
+	mStateRequest = kStateRequestNone;
+	return true;
 }
 
 // little helper to return the printable version of any character

@@ -108,6 +108,12 @@ public:
 	// user wants to reset or reboot the emulator
 	void UserActionReset(int inType);
 
+	// user wants to save the emulator state (temporary, for testing Fast start)
+	void UserActionSaveState();
+
+	// user wants to load the emulator state (temporary, for testing Fast start)
+	void UserActionLoadState();
+
 	// user wants to see the About window
 	void UserActionShowAboutPanel();
 

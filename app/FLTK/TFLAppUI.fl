@@ -166,6 +166,16 @@ o->show();
           callback {gApp->UserActionReset(1);}
           xywh {30 30 31 20} divider
         }
+        MenuItem {} {
+          label {Save State}
+          callback {gApp->UserActionSaveState();}
+          xywh {0 0 100 20} shortcut 0x41006b
+        }
+        MenuItem {} {
+          label {Load State}
+          callback {gApp->UserActionLoadState();}
+          xywh {0 0 100 20} shortcut 0x41006c divider
+        }
         Submenu {} {
           label Reset open
           xywh {0 0 62 20} hide divider

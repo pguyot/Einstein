@@ -31,6 +31,7 @@
 #include <K/Threads/TThread.h>
 
 #include <atomic>
+#include <string>
 
 #include "TMonitorCore.h"
 #include "Emulator/Log/TBufferLog.h"
@@ -108,6 +109,20 @@ public:
 	/// Exit from monitor loop.
 	///
 	void Stop(void);
+
+	///
+	/// Save the emulator state to a file. Call this from the UI thread, while
+	/// the emulator runs or while it is halted. A running emulator is stopped,
+	/// saved, and continues to run.
+	/// \return false if the monitor is busy and the state was not saved.
+	///
+	Boolean RequestSaveState(const char* inPath);
+
+	///
+	/// Load the emulator state from a file, see RequestSaveState().
+	/// \return false if the monitor is busy and the state was not loaded.
+	///
+	Boolean RequestLoadState(const char* inPath);
 
 	///
 	/// Print help for the available commands.
@@ -405,6 +420,25 @@ protected:
 	TMutex* mMutex { nullptr };
 	std::atomic<ECommand> mCommand { kNop }; ///< Next command for the
 	///< monitor thread (written by the UI, read by the monitor thread).
+
+	/// Save or load requests from the UI while the emulator runs.
+	enum EStateRequest {
+		kStateRequestNone,
+		kStateRequestSave,
+		kStateRequestLoad
+	};
+	std::atomic<EStateRequest> mStateRequest { kStateRequestNone }; ///< Pending request for the monitor thread.
+	std::string mStateRequestPath; ///< File for mStateRequest, set before mStateRequest.
+
+	/// Hand a save or load request to the monitor thread, or do it right away if halted.
+	Boolean RequestStateTransfer(EStateRequest inRequest, const char* inPath);
+
+	/// Save or load the state now. The emulator must not be running.
+	void DoStateTransfer(EStateRequest inRequest, const char* inPath);
+
+	/// Called by the monitor thread when the emulator stopped. Returns true if
+	/// it stopped because of a save or load request, which is now done.
+	Boolean ProcessStateRequest();
 	char* mFilename { nullptr }; ///< Argument for next command.
 #if TARGET_UI_FLTK
 	// no signaling between monitor and log yet

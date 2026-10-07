@@ -30,9 +30,9 @@ TFLAppWindow* CreateApplicationWindow(int x, int y);
 extern Fl_Menu_Item menu_wMenubar[];
 #define wPCCardSlot1 (menu_wMenubar+26)
 #define wPCCardSlot0 (menu_wMenubar+27)
-#define wMenuItemFullscreen (menu_wMenubar+38)
-#define wMenuItemMonitor (menu_wMenubar+39)
-#define wMenuItemToolkit (menu_wMenubar+40)
-#define wMenuItemEssentials (menu_wMenubar+47)
-#define wMenuItemAbout (menu_wMenubar+48)
+#define wMenuItemFullscreen (menu_wMenubar+40)
+#define wMenuItemMonitor (menu_wMenubar+41)
+#define wMenuItemToolkit (menu_wMenubar+42)
+#define wMenuItemEssentials (menu_wMenubar+49)
+#define wMenuItemAbout (menu_wMenubar+50)
 #endif

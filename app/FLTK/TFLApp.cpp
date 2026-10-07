@@ -201,10 +201,12 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_Native_File_Chooser.H>
 #include <FL/Fl_Paged_Device.H>
+#include <FL/Fl_Preferences.H>
 #include <FL/Fl_Printer.H>
 #include <FL/Fl_Shared_Image.H>
 #include <FL/Fl_Tooltip.H>
 #include <FL/Fl_Window.H>
+#include <FL/fl_ask.H>
 #include <FL/fl_draw.H>
 #include <FL/x.H>
 #if TARGET_OS_MAC
@@ -246,6 +248,8 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #else
 #error Selected target OS not implemented, or no target OS selected
 #endif
+
+#include <K/Streams/TFileStream.h>
 
 // Monitor system for debugging ARM code
 #include "Monitor/TFLMonitor.h"
@@ -611,6 +615,52 @@ TFLApp::UserActionInstallPackage()
 		mPlatformManager->InstallPackage(filename);
 	}
 	//}
+}
+
+/**
+ Return the path of the file used by "Save State" and "Load State".
+ It is in Einstein's data folder, next to the default flash file.
+ */
+static std::string
+StateFilePath()
+{
+	char buf[FL_PATH_MAX];
+	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
+	prefs.getUserdataPath(buf, sizeof(buf));
+	return std::string(buf) + "Einstein.state";
+}
+
+/**
+ User wants to save the emulator state.
+ This is temporary, to test saving and loading for Fast start.
+ */
+void
+TFLApp::UserActionSaveState()
+{
+	if (!mMonitor)
+		return;
+	std::string path = StateFilePath();
+	if (!mMonitor->RequestSaveState(path.c_str()))
+		fl_beep();
+}
+
+/**
+ User wants to load the emulator state saved by UserActionSaveState().
+ This is temporary, to test saving and loading for Fast start.
+ */
+void
+TFLApp::UserActionLoadState()
+{
+	if (!mMonitor)
+		return;
+	std::string path = StateFilePath();
+	if (!TFileStream::Exists(path.c_str()))
+	{
+		fl_alert("No saved state found at\n%s", path.c_str());
+		return;
+	}
+	if (!mMonitor->RequestLoadState(path.c_str()))
+		fl_beep();
 }
 
 /**
