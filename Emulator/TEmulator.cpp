@@ -74,7 +74,8 @@
 // Version 3: the platform manager (power state, event and buffer queues).
 // Version 4: pending pen samples, sound interrupt masks, volume and buffers.
 // Version 5: serial port DMA registers.
-static const KUInt32 kStateFileVersion = 5;
+// Version 6: PCMCIA controller registers and card state.
+static const KUInt32 kStateFileVersion = 6;
 
 // -------------------------------------------------------------------------- //
 //  * TEmulator( void )
@@ -577,6 +578,15 @@ TEmulator::TransferState(TStream* inStream)
 	// The DMA registers of the serial ports.
 	StartSection("serial ports");
 	SerialPorts.TransferState(inStream);
+
+	// The PCMCIA controllers and the state of the inserted cards.
+	StartSection("PCMCIA");
+	for (int socketIx = 0; socketIx < kNbSockets; socketIx++)
+	{
+		TPCMCIAController* theController = mMemory.GetPCMCIAController(socketIx);
+		if (theController)
+			theController->TransferState(inStream);
+	}
 
 	// And the screen content.
 	StartSection("screen");

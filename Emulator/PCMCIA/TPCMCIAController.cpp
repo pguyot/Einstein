@@ -32,6 +32,8 @@
 #include "Emulator/TInterruptManager.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/PCMCIA/TPCMCIACard.h"
+#include <K/Streams/TMemoryStream.h>
+#include <K/Streams/TStream.h>
 
 #define DEBUGPCMCIA 1
 
@@ -376,6 +378,66 @@ TPCMCIAController::InsertCard(TPCMCIACard* inCard)
 	// -CD1 and -CD2 go low. If the card server waits for a card, it has set
 	// a falling edge interrupt on them. At boot, it polls instead.
 	LatchPinChanges(theOldPins, UpdatePins());
+}
+
+// -------------------------------------------------------------------------- //
+//  * TransferState( TStream* )
+// -------------------------------------------------------------------------- //
+// Which card is inserted is a preference. The card's state is saved as a tag
+// and a block of known length, so that a different card can be skipped when
+// the state is loaded.
+void
+TPCMCIAController::TransferState(TStream* inStream)
+{
+	inStream->TransferInt32BE(mReg_0000);
+	inStream->TransferInt32BE(mIntCtrlReg);
+	inStream->TransferInt32BE(mReg_0800);
+	inStream->TransferInt32BE(mReg_0C00);
+	inStream->TransferInt32BE(mReg_1000);
+	inStream->TransferInt32BE(mReg_1400);
+	inStream->TransferInt32BE(mReg_1800);
+	inStream->TransferInt32BE(mReg_1C00);
+	inStream->TransferInt32BE(mReg_2000);
+	inStream->TransferInt32BE(mReg_2400);
+	inStream->TransferInt32BE(mReg_2800);
+	inStream->TransferInt32BE(mReg_2C00);
+	inStream->TransferInt32BE(mReg_3000);
+	inStream->TransferInt32BE(mReg_3400);
+	inStream->TransferInt32BE(mReg_3800);
+	inStream->TransferInt32BE(mReg_3C00);
+	inStream->TransferInt32BE(mReg_4000);
+
+	KUInt32 theCardTag = mCard ? mCard->GetStateTag() : 0;
+	if (inStream->IsWriting())
+	{
+		TMemoryStream theCardState;
+		if (mCard)
+			mCard->TransferState(&theCardState);
+		KUInt32 theSize = (KUInt32) theCardState.GetData().size();
+		inStream->TransferInt32BE(theCardTag);
+		inStream->TransferInt32BE(theSize);
+		if (theSize > 0)
+			inStream->Transfer((void*) theCardState.GetData().data(), &theSize);
+	} else if (inStream->IsReading())
+	{
+		KUInt32 theSavedTag = 0;
+		KUInt32 theSize = 0;
+		inStream->TransferInt32BE(theSavedTag);
+		inStream->TransferInt32BE(theSize);
+		std::vector<KUInt8> theData(theSize);
+		if (theSize > 0)
+			inStream->Transfer(theData.data(), &theSize);
+		if (theSavedTag != theCardTag)
+		{
+			KPrintf("PCMCIA socket %d: the state was saved with a different card (or none). "
+					"The card state is not loaded.\n",
+				mSocketIx);
+		} else if (mCard && theSize > 0)
+		{
+			TMemoryStream theCardState(theData.data(), theSize);
+			mCard->TransferState(&theCardState);
+		}
+	}
 }
 
 // -------------------------------------------------------------------------- //

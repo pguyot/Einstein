@@ -67,6 +67,20 @@ public:
 	virtual void Remove();
 
 	///
+	/// This is an ATA card.
+	///
+	virtual KUInt32
+	GetStateTag(void)
+	{
+		return 'ata ';
+	}
+
+	///
+	/// Save or load the task file registers, the FIFO and the state.
+	///
+	virtual void TransferState(TStream* inStream);
+
+	///
 	/// Get PCMCIA pins.
 	///
 	virtual KUInt32 GetVPCPins(void);

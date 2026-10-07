@@ -28,6 +28,7 @@
 #include "Emulator/TEmulator.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
+#include <K/Streams/TStream.h>
 
 #if TARGET_OS_WIN32
 #include <Winsock2.h>
@@ -227,6 +228,18 @@ TLinearCard::Flush()
 	}
 
 	mPageDirty.assign(mPageDirty.size(), false);
+}
+
+// -------------------------------------------------------------------------- //
+//  * TransferState( TStream* )
+// -------------------------------------------------------------------------- //
+void
+TLinearCard::TransferState(TStream* inStream)
+{
+	KUInt32 theState = (KUInt32) mState;
+	inStream->TransferInt32BE(theState);
+	mState = (int) theState;
+	inStream->TransferByte(mStatusRegister);
 }
 
 // -------------------------------------------------------------------------- //

@@ -30,6 +30,7 @@ class TLog;
 class TEmulator;
 class TInterruptManager;
 class TPCMCIACard;
+class TStream;
 
 /*
  Apple Newton and the PCMCIA Bus
@@ -190,6 +191,11 @@ public:
 	/// Remove the card.
 	///
 	void RemoveCard(void);
+
+	///
+	/// Save or load the controller registers and the state of the card.
+	///
+	void TransferState(TStream* inStream);
 
 	///
 	/// Return the card in the slot or nullptr if empty.

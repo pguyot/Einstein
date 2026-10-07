@@ -138,6 +138,20 @@ public:
 	void Remove() override;
 
 	///
+	/// This is a linear flash card.
+	///
+	KUInt32
+	GetStateTag(void) override
+	{
+		return 'line';
+	}
+
+	///
+	/// Save or load the state of the flash command state machine.
+	///
+	void TransferState(TStream* inStream) override;
+
+	///
 	/// Get PCMCIA pins.
 	///
 	KUInt32 GetVPCPins(void) override;

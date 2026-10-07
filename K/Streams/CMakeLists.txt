@@ -9,6 +9,7 @@ list ( APPEND cmake_sources
 list ( APPEND common_sources
 	K/Streams/TFileStream.cpp
 	K/Streams/TFileStream.h
+	K/Streams/TMemoryStream.h
 	K/Streams/TRandomAccessStream.h
 	K/Streams/TStream.cpp
 	K/Streams/TStream.h

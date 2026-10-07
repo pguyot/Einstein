@@ -73,6 +73,7 @@
 // Einstein
 #include "TPCMCIAController.h"
 #include "Emulator/Log/TLog.h"
+#include <K/Streams/TStream.h>
 
 #ifdef min
 #undef min
@@ -294,6 +295,42 @@ TATACard::Remove()
 	// Every sector was written when it arrived, but make sure it reached the disk.
 	FlushImage();
 	TPCMCIACard::Remove();
+}
+
+// -------------------------------------------------------------------------- //
+//  * TransferState( TStream* )
+// -------------------------------------------------------------------------- //
+void
+TATACard::TransferState(TStream* inStream)
+{
+	KUInt32 theState = (KUInt32) mState;
+	inStream->TransferInt32BE(theState);
+	mState = (State) theState;
+
+	inStream->TransferByte(mErrorReg);
+	inStream->TransferByte(mFeaturesReg);
+	inStream->TransferByte(mSectorCountReg);
+	inStream->TransferByte(mSectorNumberReg);
+	inStream->TransferByte(mCylinderLowReg);
+	inStream->TransferByte(mCylinderHighReg);
+	inStream->TransferByte(mDriveHeadReg);
+	inStream->TransferByte(mCommandReg);
+	inStream->TransferByte(mDeviceControlReg);
+	inStream->TransferByte(mConfigOptionReg);
+	inStream->TransferByte(mConfigStatusReg);
+
+	// The block that is being read or written through the data register.
+	KUInt32 theFifoSize = (KUInt32) mFifo.size();
+	KUInt32 theFifoPos = (KUInt32) mFifoPos;
+	inStream->TransferInt32BE(theFifoSize);
+	inStream->TransferInt32BE(theFifoPos);
+	if (inStream->IsReading())
+	{
+		mFifo.resize(theFifoSize);
+		mFifoPos = std::min((size_t) theFifoPos, mFifo.size());
+	}
+	if (theFifoSize > 0)
+		inStream->Transfer(mFifo.data(), &theFifoSize);
 }
 
 // -------------------------------------------------------------------------- //

@@ -50,6 +50,15 @@ public:
 	virtual ~TNE2000Card(void);
 
 	///
+	/// This is a network card. It has no state of its own to save.
+	///
+	virtual KUInt32
+	GetStateTag(void)
+	{
+		return 'ne2k';
+	}
+
+	///
 	/// Get PCMCIA pins.
 	///
 	virtual KUInt32 GetVPCPins(void);
