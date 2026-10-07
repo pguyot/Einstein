@@ -125,6 +125,15 @@ public:
 	Boolean RequestLoadState(const char* inPath);
 
 	///
+	/// Check that saving and loading the state is symmetric: save the state
+	/// to <inBasePath>A.state, load it, save it again to <inBasePath>B.state,
+	/// and compare both files. The result is printed to the monitor log.
+	/// Call from the UI thread, see RequestSaveState().
+	/// \return false if the monitor is busy and the check did not run.
+	///
+	Boolean RequestCheckState(const char* inBasePath);
+
+	///
 	/// Print help for the available commands.
 	///
 	void PrintHelp(void);
@@ -427,7 +436,8 @@ protected:
 	enum EStateRequest {
 		kStateRequestNone,
 		kStateRequestSave,
-		kStateRequestLoad
+		kStateRequestLoad,
+		kStateRequestCheck
 	};
 	std::atomic<EStateRequest> mStateRequest { kStateRequestNone }; ///< Pending request for the monitor thread.
 	std::string mStateRequestPath; ///< File for mStateRequest, set before mStateRequest.
@@ -441,6 +451,9 @@ protected:
 	/// Called by the monitor thread when the emulator stopped. Returns true if
 	/// it stopped because of a save or load request, which is now done.
 	Boolean ProcessStateRequest();
+
+	/// Save, load, save again, and compare. The emulator must not be running.
+	void CheckStateRoundTrip(const char* inBasePath);
 	char* mFilename { nullptr }; ///< Argument for next command.
 #if TARGET_UI_FLTK
 	// no signaling between monitor and log yet

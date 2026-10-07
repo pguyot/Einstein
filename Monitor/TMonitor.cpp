@@ -30,7 +30,10 @@
 // C++11 and up
 #include <algorithm>
 #include <chrono>
+#include <fstream>
+#include <iterator>
 #include <thread>
+#include <vector>
 
 // ANSI C & POSIX
 #include <errno.h>
@@ -567,6 +570,15 @@ TMonitor::RequestLoadState(const char* inPath)
 }
 
 // -------------------------------------------------------------------------- //
+// RequestCheckState( const char* )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::RequestCheckState(const char* inBasePath)
+{
+	return RequestStateTransfer(kStateRequestCheck, inBasePath);
+}
+
+// -------------------------------------------------------------------------- //
 // RequestStateTransfer( EStateRequest, const char* )
 // -------------------------------------------------------------------------- //
 // Called from the UI thread. The monitor thread holds mMutex at all times,
@@ -608,7 +620,10 @@ void
 TMonitor::DoStateTransfer(EStateRequest inRequest, const char* inPath)
 {
 	char theLine[512];
-	if (inRequest == kStateRequestSave)
+	if (inRequest == kStateRequestCheck)
+	{
+		CheckStateRoundTrip(inPath);
+	} else if (inRequest == kStateRequestSave)
 	{
 		if (SaveEmulatorState(inPath))
 		{
@@ -630,6 +645,94 @@ TMonitor::DoStateTransfer(EStateRequest inRequest, const char* inPath)
 			(void) ::snprintf(theLine, sizeof(theLine), "Could not load the emulator state from %s", inPath);
 			PrintLine(theLine, MONITOR_LOG_ERROR);
 		}
+	}
+}
+
+// -------------------------------------------------------------------------- //
+// CheckStateRoundTrip( const char* )
+// -------------------------------------------------------------------------- //
+// Save the state to file A, load A, and save again to file B. If saving and
+// loading are symmetric, A and B are identical. If not, report the sections
+// that differ. This finds values that are saved but not loaded (or loaded in
+// a different order). It cannot find state that is not saved at all.
+void
+TMonitor::CheckStateRoundTrip(const char* inBasePath)
+{
+	char theLine[512];
+	std::string thePathA = std::string(inBasePath) + "A.state";
+	std::string thePathB = std::string(inBasePath) + "B.state";
+
+	if (!SaveEmulatorState(thePathA.c_str()))
+	{
+		(void) ::snprintf(theLine, sizeof(theLine), "State round trip: could not save %s", thePathA.c_str());
+		PrintLine(theLine, MONITOR_LOG_ERROR);
+		return;
+	}
+	std::vector<TEmulator::SStateSection> theSections = mEmulator->GetStateSections();
+	if (!LoadEmulatorState(thePathA.c_str()))
+	{
+		(void) ::snprintf(theLine, sizeof(theLine), "State round trip: could not load %s", thePathA.c_str());
+		PrintLine(theLine, MONITOR_LOG_ERROR);
+		return;
+	}
+	if (!SaveEmulatorState(thePathB.c_str()))
+	{
+		(void) ::snprintf(theLine, sizeof(theLine), "State round trip: could not save %s", thePathB.c_str());
+		PrintLine(theLine, MONITOR_LOG_ERROR);
+		return;
+	}
+
+	// Read both files.
+	std::ifstream theFileA(thePathA, std::ios::binary);
+	std::ifstream theFileB(thePathB, std::ios::binary);
+	std::vector<char> theDataA((std::istreambuf_iterator<char>(theFileA)), std::istreambuf_iterator<char>());
+	std::vector<char> theDataB((std::istreambuf_iterator<char>(theFileB)), std::istreambuf_iterator<char>());
+
+	// Count the differing bytes per section. Bytes before the first section
+	// are the file header.
+	size_t theCommonSize = std::min(theDataA.size(), theDataB.size());
+	std::vector<size_t> theDiffsPerSection(theSections.size() + 1, 0);
+	size_t theDiffCount = 0;
+	size_t theFirstDiff = theCommonSize;
+	size_t theSectionIx = 0; // 0 is the header, i+1 is theSections[i]
+	for (size_t i = 0; i < theCommonSize; i++)
+	{
+		while (theSectionIx < theSections.size() && (KSInt64) i >= theSections[theSectionIx].fOffset)
+			theSectionIx++;
+		if (theDataA[i] != theDataB[i])
+		{
+			if (theDiffCount == 0)
+				theFirstDiff = i;
+			theDiffCount++;
+			theDiffsPerSection[theSectionIx]++;
+		}
+	}
+
+	if (theDiffCount == 0 && theDataA.size() == theDataB.size())
+	{
+		(void) ::snprintf(theLine, sizeof(theLine),
+			"State round trip OK: %lu bytes identical", (unsigned long) theDataA.size());
+		PrintLine(theLine, MONITOR_LOG_INFO);
+		return;
+	}
+
+	(void) ::snprintf(theLine, sizeof(theLine),
+		"State round trip FAILED: %lu bytes differ, first at offset %lu",
+		(unsigned long) theDiffCount, (unsigned long) theFirstDiff);
+	PrintLine(theLine, MONITOR_LOG_ERROR);
+	if (theDataA.size() != theDataB.size())
+	{
+		(void) ::snprintf(theLine, sizeof(theLine), "  file sizes differ: %lu and %lu bytes",
+			(unsigned long) theDataA.size(), (unsigned long) theDataB.size());
+		PrintLine(theLine, MONITOR_LOG_ERROR);
+	}
+	for (size_t i = 0; i < theDiffsPerSection.size(); i++)
+	{
+		if (theDiffsPerSection[i] == 0)
+			continue;
+		(void) ::snprintf(theLine, sizeof(theLine), "  %lu bytes differ in %s",
+			(unsigned long) theDiffsPerSection[i], (i == 0) ? "the file header" : theSections[i - 1].fName);
+		PrintLine(theLine, MONITOR_LOG_ERROR);
 	}
 }
 
@@ -710,6 +813,15 @@ TMonitor::ExecuteCommand(const char* inCommand)
 		} else if (::strcmp(inCommand, "") != 0)
 		{
 			PrintLine("The emulator is already running", MONITOR_LOG_ERROR);
+		}
+	} else if ((::strcmp(inCommand, "checkstate") == 0)
+		|| (::strncmp(inCommand, "checkstate ", 11) == 0))
+	{
+		// Works while running and while halted.
+		const char* theBasePath = inCommand[10] ? inCommand + 11 : "/tmp/einstein-check";
+		if (!RequestCheckState(theBasePath))
+		{
+			PrintLine("The monitor is busy, try again", MONITOR_LOG_ERROR);
 		}
 	} else if (::strncmp(inCommand, "save ", 5) == 0)
 	{
@@ -1537,6 +1649,7 @@ TMonitor::PrintHelp()
 	PrintLine(" raise <val>        raise the interrupts", MONITOR_LOG_INFO);
 	PrintLine(" gpio <val>         raise the gpio interrupts", MONITOR_LOG_INFO);
 	PrintLine(" load|save path     load or save the emulator state", MONITOR_LOG_INFO);
+	PrintLine(" checkstate [path]  save, load, save again, compare (round trip)", MONITOR_LOG_INFO);
 	PrintLine(" snap|revert        (re)store machine state while running", MONITOR_LOG_INFO);
 	PrintLine(" help log           help with logging", MONITOR_LOG_INFO);
 	PrintLine(" help script        help with scripting", MONITOR_LOG_INFO);

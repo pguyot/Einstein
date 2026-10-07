@@ -41,6 +41,7 @@
 
 // K
 #include <K/Streams/TFileStream.h>
+#include <K/Streams/TRandomAccessStream.h>
 #include <K/Streams/TStream.h>
 
 // Einstein
@@ -545,23 +546,38 @@ TEmulator::TransferState(TStream* inStream)
 	SerialPorts.SuspendAll();
 	SResumeSerialPorts theResumeGuard { SerialPorts };
 
+	// When writing a file, remember where each section starts.
+	TRandomAccessStream* theFile = dynamic_cast<TRandomAccessStream*>(inStream);
+	if (inStream->IsWriting())
+		mStateSections.clear();
+	auto StartSection = [&](const char* inName) {
+		if (theFile && inStream->IsWriting())
+			mStateSections.push_back({ inName, theFile->GetCursor() });
+	};
+
 	// First, save the memory.
+	StartSection("memory (registers, ROM, RAM, breakpoints, MMU, flash)");
 	mMemory.TransferState(inStream);
 
 	// Then the CPU.
+	StartSection("CPU and native primitives");
 	mProcessor.TransferState(inStream);
 
 	// And the interrupt manager.
+	StartSection("interrupt manager");
 	mInterruptManager->TransferState(inStream);
 
-	// And the interrupt manager.
+	// And the DMA manager.
+	StartSection("DMA manager");
 	mDMAManager->TransferState(inStream);
 
 	// And the screen content.
+	StartSection("screen");
 	mScreenManager->TransferState(inStream);
 
 	// Emulator specific stuff. The run-control flags (mRunning, mPaused, ...)
 	// belong to the host thread, not to the emulated machine, and are not saved.
+	StartSection("emulator (Newton ID)");
 	inStream->TransferInt32ArrayBE(mNewtonID, 2);
 }
 

@@ -114,6 +114,9 @@ public:
 	// user wants to load the emulator state (temporary, for testing Fast start)
 	void UserActionLoadState();
 
+	// user wants to check that saving and loading is symmetric (temporary)
+	void UserActionCheckState();
+
 	// user wants to see the About window
 	void UserActionShowAboutPanel();
 

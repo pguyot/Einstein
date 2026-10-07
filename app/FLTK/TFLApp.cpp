@@ -618,16 +618,25 @@ TFLApp::UserActionInstallPackage()
 }
 
 /**
- Return the path of the file used by "Save State" and "Load State".
- It is in Einstein's data folder, next to the default flash file.
+ Return the path of a file in Einstein's data folder, next to the default
+ flash file.
  */
 static std::string
-StateFilePath()
+DataFilePath(const char* inName)
 {
 	char buf[FL_PATH_MAX];
 	Fl_Preferences prefs(Fl_Preferences::USER, "robowerk.com", "einstein");
 	prefs.getUserdataPath(buf, sizeof(buf));
-	return std::string(buf) + "Einstein.state";
+	return std::string(buf) + inName;
+}
+
+/**
+ Return the path of the file used by "Save State" and "Load State".
+ */
+static std::string
+StateFilePath()
+{
+	return DataFilePath("Einstein.state");
 }
 
 /**
@@ -660,6 +669,22 @@ TFLApp::UserActionLoadState()
 		return;
 	}
 	if (!mMonitor->RequestLoadState(path.c_str()))
+		fl_beep();
+}
+
+/**
+ User wants to check that saving and loading the state is symmetric.
+ Saves, loads and saves again to EinsteinCheckA.state and EinsteinCheckB.state
+ in the data folder, and prints the result to the Monitor log.
+ This is temporary, to test saving and loading for Fast start.
+ */
+void
+TFLApp::UserActionCheckState()
+{
+	if (!mMonitor)
+		return;
+	std::string basePath = DataFilePath("EinsteinCheck");
+	if (!mMonitor->RequestCheckState(basePath.c_str()))
 		fl_beep();
 }
 

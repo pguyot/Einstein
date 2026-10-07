@@ -27,6 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 #include <atomic>
 #include <functional>
+#include <vector>
 
 // Einstein
 #include "Emulator/TARMProcessor.h"
@@ -421,6 +422,25 @@ public:
 	Boolean LoadState(const char* inPath);
 
 	///
+	/// A section of a state file, see GetStateSections().
+	///
+	struct SStateSection {
+		const char* fName; ///< what this section holds
+		KSInt64 fOffset; ///< start of the section in the file
+	};
+
+	///
+	/// Where the sections of the last state file written by SaveState()
+	/// start. Used to find out which part of the state differs between two
+	/// files (see TMonitor's state round trip check).
+	///
+	const std::vector<SStateSection>&
+	GetStateSections() const
+	{
+		return mStateSections;
+	}
+
+	///
 	/// Save or restore the state to or from a file.
 	///
 	void TransferState(TStream* inStream);
@@ -548,6 +568,9 @@ private:
 
 	/// Call this when power is restored
 	std::function<void()> mCallOnPowerRestored;
+
+	/// Sections of the last state file written, see GetStateSections().
+	std::vector<SStateSection> mStateSections;
 
 	/// if set, OS will offer to erase internal flash on next Reset
 	bool mZAPMemory { false };

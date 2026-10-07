@@ -174,7 +174,12 @@ o->show();
         MenuItem {} {
           label {Load State}
           callback {gApp->UserActionLoadState();}
-          xywh {0 0 100 20} shortcut 0x41006c divider
+          xywh {0 0 100 20} shortcut 0x41006c
+        }
+        MenuItem {} {
+          label {Check State Round Trip}
+          callback {gApp->UserActionCheckState();}
+          xywh {0 0 100 20} shortcut 0x410072 divider
         }
         Submenu {} {
           label Reset open
