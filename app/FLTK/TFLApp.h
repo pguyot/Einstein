@@ -215,14 +215,33 @@ private:
 	// On launch: insert the cards from the fast start file and load it
 	EFastStart LoadFastStartState();
 
-	// On quit: let the Newton fall asleep and save the fast start file
-	void SaveFastStartState();
+	// On quit: start letting the Newton fall asleep, to save the fast start
+	// file. Returns false if no state will be saved. If it returns true,
+	// QuitNow() is called when the state was saved (or after a timeout).
+	bool StartSavingFastStartState();
+
+	// Timer callback that runs while the fast start file is being saved
+	static void SaveFastStartStateTimer(void* inData);
+
+	// Close all windows, which ends Fl::run()
+	void QuitNow();
 
 	// Find the card in the card list that was saved in a state file, -1 if none
 	long FindCardForState(KUInt32 inTag, const std::string& inImagePath);
 
-	// set while SaveFastStartState() waits, so a second quit does not start over
-	bool mSavingFastStartState { false };
+	// Progress of saving the fast start file. The UI keeps running meanwhile;
+	// waiting inside a callback (for example a macOS menu bar action) could
+	// keep the emulator thread from getting the FLTK lock.
+	enum class EFastStartSave {
+		kIdle,
+		kWaitForSleep,
+		kWaitForHalt,
+		kSave
+	};
+	EFastStartSave mFastStartSave { EFastStartSave::kIdle };
+
+	// When the current step of saving the fast start file started, in seconds
+	double mFastStartSaveStepStart { 0.0 };
 
 	// create the driver for our screen output
 	void CreateScreenManager(

@@ -194,7 +194,6 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 // C++17
 #include <chrono>
 #include <filesystem>
-#include <functional>
 #include <thread>
 
 // FLTK user interface
@@ -471,13 +470,25 @@ TFLApp::Run(int argc, char* argv[])
 void
 TFLApp::UserActionQuit()
 {
-	// A second quit while we wait for the Newton to fall asleep does nothing.
-	if (mSavingFastStartState)
+	// A second quit while the fast start file is being saved does nothing.
+	if (mFastStartSave != EFastStartSave::kIdle)
 		return;
 
 	// Let the Newton fall asleep and save its state for the next start.
-	SaveFastStartState();
+	// QuitNow() is called when that is done.
+	if (StartSavingFastStartState())
+		return;
 
+	QuitNow();
+}
+
+/**
+ Close all windows, which ends Fl::run(). TFLApp::Run() then shuts down the
+ emulator.
+ */
+void
+TFLApp::QuitNow()
+{
 #if USE_TOOLKIT
 	// Close the Toolkit window, so it can save its coordinates in the prefrences
 	if (mToolkit)
@@ -1458,20 +1469,12 @@ FastStartFilePath()
 }
 
 /**
- Run the user interface until inCondition() returns true, or until inSeconds
- have passed. Return the last result of inCondition().
+ Return a time in seconds, for measuring how long something takes.
  */
-static bool
-WaitWhileRunningUI(const std::function<bool()>& inCondition, double inSeconds)
+static double
+SecondsNow()
 {
-	auto theEnd = std::chrono::steady_clock::now() + std::chrono::duration<double>(inSeconds);
-	while (!inCondition())
-	{
-		if (std::chrono::steady_clock::now() > theEnd)
-			return false;
-		Fl::wait(0.05);
-	}
-	return true;
+	return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
 
 /**
@@ -1559,44 +1562,102 @@ TFLApp::LoadFastStartState()
 }
 
 /**
- Let the Newton fall asleep and save its state, so the next start can
- continue from here.
+ Start letting the Newton fall asleep, to save its state for the next start.
 
- Like pressing the power button: if the Newton does not fall asleep in time
- (an open dialog, a hang), no state is saved and the next start is a normal
- boot. An old fast start file is always deleted first.
+ Like pressing the power button. SaveFastStartStateTimer() then waits for the
+ Newton to fall asleep, stops the emulator, saves the state, and calls
+ QuitNow(). If the Newton does not fall asleep in time (an open dialog, a
+ hang), no state is saved and the next start is a normal boot. An old fast
+ start file is always deleted first.
+
+ \return false if no state will be saved, and the caller should quit now.
  */
-void
-TFLApp::SaveFastStartState()
+bool
+TFLApp::StartSavingFastStartState()
 {
-	std::string path = FastStartFilePath();
-	(void) ::remove(path.c_str());
+	(void) ::remove(FastStartFilePath().c_str());
 	if (!mFLSettings->mFastStart || !mEmulator || !mMonitor || mMonitor->IsHalted())
-		return;
+		return false;
 
-	mSavingFastStartState = true;
 	fl_cursor(FL_CURSOR_WAIT);
-
-	// Let the Newton fall asleep.
 	if (mPlatformManager->IsPowerOn())
 		mPlatformManager->SendPowerSwitchEvent();
-	bool asleep = WaitWhileRunningUI([this]() { return !mPlatformManager->IsPowerOn(); }, 10.0);
+	mFastStartSave = EFastStartSave::kWaitForSleep;
+	mFastStartSaveStepStart = SecondsNow();
+	Fl::add_timeout(0.05, SaveFastStartStateTimer, this);
+	return true;
+}
 
-	if (!asleep)
+/**
+ Timer callback while the fast start file is being saved, see
+ StartSavingFastStartState().
+ */
+void
+TFLApp::SaveFastStartStateTimer(void* inData)
+{
+	TFLApp* app = (TFLApp*) inData;
+	double elapsed = SecondsNow() - app->mFastStartSaveStepStart;
+	bool done = false;
+
+	switch (app->mFastStartSave)
 	{
-		KPrintf("Fast start: the Newton did not fall asleep, no state saved.\n");
-	} else
-	{
-		// Stop the emulator. The monitor saves while it waits for a command.
-		mEmulator->Stop();
-		bool saved = WaitWhileRunningUI([this]() { return mMonitor->IsHalted(); }, 5.0)
-			&& WaitWhileRunningUI([this, &path]() { return mMonitor->RequestSaveState(path.c_str(), true); }, 5.0);
-		if (!saved || !TFileStream::Exists(path.c_str()))
-			KPrintf("Fast start: could not save the state.\n");
+		case EFastStartSave::kWaitForSleep:
+			if (!app->mPlatformManager->IsPowerOn())
+			{
+				// The Newton is asleep. Stop the emulator; the monitor saves
+				// while it waits for a command.
+				app->mEmulator->Stop();
+				app->mFastStartSave = EFastStartSave::kWaitForHalt;
+				app->mFastStartSaveStepStart = SecondsNow();
+			} else if (elapsed > 10.0)
+			{
+				KPrintf("Fast start: the Newton did not fall asleep, no state saved.\n");
+				done = true;
+			}
+			break;
+		case EFastStartSave::kWaitForHalt:
+			if (app->mMonitor->IsHalted())
+			{
+				app->mFastStartSave = EFastStartSave::kSave;
+				app->mFastStartSaveStepStart = SecondsNow();
+			} else if (elapsed > 5.0)
+			{
+				KPrintf("Fast start: the emulator did not stop, no state saved.\n");
+				done = true;
+			}
+			break;
+		case EFastStartSave::kSave: {
+			std::string path = FastStartFilePath();
+			// The monitor may still be busy for a moment, so try again.
+			if (app->mMonitor->RequestSaveState(path.c_str(), true))
+			{
+				if (!TFileStream::Exists(path.c_str()))
+					KPrintf("Fast start: could not save the state.\n");
+				done = true;
+			} else if (elapsed > 5.0)
+			{
+				KPrintf("Fast start: the monitor is busy, no state saved.\n");
+				done = true;
+			}
+			break;
+		}
+		case EFastStartSave::kIdle:
+			done = true;
+			break;
 	}
 
-	fl_cursor(FL_CURSOR_DEFAULT);
-	mSavingFastStartState = false;
+	if (done)
+	{
+		fl_cursor(FL_CURSOR_DEFAULT);
+		app->mFastStartSave = EFastStartSave::kIdle;
+		// On macOS, timers fire inside the event wait, and Fl::wait() does
+		// not return for them. Closing the windows from here would leave
+		// Fl::run() waiting. An awake callback ends the wait.
+		Fl::awake([](void* inApp) { ((TFLApp*) inApp)->QuitNow(); }, app);
+	} else
+	{
+		Fl::repeat_timeout(0.05, SaveFastStartStateTimer, inData);
+	}
 }
 
 void
