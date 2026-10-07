@@ -47,13 +47,13 @@ public:
 	///
 	/// Destructor.
 	///
-	virtual ~TNE2000Card(void);
+	~TNE2000Card(void) override;
 
 	///
 	/// This is a network card. It has no state of its own to save.
 	///
-	virtual KUInt32
-	GetStateTag(void)
+	KUInt32
+	GetStateTag(void) override
 	{
 		return 'ne2k';
 	}
@@ -61,72 +61,72 @@ public:
 	///
 	/// Get PCMCIA pins.
 	///
-	virtual KUInt32 GetVPCPins(void);
+	KUInt32 GetVPCPins(void) override;
 
 	///
 	/// Set PCMCIA pins.
 	///
-	virtual void SetVPCPins(KUInt32 inPins);
+	void SetVPCPins(KUInt32 inPins) override;
 
 	///
 	/// Read attribute space.
 	///
-	virtual KUInt32 ReadAttr(KUInt32 inOffset);
+	KUInt32 ReadAttr(KUInt32 inOffset) override;
 
 	///
 	/// Read attribute space (byte).
 	///
-	virtual KUInt8 ReadAttrB(KUInt32 inOffset);
+	KUInt8 ReadAttrB(KUInt32 inOffset) override;
 
 	///
 	/// Read I/O space.
 	///
-	virtual KUInt32 ReadIO(KUInt32 inOffset);
+	KUInt32 ReadIO(KUInt32 inOffset) override;
 
 	///
 	/// Read I/O space (byte).
 	///
-	virtual KUInt8 ReadIOB(KUInt32 inOffset);
+	KUInt8 ReadIOB(KUInt32 inOffset) override;
 
 	///
 	/// Read memory space.
 	///
-	virtual KUInt32 ReadMem(KUInt32 inOffset);
+	KUInt32 ReadMem(KUInt32 inOffset) override;
 
 	///
 	/// Read memory space (byte).
 	///
-	virtual KUInt8 ReadMemB(KUInt32 inOffset);
+	KUInt8 ReadMemB(KUInt32 inOffset) override;
 
 	///
 	/// Write attribute space.
 	///
-	virtual void WriteAttr(KUInt32 inOffset, KUInt32 inValue);
+	void WriteAttr(KUInt32 inOffset, KUInt32 inValue) override;
 
 	///
 	/// Write attribute space (byte).
 	///
-	virtual void WriteAttrB(KUInt32 inOffset, KUInt8 inValue);
+	void WriteAttrB(KUInt32 inOffset, KUInt8 inValue) override;
 
 	///
 	/// Write I/O space.
 	///
-	virtual void WriteIO(KUInt32 inOffset, KUInt32 inValue);
+	void WriteIO(KUInt32 inOffset, KUInt32 inValue) override;
 
 	///
 	/// Write I/O space (byte).
 	///
-	virtual void WriteIOB(KUInt32 inOffset, KUInt8 inValue);
+	void WriteIOB(KUInt32 inOffset, KUInt8 inValue) override;
 
 	///
 	/// Write memory space.
 	///
-	virtual void WriteMem(KUInt32 inOffset, KUInt32 inValue);
+	void WriteMem(KUInt32 inOffset, KUInt32 inValue) override;
 
 	///
 	/// Write memory space (byte).
 	///
-	virtual void WriteMemB(KUInt32 inOffset, KUInt8 inValue);
+	void WriteMemB(KUInt32 inOffset, KUInt8 inValue) override;
 
 private:
 	/// \name Constants
