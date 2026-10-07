@@ -407,14 +407,33 @@ public:
 	void Quit(void);
 
 	///
+	/// Kinds of state files.
+	///
+	enum EStateKind {
+		/// For a fast start after quitting: the flash is not saved, only its
+		/// checksum, so the file is only loaded if the flash did not change.
+		kFastStartState = 'fast',
+		/// For debugging: the whole flash is saved and loaded, so a state can
+		/// be loaded again after the soups changed.
+		kDebugState = 'dbug'
+	};
+
+	///
+	/// Transfer flag (TStream::TransferFlags()): save or load the flash.
+	///
+	static const KUInt32 kStateIncludesFlash = 0x00000001;
+
+	///
 	/// Save the state to a file.
 	///
 	/// \return false if the state could not be saved.
 	///
-	Boolean SaveState(const char* inPath);
+	Boolean SaveState(const char* inPath, EStateKind inKind = kDebugState);
 
 	///
-	/// Load the state from a file.
+	/// Load the state from a file. The file is only loaded if it belongs to
+	/// the same ROM, RAM size, PCMCIA cards (and flash, for fast start files).
+	/// Otherwise nothing is changed and false is returned.
 	///
 	/// \return false if the state could not be loaded. If the file was cut
 	/// off, part of the state may have been loaded already.
@@ -571,6 +590,10 @@ private:
 
 	/// Sections of the last state file written, see GetStateSections().
 	std::vector<SStateSection> mStateSections;
+
+	/// What a state file must match to be loaded: ROM, RAM size, flash, and
+	/// for each PCMCIA socket the kind of card and its contents.
+	std::vector<KUInt32> GetStateIdentity();
 
 	/// if set, OS will offer to erase internal flash on next Reset
 	bool mZAPMemory { false };

@@ -54,6 +54,7 @@
 #include "Monitor/TMonitor.h"
 #include "Network/TNetworkManager.h"
 #include "PCMCIA/TLinearCard.h"
+#include "PCMCIA/TPCMCIACard.h"
 #include "PCMCIA/TPCMCIAController.h"
 #include "Platform/TNewt.h"
 #include "Platform/TPlatformManager.h"
@@ -76,7 +77,9 @@
 // Version 5: serial port DMA registers.
 // Version 6: PCMCIA controller registers and card state.
 // Version 7: read position of the serial number chip.
-static const KUInt32 kStateFileVersion = 7;
+// Version 8: no ROM; kind of file (fast start or debug) and what it must match
+//            (ROM, RAM size, flash, PCMCIA cards); flash only in debug files.
+static const KUInt32 kStateFileVersion = 8;
 
 // -------------------------------------------------------------------------- //
 //  * TEmulator( void )
@@ -478,7 +481,7 @@ TEmulator::BreakInMonitor(const char* msg)
 //  * SaveState( const char* inPath ) const
 // -------------------------------------------------------------------------- //
 Boolean
-TEmulator::SaveState(const char* inPath)
+TEmulator::SaveState(const char* inPath, EStateKind inKind)
 {
 	try
 	{
@@ -488,6 +491,14 @@ TEmulator::SaveState(const char* inPath)
 		theStream->PutInt32BE('EINI');
 		theStream->PutInt32BE('SNAP');
 		theStream->PutInt32BE(theStream->Version());
+
+		// The kind of file, and what it must match to be loaded again.
+		theStream->PutInt32BE(inKind);
+		std::vector<KUInt32> theIdentity = GetStateIdentity();
+		for (KUInt32 theValue : theIdentity)
+			theStream->PutInt32BE(theValue);
+
+		theStream->TransferFlags((inKind == kDebugState) ? kStateIncludesFlash : 0);
 		TransferState(theStream.get());
 	} catch (const std::exception& e)
 	{
@@ -523,6 +534,39 @@ TEmulator::LoadState(const char* inPath)
 			KPrintf("This Einstein State file is not supported. Please upgarde your Einstein version.\n");
 			return false;
 		}
+
+		// Check that the file belongs to this emulator before changing anything.
+		KUInt32 theKind = theStream->GetInt32BE();
+		if (theKind != kFastStartState && theKind != kDebugState)
+		{
+			KPrintf("Unknown kind of Einstein State file.\n");
+			return false;
+		}
+		std::vector<KUInt32> theCurrent = GetStateIdentity();
+		static const char* const kIdentityNames[] = {
+			"ROM", "RAM size", "flash",
+			"card in socket 0", "contents of the card in socket 0",
+			"card in socket 1", "contents of the card in socket 1"
+		};
+		static_assert(sizeof(kIdentityNames) / sizeof(kIdentityNames[0]) == 3 + 2 * kNbSockets,
+			"Update kIdentityNames when GetStateIdentity() changes");
+		Boolean theMatch = true;
+		for (size_t i = 0; i < theCurrent.size(); i++)
+		{
+			KUInt32 theSaved = theStream->GetInt32BE();
+			// The flash is only checked for fast start files. Debug files load it.
+			if (i == 2 && theKind == kDebugState)
+				continue;
+			if (theSaved != theCurrent[i])
+			{
+				KPrintf("Not loading the state from %s: the %s changed.\n", inPath, kIdentityNames[i]);
+				theMatch = false;
+			}
+		}
+		if (!theMatch)
+			return false;
+
+		theStream->TransferFlags((theKind == kDebugState) ? kStateIncludesFlash : 0);
 		TransferState(theStream.get());
 	} catch (const std::exception& e)
 	{
@@ -533,6 +577,26 @@ TEmulator::LoadState(const char* inPath)
 		return false;
 	}
 	return true;
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetStateIdentity( void )
+// -------------------------------------------------------------------------- //
+std::vector<KUInt32>
+TEmulator::GetStateIdentity()
+{
+	std::vector<KUInt32> theIdentity;
+	theIdentity.push_back(mMemory.GetROMChecksum());
+	theIdentity.push_back(mMemory.GetRAMSize());
+	theIdentity.push_back(mMemory.GetFlashChecksum());
+	for (int socketIx = 0; socketIx < kNbSockets; socketIx++)
+	{
+		TPCMCIAController* theController = mMemory.GetPCMCIAController(socketIx);
+		TPCMCIACard* theCard = theController ? theController->CurrentCard() : nullptr;
+		theIdentity.push_back(theCard ? theCard->GetStateTag() : 0);
+		theIdentity.push_back(theCard ? theCard->GetContentsChecksum() : 0);
+	}
+	return theIdentity;
 }
 
 // -------------------------------------------------------------------------- //

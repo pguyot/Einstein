@@ -82,6 +82,17 @@ public:
 	virtual KUInt32 GetStateTag(void) = 0;
 
 	///
+	/// Return a checksum of the card's contents, so a state file is only
+	/// loaded with the same card in the same condition. 0 if the card has no
+	/// contents (network card).
+	///
+	virtual KUInt32
+	GetContentsChecksum(void)
+	{
+		return 0;
+	}
+
+	///
 	/// Save or load the state of the card: registers and state machines, not
 	/// the contents, which are kept in the card's image file.
 	///

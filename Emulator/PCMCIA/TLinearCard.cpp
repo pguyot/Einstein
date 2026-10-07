@@ -28,6 +28,7 @@
 #include "Emulator/TEmulator.h"
 #include "Emulator/Log/TLog.h"
 #include "Emulator/PCMCIA/TPCMCIAController.h"
+#include <K/Misc/CRC32.h>
 #include <K/Streams/TStream.h>
 
 #if TARGET_OS_WIN32
@@ -228,6 +229,15 @@ TLinearCard::Flush()
 	}
 
 	mPageDirty.assign(mPageDirty.size(), false);
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetContentsChecksum( void )
+// -------------------------------------------------------------------------- //
+KUInt32
+TLinearCard::GetContentsChecksum(void)
+{
+	return mMemoryMap ? GetCRC32(mMemoryMap, mSize) : 0;
 }
 
 // -------------------------------------------------------------------------- //

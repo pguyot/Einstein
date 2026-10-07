@@ -31,6 +31,7 @@
 
 // K
 #include <K/Defines/UByteSex.h>
+#include <K/Misc/CRC32.h>
 #include <K/Streams/TStream.h>
 
 // Einstein
@@ -307,6 +308,15 @@ TFlash::TransferState(TStream* inStream)
 
 	if (inStream->IsReading())
 		mFlashFile.Sync();
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetChecksum( void ) const
+// -------------------------------------------------------------------------- //
+KUInt32
+TFlash::GetChecksum(void) const
+{
+	return GetCRC32(mFlash, kFlashBank1Size + kFlashBank2Size);
 }
 
 // -------------------------------------------------------------------------- //

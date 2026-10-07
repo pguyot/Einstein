@@ -113,10 +113,11 @@ public:
 	///
 	/// Save the emulator state to a file. Call this from the UI thread, while
 	/// the emulator runs or while it is halted. A running emulator is stopped,
-	/// saved, and continues to run.
+	/// saved, and continues to run. A fast start file holds a checksum of the
+	/// flash instead of its contents (see TEmulator::EStateKind).
 	/// \return false if the monitor is busy and the state was not saved.
 	///
-	Boolean RequestSaveState(const char* inPath);
+	Boolean RequestSaveState(const char* inPath, Boolean inFastStart = false);
 
 	///
 	/// Load the emulator state from a file, see RequestSaveState().
@@ -198,10 +199,11 @@ public:
 	Boolean ExecuteHelpCommand(const char* inCommand);
 
 	///
-	/// Save the current state of the Emulator to a file.
+	/// Save the current state of the Emulator to a file, as a debug file
+	/// (with the flash) or a fast start file (flash checksum only).
 	/// \return false if the state could not be saved.
 	///
-	Boolean SaveEmulatorState(const char* inFilename = 0L);
+	Boolean SaveEmulatorState(const char* inFilename = 0L, Boolean inFastStart = false);
 
 	///
 	/// Read the current emulator state from a file.
@@ -441,6 +443,8 @@ protected:
 	};
 	std::atomic<EStateRequest> mStateRequest { kStateRequestNone }; ///< Pending request for the monitor thread.
 	std::string mStateRequestPath; ///< File for mStateRequest, set before mStateRequest.
+	Boolean mStateRequestFastStart { false }; ///< Save a fast start file, set before mStateRequest.
+	Boolean mSaveFastStart { false }; ///< Kind of file for the "save" command, set before kSaveState.
 
 	/// Hand a save or load request to the monitor thread, or do it right away if halted.
 	Boolean RequestStateTransfer(EStateRequest inRequest, const char* inPath);

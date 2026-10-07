@@ -73,6 +73,7 @@
 // Einstein
 #include "TPCMCIAController.h"
 #include "Emulator/Log/TLog.h"
+#include <K/Misc/CRC32.h>
 #include <K/Streams/TStream.h>
 
 #ifdef min
@@ -295,6 +296,15 @@ TATACard::Remove()
 	// Every sector was written when it arrived, but make sure it reached the disk.
 	FlushImage();
 	TPCMCIACard::Remove();
+}
+
+// -------------------------------------------------------------------------- //
+//  * GetContentsChecksum( void )
+// -------------------------------------------------------------------------- //
+KUInt32
+TATACard::GetContentsChecksum(void)
+{
+	return GetCRC32(mData.data(), (KUInt32) mData.size());
 }
 
 // -------------------------------------------------------------------------- //

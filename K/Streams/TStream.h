@@ -402,6 +402,22 @@ public:
 	/// prone code replication.
 
 	/// Return 1 if this stream can read from a file
+	///
+	/// Flags that tell the objects being saved or loaded what to include.
+	/// Their meaning is up to the caller.
+	///
+	KUInt32
+	TransferFlags()
+	{
+		return mTransferFlags;
+	}
+
+	void
+	TransferFlags(KUInt32 inFlags)
+	{
+		mTransferFlags = inFlags;
+	}
+
 	KUInt32
 	IsReading()
 	{
@@ -438,6 +454,7 @@ public:
 
 protected:
 	KUInt32 mVersion;
+	KUInt32 mTransferFlags { 0 };
 	KUInt32 mIsReading;
 	KUInt32 mIsWriting;
 };

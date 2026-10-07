@@ -147,6 +147,11 @@ public:
 	}
 
 	///
+	/// Return a checksum of the card's memory.
+	///
+	KUInt32 GetContentsChecksum(void) override;
+
+	///
 	/// Save or load the state of the flash command state machine.
 	///
 	void TransferState(TStream* inStream) override;

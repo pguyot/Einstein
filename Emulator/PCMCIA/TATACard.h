@@ -76,6 +76,11 @@ public:
 	}
 
 	///
+	/// Return a checksum of the disk image.
+	///
+	KUInt32 GetContentsChecksum(void) override;
+
+	///
 	/// Save or load the task file registers, the FIFO and the state.
 	///
 	void TransferState(TStream* inStream) override;

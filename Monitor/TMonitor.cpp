@@ -213,7 +213,7 @@ TMonitor::Run()
 				break;
 
 			case kSaveState:
-				if (!SaveEmulatorState(mFilename))
+				if (!SaveEmulatorState(mFilename, mSaveFastStart))
 					PrintLine("Saving the emulator state failed", MONITOR_LOG_ERROR);
 				break;
 
@@ -359,13 +359,14 @@ TMonitor::StepEmulator()
 // SaveEmulatorState( const char * )
 // -------------------------------------------------------------------------- //
 Boolean
-TMonitor::SaveEmulatorState(const char* inFilename)
+TMonitor::SaveEmulatorState(const char* inFilename, Boolean inFastStart)
 {
 	if (inFilename == 0)
 	{
 		inFilename = "/tmp/einstein.state";
 	}
-	Boolean theResult = mEmulator->SaveState(inFilename);
+	Boolean theResult = mEmulator->SaveState(inFilename,
+		inFastStart ? TEmulator::kFastStartState : TEmulator::kDebugState);
 
 #if !TARGET_UI_FLTK
 	char someByte = 0;
@@ -555,8 +556,11 @@ TMonitor::Stop()
 // RequestSaveState( const char* )
 // -------------------------------------------------------------------------- //
 Boolean
-TMonitor::RequestSaveState(const char* inPath)
+TMonitor::RequestSaveState(const char* inPath, Boolean inFastStart)
 {
+	if (mStateRequest != kStateRequestNone)
+		return false;
+	mStateRequestFastStart = inFastStart;
 	return RequestStateTransfer(kStateRequestSave, inPath);
 }
 
@@ -625,7 +629,7 @@ TMonitor::DoStateTransfer(EStateRequest inRequest, const char* inPath)
 		CheckStateRoundTrip(inPath);
 	} else if (inRequest == kStateRequestSave)
 	{
-		if (SaveEmulatorState(inPath))
+		if (SaveEmulatorState(inPath, mStateRequestFastStart))
 		{
 			(void) ::snprintf(theLine, sizeof(theLine), "Emulator state saved to %s", inPath);
 			PrintLine(theLine, MONITOR_LOG_INFO);
@@ -827,10 +831,13 @@ TMonitor::ExecuteCommand(const char* inCommand)
 	{
 		if (mHalted)
 		{
-			PrintLine("Saving emulator state", MONITOR_LOG_INFO);
+			// "save fast <path>" writes a fast start file (flash checksum only)
+			mSaveFastStart = (::strncmp(inCommand, "save fast ", 10) == 0);
+			PrintLine(mSaveFastStart ? "Saving emulator state for a fast start" : "Saving emulator state",
+				MONITOR_LOG_INFO);
 			if (!mFilename)
 				mFilename = (char*) malloc(2048);
-			strcpy(mFilename, inCommand + 5);
+			strcpy(mFilename, inCommand + (mSaveFastStart ? 10 : 5));
 			mCommand = kSaveState;
 			SignalCondVar();
 		} else
@@ -1649,6 +1656,7 @@ TMonitor::PrintHelp()
 	PrintLine(" raise <val>        raise the interrupts", MONITOR_LOG_INFO);
 	PrintLine(" gpio <val>         raise the gpio interrupts", MONITOR_LOG_INFO);
 	PrintLine(" load|save path     load or save the emulator state", MONITOR_LOG_INFO);
+	PrintLine(" save fast path     save for a fast start (flash checksum only)", MONITOR_LOG_INFO);
 	PrintLine(" checkstate [path]  save, load, save again, compare (round trip)", MONITOR_LOG_INFO);
 	PrintLine(" snap|revert        (re)store machine state while running", MONITOR_LOG_INFO);
 	PrintLine(" help log           help with logging", MONITOR_LOG_INFO);

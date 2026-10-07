@@ -37,6 +37,7 @@
 
 // K
 #include <K/Defines/UByteSex.h>
+#include <K/Misc/CRC32.h>
 #include <K/Streams/TStream.h>
 
 // Einstein
@@ -132,6 +133,10 @@ TMemory::TMemory(
 		mJIT(this, &mMMU)
 {
 	Init();
+
+	// Remember what ROM we run, to check that a state file belongs to it.
+	// A TROMImage always holds the full ROM and REX area.
+	mROMChecksum = GetCRC32(mROMImagePtr, TMemoryConsts::kHighROMEnd);
 }
 
 // -------------------------------------------------------------------------- //
@@ -3103,6 +3108,24 @@ TMemory::TransferState(TStream* inStream)
 	// Invalidate the JIT cache.
 	mJIT.InvalidateTLB();
 
+	// The ROM is not saved: a state file is only loaded with the same ROM
+	// (see TEmulator::LoadState). But breakpoints are written into the ROM.
+	// Before loading, remove the current ones; after loading, set the loaded
+	// ones. Breakpoints in RAM are part of the RAM contents.
+	auto WriteROMBreakpoints = [this](Boolean inSetThem) {
+		for (KUInt32 indexBP = 0; indexBP < mBPCount; indexBP++)
+		{
+			const SBreakpoint& theBP = mBreakpoints[indexBP];
+			if (!(theBP.fAddress & TMemoryConsts::kROMEndMask))
+			{
+				*((KUInt32*) ((KUIntPtr) mROMImagePtr + theBP.fAddress))
+					= inSetThem ? theBP.fBPValue : theBP.fOriginalValue;
+			}
+		}
+	};
+	if (inStream->IsReading())
+		WriteROMBreakpoints(false);
+
 	// The various registers.
 	inStream->TransferInt32BE(mRAMSize);
 	inStream->TransferInt32BE(mRAMEnd);
@@ -3110,9 +3133,6 @@ TMemory::TransferState(TStream* inStream)
 	inStream->TransferInt32BE(mBPCount);
 	// How far NewtonOS has read the serial number chip, one bit at a time.
 	inStream->TransferInt32BE(mSerialNumberIx);
-
-	// The ROM.
-	inStream->TransferInt32ArrayBE((KUInt32*) mROMImagePtr, 0x01000000 / sizeof(KUInt32));
 
 	// The RAM
 	if (inStream->IsReading())
@@ -3135,12 +3155,16 @@ TMemory::TransferState(TStream* inStream)
 		inStream->TransferInt32BE(mBreakpoints[indexBP].fOriginalValue);
 		inStream->TransferInt32BE(mBreakpoints[indexBP].fBPValue);
 	}
+	if (inStream->IsReading())
+		WriteROMBreakpoints(true);
 
 	// The MMU
 	mMMU.TransferState(inStream);
 
-	// The flash.
-	mFlash.TransferState(inStream);
+	// The flash, only in debug snapshots. Fast start snapshots check the flash
+	// with a checksum instead (see TEmulator::SaveState).
+	if (inStream->TransferFlags() & TEmulator::kStateIncludesFlash)
+		mFlash.TransferState(inStream);
 
 	// Invalidate the JIT cache. After loading, RAM and ROM hold different code,
 	// and RAM was reallocated, so all translated pages must go.
