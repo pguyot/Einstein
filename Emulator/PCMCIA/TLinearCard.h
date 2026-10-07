@@ -147,6 +147,15 @@ public:
 	}
 
 	///
+	/// Return the path of the card's image file.
+	///
+	const char*
+	GetImagePath(void) override
+	{
+		return mFilePath;
+	}
+
+	///
 	/// Return a checksum of the card's memory.
 	///
 	KUInt32 GetContentsChecksum(void) override;

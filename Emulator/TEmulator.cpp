@@ -80,7 +80,11 @@
 // Version 7: read position of the serial number chip.
 // Version 8: no ROM; kind of file (fast start or debug) and what it must match
 //            (ROM, RAM size, flash, PCMCIA cards); flash only in debug files.
-static const KUInt32 kStateFileVersion = 8;
+// Version 9: kind and image path of the inserted PCMCIA cards.
+static const KUInt32 kStateFileVersion = 9;
+
+// Number of values written by TEmulator::GetStateIdentity().
+static const size_t kStateIdentitySize = 3 + 2 * kNbSockets;
 
 // -------------------------------------------------------------------------- //
 //  * TEmulator( void )
@@ -484,10 +488,14 @@ TEmulator::BreakInMonitor(const char* msg)
 Boolean
 TEmulator::SaveState(const char* inPath, EStateKind inKind)
 {
+	// Write to a temporary file and rename it when everything was written, so
+	// a file with the final name is always complete. A cut-off file would be
+	// loaded partially.
+	std::string theTempPath = std::string(inPath) + ".tmp";
 	try
 	{
 		// Open the file for writing.
-		std::unique_ptr<TStream> theStream(new TFileStream(inPath, "wb"));
+		std::unique_ptr<TStream> theStream(new TFileStream(theTempPath.c_str(), "wb"));
 		theStream->Version(kStateFileVersion);
 		theStream->PutInt32BE('EINI');
 		theStream->PutInt32BE('SNAP');
@@ -499,11 +507,33 @@ TEmulator::SaveState(const char* inPath, EStateKind inKind)
 		for (KUInt32 theValue : theIdentity)
 			theStream->PutInt32BE(theValue);
 
+		// The inserted cards, so a fast start can insert them again.
+		for (int socketIx = 0; socketIx < kNbSockets; socketIx++)
+		{
+			TPCMCIAController* theController = mMemory.GetPCMCIAController(socketIx);
+			TPCMCIACard* theCard = theController ? theController->CurrentCard() : nullptr;
+			const char* thePath = (theCard && theCard->GetImagePath()) ? theCard->GetImagePath() : "";
+			KUInt32 theLength = (KUInt32)::strlen(thePath);
+			theStream->PutInt32BE(theCard ? theCard->GetStateTag() : 0);
+			theStream->PutInt32BE(theLength);
+			theStream->Write(thePath, &theLength);
+		}
+
 		theStream->TransferFlags((inKind == kDebugState) ? kStateIncludesFlash : 0);
 		TransferState(theStream.get());
 	} catch (const std::exception& e)
 	{
+		(void) ::remove(theTempPath.c_str());
 		KPrintf("Could not save the emulator state to %s (%s).\n", inPath, e.what());
+		return false;
+	}
+#if TARGET_OS_WIN32
+	(void) ::remove(inPath); // rename() does not replace files on Windows
+#endif
+	if (::rename(theTempPath.c_str(), inPath) != 0)
+	{
+		(void) ::remove(theTempPath.c_str());
+		KPrintf("Could not save the emulator state to %s (rename failed).\n", inPath);
 		return false;
 	}
 	return true;
@@ -549,7 +579,7 @@ TEmulator::LoadState(const char* inPath)
 			"card in socket 0", "contents of the card in socket 0",
 			"card in socket 1", "contents of the card in socket 1"
 		};
-		static_assert(sizeof(kIdentityNames) / sizeof(kIdentityNames[0]) == 3 + 2 * kNbSockets,
+		static_assert(sizeof(kIdentityNames) / sizeof(kIdentityNames[0]) == kStateIdentitySize,
 			"Update kIdentityNames when GetStateIdentity() changes");
 		Boolean theMatch = true;
 		for (size_t i = 0; i < theCurrent.size(); i++)
@@ -567,6 +597,15 @@ TEmulator::LoadState(const char* inPath)
 		if (!theMatch)
 			return false;
 
+		// Skip the inserted cards, see ReadStateCards().
+		for (int socketIx = 0; socketIx < kNbSockets; socketIx++)
+		{
+			(void) theStream->GetInt32BE();
+			KUInt32 theLength = theStream->GetInt32BE();
+			std::vector<char> thePath(theLength);
+			theStream->Read(thePath.data(), &theLength);
+		}
+
 		theStream->TransferFlags((theKind == kDebugState) ? kStateIncludesFlash : 0);
 		TransferState(theStream.get());
 	} catch (const std::exception& e)
@@ -575,6 +614,40 @@ TEmulator::LoadState(const char* inPath)
 		// have been loaded, so at least drop the translated code.
 		mMemory.GetJITObject()->InvalidateAll();
 		KPrintf("Could not load the emulator state from %s (%s).\n", inPath, e.what());
+		return false;
+	}
+	return true;
+}
+
+// -------------------------------------------------------------------------- //
+//  * ReadStateCards( const char*, std::vector<SStateCard>& )
+// -------------------------------------------------------------------------- //
+Boolean
+TEmulator::ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards)
+{
+	outCards.clear();
+	try
+	{
+		std::unique_ptr<TStream> theStream(new TFileStream(inPath, "rb"));
+		if (theStream->GetInt32BE() != 'EINI' || theStream->GetInt32BE() != 'SNAP'
+			|| theStream->GetInt32BE() != kStateFileVersion)
+			return false;
+		(void) theStream->GetInt32BE(); // kind of file
+		for (size_t i = 0; i < kStateIdentitySize; i++)
+			(void) theStream->GetInt32BE();
+		for (int socketIx = 0; socketIx < kNbSockets; socketIx++)
+		{
+			SStateCard theCard;
+			theCard.fTag = theStream->GetInt32BE();
+			KUInt32 theLength = theStream->GetInt32BE();
+			std::vector<char> thePath(theLength);
+			theStream->Read(thePath.data(), &theLength);
+			theCard.fImagePath.assign(thePath.data(), theLength);
+			outCards.push_back(theCard);
+		}
+	} catch (const std::exception& e)
+	{
+		outCards.clear();
 		return false;
 	}
 	return true;

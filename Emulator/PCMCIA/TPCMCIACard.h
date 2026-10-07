@@ -82,6 +82,17 @@ public:
 	virtual KUInt32 GetStateTag(void) = 0;
 
 	///
+	/// Return the path of the card's image file, or nullptr if the card has
+	/// none (network card). Used to insert the same card again for a fast
+	/// start.
+	///
+	virtual const char*
+	GetImagePath(void)
+	{
+		return nullptr;
+	}
+
+	///
 	/// Return a checksum of the card's contents, so a state file is only
 	/// loaded with the same card in the same condition. 0 if the card has no
 	/// contents (network card).

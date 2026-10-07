@@ -759,6 +759,11 @@ public:
 	}
 
 	///
+	/// Clear the RAM, as after a fresh start.
+	///
+	void ClearRAM(void);
+
+	///
 	/// Checksum of the ROM and REX as loaded, before any breakpoint was set.
 	///
 	KUInt32

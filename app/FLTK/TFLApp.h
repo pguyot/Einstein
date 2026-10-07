@@ -205,6 +205,25 @@ private:
 
 	void MountPCCardsKeptInSlot();
 
+	// Result of LoadFastStartState()
+	enum EFastStart {
+		kFastStartNone, ///< no fast start file, or fast start is off
+		kFastStartFailed, ///< the file did not match; its cards are inserted
+		kFastStartLoaded ///< the emulator continues where it was quit
+	};
+
+	// On launch: insert the cards from the fast start file and load it
+	EFastStart LoadFastStartState();
+
+	// On quit: let the Newton fall asleep and save the fast start file
+	void SaveFastStartState();
+
+	// Find the card in the card list that was saved in a state file, -1 if none
+	long FindCardForState(KUInt32 inTag, const std::string& inImagePath);
+
+	// set while SaveFastStartState() waits, so a second quit does not start over
+	bool mSavingFastStartState { false };
+
 	// create the driver for our screen output
 	void CreateScreenManager(
 		const char* inClass,

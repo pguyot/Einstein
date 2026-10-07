@@ -568,6 +568,11 @@ if (filename) {
             label {Fetch date and time from host}
             xywh {120 300 196 20} down_box DOWN_BOX labelsize 13
           }
+          Fl_Check_Button wFastStart {
+            label {Fast start: continue where Einstein was quit}
+            tooltip {When quitting, Einstein lets the Newton fall asleep and saves its state.
+The next start continues from there, if nothing changed in the meantime.} xywh {120 325 290 20} down_box DOWN_BOX labelsize 13
+          }
         }
         Fl_Group {} {
           label {  User Interface  } open
@@ -1302,6 +1307,7 @@ else
 	wRAMSizeChoice->value(1);
 
 wFetchDateAndTime->value(mFetchDateAndTime);
+wFastStart->value(mFastStart);
 
 // ---- User Interface
 
@@ -1355,6 +1361,7 @@ free(FlashPath);
 FlashPath = strdup(wFlashPath->label());
 
 mFetchDateAndTime = wFetchDateAndTime->value();
+mFastStart = wFastStart->value();
 
 const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
 if (m)

@@ -27,6 +27,7 @@
 #include <K/Defines/KDefinitions.h>
 #include <atomic>
 #include <functional>
+#include <string>
 #include <vector>
 
 // Einstein
@@ -439,6 +440,21 @@ public:
 	/// off, part of the state may have been loaded already.
 	///
 	Boolean LoadState(const char* inPath);
+
+	///
+	/// A PCMCIA card as recorded in a state file.
+	///
+	struct SStateCard {
+		KUInt32 fTag { 0 }; ///< kind of card (TPCMCIACard::GetStateTag()), 0 if empty
+		std::string fImagePath; ///< image file, empty if none
+	};
+
+	///
+	/// Read which cards were inserted when a state file was saved, without
+	/// loading it. A fast start inserts the same cards before loading.
+	/// \return false if the file is not a state file of this version.
+	///
+	static Boolean ReadStateCards(const char* inPath, std::vector<SStateCard>& outCards);
 
 	///
 	/// Reset the machine like the reset button: all emulated hardware goes to

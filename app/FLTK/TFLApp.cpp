@@ -192,7 +192,9 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include <sys/types.h>
 
 // C++17
+#include <chrono>
 #include <filesystem>
+#include <functional>
 #include <thread>
 
 // FLTK user interface
@@ -223,6 +225,7 @@ Developer's Documentation: Basic Ideas, Basic Features, Detailed Class Reference
 #include "Emulator/Network/TNetworkManager.h"
 #include "Emulator/Network/TUsermodeNetwork.h"
 #include "Emulator/PCMCIA/TLinearCard.h"
+#include "Emulator/PCMCIA/TPCMCIAController.h"
 #include "Emulator/Platform/TPlatformManager.h"
 #include "Emulator/Printer/TFLPrinterManager.h"
 #include "Emulator/ROM/TAIFROMImageWithREXes.h"
@@ -398,6 +401,9 @@ TFLApp::Run(int argc, char* argv[])
 	if (mMonitor)
 		mMonitor->RunOnStartup(true);
 
+	// Continue where Einstein was quit, if possible. This inserts the cards that
+	// were inserted then. Empty slots get the cards that are kept in a slot.
+	EFastStart theFastStart = LoadFastStartState();
 	MountPCCardsKeptInSlot();
 
 	Fl::lock();
@@ -417,6 +423,15 @@ TFLApp::Run(int argc, char* argv[])
 	}
 	// launch the actual emulation in the background
 	auto emulatorThread = new std::thread(&TFLApp::EmulatorThreadEntry, this);
+
+	// The fast start state was saved while the Newton was asleep. Wake it up.
+	if (theFastStart == kFastStartLoaded)
+	{
+		Fl::add_timeout(0.5, [](void*) {
+			if (!gApp->mPlatformManager->IsPowerOn())
+				gApp->mPlatformManager->SendPowerSwitchEvent();
+		});
+	}
 
 	// run the user interface until all windows are close
 	Fl::run();
@@ -456,6 +471,13 @@ TFLApp::Run(int argc, char* argv[])
 void
 TFLApp::UserActionQuit()
 {
+	// A second quit while we wait for the Newton to fall asleep does nothing.
+	if (mSavingFastStartState)
+		return;
+
+	// Let the Newton fall asleep and save its state for the next start.
+	SaveFastStartState();
+
 #if USE_TOOLKIT
 	// Close the Toolkit window, so it can save its coordinates in the prefrences
 	if (mToolkit)
@@ -1414,12 +1436,167 @@ TFLApp::InitSerialPorts()
 void
 TFLApp::MountPCCardsKeptInSlot()
 {
-	int c0 = mFLSettings->GetCardKeptInSlot(0);
-	if (c0 != -1)
-		UserActionPCCard(0, c0);
-	int c1 = mFLSettings->GetCardKeptInSlot(1);
-	if (c1 != -1)
-		UserActionPCCard(1, c1);
+	for (int slot = 0; slot < 2; slot++)
+	{
+		// A slot may already hold the card from the fast start state.
+		TPCMCIAController* controller = mEmulator->GetMemory()->GetPCMCIAController(slot);
+		if (controller && controller->CurrentCard())
+			continue;
+		int card = mFLSettings->GetCardKeptInSlot(slot);
+		if (card != -1)
+			UserActionPCCard(slot, card);
+	}
+}
+
+/**
+ Return the path of the fast start file, next to the default flash file.
+ */
+static std::string
+FastStartFilePath()
+{
+	return DataFilePath("FastStart.state");
+}
+
+/**
+ Run the user interface until inCondition() returns true, or until inSeconds
+ have passed. Return the last result of inCondition().
+ */
+static bool
+WaitWhileRunningUI(const std::function<bool()>& inCondition, double inSeconds)
+{
+	auto theEnd = std::chrono::steady_clock::now() + std::chrono::duration<double>(inSeconds);
+	while (!inCondition())
+	{
+		if (std::chrono::steady_clock::now() > theEnd)
+			return false;
+		Fl::wait(0.05);
+	}
+	return true;
+}
+
+/**
+ Find the card in the card list that matches a card from a state file.
+
+ The network card is found by its kind, all others by their image file.
+
+ \return the index into the card list, or -1 if the card is not in the list
+ */
+long
+TFLApp::FindCardForState(KUInt32 inTag, const std::string& inImagePath)
+{
+	for (size_t i = 0; i < mFLSettings->mCardList.size(); i++)
+	{
+		TFLPCCardSettings* card = mFLSettings->mCardList[i];
+		if (inTag == 'ne2k')
+		{
+			if (card->GetType() == TFLPCCardSettings::CardType::kNetwork)
+				return (long) i;
+		} else if (card->GetImagePath() && inImagePath == card->GetImagePath())
+		{
+			return (long) i;
+		}
+	}
+	return -1;
+}
+
+/**
+ Continue where Einstein was quit.
+
+ If there is a fast start file, insert the cards that were inserted when it was
+ saved, then load it. It is only loaded if nothing changed since (ROM, flash,
+ cards). The file is deleted either way, so an unforeseen error can't cause the
+ same failing start over and over.
+
+ This must be called before the emulator thread starts.
+ */
+TFLApp::EFastStart
+TFLApp::LoadFastStartState()
+{
+	std::string path = FastStartFilePath();
+	if (!TFileStream::Exists(path.c_str()))
+		return kFastStartNone;
+	if (!mFLSettings->mFastStart)
+	{
+		(void) ::remove(path.c_str());
+		return kFastStartNone;
+	}
+
+	std::vector<TEmulator::SStateCard> cards;
+	if (!TEmulator::ReadStateCards(path.c_str(), cards))
+	{
+		KPrintf("Fast start: %s is not a state file of this version.\n", path.c_str());
+		(void) ::remove(path.c_str());
+		return kFastStartNone;
+	}
+
+	// Insert the same cards as when the state was saved. If the state does not
+	// match after all, they stay inserted and NewtonOS mounts them on boot.
+	for (size_t slot = 0; slot < cards.size(); slot++)
+	{
+		if (cards[slot].fTag == 0)
+			continue;
+		long index = FindCardForState(cards[slot].fTag, cards[slot].fImagePath);
+		if (index == -1)
+			KPrintf("Fast start: the card %s is not in the card list.\n", cards[slot].fImagePath.c_str());
+		else
+			UserActionPCCard((int) slot, index);
+	}
+
+	Boolean loaded = mEmulator->LoadState(path.c_str());
+	(void) ::remove(path.c_str());
+	if (loaded)
+	{
+		KPrintf("Fast start: continuing where Einstein was quit.\n");
+		return kFastStartLoaded;
+	}
+
+	// Start over as after a normal launch, in case part of the state was
+	// loaded before an error.
+	KPrintf("Fast start: the saved state does not match, booting normally.\n");
+	mEmulator->GetMemory()->ClearRAM();
+	mEmulator->ResetState();
+	return kFastStartFailed;
+}
+
+/**
+ Let the Newton fall asleep and save its state, so the next start can
+ continue from here.
+
+ Like pressing the power button: if the Newton does not fall asleep in time
+ (an open dialog, a hang), no state is saved and the next start is a normal
+ boot. An old fast start file is always deleted first.
+ */
+void
+TFLApp::SaveFastStartState()
+{
+	std::string path = FastStartFilePath();
+	(void) ::remove(path.c_str());
+	if (!mFLSettings->mFastStart || !mEmulator || !mMonitor || mMonitor->IsHalted())
+		return;
+
+	mSavingFastStartState = true;
+	fl_cursor(FL_CURSOR_WAIT);
+
+	// Let the Newton fall asleep.
+	if (mPlatformManager->IsPowerOn())
+		mPlatformManager->SendPowerSwitchEvent();
+	bool asleep = WaitWhileRunningUI([this]() { return !mPlatformManager->IsPowerOn(); }, 10.0);
+
+	if (!asleep)
+	{
+		KPrintf("Fast start: the Newton did not fall asleep, no state saved.\n");
+	} else
+	{
+		// Stop the emulator. The monitor saves while it waits for a command.
+		mEmulator->Stop();
+		bool saved = WaitWhileRunningUI([this]() { return mMonitor->IsHalted(); }, 5.0)
+			&& WaitWhileRunningUI([this, &path]() { return mMonitor->RequestSaveState(path.c_str(), true); }, 5.0);
+		if (!saved || !TFileStream::Exists(path.c_str()))
+			KPrintf("Fast start: could not save the state.\n");
+	}
+
+	fl_cursor(FL_CURSOR_DEFAULT);
+	mSavingFastStartState = false;
 }
 
 void

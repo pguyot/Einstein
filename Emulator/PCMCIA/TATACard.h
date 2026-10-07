@@ -76,6 +76,15 @@ public:
 	}
 
 	///
+	/// Return the path of the disk image file.
+	///
+	const char*
+	GetImagePath(void) override
+	{
+		return mFilePath;
+	}
+
+	///
 	/// Return a checksum of the disk image.
 	///
 	KUInt32 GetContentsChecksum(void) override;

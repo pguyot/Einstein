@@ -1751,6 +1751,12 @@ Fl_Double_Window* TFLSettingsUI::CreateSettingsPanel() {
           wFetchDateAndTime->down_box(FL_DOWN_BOX);
           wFetchDateAndTime->labelsize(13);
         } // Fl_Check_Button* wFetchDateAndTime
+        { wFastStart = new Fl_Check_Button(120, 325, 290, 20, "Fast start: continue where Einstein was quit");
+          wFastStart->tooltip("When quitting, Einstein lets the Newton fall asleep and saves its state.\nThe"
+" next start continues from there, if nothing changed in the meantime.");
+          wFastStart->down_box(FL_DOWN_BOX);
+          wFastStart->labelsize(13);
+        } // Fl_Check_Button* wFastStart
         o->end();
       } // Fl_Group* o
       { Fl_Group* o = new Fl_Group(10, 35, 430, 375, "  User Interface  ");
@@ -2101,6 +2107,7 @@ void TFLSettingsUI::revertDialog() {
   	wRAMSizeChoice->value(1);
 
   wFetchDateAndTime->value(mFetchDateAndTime);
+  wFastStart->value(mFastStart);
 
   // ---- User Interface
 
@@ -2154,6 +2161,7 @@ void TFLSettingsUI::applyDialog() {
   FlashPath = strdup(wFlashPath->label());
 
   mFetchDateAndTime = wFetchDateAndTime->value();
+  mFastStart = wFastStart->value();
 
   const Fl_Menu_Item *m = wRAMSizeChoice->mvalue();
   if (m)
