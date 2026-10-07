@@ -3108,6 +3108,8 @@ TMemory::TransferState(TStream* inStream)
 	inStream->TransferInt32BE(mRAMEnd);
 	inStream->TransferInt32BE(mBankCtrlRegister);
 	inStream->TransferInt32BE(mBPCount);
+	// How far NewtonOS has read the serial number chip, one bit at a time.
+	inStream->TransferInt32BE(mSerialNumberIx);
 
 	// The ROM.
 	inStream->TransferInt32ArrayBE((KUInt32*) mROMImagePtr, 0x01000000 / sizeof(KUInt32));

@@ -75,7 +75,8 @@
 // Version 4: pending pen samples, sound interrupt masks, volume and buffers.
 // Version 5: serial port DMA registers.
 // Version 6: PCMCIA controller registers and card state.
-static const KUInt32 kStateFileVersion = 6;
+// Version 7: read position of the serial number chip.
+static const KUInt32 kStateFileVersion = 7;
 
 // -------------------------------------------------------------------------- //
 //  * TEmulator( void )
