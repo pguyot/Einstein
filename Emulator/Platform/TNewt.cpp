@@ -47,7 +47,7 @@ TARMProcessor* TNewt::mCPU = nullptr; ///< Reference back to the emulated CPU
  This object is used to look up and call host functions by symbol name.
 
  This is a list of function calls from NewtonOS via teh EinsteinGlue.ntkc into functions
- inside the EInstein emulator. All calls have exactly one argument which can contain
+ inside the Einstein emulator. All calls have exactly one argument which can contain
  literals but alos complex hierarchies of arrays and frames. If the argument is unused,
  it should be NIL.
 
