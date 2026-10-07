@@ -211,6 +211,21 @@ TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 }
 
 /**
+ Save or load the emulated hardware state of the four serial ports.
+
+ Which driver runs behind a port is a preference, not part of the state.
+ */
+void
+TSerialPorts::TransferState(TStream* inStream)
+{
+	for (auto& driver : mDriver)
+	{
+		if (driver)
+			driver->TransferState(inStream);
+	}
+}
+
+/**
  Suspend all drivers while the emulator state is saved or loaded.
 
  Drivers that run their own thread stop touching emulated memory and registers

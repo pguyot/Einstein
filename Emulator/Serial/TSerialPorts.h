@@ -36,6 +36,7 @@ class TLog;
 class TEmulator;
 class TSerialPortDriver;
 class TSerialHostPort;
+class TStream;
 
 /**
  The serial port supervisor manages the four ports of the MessagePad and their respective drivers.
@@ -104,6 +105,9 @@ public:
 
 	// Replace an existing driver with a new driver
 	TSerialPortDriver* ReplaceDriver(EPortIndex inPort, EDriverID inDriverId);
+
+	// Save or load the emulated hardware state of the four serial ports
+	void TransferState(TStream* inStream);
 
 	// Suspend all drivers while the emulator state is saved or loaded
 	void SuspendAll();

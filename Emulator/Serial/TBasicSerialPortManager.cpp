@@ -23,6 +23,7 @@
 
 #include "TBasicSerialPortManager.h"
 #include "app/TPathHelper.h"
+#include <K/Streams/TStream.h>
 
 // POSIX
 #include <signal.h>
@@ -526,6 +527,30 @@ TBasicSerialPortManager::run(TInterruptManager* inInterruptManager,
 	mDMAManager = inDMAManager;
 	mMemory = inMemory;
 	// nothing to do here
+}
+
+// -------------------------------------------------------------------------- //
+//  * TransferState( TStream* )
+// -------------------------------------------------------------------------- //
+void
+TBasicSerialPortManager::TransferState(TStream* inStream)
+{
+	inStream->TransferInt32BE(mTxDMAPhysicalBufferStart);
+	inStream->TransferInt32BE(mTxDMAPhysicalData);
+	inStream->TransferInt32BE(mTxDMADataCountdown);
+	inStream->TransferInt32BE(mTxDMABytesToBufferEnd);
+	inStream->TransferInt32BE(mTxDMAIntEnable);
+	inStream->TransferInt32BE(mTxDMAEvent);
+	inStream->TransferInt32BE(mRxDMAPhysicalBufferStart);
+	inStream->TransferInt32BE(mRxDMAPhysicalData);
+	inStream->TransferInt32BE(mRxDMADataCountdown);
+	inStream->TransferInt32BE(mRxDMABytesToBufferEnd);
+	inStream->TransferInt32BE(mRxDMAIntEnable);
+	inStream->TransferInt32BE(mRxDMAEvent);
+
+	// Let the driver thread look at the new DMA state when it resumes.
+	if (inStream->IsReading())
+		TriggerEvent(kSerCmd_TxCtrlChanged);
 }
 
 // -------------------------------------------------------------------------- //

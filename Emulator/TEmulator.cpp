@@ -73,7 +73,8 @@
 // Version 2: run-control flags are no longer saved.
 // Version 3: the platform manager (power state, event and buffer queues).
 // Version 4: pending pen samples, sound interrupt masks, volume and buffers.
-static const KUInt32 kStateFileVersion = 4;
+// Version 5: serial port DMA registers.
+static const KUInt32 kStateFileVersion = 5;
 
 // -------------------------------------------------------------------------- //
 //  * TEmulator( void )
@@ -572,6 +573,10 @@ TEmulator::TransferState(TStream* inStream)
 	// And the DMA manager.
 	StartSection("DMA manager");
 	mDMAManager->TransferState(inStream);
+
+	// The DMA registers of the serial ports.
+	StartSection("serial ports");
+	SerialPorts.TransferState(inStream);
 
 	// And the screen content.
 	StartSection("screen");

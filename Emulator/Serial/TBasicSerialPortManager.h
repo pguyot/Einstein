@@ -90,6 +90,11 @@ public:
 	void WriteDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue) override;
 
 	///
+	/// Save or load the transmit and receive DMA registers.
+	///
+	void TransferState(TStream* inStream) override;
+
+	///
 	/// DMA or interrupts trigger a command that must be handled by a derived class.
 	///
 	virtual void
