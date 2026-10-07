@@ -65,6 +65,11 @@
 #define kMyNewtonIDHigh 0x00004E65
 #define kMyNewtonIDLow 0x77746F6E
 
+// Version of the state file written by SaveState(). Increment it whenever the
+// data written by TransferState() changes, so old files are rejected.
+// Version 2: run-control flags are no longer saved.
+static const KUInt32 kStateFileVersion = 2;
+
 // -------------------------------------------------------------------------- //
 //  * TEmulator( void )
 // -------------------------------------------------------------------------- //
@@ -469,7 +474,7 @@ TEmulator::SaveState(const char* inPath)
 {
 	// Open the file for writing.
 	TStream* theStream = new TFileStream(inPath, "wb");
-	theStream->Version(1);
+	theStream->Version(kStateFileVersion);
 	theStream->PutInt32BE('EINI');
 	theStream->PutInt32BE('SNAP');
 	theStream->PutInt32BE(theStream->Version());
@@ -500,7 +505,7 @@ TEmulator::LoadState(const char* inPath)
 		return;
 	}
 	theStream->Version(theStream->GetInt32BE());
-	if (theStream->Version() != 1)
+	if (theStream->Version() != kStateFileVersion)
 	{
 		KPrintf("This Einstein State file is not supported. Please upgarde your Einstein version.\n");
 		return;
@@ -515,6 +520,10 @@ TEmulator::LoadState(const char* inPath)
 void
 TEmulator::TransferState(TStream* inStream)
 {
+	// Keep the serial driver threads from changing memory and registers
+	// while we save or load.
+	SerialPorts.SuspendAll();
+
 	// First, save the memory.
 	mMemory.TransferState(inStream);
 
@@ -530,13 +539,11 @@ TEmulator::TransferState(TStream* inStream)
 	// And the screen content.
 	mScreenManager->TransferState(inStream);
 
-	// Emulator specific stuff.
+	// Emulator specific stuff. The run-control flags (mRunning, mPaused, ...)
+	// belong to the host thread, not to the emulated machine, and are not saved.
 	inStream->TransferInt32ArrayBE(mNewtonID, 2);
-	inStream->TransferInt32BE(mInterrupted);
-	inStream->TransferInt32BE(mRunning);
-	inStream->TransferInt32BE(mPaused);
-	inStream->TransferInt32BE(mBPHalted);
-	inStream->TransferInt16BE(mBPID);
+
+	SerialPorts.ResumeAll();
 }
 
 // -------------------------------------------------------------------------- //

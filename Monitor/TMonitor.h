@@ -30,6 +30,8 @@
 #include <K/Threads/TMutex.h>
 #include <K/Threads/TThread.h>
 
+#include <atomic>
+
 #include "TMonitorCore.h"
 #include "Emulator/Log/TBufferLog.h"
 
@@ -398,11 +400,11 @@ protected:
 	TARMProcessor* mProcessor { nullptr }; ///< CPU.
 	TInterruptManager* mInterruptManager { nullptr }; ///< Interrupt manager.
 	TBufferLog* mLog { nullptr }; ///< Interface to the log.
-	Boolean mHalted { false }; ///< If the emulator is halted.
+	std::atomic<bool> mHalted { false }; ///< If the emulator is halted (written by the monitor thread, read by the UI).
 	TCondVar* mCondVar { nullptr };
 	TMutex* mMutex { nullptr };
-	ECommand mCommand { kNop }; ///< Next command for the
-	///< monitor thread.
+	std::atomic<ECommand> mCommand { kNop }; ///< Next command for the
+	///< monitor thread (written by the UI, read by the monitor thread).
 	char* mFilename { nullptr }; ///< Argument for next command.
 #if TARGET_UI_FLTK
 	// no signaling between monitor and log yet

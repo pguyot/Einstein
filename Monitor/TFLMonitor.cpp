@@ -154,6 +154,11 @@ TFLMonitor::DrawScreen()
 	if (!mwTerminal)
 		return false;
 
+	// This is called from the emulator thread as well as from the UI thread.
+	// FLTK widgets must only be changed while holding the FLTK lock, which is
+	// recursive, so DrawScreenHalted() and DrawScreenRunning() can lock again.
+	Fl::lock();
+
 	bool theResult = false;
 	if (IsHalted())
 	{
@@ -175,7 +180,35 @@ TFLMonitor::DrawScreen()
 		DrawScreenRunning();
 	}
 	mwTerminal->redraw();
+
+	Fl::unlock();
+	// Wake the UI thread, so it draws the changes even if we are on another thread.
+	Fl::awake();
 	return theResult;
+}
+
+// -------------------------------------------------------------------------- //
+// DrawScreenFromUI( void )
+// -------------------------------------------------------------------------- //
+// The UI thread may only draw the halted view (registers, timers) while the
+// monitor thread is waiting for a command. The monitor thread holds mMutex at
+// all other times, including while the emulator runs, and redraws by itself
+// when it is done.
+void
+TFLMonitor::DrawScreenFromUI()
+{
+	if (mMutex->TryLock())
+	{
+		// The monitor thread is waiting, and can't start the emulator while
+		// we hold the mutex.
+		DrawScreen();
+		mMutex->Unlock();
+	} else if (!IsHalted())
+	{
+		// The emulator is running. The running view only reads the log.
+		DrawScreen();
+	}
+	// Otherwise the monitor thread is busy with a command and redraws itself.
 }
 
 // -------------------------------------------------------------------------- //
@@ -899,7 +932,7 @@ TFLMonitor::Show()
 		mwTerminal->callback([](Fl_Widget* w, void* m) {
 			TFLTerminal* term = static_cast<TFLTerminal*>(w);
 			((TMonitor*) m)->ExecuteCommand(term->value());
-			((TFLMonitor*) m)->DrawScreen();
+			((TFLMonitor*) m)->DrawScreenFromUI();
 		},
 			this);
 		mwTerminal->ansi(true);
@@ -914,7 +947,7 @@ TFLMonitor::Show()
 		xp += 3 * cw;
 		mwPause->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand("stop");
-			((TFLMonitor*) m)->DrawScreen();
+			((TFLMonitor*) m)->DrawScreenFromUI();
 		},
 			this);
 		set_attributes(mwPause);
@@ -925,8 +958,7 @@ TFLMonitor::Show()
 		xp += 3 * cw;
 		mwRun->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand("run");
-			Fl::wait(0.1);
-			((TFLMonitor*) m)->DrawScreen();
+			((TFLMonitor*) m)->DrawScreenFromUI();
 		},
 			this);
 		set_attributes(mwRun);
@@ -937,7 +969,7 @@ TFLMonitor::Show()
 		xp += 3 * cw;
 		mwStepOver->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand("trace");
-			((TFLMonitor*) m)->DrawScreen();
+			((TFLMonitor*) m)->DrawScreenFromUI();
 		},
 			this);
 		set_attributes(mwStepOver);
@@ -948,7 +980,7 @@ TFLMonitor::Show()
 		xp += 3 * cw;
 		mwStep->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand("step");
-			((TFLMonitor*) m)->DrawScreen();
+			((TFLMonitor*) m)->DrawScreenFromUI();
 		},
 			this);
 		set_attributes(mwStep);
@@ -959,7 +991,7 @@ TFLMonitor::Show()
 		xp += 3 * cw;
 		mwLeave->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand("mr");
-			((TFLMonitor*) m)->DrawScreen();
+			((TFLMonitor*) m)->DrawScreenFromUI();
 		},
 			this);
 		set_attributes(mwLeave);
@@ -971,7 +1003,7 @@ TFLMonitor::Show()
 		xp += 3 * cw;
 		mwBCPause->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand(".stop");
-			((TFLMonitor*) m)->DrawScreen();
+			((TFLMonitor*) m)->DrawScreenFromUI();
 		},
 			this);
 		set_attributes(mwBCPause);
@@ -984,7 +1016,7 @@ TFLMonitor::Show()
 		xp += 3 * cw;
 		mwBCRun->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand(".run");
-			((TFLMonitor*) m)->DrawScreen();
+			((TFLMonitor*) m)->DrawScreenFromUI();
 		},
 			this);
 		set_attributes(mwBCRun);
@@ -995,7 +1027,7 @@ TFLMonitor::Show()
 		mwHelp = new Fl_Button(mwWindow->w() - 4 * cw, mwToolbar->y(), 3 * cw, 2 * ch, "?");
 		mwHelp->callback([](Fl_Widget*, void* m) {
 			((TMonitor*) m)->ExecuteCommand("help");
-			((TFLMonitor*) m)->DrawScreen();
+			((TFLMonitor*) m)->DrawScreenFromUI();
 		},
 			this);
 		set_attributes(mwHelp);
@@ -1007,7 +1039,7 @@ TFLMonitor::Show()
 		mwWindow->end();
 		Fl::focus(mwTerminal);
 	}
-	DrawScreen();
+	DrawScreenFromUI();
 	mwWindow->show();
 }
 

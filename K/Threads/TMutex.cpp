@@ -123,21 +123,23 @@ TMutex::TryLock(void)
 	DWORD ret = WaitForSingleObject(mMutex, 0);
 	if (ret == WAIT_TIMEOUT)
 	{
-		return true;
+		// The mutex is already locked.
+		return false;
 	} else
 	{
 		assert(ret == WAIT_OBJECT_0);
-		return false;
+		return true;
 	}
 #else
 	int err = ::pthread_mutex_trylock(&mMutex);
 	if (err == EBUSY)
 	{
-		return true;
+		// The mutex is already locked.
+		return false;
 	} else
 	{
 		assert(err == 0);
-		return false;
+		return true;
 	}
 #endif
 }

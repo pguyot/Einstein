@@ -30,6 +30,7 @@
 #include <Windows.h>
 #include <Winsock2.h>
 #endif
+#include <mutex>
 #include <thread>
 
 class TLog;
@@ -84,6 +85,16 @@ public:
 	// Set options from NewtonScript
 	//
 	void NSSetOptions(TNewt::RefArg frame) override;
+
+	//
+	// Stop DMA while the emulator state is saved or loaded.
+	//
+	void Suspend() override;
+
+	//
+	// Continue DMA after Suspend().
+	//
+	void Resume() override;
 
 	//
 	// Change the server address.
@@ -171,6 +182,9 @@ protected:
 
 	/// next time we allow another connection attempt
 	time_t mReconnectTimeout { 0 };
+
+	/// held by the worker thread while it handles DMA, and by Suspend()
+	std::mutex mDMAMutex;
 };
 
 #endif

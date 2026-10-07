@@ -26,6 +26,8 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include <atomic>
+
 // Einstein
 #include "PlatformEvents.h"
 #ifndef IGNORE_TNEWT
@@ -376,8 +378,8 @@ private:
 	/// Next ID for buffers.
 	KUInt32 mBufferNextID { 0 };
 
-	/// If power is on.
-	Boolean mPowerOn { true };
+	/// If power is on. Written by the emulator thread, read by the UI thread.
+	std::atomic<bool> mPowerOn { true };
 
 	/// Non-recursive lock to keep interrupts from triggering twice
 	Boolean mQueuePreLock { false };

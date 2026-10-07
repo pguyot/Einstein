@@ -105,6 +105,12 @@ public:
 	// Replace an existing driver with a new driver
 	TSerialPortDriver* ReplaceDriver(EPortIndex inPort, EDriverID inDriverId);
 
+	// Suspend all drivers while the emulator state is saved or loaded
+	void SuspendAll();
+
+	// Resume all drivers after SuspendAll()
+	void ResumeAll();
+
 	// Set the driver for any hardware location
 	TSerialHostPort* SetDriver(KUInt32 inLocation, EDriverID inDriverId, std::string inConfigData);
 

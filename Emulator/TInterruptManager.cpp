@@ -1122,20 +1122,14 @@ TInterruptManager::GetSyncedCalendarDelta(void)
 void
 TInterruptManager::TransferState(TStream* inStream)
 {
-	KUInt32 t;
+	// mRunning, mExiting and mWaiting control the timer thread, not the
+	// emulated machine, and are not saved.
+
+	// Other threads (sound, serial) may raise interrupts at any time. Hold the
+	// mutex, so the registers are saved or loaded as one consistent set.
+	mMutex->Lock();
 
 	// Interrupt manager specific stuff.
-	t = mRunning.load();
-	inStream->TransferInt32BE(t);
-	mRunning.store(t);
-	t = mExiting.load();
-	inStream->TransferInt32BE(t);
-	mExiting.store(t);
-
-	t = mWaiting.load();
-	inStream->TransferInt32BE(t);
-	mWaiting.store(t);
-
 	inStream->TransferInt32BE(mMaskIRQ);
 	inStream->TransferInt32BE(mMaskFIQ);
 	inStream->TransferInt32BE(mIntRaised);
@@ -1154,6 +1148,8 @@ TInterruptManager::TransferState(TStream* inStream)
 	inStream->TransferInt32ArrayBE(
 		mMatchRegisters,
 		sizeof(mMatchRegisters) / sizeof(KUInt32));
+
+	mMutex->Unlock();
 }
 
 // ======================================== //

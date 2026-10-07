@@ -232,7 +232,10 @@ TMonitor::RunEmulator()
 	// We aren't stopped.
 	mHalted = false;
 
-#if !TARGET_UI_FLTK
+#if TARGET_UI_FLTK
+	// Show the running view. The UI thread does not draw while we hold the mutex.
+	DrawScreen();
+#else
 	char someByte = 0;
 	// Write a byte to the socket pair.
 	(void) ::write(mSocketPair[1], &someByte, 1);

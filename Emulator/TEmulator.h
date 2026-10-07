@@ -523,20 +523,24 @@ private:
 	/** \brief Tell the JIT thread that an interrupt occurred or that we quit. */
 	std::atomic<bool> mSignal { false };
 
+	// The flags below control the emulator thread. They are written by other
+	// threads (UI, Monitor, interrupt timer), so they must be atomic. They are
+	// not part of the emulated machine and are not saved in a state file.
+
 	/// We got a (processor) interrupt.
-	KUInt32 mInterrupted { 0 };
+	std::atomic<bool> mInterrupted { false };
 
 	/// If we're running.
-	KUInt32 mRunning { false };
+	std::atomic<bool> mRunning { false };
 
 	/// If we're paused (until next interrupt).
-	KUInt32 mPaused { false };
+	std::atomic<bool> mPaused { false };
 
 	/// If we're halted because of a breakpoint.
-	KUInt32 mBPHalted { false };
+	std::atomic<bool> mBPHalted { false };
 
 	/// ID of the breakpoint.
-	KUInt16 mBPID { 0 };
+	std::atomic<KUInt16> mBPID { 0 };
 
 	/// Call this when the user quits Einstein
 	std::function<void()> mCallOnQuit;

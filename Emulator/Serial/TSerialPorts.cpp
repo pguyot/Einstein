@@ -211,6 +211,35 @@ TSerialPorts::ReplaceDriver(EPortIndex inPort, EDriverID inDriverId)
 }
 
 /**
+ Suspend all drivers while the emulator state is saved or loaded.
+
+ Drivers that run their own thread stop touching emulated memory and registers
+ until ResumeAll() is called. Call ResumeAll() from the same thread.
+ */
+void
+TSerialPorts::SuspendAll()
+{
+	for (auto& driver : mDriver)
+	{
+		if (driver)
+			driver->Suspend();
+	}
+}
+
+/**
+ Resume all drivers after SuspendAll().
+ */
+void
+TSerialPorts::ResumeAll()
+{
+	for (auto& driver : mDriver)
+	{
+		if (driver)
+			driver->Resume();
+	}
+}
+
+/**
  Set the driver for a given hardware location (any location can be used). The NewtonOS
  will see this as a serial chip at the location. Any serial chip such as the Voyager chip
  registered at the location needs to be de-registered first.

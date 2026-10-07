@@ -99,7 +99,8 @@ TSerialPortDriverTcpClient::~TSerialPortDriverTcpClient()
 {
 	if (mWorkerThread)
 	{
-		Disconnect();
+		// Tell the worker thread to disconnect and quit. Do not call
+		// Disconnect() here: the worker may be using the socket right now.
 		TriggerEvent('q');
 		mWorkerThread->join();
 		delete mWorkerThread;
@@ -402,21 +403,26 @@ TSerialPortDriverTcpClient::HandleDMA()
 			continue;
 		}
 
-		// handle receiving DMA
-		if (ret == WSA_WAIT_EVENT_0 + 2)
 		{
-			if (IsConnected())
-			{
-				HandleDMAReceive();
-			}
-			WSAResetEvent(mTcpEvent);
-		}
+			// Suspend() holds this mutex while the emulator state is saved or loaded
+			std::lock_guard<std::mutex> lock(mDMAMutex);
 
-		// handle transmitting DMA
-		HandleDMASend(); // timer resolution is too coarse, so send up to 4 bytes now
-		HandleDMASend();
-		HandleDMASend();
-		HandleDMASend();
+			// handle receiving DMA
+			if (ret == WSA_WAIT_EVENT_0 + 2)
+			{
+				if (IsConnected())
+				{
+					HandleDMAReceive();
+				}
+				WSAResetEvent(mTcpEvent);
+			}
+
+			// handle transmitting DMA
+			HandleDMASend(); // timer resolution is too coarse, so send up to 4 bytes now
+			HandleDMASend();
+			HandleDMASend();
+			HandleDMASend();
+		}
 
 		// handle commands from mQuitEvent
 		if (ret == WSA_WAIT_EVENT_0)
@@ -465,12 +471,17 @@ TSerialPortDriverTcpClient::HandleDMA()
 			continue;
 		}
 
-		// handle receiving DMA
-		if (IsConnected() && FD_ISSET(mTcpSocket, &watchFDs))
-			HandleDMAReceive();
+		{
+			// Suspend() holds this mutex while the emulator state is saved or loaded
+			std::lock_guard<std::mutex> lock(mDMAMutex);
 
-		// handle transmitting DMA
-		HandleDMASend();
+			// handle receiving DMA
+			if (IsConnected() && FD_ISSET(mTcpSocket, &watchFDs))
+				HandleDMAReceive();
+
+			// handle transmitting DMA
+			HandleDMASend();
+		}
 
 		// handle commands from the command pipe
 		if (FD_ISSET(mCommandPipe[0], &watchFDs))
@@ -741,6 +752,27 @@ int
 TSerialPortDriverTcpClient::GetServerPort()
 {
 	return mPort;
+}
+
+/**
+ \brief Stop DMA while the emulator state is saved or loaded.
+ Waits until the worker thread has finished the transfer it is working on,
+ and keeps it from starting another one until Resume() is called. The TCP
+ connection stays open. Must be called from the same thread as Resume().
+ */
+void
+TSerialPortDriverTcpClient::Suspend()
+{
+	mDMAMutex.lock();
+}
+
+/**
+ \brief Continue DMA after Suspend().
+ */
+void
+TSerialPortDriverTcpClient::Resume()
+{
+	mDMAMutex.unlock();
 }
 
 // ================================================================== //

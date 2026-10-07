@@ -93,6 +93,24 @@ public:
 	virtual void WriteDMARegister(KUInt32 inBank, KUInt32 inChannel, KUInt32 inRegister, KUInt32 inValue);
 
 	///
+	/// Stop touching emulated memory and registers until Resume() is called.
+	/// Used while the emulator state is saved or loaded. Suspend() and
+	/// Resume() must be called from the same thread.
+	///
+	virtual void
+	Suspend()
+	{
+	}
+
+	///
+	/// Continue after Suspend().
+	///
+	virtual void
+	Resume()
+	{
+	}
+
+	///
 	/// GIve NewtonScrip access to our list of options
 	///
 	virtual void

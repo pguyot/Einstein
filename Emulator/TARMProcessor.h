@@ -26,6 +26,8 @@
 
 #include <K/Defines/KDefinitions.h>
 
+#include <atomic>
+
 #include "TNativePrimitives.h"
 #include "Emulator/TMemory.h"
 #include "Emulator/JIT/JIT.h"
@@ -540,7 +542,9 @@ private:
 	EMode mMode { kSupervisorMode };
 
 	/// Waiting interrupts.
-	KUInt32 mPendingInterrupts { 0 };
+	/// Set and cleared by the interrupt timer thread while the emulator thread
+	/// reads it, so it must be atomic (|= and &= are atomic read-modify-write).
+	std::atomic<KUInt32> mPendingInterrupts { 0 };
 
 	/// Interface for logging.
 	TLog* mLog { nullptr };
