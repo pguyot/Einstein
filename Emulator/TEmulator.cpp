@@ -72,7 +72,8 @@
 // data written by TransferState() changes, so old files are rejected.
 // Version 2: run-control flags are no longer saved.
 // Version 3: the platform manager (power state, event and buffer queues).
-static const KUInt32 kStateFileVersion = 3;
+// Version 4: pending pen samples, sound interrupt masks, volume and buffers.
+static const KUInt32 kStateFileVersion = 4;
 
 // -------------------------------------------------------------------------- //
 //  * TEmulator( void )
@@ -575,6 +576,10 @@ TEmulator::TransferState(TStream* inStream)
 	// And the screen content.
 	StartSection("screen");
 	mScreenManager->TransferState(inStream);
+
+	// The sound manager: interrupt masks and volume.
+	StartSection("sound manager");
+	mSoundManager->TransferState(inStream);
 
 	// The platform manager: power state, pending events and buffers.
 	StartSection("platform manager");

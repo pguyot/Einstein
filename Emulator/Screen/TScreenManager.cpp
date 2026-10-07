@@ -1073,6 +1073,11 @@ TScreenManager::TransferState(TStream* inStream)
 	inStream->TransferBoolean(mBacklight);
 	inStream->TransferBoolean(mKbdIsConnected);
 
+	// Pen samples that NewtonOS did not fetch yet (ring buffer).
+	inStream->TransferInt32ArrayBE(mTabletBuffer, kTabletBufferSize);
+	inStream->TransferInt32BE(mTabletBufCCrsr);
+	inStream->TransferInt32BE(mTabletBufPCrsr);
+
 	KUInt32 count = mPortraitWidth * mPortraitHeight * kBitsPerPixel / 8;
 	inStream->Transfer(mScreenBuffer, &count);
 

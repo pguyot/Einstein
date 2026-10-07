@@ -29,6 +29,7 @@
 class TLog;
 class TInterruptManager;
 class TMemory;
+class TStream;
 
 ///
 /// Class to handle sound input/output.
@@ -90,6 +91,11 @@ public:
 		mInputIntMask = inInputMask;
 		mOutputIntMask = inOutputMask;
 	}
+
+	///
+	/// Save or load the interrupt masks and the output volume.
+	///
+	void TransferState(TStream* inStream);
 
 	///
 	/// Schedule output of some buffer.

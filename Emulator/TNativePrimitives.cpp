@@ -3396,6 +3396,8 @@ TNativePrimitives::TransferState(TStream* inStream)
 	inStream->TransferInt32BE(mTabletCalibration.fUnknown_10);
 	inStream->TransferInt32BE(mTabletSampleRate);
 	inStream->TransferByte(mInputVolume);
+	inStream->TransferInt32BE(mSoundOutputBuffer1Addr);
+	inStream->TransferInt32BE(mSoundOutputBuffer2Addr);
 }
 
 // ============================================================================== //

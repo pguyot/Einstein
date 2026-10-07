@@ -23,6 +23,8 @@
 
 #include "TSoundManager.h"
 
+#include <K/Streams/TStream.h>
+
 #include <stdlib.h>
 
 #ifdef TARGET_OS_WIN32
@@ -60,6 +62,20 @@ void
 TSoundManager::RaiseInputInterrupt(void) const
 {
 	mInterruptManager->RaiseInterrupt(mInputIntMask);
+}
+
+// -------------------------------------------------------------------------- //
+//  * TransferState( TStream* )
+// -------------------------------------------------------------------------- //
+void
+TSoundManager::TransferState(TStream* inStream)
+{
+	inStream->TransferInt32BE(mInputIntMask);
+	inStream->TransferInt32BE(mOutputIntMask);
+	KUInt32 theVolume = mOutputVolume;
+	inStream->TransferInt32BE(theVolume);
+	if (inStream->IsReading())
+		OutputVolume(theVolume); // also tells the host
 }
 
 // -------------------------------------------------------------------------- //
