@@ -37,6 +37,7 @@
 #include <thread>
 
 // K
+#include <K/Streams/TStream.h>
 #include <K/Threads/TMutex.h>
 #include <K/Unicode/UUTF16CStr.h>
 
@@ -511,6 +512,95 @@ TPlatformManager::PowerOn(void)
 	{
 		mScreenManager->PowerOn();
 	}
+}
+
+// -------------------------------------------------------------------------- //
+//  * TransferState( TStream* )
+// -------------------------------------------------------------------------- //
+// The queues are saved by content: the pending events and buffers. Their
+// capacity is a detail of this process and is not saved.
+void
+TPlatformManager::TransferState(TStream* inStream)
+{
+	// The UI and sound threads add events at any time. The guard unlocks the
+	// mutex when we leave, even if reading fails with an exception.
+	struct SUnlockGuard {
+		TMutex* fMutex;
+		~SUnlockGuard() { fMutex->Unlock(); }
+	};
+	mMutex->Lock();
+	SUnlockGuard theUnlockGuard { mMutex };
+
+	// Power state, and the locks shared with the platform driver in NewtonOS.
+	Boolean thePowerOn = mPowerOn;
+	inStream->TransferBoolean(thePowerOn);
+	inStream->TransferBoolean(mQueuePreLock);
+	inStream->TransferInt32BE(mQueueLockCount);
+	inStream->TransferInt32BE(mQueueBootLock);
+	inStream->TransferInt32BE(mBufferNextID);
+
+	// Events that NewtonOS did not fetch yet.
+	KUInt32 theEventCount = mEventQueuePCrsr - mEventQueueCCrsr;
+	inStream->TransferInt32BE(theEventCount);
+	if (inStream->IsReading())
+	{
+		if (theEventCount >= mEventQueueSize)
+		{
+			mEventQueueSize = theEventCount + kEVENTQUEUESIZEINCREMENT;
+			mEventQueue = (SEvent*) ::realloc(mEventQueue, sizeof(SEvent) * mEventQueueSize);
+		}
+		mEventQueueCCrsr = 0;
+		mEventQueuePCrsr = theEventCount;
+	}
+	for (KUInt32 indexEvent = 0; indexEvent < theEventCount; indexEvent++)
+	{
+		SEvent* theEvent = &mEventQueue[mEventQueueCCrsr + indexEvent];
+		KUInt32 theType = theEvent->fType;
+		KUInt32 thePort = theEvent->fData.aevent.fPort;
+		inStream->TransferInt32BE(theType);
+		inStream->TransferInt32BE(thePort);
+		inStream->TransferInt32BE(theEvent->fData.aevent.fSize);
+		theEvent->fType = (EEventType) theType;
+		theEvent->fData.aevent.fPort = (EPort) thePort;
+		if (theEvent->fData.aevent.fSize > kMAXEVENTSIZE)
+			theEvent->fData.aevent.fSize = kMAXEVENTSIZE;
+		KUInt32 theSize = theEvent->fData.aevent.fSize;
+		inStream->Transfer(theEvent->fData.aevent.fData, &theSize);
+	}
+
+	// Buffers that NewtonOS did not fetch yet.
+	KUInt32 theBufferCount = mBufferCount;
+	inStream->TransferInt32BE(theBufferCount);
+	if (inStream->IsReading())
+	{
+		for (KUInt32 indexBuffer = 0; indexBuffer < mBufferCount; indexBuffer++)
+			::free((void*) mBufferQueue[indexBuffer].fData);
+		if (theBufferCount >= mBufferQueueSize)
+		{
+			mBufferQueueSize = theBufferCount + kBUFFERQUEUESIZEINCREMENT;
+			mBufferQueue = (SBuffer*) ::realloc(mBufferQueue, sizeof(SBuffer) * mBufferQueueSize);
+		}
+		// No stale pointers if reading fails halfway.
+		for (KUInt32 indexBuffer = 0; indexBuffer < theBufferCount; indexBuffer++)
+		{
+			mBufferQueue[indexBuffer].fData = nullptr;
+			mBufferQueue[indexBuffer].fSize = 0;
+		}
+		mBufferCount = theBufferCount;
+	}
+	for (KUInt32 indexBuffer = 0; indexBuffer < theBufferCount; indexBuffer++)
+	{
+		SBuffer* theBuffer = &mBufferQueue[indexBuffer];
+		inStream->TransferInt32BE(theBuffer->fID);
+		inStream->TransferInt32BE(theBuffer->fSize);
+		if (inStream->IsReading())
+			theBuffer->fData = (const KUInt8*) ::calloc(1, theBuffer->fSize);
+		KUInt32 theSize = theBuffer->fSize;
+		inStream->Transfer((void*) theBuffer->fData, &theSize);
+	}
+
+	if (inStream->IsReading())
+		mPowerOn = thePowerOn;
 }
 
 // -------------------------------------------------------------------------- //

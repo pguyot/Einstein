@@ -42,6 +42,7 @@ class TMemory;
 class TLog;
 class TMutex;
 class TPCMCIACard;
+class TStream;
 
 ///
 /// Class for the native-side of the platform driver.
@@ -124,6 +125,12 @@ public:
 	/// Power on the system.
 	///
 	void PowerOn(void);
+
+	///
+	/// Save or load the power state, the event and buffer queues, and the
+	/// queue locks shared with the platform driver in NewtonOS.
+	///
+	void TransferState(TStream* inStream);
 
 	///
 	/// Is the system powered on?

@@ -1076,8 +1076,8 @@ TScreenManager::TransferState(TStream* inStream)
 	KUInt32 count = mPortraitWidth * mPortraitHeight * kBitsPerPixel / 8;
 	inStream->Transfer(mScreenBuffer, &count);
 
-	if (inStream->IsReading())
-		PowerOnScreen();
+	// TEmulator::TransferState() switches the screen on or off after loading,
+	// depending on the loaded power state.
 }
 
 // -------------------------------------------------------------------------- //

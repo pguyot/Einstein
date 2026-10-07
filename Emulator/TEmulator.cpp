@@ -71,7 +71,8 @@
 // Version of the state file written by SaveState(). Increment it whenever the
 // data written by TransferState() changes, so old files are rejected.
 // Version 2: run-control flags are no longer saved.
-static const KUInt32 kStateFileVersion = 2;
+// Version 3: the platform manager (power state, event and buffer queues).
+static const KUInt32 kStateFileVersion = 3;
 
 // -------------------------------------------------------------------------- //
 //  * TEmulator( void )
@@ -575,10 +576,23 @@ TEmulator::TransferState(TStream* inStream)
 	StartSection("screen");
 	mScreenManager->TransferState(inStream);
 
+	// The platform manager: power state, pending events and buffers.
+	StartSection("platform manager");
+	mPlatformManager->TransferState(inStream);
+
 	// Emulator specific stuff. The run-control flags (mRunning, mPaused, ...)
 	// belong to the host thread, not to the emulated machine, and are not saved.
 	StartSection("emulator (Newton ID)");
 	inStream->TransferInt32ArrayBE(mNewtonID, 2);
+
+	// Show the screen as on or off, as the loaded machine expects it.
+	if (inStream->IsReading())
+	{
+		if (mPlatformManager->IsPowerOn())
+			mScreenManager->PowerOnScreen();
+		else
+			mScreenManager->PowerOffScreen();
+	}
 }
 
 // -------------------------------------------------------------------------- //
