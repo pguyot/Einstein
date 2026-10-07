@@ -25,7 +25,9 @@
 
 // POSIX
 #include <errno.h>
+#include <exception>
 #include <math.h>
+#include <memory>
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
@@ -469,49 +471,62 @@ TEmulator::BreakInMonitor(const char* msg)
 // -------------------------------------------------------------------------- //
 //  * SaveState( const char* inPath ) const
 // -------------------------------------------------------------------------- //
-void
+Boolean
 TEmulator::SaveState(const char* inPath)
 {
-	// Open the file for writing.
-	TStream* theStream = new TFileStream(inPath, "wb");
-	theStream->Version(kStateFileVersion);
-	theStream->PutInt32BE('EINI');
-	theStream->PutInt32BE('SNAP');
-	theStream->PutInt32BE(theStream->Version());
-	TransferState(theStream);
-	delete theStream;
+	try
+	{
+		// Open the file for writing.
+		std::unique_ptr<TStream> theStream(new TFileStream(inPath, "wb"));
+		theStream->Version(kStateFileVersion);
+		theStream->PutInt32BE('EINI');
+		theStream->PutInt32BE('SNAP');
+		theStream->PutInt32BE(theStream->Version());
+		TransferState(theStream.get());
+	} catch (const std::exception& e)
+	{
+		KPrintf("Could not save the emulator state to %s (%s).\n", inPath, e.what());
+		return false;
+	}
+	return true;
 }
 
 // -------------------------------------------------------------------------- //
 //  * LoadState( const char* inPath ) const
 // -------------------------------------------------------------------------- //
-void
+Boolean
 TEmulator::LoadState(const char* inPath)
 {
-	KUInt32 id, type;
-
-	// Open the file for Reading.
-	TStream* theStream = new TFileStream(inPath, "rb");
-	id = theStream->GetInt32BE();
-	if (id != 'EINI')
+	try
 	{
-		KPrintf("This is not a file created by Einstein!\n");
-		return;
-	}
-	type = theStream->GetInt32BE();
-	if (type != 'SNAP')
+		// Open the file for Reading.
+		std::unique_ptr<TStream> theStream(new TFileStream(inPath, "rb"));
+		if (theStream->GetInt32BE() != 'EINI')
+		{
+			KPrintf("This is not a file created by Einstein!\n");
+			return false;
+		}
+		if (theStream->GetInt32BE() != 'SNAP')
+		{
+			KPrintf("This is not an Einstein State file!\n");
+			return false;
+		}
+		theStream->Version(theStream->GetInt32BE());
+		if (theStream->Version() != kStateFileVersion)
+		{
+			KPrintf("This Einstein State file is not supported. Please upgarde your Einstein version.\n");
+			return false;
+		}
+		TransferState(theStream.get());
+	} catch (const std::exception& e)
 	{
-		KPrintf("This is not an Einstein State file!\n");
-		return;
+		// The file was cut off or could not be read. Part of the state may
+		// have been loaded, so at least drop the translated code.
+		mMemory.GetJITObject()->InvalidateAll();
+		KPrintf("Could not load the emulator state from %s (%s).\n", inPath, e.what());
+		return false;
 	}
-	theStream->Version(theStream->GetInt32BE());
-	if (theStream->Version() != kStateFileVersion)
-	{
-		KPrintf("This Einstein State file is not supported. Please upgarde your Einstein version.\n");
-		return;
-	}
-	TransferState(theStream);
-	delete theStream;
+	return true;
 }
 
 // -------------------------------------------------------------------------- //
@@ -521,8 +536,14 @@ void
 TEmulator::TransferState(TStream* inStream)
 {
 	// Keep the serial driver threads from changing memory and registers
-	// while we save or load.
+	// while we save or load. The guard resumes them when we leave, even if
+	// reading the file fails with an exception.
+	struct SResumeSerialPorts {
+		TSerialPorts& fPorts;
+		~SResumeSerialPorts() { fPorts.ResumeAll(); }
+	};
 	SerialPorts.SuspendAll();
+	SResumeSerialPorts theResumeGuard { SerialPorts };
 
 	// First, save the memory.
 	mMemory.TransferState(inStream);
@@ -542,8 +563,6 @@ TEmulator::TransferState(TStream* inStream)
 	// Emulator specific stuff. The run-control flags (mRunning, mPaused, ...)
 	// belong to the host thread, not to the emulated machine, and are not saved.
 	inStream->TransferInt32ArrayBE(mNewtonID, 2);
-
-	SerialPorts.ResumeAll();
 }
 
 // -------------------------------------------------------------------------- //

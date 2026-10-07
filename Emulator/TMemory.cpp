@@ -3140,8 +3140,12 @@ TMemory::TransferState(TStream* inStream)
 	// The flash.
 	mFlash.TransferState(inStream);
 
-	// Invalidate the JIT cache.
-	mJIT.InvalidateTLB();
+	// Invalidate the JIT cache. After loading, RAM and ROM hold different code,
+	// and RAM was reallocated, so all translated pages must go.
+	if (inStream->IsReading())
+		mJIT.InvalidateAll();
+	else
+		mJIT.InvalidateTLB();
 }
 
 // -------------------------------------------------------------------------- //

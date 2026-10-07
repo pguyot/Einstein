@@ -345,6 +345,31 @@ TJITCache<JITPageClass>::InvalidatePage(KUInt32 inPAddr)
 	*theEntryPtr = NULL;
 }
 
+// -------------------------------------------------------------------------- //
+//  * InvalidateAll( void )
+// -------------------------------------------------------------------------- //
+// InvalidateTLB() only forgets the virtual addresses. The translated pages are
+// still found by physical address, and they keep a pointer into RAM. Here we
+// unlink every page from the physical address map as well. The entries stay
+// in mVMap and are initialized again in PageMiss() when they are reused.
+template <>
+void
+TJITCache<JITPageClass>::InvalidateAll(void)
+{
+	for (KUInt32 indexPMap = 0; indexPMap < mPMapSize; indexPMap++)
+	{
+		SEntry* theEntry = mPMap[indexPMap];
+		while (theEntry)
+		{
+			SEntry* theNextEntry = theEntry->mNextPAEntry;
+			theEntry->mNextPAEntry = NULL;
+			theEntry = theNextEntry;
+		}
+		mPMap[indexPMap] = NULL;
+	}
+	mVMap.Clear();
+}
+
 // ============================================================ //
 // [We] use bad software and bad machines for the wrong things. //
 //                 -- R.W. Hamming                              //

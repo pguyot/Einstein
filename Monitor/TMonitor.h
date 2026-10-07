@@ -190,13 +190,15 @@ public:
 
 	///
 	/// Save the current state of the Emulator to a file.
+	/// \return false if the state could not be saved.
 	///
-	void SaveEmulatorState(const char* inFilename = 0L);
+	Boolean SaveEmulatorState(const char* inFilename = 0L);
 
 	///
 	/// Read the current emulator state from a file.
+	/// \return false if the state could not be loaded.
 	///
-	void LoadEmulatorState(const char* inFilename = 0L);
+	Boolean LoadEmulatorState(const char* inFilename = 0L);
 
 	///
 	/// Save the current state of the Emulator to a file.

@@ -408,16 +408,17 @@ public:
 	///
 	/// Save the state to a file.
 	///
-	/// \return an error code if a problem occurred.
+	/// \return false if the state could not be saved.
 	///
-	void SaveState(const char* inPath);
+	Boolean SaveState(const char* inPath);
 
 	///
 	/// Load the state from a file.
 	///
-	/// \return an error code if a problem occurred.
+	/// \return false if the state could not be loaded. If the file was cut
+	/// off, part of the state may have been loaded already.
 	///
-	void LoadState(const char* inPath);
+	Boolean LoadState(const char* inPath);
 
 	///
 	/// Save or restore the state to or from a file.

@@ -210,11 +210,13 @@ TMonitor::Run()
 				break;
 
 			case kSaveState:
-				SaveEmulatorState(mFilename);
+				if (!SaveEmulatorState(mFilename))
+					PrintLine("Saving the emulator state failed", MONITOR_LOG_ERROR);
 				break;
 
 			case kLoadState:
-				LoadEmulatorState(mFilename);
+				if (!LoadEmulatorState(mFilename))
+					PrintLine("Loading the emulator state failed", MONITOR_LOG_ERROR);
 				break;
 		}
 	}
@@ -353,34 +355,36 @@ TMonitor::StepEmulator()
 // -------------------------------------------------------------------------- //
 // SaveEmulatorState( const char * )
 // -------------------------------------------------------------------------- //
-void
+Boolean
 TMonitor::SaveEmulatorState(const char* inFilename)
 {
 	if (inFilename == 0)
 	{
 		inFilename = "/tmp/einstein.state";
 	}
-	mEmulator->SaveState(inFilename);
+	Boolean theResult = mEmulator->SaveState(inFilename);
 
 #if !TARGET_UI_FLTK
 	char someByte = 0;
 	(void) ::write(mSocketPair[1], &someByte, 1);
 #endif
+	return theResult;
 }
 
 // -------------------------------------------------------------------------- //
 // LoadEmulatroState( const char * )
 // -------------------------------------------------------------------------- //
-void
+Boolean
 TMonitor::LoadEmulatorState(const char* inFilename)
 {
 	if (inFilename == 0)
 	{
 		inFilename = "/tmp/einstein.state";
 	}
+	Boolean theResult = false;
 	if (TFileStream::Exists(inFilename))
 	{
-		mEmulator->LoadState(inFilename);
+		theResult = mEmulator->LoadState(inFilename);
 	}
 	TScreenManager* screen = mEmulator->GetScreenManager();
 	TScreenManager::SRect rect;
@@ -393,6 +397,7 @@ TMonitor::LoadEmulatorState(const char* inFilename)
 	char someByte = 0;
 	(void) ::write(mSocketPair[1], &someByte, 1);
 #endif
+	return theResult;
 }
 
 // -------------------------------------------------------------------------- //
@@ -605,14 +610,27 @@ TMonitor::DoStateTransfer(EStateRequest inRequest, const char* inPath)
 	char theLine[512];
 	if (inRequest == kStateRequestSave)
 	{
-		SaveEmulatorState(inPath);
-		(void) ::snprintf(theLine, sizeof(theLine), "Emulator state saved to %s", inPath);
+		if (SaveEmulatorState(inPath))
+		{
+			(void) ::snprintf(theLine, sizeof(theLine), "Emulator state saved to %s", inPath);
+			PrintLine(theLine, MONITOR_LOG_INFO);
+		} else
+		{
+			(void) ::snprintf(theLine, sizeof(theLine), "Could not save the emulator state to %s", inPath);
+			PrintLine(theLine, MONITOR_LOG_ERROR);
+		}
 	} else
 	{
-		LoadEmulatorState(inPath);
-		(void) ::snprintf(theLine, sizeof(theLine), "Emulator state loaded from %s", inPath);
+		if (LoadEmulatorState(inPath))
+		{
+			(void) ::snprintf(theLine, sizeof(theLine), "Emulator state loaded from %s", inPath);
+			PrintLine(theLine, MONITOR_LOG_INFO);
+		} else
+		{
+			(void) ::snprintf(theLine, sizeof(theLine), "Could not load the emulator state from %s", inPath);
+			PrintLine(theLine, MONITOR_LOG_ERROR);
+		}
 	}
-	PrintLine(theLine, MONITOR_LOG_INFO);
 }
 
 // -------------------------------------------------------------------------- //

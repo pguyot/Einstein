@@ -1126,8 +1126,14 @@ TInterruptManager::TransferState(TStream* inStream)
 	// emulated machine, and are not saved.
 
 	// Other threads (sound, serial) may raise interrupts at any time. Hold the
-	// mutex, so the registers are saved or loaded as one consistent set.
+	// mutex, so the registers are saved or loaded as one consistent set. The
+	// guard unlocks it when we leave, even if reading fails with an exception.
+	struct SUnlockGuard {
+		TMutex* fMutex;
+		~SUnlockGuard() { fMutex->Unlock(); }
+	};
 	mMutex->Lock();
+	SUnlockGuard theUnlockGuard { mMutex };
 
 	// Interrupt manager specific stuff.
 	inStream->TransferInt32BE(mMaskIRQ);
@@ -1148,8 +1154,6 @@ TInterruptManager::TransferState(TStream* inStream)
 	inStream->TransferInt32ArrayBE(
 		mMatchRegisters,
 		sizeof(mMatchRegisters) / sizeof(KUInt32));
-
-	mMutex->Unlock();
 }
 
 // ======================================== //
