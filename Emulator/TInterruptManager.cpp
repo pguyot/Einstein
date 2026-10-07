@@ -1136,24 +1136,26 @@ TInterruptManager::TransferState(TStream* inStream)
 	SUnlockGuard theUnlockGuard { mMutex };
 
 	// Interrupt manager specific stuff.
-	inStream->TransferInt32BE(mMaskIRQ);
-	inStream->TransferInt32BE(mMaskFIQ);
-	inStream->TransferInt32BE(mIntRaised);
-	inStream->TransferInt32BE(mIntCtrlReg);
-	inStream->TransferInt32BE(mFIQMask);
-	inStream->TransferInt32BE(mIntEDReg1);
-	inStream->TransferInt32BE(mIntEDReg2);
-	inStream->TransferInt32BE(mIntEDReg3);
-	inStream->TransferInt32BE(mGPIORaised);
-	inStream->TransferInt32BE(mGPIOCtrlReg);
+	// A reset clears the interrupt controller. The clock (calendar delta,
+	// timer) keeps running.
+	inStream->TransferInt32BE(mMaskIRQ, 0);
+	inStream->TransferInt32BE(mMaskFIQ, 0);
+	inStream->TransferInt32BE(mIntRaised, 0);
+	inStream->TransferInt32BE(mIntCtrlReg, 0);
+	inStream->TransferInt32BE(mFIQMask, 0);
+	inStream->TransferInt32BE(mIntEDReg1, 0);
+	inStream->TransferInt32BE(mIntEDReg2, 0);
+	inStream->TransferInt32BE(mIntEDReg3, 0);
+	inStream->TransferInt32BE(mGPIORaised, 0);
+	inStream->TransferInt32BE(mGPIOCtrlReg, 0);
 	inStream->TransferInt32BE(mCalendarDelta);
 
-	inStream->TransferInt32BE(mAlarmRegister);
+	inStream->TransferInt32BE(mAlarmRegister, 0);
 	inStream->TransferInt32BE(mTimerDelta);
 	inStream->TransferInt32BE(mTimer);
 	inStream->TransferInt32ArrayBE(
 		mMatchRegisters,
-		sizeof(mMatchRegisters) / sizeof(KUInt32));
+		sizeof(mMatchRegisters) / sizeof(KUInt32), 0);
 }
 
 // ======================================== //

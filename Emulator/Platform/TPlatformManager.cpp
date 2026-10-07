@@ -532,17 +532,19 @@ TPlatformManager::TransferState(TStream* inStream)
 	SUnlockGuard theUnlockGuard { mMutex };
 
 	// Power state, and the locks shared with the platform driver in NewtonOS.
+	// A reset powers on, empties the queues, and locks the queue until
+	// NewtonOS finished booting again, as at startup.
 	Boolean thePowerOn = mPowerOn;
-	inStream->TransferBoolean(thePowerOn);
-	inStream->TransferBoolean(mQueuePreLock);
-	inStream->TransferInt32BE(mQueueLockCount);
-	inStream->TransferInt32BE(mQueueBootLock);
+	inStream->TransferBoolean(thePowerOn, true);
+	inStream->TransferBoolean(mQueuePreLock, false);
+	inStream->TransferInt32BE(mQueueLockCount, 0);
+	inStream->TransferInt32BE(mQueueBootLock, 1);
 	inStream->TransferInt32BE(mBufferNextID);
 
 	// Events that NewtonOS did not fetch yet.
 	KUInt32 theEventCount = mEventQueuePCrsr - mEventQueueCCrsr;
-	inStream->TransferInt32BE(theEventCount);
-	if (inStream->IsReading())
+	inStream->TransferInt32BE(theEventCount, 0);
+	if (inStream->IsReading() || inStream->IsResetting())
 	{
 		if (theEventCount >= mEventQueueSize)
 		{
@@ -570,8 +572,8 @@ TPlatformManager::TransferState(TStream* inStream)
 
 	// Buffers that NewtonOS did not fetch yet.
 	KUInt32 theBufferCount = mBufferCount;
-	inStream->TransferInt32BE(theBufferCount);
-	if (inStream->IsReading())
+	inStream->TransferInt32BE(theBufferCount, 0);
+	if (inStream->IsReading() || inStream->IsResetting())
 	{
 		for (KUInt32 indexBuffer = 0; indexBuffer < mBufferCount; indexBuffer++)
 			::free((void*) mBufferQueue[indexBuffer].fData);
@@ -599,7 +601,7 @@ TPlatformManager::TransferState(TStream* inStream)
 		inStream->Transfer((void*) theBuffer->fData, &theSize);
 	}
 
-	if (inStream->IsReading())
+	if (inStream->IsReading() || inStream->IsResetting())
 		mPowerOn = thePowerOn;
 }
 

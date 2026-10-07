@@ -696,15 +696,23 @@ TFLApp::UserActionReset(int inType)
 {
 	switch (inType)
 	{
-		case 0:
-			mEmulator->GetProcessor()->Reset();
+		case 0: // Hardware Reset
+		case 2: // Brain Wipe: NewtonOS offers to erase the flash when it boots
+			if (inType == 2)
+				mEmulator->ZAPMemory(true);
+			if (mMonitor)
+			{
+				// The monitor stops the emulator, resets all emulated hardware,
+				// and continues.
+				if (!mMonitor->RequestReset())
+					fl_beep();
+			} else
+			{
+				mEmulator->GetProcessor()->Reset();
+			}
 			break;
 		case 1:
 			mPlatformManager->EvalNewtonScript("Reboot();");
-			break;
-		case 2:
-			mEmulator->ZAPMemory(true);
-			mEmulator->GetProcessor()->Reset();
 			break;
 	}
 }

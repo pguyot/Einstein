@@ -441,6 +441,13 @@ public:
 	Boolean LoadState(const char* inPath);
 
 	///
+	/// Reset the machine like the reset button: all emulated hardware goes to
+	/// its power-on state and the CPU restarts. RAM, flash and the clock are
+	/// kept. The emulator must not be running (see TMonitor::RequestReset()).
+	///
+	void ResetState(void);
+
+	///
 	/// A section of a state file, see GetStateSections().
 	///
 	struct SStateSection {

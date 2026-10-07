@@ -314,27 +314,27 @@ void
 TATACard::TransferState(TStream* inStream)
 {
 	KUInt32 theState = (KUInt32) mState;
-	inStream->TransferInt32BE(theState);
+	inStream->TransferInt32BE(theState, (KUInt32) State::Idle);
 	mState = (State) theState;
 
-	inStream->TransferByte(mErrorReg);
-	inStream->TransferByte(mFeaturesReg);
-	inStream->TransferByte(mSectorCountReg);
-	inStream->TransferByte(mSectorNumberReg);
-	inStream->TransferByte(mCylinderLowReg);
-	inStream->TransferByte(mCylinderHighReg);
-	inStream->TransferByte(mDriveHeadReg);
-	inStream->TransferByte(mCommandReg);
-	inStream->TransferByte(mDeviceControlReg);
-	inStream->TransferByte(mConfigOptionReg);
-	inStream->TransferByte(mConfigStatusReg);
+	inStream->TransferByte(mErrorReg, 0);
+	inStream->TransferByte(mFeaturesReg, 0);
+	inStream->TransferByte(mSectorCountReg, 0);
+	inStream->TransferByte(mSectorNumberReg, 0);
+	inStream->TransferByte(mCylinderLowReg, 0);
+	inStream->TransferByte(mCylinderHighReg, 0);
+	inStream->TransferByte(mDriveHeadReg, 0);
+	inStream->TransferByte(mCommandReg, 0);
+	inStream->TransferByte(mDeviceControlReg, 0);
+	inStream->TransferByte(mConfigOptionReg, 0);
+	inStream->TransferByte(mConfigStatusReg, 0);
 
 	// The block that is being read or written through the data register.
 	KUInt32 theFifoSize = (KUInt32) mFifo.size();
 	KUInt32 theFifoPos = (KUInt32) mFifoPos;
-	inStream->TransferInt32BE(theFifoSize);
-	inStream->TransferInt32BE(theFifoPos);
-	if (inStream->IsReading())
+	inStream->TransferInt32BE(theFifoSize, 0);
+	inStream->TransferInt32BE(theFifoPos, 0);
+	if (inStream->IsReading() || inStream->IsResetting())
 	{
 		mFifo.resize(theFifoSize);
 		mFifoPos = std::min((size_t) theFifoPos, mFifo.size());

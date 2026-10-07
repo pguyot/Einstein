@@ -42,6 +42,7 @@
 // K
 #include <K/Streams/TFileStream.h>
 #include <K/Streams/TRandomAccessStream.h>
+#include <K/Streams/TResetStream.h>
 #include <K/Streams/TStream.h>
 
 // Einstein
@@ -580,6 +581,21 @@ TEmulator::LoadState(const char* inPath)
 }
 
 // -------------------------------------------------------------------------- //
+//  * ResetState( void )
+// -------------------------------------------------------------------------- //
+void
+TEmulator::ResetState(void)
+{
+	// Walk the same tree as saving and loading. Every value that has a reset
+	// value goes to its power-on state, all others are kept.
+	TResetStream theStream;
+	TransferState(&theStream);
+
+	// The CPU takes the reset exception.
+	mProcessor.Reset();
+}
+
+// -------------------------------------------------------------------------- //
 //  * GetStateIdentity( void )
 // -------------------------------------------------------------------------- //
 std::vector<KUInt32>
@@ -670,8 +686,8 @@ TEmulator::TransferState(TStream* inStream)
 	StartSection("emulator (Newton ID)");
 	inStream->TransferInt32ArrayBE(mNewtonID, 2);
 
-	// Show the screen as on or off, as the loaded machine expects it.
-	if (inStream->IsReading())
+	// Show the screen as on or off, as the loaded (or reset) machine expects it.
+	if (inStream->IsReading() || inStream->IsResetting())
 	{
 		if (mPlatformManager->IsPowerOn())
 			mScreenManager->PowerOnScreen();

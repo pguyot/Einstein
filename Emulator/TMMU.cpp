@@ -959,14 +959,14 @@ TMMU::TransferState(TStream* inStream)
 	InvalidatePerms();
 
 	// The various registers.
-	inStream->TransferBoolean(mMMUEnabled);
-	inStream->TransferByte(mCurrentAPMode);
-	inStream->TransferByte(mCurrentAPRead);
-	inStream->TransferByte(mCurrentAPWrite);
-	inStream->TransferInt32BE(mTTBase);
-	inStream->TransferInt32BE(mDomainAC);
-	inStream->TransferInt32BE(mFaultAddress);
-	inStream->TransferInt32BE(mFaultStatus);
+	inStream->TransferBoolean(mMMUEnabled, false);
+	inStream->TransferByte(mCurrentAPMode, kAPMagic_Privileged);
+	inStream->TransferByte(mCurrentAPRead, 0);
+	inStream->TransferByte(mCurrentAPWrite, 0);
+	inStream->TransferInt32BE(mTTBase, 0);
+	inStream->TransferInt32BE(mDomainAC, 0xFFFFFFFF);
+	inStream->TransferInt32BE(mFaultAddress, 0);
+	inStream->TransferInt32BE(mFaultStatus, 0);
 }
 
 // -------------------------------------------------------------------------- //

@@ -452,11 +452,84 @@ public:
 	/// Transfer some bytes.
 	void Transfer(void* outBuffer, KUInt32* ioCount);
 
+	/// Return 1 if this stream sets values to their power-on state instead of
+	/// reading or writing them (see TResetStream).
+	KUInt32
+	IsResetting()
+	{
+		return (mIsResetting == 1);
+	}
+
+	/// \name Transfer with a reset value
+	/// These transfer a value, or set it to inResetValue when the stream is
+	/// resetting. The Transfer methods without a reset value keep the current
+	/// value when resetting.
+
+	void
+	TransferBoolean(Boolean& ioValue, Boolean inResetValue)
+	{
+		if (IsResetting())
+			ioValue = inResetValue;
+		else
+			TransferBoolean(ioValue);
+	}
+
+	void
+	TransferByte(KUInt8& ioValue, KUInt8 inResetValue)
+	{
+		if (IsResetting())
+			ioValue = inResetValue;
+		else
+			TransferByte(ioValue);
+	}
+
+	void
+	TransferInt32BE(KUInt32& ioValue, KUInt32 inResetValue)
+	{
+		if (IsResetting())
+			ioValue = inResetValue;
+		else
+			TransferInt32BE(ioValue);
+	}
+
+	void
+	TransferInt32BE(KSInt32& ioValue, KSInt32 inResetValue)
+	{
+		if (IsResetting())
+			ioValue = inResetValue;
+		else
+			TransferInt32BE(ioValue);
+	}
+
+	void
+	TransferInt16BE(KUInt16& ioValue, KUInt16 inResetValue)
+	{
+		if (IsResetting())
+			ioValue = inResetValue;
+		else
+			TransferInt16BE(ioValue);
+	}
+
+	/// Transfer an array of words, or fill it with inResetValue when resetting.
+	void
+	TransferInt32ArrayBE(KUInt32* ioArray, const KUInt32 inCount, KUInt32 inResetValue)
+	{
+		if (IsResetting())
+		{
+			for (KUInt32 i = 0; i < inCount; i++)
+				ioArray[i] = inResetValue;
+		} else
+		{
+			TransferInt32ArrayBE(ioArray, inCount);
+		}
+	}
+
 protected:
 	KUInt32 mVersion;
 	KUInt32 mTransferFlags { 0 };
 	KUInt32 mIsReading;
 	KUInt32 mIsWriting;
+	KUInt32 mIsResetting { 0 };
 };
 
 #endif

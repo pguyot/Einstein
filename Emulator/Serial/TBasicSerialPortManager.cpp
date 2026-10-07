@@ -535,21 +535,21 @@ TBasicSerialPortManager::run(TInterruptManager* inInterruptManager,
 void
 TBasicSerialPortManager::TransferState(TStream* inStream)
 {
-	inStream->TransferInt32BE(mTxDMAPhysicalBufferStart);
-	inStream->TransferInt32BE(mTxDMAPhysicalData);
-	inStream->TransferInt32BE(mTxDMADataCountdown);
-	inStream->TransferInt32BE(mTxDMABytesToBufferEnd);
-	inStream->TransferInt32BE(mTxDMAIntEnable);
-	inStream->TransferInt32BE(mTxDMAEvent);
-	inStream->TransferInt32BE(mRxDMAPhysicalBufferStart);
-	inStream->TransferInt32BE(mRxDMAPhysicalData);
-	inStream->TransferInt32BE(mRxDMADataCountdown);
-	inStream->TransferInt32BE(mRxDMABytesToBufferEnd);
-	inStream->TransferInt32BE(mRxDMAIntEnable);
-	inStream->TransferInt32BE(mRxDMAEvent);
+	inStream->TransferInt32BE(mTxDMAPhysicalBufferStart, 0);
+	inStream->TransferInt32BE(mTxDMAPhysicalData, 0);
+	inStream->TransferInt32BE(mTxDMADataCountdown, 0);
+	inStream->TransferInt32BE(mTxDMABytesToBufferEnd, 0);
+	inStream->TransferInt32BE(mTxDMAIntEnable, 0);
+	inStream->TransferInt32BE(mTxDMAEvent, 0);
+	inStream->TransferInt32BE(mRxDMAPhysicalBufferStart, 0);
+	inStream->TransferInt32BE(mRxDMAPhysicalData, 0);
+	inStream->TransferInt32BE(mRxDMADataCountdown, 0);
+	inStream->TransferInt32BE(mRxDMABytesToBufferEnd, 0);
+	inStream->TransferInt32BE(mRxDMAIntEnable, 0);
+	inStream->TransferInt32BE(mRxDMAEvent, 0);
 
 	// Let the driver thread look at the new DMA state when it resumes.
-	if (inStream->IsReading())
+	if (inStream->IsReading() || inStream->IsResetting())
 		TriggerEvent(kSerCmd_TxCtrlChanged);
 }
 

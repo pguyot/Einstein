@@ -11,6 +11,7 @@ list ( APPEND common_sources
 	K/Streams/TFileStream.h
 	K/Streams/TMemoryStream.h
 	K/Streams/TRandomAccessStream.h
+	K/Streams/TResetStream.h
 	K/Streams/TStream.cpp
 	K/Streams/TStream.h
 )

@@ -282,7 +282,7 @@ TDMAManager::WriteChannel2Register(
 void
 TDMAManager::TransferState(TStream* inStream)
 {
-	inStream->TransferInt32BE(mAssignmentReg);
+	inStream->TransferInt32BE(mAssignmentReg, 0);
 }
 
 // ======================================================== //

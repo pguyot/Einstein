@@ -135,6 +135,13 @@ public:
 	Boolean RequestCheckState(const char* inBasePath);
 
 	///
+	/// Reset the machine (see TEmulator::ResetState()). Call from the UI
+	/// thread, see RequestSaveState(). A running emulator continues to run.
+	/// \return false if the monitor is busy and the machine was not reset.
+	///
+	Boolean RequestReset();
+
+	///
 	/// Print help for the available commands.
 	///
 	void PrintHelp(void);
@@ -439,7 +446,8 @@ protected:
 		kStateRequestNone,
 		kStateRequestSave,
 		kStateRequestLoad,
-		kStateRequestCheck
+		kStateRequestCheck,
+		kStateRequestReset
 	};
 	std::atomic<EStateRequest> mStateRequest { kStateRequestNone }; ///< Pending request for the monitor thread.
 	std::string mStateRequestPath; ///< File for mStateRequest, set before mStateRequest.

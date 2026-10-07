@@ -1060,8 +1060,8 @@ TScreenManager::TransferState(TStream* inStream)
 	inStream->TransferBoolean(mFullScreen);
 	inStream->TransferBoolean(mScreenIsLandscape);
 	inStream->TransferBoolean(mBypassTablet);
-	inStream->TransferBoolean(mTabletIsDown);
-	inStream->TransferBoolean(mPenIsDown);
+	inStream->TransferBoolean(mTabletIsDown, false);
+	inStream->TransferBoolean(mPenIsDown, false);
 	inStream->TransferInt32BE(mTabletSampleRate);
 	t = mTabletOrientation;
 	inStream->TransferInt32BE(t);
@@ -1074,9 +1074,9 @@ TScreenManager::TransferState(TStream* inStream)
 	inStream->TransferBoolean(mKbdIsConnected);
 
 	// Pen samples that NewtonOS did not fetch yet (ring buffer).
-	inStream->TransferInt32ArrayBE(mTabletBuffer, kTabletBufferSize);
-	inStream->TransferInt32BE(mTabletBufCCrsr);
-	inStream->TransferInt32BE(mTabletBufPCrsr);
+	inStream->TransferInt32ArrayBE(mTabletBuffer, kTabletBufferSize, 0);
+	inStream->TransferInt32BE(mTabletBufCCrsr, 0);
+	inStream->TransferInt32BE(mTabletBufPCrsr, 0);
 
 	KUInt32 count = mPortraitWidth * mPortraitHeight * kBitsPerPixel / 8;
 	inStream->Transfer(mScreenBuffer, &count);

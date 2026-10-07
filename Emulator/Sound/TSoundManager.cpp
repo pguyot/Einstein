@@ -70,8 +70,9 @@ TSoundManager::RaiseInputInterrupt(void) const
 void
 TSoundManager::TransferState(TStream* inStream)
 {
-	inStream->TransferInt32BE(mInputIntMask);
-	inStream->TransferInt32BE(mOutputIntMask);
+	inStream->TransferInt32BE(mInputIntMask, 0);
+	inStream->TransferInt32BE(mOutputIntMask, 0);
+	// The volume is kept on reset, it is like a knob on the device.
 	KUInt32 theVolume = mOutputVolume;
 	inStream->TransferInt32BE(theVolume);
 	if (inStream->IsReading())

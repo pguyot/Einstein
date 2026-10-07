@@ -3129,10 +3129,11 @@ TMemory::TransferState(TStream* inStream)
 	// The various registers.
 	inStream->TransferInt32BE(mRAMSize);
 	inStream->TransferInt32BE(mRAMEnd);
-	inStream->TransferInt32BE(mBankCtrlRegister);
+	inStream->TransferInt32BE(mBankCtrlRegister, 0);
 	inStream->TransferInt32BE(mBPCount);
 	// How far NewtonOS has read the serial number chip, one bit at a time.
-	inStream->TransferInt32BE(mSerialNumberIx);
+	// 64 is the power-on position: a 0 bit, then the 64 bits of the number.
+	inStream->TransferInt32BE(mSerialNumberIx, 64);
 
 	// The RAM
 	if (inStream->IsReading())
@@ -3167,8 +3168,9 @@ TMemory::TransferState(TStream* inStream)
 		mFlash.TransferState(inStream);
 
 	// Invalidate the JIT cache. After loading, RAM and ROM hold different code,
-	// and RAM was reallocated, so all translated pages must go.
-	if (inStream->IsReading())
+	// and RAM was reallocated, so all translated pages must go. After a reset,
+	// NewtonOS starts over, so drop them as well.
+	if (inStream->IsReading() || inStream->IsResetting())
 		mJIT.InvalidateAll();
 	else
 		mJIT.InvalidateTLB();

@@ -583,6 +583,15 @@ TMonitor::RequestCheckState(const char* inBasePath)
 }
 
 // -------------------------------------------------------------------------- //
+// RequestReset( void )
+// -------------------------------------------------------------------------- //
+Boolean
+TMonitor::RequestReset()
+{
+	return RequestStateTransfer(kStateRequestReset, "");
+}
+
+// -------------------------------------------------------------------------- //
 // RequestStateTransfer( EStateRequest, const char* )
 // -------------------------------------------------------------------------- //
 // Called from the UI thread. The monitor thread holds mMutex at all times,
@@ -627,6 +636,10 @@ TMonitor::DoStateTransfer(EStateRequest inRequest, const char* inPath)
 	if (inRequest == kStateRequestCheck)
 	{
 		CheckStateRoundTrip(inPath);
+	} else if (inRequest == kStateRequestReset)
+	{
+		mEmulator->ResetState();
+		PrintLine("Machine reset", MONITOR_LOG_INFO);
 	} else if (inRequest == kStateRequestSave)
 	{
 		if (SaveEmulatorState(inPath, mStateRequestFastStart))

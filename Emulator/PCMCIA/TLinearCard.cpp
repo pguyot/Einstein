@@ -247,9 +247,9 @@ void
 TLinearCard::TransferState(TStream* inStream)
 {
 	KUInt32 theState = (KUInt32) mState;
-	inStream->TransferInt32BE(theState);
+	inStream->TransferInt32BE(theState, kReadArray);
 	mState = (int) theState;
-	inStream->TransferByte(mStatusRegister);
+	inStream->TransferByte(mStatusRegister, 0x80);
 }
 
 // -------------------------------------------------------------------------- //

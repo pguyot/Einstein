@@ -389,8 +389,10 @@ TPCMCIAController::InsertCard(TPCMCIACard* inCard)
 void
 TPCMCIAController::TransferState(TStream* inStream)
 {
-	inStream->TransferInt32BE(mReg_0000);
-	inStream->TransferInt32BE(mIntCtrlReg);
+	// A reset clears pending and enabled interrupts. The other registers are
+	// kept, because they also show whether a card is inserted.
+	inStream->TransferInt32BE(mReg_0000, 0);
+	inStream->TransferInt32BE(mIntCtrlReg, 0);
 	inStream->TransferInt32BE(mReg_0800);
 	inStream->TransferInt32BE(mReg_0C00);
 	inStream->TransferInt32BE(mReg_1000);
@@ -408,7 +410,12 @@ TPCMCIAController::TransferState(TStream* inStream)
 	inStream->TransferInt32BE(mReg_4000);
 
 	KUInt32 theCardTag = mCard ? mCard->GetStateTag() : 0;
-	if (inStream->IsWriting())
+	if (inStream->IsResetting())
+	{
+		// Reset the card as well.
+		if (mCard)
+			mCard->TransferState(inStream);
+	} else if (inStream->IsWriting())
 	{
 		TMemoryStream theCardState;
 		if (mCard)
