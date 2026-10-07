@@ -255,7 +255,7 @@ static void cb_Check(Fl_Menu_*, void*) {
   gApp->UserActionCheckState();
 }
 
-static void cb_NewtonScript(Fl_Menu_*, void*) {
+static void cb_System(Fl_Menu_*, void*) {
   gApp->UserActionReset(1);
 }
 
@@ -324,14 +324,14 @@ Fl_Menu_Item menu_wMenubar[] = {
  {"Backlight", 0,  (Fl_Callback*)cb_Backlight, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Upper PCCard", 0,  0, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Lower PCCard", 0,  0, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Reboot", 0,  (Fl_Callback*)cb_Reboot, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Reboot", 0,  (Fl_Callback*)cb_Reboot, 0, 144, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Save State", FL_COMMAND|FL_SHIFT|'k',  (Fl_Callback*)cb_Save1, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Load State", FL_COMMAND|FL_SHIFT|'l',  (Fl_Callback*)cb_Load, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Check State Round Trip", FL_COMMAND|FL_SHIFT|'r',  (Fl_Callback*)cb_Check, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Reset", 0,  0, 0, 208, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"NewtonScript Reboot", 0,  (Fl_Callback*)cb_NewtonScript, 0, 16, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Hardware Reset", 0,  (Fl_Callback*)cb_Hardware, 0, 16, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Brain Wipe", 0,  (Fl_Callback*)cb_Brain, 0, 16, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Reset", 0,  0, 0, 192, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"System Reboot", 0,  (Fl_Callback*)cb_System, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Hardware Reset", 0,  (Fl_Callback*)cb_Hardware, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Brain Wipe", 0,  (Fl_Callback*)cb_Brain, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {"Fetch ROM...", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
