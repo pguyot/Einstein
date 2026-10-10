@@ -889,6 +889,19 @@ TFLApp::UserActionReset(int inType)
 }
 
 /**
+ User wants to read the user guide. It is on GitHub, so it is always the
+ latest version.
+ */
+void
+TFLApp::UserActionShowUserManual()
+{
+	char errorMessage[512] = "";
+	if (!fl_open_uri("https://github.com/pguyot/Einstein/blob/master/Documentation/UserGuide.md",
+			errorMessage, sizeof(errorMessage)))
+		fl_alert("Could not open the user guide in your web browser.\n%s", errorMessage);
+}
+
+/**
  User wants to see the About window.
 
  \todo The About Window is not very beautiful. We should add credits and clickable links

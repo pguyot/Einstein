@@ -126,6 +126,9 @@ public:
 	// user wants to see the About window
 	void UserActionShowAboutPanel();
 
+	// user wants to read the user guide (opens it in the web browser)
+	void UserActionShowUserManual();
+
 	// user wants to see the Setting window
 	void UserActionShowSettingsPanel();
 

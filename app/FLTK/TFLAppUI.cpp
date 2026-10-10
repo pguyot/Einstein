@@ -295,6 +295,10 @@ static void cb_Settings(Fl_Menu_*, void*) {
   gApp->UserActionShowSettingsPanel();
 }
 
+static void cb_User(Fl_Menu_*, void*) {
+  gApp->UserActionShowUserManual();
+}
+
 static void cb_wMenuItemEssentials(Fl_Menu_*, void*) {
   gApp->UserActionInstallEssentials();
 }
@@ -352,9 +356,9 @@ Fl_Menu_Item menu_wMenubar[] = {
  {"Bring All To Front", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {"Help", 0,  0, 0, 64, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"User Manual...", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"User Manual...", 0,  (Fl_Callback*)cb_User, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"Newton History and Links...", 0,  0, 0, 1, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
- {"Install Essentials..", 0,  (Fl_Callback*)cb_wMenuItemEssentials, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
+ {"Install Essentials...", 0,  (Fl_Callback*)cb_wMenuItemEssentials, 0, 128, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {"About Einstein...", 0,  (Fl_Callback*)cb_wMenuItemAbout, 0, 0, (uchar)FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {0,0,0,0,0,0,0,0,0}
