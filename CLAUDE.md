@@ -103,13 +103,15 @@ up the emulator where it left off. There is an API to save the current emulation
 state, but I could never get that to run correctly. We need to find the bugs
 and missing states and make a fast start the default.
 
-**Status (2026-10-10):** Done and on by default in the FLTK app, on branch
+**Status (2026-10-11):** Done and on by default in the FLTK app, on branch
 `FastWakeup`, [PR #225](https://github.com/pguyot/Einstein/pull/225) against
-pguyot/Einstein. The review (CodeRabbit, Greptile) found missing checks when
-reading damaged state files, a crash when the screen size changes, two races
-and serial workers that were not suspended. All fixed on 2026-10-10 (commits
-below, not pushed yet); testing also found that no platform event reached
-NewtonOS after a Hardware Reset (fixed). The investigation notes this work
+pguyot/Einstein. The first review (CodeRabbit, Greptile) found missing checks
+when reading damaged state files, a crash when the screen size changes, two
+races and serial workers that were not suspended; the second review found
+three more (oversized files at launch, a refused value left behind, blocking
+serial writes under the DMA mutex). All fixed (commits below). Testing also
+found that no platform event reached NewtonOS after a Hardware Reset or a
+NewtonScript Reboot (fixed). The investigation notes this work
 started from (bug list, missing-state table, step-by-step logs) are in the
 history of this file: `git show d230e8a7:CLAUDE.md`.
 
@@ -208,6 +210,10 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
 | – | `15504e8c` | Platform events delivered again after a Hardware Reset |
 | Review | `f2308217` | Suspend the PTY, Pipes and BasiliskII workers too |
 | Review | `8c6a1473` | Message for a state file of another version |
+| – | `63aaed80` | Platform events delivered again after a NewtonScript Reboot |
+| Review 2 | `fee76444` | Files over 256 MB or without `EINISNAP` refused before allocating |
+| Review 2 | `6f4f966c` | Values checked before they replace the current ones (breakpoints, pen positions, event and buffer sizes) |
+| Review 2 | `a5f867bd` | Non-blocking serial writes for BasiliskII and TCP; TCP connects outside the DMA mutex |
 
 **Testing notes**
 - Tests used an lldb Python driver on a sandboxed debug build (save, load, tap,
@@ -236,8 +242,10 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
    paths ≤ 2048 bytes, linear cards ≤ 64 MB + CIS, CRC if it is fast enough);
    no lost Monitor requests (both windows reproduced with delays, then fixed);
    all serial workers suspended; checked close; the version message.
-2. Push the branch and answer the review comments on the PR (drafts were
-   given in the session on 2026-10-10).
+2. ~~Push and answer the first review~~ done 2026-10-10. Push the second
+   round (`fee76444` … `a5f867bd`) and answer Greptile's three new comments.
+   Codacy reports 76 markdownlint style issues in CLAUDE.md and one generic
+   flawfinder `strlen` warning (a NUL-terminated path); not changed.
 
 *After merging*
 3. ~~NewtonScript Reboot blocks all later platform events~~ fixed
