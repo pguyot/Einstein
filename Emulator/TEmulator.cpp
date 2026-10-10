@@ -673,6 +673,7 @@ TEmulator::LoadState(const char* inPath)
 	}
 	TMemoryStream theMemoryStream(std::move(theData));
 	TStream* theStream = &theMemoryStream;
+	Boolean theLoadingStarted = false;
 	try
 	{
 		if (theStream->GetInt32BE() != 'EINI')
@@ -734,13 +735,21 @@ TEmulator::LoadState(const char* inPath)
 		}
 
 		theStream->TransferFlags((theKind == kDebugState) ? kStateIncludesFlash : 0);
+		theLoadingStarted = true;
 		TransferState(theStream);
 	} catch (const std::exception& e)
 	{
-		// The contents of the file don't fit what we expect. Part of the state may
-		// have been loaded, so at least drop the translated code.
-		mMemory.GetJITObject()->InvalidateAll();
 		KPrintf("Could not load the emulator state from %s (%s).\n", inPath, e.what());
+		if (theLoadingStarted)
+		{
+			// The contents of the file don't fit what we expect, and part of
+			// the state was loaded already. Don't run a half-loaded machine:
+			// clear RAM and reset, so NewtonOS boots again from the flash.
+			mMemory.GetJITObject()->InvalidateAll();
+			mMemory.ClearRAM();
+			ResetState();
+			KPrintf("The emulator was reset, NewtonOS boots again.\n");
+		}
 		return false;
 	}
 	return true;

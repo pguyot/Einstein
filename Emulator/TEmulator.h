@@ -452,8 +452,10 @@ public:
 	/// the same ROM, RAM size, PCMCIA cards (and flash, for fast start files).
 	/// Otherwise nothing is changed and false is returned.
 	///
-	/// \return false if the state could not be loaded. If the file was cut
-	/// off, part of the state may have been loaded already.
+	/// \return false if the state could not be loaded. Damaged files are
+	/// refused before anything changes. If a file fails while it is being
+	/// loaded (its contents don't fit), RAM is cleared and the machine is
+	/// reset, so NewtonOS boots again.
 	///
 	Boolean LoadState(const char* inPath);
 
