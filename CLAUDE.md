@@ -1,6 +1,6 @@
 
 
-# TODO List for long standing issue
+# TODO list for long-standing issues
 
 ## Assessment overview
 
@@ -8,20 +8,21 @@ Effort scale: **S** ≤ 1 day · **M** 2–5 days · **L** 1–3 weeks · **XL**
 Confidence is how sure the estimate is. Questions are numbered (Q1.1, …) so they
 can be answered inline.
 
-| Point                         | Effort                                    | Confidence | Depends on                     |
-|-------------------------------|-------------------------------------------|------------|--------------------------------|
-| SDL and Android               | XL                                        | low        | Fast start, Multithreading, Drivers |
-| Sleep mode                    | S–M                                       | medium     | –                              |
-| Fast start                    | L–XL                                      | low        | Sleep mode, Multithreading, Drivers |
-| Multithreading und atomic     | M to start, L to fix                      | medium     | –                              |
-| Driver implementation         | L                                         | medium     | Multithreading                 |
-| Multiple Configurations       | M as separate processes, XL in one process | medium    | –                              |
-| IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        |
-
+| Point                         | Effort                                    | Confidence | Depends on                     | Status |
+|-------------------------------|-------------------------------------------|------------|--------------------------------|--------|
+| SDL and Android               | XL                                        | low        | Fast start, Multithreading, Drivers | open |
+| Sleep mode                    | S–M                                       | medium     | –                              | mostly covered by Fast start |
+| Fast start                    | L–XL                                      | low        | Sleep mode, Multithreading, Drivers | done, PR #225 in review |
+| Multithreading and atomics    | M to start, L to fix                      | medium     | –                              | started, 5 race groups deferred |
+| Driver implementation         | L                                         | medium     | Multithreading                 | open |
+| Multiple Configurations       | M as separate processes, XL in one process | medium    | –                              | open |
+| IR emulation via UDP          | M–L, after a 2–3 day investigation        | low        | Multiple Configurations        | open |
+| Event forwarding on slow machines | not assessed                          | –          | –                              | open |
+| Fix CI testing                | –                                         | –          | –                              | done |
 
 Suggested order (to be decided):
-1. Sleep mode, then a ThreadSanitizer pass (Multithreading).
-2. Drivers and Fast start together.
+1. ~~Sleep mode, then a ThreadSanitizer pass (Multithreading).~~ Done as part of Fast start.
+2. Wrap up Fast start (review findings, see *Next steps* there), then Drivers.
 3. SDL and Android.
 4. Multiple Configurations, then IR.
 
@@ -29,13 +30,13 @@ Suggested order (to be decided):
 
 There are stubs to generate Einstein for Android using SDL3. This is a bigger
 project that needs extensive planning. How can we cross compile comfortably?
-How can users change settings (SDL doe not offer a GUI)? Is a NewtonScript
-setting app good enough? How can we handle the ROM and Flash files confortably?
-Ho will user install new software, synchronize, connect over Wifi or serial
+How can users change settings (SDL does not offer a GUI)? Is a NewtonScript
+setting app good enough? How can we handle the ROM and Flash files comfortably?
+How will users install new software, synchronize, connect over Wifi or serial
 port? How can they insert and remove virtual PCMCIA cards? How can we
 handle the screen orientation and resolution?
 
-What else do we need to make Einstein agood experience on Android and other
+What else do we need to make Einstein a good experience on Android and other
 SDL devices?
 
 **Assessment:** Effort XL, confidence low.
@@ -47,7 +48,7 @@ SDL devices?
   (`_Build_/AndroidStudioNative`, `TAndroidNativeApp`), which may be worth
   mining for ideas.
 - Android can kill an app at any time, so a good Android experience depends on
-  Fast start.
+  Fast start. Fast start exists only in the FLTK app so far.
 
 **To clarify** (in addition to the questions above)
 - **Q2.1** Which targets: Android only, or also iOS and Linux handhelds through
@@ -70,20 +71,26 @@ SDL devices?
 Verify that we go into sleep mode correctly and that the state is saved. What
 happens if we exit the app? Does the emulation close gracefully?
 
-**Assessment:** Effort S–M, confidence medium.
+**Assessment:** Effort S–M, confidence medium. Mostly covered by Fast start.
 
 **Findings**
-- The FLTK app quits by calling `mEmulator->Quit()`, which just stops the CPU
-  (TFLApp.cpp:417-423). It does not check whether NewtonOS is awake or asleep.
-- RAM is not saved, so the next launch is a reboot.
+- With Fast start on (the default), quitting the FLTK app puts the Newton to
+  sleep first, waits up to 10 s, and saves the state (see Fast start). RAM
+  survives, so the next launch continues instead of rebooting.
+- With Fast start off, or when the Newton does not fall asleep in time, quit
+  still just stops the CPU (`TFLApp::QuitNow`). It does not check whether
+  NewtonOS is awake or asleep.
 - Flash is a memory-mapped file that is synced on write and erase. If Einstein
   quits in the middle of a store operation, the store can be left inconsistent.
+  Waiting for sleep makes that unlikely, but only with Fast start on.
 - The power switch is `SendPowerSwitchEvent()`, and the platform manager knows
-  the power state (`IsPowerOn()`).
+  the power state (`IsPowerOn()`, atomic since the Fast start work).
 
 **To clarify**
 - **Q3.1** On quit: put the Newton to sleep first and wait until it is asleep?
   How long until we force the quit? What if NewtonOS shows a dialog or hangs?
+  **A** (partly): with Fast start on, sleep first, 10 s timeout, then quit
+  without a state file. Open: also sleep first with Fast start off?
 - **Q3.2** Should closing the window mean sleep instead of quit?
 - **Q3.3** Should FLTK, Cocoa and SDL behave the same?
 - **Q3.4** How do we test that the store survives a quit? For example, quit
@@ -91,317 +98,189 @@ happens if we exit the app? Does the emulation close gracefully?
 
 ### Fast start
 
-After falling asleep and quitting EInstein, restarting Einstein should bring
+After falling asleep and quitting Einstein, restarting Einstein should bring
 up the emulator where it left off. There is an API to save the current emulation
 state, but I could never get that to run correctly. We need to find the bugs
 and missing states and make a fast start the default.
 
-**Assessment:** Effort L–XL, confidence low.
+**Status (2026-10-10):** Done and on by default in the FLTK app, on branch
+`FastWakeup`, [PR #225](https://github.com/pguyot/Einstein/pull/225) against
+pguyot/Einstein. The review (CodeRabbit, Greptile) found missing checks when
+reading damaged state files, a crash when the screen size changes, and two
+races. They are the first items under *Next steps*. The investigation notes
+this work started from (bug list, missing-state table, step-by-step logs) are
+in the history of this file: `git show d230e8a7:CLAUDE.md`.
 
-**Use cases** (Matt, brainstorming, not decided yet)
-1. *Fast start:* on quit, the emulator is told to sleep. When it reaches the
-   sleep state, it saves everything but ROM and flash, then Einstein quits.
-   When Einstein is restarted with the same parameters (ROM, flash), it
-   continues from there. "Everything" includes CPU registers, MMU, interrupt
-   controller, timers, the platform manager's queues and the PCMCIA registers,
-   because a sleeping Newton is not powered off.
-2. *Debug snapshot:* save the state while the Monitor is at a breakpoint, and
-   restore it later in the same session to repeat a debugging run. This was the
-   original purpose of `SaveState`/`LoadState`, which probably explains why
-   caches and pointers are not cleared: a restore was only expected within the
-   same Einstein session.
+**How it works**
+- *State file* (`TEmulator::SaveState`/`LoadState`, file version 9): header
+  (`EINI`, `SNAP`, version, kind), identity block, the inserted cards (tag and
+  image path per socket), then the `TransferState` tree: memory (RAM,
+  breakpoints, MMU, flash), CPU with native primitives, interrupts, DMA, serial
+  DMA registers, PCMCIA controllers and cards, platform manager, screen and
+  tablet, sound. Written to `<path>.tmp` and renamed when complete.
+- *Two kinds:* fast start files store only a flash checksum (4.3 MB), debug
+  files store the whole flash (12.7 MB). The ROM is never saved; ROM
+  breakpoints are removed before loading and re-applied from the loaded list.
+- *Identity check* before anything changes: ROM+REX checksum, RAM size, flash
+  checksum (fast start files only), card tag and contents checksum per socket.
+  Every mismatch is printed ("the flash changed", …).
+- *One tree for save, load and reset:* a `TStream` reads, writes or resets
+  (`TResetStream`). `TransferXxx(value, resetValue)` gives the power-on value;
+  calls without one keep the current value (RAM, flash, configuration). The
+  follow-ups after loading (JIT flush with `TJITCache::InvalidateAll()`, screen
+  power, serial wake-up) also run after a reset. Card state is a tagged block
+  with a length (`TMemoryStream`), so loading with a different card skips it.
+- *Threads:* `TMonitor::RequestStateTransfer` does the transfer on the UI
+  thread if the emulator is halted, otherwise it hands the request to the
+  monitor thread and stops the emulator. Serial drivers are suspended during
+  the walk, the interrupt manager holds its mutex.
+- *Quit* (`TFLApp::UserActionQuit`): a timer presses power if the Newton is
+  awake, waits up to 10 s for sleep, stops the emulator, saves
+  `FastStart.state` in the user data folder, then quits normally (which
+  flushes the card files). No sleep in time: no file.
+- *Launch* (`TFLApp::LoadFastStartState`, before the emulator thread starts):
+  read the cards from the header, insert them, load, wake the Newton 0.5 s
+  after the emulator starts. If loading fails for any reason: clear RAM,
+  `ResetState()`, normal boot with the cards left inserted. The file is deleted
+  either way.
+- *Setting:* "Fast start: continue where Einstein was quit" in the MessagePad
+  tab of the Settings dialog (`System/FastStart`, default on).
+- *Debug tools:* Monitor `save [fast] <path>`, `load <path>`,
+  `checkstate [path]` (save A, load A, save B, compare; reports differing bytes
+  per section). Platform menu items Save/Load/Check State (Cmd+Shift+K/L/R),
+  hidden since `d230e8a7`.
 
-**Design options** (brainstorming)
-- Two independent systems for the two use cases.
-- One `TransferState` tree with a `TStream` subclass that carries the extra
-  information (for example "include ROM and flash" for debug snapshots).
-- Only solve Fast start and leave debug snapshots for future Matt.
-- Extra phases walked over the same tree, so the order is always the same:
-  *prepare* (stop DMA, pause threads), *transfer* (write, read or reset),
-  *resume* (restart after save or load). The tree is walked three times.
-- Reset mode (see Hardware Reset below): `TStream` gets a third state,
-  *resetting*. A `TResetStream` subclass moves no bytes; new overloads such as
-  `TransferInt32BE(mTimer, 0)` set the power-on value. Calls without a reset
-  value keep the current value (right for RAM, flash, configured screen size).
-  One list per class then defines save, load and reset. A forgotten reset value
-  silently keeps old state, so the coverage check (below) should list every
-  field without one.
-- Flash validity for Fast start: the last write time of a memory-mapped file is
-  not always updated reliably, and copying a file can keep or change it. A
-  checksum of the 4 MB flash file is cheap and more robust (decision open).
+**Decisions** (Matt)
+- Save on quit only after the Newton is asleep. After a successful fast start,
+  always wake the Newton. (2026-10-08)
+- Fast start files store a flash checksum and only load if nothing changed.
+  Debug files store the whole flash, because soups may change after the
+  snapshot. (2026-10-07)
+- PCMCIA: insert the cards from the header again; card kind and contents
+  checksum must match, otherwise boot normally with the cards left inserted
+  (a card may have been restored from a backup or used in another emulated
+  Newton). (2026-10-07)
+- Delete the fast start file after loading, so an unforeseen error cannot cause
+  an endless loop. (2026-10-08)
+- Fast start is a setting, checked on the first run. (2026-10-08)
+- The temporary menu items stay in the code, hidden; later replaced by
+  user-friendly checkpoints (test-install apps and return quickly). (2026-10-08)
+- Serial: the driver type is a preference and not saved; the DMA registers are
+  loaded into whatever driver runs. Revisit for drivers with more state or for
+  licensee ports.
+- Deliberately not saved: `TEmulator::mZAPMemory` (a pending Brain Wipe must
+  not survive into a fast start) and watchpoints (debug only).
 
-**Findings: the TStream system**
-- `TStream` is abstract (`Read`, `Write`, `FlushOutput`, `PeekByte` are pure
-  virtual). `TRandomAccessStream` is also abstract and only adds a cursor.
-  `TFileStream` is the only concrete subclass; there is no memory stream.
-- Six transfer methods: `TransferBoolean`, `TransferByte`, `TransferInt16BE`,
-  `TransferInt32BE` (unsigned and signed), `TransferInt32ArrayBE`, and a raw
-  `Transfer(buffer, count)`. The direction comes from `mIsReading` and
-  `mIsWriting` (reading wins if both are set). No per-section versions, no
-  error reporting.
-- Callers: the Monitor commands `save`, `load`, `snap`, `revert` (only while
-  halted) and the CLI app. The FLTK app always creates the Monitor
-  (`TFLApp::InitMonitor`), so the halt logic is already there.
-- `TEmulator::TransferState` (TEmulator.cpp:516) saves memory (ROM, RAM,
-  breakpoints, MMU, flash), the CPU including `TNativePrimitives` (called from
-  `TARMProcessor::TransferState`), interrupts, DMA and the screen.
+**Commits** on `FastWakeup`
 
-**Findings: bugs in the existing code**
-1. *Stale JIT code after a load.* `TMemory::TransferState` only calls
-   `InvalidateTLB()`, which clears the virtual-address map. Translated pages
-   are also indexed by physical address, and `TJITCache::GetPage()` reuses
-   them, so code in RAM can keep running the old translation. The RAM block is
-   also `realloc`ed, so translated pages may point into freed memory.
-2. *Thread-control flags are saved as machine state:* `TEmulator`
-   (`mInterrupted`, `mRunning`, `mPaused`, `mBPHalted`, `mBPID`) and
-   `TInterruptManager` (`mRunning`, `mExiting`, `mWaiting`). Restoring them can
-   stall a host thread.
-3. *The whole 16 MB ROM image is saved and restored,* overwriting the current
-   ROM and its patches. A snapshot from a different ROM silently replaces it.
-4. *The flash is saved and restored.* Loading takes the user's store back to
-   the time of the snapshot. An old snapshot can roll back newer data.
-5. `LoadState` leaks the stream on its three error returns and never checks
-   that the file was long enough.
-6. No coordination with other threads: the interrupt timer thread and the
-   serial DMA threads keep changing state during a save or load.
+| Step | Commit | What |
+|------|--------|------|
+| 0 | `cbd60874` | Thread safety first: atomic run-control flags (no longer saved) and pending interrupts, serial `Suspend()/Resume()`, TSan fixes |
+| 1 | `7e243218` | Temporary Save State / Load State menu items |
+| 2 | `511ac19f` | Full JIT flush after loading; `SaveState`/`LoadState` return errors, no leaks |
+| 3 | `04294bf0` | `checkstate` round trip |
+| 4 | `98645599` … `9c5ff5b8` | Missing state: platform manager, pen samples and sound, serial DMA registers, PCMCIA controllers and cards, serial number chip |
+| 5 | `b97523dd` | Identity check, ROM no longer saved, fast start and debug kinds |
+| 6 | – | TSan check of save, load and reset: no new races |
+| 7 | `700ec75f`, `257bfa7d` | Reset mode; Hardware Reset and Brain Wipe through it |
+| 8 | `9ebb41d0`, `f6473cac` | Fast start on quit and launch, setting; quit without a nested wait (macOS menu, Cmd-Q) |
+| – | `d230e8a7` | Hide the temporary menu items |
 
-**Findings: state that is not saved** (checked against the compiler's field
-layout of each class)
+**Testing notes**
+- Tests used an lldb Python driver on a sandboxed debug build (save, load, tap,
+  screen dump, quit through `Fl::awake`). Sandboxes use a private `$HOME`;
+  FLTK wraps long preference values with `+` continuation lines, so check
+  that the flash path really points into the sandbox.
+- Quit Einstein normally before a test that loads (card pages are written to
+  the image file later), and load before NewtonOS boots; otherwise the card and
+  flash checksums differ, as they should.
+- Without the card the state expects, NewtonOS shows "Sorry, a problem has
+  occurred (-7338348)" after waking. That is why cards must match.
+- The serial number chip's power-on read position is 64, not 0 (with 0,
+  NewtonOS reports "This unit's serial number cannot be read").
 
-| Class | Missing |
-|---|---|
-| `TPlatformManager` | event queue and its read/write positions, buffer queue, `mBufferNextID`, `mPowerOn`, `mQueuePreLock`, `mQueueLockCount`, `mQueueBootLock` |
-| `TScreenManager` | tablet sample buffer and its read/write positions |
-| `TNativePrimitives` | `mSoundOutputBuffer1Addr`, `mSoundOutputBuffer2Addr` |
-| `TSoundManager` | `mInputIntMask`, `mOutputIntMask`, `mOutputVolume` |
-| `TMemory` | `mSerialNumberIx` (read position in the serial number chip); watchpoints (debug only) |
-| `TPCMCIAController` ×2 | all 17 registers, and which card is in each slot |
-| PCMCIA cards | `TLinearCard`: `mState`, `mStatusRegister`; `TATACard`: 11 task-file registers, FIFO and its position, `mState` |
-| `TBasicSerialPortManager` ×4 | 12 DMA registers per port (buffer start, position, countdown, interrupt enable, event; transmit and receive) |
-| `TEmulator` | `mZAPMemory` (minor) |
+**Next steps to wrap up state snapshots**
 
-`TDMAManager` only has `mAssignmentReg`, which is saved; the DMA channel
-registers live in the serial drivers.
+*Before merging PR #225* (review findings, all checked against `d230e8a7`):
+1. **Screen size in the identity block** (Greptile). `TScreenManager::
+   TransferState` loads the saved width and height and copies that many pixels
+   into a buffer allocated for the current settings. Make the screen smaller,
+   quit, relaunch: heap overflow on launch. The screen size is configuration:
+   add it to `GetStateIdentity()`, refuse a mismatch, and don't load it.
+2. **Damaged files must not crash or allocate gigabytes** (CodeRabbit,
+   Greptile). Values from the file are used as sizes and indices without a
+   check:
+   - card image path lengths in `LoadState` and `ReadStateCards` (which runs at
+     every launch, before the identity check);
+   - the card state block size in `TPCMCIAController::TransferState`;
+   - the ATA FIFO size (at most `kSectorSize`);
+   - platform event and buffer counts (a count near 2³² wraps the new capacity,
+     then the loop writes past the allocation), buffer sizes, unchecked
+     `calloc`;
+   - the tablet ring-buffer cursors (must be below `kTabletBufferSize`).
 
-**Verification**
-1. *Round trip:* save A, load A, save B, compare the files byte for byte.
-   Catches fields that are read and written in a different order. Cannot find
-   fields that are missing entirely.
-2. *Coverage check:* compare the compiler's field list
-   (`-Xclang -fdump-record-layouts-complete`) with the `Transfer…` calls of
-   each class. Every field is classified once: saved, derived (rebuilt after a
-   load, e.g. the MMU cache), host-only (pointers, logs, mutexes, threads), or
-   configuration (from the preferences). Turn this into a small tool.
-3. *Load into a freshly started Einstein,* not only into the running one;
-   loading into the same instance hides missing state because the right values
-   are still in memory. Scenarios: idle, typing in Notes, sound playing, serial
-   connected, PCMCIA card inserted, Newton asleep.
-4. After the reset mode exists: the Hardware Reset test (Q4.8).
+   Proposal: a small helper that throws when a value is out of range, so the
+   existing `catch` reports a damaged file and fast start boots normally. Also
+   store the payload length in the header and check it against the file size
+   before changing anything. That refuses cut-off files up front, which
+   matters for debug files: today a file cut off inside the flash section
+   overwrites part of the user's flash. *Decision:* length only, or length
+   and a CRC32 of the payload?
+3. **Lost state requests in the Monitor** (CodeRabbit, Greptile). Two windows
+   with the same cause:
+   - `RunEmulator()` has left its loop (breakpoint, `stop`) but not yet set
+     `mHalted`: the request is queued and never processed;
+   - `RunEmulator()` has set `mHalted = false` but not yet entered
+     `TEmulator::Run()`, which overwrites `Stop()` with `mRunning = true`.
 
-**Implementation plan** (each step a small, separately explained change)
-0. Before starting (decided): a ThreadSanitizer baseline run (serial, sound,
-   network), so races that existed before are known. Make the run-control
-   flags (`mRunning`, `mPaused`, …) properly atomic or locked and build one
-   clean way to pause host threads, because step 6 depends on it. All other
-   threading fixes happen when Fast start touches that code.
-   *Done 2026-10-07 (not committed):* run-control flags in `TEmulator` are
-   `std::atomic` and no longer saved (state file version 2);
-   `TARMProcessor::mPendingInterrupts` is `std::atomic`;
-   `TSerialPortDriver::Suspend()/Resume()` (TCP client implements them with a
-   mutex around its DMA work), `TSerialPorts::SuspendAll()/ResumeAll()` called
-   from `TEmulator::TransferState`; `TInterruptManager::TransferState` holds
-   its mutex. No sound hook: the audio thread touches no emulated memory and
-   raises interrupts through the interrupt manager's lock.
-1. Temporary GUI items "Save State" and "Load State" that tell the Monitor to
-   stop, save or load a fixed file in Einstein's data folder, and run again.
-   Changes: `TFLAppUI.fl` with its generated `.cpp`/`.h`, two handlers in
-   `TFLApp`.
-   *Done 2026-10-07 (not committed):* Platform menu "Save State" (Cmd+Shift+K)
-   and "Load State" (Cmd+Shift+L), file `Einstein.state` in the user data
-   folder (`Fl_Preferences::getUserdataPath()`). `TMonitor::RequestSaveState()`
-   / `RequestLoadState()`: if the emulator is halted (the UI gets the monitor
-   mutex), the UI thread saves/loads directly; if it runs, the request is
-   handed to the monitor thread, the emulator is stopped, `RunEmulator()`
-   does the transfer and continues running. TSan run: no new races. Also:
-   committed fluid output is now excluded from the clang-format check
-   (`EINSTEIN_FLUID_OUTPUT` source property).
-2. Fix the existing bugs: full JIT flush after a load (new "invalidate
-   everything" in `TJITCache`), stop saving thread-control flags, fix the leaks
-   and length checks in `LoadState`, raise the file version to 2.
-   *Done 2026-10-07 (not committed):* `TJITCache::InvalidateAll()` (unlinks
-   every page from the physical map and clears the virtual map), called by
-   `TMemory::TransferState` after loading. `TEmulator::SaveState/LoadState`
-   return `Boolean`, catch exceptions (missing or truncated file), and free
-   the stream on every path; the Monitor reports failures. Guards make sure
-   the serial drivers are resumed and the interrupt manager's mutex is
-   unlocked even when loading throws. A truncated file still leaves a
-   partially loaded state (decision for later: message and reboot, so a bad
-   RAM image never writes to flash).
-   Tested with an lldb driver (scratchpad `drive.py`): boot, save, tap Names,
-   Dates, Extras, load → screen identical to the saved one, Extras opens over
-   Notes as expected; loading a half-size copy prints an error, no crash.
-3. Round-trip check as a Monitor command and a temporary menu item.
-   *Done 2026-10-07 (not committed):* Monitor command `checkstate [path]` and
-   Platform menu "Check State Round Trip" (Cmd+Shift+R): save to `…A.state`,
-   load it, save to `…B.state`, compare byte by byte. `TEmulator` records
-   where each section starts while saving, so a failure reports the number
-   of differing bytes per section. First result: A and B identical (29437311
-   bytes). That only shows that what is saved is also loaded; missing state
-   (step 4) needs the coverage check and loading into a fresh Einstein.
-4. Add the missing state one class per change: platform manager, screen and
-   tablet, sound, serial DMA registers, PCMCIA controllers and cards. Run
-   verification 1–3 after each.
-   *Progress (Matt left this to Claude on 2026-10-07; commits are local until
-   Matt reviews them):*
-   - Baseline: loading a state from another session into a freshly started
-     Einstein already works while the Newton is awake and idle (screen
-     identical, taps work).
-   - Platform manager (`98645599`, file version 3): power state, pending
-     events and buffers, queue locks. Before, a state saved while asleep and
-     loaded into a fresh Einstein needed two power button presses to wake;
-     now one. After loading, the screen is switched on or off to match the
-     loaded power state. Round trip identical while awake and while asleep.
-   - Pen samples and sound (`7c7f25c5`, version 4): pending tablet samples
-     (ring buffer and positions), sound interrupt masks and volume (loaded
-     through `OutputVolume()`, so the host follows), sound buffer addresses.
-   - Serial ports (`e040d658`, version 5): the 12 DMA registers of each port
-     (`TSerialPortDriver::TransferState`, implemented in
-     `TBasicSerialPortManager`; the driver behind a port is a preference).
-     The driver thread is woken after loading. Round trip identical with the
-     Dock app open.
-   - PCMCIA (`7467166c`, version 6): both controllers' registers; card state
-     (linear: flash state machine; ATA: task file registers, FIFO, state;
-     NE2000: none) saved with a card tag and length, using the new header-only
-     `TMemoryStream`. Loading with a different card (or none) skips the card
-     state with a warning. Tested with a copied 2 MB linear card: same card
-     works; without the card, NewtonOS shows "Sorry, a problem has occurred
-     (-7338348)" after waking, because its RAM expects the card. **Step 5 must
-     make sure the same cards are inserted (refuse, or insert them).**
-   - Serial number chip read position (`9c5ff5b8`, version 7).
-   - Deliberately not saved: `TEmulator::mZAPMemory` (a pending Brain Wipe
-     must not survive into a fast start), watchpoints (debug only).
-   - Test sandboxes (scratchpad `drivehome`, `cardhome`): note that FLTK wraps
-     long preference values with `+` continuation lines; the flash path in
-     `drivehome` pointed at the TSan sandbox's flash until this was noticed.
-     Loading restores the flash, so the cross-session results stand.
-5. Stop saving the ROM: save ROM ID, REX checksum and RAM size instead, refuse
-   mismatching snapshots, re-apply breakpoints from the saved list. Apply the
-   flash decision.
-   *Decisions (Matt, 2026-10-07):* fast start snapshots (quit: sleep, save,
-   quit) store only a flash checksum; fast start only if nothing changed.
-   Debug snapshots store the whole flash, because soups may change after the
-   snapshot. PCMCIA: card kind and contents checksum must match (a card may
-   have been restored from a backup or used in another emulated Newton);
-   otherwise boot normally.
-   *Done (`b97523dd`, file version 8, not pushed yet):* `TEmulator::SaveState(
-   path, kind)` with `kFastStartState` / `kDebugState`; a check block after the
-   header: ROM+REX checksum (computed when TMemory is created from a
-   `TROMImage`, before any breakpoint), RAM size, flash checksum, card tag and
-   contents checksum per socket. `LoadState` compares before changing
-   anything and prints every mismatch ("the flash changed", "the contents of
-   the card in socket 0 changed", ...). The flash is only checked for fast
-   start files and only saved in debug files (`TStream::TransferFlags()`,
-   `kStateIncludesFlash`). The ROM is no longer saved; ROM breakpoints are
-   removed before loading and re-applied from the loaded list. Debug files
-   12.7 MB, fast start files 4.3 MB (were 29.4 MB). Monitor: `save fast
-   <path>`; `TMonitor::RequestSaveState(path, fastStart)`.
-   Debug snapshots refuse a changed card too (card contents are not saved;
-   saving them like the flash could come later).
-   Tests (lldb driver): breakpoint at 0x1412FC survives save/load; fast start
-   file refused with a fresh flash and with a missing card; saved, quit
-   normally, and loaded 2 s after the next launch: accepted, breakpoint back,
-   one power press wakes into Dates; debug file loads after a full boot with a
-   fresh flash. Note: tests must quit Einstein normally (card pages are written
-   to the image file later) and load before NewtonOS boots, or the card and
-   flash checksums differ, as they should.
-6. Thread safety: pause the timer, serial, sound and network threads during
-   save and load (much simpler if snapshots are only taken while asleep).
-   *Checked 2026-10-08 (TSan, interactive: Save/Load/Check State, Hardware
-   Reset):* 21 reports, all in the deferred groups (`mCPSR_I`, interrupt
-   controller registers, tablet, TCP DMA, CoreAudio), none in the save, load
-   or reset paths. The timer thread is suspended while the emulator is
-   stopped, serial drivers are suspended by `TEmulator::TransferState`, the
-   sound thread only raises interrupts under the interrupt manager's lock,
-   and the network thread was not active. Nothing more needed for now.
-7. Reset mode: `TResetStream`, reset-value overloads, a `StateChanged()` hook
-   per class shared by load and reset; switch Hardware Reset to it.
-   *Done (`700ec75f`, not pushed yet):* `TStream::IsResetting()` and
-   `TransferXxx(value, resetValue)` overloads (header inline); header-only
-   `TResetStream`. No separate `StateChanged()` hook: the existing
-   `if (IsReading())` follow-ups (JIT flush, screen power, serial wake-up)
-   now also run when resetting. Reset values are the member initializers.
-   Reset: interrupt controller, MMU, DMA, serial DMA, PCMCIA interrupt
-   registers, card state machines, pen samples, sound masks and buffers,
-   platform manager queues (boot lock set again), serial number chip
-   position (power-on value 64, not 0: with 0 NewtonOS reports "This unit's
-   serial number cannot be read"); then `TARMProcessor::Reset()`. Kept: RAM
-   (like the real reset button, my default for Q4.9), flash, clock, volume,
-   PCMCIA pin registers (they show the inserted card).
-   Hardware Reset and Brain Wipe go through `TMonitor::RequestReset()`
-   (emulator stopped, reset, continues) instead of calling
-   `TARMProcessor::Reset()` from the UI thread.
-   Tests: reset after boot (reboot, notes kept, taps work, round trip
-   identical before and after); reset with a card and the Dock app open
-   (reboot, card mounted again); Brain Wipe asks "Do you want to erase data
-   completely?".
-8. Fast start: on quit, sleep and save; on launch, load a matching snapshot or
-   boot normally. Remove the temporary menu items.
-   *Cards (Matt, 2026-10-07):* if the fast start state was saved with one or
-   two PCMCIA cards inserted, insert the same cards again when loading, then
-   run the checksum test. If it fails, boot normally, but leave the cards
-   inserted so NewtonOS mounts them again. That needs the card identity
-   (image path or card UUID from the card list) in the state file header, so
-   the front end can insert the cards before the state is loaded.
-   *Decisions (Matt, 2026-10-08):* after a successful fast start, always wake
-   the Newton. Delete the fast start file after loading (saves users from
-   endless loops on unforeseen errors). Fast start is a setting: a checkbox
-   under "Fetch Date and Time" in the "MessagePad" tab of the Settings
-   dialog, checked on the first run, then saved and loaded with the
-   preferences. Keep the temporary Save/Load/Check menu items for now and
-   hide them later; Matt has an idea for user-friendly checkpoints (test-
-   install apps and return quickly), for later.
-   *Done (`9ebb41d0`, file version 9, not pushed yet):*
-   - Quit (`TFLApp::UserActionQuit` → `SaveFastStartState`): delete an old
-     `FastStart.state` (data folder), press power if awake, wait up to 10 s
-     for `IsPowerOn()` == false while the UI runs, stop the emulator, save
-     through the monitor's halted path (fast start kind), then the normal
-     quit (which flushes the card files). No sleep in time: no file.
-   - Launch (`LoadFastStartState`, before the emulator thread starts): read
-     the cards from the header (`TEmulator::ReadStateCards`), insert them
-     (card list lookup by image path, network card by kind), load. Loaded:
-     wake the Newton 0.5 s after the emulator thread starts. Not matching:
-     clear RAM, `ResetState()`, normal boot with the cards left inserted.
-     The file is deleted either way. Empty slots get the kept cards.
-   - Setting "Fast start: continue where Einstein was quit" under "Fetch
-     date and time" in the MessagePad tab (`System/FastStart`, default 1).
-   - `SaveState` writes `<path>.tmp` and renames it when complete, so a
-     state file is never cut off.
-   - Tests (lldb driver, quit through the event loop): quit in Dates with a
-     card → 4.3 MB file, exit 0; plain launch → awake in Dates after 15 s,
-     taps work, file deleted; with a changed flash → "the flash changed",
-     normal boot, card mounted again; setting off → no file.
-   - Not done yet: hide the temporary menu items (later, with Matt's
-     checkpoint idea); Cocoa and SDL front ends have no fast start.
-   - Fix (2026-10-08): quitting through the macOS menu bar or Cmd-Q waited
-     until the timeout, because the quit waited in a nested `Fl::wait()` loop
-     inside the menu callback, where the emulator thread could not get the
-     FLTK lock to switch off the screen. Now `UserActionQuit()` only starts
-     the process; a timer (`SaveFastStartStateTimer`) steps through sleep,
-     halt and save, and calls `QuitNow()` through `Fl::awake()`, because on
-     macOS a timer fires inside the event wait and closing the windows from
-     there would leave `Fl::run()` waiting.
+   Either way `mStateRequest` stays set, and every later Save/Load/Check State
+   and Hardware Reset is refused until the next `run`. The fast start save is
+   not affected (it waits for `IsHalted()`). Fix: process a pending request
+   after `mHalted` is published and before entering `Run()`, or make the stop
+   a request that `Run()` does not clear.
+4. **Suspend every serial worker** (Greptile). Only the TCP client implements
+   `Suspend()/Resume()`. The PTY, Pipes and BasiliskII threads keep writing RAM
+   and DMA registers during save, load and reset. Give them the TCP client's
+   mutex pattern (or move it into a shared base, see Driver implementation),
+   or answer Q8.2 and remove drivers nobody uses.
+5. **Check the close before the rename** (Greptile). `TFileStream` ignores the
+   result of `fclose()`, so a full disk can publish a cut-off file as a
+   success. Flush and close with a result check, keep the old file on failure.
+6. Typo "upgarde" in the `LoadState` message (CodeRabbit).
+7. Answer the review comments on the PR.
+
+*After merging*
+8. Save the fast start file on the monitor thread instead of the UI thread
+   (Greptile): the UI is frozen during the write. A 4.3 MB write is quick, so
+   low priority.
+9. Debug files: after a load that fails halfway, the machine runs on a
+   half-loaded state. Reset and reboot instead, as the fast start path does.
+   Step 2's length check makes this rare.
+10. Debug files do not save card contents, so a changed card is refused. Save
+    them like the flash if that is ever needed.
+11. Fast start for the Cocoa and SDL front ends (Q3.3).
+12. Checkpoints for users (Matt's idea), replacing the hidden menu items.
+13. Open questions Q4.4, Q4.5 and Q4.7 below.
 
 **To clarify**
-- **Q4.1** Is "snapshot only when asleep" acceptable? (It is much simpler.)
-- **Q4.2** When is a snapshot invalid: a different Einstein version, a changed
-  ROM, REX or flash file, a different RAM size? Should it fall back to a normal
-  boot silently?
-- **Q4.3** What happens with a corrupt snapshot? Delete it and boot normally?
+- **Q4.1** Is "snapshot only when asleep" acceptable? **A:** Yes, for fast
+  start (decided 2026-10-08). Debug snapshots are taken while the Monitor is
+  halted.
+- **Q4.2** When is a snapshot invalid? **A:** When the file version, the
+  ROM+REX, the RAM size, the flash (fast start files) or a card changed.
+  Einstein then boots normally and prints the reason on the console. The
+  screen size is still missing (next step 1).
+- **Q4.3** What happens with a corrupt snapshot? **A:** Fast start: the file
+  is deleted and Einstein boots normally. Debug files: next steps 2 and 9.
 - **Q4.4** Clock jump after a restore: is the host-time patch enough?
 - **Q4.5** Should external connections (TCP serial, network) reconnect on their
   own?
 - **Q4.6** Where is the snapshot stored, and is there one per configuration?
-- **Q4.7** Should a "cold boot" option stay available in the UI?
+  **A:** `FastStart.state` in the user data folder, one per installation. One
+  per configuration once Multiple Configurations exist.
+- **Q4.7** Should a "cold boot" option stay available in the UI? Today: turn
+  the setting off, or use the Reset menu after a fast start. Is a way to skip
+  one fast start at launch needed?
 
 ### Hardware Reset (related to Fast start)
 
@@ -410,47 +289,38 @@ checksum over the *patched* ROM) is unlikely: six patches change data that the
 OS reads (`gDebuggerBits`, `gNewtConfig`, four time-base words), so a checksum
 over the whole ROM would fail with or without a mirror of the original ROM.
 
-**Findings**
-- The FLTK menu offers three resets (`TFLApp::UserActionReset`, TFLApp.cpp:620):
-  - "NewtonScript Reboot" calls `Reboot()`, so NewtonOS shuts down cleanly.
-    This should be safe.
-  - "Hardware Reset" only calls `TARMProcessor::Reset()`, which resets the CPU
-    registers and mode. The MMU, the JIT cache, pending interrupts and timers in
-    `TInterruptManager`, active DMA channels, the serial driver threads,
-    PCMCIA and the platform manager's event queue all keep running as they were.
-    A real MessagePad's reset button resets the Voyager chip and all
-    peripherals together; only RAM survives. NewtonOS boots against hardware in
-    a state it never sees on a real machine.
-  - "Brain Wipe" sets the ZAP flag, which the REX reports once through
-    `ResetZAPStoreCheck` (TNativePrimitives.cpp:667). NewtonOS then erases the
-    store on purpose. That is intended.
-- The code overlaps with Fast start: a correct reset needs every device to
-  return to its power-on state, and Fast start needs every device to save and
-  restore its state. Both need the same complete list of emulated state.
+**Status:** Rewritten in Fast start step 7 (`700ec75f`). The FLTK Reset menu
+(`TFLApp::UserActionReset`) offers three resets:
+- "NewtonScript Reboot" calls `Reboot()`, so NewtonOS shuts down cleanly.
+- "Hardware Reset" used to call only `TARMProcessor::Reset()`, from the UI
+  thread while the emulator ran, and left every device as it was. Now it goes
+  through `TMonitor::RequestReset()`: the emulator is stopped,
+  `TEmulator::ResetState()` walks the state tree with a `TResetStream`, then
+  the CPU takes the reset exception. Reset: interrupt controller, MMU, DMA,
+  serial DMA, PCMCIA interrupt registers, card state machines, pen samples,
+  sound masks and buffers, platform manager queues (boot lock set again),
+  serial number chip position. Kept: RAM (like the real reset button), flash,
+  clock, volume, PCMCIA pin registers (they show the inserted card).
+- "Brain Wipe" sets the ZAP flag, which the REX reports once through
+  `ResetZAPStoreCheck` (TNativePrimitives.cpp:667), so NewtonOS erases the
+  store on purpose. Also through `RequestReset()` now.
 
-**Test to confirm it:** create a few notes, use Hardware Reset several times
-(also while the Newton is busy, e.g. syncing or writing to the store), check
-whether the store survives, and compare with NewtonScript Reboot.
-
-**Possible fixes**
-- Rebuild the emulator the way a fresh launch does, keeping only the flash file
-  (most reliable).
-- Or give every device a `Reset()`, covering the same state list as Fast start.
+Tests: reset after boot (reboot, notes kept, taps work, round trip identical
+before and after); reset with a card and the Dock app open (reboot, card
+mounted again); Brain Wipe asks "Do you want to erase data completely?".
 
 **To clarify**
-- **Q4.8** Does Hardware Reset actually lose the store? (Run the test above.)
-  **A4.8** (test, 2026-10-07) Not in the idle case: booted, Hardware Reset via
-  `UserActionReset(0)`, NewtonOS reboots and the note is still there. A loss
-  may still need store activity, active DMA or cards during the reset. The
-  current reset also calls `TARMProcessor::Reset()` from the UI thread while
-  the emulator runs (a race), and leaves all other devices as they were.
+- **Q4.8** Does Hardware Reset actually lose the store? **A4.8** (test,
+  2026-10-07) Not in the idle case, before and after the rewrite. Not tested
+  yet: a reset during store activity, sync or active DMA.
 - **Q4.9** Should Hardware Reset keep RAM like the real reset button, or is a
-  reset without RAM (closer to a fresh launch) good enough?
+  reset without RAM (closer to a fresh launch) good enough? Implemented as
+  "keep RAM" (Claude's default); Matt to confirm.
 
-## Multithreading und atomic
+## Multithreading and atomics
 
-Verify that multithreading is implemented coreectly and atomics are used where
-needed and in a correct way. The original app had no atomics and thos I put in
+Verify that multithreading is implemented correctly and atomics are used where
+needed and in a correct way. The original app had no atomics and those I put in
 were my first step in this garden of joy.
 
 **Assessment:** Effort M to start, L to fix, confidence medium.
@@ -462,84 +332,52 @@ were my first step in this garden of joy.
   - one thread per serial driver;
   - sound threads (each sound backend);
   - network, TCP, and the Monitor.
-- `TEmulator::mRunning`, `mPaused` and `mInterrupted` are plain integers. The UI
-  thread writes them in `Stop()` while the emulator thread reads them. Only
-  `mSignal` is atomic.
 - `TInterruptManager` takes a lock when it changes `mIntRaised`, but its getters
   read it without the lock (TInterruptManager.h:298).
 - Serial drivers write into emulated memory directly from their own threads
   (DMA) while the CPU thread runs. That interacts with the JIT cache when the
   code runs from RAM.
-- Cheapest first step: a ThreadSanitizer build and a session that exercises
-  serial, sound and network. That turns guesswork into a concrete list.
 
-**ThreadSanitizer baseline (2026-10-07)**
+**ThreadSanitizer results** (2026-10-07/08)
 
-How it was run: FLTK build with `-fsanitize=thread`, RelWithDebInfo, in a
-private `$HOME` (FLTK reads the preferences from `$HOME/Library/Preferences`)
-with the 717006 ROM, a copy of the flash file and no PCMCIA cards. Booted for
-two minutes, TCP serial driver on `extr`, no network card. 13 distinct races:
+How to run: FLTK build with `-fsanitize=thread`, RelWithDebInfo, in a private
+`$HOME` (FLTK reads the preferences from `$HOME/Library/Preferences`) with the
+717006 ROM, a copy of the flash file and no PCMCIA cards. Use it interactively;
+calling functions through lldb in a TSan binary is unreliable.
 
-| Threads | Reports | What races |
+Six runs: two minutes idle with the TCP serial driver on `extr`, then
+interactive sessions (tapping, Monitor `stop`/`save`/`load`/`run`, power and
+backlight buttons, Save/Load/Check State, Hardware Reset, normal quit). The
+baseline had 13 distinct races; the first interactive run 77 reports; the last
+run 12 reports, all in the deferred groups below.
+
+Fixed (Fast start step 0, `cbd60874`):
+- `TARMProcessor::mPendingInterrupts` is `std::atomic`. Before, `|=` and `&=`
+  from the CPU and the timer thread could lose an interrupt.
+- The run-control flags in `TEmulator` (`mRunning`, `mPaused`, `mInterrupted`,
+  …), `TMonitor::mHalted` and `mCommand`, and `TPlatformManager::mPowerOn`
+  are `std::atomic`.
+- FLTK widgets changed from the emulator thread without `Fl::lock()`:
+  `TFLMonitor::DrawScreen()`, `TFLScreenManager::PowerOnScreen()` and
+  `PowerOffScreen()`. Now locked (FLTK's lock is recursive), then `Fl::awake()`.
+- The UI drew the Monitor's halted view while the monitor thread restarted the
+  emulator. UI callbacks now call `TFLMonitor::DrawScreenFromUI()`, which only
+  draws while it holds the monitor mutex. `TMutex::TryLock()` used to return
+  *false* when it got the lock; now it returns *true* as documented.
+- `~TSerialPortDriverTcpClient` no longer calls `Disconnect()` while the worker
+  thread may use the socket; the worker disconnects on `'q'`.
+
+Deferred (still open):
+
+| Threads | What races | Effect |
 |---|---|---|
-| CPU ↔ interrupt timer thread | 7 | `TARMProcessor::mPendingInterrupts` (`IRQInterrupt`/`FIQInterrupt` use `\|=`, `Clear…` uses `&=`, from the timer thread), `mCPSR_I`/`mCPSR_F` read by the timer thread, `TEmulator::mInterrupted` (`TJITGeneric.cpp:165-168`) |
-| CPU ↔ interrupt timer thread | 2 | interrupt controller registers: `mFIQMask` written by the CPU (`TMemory::WriteP` → `SetFIQMask`), `mIntRaised` written by the timer (`FireTimersAndFindNext`) and read by the CPU (`GetIntRaised`) without the lock |
-| CPU ↔ TCP serial thread | 1 | DMA registers (`TBasicSerialPortManager::WriteDMARegister` vs. `TSerialPortDriverTcpClient::HandleDMA`) |
-| CPU ↔ CoreAudio render thread | 1 | `TCircleBuffer` positions (`OutputIsRunning` vs. `Consume`) |
-| UI thread ↔ CPU | 2 | tablet state (`TScreenManager::PenDown`/`PenUp` vs. `GetTabletState`/`GetSample`) |
+| CPU ↔ interrupt timer | `mCPSR_I`/`mCPSR_F` read by the timer thread | delays an interrupt; `SetCPSR` checks again |
+| CPU ↔ interrupt timer | interrupt controller registers: `mFIQMask` written by the CPU, `mIntRaised` written by `FireTimersAndFindNext` and read by `GetIntRaised` without the lock | |
+| CPU ↔ TCP serial | DMA registers (`WriteDMARegister` vs. `HandleDMA`) | |
+| CPU ↔ CoreAudio | `TCircleBuffer` positions (`OutputIsRunning` vs. `Consume`) | |
+| UI ↔ CPU | tablet state (`PenDown`/`PenUp` vs. `GetTabletState`/`GetSample`) | |
 
-The read-modify-write on `mPendingInterrupts` from two threads can lose an
-interrupt. Not covered by this run: other serial drivers, network, PCMCIA,
-`TEmulator::Stop()` (never called, the process was killed).
-
-**After step 0 of the Fast start plan (2026-10-07, not committed yet):** 9
-reports. Fixed: `mPendingInterrupts` (now `std::atomic`, `|=`/`&=` are atomic)
-and `TEmulator::mInterrupted` (all run-control flags are now `std::atomic`).
-Still open, as decided: `mCPSR_I` read by the timer thread (5 reports, only
-delays an interrupt because `SetCPSR` checks again), TCP DMA registers,
-interrupt controller registers, CoreAudio ring buffer. The tablet races were
-not exercised in the second run.
-
-**Third run (interactive: tapping, Monitor `stop`/`save`/`load`/`run`, power
-button, normal quit):** 77 reports. Fixed right after (not committed):
-- `TFLMonitor::DrawScreen()` changed FLTK widgets from the emulator thread
-  without `Fl::lock()` (~45 reports). Now locked (FLTK's lock is recursive)
-  and followed by `Fl::awake()`.
-- `TMonitor::mHalted` and `mCommand` are `std::atomic` (UI ↔ monitor thread).
-- `TPlatformManager::mPowerOn` is `std::atomic` (CPU ↔ UI; Fast start waits
-  for the Newton to sleep using it).
-- `~TSerialPortDriverTcpClient` no longer calls `Disconnect()` while the
-  worker thread may use the socket; the worker disconnects on `'q'`.
-The Monitor `load` of a snapshot taken a moment earlier worked (emulator kept
-running).
-
-**Fourth run (same scenario, with the fixes):** 38 reports, the FLTK widget,
-`mHalted`/`mCommand`, `mPowerOn` and TCP destructor races are gone. Remaining:
-the deferred ones (`mCPSR_I` 12, interrupt controller registers 3, TCP DMA 1,
-CoreAudio 2, tablet 7) and one new pattern (13): after `run`, the Monitor's
-buttons and command line call `DrawScreen()` from the UI thread
-(TFLMonitor.cpp:911-1007) while `mHalted` is still true, so the UI reads CPU
-registers and timers for the halted view while the monitor thread already
-starts the emulator. Read-only, a display glitch at worst. Possible fix: let
-only the monitor thread redraw after a command (it does so anyway at the top
-of its loop).
-
-**Fifth run (with the Monitor fix, not committed):** 11 reports. The Monitor
-halted-view races are gone: UI callbacks and `Show()` now call
-`TFLMonitor::DrawScreenFromUI()`, which only draws the halted view while it
-holds the monitor mutex (the monitor thread holds it whenever it is not waiting
-for a command; `TMutex::TryLock()` used to return *false* when it got the
-lock, now fixed to return *true* as documented),
-and `TMonitor::RunEmulator()` draws the running view itself. Remaining: the
-deferred ones, plus `TFLScreenManager::PowerOnScreen()`/`PowerOffScreen()`
-changing the screen widget's label from the emulator thread without
-`Fl::lock()` (on the sleep path Fast start will use). Fixed afterwards: both
-now take `Fl::lock()` and call `Fl::awake()`. Step 0 of the Fast start plan is
-complete.
-
-**Sixth run (toolbar power/backlight buttons, tapping, normal quit):** 12
-reports, all in the deferred groups (`mCPSR_I`, interrupt controller registers,
-TCP DMA, CoreAudio, tablet). No FLTK, Monitor or power-state races left.
+Not covered by any run: the other serial drivers, network, PCMCIA.
 
 **To clarify**
 - **Q7.1** Is "clean under ThreadSanitizer for scenarios X, Y, Z" the definition
@@ -552,8 +390,8 @@ TCP DMA, CoreAudio, tablet). No FLTK, Monitor or power-state races left.
 ## Driver implementation
 
 A bunch of drivers run in separate threads. We need to verify the implementation
-which feels clumsy under Linux/macOS. This also need to be compatible with the
-Fast Start issue form earlier in the list.
+which feels clumsy under Linux/macOS. This also needs to be compatible with the
+Fast Start issue from earlier in the list.
 
 **Assessment:** Effort L, confidence medium.
 
@@ -567,8 +405,8 @@ Fast Start issue form earlier in the list.
     the REX).
 
   The TODO at the top of TSerialPorts.cpp:24-63 already says one should go.
-- For Fast start, every driver needs to be able to pause, resume and save its
-  state.
+- For Fast start, every driver needs to pause and resume. Only the TCP client
+  implements `Suspend()/Resume()` so far (Fast start next step 4).
 
 **To clarify**
 - **Q8.1** Which serial system stays?
@@ -633,6 +471,7 @@ medium.
   - the single preferences group (`robowerk.com/einstein`);
   - the PTY paths `/tmp/einstein-*.pty`;
   - the flash file, which has no lock;
+  - the fast start file (`FastStart.state` in the user data folder);
   - the Newton ID.
 
 **To clarify**
@@ -650,7 +489,7 @@ medium.
 
 ## IR emulation via UDP broadcasting
 
-If we have multiple configurations, this would just be a func project, so
+If we have multiple configurations, this would just be a fun project, so
 emulators can beam data between them.
 
 **Assessment:** Effort M–L after a 2–3 day investigation, confidence low.
