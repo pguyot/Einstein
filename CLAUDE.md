@@ -106,24 +106,37 @@ and missing states and make a fast start the default.
 **Status (2026-10-10):** Done and on by default in the FLTK app, on branch
 `FastWakeup`, [PR #225](https://github.com/pguyot/Einstein/pull/225) against
 pguyot/Einstein. The review (CodeRabbit, Greptile) found missing checks when
-reading damaged state files, a crash when the screen size changes, and two
-races. They are the first items under *Next steps*. The investigation notes
-this work started from (bug list, missing-state table, step-by-step logs) are
-in the history of this file: `git show d230e8a7:CLAUDE.md`.
+reading damaged state files, a crash when the screen size changes, two races
+and serial workers that were not suspended. All fixed on 2026-10-10 (commits
+below, not pushed yet); testing also found that no platform event reached
+NewtonOS after a Hardware Reset (fixed). The investigation notes this work
+started from (bug list, missing-state table, step-by-step logs) are in the
+history of this file: `git show d230e8a7:CLAUDE.md`.
 
 **How it works**
-- *State file* (`TEmulator::SaveState`/`LoadState`, file version 9): header
+- *State file* (`TEmulator::SaveState`/`LoadState`, file version 11): header
   (`EINI`, `SNAP`, version, kind), identity block, the inserted cards (tag and
   image path per socket), then the `TransferState` tree: memory (RAM,
   breakpoints, MMU, flash), CPU with native primitives, interrupts, DMA, serial
   DMA registers, PCMCIA controllers and cards, platform manager, screen and
-  tablet, sound. Written to `<path>.tmp` and renamed when complete.
+  tablet, sound. The state is collected in a `TMemoryStream` and written with
+  a CRC-32C at the end to `<path>.tmp` (every write and the close checked),
+  then renamed.
+- *Reading* reads the whole file and checks its size and CRC before anything
+  changes, so a damaged or cut-off file is refused. Values that become sizes,
+  counts or indices are checked as well (`TStream::CheckLimit()`,
+  `CheckDataSize()`), in case a file was edited by hand: paths 2048 bytes, card
+  state blocks 64 MB + 4 KB, ATA FIFO one sector, 65536 events, 1024 buffers of
+  at most 64 MB, 65536 breakpoints. The CRC costs about 8 ms per fast start
+  file and 24 ms per debug file.
 - *Two kinds:* fast start files store only a flash checksum (4.3 MB), debug
   files store the whole flash (12.7 MB). The ROM is never saved; ROM
   breakpoints are removed before loading and re-applied from the loaded list.
+  Saving takes about 0.1 s (fast start) and 0.2 s (debug) in a debug build.
 - *Identity check* before anything changes: ROM+REX checksum, RAM size, flash
-  checksum (fast start files only), card tag and contents checksum per socket.
-  Every mismatch is printed ("the flash changed", …).
+  checksum (fast start files only), screen size, card tag and contents
+  checksum per socket. Every mismatch is printed ("the flash changed", …). The
+  screen size and the RAM size are configuration and are never loaded.
 - *One tree for save, load and reset:* a `TStream` reads, writes or resets
   (`TResetStream`). `TransferXxx(value, resetValue)` gives the power-on value;
   calls without one keep the current value (RAM, flash, configuration). The
@@ -132,8 +145,11 @@ in the history of this file: `git show d230e8a7:CLAUDE.md`.
   with a length (`TMemoryStream`), so loading with a different card skips it.
 - *Threads:* `TMonitor::RequestStateTransfer` does the transfer on the UI
   thread if the emulator is halted, otherwise it hands the request to the
-  monitor thread and stops the emulator. Serial drivers are suspended during
-  the walk, the interrupt manager holds its mutex.
+  monitor thread and stops the emulator. A small mutex around the request and
+  `mHalted`, and a stop counter in `TEmulator` (`Run(inStopCount)`), make sure
+  no request gets lost while the monitor starts or stops the emulator. All
+  serial workers are suspended during the walk (`mDMAMutex` in
+  `TBasicSerialPortManager`), the interrupt manager holds its mutex.
 - *Quit* (`TFLApp::UserActionQuit`): a timer presses power if the Newton is
   awake, waits up to 10 s for sleep, stops the emulator, saves
   `FastStart.state` in the user data folder, then quits normally (which
@@ -185,6 +201,13 @@ in the history of this file: `git show d230e8a7:CLAUDE.md`.
 | 7 | `700ec75f`, `257bfa7d` | Reset mode; Hardware Reset and Brain Wipe through it |
 | 8 | `9ebb41d0`, `f6473cac` | Fast start on quit and launch, setting; quit without a nested wait (macOS menu, Cmd-Q) |
 | – | `d230e8a7` | Hide the temporary menu items |
+| Review | `5da9e480` | Screen size in the identity block (version 10) |
+| Review | `aa89a161` | CRC-32C, checked writes and close, whole file checked before loading (version 11) |
+| Review | `064df478` | Limits for sizes, counts and indices read from a file |
+| Review | `5127ddb9` | No lost state requests while the monitor starts or stops the emulator |
+| – | `15504e8c` | Platform events delivered again after a Hardware Reset |
+| Review | `f2308217` | Suspend the PTY, Pipes and BasiliskII workers too |
+| Review | `8c6a1473` | Message for a state file of another version |
 
 **Testing notes**
 - Tests used an lldb Python driver on a sandboxed debug build (save, load, tap,
@@ -198,80 +221,60 @@ in the history of this file: `git show d230e8a7:CLAUDE.md`.
   occurred (-7338348)" after waking. That is why cards must match.
 - The serial number chip's power-on read position is 64, not 0 (with 0,
   NewtonOS reports "This unit's serial number cannot be read").
+- The file CRC is CRC-32C (Castagnoli, `K/Misc/CRC32`), not zlib's CRC-32.
+  A script that edits a state file must recompute it the same way.
+- Races between threads were forced with temporary delays (`sleep_for`
+  behind an environment variable) in the window, not with lldb breakpoints:
+  a thread stopped at an lldb breakpoint stayed suspended after an expression
+  ran on another thread.
 
 **Next steps to wrap up state snapshots**
 
-*Before merging PR #225* (review findings, all checked against `d230e8a7`):
-1. **Screen size in the identity block** (Greptile). `TScreenManager::
-   TransferState` loads the saved width and height and copies that many pixels
-   into a buffer allocated for the current settings. Make the screen smaller,
-   quit, relaunch: heap overflow on launch. The screen size is configuration:
-   add it to `GetStateIdentity()`, refuse a mismatch, and don't load it.
-2. **Damaged files must not crash or allocate gigabytes** (CodeRabbit,
-   Greptile). Values from the file are used as sizes and indices without a
-   check:
-   - card image path lengths in `LoadState` and `ReadStateCards` (which runs at
-     every launch, before the identity check);
-   - the card state block size in `TPCMCIAController::TransferState`;
-   - the ATA FIFO size (at most `kSectorSize`);
-   - platform event and buffer counts (a count near 2³² wraps the new capacity,
-     then the loop writes past the allocation), buffer sizes, unchecked
-     `calloc`;
-   - the tablet ring-buffer cursors (must be below `kTabletBufferSize`).
-
-   Proposal: a small helper that throws when a value is out of range, so the
-   existing `catch` reports a damaged file and fast start boots normally. Also
-   store the payload length in the header and check it against the file size
-   before changing anything. That refuses cut-off files up front, which
-   matters for debug files: today a file cut off inside the flash section
-   overwrites part of the user's flash. *Decision:* length only, or length
-   and a CRC32 of the payload?
-3. **Lost state requests in the Monitor** (CodeRabbit, Greptile). Two windows
-   with the same cause:
-   - `RunEmulator()` has left its loop (breakpoint, `stop`) but not yet set
-     `mHalted`: the request is queued and never processed;
-   - `RunEmulator()` has set `mHalted = false` but not yet entered
-     `TEmulator::Run()`, which overwrites `Stop()` with `mRunning = true`.
-
-   Either way `mStateRequest` stays set, and every later Save/Load/Check State
-   and Hardware Reset is refused until the next `run`. The fast start save is
-   not affected (it waits for `IsHalted()`). Fix: process a pending request
-   after `mHalted` is published and before entering `Run()`, or make the stop
-   a request that `Run()` does not clear.
-4. **Suspend every serial worker** (Greptile). Only the TCP client implements
-   `Suspend()/Resume()`. The PTY, Pipes and BasiliskII threads keep writing RAM
-   and DMA registers during save, load and reset. Give them the TCP client's
-   mutex pattern (or move it into a shared base, see Driver implementation),
-   or answer Q8.2 and remove drivers nobody uses.
-5. **Check the close before the rename** (Greptile). `TFileStream` ignores the
-   result of `fclose()`, so a full disk can publish a cut-off file as a
-   success. Flush and close with a result check, keep the old file on failure.
-6. Typo "upgarde" in the `LoadState` message (CodeRabbit).
-7. Answer the review comments on the PR.
+*Before merging PR #225*
+1. ~~Review findings 1–6~~ done 2026-10-10 (commits above): screen size in
+   the identity block; CRC and limits for damaged or edited files (Matt:
+   paths ≤ 2048 bytes, linear cards ≤ 64 MB + CIS, CRC if it is fast enough);
+   no lost Monitor requests (both windows reproduced with delays, then fixed);
+   all serial workers suspended; checked close; the version message.
+2. Push the branch and answer the review comments on the PR (drafts were
+   given in the session on 2026-10-10).
 
 *After merging*
-8. Save the fast start file on the monitor thread instead of the UI thread
-   (Greptile): the UI is frozen during the write. A 4.3 MB write is quick, so
-   low priority.
-9. Debug files: after a load that fails halfway, the machine runs on a
-   half-loaded state. Reset and reboot instead, as the fast start path does.
-   Step 2's length check makes this rare.
-10. Debug files do not save card contents, so a changed card is refused. Save
-    them like the flash if that is ever needed.
-11. Fast start for the Cocoa and SDL front ends (Q3.3).
-12. Checkpoints for users (Matt's idea), replacing the hidden menu items.
-13. Open questions Q4.4, Q4.5 and Q4.7 below.
+3. **NewtonScript Reboot blocks all later platform events** (found
+   2026-10-10, older than this branch). `EvalNewtonScript("Reboot();")` sends
+   the code as a platform event. The REX interrupt handler locks the event
+   queue and unlocks it when NewtonOS replies; NewtonOS reboots first, so
+   `mQueueLockCount` stays at 1. Afterwards no power button, keyboard or
+   package event reaches NewtonOS until Einstein is restarted, and a fast
+   start on quit times out. Fix idea: reset the queue locks when the REX
+   platform driver starts (a native call from `TMainPlatformDriver::New()`),
+   or unlock before the reboot. Likely related to *Event forwarding on slow
+   machines*.
+4. Save the fast start file on the monitor thread instead of the UI thread
+   (Greptile): the UI is frozen during the write, about 0.1 s. Cosmetic.
+5. Debug files: a file with a valid CRC whose contents don't fit (edited by
+   hand, or a bug) can still leave a half-loaded machine. Reset and reboot
+   instead, as the fast start path does.
+6. Debug files do not save card contents, so a changed card is refused. Save
+   them like the flash if that is ever needed.
+7. Fast start for the Cocoa and SDL front ends (Q3.3).
+8. Checkpoints for users (Matt's idea), replacing the hidden menu items.
+9. `PutInt32ArrayBE`/`GetInt32ArrayBE` move RAM and flash one word per
+   virtual call. Fast enough today; block-wise conversion would make saving
+   several times faster if checkpoints need it.
+10. Open questions Q4.4, Q4.5 and Q4.7 below.
 
 **To clarify**
 - **Q4.1** Is "snapshot only when asleep" acceptable? **A:** Yes, for fast
   start (decided 2026-10-08). Debug snapshots are taken while the Monitor is
   halted.
 - **Q4.2** When is a snapshot invalid? **A:** When the file version, the
-  ROM+REX, the RAM size, the flash (fast start files) or a card changed.
-  Einstein then boots normally and prints the reason on the console. The
-  screen size is still missing (next step 1).
-- **Q4.3** What happens with a corrupt snapshot? **A:** Fast start: the file
-  is deleted and Einstein boots normally. Debug files: next steps 2 and 9.
+  ROM+REX, the RAM size, the screen size, the flash (fast start files) or a
+  card changed. Einstein then boots normally and prints the reason on the
+  console.
+- **Q4.3** What happens with a corrupt snapshot? **A:** The CRC refuses it
+  before anything changes. Fast start: the file is deleted and Einstein boots
+  normally. Debug files: the Monitor reports it, the emulator keeps running.
 - **Q4.4** Clock jump after a restore: is the host-time patch enough?
 - **Q4.5** Should external connections (TCP serial, network) reconnect on their
   own?
@@ -308,6 +311,12 @@ over the whole ROM would fail with or without a mirror of the original ROM.
 Tests: reset after boot (reboot, notes kept, taps work, round trip identical
 before and after); reset with a card and the Dock app open (reboot, card
 mounted again); Brain Wipe asks "Do you want to erase data completely?".
+
+Fixed 2026-10-10 (`15504e8c`): the reset locks the platform event queue until
+NewtonOS has booted, as at launch, but only the first `PowerOnDeviceCheck`
+per process released that lock (a `static` counter). After a Hardware Reset
+or Brain Wipe no platform event reached NewtonOS any more (power button,
+keyboard, packages). Now every `PowerOnDeviceCheck` releases it.
 
 **To clarify**
 - **Q4.8** Does Hardware Reset actually lose the store? **A4.8** (test,
@@ -405,8 +414,10 @@ Fast Start issue from earlier in the list.
     the REX).
 
   The TODO at the top of TSerialPorts.cpp:24-63 already says one should go.
-- For Fast start, every driver needs to pause and resume. Only the TCP client
-  implements `Suspend()/Resume()` so far (Fast start next step 4).
+- For Fast start, every driver needs to pause and resume. Since `f2308217`,
+  `TBasicSerialPortManager` implements `Suspend()/Resume()` with `mDMAMutex`,
+  and all four worker threads hold it while they touch DMA. The PTY driver
+  only starts if `/tmp/BBridge.Einstein` exists (hard-coded path).
 
 **To clarify**
 - **Q8.1** Which serial system stays?
@@ -524,6 +535,14 @@ look: the platform event queue in `TPlatformManager` with its locks
 (`mQueuePreLock`, `mQueueLockCount`, `mQueueBootLock`) and the platform
 interrupt that tells NewtonOS about a new event. A timing-dependent lock that
 is never released would block all later events.
+
+A concrete case of such a lock (2026-10-10): after "NewtonScript Reboot",
+`mQueueLockCount` stays at 1 because NewtonOS reboots before it answers the
+event that carried `Reboot()`, and all later events wait (Fast start next
+step 3). An event whose answer gets lost on a slow machine would look the
+same. To see the state, read `mQueueBootLock`, `mQueueLockCount`,
+`mQueuePreLock` and `mEventQueueCCrsr`/`PCrsr` of `TPlatformManager` in a
+debugger.
 
 ## Fix CI testing
 
