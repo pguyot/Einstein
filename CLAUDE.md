@@ -280,7 +280,10 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
    (`TEmulator::GetLastStateError()`). Wording chosen by Claude; Matt to
    review. Not tested by hand yet: the dialogs and the file choosers.
 12. **Documentation** (Matt, 2026-10-11): write new release notes next, and
-    refresh the documentation, maybe with a help page.
+    refresh the documentation, maybe with a help page. Release notes drafted
+    in `ReleaseNotes.md` and `ReleaseText.md` (version "v2026.10.x": Matt
+    sets it when tagging); also added the v2026.10.6 text that was only on
+    GitHub. Documentation: next.
 9. ~~Block-wise Int32 arrays~~ done (`5506122b`), same bytes. Less gain than
    expected: debug file save 0.18 → 0.13 s, load 0.13 s, fast start 0.07 s
    (debug build); the rest is checksums and file I/O.
