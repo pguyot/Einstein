@@ -259,10 +259,23 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
    and stays halted, the UI waits for `IsStateRequestPending()` to clear.
 5. ~~Reset after a load that fails halfway~~ done (`542301af`): RAM cleared,
    `ResetState()`, NewtonOS boots again. Refused files still change nothing.
-6. Debug files do not save card contents, so a changed card is refused. Save
-   them like the flash if that is ever needed.
-7. Fast start for the Cocoa and SDL front ends (Q3.3).
-8. Checkpoints for users (Matt's idea), replacing the hidden menu items.
+6. ~~Card contents in debug files~~ done (`e97f9d2d`, `06e97e16`, `98fee640`,
+   file version 12). Matt: yes, but ask before overwriting, because cards may
+   be shared between emulated Newtons. Changed contents are only replaced
+   with `LoadState(path, true)`; the Monitor has `load overwrite <path>`,
+   Load State asks (Cancel / Overwrite Card).
+7. **Other front ends** (Matt, 2026-10-11, Q3.3):
+   - Cocoa is not maintained by Matt: it must still compile, but does not get
+     Fast start or checkpoints (it can't easily be debugged).
+   - SDL is work in progress: add Fast start when SDL development restarts;
+     it would improve usability a lot (Android can kill the app any time).
+8. **Checkpoints** (Matt, 2026-10-11: yes). The File menu items "Save",
+   "Save As..." and "Load", which do nothing today, become "Save State",
+   "Save State As...", "Restore Last" and "Restore From...". Restoring warns
+   that it replaces the current flash (and asks about PC Cards, step 6).
+   Wording of menus and dialogs: Claude's choice. In progress.
+12. **Documentation** (Matt, 2026-10-11): write new release notes next, and
+    refresh the documentation, maybe with a help page.
 9. ~~Block-wise Int32 arrays~~ done (`5506122b`), same bytes. Less gain than
    expected: debug file save 0.18 → 0.13 s, load 0.13 s, fast start 0.07 s
    (debug build); the rest is checksums and file I/O.
@@ -276,11 +289,11 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
     from sleep (`CyclePower` checks `TRealTimeClock::SleepingCheckFire`).
     Idea: fire once when the clock reaches the register, and save an "armed"
     flag, so an alarm that passed while Einstein was quit fires right after a
-    fast start, as a sleeping Newton would have woken for it. *To check
-    first:* do Dates alarms work in Einstein today? A NewtonScript
-    `AddAlarm()` 1–3 minutes ahead returned its key, but never showed, awake
-    or asleep, and did not change the alarm register (stayed 0xFFFFFFFE), so
-    the test itself may be wrong.
+    fast start, as a sleeping Newton would have woken for it. **A** (Matt,
+    2026-10-11): there are no alarms in Einstein FLTK today (Cocoa not
+    checked, none in SDL); nice to have later. The alarm would be checked by
+    the emulator's timer thread (`TInterruptManager`), not by an FLTK timer,
+    so long alarms work as long as Einstein runs.
 
 **To clarify**
 - **Q4.1** Is "snapshot only when asleep" acceptable? **A:** Yes, for fast
