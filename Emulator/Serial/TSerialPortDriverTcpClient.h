@@ -123,6 +123,11 @@ protected:
 	void HandleDMASend();
 
 	//
+	// Worker thread: true if DMA has a byte to send (takes mDMAMutex).
+	//
+	bool HasDataToSend();
+
+	//
 	// Worker thread: Receive data from the server.
 	//
 	void HandleDMAReceive();

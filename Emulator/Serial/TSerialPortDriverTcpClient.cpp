@@ -36,6 +36,8 @@
 #include <ws2tcpip.h>
 #else
 #include <arpa/inet.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
@@ -341,6 +343,9 @@ TSerialPortDriverTcpClient::Connect()
 		Disconnect();
 		return false;
 	}
+	// The worker sends while it holds mDMAMutex, so a send must never wait for
+	// the server to read. (WSAEventSelect() does the same on Windows.)
+	(void) fcntl(mTcpSocket, F_SETFL, fcntl(mTcpSocket, F_GETFL) | O_NONBLOCK);
 #endif
 
 	mIsConnected = true;
@@ -402,6 +407,10 @@ TSerialPortDriverTcpClient::HandleDMA()
 			LogError("HandleDMA: TCP/IP scoket wait failed", true);
 			continue;
 		}
+
+		// Connecting may take a while, so don't hold the mutex for it.
+		if (!IsConnected() && HasDataToSend())
+			Connect();
 
 		{
 			// Suspend() holds this mutex while the emulator state is saved or loaded
@@ -471,6 +480,10 @@ TSerialPortDriverTcpClient::HandleDMA()
 			continue;
 		}
 
+		// Connecting may take a while, so don't hold the mutex for it.
+		if (!IsConnected() && HasDataToSend())
+			Connect();
+
 		{
 			// Suspend() holds this mutex while the emulator state is saved or loaded
 			std::lock_guard<std::mutex> lock(mDMAMutex);
@@ -506,6 +519,17 @@ TSerialPortDriverTcpClient::HandleDMA()
 }
 
 /**
+ \brief Worker thread: true if DMA has a byte to send.
+ Takes mDMAMutex, so call it without holding the mutex.
+ */
+bool
+TSerialPortDriverTcpClient::HasDataToSend()
+{
+	std::lock_guard<std::mutex> lock(mDMAMutex);
+	return (mTxDMAIntEnable & 0x00000002) && mTxDMADataCountdown;
+}
+
+/**
  \brief Worker thread: Send data pending in memory to the server.
 
  Send a single byte. We are throtteling data transfor to match a
@@ -521,21 +545,25 @@ TSerialPortDriverTcpClient::HandleDMASend()
 			// write a byte
 			KUInt8 data = 0;
 			mMemory->ReadBP(mTxDMAPhysicalData, data);
-			if (!IsConnected())
-				Connect();
+			// The worker thread connects before it calls us (see HandleDMA()).
 			// TODO: if we can't get a connection at this point, should we flush the entire buffer?
 			if (IsConnected())
 			{
+				// The socket does not block. If the server does not read, keep
+				// the byte and send it again in the next round.
 #if TARGET_OS_WIN32
 				WSABUF buf = { 1, (CHAR*) &data };
 				DWORD nSent = 0;
 				if (WSASend(mTcpSocket, &buf, 1, &nSent, 0, nullptr, nullptr) != 0)
 				{
+					if (WSAGetLastError() == WSAEWOULDBLOCK)
+						return;
 					// FIXME: WSAGetLastError()==10053: connection aborted by host
 					LogError("HandleDMASend: Can't write to TCP/IP socket!", true);
 				}
 #else
-				::write(mTcpSocket, &data, 1);
+				if (::write(mTcpSocket, &data, 1) == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+					return;
 #endif
 				// KPrintf("Sending 0x%02x\n", data);
 			} else
@@ -581,6 +609,8 @@ TSerialPortDriverTcpClient::HandleDMAReceive()
 	int n = (ret == 0) ? nReceived : -1;
 #else
 	int n = (int) ::read(mTcpSocket, buf, 1024);
+	if (n == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+		return; // nothing to read after all (the socket does not block)
 #endif
 	if (n == -1)
 	{

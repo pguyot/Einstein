@@ -30,6 +30,8 @@
 #include <sys/types.h>
 
 #if !TARGET_OS_WIN32
+#include <errno.h>
+#include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -142,6 +144,9 @@ TBasiliskIISerialPortManager::OpenPTY()
 		perror("TBasiliskIISerialPortManager: Can't open Basilisk Local");
 		return false;
 	}
+	// The worker writes while it holds mDMAMutex, so a write must never wait
+	// for BasiliskII to read.
+	(void) fcntl(pBasiliskLocalFD, F_SETFL, fcntl(pBasiliskLocalFD, F_GETFL) | O_NONBLOCK);
 
 	ret = grantpt(pBasiliskLocalFD);
 	if (ret == -1)
@@ -349,19 +354,25 @@ TBasiliskIISerialPortManager::HandleDMA()
 					// write a byte
 					KUInt8 data = 0;
 					mMemory->ReadBP(mTxDMAPhysicalData, data);
-					write(pBasiliskLocalFD, &data, 1);
-					mTxDMAPhysicalData++;
-					mTxDMABytesToBufferEnd--;
-					if (mTxDMABytesToBufferEnd == 0)
+					// If BasiliskII does not read, keep the byte and send it again
+					// in the next round. Other errors drop the byte, as before.
+					bool theOutputIsFull = (write(pBasiliskLocalFD, &data, 1) == -1)
+						&& (errno == EAGAIN || errno == EWOULDBLOCK);
+					if (!theOutputIsFull)
 					{
-						mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
-					}
-					mTxDMADataCountdown--;
-					if (mTxDMADataCountdown == 0)
-					{
-						// trigger a "send buffer empty" interrupt
-						mTxDMAEvent = 0x00000080;
-						mInterruptManager->RaiseInterrupt(0x00000100);
+						mTxDMAPhysicalData++;
+						mTxDMABytesToBufferEnd--;
+						if (mTxDMABytesToBufferEnd == 0)
+						{
+							mTxDMAPhysicalData = mTxDMAPhysicalBufferStart;
+						}
+						mTxDMADataCountdown--;
+						if (mTxDMADataCountdown == 0)
+						{
+							// trigger a "send buffer empty" interrupt
+							mTxDMAEvent = 0x00000080;
+							mInterruptManager->RaiseInterrupt(0x00000100);
+						}
 					}
 				}
 			}
