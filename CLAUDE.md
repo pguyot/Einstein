@@ -283,7 +283,12 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
     refresh the documentation, maybe with a help page. Release notes drafted
     in `ReleaseNotes.md` and `ReleaseText.md` (version "v2026.10.x": Matt
     sets it when tagging); also added the v2026.10.6 text that was only on
-    GitHub. Documentation: next.
+    GitHub. User guide: `Documentation/UserGuide.md` (Matt chose Markdown in
+    the repository; `4c16c77a`), following Matt's outline in TFLApp.cpp;
+    Help › User Manual opens it on GitHub (`94a12134`). The old LaTeX manual
+    is in `Documentation/Historic`. Open points, marked `TODO(Matt)` in the
+    guide: Y2K10 patch for the US ROM, NewtTest, Dock programs, Internet
+    Setup, dumping physical cards. Screenshots would help.
 9. ~~Block-wise Int32 arrays~~ done (`5506122b`), same bytes. Less gain than
    expected: debug file save 0.18 → 0.13 s, load 0.13 s, fast start 0.07 s
    (debug build); the rest is checksums and file I/O.
