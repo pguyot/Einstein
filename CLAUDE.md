@@ -266,14 +266,19 @@ history of this file: `git show d230e8a7:CLAUDE.md`.
    Load State asks (Cancel / Overwrite Card).
 7. **Other front ends** (Matt, 2026-10-11, Q3.3):
    - Cocoa is not maintained by Matt: it must still compile, but does not get
-     Fast start or checkpoints (it can't easily be debugged).
+     Fast start or checkpoints (it can't easily be debugged). Checked
+     2026-10-11 after `ba2826ff`: builds, Xcode tests pass.
    - SDL is work in progress: add Fast start when SDL development restarts;
      it would improve usability a lot (Android can kill the app any time).
-8. **Checkpoints** (Matt, 2026-10-11: yes). The File menu items "Save",
-   "Save As..." and "Load", which do nothing today, become "Save State",
-   "Save State As...", "Restore Last" and "Restore From...". Restoring warns
-   that it replaces the current flash (and asks about PC Cards, step 6).
-   Wording of menus and dialogs: Claude's choice. In progress.
+8. ~~Checkpoints~~ done (`9bbbff7c`, `ba2826ff`, Matt's idea). File menu:
+   "Save State" (Cmd+Shift+S), "Save State As...", "Restore Last",
+   "Restore From...". A checkpoint is a debug state file (memory, flash, PC
+   Card contents); the last one saved or restored is remembered
+   (`System/StatePath`, default `Einstein.state` in the user data folder).
+   Restoring asks first (file, date, "memory and internal storage (flash)
+   are replaced", PC Cards named); errors show their reason
+   (`TEmulator::GetLastStateError()`). Wording chosen by Claude; Matt to
+   review. Not tested by hand yet: the dialogs and the file choosers.
 12. **Documentation** (Matt, 2026-10-11): write new release notes next, and
     refresh the documentation, maybe with a help page.
 9. ~~Block-wise Int32 arrays~~ done (`5506122b`), same bytes. Less gain than
