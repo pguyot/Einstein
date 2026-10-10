@@ -1072,10 +1072,14 @@ TScreenManager::TransferState(TStream* inStream)
 
 	// Pen samples that NewtonOS did not fetch yet (ring buffer).
 	inStream->TransferInt32ArrayBE(mTabletBuffer, kTabletBufferSize, 0);
-	inStream->TransferInt32BE(mTabletBufCCrsr, 0);
-	inStream->TransferInt32BE(mTabletBufPCrsr, 0);
-	inStream->CheckLimit(mTabletBufCCrsr, kTabletBufferSize - 1, "the pen sample read position");
-	inStream->CheckLimit(mTabletBufPCrsr, kTabletBufferSize - 1, "the pen sample write position");
+	KUInt32 theCCrsr = mTabletBufCCrsr;
+	KUInt32 thePCrsr = mTabletBufPCrsr;
+	inStream->TransferInt32BE(theCCrsr, 0);
+	inStream->TransferInt32BE(thePCrsr, 0);
+	inStream->CheckLimit(theCCrsr, kTabletBufferSize - 1, "the pen sample read position");
+	inStream->CheckLimit(thePCrsr, kTabletBufferSize - 1, "the pen sample write position");
+	mTabletBufCCrsr = theCCrsr;
+	mTabletBufPCrsr = thePCrsr;
 
 	KUInt32 count = mPortraitWidth * mPortraitHeight * kBitsPerPixel / 8;
 	inStream->Transfer(mScreenBuffer, &count);

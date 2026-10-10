@@ -560,11 +560,17 @@ TPlatformManager::TransferState(TStream* inStream)
 	{
 		if (theEventCount >= mEventQueueSize)
 		{
-			mEventQueueSize = theEventCount + kEVENTQUEUESIZEINCREMENT;
-			mEventQueue = (SEvent*) ::realloc(mEventQueue, sizeof(SEvent) * mEventQueueSize);
+			KUInt32 theNewSize = theEventCount + kEVENTQUEUESIZEINCREMENT;
+			SEvent* theNewQueue = (SEvent*) ::realloc(mEventQueue, sizeof(SEvent) * theNewSize);
+			if (theNewQueue == nullptr)
+				throw std::bad_alloc();
+			mEventQueue = theNewQueue;
+			mEventQueueSize = theNewSize;
 		}
+		// The loop below counts the events that were read completely, so a
+		// failed load leaves no half-read event in the queue.
 		mEventQueueCCrsr = 0;
-		mEventQueuePCrsr = theEventCount;
+		mEventQueuePCrsr = inStream->IsReading() ? 0 : theEventCount;
 	}
 	for (KUInt32 indexEvent = 0; indexEvent < theEventCount; indexEvent++)
 	{
@@ -573,12 +579,15 @@ TPlatformManager::TransferState(TStream* inStream)
 		KUInt32 thePort = theEvent->fData.aevent.fPort;
 		inStream->TransferInt32BE(theType);
 		inStream->TransferInt32BE(thePort);
-		inStream->TransferInt32BE(theEvent->fData.aevent.fSize);
-		inStream->CheckDataSize(theEvent->fData.aevent.fSize, kMAXEVENTSIZE, "the size of a platform event");
+		KUInt32 theSize = theEvent->fData.aevent.fSize;
+		inStream->TransferInt32BE(theSize);
+		inStream->CheckDataSize(theSize, kMAXEVENTSIZE, "the size of a platform event");
 		theEvent->fType = (EEventType) theType;
 		theEvent->fData.aevent.fPort = (EPort) thePort;
-		KUInt32 theSize = theEvent->fData.aevent.fSize;
+		theEvent->fData.aevent.fSize = theSize;
 		inStream->Transfer(theEvent->fData.aevent.fData, &theSize);
+		if (inStream->IsReading())
+			mEventQueuePCrsr++;
 	}
 
 	// Buffers that NewtonOS did not fetch yet.
@@ -589,10 +598,15 @@ TPlatformManager::TransferState(TStream* inStream)
 	{
 		for (KUInt32 indexBuffer = 0; indexBuffer < mBufferCount; indexBuffer++)
 			::free((void*) mBufferQueue[indexBuffer].fData);
+		mBufferCount = 0;
 		if (theBufferCount >= mBufferQueueSize)
 		{
-			mBufferQueueSize = theBufferCount + kBUFFERQUEUESIZEINCREMENT;
-			mBufferQueue = (SBuffer*) ::realloc(mBufferQueue, sizeof(SBuffer) * mBufferQueueSize);
+			KUInt32 theNewSize = theBufferCount + kBUFFERQUEUESIZEINCREMENT;
+			SBuffer* theNewQueue = (SBuffer*) ::realloc(mBufferQueue, sizeof(SBuffer) * theNewSize);
+			if (theNewQueue == nullptr)
+				throw std::bad_alloc();
+			mBufferQueue = theNewQueue;
+			mBufferQueueSize = theNewSize;
 		}
 		// No stale pointers if reading fails halfway.
 		for (KUInt32 indexBuffer = 0; indexBuffer < theBufferCount; indexBuffer++)
@@ -606,15 +620,16 @@ TPlatformManager::TransferState(TStream* inStream)
 	{
 		SBuffer* theBuffer = &mBufferQueue[indexBuffer];
 		inStream->TransferInt32BE(theBuffer->fID);
-		inStream->TransferInt32BE(theBuffer->fSize);
+		KUInt32 theSize = theBuffer->fSize;
+		inStream->TransferInt32BE(theSize);
 		if (inStream->IsReading())
 		{
-			inStream->CheckDataSize(theBuffer->fSize, kMaxBufferSize, "the size of a platform buffer");
-			theBuffer->fData = (const KUInt8*) ::calloc(1, std::max(theBuffer->fSize, (KUInt32) 1));
+			inStream->CheckDataSize(theSize, kMaxBufferSize, "the size of a platform buffer");
+			theBuffer->fData = (const KUInt8*) ::calloc(1, std::max(theSize, (KUInt32) 1));
 			if (theBuffer->fData == nullptr)
 				throw std::bad_alloc();
+			theBuffer->fSize = theSize;
 		}
-		KUInt32 theSize = theBuffer->fSize;
 		inStream->Transfer((void*) theBuffer->fData, &theSize);
 	}
 

@@ -35,6 +35,10 @@
 #include <unistd.h>
 #endif
 
+#include <algorithm>
+#include <new>
+#include <vector>
+
 // K
 #include <K/Defines/UByteSex.h>
 #include <K/Misc/CRC32.h>
@@ -3139,8 +3143,11 @@ TMemory::TransferState(TStream* inStream)
 	if (inStream->IsReading() && (theRAMSize != mRAMSize || theRAMEnd != mRAMEnd))
 		throw std::runtime_error("the RAM size does not match");
 	inStream->TransferInt32BE(mBankCtrlRegister, 0);
-	inStream->TransferInt32BE(mBPCount);
-	inStream->CheckLimit(mBPCount, kMaxSavedBreakpoints, "the number of breakpoints");
+	// When reading, the breakpoint list is replaced below, after it was read
+	// completely, so a failed load leaves a consistent list.
+	KUInt32 theBPCount = mBPCount;
+	inStream->TransferInt32BE(theBPCount);
+	inStream->CheckLimit(theBPCount, kMaxSavedBreakpoints, "the number of breakpoints");
 	// How far NewtonOS has read the serial number chip, one bit at a time.
 	// 64 is the power-on position: a 0 bit, then the 64 bits of the number.
 	inStream->TransferInt32BE(mSerialNumberIx, 64);
@@ -3151,18 +3158,31 @@ TMemory::TransferState(TStream* inStream)
 	// The breakpoints.
 	if (inStream->IsReading())
 	{
-		KUInt32 BPSize = sizeof(SBreakpoint) * mBPCount;
-		mBreakpoints = (SBreakpoint*) ::realloc(mBreakpoints, BPSize);
-	}
-	KUInt32 indexBP;
-	for (indexBP = 0; indexBP < mBPCount; indexBP++)
-	{
-		inStream->TransferInt32BE(mBreakpoints[indexBP].fAddress);
-		inStream->TransferInt32BE(mBreakpoints[indexBP].fOriginalValue);
-		inStream->TransferInt32BE(mBreakpoints[indexBP].fBPValue);
-	}
-	if (inStream->IsReading())
+		std::vector<SBreakpoint> theBreakpoints(theBPCount);
+		for (SBreakpoint& theBP : theBreakpoints)
+		{
+			inStream->TransferInt32BE(theBP.fAddress);
+			inStream->TransferInt32BE(theBP.fOriginalValue);
+			inStream->TransferInt32BE(theBP.fBPValue);
+		}
+		SBreakpoint* theNewBreakpoints = (SBreakpoint*) ::realloc(mBreakpoints,
+			sizeof(SBreakpoint) * std::max(theBPCount, (KUInt32) 1));
+		if (theNewBreakpoints == nullptr)
+			throw std::bad_alloc();
+		mBreakpoints = theNewBreakpoints;
+		if (theBPCount > 0)
+			::memcpy(mBreakpoints, theBreakpoints.data(), sizeof(SBreakpoint) * theBPCount);
+		mBPCount = theBPCount;
 		WriteROMBreakpoints(true);
+	} else
+	{
+		for (KUInt32 indexBP = 0; indexBP < mBPCount; indexBP++)
+		{
+			inStream->TransferInt32BE(mBreakpoints[indexBP].fAddress);
+			inStream->TransferInt32BE(mBreakpoints[indexBP].fOriginalValue);
+			inStream->TransferInt32BE(mBreakpoints[indexBP].fBPValue);
+		}
+	}
 
 	// The MMU
 	mMMU.TransferState(inStream);
